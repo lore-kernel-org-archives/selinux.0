@@ -1,59 +1,202 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1EEOuA7029651
- for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2017 09:24:57 -0500
-To: jmorris@namei.org, linux-security-module@vger.kernel.org
-Cc: selinux@tycho.nsa.gov, kernel-hardening@lists.openwall.com
-Subject: Re: [RFC v2 PATCH 1/2] security: introduce
- CONFIG_SECURITY_WRITABLE_HOOKS
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-References: <alpine.LRH.2.20.1702150016220.32759@namei.org>
-In-Reply-To: <alpine.LRH.2.20.1702150016220.32759@namei.org>
-Message-Id: <201702142324.IFB95862.MOSJLOVFQFtFHO@I-love.SAKURA.ne.jp>
-Date: Tue, 14 Feb 2017 23:24:26 +0900
+Message-ID: <1487085107.29417.4.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] libsemanage: Perform access check using euid instead of
+ uid
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+Date: Tue, 14 Feb 2017 10:11:47 -0500
+In-Reply-To: <20170214131448.22837-1-vmojzis@redhat.com>
+References: <20170214131448.22837-1-vmojzis@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-James Morris wrote:
-> > Loadable kernel modules used by antivirus software temporarily modify syscall tables
-> > ( http://stackoverflow.com/questions/13876369/system-call-interception-in-linux-kernel-module-kernel-3-5 )
-> > in order to register hooks for execve()/open()/close(). It is very frustrating for
-> > many users if you enforce CONFIG_MODULES=n or forbid post-__init registration of hooks.
+On Tue, 2017-02-14 at 14:14 +0100, Vit Mojzis wrote:
+> Use faccessat() with AT_EACCESS instead of accesss() in order to
+> check
+> permissions of effective user. access() calls checking existence of
+> a file (F_OK) were left untouched since they work correctly.
 > 
-> We don't cater to out of tree code.
+> This enables setuid programs to use libsemanage.
+
+Not sure we want setuid programs using libsemanage.  Is there a use
+case for that?  I wouldn't warrant it to be safe.
+
+AT_EACCESS is not implemented by the kernel, so this seems to rely on
+some libc magic to support?  Is that done in a safe way?
+
+libsemanage usage of access() is not for security purposes; it is just
+to test for existence/location of various files and to confirm that the
+policy store is writable by the caller before beginning any real work.
+ So arguments about access() being insecure are not relevant here.
+
 > 
-> Additionally, I'd also seriously question whether the security benefits of 
-> kernel AV outweigh its security risks.
-
-Are you aware that loadable kernel modules used by antivirus software are used for
-relaying events to userspace daemons? Such modules don't do scanning inside kernel.
-Why such modules are considered as security risks?
-
-Are you aware that SELinux (or AppArmor or whatever so-called MAC) is not always
-enabled in all enterprise systems? Are you aware that there are systems where
-administrators cannot afford using rule based access restriction mechanisms?
-In such systems, the security benefits of loadable security modules (provided by
-AV or alike) can outweigh read only LSM hooks.
-
-> diff --git a/security/Kconfig b/security/Kconfig
-> index 118f454..f6f90c4 100644
-> --- a/security/Kconfig
-> +++ b/security/Kconfig
-> @@ -31,6 +31,11 @@ config SECURITY
->  
->  	  If you are unsure how to answer this question, answer N.
->  
-> +config SECURITY_WRITABLE_HOOKS
-> +	depends on SECURITY
-> +	bool
-> +	default n
-> +
-
-This configuration option must not be set to N without big fat explanation
-about implications of setting this option to N.
-
-Honestly, I still don't like this option, regardless of whether SELinux
-needs this option or not.
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
+> 
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> ---
+>  libsemanage/src/conf-parse.y     |  7 ++++---
+>  libsemanage/src/semanage_store.c | 18 +++++++++---------
+>  2 files changed, 13 insertions(+), 12 deletions(-)
+> 
+> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-
+> parse.y
+> index b527e89..d72a0c2 100644
+> --- a/libsemanage/src/conf-parse.y
+> +++ b/libsemanage/src/conf-parse.y
+> @@ -30,6 +30,7 @@
+>  #include <stdio.h>
+>  #include <stdlib.h>
+>  #include <string.h>
+> +#include <fcntl.h>
+>  
+>  extern int semanage_lex(void);                /* defined in conf-
+> scan.c */
+>  extern int semanage_lex_destroy(void);        /* defined in conf-
+> scan.c */
+> @@ -361,7 +362,7 @@ static int semanage_conf_init(semanage_conf_t *
+> conf)
+>  		return -1;
+>  	}
+>  
+> -	if (access("/sbin/load_policy", X_OK) == 0) {
+> +	if (faccessat(AT_FDCWD, "/sbin/load_policy", X_OK,
+> AT_EACCESS) == 0) {
+>  		conf->load_policy->path =
+> strdup("/sbin/load_policy");
+>  	} else {
+>  		conf->load_policy->path =
+> strdup("/usr/sbin/load_policy");
+> @@ -375,7 +376,7 @@ static int semanage_conf_init(semanage_conf_t *
+> conf)
+>  	     calloc(1, sizeof(*(current_conf->setfiles)))) == NULL)
+> {
+>  		return -1;
+>  	}
+> -	if (access("/sbin/setfiles", X_OK) == 0) {
+> +	if (faccessat(AT_FDCWD, "/sbin/setfiles", X_OK, AT_EACCESS)
+> == 0) {
+>  		conf->setfiles->path = strdup("/sbin/setfiles");
+>  	} else {
+>  		conf->setfiles->path = strdup("/usr/sbin/setfiles");
+> @@ -389,7 +390,7 @@ static int semanage_conf_init(semanage_conf_t *
+> conf)
+>  	     calloc(1, sizeof(*(current_conf->sefcontext_compile)))) 
+> == NULL) {
+>  		return -1;
+>  	}
+> -	if (access("/sbin/sefcontext_compile", X_OK) == 0) {
+> +	if (faccessat(AT_FDCWD, "/sbin/sefcontext_compile", X_OK,
+> AT_EACCESS) == 0) {
+>  		conf->sefcontext_compile->path =
+> strdup("/sbin/sefcontext_compile");
+>  	} else {
+>  		conf->sefcontext_compile->path =
+> strdup("/usr/sbin/sefcontext_compile");
+> diff --git a/libsemanage/src/semanage_store.c
+> b/libsemanage/src/semanage_store.c
+> index f468fab..805bd60 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -517,7 +517,7 @@ char *semanage_conf_path(void)
+>  	snprintf(semanage_conf, len + 1, "%s%s%s", semanage_root(),
+> selinux_path(),
+>  		 SEMANAGE_CONF_FILE);
+>  
+> -	if (access(semanage_conf, R_OK) != 0) {
+> +	if (faccessat(AT_FDCWD, semanage_conf, R_OK, AT_EACCESS) !=
+> 0) {
+>  		snprintf(semanage_conf, len + 1, "%s%s",
+> selinux_path(), SEMANAGE_CONF_FILE);
+>  	}
+>  
+> @@ -552,7 +552,7 @@ int semanage_create_store(semanage_handle_t * sh,
+> int create)
+>  			return -1;
+>  		}
+>  	} else {
+> -		if (!S_ISDIR(sb.st_mode) || access(path, mode_mask)
+> == -1) {
+> +		if (!S_ISDIR(sb.st_mode) || faccessat(AT_FDCWD,
+> path, mode_mask, AT_EACCESS) == -1) {
+>  			ERR(sh,
+>  			    "Could not access module store at %s, or
+> it is not a directory.",
+>  			    path);
+> @@ -575,7 +575,7 @@ int semanage_create_store(semanage_handle_t * sh,
+> int create)
+>  			return -1;
+>  		}
+>  	} else {
+> -		if (!S_ISDIR(sb.st_mode) || access(path, mode_mask)
+> == -1) {
+> +		if (!S_ISDIR(sb.st_mode) || faccessat(AT_FDCWD,
+> path, mode_mask, AT_EACCESS) == -1) {
+>  			ERR(sh,
+>  			    "Could not access module store active
+> subdirectory at %s, or it is not a directory.",
+>  			    path);
+> @@ -598,7 +598,7 @@ int semanage_create_store(semanage_handle_t * sh,
+> int create)
+>  			return -1;
+>  		}
+>  	} else {
+> -		if (!S_ISDIR(sb.st_mode) || access(path, mode_mask)
+> == -1) {
+> +		if (!S_ISDIR(sb.st_mode) || faccessat(AT_FDCWD,
+> path, mode_mask, AT_EACCESS) == -1) {
+>  			ERR(sh,
+>  			    "Could not access module store active
+> modules subdirectory at %s, or it is not a directory.",
+>  			    path);
+> @@ -619,7 +619,7 @@ int semanage_create_store(semanage_handle_t * sh,
+> int create)
+>  			return -1;
+>  		}
+>  	} else {
+> -		if (!S_ISREG(sb.st_mode) || access(path, R_OK |
+> W_OK) == -1) {
+> +		if (!S_ISREG(sb.st_mode) || faccessat(AT_FDCWD,
+> path, R_OK | W_OK, AT_EACCESS) == -1) {
+>  			ERR(sh, "Could not access lock file at %s.",
+> path);
+>  			return -1;
+>  		}
+> @@ -639,7 +639,7 @@ int semanage_store_access_check(void)
+>  
+>  	/* read access on active store */
+>  	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
+> -	if (access(path, R_OK | X_OK) != 0)
+> +	if (faccessat(AT_FDCWD, path, R_OK | X_OK, AT_EACCESS) != 0)
+>  		goto out;
+>  
+>  	/* we can read the active store meaning it is managed
+> @@ -650,13 +650,13 @@ int semanage_store_access_check(void)
+>  	 * write access necessary if the lock file does not exist
+>  	 */
+>  	path = semanage_files[SEMANAGE_READ_LOCK];
+> -	if (access(path, R_OK) != 0) {
+> +	if (faccessat(AT_FDCWD, path, R_OK, AT_EACCESS) != 0) {
+>  		if (access(path, F_OK) == 0) {
+>  			goto out;
+>  		}
+>  
+>  		path = semanage_files[SEMANAGE_ROOT];
+> -		if (access(path, R_OK | W_OK | X_OK) != 0) {
+> +		if (faccessat(AT_FDCWD, path, R_OK | W_OK | X_OK,
+> AT_EACCESS) != 0) {
+>  			goto out;
+>  		}
+>  	}
+> @@ -666,7 +666,7 @@ int semanage_store_access_check(void)
+>  
+>  	/* check the modules directory */
+>  	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
+> -	if (access(path, R_OK | W_OK | X_OK) != 0)
+> +	if (faccessat(AT_FDCWD, path, R_OK | W_OK | X_OK,
+> AT_EACCESS) != 0)
+>  		goto out;
+>  
+>  	rc = SEMANAGE_CAN_WRITE;
