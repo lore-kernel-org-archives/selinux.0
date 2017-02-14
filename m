@@ -1,12 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1EDJ2eZ008433
- for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2017 08:19:06 -0500
-Date: Wed, 15 Feb 2017 00:18:51 +1100 (AEDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1EDOXbf010111
+ for <selinux@tycho.nsa.gov>; Tue, 14 Feb 2017 08:24:33 -0500
+Date: Wed, 15 Feb 2017 00:24:19 +1100 (AEDT)
 From: James Morris <jmorris@namei.org>
 To: linux-security-module@vger.kernel.org
 cc: selinux@tycho.nsa.gov, kernel-hardening@lists.openwall.com
 Subject: [RFC v2 PATCH 2/2] security: mark LSM hooks as __ro_after_init
-Message-ID: <alpine.LRH.2.20.1702150017290.32759@namei.org>
+Message-ID: <alpine.LRH.2.20.1702150023070.768@namei.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,8 +14,7 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Mark all of the registration hooks as __ro_after_init (via the 
-__lsm_ro_after_init macro).
+Mark LSM hooks as __ro_after_init (via the __lsm_ro_after_init macro).
 
 Signed-off-by: James Morris <james.l.morris@oracle.com>
 ---
