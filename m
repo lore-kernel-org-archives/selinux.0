@@ -1,327 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1FGFTDo021142
- for <selinux@tycho.nsa.gov>; Wed, 15 Feb 2017 11:15:29 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1GB13I1026977
+ for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2017 06:01:03 -0500
+To: casey@schaufler-ca.com, jmorris@namei.org
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ kernel-hardening@lists.openwall.com
 Subject: Re: [RFC v2 PATCH 1/2] security: introduce
  CONFIG_SECURITY_WRITABLE_HOOKS
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, jmorris@namei.org
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 References: <alpine.LRH.2.20.1702150016220.32759@namei.org>
  <201702142324.IFB95862.MOSJLOVFQFtFHO@I-love.SAKURA.ne.jp>
  <alpine.LRH.2.20.1702150952360.6813@namei.org>
  <201702152342.GBH04183.FOFJFHQOLMOtVS@I-love.SAKURA.ne.jp>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- kernel-hardening@lists.openwall.com
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <a5022e72-287b-e0d1-aa54-888eb569ac1f@schaufler-ca.com>
-Date: Wed, 15 Feb 2017 08:15:25 -0800
-MIME-Version: 1.0
-In-Reply-To: <201702152342.GBH04183.FOFJFHQOLMOtVS@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=windows-1252
+ <a5022e72-287b-e0d1-aa54-888eb569ac1f@schaufler-ca.com>
+In-Reply-To: <a5022e72-287b-e0d1-aa54-888eb569ac1f@schaufler-ca.com>
+Message-Id: <201702162000.EAC43726.FOSVQtJFHMFOLO@I-love.SAKURA.ne.jp>
+Date: Thu, 16 Feb 2017 20:00:31 +0900
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 2/15/2017 6:42 AM, Tetsuo Handa wrote:
-> James Morris wrote:
->> On Tue, 14 Feb 2017, Tetsuo Handa wrote:
->>
->>>> diff --git a/security/Kconfig b/security/Kconfig
->>>> index 118f454..f6f90c4 100644
->>>> --- a/security/Kconfig
->>>> +++ b/security/Kconfig
->>>> @@ -31,6 +31,11 @@ config SECURITY
->>>>  
->>>>  	  If you are unsure how to answer this question, answer N.
->>>>  
->>>> +config SECURITY_WRITABLE_HOOKS
->>>> +	depends on SECURITY
->>>> +	bool
->>>> +	default n
->>>> +
->>> This configuration option must not be set to N without big fat explanation
->>> about implications of setting this option to N.
->> It's not visible in the config menu, it's only there to support SELinux 
->> runtime disablement, otherwise it wouldn't even be an option.
->>
->>> Honestly, I still don't like this option, regardless of whether SELinux
->>> needs this option or not.
->>>
->> I agree, it would be better to just enable RO hardening without an option 
->> to disable it.
-> Here is my version. printk() is only for testing purpose and will be removed
-> in the final version.
->
->   (1) Use set_memory_ro() instead of __ro_after_init so that runtime disablement
->       of SELinux and runtime enablement of dynamically loadable LSMs can use
->       set_memory_rw().
->
->   (2) Replace "struct security_hook_list"->head with "struct security_hook_list"->offset
->       so that "struct security_hook_heads security_hook_heads;" can become a local variable
->       in security/security.c .
->
->   (3) (Not in this patch.) The "struct security_hook_list" variable in each LSM
->       module is considered as "__init" and "const" because the content is copied to
->       dynamically allocated (and protected via set_memory_ro()) memory pages.
->
->   (4) (Not in this patch.) If we add EXPORT_SYMBOL_GPL(security_add_hooks), dynamically
->       loadable LSMs are legally allowed.
->
->  include/linux/lsm_hooks.h |   31 +++++++---------
->  security/security.c       |   89 ++++++++++++++++++++++++++++++++++++++++++----
->  security/selinux/hooks.c  |   12 +++++-
->  3 files changed, 107 insertions(+), 25 deletions(-)
->
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index e29d4c6..00050a7 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -1865,9 +1865,16 @@ struct security_hook_heads {
->   */
->  struct security_hook_list {
->  	struct list_head		list;
-> -	struct list_head		*head;
->  	union security_list_options	hook;
-> -	char				*lsm;
-> +	const char			*lsm;
-> +	unsigned int			offset;
-> +};
-> +
-> +struct lsm_entry {
-> +	struct list_head head;
-> +	unsigned int order;
-> +	unsigned int count;
-> +	struct security_hook_list hooks[0];
->  };
+Casey Schaufler wrote:
+> I can't say that I'm buying the value of the additional
+> complexity here. Sure, you're protecting part of the data
+> all the time, but you're exposing part all the time, too.
 
-I can't say that I'm buying the value of the additional
-complexity here. Sure, you're protecting part of the data
-all the time, but you're exposing part all the time, too.
-For now I think that the solution James proposes makes the
-most sense. In the hypothetical loadable modules case I
-don't see real value in hardening bits of the data while
-explicitly making the most important parts dynamic.
+Will you explain it in detail? As far as I know, __ro_after_init
+annotation makes the kernel to call set_memory_ro() after __init
+functions are completed, by gathering such variables into a section
+so that set_memory_ro() can change page flags for a memory region
+where it is PAGE_ALIGNED and the size is multiple of PAGE_SIZE bytes.
 
->  
->  /*
-> @@ -1877,14 +1884,13 @@ struct security_hook_list {
->   * text involved.
->   */
->  #define LSM_HOOK_INIT(HEAD, HOOK) \
-> -	{ .head = &security_hook_heads.HEAD, .hook = { .HEAD = HOOK } }
-> +	{ .offset = offsetof(struct security_hook_heads, HEAD), \
-> +	  .hook = { .HEAD = HOOK } }
->  
-> -extern struct security_hook_heads security_hook_heads;
->  extern char *lsm_names;
->  
-> -extern void security_add_hooks(struct security_hook_list *hooks, int count,
-> -				char *lsm);
-> -
-> +extern struct lsm_entry *security_add_hooks(const struct security_hook_list *
-> +					    hooks, int count, const char *lsm);
->  #ifdef CONFIG_SECURITY_SELINUX_DISABLE
->  /*
->   * Assuring the safety of deleting a security module is up to
-> @@ -1898,15 +1904,8 @@ extern void security_add_hooks(struct security_hook_list *hooks, int count,
->   * disabling their module is a good idea needs to be at least as
->   * careful as the SELinux team.
->   */
-> -static inline void security_delete_hooks(struct security_hook_list *hooks,
-> -						int count)
-> -{
-> -	int i;
-> -
-> -	for (i = 0; i < count; i++)
-> -		list_del_rcu(&hooks[i].list);
-> -}
-> -#endif /* CONFIG_SECURITY_SELINUX_DISABLE */
-> +extern void security_delete_hooks(struct lsm_entry *entry);
-> +#endif
->  
->  extern int __init security_module_enable(const char *module);
->  extern void __init capability_add_hooks(void);
-> diff --git a/security/security.c b/security/security.c
-> index d0e07f2..dffe69b 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -32,6 +32,7 @@
->  /* Maximum number of letters for an LSM name string */
->  #define SECURITY_NAME_MAX	10
->  
-> +static bool lsm_initialized;
->  char *lsm_names;
->  /* Boot-time LSM user choice */
->  static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
-> @@ -47,6 +48,38 @@ static void __init do_security_initcalls(void)
->  	}
->  }
->  
-> +static struct security_hook_heads security_hook_heads;
-> +static LIST_HEAD(lsm_entry_list);
-> +#ifdef CONFIG_DEBUG_RODATA
-> +static inline void mark_security_hooks_ro(void)
-> +{
-> +	struct lsm_entry *tmp;
-> +
-> +	list_for_each_entry(tmp, &lsm_entry_list, head) {
-> +		printk("Marking LSM hooks at %p read only.\n", tmp);
-> +		set_memory_ro((unsigned long) tmp, 1 << tmp->order);
-> +	}
-> +}
-> +
-> +static inline void mark_security_hooks_rw(void)
-> +{
-> +	struct lsm_entry *tmp;
-> +
-> +	list_for_each_entry(tmp, &lsm_entry_list, head) {
-> +		printk("Marking LSM hooks at %p read write.\n", tmp);
-> +		set_memory_rw((unsigned long) tmp, 1 << tmp->order);
-> +	}
-> +}
-> +#else
-> +static inline void mark_security_hooks_ro(void)
-> +{
-> +}
-> +
-> +static inline void mark_security_hooks_rw(void)
-> +{
-> +}
-> +#endif
-> +
->  /**
->   * security_init - initializes the security framework
->   *
-> @@ -68,6 +101,8 @@ int __init security_init(void)
->  	 */
->  	do_security_initcalls();
->  
-> +	lsm_initialized = true;
-> +	mark_security_hooks_ro();
->  	return 0;
->  }
->  
-> @@ -79,7 +114,7 @@ static int __init choose_lsm(char *str)
->  }
->  __setup("security=", choose_lsm);
->  
-> -static int lsm_append(char *new, char **result)
-> +static int lsm_append(const char *new, char **result)
->  {
->  	char *cp;
->  
-> @@ -122,18 +157,58 @@ int __init security_module_enable(const char *module)
->   *
->   * Each LSM has to register its hooks with the infrastructure.
->   */
-> -void __init security_add_hooks(struct security_hook_list *hooks, int count,
-> -				char *lsm)
-> +struct lsm_entry *security_add_hooks(const struct security_hook_list *hooks,
-> +				     int count, const char *lsm)
->  {
->  	int i;
-> +	/*
-> +	 * entry has to be an PAGE_ALIGNED multiple of PAGE_SIZE memory
-> +	 * in order to pass to set_memory_ro()/set_memory_rw().
-> +	 */
-> +	const size_t size = sizeof(*hooks) * count + sizeof(struct lsm_entry);
-> +	const unsigned int order = get_order(size);
-> +	struct lsm_entry *entry = kmalloc_order(size, GFP_KERNEL | __GFP_ZERO,
-> +						order);
->  
-> +	if (!entry || !PAGE_ALIGNED(entry) || lsm_append(lsm, &lsm_names) < 0) {
-> +		kfree(entry);
-> +		goto out;
-> +	}
-> +	if (lsm_initialized)
-> +		mark_security_hooks_rw();
-> +	printk("Allocating LSM hooks for %s at %p\n", lsm, entry);
-> +	entry->order = order;
-> +	entry->count = count;
-> +	memcpy(&entry->hooks[0], hooks, size - sizeof(struct lsm_entry));
->  	for (i = 0; i < count; i++) {
-> -		hooks[i].lsm = lsm;
-> -		list_add_tail_rcu(&hooks[i].list, hooks[i].head);
-> +		entry->hooks[i].lsm = lsm;
-> +		list_add_tail_rcu(&entry->hooks[i].list, (struct list_head *)
-> +				  (((char *) &security_hook_heads)
-> +				   + entry->hooks[i].offset));
->  	}
-> -	if (lsm_append(lsm, &lsm_names) < 0)
-> +	list_add_tail(&entry->head, &lsm_entry_list);
-> +	if (lsm_initialized)
-> +		mark_security_hooks_ro();
-> +	return entry;
-> + out:
-> +	if (!lsm_initialized)
->  		panic("%s - Cannot get early memory.\n", __func__);
-> +	return NULL;
-> +}
-> +
-> +#ifdef CONFIG_SECURITY_SELINUX_DISABLE
-> +void security_delete_hooks(struct lsm_entry *entry)
-> +{
-> +	int i;
-> +
-> +	mark_security_hooks_rw();
-> +	list_del_rcu(&entry->head);
-> +	for (i = 0; i < entry->count; i++)
-> +		list_del_rcu(&entry->hooks[i].list);
-> +	/* Not calling kfree() in order to avoid races. */
-> +	mark_security_hooks_ro();
->  }
-> +#endif /* CONFIG_SECURITY_SELINUX_DISABLE */
->  
->  /*
->   * Hook list operation macros.
-> @@ -1622,7 +1697,7 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
->  }
->  #endif /* CONFIG_AUDIT */
->  
-> -struct security_hook_heads security_hook_heads = {
-> +static struct security_hook_heads security_hook_heads = {
->  	.binder_set_context_mgr =
->  		LIST_HEAD_INIT(security_hook_heads.binder_set_context_mgr),
->  	.binder_transaction =
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 9bc12bc..4668590 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -6319,6 +6319,10 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
->  #endif
->  };
->  
-> +#ifdef CONFIG_SECURITY_SELINUX_DISABLE
-> +static struct lsm_entry *selinux_entry;
-> +#endif
-> +
->  static __init int selinux_init(void)
->  {
->  	if (!security_module_enable("selinux")) {
-> @@ -6346,7 +6350,11 @@ static __init int selinux_init(void)
->  					    0, SLAB_PANIC, NULL);
->  	avc_init();
->  
-> -	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks), "selinux");
-> +#ifdef CONFIG_SECURITY_SELINUX_DISABLE
-> +	selinux_entry =
-> +#endif
-> +		security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks),
-> +				   "selinux");
->  
->  	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
->  		panic("SELinux: Unable to register AVC netcache callback\n");
-> @@ -6475,7 +6483,7 @@ int selinux_disable(void)
->  	selinux_disabled = 1;
->  	selinux_enabled = 0;
->  
-> -	security_delete_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
-> +	security_delete_hooks(selinux_entry);
->  
->  	/* Try to destroy the avc node cache */
->  	avc_disable();
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
+This "struct lsm_entry" is for gathering only LSM related variables which
+would have been marked as __ro_after_init if CONFIG_SECURITY_WRITABLE_HOOKS=n
+into a list of memory regions where they are PAGE_ALIGNED and the size is
+multiple of PAGE_SIZE bytes, so that the kernel can call set_memory_ro() on
+these memory regions even if CONFIG_SECURITY_SELINUX_DISABLE=y or allowing
+LKM based LSMs.
+
+> For now I think that the solution James proposes makes the
+> most sense. In the hypothetical loadable modules case I
+> don't see real value in hardening bits of the data while
+> explicitly making the most important parts dynamic.
+
+Best solution for environments where it is known to enforce only one specific
+LSM module and no user choices and no LKM based LSMs (including antivirus or
+alike) is to directly embed that LSM module into security/security.c .
+
+CONFIG_SECURITY_WRITABLE_HOOKS=n depends on CONFIG_SECURITY_SELINUX_DISABLE=n
+but many of distributor's kernels enable multiple LSM modules including
+CONFIG_SECURITY_SELINUX_DISABLE=y. Also, people are using antivirus software
+on distributor's kernels. At least one antivirus software (which allows
+anonymous download of LKM source code) is using LSM hooks since Linux 2.6.32
+instead of rewriting syscall tables. We are already allowing multiple concurrent
+LSM modules (up to one fully armored module which uses "struct cred"->security
+field or exclusive hooks like security_xfrm_state_pol_flow_match(), plus
+unlimited number of lightweight modules which do not use "struct cred"->security
+nor exclusive hooks) as long as they are built into the kernel. There is no
+reason to keep LKM based LSM modules from antivirus software or alike away.
+For such kernels, this "struct lsm_entry" allows calling set_memory_ro() on LSM
+related variables which would have been marked as __ro_after_init if
+CONFIG_SECURITY_WRITABLE_HOOKS=n.
+
+If you are not happy with using kmalloc() for copying "struct security_hook_list"
+in each LSM module, can we agree with padding "struct security_hook_list" in each
+LSM module PAGE_ALIGNED and the size being multiple of PAGE_SIZE bytes?
