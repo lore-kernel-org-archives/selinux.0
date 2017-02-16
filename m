@@ -1,40 +1,94 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH 1/2] selinux-testsuite: exclude netlink_socket tests from RHEL7
-Date: Thu, 16 Feb 2017 13:50:04 -0500
-Message-Id: <1487271005-3728-2-git-send-email-sds@tycho.nsa.gov>
-In-Reply-To: <1487271005-3728-1-git-send-email-sds@tycho.nsa.gov>
-References: <1487271005-3728-1-git-send-email-sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1GJo0ZY030774
+ for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2017 14:50:00 -0500
+Subject: Re: [kernel-hardening] Re: [RFC v2 PATCH 1/2] security: introduce
+ CONFIG_SECURITY_WRITABLE_HOOKS
+To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>, jmorris@namei.org
+References: <alpine.LRH.2.20.1702150016220.32759@namei.org>
+ <201702142324.IFB95862.MOSJLOVFQFtFHO@I-love.SAKURA.ne.jp>
+ <alpine.LRH.2.20.1702150952360.6813@namei.org>
+ <201702152342.GBH04183.FOFJFHQOLMOtVS@I-love.SAKURA.ne.jp>
+ <a5022e72-287b-e0d1-aa54-888eb569ac1f@schaufler-ca.com>
+ <201702162000.EAC43726.FOSVQtJFHMFOLO@I-love.SAKURA.ne.jp>
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ kernel-hardening@lists.openwall.com
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <63b8eab1-4384-688a-33cd-b648c99497a8@schaufler-ca.com>
+Date: Thu, 16 Feb 2017 11:49:15 -0800
+MIME-Version: 1.0
+In-Reply-To: <201702162000.EAC43726.FOSVQtJFHMFOLO@I-love.SAKURA.ne.jp>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-RHEL7.3 updated its policy to define the new netlink socket classes,
-thereby enabling execution of the netlink_socket tests, but its
-kernel does not include the corresponding kernel patch implementing
-them.  Disable these tests on RHEL7.
+On 2/16/2017 3:00 AM, Tetsuo Handa wrote:
+> Casey Schaufler wrote:
+>> I can't say that I'm buying the value of the additional
+>> complexity here. Sure, you're protecting part of the data
+>> all the time, but you're exposing part all the time, too.
+> Will you explain it in detail? As far as I know, __ro_after_init
+> annotation makes the kernel to call set_memory_ro() after __init
+> functions are completed, by gathering such variables into a section
+> so that set_memory_ro() can change page flags for a memory region
+> where it is PAGE_ALIGNED and the size is multiple of PAGE_SIZE bytes.
+>
+> This "struct lsm_entry" is for gathering only LSM related variables which
+> would have been marked as __ro_after_init if CONFIG_SECURITY_WRITABLE_HOOKS=n
+> into a list of memory regions where they are PAGE_ALIGNED and the size is
+> multiple of PAGE_SIZE bytes, so that the kernel can call set_memory_ro() on
+> these memory regions even if CONFIG_SECURITY_SELINUX_DISABLE=y or allowing
+> LKM based LSMs.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- tests/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+All I'm saying is that it's simpler to mark the entire
+structure than it is to mark parts.
 
-diff --git a/tests/Makefile b/tests/Makefile
-index 1311234..11008a9 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -40,6 +40,10 @@ ifeq ($(DISTRO),RHEL6)
-     SUBDIRS:=$(filter-out nnp overlay, $(SUBDIRS))
- endif
- 
-+ifeq ($(DISTRO),RHEL7)
-+    SUBDIRS:=$(filter-out netlink_socket, $(SUBDIRS))
-+endif
-+
- .PHONY: all test clean
- 
- all:
--- 
-2.7.4
+>> For now I think that the solution James proposes makes the
+>> most sense. In the hypothetical loadable modules case I
+>> don't see real value in hardening bits of the data while
+>> explicitly making the most important parts dynamic.
+> Best solution for environments where it is known to enforce only one specific
+> LSM module and no user choices and no LKM based LSMs (including antivirus or
+> alike) is to directly embed that LSM module into security/security.c .
+
+There are too few beers on the table in front of me
+to start that discussion. :)
+
+> CONFIG_SECURITY_WRITABLE_HOOKS=n depends on CONFIG_SECURITY_SELINUX_DISABLE=n
+> but many of distributor's kernels enable multiple LSM modules including
+> CONFIG_SECURITY_SELINUX_DISABLE=y. Also, people are using antivirus software
+> on distributor's kernels.
+
+I have to limit my comment on that to pointing out
+that we can't make decisions based on code that has
+never been proposed for the mainline.
+
+>  At least one antivirus software (which allows
+> anonymous download of LKM source code) is using LSM hooks since Linux 2.6.32
+> instead of rewriting syscall tables. We are already allowing multiple concurrent
+> LSM modules (up to one fully armored module which uses "struct cred"->security
+> field or exclusive hooks like security_xfrm_state_pol_flow_match(), plus
+> unlimited number of lightweight modules which do not use "struct cred"->security
+> nor exclusive hooks) as long as they are built into the kernel. There is no
+> reason to keep LKM based LSM modules from antivirus software or alike away.
+
+We're not to the point where in-kernel modules are stacking fully.
+Not everyone is on board for that, but hope springs eternal. Part
+of the design criteria I'm working under is that it shouldn't
+preclude loadable modules, and I still think that's doable. The
+patch James proposed is completely compatible with this philosophy.
+You can argue that it requires a loadable module configuration be
+less "hardened", but the opponents of loadable modules say that is
+inherent to loadable modules.
+
+> For such kernels, this "struct lsm_entry" allows calling set_memory_ro() on LSM
+> related variables which would have been marked as __ro_after_init if
+> CONFIG_SECURITY_WRITABLE_HOOKS=n.
+>
+> If you are not happy with using kmalloc() for copying "struct security_hook_list"
+> in each LSM module, can we agree with padding "struct security_hook_list" in each
+> LSM module PAGE_ALIGNED and the size being multiple of PAGE_SIZE bytes?
+
+I don't understand what that would help without
+the rest of your changes.
