@@ -1,69 +1,270 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1GB13I1026977
- for <selinux@tycho.nsa.gov>; Thu, 16 Feb 2017 06:01:03 -0500
-To: casey@schaufler-ca.com, jmorris@namei.org
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- kernel-hardening@lists.openwall.com
-Subject: Re: [RFC v2 PATCH 1/2] security: introduce
- CONFIG_SECURITY_WRITABLE_HOOKS
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-References: <alpine.LRH.2.20.1702150016220.32759@namei.org>
- <201702142324.IFB95862.MOSJLOVFQFtFHO@I-love.SAKURA.ne.jp>
- <alpine.LRH.2.20.1702150952360.6813@namei.org>
- <201702152342.GBH04183.FOFJFHQOLMOtVS@I-love.SAKURA.ne.jp>
- <a5022e72-287b-e0d1-aa54-888eb569ac1f@schaufler-ca.com>
-In-Reply-To: <a5022e72-287b-e0d1-aa54-888eb569ac1f@schaufler-ca.com>
-Message-Id: <201702162000.EAC43726.FOSVQtJFHMFOLO@I-love.SAKURA.ne.jp>
-Date: Thu, 16 Feb 2017 20:00:31 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: linux-security-module@vger.kernel.org
+Cc: selinux@tycho.nsa.gov, james.l.morris@oracle.com, paul@paul-moore.com,
+ jslaby@suse.cz, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] prlimit,security,selinux: add a security hook for prlimit
+Date: Thu, 16 Feb 2017 09:51:58 -0500
+Message-Id: <1487256718-26141-1-git-send-email-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Casey Schaufler wrote:
-> I can't say that I'm buying the value of the additional
-> complexity here. Sure, you're protecting part of the data
-> all the time, but you're exposing part all the time, too.
+When SELinux was first added to the kernel, a process could only get
+and set its own resource limits via getrlimit(2) and setrlimit(2), so no
+MAC checks were required for those operations, and thus no security hooks
+were defined for them. Later, SELinux introduced a hook for setlimit(2)
+with a check if the hard limit was being changed in order to be able to
+rely on the hard limit value as a safe reset point upon context
+transitions.
 
-Will you explain it in detail? As far as I know, __ro_after_init
-annotation makes the kernel to call set_memory_ro() after __init
-functions are completed, by gathering such variables into a section
-so that set_memory_ro() can change page flags for a memory region
-where it is PAGE_ALIGNED and the size is multiple of PAGE_SIZE bytes.
+Later on, when prlimit(2) was added to the kernel with the ability to get
+or set resource limits (hard or soft) of another process, LSM/SELinux was
+not updated other than to pass the target process to the setrlimit hook.
+This resulted in incomplete control over both getting and setting the
+resource limits of another process.
 
-This "struct lsm_entry" is for gathering only LSM related variables which
-would have been marked as __ro_after_init if CONFIG_SECURITY_WRITABLE_HOOKS=n
-into a list of memory regions where they are PAGE_ALIGNED and the size is
-multiple of PAGE_SIZE bytes, so that the kernel can call set_memory_ro() on
-these memory regions even if CONFIG_SECURITY_SELINUX_DISABLE=y or allowing
-LKM based LSMs.
+Add a new security_task_prlimit() hook to the check_prlimit_permission()
+function to provide complete mediation.  The hook is only called when
+acting on another task, and only if the existing DAC/capability checks
+would allow access.  Pass flags down to the hook to indicate whether the
+prlimit(2) call will read, write, or both read and write the resource
+limits of the target process.
 
-> For now I think that the solution James proposes makes the
-> most sense. In the hypothetical loadable modules case I
-> don't see real value in hardening bits of the data while
-> explicitly making the most important parts dynamic.
+The existing security_task_setrlimit() hook is left alone; it continues
+to serve a purpose in supporting the ability to make decisions based on
+the old and/or new resource limit values when setting limits.  This
+is consistent with the DAC/capability logic, where
+check_prlimit_permission() performs generic DAC/capability checks for
+acting on another task, while do_prlimit() performs a capability check
+based on a comparison of the old and new resource limits.  Fix the
+inline documentation for the hook to match the code.
 
-Best solution for environments where it is known to enforce only one specific
-LSM module and no user choices and no LKM based LSMs (including antivirus or
-alike) is to directly embed that LSM module into security/security.c .
+Implement the new hook for SELinux.  For setting resource limits, we
+reuse the existing setrlimit permission.  Note that this does overload
+the setrlimit permission to mean the ability to set the resource limit
+(soft or hard) of another process or the ability to change one's own
+hard limit.  For getting resource limits, a new getrlimit permission
+is defined.  This was not originally defined since getrlimit(2) could
+only be used to obtain a process' own limits.
 
-CONFIG_SECURITY_WRITABLE_HOOKS=n depends on CONFIG_SECURITY_SELINUX_DISABLE=n
-but many of distributor's kernels enable multiple LSM modules including
-CONFIG_SECURITY_SELINUX_DISABLE=y. Also, people are using antivirus software
-on distributor's kernels. At least one antivirus software (which allows
-anonymous download of LKM source code) is using LSM hooks since Linux 2.6.32
-instead of rewriting syscall tables. We are already allowing multiple concurrent
-LSM modules (up to one fully armored module which uses "struct cred"->security
-field or exclusive hooks like security_xfrm_state_pol_flow_match(), plus
-unlimited number of lightweight modules which do not use "struct cred"->security
-nor exclusive hooks) as long as they are built into the kernel. There is no
-reason to keep LKM based LSM modules from antivirus software or alike away.
-For such kernels, this "struct lsm_entry" allows calling set_memory_ro() on LSM
-related variables which would have been marked as __ro_after_init if
-CONFIG_SECURITY_WRITABLE_HOOKS=n.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ include/linux/lsm_hooks.h           | 18 +++++++++++++++---
+ include/linux/security.h            |  6 ++++++
+ kernel/sys.c                        | 30 ++++++++++++++++++------------
+ security/security.c                 |  8 ++++++++
+ security/selinux/hooks.c            | 14 ++++++++++++++
+ security/selinux/include/classmap.h |  2 +-
+ 6 files changed, 62 insertions(+), 16 deletions(-)
 
-If you are not happy with using kmalloc() for copying "struct security_hook_list"
-in each LSM module, can we agree with padding "struct security_hook_list" in each
-LSM module PAGE_ALIGNED and the size being multiple of PAGE_SIZE bytes?
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 6fe7a5c..5832f74 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -631,10 +631,19 @@
+  *	Check permission before getting the ioprio value of @p.
+  *	@p contains the task_struct of process.
+  *	Return 0 if permission is granted.
++ * @task_prlimit:
++ *	Check permission before getting and/or setting the resource limits of
++ *	another task.
++ *	@cred points to the cred structure for the current task.
++ *	@tcred points to the cred structure for the target task.
++ *	@flags contains the LSM_PRLIMIT_* flag bits indicating whether the
++ *	resource limits are being read, modified, or both.
++ *	Return 0 if permission is granted.
+  * @task_setrlimit:
+- *	Check permission before setting the resource limits of the current
+- *	process for @resource to @new_rlim.  The old resource limit values can
+- *	be examined by dereferencing (current->signal->rlim + resource).
++ *	Check permission before setting the resource limits of process @p
++ *	for @resource to @new_rlim.  The old resource limit values can
++ *	be examined by dereferencing (p->signal->rlim + resource).
++ *	@p points to the task_struct for the target task's group leader.
+  *	@resource contains the resource whose limit is being set.
+  *	@new_rlim contains the new limits for @resource.
+  *	Return 0 if permission is granted.
+@@ -1495,6 +1504,8 @@ union security_list_options {
+ 	int (*task_setnice)(struct task_struct *p, int nice);
+ 	int (*task_setioprio)(struct task_struct *p, int ioprio);
+ 	int (*task_getioprio)(struct task_struct *p);
++	int (*task_prlimit)(const struct cred *cred, const struct cred *tcred,
++			    unsigned int flags);
+ 	int (*task_setrlimit)(struct task_struct *p, unsigned int resource,
+ 				struct rlimit *new_rlim);
+ 	int (*task_setscheduler)(struct task_struct *p);
+@@ -1756,6 +1767,7 @@ struct security_hook_heads {
+ 	struct list_head task_setnice;
+ 	struct list_head task_setioprio;
+ 	struct list_head task_getioprio;
++	struct list_head task_prlimit;
+ 	struct list_head task_setrlimit;
+ 	struct list_head task_setscheduler;
+ 	struct list_head task_getscheduler;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index d3868f2..cce29ba 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -133,6 +133,10 @@ extern unsigned long dac_mmap_min_addr;
+ /* setfsuid or setfsgid, id0 == fsuid or fsgid */
+ #define LSM_SETID_FS	8
+ 
++/* Flags for security_task_prlimit(). */
++#define LSM_PRLIMIT_READ  1
++#define LSM_PRLIMIT_WRITE 2
++
+ /* forward declares to avoid warnings */
+ struct sched_param;
+ struct request_sock;
+@@ -325,6 +329,8 @@ void security_task_getsecid(struct task_struct *p, u32 *secid);
+ int security_task_setnice(struct task_struct *p, int nice);
+ int security_task_setioprio(struct task_struct *p, int ioprio);
+ int security_task_getioprio(struct task_struct *p);
++int security_task_prlimit(const struct cred *cred, const struct cred *tcred,
++			  unsigned int flags);
+ int security_task_setrlimit(struct task_struct *p, unsigned int resource,
+ 		struct rlimit *new_rlim);
+ int security_task_setscheduler(struct task_struct *p);
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 842914e..8a364f7 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1425,25 +1425,26 @@ int do_prlimit(struct task_struct *tsk, unsigned int resource,
+ }
+ 
+ /* rcu lock must be held */
+-static int check_prlimit_permission(struct task_struct *task)
++static int check_prlimit_permission(struct task_struct *task,
++				    unsigned int flags)
+ {
+ 	const struct cred *cred = current_cred(), *tcred;
++	bool id_match;
+ 
+ 	if (current == task)
+ 		return 0;
+ 
+ 	tcred = __task_cred(task);
+-	if (uid_eq(cred->uid, tcred->euid) &&
+-	    uid_eq(cred->uid, tcred->suid) &&
+-	    uid_eq(cred->uid, tcred->uid)  &&
+-	    gid_eq(cred->gid, tcred->egid) &&
+-	    gid_eq(cred->gid, tcred->sgid) &&
+-	    gid_eq(cred->gid, tcred->gid))
+-		return 0;
+-	if (ns_capable(tcred->user_ns, CAP_SYS_RESOURCE))
+-		return 0;
++	id_match = (uid_eq(cred->uid, tcred->euid) &&
++		    uid_eq(cred->uid, tcred->suid) &&
++		    uid_eq(cred->uid, tcred->uid)  &&
++		    gid_eq(cred->gid, tcred->egid) &&
++		    gid_eq(cred->gid, tcred->sgid) &&
++		    gid_eq(cred->gid, tcred->gid));
++	if (!id_match && !ns_capable(tcred->user_ns, CAP_SYS_RESOURCE))
++		return -EPERM;
+ 
+-	return -EPERM;
++	return security_task_prlimit(cred, tcred, flags);
+ }
+ 
+ SYSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource,
+@@ -1453,12 +1454,17 @@ SYSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource,
+ 	struct rlimit64 old64, new64;
+ 	struct rlimit old, new;
+ 	struct task_struct *tsk;
++	unsigned int checkflags = 0;
+ 	int ret;
+ 
++	if (old_rlim)
++		checkflags |= LSM_PRLIMIT_READ;
++
+ 	if (new_rlim) {
+ 		if (copy_from_user(&new64, new_rlim, sizeof(new64)))
+ 			return -EFAULT;
+ 		rlim64_to_rlim(&new64, &new);
++		checkflags |= LSM_PRLIMIT_WRITE;
+ 	}
+ 
+ 	rcu_read_lock();
+@@ -1467,7 +1473,7 @@ SYSCALL_DEFINE4(prlimit64, pid_t, pid, unsigned int, resource,
+ 		rcu_read_unlock();
+ 		return -ESRCH;
+ 	}
+-	ret = check_prlimit_permission(tsk);
++	ret = check_prlimit_permission(tsk, checkflags);
+ 	if (ret) {
+ 		rcu_read_unlock();
+ 		return ret;
+diff --git a/security/security.c b/security/security.c
+index 8c9fee5..8178c84 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -998,6 +998,12 @@ int security_task_getioprio(struct task_struct *p)
+ 	return call_int_hook(task_getioprio, 0, p);
+ }
+ 
++int security_task_prlimit(const struct cred *cred, const struct cred *tcred,
++			  unsigned int flags)
++{
++	return call_int_hook(task_prlimit, 0, cred, tcred, flags);
++}
++
+ int security_task_setrlimit(struct task_struct *p, unsigned int resource,
+ 		struct rlimit *new_rlim)
+ {
+@@ -1755,6 +1761,8 @@ struct security_hook_heads security_hook_heads = {
+ 		LIST_HEAD_INIT(security_hook_heads.task_setioprio),
+ 	.task_getioprio =
+ 		LIST_HEAD_INIT(security_hook_heads.task_getioprio),
++	.task_prlimit =
++		LIST_HEAD_INIT(security_hook_heads.task_prlimit),
+ 	.task_setrlimit =
+ 		LIST_HEAD_INIT(security_hook_heads.task_setrlimit),
+ 	.task_setscheduler =
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 76af95f..be5cc90 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3917,6 +3917,19 @@ static int selinux_task_getioprio(struct task_struct *p)
+ 			    PROCESS__GETSCHED, NULL);
+ }
+ 
++int selinux_task_prlimit(const struct cred *cred, const struct cred *tcred,
++			 unsigned int flags)
++{
++	u32 av = 0;
++
++	if (flags & LSM_PRLIMIT_WRITE)
++		av |= PROCESS__SETRLIMIT;
++	if (flags & LSM_PRLIMIT_READ)
++		av |= PROCESS__GETRLIMIT;
++	return avc_has_perm(cred_sid(cred), cred_sid(tcred),
++			    SECCLASS_PROCESS, av, NULL);
++}
++
+ static int selinux_task_setrlimit(struct task_struct *p, unsigned int resource,
+ 		struct rlimit *new_rlim)
+ {
+@@ -6202,6 +6215,7 @@ static struct security_hook_list selinux_hooks[] = {
+ 	LSM_HOOK_INIT(task_setnice, selinux_task_setnice),
+ 	LSM_HOOK_INIT(task_setioprio, selinux_task_setioprio),
+ 	LSM_HOOK_INIT(task_getioprio, selinux_task_getioprio),
++	LSM_HOOK_INIT(task_prlimit, selinux_task_prlimit),
+ 	LSM_HOOK_INIT(task_setrlimit, selinux_task_setrlimit),
+ 	LSM_HOOK_INIT(task_setscheduler, selinux_task_setscheduler),
+ 	LSM_HOOK_INIT(task_getscheduler, selinux_task_getscheduler),
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 7898ffa..da0e74c 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -47,7 +47,7 @@ struct security_class_mapping secclass_map[] = {
+ 	    "getattr", "setexec", "setfscreate", "noatsecure", "siginh",
+ 	    "setrlimit", "rlimitinh", "dyntransition", "setcurrent",
+ 	    "execmem", "execstack", "execheap", "setkeycreate",
+-	    "setsockcreate", NULL } },
++	    "setsockcreate", "getrlimit", NULL } },
+ 	{ "system",
+ 	  { "ipc_info", "syslog_read", "syslog_mod",
+ 	    "syslog_console", "module_request", "module_load", NULL } },
+-- 
+2.7.4
