@@ -1,72 +1,33 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: viro@zeniv.linux.org.uk
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] fs: switch order of CAP_DAC_OVERRIDE and CAP_DAC_READ_SEARCH
- checks
-Date: Fri, 17 Feb 2017 13:24:15 -0500
-Message-Id: <1487355855-3508-1-git-send-email-sds@tycho.nsa.gov>
+Date: Sat, 18 Feb 2017 09:55:58 +1100 (AEDT)
+From: James Morris <jmorris@namei.org>
+To: Paul Moore <paul@paul-moore.com>
+cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ jslaby@suse.cz, Stephen Smalley <sds@tycho.nsa.gov>,
+ James Morris <james.l.morris@oracle.com>
+Subject: Re: [PATCH] prlimit,security,selinux: add a security hook for prlimit
+In-Reply-To: <CAHC9VhSxXcXkvPrLM3tjhqMxdK8kwEt2AWB46Pqc3PqomA3qMw@mail.gmail.com>
+Message-ID: <alpine.LRH.2.20.1702180955330.31346@namei.org>
+References: <1487256718-26141-1-git-send-email-sds@tycho.nsa.gov>
+ <alpine.LRH.2.20.1702171424020.4873@namei.org>
+ <CAHC9VhSxXcXkvPrLM3tjhqMxdK8kwEt2AWB46Pqc3PqomA3qMw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-generic_permission() presently checks CAP_DAC_OVERRIDE prior to
-CAP_DAC_READ_SEARCH.  This can cause misleading audit messages when
-using a LSM such as SELinux or AppArmor, since CAP_DAC_OVERRIDE
-may not be required for the operation.  Flip the order of the
-tests so that CAP_DAC_OVERRIDE is only checked when required for
-the operation.
+On Fri, 17 Feb 2017, Paul Moore wrote:
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- fs/namei.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+> > Queued for 4.11 at
+> > git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security.git#next-queue
+> 
+> Stephen pushed a v2 patch to fix a build problem, are you going to
+> fixup your tree?
 
-diff --git a/fs/namei.c b/fs/namei.c
-index ad74877..8736e4a 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -340,22 +340,14 @@ int generic_permission(struct inode *inode, int mask)
- 
- 	if (S_ISDIR(inode->i_mode)) {
- 		/* DACs are overridable for directories */
--		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
--			return 0;
- 		if (!(mask & MAY_WRITE))
- 			if (capable_wrt_inode_uidgid(inode,
- 						     CAP_DAC_READ_SEARCH))
- 				return 0;
--		return -EACCES;
--	}
--	/*
--	 * Read/write DACs are always overridable.
--	 * Executable DACs are overridable when there is
--	 * at least one exec bit set.
--	 */
--	if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
- 		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
- 			return 0;
-+		return -EACCES;
-+	}
- 
- 	/*
- 	 * Searching includes executable on directories, else just read.
-@@ -364,6 +356,14 @@ int generic_permission(struct inode *inode, int mask)
- 	if (mask == MAY_READ)
- 		if (capable_wrt_inode_uidgid(inode, CAP_DAC_READ_SEARCH))
- 			return 0;
-+	/*
-+	 * Read/write DACs are always overridable.
-+	 * Executable DACs are overridable when there is
-+	 * at least one exec bit set.
-+	 */
-+	if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
-+		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
-+			return 0;
- 
- 	return -EACCES;
- }
+Yep, I reverted the first patch and applied the v2.
+
+
 -- 
-2.7.4
+James Morris
+<jmorris@namei.org>
