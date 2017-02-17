@@ -1,94 +1,143 @@
-Received: from [192.168.25.4] (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1HG4f7d030396
- for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2017 11:04:41 -0500
-Subject: Re: [PATCH] libsepol/cil: Destroy cil_tree_node stacks when finished
- resolving AST
-To: selinux@tycho.nsa.gov
-References: <1486570662-26345-1-git-send-email-jwcart2@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <d8db0538-ac93-590f-85f2-dadbc80b4e52@tycho.nsa.gov>
-Date: Fri, 17 Feb 2017 11:05:05 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1HGTeDW005933
+ for <selinux@tycho.nsa.gov>; Fri, 17 Feb 2017 11:29:41 -0500
+Subject: Re: [RFC v2 PATCH 2/2] security: mark LSM hooks as __ro_after_init
+To: James Morris <jmorris@namei.org>, linux-security-module@vger.kernel.org
+References: <alpine.LRH.2.20.1702150017290.32759@namei.org>
+Cc: selinux@tycho.nsa.gov, kernel-hardening@lists.openwall.com
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <938a185e-b26e-0037-2f80-118753fcfc7e@schaufler-ca.com>
+Date: Fri, 17 Feb 2017 08:29:19 -0800
 MIME-Version: 1.0
-In-Reply-To: <1486570662-26345-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <alpine.LRH.2.20.1702150017290.32759@namei.org>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/08/2017 11:17 AM, James Carter wrote:
-> CIL uses separate cil_tree_node stacks for optionals and blocks to
-> check for statements not allowed in optionals or blocks and to know
-> which optional to disable when necessary. But these stacks were not
-> being destroyed when exiting cil_resolve_ast(). This is not a problem
-> normally because the stacks will be empty, but this is not the case
-> when exiting with an error.
+On 2/14/2017 5:18 AM, James Morris wrote:
+> Mark all of the registration hooks as __ro_after_init (via the 
+> __lsm_ro_after_init macro).
 >
-> Destroy both tree node stacks when exiting to ensure that they are
-> empty.
->
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> Signed-off-by: James Morris <james.l.morris@oracle.com>
 
-This has been applied.
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+
+This is an elegant solution.
 
 > ---
->  libsepol/cil/src/cil_resolve_ast.c | 24 ++++++++++++++++--------
->  1 file changed, 16 insertions(+), 8 deletions(-)
+>  security/apparmor/lsm.c    |    2 +-
+>  security/commoncap.c       |    2 +-
+>  security/loadpin/loadpin.c |    2 +-
+>  security/security.c        |    2 +-
+>  security/selinux/hooks.c   |    2 +-
+>  security/smack/smack_lsm.c |    2 +-
+>  security/tomoyo/tomoyo.c   |    2 +-
+>  security/yama/yama_lsm.c   |    2 +-
+>  8 files changed, 8 insertions(+), 8 deletions(-)
 >
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index 7fe4a74..6628dc4 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -3778,6 +3778,16 @@ exit:
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index 709eacd..e287b69 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -587,7 +587,7 @@ static int apparmor_task_setrlimit(struct task_struct *task,
+>  	return error;
+>  }
+>  
+> -static struct security_hook_list apparmor_hooks[] = {
+> +static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(ptrace_access_check, apparmor_ptrace_access_check),
+>  	LSM_HOOK_INIT(ptrace_traceme, apparmor_ptrace_traceme),
+>  	LSM_HOOK_INIT(capget, apparmor_capget),
+> diff --git a/security/commoncap.c b/security/commoncap.c
+> index 6d4d586..a9db18c 100644
+> --- a/security/commoncap.c
+> +++ b/security/commoncap.c
+> @@ -1070,7 +1070,7 @@ int cap_mmap_file(struct file *file, unsigned long reqprot,
+>  
+>  #ifdef CONFIG_SECURITY
+>  
+> -struct security_hook_list capability_hooks[] = {
+> +struct security_hook_list capability_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(capable, cap_capable),
+>  	LSM_HOOK_INIT(settime, cap_settime),
+>  	LSM_HOOK_INIT(ptrace_access_check, cap_ptrace_access_check),
+> diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
+> index 1d82eae..dbe6efd 100644
+> --- a/security/loadpin/loadpin.c
+> +++ b/security/loadpin/loadpin.c
+> @@ -174,7 +174,7 @@ static int loadpin_read_file(struct file *file, enum kernel_read_file_id id)
+>  	return 0;
+>  }
+>  
+> -static struct security_hook_list loadpin_hooks[] = {
+> +static struct security_hook_list loadpin_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(sb_free_security, loadpin_sb_free_security),
+>  	LSM_HOOK_INIT(kernel_read_file, loadpin_read_file),
+>  };
+> diff --git a/security/security.c b/security/security.c
+> index d0e07f2..75ed309 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1622,7 +1622,7 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
+>  }
+>  #endif /* CONFIG_AUDIT */
+>  
+> -struct security_hook_heads security_hook_heads = {
+> +struct security_hook_heads security_hook_heads __lsm_ro_after_init = {
+>  	.binder_set_context_mgr =
+>  		LIST_HEAD_INIT(security_hook_heads.binder_set_context_mgr),
+>  	.binder_transaction =
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 9bc12bc..b1a9916 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6104,7 +6104,7 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+>  
+>  #endif
+>  
+> -static struct security_hook_list selinux_hooks[] = {
+> +static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
+>  	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+>  	LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 60b4217..71e24d8 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -4633,7 +4633,7 @@ static int smack_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
+>  	return 0;
+>  }
+>  
+> -static struct security_hook_list smack_hooks[] = {
+> +static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(ptrace_access_check, smack_ptrace_access_check),
+>  	LSM_HOOK_INIT(ptrace_traceme, smack_ptrace_traceme),
+>  	LSM_HOOK_INIT(syslog, smack_syslog),
+> diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+> index edc52d6..b5fb930 100644
+> --- a/security/tomoyo/tomoyo.c
+> +++ b/security/tomoyo/tomoyo.c
+> @@ -496,7 +496,7 @@ static int tomoyo_socket_sendmsg(struct socket *sock, struct msghdr *msg,
+>   * tomoyo_security_ops is a "struct security_operations" which is used for
+>   * registering TOMOYO.
+>   */
+> -static struct security_hook_list tomoyo_hooks[] = {
+> +static struct security_hook_list tomoyo_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(cred_alloc_blank, tomoyo_cred_alloc_blank),
+>  	LSM_HOOK_INIT(cred_prepare, tomoyo_cred_prepare),
+>  	LSM_HOOK_INIT(cred_transfer, tomoyo_cred_transfer),
+> diff --git a/security/yama/yama_lsm.c b/security/yama/yama_lsm.c
+> index 88271a3..8298e09 100644
+> --- a/security/yama/yama_lsm.c
+> +++ b/security/yama/yama_lsm.c
+> @@ -428,7 +428,7 @@ int yama_ptrace_traceme(struct task_struct *parent)
 >  	return rc;
 >  }
->
-> +static void cil_destroy_tree_node_stack(struct cil_tree_node *curr)
-> +{
-> +	struct cil_tree_node *next;
-> +	while (curr != NULL) {
-> +		next = curr->cl_head;
-> +		free(curr);
-> +		curr = next;
-> +	}
-> +}
-> +
->  int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
->  {
->  	int rc = SEPOL_ERR;
-> @@ -3904,16 +3914,12 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
->  		/* reset the arguments */
->  		changed = 0;
->  		while (extra_args.optstack != NULL) {
-> -			struct cil_tree_node *curr = extra_args.optstack;
-> -			struct cil_tree_node *next = curr->cl_head;
-> -			free(curr);
-> -			extra_args.optstack = next;
-> +			cil_destroy_tree_node_stack(extra_args.optstack);
-> +			extra_args.optstack = NULL;
->  		}
->  		while (extra_args.blockstack!= NULL) {
-> -			struct cil_tree_node *curr = extra_args.blockstack;
-> -			struct cil_tree_node *next = curr->cl_head;
-> -			free(curr);
-> -			extra_args.blockstack= next;
-> +			cil_destroy_tree_node_stack(extra_args.blockstack);
-> +			extra_args.blockstack = NULL;
->  		}
->  	}
->
-> @@ -3924,6 +3930,8 @@ int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current)
->
->  	rc = SEPOL_OK;
->  exit:
-> +	cil_destroy_tree_node_stack(extra_args.optstack);
-> +	cil_destroy_tree_node_stack(extra_args.blockstack);
->  	__cil_ordered_lists_destroy(&extra_args.sidorder_lists);
->  	__cil_ordered_lists_destroy(&extra_args.classorder_lists);
->  	__cil_ordered_lists_destroy(&extra_args.catorder_lists);
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+>  
+> -static struct security_hook_list yama_hooks[] = {
+> +static struct security_hook_list yama_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(ptrace_access_check, yama_ptrace_access_check),
+>  	LSM_HOOK_INIT(ptrace_traceme, yama_ptrace_traceme),
+>  	LSM_HOOK_INIT(task_prctl, yama_task_prctl),
