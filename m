@@ -1,88 +1,72 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1JLuMCB009225
- for <selinux@tycho.nsa.gov>; Sun, 19 Feb 2017 16:56:24 -0500
-Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
- [81.66.120.207])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 8893E564A4B
- for <selinux@tycho.nsa.gov>; Sun, 19 Feb 2017 22:53:59 +0100 (CET)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/1] libselinux,
- libsemanage: make PYPREFIX computation more robust
-Date: Sun, 19 Feb 2017 22:53:29 +0100
-Message-Id: <20170219215329.3143-1-nicolas.iooss@m4x.org>
+From: Hoeun Ryu <hoeun.ryu@gmail.com>
+To: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org
+Cc: Hoeun Ryu <hoeun.ryu@gmail.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Subject: [RFC 4/7] selinux: mark __ro_mostly_after_init for
+ selinux_hooks/selinux_nf_ops
+Date: Sun, 19 Feb 2017 19:04:07 +0900
+Message-Id: <1487498660-16600-4-git-send-email-hoeun.ryu@gmail.com>
+In-Reply-To: <1487498660-16600-1-git-send-email-hoeun.ryu@gmail.com>
+References: <1487498660-16600-1-git-send-email-hoeun.ryu@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On systems where $PYTHON is python3.5 (instead of python2 or python3),
-pkg-config fails to find the Python package because it is named with a
-dash (e.g. python-3.5).
+ It would be good that selinux hooks objects are marked as
+`__ro_mostly_after_init`. They can not be simply marked as `__ro_after_init'
+because they should be writable during selinux_disable procedure.
+`__ro_mostly_after_init` section is temporarily read-write during
+selinux_disable procedure via set_ro_mostly_after_init_rw/ro pair. Now that
+they can be read-only except during the procedure.
 
-Moreover the build system may have been using the pkg-config
-configuration files for the wrong Python version when several Python
-with the same major version number are installed (e.g. using python-3.5
-on a system with both python-3.4 and python-3.5 and where
-/usr/lib/pkgconfig/python3.pc is a symlink to python-3.5.pc).
-
-In order to fix these two issues, compute $PYPREFIX from $PYTHON by
-using the full major.minor version.
-
-Moreover update Travis-Ci configuration to grab the relevant
-configuration files for pkg-config from /opt/python (for example
-/opt/python/3.5.2/lib/pkgconfig/python-3.5.pc) instead of using
-system-provided files (/usr/lib/x86_64-linux-gnu/pkgconfig/python3.pc
-and /usr/lib/x86_64-linux-gnu/pkgconfig/python2.pc).
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: Hoeun Ryu <hoeun.ryu@gmail.com>
 ---
- .travis.yml              | 3 ++-
- libselinux/src/Makefile  | 2 +-
- libsemanage/src/Makefile | 2 +-
- 3 files changed, 4 insertions(+), 3 deletions(-)
+ security/selinux/hooks.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/.travis.yml b/.travis.yml
-index 6dce35165bd3..7d7424459344 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -76,7 +76,8 @@ before_script:
-   # Configure the variables for Python parts
-   - export VIRTUAL_ENV="$HOME/virtualenv/$PYVER"
-   - export PYTHON="$VIRTUAL_ENV/bin/python"
--  - export PYPREFIX="$($PYTHON -c 'import sys;print("python%d" % sys.version_info[0])')"
-+  # Use the header files in /opt/python/... for Python because the virtualenvs do not provide Python.h
-+  - export PKG_CONFIG_PATH="/opt/python/$($PYTHON -c 'import sys;print("%d.%d.%d" % sys.version_info[:3])')/lib/pkgconfig"
-   # PyPy does not provide a config file for pkg-config nor a pypy-c.so
-   - if echo "$PYVER" | grep -q pypy ; then export PYINC=-I$($PYTHON -c 'import sys;print(sys.prefix)')/include PYLIBS= ; fi
-   # Python virtualenvs do not support "import site; print(site.getsitepackages()[0]"
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 5640a57d2768..a277b8715819 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -2,7 +2,7 @@
- # runtimes (e.g. Python 2 vs Python 3) by optionally prefixing the build
- # targets with "PYPREFIX":
- PYTHON ?= python
--PYPREFIX ?= $(notdir $(PYTHON))
-+PYPREFIX ?= $(shell $(PYTHON) -c 'import sys;print("python-%d.%d" % sys.version_info[:2])')
- RUBY ?= ruby
- RUBYPREFIX ?= $(notdir $(RUBY))
- PKG_CONFIG ?= pkg-config
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index 92c829be234d..77f6efc86d2d 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -2,7 +2,7 @@
- # runtimes (e.g. Python 2 vs Python 3) by optionally prefixing the build
- # targets with "PYPREFIX":
- PYTHON ?= python
--PYPREFIX ?= $(notdir $(PYTHON))
-+PYPREFIX ?= $(shell $(PYTHON) -c 'import sys;print("python-%d.%d" % sys.version_info[:2])')
- RUBY ?= ruby
- RUBYPREFIX ?= $(notdir $(RUBY))
- PKG_CONFIG ?= pkg-config
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9a8f12f..64fd799 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6106,7 +6106,7 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+ 
+ #endif
+ 
+-static struct security_hook_list selinux_hooks[] = {
++static struct security_hook_list selinux_hooks[] __ro_mostly_after_init = {
+ 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
+ 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+ 	LSM_HOOK_INIT(binder_transfer_binder, selinux_binder_transfer_binder),
+@@ -6381,7 +6381,7 @@ security_initcall(selinux_init);
+ 
+ #if defined(CONFIG_NETFILTER)
+ 
+-static struct nf_hook_ops selinux_nf_ops[] = {
++static struct nf_hook_ops selinux_nf_ops[] __ro_mostly_after_init = {
+ 	{
+ 		.hook =		selinux_ipv4_postroute,
+ 		.pf =		NFPROTO_IPV4,
+@@ -6477,13 +6477,17 @@ int selinux_disable(void)
+ 	selinux_disabled = 1;
+ 	selinux_enabled = 0;
+ 
++	set_ro_mostly_after_init_rw();
+ 	security_delete_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
++	set_ro_mostly_after_init_ro();
+ 
+ 	/* Try to destroy the avc node cache */
+ 	avc_disable();
+ 
+ 	/* Unregister netfilter hooks. */
++	set_ro_mostly_after_init_ro();
+ 	selinux_nf_ip_exit();
++	set_ro_mostly_after_init_rw();
+ 
+ 	/* Unregister selinuxfs. */
+ 	exit_sel_fs();
 -- 
-2.11.1
+2.7.4
