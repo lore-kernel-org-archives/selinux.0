@@ -1,39 +1,31 @@
-Subject: Re: [PATCH 1/1] libselinux, libsemanage: make PYPREFIX computation
- more robust
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20170219215329.3143-1-nicolas.iooss@m4x.org>
+Subject: Re: [PATCH] sepolgen: strip non-printable characters when parsing
+ audit messages
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+References: <20170221144123.22532-1-vmojzis@redhat.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <9e1d4a1d-3b87-b63c-0a4c-33692604f448@tycho.nsa.gov>
-Date: Tue, 21 Feb 2017 13:56:01 -0500
+Message-ID: <63d8b953-f9fc-1872-6324-82635a929b9c@tycho.nsa.gov>
+Date: Tue, 21 Feb 2017 13:56:26 -0500
 MIME-Version: 1.0
-In-Reply-To: <20170219215329.3143-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20170221144123.22532-1-vmojzis@redhat.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/19/2017 04:53 PM, Nicolas Iooss wrote:
-> On systems where $PYTHON is python3.5 (instead of python2 or python3),
-> pkg-config fails to find the Python package because it is named with a
-> dash (e.g. python-3.5).
+On 02/21/2017 09:41 AM, Vit Mojzis wrote:
+> Strip the following characters
+> \x1c	File Separator
+> \x1d	Group Separator
+> \x1e	Record Separator
+> \x85	Next Line (C1 Control Code)
+> from audit message fields to make sure they are not evaluated
+> as part of some identifier (eg. ausearch used insert \x1d into
+> --raw output resulting in "unrecognized class" error messages).
 >
-> Moreover the build system may have been using the pkg-config
-> configuration files for the wrong Python version when several Python
-> with the same major version number are installed (e.g. using python-3.5
-> on a system with both python-3.4 and python-3.5 and where
-> /usr/lib/pkgconfig/python3.pc is a symlink to python-3.5.pc).
+> This is done as part of str.split() in python3.
 >
-> In order to fix these two issues, compute $PYPREFIX from $PYTHON by
-> using the full major.minor version.
->
-> Moreover update Travis-Ci configuration to grab the relevant
-> configuration files for pkg-config from /opt/python (for example
-> /opt/python/3.5.2/lib/pkgconfig/python-3.5.pc) instead of using
-> system-provided files (/usr/lib/x86_64-linux-gnu/pkgconfig/python3.pc
-> and /usr/lib/x86_64-linux-gnu/pkgconfig/python2.pc).
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1406328
 
 Applied.
 
@@ -41,51 +33,24 @@ Thanks,
 Jim
 
 > ---
->  .travis.yml              | 3 ++-
->  libselinux/src/Makefile  | 2 +-
->  libsemanage/src/Makefile | 2 +-
->  3 files changed, 4 insertions(+), 3 deletions(-)
+>  python/sepolgen/src/sepolgen/audit.py | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 >
-> diff --git a/.travis.yml b/.travis.yml
-> index 6dce35165bd3..7d7424459344 100644
-> --- a/.travis.yml
-> +++ b/.travis.yml
-> @@ -76,7 +76,8 @@ before_script:
->    # Configure the variables for Python parts
->    - export VIRTUAL_ENV="$HOME/virtualenv/$PYVER"
->    - export PYTHON="$VIRTUAL_ENV/bin/python"
-> -  - export PYPREFIX="$($PYTHON -c 'import sys;print("python%d" % sys.version_info[0])')"
-> +  # Use the header files in /opt/python/... for Python because the virtualenvs do not provide Python.h
-> +  - export PKG_CONFIG_PATH="/opt/python/$($PYTHON -c 'import sys;print("%d.%d.%d" % sys.version_info[:3])')/lib/pkgconfig"
->    # PyPy does not provide a config file for pkg-config nor a pypy-c.so
->    - if echo "$PYVER" | grep -q pypy ; then export PYINC=-I$($PYTHON -c 'import sys;print(sys.prefix)')/include PYLIBS= ; fi
->    # Python virtualenvs do not support "import site; print(site.getsitepackages()[0]"
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index 5640a57d2768..a277b8715819 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -2,7 +2,7 @@
->  # runtimes (e.g. Python 2 vs Python 3) by optionally prefixing the build
->  # targets with "PYPREFIX":
->  PYTHON ?= python
-> -PYPREFIX ?= $(notdir $(PYTHON))
-> +PYPREFIX ?= $(shell $(PYTHON) -c 'import sys;print("python-%d.%d" % sys.version_info[:2])')
->  RUBY ?= ruby
->  RUBYPREFIX ?= $(notdir $(RUBY))
->  PKG_CONFIG ?= pkg-config
-> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> index 92c829be234d..77f6efc86d2d 100644
-> --- a/libsemanage/src/Makefile
-> +++ b/libsemanage/src/Makefile
-> @@ -2,7 +2,7 @@
->  # runtimes (e.g. Python 2 vs Python 3) by optionally prefixing the build
->  # targets with "PYPREFIX":
->  PYTHON ?= python
-> -PYPREFIX ?= $(notdir $(PYTHON))
-> +PYPREFIX ?= $(shell $(PYTHON) -c 'import sys;print("python-%d.%d" % sys.version_info[:2])')
->  RUBY ?= ruby
->  RUBYPREFIX ?= $(notdir $(RUBY))
->  PKG_CONFIG ?= pkg-config
+> diff --git a/python/sepolgen/src/sepolgen/audit.py b/python/sepolgen/src/sepolgen/audit.py
+> index 724d3ea..26ce6c9 100644
+> --- a/python/sepolgen/src/sepolgen/audit.py
+> +++ b/python/sepolgen/src/sepolgen/audit.py
+> @@ -376,7 +376,9 @@ class AuditParser:
+>      #   AuditMessage (or subclass) - object representing a parsed
+>      #      and valid audit message.
+>      def __parse_line(self, line):
+> -        rec = line.split()
+> +        # strip("\x1c\x1d\x1e\x85") is only needed for python2
+> +        # since str.split() in python3 already does this
+> +        rec = [x.strip("\x1c\x1d\x1e\x85") for x in line.split()]
+>          for i in rec:
+>              found = False
+>              if i == "avc:" or i == "message=avc:" or i == "msg='avc:":
 >
 
 
