@@ -1,59 +1,48 @@
-Subject: Re: [PATCH] sepolgen: strip non-printable characters when parsing
- audit messages
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-References: <20170221144123.22532-1-vmojzis@redhat.com>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <63d8b953-f9fc-1872-6324-82635a929b9c@tycho.nsa.gov>
-Date: Tue, 21 Feb 2017 13:56:26 -0500
-MIME-Version: 1.0
-In-Reply-To: <20170221144123.22532-1-vmojzis@redhat.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1LIwh3J017462
+ for <selinux@tycho.nsa.gov>; Tue, 21 Feb 2017 13:58:44 -0500
+From: Natanael Copa <ncopa@alpinelinux.org>
+To: selinux@tycho.nsa.gov
+Cc: Natanael Copa <ncopa@alpinelinux.org>
+Subject: [PATCH] libselinux: allow link with -lfts
+Date: Tue, 21 Feb 2017 19:58:21 +0100
+Message-Id: <20170221185821.26373-1-ncopa@alpinelinux.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/21/2017 09:41 AM, Vit Mojzis wrote:
-> Strip the following characters
-> \x1c	File Separator
-> \x1d	Group Separator
-> \x1e	Record Separator
-> \x85	Next Line (C1 Control Code)
-> from audit message fields to make sure they are not evaluated
-> as part of some identifier (eg. ausearch used insert \x1d into
-> --raw output resulting in "unrecognized class" error messages).
->
-> This is done as part of str.split() in python3.
->
-> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1406328
+This makes it possible to build libselinux with the external libtfs for
+systems which does not implement the non-standard fts. For example musl
+libc.
 
-Applied.
+  make FTS_LDFLAGS=-lfts
 
-Thanks,
-Jim
+Signed-off-by: Natanael Copa <ncopa@alpinelinux.org>
+---
+ libselinux/src/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> ---
->  python/sepolgen/src/sepolgen/audit.py | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/python/sepolgen/src/sepolgen/audit.py b/python/sepolgen/src/sepolgen/audit.py
-> index 724d3ea..26ce6c9 100644
-> --- a/python/sepolgen/src/sepolgen/audit.py
-> +++ b/python/sepolgen/src/sepolgen/audit.py
-> @@ -376,7 +376,9 @@ class AuditParser:
->      #   AuditMessage (or subclass) - object representing a parsed
->      #      and valid audit message.
->      def __parse_line(self, line):
-> -        rec = line.split()
-> +        # strip("\x1c\x1d\x1e\x85") is only needed for python2
-> +        # since str.split() in python3 already does this
-> +        rec = [x.strip("\x1c\x1d\x1e\x85") for x in line.split()]
->          for i in rec:
->              found = False
->              if i == "avc:" or i == "message=avc:" or i == "msg='avc:":
->
-
-
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 5640a57..513a9e7 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -92,6 +92,7 @@ LD_SONAME_FLAGS=-install_name,$(LIBSO)
+ endif
+ 
+ PCRE_LDFLAGS ?= -lpcre
++FTS_LDFLAGS ?=
+ 
+ override CFLAGS += -I../include -I$(INCLUDEDIR) -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
+ 
+@@ -143,7 +144,7 @@ $(LIBA): $(OBJS)
+ 	$(RANLIB) $@
+ 
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(CFLAGS) -shared -o $@ $^ $(PCRE_LDFLAGS) -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,$(LD_SONAME_FLAGS)
++	$(CC) $(CFLAGS) -shared -o $@ $^ $(PCRE_LDFLAGS) $(FTS_LDFLAGS) -ldl $(LDFLAGS) -L$(LIBDIR) -Wl,$(LD_SONAME_FLAGS)
+ 	ln -sf $@ $(TARGET) 
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.11.1
