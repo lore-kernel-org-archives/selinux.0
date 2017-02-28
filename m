@@ -1,48 +1,85 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: james.l.morris@oracle.com
-Cc: linux-security-module@vger.kernel.org, paul@paul-moore.com, jslaby@suse.cz,
- selinux@tycho.nsa.gov, xiaolong.ye@intel.com,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux: fix kernel BUG on prlimit(..., NULL, NULL)
-Date: Tue, 28 Feb 2017 09:35:08 -0500
-Message-Id: <1488292508-32506-1-git-send-email-sds@tycho.nsa.gov>
+To: Selinux@tycho.nsa.gov
+From: "RM-IT R.Mielnik" <r.mielnik@rm-it.pl>
+Subject: selinux transition rules
+Message-ID: <81aa96e5-873c-2514-92b2-2d272b8fe619@rm-it.pl>
+Date: Tue, 28 Feb 2017 16:06:37 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-commit 79bcf325e6b32b3c ("prlimit,security,selinux: add a security hook
-for prlimit") introduced a security hook for prlimit() and implemented it
-for SELinux.  However, if prlimit() is called with NULL arguments for both
-the new limit and the old limit, then the hook is called with 0 for the
-read/write flags, since the prlimit() will neither read nor write the
-process' limits.  This would in turn lead to calling avc_has_perm() with 0
-for the requested permissions, which triggers a BUG_ON() in
-avc_has_perm_noaudit() since the kernel should never be invoking
-avc_has_perm() with no permissions.  Fix this in the SELinux hook by
-returning immediately if the flags are 0.  Arguably prlimit64() itself
-ought to return immediately if both old_rlim and new_rlim are NULL since
-it is effectively a no-op in that case.
 
-Reported by the lkp-robot based on trinity testing.
+	hi,
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- security/selinux/hooks.c | 2 ++
- 1 file changed, 2 insertions(+)
+    i got a problem with transition rules. what i try to do is to make 
+selinux change the context type of "rwdirectory" while it is created via 
+ftp (proftpd in ftpd_t domain) in httpd_user_content_t directory
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 4a80bd8..af1ff15 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3922,6 +3922,8 @@ int selinux_task_prlimit(const struct cred *cred, const struct cred *tcred,
- {
- 	u32 av = 0;
- 
-+	if (!flags)
-+		return 0;
- 	if (flags & LSM_PRLIMIT_WRITE)
- 		av |= PROCESS__SETRLIMIT;
- 	if (flags & LSM_PRLIMIT_READ)
--- 
-2.7.4
+1st module:
+
+module custom_transition_httpd_rw 1.0;
+
+require {
+	type httpd_user_content_t;
+	type httpd_user_rw_content_t;
+         type ftpd_t;
+	class dir relabelto;
+}
+
+type_transition ftpd_t httpd_user_content_t : dir 
+httpd_user_rw_content_t ".rw";
+
+2nd module:
+
+policy_module(custom_transition_httpd_rw2, 1.0)
+gen_require(`
+     type ftpd_t, httpd_user_content_t, httpd_user_rw_content_t;
+')
+filetrans_pattern(ftpd_t, httpd_user_content_t, httpd_user_rw_content_t, 
+dir, "rwdirectory")
+
+
+1. it works for unconfined_t domain: e.g. while in shell, mkdir (and 
+selinux) happily creates rwdirectory with desired context type. it 
+doesn't work for ftpd_t domain
+
+it doesn't work for most of centos systems i have, e.g.:
+
+Linux host1 3.10.0-327.18.2.el7.x86_64 #1 SMP Thu May 12 11:03:55 UTC 
+2016 x86_64 x86_64 x86_64 GNU/Linux
+CentOS Linux release 7.2.1511 (Core)
+
+libselinux-2.2.2-6.el7.x86_64
+selinux-policy-3.13.1-60.el7_2.3.noarch
+libselinux-python-2.2.2-6.el7.x86_64
+libselinux-devel-2.2.2-6.el7.x86_64
+selinux-policy-targeted-3.13.1-60.el7_2.3.noarch
+libselinux-utils-2.2.2-6.el7.x86_64
+
+
+Linux host2 3.10.0-514.6.2.el7.x86_64 #1 SMP Thu Feb 23 03:04:39 UTC 
+2017 x86_64 x86_64 x86_64 GNU/Linux
+CentOS Linux release 7.3.1611 (Core)
+
+libselinux-utils-2.5-6.el7.x86_64
+selinux-policy-3.13.1-102.el7_3.13.noarch
+selinux-policy-targeted-3.13.1-102.el7_3.13.noarch
+libselinux-2.5-6.el7.x86_64
+selinux-policy-devel-3.13.1-102.el7_3.13.noarch
+libselinux-python-2.5-6.el7.x86_64
+
+2. somehow it works for unconfined_t AND ftpd_t domains on a certain 
+centos 7.2 (bug or feature?:)):
+
+Linux host 3.10.0-327.36.3.el7.x86_64 #1 SMP Mon Oct 24 16:09:20 UTC 
+2016 x86_64 x86_64 x86_64 GNU/Linux
+CentOS Linux release 7.2.1511 (Core)
+
+selinux-policy-3.13.1-60.el7_2.9.noarch
+libselinux-python-2.2.2-6.el7.x86_64
+libselinux-devel-2.2.2-6.el7.x86_64
+selinux-policy-targeted-3.13.1-60.el7_2.9.noarch
+libselinux-2.2.2-6.el7.x86_64
+libselinux-utils-2.2.2-6.el7.x86_64
