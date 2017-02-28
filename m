@@ -1,49 +1,100 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1SLF6a3031602
+ for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2017 16:15:06 -0500
+Received: by mail-ua0-f196.google.com with SMTP id j56so3420623uaa.3
+ for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2017 13:15:04 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhSLtG8GdjH2uPv-Ch_YSs8_AGbTBBn5+owL=6C+L83p-g@mail.gmail.com>
+References: <alpine.LRH.2.20.1702131634430.8914@namei.org>
+ <CAHC9VhSLtG8GdjH2uPv-Ch_YSs8_AGbTBBn5+owL=6C+L83p-g@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 28 Feb 2017 16:15:02 -0500
+Message-ID: <CAHC9VhRXkU6wajgL2P+FaHf=5R=619wyHwWgfbvZm0JhTUuw5g@mail.gmail.com>
+Subject: Re: [RFC PATCH 4/4] selinux: constify nlmsg permission tables
 To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, nnk@google.com, john.stultz@linaro.org,
- jeffv@google.com, amurdaca@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libsepol: Define cgroup_seclabel policy capability
-Date: Tue, 28 Feb 2017 10:38:27 -0500
-Message-Id: <1488296307-2375-1-git-send-email-sds@tycho.nsa.gov>
+Cc: linux-security-module@vger.kernel.org, kernel-hardening@lists.openwall.com,
+ Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Define the new cgroup_seclabel policy capability used to
-enable userspace setting of security labels on cgroup files
-via setfscreatecon() aka /proc/self/attr/fscreate and/or
-setfilecon() aka setxattr().
+On Mon, Feb 13, 2017 at 7:19 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Feb 13, 2017 at 12:35 AM, James Morris <jmorris@namei.org> wrote:
+>> Constify nlmsg permission tables, which are initialized once
+>> and then do not change.
+>>
+>> Signed-off-by: James Morris <james.l.morris@oracle.com>
+>> ---
+>>  security/selinux/nlmsgtab.c |   10 +++++-----
+>>  1 files changed, 5 insertions(+), 5 deletions(-)
+>
+> The SELinux list should have been CC'd on this patch - come on James,
+> you know better ;)
+>
+> Normally I push patches this close to the merge window out until after
+> the merge window, but this is trivial and easily verified by the
+> compiler so I've merged this.
+>
+> James, if you want to grab it for v4.11 you can pull from the tree below:
+>
+> git://git.infradead.org/users/pcmoore/selinux stable-4.11
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsepol/include/sepol/policydb/polcaps.h | 1 +
- libsepol/src/polcaps.c                    | 1 +
- 2 files changed, 2 insertions(+)
+It doesn't appear that James picked this up for v4.11 so I've moved it
+from the selinux/stable-4.11 branch to the selinux/next branch.  We'll
+get it upstream during the next merge window.
 
-diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-index 623818a..087541d 100644
---- a/libsepol/include/sepol/policydb/polcaps.h
-+++ b/libsepol/include/sepol/policydb/polcaps.h
-@@ -11,6 +11,7 @@ enum {
- 	POLICYDB_CAPABILITY_OPENPERM,
- 	POLICYDB_CAPABILITY_EXTSOCKCLASS,
- 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
-+	POLICYDB_CAPABILITY_CGROUPSECLABEL,
- 	__POLICYDB_CAPABILITY_MAX
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-index 248d2f5..06a868c 100644
---- a/libsepol/src/polcaps.c
-+++ b/libsepol/src/polcaps.c
-@@ -10,6 +10,7 @@ static const char *polcap_names[] = {
- 	"open_perms",			/* POLICYDB_CAPABILITY_OPENPERM */
- 	"extended_socket_class",	/* POLICYDB_CAPABILITY_EXTSOCKCLASS */
- 	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
-+	"cgroup_seclabel",		/* POLICYDB_CAPABILITY_SECLABEL */
- 	NULL
- };
- 
+>> diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
+>> index 2ca9cde..57e2596 100644
+>> --- a/security/selinux/nlmsgtab.c
+>> +++ b/security/selinux/nlmsgtab.c
+>> @@ -28,7 +28,7 @@ struct nlmsg_perm {
+>>         u32     perm;
+>>  };
+>>
+>> -static struct nlmsg_perm nlmsg_route_perms[] =
+>> +static const struct nlmsg_perm nlmsg_route_perms[] =
+>>  {
+>>         { RTM_NEWLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+>>         { RTM_DELLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
+>> @@ -80,7 +80,7 @@ struct nlmsg_perm {
+>>         { RTM_GETSTATS,         NETLINK_ROUTE_SOCKET__NLMSG_READ  },
+>>  };
+>>
+>> -static struct nlmsg_perm nlmsg_tcpdiag_perms[] =
+>> +static const struct nlmsg_perm nlmsg_tcpdiag_perms[] =
+>>  {
+>>         { TCPDIAG_GETSOCK,      NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+>>         { DCCPDIAG_GETSOCK,     NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
+>> @@ -88,7 +88,7 @@ struct nlmsg_perm {
+>>         { SOCK_DESTROY,         NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE },
+>>  };
+>>
+>> -static struct nlmsg_perm nlmsg_xfrm_perms[] =
+>> +static const struct nlmsg_perm nlmsg_xfrm_perms[] =
+>>  {
+>>         { XFRM_MSG_NEWSA,       NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+>>         { XFRM_MSG_DELSA,       NETLINK_XFRM_SOCKET__NLMSG_WRITE },
+>> @@ -115,7 +115,7 @@ struct nlmsg_perm {
+>>         { XFRM_MSG_MAPPING,     NETLINK_XFRM_SOCKET__NLMSG_READ  },
+>>  };
+>>
+>> -static struct nlmsg_perm nlmsg_audit_perms[] =
+>> +static const struct nlmsg_perm nlmsg_audit_perms[] =
+>>  {
+>>         { AUDIT_GET,            NETLINK_AUDIT_SOCKET__NLMSG_READ     },
+>>         { AUDIT_SET,            NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
+>> @@ -136,7 +136,7 @@ struct nlmsg_perm {
+>>  };
+>>
+>>
+>> -static int nlmsg_perm(u16 nlmsg_type, u32 *perm, struct nlmsg_perm *tab, size_t tabsize)
+>> +static int nlmsg_perm(u16 nlmsg_type, u32 *perm, const struct nlmsg_perm *tab, size_t tabsize)
+>>  {
+>>         int i, err = -EINVAL;
+>>
+
 -- 
-2.7.4
+paul moore
+www.paul-moore.com
