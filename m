@@ -1,99 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1SLF6a3031602
- for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2017 16:15:06 -0500
-Received: by mail-ua0-f196.google.com with SMTP id j56so3420623uaa.3
- for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2017 13:15:04 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v1SLdmqU006745
+ for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2017 16:39:49 -0500
+Received: by mail-ua0-f195.google.com with SMTP id 40so3538194uau.2
+ for <selinux@tycho.nsa.gov>; Tue, 28 Feb 2017 13:39:48 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSLtG8GdjH2uPv-Ch_YSs8_AGbTBBn5+owL=6C+L83p-g@mail.gmail.com>
-References: <alpine.LRH.2.20.1702131634430.8914@namei.org>
- <CAHC9VhSLtG8GdjH2uPv-Ch_YSs8_AGbTBBn5+owL=6C+L83p-g@mail.gmail.com>
+In-Reply-To: <1488292508-32506-1-git-send-email-sds@tycho.nsa.gov>
+References: <1488292508-32506-1-git-send-email-sds@tycho.nsa.gov>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 28 Feb 2017 16:15:02 -0500
-Message-ID: <CAHC9VhRXkU6wajgL2P+FaHf=5R=619wyHwWgfbvZm0JhTUuw5g@mail.gmail.com>
-Subject: Re: [RFC PATCH 4/4] selinux: constify nlmsg permission tables
-To: selinux@tycho.nsa.gov
-Cc: linux-security-module@vger.kernel.org, kernel-hardening@lists.openwall.com,
- Stephen Smalley <sds@tycho.nsa.gov>, James Morris <jmorris@namei.org>
+Date: Tue, 28 Feb 2017 16:39:47 -0500
+Message-ID: <CAHC9VhT4F-6gh=K23rEaje6Aspzp=5OCawx+LEi9HWXvd5tSZQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix kernel BUG on prlimit(..., NULL, NULL)
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ James Morris <james.l.morris@oracle.com>
+Cc: linux-security-module@vger.kernel.org, jslaby@suse.cz,
+ selinux@tycho.nsa.gov, xiaolong.ye@intel.com
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Feb 13, 2017 at 7:19 PM, Paul Moore <paul@paul-moore.com> wrote:
-> On Mon, Feb 13, 2017 at 12:35 AM, James Morris <jmorris@namei.org> wrote:
->> Constify nlmsg permission tables, which are initialized once
->> and then do not change.
->>
->> Signed-off-by: James Morris <james.l.morris@oracle.com>
->> ---
->>  security/selinux/nlmsgtab.c |   10 +++++-----
->>  1 files changed, 5 insertions(+), 5 deletions(-)
+On Tue, Feb 28, 2017 at 9:35 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> commit 79bcf325e6b32b3c ("prlimit,security,selinux: add a security hook
+> for prlimit") introduced a security hook for prlimit() and implemented it
+> for SELinux.  However, if prlimit() is called with NULL arguments for both
+> the new limit and the old limit, then the hook is called with 0 for the
+> read/write flags, since the prlimit() will neither read nor write the
+> process' limits.  This would in turn lead to calling avc_has_perm() with 0
+> for the requested permissions, which triggers a BUG_ON() in
+> avc_has_perm_noaudit() since the kernel should never be invoking
+> avc_has_perm() with no permissions.  Fix this in the SELinux hook by
+> returning immediately if the flags are 0.  Arguably prlimit64() itself
+> ought to return immediately if both old_rlim and new_rlim are NULL since
+> it is effectively a no-op in that case.
 >
-> The SELinux list should have been CC'd on this patch - come on James,
-> you know better ;)
+> Reported by the lkp-robot based on trinity testing.
 >
-> Normally I push patches this close to the merge window out until after
-> the merge window, but this is trivial and easily verified by the
-> compiler so I've merged this.
->
-> James, if you want to grab it for v4.11 you can pull from the tree below:
->
-> git://git.infradead.org/users/pcmoore/selinux stable-4.11
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-It doesn't appear that James picked this up for v4.11 so I've moved it
-from the selinux/stable-4.11 branch to the selinux/next branch.  We'll
-get it upstream during the next merge window.
+James,
 
->> diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
->> index 2ca9cde..57e2596 100644
->> --- a/security/selinux/nlmsgtab.c
->> +++ b/security/selinux/nlmsgtab.c
->> @@ -28,7 +28,7 @@ struct nlmsg_perm {
->>         u32     perm;
->>  };
->>
->> -static struct nlmsg_perm nlmsg_route_perms[] =
->> +static const struct nlmsg_perm nlmsg_route_perms[] =
->>  {
->>         { RTM_NEWLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
->>         { RTM_DELLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
->> @@ -80,7 +80,7 @@ struct nlmsg_perm {
->>         { RTM_GETSTATS,         NETLINK_ROUTE_SOCKET__NLMSG_READ  },
->>  };
->>
->> -static struct nlmsg_perm nlmsg_tcpdiag_perms[] =
->> +static const struct nlmsg_perm nlmsg_tcpdiag_perms[] =
->>  {
->>         { TCPDIAG_GETSOCK,      NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
->>         { DCCPDIAG_GETSOCK,     NETLINK_TCPDIAG_SOCKET__NLMSG_READ },
->> @@ -88,7 +88,7 @@ struct nlmsg_perm {
->>         { SOCK_DESTROY,         NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE },
->>  };
->>
->> -static struct nlmsg_perm nlmsg_xfrm_perms[] =
->> +static const struct nlmsg_perm nlmsg_xfrm_perms[] =
->>  {
->>         { XFRM_MSG_NEWSA,       NETLINK_XFRM_SOCKET__NLMSG_WRITE },
->>         { XFRM_MSG_DELSA,       NETLINK_XFRM_SOCKET__NLMSG_WRITE },
->> @@ -115,7 +115,7 @@ struct nlmsg_perm {
->>         { XFRM_MSG_MAPPING,     NETLINK_XFRM_SOCKET__NLMSG_READ  },
->>  };
->>
->> -static struct nlmsg_perm nlmsg_audit_perms[] =
->> +static const struct nlmsg_perm nlmsg_audit_perms[] =
->>  {
->>         { AUDIT_GET,            NETLINK_AUDIT_SOCKET__NLMSG_READ     },
->>         { AUDIT_SET,            NETLINK_AUDIT_SOCKET__NLMSG_WRITE    },
->> @@ -136,7 +136,7 @@ struct nlmsg_perm {
->>  };
->>
->>
->> -static int nlmsg_perm(u16 nlmsg_type, u32 *perm, struct nlmsg_perm *tab, size_t tabsize)
->> +static int nlmsg_perm(u16 nlmsg_type, u32 *perm, const struct nlmsg_perm *tab, size_t tabsize)
->>  {
->>         int i, err = -EINVAL;
->>
+I was going to merge this patch but upon closer inspection it appears
+that you never sent 79bcf325e6b32b3c to Linux, it is sitting in your
+next-queue branch.  What is the plan for your next-queue branch, are
+you going to merge it into your next branch after the merge window
+closes?  If so, feel free to add my ack.
+
+Acked-by: Paul Moore <paul@paul-moore.com>
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 4a80bd8..af1ff15 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3922,6 +3922,8 @@ int selinux_task_prlimit(const struct cred *cred, const struct cred *tcred,
+>  {
+>         u32 av = 0;
+>
+> +       if (!flags)
+> +               return 0;
+>         if (flags & LSM_PRLIMIT_WRITE)
+>                 av |= PROCESS__SETRLIMIT;
+>         if (flags & LSM_PRLIMIT_READ)
+> --
+> 2.7.4
+>
 
 -- 
 paul moore
