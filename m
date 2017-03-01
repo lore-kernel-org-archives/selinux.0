@@ -1,30 +1,51 @@
-Date: Wed, 1 Mar 2017 13:11:52 +1100 (AEDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: james.l.morris@oracle.com, linux-security-module@vger.kernel.org,
- paul@paul-moore.com, jslaby@suse.cz, selinux@tycho.nsa.gov,
- xiaolong.ye@intel.com
-Subject: Re: [PATCH] selinux: fix kernel BUG on prlimit(..., NULL, NULL)
-In-Reply-To: <1488292508-32506-1-git-send-email-sds@tycho.nsa.gov>
-Message-ID: <alpine.LRH.2.20.1703011311340.4214@namei.org>
-References: <1488292508-32506-1-git-send-email-sds@tycho.nsa.gov>
+Subject: Re: [PATCH 1/6] semodule_package: do not leak memory when using -u or
+ -s
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20170227203935.23674-1-nicolas.iooss@m4x.org>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <03cce8c9-4384-caa8-8384-fae41752017d@tycho.nsa.gov>
+Date: Wed, 1 Mar 2017 11:35:26 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20170227203935.23674-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 28 Feb 2017, Stephen Smalley wrote:
+On 02/27/2017 03:39 PM, Nicolas Iooss wrote:
+> When using -u and -s options, semodule_package's main() allocates
+> user_extra and seusers to hold the argument values. These allocated
+> memory blocks are not freed when main() exits, which leads gcc's Address
+> Sanitizer to report a memory leak. This occurs for example when building
+> refpolicy base.pp module.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-> 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+I applied all six of these patches.
+
+Thanks,
+Jim
+
 > ---
-
-Applied to
-git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security.git#next-queue
+>  semodule-utils/semodule_package/semodule_package.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/semodule-utils/semodule_package/semodule_package.c b/semodule-utils/semodule_package/semodule_package.c
+> index e472054826a3..a25daf59f9e7 100644
+> --- a/semodule-utils/semodule_package/semodule_package.c
+> +++ b/semodule-utils/semodule_package/semodule_package.c
+> @@ -257,5 +257,7 @@ int main(int argc, char **argv)
+>  	free(file_contexts);
+>  	free(outfile);
+>  	free(module);
+> +	free(seusers);
+> +	free(user_extra);
+>  	exit(0);
+>  }
+>
 
 
 -- 
-James Morris
-<jmorris@namei.org>
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
