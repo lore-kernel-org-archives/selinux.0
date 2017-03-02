@@ -1,60 +1,63 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v226Ct1F030423
- for <selinux@tycho.nsa.gov>; Thu, 2 Mar 2017 01:12:55 -0500
-Received: by mail-pg0-f50.google.com with SMTP id 25so28692478pgy.0
- for <selinux@tycho.nsa.gov>; Wed, 01 Mar 2017 22:12:54 -0800 (PST)
-Date: Thu, 2 Mar 2017 14:12:51 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Ian Pilcher <arequipeno@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-Subject: Re: SELinux type transition rule not working
-Message-ID: <20170302061251.GA5583@meriadoc.perfinion.com>
-References: <51816900-3b52-8eb6-bf86-75aa8540fca3@gmail.com>
- <CAJ2a_DdGZcTr+877CUjWTC97Mg7ROAXTgyESpEq54nBpC-HvkQ@mail.gmail.com>
- <4ed435ac-9344-02a5-23be-4312500e2085@gmail.com>
- <fa679ade-ce06-405b-5474-31dfa5b3b394@gmail.com>
+Subject: Re: selinux transition rules
+References: <81aa96e5-873c-2514-92b2-2d272b8fe619@rm-it.pl>
+ <CAJ2a_DdR_k-CPheK0bU7RbZLM_TBmdAuJszvsod8sqkfCJL9Pg@mail.gmail.com>
+ <CAJ2a_DdWM7KYCAecAAf-jnt9zPsgmCumUx=HXODDR699WQAY3A@mail.gmail.com>
+ <CAJ2a_DcUpbJLicXRubg5Whs43Y_1WuxBaZks30javMuh+v2bcw@mail.gmail.com>
+ <6b788f35-ffea-4fee-faba-3a4cb7061608@rm-it.pl>
+From: "RM-IT R.Mielnik" <r.mielnik@rm-it.pl>
+To: Selinux@tycho.nsa.gov
+Message-ID: <9f2d3707-64bf-5fca-8f09-cdbe9006398f@rm-it.pl>
+Date: Thu, 2 Mar 2017 12:18:19 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <fa679ade-ce06-405b-5474-31dfa5b3b394@gmail.com>
+In-Reply-To: <6b788f35-ffea-4fee-faba-3a4cb7061608@rm-it.pl>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Mar 01, 2017 at 05:51:01PM -0600, Ian Pilcher wrote:
-> On 03/01/2017 05:28 PM, Ian Pilcher wrote:
-> > Per Lennart's response, systemd *should* be honoring the file context
-> > rules when creating the directory.  It's almost as if the directory is
-> > being created with the proper context, but something is changing it
-> > after the fact.  I have absolutely no idea what that might be, though.
 
-Try using auditd to get details on everything going on in there:
-auditctl -w /var/run/squoxy -p rwa -k watchsquoxy
+W dniu 01.03.2017 o 00:51, RM-IT R.Mielnik pisze:
+>
+>>             hi,
+>>
+>>        i got a problem with transition rules. what i try to do is to
+>>     make selinux change the context type of "rwdirectory" while it is
+>>     created via ftp (proftpd in ftpd_t domain) in httpd_user_content_t
+>>     directory
+[...]
 
-then start things up and get everything matching with:
-ausearch -k watchsquoxy
+ok, i've found the reason. using auditctl mentioned in "SELinux type 
+transition rule not working" (jason zaman: thank you:)) i got on working 
+system:
 
-also, not sure if it was just weirdness in your email formatting, but
-you dont need the ^ at the front of an fcontext:
-^/var/run/squoxy
+type=PATH msg=audit(1488452722.762:8109253): item=0 name="/some/path/" 
+inode=403256560 dev=93:00 mode=040755 ouid=48 ogid=48 rdev=00:00 
+obj=system_u:object_r:httpd_user_content_t:s0 objtype=PARENT
 
--- Jason
+type=PATH msg=audit(1488452722.762:8109253): item=1 
+name="/some/path/.rw" inode=1386632 dev=93:00 mode=040755 ouid=48 
+ogid=48 rdev=00:00 obj=system_u:object_r:httpd_user_rw_content_t:s0 
+objtype=CREATE
 
-> Hmm.  Just for grins, I created a tmpfiles config file:
-> 
-> d /run/squoxy 0755 nobody nobody - -
-> 
-> This gives me the correct context on the directory:
-> 
-> drwxr-xr-x. nobody nobody system_u:object_r:squoxy_var_run_t:s0 /run/squoxy
-> 
-> -- 
-> ========================================================================
-> Ian Pilcher                                         arequipeno@gmail.com
-> -------- "I grew up before Mark Zuckerberg invented friendship" --------
-> ========================================================================
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+and on failing system(s):
+
+type=PATH msg=audit(1488450181.426:89307): item=0 name="/some/path/" 
+inode=134671193 dev=fd:02 mode=040755 ouid=48 ogid=48 rdev=00:00 
+obj=system_u:object_r:httpd_user_content_t:s0 objtype=PARENT
+
+type=PATH msg=audit(1488450181.426:89307): item=1 name="/some/path/" 
+inode=134671193 dev=fd:02 mode=040755 ouid=48 ogid=48 rdev=00:00 
+obj=system_u:object_r:httpd_user_content_t:s0 objtype=PARENT
+
+type=PATH msg=audit(1488450181.426:89307): item=2 
+name="/some/path/.dstXX6M4cr8" inode=101891 dev=fd:02 mode=040755 
+ouid=48 ogid=48 rdev=00:00 obj=system_u:object_r:httpd_user_content_t:s0 
+objtype=DELETE
+
+type=PATH msg=audit(1488450181.426:89307): item=3 name="/some/path/.rw" 
+inode=101891 dev=fd:02 mode=040755 ouid=48 ogid=48 rdev=00:00 
+obj=system_u:object_r:httpd_user_content_t:s0 objtype=CREATE
+
+on a second case proftpd uses temporary dir name, so there is no chance 
+for pattern to work. bummer... have to work it out differently
