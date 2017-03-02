@@ -1,49 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v222TSLW001377
- for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2017 21:29:28 -0500
-Received: from int-mx09.intmail.prod.int.phx2.redhat.com
- (int-mx09.intmail.prod.int.phx2.redhat.com [10.5.11.22])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 65FF5C057FAC
- for <selinux@tycho.nsa.gov>; Thu,  2 Mar 2017 02:29:27 +0000 (UTC)
-Received: from dhcp-40-5.bne.redhat.com (ovpn-116-20.sin2.redhat.com
- [10.67.116.20])
- by int-mx09.intmail.prod.int.phx2.redhat.com (8.14.4/8.14.4) with ESMTP id
- v222TL4A009928
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
- for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2017 21:29:26 -0500
-To: selinux@tycho.nsa.gov
-From: Doug Brown <dgbrown@redhat.com>
-Subject: seapply - alternative to semanage for configuration management
-Message-ID: <744a0953-a3a5-ad1a-aa47-889829c39be9@redhat.com>
-Date: Thu, 2 Mar 2017 12:29:19 +1000
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v226Ct1F030423
+ for <selinux@tycho.nsa.gov>; Thu, 2 Mar 2017 01:12:55 -0500
+Received: by mail-pg0-f50.google.com with SMTP id 25so28692478pgy.0
+ for <selinux@tycho.nsa.gov>; Wed, 01 Mar 2017 22:12:54 -0800 (PST)
+Date: Thu, 2 Mar 2017 14:12:51 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: Ian Pilcher <arequipeno@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+Subject: Re: SELinux type transition rule not working
+Message-ID: <20170302061251.GA5583@meriadoc.perfinion.com>
+References: <51816900-3b52-8eb6-bf86-75aa8540fca3@gmail.com>
+ <CAJ2a_DdGZcTr+877CUjWTC97Mg7ROAXTgyESpEq54nBpC-HvkQ@mail.gmail.com>
+ <4ed435ac-9344-02a5-23be-4312500e2085@gmail.com>
+ <fa679ade-ce06-405b-5474-31dfa5b3b394@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <fa679ade-ce06-405b-5474-31dfa5b3b394@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi list,
+On Wed, Mar 01, 2017 at 05:51:01PM -0600, Ian Pilcher wrote:
+> On 03/01/2017 05:28 PM, Ian Pilcher wrote:
+> > Per Lennart's response, systemd *should* be honoring the file context
+> > rules when creating the directory.  It's almost as if the directory is
+> > being created with the proper context, but something is changing it
+> > after the fact.  I have absolutely no idea what that might be, though.
 
-Some SELinux configurations can't be included in policy and require the
-use of semanage. This is fine in some cases, such as the installation of
-services by package management, but the use of `semanage -i` doesn't
-lend itself well to applying and enforcing certain local changes (e.g.
-RBAC mappings) using configuration management tools (Ansible, puppet, etc.).
+Try using auditd to get details on everything going on in there:
+auditctl -w /var/run/squoxy -p rwa -k watchsquoxy
 
-To address this, I've created a new command 'seapply'
-(https://github.com/doksu/seapply), which takes a JSON representation of
-the desired configuration and compares it to the local running
-configuration. Iff discrepancies exist, it rectifies those specific
-differences. In this way, a configuration management tool can run the
-seapply command frequently without reapplying all the local SELinux
-configuration customisations each time (which significantly slows down
-the application of configuration management policies).
+then start things up and get everything matching with:
+ausearch -k watchsquoxy
 
-Any suggestions or feedback? Would it be possible to bring this into the
-tool set?
+also, not sure if it was just weirdness in your email formatting, but
+you dont need the ^ at the front of an fcontext:
+^/var/run/squoxy
 
-Cheers,
-Doug
+-- Jason
+
+> Hmm.  Just for grins, I created a tmpfiles config file:
+> 
+> d /run/squoxy 0755 nobody nobody - -
+> 
+> This gives me the correct context on the directory:
+> 
+> drwxr-xr-x. nobody nobody system_u:object_r:squoxy_var_run_t:s0 /run/squoxy
+> 
+> -- 
+> ========================================================================
+> Ian Pilcher                                         arequipeno@gmail.com
+> -------- "I grew up before Mark Zuckerberg invented friendship" --------
+> ========================================================================
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
