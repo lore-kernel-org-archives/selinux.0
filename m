@@ -1,38 +1,29 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v21Np4NT024451
- for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2017 18:51:04 -0500
-Received: by mail-ot0-f181.google.com with SMTP id k4so41418122otc.0
- for <selinux@tycho.nsa.gov>; Wed, 01 Mar 2017 15:51:03 -0800 (PST)
-Subject: Re: SELinux type transition rule not working
-References: <51816900-3b52-8eb6-bf86-75aa8540fca3@gmail.com>
- <CAJ2a_DdGZcTr+877CUjWTC97Mg7ROAXTgyESpEq54nBpC-HvkQ@mail.gmail.com>
- <4ed435ac-9344-02a5-23be-4312500e2085@gmail.com>
-To: Systemd <systemd-devel@lists.freedesktop.org>,
- selinux <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2203HnA028198
+ for <selinux@tycho.nsa.gov>; Wed, 1 Mar 2017 19:03:17 -0500
+Received: by mail-ot0-f181.google.com with SMTP id i1so41646418ota.3
+ for <selinux@tycho.nsa.gov>; Wed, 01 Mar 2017 16:03:17 -0800 (PST)
+Received: from ian.penurio.us (cpe-70-119-136-2.tx.res.rr.com. [70.119.136.2])
+ by smtp.gmail.com with ESMTPSA id
+ b10sm2714522oif.17.2017.03.01.16.03.16 for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Wed, 01 Mar 2017 16:03:16 -0800 (PST)
+To: selinux <selinux@tycho.nsa.gov>
 From: Ian Pilcher <arequipeno@gmail.com>
-Message-ID: <fa679ade-ce06-405b-5474-31dfa5b3b394@gmail.com>
-Date: Wed, 1 Mar 2017 17:51:01 -0600
+Subject: Securing a service written in Python
+Message-ID: <549fe2cd-80db-44ee-a34e-edaa38550a3f@gmail.com>
+Date: Wed, 1 Mar 2017 18:03:15 -0600
 MIME-Version: 1.0
-In-Reply-To: <4ed435ac-9344-02a5-23be-4312500e2085@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/01/2017 05:28 PM, Ian Pilcher wrote:
-> Per Lennart's response, systemd *should* be honoring the file context
-> rules when creating the directory.  It's almost as if the directory is
-> being created with the proper context, but something is changing it
-> after the fact.  I have absolutely no idea what that might be, though.
+Can anyone provide any pointers, links, advice, examples, etc. for
+writing a policy to secure a service written in Python?
 
-Hmm.  Just for grins, I created a tmpfiles config file:
-
-d /run/squoxy 0755 nobody nobody - -
-
-This gives me the correct context on the directory:
-
-drwxr-xr-x. nobody nobody system_u:object_r:squoxy_var_run_t:s0 /run/squoxy
+Thanks!
 
 -- 
 ========================================================================
