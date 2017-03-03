@@ -1,77 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23HZqGt026727
- for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 12:35:52 -0500
-Received: by mail-it0-f54.google.com with SMTP id 203so17094030ith.0
- for <selinux@tycho.nsa.gov>; Fri, 03 Mar 2017 09:35:50 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23JX1uT006803
+ for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 14:33:01 -0500
+Received: by mail-ot0-f194.google.com with SMTP id 19so1410464oti.0
+ for <selinux@tycho.nsa.gov>; Fri, 03 Mar 2017 11:32:56 -0800 (PST)
+Subject: Re: [systemd-devel] SELinux type transition rule not working
+To: Simon Sekidde <ssekidde@redhat.com>
+References: <51816900-3b52-8eb6-bf86-75aa8540fca3@gmail.com>
+ <20170301222511.GA29059@gardel-login>
+ <944362898.27340550.1488467628547.JavaMail.zimbra@redhat.com>
+ <3cf89bd9-7f2b-81d0-c531-db6890cc2fee@gmail.com>
+ <333322329.27680470.1488556919299.JavaMail.zimbra@redhat.com>
+ <44544158.27690099.1488559508818.JavaMail.zimbra@redhat.com>
+Cc: Systemd <systemd-devel@lists.freedesktop.org>, selinux@tycho.nsa.gov
+From: Ian Pilcher <arequipeno@gmail.com>
+Message-ID: <ed928821-bc0d-331f-ce94-44a38dd3b4ff@gmail.com>
+Date: Fri, 3 Mar 2017 13:32:54 -0600
 MIME-Version: 1.0
-In-Reply-To: <20170303172330.83421-1-glider@google.com>
-References: <20170303172330.83421-1-glider@google.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Fri, 3 Mar 2017 09:35:49 -0800
-Message-ID: <CANn89i+RB0o98-uVPTMfx919T8M+X0AGt7U636O6ERK=685gsQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: check for address length in selinux_socket_bind()
-To: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>,
- Kees Cook <keescook@chromium.org>, Paul Moore <paul@paul-moore.com>,
- sds@tycho.nsa.gov, LKML <linux-kernel@vger.kernel.org>,
- netdev <netdev@vger.kernel.org>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <44544158.27690099.1488559508818.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 3, 2017 at 9:23 AM, Alexander Potapenko <glider@google.com> wrote:
-> This happens because bind() unconditionally copies |size| bytes of
-> |addr| to the kernel, leaving the rest uninitialized. Then
-> security_socket_bind() reads the IP address bytes, including the
-> uninitialized ones, to determine the port, or e.g. pass them further to
-> sel_netnode_find(), which uses them to calculate a hash.
->
-> Signed-off-by: Alexander Potapenko <glider@google.com>
-> ---
->  security/selinux/hooks.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 0a4b4b040e0a..eba54489b11b 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4351,10 +4351,19 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
->                 u32 sid, node_perm;
->
->                 if (family == PF_INET) {
-> +                       if (addrlen != sizeof(struct sockaddr_in)) {
+On 03/03/2017 10:45 AM, Simon Sekidde wrote:
+> Ian do you have a copy of this custom policy somewhere?
 
-Please take a look at inet_bind()
+https://github.com/ipilcher/squoxy/blob/master/squoxy.te
 
-The correct test would be :
-
-                     if (addrlen < sizeof(struct sockaddr_in))
-                                     err = -EINVAL;
-...
-
-
-> +                               err = -EINVAL;
-> +                               goto out;
-> +                       }
->                         addr4 = (struct sockaddr_in *)address;
->                         snum = ntohs(addr4->sin_port);
->                         addrp = (char *)&addr4->sin_addr.s_addr;
-> +
->                 } else {
-> +                       if (addrlen != sizeof(struct sockaddr_in6)) {
-
-Look at inet6_bind()
-
-                    if (addrlen < SIN6_LEN_RFC2133)
-
-> +                               err = -EINVAL;
-> +                               goto out;
-> +                       }
->                         addr6 = (struct sockaddr_in6 *)address;
->                         snum = ntohs(addr6->sin6_port);
->                         addrp = (char *)&addr6->sin6_addr.s6_addr;
-> --
-> 2.12.0.rc1.440.g5b76565f74-goog
->
+-- 
+========================================================================
+Ian Pilcher                                         arequipeno@gmail.com
+-------- "I grew up before Mark Zuckerberg invented friendship" --------
+========================================================================
