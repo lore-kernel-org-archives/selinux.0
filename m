@@ -1,108 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23GjHS3027631
- for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 11:45:17 -0500
-Date: Fri, 3 Mar 2017 11:45:08 -0500 (EST)
-From: Simon Sekidde <ssekidde@redhat.com>
-To: Ian Pilcher <arequipeno@gmail.com>
-Cc: Systemd <systemd-devel@lists.freedesktop.org>, lennart@poettering.net,
- selinux@tycho.nsa.gov
-Message-ID: <44544158.27690099.1488559508818.JavaMail.zimbra@redhat.com>
-In-Reply-To: <333322329.27680470.1488556919299.JavaMail.zimbra@redhat.com>
-References: <51816900-3b52-8eb6-bf86-75aa8540fca3@gmail.com>
- <20170301222511.GA29059@gardel-login>
- <944362898.27340550.1488467628547.JavaMail.zimbra@redhat.com>
- <3cf89bd9-7f2b-81d0-c531-db6890cc2fee@gmail.com>
- <333322329.27680470.1488556919299.JavaMail.zimbra@redhat.com>
-Subject: Re: [systemd-devel] SELinux type transition rule not working
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23HNfiM019577
+ for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 12:23:42 -0500
+Received: by mail-wm0-f49.google.com with SMTP id v186so20531938wmd.0
+ for <selinux@tycho.nsa.gov>; Fri, 03 Mar 2017 09:23:36 -0800 (PST)
+From: Alexander Potapenko <glider@google.com>
+To: dvyukov@google.com, kcc@google.com, keescook@chromium.org,
+ edumazet@google.com, paul@paul-moore.com, sds@tycho.nsa.gov
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, selinux@tycho.nsa.gov
+Subject: [PATCH] selinux: check for address length in selinux_socket_bind()
+Date: Fri,  3 Mar 2017 18:23:30 +0100
+Message-Id: <20170303172330.83421-1-glider@google.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Ian do you have a copy of this custom policy somewhere?
+KMSAN (KernelMemorySanitizer, a new error detection tool) reports use of
+uninitialized memory in packet_bind_spkt():
 
------ Original Message -----
-> From: "Simon Sekidde" <ssekidde@redhat.com>
-> To: "Ian Pilcher" <arequipeno@gmail.com>
-> Cc: "Systemd" <systemd-devel@lists.freedesktop.org>, lennart@poettering.net, selinux@tycho.nsa.gov
-> Sent: Friday, March 3, 2017 11:01:59 AM
-> Subject: Re: [systemd-devel] SELinux type transition rule not working
-> 
-> 
-> 
-> ----- Original Message -----
-> > From: "Ian Pilcher" <arequipeno@gmail.com>
-> > To: "Simon Sekidde" <ssekidde@redhat.com>
-> > Cc: "Systemd" <systemd-devel@lists.freedesktop.org>, selinux@tycho.nsa.gov,
-> > lennart@poettering.net
-> > Sent: Friday, March 3, 2017 10:44:18 AM
-> > Subject: Re: [systemd-devel] SELinux type transition rule not working
-> > 
-> > On 03/02/2017 09:13 AM, Simon Sekidde wrote:
-> > > I assume this would be a pid file?
-> > 
-> > You assume correctly.
-> > 
-> > > If so then what you are probably looking for is a filename_trans rule
-> > > and will require a new interface in squid.if for this.
-> > >
-> > > Try something like
-> > >
-> > > interface(`squid_filetrans_named_content',` gen_require(`
-> > > type_squid_var_run_t; ')
-> > >
-> > > files_pid_filetrans($1, squid_var_run_t, dir, "squozy") ')
-> > 
-> > Not sure where squid came from.  The service is one of my own making
-> > called "squoxy" (short for "Squeezebox proxy").  Its purpose is to
-> > forward Squeezebox discovery broadcast packets from one network to
-> > another.
-> > 
-> 
-> Sorry I must have been doing something in the squid policy while I was
-> responding to this...
-> 
-> > So I assume that I would need to add something like this to my policy
-> > module:
-> > 
-> >    files_pid_filetrans(var_run_t, squoxy_var_run_t, dir, "squoxy")
-> > 
-> > (I'm guessing at what to put in for $1.)
-> > 
-> 
-> files_pid_filetrans(squoxy_t, squoxy_var_run_t, dir, "squoxy")
-> 
-> Files created by the squoxy_t processes in the var_run_t directory will be
-> created with the squoxy_var_run_t label
-> 
-> > >> Hmm, so the relevant code in systemd actually labels the dir after
-> > >> creating it after an selinux database lookup, so from our side all
-> > >> should be good:
-> > >>
-> > >> https://github.com/systemd/systemd/blob/master/src/core/execute.c#L1857
-> > >>
-> > >>
-> > >>(specifically, we all mkdir_p_label() instead of plain mkdir_p()
-> >  >> there)
-> > 
-> > And this is working now, presumably after a reboot?  I do so love
-> > non-deterministic computers.  :-/
-> > 
-> > --
-> > ========================================================================
-> > Ian Pilcher                                         arequipeno@gmail.com
-> > -------- "I grew up before Mark Zuckerberg invented friendship" --------
-> > ========================================================================
-> > 
-> 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
-> 
+==================================================================
+BUG: KMSAN: use of unitialized memory
+inter: 0
+CPU: 3 PID: 1074 Comm: packet2 Tainted: G    B           4.8.0-rc6+ #1916
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
+ 0000000000000000 ffff8800882ffb08 ffffffff825759c8 ffff8800882ffa48
+ ffffffff818bf551 ffffffff85bab870 0000000000000092 ffffffff85bab550
+ 0000000000000000 0000000000000092 00000000bb0009bb 0000000000000002
+Call Trace:
+ [<     inline     >] __dump_stack lib/dump_stack.c:15
+ [<ffffffff825759c8>] dump_stack+0x238/0x290 lib/dump_stack.c:51
+ [<ffffffff818bdee6>] kmsan_report+0x276/0x2e0 mm/kmsan/kmsan.c:1008
+ [<ffffffff818bf0fb>] __msan_warning+0x5b/0xb0 mm/kmsan/kmsan_instr.c:424
+ [<ffffffff822dae71>] selinux_socket_bind+0xf41/0x1080 security/selinux/hooks.c:4288
+ [<ffffffff8229357c>] security_socket_bind+0x1ec/0x240 security/security.c:1240
+ [<ffffffff84265d98>] SYSC_bind+0x358/0x5f0 net/socket.c:1366
+ [<ffffffff84265a22>] SyS_bind+0x82/0xa0 net/socket.c:1356
+ [<ffffffff81005678>] do_syscall_64+0x58/0x70 arch/x86/entry/common.c:292
+ [<ffffffff8518217c>] entry_SYSCALL64_slow_path+0x25/0x25 arch/x86/entry/entry_64.o:?
+chained origin: 00000000ba6009bb
+ [<ffffffff810bb7a7>] save_stack_trace+0x27/0x50 arch/x86/kernel/stacktrace.c:67
+ [<     inline     >] kmsan_save_stack_with_flags mm/kmsan/kmsan.c:322
+ [<     inline     >] kmsan_save_stack mm/kmsan/kmsan.c:337
+ [<ffffffff818bd2b8>] kmsan_internal_chain_origin+0x118/0x1e0 mm/kmsan/kmsan.c:530
+ [<ffffffff818bf033>] __msan_set_alloca_origin4+0xc3/0x130 mm/kmsan/kmsan_instr.c:380
+ [<ffffffff84265b69>] SYSC_bind+0x129/0x5f0 net/socket.c:1356
+ [<ffffffff84265a22>] SyS_bind+0x82/0xa0 net/socket.c:1356
+ [<ffffffff81005678>] do_syscall_64+0x58/0x70 arch/x86/entry/common.c:292
+ [<ffffffff8518217c>] return_from_SYSCALL_64+0x0/0x6a arch/x86/entry/entry_64.o:?
+origin description: ----address@SYSC_bind (origin=00000000b8c00900)
+==================================================================
+
+(the line numbers are relative to 4.8-rc6, but the bug persists upstream)
+
+, when I run the following program as root:
+
+=======================================================
+  #include <string.h>
+  #include <sys/socket.h>
+  #include <netinet/in.h>
+
+  int main(int argc, char *argv[]) {
+    struct sockaddr addr;
+    int size = 0;
+    if (argc > 1) {
+      size = atoi(argv[1]);
+    }
+    memset(&addr, 0, sizeof(addr));
+    int fd = socket(PF_INET6, SOCK_DGRAM, IPPROTO_IP);
+    bind(fd, &addr, size);
+    return 0;
+  }
+=======================================================
+
+(for different values of |size| other error reports are printed).
+
+This happens because bind() unconditionally copies |size| bytes of
+|addr| to the kernel, leaving the rest uninitialized. Then
+security_socket_bind() reads the IP address bytes, including the
+uninitialized ones, to determine the port, or e.g. pass them further to
+sel_netnode_find(), which uses them to calculate a hash.
+
+Signed-off-by: Alexander Potapenko <glider@google.com>
+---
+ security/selinux/hooks.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0a4b4b040e0a..eba54489b11b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4351,10 +4351,19 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 		u32 sid, node_perm;
+ 
+ 		if (family == PF_INET) {
++			if (addrlen != sizeof(struct sockaddr_in)) {
++				err = -EINVAL;
++				goto out;
++			}
+ 			addr4 = (struct sockaddr_in *)address;
+ 			snum = ntohs(addr4->sin_port);
+ 			addrp = (char *)&addr4->sin_addr.s_addr;
++
+ 		} else {
++			if (addrlen != sizeof(struct sockaddr_in6)) {
++				err = -EINVAL;
++				goto out;
++			}
+ 			addr6 = (struct sockaddr_in6 *)address;
+ 			snum = ntohs(addr6->sin6_port);
+ 			addrp = (char *)&addr6->sin6_addr.s6_addr;
+-- 
+2.12.0.rc1.440.g5b76565f74-goog
