@@ -1,60 +1,68 @@
-Message-ID: <1488556029.16842.24.camel@tycho.nsa.gov>
-Subject: Re: SELinux type transition rule not working
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Ian Pilcher <arequipeno@gmail.com>, Jason Zaman <jason@perfinion.com>
-Cc: Systemd <systemd-devel@lists.freedesktop.org>, selinux
- <selinux@tycho.nsa.gov>
-Date: Fri, 03 Mar 2017 10:47:09 -0500
-In-Reply-To: <e18103c4-9ab5-da29-38e5-9f6f2145ec5a@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23FiLpL007348
+ for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 10:44:22 -0500
+Received: by mail-ot0-f193.google.com with SMTP id a12so8808841ota.2
+ for <selinux@tycho.nsa.gov>; Fri, 03 Mar 2017 07:44:20 -0800 (PST)
+Subject: Re: [systemd-devel] SELinux type transition rule not working
+To: Simon Sekidde <ssekidde@redhat.com>
 References: <51816900-3b52-8eb6-bf86-75aa8540fca3@gmail.com>
- <CAJ2a_DdGZcTr+877CUjWTC97Mg7ROAXTgyESpEq54nBpC-HvkQ@mail.gmail.com>
- <4ed435ac-9344-02a5-23be-4312500e2085@gmail.com>
- <fa679ade-ce06-405b-5474-31dfa5b3b394@gmail.com>
- <20170302061251.GA5583@meriadoc.perfinion.com>
- <e18103c4-9ab5-da29-38e5-9f6f2145ec5a@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+ <20170301222511.GA29059@gardel-login>
+ <944362898.27340550.1488467628547.JavaMail.zimbra@redhat.com>
+Cc: Systemd <systemd-devel@lists.freedesktop.org>, selinux@tycho.nsa.gov,
+ lennart@poettering.net
+From: Ian Pilcher <arequipeno@gmail.com>
+Message-ID: <3cf89bd9-7f2b-81d0-c531-db6890cc2fee@gmail.com>
+Date: Fri, 3 Mar 2017 09:44:18 -0600
+MIME-Version: 1.0
+In-Reply-To: <944362898.27340550.1488467628547.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-03-03 at 09:36 -0600, Ian Pilcher wrote:
-> On 03/02/2017 12:12 AM, Jason Zaman wrote:
-> > 
-> > On Wed, Mar 01, 2017 at 05:51:01PM -0600, Ian Pilcher wrote:
-> > > 
-> > > On 03/01/2017 05:28 PM, Ian Pilcher wrote:
-> > > > 
-> > > > Per Lennart's response, systemd *should* be honoring the file
-> > > > context
-> > > > rules when creating the directory.  It's almost as if the
-> > > > directory is
-> > > > being created with the proper context, but something is
-> > > > changing it
-> > > > after the fact.  I have absolutely no idea what that might be,
-> > > > though.
-> > 
-> > Try using auditd to get details on everything going on in there:
-> > auditctl -w /var/run/squoxy -p rwa -k watchsquoxy
-> > 
-> > then start things up and get everything matching with:
-> > ausearch -k watchsquoxy
-> 
-> And wouldn't you know ... I can't reproduce the behavior
-> now.  Sheesh!
-> Must be one of these fancy new quantum computers.  (Something about
-> rebooting 3 times comes to mind.)
-> 
-> > 
-> > also, not sure if it was just weirdness in your email formatting,
-> > but
-> > you dont need the ^ at the front of an fcontext:
-> > ^/var/run/squoxy
-> 
-> Does SELinux add an implicit ^ at the beginning of each expression?
-> Otherwise, wouldn't /run/squoxy(/.*)? also match
-> /foo/run/squoxy?  (Not
-> necessarily likely, but ...)
+On 03/02/2017 09:13 AM, Simon Sekidde wrote:
+> I assume this would be a pid file?
 
-SELinux implicitly anchors the regexes at both ends (^regex$).
+You assume correctly.
+
+> If so then what you are probably looking for is a filename_trans rule
+> and will require a new interface in squid.if for this.
+>
+> Try something like
+>
+> interface(`squid_filetrans_named_content',` gen_require(`
+> type_squid_var_run_t; ')
+>
+> files_pid_filetrans($1, squid_var_run_t, dir, "squozy") ')
+
+Not sure where squid came from.  The service is one of my own making
+called "squoxy" (short for "Squeezebox proxy").  Its purpose is to
+forward Squeezebox discovery broadcast packets from one network to
+another.
+
+So I assume that I would need to add something like this to my policy
+module:
+
+   files_pid_filetrans(var_run_t, squoxy_var_run_t, dir, "squoxy")
+
+(I'm guessing at what to put in for $1.)
+
+>> Hmm, so the relevant code in systemd actually labels the dir after
+>> creating it after an selinux database lookup, so from our side all
+>> should be good:
+>>
+>> https://github.com/systemd/systemd/blob/master/src/core/execute.c#L1857
+>>
+>>
+>>(specifically, we all mkdir_p_label() instead of plain mkdir_p()
+ >> there)
+
+And this is working now, presumably after a reboot?  I do so love
+non-deterministic computers.  :-/
+
+-- 
+========================================================================
+Ian Pilcher                                         arequipeno@gmail.com
+-------- "I grew up before Mark Zuckerberg invented friendship" --------
+========================================================================
