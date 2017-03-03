@@ -1,86 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23HQoH5021287
- for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 12:26:50 -0500
-Received: by mail-qk0-f177.google.com with SMTP id g129so3116034qkd.1
- for <selinux@tycho.nsa.gov>; Fri, 03 Mar 2017 09:26:27 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23HZqGt026727
+ for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 12:35:52 -0500
+Received: by mail-it0-f54.google.com with SMTP id 203so17094030ith.0
+ for <selinux@tycho.nsa.gov>; Fri, 03 Mar 2017 09:35:50 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <20170303172330.83421-1-glider@google.com>
 References: <20170303172330.83421-1-glider@google.com>
-From: Alexander Potapenko <glider@google.com>
-Date: Fri, 3 Mar 2017 18:26:25 +0100
-Message-ID: <CAG_fn=WHuZX-LitQ3xWxQzpFE2Pkj_CkYaS+3vMhA9B1ztpm_A@mail.gmail.com>
+From: Eric Dumazet <edumazet@google.com>
+Date: Fri, 3 Mar 2017 09:35:49 -0800
+Message-ID: <CANn89i+RB0o98-uVPTMfx919T8M+X0AGt7U636O6ERK=685gsQ@mail.gmail.com>
 Subject: Re: [PATCH] selinux: check for address length in selinux_socket_bind()
-To: Dmitriy Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>,
- Kees Cook <keescook@chromium.org>, Eric Dumazet <edumazet@google.com>,
- Paul Moore <paul@paul-moore.com>, sds@tycho.nsa.gov
-Cc: LKML <linux-kernel@vger.kernel.org>, Networking <netdev@vger.kernel.org>,
- selinux@tycho.nsa.gov
+To: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>, Kostya Serebryany <kcc@google.com>,
+ Kees Cook <keescook@chromium.org>, Paul Moore <paul@paul-moore.com>,
+ sds@tycho.nsa.gov, LKML <linux-kernel@vger.kernel.org>,
+ netdev <netdev@vger.kernel.org>, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 3, 2017 at 6:23 PM, Alexander Potapenko <glider@google.com> wrote:
-> KMSAN (KernelMemorySanitizer, a new error detection tool) reports use of
-> uninitialized memory in packet_bind_spkt():
-Should be "in selinux_socket_bind()", will fix in the next patch version.
-> ==================================================================
-> BUG: KMSAN: use of unitialized memory
-> inter: 0
-> CPU: 3 PID: 1074 Comm: packet2 Tainted: G    B           4.8.0-rc6+ #1916
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Bochs 01/01/2011
->  0000000000000000 ffff8800882ffb08 ffffffff825759c8 ffff8800882ffa48
->  ffffffff818bf551 ffffffff85bab870 0000000000000092 ffffffff85bab550
->  0000000000000000 0000000000000092 00000000bb0009bb 0000000000000002
-> Call Trace:
->  [<     inline     >] __dump_stack lib/dump_stack.c:15
->  [<ffffffff825759c8>] dump_stack+0x238/0x290 lib/dump_stack.c:51
->  [<ffffffff818bdee6>] kmsan_report+0x276/0x2e0 mm/kmsan/kmsan.c:1008
->  [<ffffffff818bf0fb>] __msan_warning+0x5b/0xb0 mm/kmsan/kmsan_instr.c:424
->  [<ffffffff822dae71>] selinux_socket_bind+0xf41/0x1080 security/selinux/hooks.c:4288
->  [<ffffffff8229357c>] security_socket_bind+0x1ec/0x240 security/security.c:1240
->  [<ffffffff84265d98>] SYSC_bind+0x358/0x5f0 net/socket.c:1366
->  [<ffffffff84265a22>] SyS_bind+0x82/0xa0 net/socket.c:1356
->  [<ffffffff81005678>] do_syscall_64+0x58/0x70 arch/x86/entry/common.c:292
->  [<ffffffff8518217c>] entry_SYSCALL64_slow_path+0x25/0x25 arch/x86/entry/entry_64.o:?
-> chained origin: 00000000ba6009bb
->  [<ffffffff810bb7a7>] save_stack_trace+0x27/0x50 arch/x86/kernel/stacktrace.c:67
->  [<     inline     >] kmsan_save_stack_with_flags mm/kmsan/kmsan.c:322
->  [<     inline     >] kmsan_save_stack mm/kmsan/kmsan.c:337
->  [<ffffffff818bd2b8>] kmsan_internal_chain_origin+0x118/0x1e0 mm/kmsan/kmsan.c:530
->  [<ffffffff818bf033>] __msan_set_alloca_origin4+0xc3/0x130 mm/kmsan/kmsan_instr.c:380
->  [<ffffffff84265b69>] SYSC_bind+0x129/0x5f0 net/socket.c:1356
->  [<ffffffff84265a22>] SyS_bind+0x82/0xa0 net/socket.c:1356
->  [<ffffffff81005678>] do_syscall_64+0x58/0x70 arch/x86/entry/common.c:292
->  [<ffffffff8518217c>] return_from_SYSCALL_64+0x0/0x6a arch/x86/entry/entry_64.o:?
-> origin description: ----address@SYSC_bind (origin=00000000b8c00900)
-> ==================================================================
->
-> (the line numbers are relative to 4.8-rc6, but the bug persists upstream)
->
-> , when I run the following program as root:
->
-> =======================================================
->   #include <string.h>
->   #include <sys/socket.h>
->   #include <netinet/in.h>
->
->   int main(int argc, char *argv[]) {
->     struct sockaddr addr;
->     int size = 0;
->     if (argc > 1) {
->       size = atoi(argv[1]);
->     }
->     memset(&addr, 0, sizeof(addr));
->     int fd = socket(PF_INET6, SOCK_DGRAM, IPPROTO_IP);
->     bind(fd, &addr, size);
->     return 0;
->   }
-> =======================================================
->
-> (for different values of |size| other error reports are printed).
->
+On Fri, Mar 3, 2017 at 9:23 AM, Alexander Potapenko <glider@google.com> wrote:
 > This happens because bind() unconditionally copies |size| bytes of
 > |addr| to the kernel, leaving the rest uninitialized. Then
 > security_socket_bind() reads the IP address bytes, including the
@@ -101,6 +42,16 @@ Should be "in selinux_socket_bind()", will fix in the next patch version.
 >
 >                 if (family == PF_INET) {
 > +                       if (addrlen != sizeof(struct sockaddr_in)) {
+
+Please take a look at inet_bind()
+
+The correct test would be :
+
+                     if (addrlen < sizeof(struct sockaddr_in))
+                                     err = -EINVAL;
+...
+
+
 > +                               err = -EINVAL;
 > +                               goto out;
 > +                       }
@@ -110,6 +61,11 @@ Should be "in selinux_socket_bind()", will fix in the next patch version.
 > +
 >                 } else {
 > +                       if (addrlen != sizeof(struct sockaddr_in6)) {
+
+Look at inet6_bind()
+
+                    if (addrlen < SIN6_LEN_RFC2133)
+
 > +                               err = -EINVAL;
 > +                               goto out;
 > +                       }
@@ -119,17 +75,3 @@ Should be "in selinux_socket_bind()", will fix in the next patch version.
 > --
 > 2.12.0.rc1.440.g5b76565f74-goog
 >
-
-
-
--- 
-Alexander Potapenko
-Software Engineer
-
-Google Germany GmbH
-Erika-Mann-Straße, 33
-80636 München
-
-Geschäftsführer: Matthew Scott Sucherman, Paul Terence Manicle
-Registergericht und -nummer: Hamburg, HRB 86891
-Sitz der Gesellschaft: Hamburg
