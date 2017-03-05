@@ -1,44 +1,78 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v23L0bAZ003551
- for <selinux@tycho.nsa.gov>; Fri, 3 Mar 2017 16:00:37 -0500
-Received: by mail-ot0-f194.google.com with SMTP id x37so5440942ota.1
- for <selinux@tycho.nsa.gov>; Fri, 03 Mar 2017 13:00:21 -0800 (PST)
-Subject: Re: [systemd-devel] SELinux type transition rule not working
-To: Simon Sekidde <ssekidde@redhat.com>
-References: <51816900-3b52-8eb6-bf86-75aa8540fca3@gmail.com>
- <20170301222511.GA29059@gardel-login>
- <944362898.27340550.1488467628547.JavaMail.zimbra@redhat.com>
- <3cf89bd9-7f2b-81d0-c531-db6890cc2fee@gmail.com>
- <333322329.27680470.1488556919299.JavaMail.zimbra@redhat.com>
- <44544158.27690099.1488559508818.JavaMail.zimbra@redhat.com>
- <ed928821-bc0d-331f-ce94-44a38dd3b4ff@gmail.com>
- <1353314837.27730740.1488572381714.JavaMail.zimbra@redhat.com>
-Cc: Systemd <systemd-devel@lists.freedesktop.org>, selinux@tycho.nsa.gov
-From: Ian Pilcher <arequipeno@gmail.com>
-Message-ID: <acc4b5a7-4508-1ff7-ed67-67e9d208383f@gmail.com>
-Date: Fri, 3 Mar 2017 15:00:19 -0600
-MIME-Version: 1.0
-In-Reply-To: <1353314837.27730740.1488572381714.JavaMail.zimbra@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/1] selinux: include sys/socket.h in host programs to have
+ PF_MAX
+Date: Sun,  5 Mar 2017 15:01:52 +0100
+Message-Id: <20170305140152.12728-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/03/2017 02:19 PM, Simon Sekidde wrote:
-> Thanks. Lets try to get a template going and we can help clean it up.
+Compiling with clang and -Wundef makes the compiler report a usage of
+undefined PF_MAX macro in security/selinux/include/classmap.h:
 
-I've been scrambling to get my home network setup (after migrating the
-main network server/router from CentOS 6 -> 7), so it's not surprise if
-things are a bit hacky right now.
+    In file included from scripts/selinux/mdp/mdp.c:48:
+    security/selinux/include/classmap.h:37:31: warning: no previous
+    extern declaration for non-static variable 'secclass_map'
+    [-Wmissing-variable-declarations]
+    struct security_class_mapping secclass_map[] = {
+                                  ^
+    security/selinux/include/classmap.h:235:5: error: 'PF_MAX' is not
+    defined, evaluates to 0 [-Werror,-Wundef]
+    #if PF_MAX > 43
+        ^
+    In file included from scripts/selinux/genheaders/genheaders.c:17:
+    security/selinux/include/classmap.h:37:31: warning: no previous
+    extern declaration for non-static variable 'secclass_map'
+    [-Wmissing-variable-declarations]
+    struct security_class_mapping secclass_map[] = {
+                                  ^
+    security/selinux/include/classmap.h:235:5: error: 'PF_MAX' is not
+    defined, evaluates to 0 [-Werror,-Wundef]
+    #if PF_MAX > 43
+        ^
 
->  sepolicy generate --init -n squoxy /usr/local/bin/squoxy
+PF_MAX is defined in include/linux/socket.h but not in
+include/uapi/linux/socket.h. Therefore host programs have to rely on the
+definition from libc's /usr/include/bits/socket.h, included by
+<sys/socket.h>.
 
-Yet another tool that I've never heard of before.  So much outdated
-info on SELinux out there.  :-(
+Fix the issue by using sys/socket.h in mdp and genheaders. When
+classmap.h is included by security/selinux/avc.c, it uses the kernel
+definition of PF_MAX, which makes the test consistent.
 
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ scripts/selinux/genheaders/genheaders.c | 1 +
+ scripts/selinux/mdp/mdp.c               | 1 +
+ 2 files changed, 2 insertions(+)
+
+diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/genheaders/genheaders.c
+index f4dd41f900d5..6a24569c3578 100644
+--- a/scripts/selinux/genheaders/genheaders.c
++++ b/scripts/selinux/genheaders/genheaders.c
+@@ -8,6 +8,7 @@
+ #include <string.h>
+ #include <errno.h>
+ #include <ctype.h>
++#include <sys/socket.h>
+ 
+ struct security_class_mapping {
+ 	const char *name;
+diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
+index c29fa4a6228d..ffe8179f5d41 100644
+--- a/scripts/selinux/mdp/mdp.c
++++ b/scripts/selinux/mdp/mdp.c
+@@ -32,6 +32,7 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <string.h>
++#include <sys/socket.h>
+ 
+ static void usage(char *name)
+ {
 -- 
-========================================================================
-Ian Pilcher                                         arequipeno@gmail.com
--------- "I grew up before Mark Zuckerberg invented friendship" --------
-========================================================================
+2.11.1
