@@ -1,59 +1,53 @@
-Message-ID: <1488828542.9415.391.camel@edumazet-glaptop3.roam.corp.google.com>
-Subject: Re: [PATCH v2] selinux: check for address length in
- selinux_socket_bind()
-From: Eric Dumazet <eric.dumazet@gmail.com>
-To: Alexander Potapenko <glider@google.com>
-Cc: dvyukov@google.com, kcc@google.com, keescook@chromium.org,
- edumazet@google.com, paul@paul-moore.com, sds@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Date: Mon, 06 Mar 2017 11:29:02 -0800
-In-Reply-To: <20170306184614.20056-1-glider@google.com>
-References: <20170306184614.20056-1-glider@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Subject: Re: [PATCH 1/6] restorecond: add noreturn attribute to exitApp()
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20170305171305.23170-1-nicolas.iooss@m4x.org>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <0d740d76-a9a5-9cf2-3288-f1e5cfd34e05@tycho.nsa.gov>
+Date: Tue, 7 Mar 2017 14:23:26 -0500
+MIME-Version: 1.0
+In-Reply-To: <20170305171305.23170-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-03-06 at 19:46 +0100, Alexander Potapenko wrote:
-> KMSAN (KernelMemorySanitizer, a new error detection tool) reports use of
-> uninitialized memory in selinux_socket_bind():
-> 
-...
-> Signed-off-by: Alexander Potapenko <glider@google.com>
-> ---
-> Changes since v1:
->  - fixed patch description
->  - fixed addrlen tests to match those in inet_bind() and inet6_bind()
->    (per comment from Eric Dumazet)
-> ---
->  security/selinux/hooks.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 0a4b4b040e0a..ddc4aca6c840 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4351,10 +4351,19 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
->  		u32 sid, node_perm;
->  
->  		if (family == PF_INET) {
-> +			if (addrlen < sizeof(struct sockaddr_in)) {
-> +				err = -EINVAL;
-> +				goto out;
-> +			}
->  			addr4 = (struct sockaddr_in *)address;
->  			snum = ntohs(addr4->sin_port);
->  			addrp = (char *)&addr4->sin_addr.s_addr;
-> +
->  		} else {
-> +			if (addrlen < SIN6_LEN_RFC2133) {
-> +				err = -EINVAL;
-> +				goto out;
-> +			}
->  			addr6 = (struct sockaddr_in6 *)address;
->  			snum = ntohs(addr6->sin6_port);
->  			addrp = (char *)&addr6->sin6_addr.s6_addr;
+On 03/05/2017 12:13 PM, Nicolas Iooss wrote:
+> This makes it possible for static analyzers such as clang's one to
+> understand that strings_list_add() cannot dereference a NULL pointer in
+> the following code:
+>
+>     if (!newptr)
+>         exitApp("Out of Memory");
+>     newptr->string = strdup(string);
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Acked-by: Eric Dumazet <edumazet@google.com>
+I applied these six patches.
+
+Thanks,
+Jim
+
+> ---
+>  restorecond/restorecond.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/restorecond/restorecond.h b/restorecond/restorecond.h
+> index a6be584c84a5..db7e50f72d2d 100644
+> --- a/restorecond/restorecond.h
+> +++ b/restorecond/restorecond.h
+> @@ -33,7 +33,7 @@ extern int run_as_user;
+>  extern int start(void);
+>  extern int server(int, const char *watch_file);
+>
+> -extern void exitApp(const char *msg);
+> +extern void exitApp(const char *msg) __attribute__((__noreturn__));
+>  extern void read_config(int fd,	const char *watch_file);
+>
+>  extern int watch(int fd, const char *watch_file);
+>
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
