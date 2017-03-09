@@ -1,139 +1,83 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v29EA1bI016434
- for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2017 09:10:01 -0500
-Subject: Re: [PATCH] Python 3.6 invalid escape sequence deprecation fixes
-To: =?UTF-8?Q?Ville_Skytt=c3=a4?= <ville.skytta@iki.fi>, selinux@tycho.nsa.gov
-References: <20170309090935.22458-1-ville.skytta@iki.fi>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <e58141ef-cc49-917a-5a0b-3186e67e9982@redhat.com>
-Date: Thu, 9 Mar 2017 15:09:54 +0100
-MIME-Version: 1.0
-In-Reply-To: <20170309090935.22458-1-ville.skytta@iki.fi>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo"
+Message-ID: <1489073315.10847.40.camel@tycho.nsa.gov>
+Subject: Re: isolate selinux_enforcing
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: yangshukui <yangshukui@huawei.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Cc: serge.hallyn@ubuntu.com, oleg@redhat.com, Lizefan <lizefan@huawei.com>,
+ james.l.morris@oracle.com, Kees Cook <keescook@chromium.org>, Nick
+ Kralevich <nnk@google.com>
+Date: Thu, 09 Mar 2017 10:28:35 -0500
+In-Reply-To: <58C11A6C.7000408@huawei.com>
+References: <58732BCF.4090908@huawei.com> <58734284.1060504@huawei.com>
+ <b7f75f65-592a-5102-0ac5-4d3aa43f0b55@huawei.com>
+ <58736B2E.90201@huawei.com> <58C11A6C.7000408@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo
-Content-Type: multipart/mixed; boundary="MsPWhpDiaIxhCq6a5T4mHlL37jaVVNoI0";
- protected-headers="v1"
-From: Petr Lautrbach <plautrba@redhat.com>
-To: =?UTF-8?Q?Ville_Skytt=c3=a4?= <ville.skytta@iki.fi>, selinux@tycho.nsa.gov
-Message-ID: <e58141ef-cc49-917a-5a0b-3186e67e9982@redhat.com>
-Subject: Re: [PATCH] Python 3.6 invalid escape sequence deprecation fixes
-References: <20170309090935.22458-1-ville.skytta@iki.fi>
-In-Reply-To: <20170309090935.22458-1-ville.skytta@iki.fi>
+On Thu, 2017-03-09 at 17:03 +0800, yangshukui wrote:
+> I want to use SELinux in system container and only concern the
+> function 
+> in the container.
+> this system container run in vm and every vm has only one system
+> container.
+> 
+> How do I use now?
+> docker run ... system-contaier /sbin/init
+> after init is running ,the following service is also running:
+> 
+> #this is the part of service file which will run in container after 
+> starting the container.
+> ...
+> semodule -R     #use the policy in container.
+> restorecon /     #if needed
+> ...
+> 
+> this method seem to work if host os and the docker images use the
+> same 
+> content for rootfs, but if host use
+> redhat7 and docker images use centos7, it will deny many normal 
+> operations , and this let some host service not work.
+> 
+> If SELinux is permissive in host and enforcing in container ,it will 
+> resolve my problem. Unfortunately,
+> there is no namespace for SELinux.
+> 
+> Isolate SELinux is difficult and it has a lot of work to do, but is 
+> easier to isolate selinux_enforcing.
+> 
+> What do you think ?
 
---MsPWhpDiaIxhCq6a5T4mHlL37jaVVNoI0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+I'd rather see proper SELinux policy namespace support implemented.
+Admittedly, that won't be straightforward.
 
-On 03/09/2017 10:09 AM, Ville Skytt=C3=A4 wrote:
-> https://docs.python.org/3/whatsnew/3.6.html#deprecated-python-behavior
+FWIW, ChromiumOS appears to have done something similar to what you
+suggest for supporting Android containers (i.e. SELinux enforcing for
+the Android container, permissive for ChromiumOS processes outside the
+container), but they never discussed it with upstream SELinux
+developers AFAIK.  My only knowledge of what they have done comes from
+their kernel repository [1]. It appears that they experimented with a
+hack to narrow the scope of selinux_enforcing to a PID namespace [2],
+then reverted that change later and just implemented an option to
+suppress audit denials for permissive domains [3] (evidently they are
+running the Chromium OS processes in a permissive domain; I haven't
+seen their policy).  I wouldn't recommend either approach; the former
+won't properly handle permission checks that occur outside of process
+context or certain permission checks where the source context is not
+the current task context (e.g. an inter-object relationship check),
+while the latter requires leaving a permissive domain in the production
+policy (which seemingly would violate CTS; not sure why that gets a
+pass, and if that is ok, then why didn't they just create a domain
+allowed all permissions and use that outside the container instead -
+then they won't need to suppress audit at all?) and further requires
+use of a separate kernel for policy development/debugging.  Note btw
+that they could have silenced the permissive denials via dontaudit
+rules instead (as Android does for its su domain) but chose not to do
+so to avoid taking the slow path.
 
-
-I'd suggest to add the text from the page directly to the commit message:=
-
-
-A backslash-character pair that is not a valid escape sequence now
-generates a DeprecationWarning. Although this will eventually become a
-SyntaxError, that will not be for several Python releases.
-
-
-The problem appears when you use '-W error':
-
-$ python3 -W error -c 'import re; re.findall("[^a-zA-Z0-9_\-\.]", " *%$")=
-'
-  File "<string>", line 1
-SyntaxError: invalid escape sequence \-
-
-
-> Signed-off-by: Ville Skytt=C3=A4 <ville.skytta@iki.fi>
-> ---
->  python/semanage/seobject.py            | 4 ++--
->  python/sepolgen/src/sepolgen/module.py | 2 +-
->  python/sepolicy/sepolicy/generate.py   | 2 +-
->  3 files changed, 4 insertions(+), 4 deletions(-)
->=20
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index c836cc5..94bd368 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -192,8 +192,8 @@ class nulllogger:
->  def validate_level(raw):
->      sensitivity =3D "s[0-9]*"
->      category =3D "c[0-9]*"
-> -    cat_range =3D category + "(\." + category + ")?"
-> -    categories =3D cat_range + "(\," + cat_range + ")*"
-> +    cat_range =3D category + r"(\." + category + ")?"
-> +    categories =3D cat_range + r"(\," + cat_range + ")*"
->      reg =3D sensitivity + "(-" + sensitivity + ")?" + "(:" + categorie=
-s + ")?"
->      return re.search("^" + reg + "$", raw)
-> =20
-> diff --git a/python/sepolgen/src/sepolgen/module.py b/python/sepolgen/s=
-rc/sepolgen/module.py
-> index c09676a..8766dd9 100644
-> --- a/python/sepolgen/src/sepolgen/module.py
-> +++ b/python/sepolgen/src/sepolgen/module.py
-> @@ -40,7 +40,7 @@ from . import defaults
->  def is_valid_name(modname):
->      """Check that a module name is valid.
->      """
-> -    m =3D re.findall("[^a-zA-Z0-9_\-\.]", modname)
-> +    m =3D re.findall(r"[^a-zA-Z0-9_\-\.]", modname)
->      if len(m) =3D=3D 0 and modname[0].isalpha():
->          return True
->      else:
-> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sep=
-olicy/generate.py
-> index 5696110..596891a 100644
-> --- a/python/sepolicy/sepolicy/generate.py
-> +++ b/python/sepolicy/sepolicy/generate.py
-> @@ -1329,7 +1329,7 @@ allow %s_t %s_t:%s_socket name_%s;
->              self.add_dir("/var/lib/%s" % self.name)
-> =20
->          if os.path.isfile("/etc/rc.d/init.d/%s" % self.name):
-> -            self.set_init_script("/etc/rc\.d/init\.d/%s" % self.name)
-> +            self.set_init_script(r"/etc/rc\.d/init\.d/%s" % self.name)=
-
-> =20
->          # we don't want to have subdir in the .fc policy file
->          # if we already specify labeling for parent dir
->=20
-
-
---=20
-Petr Lautrbach
-
-
-
---MsPWhpDiaIxhCq6a5T4mHlL37jaVVNoI0--
-
---H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEE6FPBhIsBhc9Chk3zY6itS5gsQ3MFAljBYjIACgkQY6itS5gs
-Q3Nqtg//aaiulFjAQyX1H7GyyYTs2wAp5tlDK8E+8EICFvuIifvA0RmwnJxK6XA5
-skCu1gP+RfRaSWMb/5CBAceHEmjOKHv8Zv9mLsLTlMdhHdl+5FmeWFi2lQmjedxK
-5bz1dM7lkm+ND7naEH7D5hhBYOu9aQCkeN6vJ0mt/qXp8xzqFOoWHhPc5CMpRTgo
-egZNew/i3eargltaAZykOzE8jMbAXsRsm6OxHyw7kdElwQAFp9RdtzkDaT1fzWM8
-A5rNxIaUQDwtoDWpTFRG5fsqfFsOo297zZCfocHxYAKmeJlt3clPZDehHykKuQ7j
-bNEx/4jhSDRgqDnzVJLVqnlZ/KQ5/LVRZrhQRol+eygCB4s/sbjzE0Opgif7IPD9
-/xseWiSlNsPKvqRvpF1tR3CJKTLmMzf0b4ETaC/IKPi6tvVpFOPO80mKRpGJu68g
-BApLWjxjdBvxYQ9uKZ9c9Dt493CdeS1VgXZgUUXurd2X7eYQqffNLe7X6mvI04vE
-FMkDBOVnU04HWRU1UK2G16+OsxfeISv4ilEUxupmRHECFZuEJoUAO5P2uZ7UC4f2
-JrmD+pUyaGnfi74A1MZokVKfrgKWlMnLttYLcyUkT7Cs62bcoR0Cz4xpBPwBG6uQ
-4mkcbxMWvIM2qR2zw6cQVfiYpWMvkacXp+DxlBohSwfCrkZ3aVg=
-=NKrP
------END PGP SIGNATURE-----
-
---H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo--
+[1] https://chromium.googlesource.com/chromiumos/third_party/kernel
+[2] https://chromium-review.googlesource.com/c/361464/
+[3] https://chromium-review.googlesource.com/c/424948/
