@@ -1,194 +1,139 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v29Di1wr008019
- for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2017 08:44:01 -0500
-Received: by mail-wm0-f41.google.com with SMTP id n11so139723014wma.1
- for <selinux@tycho.nsa.gov>; Thu, 09 Mar 2017 05:43:37 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v29EA1bI016434
+ for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2017 09:10:01 -0500
+Subject: Re: [PATCH] Python 3.6 invalid escape sequence deprecation fixes
+To: =?UTF-8?Q?Ville_Skytt=c3=a4?= <ville.skytta@iki.fi>, selinux@tycho.nsa.gov
+References: <20170309090935.22458-1-ville.skytta@iki.fi>
+From: Petr Lautrbach <plautrba@redhat.com>
+Message-ID: <e58141ef-cc49-917a-5a0b-3186e67e9982@redhat.com>
+Date: Thu, 9 Mar 2017 15:09:54 +0100
 MIME-Version: 1.0
-In-Reply-To: <CAFC8oae08WmFOkNa=WdszMq+X=HdghRYTeZbevdRrQ5yRUdNyA@mail.gmail.com>
-References: <CAFC8oae8pRwr3B320jPszPpWy0QysuaQ3=UYEzKWhowrP6gEvw@mail.gmail.com>
- <201703092120.40209.russell@coker.com.au>
- <CAFC8oaeJ6tvRhrOhGTGF7k0eAG1SsMzpFPgR1DbbOrFm=eQVjQ@mail.gmail.com>
- <CAFC8oae08WmFOkNa=WdszMq+X=HdghRYTeZbevdRrQ5yRUdNyA@mail.gmail.com>
-From: cgzones <cgzones@googlemail.com>
-Date: Thu, 9 Mar 2017 14:43:35 +0100
-Message-ID: <CAJ2a_Df1SmQ=uGKBnFMY-b2FDw6=WENzVQgCdGbLuhMABXkPBg@mail.gmail.com>
-Subject: Re: Custom Process Label (SElinux)
-To: Kashif ali <kashif.ali.9498@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
- Sebastiaan van Stijn <sebastiaan.vanstijn@docker.com>
-Content-Type: multipart/alternative; boundary=001a114699508d6a0f054a4c6e72
+In-Reply-To: <20170309090935.22458-1-ville.skytta@iki.fi>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a114699508d6a0f054a4c6e72
-Content-Type: text/plain; charset=UTF-8
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo
+Content-Type: multipart/mixed; boundary="MsPWhpDiaIxhCq6a5T4mHlL37jaVVNoI0";
+ protected-headers="v1"
+From: Petr Lautrbach <plautrba@redhat.com>
+To: =?UTF-8?Q?Ville_Skytt=c3=a4?= <ville.skytta@iki.fi>, selinux@tycho.nsa.gov
+Message-ID: <e58141ef-cc49-917a-5a0b-3186e67e9982@redhat.com>
+Subject: Re: [PATCH] Python 3.6 invalid escape sequence deprecation fixes
+References: <20170309090935.22458-1-ville.skytta@iki.fi>
+In-Reply-To: <20170309090935.22458-1-ville.skytta@iki.fi>
 
-On 9 Mar 2017 2:25 pm, "Kashif ali" <kashif.ali.9498@gmail.com> wrote:
-
-this is  myapp.te file
-
-
-policy_module(myapp_service, 1.0.0)
-
-########################################
-#
-# Declarations
-#
-
-attribute_role myapp_service_roles;
-roleattribute system_r myapp_service_roles;
-
-type myapp_service_t;
-type myapp_service_exec_t;
-application_domain(myapp_service_t, myapp_service_exec_t)
-
-For system daemons, the right interface is init_daemon_domain; this also
-includes the domain transition.
-application_domain is for domains run by users, and does not include a
-domain transition.
-
-role myapp_service_roles types myapp_service_t;
-
-permissive myapp_service_t;
-
-########################################
-#
-# myapp_service local policy
-#
-
-allow myapp_service_t self:fifo_file manage_fifo_file_perms;
-allow myapp_service_t self:unix_stream_socket create_stream_socket_perms;
-
-domain_use_interactive_fds(myapp_service_t)
-
-files_read_etc_files(myapp_service_t)
-
-miscfiles_read_localization(myapp_service_t)
-
-
-
-
-
-this is myapp.fc file
-
-/usr/sbin/myapp-service                --      gen_context(system_u:object_
-r:myapp_service_exec_t,s0)
-
-
-On Thu, Mar 9, 2017 at 6:09 PM, Kashif ali <kashif.ali.9498@gmail.com>
-wrote:
-
-> yes i did
->
-> On Thu, Mar 9, 2017 at 3:20 PM, Russell Coker <russell@coker.com.au>
-> wrote:
->
->> On Thu, 9 Mar 2017 08:42:26 PM Kashif ali wrote:
->> >   i have created a module for my custom service with seplogen command it
->> > has generated the policy module for my custom service and context for
->> its
->> > /usr/bin/mycustomeservicedaemon which is custom_service_exec_t when i
->> run
->> > my service it doesn't get the label of  custom_service_t where as it has
->> > the label of init_t so thats mean that the proper domain transition is
->> not
->> > available or there is something which is i'm missing.
->>
->> Did you run "restorecon -v /usr/bin/mycustomeservicedaemon"?
->>
->> --
->> My Main Blog         http://etbe.coker.com.au/
->> My Documents Blog    http://doc.coker.com.au/
->>
->
->
-
-_______________________________________________
-Selinux mailing list
-Selinux@tycho.nsa.gov
-To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-To get help, send an email containing "help" to
-Selinux-request@tycho.nsa.gov.
-
---001a114699508d6a0f054a4c6e72
-Content-Type: text/html; charset=UTF-8
+--MsPWhpDiaIxhCq6a5T4mHlL37jaVVNoI0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"auto"><div><br><div class=3D"gmail_extra"><br><div class=3D"gma=
-il_quote">On 9 Mar 2017 2:25 pm, &quot;Kashif ali&quot; &lt;<a href=3D"mail=
-to:kashif.ali.9498@gmail.com">kashif.ali.9498@gmail.com</a>&gt; wrote:<br t=
-ype=3D"attribution"><blockquote class=3D"quote" style=3D"margin:0 0 0 .8ex;=
-border-left:1px #ccc solid;padding-left:1ex"><div dir=3D"ltr">this is =C2=
-=A0myapp.te file=C2=A0<br><br><br><div>policy_module(myapp_service, 1.0.0)<=
-/div><div><br></div><div>##############################<wbr>##########</div=
-><div>#</div><div># Declarations</div><div>#</div><div><br></div><div>attri=
-bute_role myapp_service_roles;</div><div>roleattribute system_r myapp_servi=
-ce_roles;</div><div><br></div><div>type myapp_service_t;</div><div>type mya=
-pp_service_exec_t;</div><div>application_domain(myapp_<wbr>service_t, myapp=
-_service_exec_t)</div></div></blockquote></div></div></div><div dir=3D"auto=
-">For system daemons, the right interface is init_daemon_domain; this also =
-includes the domain transition.</div><div dir=3D"auto">application_domain i=
-s for domains run by users, and does not include a domain transition.</div>=
-<div dir=3D"auto"><div class=3D"gmail_extra"><div class=3D"gmail_quote"><bl=
-ockquote class=3D"quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc so=
-lid;padding-left:1ex"><div dir=3D"ltr"><div>role myapp_service_roles types =
-myapp_service_t;</div><div><br></div><div>permissive myapp_service_t;</div>=
-<div><br></div><div>##############################<wbr>##########</div><div=
->#</div><div># myapp_service local policy</div><div>#</div><div><br></div><=
-div>allow myapp_service_t self:fifo_file manage_fifo_file_perms;</div><div>=
-allow myapp_service_t self:unix_stream_socket create_stream_socket_perms;</=
-div><div><br></div><div>domain_use_interactive_fds(<wbr>myapp_service_t)</d=
-iv><div><br></div><div>files_read_etc_files(myapp_<wbr>service_t)</div><div=
-><br></div><div>miscfiles_read_localization(<wbr>myapp_service_t)</div><div=
-><br><br><br><br><br>this is myapp.fc file=C2=A0<br><br><div>/usr/sbin/myap=
-p-service =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0-- =C2=A0 =
-=C2=A0 =C2=A0gen_context(system_u:object_<wbr>r:myapp_service_exec_t,s0)</d=
-iv></div><div><br></div></div><div class=3D"elided-text"><div class=3D"gmai=
-l_extra"><br><div class=3D"gmail_quote">On Thu, Mar 9, 2017 at 6:09 PM, Kas=
-hif ali <span dir=3D"ltr">&lt;<a href=3D"mailto:kashif.ali.9498@gmail.com" =
-target=3D"_blank">kashif.ali.9498@gmail.com</a>&gt;</span> wrote:<br><block=
-quote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc=
- solid;padding-left:1ex"><div dir=3D"ltr">yes i did=C2=A0</div><div class=
-=3D"m_8486010889679643666HOEnZb"><div class=3D"m_8486010889679643666h5"><di=
-v class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Thu, Mar 9, 2017 =
-at 3:20 PM, Russell Coker <span dir=3D"ltr">&lt;<a href=3D"mailto:russell@c=
-oker.com.au" target=3D"_blank">russell@coker.com.au</a>&gt;</span> wrote:<b=
-r><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:=
-1px #ccc solid;padding-left:1ex"><span>On Thu, 9 Mar 2017 08:42:26 PM Kashi=
-f ali wrote:<br>
-&gt;=C2=A0 =C2=A0i have created a module for my custom service with seploge=
-n command it<br>
-&gt; has generated the policy module for my custom service and context for =
-its<br>
-&gt; /usr/bin/mycustomeservicedaemo<wbr>n which is custom_service_exec_t wh=
-en i run<br>
-&gt; my service it doesn&#39;t get the label of=C2=A0 custom_service_t wher=
-e as it has<br>
-&gt; the label of init_t so thats mean that the proper domain transition is=
- not<br>
-&gt; available or there is something which is i&#39;m missing.<br>
-<br>
-</span>Did you run &quot;restorecon -v /usr/bin/mycustomeservicedaemo<wbr>n=
-&quot;?<br>
-<span class=3D"m_8486010889679643666m_-6949356803191910847HOEnZb"><font col=
-or=3D"#888888"><br>
---<br>
-My Main Blog=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0<a href=3D"http://etbe.coker.=
-com.au/" rel=3D"noreferrer" target=3D"_blank">http://etbe.coker.com.au/</a>=
-<br>
-My Documents Blog=C2=A0 =C2=A0 <a href=3D"http://doc.coker.com.au/" rel=3D"=
-noreferrer" target=3D"_blank">http://doc.coker.com.au/</a><br>
-</font></span></blockquote></div><br></div>
-</div></div></blockquote></div><br></div>
-</div><br>______________________________<wbr>_________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br></blo=
-ckquote></div><br></div></div></div>
+On 03/09/2017 10:09 AM, Ville Skytt=C3=A4 wrote:
+> https://docs.python.org/3/whatsnew/3.6.html#deprecated-python-behavior
 
---001a114699508d6a0f054a4c6e72--
+
+I'd suggest to add the text from the page directly to the commit message:=
+
+
+A backslash-character pair that is not a valid escape sequence now
+generates a DeprecationWarning. Although this will eventually become a
+SyntaxError, that will not be for several Python releases.
+
+
+The problem appears when you use '-W error':
+
+$ python3 -W error -c 'import re; re.findall("[^a-zA-Z0-9_\-\.]", " *%$")=
+'
+  File "<string>", line 1
+SyntaxError: invalid escape sequence \-
+
+
+> Signed-off-by: Ville Skytt=C3=A4 <ville.skytta@iki.fi>
+> ---
+>  python/semanage/seobject.py            | 4 ++--
+>  python/sepolgen/src/sepolgen/module.py | 2 +-
+>  python/sepolicy/sepolicy/generate.py   | 2 +-
+>  3 files changed, 4 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index c836cc5..94bd368 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -192,8 +192,8 @@ class nulllogger:
+>  def validate_level(raw):
+>      sensitivity =3D "s[0-9]*"
+>      category =3D "c[0-9]*"
+> -    cat_range =3D category + "(\." + category + ")?"
+> -    categories =3D cat_range + "(\," + cat_range + ")*"
+> +    cat_range =3D category + r"(\." + category + ")?"
+> +    categories =3D cat_range + r"(\," + cat_range + ")*"
+>      reg =3D sensitivity + "(-" + sensitivity + ")?" + "(:" + categorie=
+s + ")?"
+>      return re.search("^" + reg + "$", raw)
+> =20
+> diff --git a/python/sepolgen/src/sepolgen/module.py b/python/sepolgen/s=
+rc/sepolgen/module.py
+> index c09676a..8766dd9 100644
+> --- a/python/sepolgen/src/sepolgen/module.py
+> +++ b/python/sepolgen/src/sepolgen/module.py
+> @@ -40,7 +40,7 @@ from . import defaults
+>  def is_valid_name(modname):
+>      """Check that a module name is valid.
+>      """
+> -    m =3D re.findall("[^a-zA-Z0-9_\-\.]", modname)
+> +    m =3D re.findall(r"[^a-zA-Z0-9_\-\.]", modname)
+>      if len(m) =3D=3D 0 and modname[0].isalpha():
+>          return True
+>      else:
+> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sep=
+olicy/generate.py
+> index 5696110..596891a 100644
+> --- a/python/sepolicy/sepolicy/generate.py
+> +++ b/python/sepolicy/sepolicy/generate.py
+> @@ -1329,7 +1329,7 @@ allow %s_t %s_t:%s_socket name_%s;
+>              self.add_dir("/var/lib/%s" % self.name)
+> =20
+>          if os.path.isfile("/etc/rc.d/init.d/%s" % self.name):
+> -            self.set_init_script("/etc/rc\.d/init\.d/%s" % self.name)
+> +            self.set_init_script(r"/etc/rc\.d/init\.d/%s" % self.name)=
+
+> =20
+>          # we don't want to have subdir in the .fc policy file
+>          # if we already specify labeling for parent dir
+>=20
+
+
+--=20
+Petr Lautrbach
+
+
+
+--MsPWhpDiaIxhCq6a5T4mHlL37jaVVNoI0--
+
+--H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE6FPBhIsBhc9Chk3zY6itS5gsQ3MFAljBYjIACgkQY6itS5gs
+Q3Nqtg//aaiulFjAQyX1H7GyyYTs2wAp5tlDK8E+8EICFvuIifvA0RmwnJxK6XA5
+skCu1gP+RfRaSWMb/5CBAceHEmjOKHv8Zv9mLsLTlMdhHdl+5FmeWFi2lQmjedxK
+5bz1dM7lkm+ND7naEH7D5hhBYOu9aQCkeN6vJ0mt/qXp8xzqFOoWHhPc5CMpRTgo
+egZNew/i3eargltaAZykOzE8jMbAXsRsm6OxHyw7kdElwQAFp9RdtzkDaT1fzWM8
+A5rNxIaUQDwtoDWpTFRG5fsqfFsOo297zZCfocHxYAKmeJlt3clPZDehHykKuQ7j
+bNEx/4jhSDRgqDnzVJLVqnlZ/KQ5/LVRZrhQRol+eygCB4s/sbjzE0Opgif7IPD9
+/xseWiSlNsPKvqRvpF1tR3CJKTLmMzf0b4ETaC/IKPi6tvVpFOPO80mKRpGJu68g
+BApLWjxjdBvxYQ9uKZ9c9Dt493CdeS1VgXZgUUXurd2X7eYQqffNLe7X6mvI04vE
+FMkDBOVnU04HWRU1UK2G16+OsxfeISv4ilEUxupmRHECFZuEJoUAO5P2uZ7UC4f2
+JrmD+pUyaGnfi74A1MZokVKfrgKWlMnLttYLcyUkT7Cs62bcoR0Cz4xpBPwBG6uQ
+4mkcbxMWvIM2qR2zw6cQVfiYpWMvkacXp+DxlBohSwfCrkZ3aVg=
+=NKrP
+-----END PGP SIGNATURE-----
+
+--H77kFbp4iQ22C7W3nGN4QgOxSDNHj2gvo--
