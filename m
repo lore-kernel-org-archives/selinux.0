@@ -1,53 +1,49 @@
-Subject: Re: [PATCH 1/6] restorecond: add noreturn attribute to exitApp()
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20170305171305.23170-1-nicolas.iooss@m4x.org>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <0d740d76-a9a5-9cf2-3288-f1e5cfd34e05@tycho.nsa.gov>
-Date: Tue, 7 Mar 2017 14:23:26 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v299guJv018061
+ for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2017 04:42:56 -0500
+Received: by mail-ua0-f179.google.com with SMTP id f54so68476444uaa.1
+ for <selinux@tycho.nsa.gov>; Thu, 09 Mar 2017 01:42:28 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20170305171305.23170-1-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+From: Kashif ali <kashif.ali.9498@gmail.com>
+Date: Thu, 9 Mar 2017 14:42:26 +0500
+Message-ID: <CAFC8oae8pRwr3B320jPszPpWy0QysuaQ3=UYEzKWhowrP6gEvw@mail.gmail.com>
+Subject: Custom Process Label (SElinux)
+To: Daniel J Walsh <dwalsh@redhat.com>,
+ Sebastiaan van Stijn <sebastiaan.vanstijn@docker.com>,
+ SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=001a114f4e2e17fea0054a4910e0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/05/2017 12:13 PM, Nicolas Iooss wrote:
-> This makes it possible for static analyzers such as clang's one to
-> understand that strings_list_add() cannot dereference a NULL pointer in
-> the following code:
->
->     if (!newptr)
->         exitApp("Out of Memory");
->     newptr->string = strdup(string);
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+--001a114f4e2e17fea0054a4910e0
+Content-Type: text/plain; charset=UTF-8
 
-I applied these six patches.
+Hi,
+  i have created a module for my custom service with seplogen command it
+has generated the policy module for my custom service and context for its
+/usr/bin/mycustomeservicedaemon which is custom_service_exec_t when i run
+my service it doesn't get the label of  custom_service_t where as it has
+the label of init_t so thats mean that the proper domain transition is not
+available or there is something which is i'm missing.
+Kindly reply me as soon i'm stuck in it.
 
-Thanks,
-Jim
+Thanks
+Regards
+Kashif Ali
 
-> ---
->  restorecond/restorecond.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/restorecond/restorecond.h b/restorecond/restorecond.h
-> index a6be584c84a5..db7e50f72d2d 100644
-> --- a/restorecond/restorecond.h
-> +++ b/restorecond/restorecond.h
-> @@ -33,7 +33,7 @@ extern int run_as_user;
->  extern int start(void);
->  extern int server(int, const char *watch_file);
->
-> -extern void exitApp(const char *msg);
-> +extern void exitApp(const char *msg) __attribute__((__noreturn__));
->  extern void read_config(int fd,	const char *watch_file);
->
->  extern int watch(int fd, const char *watch_file);
->
+--001a114f4e2e17fea0054a4910e0
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
+<div dir=3D"ltr">Hi,=C2=A0<br>=C2=A0 i have created a module for my custom =
+service with seplogen command it has generated the policy module for my cus=
+tom service and context for its /usr/bin/mycustomeservicedaemon which is cu=
+stom_service_exec_t when i run my service it doesn&#39;t get the label of =
+=C2=A0custom_service_t where as it has the label of init_t so thats mean th=
+at the proper domain transition is not available or there is something whic=
+h is i&#39;m missing.<br>Kindly reply me as soon i&#39;m stuck in it.<br><b=
+r>Thanks=C2=A0<br>Regards=C2=A0<br>Kashif Ali</div>
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+--001a114f4e2e17fea0054a4910e0--
