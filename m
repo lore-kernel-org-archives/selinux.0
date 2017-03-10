@@ -1,83 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2A0563s013481
- for <selinux@tycho.nsa.gov>; Thu, 9 Mar 2017 19:05:06 -0500
-Received: by mail-ua0-f174.google.com with SMTP id u30so99578006uau.0
- for <selinux@tycho.nsa.gov>; Thu, 09 Mar 2017 16:05:05 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2AC1niM002044
+ for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 07:01:52 -0500
+Received: by mail-ua0-f172.google.com with SMTP id 72so110679416uaf.3
+ for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 04:01:48 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <87innidvko.fsf@xmission.com>
-References: <58732BCF.4090908@huawei.com> <58734284.1060504@huawei.com>
- <b7f75f65-592a-5102-0ac5-4d3aa43f0b55@huawei.com> <58736B2E.90201@huawei.com>
- <58C11A6C.7000408@huawei.com>
- <347f63b5-c274-c7bc-55f7-f6304d31418a@schaufler-ca.com>
- <87innidvko.fsf@xmission.com>
+In-Reply-To: <20170308.231208.1651420232093147373.davem@davemloft.net>
+References: <20170306184614.20056-1-glider@google.com>
+ <20170308.231208.1651420232093147373.davem@davemloft.net>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 9 Mar 2017 19:05:04 -0500
-Message-ID: <CAHC9VhQOno3O32QRX9wYwAXzjaxMR7pBNK3bsdQ8Xqq_9SmBzA@mail.gmail.com>
-Subject: Re: isolate selinux_enforcing
-To: Casey Schaufler <casey@schaufler-ca.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: yangshukui <yangshukui@huawei.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, Lizefan <lizefan@huawei.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>, oleg@redhat.com,
- serge.hallyn@ubuntu.com
+Date: Fri, 10 Mar 2017 07:01:47 -0500
+Message-ID: <CAHC9VhSeVXyT84DNrXSkFKoNSnzWFVn6zOi5Gpt-mr6-BTBVRQ@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: check for address length in
+ selinux_socket_bind()
+To: David Miller <davem@davemloft.net>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: glider@google.com, dvyukov@google.com, kcc@google.com,
+ keescook@chromium.org, edumazet@google.com,
+ linux-kernel@vger.kernel.org, netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Mar 9, 2017 at 3:49 PM, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Casey Schaufler <casey@schaufler-ca.com> writes:
+On Thu, Mar 9, 2017 at 2:12 AM, David Miller <davem@davemloft.net> wrote:
+> From: Alexander Potapenko <glider@google.com>
+> Date: Mon,  6 Mar 2017 19:46:14 +0100
 >
->> On 3/9/2017 1:03 AM, yangshukui wrote:
->>> I want to use SELinux in system container and only concern the function in the container.
->>> this system container run in vm and every vm has only one system container.
->>>
->>> How do I use now?
->>> docker run ... system-contaier /sbin/init
->>> after init is running ,the following service is also running:
->>>
->>> #this is the part of service file which will run in container after starting the container.
->>> ..
->>> semodule -R     #use the policy in container.
->>> restorecon /     #if needed
->>> ..
->>>
->>> this method seem to work if host os and the docker images use the same content for rootfs, but if host use
->>> redhat7 and docker images use centos7, it will deny many normal operations , and this let some host service not work.
->>>
->>> If SELinux is permissive in host and enforcing in container ,it will resolve my problem. Unfortunately,
->>> there is no namespace for SELinux.
->
-> This is mostly a SELinux problem.
->
->> The LSM infrastructure is essentially a set of lists.
->> These lists are rooted globally, but there's no reason*
->> they couldn't be rooted in a namespace. That would give
->> each namespace the option of using whatever security
->> scheme was deemed appropriate. There are a number of
->> issues, such as namespacing policy, that would have to
->> be addressed, but the mechanism could work fine. I would
->> look at patches.
->
+>> KMSAN (KernelMemorySanitizer, a new error detection tool) reports use of
+>> uninitialized memory in selinux_socket_bind():
+>  ...
+>> (the line numbers are relative to 4.8-rc6, but the bug persists upstream)
 >>
->> ---
->> * Other than the sheer insanity of making security
->>   claims about such a system. I would not expect that
->>   minor issue to slow demand or deployment any more
->>   than it has in the past.
+>> , when I run the following program as root:
+>  ...
+>> (for different values of |size| other error reports are printed).
+>>
+>> This happens because bind() unconditionally copies |size| bytes of
+>> |addr| to the kernel, leaving the rest uninitialized. Then
+>> security_socket_bind() reads the IP address bytes, including the
+>> uninitialized ones, to determine the port, or e.g. pass them further to
+>> sel_netnode_find(), which uses them to calculate a hash.
+>>
+>> Signed-off-by: Alexander Potapenko <glider@google.com>
 >
-> I would tend to insist that the container local policy stacks inside the
-> global policy.  So that at the least the global security claims would
-> not be reduced.
+> Are the SELINUX folks going to pick this up or should I?
 
-My current thinking is that namespacing is best left to the individual
-LSMs, as it is unlikely we will all want to solve it the same way.
-With SELinux we already have some basic support for what Eric
-describes via bounded domains, but that alone isn't likely to solve
-SELinux inside containers in a sense that most would expect; for that
-you will need what Stephen already described.
+Yes, it's on my list of things to merge, I was just a bit distracted
+this week with yet another audit problem.  I'm going to start making
+my way through the patch backlog today.
 
 -- 
 paul moore
