@@ -1,73 +1,49 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: viro@zeniv.linux.org.uk, james.l.morris@oracle.com, serge@hallyn.com,
- paul@paul-moore.com, john.johansen@canonical.com
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] fs: switch order of CAP_DAC_OVERRIDE and CAP_DAC_READ_SEARCH
- checks
-Date: Fri, 10 Mar 2017 12:14:18 -0500
-Message-Id: <1489166058-11789-1-git-send-email-sds@tycho.nsa.gov>
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2AJn4FR024726
+ for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 14:49:04 -0500
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/3] libsepol and checkpolicy: Output CIL or policy.conf from
+ kernel policy
+Date: Fri, 10 Mar 2017 14:49:33 -0500
+Message-Id: <1489175376-27336-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-generic_permission() presently checks CAP_DAC_OVERRIDE prior to
-CAP_DAC_READ_SEARCH.  This can cause misleading audit messages when
-using a LSM such as SELinux or AppArmor, since CAP_DAC_OVERRIDE
-may not be required for the operation.  Flip the order of the
-tests so that CAP_DAC_OVERRIDE is only checked when required for
-the operation.
+It would sometimes be helpful for debugging or verification purposes to be able to convert
+a binary policy to a human-readable form.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- fs/namei.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+This patchset adds libsepol functions that take a kernel policydb in and outputs either
+a CIL or policy.conf text.
 
-diff --git a/fs/namei.c b/fs/namei.c
-index d41fab7..482414a 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -340,22 +340,14 @@ int generic_permission(struct inode *inode, int mask)
- 
- 	if (S_ISDIR(inode->i_mode)) {
- 		/* DACs are overridable for directories */
--		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
--			return 0;
- 		if (!(mask & MAY_WRITE))
- 			if (capable_wrt_inode_uidgid(inode,
- 						     CAP_DAC_READ_SEARCH))
- 				return 0;
--		return -EACCES;
--	}
--	/*
--	 * Read/write DACs are always overridable.
--	 * Executable DACs are overridable when there is
--	 * at least one exec bit set.
--	 */
--	if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
- 		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
- 			return 0;
-+		return -EACCES;
-+	}
- 
- 	/*
- 	 * Searching includes executable on directories, else just read.
-@@ -364,6 +356,14 @@ int generic_permission(struct inode *inode, int mask)
- 	if (mask == MAY_READ)
- 		if (capable_wrt_inode_uidgid(inode, CAP_DAC_READ_SEARCH))
- 			return 0;
-+	/*
-+	 * Read/write DACs are always overridable.
-+	 * Executable DACs are overridable when there is
-+	 * at least one exec bit set.
-+	 */
-+	if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
-+		if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
-+			return 0;
- 
- 	return -EACCES;
- }
+Checkpolicy is modified to generate CIL text from a binary policy if using the "-C" option
+and to add the "-F" option to generate policy.conf text from a binary policy.
+
+Where possible rules are sorted in alphabetical or numerical order to aid in debugging.
+
+James Carter (3):
+  libsepol: Add ability to convert binary policy to CIL
+  libsepol: Add ability to convert binary policy to policy.conf file
+  checkpolicy: Add options to convert binary policy to CIL or a
+    policy.conf
+
+ checkpolicy/checkpolicy.c               |   60 +-
+ libsepol/include/sepol/kernel_to_cil.h  |    5 +
+ libsepol/include/sepol/kernel_to_conf.h |    5 +
+ libsepol/src/kernel_to_cil.c            | 3149 +++++++++++++++++++++++++++++++
+ libsepol/src/kernel_to_common.c         |  681 +++++++
+ libsepol/src/kernel_to_common.h         |  110 ++
+ libsepol/src/kernel_to_conf.c           | 3014 +++++++++++++++++++++++++++++
+ libsepol/src/libsepol.map.in            |    2 +
+ 8 files changed, 7008 insertions(+), 18 deletions(-)
+ create mode 100644 libsepol/include/sepol/kernel_to_cil.h
+ create mode 100644 libsepol/include/sepol/kernel_to_conf.h
+ create mode 100644 libsepol/src/kernel_to_cil.c
+ create mode 100644 libsepol/src/kernel_to_common.c
+ create mode 100644 libsepol/src/kernel_to_common.h
+ create mode 100644 libsepol/src/kernel_to_conf.c
+
 -- 
 2.7.4
