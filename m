@@ -1,12 +1,12 @@
-Message-ID: <1489179435.6824.59.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] Python 3.6 invalid escape sequence deprecation fixes
+Message-ID: <1489179871.6824.61.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 3/3] checkpolicy: Add options to convert binary policy
+ to CIL or a policy.conf
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Petr Lautrbach <plautrba@redhat.com>, Ville =?ISO-8859-1?Q?Skytt=E4?=
- <ville.skytta@iki.fi>, selinux@tycho.nsa.gov
-Date: Fri, 10 Mar 2017 15:57:15 -0500
-In-Reply-To: <e58141ef-cc49-917a-5a0b-3186e67e9982@redhat.com>
-References: <20170309090935.22458-1-ville.skytta@iki.fi>
- <e58141ef-cc49-917a-5a0b-3186e67e9982@redhat.com>
+To: James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Date: Fri, 10 Mar 2017 16:04:31 -0500
+In-Reply-To: <1489175376-27336-4-git-send-email-jwcart2@tycho.nsa.gov>
+References: <1489175376-27336-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1489175376-27336-4-git-send-email-jwcart2@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,94 +14,174 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-03-09 at 15:09 +0100, Petr Lautrbach wrote:
-> On 03/09/2017 10:09 AM, Ville Skyttä wrote:
-> > 
-> > https://docs.python.org/3/whatsnew/3.6.html#deprecated-python-behav
-> > ior
+On Fri, 2017-03-10 at 14:49 -0500, James Carter wrote:
+> Use the same option "-C" used to ouput CIL from a policy.conf, but
+> now
+> generate CIL from a binary policy instead of giving an error.
 > 
+> Use the option "-F" to generate a policy.conf file from a binary
+> policy.
 > 
-> I'd suggest to add the text from the page directly to the commit
-> message:
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> ---
+>  checkpolicy/checkpolicy.c | 60 +++++++++++++++++++++++++++++++++--
+> ------------
+>  1 file changed, 42 insertions(+), 18 deletions(-)
 > 
-> A backslash-character pair that is not a valid escape sequence now
-> generates a DeprecationWarning. Although this will eventually become
-> a
-> SyntaxError, that will not be for several Python releases.
-> 
-> 
-> The problem appears when you use '-W error':
-> 
-> $ python3 -W error -c 'import re; re.findall("[^a-zA-Z0-9_\-\.]", "
-> *%$")'
->   File "<string>", line 1
-> SyntaxError: invalid escape sequence \-
-> 
-> 
-> > 
-> > Signed-off-by: Ville Skyttä <ville.skytta@iki.fi>
+> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+> index b98bfcd..9694f57 100644
+> --- a/checkpolicy/checkpolicy.c
+> +++ b/checkpolicy/checkpolicy.c
+> @@ -75,6 +75,8 @@
+>  #include <sys/mman.h>
+>  
+>  #include <sepol/module_to_cil.h>
+> +#include <sepol/kernel_to_cil.h>
+> +#include <sepol/kernel_to_conf.h>
+>  #include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+> @@ -105,7 +107,7 @@ unsigned int policyvers = POLICYDB_VERSION_MAX;
+>  static __attribute__((__noreturn__)) void usage(const char
+> *progname)
+>  {
+>  	printf
+> -	    ("usage:  %s [-b] [-C] [-d] [-U handle_unknown
+> (allow,deny,reject)] [-M]"
+> +	    ("usage:  %s [-b] [-C] [-F] [-d] [-U handle_unknown
+> (allow,deny,reject)] [-M]"
+>  	     "[-c policyvers (%d-%d)] [-o output_file] [-t
+> target_platform (selinux,xen)]"
+>  	     "[input_file]\n",
+>  	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+> @@ -388,7 +390,7 @@ int main(int argc, char **argv)
+>  	size_t scontext_len, pathlen;
+>  	unsigned int i;
+>  	unsigned int protocol, port;
+> -	unsigned int binary = 0, debug = 0, cil = 0;
+> +	unsigned int binary = 0, debug = 0, cil = 0, conf = 0;
+>  	struct val_to_name v;
+>  	int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
+>  	unsigned int nel, uret;
+> @@ -411,11 +413,12 @@ int main(int argc, char **argv)
+>  		{"handle-unknown", required_argument, NULL, 'U'},
+>  		{"mls", no_argument, NULL, 'M'},
+>  		{"cil", no_argument, NULL, 'C'},
+> +		{"conf",no_argument, NULL, 'F'},
+>  		{"help", no_argument, NULL, 'h'},
+>  		{NULL, 0, NULL, 0}
+>  	};
+>  
+> -	while ((ch = getopt_long(argc, argv, "o:t:dbU:MCVc:h",
+> long_options, NULL)) != -1) {
+> +	while ((ch = getopt_long(argc, argv, "o:t:dbU:MCFVc:h",
+> long_options, NULL)) != -1) {
+>  		switch (ch) {
+>  		case 'o':
+>  			outfile = optarg;
+> @@ -461,6 +464,9 @@ int main(int argc, char **argv)
+>  		case 'C':
+>  			cil = 1;
+>  			break;
+> +		case 'F':
+> +			conf = 1;
+> +			break;
+>  		case 'c':{
+>  				long int n;
+>  				errno = 0;
+> @@ -510,12 +516,17 @@ int main(int argc, char **argv)
+>  	sepol_set_policydb(&policydb);
+>  	sepol_set_sidtab(&sidtab);
+>  
+> +	if (cil && conf) {
+> +		fprintf(stderr, "Can't convert to CIL and
+> policy.conf at the same time\n");
+> +		exit(1);
+> +	}
+> +
+>  	if (binary) {
+> -		if (cil) {
+> -			fprintf(stderr,	"%s:  Converting
+> kernel policy to CIL is not supported\n",
+> -				argv[0]);
+> -			exit(1);
+> -		}
+> +		/* if (cil) { */
+> +		/* 	fprintf(stderr,	"%s:  Converting
+> kernel policy to CIL is not supported\n", */
+> +		/* 		argv[0]); */
+> +		/* 	exit(1); */
+> +		/* } */
 
-Thanks, applied with edited commit message.
+Just remove?
 
-> > ---
-> >  python/semanage/seobject.py            | 4 ++--
-> >  python/sepolgen/src/sepolgen/module.py | 2 +-
-> >  python/sepolicy/sepolicy/generate.py   | 2 +-
-> >  3 files changed, 4 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/python/semanage/seobject.py
-> > b/python/semanage/seobject.py
-> > index c836cc5..94bd368 100644
-> > --- a/python/semanage/seobject.py
-> > +++ b/python/semanage/seobject.py
-> > @@ -192,8 +192,8 @@ class nulllogger:
-> >  def validate_level(raw):
-> >      sensitivity = "s[0-9]*"
-> >      category = "c[0-9]*"
-> > -    cat_range = category + "(\." + category + ")?"
-> > -    categories = cat_range + "(\," + cat_range + ")*"
-> > +    cat_range = category + r"(\." + category + ")?"
-> > +    categories = cat_range + r"(\," + cat_range + ")*"
-> >      reg = sensitivity + "(-" + sensitivity + ")?" + "(:" +
-> > categories + ")?"
-> >      return re.search("^" + reg + "$", raw)
-> >  
-> > diff --git a/python/sepolgen/src/sepolgen/module.py
-> > b/python/sepolgen/src/sepolgen/module.py
-> > index c09676a..8766dd9 100644
-> > --- a/python/sepolgen/src/sepolgen/module.py
-> > +++ b/python/sepolgen/src/sepolgen/module.py
-> > @@ -40,7 +40,7 @@ from . import defaults
-> >  def is_valid_name(modname):
-> >      """Check that a module name is valid.
-> >      """
-> > -    m = re.findall("[^a-zA-Z0-9_\-\.]", modname)
-> > +    m = re.findall(r"[^a-zA-Z0-9_\-\.]", modname)
-> >      if len(m) == 0 and modname[0].isalpha():
-> >          return True
-> >      else:
-> > diff --git a/python/sepolicy/sepolicy/generate.py
-> > b/python/sepolicy/sepolicy/generate.py
-> > index 5696110..596891a 100644
-> > --- a/python/sepolicy/sepolicy/generate.py
-> > +++ b/python/sepolicy/sepolicy/generate.py
-> > @@ -1329,7 +1329,7 @@ allow %s_t %s_t:%s_socket name_%s;
-> >              self.add_dir("/var/lib/%s" % self.name)
-> >  
-> >          if os.path.isfile("/etc/rc.d/init.d/%s" % self.name):
-> > -            self.set_init_script("/etc/rc\.d/init\.d/%s" %
-> > self.name)
-> > +            self.set_init_script(r"/etc/rc\.d/init\.d/%s" %
-> > self.name)
-> >  
-> >          # we don't want to have subdir in the .fc policy file
-> >          # if we already specify labeling for parent dir
-> > 
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho
-> .nsa.gov.
+>  		fd = open(file, O_RDONLY);
+>  		if (fd < 0) {
+>  			fprintf(stderr, "Can't open '%s':  %s\n",
+> @@ -568,6 +579,10 @@ int main(int argc, char **argv)
+>  			}
+>  		}
+>  	} else {
+> +		if (conf) {
+> +			fprintf(stderr, "Can only generate
+> policy.conf from binary policy\n");
+> +			exit(1);
+> +		}
+>  		if (policydb_init(&parse_policy))
+>  			exit(1);
+>  		/* We build this as a base policy first since that
+> is all the parser understands */
+> @@ -621,15 +636,20 @@ int main(int argc, char **argv)
+>  		policydb.policyvers = policyvers;
+>  
+>  		if (!cil) {
+> -			printf
+> -				("%s:  writing binary representation
+> (version %d) to %s\n",
+> -				 argv[0], policyvers, outfile);
+> -			policydb.policy_type = POLICY_KERN;
+> -
+> -			policy_file_init(&pf);
+> -			pf.type = PF_USE_STDIO;
+> -			pf.fp = outfp;
+> -			ret = policydb_write(&policydb, &pf);
+> +			if (!conf) {
+> +				printf("%s:  writing binary
+> representation (version %d) to %s\n", argv[0], policyvers, outfile);
+> +
+> +				policydb.policy_type = POLICY_KERN;
+> +
+> +				policy_file_init(&pf);
+> +				pf.type = PF_USE_STDIO;
+> +				pf.fp = outfp;
+> +				ret = policydb_write(&policydb,
+> &pf);
+> +			} else {
+> +				printf("%s:  writing policy.conf to
+> %s\n",
+> +				       argv[0], outfile);
+> +				ret =
+> sepol_kernel_policydb_to_conf(outfp, policydbp);
+> +			}
+>  			if (ret) {
+>  				fprintf(stderr, "%s:  error writing
+> %s\n",
+>  						argv[0], outfile);
+> @@ -637,7 +657,11 @@ int main(int argc, char **argv)
+>  			}
+>  		} else {
+>  			printf("%s:  writing CIL to %s\n",argv[0],
+> outfile);
+> -			ret = sepol_module_policydb_to_cil(outfp,
+> policydbp, 1);
+> +			if (binary) {
+> +				ret =
+> sepol_kernel_policydb_to_cil(outfp, policydbp);
+> +			} else {
+> +				ret =
+> sepol_module_policydb_to_cil(outfp, policydbp, 1);
+> +			}
+>  			if (ret) {
+>  				fprintf(stderr, "%s:  error writing
+> %s\n", argv[0], outfile);
+>  				exit(1);
