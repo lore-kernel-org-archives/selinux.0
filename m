@@ -1,93 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2AJsBiR026370
- for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 14:54:12 -0500
-Received: by mail-ua0-f195.google.com with SMTP id u30so15517266uau.2
- for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 11:54:10 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2AK17BO029776
+ for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 15:01:07 -0500
+Received: by mail-ua0-f196.google.com with SMTP id 72so15442319uaf.1
+ for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 12:01:05 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1489166058-11789-1-git-send-email-sds@tycho.nsa.gov>
-References: <1489166058-11789-1-git-send-email-sds@tycho.nsa.gov>
+In-Reply-To: <20170209155823.22148-1-runcom@redhat.com>
+References: <20170209155823.22148-1-runcom@redhat.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 10 Mar 2017 14:54:09 -0500
-Message-ID: <CAHC9VhT42v2Z5hw8PSUqOtzhz1Ba3K4bL=DuSXTJwPberWtjLQ@mail.gmail.com>
-Subject: Re: [PATCH] fs: switch order of CAP_DAC_OVERRIDE and
- CAP_DAC_READ_SEARCH checks
-To: Stephen Smalley <sds@tycho.nsa.gov>, viro@zeniv.linux.org.uk,
- linux-fsdevel@vger.kernel.org
-Cc: James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
- john.johansen@canonical.com, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Date: Fri, 10 Mar 2017 15:01:04 -0500
+Message-ID: <CAHC9VhSL3ZS3R2r39+qzYmvU1=8-jC2nzqkXNQ0Yk3+okKd7jw@mail.gmail.com>
+Subject: Re: [PATCH] security: selinux: allow per-file labeling for cgroupfs
+To: Antonio Murdaca <amurdaca@redhat.com>
+Cc: selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+ cgroups@vger.kernel.org, vgoyal@redhat.com
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 10, 2017 at 12:14 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> generic_permission() presently checks CAP_DAC_OVERRIDE prior to
-> CAP_DAC_READ_SEARCH.  This can cause misleading audit messages when
-> using a LSM such as SELinux or AppArmor, since CAP_DAC_OVERRIDE
-> may not be required for the operation.  Flip the order of the
-> tests so that CAP_DAC_OVERRIDE is only checked when required for
-> the operation.
+On Thu, Feb 9, 2017 at 10:58 AM, Antonio Murdaca <amurdaca@redhat.com> wrote:
+> This patch allows genfscon per-file labeling for cgroupfs. For instance,
+> this allows to label the "release_agent" file within each
+> cgroup mount and limit writes to it.
 >
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Antonio Murdaca <runcom@redhat.com>
 > ---
->  fs/namei.c | 20 ++++++++++----------
->  1 file changed, 10 insertions(+), 10 deletions(-)
+>  security/selinux/hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-This is the second posting of this patch and so far no comment ... if
-I don't see any negative responses by next week I'll go ahead and
-merge this into the selinux/next tree.
+Now that the merge window is behind us, let's get this merged, but
+could you update it to use the selinux_policycap_cgroupseclabel policy
+capability?  See 2651225b5ebcdde ("selinux: wrap cgroup seclabel
+support with its own policy capability") for more information.
 
-> diff --git a/fs/namei.c b/fs/namei.c
-> index d41fab7..482414a 100644
-> --- a/fs/namei.c
-> +++ b/fs/namei.c
-> @@ -340,22 +340,14 @@ int generic_permission(struct inode *inode, int mask)
+Also, how goes the testing?
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 9a8f12f..5a3138e 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -808,6 +808,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
 >
->         if (S_ISDIR(inode->i_mode)) {
->                 /* DACs are overridable for directories */
-> -               if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
-> -                       return 0;
->                 if (!(mask & MAY_WRITE))
->                         if (capable_wrt_inode_uidgid(inode,
->                                                      CAP_DAC_READ_SEARCH))
->                                 return 0;
-> -               return -EACCES;
-> -       }
-> -       /*
-> -        * Read/write DACs are always overridable.
-> -        * Executable DACs are overridable when there is
-> -        * at least one exec bit set.
-> -        */
-> -       if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
->                 if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
->                         return 0;
-> +               return -EACCES;
-> +       }
+>         if (!strcmp(sb->s_type->name, "debugfs") ||
+>             !strcmp(sb->s_type->name, "sysfs") ||
+> +           !strcmp(sb->s_type->name, "cgroup") ||
+> +           !strcmp(sb->s_type->name, "cgroup2") ||
+>             !strcmp(sb->s_type->name, "pstore"))
+>                 sbsec->flags |= SE_SBGENFS;
 >
->         /*
->          * Searching includes executable on directories, else just read.
-> @@ -364,6 +356,14 @@ int generic_permission(struct inode *inode, int mask)
->         if (mask == MAY_READ)
->                 if (capable_wrt_inode_uidgid(inode, CAP_DAC_READ_SEARCH))
->                         return 0;
-> +       /*
-> +        * Read/write DACs are always overridable.
-> +        * Executable DACs are overridable when there is
-> +        * at least one exec bit set.
-> +        */
-> +       if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
-> +               if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
-> +                       return 0;
->
->         return -EACCES;
->  }
 > --
-> 2.7.4
+> 2.9.3
 >
-
-
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
 
 -- 
 paul moore
