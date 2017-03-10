@@ -1,59 +1,76 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2AKSUOu005544
- for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 15:28:30 -0500
-Received: by mail-ua0-f196.google.com with SMTP id y16so15600627uay.3
- for <selinux@tycho.nsa.gov>; Fri, 10 Mar 2017 12:28:28 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSeVXyT84DNrXSkFKoNSnzWFVn6zOi5Gpt-mr6-BTBVRQ@mail.gmail.com>
-References: <20170306184614.20056-1-glider@google.com>
- <20170308.231208.1651420232093147373.davem@davemloft.net>
- <CAHC9VhSeVXyT84DNrXSkFKoNSnzWFVn6zOi5Gpt-mr6-BTBVRQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 10 Mar 2017 15:28:27 -0500
-Message-ID: <CAHC9VhSf72zUZpcDUYU01B9w789ydbsj5ZYoByyySpZamk=Bng@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: check for address length in
- selinux_socket_bind()
-To: glider@google.com
-Cc: David Miller <davem@davemloft.net>, Stephen Smalley <sds@tycho.nsa.gov>,
- dvyukov@google.com, kcc@google.com, keescook@chromium.org,
- edumazet@google.com, linux-kernel@vger.kernel.org,
- netdev@vger.kernel.org, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <1489178869.6824.58.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] python/sepolicy: fix obtaining domain name in HTMLManPages
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+Date: Fri, 10 Mar 2017 15:47:49 -0500
+In-Reply-To: <20170303095256.11584-1-vmojzis@redhat.com>
+References: <20170303095256.11584-1-vmojzis@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 10, 2017 at 7:01 AM, Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Mar 9, 2017 at 2:12 AM, David Miller <davem@davemloft.net> wrote:
->> From: Alexander Potapenko <glider@google.com>
->> Date: Mon,  6 Mar 2017 19:46:14 +0100
->>
->>> KMSAN (KernelMemorySanitizer, a new error detection tool) reports use of
->>> uninitialized memory in selinux_socket_bind():
->>  ...
->>> (the line numbers are relative to 4.8-rc6, but the bug persists upstream)
->>>
->>> , when I run the following program as root:
->>  ...
->>> (for different values of |size| other error reports are printed).
->>>
->>> This happens because bind() unconditionally copies |size| bytes of
->>> |addr| to the kernel, leaving the rest uninitialized. Then
->>> security_socket_bind() reads the IP address bytes, including the
->>> uninitialized ones, to determine the port, or e.g. pass them further to
->>> sel_netnode_find(), which uses them to calculate a hash.
->>>
->>> Signed-off-by: Alexander Potapenko <glider@google.com>
->>
->> Are the SELINUX folks going to pick this up or should I?
->
-> Yes, it's on my list of things to merge, I was just a bit distracted
-> this week with yet another audit problem.  I'm going to start making
-> my way through the patch backlog today.
+On Fri, 2017-03-03 at 10:52 +0100, Vit Mojzis wrote:
+> HTMLManPages got domain name by splitting name of selinux manpage
+> on "_selinux" which doesn't work properly when domain name contains
+> "_selinux".
 
-Just merged into selinux/next, thanks.  My apologies for the delay.
+Thanks, applied.
 
--- 
-paul moore
-www.paul-moore.com
+> 
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> ---
+>  python/sepolicy/sepolicy/manpage.py | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/python/sepolicy/sepolicy/manpage.py
+> b/python/sepolicy/sepolicy/manpage.py
+> index 773a9ab..1af4295 100755
+> --- a/python/sepolicy/sepolicy/manpage.py
+> +++ b/python/sepolicy/sepolicy/manpage.py
+> @@ -205,12 +205,12 @@ class HTMLManPages:
+>          for domain in self.manpage_domains.values():
+>              if len(domain):
+>                  for d in domain:
+> -                    convert_manpage_to_html((self.new_path +
+> d.split("_selinux")[0] + ".html"), self.old_path + d)
+> +                    convert_manpage_to_html((self.new_path +
+> d.rsplit("_selinux", 1)[0] + ".html"), self.old_path + d)
+>  
+>          for role in self.manpage_roles.values():
+>              if len(role):
+>                  for r in role:
+> -                    convert_manpage_to_html((self.new_path +
+> r.split("_selinux")[0] + ".html"), self.old_path + r)
+> +                    convert_manpage_to_html((self.new_path +
+> r.rsplit("_selinux", 1)[0] + ".html"), self.old_path + r)
+>  
+>      def _gen_index(self):
+>          index = self.old_path + "index.html"
+> @@ -290,7 +290,7 @@ Fedora or Red Hat Enterprise Linux Man
+> Pages.</h2>
+>              if len(self.manpage_roles[letter]):
+>                  rolename_body += "<p>"
+>                  for r in self.manpage_roles[letter]:
+> -                    rolename = r.split("_selinux")[0]
+> +                    rolename = r.rsplit("_selinux", 1)[0]
+>                      rolename_body += "<a name=%s_role></a><a
+> href=%s.html>%s_selinux(8)</a> - Security Enhanced Linux Policy for
+> the %s SELinux user\n" % (letter, rolename, rolename, rolename)
+>  
+>          fd.write("""%s
+> @@ -317,7 +317,7 @@ Fedora or Red Hat Enterprise Linux Man
+> Pages.</h2>
+>              if len(self.manpage_domains[letter]):
+>                  domainname_body += "<p>"
+>                  for r in self.manpage_domains[letter]:
+> -                    domainname = r.split("_selinux")[0]
+> +                    domainname = r.rsplit("_selinux", 1)[0]
+>                      domainname_body += "<a name=%s_domain></a><a
+> href=%s.html>%s_selinux(8)</a> - Security Enhanced Linux Policy for
+> the %s SELinux processes\n" % (letter, domainname, domainname,
+> domainname)
+>  
+>          fd.write("""%s
