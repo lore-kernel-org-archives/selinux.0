@@ -1,92 +1,62 @@
-Subject: Re: [PATCH 0/3] libsepol and checkpolicy: Output CIL or policy.conf
- from kernel policy
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-References: <1489175376-27336-1-git-send-email-jwcart2@tycho.nsa.gov>
- <CAJfZ7==2e9bN7Z94sLDO3boHDgVPx8Gr+=pXWsvNEbdqkjc8fg@mail.gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <108f1499-4017-48dd-c7a6-77bd01cf389f@tycho.nsa.gov>
-Date: Mon, 13 Mar 2017 11:32:59 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2DG5xVq014617
+ for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2017 12:06:00 -0400
+Subject: Re: isolate selinux_enforcing
+To: James Morris <jmorris@namei.org>,
+ "Eric W. Biederman" <ebiederm@xmission.com>
+References: <58732BCF.4090908@huawei.com> <58734284.1060504@huawei.com>
+ <b7f75f65-592a-5102-0ac5-4d3aa43f0b55@huawei.com> <58736B2E.90201@huawei.com>
+ <58C11A6C.7000408@huawei.com>
+ <347f63b5-c274-c7bc-55f7-f6304d31418a@schaufler-ca.com>
+ <87innidvko.fsf@xmission.com> <alpine.LRH.2.20.1703131704400.3299@namei.org>
+Cc: yangshukui <yangshukui@huawei.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, Lizefan <lizefan@huawei.com>,
+ paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
+ james.l.morris@oracle.com, oleg@redhat.com, serge.hallyn@ubuntu.com
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <64e2a668-00ef-e095-e2f9-bf100ac6dd35@schaufler-ca.com>
+Date: Mon, 13 Mar 2017 09:05:38 -0700
 MIME-Version: 1.0
-In-Reply-To: <CAJfZ7==2e9bN7Z94sLDO3boHDgVPx8Gr+=pXWsvNEbdqkjc8fg@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <alpine.LRH.2.20.1703131704400.3299@namei.org>
+Content-Type: text/plain; charset=windows-1252
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/11/2017 03:02 PM, Nicolas Iooss wrote:
-> On Fri, Mar 10, 2017 at 8:49 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
->> It would sometimes be helpful for debugging or verification purposes to be able to convert
->> a binary policy to a human-readable form.
+On 3/13/2017 12:06 AM, James Morris wrote:
+> On Thu, 9 Mar 2017, Eric W. Biederman wrote:
+>
+>> My expectation is that a container would run as essentially all one
+>> label from a global perspective.
 >>
->> This patchset adds libsepol functions that take a kernel policydb in and outputs either
->> a CIL or policy.conf text.
+> Keep in mind that a different classes of objects may have distinct 
+> labeling in SELinux.  e.g. a process and a file typically have different 
+> labels (say, sshd_t vs. sshd_key_t).
+>
+> Also, I think you will want to have the global namespace always use the 
+> original security labels.  If accessing an object from outside the 
+> container, the original global policy should always apply.  Really, this 
+> needs to be an invariant property.
+>
+> I'd suggest implementing an orthogonal 2nd set of security labels which 
+> are only ever used within the container.
+
+The work that's been done for Smack namespaces
+
+	https://lwn.net/Articles/652320
+
+may come in handy during during your deliberations for
+SELinux. Conceptually you can create aliases for your
+base labels, and use those within the container. Very
+much like the UID mapping of user namespaces. Labels that
+don't have an alias can't be accessed within the namespace.
+
+>> To implement this would require a revision on the selinux labels xattrs
+>> so that they can be marked as being part of a container...  But having
+>> the labels look ordinary inside the container.
 >>
->> Checkpolicy is modified to generate CIL text from a binary policy if using the "-C" option
->> and to add the "-F" option to generate policy.conf text from a binary policy.
->>
->> Where possible rules are sorted in alphabetical or numerical order to aid in debugging.
->>
->> James Carter (3):
->>   libsepol: Add ability to convert binary policy to CIL
->>   libsepol: Add ability to convert binary policy to policy.conf file
->>   checkpolicy: Add options to convert binary policy to CIL or a
->>     policy.conf
+>> We almost have a patch that implements something like that for the
+>> capability xattr.
+> It'll be interesting to see.
 >
-> Hello,
-> I agree such features are useful when analyzing policies. I have
-> tested the patches and compiled with some warnings flags (I have not
-> done a "real" code review). Here are some comments:
->
-> - First, the documentation (at least checkpolicy manpage) needs to be
-> updated with the new options. Also I spent some time trying to
-> understand what I was doing wrong with options -C and -F until I read
-> the third patch and understood that "-b" needs to be used as well.
->
-> - Then, when using "checkpolicy -bF" on my policy, I got blocks such as:
->
-> if ((git_cgi_enable_homedirs && use_samba_home_dirs)) {
->             allow httpd_git_script_t cifs_t:dir { getattr search open };
->         allow httpd_git_script_t cifs_t:dir { ioctl read getattr lock
-> search open };
->         allow httpd_git_script_t cifs_t:dir { ioctl read getattr lock
-> search open };
->         allow httpd_git_script_t cifs_t:file { ioctl read getattr lock open };
->         allow httpd_git_script_t cifs_t:filesystem { getattr };
->     } else {        dontaudit httpd_git_script_t cifs_t:file { ioctl
-> read getattr lock open };
-> }
->
-> The blocks have indentation issues (the first line of the if statement
-> has too much spaces and a "\n" is missing at the beginning of the else
-> block. Moreover the permissions are not sorted in alphabetical order
-> but this may be included in the "Where possible" part of your message.
->
-> - Third, the first patch introduces functions with printf-like
-> arguments and defines them with __attribute__((format(printf...))) in
-> the .c file. This is fine for the static functions but the other ones
-> need to have attributes in kernel_to_common.h instead (this enables
-> the compiler to check the format strings at build time when compiling
-> other files).
->
-> - Finally when compiling with -Wwrite-strings, gcc reports some issues
-> with literal strings assigned to non-const char* variables. I have
-> quickly written a short patch to make some variables const char* and
-> checkpolicy seems to work fine with it. The patch is attached to this
-> email if you want to consider it.
->
-
-Thanks for testing it out. I agree with all of your comments and suggestions 
-above. Thanks for the patch as well.
-
-Jim
-
-> Cheers,
-> Nicolas
->
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
