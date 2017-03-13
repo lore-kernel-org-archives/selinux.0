@@ -1,54 +1,197 @@
-Date: Mon, 13 Mar 2017 18:06:23 +1100 (AEDT)
-From: James Morris <jmorris@namei.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Casey Schaufler <casey@schaufler-ca.com>,
- yangshukui <yangshukui@huawei.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, Lizefan <lizefan@huawei.com>,
- paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
- james.l.morris@oracle.com, oleg@redhat.com, serge.hallyn@ubuntu.com
-Subject: Re: isolate selinux_enforcing
-In-Reply-To: <87innidvko.fsf@xmission.com>
-Message-ID: <alpine.LRH.2.20.1703131704400.3299@namei.org>
-References: <58732BCF.4090908@huawei.com> <58734284.1060504@huawei.com>
- <b7f75f65-592a-5102-0ac5-4d3aa43f0b55@huawei.com> <58736B2E.90201@huawei.com>
- <58C11A6C.7000408@huawei.com>
- <347f63b5-c274-c7bc-55f7-f6304d31418a@schaufler-ca.com>
- <87innidvko.fsf@xmission.com>
+Subject: Re: [PATCH 3/3] checkpolicy: Add options to convert binary policy to
+ CIL or a policy.conf
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <1489175376-27336-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1489175376-27336-4-git-send-email-jwcart2@tycho.nsa.gov>
+ <1489179871.6824.61.camel@tycho.nsa.gov>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <4989fbc0-16fb-0ca8-4604-9683dc901e5d@tycho.nsa.gov>
+Date: Mon, 13 Mar 2017 10:37:12 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <1489179871.6824.61.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 9 Mar 2017, Eric W. Biederman wrote:
+On 03/10/2017 04:04 PM, Stephen Smalley wrote:
+> On Fri, 2017-03-10 at 14:49 -0500, James Carter wrote:
+>> Use the same option "-C" used to ouput CIL from a policy.conf, but
+>> now
+>> generate CIL from a binary policy instead of giving an error.
+>>
+>> Use the option "-F" to generate a policy.conf file from a binary
+>> policy.
+>>
+>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+>> ---
+>>  checkpolicy/checkpolicy.c | 60 +++++++++++++++++++++++++++++++++--
+>> ------------
+>>  1 file changed, 42 insertions(+), 18 deletions(-)
+>>
+>> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+>> index b98bfcd..9694f57 100644
+>> --- a/checkpolicy/checkpolicy.c
+>> +++ b/checkpolicy/checkpolicy.c
+>> @@ -75,6 +75,8 @@
+>>  #include <sys/mman.h>
+>>
+>>  #include <sepol/module_to_cil.h>
+>> +#include <sepol/kernel_to_cil.h>
+>> +#include <sepol/kernel_to_conf.h>
+>>  #include <sepol/policydb/policydb.h>
+>>  #include <sepol/policydb/services.h>
+>>  #include <sepol/policydb/conditional.h>
+>> @@ -105,7 +107,7 @@ unsigned int policyvers = POLICYDB_VERSION_MAX;
+>>  static __attribute__((__noreturn__)) void usage(const char
+>> *progname)
+>>  {
+>>  	printf
+>> -	    ("usage:  %s [-b] [-C] [-d] [-U handle_unknown
+>> (allow,deny,reject)] [-M]"
+>> +	    ("usage:  %s [-b] [-C] [-F] [-d] [-U handle_unknown
+>> (allow,deny,reject)] [-M]"
+>>  	     "[-c policyvers (%d-%d)] [-o output_file] [-t
+>> target_platform (selinux,xen)]"
+>>  	     "[input_file]\n",
+>>  	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+>> @@ -388,7 +390,7 @@ int main(int argc, char **argv)
+>>  	size_t scontext_len, pathlen;
+>>  	unsigned int i;
+>>  	unsigned int protocol, port;
+>> -	unsigned int binary = 0, debug = 0, cil = 0;
+>> +	unsigned int binary = 0, debug = 0, cil = 0, conf = 0;
+>>  	struct val_to_name v;
+>>  	int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
+>>  	unsigned int nel, uret;
+>> @@ -411,11 +413,12 @@ int main(int argc, char **argv)
+>>  		{"handle-unknown", required_argument, NULL, 'U'},
+>>  		{"mls", no_argument, NULL, 'M'},
+>>  		{"cil", no_argument, NULL, 'C'},
+>> +		{"conf",no_argument, NULL, 'F'},
+>>  		{"help", no_argument, NULL, 'h'},
+>>  		{NULL, 0, NULL, 0}
+>>  	};
+>>
+>> -	while ((ch = getopt_long(argc, argv, "o:t:dbU:MCVc:h",
+>> long_options, NULL)) != -1) {
+>> +	while ((ch = getopt_long(argc, argv, "o:t:dbU:MCFVc:h",
+>> long_options, NULL)) != -1) {
+>>  		switch (ch) {
+>>  		case 'o':
+>>  			outfile = optarg;
+>> @@ -461,6 +464,9 @@ int main(int argc, char **argv)
+>>  		case 'C':
+>>  			cil = 1;
+>>  			break;
+>> +		case 'F':
+>> +			conf = 1;
+>> +			break;
+>>  		case 'c':{
+>>  				long int n;
+>>  				errno = 0;
+>> @@ -510,12 +516,17 @@ int main(int argc, char **argv)
+>>  	sepol_set_policydb(&policydb);
+>>  	sepol_set_sidtab(&sidtab);
+>>
+>> +	if (cil && conf) {
+>> +		fprintf(stderr, "Can't convert to CIL and
+>> policy.conf at the same time\n");
+>> +		exit(1);
+>> +	}
+>> +
+>>  	if (binary) {
+>> -		if (cil) {
+>> -			fprintf(stderr,	"%s:  Converting
+>> kernel policy to CIL is not supported\n",
+>> -				argv[0]);
+>> -			exit(1);
+>> -		}
+>> +		/* if (cil) { */
+>> +		/* 	fprintf(stderr,	"%s:  Converting
+>> kernel policy to CIL is not supported\n", */
+>> +		/* 		argv[0]); */
+>> +		/* 	exit(1); */
+>> +		/* } */
+>
+> Just remove?
 
-> My expectation is that a container would run as essentially all one
-> label from a global perspective.
-> 
+Yes, I forgot to remove that. Thanks.
 
-Keep in mind that a different classes of objects may have distinct 
-labeling in SELinux.  e.g. a process and a file typically have different 
-labels (say, sshd_t vs. sshd_key_t).
+>
+>>  		fd = open(file, O_RDONLY);
+>>  		if (fd < 0) {
+>>  			fprintf(stderr, "Can't open '%s':  %s\n",
+>> @@ -568,6 +579,10 @@ int main(int argc, char **argv)
+>>  			}
+>>  		}
+>>  	} else {
+>> +		if (conf) {
+>> +			fprintf(stderr, "Can only generate
+>> policy.conf from binary policy\n");
+>> +			exit(1);
+>> +		}
+>>  		if (policydb_init(&parse_policy))
+>>  			exit(1);
+>>  		/* We build this as a base policy first since that
+>> is all the parser understands */
+>> @@ -621,15 +636,20 @@ int main(int argc, char **argv)
+>>  		policydb.policyvers = policyvers;
+>>
+>>  		if (!cil) {
+>> -			printf
+>> -				("%s:  writing binary representation
+>> (version %d) to %s\n",
+>> -				 argv[0], policyvers, outfile);
+>> -			policydb.policy_type = POLICY_KERN;
+>> -
+>> -			policy_file_init(&pf);
+>> -			pf.type = PF_USE_STDIO;
+>> -			pf.fp = outfp;
+>> -			ret = policydb_write(&policydb, &pf);
+>> +			if (!conf) {
+>> +				printf("%s:  writing binary
+>> representation (version %d) to %s\n", argv[0], policyvers, outfile);
+>> +
+>> +				policydb.policy_type = POLICY_KERN;
+>> +
+>> +				policy_file_init(&pf);
+>> +				pf.type = PF_USE_STDIO;
+>> +				pf.fp = outfp;
+>> +				ret = policydb_write(&policydb,
+>> &pf);
+>> +			} else {
+>> +				printf("%s:  writing policy.conf to
+>> %s\n",
+>> +				       argv[0], outfile);
+>> +				ret =
+>> sepol_kernel_policydb_to_conf(outfp, policydbp);
+>> +			}
+>>  			if (ret) {
+>>  				fprintf(stderr, "%s:  error writing
+>> %s\n",
+>>  						argv[0], outfile);
+>> @@ -637,7 +657,11 @@ int main(int argc, char **argv)
+>>  			}
+>>  		} else {
+>>  			printf("%s:  writing CIL to %s\n",argv[0],
+>> outfile);
+>> -			ret = sepol_module_policydb_to_cil(outfp,
+>> policydbp, 1);
+>> +			if (binary) {
+>> +				ret =
+>> sepol_kernel_policydb_to_cil(outfp, policydbp);
+>> +			} else {
+>> +				ret =
+>> sepol_module_policydb_to_cil(outfp, policydbp, 1);
+>> +			}
+>>  			if (ret) {
+>>  				fprintf(stderr, "%s:  error writing
+>> %s\n", argv[0], outfile);
+>>  				exit(1);
 
-Also, I think you will want to have the global namespace always use the 
-original security labels.  If accessing an object from outside the 
-container, the original global policy should always apply.  Really, this 
-needs to be an invariant property.
-
-I'd suggest implementing an orthogonal 2nd set of security labels which 
-are only ever used within the container.
-
-
-> To implement this would require a revision on the selinux labels xattrs
-> so that they can be marked as being part of a container...  But having
-> the labels look ordinary inside the container.
-> 
-> We almost have a patch that implements something like that for the
-> capability xattr.
-
-It'll be interesting to see.
 
 -- 
-James Morris
-<jmorris@namei.org>
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
