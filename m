@@ -1,15 +1,19 @@
-Date: Sat, 11 Mar 2017 12:05:30 +1100 (AEDT)
+Date: Mon, 13 Mar 2017 18:06:23 +1100 (AEDT)
 From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-cc: viro@zeniv.linux.org.uk, james.l.morris@oracle.com, serge@hallyn.com,
- paul@paul-moore.com, john.johansen@canonical.com,
- linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: Re: [PATCH] fs: switch order of CAP_DAC_OVERRIDE and
- CAP_DAC_READ_SEARCH checks
-In-Reply-To: <1489166058-11789-1-git-send-email-sds@tycho.nsa.gov>
-Message-ID: <alpine.LRH.2.20.1703111205200.20298@namei.org>
-References: <1489166058-11789-1-git-send-email-sds@tycho.nsa.gov>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+cc: Casey Schaufler <casey@schaufler-ca.com>,
+ yangshukui <yangshukui@huawei.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, Lizefan <lizefan@huawei.com>,
+ paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
+ james.l.morris@oracle.com, oleg@redhat.com, serge.hallyn@ubuntu.com
+Subject: Re: isolate selinux_enforcing
+In-Reply-To: <87innidvko.fsf@xmission.com>
+Message-ID: <alpine.LRH.2.20.1703131704400.3299@namei.org>
+References: <58732BCF.4090908@huawei.com> <58734284.1060504@huawei.com>
+ <b7f75f65-592a-5102-0ac5-4d3aa43f0b55@huawei.com> <58736B2E.90201@huawei.com>
+ <58C11A6C.7000408@huawei.com>
+ <347f63b5-c274-c7bc-55f7-f6304d31418a@schaufler-ca.com>
+ <87innidvko.fsf@xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,20 +21,33 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 10 Mar 2017, Stephen Smalley wrote:
+On Thu, 9 Mar 2017, Eric W. Biederman wrote:
 
-> generic_permission() presently checks CAP_DAC_OVERRIDE prior to
-> CAP_DAC_READ_SEARCH.  This can cause misleading audit messages when
-> using a LSM such as SELinux or AppArmor, since CAP_DAC_OVERRIDE
-> may not be required for the operation.  Flip the order of the
-> tests so that CAP_DAC_OVERRIDE is only checked when required for
-> the operation.
+> My expectation is that a container would run as essentially all one
+> label from a global perspective.
 > 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+Keep in mind that a different classes of objects may have distinct 
+labeling in SELinux.  e.g. a process and a file typically have different 
+labels (say, sshd_t vs. sshd_key_t).
+
+Also, I think you will want to have the global namespace always use the 
+original security labels.  If accessing an object from outside the 
+container, the original global policy should always apply.  Really, this 
+needs to be an invariant property.
+
+I'd suggest implementing an orthogonal 2nd set of security labels which 
+are only ever used within the container.
 
 
-Acked-by: James Morris <james.l.morris@oracle.com>
+> To implement this would require a revision on the selinux labels xattrs
+> so that they can be marked as being part of a container...  But having
+> the labels look ordinary inside the container.
+> 
+> We almost have a patch that implements something like that for the
+> capability xattr.
 
+It'll be interesting to see.
 
 -- 
 James Morris
