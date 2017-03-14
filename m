@@ -1,18 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2DNBRbd015413
- for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2017 19:11:27 -0400
-Received: by mail-wm0-f42.google.com with SMTP id n11so51563707wma.0
- for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2017 16:11:23 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2E3OZSa021037
+ for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2017 23:24:35 -0400
+Received: by mail-io0-f177.google.com with SMTP id l7so96650381ioe.3
+ for <selinux@tycho.nsa.gov>; Mon, 13 Mar 2017 20:24:33 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170313220715.4mbrqzwcr3xzrcr2@perpetual.pseudorandom.co.uk>
-References: <CAJ2a_DcAMXXj5+LZeHsRqARfEmbCCpwfVt2fBiana5rH4mWEGA@mail.gmail.com>
- <20170313220715.4mbrqzwcr3xzrcr2@perpetual.pseudorandom.co.uk>
-From: cgzones <cgzones@googlemail.com>
-Date: Tue, 14 Mar 2017 00:11:22 +0100
-Message-ID: <CAJ2a_DdCveafhom+5-VHW-Bi7kTNvDx0x2u=-dhKW2x81Q+QFQ@mail.gmail.com>
-Subject: Re: Bug#857660: SELinux: cannot sent policyload notice
-To: selinux <selinux@tycho.nsa.gov>
-Cc: 857660@bugs.debian.org
+From: =?UTF-8?B?6Z2i5ZKM5q+F?= <ka-omo@sios.com>
+Date: Tue, 14 Mar 2017 12:24:32 +0900
+Message-ID: <CAEKGoSGVccL=jEOOfGcKAdgHE+cUk5XC2Z01nt_jtke6MdjVXw@mail.gmail.com>
+Subject: tomcat_t domain behavior
+To: SELinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -20,22 +16,67 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Hi list,
-I created bug report against dbus 1.10 on Debian [1] due to failing to
-send policyload notices.
-Are there any objections or comments on the upstream patch[2]?
-The patch works for me:
 
-Mar 14 00:01:36 debianSE audit[441]: USER_AVC pid=441 uid=105
-auid=4294967295 ses=4294967295
-subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc:
-received policyload notice (seqno=3)
-                                     exe="/usr/bin/dbus-daemon"
-sauid=105 hostname=? addr=? terminal=?'
-Mar 14 00:01:36 debianSE dbus[441]: [system] Reloaded configuration
+I just found strange behavior on tomcat_t.
+(I checked Fedora25, CentOS7).
 
-Best regards,
-       Christian Göttsche
+During PoC for CVE-2017-5638(I know RedHat products are
+not affected, just wanted to confirm SELinux behavior),
+I found that tomcat_t can read shadow_t file, access to
+admin_home_t directory, and so on.
+
+I guess there is a suitable reason to allow those permission
+to tomcat_t, but I just want to confirm the reason.
+
+----- Quick test for tomcat_t -----;
+I did just temporary test for checking tomcat_t behavior
+on Fedora25.
+
+1. I copied /bin/bash to /root/tomcat_shell.sh, and assigned
+   context as "tomcat_exec_t".
+
+[root@fedora25 ~]# ls -lZ /root/tomcat_shell.sh
+-rwxr-xr-x. 1 root root system_u:object_r:tomcat_exec_t:s0
+1072008 Mar 14 11:53 /root/tomcat_shell.sh
+
+2. I added some cil policy just for this test.
+[root@fedora25 ~]# cat tomcat_sh.cil
+(typeattributeset entry_type tomcat_exec_t)
+(roletype unconfined_r tomcat_t)
+(typetransition unconfined_t tomcat_exec_t process tomcat_t)
+
+3. load above module, and run tomcat_shell.sh
+[root@fedora25 ~]# semodule -i tomcat_sh.cil
+[root@fedora25 ~]# ./tomcat_shell.sh
+[root@fedora25 ~]# id -Z
+unconfined_u:unconfined_r:tomcat_t:s0-s0:c0.c1023
+
+4. access to shadow file, /root/ file, etc.
+[root@fedora25 ~]# cat /etc/shadow
+root:$6$h0wd.::0:99999:7:::
+bin:*:17004:0:99999:7:::
+daemon:*:17004:0:99999:7:::
+--snip--
+[root@fedora25 ~]# cat /root/tomcat_sh.cil
+(typeattributeset entry_type tomcat_exec_t)
+(roletype unconfined_r tomcat_t)
+(typetransition unconfined_t tomcat_exec_t process tomcat_t)
+[root@fedora25 ~]# ls -lZ /root/tomcat_sh.cil
+-rw-r--r--. 1 root root unconfined_u:object_r:admin_home_t:s0
+138 Mar 14 12:01 /root/tomcat_sh.cil
+----- End -----
+
+So, can I ask the reason why we add these permission to tomcat_t?
+
+Kind Regards,
+
+OMO
 
 
-[1] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=857660
-[2] https://cgit.freedesktop.org/dbus/dbus/commit/?id=a3a5935a0a038c3b44c61ce5719f0f7e647b96c6
+-- 
+Kazuki Omo: ka-omo@sios.com
+OSS &Security Evangelist
+OSS Business Planning Dept.
+CISSP #366942
+http://www.secureoss.jp/
+Tel: +819026581386
