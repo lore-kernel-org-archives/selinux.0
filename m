@@ -1,33 +1,31 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2FJqWYq015676
+ for <selinux@tycho.nsa.gov>; Wed, 15 Mar 2017 15:52:32 -0400
+Received: by mail-ot0-f175.google.com with SMTP id 19so31671361oti.0
+ for <selinux@tycho.nsa.gov>; Wed, 15 Mar 2017 12:52:31 -0700 (PDT)
+Received: from ian.penurio.us (cpe-70-119-136-2.tx.res.rr.com. [70.119.136.2])
+ by smtp.gmail.com with ESMTPSA id
+ 90sm1141859otb.15.2017.03.15.12.52.29 for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Wed, 15 Mar 2017 12:52:29 -0700 (PDT)
 To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] python/semanage: fix export of fcontext socket entries
-Date: Wed, 15 Mar 2017 13:14:12 -0400
-Message-Id: <20170315171412.24265-1-sds@tycho.nsa.gov>
+From: Ian Pilcher <arequipeno@gmail.com>
+Subject: portcon in policy modules
+Message-ID: <531c2329-9a0a-d6f6-5fe4-8b4614711552@gmail.com>
+Date: Wed, 15 Mar 2017 14:52:29 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Fixes https://github.com/SELinuxProject/selinux/issues/49 (#49).
+10 years later, is this still accurate?
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- python/semanage/seobject.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+    http://danwalsh.livejournal.com/10607.html
 
-diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index 94bd368..7a54373 100644
---- a/python/semanage/seobject.py
-+++ b/python/semanage/seobject.py
-@@ -84,7 +84,7 @@ file_type_str_to_option = {"all files": "a",
-                            "directory": "d",
-                            "character device": "c",
-                            "block device": "b",
--                           "socket file": "s",
-+                           "socket": "s",
-                            "symbolic link": "l",
-                            "named pipe": "p"}
- 
 -- 
-2.9.3
+========================================================================
+Ian Pilcher                                         arequipeno@gmail.com
+-------- "I grew up before Mark Zuckerberg invented friendship" --------
+========================================================================
