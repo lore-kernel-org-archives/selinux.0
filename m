@@ -1,123 +1,55 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2HB7RV1028115
- for <selinux@tycho.nsa.gov>; Fri, 17 Mar 2017 07:07:27 -0400
-Received: by mail-wr0-f176.google.com with SMTP id u108so49578135wrb.3
- for <selinux@tycho.nsa.gov>; Fri, 17 Mar 2017 04:07:03 -0700 (PDT)
-MIME-Version: 1.0
-From: cgzones <cgzones@googlemail.com>
-Date: Fri, 17 Mar 2017 12:07:01 +0100
-Message-ID: <CAJ2a_DchNhEpB9KWkWFSa6ejSHsuQtUdhCDtF_jDi8etBs4AJA@mail.gmail.com>
-Subject: newrole as su'ed root
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2GMRNpT011174
+ for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2017 18:27:23 -0400
+Received: by mail-pf0-f175.google.com with SMTP id x63so25160723pfx.2
+ for <selinux@tycho.nsa.gov>; Thu, 16 Mar 2017 15:27:19 -0700 (PDT)
+From: Matthias Kaehlcke <mka@chromium.org>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E . Hallyn" <serge@hallyn.com>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Prarit Bhargava <prarit@redhat.com>,
+ David Howells <dhowells@redhat.com>,
+ Grant Grundler <grundler@chromium.org>,
+ Michael Davidson <md@google.com>, Greg Hackmann <ghackmann@google.com>,
+ Matthias Kaehlcke <mka@chromium.org>
+Subject: [PATCH] selinux: Remove unnecessary check of array base in
+ selinux_set_mapping()
+Date: Thu, 16 Mar 2017 15:26:52 -0700
+Message-Id: <20170316222652.125702-1-mka@chromium.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi list,
-I am using newrole v2.6 on Debian testing. The pam config
-/etc/pam.d/newrole contains:
+'perms' will never be NULL since it isn't a plain pointer but an array
+of u32 values.
 
-#%PAM-1.0
+This fixes the following warning when building with clang:
 
-@include common-auth
-@include common-account
-@include common-session
-session  required pam_namespace.so unmnt_remnt no_unmount_on_close
+security/selinux/ss/services.c:158:16: error: address of array
+'p_in->perms' will always evaluate to 'true'
+[-Werror,-Wpointer-bool-conversion]
+                while (p_in->perms && p_in->perms[k]) {
 
-I log into the machine as a normal user:
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+---
+ security/selinux/ss/services.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-christian@debianSE:~$ id
-uid=1001(christian) gid=1002(christian)
-groups=1002(christian),1001(dosu) context=staff_u:staff_r:staff_t:s0
-christian@debianSE:~$ env
-LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01
-;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*
-.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.
-jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=0
-1;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.av
-i=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp
-3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
-SSH_CONNECTION=192.168.24.24 44134 192.168.24.100 12323
-LANG=en_GB.utf8
-XDG_SESSION_ID=80
-USER=christian
-PWD=/home/christian
-HOME=/home/christian
-LC_CTYPE=en_GB.UTF-8
-SSH_CLIENT=192.168.24.24 44134 12323
-SSH_TTY=/dev/pts/0
-MAIL=/var/mail/christian
-TERM=xterm-256color
-SHELL=/bin/bash
-LS_OPTIONS=--color=auto
-SHLVL=1
-LOGNAME=christian
-XDG_RUNTIME_DIR=/run/user/1001
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games
-_=/usr/bin/env
-
-Then change to superuser by su
-
-root@debianSE:/home/christian# id
-uid=0(root) gid=0(root) groups=0(root) context=staff_u:staff_r:staff_t:s0
-root@debianSE:/home/christian# env
-LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01
-;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*
-.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.
-jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=0
-1;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.av
-i=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp
-3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
-SSH_CONNECTION=192.168.24.24 44134 192.168.24.100 12323
-LANG=en_GB.utf8
-XDG_SESSION_ID=80
-USER=root
-PWD=/home/christian
-HOME=/root
-LC_CTYPE=en_GB.UTF-8
-SSH_CLIENT=192.168.24.24 44134 12323
-SSH_TTY=/dev/pts/0
-MAIL=/var/mail/root
-SHELL=/bin/bash
-TERM=xterm-256color
-LS_OPTIONS=--color=auto
-SHLVL=2
-LOGNAME=root
-XDG_RUNTIME_DIR=/run/user/1001
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-_=/usr/bin/env
-
-
-When I now want to change the role to sysadm_r with newrole, the
-password for the normal user is required and the resulting sessions
-sets USER and LOGNAME to the normal user
-
-root@debianSE:~# id
-uid=0(root) gid=0(root) groups=0(root) context=staff_u:sysadm_r:sysadm_t:s0
-root@debianSE:~# env
-LS_COLORS=rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01
-;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.Z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*
-.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.
-jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=0
-1;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.av
-i=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp
-3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
-USER=christian
-PWD=/home/christian
-HOME=/home/christian
-LC_CTYPE=en_GB.UTF-8
-SHELL=/bin/bash
-TERM=xterm-256color
-LS_OPTIONS=--color=auto
-SHLVL=1
-LOGNAME=christian
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-_=/usr/bin/env
-
-
-Is this the desired behavior? I would like it to stay as root.
-
-Best regards,
-     Christian Göttsche
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 082b20c78363..2f20b5f974f4 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -155,7 +155,7 @@ static int selinux_set_mapping(struct policydb *pol,
+ 		}
+ 
+ 		k = 0;
+-		while (p_in->perms && p_in->perms[k]) {
++		while (p_in->perms[k]) {
+ 			/* An empty permission string skips ahead */
+ 			if (!*p_in->perms[k]) {
+ 				k++;
+-- 
+2.12.0.367.g23dc2f6d3c-goog
