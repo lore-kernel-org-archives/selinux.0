@@ -1,12 +1,12 @@
 Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2KFIa8P027563
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2KFIa8Q027563
  for <selinux@tycho.nsa.gov>; Mon, 20 Mar 2017 11:18:36 -0400
 From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] libsepol: Update module_to_cil to output hexadecimal for
- Xen rules
-Date: Mon, 20 Mar 2017 11:18:58 -0400
-Message-Id: <1490023139-12045-3-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 3/3] libsepol/cil: Use hexadecimal numbers when writing Xen
+ rules
+Date: Mon, 20 Mar 2017 11:18:59 -0400
+Message-Id: <1490023139-12045-4-git-send-email-jwcart2@tycho.nsa.gov>
 In-Reply-To: <1490023139-12045-1-git-send-email-jwcart2@tycho.nsa.gov>
 References: <1490023139-12045-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,58 +14,48 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When generating CIL, use hexadecimal numbers in ioportcon,
-iomemcon, and pcidevicecon statements.
+When writing a policy.conf file from CIL source, use hexadecimal
+numbers in ioportcon, iomemcon, and pcidevicecon rules.
 
 Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 ---
- libsepol/src/module_to_cil.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ libsepol/cil/src/cil_policy.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 8c4fff9..6c33b94 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -34,6 +34,7 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-+#include <inttypes.h>
- #include <sys/types.h>
- #include <sys/stat.h>
- #include <unistd.h>
-@@ -2854,9 +2855,9 @@ static int ocontext_xen_ioport_to_cil(struct policydb *pdb, struct ocontext *iop
- 		high = ioport->u.ioport.high_ioport;
+diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
+index 2e6814a..77179e6 100644
+--- a/libsepol/cil/src/cil_policy.c
++++ b/libsepol/cil/src/cil_policy.c
+@@ -1831,7 +1831,11 @@ static void cil_iomemcons_to_policy(FILE *out, struct cil_sort *iomemcons, int m
  
- 		if (low == high) {
--			cil_printf("(ioportcon %i ", low);
-+			cil_printf("(ioportcon 0x%x ", low);
- 		} else {
--			cil_printf("(ioportcon (%i %i) ", low, high);
-+			cil_printf("(ioportcon (0x%x 0x%x) ", low, high);
- 		}
+ 	for (i = 0; i<iomemcons->count; i++) {
+ 		iomemcon = iomemcons->array[i];
+-		fprintf(out, "iomemcon %" PRIu64 "-%" PRIu64 " ", iomemcon->iomem_low, iomemcon->iomem_high);
++		if (iomemcon->iomem_low == iomemcon->iomem_high) {
++			fprintf(out, "iomemcon %"PRIx64" ", iomemcon->iomem_low);
++		} else {
++			fprintf(out, "iomemcon %"PRIx64"-%"PRIx64" ", iomemcon->iomem_low, iomemcon->iomem_high);
++		}
+ 		cil_context_to_policy(out, iomemcon->context, mls);
+ 		fprintf(out, ";\n");
+ 	}
+@@ -1844,7 +1848,7 @@ static void cil_ioportcons_to_policy(FILE *out, struct cil_sort *ioportcons, int
  
- 		context_to_cil(pdb, &ioport->context[0]);
-@@ -2878,9 +2879,9 @@ static int ocontext_xen_iomem_to_cil(struct policydb *pdb, struct ocontext *iome
- 		high = iomem->u.iomem.high_iomem;
+ 	for (i = 0; i < ioportcons->count; i++) {
+ 		ioportcon = ioportcons->array[i];
+-		fprintf(out, "ioportcon %d-%d ", ioportcon->ioport_low, ioportcon->ioport_high);
++		fprintf(out, "ioportcon 0x%x-0x%x ", ioportcon->ioport_low, ioportcon->ioport_high);
+ 		cil_context_to_policy(out, ioportcon->context, mls);
+ 		fprintf(out, ";\n");
+ 	}
+@@ -1857,7 +1861,7 @@ static void cil_pcidevicecons_to_policy(FILE *out, struct cil_sort *pcidevicecon
  
- 		if (low == high) {
--			cil_printf("(iomemcon %#lX ", (unsigned long)low);
-+			cil_printf("(iomemcon 0x%"PRIx64" ", low);
- 		} else {
--			cil_printf("(iomemcon (%#lX %#lX) ", (unsigned long)low, (unsigned long)high);
-+			cil_printf("(iomemcon (0x%"PRIx64" 0x%"PRIx64") ", low, high);
- 		}
- 
- 		context_to_cil(pdb, &iomem->context[0]);
-@@ -2896,7 +2897,7 @@ static int ocontext_xen_pcidevice_to_cil(struct policydb *pdb, struct ocontext *
- 	struct ocontext *pcid;
- 
- 	for (pcid = pcids; pcid != NULL; pcid = pcid->next) {
--		cil_printf("(pcidevicecon %#lx ", (unsigned long)pcid->u.device);
-+		cil_printf("(pcidevicecon 0x%lx ", (unsigned long)pcid->u.device);
- 		context_to_cil(pdb, &pcid->context[0]);
- 		cil_printf(")\n");
+ 	for (i = 0; i < pcidevicecons->count; i++) {
+ 		pcidevicecon = pcidevicecons->array[i];
+-		fprintf(out, "pcidevicecon %d ", pcidevicecon->dev);
++		fprintf(out, "pcidevicecon 0x%x ", pcidevicecon->dev);
+ 		cil_context_to_policy(out, pcidevicecon->context, mls);
+ 		fprintf(out, ";\n");
  	}
 -- 
 2.7.4
