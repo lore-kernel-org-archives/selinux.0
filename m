@@ -1,43 +1,85 @@
-Message-ID: <1490121984.2050.3.camel@tycho.nsa.gov>
-Subject: Re: Bug#857660: SELinux: cannot sent policyload notice
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: cgzones <cgzones@googlemail.com>, selinux <selinux@tycho.nsa.gov>
-Cc: 857660@bugs.debian.org
-Date: Tue, 21 Mar 2017 14:46:24 -0400
-In-Reply-To: <CAJ2a_DdCveafhom+5-VHW-Bi7kTNvDx0x2u=-dhKW2x81Q+QFQ@mail.gmail.com>
-References: <CAJ2a_DcAMXXj5+LZeHsRqARfEmbCCpwfVt2fBiana5rH4mWEGA@mail.gmail.com>
- <20170313220715.4mbrqzwcr3xzrcr2@perpetual.pseudorandom.co.uk>
- <CAJ2a_DdCveafhom+5-VHW-Bi7kTNvDx0x2u=-dhKW2x81Q+QFQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <1490024417-12717-1-git-send-email-jwcart2@tycho.nsa.gov>
+References: <1490024417-12717-1-git-send-email-jwcart2@tycho.nsa.gov>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Tue, 21 Mar 2017 23:43:00 +0100
+Message-ID: <CAJfZ7=nr37LTOE+gyZQw4toiKrX00oF0snyn9-W1X51_cwj=9A@mail.gmail.com>
+Subject: Re: [PATCH 0/3 v2] libsepol and checkpolicy: Output CIL or
+ policy.conf from kernel policy
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-03-14 at 00:11 +0100, cgzones wrote:
-> Hi list,
-> I created bug report against dbus 1.10 on Debian [1] due to failing
-> to
-> send policyload notices.
-> Are there any objections or comments on the upstream patch[2]?
+On Mon, Mar 20, 2017 at 4:40 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
+> It would sometimes be helpful for debugging or verification purposes to be able to convert
+> a binary policy to a human-readable form.
+>
+> This patchset adds libsepol functions that take a kernel policydb in and outputs either
+> a CIL or policy.conf text.
+>
+> Checkpolicy is modified to generate CIL text from a binary policy if using the "-C" option
+> and to add the "-F" option to generate policy.conf text from a binary policy.
+>
+> Where possible rules are sorted in alphabetical or numerical order to aid in debugging.
+>
+> Changes from v1:
+> - Moved __attribute__((format(printf...))) for printf-like functions to kernel_to_common.h
+> - Incorporated patch from Nicolas Iooss to make const char* variables where appropriate
+> - Fixed conditional block formatting problems when generating policy.conf
+> - Initialize mls_constraints and non_mls_constraints to NULL in kernel_to_conf.c and kernel_to_cil.c so they are not accessed without initializaton if an error occurs.
+> - Updated checkpolicy manpage to include the new option
+> - Removed commented-out block from checkpolicy.c
+>
+> James Carter (3):
+>   libsepol: Add ability to convert binary policy to CIL
+>   libsepol: Add ability to convert binary policy to policy.conf file
+>   checkpolicy: Add options to convert binary policy to CIL or a
+>     policy.conf
 
-Also, the patch looks correct to me.
+Hello,
 
-> The patch works for me:
-> 
-> Mar 14 00:01:36 debianSE audit[441]: USER_AVC pid=441 uid=105
-> auid=4294967295 ses=4294967295
-> subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc:
-> received policyload notice (seqno=3)
->                                      exe="/usr/bin/dbus-daemon"
-> sauid=105 hostname=? addr=? terminal=?'
-> Mar 14 00:01:36 debianSE dbus[441]: [system] Reloaded configuration
-> 
-> Best regards,
->        Christian Göttsche
-> 
-> 
-> [1] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=857660
-> [2] https://cgit.freedesktop.org/dbus/dbus/commit/?id=a3a5935a0a038c3
-> b44c61ce5719f0f7e647b96c6
+I have tested this new version and it worked quite fine on my system.
+It also builds without any trouble on Travis-CI
+(https://travis-ci.org/fishilico/selinux/builds/213586224).
+
+After performing some tests, I quickly read the CIL policy generated
+with "checkpolicy -bC" and found:
+
+(booleanif (and git_cgi_enable_homedirs use_nfs_home_dirs)
+    (true
+        (allow httpd_git_script_t nfs_t (dir (getattr search open)))
+        (allow httpd_git_script_t nfs_t (dir (ioctl read getattr lock
+search open)))
+        (allow httpd_git_script_t nfs_t (dir (ioctl read getattr lock
+search open)))
+        (allow httpd_git_script_t nfs_t (file (ioctl read getattr lock open)))
+        (allow httpd_git_script_t nfs_t (filesystem (getattr)))
+    )
+    (false        (dontaudit httpd_git_script_t nfs_t (file (ioctl
+read getattr lock open)))
+    )
+)
+
+There is a missing "\n" after "(false" on line 2059 of kernel_to_cil.c
+(function write_cond_nodes_to_cil).
+
+Moreover when trying to compile with secilc the resulting file, I get
+"Bad userrange declaration" on a line which contains "(userrange root
+systemlow systemlow)" (this is a non-MLS policy). There are missing
+parentheses around the levels when generating userrange statements in
+write_user_decl_rules_to_cil().
+
+By iterating cycles of secilc and checkpolicy -bC, it appears that the
+roletypes statements get generated with alphabetical order of roles,
+but a random order for types (which is the order in the binary policy
+file if I understand the code correctly). Would it be possible to sort
+them in alphabetical order too? I guess a "struct strs"-based
+construction similar to what write_cond_av_list_to_cil() does can be
+used, even though I have not taken time to test this yet.
+
+Cheers,
+Nicolas
