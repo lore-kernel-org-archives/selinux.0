@@ -1,10 +1,13 @@
-Message-ID: <1490119264.2050.1.camel@tycho.nsa.gov>
-Subject: Re: net_admin audit for setsockopt SO_SNDBUFFORCE
+Message-ID: <1490120917.2050.2.camel@tycho.nsa.gov>
+Subject: Re: Bug#857660: SELinux: cannot sent policyload notice
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: cgzones <cgzones@googlemail.com>, selinux <selinux@tycho.nsa.gov>
-Date: Tue, 21 Mar 2017 14:01:04 -0400
-In-Reply-To: <CAJ2a_DdNpZ5vLtCmzC+o94zQrCGWwRYar5xYa4jyxohxnu7AZA@mail.gmail.com>
-References: <CAJ2a_DdNpZ5vLtCmzC+o94zQrCGWwRYar5xYa4jyxohxnu7AZA@mail.gmail.com>
+Cc: 857660@bugs.debian.org
+Date: Tue, 21 Mar 2017 14:28:37 -0400
+In-Reply-To: <CAJ2a_DdCveafhom+5-VHW-Bi7kTNvDx0x2u=-dhKW2x81Q+QFQ@mail.gmail.com>
+References: <CAJ2a_DcAMXXj5+LZeHsRqARfEmbCCpwfVt2fBiana5rH4mWEGA@mail.gmail.com>
+ <20170313220715.4mbrqzwcr3xzrcr2@perpetual.pseudorandom.co.uk>
+ <CAJ2a_DdCveafhom+5-VHW-Bi7kTNvDx0x2u=-dhKW2x81Q+QFQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,46 +15,30 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-03-21 at 16:06 +0100, cgzones wrote:
+On Tue, 2017-03-14 at 00:11 +0100, cgzones wrote:
 > Hi list,
-> this thread[1] about setsockopt(...,...,SO_SNDBUFFORCE), which
-> triggers widely due to systemd, let me think about the recent SELinux
-> kernel fixes: the reordering of dac_read_search and dac_override and
-> also the cap_wake_alarm fix.
+> I created bug report against dbus 1.10 on Debian [1] due to failing
+> to
+> send policyload notices.
+> Are there any objections or comments on the upstream patch[2]?
+
+The patch has been working correctly in dbus 1.11 in Fedora for quite
+some time.
+
+> The patch works for me:
 > 
-> Would it make sense to test, if the send buffer is really set to a
-> higher value than wmem_max, before testing for the cap_net_admin
-> permission[2]?
-> (might also apply to SO_RCVBUFFORCE)
-
-Probably not, since SO_SNDBUFFORCE only exists to allow a process with
-CAP_NET_ADMIN to override the wmem_max limit per the man page.  IOW,
-only processes with CAP_NET_ADMIN should ever use that option. 
-dontaudit'ing that does not seem like a good idea either; I think you
-have to allow it or risk silent breakage.
-
-What would perhaps be better would be to introduce LSM hooks to allow
-finer-grained distinctions to be made among the different CAP_NET_ADMIN
-cases, ala issue #26.  Then the impact of allowing net_admin would be
-less significant.
-
-
+> Mar 14 00:01:36 debianSE audit[441]: USER_AVC pid=441 uid=105
+> auid=4294967295 ses=4294967295
+> subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc:
+> received policyload notice (seqno=3)
+>                                      exe="/usr/bin/dbus-daemon"
+> sauid=105 hostname=? addr=? terminal=?'
+> Mar 14 00:01:36 debianSE dbus[441]: [system] Reloaded configuration
 > 
 > Best regards,
->     Christian Göttsche
+>        Christian Göttsche
 > 
 > 
-> [1] http://oss.tresys.com/pipermail/refpolicy/2017-March/009185.html
-> [2] https://github.com/torvalds/linux/blob/ae50dfd61665086e617cc9e554
-> a1285d52765670/net/core/sock.c#L715
-> 
-> 
-> p.s.: friendly ping on https://marc.info/?l=selinux&m=148944677530753
-> &w=2
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho
-> .nsa.gov.
+> [1] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=857660
+> [2] https://cgit.freedesktop.org/dbus/dbus/commit/?id=a3a5935a0a038c3
+> b44c61ce5719f0f7e647b96c6
