@@ -1,40 +1,43 @@
-Received: from [192.168.25.4] (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2LITDo9030396
- for <selinux@tycho.nsa.gov>; Tue, 21 Mar 2017 14:29:13 -0400
-Subject: Re: [PATCH 0/3] libsepol: Allow hexadecimal numbers in Xen context
- rules
-To: selinux@tycho.nsa.gov
-References: <1490023139-12045-1-git-send-email-jwcart2@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <0d3cbfa8-b93b-df86-93be-08efde0e3702@tycho.nsa.gov>
-Date: Tue, 21 Mar 2017 14:29:37 -0400
-MIME-Version: 1.0
-In-Reply-To: <1490023139-12045-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+Message-ID: <1490121984.2050.3.camel@tycho.nsa.gov>
+Subject: Re: Bug#857660: SELinux: cannot sent policyload notice
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: cgzones <cgzones@googlemail.com>, selinux <selinux@tycho.nsa.gov>
+Cc: 857660@bugs.debian.org
+Date: Tue, 21 Mar 2017 14:46:24 -0400
+In-Reply-To: <CAJ2a_DdCveafhom+5-VHW-Bi7kTNvDx0x2u=-dhKW2x81Q+QFQ@mail.gmail.com>
+References: <CAJ2a_DcAMXXj5+LZeHsRqARfEmbCCpwfVt2fBiana5rH4mWEGA@mail.gmail.com>
+ <20170313220715.4mbrqzwcr3xzrcr2@perpetual.pseudorandom.co.uk>
+ <CAJ2a_DdCveafhom+5-VHW-Bi7kTNvDx0x2u=-dhKW2x81Q+QFQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/20/2017 11:18 AM, James Carter wrote:
-> Allow the use of hexadecimal numbers in iomemcon, ioportcon, and
-> pcidevicecon statements. The use of hexadecimal numbers is often
-> the natural choice for these rules.
->
-> James Carter (3):
->   libsepol/cil: Allow hexadecimal numbers in Xen context rules
->   libsepol: Update module_to_cil to output hexadecimal for Xen rules
->   libsepol/cil: Use hexadecimal numbers when writing Xen rules
->
->  libsepol/cil/src/cil_build_ast.c | 30 +++++++++++++++---------------
->  libsepol/cil/src/cil_build_ast.h |  4 ++--
->  libsepol/cil/src/cil_policy.c    | 10 +++++++---
->  libsepol/src/module_to_cil.c     | 11 ++++++-----
->  4 files changed, 30 insertions(+), 25 deletions(-)
->
+On Tue, 2017-03-14 at 00:11 +0100, cgzones wrote:
+> Hi list,
+> I created bug report against dbus 1.10 on Debian [1] due to failing
+> to
+> send policyload notices.
+> Are there any objections or comments on the upstream patch[2]?
 
-This series has been applied.
+Also, the patch looks correct to me.
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> The patch works for me:
+> 
+> Mar 14 00:01:36 debianSE audit[441]: USER_AVC pid=441 uid=105
+> auid=4294967295 ses=4294967295
+> subj=system_u:system_r:system_dbusd_t:s0-s0:c0.c1023 msg='avc:
+> received policyload notice (seqno=3)
+>                                      exe="/usr/bin/dbus-daemon"
+> sauid=105 hostname=? addr=? terminal=?'
+> Mar 14 00:01:36 debianSE dbus[441]: [system] Reloaded configuration
+> 
+> Best regards,
+>        Christian Göttsche
+> 
+> 
+> [1] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=857660
+> [2] https://cgit.freedesktop.org/dbus/dbus/commit/?id=a3a5935a0a038c3
+> b44c61ce5719f0f7e647b96c6
