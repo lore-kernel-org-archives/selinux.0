@@ -1,90 +1,37 @@
-Date: Mon, 20 Mar 2017 14:23:36 -0300
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
- linux-sctp@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: [RFC v2 PATCH 2/2] kernel: Add SELinux SCTP protocol support
-Message-ID: <20170320172336.GC23553@localhost.localdomain>
-References: <20170222170359.5433-1-richard_c_haines@btinternet.com>
- <1488487540.19896.108.camel@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2LF7Aij028509
+ for <selinux@tycho.nsa.gov>; Tue, 21 Mar 2017 11:07:16 -0400
+Received: by mail-wr0-f180.google.com with SMTP id l37so113983986wrc.1
+ for <selinux@tycho.nsa.gov>; Tue, 21 Mar 2017 08:06:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1488487540.19896.108.camel@tycho.nsa.gov>
+From: cgzones <cgzones@googlemail.com>
+Date: Tue, 21 Mar 2017 16:06:30 +0100
+Message-ID: <CAJ2a_DdNpZ5vLtCmzC+o94zQrCGWwRYar5xYa4jyxohxnu7AZA@mail.gmail.com>
+Subject: net_admin audit for setsockopt SO_SNDBUFFORCE
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Mar 02, 2017 at 03:45:40PM -0500, Stephen Smalley wrote:
-> On Wed, 2017-02-22 at 17:03 +0000, Richard Haines wrote:
-<snip>
+Hi list,
+this thread[1] about setsockopt(...,...,SO_SNDBUFFORCE), which
+triggers widely due to systemd, let me think about the recent SELinux
+kernel fixes: the reordering of dac_read_search and dac_override and
+also the cap_wake_alarm fix.
 
-> > +	return err;
-> > +}
-> > +
-> > +static int selinux_sctp_accept_conn(struct sctp_endpoint *ep,
-> > +				    struct sk_buff *skb)
-> > +{
-> > +	struct sk_security_struct *sksec = ep->base.sk->sk_security;
-> > +	int err;
-> > +	u32 connsid;
-> > +	u32 peersid;
-> > +
-> > +	/* Have COOKIE ECHO so compute the MLS component for the
-> > connection
-> > +	 * and store the information in ep. This will only be used
-> > by
-> > +	 * TCP/peeloff connections as they cause a new socket to be
-> > generated.
-> 
-> Not sure why you say TCP above.  And won't this be true of accept()'d
+Would it make sense to test, if the send buffer is really set to a
+higher value than wmem_max, before testing for the cap_net_admin
+permission[2]?
+(might also apply to SO_RCVBUFFORCE)
 
-Probably just a typo, should be SCTP instead.
+Best regards,
+    Christian GÃ¶ttsche
 
-> sockets too in addition to peeloff ones?
 
-Speaking of accept() path, I think we have an issue there with this
-patch, because it's doing:
-@@ -7683,8 +7717,6 @@ void sctp_copy_sock(struct sock *newsk, struct
-sock *sk,
--       security_sk_clone(sk, newsk);
-@@ -7829,6 +7862,11 @@ static void sctp_sock_migrate(struct sock *oldsk,
-struct
-+       security_sctp_sk_clone(oldep, oldsk, newsk);
+[1] http://oss.tresys.com/pipermail/refpolicy/2017-March/009185.html
+[2] https://github.com/torvalds/linux/blob/ae50dfd61665086e617cc9e554a1285d52765670/net/core/sock.c#L715
 
-But sctp_copy_sock() is called from places other than
-sctp_sock_migrate, mainly:
-net/sctp/ipv6.c:        sctp_copy_sock(newsk, sk, asoc);
-net/sctp/protocol.c:    sctp_copy_sock(newsk, sk, asoc);
-Which are on the accept() path.
 
-Ideally it's better to keep the call to security_sctp_sk_clone in
-sctp_copy_sock() to get those covered too.
-
-  Marcelo
-
-> 
-> > +	 * selinux_sctp_sk_clone() will then plug this into the new
-> > socket
-> > +	 * as described in Documentation/security/LSM-sctp.txt
-> > +	 */
-> > +	err = selinux_skb_peerlbl_sid(skb, ep->base.sk->sk_family,
-> > &peersid);
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	err = selinux_conn_sid(sksec->sid, peersid, &connsid);
-> > +	if (err)
-> > +		return err;
-> > +
-> > +	ep->secid = connsid;
-> > +	ep->peer_secid = peersid;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sctp" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+p.s.: friendly ping on https://marc.info/?l=selinux&m=148944677530753&w=2
