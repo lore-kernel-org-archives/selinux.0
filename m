@@ -1,113 +1,49 @@
-Message-ID: <1490178167.27019.8.camel@btinternet.com>
-Subject: Re: [RFC v2 PATCH 2/2] kernel: Add SELinux SCTP protocol support
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- linux-sctp@vger.kernel.org, linux-security-module@vger.kernel.org
-Date: Wed, 22 Mar 2017 10:22:47 +0000
-In-Reply-To: <20170320172336.GC23553@localhost.localdomain>
-References: <20170222170359.5433-1-richard_c_haines@btinternet.com>
- <1488487540.19896.108.camel@tycho.nsa.gov>
- <20170320172336.GC23553@localhost.localdomain>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: Russell Coker <russell@coker.com.au>
+To: selinux@tycho.nsa.gov
+Reply-To: russell@coker.com.au
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, cgzones <cgzones@googlemail.com>
+Subject: Re: net_admin audit for setsockopt SO_SNDBUFFORCE
+Date: Wed, 22 Mar 2017 22:49:34 +1100
+Message-ID: <3955630.trR7UcfmOm@russell.coker.com.au>
+In-Reply-To: <1490119264.2050.1.camel@tycho.nsa.gov>
+References: <CAJ2a_DdNpZ5vLtCmzC+o94zQrCGWwRYar5xYa4jyxohxnu7AZA@mail.gmail.com>
+ <1490119264.2050.1.camel@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-03-20 at 14:23 -0300, Marcelo Ricardo Leitner wrote:
-> On Thu, Mar 02, 2017 at 03:45:40PM -0500, Stephen Smalley wrote:
-> > On Wed, 2017-02-22 at 17:03 +0000, Richard Haines wrote:
-> 
-> <snip>
-> 
-> > > +	return err;
-> > > +}
-> > > +
-> > > +static int selinux_sctp_accept_conn(struct sctp_endpoint *ep,
-> > > +				    struct sk_buff *skb)
-> > > +{
-> > > +	struct sk_security_struct *sksec = ep->base.sk-
-> > > >sk_security;
-> > > +	int err;
-> > > +	u32 connsid;
-> > > +	u32 peersid;
-> > > +
-> > > +	/* Have COOKIE ECHO so compute the MLS component for the
-> > > connection
-> > > +	 * and store the information in ep. This will only be
-> > > used
-> > > by
-> > > +	 * TCP/peeloff connections as they cause a new socket to
-> > > be
-> > > generated.
+On Tuesday, 21 March 2017 2:01:04 PM AEDT Stephen Smalley wrote:
+> On Tue, 2017-03-21 at 16:06 +0100, cgzones wrote:
+> > Hi list,
+> > this thread[1] about setsockopt(...,...,SO_SNDBUFFORCE), which
+> > triggers widely due to systemd, let me think about the recent SELinux
+> > kernel fixes: the reordering of dac_read_search and dac_override and
+> > also the cap_wake_alarm fix.
 > > 
-> > Not sure why you say TCP above.  And won't this be true of
-> > accept()'d
+> > Would it make sense to test, if the send buffer is really set to a
+> > higher value than wmem_max, before testing for the cap_net_admin
+> > permission[2]?
+> > (might also apply to SO_RCVBUFFORCE)
 > 
-> Probably just a typo, should be SCTP instead.
-Yes so changed to "This will only be used by SCTP TCP type sockets
-and peeled off connections".
+> Probably not, since SO_SNDBUFFORCE only exists to allow a process with
+> CAP_NET_ADMIN to override the wmem_max limit per the man page.  IOW,
+> only processes with CAP_NET_ADMIN should ever use that option. 
+> dontaudit'ing that does not seem like a good idea either; I think you
+> have to allow it or risk silent breakage.
 
-> 
-> > sockets too in addition to peeloff ones?
-> 
-> Speaking of accept() path, I think we have an issue there with this
-> patch, because it's doing:
-> @@ -7683,8 +7717,6 @@ void sctp_copy_sock(struct sock *newsk, struct
-> sock *sk,
-> -       security_sk_clone(sk, newsk);
-> @@ -7829,6 +7862,11 @@ static void sctp_sock_migrate(struct sock
-> *oldsk,
-> struct
-> +       security_sctp_sk_clone(oldep, oldsk, newsk);
-> 
-> But sctp_copy_sock() is called from places other than
-> sctp_sock_migrate, mainly:
-> net/sctp/ipv6.c:        sctp_copy_sock(newsk, sk, asoc);
-> net/sctp/protocol.c:    sctp_copy_sock(newsk, sk, asoc);
-> Which are on the accept() path.
-> 
-> Ideally it's better to keep the call to security_sctp_sk_clone in
-> sctp_copy_sock() to get those covered too.
+We have had sshd, tor, and rpcbind denied access to that for some time without 
+any apparent breakage.
 
-Thanks for pointing this out, I'll fix in next patch set.
-> 
->   Marcelo
-> 
-> > 
-> > > +	 * selinux_sctp_sk_clone() will then plug this into the
-> > > new
-> > > socket
-> > > +	 * as described in Documentation/security/LSM-sctp.txt
-> > > +	 */
-> > > +	err = selinux_skb_peerlbl_sid(skb, ep->base.sk-
-> > > >sk_family,
-> > > &peersid);
-> > > +	if (err)
-> > > +		return err;
-> > > +
-> > > +	err = selinux_conn_sid(sksec->sid, peersid, &connsid);
-> > > +	if (err)
-> > > +		return err;
-> > > +
-> > > +	ep->secid = connsid;
-> > > +	ep->peer_secid = peersid;
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-
-> > sctp" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sctp" 
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> What would perhaps be better would be to introduce LSM hooks to allow
+> finer-grained distinctions to be made among the different CAP_NET_ADMIN
+> cases, ala issue #26.  Then the impact of allowing net_admin would be
+> less significant.
+
+Yes that would be good.
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
