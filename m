@@ -1,72 +1,68 @@
-To: dvyukov@google.com, nyc@holomorphy.com, linux-kernel@vger.kernel.org,
- paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
- james.l.morris@oracle.com, serge@hallyn.com, keescook@chromium.org,
- anton@enomsg.org, ccross@android.com, tony.luck@intel.com,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-mm@kvack.org
-Cc: syzkaller@googlegroups.com
-Subject: Re: security,
- hugetlbfs: write to user memory in hugetlbfs_destroy_inode
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-References: <CACT4Y+Z1eodoxayi1qP-x05UoQ3nscXYUwA3UTN8ypOHfGJwjg@mail.gmail.com>
- <CACT4Y+ZHqNYPE_uMrc1NwX3Rb1FXYoN47D4eJFn=T07bSQ7YEw@mail.gmail.com>
-In-Reply-To: <CACT4Y+ZHqNYPE_uMrc1NwX3Rb1FXYoN47D4eJFn=T07bSQ7YEw@mail.gmail.com>
-Message-Id: <201703232249.CCF09362.LVtHFOFFOMOQJS@I-love.SAKURA.ne.jp>
-Date: Thu, 23 Mar 2017 22:49:40 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2NGmXYQ001400
+ for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 12:48:33 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/3 v3] libsepol and checkpolicy: Output CIL or policy.conf
+ from kernel policy
+Date: Thu, 23 Mar 2017 12:48:54 -0400
+Message-Id: <1490287737-31103-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Dmitry Vyukov wrote:
-> On Thu, Mar 23, 2017 at 2:06 PM, Dmitry Vyukov <dvyukov@google.com> wrote:
-> > Hello,
-> >
-> > I've got the following report while running syzkaller fuzzer on
-> > 093b995e3b55a0ae0670226ddfcb05bfbf0099ae. Note the preceding injected
-> > kmalloc failure in inode_alloc_security, most likely it's the root
-> > cause.
+It would sometimes be helpful for debugging or verification purposes to be able to convert
+a binary policy to a human-readable form.
 
-I don't think inode_alloc_security() failure is the root cause.
-I think this is a bug in hugetlbfs or mm part.
+This patchset adds libsepol functions that take a kernel policydb in and outputs either
+a CIL or policy.conf text.
 
-If inode_alloc_security() fails, inode->i_security remains NULL
-which was initialized to NULL at security_inode_alloc(). Thus,
-security_inode_alloc() is irrelevant to this problem.
+Checkpolicy is modified to generate CIL text from a binary policy if using the "-C" option
+and to add the "-F" option to generate policy.conf text from a binary policy.
 
-inode_init_always() returned -ENOMEM due to fault injection and
+Where possible rules are sorted in alphabetical or numerical order to aid in debugging.
 
-	if (unlikely(inode_init_always(sb, inode))) {
-		if (inode->i_sb->s_op->destroy_inode)
-			inode->i_sb->s_op->destroy_inode(inode);
-		else
-			kmem_cache_free(inode_cachep, inode);
-		return NULL;
-	}
+Changes from v1:
+- Moved __attribute__((format(printf...))) for printf-like functions to kernel_to_common.h
+- Incorporated patch from Nicolas Iooss to make const char* variables where appropriate
+- Fixed conditional block formatting problems when generating policy.conf
+- Initialize mls_constraints and non_mls_constraints to NULL in kernel_to_conf.c and kernel_to_cil.c so they are not accessed without initializaton if an error occurs.
+- Updated checkpolicy manpage to include the new option
+- Removed commented-out block from checkpolicy.c
 
-hugetlbfs_destroy_inode() was called via inode->i_sb->s_op->destroy_inode()
-when inode initialization failed
+Changes from v2:
+- Fixed conditional block formatting problems when generating CIL.
+- Fixed improper range syntax for non-mls CIL policies.
+- Write types in alphabetical order in roletype rules for CIL and role rules for policy.conf.
+- Write roles in alphabetical order in userrole rules for CIL and user rules for policy.conf.
+- Write policy capability rules in alphabetical order
+- Separated writing of constrain and validatetrans constraint rules for both CIL and policy.conf.
+- Write constraints in alphabetical order for both CIL and policy.conf
+- Now continously creating a policy.conf and then a binary produces an identical binary (although for CIL, secilc will remove unused attributes during the first cycle.)
 
-static void hugetlbfs_destroy_inode(struct inode *inode)
-{
-	hugetlbfs_inc_free_inodes(HUGETLBFS_SB(inode->i_sb));
-	mpol_free_shared_policy(&HUGETLBFS_I(inode)->policy);
-	call_rcu(&inode->i_rcu, hugetlbfs_i_callback);
-}
+James Carter (3):
+  libsepol: Add ability to convert binary policy to CIL
+  libsepol: Add ability to convert binary policy to policy.conf file
+  checkpolicy: Add options to convert binary policy to CIL or a
+    policy.conf
 
-but mpol_shared_policy_init() is called only when new_inode() succeeds.
+ checkpolicy/checkpolicy.8               |    5 +-
+ checkpolicy/checkpolicy.c               |   55 +-
+ libsepol/include/sepol/kernel_to_cil.h  |    5 +
+ libsepol/include/sepol/kernel_to_conf.h |    5 +
+ libsepol/src/kernel_to_cil.c            | 3226 +++++++++++++++++++++++++++++++
+ libsepol/src/kernel_to_common.c         |  677 +++++++
+ libsepol/src/kernel_to_common.h         |  114 ++
+ libsepol/src/kernel_to_conf.c           | 3096 +++++++++++++++++++++++++++++
+ libsepol/src/libsepol.map.in            |    2 +
+ 9 files changed, 7166 insertions(+), 19 deletions(-)
+ create mode 100644 libsepol/include/sepol/kernel_to_cil.h
+ create mode 100644 libsepol/include/sepol/kernel_to_conf.h
+ create mode 100644 libsepol/src/kernel_to_cil.c
+ create mode 100644 libsepol/src/kernel_to_common.c
+ create mode 100644 libsepol/src/kernel_to_common.h
+ create mode 100644 libsepol/src/kernel_to_conf.c
 
-	inode = new_inode(sb);
-	if (inode) {
-(...snipped...)
-		info = HUGETLBFS_I(inode);
-		/*
-		 * The policy is initialized here even if we are creating a
-		 * private inode because initialization simply creates an
-		 * an empty rb tree and calls rwlock_init(), later when we
-		 * call mpol_free_shared_policy() it will just return because
-		 * the rb tree will still be empty.
-		 */
-		mpol_shared_policy_init(&info->policy, NULL);
+-- 
+2.7.4
