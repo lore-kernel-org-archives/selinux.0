@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2NKOc6R009249
- for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 16:24:39 -0400
-Received: by mail-vk0-f68.google.com with SMTP id z204so13845432vkd.2
- for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 13:24:36 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2NKSB3P010799
+ for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 16:28:12 -0400
+Received: by mail-vk0-f66.google.com with SMTP id j137so799125vke.0
+ for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 13:28:06 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <68a423a9-2f89-55f9-fb4c-97dd4df4bb1d@users.sourceforge.net>
+In-Reply-To: <86979267-24ac-ce16-a150-43677ac78a0b@users.sourceforge.net>
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <68a423a9-2f89-55f9-fb4c-97dd4df4bb1d@users.sourceforge.net>
+ <86979267-24ac-ce16-a150-43677ac78a0b@users.sourceforge.net>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 23 Mar 2017 16:24:34 -0400
-Message-ID: <CAHC9VhSmRJzKZnGCiytijY-wuZqPGFOdEfecPgy5D3TciPCCgA@mail.gmail.com>
-Subject: Re: [PATCH 01/46] selinux: Use kmalloc_array() in
- cond_init_bool_indexes()
+Date: Thu, 23 Mar 2017 16:28:05 -0400
+Message-ID: <CAHC9VhTKBR-JPGKah6fgiPhcOG_6uXu6R4DO4Z7j03=sfHWzTw@mail.gmail.com>
+Subject: Re: [PATCH 02/46] selinux: Delete an unnecessary return statement in
+ cond_compute_av()
 To: SF Markus Elfring <elfring@users.sourceforge.net>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>,
@@ -25,44 +25,34 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, Jan 15, 2017 at 9:56 AM, SF Markus Elfring
+On Sun, Jan 15, 2017 at 9:58 AM, SF Markus Elfring
 <elfring@users.sourceforge.net> wrote:
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 14 Jan 2017 10:48:28 +0100
+> Date: Sat, 14 Jan 2017 11:00:23 +0100
 >
-> * A multiplication for the size determination of a memory allocation
->   indicated that an array data structure should be processed.
->   Thus use the corresponding function "kmalloc_array".
+> The script "checkpatch.pl" pointed information out like the following.
 >
->   This issue was detected by using the Coccinelle software.
+> WARNING: void function return statements are not generally useful
 >
-> * Replace the specification of a data type by a pointer dereference
->   to make the corresponding size determination a bit safer according to
->   the Linux coding style convention.
+> Thus remove such a statement in the affected function.
 >
 > Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
->  security/selinux/ss/conditional.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+>  security/selinux/ss/conditional.c | 1 -
+>  1 file changed, 1 deletion(-)
 
-Merged, thanks.  Sorry for the delay.
+Merged, thanks.
 
 > diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index 34afeadd9e73..fcfab2635c11 100644
+> index fcfab2635c11..4a3bf29f7565 100644
 > --- a/security/selinux/ss/conditional.c
 > +++ b/security/selinux/ss/conditional.c
-> @@ -176,8 +176,9 @@ void cond_policydb_destroy(struct policydb *p)
->  int cond_init_bool_indexes(struct policydb *p)
->  {
->         kfree(p->bool_val_to_struct);
-> -       p->bool_val_to_struct =
-> -               kmalloc(p->p_bools.nprim * sizeof(struct cond_bool_datum *), GFP_KERNEL);
-> +       p->bool_val_to_struct = kmalloc_array(p->p_bools.nprim,
-> +                                             sizeof(*p->bool_val_to_struct),
-> +                                             GFP_KERNEL);
->         if (!p->bool_val_to_struct)
->                 return -ENOMEM;
->         return 0;
+> @@ -664,5 +664,4 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
+>                                 (node->key.specified & AVTAB_XPERMS))
+>                         services_compute_xperms_drivers(xperms, node);
+>         }
+> -       return;
+>  }
 > --
 > 2.11.0
 >
