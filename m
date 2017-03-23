@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2NMAdwb009002
- for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 18:10:39 -0400
-Received: by mail-vk0-f67.google.com with SMTP id d188so21825114vka.3
- for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 15:10:38 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2NMCvG7009440
+ for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 18:12:57 -0400
+Received: by mail-vk0-f67.google.com with SMTP id z204so14236849vkd.2
+ for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 15:12:25 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <358b5114-aeb3-d5fa-bcf9-239bd383d3b5@users.sourceforge.net>
+In-Reply-To: <9e75f8b7-1275-b2e6-a01c-d0c5ebac1a44@users.sourceforge.net>
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <358b5114-aeb3-d5fa-bcf9-239bd383d3b5@users.sourceforge.net>
+ <9e75f8b7-1275-b2e6-a01c-d0c5ebac1a44@users.sourceforge.net>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 23 Mar 2017 18:10:37 -0400
-Message-ID: <CAHC9VhR0DM_fC17O8_S85L=38HmOFQgcccfatPNkTiEHmoZ_bA@mail.gmail.com>
-Subject: Re: [PATCH 18/46] selinux: One function call less in
- filename_trans_read() after error detection
+Date: Thu, 23 Mar 2017 18:12:24 -0400
+Message-ID: <CAHC9VhRvyZq_dMdvu3LoXO-rs87Xsm49vdKN75TrwRHH-awBrw@mail.gmail.com>
+Subject: Re: [PATCH 19/46] selinux: Return directly after a failed
+ next_entry() in range_read()
 To: SF Markus Elfring <elfring@users.sourceforge.net>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>,
@@ -25,42 +25,34 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, Jan 15, 2017 at 10:18 AM, SF Markus Elfring
+On Sun, Jan 15, 2017 at 10:19 AM, SF Markus Elfring
 <elfring@users.sourceforge.net> wrote:
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 14 Jan 2017 19:19:42 +0100
+> Date: Sat, 14 Jan 2017 19:35:59 +0100
 >
-> Adjust a jump target to avoid a function call at the end after a memory
-> allocation failed for the local variable "ft".
+> Return directly after a call of the function "next_entry" failed
+> at the beginning.
 >
 > Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
->  security/selinux/ss/policydb.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  security/selinux/ss/policydb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-It doesn't seem like this is worth adding another jump label.
+Merged, thanks.
 
 > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 2be5b18eb149..5f122e846332 100644
+> index 5f122e846332..a696876fc327 100644
 > --- a/security/selinux/ss/policydb.c
 > +++ b/security/selinux/ss/policydb.c
-> @@ -1932,7 +1932,7 @@ static int filename_trans_read(struct policydb *p, void *fp)
->                 ft = kzalloc(sizeof(*ft), GFP_KERNEL);
->                 if (!ft) {
->                         rc = -ENOMEM;
-> -                       goto out;
-> +                       goto free_name;
->                 }
+> @@ -1850,7 +1850,7 @@ static int range_read(struct policydb *p, void *fp)
 >
->                 otype = kmalloc(sizeof(*otype), GFP_KERNEL);
-> @@ -1986,6 +1986,7 @@ static int filename_trans_read(struct policydb *p, void *fp)
->         return 0;
->  out:
->         kfree(ft);
-> +free_name:
->         kfree(name);
->         kfree(otype);
+>         rc = next_entry(buf, fp, sizeof(u32));
+>         if (rc)
+> -               goto out;
+> +               return rc;
 >
+>         nel = le32_to_cpu(buf[0]);
+>         for (i = 0; i < nel; i++) {
 > --
 > 2.11.0
 >
