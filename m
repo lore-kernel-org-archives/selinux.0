@@ -1,87 +1,78 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2NHYZfQ017955
- for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 13:34:35 -0400
-Received: by mail-yw0-f182.google.com with SMTP id p77so151656226ywg.1
- for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 10:34:32 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2NKOc6R009249
+ for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 16:24:39 -0400
+Received: by mail-vk0-f68.google.com with SMTP id z204so13845432vkd.2
+ for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 13:24:36 -0700 (PDT)
 MIME-Version: 1.0
-Sender: grundler@google.com
-In-Reply-To: <CAHC9VhSVqYuuBvyjWmAqgfn9WvFW=VokcLLqsvmKedee3Gjgfw@mail.gmail.com>
-References: <20170316222652.125702-1-mka@chromium.org>
- <CANEJEGtObzAs4ZT70A_y_bLNujaNLxzOSPjrWRoY3wAR9211jw@mail.gmail.com>
- <CAHC9VhSVqYuuBvyjWmAqgfn9WvFW=VokcLLqsvmKedee3Gjgfw@mail.gmail.com>
-From: Grant Grundler <grundler@chromium.org>
-Date: Thu, 23 Mar 2017 10:34:30 -0700
-Message-ID: <CANEJEGu5L61TgJ0RUhG+DvLExj7X1FsfKbGOXWCMRRWykkLm2A@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Remove unnecessary check of array base in
- selinux_set_mapping()
-To: Paul Moore <paul@paul-moore.com>
-Cc: Grant Grundler <grundler@chromium.org>,
- Matthias Kaehlcke <mka@chromium.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+In-Reply-To: <68a423a9-2f89-55f9-fb4c-97dd4df4bb1d@users.sourceforge.net>
+References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
+ <68a423a9-2f89-55f9-fb4c-97dd4df4bb1d@users.sourceforge.net>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 23 Mar 2017 16:24:34 -0400
+Message-ID: <CAHC9VhSmRJzKZnGCiytijY-wuZqPGFOdEfecPgy5D3TciPCCgA@mail.gmail.com>
+Subject: Re: [PATCH 01/46] selinux: Use kmalloc_array() in
+ cond_init_bool_indexes()
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>,
  James Morris <james.l.morris@oracle.com>,
- "Serge E . Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
- Prarit Bhargava <prarit@redhat.com>,
- David Howells <dhowells@redhat.com>, Michael Davidson <md@google.com>,
- Greg Hackmann <ghackmann@google.com>
+ "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ William Roberts <william.c.roberts@intel.com>,
+ LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Mar 23, 2017 at 5:08 AM, Paul Moore <paul@paul-moore.com> wrote:
-> On Wed, Mar 22, 2017 at 8:28 PM, Grant Grundler <grundler@chromium.org> wrote:
->> Ping? Any feedback on this patch?
+On Sun, Jan 15, 2017 at 9:56 AM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Sat, 14 Jan 2017 10:48:28 +0100
 >
-> It's on my list of patches to review, patience please.
-
-No problem! Thank you!
-
-just wanted confirmation it wasn't overlooked.
-
-cheers,
-grant
-
+> * A multiplication for the size determination of a memory allocation
+>   indicated that an array data structure should be processed.
+>   Thus use the corresponding function "kmalloc_array".
 >
->> On Thu, Mar 16, 2017 at 3:26 PM, Matthias Kaehlcke <mka@chromium.org> wrote:
->>>
->>> 'perms' will never be NULL since it isn't a plain pointer but an array
->>> of u32 values.
->>>
->>> This fixes the following warning when building with clang:
->>>
->>> security/selinux/ss/services.c:158:16: error: address of array
->>> 'p_in->perms' will always evaluate to 'true'
->>> [-Werror,-Wpointer-bool-conversion]
->>>                 while (p_in->perms && p_in->perms[k]) {
->>>
->>> Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
->>> ---
->>>  security/selinux/ss/services.c | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/security/selinux/ss/services.c
->>> b/security/selinux/ss/services.c
->>> index 082b20c78363..2f20b5f974f4 100644
->>> --- a/security/selinux/ss/services.c
->>> +++ b/security/selinux/ss/services.c
->>> @@ -155,7 +155,7 @@ static int selinux_set_mapping(struct policydb *pol,
->>>                 }
->>>
->>>                 k = 0;
->>> -               while (p_in->perms && p_in->perms[k]) {
->>> +               while (p_in->perms[k]) {
->>>                         /* An empty permission string skips ahead */
->>>                         if (!*p_in->perms[k]) {
->>>                                 k++;
->>> --
->>> 2.12.0.367.g23dc2f6d3c-goog
->>>
->>
+>   This issue was detected by using the Coccinelle software.
 >
+> * Replace the specification of a data type by a pointer dereference
+>   to make the corresponding size determination a bit safer according to
+>   the Linux coding style convention.
 >
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  security/selinux/ss/conditional.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+
+Merged, thanks.  Sorry for the delay.
+
+> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+> index 34afeadd9e73..fcfab2635c11 100644
+> --- a/security/selinux/ss/conditional.c
+> +++ b/security/selinux/ss/conditional.c
+> @@ -176,8 +176,9 @@ void cond_policydb_destroy(struct policydb *p)
+>  int cond_init_bool_indexes(struct policydb *p)
+>  {
+>         kfree(p->bool_val_to_struct);
+> -       p->bool_val_to_struct =
+> -               kmalloc(p->p_bools.nprim * sizeof(struct cond_bool_datum *), GFP_KERNEL);
+> +       p->bool_val_to_struct = kmalloc_array(p->p_bools.nprim,
+> +                                             sizeof(*p->bool_val_to_struct),
+> +                                             GFP_KERNEL);
+>         if (!p->bool_val_to_struct)
+>                 return -ENOMEM;
+>         return 0;
+> --
+> 2.11.0
 >
 > --
-> paul moore
-> www.paul-moore.com
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+
+-- 
+paul moore
+www.paul-moore.com
