@@ -1,42 +1,46 @@
-Subject: Re: selinux: Delete an error message for a failed memory allocation
- in policydb_read()
-To: Paul Moore <paul@paul-moore.com>
-References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <c589a851-2bf6-c44f-1df7-11f242285a73@users.sourceforge.net>
- <CAHC9VhTf6LdUNJHV9G+YA=P1rj78v5WKG8v+QNoFGZ6DA+mDmQ@mail.gmail.com>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Eric Paris <eparis@parisplace.org>, James Morris
- <james.l.morris@oracle.com>, "Serge E. Hallyn" <serge@hallyn.com>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- William Roberts <william.c.roberts@intel.com>,
- LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
- Wolfram Sang <wsa@the-dreams.de>
-From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <ecce7c5c-cbeb-5896-ec12-26c97619c102@users.sourceforge.net>
-Date: Fri, 24 Mar 2017 13:13:09 +0100
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhTf6LdUNJHV9G+YA=P1rj78v5WKG8v+QNoFGZ6DA+mDmQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2OERru8022011
+ for <selinux@tycho.nsa.gov>; Fri, 24 Mar 2017 10:27:53 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 4B66A624A9
+ for <selinux@tycho.nsa.gov>; Fri, 24 Mar 2017 14:27:52 +0000 (UTC)
+Received: from unused-4-196.brq.redhat.com (unused-4-196.brq.redhat.com
+ [10.34.4.196])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id BE28784400
+ for <selinux@tycho.nsa.gov>; Fri, 24 Mar 2017 14:27:51 +0000 (UTC)
+Message-ID: <1490365670.3086.9.camel@redhat.com>
+Subject: [PATCH] mcstrans: fix typo in mcstransd.8 man page
+From: Nikola =?ISO-8859-1?Q?Forr=F3?= <nforro@redhat.com>
+Reply-To: nforro@redhat.com
+To: selinux@tycho.nsa.gov
+Date: Fri, 24 Mar 2017 15:27:50 +0100
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
->> Omit an extra message for a memory allocation failure in this function.
->>
->> Link: http://events.linuxfoundation.org/sites/events/files/slides/LCJ16-Refactor_Strings-WSang_0.pdf
->> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
->> ---
->>  security/selinux/ss/policydb.c | 5 +----
->>  1 file changed, 1 insertion(+), 4 deletions(-)
-> 
-> I'm not going to remove an error message without some better reasoning
-> in the patch description.  Providing a link to slides is fine, but
-> your commit message needs to convey the important information and I
-> don't think that is the case here (what happens when that URL dies?).
+Signed-off-by: Nikola Forró <nforro@redhat.com>
+---
+ mcstrans/man/man8/mcstransd.8 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Do you need an explicit reminder there that the function “kmalloc” provides its own
-error reporting already because the flag “__GFP_NOWARN” was not passed here?
-
-Regards,
-Markus
+diff --git a/mcstrans/man/man8/mcstransd.8 b/mcstrans/man/man8/mcstransd.8
+index c1dc483..64774a5 100644
+--- a/mcstrans/man/man8/mcstransd.8
++++ b/mcstrans/man/man8/mcstransd.8
+@@ -23,7 +23,7 @@ Output a short summary of available command line options\&.
+ .SH "AUTHOR"
+ This man page was written by Dan Walsh <dwalsh@redhat.com>.
+ The program was originally written by Dan Walsh <dwalsh@redhat.com>.
+-The program was enhanced/rwwritten by Joe Nall <joe@nall.com>.
++The program was enhanced/rewritten by Joe Nall <joe@nall.com>.
+ 
+ .SH "FILES"
+ /etc/selinux/{SELINUXTYPE}/setrans.conf 
+-- 
+2.7.4
