@@ -1,129 +1,57 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2O1RLvL029228
- for <selinux@tycho.nsa.gov>; Thu, 23 Mar 2017 21:27:21 -0400
-Date: Fri, 24 Mar 2017 12:26:43 +1100 (AEDT)
-From: James Morris <jmorris@namei.org>
-To: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-cc: lwn@lwn.net, fedora-selinux-list@redhat.com, selinux@tycho.nsa.gov,
- Linux Security Summit Program Committee <lss-pc@lists.linuxfoundation.org>,
- ubuntu-hardened@lists.ubuntu.com, netfilter-devel@vger.kernel.org,
- linux-crypto@vger.kernel.org, Audit-ML <linux-audit@redhat.com>,
- gentoo-hardened@gentoo.org, keyrings@linux-nfs.org,
- tpmdd-devel@lists.sourceforge.net, kernel-hardening@lists.openwall.com,
- oss-security@lists.openwall.com, openxt@googlegroups.com,
- tee-dev@lists.linaro.org
-Subject: [ANNOUNCE] Linux Security Summit 2017 - CFP
-Message-ID: <alpine.LRH.2.20.1703241217250.10825@namei.org>
+Subject: Re: selinux: Move some assignments for the variable "rc" in
+ policydb_read()
+To: Paul Moore <paul@paul-moore.com>
+References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
+ <7fdcfc8f-affa-fcf8-adaf-dc8fd9e1b472@users.sourceforge.net>
+ <CAHC9VhSfvsoWCD1DHFPYhnmWx_cmmapo6vjboS8e=6OZ8ca9gA@mail.gmail.com>
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Eric Paris <eparis@parisplace.org>, James Morris
+ <james.l.morris@oracle.com>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ William Roberts <william.c.roberts@intel.com>,
+ LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+Message-ID: <eb71602a-3bb8-a643-5926-9d23aa2798ba@users.sourceforge.net>
+Date: Fri, 24 Mar 2017 11:09:02 +0100
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
- BOUNDARY="1665246916-1864586338-1490318299=:10825"
+In-Reply-To: <CAHC9VhSfvsoWCD1DHFPYhnmWx_cmmapo6vjboS8e=6OZ8ca9gA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+>> One local variable was set to an error code in some cases before
+>> a concrete error situation was detected. Thus move the corresponding
+>> assignments into if branches to indicate a software failure there.
+>>
+>> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+>> ---
+>>  security/selinux/ss/policydb.c | 59 +++++++++++++++++++++++++-----------------
+>>  1 file changed, 35 insertions(+), 24 deletions(-)
+> 
+> More code churn with no real advantage.
 
---1665246916-1864586338-1490318299=:10825
-Content-Type: text/plain; CHARSET=ISO-8859-7
-Content-Transfer-Encoding: 8BIT
-Content-ID: <alpine.LRH.2.20.1703241220401.10825@namei.org>
-
-
-==============================================================================
-		   ANNOUNCEMENT AND CALL FOR PARTICIPATION
-
-			  LINUX SECURITY SUMMIT 2017
-                         
-			       14-15 September
-			       LOS ANGELES, USA
-==============================================================================
+There are different opinions about the mentioned implementation details.
 
 
-DESCRIPTION
+> I agree with the style you are using,
 
-  The Linux Security Summit (LSS) is a technical forum for collaboration
-  between Linux developers, researchers, and end users. Its primary aim is to
-  foster community efforts in analyzing and solving Linux security challenges.
-
-  LSS this year will be co-located with the Open Source Summit and the Linux
-  Plumbers Conference.
-
-  The program committee currently seeks proposals for:
-
-    * Refereed Presentations:
-      45 minutes in length, including at least 10 minutes of discussion.
-
-    * Discussion Topics:
-      30 minutes in length.
-
-  Topic areas include, but are not limited to:
-
-    * Kernel self-protection
-    * Access control
-    * Cryptography and key management
-    * Integrity control
-    * Hardware Security
-    * Iot and embedded security
-    * Virtualization and containers
-    * System-specific system hardening
-    * Case studies
-    * Security tools
-    * Security UX
-    * Emerging technologies, threats & techniques 
-
-  Proposals should be submitted via:
-    http://events.linuxfoundation.org/events/linux-security-summit/program/cfp
+Thanks for such feedback.
 
 
-DATES
+> and would support changing it if you are in the function fixing bugs
+> or doing other substantial changes in that code,
 
-  * CFP Close: June 5, 2017
-  * CFP Notifications: June 12, 2017
-  * Schedule Announced: June 19, 2017
-  * Slide Submission: August 31, 2017
+Is this expectation a contradiction for a desired patch granularity?
 
 
-WHO SHOULD ATTEND
+> but I can't justify it as a standalone change, sorry.
 
-  We're seeking a diverse range of attendees, and welcome participation by
-  people involved in Linux security development, operations, and research.
+This update suggestion seems to be not attractive enough for you at the moment
+as another change step of my patch series.
+Would you like to check if there are other effects worthwhile besides the proposed
+coding style adjustment here?
 
-  The LSS is a unique global event which provides the opportunity to present
-  and discuss your work or research with key Linux security community members
-  and maintainers.  It¢s also useful for those who wish to keep up with the
-  latest in Linux security development, and to provide input to the
-  development process.
-
-
-WEB SITE
-
-  http://events.linuxfoundation.org/events/linux-security-summit
-
-
-TWITTER
-
-  For event updates and announcements, follow:
-
-    https://twitter.com/LinuxSecSummit
-  
-
-PROGRAM COMMITTEE
-
-  The program committee for LSS 2017 is:
-
-    * James Morris, Oracle
-    * Serge Hallyn, Canonical
-    * Paul Moore, Red Hat
-    * Stephen Smalley, NSA
-    * Elena Reshetova, Intel
-    * John Johansen, Canonical
-    * Kees Cook, Google
-    * Casey Schaufler, Intel
-    * Mimi Zohar, IBM
-    * David A. Wheeler, Institute for Defense Analyses
-
-  The program committee may be contacted as a group via email:
-    lss-pc () lists.linuxfoundation.org
---1665246916-1864586338-1490318299=:10825--
+Regards,
+Markus
