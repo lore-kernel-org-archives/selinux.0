@@ -1,47 +1,68 @@
-To: paul@paul-moore.com
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- eparis@redhat.com, sds@tycho.nsa.gov, casey@schaufler-ca.com,
- jmorris@namei.org
-Subject: Re: [PATCH] selinux: fix double free in selinux_parse_opts_str()
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-References: <1490355659-13787-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
- <CAHC9VhQc-55wALE-Qo=b1sY5Ts=Oo1Ra_xp+Euu_WSnuDowa0A@mail.gmail.com>
-In-Reply-To: <CAHC9VhQc-55wALE-Qo=b1sY5Ts=Oo1Ra_xp+Euu_WSnuDowa0A@mail.gmail.com>
-Message-Id: <201703251155.FBH12969.LFOFMHSFJQtOOV@I-love.SAKURA.ne.jp>
-Date: Sat, 25 Mar 2017 11:55:47 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2PFcDwG029888
+ for <selinux@tycho.nsa.gov>; Sat, 25 Mar 2017 11:38:14 -0400
+Received: by mail-vk0-f45.google.com with SMTP id s68so15707992vke.3
+ for <selinux@tycho.nsa.gov>; Sat, 25 Mar 2017 08:38:12 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <eb71602a-3bb8-a643-5926-9d23aa2798ba@users.sourceforge.net>
+References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
+ <7fdcfc8f-affa-fcf8-adaf-dc8fd9e1b472@users.sourceforge.net>
+ <CAHC9VhSfvsoWCD1DHFPYhnmWx_cmmapo6vjboS8e=6OZ8ca9gA@mail.gmail.com>
+ <eb71602a-3bb8-a643-5926-9d23aa2798ba@users.sourceforge.net>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sat, 25 Mar 2017 11:38:11 -0400
+Message-ID: <CAHC9VhSCq=Qqwh7z5mAhMNA6ELUa8nvNoX2cuXtuSJGCf1gThA@mail.gmail.com>
+Subject: Re: selinux: Move some assignments for the variable "rc" in
+ policydb_read()
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ William Roberts <william.c.roberts@intel.com>,
+ LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Paul Moore wrote:
-> Hi,
-> 
-> Thank you very much for this patch, but I think we need to look a bit
-> harder at this problem as it appears that many callers assume that
-> selinux_parse_opts_str() cleans up after itself.  Looking quickly I
-> found what appear to be two problems, there are likely more ...
-> 
-> * selinux_sb_remount()
-> If selinux_parse_opts_str() fails here it doesn't appear we cleanup
-> opts properly, although changing the jump target from
-> "out_free_secdata" to "out_free_opts" would appear to correct this.
-> 
-> * btrfs_mount()
-> This function calls parse_security_options() which in turn calls
-> security_sb_parse_opts_str(), but if parse_security_options() fails in
-> this case the security_mnt_opts are not free'd.
-> 
-> At this point I wonder if the quick fix is to set opts->mnt_opts to
-> NULL after kfree()'ing it, or simply drop the kfree() call and call
-> security_free_mnt_opts() in the out_err error handling code; the
-> latter is a bit more work than needed, but I believe it should be safe
-> in all conditions.
+On Fri, Mar 24, 2017 at 6:09 AM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+>>> One local variable was set to an error code in some cases before
+>>> a concrete error situation was detected. Thus move the corresponding
+>>> assignments into if branches to indicate a software failure there.
+>>>
+>>> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+>>> ---
+>>>  security/selinux/ss/policydb.c | 59 +++++++++++++++++++++++++-----------------
+>>>  1 file changed, 35 insertions(+), 24 deletions(-)
+>>
+>> More code churn with no real advantage.
+>
+> There are different opinions about the mentioned implementation details.
+>
+>> I agree with the style you are using,
+>
+> Thanks for such feedback.
+>
+>> and would support changing it if you are in the function fixing bugs
+>> or doing other substantial changes in that code,
+>
+> Is this expectation a contradiction for a desired patch granularity?
+>
+>> but I can't justify it as a standalone change, sorry.
+>
+> This update suggestion seems to be not attractive enough for you at the moment
+> as another change step of my patch series.
+> Would you like to check if there are other effects worthwhile besides the proposed
+> coding style adjustment here?
 
-I think the latter is better.
-We might allow multiple LSM modules to parse mount options in future
-(not limited to SELinux + Smack combination, small LSMs might want to
-parse mount options). Then, calling a common function for releasing
-memory allocated by individual module will become needed.
+To be honest, I would just leave it alone for now.  If you want to
+contribute, focus on meaningful improvements such as bug fixing and/or
+new features; changing only the code style isn't very interesting or
+appealing, even if I happen to agree with your changes.
+
+-- 
+paul moore
+www.paul-moore.com
