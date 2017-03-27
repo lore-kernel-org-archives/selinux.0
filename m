@@ -1,33 +1,33 @@
-Subject: Re: selinux: Delete an error message for a failed memory allocation
- in policydb_read()
+Subject: Re: selinux: Delete unnecessary variable assignments in
+ policydb_index()
 To: Paul Moore <paul@paul-moore.com>
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <c589a851-2bf6-c44f-1df7-11f242285a73@users.sourceforge.net>
- <CAHC9VhTf6LdUNJHV9G+YA=P1rj78v5WKG8v+QNoFGZ6DA+mDmQ@mail.gmail.com>
- <ecce7c5c-cbeb-5896-ec12-26c97619c102@users.sourceforge.net>
- <CAHC9VhTOnQ5uJtb16CuNtsvOOg3C4k1H6fm8ytWJRKc45K=eNw@mail.gmail.com>
+ <247c0e27-c442-3408-4f92-492629d61fbf@users.sourceforge.net>
+ <CAHC9VhRHEDCRNVfOqw4mwJQD9PmESEcgyZ7xCEwHZKpiDSjnYw@mail.gmail.com>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>, James Morris
  <james.l.morris@oracle.com>, "Serge E. Hallyn" <serge@hallyn.com>,
  Stephen Smalley <sds@tycho.nsa.gov>,
  William Roberts <william.c.roberts@intel.com>,
  LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org,
- Wolfram Sang <wsa@the-dreams.de>
+ Casey Schaufler <casey@schaufler-ca.com>
 From: SF Markus Elfring <elfring@users.sourceforge.net>
-Message-ID: <36ca17b3-8afe-cb9c-05bb-d406d37361e6@users.sourceforge.net>
-Date: Mon, 27 Mar 2017 07:56:57 +0200
+Message-ID: <1ae9af46-a3ca-33b8-d347-8983a22cb3cb@users.sourceforge.net>
+Date: Mon, 27 Mar 2017 08:24:36 +0200
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhTOnQ5uJtb16CuNtsvOOg3C4k1H6fm8ytWJRKc45K=eNw@mail.gmail.com>
+In-Reply-To: <CAHC9VhRHEDCRNVfOqw4mwJQD9PmESEcgyZ7xCEwHZKpiDSjnYw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> …, but I like the error message.
+> However, I agree with Casey that this patch is mostly just code churn
+> so I'm going to drop this from your series.
 
-How do you think about to pass the flag “__GFP_NOWARN” if you like
-this information more than the default error reporting of the function “kmalloc”?
+How do you think about to return only constant error codes in this function?
+Would it be acceptable to replace any statements “goto out;” with
+“return -ENOMEM;” here instead?
 
 Regards,
 Markus
