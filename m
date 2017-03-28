@@ -1,85 +1,64 @@
-Subject: Re: [PATCH 1/2] policycoreutils: fixfiles should handle path
- arguments more robustly
+Subject: Re: [PATCH 1/3] policycoreutils/setfiles: stdout messages don't need
+ program prefix
 To: Alan Jenkins <alan.christopher.jenkins@gmail.com>, selinux@tycho.nsa.gov
-References: <20170326143551.9407-1-alan.christopher.jenkins@gmail.com>
+References: <20170326162245.21135-1-alan.christopher.jenkins@gmail.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <562eabdd-e7b8-33f8-3a7e-a59a35435505@tycho.nsa.gov>
-Date: Tue, 28 Mar 2017 15:55:48 -0400
+Message-ID: <f3acd6fd-3ead-df17-2d0b-d7184949ce09@tycho.nsa.gov>
+Date: Tue, 28 Mar 2017 15:56:06 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170326143551.9407-1-alan.christopher.jenkins@gmail.com>
+In-Reply-To: <20170326162245.21135-1-alan.christopher.jenkins@gmail.com>
 Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/26/2017 10:35 AM, Alan Jenkins wrote:
-> E.g. `fixfiles restore -v /usr` - before:
+On 03/26/2017 12:22 PM, Alan Jenkins wrote:
+> I suggested that if you run a command for its informational output (by
+> passing  `-v`), you don't expect it to be prefixed with the program name.
+> Prefixing is used for error messages, so you can tell where your shell
+> script blew up :).  If a script is running a command for its informational
+> output, it's usually the script's responsibility to make sure it's in
+> context, e.g. providing headers if there are multiple sections of output.
 >
-> Warning: Skipping the following R/O filesystems:
-> /sys/fs/cgroup
-> Progress and Verbose mutually exclusive
-> usage:  /sbin/restorecon [-iFnprRv0] [-e excludedir] pathname...
-> usage:  /sbin/restorecon [-iFnprRv0] [-e excludedir] -f filename
-> Warning: Skipping the following R/O filesystems:
-> /sys/fs/cgroup
-> 229k
->
-> after:
->
-> Warning: Skipping the following R/O filesystems:
-> /sys/fs/cgroup
-> /sbin/restorecon:  lstat(-v) failed:  No such file or directory
-> Warning: Skipping the following R/O filesystems:
-> /sys/fs/cgroup
-> 229k
->
-> This matches the usage shown in the manual page.  While we're in there,
-> we should handle spaces as well e.g `fixfiles restore "a b"`.  Before:
->
-> Warning: Skipping the following R/O filesystems:
-> /sys/fs/cgroup
-> /sbin/restorecon:  lstat(b) failed:  No such file or directory
->
-> After:
->
-> Warning: Skipping the following R/O filesystems:
-> /sys/fs/cgroup
-> /sbin/restorecon:  lstat(a b) failed:  No such file or directory
+> Removing the program name from setfiles/restorecon output is particularly
+> useful because it generates very long lines.  But also, it actually helps
+> highlight where there are error messages - the prefix will make them
+> stand out visually.
 >
 > Signed-off-by: Alan Jenkins <alan.christopher.jenkins@gmail.com>
 
-Both of these have been applied.
+All three of these have been applied.
 
 Thanks,
 Jim
 
 > ---
->  policycoreutils/scripts/fixfiles | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  policycoreutils/setfiles/setfiles.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
 >
-> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-> index 3896d19..d3a53ba 100755
-> --- a/policycoreutils/scripts/fixfiles
-> +++ b/policycoreutils/scripts/fixfiles
-> @@ -248,7 +248,7 @@ if [ ! -z "$RPMFILES" ]; then
->      exit $?
->  fi
->  if [ ! -z "$FILEPATH" ]; then
-> -    ${RESTORECON} $exclude_dirs ${FORCEFLAG} ${VERBOSE} -R $* $FILEPATH 2>&1 | cat >> $LOGFILE
-> +    ${RESTORECON} $exclude_dirs ${FORCEFLAG} ${VERBOSE} -R $* -- "$FILEPATH" 2>&1 | cat >> $LOGFILE
->      return
->  fi
->  if [  -n "${FILESYSTEMSRW}" ]; then
-> @@ -400,7 +400,7 @@ else
->  	process $command
->      else
->  	while [ -n "$1" ]; do
-> -	    FILEPATH=$1
-> +	    FILEPATH="$1"
->  	    process $command
->  	    shift
->  	done
+> diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+> index 6f69c90..83e0b2a 100644
+> --- a/policycoreutils/setfiles/setfiles.c
+> +++ b/policycoreutils/setfiles/setfiles.c
+> @@ -142,9 +142,15 @@ static int __attribute__ ((format(printf, 2, 3)))
+>  log_callback(int type, const char *fmt, ...)
+>  {
+>  	int rc;
+> -	FILE *out = (type == SELINUX_INFO) ? stdout : stderr;
+> +	FILE *out;
+>  	va_list ap;
+> -	fprintf(out, "%s: ", r_opts.progname);
+> +
+> +	if (type == SELINUX_INFO) {
+> +		out = stdout;
+> +	} else {
+> +		out = stderr;
+> +		fprintf(out, "%s: ", r_opts.progname);
+> +	}
+>  	va_start(ap, fmt);
+>  	rc = vfprintf(out, fmt, ap);
+>  	va_end(ap);
 >
 
 
