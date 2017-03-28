@@ -1,63 +1,42 @@
-Received: from [192.168.25.4] (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2SJrwI8031714
- for <selinux@tycho.nsa.gov>; Tue, 28 Mar 2017 15:53:58 -0400
-Subject: Re: [PATCH] libsepol/cil: Add hexadecimal support for Xen ioportcon
- statements
-To: selinux@tycho.nsa.gov
-References: <1490209288-10691-1-git-send-email-jwcart2@tycho.nsa.gov>
+Subject: Re: [PATCH] mcstrans: fix typo in mcstransd.8 man page
+To: nforro@redhat.com, selinux@tycho.nsa.gov
+References: <1490365670.3086.9.camel@redhat.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <f7bb15c4-8cdb-f80c-9305-1036fe3f1260@tycho.nsa.gov>
-Date: Tue, 28 Mar 2017 15:54:25 -0400
+Message-ID: <76d4e7a3-7fbd-4ae4-e977-249e2d1ba6dd@tycho.nsa.gov>
+Date: Tue, 28 Mar 2017 15:54:54 -0400
 MIME-Version: 1.0
-In-Reply-To: <1490209288-10691-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+In-Reply-To: <1490365670.3086.9.camel@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/22/2017 03:01 PM, James Carter wrote:
-> Add hexadecimal support for Xen ioportcon statements which was
-> left out of commit c408c70.
->
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+On 03/24/2017 10:27 AM, Nikola Forró wrote:
+> Signed-off-by: Nikola Forró <nforro@redhat.com>
 
-This has been applied.
+Applied.
 
+Thanks,
 Jim
 
 > ---
->  libsepol/cil/src/cil_build_ast.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+>  mcstrans/man/man8/mcstransd.8 | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> index 442f100..8a19df4 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -4689,12 +4689,12 @@ int cil_gen_ioportcon(struct cil_db *db, struct cil_tree_node *parse_current, st
->  	if (parse_current->next->cl_head != NULL) {
->  		if (parse_current->next->cl_head->next != NULL &&
->  		    parse_current->next->cl_head->next->next == NULL) {
-> -			rc = cil_fill_integer(parse_current->next->cl_head, &ioportcon->ioport_low, 10);
-> +			rc = cil_fill_integer(parse_current->next->cl_head, &ioportcon->ioport_low, 0);
->  			if (rc != SEPOL_OK) {
->  				cil_log(CIL_ERR, "Improper ioport specified\n");
->  				goto exit;
->  			}
-> -			rc = cil_fill_integer(parse_current->next->cl_head->next, &ioportcon->ioport_high, 10);
-> +			rc = cil_fill_integer(parse_current->next->cl_head->next, &ioportcon->ioport_high, 0);
->  			if (rc != SEPOL_OK) {
->  				cil_log(CIL_ERR, "Improper ioport specified\n");
->  				goto exit;
-> @@ -4705,7 +4705,7 @@ int cil_gen_ioportcon(struct cil_db *db, struct cil_tree_node *parse_current, st
->  			goto exit;
->  		}
->  	} else {
-> -		rc = cil_fill_integer(parse_current->next, &ioportcon->ioport_low, 10);
-> +		rc = cil_fill_integer(parse_current->next, &ioportcon->ioport_low, 0);
->  		if (rc != SEPOL_OK) {
->  			cil_log(CIL_ERR, "Improper ioport specified\n");
->  			goto exit;
+> diff --git a/mcstrans/man/man8/mcstransd.8 b/mcstrans/man/man8/mcstransd.8
+> index c1dc483..64774a5 100644
+> --- a/mcstrans/man/man8/mcstransd.8
+> +++ b/mcstrans/man/man8/mcstransd.8
+> @@ -23,7 +23,7 @@ Output a short summary of available command line options\&.
+>  .SH "AUTHOR"
+>  This man page was written by Dan Walsh <dwalsh@redhat.com>.
+>  The program was originally written by Dan Walsh <dwalsh@redhat.com>.
+> -The program was enhanced/rwwritten by Joe Nall <joe@nall.com>.
+> +The program was enhanced/rewritten by Joe Nall <joe@nall.com>.
+>
+>  .SH "FILES"
+>  /etc/selinux/{SELINUXTYPE}/setrans.conf
 >
 
 
