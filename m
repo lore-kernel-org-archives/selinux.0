@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TFNJwq003134
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 11:23:19 -0400
-Received: by mail-vk0-f66.google.com with SMTP id z204so2668199vkd.2
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 08:23:03 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TFPvlT003890
+ for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 11:25:58 -0400
+Received: by mail-vk0-f68.google.com with SMTP id z204so2680710vkd.2
+ for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 08:25:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <c8d230f3-2c13-0384-3a46-343dc5ebe812@users.sourceforge.net>
+In-Reply-To: <6ceee0fa-a0ab-fe42-4213-f7985031ddfa@users.sourceforge.net>
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <c8d230f3-2c13-0384-3a46-343dc5ebe812@users.sourceforge.net>
+ <6ceee0fa-a0ab-fe42-4213-f7985031ddfa@users.sourceforge.net>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 29 Mar 2017 11:23:00 -0400
-Message-ID: <CAHC9VhRyNgQkOOfwzKe88ePW9U6a0aa4cvR6Zfp31ER6vY73tg@mail.gmail.com>
-Subject: Re: [PATCH 30/46] selinux: Return directly after a failed kzalloc()
- in role_read()
+Date: Wed, 29 Mar 2017 11:25:50 -0400
+Message-ID: <CAHC9VhSKbHq=2Btj3Z1boNjPvugRARGmf0pOYwn_vBCgP_W5pw@mail.gmail.com>
+Subject: Re: [PATCH 32/46] selinux: Return directly after a failed kzalloc()
+ in class_read()
 To: SF Markus Elfring <elfring@users.sourceforge.net>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>,
@@ -25,10 +25,10 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, Jan 15, 2017 at 10:30 AM, SF Markus Elfring
+On Sun, Jan 15, 2017 at 10:32 AM, SF Markus Elfring
 <elfring@users.sourceforge.net> wrote:
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sat, 14 Jan 2017 22:20:25 +0100
+> Date: Sat, 14 Jan 2017 22:30:51 +0100
 >
 > Return directly after a call of the function "kzalloc" failed
 > at the beginning.
@@ -41,21 +41,21 @@ On Sun, Jan 15, 2017 at 10:30 AM, SF Markus Elfring
 Merged, thanks.
 
 > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 662139365449..34b670227c4d 100644
+> index 49fc5d8990e9..3af2b0849495 100644
 > --- a/security/selinux/ss/policydb.c
 > +++ b/security/selinux/ss/policydb.c
-> @@ -1410,10 +1410,9 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
->         __le32 buf[3];
->         u32 len;
+> @@ -1316,10 +1316,9 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
+>         u32 len, len2, ncons, nel;
+>         int i, rc;
 >
 > -       rc = -ENOMEM;
->         role = kzalloc(sizeof(*role), GFP_KERNEL);
->         if (!role)
+>         cladatum = kzalloc(sizeof(*cladatum), GFP_KERNEL);
+>         if (!cladatum)
 > -               goto bad;
 > +               return -ENOMEM;
 >
->         if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
->                 to_read = 3;
+>         rc = next_entry(buf, fp, sizeof(u32)*6);
+>         if (rc)
 > --
 > 2.11.0
 >
