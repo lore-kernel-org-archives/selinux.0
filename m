@@ -1,72 +1,61 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TFrlnO013223
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 11:53:55 -0400
-Received: by mail-vk0-f67.google.com with SMTP id j137so2816451vke.0
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 08:53:42 -0700 (PDT)
+Subject: Re: [PATCH 1/7] libsepol: do not dereference a NULL pointer when
+ stack_init() fails
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20170328214152.17545-1-nicolas.iooss@m4x.org>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <590c3842-e11e-f47d-fe1f-40ace94abf6e@tycho.nsa.gov>
+Date: Wed, 29 Mar 2017 14:02:15 -0400
 MIME-Version: 1.0
-In-Reply-To: <9c268e0b-a323-5f72-e445-dbf247f274d8@users.sourceforge.net>
-References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <9c268e0b-a323-5f72-e445-dbf247f274d8@users.sourceforge.net>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 29 Mar 2017 11:53:41 -0400
-Message-ID: <CAHC9VhS_DZg4fUaKP8=-rocQ1ozzb5Sa+yHySvBWjkVAipidWA@mail.gmail.com>
-Subject: Re: [PATCH 46/46] selinuxfs: Use seq_puts() in
- sel_avc_stats_seq_show()
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- William Roberts <william.c.roberts@intel.com>,
- LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <20170328214152.17545-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, Jan 15, 2017 at 10:46 AM, SF Markus Elfring
-<elfring@users.sourceforge.net> wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sun, 15 Jan 2017 14:04:53 +0100
+On 03/28/2017 05:41 PM, Nicolas Iooss wrote:
+> In cond_expr_to_cil() when stack_init(&stack) fails, stack is set to
+> NULL and the execution flow jumps to label "exit". This triggers a call
+> to stack_pop(stack) which dereferences a NULL pointer in "if (stack->pos
+> == -1)".
 >
-> A string which did not contain data format specifications should be put
-> into a sequence. Thus use the corresponding function "seq_puts".
+> This issue has been found using clang's static analyzer.
 >
-> This issue was detected by using the Coccinelle software.
->
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+I applied these seven patches.
+
+Thanks,
+Jim
+
 > ---
->  security/selinux/selinuxfs.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-
-Merged, thanks.
-
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 55345f84f17d..0d81ebf7ff23 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1445,10 +1445,10 @@ static int sel_avc_stats_seq_show(struct seq_file *seq, void *v)
->  {
->         struct avc_cache_stats *st = v;
+>  libsepol/src/module_to_cil.c | 9 +++++----
+>  1 file changed, 5 insertions(+), 4 deletions(-)
 >
-> -       if (v == SEQ_START_TOKEN)
-> -               seq_printf(seq, "lookups hits misses allocations reclaims "
-> -                          "frees\n");
-> -       else {
-> +       if (v == SEQ_START_TOKEN) {
-> +               seq_puts(seq,
-> +                        "lookups hits misses allocations reclaims frees\n");
-> +       } else {
->                 unsigned int lookups = st->lookups;
->                 unsigned int misses = st->misses;
->                 unsigned int hits = lookups - misses;
-> --
-> 2.11.0
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 308ada4f1381..5c98c29bcf13 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -1363,11 +1363,12 @@ exit:
+>  	free(new_val);
+>  	free(val1);
+>  	free(val2);
+> -	while ((val1 = stack_pop(stack)) != NULL) {
+> -		free(val1);
+> +	if (stack != NULL) {
+> +		while ((val1 = stack_pop(stack)) != NULL) {
+> +			free(val1);
+> +		}
+> +		stack_destroy(&stack);
+>  	}
+> -	stack_destroy(&stack);
+> -
+>  	return rc;
+>  }
 >
-
+>
 
 
 -- 
-paul moore
-www.paul-moore.com
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
