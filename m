@@ -1,104 +1,95 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TLaI2J021211
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 17:36:20 -0400
-Received: by mail-vk0-f67.google.com with SMTP id z204so4200608vkd.2
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 14:36:17 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TM8LOi029939
+ for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 18:08:22 -0400
+Received: by mail-vk0-f65.google.com with SMTP id j137so4322232vke.0
+ for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 15:08:20 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhT42v2Z5hw8PSUqOtzhz1Ba3K4bL=DuSXTJwPberWtjLQ@mail.gmail.com>
-References: <1489166058-11789-1-git-send-email-sds@tycho.nsa.gov>
- <CAHC9VhT42v2Z5hw8PSUqOtzhz1Ba3K4bL=DuSXTJwPberWtjLQ@mail.gmail.com>
+In-Reply-To: <201703282308.BHJ95808.MFFHVQLOOtJFOS@I-love.SAKURA.ne.jp>
+References: <1490706772-8013-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
+ <1490707796.6046.1.camel@tycho.nsa.gov>
+ <201703282308.BHJ95808.MFFHVQLOOtJFOS@I-love.SAKURA.ne.jp>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 29 Mar 2017 17:36:16 -0400
-Message-ID: <CAHC9VhQ7TOXhcCKTg4QaH3EsdVHxzJr5gX1xvLD=RSQ-xmfVCg@mail.gmail.com>
-Subject: Re: [PATCH] fs: switch order of CAP_DAC_OVERRIDE and
- CAP_DAC_READ_SEARCH checks
-To: Stephen Smalley <sds@tycho.nsa.gov>, viro@zeniv.linux.org.uk,
- linux-fsdevel@vger.kernel.org
-Cc: James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
- john.johansen@canonical.com, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Date: Wed, 29 Mar 2017 18:08:19 -0400
+Message-ID: <CAHC9VhTxG95_iBy6WMtWj_xR1-=_=meykw1cTxN8-XepP8oo2w@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Use task_alloc hook rather than task_create hook
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 10, 2017 at 2:54 PM, Paul Moore <paul@paul-moore.com> wrote:
-> On Fri, Mar 10, 2017 at 12:14 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> generic_permission() presently checks CAP_DAC_OVERRIDE prior to
->> CAP_DAC_READ_SEARCH.  This can cause misleading audit messages when
->> using a LSM such as SELinux or AppArmor, since CAP_DAC_OVERRIDE
->> may not be required for the operation.  Flip the order of the
->> tests so that CAP_DAC_OVERRIDE is only checked when required for
->> the operation.
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> ---
->>  fs/namei.c | 20 ++++++++++----------
->>  1 file changed, 10 insertions(+), 10 deletions(-)
+On Tue, Mar 28, 2017 at 10:08 AM, Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> >From b43bd0fc0cc267b91f51ad118f6fabd13efb921e Mon Sep 17 00:00:00 2001
+> From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Date: Tue, 28 Mar 2017 22:09:38 +0900
+> Subject: [PATCH v2] selinux: Use task_alloc hook rather than task_create hook
 >
-> This is the second posting of this patch and so far no comment ... if
-> I don't see any negative responses by next week I'll go ahead and
-> merge this into the selinux/next tree.
+> This patch is a preparation for getting rid of task_create hook because
+> task_alloc hook which can do what task_create hook can do was revived.
+>
+> Creating a new thread is unlikely prohibited by security policy, for
+> fork()/execve()/exit() is fundamental of how processes are managed in
+> Unix. If a program is known to create a new thread, it is likely that
+> permission to create a new thread is given to that program. Therefore,
+> a situation where security_task_create() returns an error is likely that
+> the program was exploited and lost control. Even if SELinux failed to
+> check permission to create a thread at security_task_create(), SELinux
+> can later check it at security_task_alloc(). Since the new thread is not
+> yet visible from the rest of the system, nobody can do bad things using
+> the new thread. What we waste will be limited to some initialization
+> steps such as dup_task_struct(), copy_creds() and audit_alloc() in
+> copy_process(). We can tolerate these overhead for unlikely situation.
+>
+> Therefore, this patch changes SELinux to use task_alloc hook rather than
+> task_create hook so that we can remove task_create hook.
+>
+> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/hooks.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 
-No objections, but plenty of ACKs and Reviewed-bys so I just merged
-this into the selinux/next tree.
+When are you planning to remove the task_create() hook?
 
-Thanks all.
+I have no objection to this patch, and I plan to merge it, but merging
+it now would require rebasing the selinux/next and I try to keep from
+rebasing during the development cycle unless absolutely necessary.  I
+think this can wait until after the next merge window, what do you
+think?
 
->> diff --git a/fs/namei.c b/fs/namei.c
->> index d41fab7..482414a 100644
->> --- a/fs/namei.c
->> +++ b/fs/namei.c
->> @@ -340,22 +340,14 @@ int generic_permission(struct inode *inode, int mask)
->>
->>         if (S_ISDIR(inode->i_mode)) {
->>                 /* DACs are overridable for directories */
->> -               if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
->> -                       return 0;
->>                 if (!(mask & MAY_WRITE))
->>                         if (capable_wrt_inode_uidgid(inode,
->>                                                      CAP_DAC_READ_SEARCH))
->>                                 return 0;
->> -               return -EACCES;
->> -       }
->> -       /*
->> -        * Read/write DACs are always overridable.
->> -        * Executable DACs are overridable when there is
->> -        * at least one exec bit set.
->> -        */
->> -       if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
->>                 if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
->>                         return 0;
->> +               return -EACCES;
->> +       }
->>
->>         /*
->>          * Searching includes executable on directories, else just read.
->> @@ -364,6 +356,14 @@ int generic_permission(struct inode *inode, int mask)
->>         if (mask == MAY_READ)
->>                 if (capable_wrt_inode_uidgid(inode, CAP_DAC_READ_SEARCH))
->>                         return 0;
->> +       /*
->> +        * Read/write DACs are always overridable.
->> +        * Executable DACs are overridable when there is
->> +        * at least one exec bit set.
->> +        */
->> +       if (!(mask & MAY_EXEC) || (inode->i_mode & S_IXUGO))
->> +               if (capable_wrt_inode_uidgid(inode, CAP_DAC_OVERRIDE))
->> +                       return 0;
->>
->>         return -EACCES;
->>  }
->> --
->> 2.7.4
->>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index d37a723..d850b7f 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3710,7 +3710,8 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
 >
+>  /* task security operations */
 >
+> -static int selinux_task_create(unsigned long clone_flags)
+> +static int selinux_task_alloc(struct task_struct *task,
+> +                             unsigned long clone_flags)
+>  {
+>         u32 sid = current_sid();
 >
+> @@ -6205,7 +6206,7 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+>
+>         LSM_HOOK_INIT(file_open, selinux_file_open),
+>
+> -       LSM_HOOK_INIT(task_create, selinux_task_create),
+> +       LSM_HOOK_INIT(task_alloc, selinux_task_alloc),
+>         LSM_HOOK_INIT(cred_alloc_blank, selinux_cred_alloc_blank),
+>         LSM_HOOK_INIT(cred_free, selinux_cred_free),
+>         LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
 > --
-> paul moore
-> www.paul-moore.com
+> 1.8.3.1
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 
 
