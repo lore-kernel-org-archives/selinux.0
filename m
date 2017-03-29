@@ -1,31 +1,68 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TMTi5U003494
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 18:29:44 -0400
-From: Russell Coker <russell@coker.com.au>
-To: selinux@tycho.nsa.gov
-Subject: Re: label for /proc directory (before mounting)
-Date: Thu, 30 Mar 2017 09:29:25 +1100
-References: <1490821242.510644.927878696.6DEBD3A9@webmail.messagingengine.com>
-In-Reply-To: <1490821242.510644.927878696.6DEBD3A9@webmail.messagingengine.com>
+Date: Wed, 29 Mar 2017 17:34:40 -0400
+From: "J. Bruce Fields" <bfields@redhat.com>
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Cc: linux-kernel@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Subject: Re: [PATCH] selinux: Fix SBLABEL_MNT for NFS mounts
+Message-ID: <20170329213439.GC19617@parsley.fieldses.org>
+References: <20170329152724.19030-1-tomeu.vizoso@collabora.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Message-Id: <201703300929.25931.russell@coker.com.au>
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20170329152724.19030-1-tomeu.vizoso@collabora.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 30 Mar 2017 08:00:42 AM Colin Walters wrote:
-> This causes some breakage in rpm-ostree (which I can work
-> around), but I'd like a better fix than what I did above.
-> Any suggestions?  It probably doesn't
-> matter too much what the actual type is since systemd will
-> overmount it - should I make it the same type as e.g. `/mnt`?
+On Wed, Mar 29, 2017 at 05:27:23PM +0200, Tomeu Vizoso wrote:
+> Labelling of files in a NFSv4.2 currently fails with ENOTSUPP because
+> the mount point doesn't have SBLABEL_MNT.
+> 
+> Add specific condition for NFS4 filesystems so it gets correctly
+> labeled.
 
-I've been thinking of submitting a patch for /proc and other mountpoints to be 
-mnt_t or root_t for some time.  Your suggestion sounds good to me.
+Huh.  Looking at the code, I think this is meant to be handled by the
+SECURITY_FS_USE_NATIVE case--there was a similar failure fixed some time
+ago by 9fc2b4b436cf.  What kernel are you seeing this on?  Is it a
+recent regression (in which case, what's the latest kernel that worked
+for you)?
 
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
+--b.
+
+> 
+> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+> Cc: J. Bruce Fields <bfields@redhat.com>
+> 
+> ---
+> 
+> Hi,
+> 
+> cannot remotely say that I currently understand how selinux is expected
+> to work within NFS mounts, but this change allowed me to fully boot AOSP
+> with its rootfs and ramdisk on a single NFS share.
+> 
+> Thanks,
+> 
+> Tomeu
+> ---
+>  security/selinux/hooks.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 0c2ac318aa7f..71cd1d8c67c2 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -485,6 +485,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+>  		!strcmp(sb->s_type->name, "debugfs") ||
+>  		!strcmp(sb->s_type->name, "tracefs") ||
+>  		!strcmp(sb->s_type->name, "rootfs") ||
+> +		!strcmp(sb->s_type->name, "nfs4") ||
+>  		(selinux_policycap_cgroupseclabel &&
+>  		 (!strcmp(sb->s_type->name, "cgroup") ||
+>  		  !strcmp(sb->s_type->name, "cgroup2")));
+> -- 
+> 2.9.3
+> 
