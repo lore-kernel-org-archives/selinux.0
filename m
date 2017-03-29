@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TFbPQr007995
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 11:37:25 -0400
-Received: by mail-vk0-f68.google.com with SMTP id j137so2744572vke.0
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 08:37:21 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TFccFa008300
+ for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 11:38:40 -0400
+Received: by mail-vk0-f68.google.com with SMTP id d188so2721811vka.3
+ for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 08:38:35 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <b71e766c-a9a2-cd9c-8f87-7aaeaaf896f0@users.sourceforge.net>
+In-Reply-To: <1f2cc0bf-0904-0c9d-22f2-ee851214252e@users.sourceforge.net>
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <b71e766c-a9a2-cd9c-8f87-7aaeaaf896f0@users.sourceforge.net>
+ <1f2cc0bf-0904-0c9d-22f2-ee851214252e@users.sourceforge.net>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 29 Mar 2017 11:37:20 -0400
-Message-ID: <CAHC9VhQaCFirdVRBnd9UsbHZzdmfrEc5ZtzzSvru7uXqCeLL8Q@mail.gmail.com>
-Subject: Re: [PATCH 38/46] selinux: One function call less in five functions
- after null pointer detection
+Date: Wed, 29 Mar 2017 11:38:32 -0400
+Message-ID: <CAHC9VhStnBYKyiY8__7C-txRMj=XqLkDDmvhMdUkr9qnpyrA1A@mail.gmail.com>
+Subject: Re: [PATCH 39/46] selinux: Move two assignments for the variable "rc"
+ in ocontext_read()
 To: SF Markus Elfring <elfring@users.sourceforge.net>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  Eric Paris <eparis@parisplace.org>,
@@ -25,81 +25,58 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, Jan 15, 2017 at 10:38 AM, SF Markus Elfring
+On Sun, Jan 15, 2017 at 10:39 AM, SF Markus Elfring
 <elfring@users.sourceforge.net> wrote:
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sun, 15 Jan 2017 11:28:02 +0100
+> Date: Sun, 15 Jan 2017 11:30:12 +0100
 >
-> Call the function "kfree" at the end only after it was determined
-> that the passed parameter contained a non-null pointer.
+> One local variable was set to an error code in two cases before
+> a concrete error situation was detected. Thus move the corresponding
+> assignments into if branches to indicate a software failure there.
 >
 > Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
->  security/selinux/ss/policydb.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
->
+>  security/selinux/ss/policydb.c | 13 +++++++------
+>  1 file changed, 7 insertions(+), 6 deletions(-)
+
+Dropped as previously discussed.
+
 > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index faa6ecc2450d..88730b372277 100644
+> index 88730b372277..8b9ed3f1b132 100644
 > --- a/security/selinux/ss/policydb.c
 > +++ b/security/selinux/ss/policydb.c
-> @@ -620,8 +620,8 @@ static int common_destroy(void *key, void *datum, void *p)
->                 comdatum = datum;
->                 hashtab_map(comdatum->permissions.table, perm_destroy, NULL);
->                 hashtab_destroy(comdatum->permissions.table);
-> +               kfree(datum);
->         }
-> -       kfree(datum);
->         return 0;
->  }
-
-I'm dropping this patch because it really doesn't do much other than
-add some code churn.  I suppose you can argue it removes one
-conditional if datum is NULL, but that is such a corner case I'm not
-worried about it.
-
-If I were to merge this, I would probably expect "kfree(datum)" to be
-converted to "kfree(comdatum)" (and similar in the cases below).
-
-> @@ -675,8 +675,8 @@ static int cls_destroy(void *key, void *datum, void *p)
->                         kfree(ctemp);
->                 }
->                 kfree(cladatum->comkey);
-> +               kfree(datum);
->         }
-> -       kfree(datum);
->         return 0;
->  }
+> @@ -2121,10 +2121,11 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
 >
-> @@ -689,8 +689,8 @@ static int role_destroy(void *key, void *datum, void *p)
->                 role = datum;
->                 ebitmap_destroy(&role->dominates);
->                 ebitmap_destroy(&role->types);
-> +               kfree(datum);
->         }
-> -       kfree(datum);
->         return 0;
->  }
+>                 l = NULL;
+>                 for (j = 0; j < nel; j++) {
+> -                       rc = -ENOMEM;
+>                         c = kzalloc(sizeof(*c), GFP_KERNEL);
+> -                       if (!c)
+> +                       if (!c) {
+> +                               rc = -ENOMEM;
+>                                 goto out;
+> +                       }
+>                         if (l)
+>                                 l->next = c;
+>                         else
+> @@ -2186,13 +2187,13 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
+>                                 if (rc)
+>                                         goto out;
 >
-> @@ -712,8 +712,8 @@ static int user_destroy(void *key, void *datum, void *p)
->                 ebitmap_destroy(&usrdatum->range.level[0].cat);
->                 ebitmap_destroy(&usrdatum->range.level[1].cat);
->                 ebitmap_destroy(&usrdatum->dfltlevel.cat);
-> +               kfree(datum);
->         }
-> -       kfree(datum);
->         return 0;
->  }
+> -                               rc = -EINVAL;
+>                                 c->v.behavior = le32_to_cpu(buf[0]);
+>                                 /* Determined at runtime, not in policy DB. */
+> -                               if (c->v.behavior == SECURITY_FS_USE_MNTPOINT)
+> -                                       goto out;
+> -                               if (c->v.behavior > SECURITY_FS_USE_MAX)
+> +                               if (c->v.behavior == SECURITY_FS_USE_MNTPOINT ||
+> +                                   c->v.behavior > SECURITY_FS_USE_MAX) {
+> +                                       rc = -EINVAL;
+>                                         goto out;
+> +                               }
 >
-> @@ -726,8 +726,8 @@ static int sens_destroy(void *key, void *datum, void *p)
->                 levdatum = datum;
->                 ebitmap_destroy(&levdatum->level->cat);
->                 kfree(levdatum->level);
-> +               kfree(datum);
->         }
-> -       kfree(datum);
->         return 0;
->  }
->
+>                                 len = le32_to_cpu(buf[1]);
+>                                 rc = str_read(&c->u.name, GFP_KERNEL, fp, len);
 > --
 > 2.11.0
 >
