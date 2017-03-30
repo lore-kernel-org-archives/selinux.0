@@ -1,80 +1,35 @@
-MIME-Version: 1.0
-Sender: tomeu.vizoso@gmail.com
-In-Reply-To: <20170329213439.GC19617@parsley.fieldses.org>
-References: <20170329152724.19030-1-tomeu.vizoso@collabora.com>
- <20170329213439.GC19617@parsley.fieldses.org>
-From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
-Date: Thu, 30 Mar 2017 09:49:07 +0200
-Message-ID: <CAAObsKDThPAQpgO7R+JT=foU1=BEor-Zy7DES2tnGe=rGe=REw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Fix SBLABEL_MNT for NFS mounts
-To: "J. Bruce Fields" <bfields@redhat.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+To: paul@paul-moore.com
+Cc: sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
  linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: [PATCH] selinux: Use task_alloc hook rather than task_create hook
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+References: <1490706772-8013-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
+ <1490707796.6046.1.camel@tycho.nsa.gov>
+ <201703282308.BHJ95808.MFFHVQLOOtJFOS@I-love.SAKURA.ne.jp>
+ <CAHC9VhTxG95_iBy6WMtWj_xR1-=_=meykw1cTxN8-XepP8oo2w@mail.gmail.com>
+In-Reply-To: <CAHC9VhTxG95_iBy6WMtWj_xR1-=_=meykw1cTxN8-XepP8oo2w@mail.gmail.com>
+Message-Id: <201703302013.CFF26504.JFOQFSOHtFOMVL@I-love.SAKURA.ne.jp>
+Date: Thu, 30 Mar 2017 20:13:04 +0900
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 29 March 2017 at 23:34, J. Bruce Fields <bfields@redhat.com> wrote:
-> On Wed, Mar 29, 2017 at 05:27:23PM +0200, Tomeu Vizoso wrote:
->> Labelling of files in a NFSv4.2 currently fails with ENOTSUPP because
->> the mount point doesn't have SBLABEL_MNT.
->>
->> Add specific condition for NFS4 filesystems so it gets correctly
->> labeled.
->
-> Huh.  Looking at the code, I think this is meant to be handled by the
-> SECURITY_FS_USE_NATIVE case--there was a similar failure fixed some time
-> ago by 9fc2b4b436cf.  What kernel are you seeing this on?  Is it a
-> recent regression (in which case, what's the latest kernel that worked
-> for you)?
+Paul Moore wrote:
+> > Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >  security/selinux/hooks.c | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> When are you planning to remove the task_create() hook?
+> 
+> I have no objection to this patch, and I plan to merge it, but merging
+> it now would require rebasing the selinux/next and I try to keep from
+> rebasing during the development cycle unless absolutely necessary.  I
+> think this can wait until after the next merge window, what do you
+> think?
 
-I have seen this on 4.11-rc4, but I never tried to get this working before.
-
-I will try to find time to see why SECURITY_FS_USE_NATIVE isn't working here.
-
-Thanks,
-
-Tomeu
-
-> --b.
->
->>
->> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
->> Cc: J. Bruce Fields <bfields@redhat.com>
->>
->> ---
->>
->> Hi,
->>
->> cannot remotely say that I currently understand how selinux is expected
->> to work within NFS mounts, but this change allowed me to fully boot AOSP
->> with its rootfs and ramdisk on a single NFS share.
->>
->> Thanks,
->>
->> Tomeu
->> ---
->>  security/selinux/hooks.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 0c2ac318aa7f..71cd1d8c67c2 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -485,6 +485,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
->>               !strcmp(sb->s_type->name, "debugfs") ||
->>               !strcmp(sb->s_type->name, "tracefs") ||
->>               !strcmp(sb->s_type->name, "rootfs") ||
->> +             !strcmp(sb->s_type->name, "nfs4") ||
->>               (selinux_policycap_cgroupseclabel &&
->>                (!strcmp(sb->s_type->name, "cgroup") ||
->>                 !strcmp(sb->s_type->name, "cgroup2")));
->> --
->> 2.9.3
->>
+Nothing to hurry. SELinux is the only user. We can wait as much as you want.
