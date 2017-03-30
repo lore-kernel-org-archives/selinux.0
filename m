@@ -1,90 +1,59 @@
-Message-Id: <1490886323.3458882.928743312.12DA81DD@webmail.messagingengine.com>
-From: Colin Walters <walters@verbum.org>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-In-Reply-To: <1490881474.18002.3.camel@tycho.nsa.gov>
-Subject: Re: label for /proc directory (before mounting)
-Date: Thu, 30 Mar 2017 11:05:23 -0400
-References: <1490821242.510644.927878696.6DEBD3A9@webmail.messagingengine.com>
- <1490881474.18002.3.camel@tycho.nsa.gov>
+Message-ID: <1490894827.2099.2.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: Fix SBLABEL_MNT for NFS mounts
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Tomeu Vizoso <tomeu.vizoso@collabora.com>, "J. Bruce Fields"
+ <bfields@redhat.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ linux-security-module@vger.kernel.org, James Morris
+ <james.l.morris@oracle.com>, selinux@tycho.nsa.gov
+Date: Thu, 30 Mar 2017 13:27:07 -0400
+In-Reply-To: <CAAObsKDThPAQpgO7R+JT=foU1=BEor-Zy7DES2tnGe=rGe=REw@mail.gmail.com>
+References: <20170329152724.19030-1-tomeu.vizoso@collabora.com>
+ <20170329213439.GC19617@parsley.fieldses.org>
+ <CAAObsKDThPAQpgO7R+JT=foU1=BEor-Zy7DES2tnGe=rGe=REw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Mar 30, 2017, at 09:44 AM, Stephen Smalley wrote:
+On Thu, 2017-03-30 at 09:49 +0200, Tomeu Vizoso wrote:
+> On 29 March 2017 at 23:34, J. Bruce Fields <bfields@redhat.com>
+> wrote:
+> > On Wed, Mar 29, 2017 at 05:27:23PM +0200, Tomeu Vizoso wrote:
+> > > Labelling of files in a NFSv4.2 currently fails with ENOTSUPP
+> > > because
+> > > the mount point doesn't have SBLABEL_MNT.
+> > > 
+> > > Add specific condition for NFS4 filesystems so it gets correctly
+> > > labeled.
+> > 
+> > Huh.  Looking at the code, I think this is meant to be handled by
+> > the
+> > SECURITY_FS_USE_NATIVE case--there was a similar failure fixed some
+> > time
+> > ago by 9fc2b4b436cf.  What kernel are you seeing this on?  Is it a
+> > recent regression (in which case, what's the latest kernel that
+> > worked
+> > for you)?
+> 
+> I have seen this on 4.11-rc4, but I never tried to get this working
+> before.
+> 
+> I will try to find time to see why SECURITY_FS_USE_NATIVE isn't
+> working here.
 
-> You shouldn't hardcode security contexts, ever.  Why can't one just fix
-> the Fedora policy?  Do we still even need the <<none>> entries for
-> /proc in file_contexts in Fedora policy, given that restorecon is now
-> smart enough to skip any filesystem that lacks seclabel in
-> /proc/mounts? Android doesn't use <<none>> in its file_contexts at all.
+Does your exports file specify the "security_label" option, e.g.
+/path/to/dir example.com(rw,security_label)
 
-Right.  The other "API mountpoints" (/dev, /sys) seem to use the same type as their
-genfscon.  Here's a paste - note the lack of `security.selinux` on `/proc`:
-
-```
-# ostree ls -X fedora-atomic:fedora-atomic/25/x86_64/docker-host
-d00755 0 0      0 { [(b'security.selinux', b'system_u:object_r:root_t:s0')] } /
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:bin_t:s0')] } /bin -> usr/bin
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:home_root_t:s0')] } /home -> var/home
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:lib_t:s0')] } /lib -> usr/lib
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:lib_t:s0')] } /lib64 -> usr/lib64
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:mnt_t:s0')] } /media -> run/media
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:mnt_t:s0')] } /mnt -> var/mnt
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:usr_t:s0')] } /opt -> var/opt
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:usr_t:s0')] } /ostree -> sysroot/ostree
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:admin_home_t:s0')] } /root -> var/roothome
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:bin_t:s0')] } /sbin -> usr/sbin
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:var_t:s0')] } /srv -> var/srv
-l00777 0 0      0 { [(b'security.selinux', b'system_u:object_r:tmp_t:s0')] } /tmp -> sysroot/tmp
-d00555 0 0      0 { [(b'security.selinux', b'system_u:object_r:boot_t:s0')] } /boot
-d00755 0 0      0 { [(b'security.selinux', b'system_u:object_r:device_t:s0')] } /dev
-d00755 0 0      0 { @a(ayay) [] } /proc
-d00755 0 0      0 { [(b'security.selinux', b'system_u:object_r:var_run_t:s0')] } /run
-d00755 0 0      0 { [(b'security.selinux', b'system_u:object_r:sysfs_t:s0')] } /sys
-d00755 0 0      0 { [(b'security.selinux', b'system_u:object_r:default_t:s0')] } /sysroot
-d00755 0 0      0 { [(b'security.selinux', b'system_u:object_r:usr_t:s0')] } /usr
-d00755 0 0      0 { [(b'security.selinux', b'system_u:object_r:var_t:s0')] } /var
-#
- ```
-
-> As to what type it should have, I would try to keep it in whatever type
-> it is presently being assigned in Fedora during an install to avoid
-> breakage.  Not sure offhand what that is.
-
-Atomic Host *is* Fedora too[1] - so the terminology is more around a yum-based
-install vs an rpm-ostree based install.
-
-This aspect is where ostree is (IMO) better - we do SELinux labeling in
-the ostree commit on the server side, and that's replicated *exactly*
-to clients.  Whereas for yum-based installs, both RPM and Anaconda are involved
-in labeling with fuzzy boundaries between them.
-
-Anyways, the answer (at least for the CentOS yum-based Vagrant box):
-
-(for x in 'run' 'mount /dev/VolGroup00/LogVol00 /' 'getxattrs /proc'; do echo $x; done) | guestfish --ro -a /srv/tmp/centos-VAGRANTSLASH-7
-_vagrant_box_image_1608.02.img                                                                                                                                                                
-[0] = {
-  attrname: security.selinux
-  attrval: system_u:object_r:root_t:s0\x00
-}
-
-Presumably during Anaconda, RPM is finding no label, makes the directory
-anyways, and it's just inheriting the root_t context.
-
-> There is a more general problem here though, in that we don't presently
-> have an unambiguous way to specify a different security context for a
-> mountpoint directory vs a mounted directory in file_contexts.  That's
-> been previously noted as an issue in Android.  Probably requires some
-> new syntax in file_contexts to distinguish.
-
-Right.  I agree that we should try to fix the Fedora policy to
-remove the <<none>> if we're confident the tools aren't going to
-start traversing into a mounted /proc.  That said I'm likely
-to carry a hack for this in ostree to avoid waiting for it - I changed
-the code now in the PR to use the same label as `/mnt`, since I'm
-not aware of a way to ask for "something that will give me proc_t".
-
-[1] https://getfedora.org/
+It appears that with recent kernels that is now required; otherwise,
+the mount defaults to not enabling native labeling and all of the files
+are treated as having a single, fixed label defined by the client
+policy (and hence setxattr is not supported).  This was kernel commit
+32ddd944a056c786f6acdd95ed29e994adc613a2.  I don't recall seeing any
+discussion of this on selinux list.  I understand the rationale, but it
+seems like a user-visible regression and at the very least, it seems
+odd that they didn't just use "seclabel" as the kernel does in
+/proc/mounts to signify a filesystem that supports security labeling by
+userspace.
