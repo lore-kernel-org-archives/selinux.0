@@ -1,47 +1,80 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2TMxsH7011080
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 18:59:56 -0400
-Received: by mail-vk0-f48.google.com with SMTP id s68so35615089vke.3
- for <selinux@tycho.nsa.gov>; Wed, 29 Mar 2017 15:59:49 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CANEJEGu5L61TgJ0RUhG+DvLExj7X1FsfKbGOXWCMRRWykkLm2A@mail.gmail.com>
-References: <20170316222652.125702-1-mka@chromium.org>
- <CANEJEGtObzAs4ZT70A_y_bLNujaNLxzOSPjrWRoY3wAR9211jw@mail.gmail.com>
- <CAHC9VhSVqYuuBvyjWmAqgfn9WvFW=VokcLLqsvmKedee3Gjgfw@mail.gmail.com>
- <CANEJEGu5L61TgJ0RUhG+DvLExj7X1FsfKbGOXWCMRRWykkLm2A@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 29 Mar 2017 18:59:48 -0400
-Message-ID: <CAHC9VhTWA=OVDFymUAhvpoEYHgfsxSKKSm316Q0Ox4-9t23NOQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Remove unnecessary check of array base in
- selinux_set_mapping()
-To: Grant Grundler <grundler@chromium.org>
-Cc: Matthias Kaehlcke <mka@chromium.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+Sender: tomeu.vizoso@gmail.com
+In-Reply-To: <20170329213439.GC19617@parsley.fieldses.org>
+References: <20170329152724.19030-1-tomeu.vizoso@collabora.com>
+ <20170329213439.GC19617@parsley.fieldses.org>
+From: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Date: Thu, 30 Mar 2017 09:49:07 +0200
+Message-ID: <CAAObsKDThPAQpgO7R+JT=foU1=BEor-Zy7DES2tnGe=rGe=REw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Fix SBLABEL_MNT for NFS mounts
+To: "J. Bruce Fields" <bfields@redhat.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
  Eric Paris <eparis@parisplace.org>,
  James Morris <james.l.morris@oracle.com>,
- "Serge E . Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
- Prarit Bhargava <prarit@redhat.com>,
- David Howells <dhowells@redhat.com>, Michael Davidson <md@google.com>,
- Greg Hackmann <ghackmann@google.com>
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Mar 23, 2017 at 1:34 PM, Grant Grundler <grundler@chromium.org> wrote:
-> On Thu, Mar 23, 2017 at 5:08 AM, Paul Moore <paul@paul-moore.com> wrote:
->> On Wed, Mar 22, 2017 at 8:28 PM, Grant Grundler <grundler@chromium.org> wrote:
->>> Ping? Any feedback on this patch?
+On 29 March 2017 at 23:34, J. Bruce Fields <bfields@redhat.com> wrote:
+> On Wed, Mar 29, 2017 at 05:27:23PM +0200, Tomeu Vizoso wrote:
+>> Labelling of files in a NFSv4.2 currently fails with ENOTSUPP because
+>> the mount point doesn't have SBLABEL_MNT.
 >>
->> It's on my list of patches to review, patience please.
+>> Add specific condition for NFS4 filesystems so it gets correctly
+>> labeled.
 >
-> No problem! Thank you!
+> Huh.  Looking at the code, I think this is meant to be handled by the
+> SECURITY_FS_USE_NATIVE case--there was a similar failure fixed some time
+> ago by 9fc2b4b436cf.  What kernel are you seeing this on?  Is it a
+> recent regression (in which case, what's the latest kernel that worked
+> for you)?
+
+I have seen this on 4.11-rc4, but I never tried to get this working before.
+
+I will try to find time to see why SECURITY_FS_USE_NATIVE isn't working here.
+
+Thanks,
+
+Tomeu
+
+> --b.
 >
-> just wanted confirmation it wasn't overlooked.
-
-Merged, thanks for your patience.
-
--- 
-paul moore
-www.paul-moore.com
+>>
+>> Signed-off-by: Tomeu Vizoso <tomeu.vizoso@collabora.com>
+>> Cc: J. Bruce Fields <bfields@redhat.com>
+>>
+>> ---
+>>
+>> Hi,
+>>
+>> cannot remotely say that I currently understand how selinux is expected
+>> to work within NFS mounts, but this change allowed me to fully boot AOSP
+>> with its rootfs and ramdisk on a single NFS share.
+>>
+>> Thanks,
+>>
+>> Tomeu
+>> ---
+>>  security/selinux/hooks.c | 1 +
+>>  1 file changed, 1 insertion(+)
+>>
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 0c2ac318aa7f..71cd1d8c67c2 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -485,6 +485,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+>>               !strcmp(sb->s_type->name, "debugfs") ||
+>>               !strcmp(sb->s_type->name, "tracefs") ||
+>>               !strcmp(sb->s_type->name, "rootfs") ||
+>> +             !strcmp(sb->s_type->name, "nfs4") ||
+>>               (selinux_policycap_cgroupseclabel &&
+>>                (!strcmp(sb->s_type->name, "cgroup") ||
+>>                 !strcmp(sb->s_type->name, "cgroup2")));
+>> --
+>> 2.9.3
+>>
