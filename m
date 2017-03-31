@@ -1,105 +1,74 @@
-Message-ID: <1490896334.2099.4.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: Fix SBLABEL_MNT for NFS mounts
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "J. Bruce Fields" <bfields@redhat.com>
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- linux-security-module@vger.kernel.org, James Morris
- <james.l.morris@oracle.com>, selinux@tycho.nsa.gov
-Date: Thu, 30 Mar 2017 13:52:14 -0400
-In-Reply-To: <20170330174147.GA11004@parsley.fieldses.org>
-References: <20170329152724.19030-1-tomeu.vizoso@collabora.com>
- <20170329213439.GC19617@parsley.fieldses.org>
- <CAAObsKDThPAQpgO7R+JT=foU1=BEor-Zy7DES2tnGe=rGe=REw@mail.gmail.com>
- <1490894827.2099.2.camel@tycho.nsa.gov>
- <20170330174147.GA11004@parsley.fieldses.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v2VC9VRU021052
+ for <selinux@tycho.nsa.gov>; Fri, 31 Mar 2017 08:09:31 -0400
+Received: by mail-wr0-f181.google.com with SMTP id w43so102939081wrb.0
+ for <selinux@tycho.nsa.gov>; Fri, 31 Mar 2017 05:09:10 -0700 (PDT)
+Received: from t450.enp8s0.d30 (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
+ by smtp.gmail.com with ESMTPSA id
+ g13sm2657715wmd.28.2017.03.31.05.09.07 for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+ Fri, 31 Mar 2017 05:09:07 -0700 (PDT)
+Date: Fri, 31 Mar 2017 14:09:05 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: userspace object manager confused
+Message-ID: <20170331120905.GA5699@t450.enp8s0.d30>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="sm4nu43k4a2Rpi4c"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-03-30 at 13:41 -0400, J. Bruce Fields wrote:
-> On Thu, Mar 30, 2017 at 01:27:07PM -0400, Stephen Smalley wrote:
-> > On Thu, 2017-03-30 at 09:49 +0200, Tomeu Vizoso wrote:
-> > > On 29 March 2017 at 23:34, J. Bruce Fields <bfields@redhat.com>
-> > > wrote:
-> > > > On Wed, Mar 29, 2017 at 05:27:23PM +0200, Tomeu Vizoso wrote:
-> > > > > Labelling of files in a NFSv4.2 currently fails with ENOTSUPP
-> > > > > because
-> > > > > the mount point doesn't have SBLABEL_MNT.
-> > > > > 
-> > > > > Add specific condition for NFS4 filesystems so it gets
-> > > > > correctly
-> > > > > labeled.
-> > > > 
-> > > > Huh.  Looking at the code, I think this is meant to be handled
-> > > > by
-> > > > the
-> > > > SECURITY_FS_USE_NATIVE case--there was a similar failure fixed
-> > > > some
-> > > > time
-> > > > ago by 9fc2b4b436cf.  What kernel are you seeing this on?  Is
-> > > > it a
-> > > > recent regression (in which case, what's the latest kernel that
-> > > > worked
-> > > > for you)?
-> > > 
-> > > I have seen this on 4.11-rc4, but I never tried to get this
-> > > working
-> > > before.
-> > > 
-> > > I will try to find time to see why SECURITY_FS_USE_NATIVE isn't
-> > > working here.
-> > 
-> > Does your exports file specify the "security_label" option, e.g.
-> > /path/to/dir example.com(rw,security_label)
-> 
-> Oops, right, that should have been the first thing I asked about....
-> 
-> > It appears that with recent kernels that is now required;
-> > otherwise,
-> > the mount defaults to not enabling native labeling and all of the
-> > files
-> > are treated as having a single, fixed label defined by the client
-> > policy (and hence setxattr is not supported).  This was kernel
-> > commit
-> > 32ddd944a056c786f6acdd95ed29e994adc613a2.  I don't recall seeing
-> > any
-> > discussion of this on selinux list.  I understand the rationale,
-> > but it
-> > seems like a user-visible regression
-> 
-> It is.  I also want to keep new protocol upgrades free of user
-> regressions, which the 4.1->4.2 upgrade is in most cases if we turn
-> on
-> security labeling by default.  So I was stuck choosing between two
-> regresisons, and figured 4.2 user depending on security labeling was
-> still the much rarer case.
-> 
-> So I'd like to keep security labeling off by default, but if there's
-> anything I can do to smooth the transition obviously that's good.
 
-Yes, I understand - wish though that it could have been communicated
-better, e.g. on selinux list (unless I just missed it somehow).
+--sm4nu43k4a2Rpi4c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> > and at the very least, it seems odd that they didn't just use
-> > "seclabel" as the kernel does in /proc/mounts to signify a
-> > filesystem
-> > that supports security labeling by userspace.
-> 
-> I see logic in sb_finish_set_opts() that sets SBLABEL_MNT in the
-> selinux_is_sblabel_mnt() case.  Doesn't that mean "seclabel" shows up
-> in
-> /proc/mounts when we nfs sets SECURITY_LSM_NATIVE_LABELS?
-> 
-> I may not understand your comment, I'm pretty unfamiliar with this
-> area.
+I vaguely recall that we discussed this issue or at least that i mentioned =
+it here but i can't recall the outcome if any:
 
-Correct, I just meant it seems potentially confusing to users to use
-"security_label" in exports when we show it as "seclabel" in
-/proc/mounts.  I know, they are totally different namespaces (in the
-conventional sense), but consistency might have been more user-
-friendly.
+So today on my rawhide system i noticed that i somehow forgot to add suppor=
+t for the smc_socket class (i suspect that is part of the extended socket c=
+lass patches)
+
+I added the class (which i suppose is unordered like the othe extended sock=
+et classes) but as soon as I loaded up the policy with the new unordered sm=
+c_socket class the system became unusable.
+
+This is because the dbus object manager became confused due to my adding a =
+new (unordered) class at runtime, and that the dbus class was no longer wor=
+king.
+
+Modern systems heavily rely on dbus at the heart and so it is undesire-able=
+ that this happens.
+
+A reboot clears this issue up but adding (unordered) classes at runtime sho=
+uld not cause these issues i suspect
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
+
+--sm4nu43k4a2Rpi4c
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAljeRt0ACgkQJXSOVTf5
+R2nodwwAtoI3a5Vruy0rrM2RE/eyeJMnE1K/UW43kED7Vqaps1C45EZXrwkm8EM0
+fS6UdIIBlK1ADpjrVo8y+3dqU046C45q0Vczv+pEzw8hQe3V84vd9GqrcrZH9Lsb
+eXhxTdcaiy315AGg7BdSpZ0OPv7+qw/WGu1tQ4YR6Q7JKvQrgkba7UyqOdUKxpAL
+kmF103Sfv4JiDZao0BiSzGPYpOqxfW3AUdUQvKR1rgcrWmvoVYMFbn0vpbd3t1jL
+HW//eEqoj0DSxQ3U/S9nJm7XkYyaZFuBGmdKDwdNTpGBOMmkUsEYRwtdu2mc6swL
+L84C4wwqugWPF/yJbcc+oYgW82w6gwykBqF+8lmOLh5erPXXkFfV+HZXcqK+Xsjv
+7OoINvmZcoHySAv4LYwKej42d+0iVGwHOnaE4LF3pGCedk1Nw1XDNR3WeKVubPIn
+Vic4RNwiQEYLkJJy7jFgkHGeTZylN8RAaLwGwQIA92jvqD7r84RXfev6RFeDMSd0
+LDvmiPfx
+=ZQ8N
+-----END PGP SIGNATURE-----
+
+--sm4nu43k4a2Rpi4c--
