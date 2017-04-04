@@ -1,45 +1,38 @@
-Date: Tue, 4 Apr 2017 10:03:42 +1000 (AEST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul@paul-moore.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>,
- Dan Carpenter <dan.carpenter@oracle.com>,
- Markus Elfring <elfring@users.sourceforge.net>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- William Roberts <william.c.roberts@intel.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] selinux: Fix an uninitialized variable bug
-In-Reply-To: <CAHC9VhQHabPm08bjXgw+nx6X7c6bsBeOc1ZXLFM58nVrWzsh7g@mail.gmail.com>
-Message-ID: <alpine.LRH.2.20.1704040949430.16760@namei.org>
-References: <20170331152118.GA8141@mwanda>
- <1490975541.31110.12.camel@tycho.nsa.gov>
- <CAHC9VhT7njoVyHgyiTQhCcvZEYrTE_XZRLxT4+JJPiH3W88AUw@mail.gmail.com>
- <alpine.LRH.2.20.1704031054080.27757@namei.org>
- <CAHC9VhQHabPm08bjXgw+nx6X7c6bsBeOc1ZXLFM58nVrWzsh7g@mail.gmail.com>
+Subject: [PATCH 0/3] SELinux: Fine-tuning for two function implementations
+From: SF Markus Elfring <elfring@users.sourceforge.net>
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Eric Paris <eparis@parisplace.org>, James Morris
+ <james.l.morris@oracle.com>,
+ Paul Moore <paul@paul-moore.com>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ William Roberts <william.c.roberts@intel.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
+Message-ID: <5704e656-708a-b611-5611-70fc65dc67e8@users.sourceforge.net>
+Date: Tue, 4 Apr 2017 13:10:07 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 3 Apr 2017, Paul Moore wrote:
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Tue, 4 Apr 2017 13:02:03 +0200
 
-> James, I know you don't track SELinux development very closely so I'm
-> going to give you the benefit of the doubt and assume you haven't
-> already seen my responses to Markus in his 46 patch thread.  If you
-> did follow the thread you would have noticed that I rejected several
-> of his patches as only adding noise/churn, and several more due to
-> personal preference; those that I did merge, I did review.  I review
-> every patch that I merge, even the patches from Stephen. 
+A few update suggestions were taken into account
+from static source code analysis.
 
-I did see the thread, and my email came across as critical of you, which 
-was not my intention.  I do certainly trust your skill and judgement.  
+Markus Elfring (3):
+  Return directly after a failed memory allocation in policydb_index()
+  Return an error code only as a constant in sidtab_insert()
+  Use an other error code for an input validation failure in sidtab_insert()
 
+ security/selinux/ss/policydb.c | 15 +++++----------
+ security/selinux/ss/sidtab.c   | 27 ++++++++++-----------------
+ 2 files changed, 15 insertions(+), 27 deletions(-)
 
-
-- James
 -- 
-James Morris
-<jmorris@namei.org>
+2.12.2
