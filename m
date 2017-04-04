@@ -1,5 +1,5 @@
-Subject: [PATCH 1/3] selinux: Return directly after a failed memory allocation
- in policydb_index()
+Subject: [PATCH 2/3] selinux: Return an error code only as a constant in
+ sidtab_insert()
 From: SF Markus Elfring <elfring@users.sourceforge.net>
 To: Casey Schaufler <casey@schaufler-ca.com>,
  Eric Paris <eparis@parisplace.org>, James Morris
@@ -11,8 +11,8 @@ To: Casey Schaufler <casey@schaufler-ca.com>,
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
  <5704e656-708a-b611-5611-70fc65dc67e8@users.sourceforge.net>
-Message-ID: <8a517289-e5a7-8dde-0f5f-9e57f3e270c7@users.sourceforge.net>
-Date: Tue, 4 Apr 2017 13:12:46 +0200
+Message-ID: <61cd20e9-211e-b974-3525-fcb5fdf8fa7e@users.sourceforge.net>
+Date: Tue, 4 Apr 2017 13:14:32 +0200
 MIME-Version: 1.0
 In-Reply-To: <5704e656-708a-b611-5611-70fc65dc67e8@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
@@ -22,72 +22,76 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Tue, 4 Apr 2017 10:20:46 +0200
+Date: Tue, 4 Apr 2017 11:33:53 +0200
 
-Replace five goto statements (and previous variable assignments) by
-direct returns after a memory allocation failure in this function.
+* Return an error code without storing it in an intermediate variable.
+
+* Delete the local variable "rc" and the jump label "out" which became
+  unnecessary with this refactoring.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/ss/policydb.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ security/selinux/ss/sidtab.c | 27 ++++++++++-----------------
+ 1 file changed, 10 insertions(+), 17 deletions(-)
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 0080122760ad..87d645d3a39f 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -538,34 +538,30 @@ static int policydb_index(struct policydb *p)
- 	symtab_hash_eval(p->symtab);
- #endif
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index f6915f257486..c5f436b15d19 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -32,13 +32,11 @@ int sidtab_init(struct sidtab *s)
  
--	rc = -ENOMEM;
- 	p->class_val_to_struct = kcalloc(p->p_classes.nprim,
- 					 sizeof(*p->class_val_to_struct),
- 					 GFP_KERNEL);
- 	if (!p->class_val_to_struct)
--		goto out;
-+		return -ENOMEM;
+ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+ {
+-	int hvalue, rc = 0;
++	int hvalue;
+ 	struct sidtab_node *prev, *cur, *newnode;
  
--	rc = -ENOMEM;
- 	p->role_val_to_struct = kcalloc(p->p_roles.nprim,
- 					sizeof(*p->role_val_to_struct),
- 					GFP_KERNEL);
- 	if (!p->role_val_to_struct)
--		goto out;
-+		return -ENOMEM;
- 
--	rc = -ENOMEM;
- 	p->user_val_to_struct = kcalloc(p->p_users.nprim,
- 					sizeof(*p->user_val_to_struct),
- 					GFP_KERNEL);
- 	if (!p->user_val_to_struct)
--		goto out;
-+		return -ENOMEM;
- 
- 	/* Yes, I want the sizeof the pointer, not the structure */
--	rc = -ENOMEM;
- 	p->type_val_to_struct_array = flex_array_alloc(sizeof(struct type_datum *),
- 						       p->p_types.nprim,
- 						       GFP_KERNEL | __GFP_ZERO);
- 	if (!p->type_val_to_struct_array)
--		goto out;
-+		return -ENOMEM;
- 
- 	rc = flex_array_prealloc(p->type_val_to_struct_array, 0,
- 				 p->p_types.nprim, GFP_KERNEL | __GFP_ZERO);
-@@ -577,12 +573,11 @@ static int policydb_index(struct policydb *p)
- 		goto out;
- 
- 	for (i = 0; i < SYM_NUM; i++) {
+-	if (!s) {
 -		rc = -ENOMEM;
- 		p->sym_val_to_name[i] = flex_array_alloc(sizeof(char *),
- 							 p->symtab[i].nprim,
- 							 GFP_KERNEL | __GFP_ZERO);
- 		if (!p->sym_val_to_name[i])
--			goto out;
-+			return -ENOMEM;
+-		goto out;
+-	}
++	if (!s)
++		return -ENOMEM;
  
- 		rc = flex_array_prealloc(p->sym_val_to_name[i],
- 					 0, p->symtab[i].nprim,
+ 	hvalue = SIDTAB_HASH(sid);
+ 	prev = NULL;
+@@ -48,21 +46,17 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+ 		cur = cur->next;
+ 	}
+ 
+-	if (cur && sid == cur->sid) {
+-		rc = -EEXIST;
+-		goto out;
+-	}
++	if (cur && sid == cur->sid)
++		return -EEXIST;
+ 
+ 	newnode = kmalloc(sizeof(*newnode), GFP_ATOMIC);
+-	if (!newnode) {
+-		rc = -ENOMEM;
+-		goto out;
+-	}
++	if (!newnode)
++		return -ENOMEM;
++
+ 	newnode->sid = sid;
+ 	if (context_cpy(&newnode->context, context)) {
+ 		kfree(newnode);
+-		rc = -ENOMEM;
+-		goto out;
++		return -ENOMEM;
+ 	}
+ 
+ 	if (prev) {
+@@ -78,8 +72,7 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+ 	s->nel++;
+ 	if (sid >= s->next_sid)
+ 		s->next_sid = sid + 1;
+-out:
+-	return rc;
++	return 0;
+ }
+ 
+ static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
 -- 
 2.12.2
