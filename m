@@ -1,80 +1,54 @@
-Received: from [192.168.25.4] (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v35GTbib023159
- for <selinux@tycho.nsa.gov>; Wed, 5 Apr 2017 12:29:37 -0400
-Subject: Re: [PATCH 0/3 v3] libsepol and checkpolicy: Output CIL or
- policy.conf from kernel policy
-To: selinux@tycho.nsa.gov
-References: <1490287737-31103-1-git-send-email-jwcart2@tycho.nsa.gov>
-From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <c8c1b1ff-f830-d572-62b1-94a075b377e2@tycho.nsa.gov>
-Date: Wed, 5 Apr 2017 12:30:07 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v36I7Eqp013474
+ for <selinux@tycho.nsa.gov>; Thu, 6 Apr 2017 14:07:15 -0400
+Received: by mail-qt0-f169.google.com with SMTP id x35so42933338qtc.2
+ for <selinux@tycho.nsa.gov>; Thu, 06 Apr 2017 11:07:10 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1490287737-31103-1-git-send-email-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=windows-1252; format=flowed
+From: Carlos Rodrigues <cefrodrigues@gmail.com>
+Date: Thu, 6 Apr 2017 19:06:29 +0100
+Message-ID: <CAENH-vDt_dcKrW+eGA0b1Mt1xzxEVDOUJ=yf6bbVWZbRkWzH9g@mail.gmail.com>
+Subject: Setting booleans causes duplicate ports in semanage listings
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/23/2017 12:48 PM, James Carter wrote:
-> It would sometimes be helpful for debugging or verification purposes to be able to convert
-> a binary policy to a human-readable form.
->
-> This patchset adds libsepol functions that take a kernel policydb in and outputs either
-> a CIL or policy.conf text.
->
-> Checkpolicy is modified to generate CIL text from a binary policy if using the "-C" option
-> and to add the "-F" option to generate policy.conf text from a binary policy.
->
-> Where possible rules are sorted in alphabetical or numerical order to aid in debugging.
->
-> Changes from v1:
-> - Moved __attribute__((format(printf...))) for printf-like functions to kernel_to_common.h
-> - Incorporated patch from Nicolas Iooss to make const char* variables where appropriate
-> - Fixed conditional block formatting problems when generating policy.conf
-> - Initialize mls_constraints and non_mls_constraints to NULL in kernel_to_conf.c and kernel_to_cil.c so they are not accessed without initializaton if an error occurs.
-> - Updated checkpolicy manpage to include the new option
-> - Removed commented-out block from checkpolicy.c
->
-> Changes from v2:
-> - Fixed conditional block formatting problems when generating CIL.
-> - Fixed improper range syntax for non-mls CIL policies.
-> - Write types in alphabetical order in roletype rules for CIL and role rules for policy.conf.
-> - Write roles in alphabetical order in userrole rules for CIL and user rules for policy.conf.
-> - Write policy capability rules in alphabetical order
-> - Separated writing of constrain and validatetrans constraint rules for both CIL and policy.conf.
-> - Write constraints in alphabetical order for both CIL and policy.conf
-> - Now continously creating a policy.conf and then a binary produces an identical binary (although for CIL, secilc will remove unused attributes during the first cycle.)
->
-> James Carter (3):
->   libsepol: Add ability to convert binary policy to CIL
->   libsepol: Add ability to convert binary policy to policy.conf file
->   checkpolicy: Add options to convert binary policy to CIL or a
->     policy.conf
->
->  checkpolicy/checkpolicy.8               |    5 +-
->  checkpolicy/checkpolicy.c               |   55 +-
->  libsepol/include/sepol/kernel_to_cil.h  |    5 +
->  libsepol/include/sepol/kernel_to_conf.h |    5 +
->  libsepol/src/kernel_to_cil.c            | 3226 +++++++++++++++++++++++++++++++
->  libsepol/src/kernel_to_common.c         |  677 +++++++
->  libsepol/src/kernel_to_common.h         |  114 ++
->  libsepol/src/kernel_to_conf.c           | 3096 +++++++++++++++++++++++++++++
->  libsepol/src/libsepol.map.in            |    2 +
->  9 files changed, 7166 insertions(+), 19 deletions(-)
->  create mode 100644 libsepol/include/sepol/kernel_to_cil.h
->  create mode 100644 libsepol/include/sepol/kernel_to_conf.h
->  create mode 100644 libsepol/src/kernel_to_cil.c
->  create mode 100644 libsepol/src/kernel_to_common.c
->  create mode 100644 libsepol/src/kernel_to_common.h
->  create mode 100644 libsepol/src/kernel_to_conf.c
->
+Hi,
 
-This series has been applied.
+I've noticed a strange interaction with custom ports and booleans.
+After setting a boolean, the list of ports for a particular type
+(which has been customized) shows duplicate entries.
 
-Jim
+Example:
 
+    $ semanage port -a -t http_port_t -p tcp 12345
+    $ semanage port -l | grep http_port_t
+    http_port_t                    tcp      12345, 80, 81, ...
+    $ semanage port -l | grep http_port_t
+    http_port_t                    tcp      12345, 12345, 80, 81, ...
+    $ setsebool -P zebra_write_config false
+    $ semanage port -l | grep http_port_t
+    http_port_t                    tcp      12345, 12345, 12345, 80, 81, ...
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+As can be seen, each time a boolean is set persistently (it doesn't
+matter which boolean or which state), the custom port 12345 is
+duplicated. Running "semodule -B" clears the duplicates.
+
+However, if only the local customizations are listed, the port is
+always listed only once:
+
+    $ semanage port -l -C
+    SELinux Port Type              Proto    Port Number
+    http_port_t                    tcp      12345
+
+I'm using CentOS, but this is reproducible on Fedora 25 as well.
+
+I submitted this originally at
+https://github.com/SELinuxProject/selinux/issues/50
+Also on RH bugzilla here: https://bugzilla.redhat.com/show_bug.cgi?id=1439875
+
+Best regards,
+
+Carlos Rodrigues
