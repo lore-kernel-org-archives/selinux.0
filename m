@@ -1,54 +1,46 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v36I7Eqp013474
- for <selinux@tycho.nsa.gov>; Thu, 6 Apr 2017 14:07:15 -0400
-Received: by mail-qt0-f169.google.com with SMTP id x35so42933338qtc.2
- for <selinux@tycho.nsa.gov>; Thu, 06 Apr 2017 11:07:10 -0700 (PDT)
-MIME-Version: 1.0
-From: Carlos Rodrigues <cefrodrigues@gmail.com>
-Date: Thu, 6 Apr 2017 19:06:29 +0100
-Message-ID: <CAENH-vDt_dcKrW+eGA0b1Mt1xzxEVDOUJ=yf6bbVWZbRkWzH9g@mail.gmail.com>
-Subject: Setting booleans causes duplicate ports in semanage listings
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v37C5Hk7030732
+ for <selinux@tycho.nsa.gov>; Fri, 7 Apr 2017 08:05:17 -0400
+From: Luis Ressel <aranea@aixah.de>
 To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH] policycoreutils/load_policy: Drop is_selinux_enabled() check
+Date: Fri,  7 Apr 2017 14:05:07 +0200
+Message-Id: <20170407120507.3815-1-aranea@aixah.de>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
+This check is a remnant of the libselinux <2.5 era, back when
+is_selinux_enabled() checked whether a policy had been loaded. Nowadays
+it only checks whether selinuxfs is mounted, and "load_policy -i"
+therefore incorrectly refuses operation when selinuxfs is mounted, but
+no policy has been loaded yet.
 
-I've noticed a strange interaction with custom ports and booleans.
-After setting a boolean, the list of ports for a particular type
-(which has been customized) shows duplicate entries.
+While it doesn't make much sense to call selinux_init_load_policy()
+twice, there's no harm in doing so either, so let's just drop this
+safeguard instead of fixing it.
+---
+ policycoreutils/load_policy/load_policy.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-Example:
-
-    $ semanage port -a -t http_port_t -p tcp 12345
-    $ semanage port -l | grep http_port_t
-    http_port_t                    tcp      12345, 80, 81, ...
-    $ semanage port -l | grep http_port_t
-    http_port_t                    tcp      12345, 12345, 80, 81, ...
-    $ setsebool -P zebra_write_config false
-    $ semanage port -l | grep http_port_t
-    http_port_t                    tcp      12345, 12345, 12345, 80, 81, ...
-
-As can be seen, each time a boolean is set persistently (it doesn't
-matter which boolean or which state), the custom port 12345 is
-duplicated. Running "semodule -B" clears the duplicates.
-
-However, if only the local customizations are listed, the port is
-always listed only once:
-
-    $ semanage port -l -C
-    SELinux Port Type              Proto    Port Number
-    http_port_t                    tcp      12345
-
-I'm using CentOS, but this is reproducible on Fedora 25 as well.
-
-I submitted this originally at
-https://github.com/SELinuxProject/selinux/issues/50
-Also on RH bugzilla here: https://bugzilla.redhat.com/show_bug.cgi?id=1439875
-
-Best regards,
-
-Carlos Rodrigues
+diff --git a/policycoreutils/load_policy/load_policy.c b/policycoreutils/load_policy/load_policy.c
+index 7c2c2a7..2707d6f 100644
+--- a/policycoreutils/load_policy/load_policy.c
++++ b/policycoreutils/load_policy/load_policy.c
+@@ -65,13 +65,6 @@ int main(int argc, char **argv)
+ 			argv[0], argv[optind++]);
+ 	}
+ 	if (init) {
+-		if (is_selinux_enabled() == 1) {
+-			/* SELinux is already enabled, we should not do an initial load again */
+-			fprintf(stderr,
+-					_("%s:  Policy is already loaded and initial load requested\n"),
+-					argv[0]);
+-			exit(2);
+-		}
+ 		ret = selinux_init_load_policy(&enforce);
+ 		if (ret != 0 ) {
+ 			if (enforce > 0) {
+-- 
+2.12.2
