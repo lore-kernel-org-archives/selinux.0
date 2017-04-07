@@ -1,92 +1,111 @@
-Message-ID: <1491594062.20167.4.camel@tycho.nsa.gov>
-Subject: Re: MLS directory label inheritance rules
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nick Kralevich <nnk@google.com>, SELinux <Selinux@tycho.nsa.gov>
-Date: Fri, 07 Apr 2017 15:41:02 -0400
-In-Reply-To: <CAFJ0LnFHgkGSY73LwKNUbn+r+E6+TivuSkZq851y12ZvQ85Qbw@mail.gmail.com>
-References: <CAFJ0LnFHgkGSY73LwKNUbn+r+E6+TivuSkZq851y12ZvQ85Qbw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+MIME-Version: 1.0
+In-Reply-To: <CAFJ0LnGQPYAxugZfak6az6ruB9Ea8J34nPXQYTUey_YOg4g1BQ@mail.gmail.com>
+References: <CAFJ0LnGQPYAxugZfak6az6ruB9Ea8J34nPXQYTUey_YOg4g1BQ@mail.gmail.com>
+From: Tom Jones <thomasclinganjones@gmail.com>
+Date: Fri, 7 Apr 2017 11:02:41 -0700
+Message-ID: <CAK2Cwb50YuP=3aMvYHWofF-=KEdKyPuiCzrp4Cb4sVbjcHuB+A@mail.gmail.com>
+Subject: Re: add CONFIG_SECURITY_SELINUX_LOAD_ONCE
+To: Nick Kralevich <nnk@google.com>
+Cc: SELinux <Selinux@tycho.nsa.gov>,
+ "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary=f403045fbbae930137054c976ea1
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-04-07 at 11:39 -0700, Nick Kralevich wrote:
-> When a file is created in a directory, the default label for the file
-> is based on the label of the enclosing directory (unless something
-> like setfscreatecon is used). For example:
-> 
-> bullhead:/ # cd /data/misc/zoneinfo/
-> 
-> bullhead:/data/misc/zoneinfo # ls -ladZ .
-> drwxrwxr-x 2 system system u:object_r:zoneinfo_data_file:s0 4096
-> 1971-06-19 17:07 .
-> bullhead:/data/misc/zoneinfo # touch asdf
-> bullhead:/data/misc/zoneinfo # ls -ladZ . asdf
-> 
-> drwxrwxr-x 2 system system u:object_r:zoneinfo_data_file:s0 4096
-> 2017-04-07 18:32 .
-> -rw-rw-rw- 1 root   root   u:object_r:zoneinfo_data_file:s0    0
-> 2017-04-07 18:32 asdf
-> 
-> note how the label of the "asdf" file matches the label of the
-> enclosing directory.
-> 
-> However, that's not true when the directory uses categories. In that
-> case, the newly created file inherits the label, but not the
-> categories. For example:
-> 
-> bullhead:/data/data # cd /data/data/com.android.chrome
-> bullhead:/data/data/com.android.chrome # ls -ladZ .
-> drwx------ 6 u0_a60 u0_a60 u:object_r:app_data_file:s0:c512,c768 4096
-> 1971-07-15 15:31 .
-> bullhead:/data/data/com.android.chrome # touch asdf
-> bullhead:/data/data/com.android.chrome # ls -laZd . asdf
-> drwx------ 6 u0_a60 u0_a60 u:object_r:app_data_file:s0:c512,c768 4096
-> 2017-04-07 18:35 .
-> -rw-rw-rw- 1 root   root   u:object_r:app_data_file:s0              0
-> 2017-04-07 18:35 asdf
-> 
-> Note how the label is maintained, but the "c512,c768" portion is not
-> maintained. While this example occurs when I'm running in a
-> permissive
-> domain, it also occurs in an enforcing domain.
-> 
-> The inconsistency seems weird, and I'm sure there's a good reason why
-> this occurs that I'm not familiar with. Can someone help me
-> understand
-> if this is expected, and if so, why?
+--f403045fbbae930137054c976ea1
+Content-Type: text/plain; charset=UTF-8
 
-First, the good news is that you get to specify which behavior you want
-for each context field and object class through policy (as long as your
-kernel and policy version supports it), see:
-https://selinuxproject.org/page/DefaultRules
+I like that, but I wonder at its scope. Would an update to the OS be
+allowed to update the policy? For example, Microsoft ships updates to the
+Windows O/S 2 times (at least) per month. Would that type of update to
+Android allow policy updates?
 
-Second, there are different defaults for each of the fields of the
-security contexts based on what is most normative for that particular
-security model.  The user identity defaults to that of the creating
-process since we typically do not allow a process to create files with
-a different user identity and want the file to reflect its creator
-(this is defined through constraints on user identity in policies that
-define more than one, unlike Android). The role defaults to the fixed
-object_r role because originally we didn't envision a use case for
-roles on files.  The MLS range defaults to the low/current level of the
-process because a process is typically not allowed to create files at a
-different level and we want the file to reflect the sensitivity of the
-data which originated from the process. The type defaults to a related
-object type (in this case that of the parent directory) because process
-domains and object types are separate (aside from overlapping use for
-/proc/pid) and the relationships among them are explicit through the TE
-rules / access matrix rather than through implicit rules.
+Another question involves the list of authoritative CSPs. That can now be
+updated in most O/S available on the market. Is that still allowed to be
+updated, or is that already allowed by policy?
+..tom
 
-Of course, in addition to being able to globally configure the default
-behavior, you can also customize specific cases through the
-role/type/range_transition rules.
+On Fri, Apr 7, 2017 at 10:34 AM, Nick Kralevich <nnk@google.com> wrote:
 
-With your example above, you wanted the file to inherit the level of
-the directory, but consider the situation where a process with
-categories (:s0:c512,c768) creates a file in some shared
-(mlstrustedobject) directory that is just :s0.  Do you want that file
-to end up as just :s0?  In the MLS world, that would be a downgrade /
-info leak.
+> I wanted to draw people's attention to the following proposed change:
+>
+>   https://android-review.googlesource.com/367695
+>
+> In the case of Android, it's common for security policy to be loaded once,
+> and never reloaded again. In that case, the locking / unlocking surrounding
+> the in-kernel policy is unnecessary and can be avoided. The patch above
+> turns the locks into no-ops and ensures that the kernel cannot load a
+> policy more than once. End result is that locking and preemption overhead
+> is avoided and there's less attack surface / code compiled into the kernel.
+>
+> I would appreciate comments on the change. This feels like a worthwhile
+> change for the entire SELinux community.
+>
+> -- Nick
+>
+> --
+> Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+> <(650)%20214-4037>
+>
+> _______________________________________________
+> Seandroid-list mailing list
+> Seandroid-list@tycho.nsa.gov
+> To unsubscribe, send email to Seandroid-list-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Seandroid-list-request@tycho.nsa.gov.
+>
+
+
+
+-- 
+..tom
+
+--f403045fbbae930137054c976ea1
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div>I like that, but I wonder at its scope. Would an upda=
+te to the OS be allowed to update the policy? For example, Microsoft ships =
+updates to the Windows O/S 2 times (at least) per month. Would=C2=A0that ty=
+pe of=C2=A0update to Android allow policy updates?</div><div><br></div><div=
+>Another question involves the list of authoritative CSPs. That can now be =
+updated in most O/S available on the market. Is that still allowed to be up=
+dated, or is that already=C2=A0allowed by policy?</div><div>..tom</div></di=
+v><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">On Fri, Apr 7, =
+2017 at 10:34 AM, Nick Kralevich <span dir=3D"ltr">&lt;<a href=3D"mailto:nn=
+k@google.com" target=3D"_blank">nnk@google.com</a>&gt;</span> wrote:<br><bl=
+ockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #=
+ccc solid;padding-left:1ex"><div dir=3D"ltr"><div>I wanted to draw people&#=
+39;s attention to the following proposed change:</div><div><br></div><div>=
+=C2=A0=C2=A0<a href=3D"https://android-review.googlesource.com/367695" targ=
+et=3D"_blank">https://android-review.<wbr>googlesource.com/367695</a></div>=
+<div><br></div><div>In the case of Android, it&#39;s common for security po=
+licy to be loaded once, and never reloaded again. In that case, the locking=
+ / unlocking surrounding the in-kernel policy is unnecessary and can be avo=
+ided. The patch above turns the locks into no-ops and ensures that the kern=
+el cannot load a policy more than once. End result is that locking and pree=
+mption overhead is avoided and there&#39;s less attack surface / code compi=
+led into the kernel.</div><div><br></div><div>I would appreciate comments o=
+n the change. This feels like a worthwhile change for the entire SELinux co=
+mmunity.</div><span class=3D"HOEnZb"><font color=3D"#888888"><div><br></div=
+><div>-- Nick</div><div><br></div>-- <br><div class=3D"m_-71240396825135634=
+11gmail_signature"><div>Nick Kralevich | Android Security | <a href=3D"mail=
+to:nnk@google.com" target=3D"_blank">nnk@google.com</a> | <a href=3D"tel:(6=
+50)%20214-4037" target=3D"_blank" value=3D"+16502144037">650.214.4037</a></=
+div></div>
+</font></span></div>
+<br>______________________________<wbr>_________________<br>
+Seandroid-list mailing list<br>
+<a href=3D"mailto:Seandroid-list@tycho.nsa.gov">Seandroid-list@tycho.nsa.go=
+v</a><br>
+To unsubscribe, send email to <a href=3D"mailto:Seandroid-list-leave@tycho.=
+nsa.gov">Seandroid-list-leave@tycho.<wbr>nsa.gov</a>.<br>
+To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
+:Seandroid-list-request@tycho.nsa.gov">Seandroid-list-request@tycho.<wbr>ns=
+a.gov</a>.<br></blockquote></div><br><br clear=3D"all"><br>-- <br><div clas=
+s=3D"gmail_signature" data-smartmail=3D"gmail_signature">..tom</div>
+</div>
+
+--f403045fbbae930137054c976ea1--
