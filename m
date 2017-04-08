@@ -1,51 +1,59 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v37Niv27025756
- for <selinux@tycho.nsa.gov>; Fri, 7 Apr 2017 19:44:58 -0400
-Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
- [81.66.120.207])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 0B544564678
- for <selinux@tycho.nsa.gov>; Fri,  7 Apr 2017 22:45:00 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 6/6] libsepol: do not wrap integers when checking bound
-Date: Fri,  7 Apr 2017 22:44:31 +0200
-Message-Id: <20170407204431.8572-6-nicolas.iooss@m4x.org>
-In-Reply-To: <20170407204431.8572-1-nicolas.iooss@m4x.org>
-References: <20170407204431.8572-1-nicolas.iooss@m4x.org>
+MIME-Version: 1.0
+In-Reply-To: <CAFJ0LnGQPYAxugZfak6az6ruB9Ea8J34nPXQYTUey_YOg4g1BQ@mail.gmail.com>
+References: <CAFJ0LnGQPYAxugZfak6az6ruB9Ea8J34nPXQYTUey_YOg4g1BQ@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sat, 8 Apr 2017 09:42:57 -0400
+Message-ID: <CAHC9VhQe8VBV_SmdYBiqs7nby71fHaRpqHTCH0YHSMDLckr9pQ@mail.gmail.com>
+Subject: Re: add CONFIG_SECURITY_SELINUX_LOAD_ONCE
+To: Nick Kralevich <nnk@google.com>
+Cc: SELinux <Selinux@tycho.nsa.gov>,
+ "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Some invalid policies might have p->p_types.nprim = 0. When parsing
-such a policy, "i > p->p_types.nprim - 1" is always false even though
-reading p->type_val_to_struct[i] triggers a segmentation fault.
+On Fri, Apr 7, 2017 at 1:34 PM, Nick Kralevich <nnk@google.com> wrote:
+> I wanted to draw people's attention to the following proposed change:
+>
+>   https://android-review.googlesource.com/367695
+>
+> In the case of Android, it's common for security policy to be loaded once,
+> and never reloaded again. In that case, the locking / unlocking surrounding
+> the in-kernel policy is unnecessary and can be avoided. The patch above
+> turns the locks into no-ops and ensures that the kernel cannot load a policy
+> more than once. End result is that locking and preemption overhead is
+> avoided and there's less attack surface / code compiled into the kernel.
 
-Make type_set_expand() return an error when parsing such a policy by
-handling correctly when p->p_types.nprim is zero.
+Without looking at any of the proposed code (see my comment at the end
+of this mail), my initial reaction is that isn't something we want to
+have to support in the mainline kernel.  For the majority (all?) of
+the general purpose and enterprise Linux distributions, the ability to
+reload SELinux policy is critical (run time customization, policy
+module installs/updates, etc.), and I'm not convinced that this
+facility would ever be enabled outside of some embedded/appliance
+scenarios.  Even then, I question the usefulness since the policy
+itself should be able to prevent policy reloads.
 
-This issue has been found while fuzzing semodule_package with the
-American Fuzzy Lop.
+If you are seeing measurable, and problematic, overhead with the
+policy locks I'm open to new locking approaches.  From an attack
+surface reduction point of view, I have no objection to looking at
+removing some of the interfaces from the selinuxfs mount if the loaded
+SELinux policy completely removes that privilege from all domains ...
+although the code here might be more trouble than it is worth.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/src/expand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Fri, Apr 7, 2017 at 1:57 PM, Nick Kralevich <nnk@google.com> wrote:
+> In the interests of avoiding duplicate conversation in multiple
+> places, let's continue this discussion at
+> https://android-review.googlesource.com/367695
 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 315fc65cfd7e..54bf781d335f 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2527,7 +2527,7 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
- 				 * invalid policies might have more types set in the ebitmap than
- 				 * what's available in the type_val_to_struct mapping
- 				 */
--				if (i > p->p_types.nprim - 1)
-+				if (i >= p->p_types.nprim)
- 					goto err_types;
- 
- 				if (!p->type_val_to_struct[i]) {
+Posting links to discussions about Android specific changes is fine as
+a FYI, and welcome as far as I'm concerned.  However, SELinux patches
+which you wish to submit for review and possible inclusion into the
+mainline Linux Kernel need to be posted and discussed on the SELinux
+mailing list.
+
 -- 
-2.12.0
+paul moore
+www.paul-moore.com
