@@ -1,59 +1,66 @@
-MIME-Version: 1.0
-In-Reply-To: <CAFJ0LnGQPYAxugZfak6az6ruB9Ea8J34nPXQYTUey_YOg4g1BQ@mail.gmail.com>
-References: <CAFJ0LnGQPYAxugZfak6az6ruB9Ea8J34nPXQYTUey_YOg4g1BQ@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Sat, 8 Apr 2017 09:42:57 -0400
-Message-ID: <CAHC9VhQe8VBV_SmdYBiqs7nby71fHaRpqHTCH0YHSMDLckr9pQ@mail.gmail.com>
-Subject: Re: add CONFIG_SECURITY_SELINUX_LOAD_ONCE
-To: Nick Kralevich <nnk@google.com>
-Cc: SELinux <Selinux@tycho.nsa.gov>,
- "seandroid-list@tycho.nsa.gov" <seandroid-list@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: cefrodrigues@gmail.com, jwcart2@tycho.nsa.gov,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 1/2] libsepol: do not seg fault on sepol_*_key_free(NULL)
+Date: Mon, 10 Apr 2017 11:11:47 -0400
+Message-Id: <20170410151148.11958-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Apr 7, 2017 at 1:34 PM, Nick Kralevich <nnk@google.com> wrote:
-> I wanted to draw people's attention to the following proposed change:
->
->   https://android-review.googlesource.com/367695
->
-> In the case of Android, it's common for security policy to be loaded once,
-> and never reloaded again. In that case, the locking / unlocking surrounding
-> the in-kernel policy is unnecessary and can be avoided. The patch above
-> turns the locks into no-ops and ensures that the kernel cannot load a policy
-> more than once. End result is that locking and preemption overhead is
-> avoided and there's less attack surface / code compiled into the kernel.
+sepol_*_key_free(NULL) should just be a no-op just like
+free(NULL).  Fix several instances that did not handle this
+correctly and would seg fault if called with NULL.
 
-Without looking at any of the proposed code (see my comment at the end
-of this mail), my initial reaction is that isn't something we want to
-have to support in the mainline kernel.  For the majority (all?) of
-the general purpose and enterprise Linux distributions, the ability to
-reload SELinux policy is critical (run time customization, policy
-module installs/updates, etc.), and I'm not convinced that this
-facility would ever be enabled outside of some embedded/appliance
-scenarios.  Even then, I question the usefulness since the policy
-itself should be able to prevent policy reloads.
+Test: setsebool -P zebra_write_config=1 while non-root
 
-If you are seeing measurable, and problematic, overhead with the
-policy locks I'm open to new locking approaches.  From an attack
-surface reduction point of view, I have no objection to looking at
-removing some of the interfaces from the selinuxfs mount if the loaded
-SELinux policy completely removes that privilege from all domains ...
-although the code here might be more trouble than it is worth.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/boolean_record.c | 2 ++
+ libsepol/src/iface_record.c   | 2 ++
+ libsepol/src/user_record.c    | 2 ++
+ 3 files changed, 6 insertions(+)
 
-On Fri, Apr 7, 2017 at 1:57 PM, Nick Kralevich <nnk@google.com> wrote:
-> In the interests of avoiding duplicate conversation in multiple
-> places, let's continue this discussion at
-> https://android-review.googlesource.com/367695
-
-Posting links to discussions about Android specific changes is fine as
-a FYI, and welcome as far as I'm concerned.  However, SELinux patches
-which you wish to submit for review and possible inclusion into the
-mainline Linux Kernel need to be posted and discussed on the SELinux
-mailing list.
-
+diff --git a/libsepol/src/boolean_record.c b/libsepol/src/boolean_record.c
+index ebef7f1..a194704 100644
+--- a/libsepol/src/boolean_record.c
++++ b/libsepol/src/boolean_record.c
+@@ -67,6 +67,8 @@ int sepol_bool_key_extract(sepol_handle_t * handle,
+ 
+ void sepol_bool_key_free(sepol_bool_key_t * key)
+ {
++	if (!key)
++		return;
+ 	free(key->name);
+ 	free(key);
+ }
+diff --git a/libsepol/src/iface_record.c b/libsepol/src/iface_record.c
+index c8b977c..6d56835 100644
+--- a/libsepol/src/iface_record.c
++++ b/libsepol/src/iface_record.c
+@@ -73,6 +73,8 @@ int sepol_iface_key_extract(sepol_handle_t * handle,
+ 
+ void sepol_iface_key_free(sepol_iface_key_t * key)
+ {
++	if (!key)
++		return;
+ 	free(key->name);
+ 	free(key);
+ }
+diff --git a/libsepol/src/user_record.c b/libsepol/src/user_record.c
+index ed5b048..fa95f2d 100644
+--- a/libsepol/src/user_record.c
++++ b/libsepol/src/user_record.c
+@@ -76,6 +76,8 @@ int sepol_user_key_extract(sepol_handle_t * handle,
+ 
+ void sepol_user_key_free(sepol_user_key_t * key)
+ {
++	if (!key)
++		return;
+ 	free(key->name);
+ 	free(key);
+ }
 -- 
-paul moore
-www.paul-moore.com
+2.9.3
