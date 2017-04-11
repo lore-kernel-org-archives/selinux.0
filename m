@@ -1,11 +1,12 @@
-Message-ID: <1491934702.14576.4.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] policycoreutils/load_policy: Drop is_selinux_enabled()
- check
+Message-ID: <1491935725.14576.5.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 2/6] libsemanage: drop checks on
+ semanage_module_info_destroy() value
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luis Ressel <aranea@aixah.de>, selinux@tycho.nsa.gov
-Date: Tue, 11 Apr 2017 14:18:22 -0400
-In-Reply-To: <20170407120507.3815-1-aranea@aixah.de>
-References: <20170407120507.3815-1-aranea@aixah.de>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Tue, 11 Apr 2017 14:35:25 -0400
+In-Reply-To: <20170407204431.8572-2-nicolas.iooss@m4x.org>
+References: <20170407204431.8572-1-nicolas.iooss@m4x.org>
+ <20170407204431.8572-2-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -13,43 +14,66 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-04-07 at 14:05 +0200, Luis Ressel wrote:
-> This check is a remnant of the libselinux <2.5 era, back when
-> is_selinux_enabled() checked whether a policy had been loaded.
-> Nowadays
-> it only checks whether selinuxfs is mounted, and "load_policy -i"
-> therefore incorrectly refuses operation when selinuxfs is mounted,
-> but
-> no policy has been loaded yet.
+On Fri, 2017-04-07 at 22:44 +0200, Nicolas Iooss wrote:
+> semanage_module_info_destroy() always returns 0. Nevertheless
+> semanage_direct_list_all() uses its return value in a surprising way:
 > 
-> While it doesn't make much sense to call selinux_init_load_policy()
-> twice, there's no harm in doing so either, so let's just drop this
-> safeguard instead of fixing it.
+>     cleanup:
+>         if (priorities != NULL) {
+>             /* ... */
+>             free(priorities);
+>         }
+>         /* ... */
+>         ret = semanage_module_info_destroy(sh, modinfo_tmp);
+>         if (ret != 0) {
+>             status = -1;
+>             goto cleanup;
+>         }
+> 
+> The last "goto cleanup;" leads clang's static analyzer to believe a
+> double free is possible. Even though this is a false positive, the
+> body of condition "if (ret != 0)" contains dead code. Remove it.
 
-Thanks, applied.
+I'm merging this one but we should likely follow up with a patch to
+change semodule_module_info_destroy() to explicitly return void.
 
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 > ---
->  policycoreutils/load_policy/load_policy.c | 7 -------
->  1 file changed, 7 deletions(-)
+>  libsemanage/src/direct_api.c | 12 ++----------
+>  1 file changed, 2 insertions(+), 10 deletions(-)
 > 
-> diff --git a/policycoreutils/load_policy/load_policy.c
-> b/policycoreutils/load_policy/load_policy.c
-> index 7c2c2a7..2707d6f 100644
-> --- a/policycoreutils/load_policy/load_policy.c
-> +++ b/policycoreutils/load_policy/load_policy.c
-> @@ -65,13 +65,6 @@ int main(int argc, char **argv)
->  			argv[0], argv[optind++]);
+> diff --git a/libsemanage/src/direct_api.c
+> b/libsemanage/src/direct_api.c
+> index 568732355f54..1d53c0d64e0c 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -2499,11 +2499,7 @@ static int
+> semanage_direct_list_all(semanage_handle_t *sh,
+>  				goto cleanup;
+>  			}
+>  
+> -			ret = semanage_module_info_destroy(sh,
+> modinfo_tmp);
+> -			if (ret != 0) {
+> -				status = -1;
+> -				goto cleanup;
+> -			}
+> +			semanage_module_info_destroy(sh,
+> modinfo_tmp);
+>  			free(modinfo_tmp);
+>  			modinfo_tmp = NULL;
+>  
+> @@ -2528,11 +2524,7 @@ cleanup:
+>  		free(modules);
 >  	}
->  	if (init) {
-> -		if (is_selinux_enabled() == 1) {
-> -			/* SELinux is already enabled, we should not
-> do an initial load again */
-> -			fprintf(stderr,
-> -					_("%s:  Policy is already
-> loaded and initial load requested\n"),
-> -					argv[0]);
-> -			exit(2);
-> -		}
->  		ret = selinux_init_load_policy(&enforce);
->  		if (ret != 0 ) {
->  			if (enforce > 0) {
+>  
+> -	ret = semanage_module_info_destroy(sh, modinfo_tmp);
+> -	if (ret != 0) {
+> -		status = -1;
+> -		goto cleanup;
+> -	}
+> +	semanage_module_info_destroy(sh, modinfo_tmp);
+>  	free(modinfo_tmp);
+>  	modinfo_tmp = NULL;
+>  
