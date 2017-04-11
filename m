@@ -1,69 +1,65 @@
-MIME-Version: 1.0
-In-Reply-To: <1491933223-18277-3-git-send-email-jwcart2@tycho.nsa.gov>
-References: <1491933223-18277-1-git-send-email-jwcart2@tycho.nsa.gov>
- <1491933223-18277-3-git-send-email-jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3BLkUKi001912
+ for <selinux@tycho.nsa.gov>; Tue, 11 Apr 2017 17:46:30 -0400
+Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
+ [81.66.120.207])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id B31AA5647D8
+ for <selinux@tycho.nsa.gov>; Tue, 11 Apr 2017 23:46:28 +0200 (CEST)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Tue, 11 Apr 2017 22:31:09 +0200
-Message-ID: <CAJfZ7=kPXQPpvnv2a1Xbf=UPhHOmWNeX6J81QmuN8Wdzy6Ch+w@mail.gmail.com>
-Subject: Re: [PATCH 2/2] secilc: Add options to control the expansion of
- attributes
-To: James Carter <jwcart2@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary=001a11c10bc4e06d7f054ce9f883
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 2/6] libsepol: cil: check cil_fill_list return value
+Date: Tue, 11 Apr 2017 23:45:59 +0200
+Message-Id: <20170411214603.28040-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20170411214603.28040-1-nicolas.iooss@m4x.org>
+References: <20170411214603.28040-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c10bc4e06d7f054ce9f883
-Content-Type: text/plain; charset=UTF-8
+cil_gen_default() and cil_gen_defaultrange() call cil_fill_list()
+without checking its return value. If it failed, propagate the return
+value to the caller.
 
-On Tue, Apr 11, 2017 at 7:53 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
-> Added "-G, --expand_generated" option to specify that all automatically
-> generated attributes should be expanded and removed.
->
-> Added "-X, --expand_size <SIZE>" option to specify which attributes
-> are expanded when building a kernel policy. All attributes that have
-> less types assigned to it than SIZE will be expanded when writing AV
-> rules.
+This issue has been found using clang's static analyzer. It reported
+"warning: Value stored to 'rc' is never read" four times.
 
-With this change, some secilc options use underscore between words
-(--expand_generated...) and other ones use a dash (--disable-dontaudit,
---preserve-tunables...). Moreover when there is a parameter, the current
-documentation uses an equal sign and a lowercase placeholder word
-(--policyvers=<version>) instead of no equal and uppercase (--expand_size
-<SIZE>).
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsepol/cil/src/cil_build_ast.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-How should the options appear in the manpage and the program usage in order
-to have a consistent text?
-
-Cheers,
-Nicolas
-
-PS: Your patches pass the tests done by Travis-CI. The results are
-available at https://travis-ci.org/fishilico/selinux/builds/221101486 .
-
---001a11c10bc4e06d7f054ce9f883
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">On Tue, Apr 11, 2017 at 7:53 PM, James Carter &lt;<a href=
-=3D"mailto:jwcart2@tycho.nsa.gov">jwcart2@tycho.nsa.gov</a>&gt; wrote:<br>&=
-gt; Added &quot;-G, --expand_generated&quot; option to specify that all aut=
-omatically<br>&gt; generated attributes should be expanded and removed.<br>=
-&gt;<br>&gt; Added &quot;-X, --expand_size &lt;SIZE&gt;&quot; option to spe=
-cify which attributes<br>&gt; are expanded when building a kernel policy. A=
-ll attributes that have<br>&gt; less types assigned to it than SIZE will be=
- expanded when writing AV<br>&gt; rules.<br><br>With this change, some seci=
-lc options use underscore between words (--expand_generated...) and other o=
-nes use a dash (--disable-dontaudit, --preserve-tunables...). Moreover when=
- there is a parameter, the current documentation uses an equal sign and a l=
-owercase placeholder word (--policyvers=3D&lt;version&gt;) instead of no eq=
-ual and uppercase (--expand_size &lt;SIZE&gt;).<br><br>How should the optio=
-ns appear in the manpage and the program usage in order to have a consisten=
-t text?<br><br>Cheers,<br>Nicolas<br><br>PS: Your patches pass the tests do=
-ne by Travis-CI. The results are available at <a href=3D"https://travis-ci.=
-org/fishilico/selinux/builds/221101486">https://travis-ci.org/fishilico/sel=
-inux/builds/221101486</a> .</div>
-
---001a11c10bc4e06d7f054ce9f883--
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 8a19df480989..4b03dc35d408 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -5592,9 +5592,11 @@ int cil_gen_default(struct cil_tree_node *parse_current, struct cil_tree_node *a
+ 	if (parse_current->next->cl_head == NULL) {
+ 		cil_list_init(&def->class_strs, CIL_CLASS);
+ 		cil_list_append(def->class_strs, CIL_STRING, parse_current->next->data);
+-		rc = SEPOL_OK;
+ 	} else {
+ 		rc = cil_fill_list(parse_current->next->cl_head, CIL_CLASS, &def->class_strs);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
+ 	}
+ 
+ 	object = parse_current->next->next->data;
+@@ -5657,9 +5659,11 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
+ 	if (parse_current->next->cl_head == NULL) {
+ 		cil_list_init(&def->class_strs, CIL_CLASS);
+ 		cil_list_append(def->class_strs, CIL_STRING, parse_current->next->data);
+-		rc = SEPOL_OK;
+ 	} else {
+ 		rc = cil_fill_list(parse_current->next->cl_head, CIL_CLASS, &def->class_strs);
++		if (rc != SEPOL_OK) {
++			goto exit;
++		}
+ 	}
+ 
+ 	object = parse_current->next->next->data;
+-- 
+2.12.0
