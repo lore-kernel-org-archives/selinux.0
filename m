@@ -1,142 +1,198 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3CIQK5d030322
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 14:26:20 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2 v2] secilc: Add options to control the expansion of
- attributes
-Date: Wed, 12 Apr 2017 14:26:54 -0400
-Message-Id: <1492021614-23133-3-git-send-email-jwcart2@tycho.nsa.gov>
-In-Reply-To: <1492021614-23133-1-git-send-email-jwcart2@tycho.nsa.gov>
-References: <1492021614-23133-1-git-send-email-jwcart2@tycho.nsa.gov>
+Message-ID: <1492022168.3881.23.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 1/2] libselinux: add security_checkreqprot
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Christian =?ISO-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>, selinux
+ <selinux@tycho.nsa.gov>
+Date: Wed, 12 Apr 2017 14:36:08 -0400
+In-Reply-To: <CAJ2a_DemVQ8X_duwMEQZEAQOr=G1JXUFTAfOxY6retz0xCo3bg@mail.gmail.com>
+References: <CAJ2a_DemVQ8X_duwMEQZEAQOr=G1JXUFTAfOxY6retz0xCo3bg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Added "-G, --expand_generated" option to specify that all automatically
-generated attributes should be expanded and removed.
+On Wed, 2017-04-12 at 15:41 +0200, Christian Göttsche wrote:
+> Add security_checkreqprot() function, returning the current active
+> checkreqprot value
 
-Added "-X, --expand_size <SIZE>" option to specify which attributes
-are expanded when building a kernel policy. All attributes that have
-less types assigned to it than SIZE will be expanded when writing AV
-rules.
+Your patches are whitespace-damaged.  Sending with git send-email tends
+to work better.
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- secilc/secil2conf.c |  2 ++
- secilc/secilc.8.xml | 10 ++++++++++
- secilc/secilc.c     | 31 ++++++++++++++++++++++++++++++-
- 3 files changed, 42 insertions(+), 1 deletion(-)
-
-diff --git a/secilc/secil2conf.c b/secilc/secil2conf.c
-index 5d8fe87..4e97dd6 100644
---- a/secilc/secil2conf.c
-+++ b/secilc/secil2conf.c
-@@ -124,6 +124,8 @@ int main(int argc, char *argv[])
- 	cil_db_init(&db);
- 	cil_set_preserve_tunables(db, preserve_tunables);
- 	cil_set_mls(db, mls);
-+	cil_set_attrs_expand_generated(db, 0);
-+	cil_set_attrs_expand_size(db, 0);
- 
- 	for (i = optind; i < argc; i++) {
- 		file = fopen(argv[i], "r");
-diff --git a/secilc/secilc.8.xml b/secilc/secilc.8.xml
-index 9e2670b..4c779b6 100644
---- a/secilc/secilc.8.xml
-+++ b/secilc/secilc.8.xml
-@@ -81,6 +81,16 @@
-          </varlistentry>
- 
-          <varlistentry>
-+            <term><option>-G, --expand-generated</option></term>
-+            <listitem><para>Expand and remove auto-generated attributes</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-+            <term><option>-X, --attrs-size &lt;size></option></term>
-+            <listitem><para>Expand type attributes with fewer than <emphasis role="bold">&lt;SIZE></emphasis> members.</para></listitem>
-+         </varlistentry>
-+
-+         <varlistentry>
-             <term><option>-v, --verbose</option></term>
-             <listitem><para>Increment verbosity level.</para></listitem>
-          </varlistentry>
-diff --git a/secilc/secilc.c b/secilc/secilc.c
-index f4ecbee..f2232e7 100644
---- a/secilc/secilc.c
-+++ b/secilc/secilc.c
-@@ -64,6 +64,9 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
- 	printf("  -D, --disable-dontaudit        do not add dontaudit rules to the binary policy\n");
- 	printf("  -P, --preserve-tunables        treat tunables as booleans\n");
- 	printf("  -N, --disable-neverallow       do not check neverallow rules\n");
-+	printf("  -G, --expand-generated         Expand and remove auto-generated attributes\n");
-+	printf("  -X, --expand-size <SIZE>       Expand type attributes with fewer than <SIZE>\n");
-+	printf("                                 members.\n");
- 	printf("  -v, --verbose                  increment verbosity level\n");
- 	printf("  -h, --help                     display usage information\n");
- 	exit(1);
-@@ -90,6 +93,8 @@ int main(int argc, char *argv[])
- 	int preserve_tunables = 0;
- 	int handle_unknown = -1;
- 	int policyvers = POLICYDB_VERSION_MAX;
-+	int attrs_expand_generated = 0;
-+	int attrs_expand_size = -1;
- 	int opt_char;
- 	int opt_index = 0;
- 	char *fc_buf = NULL;
-@@ -107,12 +112,14 @@ int main(int argc, char *argv[])
- 		{"preserve-tunables", no_argument, 0, 'P'},
- 		{"output", required_argument, 0, 'o'},
- 		{"filecontexts", required_argument, 0, 'f'},
-+		{"expand-generated", no_argument, 0, 'G'},
-+		{"expand-size", required_argument, 0, 'X'},
- 		{0, 0, 0, 0}
- 	};
- 	int i;
- 
- 	while (1) {
--		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDNc:", long_opts, &opt_index);
-+		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDNc:GX:", long_opts, &opt_index);
- 		if (opt_char == -1) {
- 			break;
- 		}
-@@ -180,6 +187,24 @@ int main(int argc, char *argv[])
- 			case 'f':
- 				filecontexts = strdup(optarg);
- 				break;
-+			case 'G':
-+				attrs_expand_generated = 1;
-+				break;
-+			case 'X': {
-+				char *endptr = NULL;
-+				errno = 0;
-+				attrs_expand_size = strtol(optarg, &endptr, 10);
-+				if (errno != 0 || endptr == optarg || *endptr != '\0') {
-+					fprintf(stderr, "Bad attribute expand size: %s\n", optarg);
-+					usage(argv[0]);
-+				}
-+
-+				if (attrs_expand_size < 0) {
-+					fprintf(stderr, "Attribute expand size must be > 0\n");
-+					usage(argv[0]);
-+				}
-+				break;
-+			}
- 			case 'h':
- 				usage(argv[0]);
- 			case '?':
-@@ -210,6 +235,10 @@ int main(int argc, char *argv[])
- 	cil_set_mls(db, mls);
- 	cil_set_target_platform(db, target);
- 	cil_set_policy_version(db, policyvers);
-+	cil_set_attrs_expand_generated(db, attrs_expand_generated);
-+	if (attrs_expand_size >= 0) {
-+		cil_set_attrs_expand_size(db, (unsigned)attrs_expand_size);
-+	}
- 
- 	for (i = optind; i < argc; i++) {
- 		file = fopen(argv[i], "r");
--- 
-2.7.4
+> 
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/include/selinux/selinux.h      |  3 +++
+>  libselinux/man/man3/security_getenforce.3 |  8 ++++++-
+>  libselinux/man/man3/selinux_status_open.3 | 11 +++++++--
+>  libselinux/src/checkreqprot.c             | 40
+> +++++++++++++++++++++++++++++++
+>  libselinux/src/selinux_internal.h         |  1 +
+>  5 files changed, 60 insertions(+), 3 deletions(-)
+>  create mode 100644 libselinux/src/checkreqprot.c
+> 
+> diff --git a/libselinux/include/selinux/selinux.h
+> b/libselinux/include/selinux/selinux.h
+> index 45dd6ca5..938393f6 100644
+> --- a/libselinux/include/selinux/selinux.h
+> +++ b/libselinux/include/selinux/selinux.h
+> @@ -331,6 +331,9 @@ extern int security_setenforce(int value);
+>  /* Get the behavior for undefined classes/permissions */
+>  extern int security_deny_unknown(void);
+> 
+> +/* Get the checkreqprot value */
+> +extern int security_checkreqprot(void);
+> +
+>  /* Disable SELinux at runtime (must be done prior to initial policy
+> load). */
+>  extern int security_disable(void);
+> 
+> diff --git a/libselinux/man/man3/security_getenforce.3
+> b/libselinux/man/man3/security_getenforce.3
+> index 7658014a..e27b6c80 100644
+> --- a/libselinux/man/man3/security_getenforce.3
+> +++ b/libselinux/man/man3/security_getenforce.3
+> @@ -1,6 +1,6 @@
+>  .TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au
+> "
+> "SELinux API documentation"
+>  .SH "NAME"
+> -security_getenforce, security_setenforce, security_deny_unknown \-
+> get or set the enforcing state of SELinux
+> +security_getenforce, security_setenforce, security_deny_unknown
+> security_checkreqprot\- get or set the enforcing state of SELinux
+>  .
+>  .SH "SYNOPSIS"
+>  .B #include <selinux/selinux.h>
+> @@ -10,6 +10,8 @@ security_getenforce, security_setenforce,
+> security_deny_unknown \- get or set th
+>  .BI "int security_setenforce(int "value );
+>  .sp
+>  .B int security_deny_unknown(void);
+> +.sp
+> +.B int security_checkreqprot(void);
+>  .
+>  .SH "DESCRIPTION"
+>  .BR security_getenforce ()
+> @@ -24,6 +26,10 @@ returned.
+>  .BR security_deny_unknown ()
+>  returns 0 if SELinux treats policy queries on undefined object
+> classes or
+>  permissions as being allowed, 1 if such queries are denied, and \-1
+> on error.
+> +
+> +.BR security_checkreqprot ()
+> +returns 0 if SELinux checks the protection applied by the kernel, 1
+> if SELinux
+> +checks the protection requested by the application, and \-1 on
+> error.
+>  .
+>  .SH "SEE ALSO"
+>  .BR selinux "(8)"
+> diff --git a/libselinux/man/man3/selinux_status_open.3
+> b/libselinux/man/man3/selinux_status_open.3
+> index 2d44be57..e70ab014 100644
+> --- a/libselinux/man/man3/selinux_status_open.3
+> +++ b/libselinux/man/man3/selinux_status_open.3
+> @@ -1,8 +1,9 @@
+>  .TH "selinux_status_open" "3" "22 January 2011"
+> "kaigai@ak.jp.nec.com" "SELinux API documentation"
+>  .SH "NAME"
+>  selinux_status_open, selinux_status_close, selinux_status_updated,
+> -selinux_status_getenforce, selinux_status_policyload and
+> -selinux_status_deny_unknown \- reference the SELinux kernel status
+> +selinux_status_getenforce, selinux_status_policyload,
+> +selinux_status_deny_unknown and security_checkreqprot \- reference
+> +the SELinux kernel status
+>  without invocation of system calls
+>  .
+>  .SH "SYNOPSIS"
+> @@ -19,6 +20,8 @@ without invocation of system calls
+>  .BI "int selinux_status_policyload(void);"
+>  .sp
+>  .BI "int selinux_status_deny_unknown(void);"
+> +.sp
+> +.BI "int security_checkreqprot(void);"
+>  .
+>  .SH "DESCRIPTION"
+>  Linux 2.6.37 or later provides a SELinux kernel status page; being
+> mostly
+> @@ -78,6 +81,10 @@ Thus, don't use this value to know actual times of
+> policy reloaded.
+>  returns 0 if SELinux treats policy queries on undefined object
+> classes or
+>  permissions as being allowed, 1 if such queries are denied, or \-1
+> on error.
+>  .sp
+> +.BR security_checkreqprot ()
+> +returns 0 if SELinux checks the protection applied by the kernel, 1
+> if SELinux
+> +checks the protection requested by the application, and \-1 on
+> error.
+> +.sp
+>  Also note that these interfaces are not thread-safe, so you have to
+> protect
+>  them from concurrent calls using exclusive locks when multiple
+> threads are
+>  performing.
+> diff --git a/libselinux/src/checkreqprot.c
+> b/libselinux/src/checkreqprot.c
+> new file mode 100644
+> index 00000000..38f3bebb
+> --- /dev/null
+> +++ b/libselinux/src/checkreqprot.c
+> @@ -0,0 +1,40 @@
+> +#include <unistd.h>
+> +#include <sys/types.h>
+> +#include <fcntl.h>
+> +#include <stdlib.h>
+> +#include <errno.h>
+> +#include <string.h>
+> +#include "selinux_internal.h"
+> +#include "policy.h"
+> +#include <stdio.h>
+> +#include <limits.h>
+> +
+> +int security_checkreqprot(void)
+> +{
+> + int fd, ret, checkreqprot = 0;
+> + char path[PATH_MAX];
+> + char buf[20];
+> +
+> + if (!selinux_mnt) {
+> + errno = ENOENT;
+> + return -1;
+> + }
+> +
+> + snprintf(path, sizeof(path), "%s/checkreqprot", selinux_mnt);
+> + fd = open(path, O_RDONLY);
+> + if (fd < 0)
+> + return -1;
+> +
+> + memset(buf, 0, sizeof(buf));
+> + ret = read(fd, buf, sizeof(buf) - 1);
+> + close(fd);
+> + if (ret < 0)
+> + return -1;
+> +
+> + if (sscanf(buf, "%d", &checkreqprot) != 1)
+> + return -1;
+> +
+> + return checkreqprot;
+> +}
+> +
+> +hidden_def(security_checkreqprot);
+> diff --git a/libselinux/src/selinux_internal.h
+> b/libselinux/src/selinux_internal.h
+> index 3d5c9fb4..e4650c92 100644
+> --- a/libselinux/src/selinux_internal.h
+> +++ b/libselinux/src/selinux_internal.h
+> @@ -59,6 +59,7 @@ hidden_proto(selinux_mkload_policy)
+>      hidden_proto(security_getenforce)
+>      hidden_proto(security_setenforce)
+>      hidden_proto(security_deny_unknown)
+> +    hidden_proto(security_checkreqprot)
+>      hidden_proto(selinux_boolean_sub)
+>      hidden_proto(selinux_current_policy_path)
+>      hidden_proto(selinux_binary_policy_path)
