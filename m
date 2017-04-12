@@ -1,179 +1,182 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3CDaCrj002339
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 09:36:12 -0400
-Received: by mail-wm0-f65.google.com with SMTP id d79so6483615wmi.2
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 06:35:53 -0700 (PDT)
-Received: from markus (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id t16sm25647166wra.44.2017.04.12.06.35.51
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Wed, 12 Apr 2017 06:35:51 -0700 (PDT)
-Date: Wed, 12 Apr 2017 15:35:49 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: [PATCH 0/2] libsepol and checkpolicy: Add ability to expand some
- attributes in binary policy
-Message-ID: <20170412133549.GB3438@markus>
-References: <1491933223-18277-1-git-send-email-jwcart2@tycho.nsa.gov>
- <20170412061122.GA3438@markus>
- <eabeefc3-8281-92f1-ae23-f1abbb6e56c3@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3CDfE9c004462
+ for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 09:41:14 -0400
+Received: by mail-wm0-f66.google.com with SMTP id x75so6489652wma.1
+ for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 06:41:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
-In-Reply-To: <eabeefc3-8281-92f1-ae23-f1abbb6e56c3@tycho.nsa.gov>
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Wed, 12 Apr 2017 15:41:00 +0200
+Message-ID: <CAJ2a_DemVQ8X_duwMEQZEAQOr=G1JXUFTAfOxY6retz0xCo3bg@mail.gmail.com>
+Subject: [PATCH 1/2] libselinux: add security_checkreqprot
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Add security_checkreqprot() function, returning the current active
+checkreqprot value
 
---rJwd6BRFiFCcLxzm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/include/selinux/selinux.h      |  3 +++
+ libselinux/man/man3/security_getenforce.3 |  8 ++++++-
+ libselinux/man/man3/selinux_status_open.3 | 11 +++++++--
+ libselinux/src/checkreqprot.c             | 40 +++++++++++++++++++++++++++++++
+ libselinux/src/selinux_internal.h         |  1 +
+ 5 files changed, 60 insertions(+), 3 deletions(-)
+ create mode 100644 libselinux/src/checkreqprot.c
 
-On Wed, Apr 12, 2017 at 09:26:17AM -0400, James Carter wrote:
-> On 04/12/2017 02:11 AM, Dominick Grift wrote:
-> > On Tue, Apr 11, 2017 at 01:53:41PM -0400, James Carter wrote:
-> > > The number of type attributes included in the binary policy is becomm=
-ing a performance issue in some cases.
-> > >=20
-> > > This patch set more aggressives removes attributes and gives the opti=
-ons to expand and remove all auto-generated attributes and all attributes w=
-ith fewer than a given amount of attributes assigned.
-> > >=20
-> > > Comparison of the number of attributes remaining in the binary policy
-> > >      mls   normal  android
-> > > org  310     286     255
-> > > old  268     251     130
-> > > max  154      20      17
-> > > min  226     173     119
-> > > def  224     170      80
-> > > gen  221     170      46
-> > > u5   191     112      59
-> > >=20
-> > > Org - Number of attributes in the CIL policy
-> > > Old - Results without this patch set
-> > > Max - Remove the maximum number of attributes: "-G -X 9999"
-> > > Min - Remove the minimum number of attributes: "-X 0"
-> > > Def - The new defaults for CIL
-> > > Gen - Just removing auto-generated attributes: "-G"
-> > > U5  - Remove attributes with less than five members: "-X 5"
-> >=20
-> > I tried this with my policy:
-> >=20
-> > old defaults
-> >=20
-> > size: 949K
-> > typeattributes: 765
-> > types: 1420
-> > allow rules: 24812
-> >=20
-> > new defaults
-> >=20
-> > size: 876K
-> > typeattributes: 641
-> > types: 1418
-> > allow rules: 20998
-> >=20
-> > I cannot imagine where the difference went.. every aspect improved. I e=
-xpected to see some trade-offs instead here.
-> >=20
->=20
-> I hope that the number of types going from 1420 to 1418 is a typo. I don't
-> see how my patch set would remove any types, but, if it is, then that is a
-> problem.
->=20
-> With your dssp1-standard policy, I see:
-> Before         : 1178K, 9938 attributes, and 534 types
-> After (default):  574K, 3209 attributes, and 534 types
-> After (-X5)    :  471K, 2206 attributes, and 534 types
->=20
-> Jim
+diff --git a/libselinux/include/selinux/selinux.h
+b/libselinux/include/selinux/selinux.h
+index 45dd6ca5..938393f6 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -331,6 +331,9 @@ extern int security_setenforce(int value);
+ /* Get the behavior for undefined classes/permissions */
+ extern int security_deny_unknown(void);
 
-The test that i did was with dssp2-standard (my current work). So if you wa=
-nt you can see for yourself on github.
++/* Get the checkreqprot value */
++extern int security_checkreqprot(void);
++
+ /* Disable SELinux at runtime (must be done prior to initial policy load). */
+ extern int security_disable(void);
 
-you can then also see that I , with dssp2-standard, still have attributes w=
-ithout types associated with it
-
-At least:
-
-seinfo -a | grep adm_subj_type | grep -v service.service | wc -l
-90
-
->=20
-> > >=20
-> > >=20
-> > > James Carter (2):
-> > >   libsepol/cil: Add ability to expand some attributes in binary policy
-> > >   secilc: Add options to control the expansion of attributes
-> > >=20
-> > >  libsepol/cil/include/cil/cil.h     |   2 +
-> > >  libsepol/cil/src/cil.c             |  12 ++
-> > >  libsepol/cil/src/cil_binary.c      | 253 +++++++++++++++++++++++++++=
-----------
-> > >  libsepol/cil/src/cil_internal.h    |   7 +-
-> > >  libsepol/cil/src/cil_post.c        |  32 +++--
-> > >  libsepol/cil/src/cil_resolve_ast.c |  25 ++--
-> > >  libsepol/src/libsepol.map.in       |   2 +
-> > >  secilc/secil2conf.c                |   2 +
-> > >  secilc/secilc.8.xml                |  10 ++
-> > >  secilc/secilc.c                    |  31 ++++-
-> > >  10 files changed, 275 insertions(+), 101 deletions(-)
-> > >=20
-> > > --
-> > > 2.7.4
-> > >=20
-> > > _______________________________________________
-> > > Selinux mailing list
-> > > Selinux@tycho.nsa.gov
-> > > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > > To get help, send an email containing "help" to Selinux-request@tycho=
-=2Ensa.gov.
-> >=20
-> >=20
-> >=20
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
-> >=20
->=20
->=20
-> --=20
-> James Carter <jwcart2@tycho.nsa.gov>
-> National Security Agency
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa=
-=2Egov.
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---rJwd6BRFiFCcLxzm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAljuLTEACgkQJXSOVTf5
-R2m9jgwAi6K6+tXnHx0fLRxtVI7DMGQ8vQcpUdEXVX8OiTBQYIwYgnDAF9lYU0Ok
-GGp3Owi91vdH+ZKsMtQscLbv4Zfe2BiBtl4oqinSDnHRUxupR/wCI5u4W3EZwD1+
-HW/G+ajPX7WtGIDZ4iSv5pDOpBBCgqh+m+A2siFjmz1PcsY5hR6pYVjYjr6EunE0
-X3pOaoEfxdvsXG2jB11OcQoVjgMcH3ap5E2QEerJz+QAtB0QAAgNrlZic5xem+rB
-TqwKOXJVWEErv0WHY2QTAGdR8AYf8afJY58Kt0cfUEkjNwXriYOz/YONs+VJ+sbU
-uRJwIOGNOSgNfziAStNuLZJav2EmElSk4h3w5B3vsFDrg4QUTw/8jw8nWssBY0Wy
-YKDZ+v0f/xhvnYLZs+/FKFDjaITn4+6RAJDVmBf8skgTAJ9o48sNLdWKYPp41GRg
-gLQfw5XFClmtXdWt/VkT6c/OjWBKvKdH8oKYD8MaPazlKn9bT2HBv/fS/7FFEVZ6
-gj8MFtly
-=T+xW
------END PGP SIGNATURE-----
-
---rJwd6BRFiFCcLxzm--
+diff --git a/libselinux/man/man3/security_getenforce.3
+b/libselinux/man/man3/security_getenforce.3
+index 7658014a..e27b6c80 100644
+--- a/libselinux/man/man3/security_getenforce.3
++++ b/libselinux/man/man3/security_getenforce.3
+@@ -1,6 +1,6 @@
+ .TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au"
+"SELinux API documentation"
+ .SH "NAME"
+-security_getenforce, security_setenforce, security_deny_unknown \-
+get or set the enforcing state of SELinux
++security_getenforce, security_setenforce, security_deny_unknown
+security_checkreqprot\- get or set the enforcing state of SELinux
+ .
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+@@ -10,6 +10,8 @@ security_getenforce, security_setenforce,
+security_deny_unknown \- get or set th
+ .BI "int security_setenforce(int "value );
+ .sp
+ .B int security_deny_unknown(void);
++.sp
++.B int security_checkreqprot(void);
+ .
+ .SH "DESCRIPTION"
+ .BR security_getenforce ()
+@@ -24,6 +26,10 @@ returned.
+ .BR security_deny_unknown ()
+ returns 0 if SELinux treats policy queries on undefined object classes or
+ permissions as being allowed, 1 if such queries are denied, and \-1 on error.
++
++.BR security_checkreqprot ()
++returns 0 if SELinux checks the protection applied by the kernel, 1 if SELinux
++checks the protection requested by the application, and \-1 on error.
+ .
+ .SH "SEE ALSO"
+ .BR selinux "(8)"
+diff --git a/libselinux/man/man3/selinux_status_open.3
+b/libselinux/man/man3/selinux_status_open.3
+index 2d44be57..e70ab014 100644
+--- a/libselinux/man/man3/selinux_status_open.3
++++ b/libselinux/man/man3/selinux_status_open.3
+@@ -1,8 +1,9 @@
+ .TH "selinux_status_open" "3" "22 January 2011"
+"kaigai@ak.jp.nec.com" "SELinux API documentation"
+ .SH "NAME"
+ selinux_status_open, selinux_status_close, selinux_status_updated,
+-selinux_status_getenforce, selinux_status_policyload and
+-selinux_status_deny_unknown \- reference the SELinux kernel status
++selinux_status_getenforce, selinux_status_policyload,
++selinux_status_deny_unknown and security_checkreqprot \- reference
++the SELinux kernel status
+ without invocation of system calls
+ .
+ .SH "SYNOPSIS"
+@@ -19,6 +20,8 @@ without invocation of system calls
+ .BI "int selinux_status_policyload(void);"
+ .sp
+ .BI "int selinux_status_deny_unknown(void);"
++.sp
++.BI "int security_checkreqprot(void);"
+ .
+ .SH "DESCRIPTION"
+ Linux 2.6.37 or later provides a SELinux kernel status page; being mostly
+@@ -78,6 +81,10 @@ Thus, don't use this value to know actual times of
+policy reloaded.
+ returns 0 if SELinux treats policy queries on undefined object classes or
+ permissions as being allowed, 1 if such queries are denied, or \-1 on error.
+ .sp
++.BR security_checkreqprot ()
++returns 0 if SELinux checks the protection applied by the kernel, 1 if SELinux
++checks the protection requested by the application, and \-1 on error.
++.sp
+ Also note that these interfaces are not thread-safe, so you have to protect
+ them from concurrent calls using exclusive locks when multiple threads are
+ performing.
+diff --git a/libselinux/src/checkreqprot.c b/libselinux/src/checkreqprot.c
+new file mode 100644
+index 00000000..38f3bebb
+--- /dev/null
++++ b/libselinux/src/checkreqprot.c
+@@ -0,0 +1,40 @@
++#include <unistd.h>
++#include <sys/types.h>
++#include <fcntl.h>
++#include <stdlib.h>
++#include <errno.h>
++#include <string.h>
++#include "selinux_internal.h"
++#include "policy.h"
++#include <stdio.h>
++#include <limits.h>
++
++int security_checkreqprot(void)
++{
++ int fd, ret, checkreqprot = 0;
++ char path[PATH_MAX];
++ char buf[20];
++
++ if (!selinux_mnt) {
++ errno = ENOENT;
++ return -1;
++ }
++
++ snprintf(path, sizeof(path), "%s/checkreqprot", selinux_mnt);
++ fd = open(path, O_RDONLY);
++ if (fd < 0)
++ return -1;
++
++ memset(buf, 0, sizeof(buf));
++ ret = read(fd, buf, sizeof(buf) - 1);
++ close(fd);
++ if (ret < 0)
++ return -1;
++
++ if (sscanf(buf, "%d", &checkreqprot) != 1)
++ return -1;
++
++ return checkreqprot;
++}
++
++hidden_def(security_checkreqprot);
+diff --git a/libselinux/src/selinux_internal.h
+b/libselinux/src/selinux_internal.h
+index 3d5c9fb4..e4650c92 100644
+--- a/libselinux/src/selinux_internal.h
++++ b/libselinux/src/selinux_internal.h
+@@ -59,6 +59,7 @@ hidden_proto(selinux_mkload_policy)
+     hidden_proto(security_getenforce)
+     hidden_proto(security_setenforce)
+     hidden_proto(security_deny_unknown)
++    hidden_proto(security_checkreqprot)
+     hidden_proto(selinux_boolean_sub)
+     hidden_proto(selinux_current_policy_path)
+     hidden_proto(selinux_binary_policy_path)
+-- 
+2.11.0
