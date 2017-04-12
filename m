@@ -1,52 +1,44 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3CDgaM6004800
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 09:42:36 -0400
-Received: by mail-wr0-f196.google.com with SMTP id o21so4255925wrb.3
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 06:42:25 -0700 (PDT)
-MIME-Version: 1.0
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Wed, 12 Apr 2017 15:42:23 +0200
-Message-ID: <CAJ2a_DeiDjzz=CK_MuWB+zSvw7SGOiu_U9N-_LXYvBj3hQtdrw@mail.gmail.com>
-Subject: [PATCH 2/2] sestatus: show checkreqprot status
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+Message-ID: <1492005519.3881.8.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: add selinux_is_enforced() function
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Sebastien Buisson <sbuisson.ddn@gmail.com>, Paul Moore <pmoore@redhat.com>
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov, william.c.roberts@intel.com, serge@hallyn.com,
+ james.l.morris@oracle.com, Eric Paris <eparis@parisplace.org>, Paul Moore
+ <paul@paul-moore.com>, Sebastien Buisson <sbuisson@ddn.com>
+Date: Wed, 12 Apr 2017 09:58:39 -0400
+In-Reply-To: <CAPkE-bUsY8qD5xHU4VD-dxtAGxCGUhuQQmcS4kN0FyAozPRzhw@mail.gmail.com>
+References: <1491988018-4120-1-git-send-email-sbuisson@ddn.com>
+ <CAGH-KgsymFfRqDnmn1kLpWiPtHFkLU3UMKVu=8=NOUwk+qWjmg@mail.gmail.com>
+ <CAPkE-bUsY8qD5xHU4VD-dxtAGxCGUhuQQmcS4kN0FyAozPRzhw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Show the current active checkreqprot state in sestatus
+On Wed, 2017-04-12 at 15:30 +0200, Sebastien Buisson wrote:
+> 2017-04-12 13:55 GMT+02:00 Paul Moore <pmoore@redhat.com>:
+> > As currently written this code isn't something we would want to
+> > merge
+> > upstream for two important reasons:
+> > 
+> > * No abstraction layer at the LSM interface.  The core kernel code
+> > should not call directly into any specific LSM, all interaction
+> > should
+> > go through the LSM hooks.
+> 
+> The idea behind this patch and the other one was to replicate what is
+> done with selinux_is_enabled(). As I understand it now,
+> selinux_is_enabled() should remain the only exception to the LSM
+> hooks.
+> So do you agree if I propose a new security_is_enforced() function at
+> the LSM abstraction layer, which will be hooked to a
+> selinux_is_enforced() function defined inside the SELinux LSM?
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- policycoreutils/sestatus/sestatus.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/policycoreutils/sestatus/sestatus.c
-b/policycoreutils/sestatus/sestatus.c
-index 2111b15d..f9ed5b66 100644
---- a/policycoreutils/sestatus/sestatus.c
-+++ b/policycoreutils/sestatus/sestatus.c
-@@ -330,6 +330,20 @@ int main(int argc, char **argv)
-  break;
-  }
-
-+ printf_tab("Policy checkreqprot status:");
-+ rc = security_checkreqprot();
-+ switch (rc) {
-+ case 0:
-+ printf("kernel\n");
-+ break;
-+ case 1:
-+ printf("application\n");
-+ break;
-+ default:
-+ printf("error (%s)\n", strerror(errno));
-+ break;
-+ }
-+
-  rc = security_policyvers();
-  printf_tab("Max kernel policy version:");
-  if (rc < 0)
--- 
-2.11.0
+Even your usage of selinux_is_enabled() looks suspect; that should
+probably go away.  Only other user of it seems to be some cred validity
+checking that could be dropped as well.  The include/linux/selinux.h
+interfaces were originally for use by audit and secmark when there were
+no other LSMs and have gradually been removed.
