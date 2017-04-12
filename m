@@ -1,89 +1,54 @@
-Message-ID: <1492000307.3881.5.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: add selinux_status_get_seq() function
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sebastien Buisson <sbuisson.ddn@gmail.com>,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- selinux@tycho.nsa.gov
-Cc: serge@hallyn.com, james.l.morris@oracle.com, eparis@parisplace.org,
- paul@paul-moore.com, Sebastien Buisson <sbuisson@ddn.com>
-Date: Wed, 12 Apr 2017 08:31:47 -0400
-In-Reply-To: <1491988335-4181-1-git-send-email-sbuisson@ddn.com>
-References: <1491988335-4181-1-git-send-email-sbuisson@ddn.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Subject: Re: [PATCH 2/2] secilc: Add options to control the expansion of
+ attributes
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+References: <1491933223-18277-1-git-send-email-jwcart2@tycho.nsa.gov>
+ <1491933223-18277-3-git-send-email-jwcart2@tycho.nsa.gov>
+ <CAJfZ7=kPXQPpvnv2a1Xbf=UPhHOmWNeX6J81QmuN8Wdzy6Ch+w@mail.gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <78b69c6c-4fe2-9833-d931-57ffe175d396@tycho.nsa.gov>
+Date: Wed, 12 Apr 2017 09:02:32 -0400
+MIME-Version: 1.0
+In-Reply-To: <CAJfZ7=kPXQPpvnv2a1Xbf=UPhHOmWNeX6J81QmuN8Wdzy6Ch+w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-04-12 at 18:12 +0900, Sebastien Buisson wrote:
-> Add selinux_status_get_seq() function to give access to sequence
-> number of current SELinux policy loaded to the rest of the kernel.
-> 
-> Signed-off-by: Sebastien Buisson <sbuisson@ddn.com>
-> ---
->  include/linux/selinux.h      |  7 +++++++
->  security/selinux/ss/status.c | 21 +++++++++++++++++++++
->  2 files changed, 28 insertions(+)
-> 
-> diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-> index 44f4596..926f9f0 100644
-> --- a/include/linux/selinux.h
-> +++ b/include/linux/selinux.h
-> @@ -24,12 +24,19 @@
->   * selinux_is_enabled - is SELinux enabled?
->   */
->  bool selinux_is_enabled(void);
-> +u32 selinux_status_get_seq(void);
->  #else
->  
->  static inline bool selinux_is_enabled(void)
->  {
->  	return false;
->  }
-> +
-> +static inline u32 selinux_status_get_seq(void)
-> +{
-> +	return 0;
-> +}
-> +
->  #endif	/* CONFIG_SECURITY_SELINUX */
->  
->  #endif /* _LINUX_SELINUX_H */
-> diff --git a/security/selinux/ss/status.c
-> b/security/selinux/ss/status.c
-> index d982365..a0670d3 100644
-> --- a/security/selinux/ss/status.c
-> +++ b/security/selinux/ss/status.c
-> @@ -124,3 +124,24 @@ void selinux_status_update_policyload(int seqno)
->  	}
->  	mutex_unlock(&selinux_status_lock);
->  }
-> +
-> +/*
-> + * selinux_status_get_seq
-> + *
-> + * It gets current sequence of policy loaded.
-> + */
-> +u32 selinux_status_get_seq(void)
-> +{
-> +	struct selinux_kernel_status   *status;
-> +	u32				seq = 0;
-> +
-> +	mutex_lock(&selinux_status_lock);
-> +	if (selinux_status_page) {
-> +		status = page_address(selinux_status_page);
-> +		seq = status->sequence;
-> +	}
-> +	mutex_unlock(&selinux_status_lock);
-> +
-> +	return seq;
-> +}
-> +EXPORT_SYMBOL_GPL(selinux_status_get_seq);
+On 04/11/2017 04:31 PM, Nicolas Iooss wrote:
+> On Tue, Apr 11, 2017 at 7:53 PM, James Carter <jwcart2@tycho.nsa.gov
+> <mailto:jwcart2@tycho.nsa.gov>> wrote:
+>> Added "-G, --expand_generated" option to specify that all automatically
+>> generated attributes should be expanded and removed.
+>>
+>> Added "-X, --expand_size <SIZE>" option to specify which attributes
+>> are expanded when building a kernel policy. All attributes that have
+>> less types assigned to it than SIZE will be expanded when writing AV
+>> rules.
+>
+> With this change, some secilc options use underscore between words
+> (--expand_generated...) and other ones use a dash (--disable-dontaudit,
+> --preserve-tunables...). Moreover when there is a parameter, the current
+> documentation uses an equal sign and a lowercase placeholder word
+> (--policyvers=<version>) instead of no equal and uppercase (--expand_size <SIZE>).
+>
+> How should the options appear in the manpage and the program usage in order to
+> have a consistent text?
+>
 
-status->sequence is a sequence number for the seqlock logic, not the
-policy sequence number.  You likely want avc_policy_seqno() instead,
-although I can't tell without seeing the user of this function. 
-Regardless, as with the other patch, there needs to be an in-tree user
-and a LSM hook interface to use this outside of the SELinux code
-itself.
+You are right. I should make them "--expand-generated" and "--expand-size" for 
+consistently.
+
+Jim
+
+> Cheers,
+> Nicolas
+>
+> PS: Your patches pass the tests done by Travis-CI. The results are available at
+> https://travis-ci.org/fishilico/selinux/builds/221101486 .
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
