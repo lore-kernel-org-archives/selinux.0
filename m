@@ -1,143 +1,58 @@
-Message-ID: <1492021543.3881.21.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 1/6] libsemanage: make semanage_..._destroy return void
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Date: Wed, 12 Apr 2017 14:25:43 -0400
-In-Reply-To: <20170411214603.28040-1-nicolas.iooss@m4x.org>
-References: <20170411214603.28040-1-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3CIQK5b030322
+ for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 14:26:20 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/2 v2] libsepol and checkpolicy: Add ability to expand some
+ attributes in binary policy
+Date: Wed, 12 Apr 2017 14:26:52 -0400
+Message-Id: <1492021614-23133-1-git-send-email-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-04-11 at 23:45 +0200, Nicolas Iooss wrote:
-> semanage_module_info_destroy() always return 0 ("success") even
-> though
-> some of its caller want to check its return value. For example commit
-> 86e6ae67fd17 ("libsemanage: drop checks on
-> semanage_module_info_destroy() value") removed such a caller which
-> was
-> buggy.
-> 
-> Discourage using the return value of semanage_..._destroy() functions
-> by
-> making them return void.
+The number of type attributes included in the binary policy is becomming a performance issue in some cases.
 
-Sorry, my fault - didn't realize this was a public API when I suggested
-it.  Can't break the library ABI.  We could use symbol versioning magic
-to transition it over, but probably not worth it.
+This patch set more aggressives removes attributes and gives the options to expand and remove all auto-generated attributes and all attributes with fewer than a given amount of attributes assigned.
 
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> ---
->  libsemanage/include/semanage/modules.h | 12 ++++--------
->  libsemanage/src/modules.c              | 22 +++++++++-------------
->  2 files changed, 13 insertions(+), 21 deletions(-)
-> 
-> diff --git a/libsemanage/include/semanage/modules.h
-> b/libsemanage/include/semanage/modules.h
-> index 4b93e54e7d21..a35de815abbf 100644
-> --- a/libsemanage/include/semanage/modules.h
-> +++ b/libsemanage/include/semanage/modules.h
-> @@ -79,12 +79,10 @@ int semanage_module_info_create(semanage_handle_t
-> *sh,
->  
->  /* Frees the members of the module info struct.
->   *
-> - * Returns 0 on success and -1 on failure.
-> - *
->   * The caller should call free() on the struct.
->   */
-> -int semanage_module_info_destroy(semanage_handle_t *handle,
-> -				 semanage_module_info_t *modinfo);
-> +void semanage_module_info_destroy(semanage_handle_t *handle,
-> +				  semanage_module_info_t *modinfo);
->  
->  /* Module Info Getters */
->  
-> @@ -168,11 +166,9 @@ int semanage_module_key_create(semanage_handle_t
-> *sh,
->  
->  /* Frees members of the @modkey, but not the struct. The caller
-> should
->   * call free() on struct.
-> - *
-> - * Returns 0 on success, and -1 on error.
->   */
-> -int semanage_module_key_destroy(semanage_handle_t *sh,
-> -				semanage_module_key_t *modkey);
-> +void semanage_module_key_destroy(semanage_handle_t *sh,
-> +				 semanage_module_key_t *modkey);
->  
->  /* Module Key Getters */
->  
-> diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
-> index 90c5e4917f97..7bbe3aa1e6db 100644
-> --- a/libsemanage/src/modules.c
-> +++ b/libsemanage/src/modules.c
-> @@ -281,19 +281,19 @@ int
-> semanage_module_info_create(semanage_handle_t *sh,
->  
->  hidden_def(semanage_module_info_create)
->  
-> -int semanage_module_info_destroy(semanage_handle_t *sh,
-> -				 semanage_module_info_t *modinfo)
-> +void semanage_module_info_destroy(semanage_handle_t *sh,
-> +				  semanage_module_info_t *modinfo)
->  {
->  	assert(sh);
->  
->  	if (!modinfo) {
-> -		return 0;
-> +		return;
->  	}
->  
->  	free(modinfo->name);
->  	free(modinfo->lang_ext);
->  
-> -	return semanage_module_info_init(sh, modinfo);
-> +	semanage_module_info_init(sh, modinfo);
->  }
->  
->  hidden_def(semanage_module_info_destroy)
-> @@ -323,11 +323,7 @@ int semanage_module_info_clone(semanage_handle_t
-> *sh,
->  	int status = 0;
->  	int ret = 0;
->  
-> -	ret = semanage_module_info_destroy(sh, target);
-> -	if (ret != 0) {
-> -		status = -1;
-> -		goto cleanup;
-> -	}
-> +	semanage_module_info_destroy(sh, target);
->  
->  	ret = semanage_module_info_set_priority(sh, target, source-
-> >priority);
->  	if (ret != 0) {
-> @@ -685,18 +681,18 @@ int
-> semanage_module_key_create(semanage_handle_t *sh,
->  
->  hidden_def(semanage_module_key_create)
->  
-> -int semanage_module_key_destroy(semanage_handle_t *sh,
-> -				semanage_module_key_t *modkey)
-> +void semanage_module_key_destroy(semanage_handle_t *sh,
-> +				 semanage_module_key_t *modkey)
->  {
->  	assert(sh);
->  
->  	if (!modkey) {
-> -		return 0;
-> +		return;
->  	}
->  
->  	free(modkey->name);
->  
-> -	return semanage_module_key_init(sh, modkey);
-> +	semanage_module_key_init(sh, modkey);
->  }
->  
->  hidden_def(semanage_module_key_destroy)
+Comparison of the number of attributes remaining in the binary policy
+     mls   normal  android
+org  310     286     255
+old  268     251     130 
+max   71      20      17
+min  226     173     119
+def  223     170      80
+gen  220     170      46
+u5   164     112      59 
+
+Org - Number of attributes in the CIL policy 
+Old - Results without this patch set
+Max - Remove the maximum number of attributes: "-G -X 9999"
+Min - Remove the minimum number of attributes: "-X 0"
+Def - The new defaults for CIL
+Gen - Just removing auto-generated attributes: "-G"
+U5  - Remove attributes with less than five members: "-X 5"
+
+v2:
+- Use "--expand-generated" and "--expand-size" as options for consistency.
+- Fixed bug in cil_post.c:__cil_post_db_attr_helper() where cil_typeattribute_used() would not be called if the attribute type bitmap was already created.
+
+James Carter (2):
+  libsepol/cil: Add ability to expand some attributes in binary policy
+  secilc: Add options to control the expansion of attributes
+
+ libsepol/cil/include/cil/cil.h     |   2 +
+ libsepol/cil/src/cil.c             |  12 ++
+ libsepol/cil/src/cil_binary.c      | 253 +++++++++++++++++++++++++++----------
+ libsepol/cil/src/cil_internal.h    |   7 +-
+ libsepol/cil/src/cil_post.c        |  32 +++--
+ libsepol/cil/src/cil_resolve_ast.c |  25 ++--
+ libsepol/src/libsepol.map.in       |   2 +
+ secilc/secil2conf.c                |   2 +
+ secilc/secilc.8.xml                |  10 ++
+ secilc/secilc.c                    |  31 ++++-
+ 10 files changed, 275 insertions(+), 101 deletions(-)
+
+-- 
+2.7.4
