@@ -1,59 +1,213 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3D0CTfq001030
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 20:12:30 -0400
-Subject: Re: [PATCH] selinux: add selinux_is_enforced() function
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- Sebastien Buisson <sbuisson.ddn@gmail.com>
-References: <1491988018-4120-1-git-send-email-sbuisson@ddn.com>
- <CAGH-KgsymFfRqDnmn1kLpWiPtHFkLU3UMKVu=8=NOUwk+qWjmg@mail.gmail.com>
- <CAPkE-bUsY8qD5xHU4VD-dxtAGxCGUhuQQmcS4kN0FyAozPRzhw@mail.gmail.com>
- <1492005519.3881.8.camel@tycho.nsa.gov>
- <CAPkE-bUCK2kFpi6Ls2VYPRDH624xgiu3GGnw5LyeFAfswiaeSA@mail.gmail.com>
- <1492014798.3881.16.camel@tycho.nsa.gov>
-Cc: james.l.morris@oracle.com, william.c.roberts@intel.com,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- Sebastien Buisson <sbuisson@ddn.com>, selinux@tycho.nsa.gov
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <2ad46d79-6e81-998d-3d8b-ed26c3d52a95@schaufler-ca.com>
-Date: Wed, 12 Apr 2017 17:12:13 -0700
-MIME-Version: 1.0
-In-Reply-To: <1492014798.3881.16.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
+Message-ID: <1492103767.31284.3.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 1/2] libselinux: add security_checkreqprot
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Christian =?ISO-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+ selinux@tycho.nsa.gov
+Date: Thu, 13 Apr 2017 13:16:07 -0400
+In-Reply-To: <20170412220038.9792-2-cgzones@googlemail.com>
+References: <20170412220038.9792-1-cgzones@googlemail.com>
+ <20170412220038.9792-2-cgzones@googlemail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 4/12/2017 9:33 AM, Stephen Smalley wrote:
-> On Wed, 2017-04-12 at 17:19 +0200, Sebastien Buisson wrote:
->> 2017-04-12 15:58 GMT+02:00 Stephen Smalley <sds@tycho.nsa.gov>:
->>> Even your usage of selinux_is_enabled() looks suspect; that should
->>> probably go away.  Only other user of it seems to be some cred
->>> validity
->>> checking that could be dropped as well.
->> Well the main reason for calling selinux_is_enabled() is performance
->> optimization.
->> Should I propose a patch to add a new security_is_enabled() function
->> at the LSM abstraction layer? Or do you consider we should not test
->> security enabled at all?
-> It isn't clear what "is enabled" means in general, particularly with
-> stacking. I would either drop it or replace it with a LSM hook that is
-> more precise.  For example, NFSv4 introduced a security_ismaclabel()
-> hook so that it could test whether a given security.* xattr is a MAC
-> label.
+On Thu, 2017-04-13 at 00:00 +0200, Christian Göttsche wrote:
+> From: cgzones <cgzones@googlemail.com>
+> 
+> Add security_checkreqprot() function, returning the current active
+> checkreqprot value
+> ---
+>  libselinux/include/selinux/selinux.h      |  3 +++
+>  libselinux/man/man3/security_getenforce.3 |  8 ++++++-
+>  libselinux/man/man3/selinux_status_open.3 | 11 +++++++--
+>  libselinux/src/checkreqprot.c             | 40
+> +++++++++++++++++++++++++++++++
+>  libselinux/src/selinux_internal.h         |  1 +
+>  5 files changed, 60 insertions(+), 3 deletions(-)
+>  create mode 100644 libselinux/src/checkreqprot.c
+> 
+> diff --git a/libselinux/include/selinux/selinux.h
+> b/libselinux/include/selinux/selinux.h
+> index 45dd6ca5..938393f6 100644
+> --- a/libselinux/include/selinux/selinux.h
+> +++ b/libselinux/include/selinux/selinux.h
+> @@ -331,6 +331,9 @@ extern int security_setenforce(int value);
+>  /* Get the behavior for undefined classes/permissions */
+>  extern int security_deny_unknown(void);
+>  
+> +/* Get the checkreqprot value */
+> +extern int security_checkreqprot(void);
 
-You can determine what security modules are enabled
-by reading /sys/kernel/security/lsm in userspace (4.11 feature).
+Technically, this can be get or set, like enforce, if allowed by
+policy.
+Don't know if we want to have getcheckreqprot/setcheckreqprot
+interfaces.
 
-Your kernel code *really* shouldn't care what security
-modules are enabled. If you do care, you've designed poorly.
-If you're trying to ensure consistent policy between members
-of your cluster you're better off doing that in user space
-than in the kernel.
+> +
+>  /* Disable SELinux at runtime (must be done prior to initial policy
+> load). */
+>  extern int security_disable(void);
+>  
+> diff --git a/libselinux/man/man3/security_getenforce.3
+> b/libselinux/man/man3/security_getenforce.3
+> index 7658014a..e27b6c80 100644
+> --- a/libselinux/man/man3/security_getenforce.3
+> +++ b/libselinux/man/man3/security_getenforce.3
+> @@ -1,6 +1,6 @@
+>  .TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au
+> " "SELinux API documentation"
+>  .SH "NAME"
+> -security_getenforce, security_setenforce, security_deny_unknown \-
+> get or set the enforcing state of SELinux
+> +security_getenforce, security_setenforce, security_deny_unknown
+> security_checkreqprot\- get or set the enforcing state of SELinux
+>  .
+>  .SH "SYNOPSIS"
+>  .B #include <selinux/selinux.h>
+> @@ -10,6 +10,8 @@ security_getenforce, security_setenforce,
+> security_deny_unknown \- get or set th
+>  .BI "int security_setenforce(int "value );
+>  .sp
+>  .B int security_deny_unknown(void);
+> +.sp
+> +.B int security_checkreqprot(void);
+>  .
+>  .SH "DESCRIPTION"
+>  .BR security_getenforce ()
+> @@ -24,6 +26,10 @@ returned.
+>  .BR security_deny_unknown ()
+>  returns 0 if SELinux treats policy queries on undefined object
+> classes or
+>  permissions as being allowed, 1 if such queries are denied, and \-1
+> on error.
+> +
+> +.BR security_checkreqprot ()
+> +returns 0 if SELinux checks the protection applied by the kernel, 1
+> if SELinux
+> +checks the protection requested by the application, and \-1 on
+> error.
 
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+on mmap and mprotect calls
+
+>  .
+>  .SH "SEE ALSO"
+>  .BR selinux "(8)"
+> diff --git a/libselinux/man/man3/selinux_status_open.3
+> b/libselinux/man/man3/selinux_status_open.3
+> index 2d44be57..e70ab014 100644
+> --- a/libselinux/man/man3/selinux_status_open.3
+> +++ b/libselinux/man/man3/selinux_status_open.3
+> @@ -1,8 +1,9 @@
+>  .TH "selinux_status_open" "3" "22 January 2011" "kaigai@ak.jp.nec.co
+> m" "SELinux API documentation"
+>  .SH "NAME"
+>  selinux_status_open, selinux_status_close, selinux_status_updated,
+> -selinux_status_getenforce, selinux_status_policyload and
+> -selinux_status_deny_unknown \- reference the SELinux kernel status
+> +selinux_status_getenforce, selinux_status_policyload,
+> +selinux_status_deny_unknown and security_checkreqprot \- reference
+> +the SELinux kernel status
+
+security_checkreqprot() oesn't belong here; these calls are for the
+SELinux kernel status page exported via /sys/fs/selinux/status that
+allow userspace to check this information without having to perform a
+system call (once the shared page is mapped).  If we were to add
+checkreqprot to the status page, then there would be a separate
+selinux_status_checkreqprot() call to access that value, but that
+requires a kernel change and a new version for the structure.
+ 
+>  without invocation of system calls
+>  .
+>  .SH "SYNOPSIS"
+> @@ -19,6 +20,8 @@ without invocation of system calls
+>  .BI "int selinux_status_policyload(void);"
+>  .sp
+>  .BI "int selinux_status_deny_unknown(void);"
+> +.sp
+> +.BI "int security_checkreqprot(void);"
+>  .
+>  .SH "DESCRIPTION"
+>  Linux 2.6.37 or later provides a SELinux kernel status page; being
+> mostly
+> @@ -78,6 +81,10 @@ Thus, don't use this value to know actual times of
+> policy reloaded.
+>  returns 0 if SELinux treats policy queries on undefined object
+> classes or
+>  permissions as being allowed, 1 if such queries are denied, or \-1
+> on error.
+>  .sp
+> +.BR security_checkreqprot ()
+> +returns 0 if SELinux checks the protection applied by the kernel, 1
+> if SELinux
+> +checks the protection requested by the application, and \-1 on
+> error.
+> +.sp
+>  Also note that these interfaces are not thread-safe, so you have to
+> protect
+>  them from concurrent calls using exclusive locks when multiple
+> threads are
+>  performing.
+> diff --git a/libselinux/src/checkreqprot.c
+> b/libselinux/src/checkreqprot.c
+> new file mode 100644
+> index 00000000..009a0ff0
+> --- /dev/null
+> +++ b/libselinux/src/checkreqprot.c
+> @@ -0,0 +1,40 @@
+> +#include <unistd.h>
+> +#include <sys/types.h>
+> +#include <fcntl.h>
+> +#include <stdlib.h>
+> +#include <errno.h>
+> +#include <string.h>
+> +#include "selinux_internal.h"
+> +#include "policy.h"
+> +#include <stdio.h>
+> +#include <limits.h>
+> +
+> +int security_checkreqprot(void)
+> +{
+> +	int fd, ret, checkreqprot = 0;
+> +	char path[PATH_MAX];
+> +	char buf[20];
+> +
+> +	if (!selinux_mnt) {
+> +		errno = ENOENT;
+> +		return -1;
+> +	}
+> +
+> +	snprintf(path, sizeof(path), "%s/checkreqprot",
+> selinux_mnt);
+> +	fd = open(path, O_RDONLY | O_CLOEXEC);
+> +	if (fd < 0)
+> +		return -1;
+> +
+> +	memset(buf, 0, sizeof(buf));
+> +	ret = read(fd, buf, sizeof(buf) - 1);
+> +	close(fd);
+> +	if (ret < 0)
+> +		return -1;
+> +
+> +	if (sscanf(buf, "%d", &checkreqprot) != 1)
+> +		return -1;
+> +
+> +	return checkreqprot;
+> +}
+> +
+> +hidden_def(security_checkreqprot);
+> diff --git a/libselinux/src/selinux_internal.h
+> b/libselinux/src/selinux_internal.h
+> index 3d5c9fb4..e4650c92 100644
+> --- a/libselinux/src/selinux_internal.h
+> +++ b/libselinux/src/selinux_internal.h
+> @@ -59,6 +59,7 @@ hidden_proto(selinux_mkload_policy)
+>      hidden_proto(security_getenforce)
+>      hidden_proto(security_setenforce)
+>      hidden_proto(security_deny_unknown)
+> +    hidden_proto(security_checkreqprot)
+>      hidden_proto(selinux_boolean_sub)
+>      hidden_proto(selinux_current_policy_path)
+>      hidden_proto(selinux_binary_policy_path)
