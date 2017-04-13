@@ -1,44 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3CM2xk4031637
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 18:02:59 -0400
-Received: by mail-wm0-f67.google.com with SMTP id x75so9185573wma.1
- for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 15:02:58 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3D0CTfq001030
+ for <selinux@tycho.nsa.gov>; Wed, 12 Apr 2017 20:12:30 -0400
+Subject: Re: [PATCH] selinux: add selinux_is_enforced() function
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ Sebastien Buisson <sbuisson.ddn@gmail.com>
+References: <1491988018-4120-1-git-send-email-sbuisson@ddn.com>
+ <CAGH-KgsymFfRqDnmn1kLpWiPtHFkLU3UMKVu=8=NOUwk+qWjmg@mail.gmail.com>
+ <CAPkE-bUsY8qD5xHU4VD-dxtAGxCGUhuQQmcS4kN0FyAozPRzhw@mail.gmail.com>
+ <1492005519.3881.8.camel@tycho.nsa.gov>
+ <CAPkE-bUCK2kFpi6Ls2VYPRDH624xgiu3GGnw5LyeFAfswiaeSA@mail.gmail.com>
+ <1492014798.3881.16.camel@tycho.nsa.gov>
+Cc: james.l.morris@oracle.com, william.c.roberts@intel.com,
+ linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
+ Sebastien Buisson <sbuisson@ddn.com>, selinux@tycho.nsa.gov
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <2ad46d79-6e81-998d-3d8b-ed26c3d52a95@schaufler-ca.com>
+Date: Wed, 12 Apr 2017 17:12:13 -0700
 MIME-Version: 1.0
-In-Reply-To: <20170412220038.9792-1-cgzones@googlemail.com>
-References: <20170412220038.9792-1-cgzones@googlemail.com>
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Thu, 13 Apr 2017 00:02:57 +0200
-Message-ID: <CAJ2a_DczUO0VMSe6kGcp_nHUXgT1tLyL02ECjpSkKbyOOSzb2w@mail.gmail.com>
-Subject: Re: [PATCH 0/2] show checkreqprot status in sestatus
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1492014798.3881.16.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-How do I avoid to permit *less secure apps* in gmail, and still be
-able to use git send-email?
+On 4/12/2017 9:33 AM, Stephen Smalley wrote:
+> On Wed, 2017-04-12 at 17:19 +0200, Sebastien Buisson wrote:
+>> 2017-04-12 15:58 GMT+02:00 Stephen Smalley <sds@tycho.nsa.gov>:
+>>> Even your usage of selinux_is_enabled() looks suspect; that should
+>>> probably go away.  Only other user of it seems to be some cred
+>>> validity
+>>> checking that could be dropped as well.
+>> Well the main reason for calling selinux_is_enabled() is performance
+>> optimization.
+>> Should I propose a patch to add a new security_is_enabled() function
+>> at the LSM abstraction layer? Or do you consider we should not test
+>> security enabled at all?
+> It isn't clear what "is enabled" means in general, particularly with
+> stacking. I would either drop it or replace it with a LSM hook that is
+> more precise.  For example, NFSv4 introduced a security_ismaclabel()
+> hook so that it could test whether a given security.* xattr is a MAC
+> label.
 
-2017-04-13 0:00 GMT+02:00 Christian Göttsche <cgzones@googlemail.com>:
-> From: cgzones <cgzones@googlemail.com>
+You can determine what security modules are enabled
+by reading /sys/kernel/security/lsm in userspace (4.11 feature).
+
+Your kernel code *really* shouldn't care what security
+modules are enabled. If you do care, you've designed poorly.
+If you're trying to ensure consistent policy between members
+of your cluster you're better off doing that in user space
+than in the kernel.
+
 >
-> V2
-> added O_CLOEXEC to open()
->
-> cgzones (2):
->   libselinux: add security_checkreqprot
->   sestatus: show checkreqprot status
->
->  libselinux/include/selinux/selinux.h      |  3 +++
->  libselinux/man/man3/security_getenforce.3 |  8 ++++++-
->  libselinux/man/man3/selinux_status_open.3 | 11 +++++++--
->  libselinux/src/checkreqprot.c             | 40 +++++++++++++++++++++++++++++++
->  libselinux/src/selinux_internal.h         |  1 +
->  policycoreutils/sestatus/sestatus.c       | 14 +++++++++++
->  6 files changed, 74 insertions(+), 3 deletions(-)
->  create mode 100644 libselinux/src/checkreqprot.c
->
-> --
-> 2.11.0
->
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
