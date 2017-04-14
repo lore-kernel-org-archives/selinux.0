@@ -1,25 +1,25 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3EI87vl010227
- for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2017 14:08:08 -0400
-Received: by mail-wr0-f180.google.com with SMTP id c55so54281749wrc.3
- for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2017 11:07:34 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3EInrMI021955
+ for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2017 14:49:53 -0400
+Received: by mail-wr0-f181.google.com with SMTP id c55so54719014wrc.3
+ for <selinux@tycho.nsa.gov>; Fri, 14 Apr 2017 11:49:49 -0700 (PDT)
 Received: from markus (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id 23sm3272356wrx.26.2017.04.14.11.07.32
+ by smtp.gmail.com with ESMTPSA id l19sm3382645wre.2.2017.04.14.11.49.47
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Fri, 14 Apr 2017 11:07:32 -0700 (PDT)
-Date: Fri, 14 Apr 2017 20:07:31 +0200
+ Fri, 14 Apr 2017 11:49:48 -0700 (PDT)
+Date: Fri, 14 Apr 2017 20:49:46 +0200
 From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
 Subject: Re: let's revert e3cab998b48ab293a9962faf9779d70ca339c65d
-Message-ID: <20170414180731.GA16153@markus>
+Message-ID: <20170414184946.GB16153@markus>
 References: <20170414145759.GA7980@markus>
  <1492184005.26072.3.camel@tycho.nsa.gov>
  <fdcf2bd0-6a5a-aead-ef31-59b9b2235afe@redhat.com>
  <1492192590.26072.5.camel@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+ protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
 In-Reply-To: <1492192590.26072.5.camel@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -27,7 +27,7 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
---cNdxnHkX5QqsyA0e
+--St7VIuEGZ6dlpu13
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -135,15 +135,6 @@ true=A0=A0},
 > };
 >=20
 > No mention of selinuxfs at all.  Maybe it is a Fedora patch?
-
-Do you see anything else in there that might cause libselinux linked proces=
-ses to think selinux is disabled?
-
-getfilecon/setfilecon does not work with ProtectKernelTunables=3Dyes. There=
- is no mention of it in the (debug) log. It just
-skips the whole getfilecon/setfilecon step
-
-
 >=20
 > > The reason we want this is so that processes inside of containers do
 > > not
@@ -151,27 +142,31 @@ skips the whole getfilecon/setfilecon step
 > >=20
 > > http://danwalsh.livejournal.com/73099.html
 
+Before one dismisses my concern (8 minute proof):
+
+https://www.youtube.com/watch?v=3DYqiM1MlOG0w
+
 --=20
 Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
 https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
 Dominick Grift
 
---cNdxnHkX5QqsyA0e
+--St7VIuEGZ6dlpu13
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAljxD98ACgkQJXSOVTf5
-R2nQPAv+PH4ZUR5gGp5CXryfSda+Z6z4TNaWOxn61MdOHM2T7Imsl7LTY0jALJ6w
-DNyhzxHI8jgZfMyi7h5uxH5YVZkBQfRpnaIBpZV7aGN0Y5w3ctXHEPBQcLSA9BiR
-AVVK4gfzruNVX+kwPSZVkG3UUi9h4EkZJHrEQaVqMam4hB1YxENakwiILtmOwTwg
-3UvWmTwL1xI+DEc1xEupoN5aeDNPObWfps5Lrp7q4UZv8kyYQ8ZTSZMC6nDs3Ine
-VQ5OxeiNlByN+Dgs2t0yENdcsSeNG0f75FapJjN5btnlqYVk6Z+kSf2isuOGRJdp
-zI5av9UpVgNtk5sJg8MT6yuPj8lsiPGWhj/djk+qiV9rUWUzK7vFCeCRUcF4Wlr7
-9+19F0QFNdgs3I/hWGzBUP+gcLZJ2OEi8w95OuSyAea9seXRhraJa7objfgDNUHW
-0NElfruGVMm2zv2vFFnysmHd7JpCuo/Cnyoj1675LbrQ2LgqURCO2QK5+/Eu+Smi
-Mk3atS37
-=emCl
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAljxGcYACgkQJXSOVTf5
+R2kaywv9HxVqZU2uegMRHSI6XMMeSp10SmBM2QOhnk2A4Ur9KdyNGbIG3S0ticzc
+XbB2MS0hNcL0iNtWtI84sz2rnQVmnIPAE7P4NBzIeOeVemXGQ8G3Kl4myQU4RuOI
+0OJe7AwIpZuKKAHYl930xyXurfIlJ0E4NGwOSpymfQWvqq6G2evH0W/m2MGQoxWR
+8zQMAG9t8Q3NwcIheCejrdgqd5/LjNscYf3UkxBTLO0jKqaMgDeSJc3kZZF+/aNq
+dN4wC1aqRkctdXECf2gRzYs0ZiAkmdfiNFKv3vuh5AdO9yi2yeH6vtNOBsdBb2hf
+7lqdjzRbvzoBtF1I4PJNnvFn9DmUBM0RBNrZorGovmFW20N23E4GGyYeI+Fe1gfJ
+UcXg/dPldLmyhDCx3Yz8Y+HmOt9sfjmW9MkG+K3D/OSwCajpJbDrjFILRjOFNbI4
+jau06Pj5yfZqTe0B4lp7CEf5hFDud74BwZkrOr1sAIhjqQFB20F2Vgkl8GSlKXZv
+wA/aljC1
+=p3Ft
 -----END PGP SIGNATURE-----
 
---cNdxnHkX5QqsyA0e--
+--St7VIuEGZ6dlpu13--
