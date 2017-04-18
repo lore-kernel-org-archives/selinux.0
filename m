@@ -1,35 +1,41 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3IMWPAn006838
- for <selinux@tycho.nsa.gov>; Tue, 18 Apr 2017 18:32:25 -0400
-Date: Wed, 19 Apr 2017 08:32:20 +1000 (AEST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul@paul-moore.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [GIT PULL] SELinux patches for 4.12
-In-Reply-To: <CAHC9VhSX2R6+eof6JPVyjzCmL0gFMMO=Liw15vVyED502eJ2gQ@mail.gmail.com>
-Message-ID: <alpine.LRH.2.20.1704190832040.22202@namei.org>
-References: <CAHC9VhSX2R6+eof6JPVyjzCmL0gFMMO=Liw15vVyED502eJ2gQ@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3IMcBAx008055
+ for <selinux@tycho.nsa.gov>; Tue, 18 Apr 2017 18:38:11 -0400
+To: LSM <linux-security-module@vger.kernel.org>,
+ SE Linux <selinux@tycho.nsa.gov>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Subject: SELinux "filtering" capabilities?
+Message-ID: <82d9ff60-6850-0873-1e68-20bd0e27e9ee@schaufler-ca.com>
+Date: Tue, 18 Apr 2017 15:37:42 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 18 Apr 2017, Paul Moore wrote:
+I don't expect anyone else to have run into this
+as I am working with SELinux and Smack on the same
+machine at the same time. While there are a number
+of interactions that I can explain, I have one that
+is perplexing me. I assume something rational is
+going on, but I am having trouble tracking it down.
 
-> Hi James,
-> 
-> A whopping 31 SELinux patches for v4.12, although 25 of these are the
-> small little patches from Markus.  Beyond those 25 patches, the
-> remaining six are equally trivial with the only real standout being
-> Stephen's patch to reorder the DAC_OVERRIDE and DAC_READ_SEARCH
-> checks.  Everything passes selinux-testsuite and merges cleanly with
-> the linux-security/next branch; please apply.
+A process with CAP_MAC_ADMIN can change its Smack label
+by writing the new label to /proc/self/attr/smack/current.*
+If I have both SELinux and Smack enabled the write fails
+with -EPERM, indicating that the process lacks CAP_MAC_ADMIN.
+Instrumenting the Smack code verifies that, even though the
+process reports having CAP_MAC_ADMIN, the capability is gone
+in smack_setprocattr().
 
-Pulled, thanks.
+It seem that this could be happening in the write() path,
+or perhaps an artifact of SELinux not knowing something
+special about smackfs. I don't see anything obvious.
+Unfortunately, it is going to be somewhat difficult for
+me to claim that I have SELinux and Smack working, if not
+together, at least begrudgingly on the same system.
 
-
--- 
-James Morris
-<jmorris@namei.org>
+----
+* The smack subdir of attr isn't upstream yet, but I hope
+  to get it there real soon.
