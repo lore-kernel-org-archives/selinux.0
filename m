@@ -1,41 +1,61 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3L6oP0t006872
- for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 02:50:25 -0400
-Received: from mlsw1.hitachi.co.jp (unknown [133.144.234.166])
- by mail4.hitachi.co.jp (Postfix) with ESMTP id 72FD32CF4CF
- for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 15:50:20 +0900 (JST)
-Received: from vshuts04.hitachi.co.jp (vshuts04.hitachi.co.jp [10.201.6.86])
- by mfilter3.hitachi.co.jp (Switch-3.3.4/Switch-3.3.4) with ESMTP id
- v3L6oJvX021688
- for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 15:50:20 +0900
-Received: from GSjpTK1DCehcs03.service.hitachi.net (unknown [158.213.41.12])
- by vshuts04.hitachi.co.jp (Postfix) with ESMTP id 7EC8513E058
- for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 15:50:19 +0900 (JST)
-From: =?iso-2022-jp?B?GyRCQ2ZCPE06MGwbKEIgLyBOQUtBTVVSQRskQiEkGyhCWVVVSUNISQ==?=
- <yuichi.nakamura.fe@hitachi.com>
-To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
-Subject: SELinux BoF at Open Source Summit Japan
-Date: Fri, 21 Apr 2017 06:50:19 +0000
-Message-ID: <D6DDBEC5E2802849A9493717C9A419C3A2499C74@GSjpTK1DCembx17.service.hitachi.net>
-Content-Type: text/plain; charset="iso-2022-jp"
-MIME-Version: 1.0
+Message-ID: <1492783138.26658.3.camel@tycho.nsa.gov>
+Subject: Re: Updating offline the commit_num file
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Eduardo Barretto <ebarreto@linux.vnet.ibm.com>, selinux@tycho.nsa.gov
+Date: Fri, 21 Apr 2017 09:58:58 -0400
+In-Reply-To: <6731786d-a352-ce4b-b212-3b85735b571f@linux.vnet.ibm.com>
+References: <6731786d-a352-ce4b-b212-3b85735b571f@linux.vnet.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello.
+On Thu, 2017-04-20 at 17:52 -0300, Eduardo Barretto wrote:
+> Hi all,
+> 
+> I'm trying to do an offline update (i.e. issuing the semanage
+> command)
+> of some files on SELinux, and then replace those files on the system
+> that is being updated.
+> 
+> I know that the semanage also updates the commit_num file. So my
+> doubt is:
+> 
+> Do I need to care about updating the commit_num on the updated
+> system?
+> Should I increment the commit_num by the same amount (resulted from
+> the
+> semanage command) that the updated files where ?
+> 
+> Is there any code that is reading the value in the commit_num file
+> and
+> if so, how is it using the value read?
+> 
+> If this is not the correct place to get this information, just let me
+> know.
 
-I was promoting and developing SELinux in Japan, about 10 years ago.
-I've restarted promotion of SELinux again with friends (www.secureoss.jp).
-We are going to hold SELinux BoF at Open Source Summit Japan.
+Any particular reason you are doing it this way instead of running the
+commands on the build host, doing a semanage export and then doing a
+semanage import on the target system?
 
-Please visit the BoF session if you attend Open Source Summit Japan.
+Are you doing anything to prevent another process on the system from
+performing transactions on the policy store at the same time you are
+replacing the files?
 
-June 1 16:50-17:30(JST)
-BoF: SELinux Policy/Developer's Policy Module
-http://sched.co/AOmu
+Are you dealing with differences in policy store location and content
+(if you are running the semanage command on a system running a
+different version than any of the systems being updated)? This differs
+even just going from RHEL7.2 to RHEL7.3, and differs between Fedora and
+RHEL (e.g. /var/lib/selinux vs /etc/selinux, changes to the underlying
+directory structure, changing from binary modules to CIL modules).
 
-Regards,
-Yuichi Nakamura
-Secure OSS SIG: http://www.secureoss.jp/
+With regard to commit_num, the only property you need to preserve is
+that it monotonically increases.  The actual value isn't so important. 
+So if all policy changes are performed in this manner, you could just
+copy the commit_num file as is from the server. Or if you are making
+local changes as well, then you just need to ensure that you increment
+the commit_num each time you update the files; you don't need to
+increment it by the same amount as on the server (i.e. we don't care
+about tracking the individual changes).
