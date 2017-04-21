@@ -1,61 +1,41 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3KKqvt8007645
- for <selinux@tycho.nsa.gov>; Thu, 20 Apr 2017 16:52:57 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (8.16.0.20/8.16.0.20) with SMTP id
- v3KKmrYo036966
- for <selinux@tycho.nsa.gov>; Thu, 20 Apr 2017 16:52:54 -0400
-Received: from e24smtp02.br.ibm.com (e24smtp02.br.ibm.com [32.104.18.86])
- by mx0b-001b2d01.pphosted.com with ESMTP id 29xvy26hxr-1
- (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
- for <selinux@tycho.nsa.gov>; Thu, 20 Apr 2017 16:52:54 -0400
-Received: from localhost
- by e24smtp02.br.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
- Violators will be prosecuted
- for <selinux@tycho.nsa.gov> from <ebarreto@linux.vnet.ibm.com>;
- Thu, 20 Apr 2017 17:52:52 -0300
-Received: from d24av02.br.ibm.com (d24av02.br.ibm.com [9.8.31.93])
- by d24relay04.br.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- v3KKqiau66977884
- for <selinux@tycho.nsa.gov>; Thu, 20 Apr 2017 17:52:49 -0300
-Received: from d24av02.br.ibm.com (localhost [127.0.0.1])
- by d24av02.br.ibm.com (8.14.4/8.14.4/NCO v10.0 AVout) with ESMTP id
- v3KKqT1Z018896
- for <selinux@tycho.nsa.gov>; Thu, 20 Apr 2017 17:52:29 -0300
-Received: from [9.18.235.81] (ebarreto-T430.br.ibm.com [9.18.235.81] (may be
- forged))
- by d24av02.br.ibm.com (8.14.4/8.14.4/NCO v10.0 AVin) with ESMTP id
- v3KKqTQE018789
- for <selinux@tycho.nsa.gov>; Thu, 20 Apr 2017 17:52:29 -0300
-To: selinux@tycho.nsa.gov
-From: Eduardo Barretto <ebarreto@linux.vnet.ibm.com>
-Subject: Updating offline the commit_num file
-Date: Thu, 20 Apr 2017 17:52:13 -0300
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3L6oP0t006872
+ for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 02:50:25 -0400
+Received: from mlsw1.hitachi.co.jp (unknown [133.144.234.166])
+ by mail4.hitachi.co.jp (Postfix) with ESMTP id 72FD32CF4CF
+ for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 15:50:20 +0900 (JST)
+Received: from vshuts04.hitachi.co.jp (vshuts04.hitachi.co.jp [10.201.6.86])
+ by mfilter3.hitachi.co.jp (Switch-3.3.4/Switch-3.3.4) with ESMTP id
+ v3L6oJvX021688
+ for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 15:50:20 +0900
+Received: from GSjpTK1DCehcs03.service.hitachi.net (unknown [158.213.41.12])
+ by vshuts04.hitachi.co.jp (Postfix) with ESMTP id 7EC8513E058
+ for <selinux@tycho.nsa.gov>; Fri, 21 Apr 2017 15:50:19 +0900 (JST)
+From: =?iso-2022-jp?B?GyRCQ2ZCPE06MGwbKEIgLyBOQUtBTVVSQRskQiEkGyhCWVVVSUNISQ==?=
+ <yuichi.nakamura.fe@hitachi.com>
+To: "'selinux@tycho.nsa.gov'" <selinux@tycho.nsa.gov>
+Subject: SELinux BoF at Open Source Summit Japan
+Date: Fri, 21 Apr 2017 06:50:19 +0000
+Message-ID: <D6DDBEC5E2802849A9493717C9A419C3A2499C74@GSjpTK1DCembx17.service.hitachi.net>
+Content-Type: text/plain; charset="iso-2022-jp"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Message-Id: <6731786d-a352-ce4b-b212-3b85735b571f@linux.vnet.ibm.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi all,
+Hello.
 
-I'm trying to do an offline update (i.e. issuing the semanage command)
-of some files on SELinux, and then replace those files on the system
-that is being updated.
+I was promoting and developing SELinux in Japan, about 10 years ago.
+I've restarted promotion of SELinux again with friends (www.secureoss.jp).
+We are going to hold SELinux BoF at Open Source Summit Japan.
 
-I know that the semanage also updates the commit_num file. So my doubt is:
+Please visit the BoF session if you attend Open Source Summit Japan.
 
-Do I need to care about updating the commit_num on the updated system?
-Should I increment the commit_num by the same amount (resulted from the
-semanage command) that the updated files where ?
+June 1 16:50-17:30(JST)
+BoF: SELinux Policy/Developer's Policy Module
+http://sched.co/AOmu
 
-Is there any code that is reading the value in the commit_num file and
-if so, how is it using the value read?
-
-If this is not the correct place to get this information, just let me know.
-
-Thanks,
-Best regards,
-Eduardo
+Regards,
+Yuichi Nakamura
+Secure OSS SIG: http://www.secureoss.jp/
