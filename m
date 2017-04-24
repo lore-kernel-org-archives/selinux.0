@@ -1,127 +1,94 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OI0Nbu026576
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:00:44 -0400
-Received: by mail-pf0-f195.google.com with SMTP id g23so5459248pfj.1
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 11:00:42 -0700 (PDT)
-From: Jason Zaman <jason@perfinion.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OIbIdE008350
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:37:18 -0400
+In-Reply-To: <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
+References: <58517705.198270.1492699110308@pim.register.it>
+ <138cd2dc-f5c8-43ce-eb22-6f59c768623d@gmail.com>
+ <f5651c20-f14f-bd42-be2f-947294de28c9@gmail.com>
+ <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Subject: Re: [PATCH] libsemanage: remove lock files
+From: Guido Trentalancia <guido@trentalancia.net>
+Date: Mon, 24 Apr 2017 20:38:40 +0200
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 7/7] policycoreutils: make audit and pam support configurable
-Date: Tue, 25 Apr 2017 01:59:59 +0800
-Message-Id: <20170424175959.20998-7-jason@perfinion.com>
-In-Reply-To: <20170424175959.20998-1-jason@perfinion.com>
-References: <20170424175959.20998-1-jason@perfinion.com>
+Message-ID: <C6C00E69-C6B1-4408-B27A-C05D7B6B9D00@trentalancia.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Jason Zaman <jason@perfinion.com>
----
- policycoreutils/newrole/Makefile  | 10 +++++-----
- policycoreutils/run_init/Makefile | 10 +++++-----
- policycoreutils/setfiles/Makefile |  4 ++--
- 3 files changed, 12 insertions(+), 12 deletions(-)
+Also, another major benefit of not using flock() comes when using NFS (probably a very rare circumstance, but not entirely impossibile).
 
-diff --git a/policycoreutils/newrole/Makefile b/policycoreutils/newrole/Makefile
-index 8bfbd5f..bdefbb8 100644
---- a/policycoreutils/newrole/Makefile
-+++ b/policycoreutils/newrole/Makefile
-@@ -4,8 +4,8 @@ BINDIR ?= $(PREFIX)/bin
- MANDIR ?= $(PREFIX)/share/man
- ETCDIR ?= $(DESTDIR)/etc
- LOCALEDIR = /usr/share/locale
--PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
--AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
-+PAMH ?= $(shell test -f /usr/include/security/pam_appl.h && echo y)
-+AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
- # Enable capabilities to permit newrole to generate audit records.
- # This will make newrole a setuid root program.
- # The capabilities used are: CAP_AUDIT_WRITE.
-@@ -24,7 +24,7 @@ CFLAGS ?= -Werror -Wall -W
- EXTRA_OBJS =
- override CFLAGS += -DVERSION=\"$(VERSION)\" -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
- LDLIBS += -lselinux
--ifeq ($(PAMH), /usr/include/security/pam_appl.h)
-+ifeq ($(PAMH), y)
- 	override CFLAGS += -DUSE_PAM
- 	EXTRA_OBJS += hashtab.o
- 	LDLIBS += -lpam -lpam_misc
-@@ -32,7 +32,7 @@ else
- 	override CFLAGS += -D_XOPEN_SOURCE=500
- 	LDLIBS += -lcrypt
- endif
--ifeq ($(AUDITH), /usr/include/libaudit.h)
-+ifeq ($(AUDITH), y)
- 	override CFLAGS += -DUSE_AUDIT
- 	LDLIBS += -laudit
- endif
-@@ -66,7 +66,7 @@ install: all
- 	test -d $(MANDIR)/man1 || install -m 755 -d $(MANDIR)/man1
- 	install -m $(MODE) newrole $(BINDIR)
- 	install -m 644 newrole.1 $(MANDIR)/man1/
--ifeq ($(PAMH), /usr/include/security/pam_appl.h)
-+ifeq ($(PAMH), y)
- 	test -d $(ETCDIR)/pam.d || install -m 755 -d $(ETCDIR)/pam.d
- ifeq ($(LSPP_PRIV),y)
- 	install -m 644 newrole-lspp.pamd $(ETCDIR)/pam.d/newrole
-diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_init/Makefile
-index a3beef7..6f5ee13 100644
---- a/policycoreutils/run_init/Makefile
-+++ b/policycoreutils/run_init/Makefile
-@@ -5,20 +5,20 @@ SBINDIR ?= $(PREFIX)/sbin
- MANDIR ?= $(PREFIX)/share/man
- ETCDIR ?= $(DESTDIR)/etc
- LOCALEDIR ?= /usr/share/locale
--PAMH = $(shell ls /usr/include/security/pam_appl.h 2>/dev/null)
--AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
-+PAMH ?= $(shell test -f /usr/include/security/pam_appl.h && echo y)
-+AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
- 
- CFLAGS ?= -Werror -Wall -W
- override CFLAGS += -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
- LDLIBS += -lselinux
--ifeq ($(PAMH), /usr/include/security/pam_appl.h)
-+ifeq ($(PAMH), y)
- 	override CFLAGS += -DUSE_PAM
- 	LDLIBS += -lpam -lpam_misc
- else
- 	override CFLAGS += -D_XOPEN_SOURCE=500
- 	LDLIBS += -lcrypt
- endif
--ifeq ($(AUDITH), /usr/include/libaudit.h)
-+ifeq ($(AUDITH), y)
- 	override CFLAGS += -DUSE_AUDIT
- 	LDLIBS += -laudit
- endif
-@@ -38,7 +38,7 @@ install: all
- 	install -m 755 open_init_pty $(SBINDIR)
- 	install -m 644 run_init.8 $(MANDIR)/man8/
- 	install -m 644 open_init_pty.8 $(MANDIR)/man8/
--ifeq ($(PAMH), /usr/include/security/pam_appl.h)
-+ifeq ($(PAMH), y)
- 	install -m 644 run_init.pamd $(ETCDIR)/pam.d/run_init
- endif
- 
-diff --git a/policycoreutils/setfiles/Makefile b/policycoreutils/setfiles/Makefile
-index f7089f9..4b8cd81 100644
---- a/policycoreutils/setfiles/Makefile
-+++ b/policycoreutils/setfiles/Makefile
-@@ -3,14 +3,14 @@ PREFIX ?= $(DESTDIR)/usr
- SBINDIR ?= $(DESTDIR)/sbin
- MANDIR = $(PREFIX)/share/man
- LIBDIR ?= $(PREFIX)/lib
--AUDITH = $(shell ls /usr/include/libaudit.h 2>/dev/null)
-+AUDITH ?= $(shell test -f /usr/include/libaudit.h && echo y)
- 
- ABORT_ON_ERRORS=$(shell grep "^\#define ABORT_ON_ERRORS" setfiles.c | awk -S '{ print $$3 }')
- 
- CFLAGS ?= -g -Werror -Wall -W
- LDLIBS = -lselinux -lsepol
- 
--ifeq ($(AUDITH), /usr/include/libaudit.h)
-+ifeq ($(AUDITH), y)
- 	override CFLAGS += -DUSE_AUDIT
- 	LDLIBS += -laudit
- endif
--- 
-2.10.2
+It is possible to use the presence of a file (with the same name) to indicate an "active" lock: such file should store the PID of the process that is requiring the lock.
+
+If a lock is found with a PID that does not exist, then such lock is considered invalid and it is removed. 
+That is it really...
+
+Regards, 
+
+Guido 
+
+On the 24th of April 2017 19:51:27 CEST, Guido Trentalancia <guido@trentalancia.net> wrote:
+>Yes, we already discussed this possibile race condition. 
+>
+>Usually there is only one system administrator operating on the
+>semanage store, nevertheless it's worth having a robust locking
+>mechanism...
+>
+>This patch either needs further work to avoid using flock() and instead
+>using a simpler file lock mechanism with the added benefit of having a
+>cleaner filesystem without confusing stale files around or we just drop
+>the patch given it is not essential to keep things working. 
+>
+>Regards, 
+>
+>Guido 
+>
+>On the 24th of April 2017 14:08:22 CEST, Alan Jenkins
+><alan.christopher.jenkins@gmail.com> wrote:
+>>*expands thread
+>>
+>>Sorry, I see this has already been addressed.
+>>
+>>
+>>On 24/04/17 13:06, Alan Jenkins wrote:
+>>> On 20/04/17 15:38, Guido Trentalancia wrote:
+>>>> Remove semanage read and transaction lock files upon releasing
+>>>> them.
+>>>
+>>> What prevents this sequence?
+>>>
+>>> A release lock
+>>>  B acquire lock
+>>> A unlink lock file
+>>>   C create lock file
+>>>   C acquire lock
+>>>
+>>>> Signed-off-by: Guido Trentalancia 
+>>>> <guido-D1bseh+SzQhuxeB9wqlrNw@public.gmane.org>
+>>>> ---
+>>>>   src/semanage_store.c |    2 ++
+>>>>   1 file changed, 2 insertions(+)
+>>>>
+>>>> diff -pruN a/src/semanage_store.c b/src/semanage_store.c
+>>>> --- a/src/semanage_store.c    2016-10-14 17:31:26.000000000 +0200
+>>>> +++ b/src/semanage_store.c    2017-04-03 09:32:24.093627962 +0200
+>>>> @@ -1904,6 +1904,7 @@ void semanage_release_trans_lock(semanag
+>>>>           close(sh->u.direct.translock_file_fd);
+>>>>           sh->u.direct.translock_file_fd = -1;
+>>>>       }
+>>>> +    unlink(semanage_files[SEMANAGE_TRANS_LOCK]);
+>>>>       errno = errsv;
+>>>>   }
+>>>>   @@ -1917,6 +1918,7 @@ void semanage_release_active_lock(semana
+>>>>           close(sh->u.direct.activelock_file_fd);
+>>>>           sh->u.direct.activelock_file_fd = -1;
+>>>>       }
+>>>> +    unlink(semanage_files[SEMANAGE_READ_LOCK]);
+>>>>       errno = errsv;
+>>>>   }
+>>>
+>>>
+>>>
