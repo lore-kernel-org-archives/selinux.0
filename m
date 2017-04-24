@@ -1,51 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3N0rRKU018956
- for <selinux@tycho.nsa.gov>; Sat, 22 Apr 2017 20:53:27 -0400
-Received: from mailscan09.yourhostingaccount.com ([10.1.15.9]
- helo=walmailscan09.yourhostingaccount.com)
- by walmailout10.yourhostingaccount.com with esmtp (Exim)
- id 1d25mB-0000gh-OD
- for selinux@tycho.nsa.gov; Sat, 22 Apr 2017 20:53:19 -0400
-Received: from [10.114.3.33] (helo=walimpout13)
- by walmailscan09.yourhostingaccount.com with esmtp (Exim)
- id 1d25mB-0003cd-Md
- for selinux@tycho.nsa.gov; Sat, 22 Apr 2017 20:53:19 -0400
-Received: from x1-6-50-6a-03-e0-98-fa.cpe.webspeed.dk ([188.181.91.111]:42248
- helo=hackers.mu)
- by walauthsmtp03.yourhostingaccount.com with esmtpa (Exim)
- id 1d25m7-0005kO-JH
- for selinux@tycho.nsa.gov; Sat, 22 Apr 2017 20:53:15 -0400
-Date: Sun, 23 Apr 2017 02:53:11 +0200
-From: Pirabarlen-Cheenaramen <selven@hackers.mu>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OD9aqn012870
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 09:09:36 -0400
+From: Richard Haines <richard_c_haines@btinternet.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] security: hooks : Prevent security to persist in memory (PR
- #31)
-Message-ID: <20170423005311.GA29693@hackers.mu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: Pirabarlen-Cheenaramen <selven@hackers.mu>
+Subject: [RFC PATCH 0/1] libselinux: Add support for selinux_check_access_flags
+Date: Mon, 24 Apr 2017 14:09:19 +0100
+Message-Id: <20170424130919.5286-1-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Pirabarlen-Cheenaramen <selven@hackers.mu>
----
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Only wanted the avd flags to check whether the domain was permissive
+or not using an selinux_check_access() type call.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index d98550a..9f82908 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4944,7 +4944,7 @@ static int selinux_tun_dev_alloc_security(void **security)
- 
- static void selinux_tun_dev_free_security(void *security)
- {
--	kfree(security);
-+	kzfree(security);
- }
- 
- static int selinux_tun_dev_create(void)
+As a consequence of implementing selinux_check_access_flags, additional
+calls have been added to avc.c: avc_has_perm_flags() and
+avc_has_perm_noaudit_flags(). Added man page entries for them but not sure
+if they should be hidden.
+
+Richard Haines (1):
+  libselinux: Add support for selinux_check_access_flags
+
+ libselinux/include/selinux/avc.h                 |  68 +++++++
+ libselinux/include/selinux/selinux.h             |  32 +++
+ libselinux/man/man3/avc_has_perm.3               |  37 +++-
+ libselinux/man/man3/security_compute_av.3        |  21 +-
+ libselinux/man/man3/selinux_check_access_flags.3 |   1 +
+ libselinux/src/avc.c                             |  44 ++++-
+ libselinux/src/avc_internal.h                    |   1 +
+ libselinux/src/checkAccess.c                     |  63 +++---
+ libselinux/utils/.gitignore                      |   2 +
+ libselinux/utils/avc_has_perm.c                  | 235 +++++++++++++++++++++++
+ libselinux/utils/selinux_check_access.c          | 189 ++++++++++++++++++
+ 11 files changed, 660 insertions(+), 33 deletions(-)
+ create mode 100644 libselinux/man/man3/selinux_check_access_flags.3
+ create mode 100644 libselinux/utils/avc_has_perm.c
+ create mode 100644 libselinux/utils/selinux_check_access.c
+
 -- 
-1.9.1
+2.9.3
