@@ -1,59 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OI0FkO026571
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:00:15 -0400
-Received: by mail-pg0-f65.google.com with SMTP id t7so2321412pgt.1
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 11:00:12 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OI0Nbp026576
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:00:23 -0400
+Received: by mail-pf0-f170.google.com with SMTP id a188so15871541pfa.0
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 11:00:22 -0700 (PDT)
 From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/7] policycoreutils: honour LINGUAS variable
-Date: Tue, 25 Apr 2017 01:59:53 +0800
-Message-Id: <20170424175959.20998-1-jason@perfinion.com>
+Subject: [PATCH 2/7] libselinux: get pcre CFLAGS/LDFLAGS from pkg-config
+Date: Tue, 25 Apr 2017 01:59:54 +0800
+Message-Id: <20170424175959.20998-2-jason@perfinion.com>
+In-Reply-To: <20170424175959.20998-1-jason@perfinion.com>
+References: <20170424175959.20998-1-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If the user has the $LINGUAS environment variable set, only translations
-for those languages should be installed to the system.
-
-The gettext manual [1] says:
-
-"Internationalized packages have usually many ll.po files. Unless
-translations are disabled, all those available are installed together
-with the package. However, the environment variable LINGUAS may be set,
-prior to configuration, to limit the installed set. LINGUAS should then
-contain a space separated list of two-letter codes, stating which
-languages are allowed."
-
-[1]: https://www.gnu.org/software/gettext/manual/html_node/Installers.html#Installers
+Gentoo-Bug: https://bugs.gentoo.org/500674
 
 Signed-off-by: Jason Zaman <jason@perfinion.com>
 ---
- policycoreutils/po/Makefile | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ libselinux/Makefile | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/policycoreutils/po/Makefile b/policycoreutils/po/Makefile
-index f6069dd..5814861 100644
---- a/policycoreutils/po/Makefile
-+++ b/policycoreutils/po/Makefile
-@@ -20,8 +20,16 @@ MSGMERGE_FLAGS	= -q
- XGETTEXT	= xgettext --default-domain=$(NLSPACKAGE)
- MSGFMT		= msgfmt
+diff --git a/libselinux/Makefile b/libselinux/Makefile
+index 979e225..98776d2 100644
+--- a/libselinux/Makefile
++++ b/libselinux/Makefile
+@@ -1,5 +1,6 @@
+ SUBDIRS = src include utils man
  
--# What do we need to do
--POFILES		= $(wildcard *.po)
-+# All possible linguas
-+PO_LINGUAS := $(sort $(patsubst %.po,%,$(wildcard *.po)))
-+
-+# Only the files matching what the user has set in LINGUAS
-+USER_LINGUAS := $(filter $(patsubst %,%%,$(LINGUAS)),$(PO_LINGUAS))
-+
-+# if no valid LINGUAS, build all languages
-+USE_LINGUAS := $(if $(USER_LINGUAS),$(USER_LINGUAS),$(PO_LINGUAS))
-+
-+POFILES		= $(patsubst %,%.po,$(USE_LINGUAS))
- MOFILES		= $(patsubst %.po,%.mo,$(POFILES))
- POTFILES = \
- 	../run_init/open_init_pty.c \
++PKG_CONFIG ?= pkg-config
+ DISABLE_SETRANS ?= n
+ DISABLE_RPM ?= n
+ ANDROID_HOST ?= n
+@@ -20,10 +21,11 @@ export DISABLE_SETRANS DISABLE_RPM DISABLE_FLAGS ANDROID_HOST
+ 
+ USE_PCRE2 ?= n
+ ifeq ($(USE_PCRE2),y)
+-	PCRE_CFLAGS := -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8
+-	PCRE_LDFLAGS := -lpcre2-8
++	PCRE_CFLAGS := -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 $(shell $(PKG_CONFIG) --cflags libpcre2-8)
++	PCRE_LDFLAGS := $(shell $(PKG_CONFIG) --libs libpcre2-8)
+ else
+-	PCRE_LDFLAGS := -lpcre
++	PCRE_CFLAGS := $(shell $(PKG_CONFIG) --cflags libpcre)
++	PCRE_LDFLAGS := $(shell $(PKG_CONFIG) --libs libpcre)
+ endif
+ export PCRE_CFLAGS PCRE_LDFLAGS
+ 
 -- 
 2.10.2
