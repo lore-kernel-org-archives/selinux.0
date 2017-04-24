@@ -1,55 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OC6s6a022314
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 08:06:58 -0400
-Received: by mail-wm0-f68.google.com with SMTP id z129so16761495wmb.1
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 05:06:57 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OC8QiX022893
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 08:08:26 -0400
+Received: by mail-wr0-f174.google.com with SMTP id z52so48925170wrc.2
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 05:08:24 -0700 (PDT)
 Subject: Re: [PATCH] libsemanage: remove lock files
+From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
 To: Guido Trentalancia <guido-D1bseh+SzQhuxeB9wqlrNw@public.gmane.org>,
  selinux@tycho.nsa.gov
 References: <58517705.198270.1492699110308@pim.register.it>
-From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-Message-ID: <138cd2dc-f5c8-43ce-eb22-6f59c768623d@gmail.com>
-Date: Mon, 24 Apr 2017 13:06:54 +0100
+ <138cd2dc-f5c8-43ce-eb22-6f59c768623d@gmail.com>
+Message-ID: <f5651c20-f14f-bd42-be2f-947294de28c9@gmail.com>
+Date: Mon, 24 Apr 2017 13:08:22 +0100
 MIME-Version: 1.0
-In-Reply-To: <58517705.198270.1492699110308@pim.register.it>
+In-Reply-To: <138cd2dc-f5c8-43ce-eb22-6f59c768623d@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 20/04/17 15:38, Guido Trentalancia wrote:
-> Remove semanage read and transaction lock files upon releasing
-> them.
+*expands thread
 
-What prevents this sequence?
+Sorry, I see this has already been addressed.
 
-A release lock
-  B acquire lock
-A unlink lock file
-   C create lock file
-   C acquire lock
 
-> Signed-off-by: Guido Trentalancia <guido-D1bseh+SzQhuxeB9wqlrNw@public.gmane.org>
-> ---
->   src/semanage_store.c |    2 ++
->   1 file changed, 2 insertions(+)
-> 
-> diff -pruN a/src/semanage_store.c b/src/semanage_store.c
-> --- a/src/semanage_store.c	2016-10-14 17:31:26.000000000 +0200
-> +++ b/src/semanage_store.c	2017-04-03 09:32:24.093627962 +0200
-> @@ -1904,6 +1904,7 @@ void semanage_release_trans_lock(semanag
->   		close(sh->u.direct.translock_file_fd);
->   		sh->u.direct.translock_file_fd = -1;
->   	}
-> +	unlink(semanage_files[SEMANAGE_TRANS_LOCK]);
->   	errno = errsv;
->   }
->   
-> @@ -1917,6 +1918,7 @@ void semanage_release_active_lock(semana
->   		close(sh->u.direct.activelock_file_fd);
->   		sh->u.direct.activelock_file_fd = -1;
->   	}
-> +	unlink(semanage_files[SEMANAGE_READ_LOCK]);
->   	errno = errsv;
->   }
+On 24/04/17 13:06, Alan Jenkins wrote:
+> On 20/04/17 15:38, Guido Trentalancia wrote:
+>> Remove semanage read and transaction lock files upon releasing
+>> them.
+>
+> What prevents this sequence?
+>
+> A release lock
+>  B acquire lock
+> A unlink lock file
+>   C create lock file
+>   C acquire lock
+>
+>> Signed-off-by: Guido Trentalancia 
+>> <guido-D1bseh+SzQhuxeB9wqlrNw@public.gmane.org>
+>> ---
+>>   src/semanage_store.c |    2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff -pruN a/src/semanage_store.c b/src/semanage_store.c
+>> --- a/src/semanage_store.c    2016-10-14 17:31:26.000000000 +0200
+>> +++ b/src/semanage_store.c    2017-04-03 09:32:24.093627962 +0200
+>> @@ -1904,6 +1904,7 @@ void semanage_release_trans_lock(semanag
+>>           close(sh->u.direct.translock_file_fd);
+>>           sh->u.direct.translock_file_fd = -1;
+>>       }
+>> +    unlink(semanage_files[SEMANAGE_TRANS_LOCK]);
+>>       errno = errsv;
+>>   }
+>>   @@ -1917,6 +1918,7 @@ void semanage_release_active_lock(semana
+>>           close(sh->u.direct.activelock_file_fd);
+>>           sh->u.direct.activelock_file_fd = -1;
+>>       }
+>> +    unlink(semanage_files[SEMANAGE_READ_LOCK]);
+>>       errno = errsv;
+>>   }
+>
+>
+>
