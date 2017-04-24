@@ -1,94 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OIbIdE008350
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:37:18 -0400
-In-Reply-To: <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
-References: <58517705.198270.1492699110308@pim.register.it>
- <138cd2dc-f5c8-43ce-eb22-6f59c768623d@gmail.com>
- <f5651c20-f14f-bd42-be2f-947294de28c9@gmail.com>
- <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OLUmIW009570
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 17:30:48 -0400
+Received: by mail-vk0-f49.google.com with SMTP id j127so45882602vkh.0
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:30:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Subject: Re: [PATCH] libsemanage: remove lock files
-From: Guido Trentalancia <guido@trentalancia.net>
-Date: Mon, 24 Apr 2017 20:38:40 +0200
+From: Umair Sarfraz <aquadestructor@gmail.com>
+Date: Tue, 25 Apr 2017 02:30:45 +0500
+Message-ID: <CAGJp4bCsPw_yVs=krjDO3nq0YQNuBbkVhL-TANMdWu3_DihK1w@mail.gmail.com>
+Subject: Docker daemon in enforcing state
 To: selinux@tycho.nsa.gov
-Message-ID: <C6C00E69-C6B1-4408-B27A-C05D7B6B9D00@trentalancia.net>
+Content-Type: multipart/alternative; boundary=001a1142a312eb4415054df0512c
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Also, another major benefit of not using flock() comes when using NFS (probably a very rare circumstance, but not entirely impossibile).
+--001a1142a312eb4415054df0512c
+Content-Type: text/plain; charset=UTF-8
 
-It is possible to use the presence of a file (with the same name) to indicate an "active" lock: such file should store the PID of the process that is requiring the lock.
+Hi,
 
-If a lock is found with a PID that does not exist, then such lock is considered invalid and it is removed. 
-That is it really...
+So, I have been trying to play around with MLS (which I have successfully
+configured) on CentOS 7. I'm aiming to apply some security policies
+(categorization of docker containers) via MLS, but I can't seem to access
+and get correct labels of docker daemon if I am in `enforcing` mode.
+However, changing it to permissive mode allow me to access the service and
+have correct label. In enforcing mode, I get unlablled_t on the docker
+dirs.
 
-Regards, 
 
-Guido 
+I am fairly new to SELinux so please excuse me if this is a silly question
+but I am pretty sure I am missing something here. Any sort of help would be
+appreciated. Thanks.
 
-On the 24th of April 2017 19:51:27 CEST, Guido Trentalancia <guido@trentalancia.net> wrote:
->Yes, we already discussed this possibile race condition. 
->
->Usually there is only one system administrator operating on the
->semanage store, nevertheless it's worth having a robust locking
->mechanism...
->
->This patch either needs further work to avoid using flock() and instead
->using a simpler file lock mechanism with the added benefit of having a
->cleaner filesystem without confusing stale files around or we just drop
->the patch given it is not essential to keep things working. 
->
->Regards, 
->
->Guido 
->
->On the 24th of April 2017 14:08:22 CEST, Alan Jenkins
-><alan.christopher.jenkins@gmail.com> wrote:
->>*expands thread
->>
->>Sorry, I see this has already been addressed.
->>
->>
->>On 24/04/17 13:06, Alan Jenkins wrote:
->>> On 20/04/17 15:38, Guido Trentalancia wrote:
->>>> Remove semanage read and transaction lock files upon releasing
->>>> them.
->>>
->>> What prevents this sequence?
->>>
->>> A release lock
->>>  B acquire lock
->>> A unlink lock file
->>>   C create lock file
->>>   C acquire lock
->>>
->>>> Signed-off-by: Guido Trentalancia 
->>>> <guido-D1bseh+SzQhuxeB9wqlrNw@public.gmane.org>
->>>> ---
->>>>   src/semanage_store.c |    2 ++
->>>>   1 file changed, 2 insertions(+)
->>>>
->>>> diff -pruN a/src/semanage_store.c b/src/semanage_store.c
->>>> --- a/src/semanage_store.c    2016-10-14 17:31:26.000000000 +0200
->>>> +++ b/src/semanage_store.c    2017-04-03 09:32:24.093627962 +0200
->>>> @@ -1904,6 +1904,7 @@ void semanage_release_trans_lock(semanag
->>>>           close(sh->u.direct.translock_file_fd);
->>>>           sh->u.direct.translock_file_fd = -1;
->>>>       }
->>>> +    unlink(semanage_files[SEMANAGE_TRANS_LOCK]);
->>>>       errno = errsv;
->>>>   }
->>>>   @@ -1917,6 +1918,7 @@ void semanage_release_active_lock(semana
->>>>           close(sh->u.direct.activelock_file_fd);
->>>>           sh->u.direct.activelock_file_fd = -1;
->>>>       }
->>>> +    unlink(semanage_files[SEMANAGE_READ_LOCK]);
->>>>       errno = errsv;
->>>>   }
->>>
->>>
->>>
+-- 
+
+Umair Sarfraz
+
+--001a1142a312eb4415054df0512c
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi,=C2=A0<div><br></div><div>So, I have been trying to pla=
+y around with MLS (which I have successfully configured) on CentOS 7. I&#39=
+;m aiming to apply some security policies (categorization of docker contain=
+ers) via MLS, but I can&#39;t seem to access and get correct labels of dock=
+er daemon if I am in `enforcing` mode. However, changing it to permissive m=
+ode allow me to access the service and have correct label. In enforcing mod=
+e, I get unlablled_t on the docker dirs.=C2=A0</div><div><br></div><div><br=
+></div><div>I am fairly new to SELinux so please excuse me if this is a sil=
+ly question but I am pretty sure I am missing something here. Any sort of h=
+elp would be appreciated. Thanks.<br clear=3D"all"><div><br></div>-- <br><d=
+iv class=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div dir=3D=
+"ltr"><div><div dir=3D"ltr"><div><br></div><div><span style=3D"font-size:12=
+.8px">Umair Sarfraz</span><br></div></div><div dir=3D"ltr"><br><div><br></d=
+iv></div></div></div></div>
+</div></div>
+
+--001a1142a312eb4415054df0512c--
