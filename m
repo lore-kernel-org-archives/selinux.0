@@ -1,46 +1,75 @@
-Message-ID: <1493049037.13274.20.camel@tycho.nsa.gov>
-Subject: Re: [RFC PATCH 0/1] libselinux: Add support for
- selinux_check_access_flags
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-Date: Mon, 24 Apr 2017 11:50:37 -0400
-In-Reply-To: <1493046171.6574.1.camel@btinternet.com>
-References: <20170424130919.5286-1-richard_c_haines@btinternet.com>
- <1493042781.13274.12.camel@tycho.nsa.gov>
- <1493046171.6574.1.camel@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OHo6x8022428
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 13:50:07 -0400
+In-Reply-To: <f5651c20-f14f-bd42-be2f-947294de28c9@gmail.com>
+References: <58517705.198270.1492699110308@pim.register.it>
+ <138cd2dc-f5c8-43ce-eb22-6f59c768623d@gmail.com>
+ <f5651c20-f14f-bd42-be2f-947294de28c9@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=UTF-8
+Subject: Re: [PATCH] libsemanage: remove lock files
+From: Guido Trentalancia <guido@trentalancia.net>
+Date: Mon, 24 Apr 2017 19:51:27 +0200
+To: selinux@tycho.nsa.gov
+Message-ID: <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-04-24 at 16:02 +0100, Richard Haines wrote:
-> On Mon, 2017-04-24 at 10:06 -0400, Stephen Smalley wrote:
-> > On Mon, 2017-04-24 at 14:09 +0100, Richard Haines wrote:
-> > > Only wanted the avd flags to check whether the domain was
-> > > permissive
-> > > or not using an selinux_check_access() type call.
-> > 
-> > Why?  What's the intended user?
-> 
-> I was writing patches to update racoon and pluto to use
-> selinux_check_access in place of avc_open etc. As these programs also
-> log useful info I thought I would log the SELinux status (permissive
-> mode etc. etc. for debugging). The only thing missing was if they
-> were
-> running in a permissive domain so I thought I would see if I could
-> retrieve this as well. With this patch I can check if permission
-> granted or not and also if permissive domain (provided of course the
-> call returned the avd flags).
-> 
-> The other way I thought of was add another entry to selinuxfs and
-> pass
-> the context to kernel and get whether permissive domain or not.
-> 
-> Is there an easier way to detect a permissive domain without reading
-> the policy ?
+Yes, we already discussed this possibile race condition. 
 
-Why not just mirror what we did in the kernel and add permissive=0|1 to
-the avc: denied messages? avc_audit() already has the necessary
-information; you don't need to export it outside of the AVC.
+Usually there is only one system administrator operating on the semanage store, nevertheless it's worth having a robust locking mechanism...
+
+This patch either needs further work to avoid using flock() and instead using a simpler file lock mechanism with the added benefit of having a cleaner filesystem without confusing stale files around or we just drop the patch given it is not essential to keep things working. 
+
+Regards, 
+
+Guido 
+
+On the 24th of April 2017 14:08:22 CEST, Alan Jenkins <alan.christopher.jenkins@gmail.com> wrote:
+>*expands thread
+>
+>Sorry, I see this has already been addressed.
+>
+>
+>On 24/04/17 13:06, Alan Jenkins wrote:
+>> On 20/04/17 15:38, Guido Trentalancia wrote:
+>>> Remove semanage read and transaction lock files upon releasing
+>>> them.
+>>
+>> What prevents this sequence?
+>>
+>> A release lock
+>>  B acquire lock
+>> A unlink lock file
+>>   C create lock file
+>>   C acquire lock
+>>
+>>> Signed-off-by: Guido Trentalancia 
+>>> <guido-D1bseh+SzQhuxeB9wqlrNw@public.gmane.org>
+>>> ---
+>>>   src/semanage_store.c |    2 ++
+>>>   1 file changed, 2 insertions(+)
+>>>
+>>> diff -pruN a/src/semanage_store.c b/src/semanage_store.c
+>>> --- a/src/semanage_store.c    2016-10-14 17:31:26.000000000 +0200
+>>> +++ b/src/semanage_store.c    2017-04-03 09:32:24.093627962 +0200
+>>> @@ -1904,6 +1904,7 @@ void semanage_release_trans_lock(semanag
+>>>           close(sh->u.direct.translock_file_fd);
+>>>           sh->u.direct.translock_file_fd = -1;
+>>>       }
+>>> +    unlink(semanage_files[SEMANAGE_TRANS_LOCK]);
+>>>       errno = errsv;
+>>>   }
+>>>   @@ -1917,6 +1918,7 @@ void semanage_release_active_lock(semana
+>>>           close(sh->u.direct.activelock_file_fd);
+>>>           sh->u.direct.activelock_file_fd = -1;
+>>>       }
+>>> +    unlink(semanage_files[SEMANAGE_READ_LOCK]);
+>>>       errno = errsv;
+>>>   }
+>>
+>>
+>>
