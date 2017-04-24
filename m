@@ -1,75 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OHo6x8022428
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 13:50:07 -0400
-In-Reply-To: <f5651c20-f14f-bd42-be2f-947294de28c9@gmail.com>
-References: <58517705.198270.1492699110308@pim.register.it>
- <138cd2dc-f5c8-43ce-eb22-6f59c768623d@gmail.com>
- <f5651c20-f14f-bd42-be2f-947294de28c9@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
- charset=UTF-8
-Subject: Re: [PATCH] libsemanage: remove lock files
-From: Guido Trentalancia <guido@trentalancia.net>
-Date: Mon, 24 Apr 2017 19:51:27 +0200
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OI0FkO026571
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:00:15 -0400
+Received: by mail-pg0-f65.google.com with SMTP id t7so2321412pgt.1
+ for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 11:00:12 -0700 (PDT)
+From: Jason Zaman <jason@perfinion.com>
 To: selinux@tycho.nsa.gov
-Message-ID: <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
+Subject: [PATCH 1/7] policycoreutils: honour LINGUAS variable
+Date: Tue, 25 Apr 2017 01:59:53 +0800
+Message-Id: <20170424175959.20998-1-jason@perfinion.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Yes, we already discussed this possibile race condition. 
+If the user has the $LINGUAS environment variable set, only translations
+for those languages should be installed to the system.
 
-Usually there is only one system administrator operating on the semanage store, nevertheless it's worth having a robust locking mechanism...
+The gettext manual [1] says:
 
-This patch either needs further work to avoid using flock() and instead using a simpler file lock mechanism with the added benefit of having a cleaner filesystem without confusing stale files around or we just drop the patch given it is not essential to keep things working. 
+"Internationalized packages have usually many ll.po files. Unless
+translations are disabled, all those available are installed together
+with the package. However, the environment variable LINGUAS may be set,
+prior to configuration, to limit the installed set. LINGUAS should then
+contain a space separated list of two-letter codes, stating which
+languages are allowed."
 
-Regards, 
+[1]: https://www.gnu.org/software/gettext/manual/html_node/Installers.html#Installers
 
-Guido 
+Signed-off-by: Jason Zaman <jason@perfinion.com>
+---
+ policycoreutils/po/Makefile | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-On the 24th of April 2017 14:08:22 CEST, Alan Jenkins <alan.christopher.jenkins@gmail.com> wrote:
->*expands thread
->
->Sorry, I see this has already been addressed.
->
->
->On 24/04/17 13:06, Alan Jenkins wrote:
->> On 20/04/17 15:38, Guido Trentalancia wrote:
->>> Remove semanage read and transaction lock files upon releasing
->>> them.
->>
->> What prevents this sequence?
->>
->> A release lock
->>  B acquire lock
->> A unlink lock file
->>   C create lock file
->>   C acquire lock
->>
->>> Signed-off-by: Guido Trentalancia 
->>> <guido-D1bseh+SzQhuxeB9wqlrNw@public.gmane.org>
->>> ---
->>>   src/semanage_store.c |    2 ++
->>>   1 file changed, 2 insertions(+)
->>>
->>> diff -pruN a/src/semanage_store.c b/src/semanage_store.c
->>> --- a/src/semanage_store.c    2016-10-14 17:31:26.000000000 +0200
->>> +++ b/src/semanage_store.c    2017-04-03 09:32:24.093627962 +0200
->>> @@ -1904,6 +1904,7 @@ void semanage_release_trans_lock(semanag
->>>           close(sh->u.direct.translock_file_fd);
->>>           sh->u.direct.translock_file_fd = -1;
->>>       }
->>> +    unlink(semanage_files[SEMANAGE_TRANS_LOCK]);
->>>       errno = errsv;
->>>   }
->>>   @@ -1917,6 +1918,7 @@ void semanage_release_active_lock(semana
->>>           close(sh->u.direct.activelock_file_fd);
->>>           sh->u.direct.activelock_file_fd = -1;
->>>       }
->>> +    unlink(semanage_files[SEMANAGE_READ_LOCK]);
->>>       errno = errsv;
->>>   }
->>
->>
->>
+diff --git a/policycoreutils/po/Makefile b/policycoreutils/po/Makefile
+index f6069dd..5814861 100644
+--- a/policycoreutils/po/Makefile
++++ b/policycoreutils/po/Makefile
+@@ -20,8 +20,16 @@ MSGMERGE_FLAGS	= -q
+ XGETTEXT	= xgettext --default-domain=$(NLSPACKAGE)
+ MSGFMT		= msgfmt
+ 
+-# What do we need to do
+-POFILES		= $(wildcard *.po)
++# All possible linguas
++PO_LINGUAS := $(sort $(patsubst %.po,%,$(wildcard *.po)))
++
++# Only the files matching what the user has set in LINGUAS
++USER_LINGUAS := $(filter $(patsubst %,%%,$(LINGUAS)),$(PO_LINGUAS))
++
++# if no valid LINGUAS, build all languages
++USE_LINGUAS := $(if $(USER_LINGUAS),$(USER_LINGUAS),$(PO_LINGUAS))
++
++POFILES		= $(patsubst %,%.po,$(USE_LINGUAS))
+ MOFILES		= $(patsubst %.po,%.mo,$(POFILES))
+ POTFILES = \
+ 	../run_init/open_init_pty.c \
+-- 
+2.10.2
