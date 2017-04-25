@@ -1,16 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3PK6RHG030700
- for <selinux@tycho.nsa.gov>; Tue, 25 Apr 2017 16:06:28 -0400
-Message-ID: <1493150773.12050.2.camel@trentalancia.net>
-Subject: [PATCH v2] libsemanage: remove lock files
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3PKZUBP008767
+ for <selinux@tycho.nsa.gov>; Tue, 25 Apr 2017 16:35:30 -0400
+Message-ID: <1493152517.17316.0.camel@trentalancia.net>
+Subject: [PATCH v3] libsemanage: remove lock files
 From: Guido Trentalancia <guido@trentalancia.net>
 To: selinux@tycho.nsa.gov
-Date: Tue, 25 Apr 2017 22:06:13 +0200
-In-Reply-To: <201704251630.03844.russell@coker.com.au>
+Date: Tue, 25 Apr 2017 22:35:17 +0200
+In-Reply-To: <1493150773.12050.2.camel@trentalancia.net>
 References: <58517705.198270.1492699110308@pim.register.it>
  <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
  <C6C00E69-C6B1-4408-B27A-C05D7B6B9D00@trentalancia.net>
  <201704251630.03844.russell@coker.com.au>
+ <1493150773.12050.2.camel@trentalancia.net>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,111 +19,34 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello.
-
-What follows is a reply to Russell comments and a new, hopefully
-better, version of the original patch.
-
-On Tue, 25/04/2017 at 16.30 +1000, Russell Coker wrote:
-> On Tue, 25 Apr 2017 04:38:40 AM Guido Trentalancia wrote:
-> > Also, another major benefit of not using flock() comes when using
-> NFS
-> > (probably a very rare circumstance, but not entirely impossibile).
-> > 
-> > It is possible to use the presence of a file (with the same name)
-> to
-> > indicate an "active" lock: such file should store the PID of the
-> process
-> > that is requiring the lock.
-> > 
-> > If a lock is found with a PID that does not exist, then such lock
-> is
-> > considered invalid and it is removed.  That is it really...
-> 
-> Pidfile locking doesn't work well as pids are not unique, you can
-> have a 
-> process die and be replaced by another process with the same pid. 
-> Also a 
-> reboot is expected to have pid conflicts as pids are allocated
-> sequentially and 
-> most daemons end up with low numbers.  Using a tmpfs for /run solves
-> some of 
-> these problems as it's reliably cleared out at boot.
-> 
-> Things get even more exciting if you use systemd-nspawn and have
-> multiple pid 
-> namespaces on the same system with bind mounts of directories that
-> have 
-> pidfiles.
-> 
-> Pidfile locking also never works across network filesystems as pids
-> are local to 
-> a system.  You could have some combination of pid and hostname (as
-> done by 
-> some web browsers) but that gets ugly.
-
-No, I didn't mean the complicate circumstance of NFS shared amongst
-multiple systems.
-
-I only meant the simpler (and most common) situation where the NFS is
-mounted for only one system, therefore PIDs are unique and there is no
-need to include the hostname.
-
-> Really pidfiles are so horrible that one of the noteworthy features
-> of systemd 
-> is removing the need for them.
-
-I am not that pessimistic about locking with aid of PIDs.
-
-To be honest, the current situation has more drawbacks in my opinion.
-
-In particular, I don't like the fact that it leaves unused lock files
-around the filesystem.
-
-> Having multiple systems operate with NFS root and a shared
-> /etc/selinux is 
-> never going to work well.  Even if everything works well (and it
-> probably 
-> won't) you will end up with systems that have the policy in
-> /etc/selinux not 
-> matching what is running.
-
-Please forget sharing NFS. I meant dedicated NFS.
-
-Anyway, I have created a new version of the patch that should probably
-improve the previous race condition.
-
-If you have a way of testing a dedicated store over NFS, then I'd like
-to hear back from you the result of such testing !
-
-But, if you are not interested in testing it, then never mind...
-
----
 Do not use flock() for file locking, but instead use generic text files
 that keep track of the process ID (PID) of the locking process.
 
 Remove semanage read and transaction lock files upon releasing
 them.
 
+This third version fixes a bug in the previous version and also applies
+cleanly to the latest git tree.
+
 Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
 ---
  src/Makefile         |    2
- src/semanage_store.c |  205 ++++++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 154 insertions(+), 53 deletions(-)
+ src/semanage_store.c |  214 +++++++++++++++++++++++++++++++++++++--------------
+ 2 files changed, 160 insertions(+), 56 deletions(-)
 
---- a/src/Makefile	2016-10-14 17:31:26.000000000 +0200
-+++ b/src/Makefile	2017-04-25 00:54:58.916827639 +0200
+--- a/src/Makefile	2017-04-25 22:27:38.105555427 +0200
++++ b/src/Makefile	2017-04-25 22:28:58.512555098 +0200
 @@ -91,7 +91,7 @@ $(LIBA): $(OBJS)
  	$(RANLIB) $@
  
  $(LIBSO): $(LOBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -lustr -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
-+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lm -lsepol -laudit -lselinux -lbz2 -lustr -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
+-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
++	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lm -lsepol -laudit -lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
  	ln -sf $@ $(TARGET)
  
  $(LIBPC): $(LIBPC).in ../VERSION
---- a/src/semanage_store.c	2016-10-14 17:31:26.000000000 +0200
-+++ b/src/semanage_store.c	2017-04-25 21:52:51.977563955 +0200
+--- a/src/semanage_store.c	2017-04-20 16:30:21.218209972 +0200
++++ b/src/semanage_store.c	2017-04-25 22:24:35.883556172 +0200
 @@ -45,6 +45,8 @@ typedef struct dbase_policydb dbase_t;
  #include <dirent.h>
  #include <errno.h>
@@ -166,7 +90,7 @@ Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
  
  /* These are paths relative to the bottom of the module store */
  static const char *semanage_relative_files[SEMANAGE_NUM_FILES] = {
-@@ -425,8 +442,23 @@ cleanup:
+@@ -427,8 +442,23 @@ cleanup:
  int semanage_check_init(semanage_handle_t *sh, const char *prefix)
  {
  	int rc;
@@ -191,7 +115,7 @@ Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
  
  		rc = snprintf(root,
  			      sizeof(root),
-@@ -526,16 +558,23 @@ char *semanage_conf_path(void)
+@@ -528,16 +558,23 @@ char *semanage_conf_path(void)
  
  /**************** functions that create module store ***************/
  
@@ -219,7 +143,7 @@ Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
  
  	if (stat(path, &sb) == -1) {
  		if (errno == ENOENT && create) {
-@@ -605,26 +644,82 @@ int semanage_create_store(semanage_handl
+@@ -607,24 +644,81 @@ int semanage_create_store(semanage_handl
  			return -1;
  		}
  	}
@@ -300,11 +224,9 @@ Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
 +			}
 +		}	
  	}
--	return 0;
+ 	return 0;
  }
- 
- /* returns <0 if the active store cannot be read or doesn't exist
-@@ -1788,64 +1883,74 @@ int semanage_install_sandbox(semanage_ha
+@@ -1795,64 +1884,74 @@ int semanage_install_sandbox(semanage_ha
  static int semanage_get_lock(semanage_handle_t * sh,
  			     const char *lock_name, const char *lock_file)
  {
@@ -346,7 +268,7 @@ Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
 +				if (pid_bytes == (ssize_t) pid_length)
 +					got_lock = 1;
 +			} else {
-+				if (lock_pid = pid)
++				if (lock_pid == pid)
 +				       got_lock = 1;
 +				else if (kill(lock_pid, 0) != 0)
 +					if (errno == ESRCH) {
@@ -422,7 +344,7 @@ Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
  	return fd;
  }
  
-@@ -1894,29 +1999,27 @@ int semanage_get_active_lock(semanage_ha
+@@ -1901,29 +2000,27 @@ int semanage_get_active_lock(semanage_ha
  	}
  }
  
