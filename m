@@ -1,109 +1,458 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3PD1QHp004279
- for <selinux@tycho.nsa.gov>; Tue, 25 Apr 2017 09:01:26 -0400
-Reply-To: dwalsh@redhat.com
-Subject: Re: Docker daemon in enforcing state
-To: Umair Sarfraz <aquadestructor@gmail.com>, selinux@tycho.nsa.gov
-References: <CAGJp4bCsPw_yVs=krjDO3nq0YQNuBbkVhL-TANMdWu3_DihK1w@mail.gmail.com>
-From: Daniel Walsh <dwalsh@redhat.com>
-Message-ID: <5f7a0612-27c7-193e-e96f-991f7af68461@redhat.com>
-Date: Tue, 25 Apr 2017 09:01:01 -0400
-MIME-Version: 1.0
-In-Reply-To: <CAGJp4bCsPw_yVs=krjDO3nq0YQNuBbkVhL-TANMdWu3_DihK1w@mail.gmail.com>
-Content-Type: multipart/alternative;
- boundary="------------64210E25A1EB4BCD109BE2C5"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3PK6RHG030700
+ for <selinux@tycho.nsa.gov>; Tue, 25 Apr 2017 16:06:28 -0400
+Message-ID: <1493150773.12050.2.camel@trentalancia.net>
+Subject: [PATCH v2] libsemanage: remove lock files
+From: Guido Trentalancia <guido@trentalancia.net>
+To: selinux@tycho.nsa.gov
+Date: Tue, 25 Apr 2017 22:06:13 +0200
+In-Reply-To: <201704251630.03844.russell@coker.com.au>
+References: <58517705.198270.1492699110308@pim.register.it>
+ <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
+ <C6C00E69-C6B1-4408-B27A-C05D7B6B9D00@trentalancia.net>
+ <201704251630.03844.russell@coker.com.au>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
---------------64210E25A1EB4BCD109BE2C5
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello.
 
-On 04/24/2017 05:30 PM, Umair Sarfraz wrote:
-> Hi,
->
-> So, I have been trying to play around with MLS (which I have 
-> successfully configured) on CentOS 7. I'm aiming to apply some 
-> security policies (categorization of docker containers) via MLS, but I 
-> can't seem to access and get correct labels of docker daemon if I am 
-> in `enforcing` mode. However, changing it to permissive mode allow me 
-> to access the service and have correct label. In enforcing mode, I get 
-> unlablled_t on the docker dirs.
->
->
-> I am fairly new to SELinux so please excuse me if this is a silly 
-> question but I am pretty sure I am missing something here. Any sort of 
-> help would be appreciated. Thanks.
->
-> -- 
->
-> Umair Sarfraz
->
->
-Do you have container-selinux installed?
+What follows is a reply to Russell comments and a new, hopefully
+better, version of the original patch.
 
+On Tue, 25/04/2017 at 16.30 +1000, Russell Coker wrote:
+> On Tue, 25 Apr 2017 04:38:40 AM Guido Trentalancia wrote:
+> > Also, another major benefit of not using flock() comes when using
+> NFS
+> > (probably a very rare circumstance, but not entirely impossibile).
+> > 
+> > It is possible to use the presence of a file (with the same name)
+> to
+> > indicate an "active" lock: such file should store the PID of the
+> process
+> > that is requiring the lock.
+> > 
+> > If a lock is found with a PID that does not exist, then such lock
+> is
+> > considered invalid and it is removed.  That is it really...
+> 
+> Pidfile locking doesn't work well as pids are not unique, you can
+> have a 
+> process die and be replaced by another process with the same pid. 
+> Also a 
+> reboot is expected to have pid conflicts as pids are allocated
+> sequentially and 
+> most daemons end up with low numbers.  Using a tmpfs for /run solves
+> some of 
+> these problems as it's reliably cleared out at boot.
+> 
+> Things get even more exciting if you use systemd-nspawn and have
+> multiple pid 
+> namespaces on the same system with bind mounts of directories that
+> have 
+> pidfiles.
+> 
+> Pidfile locking also never works across network filesystems as pids
+> are local to 
+> a system.  You could have some combination of pid and hostname (as
+> done by 
+> some web browsers) but that gets ugly.
 
---------------64210E25A1EB4BCD109BE2C5
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 8bit
+No, I didn't mean the complicate circumstance of NFS shared amongst
+multiple systems.
 
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  </head>
-  <body text="#000000" bgcolor="#FFFFFF">
-    <div class="moz-cite-prefix">On 04/24/2017 05:30 PM, Umair Sarfraz
-      wrote:<br>
-    </div>
-    <blockquote type="cite"
-cite="mid:CAGJp4bCsPw_yVs=krjDO3nq0YQNuBbkVhL-TANMdWu3_DihK1w@mail.gmail.com">
-      <div dir="ltr">Hi, 
-        <div><br>
-        </div>
-        <div>So, I have been trying to play around with MLS (which I
-          have successfully configured) on CentOS 7. I'm aiming to apply
-          some security policies (categorization of docker containers)
-          via MLS, but I can't seem to access and get correct labels of
-          docker daemon if I am in `enforcing` mode. However, changing
-          it to permissive mode allow me to access the service and have
-          correct label. In enforcing mode, I get unlablled_t on the
-          docker dirs. </div>
-        <div><br>
-        </div>
-        <div><br>
-        </div>
-        <div>I am fairly new to SELinux so please excuse me if this is a
-          silly question but I am pretty sure I am missing something
-          here. Any sort of help would be appreciated. Thanks.<br
-            clear="all">
-          <div><br>
-          </div>
-          -- <br>
-          <div class="gmail_signature" data-smartmail="gmail_signature">
-            <div dir="ltr">
-              <div>
-                <div dir="ltr">
-                  <div><br>
-                  </div>
-                  <div><span style="font-size:12.8px">Umair Sarfraz</span><br>
-                  </div>
-                </div>
-                <div dir="ltr"><br>
-                  <div><br>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </blockquote>
-    <p>Do you have container-selinux installed?<br>
-    </p>
-  </body>
-</html>
+I only meant the simpler (and most common) situation where the NFS is
+mounted for only one system, therefore PIDs are unique and there is no
+need to include the hostname.
 
---------------64210E25A1EB4BCD109BE2C5--
+> Really pidfiles are so horrible that one of the noteworthy features
+> of systemd 
+> is removing the need for them.
+
+I am not that pessimistic about locking with aid of PIDs.
+
+To be honest, the current situation has more drawbacks in my opinion.
+
+In particular, I don't like the fact that it leaves unused lock files
+around the filesystem.
+
+> Having multiple systems operate with NFS root and a shared
+> /etc/selinux is 
+> never going to work well.  Even if everything works well (and it
+> probably 
+> won't) you will end up with systems that have the policy in
+> /etc/selinux not 
+> matching what is running.
+
+Please forget sharing NFS. I meant dedicated NFS.
+
+Anyway, I have created a new version of the patch that should probably
+improve the previous race condition.
+
+If you have a way of testing a dedicated store over NFS, then I'd like
+to hear back from you the result of such testing !
+
+But, if you are not interested in testing it, then never mind...
+
+---
+Do not use flock() for file locking, but instead use generic text files
+that keep track of the process ID (PID) of the locking process.
+
+Remove semanage read and transaction lock files upon releasing
+them.
+
+Signed-off-by: Guido Trentalancia <guido@trentalancia.net>
+---
+ src/Makefile         |    2
+ src/semanage_store.c |  205 ++++++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 154 insertions(+), 53 deletions(-)
+
+--- a/src/Makefile	2016-10-14 17:31:26.000000000 +0200
++++ b/src/Makefile	2017-04-25 00:54:58.916827639 +0200
+@@ -91,7 +91,7 @@ $(LIBA): $(OBJS)
+ 	$(RANLIB) $@
+ 
+ $(LIBSO): $(LOBJS)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -lustr -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
++	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lm -lsepol -laudit -lselinux -lbz2 -lustr -L$(LIBDIR) -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
+ 	ln -sf $@ $(TARGET)
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
+--- a/src/semanage_store.c	2016-10-14 17:31:26.000000000 +0200
++++ b/src/semanage_store.c	2017-04-25 21:52:51.977563955 +0200
+@@ -45,6 +45,8 @@ typedef struct dbase_policydb dbase_t;
+ #include <dirent.h>
+ #include <errno.h>
+ #include <fcntl.h>
++#include <math.h>
++#include <signal.h>
+ #include <stdio.h>
+ #include <stdio_ext.h>
+ #include <stdlib.h>
+@@ -52,11 +54,24 @@ typedef struct dbase_policydb dbase_t;
+ #include <unistd.h>
+ #include <sys/file.h>
+ #include <sys/stat.h>
++#include <sys/sysctl.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
+ #include <limits.h>
+ #include <libgen.h>
+ 
++#include <linux/sysctl.h>
++
++#ifndef CONFIG_BASE_SMALL
++#define CONFIG_BASE_SMALL       0
++#endif
++
++#include <linux/threads.h>
++
++#ifndef PID_MAX_DEFAULT
++#define PID_MAX_DEFAULT 32768
++#endif
++
+ #include "debug.h"
+ #include "utilities.h"
+ 
+@@ -76,6 +91,8 @@ enum semanage_file_defs {
+ static char *semanage_paths[SEMANAGE_NUM_STORES][SEMANAGE_STORE_NUM_PATHS];
+ static char *semanage_files[SEMANAGE_NUM_FILES] = { NULL };
+ static int semanage_paths_initialized = 0;
++static int pid_max;
++static ssize_t pid_max_length;
+ 
+ /* These are paths relative to the bottom of the module store */
+ static const char *semanage_relative_files[SEMANAGE_NUM_FILES] = {
+@@ -425,8 +442,23 @@ cleanup:
+ int semanage_check_init(semanage_handle_t *sh, const char *prefix)
+ {
+ 	int rc;
++	int fd;
++	char root[PATH_MAX];
++	ssize_t amount_read;
++
+ 	if (semanage_paths_initialized == 0) {
+-		char root[PATH_MAX];
++		pid_max = PID_MAX_DEFAULT;
++		pid_max_length = ceil(log10(PID_MAX_DEFAULT + 1));
++
++		fd = open("/proc/sys/kernel/pid_max", O_RDONLY);
++		if (fd > 0) {
++			char sysctlstring[pid_max_length];
++			amount_read = read(fd, sysctlstring, pid_max_length);
++			if (amount_read > 0) {
++				pid_max = atoi(sysctlstring);
++				pid_max_length = ceil(log10(pid_max + 1));
++			}
++		}
+ 
+ 		rc = snprintf(root,
+ 			      sizeof(root),
+@@ -526,16 +558,23 @@ char *semanage_conf_path(void)
+ 
+ /**************** functions that create module store ***************/
+ 
+-/* Check that the semanage store exists.  If 'create' is non-zero then
+- * create the directories.  Returns 0 if module store exists (either
+- * already or just created), -1 if does not exist or could not be
+- * read, or -2 if it could not create the store. */
++/* Check that the semanage store exists and that the read lock can be
++ * taken.  If 'create' is non-zero then it creates the directories
++ * and the lock file.  Returns 0 if the module store exists (either
++ * already or just created) and the read lock can be taken, -1 if it
++ * does not exist or it is not possible to read from it, or -2 if it
++ * could not create the store or it could not take the lock file. */
+ int semanage_create_store(semanage_handle_t * sh, int create)
+ {
+ 	struct stat sb;
+ 	int mode_mask = R_OK | W_OK | X_OK;
+ 	const char *path = semanage_files[SEMANAGE_ROOT];
+ 	int fd;
++	pid_t pid, lock_pid;
++	char *pid_string, *lock_pid_string;
++	size_t pid_length;
++	ssize_t pid_bytes;
++	int invalid_lock = 0;
+ 
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
+@@ -605,26 +644,82 @@ int semanage_create_store(semanage_handl
+ 			return -1;
+ 		}
+ 	}
++	pid = getpid();
++	pid_string = malloc(pid_max_length * sizeof(char));
++	sprintf(pid_string, "%d", pid);
++	pid_length = strlen(pid_string);
+ 	path = semanage_files[SEMANAGE_READ_LOCK];
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
+ 			if ((fd = creat(path, S_IRUSR | S_IWUSR)) == -1) {
+ 				ERR(sh, "Could not create lock file at %s.",
+ 				    path);
++				free(pid_string);
+ 				return -2;
+ 			}
++			pid_bytes = write(fd, pid_string, pid_length);
+ 			close(fd);
++			free(pid_string);
++			if (pid_bytes == (ssize_t) pid_length)
++				return 0;
++			else {
++				ERR(sh, "Could not create lock file at %s.", path);
++				return -2;
++			}
+ 		} else {
+ 			ERR(sh, "Could not read lock file at %s.", path);
++			free(pid_string);
+ 			return -1;
+ 		}
+ 	} else {
+ 		if (!S_ISREG(sb.st_mode) || access(path, R_OK | W_OK) == -1) {
+ 			ERR(sh, "Could not access lock file at %s.", path);
++			free(pid_string);
+ 			return -1;
+-		}
++		} else {
++			fd = open(path, O_RDWR);
++			if (fd > 0) {
++				lock_pid_string = malloc(pid_max_length * sizeof(char));
++				pid_bytes = read(fd, lock_pid_string, pid_max_length);
++				if (pid_bytes > 0) {
++					lock_pid = (pid_t) atoi(lock_pid_string);
++					if (lock_pid > pid_max)
++						invalid_lock = 1;
++					else if (kill(lock_pid, 0) != 0)
++						if (errno == ESRCH)
++							invalid_lock = 1;
++
++					if (!invalid_lock) {
++						ERR(sh, "Could not create lock file at %s.", path);
++						close(fd);
++						free(pid_string);
++						free(lock_pid_string);
++						return -2;
++					}
++				} else
++					invalid_lock = 1;
++
++				if (invalid_lock) {
++					pid_bytes = pwrite(fd, pid_string, pid_length, 0);
++					close(fd);
++					free(pid_string);
++					free(lock_pid_string);
++					if (pid_bytes == (ssize_t) pid_length)
++						return 0;
++					else {
++						ERR(sh, "Could not create lock file at %s.", path);
++						return -2;
++					}
++				} else {
++					ERR(sh, "Could not create lock file at %s.", path);
++					close(fd);
++					free(pid_string);
++					free(lock_pid_string);
++					return -2;
++				}
++			}
++		}	
+ 	}
+-	return 0;
+ }
+ 
+ /* returns <0 if the active store cannot be read or doesn't exist
+@@ -1788,64 +1883,74 @@ int semanage_install_sandbox(semanage_ha
+ static int semanage_get_lock(semanage_handle_t * sh,
+ 			     const char *lock_name, const char *lock_file)
+ {
++	pid_t pid, lock_pid;
++	char *pid_string, *lock_pid_string;
+ 	int fd;
+-	struct timeval origtime, curtime;
++	size_t pid_length;
++	ssize_t pid_bytes;
+ 	int got_lock = 0;
++	int overwritten_lock = 0;
+ 
+-	if ((fd = open(lock_file, O_RDONLY)) == -1) {
+-		if ((fd =
+-		     open(lock_file, O_RDWR | O_CREAT | O_TRUNC,
+-			  S_IRUSR | S_IWUSR)) == -1) {
++	pid = getpid();
++	pid_string = malloc(pid_max_length * sizeof(char));
++	sprintf(pid_string, "%d", pid);
++	pid_length = strlen(pid_string);
++	if ((fd = open(lock_file, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) == -1) {
+ 			ERR(sh, "Could not open direct %s at %s.", lock_name,
+ 			    lock_file);
++			free(pid_string);
+ 			return -1;
++	} else {
++		lock_pid_string = malloc(pid_max_length * sizeof(char));
++		pid_bytes = pread(fd, lock_pid_string, pid_max_length, 0);
++		if (pid_bytes == 0) {
++			overwritten_lock = 1;
++			pid_bytes = write(fd, pid_string, pid_length);
++			if (pid_bytes == (ssize_t) pid_length)
++				got_lock = 1;
++		} else {
++			lock_pid = (pid_t) atoi(lock_pid_string);
++			if (lock_pid > pid_max) {
++				overwritten_lock = 1;
++				pid_bytes = pwrite(fd, pid_string, pid_length, 0);
++				if (pid_bytes == (ssize_t) pid_length)
++					got_lock = 1;
++			} else {
++				if (lock_pid = pid)
++				       got_lock = 1;
++				else if (kill(lock_pid, 0) != 0)
++					if (errno == ESRCH) {
++						overwritten_lock = 1;
++						pid_bytes = pwrite(fd, pid_string, pid_length, 0);
++						if (pid_bytes == (ssize_t) pid_length)
++							got_lock = 1;
++					}
++			}
+ 		}
+ 	}
+-	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
+-		ERR(sh, "Could not set close-on-exec for %s at %s.", lock_name,
+-		    lock_file);
++
++	if (!got_lock) {
+ 		close(fd);
++		free(pid_string);
++		free(lock_pid_string);
++		if (overwritten_lock)
++			unlink(lock_file);
++		ERR(sh, "Could not get direct %s at %s.", lock_name, lock_file);
+ 		return -1;
+ 	}
+ 
+-	if (sh->timeout == 0) {
+-		/* return immediately */
+-		origtime.tv_sec = 0;
+-	} else {
+-		origtime.tv_sec = sh->timeout;
+-	}
+-	origtime.tv_usec = 0;
+-	do {
+-		curtime.tv_sec = 1;
+-		curtime.tv_usec = 0;
+-		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
+-			got_lock = 1;
+-			break;
+-		} else if (errno != EAGAIN) {
+-			ERR(sh, "Error obtaining direct %s at %s.", lock_name,
+-			    lock_file);
+-			close(fd);
+-			return -1;
+-		}
+-		if (origtime.tv_sec > 0 || sh->timeout == -1) {
+-			if (select(0, NULL, NULL, NULL, &curtime) == -1) {
+-				if (errno == EINTR) {
+-					continue;
+-				}
+-				ERR(sh,
+-				    "Error while waiting to get direct %s at %s.",
+-				    lock_name, lock_file);
+-				close(fd);
+-				return -1;
+-			}
+-			origtime.tv_sec--;
+-		}
+-	} while (origtime.tv_sec > 0 || sh->timeout == -1);
+-	if (!got_lock) {
+-		ERR(sh, "Could not get direct %s at %s.", lock_name, lock_file);
++	if (fcntl(fd, F_SETFD, FD_CLOEXEC) < 0) {
++		ERR(sh, "Could not set close-on-exec for %s at %s.", lock_name,
++		    lock_file);
+ 		close(fd);
++		free(pid_string);
++		free(lock_pid_string);
++		unlink(lock_file);
+ 		return -1;
+ 	}
++
++	free(pid_string);
++	free(lock_pid_string);
+ 	return fd;
+ }
+ 
+@@ -1894,29 +1999,27 @@ int semanage_get_active_lock(semanage_ha
+ 	}
+ }
+ 
+-/* Releases the transaction lock.  Does nothing if there was not one already
+- * there. */
++/* Releases the transaction lock: the lock file is removed */
+ void semanage_release_trans_lock(semanage_handle_t * sh)
+ {
+ 	int errsv = errno;
+ 	if (sh->u.direct.translock_file_fd >= 0) {
+-		flock(sh->u.direct.translock_file_fd, LOCK_UN);
+ 		close(sh->u.direct.translock_file_fd);
+ 		sh->u.direct.translock_file_fd = -1;
+ 	}
++	unlink(semanage_files[SEMANAGE_TRANS_LOCK]);
+ 	errno = errsv;
+ }
+ 
+-/* Releases the read lock.  Does nothing if there was not one already
+- * there. */
++/* Releases the read lock: the lock file is removed */
+ void semanage_release_active_lock(semanage_handle_t * sh)
+ {
+ 	int errsv = errno;
+ 	if (sh->u.direct.activelock_file_fd >= 0) {
+-		flock(sh->u.direct.activelock_file_fd, LOCK_UN);
+ 		close(sh->u.direct.activelock_file_fd);
+ 		sh->u.direct.activelock_file_fd = -1;
+ 	}
++	unlink(semanage_files[SEMANAGE_READ_LOCK]);
+ 	errno = errsv;
+ }
+ 
