@@ -1,60 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3OLUmIW009570
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 17:30:48 -0400
-Received: by mail-vk0-f49.google.com with SMTP id j127so45882602vkh.0
- for <selinux@tycho.nsa.gov>; Mon, 24 Apr 2017 14:30:46 -0700 (PDT)
-MIME-Version: 1.0
-From: Umair Sarfraz <aquadestructor@gmail.com>
-Date: Tue, 25 Apr 2017 02:30:45 +0500
-Message-ID: <CAGJp4bCsPw_yVs=krjDO3nq0YQNuBbkVhL-TANMdWu3_DihK1w@mail.gmail.com>
-Subject: Docker daemon in enforcing state
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3P6UGXx029882
+ for <selinux@tycho.nsa.gov>; Tue, 25 Apr 2017 02:30:16 -0400
+From: Russell Coker <russell@coker.com.au>
 To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary=001a1142a312eb4415054df0512c
+Subject: Re: [PATCH] libsemanage: remove lock files
+Date: Tue, 25 Apr 2017 16:30:03 +1000
+References: <58517705.198270.1492699110308@pim.register.it>
+ <100DD2AB-228E-47B5-8058-C9F030AEA665@trentalancia.net>
+ <C6C00E69-C6B1-4408-B27A-C05D7B6B9D00@trentalancia.net>
+In-Reply-To: <C6C00E69-C6B1-4408-B27A-C05D7B6B9D00@trentalancia.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Message-Id: <201704251630.03844.russell@coker.com.au>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a1142a312eb4415054df0512c
-Content-Type: text/plain; charset=UTF-8
+On Tue, 25 Apr 2017 04:38:40 AM Guido Trentalancia wrote:
+> Also, another major benefit of not using flock() comes when using NFS
+> (probably a very rare circumstance, but not entirely impossibile).
+> 
+> It is possible to use the presence of a file (with the same name) to
+> indicate an "active" lock: such file should store the PID of the process
+> that is requiring the lock.
+> 
+> If a lock is found with a PID that does not exist, then such lock is
+> considered invalid and it is removed.  That is it really...
 
-Hi,
+Pidfile locking doesn't work well as pids are not unique, you can have a 
+process die and be replaced by another process with the same pid.  Also a 
+reboot is expected to have pid conflicts as pids are allocated sequentially and 
+most daemons end up with low numbers.  Using a tmpfs for /run solves some of 
+these problems as it's reliably cleared out at boot.
 
-So, I have been trying to play around with MLS (which I have successfully
-configured) on CentOS 7. I'm aiming to apply some security policies
-(categorization of docker containers) via MLS, but I can't seem to access
-and get correct labels of docker daemon if I am in `enforcing` mode.
-However, changing it to permissive mode allow me to access the service and
-have correct label. In enforcing mode, I get unlablled_t on the docker
-dirs.
+Things get even more exciting if you use systemd-nspawn and have multiple pid 
+namespaces on the same system with bind mounts of directories that have 
+pidfiles.
 
+Pidfile locking also never works across network filesystems as pids are local to 
+a system.  You could have some combination of pid and hostname (as done by 
+some web browsers) but that gets ugly.
 
-I am fairly new to SELinux so please excuse me if this is a silly question
-but I am pretty sure I am missing something here. Any sort of help would be
-appreciated. Thanks.
+Really pidfiles are so horrible that one of the noteworthy features of systemd 
+is removing the need for them.
+
+Having multiple systems operate with NFS root and a shared /etc/selinux is 
+never going to work well.  Even if everything works well (and it probably 
+won't) you will end up with systems that have the policy in /etc/selinux not 
+matching what is running.
 
 -- 
-
-Umair Sarfraz
-
---001a1142a312eb4415054df0512c
-Content-Type: text/html; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi,=C2=A0<div><br></div><div>So, I have been trying to pla=
-y around with MLS (which I have successfully configured) on CentOS 7. I&#39=
-;m aiming to apply some security policies (categorization of docker contain=
-ers) via MLS, but I can&#39;t seem to access and get correct labels of dock=
-er daemon if I am in `enforcing` mode. However, changing it to permissive m=
-ode allow me to access the service and have correct label. In enforcing mod=
-e, I get unlablled_t on the docker dirs.=C2=A0</div><div><br></div><div><br=
-></div><div>I am fairly new to SELinux so please excuse me if this is a sil=
-ly question but I am pretty sure I am missing something here. Any sort of h=
-elp would be appreciated. Thanks.<br clear=3D"all"><div><br></div>-- <br><d=
-iv class=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div dir=3D=
-"ltr"><div><div dir=3D"ltr"><div><br></div><div><span style=3D"font-size:12=
-.8px">Umair Sarfraz</span><br></div></div><div dir=3D"ltr"><br><div><br></d=
-iv></div></div></div></div>
-</div></div>
-
---001a1142a312eb4415054df0512c--
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
