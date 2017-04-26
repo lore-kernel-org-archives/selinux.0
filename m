@@ -1,409 +1,149 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3QDlZv8014992
- for <selinux@tycho.nsa.gov>; Wed, 26 Apr 2017 09:47:35 -0400
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] libselinux: Add permissive= entry to avc audit log
-Date: Wed, 26 Apr 2017 14:47:21 +0100
-Message-Id: <20170426134721.2501-1-richard_c_haines@btinternet.com>
+From: Sebastien Buisson <sbuisson.ddn@gmail.com>
+To: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Cc: serge@hallyn.com, james.l.morris@oracle.com, eparis@parisplace.org,
+ sds@tycho.nsa.gov, paul@paul-moore.com, danielj@mellanox.com,
+ Sebastien Buisson <sbuisson@ddn.com>
+Subject: [PATCH 1/3] selinux: Implement LSM notification system
+Date: Thu, 27 Apr 2017 00:02:14 +0900
+Message-Id: <1493218936-18522-1-git-send-email-sbuisson@ddn.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add audit log entry to specify whether the decision was made in
-permissive mode/permissive domain or enforcing mode.
+From: Daniel Jurgens <danielj@mellanox.com>
 
-There are two utilities for testing:
-utils/avc_has_perm - This can set the AVC mode to follow SELinux, set
-AVC permissive, or set AVC enforcing.
+Add a generic notification mechanism in the LSM. Interested consumers
+can register a callback with the LSM and security modules can produce
+events.
 
-utils/selinux_check_access - This follows SELinux as it calls
-selinux_check_access(3).
+Add a call to the notification mechanism from SELinux when the AVC
+cache changes.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Signed-off-by: Sebastien Buisson <sbuisson@ddn.com>
 ---
- libselinux/src/avc.c                    |   4 +
- libselinux/utils/avc_has_perm.c         | 203 ++++++++++++++++++++++++++++++++
- libselinux/utils/selinux_check_access.c | 145 +++++++++++++++++++++++
- 3 files changed, 352 insertions(+)
- create mode 100644 libselinux/utils/avc_has_perm.c
- create mode 100644 libselinux/utils/selinux_check_access.c
+ include/linux/security.h | 23 +++++++++++++++++++++++
+ security/security.c      | 20 ++++++++++++++++++++
+ security/selinux/hooks.c | 12 ++++++++++++
+ 3 files changed, 55 insertions(+)
 
-diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-index b1ec57f..5600f80 100644
---- a/libselinux/src/avc.c
-+++ b/libselinux/src/avc.c
-@@ -723,6 +723,10 @@ void avc_audit(security_id_t ssid, security_id_t tsid,
+diff --git a/include/linux/security.h b/include/linux/security.h
+index af675b5..73a9c93 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -68,6 +68,10 @@
+ struct user_namespace;
+ struct timezone;
  
- 	log_append(avc_audit_buf, " ");
- 	avc_dump_query(ssid, tsid, tclass);
++enum lsm_event {
++	LSM_POLICY_CHANGE,
++};
 +
-+	log_append(avc_audit_buf, " permissive=%u", avc_enforcing &&
-+		   !(avd->flags & SELINUX_AVD_FLAGS_PERMISSIVE) ? 0 : 1);
-+
- 	log_append(avc_audit_buf, "\n");
- 	avc_log(SELINUX_AVC, "%s", avc_audit_buf);
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, int audit);
+@@ -163,6 +167,10 @@ struct security_mnt_opts {
+ 	int num_mnt_opts;
+ };
  
-diff --git a/libselinux/utils/avc_has_perm.c b/libselinux/utils/avc_has_perm.c
-new file mode 100644
-index 0000000..3d4bfc0
---- /dev/null
-+++ b/libselinux/utils/avc_has_perm.c
-@@ -0,0 +1,203 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <unistd.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+#include <selinux/avc.h>
++int call_lsm_notifier(enum lsm_event event, void *data);
++int register_lsm_notifier(struct notifier_block *nb);
++int unregister_lsm_notifier(struct notifier_block *nb);
 +
-+static void usage(char *progname)
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+ 	opts->mnt_opts = NULL;
+@@ -381,6 +389,21 @@ int security_sem_semop(struct sem_array *sma, struct sembuf *sops,
+ struct security_mnt_opts {
+ };
+ 
++static inline int call_lsm_notifier(enum lsm_event event, void *data)
 +{
-+	fprintf(stderr, "usage:  %s [-f | -p] [-i] scon tcon class perm\n"
-+		"\nWhere:\n\t"
-+		"-f  Follow SELinux permissive or enforcing mode, or\n\t"
-+		"-p  Set avc_open to permissive mode.\n\t"
-+		"    The default is to set avc_open to enforcing mode.\n\t"
-+		"-i  Interactive mode. Once displayed first result, can\n\t"
-+		"    enter additional entries and display AVC cache info.\n",
-+		progname);
-+	exit(1);
++	return 0;
 +}
 +
-+static void get_entry(char **buffer)
++static inline int register_lsm_notifier(struct notifier_block *nb)
 +{
-+	char *buf;
-+	int len;
-+#define BUF_LEN 81
-+
-+	buf = malloc(BUF_LEN * sizeof(char));
-+	if (!buf) {
-+		perror("malloc");
-+		exit(1);
-+	}
-+
-+	if (fgets(buf, BUF_LEN - 1, stdin) == NULL) {
-+		perror("fgets");
-+		exit(1);
-+	}
-+
-+	len = strlen(buf);
-+	if (buf[len - 1] == '\n')
-+		buf[len - 1] = 0;
-+
-+	*buffer = buf;
++	return 0;
 +}
 +
-+/*
-+ * Function to print the AVC statistics. Because no audit logging call back
-+ * has been set, the avc_cache_stats will be displayed on stderr.
-+ */
-+static void print_avc_stats(void)
++static inline  int unregister_lsm_notifier(struct notifier_block *nb)
 +{
-+	struct avc_cache_stats acs;
-+
-+	avc_cache_stats(&acs);
-+	printf("\nThe avc_cache_stats are as follows:\n");
-+	printf("entry_hits:     %d\t(Decisions found in aeref)\n",
-+	       acs.entry_hits);
-+	printf("entry_misses:   %d\t(Decisions not found in aeref)\n",
-+	       acs.entry_misses);
-+	printf("entry_discards: %d\t(Decisions not found in aeref that were "
-+	       "also non-NULL)\n", acs.entry_discards);
-+	printf("entry_lookups:  %d\t(Queries made)\n", acs.entry_lookups);
-+	printf("cav_lookups:    %d\t(Cache lookups)\n", acs.cav_lookups);
-+	printf("cav_hits:       %d\t(Cache hits)\n", acs.cav_hits);
-+	printf("cav_probes:     %d\t(Entries examined searching the cache)\n",
-+	       acs.cav_probes);
-+	printf("cav_misses:     %d\t(Cache misses)\n\n", acs.cav_misses);
++	return 0;
 +}
 +
-+struct avc_entry_ref aeref;
-+static void exec_func(char *scon, char *tcon, char *class, char *perm)
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+ }
+diff --git a/security/security.c b/security/security.c
+index b9fea39..ef9d9e1 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -32,6 +32,8 @@
+ /* Maximum number of letters for an LSM name string */
+ #define SECURITY_NAME_MAX	10
+ 
++static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
++
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
+ char *lsm_names;
+ /* Boot-time LSM user choice */
+@@ -146,6 +148,24 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+ 		panic("%s - Cannot get early memory.\n", __func__);
+ }
+ 
++int call_lsm_notifier(enum lsm_event event, void *data)
 +{
-+	int rc;
-+	security_id_t scon_id;
-+	security_id_t tcon_id;
-+	security_class_t sclass;
-+	access_vector_t av;
++	return atomic_notifier_call_chain(&lsm_notifier_chain, event, data);
++}
++EXPORT_SYMBOL(call_lsm_notifier);
 +
-+	rc = avc_context_to_sid(scon, &scon_id);
-+	if (rc < 0) {
-+		perror("Error scon avc_context_to_sid");
-+		exit(1);
-+	}
++int register_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_register(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(register_lsm_notifier);
 +
-+	rc = avc_context_to_sid(tcon, &tcon_id);
-+	if (rc < 0) {
-+		perror("Error tcon avc_context_to_sid");
-+		exit(1);
-+	}
++int unregister_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_unregister(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(unregister_lsm_notifier);
 +
-+	sclass = string_to_security_class(class);
-+	av = string_to_av_perm(sclass, perm);
+ /*
+  * Hook list operation macros.
+  *
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e67a526..a4d36f8 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -171,6 +171,14 @@ static int selinux_netcache_avc_callback(u32 event)
+ 	return 0;
+ }
+ 
++static int selinux_lsm_notifier_avc_callback(u32 event)
++{
++	if (event == AVC_CALLBACK_RESET)
++		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
 +
-+	printf("\nAny avc_log error messages are shown on stderr:\n");
-+	rc = avc_has_perm(scon_id, tcon_id, sclass, av, &aeref, NULL);
-+	printf("\nEnd of avc_log error messages.\n\n");
-+
-+	if (rc < 0)
-+		printf("Error avc_has_perm: %s\n", strerror(errno));
-+	else
-+		printf("Permission ALLOWED.\n");
++	return 0;
 +}
 +
-+int main(int argc, char **argv)
-+{
-+	int opt, rc;
-+	bool interactive = false, follow = false;
-+	char *scon, *tcon, *class, *perm;
-+	struct selinux_opt avc_option;
+ /*
+  * initialise the security for the init task
+  */
+@@ -6379,6 +6387,10 @@ static __init int selinux_init(void)
+ 	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
+ 		panic("SELinux: Unable to register AVC netcache callback\n");
+ 
++	if (avc_add_callback(selinux_lsm_notifier_avc_callback,
++			     AVC_CALLBACK_RESET))
++		panic("SELinux: Unable to register AVC LSM notifier callback\n");
 +
-+	avc_option.type = AVC_OPT_SETENFORCE;
-+	avc_option.value = (char *)1;
-+
-+	while ((opt = getopt(argc, argv, "ifp")) != -1) {
-+		switch (opt) {
-+		case 'i':
-+			interactive = true;
-+			break;
-+		case 'f':
-+			follow = true;
-+			break;
-+		case 'p':
-+			avc_option.value = NULL;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if ((argc - optind) != 4)
-+		usage(argv[0]);
-+
-+	rc = is_selinux_enabled();
-+	if (rc == 0) {
-+		printf("SELinux is not enabled.\n");
-+		exit(1);
-+	} else if (rc == 1) {
-+		printf("SELinux is enabled.\n");
-+	} else {
-+		perror("Error is_selinux_enabled");
-+		exit(1);
-+	}
-+
-+	rc = security_getenforce();
-+	if (rc == 0)
-+		printf("SELinux running in PERMISSIVE mode.\n");
-+	else if (rc == 1)
-+		printf("SELinux running in ENFORCING mode.\n");
-+	else {
-+		perror("Error security_getenforce");
-+		exit(1);
-+	}
-+
-+	rc = security_deny_unknown();
-+	if (rc == 0)
-+		printf("Undefined object classes or permissions: ALLOWED.\n");
-+	else if (rc == 1)
-+		printf("Undefined object classes or permissions: DENIED.\n");
-+	else {
-+		perror("Error security_deny_unknown");
-+		exit(1);
-+	}
-+
-+	if (follow) {
-+		if (avc_open(NULL, 0)) {
-+			perror("Error avc_open");
-+			exit(1);
-+		}
-+		printf("avc_open - Following SELinux mode.\n");
-+	} else {
-+		if (avc_open(&avc_option, 1)) {
-+			perror("Error avc_open");
-+			exit(1);
-+		}
-+
-+		if (avc_option.value == NULL)
-+			printf("avc_open - PERMISSIVE mode.\n");
-+		else
-+			printf("avc_open - ENFORCING mode.\n");
-+	}
-+
-+	avc_entry_ref_init(&aeref);
-+
-+	exec_func(argv[optind], argv[optind + 1], argv[optind + 2],
-+		  argv[optind + 3]);
-+
-+	while (interactive) {
-+		printf("\nEnter scon: ");
-+		get_entry(&scon);
-+		printf("Enter tcon: ");
-+		get_entry(&tcon);
-+		printf("Enter class: ");
-+		get_entry(&class);
-+		printf("Enter perm: ");
-+		get_entry(&perm);
-+
-+		exec_func(scon, tcon, class, perm);
-+		print_avc_stats();
-+	}
-+
-+	exit(0);
-+}
-diff --git a/libselinux/utils/selinux_check_access.c b/libselinux/utils/selinux_check_access.c
-new file mode 100644
-index 0000000..8e354c1
---- /dev/null
-+++ b/libselinux/utils/selinux_check_access.c
-@@ -0,0 +1,145 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <unistd.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+#include <selinux/avc.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr, "usage:  %s [-i] scon tcon class perm\n"
-+		"\nWhere:\n\t"
-+		"-i  Interactive mode. Once displayed first result, can\n\t"
-+		"    enter additional entries and display AVC cache info.\n",
-+		progname);
-+	exit(1);
-+}
-+
-+static void get_entry(char **buffer)
-+{
-+	char *buf;
-+	int len;
-+#define BUF_LEN 81
-+
-+	buf = malloc(BUF_LEN * sizeof(char));
-+	if (!buf) {
-+		perror("malloc");
-+		exit(1);
-+	}
-+
-+	if (fgets(buf, BUF_LEN - 1, stdin) == NULL) {
-+		perror("fgets");
-+		exit(1);
-+	}
-+
-+	len = strlen(buf);
-+	if (buf[len - 1] == '\n')
-+		buf[len - 1] = 0;
-+
-+	*buffer = buf;
-+}
-+
-+/*
-+ * Function to print the AVC statistics. Because no audit logging call back
-+ * has been set, the avc_cache_stats will be displayed on stderr.
-+ * selinux_check_access* sets aeref = NULL, so do not print these stats.
-+ */
-+static void print_avc_stats(void)
-+{
-+	struct avc_cache_stats acs;
-+
-+	avc_cache_stats(&acs);
-+	printf("\nThe avc_cache_stats are as follows:\n");
-+	printf("entry_lookups:  %d\t(Queries made)\n", acs.entry_lookups);
-+	printf("cav_lookups:    %d\t(Cache lookups)\n", acs.cav_lookups);
-+	printf("cav_hits:       %d\t(Cache hits)\n", acs.cav_hits);
-+	printf("cav_probes:     %d\t(Entries examined searching the cache)\n",
-+	       acs.cav_probes);
-+	printf("cav_misses:     %d\t(Cache misses)\n\n", acs.cav_misses);
-+}
-+
-+static void exec_func(char *scon, char *tcon, char *class, char *perm)
-+{
-+	int rc;
-+
-+	printf("\nAny avc_log error messages are shown on stderr:\n");
-+	rc = selinux_check_access(scon, tcon, class, perm, NULL);
-+	printf("\nEnd of avc_log error messages.\n\n");
-+
-+	if (rc < 0)
-+		printf("Error selinux_check_access: %s\n", strerror(errno));
-+	else
-+		printf("Permission ALLOWED.\n");
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, rc;
-+	bool interactive = false;
-+	char *scon, *tcon, *class, *perm;
-+
-+	while ((opt = getopt(argc, argv, "i")) != -1) {
-+		switch (opt) {
-+		case 'i':
-+			interactive = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if ((argc - optind) != 4)
-+		usage(argv[0]);
-+
-+	rc = is_selinux_enabled();
-+	if (rc == 0) {
-+		printf("SELinux is not enabled.\n");
-+		exit(1);
-+	} else if (rc == 1) {
-+		printf("SELinux is enabled.\n");
-+	} else {
-+		perror("Error is_selinux_enabled");
-+		exit(1);
-+	}
-+
-+	rc = security_getenforce();
-+	if (rc == 0)
-+		printf("SELinux running in PERMISSIVE mode.\n");
-+	else if (rc == 1)
-+		printf("SELinux running in ENFORCING mode.\n");
-+	else {
-+		perror("Error security_getenforce");
-+		exit(1);
-+	}
-+
-+	rc = security_deny_unknown();
-+	if (rc == 0)
-+		printf("Undefined object classes or permissions: ALLOWED.\n");
-+	else if (rc == 1)
-+		printf("Undefined object classes or permissions: DENIED.\n");
-+	else {
-+		perror("Error security_deny_unknown");
-+		exit(1);
-+	}
-+
-+	exec_func(argv[optind], argv[optind + 1], argv[optind + 2],
-+		  argv[optind + 3]);
-+
-+	while (interactive) {
-+		printf("\nEnter scon: ");
-+		get_entry(&scon);
-+		printf("Enter tcon: ");
-+		get_entry(&tcon);
-+		printf("Enter class: ");
-+		get_entry(&class);
-+		printf("Enter perm: ");
-+		get_entry(&perm);
-+
-+		exec_func(scon, tcon, class, perm);
-+		print_avc_stats();
-+	}
-+
-+	exit(0);
-+}
+ 	if (selinux_enforcing)
+ 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+ 	else
 -- 
-2.9.3
+1.8.3.1
