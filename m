@@ -1,55 +1,65 @@
-Message-Id: <1493240908.1837173.957437120.416E6DD8@webmail.messagingengine.com>
-From: Colin Walters <walters@verbum.org>
-To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Daniel J Walsh <dwalsh@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3QLOZ9b012431
+ for <selinux@tycho.nsa.gov>; Wed, 26 Apr 2017 17:24:36 -0400
+Received: by mail-vk0-f43.google.com with SMTP id 198so7674401vkk.2
+ for <selinux@tycho.nsa.gov>; Wed, 26 Apr 2017 14:24:34 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Date: Wed, 26 Apr 2017 17:08:28 -0400
-Subject: Re: is_selinux_enabled() always returns 0 after
- selinux_set_policy_root()
-In-Reply-To: <1493239388.1829342.957407608.3C297B30@webmail.messagingengine.com>
-References: <1493237420.1820719.957368808.08E54C5A@webmail.messagingengine.com>
- <1493238298.32540.13.camel@tycho.nsa.gov>
- <1493239388.1829342.957407608.3C297B30@webmail.messagingengine.com>
+In-Reply-To: <201703251155.FBH12969.LFOFMHSFJQtOOV@I-love.SAKURA.ne.jp>
+References: <1490355659-13787-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
+ <CAHC9VhQc-55wALE-Qo=b1sY5Ts=Oo1Ra_xp+Euu_WSnuDowa0A@mail.gmail.com>
+ <201703251155.FBH12969.LFOFMHSFJQtOOV@I-love.SAKURA.ne.jp>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 26 Apr 2017 17:24:33 -0400
+Message-ID: <CAHC9VhRrmSbvR=_KUqrvYnMqM+mUYYcu9v6DbeB2dpPdGT7PjA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix double free in selinux_parse_opts_str()
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ Eric Paris <eparis@redhat.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ casey@schaufler-ca.com, James Morris <jmorris@namei.org>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Fri, Mar 24, 2017 at 10:55 PM, Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> Paul Moore wrote:
+>> Hi,
+>>
+>> Thank you very much for this patch, but I think we need to look a bit
+>> harder at this problem as it appears that many callers assume that
+>> selinux_parse_opts_str() cleans up after itself.  Looking quickly I
+>> found what appear to be two problems, there are likely more ...
+>>
+>> * selinux_sb_remount()
+>> If selinux_parse_opts_str() fails here it doesn't appear we cleanup
+>> opts properly, although changing the jump target from
+>> "out_free_secdata" to "out_free_opts" would appear to correct this.
+>>
+>> * btrfs_mount()
+>> This function calls parse_security_options() which in turn calls
+>> security_sb_parse_opts_str(), but if parse_security_options() fails in
+>> this case the security_mnt_opts are not free'd.
+>>
+>> At this point I wonder if the quick fix is to set opts->mnt_opts to
+>> NULL after kfree()'ing it, or simply drop the kfree() call and call
+>> security_free_mnt_opts() in the out_err error handling code; the
+>> latter is a bit more work than needed, but I believe it should be safe
+>> in all conditions.
+>
+> I think the latter is better.
+> We might allow multiple LSM modules to parse mount options in future
+> (not limited to SELinux + Smack combination, small LSMs might want to
+> parse mount options). Then, calling a common function for releasing
+> memory allocated by individual module will become needed.
 
+Hello,
 
-On Wed, Apr 26, 2017, at 04:43 PM, Colin Walters wrote:
-> On Wed, Apr 26, 2017, at 04:24 PM, Stephen Smalley wrote:
-> >
-> > Your analysis and proposed fix sound correct to me.  I blame Dan ;)
-> 
-> Thanks.  I tested the patch and confirmed it fixed ostree as it stands today,
-> but I'm going to change ostree to cache the result of `is_selinux_enabled()`
-> itself to work around this, since for our use cases it should never really
-> change dynamically.
+I just wanted to check to see if you were going to do a follow up
+patch for this?  If not I'll put something together, but I didn't want
+to conflict with anything you were working on.
 
-Although as I was working on the workaround, which I just put up as:
-https://github.com/ostreedev/ostree/pull/815
-
-I was thinking about this a bit more and I realized (maybe) why
-Dan added that call.  
-
-Right now (ignoring #ifdef ANDROID):
-int is_selinux_enabled()
-{
-return (selinux_mnt && has_selinux_config);
-}
-
-And conceptually "has_selinux_config" derives from the policy root.
-But in practice it doesn't today - that variable is also only initialized
-in the constructor.   Should it?  I'm not sure.
-
-The way libostree uses the policy root is basically for the regexp labeling
-database.   We're using `is_selinux_enabled()` to determine whether
-or not we should call `setfscreatecon()`. 
-
-Eh.  My inclination is not think too much more about this.  The patch
-is unlikely to break anything, it does fix a bug, and I'm not aware of a
-case where someone would be using e.g. a host system with SELinux
-fully disabled to do anything related to ostree, so we don't
-need to care about trying to disentangle those cases.  Hopefully!
+-- 
+paul moore
+www.paul-moore.com
