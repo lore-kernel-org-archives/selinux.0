@@ -1,132 +1,100 @@
-Message-ID: <1493325438.2524.31.camel@tycho.nsa.gov>
-Subject: Re: is_selinux_enabled() always returns 0 after
- selinux_set_policy_root()
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
-Date: Thu, 27 Apr 2017 16:37:18 -0400
-In-Reply-To: <20170427165358.GA26305@julius>
-References: <1493237420.1820719.957368808.08E54C5A@webmail.messagingengine.com>
- <1493238298.32540.13.camel@tycho.nsa.gov>
- <1493239388.1829342.957407608.3C297B30@webmail.messagingengine.com>
- <1493240908.1837173.957437120.416E6DD8@webmail.messagingengine.com>
- <1493298251.2524.3.camel@tycho.nsa.gov> <20170427165358.GA26305@julius>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3RM4eCJ026676
+ for <selinux@tycho.nsa.gov>; Thu, 27 Apr 2017 18:04:40 -0400
+Received: by mail-vk0-f66.google.com with SMTP id e15so3279474vkd.1
+ for <selinux@tycho.nsa.gov>; Thu, 27 Apr 2017 15:04:25 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1493299166.2524.5.camel@tycho.nsa.gov>
+References: <20170420153130.8992-1-sds@tycho.nsa.gov>
+ <CAHC9VhRKjNywMFAa5USpPzy1EttiPVx9XyfH4t5EvGY6WDWE3A@mail.gmail.com>
+ <1493299166.2524.5.camel@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 27 Apr 2017 18:04:24 -0400
+Message-ID: <CAHC9VhS5qwKjBQEMsAfV=VV54DpqRGvxaSnmtd-ZZikdKA7_zg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: only invoke capabilities and selinux for
+ CAP_MAC_ADMIN checks
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, casey@schaufler-ca.com
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-04-27 at 18:53 +0200, Dominick Grift wrote:
-> On Thu, Apr 27, 2017 at 09:04:11AM -0400, Stephen Smalley wrote:
-> > On Wed, 2017-04-26 at 17:08 -0400, Colin Walters wrote:
-> > > 
-> > > On Wed, Apr 26, 2017, at 04:43 PM, Colin Walters wrote:
-> > > > On Wed, Apr 26, 2017, at 04:24 PM, Stephen Smalley wrote:
-> > > > > 
-> > > > > Your analysis and proposed fix sound correct to me.  I blame
-> > > > > Dan
-> > > > > ;)
-> > > > 
-> > > > Thanks.  I tested the patch and confirmed it fixed ostree as it
-> > > > stands today,
-> > > > but I'm going to change ostree to cache the result of
-> > > > `is_selinux_enabled()`
-> > > > itself to work around this, since for our use cases it should
-> > > > never
-> > > > really
-> > > > change dynamically.
-> > > 
-> > > Although as I was working on the workaround, which I just put up
-> > > as:
-> > > https://github.com/ostreedev/ostree/pull/815
-> > > 
-> > > I was thinking about this a bit more and I realized (maybe) why
-> > > Dan added that call.  
-> > > 
-> > > Right now (ignoring #ifdef ANDROID):
-> > > int is_selinux_enabled()
-> > > {
-> > > return (selinux_mnt && has_selinux_config);
-> > > }
-> > > 
-> > > And conceptually "has_selinux_config" derives from the policy
-> > > root.
-> > > But in practice it doesn't today - that variable is also only
-> > > initialized
-> > > in the constructor.   Should it?  I'm not sure.
-> > > 
-> > > The way libostree uses the policy root is basically for the
-> > > regexp
-> > > labeling
-> > > database.   We're using `is_selinux_enabled()` to determine
-> > > whether
-> > > or not we should call `setfscreatecon()`. 
-> > > 
-> > > Eh.  My inclination is not think too much more about this.  The
-> > > patch
-> > > is unlikely to break anything, it does fix a bug, and I'm not
-> > > aware
-> > > of a
-> > > case where someone would be using e.g. a host system with SELinux
-> > > fully disabled to do anything related to ostree, so we don't
-> > > need to care about trying to disentangle those cases.  Hopefully!
-> > 
-> > 1. The has_selinux_config test was added long after the
-> > introduction of
-> >  selinux_set_policy_root(), and only to avoid a regression due to
-> > removal of the test to see if policy is loaded.  See commits
-> > c08c4eacab8d55598b9e5caaef8a871a7a476cab and
-> > 685f4aeeadc0b60f3770404d4f149610d656e3c8.
-> > 
-> > 2. The test for has_selinux_config wouldn't actually be affected by
-> > selinux_set_policy_root() even if we were to re-evaluate it. 
-> > selinux_set_policy_root() sets the prefix for the policy files
-> > (e.g.
-> > from /etc/selinux/targeted to /etc/selinux/mls), it does not affect
-> > the
-> > path for /etc/selinux/config.  We don't presently provide any way
-> > to
-> > redirect libselinux to a different config file.
-> > 
-> > 3. Originally, is_selinux_enabled() returned 1 if selinuxfs was
-> > registered (in /proc/filesystems), even if not mounted. This was
-> > dropped by commit e3cab998b48ab293a9962faf9779d70ca339c65d, which
-> > changed the test to only return 1 if selinuxfs was mounted and only
-> > if
-> > it is mounted rw, so that a ro mount could be used in mock and
-> > other
-> > tools to make SELinux appear disabled.  Recent discussions on the
-> > list
-> > (subject: "let's revert e3cab998b48ab293a9962faf9779d70ca339c65d")
-> > have
-> >  proposed removing the ro check and only considering it disabled if
-> > selinuxfs is not mounted at all because systemd is remounting
-> > everything under /sys as ro for ProtectKernelTunables=yes and this
-> > is
-> > leading services to conclude that SELinux is disabled and then
-> > failing
-> > to label files correctly.  However, my impression is that systemd
-> > will
-> > alter its behavior and I don't think we can in the near term change
-> > libselinux in this regard as it will break various chroot and
-> > container
-> > implementations.
-> 
-> I hope you're not being too optimistic. The way i see it is that
-> reverting the patch will give these entities a reason to remove the
-> mounting of selinuxfs in containers. If you keep it in for
-> "compatibility" then i fear that it will never get fixed because
-> there is not sense of urgency.
-> 
-> Also the discussion on github WRT to ProtectKernelTurnables is
-> seemingly over but no action has been decided upon.
+On Thu, Apr 27, 2017 at 9:19 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Wed, 2017-04-26 at 17:36 -0400, Paul Moore wrote:
+>> On Thu, Apr 20, 2017 at 11:31 AM, Stephen Smalley <sds@tycho.nsa.gov>
+>> wrote:
+>> > SELinux uses CAP_MAC_ADMIN to control the ability to get or set a
+>> > raw,
+>> > uninterpreted security context unknown to the currently loaded
+>> > security
+>> > policy. When performing these checks, we only want to perform a
+>> > base
+>> > capabilities check and a SELinux permission check.  If any other
+>> > modules that implement a capable hook are stacked with SELinux, we
+>> > do
+>> > not want to require them to also have to authorize CAP_MAC_ADMIN,
+>> > since it may have different implications for their security model.
+>> > Rework the CAP_MAC_ADMIN checks within SELinux to only invoke the
+>> > capabilities module and the SELinux permission checking.
+>> >
+>> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> > ---
+>> >  security/selinux/hooks.c | 23 +++++++++++++++--------
+>> >  1 file changed, 15 insertions(+), 8 deletions(-)
+>> >
+>> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> > index e67a526..1aef63c 100644
+>> > --- a/security/selinux/hooks.c
+>> > +++ b/security/selinux/hooks.c
+>> > @@ -3107,6 +3107,18 @@ static int
+>> > selinux_inode_setotherxattr(struct dentry *dentry, const char
+>> > *name)
+>> >         return dentry_has_perm(cred, dentry, FILE__SETATTR);
+>> >  }
+>> >
+>> > +static bool has_cap_mac_admin(bool audit)
+>> > +{
+>> > +       const struct cred *cred = current_cred();
+>> > +       int cap_audit = audit ? SECURITY_CAP_AUDIT :
+>> > SECURITY_CAP_NOAUDIT;
+>> > +
+>> > +       if (cap_capable(cred, &init_user_ns, CAP_MAC_ADMIN,
+>> > cap_audit))
+>> > +               return false;
+>> > +       if (cred_has_capability(cred, CAP_MAC_ADMIN, cap_audit,
+>> > true))
+>> > +               return false;
+>> > +       return true;
+>> > +}
+>>
+>> Granted, I'm being nitpicky here, but that is one awful function name
+>> IMHO.  What's wrong with current_cap_mac_admin()?
+>
+> Maybe it's just me, but has_cap_mac_admin() seems better to me. It
+> reads correctly as English and fits its boolean nature.
 
-Yes, I don't know how to help move that forward.  I don't think
-applying Nicolas' patch for libselinux helps in that regard; even if we
-applied it today, it doesn't help motivate systemd to change its
-handling of PKT or NNP.  If anything, it might cause them to delay
-fixing PKT because it would "solve" the short-term problem associated
-with running systemd-localed with a ro selinuxfs mount, whereas we
-really need them to mount selinuxfs rw to support full use of the
-SELinux API by services.
+I've never bought into the function names as English-phrases argument.
+I actively dislike it to be honest.
+
+> We don't call any other permission checking function current_*().
+
+You assume I like the way they are currently names ;)
+
+> has_cap_mac_admin() is also shorter.  Remember that you only get so
+> many keystrokes in this life ;)
+
+I'd rather use them on meaningful names than rubbish ones ;)
+
+Joking aside, like I said earlier, it's fine - don't respin - I just
+wanted to go on record that it is an awful function name.
+
+>> Unless you're really bored don't worry about a respin, the rest of
+>> the
+>> patch looks fine to me, I'll queue it up for after the next merge
+>> window.
+
+-- 
+paul moore
+www.paul-moore.com
