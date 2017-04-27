@@ -1,19 +1,15 @@
-Message-ID: <1493318826.2524.21.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 2/3] selinux: add checksum to policydb
+Message-ID: <1493325438.2524.31.camel@tycho.nsa.gov>
+Subject: Re: is_selinux_enabled() always returns 0 after
+ selinux_set_policy_root()
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sebastien Buisson <sbuisson.ddn@gmail.com>
-Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- selinux@tycho.nsa.gov, serge@hallyn.com, james.l.morris@oracle.com, Eric
- Paris <eparis@parisplace.org>, Paul Moore <paul@paul-moore.com>, Daniel
- Jurgens <danielj@mellanox.com>, Sebastien Buisson <sbuisson@ddn.com>
-Date: Thu, 27 Apr 2017 14:47:06 -0400
-In-Reply-To: <CAPkE-bVo7BO4WypVoeTiNBkbva1touoG2f7KjC3-RgvFXe3FXg@mail.gmail.com>
-References: <1493218936-18522-1-git-send-email-sbuisson@ddn.com>
- <1493218936-18522-2-git-send-email-sbuisson@ddn.com>
- <1493231426.32540.11.camel@tycho.nsa.gov>
- <CAPkE-bVPHAGDX2uSt41UanVwiaJ3trCTgkUJiPNKNGKYVPMikw@mail.gmail.com>
- <1493306283.2524.17.camel@tycho.nsa.gov>
- <CAPkE-bVo7BO4WypVoeTiNBkbva1touoG2f7KjC3-RgvFXe3FXg@mail.gmail.com>
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
+Date: Thu, 27 Apr 2017 16:37:18 -0400
+In-Reply-To: <20170427165358.GA26305@julius>
+References: <1493237420.1820719.957368808.08E54C5A@webmail.messagingengine.com>
+ <1493238298.32540.13.camel@tycho.nsa.gov>
+ <1493239388.1829342.957407608.3C297B30@webmail.messagingengine.com>
+ <1493240908.1837173.957437120.416E6DD8@webmail.messagingengine.com>
+ <1493298251.2524.3.camel@tycho.nsa.gov> <20170427165358.GA26305@julius>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -21,68 +17,116 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-04-27 at 19:12 +0200, Sebastien Buisson wrote:
-> 2017-04-27 17:18 GMT+02:00 Stephen Smalley <sds@tycho.nsa.gov>:
-> > Ok, that should work as long as you just want to validate that all
+On Thu, 2017-04-27 at 18:53 +0200, Dominick Grift wrote:
+> On Thu, Apr 27, 2017 at 09:04:11AM -0400, Stephen Smalley wrote:
+> > On Wed, 2017-04-26 at 17:08 -0400, Colin Walters wrote:
+> > > 
+> > > On Wed, Apr 26, 2017, at 04:43 PM, Colin Walters wrote:
+> > > > On Wed, Apr 26, 2017, at 04:24 PM, Stephen Smalley wrote:
+> > > > > 
+> > > > > Your analysis and proposed fix sound correct to me.  I blame
+> > > > > Dan
+> > > > > ;)
+> > > > 
+> > > > Thanks.  I tested the patch and confirmed it fixed ostree as it
+> > > > stands today,
+> > > > but I'm going to change ostree to cache the result of
+> > > > `is_selinux_enabled()`
+> > > > itself to work around this, since for our use cases it should
+> > > > never
+> > > > really
+> > > > change dynamically.
+> > > 
+> > > Although as I was working on the workaround, which I just put up
+> > > as:
+> > > https://github.com/ostreedev/ostree/pull/815
+> > > 
+> > > I was thinking about this a bit more and I realized (maybe) why
+> > > Dan added that call.  
+> > > 
+> > > Right now (ignoring #ifdef ANDROID):
+> > > int is_selinux_enabled()
+> > > {
+> > > return (selinux_mnt && has_selinux_config);
+> > > }
+> > > 
+> > > And conceptually "has_selinux_config" derives from the policy
+> > > root.
+> > > But in practice it doesn't today - that variable is also only
+> > > initialized
+> > > in the constructor.   Should it?  I'm not sure.
+> > > 
+> > > The way libostree uses the policy root is basically for the
+> > > regexp
+> > > labeling
+> > > database.   We're using `is_selinux_enabled()` to determine
+> > > whether
+> > > or not we should call `setfscreatecon()`. 
+> > > 
+> > > Eh.  My inclination is not think too much more about this.  The
+> > > patch
+> > > is unlikely to break anything, it does fix a bug, and I'm not
+> > > aware
+> > > of a
+> > > case where someone would be using e.g. a host system with SELinux
+> > > fully disabled to do anything related to ostree, so we don't
+> > > need to care about trying to disentangle those cases.  Hopefully!
+> > 
+> > 1. The has_selinux_config test was added long after the
+> > introduction of
+> >  selinux_set_policy_root(), and only to avoid a regression due to
+> > removal of the test to see if policy is loaded.  See commits
+> > c08c4eacab8d55598b9e5caaef8a871a7a476cab and
+> > 685f4aeeadc0b60f3770404d4f149610d656e3c8.
+> > 
+> > 2. The test for has_selinux_config wouldn't actually be affected by
+> > selinux_set_policy_root() even if we were to re-evaluate it. 
+> > selinux_set_policy_root() sets the prefix for the policy files
+> > (e.g.
+> > from /etc/selinux/targeted to /etc/selinux/mls), it does not affect
 > > the
-> > clients loaded the same policy file, and aren't concerned about
-> > non-
-> > persistent policy boolean changes.
+> > path for /etc/selinux/config.  We don't presently provide any way
+> > to
+> > redirect libselinux to a different config file.
+> > 
+> > 3. Originally, is_selinux_enabled() returned 1 if selinuxfs was
+> > registered (in /proc/filesystems), even if not mounted. This was
+> > dropped by commit e3cab998b48ab293a9962faf9779d70ca339c65d, which
+> > changed the test to only return 1 if selinuxfs was mounted and only
+> > if
+> > it is mounted rw, so that a ro mount could be used in mock and
+> > other
+> > tools to make SELinux appear disabled.  Recent discussions on the
+> > list
+> > (subject: "let's revert e3cab998b48ab293a9962faf9779d70ca339c65d")
+> > have
+> >  proposed removing the ro check and only considering it disabled if
+> > selinuxfs is not mounted at all because systemd is remounting
+> > everything under /sys as ro for ProtectKernelTunables=yes and this
+> > is
+> > leading services to conclude that SELinux is disabled and then
+> > failing
+> > to label files correctly.  However, my impression is that systemd
+> > will
+> > alter its behavior and I don't think we can in the near term change
+> > libselinux in this regard as it will break various chroot and
+> > container
+> > implementations.
 > 
-> As far as I understand, non-persistent policy boolean changes can
-> affect the way the policy is enforced. So that is a problem if the
-> checksum does not reflect it. We want to protect against someone
-> tampering the policy locally on a Lustre client, even if it does not
-> survive a reboot.
-
-A boolean change can affect which TE rules in the policy are
-enabled/disabled, but only in ways that are defined by the original
-policy.  You can't add arbitrary TE rules that way, just enable/disable
-blocks that were defined conditionally in the policy.  It also has no
-effect on MLS enforcement, for example.  So it depends on your goals.
-
-> I just checked, with the method of computing the checksum on a (data,
-> len) pair on entry to security_load_policy() the checksum does not
-> change after using setsebool. So it seems I would need to call
-> security_read_policy() to retrieve the binary representation of the
-> policy as currently enforced by the kernel. Unless you can see
-> another
-> way?
-
-I don't think that's a viable option, since security_read_policy() is
-going to be expensive in order to generate a full policy image, while
-security_set_bools() is supposed to be substantially cheaper than a
-full policy load.
-
-Also, the advantage of taking the hash of the original input file is
-that you can independently compute a reference hash offline or on the
-server from the same policy file and compare them and you can identify
-which policy file was loaded based on the hash.
-
-If you care about the active boolean state, then I'd suggest hashing
-the active boolean state separately and storing that after the policy
-hash.  You can do that in both security_load_policy() and
-security_set_bools().  Just iterate through the bools like
-security_set_bools() does, write the ->state of each boolean into a
-buffer, and then hash that buffer.
-
-> > You needed to get (global) enforcing mode too, didn't you?  That's
-> > separate from the policy.
+> I hope you're not being too optimistic. The way i see it is that
+> reverting the patch will give these entities a reason to remove the
+> mounting of selinuxfs in containers. If you keep it in for
+> "compatibility" then i fear that it will never get fixed because
+> there is not sense of urgency.
 > 
-> Exactly, I also need to rework the patch I proposed about this, in
-> light of the comments I received.
+> Also the discussion on github WRT to ProtectKernelTurnables is
+> seemingly over but no action has been decided upon.
 
-So perhaps what you really want is a hook interface and a selinuxfs
-interface that returns a single string that encodes all of the policy
-properties that you care about?  Rather than separate hooks and
-interfaces?  You could embed the enforcing status in the string too. 
-Should probably include checkreqprot as well since that affects
-enforcement of mmap/mprotect checks.
-
-> > Make sure you make the hash algorithm explicit in both what is
-> > returned
-> > by the hook to lustre and by what is exported via selinuxfs.  Can
-> > likely just encode the hash algorithm name in the string when you
-> > generate it.
-> 
-> Sure, I will add "sha256:" at the beginning of the string.
+Yes, I don't know how to help move that forward.  I don't think
+applying Nicolas' patch for libselinux helps in that regard; even if we
+applied it today, it doesn't help motivate systemd to change its
+handling of PKT or NNP.  If anything, it might cause them to delay
+fixing PKT because it would "solve" the short-term problem associated
+with running systemd-localed with a ro selinuxfs mount, whereas we
+really need them to mount selinuxfs rw to support full use of the
+SELinux API by services.
