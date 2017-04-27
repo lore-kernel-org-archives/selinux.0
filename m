@@ -1,14 +1,13 @@
-Message-ID: <1493298251.2524.3.camel@tycho.nsa.gov>
-Subject: Re: is_selinux_enabled() always returns 0 after
- selinux_set_policy_root()
+Message-ID: <1493299166.2524.5.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] selinux: only invoke capabilities and selinux for
+ CAP_MAC_ADMIN checks
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Colin Walters <walters@verbum.org>, selinux@tycho.nsa.gov
-Date: Thu, 27 Apr 2017 09:04:11 -0400
-In-Reply-To: <1493240908.1837173.957437120.416E6DD8@webmail.messagingengine.com>
-References: <1493237420.1820719.957368808.08E54C5A@webmail.messagingengine.com>
- <1493238298.32540.13.camel@tycho.nsa.gov>
- <1493239388.1829342.957407608.3C297B30@webmail.messagingengine.com>
- <1493240908.1837173.957437120.416E6DD8@webmail.messagingengine.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov, casey@schaufler-ca.com
+Date: Thu, 27 Apr 2017 09:19:26 -0400
+In-Reply-To: <CAHC9VhRKjNywMFAa5USpPzy1EttiPVx9XyfH4t5EvGY6WDWE3A@mail.gmail.com>
+References: <20170420153130.8992-1-sds@tycho.nsa.gov>
+ <CAHC9VhRKjNywMFAa5USpPzy1EttiPVx9XyfH4t5EvGY6WDWE3A@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -16,76 +15,120 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-04-26 at 17:08 -0400, Colin Walters wrote:
-> 
-> On Wed, Apr 26, 2017, at 04:43 PM, Colin Walters wrote:
-> > On Wed, Apr 26, 2017, at 04:24 PM, Stephen Smalley wrote:
-> > > 
-> > > Your analysis and proposed fix sound correct to me.  I blame Dan
-> > > ;)
+On Wed, 2017-04-26 at 17:36 -0400, Paul Moore wrote:
+> On Thu, Apr 20, 2017 at 11:31 AM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> > SELinux uses CAP_MAC_ADMIN to control the ability to get or set a
+> > raw,
+> > uninterpreted security context unknown to the currently loaded
+> > security
+> > policy. When performing these checks, we only want to perform a
+> > base
+> > capabilities check and a SELinux permission check.  If any other
+> > modules that implement a capable hook are stacked with SELinux, we
+> > do
+> > not want to require them to also have to authorize CAP_MAC_ADMIN,
+> > since it may have different implications for their security model.
+> > Rework the CAP_MAC_ADMIN checks within SELinux to only invoke the
+> > capabilities module and the SELinux permission checking.
 > > 
-> > Thanks.  I tested the patch and confirmed it fixed ostree as it
-> > stands today,
-> > but I'm going to change ostree to cache the result of
-> > `is_selinux_enabled()`
-> > itself to work around this, since for our use cases it should never
-> > really
-> > change dynamically.
+> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >  security/selinux/hooks.c | 23 +++++++++++++++--------
+> >  1 file changed, 15 insertions(+), 8 deletions(-)
+> > 
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index e67a526..1aef63c 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -3107,6 +3107,18 @@ static int
+> > selinux_inode_setotherxattr(struct dentry *dentry, const char
+> > *name)
+> >         return dentry_has_perm(cred, dentry, FILE__SETATTR);
+> >  }
+> > 
+> > +static bool has_cap_mac_admin(bool audit)
+> > +{
+> > +       const struct cred *cred = current_cred();
+> > +       int cap_audit = audit ? SECURITY_CAP_AUDIT :
+> > SECURITY_CAP_NOAUDIT;
+> > +
+> > +       if (cap_capable(cred, &init_user_ns, CAP_MAC_ADMIN,
+> > cap_audit))
+> > +               return false;
+> > +       if (cred_has_capability(cred, CAP_MAC_ADMIN, cap_audit,
+> > true))
+> > +               return false;
+> > +       return true;
+> > +}
 > 
-> Although as I was working on the workaround, which I just put up as:
-> https://github.com/ostreedev/ostree/pull/815
-> 
-> I was thinking about this a bit more and I realized (maybe) why
-> Dan added that call.  
-> 
-> Right now (ignoring #ifdef ANDROID):
-> int is_selinux_enabled()
-> {
-> return (selinux_mnt && has_selinux_config);
-> }
-> 
-> And conceptually "has_selinux_config" derives from the policy root.
-> But in practice it doesn't today - that variable is also only
-> initialized
-> in the constructor.   Should it?  I'm not sure.
-> 
-> The way libostree uses the policy root is basically for the regexp
-> labeling
-> database.   We're using `is_selinux_enabled()` to determine whether
-> or not we should call `setfscreatecon()`. 
-> 
-> Eh.  My inclination is not think too much more about this.  The patch
-> is unlikely to break anything, it does fix a bug, and I'm not aware
-> of a
-> case where someone would be using e.g. a host system with SELinux
-> fully disabled to do anything related to ostree, so we don't
-> need to care about trying to disentangle those cases.  Hopefully!
+> Granted, I'm being nitpicky here, but that is one awful function name
+> IMHO.  What's wrong with current_cap_mac_admin()?
 
-1. The has_selinux_config test was added long after the introduction of
- selinux_set_policy_root(), and only to avoid a regression due to
-removal of the test to see if policy is loaded.  See commits
-c08c4eacab8d55598b9e5caaef8a871a7a476cab and
-685f4aeeadc0b60f3770404d4f149610d656e3c8.
+Maybe it's just me, but has_cap_mac_admin() seems better to me. It
+reads correctly as English and fits its boolean nature. We don't call
+any other permission checking function current_*(). 
+has_cap_mac_admin() is also shorter.  Remember that you only get so
+many keystrokes in this life ;)
 
-2. The test for has_selinux_config wouldn't actually be affected by
-selinux_set_policy_root() even if we were to re-evaluate it. 
-selinux_set_policy_root() sets the prefix for the policy files (e.g.
-from /etc/selinux/targeted to /etc/selinux/mls), it does not affect the
-path for /etc/selinux/config.  We don't presently provide any way to
-redirect libselinux to a different config file.
-
-3. Originally, is_selinux_enabled() returned 1 if selinuxfs was
-registered (in /proc/filesystems), even if not mounted. This was
-dropped by commit e3cab998b48ab293a9962faf9779d70ca339c65d, which
-changed the test to only return 1 if selinuxfs was mounted and only if
-it is mounted rw, so that a ro mount could be used in mock and other
-tools to make SELinux appear disabled.  Recent discussions on the list
-(subject: "let's revert e3cab998b48ab293a9962faf9779d70ca339c65d") have
- proposed removing the ro check and only considering it disabled if
-selinuxfs is not mounted at all because systemd is remounting
-everything under /sys as ro for ProtectKernelTunables=yes and this is
-leading services to conclude that SELinux is disabled and then failing
-to label files correctly.  However, my impression is that systemd will
-alter its behavior and I don't think we can in the near term change
-libselinux in this regard as it will break various chroot and container
-implementations.
+> 
+> Unless you're really bored don't worry about a respin, the rest of
+> the
+> patch looks fine to me, I'll queue it up for after the next merge
+> window.
+> 
+> >  static int selinux_inode_setxattr(struct dentry *dentry, const
+> > char *name,
+> >                                   const void *value, size_t size,
+> > int flags)
+> >  {
+> > @@ -3138,7 +3150,7 @@ static int selinux_inode_setxattr(struct
+> > dentry *dentry, const char *name,
+> > 
+> >         rc = security_context_to_sid(value, size, &newsid,
+> > GFP_KERNEL);
+> >         if (rc == -EINVAL) {
+> > -               if (!capable(CAP_MAC_ADMIN)) {
+> > +               if (!has_cap_mac_admin(true)) {
+> >                         struct audit_buffer *ab;
+> >                         size_t audit_size;
+> >                         const char *str;
+> > @@ -3264,13 +3276,8 @@ static int selinux_inode_getsecurity(struct
+> > inode *inode, const char *name, void
+> >          * and lack of permission just means that we fall back to
+> > the
+> >          * in-core context value, not a denial.
+> >          */
+> > -       error = cap_capable(current_cred(), &init_user_ns,
+> > CAP_MAC_ADMIN,
+> > -                           SECURITY_CAP_NOAUDIT);
+> > -       if (!error)
+> > -               error = cred_has_capability(current_cred(),
+> > CAP_MAC_ADMIN,
+> > -                                           SECURITY_CAP_NOAUDIT,
+> > true);
+> >         isec = inode_security(inode);
+> > -       if (!error)
+> > +       if (has_cap_mac_admin(false))
+> >                 error = security_sid_to_context_force(isec->sid,
+> > &context,
+> >                                                       &size);
+> >         else
+> > @@ -5918,7 +5925,7 @@ static int selinux_setprocattr(const char
+> > *name, void *value, size_t size)
+> >                 }
+> >                 error = security_context_to_sid(value, size, &sid,
+> > GFP_KERNEL);
+> >                 if (error == -EINVAL && !strcmp(name, "fscreate"))
+> > {
+> > -                       if (!capable(CAP_MAC_ADMIN)) {
+> > +                       if (!has_cap_mac_admin(true)) {
+> >                                 struct audit_buffer *ab;
+> >                                 size_t audit_size;
+> > 
+> > --
+> > 2.9.3
+> > 
+> 
+> 
+> 
