@@ -1,197 +1,569 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v3UG8Vvk027813
- for <selinux@tycho.nsa.gov>; Sun, 30 Apr 2017 12:08:31 -0400
-Received: by mail-wm0-f52.google.com with SMTP id r190so83428627wme.1
- for <selinux@tycho.nsa.gov>; Sun, 30 Apr 2017 09:08:29 -0700 (PDT)
-Received: from julius (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id b45sm5643322edb.36.2017.04.30.09.08.27
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Sun, 30 Apr 2017 09:08:27 -0700 (PDT)
-Date: Sun, 30 Apr 2017 18:08:25 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: is_selinux_enabled() always returns 0 after
- selinux_set_policy_root()
-Message-ID: <20170430160825.GA31462@julius>
-References: <1493237420.1820719.957368808.08E54C5A@webmail.messagingengine.com>
- <1493238298.32540.13.camel@tycho.nsa.gov>
- <1493239388.1829342.957407608.3C297B30@webmail.messagingengine.com>
- <1493240908.1837173.957437120.416E6DD8@webmail.messagingengine.com>
- <1493298251.2524.3.camel@tycho.nsa.gov>
- <20170427165358.GA26305@julius>
- <1493325438.2524.31.camel@tycho.nsa.gov>
- <444510d7-686f-ccd0-bf0f-ee09aade9990@redhat.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
-In-Reply-To: <444510d7-686f-ccd0-bf0f-ee09aade9990@redhat.com>
+Message-ID: <1493644269.24970.4.camel@btinternet.com>
+Subject: Re: [PATCH] libselinux: Add permissive= entry to avc audit log
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Date: Mon, 01 May 2017 14:11:09 +0100
+In-Reply-To: <1493303690.2524.10.camel@tycho.nsa.gov>
+References: <20170426134721.2501-1-richard_c_haines@btinternet.com>
+ <1493303690.2524.10.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Thu, 2017-04-27 at 10:34 -0400, Stephen Smalley wrote:
+> On Wed, 2017-04-26 at 14:47 +0100, Richard Haines wrote:
+> > Add audit log entry to specify whether the decision was made in
+> > permissive mode/permissive domain or enforcing mode.
+> > 
+> > There are two utilities for testing:
+> > utils/avc_has_perm - This can set the AVC mode to follow SELinux,
+> > set
+> > AVC permissive, or set AVC enforcing.
+> > 
+> > utils/selinux_check_access - This follows SELinux as it calls
+> > selinux_check_access(3).
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> >  libselinux/src/avc.c                    |   4 +
+> >  libselinux/utils/avc_has_perm.c         | 203
+> > ++++++++++++++++++++++++++++++++
+> >  libselinux/utils/selinux_check_access.c | 145
+> > +++++++++++++++++++++++
+> >  3 files changed, 352 insertions(+)
+> >  create mode 100644 libselinux/utils/avc_has_perm.c
+> >  create mode 100644 libselinux/utils/selinux_check_access.c
+> 
+> I think the utilities should be in a separate patch since someone may
+> want the permissive= logging but not the new utilities.  But maybe we
+> ought to reconsider whether these new utilities are helpful or
+> not.  Do
+> we really need both of them?  If we can get away with just using one
+> of
+> them, I'd prefer selinux_check_access since we would like to migrate
+> most users to that interface instead of directly using the AVC.
+I'll send an updated patch for selinux_check_access today.
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 
+> We also need to rethink the libselinux utils in general.  Some of
+> them
+> are actually used by end users and system scripts, but many of them
+> are
+> more akin to test programs than real utilities.  Maybe we need a
+> libselinux/tests or libselinux/samples or something.
+I checked the utils and I've added all the selabel_* ones. Not sure if
+you count them as utils or test/sample/examples.
 
-On Sun, Apr 30, 2017 at 06:51:17AM -0400, Daniel Walsh wrote:
-> On 04/27/2017 04:37 PM, Stephen Smalley wrote:
-> > On Thu, 2017-04-27 at 18:53 +0200, Dominick Grift wrote:
-> > > On Thu, Apr 27, 2017 at 09:04:11AM -0400, Stephen Smalley wrote:
-> > > > On Wed, 2017-04-26 at 17:08 -0400, Colin Walters wrote:
-> > > > > On Wed, Apr 26, 2017, at 04:43 PM, Colin Walters wrote:
-> > > > > > On Wed, Apr 26, 2017, at 04:24 PM, Stephen Smalley wrote:
-> > > > > > > Your analysis and proposed fix sound correct to me.  I blame
-> > > > > > > Dan
-> > > > > > > ;)
-> > > > > > Thanks.  I tested the patch and confirmed it fixed ostree as it
-> > > > > > stands today,
-> > > > > > but I'm going to change ostree to cache the result of
-> > > > > > `is_selinux_enabled()`
-> > > > > > itself to work around this, since for our use cases it should
-> > > > > > never
-> > > > > > really
-> > > > > > change dynamically.
-> > > > > Although as I was working on the workaround, which I just put up
-> > > > > as:
-> > > > > https://github.com/ostreedev/ostree/pull/815
-> > > > >=20
-> > > > > I was thinking about this a bit more and I realized (maybe) why
-> > > > > Dan added that call.
-> > > > >=20
-> > > > > Right now (ignoring #ifdef ANDROID):
-> > > > > int is_selinux_enabled()
-> > > > > {
-> > > > > return (selinux_mnt && has_selinux_config);
-> > > > > }
-> > > > >=20
-> > > > > And conceptually "has_selinux_config" derives from the policy
-> > > > > root.
-> > > > > But in practice it doesn't today - that variable is also only
-> > > > > initialized
-> > > > > in the constructor.   Should it?  I'm not sure.
-> > > > >=20
-> > > > > The way libostree uses the policy root is basically for the
-> > > > > regexp
-> > > > > labeling
-> > > > > database.   We're using `is_selinux_enabled()` to determine
-> > > > > whether
-> > > > > or not we should call `setfscreatecon()`.
-> > > > >=20
-> > > > > Eh.  My inclination is not think too much more about this.  The
-> > > > > patch
-> > > > > is unlikely to break anything, it does fix a bug, and I'm not
-> > > > > aware
-> > > > > of a
-> > > > > case where someone would be using e.g. a host system with SELinux
-> > > > > fully disabled to do anything related to ostree, so we don't
-> > > > > need to care about trying to disentangle those cases.  Hopefully!
-> > > > 1. The has_selinux_config test was added long after the
-> > > > introduction of
-> > > >   selinux_set_policy_root(), and only to avoid a regression due to
-> > > > removal of the test to see if policy is loaded.  See commits
-> > > > c08c4eacab8d55598b9e5caaef8a871a7a476cab and
-> > > > 685f4aeeadc0b60f3770404d4f149610d656e3c8.
-> > > >=20
-> > > > 2. The test for has_selinux_config wouldn't actually be affected by
-> > > > selinux_set_policy_root() even if we were to re-evaluate it.
-> > > > selinux_set_policy_root() sets the prefix for the policy files
-> > > > (e.g.
-> > > > from /etc/selinux/targeted to /etc/selinux/mls), it does not affect
-> > > > the
-> > > > path for /etc/selinux/config.  We don't presently provide any way
-> > > > to
-> > > > redirect libselinux to a different config file.
-> > > >=20
-> > > > 3. Originally, is_selinux_enabled() returned 1 if selinuxfs was
-> > > > registered (in /proc/filesystems), even if not mounted. This was
-> > > > dropped by commit e3cab998b48ab293a9962faf9779d70ca339c65d, which
-> > > > changed the test to only return 1 if selinuxfs was mounted and only
-> > > > if
-> > > > it is mounted rw, so that a ro mount could be used in mock and
-> > > > other
-> > > > tools to make SELinux appear disabled.  Recent discussions on the
-> > > > list
-> > > > (subject: "let's revert e3cab998b48ab293a9962faf9779d70ca339c65d")
-> > > > have
-> > > >   proposed removing the ro check and only considering it disabled if
-> > > > selinuxfs is not mounted at all because systemd is remounting
-> > > > everything under /sys as ro for ProtectKernelTunables=3Dyes and this
-> > > > is
-> > > > leading services to conclude that SELinux is disabled and then
-> > > > failing
-> > > > to label files correctly.  However, my impression is that systemd
-> > > > will
-> > > > alter its behavior and I don't think we can in the near term change
-> > > > libselinux in this regard as it will break various chroot and
-> > > > container
-> > > > implementations.
-> > > I hope you're not being too optimistic. The way i see it is that
-> > > reverting the patch will give these entities a reason to remove the
-> > > mounting of selinuxfs in containers. If you keep it in for
-> > > "compatibility" then i fear that it will never get fixed because
-> > > there is not sense of urgency.
-> > >=20
-> > > Also the discussion on github WRT to ProtectKernelTurnables is
-> > > seemingly over but no action has been decided upon.
-> > Yes, I don't know how to help move that forward.  I don't think
-> > applying Nicolas' patch for libselinux helps in that regard; even if we
-> > applied it today, it doesn't help motivate systemd to change its
-> > handling of PKT or NNP.  If anything, it might cause them to delay
-> > fixing PKT because it would "solve" the short-term problem associated
-> > with running systemd-localed with a ro selinuxfs mount, whereas we
-> > really need them to mount selinuxfs rw to support full use of the
-> > SELinux API by services.
-> >=20
-> >=20
-> I thought we agreed to remove the R/O check from libselinux.  I am fine as
-> long as libselinux reports SELinux is disabled when selinuxfs is not moun=
-ted
-> in the container.  We can move to ensure that selinuxfs is not mounted by
-> container runtimes.  Currently I am not aware of a container runtime that
-> mounts selinuxfs read/only to take advantage of this feature.  selinuxfs =
-is
-> not mounted by default in any container runtimes that I know of. Removing
-> the libselinux READ/ONLY restriction should not break these work loads.
->=20
+I must admit I like examples that show as much variation as possible as
+the function man pages only give basic facts. For example
+selinux_check_access has an option to add supplementary audit info,
+however this does not work unless you add the correct callback. It's
+okay for experts but for the rest of us !!!
 
-I might not be reading this code the right way but:
+I guess the main issue for having examples is maintaining them. However
+if there is interest, I would be happy to submit some. They could of
+course also be used for testing, although I guess you would prefer some
+form of test harness instead - like the selinux-testsuite as some
+require policy to fully test/demonstrate.
 
-https://github.com/systemd/systemd/blob/master/src/nspawn/nspawn-mount.c#L5=
-63
 
-looks like its bind mounting selinuxfs?
-
-Anyhow, Could you please have a look at the below issue and give your persp=
-ective on whether NNP should be treated as mutually exclusive with SELinux =
-in systemd?
-
-https://github.com/systemd/systemd/pull/5741#issuecomment-294931845
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---cWoXeonUoKmBZSoM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlkGC/UACgkQJXSOVTf5
-R2n02QwAt2Ew1uoHiv3bvPCDSaQK0yR4LYyL8+LwN4b7oFAsMVXVjphs5o3B9vRp
-KF/QOAhhKm6nIND+gailTANcm0woA94iGsHe6/W2w5rBGGxEqr5/W//MQ+B2MgQq
-p3uzU0OX9HGJiUgdRUgQrmNIJcXYuYgxCymUOkThS0mKP74CAzfF2c18pH1VldIf
-QNMB4nTauTr+iz/etazMa0WZ+YC2s1skuCw2Uwy7DcwKOi1ezDwDtpyJ9pYy8z0+
-8yVdfZQI3LWV9yS9AcHfs9H0Ngas+Jxzy24fUQc8t2bFi5UAeQz97GWEzk83j0Y0
-E7M+EqDPGINS5QxsfpjRAk1bicpIEdOm4RS+r6NQelz5Zs1/F5ukHxvtVbLyNF5J
-UHdyfMnqg/t/4TPig7l0guf8tRYIPE6q2tuMRn+9H9rZluMamr98pEh8lc+C42rJ
-lRQPzBr24axYwQp0rzybNbKy8b8dQ1yFyTZMHHsKEGFduayCiP8XHLNRREEA5Vux
-HpRWeuuy
-=GjiS
------END PGP SIGNATURE-----
-
---cWoXeonUoKmBZSoM--
+>   For example, it
+> is likely confusing to have a selinux_restorecon utility in
+> libselinux
+> when we also have restorecon itself in policycoreutils.  Is there
+> still
+> value in having selinux_restorecon as a separate utility or can we
+> drop
+> it now that setfiles/restorecon has been rewritten to use the new
+> interface?
+I'll send a patch to remove utils/selinux_restorecon.c today.
+> 
+> > 
+> > diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+> > index b1ec57f..5600f80 100644
+> > --- a/libselinux/src/avc.c
+> > +++ b/libselinux/src/avc.c
+> > @@ -723,6 +723,10 @@ void avc_audit(security_id_t ssid,
+> > security_id_t
+> > tsid,
+> >  
+> >  	log_append(avc_audit_buf, " ");
+> >  	avc_dump_query(ssid, tsid, tclass);
+> > +
+> > +	log_append(avc_audit_buf, " permissive=%u", avc_enforcing
+> > &&
+> > +		   !(avd->flags & SELINUX_AVD_FLAGS_PERMISSIVE) ?
+> > 0
+> > : 1);
+> > +
+> 
+> Looking at the kernel logic, it would seem we could do the following
+> instead:
+> 	if (denied)
+> 		log_append(avc_audit_buf, " permissive=%u", result ? 0
+> : 1);
+> 
+> This has the benefit of only adding it on a denial (no point in
+> logging
+> it on a granting) and not needing to re-check enforcing/permissive
+> mode
+> but rather just make use of the fact that the only case where a
+> denied
+> permission will yield a successful return is if it was permissive.
+> 
+> >  	log_append(avc_audit_buf, "\n");
+> >  	avc_log(SELINUX_AVC, "%s", avc_audit_buf);
+> >  
+> > diff --git a/libselinux/utils/avc_has_perm.c
+> > b/libselinux/utils/avc_has_perm.c
+> > new file mode 100644
+> > index 0000000..3d4bfc0
+> > --- /dev/null
+> > +++ b/libselinux/utils/avc_has_perm.c
+> > @@ -0,0 +1,203 @@
+> > +#include <stdio.h>
+> > +#include <stdlib.h>
+> > +#include <string.h>
+> > +#include <errno.h>
+> > +#include <unistd.h>
+> > +#include <stdbool.h>
+> > +#include <selinux/selinux.h>
+> > +#include <selinux/avc.h>
+> > +
+> > +static void usage(char *progname)
+> > +{
+> > +	fprintf(stderr, "usage:  %s [-f | -p] [-i] scon tcon class
+> > perm\n"
+> > +		"\nWhere:\n\t"
+> > +		"-f  Follow SELinux permissive or enforcing mode,
+> > or\n\t"
+> > +		"-p  Set avc_open to permissive mode.\n\t"
+> > +		"    The default is to set avc_open to enforcing
+> > mode.\n\t"
+> 
+> Why is that the default for the utility?  The userspace AVC default
+> is
+> to follow system enforcing mode.
+> 
+> > +		"-i  Interactive mode. Once displayed first
+> > result,
+> > can\n\t"
+> > +		"    enter additional entries and display AVC
+> > cache
+> > info.\n",
+> > +		progname);
+> > +	exit(1);
+> > +}
+> > +
+> > +static void get_entry(char **buffer)
+> > +{
+> > +	char *buf;
+> > +	int len;
+> > +#define BUF_LEN 81
+> > +
+> > +	buf = malloc(BUF_LEN * sizeof(char));
+> 
+> IMHO, you don't ever need to say sizeof(char), but maybe that's just
+> me.
+> 
+> > +	if (!buf) {
+> > +		perror("malloc");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	if (fgets(buf, BUF_LEN - 1, stdin) == NULL) {
+> > +		perror("fgets");
+> > +		exit(1);
+> > +	}
+> 
+> Might be simpler to use getline().  Even Android has it these days.
+> 
+> > +
+> > +	len = strlen(buf);
+> > +	if (buf[len - 1] == '\n')
+> > +		buf[len - 1] = 0;
+> > +
+> > +	*buffer = buf;
+> > +}
+> > +
+> > +/*
+> > + * Function to print the AVC statistics. Because no audit logging
+> > call back
+> > + * has been set, the avc_cache_stats will be displayed on stderr.
+> 
+> I think this comment is stale.
+> 
+> > + */
+> > +static void print_avc_stats(void)
+> > +{
+> > +	struct avc_cache_stats acs;
+> > +
+> > +	avc_cache_stats(&acs);
+> > +	printf("\nThe avc_cache_stats are as follows:\n");
+> > +	printf("entry_hits:     %d\t(Decisions found in aeref)\n",
+> > +	       acs.entry_hits);
+> > +	printf("entry_misses:   %d\t(Decisions not found in
+> > aeref)\n",
+> > +	       acs.entry_misses);
+> > +	printf("entry_discards: %d\t(Decisions not found in aeref
+> > that were "
+> > +	       "also non-NULL)\n", acs.entry_discards);
+> > +	printf("entry_lookups:  %d\t(Queries made)\n",
+> > acs.entry_lookups);
+> > +	printf("cav_lookups:    %d\t(Cache lookups)\n",
+> > acs.cav_lookups);
+> > +	printf("cav_hits:       %d\t(Cache hits)\n",
+> > acs.cav_hits);
+> > +	printf("cav_probes:     %d\t(Entries examined searching
+> > the
+> > cache)\n",
+> > +	       acs.cav_probes);
+> > +	printf("cav_misses:     %d\t(Cache misses)\n\n",
+> > acs.cav_misses);
+> > +}
+> > +
+> > +struct avc_entry_ref aeref;
+> > +static void exec_func(char *scon, char *tcon, char *class, char
+> > *perm)
+> 
+> This is an oddly named function.
+> 
+> > +{
+> > +	int rc;
+> > +	security_id_t scon_id;
+> > +	security_id_t tcon_id;
+> > +	security_class_t sclass;
+> > +	access_vector_t av;
+> > +
+> > +	rc = avc_context_to_sid(scon, &scon_id);
+> > +	if (rc < 0) {
+> > +		perror("Error scon avc_context_to_sid");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	rc = avc_context_to_sid(tcon, &tcon_id);
+> > +	if (rc < 0) {
+> > +		perror("Error tcon avc_context_to_sid");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	sclass = string_to_security_class(class);
+> > +	av = string_to_av_perm(sclass, perm);
+> > +
+> > +	printf("\nAny avc_log error messages are shown on
+> > stderr:\n");
+> > +	rc = avc_has_perm(scon_id, tcon_id, sclass, av, &aeref,
+> > NULL);
+> > +	printf("\nEnd of avc_log error messages.\n\n");
+> > +
+> > +	if (rc < 0)
+> > +		printf("Error avc_has_perm: %s\n",
+> > strerror(errno));
+> > +	else
+> > +		printf("Permission ALLOWED.\n");
+> > +}
+> 
+> This function is almost but not quite the same as
+> selinux_check_access().  So do we really need it at all?
+> Is the only reason you need/want it in order to be able to decouple
+> from system enforcing mode?  If so, then it seems like a better thing
+> to do would be to make it possible to alter the enforcing mode
+> handling
+> for selinux_check_access() in some general way, and then use that
+> feature.  Arguably, avc_open() could test avc_running on entry and
+> just
+> return immediately if already set, as avc_init() already does.  Then
+> if
+> you truly want to reset the state, you'd call avc_destroy() before
+> calling avc_open() again, which is more correct anyway.  Then
+> selinux_check_access() would not clobber any previously set enforcing
+> mode behavior and you could just do your avc_open() call and then
+> call
+> selinux_check_access() as is.
+> 
+> > +
+> > +int main(int argc, char **argv)
+> > +{
+> > +	int opt, rc;
+> > +	bool interactive = false, follow = false;
+> > +	char *scon, *tcon, *class, *perm;
+> > +	struct selinux_opt avc_option;
+> > +
+> > +	avc_option.type = AVC_OPT_SETENFORCE;
+> > +	avc_option.value = (char *)1;
+> > +
+> > +	while ((opt = getopt(argc, argv, "ifp")) != -1) {
+> > +		switch (opt) {
+> > +		case 'i':
+> > +			interactive = true;
+> > +			break;
+> > +		case 'f':
+> > +			follow = true;
+> > +			break;
+> > +		case 'p':
+> > +			avc_option.value = NULL;
+> > +			break;
+> > +		default:
+> > +			usage(argv[0]);
+> > +		}
+> > +	}
+> > +
+> > +	if ((argc - optind) != 4)
+> > +		usage(argv[0]);
+> > +
+> > +	rc = is_selinux_enabled();
+> > +	if (rc == 0) {
+> > +		printf("SELinux is not enabled.\n");
+> > +		exit(1);
+> > +	} else if (rc == 1) {
+> > +		printf("SELinux is enabled.\n");
+> > +	} else {
+> > +		perror("Error is_selinux_enabled");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	rc = security_getenforce();
+> > +	if (rc == 0)
+> > +		printf("SELinux running in PERMISSIVE mode.\n");
+> > +	else if (rc == 1)
+> > +		printf("SELinux running in ENFORCING mode.\n");
+> > +	else {
+> > +		perror("Error security_getenforce");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	rc = security_deny_unknown();
+> > +	if (rc == 0)
+> > +		printf("Undefined object classes or permissions:
+> > ALLOWED.\n");
+> > +	else if (rc == 1)
+> > +		printf("Undefined object classes or permissions:
+> > DENIED.\n");
+> > +	else {
+> > +		perror("Error security_deny_unknown");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	if (follow) {
+> > +		if (avc_open(NULL, 0)) {
+> > +			perror("Error avc_open");
+> > +			exit(1);
+> > +		}
+> > +		printf("avc_open - Following SELinux mode.\n");
+> > +	} else {
+> > +		if (avc_open(&avc_option, 1)) {
+> > +			perror("Error avc_open");
+> > +			exit(1);
+> > +		}
+> > +
+> > +		if (avc_option.value == NULL)
+> > +			printf("avc_open - PERMISSIVE mode.\n");
+> > +		else
+> > +			printf("avc_open - ENFORCING mode.\n");
+> > +	}
+> > +
+> > +	avc_entry_ref_init(&aeref);
+> > +
+> > +	exec_func(argv[optind], argv[optind + 1], argv[optind +
+> > 2],
+> > +		  argv[optind + 3]);
+> > +
+> > +	while (interactive) {
+> > +		printf("\nEnter scon: ");
+> > +		get_entry(&scon);
+> > +		printf("Enter tcon: ");
+> > +		get_entry(&tcon);
+> > +		printf("Enter class: ");
+> > +		get_entry(&class);
+> > +		printf("Enter perm: ");
+> > +		get_entry(&perm);
+> > +
+> > +		exec_func(scon, tcon, class, perm);
+> > +		print_avc_stats();
+> > +	}
+> > +
+> > +	exit(0);
+> > +}
+> > diff --git a/libselinux/utils/selinux_check_access.c
+> > b/libselinux/utils/selinux_check_access.c
+> > new file mode 100644
+> > index 0000000..8e354c1
+> > --- /dev/null
+> > +++ b/libselinux/utils/selinux_check_access.c
+> > @@ -0,0 +1,145 @@
+> > +#include <stdio.h>
+> > +#include <stdlib.h>
+> > +#include <string.h>
+> > +#include <errno.h>
+> > +#include <unistd.h>
+> > +#include <stdbool.h>
+> > +#include <selinux/selinux.h>
+> > +#include <selinux/avc.h>
+> > +
+> > +static void usage(char *progname)
+> > +{
+> > +	fprintf(stderr, "usage:  %s [-i] scon tcon class perm\n"
+> > +		"\nWhere:\n\t"
+> > +		"-i  Interactive mode. Once displayed first
+> > result,
+> > can\n\t"
+> > +		"    enter additional entries and display AVC
+> > cache
+> > info.\n",
+> > +		progname);
+> > +	exit(1);
+> > +}
+> > +
+> > +static void get_entry(char **buffer)
+> > +{
+> > +	char *buf;
+> > +	int len;
+> > +#define BUF_LEN 81
+> > +
+> > +	buf = malloc(BUF_LEN * sizeof(char));
+> > +	if (!buf) {
+> > +		perror("malloc");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	if (fgets(buf, BUF_LEN - 1, stdin) == NULL) {
+> > +		perror("fgets");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	len = strlen(buf);
+> > +	if (buf[len - 1] == '\n')
+> > +		buf[len - 1] = 0;
+> > +
+> > +	*buffer = buf;
+> > +}
+> > +
+> > +/*
+> > + * Function to print the AVC statistics. Because no audit logging
+> > call back
+> > + * has been set, the avc_cache_stats will be displayed on stderr.
+> > + * selinux_check_access* sets aeref = NULL, so do not print these
+> > stats.
+> > + */
+> > +static void print_avc_stats(void)
+> > +{
+> > +	struct avc_cache_stats acs;
+> > +
+> > +	avc_cache_stats(&acs);
+> > +	printf("\nThe avc_cache_stats are as follows:\n");
+> > +	printf("entry_lookups:  %d\t(Queries made)\n",
+> > acs.entry_lookups);
+> > +	printf("cav_lookups:    %d\t(Cache lookups)\n",
+> > acs.cav_lookups);
+> > +	printf("cav_hits:       %d\t(Cache hits)\n",
+> > acs.cav_hits);
+> > +	printf("cav_probes:     %d\t(Entries examined searching
+> > the
+> > cache)\n",
+> > +	       acs.cav_probes);
+> > +	printf("cav_misses:     %d\t(Cache misses)\n\n",
+> > acs.cav_misses);
+> > +}
+> > +
+> > +static void exec_func(char *scon, char *tcon, char *class, char
+> > *perm)
+> > +{
+> > +	int rc;
+> > +
+> > +	printf("\nAny avc_log error messages are shown on
+> > stderr:\n");
+> > +	rc = selinux_check_access(scon, tcon, class, perm, NULL);
+> > +	printf("\nEnd of avc_log error messages.\n\n");
+> > +
+> > +	if (rc < 0)
+> > +		printf("Error selinux_check_access: %s\n",
+> > strerror(errno));
+> > +	else
+> > +		printf("Permission ALLOWED.\n");
+> > +}
+> > +
+> > +int main(int argc, char **argv)
+> > +{
+> > +	int opt, rc;
+> > +	bool interactive = false;
+> > +	char *scon, *tcon, *class, *perm;
+> > +
+> > +	while ((opt = getopt(argc, argv, "i")) != -1) {
+> > +		switch (opt) {
+> > +		case 'i':
+> > +			interactive = true;
+> > +			break;
+> > +		default:
+> > +			usage(argv[0]);
+> > +		}
+> > +	}
+> > +
+> > +	if ((argc - optind) != 4)
+> > +		usage(argv[0]);
+> > +
+> > +	rc = is_selinux_enabled();
+> > +	if (rc == 0) {
+> > +		printf("SELinux is not enabled.\n");
+> > +		exit(1);
+> > +	} else if (rc == 1) {
+> > +		printf("SELinux is enabled.\n");
+> > +	} else {
+> > +		perror("Error is_selinux_enabled");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	rc = security_getenforce();
+> > +	if (rc == 0)
+> > +		printf("SELinux running in PERMISSIVE mode.\n");
+> > +	else if (rc == 1)
+> > +		printf("SELinux running in ENFORCING mode.\n");
+> > +	else {
+> > +		perror("Error security_getenforce");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	rc = security_deny_unknown();
+> > +	if (rc == 0)
+> > +		printf("Undefined object classes or permissions:
+> > ALLOWED.\n");
+> > +	else if (rc == 1)
+> > +		printf("Undefined object classes or permissions:
+> > DENIED.\n");
+> > +	else {
+> > +		perror("Error security_deny_unknown");
+> > +		exit(1);
+> > +	}
+> > +
+> > +	exec_func(argv[optind], argv[optind + 1], argv[optind +
+> > 2],
+> > +		  argv[optind + 3]);
+> > +
+> > +	while (interactive) {
+> > +		printf("\nEnter scon: ");
+> > +		get_entry(&scon);
+> > +		printf("Enter tcon: ");
+> > +		get_entry(&tcon);
+> > +		printf("Enter class: ");
+> > +		get_entry(&class);
+> > +		printf("Enter perm: ");
+> > +		get_entry(&perm);
+> > +
+> > +		exec_func(scon, tcon, class, perm);
+> > +		print_avc_stats();
+> > +	}
+> > +
+> > +	exit(0);
+> > +}
+> 
+> As written, these seem more like debugging/testing programs than
+> utilities.  They are too verbose for real utilities.  Compare with
+> compute_av for example. I don't know of anyone using that aside from
+> SELinux developers, but the interface is such that one could use it
+> in
+> a script to compute the access vectors, extract the desired one, and
+> use that without having to discard a bunch of extraneous output.
+>  
