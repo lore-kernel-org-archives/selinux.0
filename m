@@ -1,55 +1,108 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v43AVJBp029812
- for <selinux@tycho.nsa.gov>; Wed, 3 May 2017 06:31:20 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 19A3CC04B320
- for <selinux@tycho.nsa.gov>; Wed,  3 May 2017 10:31:19 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 19/19] sepolicy/gui: Update text strings to use better gettext
- templates
-Date: Wed,  3 May 2017 12:30:36 +0200
-Message-Id: <20170503103036.17514-20-plautrba@redhat.com>
-In-Reply-To: <20170503103036.17514-1-plautrba@redhat.com>
-References: <20170503103036.17514-1-plautrba@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v43Drvhg000989
+ for <selinux@tycho.nsa.gov>; Wed, 3 May 2017 09:53:57 -0400
+Received: by mail-qk0-f176.google.com with SMTP id r189so15106562qkf.1
+ for <selinux@tycho.nsa.gov>; Wed, 03 May 2017 06:53:56 -0700 (PDT)
+MIME-Version: 1.0
+From: Naina Emmanuel <nemmanuel1992@gmail.com>
+Date: Wed, 3 May 2017 18:53:55 +0500
+Message-ID: <CAN=9EoTPRbc33=ACdKXc4yBtNMG+GOqsRwjqEzNAL30tcEGjiA@mail.gmail.com>
+Subject: MLS on centos 7
+To: Daniel J Walsh <dwalsh@redhat.com>, selinux@tycho.nsa.gov,
+ Vit Mojzis <vmojzis@redhat.com>
+Cc: masoom alam <masoom.alam@gmail.com>,
+ Umair Sarfraz <aquadestructor@gmail.com>
+Content-Type: multipart/alternative; boundary=94eb2c071d04c0d93c054e9efc8e
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- python/sepolicy/sepolicy/gui.py | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+--94eb2c071d04c0d93c054e9efc8e
+Content-Type: text/plain; charset=UTF-8
 
-diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-index 7f84b6f9..007c94a7 100644
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -1378,8 +1378,8 @@ class SELinuxGui():
-                 self.treeview = self.network_in_treeview
-                 category = _("listen for inbound connections")
- 
--            self.add_button.set_tooltip_text(_("Add new port definition to which the '%(APP)s' domain is allowed to %s.") % {"APP": self.application, "PERM": category})
--            self.delete_button.set_tooltip_text(_("Delete modified port definitions to which the '%(APP)s' domain is allowed to %s.") % {"APP": self.application, "PERM": category})
-+            self.add_button.set_tooltip_text(_("Add new port definition to which the '%(APP)s' domain is allowed to %(PERM)s.") % {"APP": self.application, "PERM": category})
-+            self.delete_button.set_tooltip_text(_("Delete modified port definitions to which the '%(APP)s' domain is allowed to %(PERM)s.") % {"APP": self.application, "PERM": category})
-             self.modify_button.set_tooltip_text(_("Modify port definitions to which the '%(APP)s' domain is allowed to %(PERM)s.") % {"APP": self.application, "PERM": category})
- 
-         if self.transitions_radio_button.get_active():
-@@ -1599,8 +1599,8 @@ class SELinuxGui():
-             self.show_popup(self.login_popup_window)
- 
-         if self.opage == FILE_EQUIV_PAGE:
--            self.file_equiv_source_entry.set_text(self.file_equiv_liststore.get_value(iter, 0))
--            self.file_equiv_dest_entry.set_text(self.file_equiv_liststore.get_value(iter, 1))
-+            self.file_equiv_source_entry.set_text(self.unmarkup(self.file_equiv_liststore.get_value(iter, 0)))
-+            self.file_equiv_dest_entry.set_text(self.unmarkup(self.file_equiv_liststore.get_value(iter, 1)))
-             self.file_equiv_label.set_text((_("Modify File Equivalency Mapping. Mapping will be created when update is applied.")))
-             self.file_equiv_popup_window.set_title(_("Modify SELinux File Equivalency"))
-             self.clear_entry = True
--- 
-2.12.2
+Good evening sir,
+
+   - I am working on CENTOS7 and has enabled mls on it, I want to make it
+   in enforcing mood but I am getting 'SELinux is preventing ' logs in
+   /var/log/directory at initial they were 262 and when I try to solve them
+   denial logs are getting much as system is in running form.
+   - If I go to enforcing mood without resolving these logs (as they are
+   much) then my machine gets stuck and could not reboot it crashes.
+
+Please help in this regard, how to resolve these issues moving towards mls
+in enforcing mood.
+Thanks in advance.
+
+
+*[root@localhost ~]# sestabash: sesta: command not found...[root@localhost
+~]# sestatus SELinux status:                 enabledSELinuxfs mount:
+         /sys/fs/selinuxSELinux root directory:         /etc/selinuxLoaded
+policy name:             mlsCurrent mode:                   permissiveMode
+from config file:          permissivePolicy MLS status:
+ enabledPolicy deny_unknown status:     deniedMax kernel policy version:
+   28*
+*[root@localhost ~]# cat /var/log/messages | grep 'SELinux is preventing' |
+wc -l*
+*1285*
+
+
+
+
+*Engr. Naina Emmanuel*
+*Cryptography Certified*
+*Linux Essential Certified (LEPDC)*
+*Cisco Certified Network Associate (CCNA)*
+
+*Computer Engineering Department, UET Taxila*
+
+
+*Information Security, CS Department, CIIT Islamabad*
+
+--94eb2c071d04c0d93c054e9efc8e
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div><div class=3D"gmail_signature"><div dir=3D"ltr"><div =
+dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"=
+ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div dir=3D"ltr"><div>Good evening s=
+ir,</div><div><ul><li>I am working on CENTOS7 and has enabled mls=C2=A0on i=
+t, I want to make it in enforcing mood but I am getting &#39;SELinux is pre=
+venting &#39; logs in /var/log/directory at initial they were 262 and when =
+I try to solve them denial logs are getting much as system is in running fo=
+rm.<br></li><li>If I go to enforcing mood without resolving these logs (as =
+they are much) then my machine gets stuck and could not reboot it crashes.<=
+/li></ul>Please help in this regard, how to resolve these issues moving tow=
+ards mls in enforcing mood.</div><div>Thanks in advance.</div><div><br></di=
+v><div><font><div><b><div>[root@localhost ~]# sesta</div><div>bash: sesta: =
+command not found...</div><div>[root@localhost ~]# sestatus=C2=A0</div><div=
+>SELinux status: =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 en=
+abled</div><div>SELinuxfs mount: =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0/sys/fs/selinux</div><div>SELinux root directory: =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 /etc/selinux</div><div>Loaded policy name: =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 mls</div><div>Current mode: =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 permissive</div><div>Mode fro=
+m config file: =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0permissive</div><div>Polic=
+y MLS status: =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0enabled</div>=
+<div>Policy deny_unknown status: =C2=A0 =C2=A0 denied</div><div>Max kernel =
+policy version: =C2=A0 =C2=A0 =C2=A028</div><div><br></div></b></div><div><=
+b>[root@localhost ~]# cat /var/log/messages | grep &#39;SELinux is preventi=
+ng&#39; | wc -l</b></div><div><b>1285</b></div><div style=3D"font-weight:bo=
+ld;font-size:large"><br></div></font></div><div style=3D"font-size:large;fo=
+nt-weight:bold"><font size=3D"4"><b><br></b></font></div><div style=3D"font=
+-size:large;font-weight:bold"><font size=3D"4"><b><br></b></font></div><div=
+ style=3D"font-size:large;font-weight:bold"><font size=3D"4"><b><br></b></f=
+ont></div><font color=3D"#666666" style=3D"font-size:large;font-weight:bold=
+"><i>Engr. Naina Emmanuel</i></font></div><div dir=3D"ltr"><div><b style=3D=
+"color:rgb(102,102,102);font-size:small">Cryptography Certified</b></div><d=
+iv><b style=3D"color:rgb(102,102,102);font-size:small">Linux Essential Cert=
+ified (LEPDC)</b><font color=3D"#666666" size=3D"2"><b><br></b></font></div=
+><div><font color=3D"#666666" size=3D"2"><b>Cisco Certified Network Associa=
+te (CCNA)</b></font></div><div><b style=3D"color:rgb(102,102,102);font-size=
+:small">Computer Engineering Department, UET Taxila<br></b></div><div><b st=
+yle=3D"color:rgb(102,102,102);font-size:small">Information Security, CS Dep=
+artment, CIIT Islamabad<br><br></b></div></div></div></div></div></div></di=
+v></div></div></div></div></div>
+</div>
+
+--94eb2c071d04c0d93c054e9efc8e--
