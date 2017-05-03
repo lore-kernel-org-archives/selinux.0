@@ -1,419 +1,53 @@
-Message-ID: <1493737736.29446.1.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: Remove util/selinux_restorecon.c
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-Date: Tue, 02 May 2017 11:08:56 -0400
-In-Reply-To: <20170501132117.25582-1-richard_c_haines@btinternet.com>
-References: <20170501132117.25582-1-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v43AUpHc029539
+ for <selinux@tycho.nsa.gov>; Wed, 3 May 2017 06:30:51 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 466BE4E341
+ for <selinux@tycho.nsa.gov>; Wed,  3 May 2017 10:30:48 +0000 (UTC)
+Received: from hulk.com (unknown [10.40.2.172])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id B6F65189CB
+ for <selinux@tycho.nsa.gov>; Wed,  3 May 2017 10:30:47 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: Several sepolicy fixes from Fedora
+Date: Wed,  3 May 2017 12:30:17 +0200
+Message-Id: <20170503103036.17514-1-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-05-01 at 14:21 +0100, Richard Haines wrote:
-> Remove util/selinux_restorecon.c and tidy up. This is removed as
-> the functionality is now in policycoreutils/setfiles.
+Hi,
 
-Thanks, applied both.
+this is set of sepolicy fixes we use in Fedora.
 
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  libselinux/utils/.gitignore           |   1 -
->  libselinux/utils/Makefile             |   2 -
->  libselinux/utils/selinux_restorecon.c | 299 ------------------------
-> ----------
->  3 files changed, 302 deletions(-)
->  delete mode 100644 libselinux/utils/selinux_restorecon.c
-> 
-> diff --git a/libselinux/utils/.gitignore
-> b/libselinux/utils/.gitignore
-> index ed3bf0b..b4f9f78 100644
-> --- a/libselinux/utils/.gitignore
-> +++ b/libselinux/utils/.gitignore
-> @@ -19,7 +19,6 @@ selabel_lookup
->  selabel_lookup_best_match
->  selabel_partial_match
->  selinux_check_securetty_context
-> -selinux_restorecon
->  selinuxenabled
->  selinuxexeccon
->  setenforce
-> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-> index 995f444..5d61031 100644
-> --- a/libselinux/utils/Makefile
-> +++ b/libselinux/utils/Makefile
-> @@ -59,8 +59,6 @@ sefcontext_compile: LDLIBS += $(PCRE_LDLIBS)
-> ../src/libselinux.a -lsepol
->  
->  sefcontext_compile: sefcontext_compile.o ../src/regex.o
->  
-> -selinux_restorecon: LDLIBS += -lsepol
-> -
->  all: $(TARGETS)
->  
->  install: all
-> diff --git a/libselinux/utils/selinux_restorecon.c
-> b/libselinux/utils/selinux_restorecon.c
-> deleted file mode 100644
-> index 4d2b08f..0000000
-> --- a/libselinux/utils/selinux_restorecon.c
-> +++ /dev/null
-> @@ -1,299 +0,0 @@
-> -#include <stdio.h>
-> -#include <stdlib.h>
-> -#include <string.h>
-> -#include <getopt.h>
-> -#include <errno.h>
-> -#include <stdbool.h>
-> -#include <sepol/sepol.h>
-> -#include <selinux/label.h>
-> -#include <selinux/restorecon.h>
-> -
-> -static char *policyfile;
-> -
-> -static char **exclude_list;
-> -static int exclude_count;
-> -
-> -static int validate_context(char **contextp)
-> -{
-> -	char *context = *contextp, *tmpcon;
-> -
-> -	if (policyfile) {
-> -		if (sepol_check_context(context) < 0) {
-> -			fprintf(stderr, "Invalid context %s\n",
-> context);
-> -			exit(-1);
-> -		}
-> -	} else if (security_canonicalize_context_raw(context,
-> &tmpcon) == 0) {
-> -		free(context);
-> -		*contextp = tmpcon;
-> -	} else if (errno != ENOENT) {
-> -		fprintf(stderr, "Validate context error: %s\n",
-> -						    strerror(errno))
-> ;
-> -		exit(-1);
-> -	}
-> -
-> -	return 0;
-> -}
-> -
-> -static __attribute__ ((__noreturn__)) void usage(const char
-> *progname)
-> -{
-> -	fprintf(stderr,
-> -		"\nusage: %s [-FCnRrdmiIaAsl] [-e dir] [-v|-P]\n"
-> -		"[-x alt_rootpath] [-p policy] [-f specfile]
-> pathname ...\n"
-> -		"\nWhere:\n\t"
-> -		"-F  Set the label to that in specfile.\n\t"
-> -		"    If not set then reset the \"type\" component of
-> the "
-> -		"label to that\n\t    in the specfile.\n\t"
-> -		"-C  Check labels even if the stored SHA1 digest
-> matches\n\t"
-> -		"    the specfiles SHA1 digest.\n\t"
-> -		"-n  Don't change any file labels (passive
-> check).\n\t"
-> -		"-R  Recursively change file and directory
-> labels.\n\t"
-> -		"-v  Show changes in file labels (-v and -P are
-> mutually "
-> -		" exclusive).\n\t"
-> -		"-P  Show progress by printing \"*\" to stdout every
-> 1000 files"
-> -		",\n\t    unless relabeling entire OS, then show
-> percentage complete.\n\t"
-> -		"-r  Use realpath(3) to convert pathnames to
-> canonical form.\n\t"
-> -		"-d  Prevent descending into directories that have a
-> "
-> -		"different\n\t    device number than the pathname
-> from  which "
-> -		"the descent began.\n\t"
-> -		"-m  Do not automatically read /proc/mounts to
-> determine what\n\t"
-> -		"    non-seclabel mounts to exclude from
-> relabeling.\n\t"
-> -		"-e  Exclude this directory (add multiple -e
-> entries).\n\t"
-> -		"-i  Do not set SELABEL_OPT_DIGEST option when
-> calling "
-> -		" selabel_open(3).\n\t"
-> -		"-I  Ignore files that do not exist.\n\t"
-> -		"-a  Add an association between an inode and a
-> context.\n\t"
-> -		"    If there is a different context that matched
-> the inode,\n\t"
-> -		"    then use the first context that matched.\n\t"
-> -		"-A  Abort on errors during the file tree walk.\n\t"
-> -		"-s  Log any label changes to syslog(3).\n\t"
-> -		"-l  Log what specfile context matched each
-> file.\n\t"
-> -		"-x  Set alternate rootpath.\n\t"
-> -		"-p  Optional binary policy file (also sets validate
-> context "
-> -		"option).\n\t"
-> -		"-f  Optional file contexts file.\n\t"
-> -		"pathname  One or more paths to relabel.\n\n",
-> -		progname);
-> -	exit(-1);
-> -}
-> -
-> -static void add_exclude(const char *directory)
-> -{
-> -	char **tmp_list;
-> -
-> -	if (directory == NULL || directory[0] != '/') {
-> -		fprintf(stderr, "Full path required for exclude:
-> %s.\n",
-> -			directory);
-> -		exit(-1);
-> -	}
-> -
-> -	/* Add another two entries, one for directory, and the other
-> to
-> -	 * terminate the list */
-> -	tmp_list = realloc(exclude_list, sizeof(char *) *
-> (exclude_count + 2));
-> -	if (!tmp_list) {
-> -		fprintf(stderr, "ERROR: realloc failed.\n");
-> -		exit(-1);
-> -	}
-> -	exclude_list = tmp_list;
-> -
-> -	exclude_list[exclude_count] = strdup(directory);
-> -	if (!exclude_list[exclude_count]) {
-> -		fprintf(stderr, "ERROR: strdup failed.\n");
-> -		exit(-1);
-> -	}
-> -	exclude_count++;
-> -	exclude_list[exclude_count] = NULL;
-> -}
-> -
-> -int main(int argc, char **argv)
-> -{
-> -	int opt, i;
-> -	unsigned int restorecon_flags = 0;
-> -	char *path = NULL, *digest = NULL, *validate = NULL;
-> -	char *alt_rootpath = NULL;
-> -	FILE *policystream;
-> -	bool ignore_digest = false, require_selinux = true;
-> -	bool verbose = false, progress = false;
-> -
-> -	struct selabel_handle *hnd = NULL;
-> -	struct selinux_opt selabel_option[] = {
-> -		{ SELABEL_OPT_PATH, path },
-> -		{ SELABEL_OPT_DIGEST, digest },
-> -		{ SELABEL_OPT_VALIDATE, validate }
-> -	};
-> -
-> -	if (argc < 2)
-> -		usage(argv[0]);
-> -
-> -	exclude_list = NULL;
-> -	exclude_count = 0;
-> -
-> -	while ((opt = getopt(argc, argv, "iIFCnRvPrdaAslme:f:p:x:"))
-> > 0) {
-> -		switch (opt) {
-> -		case 'F':
-> -			restorecon_flags |=
-> -					SELINUX_RESTORECON_SET_SPECF
-> ILE_CTX;
-> -			break;
-> -		case 'C':
-> -			restorecon_flags |=
-> -					SELINUX_RESTORECON_IGNORE_DI
-> GEST;
-> -			break;
-> -		case 'n':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_NOCHANGE;
-> -			break;
-> -		case 'R':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_RECURSE;
-> -			break;
-> -		case 'v':
-> -			if (progress) {
-> -				fprintf(stderr,
-> -					"Progress and Verbose are
-> mutually exclusive\n");
-> -				exit(-1);
-> -			}
-> -			verbose = true;
-> -			restorecon_flags
-> |=  SELINUX_RESTORECON_VERBOSE;
-> -			break;
-> -		case 'P':
-> -			if (verbose) {
-> -				fprintf(stderr,
-> -					"Progress and Verbose are
-> mutually exclusive\n");
-> -				exit(-1);
-> -			}
-> -			progress = true;
-> -			restorecon_flags
-> |=  SELINUX_RESTORECON_PROGRESS;
-> -			break;
-> -		case 'r':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_REALPATH;
-> -			break;
-> -		case 'd':
-> -			restorecon_flags |= SELINUX_RESTORECON_XDEV;
-> -			break;
-> -		case 'm':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_IGNORE_MOUNTS;
-> -			break;
-> -		case 'e':
-> -			add_exclude(optarg);
-> -			break;
-> -		case 'p':
-> -			policyfile = optarg;
-> -
-> -			policystream = fopen(policyfile, "r");
-> -			if (!policystream) {
-> -				fprintf(stderr,
-> -					"ERROR: opening %s: %s\n",
-> -					policyfile,
-> strerror(errno));
-> -				exit(-1);
-> -			}
-> -
-> -			if
-> (sepol_set_policydb_from_file(policystream) < 0) {
-> -				fprintf(stderr,
-> -					"ERROR: reading policy %s:
-> %s\n",
-> -					policyfile,
-> strerror(errno));
-> -				exit(-1);
-> -			}
-> -			fclose(policystream);
-> -
-> -			selinux_set_callback(SELINUX_CB_VALIDATE,
-> -				    (union
-> selinux_callback)&validate_context);
-> -			require_selinux = false;
-> -			break;
-> -		case 'f':
-> -			path = optarg;
-> -			break;
-> -		case 'i':
-> -			ignore_digest = true;
-> -			break;
-> -		case 'I':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_IGNORE_NOENTRY;
-> -			break;
-> -		case 'a':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_ADD_ASSOC;
-> -			break;
-> -		case 'A':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_ABORT_ON_ERROR;
-> -			break;
-> -		case 's':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_SYSLOG_CHANGES;
-> -			break;
-> -		case 'l':
-> -			restorecon_flags |=
-> SELINUX_RESTORECON_LOG_MATCHES;
-> -			break;
-> -		case 'x':
-> -			alt_rootpath = optarg;
-> -			break;
-> -		default:
-> -			usage(argv[0]);
-> -		}
-> -	}
-> -
-> -	if (require_selinux && (is_selinux_enabled() <= 0)) {
-> -		fprintf(stderr,
-> -		    "SELinux must be enabled to perform this
-> operation.\n");
-> -		exit(-1);
-> -	}
-> -
-> -	if (optind >= argc) {
-> -		fprintf(stderr, "No pathname specified\n");
-> -		exit(-1);
-> -	}
-> -
-> -	/* If any of these set then do our own selabel_open and pass
-> -	 * handle to selinux_restorecon */
-> -	if (ignore_digest || path || policyfile) {
-> -		if (path)
-> -			selabel_option[0].value = path;
-> -		else
-> -			selabel_option[0].value = NULL;
-> -
-> -		if (ignore_digest)
-> -			selabel_option[1].value = NULL;
-> -		else
-> -			selabel_option[1].value = (char *)1;
-> -
-> -		if (policyfile) /* Validate */
-> -			selabel_option[2].value = (char *)1;
-> -		else
-> -			selabel_option[2].value = NULL;
-> -
-> -		hnd = selabel_open(SELABEL_CTX_FILE, selabel_option,
-> 3);
-> -		if (!hnd) {
-> -			switch (errno) {
-> -			case EOVERFLOW:
-> -				fprintf(stderr, "ERROR: Number of
-> specfiles or"
-> -				    " specfile buffer caused an
-> overflow.\n");
-> -				break;
-> -			default:
-> -				fprintf(stderr, "ERROR:
-> selabel_open: %s\n",
-> -							    strerror
-> (errno));
-> -			}
-> -			exit(-1);
-> -		}
-> -		selinux_restorecon_set_sehandle(hnd);
-> -	}
-> -
-> -	if (exclude_list)
-> -		selinux_restorecon_set_exclude_list
-> -						 ((const char
-> **)exclude_list);
-> -
-> -	if (alt_rootpath)
-> -		selinux_restorecon_set_alt_rootpath(alt_rootpath);
-> -
-> -	/* Call restorecon for each path in list */
-> -	for (i = optind; i < argc; i++) {
-> -		if (selinux_restorecon(argv[i], restorecon_flags) <
-> 0) {
-> -			fprintf(stderr, "ERROR: selinux_restorecon:
-> %s\n",
-> -					    strerror(errno));
-> -			exit(-1);
-> -		}
-> -	}
-> -
-> -	if (exclude_list) {
-> -		for (i = 0; exclude_list[i]; i++)
-> -			free(exclude_list[i]);
-> -		free(exclude_list);
-> -	}
-> -
-> -	if (hnd)
-> -		selabel_close(hnd);
-> -
-> -	return 0;
-> -}
+There are basically 2 groups of patches:
+
+1. fixes which was pushed to Fedora few years ago and probably have not been
+sent upstream
+
+[PATCH 01/19] policycoreutils/sepolicy: Add documentation for MCS
+[PATCH 02/19] sepolicy: Fix spelling mistakes in commands in
+[PATCH 03/19] sepolicy: Add manpages for typealiased types
+[PATCH 04/19] sepolicy: Move svirt man page out of libvirt into its
+[PATCH 05/19] policycoreutils/sepolicy: boolean.png is in help/
+[PATCH 06/19] Fix up generation of application policy
+[PATCH 07/19] sepolicy: ptrace should be a part of deny_ptrace
+[PATCH 08/19] sepolicy: We should be creating _exec interfaces when
+[PATCH 09/19] Fix typo in  executable.py template.
+
+2. fixes related to python 3 and the change to SETools 4
+
+[PATCH 10/19] sepolicy: Adapt to new the semodule list output
+[PATCH 11/19] sepolicy: Don't return filter(), use [ ] notation
+[PATCH 12/19] sepolicy: Simplify policy types detection
+[PATCH 13/19] sepolicy/generate.py: Fix string formatting
+[PATCH 14/19] policycoreutils/sepolicy: Define our own cmp()
+[PATCH 15/19] dbus: Use text streams in selinux_server.py
+[PATCH 16/19] sepolicy: setools.*Query wants a list in ruletype
+[PATCH 17/19] sepolicy: Fix several issues in 'sepolicy manpage -a'
+[PATCH 18/19] sepolicy: info() should provide attributes for a TYPE
+[PATCH 19/19] sepolicy/gui: Update text strings to use better gettext
