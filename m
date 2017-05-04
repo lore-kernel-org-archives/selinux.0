@@ -1,103 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v44HgkgI003872
- for <selinux@tycho.nsa.gov>; Thu, 4 May 2017 13:42:47 -0400
-Received: by mail-wm0-f68.google.com with SMTP id u65so4883315wmu.3
- for <selinux@tycho.nsa.gov>; Thu, 04 May 2017 10:42:44 -0700 (PDT)
-Received: from julius (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
- by smtp.gmail.com with ESMTPSA id t4sm768393edh.5.2017.05.04.10.42.42
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Thu, 04 May 2017 10:42:42 -0700 (PDT)
-Date: Thu, 4 May 2017 19:42:40 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Policy capabilities: when to use and complications with using
-Message-ID: <20170504174240.GD29905@julius>
-References: <1493828056.15269.9.camel@tycho.nsa.gov>
- <20170503165137.GA15940@julius>
- <CAHC9VhRizNfJBVBYdbE3m2b6ik0VdcDHntSDTEDqfZisk5_YAg@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v44Fqilu030444
+ for <selinux@tycho.nsa.gov>; Thu, 4 May 2017 11:52:44 -0400
+Received: by mail-lf0-f53.google.com with SMTP id h4so10574740lfj.3
+ for <selinux@tycho.nsa.gov>; Thu, 04 May 2017 08:51:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="mJm6k4Vb/yFcL9ZU"
-In-Reply-To: <CAHC9VhRizNfJBVBYdbE3m2b6ik0VdcDHntSDTEDqfZisk5_YAg@mail.gmail.com>
+In-Reply-To: <VI1PR05MB167880A4D79F8FC3F8C740A9C4160@VI1PR05MB1678.eurprd05.prod.outlook.com>
+References: <1479910651-43246-1-git-send-email-danielj@mellanox.com>
+ <CAHC9VhSB6AORJf_8cBGt-AynMsEh3snKU5SpsmNXoy9hDSrGaA@mail.gmail.com>
+ <VI1PR05MB167880A4D79F8FC3F8C740A9C4160@VI1PR05MB1678.eurprd05.prod.outlook.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 4 May 2017 11:51:37 -0400
+Message-ID: <CAHC9VhRE+bkPAnFgqOOQQQZwA8U0tSWHdeM5+LiadXfN63kS=g@mail.gmail.com>
+Subject: Re: [PATCH v6 0/9] SELinux support for Infiniband RDMA
+To: Daniel Jurgens <danielj@mellanox.com>
+Cc: "chrisw@sous-sol.org" <chrisw@sous-sol.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>,
+ "sean.hefty@intel.com" <sean.hefty@intel.com>,
+ "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>,
+ "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+ Yevgeny Petrilin <yevgenyp@mellanox.com>
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Wed, May 3, 2017 at 3:45 PM, Daniel Jurgens <danielj@mellanox.com> wrote:
+> On 5/3/2017 9:41 AM, Paul Moore wrote:
+>> On Wed, Nov 23, 2016 at 9:17 AM, Dan Jurgens <danielj@mellanox.com> wrote:
+>>> From: Daniel Jurgens <danielj@mellanox.com>
+>>>
+>>> Infiniband applications access HW from user-space -- traffic is generated
+>>> directly by HW, bypassing the kernel. Consequently, Infiniband Partitions,
+>>> which are associated directly with HW transport endpoints, are a natural
+>>> choice for enforcing granular mandatory access control for Infiniband. QPs may
+>>> only send or receives packets tagged with the corresponding partition key
+>>> (PKey). The PKey is not a cryptographic key; it's a 16 bit number identifying
+>>> the partition ...
+>>>
+>> Hi Dan,
+>>
+>> I haven't heard anything from you in a while, where do things stand
+>> with this effort?  Unless I missed them, I believe we are still
+>> waiting on the userspace, SELinux reference policy, and
+>> selinux-testsuite patches.
+>>
+> Hi Paul,
+>
+>     I got distracted for a while.  I've just rebased the kernel and userspace.  I'll do some testing and submit the userspace code in the next couple days.  I still have to write the selinux-testsuite tests, I'll work on those concurrently with the userspace review cycle.
 
---mJm6k4Vb/yFcL9ZU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Great, thanks for the update.  We'll look forward to the patches.
 
-On Thu, May 04, 2017 at 11:50:15AM -0400, Paul Moore wrote:
-> On Wed, May 3, 2017 at 12:51 PM, Dominick Grift <dac.override@gmail.com> =
-wrote:
-> > On Wed, May 03, 2017 at 12:14:16PM -0400, Stephen Smalley wrote:
-> >> Part of the reason that we tend to not introduce a new policy
-> >> capability more often is that it is painful to do so currently.  We
-> >> have to patch libsepol to recognize the new capability and patch the
-> >> policy to declare it (although for the latter we can now declare them
-> >> via a CIL module without modifying the base policy).  And since the
-> >> policy or module won't build without the updated libsepol, we can't
-> >> turn on the capability by default in refpolicy without making it
-> >> dependent on a new libsepol version.  That's why extended_socket_class
-> >> isn't yet enabled in refpolicy, for example.  That causes enablement
-> >> and adoption to lag behind.  It also makes it harder to test the new
-> >> kernel feature in the first place.
-> >
-> > I would like to see Fedora package the RC's in Rawhide as well (other d=
-istributions could help by packaging the RC's in unstable as well). That wo=
-uld atleast make the RC's a bit more accessible.
-> > In Fedora it is usually not the kernel that is the problem, it is user =
-space that is generally to old. And as you've said policy is no longer a pr=
-oblem with CIL.
->=20
-> [NOTE: I'm still thinking about the rest of Stephen's email, and the
-> follow up comments, but I wanted to reply to this particular comment
-> separately.]
->=20
-> I'm not sure I want to see SELinux userspace release candidates in
-> normal Rawhide, but I think creating a COPR repository to
-> build/distribute release candidates could be a good thing.  We already
-> do something similar for the kernel patches and it has been helpful in
-> my opinion.
-
-Thanks, Yes i suppose you are right. Release Candidates would probably pote=
-ntially cause too much disruption even in Rawhide.
-COPR should do the job, although will not be as accessible as Rawhide. It w=
-on't get the same kind of attention, but it will do for me.
-
->=20
-> https://copr.fedorainfracloud.org
-> https://copr.fedorainfracloud.org/coprs/pcmoore/kernel-secnext
->=20
-> --=20
-> paul moore
-> www.paul-moore.com
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---mJm6k4Vb/yFcL9ZU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlkLaAwACgkQJXSOVTf5
-R2lkjAv8C9Q8WkpUeEc3WWoPE57b9sFMMzBtQRuCQ3F1cuGzBSLqLur2pCr0bxDw
-zfr8rX1uRkdDBgSKuc53xcBZQi0Zc8jb7sEfsNeZLcAQ4Jah/COjHhprMeE6/u8h
-qlBVxtQTYMy6Hwpi9e2d0KFeBLyVNfoUKxqfkOoxrGnJxb+Gt03Rk6TNI1p/FhPy
-Pd+tzpNWMksubPSl15YRywGC6xXJsvGzuHguFyPDFKKgFf1tSBpm9IVM82IPWfeo
-sGePPeOiOjxFDiSQHpBa9g20fQopt6O/FFKlIbGfaYoIBY1wRbtRZhdSyL4zBAOL
-WtcQzv29zX1blN9ERL2+sPKqjAHNOH+dy5oPFfOnoWF6xfn53+Yos+nBYSoD1u7o
-NQqx7lL/SHxFJRdvE8i/yh9VU0u1Nv3RSSCQCEjRt/oDG82y6TSWke2ihcXn4MBw
-syfEK2FOXpw+m8u24onGqHWpeBWEqD/kyYhA8nmWi4DKZXRORenP6UUBCSewlV2W
-kUihAL0+
-=lofl
------END PGP SIGNATURE-----
-
---mJm6k4Vb/yFcL9ZU--
+-- 
+paul moore
+www.paul-moore.com
