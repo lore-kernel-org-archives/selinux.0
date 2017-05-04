@@ -1,60 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v44EMbeo001694
- for <selinux@tycho.nsa.gov>; Thu, 4 May 2017 10:22:37 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 82B9823E6D4
- for <selinux@tycho.nsa.gov>; Thu,  4 May 2017 14:22:31 +0000 (UTC)
-Received: from hulk.lan (unknown [10.40.2.172])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 294BE17DC6
- for <selinux@tycho.nsa.gov>; Thu,  4 May 2017 14:22:31 +0000 (UTC)
-Subject: Re: [PATCH] libsepol: Add INCLUDEDIR to utils/Makefile
-To: SELinux <selinux@tycho.nsa.gov>
-References: <20170504140857.18863-1-plautrba@redhat.com>
-From: Petr Lautrbach <plautrba@redhat.com>
-Message-ID: <6e6bc5c8-2a86-2189-8e1c-dc512de699e2@redhat.com>
-Date: Thu, 4 May 2017 16:22:29 +0200
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v44FpbWV030179
+ for <selinux@tycho.nsa.gov>; Thu, 4 May 2017 11:51:52 -0400
+Received: by mail-lf0-f47.google.com with SMTP id j1so10543436lfh.2
+ for <selinux@tycho.nsa.gov>; Thu, 04 May 2017 08:50:17 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170504140857.18863-1-plautrba@redhat.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20170503165137.GA15940@julius>
+References: <1493828056.15269.9.camel@tycho.nsa.gov>
+ <20170503165137.GA15940@julius>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 4 May 2017 11:50:15 -0400
+Message-ID: <CAHC9VhRizNfJBVBYdbE3m2b6ik0VdcDHntSDTEDqfZisk5_YAg@mail.gmail.com>
+Subject: Re: Policy capabilities: when to use and complications with using
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The patch is wrong, please disregard.
+On Wed, May 3, 2017 at 12:51 PM, Dominick Grift <dac.override@gmail.com> wrote:
+> On Wed, May 03, 2017 at 12:14:16PM -0400, Stephen Smalley wrote:
+>> Part of the reason that we tend to not introduce a new policy
+>> capability more often is that it is painful to do so currently.  We
+>> have to patch libsepol to recognize the new capability and patch the
+>> policy to declare it (although for the latter we can now declare them
+>> via a CIL module without modifying the base policy).  And since the
+>> policy or module won't build without the updated libsepol, we can't
+>> turn on the capability by default in refpolicy without making it
+>> dependent on a new libsepol version.  That's why extended_socket_class
+>> isn't yet enabled in refpolicy, for example.  That causes enablement
+>> and adoption to lag behind.  It also makes it harder to test the new
+>> kernel feature in the first place.
+>
+> I would like to see Fedora package the RC's in Rawhide as well (other distributions could help by packaging the RC's in unstable as well). That would atleast make the RC's a bit more accessible.
+> In Fedora it is usually not the kernel that is the problem, it is user space that is generally to old. And as you've said policy is no longer a problem with CIL.
 
-I'm not sure about the right fix in order not to break gentoo use case.
-I'd just revert fcb5d5c change in libsepol/utils/Makefile for now.
+[NOTE: I'm still thinking about the rest of Stephen's email, and the
+follow up comments, but I wanted to reply to this particular comment
+separately.]
 
+I'm not sure I want to see SELinux userspace release candidates in
+normal Rawhide, but I think creating a COPR repository to
+build/distribute release candidates could be a good thing.  We already
+do something similar for the kernel patches and it has been helpful in
+my opinion.
 
+https://copr.fedorainfracloud.org
+https://copr.fedorainfracloud.org/coprs/pcmoore/kernel-secnext
 
-On 05/04/2017 04:08 PM, Petr Lautrbach wrote:
-> fcb5d5c removed ../include from CFLAGS from libsepol/utils/Makefile so
-> that a build tool can't find sepol/sepol.h when libsepol is built on a
-> system without sepol.h in standard paths.
-> 
-> Fixes:
-> chkcon.c:1:10: fatal error: sepol/sepol.h: No such file or directory
->  #include <sepol/sepol.h>
-> 
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> ---
->  libsepol/utils/Makefile | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
-> index a13164e1..f5097be7 100644
-> --- a/libsepol/utils/Makefile
-> +++ b/libsepol/utils/Makefile
-> @@ -1,6 +1,7 @@
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
->  BINDIR ?= $(PREFIX)/bin
-> +INCLUDEDIR ?= $(PREFIX)/include
->  
->  CFLAGS ?= -Wall -Werror
->  LDFLAGS += -L../src
-> 
+-- 
+paul moore
+www.paul-moore.com
