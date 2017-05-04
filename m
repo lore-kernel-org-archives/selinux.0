@@ -1,15 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v44H2g4d022709
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v44H2g4e022709
  for <selinux@tycho.nsa.gov>; Thu, 4 May 2017 13:02:42 -0400
-Received: by mail-wm0-f68.google.com with SMTP id d79so4699667wmi.2
- for <selinux@tycho.nsa.gov>; Thu, 04 May 2017 10:02:07 -0700 (PDT)
+Received: by mail-wm0-f68.google.com with SMTP id u65so4657543wmu.3
+ for <selinux@tycho.nsa.gov>; Thu, 04 May 2017 10:02:05 -0700 (PDT)
 From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
 To: selinux@tycho.nsa.gov
 Cc: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-Subject: [PATCH 4/6] policycoreutils: fixfiles: fix logging about R/O
- filesystems
-Date: Thu,  4 May 2017 18:01:20 +0100
-Message-Id: <20170504170122.26882-4-alan.christopher.jenkins@gmail.com>
+Subject: [PATCH 2/6] policycoreutils: fixfiles: remove (broken) redundant code
+Date: Thu,  4 May 2017 18:01:18 +0100
+Message-Id: <20170504170122.26882-2-alan.christopher.jenkins@gmail.com>
 In-Reply-To: <20170504170122.26882-1-alan.christopher.jenkins@gmail.com>
 References: <20170504170122.26882-1-alan.christopher.jenkins@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,83 +16,56 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The LogReadOnly() call which warns the user about R/O filesystems, applies
-to the `-B` mode (newer() function), and the `fixfiles check` mode
-(no paths).
+setfiles is now run with $exclude_dirs.
+We shouldn't need to patch the file contexts as well.
 
-Make sure to print it for these modes, and these modes only.
+This is fortunate, since the file context patching code was broken
+(by the same commit which introduced the redundancy).  It takes the
+list of directories to exclude from $tempdirs, but $tempdirs is
+never set.
+
+Also messages about skipping directories were printed twice.  Firstly when
+exclude_dirs is generated, and secondly in the file context patching code.
+
+Also TEMPFCFILE was only removed in one path out of several.
 ---
- policycoreutils/scripts/fixfiles | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ policycoreutils/scripts/fixfiles | 17 +----------------
+ 1 file changed, 1 insertion(+), 16 deletions(-)
 
 diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-index dae073d..01bf97c 100755
+index 75d7762..7e5ce88 100755
 --- a/policycoreutils/scripts/fixfiles
 +++ b/policycoreutils/scripts/fixfiles
-@@ -136,16 +136,27 @@ if [ -n $LOGFILE ]; then
-     echo $1 >> $LOGFILE
- fi
- }
-+
-+#
-+# Log all Read Only file systems
-+#
-+LogReadOnly() {
-+if [ ! -z "$FILESYSTEMSRO" ]; then
-+    logit "Warning: Skipping the following R/O filesystems:"
-+    logit "$FILESYSTEMSRO"
-+fi
-+}
-+
+@@ -230,21 +230,6 @@ fi
+ LogReadOnly
  #
- # Find files newer then the passed in date and fix the label
- #
- newer() {
-     DATE=$1
-     shift
-+    LogReadOnly
-     for m in `echo $FILESYSTEMSRW`; do
- 	find $m -mount -newermt $DATE -print0 2>/dev/null | ${RESTORECON} ${FORCEFLAG} ${VERBOSE} $* -i -0 -f -
-     done;
--
- }
- 
- #
-@@ -192,15 +203,6 @@ if [ -f ${PREFC} -a -x /usr/bin/diff ]; then
- 	rm -f ${TEMPFILE} ${PREFCTEMPFILE}
- fi
- }
--#
--# Log all Read Only file systems
--#
--LogReadOnly() {
--if [ ! -z "$FILESYSTEMSRO" ]; then
--    logit "Warning: Skipping the following R/O filesystems:"
--    logit "$FILESYSTEMSRO"
+ exclude_dirs="`exclude_dirs_from_relabelling $OPTION`"
+-if [ -n "${exclude_dirs}" ]
+-then
+-	TEMPFCFILE=`mktemp ${FC}.XXXXXXXXXX`
+-	test -z "$TEMPFCFILE" && exit
+-	/bin/cp -p ${FC} ${TEMPFCFILE} &>/dev/null || exit
+-	tmpdirs=${tempdirs//-e/}
+-	for p in ${tmpdirs}
+-	do
+-		p="${p%/}"
+-		p1="${p}(/.*)? -- <<none>>"
+-		echo "${p1}" >> $TEMPFCFILE
+-		logit "skipping the directory ${p}"
+-	done
+-FC=$TEMPFCFILE
 -fi
--}
- 
- rpmlist() {
- rpm -q --qf '[%{FILESTATES} %{FILENAMES}\n]' "$1" | grep '^0 ' | cut -f2- -d ' '
-@@ -224,9 +226,8 @@ if [ ! -z "$BOOTTIME" ]; then
-     exit $?
- fi
- [ -x /usr/sbin/genhomedircon ] && /usr/sbin/genhomedircon
--LogReadOnly
--#
--exclude_dirs="`exclude_dirs_from_relabelling $OPTION`"
-+
-+exclude_dirs="`exclude_dirs_from_relabelling`"
  if [ ! -z "$RPMFILES" ]; then
      for i in `echo "$RPMFILES" | sed 's/,/ /g'`; do
  	rpmlist $i | ${RESTORECON} $exclude_dirs ${FORCEFLAG} ${VERBOSE} $* -R -i -f - >>$LOGFILE 2>&1
-@@ -238,6 +239,7 @@ if [ ! -z "$FILEPATH" ]; then
+@@ -265,7 +250,7 @@ if [ ${OPTION} != "Relabel" ]; then
      return
  fi
- if [  -n "${FILESYSTEMSRW}" ]; then
-+    LogReadOnly
-     echo "${OPTION}ing `echo ${FILESYSTEMSRW}`"
-     ${SETFILES} ${VERBOSE} $exclude_dirs -q ${FORCEFLAG} $* ${FC} ${FILESYSTEMSRW} >>$LOGFILE 2>&1
- else
+ echo "Cleaning up labels on /tmp"
+-rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-* $TEMPFCFILE
++rm -rf /tmp/gconfd-* /tmp/pulse-* /tmp/orbit-*
+ 
+ UNDEFINED=`get_undefined_type` || exit $?
+ UNLABELED=`get_unlabeled_type` || exit $?
 -- 
 2.9.3
