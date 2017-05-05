@@ -1,101 +1,80 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v45Co7Rh012111
- for <selinux@tycho.nsa.gov>; Fri, 5 May 2017 08:50:08 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id DF54764DA3
- for <selinux@tycho.nsa.gov>; Fri,  5 May 2017 12:50:03 +0000 (UTC)
-Received: from Thinkpad_450.brq.redhat.com (unknown [10.40.3.114])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 56800806AB
- for <selinux@tycho.nsa.gov>; Fri,  5 May 2017 12:50:03 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] libsemanage: remove access() check to make setuid
- programs work
-Date: Fri,  5 May 2017 14:49:46 +0200
-Message-Id: <20170505124947.21392-3-vmojzis@redhat.com>
-In-Reply-To: <20170505124947.21392-1-vmojzis@redhat.com>
-References: <1488219577.19819.19.camel@tycho.nsa.gov>
- <20170505124947.21392-1-vmojzis@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: paul@paul-moore.com
+Cc: selinux@tycho.nsa.gov, eparis@parisplace.org, brindle@quarksecurity.com,
+ pebenito@ieee.org, jwcart2@tycho.nsa.gov,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [RFC][PATCH] selinux: add a map permission check for mmap
+Date: Fri,  5 May 2017 09:14:48 -0400
+Message-Id: <20170505131448.8718-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-F_OK access checks only work properly as long as all directories along
-the path are accessible to real user running the program.
-Replace F_OK access checks by testing return value of open, write, etc.
+Add a map permission check on mmap so that we can distinguish memory mapped
+access (since it has different implications for revocation). When a file
+is opened and then read or written via syscalls like read(2)/write(2),
+we revalidate access on each read/write operation via
+selinux_file_permission() and therefore can revoke access if the
+process context, the file context, or the policy changes in such a
+manner that access is no longer allowed. When a file is opened and then
+memory mapped via mmap(2) and then subsequently read or written directly
+in memory, we presently have no way to revalidate or revoke access.
+The purpose of a separate map permission check on mmap(2) is to permit
+policy to prohibit memory mapping of specific files for which we need
+to ensure that every access is revalidated, particularly useful for
+scenarios where we expect the file to be relabeled at runtime in order
+to reflect state changes (e.g. cross-domain solution, assured pipeline
+without data copying).
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- libsemanage/src/direct_api.c | 40 +++++++++++++++-------------------------
- 1 file changed, 15 insertions(+), 25 deletions(-)
+NB I chose not to define a new policy capability for this permission,
+since it is adequately covered by handle_unknown for compatibility and
+others seemed to agree that this does not fall into the category of
+changes requiring a new policy capability.  I also chose to define the
+permission for socket classes in addition to file classes and let it
+be checked for both.
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index dc46f8f..508277d 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -342,10 +342,6 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
- 
- static int semanage_direct_begintrans(semanage_handle_t * sh)
+ security/selinux/hooks.c            | 12 ++++++++++++
+ security/selinux/include/classmap.h |  2 +-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e67a526..5432628 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3550,6 +3550,18 @@ static int selinux_mmap_addr(unsigned long addr)
+ static int selinux_mmap_file(struct file *file, unsigned long reqprot,
+ 			     unsigned long prot, unsigned long flags)
  {
--
--	if (semanage_access_check(sh) != SEMANAGE_CAN_WRITE) {
--		return -1;
--	}
- 	if (semanage_get_trans_lock(sh) < 0) {
- 		return -1;
- 	}
-@@ -1491,33 +1487,27 @@ rebuild:
- 	}
++	struct common_audit_data ad;
++	int rc;
++
++	if (file) {
++		ad.type = LSM_AUDIT_DATA_FILE;
++		ad.u.file = file;
++		rc = inode_has_perm(current_cred(), file_inode(file),
++				    FILE__MAP, &ad);
++		if (rc)
++			return rc;
++	}
++
+ 	if (selinux_checkreqprot)
+ 		prot = reqprot;
  
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
--	if (access(path, F_OK) == 0) {
--		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
--							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
--							sh->conf->file_mode);
--		if (retval < 0) {
--			goto cleanup;
--		}
-+	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
-+						semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
-+						sh->conf->file_mode);
-+	if (retval < 0 && errno != ENOENT) {
-+		goto cleanup;
- 	}
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 1e0cc9b..3e49a78 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -1,7 +1,7 @@
+ #include <linux/capability.h>
  
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
--	if (access(path, F_OK) == 0) {
--		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
--							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
--							sh->conf->file_mode);
--		if (retval < 0) {
--			goto cleanup;
--		}
-+	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
-+						semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
-+						sh->conf->file_mode);
-+	if (retval < 0 && errno != ENOENT) {
-+		goto cleanup;
- 	}
+ #define COMMON_FILE_SOCK_PERMS "ioctl", "read", "write", "create", \
+-    "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append"
++    "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append", "map"
  
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
--	if (access(path, F_OK) == 0) {
--		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
--							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS),
--							sh->conf->file_mode);
--		if (retval < 0) {
--			goto cleanup;
--		}
-+	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
-+						semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS),
-+						sh->conf->file_mode);
-+	if (retval < 0 && errno != ENOENT) {
-+		goto cleanup;
- 	}
- 
- 	/* run genhomedircon if its enabled, this should be the last operation
+ #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
+     "rename", "execute", "quotaon", "mounton", "audit_access", \
 -- 
 2.9.3
