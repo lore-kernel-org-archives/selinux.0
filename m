@@ -1,65 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v45ACfJO026689
- for <selinux@tycho.nsa.gov>; Fri, 5 May 2017 06:12:41 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v45ACfJP026689
+ for <selinux@tycho.nsa.gov>; Fri, 5 May 2017 06:12:42 -0400
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
  [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 24C84C04B92A
- for <selinux@tycho.nsa.gov>; Fri,  5 May 2017 10:12:39 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id F3C9561D38
+ for <selinux@tycho.nsa.gov>; Fri,  5 May 2017 10:12:37 +0000 (UTC)
+Received: from hulk.com (ovpn-204-215.brq.redhat.com [10.40.204.215])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 4C99C81B4C
+ for <selinux@tycho.nsa.gov>; Fri,  5 May 2017 10:12:37 +0000 (UTC)
 From: Petr Lautrbach <plautrba@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH] libsepol/utils: Fix build without system sepol.h
-Date: Fri,  5 May 2017 12:12:33 +0200
-Message-Id: <20170505101233.13767-2-plautrba@redhat.com>
-In-Reply-To: <20170505101233.13767-1-plautrba@redhat.com>
+Subject: Re: [PATCH] libsepol: Add INCLUDEDIR to utils/Makefile
+Date: Fri,  5 May 2017 12:12:32 +0200
+Message-Id: <20170505101233.13767-1-plautrba@redhat.com>
+In-Reply-To: <6e6bc5c8-2a86-2189-8e1c-dc512de699e2@redhat.com>
 References: <6e6bc5c8-2a86-2189-8e1c-dc512de699e2@redhat.com>
- <20170505101233.13767-1-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-fcb5d5c removed ../include from CFLAGS from libsepol/utils/Makefile so
-that a build tool can't find sepol/sepol.h when only libsepol is built
-and a system is without sepol.h in standard paths. It should use its own
-sepol.h file during build. `oveeride` needs to be used in order not to
-be overridden by values provided on a command line. Same problem applies
-to LDFLAGS.
+Dne 4.5.2017 v 22:49 Stephen Smalley napsal(a):
+> On Thu, 2017-05-04 at 16:22 +0200, Petr Lautrbach wrote:
+>> The patch is wrong, please disregard.
+>>
+>> I'm not sure about the right fix in order not to break gentoo use
+>> case.
+>> I'd just revert fcb5d5c change in libsepol/utils/Makefile for now.
+>
+> Can't you just specify CFLAGS to make, similar to what is done in the
+> top-level Makefile for building with DESTDIR set?
+>
 
-Fixes:
-$ make CFLAGS="" LDFLAGS=""
-make[1]: Entering directory '/root/selinux/libsepol/utils'
-cc     chkcon.c  -lsepol -o chkcon
-chkcon.c:1:25: fatal error: sepol/sepol.h: No such file or directory
- #include <sepol/sepol.h>
+I believe that ../include and ../src paths should be always added to CFLAGS
+and LDFLAGS in this case to prevent cases when LDFLAGS and CFLAGS are overriden
+on a command line without setting paths containing sepol.h and sepol.so.
 
-$ make CFLAGS="" LDFLAGS=""
-...
-make -C utils
-make[1]: Entering directory '/root/selinux/libsepol/utils'
-cc  -I../include    chkcon.c  -lsepol -o chkcon
-/usr/bin/ld: cannot find -lsepol
-collect2: error: ld returned 1 exit status
+This way it's already used in libsepol/src/Makefile
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libsepol/utils/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
-index a13164e1..3b2fb771 100644
---- a/libsepol/utils/Makefile
-+++ b/libsepol/utils/Makefile
-@@ -3,7 +3,8 @@ PREFIX ?= $(DESTDIR)/usr
- BINDIR ?= $(PREFIX)/bin
- 
- CFLAGS ?= -Wall -Werror
--LDFLAGS += -L../src
-+override CFLAGS += -I../include
-+override LDFLAGS += -L../src
- LDLIBS += -lsepol
- 
- TARGETS=$(patsubst %.c,%,$(wildcard *.c))
--- 
-2.12.2
+Petr
