@@ -1,47 +1,82 @@
-Message-ID: <1494004221.5745.11.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 2/2] libsepol: silence false-positive -Wwrite-strings
- warning
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Date: Fri, 05 May 2017 13:10:21 -0400
-In-Reply-To: <20170503205802.19751-2-nicolas.iooss@m4x.org>
-References: <20170503205802.19751-1-nicolas.iooss@m4x.org>
- <20170503205802.19751-2-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Subject: Re: [PATCH 1/6] Revert "policycoreutils: let output of `fixfiles` be
+ redirected (as normal)"
+To: Alan Jenkins <alan.christopher.jenkins@gmail.com>, selinux@tycho.nsa.gov
+References: <20170504170122.26882-1-alan.christopher.jenkins@gmail.com>
+From: James Carter <jwcart2@tycho.nsa.gov>
+Message-ID: <3ce2580b-19e7-ecb9-1483-aa30e4c51049@tycho.nsa.gov>
+Date: Fri, 5 May 2017 13:31:30 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170504170122.26882-1-alan.christopher.jenkins@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-05-03 at 22:58 +0200, Nicolas Iooss wrote:
-> When compiling with -Wwrite-strings, the compiler complains about
-> calling strs_add with a const char* value for a char* parameter
-> (DEFAULT_OBJECT is defined to "object_r"). Silence this warning by
-> casting the literal string to char*.
-
-Thanks, applied both patches.  At some point we should likely fix
-strs_add() though to take const char *.
-
+On 05/04/2017 01:01 PM, Alan Jenkins wrote:
+> This reverts commit ac7899fc3ad6221e195dd13cdf14b346897314ae,
+> which is not yet part of an officially tagged release
+> (or release candidate).
 > 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> `LOGFILE=/proc/self/fd/1` was wrong.
+> 
+> `LOGFILE=$(tty)` was being relied on in one case (exclude_dirs),
+> to log messages from a function run specifically with stdout redirected
+> (captured into a variable).
+> 
+> Having `logit "message"` break inside redirected functions
+> is a nasty leaky abstraction.
+> 
+> This caused e.g. `fixfiles restore` to terminate early with the error
+> 
+>      skipping: No such file or directory
+> 
+> if the user had configured any excluded paths in
+> /etc/selinux/fixfiles_exclude_dirs
+
+These six patches have been applied.
+
+Thanks,
+Jim
+
 > ---
->  libsepol/src/kernel_to_cil.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>   policycoreutils/scripts/fixfiles | 10 +++++++---
+>   1 file changed, 7 insertions(+), 3 deletions(-)
 > 
-> diff --git a/libsepol/src/kernel_to_cil.c
-> b/libsepol/src/kernel_to_cil.c
-> index e873ac3a1981..3a1c0be76f45 100644
-> --- a/libsepol/src/kernel_to_cil.c
-> +++ b/libsepol/src/kernel_to_cil.c
-> @@ -2369,7 +2369,7 @@ static int write_user_decl_rules_to_cil(FILE
-> *out, struct policydb *pdb)
->  				goto exit;
->  			}
->  
-> -			rc = strs_add(role_strs, DEFAULT_OBJECT);
-> +			rc = strs_add(role_strs, (char
-> *)DEFAULT_OBJECT);
->  			if (rc != 0) {
->  				strs_destroy(&role_strs);
->  				goto exit;
+> diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
+> index bc74d69..75d7762 100755
+> --- a/policycoreutils/scripts/fixfiles
+> +++ b/policycoreutils/scripts/fixfiles
+> @@ -119,7 +119,11 @@ VERBOSE="-p"
+>   FORCEFLAG=""
+>   DIRS=""
+>   RPMILES=""
+> -LOGFILE=/proc/self/fd/1
+> +LOGFILE=`tty`
+> +if [ $? != 0 ]; then
+> +    LOGFILE="/dev/null"
+> +fi
+> +LOGGER=/usr/sbin/logger
+>   SETFILES=/sbin/setfiles
+>   RESTORECON=/sbin/restorecon
+>   FILESYSTEMSRW=`get_rw_labeled_mounts`
+> @@ -134,11 +138,11 @@ else
+>   fi
+>   
+>   #
+> -# Write to LOGFILE
+> +# Log to either syslog or a LOGFILE
+>   #
+>   logit () {
+>   if [ -n $LOGFILE ]; then
+> -    echo $1 >> "$LOGFILE"
+> +    echo $1 >> $LOGFILE
+>   fi
+>   }
+>   #
+> 
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
