@@ -1,12 +1,12 @@
-Message-ID: <1494003975.5745.10.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 19/19] sepolicy/gui: Update text strings to use better
- gettext templates
+Message-ID: <1494004221.5745.11.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 2/2] libsepol: silence false-positive -Wwrite-strings
+ warning
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-Date: Fri, 05 May 2017 13:06:15 -0400
-In-Reply-To: <20170503103036.17514-20-plautrba@redhat.com>
-References: <20170503103036.17514-1-plautrba@redhat.com>
- <20170503103036.17514-20-plautrba@redhat.com>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Fri, 05 May 2017 13:10:21 -0400
+In-Reply-To: <20170503205802.19751-2-nicolas.iooss@m4x.org>
+References: <20170503205802.19751-1-nicolas.iooss@m4x.org>
+ <20170503205802.19751-2-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,56 +14,34 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-05-03 at 12:30 +0200, Petr Lautrbach wrote:
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+On Wed, 2017-05-03 at 22:58 +0200, Nicolas Iooss wrote:
+> When compiling with -Wwrite-strings, the compiler complains about
+> calling strs_add with a const char* value for a char* parameter
+> (DEFAULT_OBJECT is defined to "object_r"). Silence this warning by
+> casting the literal string to char*.
 
-Thanks, applied all 19 patches.
+Thanks, applied both patches.  At some point we should likely fix
+strs_add() though to take const char *.
 
-> ---
->  python/sepolicy/sepolicy/gui.py | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/python/sepolicy/sepolicy/gui.py
-> b/python/sepolicy/sepolicy/gui.py
-> index 7f84b6f9..007c94a7 100644
-> --- a/python/sepolicy/sepolicy/gui.py
-> +++ b/python/sepolicy/sepolicy/gui.py
-> @@ -1378,8 +1378,8 @@ class SELinuxGui():
->                  self.treeview = self.network_in_treeview
->                  category = _("listen for inbound connections")
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsepol/src/kernel_to_cil.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libsepol/src/kernel_to_cil.c
+> b/libsepol/src/kernel_to_cil.c
+> index e873ac3a1981..3a1c0be76f45 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -2369,7 +2369,7 @@ static int write_user_decl_rules_to_cil(FILE
+> *out, struct policydb *pdb)
+>  				goto exit;
+>  			}
 >  
-> -            self.add_button.set_tooltip_text(_("Add new port
-> definition to which the '%(APP)s' domain is allowed to %s.") %
-> {"APP": self.application, "PERM": category})
-> -            self.delete_button.set_tooltip_text(_("Delete modified
-> port definitions to which the '%(APP)s' domain is allowed to %s.") %
-> {"APP": self.application, "PERM": category})
-> +            self.add_button.set_tooltip_text(_("Add new port
-> definition to which the '%(APP)s' domain is allowed to %(PERM)s.") %
-> {"APP": self.application, "PERM": category})
-> +            self.delete_button.set_tooltip_text(_("Delete modified
-> port definitions to which the '%(APP)s' domain is allowed to
-> %(PERM)s.") % {"APP": self.application, "PERM": category})
->              self.modify_button.set_tooltip_text(_("Modify port
-> definitions to which the '%(APP)s' domain is allowed to %(PERM)s.") %
-> {"APP": self.application, "PERM": category})
->  
->          if self.transitions_radio_button.get_active():
-> @@ -1599,8 +1599,8 @@ class SELinuxGui():
->              self.show_popup(self.login_popup_window)
->  
->          if self.opage == FILE_EQUIV_PAGE:
-> -            self.file_equiv_source_entry.set_text(self.file_equiv_li
-> ststore.get_value(iter, 0))
-> -            self.file_equiv_dest_entry.set_text(self.file_equiv_list
-> store.get_value(iter, 1))
-> +            self.file_equiv_source_entry.set_text(self.unmarkup(self
-> .file_equiv_liststore.get_value(iter, 0)))
-> +            self.file_equiv_dest_entry.set_text(self.unmarkup(self.f
-> ile_equiv_liststore.get_value(iter, 1)))
->              self.file_equiv_label.set_text((_("Modify File
-> Equivalency Mapping. Mapping will be created when update is
-> applied.")))
->              self.file_equiv_popup_window.set_title(_("Modify SELinux
-> File Equivalency"))
->              self.clear_entry = True
+> -			rc = strs_add(role_strs, DEFAULT_OBJECT);
+> +			rc = strs_add(role_strs, (char
+> *)DEFAULT_OBJECT);
+>  			if (rc != 0) {
+>  				strs_destroy(&role_strs);
+>  				goto exit;
