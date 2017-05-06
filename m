@@ -1,136 +1,114 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v46D92Bd002069
- for <selinux@tycho.nsa.gov>; Sat, 6 May 2017 09:09:08 -0400
-Received: by mail-wm0-f66.google.com with SMTP id y10so6231195wmh.0
- for <selinux@tycho.nsa.gov>; Sat, 06 May 2017 06:08:57 -0700 (PDT)
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v46E48AD014310
+ for <selinux@tycho.nsa.gov>; Sat, 6 May 2017 10:04:08 -0400
+Received: by mail-wm0-f45.google.com with SMTP id b84so14562891wmh.0
+ for <selinux@tycho.nsa.gov>; Sat, 06 May 2017 07:04:01 -0700 (PDT)
+Received: from julius (84-245-30-81.dsl.cambrium.nl. [84.245.30.81])
+ by smtp.gmail.com with ESMTPSA id n55sm4463582edd.65.2017.05.06.07.03.59
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+ Sat, 06 May 2017 07:03:59 -0700 (PDT)
+Date: Sat, 6 May 2017 16:03:58 +0200
+From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] libselinux: add security_get_checkreqprot
-Date: Sat,  6 May 2017 15:08:47 +0200
-Message-Id: <20170506130848.9128-2-cgzones@googlemail.com>
-In-Reply-To: <20170506130848.9128-1-cgzones@googlemail.com>
-References: <20170506130848.9128-1-cgzones@googlemail.com>
+Subject: Re: Announcing SPAN: SELinux Policy Analysis Notebook
+Message-ID: <20170506140358.GA21008@julius>
+References: <EDB27428-18DD-4A40-9A1E-AE2DC9390F99@gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+In-Reply-To: <EDB27428-18DD-4A40-9A1E-AE2DC9390F99@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add security_get_checkreqprot() function, returning the current active
-checkreqprot value
----
- libselinux/include/selinux/selinux.h      |  3 +++
- libselinux/man/man3/security_getenforce.3 | 11 ++++++++-
- libselinux/src/checkreqprot.c             | 40 +++++++++++++++++++++++++++++++
- libselinux/src/selinux_internal.h         |  1 +
- 4 files changed, 54 insertions(+), 1 deletion(-)
- create mode 100644 libselinux/src/checkreqprot.c
 
-diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index 45dd6ca5..01201eee 100644
---- a/libselinux/include/selinux/selinux.h
-+++ b/libselinux/include/selinux/selinux.h
-@@ -331,6 +331,9 @@ extern int security_setenforce(int value);
- /* Get the behavior for undefined classes/permissions */
- extern int security_deny_unknown(void);
- 
-+/* Get the checkreqprot value */
-+extern int security_get_checkreqprot(void);
-+
- /* Disable SELinux at runtime (must be done prior to initial policy load). */
- extern int security_disable(void);
- 
-diff --git a/libselinux/man/man3/security_getenforce.3 b/libselinux/man/man3/security_getenforce.3
-index 7658014a..29cf3de7 100644
---- a/libselinux/man/man3/security_getenforce.3
-+++ b/libselinux/man/man3/security_getenforce.3
-@@ -1,6 +1,6 @@
- .TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au" "SELinux API documentation"
- .SH "NAME"
--security_getenforce, security_setenforce, security_deny_unknown \- get or set the enforcing state of SELinux
-+security_getenforce, security_setenforce, security_deny_unknown, security_get_checkreqprot\- get or set the enforcing state of SELinux
- .
- .SH "SYNOPSIS"
- .B #include <selinux/selinux.h>
-@@ -10,6 +10,8 @@ security_getenforce, security_setenforce, security_deny_unknown \- get or set th
- .BI "int security_setenforce(int "value );
- .sp
- .B int security_deny_unknown(void);
-+.sp
-+.B int security_get_checkreqprot(void);
- .
- .SH "DESCRIPTION"
- .BR security_getenforce ()
-@@ -24,6 +26,13 @@ returned.
- .BR security_deny_unknown ()
- returns 0 if SELinux treats policy queries on undefined object classes or
- permissions as being allowed, 1 if such queries are denied, and \-1 on error.
-+
-+.BR security_get_checkreqprot ()
-+can be used to determine whether SELinux is configured to check the
-+protection requested by the application or the actual protection that will
-+be applied by the kernel (including the effects of READ_IMPLIES_EXEC) on
-+mmap and mprotect calls.  It returns 0 if SELinux checks the actual
-+protection, 1 if it checks the requested protection, and \-1 on error.
- .
- .SH "SEE ALSO"
- .BR selinux "(8)"
-diff --git a/libselinux/src/checkreqprot.c b/libselinux/src/checkreqprot.c
-new file mode 100644
-index 00000000..9b4b12d7
---- /dev/null
-+++ b/libselinux/src/checkreqprot.c
-@@ -0,0 +1,40 @@
-+#include <unistd.h>
-+#include <sys/types.h>
-+#include <fcntl.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <string.h>
-+#include "selinux_internal.h"
-+#include "policy.h"
-+#include <stdio.h>
-+#include <limits.h>
-+
-+int security_get_checkreqprot(void)
-+{
-+	int fd, ret, checkreqprot = 0;
-+	char path[PATH_MAX];
-+	char buf[20];
-+
-+	if (!selinux_mnt) {
-+		errno = ENOENT;
-+		return -1;
-+	}
-+
-+	snprintf(path, sizeof(path), "%s/checkreqprot", selinux_mnt);
-+	fd = open(path, O_RDONLY | O_CLOEXEC);
-+	if (fd < 0)
-+		return -1;
-+
-+	memset(buf, 0, sizeof(buf));
-+	ret = read(fd, buf, sizeof(buf) - 1);
-+	close(fd);
-+	if (ret < 0)
-+		return -1;
-+
-+	if (sscanf(buf, "%d", &checkreqprot) != 1)
-+		return -1;
-+
-+	return checkreqprot;
-+}
-+
-+hidden_def(security_get_checkreqprot);
-diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-index 3d5c9fb4..54949c13 100644
---- a/libselinux/src/selinux_internal.h
-+++ b/libselinux/src/selinux_internal.h
-@@ -59,6 +59,7 @@ hidden_proto(selinux_mkload_policy)
-     hidden_proto(security_getenforce)
-     hidden_proto(security_setenforce)
-     hidden_proto(security_deny_unknown)
-+    hidden_proto(security_get_checkreqprot)
-     hidden_proto(selinux_boolean_sub)
-     hidden_proto(selinux_current_policy_path)
-     hidden_proto(selinux_binary_policy_path)
--- 
-2.11.0
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, May 05, 2017 at 02:27:05PM -0400, Karl MacMillan wrote:
+> I=E2=80=99d like to announce SPAN - SELinux Policy Analysis Notebook (htt=
+ps://github.com/QuarkSecurity/SPAN/ <https://github.com/QuarkSecurity/SPAN/=
+>). This is a Jupyter notebook based environment for SELinux policy analysi=
+s that let=E2=80=99s you mix queries, Python code, and Markdown formatted n=
+otes into an executable document. It=E2=80=99s an extension of SETools 4.
+>=20
+> Using SPAN within Jupyter notebook is an amazingly productive way to do p=
+olicy analysis. I really think that this is the most productive environment=
+ that I=E2=80=99ve seen for real policy analysis (and I=E2=80=99ve been wor=
+king on SELinux policy analysis and tools for almost 15 years). The ability=
+ to quickly create custom tools to answer hard questions combined inline wi=
+th well-formatted documentation makes a huge difference.
+>=20
+> SPAN has been used so far to analyze 3 large, complex, custom systems wit=
+h very large policies (hundreds of custom domains). The analysis was of muc=
+h better quality and it took much less time because of SPAN.
+>=20
+> If you just want to see what this looks like, you can see an example onli=
+ne (though the code is not executable):
+>=20
+> https://nbviewer.jupyter.org/github/QuarkSecurity/SPAN/blob/master/exampl=
+es/Span%20Example.ipynb# <https://nbviewer.jupyter.org/github/QuarkSecurity=
+/SPAN/blob/master/examples/Span%20Example.ipynb#>
+>=20
+> If you=E2=80=99ve not seen Jupyter notebooks, they are a very popular too=
+l for data science. Jupyter notebooks are an interactive environment that l=
+et you write text (in Markdown) and code together. You can get a feel for w=
+hat's possible in this awesome notebook on Regex Golf from XKCD: http://nbv=
+iewer.jupyter.org/url/norvig.com/ipython/xkcd1313.ipynb <http://nbviewer.ju=
+pyter.org/url/norvig.com/ipython/xkcd1313.ipynb>. There is also the more of=
+ficial (and boring) introduction: https://jupyter-notebook-beginner-guide.r=
+eadthedocs.io/en/latest/ <https://jupyter-notebook-beginner-guide.readthedo=
+cs.io/en/latest/>.
+>=20
+> SPAN was written by me (Karl MacMillan) along with Spencer Shimko and Bra=
+ndon Whalen from Quark Security. And, of course, this is built on SETools 4=
+ which is maintained by Chris PeBinito.
+>=20
+> Thanks - Karl
+
+Nice! Unfornately i could not, which my limited capacity, get it to work. H=
+ere is what i tried:
+
+Fedora 26 (alpha):
+sudo dnf install setools setools-console libselinux-python3 pandoc which
+git clone https://github.com/quarcksecurity/span && cd span && pip3 install=
+ . --user
+cd examples && jupyter-notebook
+
+As soon as i try to run any "cell" or do "restart kernel and run all cells"=
+ it throws stack traces about "ModuleNotFoundError" (import span as se" and=
+ "from sh import pandoc"=20
+
+All the stuff seems to be installed properly in ~/.local/lib/python3.6/site=
+-packages, and the stack traces do refer to the proper paths suchs as for e=
+xample: "/home/joe/.local/lib/python3.6/site-packages/span/domain_summary_t=
+o_word.py in <module> ()"
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlkN18kACgkQJXSOVTf5
+R2mlAQv/au3k06ge1VmnMZKcA9Yonpr+a5G9gMbiUIa9AqCLox0PGmUCQASEirse
+4oZWnzqahxJHoT2Cn61Abe6v5Yr01hmqPrBJWQ1YIPQevudNOFO4goWKGgy9+V/j
+9Uz/o5KUlk4jEFSQRp0G2TW+tjG+VhSlNZv/7y1bsfI1qbbyUtraggPrADH9c4Ia
+AHg6vPq+k15+YN76W48XUIpyeq+F85LMXo0pgXXSS49QmdEs8anJ8vL3Ujdm+pbu
+THM8/xNz1xX/efxOLQxDw8chE5VJk2FuEP4CS5JdS6CN0bnYa5S6zGh5BfwLFGRD
+rOwWGhTJAkUxJBE3I9Fq4kUnFYBSV2uqsb/OUrmh3CqJth7+WjST0dpWde9eKXf8
+e1M+HHRqjjZ7sZ94y2h0mY8VR0vULs/gd5skFuZK2kA9BxHAWxU6Tjj38590SOUX
+8AbsnZhmIg/8qKC1PqeTID0JvuYUcrwW+HWwYc3uJE4NXwk8NZ7re2HjgBmrPCCl
+miTVsAh5
+=riKy
+-----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--
