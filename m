@@ -1,15 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v47B71HO022944
- for <selinux@tycho.nsa.gov>; Sun, 7 May 2017 07:07:01 -0400
-Received: by mail-wm0-f68.google.com with SMTP id y10so9403792wmh.0
- for <selinux@tycho.nsa.gov>; Sun, 07 May 2017 04:06:38 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v47B71HR022944
+ for <selinux@tycho.nsa.gov>; Sun, 7 May 2017 07:07:02 -0400
+Received: by mail-wr0-f196.google.com with SMTP id w50so4782115wrc.0
+ for <selinux@tycho.nsa.gov>; Sun, 07 May 2017 04:06:30 -0700 (PDT)
 From: Alan Jenkins <alan.christopher.jenkins@gmail.com>
 To: selinux@tycho.nsa.gov
 Cc: Alan Jenkins <alan.christopher.jenkins@gmail.com>
-Subject: [PATCH 05/10] policycoreutils: fixfiles: if restorecon aborts,
- we should too
-Date: Sun,  7 May 2017 12:05:51 +0100
-Message-Id: <20170507110556.7740-5-alan.christopher.jenkins@gmail.com>
+Subject: [PATCH 02/10] policycoreutils: fixfiles: remove two unused variables
+Date: Sun,  7 May 2017 12:05:48 +0100
+Message-Id: <20170507110556.7740-2-alan.christopher.jenkins@gmail.com>
 In-Reply-To: <20170507110556.7740-1-alan.christopher.jenkins@gmail.com>
 References: <20170507110556.7740-1-alan.christopher.jenkins@gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,28 +16,43 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-New users may try something like `fixfiles restore -v /dir/file` -
-not realizing they are required to use `fixfiles -v restore /dir/file`.
+DIRS was suspicious because you can't store file names in a normal variable,
+and it's not that common to use arrays in bash.  It's not actually used.
 
-Detect that `restorecon` aborts due to being run on the non-existent file
-`-v`, and stop immediately.  This will show the error much more clearly,
-instead of continuing to restore `/dir/file` *without* verbose messages.
+While we're here, there's another variable which is never used
+and should just be removed.  (Pointed out by `shellcheck`.
+It makes a couple of other points too, but I have more specific
+patches I want to put those in).
 ---
- policycoreutils/scripts/fixfiles | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ policycoreutils/scripts/fixfiles | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/policycoreutils/scripts/fixfiles b/policycoreutils/scripts/fixfiles
-index 014ab04..1b173e6 100755
+index e416dfc..da79f47 100755
 --- a/policycoreutils/scripts/fixfiles
 +++ b/policycoreutils/scripts/fixfiles
-@@ -387,7 +387,7 @@ else
-     else
- 	while [ -n "$1" ]; do
- 	    FILEPATH="$1"
--	    process "$command"
-+	    process "$command" || exit $?
- 	    shift
- 	done
-     fi
+@@ -107,13 +107,11 @@ fullFlag=0
+ BOOTTIME=""
+ VERBOSE="-p"
+ FORCEFLAG=""
+-DIRS=""
+ RPMILES=""
+ SETFILES=/sbin/setfiles
+ RESTORECON=/sbin/restorecon
+ FILESYSTEMSRW=`get_rw_labeled_mounts`
+ FILESYSTEMSRO=`get_ro_labeled_mounts`
+-FILESYSTEMS="$FILESYSTEMSRW $FILESYSTEMSRO"
+ SELINUXTYPE="targeted"
+ if [ -e /etc/selinux/config ]; then
+     . /etc/selinux/config
+@@ -373,7 +371,7 @@ fi
+ shift
+ 
+ #
+-# check if they specified both DIRS and RPMFILES
++# check if they specified both RPMFILES and FILEPATHs
+ #
+ 
+ if [ ! -z "$RPMFILES" ]; then
 -- 
 2.9.3
