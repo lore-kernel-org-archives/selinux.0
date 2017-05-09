@@ -1,186 +1,103 @@
+Message-ID: <1494362396.2184.2.camel@tycho.nsa.gov>
+Subject: Re: Policy capabilities: when to use and complications with using
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: paul@paul-moore.com
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux-testsuite: update mmap tests for map permission
-Date: Tue,  9 May 2017 15:11:10 -0400
-Message-Id: <20170509191110.21116-1-sds@tycho.nsa.gov>
+To: Paul Moore <paul@paul-moore.com>, James Carter <jwcart2@tycho.nsa.gov>
+Cc: Eric Paris <eparis@parisplace.org>, Joshua Brindle
+ <brindle@quarksecurity.com>,
+ Chris PeBenito <pebenito@ieee.org>, selinux@tycho.nsa.gov
+Date: Tue, 09 May 2017 16:39:56 -0400
+In-Reply-To: <CAHC9VhSD_Ydp9JCHUZmW7zW05mgMkwHV1m_LSc8KT2EvqTk_VQ@mail.gmail.com>
+References: <1493828056.15269.9.camel@tycho.nsa.gov>
+ <23de1ae5-c3ef-9c31-be15-4b9cde74157d@tycho.nsa.gov>
+ <CAHC9VhSD_Ydp9JCHUZmW7zW05mgMkwHV1m_LSc8KT2EvqTk_VQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If the map permission is defined, allow it in the mmap test policy
-for the existing mmap test domains, and introduce a new domain and test
-for testing that it is enforced.
+On Tue, 2017-05-09 at 13:49 -0400, Paul Moore wrote:
+> > On 05/03/2017 12:14 PM, Stephen Smalley wrote:
+> > > 
+> > > 1) Should we investigate lighter weight support for policy
+> > > capabilities, and if so, how?
+> 
+> I agree that not having to update userspace for each new policy
+> capability is a desirable goal, but I'm hopeful that changes
+> requiring
+> a new policy capability are kept to a minimum.
+> 
+> > > 2) Should the kernel log information about enabled/disabled
+> > > policy
+> > > capabilities in much the same manner as it does for undefined
+> > > classes/permissions?
+> 
+> This seems like a very good idea to me.
+> 
+> * https://github.com/SELinuxProject/selinux-kernel/issues/32
+> 
+> > > 3) Should the policy compiler toolchain warn the user if a policy
+> > > capability is not declared and classes/permissions are used in
+> > > rules
+> > > that will only be used if that policy capability is
+> > > declared?  And
+> > > similarly if a policy capability is declared but the
+> > > corresponding
+> > > classes/permissions are not used in any rules?
+> 
+> This seems to go against lighter weight policy capabilities, would it
+> not?
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- policy/Makefile       |  4 ++++
- policy/test_global.te |  4 ++++
- policy/test_mmap.te   | 20 ++++++++++++++++++++
- tests/mmap/test       | 11 +++++++++++
- 4 files changed, 39 insertions(+)
+Not necessarily.  Let's say that we left policy capabilities as strings
+in the kernel policy.  Then when introducing a new policy capability,
+we would just need to patch the kernel to implement it, and patch the
+policy (or even just insert a CIL module) to define it for testing and
+enablement, similar to what we do for new classes/permissions.  We
+wouldn't need an updated libsepol for basic enablement (which likewise
+doesn't need to be patched for new classes/permissions).   We could
+update checkpolicy and/or libsepol to recognize particular capability
+names and provide these warnings, but those would be to help catch
+policy mistakes, not a prerequisite to using the new capability at all.
+ 
+The downside however is that we'd lose on build-time detection of e.g.
+a typo in a capability name.  Maybe there is a middle ground where we
+could warn if unrecognized but let them through.
 
-diff --git a/policy/Makefile b/policy/Makefile
-index 661f27a..14b215b 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -42,6 +42,10 @@ ifeq ($(shell grep -q getrlimit $(POLDEV)/include/support/all_perms.spt && echo
- TARGETS += test_prlimit.te
- endif
- 
-+ifeq ($(shell grep -q all_file_perms.*map $(POLDEV)/include/support/all_perms.spt && echo true),true)
-+export M4PARAM = -Dmap_permission_defined
-+endif
-+
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
- TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te, $(TARGETS))
- endif
-diff --git a/policy/test_global.te b/policy/test_global.te
-index 9114abf..b77e025 100644
---- a/policy/test_global.te
-+++ b/policy/test_global.te
-@@ -95,3 +95,7 @@ ifdef(`distro_redhat', `
-         auth_read_passwd(testdomain)
-     ')
- ')
-+
-+define(`allow_map',
-+ifdef(`map_permission_defined', `allow $1 $2:$3 map;')
-+)
-diff --git a/policy/test_mmap.te b/policy/test_mmap.te
-index 3b92853..1d20f30 100644
---- a/policy/test_mmap.te
-+++ b/policy/test_mmap.te
-@@ -29,8 +29,10 @@ typeattribute test_execmem_t mmaptestdomain;
- allow test_execmem_t self:process execmem;
- # For mprotect_file_private test.
- allow test_execmem_t test_mmap_file_t:file { open read execute };
-+allow_map(test_execmem_t, test_mmap_file_t, file)
- # For mmap_hugetlb_anon_shared test.
- allow test_execmem_t hugetlbfs_t:file { read write execute };
-+allow_map(test_execmem_t, hugetlbfs_t, file)
- # For shmat test.
- allow test_execmem_t self:shm create_shm_perms;
- # For shmat test on old kernels.
-@@ -43,8 +45,10 @@ typeattribute test_no_execmem_t testdomain;
- typeattribute test_no_execmem_t mmaptestdomain;
- # For mprotect_file_private test.
- allow test_no_execmem_t test_mmap_file_t:file { open read };
-+allow_map(test_no_execmem_t, test_mmap_file_t, file)
- # For mmap_hugetlb_anon_shared test.
- allow test_no_execmem_t hugetlbfs_t:file { read write };
-+allow_map(test_no_execmem_t, hugetlbfs_t, file)
- # For shmat test.
- allow test_no_execmem_t self:shm create_shm_perms;
- # For shmat test on old kernels: no execmem check, only tmpfs write+execute.
-@@ -67,6 +71,7 @@ gen_require(`
- # We allow both permissions here so that the test passes regardless.
- allow test_mprotect_anon_shared_t tmpfs_t:file { read execute };
- allow test_mprotect_anon_shared_t hugetlbfs_t:file { read write execute };
-+allow_map(test_mprotect_anon_shared_t, hugetlbfs_t, file)
- allow test_mprotect_anon_shared_t self:process execmem;
- 
- type test_no_mprotect_anon_shared_t;
-@@ -76,6 +81,7 @@ typeattribute test_no_mprotect_anon_shared_t testdomain;
- typeattribute test_no_mprotect_anon_shared_t mmaptestdomain;
- allow test_no_mprotect_anon_shared_t tmpfs_t:file read;
- allow test_no_mprotect_anon_shared_t hugetlbfs_t:file { read write };
-+allow_map(test_no_mprotect_anon_shared_t, hugetlbfs_t, file)
- 
- type test_mmap_dev_zero_t;
- domain_type(test_mmap_dev_zero_t)
-@@ -118,6 +124,15 @@ unconfined_runs_test(test_file_rwx_t)
- typeattribute test_file_rwx_t testdomain;
- typeattribute test_file_rwx_t mmaptestdomain;
- allow test_file_rwx_t test_mmap_file_t:file { open read write execute };
-+allow_map(test_file_rwx_t, test_mmap_file_t, file)
-+
-+# Same as test_file_rwx_t but intentionally omitting map permission.
-+type test_no_map_t;
-+domain_type(test_no_map_t)
-+unconfined_runs_test(test_no_map_t)
-+typeattribute test_no_map_t testdomain;
-+typeattribute test_no_map_t mmaptestdomain;
-+allow test_no_map_t test_mmap_file_t:file { open read write execute };
- 
- type test_file_rx_t;
- domain_type(test_file_rx_t)
-@@ -125,6 +140,7 @@ unconfined_runs_test(test_file_rx_t)
- typeattribute test_file_rx_t testdomain;
- typeattribute test_file_rx_t mmaptestdomain;
- allow test_file_rx_t test_mmap_file_t:file { open read execute };
-+allow_map(test_file_rx_t, test_mmap_file_t, file)
- 
- type test_file_rw_t;
- domain_type(test_file_rw_t)
-@@ -132,6 +148,7 @@ unconfined_runs_test(test_file_rw_t)
- typeattribute test_file_rw_t testdomain;
- typeattribute test_file_rw_t mmaptestdomain;
- allow test_file_rw_t test_mmap_file_t:file { open read write };
-+allow_map(test_file_rw_t, test_mmap_file_t, file)
- 
- type test_file_r_t;
- domain_type(test_file_r_t)
-@@ -139,6 +156,7 @@ unconfined_runs_test(test_file_r_t)
- typeattribute test_file_r_t testdomain;
- typeattribute test_file_r_t mmaptestdomain;
- allow test_file_r_t test_mmap_file_t:file { open read };
-+allow_map(test_file_r_t, test_mmap_file_t, file)
- 
- type test_execstack_t;
- domain_type(test_execstack_t)
-@@ -160,6 +178,7 @@ unconfined_runs_test(test_execmod_t)
- typeattribute test_execmod_t testdomain;
- typeattribute test_execmod_t mmaptestdomain;
- allow test_execmod_t test_mmap_file_t:file { open read execute execmod };
-+allow_map(test_execmod_t, test_mmap_file_t, file)
- 
- type test_no_execmod_t;
- domain_type(test_no_execmod_t)
-@@ -167,6 +186,7 @@ unconfined_runs_test(test_no_execmod_t)
- typeattribute test_no_execmod_t testdomain;
- typeattribute test_no_execmod_t mmaptestdomain;
- allow test_no_execmod_t test_mmap_file_t:file { open read execute };
-+allow_map(test_no_execmod_t, test_mmap_file_t, file)
- 
- # Allow entrypoint via the test programs.
- miscfiles_domain_entry_test_files(mmaptestdomain)
-diff --git a/tests/mmap/test b/tests/mmap/test
-index 0f09b64..6a2df8f 100755
---- a/tests/mmap/test
-+++ b/tests/mmap/test
-@@ -5,6 +5,7 @@ BEGIN {
- 	$test_count = 34;
- 	$test_hugepages = 0;
- 	$test_exec_checking = 0;
-+	$test_map_checking = 0;
- 
- 	system("echo 1 > /proc/sys/vm/nr_hugepages 2> /dev/null");
- 	if (system("grep -q 1 /proc/sys/vm/nr_hugepages 2> /dev/null") == 0) {
-@@ -17,6 +18,11 @@ BEGIN {
- 		$test_count += 4;
- 	}
- 
-+	if (-e '/sys/fs/selinux/class/file/perms/map') {
-+		$test_map_checking = 1;
-+		$test_count += 1;
-+	}
-+
- 	plan tests => $test_count
- }
- 
-@@ -113,6 +119,11 @@ if ($test_exec_checking) {
- 	ok($result);
- }
- 
-+if ($test_map_checking) {
-+	$result = system "runcon -t test_no_map_t -- $basedir/mmap_file_shared $basedir/temp_file 2>&1";
-+	ok($result);
-+}
-+
- # Test success and failure for file execute on mprotect w/ file shared mapping.
- $result = system "runcon -t test_file_rwx_t $basedir/mprotect_file_shared $basedir/temp_file";
- ok($result, 0);
--- 
-2.9.3
+Even if we insist on libsepol validation of the policy capability names
+(to ensure build-time detection of a typo), it might be helpful to add
+the string form of the capability names to the kernel policy. 
+Otherwise, the kernel can't log anything useful about unrecognized
+capabilities besides their bit number in the ebitmap.
+
+> 
+> > > 4) Do we need/want a policy capability for map permission and
+> > > other
+> > > cases where we are only adding a new permission check? Or should
+> > > we
+> > > continue to reserve them for cases not addressed via
+> > > handle_unknown?
+> 
+> See James' earlier comments.  I think sticking with the current usage
+> is the "best practice", but I think we should reserve the right to
+> treat each change individually.  I'm hopeful that changes where we
+> consider new policy capabilities remain infrequent enough that we can
+> along without a concrete policy on their use.
+
+So what about the two commits I cited?  Were we correct in not
+introducing new policy capabilities for them, or should we have done
+so?  Each of them switched from checking an existing class to a new
+one, so they wouldn't break existing userspace (i.e. cause any new
+denials) due to handle_unknown, but they could have caused a regression
+in policy enforcement (i.e. allow something that would have been denied
+previously under the old class).
+
+> 
+> > I know you also want this:
+> > 5) Should CIL support adding a permission to a new class, so we
+> > don't need
+> > to grab a source rpm and rebuild the whole policy from source just
+> > to test a
+> > new permission?
+> 
+> 
