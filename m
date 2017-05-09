@@ -1,103 +1,189 @@
-Message-ID: <1494362396.2184.2.camel@tycho.nsa.gov>
-Subject: Re: Policy capabilities: when to use and complications with using
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul@paul-moore.com>, James Carter <jwcart2@tycho.nsa.gov>
-Cc: Eric Paris <eparis@parisplace.org>, Joshua Brindle
- <brindle@quarksecurity.com>,
- Chris PeBenito <pebenito@ieee.org>, selinux@tycho.nsa.gov
-Date: Tue, 09 May 2017 16:39:56 -0400
-In-Reply-To: <CAHC9VhSD_Ydp9JCHUZmW7zW05mgMkwHV1m_LSc8KT2EvqTk_VQ@mail.gmail.com>
-References: <1493828056.15269.9.camel@tycho.nsa.gov>
- <23de1ae5-c3ef-9c31-be15-4b9cde74157d@tycho.nsa.gov>
- <CAHC9VhSD_Ydp9JCHUZmW7zW05mgMkwHV1m_LSc8KT2EvqTk_VQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v49KoxAl005169
+ for <selinux@tycho.nsa.gov>; Tue, 9 May 2017 16:50:59 -0400
+From: Dan Jurgens <danielj@mellanox.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 0/9] SELinux user space support for Infiniband RDMA
+Date: Tue,  9 May 2017 23:50:33 +0300
+Message-Id: <1494363042-121766-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-05-09 at 13:49 -0400, Paul Moore wrote:
-> > On 05/03/2017 12:14 PM, Stephen Smalley wrote:
-> > > 
-> > > 1) Should we investigate lighter weight support for policy
-> > > capabilities, and if so, how?
-> 
-> I agree that not having to update userspace for each new policy
-> capability is a desirable goal, but I'm hopeful that changes
-> requiring
-> a new policy capability are kept to a minimum.
-> 
-> > > 2) Should the kernel log information about enabled/disabled
-> > > policy
-> > > capabilities in much the same manner as it does for undefined
-> > > classes/permissions?
-> 
-> This seems like a very good idea to me.
-> 
-> * https://github.com/SELinuxProject/selinux-kernel/issues/32
-> 
-> > > 3) Should the policy compiler toolchain warn the user if a policy
-> > > capability is not declared and classes/permissions are used in
-> > > rules
-> > > that will only be used if that policy capability is
-> > > declared?  And
-> > > similarly if a policy capability is declared but the
-> > > corresponding
-> > > classes/permissions are not used in any rules?
-> 
-> This seems to go against lighter weight policy capabilities, would it
-> not?
+From: Daniel Jurgens <danielj@mellanox.com>
 
-Not necessarily.  Let's say that we left policy capabilities as strings
-in the kernel policy.  Then when introducing a new policy capability,
-we would just need to patch the kernel to implement it, and patch the
-policy (or even just insert a CIL module) to define it for testing and
-enablement, similar to what we do for new classes/permissions.  We
-wouldn't need an updated libsepol for basic enablement (which likewise
-doesn't need to be patched for new classes/permissions).   We could
-update checkpolicy and/or libsepol to recognize particular capability
-names and provide these warnings, but those would be to help catch
-policy mistakes, not a prerequisite to using the new capability at all.
- 
-The downside however is that we'd lose on build-time detection of e.g.
-a typo in a capability name.  Maybe there is a middle ground where we
-could warn if unrecognized but let them through.
+Infiniband applications access HW from user-space -- traffic is generated
+directly by HW, bypassing the kernel. Consequently, Infiniband Partitions,
+which are associated directly with HW transport endpoints, are a natural
+choice for enforcing granular mandatory access control for Infiniband. QPs
+may only send or receives packets tagged with the corresponding partition
+key (PKey). The PKey is not a cryptographic key; it's a 16 bit number
+identifying the partition.
 
-Even if we insist on libsepol validation of the policy capability names
-(to ensure build-time detection of a typo), it might be helpful to add
-the string form of the capability names to the kernel policy. 
-Otherwise, the kernel can't log anything useful about unrecognized
-capabilities besides their bit number in the ebitmap.
+Every Infiniband fabric is controlled by a central Subnet Manager (SM).
+The SM provisions the partitions by assigning each port with the
+partitions it can access. In addition, the SM tags each port with a subnet
+prefix, which identifies the subnet. Determining which users are allowed
+to access which partition keys on a given subnet forms an effective policy
+for isolating users on the fabric. Any application that attempts to send
+traffic on a given subnet is automatically subject to the policy,
+regardless of which device and port it uses. SM software configures the
+subnet through a privileged Subnet Management Interface (SMI), which is
+presented by each Infiniband port. Thus, the SMI must also be controlled
+to prevent unauthorized changes to fabric configuration and partitioning. 
 
-> 
-> > > 4) Do we need/want a policy capability for map permission and
-> > > other
-> > > cases where we are only adding a new permission check? Or should
-> > > we
-> > > continue to reserve them for cases not addressed via
-> > > handle_unknown?
-> 
-> See James' earlier comments.  I think sticking with the current usage
-> is the "best practice", but I think we should reserve the right to
-> treat each change individually.  I'm hopeful that changes where we
-> consider new policy capabilities remain infrequent enough that we can
-> along without a concrete policy on their use.
+To support access control for IB partitions and subnet management,
+security contexts must be provided for two new types of objects - PKeys
+and IB end ports.
 
-So what about the two commits I cited?  Were we correct in not
-introducing new policy capabilities for them, or should we have done
-so?  Each of them switched from checking an existing class to a new
-one, so they wouldn't break existing userspace (i.e. cause any new
-denials) due to handle_unknown, but they could have caused a regression
-in policy enforcement (i.e. allow something that would have been denied
-previously under the old class).
+A PKey label consists of a subnet prefix and a range of PKey values and is
+similar to the labeling mechanism for netports. Each Infiniband port can
+reside on a different subnet. So labeling the PKey values for specific
+subnet prefixes provides the user maximum flexibility, as PKey values may
+be determined independently for different subnets. There is a single
+access vector for PKeys called "access".
 
-> 
-> > I know you also want this:
-> > 5) Should CIL support adding a permission to a new class, so we
-> > don't need
-> > to grab a source rpm and rebuild the whole policy from source just
-> > to test a
-> > new permission?
-> 
-> 
+An Infiniband port is labeled by device name and port number. There is a
+single access vector for IB end ports called "manage_subnet".
+
+This series adds support for parsing the new labeling mechanisms and
+generating the policy. It also adds support for runtime labling of PKeys
+and IB end ports via semanage.
+
+This series is quite large, but most of the code is very similar to
+existing code for the other *con labels.
+
+Example label syntax:
+ibpkeycon fe80:: 0xFFFF gen_context(system_u:object_r:default_ibpkey_t,s0)
+ibpkeycon fe80:: 0-0x10 gen_context(system_u:object_r:public_ibpkey_t,s0)
+
+ibendportcon mlx5_0 1 gen_context(system_u:object_r:opensm_ibendport_t,s0)
+
+Example semanage commands:
+semanage ibpkey -l
+semanage ibpkey -a -t default_ibpkey_t -x fe80:: 0x8FFF
+semanage ibpkey -D
+
+semanage ibendport -l
+semanage ibendport -a -t opensm_ibendport_t -z mlx4_0 2
+semanage ibenpdort -d -z mlx4_0 2
+
+Daniel Jurgens (9):
+  checkpolicy: Add support for ibpeycon labels
+  libsepol: Add ibpey ocontext handling
+  libsepol: Add Infiniband Pkey handling to CIL
+  checkpolicy: Add support for ibendportcon labels
+  libsepol: Add ibendport ocontext handling
+  libsepol: Add IB end port handling to CIL
+  semanage: Update semanage to allow runtime labeling of Infiniband
+    Pkeys
+  semanage: Update semanage to allow runtime labeling of ibendports
+  semanage: Update man pages for infiniband
+
+ checkpolicy/checkpolicy.c                        |   47 ++
+ checkpolicy/policy_define.c                      |  180 ++++++++
+ checkpolicy/policy_define.h                      |    2 +
+ checkpolicy/policy_parse.y                       |   27 ++-
+ checkpolicy/policy_scan.l                        |    5 +
+ libsemanage/include/semanage/ibendport_record.h  |   62 +++
+ libsemanage/include/semanage/ibendports_local.h  |   36 ++
+ libsemanage/include/semanage/ibendports_policy.h |   28 ++
+ libsemanage/include/semanage/ibpey_record.h     |   76 ++++
+ libsemanage/include/semanage/ibpkeys_local.h     |   36 ++
+ libsemanage/include/semanage/ibpkeys_policy.h    |   28 ++
+ libsemanage/include/semanage/semanage.h          |    6 +
+ libsemanage/src/direct_api.c                     |   57 +++-
+ libsemanage/src/handle.h                         |   50 ++-
+ libsemanage/src/ibendport_internal.h             |   48 +++
+ libsemanage/src/ibendport_record.c               |  154 +++++++
+ libsemanage/src/ibendports_file.c                |  157 +++++++
+ libsemanage/src/ibendports_local.c               |  153 +++++++
+ libsemanage/src/ibendports_policy.c              |   55 +++
+ libsemanage/src/ibendports_policydb.c            |   62 +++
+ libsemanage/src/ibpkey_internal.h                |   52 +++
+ libsemanage/src/ibpkey_record.c                  |  187 ++++++++
+ libsemanage/src/ibpkeys_file.c                   |  181 ++++++++
+ libsemanage/src/ibpkeys_local.c                  |  182 ++++++++
+ libsemanage/src/ibpkeys_policy.c                 |   52 +++
+ libsemanage/src/ibpkeys_policydb.c               |   62 +++
+ libsemanage/src/libsemanage.map                  |    2 +
+ libsemanage/src/policy_components.c              |    9 +-
+ libsemanage/src/semanage_store.c                 |    2 +
+ libsemanage/src/semanage_store.h                 |    2 +
+ libsemanage/src/semanageswig.i                   |    6 +
+ libsemanage/src/semanageswig_python.i            |   86 ++++
+ libsemanage/utils/semanage_migrate_store         |    4 +-
+ libsepol/VERSION                                 |    2 +-
+ libsepol/cil/src/cil.c                           |   37 ++
+ libsepol/cil/src/cil_binary.c                    |   68 +++
+ libsepol/cil/src/cil_binary.h                    |   24 +
+ libsepol/cil/src/cil_build_ast.c                 |  151 +++++++
+ libsepol/cil/src/cil_build_ast.h                 |    4 +
+ libsepol/cil/src/cil_copy_ast.c                  |   51 +++
+ libsepol/cil/src/cil_copy_ast.h                  |    1 +
+ libsepol/cil/src/cil_flavor.h                    |    2 +
+ libsepol/cil/src/cil_internal.h                  |   20 +
+ libsepol/cil/src/cil_policy.c                    |   31 ++
+ libsepol/cil/src/cil_post.c                      |   87 ++++
+ libsepol/cil/src/cil_post.h                      |    2 +
+ libsepol/cil/src/cil_reset_ast.c                 |   19 +
+ libsepol/cil/src/cil_resolve_ast.c               |   55 +++
+ libsepol/cil/src/cil_resolve_ast.h               |    1 +
+ libsepol/cil/src/cil_tree.c                      |   29 ++-
+ libsepol/cil/src/cil_verify.c                    |   46 ++
+ libsepol/include/sepol/ibendport_record.h        |   68 +++
+ libsepol/include/sepol/ibendports.h              |   45 ++
+ libsepol/include/sepol/ibpkey_record.h           |   75 ++++
+ libsepol/include/sepol/ibpkeys.h                 |   44 ++
+ libsepol/include/sepol/policydb/policydb.h       |   37 ++-
+ libsepol/include/sepol/policydb/services.h       |   21 +
+ libsepol/include/sepol/sepol.h                   |    4 +
+ libsepol/src/expand.c                            |   17 +
+ libsepol/src/ibendport_internal.h                |   20 +
+ libsepol/src/ibendport_record.c                  |  299 +++++++++++++
+ libsepol/src/ibendports.c                        |  255 +++++++++++
+ libsepol/src/ibpkey_internal.h                   |   21 +
+ libsepol/src/ibpkey_record.c                     |  474 +++++++++++++++++++++
+ libsepol/src/ibpkeys.c                           |  264 ++++++++++++
+ libsepol/src/libsepol.map.in                     |    2 +
+ libsepol/src/module_to_cil.c                     |   54 +++
+ libsepol/src/policydb.c                          |   64 +++
+ libsepol/src/services.c                          |   98 +++++
+ libsepol/src/write.c                             |   30 ++
+ python/semanage/semanage                         |  116 +++++-
+ python/semanage/semanage-ibendport.8             |   66 +++
+ python/semanage/semanage-ibpkey.8                |   66 +++
+ python/semanage/semanage.8                       |   16 +-
+ python/semanage/seobject.py                      |  491 ++++++++++++++++++++++
+ 75 files changed, 5336 insertions(+), 37 deletions(-)
+ create mode 100644 libsemanage/include/semanage/ibendport_record.h
+ create mode 100644 libsemanage/include/semanage/ibendports_local.h
+ create mode 100644 libsemanage/include/semanage/ibendports_policy.h
+ create mode 100644 libsemanage/include/semanage/ibpkey_record.h
+ create mode 100644 libsemanage/include/semanage/ibpkeys_local.h
+ create mode 100644 libsemanage/include/semanage/ibpkeys_policy.h
+ create mode 100644 libsemanage/src/ibendport_internal.h
+ create mode 100644 libsemanage/src/ibendport_record.c
+ create mode 100644 libsemanage/src/ibendports_file.c
+ create mode 100644 libsemanage/src/ibendports_local.c
+ create mode 100644 libsemanage/src/ibendports_policy.c
+ create mode 100644 libsemanage/src/ibendports_policydb.c
+ create mode 100644 libsemanage/src/ibpkey_internal.h
+ create mode 100644 libsemanage/src/ibpkey_record.c
+ create mode 100644 libsemanage/src/ibpkeys_file.c
+ create mode 100644 libsemanage/src/ibpkeys_local.c
+ create mode 100644 libsemanage/src/ibpkeys_policy.c
+ create mode 100644 libsemanage/src/ibpkeys_policydb.c
+ create mode 100644 libsepol/include/sepol/ibendport_record.h
+ create mode 100644 libsepol/include/sepol/ibendports.h
+ create mode 100644 libsepol/include/sepol/ibpkey_record.h
+ create mode 100644 libsepol/include/sepol/ibpkeys.h
+ create mode 100644 libsepol/src/ibendport_internal.h
+ create mode 100644 libsepol/src/ibendport_record.c
+ create mode 100644 libsepol/src/ibendports.c
+ create mode 100644 libsepol/src/ibpkey_internal.h
+ create mode 100644 libsepol/src/ibpkey_record.c
+ create mode 100644 libsepol/src/ibpkeys.c
+ create mode 100644 python/semanage/semanage-ibendport.8
+ create mode 100644 python/semanage/semanage-ibpkey.8
