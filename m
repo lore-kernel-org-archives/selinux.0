@@ -1,167 +1,90 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v49Ho3Cs004701
- for <selinux@tycho.nsa.gov>; Tue, 9 May 2017 13:50:04 -0400
-Received: by mail-lf0-f42.google.com with SMTP id 99so6651953lfu.1
- for <selinux@tycho.nsa.gov>; Tue, 09 May 2017 10:49:58 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v49I374e009867
+ for <selinux@tycho.nsa.gov>; Tue, 9 May 2017 14:03:08 -0400
+Received: by mail-lf0-f51.google.com with SMTP id j1so6814446lfh.2
+ for <selinux@tycho.nsa.gov>; Tue, 09 May 2017 11:03:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <23de1ae5-c3ef-9c31-be15-4b9cde74157d@tycho.nsa.gov>
+In-Reply-To: <a6d7dd71-9951-93e8-d9b5-22f4775badb2@redhat.com>
 References: <1493828056.15269.9.camel@tycho.nsa.gov>
- <23de1ae5-c3ef-9c31-be15-4b9cde74157d@tycho.nsa.gov>
+ <20170503165137.GA15940@julius>
+ <CAHC9VhRizNfJBVBYdbE3m2b6ik0VdcDHntSDTEDqfZisk5_YAg@mail.gmail.com>
+ <20170504174240.GD29905@julius> <20170504175031.GE29905@julius>
+ <a6d7dd71-9951-93e8-d9b5-22f4775badb2@redhat.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 9 May 2017 13:49:55 -0400
-Message-ID: <CAHC9VhSD_Ydp9JCHUZmW7zW05mgMkwHV1m_LSc8KT2EvqTk_VQ@mail.gmail.com>
+Date: Tue, 9 May 2017 14:03:01 -0400
+Message-ID: <CAHC9VhQM+V+yybXZ_YkEEMOZL0W5pSXDfCJrZPt99Nm74FVyZw@mail.gmail.com>
 Subject: Re: Policy capabilities: when to use and complications with using
-To: James Carter <jwcart2@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Eric Paris <eparis@parisplace.org>,
- Joshua Brindle <brindle@quarksecurity.com>,
- Chris PeBenito <pebenito@ieee.org>, selinux@tycho.nsa.gov
+To: Petr Lautrbach <plautrba@redhat.com>
+Cc: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, May 3, 2017 at 3:35 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
-> On 05/03/2017 12:14 PM, Stephen Smalley wrote:
-
-...
-
-> I think that there are three cases to consider. (I am ignoring removing
-> checks and/or permissions.)
->
-> Case 1: Additional checks using existing permissions
->
-> This case occurs when additional checks are added but they are very similar
-> to checks already being done and there does not seem to be any benefit to
-> adding a new permission. New policy is required to allow access where
-> additional checks apply. If this requires giving a domain more access then
-> desired, then probably a new permission should have been created.
-> Compatibility:
-> new kernel - old policy
->     Previously unchecked accesses may now be denied. Potential compatibility
-> issues.
-> old kernel - new policy
->     No problems
->
->
-> Case 2: New checks using new permissions
->
-> This case occurs when additional checks are added and they are not similar
-> to other checks, so a new permission would be beneficial. New policy is
-> required to allow access where the new checks apply.
-> Compatibility:
-> new kernel - old policy
->     SEPOL_ALLOW_UNKNOWN - No problems, but not getting the security benefits
-> of the new check.
->     SEPOL_DENY_UNKNOWN - Access attempts involving the new checks will be
-> denied instead of always being allowed like they were before the new check
-> was added. Potential compatibility issues.
->     SEPOL_REJECT_UNKNOWN - Policy will not load.
-> old kernel - new policy
->     No problem because no check will involve the new permission.
->
->
-> Case 3: Old checks now using new permissions
->
-> This case occurs when there is a new use-case that makes splitting an old
-> permission into multiple ones worthwhile. New policy is required to allow
-> access where the new permissions are required.
-> Compatibility:
-> new kernel - old policy
->     SEPOL_ALLOW_UNKNOWN - Previously denied access attempts will now be
-> allowed. Potential security issues.
->     SEPOL_DENY_UNKNOWN - Accesses checked with the new permissions will be
-> denied. Potential compatibility issues.
->     SEPOL_REJECT_UNKNOWN - Policy will not load
-> old kernel - new policy
->     Denials will occur where old permission is no longer allowed because
-> only the new one needs to be allowed for a new kernel. Potential security
-> issues.
->
-> Case 2 can be handled adequately by allowing unknown permissions, but the
-> other two cases (and case 3 particularly) need a policycap to avoid
-> problems.
->
-> This seems to fit with what the practice has been.
-
-I agree with all of the above.
-
->> Part of the reason that we tend to not introduce a new policy
->> capability more often is that it is painful to do so currently.  We
->> have to patch libsepol to recognize the new capability and patch the
->> policy to declare it (although for the latter we can now declare them
->> via a CIL module without modifying the base policy).  And since the
->> policy or module won't build without the updated libsepol, we can't
->> turn on the capability by default in refpolicy without making it
->> dependent on a new libsepol version.  That's why extended_socket_class
->> isn't yet enabled in refpolicy, for example.  That causes enablement
->> and adoption to lag behind.  It also makes it harder to test the new
->> kernel feature in the first place.
+On Thu, May 4, 2017 at 3:22 PM, Petr Lautrbach <plautrba@redhat.com> wrote:
+> On 05/04/2017 07:50 PM, Dominick Grift wrote:
+>> On Thu, May 04, 2017 at 07:42:40PM +0200, Dominick Grift wrote:
+>>> On Thu, May 04, 2017 at 11:50:15AM -0400, Paul Moore wrote:
+>>>> On Wed, May 3, 2017 at 12:51 PM, Dominick Grift <dac.override@gmail.com> wrote:
+>>>>> On Wed, May 03, 2017 at 12:14:16PM -0400, Stephen Smalley wrote:
+>>>>>> Part of the reason that we tend to not introduce a new policy
+>>>>>> capability more often is that it is painful to do so currently.  We
+>>>>>> have to patch libsepol to recognize the new capability and patch the
+>>>>>> policy to declare it (although for the latter we can now declare them
+>>>>>> via a CIL module without modifying the base policy).  And since the
+>>>>>> policy or module won't build without the updated libsepol, we can't
+>>>>>> turn on the capability by default in refpolicy without making it
+>>>>>> dependent on a new libsepol version.  That's why extended_socket_class
+>>>>>> isn't yet enabled in refpolicy, for example.  That causes enablement
+>>>>>> and adoption to lag behind.  It also makes it harder to test the new
+>>>>>> kernel feature in the first place.
+>>>>>
+>>>>> I would like to see Fedora package the RC's in Rawhide as well (other distributions could help by packaging the RC's in unstable as well). That would atleast make the RC's a bit more accessible.
+>>>>> In Fedora it is usually not the kernel that is the problem, it is user space that is generally to old. And as you've said policy is no longer a problem with CIL.
+>>>>
+>>>> [NOTE: I'm still thinking about the rest of Stephen's email, and the
+>>>> follow up comments, but I wanted to reply to this particular comment
+>>>> separately.]
+>>>>
+>>>> I'm not sure I want to see SELinux userspace release candidates in
+>>>> normal Rawhide, but I think creating a COPR repository to
+>>>> build/distribute release candidates could be a good thing.  We already
+>>>> do something similar for the kernel patches and it has been helpful in
+>>>> my opinion.
+>>>
+>>> Thanks, Yes i suppose you are right. Release Candidates would probably potentially cause too much disruption even in Rawhide.
+>>> COPR should do the job, although will not be as accessible as Rawhide. It won't get the same kind of attention, but it will do for me.
 >>
->> We could possibly look into lighter weight support for policy
->> capabilities.  If the policy compiler toolchain left the capability
->> names as strings in the kernel policy (new binary format version), then
->> we would no longer need to update libsepol for each new policy
->> capability.  The kernel would then turn the list into the bitmap
->> internally.  The downside is that we would lose validation of the
->> capability names when policy is built, and it isn't clear how the
->> kernel should handle unknown names (presently the kernel will simply
->> ignore any unknown capabilities in the bitmap).  Failing at policy load
->> time would mean we can't enable the capability in policy without making
->> it depend on a particular kernel version.
->>
+>> With COPR though we might be able to package more frequent and not just RC's (weekly's/nightly's)? If that can somehow be automated  then we also do not have to worrie so much about keeping things maintained over time
 >
-> I wonder if in the case of a new permission being added whether the kernel
-> could revert to the previous behavior if the new permission is not in the
-> policy. The new permission would be an implicit policy capability.
+> I'm just building new set of updates in my COPR plautrba/selinux
+> repository [1]. It's based on latest upstream sources with some Fedora
+> patches on the top of it currently tracked in my github tree [2]. But
+> there are some problems and it's not ready yet.
+>
+> I used to build vanilla upstream sources [3] but the latest build is 15
+> months old. I can restart this project if there's an interest.
+>
+> Since COPR provides API with an authentication token, builds can
+> automated and I have few scripts I used before.
+>
+> I think it could even work for Rawhide with less frequent update cycle.
 
-Not all policy capabilities are due to new permissions, e.g. the
-"always_check_network" capability.  The policy capability
-functionality is a way of introducing backwards-incompatible changes
-into the kernel in a manner which (hopefully) doesn't break existing
-policies.  While new/changed permissions are the obvious things, I
-don't want to rule out use of policy capabilities for working around
-other changes we may want to make in the future.
+I used to use your upstream COPR builds on my primary test system, but
+I dropped that repo when I had to rebuild that system a few months ago
+and I realized the COPR repo had grown stale.
 
->> So:
->>
->> 1) Should we investigate lighter weight support for policy
->> capabilities, and if so, how?
+If you've got the time, I think it might be helpful to create a COPR
+with the upstream userspace and the Fedora/Rawhide patches layered on
+top; it would help get more testing/exposure and should help amortize
+the work in keeping the Fedora/Rawhide patches current.  If it helps
+any I keep my COPR patching/building scripts at the link below.  The
+pcopr_srpm-kernel script is package specific but should be easy to
+adopt to new packages; the pcopr_patch script should be generic enough
+to work on any package.
 
-I agree that not having to update userspace for each new policy
-capability is a desirable goal, but I'm hopeful that changes requiring
-a new policy capability are kept to a minimum.
-
->> 2) Should the kernel log information about enabled/disabled policy
->> capabilities in much the same manner as it does for undefined
->> classes/permissions?
-
-This seems like a very good idea to me.
-
-* https://github.com/SELinuxProject/selinux-kernel/issues/32
-
->> 3) Should the policy compiler toolchain warn the user if a policy
->> capability is not declared and classes/permissions are used in rules
->> that will only be used if that policy capability is declared?  And
->> similarly if a policy capability is declared but the corresponding
->> classes/permissions are not used in any rules?
-
-This seems to go against lighter weight policy capabilities, would it not?
-
->> 4) Do we need/want a policy capability for map permission and other
->> cases where we are only adding a new permission check? Or should we
->> continue to reserve them for cases not addressed via handle_unknown?
-
-See James' earlier comments.  I think sticking with the current usage
-is the "best practice", but I think we should reserve the right to
-treat each change individually.  I'm hopeful that changes where we
-consider new policy capabilities remain infrequent enough that we can
-along without a concrete policy on their use.
-
-> I know you also want this:
-> 5) Should CIL support adding a permission to a new class, so we don't need
-> to grab a source rpm and rebuild the whole policy from source just to test a
-> new permission?
+* https://github.com/pcmoore/copr-pkg_scripts
 
 -- 
 paul moore
