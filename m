@@ -1,172 +1,48 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4AKOxqQ015937
- for <selinux@tycho.nsa.gov>; Wed, 10 May 2017 16:24:59 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH v2] libsepol: Expand attributes with
- TYPE_FLAGS_EXPAND_ATTR_TRUE set
-Date: Wed, 10 May 2017 16:25:44 -0400
-Message-Id: <20170510202544.2338-1-jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4ALLLMJ004531
+ for <selinux@tycho.nsa.gov>; Wed, 10 May 2017 17:21:21 -0400
+Received: by mail-wm0-f51.google.com with SMTP id m123so13929263wma.0
+ for <selinux@tycho.nsa.gov>; Wed, 10 May 2017 14:21:08 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1494421112.24408.1.camel@tycho.nsa.gov>
+References: <1493828056.15269.9.camel@tycho.nsa.gov>
+ <23de1ae5-c3ef-9c31-be15-4b9cde74157d@tycho.nsa.gov>
+ <CAHC9VhSD_Ydp9JCHUZmW7zW05mgMkwHV1m_LSc8KT2EvqTk_VQ@mail.gmail.com>
+ <1494362396.2184.2.camel@tycho.nsa.gov>
+ <CAHC9VhTV_+04pMhNO+CsgiFDA0yuPDuW1oZSZis+VBxhutOr5A@mail.gmail.com>
+ <1494421112.24408.1.camel@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 10 May 2017 17:21:07 -0400
+Message-ID: <CAHC9VhSu6aZK9ZDbALa7JqA=+KGiXOPf4dXfYe0iyCPvCaHhXA@mail.gmail.com>
+Subject: Re: Policy capabilities: when to use and complications with using
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: James Carter <jwcart2@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ Joshua Brindle <brindle@quarksecurity.com>,
+ Chris PeBenito <pebenito@ieee.org>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Commit 1089665e31a647a5f0ba2eabe8ac6232b384bed9 (Add attribute
-expansion options) adds an expandattribute rule to the policy.conf
-language which sets a type_datum flag. Currently the flag is used
-only when writing out CIL policy from a policy.conf.
+On Wed, May 10, 2017 at 8:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> I'm not proposing introducing policy capabilities for those commits
+> retroactively; I don't think that would be productive now that they are
+> already in upstream kernels and policies.  I just wanted to determine
+> whether or not we think similar changes in the future should be wrapped
+> with policy capabilities.
+>
+> If so, then I think that motivates lighter weight policy capabilities,
+> as otherwise for each of these changes (and others too - e.g. probably
+> the prlimit change) we would have been in the same position as with
+> extended_socket_class, i.e. waiting for a release of libsepol that
+> defines the new policy capability, requiring refpolicy to add a
+> dependency on that specific libsepol version before it could be enabled
+> by default, waiting for Fedora to update to that version, etc.
 
-Make use of the flag when expanding policy to expand policy rules
-and remove all type associations for an attribute that has
-TYPE_FLAGS_EXPAND_ATTR_TRUE set. (The attribute will remain in the
-policy, but have no types associated with it.)
+That's fine with me.  As I said earlier, I'm not opposed, I just
+wanted to make sure this is a definite "must have".
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
-v2 Just check if each attribute should be expanded in type_attr_map(). No need
-to destroy the types ebitmap.
-
- libsepol/src/expand.c | 76 ++++++++++++++++++++++++++-------------------------
- libsepol/src/link.c   |  8 +++---
- 2 files changed, 43 insertions(+), 41 deletions(-)
-
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 54bf781..c55226b 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -2337,13 +2337,20 @@ static int type_attr_map(hashtab_key_t key
- 	value = type->s.value;
- 
- 	if (type->flavor == TYPE_ATTRIB) {
--		if (ebitmap_cpy(&p->attr_type_map[value - 1], &type->types)) {
--			goto oom;
--		}
--		ebitmap_for_each_bit(&type->types, tnode, i) {
--			if (!ebitmap_node_get_bit(tnode, i))
--				continue;
--			if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
-+		if (!(type->flags & TYPE_FLAGS_EXPAND_ATTR_TRUE)) {
-+			if (ebitmap_cpy(&p->attr_type_map[value - 1], &type->types)) {
-+				goto oom;
-+			}
-+			ebitmap_for_each_bit(&type->types, tnode, i) {
-+				if (!ebitmap_node_get_bit(tnode, i))
-+					continue;
-+				if (ebitmap_set_bit(&p->type_attr_map[i], value - 1, 1)) {
-+					goto oom;
-+				}
-+			}
-+		} else {
-+			/* Attribute is being expanded, so remove */
-+			if (ebitmap_set_bit(&p->type_attr_map[value - 1], value - 1, 0)) {
- 				goto oom;
- 			}
- 		}
-@@ -2513,46 +2520,41 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
- 	unsigned int i;
- 	ebitmap_t types, neg_types;
- 	ebitmap_node_t *tnode;
-+	unsigned char expand = alwaysexpand || ebitmap_length(&set->negset) || set->flags;
-+	type_datum_t *type;
- 	int rc =-1;
- 
- 	ebitmap_init(&types);
- 	ebitmap_init(t);
- 
--	if (alwaysexpand || ebitmap_length(&set->negset) || set->flags) {
--		/* First go through the types and OR all the attributes to types */
--		ebitmap_for_each_bit(&set->types, tnode, i) {
--			if (ebitmap_node_get_bit(tnode, i)) {
-+	/* First go through the types and OR all the attributes to types */
-+	ebitmap_for_each_bit(&set->types, tnode, i) {
-+		if (!ebitmap_node_get_bit(tnode, i))
-+			continue;
- 
--				/*
--				 * invalid policies might have more types set in the ebitmap than
--				 * what's available in the type_val_to_struct mapping
--				 */
--				if (i >= p->p_types.nprim)
--					goto err_types;
-+		/*
-+		 * invalid policies might have more types set in the ebitmap than
-+		 * what's available in the type_val_to_struct mapping
-+		 */
-+		if (i >= p->p_types.nprim)
-+			goto err_types;
- 
--				if (!p->type_val_to_struct[i]) {
--					goto err_types;
--				}
-+		type = p->type_val_to_struct[i];
- 
--				if (p->type_val_to_struct[i]->flavor ==
--				    TYPE_ATTRIB) {
--					if (ebitmap_union
--					    (&types,
--					     &p->type_val_to_struct[i]->
--					     types)) {
--						goto err_types;
--					}
--				} else {
--					if (ebitmap_set_bit(&types, i, 1)) {
--						goto err_types;
--					}
--				}
-+		if (!type) {
-+			goto err_types;
-+		}
-+
-+		if (type->flavor == TYPE_ATTRIB &&
-+		    (expand || (type->flags & TYPE_FLAGS_EXPAND_ATTR_TRUE))) {
-+			if (ebitmap_union(&types, &type->types)) {
-+				goto err_types;
-+			}
-+		} else {
-+			if (ebitmap_set_bit(&types, i, 1)) {
-+				goto err_types;
- 			}
- 		}
--	} else {
--		/* No expansion of attributes, just copy the set as is. */
--		if (ebitmap_cpy(&types, &set->types))
--			goto err_types;
- 	}
- 
- 	/* Now do the same thing for negset */
-diff --git a/libsepol/src/link.c b/libsepol/src/link.c
-index f211164..52770f4 100644
---- a/libsepol/src/link.c
-+++ b/libsepol/src/link.c
-@@ -467,8 +467,8 @@ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 			    state->cur_mod_name, id);
- 			return -1;
- 		}
--		/* permissive should pass to the base type */
--		base_type->flags |= (type->flags & TYPE_FLAGS_PERMISSIVE);
-+
-+		base_type->flags |= type->flags;
- 	} else {
- 		if (state->verbose)
- 			INFO(state->handle, "copying type %s", id);
-@@ -890,7 +890,7 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 		return -1;
- 	}
- 
--	target_type->flags |= (type->flags & TYPE_FLAGS_PERMISSIVE);
-+	target_type->flags |= type->flags;
- 
- 	base_type = hashtab_search(state->base->p_types.table, id);
- 	if (base_type == NULL) {
-@@ -938,7 +938,7 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
- 
- 		base_type->flavor = TYPE_ALIAS;
- 		base_type->primary = target_type->s.value;
--		base_type->flags |= (target_type->flags & TYPE_FLAGS_PERMISSIVE);
-+		base_type->flags |= target_type->flags;
- 
- 	}
- 	/* the aliases map points from its value to its primary so when this module 
 -- 
-2.9.3
+paul moore
+www.paul-moore.com
