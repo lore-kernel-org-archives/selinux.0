@@ -1,65 +1,42 @@
-From: Daniel Jurgens <danielj@mellanox.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH 7/9] semanage: Update semanage to allow runtime labeling
- of Infiniband Pkeys
-Date: Thu, 11 May 2017 22:51:17 +0000
-Message-ID: <VI1PR05MB1678F2B7F7AC0211FE3C7EA2C4ED0@VI1PR05MB1678.eurprd05.prod.outlook.com>
-References: <1494363042-121766-1-git-send-email-danielj@mellanox.com>
- <1494363042-121766-8-git-send-email-danielj@mellanox.com>
- <1494444409.24408.21.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4BNoKgN025888
+ for <selinux@tycho.nsa.gov>; Thu, 11 May 2017 19:50:20 -0400
+Received: by mail-pg0-f41.google.com with SMTP id u28so21719616pgn.1
+ for <selinux@tycho.nsa.gov>; Thu, 11 May 2017 16:50:14 -0700 (PDT)
+From: Tom Cherry <tomcherry@google.com>
+To: selinux@tycho.nsa.gov
+Cc: nnk@google.com, enh@google.com, Tom Cherry <tomcherry@google.com>
+Subject: [PATCH] procattr.c: Use __BIONIC__ instead of __ANDROID__
+Date: Thu, 11 May 2017 16:50:02 -0700
+Message-Id: <20170511235002.26468-1-tomcherry@google.com>
 MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 5/10/2017 2:22 PM, Stephen Smalley wrote:
-> On Tue, 2017-05-09 at 23:50 +0300, Dan Jurgens wrote:
->> From: Daniel Jurgens <danielj@mellanox.com>
->>
->>
->>  libsepol/src/ibpkeys.c                        |  264 ++++++++++++++
->>  python/semanage/semanage                      |   60 +++-
->>  python/semanage/seobject.py                   |  253 +++++++++++++
->>  28 files changed, 2159 insertions(+), 17 deletions(-)
-> That's a lot of code.  Did you look at whether you could generalize the
-> port record stuff at all to see if we could factor out common helpers
-> or anything?  I guess this is consistent with the current code, but it
-> seems like a lot of very similar code being duplicated and then
-> slightly tweaked.
-I don't see a good way to generalize.  The high/low pkey/port part overlaps, but all that code is compact anyway.  To make it work for both would complicate it to figure out the correct key/ocontext to use.  The protocol and subnet_prefix handling is most of the code, and it's very different.
->
->>  
->>  	create_dir(newroot_path(), 0o755)
->> diff --git a/libsepol/VERSION b/libsepol/VERSION
->> index 5154b3f..e70b452 100644
->> --- a/libsepol/VERSION
->> +++ b/libsepol/VERSION
->> @@ -1 +1 @@
->> -2.6
->> +2.6.0
-> Extraneous change?
-Yes.
->> +struct sepol_ibpkey {
->> +	/* Subnet prefix */
->> +	char *subnet_prefix;
->> +	size_t subnet_prefix_sz;
-> Do we need support for variable-length subnet prefix?  Can it change?
-It doesn't need to be variable.  I'll remove.
->> +#ifdef DARWIN
->> +	memcpy(subnet_prefix_bytes, in_addr.s6_addr, 16);
->> +#else
->> +	memcpy(subnet_prefix_bytes, in_addr.s6_addr32, 16);
->> +#endif
-> Just reduce to always using s6_addr
-Done
->> +static int ibpkey_alloc_subnet_prefix(sepol_handle_t *handle,
->> +				      char **subnet_prefix,
->> +				      size_t *subnet_prefix_sz)
->> +{
->> +	char *tmp_subnet_prefix = malloc(16);
->> +	size_t tmp_subnet_prefix_sz = 16;
-> No magic constants, and definitely not repeatedly used.
-Done
+This check is not specific to Android devices. If libselinux were used
+with Bionic on a normal Linux system this check would still be needed.
+
+Signed-off-by: Tom Cherry <tomcherry@google.com>
+---
+ libselinux/src/procattr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+index ebc0adec..48dd8aff 100644
+--- a/libselinux/src/procattr.c
++++ b/libselinux/src/procattr.c
+@@ -22,8 +22,8 @@ static pthread_key_t destructor_key;
+ static int destructor_key_initialized = 0;
+ static __thread char destructor_initialized;
+ 
+-#ifndef __ANDROID__
+-/* Android declares this in unistd.h and has a definition for it */
++#ifndef __BIONIC__
++/* Bionic declares this in unistd.h and has a definition for it */
+ static pid_t gettid(void)
+ {
+ 	return syscall(__NR_gettid);
+-- 
+2.13.0.rc2.291.g57267f2277-goog
