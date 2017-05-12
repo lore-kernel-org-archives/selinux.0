@@ -1,65 +1,133 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: paul@paul-moore.com
 Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux: do not check open permission on sockets
-Date: Fri, 12 May 2017 12:41:24 -0400
-Message-Id: <20170512164124.16981-1-sds@tycho.nsa.gov>
+Subject: [PATCH v2] selinux: log policy capability state when a policy is
+ loaded
+Date: Fri, 12 May 2017 12:44:23 -0400
+Message-Id: <20170512164423.17190-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-open permission is currently only defined for files in the kernel
-(COMMON_FILE_PERMS rather than COMMON_FILE_SOCK_PERMS). Construction of
-an artificial test case that tries to open a socket via /proc/pid/fd will
-generate a recvfrom avc denial because recvfrom and open happen to map to
-the same permission bit in socket vs file classes.
+Log the state of SELinux policy capabilities when a policy is loaded.
+For each policy capability known to the kernel, log an informational
+message with the policy capability name and the value set in the policy.
+For policy capabilities that are set in the loaded policy but unknown
+to the kernel, log a warning with the policy capability index, since
+this is the only information presently available in the policy.
 
-open of a socket via /proc/pid/fd is not supported by the kernel regardless
-and will ultimately return ENXIO. But we hit the permission check first and
-can thus produce these odd/misleading denials.  Omit the open check when
-operating on a socket.
+Sample output with a policy created with a new capability defined
+that is not known to the kernel:
+[   43.812265] SELinux:  policy capability network_peer_controls=1
+[   43.812266] SELinux:  policy capability open_perms=1
+[   43.812266] SELinux:  policy capability extended_socket_class=1
+[   43.812267] SELinux:  policy capability always_check_network=0
+[   43.812267] SELinux:  policy capability cgroup_seclabel=0
+[   43.812268] SELinux:  unknown policy capability 5
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/hooks.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+v2 drops the Resolves line since I think we are not supposed to include
+bug tracking info in upstream kernel commit messages (correct me if wrong).
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e67a526..dd356ed 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2063,8 +2063,9 @@ static inline u32 file_to_av(struct file *file)
- static inline u32 open_file_to_av(struct file *file)
+ security/selinux/include/security.h |  2 ++
+ security/selinux/selinuxfs.c        | 13 ++-----------
+ security/selinux/ss/services.c      | 23 +++++++++++++++++++++++
+ 3 files changed, 27 insertions(+), 11 deletions(-)
+
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index f979c35..c4224bb 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -76,6 +76,8 @@ enum {
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+ 
++extern char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
++
+ extern int selinux_policycap_netpeer;
+ extern int selinux_policycap_openperm;
+ extern int selinux_policycap_extsockclass;
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index ce71718..ea2da91 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -41,15 +41,6 @@
+ #include "objsec.h"
+ #include "conditional.h"
+ 
+-/* Policy capability filenames */
+-static char *policycap_names[] = {
+-	"network_peer_controls",
+-	"open_perms",
+-	"extended_socket_class",
+-	"always_check_network",
+-	"cgroup_seclabel"
+-};
+-
+ unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+ 
+ static int __init checkreqprot_setup(char *str)
+@@ -1750,9 +1741,9 @@ static int sel_make_policycap(void)
+ 	sel_remove_entries(policycap_dir);
+ 
+ 	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
+-		if (iter < ARRAY_SIZE(policycap_names))
++		if (iter < ARRAY_SIZE(selinux_policycap_names))
+ 			dentry = d_alloc_name(policycap_dir,
+-					      policycap_names[iter]);
++					      selinux_policycap_names[iter]);
+ 		else
+ 			dentry = d_alloc_name(policycap_dir, "unknown");
+ 
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 60d9b02..0abdec2 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -70,6 +70,15 @@
+ #include "ebitmap.h"
+ #include "audit.h"
+ 
++/* Policy capability names */
++char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
++	"network_peer_controls",
++	"open_perms",
++	"extended_socket_class",
++	"always_check_network",
++	"cgroup_seclabel"
++};
++
+ int selinux_policycap_netpeer;
+ int selinux_policycap_openperm;
+ int selinux_policycap_extsockclass;
+@@ -1986,6 +1995,9 @@ static int convert_context(u32 key,
+ 
+ static void security_load_policycaps(void)
  {
- 	u32 av = file_to_av(file);
-+	struct inode *inode = file_inode(file);
++	unsigned int i;
++	struct ebitmap_node *node;
++
+ 	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
+ 						  POLICYDB_CAPABILITY_NETPEER);
+ 	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
+@@ -1997,6 +2009,17 @@ static void security_load_policycaps(void)
+ 	selinux_policycap_cgroupseclabel =
+ 		ebitmap_get_bit(&policydb.policycaps,
+ 				POLICYDB_CAPABILITY_CGROUPSECLABEL);
++
++	for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
++		pr_info("SELinux:  policy capability %s=%d\n",
++			selinux_policycap_names[i],
++			ebitmap_get_bit(&policydb.policycaps, i));
++
++	ebitmap_for_each_positive_bit(&policydb.policycaps, node, i) {
++		if (i >= ARRAY_SIZE(selinux_policycap_names))
++			pr_warn("SELinux:  unknown policy capability %u\n",
++				i);
++	}
+ }
  
--	if (selinux_policycap_openperm)
-+	if (selinux_policycap_openperm && inode->i_sb->s_magic != SOCKFS_MAGIC)
- 		av |= FILE__OPEN;
- 
- 	return av;
-@@ -3059,6 +3060,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
- static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
- {
- 	const struct cred *cred = current_cred();
-+	struct inode *inode = d_backing_inode(dentry);
- 	unsigned int ia_valid = iattr->ia_valid;
- 	__u32 av = FILE__WRITE;
- 
-@@ -3074,8 +3076,10 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
- 			ATTR_ATIME_SET | ATTR_MTIME_SET | ATTR_TIMES_SET))
- 		return dentry_has_perm(cred, dentry, FILE__SETATTR);
- 
--	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE)
--			&& !(ia_valid & ATTR_FILE))
-+	if (selinux_policycap_openperm &&
-+	    inode->i_sb->s_magic != SOCKFS_MAGIC &&
-+	    (ia_valid & ATTR_SIZE) &&
-+	    !(ia_valid & ATTR_FILE))
- 		av |= FILE__OPEN;
- 
- 	return dentry_has_perm(cred, dentry, av);
+ static int security_preserve_bools(struct policydb *p);
 -- 
 2.9.3
