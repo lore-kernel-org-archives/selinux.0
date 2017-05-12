@@ -1,104 +1,65 @@
-Message-ID: <1494606653.9454.7.camel@tycho.nsa.gov>
-Subject: Re: [RFC][PATCH] selinux: add a map permission check for mmap
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: paul@paul-moore.com
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 12 May 2017 12:30:53 -0400
-In-Reply-To: <20170505131448.8718-1-sds@tycho.nsa.gov>
-References: <20170505131448.8718-1-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux: do not check open permission on sockets
+Date: Fri, 12 May 2017 12:41:24 -0400
+Message-Id: <20170512164124.16981-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-05-05 at 09:14 -0400, Stephen Smalley wrote:
-> Add a map permission check on mmap so that we can distinguish memory
-> mapped
-> access (since it has different implications for revocation). When a
-> file
-> is opened and then read or written via syscalls like
-> read(2)/write(2),
-> we revalidate access on each read/write operation via
-> selinux_file_permission() and therefore can revoke access if the
-> process context, the file context, or the policy changes in such a
-> manner that access is no longer allowed. When a file is opened and
-> then
-> memory mapped via mmap(2) and then subsequently read or written
-> directly
-> in memory, we presently have no way to revalidate or revoke access.
-> The purpose of a separate map permission check on mmap(2) is to
-> permit
-> policy to prohibit memory mapping of specific files for which we need
-> to ensure that every access is revalidated, particularly useful for
-> scenarios where we expect the file to be relabeled at runtime in
-> order
-> to reflect state changes (e.g. cross-domain solution, assured
-> pipeline
-> without data copying).
-> 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+open permission is currently only defined for files in the kernel
+(COMMON_FILE_PERMS rather than COMMON_FILE_SOCK_PERMS). Construction of
+an artificial test case that tries to open a socket via /proc/pid/fd will
+generate a recvfrom avc denial because recvfrom and open happen to map to
+the same permission bit in socket vs file classes.
 
-Unless you have any comments/objections, feel free to apply this as is
-- I believe it is good to go, and I have also posted the corresponding
-selinux-testsuite patch.
+open of a socket via /proc/pid/fd is not supported by the kernel regardless
+and will ultimately return ENXIO. But we hit the permission check first and
+can thus produce these odd/misleading denials.  Omit the open check when
+operating on a socket.
 
-> ---
-> NB I chose not to define a new policy capability for this permission,
-> since it is adequately covered by handle_unknown for compatibility
-> and
-> others seemed to agree that this does not fall into the category of
-> changes requiring a new policy capability.  I also chose to define
-> the
-> permission for socket classes in addition to file classes and let it
-> be checked for both.
-> 
->  security/selinux/hooks.c            | 12 ++++++++++++
->  security/selinux/include/classmap.h |  2 +-
->  2 files changed, 13 insertions(+), 1 deletion(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index e67a526..5432628 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3550,6 +3550,18 @@ static int selinux_mmap_addr(unsigned long
-> addr)
->  static int selinux_mmap_file(struct file *file, unsigned long
-> reqprot,
->  			     unsigned long prot, unsigned long
-> flags)
->  {
-> +	struct common_audit_data ad;
-> +	int rc;
-> +
-> +	if (file) {
-> +		ad.type = LSM_AUDIT_DATA_FILE;
-> +		ad.u.file = file;
-> +		rc = inode_has_perm(current_cred(),
-> file_inode(file),
-> +				    FILE__MAP, &ad);
-> +		if (rc)
-> +			return rc;
-> +	}
-> +
->  	if (selinux_checkreqprot)
->  		prot = reqprot;
->  
-> diff --git a/security/selinux/include/classmap.h
-> b/security/selinux/include/classmap.h
-> index 1e0cc9b..3e49a78 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -1,7 +1,7 @@
->  #include <linux/capability.h>
->  
->  #define COMMON_FILE_SOCK_PERMS "ioctl", "read", "write", "create", \
-> -    "getattr", "setattr", "lock", "relabelfrom", "relabelto",
-> "append"
-> +    "getattr", "setattr", "lock", "relabelfrom", "relabelto",
-> "append", "map"
->  
->  #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link",
-> \
->      "rename", "execute", "quotaon", "mounton", "audit_access", \
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/hooks.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e67a526..dd356ed 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2063,8 +2063,9 @@ static inline u32 file_to_av(struct file *file)
+ static inline u32 open_file_to_av(struct file *file)
+ {
+ 	u32 av = file_to_av(file);
++	struct inode *inode = file_inode(file);
+ 
+-	if (selinux_policycap_openperm)
++	if (selinux_policycap_openperm && inode->i_sb->s_magic != SOCKFS_MAGIC)
+ 		av |= FILE__OPEN;
+ 
+ 	return av;
+@@ -3059,6 +3060,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ {
+ 	const struct cred *cred = current_cred();
++	struct inode *inode = d_backing_inode(dentry);
+ 	unsigned int ia_valid = iattr->ia_valid;
+ 	__u32 av = FILE__WRITE;
+ 
+@@ -3074,8 +3076,10 @@ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ 			ATTR_ATIME_SET | ATTR_MTIME_SET | ATTR_TIMES_SET))
+ 		return dentry_has_perm(cred, dentry, FILE__SETATTR);
+ 
+-	if (selinux_policycap_openperm && (ia_valid & ATTR_SIZE)
+-			&& !(ia_valid & ATTR_FILE))
++	if (selinux_policycap_openperm &&
++	    inode->i_sb->s_magic != SOCKFS_MAGIC &&
++	    (ia_valid & ATTR_SIZE) &&
++	    !(ia_valid & ATTR_FILE))
+ 		av |= FILE__OPEN;
+ 
+ 	return dentry_has_perm(cred, dentry, av);
+-- 
+2.9.3
