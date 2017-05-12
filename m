@@ -1,161 +1,146 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4CMMakW032544
+ for <selinux@tycho.nsa.gov>; Fri, 12 May 2017 18:22:36 -0400
+Received: by mail-lf0-f66.google.com with SMTP id h4so1116449lfj.3
+ for <selinux@tycho.nsa.gov>; Fri, 12 May 2017 15:22:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAPc65ayVwUbbiqYJY3BJJAaq03d=iVB0q=Jy7A4j3KkNKgz7pw@mail.gmail.com>
-References: <20170511235002.26468-1-tomcherry@google.com>
- <1494595373.9454.2.camel@tycho.nsa.gov>
- <CAPc65ayVwUbbiqYJY3BJJAaq03d=iVB0q=Jy7A4j3KkNKgz7pw@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Fri, 12 May 2017 15:11:45 -0700
-Message-ID: <CAFftDdpsy9L=59MZvH4RHLm6bkMT1A+TGu3JxruRLmb3fPEZGQ@mail.gmail.com>
-Subject: Re: [PATCH] procattr.c: Use __BIONIC__ instead of __ANDROID__
-To: Tom Cherry <tomcherry@google.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Elliott Hughes <enh@google.com>
-Content-Type: multipart/alternative; boundary="001a113dbeeeb34bf6054f5afd73"
+In-Reply-To: <5d7a2409-db08-b142-c71b-a7a38ecc175d@schaufler-ca.com>
+References: <1494507551-4643-1-git-send-email-sbuisson@ddn.com>
+ <2161c45f-dd29-8269-2bb1-5d5afa78104b@schaufler-ca.com>
+ <1494534152.10447.11.camel@tycho.nsa.gov>
+ <5d7a2409-db08-b142-c71b-a7a38ecc175d@schaufler-ca.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 12 May 2017 18:22:32 -0400
+Message-ID: <CAHC9VhSuB2MNS_LQBGQjJHAY0LKx3A9hh7Cq4a_RbD_uqNbeuQ@mail.gmail.com>
+Subject: Re: [PATCH v3 1/2] selinux: add brief info to policydb
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Sebastien Buisson <sbuisson.ddn@gmail.com>
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov, Sebastien Buisson <sbuisson@ddn.com>,
+ James Morris <james.l.morris@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a113dbeeeb34bf6054f5afd73
-Content-Type: text/plain; charset="UTF-8"
-
-On Fri, May 12, 2017 at 11:01 AM, Tom Cherry <tomcherry@google.com> wrote:
-
-> On Fri, May 12, 2017 at 6:22 AM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On Thu, 2017-05-11 at 16:50 -0700, Tom Cherry via Selinux wrote:
-> >> This check is not specific to Android devices. If libselinux were
-> >> used
-> >> with Bionic on a normal Linux system this check would still be
-> >> needed.
-> >>
-> >> Signed-off-by: Tom Cherry <tomcherry@google.com>
-> >
-> > Thanks, applied.  This was actually switched from ANDROID to _ANDROID__
-> >  by nnk in 044f6ef104c8a9d8f42faa8756e71a0525198f5b.  We don't appear
-> > to have any other uses of __ANDROID__, but we do have a number of uses
-> > of ANDROID.  Offhand though these other uses of ANDROID don't appear to
-> > be related to bionic but instead reflect differences in SELinux
-> > userspace integration in Android vs GNU/Linux.  If however your
-> > bionic/Linux system integrates SELinux support in an Android-like
-> > manner (e.g. kernel policy file is /sepolicy, no /etc/selinux/config,
-> > ...), then you might need to generalize those as well.
+On Thu, May 11, 2017 at 4:45 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 5/11/2017 1:22 PM, Stephen Smalley wrote:
+>> On Thu, 2017-05-11 at 08:56 -0700, Casey Schaufler wrote:
+>>> On 5/11/2017 5:59 AM, Sebastien Buisson wrote:
+>>>> Add policybrief field to struct policydb. It holds a brief info
+>>>> of the policydb, in the following form:
+>>>> <0 or 1 for enforce>:<0 or 1 for checkreqprot>:<hashalg>=<checksum>
+>>>> Policy brief is computed every time the policy is loaded, and when
+>>>> enforce or checkreqprot are changed.
+>>>>
+>>>> Add security_policy_brief hook to give access to policy brief to
+>>>> the rest of the kernel. Lustre client makes use of this information
+>>>> to detect changes to the policy, and forward it to Lustre servers.
+>>>> Depending on how the policy is enforced on Lustre client side,
+>>>> Lustre servers can refuse connection.
+>>>>
+>>>> Signed-off-by: Sebastien Buisson <sbuisson@ddn.com>
+>>>> ---
+>>>>  include/linux/lsm_hooks.h           | 16 ++++++++
+>>>>  include/linux/security.h            |  7 ++++
+>>>>  security/security.c                 |  6 +++
+>>>>  security/selinux/hooks.c            |  7 ++++
+>>>>  security/selinux/include/security.h |  2 +
+>>>>  security/selinux/selinuxfs.c        |  2 +
+>>>>  security/selinux/ss/policydb.c      | 76
+>>>> +++++++++++++++++++++++++++++++++++++
+>>>>  security/selinux/ss/policydb.h      |  2 +
+>>>>  security/selinux/ss/services.c      | 62
+>>>> ++++++++++++++++++++++++++++++
+>>>>  9 files changed, 180 insertions(+)
+>>>>
+>>>> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+>>>> index 080f34e..9cac282 100644
+>>>> --- a/include/linux/lsm_hooks.h
+>>>> +++ b/include/linux/lsm_hooks.h
+>>>> @@ -1336,6 +1336,20 @@
+>>>>   * @inode we wish to get the security context of.
+>>>>   * @ctx is a pointer in which to place the allocated
+>>>> security context.
+>>>>   * @ctxlen points to the place to put the length of @ctx.
+>>>> + *
+>>>> + * Security hooks for policy brief
+>>>> + *
+>>>> + * @policy_brief:
+>>>> + *
+>>>> + * Returns a string containing a brief info of the
+>>>> policydb, in the
+>>>> + * following form:
+>>>> + * <0 or 1 for enforce>:<0 or 1 for
+>>>> checkreqprot>:<hashalg>=<checksum>
+>>>
+>>> This sure looks like SELinux specific information. If the Spiffy
+>>> security module has multiple values for enforcement (e.g. off,
+>>> soft and hard) this interface definition does not work. What is a
+>>> "checkreqprot", and what is it for?
+>>>
+>>> I expect that you have no interest (or incentive) in supporting
+>>> security modules other than SELinux, and that's OK. What's I'm
+>>> after is an interface that another security module could use if
+>>> someone where interested (or inspired) to do so.
+>>>
+>>> Rather than a string with predefined positional values (something
+>>> I was taught not to do when 1 MIPS and 1 MEG was a big computer)
+>>> you might use
+>>> "enforce=<value>:checkreqprot=<value>:hashalg=<checksum>"
+>>
+>> No objection to the above, although it makes his updating code for
+>> enforce/checkreqprot a bit uglier.
 >
-> Thanks!  I took a look at the other ANDROID ifdefs in the code and I'm not
-> sure
-> how or if they would need to be changed.  This change is needed to get
-> libselinux building with bionic on the host which is just the first step.
+> Sure, but can you imagine trying to use find(1) if the
+> options where positional?
+
+Perhaps I'm suffering from audit induced PTSD, but I think we need to
+operate under the assumption that we are going to need to augment this
+at some point in the future (no good feature goes un-abused) and I'd
+much rather have some sort of name-value pairing to keep my sanity.  I
+also feel rather strongly that we should make it very explicit in the
+comments that the ordering of the fields in the string may change.
+
+>>> for SELinux and define @policy_brief as
+>>>
+>>>      A string containing colon separated name and value pairs
+>>>      that will be parsed and interpreted by the security module
+>>>      or modules.
+>>
+>> Actually, I'm not clear it will be parsed or interpreted by the
+>> security module(s).  I think he is just fetching it and then doing a
+>> simple comparison to check for inconsistencies between clients and the
+>> server, and optionally admins/users can read it and interpret it as
+>> they see fit.
 >
+> OK, in which case human eyes *need* the name as well as the value.
+> That, and strcmp(value, "enforce=0") is no harder than strcmp(value, "0").
 
-Thanks for checking, and I am glad (and surprised) this was the only issue
-to get
-it to build for a host using bionic.
+The initial use case may not require parsing the string, but who knows
+what will end up using this five years from now.  Once again, I agree
+with Casey, let's make sure it easily parsed and readable by admins;
+imagine this as the output of a file under /proc or /sys.
 
-
+>>> You already have it right for the "hashalg" field. If you want to
+>>> be really forward looking you could use names field names that
+>>> identify the security module that uses them, such as
+>>>
+>>>      "selinux/enforce=1:selinux/checkreqprot=0:selinux/MD5=8675309"
+>> That seems a bit verbose, particularly the duplicated selinux/ bit.
 >
-> >
-> >> ---
-> >>  libselinux/src/procattr.c | 4 ++--
-> >>  1 file changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
-> >> index ebc0adec..48dd8aff 100644
-> >> --- a/libselinux/src/procattr.c
-> >> +++ b/libselinux/src/procattr.c
-> >> @@ -22,8 +22,8 @@ static pthread_key_t destructor_key;
-> >>  static int destructor_key_initialized = 0;
-> >>  static __thread char destructor_initialized;
-> >>
-> >> -#ifndef __ANDROID__
-> >> -/* Android declares this in unistd.h and has a definition for it */
-> >> +#ifndef __BIONIC__
-> >> +/* Bionic declares this in unistd.h and has a definition for it */
-> >>  static pid_t gettid(void)
-> >>  {
-> >>       return syscall(__NR_gettid);
+> True that, on the other hand
 >
+>         "selinux(enforce=1:checkreqprot=0:MD5=8675309)"
+>
+> would be harder to parse. Either works for me.
 
-
+I'm not sure I care too much about how the name-value pairs get
+namespaced, but considering the LSM stacking work that is happening,
+we should namespace it somehow.
 
 -- 
-Respectfully,
-
-William C Roberts
-
---001a113dbeeeb34bf6054f5afd73
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
-te">On Fri, May 12, 2017 at 11:01 AM, Tom Cherry <span dir=3D"ltr">&lt;<a h=
-ref=3D"mailto:tomcherry@google.com" target=3D"_blank">tomcherry@google.com<=
-/a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:=
-0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><span class=3D"">On=
- Fri, May 12, 2017 at 6:22 AM, Stephen Smalley &lt;<a href=3D"mailto:sds@ty=
-cho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
-&gt; On Thu, 2017-05-11 at 16:50 -0700, Tom Cherry via Selinux wrote:<br>
-&gt;&gt; This check is not specific to Android devices. If libselinux were<=
-br>
-&gt;&gt; used<br>
-&gt;&gt; with Bionic on a normal Linux system this check would still be<br>
-&gt;&gt; needed.<br>
-&gt;&gt;<br>
-&gt;&gt; Signed-off-by: Tom Cherry &lt;<a href=3D"mailto:tomcherry@google.c=
-om">tomcherry@google.com</a>&gt;<br>
-&gt;<br>
-&gt; Thanks, applied.=C2=A0 This was actually switched from ANDROID to _AND=
-ROID__<br>
-&gt;=C2=A0 by nnk in 044f6ef104c8a9d8f42faa8756e71a<wbr>0525198f5b.=C2=A0 W=
-e don&#39;t appear<br>
-&gt; to have any other uses of __ANDROID__, but we do have a number of uses=
-<br>
-&gt; of ANDROID.=C2=A0 Offhand though these other uses of ANDROID don&#39;t=
- appear to<br>
-&gt; be related to bionic but instead reflect differences in SELinux<br>
-&gt; userspace integration in Android vs GNU/Linux.=C2=A0 If however your<b=
-r>
-&gt; bionic/Linux system integrates SELinux support in an Android-like<br>
-&gt; manner (e.g. kernel policy file is /sepolicy, no /etc/selinux/config,<=
-br>
-&gt; ...), then you might need to generalize those as well.<br>
-<br>
-</span>Thanks!=C2=A0 I took a look at the other ANDROID ifdefs in the code =
-and I&#39;m not sure<br>
-how or if they would need to be changed.=C2=A0 This change is needed to get=
-<br>
-libselinux building with bionic on the host which is just the first step.<b=
-r></blockquote><div><br></div><div>Thanks for checking, and I am glad (and =
-surprised) this was the only issue to get</div><div>it to build for a host =
-using bionic.</div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=
-=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-<div class=3D"HOEnZb"><div class=3D"h5"><br>
-&gt;<br>
-&gt;&gt; ---<br>
-&gt;&gt;=C2=A0 libselinux/src/procattr.c | 4 ++--<br>
-&gt;&gt;=C2=A0 1 file changed, 2 insertions(+), 2 deletions(-)<br>
-&gt;&gt;<br>
-&gt;&gt; diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c=
-<br>
-&gt;&gt; index ebc0adec..48dd8aff 100644<br>
-&gt;&gt; --- a/libselinux/src/procattr.c<br>
-&gt;&gt; +++ b/libselinux/src/procattr.c<br>
-&gt;&gt; @@ -22,8 +22,8 @@ static pthread_key_t destructor_key;<br>
-&gt;&gt;=C2=A0 static int destructor_key_initialized =3D 0;<br>
-&gt;&gt;=C2=A0 static __thread char destructor_initialized;<br>
-&gt;&gt;<br>
-&gt;&gt; -#ifndef __ANDROID__<br>
-&gt;&gt; -/* Android declares this in unistd.h and has a definition for it =
-*/<br>
-&gt;&gt; +#ifndef __BIONIC__<br>
-&gt;&gt; +/* Bionic declares this in unistd.h and has a definition for it *=
-/<br>
-&gt;&gt;=C2=A0 static pid_t gettid(void)<br>
-&gt;&gt;=C2=A0 {<br>
-&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0return syscall(__NR_gettid);<br>
-</div></div></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>=
-<div class=3D"gmail_signature" data-smartmail=3D"gmail_signature">Respectfu=
-lly,<br><br>William C Roberts<br><br></div>
-</div></div>
-
---001a113dbeeeb34bf6054f5afd73--
+paul moore
+www.paul-moore.com
