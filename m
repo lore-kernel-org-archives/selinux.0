@@ -1,138 +1,161 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4CM29AK026371
- for <selinux@tycho.nsa.gov>; Fri, 12 May 2017 18:02:09 -0400
-Received: by mail-oi0-f50.google.com with SMTP id b204so81037981oii.1
- for <selinux@tycho.nsa.gov>; Fri, 12 May 2017 15:02:08 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAJfZ7=kc+bS6b6Owk-d8aiFp8sWXs1MOZ+=V9mBmgcU3QVX=iw@mail.gmail.com>
-References: <CAJfZ7=kc+bS6b6Owk-d8aiFp8sWXs1MOZ+=V9mBmgcU3QVX=iw@mail.gmail.com>
+In-Reply-To: <CAPc65ayVwUbbiqYJY3BJJAaq03d=iVB0q=Jy7A4j3KkNKgz7pw@mail.gmail.com>
+References: <20170511235002.26468-1-tomcherry@google.com>
+ <1494595373.9454.2.camel@tycho.nsa.gov>
+ <CAPc65ayVwUbbiqYJY3BJJAaq03d=iVB0q=Jy7A4j3KkNKgz7pw@mail.gmail.com>
 From: William Roberts <bill.c.roberts@gmail.com>
-Date: Fri, 12 May 2017 15:02:07 -0700
-Message-ID: <CAFftDdpBL2pV5RBbm-upuNZt8mU3d1dbPBE_H2au1MP7euxPgA@mail.gmail.com>
-Subject: Re: Possible use after free in selabel_subs_init
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary="001a11c15cfa3f5e43054f5adbb8"
+Date: Fri, 12 May 2017 15:11:45 -0700
+Message-ID: <CAFftDdpsy9L=59MZvH4RHLm6bkMT1A+TGu3JxruRLmb3fPEZGQ@mail.gmail.com>
+Subject: Re: [PATCH] procattr.c: Use __BIONIC__ instead of __ANDROID__
+To: Tom Cherry <tomcherry@google.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Elliott Hughes <enh@google.com>
+Content-Type: multipart/alternative; boundary="001a113dbeeeb34bf6054f5afd73"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11c15cfa3f5e43054f5adbb8
+--001a113dbeeeb34bf6054f5afd73
 Content-Type: text/plain; charset="UTF-8"
 
-On Fri, May 12, 2017 at 1:26 PM, Nicolas Iooss <nicolas.iooss@m4x.org>
-wrote:
+On Fri, May 12, 2017 at 11:01 AM, Tom Cherry <tomcherry@google.com> wrote:
 
-> Hi,
+> On Fri, May 12, 2017 at 6:22 AM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> > On Thu, 2017-05-11 at 16:50 -0700, Tom Cherry via Selinux wrote:
+> >> This check is not specific to Android devices. If libselinux were
+> >> used
+> >> with Bionic on a normal Linux system this check would still be
+> >> needed.
+> >>
+> >> Signed-off-by: Tom Cherry <tomcherry@google.com>
+> >
+> > Thanks, applied.  This was actually switched from ANDROID to _ANDROID__
+> >  by nnk in 044f6ef104c8a9d8f42faa8756e71a0525198f5b.  We don't appear
+> > to have any other uses of __ANDROID__, but we do have a number of uses
+> > of ANDROID.  Offhand though these other uses of ANDROID don't appear to
+> > be related to bionic but instead reflect differences in SELinux
+> > userspace integration in Android vs GNU/Linux.  If however your
+> > bionic/Linux system integrates SELinux support in an Android-like
+> > manner (e.g. kernel policy file is /sepolicy, no /etc/selinux/config,
+> > ...), then you might need to generalize those as well.
 >
-> Currently libselinux/src/label.c defines selabel_subs_init() like this [1]:
+> Thanks!  I took a look at the other ANDROID ifdefs in the code and I'm not
+> sure
+> how or if they would need to be changed.  This change is needed to get
+> libselinux building with bionic on the host which is just the first step.
 >
->     struct selabel_sub *selabel_subs_init(/* ... */)
->     {
->         /* ... */
->         while (fgets_unlocked(buf, sizeof(buf) - 1, cfg)) {
->             /* ... allocate and fill "sub" ... */
->             sub->next = list;
->             list = sub;
->         }
->
->         if (digest_add_specfile(digest, cfg, NULL, sb.st_size, path) < 0)
->             goto err;
->
->     out:
->         fclose(cfg);
->         return list;
->     err:
->         if (sub)
->             free(sub->src);
->         free(sub);
->         goto out;
->     }
->
-> When digest_add_specfile() fails, sub is freed (in the err label), but
-> as list=sub, it means that the return value, list, is freed. This
-> leads to a use-after-free when this value is used.
->
-> What should selabel_subs_init() do (and return) when
-> digest_add_specfile() fails?
->
-> Nicolas
->
-> [1] https://github.com/SELinuxProject/selinux/blob/
-> 9cc62ce35d099acf7897b6259228479737521709/libselinux/src/label.c#L94
->
->
->From what I can tell, and I may be wrong, is that the only callers are from
-init() in label_file.c. So the first two failure returns where it returns
-list,
-list i think would be NULL there. Which makes sense since the first
-iteration, the linked list next pointer would be NULL. I think we would
-want to free
-the whole list and return NULL and have callers check for NULL. This seems
-like a fatal error path. But I am wrong frequently :-)
 
---001a11c15cfa3f5e43054f5adbb8
+Thanks for checking, and I am glad (and surprised) this was the only issue
+to get
+it to build for a host using bionic.
+
+
+>
+> >
+> >> ---
+> >>  libselinux/src/procattr.c | 4 ++--
+> >>  1 file changed, 2 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c
+> >> index ebc0adec..48dd8aff 100644
+> >> --- a/libselinux/src/procattr.c
+> >> +++ b/libselinux/src/procattr.c
+> >> @@ -22,8 +22,8 @@ static pthread_key_t destructor_key;
+> >>  static int destructor_key_initialized = 0;
+> >>  static __thread char destructor_initialized;
+> >>
+> >> -#ifndef __ANDROID__
+> >> -/* Android declares this in unistd.h and has a definition for it */
+> >> +#ifndef __BIONIC__
+> >> +/* Bionic declares this in unistd.h and has a definition for it */
+> >>  static pid_t gettid(void)
+> >>  {
+> >>       return syscall(__NR_gettid);
+>
+
+
+
+-- 
+Respectfully,
+
+William C Roberts
+
+--001a113dbeeeb34bf6054f5afd73
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 <div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
-te">On Fri, May 12, 2017 at 1:26 PM, Nicolas Iooss <span dir=3D"ltr">&lt;<a=
- href=3D"mailto:nicolas.iooss@m4x.org" target=3D"_blank">nicolas.iooss@m4x.=
-org</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"mar=
-gin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Hi,<br>
+te">On Fri, May 12, 2017 at 11:01 AM, Tom Cherry <span dir=3D"ltr">&lt;<a h=
+ref=3D"mailto:tomcherry@google.com" target=3D"_blank">tomcherry@google.com<=
+/a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:=
+0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><span class=3D"">On=
+ Fri, May 12, 2017 at 6:22 AM, Stephen Smalley &lt;<a href=3D"mailto:sds@ty=
+cho.nsa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br>
+&gt; On Thu, 2017-05-11 at 16:50 -0700, Tom Cherry via Selinux wrote:<br>
+&gt;&gt; This check is not specific to Android devices. If libselinux were<=
+br>
+&gt;&gt; used<br>
+&gt;&gt; with Bionic on a normal Linux system this check would still be<br>
+&gt;&gt; needed.<br>
+&gt;&gt;<br>
+&gt;&gt; Signed-off-by: Tom Cherry &lt;<a href=3D"mailto:tomcherry@google.c=
+om">tomcherry@google.com</a>&gt;<br>
+&gt;<br>
+&gt; Thanks, applied.=C2=A0 This was actually switched from ANDROID to _AND=
+ROID__<br>
+&gt;=C2=A0 by nnk in 044f6ef104c8a9d8f42faa8756e71a<wbr>0525198f5b.=C2=A0 W=
+e don&#39;t appear<br>
+&gt; to have any other uses of __ANDROID__, but we do have a number of uses=
 <br>
-Currently libselinux/src/label.c defines selabel_subs_init() like this [1]:=
+&gt; of ANDROID.=C2=A0 Offhand though these other uses of ANDROID don&#39;t=
+ appear to<br>
+&gt; be related to bionic but instead reflect differences in SELinux<br>
+&gt; userspace integration in Android vs GNU/Linux.=C2=A0 If however your<b=
+r>
+&gt; bionic/Linux system integrates SELinux support in an Android-like<br>
+&gt; manner (e.g. kernel policy file is /sepolicy, no /etc/selinux/config,<=
+br>
+&gt; ...), then you might need to generalize those as well.<br>
 <br>
+</span>Thanks!=C2=A0 I took a look at the other ANDROID ifdefs in the code =
+and I&#39;m not sure<br>
+how or if they would need to be changed.=C2=A0 This change is needed to get=
 <br>
-=C2=A0 =C2=A0 struct selabel_sub *selabel_subs_init(/* ... */)<br>
-=C2=A0 =C2=A0 {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 /* ... */<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 while (fgets_unlocked(buf, sizeof(buf) - 1, cfg=
-)) {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* ... allocate and fill &quot;su=
-b&quot; ... */<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 sub-&gt;next =3D list;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 list =3D sub;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+libselinux building with bionic on the host which is just the first step.<b=
+r></blockquote><div><br></div><div>Thanks for checking, and I am glad (and =
+surprised) this was the only issue to get</div><div>it to build for a host =
+using bionic.</div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=
+=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<div class=3D"HOEnZb"><div class=3D"h5"><br>
+&gt;<br>
+&gt;&gt; ---<br>
+&gt;&gt;=C2=A0 libselinux/src/procattr.c | 4 ++--<br>
+&gt;&gt;=C2=A0 1 file changed, 2 insertions(+), 2 deletions(-)<br>
+&gt;&gt;<br>
+&gt;&gt; diff --git a/libselinux/src/procattr.c b/libselinux/src/procattr.c=
 <br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (digest_add_specfile(digest, cfg, NULL, sb.s=
-t_size, path) &lt; 0)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto err;<br>
-<br>
-=C2=A0 =C2=A0 out:<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 fclose(cfg);<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 return list;<br>
-=C2=A0 =C2=A0 err:<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (sub)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 free(sub-&gt;src);<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 free(sub);<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 goto out;<br>
-=C2=A0 =C2=A0 }<br>
-<br>
-When digest_add_specfile() fails, sub is freed (in the err label), but<br>
-as list=3Dsub, it means that the return value, list, is freed. This<br>
-leads to a use-after-free when this value is used.<br>
-<br>
-What should selabel_subs_init() do (and return) when<br>
-digest_add_specfile() fails?<br>
-<br>
-Nicolas<br>
-<br>
-[1] <a href=3D"https://github.com/SELinuxProject/selinux/blob/9cc62ce35d099=
-acf7897b6259228479737521709/libselinux/src/label.c#L94" rel=3D"noreferrer" =
-target=3D"_blank">https://github.com/<wbr>SELinuxProject/selinux/blob/<wbr>=
-9cc62ce35d099acf7897b625922847<wbr>9737521709/libselinux/src/<wbr>label.c#L=
-94</a><br>
-<br>
-</blockquote></div><br>From what I can tell, and I may be wrong, is that th=
-e only callers are from init() in label_file.c. So the first two failure re=
-turns where it returns list,</div><div class=3D"gmail_extra">list i think w=
-ould be NULL there. Which makes sense since the first iteration, the linked=
- list next pointer would be NULL. I think we would want to free</div><div c=
-lass=3D"gmail_extra">the whole list and return NULL and have callers check =
-for NULL. This seems like a fatal error path. But I am wrong frequently :-)=
-<br clear=3D"all"><div><br></div>
+&gt;&gt; index ebc0adec..48dd8aff 100644<br>
+&gt;&gt; --- a/libselinux/src/procattr.c<br>
+&gt;&gt; +++ b/libselinux/src/procattr.c<br>
+&gt;&gt; @@ -22,8 +22,8 @@ static pthread_key_t destructor_key;<br>
+&gt;&gt;=C2=A0 static int destructor_key_initialized =3D 0;<br>
+&gt;&gt;=C2=A0 static __thread char destructor_initialized;<br>
+&gt;&gt;<br>
+&gt;&gt; -#ifndef __ANDROID__<br>
+&gt;&gt; -/* Android declares this in unistd.h and has a definition for it =
+*/<br>
+&gt;&gt; +#ifndef __BIONIC__<br>
+&gt;&gt; +/* Bionic declares this in unistd.h and has a definition for it *=
+/<br>
+&gt;&gt;=C2=A0 static pid_t gettid(void)<br>
+&gt;&gt;=C2=A0 {<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0return syscall(__NR_gettid);<br>
+</div></div></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>=
+<div class=3D"gmail_signature" data-smartmail=3D"gmail_signature">Respectfu=
+lly,<br><br>William C Roberts<br><br></div>
 </div></div>
 
---001a11c15cfa3f5e43054f5adbb8--
+--001a113dbeeeb34bf6054f5afd73--
