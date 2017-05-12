@@ -1,133 +1,92 @@
+Message-ID: <1494607514.9454.8.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 7/9] semanage: Update semanage to allow runtime labeling
+ of Infiniband Pkeys
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: paul@paul-moore.com
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v2] selinux: log policy capability state when a policy is
- loaded
-Date: Fri, 12 May 2017 12:44:23 -0400
-Message-Id: <20170512164423.17190-1-sds@tycho.nsa.gov>
+To: Daniel Jurgens <danielj@mellanox.com>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>
+Date: Fri, 12 May 2017 12:45:14 -0400
+In-Reply-To: <VI1PR05MB1678F2B7F7AC0211FE3C7EA2C4ED0@VI1PR05MB1678.eurprd05.prod.outlook.com>
+References: <1494363042-121766-1-git-send-email-danielj@mellanox.com>
+ <1494363042-121766-8-git-send-email-danielj@mellanox.com>
+ <1494444409.24408.21.camel@tycho.nsa.gov>
+ <VI1PR05MB1678F2B7F7AC0211FE3C7EA2C4ED0@VI1PR05MB1678.eurprd05.prod.outlook.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Log the state of SELinux policy capabilities when a policy is loaded.
-For each policy capability known to the kernel, log an informational
-message with the policy capability name and the value set in the policy.
-For policy capabilities that are set in the loaded policy but unknown
-to the kernel, log a warning with the policy capability index, since
-this is the only information presently available in the policy.
+On Thu, 2017-05-11 at 22:51 +0000, Daniel Jurgens wrote:
+> On 5/10/2017 2:22 PM, Stephen Smalley wrote:
+> > On Tue, 2017-05-09 at 23:50 +0300, Dan Jurgens wrote:
+> > > From: Daniel Jurgens <danielj@mellanox.com>
+> > > 
+> > > 
+> > >  libsepol/src/ibpkeys.c                        |  264
+> > > ++++++++++++++
+> > >  python/semanage/semanage                      |   60 +++-
+> > >  python/semanage/seobject.py                   |  253
+> > > +++++++++++++
+> > >  28 files changed, 2159 insertions(+), 17 deletions(-)
+> > 
+> > That's a lot of code.  Did you look at whether you could generalize
+> > the
+> > port record stuff at all to see if we could factor out common
+> > helpers
+> > or anything?  I guess this is consistent with the current code, but
+> > it
+> > seems like a lot of very similar code being duplicated and then
+> > slightly tweaked.
+> 
+> I don't see a good way to generalize.  The high/low pkey/port part
+> overlaps, but all that code is compact anyway.  To make it work for
+> both would complicate it to figure out the correct key/ocontext to
+> use.  The protocol and subnet_prefix handling is most of the code,
+> and it's very different.
 
-Sample output with a policy created with a new capability defined
-that is not known to the kernel:
-[   43.812265] SELinux:  policy capability network_peer_controls=1
-[   43.812266] SELinux:  policy capability open_perms=1
-[   43.812266] SELinux:  policy capability extended_socket_class=1
-[   43.812267] SELinux:  policy capability always_check_network=0
-[   43.812267] SELinux:  policy capability cgroup_seclabel=0
-[   43.812268] SELinux:  unknown policy capability 5
+Yes, looking at it more closely, I agree.  Thanks for looking at it
+anyway.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
-v2 drops the Resolves line since I think we are not supposed to include
-bug tracking info in upstream kernel commit messages (correct me if wrong).
-
- security/selinux/include/security.h |  2 ++
- security/selinux/selinuxfs.c        | 13 ++-----------
- security/selinux/ss/services.c      | 23 +++++++++++++++++++++++
- 3 files changed, 27 insertions(+), 11 deletions(-)
-
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index f979c35..c4224bb 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -76,6 +76,8 @@ enum {
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
- 
-+extern char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
-+
- extern int selinux_policycap_netpeer;
- extern int selinux_policycap_openperm;
- extern int selinux_policycap_extsockclass;
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index ce71718..ea2da91 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -41,15 +41,6 @@
- #include "objsec.h"
- #include "conditional.h"
- 
--/* Policy capability filenames */
--static char *policycap_names[] = {
--	"network_peer_controls",
--	"open_perms",
--	"extended_socket_class",
--	"always_check_network",
--	"cgroup_seclabel"
--};
--
- unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
- 
- static int __init checkreqprot_setup(char *str)
-@@ -1750,9 +1741,9 @@ static int sel_make_policycap(void)
- 	sel_remove_entries(policycap_dir);
- 
- 	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
--		if (iter < ARRAY_SIZE(policycap_names))
-+		if (iter < ARRAY_SIZE(selinux_policycap_names))
- 			dentry = d_alloc_name(policycap_dir,
--					      policycap_names[iter]);
-+					      selinux_policycap_names[iter]);
- 		else
- 			dentry = d_alloc_name(policycap_dir, "unknown");
- 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 60d9b02..0abdec2 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -70,6 +70,15 @@
- #include "ebitmap.h"
- #include "audit.h"
- 
-+/* Policy capability names */
-+char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
-+	"network_peer_controls",
-+	"open_perms",
-+	"extended_socket_class",
-+	"always_check_network",
-+	"cgroup_seclabel"
-+};
-+
- int selinux_policycap_netpeer;
- int selinux_policycap_openperm;
- int selinux_policycap_extsockclass;
-@@ -1986,6 +1995,9 @@ static int convert_context(u32 key,
- 
- static void security_load_policycaps(void)
- {
-+	unsigned int i;
-+	struct ebitmap_node *node;
-+
- 	selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
- 						  POLICYDB_CAPABILITY_NETPEER);
- 	selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
-@@ -1997,6 +2009,17 @@ static void security_load_policycaps(void)
- 	selinux_policycap_cgroupseclabel =
- 		ebitmap_get_bit(&policydb.policycaps,
- 				POLICYDB_CAPABILITY_CGROUPSECLABEL);
-+
-+	for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
-+		pr_info("SELinux:  policy capability %s=%d\n",
-+			selinux_policycap_names[i],
-+			ebitmap_get_bit(&policydb.policycaps, i));
-+
-+	ebitmap_for_each_positive_bit(&policydb.policycaps, node, i) {
-+		if (i >= ARRAY_SIZE(selinux_policycap_names))
-+			pr_warn("SELinux:  unknown policy capability %u\n",
-+				i);
-+	}
- }
- 
- static int security_preserve_bools(struct policydb *p);
--- 
-2.9.3
+> > 
+> > >  
+> > >  	create_dir(newroot_path(), 0o755)
+> > > diff --git a/libsepol/VERSION b/libsepol/VERSION
+> > > index 5154b3f..e70b452 100644
+> > > --- a/libsepol/VERSION
+> > > +++ b/libsepol/VERSION
+> > > @@ -1 +1 @@
+> > > -2.6
+> > > +2.6.0
+> > 
+> > Extraneous change?
+> 
+> Yes.
+> > > +struct sepol_ibpkey {
+> > > +	/* Subnet prefix */
+> > > +	char *subnet_prefix;
+> > > +	size_t subnet_prefix_sz;
+> > 
+> > Do we need support for variable-length subnet prefix?  Can it
+> > change?
+> 
+> It doesn't need to be variable.  I'll remove.
+> > > +#ifdef DARWIN
+> > > +	memcpy(subnet_prefix_bytes, in_addr.s6_addr, 16);
+> > > +#else
+> > > +	memcpy(subnet_prefix_bytes, in_addr.s6_addr32, 16);
+> > > +#endif
+> > 
+> > Just reduce to always using s6_addr
+> 
+> Done
+> > > +static int ibpkey_alloc_subnet_prefix(sepol_handle_t *handle,
+> > > +				      char **subnet_prefix,
+> > > +				      size_t *subnet_prefix_sz)
+> > > +{
+> > > +	char *tmp_subnet_prefix = malloc(16);
+> > > +	size_t tmp_subnet_prefix_sz = 16;
+> > 
+> > No magic constants, and definitely not repeatedly used.
+> 
+> Done
