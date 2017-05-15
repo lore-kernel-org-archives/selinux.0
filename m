@@ -1,12 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4FKhjS1021297
- for <selinux@tycho.nsa.gov>; Mon, 15 May 2017 16:43:47 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4FKhjS2021297
+ for <selinux@tycho.nsa.gov>; Mon, 15 May 2017 16:43:49 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v1 7/9] semanage: Update semanage to allow runtime labeling of
- Infiniband Pkeys
-Date: Mon, 15 May 2017 23:42:39 +0300
-Message-Id: <1494880961-73481-8-git-send-email-danielj@mellanox.com>
+Subject: [PATCH v1 8/9] semanage: Update semanage to allow runtime labeling of
+ ibendports
+Date: Mon, 15 May 2017 23:42:40 +0300
+Message-Id: <1494880961-73481-9-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
 References: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -16,699 +16,656 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-Update libsepol and libsemanage to work with pkey records. Add local
-storage for new and modified pkey records in pkeys.local. Update semanage
-to parse the pkey command options to add, modify, and delete pkeys.
+Update libsepol and libsemanage to work with ibendport records. Add local
+storage for new and modified ibendport records in ibendports.local.
+Update semanage to parse the ibendport command options to add, modify,
+and delete them.
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 
 ---
 v1:
-Fixed semanage_pkey_exists -> semanage_ibpkey_exists in delete flow in
-seobject.py
-
-Stephen Smalley:
-- Subnet prefix can't vary in size always 16 bytes, remove size field.
-- Removed extraneous change in libsepol/VERSION
-- Removed ifdef DARWIN s6_addr/32 blocks in favor of s6_addr.
-- Got rid of magic constant for subnet prefix size.
-
 Jason Zaman:
-- Use SETools directly to query types in seobject.py.
+- Use SETools directly to query types in seobject.py
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 ---
- libsemanage/include/semanage/ibpkey_record.h  |  76 +++++
- libsemanage/include/semanage/ibpkeys_local.h  |  36 +++
- libsemanage/include/semanage/ibpkeys_policy.h |  28 ++
- libsemanage/include/semanage/semanage.h       |   3 +
- libsemanage/src/direct_api.c                  |  29 +-
- libsemanage/src/handle.h                      |  36 ++-
- libsemanage/src/ibpkey_internal.h             |  52 +++
- libsemanage/src/ibpkey_record.c               | 185 +++++++++++
- libsemanage/src/ibpkeys_file.c                | 181 +++++++++++
- libsemanage/src/ibpkeys_local.c               | 178 ++++++++++
- libsemanage/src/ibpkeys_policy.c              |  52 +++
- libsemanage/src/ibpkeys_policydb.c            |  62 ++++
- libsemanage/src/libsemanage.map               |   1 +
- libsemanage/src/policy_components.c           |   5 +-
- libsemanage/src/semanage_store.c              |   1 +
- libsemanage/src/semanage_store.h              |   1 +
- libsemanage/src/semanageswig.i                |   3 +
- libsemanage/src/semanageswig_python.i         |  43 +++
- libsemanage/utils/semanage_migrate_store      |   3 +-
- libsepol/include/sepol/ibpkey_record.h        |  77 +++++
- libsepol/include/sepol/ibpkeys.h              |  44 +++
- libsepol/include/sepol/sepol.h                |   2 +
- libsepol/src/ibpkey_internal.h                |  21 ++
- libsepol/src/ibpkey_record.c                  | 448 ++++++++++++++++++++++++++
- libsepol/src/ibpkeys.c                        | 263 +++++++++++++++
- python/semanage/semanage                      |  60 +++-
- python/semanage/seobject.py                   | 255 +++++++++++++++
- 27 files changed, 2129 insertions(+), 16 deletions(-)
- create mode 100644 libsemanage/include/semanage/ibpkey_record.h
- create mode 100644 libsemanage/include/semanage/ibpkeys_local.h
- create mode 100644 libsemanage/include/semanage/ibpkeys_policy.h
- create mode 100644 libsemanage/src/ibpkey_internal.h
- create mode 100644 libsemanage/src/ibpkey_record.c
- create mode 100644 libsemanage/src/ibpkeys_file.c
- create mode 100644 libsemanage/src/ibpkeys_local.c
- create mode 100644 libsemanage/src/ibpkeys_policy.c
- create mode 100644 libsemanage/src/ibpkeys_policydb.c
- create mode 100644 libsepol/include/sepol/ibpkey_record.h
- create mode 100644 libsepol/include/sepol/ibpkeys.h
- create mode 100644 libsepol/src/ibpkey_internal.h
- create mode 100644 libsepol/src/ibpkey_record.c
- create mode 100644 libsepol/src/ibpkeys.c
+ libsemanage/include/semanage/ibendport_record.h  |  62 +++++
+ libsemanage/include/semanage/ibendports_local.h  |  36 +++
+ libsemanage/include/semanage/ibendports_policy.h |  28 +++
+ libsemanage/include/semanage/semanage.h          |   3 +
+ libsemanage/src/direct_api.c                     |  40 ++-
+ libsemanage/src/handle.h                         |  38 ++-
+ libsemanage/src/ibendport_internal.h             |  48 ++++
+ libsemanage/src/ibendport_record.c               | 154 ++++++++++++
+ libsemanage/src/ibendports_file.c                | 157 ++++++++++++
+ libsemanage/src/ibendports_local.c               | 153 ++++++++++++
+ libsemanage/src/ibendports_policy.c              |  55 +++++
+ libsemanage/src/ibendports_policydb.c            |  62 +++++
+ libsemanage/src/libsemanage.map                  |   1 +
+ libsemanage/src/policy_components.c              |   4 +
+ libsemanage/src/semanage_store.c                 |   1 +
+ libsemanage/src/semanage_store.h                 |   1 +
+ libsemanage/src/semanageswig.i                   |   3 +
+ libsemanage/src/semanageswig_python.i            |  43 ++++
+ libsemanage/utils/semanage_migrate_store         |   3 +-
+ libsepol/include/sepol/ibendport_record.h        |  68 ++++++
+ libsepol/include/sepol/ibendports.h              |  45 ++++
+ libsepol/include/sepol/sepol.h                   |   2 +
+ libsepol/src/ibendport_internal.h                |  18 ++
+ libsepol/src/ibendport_record.c                  | 298 +++++++++++++++++++++++
+ libsepol/src/ibendports.c                        | 255 +++++++++++++++++++
+ python/semanage/semanage                         |  58 ++++-
+ python/semanage/seobject.py                      | 239 ++++++++++++++++++
+ 27 files changed, 1854 insertions(+), 21 deletions(-)
+ create mode 100644 libsemanage/include/semanage/ibendport_record.h
+ create mode 100644 libsemanage/include/semanage/ibendports_local.h
+ create mode 100644 libsemanage/include/semanage/ibendports_policy.h
+ create mode 100644 libsemanage/src/ibendport_internal.h
+ create mode 100644 libsemanage/src/ibendport_record.c
+ create mode 100644 libsemanage/src/ibendports_file.c
+ create mode 100644 libsemanage/src/ibendports_local.c
+ create mode 100644 libsemanage/src/ibendports_policy.c
+ create mode 100644 libsemanage/src/ibendports_policydb.c
+ create mode 100644 libsepol/include/sepol/ibendport_record.h
+ create mode 100644 libsepol/include/sepol/ibendports.h
+ create mode 100644 libsepol/src/ibendport_internal.h
+ create mode 100644 libsepol/src/ibendport_record.c
+ create mode 100644 libsepol/src/ibendports.c
 
-diff --git a/libsemanage/include/semanage/ibpkey_record.h b/libsemanage/include/semanage/ibpkey_record.h
+diff --git a/libsemanage/include/semanage/ibendport_record.h b/libsemanage/include/semanage/ibendport_record.h
 new file mode 100644
-index 0000000..d76aaae
+index 0000000..153eea0
 --- /dev/null
-+++ b/libsemanage/include/semanage/ibpkey_record.h
-@@ -0,0 +1,76 @@
-+/* Copyright (C) 2017 Mellanox Technologies Inc */
++++ b/libsemanage/include/semanage/ibendport_record.h
+@@ -0,0 +1,62 @@
++/*Copyright (C) 2005 Red Hat, Inc. */
 +
-+#ifndef _SEMANAGE_IBPKEY_RECORD_H_
-+#define _SEMANAGE_IBPKEY_RECORD_H_
++#ifndef _SEMANAGE_IBENDPORT_RECORD_H_
++#define _SEMANAGE_IBENDPORT_RECORD_H_
 +
 +#include <semanage/context_record.h>
 +#include <semanage/handle.h>
 +#include <stddef.h>
 +
-+#ifndef _SEMANAGE_IBPKEY_DEFINED_
-+struct semanage_ibpkey;
-+struct semanage_ibpkey_key;
-+typedef struct semanage_ibpkey semanage_ibpkey_t;
-+typedef struct semanage_ibpkey_key semanage_ibpkey_key_t;
-+#define _SEMANAGE_IBPKEY_DEFINED_
++#ifndef _SEMANAGE_IBENDPORT_DEFINED_
++struct semanage_ibendport;
++struct semanage_ibendport_key;
++typedef struct semanage_ibendport semanage_ibendport_t;
++typedef struct semanage_ibendport_key semanage_ibendport_key_t;
++#define _SEMANAGE_IBENDPORT_DEFINED_
 +#endif
 +
-+#define INET6_ADDRLEN 16
++extern int semanage_ibendport_compare(const semanage_ibendport_t *ibendport,
++				      const semanage_ibendport_key_t *key);
 +
-+extern int semanage_ibpkey_compare(const semanage_ibpkey_t *ibpkey,
-+				   const semanage_ibpkey_key_t *key);
++extern int semanage_ibendport_compare2(const semanage_ibendport_t *ibendport,
++				       const semanage_ibendport_t *ibendport2);
 +
-+extern int semanage_ibpkey_compare2(const semanage_ibpkey_t *ibpkey,
-+				    const semanage_ibpkey_t *ibpkey2);
++extern int semanage_ibendport_key_create(semanage_handle_t *handle,
++					 const char *ibdev_name,
++					 int port,
++					 semanage_ibendport_key_t **key_ptr);
 +
-+extern int semanage_ibpkey_key_create(semanage_handle_t *handle,
-+				      const char *subnet_prefix,
-+				      int low, int high,
-+				      semanage_ibpkey_key_t **key_ptr);
++extern int semanage_ibendport_key_extract(semanage_handle_t *handle,
++					  const semanage_ibendport_t *ibendport,
++					  semanage_ibendport_key_t **key_ptr);
 +
-+extern int semanage_ibpkey_key_extract(semanage_handle_t *handle,
-+				       const semanage_ibpkey_t *ibpkey,
-+				       semanage_ibpkey_key_t **key_ptr);
++extern void semanage_ibendport_key_free(semanage_ibendport_key_t *key);
 +
-+extern void semanage_ibpkey_key_free(semanage_ibpkey_key_t *key);
++extern int semanage_ibendport_get_ibdev_name(semanage_handle_t *handle,
++					     const semanage_ibendport_t *ibendport,
++					     char **ibdev_name_ptr);
 +
-+extern int semanage_ibpkey_get_subnet_prefix(semanage_handle_t *handle,
-+					     const semanage_ibpkey_t *ibpkey,
-+					     char **subnet_prefix_ptr);
++extern int semanage_ibendport_set_ibdev_name(semanage_handle_t *handle,
++					     semanage_ibendport_t *ibendport,
++					     const char *ibdev_name);
 +
-+extern int semanage_ibpkey_get_subnet_prefix_bytes(semanage_handle_t *handle,
-+						   const semanage_ibpkey_t *ibpkey,
-+						   char **subnet_prefix);
++extern int semanage_ibendport_get_port(const semanage_ibendport_t *ibendport);
 +
-+extern int semanage_ibpkey_set_subnet_prefix(semanage_handle_t *handle,
-+					     semanage_ibpkey_t *ibpkey,
-+					     const char *subnet_prefix);
++extern void semanage_ibendport_set_port(semanage_ibendport_t *ibendport, int port);
 +
-+extern int semanage_ibpkey_set_subnet_prefix_bytes(semanage_handle_t *handle,
-+						   semanage_ibpkey_t *ibpkey,
-+						   const char *subnet_prefix);
++extern semanage_context_t *semanage_ibendport_get_con(const semanage_ibendport_t *ibendport);
 +
-+extern int semanage_ibpkey_get_low(const semanage_ibpkey_t *ibpkey);
++extern int semanage_ibendport_set_con(semanage_handle_t *handle,
++				      semanage_ibendport_t *ibendport,
++				      semanage_context_t *con);
 +
-+extern int semanage_ibpkey_get_high(const semanage_ibpkey_t *ibpkey);
++extern int semanage_ibendport_create(semanage_handle_t *handle,
++				     semanage_ibendport_t **ibendport_ptr);
 +
-+extern void semanage_ibpkey_set_pkey(semanage_ibpkey_t *ibpkey, int pkey_num);
++extern int semanage_ibendport_clone(semanage_handle_t *handle,
++				    const semanage_ibendport_t *ibendport,
++				    semanage_ibendport_t **ibendport_ptr);
 +
-+extern void semanage_ibpkey_set_range(semanage_ibpkey_t *ibpkey, int low, int high);
-+
-+extern semanage_context_t *semanage_ibpkey_get_con(const semanage_ibpkey_t *ibpkey);
-+
-+extern int semanage_ibpkey_set_con(semanage_handle_t *handle,
-+				   semanage_ibpkey_t *ibpkey,
-+				   semanage_context_t *con);
-+
-+extern int semanage_ibpkey_create(semanage_handle_t *handle,
-+				  semanage_ibpkey_t **ibpkey_ptr);
-+
-+extern int semanage_ibpkey_clone(semanage_handle_t *handle,
-+				 const semanage_ibpkey_t *ibpkey,
-+				 semanage_ibpkey_t **ibpkey_ptr);
-+
-+extern void semanage_ibpkey_free(semanage_ibpkey_t *ibpkey);
++extern void semanage_ibendport_free(semanage_ibendport_t *ibendport);
 +
 +#endif
-diff --git a/libsemanage/include/semanage/ibpkeys_local.h b/libsemanage/include/semanage/ibpkeys_local.h
+diff --git a/libsemanage/include/semanage/ibendports_local.h b/libsemanage/include/semanage/ibendports_local.h
 new file mode 100644
-index 0000000..079a642
+index 0000000..641dd35
 --- /dev/null
-+++ b/libsemanage/include/semanage/ibpkeys_local.h
++++ b/libsemanage/include/semanage/ibendports_local.h
 @@ -0,0 +1,36 @@
 +/* Copyright (C) 2017 Mellanox Technologies Inc */
 +
-+#ifndef _SEMANAGE_IBPKEYS_LOCAL_H_
-+#define _SEMANAGE_IBPKEYS_LOCAL_H_
++#ifndef _SEMANAGE_IBENDPORTS_LOCAL_H_
++#define _SEMANAGE_IBENDPORTS_LOCAL_H_
 +
-+#include <semanage/ibpkey_record.h>
++#include <semanage/ibendport_record.h>
 +#include <semanage/handle.h>
 +
-+extern int semanage_ibpkey_modify_local(semanage_handle_t *handle,
-+					const semanage_ibpkey_key_t *key,
-+					const semanage_ibpkey_t *data);
++extern int semanage_ibendport_modify_local(semanage_handle_t *handle,
++					   const semanage_ibendport_key_t *key,
++					   const semanage_ibendport_t *data);
 +
-+extern int semanage_ibpkey_del_local(semanage_handle_t *handle,
-+				     const semanage_ibpkey_key_t *key);
++extern int semanage_ibendport_del_local(semanage_handle_t *handle,
++					const semanage_ibendport_key_t *key);
 +
-+extern int semanage_ibpkey_query_local(semanage_handle_t *handle,
-+				       const semanage_ibpkey_key_t *key,
-+				       semanage_ibpkey_t **response);
++extern int semanage_ibendport_query_local(semanage_handle_t *handle,
++					  const semanage_ibendport_key_t *key,
++					  semanage_ibendport_t **response);
 +
-+extern int semanage_ibpkey_exists_local(semanage_handle_t *handle,
-+					const semanage_ibpkey_key_t *key,
-+					int *response);
++extern int semanage_ibendport_exists_local(semanage_handle_t *handle,
++					   const semanage_ibendport_key_t *key,
++					   int *response);
 +
-+extern int semanage_ibpkey_count_local(semanage_handle_t *handle,
-+				       unsigned int *response);
++extern int semanage_ibendport_count_local(semanage_handle_t *handle,
++					  unsigned int *response);
 +
-+extern int semanage_ibpkey_iterate_local(semanage_handle_t *handle,
-+					 int (*handler)(const semanage_ibpkey_t *
-+							record, void *varg),
-+					 void *handler_arg);
++extern int semanage_ibendport_iterate_local(semanage_handle_t *handle,
++					    int (*handler)(const semanage_ibendport_t *record,
++							   void *varg),
++					    void *handler_arg);
 +
-+extern int semanage_ibpkey_list_local(semanage_handle_t *handle,
-+				      semanage_ibpkey_t ***records,
-+				      unsigned int *count);
++extern int semanage_ibendport_list_local(semanage_handle_t *handle,
++					 semanage_ibendport_t ***records,
++					 unsigned int *count);
 +
 +#endif
-diff --git a/libsemanage/include/semanage/ibpkeys_policy.h b/libsemanage/include/semanage/ibpkeys_policy.h
+diff --git a/libsemanage/include/semanage/ibendports_policy.h b/libsemanage/include/semanage/ibendports_policy.h
 new file mode 100644
-index 0000000..c287ac0
+index 0000000..3fc1976
 --- /dev/null
-+++ b/libsemanage/include/semanage/ibpkeys_policy.h
++++ b/libsemanage/include/semanage/ibendports_policy.h
 @@ -0,0 +1,28 @@
-+/* Copyright (C) 2017 Mellanox Technolgies Inc. */
++/* Copyright (C) 2017 Mellanox Techonologies Inc */
 +
-+#ifndef _SEMANAGE_IBPKEYS_POLICY_H_
-+#define _SEMANAGE_IBPKEYS_POLICY_H_
++#ifndef _SEMANAGE_IBENDPORTS_POLICY_H_
++#define _SEMANAGE_IBENDPORTS_POLICY_H_
 +
 +#include <semanage/handle.h>
-+#include <semanage/ibpkey_record.h>
++#include <semanage/ibendport_record.h>
 +
-+extern int semanage_ibpkey_query(semanage_handle_t *handle,
-+				 const semanage_ibpkey_key_t *key,
-+				 semanage_ibpkey_t **response);
++extern int semanage_ibendport_query(semanage_handle_t *handle,
++				    const semanage_ibendport_key_t *key,
++				    semanage_ibendport_t **response);
 +
-+extern int semanage_ibpkey_exists(semanage_handle_t *handle,
-+				  const semanage_ibpkey_key_t *key, int *response);
++extern int semanage_ibendport_exists(semanage_handle_t *handle,
++				     const semanage_ibendport_key_t *key, int *response);
 +
-+extern int semanage_ibpkey_count(semanage_handle_t *handle,
-+				 unsigned int *response);
++extern int semanage_ibendport_count(semanage_handle_t *handle,
++				    unsigned int *response);
 +
-+extern int semanage_ibpkey_iterate(semanage_handle_t *handle,
-+				   int (*handler)(const semanage_ibpkey_t *record,
-+						  void *varg),
-+				   void *handler_arg);
++extern int semanage_ibendport_iterate(semanage_handle_t *handle,
++				      int (*handler)(const semanage_ibendport_t *record,
++						     void *varg),
++				      void *handler_arg);
 +
-+extern int semanage_ibpkey_list(semanage_handle_t *handle,
-+				semanage_ibpkey_t ***records,
-+				unsigned int *count);
++extern int semanage_ibendport_list(semanage_handle_t *handle,
++				   semanage_ibendport_t ***records,
++				   unsigned int *count);
 +
 +#endif
 diff --git a/libsemanage/include/semanage/semanage.h b/libsemanage/include/semanage/semanage.h
-index f417ce4..cebf3f4 100644
+index cebf3f4..0489014 100644
 --- a/libsemanage/include/semanage/semanage.h
 +++ b/libsemanage/include/semanage/semanage.h
-@@ -33,6 +33,7 @@
- #include <semanage/context_record.h>
+@@ -34,6 +34,7 @@
  #include <semanage/iface_record.h>
  #include <semanage/port_record.h>
-+#include <semanage/ibpkey_record.h>
+ #include <semanage/ibpkey_record.h>
++#include <semanage/ibendport_record.h>
  #include <semanage/node_record.h>
  
  /* Dbase */
-@@ -47,6 +48,8 @@
- #include <semanage/seusers_policy.h>
+@@ -49,6 +50,8 @@
  #include <semanage/ports_local.h>
  #include <semanage/ports_policy.h>
-+#include <semanage/ibpkeys_local.h>
-+#include <semanage/ibpkeys_policy.h>
+ #include <semanage/ibpkeys_local.h>
++#include <semanage/ibendports_local.h>
++#include <semanage/ibendports_policy.h>
+ #include <semanage/ibpkeys_policy.h>
  #include <semanage/interfaces_local.h>
  #include <semanage/interfaces_policy.h>
- #include <semanage/nodes_local.h>
 diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index f4b0416..436e334 100644
+index 436e334..68c1868 100644
 --- a/libsemanage/src/direct_api.c
 +++ b/libsemanage/src/direct_api.c
-@@ -40,6 +40,7 @@
- #include "user_internal.h"
+@@ -41,6 +41,7 @@
  #include "seuser_internal.h"
  #include "port_internal.h"
-+#include "ibpkey_internal.h"
+ #include "ibpkey_internal.h"
++#include "ibendport_internal.h"
  #include "iface_internal.h"
  #include "boolean_internal.h"
  #include "fcontext_internal.h"
-@@ -224,6 +225,14 @@ int semanage_direct_connect(semanage_handle_t * sh)
- 				 semanage_node_dbase_local(sh)) < 0)
+@@ -226,11 +227,19 @@ int semanage_direct_connect(semanage_handle_t * sh)
  		goto err;
  
-+	if (ibpkey_file_dbase_init(sh,
-+				 semanage_path(SEMANAGE_ACTIVE,
-+					       SEMANAGE_IBPKEYS_LOCAL),
-+				 semanage_path(SEMANAGE_TMP,
-+					       SEMANAGE_IBPKEYS_LOCAL),
-+				 semanage_ibpkey_dbase_local(sh)) < 0)
+ 	if (ibpkey_file_dbase_init(sh,
+-				 semanage_path(SEMANAGE_ACTIVE,
+-					       SEMANAGE_IBPKEYS_LOCAL),
+-				 semanage_path(SEMANAGE_TMP,
+-					       SEMANAGE_IBPKEYS_LOCAL),
+-				 semanage_ibpkey_dbase_local(sh)) < 0)
++				   semanage_path(SEMANAGE_ACTIVE,
++						 SEMANAGE_IBPKEYS_LOCAL),
++				   semanage_path(SEMANAGE_TMP,
++						 SEMANAGE_IBPKEYS_LOCAL),
++				   semanage_ibpkey_dbase_local(sh)) < 0)
 +		goto err;
 +
- 	/* Object databases: local modifications + policy */
- 	if (user_base_policydb_dbase_init(sh,
- 					  semanage_user_base_dbase_policy(sh)) <
-@@ -248,6 +257,9 @@ int semanage_direct_connect(semanage_handle_t * sh)
- 	if (port_policydb_dbase_init(sh, semanage_port_dbase_policy(sh)) < 0)
++	if (ibendport_file_dbase_init(sh,
++				      semanage_path(SEMANAGE_ACTIVE,
++						    SEMANAGE_IBENDPORTS_LOCAL),
++				      semanage_path(SEMANAGE_TMP,
++						    SEMANAGE_IBENDPORTS_LOCAL),
++				      semanage_ibendport_dbase_local(sh)) < 0)
  		goto err;
  
-+	if (ibpkey_policydb_dbase_init(sh, semanage_ibpkey_dbase_policy(sh)) < 0)
+ 	/* Object databases: local modifications + policy */
+@@ -260,6 +269,9 @@ int semanage_direct_connect(semanage_handle_t * sh)
+ 	if (ibpkey_policydb_dbase_init(sh, semanage_ibpkey_dbase_policy(sh)) < 0)
+ 		goto err;
+ 
++	if (ibendport_policydb_dbase_init(sh, semanage_ibendport_dbase_policy(sh)) < 0)
 +		goto err;
 +
  	if (iface_policydb_dbase_init(sh, semanage_iface_dbase_policy(sh)) < 0)
  		goto err;
  
-@@ -320,6 +332,7 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
- 	user_extra_file_dbase_release(semanage_user_extra_dbase_local(sh));
+@@ -333,6 +345,7 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
  	user_join_dbase_release(semanage_user_dbase_local(sh));
  	port_file_dbase_release(semanage_port_dbase_local(sh));
-+	ibpkey_file_dbase_release(semanage_ibpkey_dbase_local(sh));
+ 	ibpkey_file_dbase_release(semanage_ibpkey_dbase_local(sh));
++	ibendport_file_dbase_release(semanage_ibendport_dbase_local(sh));
  	iface_file_dbase_release(semanage_iface_dbase_local(sh));
  	bool_file_dbase_release(semanage_bool_dbase_local(sh));
  	fcontext_file_dbase_release(semanage_fcontext_dbase_local(sh));
-@@ -331,6 +344,7 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
- 	user_extra_file_dbase_release(semanage_user_extra_dbase_policy(sh));
+@@ -345,6 +358,7 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
  	user_join_dbase_release(semanage_user_dbase_policy(sh));
  	port_policydb_dbase_release(semanage_port_dbase_policy(sh));
-+	ibpkey_policydb_dbase_release(semanage_ibpkey_dbase_policy(sh));
+ 	ibpkey_policydb_dbase_release(semanage_ibpkey_dbase_policy(sh));
++	ibendport_policydb_dbase_release(semanage_ibendport_dbase_policy(sh));
  	iface_policydb_dbase_release(semanage_iface_dbase_policy(sh));
  	bool_policydb_dbase_release(semanage_bool_dbase_policy(sh));
  	fcontext_file_dbase_release(semanage_fcontext_dbase_policy(sh));
-@@ -1144,13 +1158,15 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+@@ -1158,7 +1172,8 @@ static int semanage_direct_commit(semanage_handle_t * sh)
  
  	int do_rebuild, do_write_kernel, do_install;
  	int fcontexts_modified, ports_modified, seusers_modified,
--		disable_dontaudit, preserve_tunables;
-+		disable_dontaudit, preserve_tunables, ibpkeys_modified;
+-		disable_dontaudit, preserve_tunables, ibpkeys_modified;
++		disable_dontaudit, preserve_tunables, ibpkeys_modified,
++		ibendports_modified;
  	dbase_config_t *users = semanage_user_dbase_local(sh);
  	dbase_config_t *users_base = semanage_user_base_dbase_local(sh);
  	dbase_config_t *pusers_base = semanage_user_base_dbase_policy(sh);
- 	dbase_config_t *pusers_extra = semanage_user_extra_dbase_policy(sh);
- 	dbase_config_t *ports = semanage_port_dbase_local(sh);
+@@ -1167,6 +1182,8 @@ static int semanage_direct_commit(semanage_handle_t * sh)
  	dbase_config_t *pports = semanage_port_dbase_policy(sh);
-+	dbase_config_t *ibpkeys = semanage_ibpkey_dbase_local(sh);
-+	dbase_config_t *pibpkeys = semanage_ibpkey_dbase_policy(sh);
+ 	dbase_config_t *ibpkeys = semanage_ibpkey_dbase_local(sh);
+ 	dbase_config_t *pibpkeys = semanage_ibpkey_dbase_policy(sh);
++	dbase_config_t *ibendports = semanage_ibendport_dbase_local(sh);
++	dbase_config_t *pibendports = semanage_ibendport_dbase_policy(sh);
  	dbase_config_t *bools = semanage_bool_dbase_local(sh);
  	dbase_config_t *pbools = semanage_bool_dbase_policy(sh);
  	dbase_config_t *ifaces = semanage_iface_dbase_local(sh);
-@@ -1164,6 +1180,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 
+@@ -1181,6 +1198,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
  	/* Modified flags that we need to use more than once. */
  	ports_modified = ports->dtable->is_modified(ports->dbase);
-+	ibpkeys_modified = ibpkeys->dtable->is_modified(ibpkeys->dbase);
+ 	ibpkeys_modified = ibpkeys->dtable->is_modified(ibpkeys->dbase);
++	ibendports_modified = ibendports->dtable->is_modified(ibendports->dbase);
  	seusers_modified = seusers->dtable->is_modified(seusers->dbase);
  	fcontexts_modified = fcontexts->dtable->is_modified(fcontexts->dbase);
  
-@@ -1285,7 +1302,7 @@ rebuild:
- 	 * that live under /etc/selinux (kernel policy, seusers, file contexts)
+@@ -1303,6 +1321,7 @@ rebuild:
  	 * will be modified.
  	 */
--	do_write_kernel = do_rebuild | ports_modified |
-+	do_write_kernel = do_rebuild | ports_modified | ibpkeys_modified |
+ 	do_write_kernel = do_rebuild | ports_modified | ibpkeys_modified |
++		ibendports_modified |
  		bools->dtable->is_modified(bools->dbase) |
  		ifaces->dtable->is_modified(ifaces->dbase) |
  		nodes->dtable->is_modified(nodes->dbase) |
-@@ -1431,6 +1448,7 @@ rebuild:
- 	/* Attach our databases to the policydb we just created or loaded. */
+@@ -1449,6 +1468,7 @@ rebuild:
  	dbase_policydb_attach((dbase_policydb_t *) pusers_base->dbase, out);
  	dbase_policydb_attach((dbase_policydb_t *) pports->dbase, out);
-+	dbase_policydb_attach((dbase_policydb_t *) pibpkeys->dbase, out);
+ 	dbase_policydb_attach((dbase_policydb_t *) pibpkeys->dbase, out);
++	dbase_policydb_attach((dbase_policydb_t *) pibendports->dbase, out);
  	dbase_policydb_attach((dbase_policydb_t *) pifaces->dbase, out);
  	dbase_policydb_attach((dbase_policydb_t *) pbools->dbase, out);
  	dbase_policydb_attach((dbase_policydb_t *) pnodes->dbase, out);
-@@ -1479,6 +1497,12 @@ rebuild:
+@@ -1503,6 +1523,13 @@ rebuild:
+ 		if (retval < 0)
  			goto cleanup;
  	}
- 
-+	/* Validate local ibpkeys for overlap */
-+	if (do_rebuild || ibpkeys_modified) {
-+		retval = semanage_ibpkey_validate_local(sh);
++
++	/* Validate local ibendports */
++	if (do_rebuild || ibendports_modified) {
++		retval = semanage_ibendport_validate_local(sh);
 +		if (retval < 0)
 +			goto cleanup;
 +	}
  	/* ================== Write non-policydb components ========= */
  
  	/* Commit changes to components */
-@@ -1558,6 +1582,7 @@ cleanup:
- 	/* Detach from policydb, so it can be freed */
+@@ -1583,6 +1610,7 @@ cleanup:
  	dbase_policydb_detach((dbase_policydb_t *) pusers_base->dbase);
  	dbase_policydb_detach((dbase_policydb_t *) pports->dbase);
-+	dbase_policydb_detach((dbase_policydb_t *) pibpkeys->dbase);
+ 	dbase_policydb_detach((dbase_policydb_t *) pibpkeys->dbase);
++	dbase_policydb_detach((dbase_policydb_t *) pibendports->dbase);
  	dbase_policydb_detach((dbase_policydb_t *) pifaces->dbase);
  	dbase_policydb_detach((dbase_policydb_t *) pnodes->dbase);
  	dbase_policydb_detach((dbase_policydb_t *) pbools->dbase);
 diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
-index 64175c4..306727a 100644
+index 306727a..889871d 100644
 --- a/libsemanage/src/handle.h
 +++ b/libsemanage/src/handle.h
 @@ -79,7 +79,7 @@ struct semanage_handle {
  	struct semanage_policy_table *funcs;
  
  	/* Object databases */
--#define DBASE_COUNT      19
-+#define DBASE_COUNT      21
+-#define DBASE_COUNT      21
++#define DBASE_COUNT      23
  
  /* Local modifications */
  #define DBASE_LOCAL_USERS_BASE  0
-@@ -91,20 +91,22 @@ struct semanage_handle {
- #define DBASE_LOCAL_FCONTEXTS	6
+@@ -92,21 +92,23 @@ struct semanage_handle {
  #define DBASE_LOCAL_SEUSERS     7
  #define DBASE_LOCAL_NODES       8
-+#define DBASE_LOCAL_IBPKEYS     9
+ #define DBASE_LOCAL_IBPKEYS     9
++#define DBASE_LOCAL_IBENDPORTS  10
  
  /* Policy + Local modifications */
--#define DBASE_POLICY_USERS_BASE  9
--#define DBASE_POLICY_USERS_EXTRA 10
--#define DBASE_POLICY_USERS       11
--#define DBASE_POLICY_PORTS       12
--#define DBASE_POLICY_INTERFACES  13
--#define DBASE_POLICY_BOOLEANS    14
--#define DBASE_POLICY_FCONTEXTS   15
--#define DBASE_POLICY_SEUSERS     16
--#define DBASE_POLICY_NODES       17
-+#define DBASE_POLICY_USERS_BASE  10
-+#define DBASE_POLICY_USERS_EXTRA 11
-+#define DBASE_POLICY_USERS       12
-+#define DBASE_POLICY_PORTS       13
-+#define DBASE_POLICY_INTERFACES  14
-+#define DBASE_POLICY_BOOLEANS    15
-+#define DBASE_POLICY_FCONTEXTS   16
-+#define DBASE_POLICY_SEUSERS     17
-+#define DBASE_POLICY_NODES       18
-+#define DBASE_POLICY_IBPKEYS     19
+-#define DBASE_POLICY_USERS_BASE  10
+-#define DBASE_POLICY_USERS_EXTRA 11
+-#define DBASE_POLICY_USERS       12
+-#define DBASE_POLICY_PORTS       13
+-#define DBASE_POLICY_INTERFACES  14
+-#define DBASE_POLICY_BOOLEANS    15
+-#define DBASE_POLICY_FCONTEXTS   16
+-#define DBASE_POLICY_SEUSERS     17
+-#define DBASE_POLICY_NODES       18
+-#define DBASE_POLICY_IBPKEYS     19
++#define DBASE_POLICY_USERS_BASE  11
++#define DBASE_POLICY_USERS_EXTRA 12
++#define DBASE_POLICY_USERS       13
++#define DBASE_POLICY_PORTS       14
++#define DBASE_POLICY_INTERFACES  15
++#define DBASE_POLICY_BOOLEANS    16
++#define DBASE_POLICY_FCONTEXTS   17
++#define DBASE_POLICY_SEUSERS     18
++#define DBASE_POLICY_NODES       19
++#define DBASE_POLICY_IBPKEYS     20
++#define DBASE_POLICY_IBENDPORTS  21
  
  /* Active kernel policy */
--#define DBASE_ACTIVE_BOOLEANS    18
-+#define DBASE_ACTIVE_BOOLEANS    20
+-#define DBASE_ACTIVE_BOOLEANS    20
++#define DBASE_ACTIVE_BOOLEANS    22
  	dbase_config_t dbase[DBASE_COUNT];
  };
  
-@@ -134,6 +136,12 @@ static inline
+@@ -142,6 +144,12 @@ static inline
  }
  
  static inline
-+    dbase_config_t * semanage_ibpkey_dbase_local(semanage_handle_t * handle)
++    dbase_config_t * semanage_ibendport_dbase_local(semanage_handle_t * handle)
 +{
-+	return &handle->dbase[DBASE_LOCAL_IBPKEYS];
++	return &handle->dbase[DBASE_LOCAL_IBENDPORTS];
 +}
 +
 +static inline
      dbase_config_t * semanage_iface_dbase_local(semanage_handle_t * handle)
  {
  	return &handle->dbase[DBASE_LOCAL_INTERFACES];
-@@ -190,6 +198,12 @@ static inline
+@@ -204,6 +212,12 @@ static inline
  }
  
  static inline
-+    dbase_config_t * semanage_ibpkey_dbase_policy(semanage_handle_t * handle)
++    dbase_config_t * semanage_ibendport_dbase_policy(semanage_handle_t * handle)
 +{
-+	return &handle->dbase[DBASE_POLICY_IBPKEYS];
++	return &handle->dbase[DBASE_POLICY_IBENDPORTS];
 +}
 +
 +static inline
      dbase_config_t * semanage_iface_dbase_policy(semanage_handle_t * handle)
  {
  	return &handle->dbase[DBASE_POLICY_INTERFACES];
-diff --git a/libsemanage/src/ibpkey_internal.h b/libsemanage/src/ibpkey_internal.h
+diff --git a/libsemanage/src/ibendport_internal.h b/libsemanage/src/ibendport_internal.h
 new file mode 100644
-index 0000000..9465bb8
+index 0000000..970fbdb
 --- /dev/null
-+++ b/libsemanage/src/ibpkey_internal.h
-@@ -0,0 +1,52 @@
-+#ifndef _SEMANAGE_IBPKEY_INTERNAL_H_
-+#define _SEMANAGE_IBPKEY_INTERNAL_H_
++++ b/libsemanage/src/ibendport_internal.h
+@@ -0,0 +1,48 @@
++#ifndef _SEMANAGE_IBENDPORT_INTERNAL_H_
++#define _SEMANAGE_IBENDPORT_INTERNAL_H_
 +
-+#include <semanage/ibpkey_record.h>
-+#include <semanage/ibpkeys_local.h>
-+#include <semanage/ibpkeys_policy.h>
++#include <semanage/ibendport_record.h>
++#include <semanage/ibendports_local.h>
++#include <semanage/ibendports_policy.h>
 +#include "database.h"
 +#include "handle.h"
 +#include "dso.h"
 +
-+hidden_proto(semanage_ibpkey_create)
-+hidden_proto(semanage_ibpkey_compare)
-+hidden_proto(semanage_ibpkey_compare2)
-+hidden_proto(semanage_ibpkey_clone)
-+hidden_proto(semanage_ibpkey_free)
-+hidden_proto(semanage_ibpkey_key_extract)
-+hidden_proto(semanage_ibpkey_key_free)
-+hidden_proto(semanage_ibpkey_get_high)
-+hidden_proto(semanage_ibpkey_get_low)
-+hidden_proto(semanage_ibpkey_set_pkey)
-+hidden_proto(semanage_ibpkey_set_range)
-+hidden_proto(semanage_ibpkey_get_con)
-+hidden_proto(semanage_ibpkey_set_con)
-+hidden_proto(semanage_ibpkey_list_local)
-+hidden_proto(semanage_ibpkey_get_subnet_prefix)
-+hidden_proto(semanage_ibpkey_get_subnet_prefix_bytes)
-+hidden_proto(semanage_ibpkey_set_subnet_prefix)
-+hidden_proto(semanage_ibpkey_set_subnet_prefix_bytes)
++hidden_proto(semanage_ibendport_create)
++hidden_proto(semanage_ibendport_compare)
++hidden_proto(semanage_ibendport_compare2)
++hidden_proto(semanage_ibendport_clone)
++hidden_proto(semanage_ibendport_free)
++hidden_proto(semanage_ibendport_key_extract)
++hidden_proto(semanage_ibendport_key_free)
++hidden_proto(semanage_ibendport_get_port)
++hidden_proto(semanage_ibendport_set_port)
++hidden_proto(semanage_ibendport_get_con)
++hidden_proto(semanage_ibendport_set_con)
++hidden_proto(semanage_ibendport_list_local)
++hidden_proto(semanage_ibendport_get_ibdev_name)
++hidden_proto(semanage_ibendport_set_ibdev_name)
 +
-+/* PKEY RECORD: method table */
-+extern record_table_t SEMANAGE_IBPKEY_RTABLE;
++/* IBENDPORT RECORD: method table */
++extern record_table_t SEMANAGE_IBENDPORT_RTABLE;
 +
-+extern int ibpkey_file_dbase_init(semanage_handle_t *handle,
-+				  const char *path_ro,
-+				  const char *path_rw,
-+				  dbase_config_t *dconfig);
++extern int ibendport_file_dbase_init(semanage_handle_t *handle,
++				     const char *path_ro,
++				     const char *path_rw,
++				     dbase_config_t *dconfig);
 +
-+extern void ibpkey_file_dbase_release(dbase_config_t *dconfig);
++extern void ibendport_file_dbase_release(dbase_config_t *dconfig);
 +
-+extern int ibpkey_policydb_dbase_init(semanage_handle_t *handle,
-+				      dbase_config_t *dconfig);
++extern int ibendport_policydb_dbase_init(semanage_handle_t *handle,
++					 dbase_config_t *dconfig);
 +
-+extern void ibpkey_policydb_dbase_release(dbase_config_t *dconfig);
++extern void ibendport_policydb_dbase_release(dbase_config_t *dconfig);
 +
-+extern int hidden semanage_ibpkey_validate_local(semanage_handle_t *handle);
++extern int hidden semanage_ibendport_validate_local(semanage_handle_t *handle);
 +
-+/* ==== Internal (to ibpkeys) API === */
++/* ==== Internal (to ibendports) API === */
 +
-+hidden int semanage_ibpkey_compare2_qsort(const semanage_ibpkey_t **ibpkey,
-+					  const semanage_ibpkey_t **ibpkey2);
++hidden int semanage_ibendport_compare2_qsort(const semanage_ibendport_t **ibendport,
++					     const semanage_ibendport_t **ibendport2);
 +
 +#endif
-diff --git a/libsemanage/src/ibpkey_record.c b/libsemanage/src/ibpkey_record.c
+diff --git a/libsemanage/src/ibendport_record.c b/libsemanage/src/ibendport_record.c
 new file mode 100644
-index 0000000..707eebd
+index 0000000..955067e
 --- /dev/null
-+++ b/libsemanage/src/ibpkey_record.c
-@@ -0,0 +1,185 @@
-+/* Copyright (C) 2017 Mellanox Technologies Inc. */
++++ b/libsemanage/src/ibendport_record.c
+@@ -0,0 +1,154 @@
++/*Copyright (C) 2005 Red Hat, Inc. */
 +
-+/* Object: semanage_ibpkey_t (Infiniband Pkey)
-+ * Object: semanage_ibpkey_key_t (Infiniband Pkey Key)
-+ * Implements: record_t (Database Record)
-+ * Implements: record_key_t (Database Record Key)
++/*Object: semanage_ibendport_t (Infiniband Pkey)
++ *Object: semanage_ibendport_key_t (Infiniband Pkey Key)
++ *Implements: record_t (Database Record)
++ *Implements: record_key_t (Database Record Key)
 + */
 +
 +#include <sepol/context_record.h>
-+#include <sepol/ibpkey_record.h>
++#include <sepol/ibendport_record.h>
 +
 +typedef sepol_context_t semanage_context_t;
-+typedef sepol_ibpkey_t semanage_ibpkey_t;
-+typedef sepol_ibpkey_key_t semanage_ibpkey_key_t;
-+#define _SEMANAGE_IBPKEY_DEFINED_
++typedef sepol_ibendport_t semanage_ibendport_t;
++typedef sepol_ibendport_key_t semanage_ibendport_key_t;
++#define _SEMANAGE_IBENDPORT_DEFINED_
 +#define _SEMANAGE_CONTEXT_DEFINED_
 +
-+typedef semanage_ibpkey_t record_t;
-+typedef semanage_ibpkey_key_t record_key_t;
++typedef semanage_ibendport_t record_t;
++typedef semanage_ibendport_key_t record_key_t;
 +#define DBASE_RECORD_DEFINED
 +
-+#include "ibpkey_internal.h"
++#include "ibendport_internal.h"
 +#include "handle.h"
 +#include "database.h"
 +
-+int semanage_ibpkey_compare(const semanage_ibpkey_t *ibpkey,
-+			    const semanage_ibpkey_key_t *key)
++int semanage_ibendport_compare(const semanage_ibendport_t *ibendport,
++			       const semanage_ibendport_key_t *key)
 +{
-+	return sepol_ibpkey_compare(ibpkey, key);
++	return sepol_ibendport_compare(ibendport, key);
 +}
 +
-+hidden_def(semanage_ibpkey_compare)
++hidden_def(semanage_ibendport_compare)
 +
-+int semanage_ibpkey_compare2(const semanage_ibpkey_t *ibpkey,
-+			     const semanage_ibpkey_t *ibpkey2)
++int semanage_ibendport_compare2(const semanage_ibendport_t *ibendport,
++				const semanage_ibendport_t *ibendport2)
 +{
-+	return sepol_ibpkey_compare2(ibpkey, ibpkey2);
++	return sepol_ibendport_compare2(ibendport, ibendport2);
 +}
 +
-+hidden_def(semanage_ibpkey_compare2)
++hidden_def(semanage_ibendport_compare2)
 +
-+hidden int semanage_ibpkey_compare2_qsort(const semanage_ibpkey_t **ibpkey,
-+					  const semanage_ibpkey_t **ibpkey2)
++hidden int semanage_ibendport_compare2_qsort(const semanage_ibendport_t **ibendport,
++					     const semanage_ibendport_t **ibendport2)
 +{
-+	return sepol_ibpkey_compare2(*ibpkey, *ibpkey2);
++	return sepol_ibendport_compare2(*ibendport, *ibendport2);
 +}
 +
-+int semanage_ibpkey_key_create(semanage_handle_t *handle,
-+			       const char *subnet_prefix,
-+			       int low, int high,
-+			       semanage_ibpkey_key_t **key_ptr)
++int semanage_ibendport_key_create(semanage_handle_t *handle,
++				  const char *ibdev_name,
++				  int port,
++				  semanage_ibendport_key_t **key_ptr)
 +{
-+	return sepol_ibpkey_key_create(handle->sepolh, subnet_prefix, low, high, key_ptr);
++	return sepol_ibendport_key_create(handle->sepolh, ibdev_name, port, key_ptr);
 +}
 +
-+int semanage_ibpkey_key_extract(semanage_handle_t *handle,
-+				const semanage_ibpkey_t *ibpkey,
-+				semanage_ibpkey_key_t **key_ptr)
++int semanage_ibendport_key_extract(semanage_handle_t *handle,
++				   const semanage_ibendport_t *ibendport,
++				   semanage_ibendport_key_t **key_ptr)
 +{
-+	return sepol_ibpkey_key_extract(handle->sepolh, ibpkey, key_ptr);
++	return sepol_ibendport_key_extract(handle->sepolh, ibendport, key_ptr);
 +}
 +
-+hidden_def(semanage_ibpkey_key_extract)
++hidden_def(semanage_ibendport_key_extract)
 +
-+void semanage_ibpkey_key_free(semanage_ibpkey_key_t *key)
++void semanage_ibendport_key_free(semanage_ibendport_key_t *key)
 +{
-+	sepol_ibpkey_key_free(key);
++	sepol_ibendport_key_free(key);
 +}
 +
-+hidden_def(semanage_ibpkey_key_free)
++hidden_def(semanage_ibendport_key_free)
 +
-+int semanage_ibpkey_get_subnet_prefix(semanage_handle_t *handle,
-+				      const semanage_ibpkey_t *ibpkey,
-+				      char **subnet_prefix_ptr)
++int semanage_ibendport_get_ibdev_name(semanage_handle_t *handle,
++				      const semanage_ibendport_t *ibendport,
++				      char **ibdev_name_ptr)
 +{
-+	return sepol_ibpkey_get_subnet_prefix(handle->sepolh, ibpkey, subnet_prefix_ptr);
++	return sepol_ibendport_get_ibdev_name(handle->sepolh, ibendport, ibdev_name_ptr);
 +}
 +
-+hidden_def(semanage_ibpkey_get_subnet_prefix)
++hidden_def(semanage_ibendport_get_ibdev_name)
 +
-+int semanage_ibpkey_get_subnet_prefix_bytes(semanage_handle_t *handle,
-+					    const semanage_ibpkey_t *ibpkey,
-+					    char **subnet_prefix)
++int semanage_ibendport_set_ibdev_name(semanage_handle_t *handle,
++				      semanage_ibendport_t *ibendport,
++				      const char *ibdev_name)
 +{
-+	return sepol_ibpkey_get_subnet_prefix_bytes(handle->sepolh, ibpkey, subnet_prefix);
++	return sepol_ibendport_set_ibdev_name(handle->sepolh, ibendport, ibdev_name);
 +}
 +
-+hidden_def(semanage_ibpkey_get_subnet_prefix_bytes)
++hidden_def(semanage_ibendport_set_ibdev_name)
 +
-+int semanage_ibpkey_set_subnet_prefix(semanage_handle_t *handle,
-+				      semanage_ibpkey_t *ibpkey,
-+				      const char *subnet_prefix)
++int semanage_ibendport_get_port(const semanage_ibendport_t *ibendport)
 +{
-+	return sepol_ibpkey_set_subnet_prefix(handle->sepolh, ibpkey, subnet_prefix);
++	return sepol_ibendport_get_port(ibendport);
 +}
 +
-+hidden_def(semanage_ibpkey_set_subnet_prefix)
++hidden_def(semanage_ibendport_get_port)
 +
-+int semanage_ibpkey_set_subnet_prefix_bytes(semanage_handle_t *handle,
-+					    semanage_ibpkey_t *ibpkey,
-+					    const char *subnet_prefix)
++void semanage_ibendport_set_port(semanage_ibendport_t *ibendport, int port)
 +{
-+	return sepol_ibpkey_set_subnet_prefix_bytes(handle->sepolh, ibpkey, subnet_prefix);
++	sepol_ibendport_set_port(ibendport, port);
 +}
 +
-+hidden_def(semanage_ibpkey_set_subnet_prefix_bytes)
++hidden_def(semanage_ibendport_set_port)
 +
-+int semanage_ibpkey_get_low(const semanage_ibpkey_t *ibpkey)
++semanage_context_t *semanage_ibendport_get_con(const semanage_ibendport_t *ibendport)
 +{
-+	return sepol_ibpkey_get_low(ibpkey);
++	return sepol_ibendport_get_con(ibendport);
 +}
 +
-+hidden_def(semanage_ibpkey_get_low)
++hidden_def(semanage_ibendport_get_con)
 +
-+int semanage_ibpkey_get_high(const semanage_ibpkey_t *ibpkey)
++int semanage_ibendport_set_con(semanage_handle_t *handle,
++			       semanage_ibendport_t *ibendport,
++			       semanage_context_t *con)
 +{
-+	return sepol_ibpkey_get_high(ibpkey);
++	return sepol_ibendport_set_con(handle->sepolh, ibendport, con);
 +}
 +
-+hidden_def(semanage_ibpkey_get_high)
++hidden_def(semanage_ibendport_set_con)
 +
-+void semanage_ibpkey_set_pkey(semanage_ibpkey_t *ibpkey, int ibpkey_num)
++int semanage_ibendport_create(semanage_handle_t *handle,
++			      semanage_ibendport_t **ibendport_ptr)
 +{
-+	sepol_ibpkey_set_pkey(ibpkey, ibpkey_num);
++	return sepol_ibendport_create(handle->sepolh, ibendport_ptr);
 +}
 +
-+hidden_def(semanage_ibpkey_set_pkey)
++hidden_def(semanage_ibendport_create)
 +
-+void semanage_ibpkey_set_range(semanage_ibpkey_t *ibpkey, int low, int high)
++int semanage_ibendport_clone(semanage_handle_t *handle,
++			     const semanage_ibendport_t *ibendport,
++			     semanage_ibendport_t **ibendport_ptr)
 +{
-+	sepol_ibpkey_set_range(ibpkey, low, high);
++	return sepol_ibendport_clone(handle->sepolh, ibendport, ibendport_ptr);
 +}
 +
-+hidden_def(semanage_ibpkey_set_range)
++hidden_def(semanage_ibendport_clone)
 +
-+semanage_context_t *semanage_ibpkey_get_con(const semanage_ibpkey_t *ibpkey)
++void semanage_ibendport_free(semanage_ibendport_t *ibendport)
 +{
-+	return sepol_ibpkey_get_con(ibpkey);
++	sepol_ibendport_free(ibendport);
 +}
 +
-+hidden_def(semanage_ibpkey_get_con)
++hidden_def(semanage_ibendport_free)
 +
-+int semanage_ibpkey_set_con(semanage_handle_t *handle,
-+			    semanage_ibpkey_t *ibpkey, semanage_context_t *con)
-+{
-+	return sepol_ibpkey_set_con(handle->sepolh, ibpkey, con);
-+}
-+
-+hidden_def(semanage_ibpkey_set_con)
-+
-+int semanage_ibpkey_create(semanage_handle_t *handle,
-+			   semanage_ibpkey_t **ibpkey_ptr)
-+{
-+	return sepol_ibpkey_create(handle->sepolh, ibpkey_ptr);
-+}
-+
-+hidden_def(semanage_ibpkey_create)
-+
-+int semanage_ibpkey_clone(semanage_handle_t *handle,
-+			  const semanage_ibpkey_t *ibpkey,
-+			  semanage_ibpkey_t **ibpkey_ptr)
-+{
-+	return sepol_ibpkey_clone(handle->sepolh, ibpkey, ibpkey_ptr);
-+}
-+
-+hidden_def(semanage_ibpkey_clone)
-+
-+void semanage_ibpkey_free(semanage_ibpkey_t *ibpkey)
-+{
-+	sepol_ibpkey_free(ibpkey);
-+}
-+
-+hidden_def(semanage_ibpkey_free)
-+
-+/* key base functions */
-+record_table_t SEMANAGE_IBPKEY_RTABLE = {
-+	.create = semanage_ibpkey_create,
-+	.key_extract = semanage_ibpkey_key_extract,
-+	.key_free = semanage_ibpkey_key_free,
-+	.clone = semanage_ibpkey_clone,
-+	.compare = semanage_ibpkey_compare,
-+	.compare2 = semanage_ibpkey_compare2,
-+	.compare2_qsort = semanage_ibpkey_compare2_qsort,
-+	.free = semanage_ibpkey_free,
++/*key base functions */
++record_table_t SEMANAGE_IBENDPORT_RTABLE = {
++	.create = semanage_ibendport_create,
++	.key_extract = semanage_ibendport_key_extract,
++	.key_free = semanage_ibendport_key_free,
++	.clone = semanage_ibendport_clone,
++	.compare = semanage_ibendport_compare,
++	.compare2 = semanage_ibendport_compare2,
++	.compare2_qsort = semanage_ibendport_compare2_qsort,
++	.free = semanage_ibendport_free,
 +};
-diff --git a/libsemanage/src/ibpkeys_file.c b/libsemanage/src/ibpkeys_file.c
+diff --git a/libsemanage/src/ibendports_file.c b/libsemanage/src/ibendports_file.c
 new file mode 100644
-index 0000000..ceaea7a
+index 0000000..402c7a5
 --- /dev/null
-+++ b/libsemanage/src/ibpkeys_file.c
-@@ -0,0 +1,181 @@
++++ b/libsemanage/src/ibendports_file.c
+@@ -0,0 +1,157 @@
 +/* Copyright (C) 2017 Mellanox Technologies Inc. */
 +
-+struct semanage_ibpkey;
-+struct semanage_ibpkey_key;
-+typedef struct semanage_ibpkey record_t;
-+typedef struct semanage_ibpkey_key record_key_t;
++struct semanage_ibendport;
++struct semanage_ibendport_key;
++typedef struct semanage_ibendport record_t;
++typedef struct semanage_ibendport_key record_key_t;
 +#define DBASE_RECORD_DEFINED
 +
 +struct dbase_file;
@@ -719,58 +676,53 @@ index 0000000..ceaea7a
 +#include <stdio.h>
 +#include <strings.h>
 +#include <semanage/handle.h>
-+#include "ibpkey_internal.h"
++#include "ibendport_internal.h"
 +#include "context_internal.h"
 +#include "database_file.h"
 +#include "parse_utils.h"
 +#include "debug.h"
 +
-+static int ibpkey_print(semanage_handle_t *handle,
-+			semanage_ibpkey_t *ibpkey, FILE *str)
++static int ibendport_print(semanage_handle_t *handle,
++			   semanage_ibendport_t *ibendport,
++			   FILE *str)
 +{
 +	char *con_str = NULL;
-+	char *subnet_prefix_str = NULL;
++	char *ibdev_name_str = NULL;
++	int port = semanage_ibendport_get_port(ibendport);
 +
-+	int low = semanage_ibpkey_get_low(ibpkey);
-+	int high = semanage_ibpkey_get_high(ibpkey);
-+
-+	if (semanage_ibpkey_get_subnet_prefix(handle, ibpkey, &subnet_prefix_str) != 0)
++	if (semanage_ibendport_get_ibdev_name(handle, ibendport, &ibdev_name_str) != 0)
 +		goto err;
 +
-+	semanage_context_t *con = semanage_ibpkey_get_con(ibpkey);
++	semanage_context_t *con = semanage_ibendport_get_con(ibendport);
 +
-+	if (fprintf(str, "ibpkeycon %s ", subnet_prefix_str) < 0)
++	if (fprintf(str, "ibendportcon %s ", ibdev_name_str) < 0)
 +		goto err;
 +
-+	if (low == high) {
-+		if (fprintf(str, "%d ", low) < 0)
-+			goto err;
-+	} else {
-+		if (fprintf(str, "%d - %d ", low, high) < 0)
-+			goto err;
-+	}
++	if (fprintf(str, "%d ", port) < 0)
++		goto err;
 +
 +	if (semanage_context_to_string(handle, con, &con_str) < 0)
 +		goto err;
 +	if (fprintf(str, "%s\n", con_str) < 0)
 +		goto err;
 +
-+	free(subnet_prefix_str);
++	free(ibdev_name_str);
 +	free(con_str);
 +	return STATUS_SUCCESS;
 +
 +err:
-+	ERR(handle, "could not print ibpkey range (%s) %u - %u to stream",
-+	    subnet_prefix_str, low, high);
-+	free(subnet_prefix_str);
++	ERR(handle, "could not print ibendport (%s) %u to stream",
++	    ibdev_name_str, port);
++	free(ibdev_name_str);
 +	free(con_str);
 +	return STATUS_ERR;
 +}
 +
-+static int ibpkey_parse(semanage_handle_t *handle,
-+			parse_info_t *info, semanage_ibpkey_t *ibpkey)
++static int ibendport_parse(semanage_handle_t *handle,
++			   parse_info_t *info,
++			   semanage_ibendport_t *ibendport)
 +{
-+	int low, high;
++	int port;
 +	char *str = NULL;
 +	semanage_context_t *con = NULL;
 +
@@ -780,47 +732,29 @@ index 0000000..ceaea7a
 +		goto last;
 +
 +	/* Header */
-+	if (parse_assert_str(handle, info, "ibpkeycon") < 0)
++	if (parse_assert_str(handle, info, "ibendportcon") < 0)
 +		goto err;
 +	if (parse_assert_space(handle, info) < 0)
 +		goto err;
 +
-+	/* Subnet Prefix */
++	/* IB Device Name */
 +	if (parse_fetch_string(handle, info, &str, ' ') < 0)
 +		goto err;
-+	if (semanage_ibpkey_set_subnet_prefix(handle, ibpkey, str) < 0)
++	if (semanage_ibendport_set_ibdev_name(handle, ibendport, str) < 0)
 +		goto err;
 +	free(str);
 +	str = NULL;
 +
-+	/* Range/Pkey */
++	/* Port */
 +	if (parse_assert_space(handle, info) < 0)
 +		goto err;
-+	if (parse_fetch_int(handle, info, &low, '-') < 0)
++	if (parse_fetch_int(handle, info, &port, ' ') < 0)
 +		goto err;
++	semanage_ibendport_set_port(ibendport, port);
 +
-+	/* If range (-) does not follow immediately, require a space
-+	 * In other words, the space here is optional, but only
-+	 * in the ranged case, not in the single ibpkey case,
-+	 * so do a custom test
-+	 */
-+	if (*info->ptr && *info->ptr != '-') {
-+		if (parse_assert_space(handle, info) < 0)
-+			goto err;
-+	}
-+
-+	if (parse_optional_ch(info, '-') != STATUS_NODATA) {
-+		if (parse_skip_space(handle, info) < 0)
-+			goto err;
-+		if (parse_fetch_int(handle, info, &high, ' ') < 0)
-+			goto err;
-+		if (parse_assert_space(handle, info) < 0)
-+			goto err;
-+		semanage_ibpkey_set_range(ibpkey, low, high);
-+	} else {
-+		semanage_ibpkey_set_pkey(ibpkey, low);
-+	}
-+	/* Pkey context */
++	/* context */
++	if (parse_assert_space(handle, info) < 0)
++		goto err;
 +	if (parse_fetch_string(handle, info, &str, ' ') < 0)
 +		goto err;
 +	if (semanage_context_from_string(handle, str, &con) < 0) {
@@ -829,15 +763,14 @@ index 0000000..ceaea7a
 +		goto err;
 +	}
 +	if (!con) {
-+		ERR(handle, "<<none>> context is not valid for ibpkeys (%s: %u):\n%s",
-+		    info->filename,
-+		    info->lineno, info->orig_line);
++		ERR(handle, "<<none>> context is not valid for ibendport (%s: %u):\n%s",
++		    info->filename, info->lineno, info->orig_line);
 +		goto err;
 +	}
 +	free(str);
 +	str = NULL;
 +
-+	if (semanage_ibpkey_set_con(handle, ibpkey, con) < 0)
++	if (semanage_ibendport_set_con(handle, ibendport, con) < 0)
 +		goto err;
 +
 +	if (parse_assert_space(handle, info) < 0)
@@ -851,286 +784,264 @@ index 0000000..ceaea7a
 +	return STATUS_NODATA;
 +
 +err:
-+	ERR(handle, "could not parse ibpkey record");
++	ERR(handle, "could not parse ibendport record");
 +	free(str);
 +	semanage_context_free(con);
 +	parse_dispose_line(info);
 +	return STATUS_ERR;
 +}
 +
-+/* IBPKEY RECORD: FILE extension: method table */
-+record_file_table_t SEMANAGE_IBPKEY_FILE_RTABLE = {
-+	.parse = ibpkey_parse,
-+	.print = ibpkey_print,
++/* IBENDPORT RECORD: FILE extension: method table */
++record_file_table_t SEMANAGE_IBENDPORT_FILE_RTABLE = {
++	.parse = ibendport_parse,
++	.print = ibendport_print,
 +};
 +
-+int ibpkey_file_dbase_init(semanage_handle_t *handle,
-+			   const char *path_ro,
-+			   const char *path_rw,
-+			   dbase_config_t *dconfig)
++int ibendport_file_dbase_init(semanage_handle_t *handle,
++			      const char *path_ro,
++			      const char *path_rw,
++			      dbase_config_t *dconfig)
 +{
 +	if (dbase_file_init(handle,
 +			    path_ro,
 +			    path_rw,
-+			    &SEMANAGE_IBPKEY_RTABLE,
-+			    &SEMANAGE_IBPKEY_FILE_RTABLE, &dconfig->dbase) < 0)
++			    &SEMANAGE_IBENDPORT_RTABLE,
++			    &SEMANAGE_IBENDPORT_FILE_RTABLE, &dconfig->dbase) < 0)
 +		return STATUS_ERR;
 +
 +	dconfig->dtable = &SEMANAGE_FILE_DTABLE;
 +	return STATUS_SUCCESS;
 +}
 +
-+void ibpkey_file_dbase_release(dbase_config_t *dconfig)
++void ibendport_file_dbase_release(dbase_config_t *dconfig)
 +{
 +	dbase_file_release(dconfig->dbase);
 +}
-diff --git a/libsemanage/src/ibpkeys_local.c b/libsemanage/src/ibpkeys_local.c
+diff --git a/libsemanage/src/ibendports_local.c b/libsemanage/src/ibendports_local.c
 new file mode 100644
-index 0000000..82d771e
+index 0000000..8b5567d
 --- /dev/null
-+++ b/libsemanage/src/ibpkeys_local.c
-@@ -0,0 +1,178 @@
-+/* Copyright (C) 2017 Mellanox Technologies Inc. */
++++ b/libsemanage/src/ibendports_local.c
+@@ -0,0 +1,153 @@
++/* Copyright (C) 2017 Mellanox Technologies Inc */
 +
-+struct semanage_ibpkey;
-+struct semanage_ibpkey_key;
-+typedef struct semanage_ibpkey_key record_key_t;
-+typedef struct semanage_ibpkey record_t;
++struct semanage_ibendport;
++struct semanage_ibendport_key;
++typedef struct semanage_ibendport_key record_key_t;
++typedef struct semanage_ibendport record_t;
 +#define DBASE_RECORD_DEFINED
 +
 +#include <stdlib.h>
 +#include <string.h>
-+#include "ibpkey_internal.h"
++#include <sepol/policydb.h>
++#include "ibendport_internal.h"
 +#include "debug.h"
 +#include "handle.h"
 +#include "database.h"
 +
-+int semanage_ibpkey_modify_local(semanage_handle_t *handle,
-+				 const semanage_ibpkey_key_t *key,
-+				 const semanage_ibpkey_t *data)
++int semanage_ibendport_modify_local(semanage_handle_t *handle,
++				    const semanage_ibendport_key_t *key,
++				    const semanage_ibendport_t *data)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_local(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_local(handle);
 +
 +	return dbase_modify(handle, dconfig, key, data);
 +}
 +
-+int semanage_ibpkey_del_local(semanage_handle_t *handle,
-+			      const semanage_ibpkey_key_t *key)
++int semanage_ibendport_del_local(semanage_handle_t *handle,
++				 const semanage_ibendport_key_t *key)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_local(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_local(handle);
 +
 +	return dbase_del(handle, dconfig, key);
 +}
 +
-+int semanage_ibpkey_query_local(semanage_handle_t *handle,
-+				const semanage_ibpkey_key_t *key,
-+				semanage_ibpkey_t **response)
++int semanage_ibendport_query_local(semanage_handle_t *handle,
++				   const semanage_ibendport_key_t *key,
++				   semanage_ibendport_t **response)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_local(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_local(handle);
 +
 +	return dbase_query(handle, dconfig, key, response);
 +}
 +
-+int semanage_ibpkey_exists_local(semanage_handle_t *handle,
-+				 const semanage_ibpkey_key_t *key,
-+				 int *response)
++int semanage_ibendport_exists_local(semanage_handle_t *handle,
++				    const semanage_ibendport_key_t *key,
++				    int *response)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_local(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_local(handle);
 +
 +	return dbase_exists(handle, dconfig, key, response);
 +}
 +
-+int semanage_ibpkey_count_local(semanage_handle_t *handle,
-+				unsigned int *response)
++int semanage_ibendport_count_local(semanage_handle_t *handle,
++				   unsigned int *response)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_local(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_local(handle);
 +
 +	return dbase_count(handle, dconfig, response);
 +}
 +
-+int semanage_ibpkey_iterate_local(semanage_handle_t *handle,
-+				  int (*handler)(const semanage_ibpkey_t *record,
-+						 void *varg), void *handler_arg)
++int semanage_ibendport_iterate_local(semanage_handle_t *handle,
++				     int (*handler)(const semanage_ibendport_t *record,
++						    void *varg), void *handler_arg)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_local(handle);
-+
++	dbase_config_t *dconfig = semanage_ibendport_dbase_local(handle);
 +	return dbase_iterate(handle, dconfig, handler, handler_arg);
 +}
 +
-+int semanage_ibpkey_list_local(semanage_handle_t *handle,
-+			       semanage_ibpkey_t ***records, unsigned int *count)
++int semanage_ibendport_list_local(semanage_handle_t *handle,
++				  semanage_ibendport_t ***records,
++				  unsigned int *count)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_local(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_local(handle);
 +
 +	return dbase_list(handle, dconfig, records, count);
 +}
 +
-+hidden_def(semanage_ibpkey_list_local)
++hidden_def(semanage_ibendport_list_local)
 +
-+int hidden semanage_ibpkey_validate_local(semanage_handle_t *handle)
++int hidden semanage_ibendport_validate_local(semanage_handle_t *handle)
 +{
-+	semanage_ibpkey_t **ibpkeys = NULL;
-+	unsigned int nibpkeys = 0;
++	semanage_ibendport_t **ibendports = NULL;
++	unsigned int nibendports = 0;
 +	unsigned int i = 0, j = 0;
-+	char *subnet_prefix;
-+	char *subnet_prefix2;
-+	char *subnet_prefix_str;
-+	char *subnet_prefix_str2;
-+	int low, high;
-+	int low2, high2;
++	char *ibdev_name;
++	char *ibdev_name2;
++	int port;
++	int port2;
 +
-+	/* List and sort the ibpkeys */
-+	if (semanage_ibpkey_list_local(handle, &ibpkeys, &nibpkeys) < 0)
++	/* List and sort the ibendports */
++	if (semanage_ibendport_list_local(handle, &ibendports, &nibendports) < 0)
 +		goto err;
 +
-+	qsort(ibpkeys, nibpkeys, sizeof(semanage_ibpkey_t *),
++	qsort(ibendports, nibendports, sizeof(semanage_ibendport_t *),
 +	      (int (*)(const void *, const void *))
-+	      &semanage_ibpkey_compare2_qsort);
++	      &semanage_ibendport_compare2_qsort);
 +
-+	/* Test each ibpkey for overlap */
-+	while (i < nibpkeys) {
++	/* Test each ibendport */
++	while (i < nibendports) {
 +		int stop = 0;
 +
 +		if (STATUS_SUCCESS !=
-+				semanage_ibpkey_get_subnet_prefix_bytes(handle,
-+								      ibpkeys[i],
-+								      &subnet_prefix)) {
-+			ERR(handle, "Couldn't get subnet prefix");
-+			goto err;
-+		}
-+		if (STATUS_SUCCESS != semanage_ibpkey_get_subnet_prefix(handle,
-+									ibpkeys[i],
-+									&subnet_prefix_str)) {
-+			ERR(handle, "Couldn't get subnet prefix string");
++				semanage_ibendport_get_ibdev_name(handle,
++								  ibendports[i],
++								  &ibdev_name)) {
++			ERR(handle, "Couldn't get IB device name");
 +			goto err;
 +		}
 +
-+		low = semanage_ibpkey_get_low(ibpkeys[i]);
-+		high = semanage_ibpkey_get_high(ibpkeys[i]);
++		port = semanage_ibendport_get_port(ibendports[i]);
 +
-+		/* Find the first ibpkey with matching
-+		 * subnet_prefix to compare against
++		/* Find the first ibendport with matching
++		 * ibdev_name to compare against
 +		 */
 +		do {
-+			if (j == nibpkeys - 1)
++			if (j == nibendports - 1)
 +				goto next;
 +			j++;
 +			if (STATUS_SUCCESS !=
-+				semanage_ibpkey_get_subnet_prefix_bytes(handle,
-+									ibpkeys[j],
-+									&subnet_prefix2)) {
-+				ERR(handle, "Couldn't get subnet prefix");
++				semanage_ibendport_get_ibdev_name(handle,
++								  ibendports[j],
++								  &ibdev_name2)) {
++				ERR(handle, "Couldn't get IB device name.");
 +				goto err;
 +			}
-+			if (STATUS_SUCCESS !=
-+				semanage_ibpkey_get_subnet_prefix(handle,
-+								ibpkeys[j],
-+								&subnet_prefix_str2)) {
-+				ERR(handle, "Couldn't get subnet prefix string");
-+				goto err;
-+			}
-+			low2 = semanage_ibpkey_get_low(ibpkeys[j]);
-+			high2 = semanage_ibpkey_get_high(ibpkeys[j]);
++			port2 = semanage_ibendport_get_port(ibendports[j]);
 +
-+			stop = !memcmp(subnet_prefix, subnet_prefix2, INET6_ADDRLEN);
++			stop = !strcmp(ibdev_name, ibdev_name2);
 +		} while (!stop);
 +
-+		/* Overlap detected */
-+		if (low2 <= high) {
-+			ERR(handle, "ibpkey overlap between ranges "
-+			    "(%s) %u - %u <--> (%s) %u - %u.",
-+			    subnet_prefix_str, low, high,
-+			    subnet_prefix_str2, low2, high2);
++		if (port == port2) {
++			ERR(handle, "ibendport %s/%u already exists.",
++			    ibdev_name2, port2);
 +			goto invalid;
 +		}
-+
-+		/* If closest ibpkey of matching subnet prefix doesn't overlap
-+		 * with test ibpkey, neither do the rest of them, because that's
-+		 * how the sort function works on ibpkeys - lower bound
-+		 * ibpkeys come first
-+		 */
 +next:
 +		i++;
 +		j = i;
 +	}
 +
-+	for (i = 0; i < nibpkeys; i++)
-+		semanage_ibpkey_free(ibpkeys[i]);
-+	free(ibpkeys);
++	for (i = 0; i < nibendports; i++)
++		semanage_ibendport_free(ibendports[i]);
++	free(ibendports);
 +	return STATUS_SUCCESS;
 +
 +err:
-+	ERR(handle, "could not complete ibpkeys validity check");
++	ERR(handle, "could not complete ibendports validity check");
 +
 +invalid:
-+	for (i = 0; i < nibpkeys; i++)
-+		semanage_ibpkey_free(ibpkeys[i]);
-+	free(ibpkeys);
++	for (i = 0; i < nibendports; i++)
++		semanage_ibendport_free(ibendports[i]);
++	free(ibendports);
 +	return STATUS_ERR;
 +}
-diff --git a/libsemanage/src/ibpkeys_policy.c b/libsemanage/src/ibpkeys_policy.c
+diff --git a/libsemanage/src/ibendports_policy.c b/libsemanage/src/ibendports_policy.c
 new file mode 100644
-index 0000000..0956230
+index 0000000..1347b67
 --- /dev/null
-+++ b/libsemanage/src/ibpkeys_policy.c
-@@ -0,0 +1,52 @@
-+/* Copyright (C) 2017 Mellanox Technologies Inc. */
++++ b/libsemanage/src/ibendports_policy.c
+@@ -0,0 +1,55 @@
++/* Copyright (C) 2017 Mellanox Technologies Inc */
 +
-+struct semanage_ibpkey;
-+struct semanage_ibpkey_key;
-+typedef struct semanage_ibpkey_key record_key_t;
-+typedef struct semanage_ibpkey record_t;
++struct semanage_ibendport;
++struct semanage_ibendport_key;
++typedef struct semanage_ibendport_key record_key_t;
++typedef struct semanage_ibendport record_t;
 +#define DBASE_RECORD_DEFINED
 +
-+#include "ibpkey_internal.h"
++#include "ibendport_internal.h"
 +#include "handle.h"
 +#include "database.h"
 +
-+int semanage_ibpkey_query(semanage_handle_t *handle,
-+			  const semanage_ibpkey_key_t *key,
-+			  semanage_ibpkey_t **response)
++int semanage_ibendport_query(semanage_handle_t *handle,
++			     const semanage_ibendport_key_t *key,
++			     semanage_ibendport_t **response)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_policy(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_policy(handle);
 +
 +	return dbase_query(handle, dconfig, key, response);
 +}
 +
-+int semanage_ibpkey_exists(semanage_handle_t *handle,
-+			   const semanage_ibpkey_key_t *key, int *response)
++int semanage_ibendport_exists(semanage_handle_t *handle,
++			      const semanage_ibendport_key_t *key,
++			      int *response)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_policy(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_policy(handle);
 +
 +	return dbase_exists(handle, dconfig, key, response);
 +}
 +
-+int semanage_ibpkey_count(semanage_handle_t *handle, unsigned int *response)
++int semanage_ibendport_count(semanage_handle_t *handle,
++			     unsigned int *response)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_policy(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_policy(handle);
 +
 +	return dbase_count(handle, dconfig, response);
 +}
 +
-+int semanage_ibpkey_iterate(semanage_handle_t *handle,
-+			    int (*handler)(const semanage_ibpkey_t *record,
-+					   void *varg), void *handler_arg)
++int semanage_ibendport_iterate(semanage_handle_t *handle,
++			       int (*handler)(const semanage_ibendport_t *record,
++					      void *varg), void *handler_arg)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_policy(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_policy(handle);
 +
 +	return dbase_iterate(handle, dconfig, handler, handler_arg);
 +}
 +
-+int semanage_ibpkey_list(semanage_handle_t *handle,
-+			 semanage_ibpkey_t ***records, unsigned int *count)
++int semanage_ibendport_list(semanage_handle_t *handle,
++			    semanage_ibendport_t ***records,
++			    unsigned int *count)
 +{
-+	dbase_config_t *dconfig = semanage_ibpkey_dbase_policy(handle);
++	dbase_config_t *dconfig = semanage_ibendport_dbase_policy(handle);
 +
 +	return dbase_list(handle, dconfig, records, count);
 +}
-diff --git a/libsemanage/src/ibpkeys_policydb.c b/libsemanage/src/ibpkeys_policydb.c
+diff --git a/libsemanage/src/ibendports_policydb.c b/libsemanage/src/ibendports_policydb.c
 new file mode 100644
-index 0000000..8d73cf6
+index 0000000..1029810
 --- /dev/null
-+++ b/libsemanage/src/ibpkeys_policydb.c
++++ b/libsemanage/src/ibendports_policydb.c
 @@ -0,0 +1,62 @@
 +/*
 + * Copyright (C) 2017 Mellanox Technologies Inc
@@ -1146,42 +1057,42 @@ index 0000000..8d73cf6
 + *  Lesser General Public License for more details.
 + */
 +
-+struct semanage_ibpkey;
-+struct semanage_ibpkey_key;
-+typedef struct semanage_ibpkey record_t;
-+typedef struct semanage_ibpkey_key record_key_t;
++struct semanage_ibendport;
++struct semanage_ibendport_key;
++typedef struct semanage_ibendport record_t;
++typedef struct semanage_ibendport_key record_key_t;
 +#define DBASE_RECORD_DEFINED
 +
 +struct dbase_policydb;
 +typedef struct dbase_policydb dbase_t;
 +#define DBASE_DEFINED
 +
-+#include <sepol/ibpkeys.h>
++#include <sepol/ibendports.h>
 +#include <semanage/handle.h>
-+#include "ibpkey_internal.h"
++#include "ibendport_internal.h"
 +#include "debug.h"
 +#include "database_policydb.h"
 +#include "semanage_store.h"
 +
-+/* PKEY RECORD (SEPOL): POLICYDB extension : method table */
-+record_policydb_table_t SEMANAGE_IBPKEY_POLICYDB_RTABLE = {
++/* IBENDPORT RECORD (SEPOL): POLICYDB extension : method table */
++record_policydb_table_t SEMANAGE_IBENDPORT_POLICYDB_RTABLE = {
 +	.add = NULL,
-+	.modify = (record_policydb_table_modify_t)sepol_ibpkey_modify,
++	.modify = (record_policydb_table_modify_t)sepol_ibendport_modify,
 +	.set = NULL,
-+	.query = (record_policydb_table_query_t)sepol_ibpkey_query,
-+	.count = (record_policydb_table_count_t)sepol_ibpkey_count,
-+	.exists = (record_policydb_table_exists_t)sepol_ibpkey_exists,
-+	.iterate = (record_policydb_table_iterate_t)sepol_ibpkey_iterate,
++	.query = (record_policydb_table_query_t)sepol_ibendport_query,
++	.count = (record_policydb_table_count_t)sepol_ibendport_count,
++	.exists = (record_policydb_table_exists_t)sepol_ibendport_exists,
++	.iterate = (record_policydb_table_iterate_t)sepol_ibendport_iterate,
 +};
 +
-+int ibpkey_policydb_dbase_init(semanage_handle_t *handle,
-+			       dbase_config_t *dconfig)
++int ibendport_policydb_dbase_init(semanage_handle_t *handle,
++				  dbase_config_t *dconfig)
 +{
 +	if (dbase_policydb_init(handle,
 +				semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_KERNEL),
 +				semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL),
-+				&SEMANAGE_IBPKEY_RTABLE,
-+				&SEMANAGE_IBPKEY_POLICYDB_RTABLE,
++				&SEMANAGE_IBENDPORT_RTABLE,
++				&SEMANAGE_IBENDPORT_POLICYDB_RTABLE,
 +				&dconfig->dbase) < 0)
 +		return STATUS_ERR;
 +
@@ -1190,107 +1101,101 @@ index 0000000..8d73cf6
 +	return STATUS_SUCCESS;
 +}
 +
-+void ibpkey_policydb_dbase_release(dbase_config_t *dconfig)
++void ibendport_policydb_dbase_release(dbase_config_t *dconfig)
 +{
 +	dbase_policydb_release(dconfig->dbase);
 +}
 diff --git a/libsemanage/src/libsemanage.map b/libsemanage/src/libsemanage.map
-index 9f8a754..041b1ce 100644
+index 041b1ce..0203669 100644
 --- a/libsemanage/src/libsemanage.map
 +++ b/libsemanage/src/libsemanage.map
-@@ -18,6 +18,7 @@ LIBSEMANAGE_1.0 {
- 	  semanage_root;
+@@ -19,6 +19,7 @@ LIBSEMANAGE_1.0 {
  	  semanage_user_*; semanage_bool_*; semanage_seuser_*;
  	  semanage_iface_*; semanage_port_*; semanage_context_*;
-+	  semanage_ibpkey_*;
+ 	  semanage_ibpkey_*;
++	  semanage_ibendport_*;
  	  semanage_node_*;
  	  semanage_fcontext_*; semanage_access_check; semanage_set_create_store;
  	  semanage_is_connected; semanage_get_disable_dontaudit; semanage_set_disable_dontaudit;
 diff --git a/libsemanage/src/policy_components.c b/libsemanage/src/policy_components.c
-index d31bd48..136c5a7 100644
+index 136c5a7..896ac51 100644
 --- a/libsemanage/src/policy_components.c
 +++ b/libsemanage/src/policy_components.c
-@@ -137,12 +137,14 @@ int semanage_base_merge_components(semanage_handle_t * handle)
+@@ -140,6 +140,9 @@ int semanage_base_merge_components(semanage_handle_t * handle)
  
- 		{semanage_node_dbase_local(handle),
- 		 semanage_node_dbase_policy(handle), MODE_MODIFY | MODE_SORT},
+ 		{semanage_ibpkey_dbase_local(handle),
+ 		 semanage_ibpkey_dbase_policy(handle), MODE_MODIFY},
 +
-+		{semanage_ibpkey_dbase_local(handle),
-+		 semanage_ibpkey_dbase_policy(handle), MODE_MODIFY},
++		{semanage_ibendport_dbase_local(handle),
++		 semanage_ibendport_dbase_policy(handle), MODE_MODIFY},
  	};
  	const unsigned int CCOUNT = sizeof(components) / sizeof(components[0]);
  
- 	/* Merge components into policy (and validate) */
- 	for (i = 0; i < CCOUNT; i++) {
--
- 		record_t **records = NULL;
- 		unsigned int nrecords = 0;
- 
-@@ -218,6 +220,7 @@ int semanage_commit_components(semanage_handle_t * handle)
- 		semanage_seuser_dbase_policy(handle),
+@@ -221,6 +224,7 @@ int semanage_commit_components(semanage_handle_t * handle)
  		semanage_bool_dbase_active(handle),
  		semanage_node_dbase_local(handle),
-+		semanage_ibpkey_dbase_local(handle),
+ 		semanage_ibpkey_dbase_local(handle),
++		semanage_ibendport_dbase_local(handle),
  	};
  	const int CCOUNT = sizeof(components) / sizeof(components[0]);
  
 diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 6b75002..f61f3b2 100644
+index f61f3b2..5642772 100644
 --- a/libsemanage/src/semanage_store.c
 +++ b/libsemanage/src/semanage_store.c
-@@ -99,6 +99,7 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
- 	"/homedir_template",
+@@ -100,6 +100,7 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
  	"/file_contexts.template",
  	"/commit_num",
-+	"/pkeys.local",
+ 	"/pkeys.local",
++	"/ibendports.local",
  	"/ports.local",
  	"/interfaces.local",
  	"/nodes.local",
 diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index 0b96fbe..c7bcf44 100644
+index c7bcf44..fcaa505 100644
 --- a/libsemanage/src/semanage_store.h
 +++ b/libsemanage/src/semanage_store.h
-@@ -44,6 +44,7 @@ enum semanage_sandbox_defs {
- 	SEMANAGE_HOMEDIR_TMPL,
+@@ -45,6 +45,7 @@ enum semanage_sandbox_defs {
  	SEMANAGE_FC_TMPL,
  	SEMANAGE_COMMIT_NUM_FILE,
-+	SEMANAGE_IBPKEYS_LOCAL,
+ 	SEMANAGE_IBPKEYS_LOCAL,
++	SEMANAGE_IBENDPORTS_LOCAL,
  	SEMANAGE_PORTS_LOCAL,
  	SEMANAGE_INTERFACES_LOCAL,
  	SEMANAGE_NODES_LOCAL,
 diff --git a/libsemanage/src/semanageswig.i b/libsemanage/src/semanageswig.i
-index 583b7d8..d3ca795 100644
+index d3ca795..ebf39cf 100644
 --- a/libsemanage/src/semanageswig.i
 +++ b/libsemanage/src/semanageswig.i
-@@ -39,6 +39,9 @@
- %include "../include/semanage/port_record.h"
- %include "../include/semanage/ports_local.h"
- %include "../include/semanage/ports_policy.h"
-+%include "../include/semanage/ibpkey_record.h"
-+%include "../include/semanage/ibpkeys_local.h"
-+%include "../include/semanage/ibpkeys_policy.h"
+@@ -42,6 +42,9 @@
+ %include "../include/semanage/ibpkey_record.h"
+ %include "../include/semanage/ibpkeys_local.h"
+ %include "../include/semanage/ibpkeys_policy.h"
++%include "../include/semanage/ibendport_record.h"
++%include "../include/semanage/ibendports_local.h"
++%include "../include/semanage/ibendports_policy.h"
  %include "../include/semanage/fcontext_record.h"
  %include "../include/semanage/fcontexts_local.h"
  %include "../include/semanage/fcontexts_policy.h"
 diff --git a/libsemanage/src/semanageswig_python.i b/libsemanage/src/semanageswig_python.i
-index 1346b2e..40932d8 100644
+index 40932d8..8604b8a 100644
 --- a/libsemanage/src/semanageswig_python.i
 +++ b/libsemanage/src/semanageswig_python.i
-@@ -437,6 +437,49 @@
+@@ -480,6 +480,49 @@
  	$1 = &temp;
  }
  
-+/** ibpkey typemaps **/
++/** ibendport typemaps **/
 +
 +/* the wrapper will setup this parameter for passing... the resulting python functions
-+   will not take the semanage_ibpkey_t *** parameter */
-+%typemap(in, numinputs=0) semanage_ibpkey_t ***(semanage_ibpkey_t **temp=NULL) {
++   will not take the semanage_ibendport_t *** parameter */
++%typemap(in, numinputs=0) semanage_ibendport_t ***(semanage_ibendport_t **temp=NULL) {
 +	$1 = &temp;
 +}
 +
 +%typemap(argout) (
 +	semanage_handle_t* handle,
-+	semanage_ibpkey_t*** records,
++	semanage_ibendport_t*** records,
 +	unsigned int* count) {
 +
 +	if ($result) {
@@ -1298,8 +1203,8 @@ index 1346b2e..40932d8 100644
 +		SWIG_AsVal_int($result, &value);
 +		if (value >= 0) {
 +			PyObject* plist = NULL;
-+			if (semanage_array2plist($1, (void**) *$2, *$3, SWIGTYPE_p_semanage_ibpkey,
-+				(void (*) (void*)) &semanage_ibpkey_free, &plist) < 0)
++			if (semanage_array2plist($1, (void**) *$2, *$3, SWIGTYPE_p_semanage_ibendport,
++				(void (*) (void*)) &semanage_ibendport_free, &plist) < 0)
 +				$result = SWIG_From_int(STATUS_ERR);
 +			else
 +				$result = SWIG_Python_AppendOutput($result, plist);
@@ -1307,19 +1212,19 @@ index 1346b2e..40932d8 100644
 +	}
 +}
 +
-+%typemap(in, numinputs=0) semanage_ibpkey_t **(semanage_ibpkey_t *temp=NULL) {
++%typemap(in, numinputs=0) semanage_ibendport_t **(semanage_ibendport_t *temp=NULL) {
 +	$1 = &temp;
 +}
 +
-+%typemap(argout) semanage_ibpkey_t ** {
++%typemap(argout) semanage_ibendport_t ** {
 +	$result = SWIG_Python_AppendOutput($result, SWIG_NewPointerObj(*$1, $*1_descriptor, 0));
 +}
 +
-+%typemap(argout) semanage_ibpkey_key_t ** {
++%typemap(argout) semanage_ibendport_key_t ** {
 +	$result = SWIG_Python_AppendOutput($result, SWIG_NewPointerObj(*$1, $*1_descriptor, 0));
 +}
 +
-+%typemap(in, numinputs=0) semanage_ibpkey_key_t **(semanage_ibpkey_key_t *temp=NULL) {
++%typemap(in, numinputs=0) semanage_ibendport_key_t **(semanage_ibendport_key_t *temp=NULL) {
 +	$1 = &temp;
 +}
 +
@@ -1327,341 +1232,263 @@ index 1346b2e..40932d8 100644
  
  /* the wrapper will setup this parameter for passing... the resulting python functions
 diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-index 0ebd285..325de47 100755
+index 325de47..9a9fac2 100755
 --- a/libsemanage/utils/semanage_migrate_store
 +++ b/libsemanage/utils/semanage_migrate_store
-@@ -253,7 +253,8 @@ if __name__ == "__main__":
- 		"preserve_tunables",
+@@ -254,7 +254,8 @@ if __name__ == "__main__":
  		"policy.kern",
  		"file_contexts",
--		"homedir_template"]
-+		"homedir_template",
-+                "pkeys.local"]
+ 		"homedir_template",
+-                "pkeys.local"]
++                "pkeys.local",
++                "ibendports.local"]
  
  
  	create_dir(newroot_path(), 0o755)
-diff --git a/libsepol/include/sepol/ibpkey_record.h b/libsepol/include/sepol/ibpkey_record.h
+diff --git a/libsepol/include/sepol/ibendport_record.h b/libsepol/include/sepol/ibendport_record.h
 new file mode 100644
-index 0000000..fff4591
+index 0000000..e30b252
 --- /dev/null
-+++ b/libsepol/include/sepol/ibpkey_record.h
-@@ -0,0 +1,77 @@
-+#ifndef _SEPOL_IBPKEY_RECORD_H_
-+#define _SEPOL_IBPKEY_RECORD_H_
++++ b/libsepol/include/sepol/ibendport_record.h
+@@ -0,0 +1,68 @@
++#ifndef _SEPOL_IBENDPORT_RECORD_H_
++#define _SEPOL_IBENDPORT_RECORD_H_
 +
 +#include <stddef.h>
 +#include <sepol/context_record.h>
 +#include <sepol/handle.h>
 +#include <sys/cdefs.h>
 +
-+#define INET6_ADDRLEN 16
-+
 +__BEGIN_DECLS
 +
-+struct sepol_ibpkey;
-+struct sepol_ibpkey_key;
-+typedef struct sepol_ibpkey sepol_ibpkey_t;
-+typedef struct sepol_ibpkey_key sepol_ibpkey_key_t;
++struct sepol_ibendport;
++struct sepol_ibendport_key;
++typedef struct sepol_ibendport sepol_ibendport_t;
++typedef struct sepol_ibendport_key sepol_ibendport_key_t;
 +
-+extern int sepol_ibpkey_compare(const sepol_ibpkey_t *ibpkey,
-+				const sepol_ibpkey_key_t *key);
++extern int sepol_ibendport_compare(const sepol_ibendport_t *ibendport,
++				   const sepol_ibendport_key_t *key);
 +
-+extern int sepol_ibpkey_compare2(const sepol_ibpkey_t *ibpkey,
-+				 const sepol_ibpkey_t *ibpkey2);
++extern int sepol_ibendport_compare2(const sepol_ibendport_t *ibendport,
++				    const sepol_ibendport_t *ibendport2);
 +
-+extern int sepol_ibpkey_key_create(sepol_handle_t *handle,
-+				   const char *subnet_prefix,
-+				   int low, int high,
-+				   sepol_ibpkey_key_t **key_ptr);
++extern int sepol_ibendport_key_create(sepol_handle_t *handle,
++				      const char *ibdev_name,
++				      int port,
++				      sepol_ibendport_key_t **key_ptr);
 +
-+extern void sepol_ibpkey_key_unpack(const sepol_ibpkey_key_t *key,
-+				    const char **subnet_prefix,
-+				    int *low, int *high);
++extern void sepol_ibendport_key_unpack(const sepol_ibendport_key_t *key,
++				       const char **ibdev_name,
++				       int *port);
 +
-+extern int sepol_ibpkey_key_extract(sepol_handle_t *handle,
-+				    const sepol_ibpkey_t *ibpkey,
-+				    sepol_ibpkey_key_t **key_ptr);
++extern int sepol_ibendport_alloc_ibdev_name(sepol_handle_t *handle,
++					    char **ibdev_name);
 +
-+extern void sepol_ibpkey_key_free(sepol_ibpkey_key_t *key);
++extern int sepol_ibendport_key_extract(sepol_handle_t *handle,
++				       const sepol_ibendport_t *ibendport,
++				       sepol_ibendport_key_t **key_ptr);
 +
-+extern int sepol_ibpkey_get_low(const sepol_ibpkey_t *ibpkey);
++extern void sepol_ibendport_key_free(sepol_ibendport_key_t *key);
 +
-+extern int sepol_ibpkey_get_high(const sepol_ibpkey_t *ibpkey);
++extern void sepol_ibendport_set_port(sepol_ibendport_t *ibendport, int port);
 +
-+extern void sepol_ibpkey_set_pkey(sepol_ibpkey_t *ibpkey, int pkey_num);
++extern int sepol_ibendport_get_port(const sepol_ibendport_t *ibendport);
 +
-+extern void sepol_ibpkey_set_range(sepol_ibpkey_t *ibpkey, int low, int high);
++extern int sepol_ibendport_get_ibdev_name(sepol_handle_t *handle,
++					  const sepol_ibendport_t *ibendport,
++					  char **ibdev_name);
 +
-+extern int sepol_ibpkey_get_subnet_prefix(sepol_handle_t *handle,
-+					  const sepol_ibpkey_t *ibpkey,
-+					  char **subnet_prefix);
++extern int sepol_ibendport_set_ibdev_name(sepol_handle_t *handle,
++					  sepol_ibendport_t *ibendport,
++					  const char *ibdev_name);
 +
-+extern int sepol_ibpkey_get_subnet_prefix_bytes(sepol_handle_t *handle,
-+						const sepol_ibpkey_t *ibpkey,
-+						char **buffer);
++extern sepol_context_t *sepol_ibendport_get_con(const sepol_ibendport_t *ibendport);
 +
-+extern int sepol_ibpkey_set_subnet_prefix(sepol_handle_t *handle,
-+					  sepol_ibpkey_t *ibpkey,
-+					  const char *subnet_prefix);
++extern int sepol_ibendport_set_con(sepol_handle_t *handle,
++				   sepol_ibendport_t *ibendport,
++				   sepol_context_t *con);
 +
-+extern int sepol_ibpkey_set_subnet_prefix_bytes(sepol_handle_t *handle,
-+						sepol_ibpkey_t *ibpkey,
-+						const char *subnet_prefix);
++extern int sepol_ibendport_create(sepol_handle_t *handle,
++				  sepol_ibendport_t **ibendport_ptr);
 +
-+extern sepol_context_t *sepol_ibpkey_get_con(const sepol_ibpkey_t *ibpkey);
++extern int sepol_ibendport_clone(sepol_handle_t *handle,
++				 const sepol_ibendport_t *ibendport,
++				 sepol_ibendport_t **ibendport_ptr);
 +
-+extern int sepol_ibpkey_set_con(sepol_handle_t *handle,
-+				sepol_ibpkey_t *ibpkey, sepol_context_t *con);
-+
-+extern int sepol_ibpkey_create(sepol_handle_t *handle, sepol_ibpkey_t **ibpkey_ptr);
-+
-+extern int sepol_ibpkey_clone(sepol_handle_t *handle,
-+			      const sepol_ibpkey_t *ibpkey,
-+			      sepol_ibpkey_t **ibpkey_ptr);
-+
-+extern void sepol_ibpkey_free(sepol_ibpkey_t *ibpkey);
++extern void sepol_ibendport_free(sepol_ibendport_t *ibendport);
 +
 +__END_DECLS
 +#endif
-diff --git a/libsepol/include/sepol/ibpkeys.h b/libsepol/include/sepol/ibpkeys.h
+diff --git a/libsepol/include/sepol/ibendports.h b/libsepol/include/sepol/ibendports.h
 new file mode 100644
-index 0000000..4ab0a8a
+index 0000000..4a89e0c
 --- /dev/null
-+++ b/libsepol/include/sepol/ibpkeys.h
-@@ -0,0 +1,44 @@
-+#ifndef _SEPOL_IBPKEYS_H_
-+#define _SEPOL_IBPKEYS_H_
++++ b/libsepol/include/sepol/ibendports.h
+@@ -0,0 +1,45 @@
++#ifndef _SEPOL_IBENDPORTS_H_
++#define _SEPOL_IBENDPORTS_H_
 +
 +#include <sepol/handle.h>
 +#include <sepol/policydb.h>
-+#include <sepol/ibpkey_record.h>
++#include <sepol/ibendport_record.h>
 +#include <sys/cdefs.h>
 +
 +__BEGIN_DECLS
 +
-+/* Return the number of ibpkeys */
-+extern int sepol_ibpkey_count(sepol_handle_t *handle,
-+			      const sepol_policydb_t *p, unsigned int *response);
++/* Return the number of ibendports */
++extern int sepol_ibendport_count(sepol_handle_t *handle,
++				 const sepol_policydb_t *p,
++				 unsigned int *response);
 +
-+/* Check if a ibpkey exists */
-+extern int sepol_ibpkey_exists(sepol_handle_t *handle,
-+			       const sepol_policydb_t *policydb,
-+			       const sepol_ibpkey_key_t *key, int *response);
++/* Check if a ibendport exists */
++extern int sepol_ibendport_exists(sepol_handle_t *handle,
++				  const sepol_policydb_t *policydb,
++				  const sepol_ibendport_key_t *key, int *response);
 +
-+/* Query a ibpkey - returns the ibpkey, or NULL if not found */
-+extern int sepol_ibpkey_query(sepol_handle_t *handle,
-+			      const sepol_policydb_t *policydb,
-+			      const sepol_ibpkey_key_t *key,
-+			      sepol_ibpkey_t **response);
++/* Query a ibendport - returns the ibendport, or NULL if not found */
++extern int sepol_ibendport_query(sepol_handle_t *handle,
++				 const sepol_policydb_t *policydb,
++				 const sepol_ibendport_key_t *key,
++				 sepol_ibendport_t **response);
 +
-+/* Modify a ibpkey, or add it, if the key is not found */
-+extern int sepol_ibpkey_modify(sepol_handle_t *handle,
-+			       sepol_policydb_t *policydb,
-+			       const sepol_ibpkey_key_t *key,
-+			       const sepol_ibpkey_t *data);
++/* Modify a ibendport, or add it, if the key is not found */
++extern int sepol_ibendport_modify(sepol_handle_t *handle,
++				  sepol_policydb_t *policydb,
++				  const sepol_ibendport_key_t *key,
++				  const sepol_ibendport_t *data);
 +
-+/* Iterate the ibpkeys
++/* Iterate the ibendports
 + * The handler may return:
 + * -1 to signal an error condition,
 + * 1 to signal successful exit
 + * 0 to signal continue
 + */
-+extern int sepol_ibpkey_iterate(sepol_handle_t *handle,
-+				const sepol_policydb_t *policydb,
-+				int (*fn)(const sepol_ibpkey_t *ibpkey,
-+					  void *fn_arg), void *arg);
++extern int sepol_ibendport_iterate(sepol_handle_t *handle,
++				   const sepol_policydb_t *policydb,
++				   int (*fn)(const sepol_ibendport_t *ibendport,
++					     void *fn_arg), void *arg);
 +
 +__END_DECLS
 +#endif
 diff --git a/libsepol/include/sepol/sepol.h b/libsepol/include/sepol/sepol.h
-index 513f77d..540f01d 100644
+index 540f01d..540609a 100644
 --- a/libsepol/include/sepol/sepol.h
 +++ b/libsepol/include/sepol/sepol.h
-@@ -11,12 +11,14 @@ extern "C" {
- #include <sepol/user_record.h>
+@@ -12,6 +12,7 @@ extern "C" {
  #include <sepol/context_record.h>
  #include <sepol/iface_record.h>
-+#include <sepol/ibpkey_record.h>
+ #include <sepol/ibpkey_record.h>
++#include <sepol/ibendport_record.h>
  #include <sepol/port_record.h>
  #include <sepol/boolean_record.h>
  #include <sepol/node_record.h>
- 
+@@ -19,6 +20,7 @@ extern "C" {
  #include <sepol/booleans.h>
  #include <sepol/interfaces.h>
-+#include <sepol/ibpkeys.h>
+ #include <sepol/ibpkeys.h>
++#include <sepol/ibendports.h>
  #include <sepol/ports.h>
  #include <sepol/nodes.h>
  #include <sepol/users.h>
-diff --git a/libsepol/src/ibpkey_internal.h b/libsepol/src/ibpkey_internal.h
+diff --git a/libsepol/src/ibendport_internal.h b/libsepol/src/ibendport_internal.h
 new file mode 100644
-index 0000000..addf80a
+index 0000000..ed8f9b4
 --- /dev/null
-+++ b/libsepol/src/ibpkey_internal.h
-@@ -0,0 +1,21 @@
-+#ifndef _SEPOL_IBPKEY_INTERNAL_H_
-+#define _SEPOL_IBPKEY_INTERNAL_H_
++++ b/libsepol/src/ibendport_internal.h
+@@ -0,0 +1,18 @@
++#ifndef _SEPOL_IBENDPORT_INTERNAL_H_
++#define _SEPOL_IBENDPORT_INTERNAL_H_
 +
-+#include <sepol/ibpkey_record.h>
-+#include <sepol/ibpkeys.h>
++#include <sepol/ibendport_record.h>
++#include <sepol/ibendports.h>
 +#include "dso.h"
 +
-+hidden_proto(sepol_ibpkey_create)
-+hidden_proto(sepol_ibpkey_free)
-+hidden_proto(sepol_ibpkey_get_con)
-+hidden_proto(sepol_ibpkey_get_high)
-+hidden_proto(sepol_ibpkey_get_low)
-+hidden_proto(sepol_ibpkey_key_create)
-+hidden_proto(sepol_ibpkey_key_unpack)
-+hidden_proto(sepol_ibpkey_set_con)
-+hidden_proto(sepol_ibpkey_set_range)
-+hidden_proto(sepol_ibpkey_get_subnet_prefix)
-+hidden_proto(sepol_ibpkey_get_subnet_prefix_bytes)
-+hidden_proto(sepol_ibpkey_set_subnet_prefix)
-+hidden_proto(sepol_ibpkey_set_subnet_prefix_bytes)
++hidden_proto(sepol_ibendport_create)
++hidden_proto(sepol_ibendport_free)
++hidden_proto(sepol_ibendport_get_con)
++hidden_proto(sepol_ibendport_get_port)
++hidden_proto(sepol_ibendport_key_create)
++hidden_proto(sepol_ibendport_key_unpack)
++hidden_proto(sepol_ibendport_set_con)
++hidden_proto(sepol_ibendport_set_port)
++hidden_proto(sepol_ibendport_get_ibdev_name)
++hidden_proto(sepol_ibendport_set_ibdev_name)
 +#endif
-diff --git a/libsepol/src/ibpkey_record.c b/libsepol/src/ibpkey_record.c
+diff --git a/libsepol/src/ibendport_record.c b/libsepol/src/ibendport_record.c
 new file mode 100644
-index 0000000..4eed083
+index 0000000..912aeb5
 --- /dev/null
-+++ b/libsepol/src/ibpkey_record.c
-@@ -0,0 +1,448 @@
++++ b/libsepol/src/ibendport_record.c
+@@ -0,0 +1,298 @@
 +#include <stdlib.h>
 +#include <string.h>
 +#include <netinet/in.h>
 +#include <arpa/inet.h>
 +#include <errno.h>
-+#include <sepol/ibpkey_record.h>
 +
-+#include "ibpkey_internal.h"
++#include "sepol/policydb/policydb.h"
++#include "ibendport_internal.h"
 +#include "context_internal.h"
 +#include "debug.h"
 +
-+struct sepol_ibpkey {
-+	/* Subnet prefix */
-+	char *subnet_prefix;
++struct sepol_ibendport {
++	/* Device Name */
++	char *ibdev_name;
 +
-+	/* Low - High range. Same for single ibpkeys. */
-+	int low, high;
++	/* Port number */
++	int port;
 +
 +	/* Context */
 +	sepol_context_t *con;
 +};
 +
-+struct sepol_ibpkey_key {
-+	/* Subnet prefix */
-+	char *subnet_prefix;
++struct sepol_ibendport_key {
++	/* Device Name */
++	char *ibdev_name;
 +
-+	/* Low - High range. Same for single ibpkeys. */
-+	int low, high;
++	/* Port number */
++	int port;
 +};
 +
-+/* Converts a string represtation (subnet_prefix_str)
-+ * to a numeric representation (subnet_prefix_bytes)
-+ */
-+static int ibpkey_parse_subnet_prefix(sepol_handle_t *handle,
-+				      const char *subnet_prefix_str,
-+				      char *subnet_prefix_bytes)
++/* Allocates a sufficiently large string (ibdev_name) */
++int sepol_ibendport_alloc_ibdev_name(sepol_handle_t *handle,
++				     char **ibdev_name)
 +{
-+	struct in6_addr in_addr;
++	char *tmp_ibdev_name = NULL;
 +
-+	if (inet_pton(AF_INET6, subnet_prefix_str, &in_addr) <= 0) {
-+		ERR(handle, "could not parse IPv6 address for ibpkey subnet prefix %s: %s",
-+		    subnet_prefix_str, strerror(errno));
-+		return STATUS_ERR;
-+	}
++	tmp_ibdev_name = calloc(1, IB_DEVICE_NAME_MAX);
 +
-+	memcpy(subnet_prefix_bytes, in_addr.s6_addr, INET6_ADDRLEN);
-+
-+	return STATUS_SUCCESS;
-+}
-+
-+static int ibpkey_alloc_subnet_prefix(sepol_handle_t *handle,
-+				      char **subnet_prefix)
-+{
-+	char *tmp_subnet_prefix = malloc(INET6_ADDRLEN);
-+
-+	if (!tmp_subnet_prefix)
++	if (!tmp_ibdev_name)
 +		goto omem;
 +
-+	*subnet_prefix = tmp_subnet_prefix;
++	*ibdev_name = tmp_ibdev_name;
 +	return STATUS_SUCCESS;
 +
 +omem:
 +	ERR(handle, "out of memory");
-+	return STATUS_ERR;
-+}
-+
-+/* Converts a numeric representation (subnet_prefix_bytes)
-+ * to a string representation (subnet_prefix_str)
-+ */
-+
-+static int ibpkey_expand_subnet_prefix(sepol_handle_t *handle,
-+				       char *subnet_prefix_bytes,
-+				       char *subnet_prefix_str)
-+{
-+	struct in6_addr addr;
-+
-+	memset(&addr, 0, sizeof(struct in6_addr));
-+#ifdef DARWIN
-+	memcpy(&addr.s6_addr[0], subnet_prefix_bytes, 16);
-+#else
-+	memcpy(&addr.s6_addr32[0], subnet_prefix_bytes, 16);
-+#endif
-+	if (inet_ntop(AF_INET6, &addr, subnet_prefix_str,
-+		      INET6_ADDRSTRLEN) == NULL) {
-+		ERR(handle,
-+		    "could not expand IPv6 address to string: %s",
-+		    strerror(errno));
-+		return STATUS_ERR;
-+	}
-+
-+	return STATUS_SUCCESS;
-+}
-+
-+/* Allocates a sufficiently large string (subnet_prefix)
-+ * for an IPV6 address for the subnet prefix
-+ */
-+static int ibpkey_alloc_subnet_prefix_string(sepol_handle_t *handle,
-+					     char **subnet_prefix)
-+{
-+	char *tmp_subnet_prefix = NULL;
-+
-+	tmp_subnet_prefix = malloc(INET6_ADDRSTRLEN);
-+
-+	if (!tmp_subnet_prefix)
-+		goto omem;
-+
-+	*subnet_prefix = tmp_subnet_prefix;
-+	return STATUS_SUCCESS;
-+
-+omem:
-+	ERR(handle, "out of memory");
-+
-+	ERR(handle, "could not allocate string buffer for subnet_prefix");
++	ERR(handle, "could not allocate string buffer for ibdev_name");
 +	return STATUS_ERR;
 +}
 +
 +/* Key */
-+int sepol_ibpkey_key_create(sepol_handle_t *handle,
-+			    const char *subnet_prefix,
-+			    int low, int high,
-+			    sepol_ibpkey_key_t **key_ptr)
++int sepol_ibendport_key_create(sepol_handle_t *handle,
++			       const char *ibdev_name,
++			       int port,
++			       sepol_ibendport_key_t **key_ptr)
 +{
-+	sepol_ibpkey_key_t *tmp_key =
-+	    (sepol_ibpkey_key_t *)malloc(sizeof(sepol_ibpkey_key_t));
++	sepol_ibendport_key_t *tmp_key =
++	    (sepol_ibendport_key_t *)malloc(sizeof(sepol_ibendport_key_t));
 +
 +	if (!tmp_key) {
-+		ERR(handle, "out of memory, could not create ibpkey key");
++		ERR(handle, "out of memory, could not create ibendport key");
 +		goto omem;
 +	}
 +
-+	if (ibpkey_alloc_subnet_prefix(handle, &tmp_key->subnet_prefix) < 0)
-+		goto err;
-+	if (ibpkey_parse_subnet_prefix(handle, subnet_prefix, tmp_key->subnet_prefix) < 0)
++	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp_key->ibdev_name) < 0)
 +		goto err;
 +
-+	tmp_key->low = low;
-+	tmp_key->high = high;
++	strncpy(tmp_key->ibdev_name, ibdev_name, IB_DEVICE_NAME_MAX);
++	tmp_key->port = port;
 +
 +	*key_ptr = tmp_key;
 +	return STATUS_SUCCESS;
@@ -1670,37 +1497,32 @@ index 0000000..4eed083
 +	ERR(handle, "out of memory");
 +
 +err:
-+	sepol_ibpkey_key_free(tmp_key);
-+	ERR(handle, "could not create ibpkey key for subnet prefix%s, range %u, %u",
-+	    subnet_prefix, low, high);
++	sepol_ibendport_key_free(tmp_key);
++	ERR(handle, "could not create ibendport key for IB device %s, port %u",
++	    ibdev_name, port);
 +	return STATUS_ERR;
 +}
 +
-+hidden_def(sepol_ibpkey_key_create)
++hidden_def(sepol_ibendport_key_create)
 +
-+void sepol_ibpkey_key_unpack(const sepol_ibpkey_key_t *key,
-+			     const char **subnet_prefix, int *low, int *high)
++void sepol_ibendport_key_unpack(const sepol_ibendport_key_t *key,
++				const char **ibdev_name, int *port)
 +{
-+	*subnet_prefix = key->subnet_prefix;
-+	*low = key->low;
-+	*high = key->high;
++	*ibdev_name = key->ibdev_name;
++	*port = key->port;
 +}
 +
-+hidden_def(sepol_ibpkey_key_unpack)
++hidden_def(sepol_ibendport_key_unpack)
 +
-+int sepol_ibpkey_key_extract(sepol_handle_t *handle,
-+			     const sepol_ibpkey_t *ibpkey,
-+			     sepol_ibpkey_key_t **key_ptr)
++int sepol_ibendport_key_extract(sepol_handle_t *handle,
++				const sepol_ibendport_t *ibendport,
++				sepol_ibendport_key_t **key_ptr)
 +{
-+	char subnet_prefix_str[INET6_ADDRSTRLEN];
-+
-+	ibpkey_expand_subnet_prefix(handle, ibpkey->subnet_prefix, subnet_prefix_str);
-+
-+	if (sepol_ibpkey_key_create
-+	    (handle, subnet_prefix_str, ibpkey->low, ibpkey->high, key_ptr) < 0) {
-+		ERR(handle, "could not extract key from ibpkey %s %d:%d",
-+		    subnet_prefix_str,
-+		    ibpkey->low, ibpkey->high);
++	if (sepol_ibendport_key_create
++	    (handle, ibendport->ibdev_name, ibendport->port, key_ptr) < 0) {
++		ERR(handle, "could not extract key from ibendport device %s port %d",
++		    ibendport->ibdev_name,
++		    ibendport->port);
 +
 +		return STATUS_ERR;
 +	}
@@ -1708,277 +1530,200 @@ index 0000000..4eed083
 +	return STATUS_SUCCESS;
 +}
 +
-+void sepol_ibpkey_key_free(sepol_ibpkey_key_t *key)
++void sepol_ibendport_key_free(sepol_ibendport_key_t *key)
 +{
 +	if (!key)
 +		return;
-+	free(key->subnet_prefix);
++	free(key->ibdev_name);
 +	free(key);
 +}
 +
-+int sepol_ibpkey_compare(const sepol_ibpkey_t *ibpkey, const sepol_ibpkey_key_t *key)
++int sepol_ibendport_compare(const sepol_ibendport_t *ibendport, const sepol_ibendport_key_t *key)
 +{
 +	int rc;
 +
-+	rc = memcmp(ibpkey->subnet_prefix, key->subnet_prefix, INET6_ADDRLEN);
++	rc = strcmp(ibendport->ibdev_name, key->ibdev_name);
 +
-+	if (ibpkey->low == key->low &&
-+	    ibpkey->high == key->high &&
-+	    !rc)
++	if ((ibendport->port == key->port) && !rc)
 +		return 0;
 +
-+	if (ibpkey->low < key->low)
++	if (ibendport->port < key->port)
 +		return -1;
-+
-+	else if (key->low < ibpkey->low)
-+		return 1;
-+
-+	else if (ibpkey->high < key->high)
-+		return -1;
-+
-+	else if (key->high < ibpkey->high)
++	else if (key->port < ibendport->port)
 +		return 1;
 +	else
 +		return rc;
 +}
 +
-+int sepol_ibpkey_compare2(const sepol_ibpkey_t *ibpkey, const sepol_ibpkey_t *ibpkey2)
++int sepol_ibendport_compare2(const sepol_ibendport_t *ibendport, const sepol_ibendport_t *ibendport2)
 +{
 +	int rc;
 +
-+	rc = memcmp(ibpkey->subnet_prefix, ibpkey2->subnet_prefix, INET6_ADDRLEN);
++	rc = strcmp(ibendport->ibdev_name, ibendport2->ibdev_name);
 +
-+	if (ibpkey->low == ibpkey2->low &&
-+	    ibpkey->high == ibpkey2->high &&
-+	    !rc)
++	if ((ibendport->port == ibendport2->port) && !rc)
 +		return 0;
 +
-+	if (ibpkey->low < ibpkey2->low)
++	if (ibendport->port < ibendport2->port)
 +		return -1;
-+
-+	else if (ibpkey2->low < ibpkey->low)
-+		return 1;
-+
-+	else if (ibpkey->high < ibpkey2->high)
-+		return -1;
-+
-+	else if (ibpkey2->high < ibpkey->high)
++	else if (ibendport2->port < ibendport->port)
 +		return 1;
 +	else
 +		return rc;
 +}
 +
-+/* Pkey */
-+int sepol_ibpkey_get_low(const sepol_ibpkey_t *ibpkey)
++int sepol_ibendport_get_port(const sepol_ibendport_t *ibendport)
 +{
-+	return ibpkey->low;
++	return ibendport->port;
 +}
 +
-+hidden_def(sepol_ibpkey_get_low)
++hidden_def(sepol_ibendport_get_port)
 +
-+int sepol_ibpkey_get_high(const sepol_ibpkey_t *ibpkey)
++void sepol_ibendport_set_port(sepol_ibendport_t *ibendport, int port)
 +{
-+	return ibpkey->high;
++	ibendport->port = port;
 +}
 +
-+hidden_def(sepol_ibpkey_get_high)
++hidden_def(sepol_ibendport_set_port)
 +
-+void sepol_ibpkey_set_pkey(sepol_ibpkey_t *ibpkey, int pkey_num)
++int sepol_ibendport_get_ibdev_name(sepol_handle_t *handle,
++				   const sepol_ibendport_t *ibendport,
++				   char **ibdev_name)
 +{
-+	ibpkey->low = pkey_num;
-+	ibpkey->high = pkey_num;
-+}
++	char *tmp_ibdev_name = NULL;
 +
-+void sepol_ibpkey_set_range(sepol_ibpkey_t *ibpkey, int low, int high)
-+{
-+	ibpkey->low = low;
-+	ibpkey->high = high;
-+}
-+
-+hidden_def(sepol_ibpkey_set_range)
-+
-+int sepol_ibpkey_get_subnet_prefix(sepol_handle_t *handle,
-+				   const sepol_ibpkey_t *ibpkey,
-+				   char **subnet_prefix)
-+{
-+	char *tmp_subnet_prefix = NULL;
-+
-+	if (ibpkey_alloc_subnet_prefix_string(handle, &tmp_subnet_prefix) < 0)
++	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp_ibdev_name) < 0)
 +		goto err;
 +
-+	if (ibpkey_expand_subnet_prefix(handle, ibpkey->subnet_prefix, tmp_subnet_prefix) < 0)
-+		goto err;
-+
-+	*subnet_prefix = tmp_subnet_prefix;
++	strncpy(tmp_ibdev_name, ibendport->ibdev_name, IB_DEVICE_NAME_MAX);
++	*ibdev_name = tmp_ibdev_name;
 +	return STATUS_SUCCESS;
 +
 +err:
-+	free(tmp_subnet_prefix);
-+	ERR(handle, "could not get ibpkey subnet_prefix");
++	free(tmp_ibdev_name);
++	ERR(handle, "could not get ibendport ibdev_name");
 +	return STATUS_ERR;
 +}
 +
-+hidden_def(sepol_ibpkey_get_subnet_prefix)
++hidden_def(sepol_ibendport_get_ibdev_name)
 +
-+/* Subnet prefix */
-+int sepol_ibpkey_get_subnet_prefix_bytes(sepol_handle_t *handle,
-+					 const sepol_ibpkey_t *ibpkey,
-+					 char **buffer)
-+{
-+	char *tmp_buf = malloc(INET6_ADDRLEN);
-+
-+	if (!tmp_buf) {
-+		ERR(handle, "out of memory, could not get subnet prefix bytes");
-+		return STATUS_ERR;
-+	}
-+
-+	memcpy(tmp_buf, ibpkey->subnet_prefix, INET6_ADDRLEN);
-+	*buffer = tmp_buf;
-+	return STATUS_SUCCESS;
-+}
-+
-+hidden_def(sepol_ibpkey_get_subnet_prefix_bytes)
-+
-+int sepol_ibpkey_set_subnet_prefix(sepol_handle_t *handle,
-+				   sepol_ibpkey_t *ibpkey,
-+				   const char *subnet_prefix)
++int sepol_ibendport_set_ibdev_name(sepol_handle_t *handle,
++				   sepol_ibendport_t *ibendport,
++				   const char *ibdev_name)
 +{
 +	char *tmp = NULL;
 +
-+	if (ibpkey_alloc_subnet_prefix(handle, &tmp) < 0)
++	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp) < 0)
 +		goto err;
 +
-+	if (ibpkey_parse_subnet_prefix(handle, subnet_prefix, tmp) < 0)
-+		goto err;
-+
-+	free(ibpkey->subnet_prefix);
-+	ibpkey->subnet_prefix = tmp;
++	strncpy(tmp, ibdev_name, IB_DEVICE_NAME_MAX);
++	free(ibendport->ibdev_name);
++	ibendport->ibdev_name = tmp;
 +	return STATUS_SUCCESS;
 +
 +err:
 +	free(tmp);
-+	ERR(handle, "could not set ibpkey subnet prefix to %s", subnet_prefix);
++	ERR(handle, "could not set ibendport subnet prefix to %s", ibdev_name);
 +	return STATUS_ERR;
 +}
 +
-+hidden_def(sepol_ibpkey_set_subnet_prefix)
-+
-+int sepol_ibpkey_set_subnet_prefix_bytes(sepol_handle_t *handle,
-+					 sepol_ibpkey_t *ibpkey,
-+					 const char *subnet_prefix)
-+{
-+	char *tmp_subnet_prefix = malloc(INET6_ADDRLEN);
-+
-+	if (!tmp_subnet_prefix) {
-+		ERR(handle, "out of memory, could not set ibpkey subnet prefix");
-+		return STATUS_ERR;
-+	}
-+
-+	memcpy(tmp_subnet_prefix, subnet_prefix, INET6_ADDRLEN);
-+	free(ibpkey->subnet_prefix);
-+	ibpkey->subnet_prefix = tmp_subnet_prefix;
-+	return STATUS_SUCCESS;
-+}
-+
-+hidden_def(sepol_ibpkey_set_subnet_prefix_bytes)
++hidden_def(sepol_ibendport_set_ibdev_name)
 +
 +/* Create */
-+int sepol_ibpkey_create(sepol_handle_t *handle, sepol_ibpkey_t **ibpkey)
++int sepol_ibendport_create(sepol_handle_t *handle, sepol_ibendport_t **ibendport)
 +{
-+	sepol_ibpkey_t *tmp_ibpkey = (sepol_ibpkey_t *)malloc(sizeof(sepol_ibpkey_t));
++	sepol_ibendport_t *tmp_ibendport = (sepol_ibendport_t *)malloc(sizeof(sepol_ibendport_t));
 +
-+	if (!tmp_ibpkey) {
-+		ERR(handle, "out of memory, could not create ibpkey record");
++	if (!tmp_ibendport) {
++		ERR(handle, "out of memory, could not create ibendport record");
 +		return STATUS_ERR;
 +	}
 +
-+	tmp_ibpkey->subnet_prefix = NULL;
-+	tmp_ibpkey->low = 0;
-+	tmp_ibpkey->high = 0;
-+	tmp_ibpkey->con = NULL;
-+	*ibpkey = tmp_ibpkey;
++	tmp_ibendport->ibdev_name = NULL;
++	tmp_ibendport->port = 0;
++	tmp_ibendport->con = NULL;
++	*ibendport = tmp_ibendport;
 +
 +	return STATUS_SUCCESS;
 +}
 +
-+hidden_def(sepol_ibpkey_create)
++hidden_def(sepol_ibendport_create)
 +
 +/* Deep copy clone */
-+int sepol_ibpkey_clone(sepol_handle_t *handle,
-+		       const sepol_ibpkey_t *ibpkey, sepol_ibpkey_t **ibpkey_ptr)
++int sepol_ibendport_clone(sepol_handle_t *handle,
++			  const sepol_ibendport_t *ibendport,
++			  sepol_ibendport_t **ibendport_ptr)
 +{
-+	sepol_ibpkey_t *new_ibpkey = NULL;
++	sepol_ibendport_t *new_ibendport = NULL;
 +
-+	if (sepol_ibpkey_create(handle, &new_ibpkey) < 0)
++	if (sepol_ibendport_create(handle, &new_ibendport) < 0)
 +		goto err;
 +
-+	new_ibpkey->subnet_prefix = malloc(INET6_ADDRLEN);
-+	if (!new_ibpkey->subnet_prefix)
++	if (sepol_ibendport_alloc_ibdev_name(handle, &new_ibendport->ibdev_name) < 0)
 +		goto omem;
 +
-+	memcpy(new_ibpkey->subnet_prefix, ibpkey->subnet_prefix, INET6_ADDRLEN);
-+	new_ibpkey->low = ibpkey->low;
-+	new_ibpkey->high = ibpkey->high;
++	strncpy(new_ibendport->ibdev_name, ibendport->ibdev_name, IB_DEVICE_NAME_MAX);
++	new_ibendport->port = ibendport->port;
 +
-+	if (ibpkey->con &&
-+	    (sepol_context_clone(handle, ibpkey->con, &new_ibpkey->con) < 0))
++	if (ibendport->con &&
++	    (sepol_context_clone(handle, ibendport->con, &new_ibendport->con) < 0))
 +		goto err;
 +
-+	*ibpkey_ptr = new_ibpkey;
++	*ibendport_ptr = new_ibendport;
 +	return STATUS_SUCCESS;
 +
 +omem:
 +	ERR(handle, "out of memory");
 +
 +err:
-+	ERR(handle, "could not clone ibpkey record");
-+	sepol_ibpkey_free(new_ibpkey);
++	ERR(handle, "could not clone ibendport record");
++	sepol_ibendport_free(new_ibendport);
 +	return STATUS_ERR;
 +}
 +
 +/* Destroy */
-+void sepol_ibpkey_free(sepol_ibpkey_t *ibpkey)
++void sepol_ibendport_free(sepol_ibendport_t *ibendport)
 +{
-+	if (!ibpkey)
++	if (!ibendport)
 +		return;
 +
-+	free(ibpkey->subnet_prefix);
-+	sepol_context_free(ibpkey->con);
-+	free(ibpkey);
++	free(ibendport->ibdev_name);
++	sepol_context_free(ibendport->con);
++	free(ibendport);
 +}
 +
-+hidden_def(sepol_ibpkey_free)
++hidden_def(sepol_ibendport_free)
 +
 +/* Context */
-+sepol_context_t *sepol_ibpkey_get_con(const sepol_ibpkey_t *ibpkey)
++sepol_context_t *sepol_ibendport_get_con(const sepol_ibendport_t *ibendport)
 +{
-+	return ibpkey->con;
++	return ibendport->con;
 +}
 +
-+hidden_def(sepol_ibpkey_get_con)
++hidden_def(sepol_ibendport_get_con)
 +
-+int sepol_ibpkey_set_con(sepol_handle_t *handle,
-+			 sepol_ibpkey_t *ibpkey, sepol_context_t *con)
++int sepol_ibendport_set_con(sepol_handle_t *handle,
++			    sepol_ibendport_t *ibendport, sepol_context_t *con)
 +{
 +	sepol_context_t *newcon;
 +
 +	if (sepol_context_clone(handle, con, &newcon) < 0) {
-+		ERR(handle, "out of memory, could not set ibpkey context");
++		ERR(handle, "out of memory, could not set ibendport context");
 +		return STATUS_ERR;
 +	}
 +
-+	sepol_context_free(ibpkey->con);
-+	ibpkey->con = newcon;
++	sepol_context_free(ibendport->con);
++	ibendport->con = newcon;
 +	return STATUS_SUCCESS;
 +}
 +
-+hidden_def(sepol_ibpkey_set_con)
-diff --git a/libsepol/src/ibpkeys.c b/libsepol/src/ibpkeys.c
++hidden_def(sepol_ibendport_set_con)
+diff --git a/libsepol/src/ibendports.c b/libsepol/src/ibendports.c
 new file mode 100644
-index 0000000..eb46954
+index 0000000..0438093
 --- /dev/null
-+++ b/libsepol/src/ibpkeys.c
-@@ -0,0 +1,263 @@
++++ b/libsepol/src/ibendports.c
+@@ -0,0 +1,255 @@
 +#include <netinet/in.h>
 +#include <stdlib.h>
 +
@@ -1986,98 +1731,93 @@ index 0000000..eb46954
 +#include "context.h"
 +#include "handle.h"
 +
-+#include <sepol/ibpkey_record.h>
 +#include <sepol/policydb/policydb.h>
-+#include "ibpkey_internal.h"
++#include "ibendport_internal.h"
 +
-+/* Create a low level ibpkey structure from
++/* Create a low level ibendport structure from
 + * a high level representation
 + */
-+static int ibpkey_from_record(sepol_handle_t *handle,
-+			    const policydb_t *policydb,
-+			    ocontext_t **ibpkey, const sepol_ibpkey_t *data)
++static int ibendport_from_record(sepol_handle_t *handle,
++				 const policydb_t *policydb,
++				 ocontext_t **ibendport,
++				 const sepol_ibendport_t *data)
 +{
-+	ocontext_t *tmp_ibpkey = NULL;
++	ocontext_t *tmp_ibendport = NULL;
 +	context_struct_t *tmp_con = NULL;
-+	char *subnet_prefix_buf = NULL;
-+	int low = sepol_ibpkey_get_low(data);
-+	int high = sepol_ibpkey_get_high(data);
++	char *ibdev_name = NULL;
++	int port = sepol_ibendport_get_port(data);
 +
-+	tmp_ibpkey = (ocontext_t *)calloc(1, sizeof(*tmp_ibpkey));
-+	if (!tmp_ibpkey)
++	tmp_ibendport = (ocontext_t *)calloc(1, sizeof(ocontext_t));
++	if (!tmp_ibendport)
 +		goto omem;
 +
-+	if (sepol_ibpkey_get_subnet_prefix_bytes(handle,
-+					       data,
-+					       &subnet_prefix_buf) < 0)
++	if (sepol_ibendport_alloc_ibdev_name(handle,
++					     &tmp_ibendport->u.ibendport.dev_name) < 0)
++		goto omem;
++
++	if (sepol_ibendport_get_ibdev_name(handle,
++					   data,
++					   &ibdev_name) < 0)
 +		goto err;
 +
-+	memcpy(tmp_ibpkey->u.ibpkey.subnet_prefix, subnet_prefix_buf,
-+	       INET6_ADDRLEN);
++	strncpy(tmp_ibendport->u.ibendport.dev_name, ibdev_name, IB_DEVICE_NAME_MAX);
 +
-+	free(subnet_prefix_buf);
-+	subnet_prefix_buf = NULL;
++	free(ibdev_name);
++	ibdev_name = NULL;
 +
-+	/* Pkey range */
-+	tmp_ibpkey->u.ibpkey.low_pkey = low;
-+	tmp_ibpkey->u.ibpkey.high_pkey = high;
-+	if (tmp_ibpkey->u.ibpkey.low_pkey > tmp_ibpkey->u.ibpkey.high_pkey) {
-+		ERR(handle, "low ibpkey %d exceeds high ibpkey %d",
-+		    tmp_ibpkey->u.ibpkey.low_pkey, tmp_ibpkey->u.ibpkey.high_pkey);
-+		goto err;
-+	}
++	tmp_ibendport->u.ibendport.port = port;
 +
 +	/* Context */
 +	if (context_from_record(handle, policydb, &tmp_con,
-+				sepol_ibpkey_get_con(data)) < 0)
++				sepol_ibendport_get_con(data)) < 0)
 +		goto err;
-+	context_cpy(&tmp_ibpkey->context[0], tmp_con);
++	context_cpy(&tmp_ibendport->context[0], tmp_con);
 +	context_destroy(tmp_con);
 +	free(tmp_con);
 +	tmp_con = NULL;
 +
-+	*ibpkey = tmp_ibpkey;
++	*ibendport = tmp_ibendport;
 +	return STATUS_SUCCESS;
 +
 +omem:
 +	ERR(handle, "out of memory");
 +
 +err:
-+	if (tmp_ibpkey) {
-+		context_destroy(&tmp_ibpkey->context[0]);
-+		free(tmp_ibpkey);
++	if (tmp_ibendport) {
++		context_destroy(&tmp_ibendport->context[0]);
++		free(tmp_ibendport);
 +	}
 +	context_destroy(tmp_con);
 +	free(tmp_con);
-+	free(subnet_prefix_buf);
-+	ERR(handle, "could not create ibpkey structure");
++	free(ibdev_name);
++	ERR(handle, "could not create ibendport structure");
 +	return STATUS_ERR;
 +}
 +
-+static int ibpkey_to_record(sepol_handle_t *handle,
-+			  const policydb_t *policydb,
-+			  ocontext_t *ibpkey, sepol_ibpkey_t **record)
++static int ibendport_to_record(sepol_handle_t *handle,
++			       const policydb_t *policydb,
++			       ocontext_t *ibendport,
++			       sepol_ibendport_t **record)
 +{
-+	int low = ibpkey->u.ibpkey.low_pkey;
-+	int high = ibpkey->u.ibpkey.high_pkey;
-+	context_struct_t *con = &ibpkey->context[0];
++	int port = ibendport->u.ibendport.port;
++	context_struct_t *con = &ibendport->context[0];
 +
 +	sepol_context_t *tmp_con = NULL;
-+	sepol_ibpkey_t *tmp_record = NULL;
++	sepol_ibendport_t *tmp_record = NULL;
 +
-+	if (sepol_ibpkey_create(handle, &tmp_record) < 0)
++	if (sepol_ibendport_create(handle, &tmp_record) < 0)
 +		goto err;
 +
-+	if (sepol_ibpkey_set_subnet_prefix_bytes(handle, tmp_record,
-+					       (const char *)&ibpkey->u.ibpkey.subnet_prefix) < 0)
++	if (sepol_ibendport_set_ibdev_name(handle, tmp_record,
++					   ibendport->u.ibendport.dev_name) < 0)
 +		goto err;
 +
-+	sepol_ibpkey_set_range(tmp_record, low, high);
++	sepol_ibendport_set_port(tmp_record, port);
 +
 +	if (context_to_record(handle, policydb, con, &tmp_con) < 0)
 +		goto err;
 +
-+	if (sepol_ibpkey_set_con(handle, tmp_record, tmp_con) < 0)
++	if (sepol_ibendport_set_con(handle, tmp_record, tmp_con) < 0)
 +		goto err;
 +
 +	sepol_context_free(tmp_con);
@@ -2085,21 +1825,21 @@ index 0000000..eb46954
 +	return STATUS_SUCCESS;
 +
 +err:
-+	ERR(handle, "could not convert ibpkey to record");
++	ERR(handle, "could not convert ibendport to record");
 +	sepol_context_free(tmp_con);
-+	sepol_ibpkey_free(tmp_record);
++	sepol_ibendport_free(tmp_record);
 +	return STATUS_ERR;
 +}
 +
-+/* Return the number of ibpkeys */
-+extern int sepol_ibpkey_count(sepol_handle_t *handle __attribute__ ((unused)),
-+			    const sepol_policydb_t *p, unsigned int *response)
++/* Return the number of ibendports */
++extern int sepol_ibendport_count(sepol_handle_t *handle __attribute__ ((unused)),
++				 const sepol_policydb_t *p, unsigned int *response)
 +{
 +	unsigned int count = 0;
 +	ocontext_t *c, *head;
 +	const policydb_t *policydb = &p->p;
 +
-+	head = policydb->ocontexts[OCON_IBPKEY];
++	head = policydb->ocontexts[OCON_IBENDPORT];
 +	for (c = head; c; c = c->next)
 +		count++;
 +
@@ -2109,27 +1849,25 @@ index 0000000..eb46954
 +	return STATUS_SUCCESS;
 +}
 +
-+/* Check if a ibpkey exists */
-+int sepol_ibpkey_exists(sepol_handle_t *handle __attribute__ ((unused)),
-+		      const sepol_policydb_t *p,
-+		      const sepol_ibpkey_key_t *key, int *response)
++/* Check if a ibendport exists */
++int sepol_ibendport_exists(sepol_handle_t *handle __attribute__ ((unused)),
++			   const sepol_policydb_t *p,
++			   const sepol_ibendport_key_t *key, int *response)
 +{
 +	const policydb_t *policydb = &p->p;
 +	ocontext_t *c, *head;
-+	int low, high;
-+	const char *subnet_prefix;
++	int port;
++	const char *ibdev_name;
 +
-+	sepol_ibpkey_key_unpack(key, &subnet_prefix, &low, &high);
++	sepol_ibendport_key_unpack(key, &ibdev_name, &port);
 +
-+	head = policydb->ocontexts[OCON_IBPKEY];
++	head = policydb->ocontexts[OCON_IBENDPORT];
 +	for (c = head; c; c = c->next) {
-+		unsigned int *subnet_prefix2 = c->u.ibpkey.subnet_prefix;
-+		uint16_t low2 = c->u.ibpkey.low_pkey;
-+		uint16_t high2 = c->u.ibpkey.high_pkey;
++		const char *ibdev_name2 = c->u.ibendport.dev_name;
++		int port2 = c->u.ibendport.port;
 +
-+		if (low2 == low &&
-+		    high2 == high &&
-+		    (!memcmp(subnet_prefix, subnet_prefix2, 16))) {
++		if (port2 == port &&
++		    (!strcmp(ibdev_name, ibdev_name2))) {
 +			*response = 1;
 +			return STATUS_SUCCESS;
 +		}
@@ -2139,28 +1877,26 @@ index 0000000..eb46954
 +	return STATUS_SUCCESS;
 +}
 +
-+/* Query a ibpkey */
-+int sepol_ibpkey_query(sepol_handle_t *handle,
-+		     const sepol_policydb_t *p,
-+		     const sepol_ibpkey_key_t *key, sepol_ibpkey_t **response)
++int sepol_ibendport_query(sepol_handle_t *handle,
++			  const sepol_policydb_t *p,
++			  const sepol_ibendport_key_t *key,
++			  sepol_ibendport_t **response)
 +{
 +	const policydb_t *policydb = &p->p;
 +	ocontext_t *c, *head;
-+	int low, high;
-+	const char *subnet_prefix;
++	int port;
++	const char *ibdev_name;
 +
-+	sepol_ibpkey_key_unpack(key, &subnet_prefix, &low, &high);
++	sepol_ibendport_key_unpack(key, &ibdev_name, &port);
 +
-+	head = policydb->ocontexts[OCON_IBPKEY];
++	head = policydb->ocontexts[OCON_IBENDPORT];
 +	for (c = head; c; c = c->next) {
-+		unsigned int *subnet_prefix2 = c->u.ibpkey.subnet_prefix;
-+		int low2 = c->u.ibpkey.low_pkey;
-+		int high2 = c->u.ibpkey.high_pkey;
++		const char *ibdev_name2 = c->u.ibendport.dev_name;
++		int port2 = c->u.ibendport.port;
 +
-+		if (low2 == low &&
-+		    high2 == high &&
-+		    (!memcmp(subnet_prefix, subnet_prefix2, 16))) {
-+			if (ibpkey_to_record(handle, policydb, c, response) < 0)
++		if (port2 == port &&
++		    (!strcmp(ibdev_name, ibdev_name2))) {
++			if (ibendport_to_record(handle, policydb, c, response) < 0)
 +				goto err;
 +			return STATUS_SUCCESS;
 +		}
@@ -2170,65 +1906,66 @@ index 0000000..eb46954
 +	return STATUS_SUCCESS;
 +
 +err:
-+	ERR(handle, "could not query ibpkey subnet prefix: %s range %u - %u exists",
-+	    subnet_prefix, low, high);
++	ERR(handle, "could not query ibendport, IB device: %s port %u",
++	    ibdev_name, port);
 +	return STATUS_ERR;
 +}
 +
-+/* Load a ibpkey into policy */
-+int sepol_ibpkey_modify(sepol_handle_t *handle,
-+		      sepol_policydb_t *p,
-+		      const sepol_ibpkey_key_t *key, const sepol_ibpkey_t *data)
++/* Load a ibendport into policy */
++int sepol_ibendport_modify(sepol_handle_t *handle,
++			   sepol_policydb_t *p,
++			   const sepol_ibendport_key_t *key,
++			   const sepol_ibendport_t *data)
 +{
 +	policydb_t *policydb = &p->p;
-+	ocontext_t *ibpkey = NULL;
-+	int low, high;
-+	const char *subnet_prefix;
++	ocontext_t *ibendport = NULL;
++	int port;
++	const char *ibdev_name;
 +
-+	sepol_ibpkey_key_unpack(key, &subnet_prefix, &low, &high);
++	sepol_ibendport_key_unpack(key, &ibdev_name, &port);
 +
-+	if (ibpkey_from_record(handle, policydb, &ibpkey, data) < 0)
++	if (ibendport_from_record(handle, policydb, &ibendport, data) < 0)
 +		goto err;
 +
 +	/* Attach to context list */
-+	ibpkey->next = policydb->ocontexts[OCON_IBPKEY];
-+	policydb->ocontexts[OCON_IBPKEY] = ibpkey;
++	ibendport->next = policydb->ocontexts[OCON_IBENDPORT];
++	policydb->ocontexts[OCON_IBENDPORT] = ibendport;
 +
 +	return STATUS_SUCCESS;
 +
 +err:
-+	ERR(handle, "could not load ibpkey subnet prefix: %s range %u - %u exists",
-+	    subnet_prefix, low, high);
-+	if (ibpkey) {
-+		context_destroy(&ibpkey->context[0]);
-+		free(ibpkey);
++	ERR(handle, "could not load ibendport %s/%d",
++	    ibdev_name, port);
++	if (ibendport) {
++		context_destroy(&ibendport->context[0]);
++		free(ibendport);
 +	}
 +	return STATUS_ERR;
 +}
 +
-+int sepol_ibpkey_iterate(sepol_handle_t *handle,
-+		       const sepol_policydb_t *p,
-+		       int (*fn)(const sepol_ibpkey_t *ibpkey,
-+				 void *fn_arg), void *arg)
++int sepol_ibendport_iterate(sepol_handle_t *handle,
++			    const sepol_policydb_t *p,
++			    int (*fn)(const sepol_ibendport_t *ibendport,
++				      void *fn_arg), void *arg)
 +{
 +	const policydb_t *policydb = &p->p;
 +	ocontext_t *c, *head;
-+	sepol_ibpkey_t *ibpkey = NULL;
++	sepol_ibendport_t *ibendport = NULL;
 +
-+	head = policydb->ocontexts[OCON_IBPKEY];
++	head = policydb->ocontexts[OCON_IBENDPORT];
 +	for (c = head; c; c = c->next) {
 +		int status;
 +
-+		if (ibpkey_to_record(handle, policydb, c, &ibpkey) < 0)
++		if (ibendport_to_record(handle, policydb, c, &ibendport) < 0)
 +			goto err;
 +
 +		/* Invoke handler */
-+		status = fn(ibpkey, arg);
++		status = fn(ibendport, arg);
 +		if (status < 0)
 +			goto err;
 +
-+		sepol_ibpkey_free(ibpkey);
-+		ibpkey = NULL;
++		sepol_ibendport_free(ibendport);
++		ibendport = NULL;
 +
 +		/* Handler requested exit */
 +		if (status > 0)
@@ -2238,135 +1975,125 @@ index 0000000..eb46954
 +	return STATUS_SUCCESS;
 +
 +err:
-+	ERR(handle, "could not iterate over ibpkeys");
-+	sepol_ibpkey_free(ibpkey);
++	ERR(handle, "could not iterate over ibendports");
++	sepol_ibendport_free(ibendport);
 +	return STATUS_ERR;
 +}
 diff --git a/python/semanage/semanage b/python/semanage/semanage
-index 9659aac..11b56e2 100644
+index 11b56e2..313537c 100644
 --- a/python/semanage/semanage
 +++ b/python/semanage/semanage
-@@ -58,6 +58,9 @@ usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSE
- usage_port = "semanage port [-h] [-n] [-N] [-S STORE] ["
- usage_port_dict = {' --add': ('-t TYPE', '-p PROTOCOL', '-r RANGE', '(', 'port_name', '|', 'port_range', ')'), ' --modify': ('-t TYPE', '-p PROTOCOL', '-r RANGE', '(', 'port_name', '|', 'port_range', ')'), ' --delete': ('-p PROTOCOL', '(', 'port_name', '|', 'port_range', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
+@@ -61,6 +61,9 @@ usage_port_dict = {' --add': ('-t TYPE', '-p PROTOCOL', '-r RANGE', '(', 'port_n
+ usage_ibpkey = "semanage ibpkey [-h] [-n] [-N] [-s STORE] ["
+ usage_ibpkey_dict = {' --add': ('-t TYPE', '-x SUBNET_PREFIX', '-r RANGE', '(', 'ibpkey_name', '|', 'pkey_range', ')'), ' --modify': ('-t TYPE', '-x SUBNET_PREFIX', '-r RANGE', '(', 'ibpkey_name', '|', 'pkey_range', ')'), ' --delete': ('-x SUBNET_PREFIX', '(', 'ibpkey_name', '|', 'pkey_range', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
  
-+usage_ibpkey = "semanage ibpkey [-h] [-n] [-N] [-s STORE] ["
-+usage_ibpkey_dict = {' --add': ('-t TYPE', '-x SUBNET_PREFIX', '-r RANGE', '(', 'ibpkey_name', '|', 'pkey_range', ')'), ' --modify': ('-t TYPE', '-x SUBNET_PREFIX', '-r RANGE', '(', 'ibpkey_name', '|', 'pkey_range', ')'), ' --delete': ('-x SUBNET_PREFIX', '(', 'ibpkey_name', '|', 'pkey_range', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
++usage_ibendport = "semanage ibendport [-h] [-n] [-N] [-s STORE] ["
++usage_ibendport_dict = {' --add': ('-t TYPE', '-z IBDEV_NAME', '-r RANGE', '(', 'port', ')'), ' --modify': ('-t TYPE', '-z IBDEV_NAME', '-r RANGE', '(', 'port', ')'), ' --delete': ('-z IBDEV_NAME', '-r RANGE''(', 'port', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
 +
  usage_node = "semanage node [-h] [-n] [-N] [-S STORE] ["
  usage_node_dict = {' --add': ('-M NETMASK', '-p PROTOCOL', '-t TYPE', '-r RANGE', 'node'), ' --modify': ('-M NETMASK', '-p PROTOCOL', '-t TYPE', '-r RANGE', 'node'), ' --delete': ('-M NETMASK', '-p PROTOCOL', 'node'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
  
-@@ -145,6 +148,9 @@ def port_ini():
-     OBJECT = seobject.portRecords(store)
+@@ -152,6 +155,10 @@ def ibpkey_ini():
+     OBJECT = seobject.ibpkeyRecords(store)
      return OBJECT
  
-+def ibpkey_ini():
-+    OBJECT = seobject.ibpkeyRecords(store)
++def ibendport_ini():
++    OBJECT = seobject.ibendportRecords(store)
 +    return OBJECT
- 
++
  def module_ini():
      OBJECT = seobject.moduleRecords(store)
-@@ -181,7 +187,7 @@ def dontaudit_ini():
+     return OBJECT
+@@ -187,8 +194,7 @@ def dontaudit_ini():
      return OBJECT
  
  # define dictonary for seobject OBEJCTS
--object_dict = {'login': login_ini, 'user': user_ini, 'port': port_ini, 'module': module_ini, 'interface': interface_ini, 'node': node_ini, 'fcontext': fcontext_ini, 'boolean': boolean_ini, 'permissive': permissive_ini, 'dontaudit': dontaudit_ini}
-+object_dict = {'login': login_ini, 'user': user_ini, 'port': port_ini, 'module': module_ini, 'interface': interface_ini, 'node': node_ini, 'fcontext': fcontext_ini, 'boolean': boolean_ini, 'permissive': permissive_ini, 'dontaudit': dontaudit_ini, 'ibpkey': ibpkey_ini}
- 
+-object_dict = {'login': login_ini, 'user': user_ini, 'port': port_ini, 'module': module_ini, 'interface': interface_ini, 'node': node_ini, 'fcontext': fcontext_ini, 'boolean': boolean_ini, 'permissive': permissive_ini, 'dontaudit': dontaudit_ini, 'ibpkey': ibpkey_ini}
+-
++object_dict = {'login': login_ini, 'user': user_ini, 'port': port_ini, 'module': module_ini, 'interface': interface_ini, 'node': node_ini, 'fcontext': fcontext_ini, 'boolean': boolean_ini, 'permissive': permissive_ini, 'dontaudit': dontaudit_ini, 'ibpkey': ibpkey_ini, 'ibendport': ibendport_ini}
  
  def generate_custom_usage(usage_text, usage_dict):
-@@ -292,6 +298,11 @@ def parser_add_proto(parser, name):
-     version for the specified node (ipv4|ipv6).
+     # generate custom usage from given text and dictonary
+@@ -303,6 +309,10 @@ def parser_add_subnet_prefix(parser, name):
+     Subnet prefix for  the specified infiniband ibpkey.
  '''))
  
-+def parser_add_subnet_prefix(parser, name):
-+    parser.add_argument('-x', '--subnet_prefix', help=_('''
-+    Subnet prefix for  the specified infiniband ibpkey.
++def parser_add_ibdev_name(parser, name):
++    parser.add_argument('-z', '--ibdev_name', help=_('''
++    Name for the specified infiniband end port.
 +'''))
-+
  
  def parser_add_modify(parser, name):
      parser.add_argument('-m', '--modify', dest='action', action='store_const', const='modify', help=_("Modify a record of the %s object type") % name)
-@@ -511,6 +522,52 @@ def setupPortParser(subparsers):
-     portParser.set_defaults(func=handlePort)
+@@ -567,6 +577,49 @@ def setupPkeyParser(subparsers):
+     ibpkeyParser.add_argument('ibpkey', nargs='?', default=None, help=_('pkey | pkey_range'))
+     ibpkeyParser.set_defaults(func=handlePkey)
  
- 
++def handleIbendport(args):
++    ibendport_args = {'list': [('ibendport', 'type', 'ibdev_name'), ('')], 'add': [('locallist'), ('type', 'ibendport', 'ibdev_name'), ('')], 'modify': [('localist'), ('ibendport', 'ibdev_name')], 'delete': [('locallist'), ('ibendport', 'ibdev_name')], 'extract': [('locallist', 'ibendport', 'type', 'ibdev_name'), ('')], 'deleteall': [('locallist'), ('')]}
 +
-+def handlePkey(args):
-+    ibpkey_args = {'list': [('ibpkey', 'type', 'subnet_prefix'), ('')], 'add': [('locallist'), ('type', 'ibpkey', 'subnet_prefix')], 'modify': [('localist'), ('ibpkey', 'subnet_prefix')], 'delete': [('locallist'), ('ibpkey', 'subnet_prefix')], 'extract': [('locallist', 'ibpkey', 'type', 'subnet prefix'), ('')], 'deleteall': [('locallist'), ('')]}
++    handle_opts(args, ibendport_args, args.action)
 +
-+    handle_opts(args, ibpkey_args, args.action)
-+
-+    OBJECT = object_dict['ibpkey']()
++    OBJECT = object_dict['ibendport']()
 +    OBJECT.set_reload(args.noreload)
 +
 +    if args.action is "add":
-+        OBJECT.add(args.ibpkey, args.subnet_prefix, args.range, args.type)
++        OBJECT.add(args.ibendport, args.ibdev_name, args.range, args.type)
 +    if args.action is "modify":
-+        OBJECT.modify(args.ibpkey, args.subnet_prefix, args.range, args.type)
++        OBJECT.modify(args.ibendport, args.ibdev_name, args.range, args.type)
 +    if args.action is "delete":
-+        OBJECT.delete(args.ibpkey, args.subnet_prefix)
++        OBJECT.delete(args.ibendport, args.ibdev_name)
 +    if args.action is "list":
 +        OBJECT.list(args.noheading, args.locallist)
 +    if args.action is "deleteall":
 +        OBJECT.deleteall()
 +    if args.action is "extract":
 +        for i in OBJECT.customized():
-+            print("ibpkey %s" % str(i))
++            print("ibendport %s" % str(i))
 +
 +
-+def setupPkeyParser(subparsers):
-+    generated_usage = generate_custom_usage(usage_ibpkey, usage_ibpkey_dict)
-+    ibpkeyParser = subparsers.add_parser('ibpkey', usage=generated_usage, help=_('Manage infiniband ibpkey type definitions'))
-+    parser_add_locallist(ibpkeyParser, "ibpkey")
-+    parser_add_noheading(ibpkeyParser, "ibpkey")
-+    parser_add_noreload(ibpkeyParser, "ibpkey")
-+    parser_add_store(ibpkeyParser, "ibpkey")
++def setupIbendportParser(subparsers):
++    generated_usage = generate_custom_usage(usage_ibendport, usage_ibendport_dict)
++    ibendportParser = subparsers.add_parser('ibendport', usage=generated_usage, help=_('Manage infiniband end port type definitions'))
++    parser_add_locallist(ibendportParser, "ibendport")
++    parser_add_noheading(ibendportParser, "ibendport")
++    parser_add_noreload(ibendportParser, "ibendport")
++    parser_add_store(ibendportParser, "ibendport")
 +
-+    ibpkey_action = ibpkeyParser.add_mutually_exclusive_group(required=True)
-+    parser_add_add(ibpkey_action, "ibpkey")
-+    parser_add_delete(ibpkey_action, "ibpkey")
-+    parser_add_modify(ibpkey_action, "ibpkey")
-+    parser_add_list(ibpkey_action, "ibpkey")
-+    parser_add_extract(ibpkey_action, "ibpkey")
-+    parser_add_deleteall(ibpkey_action, "ibpkey")
-+    parser_add_type(ibpkeyParser, "ibpkey")
-+    parser_add_range(ibpkeyParser, "ibpkey")
-+    parser_add_subnet_prefix(ibpkeyParser, "ibpkey")
-+    ibpkeyParser.add_argument('ibpkey', nargs='?', default=None, help=_('pkey | pkey_range'))
-+    ibpkeyParser.set_defaults(func=handlePkey)
-+
-+
++    ibendport_action = ibendportParser.add_mutually_exclusive_group(required=True)
++    parser_add_add(ibendport_action, "ibendport")
++    parser_add_delete(ibendport_action, "ibendport")
++    parser_add_modify(ibendport_action, "ibendport")
++    parser_add_list(ibendport_action, "ibendport")
++    parser_add_extract(ibendport_action, "ibendport")
++    parser_add_deleteall(ibendport_action, "ibendport")
++    parser_add_type(ibendportParser, "ibendport")
++    parser_add_range(ibendportParser, "ibendport")
++    parser_add_ibdev_name(ibendportParser, "ibendport")
++    ibendportParser.add_argument('ibendport', nargs='?', default=None, help=_('ibendport'))
++    ibendportParser.set_defaults(func=handleIbendport)
+ 
  def handleInterface(args):
      interface_args = {'list': [('interface'), ('')], 'add': [('locallist'), ('type', 'interface')], 'modify': [('locallist'), ('type', 'interface')], 'delete': [('locallist'), ('interface')], 'extract': [('locallist', 'interface', 'type'), ('')], 'deleteall': [('locallist'), ('')]}
- 
-@@ -849,6 +906,7 @@ def createCommandParser():
-     setupLoginParser(subparsers)
+@@ -907,6 +960,7 @@ def createCommandParser():
      setupUserParser(subparsers)
      setupPortParser(subparsers)
-+    setupPkeyParser(subparsers)
+     setupPkeyParser(subparsers)
++    setupIbendportParser(subparsers)
      setupInterfaceParser(subparsers)
      setupModuleParser(subparsers)
      setupNodeParser(subparsers)
 diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index 7a54373..41b0aca 100644
+index 41b0aca..037c9ae 100644
 --- a/python/semanage/seobject.py
 +++ b/python/semanage/seobject.py
-@@ -32,6 +32,7 @@ import socket
- from semanage import *
- PROGNAME = "policycoreutils"
- import sepolicy
-+import setools
- from IPy import IP
- 
- try:
-@@ -1309,6 +1310,260 @@ class portRecords(semanageRecords):
+@@ -1565,6 +1565,245 @@ class ibpkeyRecords(semanageRecords):
                  rec += ", %s" % p
-             print(rec)
+             print rec
  
-+class ibpkeyRecords(semanageRecords):
++class ibendportRecords(semanageRecords):
 +    try:
-+        q = setools.TypeQuery(setools.SELinuxPolicy(sepolicy.get_installed_policy()), attrs=["ibpkey_type"])
++        q = setools.TypeQuery(setools.SELinuxPolicy(sepolicy.get_installed_policy()), attrs=["ibendport_type"])
 +        valid_types = sorted(str(t) for t in q.results())
 +    except RuntimeError:
 +        valid_types = []
@@ -2374,26 +2101,21 @@ index 7a54373..41b0aca 100644
 +    def __init__(self, store=""):
 +        semanageRecords.__init__(self, store)
 +
-+    def __genkey(self, pkey, subnet_prefix):
-+	if subnet_prefix == "":
-+            raise ValueError(_("Subnet Prefix is required"))
++    def __genkey(self, ibendport, ibdev_name):
++	if ibdev_name == "":
++            raise ValueError(_("IB device name is required"))
 +
-+	pkeys = pkey.split("-")
-+        if len(pkeys) == 1:
-+            high = low = int(pkeys[0], 0)
-+        else:
-+            low = int(pkeys[0], 0)
-+            high = int(pkeys[1], 0)
++        port = int(ibendport)
 +
-+        if high > 65535:
-+            raise ValueError(_("Invalid Pkey"))
++        if port > 255 or port < 1:
++            raise ValueError(_("Invalid Port Number"))
 +
-+        (rc, k) = semanage_ibpkey_key_create(self.sh, subnet_prefix, low, high)
++        (rc, k) = semanage_ibendport_key_create(self.sh, ibdev_name, port)
 +        if rc < 0:
-+            raise ValueError(_("Could not create a key for %s/%s") % (subnet_prefix, pkey))
-+        return (k, subnet_prefix, low, high)
++            raise ValueError(_("Could not create a key for ibendport %s/%s") % (ibdev_name, ibendport))
++        return (k, ibdev_name, port)
 +
-+    def __add(self, pkey, subnet_prefix, serange, type):
++    def __add(self, ibendport, ibdev_name, serange, type):
 +        if is_mls_enabled == 1:
 +            if serange == "":
 +                serange = "s0"
@@ -2404,61 +2126,60 @@ index 7a54373..41b0aca 100644
 +            raise ValueError(_("Type is required"))
 +
 +        if type not in self.valid_types:
-+            raise ValueError(_("Type %s is invalid, must be a ibpkey type") % type)
++            raise ValueError(_("Type %s is invalid, must be an ibendport type") % type)
++        (k, ibendport, port) = self.__genkey(ibendport, ibdev_name)
 +
-+        (k, subnet_prefix, low, high) = self.__genkey(pkey, subnet_prefix)
-+
-+        (rc, exists) = semanage_ibpkey_exists(self.sh, k)
++        (rc, exists) = semanage_ibendport_exists(self.sh, k)
 +        if rc < 0:
-+            raise ValueError(_("Could not check if ibpkey %s/%s is defined") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not check if ibendport %s/%s is defined") % (ibdev_name, port))
 +        if exists:
-+            raise ValueError(_("ibpkey %s/%s already defined") % (subnet_prefix, pkey))
++            raise ValueError(_("ibendport %s/%s already defined") % (ibdev_name, port))
 +
-+        (rc, p) = semanage_ibpkey_create(self.sh)
++        (rc, p) = semanage_ibendport_create(self.sh)
 +        if rc < 0:
-+            raise ValueError(_("Could not create ibpkey for %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not create ibendport for %s/%s") % (ibdev_name, port))
 +
-+        semanage_ibpkey_set_subnet_prefix(self.sh, p, subnet_prefix)
-+        semanage_ibpkey_set_range(p, low, high)
++        semanage_ibendport_set_ibdev_name(self.sh, p, ibdev_name)
++        semanage_ibendport_set_port(p, port)
 +        (rc, con) = semanage_context_create(self.sh)
 +        if rc < 0:
-+            raise ValueError(_("Could not create context for %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not create context for %s/%s") % (ibdev_name, port))
 +
 +        rc = semanage_context_set_user(self.sh, con, "system_u")
 +        if rc < 0:
-+            raise ValueError(_("Could not set user in ibpkey context for %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not set user in ibendport context for %s/%s") % (ibdev_name, port))
 +
 +        rc = semanage_context_set_role(self.sh, con, "object_r")
 +        if rc < 0:
-+            raise ValueError(_("Could not set role in ibpkey context for %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not set role in ibendport context for %s/%s") % (ibdev_name, port))
 +
 +        rc = semanage_context_set_type(self.sh, con, type)
 +        if rc < 0:
-+            raise ValueError(_("Could not set type in ibpkey context for %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not set type in ibendport context for %s/%s") % (ibdev_name, port))
 +
 +        if (is_mls_enabled == 1) and (serange != ""):
 +            rc = semanage_context_set_mls(self.sh, con, serange)
 +            if rc < 0:
-+                raise ValueError(_("Could not set mls fields in ibpkey context for %s/%s") % (subnet_prefix, pkey))
++                raise ValueError(_("Could not set mls fields in ibendport context for %s/%s") % (ibdev_name, port))
 +
-+        rc = semanage_ibpkey_set_con(self.sh, p, con)
++        rc = semanage_ibendport_set_con(self.sh, p, con)
 +        if rc < 0:
-+            raise ValueError(_("Could not set ibpkey context for %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not set ibendport context for %s/%s") % (ibdev_name, port))
 +
-+        rc = semanage_ibpkey_modify_local(self.sh, k, p)
++        rc = semanage_ibendport_modify_local(self.sh, k, p)
 +        if rc < 0:
-+            raise ValueError(_("Could not add ibpkey %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not add ibendport %s/%s") % (ibdev_name, port))
 +
 +        semanage_context_free(con)
-+        semanage_ibpkey_key_free(k)
-+        semanage_ibpkey_free(p)
++        semanage_ibendport_key_free(k)
++        semanage_ibendport_free(p)
 +
-+    def add(self, pkey, subnet_prefix, serange, type):
++    def add(self, ibendport, ibdev_name, serange, type):
 +        self.begin()
-+        self.__add(pkey, subnet_prefix, serange, type)
++        self.__add(ibendport, ibdev_name, serange, type)
 +        self.commit()
 +
-+    def __modify(self, pkey, subnet_prefix, serange, setype):
++    def __modify(self, ibendport, ibdev_name, serange, setype):
 +        if serange == "" and setype == "":
 +            if is_mls_enabled == 1:
 +                raise ValueError(_("Requires setype or serange"))
@@ -2466,129 +2187,122 @@ index 7a54373..41b0aca 100644
 +                raise ValueError(_("Requires setype"))
 +
 +        if setype and setype not in self.valid_types:
-+            raise ValueError(_("Type %s is invalid, must be a ibpkey type") % setype)
++            raise ValueError(_("Type %s is invalid, must be an ibendport type") % setype)
 +
-+        (k, subnet_prefix, low, high) = self.__genkey(pkey, subnet_prefix)
++        (k, ibdev_name, port) = self.__genkey(ibendport, ibdev_name)
 +
-+        (rc, exists) = semanage_ibpkey_exists(self.sh, k)
++        (rc, exists) = semanage_ibendport_exists(self.sh, k)
 +        if rc < 0:
-+            raise ValueError(_("Could not check if ibpkey %s/%s is defined") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not check if ibendport %s/%s is defined") % (ibdev_name, ibendport))
 +        if not exists:
-+            raise ValueError(_("ibpkey %s/%s is not defined") % (subnet_prefix, pkey))
++            raise ValueError(_("ibendport %s/%s is not defined") % (ibdev_name, ibendport))
 +
-+        (rc, p) = semanage_ibpkey_query(self.sh, k)
++        (rc, p) = semanage_ibendport_query(self.sh, k)
 +        if rc < 0:
-+            raise ValueError(_("Could not query ibpkey %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not query ibendport %s/%s") % (ibdev_name, ibendport))
 +
-+        con = semanage_ibpkey_get_con(p)
++        con = semanage_ibendport_get_con(p)
 +
 +        if (is_mls_enabled == 1) and (serange != ""):
 +            semanage_context_set_mls(self.sh, con, untranslate(serange))
 +        if setype != "":
 +            semanage_context_set_type(self.sh, con, setype)
 +
-+        rc = semanage_ibpkey_modify_local(self.sh, k, p)
++        rc = semanage_ibendport_modify_local(self.sh, k, p)
 +        if rc < 0:
-+            raise ValueError(_("Could not modify ibpkey %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not modify ibendport %s/%s") % (ibdev_name, ibendport))
 +
-+        semanage_ibpkey_key_free(k)
-+        semanage_ibpkey_free(p)
++        semanage_ibendport_key_free(k)
++        semanage_ibendport_free(p)
 +
-+    def modify(self, pkey, subnet_prefix, serange, setype):
++    def modify(self, ibendport, ibdev_name, serange, setype):
 +        self.begin()
-+        self.__modify(pkey, subnet_prefix, serange, setype)
++        self.__modify(ibendport, ibdev_name, serange, setype)
 +        self.commit()
 +
 +    def deleteall(self):
-+        (rc, plist) = semanage_ibpkey_list_local(self.sh)
++        (rc, plist) = semanage_ibendport_list_local(self.sh)
 +        if rc < 0:
-+            raise ValueError(_("Could not list the ibpkeys"))
++            raise ValueError(_("Could not list the ibendports"))
 +
 +        self.begin()
 +
-+        for ibpkey in plist:
-+            (rc, subnet_prefix) = semanage_ibpkey_get_subnet_prefix(self.sh, ibpkey)
-+            low = semanage_ibpkey_get_low(ibpkey)
-+            high = semanage_ibpkey_get_high(ibpkey)
-+            pkey_str = "%s-%s" % (low, high)
-+            (k, subnet_prefix, low, high) = self.__genkey(pkey_str, subnet_prefix)
++        for ibendport in plist:
++            (rc, ibdev_name) = semanage_ibendport_get_ibdev_name(self.sh, ibendport)
++            port = semanage_ibendport_get_port(ibendport)
++            (k, ibdev_name, port) = self.__genkey(str(port), ibdev_name)
 +            if rc < 0:
-+                raise ValueError(_("Could not create a key for %s") % pkey_str)
++                raise ValueError(_("Could not create a key for %s/%d") % (ibdevname, port))
 +
-+            rc = semanage_ibpkey_del_local(self.sh, k)
++            rc = semanage_ibendport_del_local(self.sh, k)
 +            if rc < 0:
-+                raise ValueError(_("Could not delete the ibpkey %s") % pkey_str)
-+            semanage_ibpkey_key_free(k)
++                raise ValueError(_("Could not delete the ibendport %s/%d") % (ibdev_name, port))
++            semanage_ibendport_key_free(k)
 +
 +        self.commit()
 +
-+    def __delete(self, pkey, subnet_prefix):
-+        (k, subnet_prefix, low, high) = self.__genkey(pkey, subnet_prefix)
-+        (rc, exists) = semanage_ibpkey_exists(self.sh, k)
++    def __delete(self, ibendport, ibdev_name):
++        (k, ibdev_name, port) = self.__genkey(ibendport, ibdev_name)
++        (rc, exists) = semanage_ibendport_exists(self.sh, k)
 +        if rc < 0:
-+            raise ValueError(_("Could not check if ibpkey %s/%s is defined") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not check if ibendport %s/%s is defined") % (ibdev_name, ibendport))
 +        if not exists:
-+            raise ValueError(_("ibpkey %s/%s is not defined") % (subnet_prefix, pkey))
++            raise ValueError(_("ibendport %s/%s is not defined") % (ibdev_name, ibendport))
 +
-+        (rc, exists) = semanage_ibpkey_exists_local(self.sh, k)
++        (rc, exists) = semanage_ibendport_exists_local(self.sh, k)
 +        if rc < 0:
-+            raise ValueError(_("Could not check if ibpkey %s/%s is defined") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not check if ibendport %s/%s is defined") % (ibdev_name, ibendport))
 +        if not exists:
-+            raise ValueError(_("ibpkey %s/%s is defined in policy, cannot be deleted") % (subnet_prefix, pkey))
++            raise ValueError(_("ibendport %s/%s is defined in policy, cannot be deleted") % (ibdev_name, ibendport))
 +
-+        rc = semanage_ibpkey_del_local(self.sh, k)
++        rc = semanage_ibendport_del_local(self.sh, k)
 +        if rc < 0:
-+            raise ValueError(_("Could not delete ibpkey %s/%s") % (subnet_prefix, pkey))
++            raise ValueError(_("Could not delete ibendport %s/%s") % (ibdev_name, ibendport))
 +
-+        semanage_ibpkey_key_free(k)
++        semanage_ibendport_key_free(k)
 +
-+    def delete(self, pkey, subnet_prefix):
++    def delete(self, ibendport, ibdev_name):
 +        self.begin()
-+        self.__delete(pkey, subnet_prefix)
++        self.__delete(ibendport, ibdev_name)
 +        self.commit()
 +
 +    def get_all(self, locallist=0):
 +        ddict = {}
 +        if locallist:
-+            (rc, self.plist) = semanage_ibpkey_list_local(self.sh)
++            (rc, self.plist) = semanage_ibendport_list_local(self.sh)
 +        else:
-+            (rc, self.plist) = semanage_ibpkey_list(self.sh)
++            (rc, self.plist) = semanage_ibendport_list(self.sh)
 +        if rc < 0:
-+            raise ValueError(_("Could not list ibpkeys"))
++            raise ValueError(_("Could not list ibendports"))
 +
-+        for ibpkey in self.plist:
-+            con = semanage_ibpkey_get_con(ibpkey)
++        for ibendport in self.plist:
++            con = semanage_ibendport_get_con(ibendport)
 +            ctype = semanage_context_get_type(con)
-+            if ctype == "reserved_ibpkey_t":
++            if ctype == "reserved_ibendport_t":
 +                continue
 +            level = semanage_context_get_mls(con)
-+            (rc, subnet_prefix) = semanage_ibpkey_get_subnet_prefix(self.sh, ibpkey)
-+            low = semanage_ibpkey_get_low(ibpkey)
-+            high = semanage_ibpkey_get_high(ibpkey)
-+            ddict[(low, high, subnet_prefix)] = (ctype, level)
++            (rc, ibdev_name) = semanage_ibendport_get_ibdev_name(self.sh, ibendport)
++            port = semanage_ibendport_get_port(ibendport)
++            ddict[(port, ibdev_name)] = (ctype, level)
 +        return ddict
 +
 +    def get_all_by_type(self, locallist=0):
 +        ddict = {}
 +        if locallist:
-+            (rc, self.plist) = semanage_ibpkey_list_local(self.sh)
++            (rc, self.plist) = semanage_ibendport_list_local(self.sh)
 +        else:
-+            (rc, self.plist) = semanage_ibpkey_list(self.sh)
++            (rc, self.plist) = semanage_ibendport_list(self.sh)
 +        if rc < 0:
-+            raise ValueError(_("Could not list ibpkeys"))
++            raise ValueError(_("Could not list ibendports"))
 +
-+        for ibpkey in self.plist:
-+            con = semanage_ibpkey_get_con(ibpkey)
++        for ibendport in self.plist:
++            con = semanage_ibendport_get_con(ibendport)
 +            ctype = semanage_context_get_type(con)
-+            (rc, subnet_prefix) = semanage_ibpkey_get_subnet_prefix(self.sh, ibpkey)
-+            low = semanage_ibpkey_get_low(ibpkey)
-+            high = semanage_ibpkey_get_high(ibpkey)
-+            if (ctype, subnet_prefix) not in ddict.keys():
-+                ddict[(ctype, subnet_prefix)] = []
-+            if low == high:
-+                ddict[(ctype, subnet_prefix)].append("0x%x" % low)
-+            else:
-+                ddict[(ctype, subnet_prefix)].append("0x%x-0x%x" % (low, high))
++            (rc, ibdev_name) = semanage_ibendport_get_ibdev_name(self.sh, ibendport)
++            port = semanage_ibendport_get_port(ibendport)
++            if (ctype, ibdev_name) not in ddict.keys():
++                ddict[(ctype, ibdev_name)] = []
++            ddict[(ctype, ibdev_name)].append("0x%x" % port)
 +        return ddict
 +
 +    def customized(self):
@@ -2597,10 +2311,7 @@ index 7a54373..41b0aca 100644
 +        keys = ddict.keys()
 +        keys.sort()
 +        for k in keys:
-+            if k[0] == k[1]:
-+                l.append("-a -t %s -x %s %s" % (ddict[k][0], k[2], k[0]))
-+            else:
-+                l.append("-a -t %s -x %s %s-%s" % (ddict[k][0], k[2], k[0], k[1]))
++            l.append("-a -t %s -x %s %s" % (ddict[k][0], k[2], k[0]))
 +        return l
 +
 +    def list(self, heading=1, locallist=0):
@@ -2611,15 +2322,16 @@ index 7a54373..41b0aca 100644
 +        keys.sort()
 +
 +        if heading:
-+            print "%-30s %-18s %s\n" % (_("SELinux IB Pkey Type"), _("Subnet_Prefix"), _("Pkey Number"))
++            print "%-30s %-18s %s\n" % (_("SELinux IB End Port Type"), _("IB Device Name"), _("Port Number"))
 +        for i in keys:
 +            rec = "%-30s %-18s " % i
 +            rec += "%s" % ddict[i][0]
 +            for p in ddict[i][1:]:
 +                rec += ", %s" % p
 +            print rec
- 
++
  class nodeRecords(semanageRecords):
      try:
+         valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "node_type"))[0]["types"])
 -- 
 2.7.4
