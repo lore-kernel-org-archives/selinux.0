@@ -1,70 +1,153 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4GIf9LL021569
- for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 14:41:09 -0400
-Received: by mail-lf0-f65.google.com with SMTP id q24so4013352lfb.1
- for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 11:41:07 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <38273216-97ad-7955-941a-68485534d39f@users.sourceforge.net>
-References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
- <5704e656-708a-b611-5611-70fc65dc67e8@users.sourceforge.net>
- <38273216-97ad-7955-941a-68485534d39f@users.sourceforge.net>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 16 May 2017 14:41:05 -0400
-Message-ID: <CAHC9VhQY7-Ls5bX_wbna1S6PjV2Ck_1+AR5R8Pngn1tivXxCdg@mail.gmail.com>
-Subject: Re: [PATCH 3/3] selinux: Use an other error code for an input
- validation failure in sidtab_insert()
-To: SF Markus Elfring <elfring@users.sourceforge.net>
-Cc: Casey Schaufler <casey@schaufler-ca.com>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- William Roberts <william.c.roberts@intel.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+Message-ID: <1494963296.21557.13.camel@tycho.nsa.gov>
+Subject: Re: [PATCH v1 7/9] semanage: Update semanage to allow runtime
+ labeling of Infiniband Pkeys
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Dan Jurgens <danielj@mellanox.com>, selinux@tycho.nsa.gov
+Date: Tue, 16 May 2017 15:34:56 -0400
+In-Reply-To: <1494880961-73481-8-git-send-email-danielj@mellanox.com>
+References: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
+ <1494880961-73481-8-git-send-email-danielj@mellanox.com>
 Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Apr 4, 2017 at 7:16 AM, SF Markus Elfring
-<elfring@users.sourceforge.net> wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Tue, 4 Apr 2017 12:23:41 +0200
->
-> The error code "-ENOMEM" was also returned so far when the parameter "s"
-> of this function contained a null pointer.
-> Now I find that the code "-EINVAL" is more appropriate in this case.
->
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+On Mon, 2017-05-15 at 23:42 +0300, Dan Jurgens wrote:
+> From: Daniel Jurgens <danielj@mellanox.com>
+> 
+> Update libsepol and libsemanage to work with pkey records. Add local
+> storage for new and modified pkey records in pkeys.local. Update
+> semanage
+> to parse the pkey command options to add, modify, and delete pkeys.
+> 
+> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+> 
 > ---
->  security/selinux/ss/sidtab.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> v1:
+> Fixed semanage_pkey_exists -> semanage_ibpkey_exists in delete flow
+> in
+> seobject.py
+> 
+> Stephen Smalley:
+> - Subnet prefix can't vary in size always 16 bytes, remove size
+> field.
+> - Removed extraneous change in libsepol/VERSION
+> - Removed ifdef DARWIN s6_addr/32 blocks in favor of s6_addr.
+> - Got rid of magic constant for subnet prefix size.
+> 
+> Jason Zaman:
+> - Use SETools directly to query types in seobject.py.
+> 
+> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+> ---
+>  libsemanage/include/semanage/ibpkey_record.h  |  76 +++++
+>  libsemanage/include/semanage/ibpkeys_local.h  |  36 +++
+>  libsemanage/include/semanage/ibpkeys_policy.h |  28 ++
+>  libsemanage/include/semanage/semanage.h       |   3 +
+>  libsemanage/src/direct_api.c                  |  29 +-
+>  libsemanage/src/handle.h                      |  36 ++-
+>  libsemanage/src/ibpkey_internal.h             |  52 +++
+>  libsemanage/src/ibpkey_record.c               | 185 +++++++++++
+>  libsemanage/src/ibpkeys_file.c                | 181 +++++++++++
+>  libsemanage/src/ibpkeys_local.c               | 178 ++++++++++
+>  libsemanage/src/ibpkeys_policy.c              |  52 +++
+>  libsemanage/src/ibpkeys_policydb.c            |  62 ++++
+>  libsemanage/src/libsemanage.map               |   1 +
+>  libsemanage/src/policy_components.c           |   5 +-
+>  libsemanage/src/semanage_store.c              |   1 +
+>  libsemanage/src/semanage_store.h              |   1 +
+>  libsemanage/src/semanageswig.i                |   3 +
+>  libsemanage/src/semanageswig_python.i         |  43 +++
+>  libsemanage/utils/semanage_migrate_store      |   3 +-
+>  libsepol/include/sepol/ibpkey_record.h        |  77 +++++
+>  libsepol/include/sepol/ibpkeys.h              |  44 +++
+>  libsepol/include/sepol/sepol.h                |   2 +
+>  libsepol/src/ibpkey_internal.h                |  21 ++
+>  libsepol/src/ibpkey_record.c                  | 448
+> ++++++++++++++++++++++++++
+>  libsepol/src/ibpkeys.c                        | 263 +++++++++++++++
+>  python/semanage/semanage                      |  60 +++-
+>  python/semanage/seobject.py                   | 255 +++++++++++++++
+>  27 files changed, 2129 insertions(+), 16 deletions(-)
+>  create mode 100644 libsemanage/include/semanage/ibpkey_record.h
+>  create mode 100644 libsemanage/include/semanage/ibpkeys_local.h
+>  create mode 100644 libsemanage/include/semanage/ibpkeys_policy.h
+>  create mode 100644 libsemanage/src/ibpkey_internal.h
+>  create mode 100644 libsemanage/src/ibpkey_record.c
+>  create mode 100644 libsemanage/src/ibpkeys_file.c
+>  create mode 100644 libsemanage/src/ibpkeys_local.c
+>  create mode 100644 libsemanage/src/ibpkeys_policy.c
+>  create mode 100644 libsemanage/src/ibpkeys_policydb.c
+>  create mode 100644 libsepol/include/sepol/ibpkey_record.h
+>  create mode 100644 libsepol/include/sepol/ibpkeys.h
+>  create mode 100644 libsepol/src/ibpkey_internal.h
+>  create mode 100644 libsepol/src/ibpkey_record.c
+>  create mode 100644 libsepol/src/ibpkeys.c
+> 
+> diff --git a/python/semanage/seobject.py
+> b/python/semanage/seobject.py
+> index 7a54373..41b0aca 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -32,6 +32,7 @@ import socket
+>  from semanage import *
+>  PROGNAME = "policycoreutils"
+>  import sepolicy
+> +import setools
+>  from IPy import IP
+>  
+>  try:
+> @@ -1309,6 +1310,260 @@ class portRecords(semanageRecords):
+>                  rec += ", %s" % p
+>              print(rec)
+>  
+> +class ibpkeyRecords(semanageRecords):
+> +    try:
+> +        q =
+> setools.TypeQuery(setools.SELinuxPolicy(sepolicy.get_installed_policy
+> ()), attrs=["ibpkey_type"])
+> +        valid_types = sorted(str(t) for t in q.results())
+> +    except RuntimeError:
+> +        valid_types = []
 
-Have you tested this to determine any impact it may have on the
-SELinux userspace?  I would agree that EINVAL is probably more
-appropriate in this case, but changing this return code has very
-little value and may disrupt userspace if it assumes EINVAL means
-something else when the policy load fails.  Without a demonstration
-that all the code paths have been tested I'm not inclined to merge
-this patch.
+This causes all semanage commands to fail (without a patched refpolicy
+to define ibpkey_type).
 
-> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> index c5f436b15d19..2eb2a54b88d2 100644
-> --- a/security/selinux/ss/sidtab.c
-> +++ b/security/selinux/ss/sidtab.c
-> @@ -36,7 +36,7 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
->         struct sidtab_node *prev, *cur, *newnode;
->
->         if (!s)
-> -               return -ENOMEM;
-> +               return -EINVAL;
->
->         hvalue = SIDTAB_HASH(sid);
->         prev = NULL;
-> --
-> 2.12.2
-
--- 
-paul moore
-www.paul-moore.com
+Traceback (most recent call last):
+  File "/usr/sbin/semanage", line 28, in <module>
+    import seobject
+  File "/usr/lib64/python2.7/site-packages/seobject.py", line 1313, in
+<module>
+    class ibpkeyRecords(semanageRecords):
+  File "/usr/lib64/python2.7/site-packages/seobject.py", line 1315, in
+ibpkeyRecords
+    q =
+setools.TypeQuery(setools.SELinuxPolicy(sepolicy.get_installed_policy()
+), attrs=["ibpkey_type"])
+  File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-
+x86_64.egg/setools/typequery.py", line 72, in __init__
+    super(TypeQuery, self).__init__(policy, **kwargs)
+  File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-
+x86_64.egg/setools/query.py", line 39, in __init__
+    setattr(self, name, kwargs[name])
+  File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-
+x86_64.egg/setools/descriptors.py", line 104, in __set__
+    self.instances[obj] = set(lookup(v) for v in value)
+  File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-
+x86_64.egg/setools/descriptors.py", line 104, in <genexpr>
+    self.instances[obj] = set(lookup(v) for v in value)
+  File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-
+x86_64.egg/setools/policyrep/__init__.py", line 449, in lookup_typeattr
+    return typeattr.attribute_factory(self.policy, name)
+  File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-
+x86_64.egg/setools/policyrep/typeattr.py", line 42, in
+attribute_factory
+    qpol_symbol = _symbol_lookup(qpol_policy, name)
+  File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-linux-
+x86_64.egg/setools/policyrep/typeattr.py", line 32, in _symbol_lookup
+    raise exception.InvalidType("{0} is not a valid
+type/attribute".format(name))
+setools.policyrep.exception.InvalidType: ibpkey_type is not a valid
+type/attribute
