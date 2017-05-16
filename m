@@ -1,188 +1,101 @@
-Message-ID: <1494963647.21557.15.camel@tycho.nsa.gov>
-Subject: Re: [PATCH v1 7/9] semanage: Update semanage to allow runtime
- labeling of Infiniband Pkeys
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Daniel Jurgens <danielj@mellanox.com>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Date: Tue, 16 May 2017 15:40:47 -0400
-In-Reply-To: <VI1PR05MB167829E79B7450B9B0979818C4E60@VI1PR05MB1678.eurprd05.prod.outlook.com>
-References: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
- <1494880961-73481-8-git-send-email-danielj@mellanox.com>
- <1494963296.21557.13.camel@tycho.nsa.gov>
- <VI1PR05MB167829E79B7450B9B0979818C4E60@VI1PR05MB1678.eurprd05.prod.outlook.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4GJcLRD011513
+ for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 15:38:21 -0400
+Received: by mail-lf0-f67.google.com with SMTP id q24so4115761lfb.1
+ for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 12:38:18 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170420153130.8992-1-sds@tycho.nsa.gov>
+References: <20170420153130.8992-1-sds@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 16 May 2017 15:38:16 -0400
+Message-ID: <CAHC9VhT4MHfdhohGXHXtZE+uZ+VF+0cEjprm+Db1K_55MX3+_Q@mail.gmail.com>
+Subject: Re: [PATCH] selinux: only invoke capabilities and selinux for
+ CAP_MAC_ADMIN checks
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, casey@schaufler-ca.com
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-05-16 at 19:34 +0000, Daniel Jurgens wrote:
-> On 5/16/2017 2:30 PM, Stephen Smalley wrote:
-> > On Mon, 2017-05-15 at 23:42 +0300, Dan Jurgens wrote:
-> > > From: Daniel Jurgens <danielj@mellanox.com>
-> > > 
-> > > Update libsepol and libsemanage to work with pkey records. Add
-> > > local
-> > > storage for new and modified pkey records in pkeys.local. Update
-> > > semanage
-> > > to parse the pkey command options to add, modify, and delete
-> > > pkeys.
-> > > 
-> > > Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> > > 
-> > > ---
-> > > v1:
-> > > Fixed semanage_pkey_exists -> semanage_ibpkey_exists in delete
-> > > flow
-> > > in
-> > > seobject.py
-> > > 
-> > > Stephen Smalley:
-> > > - Subnet prefix can't vary in size always 16 bytes, remove size
-> > > field.
-> > > - Removed extraneous change in libsepol/VERSION
-> > > - Removed ifdef DARWIN s6_addr/32 blocks in favor of s6_addr.
-> > > - Got rid of magic constant for subnet prefix size.
-> > > 
-> > > Jason Zaman:
-> > > - Use SETools directly to query types in seobject.py.
-> > > 
-> > > Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> > > ---
-> > >  libsemanage/include/semanage/ibpkey_record.h  |  76 +++++
-> > >  libsemanage/include/semanage/ibpkeys_local.h  |  36 +++
-> > >  libsemanage/include/semanage/ibpkeys_policy.h |  28 ++
-> > >  libsemanage/include/semanage/semanage.h       |   3 +
-> > >  libsemanage/src/direct_api.c                  |  29 +-
-> > >  libsemanage/src/handle.h                      |  36 ++-
-> > >  libsemanage/src/ibpkey_internal.h             |  52 +++
-> > >  libsemanage/src/ibpkey_record.c               | 185 +++++++++++
-> > >  libsemanage/src/ibpkeys_file.c                | 181 +++++++++++
-> > >  libsemanage/src/ibpkeys_local.c               | 178 ++++++++++
-> > >  libsemanage/src/ibpkeys_policy.c              |  52 +++
-> > >  libsemanage/src/ibpkeys_policydb.c            |  62 ++++
-> > >  libsemanage/src/libsemanage.map               |   1 +
-> > >  libsemanage/src/policy_components.c           |   5 +-
-> > >  libsemanage/src/semanage_store.c              |   1 +
-> > >  libsemanage/src/semanage_store.h              |   1 +
-> > >  libsemanage/src/semanageswig.i                |   3 +
-> > >  libsemanage/src/semanageswig_python.i         |  43 +++
-> > >  libsemanage/utils/semanage_migrate_store      |   3 +-
-> > >  libsepol/include/sepol/ibpkey_record.h        |  77 +++++
-> > >  libsepol/include/sepol/ibpkeys.h              |  44 +++
-> > >  libsepol/include/sepol/sepol.h                |   2 +
-> > >  libsepol/src/ibpkey_internal.h                |  21 ++
-> > >  libsepol/src/ibpkey_record.c                  | 448
-> > > ++++++++++++++++++++++++++
-> > >  libsepol/src/ibpkeys.c                        | 263
-> > > +++++++++++++++
-> > >  python/semanage/semanage                      |  60 +++-
-> > >  python/semanage/seobject.py                   | 255
-> > > +++++++++++++++
-> > >  27 files changed, 2129 insertions(+), 16 deletions(-)
-> > >  create mode 100644 libsemanage/include/semanage/ibpkey_record.h
-> > >  create mode 100644 libsemanage/include/semanage/ibpkeys_local.h
-> > >  create mode 100644 libsemanage/include/semanage/ibpkeys_policy.h
-> > >  create mode 100644 libsemanage/src/ibpkey_internal.h
-> > >  create mode 100644 libsemanage/src/ibpkey_record.c
-> > >  create mode 100644 libsemanage/src/ibpkeys_file.c
-> > >  create mode 100644 libsemanage/src/ibpkeys_local.c
-> > >  create mode 100644 libsemanage/src/ibpkeys_policy.c
-> > >  create mode 100644 libsemanage/src/ibpkeys_policydb.c
-> > >  create mode 100644 libsepol/include/sepol/ibpkey_record.h
-> > >  create mode 100644 libsepol/include/sepol/ibpkeys.h
-> > >  create mode 100644 libsepol/src/ibpkey_internal.h
-> > >  create mode 100644 libsepol/src/ibpkey_record.c
-> > >  create mode 100644 libsepol/src/ibpkeys.c
-> > > 
-> > > diff --git a/python/semanage/seobject.py
-> > > b/python/semanage/seobject.py
-> > > index 7a54373..41b0aca 100644
-> > > --- a/python/semanage/seobject.py
-> > > +++ b/python/semanage/seobject.py
-> > > @@ -32,6 +32,7 @@ import socket
-> > >  from semanage import *
-> > >  PROGNAME = "policycoreutils"
-> > >  import sepolicy
-> > > +import setools
-> > >  from IPy import IP
-> > >  
-> > >  try:
-> > > @@ -1309,6 +1310,260 @@ class portRecords(semanageRecords):
-> > >                  rec += ", %s" % p
-> > >              print(rec)
-> > >  
-> > > +class ibpkeyRecords(semanageRecords):
-> > > +    try:
-> > > +        q =
-> > > setools.TypeQuery(setools.SELinuxPolicy(sepolicy.get_installed_po
-> > > licy
-> > > ()), attrs=["ibpkey_type"])
-> > > +        valid_types = sorted(str(t) for t in q.results())
-> > > +    except RuntimeError:
-> > > +        valid_types = []
-> > 
-> > This causes all semanage commands to fail (without a patched
-> > refpolicy
-> > to define ibpkey_type).
-> > 
-> > Traceback (most recent call last):
-> >   File "/usr/sbin/semanage", line 28, in <module>
-> >     import seobject
-> >   File "/usr/lib64/python2.7/site-packages/seobject.py", line 1313,
-> > in
-> > <module>
-> >     class ibpkeyRecords(semanageRecords):
-> >   File "/usr/lib64/python2.7/site-packages/seobject.py", line 1315,
-> > in
-> > ibpkeyRecords
-> >     q =
-> > setools.TypeQuery(setools.SELinuxPolicy(sepolicy.get_installed_poli
-> > cy()
-> > ), attrs=["ibpkey_type"])
-> >   File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-
-> > linux-
-> > x86_64.egg/setools/typequery.py", line 72, in __init__
-> >     super(TypeQuery, self).__init__(policy, **kwargs)
-> >   File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-
-> > linux-
-> > x86_64.egg/setools/query.py", line 39, in __init__
-> >     setattr(self, name, kwargs[name])
-> >   File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-
-> > linux-
-> > x86_64.egg/setools/descriptors.py", line 104, in __set__
-> >     self.instances[obj] = set(lookup(v) for v in value)
-> >   File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-
-> > linux-
-> > x86_64.egg/setools/descriptors.py", line 104, in <genexpr>
-> >     self.instances[obj] = set(lookup(v) for v in value)
-> >   File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-
-> > linux-
-> > x86_64.egg/setools/policyrep/__init__.py", line 449, in
-> > lookup_typeattr
-> >     return typeattr.attribute_factory(self.policy, name)
-> >   File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-
-> > linux-
-> > x86_64.egg/setools/policyrep/typeattr.py", line 42, in
-> > attribute_factory
-> >     qpol_symbol = _symbol_lookup(qpol_policy, name)
-> >   File "/usr/lib64/python2.7/site-packages/setools-4.0.1-py2.7-
-> > linux-
-> > x86_64.egg/setools/policyrep/typeattr.py", line 32, in
-> > _symbol_lookup
-> >     raise exception.InvalidType("{0} is not a valid
-> > type/attribute".format(name))
-> > setools.policyrep.exception.InvalidType: ibpkey_type is not a valid
-> > type/attribute
-> 
-> Yes, it's the same with all the others too.  They require attribute
-> synchronization between the tool and the policy.  I'm preparing
-> refpolicy patches right now.
+On Thu, Apr 20, 2017 at 11:31 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> SELinux uses CAP_MAC_ADMIN to control the ability to get or set a raw,
+> uninterpreted security context unknown to the currently loaded security
+> policy. When performing these checks, we only want to perform a base
+> capabilities check and a SELinux permission check.  If any other
+> modules that implement a capable hook are stacked with SELinux, we do
+> not want to require them to also have to authorize CAP_MAC_ADMIN,
+> since it may have different implications for their security model.
+> Rework the CAP_MAC_ADMIN checks within SELinux to only invoke the
+> capabilities module and the SELinux permission checking.
+>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/hooks.c | 23 +++++++++++++++--------
+>  1 file changed, 15 insertions(+), 8 deletions(-)
 
-I think we just need to handle that exception cleanly.  I agree that it
-is wrong that we don't do this for the other attributes, but those are
-long-established in refpolicy and therefore haven't shown up before
-(also, the particular exception has changed with the migration to
-setools4, so we likely just never adapted the handlers).  We can't have
-a newer version of semanage break users with older policies.
+Merged, thanks.
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index e67a526..1aef63c 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3107,6 +3107,18 @@ static int selinux_inode_setotherxattr(struct dentry *dentry, const char *name)
+>         return dentry_has_perm(cred, dentry, FILE__SETATTR);
+>  }
+>
+> +static bool has_cap_mac_admin(bool audit)
+> +{
+> +       const struct cred *cred = current_cred();
+> +       int cap_audit = audit ? SECURITY_CAP_AUDIT : SECURITY_CAP_NOAUDIT;
+> +
+> +       if (cap_capable(cred, &init_user_ns, CAP_MAC_ADMIN, cap_audit))
+> +               return false;
+> +       if (cred_has_capability(cred, CAP_MAC_ADMIN, cap_audit, true))
+> +               return false;
+> +       return true;
+> +}
+> +
+>  static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+>                                   const void *value, size_t size, int flags)
+>  {
+> @@ -3138,7 +3150,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+>
+>         rc = security_context_to_sid(value, size, &newsid, GFP_KERNEL);
+>         if (rc == -EINVAL) {
+> -               if (!capable(CAP_MAC_ADMIN)) {
+> +               if (!has_cap_mac_admin(true)) {
+>                         struct audit_buffer *ab;
+>                         size_t audit_size;
+>                         const char *str;
+> @@ -3264,13 +3276,8 @@ static int selinux_inode_getsecurity(struct inode *inode, const char *name, void
+>          * and lack of permission just means that we fall back to the
+>          * in-core context value, not a denial.
+>          */
+> -       error = cap_capable(current_cred(), &init_user_ns, CAP_MAC_ADMIN,
+> -                           SECURITY_CAP_NOAUDIT);
+> -       if (!error)
+> -               error = cred_has_capability(current_cred(), CAP_MAC_ADMIN,
+> -                                           SECURITY_CAP_NOAUDIT, true);
+>         isec = inode_security(inode);
+> -       if (!error)
+> +       if (has_cap_mac_admin(false))
+>                 error = security_sid_to_context_force(isec->sid, &context,
+>                                                       &size);
+>         else
+> @@ -5918,7 +5925,7 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+>                 }
+>                 error = security_context_to_sid(value, size, &sid, GFP_KERNEL);
+>                 if (error == -EINVAL && !strcmp(name, "fscreate")) {
+> -                       if (!capable(CAP_MAC_ADMIN)) {
+> +                       if (!has_cap_mac_admin(true)) {
+>                                 struct audit_buffer *ab;
+>                                 size_t audit_size;
+>
+> --
+> 2.9.3
+
+-- 
+paul moore
+www.paul-moore.com
