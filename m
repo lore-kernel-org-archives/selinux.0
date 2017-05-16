@@ -1,55 +1,109 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4GIMABL013995
- for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 14:22:10 -0400
-Received: by mail-lf0-f44.google.com with SMTP id 99so24519074lfu.1
- for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 11:21:47 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4GISYPT016610
+ for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 14:28:35 -0400
+Received: by mail-lf0-f67.google.com with SMTP id m18so969905lfj.0
+ for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 11:28:31 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhTMNXtjToD3XmgfkT_sPsRgfRpFzdrgpgM0xrtbqy22pg@mail.gmail.com>
-References: <1490706772-8013-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp>
- <1490707796.6046.1.camel@tycho.nsa.gov>
- <201703282308.BHJ95808.MFFHVQLOOtJFOS@I-love.SAKURA.ne.jp>
- <CAHC9VhTxG95_iBy6WMtWj_xR1-=_=meykw1cTxN8-XepP8oo2w@mail.gmail.com>
- <201703302013.CFF26504.JFOQFSOHtFOMVL@I-love.SAKURA.ne.jp>
- <CAHC9VhTMNXtjToD3XmgfkT_sPsRgfRpFzdrgpgM0xrtbqy22pg@mail.gmail.com>
+In-Reply-To: <8a517289-e5a7-8dde-0f5f-9e57f3e270c7@users.sourceforge.net>
+References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
+ <5704e656-708a-b611-5611-70fc65dc67e8@users.sourceforge.net>
+ <8a517289-e5a7-8dde-0f5f-9e57f3e270c7@users.sourceforge.net>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 16 May 2017 14:21:44 -0400
-Message-ID: <CAHC9VhQ+uBpVxk_prc0tNcJU+QU317a2cYCY4kXfN7nm=zSKKw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Use task_alloc hook rather than task_create hook
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
+Date: Tue, 16 May 2017 14:28:28 -0400
+Message-ID: <CAHC9VhR=xjK62iHFucneh08yJW1NRQ9TsbcNUPdktvNfvqOXUw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] selinux: Return directly after a failed memory
+ allocation in policydb_index()
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ William Roberts <william.c.roberts@intel.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 31, 2017 at 3:20 PM, Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Mar 30, 2017 at 7:13 AM, Tetsuo Handa
-> <penguin-kernel@i-love.sakura.ne.jp> wrote:
->> Paul Moore wrote:
->>> > Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
->>> > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->>> > ---
->>> >  security/selinux/hooks.c | 5 +++--
->>> >  1 file changed, 3 insertions(+), 2 deletions(-)
->>>
->>> When are you planning to remove the task_create() hook?
->>>
->>> I have no objection to this patch, and I plan to merge it, but merging
->>> it now would require rebasing the selinux/next and I try to keep from
->>> rebasing during the development cycle unless absolutely necessary.  I
->>> think this can wait until after the next merge window, what do you
->>> think?
->>
->> Nothing to hurry. SELinux is the only user. We can wait as much as you want.
+On Tue, Apr 4, 2017 at 7:12 AM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Tue, 4 Apr 2017 10:20:46 +0200
 >
-> Okay, I'll leave this in the queue and I'll merge it after the next
-> merge window.
+> Replace five goto statements (and previous variable assignments) by
+> direct returns after a memory allocation failure in this function.
 >
-> Thanks.
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  security/selinux/ss/policydb.c | 15 +++++----------
+>  1 file changed, 5 insertions(+), 10 deletions(-)
 
-Merged, thanks again.
+Merged.
+
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 0080122760ad..87d645d3a39f 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -538,34 +538,30 @@ static int policydb_index(struct policydb *p)
+>         symtab_hash_eval(p->symtab);
+>  #endif
+>
+> -       rc = -ENOMEM;
+>         p->class_val_to_struct = kcalloc(p->p_classes.nprim,
+>                                          sizeof(*p->class_val_to_struct),
+>                                          GFP_KERNEL);
+>         if (!p->class_val_to_struct)
+> -               goto out;
+> +               return -ENOMEM;
+>
+> -       rc = -ENOMEM;
+>         p->role_val_to_struct = kcalloc(p->p_roles.nprim,
+>                                         sizeof(*p->role_val_to_struct),
+>                                         GFP_KERNEL);
+>         if (!p->role_val_to_struct)
+> -               goto out;
+> +               return -ENOMEM;
+>
+> -       rc = -ENOMEM;
+>         p->user_val_to_struct = kcalloc(p->p_users.nprim,
+>                                         sizeof(*p->user_val_to_struct),
+>                                         GFP_KERNEL);
+>         if (!p->user_val_to_struct)
+> -               goto out;
+> +               return -ENOMEM;
+>
+>         /* Yes, I want the sizeof the pointer, not the structure */
+> -       rc = -ENOMEM;
+>         p->type_val_to_struct_array = flex_array_alloc(sizeof(struct type_datum *),
+>                                                        p->p_types.nprim,
+>                                                        GFP_KERNEL | __GFP_ZERO);
+>         if (!p->type_val_to_struct_array)
+> -               goto out;
+> +               return -ENOMEM;
+>
+>         rc = flex_array_prealloc(p->type_val_to_struct_array, 0,
+>                                  p->p_types.nprim, GFP_KERNEL | __GFP_ZERO);
+> @@ -577,12 +573,11 @@ static int policydb_index(struct policydb *p)
+>                 goto out;
+>
+>         for (i = 0; i < SYM_NUM; i++) {
+> -               rc = -ENOMEM;
+>                 p->sym_val_to_name[i] = flex_array_alloc(sizeof(char *),
+>                                                          p->symtab[i].nprim,
+>                                                          GFP_KERNEL | __GFP_ZERO);
+>                 if (!p->sym_val_to_name[i])
+> -                       goto out;
+> +                       return -ENOMEM;
+>
+>                 rc = flex_array_prealloc(p->sym_val_to_name[i],
+>                                          0, p->symtab[i].nprim,
+> --
+> 2.12.2
+>
+
+
 
 -- 
 paul moore
