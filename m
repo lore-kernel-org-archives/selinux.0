@@ -1,229 +1,114 @@
-Message-ID: <1494962051.21557.10.camel@tycho.nsa.gov>
-Subject: Re: [PATCH v1 7/9] semanage: Update semanage to allow runtime
- labeling of Infiniband Pkeys
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dan Jurgens <danielj@mellanox.com>, selinux@tycho.nsa.gov
-Date: Tue, 16 May 2017 15:14:11 -0400
-In-Reply-To: <1494880961-73481-8-git-send-email-danielj@mellanox.com>
-References: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
- <1494880961-73481-8-git-send-email-danielj@mellanox.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4GIWe6E018313
+ for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 14:32:44 -0400
+Received: by mail-lf0-f68.google.com with SMTP id m18so977538lfj.0
+ for <selinux@tycho.nsa.gov>; Tue, 16 May 2017 11:32:40 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <61cd20e9-211e-b974-3525-fcb5fdf8fa7e@users.sourceforge.net>
+References: <ca34123f-ced6-d2bc-363b-690858618827@users.sourceforge.net>
+ <5704e656-708a-b611-5611-70fc65dc67e8@users.sourceforge.net>
+ <61cd20e9-211e-b974-3525-fcb5fdf8fa7e@users.sourceforge.net>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 16 May 2017 14:32:38 -0400
+Message-ID: <CAHC9VhQWbepC3Ba4zyXKOG5JpY-RA1vFCdMi+J1527HJTX10pA@mail.gmail.com>
+Subject: Re: [PATCH 2/3] selinux: Return an error code only as a constant in
+ sidtab_insert()
+To: SF Markus Elfring <elfring@users.sourceforge.net>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ William Roberts <william.c.roberts@intel.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-05-15 at 23:42 +0300, Dan Jurgens wrote:
-> From: Daniel Jurgens <danielj@mellanox.com>
-> 
-> Update libsepol and libsemanage to work with pkey records. Add local
-> storage for new and modified pkey records in pkeys.local. Update
-> semanage
-> to parse the pkey command options to add, modify, and delete pkeys.
-> 
-> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> 
+On Tue, Apr 4, 2017 at 7:14 AM, SF Markus Elfring
+<elfring@users.sourceforge.net> wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Tue, 4 Apr 2017 11:33:53 +0200
+>
+> * Return an error code without storing it in an intermediate variable.
+>
+> * Delete the local variable "rc" and the jump label "out" which became
+>   unnecessary with this refactoring.
+>
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 > ---
-> v1:
-> Fixed semanage_pkey_exists -> semanage_ibpkey_exists in delete flow
-> in
-> seobject.py
-> 
-> Stephen Smalley:
-> - Subnet prefix can't vary in size always 16 bytes, remove size
-> field.
-> - Removed extraneous change in libsepol/VERSION
-> - Removed ifdef DARWIN s6_addr/32 blocks in favor of s6_addr.
-> - Got rid of magic constant for subnet prefix size.
-> 
-> Jason Zaman:
-> - Use SETools directly to query types in seobject.py.
-> 
-> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> ---
->  libsemanage/include/semanage/ibpkey_record.h  |  76 +++++
->  libsemanage/include/semanage/ibpkeys_local.h  |  36 +++
->  libsemanage/include/semanage/ibpkeys_policy.h |  28 ++
->  libsemanage/include/semanage/semanage.h       |   3 +
->  libsemanage/src/direct_api.c                  |  29 +-
->  libsemanage/src/handle.h                      |  36 ++-
->  libsemanage/src/ibpkey_internal.h             |  52 +++
->  libsemanage/src/ibpkey_record.c               | 185 +++++++++++
->  libsemanage/src/ibpkeys_file.c                | 181 +++++++++++
->  libsemanage/src/ibpkeys_local.c               | 178 ++++++++++
->  libsemanage/src/ibpkeys_policy.c              |  52 +++
->  libsemanage/src/ibpkeys_policydb.c            |  62 ++++
->  libsemanage/src/libsemanage.map               |   1 +
->  libsemanage/src/policy_components.c           |   5 +-
->  libsemanage/src/semanage_store.c              |   1 +
->  libsemanage/src/semanage_store.h              |   1 +
->  libsemanage/src/semanageswig.i                |   3 +
->  libsemanage/src/semanageswig_python.i         |  43 +++
->  libsemanage/utils/semanage_migrate_store      |   3 +-
->  libsepol/include/sepol/ibpkey_record.h        |  77 +++++
->  libsepol/include/sepol/ibpkeys.h              |  44 +++
->  libsepol/include/sepol/sepol.h                |   2 +
->  libsepol/src/ibpkey_internal.h                |  21 ++
->  libsepol/src/ibpkey_record.c                  | 448
-> ++++++++++++++++++++++++++
->  libsepol/src/ibpkeys.c                        | 263 +++++++++++++++
->  python/semanage/semanage                      |  60 +++-
->  python/semanage/seobject.py                   | 255 +++++++++++++++
->  27 files changed, 2129 insertions(+), 16 deletions(-)
->  create mode 100644 libsemanage/include/semanage/ibpkey_record.h
->  create mode 100644 libsemanage/include/semanage/ibpkeys_local.h
->  create mode 100644 libsemanage/include/semanage/ibpkeys_policy.h
->  create mode 100644 libsemanage/src/ibpkey_internal.h
->  create mode 100644 libsemanage/src/ibpkey_record.c
->  create mode 100644 libsemanage/src/ibpkeys_file.c
->  create mode 100644 libsemanage/src/ibpkeys_local.c
->  create mode 100644 libsemanage/src/ibpkeys_policy.c
->  create mode 100644 libsemanage/src/ibpkeys_policydb.c
->  create mode 100644 libsepol/include/sepol/ibpkey_record.h
->  create mode 100644 libsepol/include/sepol/ibpkeys.h
->  create mode 100644 libsepol/src/ibpkey_internal.h
->  create mode 100644 libsepol/src/ibpkey_record.c
->  create mode 100644 libsepol/src/ibpkeys.c
-> 
-> diff --git a/libsemanage/include/semanage/ibpkey_record.h
-> b/libsemanage/include/semanage/ibpkey_record.h
-> new file mode 100644
-> index 0000000..d76aaae
-> --- /dev/null
-> +++ b/libsemanage/include/semanage/ibpkey_record.h
-> @@ -0,0 +1,76 @@
-> +/* Copyright (C) 2017 Mellanox Technologies Inc */
-> +
-> +#ifndef _SEMANAGE_IBPKEY_RECORD_H_
-> +#define _SEMANAGE_IBPKEY_RECORD_H_
-> +
-> +#include <semanage/context_record.h>
-> +#include <semanage/handle.h>
-> +#include <stddef.h>
-> +
-> +#ifndef _SEMANAGE_IBPKEY_DEFINED_
-> +struct semanage_ibpkey;
-> +struct semanage_ibpkey_key;
-> +typedef struct semanage_ibpkey semanage_ibpkey_t;
-> +typedef struct semanage_ibpkey_key semanage_ibpkey_key_t;
-> +#define _SEMANAGE_IBPKEY_DEFINED_
-> +#endif
-> +
-> +#define INET6_ADDRLEN 16
+>  security/selinux/ss/sidtab.c | 27 ++++++++++-----------------
+>  1 file changed, 10 insertions(+), 17 deletions(-)
 
-We shouldn't expose this in a public header; it's an implementation
-detail.  Likely could/should define it as sizeof(struct in6_addr) to
-ensure consistency?
+Merged.
 
-> diff --git a/libsepol/include/sepol/ibpkey_record.h
-> b/libsepol/include/sepol/ibpkey_record.h
-> new file mode 100644
-> index 0000000..fff4591
-> --- /dev/null
-> +++ b/libsepol/include/sepol/ibpkey_record.h
-> @@ -0,0 +1,77 @@
-> +#ifndef _SEPOL_IBPKEY_RECORD_H_
-> +#define _SEPOL_IBPKEY_RECORD_H_
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index f6915f257486..c5f436b15d19 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -32,13 +32,11 @@ int sidtab_init(struct sidtab *s)
+>
+>  int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+>  {
+> -       int hvalue, rc = 0;
+> +       int hvalue;
+>         struct sidtab_node *prev, *cur, *newnode;
+>
+> -       if (!s) {
+> -               rc = -ENOMEM;
+> -               goto out;
+> -       }
+> +       if (!s)
+> +               return -ENOMEM;
+>
+>         hvalue = SIDTAB_HASH(sid);
+>         prev = NULL;
+> @@ -48,21 +46,17 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+>                 cur = cur->next;
+>         }
+>
+> -       if (cur && sid == cur->sid) {
+> -               rc = -EEXIST;
+> -               goto out;
+> -       }
+> +       if (cur && sid == cur->sid)
+> +               return -EEXIST;
+>
+>         newnode = kmalloc(sizeof(*newnode), GFP_ATOMIC);
+> -       if (!newnode) {
+> -               rc = -ENOMEM;
+> -               goto out;
+> -       }
+> +       if (!newnode)
+> +               return -ENOMEM;
 > +
-> +#include <stddef.h>
-> +#include <sepol/context_record.h>
-> +#include <sepol/handle.h>
-> +#include <sys/cdefs.h>
-> +
-> +#define INET6_ADDRLEN 16
+>         newnode->sid = sid;
+>         if (context_cpy(&newnode->context, context)) {
+>                 kfree(newnode);
+> -               rc = -ENOMEM;
+> -               goto out;
+> +               return -ENOMEM;
+>         }
+>
+>         if (prev) {
+> @@ -78,8 +72,7 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+>         s->nel++;
+>         if (sid >= s->next_sid)
+>                 s->next_sid = sid + 1;
+> -out:
+> -       return rc;
+> +       return 0;
+>  }
+>
+>  static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
+> --
+> 2.12.2
+>
 
-Ditto
 
-> diff --git a/libsepol/src/ibpkey_record.c
-> b/libsepol/src/ibpkey_record.c
-> new file mode 100644
-> index 0000000..4eed083
-> --- /dev/null
-> +++ b/libsepol/src/ibpkey_record.c
-> @@ -0,0 +1,448 @@
-> +#include <stdlib.h>
-> +#include <string.h>
-> +#include <netinet/in.h>
-> +#include <arpa/inet.h>
-> +#include <errno.h>
-> +#include <sepol/ibpkey_record.h>
-> +
-> +#include "ibpkey_internal.h"
-> +#include "context_internal.h"
-> +#include "debug.h"
-> +
-> +struct sepol_ibpkey {
-> +	/* Subnet prefix */
-> +	char *subnet_prefix;
-> +
-> +	/* Low - High range. Same for single ibpkeys. */
-> +	int low, high;
-> +
-> +	/* Context */
-> +	sepol_context_t *con;
-> +};
-> +
-> +struct sepol_ibpkey_key {
-> +	/* Subnet prefix */
-> +	char *subnet_prefix;
-> +
-> +	/* Low - High range. Same for single ibpkeys. */
-> +	int low, high;
-> +};
-> +
-> +/* Converts a string represtation (subnet_prefix_str)
-> + * to a numeric representation (subnet_prefix_bytes)
-> + */
-> +static int ibpkey_parse_subnet_prefix(sepol_handle_t *handle,
-> +				      const char *subnet_prefix_str,
-> +				      char *subnet_prefix_bytes)
-> +{
-> +	struct in6_addr in_addr;
-> +
-> +	if (inet_pton(AF_INET6, subnet_prefix_str, &in_addr) <= 0) {
-> +		ERR(handle, "could not parse IPv6 address for ibpkey
-> subnet prefix %s: %s",
-> +		    subnet_prefix_str, strerror(errno));
-> +		return STATUS_ERR;
-> +	}
-> +
-> +	memcpy(subnet_prefix_bytes, in_addr.s6_addr, INET6_ADDRLEN);
-> +
-> +	return STATUS_SUCCESS;
-> +}
-> +
-> +static int ibpkey_alloc_subnet_prefix(sepol_handle_t *handle,
-> +				      char **subnet_prefix)
-> +{
-> +	char *tmp_subnet_prefix = malloc(INET6_ADDRLEN);
-> +
-> +	if (!tmp_subnet_prefix)
-> +		goto omem;
-> +
-> +	*subnet_prefix = tmp_subnet_prefix;
-> +	return STATUS_SUCCESS;
-> +
-> +omem:
-> +	ERR(handle, "out of memory");
-> +	return STATUS_ERR;
-> +}
-> +
-> +/* Converts a numeric representation (subnet_prefix_bytes)
-> + * to a string representation (subnet_prefix_str)
-> + */
-> +
-> +static int ibpkey_expand_subnet_prefix(sepol_handle_t *handle,
-> +				       char *subnet_prefix_bytes,
-> +				       char *subnet_prefix_str)
-> +{
-> +	struct in6_addr addr;
-> +
-> +	memset(&addr, 0, sizeof(struct in6_addr));
-> +#ifdef DARWIN
-> +	memcpy(&addr.s6_addr[0], subnet_prefix_bytes, 16);
-> +#else
-> +	memcpy(&addr.s6_addr32[0], subnet_prefix_bytes, 16);
-> +#endif
 
-Another case where you can drop #ifdef DARWIN and just use s6_addr.
+-- 
+paul moore
+www.paul-moore.com
