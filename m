@@ -1,11 +1,11 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4HIsoLE009132
- for <selinux@tycho.nsa.gov>; Wed, 17 May 2017 14:54:50 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4HIstVJ009136
+ for <selinux@tycho.nsa.gov>; Wed, 17 May 2017 14:54:55 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 1/2] selinux-testsuite: Infiniband pkey tests
-Date: Wed, 17 May 2017 21:54:32 +0300
-Message-Id: <1495047273-96339-2-git-send-email-danielj@mellanox.com>
+Subject: [PATCH 2/2] selinux-testsuite: Infiniband endport tests
+Date: Wed, 17 May 2017 21:54:33 +0300
+Message-Id: <1495047273-96339-3-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1495047273-96339-1-git-send-email-danielj@mellanox.com>
 References: <1495047273-96339-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,309 +15,162 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-New tests for infiniband pkeys. Most users don't have Infiniband
-hardware, and if they do the pkey configuration is not standardized.
-There is a configuration file for enabling the test and setting
-environment specific test configurations. If the tests are disable they
-will always show as passed.
+New tests for Infiniband endports. Most users do not have infiniband
+hardware, and if they do the device names can vary.  There is a
+configuration file for enabling the tests and setting environment
+specific configurations.  If the tests are disabled they always show as
+passed.
+
+A special test application was unnecessary, a standard diagnostic
+application is used instead.  This required a change to the make file
+to avoid trying to build an application in the new subdir.
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 ---
- README                                   |   9 ++
- policy/Makefile                          |   3 +-
- policy/test_ibpkey.te                    |  23 +++++
- tests/Makefile                           |   4 +-
- tests/infiniband_pkey/Makefile           |   7 ++
- tests/infiniband_pkey/create_modify_qp.c | 144 +++++++++++++++++++++++++++++++
- tests/infiniband_pkey/ibpkey_test.conf   |  14 +++
- tests/infiniband_pkey/test               |  45 ++++++++++
- 8 files changed, 246 insertions(+), 3 deletions(-)
- create mode 100644 policy/test_ibpkey.te
- create mode 100644 tests/infiniband_pkey/Makefile
- create mode 100644 tests/infiniband_pkey/create_modify_qp.c
- create mode 100644 tests/infiniband_pkey/ibpkey_test.conf
- create mode 100644 tests/infiniband_pkey/test
+ README                                       |  7 +++-
+ policy/Makefile                              |  2 +-
+ policy/test_ibendport.te                     | 37 +++++++++++++++++++++
+ tests/Makefile                               |  4 ++-
+ tests/infiniband_endport/ibendport_test.conf | 14 ++++++++
+ tests/infiniband_endport/test                | 49 ++++++++++++++++++++++++++++
+ 6 files changed, 110 insertions(+), 3 deletions(-)
+ create mode 100644 policy/test_ibendport.te
+ create mode 100644 tests/infiniband_endport/ibendport_test.conf
+ create mode 100644 tests/infiniband_endport/test
 
 diff --git a/README b/README
-index deedae5..b64e2de 100644
+index b64e2de..8e1b391 100644
 --- a/README
 +++ b/README
-@@ -195,3 +195,12 @@ establish a base directory (based on the path of the script
- executable).  This won't always be accurate, but will work for this
- test harness/configuration.
- 	$basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
+@@ -200,7 +200,12 @@ INFINIBAND TESTS
+ ----------------
+ Because running Infiniband tests requires specialized hardware you must
+ set up a configuration file for these tests. The tests are disabled by
+-default.  See comments in the configuration file for info.
++default.  See comments in the configuration file for info. The endport
++tests use smpquery, for Fedora it's provided by the infiniband-diags
++package.
+ 
+ Infiniband PKey test conf file:
+ tests/infiniband_pkey/ibpkey_test.conf
 +
-+INFINIBAND TESTS
-+----------------
-+Because running Infiniband tests requires specialized hardware you must
-+set up a configuration file for these tests. The tests are disabled by
-+default.  See comments in the configuration file for info.
-+
-+Infiniband PKey test conf file:
-+tests/infiniband_pkey/ibpkey_test.conf
++Infiniband Endport test conf file:
++tests/infiniband_endport/ibendport_test.conf
 diff --git a/policy/Makefile b/policy/Makefile
-index 661f27a..ab58d3b 100644
+index ab58d3b..dcefdb5 100644
 --- a/policy/Makefile
 +++ b/policy/Makefile
-@@ -20,7 +20,8 @@ TARGETS = \
- 	test_task_create.te test_task_getpgid.te test_task_getsched.te \
+@@ -21,7 +21,7 @@ TARGETS = \
  	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
  	test_transition.te test_inet_socket.te test_unix_socket.te \
--	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te
-+	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
-+	test_ibpkey.te
+ 	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
+-	test_ibpkey.te
++	test_ibpkey.te test_ibendport.te
  
  ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
  TARGETS += test_bounds.te
-diff --git a/policy/test_ibpkey.te b/policy/test_ibpkey.te
+diff --git a/policy/test_ibendport.te b/policy/test_ibendport.te
 new file mode 100644
-index 0000000..0ff6da4
+index 0000000..9f0294d
 --- /dev/null
-+++ b/policy/test_ibpkey.te
-@@ -0,0 +1,23 @@
++++ b/policy/test_ibendport.te
+@@ -0,0 +1,37 @@
 +#################################
 +#
 +# Policy for testing Infiniband Pkey access.
 +#
 +
-+attribute ibpkeydomain;
++gen_require(`
++	type bin_t;
++	type infiniband_mgmt_device_t;
++')
++
++attribute ibendportdomain;
 +
 +# Domain for process.
-+type test_ibpkey_modify_t;
-+domain_type(test_ibpkey_modify_t)
-+unconfined_runs_test(test_ibpkey_modify_t)
-+typeattribute test_ibpkey_modify_t testdomain;
-+typeattribute test_ibpkey_modify_t ibpkeydomain;
++type test_ibendport_manage_subnet_t;
++domain_type(test_ibendport_manage_subnet_t)
++unconfined_runs_test(test_ibendport_manage_subnet_t)
++typeattribute test_ibendport_manage_subnet_t testdomain;
++typeattribute test_ibendport_manage_subnet_t ibendportdomain;
 +
-+dev_rw_infiniband_dev(test_ibpkey_modify_t)
-+dev_rw_sysfs(test_ibpkey_modify_t)
++type test_ibendport_t;
++corenet_ibendport(test_ibendport_t)
 +
-+# client can connect to the server via the socket file or via abstract sockets.
-+corenet_ibpkey_access_default_pkey(test_ibpkey_modify_t)
++dev_rw_infiniband_dev(test_ibendport_manage_subnet_t)
++dev_rw_sysfs(test_ibendport_manage_subnet_t)
++
++allow test_ibendport_manage_subnet_t bin_t:file entrypoint;
++allow test_ibendport_manage_subnet_t bin_t:file execute;
++allow test_ibendport_manage_subnet_t infiniband_mgmt_device_t:chr_file { read write open ioctl};
++allow test_ibendport_manage_subnet_t default_ibpkey_t:infiniband_pkey access;
++corenet_ibpkey_access_default_pkey(test_ibendport_manage_subnet_t)
++
++
++allow test_ibendport_manage_subnet_t test_ibendport_t:infiniband_endport manage_subnet;
 +
 +# Allow all of these domains to be entered from the sysadm domain.
-+miscfiles_domain_entry_test_files(ibpkeydomain)
-+userdom_sysadm_entry_spec_domtrans_to(ibpkeydomain)
++miscfiles_domain_entry_test_files(ibendportdomain)
++userdom_sysadm_entry_spec_domtrans_to(ibendportdomain)
 diff --git a/tests/Makefile b/tests/Makefile
-index fb8a0aa..7dfe2a8 100644
+index 7dfe2a8..63e6f57 100644
 --- a/tests/Makefile
 +++ b/tests/Makefile
-@@ -4,13 +4,13 @@ export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
- 
- DISTRO=$(shell ./os_detect)
- 
--SUBDIRS:=domain_trans entrypoint execshare exectrace execute_no_trans \
-+SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
- 	fdreceive inherit link mkdir msg open ptrace readlink relabel rename \
- 	rxdir sem setattr setnice shm sigkill stat sysctl task_create \
- 	task_setnice task_setscheduler task_getscheduler task_getsid \
- 	task_getpgid task_setpgid file ioctl capable_file capable_net \
+@@ -12,6 +12,8 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
  	capable_sys dyntrans dyntrace bounds nnp mmap unix_socket inet_socket \
--	overlay checkreqprot mqueue mac_admin
-+	overlay checkreqprot mqueue mac_admin infiniband_pkey
+ 	overlay checkreqprot mqueue mac_admin infiniband_pkey
  
++SUBDIRS_NO_MAKE:= infiniband_endport
++
  ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
  ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-diff --git a/tests/infiniband_pkey/Makefile b/tests/infiniband_pkey/Makefile
+ SUBDIRS += cap_userns
+@@ -56,7 +58,7 @@ all:
+ 
+ test: all
+ 	chcon -R -t test_file_t .
+-	@SUBDIRS="$(SUBDIRS)" PATH=/usr/bin:/bin:/usr/sbin:/sbin ./runtests.pl
++	@SUBDIRS="$(SUBDIRS) $(SUBDIRS_NO_MAKE)" PATH=/usr/bin:/bin:/usr/sbin:/sbin ./runtests.pl
+ 
+ clean:
+ 	@for subdir in $(SUBDIRS); do \
+diff --git a/tests/infiniband_endport/ibendport_test.conf b/tests/infiniband_endport/ibendport_test.conf
 new file mode 100644
-index 0000000..60f0d24
+index 0000000..601b290
 --- /dev/null
-+++ b/tests/infiniband_pkey/Makefile
-@@ -0,0 +1,7 @@
-+TARGETS=create_modify_qp
-+
-+LDLIBS+= -libverbs
-+
-+all: $(TARGETS)
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/infiniband_pkey/create_modify_qp.c b/tests/infiniband_pkey/create_modify_qp.c
-new file mode 100644
-index 0000000..495ef5b
---- /dev/null
-+++ b/tests/infiniband_pkey/create_modify_qp.c
-@@ -0,0 +1,144 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <assert.h>
-+#include <unistd.h>
-+#include <sys/socket.h>
-+#include <netinet/in.h>
-+#include <arpa/inet.h>
-+#include <infiniband/verbs.h>
-+
-+struct ibv_qp	   *qp;
-+struct ibv_context *context;
-+struct ibv_pd      *pd;
-+struct ibv_cq      *cq;
-+struct ibv_srq     *srq;
-+
-+void cleanup_ib_rsrc()
-+{
-+	ibv_destroy_qp(qp);
-+	ibv_destroy_srq(srq);
-+	ibv_destroy_cq(cq);
-+	ibv_dealloc_pd(pd);
-+	ibv_close_device(context);
-+}
-+
-+int init_ib_rsrc(char* deviceName)
-+{
-+	int                 ndev = 0;
-+	struct ibv_device  **dlist = ibv_get_device_list(&ndev);
-+	struct ibv_device  *device = NULL;;
-+	struct ibv_srq_init_attr srqiattr;
-+	struct ibv_qp_init_attr qpiattr;
-+	int i;
-+
-+	if (!ndev)
-+	{
-+		fprintf(stderr, "No IB devices found.\n");
-+		exit(1);
-+	}
-+
-+	for (i = 0; i < ndev; i++)
-+		if(!strcmp(deviceName, dlist[i]->name))
-+			device = dlist[i];
-+
-+	if (!device)
-+	{
-+		fprintf(stderr, "Couldn't find device %s\n", deviceName);
-+		exit(1);
-+	}
-+	/* Open context */
-+	context = ibv_open_device(device);
-+	if (NULL == context)
-+	{
-+		fprintf(stderr, "Unable to open device.\n");
-+		exit(1);
-+	}
-+
-+	/* Allocate PD */
-+	pd = ibv_alloc_pd(context);
-+	if (!pd)
-+	{
-+		fprintf(stderr, "Unable to allocate PD.\n");
-+		exit(1);
-+	}
-+
-+	/* Create CQ */
-+	cq = ibv_create_cq(context, 2048, NULL, NULL, 0);
-+	if (!cq)
-+	{
-+		fprintf(stderr, "Unable to create cq.\n");
-+		exit(1);
-+	}
-+
-+	/* Create SRQ */
-+	memset(&srqiattr, 0, sizeof(srqiattr));
-+	srqiattr.attr.max_wr    = 2048;
-+	srqiattr.attr.max_sge   = 4;
-+	srqiattr.attr.srq_limit = 1024;
-+	srq = ibv_create_srq(pd, &srqiattr);
-+	if (NULL == srq)
-+	{
-+		fprintf(stderr, "Unable to create sreq.\n");
-+		exit(1);
-+	}
-+
-+	memset(&qpiattr, 0, sizeof(qpiattr));
-+	qpiattr.send_cq = cq;
-+	qpiattr.recv_cq = cq;
-+	qpiattr.srq     = srq;
-+	qpiattr.cap.max_send_wr = 128;
-+	qpiattr.cap.max_recv_wr = 4;
-+	qpiattr.cap.max_send_sge = 5;
-+	qpiattr.cap.max_recv_sge = 4;
-+	qpiattr.cap.max_inline_data = 512;
-+	qpiattr.qp_type = IBV_QPT_RC;
-+	qpiattr.sq_sig_all = 1;
-+	qp = ibv_create_qp(pd, &qpiattr);
-+
-+	if (!qp)
-+	{
-+		fprintf(stderr, "Unable to create QP %d.\n", i);
-+		exit(1);
-+	}
-+
-+	return 0;
-+}
-+
-+int init_rc_qp(uint8_t port, uint16_t pkey_index)
-+{
-+	struct ibv_qp_attr attr = {
-+	         .qp_state        = IBV_QPS_INIT,
-+	         .pkey_index      = pkey_index,
-+	         .port_num        = port,
-+	         .qp_access_flags = 0
-+	};
-+
-+	return ibv_modify_qp(qp, &attr,
-+			     IBV_QP_STATE |
-+			     IBV_QP_PKEY_INDEX |
-+			     IBV_QP_PORT |
-+			     IBV_QP_ACCESS_FLAGS);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	uint16_t pkey_index;
-+	uint8_t port;
-+	int ret;
-+
-+	if (argc != 4)
-+	{
-+		printf("Please enter <ib device name> <port number> <pkey index>\n");
-+		exit(1);
-+	}
-+	port = atoi(argv[2]);
-+	pkey_index = atoi(argv[3]);
-+
-+	init_ib_rsrc(argv[1]);
-+
-+	ret = init_rc_qp(port, pkey_index);
-+	cleanup_ib_rsrc();
-+	exit(ret);
-+}
-diff --git a/tests/infiniband_pkey/ibpkey_test.conf b/tests/infiniband_pkey/ibpkey_test.conf
-new file mode 100644
-index 0000000..ac4e9cc
---- /dev/null
-+++ b/tests/infiniband_pkey/ibpkey_test.conf
++++ b/tests/infiniband_endport/ibendport_test.conf
 @@ -0,0 +1,14 @@
-+# Enable(1)/Disable these tests
-+SELINUX_INFINIBAND_PKEY_TEST=0
++# Enable(1)/Disable these tests.
++SELINUX_INFINIBAND_ENDPORT_TEST=0
 +
-+# Infiniband device to use.
-+SELINUX_INFINIBAND_PKEY_TEST_DEV=mlx5_3
++# Device/port pair that should allow access.
++# The test uses semanage to allow, because
++# ibendports are all unlabeled by default
++# the reference policy. This allows using
++# the same device and port for both the pass
++# and fail testing as well.
++SELINUX_INFINIBAND_ENDPORT_TEST_ALLOWED=mlx5_3 1
 +
-+# Physical port on the device to use.
-+SELINUX_INFINIBAND_PKEY_TEST_PORT=1
++# Device/port pairs that should deny access.
++SELINUX_INFINIBAND_ENDPORT_TEST_DENIED=mlx5_2 1
 +
-+# CSV list of pkeys indexes that should be allowed.
-+SELINUX_INFINIBAND_TEST_ALLOWED_PKEYS=0
-+
-+# CSV list of pkey indexes that should fail.
-+SELINUX_INFINIBAND_TEST_DENIED_PKEYS=1,2,3
-diff --git a/tests/infiniband_pkey/test b/tests/infiniband_pkey/test
+diff --git a/tests/infiniband_endport/test b/tests/infiniband_endport/test
 new file mode 100644
-index 0000000..89d1a7c
+index 0000000..172ff03
 --- /dev/null
-+++ b/tests/infiniband_pkey/test
-@@ -0,0 +1,45 @@
++++ b/tests/infiniband_endport/test
+@@ -0,0 +1,49 @@
 +#!/usr/bin/perl
 +
 +use Test;
 +
 +BEGIN { plan tests => 2}
 +
-+$basedir = $0; $basedir =~ s|(.*)/[^/]*|$1|;
++$basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
 +
 +my %conf;
-+my $confpath = $basedir."/ibpkey_test.conf";
-+open($f, $confpath) or die ("Couldn't open $confpath");
++my $confpath = $basedir."/ibendport_test.conf";
++open($f, $confpath) or die ("Couldn't open ibtest.conf");
 +while($r = <$f>) {
 +	if ($r =~ /^\s*#/ || $r =~ /^\s*$/) { next; }
 +	chomp $r;
@@ -325,31 +178,35 @@ index 0000000..89d1a7c
 +	$conf{$k} = $v;
 +}
 +
-+if ($conf{SELINUX_INFINIBAND_PKEY_TEST} eq 1) {
-+	$device = $conf{SELINUX_INFINIBAND_PKEY_TEST_DEV};
-+	$port = $conf{SELINUX_INFINIBAND_PKEY_TEST_PORT};
-+	@allowed_pkeys = split(/,/, $conf{SELINUX_INFINIBAND_TEST_ALLOWED_PKEYS});
-+	@denied_pkeys = split(/,/, $conf{SELINUX_INFINIBAND_TEST_DENIED_PKEYS});
++if ($conf{SELINUX_INFINIBAND_ENDPORT_TEST} eq 1) {
++	@allowed_device_port = split(/,/, $conf{SELINUX_INFINIBAND_ENDPORT_TEST_ALLOWED});
++	@denied_device_port = split(/,/, $conf{SELINUX_INFINIBAND_ENDPORT_TEST_DENIED});
 +
-+	foreach (@allowed_pkeys) {
-+		$result = system "runcon -t test_ibpkey_modify_t $basedir/create_modify_qp $device $port $_";
++	foreach (@allowed_device_port) {
++		@dev_port_pair= split(/ /, $_);
++
++		system "semanage ibendport -a -t test_ibendport_t -z $_ 2>/dev/null";
++		$result = system "runcon -t test_ibendport_manage_subnet_t smpquery PKeyTable -C $dev_port_pair[0] -P $dev_port_pair[1] -D 1 2>/dev/null";
++		system "semanage ibendport -d -t test_ibendport_t -z $_ 2>/dev/null";
 +		if($result ne 0) {
 +			last;
 +		}
 +	}
 +	ok($result, 0);
 +
-+	foreach (@denied_pkeys) {
-+		$result = system "runcon -t test_ibpkey_modify_t $basedir/create_modify_qp $device $port $_";
-+		if ($result>>8 ne 13) {
++        foreach (@denied_device_port) {
++	        @dev_port_pair= split(/ /, $_);
++	        $result = system "runcon -t test_ibendport_manage_subnet_t smpquery PKeyTable -C $dev_port_pair[0] -P $dev_port_pair[1] -D 1 2>/dev/null";
++
++		if ($result>>8 eq 0) {
 +			last;
 +		}
 +	}
 +
-+	ok($result>>8, 13);
++	ok(int($result>>8) ne 0);
 +} else {
-+	ok(1, 0);
-+	ok(1, 0);
++	ok(0, 0);
++	ok(0, 0);
 +}
 +exit;
 -- 
