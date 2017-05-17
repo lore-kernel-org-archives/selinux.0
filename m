@@ -1,12 +1,12 @@
-Subject: Re: [PATCH v1 2/9] libsepol: Add ibpkey ocontext handling
+Subject: Re: [PATCH v1 5/9] libsepol: Add ibendport ocontext handling
 To: Dan Jurgens <danielj@mellanox.com>, selinux@tycho.nsa.gov
 References: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
- <1494880961-73481-3-git-send-email-danielj@mellanox.com>
+ <1494880961-73481-6-git-send-email-danielj@mellanox.com>
 From: James Carter <jwcart2@tycho.nsa.gov>
-Message-ID: <dbc96669-16f5-b29f-18cc-61060787f333@tycho.nsa.gov>
-Date: Wed, 17 May 2017 09:52:02 -0400
+Message-ID: <9a91f584-5ca4-9122-21fe-e395e8df4508@tycho.nsa.gov>
+Date: Wed, 17 May 2017 09:54:22 -0400
 MIME-Version: 1.0
-In-Reply-To: <1494880961-73481-3-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1494880961-73481-6-git-send-email-danielj@mellanox.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -16,179 +16,143 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 On 05/15/2017 04:42 PM, Dan Jurgens wrote:
 > From: Daniel Jurgens <danielj@mellanox.com>
 > 
-> Add support for reading, writing, and copying Infinabinda Pkey ocontext
-> data. Also add support for querying a Pkey sid to checkpolicy.
+> Add support for reading, writing, and copying IB end port ocontext data.
+> Also add support for querying a IB end port sid to checkpolicy.
 > 
 > Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 > 
 > ---
 > v1:
 > Stephen Smalley:
-> - Removed domain and type params from sepol_ibpkey_sid.
-> - Removed splen param from sepol_ibpkey_sid, it never varied.
-> - Removed extra XPERMS_IOCTL version from policydb_compat_info.
-> - Confirm that low order bytes of IPv6 addr for subnet prefix is 0's.
+> - Removed unused domain and type params from sepol_ibendport_sid.
+> - Remove ibendport initial sid from ocontext_selinux_isid_to_cil
+> - Check the length provide for the device name in ocontext_read_selinux
+> - Used strcmp for dev_name comparison.
 > 
 > James Carter:
-> - Added ibpkey handling to kernel_to_cil.c and kernel_to_conf.c
+> - Added ibendport handling to kernel_to_cil.c and kernel_to_conf.c
 > 
 > Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 > ---
->   checkpolicy/checkpolicy.c                  | 25 +++++++++++++
->   libsepol/include/sepol/policydb/services.h |  8 ++++
->   libsepol/src/expand.c                      |  9 +++++
->   libsepol/src/kernel_to_cil.c               | 58 +++++++++++++++++++++++++++++
->   libsepol/src/kernel_to_conf.c              | 59 ++++++++++++++++++++++++++++++
+>   checkpolicy/checkpolicy.c                  | 20 ++++++++++++++
+>   libsepol/include/sepol/policydb/services.h |  8 ++++++
+>   libsepol/src/expand.c                      |  8 ++++++
+>   libsepol/src/kernel_to_cil.c               | 42 ++++++++++++++++++++++++++++++
+>   libsepol/src/kernel_to_conf.c              | 41 +++++++++++++++++++++++++++++
 >   libsepol/src/libsepol.map.in               |  1 +
->   libsepol/src/module_to_cil.c               | 38 +++++++++++++++++++
->   libsepol/src/policydb.c                    | 37 +++++++++++++++++++
->   libsepol/src/services.c                    | 51 ++++++++++++++++++++++++++
->   libsepol/src/write.c                       | 16 ++++++++
->   10 files changed, 302 insertions(+)
+>   libsepol/src/module_to_cil.c               | 14 ++++++++++
+>   libsepol/src/policydb.c                    | 26 +++++++++++++++---
+>   libsepol/src/services.c                    | 37 ++++++++++++++++++++++++++
+>   libsepol/src/write.c                       | 14 ++++++++++
+>   10 files changed, 208 insertions(+), 3 deletions(-)
 > 
 > diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-> index 534fc22..d0e46ba 100644
+> index d0e46ba..94bf083 100644
 > --- a/checkpolicy/checkpolicy.c
 > +++ b/checkpolicy/checkpolicy.c
-> @@ -22,6 +22,7 @@
->    *
->    *	Policy Module support.
->    *
-> + * Copyright (C) 2017 Mellanox Technologies Inc.
->    * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
->    * Copyright (C) 2003 - 2005 Tresys Technology, LLC
->    * Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
-> @@ -699,6 +700,7 @@ int main(int argc, char **argv)
->   	printf("h)  change a boolean value\n");
+> @@ -701,6 +701,7 @@ int main(int argc, char **argv)
 >   	printf("i)  display constraint expressions\n");
 >   	printf("j)  display validatetrans expressions\n");
-> +	printf("k)  Call ibpkey_sid\n");
+>   	printf("k)  Call ibpkey_sid\n");
+> +	printf("l)  Call ibendport_sid\n");
 >   #ifdef EQUIVTYPES
 >   	printf("z)  Show equivalent types\n");
 >   #endif
-> @@ -1220,6 +1222,29 @@ int main(int argc, char **argv)
->   				    "\nNo validatetrans expressions found.\n");
+> @@ -1245,6 +1246,25 @@ int main(int argc, char **argv)
+>   				printf("sid %d\n", ssid);
 >   			}
 >   			break;
-> +		case 'k':
-> +			{
-> +				char *p;
-> +				struct in6_addr addr6;
-> +				unsigned int pkey;
+> +		case 'l':
+> +			printf("device name (eg. mlx4_0)?  ");
+> +			FGETS(ans, sizeof(ans), stdin);
+> +			ans[strlen(ans) - 1] = 0;
 > +
-> +				printf("subnet prefix?  ");
-> +				FGETS(ans, sizeof(ans), stdin);
-> +				ans[strlen(ans) - 1] = 0;
-> +				p = (char *)&addr6;
-> +
-> +				if (inet_pton(AF_INET6, ans, p) < 1) {
-> +					printf("error parsing subnet prefix\n");
-> +					break;
-> +				}
-> +
-> +				printf("pkey? ");
-> +				FGETS(ans, sizeof(ans), stdin);
-> +				pkey = atoi(ans);
-> +				sepol_ibpkey_sid(p, pkey, &ssid);
-> +				printf("sid %d\n", ssid);
+> +			name = malloc((strlen(ans) + 1) * sizeof(char));
+> +			if (!name) {
+> +				fprintf(stderr, "couldn't malloc string.\n");
+> +				break;
 > +			}
+> +			strcpy(name, ans);
+> +
+> +			printf("port? ");
+> +			FGETS(ans, sizeof(ans), stdin);
+> +			port = atoi(ans);
+> +			sepol_ibendport_sid(name, port, &ssid);
+> +			printf("sid %d\n", ssid);
+> +			free(name);
 > +			break;
 >   #ifdef EQUIVTYPES
 >   		case 'z':
 >   			identify_equiv_types();
 > diff --git a/libsepol/include/sepol/policydb/services.h b/libsepol/include/sepol/policydb/services.h
-> index 9162149..459254e 100644
+> index 459254e..e4f2f11 100644
 > --- a/libsepol/include/sepol/policydb/services.h
 > +++ b/libsepol/include/sepol/policydb/services.h
-> @@ -188,6 +188,14 @@ extern int sepol_port_sid(uint16_t domain,
->   			  uint16_t port, sepol_security_id_t * out_sid);
+> @@ -196,6 +196,14 @@ extern int sepol_ibpkey_sid(void *subnet_prefix_p,
+>   			    sepol_security_id_t *out_sid);
 >   
 >   /*
-> + * Return the SID of the ibpkey specified by
-> + * `subnet prefix', and `pkey'.
+> + * Return the SID of the ibendport specified by
+> + * `dev_name', and `port'.
 > + */
-> +extern int sepol_ibpkey_sid(void *subnet_prefix_p,
-> +			    uint16_t pkey,
-> +			    sepol_security_id_t *out_sid);
+> +extern int sepol_ibendport_sid(char *dev_name,
+> +			       uint8_t port,
+> +			       sepol_security_id_t *out_sid);
 > +
 > +/*
 >    * Return the SIDs to use for a network interface
 >    * with the name `name'.  The `if_sid' SID is returned for
 >    * the interface and the `msg_sid' SID is returned as
 > diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index 54bf781..c45ecbe 100644
+> index c45ecbe..061945e 100644
 > --- a/libsepol/src/expand.c
 > +++ b/libsepol/src/expand.c
-> @@ -4,6 +4,7 @@
->    *
->    * Copyright (C) 2004-2005 Tresys Technology, LLC
->    * Copyright (C) 2007 Red Hat, Inc.
-> + * Copyright (C) 2017 Mellanox Technologies, Inc.
->    *
->    *  This library is free software; you can redistribute it and/or
->    *  modify it under the terms of the GNU Lesser General Public
-> @@ -2217,6 +2218,14 @@ static int ocontext_copy_selinux(expand_state_t *state)
->   					return -1;
->   				}
->   				break;
-> +			case OCON_IBPKEY:
-> +				n->u.ibpkey.subnet_prefix[0] = c->u.ibpkey.subnet_prefix[0];
-> +				n->u.ibpkey.subnet_prefix[1] = c->u.ibpkey.subnet_prefix[1];
-> +				n->u.ibpkey.subnet_prefix[2] = c->u.ibpkey.subnet_prefix[2];
-> +				n->u.ibpkey.subnet_prefix[3] = c->u.ibpkey.subnet_prefix[3];
-> +				n->u.ibpkey.low_pkey = c->u.ibpkey.low_pkey;
-> +				n->u.ibpkey.high_pkey = c->u.ibpkey.high_pkey;
-> +			break;
+> @@ -2226,6 +2226,14 @@ static int ocontext_copy_selinux(expand_state_t *state)
+>   				n->u.ibpkey.low_pkey = c->u.ibpkey.low_pkey;
+>   				n->u.ibpkey.high_pkey = c->u.ibpkey.high_pkey;
+>   			break;
+> +			case OCON_IBENDPORT:
+> +				n->u.ibendport.dev_name = strdup(c->u.ibendport.dev_name);
+> +				if (!n->u.ibendport.dev_name) {
+> +					ERR(state->handle, "Out of memory!");
+> +					return -1;
+> +				}
+> +				n->u.ibendport.port = c->u.ibendport.port;
+> +				break;
 >   			case OCON_PORT:
 >   				n->u.port.protocol = c->u.port.protocol;
 >   				n->u.port.low_port = c->u.port.low_port;
 > diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-> index 3a1c0be..fcfd0e0 100644
+> index fcfd0e0..6587ff4 100644
 > --- a/libsepol/src/kernel_to_cil.c
 > +++ b/libsepol/src/kernel_to_cil.c
-> @@ -2784,6 +2784,59 @@ exit:
+> @@ -2837,6 +2837,43 @@ exit:
 >   	return rc;
 >   }
 >   
-> +static int write_selinux_ibpkey_rules_to_cil(FILE *out, struct policydb *pdb)
+> +static int write_selinux_ibendport_rules_to_cil(FILE *out, struct policydb *pdb)
 > +{
-> +	struct ocontext *ibpkeycon;
-> +	char subnet_prefix[INET6_ADDRSTRLEN];
-> +	uint16_t low;
-> +	uint16_t high;
-> +	char low_high_str[44]; /* 2^64 <= 20 digits so "(low high)" <= 44 chars */
+> +	struct ocontext *ibendportcon;
+> +	char port_str[4];
 > +	char *ctx;
 > +	int rc = 0;
 > +
-> +	for (ibpkeycon = pdb->ocontexts[OCON_IBPKEY]; ibpkeycon != NULL;
-> +	     ibpkeycon = ibpkeycon->next) {
-> +		if (inet_ntop(AF_INET6, &ibpkeycon->u.ibpkey.subnet_prefix,
-> +			      subnet_prefix, INET6_ADDRSTRLEN) == NULL) {
-> +			sepol_log_err("ibpkeycon subnet_prefix is invalid: %s",
-> +				      strerror(errno));
+> +	for (ibendportcon = pdb->ocontexts[OCON_IBENDPORT];
+> +	     ibendportcon != NULL; ibendportcon = ibendportcon->next) {
+> +		rc = snprintf(port_str, 4, "%u", ibendportcon->u.ibendport.port);
+> +		if (rc < 0 || rc >= 4) {
 > +			rc = -1;
 > +			goto exit;
 > +		}
 > +
-> +		low = ibpkeycon->u.ibpkey.low_pkey;
-> +		high = ibpkeycon->u.ibpkey.high_pkey;
-> +		if (low == high) {
-> +			rc = snprintf(low_high_str, 44, "%u", low);
-> +		} else {
-> +			rc = snprintf(low_high_str, 44, "(%u %u)", low, high);
-> +		}
-> +		if (rc < 0 || rc >= 44) {
-> +			rc = -1;
-> +			goto exit;
-> +		}
-> +
-> +		ctx = context_to_str(pdb, &ibpkeycon->context[0]);
+> +		ctx = context_to_str(pdb, &ibendportcon->context[0]);
 > +		if (!ctx) {
 > +			rc = -1;
 > +			goto exit;
 > +		}
 > +
-> +		sepol_printf(out, "(ibpkeycon %s %s %s)\n", subnet_prefix, low_high_str, ctx);
+> +		sepol_printf(out, "(ibendportcon %s %s %s)\n",
+> +			     ibendportcon->u.ibendport.dev_name, port_str, ctx);
 > +
 > +		free(ctx);
 > +	}
@@ -197,21 +161,26 @@ On 05/15/2017 04:42 PM, Dan Jurgens wrote:
 > +
 > +exit:
 > +	if (rc != 0) {
-> +		sepol_log_err("Error writing ibpkeycon rules to CIL\n");
+> +		sepol_log_err("Error writing ibendportcon rules to CIL\n");
 > +	}
 > +
 > +	return rc;
 > +}
 > +
+
+You need to have the ibendport rules sorted like I mentioned for ibpkey in patch 2.
+
+Jim
+
 >   static int write_xen_isid_rules_to_cil(FILE *out, struct policydb *pdb)
 >   {
 >   	return write_sid_context_rules_to_cil(out, pdb, xen_sid_to_str);
-> @@ -3180,6 +3233,11 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
+> @@ -3238,6 +3275,11 @@ int sepol_kernel_policydb_to_cil(FILE *out, struct policydb *pdb)
 >   		if (rc != 0) {
 >   			goto exit;
 >   		}
 > +
-> +		rc = write_selinux_ibpkey_rules_to_cil(out, pdb);
+> +		rc = write_selinux_ibendport_rules_to_cil(out, pdb);
 > +		if (rc != 0) {
 > +			goto exit;
 > +		}
@@ -219,53 +188,35 @@ On 05/15/2017 04:42 PM, Dan Jurgens wrote:
 >   		rc = write_xen_isid_rules_to_cil(out, pdb);
 >   		if (rc != 0) {
 > diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-> index 22a0909..795cf56 100644
+> index 795cf56..ba261cf 100644
 > --- a/libsepol/src/kernel_to_conf.c
 > +++ b/libsepol/src/kernel_to_conf.c
-> @@ -2645,6 +2645,60 @@ exit:
+> @@ -2699,6 +2699,42 @@ exit:
 >   	return rc;
 >   }
 >   
-> +static int write_selinux_ibpkey_rules_to_conf(FILE *out, struct policydb *pdb)
+> +static int write_selinux_ibendport_rules_to_conf(FILE *out, struct policydb *pdb)
 > +{
-> +	struct ocontext *ibpkeycon;
-> +	char subnet_prefix[INET6_ADDRSTRLEN];
-> +	uint16_t low;
-> +	uint16_t high;
-> +	char low_high_str[44]; /* 2^64 <= 20 digits so "low-high" <= 44 chars */
+> +	struct ocontext *ibendportcon;
+> +	char port_str[4];
 > +	char *ctx;
 > +	int rc = 0;
 > +
-> +	for (ibpkeycon = pdb->ocontexts[OCON_IBPKEY]; ibpkeycon != NULL;
-> +	     ibpkeycon = ibpkeycon->next) {
-> +		if (inet_ntop(AF_INET6, &ibpkeycon->u.ibpkey.subnet_prefix,
-> +			      subnet_prefix, INET6_ADDRSTRLEN) == NULL) {
-> +			sepol_log_err("ibpkeycon address is invalid: %s",
-> +				      strerror(errno));
+> +	for (ibendportcon = pdb->ocontexts[OCON_IBENDPORT];
+> +	     ibendportcon != NULL; ibendportcon = ibendportcon->next) {
+> +		rc = snprintf(port_str, 4, "%u", ibendportcon->u.ibendport.port);
+> +		if (rc < 0 || rc >= 4) {
 > +			rc = -1;
 > +			goto exit;
 > +		}
 > +
-> +		low = ibpkeycon->u.ibpkey.low_pkey;
-> +		high = ibpkeycon->u.ibpkey.high_pkey;
-> +		if (low == high) {
-> +			rc = snprintf(low_high_str, 44, "%u", low);
-> +		} else {
-> +			rc = snprintf(low_high_str, 44, "%u-%u", low, high);
-> +		}
-> +		if (rc < 0 || rc >= 44) {
-> +			rc = -1;
-> +			goto exit;
-> +		}
-> +
-> +		ctx = context_to_str(pdb, &ibpkeycon->context[0]);
+> +		ctx = context_to_str(pdb, &ibendportcon->context[0]);
 > +		if (!ctx) {
 > +			rc = -1;
 > +			goto exit;
 > +		}
 > +
-> +		sepol_printf(out, "ibpkeycon %s %s %s\n", subnet_prefix,
-> +			     low_high_str, ctx);
+> +		sepol_printf(out, "ibendportcon %s %s %s\n", ibendportcon->u.ibendport.dev_name, port_str, ctx);
 > +
 > +		free(ctx);
 > +	}
@@ -274,26 +225,21 @@ On 05/15/2017 04:42 PM, Dan Jurgens wrote:
 > +
 > +exit:
 > +	if (rc != 0) {
-> +		sepol_log_err("Error writing ibpkeycon rules to policy.conf\n");
+> +		sepol_log_err("Error writing ibendportcon rules to policy.conf\n");
 > +	}
 > +
 > +	return rc;
 > +}
 > +
-
-I forgot to mention that you also need to add a compare function (should be 
-similar to the one you made for cil_post.c) and modify sort_ocontexts() in 
-kernel_to_common.c so that the ibpkey rules get sorted.
-
 >   static int write_xen_isid_rules_to_conf(FILE *out, struct policydb *pdb)
 >   {
 >   	return write_sid_context_rules_to_conf(out, pdb, xen_sid_to_str);
-> @@ -3045,6 +3099,11 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
+> @@ -3104,6 +3140,11 @@ int sepol_kernel_policydb_to_conf(FILE *out, struct policydb *pdb)
 >   		if (rc != 0) {
 >   			goto exit;
 >   		}
 > +
-> +		rc = write_selinux_ibpkey_rules_to_conf(out, pdb);
+> +		rc = write_selinux_ibendport_rules_to_conf(out, pdb);
 > +		if (rc != 0) {
 > +			goto exit;
 > +		}
@@ -301,149 +247,100 @@ kernel_to_common.c so that the ibpkey rules get sorted.
 >   		rc = write_xen_isid_rules_to_conf(out, pdb);
 >   		if (rc != 0) {
 > diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
-> index 4042640..36225d1 100644
+> index 36225d1..dd1fec2 100644
 > --- a/libsepol/src/libsepol.map.in
 > +++ b/libsepol/src/libsepol.map.in
-> @@ -6,6 +6,7 @@ LIBSEPOL_1.0 {
->   	sepol_context_*; sepol_mls_*; sepol_check_context;
+> @@ -7,6 +7,7 @@ LIBSEPOL_1.0 {
 >   	sepol_iface_*;
 >   	sepol_port_*;
-> +	sepol_ibpkey_*;
+>   	sepol_ibpkey_*;
+> +	sepol_ibendport_*;
 >   	sepol_node_*;
 >   	sepol_user_*; sepol_genusers; sepol_set_delusers;
 >   	sepol_msg_*; sepol_debug;
 > diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-> index 7d8eb20..c97f453 100644
+> index c97f453..04394f0 100644
 > --- a/libsepol/src/module_to_cil.c
 > +++ b/libsepol/src/module_to_cil.c
-> @@ -3,6 +3,7 @@
->    * Functions to convert policy module to CIL
->    *
->    * Copyright (C) 2015 Tresys Technology, LLC
-> + * Copyright (C) 2017 Mellanox Technologies Inc.
->    *
->    *  This library is free software; you can redistribute it and/or
->    *  modify it under the terms of the GNU Lesser General Public
-> @@ -2656,6 +2657,42 @@ exit:
+> @@ -2773,6 +2773,19 @@ exit:
 >   	return rc;
 >   }
 >   
-> +static int ocontext_selinux_ibpkey_to_cil(struct policydb *pdb,
-> +					struct ocontext *ibpkeycons)
+> +static int ocontext_selinux_ibendport_to_cil(struct policydb *pdb, struct ocontext *ibendports)
 > +{
-> +	int rc = -1;
-> +	struct ocontext *ibpkeycon;
-> +	char subnet_prefix[INET6_ADDRSTRLEN];
-> +	uint16_t high;
-> +	uint16_t low;
+> +	struct ocontext *ibendport;
 > +
-> +	for (ibpkeycon = ibpkeycons; ibpkeycon; ibpkeycon = ibpkeycon->next) {
-> +		low = ibpkeycon->u.ibpkey.low_pkey;
-> +		high = ibpkeycon->u.ibpkey.high_pkey;
-> +
-> +		if (inet_ntop(AF_INET6, &ibpkeycon->u.ibpkey.subnet_prefix,
-> +			      subnet_prefix, INET6_ADDRSTRLEN) == NULL) {
-> +			log_err("ibpkeycon subnet_prefix is invalid: %s",
-> +				strerror(errno));
-> +			rc = -1;
-> +			goto exit;
-> +		}
-> +
-> +		if (low == high)
-> +			cil_printf("(ibpkeycon %s %i ", subnet_prefix, low);
-> +		else
-> +			cil_printf("(ibpkeycon %s (%i %i) ", subnet_prefix, low,
-> +				   high);
-> +
-> +		context_to_cil(pdb, &ibpkeycon->context[0]);
+> +	for (ibendport = ibendports; ibendport; ibendport = ibendport->next) {
+> +		cil_printf("(ibendportcon %s %u ", ibendport->u.ibendport.dev_name, ibendport->u.ibendport.port);
+> +		context_to_cil(pdb, &ibendport->context[0]);
 > +
 > +		cil_printf(")\n");
 > +	}
-> +	return 0;
-> +exit:
-> +	return rc;
-> +}
 > +
->   static int ocontext_selinux_netif_to_cil(struct policydb *pdb, struct ocontext *netifs)
+> +	return 0;
+> +}
+>   
+>   static int ocontext_selinux_fsuse_to_cil(struct policydb *pdb, struct ocontext *fsuses)
 >   {
->   	struct ocontext *netif;
-> @@ -2889,6 +2926,7 @@ static int ocontexts_to_cil(struct policydb *pdb)
->   		ocontext_selinux_node_to_cil,
+> @@ -2927,6 +2940,7 @@ static int ocontexts_to_cil(struct policydb *pdb)
 >   		ocontext_selinux_fsuse_to_cil,
 >   		ocontext_selinux_node6_to_cil,
-> +		ocontext_selinux_ibpkey_to_cil,
+>   		ocontext_selinux_ibpkey_to_cil,
+> +		ocontext_selinux_ibendport_to_cil,
 >   	};
 >   	static int (*ocon_xen_funcs[OCON_NUM])(struct policydb *pdb, struct ocontext *ocon) = {
 >   		ocontext_xen_isid_to_cil,
 > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 7093b29..d6e8e6f 100644
+> index d6e8e6f..9a11d45 100644
 > --- a/libsepol/src/policydb.c
 > +++ b/libsepol/src/policydb.c
-> @@ -18,6 +18,7 @@
->    * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
->    * Copyright (C) 2003 - 2005 Tresys Technology, LLC
->    * Copyright (C) 2003 - 2007 Red Hat, Inc.
-> + * Copyright (C) 2017 Mellanox Technologies Inc.
->    *
->    *  This library is free software; you can redistribute it and/or
->    *  modify it under the terms of the GNU Lesser General Public
-> @@ -186,6 +187,13 @@ static struct policydb_compat_info policydb_compat[] = {
+> @@ -190,7 +190,7 @@ static struct policydb_compat_info policydb_compat[] = {
+>   	 .type = POLICY_KERN,
+>   	 .version = POLICYDB_VERSION_INFINIBAND,
+>   	 .sym_num = SYM_NUM,
+> -	 .ocon_num = OCON_IBPKEY + 1,
+> +	 .ocon_num = OCON_IBENDPORT + 1,
 >   	 .target_platform = SEPOL_TARGET_SELINUX,
 >   	},
 >   	{
-> +	 .type = POLICY_KERN,
-> +	 .version = POLICYDB_VERSION_INFINIBAND,
-> +	 .sym_num = SYM_NUM,
-> +	 .ocon_num = OCON_IBPKEY + 1,
-> +	 .target_platform = SEPOL_TARGET_SELINUX,
-> +	},
-> +	{
+> @@ -295,7 +295,7 @@ static struct policydb_compat_info policydb_compat[] = {
 >   	 .type = POLICY_BASE,
->   	 .version = MOD_POLICYDB_VERSION_BASE,
+>   	 .version = MOD_POLICYDB_VERSION_INFINIBAND,
 >   	 .sym_num = SYM_NUM,
-> @@ -284,6 +292,13 @@ static struct policydb_compat_info policydb_compat[] = {
+> -	 .ocon_num = OCON_IBPKEY + 1,
+> +	 .ocon_num = OCON_IBENDPORT + 1,
 >   	 .target_platform = SEPOL_TARGET_SELINUX,
 >   	},
 >   	{
-> +	 .type = POLICY_BASE,
-> +	 .version = MOD_POLICYDB_VERSION_INFINIBAND,
-> +	 .sym_num = SYM_NUM,
-> +	 .ocon_num = OCON_IBPKEY + 1,
-> +	 .target_platform = SEPOL_TARGET_SELINUX,
-> +	},
-> +	{
->   	 .type = POLICY_MOD,
->   	 .version = MOD_POLICYDB_VERSION_BASE,
->   	 .sym_num = SYM_NUM,
-> @@ -381,6 +396,13 @@ static struct policydb_compat_info policydb_compat[] = {
->   	 .ocon_num = 0,
->   	 .target_platform = SEPOL_TARGET_SELINUX,
->   	},
-> +	{
-> +	 .type = POLICY_MOD,
-> +	 .version = MOD_POLICYDB_VERSION_INFINIBAND,
-> +	 .sym_num = SYM_NUM,
-> +	 .ocon_num = 0,
-> +	 .target_platform = SEPOL_TARGET_SELINUX,
-> +	},
->   };
->   
->   #if 0
-> @@ -2782,6 +2804,21 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
->   				    (&c->context[1], p, fp))
+> @@ -2788,7 +2788,7 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
+>   				if (rc < 0)
+>   					return -1;
+>   				len = le32_to_cpu(buf[0]);
+> -				if (zero_or_saturated(len))
+> +				if (zero_or_saturated(len) || len > 63)
+>   					return -1;
+>   				c->u.name = malloc(len + 1);
+>   				if (!c->u.name)
+> @@ -2819,6 +2819,26 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
+>   				    (&c->context[0], p, fp))
 >   					return -1;
 >   				break;
-> +			case OCON_IBPKEY:
-> +				rc = next_entry(buf, fp, sizeof(uint32_t) * 6);
-> +				if (rc < 0 || buf[2] || buf[3])
+> +			case OCON_IBENDPORT:
+> +				rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
+> +				if (rc < 0)
+> +					return -1;
+> +				len = le32_to_cpu(buf[0]);
+> +				if (len == 0 || len > IB_DEVICE_NAME_MAX - 1)
 > +					return -1;
 > +
-> +				c->u.ibpkey.subnet_prefix[0] = buf[0];
-> +				c->u.ibpkey.subnet_prefix[1] = buf[1];
-> +
-> +				c->u.ibpkey.low_pkey = le32_to_cpu(buf[4]);
-> +				c->u.ibpkey.high_pkey = le32_to_cpu(buf[5]);
-> +
+> +				c->u.ibendport.dev_name = malloc(len + 1);
+> +				if (!c->u.ibendport.dev_name)
+> +					return -1;
+> +				rc = next_entry(c->u.ibendport.dev_name, fp, len);
+> +				if (rc < 0)
+> +					return -1;
+> +				c->u.ibendport.dev_name[len] = 0;
+> +				c->u.ibendport.port = le32_to_cpu(buf[1]);
 > +				if (context_read_and_validate
 > +				    (&c->context[0], p, fp))
 > +					return -1;
@@ -452,50 +349,27 @@ kernel_to_common.c so that the ibpkey rules get sorted.
 >   				rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
 >   				if (rc < 0)
 > diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-> index 03fb120..4236aac 100644
+> index 4236aac..f444f10 100644
 > --- a/libsepol/src/services.c
 > +++ b/libsepol/src/services.c
-> @@ -21,6 +21,7 @@
->    * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
->    * Copyright (C) 2003 - 2004 Tresys Technology, LLC
->    * Copyright (C) 2003 - 2004 Red Hat, Inc.
-> + * Copyright (C) 2017 Mellanox Technologies Inc.
->    *
->    *  This library is free software; you can redistribute it and/or
->    *  modify it under the terms of the GNU Lesser General Public
-> @@ -1910,6 +1911,56 @@ int hidden sepol_fs_sid(char *name,
->   	return rc;
+> @@ -1962,6 +1962,43 @@ out:
 >   }
 >   
-> +static int match_subnet_prefix(uint32_t *input, uint32_t *subnet_prefix)
-> +{
-> +	int i, fail = 0;
-> +
-> +	for (i = 0; i < 4; i++)
-> +		if (subnet_prefix[i] != input[i]) {
-> +			fail = 1;
-> +			break;
-> +		}
-> +
-> +	return !fail;
-> +}
-> +
-> +/*
-> + * Return the SID of the ibpkey specified by
-> + * `subnet prefix', and `pkey number'.
+>   /*
+> + * Return the SID of the subnet management interface specified by
+> + * `device name', and `port'.
 > + */
-> +int hidden sepol_ibpkey_sid(void *subnet_prefix_p,
-> +			    uint16_t pkey, sepol_security_id_t *out_sid)
+> +int hidden sepol_ibendport_sid(char *dev_name,
+> +			       uint8_t port,
+> +			       sepol_security_id_t *out_sid)
 > +{
 > +	ocontext_t *c;
 > +	int rc = 0;
 > +
-> +	c = policydb->ocontexts[OCON_IBPKEY];
+> +	c = policydb->ocontexts[OCON_IBENDPORT];
 > +	while (c) {
-> +		if (c->u.ibpkey.low_pkey <= pkey &&
-> +		    c->u.ibpkey.high_pkey >= pkey &&
-> +		    match_subnet_prefix(subnet_prefix_p,
-> +					c->u.ibpkey.subnet_prefix))
+> +		if (c->u.ibendport.port == port &&
+> +		    !strcmp(dev_name, c->u.ibendport.dev_name))
 > +			break;
 > +		c = c->next;
 > +	}
@@ -517,35 +391,28 @@ kernel_to_common.c so that the ibpkey rules get sorted.
 > +	return rc;
 > +}
 > +
->   /*
+> +
+> +/*
 >    * Return the SID of the port specified by
 >    * `domain', `type', `protocol', and `port'.
+>    */
 > diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-> index e75b9ab..fa1b7d1 100644
+> index fa1b7d1..e3ff389 100644
 > --- a/libsepol/src/write.c
 > +++ b/libsepol/src/write.c
-> @@ -16,6 +16,7 @@
->    *
->    * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
->    * Copyright (C) 2003-2005 Tresys Technology, LLC
-> + * Copyright (C) 2017 Mellanox Technologies Inc.
->    *
->    *  This library is free software; you can redistribute it and/or
->    *  modify it under the terms of the GNU Lesser General Public
-> @@ -1410,6 +1411,21 @@ static int ocontext_write_selinux(struct policydb_compat_info *info,
->   				if (context_write(p, &c->context[1], fp))
+> @@ -1426,6 +1426,20 @@ static int ocontext_write_selinux(struct policydb_compat_info *info,
+>   				if (context_write(p, &c->context[0], fp))
 >   					return POLICYDB_ERROR;
 >   				break;
-> +			case OCON_IBPKEY:
-> +				 /* The subnet prefix is in network order */
-> +				for (j = 0; j < 4; j++)
-> +					buf[j] = c->u.ibpkey.subnet_prefix[j];
-> +
-> +				buf[4] = cpu_to_le32(c->u.ibpkey.low_pkey);
-> +				buf[5] = cpu_to_le32(c->u.ibpkey.high_pkey);
-> +
-> +				items = put_entry(buf, sizeof(uint32_t), 6, fp);
-> +				if (items != 6)
+> +			case OCON_IBENDPORT:
+> +				len = strlen(c->u.ibendport.dev_name);
+> +				buf[0] = cpu_to_le32(len);
+> +				buf[1] = cpu_to_le32(c->u.ibendport.port);
+> +				items = put_entry(buf, sizeof(uint32_t), 2, fp);
+> +				if (items != 2)
+> +					return POLICYDB_ERROR;
+> +				items = put_entry(c->u.ibendport.dev_name, 1, len, fp);
+> +				if (items != len)
 > +					return POLICYDB_ERROR;
 > +
 > +				if (context_write(p, &c->context[0], fp))
