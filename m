@@ -1,133 +1,34 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] selinux-testsuite: Test ioctl xperms
-Date: Wed, 17 May 2017 10:45:13 -0400
-Message-Id: <20170517144513.19131-1-sds@tycho.nsa.gov>
+MIME-Version: 1.0
+In-Reply-To: <1494967240.21557.18.camel@tycho.nsa.gov>
+References: <1494928281-11128-1-git-send-email-sbuisson@ddn.com>
+ <1494967240.21557.18.camel@tycho.nsa.gov>
+From: Sebastien Buisson <sbuisson.ddn@gmail.com>
+Date: Wed, 17 May 2017 16:59:46 +0200
+Message-ID: <CAPkE-bWykonYBssXGphktM7jANY_nbtQi7EVc4uLwjm-fdM8Kg@mail.gmail.com>
+Subject: Re: [PATCH v5 1/2] selinux: add brief info to policydb
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov, serge@hallyn.com, james.l.morris@oracle.com,
+ Eric Paris <eparis@parisplace.org>, Paul Moore <paul@paul-moore.com>,
+ Sebastien Buisson <sbuisson@ddn.com>
+Content-Type: text/plain; charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Extend the existing ioctl tests with a simple test for the ioctl
-xperms support.  This depends on:
-1) checkmodule that supports module policy version >= 18,
-2) kernel that supports kernel policy version >= 30.
+2017-05-16 22:40 GMT+02:00 Stephen Smalley <sds@tycho.nsa.gov>:
+>> +     strcpy(*brief, policydb.policybrief);
+>> +     /* *len is the length of the output string */
+>> +     *len = policybrief_len - 1;
+>
+> Is there a particular reason to not just return policybrief_len here as
+> well, for consistency in the interface?  How do you intend to use this
+> value in the caller?
 
-The tests are automatically skipped if xperms are not supported
-by checkmodule or the kernel.
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- policy/Makefile             |  6 ++++++
- policy/test_ioctl_xperms.te | 18 ++++++++++++++++++
- tests/ioctl/test            | 33 +++++++++++++++++++++++++++++++--
- 3 files changed, 55 insertions(+), 2 deletions(-)
- create mode 100644 policy/test_ioctl_xperms.te
-
-diff --git a/policy/Makefile b/policy/Makefile
-index 14b215b..7bc7f95 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -2,11 +2,13 @@
- POLDEV ?= /usr/share/selinux/devel
- SEMODULE = /usr/sbin/semodule
- CHECKPOLICY = /usr/bin/checkpolicy
-+CHECKMODULE = /usr/bin/checkmodule
- 
- DISTRO=$(shell ../tests/os_detect)
- RHEL_VERS=$(shell echo $(DISTRO) | sed 's/RHEL//')
- 
- POL_VERS := $(shell $(CHECKPOLICY) -V |cut -f 1 -d ' ')
-+MOD_POL_VERS := $(shell $(CHECKMODULE) -V |cut -f 2 -d '-')
- 
- TARGETS = \
- 	test_global.te test_capable_file.te test_capable_net.te \
-@@ -26,6 +28,10 @@ ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
- TARGETS += test_bounds.te
- endif
- 
-+ifeq ($(shell [ $(MOD_POL_VERS) -ge 18 ] && echo true),true)
-+TARGETS += test_ioctl_xperms.te
-+endif
-+
- ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
- TARGETS += test_cap_userns.te
- endif
-diff --git a/policy/test_ioctl_xperms.te b/policy/test_ioctl_xperms.te
-new file mode 100644
-index 0000000..f9bc8d5
---- /dev/null
-+++ b/policy/test_ioctl_xperms.te
-@@ -0,0 +1,18 @@
-+define(`FIOCLEX', `{ 0x00006601 0x00005451 }')
-+
-+# Domain for process that is allowed the required ioctl xperms.
-+type test_ioctl_xperm_t;
-+domain_type(test_ioctl_xperm_t)
-+unconfined_runs_test(test_ioctl_xperm_t)
-+typeattribute test_ioctl_xperm_t ioctldomain;
-+typeattribute test_ioctl_xperm_t testdomain;
-+allow test_ioctl_xperm_t test_ioctl_file_t:file { open read write ioctl getattr setattr };
-+allowxperm test_ioctl_xperm_t test_ioctl_file_t:file ioctl FIOCLEX;
-+
-+# Domain for process that is not allowed the required ioctl xperms.
-+type test_ioctl_noxperm_t;
-+domain_type(test_ioctl_noxperm_t)
-+unconfined_runs_test(test_ioctl_noxperm_t)
-+typeattribute test_ioctl_noxperm_t ioctldomain;
-+typeattribute test_ioctl_noxperm_t testdomain;
-+allowxperm test_ioctl_noxperm_t test_ioctl_file_t:file ioctl ~FIOCLEX;
-diff --git a/tests/ioctl/test b/tests/ioctl/test
-index 7ce2c9e..fb84bae 100755
---- a/tests/ioctl/test
-+++ b/tests/ioctl/test
-@@ -4,7 +4,21 @@
- #
- 
- use Test;
--BEGIN { plan tests => 2}
-+BEGIN {
-+    $test_count = 2;
-+    $test_xperms = 0;
-+
-+    $modver = `checkmodule -V | cut -f 2 -d -`;
-+    $selinuxfs = `cat /proc/mounts | grep selinuxfs | cut -f 2 -d ' '`;
-+    chomp($selinuxfs);
-+    $kernver = `cat $selinuxfs/policyvers`;
-+    if ($modver >= 18 && $kernver >= 30) {
-+	$test_xperms = 1;
-+	$test_count += 2;
-+    }
-+
-+    plan tests => $test_count
-+}
- 
- $basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
- 
-@@ -26,7 +40,22 @@ ok($result, 0);
- # individual calls, so we expect success always from that program.
- #
- $result = system "runcon -t test_noioctl_t -- $basedir/test_noioctl $basedir/temp_file 2>&1";
--ok($result, 0); 
-+ok($result, 0);
-+
-+if ($test_xperms) {
-+    #
-+    # Attempt to perform the ioctls with the required ioctl xperms.
-+    #
-+    $result = system "runcon -t test_ioctl_xperm_t -- $basedir/test_ioctl $basedir/temp_file 2>&1";
-+    ok($result, 0);
-+
-+
-+    #
-+    # Attempt to perform the ioctls without the required ioctl xperm.
-+    #
-+    $result = system "runcon -t test_ioctl_noxperm_t -- $basedir/test_ioctl $basedir/temp_file 2>&1";
-+    ok($result);
-+}
- 
- system "rm -f $basedir/temp_file 2>&1";
- 
--- 
-2.9.3
+As called in the other patch to expose policy brief via selinuxfs
+(sel_read_policybrief), the intent is to provide the caller with the
+length of the string returned.
+Or should I set *len to policy brief_len here, and just make the
+caller aware that the returned length is in fact the length of the
+buffer (i.e. including terminating NUL byte)?
