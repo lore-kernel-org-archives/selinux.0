@@ -1,57 +1,356 @@
-MIME-Version: 1.0
-In-Reply-To: <CAPkE-bW45A-MKBZ53zyE--zuzsemyUaFy4_=vLFFF+H2Ujg=xQ@mail.gmail.com>
-References: <1494928281-11128-1-git-send-email-sbuisson@ddn.com>
- <1494967240.21557.18.camel@tycho.nsa.gov>
- <CAPkE-bWykonYBssXGphktM7jANY_nbtQi7EVc4uLwjm-fdM8Kg@mail.gmail.com>
- <CAFftDdo=xDMNpC1F6M+w8Cr4=Ws8f-WyKm27EU_kv2ZE7ATHsQ@mail.gmail.com>
- <CAPkE-bV3DymWqYfkahxYLwSPy_G=YMzJMvc5jj3qJu1ywteJng@mail.gmail.com>
- <CAFftDdqtXKMkPOmrHx_RcwQuhi7e+Utqnh=4nn0O+4+wgAS=6Q@mail.gmail.com>
- <CAPkE-bU-XSQHobkAQzed+fM14sKku56oPq=P=KoCOwuUqcFosw@mail.gmail.com>
- <CAFftDdpHH5J18h7zUnYEv0Q++cLOdUqbUGptZHvwXpKh5WjEFw@mail.gmail.com>
- <CAPkE-bW45A-MKBZ53zyE--zuzsemyUaFy4_=vLFFF+H2Ujg=xQ@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Wed, 17 May 2017 11:28:16 -0700
-Message-ID: <CAFftDdqh_7DW9zXvSA3isCXMDRNghaOMHJ5UQQJFYTTB8xf3ug@mail.gmail.com>
-Subject: Re: [PATCH v5 1/2] selinux: add brief info to policydb
-To: Sebastien Buisson <sbuisson.ddn@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- linux-security-module@vger.kernel.org,
- Sebastien Buisson <sbuisson@ddn.com>,
- James Morris <james.l.morris@oracle.com>
-Content-Type: text/plain; charset="UTF-8"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4HIsoLE009132
+ for <selinux@tycho.nsa.gov>; Wed, 17 May 2017 14:54:50 -0400
+From: Dan Jurgens <danielj@mellanox.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/2] selinux-testsuite: Infiniband pkey tests
+Date: Wed, 17 May 2017 21:54:32 +0300
+Message-Id: <1495047273-96339-2-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1495047273-96339-1-git-send-email-danielj@mellanox.com>
+References: <1495047273-96339-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, May 17, 2017 at 10:00 AM, Sebastien Buisson
-<sbuisson.ddn@gmail.com> wrote:
-> 2017-05-17 18:04 GMT+02:00 William Roberts <bill.c.roberts@gmail.com>:
->> I'm assuming in the Lustre code you're going to call security_policy_brief(),
->> how would the caller know how big that buffer is going to be?
->
-> We can determine it at configure time for instance, given that len as
-> an output parameter would give the size necessary to store the policy
-> brief info.
->
->> I'm looking at both v5 patches, I don't see where it's being called with alloc
->> set to false.
->
-> It would be called with alloc set to false from network and
-> distributed file systems like Lustre.
+From: Daniel Jurgens <danielj@mellanox.com>
 
-That doesn't seem like a good way at all.
-1. What happens as the brief is changed, all callers with false
-    would potentially need there buffer size increased.
-2. There is no guarantee at runtime that as brief changes,
-    that the size will remain bounded. fields could be
-    added/changed/removed.
-3. If/when stacking needs to be supported, brief size can
-    change dramatically, bringing us back to issue 1.
+New tests for infiniband pkeys. Most users don't have Infiniband
+hardware, and if they do the pkey configuration is not standardized.
+There is a configuration file for enabling the test and setting
+environment specific test configurations. If the tests are disable they
+will always show as passed.
 
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+---
+ README                                   |   9 ++
+ policy/Makefile                          |   3 +-
+ policy/test_ibpkey.te                    |  23 +++++
+ tests/Makefile                           |   4 +-
+ tests/infiniband_pkey/Makefile           |   7 ++
+ tests/infiniband_pkey/create_modify_qp.c | 144 +++++++++++++++++++++++++++++++
+ tests/infiniband_pkey/ibpkey_test.conf   |  14 +++
+ tests/infiniband_pkey/test               |  45 ++++++++++
+ 8 files changed, 246 insertions(+), 3 deletions(-)
+ create mode 100644 policy/test_ibpkey.te
+ create mode 100644 tests/infiniband_pkey/Makefile
+ create mode 100644 tests/infiniband_pkey/create_modify_qp.c
+ create mode 100644 tests/infiniband_pkey/ibpkey_test.conf
+ create mode 100644 tests/infiniband_pkey/test
+
+diff --git a/README b/README
+index deedae5..b64e2de 100644
+--- a/README
++++ b/README
+@@ -195,3 +195,12 @@ establish a base directory (based on the path of the script
+ executable).  This won't always be accurate, but will work for this
+ test harness/configuration.
+ 	$basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
++
++INFINIBAND TESTS
++----------------
++Because running Infiniband tests requires specialized hardware you must
++set up a configuration file for these tests. The tests are disabled by
++default.  See comments in the configuration file for info.
++
++Infiniband PKey test conf file:
++tests/infiniband_pkey/ibpkey_test.conf
+diff --git a/policy/Makefile b/policy/Makefile
+index 661f27a..ab58d3b 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -20,7 +20,8 @@ TARGETS = \
+ 	test_task_create.te test_task_getpgid.te test_task_getsched.te \
+ 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
+ 	test_transition.te test_inet_socket.te test_unix_socket.te \
+-	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te
++	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
++	test_ibpkey.te
+ 
+ ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
+ TARGETS += test_bounds.te
+diff --git a/policy/test_ibpkey.te b/policy/test_ibpkey.te
+new file mode 100644
+index 0000000..0ff6da4
+--- /dev/null
++++ b/policy/test_ibpkey.te
+@@ -0,0 +1,23 @@
++#################################
++#
++# Policy for testing Infiniband Pkey access.
++#
++
++attribute ibpkeydomain;
++
++# Domain for process.
++type test_ibpkey_modify_t;
++domain_type(test_ibpkey_modify_t)
++unconfined_runs_test(test_ibpkey_modify_t)
++typeattribute test_ibpkey_modify_t testdomain;
++typeattribute test_ibpkey_modify_t ibpkeydomain;
++
++dev_rw_infiniband_dev(test_ibpkey_modify_t)
++dev_rw_sysfs(test_ibpkey_modify_t)
++
++# client can connect to the server via the socket file or via abstract sockets.
++corenet_ibpkey_access_default_pkey(test_ibpkey_modify_t)
++
++# Allow all of these domains to be entered from the sysadm domain.
++miscfiles_domain_entry_test_files(ibpkeydomain)
++userdom_sysadm_entry_spec_domtrans_to(ibpkeydomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index fb8a0aa..7dfe2a8 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -4,13 +4,13 @@ export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
+ 
+ DISTRO=$(shell ./os_detect)
+ 
+-SUBDIRS:=domain_trans entrypoint execshare exectrace execute_no_trans \
++SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
+ 	fdreceive inherit link mkdir msg open ptrace readlink relabel rename \
+ 	rxdir sem setattr setnice shm sigkill stat sysctl task_create \
+ 	task_setnice task_setscheduler task_getscheduler task_getsid \
+ 	task_getpgid task_setpgid file ioctl capable_file capable_net \
+ 	capable_sys dyntrans dyntrace bounds nnp mmap unix_socket inet_socket \
+-	overlay checkreqprot mqueue mac_admin
++	overlay checkreqprot mqueue mac_admin infiniband_pkey
+ 
+ ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
+diff --git a/tests/infiniband_pkey/Makefile b/tests/infiniband_pkey/Makefile
+new file mode 100644
+index 0000000..60f0d24
+--- /dev/null
++++ b/tests/infiniband_pkey/Makefile
+@@ -0,0 +1,7 @@
++TARGETS=create_modify_qp
++
++LDLIBS+= -libverbs
++
++all: $(TARGETS)
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/infiniband_pkey/create_modify_qp.c b/tests/infiniband_pkey/create_modify_qp.c
+new file mode 100644
+index 0000000..495ef5b
+--- /dev/null
++++ b/tests/infiniband_pkey/create_modify_qp.c
+@@ -0,0 +1,144 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++#include <assert.h>
++#include <unistd.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#include <infiniband/verbs.h>
++
++struct ibv_qp	   *qp;
++struct ibv_context *context;
++struct ibv_pd      *pd;
++struct ibv_cq      *cq;
++struct ibv_srq     *srq;
++
++void cleanup_ib_rsrc()
++{
++	ibv_destroy_qp(qp);
++	ibv_destroy_srq(srq);
++	ibv_destroy_cq(cq);
++	ibv_dealloc_pd(pd);
++	ibv_close_device(context);
++}
++
++int init_ib_rsrc(char* deviceName)
++{
++	int                 ndev = 0;
++	struct ibv_device  **dlist = ibv_get_device_list(&ndev);
++	struct ibv_device  *device = NULL;;
++	struct ibv_srq_init_attr srqiattr;
++	struct ibv_qp_init_attr qpiattr;
++	int i;
++
++	if (!ndev)
++	{
++		fprintf(stderr, "No IB devices found.\n");
++		exit(1);
++	}
++
++	for (i = 0; i < ndev; i++)
++		if(!strcmp(deviceName, dlist[i]->name))
++			device = dlist[i];
++
++	if (!device)
++	{
++		fprintf(stderr, "Couldn't find device %s\n", deviceName);
++		exit(1);
++	}
++	/* Open context */
++	context = ibv_open_device(device);
++	if (NULL == context)
++	{
++		fprintf(stderr, "Unable to open device.\n");
++		exit(1);
++	}
++
++	/* Allocate PD */
++	pd = ibv_alloc_pd(context);
++	if (!pd)
++	{
++		fprintf(stderr, "Unable to allocate PD.\n");
++		exit(1);
++	}
++
++	/* Create CQ */
++	cq = ibv_create_cq(context, 2048, NULL, NULL, 0);
++	if (!cq)
++	{
++		fprintf(stderr, "Unable to create cq.\n");
++		exit(1);
++	}
++
++	/* Create SRQ */
++	memset(&srqiattr, 0, sizeof(srqiattr));
++	srqiattr.attr.max_wr    = 2048;
++	srqiattr.attr.max_sge   = 4;
++	srqiattr.attr.srq_limit = 1024;
++	srq = ibv_create_srq(pd, &srqiattr);
++	if (NULL == srq)
++	{
++		fprintf(stderr, "Unable to create sreq.\n");
++		exit(1);
++	}
++
++	memset(&qpiattr, 0, sizeof(qpiattr));
++	qpiattr.send_cq = cq;
++	qpiattr.recv_cq = cq;
++	qpiattr.srq     = srq;
++	qpiattr.cap.max_send_wr = 128;
++	qpiattr.cap.max_recv_wr = 4;
++	qpiattr.cap.max_send_sge = 5;
++	qpiattr.cap.max_recv_sge = 4;
++	qpiattr.cap.max_inline_data = 512;
++	qpiattr.qp_type = IBV_QPT_RC;
++	qpiattr.sq_sig_all = 1;
++	qp = ibv_create_qp(pd, &qpiattr);
++
++	if (!qp)
++	{
++		fprintf(stderr, "Unable to create QP %d.\n", i);
++		exit(1);
++	}
++
++	return 0;
++}
++
++int init_rc_qp(uint8_t port, uint16_t pkey_index)
++{
++	struct ibv_qp_attr attr = {
++	         .qp_state        = IBV_QPS_INIT,
++	         .pkey_index      = pkey_index,
++	         .port_num        = port,
++	         .qp_access_flags = 0
++	};
++
++	return ibv_modify_qp(qp, &attr,
++			     IBV_QP_STATE |
++			     IBV_QP_PKEY_INDEX |
++			     IBV_QP_PORT |
++			     IBV_QP_ACCESS_FLAGS);
++}
++
++int main(int argc, char *argv[])
++{
++	uint16_t pkey_index;
++	uint8_t port;
++	int ret;
++
++	if (argc != 4)
++	{
++		printf("Please enter <ib device name> <port number> <pkey index>\n");
++		exit(1);
++	}
++	port = atoi(argv[2]);
++	pkey_index = atoi(argv[3]);
++
++	init_ib_rsrc(argv[1]);
++
++	ret = init_rc_qp(port, pkey_index);
++	cleanup_ib_rsrc();
++	exit(ret);
++}
+diff --git a/tests/infiniband_pkey/ibpkey_test.conf b/tests/infiniband_pkey/ibpkey_test.conf
+new file mode 100644
+index 0000000..ac4e9cc
+--- /dev/null
++++ b/tests/infiniband_pkey/ibpkey_test.conf
+@@ -0,0 +1,14 @@
++# Enable(1)/Disable these tests
++SELINUX_INFINIBAND_PKEY_TEST=0
++
++# Infiniband device to use.
++SELINUX_INFINIBAND_PKEY_TEST_DEV=mlx5_3
++
++# Physical port on the device to use.
++SELINUX_INFINIBAND_PKEY_TEST_PORT=1
++
++# CSV list of pkeys indexes that should be allowed.
++SELINUX_INFINIBAND_TEST_ALLOWED_PKEYS=0
++
++# CSV list of pkey indexes that should fail.
++SELINUX_INFINIBAND_TEST_DENIED_PKEYS=1,2,3
+diff --git a/tests/infiniband_pkey/test b/tests/infiniband_pkey/test
+new file mode 100644
+index 0000000..89d1a7c
+--- /dev/null
++++ b/tests/infiniband_pkey/test
+@@ -0,0 +1,45 @@
++#!/usr/bin/perl
++
++use Test;
++
++BEGIN { plan tests => 2}
++
++$basedir = $0; $basedir =~ s|(.*)/[^/]*|$1|;
++
++my %conf;
++my $confpath = $basedir."/ibpkey_test.conf";
++open($f, $confpath) or die ("Couldn't open $confpath");
++while($r = <$f>) {
++	if ($r =~ /^\s*#/ || $r =~ /^\s*$/) { next; }
++	chomp $r;
++	($k,$v) = split(/=/, $r);
++	$conf{$k} = $v;
++}
++
++if ($conf{SELINUX_INFINIBAND_PKEY_TEST} eq 1) {
++	$device = $conf{SELINUX_INFINIBAND_PKEY_TEST_DEV};
++	$port = $conf{SELINUX_INFINIBAND_PKEY_TEST_PORT};
++	@allowed_pkeys = split(/,/, $conf{SELINUX_INFINIBAND_TEST_ALLOWED_PKEYS});
++	@denied_pkeys = split(/,/, $conf{SELINUX_INFINIBAND_TEST_DENIED_PKEYS});
++
++	foreach (@allowed_pkeys) {
++		$result = system "runcon -t test_ibpkey_modify_t $basedir/create_modify_qp $device $port $_";
++		if($result ne 0) {
++			last;
++		}
++	}
++	ok($result, 0);
++
++	foreach (@denied_pkeys) {
++		$result = system "runcon -t test_ibpkey_modify_t $basedir/create_modify_qp $device $port $_";
++		if ($result>>8 ne 13) {
++			last;
++		}
++	}
++
++	ok($result>>8, 13);
++} else {
++	ok(1, 0);
++	ok(1, 0);
++}
++exit;
 -- 
-Respectfully,
-
-William C Roberts
+2.12.2
