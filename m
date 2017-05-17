@@ -1,148 +1,130 @@
-Message-ID: <1495053946.32535.32.camel@tycho.nsa.gov>
-Subject: Re: [PATCH v2] selinux: log policy capability state when a policy
- is loaded
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@tycho.nsa.gov
-Date: Wed, 17 May 2017 16:45:46 -0400
-In-Reply-To: <CAHC9VhR-8ejo9oOFu1m0HXgSs0nV+j9g_p3+X1-sC_rhSX=-sw@mail.gmail.com>
-References: <20170512164423.17190-1-sds@tycho.nsa.gov>
- <CAHC9VhTcuba55YGaTFg0r8AewE9MXovhHpmnpYSc0D4ZCbLg7g@mail.gmail.com>
- <1494969093.21557.20.camel@tycho.nsa.gov>
- <CAHC9VhQjJ8qG2hYEvD9aJFN5hnp5durLffB-M1W8SJ+CyD=DQA@mail.gmail.com>
- <1495027020.32535.3.camel@tycho.nsa.gov>
- <CAHC9VhR-8ejo9oOFu1m0HXgSs0nV+j9g_p3+X1-sC_rhSX=-sw@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+From: Daniel Jurgens <danielj@mellanox.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>
+Subject: Re: [PATCH v1 2/9] libsepol: Add ibpkey ocontext handling
+Date: Wed, 17 May 2017 20:50:20 +0000
+Message-ID: <VI1PR05MB1678541B6214919717EF2E33C4E70@VI1PR05MB1678.eurprd05.prod.outlook.com>
+References: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
+ <1494880961-73481-3-git-send-email-danielj@mellanox.com>
+ <1494960225.21557.5.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-05-17 at 15:39 -0400, Paul Moore wrote:
-> On Wed, May 17, 2017 at 9:17 AM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On Tue, 2017-05-16 at 17:19 -0400, Paul Moore wrote:
-> > > On Tue, May 16, 2017 at 5:11 PM, Stephen Smalley <sds@tycho.nsa.g
-> > > ov>
-> > > wrote:
-> 
-> ...
-> 
-> > > > If the kernel does not support a policy capability that was
-> > > > enabled
-> > > > in
-> > > > the policy, then it may not be capable of enforcing the policy
-> > > > as
-> > > > intended, and may therefore be operating insecurely (e.g.
-> > > > consider
-> > > > if
-> > > > your kernel was too old to support network_peer_controls or
-> > > > always_check_network or open_perms but your policy has enabled
-> > > > them
-> > > > and
-> > > > is relying on those checks to be present) ...
-> > > 
-> > > Well, I think the key is "may"; depending on the policy
-> > > capability
-> > > and
-> > > the handle_unknown setting things might not fail in an insecure
-> > > manner, but the system would definitely behave
-> > > strangely.  Regardless,
-> > > I see your point and I'm now wondering if we should just fail the
-> > > policy load if we detect any policy capabilities beyond what we
-> > > know
-> > > about.
-> > 
-> > I think that would prove problematic in practice since the system
-> > would
-> > then refuse to boot with such a policy (the only way to boot in
-> > Linux
-> > distributions would then be to boot with enforcing=0 and come up
-> > with
-> > no policy - requiring you to then replace the policy, reboot, and
-> > relabel, and in Android you can't boot at all if policy load fails
-> > - it
-> > will reboot into recovery mode).  It would mean that we could not
-> > add a
-> > new policy capability to a policy until we were sure that no one
-> > was
-> > still using a kernel that predated the support for it.
-> 
-> Isn't that the right thing to do anyway?  You shouldn't use a policy
-> with a policy capability on a kernel that has no knowledge of the
-> policy capability for the reasons we've already discussed.  I'm also
-> going to guess that this isn't as large a problem as we may be making
-> it out, distributions should catch this problem fairly quickly in
-> their development process and those that are savvy enough to load
-> their own policy should know how to handle this as well.
+On 5/16/2017 1:39 PM, Stephen Smalley wrote:
+> On Mon, 2017-05-15 at 23:42 +0300, Dan Jurgens wrote:
+>> From: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> Add support for reading, writing, and copying Infinabinda Pkey 
+> Infiniband
+>
+>> ocontext
+>> data. Also add support for querying a Pkey sid to checkpolicy.
+>>
+>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> ---
+>> v1:
+>> Stephen Smalley:
+>> - Removed domain and type params from sepol_ibpkey_sid.
+>> - Removed splen param from sepol_ibpkey_sid, it never varied.
+>> - Removed extra XPERMS_IOCTL version from policydb_compat_info.
+>> - Confirm that low order bytes of IPv6 addr for subnet prefix is 0's.
+>>
+>> James Carter:
+>> - Added ibpkey handling to kernel_to_cil.c and kernel_to_conf.c
+>>
+>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>> ---
+>>  checkpolicy/checkpolicy.c                  | 25 +++++++++++++
+>>  libsepol/include/sepol/policydb/services.h |  8 ++++
+>>  libsepol/src/expand.c                      |  9 +++++
+>>  libsepol/src/kernel_to_cil.c               | 58
+>> +++++++++++++++++++++++++++++
+>>  libsepol/src/kernel_to_conf.c              | 59
+>> ++++++++++++++++++++++++++++++
+>>  libsepol/src/libsepol.map.in               |  1 +
+>>  libsepol/src/module_to_cil.c               | 38 +++++++++++++++++++
+>>  libsepol/src/policydb.c                    | 37 +++++++++++++++++++
+>>  libsepol/src/services.c                    | 51
+>> ++++++++++++++++++++++++++
+>>  libsepol/src/write.c                       | 16 ++++++++
+>>  10 files changed, 302 insertions(+)
+>>
+>> diff --git a/libsepol/include/sepol/policydb/services.h
+>> b/libsepol/include/sepol/policydb/services.h
+>> index 9162149..459254e 100644
+>> --- a/libsepol/include/sepol/policydb/services.h
+>> +++ b/libsepol/include/sepol/policydb/services.h
+>> @@ -188,6 +188,14 @@ extern int sepol_port_sid(uint16_t domain,
+>>  			  uint16_t port, sepol_security_id_t *
+>> out_sid);
+>>  
+>>  /*
+>> + * Return the SID of the ibpkey specified by
+>> + * `subnet prefix', and `pkey'.
+>> + */
+>> +extern int sepol_ibpkey_sid(void *subnet_prefix_p,
+> Why void *?  Can't this just be struct in6_addr *subnet_prefix or
+> uint32_t subnet_prefix[]?  The only reason we use void *addr in
+> sepol_node_sid() is because that argument can actually vary depending
+> on the domain.  Likely can be const too.
 
-Possibly I overstated the seriousness of using a policy with an unknown
-policy capability ;) Historically we have preserved compatibility in
-policies so that old kernels continued to work correctly even if they
-do not support the capability, and you would only lose out on the
-ability to leverage that capability for improved access control.
+Changed to uint32_t *, since that's what the type is in the ocontext structure.  Added const.
 
-I don't think we can/should rely on the distributions to ensure that
-users don't end up with unbootable systems.  The people maintaining
-policy are not the same as the people maintaining the kernel, we've
-gone to great lengths to allow them to be independently updated, and
-the point at which their updates take effect differs (policy updates
-are immediately loaded; kernel updates won't until they choose to
-reboot into the new kernel).  Even better, a policy load failure at
-update time might not even be visible to the user, particularly as it
-isn't even visible to rpm (hurray for doing things from %post), so they
-might not know they are in trouble until they next reboot and find
-their system dead.  Further, some distributions support multiple
-kernels, and all distributions support multiple kernels over time (i.e.
-updates).  So the potential for users to end up with newer policy that
-enables a capability unknown to their currently running kernel is
-significant.  Even if the policy packager carefully tests the policy on
-the kernel he is running, that's no guarantee it will work for all
-users.  And the failure mode would be quite severe; the system would
-refuse to boot, they would have to boot with enforcing=0, no policy
-would load (effectively selinux=0), download a fixed policy, reboot and
-relabel.  That would not be good PR for selinux.
+>> +				n->u.ibpkey.subnet_prefix[2] = c-
+>>> u.ibpkey.subnet_prefix[2];
+>> +				n->u.ibpkey.subnet_prefix[3] = c-
+>>> u.ibpkey.subnet_prefix[3];
+> [2] and [3] should always be zero.
 
-> 
-> > That would more or less preclude new policy capabilities from ever
-> > being enabled by
-> > default in refpolicy (or at least take years to introduce them) ...
-> 
-> Once again, is it safe for refpolicy to enable these now if we are
-> worrying about older kernels?
+Done
 
-Well, as I said, it has generally been done in a backward-compatible
-manner, so the system degrades gracefully.  And we have to be able to
-add them in a timely manner if we don't want SELinux advancement to
-come to a halt.
+>
+>> +				n->u.ibpkey.low_pkey = c-
+>>> u.ibpkey.low_pkey;
+>> +				n->u.ibpkey.high_pkey = c-
+>>> u.ibpkey.high_pkey;
+>> +			break;
+>>  			case OCON_PORT:
+>>  				n->u.port.protocol = c-
+>>> u.port.protocol;
+>>  				n->u.port.low_port = c-
+>>> u.port.low_port;
+>> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+>> index 7093b29..d6e8e6f 100644
+>> --- a/libsepol/src/policydb.c
+>> +++ b/libsepol/src/policydb.c
+>>
+>> @@ -2782,6 +2804,21 @@ static int ocontext_read_selinux(struct
+>> policydb_compat_info *info,
+>>  				    (&c->context[1], p, fp))
+>>  					return -1;
+>>  				break;
+>> +			case OCON_IBPKEY:
+>> +				rc = next_entry(buf, fp,
+>> sizeof(uint32_t) * 6);
+>> +				if (rc < 0 || buf[2] || buf[3])
+>> +					return -1;
+> Kernel code also rejects buf[4] or buf[5] > 0xffff.
 
-> > ... and
-> > would also be a problem for Android, since many different kernel
-> > versions (and often much older ones) are used with both.
-> 
-> I'm not saying I have completely made my mind up about this, but
-> right
-> now I'm thinking the issue of new-policy/old-kernel is a distro
-> problem (I view Android as just another distribution) and not
-> something we can safely resolve upstream.
+Done
 
-Android is in some ways easier than distributions (policy and kernel
-are not updated independently), but in other ways it is harder (every
-device forks its own kernel and maintains it, so kernel maintenance is
-even more distributed, and kernels are often not updated or at least
-not rebased).  I don't think we can count on that going well either.
+>> @@ -1410,6 +1411,21 @@ static int ocontext_write_selinux(struct
+>> policydb_compat_info *info,
+>>  				if (context_write(p, &c->context[1], 
+>> fp))
+>>  					return POLICYDB_ERROR;
+>>  				break;
+>> +			case OCON_IBPKEY:
+>> +				 /* The subnet prefix is in network
+>> order */
+>> +				for (j = 0; j < 4; j++)
+>> +					buf[j] = c-
+>>> u.ibpkey.subnet_prefix[j];
+> Kernel write code always writes [2] and [3] as 0.
 
-> 
-> > A warning seemed like a reasonable middle ground between silently
-> > ignoring unknown policy capabilities (as the kernel currently does
-> > before this patch) and rejecting the policy altogether.  WARN vs
-> > INFO
-> > was due to the fact that an unknown capability seemed more
-> > significant
-> > and potentially an indicator of a kernel/policy mismatch than the
-> > state
-> > of the known policy capabilities.
-
-Still think warning is best.  Willing to degrade to info.  Not willing
-to fail on policy load.
+Done
