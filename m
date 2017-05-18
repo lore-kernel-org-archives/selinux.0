@@ -1,12 +1,13 @@
 From: Daniel Jurgens <danielj@mellanox.com>
-To: James Carter <jwcart2@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
+To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
  <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH v1 5/9] libsepol: Add ibendport ocontext handling
-Date: Thu, 18 May 2017 21:55:14 +0000
-Message-ID: <VI1PR05MB167895B29C0B9EF6ED803B7DC4E40@VI1PR05MB1678.eurprd05.prod.outlook.com>
+Subject: Re: [PATCH v1 7/9] semanage: Update semanage to allow runtime
+ labeling of Infiniband Pkeys
+Date: Thu, 18 May 2017 21:57:53 +0000
+Message-ID: <VI1PR05MB1678BF85F20F594FDD66B7FAC4E40@VI1PR05MB1678.eurprd05.prod.outlook.com>
 References: <1494880961-73481-1-git-send-email-danielj@mellanox.com>
- <1494880961-73481-6-git-send-email-danielj@mellanox.com>
- <9a91f584-5ca4-9122-21fe-e395e8df4508@tycho.nsa.gov>
+ <1494880961-73481-8-git-send-email-danielj@mellanox.com>
+ <1494962051.21557.10.camel@tycho.nsa.gov>
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,20 +15,118 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 5/17/2017 8:53 AM, James Carter wrote:
-> On 05/15/2017 04:42 PM, Dan Jurgens wrote:
+On 5/16/2017 2:10 PM, Stephen Smalley wrote:
+> On Mon, 2017-05-15 at 23:42 +0300, Dan Jurgens wrote:
 >> From: Daniel Jurgens <danielj@mellanox.com>
 >>
+>> Update libsepol and libsemanage to work with pkey records. Add local
+>> storage for new and modified pkey records in pkeys.local. Update
+>> semanage
+>> to parse the pkey command options to add, modify, and delete pkeys.
 >>
->> +exit:
->> +	if (rc != 0) {
->> +		sepol_log_err("Error writing ibendportcon rules to CIL\n");
->> +	}
+>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> ---
+>> v1:
+>> Fixed semanage_pkey_exists -> semanage_ibpkey_exists in delete flow
+>> in
+>> seobject.py
+>>
+>> Stephen Smalley:
+>> - Subnet prefix can't vary in size always 16 bytes, remove size
+>> field.
+>> - Removed extraneous change in libsepol/VERSION
+>> - Removed ifdef DARWIN s6_addr/32 blocks in favor of s6_addr.
+>> - Got rid of magic constant for subnet prefix size.
+>>
+>> Jason Zaman:
+>> - Use SETools directly to query types in seobject.py.
+>>
+>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>> ---
+>>  libsemanage/include/semanage/ibpkey_record.h  |  76 +++++
+>>  libsemanage/include/semanage/ibpkeys_local.h  |  36 +++
+>>  libsemanage/include/semanage/ibpkeys_policy.h |  28 ++
+>>  libsemanage/include/semanage/semanage.h       |   3 +
+>>  libsemanage/src/direct_api.c                  |  29 +-
+>>  libsemanage/src/handle.h                      |  36 ++-
+>>  libsemanage/src/ibpkey_internal.h             |  52 +++
+>>  libsemanage/src/ibpkey_record.c               | 185 +++++++++++
+>>  libsemanage/src/ibpkeys_file.c                | 181 +++++++++++
+>>  libsemanage/src/ibpkeys_local.c               | 178 ++++++++++
+>>  libsemanage/src/ibpkeys_policy.c              |  52 +++
+>>  libsemanage/src/ibpkeys_policydb.c            |  62 ++++
+>>  libsemanage/src/libsemanage.map               |   1 +
+>>  libsemanage/src/policy_components.c           |   5 +-
+>>  libsemanage/src/semanage_store.c              |   1 +
+>>  libsemanage/src/semanage_store.h              |   1 +
+>>  libsemanage/src/semanageswig.i                |   3 +
+>>  libsemanage/src/semanageswig_python.i         |  43 +++
+>>  libsemanage/utils/semanage_migrate_store      |   3 +-
+>>  libsepol/include/sepol/ibpkey_record.h        |  77 +++++
+>>  libsepol/include/sepol/ibpkeys.h              |  44 +++
+>>  libsepol/include/sepol/sepol.h                |   2 +
+>>  libsepol/src/ibpkey_internal.h                |  21 ++
+>>  libsepol/src/ibpkey_record.c                  | 448
+>> ++++++++++++++++++++++++++
+>>  libsepol/src/ibpkeys.c                        | 263 +++++++++++++++
+>>  python/semanage/semanage                      |  60 +++-
+>>  python/semanage/seobject.py                   | 255 +++++++++++++++
+>>  27 files changed, 2129 insertions(+), 16 deletions(-)
+>>  create mode 100644 libsemanage/include/semanage/ibpkey_record.h
+>>  create mode 100644 libsemanage/include/semanage/ibpkeys_local.h
+>>  create mode 100644 libsemanage/include/semanage/ibpkeys_policy.h
+>>  create mode 100644 libsemanage/src/ibpkey_internal.h
+>>  create mode 100644 libsemanage/src/ibpkey_record.c
+>>  create mode 100644 libsemanage/src/ibpkeys_file.c
+>>  create mode 100644 libsemanage/src/ibpkeys_local.c
+>>  create mode 100644 libsemanage/src/ibpkeys_policy.c
+>>  create mode 100644 libsemanage/src/ibpkeys_policydb.c
+>>  create mode 100644 libsepol/include/sepol/ibpkey_record.h
+>>  create mode 100644 libsepol/include/sepol/ibpkeys.h
+>>  create mode 100644 libsepol/src/ibpkey_internal.h
+>>  create mode 100644 libsepol/src/ibpkey_record.c
+>>  create mode 100644 libsepol/src/ibpkeys.c
+>>
+>> diff --git a/libsemanage/include/semanage/ibpkey_record.h
+>> b/libsemanage/include/semanage/ibpkey_record.h
+>> new file mode 100644
+>> index 0000000..d76aaae
+>> --- /dev/null
+>> +++ b/libsemanage/include/semanage/ibpkey_record.h
+>> @@ -0,0 +1,76 @@
+>> +/* Copyright (C) 2017 Mellanox Technologies Inc */
 >> +
->> +	return rc;
->> +}
+>> +#ifndef _SEMANAGE_IBPKEY_RECORD_H_
+>> +#define _SEMANAGE_IBPKEY_RECORD_H_
 >> +
-> You need to have the ibendport rules sorted like I mentioned for ibpkey in patch 2.
+>> +#include <semanage/context_record.h>
+>> +#include <semanage/handle.h>
+>> +#include <stddef.h>
+>> +
+>> +#ifndef _SEMANAGE_IBPKEY_DEFINED_
+>> +struct semanage_ibpkey;
+>> +struct semanage_ibpkey_key;
+>> +typedef struct semanage_ibpkey semanage_ibpkey_t;
+>> +typedef struct semanage_ibpkey_key semanage_ibpkey_key_t;
+>> +#define _SEMANAGE_IBPKEY_DEFINED_
+>> +#endif
+>> +
+>> +#define INET6_ADDRLEN 16
+> We shouldn't expose this in a public header; it's an implementation
+> detail.  Likely could/should define it as sizeof(struct in6_addr) to
+> ensure consistency?
 >
-> Jim
-Done for both patches.
+>> +#define INET6_ADDRLEN 16
+> Ditto
+
+Changed to sizeof(struct in6_addr) for these.
+
+>> +#ifdef DARWIN
+>> +	memcpy(&addr.s6_addr[0], subnet_prefix_bytes, 16);
+>> +#else
+>> +	memcpy(&addr.s6_addr32[0], subnet_prefix_bytes, 16);
+>> +#endif
+> Another case where you can drop #ifdef DARWIN and just use s6_addr.
+>
+Done
