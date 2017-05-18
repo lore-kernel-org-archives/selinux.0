@@ -1,11 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4IMQ2uC024119
- for <selinux@tycho.nsa.gov>; Thu, 18 May 2017 18:26:03 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4IMQ2uB024119
+ for <selinux@tycho.nsa.gov>; Thu, 18 May 2017 18:26:02 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH v2 0/9] SELinux user space support for Infiniband RDMA
-Date: Fri, 19 May 2017 01:25:40 +0300
-Message-Id: <1495146349-75366-1-git-send-email-danielj@mellanox.com>
+Subject: [PATCH v2 1/9] checkpolicy: Add support for ibpkeycon labels
+Date: Fri, 19 May 2017 01:25:41 +0300
+Message-Id: <1495146349-75366-2-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1495146349-75366-1-git-send-email-danielj@mellanox.com>
+References: <1495146349-75366-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -13,215 +15,314 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-Infiniband applications access HW from user-space -- traffic is generated
-directly by HW, bypassing the kernel. Consequently, Infiniband Partitions,
-which are associated directly with HW transport endpoints, are a natural
-choice for enforcing granular mandatory access control for Infiniband. QPs
-may only send or receives packets tagged with the corresponding partition
-key (PKey). The PKey is not a cryptographic key; it's a 16 bit number
-identifying the partition.
+Add checkpolicy support for scanning and parsing ibpkeycon labels. Also
+create a new ocontext for Infiniband Pkeys and define a new policydb
+version for infiniband support.
 
-Every Infiniband fabric is controlled by a central Subnet Manager (SM).
-The SM provisions the partitions by assigning each port with the
-partitions it can access. In addition, the SM tags each port with a subnet
-prefix, which identifies the subnet. Determining which users are allowed
-to access which partition keys on a given subnet forms an effective policy
-for isolating users on the fabric. Any application that attempts to send
-traffic on a given subnet is automatically subject to the policy,
-regardless of which device and port it uses. SM software configures the
-subnet through a privileged Subnet Management Interface (SMI), which is
-presented by each Infiniband port. Thus, the SMI must also be controlled
-to prevent unauthorized changes to fabric configuration and partitioning. 
-
-To support access control for IB partitions and subnet management,
-security contexts must be provided for two new types of objects - PKeys
-and IB end ports.
-
-A PKey label consists of a subnet prefix and a range of PKey values and is
-similar to the labeling mechanism for netports. Each Infiniband port can
-reside on a different subnet. So labeling the PKey values for specific
-subnet prefixes provides the user maximum flexibility, as PKey values may
-be determined independently for different subnets. There is a single
-access vector for PKeys called "access".
-
-An Infiniband port is labeled by device name and port number. There is a
-single access vector for IB end ports called "manage_subnet".
-
-This series adds support for parsing the new labeling mechanisms and
-generating the policy. It also adds support for runtime labling of PKeys
-and IB end ports via semanage.
-
-This series is quite large, but most of the code is very similar to
-existing code for the other *con labels.
-
-Example label syntax:
-ibpkeycon fe80:: 0xFFFF gen_context(system_u:object_r:default_ibpkey_t,s0)
-ibpkeycon fe80:: 0-0x10 gen_context(system_u:object_r:public_ibpkey_t,s0)
-
-ibendportcon mlx5_0 1 gen_context(system_u:object_r:opensm_ibendport_t,s0)
-
-Example semanage commands:
-semanage ibpkey -l
-semanage ibpkey -a -t default_ibpkey_t -x fe80:: 0x8FFF
-semanage ibpkey -D
-
-semanage ibendport -l
-semanage ibendport -a -t opensm_ibendport_t -z mlx4_0 2
-semanage ibenpdort -d -z mlx4_0 2
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 
 ---
 v1:
-- Fixed seobject ibpkey delete all name bug (pkey vs ibpkey).
-
 Stephen Smalley:
-- Always use s6_addr vs s6_addr32, remove DARWIN #ifdefs.
-- Removed unused parameters from new sepol_*_sid functions.
-- Got rid of variable length subnet prefix handling, it never varied. 
-
-James Carter:
-- Add kernel_to_cil and kernel_to_conf implementations for new OCONs.
-
-Jason Zaman:
-- Use SETools directly to query types by attribute in seobject.py.
-
-
-- See individual patches for more detailed changes.
+- Always use s6_addr instead of s6_addr32.
+- Add comment about POLICYDB_VERSION_INFINIBAND being linux specific.
 
 v2:
-- Rebased over Stephens MOD_VERSION change.
-
 Stephen Smalley:
-- Bound check new ocontext fields
-- Only store 8 bytes of subnet prefix in binary policy
-- Make it so semanage doesn't crash if ipbkey_type or ibendport_type are
-  undefined.
-- Don't define INET6_ADDRLEN, use sizeof(struct in6_addr)
+- Store subnet_prefix as 8 bytes.
+---
+ checkpolicy/policy_define.c                | 107 +++++++++++++++++++++++++++++
+ checkpolicy/policy_define.h                |   1 +
+ checkpolicy/policy_parse.y                 |  15 +++-
+ checkpolicy/policy_scan.l                  |   3 +
+ libsepol/include/sepol/policydb/policydb.h |  30 +++++---
+ 5 files changed, 144 insertions(+), 12 deletions(-)
 
-James Carter:
-- Sort new ocontexts in kernel_to_common.c
-
-- Additional smaller changes noted in specific patches.
-
-Daniel Jurgens (9):
-  checkpolicy: Add support for ibpkeycon labels
-  libsepol: Add ibpkey ocontext handling
-  libsepol: Add Infiniband Pkey handling to CIL
-  checkpolicy: Add support for ibendportcon labels
-  libsepol: Add ibendport ocontext handling
-  libsepol: Add IB end port handling to CIL
-  semanage: Update semanage to allow runtime labeling of Infiniband
-    Pkeys
-  semanage: Update semanage to allow runtime labeling of ibendports
-  semanage: Update man pages for infiniband
-
- checkpolicy/checkpolicy.c                        |  47 +++
- checkpolicy/policy_define.c                      | 187 +++++++++
- checkpolicy/policy_define.h                      |   2 +
- checkpolicy/policy_parse.y                       |  27 +-
- checkpolicy/policy_scan.l                        |   5 +
- libsemanage/include/semanage/ibendport_record.h  |  62 +++
- libsemanage/include/semanage/ibendports_local.h  |  36 ++
- libsemanage/include/semanage/ibendports_policy.h |  28 ++
- libsemanage/include/semanage/ibpkey_record.h     |  74 ++++
- libsemanage/include/semanage/ibpkeys_local.h     |  36 ++
- libsemanage/include/semanage/ibpkeys_policy.h    |  28 ++
- libsemanage/include/semanage/semanage.h          |   6 +
- libsemanage/src/direct_api.c                     |  57 ++-
- libsemanage/src/handle.h                         |  50 ++-
- libsemanage/src/ibendport_internal.h             |  48 +++
- libsemanage/src/ibendport_record.c               | 154 +++++++
- libsemanage/src/ibendports_file.c                | 157 +++++++
- libsemanage/src/ibendports_local.c               | 153 +++++++
- libsemanage/src/ibendports_policy.c              |  55 +++
- libsemanage/src/ibendports_policydb.c            |  62 +++
- libsemanage/src/ibpkey_internal.h                |  52 +++
- libsemanage/src/ibpkey_record.c                  | 185 +++++++++
- libsemanage/src/ibpkeys_file.c                   | 181 +++++++++
- libsemanage/src/ibpkeys_local.c                  | 179 ++++++++
- libsemanage/src/ibpkeys_policy.c                 |  52 +++
- libsemanage/src/ibpkeys_policydb.c               |  62 +++
- libsemanage/src/libsemanage.map                  |   2 +
- libsemanage/src/policy_components.c              |   9 +-
- libsemanage/src/semanage_store.c                 |   2 +
- libsemanage/src/semanage_store.h                 |   2 +
- libsemanage/src/semanageswig.i                   |   6 +
- libsemanage/src/semanageswig_python.i            |  86 ++++
- libsemanage/utils/semanage_migrate_store         |   4 +-
- libsepol/cil/src/cil.c                           |  37 ++
- libsepol/cil/src/cil_binary.c                    |  68 ++++
- libsepol/cil/src/cil_binary.h                    |  24 ++
- libsepol/cil/src/cil_build_ast.c                 | 151 +++++++
- libsepol/cil/src/cil_build_ast.h                 |   4 +
- libsepol/cil/src/cil_copy_ast.c                  |  51 +++
- libsepol/cil/src/cil_copy_ast.h                  |   1 +
- libsepol/cil/src/cil_flavor.h                    |   2 +
- libsepol/cil/src/cil_internal.h                  |  20 +
- libsepol/cil/src/cil_policy.c                    |  31 ++
- libsepol/cil/src/cil_post.c                      |  87 ++++
- libsepol/cil/src/cil_post.h                      |   2 +
- libsepol/cil/src/cil_reset_ast.c                 |  19 +
- libsepol/cil/src/cil_resolve_ast.c               |  55 +++
- libsepol/cil/src/cil_resolve_ast.h               |   2 +
- libsepol/cil/src/cil_tree.c                      |  29 +-
- libsepol/cil/src/cil_verify.c                    |  46 +++
- libsepol/include/sepol/ibendport_record.h        |  68 ++++
- libsepol/include/sepol/ibendports.h              |  45 +++
- libsepol/include/sepol/ibpkey_record.h           |  77 ++++
- libsepol/include/sepol/ibpkeys.h                 |  44 ++
- libsepol/include/sepol/policydb/policydb.h       |  37 +-
- libsepol/include/sepol/policydb/services.h       |  16 +
- libsepol/include/sepol/sepol.h                   |   4 +
- libsepol/src/expand.c                            |  15 +
- libsepol/src/ibendport_internal.h                |  18 +
- libsepol/src/ibendport_record.c                  | 298 ++++++++++++++
- libsepol/src/ibendports.c                        | 255 ++++++++++++
- libsepol/src/ibpkey_internal.h                   |  21 +
- libsepol/src/ibpkey_record.c                     | 445 ++++++++++++++++++++
- libsepol/src/ibpkeys.c                           | 269 ++++++++++++
- libsepol/src/kernel_to_cil.c                     | 104 +++++
- libsepol/src/kernel_to_common.c                  |  37 ++
- libsepol/src/kernel_to_conf.c                    | 104 +++++
- libsepol/src/libsepol.map.in                     |   2 +
- libsepol/src/module_to_cil.c                     |  55 +++
- libsepol/src/policydb.c                          |  59 ++-
- libsepol/src/services.c                          |  74 ++++
- libsepol/src/write.c                             |  30 ++
- python/semanage/semanage                         | 116 +++++-
- python/semanage/semanage-ibendport.8             |  66 +++
- python/semanage/semanage-ibpkey.8                |  66 +++
- python/semanage/semanage.8                       |  16 +-
- python/semanage/seobject.py                      | 494 +++++++++++++++++++++++
- 77 files changed, 5524 insertions(+), 36 deletions(-)
- create mode 100644 libsemanage/include/semanage/ibendport_record.h
- create mode 100644 libsemanage/include/semanage/ibendports_local.h
- create mode 100644 libsemanage/include/semanage/ibendports_policy.h
- create mode 100644 libsemanage/include/semanage/ibpkey_record.h
- create mode 100644 libsemanage/include/semanage/ibpkeys_local.h
- create mode 100644 libsemanage/include/semanage/ibpkeys_policy.h
- create mode 100644 libsemanage/src/ibendport_internal.h
- create mode 100644 libsemanage/src/ibendport_record.c
- create mode 100644 libsemanage/src/ibendports_file.c
- create mode 100644 libsemanage/src/ibendports_local.c
- create mode 100644 libsemanage/src/ibendports_policy.c
- create mode 100644 libsemanage/src/ibendports_policydb.c
- create mode 100644 libsemanage/src/ibpkey_internal.h
- create mode 100644 libsemanage/src/ibpkey_record.c
- create mode 100644 libsemanage/src/ibpkeys_file.c
- create mode 100644 libsemanage/src/ibpkeys_local.c
- create mode 100644 libsemanage/src/ibpkeys_policy.c
- create mode 100644 libsemanage/src/ibpkeys_policydb.c
- create mode 100644 libsepol/include/sepol/ibendport_record.h
- create mode 100644 libsepol/include/sepol/ibendports.h
- create mode 100644 libsepol/include/sepol/ibpkey_record.h
- create mode 100644 libsepol/include/sepol/ibpkeys.h
- create mode 100644 libsepol/src/ibendport_internal.h
- create mode 100644 libsepol/src/ibendport_record.c
- create mode 100644 libsepol/src/ibendports.c
- create mode 100644 libsepol/src/ibpkey_internal.h
- create mode 100644 libsepol/src/ibpkey_record.c
- create mode 100644 libsepol/src/ibpkeys.c
- create mode 100644 python/semanage/semanage-ibendport.8
- create mode 100644 python/semanage/semanage-ibpkey.8
-
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index 8fab214b..e73ec8f7 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -20,6 +20,7 @@
+  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2008 Tresys Technology, LLC
+  * Copyright (C) 2007 Red Hat Inc.
++ * Copyright (C) 2017 Mellanox Techonologies Inc.
+  *	This program is free software; you can redistribute it and/or modify
+  *  	it under the terms of the GNU General Public License as published by
+  *	the Free Software Foundation, version 2.
+@@ -5057,6 +5058,112 @@ int define_port_context(unsigned int low, unsigned int high)
+ 	return -1;
+ }
+ 
++int define_ibpkey_context(unsigned int low, unsigned int high)
++{
++	ocontext_t *newc, *c, *l, *head;
++	struct in6_addr subnet_prefix;
++	char *id;
++	int rc = 0;
++
++	if (policydbp->target_platform != SEPOL_TARGET_SELINUX) {
++		yyerror("ibpkeycon not supported for target");
++		return -1;
++	}
++
++	if (pass == 1) {
++		id = (char *)queue_remove(id_queue);
++		free(id);
++		parse_security_context(NULL);
++		return 0;
++	}
++
++	newc = malloc(sizeof(*newc));
++	if (!newc) {
++		yyerror("out of memory");
++		return -1;
++	}
++	memset(newc, 0, sizeof(*newc));
++
++	id = queue_remove(id_queue);
++	if (!id) {
++		yyerror("failed to read the subnet prefix");
++		rc = -1;
++		goto out;
++	}
++
++	rc = inet_pton(AF_INET6, id, &subnet_prefix);
++	free(id);
++	if (rc < 1) {
++		yyerror("failed to parse the subnet prefix");
++		if (rc == 0)
++			rc = -1;
++		goto out;
++	}
++
++	if (subnet_prefix.s6_addr[2] || subnet_prefix.s6_addr[3]) {
++		yyerror("subnet prefix should be 0's in the low order 64 bits.");
++		rc = -1;
++		goto out;
++	}
++
++	if (low > 0xffff || high > 0xffff) {
++		yyerror("pkey value too large, pkeys are 16 bits.");
++		rc = -1;
++		goto out;
++	}
++
++	memcpy(&newc->u.ibpkey.subnet_prefix, &subnet_prefix.s6_addr[0],
++	       sizeof(newc->u.ibpkey.subnet_prefix));
++
++	newc->u.ibpkey.low_pkey = low;
++	newc->u.ibpkey.high_pkey = high;
++
++	if (low > high) {
++		yyerror2("low pkey %d exceeds high pkey %d", low, high);
++		rc = -1;
++		goto out;
++	}
++
++	rc = parse_security_context(&newc->context[0]);
++	if (rc)
++		goto out;
++
++	/* Preserve the matching order specified in the configuration. */
++	head = policydbp->ocontexts[OCON_IBPKEY];
++	for (l = NULL, c = head; c; l = c, c = c->next) {
++		unsigned int low2, high2;
++
++		low2 = c->u.ibpkey.low_pkey;
++		high2 = c->u.ibpkey.high_pkey;
++
++		if (low == low2 && high == high2 &&
++		    c->u.ibpkey.subnet_prefix == newc->u.ibpkey.subnet_prefix) {
++			yyerror2("duplicate ibpkeycon entry for %d-%d ",
++				 low, high);
++			rc = -1;
++			goto out;
++		}
++		if (low2 <= low && high2 >= high &&
++		    c->u.ibpkey.subnet_prefix == newc->u.ibpkey.subnet_prefix) {
++			yyerror2("ibpkeycon entry for %d-%d hidden by earlier entry for %d-%d",
++				 low, high, low2, high2);
++			rc = -1;
++			goto out;
++		}
++	}
++
++	if (l)
++		l->next = newc;
++	else
++		policydbp->ocontexts[OCON_IBPKEY] = newc;
++
++	return 0;
++
++out:
++	free(newc);
++	return rc;
++}
++
+ int define_netif_context(void)
+ {
+ 	ocontext_t *newc, *c, *head;
+diff --git a/checkpolicy/policy_define.h b/checkpolicy/policy_define.h
+index 9f4b6d0d..75e3683b 100644
+--- a/checkpolicy/policy_define.h
++++ b/checkpolicy/policy_define.h
+@@ -43,6 +43,7 @@ int define_level(void);
+ int define_netif_context(void);
+ int define_permissive(void);
+ int define_polcap(void);
++int define_ibpkey_context(unsigned int low, unsigned int high);
+ int define_port_context(unsigned int low, unsigned int high);
+ int define_pirq_context(unsigned int pirq);
+ int define_iomem_context(uint64_t low, uint64_t high);
+diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+index 1ac1c96b..35b433bd 100644
+--- a/checkpolicy/policy_parse.y
++++ b/checkpolicy/policy_parse.y
+@@ -21,6 +21,7 @@
+  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2008 Tresys Technology, LLC
+  * Copyright (C) 2007 Red Hat Inc.
++ * Copyright (C) 2017 Mellanox Technologies Inc.
+  *	This program is free software; you can redistribute it and/or modify
+  *  	it under the terms of the GNU General Public License as published by
+  *	the Free Software Foundation, version 2.
+@@ -135,6 +136,7 @@ typedef int (* require_func_t)(int pass);
+ %token TARGET
+ %token SAMEUSER
+ %token FSCON PORTCON NETIFCON NODECON 
++%token IBPKEYCON
+ %token PIRQCON IOMEMCON IOPORTCON PCIDEVICECON DEVICETREECON
+ %token FSUSEXATTR FSUSETASK FSUSETRANS
+ %token GENFSCON
+@@ -170,7 +172,7 @@ base_policy             : { if (define_policy(pass, 0) == -1) return -1; }
+ 			  opt_default_rules opt_mls te_rbac users opt_constraints 
+                          { if (pass == 1) { if (policydb_index_bools(policydbp)) return -1;}
+ 			   else if (pass == 2) { if (policydb_index_others(NULL, policydbp, 0)) return -1;}}
+-			  initial_sid_contexts opt_fs_contexts opt_fs_uses opt_genfs_contexts net_contexts opt_dev_contexts
++			  initial_sid_contexts opt_fs_contexts opt_fs_uses opt_genfs_contexts net_contexts opt_dev_contexts opt_ibpkey_contexts
+ 			;
+ classes			: class_def 
+ 			| classes class_def
+@@ -713,6 +715,17 @@ port_context_def	: PORTCON identifier number security_context_def
+ 			| PORTCON identifier number '-' number security_context_def
+ 			{if (define_port_context($3,$5)) return -1;}
+ 			;
++opt_ibpkey_contexts     : ibpkey_contexts
++                        |
++                        ;
++ibpkey_contexts		: ibpkey_context_def
++			| ibpkey_contexts ibpkey_context_def
++			;
++ibpkey_context_def	: IBPKEYCON ipv6_addr number security_context_def
++			{if (define_ibpkey_context($3,$3)) return -1;}
++			| IBPKEYCON ipv6_addr number '-' number security_context_def
++			{if (define_ibpkey_context($3,$5)) return -1;}
++			;
+ opt_netif_contexts      : netif_contexts 
+                         |
+                         ;
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index 028bd25e..f742939a 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -12,6 +12,7 @@
+  *	Added support for binary policy modules
+  *
+  * Copyright (C) 2003-5 Tresys Technology, LLC
++ * Copyright (C) 2017 Mellanox Technologies Inc.
+  *	This program is free software; you can redistribute it and/or modify
+  *  	it under the terms of the GNU General Public License as published by
+  *	the Free Software Foundation, version 2.
+@@ -183,6 +184,8 @@ INCOMP |
+ incomp				{ return(INCOMP);}
+ fscon |
+ FSCON                           { return(FSCON);}
++ibpkeycon |
++IBPKEYCON			{ return(IBPKEYCON);}
+ portcon |
+ PORTCON				{ return(PORTCON);}
+ netifcon |                     
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 99e49902..d06d2153 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -24,6 +24,7 @@
+  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
+  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
+  * Copyright (C) 2003 - 2004 Red Hat, Inc.
++ * Copyright (C) 2017 Mellanox Techonolgies Inc.
+  *
+  *  This library is free software; you can redistribute it and/or
+  *  modify it under the terms of the GNU Lesser General Public
+@@ -358,6 +359,11 @@ typedef struct ocontext {
+ 			uint32_t low_ioport;
+ 			uint32_t high_ioport;
+ 		} ioport;
++		struct {
++			uint64_t subnet_prefix;
++			uint16_t low_pkey;
++			uint16_t high_pkey;
++		} ibpkey;
+ 	} u;
+ 	union {
+ 		uint32_t sclass;	/* security class for genfs */
+@@ -386,14 +392,14 @@ typedef struct genfs {
+ #define SYM_NUM     8
+ 
+ /* object context array indices */
+-#define OCON_ISID  0		/* initial SIDs */
+-#define OCON_FS    1		/* unlabeled file systems */
+-#define OCON_PORT  2		/* TCP and UDP port numbers */
+-#define OCON_NETIF 3		/* network interfaces */
+-#define OCON_NODE  4		/* nodes */
+-#define OCON_FSUSE 5		/* fs_use */
+-#define OCON_NODE6 6		/* IPv6 nodes */
+-#define OCON_GENFS 7            /* needed for ocontext_supported */
++#define OCON_ISID  0	/* initial SIDs */
++#define OCON_FS    1	/* unlabeled file systems */
++#define OCON_PORT  2	/* TCP and UDP port numbers */
++#define OCON_NETIF 3	/* network interfaces */
++#define OCON_NODE  4	/* nodes */
++#define OCON_FSUSE 5	/* fs_use */
++#define OCON_NODE6 6	/* IPv6 nodes */
++#define OCON_IBPKEY 7	/* Infiniband PKEY */
+ 
+ /* object context array indices for Xen */
+ #define OCON_XEN_ISID  	    0    /* initial SIDs */
+@@ -404,7 +410,7 @@ typedef struct genfs {
+ #define OCON_XEN_DEVICETREE 5    /* device tree node */
+ 
+ /* OCON_NUM needs to be the largest index in any platform's ocontext array */
+-#define OCON_NUM   7
++#define OCON_NUM   8
+ 
+ /* section: module information */
+ 
+@@ -726,10 +732,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
+ #define POLICYDB_VERSION_XEN_DEVICETREE		30 /* Xen-specific */
+ #define POLICYDB_VERSION_XPERMS_IOCTL	30 /* Linux-specific */
++#define POLICYDB_VERSION_INFINIBAND		31 /* Linux-specific */
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_XPERMS_IOCTL
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_INFINIBAND
+ 
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE		4
+@@ -749,9 +756,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define MOD_POLICYDB_VERSION_DEFAULT_TYPE	16
+ #define MOD_POLICYDB_VERSION_CONSTRAINT_NAMES  17
+ #define MOD_POLICYDB_VERSION_XPERMS_IOCTL  18
++#define MOD_POLICYDB_VERSION_INFINIBAND		19
+ 
+ #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+-#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_XPERMS_IOCTL
++#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_INFINIBAND
+ 
+ #define POLICYDB_CONFIG_MLS    1
+ 
 -- 
 2.12.2
