@@ -1,256 +1,151 @@
-Message-ID: <1495202170.2209.3.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 3/3] libsemanage: replace access(, F_OK) checks to make
- setuid programs work
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-Date: Fri, 19 May 2017 09:56:10 -0400
-In-Reply-To: <8db18f54-14e7-f51f-ec3c-0eaefa6c8bee@redhat.com>
-References: <1488219577.19819.19.camel@tycho.nsa.gov>
- <20170505124947.21392-1-vmojzis@redhat.com>
- <20170505124947.21392-4-vmojzis@redhat.com>
- <1494016356.5745.27.camel@tycho.nsa.gov>
- <8db18f54-14e7-f51f-ec3c-0eaefa6c8bee@redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JEtVMK023916
+ for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 10:55:31 -0400
+Received: by mail-lf0-f68.google.com with SMTP id q24so344130lfb.1
+ for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 07:55:19 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170518205831.25514-1-sds@tycho.nsa.gov>
+References: <20170518205831.25514-1-sds@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 19 May 2017 10:55:16 -0400
+Message-ID: <CAHC9VhQ9SbEgQFWscEYW1aKQqGYdHxC9URTS4zdh04VykkDVNQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: log policy capability state when a policy is
+ loaded
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-05-19 at 14:22 +0200, Vit Mojzis wrote:
-> On 5.5.2017 22:32, Stephen Smalley wrote:
-> > On Fri, 2017-05-05 at 14:49 +0200, Vit Mojzis wrote:
-> > > access() uses real UID instead of effective UID which causes
-> > > false
-> > > negative checks in setuid programs.
-> > > Replace access(,F_OK) (i.e. tests for file existence) by stat().
-> > > 
-> > > Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
-> > > 
-> > > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> > > ---
-> > >   libsemanage/src/direct_api.c | 36 +++++++++++++++++++++------
-> > > -------
-> > > --
-> > >   1 file changed, 21 insertions(+), 15 deletions(-)
-> > > 
-> > > diff --git a/libsemanage/src/direct_api.c
-> > > b/libsemanage/src/direct_api.c
-> > > index 508277d..35ca1b0 100644
-> > > --- a/libsemanage/src/direct_api.c
-> > > +++ b/libsemanage/src/direct_api.c
-> > > @@ -272,7 +272,9 @@ int semanage_direct_connect(semanage_handle_t
-> > > *
-> > > sh)
-> > >   
-> > >   	/* set the disable dontaudit value */
-> > >   	path = semanage_path(SEMANAGE_ACTIVE,
-> > > SEMANAGE_DISABLE_DONTAUDIT);
-> > > -	if (access(path, F_OK) == 0)
-> > > +
-> > > +	struct stat sb;
-> > > +	if (stat(path, &sb) == 0)
-> > 
-> > Need to check errno as well to ensure that it is just ENOENT when
-> > stat() returns non-zero; anything else is an error.
-> 
-> Thank you for the feedback. I was trying to keep behavioral changes
-> to a 
-> minimum. In case "access" call failed (it can encounter all the
-> errors 
-> that "stat" can except for EOVERFLOW) the code assumed that the file 
-> doesn't exist and this patch preserves said behavior.
-> But if you think think that the calling function should fail instead,
-> I 
-> can rework the patch.
+On Thu, May 18, 2017 at 4:58 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> Log the state of SELinux policy capabilities when a policy is loaded.
+> For each policy capability known to the kernel, log the policy capability
+> name and the value set in the policy.  For policy capabilities that are
+> set in the loaded policy but unknown to the kernel, log the policy
+> capability index, since this is the only information presently available
+> in the policy.
+>
+> Sample output with a policy created with a new capability defined
+> that is not known to the kernel:
+> SELinux:  policy capability network_peer_controls=1
+> SELinux:  policy capability open_perms=1
+> SELinux:  policy capability extended_socket_class=1
+> SELinux:  policy capability always_check_network=0
+> SELinux:  policy capability cgroup_seclabel=0
+> SELinux:  unknown policy capability 5
+>
+> Resolves: https://github.com/SELinuxProject/selinux-kernel/issues/32
+>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  security/selinux/include/security.h |  2 ++
+>  security/selinux/selinuxfs.c        | 13 ++-----------
+>  security/selinux/ss/services.c      | 23 +++++++++++++++++++++++
+>  3 files changed, 27 insertions(+), 11 deletions(-)
 
-Except that use of stat() does introduce one additional potential
-failure case, i.e. SELinux getattr permission denial on the file.
-Unlikely, of course, but possible.  And since you removed the
-semanage_access_check() in the earlier patch, we are no longer checking
-that we can even read/search the active directory prior to making this
-call. So our first permission denial (on either the active directory or
-the file itself) might occur here, and we would wrongly interpret it as
-the file not existing after your change.
+Applied, thanks Stephen.
 
-It is also more correct to explicitly test errno for ENOENT regardless,
-so we might as well fix that while we are making these changes. 
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index f979c35..c4224bb 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -76,6 +76,8 @@ enum {
+>  };
+>  #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+>
+> +extern char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
+> +
+>  extern int selinux_policycap_netpeer;
+>  extern int selinux_policycap_openperm;
+>  extern int selinux_policycap_extsockclass;
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index ce71718..ea2da91 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -41,15 +41,6 @@
+>  #include "objsec.h"
+>  #include "conditional.h"
+>
+> -/* Policy capability filenames */
+> -static char *policycap_names[] = {
+> -       "network_peer_controls",
+> -       "open_perms",
+> -       "extended_socket_class",
+> -       "always_check_network",
+> -       "cgroup_seclabel"
+> -};
+> -
+>  unsigned int selinux_checkreqprot = CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE;
+>
+>  static int __init checkreqprot_setup(char *str)
+> @@ -1750,9 +1741,9 @@ static int sel_make_policycap(void)
+>         sel_remove_entries(policycap_dir);
+>
+>         for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
+> -               if (iter < ARRAY_SIZE(policycap_names))
+> +               if (iter < ARRAY_SIZE(selinux_policycap_names))
+>                         dentry = d_alloc_name(policycap_dir,
+> -                                             policycap_names[iter]);
+> +                                             selinux_policycap_names[iter]);
+>                 else
+>                         dentry = d_alloc_name(policycap_dir, "unknown");
+>
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 60d9b02..2dccba4 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -70,6 +70,15 @@
+>  #include "ebitmap.h"
+>  #include "audit.h"
+>
+> +/* Policy capability names */
+> +char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+> +       "network_peer_controls",
+> +       "open_perms",
+> +       "extended_socket_class",
+> +       "always_check_network",
+> +       "cgroup_seclabel"
+> +};
+> +
+>  int selinux_policycap_netpeer;
+>  int selinux_policycap_openperm;
+>  int selinux_policycap_extsockclass;
+> @@ -1986,6 +1995,9 @@ static int convert_context(u32 key,
+>
+>  static void security_load_policycaps(void)
+>  {
+> +       unsigned int i;
+> +       struct ebitmap_node *node;
+> +
+>         selinux_policycap_netpeer = ebitmap_get_bit(&policydb.policycaps,
+>                                                   POLICYDB_CAPABILITY_NETPEER);
+>         selinux_policycap_openperm = ebitmap_get_bit(&policydb.policycaps,
+> @@ -1997,6 +2009,17 @@ static void security_load_policycaps(void)
+>         selinux_policycap_cgroupseclabel =
+>                 ebitmap_get_bit(&policydb.policycaps,
+>                                 POLICYDB_CAPABILITY_CGROUPSECLABEL);
+> +
+> +       for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
+> +               pr_info("SELinux:  policy capability %s=%d\n",
+> +                       selinux_policycap_names[i],
+> +                       ebitmap_get_bit(&policydb.policycaps, i));
+> +
+> +       ebitmap_for_each_positive_bit(&policydb.policycaps, node, i) {
+> +               if (i >= ARRAY_SIZE(selinux_policycap_names))
+> +                       pr_info("SELinux:  unknown policy capability %u\n",
+> +                               i);
+> +       }
+>  }
+>
+>  static int security_preserve_bools(struct policydb *p);
+> --
+> 2.9.3
+>
 
-> > stat() can produce a SELinux getattr denial, whereas access(F_OK)
-> > doesn't perform any SELinux check beyond directory search access.
-> 
-> That is a fair point and I don't have a solution for it. However in
-> my 
-> understanding the calling process should have the "getattr" access 
-> permission (and it should even be able to create the file in most
-> cases).
 
-Yes, I'm not concerned about needing getattr permission itself; I just
-want to ensure that we correctly handle it when it is denied.
 
-> > 
-> > >   		sepol_set_disable_dontaudit(sh->sepolh, 1);
-> > >   	else
-> > >   		sepol_set_disable_dontaudit(sh->sepolh, 0);
-> > > @@ -1101,8 +1103,9 @@ static int
-> > > semanage_compile_hll_modules(semanage_handle_t *sh,
-> > >   			goto cleanup;
-> > >   		}
-> > >   
-> > > +		struct stat sb;
-> > >   		if (semanage_get_ignore_module_cache(sh) == 0
-> > > &&
-> > > -				access(cil_path, F_OK) == 0) {
-> > > +				stat(cil_path, &sb) == 0) {
-> > >   			continue;
-> > >   		}
-> > >   
-> > > @@ -1165,7 +1168,8 @@ static int
-> > > semanage_direct_commit(semanage_handle_t * sh)
-> > >   
-> > >   	/* Create or remove the disable_dontaudit flag file. */
-> > >   	path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_DISABLE_DONTAUDIT);
-> > > -	if (access(path, F_OK) == 0)
-> > > +	struct stat sb;
-> > > +	if (stat(path, &sb) == 0)
-> > >   		do_rebuild |= !(sepol_get_disable_dontaudit(sh-
-> > > > sepolh) == 1);
-> > > 
-> > >   	else
-> > >   		do_rebuild |= (sepol_get_disable_dontaudit(sh-
-> > > > sepolh) == 1);
-> > > 
-> > > @@ -1190,7 +1194,7 @@ static int
-> > > semanage_direct_commit(semanage_handle_t * sh)
-> > >   
-> > >   	/* Create or remove the preserve_tunables flag file. */
-> > >   	path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_PRESERVE_TUNABLES);
-> > > -	if (access(path, F_OK) == 0)
-> > > +	if (stat(path, &sb) == 0)
-> > >   		do_rebuild |= !(sepol_get_preserve_tunables(sh-
-> > > > sepolh) == 1);
-> > > 
-> > >   	else
-> > >   		do_rebuild |= (sepol_get_preserve_tunables(sh-
-> > > > sepolh) == 1);
-> > > 
-> > > @@ -1231,37 +1235,37 @@ static int
-> > > semanage_direct_commit(semanage_handle_t * sh)
-> > >   	 */
-> > >   	if (!do_rebuild) {
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_STORE_KERNEL);
-> > > -		if (access(path, F_OK) != 0) {
-> > > +		if (stat(path, &sb) != 0) {
-> > >   			do_rebuild = 1;
-> > >   			goto rebuild;
-> > >   		}
-> > >   
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_STORE_FC);
-> > > -		if (access(path, F_OK) != 0) {
-> > > +		if (stat(path, &sb) != 0) {
-> > >   			do_rebuild = 1;
-> > >   			goto rebuild;
-> > >   		}
-> > >   
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_STORE_SEUSERS);
-> > > -		if (access(path, F_OK) != 0) {
-> > > +		if (stat(path, &sb) != 0) {
-> > >   			do_rebuild = 1;
-> > >   			goto rebuild;
-> > >   		}
-> > >   
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_LINKED);
-> > > -		if (access(path, F_OK) != 0) {
-> > > +		if (stat(path, &sb) != 0) {
-> > >   			do_rebuild = 1;
-> > >   			goto rebuild;
-> > >   		}
-> > >   
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_SEUSERS_LINKED);
-> > > -		if (access(path, F_OK) != 0) {
-> > > +		if (stat(path, &sb) != 0) {
-> > >   			do_rebuild = 1;
-> > >   			goto rebuild;
-> > >   		}
-> > >   
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_USERS_EXTRA_LINKED);
-> > > -		if (access(path, F_OK) != 0) {
-> > > +		if (stat(path, &sb) != 0) {
-> > >   			do_rebuild = 1;
-> > >   			goto rebuild;
-> > >   		}
-> > > @@ -1395,7 +1399,7 @@ rebuild:
-> > >   			goto cleanup;
-> > >   
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_SEUSERS_LINKED);
-> > > -		if (access(path, F_OK) == 0) {
-> > > +		if (stat(path, &sb) == 0) {
-> > >   			retval = semanage_copy_file(path,
-> > >   						    semanage_pa
-> > > th(SE
-> > > MANAGE_TMP,
-> > >   								
-> > >   SE
-> > > MANAGE_STORE_SEUSERS),
-> > > @@ -1408,7 +1412,7 @@ rebuild:
-> > >   		}
-> > >   
-> > >   		path = semanage_path(SEMANAGE_TMP,
-> > > SEMANAGE_USERS_EXTRA_LINKED);
-> > > -		if (access(path, F_OK) == 0) {
-> > > +		if (stat(path, &sb) == 0) {
-> > >   			retval = semanage_copy_file(path,
-> > >   						    semanage_pa
-> > > th(SE
-> > > MANAGE_TMP,
-> > >   								
-> > >   SE
-> > > MANAGE_USERS_EXTRA),
-> > > @@ -1732,7 +1736,8 @@ static int
-> > > semanage_direct_extract(semanage_handle_t * sh,
-> > >   		goto cleanup;
-> > >   	}
-> > >   
-> > > -	if (access(module_path, F_OK) != 0) {
-> > > +	struct stat sb;
-> > > +	if (stat(module_path, &sb) != 0) {
-> > >   		ERR(sh, "Module does not exist: %s",
-> > > module_path);
-> > >   		rc = -1;
-> > >   		goto cleanup;
-> > > @@ -1762,7 +1767,7 @@ static int
-> > > semanage_direct_extract(semanage_handle_t * sh,
-> > >   		goto cleanup;
-> > >   	}
-> > >   
-> > > -	if (extract_cil == 1 && strcmp(_modinfo->lang_ext,
-> > > "cil") &&
-> > > access(input_file, F_OK) != 0) {
-> > > +	if (extract_cil == 1 && strcmp(_modinfo->lang_ext,
-> > > "cil") &&
-> > > stat(input_file, &sb) != 0) {
-> > >   		rc = semanage_compile_module(sh, _modinfo);
-> > >   		if (rc < 0) {
-> > >   			goto cleanup;
-> > > @@ -2737,7 +2742,8 @@ static int
-> > > semanage_direct_install_info(semanage_handle_t *sh,
-> > >   			goto cleanup;
-> > >   		}
-> > >   
-> > > -		if (access(path, F_OK) == 0) {
-> > > +		struct stat sb;
-> > > +		if (stat(path, &sb) == 0) {
-> > >   			ret = unlink(path);
-> > >   			if (ret != 0) {
-> > >   				ERR(sh, "Error while removing
-> > > cached
-> > > CIL file %s: %s", path, strerror(errno));
+-- 
+paul moore
+www.paul-moore.com
