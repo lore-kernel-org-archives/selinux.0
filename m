@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JCncwL005898
- for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 08:49:45 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JCu7AM009462
+ for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 08:56:07 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
@@ -8,9 +8,9 @@ To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
  Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH v7 9/9] selinux: Add a cache for quicker retreival of PKey SIDs
-Date: Fri, 19 May 2017 15:48:59 +0300
-Message-Id: <1495198139-69993-10-git-send-email-danielj@mellanox.com>
+Subject: [PATCH v7 3/9] selinux lsm IB/core: Implement LSM notification system
+Date: Fri, 19 May 2017 15:48:53 +0300
+Message-Id: <1495198139-69993-4-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
 References: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,389 +20,265 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-It is likely that the SID for the same PKey will be requested many
-times. To reduce the time to modify QPs and process MADs use a cache to
-store PKey SIDs.
+Add a generic notificaiton mechanism in the LSM. Interested consumers
+can register a callback with the LSM and security modules can produce
+events.
 
-This code is heavily based on the "netif" and "netport" concept
-originally developed by James Morris <jmorris@redhat.com> and Paul Moore
-<paul@paul-moore.com> (see security/selinux/netif.c and
-security/selinux/netport.c for more information)
+Because access to Infiniband QPs are enforced in the setup phase of a
+connection security should be enforced again if the policy changes.
+Register infiniband devices for policy change notification and check all
+QPs on that device when the notification is received.
+
+Add a call to the notification mechanism from SELinux when the AVC
+cache changes or setenforce is cleared.
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
 
 ---
 v2:
-- Renamed the files to ibpkey. Paul Moore
-- Fixed a bracket indentation mismatch in sel_pkey_find. Yuval Shaia
-- Change spin_lock_bh to spin_lock_irqsave to resolve HARDIRQ lockdep
-  warning.  Dan Jurgens
+- new patch that has the generic notification, replaces selinux and
+  IB/core patches related to the ib_flush callback. Yuval Shaia and Paul
+  Moore
 
-v6:
-- Fixed sel_pkey_sid_slow error handling. James Morris
+v3:
+- use notifier chains. Paul Moore
 
-v7:
-- Renamed sel_pkey* to sel_ib_pkey* in the pkey cache.
+v4:
+- Seperate avc callback for LSM notifier. Paul Moore
 
- security/selinux/Makefile         |   2 +-
- security/selinux/hooks.c          |   7 +-
- security/selinux/ibpkey.c         | 245 ++++++++++++++++++++++++++++++++++++++
- security/selinux/include/ibpkey.h |  31 +++++
- security/selinux/include/objsec.h |   6 +
- 5 files changed, 288 insertions(+), 3 deletions(-)
- create mode 100644 security/selinux/ibpkey.c
- create mode 100644 security/selinux/include/ibpkey.h
+v5:
+- Fix link error when CONFIG_SECURITY is not set. Build Robot
 
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 3411c33..ff5895e 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -5,7 +5,7 @@
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
+ drivers/infiniband/core/device.c | 53 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/security.h         | 23 +++++++++++++++++
+ security/security.c              | 20 +++++++++++++++
+ security/selinux/hooks.c         | 11 +++++++++
+ security/selinux/selinuxfs.c     |  2 ++
+ 5 files changed, 109 insertions(+)
+
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index 92e0b89..63ebaab 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -39,6 +39,8 @@
+ #include <linux/init.h>
+ #include <linux/mutex.h>
+ #include <linux/netdevice.h>
++#include <linux/security.h>
++#include <linux/notifier.h>
+ #include <rdma/rdma_netlink.h>
+ #include <rdma/ib_addr.h>
+ #include <rdma/ib_cache.h>
+@@ -82,6 +84,14 @@ static LIST_HEAD(client_list);
+ static DEFINE_MUTEX(device_mutex);
+ static DECLARE_RWSEM(lists_rwsem);
  
- selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
--	     netnode.o netport.o exports.o \
-+	     netnode.o netport.o ibpkey.o exports.o \
- 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
- 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
++static int ib_security_change(struct notifier_block *nb, unsigned long event,
++			      void *lsm_data);
++static void ib_policy_change_task(struct work_struct *work);
++static DECLARE_WORK(ib_policy_change_work, ib_policy_change_task);
++
++static struct notifier_block ibdev_lsm_nb = {
++	.notifier_call = ib_security_change,
++};
  
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index da5fffe..b14e2eb 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -91,6 +91,7 @@
- #include "netif.h"
- #include "netnode.h"
- #include "netport.h"
-+#include "ibpkey.h"
- #include "xfrm.h"
- #include "netlabel.h"
- #include "audit.h"
-@@ -174,8 +175,10 @@ static int selinux_netcache_avc_callback(u32 event)
- 
- static int selinux_lsm_notifier_avc_callback(u32 event)
+ static int ib_device_check_mandatory(struct ib_device *device)
  {
--	if (event == AVC_CALLBACK_RESET)
-+	if (event == AVC_CALLBACK_RESET) {
-+		sel_ib_pkey_flush();
- 		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
-+	}
- 
+@@ -341,6 +351,40 @@ static int setup_port_pkey_list(struct ib_device *device)
  	return 0;
  }
-@@ -6168,7 +6171,7 @@ static int selinux_ib_pkey_access(void *ib_sec, u64 subnet_prefix, u16 pkey_val)
- 	struct ib_security_struct *sec = ib_sec;
- 	struct lsm_ibpkey_audit ibpkey;
  
--	err = security_ib_pkey_sid(subnet_prefix, pkey_val, &sid);
-+	err = sel_ib_pkey_sid(subnet_prefix, pkey_val, &sid);
- 	if (err)
- 		return err;
- 
-diff --git a/security/selinux/ibpkey.c b/security/selinux/ibpkey.c
-new file mode 100644
-index 0000000..e3614ee
---- /dev/null
-+++ b/security/selinux/ibpkey.c
-@@ -0,0 +1,245 @@
-+/*
-+ * Pkey table
-+ *
-+ * SELinux must keep a mapping of Infinband PKEYs to labels/SIDs.  This
-+ * mapping is maintained as part of the normal policy but a fast cache is
-+ * needed to reduce the lookup overhead.
-+ *
-+ * This code is heavily based on the "netif" and "netport" concept originally
-+ * developed by
-+ * James Morris <jmorris@redhat.com> and
-+ * Paul Moore <paul@paul-moore.com>
-+ *   (see security/selinux/netif.c and security/selinux/netport.c for more
-+ *   information)
-+ *
-+ */
-+
-+/*
-+ * (c) Mellanox Technologies, 2016
-+ *
-+ * This program is free software: you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/rcupdate.h>
-+#include <linux/list.h>
-+#include <linux/spinlock.h>
-+
-+#include "ibpkey.h"
-+#include "objsec.h"
-+
-+#define SEL_PKEY_HASH_SIZE       256
-+#define SEL_PKEY_HASH_BKT_LIMIT   16
-+
-+struct sel_ib_pkey_bkt {
-+	int size;
-+	struct list_head list;
-+};
-+
-+struct sel_ib_pkey {
-+	struct pkey_security_struct psec;
-+	struct list_head list;
-+	struct rcu_head rcu;
-+};
-+
-+static LIST_HEAD(sel_ib_pkey_list);
-+static DEFINE_SPINLOCK(sel_ib_pkey_lock);
-+static struct sel_ib_pkey_bkt sel_ib_pkey_hash[SEL_PKEY_HASH_SIZE];
-+
-+/**
-+ * sel_ib_pkey_hashfn - Hashing function for the pkey table
-+ * @pkey: pkey number
-+ *
-+ * Description:
-+ * This is the hashing function for the pkey table, it returns the bucket
-+ * number for the given pkey.
-+ *
-+ */
-+static unsigned int sel_ib_pkey_hashfn(u16 pkey)
++static void ib_policy_change_task(struct work_struct *work)
 +{
-+	return (pkey & (SEL_PKEY_HASH_SIZE - 1));
-+}
++	struct ib_device *dev;
 +
-+/**
-+ * sel_ib_pkey_find - Search for a pkey record
-+ * @subnet_prefix: subnet_prefix
-+ * @pkey_num: pkey_num
-+ *
-+ * Description:
-+ * Search the pkey table and return the matching record.  If an entry
-+ * can not be found in the table return NULL.
-+ *
-+ */
-+static struct sel_ib_pkey *sel_ib_pkey_find(u64 subnet_prefix, u16 pkey_num)
-+{
-+	unsigned int idx;
-+	struct sel_ib_pkey *pkey;
++	down_read(&lists_rwsem);
++	list_for_each_entry(dev, &device_list, core_list) {
++		int i;
 +
-+	idx = sel_ib_pkey_hashfn(pkey_num);
-+	list_for_each_entry_rcu(pkey, &sel_ib_pkey_hash[idx].list, list) {
-+		if (pkey->psec.pkey == pkey_num &&
-+		    pkey->psec.subnet_prefix == subnet_prefix)
-+			return pkey;
-+	}
++		for (i = rdma_start_port(dev); i <= rdma_end_port(dev); i++) {
++			u64 sp;
++			int ret = ib_get_cached_subnet_prefix(dev,
++							      i,
++							      &sp);
 +
-+	return NULL;
-+}
-+
-+/**
-+ * sel_ib_pkey_insert - Insert a new pkey into the table
-+ * @pkey: the new pkey record
-+ *
-+ * Description:
-+ * Add a new pkey record to the hash table.
-+ *
-+ */
-+static void sel_ib_pkey_insert(struct sel_ib_pkey *pkey)
-+{
-+	unsigned int idx;
-+
-+	/* we need to impose a limit on the growth of the hash table so check
-+	 * this bucket to make sure it is within the specified bounds
-+	 */
-+	idx = sel_ib_pkey_hashfn(pkey->psec.pkey);
-+	list_add_rcu(&pkey->list, &sel_ib_pkey_hash[idx].list);
-+	if (sel_ib_pkey_hash[idx].size == SEL_PKEY_HASH_BKT_LIMIT) {
-+		struct sel_ib_pkey *tail;
-+
-+		tail = list_entry(
-+			rcu_dereference_protected(
-+				sel_ib_pkey_hash[idx].list.prev,
-+				lockdep_is_held(&sel_ib_pkey_lock)),
-+			struct sel_ib_pkey, list);
-+		list_del_rcu(&tail->list);
-+		kfree_rcu(tail, rcu);
-+	} else {
-+		sel_ib_pkey_hash[idx].size++;
-+	}
-+}
-+
-+/**
-+ * sel_ib_pkey_sid_slow - Lookup the SID of a pkey using the policy
-+ * @subnet_prefix: subnet prefix
-+ * @pkey_num: pkey number
-+ * @sid: pkey SID
-+ *
-+ * Description:
-+ * This function determines the SID of a pkey by querying the security
-+ * policy.  The result is added to the pkey table to speedup future
-+ * queries.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+static int sel_ib_pkey_sid_slow(u64 subnet_prefix, u16 pkey_num, u32 *sid)
-+{
-+	int ret;
-+	struct sel_ib_pkey *pkey;
-+	struct sel_ib_pkey *new = NULL;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sel_ib_pkey_lock, flags);
-+	pkey = sel_ib_pkey_find(subnet_prefix, pkey_num);
-+	if (pkey) {
-+		*sid = pkey->psec.sid;
-+		spin_unlock_irqrestore(&sel_ib_pkey_lock, flags);
-+		return 0;
-+	}
-+
-+	ret = security_ib_pkey_sid(subnet_prefix, pkey_num, sid);
-+	if (ret)
-+		goto out;
-+
-+	/* If this memory allocation fails still return 0. The SID
-+	 * is valid, it just won't be added to the cache.
-+	 */
-+	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-+	if (!new)
-+		goto out;
-+
-+	new->psec.subnet_prefix = subnet_prefix;
-+	new->psec.pkey = pkey_num;
-+	new->psec.sid = *sid;
-+	sel_ib_pkey_insert(new);
-+
-+out:
-+	spin_unlock_irqrestore(&sel_ib_pkey_lock, flags);
-+	return ret;
-+}
-+
-+/**
-+ * sel_ib_pkey_sid - Lookup the SID of a PKEY
-+ * @subnet_prefix: subnet_prefix
-+ * @pkey_num: pkey number
-+ * @sid: pkey SID
-+ *
-+ * Description:
-+ * This function determines the SID of a PKEY using the fastest method
-+ * possible.  First the pkey table is queried, but if an entry can't be found
-+ * then the policy is queried and the result is added to the table to speedup
-+ * future queries.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *sid)
-+{
-+	struct sel_ib_pkey *pkey;
-+
-+	rcu_read_lock();
-+	pkey = sel_ib_pkey_find(subnet_prefix, pkey_num);
-+	if (pkey) {
-+		*sid = pkey->psec.sid;
-+		rcu_read_unlock();
-+		return 0;
-+	}
-+	rcu_read_unlock();
-+
-+	return sel_ib_pkey_sid_slow(subnet_prefix, pkey_num, sid);
-+}
-+
-+/**
-+ * sel_ib_pkey_flush - Flush the entire pkey table
-+ *
-+ * Description:
-+ * Remove all entries from the pkey table
-+ *
-+ */
-+void sel_ib_pkey_flush(void)
-+{
-+	unsigned int idx;
-+	struct sel_ib_pkey *pkey, *pkey_tmp;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&sel_ib_pkey_lock, flags);
-+	for (idx = 0; idx < SEL_PKEY_HASH_SIZE; idx++) {
-+		list_for_each_entry_safe(pkey, pkey_tmp,
-+					 &sel_ib_pkey_hash[idx].list, list) {
-+			list_del_rcu(&pkey->list);
-+			kfree_rcu(pkey, rcu);
++			WARN_ONCE(ret,
++				  "ib_get_cached_subnet_prefix err: %d, this should never happen here\n",
++				  ret);
++			ib_security_cache_change(dev, i, sp);
 +		}
-+		sel_ib_pkey_hash[idx].size = 0;
 +	}
-+	spin_unlock_irqrestore(&sel_ib_pkey_lock, flags);
++	up_read(&lists_rwsem);
 +}
 +
-+static __init int sel_ib_pkey_init(void)
++static int ib_security_change(struct notifier_block *nb, unsigned long event,
++			      void *lsm_data)
 +{
-+	int iter;
++	if (event != LSM_POLICY_CHANGE)
++		return NOTIFY_DONE;
 +
-+	if (!selinux_enabled)
-+		return 0;
++	schedule_work(&ib_policy_change_work);
 +
-+	for (iter = 0; iter < SEL_PKEY_HASH_SIZE; iter++) {
-+		INIT_LIST_HEAD(&sel_ib_pkey_hash[iter].list);
-+		sel_ib_pkey_hash[iter].size = 0;
++	return NOTIFY_OK;
++}
++
+ /**
+  * ib_register_device - Register an IB device with IB core
+  * @device:Device to register
+@@ -1104,10 +1148,18 @@ static int __init ib_core_init(void)
+ 		goto err_sa;
+ 	}
+ 
++	ret = register_lsm_notifier(&ibdev_lsm_nb);
++	if (ret) {
++		pr_warn("Couldn't register LSM notifier. ret %d\n", ret);
++		goto err_ibnl_clients;
 +	}
++
+ 	ib_cache_setup();
+ 
+ 	return 0;
+ 
++err_ibnl_clients:
++	ib_remove_ibnl_clients();
+ err_sa:
+ 	ib_sa_cleanup();
+ err_mad:
+@@ -1127,6 +1179,7 @@ static int __init ib_core_init(void)
+ 
+ static void __exit ib_core_cleanup(void)
+ {
++	unregister_lsm_notifier(&ibdev_lsm_nb);
+ 	ib_cache_cleanup();
+ 	ib_remove_ibnl_clients();
+ 	ib_sa_cleanup();
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 8c73ee0..f96e333 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -69,6 +69,10 @@ struct audit_krule;
+ struct user_namespace;
+ struct timezone;
+ 
++enum lsm_event {
++	LSM_POLICY_CHANGE,
++};
++
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, int audit);
+@@ -164,6 +168,10 @@ struct security_mnt_opts {
+ 	int num_mnt_opts;
+ };
+ 
++int call_lsm_notifier(enum lsm_event event, void *data);
++int register_lsm_notifier(struct notifier_block *nb);
++int unregister_lsm_notifier(struct notifier_block *nb);
++
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+ 	opts->mnt_opts = NULL;
+@@ -382,6 +390,21 @@ int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+ struct security_mnt_opts {
+ };
+ 
++static inline int call_lsm_notifier(enum lsm_event event, void *data)
++{
++	return 0;
++}
++
++static inline int register_lsm_notifier(struct notifier_block *nb)
++{
++	return 0;
++}
++
++static inline  int unregister_lsm_notifier(struct notifier_block *nb)
++{
++	return 0;
++}
++
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+ }
+diff --git a/security/security.c b/security/security.c
+index a142a0b..6eef315 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -35,6 +35,8 @@
+ #define SECURITY_NAME_MAX	10
+ 
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
++static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
++
+ char *lsm_names;
+ /* Boot-time LSM user choice */
+ static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
+@@ -162,6 +164,24 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+ 		panic("%s - Cannot get early memory.\n", __func__);
+ }
+ 
++int call_lsm_notifier(enum lsm_event event, void *data)
++{
++	return atomic_notifier_call_chain(&lsm_notifier_chain, event, data);
++}
++EXPORT_SYMBOL(call_lsm_notifier);
++
++int register_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_register(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(register_lsm_notifier);
++
++int unregister_lsm_notifier(struct notifier_block *nb)
++{
++	return atomic_notifier_chain_unregister(&lsm_notifier_chain, nb);
++}
++EXPORT_SYMBOL(unregister_lsm_notifier);
++
+ /*
+  * Hook list operation macros.
+  *
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e298000..bc77c56 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -171,6 +171,14 @@ static int selinux_netcache_avc_callback(u32 event)
+ 	return 0;
+ }
+ 
++static int selinux_lsm_notifier_avc_callback(u32 event)
++{
++	if (event == AVC_CALLBACK_RESET)
++		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
 +
 +	return 0;
 +}
 +
-+subsys_initcall(sel_ib_pkey_init);
-diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
-new file mode 100644
-index 0000000..b17a19e
---- /dev/null
-+++ b/security/selinux/include/ibpkey.h
-@@ -0,0 +1,31 @@
-+/*
-+ * pkey table
-+ *
-+ * SELinux must keep a mapping of pkeys to labels/SIDs.  This
-+ * mapping is maintained as part of the normal policy but a fast cache is
-+ * needed to reduce the lookup overhead.
-+ *
-+ */
-+
-+/*
-+ * (c) Mellanox Technologies, 2016
-+ *
-+ * This program is free software: you can redistribute it and/or modify
-+ * it under the terms of version 2 of the GNU General Public License as
-+ * published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+
-+#ifndef _SELINUX_IB_PKEY_H
-+#define _SELINUX_IB_PKEY_H
-+
-+void sel_ib_pkey_flush(void);
-+
-+int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
-+
-+#endif
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index b7f15f7..6ebc61e 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -144,6 +144,12 @@ struct ib_security_struct {
- 	u32 sid;        /* SID of the queue pair or MAD agent */
- };
+ /*
+  * initialise the security for the init task
+  */
+@@ -6399,6 +6407,9 @@ static __init int selinux_init(void)
+ 	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
+ 		panic("SELinux: Unable to register AVC netcache callback\n");
  
-+struct pkey_security_struct {
-+	u64	subnet_prefix; /* Port subnet prefix */
-+	u16	pkey;	/* PKey number */
-+	u32	sid;	/* SID of pkey */
-+};
++	if (avc_add_callback(selinux_lsm_notifier_avc_callback, AVC_CALLBACK_RESET))
++		panic("SELinux: Unable to register AVC LSM notifier callback\n");
 +
- extern unsigned int selinux_checkreqprot;
- 
- #endif /* _SELINUX_OBJSEC_H_ */
+ 	if (selinux_enforcing)
+ 		printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+ 	else
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index ce71718..c8467dd 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -163,6 +163,8 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 			avc_ss_reset(0);
+ 		selnl_notify_setenforce(selinux_enforcing);
+ 		selinux_status_update_setenforce(selinux_enforcing);
++		if (!selinux_enforcing)
++			call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
+ 	}
+ 	length = count;
+ out:
 -- 
 2.7.4
