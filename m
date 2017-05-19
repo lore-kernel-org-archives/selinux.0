@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JJDAOQ028484
- for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 15:13:11 -0400
-Received: by mail-lf0-f67.google.com with SMTP id 99so785901lfu.2
- for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 12:13:08 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JJLiU2031379
+ for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 15:21:44 -0400
+Received: by mail-lf0-f68.google.com with SMTP id q24so804511lfb.1
+ for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 12:21:42 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1495198139-69993-3-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1495198139-69993-5-git-send-email-danielj@mellanox.com>
 References: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
- <1495198139-69993-3-git-send-email-danielj@mellanox.com>
+ <1495198139-69993-5-git-send-email-danielj@mellanox.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 19 May 2017 15:13:06 -0400
-Message-ID: <CAHC9VhQw79kMRoXQ-tkk41cUaYZywxYfBpYtHhyzfpZJLZsMYA@mail.gmail.com>
-Subject: Re: [PATCH v7 2/9] IB/core: Enforce PKey security on QPs
+Date: Fri, 19 May 2017 15:21:40 -0400
+Message-ID: <CAHC9VhSqarh9TepvumkQxcS51bvtm_bH+gWpSeiR-XG83JbT-w@mail.gmail.com>
+Subject: Re: [PATCH v7 4/9] IB/core: Enforce security on management datagrams
 To: Dan Jurgens <danielj@mellanox.com>
 Cc: chrisw@sous-sol.org, Stephen Smalley <sds@tycho.nsa.gov>,
  Eric Paris <eparis@parisplace.org>, dledford@redhat.com,
@@ -26,73 +26,82 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 On Fri, May 19, 2017 at 8:48 AM, Dan Jurgens <danielj@mellanox.com> wrote:
 > From: Daniel Jurgens <danielj@mellanox.com>
 >
-> Add new LSM hooks to allocate and free security contexts and check for
-> permission to access a PKey.
+> Allocate and free a security context when creating and destroying a MAD
+> agent.  This context is used for controlling access to PKeys and sending
+> and receiving SMPs.
+>
+> When sending or receiving a MAD check that the agent has permission to
+> access the PKey for the Subnet Prefix of the port.
+>
+> During MAD and snoop agent registration for SMI QPs check that the
+> calling process has permission to access the manage the subnet  and
+> register a callback with the LSM to be notified of policy changes. When
+> notificaiton of a policy change occurs recheck permission and set a flag
+> indicating sending and receiving SMPs is allowed.
+>
+> When sending and receiving MADs check that the agent has access to the
+> SMI if it's on an SMI QP.  Because security policy can change it's
+> possible permission was allowed when creating the agent, but no longer
+> is.
+>
+> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>
+> ---
+> v2:
+> - Squashed LSM hook additions. Paul Moore
+> - Changed security blobs to void*. Paul Moore
+> - Shorten end_port to port. Paul Moore
+> - Change "smp" to "manage_subnet". Paul Moore
+> - Use the LSM policy change notification and a flag to track permission
+>   instead of calling the LSM hook for every SMP. Dan Jurgens
+> - Squashed PKey and SMP enforcement into the same patch and moved the
+>   logic into security.c. Dan Jurgens
+>
+> v3:
+> - ib_port -> ib_endport. Paul Moore
+> - Use notifier chains for LSM notification. Paul Moore
+> - Reorder LSM hook parameters to put sec first. Paul Moore
+>
+>  drivers/infiniband/core/core_priv.h | 35 ++++++++++++++
+>  drivers/infiniband/core/mad.c       | 52 +++++++++++++++++----
+>  drivers/infiniband/core/security.c  | 92 +++++++++++++++++++++++++++++++++++++
+>  include/linux/lsm_hooks.h           |  8 ++++
+>  include/linux/security.h            |  6 +++
+>  include/rdma/ib_mad.h               |  4 ++
+>  security/security.c                 |  8 ++++
+>  7 files changed, 197 insertions(+), 8 deletions(-)
 
 ...
 
 > diff --git a/security/security.c b/security/security.c
-> index 54b1e39..a142a0b 100644
+> index 6eef315..b69fe6f 100644
 > --- a/security/security.c
 > +++ b/security/security.c
-> @@ -4,6 +4,7 @@
->   * Copyright (C) 2001 WireX Communications, Inc <chris@wirex.com>
->   * Copyright (C) 2001-2002 Greg Kroah-Hartman <greg@kroah.com>
->   * Copyright (C) 2001 Networks Associates Technology, Inc <ssmalley@nai.com>
-> + * Copyright (C) 2016 Mellanox Technologies
->   *
->   *     This program is free software; you can redistribute it and/or modify
->   *     it under the terms of the GNU General Public License as published by
-> @@ -1511,6 +1512,27 @@ EXPORT_SYMBOL(security_tun_dev_open);
->
->  #endif /* CONFIG_SECURITY_NETWORK */
->
-> +#ifdef CONFIG_SECURITY_INFINIBAND
-> +
-> +int security_ib_pkey_access(void *sec, u64 subnet_prefix, u16 pkey)
-> +{
-> +       return call_int_hook(ib_pkey_access, 0, sec, subnet_prefix, pkey);
-> +}
-> +EXPORT_SYMBOL(security_ib_pkey_access);
-> +
-> +int security_ib_alloc_security(void **sec)
-> +{
-> +       return call_int_hook(ib_alloc_security, 0, sec);
-> +}
-> +EXPORT_SYMBOL(security_ib_alloc_security);
-> +
-> +void security_ib_free_security(void *sec)
-> +{
-> +       call_void_hook(ib_free_security, sec);
-> +}
-> +EXPORT_SYMBOL(security_ib_free_security);
-> +#endif /* CONFIG_SECURITY_INFINIBAND */
-> +
->  #ifdef CONFIG_SECURITY_NETWORK_XFRM
->
->  int security_xfrm_policy_alloc(struct xfrm_sec_ctx **ctxp,
-> @@ -1658,3 +1680,366 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
->                                 actx);
+> @@ -1540,6 +1540,12 @@ int security_ib_pkey_access(void *sec, u64 subnet_prefix, u16 pkey)
 >  }
->  #endif /* CONFIG_AUDIT */
+>  EXPORT_SYMBOL(security_ib_pkey_access);
+>
+> +int security_ib_endport_manage_subnet(void *sec, const char *dev_name, u8 port_num)
+> +{
+> +       return call_int_hook(ib_endport_manage_subnet, 0, sec, dev_name, port_num);
+> +}
+> +EXPORT_SYMBOL(security_ib_endport_manage_subnet);
 > +
-> +struct security_hook_heads security_hook_heads __lsm_ro_after_init = {
-> +       .binder_set_context_mgr =
-> +               LIST_HEAD_INIT(security_hook_heads.binder_set_context_mgr),
-> +       .binder_transaction =
-> +               LIST_HEAD_INIT(security_hook_heads.binder_transaction),
-> +       .binder_transfer_binder =
-> +               LIST_HEAD_INIT(security_hook_heads.binder_transfer_binder),
-> +       .binder_transfer_file =
-> +               LIST_HEAD_INIT(security_hook_heads.binder_transfer_file),
+>  int security_ib_alloc_security(void **sec)
+>  {
+>         return call_int_hook(ib_alloc_security, 0, sec);
+> @@ -2014,6 +2020,8 @@ struct security_hook_heads security_hook_heads __lsm_ro_after_init = {
+>
+>  #ifdef CONFIG_SECURITY_INFINIBAND
+>         .ib_pkey_access = LIST_HEAD_INIT(security_hook_heads.ib_pkey_access),
+> +       .ib_endport_manage_subnet =
+> +               LIST_HEAD_INIT(security_hook_heads.ib_endport_manage_subnet),
+>         .ib_alloc_security =
+>                 LIST_HEAD_INIT(security_hook_heads.ib_alloc_security),
+>         .ib_free_security =
 
-FYI, the security_hook_heads initialization was recently removed in
-3dfc9b02864b ("LSM: Initialize security_hook_heads upon
-registration."), you don't need this code in your patch anymore.
-
-In the interest of moving things along I'm going to drop this block
-from the patch (it's trivial), but please make note in case a respin
-is needed.
+The same problem as 2/9 regarding the LSM hook code.  I'll also drop
+this block, but update your patch in case you need to respin.
 
 -- 
 paul moore
