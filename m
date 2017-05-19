@@ -1,214 +1,107 @@
-Subject: Re: [PATCH 3/3] libsemanage: replace access(, F_OK) checks to make
- setuid programs work
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <1488219577.19819.19.camel@tycho.nsa.gov>
- <20170505124947.21392-1-vmojzis@redhat.com>
- <20170505124947.21392-4-vmojzis@redhat.com>
- <1494016356.5745.27.camel@tycho.nsa.gov>
-From: Vit Mojzis <vmojzis@redhat.com>
-Message-ID: <8db18f54-14e7-f51f-ec3c-0eaefa6c8bee@redhat.com>
-Date: Fri, 19 May 2017 14:22:28 +0200
-MIME-Version: 1.0
-In-Reply-To: <1494016356.5745.27.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JCnaiO005883
+ for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 08:49:37 -0400
+From: Dan Jurgens <danielj@mellanox.com>
+To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
+ eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
+ hal.rosenstock@gmail.com
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
+ Daniel Jurgens <danielj@mellanox.com>
+Subject: [PATCH v7 1/9] IB/core: IB cache enhancements to support Infiniband
+ security
+Date: Fri, 19 May 2017 15:48:51 +0300
+Message-Id: <1495198139-69993-2-git-send-email-danielj@mellanox.com>
+In-Reply-To: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
+References: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+From: Daniel Jurgens <danielj@mellanox.com>
 
-On 5.5.2017 22:32, Stephen Smalley wrote:
-> On Fri, 2017-05-05 at 14:49 +0200, Vit Mojzis wrote:
->> access() uses real UID instead of effective UID which causes false
->> negative checks in setuid programs.
->> Replace access(,F_OK) (i.e. tests for file existence) by stat().
->>
->> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
->>
->> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->> ---
->>   libsemanage/src/direct_api.c | 36 +++++++++++++++++++++-------------
->> --
->>   1 file changed, 21 insertions(+), 15 deletions(-)
->>
->> diff --git a/libsemanage/src/direct_api.c
->> b/libsemanage/src/direct_api.c
->> index 508277d..35ca1b0 100644
->> --- a/libsemanage/src/direct_api.c
->> +++ b/libsemanage/src/direct_api.c
->> @@ -272,7 +272,9 @@ int semanage_direct_connect(semanage_handle_t *
->> sh)
->>   
->>   	/* set the disable dontaudit value */
->>   	path = semanage_path(SEMANAGE_ACTIVE,
->> SEMANAGE_DISABLE_DONTAUDIT);
->> -	if (access(path, F_OK) == 0)
->> +
->> +	struct stat sb;
->> +	if (stat(path, &sb) == 0)
-> Need to check errno as well to ensure that it is just ENOENT when
-> stat() returns non-zero; anything else is an error.
-Thank you for the feedback. I was trying to keep behavioral changes to a 
-minimum. In case "access" call failed (it can encounter all the errors 
-that "stat" can except for EOVERFLOW) the code assumed that the file 
-doesn't exist and this patch preserves said behavior.
-But if you think think that the calling function should fail instead, I 
-can rework the patch.
->
-> stat() can produce a SELinux getattr denial, whereas access(F_OK)
-> doesn't perform any SELinux check beyond directory search access.
-That is a fair point and I don't have a solution for it. However in my 
-understanding the calling process should have the "getattr" access 
-permission (and it should even be able to create the file in most cases).
->
->>   		sepol_set_disable_dontaudit(sh->sepolh, 1);
->>   	else
->>   		sepol_set_disable_dontaudit(sh->sepolh, 0);
->> @@ -1101,8 +1103,9 @@ static int
->> semanage_compile_hll_modules(semanage_handle_t *sh,
->>   			goto cleanup;
->>   		}
->>   
->> +		struct stat sb;
->>   		if (semanage_get_ignore_module_cache(sh) == 0 &&
->> -				access(cil_path, F_OK) == 0) {
->> +				stat(cil_path, &sb) == 0) {
->>   			continue;
->>   		}
->>   
->> @@ -1165,7 +1168,8 @@ static int
->> semanage_direct_commit(semanage_handle_t * sh)
->>   
->>   	/* Create or remove the disable_dontaudit flag file. */
->>   	path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_DISABLE_DONTAUDIT);
->> -	if (access(path, F_OK) == 0)
->> +	struct stat sb;
->> +	if (stat(path, &sb) == 0)
->>   		do_rebuild |= !(sepol_get_disable_dontaudit(sh-
->>> sepolh) == 1);
->>   	else
->>   		do_rebuild |= (sepol_get_disable_dontaudit(sh-
->>> sepolh) == 1);
->> @@ -1190,7 +1194,7 @@ static int
->> semanage_direct_commit(semanage_handle_t * sh)
->>   
->>   	/* Create or remove the preserve_tunables flag file. */
->>   	path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_PRESERVE_TUNABLES);
->> -	if (access(path, F_OK) == 0)
->> +	if (stat(path, &sb) == 0)
->>   		do_rebuild |= !(sepol_get_preserve_tunables(sh-
->>> sepolh) == 1);
->>   	else
->>   		do_rebuild |= (sepol_get_preserve_tunables(sh-
->>> sepolh) == 1);
->> @@ -1231,37 +1235,37 @@ static int
->> semanage_direct_commit(semanage_handle_t * sh)
->>   	 */
->>   	if (!do_rebuild) {
->>   		path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_STORE_KERNEL);
->> -		if (access(path, F_OK) != 0) {
->> +		if (stat(path, &sb) != 0) {
->>   			do_rebuild = 1;
->>   			goto rebuild;
->>   		}
->>   
->>   		path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_STORE_FC);
->> -		if (access(path, F_OK) != 0) {
->> +		if (stat(path, &sb) != 0) {
->>   			do_rebuild = 1;
->>   			goto rebuild;
->>   		}
->>   
->>   		path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_STORE_SEUSERS);
->> -		if (access(path, F_OK) != 0) {
->> +		if (stat(path, &sb) != 0) {
->>   			do_rebuild = 1;
->>   			goto rebuild;
->>   		}
->>   
->>   		path = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
->> -		if (access(path, F_OK) != 0) {
->> +		if (stat(path, &sb) != 0) {
->>   			do_rebuild = 1;
->>   			goto rebuild;
->>   		}
->>   
->>   		path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_SEUSERS_LINKED);
->> -		if (access(path, F_OK) != 0) {
->> +		if (stat(path, &sb) != 0) {
->>   			do_rebuild = 1;
->>   			goto rebuild;
->>   		}
->>   
->>   		path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_USERS_EXTRA_LINKED);
->> -		if (access(path, F_OK) != 0) {
->> +		if (stat(path, &sb) != 0) {
->>   			do_rebuild = 1;
->>   			goto rebuild;
->>   		}
->> @@ -1395,7 +1399,7 @@ rebuild:
->>   			goto cleanup;
->>   
->>   		path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_SEUSERS_LINKED);
->> -		if (access(path, F_OK) == 0) {
->> +		if (stat(path, &sb) == 0) {
->>   			retval = semanage_copy_file(path,
->>   						    semanage_path(SE
->> MANAGE_TMP,
->>   								  SE
->> MANAGE_STORE_SEUSERS),
->> @@ -1408,7 +1412,7 @@ rebuild:
->>   		}
->>   
->>   		path = semanage_path(SEMANAGE_TMP,
->> SEMANAGE_USERS_EXTRA_LINKED);
->> -		if (access(path, F_OK) == 0) {
->> +		if (stat(path, &sb) == 0) {
->>   			retval = semanage_copy_file(path,
->>   						    semanage_path(SE
->> MANAGE_TMP,
->>   								  SE
->> MANAGE_USERS_EXTRA),
->> @@ -1732,7 +1736,8 @@ static int
->> semanage_direct_extract(semanage_handle_t * sh,
->>   		goto cleanup;
->>   	}
->>   
->> -	if (access(module_path, F_OK) != 0) {
->> +	struct stat sb;
->> +	if (stat(module_path, &sb) != 0) {
->>   		ERR(sh, "Module does not exist: %s", module_path);
->>   		rc = -1;
->>   		goto cleanup;
->> @@ -1762,7 +1767,7 @@ static int
->> semanage_direct_extract(semanage_handle_t * sh,
->>   		goto cleanup;
->>   	}
->>   
->> -	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") &&
->> access(input_file, F_OK) != 0) {
->> +	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") &&
->> stat(input_file, &sb) != 0) {
->>   		rc = semanage_compile_module(sh, _modinfo);
->>   		if (rc < 0) {
->>   			goto cleanup;
->> @@ -2737,7 +2742,8 @@ static int
->> semanage_direct_install_info(semanage_handle_t *sh,
->>   			goto cleanup;
->>   		}
->>   
->> -		if (access(path, F_OK) == 0) {
->> +		struct stat sb;
->> +		if (stat(path, &sb) == 0) {
->>   			ret = unlink(path);
->>   			if (ret != 0) {
->>   				ERR(sh, "Error while removing cached
->> CIL file %s: %s", path, strerror(errno));
+Cache the subnet prefix and add a function to access it. Enforcing
+security requires frequent queries of the subnet prefix and the pkeys in
+the pkey table.
+
+Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Eli Cohen <eli@mellanox.com>
+Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
+
+---
+v2:
+- In ib_get_cached_subnet_prefix wait to initialize p until after
+  validation.  Yuval Shaia
+
+ drivers/infiniband/core/cache.c     | 22 ++++++++++++++++++++++
+ drivers/infiniband/core/core_priv.h |  3 +++
+ include/rdma/ib_verbs.h             |  1 +
+ 3 files changed, 26 insertions(+)
+
+diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
+index b1371eb..b9c0066 100644
+--- a/drivers/infiniband/core/cache.c
++++ b/drivers/infiniband/core/cache.c
+@@ -911,6 +911,26 @@ int ib_get_cached_pkey(struct ib_device *device,
+ }
+ EXPORT_SYMBOL(ib_get_cached_pkey);
+ 
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx)
++{
++	unsigned long flags;
++	int p;
++
++	if (port_num < rdma_start_port(device) ||
++	    port_num > rdma_end_port(device))
++		return -EINVAL;
++
++	p = port_num - rdma_start_port(device);
++	read_lock_irqsave(&device->cache.lock, flags);
++	*sn_pfx = device->cache.ports[p].subnet_prefix;
++	read_unlock_irqrestore(&device->cache.lock, flags);
++
++	return 0;
++}
++EXPORT_SYMBOL(ib_get_cached_subnet_prefix);
++
+ int ib_find_cached_pkey(struct ib_device *device,
+ 			u8                port_num,
+ 			u16               pkey,
+@@ -1108,6 +1128,8 @@ static void ib_cache_update(struct ib_device *device,
+ 	device->cache.ports[port - rdma_start_port(device)].port_state =
+ 		tprops->state;
+ 
++	device->cache.ports[port - rdma_start_port(device)].subnet_prefix =
++							tprops->subnet_prefix;
+ 	write_unlock_irq(&device->cache.lock);
+ 
+ 	kfree(gid_cache);
+diff --git a/drivers/infiniband/core/core_priv.h b/drivers/infiniband/core/core_priv.h
+index cb7d372..249e3ed 100644
+--- a/drivers/infiniband/core/core_priv.h
++++ b/drivers/infiniband/core/core_priv.h
+@@ -176,4 +176,7 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
+ int ib_nl_handle_ip_res_resp(struct sk_buff *skb,
+ 			     struct netlink_callback *cb);
+ 
++int ib_get_cached_subnet_prefix(struct ib_device *device,
++				u8                port_num,
++				u64              *sn_pfx);
+ #endif /* _CORE_PRIV_H */
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index 99e4423..23486d3 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -1841,6 +1841,7 @@ enum ib_mad_result {
+ #define IB_DEVICE_NAME_MAX 64
+ 
+ struct ib_port_cache {
++	u64		      subnet_prefix;
+ 	struct ib_pkey_cache  *pkey;
+ 	struct ib_gid_table   *gid;
+ 	u8                     lmc;
+-- 
+2.7.4
