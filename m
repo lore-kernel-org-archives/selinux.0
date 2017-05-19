@@ -1,238 +1,256 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JCu7AS009462
- for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 08:56:18 -0400
-From: Dan Jurgens <danielj@mellanox.com>
-To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
- eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
- hal.rosenstock@gmail.com
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
- Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH v7 8/9] selinux: Add IB Port SMP access vector
-Date: Fri, 19 May 2017 15:48:58 +0300
-Message-Id: <1495198139-69993-9-git-send-email-danielj@mellanox.com>
-In-Reply-To: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
-References: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
+Message-ID: <1495202170.2209.3.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 3/3] libsemanage: replace access(, F_OK) checks to make
+ setuid programs work
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+Date: Fri, 19 May 2017 09:56:10 -0400
+In-Reply-To: <8db18f54-14e7-f51f-ec3c-0eaefa6c8bee@redhat.com>
+References: <1488219577.19819.19.camel@tycho.nsa.gov>
+ <20170505124947.21392-1-vmojzis@redhat.com>
+ <20170505124947.21392-4-vmojzis@redhat.com>
+ <1494016356.5745.27.camel@tycho.nsa.gov>
+ <8db18f54-14e7-f51f-ec3c-0eaefa6c8bee@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Daniel Jurgens <danielj@mellanox.com>
+On Fri, 2017-05-19 at 14:22 +0200, Vit Mojzis wrote:
+> On 5.5.2017 22:32, Stephen Smalley wrote:
+> > On Fri, 2017-05-05 at 14:49 +0200, Vit Mojzis wrote:
+> > > access() uses real UID instead of effective UID which causes
+> > > false
+> > > negative checks in setuid programs.
+> > > Replace access(,F_OK) (i.e. tests for file existence) by stat().
+> > > 
+> > > Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
+> > > 
+> > > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> > > ---
+> > >   libsemanage/src/direct_api.c | 36 +++++++++++++++++++++------
+> > > -------
+> > > --
+> > >   1 file changed, 21 insertions(+), 15 deletions(-)
+> > > 
+> > > diff --git a/libsemanage/src/direct_api.c
+> > > b/libsemanage/src/direct_api.c
+> > > index 508277d..35ca1b0 100644
+> > > --- a/libsemanage/src/direct_api.c
+> > > +++ b/libsemanage/src/direct_api.c
+> > > @@ -272,7 +272,9 @@ int semanage_direct_connect(semanage_handle_t
+> > > *
+> > > sh)
+> > >   
+> > >   	/* set the disable dontaudit value */
+> > >   	path = semanage_path(SEMANAGE_ACTIVE,
+> > > SEMANAGE_DISABLE_DONTAUDIT);
+> > > -	if (access(path, F_OK) == 0)
+> > > +
+> > > +	struct stat sb;
+> > > +	if (stat(path, &sb) == 0)
+> > 
+> > Need to check errno as well to ensure that it is just ENOENT when
+> > stat() returns non-zero; anything else is an error.
+> 
+> Thank you for the feedback. I was trying to keep behavioral changes
+> to a 
+> minimum. In case "access" call failed (it can encounter all the
+> errors 
+> that "stat" can except for EOVERFLOW) the code assumed that the file 
+> doesn't exist and this patch preserves said behavior.
+> But if you think think that the calling function should fail instead,
+> I 
+> can rework the patch.
 
-Add a type for Infiniband ports and an access vector for subnet
-management packets. Implement the ib_port_smp hook to check that the
-caller has permission to send and receive SMPs on the end port specified
-by the device name and port. Add interface to query the SID for a IB
-port, which walks the IB_PORT ocontexts to find an entry for the
-given name and port.
+Except that use of stat() does introduce one additional potential
+failure case, i.e. SELinux getattr permission denial on the file.
+Unlikely, of course, but possible.  And since you removed the
+semanage_access_check() in the earlier patch, we are no longer checking
+that we can even read/search the active directory prior to making this
+call. So our first permission denial (on either the active directory or
+the file itself) might occur here, and we would wrongly interpret it as
+the file not existing after your change.
 
-Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+It is also more correct to explicitly test errno for ENOENT regardless,
+so we might as well fix that while we are making these changes. 
 
----
-v2:
-- Shorted ib_end_port. Paul Moore
-- Pass void blobs to security hooks. Paul Moore
-- Log specific IB port info in audit log. Paul Moore
-- Don't create a new intial sid, use unlabeled. Stephen Smalley
-- Changed "smp" to "manage_subnet". Paul Moore
+> > stat() can produce a SELinux getattr denial, whereas access(F_OK)
+> > doesn't perform any SELinux check beyond directory search access.
+> 
+> That is a fair point and I don't have a solution for it. However in
+> my 
+> understanding the calling process should have the "getattr" access 
+> permission (and it should even be able to create the file in most
+> cases).
 
-v3:
-- ib_port -> ib_endport. Paul Moore
-- Don't log device name as untrusted string. Paul Moore
-- Reorder parameters of LSM hook. Paul Moore
+Yes, I'm not concerned about needing getattr permission itself; I just
+want to ensure that we correctly handle it when it is denied.
 
-v6:
-- Remove brakets around single statement else. James Morris
-
-v7:
-- Synch ocontext names with userspace.  Also change lsm_audit_data names
-  to the same style.  Stephen Smalley
-
- include/linux/lsm_audit.h           |  8 ++++++++
- security/lsm_audit.c                |  5 +++++
- security/selinux/hooks.c            | 25 ++++++++++++++++++++++
- security/selinux/include/classmap.h |  2 ++
- security/selinux/include/security.h |  2 ++
- security/selinux/ss/services.c      | 41 +++++++++++++++++++++++++++++++++++++
- 6 files changed, 83 insertions(+)
-
-diff --git a/include/linux/lsm_audit.h b/include/linux/lsm_audit.h
-index 0df5639..22b5d4e 100644
---- a/include/linux/lsm_audit.h
-+++ b/include/linux/lsm_audit.h
-@@ -21,6 +21,7 @@
- #include <linux/path.h>
- #include <linux/key.h>
- #include <linux/skbuff.h>
-+#include <rdma/ib_verbs.h>
- 
- struct lsm_network_audit {
- 	int netif;
-@@ -50,6 +51,11 @@ struct lsm_ibpkey_audit {
- 	u16	pkey;
- };
- 
-+struct lsm_ibendport_audit {
-+	char	dev_name[IB_DEVICE_NAME_MAX];
-+	u8	port;
-+};
-+
- /* Auxiliary data to use in generating the audit record. */
- struct common_audit_data {
- 	char type;
-@@ -66,6 +72,7 @@ struct common_audit_data {
- #define LSM_AUDIT_DATA_IOCTL_OP	11
- #define LSM_AUDIT_DATA_FILE	12
- #define LSM_AUDIT_DATA_IBPKEY	13
-+#define LSM_AUDIT_DATA_IBENDPORT 14
- 	union 	{
- 		struct path path;
- 		struct dentry *dentry;
-@@ -84,6 +91,7 @@ struct common_audit_data {
- 		struct lsm_ioctlop_audit *op;
- 		struct file *file;
- 		struct lsm_ibpkey_audit *ibpkey;
-+		struct lsm_ibendport_audit *ibendport;
- 	} u;
- 	/* this union contains LSM specific data */
- 	union {
-diff --git a/security/lsm_audit.c b/security/lsm_audit.c
-index c22c99f..28d4c3a 100644
---- a/security/lsm_audit.c
-+++ b/security/lsm_audit.c
-@@ -421,6 +421,11 @@ static void dump_common_audit_data(struct audit_buffer *ab,
- 				 a->u.ibpkey->pkey, &sbn_pfx);
- 		break;
- 	}
-+	case LSM_AUDIT_DATA_IBENDPORT:
-+		audit_log_format(ab, " device=%s port_num=%u",
-+				 a->u.ibendport->dev_name,
-+				 a->u.ibendport->port);
-+		break;
- 	} /* switch (a->type) */
- }
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index b8add3a..da5fffe 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6181,6 +6181,29 @@ static int selinux_ib_pkey_access(void *ib_sec, u64 subnet_prefix, u16 pkey_val)
- 			    INFINIBAND_PKEY__ACCESS, &ad);
- }
- 
-+static int selinux_ib_endport_manage_subnet(void *ib_sec, const char *dev_name,
-+					    u8 port_num)
-+{
-+	struct common_audit_data ad;
-+	int err;
-+	u32 sid = 0;
-+	struct ib_security_struct *sec = ib_sec;
-+	struct lsm_ibendport_audit ibendport;
-+
-+	err = security_ib_endport_sid(dev_name, port_num, &sid);
-+
-+	if (err)
-+		return err;
-+
-+	ad.type = LSM_AUDIT_DATA_IBENDPORT;
-+	strncpy(ibendport.dev_name, dev_name, sizeof(ibendport.dev_name));
-+	ibendport.port = port_num;
-+	ad.u.ibendport = &ibendport;
-+	return avc_has_perm(sec->sid, sid,
-+			    SECCLASS_INFINIBAND_ENDPORT,
-+			    INFINIBAND_ENDPORT__MANAGE_SUBNET, &ad);
-+}
-+
- static int selinux_ib_alloc_security(void **ib_sec)
- {
- 	struct ib_security_struct *sec;
-@@ -6386,6 +6409,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
- #ifdef CONFIG_SECURITY_INFINIBAND
- 	LSM_HOOK_INIT(ib_pkey_access, selinux_ib_pkey_access),
-+	LSM_HOOK_INIT(ib_endport_manage_subnet,
-+		      selinux_ib_endport_manage_subnet),
- 	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
- 	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
- #endif
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 0fec1c5..b9fe343 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -233,6 +233,8 @@ struct security_class_mapping secclass_map[] = {
- 	  { COMMON_SOCK_PERMS, NULL } },
- 	{ "infiniband_pkey",
- 	  { "access", NULL } },
-+	{ "infiniband_endport",
-+	  { "manage_subnet", NULL } },
- 	{ NULL }
-   };
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index b04b438..622470c 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -181,6 +181,8 @@ int security_port_sid(u8 protocol, u16 port, u32 *out_sid);
- 
- int security_ib_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid);
- 
-+int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_sid);
-+
- int security_netif_sid(char *name, u32 *if_sid);
- 
- int security_node_sid(u16 domain, void *addr, u32 addrlen,
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 7c86b86..dbaa3d0 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2250,6 +2250,47 @@ int security_ib_pkey_sid(u64 subnet_prefix, u16 pkey_num, u32 *out_sid)
- }
- 
- /**
-+ * security_ib_endport_sid - Obtain the SID for a subnet management interface.
-+ * @dev_name: device name
-+ * @port: port number
-+ * @out_sid: security identifier
-+ */
-+int security_ib_endport_sid(const char *dev_name, u8 port_num, u32 *out_sid)
-+{
-+	struct ocontext *c;
-+	int rc = 0;
-+
-+	read_lock(&policy_rwlock);
-+
-+	c = policydb.ocontexts[OCON_IBENDPORT];
-+	while (c) {
-+		if (c->u.ibendport.port == port_num &&
-+		    !strncmp(c->u.ibendport.dev_name,
-+			     dev_name,
-+			     IB_DEVICE_NAME_MAX))
-+			break;
-+
-+		c = c->next;
-+	}
-+
-+	if (c) {
-+		if (!c->sid[0]) {
-+			rc = sidtab_context_to_sid(&sidtab,
-+						   &c->context[0],
-+						   &c->sid[0]);
-+			if (rc)
-+				goto out;
-+		}
-+		*out_sid = c->sid[0];
-+	} else
-+		*out_sid = SECINITSID_UNLABELED;
-+
-+out:
-+	read_unlock(&policy_rwlock);
-+	return rc;
-+}
-+
-+/**
-  * security_netif_sid - Obtain the SID for a network interface.
-  * @name: interface name
-  * @if_sid: interface SID
--- 
-2.7.4
+> > 
+> > >   		sepol_set_disable_dontaudit(sh->sepolh, 1);
+> > >   	else
+> > >   		sepol_set_disable_dontaudit(sh->sepolh, 0);
+> > > @@ -1101,8 +1103,9 @@ static int
+> > > semanage_compile_hll_modules(semanage_handle_t *sh,
+> > >   			goto cleanup;
+> > >   		}
+> > >   
+> > > +		struct stat sb;
+> > >   		if (semanage_get_ignore_module_cache(sh) == 0
+> > > &&
+> > > -				access(cil_path, F_OK) == 0) {
+> > > +				stat(cil_path, &sb) == 0) {
+> > >   			continue;
+> > >   		}
+> > >   
+> > > @@ -1165,7 +1168,8 @@ static int
+> > > semanage_direct_commit(semanage_handle_t * sh)
+> > >   
+> > >   	/* Create or remove the disable_dontaudit flag file. */
+> > >   	path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_DISABLE_DONTAUDIT);
+> > > -	if (access(path, F_OK) == 0)
+> > > +	struct stat sb;
+> > > +	if (stat(path, &sb) == 0)
+> > >   		do_rebuild |= !(sepol_get_disable_dontaudit(sh-
+> > > > sepolh) == 1);
+> > > 
+> > >   	else
+> > >   		do_rebuild |= (sepol_get_disable_dontaudit(sh-
+> > > > sepolh) == 1);
+> > > 
+> > > @@ -1190,7 +1194,7 @@ static int
+> > > semanage_direct_commit(semanage_handle_t * sh)
+> > >   
+> > >   	/* Create or remove the preserve_tunables flag file. */
+> > >   	path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_PRESERVE_TUNABLES);
+> > > -	if (access(path, F_OK) == 0)
+> > > +	if (stat(path, &sb) == 0)
+> > >   		do_rebuild |= !(sepol_get_preserve_tunables(sh-
+> > > > sepolh) == 1);
+> > > 
+> > >   	else
+> > >   		do_rebuild |= (sepol_get_preserve_tunables(sh-
+> > > > sepolh) == 1);
+> > > 
+> > > @@ -1231,37 +1235,37 @@ static int
+> > > semanage_direct_commit(semanage_handle_t * sh)
+> > >   	 */
+> > >   	if (!do_rebuild) {
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_STORE_KERNEL);
+> > > -		if (access(path, F_OK) != 0) {
+> > > +		if (stat(path, &sb) != 0) {
+> > >   			do_rebuild = 1;
+> > >   			goto rebuild;
+> > >   		}
+> > >   
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_STORE_FC);
+> > > -		if (access(path, F_OK) != 0) {
+> > > +		if (stat(path, &sb) != 0) {
+> > >   			do_rebuild = 1;
+> > >   			goto rebuild;
+> > >   		}
+> > >   
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_STORE_SEUSERS);
+> > > -		if (access(path, F_OK) != 0) {
+> > > +		if (stat(path, &sb) != 0) {
+> > >   			do_rebuild = 1;
+> > >   			goto rebuild;
+> > >   		}
+> > >   
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_LINKED);
+> > > -		if (access(path, F_OK) != 0) {
+> > > +		if (stat(path, &sb) != 0) {
+> > >   			do_rebuild = 1;
+> > >   			goto rebuild;
+> > >   		}
+> > >   
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_SEUSERS_LINKED);
+> > > -		if (access(path, F_OK) != 0) {
+> > > +		if (stat(path, &sb) != 0) {
+> > >   			do_rebuild = 1;
+> > >   			goto rebuild;
+> > >   		}
+> > >   
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_USERS_EXTRA_LINKED);
+> > > -		if (access(path, F_OK) != 0) {
+> > > +		if (stat(path, &sb) != 0) {
+> > >   			do_rebuild = 1;
+> > >   			goto rebuild;
+> > >   		}
+> > > @@ -1395,7 +1399,7 @@ rebuild:
+> > >   			goto cleanup;
+> > >   
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_SEUSERS_LINKED);
+> > > -		if (access(path, F_OK) == 0) {
+> > > +		if (stat(path, &sb) == 0) {
+> > >   			retval = semanage_copy_file(path,
+> > >   						    semanage_pa
+> > > th(SE
+> > > MANAGE_TMP,
+> > >   								
+> > >   SE
+> > > MANAGE_STORE_SEUSERS),
+> > > @@ -1408,7 +1412,7 @@ rebuild:
+> > >   		}
+> > >   
+> > >   		path = semanage_path(SEMANAGE_TMP,
+> > > SEMANAGE_USERS_EXTRA_LINKED);
+> > > -		if (access(path, F_OK) == 0) {
+> > > +		if (stat(path, &sb) == 0) {
+> > >   			retval = semanage_copy_file(path,
+> > >   						    semanage_pa
+> > > th(SE
+> > > MANAGE_TMP,
+> > >   								
+> > >   SE
+> > > MANAGE_USERS_EXTRA),
+> > > @@ -1732,7 +1736,8 @@ static int
+> > > semanage_direct_extract(semanage_handle_t * sh,
+> > >   		goto cleanup;
+> > >   	}
+> > >   
+> > > -	if (access(module_path, F_OK) != 0) {
+> > > +	struct stat sb;
+> > > +	if (stat(module_path, &sb) != 0) {
+> > >   		ERR(sh, "Module does not exist: %s",
+> > > module_path);
+> > >   		rc = -1;
+> > >   		goto cleanup;
+> > > @@ -1762,7 +1767,7 @@ static int
+> > > semanage_direct_extract(semanage_handle_t * sh,
+> > >   		goto cleanup;
+> > >   	}
+> > >   
+> > > -	if (extract_cil == 1 && strcmp(_modinfo->lang_ext,
+> > > "cil") &&
+> > > access(input_file, F_OK) != 0) {
+> > > +	if (extract_cil == 1 && strcmp(_modinfo->lang_ext,
+> > > "cil") &&
+> > > stat(input_file, &sb) != 0) {
+> > >   		rc = semanage_compile_module(sh, _modinfo);
+> > >   		if (rc < 0) {
+> > >   			goto cleanup;
+> > > @@ -2737,7 +2742,8 @@ static int
+> > > semanage_direct_install_info(semanage_handle_t *sh,
+> > >   			goto cleanup;
+> > >   		}
+> > >   
+> > > -		if (access(path, F_OK) == 0) {
+> > > +		struct stat sb;
+> > > +		if (stat(path, &sb) == 0) {
+> > >   			ret = unlink(path);
+> > >   			if (ret != 0) {
+> > >   				ERR(sh, "Error while removing
+> > > cached
+> > > CIL file %s: %s", path, strerror(errno));
