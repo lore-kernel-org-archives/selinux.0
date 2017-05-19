@@ -1,51 +1,104 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4KACAcp029614
- for <selinux@tycho.nsa.gov>; Sat, 20 May 2017 06:12:11 -0400
-Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
- [77.133.206.32])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 3AB61561352
- for <selinux@tycho.nsa.gov>; Sat, 20 May 2017 12:12:09 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] libsepol: use the number of elements in calloc first
- argument
-Date: Sat, 20 May 2017 12:11:41 +0200
-Message-Id: <20170520101141.6207-2-nicolas.iooss@m4x.org>
-In-Reply-To: <20170520101141.6207-1-nicolas.iooss@m4x.org>
-References: <20170520101141.6207-1-nicolas.iooss@m4x.org>
+From: Daniel Jurgens <danielj@mellanox.com>
+To: Paul Moore <paul@paul-moore.com>
+CC: "chrisw@sous-sol.org" <chrisw@sous-sol.org>, Stephen Smalley
+ <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ "dledford@redhat.com" <dledford@redhat.com>, "sean.hefty@intel.com"
+ <sean.hefty@intel.com>, "hal.rosenstock@gmail.com"
+ <hal.rosenstock@gmail.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-rdma@vger.kernel.org"
+ <linux-rdma@vger.kernel.org>, Yevgeny Petrilin <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v7 4/9] IB/core: Enforce security on management datagrams
+Date: Fri, 19 May 2017 23:57:05 +0000
+Message-ID: <DB5PR05MB1671BF6DE9B1EC2E66867870C4E50@DB5PR05MB1671.eurprd05.prod.outlook.com>
+References: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
+ <1495198139-69993-5-git-send-email-danielj@mellanox.com>
+ <CAHC9VhSqarh9TepvumkQxcS51bvtm_bH+gWpSeiR-XG83JbT-w@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When allocating an array with calloc(), the first argument usually is
-the number of items and the second one the size of an item. Doing so
-silences a warning reported by clang's static analyzer:
-
-    kernel_to_cil.c:2050:14: warning: Call to 'calloc' has an allocation
-    size of 0 bytes.
-            cond_data = calloc(sizeof(struct cond_data), num);
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/src/kernel_to_cil.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index 3a1c0be76f45..498e2947f6cb 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -2043,7 +2043,7 @@ static int write_cond_nodes_to_cil(FILE *out, struct policydb *pdb)
- 		num++;
- 	}
- 
--	cond_data = calloc(sizeof(struct cond_data), num);
-+	cond_data = calloc(num, sizeof(struct cond_data));
- 	if (!cond_data) {
- 		rc = -1;
- 		goto exit;
--- 
-2.12.2
+On 5/19/2017 2:21 PM, Paul Moore wrote:
+> On Fri, May 19, 2017 at 8:48 AM, Dan Jurgens <danielj@mellanox.com> wrote:
+>> From: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> Allocate and free a security context when creating and destroying a MAD
+>> agent.  This context is used for controlling access to PKeys and sending
+>> and receiving SMPs.
+>>
+>> When sending or receiving a MAD check that the agent has permission to
+>> access the PKey for the Subnet Prefix of the port.
+>>
+>> During MAD and snoop agent registration for SMI QPs check that the
+>> calling process has permission to access the manage the subnet  and
+>> register a callback with the LSM to be notified of policy changes. When
+>> notificaiton of a policy change occurs recheck permission and set a flag
+>> indicating sending and receiving SMPs is allowed.
+>>
+>> When sending and receiving MADs check that the agent has access to the
+>> SMI if it's on an SMI QP.  Because security policy can change it's
+>> possible permission was allowed when creating the agent, but no longer
+>> is.
+>>
+>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> ---
+>> v2:
+>> - Squashed LSM hook additions. Paul Moore
+>> - Changed security blobs to void*. Paul Moore
+>> - Shorten end_port to port. Paul Moore
+>> - Change "smp" to "manage_subnet". Paul Moore
+>> - Use the LSM policy change notification and a flag to track permission
+>>   instead of calling the LSM hook for every SMP. Dan Jurgens
+>> - Squashed PKey and SMP enforcement into the same patch and moved the
+>>   logic into security.c. Dan Jurgens
+>>
+>> v3:
+>> - ib_port -> ib_endport. Paul Moore
+>> - Use notifier chains for LSM notification. Paul Moore
+>> - Reorder LSM hook parameters to put sec first. Paul Moore
+>>
+>>  drivers/infiniband/core/core_priv.h | 35 ++++++++++++++
+>>  drivers/infiniband/core/mad.c       | 52 +++++++++++++++++----
+>>  drivers/infiniband/core/security.c  | 92 +++++++++++++++++++++++++++++++++++++
+>>  include/linux/lsm_hooks.h           |  8 ++++
+>>  include/linux/security.h            |  6 +++
+>>  include/rdma/ib_mad.h               |  4 ++
+>>  security/security.c                 |  8 ++++
+>>  7 files changed, 197 insertions(+), 8 deletions(-)
+> ...
+>
+>> diff --git a/security/security.c b/security/security.c
+>> index 6eef315..b69fe6f 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> @@ -1540,6 +1540,12 @@ int security_ib_pkey_access(void *sec, u64 subnet_prefix, u16 pkey)
+>>  }
+>>  EXPORT_SYMBOL(security_ib_pkey_access);
+>>
+>> +int security_ib_endport_manage_subnet(void *sec, const char *dev_name, u8 port_num)
+>> +{
+>> +       return call_int_hook(ib_endport_manage_subnet, 0, sec, dev_name, port_num);
+>> +}
+>> +EXPORT_SYMBOL(security_ib_endport_manage_subnet);
+>> +
+>>  int security_ib_alloc_security(void **sec)
+>>  {
+>>         return call_int_hook(ib_alloc_security, 0, sec);
+>> @@ -2014,6 +2020,8 @@ struct security_hook_heads security_hook_heads __lsm_ro_after_init = {
+>>
+>>  #ifdef CONFIG_SECURITY_INFINIBAND
+>>         .ib_pkey_access = LIST_HEAD_INIT(security_hook_heads.ib_pkey_access),
+>> +       .ib_endport_manage_subnet =
+>> +               LIST_HEAD_INIT(security_hook_heads.ib_endport_manage_subnet),
+>>         .ib_alloc_security =
+>>                 LIST_HEAD_INIT(security_hook_heads.ib_alloc_security),
+>>         .ib_free_security =
+> The same problem as 2/9 regarding the LSM hook code.  I'll also drop
+> this block, but update your patch in case you need to respin.
+>
+Thanks, updated locally as well in both cases.
