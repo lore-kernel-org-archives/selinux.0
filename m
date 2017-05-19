@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JCnaiO005883
- for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 08:49:37 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4JCncwF005898
+ for <selinux@tycho.nsa.gov>; Fri, 19 May 2017 08:49:41 -0400
 From: Dan Jurgens <danielj@mellanox.com>
 To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, dledford@redhat.com, sean.hefty@intel.com,
@@ -8,10 +8,9 @@ To: chrisw@sous-sol.org, paul@paul-moore.com, sds@tycho.nsa.gov,
 Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  linux-rdma@vger.kernel.org, yevgenyp@mellanox.com,
  Daniel Jurgens <danielj@mellanox.com>
-Subject: [PATCH v7 1/9] IB/core: IB cache enhancements to support Infiniband
- security
-Date: Fri, 19 May 2017 15:48:51 +0300
-Message-Id: <1495198139-69993-2-git-send-email-danielj@mellanox.com>
+Subject: [PATCH v7 6/9] selinux: Allocate and free infiniband security hooks
+Date: Fri, 19 May 2017 15:48:56 +0300
+Message-Id: <1495198139-69993-7-git-send-email-danielj@mellanox.com>
 In-Reply-To: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
 References: <1495198139-69993-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -21,87 +20,94 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Daniel Jurgens <danielj@mellanox.com>
 
-Cache the subnet prefix and add a function to access it. Enforcing
-security requires frequent queries of the subnet prefix and the pkeys in
-the pkey table.
+Implement and attach hooks to allocate and free Infiniband object
+security structures.
 
 Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-Reviewed-by: Eli Cohen <eli@mellanox.com>
-Reviewed-by: Leon Romanovsky <leonro@mellanox.com>
 
 ---
 v2:
-- In ib_get_cached_subnet_prefix wait to initialize p until after
-  validation.  Yuval Shaia
+- Use void * blobs for security structs.  Paul Moore
+- Shorten ib_end_port to ib_port.  Paul Moore
+- Allocate memory for security struct with GFP_KERNEL. Yuval Shaia
 
- drivers/infiniband/core/cache.c     | 22 ++++++++++++++++++++++
- drivers/infiniband/core/core_priv.h |  3 +++
- include/rdma/ib_verbs.h             |  1 +
- 3 files changed, 26 insertions(+)
+ security/selinux/hooks.c          | 25 ++++++++++++++++++++++++-
+ security/selinux/include/objsec.h |  5 +++++
+ 2 files changed, 29 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cache.c b/drivers/infiniband/core/cache.c
-index b1371eb..b9c0066 100644
---- a/drivers/infiniband/core/cache.c
-+++ b/drivers/infiniband/core/cache.c
-@@ -911,6 +911,26 @@ int ib_get_cached_pkey(struct ib_device *device,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index bc77c56..d580268 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -17,6 +17,7 @@
+  *	Paul Moore <paul@paul-moore.com>
+  *  Copyright (C) 2007 Hitachi Software Engineering Co., Ltd.
+  *		       Yuichi Nakamura <ynakam@hitachisoft.jp>
++ *  Copyright (C) 2016 Mellanox Technologies
+  *
+  *	This program is free software; you can redistribute it and/or modify
+  *	it under the terms of the GNU General Public License version 2,
+@@ -6156,7 +6157,26 @@ static int selinux_key_getsecurity(struct key *key, char **_buffer)
+ 	*_buffer = context;
+ 	return rc;
  }
- EXPORT_SYMBOL(ib_get_cached_pkey);
- 
-+int ib_get_cached_subnet_prefix(struct ib_device *device,
-+				u8                port_num,
-+				u64              *sn_pfx)
++#endif
++
++#ifdef CONFIG_SECURITY_INFINIBAND
++static int selinux_ib_alloc_security(void **ib_sec)
 +{
-+	unsigned long flags;
-+	int p;
++	struct ib_security_struct *sec;
 +
-+	if (port_num < rdma_start_port(device) ||
-+	    port_num > rdma_end_port(device))
-+		return -EINVAL;
++	sec = kzalloc(sizeof(*sec), GFP_KERNEL);
++	if (!sec)
++		return -ENOMEM;
++	sec->sid = current_sid();
 +
-+	p = port_num - rdma_start_port(device);
-+	read_lock_irqsave(&device->cache.lock, flags);
-+	*sn_pfx = device->cache.ports[p].subnet_prefix;
-+	read_unlock_irqrestore(&device->cache.lock, flags);
-+
++	*ib_sec = sec;
 +	return 0;
 +}
-+EXPORT_SYMBOL(ib_get_cached_subnet_prefix);
+ 
++static void selinux_ib_free_security(void *ib_sec)
++{
++	kfree(ib_sec);
++}
+ #endif
+ 
+ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+@@ -6343,7 +6363,10 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(tun_dev_attach_queue, selinux_tun_dev_attach_queue),
+ 	LSM_HOOK_INIT(tun_dev_attach, selinux_tun_dev_attach),
+ 	LSM_HOOK_INIT(tun_dev_open, selinux_tun_dev_open),
+-
++#ifdef CONFIG_SECURITY_INFINIBAND
++	LSM_HOOK_INIT(ib_alloc_security, selinux_ib_alloc_security),
++	LSM_HOOK_INIT(ib_free_security, selinux_ib_free_security),
++#endif
+ #ifdef CONFIG_SECURITY_NETWORK_XFRM
+ 	LSM_HOOK_INIT(xfrm_policy_alloc_security, selinux_xfrm_policy_alloc),
+ 	LSM_HOOK_INIT(xfrm_policy_clone_security, selinux_xfrm_policy_clone),
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index c03cdcd..b7f15f7 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -10,6 +10,7 @@
+  *
+  *  Copyright (C) 2001,2002 Networks Associates Technology, Inc.
+  *  Copyright (C) 2003 Red Hat, Inc., James Morris <jmorris@redhat.com>
++ *  Copyright (C) 2016 Mellanox Technologies
+  *
+  *	This program is free software; you can redistribute it and/or modify
+  *	it under the terms of the GNU General Public License version 2,
+@@ -139,6 +140,10 @@ struct key_security_struct {
+ 	u32 sid;	/* SID of key */
+ };
+ 
++struct ib_security_struct {
++	u32 sid;        /* SID of the queue pair or MAD agent */
++};
 +
- int ib_find_cached_pkey(struct ib_device *device,
- 			u8                port_num,
- 			u16               pkey,
-@@ -1108,6 +1128,8 @@ static void ib_cache_update(struct ib_device *device,
- 	device->cache.ports[port - rdma_start_port(device)].port_state =
- 		tprops->state;
+ extern unsigned int selinux_checkreqprot;
  
-+	device->cache.ports[port - rdma_start_port(device)].subnet_prefix =
-+							tprops->subnet_prefix;
- 	write_unlock_irq(&device->cache.lock);
- 
- 	kfree(gid_cache);
-diff --git a/drivers/infiniband/core/core_priv.h b/drivers/infiniband/core/core_priv.h
-index cb7d372..249e3ed 100644
---- a/drivers/infiniband/core/core_priv.h
-+++ b/drivers/infiniband/core/core_priv.h
-@@ -176,4 +176,7 @@ int ib_nl_handle_set_timeout(struct sk_buff *skb,
- int ib_nl_handle_ip_res_resp(struct sk_buff *skb,
- 			     struct netlink_callback *cb);
- 
-+int ib_get_cached_subnet_prefix(struct ib_device *device,
-+				u8                port_num,
-+				u64              *sn_pfx);
- #endif /* _CORE_PRIV_H */
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index 99e4423..23486d3 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -1841,6 +1841,7 @@ enum ib_mad_result {
- #define IB_DEVICE_NAME_MAX 64
- 
- struct ib_port_cache {
-+	u64		      subnet_prefix;
- 	struct ib_pkey_cache  *pkey;
- 	struct ib_gid_table   *gid;
- 	u8                     lmc;
+ #endif /* _SELINUX_OBJSEC_H_ */
 -- 
 2.7.4
