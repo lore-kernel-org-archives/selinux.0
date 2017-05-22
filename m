@@ -1,54 +1,70 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4MLJBdk012921
- for <selinux@tycho.nsa.gov>; Mon, 22 May 2017 17:19:11 -0400
-Received: by mail-lf0-f67.google.com with SMTP id h4so6452845lfj.3
- for <selinux@tycho.nsa.gov>; Mon, 22 May 2017 14:19:09 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <VI1PR05MB167871B25F7C3AE49878F3ADC4F80@VI1PR05MB1678.eurprd05.prod.outlook.com>
-References: <201705211751.KBNIRg9i%fengguang.wu@intel.com>
- <CAHC9VhQ3_cKwdY-b_1vuT840aGbe6eJq6iFtt_NVuFXitB9wUQ@mail.gmail.com>
- <VI1PR05MB167871B25F7C3AE49878F3ADC4F80@VI1PR05MB1678.eurprd05.prod.outlook.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 22 May 2017 17:19:07 -0400
-Message-ID: <CAHC9VhTX_0HYrMzJVv7VNpaEswFGUwUeixt0U=Fx3Eh2ZDrG3g@mail.gmail.com>
-Subject: Re: [pcmoore-selinux:next 17/17] security/selinux/ibpkey.c:116:24:
- sparse: incompatible types in comparison expression (different address spaces)
-To: Daniel Jurgens <danielj@mellanox.com>
-Cc: "kbuild-all@01.org" <kbuild-all@01.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- kbuild test robot <fengguang.wu@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4MLkcSs022842
+ for <selinux@tycho.nsa.gov>; Mon, 22 May 2017 17:46:41 -0400
+Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
+ [81.66.120.207])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 59F625646F4
+ for <selinux@tycho.nsa.gov>; Mon, 22 May 2017 23:46:14 +0200 (CEST)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 1/1] libsepol: make role_list_destroy() do nothing when
+ role_list is NULL
+Date: Mon, 22 May 2017 23:45:55 +0200
+Message-Id: <20170522214555.9052-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, May 22, 2017 at 5:16 PM, Daniel Jurgens <danielj@mellanox.com> wrote:
-> On 5/22/2017 4:06 PM, Paul Moore wrote:
->> On Sun, May 21, 2017 at 5:47 AM, kbuild test robot
->> <fengguang.wu@intel.com> wrote:
->>> tree:   git://git.infradead.org/users/pcmoore/selinux next
->>> head:   b76dd295790d44ecb04932110309bb6c15f263a8
->>> commit: b76dd295790d44ecb04932110309bb6c15f263a8 [17/17] selinux: Add a cache for quicker retreival of PKey SIDs
->>> reproduce:
->>>         # apt-get install sparse
->>>         git checkout b76dd295790d44ecb04932110309bb6c15f263a8
->>>         make ARCH=x86_64 allmodconfig
->>>         make C=1 CF=-D__CHECK_ENDIAN__
->>>
->>>
->>> sparse warnings: (new ones prefixed by >>)
->>>
->>>    include/linux/compiler.h:264:8: sparse: attribute 'no_sanitize_address': unknown attribute
->>>>> security/selinux/ibpkey.c:116:24: sparse: incompatible types in comparison expression (different address spaces)
->> I haven't looked at this too closely, but this may not be significant
->> ... Daniel, can you look into this please?
->
-> I looked at this before.  I don't believe it's significant.  The same warning pops up in security/selinux/netport.c:125.
+When a function called by sepol_module_policydb_to_cil() fails before
+role_list_create() has been called, role_list is still NULL but is
+dereferenced in role_list_destroy(). Here is a gdb session on hll/pp:
 
-Yes, part two of my request was going to have you also fix it for
-netport.c, but it looks like you've dodged that request for now ;)
+    Unknown value for handle-unknown: 6
 
+    Program received signal SIGSEGV, Segmentation fault.
+    0x00007ffff7a68a37 in role_list_destroy () at module_to_cil.c:215
+    215     struct list_node *curr = role_list->head;
+
+    (gdb) bt
+    #0  0x00007ffff7a68a37 in role_list_destroy () at
+    module_to_cil.c:215
+    #1  sepol_module_policydb_to_cil (fp=fp@entry=0x7ffff79925e0
+    <_IO_2_1_stdout_>, pdb=<optimized out>, linked=linked@entry=0) at
+    module_to_cil.c:4060
+    #2  0x00007ffff7a6ac75 in sepol_module_package_to_cil
+    (fp=fp@entry=0x7ffff79925e0 <_IO_2_1_stdout_>, mod_pkg=0x604280) at
+    module_to_cil.c:4080
+    #3  0x0000000000401a58 in main (argc=<optimized out>,
+    argv=<optimized out>) at pp.c:150
+
+This issue has been found while fuzzing hll/pp with the American Fuzzy
+Lop.
+
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsepol/src/module_to_cil.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 7d8eb204d2fd..c989830a198c 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -211,7 +211,12 @@ static void list_destroy(struct list **list)
+ 
+ static void role_list_destroy(void)
+ {
+-	struct list_node *curr = role_list->head;
++	struct list_node *curr;
++
++	if (role_list == NULL) {
++		return;
++	}
++	curr = role_list->head;
+ 
+ 	while (curr != NULL) {
+ 		free(curr->data);
 -- 
-paul moore
-www.paul-moore.com
+2.13.0
