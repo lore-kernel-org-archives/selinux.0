@@ -1,19 +1,12 @@
-Message-ID: <1495569200.8461.10.camel@tycho.nsa.gov>
-Subject: Re: [PATCH v6 1/2] selinux: add brief info to policydb
+Message-ID: <1495569616.8461.11.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 2/2] libsepol: use the number of elements in calloc
+ first argument
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sebastien Buisson <sbuisson.ddn@gmail.com>, Paul Moore
- <paul@paul-moore.com>
-Cc: selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, Sebastien Buisson
- <sbuisson@ddn.com>, James Morris <james.l.morris@oracle.com>
-Date: Tue, 23 May 2017 15:53:20 -0400
-In-Reply-To: <CAPkE-bW_dLo2hoE+rA_sOgZnqcZD_9L1RiDvyDBAtxJm3AM5Wg@mail.gmail.com>
-References: <1495040944-11552-1-git-send-email-sbuisson@ddn.com>
- <CAHC9VhSa_0FnaHpFR9jB4tkV-7p_JxFqRaQGC7+LTkfcmdV7mA@mail.gmail.com>
- <1495116094.5475.4.camel@tycho.nsa.gov>
- <1495120065.5475.10.camel@tycho.nsa.gov>
- <CAHC9VhTkBJ4f6Zkeu=Ufae1XHyxVCgfARyj8Hc6yiEgh55Xz-Q@mail.gmail.com>
- <CAPkE-bW_dLo2hoE+rA_sOgZnqcZD_9L1RiDvyDBAtxJm3AM5Wg@mail.gmail.com>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Tue, 23 May 2017 16:00:16 -0400
+In-Reply-To: <20170520101141.6207-2-nicolas.iooss@m4x.org>
+References: <20170520101141.6207-1-nicolas.iooss@m4x.org>
+ <20170520101141.6207-2-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -21,69 +14,37 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-05-23 at 18:29 +0200, Sebastien Buisson wrote:
-> Hi,
+On Sat, 2017-05-20 at 12:11 +0200, Nicolas Iooss wrote:
+> When allocating an array with calloc(), the first argument usually is
+> the number of items and the second one the size of an item. Doing so
+> silences a warning reported by clang's static analyzer:
 > 
-> 2017-05-18 23:49 GMT+02:00 Paul Moore <paul@paul-moore.com>:
-> > My apologies to you and Sebastien for not reviewing these patches
-> > sooner.
+>     kernel_to_cil.c:2050:14: warning: Call to 'calloc' has an
+> allocation
+>     size of 0 bytes.
+>             cond_data = calloc(sizeof(struct cond_data), num);
+>                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 > 
-> It is ok, no problem.
-> Thanks for all the advice from you and Stephen. I will try to take
-> all
-> this into account.
-> 
-> As I understand it, I should not give the choice to allocate or not
-> the string returned by security_policydb_brief(). The initial reason
-> for this was that Lustre client code is expected to retrieve policy
-> brief info hundreds or thousands of times per second, so saving on
-> memory allocation would make sense. So if security_policydb_brief()
-> necessarily allocates memory for the string returned, and I
-> appreciate
-> it helps maintenance and avoids complexity, it should not be called
-> so
-> often.
-> One way to tackle this is to rely on the notification system: Lustre
-> client code would call security_policydb_brief() only when it gets a
-> change notification, and stores the current policy brief info
-> internally.
-> Another way could be to add another hook to check policy brief info
-> validity. It would take a string as an input parameter, and return 0
-> if it matches the current policy. So Lustre client code would
-> systematically call this hook, and only call
-> security_policydb_brief()
-> when the policy has changed, to store the current value internally.
-> 
-> I have recently identified a new need from Lustre client code. We
-> need
-> to protect against the case where the policy is changed or set in
-> permissive mode, and then set back to its previous state, to
-> workaround policy check as carried out on server side based on policy
-> brief info sent by client. In this scenario, the policy would only be
-> the expected one by the time the client sends a request to the server
-> (for instance a file open request), but not after that when SELinux
-> actually checks the permissions on the client (via
-> security_file_open() in this example).
-> A solution to address this could be to add a new parameter to
-> security_policydb_brief() hook, in the form of a pointer to an
-> integer
-> giving the current sequence number of the policy. That would
-> complement the policy brief info, with the notion of change to the
-> policy. I do not think it is desirable to include the sequence number
-> in the policy brief info, as it is not the essence of the policy.
-> Now with this sequence info in mind, the new hook to check policy
-> brief info validity would only need to check the sequence, instead of
-> the policy brief string. The current value of the sequence info
-> should
-> be stored by Lustre internally, and checked after SELinux permission
-> checks. If a change is detected, Lustre client must stop normal
-> processing and return an error for the current request.
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Not sure about your threat model but I think you are fighting a losing
-battle there.  A malicious admin has too many ways to defeat your
-checking.
+Thanks, applied both.
 
-Relying on the seqno also seems brittle; you could easily end up
-causing a client to fail just because a policy update happened to be
-installed at the same time, even though there was nothing wrong or
-malicious about the policy update itself.
+> ---
+>  libsepol/src/kernel_to_cil.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libsepol/src/kernel_to_cil.c
+> b/libsepol/src/kernel_to_cil.c
+> index 3a1c0be76f45..498e2947f6cb 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -2043,7 +2043,7 @@ static int write_cond_nodes_to_cil(FILE *out,
+> struct policydb *pdb)
+>  		num++;
+>  	}
+>  
+> -	cond_data = calloc(sizeof(struct cond_data), num);
+> +	cond_data = calloc(num, sizeof(struct cond_data));
+>  	if (!cond_data) {
+>  		rc = -1;
+>  		goto exit;
