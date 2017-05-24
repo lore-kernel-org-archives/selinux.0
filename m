@@ -1,10 +1,12 @@
-Message-ID: <1495656704.3489.4.camel@tycho.nsa.gov>
-Subject: Re: ioctl help
+Message-ID: <1495658455.3489.7.camel@tycho.nsa.gov>
+Subject: Re: Fedora COPR repositories with builds of latest code
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
-Date: Wed, 24 May 2017 16:11:44 -0400
-In-Reply-To: <20170524120854.GA1910@julius.enp8s0.d30>
-References: <20170524120854.GA1910@julius.enp8s0.d30>
+To: Dominick Grift <dac.override@gmail.com>, SELinux <selinux@tycho.nsa.gov>
+Date: Wed, 24 May 2017 16:40:55 -0400
+In-Reply-To: <20170524145330.GE1910@julius.enp8s0.d30>
+References: <b95f2f22-9280-2448-9fd2-cede379bff8d@redhat.com>
+ <20170524143316.GD1910@julius.enp8s0.d30>
+ <20170524145330.GE1910@julius.enp8s0.d30>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,37 +14,85 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-05-24 at 14:08 +0200, Dominick Grift wrote:
-> I was looking again at ioctl whitelisting, and excuse me if I
-> overlooked some documentation, but I am having a hard time
-> implementing this.
-> what I did was I just wanted to basically test blacklisting a single
-> ioctl (no particular one)
+On Wed, 2017-05-24 at 16:53 +0200, Dominick Grift wrote:
+> On Wed, May 24, 2017 at 04:33:16PM +0200, Dominick Grift wrote:
+> > On Wed, May 24, 2017 at 04:22:08PM +0200, Petr Lautrbach wrote:
+> > > For the motivation see
+> > > https://marc.info/?l=selinux&m=149435307518336&w=2
+> > 
+> > Thanks! I enabled the one with Fedora patches because i need
+> > python3 support for setools4
+> > 
+> > This should allow me to enable extended_socket_class functionality
+> > and test it.
+> > 
+> > I hope this repository will be maintained consistently so that it
+> > can be useful
 > 
-> So i looked into androids sepolicy and just picked a semi-random
-> ioctl from their "https://android.googlesource.com/platform/system/se
-> policy/+/master/public/ioctl_defines"
+> I just enabled the extended_socket_class capability and in seinfo --
+> polcap -x it currently shows up as "redhat1":
 > 
-> for example: PHONE_CAPABILITIES_CHECK 0x40087182
+> # seinfo --polcap -x
 > 
-> However the xpermissions statement only allows 0x0000 to 0xFFFF when
-> i tried: (xpermission alg_socket_ioctl (ioctl alg_socket (not
-> (0x40087182))))
+> Polcap: 3
+>    policycap network_peer_controls;
+>    policycap open_perms;
+>    policycap redhat1;
 > 
-> My question is how do i convert these to something i can use with the
-> xpermission statement in CIL, and why can seandroid sepolicy get away
-> with using 0x12345678 where i have to use 0x1234? I could not find
-> any scripts that converts these in the android tree.
+> I know the redhat1 polcap is re-used but not sure if this expected to
+> return like that...
 
-FWIW, I added a simple test of ioctl whitelisting to the selinux-
-testsuite, although that was done in source policy and depends on the
-binary module format support for xperms.
+Maybe setools4 hasn't been rebuilt to use the updated libsepol, or has
+its own internal table of the policy capability string names?
 
-With regard to your question though, only the low 16 bits of the ioctl
-value (the type/driver and number/function fields) are actually used;
-the upper 16 bits encode the direction (read/write) and size of any
-argument to the ioctl and are therefore not relevant for whitelisting.
-So you can just use 0x7182.  checkpolicy just ignores the upper bits,
-which I guess is convenient so that they can use ioctl macro lists
-generated from kernel header definitions, and Android builds by using
-checkpolicy -C to convert policy.conf to CIL.
+> 
+> > 
+> > > 
+> > > I've restarted building of Fedora packages based on latest
+> > > SELinux userspace code in Fedora COPR. Packages are built using
+> > > the https://gitlab.com/bachradsusi/selinux-rpm project.
+> > > 
+> > > There is a new selinux.spec [1] file which allows to build all
+> > > Fedora packages from one src.rpm and Makefile which makes the
+> > > process simple.
+> > > 
+> > > Currently there are two COPR projects:
+> > > 
+> > > * https://copr.fedorainfracloud.org/coprs/plautrba/selinux-fedora
+> > > /
+> > > 
+> > > This is built with Python3 support based on Fedora patches which
+> > > are rebased against latest upstream code.
+> > > 
+> > > 
+> > > * https://copr.fedorainfracloud.org/coprs/plautrba/selinux-SELinu
+> > > xProject/
+> > > 
+> > > This is based on pure upstream sources and without Python 3.
+> > > 
+> > > 
+> > > Currently I run copr builds manually but the plan is to make it
+> > > fully automated.
+> > > 
+> > > 
+> > > Let me know if you find it useful or if you have ideas, comments
+> > > and so on.
+> > > 
+> > > 
+> > > [1] https://gitlab.com/bachradsusi/selinux-rpm/blob/master/selinu
+> > > x.spec
+> > > 
+> > > 
+> > > Thanks,
+> > > 
+> > > Petr
+> > 
+> > -- 
+> > Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B
+> > 6B02
+> > https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6
+> > B02
+> > Dominick Grift
+> 
+> 
+> 
