@@ -1,116 +1,77 @@
-Message-ID: <1495736294.22368.4.camel@tycho.nsa.gov>
-Subject: Re: ioctl help
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jeffrey Vander Stoep <jeffv@google.com>, selinux@tycho.nsa.gov
-Date: Thu, 25 May 2017 14:18:14 -0400
-In-Reply-To: <CABXk95DJqLLTXzGX-2CVXAhB4MNMPzxb4qUskuJ4vQ-yh86itQ@mail.gmail.com>
-References: <20170524120854.GA1910@julius.enp8s0.d30>
- <1495656704.3489.4.camel@tycho.nsa.gov>
- <20170525054919.GB12190@julius.enp8s0.d30>
- <20170525091954.GD12190@julius.enp8s0.d30>
- <CABXk95DJqLLTXzGX-2CVXAhB4MNMPzxb4qUskuJ4vQ-yh86itQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: allow more instances of map permission
+Date: Thu, 25 May 2017 14:40:36 -0400
+Message-Id: <20170525184036.32327-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-05-25 at 17:35 +0000, Jeffrey Vander Stoep via Selinux
-wrote:
-> The command number is just a uint16. It's up to each driver to
-> interpret it. So it's CHIOEXCHANGE for a particular driver
-> and CM_IOCSPTS for a different driver.
-> 
-> Ideally, you're whitelisting ioctls on a per-driver basis, so this
-> model works.
+The upstream patch defining map permission for refpolicy
+("refpolicy: Define and allow map permission") only adds
+map permission to mmap_file_perms and exec_file_perms and to
+specific interfaces where it is required.  Consequently, we need
+to allow more instances of map permission in the file and mmap
+test policies to avoid incorrect denials of map permission
+(either ones that cause a test that should succeed to fail,
+or ones that would prevent the test from reaching a later
+permission check that is being tested).
 
-Possibly to avoid user confusion, we should have checkpolicy only
-accept values 0-0xffff (as with CIL), and the macros should be
-truncated when they are generated.  Otherwise, reading the policy could
-be misleading.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ policy/test_file.te | 2 ++
+ policy/test_mmap.te | 3 +++
+ 2 files changed, 5 insertions(+)
 
-> 
-> On Thu, May 25, 2017 at 2:21 AM Dominick Grift <dac.override@gmail.co
-> m> wrote:
-> > On Thu, May 25, 2017 at 07:49:19AM +0200, Dominick Grift wrote:
-> > > On Wed, May 24, 2017 at 04:11:44PM -0400, Stephen Smalley wrote:
-> > > > On Wed, 2017-05-24 at 14:08 +0200, Dominick Grift wrote:
-> > > > > I was looking again at ioctl whitelisting, and excuse me if I
-> > > > > overlooked some documentation, but I am having a hard time
-> > > > > implementing this.
-> > > > > what I did was I just wanted to basically test blacklisting a
-> > single
-> > > > > ioctl (no particular one)
-> > > > >
-> > > > > So i looked into androids sepolicy and just picked a semi-
-> > random
-> > > > > ioctl from their "https://android.googlesource.com/platform/s
-> > ystem/se
-> > > > > policy/+/master/public/ioctl_defines"
-> > > > >
-> > > > > for example: PHONE_CAPABILITIES_CHECK 0x40087182
-> > > > >
-> > > > > However the xpermissions statement only allows 0x0000 to
-> > 0xFFFF when
-> > > > > i tried: (xpermission alg_socket_ioctl (ioctl alg_socket (not
-> > > > > (0x40087182))))
-> > > > >
-> > > > > My question is how do i convert these to something i can use
-> > with the
-> > > > > xpermission statement in CIL, and why can seandroid sepolicy
-> > get away
-> > > > > with using 0x12345678 where i have to use 0x1234? I could not
-> > find
-> > > > > any scripts that converts these in the android tree.
-> > > >
-> > > > FWIW, I added a simple test of ioctl whitelisting to the
-> > selinux-
-> > > > testsuite, although that was done in source policy and depends
-> > on the
-> > > > binary module format support for xperms.
-> > > >
-> > > > With regard to your question though, only the low 16 bits of
-> > the ioctl
-> > > > value (the type/driver and number/function fields) are actually
-> > used;
-> > > > the upper 16 bits encode the direction (read/write) and size of
-> > any
-> > > > argument to the ioctl and are therefore not relevant for
-> > whitelisting.
-> > > > So you can just use 0x7182.  checkpolicy just ignores the upper
-> > bits,
-> > > > which I guess is convenient so that they can use ioctl macro
-> > lists
-> > > > generated from kernel header definitions, and Android builds by
-> > using
-> > > > checkpolicy -C to convert policy.conf to CIL.
-> > >
-> > > Thanks. I considered that but then I thought I saw various
-> > different ioctls with the same last 16 bits so that got me confused
-> > 
-> > With the above in mind, how should i interpret the following
-> > 
-> > define(`CHIOEXCHANGE', `0x401c6302')
-> > define(`CM_IOCSPTS', `0x40086302')
-> > 
-> > is "0x6203" CHIOEXCHANGE, is it CM_IOCSPTS, or are the two the same
-> > with exception of direction and/or size
-> > 
-> > >
-> > > --
-> > > Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B
-> > 6B02
-> > > https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7
-> > B6B02
-> > > Dominick Grift
-> > 
-> > 
-> > 
-> > --
-> > Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B
-> > 6B02
-> > https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6
-> > B02
-> > Dominick Grift
-> > 
+diff --git a/policy/test_file.te b/policy/test_file.te
+index 24c8b16..1f1da3a 100644
+--- a/policy/test_file.te
++++ b/policy/test_file.te
+@@ -83,6 +83,7 @@ allow fileop_t ptmx_t:chr_file { read write };
+ # Permissions for the 'good' domain...
+ allow test_fileop_t fileop_file_t:file { setattr rw_file_perms};
+ allow test_fileop_t fileop_file_t:file { execute relabelfrom relabelto };
++allow_map(test_fileop_t, fileop_file_t, file)
+ allow test_fileop_t fileop_t:process { signal };
+ allow test_fileop_t ptmx_t:chr_file { open read write ioctl };
+ allow test_fileop_t devpts_t:filesystem getattr;
+@@ -90,6 +91,7 @@ allow test_fileop_t self:capability sys_admin;
+ 
+ # Permissions for the 'bad' domain...
+ allow test_nofileop_t nofileop_rw_file_t:file { open read write append relabelfrom };
++allow_map(test_nofileop_t, nofileop_rw_file_t, file)
+ allow test_nofileop_t nofileop_ra_file_t:file { open read append };
+ allow test_nofileop_t fileop_file_t:file { relabelto };
+ allow test_nofileop_t ptmx_t:chr_file { open read write ioctl };
+diff --git a/policy/test_mmap.te b/policy/test_mmap.te
+index 1d20f30..9e2d9c9 100644
+--- a/policy/test_mmap.te
++++ b/policy/test_mmap.te
+@@ -96,6 +96,7 @@ unconfined_runs_test(test_no_mmap_dev_zero_t)
+ typeattribute test_no_mmap_dev_zero_t testdomain;
+ typeattribute test_no_mmap_dev_zero_t mmaptestdomain;
+ dev_rw_zero(test_no_mmap_dev_zero_t)
++allow_map(test_no_mmap_dev_zero_t, zero_device_t, chr_file)
+ 
+ type test_mprotect_dev_zero_t;
+ domain_type(test_mprotect_dev_zero_t)
+@@ -103,6 +104,7 @@ unconfined_runs_test(test_mprotect_dev_zero_t)
+ typeattribute test_mprotect_dev_zero_t testdomain;
+ typeattribute test_mprotect_dev_zero_t mmaptestdomain;
+ dev_rw_zero(test_mprotect_dev_zero_t)
++allow_map(test_mprotect_dev_zero_t, zero_device_t, chr_file)
+ # In old kernels, mprotect PROT_EXEC on /dev/zero
+ # triggers a tmpfs file execute check on the kernel-internal shmem /dev/zero
+ # inode.  In new kernels, mprotect PROT_EXEC will instead trigger an
+@@ -117,6 +119,7 @@ unconfined_runs_test(test_no_mprotect_dev_zero_t)
+ typeattribute test_no_mprotect_dev_zero_t testdomain;
+ typeattribute test_no_mprotect_dev_zero_t mmaptestdomain;
+ dev_rw_zero(test_no_mprotect_dev_zero_t)
++allow_map(test_no_mprotect_dev_zero_t, zero_device_t, chr_file)
+ 
+ type test_file_rwx_t;
+ domain_type(test_file_rwx_t)
+-- 
+2.9.4
