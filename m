@@ -1,162 +1,200 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4PA7wq0023709
- for <selinux@tycho.nsa.gov>; Thu, 25 May 2017 06:07:58 -0400
-Received: by mail-wm0-f51.google.com with SMTP id e127so97378804wmg.1
- for <selinux@tycho.nsa.gov>; Thu, 25 May 2017 03:07:53 -0700 (PDT)
-Received: from julius.enp8s0.d30 ([217.19.26.10])
- by smtp.gmail.com with ESMTPSA id y53sm3642015edd.14.2017.05.25.03.07.51
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Thu, 25 May 2017 03:07:51 -0700 (PDT)
-Date: Thu, 25 May 2017 12:07:49 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Subject: Re: Fedora COPR repositories with builds of latest code
-Message-ID: <20170525100749.GE12190@julius.enp8s0.d30>
-References: <b95f2f22-9280-2448-9fd2-cede379bff8d@redhat.com>
- <20170524143316.GD1910@julius.enp8s0.d30>
- <20170524145330.GE1910@julius.enp8s0.d30>
- <1495658455.3489.7.camel@tycho.nsa.gov>
- <20170525054450.GA12190@julius.enp8s0.d30>
- <915f219f-5975-bf6f-e151-c29c826e8c9e@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4PHZuSQ004895
+ for <selinux@tycho.nsa.gov>; Thu, 25 May 2017 13:35:57 -0400
+Received: by mail-io0-f171.google.com with SMTP id p24so141115610ioi.0
+ for <selinux@tycho.nsa.gov>; Thu, 25 May 2017 10:35:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="3XA6nns4nE4KvaS/"
-In-Reply-To: <915f219f-5975-bf6f-e151-c29c826e8c9e@redhat.com>
+References: <20170524120854.GA1910@julius.enp8s0.d30>
+ <1495656704.3489.4.camel@tycho.nsa.gov>
+ <20170525054919.GB12190@julius.enp8s0.d30>
+ <20170525091954.GD12190@julius.enp8s0.d30>
+In-Reply-To: <20170525091954.GD12190@julius.enp8s0.d30>
+From: Jeffrey Vander Stoep <jeffv@google.com>
+Date: Thu, 25 May 2017 17:35:37 +0000
+Message-ID: <CABXk95DJqLLTXzGX-2CVXAhB4MNMPzxb4qUskuJ4vQ-yh86itQ@mail.gmail.com>
+Subject: Re: ioctl help
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary="94eb2c055866c7103205505ca662"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+--94eb2c055866c7103205505ca662
+Content-Type: text/plain; charset="UTF-8"
 
---3XA6nns4nE4KvaS/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The command number is just a uint16. It's up to each driver to interpret
+it. So it's CHIOEXCHANGE for a particular driver and CM_IOCSPTS for a
+different driver.
+
+Ideally, you're whitelisting ioctls on a per-driver basis, so this model
+works.
+
+On Thu, May 25, 2017 at 2:21 AM Dominick Grift <dac.override@gmail.com>
+wrote:
+
+> On Thu, May 25, 2017 at 07:49:19AM +0200, Dominick Grift wrote:
+> > On Wed, May 24, 2017 at 04:11:44PM -0400, Stephen Smalley wrote:
+> > > On Wed, 2017-05-24 at 14:08 +0200, Dominick Grift wrote:
+> > > > I was looking again at ioctl whitelisting, and excuse me if I
+> > > > overlooked some documentation, but I am having a hard time
+> > > > implementing this.
+> > > > what I did was I just wanted to basically test blacklisting a single
+> > > > ioctl (no particular one)
+> > > >
+> > > > So i looked into androids sepolicy and just picked a semi-random
+> > > > ioctl from their "
+> https://android.googlesource.com/platform/system/se
+> > > > policy/+/master/public/ioctl_defines"
+> > > >
+> > > > for example: PHONE_CAPABILITIES_CHECK 0x40087182
+> > > >
+> > > > However the xpermissions statement only allows 0x0000 to 0xFFFF when
+> > > > i tried: (xpermission alg_socket_ioctl (ioctl alg_socket (not
+> > > > (0x40087182))))
+> > > >
+> > > > My question is how do i convert these to something i can use with the
+> > > > xpermission statement in CIL, and why can seandroid sepolicy get away
+> > > > with using 0x12345678 where i have to use 0x1234? I could not find
+> > > > any scripts that converts these in the android tree.
+> > >
+> > > FWIW, I added a simple test of ioctl whitelisting to the selinux-
+> > > testsuite, although that was done in source policy and depends on the
+> > > binary module format support for xperms.
+> > >
+> > > With regard to your question though, only the low 16 bits of the ioctl
+> > > value (the type/driver and number/function fields) are actually used;
+> > > the upper 16 bits encode the direction (read/write) and size of any
+> > > argument to the ioctl and are therefore not relevant for whitelisting.
+> > > So you can just use 0x7182.  checkpolicy just ignores the upper bits,
+> > > which I guess is convenient so that they can use ioctl macro lists
+> > > generated from kernel header definitions, and Android builds by using
+> > > checkpolicy -C to convert policy.conf to CIL.
+> >
+> > Thanks. I considered that but then I thought I saw various different
+> ioctls with the same last 16 bits so that got me confused
+>
+> With the above in mind, how should i interpret the following
+>
+> define(`CHIOEXCHANGE', `0x401c6302')
+> define(`CM_IOCSPTS', `0x40086302')
+>
+> is "0x6203" CHIOEXCHANGE, is it CM_IOCSPTS, or are the two the same with
+> exception of direction and/or size
+>
+> >
+> > --
+> > Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+> > https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+> > Dominick Grift
+>
+>
+>
+> --
+> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+> Dominick Grift
+>
+
+--94eb2c055866c7103205505ca662
+Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, May 25, 2017 at 11:40:49AM +0200, Petr Lautrbach wrote:
-> On 05/25/2017 07:44 AM, Dominick Grift wrote:
-> > On Wed, May 24, 2017 at 04:40:55PM -0400, Stephen Smalley wrote:
-> > > On Wed, 2017-05-24 at 16:53 +0200, Dominick Grift wrote:
-> > > > On Wed, May 24, 2017 at 04:33:16PM +0200, Dominick Grift wrote:
-> > > > > On Wed, May 24, 2017 at 04:22:08PM +0200, Petr Lautrbach wrote:
-> > > > > > For the motivation see
-> > > > > > https://marc.info/?l=3Dselinux&m=3D149435307518336&w=3D2
-> > > > >=20
-> > > > > Thanks! I enabled the one with Fedora patches because i need
-> > > > > python3 support for setools4
-> > > > >=20
-> > > > > This should allow me to enable extended_socket_class functionality
-> > > > > and test it.
-> > > > >=20
-> > > > > I hope this repository will be maintained consistently so that it
-> > > > > can be useful
-> > > >=20
-> > > > I just enabled the extended_socket_class capability and in seinfo --
-> > > > polcap -x it currently shows up as "redhat1":
-> > > >=20
-> > > > # seinfo --polcap -x
-> > > >=20
-> > > > Polcap: 3
-> > > >     policycap network_peer_controls;
-> > > >     policycap open_perms;
-> > > >     policycap redhat1;
-> > > >=20
-> > > > I know the redhat1 polcap is re-used but not sure if this expected =
-to
-> > > > return like that...
-> > >=20
-> > > Maybe setools4 hasn't been rebuilt to use the updated libsepol, or has
-> > > its own internal table of the policy capability string names?
-> >=20
-> > thanks , yes thats the case (former)
->=20
-> I will update scripts to rebuild setools together with selinux sources and
-> provide setools builds in copr repos
+<div dir=3D"ltr">The command number is just a uint16. It&#39;s up to each d=
+river to interpret it. So it&#39;s=C2=A0CHIOEXCHANGE for a particular drive=
+r and=C2=A0CM_IOCSPTS for a different driver.<div><div><br></div><div>Ideal=
+ly, you&#39;re whitelisting ioctls on a per-driver basis, so this model wor=
+ks.</div></div><div><br></div><div class=3D"gmail_quote"><div dir=3D"ltr">O=
+n Thu, May 25, 2017 at 2:21 AM Dominick Grift &lt;<a href=3D"mailto:dac.ove=
+rride@gmail.com" target=3D"_blank">dac.override@gmail.com</a>&gt; wrote:<br=
+></div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-=
+left:1px #ccc solid;padding-left:1ex">On Thu, May 25, 2017 at 07:49:19AM +0=
+200, Dominick Grift wrote:<br>
+&gt; On Wed, May 24, 2017 at 04:11:44PM -0400, Stephen Smalley wrote:<br>
+&gt; &gt; On Wed, 2017-05-24 at 14:08 +0200, Dominick Grift wrote:<br>
+&gt; &gt; &gt; I was looking again at ioctl whitelisting, and excuse me if =
+I<br>
+&gt; &gt; &gt; overlooked some documentation, but I am having a hard time<b=
+r>
+&gt; &gt; &gt; implementing this.<br>
+&gt; &gt; &gt; what I did was I just wanted to basically test blacklisting =
+a single<br>
+&gt; &gt; &gt; ioctl (no particular one)<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; So i looked into androids sepolicy and just picked a semi-ra=
+ndom<br>
+&gt; &gt; &gt; ioctl from their &quot;<a href=3D"https://android.googlesour=
+ce.com/platform/system/se" rel=3D"noreferrer" target=3D"_blank">https://and=
+roid.googlesource.com/platform/system/se</a><br>
+&gt; &gt; &gt; policy/+/master/public/ioctl_defines&quot;<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; for example: PHONE_CAPABILITIES_CHECK 0x40087182<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; However the xpermissions statement only allows 0x0000 to 0xF=
+FFF when<br>
+&gt; &gt; &gt; i tried: (xpermission alg_socket_ioctl (ioctl alg_socket (no=
+t<br>
+&gt; &gt; &gt; (0x40087182))))<br>
+&gt; &gt; &gt;<br>
+&gt; &gt; &gt; My question is how do i convert these to something i can use=
+ with the<br>
+&gt; &gt; &gt; xpermission statement in CIL, and why can seandroid sepolicy=
+ get away<br>
+&gt; &gt; &gt; with using 0x12345678 where i have to use 0x1234? I could no=
+t find<br>
+&gt; &gt; &gt; any scripts that converts these in the android tree.<br>
+&gt; &gt;<br>
+&gt; &gt; FWIW, I added a simple test of ioctl whitelisting to the selinux-=
+<br>
+&gt; &gt; testsuite, although that was done in source policy and depends on=
+ the<br>
+&gt; &gt; binary module format support for xperms.<br>
+&gt; &gt;<br>
+&gt; &gt; With regard to your question though, only the low 16 bits of the =
+ioctl<br>
+&gt; &gt; value (the type/driver and number/function fields) are actually u=
+sed;<br>
+&gt; &gt; the upper 16 bits encode the direction (read/write) and size of a=
+ny<br>
+&gt; &gt; argument to the ioctl and are therefore not relevant for whitelis=
+ting.<br>
+&gt; &gt; So you can just use 0x7182.=C2=A0 checkpolicy just ignores the up=
+per bits,<br>
+&gt; &gt; which I guess is convenient so that they can use ioctl macro list=
+s<br>
+&gt; &gt; generated from kernel header definitions, and Android builds by u=
+sing<br>
+&gt; &gt; checkpolicy -C to convert policy.conf to CIL.<br>
+&gt;<br>
+&gt; Thanks. I considered that but then I thought I saw various different i=
+octls with the same last 16 bits so that got me confused<br>
+<br>
+With the above in mind, how should i interpret the following<br>
+<br>
+define(`CHIOEXCHANGE&#39;, `0x401c6302&#39;)<br>
+define(`CM_IOCSPTS&#39;, `0x40086302&#39;)<br>
+<br>
+is &quot;0x6203&quot; CHIOEXCHANGE, is it CM_IOCSPTS, or are the two the sa=
+me with exception of direction and/or size<br>
+<br>
+&gt;<br>
+&gt; --<br>
+&gt; Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8=C2=A0 02D5 3B6C 5F1D 2C7B=
+ 6B02<br>
+&gt; <a href=3D"https://sks-keyservers.net/pks/lookup?op=3Dget&amp;search=
+=3D0x3B6C5F1D2C7B6B02" rel=3D"noreferrer" target=3D"_blank">https://sks-key=
+servers.net/pks/lookup?op=3Dget&amp;search=3D0x3B6C5F1D2C7B6B02</a><br>
+&gt; Dominick Grift<br>
+<br>
+<br>
+<br>
+--<br>
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8=C2=A0 02D5 3B6C 5F1D 2C7B 6B02=
+<br>
+<a href=3D"https://sks-keyservers.net/pks/lookup?op=3Dget&amp;search=3D0x3B=
+6C5F1D2C7B6B02" rel=3D"noreferrer" target=3D"_blank">https://sks-keyservers=
+.net/pks/lookup?op=3Dget&amp;search=3D0x3B6C5F1D2C7B6B02</a><br>
+Dominick Grift<br>
+</blockquote></div></div>
 
-Thank you
->=20
-> >=20
-> > >=20
-> > > >=20
-> > > > >=20
-> > > > > >=20
-> > > > > > I've restarted building of Fedora packages based on latest
-> > > > > > SELinux userspace code in Fedora COPR. Packages are built using
-> > > > > > the https://gitlab.com/bachradsusi/selinux-rpm project.
-> > > > > >=20
-> > > > > > There is a new selinux.spec [1] file which allows to build all
-> > > > > > Fedora packages from one src.rpm and Makefile which makes the
-> > > > > > process simple.
-> > > > > >=20
-> > > > > > Currently there are two COPR projects:
-> > > > > >=20
-> > > > > > * https://copr.fedorainfracloud.org/coprs/plautrba/selinux-fedo=
-ra
-> > > > > > /
-> > > > > >=20
-> > > > > > This is built with Python3 support based on Fedora patches which
-> > > > > > are rebased against latest upstream code.
-> > > > > >=20
-> > > > > >=20
-> > > > > > * https://copr.fedorainfracloud.org/coprs/plautrba/selinux-SELi=
-nu
-> > > > > > xProject/
-> > > > > >=20
-> > > > > > This is based on pure upstream sources and without Python 3.
-> > > > > >=20
-> > > > > >=20
-> > > > > > Currently I run copr builds manually but the plan is to make it
-> > > > > > fully automated.
-> > > > > >=20
-> > > > > >=20
-> > > > > > Let me know if you find it useful or if you have ideas, comments
-> > > > > > and so on.
-> > > > > >=20
-> > > > > >=20
-> > > > > > [1] https://gitlab.com/bachradsusi/selinux-rpm/blob/master/seli=
-nu
-> > > > > > x.spec
-> > > > > >=20
-> > > > > >=20
-> > > > > > Thanks,
-> > > > > >=20
-> > > > > > Petr
-> > > > >=20
-> > > > > --=20
-> > > > > Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B
-> > > > > 6B02
-> > > > > https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1=
-D2C7B6
-> > > > > B02
-> > > > > Dominick Grift
-> > > >=20
-> > > >=20
-> > > >=20
-> >=20
->=20
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---3XA6nns4nE4KvaS/
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlkmrPEACgkQJXSOVTf5
-R2nGBAv+OFPy+TPp1+/VBZf84lBsDTK2MCjE18mGdqKDEcLZ3SOStMNIVb6VFlaT
-0U7Z3MaNkzg+KBp5ARvi107cZDUsW/aEcws+1PeHjoTO4GV6eOhT9jMRP1vTDXAn
-T/cVb+sjQKW0BTOqhtOKBfFGTdYCEtzuMDqLScffhRIXzmTuXw+nmxjUMNeRlbPX
-IZ3pTp6Za9CKEFljRVlN23ykcqqVNQKXkWGhVkBu1z/j2xpx4XtFwhKzWVjruHjZ
-q5lxbbWIjyi6FvMh6wMjfN8OGWhLLQMMcpI8UbQL3ePDyRb0D4Bq9BGEl/GL/9Uk
-c/z26fCBrnq1amrCpsGiE8JeiNrItvpPR8miOvS34ytW5h6WtWh7Jy4awNYsmZC2
-y+6mCKQvlTh2kV88lwUWqjQTURHyMk9Uxk54DY6Sgy6I2VueRMQT7Sxyx332mIsO
-vkmCfW5lY4/tr7o8SQjXJVMXCnhBY2IsMsObma/XSMV7KnUxxwbT9sW9FMExiXrx
-jtLS1UcI
-=+Ho8
------END PGP SIGNATURE-----
-
---3XA6nns4nE4KvaS/--
+--94eb2c055866c7103205505ca662--
