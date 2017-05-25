@@ -4,48 +4,66 @@ Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
  Eric Paris <eparis@parisplace.org>,
  Trond Myklebust <trondmy@primarydata.com>,
  "J . Bruce Fields" <bfields@fieldses.org>
-Subject: [PATCH RFC 0/2] Fix setting of security labels over NFSv4.2
-Date: Thu, 25 May 2017 17:07:52 -0400
-Message-Id: <20170525210754.24265-1-smayhew@redhat.com>
-In-Reply-To: <20170404232646.GB24146@parsley.fieldses.org>
+Subject: [PATCH RFC 2/2] nfs: update labeling behavior on a superblock when
+ submounting
+Date: Thu, 25 May 2017 17:07:54 -0400
+Message-Id: <20170525210754.24265-3-smayhew@redhat.com>
+In-Reply-To: <20170525210754.24265-1-smayhew@redhat.com>
 References: <20170404232646.GB24146@parsley.fieldses.org>
+ <20170525210754.24265-1-smayhew@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Red Hat QE reported that chcon fails over NFSv4.2 on recent kernels.
-The problem is related to how filesystems are mounted in NFSv4.
+When the client traverses from filesystem exported without the
+"security_label" option to one exported with the "security_label"
+option, it needs to pass SECURITY_LSM_NATIVE_LABELS to
+security_sb_set_mnt_opts() so that the new superblock has SBLABEL_MNT
+set in its security mount options.  Otherwise, attempts to set security
+labels via setxattr over NFSv4.2 will fail.
 
-When an NFSv4 client performs a mount operation, it first mounts the
-NFSv4 root and then does path walk to the exported path and performs a
-submount on that, cloning the security mount options from the root's
-superblock to the submount's superblock in the process.
+Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+---
+ fs/nfs/super.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-Unless the NFS server has an explicit fsid=0 export with the
-"security_label" option, the NFSv4 root superblock will not have
-SBLABEL_MNT set, and neither will the submount superblock after cloning
-the security mount options.  As a result, setxattr's of security labels
-over NFSv4.2 will fail.
-
-NFS servers with a modern nfs-utils package will automatically create a
-pseudo fs to fill in the gaps (including the root itself) leading up to
-the actual export, so it is uncommon these days for an NFS server to
-have an explicit fsid=0 export.
-
-Allowing the NFSv4 client to override the SECURITY_LSM_NATIVE_LABELS
-flag on an initialized superblock would ensure that SBLABEL_MNT is set
-when the client traverses from an exported path without the
-"security_label" option to one with the "security_label" option.
-
-Scott Mayhew (2):
-  selinux: allow SECURITY_LSM_NATIVE_LABELS to be set on an already
-    initialized superblock
-  nfs: update labeling behavior on a superblock when submounting
-
- fs/nfs/super.c           | 23 ++++++++++++++++++++++-
- security/selinux/hooks.c |  4 ++--
- 2 files changed, 24 insertions(+), 3 deletions(-)
-
+diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+index 2f3822a..d7a3b89 100644
+--- a/fs/nfs/super.c
++++ b/fs/nfs/super.c
+@@ -2544,10 +2544,31 @@ EXPORT_SYMBOL_GPL(nfs_set_sb_security);
+ int nfs_clone_sb_security(struct super_block *s, struct dentry *mntroot,
+ 			  struct nfs_mount_info *mount_info)
+ {
++	int error;
++	unsigned long kflags = 0, kflags_out = 0;
++	struct security_mnt_opts opts;
++
+ 	/* clone any lsm security options from the parent to the new sb */
+ 	if (d_inode(mntroot)->i_op != NFS_SB(s)->nfs_client->rpc_ops->dir_inode_ops)
+ 		return -ESTALE;
+-	return security_sb_clone_mnt_opts(mount_info->cloned->sb, s);
++	error = security_sb_clone_mnt_opts(mount_info->cloned->sb, s);
++	if (error)
++		goto err;
++
++	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL &&
++		!(NFS_SB(mount_info->cloned->sb)->caps & NFS_CAP_SECURITY_LABEL)) {
++		memset(&opts, 0, sizeof(opts));
++		kflags |= SECURITY_LSM_NATIVE_LABELS;
++
++		error = security_sb_set_mnt_opts(s, &opts, kflags, &kflags_out);
++		if (error)
++			goto err;
++
++		if (!(kflags_out & SECURITY_LSM_NATIVE_LABELS))
++			NFS_SB(s)->caps &= ~NFS_CAP_SECURITY_LABEL;
++	}
++err:
++	return error;
+ }
+ EXPORT_SYMBOL_GPL(nfs_clone_sb_security);
+ 
 -- 
 2.9.3
