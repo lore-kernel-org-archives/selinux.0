@@ -1,71 +1,80 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4QEA3sr027069
- for <selinux@tycho.nsa.gov>; Fri, 26 May 2017 10:10:03 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 89BCC7F7A6
- for <selinux@tycho.nsa.gov>; Fri, 26 May 2017 14:09:59 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] Fix recently introduced TabError's
-Date: Fri, 26 May 2017 16:09:51 +0200
-Message-Id: <20170526140951.5112-1-plautrba@redhat.com>
+Message-ID: <1495808645.12091.10.camel@tycho.nsa.gov>
+Subject: Re: [PATCH RFC 2/2] nfs: update labeling behavior on a superblock
+ when submounting
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Scott Mayhew <smayhew@redhat.com>, selinux@tycho.nsa.gov,
+ linux-nfs@vger.kernel.org
+Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ Trond Myklebust <trondmy@primarydata.com>, "J . Bruce Fields"
+ <bfields@fieldses.org>
+Date: Fri, 26 May 2017 10:24:05 -0400
+In-Reply-To: <20170525210754.24265-3-smayhew@redhat.com>
+References: <20170404232646.GB24146@parsley.fieldses.org>
+ <20170525210754.24265-1-smayhew@redhat.com>
+ <20170525210754.24265-3-smayhew@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Commits a3d2c7a 6a7a5aa introduced inconsistent use of tabs and spaces
-in indentation what makes python3.6 unhappy.
+On Thu, 2017-05-25 at 17:07 -0400, Scott Mayhew wrote:
+> When the client traverses from filesystem exported without the
+> "security_label" option to one exported with the "security_label"
+> option, it needs to pass SECURITY_LSM_NATIVE_LABELS to
+> security_sb_set_mnt_opts() so that the new superblock has SBLABEL_MNT
+> set in its security mount options.  Otherwise, attempts to set
+> security
+> labels via setxattr over NFSv4.2 will fail.
+> 
+> Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+> ---
+>  fs/nfs/super.c | 23 ++++++++++++++++++++++-
+>  1 file changed, 22 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+> index 2f3822a..d7a3b89 100644
+> --- a/fs/nfs/super.c
+> +++ b/fs/nfs/super.c
+> @@ -2544,10 +2544,31 @@ EXPORT_SYMBOL_GPL(nfs_set_sb_security);
+>  int nfs_clone_sb_security(struct super_block *s, struct dentry
+> *mntroot,
+>  			  struct nfs_mount_info *mount_info)
+>  {
+> +	int error;
+> +	unsigned long kflags = 0, kflags_out = 0;
+> +	struct security_mnt_opts opts;
+> +
+>  	/* clone any lsm security options from the parent to the new
+> sb */
+>  	if (d_inode(mntroot)->i_op != NFS_SB(s)->nfs_client-
+> >rpc_ops->dir_inode_ops)
+>  		return -ESTALE;
+> -	return security_sb_clone_mnt_opts(mount_info->cloned->sb,
+> s);
+> +	error = security_sb_clone_mnt_opts(mount_info->cloned->sb,
+> s);
+> +	if (error)
+> +		goto err;
+> +
+> +	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL &&
+> +		!(NFS_SB(mount_info->cloned->sb)->caps &
+> NFS_CAP_SECURITY_LABEL)) {
+> +		memset(&opts, 0, sizeof(opts));
+> +		kflags |= SECURITY_LSM_NATIVE_LABELS;
+> +
+> +		error = security_sb_set_mnt_opts(s, &opts, kflags,
+> &kflags_out);
+> +		if (error)
+> +			goto err;
+> +
+> +		if (!(kflags_out & SECURITY_LSM_NATIVE_LABELS))
+> +			NFS_SB(s)->caps &= ~NFS_CAP_SECURITY_LABEL;
+> +	}
+> +err:
+> +	return error;
+>  }
+>  EXPORT_SYMBOL_GPL(nfs_clone_sb_security);
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libsemanage/utils/semanage_migrate_store | 4 ++--
- python/semanage/seobject.py              | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-index 9a9fac22..2e6cb278 100755
---- a/libsemanage/utils/semanage_migrate_store
-+++ b/libsemanage/utils/semanage_migrate_store
-@@ -254,8 +254,8 @@ if __name__ == "__main__":
- 		"policy.kern",
- 		"file_contexts",
- 		"homedir_template",
--                "pkeys.local",
--                "ibendports.local"]
-+		"pkeys.local",
-+		"ibendports.local"]
- 
- 
- 	create_dir(newroot_path(), 0o755)
-diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index 61be6198..c97a9f0c 100644
---- a/python/semanage/seobject.py
-+++ b/python/semanage/seobject.py
-@@ -1321,10 +1321,10 @@ class ibpkeyRecords(semanageRecords):
-         semanageRecords.__init__(self, store)
- 
-     def __genkey(self, pkey, subnet_prefix):
--	if subnet_prefix == "":
-+        if subnet_prefix == "":
-             raise ValueError(_("Subnet Prefix is required"))
- 
--	pkeys = pkey.split("-")
-+        pkeys = pkey.split("-")
-         if len(pkeys) == 1:
-             high = low = int(pkeys[0], 0)
-         else:
-@@ -1576,7 +1576,7 @@ class ibendportRecords(semanageRecords):
-         semanageRecords.__init__(self, store)
- 
-     def __genkey(self, ibendport, ibdev_name):
--	if ibdev_name == "":
-+        if ibdev_name == "":
-             raise ValueError(_("IB device name is required"))
- 
-         port = int(ibendport)
--- 
-2.13.0
+Could this clobber a context set via context= mount option?
