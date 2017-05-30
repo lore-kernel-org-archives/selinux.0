@@ -1,12 +1,12 @@
 From: Daniel Jurgens <danielj@mellanox.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
  <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH v1 1/2] selinux-testsuite: Infiniband pkey tests
-Date: Tue, 30 May 2017 16:28:56 +0000
-Message-ID: <VI1PR05MB1678326A96A93EC6431F6F50C4F00@VI1PR05MB1678.eurprd05.prod.outlook.com>
+Subject: Re: [PATCH v1 2/2] selinux-testsuite: Infiniband endport tests
+Date: Tue, 30 May 2017 16:31:32 +0000
+Message-ID: <VI1PR05MB1678FB6A7483B726A2749BFAC4F00@VI1PR05MB1678.eurprd05.prod.outlook.com>
 References: <1495635523-84017-1-git-send-email-danielj@mellanox.com>
- <1495635523-84017-2-git-send-email-danielj@mellanox.com>
- <1495742176.22368.8.camel@tycho.nsa.gov>
+ <1495635523-84017-3-git-send-email-danielj@mellanox.com>
+ <1495742895.22368.11.camel@tycho.nsa.gov>
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,53 +14,42 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 5/25/2017 2:52 PM, Stephen Smalley wrote:
+On 5/25/2017 3:04 PM, Stephen Smalley wrote:
 > On Wed, 2017-05-24 at 17:18 +0300, Dan Jurgens wrote:
 >> From: Daniel Jurgens <danielj@mellanox.com>
 >>
->> +corenet_ib_pkey(test_ibpkey_t)
->> +corenet_ib_access_unlabeled_pkeys(test_ibpkey_access_t)
-> This will break the build on current Fedora and RHEL.
-> So, you can either conditionalize inclusion of test_ibpkey.te in the
-> Makefile (see other examples already there) so that it is omitted
-> entirely if refpolicy lacks the requisite support, or wrap these
-> interface calls with suitable ifdefs, e.g.
-> ifdef(`corenet_ib_pkey', `
-> corenet_ib_pkey(test_ibpkey_t)
-> ')
-> ...
->
-> Probably the latter is best so that we get at least some build testing.
-
-Done, with ifdefs.
-
->> +
 >>
->> +TARGETS=create_modify_qp
->> +
->> +LDLIBS+= -libverbs
-> This is a new build dependency (libibverbs-devel), which should be
-> listed in the README.
+>> +allow test_ibendport_manage_subnet_t bin_t:file entrypoint;
+>> +allow test_ibendport_manage_subnet_t bin_t:file execute;
+> Just use:
+> corecmd_bin_entry_type(test_ibendport_manage_subnet_t)
 
 Done
 
 >
->> +int init_ib_rsrc(char* deviceName)
->> +{
->> +	int                 ndev = 0;
->> +	struct ibv_device  **dlist = ibv_get_device_list(&ndev);
->> +	struct ibv_device  *device = NULL;;
->> +	struct ibv_srq_init_attr srqiattr;
->> +	struct ibv_qp_init_attr qpiattr;
->> +	int i;
->> +
->> +	if (!ndev)
->> +	{
-> Can you run these test programs through
-> astyle --options=none --lineend=linux --mode=c --style=linux --
-> indent=force-tab=8 --indent-preprocessor --indent-col1-comments --min-
-> conditional-indent=0 --max-instatement-indent=80 --pad-oper --align-
-> pointer=name --align-reference=name --max-code-length=80 --break-after-
-> logical
+>> +allow test_ibendport_manage_subnet_t
+>> infiniband_mgmt_device_t:chr_file { read write open ioctl};
+>> +corenet_ib_access_unlabeled_pkeys(test_ibendport_manage_subnet_t)
+> This interface needs to be wrapped with an ifdef if this file is not
+> excluded when refpolicy lacks the necessary definitions.
 
-Done.
+Done
+
+>> +
+>> +allow test_ibendport_manage_subnet_t
+>> test_ibendport_t:infiniband_endport manage_subnet;
+> This needs to be conditional on the definition of this class.  You
+> could either omit the .te file altogether in the Makefile if not
+> defined, as we do for e.g. cap_userns, icmp_socket, etc, or you need to
+>  wrap it conditionally as we do for e.g. map permission.
+
+Excluded building the .te file if the class is not defined.
+
+>
+>> +	@SUBDIRS="$(SUBDIRS) $(SUBDIRS_NO_MAKE)"
+>> PATH=/usr/bin:/bin:/usr/sbin:/sbin ./runtests.pl
+> This works, but elsewhere we've always just put a trivial Makefile with
+> empty all: and clean: targets in it, e.g. entrypoint/Makefile.  No big
+> deal either way.
+
+Switched to a stub makefile.
