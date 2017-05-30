@@ -1,138 +1,72 @@
-Message-ID: <1496173971.2164.25.camel@tycho.nsa.gov>
-Subject: Re: [PATCH RFC 2/2] nfs: update labeling behavior on a superblock
- when submounting
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "J . Bruce Fields" <bfields@fieldses.org>
-Cc: Scott Mayhew <smayhew@redhat.com>, linux-nfs@vger.kernel.org,
- selinux@tycho.nsa.gov, Trond Myklebust <trondmy@primarydata.com>
-Date: Tue, 30 May 2017 15:52:51 -0400
-In-Reply-To: <20170530194030.GB9371@fieldses.org>
-References: <20170404232646.GB24146@parsley.fieldses.org>
- <20170525210754.24265-1-smayhew@redhat.com>
- <20170525210754.24265-3-smayhew@redhat.com>
- <1495808645.12091.10.camel@tycho.nsa.gov>
- <20170526152821.xgyidg7qebdwbm6f@tonberry.usersys.redhat.com>
- <1496155125.2164.8.camel@tycho.nsa.gov>
- <20170530194030.GB9371@fieldses.org>
+MIME-Version: 1.0
+In-Reply-To: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
+References: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Tue, 30 May 2017 23:37:01 +0200
+Message-ID: <CAJfZ7=nA6d0H=DG2pnbubofxwdRLtD8DO+Vm_qTVYtxep_MW6g@mail.gmail.com>
+Subject: Re: [PATCH 1/2] libsepol: Clean up scope handling
+To: James Carter <jwcart2@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-05-30 at 15:40 -0400, J . Bruce Fields wrote:
-> On Tue, May 30, 2017 at 10:38:45AM -0400, Stephen Smalley wrote:
-> > On Fri, 2017-05-26 at 11:28 -0400, Scott Mayhew wrote:
-> > > On Fri, 26 May 2017, Stephen Smalley wrote:
-> > > 
-> > > > On Thu, 2017-05-25 at 17:07 -0400, Scott Mayhew wrote:
-> > > > > When the client traverses from filesystem exported without
-> > > > > the
-> > > > > "security_label" option to one exported with the
-> > > > > "security_label"
-> > > > > option, it needs to pass SECURITY_LSM_NATIVE_LABELS to
-> > > > > security_sb_set_mnt_opts() so that the new superblock has
-> > > > > SBLABEL_MNT
-> > > > > set in its security mount options.  Otherwise, attempts to
-> > > > > set
-> > > > > security
-> > > > > labels via setxattr over NFSv4.2 will fail.
-> > > > > 
-> > > > > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
-> > > > > ---
-> > > > >  fs/nfs/super.c | 23 ++++++++++++++++++++++-
-> > > > >  1 file changed, 22 insertions(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/fs/nfs/super.c b/fs/nfs/super.c
-> > > > > index 2f3822a..d7a3b89 100644
-> > > > > --- a/fs/nfs/super.c
-> > > > > +++ b/fs/nfs/super.c
-> > > > > @@ -2544,10 +2544,31 @@
-> > > > > EXPORT_SYMBOL_GPL(nfs_set_sb_security);
-> > > > >  int nfs_clone_sb_security(struct super_block *s, struct
-> > > > > dentry
-> > > > > *mntroot,
-> > > > >  			  struct nfs_mount_info *mount_info)
-> > > > >  {
-> > > > > +	int error;
-> > > > > +	unsigned long kflags = 0, kflags_out = 0;
-> > > > > +	struct security_mnt_opts opts;
-> > > > > +
-> > > > >  	/* clone any lsm security options from the parent to
-> > > > > the
-> > > > > new
-> > > > > sb */
-> > > > >  	if (d_inode(mntroot)->i_op != NFS_SB(s)->nfs_client-
-> > > > > > rpc_ops->dir_inode_ops)
-> > > > > 
-> > > > >  		return -ESTALE;
-> > > > > -	return security_sb_clone_mnt_opts(mount_info-
-> > > > > >cloned-
-> > > > > > sb,
-> > > > > 
-> > > > > s);
-> > > > > +	error = security_sb_clone_mnt_opts(mount_info-
-> > > > > >cloned-
-> > > > > > sb,
-> > > > > 
-> > > > > s);
-> > > > > +	if (error)
-> > > > > +		goto err;
-> > > > > +
-> > > > > +	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL &&
-> > > > > +		!(NFS_SB(mount_info->cloned->sb)->caps &
-> > > > > NFS_CAP_SECURITY_LABEL)) {
-> > > > > +		memset(&opts, 0, sizeof(opts));
-> > > > > +		kflags |= SECURITY_LSM_NATIVE_LABELS;
-> > > > > +
-> > > > > +		error = security_sb_set_mnt_opts(s, &opts,
-> > > > > kflags,
-> > > > > &kflags_out);
-> > > > > +		if (error)
-> > > > > +			goto err;
-> > > > > +
-> > > > > +		if (!(kflags_out &
-> > > > > SECURITY_LSM_NATIVE_LABELS))
-> > > > > +			NFS_SB(s)->caps &=
-> > > > > ~NFS_CAP_SECURITY_LABEL;
-> > > > > +	}
-> > > > > +err:
-> > > > > +	return error;
-> > > > >  }
-> > > > >  EXPORT_SYMBOL_GPL(nfs_clone_sb_security);
-> > > > 
-> > > > Could this clobber a context set via context= mount option?
-> > > 
-> > > Argh, yes I suppose it could.  In my first attempt to fix this, I
-> > > added
-> > > a security_sb_get_mnt_opts() hook to get the original mount
-> > > options
-> > > and
-> > > then passed that along with the SECURITY_LSM_NATIVE_LABELS flag
-> > > to
-> > > security_sb_set_mnt_opts().  When I saw that
-> > > security_sb_set_mnt_opts()
-> > > wouldn't allow me to change a superblock that had already been
-> > > initialized, I got rid of the hook and added the check in patch
-> > > 1...
-> > > maybe a combination of the two is needed?
-> > > 
-> > > Testing it again now, I'm not sure the context= mount option is
-> > > working
-> > > correctly with the latest kernel.
-> > 
-> > Looks like you are correct,
-> > https://github.com/SELinuxProject/selinux-kernel/issues/35
-> 
-> Ugh.  So, to make sure I understand: the desired behavior is that in
-> the
-> case the client mounts with a context= option, behavior is exactly as
-> if
-> the client or server didn't support the new security labeling
-> protocol.
-> That would make sense to me.
+On Tue, May 30, 2017 at 9:13 PM, James Carter <jwcart2@tycho.nsa.gov> wrote:
+> Currently, when checking if an identifier is enabled, each scope in
+> the decl_ids list is checked. This means that if any block that
+> requires the identifier is enabled, then the identifier will be treated
+> as being declared.
+>
+> Now, declarations will be kept at the end of the decl_ids list and
+> when checking if an identifier is enabled, only the last scope will
+> be checked (Except for roles and users which allow multiple declarations,
+> they will have to keep the old behavior.)
+>
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> ---
+>  libsepol/src/avrule_block.c | 24 ++++++++++++++++++++----
+>  libsepol/src/policydb.c     | 13 +++++++++++++
+>  2 files changed, 33 insertions(+), 4 deletions(-)
+>
+> diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
+> index 224e999..e1f460e 100644
+> --- a/libsepol/src/avrule_block.c
+> +++ b/libsepol/src/avrule_block.c
+> @@ -156,20 +156,36 @@ int is_id_enabled(char *id, policydb_t * p, int symbol_table)
+>  {
+>         scope_datum_t *scope =
+>             (scope_datum_t *) hashtab_search(p->scope[symbol_table].table, id);
+> -       uint32_t i;
+> +       avrule_decl_t *decl;
+> +       uint32_t len = scope->decl_ids_len;
+> +
+>         if (scope == NULL) {
+>                 return 0;
+>         }
+>         if (scope->scope != SCOPE_DECL) {
+>                 return 0;
+>         }
+> -       for (i = 0; i < scope->decl_ids_len; i++) {
+> -               avrule_decl_t *decl =
+> -                   p->decl_val_to_struct[scope->decl_ids[i] - 1];
+> +
+> +       if (len < 1) {
+> +               return 0;
+> +       }
+> +
+> +       if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS) {
+> +               uint32_t i;
+> +               for (i = 0; i < len; i++) {
+> +                       avrule_decl_t *decl =
+> +                               p->decl_val_to_struct[scope->decl_ids[i] - 1];
 
-Yes, that's correct.  And in theory that is what nfs_set_sb_security()
-is trying to do by clearing NFS_CAP_SECURITY_LABEL if
-SECURITY_LSM_NATIVE_LABELS was not set by the security hook.
+Hello,
+This statement creates a local variable which shadows the previous
+"decl" variable that is introduced in this commit too (this gets
+reported as a -Wshadow warning). You may want to rename one of these
+two variables.
+
+Cheers,
+Nicolas
