@@ -1,52 +1,67 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UGWcTH022136
- for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 12:32:40 -0400
-From: Steve Lawrence <slawrence@tresys.com>
-To: SELinux List <selinux@tycho.nsa.gov>
-Subject: [PATCH 1/1] libsepol/cil: fix aliasactual resolution errors
-Date: Tue, 30 May 2017 12:32:06 -0400
-Message-ID: <20170530163206.30421-1-slawrence@tresys.com>
-MIME-Version: 1.0
-Content-Type: text/plain
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UGZJSj022976
+ for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 12:35:19 -0400
+From: Dan Jurgens <danielj@mellanox.com>
+To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul@paul-moore.com
+Subject: [PATCH v2 0/2] Selinux tests for Infinfiband
+Date: Tue, 30 May 2017 19:34:49 +0300
+Message-Id: <1496162091-129822-1-git-send-email-danielj@mellanox.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-- Set rc to SEPOL_ERR if the alias part of an aliasactual statement
-  does not resolve to the correct alias flavor (e.g. typealias, senalias, catalias)
-- Add an error check if the actual part of an aliasactual statement
-  does not resolve to the correct actual flavor (type, sens, cat)
+From: Daniel Jurgens <danielj@mellanox.com>
 
-Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+Implements new tests for Infiniband pkeys and endports. Because infiniband
+isn't widely used, and when it is the configuration is site specific,
+configuration files are used to enable the tests and set environment
+specific settings. When the tests are disable they always show as passed.
+
+If enabled, the tests require correstponding updates to selinux, refpolicy,
+and the linux kernel.
+
 ---
- libsepol/cil/src/cil_resolve_ast.c | 7 +++++++
- 1 file changed, 7 insertions(+)
 
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index a671068..5c26530 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -521,6 +521,7 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
- 	}
- 	if (NODE(alias_datum)->flavor != alias_flavor) {
- 		cil_log(CIL_ERR, "%s is not an alias\n",alias_datum->name);
-+		rc = SEPOL_ERR;
- 		goto exit;
- 	}
- 
-@@ -529,6 +530,12 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
- 		goto exit;
- 	}
- 
-+	if (NODE(actual_datum)->flavor != flavor) {
-+		cil_log(CIL_ERR, "%s is a %s, but aliases a %s\n", alias_datum->name, cil_node_to_string(NODE(alias_datum)), cil_node_to_string(NODE(actual_datum)));
-+		rc = SEPOL_ERR;
-+		goto exit;
-+	}
-+
- 	alias = (struct cil_alias *)alias_datum;
- 
- 	if (alias->actual != NULL) {
+v1:
+- Synchronize intefrace names with changes to refpolicy.
+- Change tests to not assume that default pkey is labeled.
+- See patches v1 notes for more detail.
+
+v2:
+- Use ifdefs around new corenet_ib* interfaces.
+- Exclude endport policy if infiniband_endport class is undefined.
+- Use a stub makefile in tests/infinband_endport vs a new SUBDIRS_NO_MAKE
+  list in the makefile.
+- Style cleanup in new pkey test program.
+- Updated README for new dependency.
+
+Daniel Jurgens (2):
+  selinux-testsuite: Infiniband pkey tests
+  selinux-testsuite: Infiniband endport tests
+
+ README                                       |  17 +++-
+ policy/Makefile                              |   7 +-
+ policy/test_ibendport.te                     |  40 ++++++++
+ policy/test_ibpkey.te                        |  30 ++++++
+ tests/Makefile                               |   4 +-
+ tests/infiniband_endport/Makefile            |   2 +
+ tests/infiniband_endport/ibendport_test.conf |  14 +++
+ tests/infiniband_endport/test                |  49 ++++++++++
+ tests/infiniband_pkey/Makefile               |   7 ++
+ tests/infiniband_pkey/create_modify_qp.c     | 136 +++++++++++++++++++++++++++
+ tests/infiniband_pkey/ibpkey_test.conf       |  18 ++++
+ tests/infiniband_pkey/test                   |  84 +++++++++++++++++
+ 12 files changed, 404 insertions(+), 4 deletions(-)
+ create mode 100644 policy/test_ibendport.te
+ create mode 100644 policy/test_ibpkey.te
+ create mode 100644 tests/infiniband_endport/Makefile
+ create mode 100644 tests/infiniband_endport/ibendport_test.conf
+ create mode 100755 tests/infiniband_endport/test
+ create mode 100644 tests/infiniband_pkey/Makefile
+ create mode 100644 tests/infiniband_pkey/create_modify_qp.c
+ create mode 100644 tests/infiniband_pkey/ibpkey_test.conf
+ create mode 100755 tests/infiniband_pkey/test
+
 -- 
-2.9.4
+2.12.2
