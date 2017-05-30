@@ -1,97 +1,117 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UJCAQm026091
- for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 15:12:10 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2] libsepol: Fix module_to_cil's handling of type aliases
-Date: Tue, 30 May 2017 15:13:04 -0400
-Message-Id: <20170530191304.29886-2-jwcart2@tycho.nsa.gov>
-In-Reply-To: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
-References: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
+Date: Tue, 30 May 2017 15:40:30 -0400
+From: "J . Bruce Fields" <bfields@fieldses.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Scott Mayhew <smayhew@redhat.com>, linux-nfs@vger.kernel.org,
+ selinux@tycho.nsa.gov, Trond Myklebust <trondmy@primarydata.com>
+Subject: Re: [PATCH RFC 2/2] nfs: update labeling behavior on a superblock
+ when submounting
+Message-ID: <20170530194030.GB9371@fieldses.org>
+References: <20170404232646.GB24146@parsley.fieldses.org>
+ <20170525210754.24265-1-smayhew@redhat.com>
+ <20170525210754.24265-3-smayhew@redhat.com>
+ <1495808645.12091.10.camel@tycho.nsa.gov>
+ <20170526152821.xgyidg7qebdwbm6f@tonberry.usersys.redhat.com>
+ <1496155125.2164.8.camel@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+In-Reply-To: <1496155125.2164.8.camel@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Type aliases present a problem for module_to_cil because they are not
-in the sym_val_to_name table that it uses to write declarations. Type
-aliases are gathered by going through the decl_ids list and then
-the alias declaration is written out when the block with that scope
-id is handled. This doesn't work if a type alias appears in a require
-block, since the require cannot be distinguished from the declaration.
-The result is two declarations of the alias and an error when secilc
-compiles the policy.
+On Tue, May 30, 2017 at 10:38:45AM -0400, Stephen Smalley wrote:
+> On Fri, 2017-05-26 at 11:28 -0400, Scott Mayhew wrote:
+> > On Fri, 26 May 2017, Stephen Smalley wrote:
+> > 
+> > > On Thu, 2017-05-25 at 17:07 -0400, Scott Mayhew wrote:
+> > > > When the client traverses from filesystem exported without the
+> > > > "security_label" option to one exported with the "security_label"
+> > > > option, it needs to pass SECURITY_LSM_NATIVE_LABELS to
+> > > > security_sb_set_mnt_opts() so that the new superblock has
+> > > > SBLABEL_MNT
+> > > > set in its security mount options.  Otherwise, attempts to set
+> > > > security
+> > > > labels via setxattr over NFSv4.2 will fail.
+> > > > 
+> > > > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+> > > > ---
+> > > >  fs/nfs/super.c | 23 ++++++++++++++++++++++-
+> > > >  1 file changed, 22 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+> > > > index 2f3822a..d7a3b89 100644
+> > > > --- a/fs/nfs/super.c
+> > > > +++ b/fs/nfs/super.c
+> > > > @@ -2544,10 +2544,31 @@ EXPORT_SYMBOL_GPL(nfs_set_sb_security);
+> > > >  int nfs_clone_sb_security(struct super_block *s, struct dentry
+> > > > *mntroot,
+> > > >  			  struct nfs_mount_info *mount_info)
+> > > >  {
+> > > > +	int error;
+> > > > +	unsigned long kflags = 0, kflags_out = 0;
+> > > > +	struct security_mnt_opts opts;
+> > > > +
+> > > >  	/* clone any lsm security options from the parent to the
+> > > > new
+> > > > sb */
+> > > >  	if (d_inode(mntroot)->i_op != NFS_SB(s)->nfs_client-
+> > > > > rpc_ops->dir_inode_ops)
+> > > > 
+> > > >  		return -ESTALE;
+> > > > -	return security_sb_clone_mnt_opts(mount_info->cloned-
+> > > > >sb,
+> > > > s);
+> > > > +	error = security_sb_clone_mnt_opts(mount_info->cloned-
+> > > > >sb,
+> > > > s);
+> > > > +	if (error)
+> > > > +		goto err;
+> > > > +
+> > > > +	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL &&
+> > > > +		!(NFS_SB(mount_info->cloned->sb)->caps &
+> > > > NFS_CAP_SECURITY_LABEL)) {
+> > > > +		memset(&opts, 0, sizeof(opts));
+> > > > +		kflags |= SECURITY_LSM_NATIVE_LABELS;
+> > > > +
+> > > > +		error = security_sb_set_mnt_opts(s, &opts,
+> > > > kflags,
+> > > > &kflags_out);
+> > > > +		if (error)
+> > > > +			goto err;
+> > > > +
+> > > > +		if (!(kflags_out & SECURITY_LSM_NATIVE_LABELS))
+> > > > +			NFS_SB(s)->caps &=
+> > > > ~NFS_CAP_SECURITY_LABEL;
+> > > > +	}
+> > > > +err:
+> > > > +	return error;
+> > > >  }
+> > > >  EXPORT_SYMBOL_GPL(nfs_clone_sb_security);
+> > > 
+> > > Could this clobber a context set via context= mount option?
+> > 
+> > Argh, yes I suppose it could.  In my first attempt to fix this, I
+> > added
+> > a security_sb_get_mnt_opts() hook to get the original mount options
+> > and
+> > then passed that along with the SECURITY_LSM_NATIVE_LABELS flag to
+> > security_sb_set_mnt_opts().  When I saw that
+> > security_sb_set_mnt_opts()
+> > wouldn't allow me to change a superblock that had already been
+> > initialized, I got rid of the hook and added the check in patch 1...
+> > maybe a combination of the two is needed?
+> > 
+> > Testing it again now, I'm not sure the context= mount option is
+> > working
+> > correctly with the latest kernel.
+> 
+> Looks like you are correct,
+> https://github.com/SELinuxProject/selinux-kernel/issues/35
 
-Because of the work cleaning up scope handling, the alias declaration
-will always be at the end of the decl_ids list, so now only gather
-the last scope id.
+Ugh.  So, to make sure I understand: the desired behavior is that in the
+case the client mounts with a context= option, behavior is exactly as if
+the client or server didn't support the new security labeling protocol.
+That would make sense to me.
 
-Also, when an alias is used in a module it is required as a type and
-it will appear in the sym_val_to_name table. When that occurs, just
-skip the alias when writing out types.
-
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/src/module_to_cil.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 7d8eb20..429d164 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -317,7 +317,7 @@ static int typealiases_gather_map(char *key, void *data, void *arg)
- 	struct type_datum *type = data;
- 	struct policydb *pdb = arg;
- 	struct scope_datum *scope;
--	uint32_t i;
-+	uint32_t len;
- 	uint32_t scope_id;
- 
- 	if (type->primary != 1) {
-@@ -326,8 +326,9 @@ static int typealiases_gather_map(char *key, void *data, void *arg)
- 			return -1;
- 		}
- 
--		for (i = 0; i < scope->decl_ids_len; i++) {
--			scope_id = scope->decl_ids[i];
-+		len = scope->decl_ids_len;
-+		if (len > 0) {
-+			scope_id = scope->decl_ids[len-1];
- 			if (typealias_lists[scope_id] == NULL) {
- 				rc = list_init(&typealias_lists[scope_id]);
- 				if (rc != 0) {
-@@ -2262,6 +2263,8 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 			cil_printf("))\n");
- 		}
- 		break;
-+	case TYPE_ALIAS:
-+		break;
- 	default:
- 		log_err("Unknown flavor (%i) of type %s", type->flavor, key);
- 		rc = -1;
-@@ -3321,6 +3324,7 @@ static int typealiases_to_cil(int indent, struct policydb *pdb, struct avrule_bl
- {
- 	struct type_datum *alias_datum;
- 	char *alias_name;
-+	char *type_name;
- 	struct list_node *curr;
- 	struct avrule_decl *decl = stack_peek(decl_stack);
- 	struct list *alias_list = typealias_lists[decl->decl_id];
-@@ -3337,9 +3341,13 @@ static int typealiases_to_cil(int indent, struct policydb *pdb, struct avrule_bl
- 			rc = -1;
- 			goto exit;
- 		}
--
-+		if (alias_datum->flavor == TYPE_ALIAS) {
-+			type_name = pdb->p_type_val_to_name[alias_datum->primary - 1];
-+		} else {
-+			type_name = pdb->p_type_val_to_name[alias_datum->s.value - 1];
-+		}
- 		cil_println(indent, "(typealias %s)", alias_name);
--		cil_println(indent, "(typealiasactual %s %s)", alias_name, pdb->p_type_val_to_name[alias_datum->s.value - 1]);
-+		cil_println(indent, "(typealiasactual %s %s)", alias_name, type_name);
- 	}
- 
- 	return 0;
--- 
-2.9.4
+--b.
