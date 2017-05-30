@@ -1,150 +1,60 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: bwiedemann@suse.de
-Subject: [PATCH] sort input files
-Date: Tue, 30 May 2017 12:47:37 -0400
-Message-Id: <20170530164737.5266-1-sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UGhoOY026002
+ for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 12:43:50 -0400
+Subject: Re: libsepol segfaults with typealias and typealiasactual
+To: <selinux@tycho.nsa.gov>
+References: <20170530140513.GA29502@julius.enp8s0.d30>
+From: Steve Lawrence <slawrence@tresys.com>
+Message-ID: <a2bfd9b2-5aa3-139c-31ea-5a6c226e3ef8@tresys.com>
+Date: Tue, 30 May 2017 12:43:25 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170530140513.GA29502@julius.enp8s0.d30>
+Content-Type: text/plain; charset="windows-1252"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: "Bernhard M. Wiedemann" <bwiedemann@suse.de>
+On 05/30/2017 10:05 AM, Dominick Grift wrote:
+> I have a typealias/typealiasactual in dssp2-standard at:
+> 
+> https://github.com/DefenSec/dssp2-standard/blob/master/policy/system/rpm.cil#L18
+> 
+> This *works*
+> 
+> However now i want to additionally associate "unconfined.user.subj" with "rpm_script_t"
+> So i created a module:
+> 
+> echo "(typealiasesactual rpm_script_t unconfined.user.subj)" > mytest.cil && semodule -i mytest.cil
+> it returns (something along those lines):
+> 
+> "subj is not an alias"
+> 
+> however it seems as though the module did install. I cannot think of any simple way to determine whether it works as I cannot find any "seinfo --typealias" or sesearch "--typealiases"
+> 
+> Anyway libsepol segfaults when i try to play more with this
+> 
+> So I tried the following
+> 
+> (typeattribute rpm_script_aliases_type_attribute)
+> (typeattributeset rpm_script_aliases_type_attribute rpm.script.subj)
+> (typeattributeset rpm_script_aliases_type_attribute unconfined.user.subj)
+> 
+> (typealias rpm_script_t)
+> (typealiasactual rpm_script_t rpm_script_aliases_type_attribute)
+> 
+> This also return incoherent messages something like "invalid "." in ...", but it seems to install
+> 
+> and after that everything just segfaults (libsepol), untill i remove my local customizations
+> 
+> I dont know a better way to explain this but looks to me theres a serious bug in how typealiases are handled by libsepol:
+> 
+> https://www.youtube.com/watch?v=qe-vqieu2jg
+> 
 
-when building packages (e.g. for openSUSE Linux)
-(random) filesystem order of input files
-influences ordering of functions in the output,
-thus without the patch, builds (in disposable VMs) would usually differ.
-
-See https://reproducible-builds.org/ for why this matters.
----
- libselinux/utils/Makefile            | 2 +-
- libsemanage/src/Makefile             | 2 +-
- libsemanage/tests/Makefile           | 2 +-
- libsepol/tests/Makefile              | 2 +-
- libsepol/utils/Makefile              | 2 +-
- mcstrans/utils/Makefile              | 2 +-
- policycoreutils/hll/pp/Makefile      | 2 +-
- policycoreutils/load_policy/Makefile | 2 +-
- policycoreutils/run_init/Makefile    | 2 +-
- 9 files changed, 9 insertions(+), 9 deletions(-)
-
-diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index 14f94bd..5f5368a 100644
---- a/libselinux/utils/Makefile
-+++ b/libselinux/utils/Makefile
-@@ -53,7 +53,7 @@ PCRE_LDLIBS ?= -lpcre
- ifeq ($(ANDROID_HOST),y)
- TARGETS=sefcontext_compile
- else
--TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-+TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
- endif
- 
- sefcontext_compile: LDLIBS += $(PCRE_LDLIBS) ../src/libselinux.a -lsepol
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index dba50c8..f01385c 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -51,7 +51,7 @@ SWIGFILES=$(SWIGSO) semanage.py
- SWIGRUBYSO=$(RUBYPREFIX)_semanage.so
- LIBSO=$(TARGET).$(LIBVERSION)
- 
--GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i $(wildcard conf-*.[ch])
-+GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i $(sort $(wildcard conf-*.[ch]))
- SRCS= $(filter-out $(GENERATED),$(sort $(wildcard *.c)))
- 
- OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
-diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index 9b27224..9ccb5b2 100644
---- a/libsemanage/tests/Makefile
-+++ b/libsemanage/tests/Makefile
-@@ -2,7 +2,7 @@ PREFIX ?= $(DESTDIR)/usr
- LIBDIR ?= $(PREFIX)/lib
- 
- # Add your test source files here:
--SOURCES = $(wildcard *.c)
-+SOURCES = $(sort $(wildcard *.c))
- 
- # Add the required external object files here:
- LIBS = ../src/libsemanage.a -lselinux -lsepol
-diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
-index 6ae8ad2..1bd96db 100644
---- a/libsepol/tests/Makefile
-+++ b/libsepol/tests/Makefile
-@@ -15,7 +15,7 @@ CHECKPOLICY := ../../checkpolicy/
- CPPFLAGS += -I../include/ -I$(CHECKPOLICY)
- 
- # test program object files
--objs := $(patsubst %.c,%.o,$(wildcard *.c))
-+objs := $(patsubst %.c,%.o,$(sort $(wildcard *.c)))
- parserobjs := $(CHECKPOLICY)queue.o $(CHECKPOLICY)y.tab.o \
- 	$(CHECKPOLICY)parse_util.o $(CHECKPOLICY)lex.yy.o \
- 	$(CHECKPOLICY)policy_define.o $(CHECKPOLICY)module_compiler.o
-diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
-index 3b2fb77..467aff2 100644
---- a/libsepol/utils/Makefile
-+++ b/libsepol/utils/Makefile
-@@ -7,7 +7,7 @@ override CFLAGS += -I../include
- override LDFLAGS += -L../src
- LDLIBS += -lsepol
- 
--TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-+TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
- 
- all: $(TARGETS)
- 
-diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
-index e6f329b..7e59641 100644
---- a/mcstrans/utils/Makefile
-+++ b/mcstrans/utils/Makefile
-@@ -8,7 +8,7 @@ CFLAGS ?= -Wall
- override CFLAGS += -I../src -D_GNU_SOURCE
- LDLIBS += -lselinux -lpcre
- 
--TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-+TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
- 
- all: $(TARGETS)
- 
-diff --git a/policycoreutils/hll/pp/Makefile b/policycoreutils/hll/pp/Makefile
-index 1ca6c9d..813c9c6 100644
---- a/policycoreutils/hll/pp/Makefile
-+++ b/policycoreutils/hll/pp/Makefile
-@@ -10,7 +10,7 @@ HLLDIR ?= $(LIBEXECDIR)/selinux/hll
- CFLAGS ?= -Werror -Wall -W
- LDLIBS = -lsepol
- 
--PP_SRCS = $(wildcard *.c)
-+PP_SRCS = $(sort $(wildcard *.c))
- PP_OBJS = $(patsubst %.c,%.o,$(PP_SRCS))
- 
- all: pp
-diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_policy/Makefile
-index 6ab0f9d..256d95a 100644
---- a/policycoreutils/load_policy/Makefile
-+++ b/policycoreutils/load_policy/Makefile
-@@ -9,7 +9,7 @@ CFLAGS ?= -Werror -Wall -W
- override CFLAGS += $(LDFLAGS) -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
- LDLIBS += -lsepol -lselinux
- 
--TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-+TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
- 
- all: $(TARGETS)
- 
-diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_init/Makefile
-index 6f5ee13..7b25952 100644
---- a/policycoreutils/run_init/Makefile
-+++ b/policycoreutils/run_init/Makefile
-@@ -23,7 +23,7 @@ ifeq ($(AUDITH), y)
- 	LDLIBS += -laudit
- endif
- 
--TARGETS=$(patsubst %.c,%,$(wildcard *.c))
-+TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
- 
- all: $(TARGETS)
- 
--- 
-2.9.4
+The first argument to the typealiasactual statement must resolve to a
+typealias, and the second argument must resolve to a type. In your above
+CIL snipppet you have it resolving to an attribute, which is not
+allowed. However, we weren't correctly checking these restrictions,
+which could lead to segfaults and weird error messages. I've just sent a
+patch that should fix this conditions and error out with helpful messages.
