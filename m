@@ -1,55 +1,52 @@
-From: Daniel Jurgens <danielj@mellanox.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>
-Subject: Re: [PATCH v1 2/2] selinux-testsuite: Infiniband endport tests
-Date: Tue, 30 May 2017 16:31:32 +0000
-Message-ID: <VI1PR05MB1678FB6A7483B726A2749BFAC4F00@VI1PR05MB1678.eurprd05.prod.outlook.com>
-References: <1495635523-84017-1-git-send-email-danielj@mellanox.com>
- <1495635523-84017-3-git-send-email-danielj@mellanox.com>
- <1495742895.22368.11.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset="us-ascii"
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UGWcTH022136
+ for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 12:32:40 -0400
+From: Steve Lawrence <slawrence@tresys.com>
+To: SELinux List <selinux@tycho.nsa.gov>
+Subject: [PATCH 1/1] libsepol/cil: fix aliasactual resolution errors
+Date: Tue, 30 May 2017 12:32:06 -0400
+Message-ID: <20170530163206.30421-1-slawrence@tresys.com>
 MIME-Version: 1.0
+Content-Type: text/plain
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 5/25/2017 3:04 PM, Stephen Smalley wrote:
-> On Wed, 2017-05-24 at 17:18 +0300, Dan Jurgens wrote:
->> From: Daniel Jurgens <danielj@mellanox.com>
->>
->>
->> +allow test_ibendport_manage_subnet_t bin_t:file entrypoint;
->> +allow test_ibendport_manage_subnet_t bin_t:file execute;
-> Just use:
-> corecmd_bin_entry_type(test_ibendport_manage_subnet_t)
+- Set rc to SEPOL_ERR if the alias part of an aliasactual statement
+  does not resolve to the correct alias flavor (e.g. typealias, senalias, catalias)
+- Add an error check if the actual part of an aliasactual statement
+  does not resolve to the correct actual flavor (type, sens, cat)
 
-Done
+Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+---
+ libsepol/cil/src/cil_resolve_ast.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
->
->> +allow test_ibendport_manage_subnet_t
->> infiniband_mgmt_device_t:chr_file { read write open ioctl};
->> +corenet_ib_access_unlabeled_pkeys(test_ibendport_manage_subnet_t)
-> This interface needs to be wrapped with an ifdef if this file is not
-> excluded when refpolicy lacks the necessary definitions.
-
-Done
-
->> +
->> +allow test_ibendport_manage_subnet_t
->> test_ibendport_t:infiniband_endport manage_subnet;
-> This needs to be conditional on the definition of this class.  You
-> could either omit the .te file altogether in the Makefile if not
-> defined, as we do for e.g. cap_userns, icmp_socket, etc, or you need to
->  wrap it conditionally as we do for e.g. map permission.
-
-Excluded building the .te file if the class is not defined.
-
->
->> +	@SUBDIRS="$(SUBDIRS) $(SUBDIRS_NO_MAKE)"
->> PATH=/usr/bin:/bin:/usr/sbin:/sbin ./runtests.pl
-> This works, but elsewhere we've always just put a trivial Makefile with
-> empty all: and clean: targets in it, e.g. entrypoint/Makefile.  No big
-> deal either way.
-
-Switched to a stub makefile.
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index a671068..5c26530 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -521,6 +521,7 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
+ 	}
+ 	if (NODE(alias_datum)->flavor != alias_flavor) {
+ 		cil_log(CIL_ERR, "%s is not an alias\n",alias_datum->name);
++		rc = SEPOL_ERR;
+ 		goto exit;
+ 	}
+ 
+@@ -529,6 +530,12 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
+ 		goto exit;
+ 	}
+ 
++	if (NODE(actual_datum)->flavor != flavor) {
++		cil_log(CIL_ERR, "%s is a %s, but aliases a %s\n", alias_datum->name, cil_node_to_string(NODE(alias_datum)), cil_node_to_string(NODE(actual_datum)));
++		rc = SEPOL_ERR;
++		goto exit;
++	}
++
+ 	alias = (struct cil_alias *)alias_datum;
+ 
+ 	if (alias->actual != NULL) {
+-- 
+2.9.4
