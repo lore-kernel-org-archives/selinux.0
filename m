@@ -1,137 +1,100 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UIwJAv019313
- for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 14:58:21 -0400
-Received: by mail-wm0-f52.google.com with SMTP id b84so99753042wmh.0
- for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 11:58:12 -0700 (PDT)
-Received: from julius.enp8s0.d30 ([217.19.26.10])
- by smtp.gmail.com with ESMTPSA id x27sm5909857edb.49.2017.05.30.11.58.10
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Tue, 30 May 2017 11:58:10 -0700 (PDT)
-Date: Tue, 30 May 2017 20:58:08 +0200
-From: Dominick Grift <dac.override@gmail.com>
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UJCAQl026091
+ for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 15:12:10 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Subject: Re: libsepol segfaults with typealias and typealiasactual
-Message-ID: <20170530185808.GB29502@julius.enp8s0.d30>
-References: <20170530140513.GA29502@julius.enp8s0.d30>
- <a2bfd9b2-5aa3-139c-31ea-5a6c226e3ef8@tresys.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
-In-Reply-To: <a2bfd9b2-5aa3-139c-31ea-5a6c226e3ef8@tresys.com>
+Subject: [PATCH 1/2] libsepol: Clean up scope handling
+Date: Tue, 30 May 2017 15:13:03 -0400
+Message-Id: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Currently, when checking if an identifier is enabled, each scope in
+the decl_ids list is checked. This means that if any block that
+requires the identifier is enabled, then the identifier will be treated
+as being declared.
 
---TakKZr9L6Hm6aLOc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now, declarations will be kept at the end of the decl_ids list and
+when checking if an identifier is enabled, only the last scope will
+be checked (Except for roles and users which allow multiple declarations,
+they will have to keep the old behavior.)
 
-On Tue, May 30, 2017 at 12:43:25PM -0400, Steve Lawrence wrote:
-> On 05/30/2017 10:05 AM, Dominick Grift wrote:
-> > I have a typealias/typealiasactual in dssp2-standard at:
-> >=20
-> > https://github.com/DefenSec/dssp2-standard/blob/master/policy/system/rp=
-m.cil#L18
-> >=20
-> > This *works*
-> >=20
-> > However now i want to additionally associate "unconfined.user.subj" wit=
-h "rpm_script_t"
-> > So i created a module:
-> >=20
-> > echo "(typealiasesactual rpm_script_t unconfined.user.subj)" > mytest.c=
-il && semodule -i mytest.cil
-> > it returns (something along those lines):
-> >=20
-> > "subj is not an alias"
-> >=20
-> > however it seems as though the module did install. I cannot think of an=
-y simple way to determine whether it works as I cannot find any "seinfo --t=
-ypealias" or sesearch "--typealiases"
-> >=20
-> > Anyway libsepol segfaults when i try to play more with this
-> >=20
-> > So I tried the following
-> >=20
-> > (typeattribute rpm_script_aliases_type_attribute)
-> > (typeattributeset rpm_script_aliases_type_attribute rpm.script.subj)
-> > (typeattributeset rpm_script_aliases_type_attribute unconfined.user.sub=
-j)
-> >=20
-> > (typealias rpm_script_t)
-> > (typealiasactual rpm_script_t rpm_script_aliases_type_attribute)
-> >=20
-> > This also return incoherent messages something like "invalid "." in ...=
-", but it seems to install
-> >=20
-> > and after that everything just segfaults (libsepol), untill i remove my=
- local customizations
-> >=20
-> > I dont know a better way to explain this but looks to me theres a serio=
-us bug in how typealiases are handled by libsepol:
-> >=20
-> > https://www.youtube.com/watch?v=3Dqe-vqieu2jg
-> >=20
->=20
-> The first argument to the typealiasactual statement must resolve to a
-> typealias, and the second argument must resolve to a type. In your above
-> CIL snipppet you have it resolving to an attribute, which is not
-> allowed. However, we weren't correctly checking these restrictions,
-> which could lead to segfaults and weird error messages. I've just sent a
-> patch that should fix this conditions and error out with helpful messages.
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ libsepol/src/avrule_block.c | 24 ++++++++++++++++++++----
+ libsepol/src/policydb.c     | 13 +++++++++++++
+ 2 files changed, 33 insertions(+), 4 deletions(-)
 
-Thanks a lot. Yes it should not have let me load that up because once that =
-is loaded libsepol keeps segfaulting not matter what youre trying to load
-
-However thats not the whole story:
-
-just adding "(typealiasactual rpm_script_t unconfined.user.subj)"
-
-caused issues as well were it returned something along the lines of:
-
-"subj is not an alias" <- "subj" indicates to me that it only took the type=
- and not the unconfined.user name space
-
-but rpm_script_t is a typealiases and unconfined.user.subj is a type, the o=
-nly difference is that there was already another typealiasactual of "(typea=
-liasactual rpm_script_t rpm.script.subj)
-
-I suspect that it for some reason in this scenario wasnt able to interpret =
-unconfined.user.subj properly
-
-Also perculiar was it complaining about "." in identifiers
-
-Should I be able to associate two types with a single typealias like so?:
-
-(typealias foo)
-(typealiasactual foo bar)
-(typealiasactual foo baz)
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---TakKZr9L6Hm6aLOc
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlktwLsACgkQJXSOVTf5
-R2mX7Av8DBrulPb+i5LCdIrhyWXnG7iTYWWmZiJTsom4biQVZOsCNnGAlZSDa/dI
-3p8E2ZkWVo9m25Rj502tmKuIfD6Z6lB4NPHRtKIdv1gKjCzwL77YYDrRZNZKK0CX
-uen4E8qFwa8H5efLWS0VgvP6eHEpEazp6nW0QnCsj4aEaojFWj2+TykDV+DO6BMF
-qRVCLyhw8q2zLry8sRGC0wCtNQY1fz+nnXyu7cgK4TrIDtf4fZuHkta87G5VQrsI
-tLduixNrMwL+e9XXIMsS/LssRXFo3FG3cUEB2N4034YFvsxztpq+tSPCaCUCHdMR
-ALax537QjBpAfiNbjxP4gdOaUFDitqk4ClYlv7SI46TJmwxXLR2k2MtM+htudY5d
-ZDGu1AWrY0hMWoJgQhzSbABQ5JYsUeeFN00WpiaWmDarY08/PD4xwEaxN7qMM3yo
-4FBTYVdkGdrAASP1JLVYm5jGUxPX4eF2l4ZGHYdpCYo6PrQnCC5TJujqPVvJGYD5
-f0TifCUt
-=YjDG
------END PGP SIGNATURE-----
-
---TakKZr9L6Hm6aLOc--
+diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
+index 224e999..e1f460e 100644
+--- a/libsepol/src/avrule_block.c
++++ b/libsepol/src/avrule_block.c
+@@ -156,20 +156,36 @@ int is_id_enabled(char *id, policydb_t * p, int symbol_table)
+ {
+ 	scope_datum_t *scope =
+ 	    (scope_datum_t *) hashtab_search(p->scope[symbol_table].table, id);
+-	uint32_t i;
++	avrule_decl_t *decl;
++	uint32_t len = scope->decl_ids_len;
++
+ 	if (scope == NULL) {
+ 		return 0;
+ 	}
+ 	if (scope->scope != SCOPE_DECL) {
+ 		return 0;
+ 	}
+-	for (i = 0; i < scope->decl_ids_len; i++) {
+-		avrule_decl_t *decl =
+-		    p->decl_val_to_struct[scope->decl_ids[i] - 1];
++
++	if (len < 1) {
++		return 0;
++	}
++
++	if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS) {
++		uint32_t i;
++		for (i = 0; i < len; i++) {
++			avrule_decl_t *decl =
++				p->decl_val_to_struct[scope->decl_ids[i] - 1];
++			if (decl != NULL && decl->enabled) {
++				return 1;
++			}
++		}
++	} else {
++		decl = p->decl_val_to_struct[scope->decl_ids[len-1] - 1];
+ 		if (decl != NULL && decl->enabled) {
+ 			return 1;
+ 		}
+ 	}
++
+ 	return 0;
+ }
+ 
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index b153095..ff4fc4e 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -1698,6 +1698,19 @@ int symtab_insert(policydb_t * pol, uint32_t sym,
+ 		return -ENOMEM;
+ 	}
+ 
++	if (scope_datum->scope == SCOPE_DECL && scope == SCOPE_REQ) {
++		/* Need to keep the decl at the end of the list */
++		uint32_t len, tmp;
++		len = scope_datum->decl_ids_len;
++		if (len < 2) {
++			/* This should be impossible here */
++			return -1;
++		}
++		tmp = scope_datum->decl_ids[len-2];
++		scope_datum->decl_ids[len-2] = scope_datum->decl_ids[len-1];
++		scope_datum->decl_ids[len-1] = tmp;
++	}
++
+ 	return retval;
+ }
+ 
+-- 
+2.9.4
