@@ -1,423 +1,150 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4UGZQ9E022986
- for <selinux@tycho.nsa.gov>; Tue, 30 May 2017 12:35:26 -0400
-From: Dan Jurgens <danielj@mellanox.com>
-To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov, paul@paul-moore.com
-Subject: [PATCH v2 1/2] selinux-testsuite: Infiniband pkey tests
-Date: Tue, 30 May 2017 19:34:50 +0300
-Message-Id: <1496162091-129822-2-git-send-email-danielj@mellanox.com>
-In-Reply-To: <1496162091-129822-1-git-send-email-danielj@mellanox.com>
-References: <1496162091-129822-1-git-send-email-danielj@mellanox.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: bwiedemann@suse.de
+Subject: [PATCH] sort input files
+Date: Tue, 30 May 2017 12:47:37 -0400
+Message-Id: <20170530164737.5266-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Daniel Jurgens <danielj@mellanox.com>
+From: "Bernhard M. Wiedemann" <bwiedemann@suse.de>
 
-New tests for infiniband pkeys. Most users don't have Infiniband
-hardware, and if they do the pkey configuration is not standardized.
-There is a configuration file for enabling the test and setting
-environment specific test configurations. If the tests are disabled they
-will always show as passed.
+when building packages (e.g. for openSUSE Linux)
+(random) filesystem order of input files
+influences ordering of functions in the output,
+thus without the patch, builds (in disposable VMs) would usually differ.
 
-Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-
+See https://reproducible-builds.org/ for why this matters.
 ---
-v1:
-- Synchronized interface names with refpolicy changes.
-- Changed pkey test to not assume the default pkey is labeled, instead
-it take a list of indexes with labeled and unlabeled pkeys.  It checks
-that the labeled aren't allowed, unlabeled are allowed, and it labels
-the unlabeled ones to make sure they aren't allowed when labeled.
+ libselinux/utils/Makefile            | 2 +-
+ libsemanage/src/Makefile             | 2 +-
+ libsemanage/tests/Makefile           | 2 +-
+ libsepol/tests/Makefile              | 2 +-
+ libsepol/utils/Makefile              | 2 +-
+ mcstrans/utils/Makefile              | 2 +-
+ policycoreutils/hll/pp/Makefile      | 2 +-
+ policycoreutils/load_policy/Makefile | 2 +-
+ policycoreutils/run_init/Makefile    | 2 +-
+ 9 files changed, 9 insertions(+), 9 deletions(-)
 
-v2:
-Stephen Smalley:
-- Ifdef around new corenet_ib* interfaces.
-- Updated README with libibverbs-devel dependency.
-- Ran new test program through astyle with recommended settings.
----
- README                                   |  12 ++-
- policy/Makefile                          |   3 +-
- policy/test_ibpkey.te                    |  30 +++++++
- tests/Makefile                           |   4 +-
- tests/infiniband_pkey/Makefile           |   7 ++
- tests/infiniband_pkey/create_modify_qp.c | 136 +++++++++++++++++++++++++++++++
- tests/infiniband_pkey/ibpkey_test.conf   |  18 ++++
- tests/infiniband_pkey/test               |  84 +++++++++++++++++++
- 8 files changed, 290 insertions(+), 4 deletions(-)
- create mode 100644 policy/test_ibpkey.te
- create mode 100644 tests/infiniband_pkey/Makefile
- create mode 100644 tests/infiniband_pkey/create_modify_qp.c
- create mode 100644 tests/infiniband_pkey/ibpkey_test.conf
- create mode 100644 tests/infiniband_pkey/test
-
-diff --git a/README b/README
-index deedae5..a4c8ebb 100644
---- a/README
-+++ b/README
-@@ -68,8 +68,9 @@ libselinux-devel # to build some of the test programs
- net-tools # for ifconfig, used by capable_net/test
- netlabel_tools # to load NetLabel configuration during inet_socket tests
- iptables # to load iptables SECMARK rules during inet_socket tests
-+libibverbs-devel # to build ibpkey test program.
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index 14f94bd..5f5368a 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -53,7 +53,7 @@ PCRE_LDLIBS ?= -lpcre
+ ifeq ($(ANDROID_HOST),y)
+ TARGETS=sefcontext_compile
+ else
+-TARGETS=$(patsubst %.c,%,$(wildcard *.c))
++TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ endif
  
--yum install perl-Test perl-Test-Harness perl-Test-Simple selinux-policy-devel gcc libselinux-devel net-tools netlabel_tools iptables
-+yum install perl-Test perl-Test-Harness perl-Test-Simple selinux-policy-devel gcc libselinux-devel net-tools netlabel_tools iptables libibverbs-devel
+ sefcontext_compile: LDLIBS += $(PCRE_LDLIBS) ../src/libselinux.a -lsepol
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index dba50c8..f01385c 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -51,7 +51,7 @@ SWIGFILES=$(SWIGSO) semanage.py
+ SWIGRUBYSO=$(RUBYPREFIX)_semanage.so
+ LIBSO=$(TARGET).$(LIBVERSION)
  
- The testsuite requires a pre-existing base policy configuration of
- SELinux, using either the old example policy or the reference policy
-@@ -195,3 +196,12 @@ establish a base directory (based on the path of the script
- executable).  This won't always be accurate, but will work for this
- test harness/configuration.
- 	$basedir = $0;  $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+INFINIBAND TESTS
-+----------------
-+Because running Infiniband tests requires specialized hardware you must
-+set up a configuration file for these tests. The tests are disabled by
-+default.  See comments in the configuration file for info.
-+
-+Infiniband PKey test conf file:
-+tests/infiniband_pkey/ibpkey_test.conf
-diff --git a/policy/Makefile b/policy/Makefile
-index 7bc7f95..46c9fb5 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -22,7 +22,8 @@ TARGETS = \
- 	test_task_create.te test_task_getpgid.te test_task_getsched.te \
- 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
- 	test_transition.te test_inet_socket.te test_unix_socket.te \
--	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te
-+	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
-+	test_ibpkey.te
+-GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i $(wildcard conf-*.[ch])
++GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) semanageswig_python_exception.i $(sort $(wildcard conf-*.[ch]))
+ SRCS= $(filter-out $(GENERATED),$(sort $(wildcard *.c)))
  
- ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
- TARGETS += test_bounds.te
-diff --git a/policy/test_ibpkey.te b/policy/test_ibpkey.te
-new file mode 100644
-index 0000000..373404c
---- /dev/null
-+++ b/policy/test_ibpkey.te
-@@ -0,0 +1,30 @@
-+#################################
-+#
-+# Policy for testing Infiniband Pkey access.
-+#
-+
-+attribute ibpkeydomain;
-+
-+# Domain for process.
-+type test_ibpkey_access_t;
-+domain_type(test_ibpkey_access_t)
-+unconfined_runs_test(test_ibpkey_access_t)
-+typeattribute test_ibpkey_access_t testdomain;
-+typeattribute test_ibpkey_access_t ibpkeydomain;
-+
-+dev_rw_infiniband_dev(test_ibpkey_access_t)
-+dev_rw_sysfs(test_ibpkey_access_t)
-+
-+# Define a pkey type for labeling pkeys during the test.
-+type test_ibpkey_t;
-+ifdef(`corenet_ib_pkey',`
-+corenet_ib_pkey(test_ibpkey_t)
-+')
-+
-+ifdef(`corenet_ib_access_unlabeled_pkeys',`
-+corenet_ib_access_unlabeled_pkeys(test_ibpkey_access_t)
-+')
-+
-+# Allow all of these domains to be entered from the sysadm domain.
-+miscfiles_domain_entry_test_files(ibpkeydomain)
-+userdom_sysadm_entry_spec_domtrans_to(ibpkeydomain)
-diff --git a/tests/Makefile b/tests/Makefile
-index fb8a0aa..7dfe2a8 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -4,13 +4,13 @@ export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
+ OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
+diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
+index 9b27224..9ccb5b2 100644
+--- a/libsemanage/tests/Makefile
++++ b/libsemanage/tests/Makefile
+@@ -2,7 +2,7 @@ PREFIX ?= $(DESTDIR)/usr
+ LIBDIR ?= $(PREFIX)/lib
  
- DISTRO=$(shell ./os_detect)
+ # Add your test source files here:
+-SOURCES = $(wildcard *.c)
++SOURCES = $(sort $(wildcard *.c))
  
--SUBDIRS:=domain_trans entrypoint execshare exectrace execute_no_trans \
-+SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
- 	fdreceive inherit link mkdir msg open ptrace readlink relabel rename \
- 	rxdir sem setattr setnice shm sigkill stat sysctl task_create \
- 	task_setnice task_setscheduler task_getscheduler task_getsid \
- 	task_getpgid task_setpgid file ioctl capable_file capable_net \
- 	capable_sys dyntrans dyntrace bounds nnp mmap unix_socket inet_socket \
--	overlay checkreqprot mqueue mac_admin
-+	overlay checkreqprot mqueue mac_admin infiniband_pkey
+ # Add the required external object files here:
+ LIBS = ../src/libsemanage.a -lselinux -lsepol
+diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
+index 6ae8ad2..1bd96db 100644
+--- a/libsepol/tests/Makefile
++++ b/libsepol/tests/Makefile
+@@ -15,7 +15,7 @@ CHECKPOLICY := ../../checkpolicy/
+ CPPFLAGS += -I../include/ -I$(CHECKPOLICY)
  
- ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-diff --git a/tests/infiniband_pkey/Makefile b/tests/infiniband_pkey/Makefile
-new file mode 100644
-index 0000000..60f0d24
---- /dev/null
-+++ b/tests/infiniband_pkey/Makefile
-@@ -0,0 +1,7 @@
-+TARGETS=create_modify_qp
-+
-+LDLIBS+= -libverbs
-+
-+all: $(TARGETS)
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/infiniband_pkey/create_modify_qp.c b/tests/infiniband_pkey/create_modify_qp.c
-new file mode 100644
-index 0000000..0c89e91
---- /dev/null
-+++ b/tests/infiniband_pkey/create_modify_qp.c
-@@ -0,0 +1,136 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <assert.h>
-+#include <unistd.h>
-+#include <sys/socket.h>
-+#include <netinet/in.h>
-+#include <arpa/inet.h>
-+#include <infiniband/verbs.h>
-+
-+struct ibv_qp	   *qp;
-+struct ibv_context *context;
-+struct ibv_pd      *pd;
-+struct ibv_cq      *cq;
-+struct ibv_srq     *srq;
-+
-+void cleanup_ib_rsrc()
-+{
-+	ibv_destroy_qp(qp);
-+	ibv_destroy_srq(srq);
-+	ibv_destroy_cq(cq);
-+	ibv_dealloc_pd(pd);
-+	ibv_close_device(context);
-+}
-+
-+int init_ib_rsrc(char *deviceName)
-+{
-+	int                 ndev = 0;
-+	struct ibv_device  **dlist = ibv_get_device_list(&ndev);
-+	struct ibv_device  *device = NULL;;
-+	struct ibv_srq_init_attr srqiattr;
-+	struct ibv_qp_init_attr qpiattr;
-+	int i;
-+
-+	if (!ndev) {
-+		fprintf(stderr, "No IB devices found.\n");
-+		exit(1);
-+	}
-+
-+	for (i = 0; i < ndev; i++)
-+		if(!strcmp(deviceName, dlist[i]->name))
-+			device = dlist[i];
-+
-+	if (!device) {
-+		fprintf(stderr, "Couldn't find device %s\n", deviceName);
-+		exit(1);
-+	}
-+	/* Open context */
-+	context = ibv_open_device(device);
-+	if (NULL == context) {
-+		fprintf(stderr, "Unable to open device.\n");
-+		exit(1);
-+	}
-+
-+	/* Allocate PD */
-+	pd = ibv_alloc_pd(context);
-+	if (!pd) {
-+		fprintf(stderr, "Unable to allocate PD.\n");
-+		exit(1);
-+	}
-+
-+	/* Create CQ */
-+	cq = ibv_create_cq(context, 2048, NULL, NULL, 0);
-+	if (!cq) {
-+		fprintf(stderr, "Unable to create cq.\n");
-+		exit(1);
-+	}
-+
-+	/* Create SRQ */
-+	memset(&srqiattr, 0, sizeof(srqiattr));
-+	srqiattr.attr.max_wr    = 2048;
-+	srqiattr.attr.max_sge   = 4;
-+	srqiattr.attr.srq_limit = 1024;
-+	srq = ibv_create_srq(pd, &srqiattr);
-+	if (NULL == srq) {
-+		fprintf(stderr, "Unable to create sreq.\n");
-+		exit(1);
-+	}
-+
-+	memset(&qpiattr, 0, sizeof(qpiattr));
-+	qpiattr.send_cq = cq;
-+	qpiattr.recv_cq = cq;
-+	qpiattr.srq     = srq;
-+	qpiattr.cap.max_send_wr = 128;
-+	qpiattr.cap.max_recv_wr = 4;
-+	qpiattr.cap.max_send_sge = 5;
-+	qpiattr.cap.max_recv_sge = 4;
-+	qpiattr.cap.max_inline_data = 512;
-+	qpiattr.qp_type = IBV_QPT_RC;
-+	qpiattr.sq_sig_all = 1;
-+	qp = ibv_create_qp(pd, &qpiattr);
-+
-+	if (!qp) {
-+		fprintf(stderr, "Unable to create QP %d.\n", i);
-+		exit(1);
-+	}
-+
-+	return 0;
-+}
-+
-+int init_rc_qp(uint8_t port, uint16_t pkey_index)
-+{
-+	struct ibv_qp_attr attr = {
-+		.qp_state        = IBV_QPS_INIT,
-+		.pkey_index      = pkey_index,
-+		.port_num        = port,
-+		.qp_access_flags = 0
-+	};
-+
-+	return ibv_modify_qp(qp, &attr,
-+			     IBV_QP_STATE |
-+			     IBV_QP_PKEY_INDEX |
-+			     IBV_QP_PORT |
-+			     IBV_QP_ACCESS_FLAGS);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	uint16_t pkey_index;
-+	uint8_t port;
-+	int ret;
-+
-+	if (argc != 4) {
-+		printf("Please enter <ib device name> <port number> <pkey index>\n");
-+		exit(1);
-+	}
-+	port = atoi(argv[2]);
-+	pkey_index = atoi(argv[3]);
-+
-+	init_ib_rsrc(argv[1]);
-+
-+	ret = init_rc_qp(port, pkey_index);
-+	cleanup_ib_rsrc();
-+	exit(ret);
-+}
-diff --git a/tests/infiniband_pkey/ibpkey_test.conf b/tests/infiniband_pkey/ibpkey_test.conf
-new file mode 100644
-index 0000000..59f738d
---- /dev/null
-+++ b/tests/infiniband_pkey/ibpkey_test.conf
-@@ -0,0 +1,18 @@
-+# Enable(1)/Disable these tests
-+SELINUX_INFINIBAND_PKEY_TEST=0
-+
-+# Infiniband device to use.
-+SELINUX_INFINIBAND_PKEY_TEST_DEV=mlx5_3
-+
-+# Physical port on the device to use.
-+SELINUX_INFINIBAND_PKEY_TEST_PORT=1
-+
-+# CSV list of pkey table indexes containing labeled PKeys
-+# These will not be allowed. 
-+SELINUX_INFINIBAND_TEST_LABELED_PKEYS=
-+
-+# CSV list of pkey table indexes containing unlabelde PKeys
-+# This will be allowed, then temporarily labeled to see that
-+# they are disallowed.
-+SELINUX_INFINIBAND_TEST_UNLABELED_PKEYS=0
-+
-diff --git a/tests/infiniband_pkey/test b/tests/infiniband_pkey/test
-new file mode 100644
-index 0000000..d40a1f6
---- /dev/null
-+++ b/tests/infiniband_pkey/test
-@@ -0,0 +1,84 @@
-+#!/usr/bin/perl
-+
-+use Test;
-+
-+BEGIN { plan tests => 3}
-+
-+$basedir = $0; $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+my %conf;
-+$confpath = $basedir."/ibpkey_test.conf";
-+open($f, $confpath) or die ("Couldn't open $confpath");
-+while($r = <$f>) {
-+	if ($r =~ /^\s*#/ || $r =~ /^\s*$/) { next; }
-+	chomp $r;
-+	($k,$v) = split(/=/, $r);
-+	$conf{$k} = $v;
-+}
-+close($f);
-+
-+if ($conf{SELINUX_INFINIBAND_PKEY_TEST} eq 1) {
-+	$device = $conf{SELINUX_INFINIBAND_PKEY_TEST_DEV};
-+	$port = $conf{SELINUX_INFINIBAND_PKEY_TEST_PORT};
-+
-+	# Read GID 0, to get the subnet prefix.
-+	$gid_path = "/sys/class/infiniband/".$device."/ports/".$port."/gids/0";
-+	open($f, $gid_path) or die ("Couldn't open $gid_path");
-+	$gid = <$f>;
-+	close($f);
-+	# The gid sysfs shows a fully expanded ipv6 address, just take the
-+	# top half.
-+	@tmp = unpack('(a20)*', $gid);
-+	$subnet_prefix = $tmp[0].":";
-+
-+	@labeled_pkeys = split(/,/, $conf{SELINUX_INFINIBAND_TEST_LABELED_PKEYS});
-+	@unlabeled_pkeys = split(/,/, $conf{SELINUX_INFINIBAND_TEST_UNLABELED_PKEYS});
-+
-+	foreach (@unlabeled_pkeys) {
-+		$result = system "runcon -t test_ibpkey_access_t $basedir/create_modify_qp $device $port $_";
-+		if($result ne 0) {
-+			last;
-+		}
-+	}
-+	if (@unlabeled_pkeys) {
-+		ok($result, 0);
-+	} else {
-+		ok(1);
-+	}
-+
-+	foreach (@unlabeled_pkeys) {
-+		$pkey_path = "/sys/class/infiniband/".$device."/ports/".$port."/pkeys/".$_;
-+		open($f, $pkey_path) or die ("Couldn't open $pkey_path");
-+		$pkey_val = <$f>;
-+		close($f);
-+
-+		system "semanage ibpkey -a -t test_ibpkey_t -x $subnet_prefix $pkey_val";
-+		$result = system "runcon -t test_ibpkey_access_t $basedir/create_modify_qp $device $port $_";
-+		system "semanage ibpkey -d -t test_ibpkey_t -x $subnet_prefix $pkey_val";
-+		if ($result>>8 ne 13) {
-+			last;
-+		}
-+	}
-+	if (@unlabeled_pkeys) {
-+		ok($result>>8, 13);
-+	} else {
-+		ok(1);
-+	}
-+
-+	foreach (@labeled_pkeys) {
-+		$result = system "runcon -t test_ibpkey_access_t $basedir/create_modify_qp $device $port $_";
-+		if ($result>>8 ne 13) {
-+			last;
-+		}
-+	}
-+	if (@labeled_pkeys) {
-+		ok($result>>8, 13);
-+	} else {
-+		ok(1);
-+	}
-+} else {
-+	ok(1);
-+	ok(1);
-+	ok(1);
-+}
-+exit;
+ # test program object files
+-objs := $(patsubst %.c,%.o,$(wildcard *.c))
++objs := $(patsubst %.c,%.o,$(sort $(wildcard *.c)))
+ parserobjs := $(CHECKPOLICY)queue.o $(CHECKPOLICY)y.tab.o \
+ 	$(CHECKPOLICY)parse_util.o $(CHECKPOLICY)lex.yy.o \
+ 	$(CHECKPOLICY)policy_define.o $(CHECKPOLICY)module_compiler.o
+diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
+index 3b2fb77..467aff2 100644
+--- a/libsepol/utils/Makefile
++++ b/libsepol/utils/Makefile
+@@ -7,7 +7,7 @@ override CFLAGS += -I../include
+ override LDFLAGS += -L../src
+ LDLIBS += -lsepol
+ 
+-TARGETS=$(patsubst %.c,%,$(wildcard *.c))
++TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ 
+ all: $(TARGETS)
+ 
+diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
+index e6f329b..7e59641 100644
+--- a/mcstrans/utils/Makefile
++++ b/mcstrans/utils/Makefile
+@@ -8,7 +8,7 @@ CFLAGS ?= -Wall
+ override CFLAGS += -I../src -D_GNU_SOURCE
+ LDLIBS += -lselinux -lpcre
+ 
+-TARGETS=$(patsubst %.c,%,$(wildcard *.c))
++TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ 
+ all: $(TARGETS)
+ 
+diff --git a/policycoreutils/hll/pp/Makefile b/policycoreutils/hll/pp/Makefile
+index 1ca6c9d..813c9c6 100644
+--- a/policycoreutils/hll/pp/Makefile
++++ b/policycoreutils/hll/pp/Makefile
+@@ -10,7 +10,7 @@ HLLDIR ?= $(LIBEXECDIR)/selinux/hll
+ CFLAGS ?= -Werror -Wall -W
+ LDLIBS = -lsepol
+ 
+-PP_SRCS = $(wildcard *.c)
++PP_SRCS = $(sort $(wildcard *.c))
+ PP_OBJS = $(patsubst %.c,%.o,$(PP_SRCS))
+ 
+ all: pp
+diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_policy/Makefile
+index 6ab0f9d..256d95a 100644
+--- a/policycoreutils/load_policy/Makefile
++++ b/policycoreutils/load_policy/Makefile
+@@ -9,7 +9,7 @@ CFLAGS ?= -Werror -Wall -W
+ override CFLAGS += $(LDFLAGS) -DUSE_NLS -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+ LDLIBS += -lsepol -lselinux
+ 
+-TARGETS=$(patsubst %.c,%,$(wildcard *.c))
++TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ 
+ all: $(TARGETS)
+ 
+diff --git a/policycoreutils/run_init/Makefile b/policycoreutils/run_init/Makefile
+index 6f5ee13..7b25952 100644
+--- a/policycoreutils/run_init/Makefile
++++ b/policycoreutils/run_init/Makefile
+@@ -23,7 +23,7 @@ ifeq ($(AUDITH), y)
+ 	LDLIBS += -laudit
+ endif
+ 
+-TARGETS=$(patsubst %.c,%,$(wildcard *.c))
++TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+ 
+ all: $(TARGETS)
+ 
 -- 
-2.12.2
+2.9.4
