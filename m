@@ -1,174 +1,99 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4VFpB9l027490
- for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 11:51:11 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 090EA80E7B
- for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 15:51:05 +0000 (UTC)
-Subject: [PATCH v2] tools: add perltidy to the syntax checker/fixer
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Wed, 31 May 2017 11:51:04 -0400
-Message-ID: <149624586416.16947.1791692521620960783.stgit@sifl>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4VGBgMV004495
+ for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 12:11:42 -0400
+Received: by mail-lf0-f43.google.com with SMTP id h4so12344838lfj.3
+ for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 09:11:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+In-Reply-To: <149624586416.16947.1791692521620960783.stgit@sifl>
+References: <149624586416.16947.1791692521620960783.stgit@sifl>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 31 May 2017 12:11:26 -0400
+Message-ID: <CAHC9VhTX5zV5jQVCUswgARmdOh9-+DUD_h1L26sYN6CtkQ9DcA@mail.gmail.com>
+Subject: Re: [PATCH v2] tools: add perltidy to the syntax checker/fixer
+To: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <paul@paul-moore.com>
+On Wed, May 31, 2017 at 11:51 AM, Paul Moore <pmoore@redhat.com> wrote:
+> From: Paul Moore <paul@paul-moore.com>
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  tools/check-syntax |   87 ++++++++++++++++++++++++++++++++++++++++------------
+>  1 file changed, 67 insertions(+), 20 deletions(-)
+
+FYI, I went ahead and merged this into the testsuite repo; the only
+change from v1 is the mv/cat fix that Stephen pointed out earlier.
+
+I also applied the formatting fixes to the repository as well, the
+patch is too large to send to the list, but the diffstat is below:
+
+commit e66b1b7ad81a0e8ba10e55b09a062ed90c729020
+master, github/master)
+Author: Paul Moore <paul@paul-moore.com>
+Date:   Wed May 31 11:51:55 2017 -0400
+
+all: format the perl code with "./tools/check-syntax -f"
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- tools/check-syntax |   87 ++++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 67 insertions(+), 20 deletions(-)
 
-diff --git a/tools/check-syntax b/tools/check-syntax
-index 72cb06b..7f9768d 100755
---- a/tools/check-syntax
-+++ b/tools/check-syntax
-@@ -13,6 +13,9 @@
- CHK_C_LIST="$(find tests/ -name "*.c") $(find tests/ -name "*.h")"
- CHK_C_EXCLUDE=""
- 
-+CHK_PERL_LIST="$(find tests/ -name "*.pl") $(find tests/ -name "test")"
-+CHK_PERL_EXCLUDE=""
-+
- ####
- # functions
- 
-@@ -66,50 +69,93 @@ function tool_c_style() {
- }
- 
- #
--# Check the formatting on a C source/header file
-+# Generate a properly formatted Perl source file
- #
- # Arguments:
--#     1    File to check
-+#     1    Source file
- #
--function tool_c_style_check() {
--	[[ -z "$1" || ! -r "$1" ]] && return
-+function tool_perl_style() {
-+	perltidy < "$1"
-+}
- 
--	tool_c_style "$1" | diff -pu --label="$1.orig" "$1" --label="$1" -
-+#
-+# Check the formatting on a file
-+#
-+# Arguments:
-+#     1    Language
-+#     2    File to check
-+#
-+function style_check() {
-+	[[ -z "$1" ]] && return
-+	[[ -z "$2" || ! -r "$2" ]] && return
-+
-+	case "$1" in
-+	c|C)
-+		tool_c_style "$2" | \
-+			diff -pu --label="$2.orig" "$2" --label="$2" -
-+		;;
-+	perl|Perl)
-+		tool_perl_style "$2" | \
-+			diff -pu --label="$2.orig" "$2" --label="$2" -
-+		;;
-+	esac
- }
- 
- #
--# Fix the formatting on a C source/header file
-+# Fix the formatting on a file
- #
- # Arguments:
--#     1    File to fix
-+#     1    Language
-+#     2    File to check
- #
--function tool_c_style_fix() {
--	[[ -z "$1" || ! -r "$1" ]] && return
-+function style_fix() {
-+	[[ -z "$1" ]] && return
-+	[[ -z "$2" || ! -w "$2" ]] && return
- 
--	tmp="$(mktemp --tmpdir=$(dirname "$1"))"
--	tool_c_style "$1" > "$tmp"
--	mv "$tmp" "$1"
-+	tmp="$(mktemp --tmpdir=$(dirname "$2"))"
-+	case "$1" in
-+	c|C)
-+		tool_c_style "$2" > "$tmp"
-+		;;
-+	perl|Perl)
-+		tool_perl_style "$2" > "$tmp"
-+		;;
-+	esac
-+	cat "$tmp" > "$2"
-+	rm "$tmp"
- }
- 
- #
--# Perform all known syntax checks for the configured C sources/headers
-+# Perform all known syntax checks for the configured files
- #
--function check_c() {
-+function check() {
- 	for i in $CHK_C_LIST; do
- 		echo "$CHK_C_EXCLUDE" | grep -q "$i" && continue
- 		echo "Differences for $i"
--		tool_c_style_check "$i"
-+		style_check c "$i"
-+	done
-+
-+	for i in $CHK_PERL_LIST; do
-+		echo "$CHK_PERL_EXCLUDE" | grep -q "$i" && continue
-+		echo "Differences for $i"
-+		style_check perl "$i"
- 	done
- }
- 
- #
--# Perform all known syntax fixes for the configured C sources/headers
-+# Perform all known syntax fixes for the configured files
- #
--function fix_c() {
-+function fix() {
- 	for i in $CHK_C_LIST; do
- 		echo "$CHK_C_EXCLUDE" | grep -q "$i" && continue
- 		echo "Fixing $i"
--		tool_c_style_fix "$i"
-+		style_fix c "$i"
-+	done
-+
-+	for i in $CHK_PERL_LIST; do
-+		echo "$CHK_PERL_EXCLUDE" | grep -q "$i" && continue
-+		echo "Fixing $i"
-+		style_fix perl "$i"
- 	done
- }
- 
-@@ -117,6 +163,7 @@ function fix_c() {
- # main
- 
- verify_deps astyle
-+verify_deps perltidy
- 
- opt_fix=0
- 
-@@ -136,9 +183,9 @@ done
- echo "=============== $(date) ==============="
- echo "Code Syntax Check Results (\"check-syntax $*\")"
- if [[ $opt_fix -eq 1 ]]; then
--	fix_c
-+	fix
- else
--	check_c
-+	check
- fi
- echo "============================================================"
- 
+tests/bounds/test                |  148 +++--
+tests/cap_userns/test            |   25 -
+tests/capable_file/test          |   63 +-
+tests/capable_net/test           |   29 -
+tests/capable_sys/test           |   32 +
+tests/checkreqprot/test          |    8
+tests/domain_trans/test          |   17 -
+tests/dyntrace/test              |   17 -
+tests/dyntrans/test              |   17 -
+tests/entrypoint/test            |    9
+tests/execshare/test             |   15
+tests/exectrace/test             |   17 -
+tests/execute_no_trans/test      |   15
+tests/extended_socket_class/test |   84 ++-
+tests/fdreceive/test             |   30 +
+tests/file/test                  |   97 ++-
+tests/inet_socket/test           |  175 +++--
+tests/inherit/test               |   35 +
+tests/ioctl/test                 |   35 +
+tests/link/test                  |   52 +-
+tests/loop.pl                    |   11
+tests/mac_admin/test             |   39 +
+tests/mkdir/test                 |   57 +-
+tests/mmap/test                  |  234 ++++---
+tests/mqueue/test                |   54 +-
+tests/msg/test                   |   77 +-
+tests/netlink_socket/test        |   45 +
+tests/nnp/test                   |   23 -
+tests/open/test                  |   53 +-
+tests/overlay/test               | 1230 +++++++++++++++++++---------------
+tests/prlimit/test               |   41 +
+tests/ptrace/test                |   15
+tests/readlink/test              |   33 +
+tests/relabel/test               |   33 +
+tests/rename/test                |   91 ++-
+tests/runtests.pl                |   20 -
+tests/rxdir/test                 |   33 +
+tests/sem/test                   |   54 +-
+tests/setattr/test               |   31 +
+tests/setnice/test               |   17 -
+tests/shm/test                   |   47 +
+tests/sigkill/test               |   41 +
+tests/stat/test                  |   21 -
+tests/sysctl/test                |   16
+tests/task_create/test           |   11
+tests/task_getpgid/test          |   15
+tests/task_getscheduler/test     |   15
+tests/task_getsid/test           |   15
+tests/task_setnice/test          |   20 -
+tests/task_setpgid/test          |   11
+tests/task_setscheduler/test     |   32 +
+tests/unix_socket/test           |   65 +-
+52 files changed, 1983 insertions(+), 1437 deletions(-)
+
+-- 
+paul moore
+www.paul-moore.com
