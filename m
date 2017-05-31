@@ -1,97 +1,63 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4VI5da5017529
- for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 14:05:39 -0400
-From: James Carter <jwcart2@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4VK78sd010433
+ for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 16:07:11 -0400
+Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
+ [81.66.120.207])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id D0D0456496D
+ for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 22:07:03 +0200 (CEST)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/2 v2] libsepol: Fix module_to_cil's handling of type aliases
-Date: Wed, 31 May 2017 14:06:33 -0400
-Message-Id: <20170531180633.19008-2-jwcart2@tycho.nsa.gov>
-In-Reply-To: <20170531180633.19008-1-jwcart2@tycho.nsa.gov>
-References: <20170531180633.19008-1-jwcart2@tycho.nsa.gov>
+Subject: [PATCH 1/2] libsepol: do not use handle when it is marked unused
+Date: Wed, 31 May 2017 22:06:14 +0200
+Message-Id: <20170531200615.9166-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Type aliases present a problem for module_to_cil because they are not
-in the sym_val_to_name table that it uses to write declarations. Type
-aliases are gathered by going through the decl_ids list and then
-the alias declaration is written out when the block with that scope
-id is handled. This doesn't work if a type alias appears in a require
-block, since the require cannot be distinguished from the declaration.
-The result is two declarations of the alias and an error when secilc
-compiles the policy.
+Assigning NULL to handle does not perform anything useful and clang
+complains about this:
 
-Because of the work cleaning up scope handling, the alias declaration
-will always be at the end of the decl_ids list, so now only gather
-the last scope id.
+    ibendports.c:122:2: error: 'handle' was marked unused but was used
+    [-Werror,-Wused-but-marked-unused]
+        handle = NULL;
+        ^
+    ibpkeys.c:115:2: error: 'handle' was marked unused but was used
+    [-Werror,-Wused-but-marked-unused]
+        handle = NULL;
+        ^
 
-Also, when an alias is used in a module it is required as a type and
-it will appear in the sym_val_to_name table. When that occurs, just
-skip the alias when writing out types.
-
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsepol/src/module_to_cil.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ libsepol/src/ibendports.c | 1 -
+ libsepol/src/ibpkeys.c    | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 77e1219..51e7853 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -323,7 +323,7 @@ static int typealiases_gather_map(char *key, void *data, void *arg)
- 	struct type_datum *type = data;
- 	struct policydb *pdb = arg;
- 	struct scope_datum *scope;
--	uint32_t i;
-+	uint32_t len;
- 	uint32_t scope_id;
+diff --git a/libsepol/src/ibendports.c b/libsepol/src/ibendports.c
+index 0438093e3053..6d56c9a1793f 100644
+--- a/libsepol/src/ibendports.c
++++ b/libsepol/src/ibendports.c
+@@ -119,7 +119,6 @@ extern int sepol_ibendport_count(sepol_handle_t *handle __attribute__ ((unused))
  
- 	if (type->primary != 1) {
-@@ -332,8 +332,9 @@ static int typealiases_gather_map(char *key, void *data, void *arg)
- 			return -1;
- 		}
+ 	*response = count;
  
--		for (i = 0; i < scope->decl_ids_len; i++) {
--			scope_id = scope->decl_ids[i];
-+		len = scope->decl_ids_len;
-+		if (len > 0) {
-+			scope_id = scope->decl_ids[len-1];
- 			if (typealias_lists[scope_id] == NULL) {
- 				rc = list_init(&typealias_lists[scope_id]);
- 				if (rc != 0) {
-@@ -2274,6 +2275,8 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
- 			cil_printf("))\n");
- 		}
- 		break;
-+	case TYPE_ALIAS:
-+		break;
- 	default:
- 		log_err("Unknown flavor (%i) of type %s", type->flavor, key);
- 		rc = -1;
-@@ -3387,6 +3390,7 @@ static int typealiases_to_cil(int indent, struct policydb *pdb, struct avrule_bl
- {
- 	struct type_datum *alias_datum;
- 	char *alias_name;
-+	char *type_name;
- 	struct list_node *curr;
- 	struct avrule_decl *decl = stack_peek(decl_stack);
- 	struct list *alias_list = typealias_lists[decl->decl_id];
-@@ -3403,9 +3407,13 @@ static int typealiases_to_cil(int indent, struct policydb *pdb, struct avrule_bl
- 			rc = -1;
- 			goto exit;
- 		}
--
-+		if (alias_datum->flavor == TYPE_ALIAS) {
-+			type_name = pdb->p_type_val_to_name[alias_datum->primary - 1];
-+		} else {
-+			type_name = pdb->p_type_val_to_name[alias_datum->s.value - 1];
-+		}
- 		cil_println(indent, "(typealias %s)", alias_name);
--		cil_println(indent, "(typealiasactual %s %s)", alias_name, pdb->p_type_val_to_name[alias_datum->s.value - 1]);
-+		cil_println(indent, "(typealiasactual %s %s)", alias_name, type_name);
- 	}
+-	handle = NULL;
+ 	return STATUS_SUCCESS;
+ }
  
- 	return 0;
+diff --git a/libsepol/src/ibpkeys.c b/libsepol/src/ibpkeys.c
+index ad6c07fe2c2d..682bf5db210c 100644
+--- a/libsepol/src/ibpkeys.c
++++ b/libsepol/src/ibpkeys.c
+@@ -112,7 +112,6 @@ extern int sepol_ibpkey_count(sepol_handle_t *handle __attribute__ ((unused)),
+ 
+ 	*response = count;
+ 
+-	handle = NULL;
+ 	return STATUS_SUCCESS;
+ }
+ 
 -- 
-2.9.4
+2.12.2
