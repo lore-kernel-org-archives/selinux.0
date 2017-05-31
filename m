@@ -1,99 +1,62 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4VGBgMV004495
- for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 12:11:42 -0400
-Received: by mail-lf0-f43.google.com with SMTP id h4so12344838lfj.3
- for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 09:11:31 -0700 (PDT)
+Subject: Re: [PATCH 1/1] libsepol/cil: fix aliasactual resolution errors
+To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
+References: <20170530163206.30421-1-slawrence@tresys.com>
+From: jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <6475c0c0-edee-845b-ab7b-08efec59d0be@tycho.nsa.gov>
+Date: Wed, 31 May 2017 12:56:08 -0400
 MIME-Version: 1.0
-In-Reply-To: <149624586416.16947.1791692521620960783.stgit@sifl>
-References: <149624586416.16947.1791692521620960783.stgit@sifl>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 31 May 2017 12:11:26 -0400
-Message-ID: <CAHC9VhTX5zV5jQVCUswgARmdOh9-+DUD_h1L26sYN6CtkQ9DcA@mail.gmail.com>
-Subject: Re: [PATCH v2] tools: add perltidy to the syntax checker/fixer
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20170530163206.30421-1-slawrence@tresys.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, May 31, 2017 at 11:51 AM, Paul Moore <pmoore@redhat.com> wrote:
-> From: Paul Moore <paul@paul-moore.com>
->
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+On 05/30/2017 12:32 PM, Steve Lawrence wrote:
+> - Set rc to SEPOL_ERR if the alias part of an aliasactual statement
+>    does not resolve to the correct alias flavor (e.g. typealias, senalias, catalias)
+> - Add an error check if the actual part of an aliasactual statement
+>    does not resolve to the correct actual flavor (type, sens, cat)
+> 
+> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+
+Applied.
+
+Thanks,
+Jim
+
 > ---
->  tools/check-syntax |   87 ++++++++++++++++++++++++++++++++++++++++------------
->  1 file changed, 67 insertions(+), 20 deletions(-)
+>   libsepol/cil/src/cil_resolve_ast.c | 7 +++++++
+>   1 file changed, 7 insertions(+)
+> 
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> index a671068..5c26530 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -521,6 +521,7 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
+>   	}
+>   	if (NODE(alias_datum)->flavor != alias_flavor) {
+>   		cil_log(CIL_ERR, "%s is not an alias\n",alias_datum->name);
+> +		rc = SEPOL_ERR;
+>   		goto exit;
+>   	}
+>   
+> @@ -529,6 +530,12 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
+>   		goto exit;
+>   	}
+>   
+> +	if (NODE(actual_datum)->flavor != flavor) {
+> +		cil_log(CIL_ERR, "%s is a %s, but aliases a %s\n", alias_datum->name, cil_node_to_string(NODE(alias_datum)), cil_node_to_string(NODE(actual_datum)));
+> +		rc = SEPOL_ERR;
+> +		goto exit;
+> +	}
+> +
+>   	alias = (struct cil_alias *)alias_datum;
+>   
+>   	if (alias->actual != NULL) {
+> 
 
-FYI, I went ahead and merged this into the testsuite repo; the only
-change from v1 is the mv/cat fix that Stephen pointed out earlier.
-
-I also applied the formatting fixes to the repository as well, the
-patch is too large to send to the list, but the diffstat is below:
-
-commit e66b1b7ad81a0e8ba10e55b09a062ed90c729020
-master, github/master)
-Author: Paul Moore <paul@paul-moore.com>
-Date:   Wed May 31 11:51:55 2017 -0400
-
-all: format the perl code with "./tools/check-syntax -f"
-
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-
-tests/bounds/test                |  148 +++--
-tests/cap_userns/test            |   25 -
-tests/capable_file/test          |   63 +-
-tests/capable_net/test           |   29 -
-tests/capable_sys/test           |   32 +
-tests/checkreqprot/test          |    8
-tests/domain_trans/test          |   17 -
-tests/dyntrace/test              |   17 -
-tests/dyntrans/test              |   17 -
-tests/entrypoint/test            |    9
-tests/execshare/test             |   15
-tests/exectrace/test             |   17 -
-tests/execute_no_trans/test      |   15
-tests/extended_socket_class/test |   84 ++-
-tests/fdreceive/test             |   30 +
-tests/file/test                  |   97 ++-
-tests/inet_socket/test           |  175 +++--
-tests/inherit/test               |   35 +
-tests/ioctl/test                 |   35 +
-tests/link/test                  |   52 +-
-tests/loop.pl                    |   11
-tests/mac_admin/test             |   39 +
-tests/mkdir/test                 |   57 +-
-tests/mmap/test                  |  234 ++++---
-tests/mqueue/test                |   54 +-
-tests/msg/test                   |   77 +-
-tests/netlink_socket/test        |   45 +
-tests/nnp/test                   |   23 -
-tests/open/test                  |   53 +-
-tests/overlay/test               | 1230 +++++++++++++++++++---------------
-tests/prlimit/test               |   41 +
-tests/ptrace/test                |   15
-tests/readlink/test              |   33 +
-tests/relabel/test               |   33 +
-tests/rename/test                |   91 ++-
-tests/runtests.pl                |   20 -
-tests/rxdir/test                 |   33 +
-tests/sem/test                   |   54 +-
-tests/setattr/test               |   31 +
-tests/setnice/test               |   17 -
-tests/shm/test                   |   47 +
-tests/sigkill/test               |   41 +
-tests/stat/test                  |   21 -
-tests/sysctl/test                |   16
-tests/task_create/test           |   11
-tests/task_getpgid/test          |   15
-tests/task_getscheduler/test     |   15
-tests/task_getsid/test           |   15
-tests/task_setnice/test          |   20 -
-tests/task_setpgid/test          |   11
-tests/task_setscheduler/test     |   32 +
-tests/unix_socket/test           |   65 +-
-52 files changed, 1983 insertions(+), 1437 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
