@@ -1,81 +1,174 @@
-Message-ID: <1496234734.9396.0.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 1/2] libsepol: Clean up scope handling
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, James Carter <jwcart2@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-Date: Wed, 31 May 2017 08:45:34 -0400
-In-Reply-To: <CAJfZ7=nA6d0H=DG2pnbubofxwdRLtD8DO+Vm_qTVYtxep_MW6g@mail.gmail.com>
-References: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
- <CAJfZ7=nA6d0H=DG2pnbubofxwdRLtD8DO+Vm_qTVYtxep_MW6g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v4VFpB9l027490
+ for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 11:51:11 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 090EA80E7B
+ for <selinux@tycho.nsa.gov>; Wed, 31 May 2017 15:51:05 +0000 (UTC)
+Subject: [PATCH v2] tools: add perltidy to the syntax checker/fixer
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Wed, 31 May 2017 11:51:04 -0400
+Message-ID: <149624586416.16947.1791692521620960783.stgit@sifl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-05-30 at 23:37 +0200, Nicolas Iooss wrote:
-> On Tue, May 30, 2017 at 9:13 PM, James Carter <jwcart2@tycho.nsa.gov>
-> wrote:
-> > Currently, when checking if an identifier is enabled, each scope in
-> > the decl_ids list is checked. This means that if any block that
-> > requires the identifier is enabled, then the identifier will be
-> > treated
-> > as being declared.
-> > 
-> > Now, declarations will be kept at the end of the decl_ids list and
-> > when checking if an identifier is enabled, only the last scope will
-> > be checked (Except for roles and users which allow multiple
-> > declarations,
-> > they will have to keep the old behavior.)
-> > 
-> > Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
-> > ---
-> >  libsepol/src/avrule_block.c | 24 ++++++++++++++++++++----
-> >  libsepol/src/policydb.c     | 13 +++++++++++++
-> >  2 files changed, 33 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/libsepol/src/avrule_block.c
-> > b/libsepol/src/avrule_block.c
-> > index 224e999..e1f460e 100644
-> > --- a/libsepol/src/avrule_block.c
-> > +++ b/libsepol/src/avrule_block.c
-> > @@ -156,20 +156,36 @@ int is_id_enabled(char *id, policydb_t * p,
-> > int symbol_table)
-> >  {
-> >         scope_datum_t *scope =
-> >             (scope_datum_t *) hashtab_search(p-
-> > >scope[symbol_table].table, id);
-> > -       uint32_t i;
-> > +       avrule_decl_t *decl;
-> > +       uint32_t len = scope->decl_ids_len;
-> > +
-> >         if (scope == NULL) {
-> >                 return 0;
-> >         }
-> >         if (scope->scope != SCOPE_DECL) {
-> >                 return 0;
-> >         }
-> > -       for (i = 0; i < scope->decl_ids_len; i++) {
-> > -               avrule_decl_t *decl =
-> > -                   p->decl_val_to_struct[scope->decl_ids[i] - 1];
-> > +
-> > +       if (len < 1) {
-> > +               return 0;
-> > +       }
-> > +
-> > +       if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS)
-> > {
-> > +               uint32_t i;
-> > +               for (i = 0; i < len; i++) {
-> > +                       avrule_decl_t *decl =
-> > +                               p->decl_val_to_struct[scope-
-> > >decl_ids[i] - 1];
-> 
-> Hello,
-> This statement creates a local variable which shadows the previous
-> "decl" variable that is introduced in this commit too (this gets
-> reported as a -Wshadow warning). You may want to rename one of these
-> two variables.
+From: Paul Moore <paul@paul-moore.com>
 
-We don't appear to need the second one at all.
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ tools/check-syntax |   87 ++++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 67 insertions(+), 20 deletions(-)
+
+diff --git a/tools/check-syntax b/tools/check-syntax
+index 72cb06b..7f9768d 100755
+--- a/tools/check-syntax
++++ b/tools/check-syntax
+@@ -13,6 +13,9 @@
+ CHK_C_LIST="$(find tests/ -name "*.c") $(find tests/ -name "*.h")"
+ CHK_C_EXCLUDE=""
+ 
++CHK_PERL_LIST="$(find tests/ -name "*.pl") $(find tests/ -name "test")"
++CHK_PERL_EXCLUDE=""
++
+ ####
+ # functions
+ 
+@@ -66,50 +69,93 @@ function tool_c_style() {
+ }
+ 
+ #
+-# Check the formatting on a C source/header file
++# Generate a properly formatted Perl source file
+ #
+ # Arguments:
+-#     1    File to check
++#     1    Source file
+ #
+-function tool_c_style_check() {
+-	[[ -z "$1" || ! -r "$1" ]] && return
++function tool_perl_style() {
++	perltidy < "$1"
++}
+ 
+-	tool_c_style "$1" | diff -pu --label="$1.orig" "$1" --label="$1" -
++#
++# Check the formatting on a file
++#
++# Arguments:
++#     1    Language
++#     2    File to check
++#
++function style_check() {
++	[[ -z "$1" ]] && return
++	[[ -z "$2" || ! -r "$2" ]] && return
++
++	case "$1" in
++	c|C)
++		tool_c_style "$2" | \
++			diff -pu --label="$2.orig" "$2" --label="$2" -
++		;;
++	perl|Perl)
++		tool_perl_style "$2" | \
++			diff -pu --label="$2.orig" "$2" --label="$2" -
++		;;
++	esac
+ }
+ 
+ #
+-# Fix the formatting on a C source/header file
++# Fix the formatting on a file
+ #
+ # Arguments:
+-#     1    File to fix
++#     1    Language
++#     2    File to check
+ #
+-function tool_c_style_fix() {
+-	[[ -z "$1" || ! -r "$1" ]] && return
++function style_fix() {
++	[[ -z "$1" ]] && return
++	[[ -z "$2" || ! -w "$2" ]] && return
+ 
+-	tmp="$(mktemp --tmpdir=$(dirname "$1"))"
+-	tool_c_style "$1" > "$tmp"
+-	mv "$tmp" "$1"
++	tmp="$(mktemp --tmpdir=$(dirname "$2"))"
++	case "$1" in
++	c|C)
++		tool_c_style "$2" > "$tmp"
++		;;
++	perl|Perl)
++		tool_perl_style "$2" > "$tmp"
++		;;
++	esac
++	cat "$tmp" > "$2"
++	rm "$tmp"
+ }
+ 
+ #
+-# Perform all known syntax checks for the configured C sources/headers
++# Perform all known syntax checks for the configured files
+ #
+-function check_c() {
++function check() {
+ 	for i in $CHK_C_LIST; do
+ 		echo "$CHK_C_EXCLUDE" | grep -q "$i" && continue
+ 		echo "Differences for $i"
+-		tool_c_style_check "$i"
++		style_check c "$i"
++	done
++
++	for i in $CHK_PERL_LIST; do
++		echo "$CHK_PERL_EXCLUDE" | grep -q "$i" && continue
++		echo "Differences for $i"
++		style_check perl "$i"
+ 	done
+ }
+ 
+ #
+-# Perform all known syntax fixes for the configured C sources/headers
++# Perform all known syntax fixes for the configured files
+ #
+-function fix_c() {
++function fix() {
+ 	for i in $CHK_C_LIST; do
+ 		echo "$CHK_C_EXCLUDE" | grep -q "$i" && continue
+ 		echo "Fixing $i"
+-		tool_c_style_fix "$i"
++		style_fix c "$i"
++	done
++
++	for i in $CHK_PERL_LIST; do
++		echo "$CHK_PERL_EXCLUDE" | grep -q "$i" && continue
++		echo "Fixing $i"
++		style_fix perl "$i"
+ 	done
+ }
+ 
+@@ -117,6 +163,7 @@ function fix_c() {
+ # main
+ 
+ verify_deps astyle
++verify_deps perltidy
+ 
+ opt_fix=0
+ 
+@@ -136,9 +183,9 @@ done
+ echo "=============== $(date) ==============="
+ echo "Code Syntax Check Results (\"check-syntax $*\")"
+ if [[ $opt_fix -eq 1 ]]; then
+-	fix_c
++	fix
+ else
+-	check_c
++	check
+ fi
+ echo "============================================================"
+ 
