@@ -1,184 +1,165 @@
-Subject: Re: [PATCH 1/3] libsepol,libsemanage,libselinux: Fix fallthrough
- warnings from gcc 7
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <20170531201420.25226-1-sds@tycho.nsa.gov>
-From: jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <e690343e-7cdc-1849-6c29-b709d2ec6c58@tycho.nsa.gov>
-Date: Thu, 1 Jun 2017 13:52:05 -0400
-MIME-Version: 1.0
-In-Reply-To: <20170531201420.25226-1-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Message-ID: <1496340118.27759.10.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] sort input files
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: bernhardout@lsmod.de, selinux@tycho.nsa.gov
+Cc: "Bernhard M. Wiedemann" <bwiedemann@suse.de>
+Date: Thu, 01 Jun 2017 14:01:58 -0400
+In-Reply-To: <1496154092-30950-1-git-send-email-bernhardout@lsmod.de>
+References: <1496154092-30950-1-git-send-email-bernhardout@lsmod.de>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/31/2017 04:14 PM, Stephen Smalley wrote:
-> https://developers.redhat.com/blog/2017/03/10/wimplicit-fallthrough-in-gcc-7/
+On Tue, 2017-05-30 at 16:21 +0200, bernhardout@lsmod.de wrote:
+> From: "Bernhard M. Wiedemann" <bwiedemann@suse.de>
 > 
-> Fixes the following warnings by annotating with a /* FALLTHRU */ comment.
-> Unfortunately, the __attribute__ ((fallthrough)); approach does not appear
-> to work with older compilers.
+> when building packages (e.g. for openSUSE Linux)
+> (random) filesystem order of input files
+> influences ordering of functions in the output,
+> thus without the patch, builds (in disposable VMs) would usually
+> differ.
 > 
-> ../cil/src/cil_parser.c: In function ‘cil_parser’:
-> ../cil/src/cil_parser.c:253:14: warning: this statement may fall through [-Wimplicit-fallthrough=]
->      tok.value = tok.value+1;
->      ~~~~~~~~~~^~~~~~~~~~~~~
-> ../cil/src/cil_parser.c:254:3: note: here
->     case SYMBOL:
->     ^~~~
-> ../cil/src/cil_parser.c:275:7: warning: this statement may fall through [-Wimplicit-fallthrough=]
->      if (tok.type != END_OF_FILE) {
->         ^
-> ../cil/src/cil_parser.c:279:3: note: here
->     case END_OF_FILE:
->     ^~~~
-> 
-> ../cil/src/cil_post.c: In function ‘cil_post_fc_fill_data’:
-> ../cil/src/cil_post.c:104:5: warning: this statement may fall through [-Wimplicit-fallthrough=]
->      c++;
->      ~^~
-> ../cil/src/cil_post.c:105:3: note: here
->     default:
->     ^~~~~~~
-> 
-> regex.c: In function ‘regex_format_error’:
-> regex.c:541:10: warning: this statement may fall through [-Wimplicit-fallthrough=]
->     *ptr++ = '.';
->     ~~~~~~~^~~~~
-> regex.c:542:2: note: here
->    case 3:
->    ^~~~
-> regex.c:543:10: warning: this statement may fall through [-Wimplicit-fallthrough=]
->     *ptr++ = '.';
->     ~~~~~~~^~~~~
-> regex.c:544:2: note: here
->    case 2:
->    ^~~~
-> regex.c:545:10: warning: this statement may fall through [-Wimplicit-fallthrough=]
->     *ptr++ = '.';
->     ~~~~~~~^~~~~
-> regex.c:546:2: note: here
->    case 1:
->    ^~~~
-> regex.c: In function ‘regex_format_error’:
-> regex.c:541:10: warning: this statement may fall through [-Wimplicit-fallthrough=]
->     *ptr++ = '.';
->     ~~~~~~~^~~~~
-> regex.c:542:2: note: here
->    case 3:
->    ^~~~
-> regex.c:543:10: warning: this statement may fall through [-Wimplicit-fallthrough=]
->     *ptr++ = '.';
->     ~~~~~~~^~~~~
-> regex.c:544:2: note: here
->    case 2:
->    ^~~~
-> regex.c:545:10: warning: this statement may fall through [-Wimplicit-fallthrough=]
->     *ptr++ = '.';
->     ~~~~~~~^~~~~
-> regex.c:546:2: note: here
->    case 1:
->    ^~~~
-> 
-> modules.c: In function ‘semanage_module_get_path’:
-> modules.c:602:7: warning: this statement may fall through [-Wimplicit-fallthrough=]
->      if (file == NULL) file = "hll";
->         ^
-> modules.c:603:3: note: here
->     case SEMANAGE_MODULE_PATH_CIL:
->     ^~~~
-> modules.c:604:7: warning: this statement may fall through [-Wimplicit-fallthrough=]
->      if (file == NULL) file = "cil";
->         ^
-> modules.c:605:3: note: here
->     case SEMANAGE_MODULE_PATH_LANG_EXT:
->     ^~~~
-> 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> See https://reproducible-builds.org/ for why this matters.
 
-All three have been applied.
-
-Jim
+Thanks, applied.
 
 > ---
->   libselinux/src/regex.c        | 4 ++++
->   libsemanage/src/modules.c     | 2 ++
->   libsepol/cil/src/cil_parser.c | 2 ++
->   libsepol/cil/src/cil_post.c   | 1 +
->   4 files changed, 9 insertions(+)
+>  libselinux/utils/Makefile            | 2 +-
+>  libsemanage/src/Makefile             | 2 +-
+>  libsemanage/tests/Makefile           | 2 +-
+>  libsepol/tests/Makefile              | 2 +-
+>  libsepol/utils/Makefile              | 2 +-
+>  mcstrans/utils/Makefile              | 2 +-
+>  policycoreutils/hll/pp/Makefile      | 2 +-
+>  policycoreutils/load_policy/Makefile | 2 +-
+>  policycoreutils/run_init/Makefile    | 2 +-
+>  9 files changed, 9 insertions(+), 9 deletions(-)
 > 
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index 0c5ad27..ec1b0c4 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -539,12 +539,16 @@ truncated:
->   	/* no break statements, fall-through is intended */
->   	case 4:
->   		*ptr++ = '.';
-> +		/* FALLTHRU */
->   	case 3:
->   		*ptr++ = '.';
-> +		/* FALLTHRU */
->   	case 2:
->   		*ptr++ = '.';
-> +		/* FALLTHRU */
->   	case 1:
->   		*ptr++ = '\0';
-> +		/* FALLTHRU */
->   	default:
->   		break;
->   	}
-> diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
-> index 90c5e49..62af101 100644
-> --- a/libsemanage/src/modules.c
-> +++ b/libsemanage/src/modules.c
-> @@ -600,8 +600,10 @@ int semanage_module_get_path(semanage_handle_t *sh,
->   			break;
->   		case SEMANAGE_MODULE_PATH_HLL:
->   			if (file == NULL) file = "hll";
-> +			/* FALLTHRU */
->   		case SEMANAGE_MODULE_PATH_CIL:
->   			if (file == NULL) file = "cil";
-> +			/* FALLTHRU */
->   		case SEMANAGE_MODULE_PATH_LANG_EXT:
->   			if (file == NULL) file = "lang_ext";
->   
-> diff --git a/libsepol/cil/src/cil_parser.c b/libsepol/cil/src/cil_parser.c
-> index 101520c..585ea77 100644
-> --- a/libsepol/cil/src/cil_parser.c
-> +++ b/libsepol/cil/src/cil_parser.c
-> @@ -251,6 +251,7 @@ int cil_parser(char *_path, char *buffer, uint32_t size, struct cil_tree **parse
->   		case QSTRING:
->   			tok.value[strlen(tok.value) - 1] = '\0';
->   			tok.value = tok.value+1;
-> +			/* FALLTHRU */
->   		case SYMBOL:
->   			if (paren_count == 0) {
->   				cil_log(CIL_ERR, "Symbol not inside parenthesis at line %d of %s\n", tok.line, path);
-> @@ -275,6 +276,7 @@ int cil_parser(char *_path, char *buffer, uint32_t size, struct cil_tree **parse
->   			if (tok.type != END_OF_FILE) {
->   				break;
->   			}
-> +			/* FALLTHRU */
->   			// Fall through if EOF
->   		case END_OF_FILE:
->   			if (paren_count > 0) {
-> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> index 0d494ea..ad073e8 100644
-> --- a/libsepol/cil/src/cil_post.c
-> +++ b/libsepol/cil/src/cil_post.c
-> @@ -102,6 +102,7 @@ void cil_post_fc_fill_data(struct fc_data *fc, char *path)
->   			break;
->   		case '\\':
->   			c++;
-> +			/* FALLTHRU */
->   		default:
->   			if (!fc->meta) {
->   				fc->stem_len++;
-> 
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+> index 14f94bde..5f5368a8 100644
+> --- a/libselinux/utils/Makefile
+> +++ b/libselinux/utils/Makefile
+> @@ -53,7 +53,7 @@ PCRE_LDLIBS ?= -lpcre
+>  ifeq ($(ANDROID_HOST),y)
+>  TARGETS=sefcontext_compile
+>  else
+> -TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+> +TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+>  endif
+>  
+>  sefcontext_compile: LDLIBS += $(PCRE_LDLIBS) ../src/libselinux.a
+> -lsepol
+> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> index dba50c8f..f01385c5 100644
+> --- a/libsemanage/src/Makefile
+> +++ b/libsemanage/src/Makefile
+> @@ -51,7 +51,7 @@ SWIGFILES=$(SWIGSO) semanage.py
+>  SWIGRUBYSO=$(RUBYPREFIX)_semanage.so
+>  LIBSO=$(TARGET).$(LIBVERSION)
+>  
+> -GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT)
+> semanageswig_python_exception.i $(wildcard conf-*.[ch])
+> +GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT)
+> semanageswig_python_exception.i $(sort $(wildcard conf-*.[ch]))
+>  SRCS= $(filter-out $(GENERATED),$(sort $(wildcard *.c)))
+>  
+>  OBJS= $(patsubst %.c,%.o,$(SRCS)) conf-scan.o conf-parse.o
+> diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
+> index 9b272247..9ccb5b23 100644
+> --- a/libsemanage/tests/Makefile
+> +++ b/libsemanage/tests/Makefile
+> @@ -2,7 +2,7 @@ PREFIX ?= $(DESTDIR)/usr
+>  LIBDIR ?= $(PREFIX)/lib
+>  
+>  # Add your test source files here:
+> -SOURCES = $(wildcard *.c)
+> +SOURCES = $(sort $(wildcard *.c))
+>  
+>  # Add the required external object files here:
+>  LIBS = ../src/libsemanage.a -lselinux -lsepol
+> diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
+> index 6ae8ad2a..1bd96db9 100644
+> --- a/libsepol/tests/Makefile
+> +++ b/libsepol/tests/Makefile
+> @@ -15,7 +15,7 @@ CHECKPOLICY := ../../checkpolicy/
+>  CPPFLAGS += -I../include/ -I$(CHECKPOLICY)
+>  
+>  # test program object files
+> -objs := $(patsubst %.c,%.o,$(wildcard *.c))
+> +objs := $(patsubst %.c,%.o,$(sort $(wildcard *.c)))
+>  parserobjs := $(CHECKPOLICY)queue.o $(CHECKPOLICY)y.tab.o \
+>  	$(CHECKPOLICY)parse_util.o $(CHECKPOLICY)lex.yy.o \
+>  	$(CHECKPOLICY)policy_define.o
+> $(CHECKPOLICY)module_compiler.o
+> diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
+> index 3b2fb771..467aff27 100644
+> --- a/libsepol/utils/Makefile
+> +++ b/libsepol/utils/Makefile
+> @@ -7,7 +7,7 @@ override CFLAGS += -I../include
+>  override LDFLAGS += -L../src
+>  LDLIBS += -lsepol
+>  
+> -TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+> +TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+>  
+>  all: $(TARGETS)
+>  
+> diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
+> index e6f329bc..7e596413 100644
+> --- a/mcstrans/utils/Makefile
+> +++ b/mcstrans/utils/Makefile
+> @@ -8,7 +8,7 @@ CFLAGS ?= -Wall
+>  override CFLAGS += -I../src -D_GNU_SOURCE
+>  LDLIBS += -lselinux -lpcre
+>  
+> -TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+> +TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+>  
+>  all: $(TARGETS)
+>  
+> diff --git a/policycoreutils/hll/pp/Makefile
+> b/policycoreutils/hll/pp/Makefile
+> index 1ca6c9d9..813c9c6c 100644
+> --- a/policycoreutils/hll/pp/Makefile
+> +++ b/policycoreutils/hll/pp/Makefile
+> @@ -10,7 +10,7 @@ HLLDIR ?= $(LIBEXECDIR)/selinux/hll
+>  CFLAGS ?= -Werror -Wall -W
+>  LDLIBS = -lsepol
+>  
+> -PP_SRCS = $(wildcard *.c)
+> +PP_SRCS = $(sort $(wildcard *.c))
+>  PP_OBJS = $(patsubst %.c,%.o,$(PP_SRCS))
+>  
+>  all: pp
+> diff --git a/policycoreutils/load_policy/Makefile
+> b/policycoreutils/load_policy/Makefile
+> index 6ab0f9d3..256d95af 100644
+> --- a/policycoreutils/load_policy/Makefile
+> +++ b/policycoreutils/load_policy/Makefile
+> @@ -9,7 +9,7 @@ CFLAGS ?= -Werror -Wall -W
+>  override CFLAGS += $(LDFLAGS) -DUSE_NLS
+> -DLOCALEDIR="\"$(LOCALEDIR)\"" -DPACKAGE="\"policycoreutils\""
+>  LDLIBS += -lsepol -lselinux
+>  
+> -TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+> +TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+>  
+>  all: $(TARGETS)
+>  
+> diff --git a/policycoreutils/run_init/Makefile
+> b/policycoreutils/run_init/Makefile
+> index 6f5ee131..7b259525 100644
+> --- a/policycoreutils/run_init/Makefile
+> +++ b/policycoreutils/run_init/Makefile
+> @@ -23,7 +23,7 @@ ifeq ($(AUDITH), y)
+>  	LDLIBS += -laudit
+>  endif
+>  
+> -TARGETS=$(patsubst %.c,%,$(wildcard *.c))
+> +TARGETS=$(patsubst %.c,%,$(sort $(wildcard *.c)))
+>  
+>  all: $(TARGETS)
+>  
