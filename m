@@ -1,146 +1,111 @@
-Subject: Re: [PATCH] libsepol/cil: better error message with duplicate aliases
- + support aliases to aliases
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-References: <20170601132324.15217-1-slawrence@tresys.com>
+Received: from [192.168.25.4] (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v51H4o02008852
+ for <selinux@tycho.nsa.gov>; Thu, 1 Jun 2017 13:04:50 -0400
+Subject: Re: [PATCH 1/2] libsepol: Clean up scope handling
+To: selinux@tycho.nsa.gov
+References: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
 From: jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <b113a7d2-7a4e-8747-5047-8aad7dc6ffbf@tycho.nsa.gov>
-Date: Thu, 1 Jun 2017 13:05:22 -0400
+Message-ID: <3791f257-fa1a-d90f-0351-76f7b5513b18@tycho.nsa.gov>
+Date: Thu, 1 Jun 2017 13:05:45 -0400
 MIME-Version: 1.0
-In-Reply-To: <20170601132324.15217-1-slawrence@tresys.com>
+In-Reply-To: <20170530191304.29886-1-jwcart2@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/01/2017 09:23 AM, Steve Lawrence wrote:
-> - If two typealiasactual statements exist for the same typealias, we get
->    a confusing error message mentioning that the actual arguement is not
->    an alias, which is clearly allowed. This poor error occurs because the
->    first typealiasactual statement resolves correctly, but when we
->    resolve the alias in the second typealiasactual statement,
->    cil_resolve_name tries to return what the alias points to, which is a
->    type and not the required typealias. This patch creates a new function
->    that does not perform the alias to actual conversion, used when we
->    want an alias and not what the alias points to. This allows the
->    cil_resolve_aliasactual to continue and reach the check for duplicate
->    typealiasactual statements, resulting in a more meaningful error
->    message.
+On 05/30/2017 03:13 PM, James Carter wrote:
+> Currently, when checking if an identifier is enabled, each scope in
+> the decl_ids list is checked. This means that if any block that
+> requires the identifier is enabled, then the identifier will be treated
+> as being declared.
 > 
-> - Add back support for aliases to aliases (broken in 5c9fcb02e),
->    while still ensuring that aliases point to either the correct actual
->    flavor or alias flavor, and not something else like a typeattribute.
+> Now, declarations will be kept at the end of the decl_ids list and
+> when checking if an identifier is enabled, only the last scope will
+> be checked (Except for roles and users which allow multiple declarations,
+> they will have to keep the old behavior.)
 > 
-> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
-I didn't even think of the case of an alias of an alias. Applied.
+Both of these have been applied.
 
-Thanks,
 Jim
 
 > ---
->   libsepol/cil/src/cil_resolve_ast.c | 48 ++++++++++++++++++++++++--------------
->   libsepol/cil/src/cil_resolve_ast.h |  1 +
->   2 files changed, 32 insertions(+), 17 deletions(-)
+>   libsepol/src/avrule_block.c | 24 ++++++++++++++++++++----
+>   libsepol/src/policydb.c     | 13 +++++++++++++
+>   2 files changed, 33 insertions(+), 4 deletions(-)
 > 
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index 5c26530..fc44a5e 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -515,7 +515,7 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
->   		goto exit;
->   	}
->   
-> -	rc = cil_resolve_name(current, aliasactual->alias_str, sym_index, extra_args, &alias_datum);
-> +	rc = cil_resolve_name_keep_aliases(current, aliasactual->alias_str, sym_index, extra_args, &alias_datum);
->   	if (rc != SEPOL_OK) {
->   		goto exit;
->   	}
-> @@ -530,7 +530,7 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
->   		goto exit;
->   	}
->   
-> -	if (NODE(actual_datum)->flavor != flavor) {
-> +	if (NODE(actual_datum)->flavor != flavor && NODE(actual_datum)->flavor != alias_flavor) {
->   		cil_log(CIL_ERR, "%s is a %s, but aliases a %s\n", alias_datum->name, cil_node_to_string(NODE(alias_datum)), cil_node_to_string(NODE(actual_datum)));
->   		rc = SEPOL_ERR;
->   		goto exit;
-> @@ -539,7 +539,7 @@ int cil_resolve_aliasactual(struct cil_tree_node *current, void *extra_args, enu
->   	alias = (struct cil_alias *)alias_datum;
->   
->   	if (alias->actual != NULL) {
-> -		cil_log(CIL_ERR, "Alias cannot bind more than one value\n");
-> +		cil_log(CIL_ERR, "%s %s cannot bind more than one value\n", cil_node_to_string(NODE(alias_datum)), alias_datum->name);
->   		rc = SEPOL_ERR;
->   		goto exit;
->   	}
-> @@ -4122,6 +4122,34 @@ static int __cil_resolve_name_helper(struct cil_db *db, struct cil_tree_node *no
->   int cil_resolve_name(struct cil_tree_node *ast_node, char *name, enum cil_sym_index sym_index, void *extra_args, struct cil_symtab_datum **datum)
+> diff --git a/libsepol/src/avrule_block.c b/libsepol/src/avrule_block.c
+> index 224e999..e1f460e 100644
+> --- a/libsepol/src/avrule_block.c
+> +++ b/libsepol/src/avrule_block.c
+> @@ -156,20 +156,36 @@ int is_id_enabled(char *id, policydb_t * p, int symbol_table)
 >   {
->   	int rc = SEPOL_ERR;
-> +	struct cil_tree_node *node = NULL;
+>   	scope_datum_t *scope =
+>   	    (scope_datum_t *) hashtab_search(p->scope[symbol_table].table, id);
+> -	uint32_t i;
+> +	avrule_decl_t *decl;
+> +	uint32_t len = scope->decl_ids_len;
 > +
-> +	rc = cil_resolve_name_keep_aliases(ast_node, name, sym_index, extra_args, datum);
-> +	if (rc != SEPOL_ERR) {
-> +		goto exit;
+>   	if (scope == NULL) {
+>   		return 0;
+>   	}
+>   	if (scope->scope != SCOPE_DECL) {
+>   		return 0;
+>   	}
+> -	for (i = 0; i < scope->decl_ids_len; i++) {
+> -		avrule_decl_t *decl =
+> -		    p->decl_val_to_struct[scope->decl_ids[i] - 1];
+> +
+> +	if (len < 1) {
+> +		return 0;
 > +	}
 > +
-> +	/* If this datum is an alias, then return the actual node
-> +	 * This depends on aliases already being processed
-> +	 */
-> +	node = NODE(*datum);
-> +	if (node->flavor == CIL_TYPEALIAS || node->flavor == CIL_SENSALIAS
-> +		|| node->flavor == CIL_CATALIAS) {
-> +		struct cil_alias *alias = (struct cil_alias *)(*datum);
-> +		if (alias->actual) {
-> +			*datum = alias->actual;
+> +	if (symbol_table == SYM_ROLES || symbol_table == SYM_USERS) {
+> +		uint32_t i;
+> +		for (i = 0; i < len; i++) {
+> +			avrule_decl_t *decl =
+> +				p->decl_val_to_struct[scope->decl_ids[i] - 1];
+> +			if (decl != NULL && decl->enabled) {
+> +				return 1;
+> +			}
 > +		}
-> +	}
+> +	} else {
+> +		decl = p->decl_val_to_struct[scope->decl_ids[len-1] - 1];
+>   		if (decl != NULL && decl->enabled) {
+>   			return 1;
+>   		}
+>   	}
 > +
-> +	rc = SEPOL_OK;
-> +
-> +exit:
-> +	return rc;
-> +}
-> +
-> +int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, enum cil_sym_index sym_index, void *extra_args, struct cil_symtab_datum **datum)
-> +{
-> +	int rc = SEPOL_ERR;
->   	struct cil_args_resolve *args = extra_args;
->   	struct cil_db *db = args->db;
->   	struct cil_tree_node *node = NULL;
-> @@ -4208,20 +4236,6 @@ exit:
->   		*datum = NULL;
+>   	return 0;
+>   }
+>   
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index b153095..ff4fc4e 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -1698,6 +1698,19 @@ int symtab_insert(policydb_t * pol, uint32_t sym,
+>   		return -ENOMEM;
 >   	}
 >   
-> -	if (*datum != NULL) {
-> -		/* If this datum is an alias, then return the actual node
-> -		 * This depends on aliases already being processed
-> -		 */
-> -		node = NODE(*datum);
-> -		if (node->flavor == CIL_TYPEALIAS || node->flavor == CIL_SENSALIAS
-> -			|| node->flavor == CIL_CATALIAS) {
-> -			struct cil_alias *alias = (struct cil_alias *)(*datum);
-> -			if (alias->actual) {
-> -				*datum = alias->actual;
-> -			}
-> -		}
-> -	}
-> -
->   	args->last_resolved_name = name;
+> +	if (scope_datum->scope == SCOPE_DECL && scope == SCOPE_REQ) {
+> +		/* Need to keep the decl at the end of the list */
+> +		uint32_t len, tmp;
+> +		len = scope_datum->decl_ids_len;
+> +		if (len < 2) {
+> +			/* This should be impossible here */
+> +			return -1;
+> +		}
+> +		tmp = scope_datum->decl_ids[len-2];
+> +		scope_datum->decl_ids[len-2] = scope_datum->decl_ids[len-1];
+> +		scope_datum->decl_ids[len-1] = tmp;
+> +	}
+> +
+>   	return retval;
+>   }
 >   
->   	return rc;
-> diff --git a/libsepol/cil/src/cil_resolve_ast.h b/libsepol/cil/src/cil_resolve_ast.h
-> index 82c8ea3..1d971fd 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.h
-> +++ b/libsepol/cil/src/cil_resolve_ast.h
-> @@ -99,5 +99,6 @@ int cil_resolve_tunif(struct cil_tree_node *current, void *extra_args);
->   
->   int cil_resolve_ast(struct cil_db *db, struct cil_tree_node *current);
->   int cil_resolve_name(struct cil_tree_node *ast_node, char *name, enum cil_sym_index sym_index, void *extra_args, struct cil_symtab_datum **datum);
-> +int cil_resolve_name_keep_aliases(struct cil_tree_node *ast_node, char *name, enum cil_sym_index sym_index, void *extra_args, struct cil_symtab_datum **datum);
->   
->   #endif /* CIL_RESOLVE_AST_H_ */
 > 
 
 
