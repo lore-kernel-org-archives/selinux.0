@@ -1,28 +1,25 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v52HHOQf005844
- for <selinux@tycho.nsa.gov>; Fri, 2 Jun 2017 13:17:24 -0400
-Message-ID: <1496424108.19674.6.camel@tycho.nsa.gov>
-Subject: Re: last call for selinux 2.7-rc1 release
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v52K1flJ006590
+ for <selinux@tycho.nsa.gov>; Fri, 2 Jun 2017 16:01:41 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 43B4B7F6AA
+ for <selinux@tycho.nsa.gov>; Fri,  2 Jun 2017 20:01:39 +0000 (UTC)
+Received: from workstation.redhat.com (ovpn-204-16.brq.redhat.com
+ [10.40.204.16])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 97E5477C0A
+ for <selinux@tycho.nsa.gov>; Fri,  2 Jun 2017 20:01:38 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Fri, 02 Jun 2017 13:21:48 -0400
-In-Reply-To: <1492783467.26658.6.camel@tycho.nsa.gov>
-References: <1492783467.26658.6.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Subject: 
+Date: Fri,  2 Jun 2017 22:01:29 +0200
+Message-Id: <20170602200131.16718-1-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-04-21 at 10:04 -0400, Stephen Smalley wrote:
-> Hi,
-> 
-> We plan to cut a 2.7-rc1 selinux userspace release in the next week
-> or
-> so.  If you have any additional patches you want included in 2.7,
-> please post them to the list soon.
-
-This took longer than anticipated due to patch volume and wanting to
-get certain features and bug fixes in place, but I think we should be
-ready to cut an -rc1 release next week.
+The following patches fix sepolicy python3 issues found by
+`make test` in python/sepolicy 
