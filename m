@@ -1,51 +1,28 @@
-Subject: Re: [PATCH] libsepol/cil: fix error check in new cil_resolve_name
-To: Steve Lawrence <slawrence@tresys.com>, SELinux List <selinux@tycho.nsa.gov>
-References: <20170602112107.16109-1-slawrence@tresys.com>
-From: jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <75dfc1c1-660e-3d4e-976c-ec548116355f@tycho.nsa.gov>
-Date: Fri, 2 Jun 2017 12:26:41 -0400
-MIME-Version: 1.0
-In-Reply-To: <20170602112107.16109-1-slawrence@tresys.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v52HHOQf005844
+ for <selinux@tycho.nsa.gov>; Fri, 2 Jun 2017 13:17:24 -0400
+Message-ID: <1496424108.19674.6.camel@tycho.nsa.gov>
+Subject: Re: last call for selinux 2.7-rc1 release
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Date: Fri, 02 Jun 2017 13:21:48 -0400
+In-Reply-To: <1492783467.26658.6.camel@tycho.nsa.gov>
+References: <1492783467.26658.6.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/02/2017 07:21 AM, Steve Lawrence wrote:
-> This prevented cil_resolve_name() from returning an actual thing when a
-> name resolved to an alias. This appears to have only affected resolution
-> dealing with sensitivity and category aliases. Type aliases were not
-> affected since places that dealt with types handled type aliases
-> specifically and did not rely on this behavior from cil_resolve_name().
+On Fri, 2017-04-21 at 10:04 -0400, Stephen Smalley wrote:
+> Hi,
 > 
-> Signed-off-by: Steve Lawrence <slawrence@tresys.com>
+> We plan to cut a 2.7-rc1 selinux userspace release in the next week
+> or
+> so.  If you have any additional patches you want included in 2.7,
+> please post them to the list soon.
 
-Applied.
-
-Thanks,
-Jim
-
-> ---
->   libsepol/cil/src/cil_resolve_ast.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index fc44a5e..d1a5ed8 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -4125,7 +4125,7 @@ int cil_resolve_name(struct cil_tree_node *ast_node, char *name, enum cil_sym_in
->   	struct cil_tree_node *node = NULL;
->   
->   	rc = cil_resolve_name_keep_aliases(ast_node, name, sym_index, extra_args, datum);
-> -	if (rc != SEPOL_ERR) {
-> +	if (rc != SEPOL_OK) {
->   		goto exit;
->   	}
->   
-> 
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+This took longer than anticipated due to patch volume and wanting to
+get certain features and bug fixes in place, but I think we should be
+ready to cut an -rc1 release next week.
