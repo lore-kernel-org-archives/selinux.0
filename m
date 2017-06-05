@@ -1,152 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v559AM4X007078
- for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2017 05:10:23 -0400
-From: Junil Lee <junil0814.lee@lge.com>
-To: paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org
-Cc: james.l.morris@oracle.com, serge@hallyn.com, william.c.roberts@intel.com,
- adobriyan@gmail.com, junil0814.lee@lge.com, akpm@linux-foundation.org,
- dledford@redhat.com, danielj@mellanox.com, mka@chromium.org,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: [PATCH] security: selinux: use kmem_cache for ebitmap
-Date: Mon,  5 Jun 2017 18:10:14 +0900
-Message-Id: <1496653814-3653-1-git-send-email-junil0814.lee@lge.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v55Fj24U029618
+ for <selinux@tycho.nsa.gov>; Mon, 5 Jun 2017 11:45:02 -0400
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: paul@paul-moore.com
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org,
+ Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] net/ipv6: Fix CALIPSO causing GPF with datagram support
+Date: Mon,  5 Jun 2017 16:44:40 +0100
+Message-Id: <20170605154440.2434-1-richard_c_haines@btinternet.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The allocated size for each ebitmap_node is 192byte by kzalloc().
-Then, ebitmap_node size is fixed, so it's possible to use only 144byte
-for each object by kmem_cache_zalloc().
-It can reduce some dynamic allocation size.
+When using CALIPSO with IPPROTO_UDP it is possible to trigger a GPF as the
+IP header may have moved.
 
-Signed-off-by: Junil Lee <junil0814.lee@lge.com>
+Also update the payload length after adding the CALIPSO option.
+
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- security/selinux/ss/ebitmap.c  | 24 +++++++++++++++++++-----
- security/selinux/ss/ebitmap.h  |  3 +++
- security/selinux/ss/services.c |  4 ++++
- 3 files changed, 26 insertions(+), 5 deletions(-)
+ net/ipv6/calipso.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index 9db4709a..076c96f 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -24,6 +24,8 @@
+diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
+index 37ac9de..8d772fe 100644
+--- a/net/ipv6/calipso.c
++++ b/net/ipv6/calipso.c
+@@ -1319,7 +1319,7 @@ static int calipso_skbuff_setattr(struct sk_buff *skb,
+ 	struct ipv6hdr *ip6_hdr;
+ 	struct ipv6_opt_hdr *hop;
+ 	unsigned char buf[CALIPSO_MAX_BUFFER];
+-	int len_delta, new_end, pad;
++	int len_delta, new_end, pad, payload;
+ 	unsigned int start, end;
  
- #define BITS_PER_U64	(sizeof(u64) * 8)
+ 	ip6_hdr = ipv6_hdr(skb);
+@@ -1346,6 +1346,8 @@ static int calipso_skbuff_setattr(struct sk_buff *skb,
+ 	if (ret_val < 0)
+ 		return ret_val;
  
-+static struct kmem_cache *ebitmap_node_cachep;
++	ip6_hdr = ipv6_hdr(skb); /* Reset as skb_cow() may have moved it */
 +
- int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
- {
- 	struct ebitmap_node *n1, *n2;
-@@ -54,7 +56,7 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src)
- 	n = src->node;
- 	prev = NULL;
- 	while (n) {
--		new = kzalloc(sizeof(*new), GFP_ATOMIC);
-+		new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
- 		if (!new) {
- 			ebitmap_destroy(dst);
- 			return -ENOMEM;
-@@ -162,7 +164,7 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
- 		if (e_iter == NULL ||
- 		    offset >= e_iter->startbit + EBITMAP_SIZE) {
- 			e_prev = e_iter;
--			e_iter = kzalloc(sizeof(*e_iter), GFP_ATOMIC);
-+			e_iter = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
- 			if (e_iter == NULL)
- 				goto netlbl_import_failure;
- 			e_iter->startbit = offset - (offset % EBITMAP_SIZE);
-@@ -299,7 +301,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
- 	if (!value)
- 		return 0;
- 
--	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-+	new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
- 	if (!new)
- 		return -ENOMEM;
- 
-@@ -332,7 +334,7 @@ void ebitmap_destroy(struct ebitmap *e)
- 	while (n) {
- 		temp = n;
- 		n = n->next;
--		kfree(temp);
-+		kmem_cache_free(ebitmap_node_cachep, temp);
+ 	if (len_delta) {
+ 		if (len_delta > 0)
+ 			skb_push(skb, len_delta);
+@@ -1355,6 +1357,8 @@ static int calipso_skbuff_setattr(struct sk_buff *skb,
+ 			sizeof(*ip6_hdr) + start);
+ 		skb_reset_network_header(skb);
+ 		ip6_hdr = ipv6_hdr(skb);
++		payload = ntohs(ip6_hdr->payload_len);
++		ip6_hdr->payload_len = htons(payload + len_delta);
  	}
  
- 	e->highbit = 0;
-@@ -400,7 +402,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
- 
- 		if (!n || startbit >= n->startbit + EBITMAP_SIZE) {
- 			struct ebitmap_node *tmp;
--			tmp = kzalloc(sizeof(*tmp), GFP_KERNEL);
-+			tmp = kmem_cache_zalloc(ebitmap_node_cachep, GFP_KERNEL);
- 			if (!tmp) {
- 				printk(KERN_ERR
- 				       "SELinux: ebitmap: out of memory\n");
-@@ -519,3 +521,15 @@ int ebitmap_write(struct ebitmap *e, void *fp)
- 	}
- 	return 0;
- }
-+
-+void ebitmap_cache_init(void)
-+{
-+	ebitmap_node_cachep = kmem_cache_create("ebitmap_node",
-+							sizeof(struct ebitmap_node),
-+							0, SLAB_PANIC, NULL);
-+}
-+
-+void ebitmap_cache_destroy(void)
-+{
-+	kmem_cache_destroy(ebitmap_node_cachep);
-+}
-diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
-index 9637b8c..6d5a9ac 100644
---- a/security/selinux/ss/ebitmap.h
-+++ b/security/selinux/ss/ebitmap.h
-@@ -130,6 +130,9 @@ void ebitmap_destroy(struct ebitmap *e);
- int ebitmap_read(struct ebitmap *e, void *fp);
- int ebitmap_write(struct ebitmap *e, void *fp);
- 
-+void ebitmap_cache_init(void);
-+void ebitmap_cache_destroy(void);
-+
- #ifdef CONFIG_NETLABEL
- int ebitmap_netlbl_export(struct ebitmap *ebmap,
- 			  struct netlbl_lsm_catmap **catmap);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 2021666..2f02fa6 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2054,9 +2054,11 @@ int security_load_policy(void *data, size_t len)
- 
- 	if (!ss_initialized) {
- 		avtab_cache_init();
-+		ebitmap_cache_init();
- 		rc = policydb_read(&policydb, fp);
- 		if (rc) {
- 			avtab_cache_destroy();
-+			ebitmap_cache_destroy();
- 			goto out;
- 		}
- 
-@@ -2067,6 +2069,7 @@ int security_load_policy(void *data, size_t len)
- 		if (rc) {
- 			policydb_destroy(&policydb);
- 			avtab_cache_destroy();
-+			ebitmap_cache_destroy();
- 			goto out;
- 		}
- 
-@@ -2074,6 +2077,7 @@ int security_load_policy(void *data, size_t len)
- 		if (rc) {
- 			policydb_destroy(&policydb);
- 			avtab_cache_destroy();
-+			ebitmap_cache_destroy();
- 			goto out;
- 		}
- 
+ 	hop = (struct ipv6_opt_hdr *)(ip6_hdr + 1);
 -- 
-2.6.2
+2.9.4
