@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v56Ncubd009633
- for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2017 19:38:59 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v56Nvik3016216
+ for <selinux@tycho.nsa.gov>; Tue, 6 Jun 2017 19:57:47 -0400
 Subject: Re: [PATCH] security: selinux: use kmem_cache for ebitmap
 To: Paul Moore <paul@paul-moore.com>
 References: <1496653814-3653-1-git-send-email-junil0814.lee@lge.com>
@@ -10,21 +10,22 @@ Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
  william.c.roberts@intel.com, adobriyan@gmail.com,
  akpm@linux-foundation.org, dledford@redhat.com, danielj@mellanox.com,
  mka@chromium.org, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ junil0814.lee@lge.com
 From: "=?UTF-8?B?7J207KSA7J28L+yXsOq1rOybkC9NQ+yXsOq1rOyGjCBCU1Dsi6QgQlNQNg==?=
  =?UTF-8?Q?=ed=8c=80=28junil0814.lee@lge.com=29?=" <junil0814.lee@lge.com>
-Message-ID: <872857aa-7587-79a9-cf31-4508eacdb3f7@lge.com>
-Date: Wed, 7 Jun 2017 08:38:48 +0900
+Message-ID: <885540aa-dc08-cf4b-4b85-7a4d1ce04068@lge.com>
+Date: Wed, 7 Jun 2017 08:57:32 +0900
 MIME-Version: 1.0
 In-Reply-To: <CAHC9VhSDux6oAcD1ZULOTcCp69JFY1c4Jati3odg4ROoRROp-w@mail.gmail.com>
-Content-Type: multipart/mixed; boundary="------------E452F1CEAB2237A5B273A313"
+Content-Type: multipart/mixed; boundary="------------58424AB5D40B4BEC3A44609A"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 This is a multi-part message in MIME format.
---------------E452F1CEAB2237A5B273A313
+--------------58424AB5D40B4BEC3A44609A
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
@@ -101,7 +102,7 @@ Junil Lee.
 > paul moore
 > www.paul-moore.com
 
---------------E452F1CEAB2237A5B273A313
+--------------58424AB5D40B4BEC3A44609A
 Content-Type: text/plain; charset=UTF-8;
  name="0001-security-selinux-use-kmem_cache-for-ebitmap.patch"
 Content-Transfer-Encoding: base64
@@ -192,4 +193,4 @@ cml0eV9sb2FkX3BvbGljeSh2b2lkICpkYXRhLCBzaXplX3QgbGVuKQogCQlpZiAocmMpIHsK
 IAkJCXBvbGljeWRiX2Rlc3Ryb3koJnBvbGljeWRiKTsKIAkJCWF2dGFiX2NhY2hlX2Rlc3Ry
 b3koKTsKKwkJCWViaXRtYXBfY2FjaGVfZGVzdHJveSgpOwogCQkJZ290byBvdXQ7CiAJCX0K
 IAotLSAKMi42LjIKCg==
---------------E452F1CEAB2237A5B273A313--
+--------------58424AB5D40B4BEC3A44609A--
