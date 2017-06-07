@@ -1,102 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v57DoYI9009676
- for <selinux@tycho.nsa.gov>; Wed, 7 Jun 2017 09:50:34 -0400
-Received: by mail-lf0-f66.google.com with SMTP id o28so1053543lfk.1
- for <selinux@tycho.nsa.gov>; Wed, 07 Jun 2017 06:50:28 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v57Hc6hX010209
+ for <selinux@tycho.nsa.gov>; Wed, 7 Jun 2017 13:38:06 -0400
+Received: by mail-wm0-f41.google.com with SMTP id 7so123128438wmo.1
+ for <selinux@tycho.nsa.gov>; Wed, 07 Jun 2017 10:37:50 -0700 (PDT)
+Received: from julius.enp8s0.d30 ([217.19.26.10])
+ by smtp.gmail.com with ESMTPSA id w26sm1146556edw.28.2017.06.07.10.37.43
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+ Wed, 07 Jun 2017 10:37:44 -0700 (PDT)
+Date: Wed, 7 Jun 2017 19:37:42 +0200
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Subject: icmp and rawip socket
+Message-ID: <20170607173742.GA739@julius.enp8s0.d30>
 MIME-Version: 1.0
-In-Reply-To: <872857aa-7587-79a9-cf31-4508eacdb3f7@lge.com>
-References: <1496653814-3653-1-git-send-email-junil0814.lee@lge.com>
- <CAHC9VhSDux6oAcD1ZULOTcCp69JFY1c4Jati3odg4ROoRROp-w@mail.gmail.com>
- <872857aa-7587-79a9-cf31-4508eacdb3f7@lge.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 7 Jun 2017 09:50:24 -0400
-Message-ID: <CAHC9VhTU9fgZxfeyo_ViPcdEONxYaBxnMGCgM8yb35-52CBNtw@mail.gmail.com>
-Subject: Re: [PATCH] security: selinux: use kmem_cache for ebitmap
-To: =?UTF-8?B?7J207KSA7J28L+yXsOq1rOybkC9NQ+yXsOq1rOyGjCBCU1Dsi6QgQlNQNu2MgChqdW5pbDA4MTQu?=
- =?UTF-8?B?bGVlQGxnZS5jb20p?= <junil0814.lee@lge.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
- william.c.roberts@intel.com, adobriyan@gmail.com,
- akpm@linux-foundation.org, dledford@redhat.com, danielj@mellanox.com,
- mka@chromium.org, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 6, 2017 at 7:38 PM, 이준일/연구원/MC연구소 BSP실
-BSP6팀(junil0814.lee@lge.com) <junil0814.lee@lge.com> wrote:
-> Paul Moore wrote on 2017-06-06 오전 6:39:
->> On Mon, Jun 5, 2017 at 5:10 AM, Junil Lee <junil0814.lee@lge.com> wrote:
->>> The allocated size for each ebitmap_node is 192byte by kzalloc().
->>> Then, ebitmap_node size is fixed, so it's possible to use only 144byte
->>> for each object by kmem_cache_zalloc().
->>> It can reduce some dynamic allocation size.
->>>
->>> Signed-off-by: Junil Lee <junil0814.lee@lge.com>
->>> ---
->>> security/selinux/ss/ebitmap.c | 24 +++++++++++++++++++-----
->>> security/selinux/ss/ebitmap.h | 3 +++
->>> security/selinux/ss/services.c | 4 ++++
->>> 3 files changed, 26 insertions(+), 5 deletions(-)
->>>
->>> diff --git a/security/selinux/ss/ebitmap.c
->> b/security/selinux/ss/ebitmap.c
->>> index 9db4709a..076c96f 100644
->>> --- a/security/selinux/ss/ebitmap.c
->>> +++ b/security/selinux/ss/ebitmap.c
->>> @@ -24,6 +24,8 @@
->>>
->>> #define BITS_PER_U64 (sizeof(u64) * 8)
->>>
->>> +static struct kmem_cache *ebitmap_node_cachep;
->>> +
->>> int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
->>> {
->>> struct ebitmap_node *n1, *n2;
->>> @@ -54,7 +56,7 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap
->> *src)
->>> n = src->node;
->>> prev = NULL;
->>> while (n) {
->>> - new = kzalloc(sizeof(*new), GFP_ATOMIC);
->>> + new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
->>> if (!new) {
->>> ebitmap_destroy(dst);
->>> return -ENOMEM;
->>> @@ -162,7 +164,7 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
->>> if (e_iter == NULL ||
->>> offset >= e_iter->startbit + EBITMAP_SIZE) {
->>> e_prev = e_iter;
->>> - e_iter = kzalloc(sizeof(*e_iter), GFP_ATOMIC);
->>> + e_iter = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
->>> if (e_iter == NULL)
->>> goto netlbl_import_failure;
->>> e_iter->startbit = offset - (offset % EBITMAP_SIZE);
->>> @@ -299,7 +301,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned
->> long bit, int value)
->>> if (!value)
->>> return 0;
->>>
->>> - new = kzalloc(sizeof(*new), GFP_ATOMIC);
->>> + new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
->>> if (!new)
->>> return -ENOMEM;
->>
->> I believe there is a kfree() in ebitmap_set_bit() that also needs to
->> be converted.
->>
->
-> Thanks for your advice Paul.
-> reattach patch v2.
 
-Please submit patches inline, just as you did for your original
-posting.  It make it easier to review and apply.
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks.
+Was it intentional to add icmp_socket class? Because this use to be rawip_s=
+ocket. rawip_socket includes more than just icmp (IGMP/OSPF) but still I th=
+ought that the extended socket classes only applied to what is otherwise ge=
+neric "socket"
 
--- 
-paul moore
-www.paul-moore.com
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
+
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlk4OeIACgkQJXSOVTf5
+R2kzSQv8D282MXVP6BWtYg80F6Zq8m8mmM2Eo/bLAblVQNcFUZjMKSSzGrG1c8m7
+VNDZt8IxHiLvAxdlUDL+yHCUpyfMoo2XeWXgf2bX2LWQvjFXfbODb2UJjqT1NY7Z
++4YuyaRnRwY1S7qSnRoDcbbqDLyDk8aNdHqR15B1HtnbbmZhmOU0Z+MnN76sGOuC
+N8b8fGzDO3PgxMJeYhmZSdwCBnxG9IqV1slgG3fKtN7OLsROCqaswCkCinw0YcMt
+jrvzk5omXT4OjaErpyeegUJjk4NAnZ/EX4koZ8r9ewHH5ROy1NkXHmsuGX1ezaWw
+RMM499gCbxAtU/iGnP1K9N5lyiKqt+pmspO8Ci5BginawAYUuDeddJp9Nj8kBcdF
+kkTZKtK9CImFmMys7bi06nOYQn5cRAznu2f69z9eujV24+E08t6W1/yuSiNIIPQ8
+Js0PzCr0lHrlNaB9q2HfKwm3SdYfBylnR2LpFHktaZKhMayRaNJywzEkJ62InGpx
+d059JIam
+=Y0Iw
+-----END PGP SIGNATURE-----
+
+--wac7ysb48OaltWcw--
