@@ -1,52 +1,60 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: bigon@debian.org, cgzones@googlemail.com, 864479-forwarded@bugs.debian.org,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libselinux: always unmount selinuxfs for SELINUX=disabled
-Date: Fri,  9 Jun 2017 10:29:51 -0400
-Message-Id: <20170609142951.31563-1-sds@tycho.nsa.gov>
+From: Daniel Jurgens <danielj@mellanox.com>
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>
+CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, Yevgeny Petrilin
+ <yevgenyp@mellanox.com>
+Subject: Re: [PATCH v2 2/2] selinux-testsuite: Infiniband endport tests
+Date: Fri, 9 Jun 2017 14:44:11 +0000
+Message-ID: <DB6PR0501MB28566D9AD30D2586E1E631E0C4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
+References: <1496162091-129822-1-git-send-email-danielj@mellanox.com>
+ <1496162091-129822-3-git-send-email-danielj@mellanox.com>
+ <1496164182.2164.12.camel@tycho.nsa.gov>
+ <VI1PR05MB1678A4215E4D0406273B87B9C4F00@VI1PR05MB1678.eurprd05.prod.outlook.com>
+ <1496166732.2164.18.camel@tycho.nsa.gov>
+ <CAHC9VhThFfXpJeMn+3bsBwpnxNmLcRyOLjF68-UXB6uiVPYyWQ@mail.gmail.com>
+ <DB6PR0501MB28569A5654DE040C7AE9EB47C4CA0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-As reported in:
-https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=864479
-using a kernel configuration with CONFIG_SECURITY_SELINUX_DISABLE=n
-and a /etc/selinux/config with SELINUX=disabled leads to a boot
-failure.
-
-Fix this by always unmounting selinuxfs if /etc/selinux/config has
-SELINUX=disabled even if unable to successfully disable SELinux.
-This will ensure that subsequent is_selinux_enabled() tests will
-return 0 (disabled) and userspace will therefore skip any SELinux
-processing.
-
-Reported-by: Christian Göttsche <cgzones@googlemail.com>
-Reported-by: Laurent Bigonville <bigon@debian.org>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libselinux/src/load_policy.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index 7f08311..e9f1264 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -449,8 +449,11 @@ int selinux_init_load_policy(int *enforce)
- 		}
- 	}
- 
--	if (seconfig == -1)
-+	if (seconfig == -1) {
-+		umount(selinux_mnt);
-+		fini_selinuxmnt();
- 		goto noload;
-+	}
- 
- 	/* Load the policy. */
- 	return selinux_mkload_policy(0);
--- 
-2.9.4
+On 6/5/2017 5:34 PM, Daniel Jurgens wrote:
+> On 6/5/2017 5:13 PM, Paul Moore wrote:
+>> On Tue, May 30, 2017 at 1:52 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> On Tue, 2017-05-30 at 17:40 +0000, Daniel Jurgens wrote:
+>>>> On 5/30/2017 12:05 PM, Stephen Smalley wrote:
+>>>>> On Tue, 2017-05-30 at 19:34 +0300, Dan Jurgens wrote:
+>>>>>> From: Daniel Jurgens <danielj@mellanox.com>
+>>>>>>
+>>>>>> New tests for Infiniband endports. Most users do not have
+>>>>>> infiniband
+>>>>>> hardware, and if they do the device names can vary.  There is a
+>>>>>> configuration file for enabling the tests and setting environment
+>>>>>> specific configurations.  If the tests are disabled they always
+>>>>>> show
+>>>>>> as
+>>>>>> passed.
+>>>>>>
+>>>>>> A special test application was unnecessary, a standard diagnostic
+>>>>>> application is used instead.  This required a change to the make
+>>>>>> file
+>>>>>> to avoid trying to build an application in the new subdir.
+>>>>>>
+>>>>>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>> ...
+>>
+>>> I wouldn't bother re-spinning unless Paul has other comments.
+>> Nothing worthy of a respin.
+>>
+>> Daniel, have you run these tests against the kernel, userspace, and
+>> policy code that has been merged?  It would be nice to have a sanity
+>> check that something didn't break while we were merging everything.
+>>
+>> [SIDE NOTE: This afternoon I noticed what I think may be a problem
+>> with my COPR kernel builds that affects the test suite, so YMMY at the
+>> moment.]
+>>
+> I ran them against the merged kernel and selinux code.  But I used the same policy RPMs that I had been using, I didn't try to rebuild the RPMs against the new refpolicy.
+>
+Are these tests good to go? I haven't gotten any additional comments since v2.
