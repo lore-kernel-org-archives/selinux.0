@@ -1,112 +1,177 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v59K1Qqh001446
- for <selinux@tycho.nsa.gov>; Fri, 9 Jun 2017 16:01:26 -0400
-Received: by mail-lf0-f68.google.com with SMTP id u62so5804418lfg.0
- for <selinux@tycho.nsa.gov>; Fri, 09 Jun 2017 13:01:23 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v59KGi4n006619
+ for <selinux@tycho.nsa.gov>; Fri, 9 Jun 2017 16:16:46 -0400
+Received: by mail-lf0-f68.google.com with SMTP id v20so5812215lfa.2
+ for <selinux@tycho.nsa.gov>; Fri, 09 Jun 2017 13:16:41 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <DB6PR0501MB28562507978CF515DC4BF2CEC4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
-References: <1496162091-129822-1-git-send-email-danielj@mellanox.com>
- <1496162091-129822-3-git-send-email-danielj@mellanox.com>
- <1496164182.2164.12.camel@tycho.nsa.gov>
- <VI1PR05MB1678A4215E4D0406273B87B9C4F00@VI1PR05MB1678.eurprd05.prod.outlook.com>
- <1496166732.2164.18.camel@tycho.nsa.gov>
- <CAHC9VhThFfXpJeMn+3bsBwpnxNmLcRyOLjF68-UXB6uiVPYyWQ@mail.gmail.com>
- <DB6PR0501MB28569A5654DE040C7AE9EB47C4CA0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
- <DB6PR0501MB28566D9AD30D2586E1E631E0C4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
- <CAHC9VhQW3pNsic=mKfQsGj7qAoChO8tO2cW6tYWGp4C1Nk70ew@mail.gmail.com>
- <DB6PR0501MB28562507978CF515DC4BF2CEC4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
+In-Reply-To: <1496895489-180660-1-git-send-email-junil0814.lee@lge.com>
+References: <1496895489-180660-1-git-send-email-junil0814.lee@lge.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 9 Jun 2017 16:01:21 -0400
-Message-ID: <CAHC9VhQyauo4UEHdp2aP04nGms_gjOrSKQvkPPXTtQmjFLaB+g@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] selinux-testsuite: Infiniband endport tests
-To: Daniel Jurgens <danielj@mellanox.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
+Date: Fri, 9 Jun 2017 16:16:38 -0400
+Message-ID: <CAHC9VhQ54WqLpBqHQm3F2=wEQq6p7xWCEyEubyrTr6kLDE7wgw@mail.gmail.com>
+Subject: Re: [PATCH] security: selinux: use kmem_cache for ebitmap
+To: Junil Lee <junil0814.lee@lge.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
+ william.c.roberts@intel.com, adobriyan@gmail.com,
+ akpm@linux-foundation.org, dledford@redhat.com, danielj@mellanox.com,
+ mka@chromium.org, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jun 9, 2017 at 10:59 AM, Daniel Jurgens <danielj@mellanox.com> wrote:
-> On 6/9/2017 9:50 AM, Paul Moore wrote:
->> On Fri, Jun 9, 2017 at 10:44 AM, Daniel Jurgens <danielj@mellanox.com> wrote:
->>> On 6/5/2017 5:34 PM, Daniel Jurgens wrote:
->>>> On 6/5/2017 5:13 PM, Paul Moore wrote:
->>>>> On Tue, May 30, 2017 at 1:52 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>>>> On Tue, 2017-05-30 at 17:40 +0000, Daniel Jurgens wrote:
->>>>>>> On 5/30/2017 12:05 PM, Stephen Smalley wrote:
->>>>>>>> On Tue, 2017-05-30 at 19:34 +0300, Dan Jurgens wrote:
->>>>>>>>> From: Daniel Jurgens <danielj@mellanox.com>
->>>>>>>>>
->>>>>>>>> New tests for Infiniband endports. Most users do not have
->>>>>>>>> infiniband
->>>>>>>>> hardware, and if they do the device names can vary.  There is a
->>>>>>>>> configuration file for enabling the tests and setting environment
->>>>>>>>> specific configurations.  If the tests are disabled they always
->>>>>>>>> show
->>>>>>>>> as
->>>>>>>>> passed.
->>>>>>>>>
->>>>>>>>> A special test application was unnecessary, a standard diagnostic
->>>>>>>>> application is used instead.  This required a change to the make
->>>>>>>>> file
->>>>>>>>> to avoid trying to build an application in the new subdir.
->>>>>>>>>
->>>>>>>>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
->>>>> ...
->>>>>
->>>>>> I wouldn't bother re-spinning unless Paul has other comments.
->>>>> Nothing worthy of a respin.
->>>>>
->>>>> Daniel, have you run these tests against the kernel, userspace, and
->>>>> policy code that has been merged?  It would be nice to have a sanity
->>>>> check that something didn't break while we were merging everything.
->>>>>
->>>>> [SIDE NOTE: This afternoon I noticed what I think may be a problem
->>>>> with my COPR kernel builds that affects the test suite, so YMMY at the
->>>>> moment.]
->>>>>
->>>> I ran them against the merged kernel and selinux code.  But I used the same policy RPMs that I had been using, I didn't try to rebuild the RPMs against the new refpolicy.
->>>>
->>> Are these tests good to go? I haven't gotten any additional comments since v2.
->> Yes, my apologies for not getting back to you sooner; I had hoped to
->> talk to some of the IB folks at Red Hat to see if they could verify
->> everything (or at least get access to a IB system so I could verify
->> it) but I got wrapped in a few audit issues this week and didn't get
->> to it.
->>
->> I'll merge these patches later this afternoon.
->>
-> No problem, just wanted to make sure I wasn't holding it up in anyway.
+On Thu, Jun 8, 2017 at 12:18 AM, Junil Lee <junil0814.lee@lge.com> wrote:
+> The allocated size for each ebitmap_node is 192byte by kzalloc().
+> Then, ebitmap_node size is fixed, so it's possible to use only 144byte
+> for each object by kmem_cache_zalloc().
+> It can reduce some dynamic allocation size.
+>
+> Signed-off-by: Junil Lee <junil0814.lee@lge.com>
+> ---
+>  security/selinux/ss/ebitmap.c  | 26 ++++++++++++++++++++------
+>  security/selinux/ss/ebitmap.h  |  3 +++
+>  security/selinux/ss/services.c |  4 ++++
+>  3 files changed, 27 insertions(+), 6 deletions(-)
 
-Should be all set now, let me know if you notice any problems.  I did
-add a separate third commit to munge the style/formatting (see
-previous emails); I didn't bother posting it to the list as it is just
-style changes, but in case anyone is curious, this is the commit:
+I just applied this to selinux/next, thank you.
 
-  commit 8e0339cef20d0356d3e115c31a133662e9562e65
-  Author: Paul Moore <paul@paul-moore.com>
-  Date:   Fri Jun 9 15:46:37 2017 -0400
+> diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+> index 9db4709a..ad38299 100644
+> --- a/security/selinux/ss/ebitmap.c
+> +++ b/security/selinux/ss/ebitmap.c
+> @@ -24,6 +24,8 @@
+>
+>  #define BITS_PER_U64   (sizeof(u64) * 8)
+>
+> +static struct kmem_cache *ebitmap_node_cachep;
+> +
+>  int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)
+>  {
+>         struct ebitmap_node *n1, *n2;
+> @@ -54,7 +56,7 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src)
+>         n = src->node;
+>         prev = NULL;
+>         while (n) {
+> -               new = kzalloc(sizeof(*new), GFP_ATOMIC);
+> +               new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
+>                 if (!new) {
+>                         ebitmap_destroy(dst);
+>                         return -ENOMEM;
+> @@ -162,7 +164,7 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
+>                 if (e_iter == NULL ||
+>                     offset >= e_iter->startbit + EBITMAP_SIZE) {
+>                         e_prev = e_iter;
+> -                       e_iter = kzalloc(sizeof(*e_iter), GFP_ATOMIC);
+> +                       e_iter = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
+>                         if (e_iter == NULL)
+>                                 goto netlbl_import_failure;
+>                         e_iter->startbit = offset - (offset % EBITMAP_SIZE);
+> @@ -288,7 +290,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
+>                                         prev->next = n->next;
+>                                 else
+>                                         e->node = n->next;
+> -                               kfree(n);
+> +                               kmem_cache_free(ebitmap_node_cachep, n);
+>                         }
+>                         return 0;
+>                 }
+> @@ -299,7 +301,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value)
+>         if (!value)
+>                 return 0;
+>
+> -       new = kzalloc(sizeof(*new), GFP_ATOMIC);
+> +       new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
+>         if (!new)
+>                 return -ENOMEM;
+>
+> @@ -332,7 +334,7 @@ void ebitmap_destroy(struct ebitmap *e)
+>         while (n) {
+>                 temp = n;
+>                 n = n->next;
+> -               kfree(temp);
+> +               kmem_cache_free(ebitmap_node_cachep, temp);
+>         }
+>
+>         e->highbit = 0;
+> @@ -400,7 +402,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+>
+>                 if (!n || startbit >= n->startbit + EBITMAP_SIZE) {
+>                         struct ebitmap_node *tmp;
+> -                       tmp = kzalloc(sizeof(*tmp), GFP_KERNEL);
+> +                       tmp = kmem_cache_zalloc(ebitmap_node_cachep, GFP_KERNEL);
+>                         if (!tmp) {
+>                                 printk(KERN_ERR
+>                                        "SELinux: ebitmap: out of memory\n");
+> @@ -519,3 +521,15 @@ int ebitmap_write(struct ebitmap *e, void *fp)
+>         }
+>         return 0;
+>  }
+> +
+> +void ebitmap_cache_init(void)
+> +{
+> +       ebitmap_node_cachep = kmem_cache_create("ebitmap_node",
+> +                                                       sizeof(struct ebitmap_node),
+> +                                                       0, SLAB_PANIC, NULL);
+> +}
+> +
+> +void ebitmap_cache_destroy(void)
+> +{
+> +       kmem_cache_destroy(ebitmap_node_cachep);
+> +}
+> diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+> index 9637b8c..6d5a9ac 100644
+> --- a/security/selinux/ss/ebitmap.h
+> +++ b/security/selinux/ss/ebitmap.h
+> @@ -130,6 +130,9 @@ void ebitmap_destroy(struct ebitmap *e);
+>  int ebitmap_read(struct ebitmap *e, void *fp);
+>  int ebitmap_write(struct ebitmap *e, void *fp);
+>
+> +void ebitmap_cache_init(void);
+> +void ebitmap_cache_destroy(void);
+> +
+>  #ifdef CONFIG_NETLABEL
+>  int ebitmap_netlbl_export(struct ebitmap *ebmap,
+>                           struct netlbl_lsm_catmap **catmap);
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 2021666..2f02fa6 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2054,9 +2054,11 @@ int security_load_policy(void *data, size_t len)
+>
+>         if (!ss_initialized) {
+>                 avtab_cache_init();
+> +               ebitmap_cache_init();
+>                 rc = policydb_read(&policydb, fp);
+>                 if (rc) {
+>                         avtab_cache_destroy();
+> +                       ebitmap_cache_destroy();
+>                         goto out;
+>                 }
+>
+> @@ -2067,6 +2069,7 @@ int security_load_policy(void *data, size_t len)
+>                 if (rc) {
+>                         policydb_destroy(&policydb);
+>                         avtab_cache_destroy();
+> +                       ebitmap_cache_destroy();
+>                         goto out;
+>                 }
+>
+> @@ -2074,6 +2077,7 @@ int security_load_policy(void *data, size_t len)
+>                 if (rc) {
+>                         policydb_destroy(&policydb);
+>                         avtab_cache_destroy();
+> +                       ebitmap_cache_destroy();
+>                         goto out;
+>                 }
+>
+> --
+> 2.6.2
+>
 
-   infiniband: apply style corrections to the infiniband tests
 
-   Patch generated by './tools/check-syntax -f'.
-
-   Signed-off-by: Paul Moore <paul@paul-moore.com>
-
-> I recall you saying you do most of your testing in VMs on a laptop.  But if you have a system with a free pci-e slot we can ship you an HCA if you'd like to be able to run these yourself.
-
-Thank you for the offer, and yes I generally run the tests in a VM,
-however we've been working on getting something a bit more automated
-in place for upstream testing (more info on that once everything is
-sorted out).
-
-Let me think about this a bit (and dust off my somewhat neglected
-testing hardware), I generally try to avoid getting tied to specific
-hardware, but it is necessary in this case, and I fear that this may
-be the easiest way to ensure it gets tested regularly.
 
 -- 
 paul moore
