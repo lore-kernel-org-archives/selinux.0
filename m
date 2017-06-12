@@ -1,166 +1,207 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5C8Vou8005844
- for <selinux@tycho.nsa.gov>; Mon, 12 Jun 2017 04:31:50 -0400
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH] secilc: Update test policy and documentation for Infiniband
-Date: Mon, 12 Jun 2017 09:31:40 +0100
-Message-Id: <20170612083140.5096-1-richard_c_haines@btinternet.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5C2GVGj030905
+ for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2017 22:16:33 -0400
+From: "Junil Lee" <junil0814.lee@lge.com>
+To: "'Paul Moore'" <paul@paul-moore.com>
+Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
+ "'Eric Paris'" <eparis@parisplace.org>,
+ "'James Morris'" <james.l.morris@oracle.com>, <serge@hallyn.com>,
+ <william.c.roberts@intel.com>, <adobriyan@gmail.com>,
+ <akpm@linux-foundation.org>, <dledford@redhat.com>,
+ <danielj@mellanox.com>, <mka@chromium.org>, <selinux@tycho.nsa.gov>,
+ <linux-security-module@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <1496895489-180660-1-git-send-email-junil0814.lee@lge.com>
+ <CAHC9VhQ54WqLpBqHQm3F2=wEQq6p7xWCEyEubyrTr6kLDE7wgw@mail.gmail.com>
+In-Reply-To: <CAHC9VhQ54WqLpBqHQm3F2=wEQq6p7xWCEyEubyrTr6kLDE7wgw@mail.gmail.com>
+Subject: RE: [PATCH] security: selinux: use kmem_cache for ebitmap
+Date: Mon, 12 Jun 2017 11:16:18 +0900
+Message-ID: <002901d2e321$e0f0d070$a2d27150$@lge.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-CIL updates to support the InfiniBand development.
+Dear Paul.
+Thank you for your support.
+I hope you'll be always happy.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- secilc/docs/Makefile                     |  1 +
- secilc/docs/README.md                    |  4 ++
- secilc/docs/cil_infiniband_statements.md | 90 ++++++++++++++++++++++++++++++++
- secilc/test/policy.cil                   |  6 +++
- 4 files changed, 101 insertions(+)
- create mode 100644 secilc/docs/cil_infiniband_statements.md
+Thanks,
+Junil Lee.
 
-diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
-index 52c7435..c0fa6b7 100644
---- a/secilc/docs/Makefile
-+++ b/secilc/docs/Makefile
-@@ -23,6 +23,7 @@ FILE_LIST ?= cil_introduction.md \
- 	cil_sid_statements.md \
- 	cil_type_statements.md \
- 	cil_user_statements.md \
-+	cil_infiniband_statements.md \
- 	cil_xen_statements.md
- 
- PANDOC_FILE_LIST = $(addprefix $(TMPDIR)/,$(FILE_LIST))
-diff --git a/secilc/docs/README.md b/secilc/docs/README.md
-index aada78f..3f1838e 100644
---- a/secilc/docs/README.md
-+++ b/secilc/docs/README.md
-@@ -144,6 +144,10 @@ CIL (Common Intermediate Language)
-   * [selinuxuser](cil_user_statements.md#selinuxuser)
-   * [selinuxuserdefault](cil_user_statements.md#selinuxuserdefault)
- 
-+* [Infiniband Statements](cil_infiniband_statements.md#infiniband-statements)
-+  * [ibpkeycon](cil_infiniband_statements.md#ibpkeycon)
-+  * [ibendportcon](cil_infiniband_statements.md#ibendportcon)
-+
- * [Xen Statements](cil_xen_statements.md#xen-statements)
-   * [iomemcon](cil_xen_statements.md#iomemcon)
-   * [ioportcon](cil_xen_statements.md#ioportcon)
-diff --git a/secilc/docs/cil_infiniband_statements.md b/secilc/docs/cil_infiniband_statements.md
-new file mode 100644
-index 0000000..38c15bd
---- /dev/null
-+++ b/secilc/docs/cil_infiniband_statements.md
-@@ -0,0 +1,90 @@
-+Infiniband Statements
-+=====================
-+
-+To support access control for InfiniBand (IB) partitions and subnet management, security contexts are provided for: Partition Keys (Pkey) that are 16 bit numbers assigned to subnets and their IB end ports. An overview of the SELinux IB implementation can be found at: [http://marc.info/?l=selinux&m=149519833917911&w=2](http://marc.info/?l=selinux&m=149519833917911&w=2).
-+
-+ibpkeycon
-+---------
-+
-+Label IB partition keys. This may be a single key or a range.
-+
-+**Statement definition:**
-+
-+    (ibpkeycon subnet pkey|(pkey_low pkey_high)  context_id)
-+
-+**Where:**
-+
-+<table>
-+<colgroup>
-+<col width="25%" />
-+<col width="75%" />
-+</colgroup>
-+<tbody>
-+<tr class="odd">
-+<td align="left"><p><code>ibpkeycon</code></p></td>
-+<td align="left"><p>The <code>ibpkeycon</code> keyword.</p></td>
-+</tr>
-+<tr class="even">
-+<td align="left"><p><code>subnet</code></p>
-+<td align="left"><p>IP address in IPv6 format.</p>
-+</tr>
-+<tr class="odd">
-+<td align="left"><p><code>pkey | (pkey_low pkey_high)</code></p>
-+<td align="left"><p>A single partition key or a range of partition keys.</p>
-+</tr>
-+<tr class="even">
-+<td align="left"><p><code>context_id</code></p></td>
-+<td align="left"><p>A previously declared <code>context</code> identifier or an anonymous security context (<code>user role type levelrange</code>), the range MUST be defined whether the policy is MLS/MCS enabled or not.</p></td>
-+</tr>
-+</tbody>
-+</table>
-+
-+**Example:**
-+
-+An anonymous context for a partition key range of `0x0-0x10` assigned to an IPv6 subnet:
-+
-+    (ibpkeycon fe80:: (0 0x10) (system_u system_r kernel_t (low (s3 (cats01 cats02)))))
-+
-+
-+ibendportcon
-+------------
-+
-+Label IB end ports.
-+
-+**Statement definition:**
-+
-+    (ibendportcon device_id port context_id)
-+
-+**Where:**
-+
-+<table>
-+<colgroup>
-+<col width="27%" />
-+<col width="72%" />
-+</colgroup>
-+<tbody>
-+<tr class="odd">
-+<td align="left"><p><code>ibendportcon</code></p></td>
-+<td align="left"><p>The <code>ibendportcon</code> keyword.</p></td>
-+</tr>
-+<tr class="even">
-+<td align="left"><p><code>device_id</code></p>
-+<td align="left"><p>A single device identifier.</p>
-+</tr>
-+<tr class="odd">
-+<td align="left"><p><code>port</code></p>
-+<td align="left"><p>A single port number.</p>
-+</tr>
-+<tr class="even">
-+<td align="left"><p><code>context_id</code></p></td>
-+<td align="left"><p>A previously declared <code>context</code> identifier or an anonymous security context (<code>user role type levelrange</code>), the range MUST be defined whether the policy is MLS/MCS enabled or not.</p></td>
-+</tr>
-+</tbody>
-+</table>
-+
-+**Example:**
-+
-+A named context for device `mlx5_0` on port `1`:
-+
-+    (ibendportcon mlx5_0 1 system_u_bin_t_l2h)
-+
-diff --git a/secilc/test/policy.cil b/secilc/test/policy.cil
-index 2078399..4c37ecc 100644
---- a/secilc/test/policy.cil
-+++ b/secilc/test/policy.cil
-@@ -282,6 +282,12 @@
- 	(pcidevicecon 345 system_u_bin_t_l2h)
- 	(devicetreecon "/this is/a/path" system_u_bin_t_l2h)
- 
-+	; InfiniBand
-+	(ibpkeycon fe80:: (0 0x10) system_u_bin_t_l2h)
-+	(ibpkeycon fe80::7629:afff:fe0f:8e5d (15 25) (system_u system_r kernel_t (low (s3 (cats01 cats02)))))
-+	(ibendportcon mlx5_0 1 system_u_bin_t_l2h)
-+	(ibendportcon mlx4_3 5 (system_u system_r kernel_t (low (s3 (cats01 cats02)))))
-+
- 	(constrain (files (read)) (not (or (and (eq t1 exec_t) (eq t2 bin_t)) (eq r1 r2))))
- 	(constrain char_w (not (or (and (eq t1 exec_t) (eq t2 bin_t)) (eq r1 r2))))
- 
--- 
-2.9.4
+> -----Original Message-----
+> From: Paul Moore [mailto:paul@paul-moore.com]
+> Sent: Saturday, June 10, 2017 5:17 AM
+> To: Junil Lee <junil0814.lee@lge.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>; Eric Paris <eparis@parisplace.org>;
+> James Morris <james.l.morris@oracle.com>; serge@hallyn.com;
+> william.c.roberts@intel.com; adobriyan@gmail.com; akpm@linux-foundation.org;
+> dledford@redhat.com; danielj@mellanox.com; mka@chromium.org;
+> selinux@tycho.nsa.gov; linux-security-module@vger.kernel.org; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [PATCH] security: selinux: use kmem_cache for ebitmap
+> 
+> On Thu, Jun 8, 2017 at 12:18 AM, Junil Lee <junil0814.lee@lge.com> wrote:
+> > The allocated size for each ebitmap_node is 192byte by kzalloc().
+> > Then, ebitmap_node size is fixed, so it's possible to use only 144byte
+> > for each object by kmem_cache_zalloc().
+> > It can reduce some dynamic allocation size.
+> >
+> > Signed-off-by: Junil Lee <junil0814.lee@lge.com>
+> > ---
+> >  security/selinux/ss/ebitmap.c  | 26 ++++++++++++++++++++------
+> > security/selinux/ss/ebitmap.h  |  3 +++
+> > security/selinux/ss/services.c |  4 ++++
+> >  3 files changed, 27 insertions(+), 6 deletions(-)
+> 
+> I just applied this to selinux/next, thank you.
+> 
+> > diff --git a/security/selinux/ss/ebitmap.c
+> > b/security/selinux/ss/ebitmap.c index 9db4709a..ad38299 100644
+> > --- a/security/selinux/ss/ebitmap.c
+> > +++ b/security/selinux/ss/ebitmap.c
+> > @@ -24,6 +24,8 @@
+> >
+> >  #define BITS_PER_U64   (sizeof(u64) * 8)
+> >
+> > +static struct kmem_cache *ebitmap_node_cachep;
+> > +
+> >  int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)  {
+> >         struct ebitmap_node *n1, *n2;
+> > @@ -54,7 +56,7 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap
+> *src)
+> >         n = src->node;
+> >         prev = NULL;
+> >         while (n) {
+> > -               new = kzalloc(sizeof(*new), GFP_ATOMIC);
+> > +               new = kmem_cache_zalloc(ebitmap_node_cachep,
+> > + GFP_ATOMIC);
+> >                 if (!new) {
+> >                         ebitmap_destroy(dst);
+> >                         return -ENOMEM; @@ -162,7 +164,7 @@ int
+> > ebitmap_netlbl_import(struct ebitmap *ebmap,
+> >                 if (e_iter == NULL ||
+> >                     offset >= e_iter->startbit + EBITMAP_SIZE) {
+> >                         e_prev = e_iter;
+> > -                       e_iter = kzalloc(sizeof(*e_iter), GFP_ATOMIC);
+> > +                       e_iter =
+> > + kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
+> >                         if (e_iter == NULL)
+> >                                 goto netlbl_import_failure;
+> >                         e_iter->startbit = offset - (offset %
+> > EBITMAP_SIZE); @@ -288,7 +290,7 @@ int ebitmap_set_bit(struct ebitmap *e,
+> unsigned long bit, int value)
+> >                                         prev->next = n->next;
+> >                                 else
+> >                                         e->node = n->next;
+> > -                               kfree(n);
+> > +                               kmem_cache_free(ebitmap_node_cachep,
+> > + n);
+> >                         }
+> >                         return 0;
+> >                 }
+> > @@ -299,7 +301,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long
+> bit, int value)
+> >         if (!value)
+> >                 return 0;
+> >
+> > -       new = kzalloc(sizeof(*new), GFP_ATOMIC);
+> > +       new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
+> >         if (!new)
+> >                 return -ENOMEM;
+> >
+> > @@ -332,7 +334,7 @@ void ebitmap_destroy(struct ebitmap *e)
+> >         while (n) {
+> >                 temp = n;
+> >                 n = n->next;
+> > -               kfree(temp);
+> > +               kmem_cache_free(ebitmap_node_cachep, temp);
+> >         }
+> >
+> >         e->highbit = 0;
+> > @@ -400,7 +402,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+> >
+> >                 if (!n || startbit >= n->startbit + EBITMAP_SIZE) {
+> >                         struct ebitmap_node *tmp;
+> > -                       tmp = kzalloc(sizeof(*tmp), GFP_KERNEL);
+> > +                       tmp = kmem_cache_zalloc(ebitmap_node_cachep,
+> > + GFP_KERNEL);
+> >                         if (!tmp) {
+> >                                 printk(KERN_ERR
+> >                                        "SELinux: ebitmap: out of
+> > memory\n"); @@ -519,3 +521,15 @@ int ebitmap_write(struct ebitmap *e,
+> void *fp)
+> >         }
+> >         return 0;
+> >  }
+> > +
+> > +void ebitmap_cache_init(void)
+> > +{
+> > +       ebitmap_node_cachep = kmem_cache_create("ebitmap_node",
+> > +                                                       sizeof(struct
+> ebitmap_node),
+> > +                                                       0, SLAB_PANIC,
+> > +NULL); }
+> > +
+> > +void ebitmap_cache_destroy(void)
+> > +{
+> > +       kmem_cache_destroy(ebitmap_node_cachep);
+> > +}
+> > diff --git a/security/selinux/ss/ebitmap.h
+> > b/security/selinux/ss/ebitmap.h index 9637b8c..6d5a9ac 100644
+> > --- a/security/selinux/ss/ebitmap.h
+> > +++ b/security/selinux/ss/ebitmap.h
+> > @@ -130,6 +130,9 @@ void ebitmap_destroy(struct ebitmap *e);  int
+> > ebitmap_read(struct ebitmap *e, void *fp);  int ebitmap_write(struct
+> > ebitmap *e, void *fp);
+> >
+> > +void ebitmap_cache_init(void);
+> > +void ebitmap_cache_destroy(void);
+> > +
+> >  #ifdef CONFIG_NETLABEL
+> >  int ebitmap_netlbl_export(struct ebitmap *ebmap,
+> >                           struct netlbl_lsm_catmap **catmap); diff
+> > --git a/security/selinux/ss/services.c
+> > b/security/selinux/ss/services.c index 2021666..2f02fa6 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -2054,9 +2054,11 @@ int security_load_policy(void *data, size_t
+> > len)
+> >
+> >         if (!ss_initialized) {
+> >                 avtab_cache_init();
+> > +               ebitmap_cache_init();
+> >                 rc = policydb_read(&policydb, fp);
+> >                 if (rc) {
+> >                         avtab_cache_destroy();
+> > +                       ebitmap_cache_destroy();
+> >                         goto out;
+> >                 }
+> >
+> > @@ -2067,6 +2069,7 @@ int security_load_policy(void *data, size_t len)
+> >                 if (rc) {
+> >                         policydb_destroy(&policydb);
+> >                         avtab_cache_destroy();
+> > +                       ebitmap_cache_destroy();
+> >                         goto out;
+> >                 }
+> >
+> > @@ -2074,6 +2077,7 @@ int security_load_policy(void *data, size_t len)
+> >                 if (rc) {
+> >                         policydb_destroy(&policydb);
+> >                         avtab_cache_destroy();
+> > +                       ebitmap_cache_destroy();
+> >                         goto out;
+> >                 }
+> >
+> > --
+> > 2.6.2
+> >
+> 
+> 
+> 
+> --
+> paul moore
+> www.paul-moore.com
