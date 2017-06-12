@@ -1,207 +1,169 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5C2GVGj030905
- for <selinux@tycho.nsa.gov>; Sun, 11 Jun 2017 22:16:33 -0400
-From: "Junil Lee" <junil0814.lee@lge.com>
-To: "'Paul Moore'" <paul@paul-moore.com>
-Cc: "'Stephen Smalley'" <sds@tycho.nsa.gov>,
- "'Eric Paris'" <eparis@parisplace.org>,
- "'James Morris'" <james.l.morris@oracle.com>, <serge@hallyn.com>,
- <william.c.roberts@intel.com>, <adobriyan@gmail.com>,
- <akpm@linux-foundation.org>, <dledford@redhat.com>,
- <danielj@mellanox.com>, <mka@chromium.org>, <selinux@tycho.nsa.gov>,
- <linux-security-module@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <1496895489-180660-1-git-send-email-junil0814.lee@lge.com>
- <CAHC9VhQ54WqLpBqHQm3F2=wEQq6p7xWCEyEubyrTr6kLDE7wgw@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ54WqLpBqHQm3F2=wEQq6p7xWCEyEubyrTr6kLDE7wgw@mail.gmail.com>
-Subject: RE: [PATCH] security: selinux: use kmem_cache for ebitmap
-Date: Mon, 12 Jun 2017 11:16:18 +0900
-Message-ID: <002901d2e321$e0f0d070$a2d27150$@lge.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="UTF-8"
+Message-ID: <1497274414.30449.0.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 1/1] libsepol: destroy the expanded level when
+ mls_semantic_level_expand() fails
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 12 Jun 2017 09:33:34 -0400
+In-Reply-To: <20170611204416.5550-1-nicolas.iooss@m4x.org>
+References: <20170611204416.5550-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Dear Paul.
-Thank you for your support.
-I hope you'll be always happy.
+On Sun, 2017-06-11 at 22:44 +0200, Nicolas Iooss wrote:
+> In mls_semantic_range_expand(), when a call to
+> mls_semantic_level_expand() fails, the function destroys the semantic
+> level instead of the expanded one. This leads to a use-after-free
+> which
+> is reported by gcc's Address Sanitizer:
+> 
+> libsepol.mls_semantic_level_expand: mls_semantic_level_expand:
+> invalid sensitivity level found 128/0.
+> libsepol.sepol_module_package_read: invalid module in module package
+> (at section 0)
+> Failed to read policy package
+> =================================================================
+> ==24456==ERROR: AddressSanitizer: heap-use-after-free on address
+> 0x60200000ee58 at pc 0x7fe6c4fb96b4 bp 0x7fffa5ea6b70 sp
+> 0x7fffa5ea6b60
+> READ of size 8 at 0x60200000ee58 thread T0
+>     #0 0x7fe6c4fb96b3 in mls_semantic_level_destroy
+> /usr/src/selinux/libsepol/src/mls.c:755
+>     #1 0x7fe6c4fb9b88 in mls_semantic_range_destroy
+> /usr/src/selinux/libsepol/src/mls.c:802
+>     #2 0x7fe6c500e8ab in user_datum_destroy
+> /usr/src/selinux/libsepol/src/policydb.c:535
+>     #3 0x7fe6c500e980 in user_destroy
+> /usr/src/selinux/libsepol/src/policydb.c:1390
+>     #4 0x7fe6c4f36c48 in hashtab_map
+> /usr/src/selinux/libsepol/src/hashtab.c:235
+>     #5 0x7fe6c50152da in symtabs_destroy
+> /usr/src/selinux/libsepol/src/policydb.c:1595
+>     #6 0x7fe6c5015433 in policydb_destroy
+> /usr/src/selinux/libsepol/src/policydb.c:1503
+>     #7 0x7fe6c5040e0d in sepol_policydb_free
+> /usr/src/selinux/libsepol/src/policydb_public.c:82
+>     #8 0x7fe6c4fbc503 in sepol_module_package_free
+> /usr/src/selinux/libsepol/src/module.c:143
+>     #9 0x7fe6c4fefefb in sepol_ppfile_to_module_package
+> /usr/src/selinux/libsepol/src/module_to_cil.c:4293
+>     #10 0x401e51 in main
+> /usr/src/selinux/policycoreutils/hll/pp/pp.c:124
+>     #11 0x7fe6c4add510 in __libc_start_main
+> (/usr/lib/libc.so.6+0x20510)
+>     #12 0x402589 in _start
+> (/usr/src/selinux/DESTDIR/usr/libexec/selinux/hll/pp+0x402589)
+> 
+> 0x60200000ee58 is located 8 bytes inside of 16-byte region
+> [0x60200000ee50,0x60200000ee60)
+> freed by thread T0 here:
+>     #0 0x7fe6c5537ae0 in __interceptor_free /build/gcc-
+> multilib/src/gcc/libsanitizer/asan/asan_malloc_linux.cc:45
+>     #1 0x7fe6c4fb969b in mls_semantic_level_destroy
+> /usr/src/selinux/libsepol/src/mls.c:757
+>     #2 0x7fe6c4f02a57 in mls_semantic_range_expand
+> /usr/src/selinux/libsepol/src/expand.c:948
+>     #3 0x7fe6c5007a98 in policydb_user_cache
+> /usr/src/selinux/libsepol/src/policydb.c:939
+>     #4 0x7fe6c4f36c48 in hashtab_map
+> /usr/src/selinux/libsepol/src/hashtab.c:235
+>     #5 0x7fe6c5013859 in policydb_index_others
+> /usr/src/selinux/libsepol/src/policydb.c:1286
+>     #6 0x7fe6c5020b65 in policydb_read
+> /usr/src/selinux/libsepol/src/policydb.c:4342
+>     #7 0x7fe6c4fc0cdb in sepol_module_package_read
+> /usr/src/selinux/libsepol/src/module.c:618
+>     #8 0x7fe6c4ff008d in sepol_ppfile_to_module_package
+> /usr/src/selinux/libsepol/src/module_to_cil.c:4276
+>     #9 0x401e51 in main
+> /usr/src/selinux/policycoreutils/hll/pp/pp.c:124
+>     #10 0x7fe6c4add510 in __libc_start_main
+> (/usr/lib/libc.so.6+0x20510)
+> 
+> previously allocated by thread T0 here:
+>     #0 0x7fe6c5537e40 in __interceptor_malloc /build/gcc-
+> multilib/src/gcc/libsanitizer/asan/asan_malloc_linux.cc:62
+>     #1 0x7fe6c5004efc in mls_read_semantic_level_helper
+> /usr/src/selinux/libsepol/src/policydb.c:1976
+>     #2 0x7fe6c500f596 in mls_read_semantic_range_helper
+> /usr/src/selinux/libsepol/src/policydb.c:2010
+>     #3 0x7fe6c500f596 in user_read
+> /usr/src/selinux/libsepol/src/policydb.c:3258
+>     #4 0x7fe6c502055b in policydb_read
+> /usr/src/selinux/libsepol/src/policydb.c:4286
+>     #5 0x7fe6c4fc0cdb in sepol_module_package_read
+> /usr/src/selinux/libsepol/src/module.c:618
+>     #6 0x7fe6c4ff008d in sepol_ppfile_to_module_package
+> /usr/src/selinux/libsepol/src/module_to_cil.c:4276
+>     #7 0x401e51 in main
+> /usr/src/selinux/policycoreutils/hll/pp/pp.c:124
+>     #8 0x7fe6c4add510 in __libc_start_main
+> (/usr/lib/libc.so.6+0x20510)
+> 
+> SUMMARY: AddressSanitizer: heap-use-after-free
+> /usr/src/selinux/libsepol/src/mls.c:755 in mls_semantic_level_destroy
+> Shadow bytes around the buggy address:
+>   0x0c047fff9d70: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+>   0x0c047fff9d80: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+>   0x0c047fff9d90: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+>   0x0c047fff9da0: fa fa fa fa fa fa fa fa fa fa 01 fa fa fa 01 fa
+>   0x0c047fff9db0: fa fa 01 fa fa fa 01 fa fa fa 01 fa fa fa 01 fa
+> =>0x0c047fff9dc0: fa fa 00 00 fa fa 00 00 fa fa fd[fd]fa fa fd fd
+>   0x0c047fff9dd0: fa fa fd fd fa fa fd fd fa fa fd fa fa fa fd fd
+>   0x0c047fff9de0: fa fa 04 fa fa fa 00 01 fa fa fd fd fa fa fd fd
+>   0x0c047fff9df0: fa fa fd fd fa fa fd fd fa fa 00 00 fa fa fd fd
+>   0x0c047fff9e00: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+>   0x0c047fff9e10: fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa fa
+> Shadow byte legend (one shadow byte represents 8 application bytes):
+>   Addressable:           00
+>   Partially addressable: 01 02 03 04 05 06 07
+>   Heap left redzone:       fa
+>   Heap right redzone:      fb
+>   Freed heap region:       fd
+>   Stack left redzone:      f1
+>   Stack mid redzone:       f2
+>   Stack right redzone:     f3
+>   Stack partial redzone:   f4
+>   Stack after return:      f5
+>   Stack use after scope:   f8
+>   Global redzone:          f9
+>   Global init order:       f6
+>   Poisoned by user:        f7
+>   Container overflow:      fc
+>   Array cookie:            ac
+>   Intra object redzone:    bb
+>   ASan internal:           fe
+>   Left alloca redzone:     ca
+>   Right alloca redzone:    cb
+> ==24456==ABORTING
+> 
+> This issue has been found while fuzzing hll/pp with the American
+> Fuzzy
+> Lop.
 
-Thanks,
-Junil Lee.
+Thanks, applied.
 
-> -----Original Message-----
-> From: Paul Moore [mailto:paul@paul-moore.com]
-> Sent: Saturday, June 10, 2017 5:17 AM
-> To: Junil Lee <junil0814.lee@lge.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>; Eric Paris <eparis@parisplace.org>;
-> James Morris <james.l.morris@oracle.com>; serge@hallyn.com;
-> william.c.roberts@intel.com; adobriyan@gmail.com; akpm@linux-foundation.org;
-> dledford@redhat.com; danielj@mellanox.com; mka@chromium.org;
-> selinux@tycho.nsa.gov; linux-security-module@vger.kernel.org; linux-
-> kernel@vger.kernel.org
-> Subject: Re: [PATCH] security: selinux: use kmem_cache for ebitmap
 > 
-> On Thu, Jun 8, 2017 at 12:18 AM, Junil Lee <junil0814.lee@lge.com> wrote:
-> > The allocated size for each ebitmap_node is 192byte by kzalloc().
-> > Then, ebitmap_node size is fixed, so it's possible to use only 144byte
-> > for each object by kmem_cache_zalloc().
-> > It can reduce some dynamic allocation size.
-> >
-> > Signed-off-by: Junil Lee <junil0814.lee@lge.com>
-> > ---
-> >  security/selinux/ss/ebitmap.c  | 26 ++++++++++++++++++++------
-> > security/selinux/ss/ebitmap.h  |  3 +++
-> > security/selinux/ss/services.c |  4 ++++
-> >  3 files changed, 27 insertions(+), 6 deletions(-)
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsepol/src/expand.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> I just applied this to selinux/next, thank you.
-> 
-> > diff --git a/security/selinux/ss/ebitmap.c
-> > b/security/selinux/ss/ebitmap.c index 9db4709a..ad38299 100644
-> > --- a/security/selinux/ss/ebitmap.c
-> > +++ b/security/selinux/ss/ebitmap.c
-> > @@ -24,6 +24,8 @@
-> >
-> >  #define BITS_PER_U64   (sizeof(u64) * 8)
-> >
-> > +static struct kmem_cache *ebitmap_node_cachep;
-> > +
-> >  int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2)  {
-> >         struct ebitmap_node *n1, *n2;
-> > @@ -54,7 +56,7 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap
-> *src)
-> >         n = src->node;
-> >         prev = NULL;
-> >         while (n) {
-> > -               new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> > +               new = kmem_cache_zalloc(ebitmap_node_cachep,
-> > + GFP_ATOMIC);
-> >                 if (!new) {
-> >                         ebitmap_destroy(dst);
-> >                         return -ENOMEM; @@ -162,7 +164,7 @@ int
-> > ebitmap_netlbl_import(struct ebitmap *ebmap,
-> >                 if (e_iter == NULL ||
-> >                     offset >= e_iter->startbit + EBITMAP_SIZE) {
-> >                         e_prev = e_iter;
-> > -                       e_iter = kzalloc(sizeof(*e_iter), GFP_ATOMIC);
-> > +                       e_iter =
-> > + kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
-> >                         if (e_iter == NULL)
-> >                                 goto netlbl_import_failure;
-> >                         e_iter->startbit = offset - (offset %
-> > EBITMAP_SIZE); @@ -288,7 +290,7 @@ int ebitmap_set_bit(struct ebitmap *e,
-> unsigned long bit, int value)
-> >                                         prev->next = n->next;
-> >                                 else
-> >                                         e->node = n->next;
-> > -                               kfree(n);
-> > +                               kmem_cache_free(ebitmap_node_cachep,
-> > + n);
-> >                         }
-> >                         return 0;
-> >                 }
-> > @@ -299,7 +301,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long
-> bit, int value)
-> >         if (!value)
-> >                 return 0;
-> >
-> > -       new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> > +       new = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
-> >         if (!new)
-> >                 return -ENOMEM;
-> >
-> > @@ -332,7 +334,7 @@ void ebitmap_destroy(struct ebitmap *e)
-> >         while (n) {
-> >                 temp = n;
-> >                 n = n->next;
-> > -               kfree(temp);
-> > +               kmem_cache_free(ebitmap_node_cachep, temp);
-> >         }
-> >
-> >         e->highbit = 0;
-> > @@ -400,7 +402,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
-> >
-> >                 if (!n || startbit >= n->startbit + EBITMAP_SIZE) {
-> >                         struct ebitmap_node *tmp;
-> > -                       tmp = kzalloc(sizeof(*tmp), GFP_KERNEL);
-> > +                       tmp = kmem_cache_zalloc(ebitmap_node_cachep,
-> > + GFP_KERNEL);
-> >                         if (!tmp) {
-> >                                 printk(KERN_ERR
-> >                                        "SELinux: ebitmap: out of
-> > memory\n"); @@ -519,3 +521,15 @@ int ebitmap_write(struct ebitmap *e,
-> void *fp)
-> >         }
-> >         return 0;
-> >  }
-> > +
-> > +void ebitmap_cache_init(void)
-> > +{
-> > +       ebitmap_node_cachep = kmem_cache_create("ebitmap_node",
-> > +                                                       sizeof(struct
-> ebitmap_node),
-> > +                                                       0, SLAB_PANIC,
-> > +NULL); }
-> > +
-> > +void ebitmap_cache_destroy(void)
-> > +{
-> > +       kmem_cache_destroy(ebitmap_node_cachep);
-> > +}
-> > diff --git a/security/selinux/ss/ebitmap.h
-> > b/security/selinux/ss/ebitmap.h index 9637b8c..6d5a9ac 100644
-> > --- a/security/selinux/ss/ebitmap.h
-> > +++ b/security/selinux/ss/ebitmap.h
-> > @@ -130,6 +130,9 @@ void ebitmap_destroy(struct ebitmap *e);  int
-> > ebitmap_read(struct ebitmap *e, void *fp);  int ebitmap_write(struct
-> > ebitmap *e, void *fp);
-> >
-> > +void ebitmap_cache_init(void);
-> > +void ebitmap_cache_destroy(void);
-> > +
-> >  #ifdef CONFIG_NETLABEL
-> >  int ebitmap_netlbl_export(struct ebitmap *ebmap,
-> >                           struct netlbl_lsm_catmap **catmap); diff
-> > --git a/security/selinux/ss/services.c
-> > b/security/selinux/ss/services.c index 2021666..2f02fa6 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -2054,9 +2054,11 @@ int security_load_policy(void *data, size_t
-> > len)
-> >
-> >         if (!ss_initialized) {
-> >                 avtab_cache_init();
-> > +               ebitmap_cache_init();
-> >                 rc = policydb_read(&policydb, fp);
-> >                 if (rc) {
-> >                         avtab_cache_destroy();
-> > +                       ebitmap_cache_destroy();
-> >                         goto out;
-> >                 }
-> >
-> > @@ -2067,6 +2069,7 @@ int security_load_policy(void *data, size_t len)
-> >                 if (rc) {
-> >                         policydb_destroy(&policydb);
-> >                         avtab_cache_destroy();
-> > +                       ebitmap_cache_destroy();
-> >                         goto out;
-> >                 }
-> >
-> > @@ -2074,6 +2077,7 @@ int security_load_policy(void *data, size_t len)
-> >                 if (rc) {
-> >                         policydb_destroy(&policydb);
-> >                         avtab_cache_destroy();
-> > +                       ebitmap_cache_destroy();
-> >                         goto out;
-> >                 }
-> >
-> > --
-> > 2.6.2
-> >
-> 
-> 
-> 
-> --
-> paul moore
-> www.paul-moore.com
+> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+> index 283c93a803ce..6f1b235e92e2 100644
+> --- a/libsepol/src/expand.c
+> +++ b/libsepol/src/expand.c
+> @@ -939,7 +939,7 @@ int
+> mls_semantic_range_expand(mls_semantic_range_t * sr, mls_range_t * r,
+>  		return -1;
+>  
+>  	if (mls_semantic_level_expand(&sr->level[1], &r->level[1],
+> p, h) < 0) {
+> -		mls_semantic_level_destroy(&sr->level[0]);
+> +		mls_level_destroy(&r->level[0]);
+>  		return -1;
+>  	}
+>  
