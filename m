@@ -1,80 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5DKHQq9003431
- for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2017 16:17:26 -0400
-Received: by mail-lf0-f53.google.com with SMTP id o83so79289549lff.3
- for <selinux@tycho.nsa.gov>; Tue, 13 Jun 2017 13:17:24 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5ED1pMr006294
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jun 2017 09:01:54 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 03B8F15552
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jun 2017 13:01:26 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com
+ (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id EE7878063C
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jun 2017 13:01:25 +0000 (UTC)
+Received: from zmail26.collab.prod.int.phx2.redhat.com
+ (zmail26.collab.prod.int.phx2.redhat.com [10.5.83.33])
+ by colo-mx.corp.redhat.com (Postfix) with ESMTP id E5BAD4BB74
+ for <selinux@tycho.nsa.gov>; Wed, 14 Jun 2017 13:01:25 +0000 (UTC)
+Date: Wed, 14 Jun 2017 09:01:25 -0400 (EDT)
+From: Jan Zarsky <jzarsky@redhat.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <1133520246.22847804.1497445285851.JavaMail.zimbra@redhat.com>
+In-Reply-To: <2119186821.22847633.1497445251447.JavaMail.zimbra@redhat.com>
+Subject: Collecting ideas for audit2allow improvement
 MIME-Version: 1.0
-In-Reply-To: <1497364983.26654.1.camel@tycho.nsa.gov>
-References: <7f094e66-6131-f126-9e23-771d1520904f@debian.org>
- <1497364983.26654.1.camel@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 13 Jun 2017 16:17:21 -0400
-Message-ID: <CAHC9VhQ5keRfB66MM7sm0Fihr1p4OtY9D0TCGTT=k5uYeuhNsA@mail.gmail.com>
-Subject: Re: SO_PEERSEC on socket connected to the same process
-To: Stephen Smalley <sds@tycho.nsa.gov>, Laurent Bigonville <bigon@debian.org>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 13, 2017 at 10:43 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Tue, 2017-06-13 at 09:37 +0200, Laurent Bigonville wrote:
->> Hi,
->>
->> Currently the dbus-daemon is not returning anything when asked about
->> its
->> own security context (using GetConnectionSELinuxSecurityContext or
->> GetConnectionCredentials methods). This cause some issues[0] with
->> systemd now that it's enforcing the policy for user sessions again.
->>
->> I already made a patch that has been merged[1][2] upstream in the
->> GetConnectionSELinuxSecurityContext case and it now returns the
->> SELinux
->> context of the dbus-daemon process itself.
->>
->> For the GetConnectionCredentials case, upstream wanted a generic way
->> of
->> getting the security label and went the way of using SO_PEERSEC on a
->> socket connected to itself.
->>
->> But for some reasons it's always returning unlabeled_t. Note that
->> the
->> same value is returned by the getpeercon() function as well.
->>
->> I've made a small test case (see attached file) and tested it on
->> both
->> debian and RHEL7.
->>
->> Is this somehow expected? Is this a bug?
->>
->> Cheers,
->>
->> Laurent Bigonville
->>
->> [0]https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=864221
->> [1]https://bugs.freedesktop.org/show_bug.cgi?id=101315
->> [2] https://phabricator.freedesktop.org/rDBUSdcf02f80656d
->
-> SO_PEERSEC has never been supported for socketpair()-created sockets.
-> To do so would require a new LSM hook called by unix_socketpair() to
-> set the peer SIDs for the two sockets.  In the absence of such a hook,
-> the peer SIDs are left with their initial values (the unlabeled SID),
-> and thus SO_PEERSEC returns the unlabeled context for both.  That's why
-> you see the current behavior.
->
-> It would be easy enough to implement such a hook (and perhaps we
-> should), but the more fundamental question is whether SO_PEERSEC makes
-> sense for socketpair()-created sockets and what does it actually mean.
+Hi,
 
-Just to weigh in on this issue, the meaning is exactly as Stephen said
-at the end of his email: "SO_PEERSEC returns the context of the peer
-socket".  Based on my understanding of how socketpair() is typically
-used this would be confusing for the majority of applications,
-sticking with the current (unlabeled peer) behavior seems the best
-option.
+I would like to improve SELinux audit2allow tool as my bachelor thesis.
+I collected ideas from my colleagues from RedHat SELinux team and I would also
+like to hear your ideas - what would you improve to make audit2allow smarter or
+easier to use.
 
--- 
-paul moore
-www.paul-moore.com
+Ideas collected so far:
+
+  * offer dac_read_search when sufficient instead of dac_override
+    (see <https://github.com/SELinuxProject/selinux/issues/31>)
+  * offer multiple solutions to a problem (example: 1) add allow rule for
+    execute + execute_no_trans or 2) add allow rule for execute
+    + type_transition rule)
+  * interactive mode: ask questions and choose best solution
+  * warn when solution touches trusted computing base (rules you should not be
+    adding)
+  * suggest alternate labels for content, example: httpd_t not allowed to write
+    to user_home_t, might suggest that changing the label to
+    httpd_user_content_t
+  * output to CIL (add option for this)
+  * if the AVC talks about execute permission then offer also type_transition
+    rule
+  * idea for a tool for automatic policy generation: On a test system you
+    install application, turn the SELinux to permissive and run a full test
+    suit. You collect all the AVCs in say Elasticsearch (can use common logging
+    ViaQ project for that) and then there is a tool that searches the AVC,
+    groups them and creates a policy out of them.
+  * add option to open bugzilla
+  * output to Ansible playbook/role task (add option for this)
+
+I would also like to know which feature would you appreciate the most.
+
+Thanks
+
+Jan Zarsky
