@@ -1,54 +1,56 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5HDu0fE027457
- for <selinux@tycho.nsa.gov>; Sat, 17 Jun 2017 09:56:00 -0400
-Received: from mail-qk0-f179.google.com (mail-qk0-f179.google.com
- [209.85.220.179])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id E022256506A
- for <selinux@tycho.nsa.gov>; Sat, 17 Jun 2017 15:55:30 +0200 (CEST)
-Received: by mail-qk0-f179.google.com with SMTP id d14so8848327qkb.1
- for <selinux@tycho.nsa.gov>; Sat, 17 Jun 2017 06:55:30 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5I7WkAw002663
+ for <selinux@tycho.nsa.gov>; Sun, 18 Jun 2017 03:32:47 -0400
+Received: by mail-pf0-f181.google.com with SMTP id x63so40334718pff.3
+ for <selinux@tycho.nsa.gov>; Sun, 18 Jun 2017 00:32:38 -0700 (PDT)
+Date: Sun, 18 Jun 2017 15:32:33 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Subject: Re: ANN: SELinux userspace 2.7-rc2 release
+Message-ID: <20170618073233.GA24080@meriadoc.perfinion.com>
+References: <1497028696.26846.9.camel@tycho.nsa.gov>
+ <1497632109.7898.5.camel@tycho.nsa.gov>
 MIME-Version: 1.0
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Sat, 17 Jun 2017 15:55:29 +0200
-Message-ID: <CAJfZ7=nCOn2uy6hisa0+ki-8XDcLPab6Wj2L0-2Dv+pqhUuHnQ@mail.gmail.com>
-Subject: BINDIR/SBINDIR/... variables in Makefiles
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <1497632109.7898.5.camel@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello,
+There is a bug that needs to be fixed before the final release:
+https://bugs.gentoo.org/show_bug.cgi?id=621762
 
-While updating packages for SELinux userspace 2.7-rc2 release, I
-noticed there are still some inconsistencies in the Makefile variables
-related to bin and sbin directories. A quick search (with find . -name
-Makefile -exec cat {} + |grep '^[A-Z_]*BINDIR' |sort -u) shows:
+I think the fix is just add override in utils/Makefile to the LDLIBS and
+LDFLAGS bits. I'm not sure I'll have time to get around to testing
+it so just wanted to let you know before the final release.
 
-BINDIR=$(PREFIX)/bin
-BINDIR ?= $(PREFIX)/bin
-BINDIR ?= $(PREFIX)/sbin
-SBINDIR ?= $(DESTDIR)/sbin
-SBINDIR ?= $(PREFIX)/sbin
-USRSBINDIR ?= $(PREFIX)/sbin
+-- Jason
 
-In the coming days I will not have time to write and test patches in
-order to make these variables more consistent. I am therefore sending
-this message in case someone would want to fix these inconsistencies
-before the 2.7 release.
-
-By the way, I noticed a few things in the RC that may be worth
-mentioning in the final release announcement:
-* libsemanage no longer needs ustr.
-* libselinux/utils Makefile now uses USRSBINDIR instead of USRBINDIR
-(since commit 055d14a99a84 ("libselinux/utils: do not create an empty
-/sbin directory")).
-* Some packages (libselinux, checkpolicy, selinux-python,
-semodule-utils and mcstrans) require LIBSEPOLA to the set to the
-absolute path to libsepol.a when building with DESTDIR set.
-
-Cheers,
-Nicolas
+On Fri, Jun 16, 2017 at 12:55:09PM -0400, Stephen Smalley wrote:
+> A second release candidate for the SELinux userspace is now available
+> at:
+> https://github.com/SELinuxProject/selinux/wiki/Releases
+> 
+> Please give it a test and let us know if there are any issues.
+> 
+> Changes from the -rc1 release:
+> 
+> James Carter (2):
+>       libsepol: Fix neverallow bug when checking conditional policy
+>       libsepol/cil: Fix bugs when writing policy.conf rules
+> 
+> Nicolas Iooss (1):
+>       libsepol: destroy the expanded level when
+> mls_semantic_level_expand() fails
+> 
+> Richard Haines (2):
+>       libsepol/cil: ibendportcon fails to resolve in CIL policy
+>       secilc: Update test policy and documentation for Infiniband
+> 
+> Stephen Smalley (1):
+>       Update VERSION files for 2.7-rc2 release.
+> 
+> Vit Mojzis (1):
+>       policycoreutils/fixfiles: do not dereference link files in tmp
