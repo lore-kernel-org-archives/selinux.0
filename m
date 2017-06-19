@@ -1,36 +1,173 @@
-From: Luis Ressel <aranea@aixah.de>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- selinux@tycho.nsa.gov (moderated list:SELINUX SECURITY MODULE),
- linux-security-module@vger.kernel.org (open list:SECURITY SUBSYSTEM),
- linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] selinux: Assign proper class to PF_UNIX/SOCK_RAW sockets
-Date: Sun, 18 Jun 2017 23:45:32 +0200
-Message-Id: <20170618214532.3031-1-aranea@aixah.de>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5JFkNgT017535
+ for <selinux@tycho.nsa.gov>; Mon, 19 Jun 2017 11:46:26 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id ACBCDC04B94F
+ for <selinux@tycho.nsa.gov>; Mon, 19 Jun 2017 15:45:54 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.18.25.176])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 65FF018785
+ for <selinux@tycho.nsa.gov>; Mon, 19 Jun 2017 15:45:54 +0000 (UTC)
+Reply-To: dwalsh@redhat.com
+Subject: Re: Collecting ideas for audit2allow improvement
+To: selinux@tycho.nsa.gov
+References: <1133520246.22847804.1497445285851.JavaMail.zimbra@redhat.com>
+ <1497450625.9239.6.camel@tycho.nsa.gov>
+ <20170614143541.GB5298@julius.enp8s0.d30>
+ <20170614144732.GC5298@julius.enp8s0.d30>
+ <340e54c1-3a75-a35f-09ca-d3f831aaa08f@redhat.com>
+ <20170616160801.GA19587@julius.enp8s0.d30>
+From: Daniel Walsh <dwalsh@redhat.com>
+Message-ID: <19450f92-bf4b-cf20-71d3-9253a4b08cbe@redhat.com>
+Date: Mon, 19 Jun 2017 11:45:53 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170616160801.GA19587@julius.enp8s0.d30>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-For PF_UNIX, SOCK_RAW is synonymous with SOCK_DGRAM (cf.
-net/unix/af_unix.c). This is a tad obscure, but libpcap uses it.
----
- security/selinux/hooks.c | 1 +
- 1 file changed, 1 insertion(+)
+On 06/16/2017 12:08 PM, Dominick Grift wrote:
+> On Fri, Jun 16, 2017 at 08:21:25AM -0400, Daniel Walsh wrote:
+>> On 06/14/2017 10:47 AM, Dominick Grift wrote:
+>>> On Wed, Jun 14, 2017 at 04:35:41PM +0200, Dominick Grift wrote:
+>>>> On Wed, Jun 14, 2017 at 10:30:25AM -0400, Stephen Smalley wrote:
+>>>>> On Wed, 2017-06-14 at 09:01 -0400, Jan Zarsky wrote:
+>>>>>> Hi,
+>>>>>>
+>>>>>> I would like to improve SELinux audit2allow tool as my bachelor
+>>>>>> thesis.
+>>>>>> I collected ideas from my colleagues from RedHat SELinux team and I
+>>>>>> would also
+>>>>>> like to hear your ideas - what would you improve to make audit2allow
+>>>>>> smarter or
+>>>>>> easier to use.
+>>>>>>
+>>>>>> Ideas collected so far:
+>>>>>>
+>>>>>>     * offer dac_read_search when sufficient instead of dac_override
+>>>>>>       (see <https://github.com/SELinuxProject/selinux/issues/31>)
+>>>>> The hard part here is knowing when it is sufficient.  Might require
+>>>>> further kernel patches to get to the point where it is completely
+>>>>> unambiguous from the audit messages alone.  You could perhaps default
+>>>>> to only allowing dac_read_search and only allow dac_override if you see
+>>>>> that dac_read_search is already allowed and you are still getting a
+>>>>> dac_override denial.
+>>>> This should not be an issue anymore. Becuase now (linux v4.12) dac_read_search is first checked
+>>>> so translating a rule for dac_read_search will always be the most secure option. It might not be enough but youll notice if it isnt. Just rerun it again and you'll end up with dac_override if needed.
+>>>>
+>>>>>>     * offer multiple solutions to a problem (example: 1) add allow rule
+>>>>>> for
+>>>>>>       execute + execute_no_trans or 2) add allow rule for execute
+>>>>>>       + type_transition rule)
+>>>>> Is this type_transition to an existing type that already exists, or
+>>>>> defining a new type and transitioning to it, or both?  Generating new
+>>>>> domains and types dynamically is one of the major gaps in current
+>>>>> audit2allow, and to date has only been supported in separate tools like
+>>>>> sepolicy generate.
+>>>> One should be extremely careful here. "execute" does not automatically imply "execute_no_trans". That assumption can lead to disaster (https://www.cvedetails.com/cve/CVE-2015-1815/)
+>>>>>>     * interactive mode: ask questions and choose best solution
+>>>>>>     * warn when solution touches trusted computing base (rules you
+>>>>>> should not be
+>>>>>>       adding)
+>>>>>>     * suggest alternate labels for content, example: httpd_t not
+>>>>>> allowed to write
+>>>>>>       to user_home_t, might suggest that changing the label to
+>>>>>>       httpd_user_content_t
+>>>>> This seems more along the lines of what setroubleshoot does, and tends
+>>>>> to be policy-specific. We need to preserve the usability of audit2allow
+>>>>> for other policies (e.g. Android, DSSP), so any policy-specific logic
+>>>>> needs to be encapsulated, configuration-driven, and optional.
+>>>> setroubleshoot is not smart enough to suggest httpd_user_content_t, instead it suggest you allow full access to /home/* by toggling the boolean that grants access to user home content.
+>>>>
+>>>> I know this from experience. There was a bug in fedora's apache_user_content_template for more than a year and hardly anyone noticed it, probably because setroubleshoot would have just suggested you allow full access to user home content.
+>>> https://bugzilla.redhat.com/show_bug.cgi?id=1457406
+>> I actually think the suggest a accessible type is  the best improvement.
+>> audit2allow has defaulted for years to suggesting adding allow rules,
+>> usually the worst solution.  Later we added boolean support, which was
+>> better but as you point out the not a great solution in a lot of cases.
+> The "best" improvement. I agree, but that say's more about the overal state of things than about the quality of this particular improvement.
+>
+> The guy in the tweet was overwhelmed and intimidated by the large list of "accessible" types returned by setroubleshoot (and audit2allow would probably do the same)
+> Also things arent as simple, its not just about "what type grants the access needed to my domain". Other domains access to that type should also be considered.
+Which is why I suggested we filter it down to a list that has the same 
+prefix.  Also I think we should at least stick in the beginning to 
+permissions that can effect the content of data, rather then just reveal 
+the content.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 819fd6858b49..1a331fba4a3c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1275,6 +1275,7 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
- 		case SOCK_SEQPACKET:
- 			return SECCLASS_UNIX_STREAM_SOCKET;
- 		case SOCK_DGRAM:
-+		case SOCK_RAW:
- 			return SECCLASS_UNIX_DGRAM_SOCKET;
- 		}
- 		break;
--- 
-2.13.1
+write, append, add_name unlink setattr, remove_name rmdir link create ...
+
+I think anything we can do to making it easier for the user to get a 
+proper type, would be really helpful.
+>> Most AVC's are caused by mislabeled files or processes.  Having audit2allow
+>> attempt to examine the policy and figure out which types would have been
+>> allowed with some simple sorting rules might be a big improvement.
+> audit2allow INHO shouldnt "examine" the policy (at least not in any significant way) because it cannot do it right. audit2allow should just stick with the basics + audit2why.
+>
+> audit2why is the only functionality that works reasonably well. provided that some of the more recent "improvements" to audit2why get removed.
+audit2why does nothing to reveal the crutch of the problem, SELinux is a 
+Labeling system, if things go wrong, most of the time the labels are 
+wrong.  audit2allow/audit2why does not consider this. THis is why you 
+get a boolean suggestion as the first outcome.
+
+I believe the checks should be
+
+1. Is the target mislabeled?  If yes, suggest restorecon, ( I believe it 
+already does this)
+2. If this is a modification permission, suggest a type if one exists 
+that matches the the prefix of the source type.  This helps a lot with 
+people using default_t types, or types labeled var_log_t or var_lib_t.  
+Somewhat with user_home_t.
+3. Look for a boolean to satisfy the needs.
+4. Suggest audit2allow -M mypol
+
+There are probably a couple of other things that could happen.
+
+
+>> Avc denying httpd_t ability to write to httpd_sys_content_t.
+>>
+>> audit2allow should examine policy and figure out which domains httpd_t can
+>> write to with the current policy settings.  Then it should sort the
+>> solutions based on the characters of the sources context.  Perhaps chopping
+>> a characters off, maybe down to 3.
+>>
+>>   sesearch -A -s httpd_t -p write -c | cut -f1 -d ":"  | cut -d" " -f 3 |
+>> sort -u | grep httpd
+>> httpd_cache_t
+>> httpdcontent
+>> httpd_lock_t
+>> httpd_squirrelmail_t
+>> httpd_sys_rw_content_t
+>> httpd_t
+>> httpd_tmpfs_t
+>> httpd_tmp_t
+>> httpd_user_rw_content_t
+>> httpd_var_lib_t
+>> httpd_var_run_t
+>>
+>> Now eliminate the non file types, removes httpd_t.
+>>
+>> That would give the user a much better chance of solving the problem without
+>> becoming policy specific.
+> It cannot do this right. If you look to be bugzilla i pasted above:
+>
+> All that was needed was to allow the httpd_t domain access to read dirs with the httpd_sys_content_t type. sealert couldnt figure this out
+> and instead it suggested that he toggle the "httpd_use_user_content" boolean instead, which would grant httpd_t broad access to user home content, and defeat the purpose of "httpd_user_content_t"
+>
+>> Now if you wanted to become a little more smart, you could look at the
+>> second field of the label, and have a table that says "var" indicates the
+>> path begins with /var and "tmp" indicates a directory that ends with tmp.
+>> But users could probably determine this.
+>>
+>>
+>>
+>>
+>> Sort by types starting with httpd, http, htt
+> The audience that uses this functionality get intimidated by the large lists of types that are returned and various "solutions" returned.
+> plus often times the solutions returned are sub-optimal, but the user doesnt know this.
+>
+> Seasoned users will only use audit2allow for simple things like translation of avc to raw rules (maybe resolving of interfaces but this is prone to bad results as well). quickly determining whether its a missing TE rule, boolean, or constraint. These users will use setools to do further analysis
+>
