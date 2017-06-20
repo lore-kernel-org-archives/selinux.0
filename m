@@ -1,105 +1,132 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5KFTvRu008832
- for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2017 11:29:57 -0400
-Received: by mail-pg0-f65.google.com with SMTP id f127so22105867pgc.2
- for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2017 08:29:44 -0700 (PDT)
-Date: Tue, 20 Jun 2017 23:29:34 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Patrick Steinhardt <ps@pks.im>, selinux@tycho.nsa.gov
-Subject: Re: [PATCH 2/3] libselinux: fix error when FORTIFY_SOURCE is already
- set
-Message-ID: <20170620152934.GA19906@meriadoc.perfinion.com>
+Message-ID: <1497973379.12069.10.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 3/3] genhomedircon: avoid use of non-standard `getpwent_r`
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Patrick Steinhardt <ps@pks.im>, selinux@tycho.nsa.gov
+Date: Tue, 20 Jun 2017 11:42:59 -0400
+In-Reply-To: <e9a72b068ca86d433ee52a877dad98bc410c39a0.1497967444.git.ps@pks.im>
 References: <cover.1497967444.git.ps@pks.im>
- <8e3ba217e8ac1d93dc438e8ce08ae8557eb94e8f.1497967444.git.ps@pks.im>
- <1497971673.12069.7.camel@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-In-Reply-To: <1497971673.12069.7.camel@tycho.nsa.gov>
+ <e9a72b068ca86d433ee52a877dad98bc410c39a0.1497967444.git.ps@pks.im>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 20, 2017 at 11:14:33AM -0400, Stephen Smalley wrote:
-> On Tue, 2017-06-20 at 16:07 +0200, Patrick Steinhardt wrote:
-> > Two makefiles of ours pass `-D_FORTIFY_SOURCE` directly to the
-> > preprocessor. While this does not pose any problems when the value
-> > has
-> > not been previously set, it can break the build if it is part of the
-> > standard build flags.
-> > 
-> > Fix the issue by undefining the flag with `-Wp,-U_FORTIFY_SOURCE`
-> > right
-> > before redefining the value. This fixes builds with some hardened
-> > compiler chains.
+On Tue, 2017-06-20 at 16:07 +0200, Patrick Steinhardt wrote:
+> The `getpwent_r` function is a non-standard but re-entrant version of
+> the sdardardized `getpwent` function. Next to the benefit of being
+> re-entrant, though, it avoids compilation with libc implementations
+> that
+> do not provide this glibc-specific extension, for example musl libc.
 > 
-> I don't quite understand why the caller can't just specify their own
-> CFLAGS, in which case we won't use the ones in libselinux/src/Makefile
-> (except for the override CFLAGS, which don't include the FORTIFY
-> options), ala:
-> # We turn up security all the way to 11!
-> make CFLAGS="-O -Wp,-D_FORTIFY_SOURCE=11"
+> As the code is usually not run in a threaded environment, it is save
+> to
+> use the non-reentrant version, though. As such, convert code to use
+> `getpwent` instead to fix building with other libc implementations.
+
+Not sure we are guaranteed that, since libsemanage has external users
+too, e.g. sssd among others.  OTOH, getpwent_r man page says that it is
+not really reentrant either due to shared reading position in the
+stream, so maybe this doesn't matter.
+
 > 
-> The problem I see with your solution is that it means that if your
-> hardened toolchain wants to select a higher _FORTIFY_SOURCE value in
-> the future (if such a thing were to exist), we'll just undefine it and
-> redefine to the lower value in our Makefiles.  If you can't just set
-> CFLAGS in the caller, then perhaps the libselinux Makefile should only
-> add FORTIFY options if they aren't already defined.
-
-He said this is on gentoo in which case portage will pretty much always
-have CFLAGS set so this is never a problem.
-
-Its only a problem for me if i build manually outside of portage in. I
-normally just sed'd out the fortify bit. But i'd agree with the best way
-would be to test it, something like cc-option from the kernel
-CFLAGS ?= $(call cc-option -Werror -Wl,-D_FORTIFY_SOURCE=2)
-
--- Jason
+> Signed-off-by: Patrick Steinhardt <ps@pks.im>
+> ---
+> Â libsemanage/src/genhomedircon.c | 22 +++++-----------------
+> Â 1 file changed, 5 insertions(+), 17 deletions(-)
 > 
-> > 
-> > Signed-off-by: Patrick Steinhardt <ps@pks.im>
-> > ---
-> >  libselinux/src/Makefile   | 3 ++-
-> >  libselinux/utils/Makefile | 3 ++-
-> >  2 files changed, 4 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> > index 4306dd0e..010b7ffe 100644
-> > --- a/libselinux/src/Makefile
-> > +++ b/libselinux/src/Makefile
-> > @@ -59,7 +59,8 @@ ifeq ($(COMPILER), gcc)
-> >  EXTRA_CFLAGS = -fipa-pure-const -Wlogical-op -Wpacked-bitfield-
-> > compat -Wsync-nand \
-> >  	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul
-> > -Wnormalized=nfc -Wsuggest-attribute=const \
-> >  	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure
-> > -Wtrampolines -Wjump-misses-init \
-> > -	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const
-> > -Wp,-D_FORTIFY_SOURCE=2
-> > +	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
-> > +	-Wp,-U_FORTIFY_SOURCE -Wp,-D_FORTIFY_SOURCE=2
-> >  else
-> >  EXTRA_CFLAGS = -Wunused-command-line-argument
-> >  endif
-> > diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-> > index 474ee95b..c94d7cf2 100644
-> > --- a/libselinux/utils/Makefile
-> > +++ b/libselinux/utils/Makefile
-> > @@ -32,7 +32,8 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k
-> > -Wformat-security -Winit-self -Wmissi
-> >            -Wformat-extra-args -Wformat-zero-length -Wformat=2
-> > -Wmultichar \
-> >            -Woverflow -Wpointer-to-int-cast -Wpragmas \
-> >            -Wno-missing-field-initializers -Wno-sign-compare \
-> > -          -Wno-format-nonliteral -Wframe-larger-
-> > than=$(MAX_STACK_SIZE) -Wp,-D_FORTIFY_SOURCE=2 \
-> > +          -Wno-format-nonliteral -Wframe-larger-
-> > than=$(MAX_STACK_SIZE) \
-> > +          -Wp,-U_FORTIFY_SOURCE -Wp,-D_FORTIFY_SOURCE=2 \
-> >            -fstack-protector-all --param=ssp-buffer-size=4
-> > -fexceptions \
-> >            -fasynchronous-unwind-tables -fdiagnostics-show-option
-> > -funit-at-a-time \
-> >            -Werror -Wno-aggregate-return -Wno-redundant-decls \
+> diff --git a/libsemanage/src/genhomedircon.c
+> b/libsemanage/src/genhomedircon.c
+> index e8c95ee4..f58c17ce 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -295,9 +295,8 @@ static semanage_list_t
+> *get_home_dirs(genhomedircon_settings_t * s)
+> Â 	long rbuflen;
+> Â 	uid_t temp, minuid = 500, maxuid = 60000;
+> Â 	int minuid_set = 0;
+> -	struct passwd pwstorage, *pwbuf;
+> +	struct passwd *pwbuf;
+> Â 	struct stat buf;
+> -	int retval;
+> Â 
+> Â 	path = semanage_findval(PATH_ETC_USERADD, "HOME", "=");
+> Â 	if (path && *path) {
+> @@ -369,7 +368,7 @@ static semanage_list_t
+> *get_home_dirs(genhomedircon_settings_t * s)
+> Â 	if (rbuf == NULL)
+> Â 		goto fail;
+> Â 	setpwent();
+> -	while ((retval = getpwent_r(&pwstorage, rbuf, rbuflen,
+> &pwbuf)) == 0) {
+> +	while ((pwbuf = getpwent()) != NULL) {
+
+Shouldn't you have removed rbuflen and rbuf too?  They are no longer
+used (except to allocate and free, but never used otherwise) after this
+change.
+
+> Â 		if (pwbuf->pw_uid < minuid || pwbuf->pw_uid >
+> maxuid)
+> Â 			continue;
+> Â 		if (!semanage_list_find(shells, pwbuf->pw_shell))
+> @@ -413,7 +412,7 @@ static semanage_list_t
+> *get_home_dirs(genhomedircon_settings_t * s)
+> Â 		path = NULL;
+> Â 	}
+> Â 
+> -	if (retval && retval != ENOENT) {
+> +	if (errno && errno != ENOENT) {
+
+Does getpwent() set errno to ENOENT? Not mentioned in its man page,
+unlike for getpwent_r().
+
+> Â 		WARN(s->h_semanage, "Error while fetching users.Â Â "
+> Â 		Â Â Â Â Â "Returning list so far.");
+> Â 	}
+> @@ -1064,10 +1063,7 @@ static int
+> get_group_users(genhomedircon_settings_t * s,
+> Â 	long grbuflen;
+> Â 	char *grbuf = NULL;
+> Â 	struct group grstorage, *group = NULL;
+> -
+> -	long prbuflen;
+> -	char *pwbuf = NULL;
+> -	struct passwd pwstorage, *pw = NULL;
+> +	struct passwd *pw = NULL;
+> Â 
+> Â 	grbuflen = sysconf(_SC_GETGR_R_SIZE_MAX);
+> Â 	if (grbuflen <= 0)
+> @@ -1104,15 +1100,8 @@ static int
+> get_group_users(genhomedircon_settings_t * s,
+> Â 		}
+> Â 	}
+> Â 
+> -	prbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
+> -	if (prbuflen <= 0)
+> -		goto cleanup;
+> -	pwbuf = malloc(prbuflen);
+> -	if (pwbuf == NULL)
+> -		goto cleanup;
+> -
+> Â 	setpwent();
+> -	while ((retval = getpwent_r(&pwstorage, pwbuf, prbuflen,
+> &pw)) == 0) {
+> +	while ((pw = getpwent()) != NULL) {
+> Â 		// skip users who also have this group as their
+> Â 		// primary group
+> Â 		if (lfind(pw->pw_name, group->gr_mem, &nmembers,
+
+Interestingly, this goes on to call add_user(), which calls
+getpwnam_r().  So if that one was ever switched back to just
+getpwnam(), we'd have a potential problem there.
+
+> @@ -1131,7 +1120,6 @@ static int
+> get_group_users(genhomedircon_settings_t * s,
+> Â 	retval = STATUS_SUCCESS;
+> Â cleanup:
+> Â 	endpwent();
+> -	free(pwbuf);
+> Â 	free(grbuf);
+> Â 
+> Â 	return retval;
