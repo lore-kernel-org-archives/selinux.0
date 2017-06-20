@@ -1,58 +1,50 @@
-Message-ID: <1497989063.12069.18.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: Assign proper class to PF_UNIX/SOCK_RAW sockets
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul@paul-moore.com>, Luis Ressel <aranea@aixah.de>
-Cc: James Morris <james.l.morris@oracle.com>, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Date: Tue, 20 Jun 2017 16:04:23 -0400
-In-Reply-To: <CAHC9VhQsVa+0LgqFyguqq0bhXOz7mrbJfXy-+rJjY53xnCkixg@mail.gmail.com>
-References: <20170619213348.2970-1-aranea@aixah.de>
- <CAHC9VhQsVa+0LgqFyguqq0bhXOz7mrbJfXy-+rJjY53xnCkixg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5KKUFBg001529
+ for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2017 16:30:16 -0400
+Received: from localhost.localdomain (81-66-120-207.rev.numericable.fr
+ [81.66.120.207])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id C80855648B5
+ for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2017 22:30:10 +0200 (CEST)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH 2/3] gui: do not create /etc
+Date: Tue, 20 Jun 2017 22:29:54 +0200
+Message-Id: <20170620202955.11587-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20170620202955.11587-1-nicolas.iooss@m4x.org>
+References: <20170620202955.11587-1-nicolas.iooss@m4x.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-06-20 at 15:49 -0400, Paul Moore wrote:
-> On Mon, Jun 19, 2017 at 5:33 PM, Luis Ressel <aranea@aixah.de> wrote:
-> > For PF_UNIX, SOCK_RAW is synonymous with SOCK_DGRAM (cf.
-> > net/unix/af_unix.c). This is a tad obscure, but libpcap uses it.
-> > 
-> > Signed-off-by: Luis Ressel <aranea@aixah.de>
-> > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > ---
-> >  security/selinux/hooks.c | 1 +
-> >  1 file changed, 1 insertion(+)
-> 
-> My only concern is what effect this will have on existing policy.
-> Prior to this patch PF_UNIX/SOCK_RAW will result in the generic
-> "socket" class where after this patch it will result in the
-> "unix_dgram_socket".  I believe this is the right change, but it
-> seems
-> like this should be wrapped by a policy capability, yes?
+selinux-gui does not install anything in /etc. Do not create this
+directory when building a package with "make install".
 
-I doubt it is worth a policy capability.  Permission to create/use
-socket tends to be far rarer than permission to create/use
-unix_dgram_socket; looks like we never allow the former without the
-latter in Fedora, for example.
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ gui/Makefile | 2 --
+ 1 file changed, 2 deletions(-)
 
-> 
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 819fd6858b49..1a331fba4a3c 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -1275,6 +1275,7 @@ static inline u16
-> > socket_type_to_security_class(int family, int type, int protoc
-> >                 case SOCK_SEQPACKET:
-> >                         return SECCLASS_UNIX_STREAM_SOCKET;
-> >                 case SOCK_DGRAM:
-> > +               case SOCK_RAW:
-> >                         return SECCLASS_UNIX_DGRAM_SOCKET;
-> >                 }
-> >                 break;
-> > --
-> > 2.13.1
-> 
-> 
+diff --git a/gui/Makefile b/gui/Makefile
+index d49a7ce048c1..4fc2c1a133be 100644
+--- a/gui/Makefile
++++ b/gui/Makefile
+@@ -1,6 +1,5 @@
+ # Installation directories.
+ PREFIX ?= ${DESTDIR}/usr
+-SYSCONFDIR ?= ${DESTDIR}/etc
+ BINDIR ?= $(PREFIX)/bin
+ SHAREDIR ?= $(PREFIX)/share/system-config-selinux
+ DATADIR ?= $(PREFIX)/share
+@@ -30,7 +29,6 @@ install: all
+ 	-mkdir -p $(BINDIR)
+ 	-mkdir -p $(DATADIR)/pixmaps
+ 	-mkdir -p $(DATADIR)/icons/hicolor/24x24/apps
+-	-mkdir -p $(SYSCONFDIR)
+ 	-mkdir -p $(DATADIR)/polkit-1/actions/
+ 	install -m 755 system-config-selinux.py $(SHAREDIR)
+ 	install -m 755 system-config-selinux $(BINDIR)
+-- 
+2.13.1
