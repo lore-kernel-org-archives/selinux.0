@@ -1,194 +1,165 @@
+Message-ID: <1497971111.12069.5.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 1/3] libsepol: replace non-standard use of __BEGIN_DECLS
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: nicolas.iooss@m4x.org, jason@perfinion.com,
- Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] Fix BINDIR/SBINDIR/... variables in Makefiles
-Date: Tue, 20 Jun 2017 11:01:20 -0400
-Message-Id: <20170620150120.22292-1-sds@tycho.nsa.gov>
+To: Patrick Steinhardt <ps@pks.im>, selinux@tycho.nsa.gov
+Date: Tue, 20 Jun 2017 11:05:11 -0400
+In-Reply-To: <2327ff9fc6746fe9aaff982154d6a1863bd1dd67.1497967444.git.ps@pks.im>
+References: <cover.1497967444.git.ps@pks.im>
+ <2327ff9fc6746fe9aaff982154d6a1863bd1dd67.1497967444.git.ps@pks.im>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-As reported by Nicolas Iooss, there are still some inconsistencies
-in the definitions and usage of Makefile variables related to bin
-and sbin directories. Since we need to still support non-usrmerge
-systems, we cannot completely synchronize them, but we can eliminate
-unnecessary differences, remove unused variables, and drop the
-USRSBINDIR variables.
+On Tue, 2017-06-20 at 16:07 +0200, Patrick Steinhardt wrote:
+> While most header files already use the common pattern of `extern
+> "C"`
+> declarations to enable compiling in a C++ project, some header files
+> in
+> libsepol instead use the macros `__BEGIN_DECLS` and `__END_DECLS`.
+> These
+> macros are defined in the "sys/cdefs.h" header file, which provides
+> some non-standard extensions for glibc.
+> 
+> Convert usage of these declarations with the standard `extern "C"`
+> pattern. This improves compatibility with other libc implementations,
+> e.g. musl libc.
+> 
+> Signed-off-by: Patrick Steinhardt <ps@pks.im>
 
-Before:
-$ find . -name Makefile -exec cat {} + |grep '^[A-Z_]*BINDIR' |sort -u
-BINDIR=$(PREFIX)/bin
-BINDIR ?= $(PREFIX)/bin
-BINDIR ?= $(PREFIX)/sbin
-SBINDIR ?= $(DESTDIR)/sbin
-SBINDIR ?= $(PREFIX)/sbin
-USRSBINDIR ?= $(PREFIX)/sbin
+Thanks, applied.
 
-After:
-$ find . -name Makefile -exec cat {} + | grep '^[A-Z_]*BINDIR' | sort -u
-BINDIR ?= $(PREFIX)/bin
-SBINDIR ?= $(DESTDIR)/sbin
-SBINDIR ?= $(PREFIX)/sbin
-
-This does not change the actual install location of any file.
-It does drop the legacy symlink from /usr/sbin/load_policy to
-/sbin/load_policy; packagers can create that separately if
-needed (load_policy was moved in 2009).
-
-Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- checkpolicy/test/Makefile            | 2 +-
- libselinux/utils/Makefile            | 6 +++---
- mcstrans/utils/Makefile              | 6 +++---
- policycoreutils/hll/pp/Makefile      | 1 -
- policycoreutils/load_policy/Makefile | 3 ---
- policycoreutils/scripts/Makefile     | 4 +---
- python/chcat/Makefile                | 2 --
- python/sepolicy/Makefile             | 1 -
- 8 files changed, 8 insertions(+), 17 deletions(-)
-
-diff --git a/checkpolicy/test/Makefile b/checkpolicy/test/Makefile
-index 0a31c5e..59fa446 100644
---- a/checkpolicy/test/Makefile
-+++ b/checkpolicy/test/Makefile
-@@ -2,7 +2,7 @@
- # Makefile for building the dispol program
- #
- PREFIX ?= $(DESTDIR)/usr
--BINDIR=$(PREFIX)/bin
-+BINDIR ?= $(PREFIX)/bin
- LIBDIR ?= $(PREFIX)/lib
- INCLUDEDIR ?= $(PREFIX)/include
- LIBSEPOLA ?= $(LIBDIR)/libsepol.a
-diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index 474ee95..843b0e7 100644
---- a/libselinux/utils/Makefile
-+++ b/libselinux/utils/Makefile
-@@ -1,7 +1,7 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- LIBDIR ?= $(PREFIX)/lib
--USRSBINDIR ?= $(PREFIX)/sbin
-+SBINDIR ?= $(PREFIX)/sbin
- INCLUDEDIR ?= $(PREFIX)/include
- 
- OS ?= $(shell uname)
-@@ -63,8 +63,8 @@ sefcontext_compile: sefcontext_compile.o ../src/regex.o
- all: $(TARGETS)
- 
- install: all
--	-mkdir -p $(USRSBINDIR)
--	install -m 755 $(TARGETS) $(USRSBINDIR)
-+	-mkdir -p $(SBINDIR)
-+	install -m 755 $(TARGETS) $(SBINDIR)
- 
- clean:
- 	rm -f $(TARGETS) *.o *~
-diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
-index 7e59641..83ac343 100644
---- a/mcstrans/utils/Makefile
-+++ b/mcstrans/utils/Makefile
-@@ -1,7 +1,7 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- LIBDIR ?= $(PREFIX)/lib
--BINDIR ?= $(PREFIX)/sbin
-+SBINDIR ?= $(PREFIX)/sbin
- LIBSEPOLA ?= $(LIBDIR)/libsepol.a
- 
- CFLAGS ?= -Wall
-@@ -15,8 +15,8 @@ all: $(TARGETS)
- $(TARGETS): ../src/mcstrans.o ../src/mls_level.o $(LIBSEPOLA)
- 
- install: all
--	-mkdir -p $(BINDIR)
--	install -m 755 $(TARGETS) $(BINDIR)
-+	-mkdir -p $(SBINDIR)
-+	install -m 755 $(TARGETS) $(SBINDIR)
- 
- test:
- 	./mlstrans-test-runner.py ../test/*.test
-diff --git a/policycoreutils/hll/pp/Makefile b/policycoreutils/hll/pp/Makefile
-index 813c9c6..9dc2dc5 100644
---- a/policycoreutils/hll/pp/Makefile
-+++ b/policycoreutils/hll/pp/Makefile
-@@ -1,7 +1,6 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- INCLUDEDIR ?= $(PREFIX)/include
--SBINDIR ?= $(PREFIX)/sbin
- MANDIR = $(PREFIX)/share/man
- LIBDIR ?= $(PREFIX)/lib
- LIBEXECDIR ?= $(PREFIX)/libexec
-diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_policy/Makefile
-index 256d95a..0db030b 100644
---- a/policycoreutils/load_policy/Makefile
-+++ b/policycoreutils/load_policy/Makefile
-@@ -1,7 +1,6 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- SBINDIR ?= $(DESTDIR)/sbin
--USRSBINDIR ?= $(PREFIX)/sbin
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= /usr/share/locale
- 
-@@ -18,8 +17,6 @@ install: all
- 	install -m 755 $(TARGETS) $(SBINDIR)
- 	test -d $(MANDIR)/man8 || install -m 755 -d $(MANDIR)/man8
- 	install -m 644 load_policy.8 $(MANDIR)/man8/
--	-mkdir -p $(USRSBINDIR)
--	-ln -sf $(SBINDIR)/load_policy $(USRSBINDIR)/load_policy 
- 
- clean:
- 	-rm -f $(TARGETS) *.o 
-diff --git a/policycoreutils/scripts/Makefile b/policycoreutils/scripts/Makefile
-index 969e5c0..d9e86ff 100644
---- a/policycoreutils/scripts/Makefile
-+++ b/policycoreutils/scripts/Makefile
-@@ -1,7 +1,5 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
--BINDIR ?= $(PREFIX)/bin
--USRSBINDIR ?= $(PREFIX)/sbin
- SBINDIR ?= $(DESTDIR)/sbin
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= $(PREFIX)/share/locale
-@@ -10,7 +8,7 @@ LOCALEDIR ?= $(PREFIX)/share/locale
- all: fixfiles
- 
- install: all
--	-mkdir -p $(BINDIR)
-+	-mkdir -p $(SBINDIR)
- 	install -m 755 fixfiles $(SBINDIR)
- 	-mkdir -p $(MANDIR)/man8
- 	install -m 644 fixfiles.8 $(MANDIR)/man8/
-diff --git a/python/chcat/Makefile b/python/chcat/Makefile
-index 0a52e8f..0fd12d6 100644
---- a/python/chcat/Makefile
-+++ b/python/chcat/Makefile
-@@ -1,8 +1,6 @@
- # Installation directories.
- PREFIX ?= $(DESTDIR)/usr
- BINDIR ?= $(PREFIX)/bin
--USRSBINDIR ?= $(PREFIX)/sbin
--SBINDIR ?= $(DESTDIR)/sbin
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= $(PREFIX)/share/locale
- 
-diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-index 647c540..0d2bec2 100644
---- a/python/sepolicy/Makefile
-+++ b/python/sepolicy/Makefile
-@@ -5,7 +5,6 @@ PREFIX ?= $(DESTDIR)/usr
- SYSCONFDIR ?= $(DESTDIR)/etc/sysconfig
- LIBDIR ?= $(PREFIX)/lib
- BINDIR ?= $(PREFIX)/bin
--SBINDIR ?= $(PREFIX)/sbin
- DATADIR ?= $(PREFIX)/share
- MANDIR ?= $(PREFIX)/share/man
- LOCALEDIR ?= /usr/share/locale
--- 
-2.9.4
+> ---
+>  libsepol/include/sepol/ibendport_record.h | 10 +++++++---
+>  libsepol/include/sepol/ibendports.h       | 11 ++++++++---
+>  libsepol/include/sepol/ibpkey_record.h    | 11 ++++++++---
+>  libsepol/include/sepol/ibpkeys.h          | 12 +++++++++---
+>  4 files changed, 32 insertions(+), 12 deletions(-)
+> 
+> diff --git a/libsepol/include/sepol/ibendport_record.h
+> b/libsepol/include/sepol/ibendport_record.h
+> index e30b252d..2a37ec63 100644
+> --- a/libsepol/include/sepol/ibendport_record.h
+> +++ b/libsepol/include/sepol/ibendport_record.h
+> @@ -4,9 +4,10 @@
+>  #include <stddef.h>
+>  #include <sepol/context_record.h>
+>  #include <sepol/handle.h>
+> -#include <sys/cdefs.h>
+>  
+> -__BEGIN_DECLS
+> +#ifdef __cplusplus
+> +extern "C" {
+> +#endif
+>  
+>  struct sepol_ibendport;
+>  struct sepol_ibendport_key;
+> @@ -64,5 +65,8 @@ extern int sepol_ibendport_clone(sepol_handle_t
+> *handle,
+>  
+>  extern void sepol_ibendport_free(sepol_ibendport_t *ibendport);
+>  
+> -__END_DECLS
+> +#ifdef __cplusplus
+> +}
+> +#endif
+> +
+>  #endif
+> diff --git a/libsepol/include/sepol/ibendports.h
+> b/libsepol/include/sepol/ibendports.h
+> index 4a89e0ca..4ad77a12 100644
+> --- a/libsepol/include/sepol/ibendports.h
+> +++ b/libsepol/include/sepol/ibendports.h
+> @@ -4,9 +4,10 @@
+>  #include <sepol/handle.h>
+>  #include <sepol/policydb.h>
+>  #include <sepol/ibendport_record.h>
+> -#include <sys/cdefs.h>
+>  
+> -__BEGIN_DECLS
+> +#ifdef __cplusplus
+> +extern "C" {
+> +#endif
+>  
+>  /* Return the number of ibendports */
+>  extern int sepol_ibendport_count(sepol_handle_t *handle,
+> @@ -41,5 +42,9 @@ extern int sepol_ibendport_iterate(sepol_handle_t
+> *handle,
+>  				   int (*fn)(const sepol_ibendport_t
+> *ibendport,
+>  					     void *fn_arg), void
+> *arg);
+>  
+> -__END_DECLS
+> +
+> +#ifdef __cplusplus
+> +}
+> +#endif
+> +
+>  #endif
+> diff --git a/libsepol/include/sepol/ibpkey_record.h
+> b/libsepol/include/sepol/ibpkey_record.h
+> index ab68147c..1511785d 100644
+> --- a/libsepol/include/sepol/ibpkey_record.h
+> +++ b/libsepol/include/sepol/ibpkey_record.h
+> @@ -5,11 +5,12 @@
+>  #include <stdint.h>
+>  #include <sepol/context_record.h>
+>  #include <sepol/handle.h>
+> -#include <sys/cdefs.h>
+>  
+>  #define INET6_ADDRLEN 16
+>  
+> -__BEGIN_DECLS
+> +#ifdef __cplusplus
+> +extern "C" {
+> +#endif
+>  
+>  struct sepol_ibpkey;
+>  struct sepol_ibpkey_key;
+> @@ -71,5 +72,9 @@ extern int sepol_ibpkey_clone(sepol_handle_t
+> *handle,
+>  
+>  extern void sepol_ibpkey_free(sepol_ibpkey_t *ibpkey);
+>  
+> -__END_DECLS
+> +
+> +#ifdef __cplusplus
+> +}
+> +#endif
+> +
+>  #endif
+> diff --git a/libsepol/include/sepol/ibpkeys.h
+> b/libsepol/include/sepol/ibpkeys.h
+> index 4ab0a8a6..4b69d1e9 100644
+> --- a/libsepol/include/sepol/ibpkeys.h
+> +++ b/libsepol/include/sepol/ibpkeys.h
+> @@ -4,9 +4,11 @@
+>  #include <sepol/handle.h>
+>  #include <sepol/policydb.h>
+>  #include <sepol/ibpkey_record.h>
+> -#include <sys/cdefs.h>
+>  
+> -__BEGIN_DECLS
+> +
+> +#ifdef __cplusplus
+> +extern "C" {
+> +#endif
+>  
+>  /* Return the number of ibpkeys */
+>  extern int sepol_ibpkey_count(sepol_handle_t *handle,
+> @@ -40,5 +42,9 @@ extern int sepol_ibpkey_iterate(sepol_handle_t
+> *handle,
+>  				int (*fn)(const sepol_ibpkey_t
+> *ibpkey,
+>  					  void *fn_arg), void *arg);
+>  
+> -__END_DECLS
+> +
+> +#ifdef __cplusplus
+> +}
+> +#endif
+> +
+>  #endif
