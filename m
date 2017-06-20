@@ -1,113 +1,194 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5KEMQT7013494
- for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2017 10:22:30 -0400
-Received: by mail-pg0-f65.google.com with SMTP id u62so16078907pgb.0
- for <selinux@tycho.nsa.gov>; Tue, 20 Jun 2017 07:22:16 -0700 (PDT)
-Date: Tue, 20 Jun 2017 22:22:02 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Petr Lautrbach <plautrba@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Subject: Re: ANN: SELinux userspace 2.7-rc2 release
-Message-ID: <20170620142202.GA30989@meriadoc.perfinion.com>
-References: <1497028696.26846.9.camel@tycho.nsa.gov>
- <1497632109.7898.5.camel@tycho.nsa.gov>
- <20170618073233.GA24080@meriadoc.perfinion.com>
- <20170618074655.GA9590@meriadoc.perfinion.com>
- <6388c501-4700-ac73-fc1f-4b5a641cefba@redhat.com>
- <1497960868.12069.1.camel@tycho.nsa.gov>
- <8e1d184d-244f-0116-0d83-51de99bc97dc@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <8e1d184d-244f-0116-0d83-51de99bc97dc@redhat.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Cc: nicolas.iooss@m4x.org, jason@perfinion.com,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] Fix BINDIR/SBINDIR/... variables in Makefiles
+Date: Tue, 20 Jun 2017 11:01:20 -0400
+Message-Id: <20170620150120.22292-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 20, 2017 at 03:28:44PM +0200, Petr Lautrbach wrote:
-> On 06/20/2017 02:14 PM, Stephen Smalley wrote:
-> > On Tue, 2017-06-20 at 12:54 +0200, Petr Lautrbach wrote:
-> >> On 06/18/2017 09:46 AM, Jason Zaman wrote:
-> >>> On Sun, Jun 18, 2017 at 03:32:33PM +0800, Jason Zaman wrote:
-> >>>> There is a bug that needs to be fixed before the final release:
-> >>>> https://bugs.gentoo.org/show_bug.cgi?id=621762
-> >>>>
-> >>>> I think the fix is just add override in utils/Makefile to the
-> >>>> LDLIBS and
-> >>>> LDFLAGS bits. I'm not sure I'll have time to get around to
-> >>>> testing
-> >>>> it so just wanted to let you know before the final release.
-> >>>
-> >>> Yep, thats the fix, I sent a patch.
-> >>> https://gitweb.gentoo.org/repo/gentoo.git/tree/sys-libs/libselinux/
-> >>> libselinux-9999.ebuild#n58
-> >>> The gentoo ebuild overrides LDFLAGS on the commandline which is why
-> >>> the
-> >>> override was required. When i first tried to repro manually i just
-> >>> exported LDFLAGS and couldnt repro. once i read the docs on
-> >>> override it
-> >>> was pretty obvious.
-> >>
-> >> A similar patch is needed almost for every other part when you try
-> >> to
-> >> build everything from git first and then install it.
-> >>
-> >> In order to that I need to apply a patch [1] and do the following
-> >> steps:
-> ...
-> >>
-> >> [1]
-> >> https://gitlab.com/bachradsusi/selinux-rpm/blob/master/0001-Fix-build
-> >> -without-install.patch
-> >>
-> >> Using this I preserve rpath problems pointing to DESTDIR and rpm can
-> >> simply use everything from DESTDIR for /
-> > 
-> > That seems very onerous for packagers.
-> > So, are you advocating for reverting
-> > fcb5d5cc721187b3e3a19b44155d5b824d7be7e6, or are you proposing the
-> > patch cited above for upstream instead?
-> > 
-> 
-> Actually it seems that fcb5d5cc7 didn't break this use case.
-> 
-> At the moment, we still build SELinux tools and libraries from tar balls 
-> in Fedora so it's not affected. But since some of directories were split 
-> I decided to build snapshot SELinux rpms [2] from one selinux src rpm 
-> which uses the whole git snapshot.
+As reported by Nicolas Iooss, there are still some inconsistencies
+in the definitions and usage of Makefile variables related to bin
+and sbin directories. Since we need to still support non-usrmerge
+systems, we cannot completely synchronize them, but we can eliminate
+unnecessary differences, remove unused variables, and drop the
+USRSBINDIR variables.
 
-Ooohh.. okay i was about to ask i thought fedora packaged everything
-separately. and didnt get why things were refering to libsepol and
-libselinux in the same build script.
+Before:
+$ find . -name Makefile -exec cat {} + |grep '^[A-Z_]*BINDIR' |sort -u
+BINDIR=$(PREFIX)/bin
+BINDIR ?= $(PREFIX)/bin
+BINDIR ?= $(PREFIX)/sbin
+SBINDIR ?= $(DESTDIR)/sbin
+SBINDIR ?= $(PREFIX)/sbin
+USRSBINDIR ?= $(PREFIX)/sbin
 
-In gentoo they're all separate no matter if its git or a release, the
-only thing we change is if we have to cd into a subdir with version
-number or without.
+After:
+$ find . -name Makefile -exec cat {} + | grep '^[A-Z_]*BINDIR' | sort -u
+BINDIR ?= $(PREFIX)/bin
+SBINDIR ?= $(DESTDIR)/sbin
+SBINDIR ?= $(PREFIX)/sbin
 
-the repo doesnt build very well unless you've installed the earlier deps
-before building the later ones. you'll probably have a better time if
-the builds are split out again or if you build and install each one
-separately
+This does not change the actual install location of any file.
+It does drop the legacy symlink from /usr/sbin/load_policy to
+/sbin/load_policy; packagers can create that separately if
+needed (load_policy was moved in 2009).
 
-There are a bunch of issues with the patch tho, it moves -L around to
-the wrong places. -L should be before the objects and -l after
+Reported-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ checkpolicy/test/Makefile            | 2 +-
+ libselinux/utils/Makefile            | 6 +++---
+ mcstrans/utils/Makefile              | 6 +++---
+ policycoreutils/hll/pp/Makefile      | 1 -
+ policycoreutils/load_policy/Makefile | 3 ---
+ policycoreutils/scripts/Makefile     | 4 +---
+ python/chcat/Makefile                | 2 --
+ python/sepolicy/Makefile             | 1 -
+ 8 files changed, 8 insertions(+), 17 deletions(-)
 
-Also, https://gitlab.com/bachradsusi/selinux-rpm/blob/master/0001-Fix-build-without-install.patch#L288
-that check echos out a y above, so replacing it there will always be
-false which is probably wrong.  I changed it because in gentoo we dont
-do automagic dependencies so it needs a good way to en/disable manually
-but the default was unchanged to check if the system has the header.
-
-But the bits in the patch with override are probably right. I'll check
-through all the Makefiles and see where needs overriding and send a
-patch tmrr.
-
--- Jason
-
-> For my use case, I'd rather see the [1] patch upstream if it's 
-> acceptable solution. I'll rebase it against latest HEAD and sent it for 
-> review.
-> 
-> [2] https://gitlab.com/bachradsusi/selinux-rpm
-> 
-> Petr
+diff --git a/checkpolicy/test/Makefile b/checkpolicy/test/Makefile
+index 0a31c5e..59fa446 100644
+--- a/checkpolicy/test/Makefile
++++ b/checkpolicy/test/Makefile
+@@ -2,7 +2,7 @@
+ # Makefile for building the dispol program
+ #
+ PREFIX ?= $(DESTDIR)/usr
+-BINDIR=$(PREFIX)/bin
++BINDIR ?= $(PREFIX)/bin
+ LIBDIR ?= $(PREFIX)/lib
+ INCLUDEDIR ?= $(PREFIX)/include
+ LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index 474ee95..843b0e7 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -1,7 +1,7 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+ LIBDIR ?= $(PREFIX)/lib
+-USRSBINDIR ?= $(PREFIX)/sbin
++SBINDIR ?= $(PREFIX)/sbin
+ INCLUDEDIR ?= $(PREFIX)/include
+ 
+ OS ?= $(shell uname)
+@@ -63,8 +63,8 @@ sefcontext_compile: sefcontext_compile.o ../src/regex.o
+ all: $(TARGETS)
+ 
+ install: all
+-	-mkdir -p $(USRSBINDIR)
+-	install -m 755 $(TARGETS) $(USRSBINDIR)
++	-mkdir -p $(SBINDIR)
++	install -m 755 $(TARGETS) $(SBINDIR)
+ 
+ clean:
+ 	rm -f $(TARGETS) *.o *~
+diff --git a/mcstrans/utils/Makefile b/mcstrans/utils/Makefile
+index 7e59641..83ac343 100644
+--- a/mcstrans/utils/Makefile
++++ b/mcstrans/utils/Makefile
+@@ -1,7 +1,7 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+ LIBDIR ?= $(PREFIX)/lib
+-BINDIR ?= $(PREFIX)/sbin
++SBINDIR ?= $(PREFIX)/sbin
+ LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+ 
+ CFLAGS ?= -Wall
+@@ -15,8 +15,8 @@ all: $(TARGETS)
+ $(TARGETS): ../src/mcstrans.o ../src/mls_level.o $(LIBSEPOLA)
+ 
+ install: all
+-	-mkdir -p $(BINDIR)
+-	install -m 755 $(TARGETS) $(BINDIR)
++	-mkdir -p $(SBINDIR)
++	install -m 755 $(TARGETS) $(SBINDIR)
+ 
+ test:
+ 	./mlstrans-test-runner.py ../test/*.test
+diff --git a/policycoreutils/hll/pp/Makefile b/policycoreutils/hll/pp/Makefile
+index 813c9c6..9dc2dc5 100644
+--- a/policycoreutils/hll/pp/Makefile
++++ b/policycoreutils/hll/pp/Makefile
+@@ -1,7 +1,6 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+ INCLUDEDIR ?= $(PREFIX)/include
+-SBINDIR ?= $(PREFIX)/sbin
+ MANDIR = $(PREFIX)/share/man
+ LIBDIR ?= $(PREFIX)/lib
+ LIBEXECDIR ?= $(PREFIX)/libexec
+diff --git a/policycoreutils/load_policy/Makefile b/policycoreutils/load_policy/Makefile
+index 256d95a..0db030b 100644
+--- a/policycoreutils/load_policy/Makefile
++++ b/policycoreutils/load_policy/Makefile
+@@ -1,7 +1,6 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+ SBINDIR ?= $(DESTDIR)/sbin
+-USRSBINDIR ?= $(PREFIX)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= /usr/share/locale
+ 
+@@ -18,8 +17,6 @@ install: all
+ 	install -m 755 $(TARGETS) $(SBINDIR)
+ 	test -d $(MANDIR)/man8 || install -m 755 -d $(MANDIR)/man8
+ 	install -m 644 load_policy.8 $(MANDIR)/man8/
+-	-mkdir -p $(USRSBINDIR)
+-	-ln -sf $(SBINDIR)/load_policy $(USRSBINDIR)/load_policy 
+ 
+ clean:
+ 	-rm -f $(TARGETS) *.o 
+diff --git a/policycoreutils/scripts/Makefile b/policycoreutils/scripts/Makefile
+index 969e5c0..d9e86ff 100644
+--- a/policycoreutils/scripts/Makefile
++++ b/policycoreutils/scripts/Makefile
+@@ -1,7 +1,5 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+-BINDIR ?= $(PREFIX)/bin
+-USRSBINDIR ?= $(PREFIX)/sbin
+ SBINDIR ?= $(DESTDIR)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= $(PREFIX)/share/locale
+@@ -10,7 +8,7 @@ LOCALEDIR ?= $(PREFIX)/share/locale
+ all: fixfiles
+ 
+ install: all
+-	-mkdir -p $(BINDIR)
++	-mkdir -p $(SBINDIR)
+ 	install -m 755 fixfiles $(SBINDIR)
+ 	-mkdir -p $(MANDIR)/man8
+ 	install -m 644 fixfiles.8 $(MANDIR)/man8/
+diff --git a/python/chcat/Makefile b/python/chcat/Makefile
+index 0a52e8f..0fd12d6 100644
+--- a/python/chcat/Makefile
++++ b/python/chcat/Makefile
+@@ -1,8 +1,6 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+ BINDIR ?= $(PREFIX)/bin
+-USRSBINDIR ?= $(PREFIX)/sbin
+-SBINDIR ?= $(DESTDIR)/sbin
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= $(PREFIX)/share/locale
+ 
+diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
+index 647c540..0d2bec2 100644
+--- a/python/sepolicy/Makefile
++++ b/python/sepolicy/Makefile
+@@ -5,7 +5,6 @@ PREFIX ?= $(DESTDIR)/usr
+ SYSCONFDIR ?= $(DESTDIR)/etc/sysconfig
+ LIBDIR ?= $(PREFIX)/lib
+ BINDIR ?= $(PREFIX)/bin
+-SBINDIR ?= $(PREFIX)/sbin
+ DATADIR ?= $(PREFIX)/share
+ MANDIR ?= $(PREFIX)/share/man
+ LOCALEDIR ?= /usr/share/locale
+-- 
+2.9.4
