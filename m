@@ -1,11 +1,12 @@
-Message-ID: <1497971111.12069.5.camel@tycho.nsa.gov>
-Subject: Re: [PATCH 1/3] libsepol: replace non-standard use of __BEGIN_DECLS
+Message-ID: <1497971673.12069.7.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 2/3] libselinux: fix error when FORTIFY_SOURCE is
+ already set
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Patrick Steinhardt <ps@pks.im>, selinux@tycho.nsa.gov
-Date: Tue, 20 Jun 2017 11:05:11 -0400
-In-Reply-To: <2327ff9fc6746fe9aaff982154d6a1863bd1dd67.1497967444.git.ps@pks.im>
+Date: Tue, 20 Jun 2017 11:14:33 -0400
+In-Reply-To: <8e3ba217e8ac1d93dc438e8ce08ae8557eb94e8f.1497967444.git.ps@pks.im>
 References: <cover.1497967444.git.ps@pks.im>
- <2327ff9fc6746fe9aaff982154d6a1863bd1dd67.1497967444.git.ps@pks.im>
+ <8e3ba217e8ac1d93dc438e8ce08ae8557eb94e8f.1497967444.git.ps@pks.im>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -14,152 +15,73 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On Tue, 2017-06-20 at 16:07 +0200, Patrick Steinhardt wrote:
-> While most header files already use the common pattern of `extern
-> "C"`
-> declarations to enable compiling in a C++ project, some header files
-> in
-> libsepol instead use the macros `__BEGIN_DECLS` and `__END_DECLS`.
-> These
-> macros are defined in the "sys/cdefs.h" header file, which provides
-> some non-standard extensions for glibc.
+> Two makefiles of ours pass `-D_FORTIFY_SOURCE` directly to the
+> preprocessor. While this does not pose any problems when the value
+> has
+> not been previously set, it can break the build if it is part of the
+> standard build flags.
 > 
-> Convert usage of these declarations with the standard `extern "C"`
-> pattern. This improves compatibility with other libc implementations,
-> e.g. musl libc.
+> Fix the issue by undefining the flag with `-Wp,-U_FORTIFY_SOURCE`
+> right
+> before redefining the value. This fixes builds with some hardened
+> compiler chains.
+
+I don't quite understand why the caller can't just specify their own
+CFLAGS, in which case we won't use the ones in libselinux/src/Makefile
+(except for the override CFLAGS, which don't include the FORTIFY
+options), ala:
+# We turn up security all the way to 11!
+make CFLAGS="-O -Wp,-D_FORTIFY_SOURCE=11"
+
+The problem I see with your solution is that it means that if your
+hardened toolchain wants to select a higher _FORTIFY_SOURCE value in
+the future (if such a thing were to exist), we'll just undefine it and
+redefine to the lower value in our Makefiles.  If you can't just set
+CFLAGS in the caller, then perhaps the libselinux Makefile should only
+add FORTIFY options if they aren't already defined.
+
 > 
 > Signed-off-by: Patrick Steinhardt <ps@pks.im>
-
-Thanks, applied.
-
 > ---
->  libsepol/include/sepol/ibendport_record.h | 10 +++++++---
->  libsepol/include/sepol/ibendports.h       | 11 ++++++++---
->  libsepol/include/sepol/ibpkey_record.h    | 11 ++++++++---
->  libsepol/include/sepol/ibpkeys.h          | 12 +++++++++---
->  4 files changed, 32 insertions(+), 12 deletions(-)
+>  libselinux/src/Makefile   | 3 ++-
+>  libselinux/utils/Makefile | 3 ++-
+>  2 files changed, 4 insertions(+), 2 deletions(-)
 > 
-> diff --git a/libsepol/include/sepol/ibendport_record.h
-> b/libsepol/include/sepol/ibendport_record.h
-> index e30b252d..2a37ec63 100644
-> --- a/libsepol/include/sepol/ibendport_record.h
-> +++ b/libsepol/include/sepol/ibendport_record.h
-> @@ -4,9 +4,10 @@
->  #include <stddef.h>
->  #include <sepol/context_record.h>
->  #include <sepol/handle.h>
-> -#include <sys/cdefs.h>
->  
-> -__BEGIN_DECLS
-> +#ifdef __cplusplus
-> +extern "C" {
-> +#endif
->  
->  struct sepol_ibendport;
->  struct sepol_ibendport_key;
-> @@ -64,5 +65,8 @@ extern int sepol_ibendport_clone(sepol_handle_t
-> *handle,
->  
->  extern void sepol_ibendport_free(sepol_ibendport_t *ibendport);
->  
-> -__END_DECLS
-> +#ifdef __cplusplus
-> +}
-> +#endif
-> +
->  #endif
-> diff --git a/libsepol/include/sepol/ibendports.h
-> b/libsepol/include/sepol/ibendports.h
-> index 4a89e0ca..4ad77a12 100644
-> --- a/libsepol/include/sepol/ibendports.h
-> +++ b/libsepol/include/sepol/ibendports.h
-> @@ -4,9 +4,10 @@
->  #include <sepol/handle.h>
->  #include <sepol/policydb.h>
->  #include <sepol/ibendport_record.h>
-> -#include <sys/cdefs.h>
->  
-> -__BEGIN_DECLS
-> +#ifdef __cplusplus
-> +extern "C" {
-> +#endif
->  
->  /* Return the number of ibendports */
->  extern int sepol_ibendport_count(sepol_handle_t *handle,
-> @@ -41,5 +42,9 @@ extern int sepol_ibendport_iterate(sepol_handle_t
-> *handle,
->  				   int (*fn)(const sepol_ibendport_t
-> *ibendport,
->  					     void *fn_arg), void
-> *arg);
->  
-> -__END_DECLS
-> +
-> +#ifdef __cplusplus
-> +}
-> +#endif
-> +
->  #endif
-> diff --git a/libsepol/include/sepol/ibpkey_record.h
-> b/libsepol/include/sepol/ibpkey_record.h
-> index ab68147c..1511785d 100644
-> --- a/libsepol/include/sepol/ibpkey_record.h
-> +++ b/libsepol/include/sepol/ibpkey_record.h
-> @@ -5,11 +5,12 @@
->  #include <stdint.h>
->  #include <sepol/context_record.h>
->  #include <sepol/handle.h>
-> -#include <sys/cdefs.h>
->  
->  #define INET6_ADDRLEN 16
->  
-> -__BEGIN_DECLS
-> +#ifdef __cplusplus
-> +extern "C" {
-> +#endif
->  
->  struct sepol_ibpkey;
->  struct sepol_ibpkey_key;
-> @@ -71,5 +72,9 @@ extern int sepol_ibpkey_clone(sepol_handle_t
-> *handle,
->  
->  extern void sepol_ibpkey_free(sepol_ibpkey_t *ibpkey);
->  
-> -__END_DECLS
-> +
-> +#ifdef __cplusplus
-> +}
-> +#endif
-> +
->  #endif
-> diff --git a/libsepol/include/sepol/ibpkeys.h
-> b/libsepol/include/sepol/ibpkeys.h
-> index 4ab0a8a6..4b69d1e9 100644
-> --- a/libsepol/include/sepol/ibpkeys.h
-> +++ b/libsepol/include/sepol/ibpkeys.h
-> @@ -4,9 +4,11 @@
->  #include <sepol/handle.h>
->  #include <sepol/policydb.h>
->  #include <sepol/ibpkey_record.h>
-> -#include <sys/cdefs.h>
->  
-> -__BEGIN_DECLS
-> +
-> +#ifdef __cplusplus
-> +extern "C" {
-> +#endif
->  
->  /* Return the number of ibpkeys */
->  extern int sepol_ibpkey_count(sepol_handle_t *handle,
-> @@ -40,5 +42,9 @@ extern int sepol_ibpkey_iterate(sepol_handle_t
-> *handle,
->  				int (*fn)(const sepol_ibpkey_t
-> *ibpkey,
->  					  void *fn_arg), void *arg);
->  
-> -__END_DECLS
-> +
-> +#ifdef __cplusplus
-> +}
-> +#endif
-> +
->  #endif
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 4306dd0e..010b7ffe 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -59,7 +59,8 @@ ifeq ($(COMPILER), gcc)
+>  EXTRA_CFLAGS = -fipa-pure-const -Wlogical-op -Wpacked-bitfield-
+> compat -Wsync-nand \
+>  	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul
+> -Wnormalized=nfc -Wsuggest-attribute=const \
+>  	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure
+> -Wtrampolines -Wjump-misses-init \
+> -	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const
+> -Wp,-D_FORTIFY_SOURCE=2
+> +	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const \
+> +	-Wp,-U_FORTIFY_SOURCE -Wp,-D_FORTIFY_SOURCE=2
+>  else
+>  EXTRA_CFLAGS = -Wunused-command-line-argument
+>  endif
+> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+> index 474ee95b..c94d7cf2 100644
+> --- a/libselinux/utils/Makefile
+> +++ b/libselinux/utils/Makefile
+> @@ -32,7 +32,8 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k
+> -Wformat-security -Winit-self -Wmissi
+>            -Wformat-extra-args -Wformat-zero-length -Wformat=2
+> -Wmultichar \
+>            -Woverflow -Wpointer-to-int-cast -Wpragmas \
+>            -Wno-missing-field-initializers -Wno-sign-compare \
+> -          -Wno-format-nonliteral -Wframe-larger-
+> than=$(MAX_STACK_SIZE) -Wp,-D_FORTIFY_SOURCE=2 \
+> +          -Wno-format-nonliteral -Wframe-larger-
+> than=$(MAX_STACK_SIZE) \
+> +          -Wp,-U_FORTIFY_SOURCE -Wp,-D_FORTIFY_SOURCE=2 \
+>            -fstack-protector-all --param=ssp-buffer-size=4
+> -fexceptions \
+>            -fasynchronous-unwind-tables -fdiagnostics-show-option
+> -funit-at-a-time \
+>            -Werror -Wno-aggregate-return -Wno-redundant-decls \
