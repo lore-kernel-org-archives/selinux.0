@@ -1,45 +1,73 @@
-Date: Wed, 21 Jun 2017 11:48:12 +0200
-From: Luis Ressel <aranea@aixah.de>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, James Morris
- <james.l.morris@oracle.com>,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov
-Subject: Re: [PATCH] selinux: Assign proper class to PF_UNIX/SOCK_RAW sockets
-Message-ID: <20170621114812.6aa3f62e@vega.skynet.aixah.de>
-In-Reply-To: <CAHC9VhTz2uFMAcYBCph1=XVtib1owCuSi+c1stQsxkymDt_BJQ@mail.gmail.com>
-References: <20170619213348.2970-1-aranea@aixah.de>
- <CAHC9VhQsVa+0LgqFyguqq0bhXOz7mrbJfXy-+rJjY53xnCkixg@mail.gmail.com>
- <1497989063.12069.18.camel@tycho.nsa.gov>
- <CAHC9VhTz2uFMAcYBCph1=XVtib1owCuSi+c1stQsxkymDt_BJQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <1498052525.32258.0.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 2/4] libselinux, libsemanage: link Ruby wrapper with -lruby
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Laurent Bigonville <bigon@debian.org>, Nicolas Iooss
+ <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Wed, 21 Jun 2017 09:42:05 -0400
+In-Reply-To: <d0922e29-f6ab-6302-ec8d-8e22ec2368b8@debian.org>
+References: <20161114212817.15781-1-nicolas.iooss@m4x.org>
+ <20161114212817.15781-2-nicolas.iooss@m4x.org>
+ <d0922e29-f6ab-6302-ec8d-8e22ec2368b8@debian.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 20 Jun 2017 17:43:38 -0400
-Paul Moore <paul@paul-moore.com> wrote:
+On Wed, 2017-06-21 at 11:38 +0200, Laurent Bigonville wrote:
+> Hello,
+> 
+> Le 14/11/16 à 22:28, Nicolas Iooss a écrit :
+> > When linking with -Wl,-no-undefined in LDFLAGS (in order to find
+> > possible link-time errors), the Ruby wrapper module needs to be
+> > linked
+> > with the libruby.so which is used by $(RUBY). Introduce a new
+> > RUBYLIBS
+> > variable to find this library.
+> > 
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> >   libselinux/src/Makefile  | 3 ++-
+> >   libsemanage/src/Makefile | 3 ++-
+> >   2 files changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> > index 4fe1f7002181..82a1010af2d8 100644
+> > --- a/libselinux/src/Makefile
+> > +++ b/libselinux/src/Makefile
+> > @@ -15,6 +15,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+> >   PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+> >   PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site;
+> > print(site.getsitepackages()[0])')
+> >   RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" +
+> > RbConfig::CONFIG["rubyarchhdrdir"] + " -I" +
+> > RbConfig::CONFIG["rubyhdrdir"]')
+> > +RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
+> > RbConfig::CONFIG["libdir"] + " -lruby"')
+> 
+> I'm trying to package 2.7-rc2 in debian and unfortunately this is
+> not 
+> working out of the box for me. The library is not installed as
+> -lruby 
+> but as -lruby-2.3 (for ruby 2.3). In addition the lib is not
+> installed 
+> in /usr/lib.
+> 
+> I can see in the RbConfig::CONFIG hash a key called LIBRUBYARG_SHARED
+> or 
+> LIBRUBYARG which contains "-lruby-2.3". Also I see a "archlibdir" or 
+> "sitearchlibdir" key which contains the correct path to the lib (the 
+> multiarch path)
+> 
+> RUBYLIBS ?= $(shell $@ -e 'puts "-L" + RbConfig::CONFIG["archlibdir"]
+> + 
+> " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+> 
+> Could this be a possible alternatives for the other distributions?
 
-> Considering where we are at with respect to the merge window, let's
-> shelve this for now and I'll merge it after the next merge window
-> closes.  In all likelihood I'll be sending selinux/next up to James
-> later this week and I'd like this to sit in linux-next for longer than
-> a few days.
-
-That means the change will land in 4.14 at the earliest, right? (Just
-out of curiosity.)
-
-By the way, refpolicy only grants "socket" permissions to a handful of
-domains, all of which also have the corresponding "unix_dgram_socket"
-permissions. The fedora policy does the same (according to Stephen);
-this only leaves custom policies to be potentially affected by this
-change.
-
-Given that the SOCK_RAW->SOCK_DGRAM translation is obscure enough not to
-be documented anywhere outside the kernel sources, I doubt there are
-many users of it, anyway.
-
-Regards,
-Luis Ressel
+Assuming you mean $(RUBY) rather than $@ above, that works for me on
+Fedora:
+$ ruby -e 'puts "-L" + RbConfig::CONFIG["archlibdir"] + " " +
+RbConfig::CONFIG["LIBRUBYARG_SHARED"]'
+-L/usr/lib64 -lruby
