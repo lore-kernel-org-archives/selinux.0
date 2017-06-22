@@ -1,165 +1,125 @@
-Message-ID: <1498164380.2134.13.camel@tycho.nsa.gov>
-Subject: Re: [PATCH v2 2/2] genhomedircon: avoid use of non-standard
- `getpwent_r`
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Patrick Steinhardt <ps@pks.im>, selinux@tycho.nsa.gov
-Date: Thu, 22 Jun 2017 16:46:20 -0400
-In-Reply-To: <a5bcd8fbcc2f094e12c346bed9ef7733154525dd.1498124363.git.ps@pks.im>
-References: <cover.1498124363.git.ps@pks.im>
- <a5bcd8fbcc2f094e12c346bed9ef7733154525dd.1498124363.git.ps@pks.im>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5MN5U3b018018
+ for <selinux@tycho.nsa.gov>; Thu, 22 Jun 2017 19:05:31 -0400
+Received: by mail-lf0-f67.google.com with SMTP id f28so4470077lfi.3
+ for <selinux@tycho.nsa.gov>; Thu, 22 Jun 2017 16:05:23 -0700 (PDT)
+MIME-Version: 1.0
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 22 Jun 2017 19:05:21 -0400
+Message-ID: <CAHC9VhQBMBgH16Lo8dFYvLZ5k3zhr0ENXThzTtY=WWtQSqxHmg@mail.gmail.com>
+Subject: [GIT PULL] SELinux patches for v4.13
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-06-22 at 11:45 +0200, Patrick Steinhardt wrote:
-> The `getpwent_r` function is a non-standard but reentrant version of
-> the
-> POSIX-defined `getpwent` function. While it should provide the
-> benefit
-> of being safe to use in multi-threaded environments, it disallows us
-> from compiling with libc implementations which stick to the POSIX
-> standard more closely.
-> 
-> As libsemanage may be used in a multi-threaded environment, being
-> reentrant may in fact be quite important to us. As such, simply
-> switching out `getpwent_r` against its non-reentrant function can
-> prove
-> quite dangerous. But interestingly enough, the glibc implementation
-> of
-> `getpwent_r` does not even guarantee being reentrant. Quoting from
-> getpwent_r(7):
-> 
->     NOTES
-> 
->     The function getpwent_r() is not really reentrant since it shares
->     the reading position in the stream with all other threads.
-> 
-> As such, it is non-reentrant in the same sense as its simple
-> `getpwent`
-> brother and can simply be switched out without losing any guarantees
-> here.
+Hi James,
 
-Thanks, both patches applied.
+While we're down to 21 patches for v4.13 (it was 31 for v4.12), the
+diffstat jumps up tremendously with over 2k of line changes.  Almost
+all of these changes are the SELinux/IB work done by Daniel Jurgens;
+some other noteworthy changes include a NFS v4.2 labeling fix, a new
+file:map permission, and reporting of policy capabilities on policy
+load.  As usual, everything passes the selinux-testsuite and merges
+cleanly with your current linux-security/next branch; please apply.
 
-> 
-> Signed-off-by: Patrick Steinhardt <ps@pks.im>
-> ---
->  libsemanage/src/genhomedircon.c | 34 +++++++----------------------
-> -----
->  1 file changed, 7 insertions(+), 27 deletions(-)
-> 
-> diff --git a/libsemanage/src/genhomedircon.c
-> b/libsemanage/src/genhomedircon.c
-> index e8c95ee4..b9a74b73 100644
-> --- a/libsemanage/src/genhomedircon.c
-> +++ b/libsemanage/src/genhomedircon.c
-> @@ -290,14 +290,11 @@ static semanage_list_t
-> *get_home_dirs(genhomedircon_settings_t * s)
->  	semanage_list_t *homedir_list = NULL;
->  	semanage_list_t *shells = NULL;
->  	fc_match_handle_t hand;
-> -	char *rbuf = NULL;
->  	char *path = NULL;
-> -	long rbuflen;
->  	uid_t temp, minuid = 500, maxuid = 60000;
->  	int minuid_set = 0;
-> -	struct passwd pwstorage, *pwbuf;
-> +	struct passwd *pwbuf;
->  	struct stat buf;
-> -	int retval;
->  
->  	path = semanage_findval(PATH_ETC_USERADD, "HOME", "=");
->  	if (path && *path) {
-> @@ -362,14 +359,9 @@ static semanage_list_t
-> *get_home_dirs(genhomedircon_settings_t * s)
->  	free(path);
->  	path = NULL;
->  
-> -	rbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
-> -	if (rbuflen <= 0)
-> -		goto fail;
-> -	rbuf = malloc(rbuflen);
-> -	if (rbuf == NULL)
-> -		goto fail;
-> +	errno = 0;
->  	setpwent();
-> -	while ((retval = getpwent_r(&pwstorage, rbuf, rbuflen,
-> &pwbuf)) == 0) {
-> +	while ((pwbuf = getpwent()) != NULL) {
->  		if (pwbuf->pw_uid < minuid || pwbuf->pw_uid >
-> maxuid)
->  			continue;
->  		if (!semanage_list_find(shells, pwbuf->pw_shell))
-> @@ -411,9 +403,10 @@ static semanage_list_t
-> *get_home_dirs(genhomedircon_settings_t * s)
->  		}
->  		free(path);
->  		path = NULL;
-> +		errno = 0;
->  	}
->  
-> -	if (retval && retval != ENOENT) {
-> +	if (errno) {
->  		WARN(s->h_semanage, "Error while fetching users.  "
->  		     "Returning list so far.");
->  	}
-> @@ -422,14 +415,12 @@ static semanage_list_t
-> *get_home_dirs(genhomedircon_settings_t * s)
->  		goto fail;
->  
->  	endpwent();
-> -	free(rbuf);
->  	semanage_list_destroy(&shells);
->  
->  	return homedir_list;
->  
->        fail:
->  	endpwent();
-> -	free(rbuf);
->  	free(path);
->  	semanage_list_destroy(&homedir_list);
->  	semanage_list_destroy(&shells);
-> @@ -1064,10 +1055,7 @@ static int
-> get_group_users(genhomedircon_settings_t * s,
->  	long grbuflen;
->  	char *grbuf = NULL;
->  	struct group grstorage, *group = NULL;
-> -
-> -	long prbuflen;
-> -	char *pwbuf = NULL;
-> -	struct passwd pwstorage, *pw = NULL;
-> +	struct passwd *pw = NULL;
->  
->  	grbuflen = sysconf(_SC_GETGR_R_SIZE_MAX);
->  	if (grbuflen <= 0)
-> @@ -1104,15 +1092,8 @@ static int
-> get_group_users(genhomedircon_settings_t * s,
->  		}
->  	}
->  
-> -	prbuflen = sysconf(_SC_GETPW_R_SIZE_MAX);
-> -	if (prbuflen <= 0)
-> -		goto cleanup;
-> -	pwbuf = malloc(prbuflen);
-> -	if (pwbuf == NULL)
-> -		goto cleanup;
-> -
->  	setpwent();
-> -	while ((retval = getpwent_r(&pwstorage, pwbuf, prbuflen,
-> &pw)) == 0) {
-> +	while ((pw = getpwent()) != NULL) {
->  		// skip users who also have this group as their
->  		// primary group
->  		if (lfind(pw->pw_name, group->gr_mem, &nmembers,
-> @@ -1131,7 +1112,6 @@ static int
-> get_group_users(genhomedircon_settings_t * s,
->  	retval = STATUS_SUCCESS;
->  cleanup:
->  	endpwent();
-> -	free(pwbuf);
->  	free(grbuf);
->  
->  	return retval;
+Thanks,
+-Paul
+---
+The following changes since commit d68c51e0b377838dd31b37707813bb62089f399c:
+
+ Sync to mainline for security submaintainers to work against (2017-05-22 16:32
+:40 +1000)
+
+are available in the git repository at:
+
+ git://git.infradead.org/users/pcmoore/selinux stable-4.13
+
+for you to fetch changes up to 6a3911837da0a90ed599fd0a9836472f5e7ddf1b:
+
+ selinux: enable genfscon labeling for tracefs (2017-06-20 15:53:34 -0400)
+
+----------------------------------------------------------------
+Daniel Jurgens (9):
+     IB/core: IB cache enhancements to support Infiniband security
+     IB/core: Enforce PKey security on QPs
+     selinux lsm IB/core: Implement LSM notification system
+     IB/core: Enforce security on management datagrams
+     selinux: Create policydb version for Infiniband support
+     selinux: Allocate and free infiniband security hooks
+     selinux: Implement Infiniband PKey "Access" access vector
+     selinux: Add IB Port SMP access vector
+     selinux: Add a cache for quicker retreival of PKey SIDs
+
+Florian Westphal (1):
+     selinux: use pernet operations for hook registration
+
+Jeff Vander Stoep (1):
+     selinux: enable genfscon labeling for tracefs
+
+Junil Lee (1):
+     selinux: use kmem_cache for ebitmap
+
+Markus Elfring (2):
+     selinux: Return directly after a failed memory allocation in
+              policydb_index()
+     selinux: Return an error code only as a constant in sidtab_insert()
+
+Matthias Kaehlcke (1):
+     selinux: Remove redundant check for unknown labeling behavior
+
+Scott Mayhew (1):
+     security/selinux: allow security_sb_clone_mnt_opts to enable/disable
+                       native labeling behavior
+
+Stephen Smalley (4):
+     selinux: only invoke capabilities and selinux for CAP_MAC_ADMIN checks
+     selinux: add a map permission check for mmap
+     selinux: do not check open permission on sockets
+     selinux: log policy capability state when a policy is loaded
+
+Tetsuo Handa (1):
+     selinux: Use task_alloc hook rather than task_create hook
+
+drivers/infiniband/core/Makefile     |   3 +-
+drivers/infiniband/core/cache.c      |  43 ++-
+drivers/infiniband/core/core_priv.h  | 115 ++++++
+drivers/infiniband/core/device.c     |  86 +++++
+drivers/infiniband/core/mad.c        |  52 ++-
+drivers/infiniband/core/security.c   | 705 +++++++++++++++++++++++++++++++++
+drivers/infiniband/core/uverbs_cmd.c |  15 +-
+drivers/infiniband/core/verbs.c      |  27 +-
+fs/nfs/super.c                       |  17 +-
+include/linux/lsm_audit.h            |  15 +
+include/linux/lsm_hooks.h            |  39 +-
+include/linux/security.h             |  58 ++-
+include/rdma/ib_mad.h                |   4 +
+include/rdma/ib_verbs.h              |  49 +++
+security/Kconfig                     |   9 +
+security/lsm_audit.c                 |  16 +
+security/security.c                  |  55 ++-
+security/selinux/Makefile            |   2 +-
+security/selinux/hooks.c             | 212 +++++++++--
+security/selinux/ibpkey.c            | 245 ++++++++++++
+security/selinux/include/classmap.h  |   6 +-
+security/selinux/include/ibpkey.h    |  31 ++
+security/selinux/include/objsec.h    |  11 +
+security/selinux/include/security.h  |   9 +-
+security/selinux/selinuxfs.c         |  15 +-
+security/selinux/ss/ebitmap.c        |  26 +-
+security/selinux/ss/ebitmap.h        |   3 +
+security/selinux/ss/policydb.c       | 127 +++++--
+security/selinux/ss/policydb.h       |  27 +-
+security/selinux/ss/services.c       | 108 ++++++
+security/selinux/ss/sidtab.c         |  27 +-
+31 files changed, 2028 insertions(+), 129 deletions(-)
+create mode 100644 drivers/infiniband/core/security.c
+create mode 100644 security/selinux/ibpkey.c
+create mode 100644 security/selinux/include/ibpkey.h
+
+-- 
+paul moore
+www.paul-moore.com
