@@ -1,36 +1,47 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5N29vVM020772
- for <selinux@tycho.nsa.gov>; Thu, 22 Jun 2017 22:09:57 -0400
-Date: Fri, 23 Jun 2017 12:09:39 +1000 (AEST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul@paul-moore.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Subject: Re: [GIT PULL] SELinux patches for v4.13
-In-Reply-To: <CAHC9VhQBMBgH16Lo8dFYvLZ5k3zhr0ENXThzTtY=WWtQSqxHmg@mail.gmail.com>
-Message-ID: <alpine.LRH.2.20.1706231209230.17128@namei.org>
-References: <CAHC9VhQBMBgH16Lo8dFYvLZ5k3zhr0ENXThzTtY=WWtQSqxHmg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5N8Kjmw028188
+ for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2017 04:20:45 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id E81ACC0293A2
+ for <selinux@tycho.nsa.gov>; Fri, 23 Jun 2017 08:20:37 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Subject: [PATCH] mcstrans: Allow overriding libsepol.a location during build
+Date: Fri, 23 Jun 2017 10:20:33 +0200
+Message-Id: <20170623082033.19291-1-plautrba@redhat.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 22 Jun 2017, Paul Moore wrote:
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ mcstrans/src/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> Hi James,
-> 
-> While we're down to 21 patches for v4.13 (it was 31 for v4.12), the
-> diffstat jumps up tremendously with over 2k of line changes.  Almost
-> all of these changes are the SELinux/IB work done by Daniel Jurgens;
-> some other noteworthy changes include a NFS v4.2 labeling fix, a new
-> file:map permission, and reporting of policy capabilities on policy
-> load.  As usual, everything passes the selinux-testsuite and merges
-> cleanly with your current linux-security/next branch; please apply.
-> 
-
-Thanks, pulled to -next.
-
+diff --git a/mcstrans/src/Makefile b/mcstrans/src/Makefile
+index 709e1e02..3f4a89c3 100644
+--- a/mcstrans/src/Makefile
++++ b/mcstrans/src/Makefile
+@@ -4,6 +4,7 @@ LIBDIR ?= $(PREFIX)/lib
+ SBINDIR ?= $(DESTDIR)/sbin
+ INITDIR ?= $(DESTDIR)/etc/rc.d/init.d
+ SYSTEMDDIR ?= $(DESTDIR)/usr/lib/systemd
++LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+ 
+ PROG_SRC=mcstrans.c  mcscolor.c  mcstransd.c  mls_level.c
+ PROG_OBJS= $(patsubst %.c,%.o,$(PROG_SRC))
+@@ -15,7 +16,7 @@ override CFLAGS += -D_GNU_SOURCE -D_FILE_OFFSET_BITS=64
+ all: $(PROG)
+ 
+ $(PROG): $(PROG_OBJS)
+-	$(CC) $(LDFLAGS) -pie -o $@ $^ -lselinux -lcap -lpcre $(LIBDIR)/libsepol.a
++	$(CC) $(LDFLAGS) -pie -o $@ $^ -lselinux -lcap -lpcre $(LIBSEPOLA)
+ 
+ %.o:  %.c 
+ 	$(CC) $(CFLAGS) -fPIE -c -o $@ $<
 -- 
-James Morris
-<jmorris@namei.org>
+2.13.0
