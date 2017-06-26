@@ -1,198 +1,95 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5QCcsAt012131
- for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 08:38:54 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 859336331E
- for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 12:38:52 +0000 (UTC)
-Received: from Thinkpad_450.brq.redhat.com (unknown [10.43.12.77])
- by smtp.corp.redhat.com (Postfix) with ESMTP id EC2B777DE5
- for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 12:38:51 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Subject: [PATCH 3/3] libsemanage: replace access(,
- F_OK) checks to make setuid programs work
-Date: Mon, 26 Jun 2017 14:38:35 +0200
-Message-Id: <20170626123835.8234-3-vmojzis@redhat.com>
-In-Reply-To: <20170626123835.8234-1-vmojzis@redhat.com>
-References: <1495202170.2209.3.camel@tycho.nsa.gov>
- <20170626123835.8234-1-vmojzis@redhat.com>
+Message-ID: <1498482496.13301.2.camel@tycho.nsa.gov>
+Subject: Re: run_init messes up terminal settings
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Laurent Bigonville <bigon@debian.org>, selinux <selinux@tycho.nsa.gov>
+Cc: 863187-forwarded@bugs.debian.org, Russell Coker <russell@coker.com.au>
+Date: Mon, 26 Jun 2017 09:08:16 -0400
+In-Reply-To: <f19a1c21-5c15-cb56-9e55-08df2f66429a@debian.org>
+References: <f19a1c21-5c15-cb56-9e55-08df2f66429a@debian.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-access() uses real UID instead of effective UID which causes false
-negative checks in setuid programs.
-Replace access(,F_OK) (i.e. tests for file existence) by stat().
+On Sat, 2017-06-24 at 12:20 +0200, Laurent Bigonville wrote:
+> Hello,
+> Russell opened the following bug regarding run_init in the debian
+> bts:
+> ====
+> [...]
+> It turns out that the problem was not running $(arch), but running
+> run_init in 
+> the shell it spawned.  Below is an example of reproducing this, the
+> first time 
+> run_init performs as expected.  The second time is fails without me
+> even 
+> typing a password or pressing ENTER.  The result is the same with any
+> command, 
+> but ls is just a good example.  This happens no matter what shell is
+> spawned 
+> (whether it's ssh, su, or just an Xterm), run_init seems generally
+> broken with 
+> the 4.9.0-2-amd64/4.9.13-1 kernel at least.
+> 
+> NB I can't rule out the possibility of a kernel bug at this
+> stage.  But at 
+> this time it seems best to assume it's a run_init bug until proven
+> otherwise.
+> 
+> Sorry for the inconvenience Andreas.
+> 
+> # run_init ls /boot
+> Authenticating root.
+> Password: 
+> config-4.9.0-2-amd64      lost+found                System.map-4.9.0-
+> 3-amd64
+> config-4.9.0-3-amd64      memtest86+.bin            vmlinuz-4.9.0-2-
+> amd64
+> grub                      memtest86+_multiboot.bin  vmlinuz-4.9.0-3-
+> amd64
+> initrd.img-4.9.0-2-amd64  real
+> initrd.img-4.9.0-3-amd64  System.map-4.9.0-2-amd64
+> # run_init ls /boot
+> Authenticating root.
+> Password: 
+> run_init: incorrect password for root
+> authentication failed.
+> # 
+> ====
+> I can reproduce this with 2.7-rc3, run_init is compiled with pam and
+> audit support.
+> An idea what could happen here?
+> Regards,
+> Laurent Bigonville
+> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=863187
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
+I don't think this could have ever worked under run_init since
+open_init_pty was introduced (originally from Debian); note that
+open_init_pty does alter terminal settings.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsemanage/src/direct_api.c | 50 +++++++++++++++++++++++++++++---------------
- 1 file changed, 33 insertions(+), 17 deletions(-)
+I don't quite follow the example given above.  It shows executing
+run_init twice with ls /boot as the arguments, which is not running
+run_init within run_init.  That works fine for me.
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index ed11a7c..3d1c354 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -296,10 +296,19 @@ int semanage_direct_connect(semanage_handle_t * sh)
- 
- 	/* set the disable dontaudit value */
- 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
--	if (access(path, F_OK) == 0)
-+
-+	struct stat sb;
-+	if (stat(path, &sb) == 0)
- 		sepol_set_disable_dontaudit(sh->sepolh, 1);
--	else
--		sepol_set_disable_dontaudit(sh->sepolh, 0);
-+	else{
-+		if (errno == ENOENT){
-+			sepol_set_disable_dontaudit(sh->sepolh, 0);
-+		}
-+		else{
-+			ERR(sh, "Unable to access disable_dontaudit file at %s: %s\n",path , strerror(errno));
-+			goto err;
-+		}
-+	}
- 
- 	return STATUS_SUCCESS;
- 
-@@ -1114,6 +1123,7 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
- 	int status = 0;
- 	int i;
- 	char cil_path[PATH_MAX];
-+	struct stat sb;
- 
- 	assert(sh);
- 	assert(modinfos);
-@@ -1130,9 +1140,12 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
- 		}
- 
- 		if (semanage_get_ignore_module_cache(sh) == 0 &&
--				access(cil_path, F_OK) == 0) {
-+				(status = stat(cil_path, &sb)) == 0) {
- 			continue;
- 		}
-+		if (status != 0 && status != ENOENT) {
-+			goto cleanup; //an error in the "stat" call
-+		}
- 
- 		status = semanage_compile_module(sh, &modinfos[i]);
- 		if (status < 0) {
-@@ -1200,7 +1213,8 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 
- 	/* Create or remove the disable_dontaudit flag file. */
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
--	if (access(path, F_OK) == 0)
-+	struct stat sb;
-+	if (stat(path, &sb) == 0)
- 		do_rebuild |= !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
- 	else
- 		do_rebuild |= (sepol_get_disable_dontaudit(sh->sepolh) == 1);
-@@ -1225,7 +1239,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 
- 	/* Create or remove the preserve_tunables flag file. */
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_PRESERVE_TUNABLES);
--	if (access(path, F_OK) == 0)
-+	if (stat(path, &sb) == 0)
- 		do_rebuild |= !(sepol_get_preserve_tunables(sh->sepolh) == 1);
- 	else
- 		do_rebuild |= (sepol_get_preserve_tunables(sh->sepolh) == 1);
-@@ -1266,37 +1280,37 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	 */
- 	if (!do_rebuild) {
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
--		if (access(path, F_OK) != 0) {
-+		if (stat(path, &sb) != 0) {
- 			do_rebuild = 1;
- 			goto rebuild;
- 		}
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
--		if (access(path, F_OK) != 0) {
-+		if (stat(path, &sb) != 0) {
- 			do_rebuild = 1;
- 			goto rebuild;
- 		}
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
--		if (access(path, F_OK) != 0) {
-+		if (stat(path, &sb) != 0) {
- 			do_rebuild = 1;
- 			goto rebuild;
- 		}
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
--		if (access(path, F_OK) != 0) {
-+		if (stat(path, &sb) != 0) {
- 			do_rebuild = 1;
- 			goto rebuild;
- 		}
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
--		if (access(path, F_OK) != 0) {
-+		if (stat(path, &sb) != 0) {
- 			do_rebuild = 1;
- 			goto rebuild;
- 		}
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
--		if (access(path, F_OK) != 0) {
-+		if (stat(path, &sb) != 0) {
- 			do_rebuild = 1;
- 			goto rebuild;
- 		}
-@@ -1431,7 +1445,7 @@ rebuild:
- 			goto cleanup;
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
--		if (access(path, F_OK) == 0) {
-+		if (stat(path, &sb) == 0) {
- 			retval = semanage_copy_file(path,
- 						    semanage_path(SEMANAGE_TMP,
- 								  SEMANAGE_STORE_SEUSERS),
-@@ -1444,7 +1458,7 @@ rebuild:
- 		}
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
--		if (access(path, F_OK) == 0) {
-+		if (stat(path, &sb) == 0) {
- 			retval = semanage_copy_file(path,
- 						    semanage_path(SEMANAGE_TMP,
- 								  SEMANAGE_USERS_EXTRA),
-@@ -1785,7 +1799,8 @@ static int semanage_direct_extract(semanage_handle_t * sh,
- 		goto cleanup;
- 	}
- 
--	if (access(module_path, F_OK) != 0) {
-+	struct stat sb;
-+	if (stat(module_path, &sb) != 0) {
- 		ERR(sh, "Module does not exist: %s", module_path);
- 		rc = -1;
- 		goto cleanup;
-@@ -1815,7 +1830,7 @@ static int semanage_direct_extract(semanage_handle_t * sh,
- 		goto cleanup;
- 	}
- 
--	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && access(input_file, F_OK) != 0) {
-+	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && stat(input_file, &sb) != 0) {
- 		rc = semanage_compile_module(sh, _modinfo);
- 		if (rc < 0) {
- 			goto cleanup;
-@@ -2790,7 +2805,8 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
- 			goto cleanup;
- 		}
- 
--		if (access(path, F_OK) == 0) {
-+		struct stat sb;
-+		if (stat(path, &sb) == 0) {
- 			ret = unlink(path);
- 			if (ret != 0) {
- 				ERR(sh, "Error while removing cached CIL file %s: %s", path, strerror(errno));
--- 
-2.9.4
+If I try something like:
+run_init run_init ls /boot
+which actually runs run_init within run_init, then that also works for
+me without problem.
+
+If I try something like:
+run_init /bin/bash
+then I lose any echoing of input characters to the shell (due to
+open_init_pty turning it off), but I can enter commands and execute
+them, or run stty sane to regain echoing.  But I don't think that has
+ever been supported since the introduction of open_init_pty in 2005
+(policycoreutils 1.21.2).  What's the use case for it?
+
+Side bar: run_init (and open_init_pty) are no longer packaged by Fedora
+since systemd renders it unnecessary, and even prior to that, Fedora
+policy enabled DIRECT_INITRC=y in build.conf, and therefore run_init
+wasn't required for typical operation (maybe under -mls policy it was
+still needed, not sure). Possibly we should move run_init out of
+policycoreutils into its own subdirectory in the selinux userspace tree
+to reflect this transition and start deprecating it.
