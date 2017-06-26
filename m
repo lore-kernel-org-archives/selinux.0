@@ -1,13 +1,12 @@
-Message-ID: <1498490551.13301.16.camel@tycho.nsa.gov>
+Message-ID: <1498492210.13301.20.camel@tycho.nsa.gov>
 Subject: Re: run_init messes up terminal settings
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Laurent Bigonville <bigon@debian.org>, selinux <selinux@tycho.nsa.gov>
-Cc: 863187-forwarded@bugs.debian.org, Russell Coker <russell@coker.com.au>
-Date: Mon, 26 Jun 2017 11:22:31 -0400
-In-Reply-To: <d5e647e7-8767-b176-e769-6a50de234af2@debian.org>
+To: Dominick Grift <dac.override@gmail.com>, selinux@tycho.nsa.gov
+Date: Mon, 26 Jun 2017 11:50:10 -0400
+In-Reply-To: <20170626132626.GA15033@julius.enp8s0.d30>
 References: <f19a1c21-5c15-cb56-9e55-08df2f66429a@debian.org>
  <1498482496.13301.2.camel@tycho.nsa.gov>
- <d5e647e7-8767-b176-e769-6a50de234af2@debian.org>
+ <20170626132626.GA15033@julius.enp8s0.d30>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -15,8 +14,8 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-06-26 at 15:56 +0200, Laurent Bigonville wrote:
-> Le 26/06/17 à 15:08, Stephen Smalley a écrit :
+On Mon, 2017-06-26 at 15:26 +0200, Dominick Grift wrote:
+> On Mon, Jun 26, 2017 at 09:08:16AM -0400, Stephen Smalley wrote:
 > > On Sat, 2017-06-24 at 12:20 +0200, Laurent Bigonville wrote:
 > > > Hello,
 > > > Russell opened the following bug regarding run_init in the debian
@@ -25,26 +24,26 @@ On Mon, 2017-06-26 at 15:56 +0200, Laurent Bigonville wrote:
 > > > [...]
 > > > It turns out that the problem was not running $(arch), but
 > > > running
-> > > run_init in
+> > > run_init in 
 > > > the shell it spawned.  Below is an example of reproducing this,
 > > > the
-> > > first time
+> > > first time 
 > > > run_init performs as expected.  The second time is fails without
 > > > me
-> > > even
+> > > even 
 > > > typing a password or pressing ENTER.  The result is the same with
 > > > any
-> > > command,
+> > > command, 
 > > > but ls is just a good example.  This happens no matter what shell
 > > > is
-> > > spawned
+> > > spawned 
 > > > (whether it's ssh, su, or just an Xterm), run_init seems
 > > > generally
-> > > broken with
+> > > broken with 
 > > > the 4.9.0-2-amd64/4.9.13-1 kernel at least.
 > > > 
 > > > NB I can't rule out the possibility of a kernel bug at this
-> > > stage.  But at
+> > > stage.  But at 
 > > > this time it seems best to assume it's a run_init bug until
 > > > proven
 > > > otherwise.
@@ -53,7 +52,7 @@ On Mon, 2017-06-26 at 15:56 +0200, Laurent Bigonville wrote:
 > > > 
 > > > # run_init ls /boot
 > > > Authenticating root.
-> > > Password:
+> > > Password: 
 > > > config-4.9.0-2-amd64      lost+found                System.map-
 > > > 4.9.0-
 > > > 3-amd64
@@ -67,10 +66,10 @@ On Mon, 2017-06-26 at 15:56 +0200, Laurent Bigonville wrote:
 > > > initrd.img-4.9.0-3-amd64  System.map-4.9.0-2-amd64
 > > > # run_init ls /boot
 > > > Authenticating root.
-> > > Password:
+> > > Password: 
 > > > run_init: incorrect password for root
 > > > authentication failed.
-> > > #
+> > > # 
 > > > ====
 > > > I can reproduce this with 2.7-rc3, run_init is compiled with pam
 > > > and
@@ -87,53 +86,7 @@ On Mon, 2017-06-26 at 15:56 +0200, Laurent Bigonville wrote:
 > > I don't quite follow the example given above.  It shows executing
 > > run_init twice with ls /boot as the arguments, which is not running
 > > run_init within run_init.  That works fine for me.
-> 
-> I just re-tried again and I can definitely reproduce this in debian 
-> unstable. My complete test case is:
-> 
-> sudo -i
-> <type the password>
-> run_init ls /boot
-> <type the password>
-> <ls output>
-> run_init ls /boot
-> <error>
-> 
-> If I exit the shell started by sudo, run_init will works again for
-> one 
-> invocation before getting the error again.
-
-Hmm...I couldn't reproduce on Fedora with the upstream selinux
-userspace.  The above sequence works for me no matter how many times I
-run run_init ls /boot.
-
-What I did notice was that if I tried running two run_init commands
-immediately after each other ala:
-run_init id && run_init id
-then the second one would fail on the user authentication.
-(in comparison, su -c id && su -c id works fine.)
-
-But if I try again manually, run_init works fine.
-
-strace -f of the failed run_init (ala run_init id && strace -f run_init
-id 2> err.txt) showed that it ends up getting -1 with errno EAGAIN on
-the attempted read of the password from descriptor 0 (stdin).
-
-This seems to be due to open_init_pty.  If I remove
-/usr/sbin/open_init_pty, the above works without any problem (run_init
-falls back to running the command directly if open_init_pty does not
-exist; open_init_pty was always optional and introduced by Debian).
-
-In particular, open_init_pty marks stdin and stdout non-blocking before
-entering its event loop to handle I/O between the caller and the child.
- If you comment those setfd_nonblock() calls out, then the second
-authentication works, but that will have other effects.
-
-I'd be inclined to just drop open_init_pty (for that matter, I'd like
-to deprecate/drop run_init entirely, but I guess it might be needed if
-not using DIRECT_INITRC=y and not using systemd).
-
-> 
+> > 
 > > If I try something like:
 > > run_init run_init ls /boot
 > > which actually runs run_init within run_init, then that also works
@@ -155,15 +108,36 @@ not using DIRECT_INITRC=y and not using systemd).
 > > Fedora
 > > policy enabled DIRECT_INITRC=y in build.conf, and therefore
 > > run_init
+> 
+> Correct me if i am wrong but fedora has DIRECT_INITRC=n AFAICT
+> 
+> https://src.fedoraproject.org/cgit/rpms/selinux-policy.git/tree/selin
+> ux-policy.spec#n173
+> https://src.fedoraproject.org/cgit/rpms/selinux-policy.git/tree/selin
+> ux-policy.spec#n393
+> 
+> I vaguely recall that in a strict environment one still might need
+> run_init for the `update aliases` functionality in redhar-based
+> distributions.. i might be wrong though
+
+run_init is no longer packaged in Fedora at all (see
+policycoreutils.spec, which removes it during %install so that it will
+not be packaged).  Looking at the ChangeLog, this happened in 2012:
+* Mon Nov 5 2012 Dan Walsh <dwalsh@redhat.com> - 2.1.12-25
+- Remove run_init, no longer needed with systemd.
+
+Thus, DIRECT_INITRC=y is no longer required either, for the same reason
+(obsoleted by systemd).  Prior to that change, Fedora built with
+DIRECT_INITRC=y for -targeted policy; only -mls and -strict built with
+DIRECT_INITRC=n and needed run_init.
+
+> 
 > > wasn't required for typical operation (maybe under -mls policy it
 > > was
 > > still needed, not sure). Possibly we should move run_init out of
 > > policycoreutils into its own subdirectory in the selinux userspace
 > > tree
 > > to reflect this transition and start deprecating it.
+> > 
 > 
-> run_init and newrole executables are still packaged in debian but in
-> a 
-> different package that is not pulled by anything, so people that need
-> it 
-> have to manually install it.
+> 
