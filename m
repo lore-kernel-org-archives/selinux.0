@@ -1,21 +1,21 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5QCcsAr012131
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5QCcsAt012131
  for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 08:38:54 -0400
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
  [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 10B2D4ACB3
- for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 12:38:51 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id 859336331E
+ for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 12:38:52 +0000 (UTC)
 Received: from Thinkpad_450.brq.redhat.com (unknown [10.43.12.77])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7DF2977DE5
- for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 12:38:50 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id EC2B777DE5
+ for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 12:38:51 +0000 (UTC)
 From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Subject: [PATCH 2/3] libsemanage: remove access() check to make setuid
- programs work
-Date: Mon, 26 Jun 2017 14:38:34 +0200
-Message-Id: <20170626123835.8234-2-vmojzis@redhat.com>
+Subject: [PATCH 3/3] libsemanage: replace access(,
+ F_OK) checks to make setuid programs work
+Date: Mon, 26 Jun 2017 14:38:35 +0200
+Message-Id: <20170626123835.8234-3-vmojzis@redhat.com>
 In-Reply-To: <20170626123835.8234-1-vmojzis@redhat.com>
 References: <1495202170.2209.3.camel@tycho.nsa.gov>
  <20170626123835.8234-1-vmojzis@redhat.com>
@@ -24,67 +24,175 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-F_OK access checks only work properly as long as all directories along
-the path are accessible to real user running the program.
-Replace F_OK access checks by testing return value of open, write, etc.
+access() uses real UID instead of effective UID which causes false
+negative checks in setuid programs.
+Replace access(,F_OK) (i.e. tests for file existence) by stat().
 
 Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- libsemanage/src/direct_api.c | 36 +++++++++++++++---------------------
- 1 file changed, 15 insertions(+), 21 deletions(-)
+ libsemanage/src/direct_api.c | 50 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 33 insertions(+), 17 deletions(-)
 
 diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index b761b68..ed11a7c 100644
+index ed11a7c..3d1c354 100644
 --- a/libsemanage/src/direct_api.c
 +++ b/libsemanage/src/direct_api.c
-@@ -1538,33 +1538,27 @@ rebuild:
+@@ -296,10 +296,19 @@ int semanage_direct_connect(semanage_handle_t * sh)
+ 
+ 	/* set the disable dontaudit value */
+ 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
+-	if (access(path, F_OK) == 0)
++
++	struct stat sb;
++	if (stat(path, &sb) == 0)
+ 		sepol_set_disable_dontaudit(sh->sepolh, 1);
+-	else
+-		sepol_set_disable_dontaudit(sh->sepolh, 0);
++	else{
++		if (errno == ENOENT){
++			sepol_set_disable_dontaudit(sh->sepolh, 0);
++		}
++		else{
++			ERR(sh, "Unable to access disable_dontaudit file at %s: %s\n",path , strerror(errno));
++			goto err;
++		}
++	}
+ 
+ 	return STATUS_SUCCESS;
+ 
+@@ -1114,6 +1123,7 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
+ 	int status = 0;
+ 	int i;
+ 	char cil_path[PATH_MAX];
++	struct stat sb;
+ 
+ 	assert(sh);
+ 	assert(modinfos);
+@@ -1130,9 +1140,12 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
+ 		}
+ 
+ 		if (semanage_get_ignore_module_cache(sh) == 0 &&
+-				access(cil_path, F_OK) == 0) {
++				(status = stat(cil_path, &sb)) == 0) {
+ 			continue;
+ 		}
++		if (status != 0 && status != ENOENT) {
++			goto cleanup; //an error in the "stat" call
++		}
+ 
+ 		status = semanage_compile_module(sh, &modinfos[i]);
+ 		if (status < 0) {
+@@ -1200,7 +1213,8 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 
+ 	/* Create or remove the disable_dontaudit flag file. */
+ 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
+-	if (access(path, F_OK) == 0)
++	struct stat sb;
++	if (stat(path, &sb) == 0)
+ 		do_rebuild |= !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
+ 	else
+ 		do_rebuild |= (sepol_get_disable_dontaudit(sh->sepolh) == 1);
+@@ -1225,7 +1239,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 
+ 	/* Create or remove the preserve_tunables flag file. */
+ 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_PRESERVE_TUNABLES);
+-	if (access(path, F_OK) == 0)
++	if (stat(path, &sb) == 0)
+ 		do_rebuild |= !(sepol_get_preserve_tunables(sh->sepolh) == 1);
+ 	else
+ 		do_rebuild |= (sepol_get_preserve_tunables(sh->sepolh) == 1);
+@@ -1266,37 +1280,37 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	 */
+ 	if (!do_rebuild) {
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
+-		if (access(path, F_OK) != 0) {
++		if (stat(path, &sb) != 0) {
+ 			do_rebuild = 1;
+ 			goto rebuild;
+ 		}
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
+-		if (access(path, F_OK) != 0) {
++		if (stat(path, &sb) != 0) {
+ 			do_rebuild = 1;
+ 			goto rebuild;
+ 		}
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
+-		if (access(path, F_OK) != 0) {
++		if (stat(path, &sb) != 0) {
+ 			do_rebuild = 1;
+ 			goto rebuild;
+ 		}
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
+-		if (access(path, F_OK) != 0) {
++		if (stat(path, &sb) != 0) {
+ 			do_rebuild = 1;
+ 			goto rebuild;
+ 		}
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
+-		if (access(path, F_OK) != 0) {
++		if (stat(path, &sb) != 0) {
+ 			do_rebuild = 1;
+ 			goto rebuild;
+ 		}
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
+-		if (access(path, F_OK) != 0) {
++		if (stat(path, &sb) != 0) {
+ 			do_rebuild = 1;
+ 			goto rebuild;
+ 		}
+@@ -1431,7 +1445,7 @@ rebuild:
+ 			goto cleanup;
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
+-		if (access(path, F_OK) == 0) {
++		if (stat(path, &sb) == 0) {
+ 			retval = semanage_copy_file(path,
+ 						    semanage_path(SEMANAGE_TMP,
+ 								  SEMANAGE_STORE_SEUSERS),
+@@ -1444,7 +1458,7 @@ rebuild:
+ 		}
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
+-		if (access(path, F_OK) == 0) {
++		if (stat(path, &sb) == 0) {
+ 			retval = semanage_copy_file(path,
+ 						    semanage_path(SEMANAGE_TMP,
+ 								  SEMANAGE_USERS_EXTRA),
+@@ -1785,7 +1799,8 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+ 		goto cleanup;
  	}
  
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL);
--	if (access(path, F_OK) == 0) {
--		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
--							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
--							sh->conf->file_mode);
--		if (retval < 0) {
--			goto cleanup;
--		}
-+	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_LOCAL),
-+						semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_LOCAL),
-+						sh->conf->file_mode);
-+	if (retval < 0 && errno != ENOENT) {
-+		goto cleanup;
+-	if (access(module_path, F_OK) != 0) {
++	struct stat sb;
++	if (stat(module_path, &sb) != 0) {
+ 		ERR(sh, "Module does not exist: %s", module_path);
+ 		rc = -1;
+ 		goto cleanup;
+@@ -1815,7 +1830,7 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+ 		goto cleanup;
  	}
  
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
--	if (access(path, F_OK) == 0) {
--		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
--							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
--							sh->conf->file_mode);
--		if (retval < 0) {
--			goto cleanup;
--		}
-+	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC),
-+						semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC),
-+						sh->conf->file_mode);
-+	if (retval < 0 && errno != ENOENT) {
-+		goto cleanup;
- 	}
+-	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && access(input_file, F_OK) != 0) {
++	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && stat(input_file, &sb) != 0) {
+ 		rc = semanage_compile_module(sh, _modinfo);
+ 		if (rc < 0) {
+ 			goto cleanup;
+@@ -2790,7 +2805,8 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
+ 			goto cleanup;
+ 		}
  
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
--	if (access(path, F_OK) == 0) {
--		retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
--							semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS),
--							sh->conf->file_mode);
--		if (retval < 0) {
--			goto cleanup;
--		}
-+	retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS),
-+						semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_SEUSERS),
-+						sh->conf->file_mode);
-+	if (retval < 0 && errno != ENOENT) {
-+		goto cleanup;
- 	}
- 
- 	/* run genhomedircon if its enabled, this should be the last operation
+-		if (access(path, F_OK) == 0) {
++		struct stat sb;
++		if (stat(path, &sb) == 0) {
+ 			ret = unlink(path);
+ 			if (ret != 0) {
+ 				ERR(sh, "Error while removing cached CIL file %s: %s", path, strerror(errno));
 -- 
 2.9.4
