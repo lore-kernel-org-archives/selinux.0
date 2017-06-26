@@ -1,185 +1,83 @@
+Subject: Re: [PATCH] Fix consistency of PYTHONLIBDIR variable
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <20170626164651.20452-1-bigon@debian.org>
+ <1498505865.13301.37.camel@tycho.nsa.gov>
+From: Laurent Bigonville <bigon@debian.org>
+Message-ID: <59aa18b2-5f23-ffe1-ed66-45b4cc4ad3a4@debian.org>
+Date: Mon, 26 Jun 2017 23:58:11 +0200
 MIME-Version: 1.0
-In-Reply-To: <1498227282.2063.2.camel@tycho.nsa.gov>
-References: <20161114212817.15781-1-nicolas.iooss@m4x.org>
- <20161114212817.15781-2-nicolas.iooss@m4x.org>
- <d0922e29-f6ab-6302-ec8d-8e22ec2368b8@debian.org>
- <1498052525.32258.0.camel@tycho.nsa.gov>
- <CAJfZ7=mTrdKT0o62-O_FwX6d4E7805w77=bKqOge=BQY6OFXaQ@mail.gmail.com>
- <20170621142749.GA27536@meriadoc.perfinion.com>
- <1498227282.2063.2.camel@tycho.nsa.gov>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Mon, 26 Jun 2017 23:08:34 +0200
-Message-ID: <CAJfZ7=nTwJxwCfttodtjuk8M3eU+2PyJGKJ0PmVraiDdJ=F-vg@mail.gmail.com>
-Subject: Re: [PATCH 2/4] libselinux, libsemanage: link Ruby wrapper with -lruby
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Jason Zaman <jason@perfinion.com>, selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1498505865.13301.37.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jun 23, 2017 at 4:14 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Wed, 2017-06-21 at 22:27 +0800, Jason Zaman wrote:
->> On Wed, Jun 21, 2017 at 04:02:29PM +0200, Nicolas Iooss wrote:
->> > On Wed, Jun 21, 2017 at 3:42 PM, Stephen Smalley <sds@tycho.nsa.gov
->> > > wrote:
->> > > On Wed, 2017-06-21 at 11:38 +0200, Laurent Bigonville wrote:
->> > > > Hello,
->> > > >
->> > > > Le 14/11/16 à 22:28, Nicolas Iooss a écrit :
->> > > > > When linking with -Wl,-no-undefined in LDFLAGS (in order to
->> > > > > find
->> > > > > possible link-time errors), the Ruby wrapper module needs to
->> > > > > be
->> > > > > linked
->> > > > > with the libruby.so which is used by $(RUBY). Introduce a new
->> > > > > RUBYLIBS
->> > > > > variable to find this library.
->> > > > >
->> > > > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->> > > > > ---
->> > > > >   libselinux/src/Makefile  | 3 ++-
->> > > > >   libsemanage/src/Makefile | 3 ++-
->> > > > >   2 files changed, 4 insertions(+), 2 deletions(-)
->> > > > >
->> > > > > diff --git a/libselinux/src/Makefile
->> > > > > b/libselinux/src/Makefile
->> > > > > index 4fe1f7002181..82a1010af2d8 100644
->> > > > > --- a/libselinux/src/Makefile
->> > > > > +++ b/libselinux/src/Makefile
->> > > > > @@ -15,6 +15,7 @@ INCLUDEDIR ?= $(PREFIX)/include
->> > > > >   PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
->> > > > >   PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site;
->> > > > > print(site.getsitepackages()[0])')
->> > > > >   RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" +
->> > > > > RbConfig::CONFIG["rubyarchhdrdir"] + " -I" +
->> > > > > RbConfig::CONFIG["rubyhdrdir"]')
->> > > > > +RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
->> > > > > RbConfig::CONFIG["libdir"] + " -lruby"')
->> > > >
->> > > > I'm trying to package 2.7-rc2 in debian and unfortunately this
->> > > > is
->> > > > not
->> > > > working out of the box for me. The library is not installed as
->> > > > -lruby
->> > > > but as -lruby-2.3 (for ruby 2.3). In addition the lib is not
->> > > > installed
->> > > > in /usr/lib.
->> > > >
->> > > > I can see in the RbConfig::CONFIG hash a key called
->> > > > LIBRUBYARG_SHARED
->> > > > or
->> > > > LIBRUBYARG which contains "-lruby-2.3". Also I see a
->> > > > "archlibdir" or
->> > > > "sitearchlibdir" key which contains the correct path to the lib
->> > > > (the
->> > > > multiarch path)
->> > > >
->> > > > RUBYLIBS ?= $(shell $@ -e 'puts "-L" +
->> > > > RbConfig::CONFIG["archlibdir"]
->> > > > +
->> > > > " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
->> > > >
->> > > > Could this be a possible alternatives for the other
->> > > > distributions?
->> > >
->> > > Assuming you mean $(RUBY) rather than $@ above, that works for me
->> > > on
->> > > Fedora:
->> > > $ ruby -e 'puts "-L" + RbConfig::CONFIG["archlibdir"] + " " +
->> > > RbConfig::CONFIG["LIBRUBYARG_SHARED"]'
->> > > -L/usr/lib64 -lruby
->> >
->> > On Arch Linux:
->> >
->> > $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG"]'
->> > -lruby
->> > $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG_SHARED"]'
->> > -lruby
->> > $ ruby -e 'puts RbConfig::CONFIG["archlibdir"]'
->> > /usr/lib/x86_64-linux
->> > $ ls -l /usr/lib/x86_64-linux/libruby.so
->> > ls: cannot access '/usr/lib/x86_64-linux/libruby.so': No such file
->> > or directory
->> > $ ruby -e 'puts RbConfig::CONFIG["libdir"]'
->> > /usr/lib
->> > $ ls -l /usr/lib/libruby.so
->> > lrwxrwxrwx 1 root root 16 2017-04-22 15:40 /usr/lib/libruby.so ->
->> > libruby.so.2.4.1*
->> >
->> > So replacing -lruby with RbConfig::CONFIG["LIBRUBYARG_SHARED"] and
->> > adding "-L" + RbConfig::CONFIG["archlibdir"] in RUBYLIBS definition
->> > seem to work fine.
->> >
->> > Nicolas
+Le 26/06/17 à 21:37, Stephen Smalley a écrit :
+> On Mon, 2017-06-26 at 18:46 +0200, bigon@debian.org wrote:
+>> From: Laurent Bigonville <bigon@bigon.be>
 >>
->> Heres gentoo:
->> $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG"]'
->> -lruby21
->> $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG_SHARED"]'
->> -lruby21
->> $ ruby -e 'puts RbConfig::CONFIG["archlibdir"]'
->> /usr/lib64/x86_64-linux
->> $ stat /usr/lib64/x86_64-linux
->> stat: cannot stat '/usr/lib64/x86_64-linux': No such file or
->> directory
->> $ ruby -e 'puts RbConfig::CONFIG["libdir"]'
->> /usr/lib64
->> $ ls -l /usr/lib64/libruby2*
->> -rw-r--r--. 1 root root 4078832 May  8 16:27 /usr/lib64/libruby21-
->> static.a
->> lrwxrwxrwx. 1 root root      18 May  8 16:27 /usr/lib64/libruby21.so
->> -> libruby21.so.2.1.0*
->> lrwxrwxrwx. 1 root root      18 May  8 16:27
->> /usr/lib64/libruby21.so.2.1 -> libruby21.so.2.1.0*
->> -rwxr-xr-x. 1 root root 2506160 May  8 16:27
->> /usr/lib64/libruby21.so.2.1.0*
->> -rw-r--r--. 1 root root 4588894 May  6 12:28 /usr/lib64/libruby22-
->> static.a
->> lrwxrwxrwx. 1 root root      18 May  6 12:28 /usr/lib64/libruby22.so
->> -> libruby22.so.2.2.0*
->> lrwxrwxrwx. 1 root root      18 May  6 12:28
->> /usr/lib64/libruby22.so.2.2 -> libruby22.so.2.2.0*
->> -rwxr-xr-x. 1 root root 2622488 May  6 12:28
->> /usr/lib64/libruby22.so.2.2.0*
+>> PYTHONLIBDIR is currently not consistant, at one place it's
+>> influanced
+>> by DESTDIR an at another one it's not.
 >>
->> $ qlist -Iv ruby
->> ...
->> dev-lang/ruby-2.1.9
->> dev-lang/ruby-2.2.6
+>> Fix this and make it consistant
+> Seems like it is influenced by DESTDIR before and after this change
+> (before, PYTHONLIBDIR is defined relative to LIBDIR which is defined
+> relative to PREFIX which is define relative to DESTDIR).
 >
-> So, what's the conclusion?  Do we have a consensus on replacing it as
-> proposed?  Looks like from the output above that archlibdir doesn't
-> actually work on gentoo or arch since the file doesn't exist there?
+> If I do a make DESTDIR=/path/to/foo install before and after this
+> change (with an empty /path/to/foo before each run), the only
+> difference is that it moves from $(DESTDIR)/usr/lib/pythonM.N/site-
+> packages to $(DESTDIR)/usr/lib64/pythonM.N/site-packages.
+>
+> This makes it consistent with sepolgen but inconsistent with sepolicy,
+> which is installed to usr/lib, not usr/lib64.
+>
+> So, I'm unclear on whether this is an improvement.
 
->From the previous messages, I conclude that both "libdir" and
-"archlibdir" are needed and that "LIBRUBYARG" and "LIBRUBYARG_SHARED"
-share the same value. As the linker does not issue any error when
-using -L with a non-existent path, a possible solution would be to use
-both directories. For example for libselinux:
+With the debian build system, LIBDIR is set to 
+$(DESTDIR)/usr/lib/<arch-triplet> this means that PYTHONLIBDIR will end 
+up as $(DESTDIR)/usr/lib/<arch-triplet>/python/<version>.
 
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -17,7 +17,7 @@ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
- PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site;
-print(site.getsitepackages()[0])')
- PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in
-imp.get_suffixes() if t == imp.C_EXTENSION][0])')
- RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" +
-RbConfig::CONFIG["rubyarchhdrdir"] + " -I" +
-RbConfig::CONFIG["rubyhdrdir"]')
--RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
-RbConfig::CONFIG["libdir"] + " -lruby"')
-+RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
-RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] +
-" " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
- RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts
-RbConfig::CONFIG["vendorarchdir"]')
- LIBBASE ?= $(shell basename $(LIBDIR))
- LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+If I override PYTHONLIBDIR to $(DESTDIR)/usr/lib/python/<version> I ends 
+up with sepolicy being installed in 
+$(DESTDIR)/$(DESTDIR)/usr/lib/<arch-triplet>/python/<version> which is 
+not what I want either
 
-With this, "make install-rubywrap" works fine on my system and should
-work on other ones.
-
-Nicolas
+>
+>> ---
+>>   python/semanage/Makefile | 8 ++++----
+>>   1 file changed, 4 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/python/semanage/Makefile b/python/semanage/Makefile
+>> index 60c36a3a..132162bc 100644
+>> --- a/python/semanage/Makefile
+>> +++ b/python/semanage/Makefile
+>> @@ -5,8 +5,8 @@ PREFIX ?= $(DESTDIR)/usr
+>>   LIBDIR ?= $(PREFIX)/lib
+>>   SBINDIR ?= $(PREFIX)/sbin
+>>   MANDIR = $(PREFIX)/share/man
+>> -PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" %
+>> sys.version_info[0:2])')
+>> -PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+>> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig
+>> import *; print(get_python_lib(1))")
+>> +PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)
+>>   BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-
+>> completion/completions
+>>   
+>>   TARGETS=semanage
+>> @@ -20,8 +20,8 @@ install: all
+>>   	-mkdir -p $(SBINDIR)
+>>   	install -m 755 semanage $(SBINDIR)
+>>   	install -m 644 *.8 $(MANDIR)/man8
+>> -	test -d $(PYTHONLIBDIR)/site-packages || install -m 755 -d
+>> $(PYTHONLIBDIR)/site-packages
+>> -	install -m 755 seobject.py $(PYTHONLIBDIR)/site-packages
+>> +	test -d $(PACKAGEDIR) || install -m 755 -d $(PACKAGEDIR)
+>> +	install -m 755 seobject.py $(PACKAGEDIR)
+>>   	-mkdir -p $(BASHCOMPLETIONDIR)
+>>   	install -m 644 $(BASHCOMPLETIONS)
+>> $(BASHCOMPLETIONDIR)/semanage
+>>   
