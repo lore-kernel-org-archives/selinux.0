@@ -1,78 +1,185 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5QKH2uh013062
- for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 16:17:02 -0400
-Received: by mail-lf0-f51.google.com with SMTP id b207so6651515lfg.2
- for <selinux@tycho.nsa.gov>; Mon, 26 Jun 2017 13:17:00 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <DB6PR0501MB2856B9913FDC82667F32AF8BC4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
-References: <1496162091-129822-1-git-send-email-danielj@mellanox.com>
- <1496162091-129822-3-git-send-email-danielj@mellanox.com>
- <1496164182.2164.12.camel@tycho.nsa.gov>
- <VI1PR05MB1678A4215E4D0406273B87B9C4F00@VI1PR05MB1678.eurprd05.prod.outlook.com>
- <1496166732.2164.18.camel@tycho.nsa.gov>
- <CAHC9VhThFfXpJeMn+3bsBwpnxNmLcRyOLjF68-UXB6uiVPYyWQ@mail.gmail.com>
- <DB6PR0501MB28569A5654DE040C7AE9EB47C4CA0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
- <DB6PR0501MB28566D9AD30D2586E1E631E0C4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
- <CAHC9VhQW3pNsic=mKfQsGj7qAoChO8tO2cW6tYWGp4C1Nk70ew@mail.gmail.com>
- <DB6PR0501MB28562507978CF515DC4BF2CEC4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
- <CAHC9VhQyauo4UEHdp2aP04nGms_gjOrSKQvkPPXTtQmjFLaB+g@mail.gmail.com>
- <DB6PR0501MB2856B9913FDC82667F32AF8BC4CE0@DB6PR0501MB2856.eurprd05.prod.outlook.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 26 Jun 2017 16:16:58 -0400
-Message-ID: <CAHC9VhQs3PKxDySco9+LNxudtFpfJJFyiN2=FvtdxwgHG0zZew@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] selinux-testsuite: Infiniband endport tests
-To: Daniel Jurgens <danielj@mellanox.com>, lvrabec@redhat.com
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Yevgeny Petrilin <yevgenyp@mellanox.com>
+In-Reply-To: <1498227282.2063.2.camel@tycho.nsa.gov>
+References: <20161114212817.15781-1-nicolas.iooss@m4x.org>
+ <20161114212817.15781-2-nicolas.iooss@m4x.org>
+ <d0922e29-f6ab-6302-ec8d-8e22ec2368b8@debian.org>
+ <1498052525.32258.0.camel@tycho.nsa.gov>
+ <CAJfZ7=mTrdKT0o62-O_FwX6d4E7805w77=bKqOge=BQY6OFXaQ@mail.gmail.com>
+ <20170621142749.GA27536@meriadoc.perfinion.com>
+ <1498227282.2063.2.camel@tycho.nsa.gov>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Mon, 26 Jun 2017 23:08:34 +0200
+Message-ID: <CAJfZ7=nTwJxwCfttodtjuk8M3eU+2PyJGKJ0PmVraiDdJ=F-vg@mail.gmail.com>
+Subject: Re: [PATCH 2/4] libselinux, libsemanage: link Ruby wrapper with -lruby
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Jason Zaman <jason@perfinion.com>, selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jun 9, 2017 at 4:23 PM, Daniel Jurgens <danielj@mellanox.com> wrote:
-> On 6/9/2017 3:01 PM, Paul Moore wrote:
->> On Fri, Jun 9, 2017 at 10:59 AM, Daniel Jurgens <danielj@mellanox.com> wrote:
+On Fri, Jun 23, 2017 at 4:14 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Wed, 2017-06-21 at 22:27 +0800, Jason Zaman wrote:
+>> On Wed, Jun 21, 2017 at 04:02:29PM +0200, Nicolas Iooss wrote:
+>> > On Wed, Jun 21, 2017 at 3:42 PM, Stephen Smalley <sds@tycho.nsa.gov
+>> > > wrote:
+>> > > On Wed, 2017-06-21 at 11:38 +0200, Laurent Bigonville wrote:
+>> > > > Hello,
+>> > > >
+>> > > > Le 14/11/16 à 22:28, Nicolas Iooss a écrit :
+>> > > > > When linking with -Wl,-no-undefined in LDFLAGS (in order to
+>> > > > > find
+>> > > > > possible link-time errors), the Ruby wrapper module needs to
+>> > > > > be
+>> > > > > linked
+>> > > > > with the libruby.so which is used by $(RUBY). Introduce a new
+>> > > > > RUBYLIBS
+>> > > > > variable to find this library.
+>> > > > >
+>> > > > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>> > > > > ---
+>> > > > >   libselinux/src/Makefile  | 3 ++-
+>> > > > >   libsemanage/src/Makefile | 3 ++-
+>> > > > >   2 files changed, 4 insertions(+), 2 deletions(-)
+>> > > > >
+>> > > > > diff --git a/libselinux/src/Makefile
+>> > > > > b/libselinux/src/Makefile
+>> > > > > index 4fe1f7002181..82a1010af2d8 100644
+>> > > > > --- a/libselinux/src/Makefile
+>> > > > > +++ b/libselinux/src/Makefile
+>> > > > > @@ -15,6 +15,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+>> > > > >   PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+>> > > > >   PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site;
+>> > > > > print(site.getsitepackages()[0])')
+>> > > > >   RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" +
+>> > > > > RbConfig::CONFIG["rubyarchhdrdir"] + " -I" +
+>> > > > > RbConfig::CONFIG["rubyhdrdir"]')
+>> > > > > +RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
+>> > > > > RbConfig::CONFIG["libdir"] + " -lruby"')
+>> > > >
+>> > > > I'm trying to package 2.7-rc2 in debian and unfortunately this
+>> > > > is
+>> > > > not
+>> > > > working out of the box for me. The library is not installed as
+>> > > > -lruby
+>> > > > but as -lruby-2.3 (for ruby 2.3). In addition the lib is not
+>> > > > installed
+>> > > > in /usr/lib.
+>> > > >
+>> > > > I can see in the RbConfig::CONFIG hash a key called
+>> > > > LIBRUBYARG_SHARED
+>> > > > or
+>> > > > LIBRUBYARG which contains "-lruby-2.3". Also I see a
+>> > > > "archlibdir" or
+>> > > > "sitearchlibdir" key which contains the correct path to the lib
+>> > > > (the
+>> > > > multiarch path)
+>> > > >
+>> > > > RUBYLIBS ?= $(shell $@ -e 'puts "-L" +
+>> > > > RbConfig::CONFIG["archlibdir"]
+>> > > > +
+>> > > > " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+>> > > >
+>> > > > Could this be a possible alternatives for the other
+>> > > > distributions?
+>> > >
+>> > > Assuming you mean $(RUBY) rather than $@ above, that works for me
+>> > > on
+>> > > Fedora:
+>> > > $ ruby -e 'puts "-L" + RbConfig::CONFIG["archlibdir"] + " " +
+>> > > RbConfig::CONFIG["LIBRUBYARG_SHARED"]'
+>> > > -L/usr/lib64 -lruby
+>> >
+>> > On Arch Linux:
+>> >
+>> > $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG"]'
+>> > -lruby
+>> > $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG_SHARED"]'
+>> > -lruby
+>> > $ ruby -e 'puts RbConfig::CONFIG["archlibdir"]'
+>> > /usr/lib/x86_64-linux
+>> > $ ls -l /usr/lib/x86_64-linux/libruby.so
+>> > ls: cannot access '/usr/lib/x86_64-linux/libruby.so': No such file
+>> > or directory
+>> > $ ruby -e 'puts RbConfig::CONFIG["libdir"]'
+>> > /usr/lib
+>> > $ ls -l /usr/lib/libruby.so
+>> > lrwxrwxrwx 1 root root 16 2017-04-22 15:40 /usr/lib/libruby.so ->
+>> > libruby.so.2.4.1*
+>> >
+>> > So replacing -lruby with RbConfig::CONFIG["LIBRUBYARG_SHARED"] and
+>> > adding "-L" + RbConfig::CONFIG["archlibdir"] in RUBYLIBS definition
+>> > seem to work fine.
+>> >
+>> > Nicolas
 >>
->> Should be all set now, let me know if you notice any problems.  I did
->> add a separate third commit to munge the style/formatting (see
->> previous emails); I didn't bother posting it to the list as it is just
->> style changes, but in case anyone is curious, this is the commit:
+>> Heres gentoo:
+>> $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG"]'
+>> -lruby21
+>> $ ruby -e 'puts RbConfig::CONFIG["LIBRUBYARG_SHARED"]'
+>> -lruby21
+>> $ ruby -e 'puts RbConfig::CONFIG["archlibdir"]'
+>> /usr/lib64/x86_64-linux
+>> $ stat /usr/lib64/x86_64-linux
+>> stat: cannot stat '/usr/lib64/x86_64-linux': No such file or
+>> directory
+>> $ ruby -e 'puts RbConfig::CONFIG["libdir"]'
+>> /usr/lib64
+>> $ ls -l /usr/lib64/libruby2*
+>> -rw-r--r--. 1 root root 4078832 May  8 16:27 /usr/lib64/libruby21-
+>> static.a
+>> lrwxrwxrwx. 1 root root      18 May  8 16:27 /usr/lib64/libruby21.so
+>> -> libruby21.so.2.1.0*
+>> lrwxrwxrwx. 1 root root      18 May  8 16:27
+>> /usr/lib64/libruby21.so.2.1 -> libruby21.so.2.1.0*
+>> -rwxr-xr-x. 1 root root 2506160 May  8 16:27
+>> /usr/lib64/libruby21.so.2.1.0*
+>> -rw-r--r--. 1 root root 4588894 May  6 12:28 /usr/lib64/libruby22-
+>> static.a
+>> lrwxrwxrwx. 1 root root      18 May  6 12:28 /usr/lib64/libruby22.so
+>> -> libruby22.so.2.2.0*
+>> lrwxrwxrwx. 1 root root      18 May  6 12:28
+>> /usr/lib64/libruby22.so.2.2 -> libruby22.so.2.2.0*
+>> -rwxr-xr-x. 1 root root 2622488 May  6 12:28
+>> /usr/lib64/libruby22.so.2.2.0*
 >>
->>   commit 8e0339cef20d0356d3e115c31a133662e9562e65
->>   Author: Paul Moore <paul@paul-moore.com>
->>   Date:   Fri Jun 9 15:46:37 2017 -0400
->>
->>    infiniband: apply style corrections to the infiniband tests
->>
->>    Patch generated by './tools/check-syntax -f'.
->>
->>    Signed-off-by: Paul Moore <paul@paul-moore.com>
->>
->>> I recall you saying you do most of your testing in VMs on a laptop.  But if you have a system with a free pci-e slot we can ship you an HCA if you'd like to be able to run these yourself.
->> Thank you for the offer, and yes I generally run the tests in a VM,
->> however we've been working on getting something a bit more automated
->> in place for upstream testing (more info on that once everything is
->> sorted out).
->>
->> Let me think about this a bit (and dust off my somewhat neglected
->> testing hardware), I generally try to avoid getting tied to specific
->> hardware, but it is necessary in this case, and I fear that this may
->> be the easiest way to ensure it gets tested regularly.
->>
-> OK, just let me know if you want one.  Once the feature works it's way back to mainstream kernel I'll add the tests to our automated regressions too. Thanks for all your help getting this whole thing through review!
+>> $ qlist -Iv ruby
+>> ...
+>> dev-lang/ruby-2.1.9
+>> dev-lang/ruby-2.2.6
+>
+> So, what's the conclusion?  Do we have a consensus on replacing it as
+> proposed?  Looks like from the output above that archlibdir doesn't
+> actually work on gentoo or arch since the file doesn't exist there?
 
-FWIW, this was in the pull request I sent up to James, you should see
-it arrive in Linus' tree during the upcoming merge window.
+>From the previous messages, I conclude that both "libdir" and
+"archlibdir" are needed and that "LIBRUBYARG" and "LIBRUBYARG_SHARED"
+share the same value. As the linker does not issue any error when
+using -L with a non-existent path, a possible solution would be to use
+both directories. For example for libselinux:
 
-> How often does the fedora-selinux project switch the base refpolicy? It needs additions to the unconfined user role to allow access.
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -17,7 +17,7 @@ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+ PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site;
+print(site.getsitepackages()[0])')
+ PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in
+imp.get_suffixes() if t == imp.C_EXTENSION][0])')
+ RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" +
+RbConfig::CONFIG["rubyarchhdrdir"] + " -I" +
+RbConfig::CONFIG["rubyhdrdir"]')
+-RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
+RbConfig::CONFIG["libdir"] + " -lruby"')
++RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" +
+RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] +
+" " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+ RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts
+RbConfig::CONFIG["vendorarchdir"]')
+ LIBBASE ?= $(shell basename $(LIBDIR))
+ LIBSEPOLA ?= $(LIBDIR)/libsepol.a
 
-My apologies, I just realized I never answered this last question
-about Fedora ... the answer is the usual "it depends".  I've added
-Lukas Vrabec to this email as he is in charge of the Fedora SELinux
-policy.
+With this, "make install-rubywrap" works fine on my system and should
+work on other ones.
 
--- 
-paul moore
-www.paul-moore.com
+Nicolas
