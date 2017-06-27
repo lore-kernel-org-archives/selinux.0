@@ -1,83 +1,42 @@
-Subject: Re: [PATCH] Fix consistency of PYTHONLIBDIR variable
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-References: <20170626164651.20452-1-bigon@debian.org>
- <1498505865.13301.37.camel@tycho.nsa.gov>
-From: Laurent Bigonville <bigon@debian.org>
-Message-ID: <59aa18b2-5f23-ffe1-ed66-45b4cc4ad3a4@debian.org>
-Date: Mon, 26 Jun 2017 23:58:11 +0200
+From: Russell Coker <russell@coker.com.au>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Reply-To: russell@coker.com.au
+Cc: Laurent Bigonville <bigon@debian.org>, selinux <selinux@tycho.nsa.gov>,
+ 863187-forwarded@bugs.debian.org
+Subject: Re: run_init messes up terminal settings
+Date: Wed, 28 Jun 2017 00:05:44 +1000
+Message-ID: <10484288.3CQNiTDCeZ@russell.coker.com.au>
+In-Reply-To: <1498490551.13301.16.camel@tycho.nsa.gov>
+References: <f19a1c21-5c15-cb56-9e55-08df2f66429a@debian.org>
+ <d5e647e7-8767-b176-e769-6a50de234af2@debian.org>
+ <1498490551.13301.16.camel@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <1498505865.13301.37.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Le 26/06/17 à 21:37, Stephen Smalley a écrit :
-> On Mon, 2017-06-26 at 18:46 +0200, bigon@debian.org wrote:
->> From: Laurent Bigonville <bigon@bigon.be>
->>
->> PYTHONLIBDIR is currently not consistant, at one place it's
->> influanced
->> by DESTDIR an at another one it's not.
->>
->> Fix this and make it consistant
-> Seems like it is influenced by DESTDIR before and after this change
-> (before, PYTHONLIBDIR is defined relative to LIBDIR which is defined
-> relative to PREFIX which is define relative to DESTDIR).
->
-> If I do a make DESTDIR=/path/to/foo install before and after this
-> change (with an empty /path/to/foo before each run), the only
-> difference is that it moves from $(DESTDIR)/usr/lib/pythonM.N/site-
-> packages to $(DESTDIR)/usr/lib64/pythonM.N/site-packages.
->
-> This makes it consistent with sepolgen but inconsistent with sepolicy,
-> which is installed to usr/lib, not usr/lib64.
->
-> So, I'm unclear on whether this is an improvement.
+On Monday, 26 June 2017 11:22:31 AM AEST Stephen Smalley wrote:
+> I'd be inclined to just drop open_init_pty (for that matter, I'd like
+> to deprecate/drop run_init entirely, but I guess it might be needed if
+> not using DIRECT_INITRC=y and not using systemd).
 
-With the debian build system, LIBDIR is set to 
-$(DESTDIR)/usr/lib/<arch-triplet> this means that PYTHONLIBDIR will end 
-up as $(DESTDIR)/usr/lib/<arch-triplet>/python/<version>.
+Currently for my use (which involves more strict configurations than most 
+Debian users have) the only use of run_init is for running newaliases on a 
+Postfix system and for any dpkg commands relating to Postfix (which end up 
+running newaliases in the postinst).
 
-If I override PYTHONLIBDIR to $(DESTDIR)/usr/lib/python/<version> I ends 
-up with sepolicy being installed in 
-$(DESTDIR)/$(DESTDIR)/usr/lib/<arch-triplet>/python/<version> which is 
-not what I want either
+The alternative to this is to allow sendmail when run from an unconfined_t or 
+sysadm_t shell the ability to write to etc_aliases_t.
 
->
->> ---
->>   python/semanage/Makefile | 8 ++++----
->>   1 file changed, 4 insertions(+), 4 deletions(-)
->>
->> diff --git a/python/semanage/Makefile b/python/semanage/Makefile
->> index 60c36a3a..132162bc 100644
->> --- a/python/semanage/Makefile
->> +++ b/python/semanage/Makefile
->> @@ -5,8 +5,8 @@ PREFIX ?= $(DESTDIR)/usr
->>   LIBDIR ?= $(PREFIX)/lib
->>   SBINDIR ?= $(PREFIX)/sbin
->>   MANDIR = $(PREFIX)/share/man
->> -PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" %
->> sys.version_info[0:2])')
->> -PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
->> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig
->> import *; print(get_python_lib(1))")
->> +PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)
->>   BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-
->> completion/completions
->>   
->>   TARGETS=semanage
->> @@ -20,8 +20,8 @@ install: all
->>   	-mkdir -p $(SBINDIR)
->>   	install -m 755 semanage $(SBINDIR)
->>   	install -m 644 *.8 $(MANDIR)/man8
->> -	test -d $(PYTHONLIBDIR)/site-packages || install -m 755 -d
->> $(PYTHONLIBDIR)/site-packages
->> -	install -m 755 seobject.py $(PYTHONLIBDIR)/site-packages
->> +	test -d $(PACKAGEDIR) || install -m 755 -d $(PACKAGEDIR)
->> +	install -m 755 seobject.py $(PACKAGEDIR)
->>   	-mkdir -p $(BASHCOMPLETIONDIR)
->>   	install -m 644 $(BASHCOMPLETIONS)
->> $(BASHCOMPLETIONDIR)/semanage
->>   
+Given the problems with run_init and the lack of use of it it seems that 
+changing the policy to give slightly more access to sendmail would make sense.
+
+Currently we have user_mail_t as the domain for sendmail when run from 
+unconfined_t and user_t.  We need to either have separate domains for this or 
+rely on constraints to prevent a user_r session from writing to etc_aliases_t.
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
