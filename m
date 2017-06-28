@@ -1,267 +1,97 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5S8KMWe026251
- for <selinux@tycho.nsa.gov>; Wed, 28 Jun 2017 04:20:22 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 8903AC04B939
- for <selinux@tycho.nsa.gov>; Wed, 28 Jun 2017 08:20:14 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com
- (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 7975089296
- for <selinux@tycho.nsa.gov>; Wed, 28 Jun 2017 08:20:14 +0000 (UTC)
-Received: from zmail26.collab.prod.int.phx2.redhat.com
- (zmail26.collab.prod.int.phx2.redhat.com [10.5.83.33])
- by colo-mx.corp.redhat.com (Postfix) with ESMTP id 4E5871853E30
- for <selinux@tycho.nsa.gov>; Wed, 28 Jun 2017 08:20:14 +0000 (UTC)
-Date: Wed, 28 Jun 2017 04:20:13 -0400 (EDT)
-From: Jan Zarsky <jzarsky@redhat.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <345392297.27860151.1498638013910.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20170620164520.GB10431@julius.enp8s0.d30>
-References: <1133520246.22847804.1497445285851.JavaMail.zimbra@redhat.com>
- <1497450625.9239.6.camel@tycho.nsa.gov>
- <20170614143541.GB5298@julius.enp8s0.d30>
- <20170614144732.GC5298@julius.enp8s0.d30>
- <340e54c1-3a75-a35f-09ca-d3f831aaa08f@redhat.com>
- <20170616160801.GA19587@julius.enp8s0.d30>
- <19450f92-bf4b-cf20-71d3-9253a4b08cbe@redhat.com>
- <20170620164520.GB10431@julius.enp8s0.d30>
-Subject: Re: Collecting ideas for audit2allow improvement
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Message-ID: <1498656136.1428.8.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] Fix consistency of PYTHONLIBDIR variable
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
+Date: Wed, 28 Jun 2017 09:22:16 -0400
+In-Reply-To: <59aa18b2-5f23-ffe1-ed66-45b4cc4ad3a4@debian.org>
+References: <20170626164651.20452-1-bigon@debian.org>
+ <1498505865.13301.37.camel@tycho.nsa.gov>
+ <59aa18b2-5f23-ffe1-ed66-45b4cc4ad3a4@debian.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thank you all for the feedback, I will now focus on studying the sources and
-I will try to keep you updated on my progress.
+On Mon, 2017-06-26 at 23:58 +0200, Laurent Bigonville wrote:
+> Le 26/06/17 à 21:37, Stephen Smalley a écrit :
+> > On Mon, 2017-06-26 at 18:46 +0200, bigon@debian.org wrote:
+> > > From: Laurent Bigonville <bigon@bigon.be>
+> > > 
+> > > PYTHONLIBDIR is currently not consistant, at one place it's
+> > > influanced
+> > > by DESTDIR an at another one it's not.
+> > > 
+> > > Fix this and make it consistant
+> > 
+> > Seems like it is influenced by DESTDIR before and after this change
+> > (before, PYTHONLIBDIR is defined relative to LIBDIR which is
+> > defined
+> > relative to PREFIX which is define relative to DESTDIR).
+> > 
+> > If I do a make DESTDIR=/path/to/foo install before and after this
+> > change (with an empty /path/to/foo before each run), the only
+> > difference is that it moves from $(DESTDIR)/usr/lib/pythonM.N/site-
+> > packages to $(DESTDIR)/usr/lib64/pythonM.N/site-packages.
+> > 
+> > This makes it consistent with sepolgen but inconsistent with
+> > sepolicy,
+> > which is installed to usr/lib, not usr/lib64.
+> > 
+> > So, I'm unclear on whether this is an improvement.
+> 
+> With the debian build system, LIBDIR is set to 
+> $(DESTDIR)/usr/lib/<arch-triplet> this means that PYTHONLIBDIR will
+> end 
+> up as $(DESTDIR)/usr/lib/<arch-triplet>/python/<version>.
+> 
+> If I override PYTHONLIBDIR to $(DESTDIR)/usr/lib/python/<version> I
+> ends 
+> up with sepolicy being installed in 
+> $(DESTDIR)/$(DESTDIR)/usr/lib/<arch-triplet>/python/<version> which
+> is 
+> not what I want either
 
-> On Mon, Jun 19, 2017 at 11:45:53AM -0400, Daniel Walsh wrote:
-> > On 06/16/2017 12:08 PM, Dominick Grift wrote:
-> > > On Fri, Jun 16, 2017 at 08:21:25AM -0400, Daniel Walsh wrote:
-> > > > On 06/14/2017 10:47 AM, Dominick Grift wrote:
-> > > > > On Wed, Jun 14, 2017 at 04:35:41PM +0200, Dominick Grift wrote:
-> > > > > > On Wed, Jun 14, 2017 at 10:30:25AM -0400, Stephen Smalley wrote:
-> > > > > > > On Wed, 2017-06-14 at 09:01 -0400, Jan Zarsky wrote:
-> > > > > > > > Hi,
-> > > > > > > > 
-> > > > > > > > I would like to improve SELinux audit2allow tool as my bachelor
-> > > > > > > > thesis.
-> > > > > > > > I collected ideas from my colleagues from RedHat SELinux team
-> > > > > > > > and I
-> > > > > > > > would also
-> > > > > > > > like to hear your ideas - what would you improve to make
-> > > > > > > > audit2allow
-> > > > > > > > smarter or
-> > > > > > > > easier to use.
-> > > > > > > > 
-> > > > > > > > Ideas collected so far:
-> > > > > > > > 
-> > > > > > > >     * offer dac_read_search when sufficient instead of
-> > > > > > > >     dac_override
-> > > > > > > >       (see
-> > > > > > > >       <https://github.com/SELinuxProject/selinux/issues/31>)
-> > > > > > > The hard part here is knowing when it is sufficient.  Might
-> > > > > > > require
-> > > > > > > further kernel patches to get to the point where it is completely
-> > > > > > > unambiguous from the audit messages alone.  You could perhaps
-> > > > > > > default
-> > > > > > > to only allowing dac_read_search and only allow dac_override if
-> > > > > > > you see
-> > > > > > > that dac_read_search is already allowed and you are still getting
-> > > > > > > a
-> > > > > > > dac_override denial.
-> > > > > > This should not be an issue anymore. Becuase now (linux v4.12)
-> > > > > > dac_read_search is first checked
-> > > > > > so translating a rule for dac_read_search will always be the most
-> > > > > > secure option. It might not be enough but youll notice if it isnt.
-> > > > > > Just rerun it again and you'll end up with dac_override if needed.
-> > > > > > 
-> > > > > > > >     * offer multiple solutions to a problem (example: 1) add
-> > > > > > > >     allow rule
-> > > > > > > > for
-> > > > > > > >       execute + execute_no_trans or 2) add allow rule for
-> > > > > > > >       execute
-> > > > > > > >       + type_transition rule)
-> > > > > > > Is this type_transition to an existing type that already exists,
-> > > > > > > or
-> > > > > > > defining a new type and transitioning to it, or both?  Generating
-> > > > > > > new
-> > > > > > > domains and types dynamically is one of the major gaps in current
-> > > > > > > audit2allow, and to date has only been supported in separate
-> > > > > > > tools like
-> > > > > > > sepolicy generate.
-> > > > > > One should be extremely careful here. "execute" does not
-> > > > > > automatically imply "execute_no_trans". That assumption can lead
-> > > > > > to disaster (https://www.cvedetails.com/cve/CVE-2015-1815/)
-> > > > > > > >     * interactive mode: ask questions and choose best solution
-> > > > > > > >     * warn when solution touches trusted computing base (rules
-> > > > > > > >     you
-> > > > > > > > should not be
-> > > > > > > >       adding)
-> > > > > > > >     * suggest alternate labels for content, example: httpd_t
-> > > > > > > >     not
-> > > > > > > > allowed to write
-> > > > > > > >       to user_home_t, might suggest that changing the label to
-> > > > > > > >       httpd_user_content_t
-> > > > > > > This seems more along the lines of what setroubleshoot does, and
-> > > > > > > tends
-> > > > > > > to be policy-specific. We need to preserve the usability of
-> > > > > > > audit2allow
-> > > > > > > for other policies (e.g. Android, DSSP), so any policy-specific
-> > > > > > > logic
-> > > > > > > needs to be encapsulated, configuration-driven, and optional.
-> > > > > > setroubleshoot is not smart enough to suggest httpd_user_content_t,
-> > > > > > instead it suggest you allow full access to /home/* by toggling
-> > > > > > the boolean that grants access to user home content.
-> > > > > > 
-> > > > > > I know this from experience. There was a bug in fedora's
-> > > > > > apache_user_content_template for more than a year and hardly
-> > > > > > anyone noticed it, probably because setroubleshoot would have just
-> > > > > > suggested you allow full access to user home content.
-> > > > > https://bugzilla.redhat.com/show_bug.cgi?id=1457406
-> > > > I actually think the suggest a accessible type is  the best
-> > > > improvement.
-> > > > audit2allow has defaulted for years to suggesting adding allow rules,
-> > > > usually the worst solution.  Later we added boolean support, which was
-> > > > better but as you point out the not a great solution in a lot of cases.
-> > > The "best" improvement. I agree, but that say's more about the overal
-> > > state of things than about the quality of this particular improvement.
+Ok, if you really want this change, please re-submit with a Signed-off-
+by line.
+
+> 
+> > 
+> > > ---
+> > >   python/semanage/Makefile | 8 ++++----
+> > >   1 file changed, 4 insertions(+), 4 deletions(-)
 > > > 
-> > > The guy in the tweet was overwhelmed and intimidated by the large list of
-> > > "accessible" types returned by setroubleshoot (and audit2allow would
-> > > probably do the same)
-> > > Also things arent as simple, its not just about "what type grants the
-> > > access needed to my domain". Other domains access to that type should
-> > > also be considered.
-> > Which is why I suggested we filter it down to a list that has the same
-> > prefix.  Also I think we should at least stick in the beginning to
-> > permissions that can effect the content of data, rather then just reveal
-> > the
-> > content.
-> > 
-> > write, append, add_name unlink setattr, remove_name rmdir link create ...
-> > 
-> > I think anything we can do to making it easier for the user to get a proper
-> > type, would be really helpful.
-> > > > Most AVC's are caused by mislabeled files or processes.  Having
-> > > > audit2allow
-> > > > attempt to examine the policy and figure out which types would have
-> > > > been
-> > > > allowed with some simple sorting rules might be a big improvement.
-> > > audit2allow INHO shouldnt "examine" the policy (at least not in any
-> > > significant way) because it cannot do it right. audit2allow should just
-> > > stick with the basics + audit2why.
-> > > 
-> > > audit2why is the only functionality that works reasonably well. provided
-> > > that some of the more recent "improvements" to audit2why get removed.
-> > audit2why does nothing to reveal the crutch of the problem, SELinux is a
-> > Labeling system, if things go wrong, most of the time the labels are wrong.
-> > audit2allow/audit2why does not consider this. THis is why you get a boolean
-> > suggestion as the first outcome.
-> > 
-> > I believe the checks should be
-> > 
-> > 1. Is the target mislabeled?  If yes, suggest restorecon, ( I believe it
-> > already does this)
-> > 2. If this is a modification permission, suggest a type if one exists that
-> > matches the the prefix of the source type.  This helps a lot with people
-> > using default_t types, or types labeled var_log_t or var_lib_t.  Somewhat
-> > with user_home_t.
-> > 3. Look for a boolean to satisfy the needs.
-> > 4. Suggest audit2allow -M mypol
-> > 
-> > There are probably a couple of other things that could happen.
-> 
-> Call me a pessimist but I have my doubts that some code will ever be able to
-> consistently ask SELinux the right questions on behalf of users to get the
-> right answers for the users.
-> 
-> I suspect that the more sustainable approach would be to somehow enhance,
-> or/and build on setools to make it even easier and more enjoyable to use so
-> that people can use it to make sound decisions, rather than to rely on some
-> code to ask the questions on the users behalf by facilitation but leave the
-> subjective aspects to users (make it easier for users to ask the questions,
-> but do not try to ask the questions on the users behalf)
-> 
-> I wish that some code could be intelligent enough to consistently suggest the
-> best solutions, but i suppose best is subjective, and not sure whether
-> computers are good at making rational decisions or good at rational thinking
-> 
-> One can literaly pour infinite resources into trying to make what seems to be
-> impossible possible or one could spend these valuable resources to improving
-> things that helps everyone: find ways to *improve* setools (make it more
-> enjoyable to use and thereby stimulating people to think about security
-> more)
-> 
-> > 
-> > 
-> > > > Avc denying httpd_t ability to write to httpd_sys_content_t.
-> > > > 
-> > > > audit2allow should examine policy and figure out which domains httpd_t
-> > > > can
-> > > > write to with the current policy settings.  Then it should sort the
-> > > > solutions based on the characters of the sources context.  Perhaps
-> > > > chopping
-> > > > a characters off, maybe down to 3.
-> > > > 
-> > > >   sesearch -A -s httpd_t -p write -c | cut -f1 -d ":"  | cut -d" " -f 3
-> > > >   |
-> > > > sort -u | grep httpd
-> > > > httpd_cache_t
-> > > > httpdcontent
-> > > > httpd_lock_t
-> > > > httpd_squirrelmail_t
-> > > > httpd_sys_rw_content_t
-> > > > httpd_t
-> > > > httpd_tmpfs_t
-> > > > httpd_tmp_t
-> > > > httpd_user_rw_content_t
-> > > > httpd_var_lib_t
-> > > > httpd_var_run_t
-> > > > 
-> > > > Now eliminate the non file types, removes httpd_t.
-> > > > 
-> > > > That would give the user a much better chance of solving the problem
-> > > > without
-> > > > becoming policy specific.
-> > > It cannot do this right. If you look to be bugzilla i pasted above:
-> > > 
-> > > All that was needed was to allow the httpd_t domain access to read dirs
-> > > with the httpd_sys_content_t type. sealert couldnt figure this out
-> > > and instead it suggested that he toggle the "httpd_use_user_content"
-> > > boolean instead, which would grant httpd_t broad access to user home
-> > > content, and defeat the purpose of "httpd_user_content_t"
-> > > 
-> > > > Now if you wanted to become a little more smart, you could look at the
-> > > > second field of the label, and have a table that says "var" indicates
-> > > > the
-> > > > path begins with /var and "tmp" indicates a directory that ends with
-> > > > tmp.
-> > > > But users could probably determine this.
-> > > > 
-> > > > 
-> > > > 
-> > > > 
-> > > > Sort by types starting with httpd, http, htt
-> > > The audience that uses this functionality get intimidated by the large
-> > > lists of types that are returned and various "solutions" returned.
-> > > plus often times the solutions returned are sub-optimal, but the user
-> > > doesnt know this.
-> > > 
-> > > Seasoned users will only use audit2allow for simple things like
-> > > translation of avc to raw rules (maybe resolving of interfaces but this
-> > > is prone to bad results as well). quickly determining whether its a
-> > > missing TE rule, boolean, or constraint. These users will use setools to
-> > > do further analysis
-> > > 
-> > 
-> 
-> --
-> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-> Dominick Grift
-> 
+> > > diff --git a/python/semanage/Makefile b/python/semanage/Makefile
+> > > index 60c36a3a..132162bc 100644
+> > > --- a/python/semanage/Makefile
+> > > +++ b/python/semanage/Makefile
+> > > @@ -5,8 +5,8 @@ PREFIX ?= $(DESTDIR)/usr
+> > >   LIBDIR ?= $(PREFIX)/lib
+> > >   SBINDIR ?= $(PREFIX)/sbin
+> > >   MANDIR = $(PREFIX)/share/man
+> > > -PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d"
+> > > %
+> > > sys.version_info[0:2])')
+> > > -PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
+> > > +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig
+> > > import *; print(get_python_lib(1))")
+> > > +PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)
+> > >   BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-
+> > > completion/completions
+> > >   
+> > >   TARGETS=semanage
+> > > @@ -20,8 +20,8 @@ install: all
+> > >   	-mkdir -p $(SBINDIR)
+> > >   	install -m 755 semanage $(SBINDIR)
+> > >   	install -m 644 *.8 $(MANDIR)/man8
+> > > -	test -d $(PYTHONLIBDIR)/site-packages || install -m 755
+> > > -d
+> > > $(PYTHONLIBDIR)/site-packages
+> > > -	install -m 755 seobject.py $(PYTHONLIBDIR)/site-packages
+> > > +	test -d $(PACKAGEDIR) || install -m 755 -d $(PACKAGEDIR)
+> > > +	install -m 755 seobject.py $(PACKAGEDIR)
+> > >   	-mkdir -p $(BASHCOMPLETIONDIR)
+> > >   	install -m 644 $(BASHCOMPLETIONS)
+> > > $(BASHCOMPLETIONDIR)/semanage
+> > >   
