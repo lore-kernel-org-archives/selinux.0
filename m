@@ -1,97 +1,52 @@
-Message-ID: <1498656136.1428.8.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] Fix consistency of PYTHONLIBDIR variable
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-Date: Wed, 28 Jun 2017 09:22:16 -0400
-In-Reply-To: <59aa18b2-5f23-ffe1-ed66-45b4cc4ad3a4@debian.org>
-References: <20170626164651.20452-1-bigon@debian.org>
- <1498505865.13301.37.camel@tycho.nsa.gov>
- <59aa18b2-5f23-ffe1-ed66-45b4cc4ad3a4@debian.org>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+To: selinux@tycho.nsa.gov
+Cc: nicolas.iooss@m4x.org, bigon@debian.org,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux,libsemanage: fix RUBYLIBS definition
+Date: Wed, 28 Jun 2017 09:38:23 -0400
+Message-Id: <20170628133823.7068-1-sds@tycho.nsa.gov>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-06-26 at 23:58 +0200, Laurent Bigonville wrote:
-> Le 26/06/17 à 21:37, Stephen Smalley a écrit :
-> > On Mon, 2017-06-26 at 18:46 +0200, bigon@debian.org wrote:
-> > > From: Laurent Bigonville <bigon@bigon.be>
-> > > 
-> > > PYTHONLIBDIR is currently not consistant, at one place it's
-> > > influanced
-> > > by DESTDIR an at another one it's not.
-> > > 
-> > > Fix this and make it consistant
-> > 
-> > Seems like it is influenced by DESTDIR before and after this change
-> > (before, PYTHONLIBDIR is defined relative to LIBDIR which is
-> > defined
-> > relative to PREFIX which is define relative to DESTDIR).
-> > 
-> > If I do a make DESTDIR=/path/to/foo install before and after this
-> > change (with an empty /path/to/foo before each run), the only
-> > difference is that it moves from $(DESTDIR)/usr/lib/pythonM.N/site-
-> > packages to $(DESTDIR)/usr/lib64/pythonM.N/site-packages.
-> > 
-> > This makes it consistent with sepolgen but inconsistent with
-> > sepolicy,
-> > which is installed to usr/lib, not usr/lib64.
-> > 
-> > So, I'm unclear on whether this is an improvement.
-> 
-> With the debian build system, LIBDIR is set to 
-> $(DESTDIR)/usr/lib/<arch-triplet> this means that PYTHONLIBDIR will
-> end 
-> up as $(DESTDIR)/usr/lib/<arch-triplet>/python/<version>.
-> 
-> If I override PYTHONLIBDIR to $(DESTDIR)/usr/lib/python/<version> I
-> ends 
-> up with sepolicy being installed in 
-> $(DESTDIR)/$(DESTDIR)/usr/lib/<arch-triplet>/python/<version> which
-> is 
-> not what I want either
+The RUBYLIBS definition introduced by commit f5b9bc2a06cc165e
+("libselinux,libsemanage: link Ruby wrappers with -lruby") did
+not work on Debian.  Fix it based on a patch by Nicolas Iooss.
 
-Ok, if you really want this change, please re-submit with a Signed-off-
-by line.
+Reported-by: Laurent Bigonville <bigon@debian.org>
+Suggested-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/src/Makefile  | 2 +-
+ libsemanage/src/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-> 
-> > 
-> > > ---
-> > >   python/semanage/Makefile | 8 ++++----
-> > >   1 file changed, 4 insertions(+), 4 deletions(-)
-> > > 
-> > > diff --git a/python/semanage/Makefile b/python/semanage/Makefile
-> > > index 60c36a3a..132162bc 100644
-> > > --- a/python/semanage/Makefile
-> > > +++ b/python/semanage/Makefile
-> > > @@ -5,8 +5,8 @@ PREFIX ?= $(DESTDIR)/usr
-> > >   LIBDIR ?= $(PREFIX)/lib
-> > >   SBINDIR ?= $(PREFIX)/sbin
-> > >   MANDIR = $(PREFIX)/share/man
-> > > -PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d"
-> > > %
-> > > sys.version_info[0:2])')
-> > > -PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
-> > > +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig
-> > > import *; print(get_python_lib(1))")
-> > > +PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)
-> > >   BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-
-> > > completion/completions
-> > >   
-> > >   TARGETS=semanage
-> > > @@ -20,8 +20,8 @@ install: all
-> > >   	-mkdir -p $(SBINDIR)
-> > >   	install -m 755 semanage $(SBINDIR)
-> > >   	install -m 644 *.8 $(MANDIR)/man8
-> > > -	test -d $(PYTHONLIBDIR)/site-packages || install -m 755
-> > > -d
-> > > $(PYTHONLIBDIR)/site-packages
-> > > -	install -m 755 seobject.py $(PYTHONLIBDIR)/site-packages
-> > > +	test -d $(PACKAGEDIR) || install -m 755 -d $(PACKAGEDIR)
-> > > +	install -m 755 seobject.py $(PACKAGEDIR)
-> > >   	-mkdir -p $(BASHCOMPLETIONDIR)
-> > >   	install -m 644 $(BASHCOMPLETIONS)
-> > > $(BASHCOMPLETIONDIR)/semanage
-> > >   
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index ea91260..2408fae 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -17,7 +17,7 @@ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+ PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
+ PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
+ RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+-RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -lruby"')
++RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+ RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+ LIBBASE ?= $(shell basename $(LIBDIR))
+ LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index f01385c..fdb178f 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -17,7 +17,7 @@ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+ PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
+ PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
+ RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+-RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -lruby"')
++RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+ RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+ 
+ LIBBASE=$(shell basename $(LIBDIR))
+-- 
+2.9.4
