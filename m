@@ -1,40 +1,51 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5UHmw0a026680
- for <selinux@tycho.nsa.gov>; Fri, 30 Jun 2017 13:48:58 -0400
-Message-ID: <1498845208.16913.17.camel@tycho.nsa.gov>
-Subject: ANN: SELinux userspace 2.7-rc4 release candidate
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Fri, 30 Jun 2017 13:53:28 -0400
-In-Reply-To: <1498237648.2063.4.camel@tycho.nsa.gov>
-References: <1497028696.26846.9.camel@tycho.nsa.gov>
- <1498237648.2063.4.camel@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5UMUQMc011498
+ for <selinux@tycho.nsa.gov>; Fri, 30 Jun 2017 18:30:26 -0400
+Received: by mail-lf0-f67.google.com with SMTP id g21so11012892lfk.1
+ for <selinux@tycho.nsa.gov>; Fri, 30 Jun 2017 15:30:21 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <201706302210.GCA05089.MFFOtQVJSOLHOF@I-love.SAKURA.ne.jp>
+References: <20170630075614.ywv3y3tptor5ox7g@mwanda>
+ <1498826894.16913.1.camel@tycho.nsa.gov>
+ <201706302210.GCA05089.MFFOtQVJSOLHOF@I-love.SAKURA.ne.jp>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 30 Jun 2017 18:30:19 -0400
+Message-ID: <CAHC9VhTpBEJE3oYShNMNrLP7sL5hM2aSLDAcoLn0TMhpMma8Yg@mail.gmail.com>
+Subject: Re: [PATCH] selinux: return -ENOMEM if kzalloc() fails
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, dan.carpenter@oracle.com,
+ danielj@mellanox.com, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ kernel-janitors@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-A fourth (and hopefully final) release candidate for the SELinux
-userspace is now available at:
-https://github.com/SELinuxProject/selinux/wiki/Releases
+On Fri, Jun 30, 2017 at 9:10 AM, Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> Stephen Smalley wrote:
+>> On Fri, 2017-06-30 at 10:56 +0300, Dan Carpenter wrote:
+>> > We accidentally return success instead of -ENOMEM on this failure
+>> > path.
+>> >
+>> > Fixes: 409dcf31538a ("selinux: Add a cache for quicker retreival of
+>> > PKey SIDs")
+>> > Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+>>
+>> NAK, that's intentional.  See the comment just above the code in
+>> question.
+>
+> If allocation failure is no problem, please consider using
+> GFP_NOWAIT | __GFP_NOMEMALLOC | __GFP_NOWARN instead of
+> GFP_ATOMIC, for memory reserves is mainly targeted for OOM victims.
 
-Please give it a test and let us know if there are any issues.
-Barring any significant further changes, a final 2.7 release is likely
-the week of July 10th.
+I have a todo item to try and consolidate some of the SELinux object
+cache code, this seems like something worth experimenting with when
+that happens.
 
-Changes from the -rc3 release:
-
-Laurent Bigonville (1):
-      Fix consistency of PYTHONLIBDIR variable across modules
-
-Nicolas Iooss (3):
-      Travis-CI: update the list of Ruby's and Python's versions
-      libsepol/tests: override CPPFLAGS too
-      Travis-CI: test defining CFLAGS, LDFLAGS, etc. on make command
-line
-
-Stephen Smalley (2):
-      libselinux,libsemanage: fix RUBYLIBS definition
-      Update VERSION files for 2.7-rc4 release.
+-- 
+paul moore
+www.paul-moore.com
