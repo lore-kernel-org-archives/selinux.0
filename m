@@ -1,10 +1,14 @@
-Message-ID: <1498841831.16913.15.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] Fix consistency of PYTHONLIBDIR variable across modules
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v5UHmw0a026680
+ for <selinux@tycho.nsa.gov>; Fri, 30 Jun 2017 13:48:58 -0400
+Message-ID: <1498845208.16913.17.camel@tycho.nsa.gov>
+Subject: ANN: SELinux userspace 2.7-rc4 release candidate
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
-Date: Fri, 30 Jun 2017 12:57:11 -0400
-In-Reply-To: <20170630160916.14755-1-bigon@debian.org>
-References: <20170630160916.14755-1-bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Date: Fri, 30 Jun 2017 13:53:28 -0400
+In-Reply-To: <1498237648.2063.4.camel@tycho.nsa.gov>
+References: <1497028696.26846.9.camel@tycho.nsa.gov>
+ <1498237648.2063.4.camel@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -12,48 +16,25 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-06-30 at 18:09 +0200, Laurent Bigonville wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
-> 
-> PYTHONLIBDIR is currently also used in sepolgen but has a different
-> behaviour regarding DESTDIR. Let's try to make this consistant.
-> 
-> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+A fourth (and hopefully final) release candidate for the SELinux
+userspace is now available at:
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-Thanks, applied
+Please give it a test and let us know if there are any issues.
+Barring any significant further changes, a final 2.7 release is likely
+the week of July 10th.
 
-> ---
->  python/semanage/Makefile | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/python/semanage/Makefile b/python/semanage/Makefile
-> index 60c36a3a..132162bc 100644
-> --- a/python/semanage/Makefile
-> +++ b/python/semanage/Makefile
-> @@ -5,8 +5,8 @@ PREFIX ?= $(DESTDIR)/usr
->  LIBDIR ?= $(PREFIX)/lib
->  SBINDIR ?= $(PREFIX)/sbin
->  MANDIR = $(PREFIX)/share/man
-> -PYLIBVER ?= $(shell $(PYTHON) -c 'import sys;print("python%d.%d" %
-> sys.version_info[0:2])')
-> -PYTHONLIBDIR ?= $(LIBDIR)/$(PYLIBVER)
-> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig
-> import *; print(get_python_lib(1))")
-> +PACKAGEDIR ?= $(DESTDIR)/$(PYTHONLIBDIR)
->  BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-
-> completion/completions
->  
->  TARGETS=semanage
-> @@ -20,8 +20,8 @@ install: all
->  	-mkdir -p $(SBINDIR)
->  	install -m 755 semanage $(SBINDIR)
->  	install -m 644 *.8 $(MANDIR)/man8
-> -	test -d $(PYTHONLIBDIR)/site-packages || install -m 755 -d
-> $(PYTHONLIBDIR)/site-packages
-> -	install -m 755 seobject.py $(PYTHONLIBDIR)/site-packages
-> +	test -d $(PACKAGEDIR) || install -m 755 -d $(PACKAGEDIR)
-> +	install -m 755 seobject.py $(PACKAGEDIR)
->  	-mkdir -p $(BASHCOMPLETIONDIR)
->  	install -m 644 $(BASHCOMPLETIONS)
-> $(BASHCOMPLETIONDIR)/semanage
->  
+Changes from the -rc3 release:
+
+Laurent Bigonville (1):
+      Fix consistency of PYTHONLIBDIR variable across modules
+
+Nicolas Iooss (3):
+      Travis-CI: update the list of Ruby's and Python's versions
+      libsepol/tests: override CPPFLAGS too
+      Travis-CI: test defining CFLAGS, LDFLAGS, etc. on make command
+line
+
+Stephen Smalley (2):
+      libselinux,libsemanage: fix RUBYLIBS definition
+      Update VERSION files for 2.7-rc4 release.
