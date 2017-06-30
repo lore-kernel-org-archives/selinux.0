@@ -1,15 +1,12 @@
-Message-ID: <1498826894.16913.1.camel@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: return -ENOMEM if kzalloc() fails
+Message-ID: <1498827464.16913.2.camel@tycho.nsa.gov>
+Subject: Re: [PATCH 3/3] Travis-CI: test defining CFLAGS, LDFLAGS, etc. on
+ make command line
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Dan Carpenter <dan.carpenter@oracle.com>, Paul Moore <paul@paul-moore.com>,
- Daniel Jurgens <danielj@mellanox.com>
-Cc: Eric Paris <eparis@parisplace.org>, James Morris
- <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, kernel-janitors@vger.kernel.org
-Date: Fri, 30 Jun 2017 08:48:14 -0400
-In-Reply-To: <20170630075614.ywv3y3tptor5ox7g@mwanda>
-References: <20170630075614.ywv3y3tptor5ox7g@mwanda>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Fri, 30 Jun 2017 08:57:44 -0400
+In-Reply-To: <20170628214221.9288-3-nicolas.iooss@m4x.org>
+References: <20170628214221.9288-1-nicolas.iooss@m4x.org>
+ <20170628214221.9288-3-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -17,32 +14,93 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2017-06-30 at 10:56 +0300, Dan Carpenter wrote:
-> We accidentally return success instead of -ENOMEM on this failure
-> path.
+On Wed, 2017-06-28 at 23:42 +0200, Nicolas Iooss wrote:
+> Some Makefiles rely on adding values to variables like CFLAGS,
+> LDFLAGS, etc. For example doing "LDFLAGS += -L../src" does not work
+> fine
+> when LDFLAGS is defined on the command line of "make".
 > 
-> Fixes: 409dcf31538a ("selinux: Add a cache for quicker retreival of
-> PKey SIDs")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Commits 297877ab88ee ("libselinux utils: override LD{FLAGS, LIBS} for
+> libselinux.so in Makefile") and 15f274073322 ("Makefiles: override
+> *FLAGS and *LIBS") recently fixed such issues, by introducing keyword
+> "override" in the relevant Makefile statements.
+> 
+> In order to prevent the fixed issues from appearing again, add a test
+> case in Travis-CI configuration file. This case adds on make's
+> command
+> line minimal definitions for CFLAGS and LDFLAGS and empty definitions
+> for CPPFLAGS and LDLIBS.
+> 
+> An example of build failure due to a missing override in a required
+> CPPFLAGS addition is provided on
+> https://travis-ci.org/fishilico/selinux/builds/245107609
 
-NAK, that's intentional.  See the comment just above the code in
-question.
+Thanks, applied all three.
 
 > 
-> diff --git a/security/selinux/ibpkey.c b/security/selinux/ibpkey.c
-> index e3614ee5f1c0..36e61f622b5a 100644
-> --- a/security/selinux/ibpkey.c
-> +++ b/security/selinux/ibpkey.c
-> @@ -160,8 +160,10 @@ static int sel_ib_pkey_sid_slow(u64
-> subnet_prefix, u16 pkey_num, u32 *sid)
->  	 * is valid, it just won't be added to the cache.
->  	 */
->  	new = kzalloc(sizeof(*new), GFP_ATOMIC);
-> -	if (!new)
-> +	if (!new) {
-> +		ret = -ENOMEM;
->  		goto out;
-> +	}
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  .travis.yml | 16 ++++++++++------
+>  1 file changed, 10 insertions(+), 6 deletions(-)
+> 
+> diff --git a/.travis.yml b/.travis.yml
+> index 573e73322e28..481ea7dae8bb 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -12,6 +12,7 @@ env:
+>    matrix:
+>      # Test the last version of Python and Ruby together, with some
+> linkers
+>      - PYVER=python3.6 RUBYLIBVER=2.4
+> +    - PYVER=python3.6 RUBYLIBVER=2.4 TEST_FLAGS_OVERRIDE=1
+>      - PYVER=python3.6 RUBYLIBVER=2.4 LINKER=gold
+>      - PYVER=python3.6 RUBYLIBVER=2.4 LINKER=bfd
 >  
->  	new->psec.subnet_prefix = subnet_prefix;
->  	new->psec.pkey = pkey_num;
+> @@ -96,14 +97,17 @@ before_script:
+>    - echo "$PYTHON" ; $PYTHON --version
+>    - echo "$RUBY" ; $RUBY --version
+>  
+> +  # If TEST_FLAGS_OVERRIDE is defined, test that overriding CFLAGS,
+> LDFLAGS and other variables works fine
+> +  - if [ -n "$TEST_FLAGS_OVERRIDE" ]; then
+> EXPLICIT_MAKE_VARS="CFLAGS=-I$DESTDIR/usr/include LDFLAGS=-
+> L$DESTDIR/usr/lib LDLIBS= CPPFLAGS=" ; fi
+> +
+>  script:
+>    # Start by installing everything into $DESTDIR
+> -  - make install -k
+> -  - make install-pywrap -k
+> -  - make install-rubywrap -k
+> +  - make install $EXPLICIT_MAKE_VARS -k
+> +  - make install-pywrap $EXPLICIT_MAKE_VARS -k
+> +  - make install-rubywrap $EXPLICIT_MAKE_VARS -k
+>  
+>    # Now that everything is installed, run "make all" to build
+> everything which may have not been built
+> -  - make all -k
+> +  - make all $EXPLICIT_MAKE_VARS -k
+>  
+>    # Set up environment variables for the tests
+>    - export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
+> @@ -118,7 +122,7 @@ script:
+>    - echo "$RUBYLIB"
+>  
+>    # Run tests
+> -  - make test
+> +  - make test $EXPLICIT_MAKE_VARS
+>  
+>    # Test Python and Ruby wrappers
+>    - $PYTHON -c 'import selinux;import selinux.audit2why;import
+> semanage;print(selinux.is_selinux_enabled())'
+> @@ -132,7 +136,7 @@ script:
+>      git status --short | sed -n 's/^??/error: missing .gitignore
+> entry for/p' | (! grep '^')
+>  
+>    # Clean up everything and show which file would be added to "make
+> clean"
+> -  - make clean distclean
+> +  - make clean distclean $EXPLICIT_MAKE_VARS
+>    - |-
+>      git ls-files --ignored --others --exclude-standard | sed
+> 's/^/error: "make clean distclean" did not remove /' | (! grep '^')
+>  
