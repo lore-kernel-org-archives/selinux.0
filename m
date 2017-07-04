@@ -1,100 +1,96 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v61Jfxw3019771
- for <selinux@tycho.nsa.gov>; Sat, 1 Jul 2017 15:42:00 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v646YgY3019283
+ for <selinux@tycho.nsa.gov>; Tue, 4 Jul 2017 02:34:42 -0400
+Date: Tue, 4 Jul 2017 09:34:36 +0300
+From: Leon Romanovsky <leon@kernel.org>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Dan Jurgens <danielj@mellanox.com>, dan.carpenter@oracle.com,
+ dledford@redhat.com, selinux@tycho.nsa.gov, linux-rdma@vger.kernel.org,
+ yevgenyp@mellanox.com
 Subject: Re: [PATCH] IB/core: Fix static analysis warning in
  ib_policy_change_task
-To: Paul Moore <paul@paul-moore.com>, Dan Jurgens <danielj@mellanox.com>,
- linux-rdma@vger.kernel.org
-Cc: dan.carpenter@oracle.com, selinux@tycho.nsa.gov, yevgenyp@mellanox.com
+Message-ID: <20170704063435.GA1528@mtr-leonro.local>
 References: <1498835756-7610-1-git-send-email-danielj@mellanox.com>
- <CAHC9VhQC4VO2W6TCOWxKdfsra=fG12ZYXaJdKQJVXtLz92XtoA@mail.gmail.com>
-From: Doug Ledford <dledford@redhat.com>
-Message-ID: <5fd731d6-a5ae-9894-be72-8a5d41603206@redhat.com>
-Date: Sat, 1 Jul 2017 15:41:20 -0400
+ <CAHC9VhQcSfuMxZoAiTW8c-MNf6m0gLk_xArC7HkjR+5ZJgtgPA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQC4VO2W6TCOWxKdfsra=fG12ZYXaJdKQJVXtLz92XtoA@mail.gmail.com>
 Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="3rLUJN3oIBdptVq0e4pKg6tl7rrrn0twl"
+ protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+In-Reply-To: <CAHC9VhQcSfuMxZoAiTW8c-MNf6m0gLk_xArC7HkjR+5ZJgtgPA@mail.gmail.com>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---3rLUJN3oIBdptVq0e4pKg6tl7rrrn0twl
-Content-Type: multipart/mixed; boundary="e6HxkGdJUUw8w7GbEPiXeSpA5claJthx4";
- protected-headers="v1"
-From: Doug Ledford <dledford@redhat.com>
-To: Paul Moore <paul@paul-moore.com>, Dan Jurgens <danielj@mellanox.com>,
- linux-rdma@vger.kernel.org
-Cc: dan.carpenter@oracle.com, selinux@tycho.nsa.gov, yevgenyp@mellanox.com
-Message-ID: <5fd731d6-a5ae-9894-be72-8a5d41603206@redhat.com>
-Subject: Re: [PATCH] IB/core: Fix static analysis warning in
- ib_policy_change_task
-References: <1498835756-7610-1-git-send-email-danielj@mellanox.com>
- <CAHC9VhQC4VO2W6TCOWxKdfsra=fG12ZYXaJdKQJVXtLz92XtoA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQC4VO2W6TCOWxKdfsra=fG12ZYXaJdKQJVXtLz92XtoA@mail.gmail.com>
 
---e6HxkGdJUUw8w7GbEPiXeSpA5claJthx4
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 7/1/2017 9:42 AM, Paul Moore wrote:
-> On Fri, Jun 30, 2017 at 11:15 AM, Dan Jurgens <danielj@mellanox.com> wr=
-ote:
->> From: Daniel Jurgens <danielj@mellanox.com>
->>
->> ib_get_cached_subnet_prefix can technically fail, but the only way it
->> could is not possible based on the loop conditions. Check the return
->> value before using the variable sp to resolve a static analysis warnin=
-g.
->>
->> Fixes: 8f408ab64be6 ("selinux lsm IB/core: Implement LSM notification
->> system")
->> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
->> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
->> ---
->>  drivers/infiniband/core/device.c | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> Similar question as with the other fix: SELinux tree or IB/RDMA tree?
->=20
+On Mon, Jul 03, 2017 at 07:03:54PM -0400, Paul Moore wrote:
+> On Fri, Jun 30, 2017 at 11:15 AM, Dan Jurgens <danielj@mellanox.com> wrote:
+> > From: Daniel Jurgens <danielj@mellanox.com>
+> >
+> > ib_get_cached_subnet_prefix can technically fail, but the only way it
+> > could is not possible based on the loop conditions. Check the return
+> > value before using the variable sp to resolve a static analysis warning.
+> >
+> > Fixes: 8f408ab64be6 ("selinux lsm IB/core: Implement LSM notification
+> > system")
+> > Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+> > Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> > ---
+> >  drivers/infiniband/core/device.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+> > index 631eaa9..dabd9f9 100644
+> > --- a/drivers/infiniband/core/device.c
+> > +++ b/drivers/infiniband/core/device.c
+> > @@ -376,7 +376,8 @@ static void ib_policy_change_task(struct work_struct *work)
+> >                         WARN_ONCE(ret,
+> >                                   "ib_get_cached_subnet_prefix err: %d, this should never happen here\n",
+> >                                   ret);
+> > -                       ib_security_cache_change(dev, i, sp);
+> > +                       if (ret)
+>
+> Should this be "if (!ret)"?
 
-The SELinux tree will be fine with me.
+You are right, It should.
 
---=20
-Doug Ledford <dledford@redhat.com>
-    GPG Key ID: B826A3330E572FDD
-    Key fingerprint =3D AE6B 1BDA 122B 23B4 265B  1274 B826 A333 0E57 2FD=
-D
+Thanks
 
+>
+> > +                               ib_security_cache_change(dev, i, sp);
+> >                 }
+> >         }
+> >         up_read(&lists_rwsem);
+>
+> --
+> paul moore
+> www.paul-moore.com
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-rdma" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
---e6HxkGdJUUw8w7GbEPiXeSpA5claJthx4--
-
---3rLUJN3oIBdptVq0e4pKg6tl7rrrn0twl
+--NzB8fVQJ5HfG6fxh
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iQIcBAEBCAAGBQJZV/rmAAoJELgmozMOVy/dAioP/Au7nHalUokmVh9G449zRfUo
-9qpNvuAqhldr3iwN8Lvl1X8ptdR1SipF7rKBeREbPd/3vGrWkdGdFP77zptCN3YJ
-nKck93KMhfs97zl/9LmsTjjrc1ne5S3uJczntscQAbtqVf11+7OKxLaFAsPJ+BtM
-WzIO9v7AKy2kYH2lHHxLhslynYq/9XgwXGbnAGD/Mla2rm5cuytF0EpVkY2tkEHU
-73N6KjfzTSr1z/7DME7MHpCTiPtJ7twidblgOk7l9AYyfDh5ktECOj1fzHgA4x8B
-MJutfyr6gk77FYOgftR7JL75KKd0uE0LHWn+Arb/UZsclyhFX41sYbO8Kh6+TBgc
-/OZj/A961slT7PBi/S4jShsJVpwLcAaSO6EpurbqPB9hBerGJHSughkRdz9wG6dz
-qi5DdVxCw4Iz56oELhdB28KwVrs2oyzRPuSI1X5XjTRVyuJQEEsCJNPU8kfwetLv
-/rEqgnjHdx5927dKk+I72P5OGIN0k9wT28TF80K4sClVn5HHoAgjqaBrpQetx/rd
-T9kuhaOwGd4rEhk/zWpbng84XlP2VoC/ek5TzRmjKd3xIkGlCTMqSr3n+sEHB1J3
-PQY+PVRoMRFpJYGP+CosPdYFpYkdLmTwhiI9N2h1mOZRtXVNyC39fpwM7Q/vGiYX
-KE/G3ArrZiFrNTA26O3g
-=p+/x
+iQIzBAEBCAAdFiEEkhr/r4Op1/04yqaB5GN7iDZyWKcFAllbNvsACgkQ5GN7iDZy
+WKftRA/+LDnqyAdcldRnkQa//Lp0m17QoAVLRo3OQyIhQO7oZ22CaBJkXZ7JdibU
+jCgYxPMFIlqle63irLn/T0k3zwpBJ3WpX6q30dCqrVIiGP8mRkQNwZvxd3FLUaqK
+b5VO6LLJWkCoWBaZ/yV4c9BIwUuNO4185S2VsV9tA8kFrUmCxlSx6BNBBCJqR9Xn
+U11vdUFE7qEwfq+8Vviz1eJ3kBXKXvqBBrTXm6DfUzLxZxna9VooOYSxijt1goil
+ztNvArUc81z8mqS+1JBHbEtXFPtV+ifh0iLqjrmrSpy3E5BnAGC847N4KzeMFlfr
+hvJbkMWRMsTy+FnOFtlxK3m1c8x3MCniHMEcC44HHWBYvk+wc7HAmYAdzYAZxNbq
+mlon/SZIjfxnWpWmitcYoRpY6TDjq8BH3H+BcP42MNJwA5doYlbzzup8E1kbRR1z
+9TvvIRVtCsbVmWksNB/qxN4510n7rsio23sDu1Fm/J23PNNI3GmLFfGY7/Z+SXdc
+mcuOVxQGr2qD5K7rOKPBCnerwDBcZy0kqOpHF2CpwTRV5Y9s3jPa9FcDr13lxN9l
+B7gFF8MykRD4oSsTM1xc6tTyo7d9xmXSLWUDGupHVxETsFLbJrgg1k2lAh9SLnAT
+uHWoxxJS3z7yLRz05GhPecay2hpDo4xSGtosYCzjPAuheJlrY/0=
+=Fzj6
 -----END PGP SIGNATURE-----
 
---3rLUJN3oIBdptVq0e4pKg6tl7rrrn0twl--
+--NzB8fVQJ5HfG6fxh--
