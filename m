@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6A7vipx011214
- for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 03:57:45 -0400
-Received: by mail-pf0-f169.google.com with SMTP id q86so45938774pfl.3
- for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 00:57:42 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6A7vlbv011240
+ for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 03:57:47 -0400
+Received: by mail-pg0-f45.google.com with SMTP id j186so45440293pge.2
+ for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 00:57:46 -0700 (PDT)
 From: Kees Cook <keescook@chromium.org>
 To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Kees Cook <keescook@chromium.org>, Andy Lutomirski <luto@kernel.org>,
@@ -23,9 +23,9 @@ Cc: Kees Cook <keescook@chromium.org>, Andy Lutomirski <luto@kernel.org>,
  Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: [PATCH v2 4/8] exec: Use secureexec for clearing pdeath_signal
-Date: Mon, 10 Jul 2017 00:57:27 -0700
-Message-Id: <1499673451-66160-5-git-send-email-keescook@chromium.org>
+Subject: [PATCH v2 7/8] exec: Consolidate pdeath_signal clearing
+Date: Mon, 10 Jul 2017 00:57:30 -0700
+Message-Id: <1499673451-66160-8-git-send-email-keescook@chromium.org>
 In-Reply-To: <1499673451-66160-1-git-send-email-keescook@chromium.org>
 References: <1499673451-66160-1-git-send-email-keescook@chromium.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -33,71 +33,39 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Like dumpability, clearing pdeath_signal happens both in setup_new_exec()
-and later in commit_creds(). The test in setup_new_exec() is different
-from all other privilege comparisons, though: it is checking the new cred
-(bprm) uid vs the old cred (current) euid. This appears to be a bug,
-introduced by commit a6f76f23d297 ("CRED: Make execve() take advantage of
-copy-on-write credentials"):
-
--       if (bprm->e_uid != current_euid() ||
--           bprm->e_gid != current_egid()) {
--               set_dumpable(current->mm, suid_dumpable);
-+       /* install the new credentials */
-+       if (bprm->cred->uid != current_euid() ||
-+           bprm->cred->gid != current_egid()) {
-
-It was bprm euid vs current euid (and egids), but the effective got
-dropped. Nothing in the exec flow changes bprm->cred->uid (nor gid).
-The call traces are:
-
-	prepare_bprm_creds()
-	    prepare_exec_creds()
-	        prepare_creds()
-	            memcpy(new_creds, old_creds, ...)
-	            security_prepare_creds() (unimplemented by commoncap)
-	...
-	prepare_binprm()
-	    bprm_fill_uid()
-	        resets euid/egid to current euid/egid
-	        sets euid/egid on bprm based on set*id file bits
-	    security_bprm_set_creds()
-		cap_bprm_set_creds()
-		        handle all caps-based manipulations
-
-so this test is effectively a test of current_uid() vs current_euid(),
-which is wrong, just like the prior dumpability tests were wrong.
-
-The commit log says "Clear pdeath_signal and set dumpable on
-certain circumstances that may not be covered by commit_creds()." This
-may be meaning the earlier old euid vs new euid (and egid) test that
-got changed.
-
-Luckily, as with dumpability, this is all masked by commit_creds()
-which performs old/new euid and egid tests and clears pdeath_signal.
-
-And again, like dumpability, we should include LSM secureexec logic for
-pdeath_signal clearing. For example, Smack goes out of its way to clear
-pdeath_signal when it finds a secureexec condition.
+Instead of an additional secureexec check for pdeath_signal, just move it
+up into the initial secureexec test. Neither perf nor arch code touches
+pdeath_signal, so the relocation shouldn't change anything.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- fs/exec.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/exec.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/fs/exec.c b/fs/exec.c
-index 3e519d4f0bd3..d7bda5b60e7b 100644
+index eeb8323977d1..e0186db02f90 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -1361,8 +1361,7 @@ void setup_new_exec(struct linux_binprm * bprm)
+@@ -1340,6 +1340,9 @@ void setup_new_exec(struct linux_binprm * bprm)
+ 	if (security_bprm_secureexec(bprm)) {
+ 		/* Record for AT_SECURE. */
+ 		bprm->secureexec = 1;
++
++		/* Make sure parent cannot signal privileged process. */
++		current->pdeath_signal = 0;
+ 	}
+ 
+ 	arch_pick_mmap_layout(current->mm);
+@@ -1363,10 +1366,6 @@ void setup_new_exec(struct linux_binprm * bprm)
  	 */
  	current->mm->task_size = TASK_SIZE;
  
--	if (!uid_eq(bprm->cred->uid, current_euid()) ||
--	    !gid_eq(bprm->cred->gid, current_egid())) {
-+	if (bprm->secureexec) {
- 		current->pdeath_signal = 0;
- 	} else {
- 		if (bprm->interp_flags & BINPRM_FLAGS_ENFORCE_NONDUMP)
+-	if (bprm->secureexec) {
+-		current->pdeath_signal = 0;
+-	}
+-
+ 	/* An exec changes our domain. We are no longer part of the thread
+ 	   group */
+ 	current->self_exec_id++;
 -- 
 2.7.4
