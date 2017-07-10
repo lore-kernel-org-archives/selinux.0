@@ -1,199 +1,109 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Kees Cook <keescook@chromium.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andy Lutomirski
- <luto@kernel.org>, David Howells <dhowells@redhat.com>, Serge Hallyn
- <serge@hallyn.com>, John Johansen <john.johansen@canonical.com>, Casey
- Schaufler <casey@schaufler-ca.com>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Michal Hocko <mhocko@kernel.org>, Ben
- Hutchings <ben@decadent.org.uk>, Hugh Dickins <hughd@google.com>, Oleg
- Nesterov <oleg@redhat.com>, "Jason A. Donenfeld" <Jason@zx2c4.com>, Rik
- van Riel <riel@redhat.com>, James Morris <james.l.morris@oracle.com>,
- Greg Ungerer <gerg@linux-m68k.org>, Ingo Molnar <mingo@kernel.org>,
- Nicolas Pitre <nicolas.pitre@linaro.org>, Stephen Smalley
- <sds@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>, Vivek Goyal
- <vgoyal@redhat.com>, =?utf-8?Q?Micka=C3=ABl_Sala=C3=BCn?=
+Message-ID: <1499695718.2707.120.camel@decadent.org.uk>
+Subject: Re: [PATCH v2 8/8] exec: Use sane stack rlimit under secureexec
+From: Ben Hutchings <ben@decadent.org.uk>
+To: Kees Cook <keescook@chromium.org>, Linus Torvalds
+ <torvalds@linux-foundation.org>
+Cc: Andy Lutomirski <luto@kernel.org>, David Howells <dhowells@redhat.com>,
+ Serge Hallyn <serge@hallyn.com>, John Johansen
+ <john.johansen@canonical.com>, Casey Schaufler <casey@schaufler-ca.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>, Alexander Viro
+ <viro@zeniv.linux.org.uk>, Michal Hocko <mhocko@kernel.org>, Hugh Dickins
+ <hughd@google.com>, Oleg Nesterov <oleg@redhat.com>, "Jason A. Donenfeld"
+ <Jason@zx2c4.com>, Rik van Riel <riel@redhat.com>, James Morris
+ <james.l.morris@oracle.com>, Greg Ungerer <gerg@linux-m68k.org>, Ingo
+ Molnar <mingo@kernel.org>, Nicolas Pitre <nicolas.pitre@linaro.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
+ Vivek Goyal <vgoyal@redhat.com>, =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?=
  <mic@digikod.net>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Date: Mon, 10 Jul 2017 15:08:38 +0100
+In-Reply-To: <1499673451-66160-9-git-send-email-keescook@chromium.org>
 References: <1499673451-66160-1-git-send-email-keescook@chromium.org>
- <1499673451-66160-3-git-send-email-keescook@chromium.org>
-Date: Mon, 10 Jul 2017 03:57:07 -0500
-In-Reply-To: <1499673451-66160-3-git-send-email-keescook@chromium.org> (Kees
- Cook's message of "Mon, 10 Jul 2017 00:57:25 -0700")
-Message-ID: <87a84cr7oc.fsf@xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH v2 2/8] exec: Move security_bprm_secureexec() earlier
+ <1499673451-66160-9-git-send-email-keescook@chromium.org>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+ protocol="application/pgp-signature"; boundary="=-AZ4OiHTT2z20xTg4/kmc"
+Mime-Version: 1.0
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Kees Cook <keescook@chromium.org> writes:
 
-> There are several places where exec needs to know if a privilege-gain has
-> happened. These should be using the results of security_bprm_secureexec()
-> but it is getting (needlessly) called very late.
+--=-AZ4OiHTT2z20xTg4/kmc
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-It is hard to tell at a glance but I believe this introduces a
-regression.
-
-cap_bprm_set_creds is currently called before cap_bprm_secureexec and
-it has a number of cases such as no_new_privs and ptrace that can result
-in some of the precomputed credential changes not happening.
-
-Without accounting for that I believe your cap_bprm_securexec now
-returns a postive value too early.
-
-> Instead, move this earlier in the exec code, to the start of the point
-> of no return in setup_new_exec(). Here, the new creds have already
-> been calculated (and stored in bprm->cred), which is normally what
-> security_bprm_secureexec() wants to examine. Since it's moved earlier,
-> LSMs hooking bprm_secureexec() need to be adjusted to use the creds in
-> bprm:
->
-> $ git grep LSM_HOOK_INIT.*bprm_secureexec
-> apparmor/lsm.c:    LSM_HOOK_INIT(bprm_secureexec, apparmor_bprm_secureexec),
-> commoncap.c:       LSM_HOOK_INIT(bprm_secureexec, cap_bprm_secureexec),
-> selinux/hooks.c:   LSM_HOOK_INIT(bprm_secureexec, selinux_bprm_secureexec),
-> smack/smack_lsm.c: LSM_HOOK_INIT(bprm_secureexec, smack_bprm_secureexec),
->
-> AppArmor does not access creds in apparmor_bprm_secureexec.
->
-> Capabilities needed to be adjusted to use bprm creds.
->
-> SELinux needed to be adjusted to use bprm creds for the security structure.
->
-> Smack needed to be adjusted to use bprm creds for the security structure.
->
-> The result of the bprm_secureexec() hook is saved in a new bprm field
-> "secureexec" so it can be queried later (just AT_SECURE currently).
->
+On Mon, 2017-07-10 at 00:57 -0700, Kees Cook wrote:
+> For a secureexec, before memory layout selection has happened, reset the
+> stack rlimit to something sane to avoid the caller having control over
+> the resulting layouts.
+>=20
+> $ ulimit -s
+> 8192
+> $ ulimit -s unlimited
+> $ /bin/sh -c 'ulimit -s'
+> unlimited
+> $ sudo /bin/sh -c 'ulimit -s'
+> 8192
+>=20
 > Signed-off-by: Kees Cook <keescook@chromium.org>
 > ---
->  fs/binfmt_elf.c            | 2 +-
->  fs/binfmt_elf_fdpic.c      | 2 +-
->  fs/exec.c                  | 5 +++++
->  include/linux/binfmts.h    | 3 ++-
->  include/linux/lsm_hooks.h  | 3 ++-
->  security/commoncap.c       | 4 +---
->  security/selinux/hooks.c   | 2 +-
->  security/smack/smack_lsm.c | 2 +-
->  8 files changed, 14 insertions(+), 9 deletions(-)
->
-> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-> index 5075fd5c62c8..7f6ec4dac13d 100644
-> --- a/fs/binfmt_elf.c
-> +++ b/fs/binfmt_elf.c
-> @@ -254,7 +254,7 @@ create_elf_tables(struct linux_binprm *bprm, struct elfhdr *exec,
->  	NEW_AUX_ENT(AT_EUID, from_kuid_munged(cred->user_ns, cred->euid));
->  	NEW_AUX_ENT(AT_GID, from_kgid_munged(cred->user_ns, cred->gid));
->  	NEW_AUX_ENT(AT_EGID, from_kgid_munged(cred->user_ns, cred->egid));
-> - 	NEW_AUX_ENT(AT_SECURE, security_bprm_secureexec(bprm));
-> +	NEW_AUX_ENT(AT_SECURE, bprm->secureexec);
->  	NEW_AUX_ENT(AT_RANDOM, (elf_addr_t)(unsigned long)u_rand_bytes);
->  #ifdef ELF_HWCAP2
->  	NEW_AUX_ENT(AT_HWCAP2, ELF_HWCAP2);
-> diff --git a/fs/binfmt_elf_fdpic.c b/fs/binfmt_elf_fdpic.c
-> index cf93a4fad012..5aa9199dfb13 100644
-> --- a/fs/binfmt_elf_fdpic.c
-> +++ b/fs/binfmt_elf_fdpic.c
-> @@ -650,7 +650,7 @@ static int create_elf_fdpic_tables(struct linux_binprm *bprm,
->  	NEW_AUX_ENT(AT_EUID,	(elf_addr_t) from_kuid_munged(cred->user_ns, cred->euid));
->  	NEW_AUX_ENT(AT_GID,	(elf_addr_t) from_kgid_munged(cred->user_ns, cred->gid));
->  	NEW_AUX_ENT(AT_EGID,	(elf_addr_t) from_kgid_munged(cred->user_ns, cred->egid));
-> -	NEW_AUX_ENT(AT_SECURE,	security_bprm_secureexec(bprm));
-> +	NEW_AUX_ENT(AT_SECURE,	bprm->secureexec);
->  	NEW_AUX_ENT(AT_EXECFN,	bprm->exec);
->  
->  #ifdef ARCH_DLINFO
+> =C2=A0fs/exec.c | 10 ++++++++++
+> =C2=A01 file changed, 10 insertions(+)
+>=20
 > diff --git a/fs/exec.c b/fs/exec.c
-> index 7842ae661e34..b92e37fb53aa 100644
+> index e0186db02f90..1e3463854a16 100644
 > --- a/fs/exec.c
 > +++ b/fs/exec.c
-> @@ -1337,6 +1337,11 @@ EXPORT_SYMBOL(would_dump);
->  
->  void setup_new_exec(struct linux_binprm * bprm)
->  {
-> +	if (security_bprm_secureexec(bprm)) {
-> +		/* Record for AT_SECURE. */
-> +		bprm->secureexec = 1;
-> +	}
+> @@ -1343,6 +1343,16 @@ void setup_new_exec(struct linux_binprm * bprm)
+> =C2=A0
+> =C2=A0		/* Make sure parent cannot signal privileged process. */
+> =C2=A0		current->pdeath_signal =3D 0;
 > +
->  	arch_pick_mmap_layout(current->mm);
->  
->  	current->sas_ss_sp = current->sas_ss_size = 0;
-> diff --git a/include/linux/binfmts.h b/include/linux/binfmts.h
-> index 05488da3aee9..1afaa303cad0 100644
-> --- a/include/linux/binfmts.h
-> +++ b/include/linux/binfmts.h
-> @@ -27,9 +27,10 @@ struct linux_binprm {
->  	unsigned int
->  		cred_prepared:1,/* true if creds already prepared (multiple
->  				 * preps happen for interpreters) */
-> -		cap_effective:1;/* true if has elevated effective capabilities,
-> +		cap_effective:1,/* true if has elevated effective capabilities,
->  				 * false if not; except for init which inherits
->  				 * its parent's caps anyway */
-> +		secureexec:1;	/* true when gaining privileges */
->  #ifdef __alpha__
->  	unsigned int taso:1;
->  #endif
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 080f34e66017..d1bd24fb4a33 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -72,7 +72,8 @@
->   *	Return a boolean value (0 or 1) indicating whether a "secure exec"
->   *	is required.  The flag is passed in the auxiliary table
->   *	on the initial stack to the ELF interpreter to indicate whether libc
-> - *	should enable secure mode.
-> + *	should enable secure mode. Called before bprm_committing_creds(),
-> + *	so pending credentials are in @bprm->cred.
->   *	@bprm contains the linux_binprm structure.
->   *
->   * Security hooks for filesystem operations.
-> diff --git a/security/commoncap.c b/security/commoncap.c
-> index 7abebd782d5e..482d3aac2fc6 100644
-> --- a/security/commoncap.c
-> +++ b/security/commoncap.c
-> @@ -624,12 +624,10 @@ int cap_bprm_set_creds(struct linux_binprm *bprm)
->   * Determine whether a secure execution is required, return 1 if it is, and 0
->   * if it is not.
->   *
-> - * The credentials have been committed by this point, and so are no longer
-> - * available through @bprm->cred.
->   */
->  int cap_bprm_secureexec(struct linux_binprm *bprm)
->  {
-> -	const struct cred *cred = current_cred();
-> +	const struct cred *cred = bprm->cred;
->  	kuid_t root_uid = make_kuid(cred->user_ns, 0);
->  
->  	if (!uid_eq(cred->uid, root_uid)) {
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 819fd6858b49..9381c8474cf4 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2420,7 +2420,7 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
->  
->  static int selinux_bprm_secureexec(struct linux_binprm *bprm)
->  {
-> -	const struct task_security_struct *tsec = current_security();
-> +	const struct task_security_struct *tsec = bprm->cred->security;
->  	u32 sid, osid;
->  	int atsecure = 0;
->  
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 658f5d8c7e76..13cf9e66d5fe 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -975,7 +975,7 @@ static void smack_bprm_committing_creds(struct linux_binprm *bprm)
->   */
->  static int smack_bprm_secureexec(struct linux_binprm *bprm)
->  {
-> -	struct task_smack *tsp = current_security();
-> +	struct task_smack *tsp = bprm->cred->security;
->  
->  	if (tsp->smk_task != tsp->smk_forked)
->  		return 1;
+> +		/*
+> +		=C2=A0* For secureexec, reset the stack limit to sane default to
+> +		=C2=A0* avoid bad behavior from the prior rlimits. This has to
+> +		=C2=A0* happen before arch_pick_mmap_layout(), which examines
+> +		=C2=A0* RLIMIT_STACK, but after the point of no return to avoid
+> +		=C2=A0* needing to clean up the change on failure.
+> +		=C2=A0*/
+> +		if (current->signal->rlim[RLIMIT_STACK].rlim_cur > _STK_LIM)
+> +			current->signal->rlim[RLIMIT_STACK].rlim_cur =3D _STK_LIM;
+
+As setup_new_exec() is called before install_exec_creds(), I think this
+leaves a window where the real user can change the limit again with
+prlimit().
+
+Ben.
+
+> =C2=A0	}
+> =C2=A0
+> =C2=A0	arch_pick_mmap_layout(current->mm);
+--=20
+Ben Hutchings
+Absolutum obsoletum. (If it works, it's out of date.) - Stafford Beer
+
+
+--=-AZ4OiHTT2z20xTg4/kmc
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAlljimYACgkQ57/I7JWG
+EQm4nQ//W/OIgx1CAVoHlo6WT1EpCxEc/Tfp7rYFu1E/zCyjmPFBB2vno7YTiEqp
+LKm0VgKMBGKbxh1DsaIKzzE+u5vWWrPYP7L4+uXRSZC9l7s4OWORHORE9dKmf3WC
+m8qLjBFya2nFonfQOhk2yVgZWAdAqg9nJ4BqCUk4b2OnVLgWTh9Q6Tmx1vGDYD/7
+zvP6KMaL/c2FrojVx5gZ6MG3ut9rFFxT109DtzGyBD3TaBsVSipN2Qrf0q+t7OyU
+0mptNigAIhbO8IyFDWUDocbbFoI6oc6Duzpjs3ECKOmNJyZGBSqpCC738LCy8tr/
+vPhy9Qp/vhZj+munGMzsaJ0S72JJG2cNEZmSQR1yBXQmeGRWJ0NIHDpmR7lJodWK
+A9TXRaswWA7A9nUcdhY6hQj1wAIt/LNSz1dYOYWpvFQTaiCVpJbJUyYeHt0J184y
+RhT3BzAiiOEIFXfkrigAAmddJp2ek3s0EwHrj0upCP+bYvYwHMwVn387yXXARjOH
+Hbjn7R1cbzG0/pUcKw85Zp3IX+ajPFIV22jIkPwvq2ss1Fx7og8yE8qs8+Lau3dx
+p3go1Fanr/9KveY/mcZS8/izkOin0Q1Ak25d+exHerq+XZXvL3iOczY1/DFjKv46
+kp/LFmM6GvvOwiOowiew0LIDOIAr3oRymKKvlCQoYwCzrtuFtQA=
+=jPbz
+-----END PGP SIGNATURE-----
+
+--=-AZ4OiHTT2z20xTg4/kmc--
