@@ -1,8 +1,8 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6A7viq3011214
- for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 03:57:46 -0400
-Received: by mail-pg0-f46.google.com with SMTP id k14so45639702pgr.0
- for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 00:57:45 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6A7vipx011214
+ for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 03:57:45 -0400
+Received: by mail-pf0-f169.google.com with SMTP id q86so45938774pfl.3
+ for <selinux@tycho.nsa.gov>; Mon, 10 Jul 2017 00:57:42 -0700 (PDT)
 From: Kees Cook <keescook@chromium.org>
 To: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Kees Cook <keescook@chromium.org>, Andy Lutomirski <luto@kernel.org>,
@@ -23,9 +23,9 @@ Cc: Kees Cook <keescook@chromium.org>, Andy Lutomirski <luto@kernel.org>,
  Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
  linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Subject: [PATCH v2 8/8] exec: Use sane stack rlimit under secureexec
-Date: Mon, 10 Jul 2017 00:57:31 -0700
-Message-Id: <1499673451-66160-9-git-send-email-keescook@chromium.org>
+Subject: [PATCH v2 4/8] exec: Use secureexec for clearing pdeath_signal
+Date: Mon, 10 Jul 2017 00:57:27 -0700
+Message-Id: <1499673451-66160-5-git-send-email-keescook@chromium.org>
 In-Reply-To: <1499673451-66160-1-git-send-email-keescook@chromium.org>
 References: <1499673451-66160-1-git-send-email-keescook@chromium.org>
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -33,43 +33,71 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-For a secureexec, before memory layout selection has happened, reset the
-stack rlimit to something sane to avoid the caller having control over
-the resulting layouts.
+Like dumpability, clearing pdeath_signal happens both in setup_new_exec()
+and later in commit_creds(). The test in setup_new_exec() is different
+from all other privilege comparisons, though: it is checking the new cred
+(bprm) uid vs the old cred (current) euid. This appears to be a bug,
+introduced by commit a6f76f23d297 ("CRED: Make execve() take advantage of
+copy-on-write credentials"):
 
-$ ulimit -s
-8192
-$ ulimit -s unlimited
-$ /bin/sh -c 'ulimit -s'
-unlimited
-$ sudo /bin/sh -c 'ulimit -s'
-8192
+-       if (bprm->e_uid != current_euid() ||
+-           bprm->e_gid != current_egid()) {
+-               set_dumpable(current->mm, suid_dumpable);
++       /* install the new credentials */
++       if (bprm->cred->uid != current_euid() ||
++           bprm->cred->gid != current_egid()) {
+
+It was bprm euid vs current euid (and egids), but the effective got
+dropped. Nothing in the exec flow changes bprm->cred->uid (nor gid).
+The call traces are:
+
+	prepare_bprm_creds()
+	    prepare_exec_creds()
+	        prepare_creds()
+	            memcpy(new_creds, old_creds, ...)
+	            security_prepare_creds() (unimplemented by commoncap)
+	...
+	prepare_binprm()
+	    bprm_fill_uid()
+	        resets euid/egid to current euid/egid
+	        sets euid/egid on bprm based on set*id file bits
+	    security_bprm_set_creds()
+		cap_bprm_set_creds()
+		        handle all caps-based manipulations
+
+so this test is effectively a test of current_uid() vs current_euid(),
+which is wrong, just like the prior dumpability tests were wrong.
+
+The commit log says "Clear pdeath_signal and set dumpable on
+certain circumstances that may not be covered by commit_creds()." This
+may be meaning the earlier old euid vs new euid (and egid) test that
+got changed.
+
+Luckily, as with dumpability, this is all masked by commit_creds()
+which performs old/new euid and egid tests and clears pdeath_signal.
+
+And again, like dumpability, we should include LSM secureexec logic for
+pdeath_signal clearing. For example, Smack goes out of its way to clear
+pdeath_signal when it finds a secureexec condition.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- fs/exec.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/exec.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/fs/exec.c b/fs/exec.c
-index e0186db02f90..1e3463854a16 100644
+index 3e519d4f0bd3..d7bda5b60e7b 100644
 --- a/fs/exec.c
 +++ b/fs/exec.c
-@@ -1343,6 +1343,16 @@ void setup_new_exec(struct linux_binprm * bprm)
+@@ -1361,8 +1361,7 @@ void setup_new_exec(struct linux_binprm * bprm)
+ 	 */
+ 	current->mm->task_size = TASK_SIZE;
  
- 		/* Make sure parent cannot signal privileged process. */
+-	if (!uid_eq(bprm->cred->uid, current_euid()) ||
+-	    !gid_eq(bprm->cred->gid, current_egid())) {
++	if (bprm->secureexec) {
  		current->pdeath_signal = 0;
-+
-+		/*
-+		 * For secureexec, reset the stack limit to sane default to
-+		 * avoid bad behavior from the prior rlimits. This has to
-+		 * happen before arch_pick_mmap_layout(), which examines
-+		 * RLIMIT_STACK, but after the point of no return to avoid
-+		 * needing to clean up the change on failure.
-+		 */
-+		if (current->signal->rlim[RLIMIT_STACK].rlim_cur > _STK_LIM)
-+			current->signal->rlim[RLIMIT_STACK].rlim_cur = _STK_LIM;
- 	}
- 
- 	arch_pick_mmap_layout(current->mm);
+ 	} else {
+ 		if (bprm->interp_flags & BINPRM_FLAGS_ENFORCE_NONDUMP)
 -- 
 2.7.4
