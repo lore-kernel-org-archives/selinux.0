@@ -1,37 +1,102 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6ELvHil031290
- for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2017 17:57:18 -0400
-Received: by mail-lf0-f54.google.com with SMTP id b207so60333938lfg.2
- for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2017 14:57:11 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <1500043990.26673.2.camel@tycho.nsa.gov>
-References: <1499944132-6721-1-git-send-email-mmalik@redhat.com>
- <1499964819.624.8.camel@tycho.nsa.gov>
- <1385984548.51732700.1500018295331.JavaMail.zimbra@redhat.com>
- <1500043990.26673.2.camel@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 14 Jul 2017 17:57:08 -0400
-Message-ID: <CAHC9VhT8weFAvni9+HAb9oMQks33H+=VC-RJzXQLorZwyorBpg@mail.gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Milos Malik <mmalik@redhat.com>, selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] Additional tests for long-time supported netlink classes
+Cc: selinux@tycho.nsa.gov
+From: Laurent Bigonville <bigon@debian.org>
+Message-ID: <c58fe940-dc55-2fa3-fd6e-b58d0f7af3a2@debian.org>
+Date: Sat, 15 Jul 2017 00:38:27 +0200
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+ boundary="------------9DFF8C2337C38CB76161049A"
+Subject: Re: open_init_pty: Do not make stdin and stdout non-blocking
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Jul 14, 2017 at 10:53 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> I don't know if we care about distinguishing at the granularity of
-> point releases of RHEL7 (e.g. RHEL7.2 vs RHEL7.3); we just want to
-> ensure that the testsuite will pass on the latest release of RHEL7.
+This is a multi-part message in MIME format.
+--------------9DFF8C2337C38CB76161049A
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I think this is the right way to go about it the way the tests
-currently work.  At some point we will probably want to provide some
-better infrastructure for specifying different minor releases or
-kernel revisions, but right now sticking with the latest minor release
-seems reasonable.
+> commit fb081eb64b36a9de5a43f3d69d9e628b6eb1afc7 (HEAD -> master, 
+> origin/master)
+> Author: Stephen Smalley <sds@tycho.nsa.gov>
+> Date:   Mon Jul 10 13:03:01 2017 -0400
+>
+>     open_init_pty: Do not make stdin and stdout non-blocking
+>
+>     It is unclear why this was being done in the first place, and
+>     it has caused multiple bugs with run_init/open_init_pty usage.
+>
+>     Fixes: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=863187
+>     Fixes: https://bugs.gentoo.org/show_bug.cgi?id=621062
+>     Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
--- 
-paul moore
-www.paul-moore.com
+I see you fixed the issue with run_init/open_init_pty messing up with 
+the terminals but I think it's introducing an other issue :/
+
+FTR I found the reason why stdin/stdout were not blocking, it's a fix 
+for this: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=474956#10
+
+Apparently if the descriptors are closed, open_init_pty hangs, example:
+
+./open_init_pty bash -c 'echo hello; exec >&- 2>&- <&-; sleep 1; '
+
+
+--------------9DFF8C2337C38CB76161049A
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+  <head>
+
+    <meta http-equiv=3D"content-type" content=3D"text/html; charset=3Dutf=
+-8">
+  </head>
+  <body text=3D"#000000" bgcolor=3D"#FFFFFF">
+    <p>
+      <blockquote type=3D"cite">commit
+        fb081eb64b36a9de5a43f3d69d9e628b6eb1afc7 (HEAD -&gt; master,
+        origin/master)<br>
+        Author: Stephen Smalley <a class=3D"moz-txt-link-rfc2396E" href=3D=
+"mailto:sds@tycho.nsa.gov">&lt;sds@tycho.nsa.gov&gt;</a><br>
+        Date:=C2=A0=C2=A0 Mon Jul 10 13:03:01 2017 -0400<br>
+        <br>
+        =C2=A0=C2=A0=C2=A0 open_init_pty: Do not make stdin and stdout no=
+n-blocking<br>
+        =C2=A0=C2=A0 =C2=A0<br>
+        =C2=A0=C2=A0=C2=A0 It is unclear why this was being done in the f=
+irst place,
+        and<br>
+        =C2=A0=C2=A0=C2=A0 it has caused multiple bugs with run_init/open=
+_init_pty
+        usage.<br>
+        =C2=A0=C2=A0 =C2=A0<br>
+        =C2=A0=C2=A0=C2=A0 Fixes:
+        <a class=3D"moz-txt-link-freetext" href=3D"https://bugs.debian.or=
+g/cgi-bin/bugreport.cgi?bug=3D863187">https://bugs.debian.org/cgi-bin/bug=
+report.cgi?bug=3D863187</a><br>
+        =C2=A0=C2=A0=C2=A0 Fixes: <a class=3D"moz-txt-link-freetext" href=
+=3D"https://bugs.gentoo.org/show_bug.cgi?id=3D621062">https://bugs.gentoo=
+.org/show_bug.cgi?id=3D621062</a><br>
+        =C2=A0=C2=A0=C2=A0 Signed-off-by: Stephen Smalley <a class=3D"moz=
+-txt-link-rfc2396E" href=3D"mailto:sds@tycho.nsa.gov">&lt;sds@tycho.nsa.g=
+ov&gt;</a><br>
+      </blockquote>
+    </p>
+    <p>I see you fixed the issue with run_init/open_init_pty messing up
+      with the terminals but I think it's introducing an other issue :/</=
+p>
+    <p>FTR I found the reason why stdin/stdout were not blocking, it's a
+      fix for this:
+      <a class=3D"moz-txt-link-freetext" href=3D"https://bugs.debian.org/=
+cgi-bin/bugreport.cgi?bug=3D474956#10">https://bugs.debian.org/cgi-bin/bu=
+greport.cgi?bug=3D474956#10</a></p>
+    <p>Apparently if the descriptors are closed, open_init_pty hangs,
+      example:</p>
+    <pre class=3D"message">./open_init_pty bash -c 'echo hello; exec &gt;=
+&amp;- 2&gt;&amp;- &lt;&amp;-; sleep 1; '
+</pre>
+  </body>
+</html>
+
+--------------9DFF8C2337C38CB76161049A--
