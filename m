@@ -1,50 +1,37 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Date: Fri, 14 Jul 2017 12:48:01 -0400
-Message-Id: <20170714164801.6346-1-sds@tycho.nsa.gov>
-Subject: [PATCH] libsepol: Define nnp_nosuid_transition policy capability
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6ELvHil031290
+ for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2017 17:57:18 -0400
+Received: by mail-lf0-f54.google.com with SMTP id b207so60333938lfg.2
+ for <selinux@tycho.nsa.gov>; Fri, 14 Jul 2017 14:57:11 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1500043990.26673.2.camel@tycho.nsa.gov>
+References: <1499944132-6721-1-git-send-email-mmalik@redhat.com>
+ <1499964819.624.8.camel@tycho.nsa.gov>
+ <1385984548.51732700.1500018295331.JavaMail.zimbra@redhat.com>
+ <1500043990.26673.2.camel@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 14 Jul 2017 17:57:08 -0400
+Message-ID: <CAHC9VhT8weFAvni9+HAb9oMQks33H+=VC-RJzXQLorZwyorBpg@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Milos Malik <mmalik@redhat.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] Additional tests for long-time supported netlink classes
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Define the nnp_nosuid_transition policy capability used to enable
-SELinux domain transitions under NNP or nosuid if the
-nnp_nosuid_transition permission is allowed between the old and
-new contexts. When this capability is not enabled, such transitions
-remain limited to bounded transitions as they were prior to the
-introduction of this capability.
+On Fri, Jul 14, 2017 at 10:53 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> I don't know if we care about distinguishing at the granularity of
+> point releases of RHEL7 (e.g. RHEL7.2 vs RHEL7.3); we just want to
+> ensure that the testsuite will pass on the latest release of RHEL7.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsepol/include/sepol/policydb/polcaps.h | 1 +
- libsepol/src/polcaps.c                    | 1 +
- 2 files changed, 2 insertions(+)
+I think this is the right way to go about it the way the tests
+currently work.  At some point we will probably want to provide some
+better infrastructure for specifying different minor releases or
+kernel revisions, but right now sticking with the latest minor release
+seems reasonable.
 
-diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-index 087541d..dc9356a 100644
---- a/libsepol/include/sepol/policydb/polcaps.h
-+++ b/libsepol/include/sepol/policydb/polcaps.h
-@@ -12,6 +12,7 @@ enum {
- 	POLICYDB_CAPABILITY_EXTSOCKCLASS,
- 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
- 	POLICYDB_CAPABILITY_CGROUPSECLABEL,
-+	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
- 	__POLICYDB_CAPABILITY_MAX
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-index 06a868c..b9dc352 100644
---- a/libsepol/src/polcaps.c
-+++ b/libsepol/src/polcaps.c
-@@ -11,6 +11,7 @@ static const char *polcap_names[] = {
- 	"extended_socket_class",	/* POLICYDB_CAPABILITY_EXTSOCKCLASS */
- 	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
- 	"cgroup_seclabel",		/* POLICYDB_CAPABILITY_SECLABEL */
-+	"nnp_nosuid_transition",	/* POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION */
- 	NULL
- };
- 
 -- 
-2.9.4
+paul moore
+www.paul-moore.com
