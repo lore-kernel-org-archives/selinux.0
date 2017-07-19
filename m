@@ -1,220 +1,119 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Date: Wed, 19 Jul 2017 11:26:51 -0400
-Message-Id: <20170719152651.15105-1-sds@tycho.nsa.gov>
-Subject: [PATCH] selinux-testsuite: Add tests for AT_SECURE
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6JL2UtG021039
+ for <selinux@tycho.nsa.gov>; Wed, 19 Jul 2017 17:02:30 -0400
+Received: by mail-lf0-f68.google.com with SMTP id z78so570520lff.2
+ for <selinux@tycho.nsa.gov>; Wed, 19 Jul 2017 14:01:54 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <03f326bc-599c-0074-0cc2-7f46808673a1@ieee.org>
+References: <20170714164647.6183-1-sds@tycho.nsa.gov>
+ <20170716151512.GA4615@meriadoc.perfinion.com>
+ <CAHC9VhRe=4N8S74_QD-rwAhRXLF6vceDt=Q0wx8TmTwgy6DNLA@mail.gmail.com>
+ <1500383878.18445.1.camel@tycho.nsa.gov>
+ <1500405609.18445.14.camel@tycho.nsa.gov>
+ <CAHC9VhQz686zC06smDZHf_GYF8EmHpErX5xXnx9bifU51EkwrQ@mail.gmail.com>
+ <03f326bc-599c-0074-0cc2-7f46808673a1@ieee.org>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 19 Jul 2017 17:01:44 -0400
+Message-ID: <CAHC9VhSK0ZzRye+PxVk4fttA95tFb-WjbWcuB+qWHOLnnVucHw@mail.gmail.com>
+To: Chris PeBenito <pebenito@ieee.org>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Dominick Grift <dac.override@gmail.com>, lvrabec@redhat.com,
+ Jason Zaman <jason@perfinion.com>, selinux@tycho.nsa.gov,
+ luto@amacapital.net
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux: Generalize support for NNP/nosuid
+ SELinux domain transitions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add tests for the AT_SECURE auxv flag to ensure that its value
-is set correctly based on whether noatsecure permission is allowed
-between the old domain and the new domain.
+On Tue, Jul 18, 2017 at 9:07 PM, Chris PeBenito <pebenito@ieee.org> wrote:
+> On 07/18/2017 05:26 PM, Paul Moore wrote:
+>>
+>> On Tue, Jul 18, 2017 at 3:20 PM, Stephen Smalley <sds@tycho.nsa.gov>
+>> wrote:
+>>>
+>>> On Tue, 2017-07-18 at 09:17 -0400, Stephen Smalley wrote:
+>>>>
+>>>> On Mon, 2017-07-17 at 15:54 -0400, Paul Moore wrote:
+>>>>>
+>>>>> On Sun, Jul 16, 2017 at 11:15 AM, Jason Zaman <jason@perfinion.com>
+>>>>> wrote:
+>>
+>>
+>> ...
+>>
+>>>>>> Why do we want to disallow type-bounds to work even with the
+>>>>>> capability?
+>>>>>> it seems sensible to me to allow typebounds to transition even in
+>>>>>> the
+>>>>>> future. If we do then we probably dont need the policycap which
+>>>>>> seems
+>>>>>> less complicated.
+>>>>>
+>>>>>
+>>>>> The suggestion to continue to support bounded domain transitions
+>>>>> seems
+>>>>> reasonable to me, although we would need to worry about which check
+>>>>> to
+>>>>> do first (bounded transition or process:nnp_nosuid_transition), and
+>>>>> how to limit the auditing/reporting so admins are confused by the
+>>>>> first check failing, yet the transition still taking place.  None
+>>>>> of
+>>>>> these are unsolvable problems, but it will likely need a bit more
+>>>>> work.
+>>>>>
+>>>>> I'm sure Stephen has some thoughts on this as well.
+>>>>
+>>>>
+>>>> Others (e.g. Dominick) seemed to take the opposite view on the
+>>>> earlier
+>>>> RFC discussion, i.e. that we should only check the new permission if
+>>>> the capability is enabled.  I specifically raised that as a question
+>>>> there.
+>>>>
+>>>> I'm willing to change it to fallback to checking for a bounded type,
+>>>> but that will mean two audit messages (I don't think we can just hide
+>>>> one of them) when neither is allowed.  That said, it is unlikely to
+>>>> cause much confusion in practice because users typically only look
+>>>> for
+>>>> and pay attention to AVC messages, and anyone using audit2allow will
+>>>> just end up allowing the permission, not the bounds.
+>>>
+>>>
+>>> As Jason noted, if we fallback to checking for a bounded type, then we
+>>> don't strictly need a policy capability for it.
+>>
+>>
+>> It seems as though Dominick is okay with the fallback, what do the
+>> rest of the policy folks think about that approach?
+>>
+>> I'm of the opinion that changes which don't require a new policy
+>> capability are slightly more favorable, but since one of the goals
+>> with this change is to make policy development easier, I want to make
+>> sure we are actually doing that.  It would appear we are, but a few
+>> explicit nods from the policy folks would be nice to see.
+>
+> With my coder hat on, I can see the value of having the existing behavior be
+> available for anyone who currently uses it, so it makes sense.
+>
+> With my policy hat on, I don't have an opinion on a fallback.  What I do
+> know is I don't like typebounds, avoid it as much as possible, and strongly
+> prefer it not be forced on me.  There are no typebounds in refpolicy.
+>
+> In fact, I think NNP should not affecting SELinux at all as NNP is
+> discretionary and SELinux is mandatory.  NNP makes sense where you start out
+> with lots of privileges and have to shed them, (i.e. the Linux
+> DAC/capabilities perspective) whereas you have no privileges in SELinux
+> except what is explicitly allowed.
+>
+> Once this permission is implemented I'll likely add the permission across
+> most if not all transitions out of systemd.
 
-Also test that the dynamic linker ignores LD_PRELOAD when AT_SECURE
-is set to 1.
+It seems that falling back to the bounded transition is the best way forward.
 
-AT_SECURE has been supported since Linux 2.6.0, so these tests should
-work on all SELinux systems and do not need to be conditionally enabled.
+Sorry to make you spin another version of the patch Stephen.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- policy/Makefile           |  2 +-
- policy/test_atsecure.te   | 46 ++++++++++++++++++++++++++++++++++++++++++++++
- tests/Makefile            |  3 ++-
- tests/atsecure/Makefile   |  9 +++++++++
- tests/atsecure/atsecure.c | 10 ++++++++++
- tests/atsecure/evil.c     | 10 ++++++++++
- tests/atsecure/good.c     | 10 ++++++++++
- tests/atsecure/test       | 31 +++++++++++++++++++++++++++++++
- 8 files changed, 119 insertions(+), 2 deletions(-)
- create mode 100644 policy/test_atsecure.te
- create mode 100644 tests/atsecure/Makefile
- create mode 100644 tests/atsecure/atsecure.c
- create mode 100644 tests/atsecure/evil.c
- create mode 100644 tests/atsecure/good.c
- create mode 100755 tests/atsecure/test
-
-diff --git a/policy/Makefile b/policy/Makefile
-index c062009..b728a9e 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -23,7 +23,7 @@ TARGETS = \
- 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
- 	test_transition.te test_inet_socket.te test_unix_socket.te \
- 	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
--	test_ibpkey.te
-+	test_ibpkey.te test_atsecure.te
- 
- ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
- TARGETS += test_bounds.te
-diff --git a/policy/test_atsecure.te b/policy/test_atsecure.te
-new file mode 100644
-index 0000000..7255553
---- /dev/null
-+++ b/policy/test_atsecure.te
-@@ -0,0 +1,46 @@
-+#################################
-+#
-+# Policy for testing the setting of the
-+# AT_SECURE auxv flag based on noatsecure permission
-+#
-+
-+attribute atsecuredomain;
-+
-+# Domain for process that is not allowed noatsecure to the new domain.
-+type test_atsecure_denied_t;
-+domain_type(test_atsecure_denied_t)
-+unconfined_runs_test(test_atsecure_denied_t)
-+typeattribute test_atsecure_denied_t atsecuredomain;
-+typeattribute test_atsecure_denied_t testdomain;
-+
-+# Domain for process that is allowed noatsecure to the new domain.
-+type test_atsecure_allowed_t;
-+domain_type(test_atsecure_allowed_t)
-+unconfined_runs_test(test_atsecure_allowed_t)
-+typeattribute test_atsecure_allowed_t atsecuredomain;
-+typeattribute test_atsecure_allowed_t testdomain;
-+
-+# New domain for the process after the transition.
-+type test_atsecure_newdomain_t;
-+domain_type(test_atsecure_newdomain_t)
-+unconfined_runs_test(test_atsecure_newdomain_t)
-+typeattribute test_atsecure_newdomain_t atsecuredomain;
-+typeattribute test_atsecure_newdomain_t testdomain;
-+
-+# Allow the domain entrypoints and transitions.
-+corecmd_bin_entry_type(atsecuredomain)
-+corecmd_shell_entry_type(atsecuredomain)
-+corecmd_exec_bin(atsecuredomain)
-+domain_entry_file(test_atsecure_newdomain_t, test_file_t)
-+domain_trans(test_atsecure_denied_t, test_file_t, test_atsecure_newdomain_t)
-+domain_trans(test_atsecure_allowed_t, test_file_t, test_atsecure_newdomain_t)
-+allow test_atsecure_newdomain_t test_atsecure_denied_t:fd use;
-+allow test_atsecure_newdomain_t test_atsecure_allowed_t:fd use;
-+allow_map(atsecuredomain, test_file_t, file)
-+
-+# Only allow the allowed domain noatsecure permission to the
-+# new domain.
-+allow test_atsecure_allowed_t test_atsecure_newdomain_t:process noatsecure;
-+
-+# Allow all of these domains to be entered from the sysadm domain.
-+userdom_sysadm_entry_spec_domtrans_to(atsecuredomain)
-diff --git a/tests/Makefile b/tests/Makefile
-index 369b678..f42fe7e 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -10,7 +10,8 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
- 	task_setnice task_setscheduler task_getscheduler task_getsid \
- 	task_getpgid task_setpgid file ioctl capable_file capable_net \
- 	capable_sys dyntrans dyntrace bounds nnp mmap unix_socket inet_socket \
--	overlay checkreqprot mqueue mac_admin infiniband_pkey infiniband_endport
-+	overlay checkreqprot mqueue mac_admin infiniband_pkey \
-+	infiniband_endport atsecure
- 
- ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-diff --git a/tests/atsecure/Makefile b/tests/atsecure/Makefile
-new file mode 100644
-index 0000000..6c08055
---- /dev/null
-+++ b/tests/atsecure/Makefile
-@@ -0,0 +1,9 @@
-+TARGETS=atsecure good evil.so
-+
-+all: $(TARGETS)
-+
-+evil.so: evil.c
-+	$(CC) -shared -o $@ -fPIC $<
-+
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/atsecure/atsecure.c b/tests/atsecure/atsecure.c
-new file mode 100644
-index 0000000..329c124
---- /dev/null
-+++ b/tests/atsecure/atsecure.c
-@@ -0,0 +1,10 @@
-+#include <sys/auxv.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+
-+int main(void)
-+{
-+	return getauxval(AT_SECURE);
-+
-+}
-diff --git a/tests/atsecure/evil.c b/tests/atsecure/evil.c
-new file mode 100644
-index 0000000..4fac90b
---- /dev/null
-+++ b/tests/atsecure/evil.c
-@@ -0,0 +1,10 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <sys/types.h>
-+
-+uid_t getuid(void)
-+{
-+	printf("Evil code ran!\n");
-+	exit(1);
-+}
-diff --git a/tests/atsecure/good.c b/tests/atsecure/good.c
-new file mode 100644
-index 0000000..7a250f5
---- /dev/null
-+++ b/tests/atsecure/good.c
-@@ -0,0 +1,10 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <sys/types.h>
-+
-+int main(void)
-+{
-+	printf("%u\n", getuid());
-+	exit(0);
-+}
-diff --git a/tests/atsecure/test b/tests/atsecure/test
-new file mode 100755
-index 0000000..59ba3a4
---- /dev/null
-+++ b/tests/atsecure/test
-@@ -0,0 +1,31 @@
-+#!/usr/bin/perl
-+
-+use Test;
-+BEGIN { plan tests => 4 }
-+
-+$basedir = $0;
-+$basedir =~ s|(.*)/[^/]*|$1|;
-+
-+# Verify that AT_SECURE is 1 when noatsecure permission is not allowed.
-+$result = system(
-+"runcon -t test_atsecure_denied_t -- runcon -t test_atsecure_newdomain_t $basedir/atsecure"
-+);
-+ok($result);
-+
-+# Verify that AT_SECURE is 0 when noatsecure permission is allowed.
-+$result = system(
-+"runcon -t test_atsecure_allowed_t -- runcon -t test_atsecure_newdomain_t $basedir/atsecure"
-+);
-+ok( $result, 0 );
-+
-+# Verify that LD_PRELOAD is ignored when noatsecure permission is not allowed.
-+$result = system(
-+"runcon -t test_atsecure_denied_t -- bash -c 'LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good'"
-+);
-+ok( $result, 0 );
-+
-+# Verify that LD_PRELOAD is honored when noatsecure permission is allowed.
-+$result = system(
-+"runcon -t test_atsecure_allowed_t -- bash -c 'LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good'"
-+);
-+ok($result);
 -- 
-2.9.4
+paul moore
+www.paul-moore.com
