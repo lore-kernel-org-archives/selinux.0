@@ -1,219 +1,220 @@
-Message-ID: <1500405609.18445.14.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul@paul-moore.com>, Jason Zaman <jason@perfinion.com>
-Cc: selinux@tycho.nsa.gov, luto@amacapital.net
-Date: Tue, 18 Jul 2017 15:20:09 -0400
-In-Reply-To: <1500383878.18445.1.camel@tycho.nsa.gov>
-References: <20170714164647.6183-1-sds@tycho.nsa.gov>
- <20170716151512.GA4615@meriadoc.perfinion.com>
- <CAHC9VhRe=4N8S74_QD-rwAhRXLF6vceDt=Q0wx8TmTwgy6DNLA@mail.gmail.com>
- <1500383878.18445.1.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH] selinux: Generalize support for NNP/nosuid SELinux
- domain transitions
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
+Date: Wed, 19 Jul 2017 11:26:51 -0400
+Message-Id: <20170719152651.15105-1-sds@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: Add tests for AT_SECURE
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-07-18 at 09:17 -0400, Stephen Smalley wrote:
-> On Mon, 2017-07-17 at 15:54 -0400, Paul Moore wrote:
-> > On Sun, Jul 16, 2017 at 11:15 AM, Jason Zaman <jason@perfinion.com>
-> > wrote:
-> > > On Fri, Jul 14, 2017 at 12:46:47PM -0400, Stephen Smalley wrote:
-> > > > As systemd ramps up enabling NNP (NoNewPrivileges) for system
-> > > > services,
-> > > > it is increasingly breaking SELinux domain transitions for
-> > > > those
-> > > > services
-> > > > and their descendants.  systemd enables NNP not only for
-> > > > services
-> > > > whose
-> > > > unit files explicitly specify NoNewPrivileges=yes but also for
-> > > > services
-> > > > whose unit files specify any of the following options in
-> > > > combination with
-> > > > running without CAP_SYS_ADMIN (e.g. specifying User= or a
-> > > > CapabilityBoundingSet= without CAP_SYS_ADMIN):
-> > > > SystemCallFilter=,
-> > > > SystemCallArchitectures=, RestrictAddressFamilies=,
-> > > > RestrictNamespaces=,
-> > > > PrivateDevices=, ProtectKernelTunables=, ProtectKernelModules=,
-> > > > MemoryDenyWriteExecute=, or RestrictRealtime= as per the
-> > > > systemd.exec(5)
-> > > > man page.
-> > > > 
-> > > > The end result is bad for the security of both SELinux-disabled
-> > > > and
-> > > > SELinux-enabled systems.  Packagers have to turn off these
-> > > > options in the unit files to preserve SELinux domain
-> > > > transitions.  For
-> > > > users who choose to disable SELinux, this means that they miss
-> > > > out on
-> > > > at least having the systemd-supported protections.  For users
-> > > > who
-> > > > keep
-> > > > SELinux enabled, they may still be missing out on some
-> > > > protections
-> > > > because it isn't necessarily guaranteed that the SELinux policy
-> > > > for
-> > > > that service provides the same protections in all cases.
-> > > > 
-> > > > commit 7b0d0b40cd78 ("selinux: Permit bounded transitions under
-> > > > NO_NEW_PRIVS or NOSUID.") allowed bounded transitions under NNP
-> > > > in
-> > > > order to support limited usage for sandboxing
-> > > > programs.  However,
-> > > > defining typebounds for all of the affected service domains
-> > > > is impractical to implement in policy, since typebounds
-> > > > requires
-> > > > us
-> > > > to ensure that each domain is allowed everything all of its
-> > > > descendant
-> > > > domains are allowed, and this has to be repeated for the entire
-> > > > chain
-> > > > of domain transitions.  There is no way to clone all allow
-> > > > rules
-> > > > from
-> > > > descendants to their ancestors in policy currently, and doing
-> > > > so
-> > > > would
-> > > > be undesirable even if it were practical, as it requires
-> > > > leaking
-> > > > permissions to objects and operations into ancestor domains
-> > > > that
-> > > > could
-> > > > weaken their own security in order to allow them to the
-> > > > descendants
-> > > > (e.g. if a descendant requires execmem permission, then so do
-> > > > all
-> > > > of
-> > > > its ancestors; if a descendant requires execute permission to a
-> > > > file,
-> > > > then so do all of its ancestors; if a descendant requires read
-> > > > to
-> > > > a
-> > > > symbolic link or temporary file, then so do all of its
-> > > > ancestors...).
-> > > > SELinux domains are intentionally not hierarchical / bounded in
-> > > > this
-> > > > manner normally, and making them so would undermine their
-> > > > protections
-> > > > and least privilege.
-> > > > 
-> > > > We have long had a similar tension with SELinux transitions and
-> > > > nosuid
-> > > > mounts, albeit not as severe.  Users often have had to choose
-> > > > between
-> > > > retaining nosuid on a mount and allowing SELinux domain
-> > > > transitions on
-> > > > files within those mounts.  This likewise leads to unfortunate
-> > > > tradeoffs
-> > > > in security.
-> > > > 
-> > > > Decouple NNP/nosuid from SELinux transitions, so that we don't
-> > > > have to
-> > > > make a choice between them. Introduce a nnp_nosuid_transition
-> > > > policy
-> > > > capability that causes the ability to transition under
-> > > > NNP/nosuid
-> > > > to
-> > > > be based on a nnp_nosuid_transition permission between the old
-> > > > and new
-> > > > contexts rather than typebounds.  Domain transitions can then
-> > > > be
-> > > > allowed
-> > > > in policy without requiring the parent to be a strict superset
-> > > > of
-> > > > all of
-> > > > its children.
-> > > > 
-> > > > With this change, systemd unit files can be left unmodified
-> > > > from
-> > > > upstream.
-> > > > SELinux-disabled and SELinux-enabled users will benefit from
-> > > > retaining any
-> > > > of the systemd-provided protections.  SELinux policy will only
-> > > > need to
-> > > > be adapted to enable the new policy capability and to allow the
-> > > > new permission between domain pairs as appropriate.
-> > > 
-> > > A few things, the name is pretty awkward. my main issue with it
-> > > is
-> > > what
-> > > if some other similar kind of thing is added in the future then
-> > > we'll
-> > > have nnp_nosuid_transition that should also cover it but the name
-> > > wont
-> > > cover it.
-> > 
-> > Yes, I don't think anyone is in love with the name, but no one
-> > offered
-> > anything better; see the previous patch posting for some of that
-> > discussion.  If you have a better suggestion I would love to hear
-> > it.
-> 
-> Agreed, although I'm skeptical that there will be any "other similar
-> kind of thing" added in the future that we would want to cover under
-> the same permission.
-> 
-> > 
-> > > Why do we want to disallow type-bounds to work even with the
-> > > capability?
-> > > it seems sensible to me to allow typebounds to transition even in
-> > > the
-> > > future. If we do then we probably dont need the policycap which
-> > > seems
-> > > less complicated.
-> > 
-> > The suggestion to continue to support bounded domain transitions
-> > seems
-> > reasonable to me, although we would need to worry about which check
-> > to
-> > do first (bounded transition or process:nnp_nosuid_transition), and
-> > how to limit the auditing/reporting so admins are confused by the
-> > first check failing, yet the transition still taking place.  None
-> > of
-> > these are unsolvable problems, but it will likely need a bit more
-> > work.
-> > 
-> > I'm sure Stephen has some thoughts on this as well.
-> 
-> Others (e.g. Dominick) seemed to take the opposite view on the
-> earlier
-> RFC discussion, i.e. that we should only check the new permission if
-> the capability is enabled.  I specifically raised that as a question
-> there.
-> 
-> I'm willing to change it to fallback to checking for a bounded type,
-> but that will mean two audit messages (I don't think we can just hide
-> one of them) when neither is allowed.  That said, it is unlikely to
-> cause much confusion in practice because users typically only look
-> for
-> and pay attention to AVC messages, and anyone using audit2allow will
-> just end up allowing the permission, not the bounds.
+Add tests for the AT_SECURE auxv flag to ensure that its value
+is set correctly based on whether noatsecure permission is allowed
+between the old domain and the new domain.
 
-As Jason noted, if we fallback to checking for a bounded type, then we
-don't strictly need a policy capability for it.
+Also test that the dynamic linker ignores LD_PRELOAD when AT_SECURE
+is set to 1.
 
-> 
-> > 
-> > > also how are we thinking to do this in refpol? only add it
-> > > specifically
-> > > as needed? or would it be added to the execute_file_perms type
-> > > macros?
-> > > Although, grep typebounds is nowhere to be found currently in
-> > > either
-> > > refpol and gentoo's repo.
-> > 
-> > I'm *really* hoping this new permission is only granted where
-> > absolutely needed, which I hope should be rather small (see the
-> > patch
-> > description and the discussion regarding systemd unit files).
-> 
-> Actually, I'm not clear on that.  If systemd continues to expand the
-> usage of these options in its unit files (which seems likely), then I
-> could see this ultimately affecting all service domains and all of
-> their descendants.  If it was only going to be a handful of domains,
-> then the typebounds solution might be more tractable, albeit painful.
+AT_SECURE has been supported since Linux 2.6.0, so these tests should
+work on all SELinux systems and do not need to be conditionally enabled.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ policy/Makefile           |  2 +-
+ policy/test_atsecure.te   | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ tests/Makefile            |  3 ++-
+ tests/atsecure/Makefile   |  9 +++++++++
+ tests/atsecure/atsecure.c | 10 ++++++++++
+ tests/atsecure/evil.c     | 10 ++++++++++
+ tests/atsecure/good.c     | 10 ++++++++++
+ tests/atsecure/test       | 31 +++++++++++++++++++++++++++++++
+ 8 files changed, 119 insertions(+), 2 deletions(-)
+ create mode 100644 policy/test_atsecure.te
+ create mode 100644 tests/atsecure/Makefile
+ create mode 100644 tests/atsecure/atsecure.c
+ create mode 100644 tests/atsecure/evil.c
+ create mode 100644 tests/atsecure/good.c
+ create mode 100755 tests/atsecure/test
+
+diff --git a/policy/Makefile b/policy/Makefile
+index c062009..b728a9e 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -23,7 +23,7 @@ TARGETS = \
+ 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
+ 	test_transition.te test_inet_socket.te test_unix_socket.te \
+ 	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
+-	test_ibpkey.te
++	test_ibpkey.te test_atsecure.te
+ 
+ ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
+ TARGETS += test_bounds.te
+diff --git a/policy/test_atsecure.te b/policy/test_atsecure.te
+new file mode 100644
+index 0000000..7255553
+--- /dev/null
++++ b/policy/test_atsecure.te
+@@ -0,0 +1,46 @@
++#################################
++#
++# Policy for testing the setting of the
++# AT_SECURE auxv flag based on noatsecure permission
++#
++
++attribute atsecuredomain;
++
++# Domain for process that is not allowed noatsecure to the new domain.
++type test_atsecure_denied_t;
++domain_type(test_atsecure_denied_t)
++unconfined_runs_test(test_atsecure_denied_t)
++typeattribute test_atsecure_denied_t atsecuredomain;
++typeattribute test_atsecure_denied_t testdomain;
++
++# Domain for process that is allowed noatsecure to the new domain.
++type test_atsecure_allowed_t;
++domain_type(test_atsecure_allowed_t)
++unconfined_runs_test(test_atsecure_allowed_t)
++typeattribute test_atsecure_allowed_t atsecuredomain;
++typeattribute test_atsecure_allowed_t testdomain;
++
++# New domain for the process after the transition.
++type test_atsecure_newdomain_t;
++domain_type(test_atsecure_newdomain_t)
++unconfined_runs_test(test_atsecure_newdomain_t)
++typeattribute test_atsecure_newdomain_t atsecuredomain;
++typeattribute test_atsecure_newdomain_t testdomain;
++
++# Allow the domain entrypoints and transitions.
++corecmd_bin_entry_type(atsecuredomain)
++corecmd_shell_entry_type(atsecuredomain)
++corecmd_exec_bin(atsecuredomain)
++domain_entry_file(test_atsecure_newdomain_t, test_file_t)
++domain_trans(test_atsecure_denied_t, test_file_t, test_atsecure_newdomain_t)
++domain_trans(test_atsecure_allowed_t, test_file_t, test_atsecure_newdomain_t)
++allow test_atsecure_newdomain_t test_atsecure_denied_t:fd use;
++allow test_atsecure_newdomain_t test_atsecure_allowed_t:fd use;
++allow_map(atsecuredomain, test_file_t, file)
++
++# Only allow the allowed domain noatsecure permission to the
++# new domain.
++allow test_atsecure_allowed_t test_atsecure_newdomain_t:process noatsecure;
++
++# Allow all of these domains to be entered from the sysadm domain.
++userdom_sysadm_entry_spec_domtrans_to(atsecuredomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index 369b678..f42fe7e 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -10,7 +10,8 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
+ 	task_setnice task_setscheduler task_getscheduler task_getsid \
+ 	task_getpgid task_setpgid file ioctl capable_file capable_net \
+ 	capable_sys dyntrans dyntrace bounds nnp mmap unix_socket inet_socket \
+-	overlay checkreqprot mqueue mac_admin infiniband_pkey infiniband_endport
++	overlay checkreqprot mqueue mac_admin infiniband_pkey \
++	infiniband_endport atsecure
+ 
+ ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
+diff --git a/tests/atsecure/Makefile b/tests/atsecure/Makefile
+new file mode 100644
+index 0000000..6c08055
+--- /dev/null
++++ b/tests/atsecure/Makefile
+@@ -0,0 +1,9 @@
++TARGETS=atsecure good evil.so
++
++all: $(TARGETS)
++
++evil.so: evil.c
++	$(CC) -shared -o $@ -fPIC $<
++
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/atsecure/atsecure.c b/tests/atsecure/atsecure.c
+new file mode 100644
+index 0000000..329c124
+--- /dev/null
++++ b/tests/atsecure/atsecure.c
+@@ -0,0 +1,10 @@
++#include <sys/auxv.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++
++int main(void)
++{
++	return getauxval(AT_SECURE);
++
++}
+diff --git a/tests/atsecure/evil.c b/tests/atsecure/evil.c
+new file mode 100644
+index 0000000..4fac90b
+--- /dev/null
++++ b/tests/atsecure/evil.c
+@@ -0,0 +1,10 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <sys/types.h>
++
++uid_t getuid(void)
++{
++	printf("Evil code ran!\n");
++	exit(1);
++}
+diff --git a/tests/atsecure/good.c b/tests/atsecure/good.c
+new file mode 100644
+index 0000000..7a250f5
+--- /dev/null
++++ b/tests/atsecure/good.c
+@@ -0,0 +1,10 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <sys/types.h>
++
++int main(void)
++{
++	printf("%u\n", getuid());
++	exit(0);
++}
+diff --git a/tests/atsecure/test b/tests/atsecure/test
+new file mode 100755
+index 0000000..59ba3a4
+--- /dev/null
++++ b/tests/atsecure/test
+@@ -0,0 +1,31 @@
++#!/usr/bin/perl
++
++use Test;
++BEGIN { plan tests => 4 }
++
++$basedir = $0;
++$basedir =~ s|(.*)/[^/]*|$1|;
++
++# Verify that AT_SECURE is 1 when noatsecure permission is not allowed.
++$result = system(
++"runcon -t test_atsecure_denied_t -- runcon -t test_atsecure_newdomain_t $basedir/atsecure"
++);
++ok($result);
++
++# Verify that AT_SECURE is 0 when noatsecure permission is allowed.
++$result = system(
++"runcon -t test_atsecure_allowed_t -- runcon -t test_atsecure_newdomain_t $basedir/atsecure"
++);
++ok( $result, 0 );
++
++# Verify that LD_PRELOAD is ignored when noatsecure permission is not allowed.
++$result = system(
++"runcon -t test_atsecure_denied_t -- bash -c 'LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good'"
++);
++ok( $result, 0 );
++
++# Verify that LD_PRELOAD is honored when noatsecure permission is allowed.
++$result = system(
++"runcon -t test_atsecure_allowed_t -- bash -c 'LD_PRELOAD=$basedir/evil.so runcon -t test_atsecure_newdomain_t $basedir/good'"
++);
++ok($result);
+-- 
+2.9.4
