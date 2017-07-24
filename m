@@ -1,183 +1,157 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6OCPSih022149
- for <selinux@tycho.nsa.gov>; Mon, 24 Jul 2017 08:25:28 -0400
-Message-ID: <1500899117.2458.2.camel@redhat.com>
-From: Paolo Abeni <pabeni@redhat.com>
-To: Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org
-Cc: selinux@tycho.nsa.gov
-Date: Mon, 24 Jul 2017 14:25:17 +0200
-In-Reply-To: <CAHC9VhS9QO8jGBodsSeQxxbgoxrmThRgbc3_m17h7gFmfP=GGw@mail.gmail.com>
-References: <CAHC9VhS9QO8jGBodsSeQxxbgoxrmThRgbc3_m17h7gFmfP=GGw@mail.gmail.com>
+Message-ID: <1500903478.20460.2.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Chris PeBenito <pebenito@ieee.org>, selinux@tycho.nsa.gov
+Date: Mon, 24 Jul 2017 09:37:58 -0400
+In-Reply-To: <4be29169-d043-1298-3288-dd813caf5b4b@ieee.org>
+References: <20170714164647.6183-1-sds@tycho.nsa.gov>
+ <20170716151512.GA4615@meriadoc.perfinion.com>
+ <CAHC9VhRe=4N8S74_QD-rwAhRXLF6vceDt=Q0wx8TmTwgy6DNLA@mail.gmail.com>
+ <1500383878.18445.1.camel@tycho.nsa.gov>
+ <1500405609.18445.14.camel@tycho.nsa.gov>
+ <CAHC9VhQz686zC06smDZHf_GYF8EmHpErX5xXnx9bifU51EkwrQ@mail.gmail.com>
+ <03f326bc-599c-0074-0cc2-7f46808673a1@ieee.org>
+ <20170719071233.GA7053@julius.enp8s0.d30>
+ <20170719204946.GA2890@julius.enp8s0.d30>
+ <20170719213141.GB2890@julius.enp8s0.d30>
+ <e8789b40-79e0-d19b-9278-14cec89cf674@ieee.org>
+ <1500555858.22177.3.camel@tycho.nsa.gov>
+ <4be29169-d043-1298-3288-dd813caf5b4b@ieee.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: SELinux/IP_PASSSEC regression in 4.13-rcX
+Subject: Re: [PATCH] selinux: Generalize support for NNP/nosuid SELinux
+ domain transitions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
+On Thu, 2017-07-20 at 17:08 -0400, Chris PeBenito wrote:
+> On 07/20/2017 09:04 AM, Stephen Smalley wrote:
+> > On Wed, 2017-07-19 at 21:17 -0400, Chris PeBenito wrote:
+> > > On 07/19/2017 05:31 PM, Dominick Grift wrote:
+> > > > On Wed, Jul 19, 2017 at 10:49:46PM +0200, Dominick Grift wrote:
+> > > > > On Wed, Jul 19, 2017 at 09:12:33AM +0200, Dominick Grift
+> > > > > wrote:
+> > > > > > On Tue, Jul 18, 2017 at 09:07:45PM -0400, Chris PeBenito
+> > > > > > wrote:
+> > > > > > > Once this permission is implemented I'll likely add the
+> > > > > > > permission across
+> > > > > > > most if not all transitions out of systemd.
+> > > > > > 
+> > > > > > Yes but do not expect that to ,always, be enough due to the
+> > > > > > inheritance aspect. A process may have inherited the NNP
+> > > > > > flag,
+> > > > > > not because its started by systemd but because its started
+> > > > > > by a
+> > > > > > process that inherited the NNP flag because it was started
+> > > > > > by
+> > > > > > systemd.
+> > > 
+> > > That just makes me want to apply the permission to all
+> > > transitions
+> > > for
+> > > all domains.  Not that I'm planning to do it in refpolicy.  I'm
+> > > definitely inclined to be very liberal in applying the permission
+> > > in
+> > > refpolicy.  For my personal systems, I'd probably do an:
+> > > 
+> > > allow domain domain:process nnp_nosuid_transition;
+> > > 
+> > > so I don't ever have to think about it again.
+> > 
+> > Caveats:
+> > 
+> > 1. It would mean that transitions on any removable media would be
+> > possible, even when marked nosuid.  So, for example, if you were to
+> > mount (or have auto-mounted) removable media with nosuid but
+> > without
+> > noexec, and the removable media had been maliciously crafted with a
+> > file with an entrypoint type, then a user could use it to
+> > transition to
+> > a potentially more privileged SELinux domain, even though it could
+> > not
+> > gain capabilities or uid-0 that way (or, if the user can induce
+> > another
+> > process to execute from this filesystem, then this could produce a
+> > domain transition that would normally have been prevented).  Ditto
+> > for
+> > network filesystems.  This is perhaps an argument for introducing a
+> > separate check on nosuid; could be done via a file-based additional
+> > check (Can domain D nosuid_transition on file type T?) in addition
+> > to
+> > the nnp_nosuid_transition process-based permission check or by
+> > adding a
+> > process2 class and splitting nnp_nosuid_transition into
+> > nosuid_transition and nnp_transition process-based permissions.
+> 
+> This is a good point; however, if you're trusting removable media to
+> do 
+> transitions on, you're already accepting a lot of risk of shooting 
+> yourself in the foot.
 
-On Fri, 2017-07-21 at 18:19 -0400, Paul Moore wrote:
-> I've been seeing a SELinux regression with IP_PASSSEC on the v4.13-rcX
-> kernels and finally tracked the problem down to the
-> skb_release_head_state() call in __udp_queue_rcv_skb().  Looking at
-> the code and the git log it would appear that the likely culprit is
-> 0a463c78d25b ("udp: avoid a cache miss on dequeue
-> "); it looks similar to IP option problem fixed in 0ddf3fb2c43d2.
+Exactly, which is why allowing transitions under nosuid could be
+dangerous, since nosuid is the traditional way of indicating that you
+don't trust the filesystem.
 
-Thank you for the report!
-My bad, I completely missed that code path.
+>   While I understand the logic of the nosuid fs 
+> behavior, it's always bugged me because it's not obvious to most
+> people.
 
-> From a SELinux/IP_PASSSEC point of view we need access to the skb->sp
-> pointer to examine the SAs.  I'm posting this here without a patch
-> because it isn't clear to me how you would like to fix the problem; my
-> initial thought would be to simply make the skb_release_head_state()
-> conditional on the skb->sp pointer, much like the IP options fix, but
-> I'm not sure if you have a more clever idea.
+On second thought, a file-based check doesn't really help here, since
+the file label is untrusted in this scenario.  So it only really makes
+sense to introduce another process permission if we want to distinguish
+transitions on nosuid from transitions under nnp, but that requires
+adding a process2 class.
 
-Unfortunately explicitly checking skb->sp at skb free time will defeat
-completely the intended optimization.
+> > 2. It would mean that all domains could enable NNP, install seccomp
+> > filters (allowed for unprivileged processes if NNP is enabled), and
+> > execve a domain-changing program with those filters in effect,
+> > which
+> > could potentially lead to subverting the new domain.  It is exactly
+> > for
+> 
+> To make sure I understand, by subvert you mean the child domain
+> would 
+> malfunction because of having less perms than required?
+> 
 
-To preserve it, something like the following patch is required, could
-you please test it in your environment?
+Not less perms, but changed behavior when it invokes system calls
+(based on the seccomp bpf filters).  The callee could set up seccomp
+filters that will cause the newly executed program to be killed at
+arbitrary points, to invoke system calls with altered arguments, or to
+return from certain system calls without actually executing them. 
+Seccomp filters are inherited across execve; safety is provided by
+requiring that the task that installs the filter either have NNP
+enabled or have CAP_SYS_ADMIN in its user namespace.
 
-Such patch is still prone to a kind of race, as only UDP packets
-enqueued to the UDP socket after the setsockopt() will carry the
-relevant cmsg info.
+> > this reason that domain transitions under NNP were originally not
+> > allowed, and then only allowed for bounded transitions.  Also note
+> > that
+> > NNP is intended to be used to open up other previously unsafe
+> > actions
+> > for unprivileged processes, so this could be extended to more than
+> > just
+> > seccomp in the future (examples given in the past have included
+> > chroot,
+> > certain unshare/clone flags, etc, although it seems like some of
+> > this
+> > has been obsoleted/replaced by user namespaces).
+> > 
+> > So from a safety POV, you really only want to allow this when the
+> > calling domain is more trusted than the callee domain; think of it
+> > as
+> > being similar (but not equivalent) to noatsecure and/or
+> > dyntransition.
+> 
+> Perhaps then the permission should be named something like 
+> nnp_nosuid_inh or inherit_nnp_nosuid or some variation thereof?
 
-e.g. with the following event sequence:
+It might make sense to separately introduce a seccompinh permission or
+similar to control whether seccomp filters can be inherited across a
+domain transition.  That's independent of whether we allow transitions
+under NNP and/or nosuid.
 
-<an UDP packet is enqueued to the revevant socket>
-setsockopt(...,IP_CMSG_PASSSEC)
-recvmsg(...);
-
-the ancillary message data will not include the IP_CMSG_PASSSEC, while
-kernel pre 0a463c78d25b will provide it. Do you think such behavior
-will be acceptable?
-
-If not, I fear a revert will be needed.
-
-Cheers,
-
-Paolo
----
-diff --git a/include/net/udp.h b/include/net/udp.h
-index 972ce4b..f109126 100644
---- a/include/net/udp.h
-+++ b/include/net/udp.h
-@@ -319,19 +319,24 @@ struct udp_dev_scratch {
- 	bool csum_unnecessary;
- };
- 
-+static inline struct udp_dev_scratch* udp_skb_scratch(struct sk_buff *skb)
-+{
-+	return (struct udp_dev_scratch *)&skb->dev_scratch;
-+}
-+
- static inline unsigned int udp_skb_len(struct sk_buff *skb)
- {
--	return ((struct udp_dev_scratch *)&skb->dev_scratch)->len;
-+	return udp_skb_scratch(skb)->len;
- }
- 
- static inline bool udp_skb_csum_unnecessary(struct sk_buff *skb)
- {
--	return ((struct udp_dev_scratch *)&skb->dev_scratch)->csum_unnecessary;
-+	return udp_skb_scratch(skb)->csum_unnecessary;
- }
- 
- static inline bool udp_skb_is_linear(struct sk_buff *skb)
- {
--	return ((struct udp_dev_scratch *)&skb->dev_scratch)->is_linear;
-+	return udp_skb_scratch(skb)->is_linear;
- }
- 
- #else
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index b057653..582c13e 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1163,32 +1163,47 @@ int udp_sendpage(struct sock *sk, struct page *page, int offset,
- 	return ret;
- }
- 
-+#define UDP_SKB_IS_STATELESS 0x80000000
-+
- #if BITS_PER_LONG == 64
- static void udp_set_dev_scratch(struct sk_buff *skb)
- {
--	struct udp_dev_scratch *scratch;
-+	struct udp_dev_scratch *scratch = udp_skb_scratch(skb);
- 
- 	BUILD_BUG_ON(sizeof(struct udp_dev_scratch) > sizeof(long));
--	scratch = (struct udp_dev_scratch *)&skb->dev_scratch;
- 	scratch->truesize = skb->truesize;
- 	scratch->len = skb->len;
- 	scratch->csum_unnecessary = !!skb_csum_unnecessary(skb);
- 	scratch->is_linear = !skb_is_nonlinear(skb);
-+	if (likely(!skb->_skb_refdst))
-+		scratch->truesize |= UDP_SKB_IS_STATELESS;
- }
- 
- static int udp_skb_truesize(struct sk_buff *skb)
- {
--	return ((struct udp_dev_scratch *)&skb->dev_scratch)->truesize;
-+	return udp_skb_scratch(skb)->truesize & ~UDP_SKB_IS_STATELESS;
-+}
-+
-+static bool udp_skb_has_head_state(struct sk_buff *skb)
-+{
-+	return !(udp_skb_scratch(skb)->truesize & UDP_SKB_IS_STATELESS);
- }
- #else
- static void udp_set_dev_scratch(struct sk_buff *skb)
- {
- 	skb->dev_scratch = skb->truesize;
-+	if (likely(!skb->_skb_refdst))
-+		scratch->dev_scratch |= UDP_SKB_IS_STATELESS;
- }
- 
- static int udp_skb_truesize(struct sk_buff *skb)
- {
--	return skb->dev_scratch;
-+	return skb->dev_scratch & ~UDP_SKB_IS_STATELESS;
-+}
-+
-+static bool udp_skb_has_head_state(struct sk_buff *skb)
-+{
-+	return !(skb->dev_scratch & UDP_SKB_IS_STATELESS);
- }
- #endif
- 
-@@ -1388,10 +1403,10 @@ void skb_consume_udp(struct sock *sk, struct sk_buff *skb, int len)
- 		unlock_sock_fast(sk, slow);
- 	}
- 
--	/* we cleared the head states previously only if the skb lacks any IP
--	 * options, see __udp_queue_rcv_skb().
-+	/* In the more common cases we cleared the head states previously,
-+	 * see __udp_queue_rcv_skb().
- 	 */
--	if (unlikely(IPCB(skb)->opt.optlen > 0))
-+	if (unlikely(udp_skb_has_head_state(skb)))
- 		skb_release_head_state(skb);
- 	consume_stateless_skb(skb);
- }
-@@ -1784,11 +1799,12 @@ static int __udp_queue_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		sk_mark_napi_id_once(sk, skb);
- 	}
- 
--	/* At recvmsg() time we need skb->dst to process IP options-related
--	 * cmsg, elsewhere can we clear all pending head states while they are
--	 * hot in the cache
-+	/* At recvmsg() time we may access skb->dst or skb->sp depending on
-+	 * the IP options and the cmsg flags, elsewhere can we clear all
-+	 * pending head states while they are hot in the cache
- 	 */
--	if (likely(IPCB(skb)->opt.optlen == 0))
-+	if (likely(IPCB(skb)->opt.optlen == 0 &&
-+	           !(inet_sk(sk)->cmsg_flags & IP_CMSG_PASSSEC)))
- 		skb_release_head_state(skb);
- 
- 	rc = __udp_enqueue_schedule_skb(sk, skb);
+I'm starting to think it is a mistake to treat NNP and nosuid
+transitions the same way, given the differences above.  And I think the
+only way I can support that sanely is by adding a process2 class.  So
+maybe we just need to do that.
