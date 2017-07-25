@@ -1,231 +1,435 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Cc: paul@paul-moore.com, luto@kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Date: Tue, 25 Jul 2017 11:52:27 -0400
-Message-Id: <20170725155227.30765-1-sds@tycho.nsa.gov>
-Subject: [PATCH v3] selinux: Generalize support for NNP/nosuid SELinux domain
- transitions
+Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
+Date: Tue, 25 Jul 2017 11:55:42 -0400
+Message-Id: <20170725155542.32496-1-sds@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: Add tests for transitions under NNP/nosuid
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-As systemd ramps up enabling NNP (NoNewPrivileges) for system services,
-it is increasingly breaking SELinux domain transitions for those services
-and their descendants.  systemd enables NNP not only for services whose
-unit files explicitly specify NoNewPrivileges=yes but also for services
-whose unit files specify any of the following options in combination with
-running without CAP_SYS_ADMIN (e.g. specifying User= or a
-CapabilityBoundingSet= without CAP_SYS_ADMIN): SystemCallFilter=,
-SystemCallArchitectures=, RestrictAddressFamilies=, RestrictNamespaces=,
-PrivateDevices=, ProtectKernelTunables=, ProtectKernelModules=,
-MemoryDenyWriteExecute=, or RestrictRealtime= as per the systemd.exec(5)
-man page.
-
-The end result is bad for the security of both SELinux-disabled and
-SELinux-enabled systems.  Packagers have to turn off these
-options in the unit files to preserve SELinux domain transitions.  For
-users who choose to disable SELinux, this means that they miss out on
-at least having the systemd-supported protections.  For users who keep
-SELinux enabled, they may still be missing out on some protections
-because it isn't necessarily guaranteed that the SELinux policy for
-that service provides the same protections in all cases.
-
-commit 7b0d0b40cd78 ("selinux: Permit bounded transitions under
-NO_NEW_PRIVS or NOSUID.") allowed bounded transitions under NNP in
-order to support limited usage for sandboxing programs.  However,
-defining typebounds for all of the affected service domains
-is impractical to implement in policy, since typebounds requires us
-to ensure that each domain is allowed everything all of its descendant
-domains are allowed, and this has to be repeated for the entire chain
-of domain transitions.  There is no way to clone all allow rules from
-descendants to their ancestors in policy currently, and doing so would
-be undesirable even if it were practical, as it requires leaking
-permissions to objects and operations into ancestor domains that could
-weaken their own security in order to allow them to the descendants
-(e.g. if a descendant requires execmem permission, then so do all of
-its ancestors; if a descendant requires execute permission to a file,
-then so do all of its ancestors; if a descendant requires read to a
-symbolic link or temporary file, then so do all of its ancestors...).
-SELinux domains are intentionally not hierarchical / bounded in this
-manner normally, and making them so would undermine their protections
-and least privilege.
-
-We have long had a similar tension with SELinux transitions and nosuid
-mounts, albeit not as severe.  Users often have had to choose between
-retaining nosuid on a mount and allowing SELinux domain transitions on
-files within those mounts.  This likewise leads to unfortunate tradeoffs
-in security.
-
-Decouple NNP/nosuid from SELinux transitions, so that we don't have to
-make a choice between them. Introduce a nnp_nosuid_transition policy
-capability that enables transitions under NNP/nosuid to be based on
-a permission (nnp_transition for NNP; nosuid_transition for nosuid)
-between the old and new contexts in addition to the current support
-for bounded transitions.  Domain transitions can then be allowed in
-policy without requiring the parent to be a strict superset of all of
-its children.
-
-With this change, systemd unit files can be left unmodified from upstream.
-SELinux-disabled and SELinux-enabled users will benefit from retaining any
-of the systemd-provided protections.  SELinux policy will only need to
-be adapted to enable the new policy capability and to allow the
-new permissions between domain pairs as appropriate.
-
-NB: Allowing nnp_transition between two contexts opens up the potential
-for the old context to subvert the new context by installing seccomp
-filters before the execve.  Allowing nosuid_transition between two contexts
-opens up the potential for a context transition to occur on a file from
-an untrusted filesystem (e.g. removable media or remote filesystem).  Use
-with care.
+Duplicate the existing tests for transitions under NNP for
+transitions on a nosuid mount, and then augment both the NNP
+and nosuid tests to also test the new support for allowing
+transitions based on nnp_transition and/or nosuid_transition
+permission if the nnp_nosuid_transition policy capability is
+enabled.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/hooks.c            | 53 ++++++++++++++++++++++++++-----------
- security/selinux/include/classmap.h |  4 ++-
- security/selinux/include/security.h |  2 ++
- security/selinux/ss/services.c      |  7 ++++-
- 4 files changed, 48 insertions(+), 18 deletions(-)
+ policy/Makefile           |  6 ++-
+ policy/test_nnp.te        | 17 +++++++++
+ policy/test_nosuid.te     | 51 ++++++++++++++++++++++++++
+ tests/Makefile            |  2 +-
+ tests/nnp/test            | 40 +++++++++++++++++++-
+ tests/nosuid/Makefile     |  7 ++++
+ tests/nosuid/checkcon.c   | 41 +++++++++++++++++++++
+ tests/nosuid/execnosuid.c | 55 ++++++++++++++++++++++++++++
+ tests/nosuid/test         | 93 +++++++++++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 309 insertions(+), 3 deletions(-)
+ create mode 100644 policy/test_nosuid.te
+ create mode 100644 tests/nosuid/Makefile
+ create mode 100644 tests/nosuid/checkcon.c
+ create mode 100644 tests/nosuid/execnosuid.c
+ create mode 100755 tests/nosuid/test
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1684844..0b2eddf 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2319,6 +2319,8 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
- 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
- 	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
- 	int rc;
-+	u16 sclass;
-+	u32 av;
+diff --git a/policy/Makefile b/policy/Makefile
+index b728a9e..7cdee96 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -23,7 +23,7 @@ TARGETS = \
+ 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
+ 	test_transition.te test_inet_socket.te test_unix_socket.te \
+ 	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
+-	test_ibpkey.te test_atsecure.te
++	test_ibpkey.te test_atsecure.te test_nosuid.te
  
- 	if (!nnp && !nosuid)
- 		return 0; /* neither NNP nor nosuid */
-@@ -2327,24 +2329,43 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
- 		return 0; /* No change in credentials */
+ ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
+ TARGETS += test_bounds.te
+@@ -57,6 +57,10 @@ ifeq ($(shell grep -q all_file_perms.*map $(POLDEV)/include/support/all_perms.sp
+ export M4PARAM = -Dmap_permission_defined
+ endif
  
- 	/*
--	 * The only transitions we permit under NNP or nosuid
--	 * are transitions to bounded SIDs, i.e. SIDs that are
--	 * guaranteed to only be allowed a subset of the permissions
--	 * of the current SID.
-+	 * If the policy enables the nnp_nosuid_transition policy capability,
-+	 * then we permit transitions under NNP or nosuid if the
-+	 * policy allows the corresponding permission between
-+	 * the old and new contexts.
- 	 */
--	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
--	if (rc) {
--		/*
--		 * On failure, preserve the errno values for NNP vs nosuid.
--		 * NNP:  Operation not permitted for caller.
--		 * nosuid:  Permission denied to file.
--		 */
--		if (nnp)
--			return -EPERM;
--		else
--			return -EACCES;
-+	if (selinux_policycap_nnp_nosuid_transition) {
-+		if (nnp) {
-+			sclass = SECCLASS_PROCESS;
-+			av = PROCESS__NNP_TRANSITION;
-+		} else {
-+			sclass = SECCLASS_PROCESS2;
-+			av = PROCESS2__NOSUID_TRANSITION;
++ifeq ($(shell grep -q nnp_transition $(POLDEV)/include/support/all_perms.spt && echo true),true)
++export M4PARAM += -Dnnp_transition_permission_defined
++endif
++
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te, $(TARGETS))
+ endif
+diff --git a/policy/test_nnp.te b/policy/test_nnp.te
+index 54ebfd3..b99e406 100644
+--- a/policy/test_nnp.te
++++ b/policy/test_nnp.te
+@@ -32,3 +32,20 @@ domain_entry_file(test_nnp_notbounded_t, test_nnp_notbounded_exec_t)
+ # Run it!  This should fail always.
+ unconfined_runs_test(test_nnp_notbounded_t)
+ unconfined_run_to(test_nnp_notbounded_t, test_nnp_notbounded_exec_t)
++
++# A domain to which the unconfined domain is allowed nnp_transition.
++type test_nnp_nnptransition_t;
++domain_type(test_nnp_nnptransition_t)
++typeattribute test_nnp_nnptransition_t testdomain;
++
++# The entrypoint type for this domain.
++type test_nnp_nnptransition_exec_t;
++files_type(test_nnp_nnptransition_exec_t)
++domain_entry_file(test_nnp_nnptransition_t, test_nnp_nnptransition_exec_t)
++
++# Run it!  This should succeed on v4.14 or later.
++unconfined_runs_test(test_nnp_nnptransition_t)
++unconfined_run_to(test_nnp_nnptransition_t, test_nnp_nnptransition_exec_t)
++ifdef(`nnp_transition_permission_defined', `
++allow unconfined_t test_nnp_nnptransition_t:process nnp_transition;
++')
+diff --git a/policy/test_nosuid.te b/policy/test_nosuid.te
+new file mode 100644
+index 0000000..0d3d2ab
+--- /dev/null
++++ b/policy/test_nosuid.te
+@@ -0,0 +1,51 @@
++#################################
++#
++# Policy for testing nosuid transitions.
++#
++
++# A domain bounded by the unconfined domain.
++type test_nosuid_bounded_t;
++domain_type(test_nosuid_bounded_t)
++typeattribute test_nosuid_bounded_t testdomain;
++typebounds unconfined_t test_nosuid_bounded_t;
++
++# The entrypoint type for this domain.
++type test_nosuid_bounded_exec_t;
++files_type(test_nosuid_bounded_exec_t)
++domain_entry_file(test_nosuid_bounded_t, test_nosuid_bounded_exec_t)
++domain_entry_file(unconfined_t, test_nosuid_bounded_exec_t)
++
++# Run it!  This should succeed on v3.18 or later, fail on older kernels.
++unconfined_runs_test(test_nosuid_bounded_t)
++unconfined_run_to(test_nosuid_bounded_t, test_nosuid_bounded_exec_t)
++
++# A domain that is not bounded by the unconfined domain.
++type test_nosuid_notbounded_t;
++domain_type(test_nosuid_notbounded_t)
++typeattribute test_nosuid_notbounded_t testdomain;
++
++# The entrypoint type for this domain.
++type test_nosuid_notbounded_exec_t;
++files_type(test_nosuid_notbounded_exec_t)
++domain_entry_file(test_nosuid_notbounded_t, test_nosuid_notbounded_exec_t)
++
++# Run it!  This should fail always.
++unconfined_runs_test(test_nosuid_notbounded_t)
++unconfined_run_to(test_nosuid_notbounded_t, test_nosuid_notbounded_exec_t)
++
++# A domain to which the unconfined domain is allowed nosuid_transition.
++type test_nosuid_nosuidtransition_t;
++domain_type(test_nosuid_nosuidtransition_t)
++typeattribute test_nosuid_nosuidtransition_t testdomain;
++
++# The entrypoint type for this domain.
++type test_nosuid_nosuidtransition_exec_t;
++files_type(test_nosuid_nosuidtransition_exec_t)
++domain_entry_file(test_nosuid_nosuidtransition_t, test_nosuid_nosuidtransition_exec_t)
++
++# Run it!  This should succeed on v4.14 or later.
++unconfined_runs_test(test_nosuid_nosuidtransition_t)
++unconfined_run_to(test_nosuid_nosuidtransition_t, test_nosuid_nosuidtransition_exec_t)
++ifdef(`nnp_transition_permission_defined', `
++allow unconfined_t test_nosuid_nosuidtransition_t:process2 nosuid_transition;
++')
+diff --git a/tests/Makefile b/tests/Makefile
+index f42fe7e..3edf73c 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -11,7 +11,7 @@ SUBDIRS:= domain_trans entrypoint execshare exectrace execute_no_trans \
+ 	task_getpgid task_setpgid file ioctl capable_file capable_net \
+ 	capable_sys dyntrans dyntrace bounds nnp mmap unix_socket inet_socket \
+ 	overlay checkreqprot mqueue mac_admin infiniband_pkey \
+-	infiniband_endport atsecure
++	infiniband_endport atsecure nosuid
+ 
+ ifeq ($(shell grep -q cap_userns $(POLDEV)/include/support/all_perms.spt && echo true),true)
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
+diff --git a/tests/nnp/test b/tests/nnp/test
+index 4c7e010..6dcb5dc 100755
+--- a/tests/nnp/test
++++ b/tests/nnp/test
+@@ -1,7 +1,23 @@
+ #!/usr/bin/perl
+ 
+ use Test;
+-BEGIN { plan tests => 4 }
++
++BEGIN {
++    $test_count          = 4;
++    $test_nnp_transition = 0;
++
++    if (
++        system(
++"grep -q 1 /sys/fs/selinux/policy_capabilities/nnp_nosuid_transition 2> /dev/null"
++        ) == 0
++      )
++    {
++        $test_nnp_transition = 1;
++        $test_count += 2;
++    }
++
++    plan tests => $test_count;
++}
+ 
+ $basedir = $0;
+ $basedir =~ s|(.*)/[^/]*|$1|;
+@@ -38,6 +54,28 @@ $result =
+   system("$basedir/execnnp $basedir/checkcon test_nnp_notbounded_t 2>&1");
+ ok($result);         #this should fail
+ 
++if ($test_nnp_transition) {
++
++    # Set entrypoint type for nnptransition domain.
++    system(
++        "chcon -t test_nnp_nnptransition_exec_t $basedir/checkcon $basedir/true"
++    );
++
++    # Transition to nnptransition domain via setexec.
++    $result =
++      system(
++        "$basedir/execnnp runcon -t test_nnp_nnptransition_t $basedir/true 2>&1"
++      );
++    ok( $result, 0 );    #this should succeed
++
++    # Automatic transition to nnptransition domain via exec.
++    $result =
++      system(
++        "$basedir/execnnp $basedir/checkcon test_nnp_nnptransition_t 2>&1");
++    ok( $result, 0 );    #this should succeed
++
++}
++
+ # Cleanup.
+ system("rm -f $basedir/true");
+ 
+diff --git a/tests/nosuid/Makefile b/tests/nosuid/Makefile
+new file mode 100644
+index 0000000..239e0f0
+--- /dev/null
++++ b/tests/nosuid/Makefile
+@@ -0,0 +1,7 @@
++TARGETS=execnosuid checkcon
++
++LDLIBS += -lselinux
++
++all: $(TARGETS)
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/nosuid/checkcon.c b/tests/nosuid/checkcon.c
+new file mode 100644
+index 0000000..d8a1e15
+--- /dev/null
++++ b/tests/nosuid/checkcon.c
+@@ -0,0 +1,41 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <stdbool.h>
++#include <string.h>
++#include <unistd.h>
++#include <selinux/selinux.h>
++#include <selinux/context.h>
++
++int main(int argc, char **argv)
++{
++	char *con = NULL;
++	context_t c;
++	const char *type;
++	int rc;
++
++	if (argc != 2) {
++		fprintf(stderr, "usage:  %s expected-type\n", argv[0]);
++		exit(-1);
++	}
++
++	if (getcon(&con) < 0) {
++		perror("getcon");
++		exit(-1);
++	}
++
++	c = context_new(con);
++	if (!c) {
++		perror("context_new");
++		exit(-1);
++	}
++
++	type = context_type_get(c);
++	if (!type) {
++		perror("context_type_get");
++		exit(-1);
++
++	}
++
++	rc = strcmp(type, argv[1]);
++	exit(rc);
++}
+diff --git a/tests/nosuid/execnosuid.c b/tests/nosuid/execnosuid.c
+new file mode 100644
+index 0000000..4324937
+--- /dev/null
++++ b/tests/nosuid/execnosuid.c
+@@ -0,0 +1,55 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdbool.h>
++#include <unistd.h>
++#include <sys/utsname.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++
++int main(int argc, char **argv)
++{
++	bool nobounded;
++	struct utsname uts;
++	pid_t pid;
++	int rc, status;
++
++	if (argc < 2) {
++		fprintf(stderr, "usage:  %s command [args...]\n", argv[0]);
++		exit(-1);
++	}
++
++	if (uname(&uts) < 0) {
++		perror("uname");
++		exit(-1);
++	}
++
++	nobounded = ((strcmp(argv[argc - 1], "test_nosuid_bounded_t") == 0) &&
++		     (strverscmp(uts.release, "3.18") < 0));
++
++	pid = fork();
++	if (pid < 0) {
++		perror("fork");
++		exit(-1);
++	}
++
++	if (pid == 0) {
++		execvp(argv[1], &argv[1]);
++		perror(argv[1]);
++		exit(-1);
++	}
++
++	pid = wait(&status);
++	if (WIFEXITED(status)) {
++		if (WEXITSTATUS(status) && nobounded) {
++			printf("%s:  Kernels < v3.18 do not support bounded transitions under NNP.\n",
++			       argv[0]);
++			/* pass the test */
++			exit(0);
 +		}
++		exit(WEXITSTATUS(status));
++	}
 +
-+		rc = avc_has_perm(old_tsec->sid, new_tsec->sid,
-+				  sclass, av, NULL);
-+		if (!rc)
-+			return 0;
- 	}
--	return 0;
++	fprintf(stderr, "Unexpected exit status 0x%x\n", status);
++	exit(-1);
++}
+diff --git a/tests/nosuid/test b/tests/nosuid/test
+new file mode 100755
+index 0000000..cd46109
+--- /dev/null
++++ b/tests/nosuid/test
+@@ -0,0 +1,93 @@
++#!/usr/bin/perl
 +
-+	/*
-+	 * We also permit NNP or nosuid transitions to bounded SIDs,
-+	 * i.e. SIDs that are guaranteed to only be allowed a subset
-+	 * of the permissions of the current SID.
-+	 */
-+	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
-+	if (!rc)
-+		return 0;
++use Test;
 +
-+	/*
-+	 * On failure, preserve the errno values for NNP vs nosuid.
-+	 * NNP:  Operation not permitted for caller.
-+	 * nosuid:  Permission denied to file.
-+	 */
-+	if (nnp)
-+		return -EPERM;
-+	return -EACCES;
- }
- 
- static int selinux_bprm_set_creds(struct linux_binprm *bprm)
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index b9fe343..b3f892d 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -47,7 +47,9 @@ struct security_class_mapping secclass_map[] = {
- 	    "getattr", "setexec", "setfscreate", "noatsecure", "siginh",
- 	    "setrlimit", "rlimitinh", "dyntransition", "setcurrent",
- 	    "execmem", "execstack", "execheap", "setkeycreate",
--	    "setsockcreate", "getrlimit", NULL } },
-+	    "setsockcreate", "getrlimit", "nnp_transition", NULL } },
-+	{ "process2",
-+	  { "nosuid_transition", NULL } },
- 	{ "system",
- 	  { "ipc_info", "syslog_read", "syslog_mod",
- 	    "syslog_console", "module_request", "module_load", NULL } },
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index e91f08c..3e32317 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -73,6 +73,7 @@ enum {
- 	POLICYDB_CAPABILITY_EXTSOCKCLASS,
- 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
- 	POLICYDB_CAPABILITY_CGROUPSECLABEL,
-+	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
- 	__POLICYDB_CAPABILITY_MAX
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-@@ -84,6 +85,7 @@ extern int selinux_policycap_openperm;
- extern int selinux_policycap_extsockclass;
- extern int selinux_policycap_alwaysnetwork;
- extern int selinux_policycap_cgroupseclabel;
-+extern int selinux_policycap_nnp_nosuid_transition;
- 
- /*
-  * type_datum properties
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 2f02fa6..16c55de 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -76,7 +76,8 @@ char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
- 	"open_perms",
- 	"extended_socket_class",
- 	"always_check_network",
--	"cgroup_seclabel"
-+	"cgroup_seclabel",
-+	"nnp_nosuid_transition"
- };
- 
- int selinux_policycap_netpeer;
-@@ -84,6 +85,7 @@ int selinux_policycap_openperm;
- int selinux_policycap_extsockclass;
- int selinux_policycap_alwaysnetwork;
- int selinux_policycap_cgroupseclabel;
-+int selinux_policycap_nnp_nosuid_transition;
- 
- static DEFINE_RWLOCK(policy_rwlock);
- 
-@@ -2009,6 +2011,9 @@ static void security_load_policycaps(void)
- 	selinux_policycap_cgroupseclabel =
- 		ebitmap_get_bit(&policydb.policycaps,
- 				POLICYDB_CAPABILITY_CGROUPSECLABEL);
-+	selinux_policycap_nnp_nosuid_transition =
-+		ebitmap_get_bit(&policydb.policycaps,
-+				POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION);
- 
- 	for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
- 		pr_info("SELinux:  policy capability %s=%d\n",
++BEGIN {
++    $test_count             = 4;
++    $test_nosuid_transition = 0;
++
++    if (
++        system(
++"grep -q 1 /sys/fs/selinux/policy_capabilities/nnp_nosuid_transition 2> /dev/null"
++        ) == 0
++      )
++    {
++        $test_nosuid_transition = 1;
++        $test_count += 2;
++    }
++
++    plan tests => $test_count;
++}
++
++$basedir = $0;
++$basedir =~ s|(.*)/[^/]*|$1|;
++
++# Create nosuid mount.
++system("mkdir -p $basedir/testdir");
++system("mount -t tmpfs -o nosuid none $basedir/testdir");
++
++# Set entrypoint type for bounded domain.
++system("cp $basedir/checkcon $basedir/testdir");
++system("chcon -t test_nosuid_bounded_exec_t $basedir/testdir/checkcon");
++
++# Transition to bounded type via setexec.
++$result = system(
++"$basedir/execnosuid runcon -t test_nosuid_bounded_t $basedir/testdir/checkcon test_nosuid_bounded_t 2>&1"
++);
++ok( $result, 0 );    #this should pass
++
++# Automatic transition to bounded domain via exec.
++$result = system(
++    "$basedir/execnosuid $basedir/testdir/checkcon test_nosuid_bounded_t 2>&1");
++ok( $result, 0 );    #this should pass
++
++# Use true as an entrypoint program to test ability to exec at all.
++system("cp /bin/true $basedir/testdir/true");
++
++# Set entrypoint type for notbounded domain.
++system(
++"chcon -t test_nosuid_notbounded_exec_t $basedir/testdir/checkcon $basedir/testdir/true"
++);
++
++# Transition to notbounded domain via setexec.
++$result =
++  system(
++"$basedir/execnosuid runcon -t test_nosuid_notbounded_t $basedir/testdir/true 2>&1"
++  );
++ok($result);    #this should fail
++
++# Automatic transition to notbounded domain via exec.
++$result =
++  system(
++"$basedir/execnosuid $basedir/testdir/checkcon test_nosuid_notbounded_t 2>&1"
++  );
++ok($result);    #this should fail
++
++if ($test_nosuid_transition) {
++
++    # Set entrypoint type for nosuid domain.
++    system(
++"chcon -t test_nosuid_nosuidtransition_exec_t $basedir/testdir/checkcon $basedir/testdir/true"
++    );
++
++    # Transition to nosuid domain via setexec.
++    $result =
++      system(
++"$basedir/execnosuid runcon -t test_nosuid_nosuidtransition_t $basedir/testdir/true 2>&1"
++      );
++    ok( $result, 0 );    #this should succeed
++
++    # Automatic transition to nosuid domain via exec.
++    $result =
++      system(
++"$basedir/execnosuid $basedir/testdir/checkcon test_nosuid_nosuidtransition_t 2>&1"
++      );
++    ok( $result, 0 );    #this should succeed
++
++}
++
++# Cleanup.
++system("umount $basedir/testdir");
++system("rmdir $basedir/testdir");
++
++exit;
 -- 
 2.9.4
