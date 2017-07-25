@@ -1,88 +1,120 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6OKhg4g032517
- for <selinux@tycho.nsa.gov>; Mon, 24 Jul 2017 16:43:42 -0400
-Received: from mail-ua0-f172.google.com (mail-ua0-f172.google.com
- [209.85.217.172])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id EE6A622CA1
- for <selinux@tycho.nsa.gov>; Mon, 24 Jul 2017 20:43:34 +0000 (UTC)
-Received: by mail-ua0-f172.google.com with SMTP id 80so87998137uas.0
- for <selinux@tycho.nsa.gov>; Mon, 24 Jul 2017 13:43:34 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6P20Yam006431
+ for <selinux@tycho.nsa.gov>; Mon, 24 Jul 2017 22:00:34 -0400
+Received: by mail-lf0-f65.google.com with SMTP id d80so2488979lfg.1
+ for <selinux@tycho.nsa.gov>; Mon, 24 Jul 2017 19:00:27 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1500556382.22177.4.camel@tycho.nsa.gov>
-References: <20170714164647.6183-1-sds@tycho.nsa.gov>
- <CALCETrWaEAMnxujZ4Y5NY+hO3zLD8nNr+VaL9gJ=4_B8hw6=Pw@mail.gmail.com>
- <CAHC9VhTSvcoxZ9uird=eJcgiisyiG2PykLvJ8kniWn7q64yXrA@mail.gmail.com>
- <1500556382.22177.4.camel@tycho.nsa.gov>
-From: Andy Lutomirski <luto@kernel.org>
-Date: Mon, 24 Jul 2017 13:43:13 -0700
-Message-ID: <CALCETrWmWVwiyvO9QO1xZZwRo3uaCHwoqFmcdUV-LNxjgJrqrw@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Paul Moore <paul@paul-moore.com>, Andy Lutomirski <luto@kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>
+In-Reply-To: <CAHC9VhSAifQtx3eaQD42XMx8beC08JBGQ9SaKFvkD9qVsT8VCg@mail.gmail.com>
+References: <CAHC9VhS9QO8jGBodsSeQxxbgoxrmThRgbc3_m17h7gFmfP=GGw@mail.gmail.com>
+ <1500899117.2458.2.camel@redhat.com>
+ <CAHC9VhRjju-_3V21x+BogdRg-brDho1g_HzW+0CvU0PbhEtQqw@mail.gmail.com>
+ <1500912555.2458.12.camel@redhat.com>
+ <CAHC9VhSAifQtx3eaQD42XMx8beC08JBGQ9SaKFvkD9qVsT8VCg@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 24 Jul 2017 22:00:25 -0400
+Message-ID: <CAHC9VhQC1Bpm9VdE2sBC4VLmnzu_B7kLEkgBtnDKvwKf5w1HyA@mail.gmail.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux: Generalize support for NNP/nosuid
- SELinux domain transitions
+Subject: Re: SELinux/IP_PASSSEC regression in 4.13-rcX
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jul 20, 2017 at 6:13 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Wed, 2017-07-19 at 17:08 -0400, Paul Moore wrote:
->> On Mon, Jul 17, 2017 at 4:06 PM, Andy Lutomirski <luto@kernel.org>
->> wrote:
->> > On Fri, Jul 14, 2017 at 9:46 AM, Stephen Smalley <sds@tycho.nsa.gov
->> > > wrote:
->> >
->> > At the risk of commenting on SELinux in general:
->> >
->> > > There is no way to clone all allow rules from
->> > > descendants to their ancestors in policy currently, and doing so
->> > > would
->> > > be undesirable even if it were practical, as it requires leaking
->> > > permissions to objects and operations into ancestor domains that
->> > > could
->> > > weaken their own security in order to allow them to the
->> > > descendants
->> > > (e.g. if a descendant requires execmem permission, then so do all
->> > > of
->> > > its ancestors ...
->> >
->> > In my mind, permissions like execmem aren't in the same category as
->> > normal permissions.  execmem is the right to do something that
->> > opens
->> > the subject to compromise, not the right to do something to an
->> > object
->> > that needs protection.  Maybe execmem should be exempt from
->> > typebounds.
+On Mon, Jul 24, 2017 at 3:00 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Jul 24, 2017 at 12:09 PM, Paolo Abeni <pabeni@redhat.com> wrote:
+>> Hi,
 >>
->> I just realized that this got lost in the rest of the discussion ...
+>> On Mon, 2017-07-24 at 10:42 -0400, Paul Moore wrote:
+>>> The change in behavior for userspace makes me a little nervous as
+>>> there is no way of knowing how any random application may be coded.
+>>> Even if we are confident that the majority of applications set
+>>> IP_PASSSEC before calling bind(), we are likely still stuck with a few
+>>> that will break, and that means a lot of hard to debug problem
+>>> reports.
+>>>
+>>> I would feel much more comfortable if we could preserve the existing behavior.
 >>
->> It's worth nothing that from a practical point of bounded type
->> transitions aren't likely going to be the solution that will likely
->> be
->> used to solve this current systemd problem (see the rest of the
->> thread).
+>> I agree, we must preserve the original behavior.
 >>
->> However, I understand you were speaking in general terms, and while
->> there may be some merit to your suggestion, that would be quite a
->> deviation from how things work at the moment and unless typebounds
->> takes off (which I am beginning to doubt will happen outside a few
->> special domains) I'm not sure it is worth the effort and headache.
+>> Re-thinking about the problem, checking skb->sp in the BH, and storing
+>> the status in the scratch area should both fix the issue in a sane way
+>> and preserve the optimization.
+>>
+>> Something like the code below. Could you please try in your
+>> environment? (or point me to simple reproducer ;-)
 >
-> I also don't see how execmem is fundamentally different than the other
-> examples I gave in the patch description; there would still be the
-> problem of leaking execute access to files, read to symlinks, ...
+> I'm happy to test this, but if you are curious, you can find the
+> selinux-testsuite at the link below; the "inet_socket" tests are the
+> ones relevant to this problem.
 >
+> * https://github.com/SELinuxProject/selinux-testsuite
+>
+> However, I believe there is a problem with this patch, see below.
+>
+>> ---
+>> diff --git a/include/net/udp.h b/include/net/udp.h
+>> index 972ce4b..8d2c406 100644
+>> --- a/include/net/udp.h
+>> +++ b/include/net/udp.h
+>> @@ -305,33 +305,44 @@ struct sock *udp6_lib_lookup_skb(struct sk_buff *skb,
+>>  /* UDP uses skb->dev_scratch to cache as much information as possible and avoid
+>>   * possibly multiple cache miss on dequeue()
+>>   */
+>> -#if BITS_PER_LONG == 64
+>> -
+>> -/* truesize, len and the bit needed to compute skb_csum_unnecessary will be on
+>> - * cold cache lines at recvmsg time.
+>> - * skb->len can be stored on 16 bits since the udp header has been already
+>> - * validated and pulled.
+>> - */
+>>  struct udp_dev_scratch {
+>> -       u32 truesize;
+>> +       /* skb->truesize and the stateless bit embeded in a single field;
+>> +        * do not use a bitfield since the compiler emits better/smaller code
+>> +        * this way
+>> +        */
+>> +       u32 _tsize_state;
+>> +
+>> +#if BITS_PER_LONG == 64
+>> +       /* len and the bit needed to compute skb_csum_unnecessary
+>> +        * will be on cold cache lines at recvmsg time.
+>> +        * skb->len can be stored on 16 bits since the udp header has been
+>> +        * already validated and pulled.
+>> +        */
+>>         u16 len;
+>>         bool is_linear;
+>>         bool csum_unnecessary;
+>> +#endif
+>>  };
+>
+> ...
+>
+>> diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+>> index b057653..d243772 100644
+>> --- a/net/ipv4/udp.c
+>> +++ b/net/ipv4/udp.c
+>> @@ -1163,34 +1163,32 @@ int udp_sendpage(struct sock *sk, struct page *page, int offset,
+>>         return ret;
+>>  }
+>>
+>> -#if BITS_PER_LONG == 64
+>> +#define UDP_SKB_IS_STATELESS 0x80000000
+>> +
+>>  static void udp_set_dev_scratch(struct sk_buff *skb)
+>>  {
+>> -       struct udp_dev_scratch *scratch;
+>> +       struct udp_dev_scratch *scratch = udp_skb_scratch(skb);
+>>
+>>         BUILD_BUG_ON(sizeof(struct udp_dev_scratch) > sizeof(long));
+>
+> The BUILD_BUG_ON() assertion no longer appears to be correct with this patch.
 
-It depends on exactly what the goal is.  For conventional security, if
-you can play evil games and get a privilege to, say, write a file,
-then SELinux or its policy has failed.  If you can play evil games and
-get execmem, it's not really a big deal.
+Nevermind, I just took a closer look at this and realized I made a
+mistake when applying your patch (had to apply manually for some
+reason).  I'm building a test kernel now.
 
-If you're running an app store and trying to completely prevent the
-execution of unsigned binary code, that's a different story, but it
-doesn't seem like the existing SELinux policy language is really
-geared toward this use case.
+-- 
+paul moore
+www.paul-moore.com
