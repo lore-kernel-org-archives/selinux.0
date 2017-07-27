@@ -1,416 +1,272 @@
-Message-ID: <1501158152.8598.1.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Tom Cherry <tomcherry@google.com>, selinux@tycho.nsa.gov
-Date: Thu, 27 Jul 2017 08:22:32 -0400
-In-Reply-To: <20170726200255.11640-1-tomcherry@google.com>
-References: <1501075565.8507.4.camel@tycho.nsa.gov>
- <20170726200255.11640-1-tomcherry@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH] libselinux: fix thread safety issues with lookup_common()
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6RDJYcI001726
+ for <selinux@tycho.nsa.gov>; Thu, 27 Jul 2017 09:19:34 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 901091B982B
+ for <selinux@tycho.nsa.gov>; Thu, 27 Jul 2017 13:11:14 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 27 Jul 2017 15:10:52 +0200
+Message-Id: <20170727131053.7962-3-plautrba@redhat.com>
+In-Reply-To: <20170727131053.7962-1-plautrba@redhat.com>
+References: <20170727131053.7962-1-plautrba@redhat.com>
+Subject: [PATCH 3/4] sepolicy: Make manpage and transition faster
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-07-26 at 13:02 -0700, Tom Cherry via Selinux wrote:
-> There are two problems with lookup_common() and therefore
-> selabel_lookup() and related functions that this patch fixes:
-> 
-> 1) A race with the lazy compilation of regexes.  Since the struct
-> regex_data is allocated and assigned immediately to the parent struct
-> spec, it's possible for a second thread to see that this pointer is
-> non-NULL before the regex compilation has finished.  This typically
-> results in a -1 return from selabel_lookup() with ENOENT as errno.
-> 
-> This is fixed by adding synchronization in compile_regex().
-> 
-> 2) A race with PCRE2 regex_match().  A struct pcre2_match_data is
-> created once and used for all regex matches for a given regex.  This
-> is problematic if two threads are attempting to evaluate the same
-> regex simultaneously.  This typically results in a successful return
-> from selabel_lookup() but with an erroneous selabel.
-> 
-> This is fixed by adding a pthread_mutex within regex_match() for
-> PCRE2.  Note, on my system, creating new matchdata takes roughly an
-> order of magnitude more time than locking a non-contended
-> pthread_mutex.  I don't believe programs will have enough contention
-> on this lock to justify that cost.
-> 
-> Bug: 63861738
-> Test: ueventd unit tests
-> Change-Id: I13bf782d81d0a0b896d444e396f307ad0dbacb6a
+SETools4 and Python 3 versions of map() and filter() uses iterators to
+generates query results and these iterators can't be imply re-used. It
+makes manpage and transitions operations really slow as they do lot of queries.
 
-Thanks, applied.
+This patch changes it in the way that it caches results in lists for all
+types, allow rules and transitions first and use cached results to
+filter them using Python's filter() function.
 
-> ---
->  libselinux/src/label_file.c       |  5 ++++-
->  libselinux/src/label_file.h       | 32
-> ++++++++++++++++++++++++++++++--
->  libselinux/src/regex.c            | 27 +++++++++++++++++++++++----
->  libselinux/src/regex.h            |  7 ++++++-
->  libselinux/src/selinux_internal.h | 32
-> ++++++++++++++++++++++++++++++++
->  5 files changed, 95 insertions(+), 8 deletions(-)
-> 
-> diff --git a/libselinux/src/label_file.c
-> b/libselinux/src/label_file.c
-> index f84d470b..560d8c3d 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -389,10 +389,12 @@ end_arch_check:
->  			spec->prefix_len = prefix_len;
->  		}
->  
-> -		rc = regex_load_mmap(mmap_area, &spec->regex,
-> reg_arch_matches);
-> +		rc = regex_load_mmap(mmap_area, &spec->regex,
-> reg_arch_matches,
-> +				     &spec->regex_compiled);
->  		if (rc < 0)
->  			goto out;
->  
-> +		__pthread_mutex_init(&spec->regex_lock, NULL);
->  		data->nspec++;
->  	}
->  
-> @@ -810,6 +812,7 @@ static void closef(struct selabel_handle *rec)
->  		free(spec->lr.ctx_trans);
->  		free(spec->lr.ctx_raw);
->  		regex_data_free(spec->regex);
-> +		__pthread_mutex_destroy(&spec->regex_lock);
->  		if (spec->from_mmap)
->  			continue;
->  		free(spec->regex_str);
-> diff --git a/libselinux/src/label_file.h
-> b/libselinux/src/label_file.h
-> index de804aed..aa576d8e 100644
-> --- a/libselinux/src/label_file.h
-> +++ b/libselinux/src/label_file.h
-> @@ -2,6 +2,7 @@
->  #define _SELABEL_FILE_H_
->  
->  #include <errno.h>
-> +#include <pthread.h>
->  #include <string.h>
->  
->  #include <sys/stat.h>
-> @@ -16,6 +17,7 @@
->  
->  #include "callbacks.h"
->  #include "label_internal.h"
-> +#include "selinux_internal.h"
->  
->  #define SELINUX_MAGIC_COMPILED_FCONTEXT	0xf97cff8a
->  
-> @@ -42,6 +44,8 @@ struct spec {
->  	char *regex_str;	/* regular expession string for
-> diagnostics */
->  	char *type_str;		/* type string for diagnostic
-> messages */
->  	struct regex_data * regex; /* backend dependent regular
-> expression data */
-> +	bool regex_compiled; /* bool to indicate if the regex is
-> compiled */
-> +	pthread_mutex_t regex_lock; /* lock for lazy compilation of
-> regex */
->  	mode_t mode;		/* mode format value */
->  	int matches;		/* number of matching pathnames
-> */
->  	int stem_id;		/* indicates which stem-
-> compression item */
-> @@ -339,9 +343,27 @@ static inline int compile_regex(struct
-> saved_data *data, struct spec *spec,
->  	struct stem *stem_arr = data->stem_arr;
->  	size_t len;
->  	int rc;
-> -
-> -	if (spec->regex)
-> +	bool regex_compiled;
-> +
-> +	/* We really want pthread_once() here, but since its
-> +	 * init_routine does not take a parameter, it's not possible
-> +	 * to use, so we generate the same effect with atomics and a
-> +	 * mutex */
-> +	regex_compiled =
-> +		__atomic_load_n(&spec->regex_compiled,
-> __ATOMIC_ACQUIRE);
-> +	if (regex_compiled) {
->  		return 0; /* already done */
-> +	}
-> +
-> +	__pthread_mutex_lock(&spec->regex_lock);
-> +	/* Check if another thread compiled the regex while we
-> waited
-> +	 * on the mutex */
-> +	regex_compiled =
-> +		__atomic_load_n(&spec->regex_compiled,
-> __ATOMIC_ACQUIRE);
-> +	if (regex_compiled) {
-> +		__pthread_mutex_unlock(&spec->regex_lock);
-> +		return 0;
-> +	}
->  
->  	/* Skip the fixed stem. */
->  	reg_buf = spec->regex_str;
-> @@ -354,6 +376,7 @@ static inline int compile_regex(struct saved_data
-> *data, struct spec *spec,
->  	if (!anchored_regex) {
->  		if (errbuf)
->  			*errbuf = "out of memory";
-> +		__pthread_mutex_unlock(&spec->regex_lock);
->  		return -1;
->  	}
->  
-> @@ -374,10 +397,13 @@ static inline int compile_regex(struct
-> saved_data *data, struct spec *spec,
->  					sizeof(regex_error_format_bu
-> ffer));
->  			*errbuf = &regex_error_format_buffer[0];
->  		}
-> +		__pthread_mutex_unlock(&spec->regex_lock);
->  		return -1;
->  	}
->  
->  	/* Done. */
-> +	__atomic_store_n(&spec->regex_compiled, true,
-> __ATOMIC_RELEASE);
-> +	__pthread_mutex_unlock(&spec->regex_lock);
->  	return 0;
->  }
->  
-> @@ -439,6 +465,8 @@ static inline int process_line(struct
-> selabel_handle *rec,
->  	/* process and store the specification in spec. */
->  	spec_arr[nspec].stem_id = find_stem_from_spec(data, regex);
->  	spec_arr[nspec].regex_str = regex;
-> +	__pthread_mutex_init(&spec_arr[nspec].regex_lock, NULL);
-> +	spec_arr[nspec].regex_compiled = false;
->  
->  	spec_arr[nspec].type_str = type;
->  	spec_arr[nspec].mode = 0;
-> diff --git a/libselinux/src/regex.c b/libselinux/src/regex.c
-> index ec1b0c4a..dfc15d63 100644
-> --- a/libselinux/src/regex.c
-> +++ b/libselinux/src/regex.c
-> @@ -1,10 +1,12 @@
->  #include <assert.h>
-> +#include <pthread.h>
->  #include <stdint.h>
->  #include <stdio.h>
->  #include <string.h>
->  
->  #include "regex.h"
->  #include "label_file.h"
-> +#include "selinux_internal.h"
->  
->  #ifdef USE_PCRE2
->  #define REGEX_ARCH_SIZE_T PCRE2_SIZE
-> @@ -63,6 +65,7 @@ struct regex_data {
->  	 * pattern in pcre2
->  	 */
->  	pcre2_match_data *match_data;
-> +	pthread_mutex_t match_mutex;
->  };
->  
->  int regex_prepare_data(struct regex_data **regex, char const
-> *pattern_string,
-> @@ -106,11 +109,12 @@ char const *regex_version(void)
->  }
->  
->  int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data
-> **regex,
-> -		    int do_load_precompregex)
-> +		    int do_load_precompregex, bool *regex_compiled)
->  {
->  	int rc;
->  	uint32_t entry_len;
->  
-> +	*regex_compiled = false;
->  	rc = next_entry(&entry_len, mmap_area, sizeof(uint32_t));
->  	if (rc < 0)
->  		return -1;
-> @@ -138,6 +142,8 @@ int regex_load_mmap(struct mmap_area *mmap_area,
-> struct regex_data **regex,
->  		    pcre2_match_data_create_from_pattern((*regex)-
-> >regex, NULL);
->  		if (!(*regex)->match_data)
->  			goto err;
-> +
-> +		*regex_compiled = true;
->  	}
->  
->  	/* and skip the decoded bit */
-> @@ -199,6 +205,7 @@ void regex_data_free(struct regex_data *regex)
->  			pcre2_code_free(regex->regex);
->  		if (regex->match_data)
->  			pcre2_match_data_free(regex->match_data);
-> +		__pthread_mutex_destroy(&regex->match_mutex);
->  		free(regex);
->  	}
->  }
-> @@ -206,9 +213,11 @@ void regex_data_free(struct regex_data *regex)
->  int regex_match(struct regex_data *regex, char const *subject, int
-> partial)
->  {
->  	int rc;
-> +	__pthread_mutex_lock(&regex->match_mutex);
->  	rc = pcre2_match(
->  	    regex->regex, (PCRE2_SPTR)subject,
-> PCRE2_ZERO_TERMINATED, 0,
->  	    partial ? PCRE2_PARTIAL_SOFT : 0, regex->match_data,
-> NULL);
-> +	__pthread_mutex_unlock(&regex->match_mutex);
->  	if (rc > 0)
->  		return REGEX_MATCH;
->  	switch (rc) {
-> @@ -244,6 +253,14 @@ int regex_cmp(struct regex_data *regex1, struct
-> regex_data *regex2)
->  	return SELABEL_EQUAL;
->  }
->  
-> +struct regex_data *regex_data_create(void)
-> +{
-> +	struct regex_data *regex_data =
-> +		(struct regex_data *)calloc(1, sizeof(struct
-> regex_data));
-> +	__pthread_mutex_init(&regex_data->match_mutex, NULL);
-> +	return regex_data;
-> +}
-> +
->  #else // !USE_PCRE2
->  char const *regex_arch_string(void)
->  {
-> @@ -302,7 +319,7 @@ char const *regex_version(void)
->  }
->  
->  int regex_load_mmap(struct mmap_area *mmap_area, struct regex_data
-> **regex,
-> -		    int unused __attribute__((unused)))
-> +		    int unused __attribute__((unused)), bool
-> *regex_compiled)
->  {
->  	int rc;
->  	uint32_t entry_len;
-> @@ -347,6 +364,8 @@ int regex_load_mmap(struct mmap_area *mmap_area,
-> struct regex_data **regex,
->  		if (rc < 0 || info_len != entry_len)
->  			goto err;
->  	}
-> +
-> +	*regex_compiled = true;
->  	return 0;
->  
->  err:
-> @@ -472,13 +491,13 @@ int regex_cmp(struct regex_data *regex1, struct
-> regex_data *regex2)
->  	return SELABEL_EQUAL;
->  }
->  
-> -#endif
-> -
->  struct regex_data *regex_data_create(void)
->  {
->  	return (struct regex_data *)calloc(1, sizeof(struct
-> regex_data));
->  }
->  
-> +#endif
-> +
->  void regex_format_error(struct regex_error_data const *error_data,
-> char *buffer,
->  			size_t buf_size)
->  {
-> diff --git a/libselinux/src/regex.h b/libselinux/src/regex.h
-> index 186c5ecc..eb8ca501 100644
-> --- a/libselinux/src/regex.h
-> +++ b/libselinux/src/regex.h
-> @@ -1,6 +1,7 @@
->  #ifndef SRC_REGEX_H_
->  #define SRC_REGEX_H_
->  
-> +#include <stdbool.h>
->  #include <stdio.h>
->  
->  #ifdef USE_PCRE2
-> @@ -98,13 +99,17 @@ int regex_prepare_data(struct regex_data **regex,
-> char const *pattern_string,
->   *            with regex_data_create and must be freed with
-> regex_data_free.
->   * @arg do_load_precompregex If non-zero precompiled patterns get
-> loaded from
->   *			     the mmap region (ignored by PCRE1
-> back-end).
-> + * @arg regex_compiled Set to true if a precompiled pattern was
-> loaded
-> + * 		       into regex, otherwise set to false to
-> indicate later
-> + *		       compilation must occur
->   *
->   * @retval 0 on success
->   * @retval -1 on error
->   */
->  int regex_load_mmap(struct mmap_area *map_area,
->  		    struct regex_data **regex,
-> -		    int do_load_precompregex) hidden;
-> +		    int do_load_precompregex,
-> +		    bool *regex_compiled) hidden;
->  /**
->   * This function stores a precompiled regular expression to a file.
->   * In the case of PCRE, it just dumps the binary representation of
-> the
-> diff --git a/libselinux/src/selinux_internal.h
-> b/libselinux/src/selinux_internal.h
-> index 54949c13..dfc421cc 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -144,6 +144,38 @@ extern int selinux_page_size hidden;
->  			pthread_setspecific(KEY, VALUE);	\
->  	} while (0)
->  
-> +/* selabel_lookup() is only thread safe if we're compiled with
-> pthreads */
-> +
-> +#pragma weak pthread_mutex_init
-> +#pragma weak pthread_mutex_destroy
-> +#pragma weak pthread_mutex_lock
-> +#pragma weak pthread_mutex_unlock
-> +
-> +#define __pthread_mutex_init(LOCK, ATTR) 			\
-> +	do {							
-> \
-> +		if (pthread_mutex_init != NULL)			
-> \
-> +			pthread_mutex_init(LOCK, ATTR);		
-> \
-> +	} while (0)
-> +
-> +#define __pthread_mutex_destroy(LOCK) 				
-> \
-> +	do {							
-> \
-> +		if (pthread_mutex_destroy != NULL)		\
-> +			pthread_mutex_destroy(LOCK);		
-> \
-> +	} while (0)
-> +
-> +#define __pthread_mutex_lock(LOCK) 				\
-> +	do {							
-> \
-> +		if (pthread_mutex_lock != NULL)			
-> \
-> +			pthread_mutex_lock(LOCK);		\
-> +	} while (0)
-> +
-> +#define __pthread_mutex_unlock(LOCK) 				
-> \
-> +	do {							
-> \
-> +		if (pthread_mutex_unlock != NULL)		\
-> +			pthread_mutex_unlock(LOCK);		\
-> +	} while (0)
-> +
-> +
->  #define SELINUXDIR "/etc/selinux/"
->  #define SELINUXCONFIG SELINUXDIR "config"
->  
+Before:
+$ time sepolicy manpage -d httpd_t sshd_t init_t
+real    0m53.486s
+user    0m53.171s
+sys     0m0.054s
+
+After:
+$ time sepolicy manpage -d httpd_t sshd_t init_t
+real    0m10.532s
+user    0m10.368s
+sys     0m0.114s
+
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ python/sepolicy/sepolicy/__init__.py   | 62 ++++++++++++++++++++++++----------
+ python/sepolicy/sepolicy/manpage.py    | 29 ++++++++++++----
+ python/sepolicy/sepolicy/transition.py |  8 +++--
+ 3 files changed, 73 insertions(+), 26 deletions(-)
+
+diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+index 8fa2c2ae..5cfc0715 100644
+--- a/python/sepolicy/sepolicy/__init__.py
++++ b/python/sepolicy/sepolicy/__init__.py
+@@ -99,6 +99,7 @@ local_files = None
+ fcdict = None
+ methods = []
+ all_types = None
++all_types_info = None
+ user_types = None
+ role_allows = None
+ portrecs = None
+@@ -113,6 +114,8 @@ bools = None
+ all_attributes = None
+ booleans = None
+ booleans_dict = None
++all_allow_rules = None
++all_transitions = None
+ 
+ 
+ def get_installed_policy(root="/"):
+@@ -168,10 +171,10 @@ def info(setype, name=None):
+             q.name = name
+ 
+         return ({
+-            'aliases': map(str, x.aliases()),
++            'aliases': list(map(str, x.aliases())),
+             'name': str(x),
+             'permissive': bool(x.ispermissive),
+-            'attributes': map(str, x.attributes())
++            'attributes': list(map(str, x.attributes()))
+         } for x in q.results())
+ 
+     elif setype == ROLE:
+@@ -181,8 +184,8 @@ def info(setype, name=None):
+ 
+         return ({
+             'name': str(x),
+-            'roles': map(str, x.expand()),
+-            'types': map(str, x.types()),
++            'roles': list(map(str, x.expand())),
++            'types': list(map(str, x.types())),
+         } for x in q.results())
+ 
+     elif setype == ATTRIBUTE:
+@@ -192,7 +195,7 @@ def info(setype, name=None):
+ 
+         return ({
+             'name': str(x),
+-            'types': map(str, x.expand()),
++            'types': list(map(str, x.expand())),
+         } for x in q.results())
+ 
+     elif setype == PORT:
+@@ -220,7 +223,7 @@ def info(setype, name=None):
+         return ({
+             'range': str(x.mls_range),
+             'name': str(x),
+-            'roles': map(str, x.roles),
++            'roles': list(map(str, x.roles)),
+             'level': str(x.mls_level),
+         } for x in q.results())
+ 
+@@ -362,17 +365,26 @@ def search(types, seinfo=None):
+ def get_conditionals(src, dest, tclass, perm):
+     tdict = {}
+     tlist = []
+-    if dest.endswith("_t"):
+-        allows = search([ALLOW], {SOURCE: src, TARGET: dest, CLASS: tclass, PERMS: perm})
+-    else:
+-        # to include attribute
+-        allows = search([ALLOW], {SOURCE: src, CLASS: tclass, PERMS: perm})
+-        for i in allows:
+-            if i['target'] == dest:
+-                allows = []
+-                allows.append(i)
++    src_list = [src]
++    dest_list = [dest]
++    # add assigned attributes
++    try:
++        src_list += list(filter(lambda x: x['name'] == src, get_all_types_info()))[0]['attributes']
++    except:
++        pass
+     try:
+-        for i in map(lambda y: (y), filter(lambda x: set(perm).issubset(x[PERMS]) and x['boolean'], allows)):
++        dest_list += list(filter(lambda x: x['name'] == dest, get_all_types_info()))[0]['attributes']
++    except:
++        pass
++    allows = map(lambda y: y, filter(lambda x:
++                x['source'] in src_list and
++                x['target'] in dest_list and
++                set(perm).issubset(x[PERMS]) and
++                'boolean' in x,
++                get_all_allow_rules()))
++
++    try:
++        for i in allows:
+             tdict.update({'source': i['source'], 'boolean': i['boolean']})
+             if tdict not in tlist:
+                 tlist.append(tdict)
+@@ -734,6 +746,11 @@ def get_all_types():
+         all_types = [x['name'] for x in info(TYPE)]
+     return all_types
+ 
++def get_all_types_info():
++    global all_types_info
++    if all_types_info is None:
++        all_types_info = list(info(TYPE))
++    return all_types_info
+ 
+ def get_user_types():
+     global user_types
+@@ -1018,12 +1035,23 @@ def gen_short_name(setype):
+         short_name = domainname + "_"
+     return (domainname, short_name)
+ 
++def get_all_allow_rules():
++    global all_allow_rules
++    if not all_allow_rules:
++        all_allow_rules = search([ALLOW])
++    return all_allow_rules
++
++def get_all_transitions():
++    global all_transitions
++    if not all_transitions:
++        all_transitions = list(search([TRANSITION]))
++    return all_transitions
+ 
+ def get_bools(setype):
+     bools = []
+     domainbools = []
+     domainname, short_name = gen_short_name(setype)
+-    for i in map(lambda x: x['boolean'], filter(lambda x: 'boolean' in x, search([ALLOW], {'source': setype}))):
++    for i in map(lambda x: x['boolean'], filter(lambda x: 'boolean' in x and x['source'] == setype, get_all_allow_rules())):
+         for b in i:
+             if not isinstance(b, tuple):
+                 continue
+diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
+index 7f17ba29..6df6f431 100755
+--- a/python/sepolicy/sepolicy/manpage.py
++++ b/python/sepolicy/sepolicy/manpage.py
+@@ -938,7 +938,11 @@ selinux(8), %s(8), semanage(8), restorecon(8), chcon(1), sepolicy(8)
+         return True
+ 
+     def _entrypoints(self):
+-        entrypoints = [x['target'] for x in sepolicy.search([sepolicy.ALLOW], {'source': self.type, 'permlist': ['entrypoint'], 'class': 'file'})]
++        entrypoints = [x['target'] for x in filter(lambda y:
++            y['source'] == self.type and y['class'] == 'file' and 'entrypoint' in y['permlist'],
++            sepolicy.get_all_allow_rules()
++        )]
++
+         if len(entrypoints) == 0:
+             return
+ 
+@@ -980,15 +984,23 @@ For example one process might be launched with %(type)s_t:s0:c1,c2, and another
+ """ % {'type': self.domainname})
+ 
+     def _writes(self):
+-        permlist = sepolicy.search([sepolicy.ALLOW], {'source': self.type, 'permlist': ['open', 'write'], 'class': 'file'})
++        # add assigned attributes
++        src_list = [self.type]
++        try:
++            src_list += list(filter(lambda x: x['name'] == self.type, sepolicy.get_all_types_info()))[0]['attributes']
++        except:
++            pass
++
++        permlist = list(filter(lambda x:
++            x['source'] in src_list and
++            set(['open', 'write']).issubset(x['permlist']) and
++            x['class'] == 'file',
++            sepolicy.get_all_allow_rules()))
+         if permlist is None or len(permlist) == 0:
+             return
+ 
+         all_writes = []
+         attributes = ["proc_type", "sysctl_type"]
+-        for i in permlist:
+-            if not i['target'].endswith("_t"):
+-                attributes.append(i['target'])
+ 
+         for i in permlist:
+             if self._valid_write(i['target'], attributes):
+@@ -1187,7 +1199,12 @@ The SELinux user %s_u is able to connect to the following tcp ports.
+ """ % ",".join(ports))
+ 
+     def _home_exec(self):
+-        permlist = sepolicy.search([sepolicy.ALLOW], {'source': self.type, 'target': 'user_home_type', 'class': 'file', 'permlist': ['ioctl', 'read', 'getattr', 'execute', 'execute_no_trans', 'open']})
++        permlist = list(filter(lambda x:
++            x['source'] == self.type and
++            x['target'] == 'user_home_type' and
++            x['class'] == 'file' and
++            set(['ioctl', 'read', 'getattr', 'execute', 'execute_no_trans', 'open']).issubset(set(x['permlist'])),
++            sepolicy.get_all_allow_rules()))
+         self.fd.write("""
+ .SH HOME_EXEC
+ """)
+diff --git a/python/sepolicy/sepolicy/transition.py b/python/sepolicy/sepolicy/transition.py
+index ad53cef7..7dea8059 100755
+--- a/python/sepolicy/sepolicy/transition.py
++++ b/python/sepolicy/sepolicy/transition.py
+@@ -30,7 +30,9 @@ def _entrypoint(src):
+ 
+ 
+ def _get_trans(src):
+-    return sepolicy.search([sepolicy.TRANSITION], {sepolicy.SOURCE: src, sepolicy.CLASS: "process"})
++    src_list = [src] + list(filter(lambda x: x['name'] == src, sepolicy.get_all_types_info()))[0]['attributes']
++    trans_list = list(filter(lambda x: x['source'] in src_list and x['class'] == 'process', sepolicy.get_all_transitions()))
++    return trans_list
+ 
+ 
+ class setrans:
+@@ -53,8 +55,8 @@ class setrans:
+         if not self.dest:
+             self.sdict[source]["map"] = trans
+         else:
+-            self.sdict[source]["map"] = map(lambda y: y, filter(lambda x: x["transtype"] == self.dest, trans))
+-            self.sdict[source]["child"] = map(lambda y: y["transtype"], filter(lambda x: x["transtype"] not in [self.dest, source], trans))
++            self.sdict[source]["map"] = list(map(lambda y: y, filter(lambda x: x["transtype"] == self.dest, trans)))
++            self.sdict[source]["child"] = list(map(lambda y: y["transtype"], filter(lambda x: x["transtype"] not in [self.dest, source], trans)))
+             for s in self.sdict[source]["child"]:
+                 self._process(s)
+ 
+-- 
+2.13.3
