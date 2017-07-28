@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6SKR40t024306
- for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2017 16:27:05 -0400
-Received: by mail-lf0-f41.google.com with SMTP id o85so36083975lff.3
- for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2017 13:26:50 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6SKXCns025670
+ for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2017 16:33:12 -0400
+Received: by mail-lf0-f53.google.com with SMTP id o85so36130582lff.3
+ for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2017 13:33:04 -0700 (PDT)
 MIME-Version: 1.0
 From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 28 Jul 2017 16:26:49 -0400
-Message-ID: <CAHC9VhQfHjnxrnZ2ecd7VY4dJ71vcLOGeRa-T4eUL3ZyP8bmGg@mail.gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Fri, 28 Jul 2017 16:33:03 -0400
+Message-ID: <CAHC9VhQY06gE3V5hp7mD-uKSDLoVbOvGXhQiXxxrek46PF_vMg@mail.gmail.com>
+To: linux-next@vger.kernel.org
+Cc: selinux@tycho.nsa.gov, linux-audit@redhat.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: SELinux kernel repository moving to kernel.org
+Subject: Please adjust the SELinux/audit trees for linux-next
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -18,12 +18,15 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Hello,
 
-A quick note that I'm moving the SELinux kernel repository from
-infradead.org to kernel.org, please update your trees accordingly
-(hint: "git remote set-url ...").
+I have just relocated the SELinux and audit kernel trees from
+infradead.org to kernel.org, please pull from the repositories below.
+Thank you.
 
-* git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-* https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+SELinux
+* git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
+
+Audit
+* git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git next
 
 -- 
 paul moore
