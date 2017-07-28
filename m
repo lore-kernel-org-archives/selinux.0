@@ -1,56 +1,43 @@
-From: Steve Grubb <sgrubb@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Richard Guy Briggs <rgb@redhat.com>, SElinux list <selinux@tycho.nsa.gov>,
- linux-audit@redhat.com, Eric Paris <eparis@redhat.com>
-Date: Fri, 28 Jul 2017 10:13:46 -0400
-Message-ID: <2491678.t4pX4CxBSr@x2>
-In-Reply-To: <1501247194.32334.2.camel@tycho.nsa.gov>
-References: <ce5219eaed412cc02caef75934b8c3b40087db83.1501158372.git.rgb@redhat.com>
- <1501247194.32334.2.camel@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Subject: Re: [PATCH] selinux: remove AVC init audit log message
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6SJgi0m016803
+ for <selinux@tycho.nsa.gov>; Fri, 28 Jul 2017 15:42:44 -0400
+Message-ID: <1501271255.2125.1.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Date: Fri, 28 Jul 2017 15:47:35 -0400
+In-Reply-To: <1500394496.18445.10.camel@tycho.nsa.gov>
+References: <1497028696.26846.9.camel@tycho.nsa.gov>
+ <1498237648.2063.4.camel@tycho.nsa.gov>
+ <1498845208.16913.17.camel@tycho.nsa.gov>
+ <1500394496.18445.10.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: ANN: SELinux userspace 2.7-rc6 release candidate
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Friday, July 28, 2017 9:06:34 AM EDT Stephen Smalley wrote:
-> On Fri, 2017-07-28 at 03:23 -0400, Richard Guy Briggs wrote:
-> > In the process of normalizing audit log messages, it was noticed that
-> > the AVC
-> > initialization code registered an audit log KERNEL record that didn't
-> > fit the
-> > standard format.  In the process of attempting to normalize it it was
-> > determined that this record was not even necessary.  Remove it.
-> > 
-> > Ref: http://marc.info/?l=selinux&m=149614868525826&w=2
-> > See: https://github.com/linux-audit/audit-kernel/issues/48
-> > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+A sixth release candidate for the SELinux userspace is now available
+at:
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-Yeah, I guess it can be deleted.
+Please give it a test and let us know if there are any issues.
 
-Acked-by: Steve Grubb <sgrubb@redhat.com>
+Changes from the -rc5 release:
 
-> > ---
-> >  security/selinux/avc.c |    2 --
-> >  1 files changed, 0 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> > index e60c79d..4b42931 100644
-> > --- a/security/selinux/avc.c
-> > +++ b/security/selinux/avc.c
-> > @@ -197,8 +197,6 @@ void __init avc_init(void)
-> >  	avc_xperms_data_cachep =
-> > kmem_cache_create("avc_xperms_data",
-> >  					sizeof(struct
-> > extended_perms_data),
-> >  					0, SLAB_PANIC, NULL);
-> > -
-> > -	audit_log(current->audit_context, GFP_KERNEL, AUDIT_KERNEL,
-> > "AVC INITIALIZED\n");
-> >  }
-> >  
-> >  int avc_get_hash_stats(char *page)
+Dan Cashman (1):
+      libsepol: cil: enable cpp compilation of cil.h.
+
+Petr Lautrbach (4):
+      sepolicy: Fix minor typo in 'transition -s' test
+      sepolicy: Fix syntax errors in 'manpage -w'
+      sepolicy: Make manpage and transition faster
+      sepolicy: File labels used to be sorted in a man page
+
+Stephen Smalley (2):
+      libsepol: Define nnp_nosuid_transition policy capability
+      Update VERSION files for 2.7-rc6
+
+Tom Cherry (1):
+      libselinux: fix thread safety issues with lookup_common()
