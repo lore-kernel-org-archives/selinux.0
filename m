@@ -1,118 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6T8JoJ0001515
- for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2017 04:19:50 -0400
-Received: from hellfire (unknown [10.66.10.20])
- (using TLSv1 with cipher AES128-SHA (128/128 bits))
- (Client did not present a certificate)
- by tbhext01.m0noc.net (Postfix) with ESMTPSA id 3xKJXs42pVz2ZXZ6
- for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2017 09:19:41 +0100 (BST)
-From: "Paul Bolton" <paul.a.bolton@m0noc.net>
-To: <selinux@tycho.nsa.gov>
-Date: Sat, 29 Jul 2017 09:20:00 +0100
-Message-ID: <00ec01d30843$78e215b0$6aa64110$@a.bolton@m0noc.net>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6T9gj6f014031
+ for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2017 05:42:45 -0400
+Received: from [10.255.0.13] (unknown [10.255.0.13])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (Client CN "Paul Bolton", Issuer "M0NOC" (verified OK))
+ by tbhext01.m0noc.net (Postfix) with ESMTPSA id 3xKLNZ2dkQz2TC7k
+ for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2017 10:42:38 +0100 (BST)
+To: selinux@tycho.nsa.gov
+From: Paul Bolton <paul.a.bolton@m0noc.net>
+Message-ID: <f3a307fd-ebd6-5815-8db5-73442bd07fe3@m0noc.net>
+Date: Sat, 29 Jul 2017 10:42:36 +0100
 MIME-Version: 1.0
-Content-Type: multipart/alternative;
- boundary="----=_NextPart_000_00ED_01D3084B.DAA67DB0"
-Subject: test email delivery
+Content-Type: text/plain; charset=utf-8
+Subject: Email problems with this mailing list
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a multi-part message in MIME format.
+Whilst current 3rd party archives suggest my last mail got through,
+since circa Jul 24 things have failed intermittently until Jul 27 when
+no more mail is being received by me from this list.
 
-------=_NextPart_000_00ED_01D3084B.DAA67DB0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+It appears the issue is to do with validation of the DNS name of the
+outbound NSA mail server in that not all the names are listed/exposed in
+DNS. This then lead to a "disable" for my mailing list account; which
+ironically for I got the email to which I replied.
 
-Since the change to NSA SELinux mail servers sending test message to confirm
-all is now fixed.
+Not sure if others may be experiencing such issues; which I guess is
+more of an answer for the admins of this list - are you getting a spike
+in rejects and/or account disablements?
 
- 
+e.g.
 
+I will now see:
+
+NOQUEUE: reject: RCPT from uphb19pa09.eemsg.mail.mil[214.24.26.83]: 450
+4.7.1 <USFB19PA12.eemsg.mail.mil>: Helo command rejected: Host not
+found; from=<selinux-bounces@tycho.nsa.gov> to=<paul.a.bolton@m0noc.net>
+proto=ESMTP helo=<USFB19PA12.eemsg.mail.mil>
+
+If I then use Google's DNS rather than my own so as to be sure it isn't
+a local DNS issue...
+
+nslookup USFB19PA12.eemsg.mail.mil. 8.8.8.8
+Server:         8.8.8.8
+Address:        8.8.8.8#53
+
+** server can't find USFB19PA12.eemsg.mail.mil.: NXDOMAIN
+
+others inc. but not limited to:
+
+** server can't find USFB19PA14.eemsg.mail.mil: NXDOMAIN
+** server can't find USFB19PA13.eemsg.mail.mil.: NXDOMAIN
+
+Some do work:
+
+Name:   upbd19pa07.eemsg.mail.mil
+Address: 214.24.27.82
+
+Name:   upbd19pa10.eemsg.mail.mil
+Address: 214.24.27.85
+
+Any thoughts on the resolution. Should I be expected to change my config
+or should the NSA mail server setup be adjusted to pass these checks?
+
+-- 
 Paul
-
 ----
-
 http://blog.m0noc.com/ | https://keybase.io/m0noc
-
 4329 E4C5 71F3 58B2 2246  D04D 25DA 39C2 3876 FE3D
-
- 
-
-
-------=_NextPart_000_00ED_01D3084B.DAA67DB0
-Content-Type: text/html;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-
-<html xmlns:v=3D"urn:schemas-microsoft-com:vml" =
-xmlns:o=3D"urn:schemas-microsoft-com:office:office" =
-xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
-xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" =
-xmlns=3D"http://www.w3.org/TR/REC-html40"><head><META =
-HTTP-EQUIV=3D"Content-Type" CONTENT=3D"text/html; =
-charset=3Dus-ascii"><meta name=3DGenerator content=3D"Microsoft Word 12 =
-(filtered medium)"><style><!--
-/* Font Definitions */
-@font-face
-	{font-family:SimSun;
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:Consolas;
-	panose-1:2 11 6 9 2 2 4 3 2 4;}
-@font-face
-	{font-family:"\@SimSun";
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0cm;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri","sans-serif";}
-a:link, span.MsoHyperlink
-	{mso-style-priority:99;
-	color:blue;
-	text-decoration:underline;}
-a:visited, span.MsoHyperlinkFollowed
-	{mso-style-priority:99;
-	color:purple;
-	text-decoration:underline;}
-span.EmailStyle17
-	{mso-style-type:personal-compose;
-	font-family:"Calibri","sans-serif";
-	color:windowtext;}
-.MsoChpDefault
-	{mso-style-type:export-only;}
-@page WordSection1
-	{size:612.0pt 792.0pt;
-	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
-div.WordSection1
-	{page:WordSection1;}
---></style><!--[if gte mso 9]><xml>
-<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
-</xml><![endif]--><!--[if gte mso 9]><xml>
-<o:shapelayout v:ext=3D"edit">
-<o:idmap v:ext=3D"edit" data=3D"1" />
-</o:shapelayout></xml><![endif]--></head><body lang=3DEN-GB link=3Dblue =
-vlink=3Dpurple><div class=3DWordSection1><p class=3DMsoNormal>Since the =
-change to NSA SELinux mail servers sending test message to confirm all =
-is now fixed.<o:p></o:p></p><p class=3DMsoNormal><o:p>&nbsp;</o:p></p><p =
-class=3DMsoNormal><span =
-style=3D'font-size:10.5pt;font-family:Consolas'>Paul<o:p></o:p></span></p=
-><p class=3DMsoNormal><span =
-style=3D'font-size:10.5pt;font-family:Consolas'>----<o:p></o:p></span></p=
-><p class=3DMsoNormal><span =
-style=3D'font-size:10.5pt;font-family:Consolas'>http://blog.m0noc.com/ | =
-https://keybase.io/m0noc<o:p></o:p></span></p><p class=3DMsoNormal><span =
-style=3D'font-size:10.5pt;font-family:Consolas'>4329 E4C5 71F3 58B2 =
-2246&nbsp; D04D 25DA 39C2 3876 FE3D<o:p></o:p></span></p><p =
-class=3DMsoNormal><o:p>&nbsp;</o:p></p></div></body></html>
-------=_NextPart_000_00ED_01D3084B.DAA67DB0--
