@@ -1,73 +1,227 @@
-Message-ID: <1501504288.9814.8.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Bolton <paul.a.bolton@m0noc.net>, selinux@tycho.nsa.gov
-Date: Mon, 31 Jul 2017 08:31:28 -0400
-In-Reply-To: <f3a307fd-ebd6-5815-8db5-73442bd07fe3@m0noc.net>
-References: <f3a307fd-ebd6-5815-8db5-73442bd07fe3@m0noc.net>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: Email problems with this mailing list
+To: selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, luto@kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Date: Mon, 31 Jul 2017 10:12:46 -0400
+Message-Id: <20170731141246.13547-1-sds@tycho.nsa.gov>
+Subject: [PATCH v4] selinux: Generalize support for NNP/nosuid SELinux domain
+ transitions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, 2017-07-29 at 10:42 +0100, Paul Bolton via Selinux wrote:
-> Whilst current 3rd party archives suggest my last mail got through,
-> since circa Jul 24 things have failed intermittently until Jul 27
-> when
-> no more mail is being received by me from this list.
-> 
-> It appears the issue is to do with validation of the DNS name of the
-> outbound NSA mail server in that not all the names are listed/exposed
-> in
-> DNS. This then lead to a "disable" for my mailing list account; which
-> ironically for I got the email to which I replied.
-> 
-> Not sure if others may be experiencing such issues; which I guess is
-> more of an answer for the admins of this list - are you getting a
-> spike
-> in rejects and/or account disablements?
-> 
-> e.g.
-> 
-> I will now see:
-> 
-> NOQUEUE: reject: RCPT from uphb19pa09.eemsg.mail.mil[214.24.26.83]:
-> 450
-> 4.7.1 <USFB19PA12.eemsg.mail.mil>: Helo command rejected: Host not
-> found; from=<selinux-bounces@tycho.nsa.gov> to=<paul.a.bolton@m0noc.n
-> et>
-> proto=ESMTP helo=<USFB19PA12.eemsg.mail.mil>
-> 
-> If I then use Google's DNS rather than my own so as to be sure it
-> isn't
-> a local DNS issue...
-> 
-> nslookup USFB19PA12.eemsg.mail.mil. 8.8.8.8
-> Server:         8.8.8.8
-> Address:        8.8.8.8#53
-> 
-> ** server can't find USFB19PA12.eemsg.mail.mil.: NXDOMAIN
-> 
-> others inc. but not limited to:
-> 
-> ** server can't find USFB19PA14.eemsg.mail.mil: NXDOMAIN
-> ** server can't find USFB19PA13.eemsg.mail.mil.: NXDOMAIN
-> 
-> Some do work:
-> 
-> Name:   upbd19pa07.eemsg.mail.mil
-> Address: 214.24.27.82
-> 
-> Name:   upbd19pa10.eemsg.mail.mil
-> Address: 214.24.27.85
-> 
-> Any thoughts on the resolution. Should I be expected to change my
-> config
-> or should the NSA mail server setup be adjusted to pass these checks?
+As systemd ramps up enabling NNP (NoNewPrivileges) for system services,
+it is increasingly breaking SELinux domain transitions for those services
+and their descendants.  systemd enables NNP not only for services whose
+unit files explicitly specify NoNewPrivileges=yes but also for services
+whose unit files specify any of the following options in combination with
+running without CAP_SYS_ADMIN (e.g. specifying User= or a
+CapabilityBoundingSet= without CAP_SYS_ADMIN): SystemCallFilter=,
+SystemCallArchitectures=, RestrictAddressFamilies=, RestrictNamespaces=,
+PrivateDevices=, ProtectKernelTunables=, ProtectKernelModules=,
+MemoryDenyWriteExecute=, or RestrictRealtime= as per the systemd.exec(5)
+man page.
 
-Thanks for the report; we'll raise it with the responsible parties. 
-However, in the future, please report mailing list problems to
-selinux-owner@tycho.nsa.gov
-rather than posting to the list itself about them.
+The end result is bad for the security of both SELinux-disabled and
+SELinux-enabled systems.  Packagers have to turn off these
+options in the unit files to preserve SELinux domain transitions.  For
+users who choose to disable SELinux, this means that they miss out on
+at least having the systemd-supported protections.  For users who keep
+SELinux enabled, they may still be missing out on some protections
+because it isn't necessarily guaranteed that the SELinux policy for
+that service provides the same protections in all cases.
+
+commit 7b0d0b40cd78 ("selinux: Permit bounded transitions under
+NO_NEW_PRIVS or NOSUID.") allowed bounded transitions under NNP in
+order to support limited usage for sandboxing programs.  However,
+defining typebounds for all of the affected service domains
+is impractical to implement in policy, since typebounds requires us
+to ensure that each domain is allowed everything all of its descendant
+domains are allowed, and this has to be repeated for the entire chain
+of domain transitions.  There is no way to clone all allow rules from
+descendants to their ancestors in policy currently, and doing so would
+be undesirable even if it were practical, as it requires leaking
+permissions to objects and operations into ancestor domains that could
+weaken their own security in order to allow them to the descendants
+(e.g. if a descendant requires execmem permission, then so do all of
+its ancestors; if a descendant requires execute permission to a file,
+then so do all of its ancestors; if a descendant requires read to a
+symbolic link or temporary file, then so do all of its ancestors...).
+SELinux domains are intentionally not hierarchical / bounded in this
+manner normally, and making them so would undermine their protections
+and least privilege.
+
+We have long had a similar tension with SELinux transitions and nosuid
+mounts, albeit not as severe.  Users often have had to choose between
+retaining nosuid on a mount and allowing SELinux domain transitions on
+files within those mounts.  This likewise leads to unfortunate tradeoffs
+in security.
+
+Decouple NNP/nosuid from SELinux transitions, so that we don't have to
+make a choice between them. Introduce a nnp_nosuid_transition policy
+capability that enables transitions under NNP/nosuid to be based on
+a permission (nnp_transition for NNP; nosuid_transition for nosuid)
+between the old and new contexts in addition to the current support
+for bounded transitions.  Domain transitions can then be allowed in
+policy without requiring the parent to be a strict superset of all of
+its children.
+
+With this change, systemd unit files can be left unmodified from upstream.
+SELinux-disabled and SELinux-enabled users will benefit from retaining any
+of the systemd-provided protections.  SELinux policy will only need to
+be adapted to enable the new policy capability and to allow the
+new permissions between domain pairs as appropriate.
+
+NB: Allowing nnp_transition between two contexts opens up the potential
+for the old context to subvert the new context by installing seccomp
+filters before the execve.  Allowing nosuid_transition between two contexts
+opens up the potential for a context transition to occur on a file from
+an untrusted filesystem (e.g. removable media or remote filesystem).  Use
+with care.
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+v4 moves both of the new permissions to the new process2 class and
+checks both if both NNP is enabled and the mount is nosuid.
+
+ security/selinux/hooks.c            | 47 +++++++++++++++++++++++++------------
+ security/selinux/include/classmap.h |  2 ++
+ security/selinux/include/security.h |  2 ++
+ security/selinux/ss/services.c      |  7 +++++-
+ 4 files changed, 42 insertions(+), 16 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 00ad46e..04b8e10 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2318,6 +2318,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+ 	int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
+ 	int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
+ 	int rc;
++	u32 av;
+ 
+ 	if (!nnp && !nosuid)
+ 		return 0; /* neither NNP nor nosuid */
+@@ -2326,24 +2327,40 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+ 		return 0; /* No change in credentials */
+ 
+ 	/*
+-	 * The only transitions we permit under NNP or nosuid
+-	 * are transitions to bounded SIDs, i.e. SIDs that are
+-	 * guaranteed to only be allowed a subset of the permissions
+-	 * of the current SID.
++	 * If the policy enables the nnp_nosuid_transition policy capability,
++	 * then we permit transitions under NNP or nosuid if the
++	 * policy allows the corresponding permission between
++	 * the old and new contexts.
+ 	 */
+-	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
+-	if (rc) {
+-		/*
+-		 * On failure, preserve the errno values for NNP vs nosuid.
+-		 * NNP:  Operation not permitted for caller.
+-		 * nosuid:  Permission denied to file.
+-		 */
++	if (selinux_policycap_nnp_nosuid_transition) {
++		av = 0;
+ 		if (nnp)
+-			return -EPERM;
+-		else
+-			return -EACCES;
++			av |= PROCESS2__NNP_TRANSITION;
++		if (nosuid)
++			av |= PROCESS2__NOSUID_TRANSITION;
++		rc = avc_has_perm(old_tsec->sid, new_tsec->sid,
++				  SECCLASS_PROCESS2, av, NULL);
++		if (!rc)
++			return 0;
+ 	}
+-	return 0;
++
++	/*
++	 * We also permit NNP or nosuid transitions to bounded SIDs,
++	 * i.e. SIDs that are guaranteed to only be allowed a subset
++	 * of the permissions of the current SID.
++	 */
++	rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
++	if (!rc)
++		return 0;
++
++	/*
++	 * On failure, preserve the errno values for NNP vs nosuid.
++	 * NNP:  Operation not permitted for caller.
++	 * nosuid:  Permission denied to file.
++	 */
++	if (nnp)
++		return -EPERM;
++	return -EACCES;
+ }
+ 
+ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index b9fe343..35ffb29 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -48,6 +48,8 @@ struct security_class_mapping secclass_map[] = {
+ 	    "setrlimit", "rlimitinh", "dyntransition", "setcurrent",
+ 	    "execmem", "execstack", "execheap", "setkeycreate",
+ 	    "setsockcreate", "getrlimit", NULL } },
++	{ "process2",
++	  { "nnp_transition", "nosuid_transition", NULL } },
+ 	{ "system",
+ 	  { "ipc_info", "syslog_read", "syslog_mod",
+ 	    "syslog_console", "module_request", "module_load", NULL } },
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index e91f08c..3e32317 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -73,6 +73,7 @@ enum {
+ 	POLICYDB_CAPABILITY_EXTSOCKCLASS,
+ 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+ 	POLICYDB_CAPABILITY_CGROUPSECLABEL,
++	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
+ 	__POLICYDB_CAPABILITY_MAX
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+@@ -84,6 +85,7 @@ extern int selinux_policycap_openperm;
+ extern int selinux_policycap_extsockclass;
+ extern int selinux_policycap_alwaysnetwork;
+ extern int selinux_policycap_cgroupseclabel;
++extern int selinux_policycap_nnp_nosuid_transition;
+ 
+ /*
+  * type_datum properties
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 2f02fa6..16c55de 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -76,7 +76,8 @@ char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+ 	"open_perms",
+ 	"extended_socket_class",
+ 	"always_check_network",
+-	"cgroup_seclabel"
++	"cgroup_seclabel",
++	"nnp_nosuid_transition"
+ };
+ 
+ int selinux_policycap_netpeer;
+@@ -84,6 +85,7 @@ int selinux_policycap_openperm;
+ int selinux_policycap_extsockclass;
+ int selinux_policycap_alwaysnetwork;
+ int selinux_policycap_cgroupseclabel;
++int selinux_policycap_nnp_nosuid_transition;
+ 
+ static DEFINE_RWLOCK(policy_rwlock);
+ 
+@@ -2009,6 +2011,9 @@ static void security_load_policycaps(void)
+ 	selinux_policycap_cgroupseclabel =
+ 		ebitmap_get_bit(&policydb.policycaps,
+ 				POLICYDB_CAPABILITY_CGROUPSECLABEL);
++	selinux_policycap_nnp_nosuid_transition =
++		ebitmap_get_bit(&policydb.policycaps,
++				POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
+ 		pr_info("SELinux:  policy capability %s=%d\n",
+-- 
+2.9.4
