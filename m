@@ -1,37 +1,73 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v6U30IdG006355
- for <selinux@tycho.nsa.gov>; Sat, 29 Jul 2017 23:00:18 -0400
-Date: Sun, 30 Jul 2017 13:00:03 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-next@vger.kernel.org, selinux@tycho.nsa.gov, linux-audit@redhat.com
-Message-ID: <20170730130003.46910e61@canb.auug.org.au>
-In-Reply-To: <CAHC9VhQY06gE3V5hp7mD-uKSDLoVbOvGXhQiXxxrek46PF_vMg@mail.gmail.com>
-References: <CAHC9VhQY06gE3V5hp7mD-uKSDLoVbOvGXhQiXxxrek46PF_vMg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: Re: Please adjust the SELinux/audit trees for linux-next
+Message-ID: <1501504288.9814.8.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Bolton <paul.a.bolton@m0noc.net>, selinux@tycho.nsa.gov
+Date: Mon, 31 Jul 2017 08:31:28 -0400
+In-Reply-To: <f3a307fd-ebd6-5815-8db5-73442bd07fe3@m0noc.net>
+References: <f3a307fd-ebd6-5815-8db5-73442bd07fe3@m0noc.net>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: Email problems with this mailing list
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi Paul,
-
-On Fri, 28 Jul 2017 16:33:03 -0400 Paul Moore <paul@paul-moore.com> wrote:
->
-> I have just relocated the SELinux and audit kernel trees from
-> infradead.org to kernel.org, please pull from the repositories below.
-> Thank you.
+On Sat, 2017-07-29 at 10:42 +0100, Paul Bolton via Selinux wrote:
+> Whilst current 3rd party archives suggest my last mail got through,
+> since circa Jul 24 things have failed intermittently until Jul 27
+> when
+> no more mail is being received by me from this list.
 > 
-> SELinux
-> * git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
+> It appears the issue is to do with validation of the DNS name of the
+> outbound NSA mail server in that not all the names are listed/exposed
+> in
+> DNS. This then lead to a "disable" for my mailing list account; which
+> ironically for I got the email to which I replied.
 > 
-> Audit
-> * git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git next
+> Not sure if others may be experiencing such issues; which I guess is
+> more of an answer for the admins of this list - are you getting a
+> spike
+> in rejects and/or account disablements?
+> 
+> e.g.
+> 
+> I will now see:
+> 
+> NOQUEUE: reject: RCPT from uphb19pa09.eemsg.mail.mil[214.24.26.83]:
+> 450
+> 4.7.1 <USFB19PA12.eemsg.mail.mil>: Helo command rejected: Host not
+> found; from=<selinux-bounces@tycho.nsa.gov> to=<paul.a.bolton@m0noc.n
+> et>
+> proto=ESMTP helo=<USFB19PA12.eemsg.mail.mil>
+> 
+> If I then use Google's DNS rather than my own so as to be sure it
+> isn't
+> a local DNS issue...
+> 
+> nslookup USFB19PA12.eemsg.mail.mil. 8.8.8.8
+> Server:         8.8.8.8
+> Address:        8.8.8.8#53
+> 
+> ** server can't find USFB19PA12.eemsg.mail.mil.: NXDOMAIN
+> 
+> others inc. but not limited to:
+> 
+> ** server can't find USFB19PA14.eemsg.mail.mil: NXDOMAIN
+> ** server can't find USFB19PA13.eemsg.mail.mil.: NXDOMAIN
+> 
+> Some do work:
+> 
+> Name:   upbd19pa07.eemsg.mail.mil
+> Address: 214.24.27.82
+> 
+> Name:   upbd19pa10.eemsg.mail.mil
+> Address: 214.24.27.85
+> 
+> Any thoughts on the resolution. Should I be expected to change my
+> config
+> or should the NSA mail server setup be adjusted to pass these checks?
 
-I have updated these in my list.
-
--- 
-Cheers,
-Stephen Rothwell
+Thanks for the report; we'll raise it with the responsible parties. 
+However, in the future, please report mailing list problems to
+selinux-owner@tycho.nsa.gov
+rather than posting to the list itself about them.
