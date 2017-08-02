@@ -1,44 +1,89 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v72G0JXp027324
- for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2017 12:00:19 -0400
-Received: by mail-ua0-f180.google.com with SMTP id q25so22499424uah.1
- for <selinux@tycho.nsa.gov>; Wed, 02 Aug 2017 08:41:44 -0700 (PDT)
-MIME-Version: 1.0
-From: Carlos Rodrigues <cefrodrigues@gmail.com>
-Date: Wed, 2 Aug 2017 16:41:00 +0100
-Message-ID: <CAENH-vA_rbUf8UyDcGmCto3-R9zNPy1jMMoH+XKwRqx7c4P-qQ@mail.gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v72Gn80R012958
+ for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2017 12:49:09 -0400
+Received: by mail-wm0-f44.google.com with SMTP id m85so46353082wma.1
+ for <selinux@tycho.nsa.gov>; Wed, 02 Aug 2017 09:35:08 -0700 (PDT)
+Received: from julius.enp8s0.d30 ([217.19.26.10])
+ by smtp.gmail.com with ESMTPSA id x6sm7334264eda.33.2017.08.02.09.35.02
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+ Wed, 02 Aug 2017 09:35:02 -0700 (PDT)
+Date: Wed, 2 Aug 2017 18:35:00 +0200
+From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Subject: httpd_graceful_shutdown makes httpd_can_network_connect mostly mute
+Message-ID: <20170802163500.GA16782@julius.enp8s0.d30>
+References: <CAENH-vA_rbUf8UyDcGmCto3-R9zNPy1jMMoH+XKwRqx7c4P-qQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
+In-Reply-To: <CAENH-vA_rbUf8UyDcGmCto3-R9zNPy1jMMoH+XKwRqx7c4P-qQ@mail.gmail.com>
+Subject: Re: httpd_graceful_shutdown makes httpd_can_network_connect
+ mostly mute
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
 
-I don't know if this a too basic question to ask here, or the proper
-place, but here it goes:
+--qMm9M+Fa2AknHoGS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've been chasing some weird (to me) behavior with the targeted policy
-on a VM running nginx as a reverse proxy. What happens is that the
-"httpd_can_network_connect" boolean needs to be enabled for nginx to
-be able to reach its upstream servers. So far, so good.
+On Wed, Aug 02, 2017 at 04:41:00PM +0100, Carlos Rodrigues wrote:
+> Hi,
+>=20
+> I don't know if this a too basic question to ask here, or the proper
+> place, but here it goes:
+>=20
+> I've been chasing some weird (to me) behavior with the targeted policy
+> on a VM running nginx as a reverse proxy. What happens is that the
+> "httpd_can_network_connect" boolean needs to be enabled for nginx to
+> be able to reach its upstream servers. So far, so good.
+>=20
+> However, if the upsteam server happens to be listening in one of the
+> "http_port_t" ports, "httpd_can_network_connect" isn't needed because
+> the "httpd_graceful_shutdown" (default enabled) provides the required
+> allow rule ("name_connect").
+>=20
+> This seems strange to me. Is this supposed to be like this? I would
+> expect nginx to be totally unable to establish outbound connections by
+> default.
+>=20
+> Best regards,
+>=20
+> Carlos Rodrigues
+>=20
+> PS: I just spent a few hours on this, wondering why one machine needed
+> "httpd_can_network_connect" and another did not. I guess I've mostly
+> been setting up reverse proxies for "http_port_t" upstreams on CentOS
+> all this time...
 
-However, if the upsteam server happens to be listening in one of the
-"http_port_t" ports, "httpd_can_network_connect" isn't needed because
-the "httpd_graceful_shutdown" (default enabled) provides the required
-allow rule ("name_connect").
+I think the "httpd_graceful_shutdown" is an apache thing (probably for "apa=
+chectl graceful-stop"). However I cannot reproduce this behavior with httpd=
+-2.4.27-4.fc27.
 
-This seems strange to me. Is this supposed to be like this? I would
-expect nginx to be totally unable to establish outbound connections by
-default.
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
 
-Best regards,
+--qMm9M+Fa2AknHoGS
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Carlos Rodrigues
+-----BEGIN PGP SIGNATURE-----
 
-PS: I just spent a few hours on this, wondering why one machine needed
-"httpd_can_network_connect" and another did not. I guess I've mostly
-been setting up reverse proxies for "http_port_t" upstreams on CentOS
-all this time...
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlmB/y8ACgkQJXSOVTf5
+R2lb4Qv/TgRbeNfCEcvVFLHcw6eNJrBh5yAIfCzftfR0CrNBAQYQj7icWOmvQJLP
+eHCtMJZ6Jb26s+i5gni2ip+KGd/lGwsP13Oj2NKtw/CPSOR9EV6CsEclqtZVWXHT
+xMYMZbbvravSrPazsv8svUXkRGxLfiha7d1Av5ETN7iKt3VyeVGDxo67TKEhUG//
+KfUuVvORN7fGQFyQNs9MbZCgTPQ0yhE2c42/4nc9jOBcds42AqZQiuiKJHUM1Fmm
+MMWnU2Xm7XRAeUmB6+ZgeASRZwD1jSyAiKf/pXdtIuI8qIm9HivBI8YbnvTav6Z0
+voBbKcDQpi25Xwy/pHnHHr2UxKIcVhmHiBlBtjIvJjsyD2PRiBj5xEzQgVU+1LEB
+7ZSADJixISUKxdlmwtwTdgIT11SVpVcWhEVihilbtYT//5nB+jQbMzE0RQo2ajWL
+q+hBR5orn5KSep01tKi04RDj9xMFEUNs4F7SRr+Jv65rmBRvVZhvATLh92ExnrAG
+6MqVCm4s
+=lF9S
+-----END PGP SIGNATURE-----
+
+--qMm9M+Fa2AknHoGS--
