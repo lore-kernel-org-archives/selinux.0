@@ -1,105 +1,247 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v72Ka23l007734
- for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2017 16:36:02 -0400
-Received: by mail-wm0-f51.google.com with SMTP id m85so46445224wma.0
- for <selinux@tycho.nsa.gov>; Wed, 02 Aug 2017 09:38:45 -0700 (PDT)
-Received: from julius.enp8s0.d30 ([217.19.26.10])
- by smtp.gmail.com with ESMTPSA id x11sm13424352edi.13.2017.08.02.09.38.42
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Wed, 02 Aug 2017 09:38:42 -0700 (PDT)
-Date: Wed, 2 Aug 2017 18:38:41 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <20170802163841.GB16782@julius.enp8s0.d30>
-References: <CAENH-vA_rbUf8UyDcGmCto3-R9zNPy1jMMoH+XKwRqx7c4P-qQ@mail.gmail.com>
- <20170802163500.GA16782@julius.enp8s0.d30>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v72KuAsh014770
+ for <selinux@tycho.nsa.gov>; Wed, 2 Aug 2017 16:56:10 -0400
+Received: by mail-lf0-f68.google.com with SMTP id w199so4528986lff.2
+ for <selinux@tycho.nsa.gov>; Wed, 02 Aug 2017 13:56:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="/NkBOFFp2J2Af1nK"
-In-Reply-To: <20170802163500.GA16782@julius.enp8s0.d30>
-Subject: Re: httpd_graceful_shutdown makes httpd_can_network_connect
- mostly mute
+In-Reply-To: <20170731141246.13547-1-sds@tycho.nsa.gov>
+References: <20170731141246.13547-1-sds@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 2 Aug 2017 16:56:01 -0400
+Message-ID: <CAHC9VhQB4=1u7AhAAKod3U5aT0cSeprQYYg+eyCv+Y_YDCFNkw@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, luto@kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v4] selinux: Generalize support for NNP/nosuid
+ SELinux domain transitions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Mon, Jul 31, 2017 at 10:12 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> As systemd ramps up enabling NNP (NoNewPrivileges) for system services,
+> it is increasingly breaking SELinux domain transitions for those services
+> and their descendants.  systemd enables NNP not only for services whose
+> unit files explicitly specify NoNewPrivileges=yes but also for services
+> whose unit files specify any of the following options in combination with
+> running without CAP_SYS_ADMIN (e.g. specifying User= or a
+> CapabilityBoundingSet= without CAP_SYS_ADMIN): SystemCallFilter=,
+> SystemCallArchitectures=, RestrictAddressFamilies=, RestrictNamespaces=,
+> PrivateDevices=, ProtectKernelTunables=, ProtectKernelModules=,
+> MemoryDenyWriteExecute=, or RestrictRealtime= as per the systemd.exec(5)
+> man page.
+>
+> The end result is bad for the security of both SELinux-disabled and
+> SELinux-enabled systems.  Packagers have to turn off these
+> options in the unit files to preserve SELinux domain transitions.  For
+> users who choose to disable SELinux, this means that they miss out on
+> at least having the systemd-supported protections.  For users who keep
+> SELinux enabled, they may still be missing out on some protections
+> because it isn't necessarily guaranteed that the SELinux policy for
+> that service provides the same protections in all cases.
+>
+> commit 7b0d0b40cd78 ("selinux: Permit bounded transitions under
+> NO_NEW_PRIVS or NOSUID.") allowed bounded transitions under NNP in
+> order to support limited usage for sandboxing programs.  However,
+> defining typebounds for all of the affected service domains
+> is impractical to implement in policy, since typebounds requires us
+> to ensure that each domain is allowed everything all of its descendant
+> domains are allowed, and this has to be repeated for the entire chain
+> of domain transitions.  There is no way to clone all allow rules from
+> descendants to their ancestors in policy currently, and doing so would
+> be undesirable even if it were practical, as it requires leaking
+> permissions to objects and operations into ancestor domains that could
+> weaken their own security in order to allow them to the descendants
+> (e.g. if a descendant requires execmem permission, then so do all of
+> its ancestors; if a descendant requires execute permission to a file,
+> then so do all of its ancestors; if a descendant requires read to a
+> symbolic link or temporary file, then so do all of its ancestors...).
+> SELinux domains are intentionally not hierarchical / bounded in this
+> manner normally, and making them so would undermine their protections
+> and least privilege.
+>
+> We have long had a similar tension with SELinux transitions and nosuid
+> mounts, albeit not as severe.  Users often have had to choose between
+> retaining nosuid on a mount and allowing SELinux domain transitions on
+> files within those mounts.  This likewise leads to unfortunate tradeoffs
+> in security.
+>
+> Decouple NNP/nosuid from SELinux transitions, so that we don't have to
+> make a choice between them. Introduce a nnp_nosuid_transition policy
+> capability that enables transitions under NNP/nosuid to be based on
+> a permission (nnp_transition for NNP; nosuid_transition for nosuid)
+> between the old and new contexts in addition to the current support
+> for bounded transitions.  Domain transitions can then be allowed in
+> policy without requiring the parent to be a strict superset of all of
+> its children.
+>
+> With this change, systemd unit files can be left unmodified from upstream.
+> SELinux-disabled and SELinux-enabled users will benefit from retaining any
+> of the systemd-provided protections.  SELinux policy will only need to
+> be adapted to enable the new policy capability and to allow the
+> new permissions between domain pairs as appropriate.
+>
+> NB: Allowing nnp_transition between two contexts opens up the potential
+> for the old context to subvert the new context by installing seccomp
+> filters before the execve.  Allowing nosuid_transition between two contexts
+> opens up the potential for a context transition to occur on a file from
+> an untrusted filesystem (e.g. removable media or remote filesystem).  Use
+> with care.
+>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+> v4 moves both of the new permissions to the new process2 class and
+> checks both if both NNP is enabled and the mount is nosuid.
+>
+>  security/selinux/hooks.c            | 47 +++++++++++++++++++++++++------------
+>  security/selinux/include/classmap.h |  2 ++
+>  security/selinux/include/security.h |  2 ++
+>  security/selinux/ss/services.c      |  7 +++++-
+>  4 files changed, 42 insertions(+), 16 deletions(-)
 
---/NkBOFFp2J2Af1nK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Merged.  Thanks Stephen and everyone else who reviewed and commented
+on this patch.
 
-On Wed, Aug 02, 2017 at 06:35:00PM +0200, Dominick Grift wrote:
-> On Wed, Aug 02, 2017 at 04:41:00PM +0100, Carlos Rodrigues wrote:
-> > Hi,
-> >=20
-> > I don't know if this a too basic question to ask here, or the proper
-> > place, but here it goes:
-> >=20
-> > I've been chasing some weird (to me) behavior with the targeted policy
-> > on a VM running nginx as a reverse proxy. What happens is that the
-> > "httpd_can_network_connect" boolean needs to be enabled for nginx to
-> > be able to reach its upstream servers. So far, so good.
-> >=20
-> > However, if the upsteam server happens to be listening in one of the
-> > "http_port_t" ports, "httpd_can_network_connect" isn't needed because
-> > the "httpd_graceful_shutdown" (default enabled) provides the required
-> > allow rule ("name_connect").
-> >=20
-> > This seems strange to me. Is this supposed to be like this? I would
-> > expect nginx to be totally unable to establish outbound connections by
-> > default.
-> >=20
-> > Best regards,
-> >=20
-> > Carlos Rodrigues
-> >=20
-> > PS: I just spent a few hours on this, wondering why one machine needed
-> > "httpd_can_network_connect" and another did not. I guess I've mostly
-> > been setting up reverse proxies for "http_port_t" upstreams on CentOS
-> > all this time...
->=20
-> I think the "httpd_graceful_shutdown" is an apache thing (probably for "a=
-pachectl graceful-stop"). However I cannot reproduce this behavior with htt=
-pd-2.4.27-4.fc27.
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 00ad46e..04b8e10 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2318,6 +2318,7 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+>         int nnp = (bprm->unsafe & LSM_UNSAFE_NO_NEW_PRIVS);
+>         int nosuid = !mnt_may_suid(bprm->file->f_path.mnt);
+>         int rc;
+> +       u32 av;
+>
+>         if (!nnp && !nosuid)
+>                 return 0; /* neither NNP nor nosuid */
+> @@ -2326,24 +2327,40 @@ static int check_nnp_nosuid(const struct linux_binprm *bprm,
+>                 return 0; /* No change in credentials */
+>
+>         /*
+> -        * The only transitions we permit under NNP or nosuid
+> -        * are transitions to bounded SIDs, i.e. SIDs that are
+> -        * guaranteed to only be allowed a subset of the permissions
+> -        * of the current SID.
+> +        * If the policy enables the nnp_nosuid_transition policy capability,
+> +        * then we permit transitions under NNP or nosuid if the
+> +        * policy allows the corresponding permission between
+> +        * the old and new contexts.
+>          */
+> -       rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
+> -       if (rc) {
+> -               /*
+> -                * On failure, preserve the errno values for NNP vs nosuid.
+> -                * NNP:  Operation not permitted for caller.
+> -                * nosuid:  Permission denied to file.
+> -                */
+> +       if (selinux_policycap_nnp_nosuid_transition) {
+> +               av = 0;
+>                 if (nnp)
+> -                       return -EPERM;
+> -               else
+> -                       return -EACCES;
+> +                       av |= PROCESS2__NNP_TRANSITION;
+> +               if (nosuid)
+> +                       av |= PROCESS2__NOSUID_TRANSITION;
+> +               rc = avc_has_perm(old_tsec->sid, new_tsec->sid,
+> +                                 SECCLASS_PROCESS2, av, NULL);
+> +               if (!rc)
+> +                       return 0;
+>         }
+> -       return 0;
+> +
+> +       /*
+> +        * We also permit NNP or nosuid transitions to bounded SIDs,
+> +        * i.e. SIDs that are guaranteed to only be allowed a subset
+> +        * of the permissions of the current SID.
+> +        */
+> +       rc = security_bounded_transition(old_tsec->sid, new_tsec->sid);
+> +       if (!rc)
+> +               return 0;
+> +
+> +       /*
+> +        * On failure, preserve the errno values for NNP vs nosuid.
+> +        * NNP:  Operation not permitted for caller.
+> +        * nosuid:  Permission denied to file.
+> +        */
+> +       if (nnp)
+> +               return -EPERM;
+> +       return -EACCES;
+>  }
+>
+>  static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index b9fe343..35ffb29 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -48,6 +48,8 @@ struct security_class_mapping secclass_map[] = {
+>             "setrlimit", "rlimitinh", "dyntransition", "setcurrent",
+>             "execmem", "execstack", "execheap", "setkeycreate",
+>             "setsockcreate", "getrlimit", NULL } },
+> +       { "process2",
+> +         { "nnp_transition", "nosuid_transition", NULL } },
+>         { "system",
+>           { "ipc_info", "syslog_read", "syslog_mod",
+>             "syslog_console", "module_request", "module_load", NULL } },
+> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> index e91f08c..3e32317 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -73,6 +73,7 @@ enum {
+>         POLICYDB_CAPABILITY_EXTSOCKCLASS,
+>         POLICYDB_CAPABILITY_ALWAYSNETWORK,
+>         POLICYDB_CAPABILITY_CGROUPSECLABEL,
+> +       POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
+>         __POLICYDB_CAPABILITY_MAX
+>  };
+>  #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+> @@ -84,6 +85,7 @@ extern int selinux_policycap_openperm;
+>  extern int selinux_policycap_extsockclass;
+>  extern int selinux_policycap_alwaysnetwork;
+>  extern int selinux_policycap_cgroupseclabel;
+> +extern int selinux_policycap_nnp_nosuid_transition;
+>
+>  /*
+>   * type_datum properties
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 2f02fa6..16c55de 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -76,7 +76,8 @@ char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+>         "open_perms",
+>         "extended_socket_class",
+>         "always_check_network",
+> -       "cgroup_seclabel"
+> +       "cgroup_seclabel",
+> +       "nnp_nosuid_transition"
+>  };
+>
+>  int selinux_policycap_netpeer;
+> @@ -84,6 +85,7 @@ int selinux_policycap_openperm;
+>  int selinux_policycap_extsockclass;
+>  int selinux_policycap_alwaysnetwork;
+>  int selinux_policycap_cgroupseclabel;
+> +int selinux_policycap_nnp_nosuid_transition;
+>
+>  static DEFINE_RWLOCK(policy_rwlock);
+>
+> @@ -2009,6 +2011,9 @@ static void security_load_policycaps(void)
+>         selinux_policycap_cgroupseclabel =
+>                 ebitmap_get_bit(&policydb.policycaps,
+>                                 POLICYDB_CAPABILITY_CGROUPSECLABEL);
+> +       selinux_policycap_nnp_nosuid_transition =
+> +               ebitmap_get_bit(&policydb.policycaps,
+> +                               POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION);
+>
+>         for (i = 0; i < ARRAY_SIZE(selinux_policycap_names); i++)
+>                 pr_info("SELinux:  policy capability %s=%d\n",
+> --
+> 2.9.4
+>
 
-Also "httpd_can_network_connect" grants broader network access to httpd
 
 
-By the way: refpolicy questions should be directed to the refpolicy maillis=
-t: http://oss.tresys.com/mailman/listinfo/refpolicy
-
->=20
-> --=20
-> Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-> Dominick Grift
-
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---/NkBOFFp2J2Af1nK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlmCAAwACgkQJXSOVTf5
-R2npRgv/aFxmJTBse/WOuzxviO37bgdeRtH1vHFNOVu/5cjzdp1B+g3CHUV0WJWC
-8uqq3f4PaPAjbVQuD/vVF9ZkEaKjf5eThfDTtpvqbxW0U1YlSbrUlzBxBW4wSFNZ
-7yh+f0RUGa59KQZ5wxZ3RexFbwDkuA5mUpa6dM8Njbf2sdaqbXvXre8K6QOmhq2L
-RL9kyXLf7DO0awmOHSNjWVeEhJRhFtrG9A+Xb+BY+PjIV+KRg2KBz6EtNfSjnC1E
-cmHs5697FJGeJFy6CyVMQF6HNj83N5N8t+iVtcHXvezdHd+WHKz9iOr0KuDOGakG
-PrB303aRRPXSysLtM0bzs9HdXXXkuRXIFv0Oa5OZ0y7aU/k+yLIdvybSg9nWNcG3
-EMkHCeiCkG83nQlqSXLgYPvL/TISxCJPfZdENtzO4+jJAFf4AhKSCFSX/ktptZr6
-e18aOFigfaMWtT1b/IQN3MgMthrUgz7SDsQPL2rruBGy3Rmbl9BLspH6uKZYn1Hy
-cokXpjgu
-=jmBl
------END PGP SIGNATURE-----
-
---/NkBOFFp2J2Af1nK--
+-- 
+paul moore
+www.paul-moore.com
