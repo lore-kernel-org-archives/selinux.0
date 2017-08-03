@@ -1,68 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v738ug5a009063
- for <selinux@tycho.nsa.gov>; Thu, 3 Aug 2017 04:56:42 -0400
-Date: Thu, 3 Aug 2017 09:56:32 +0100
-From: Mel Gorman <mgorman@suse.de>
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Paul Moore <pmoore@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
- linux-mm@kvack.org, LKML <linux-kernel@vger.kernel.org>,
- selinux@tycho.nsa.gov
-Message-ID: <20170803085547.hqpiy7qbyas7nbvy@suse.de>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v73A6Hg7001875
+ for <selinux@tycho.nsa.gov>; Thu, 3 Aug 2017 06:06:18 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UHILFEID08.oob.disa.mil (Postfix) with SMTP id 3xNQdp40P1zXt0Q
+ for <selinux@tycho.nsa.gov>; Thu,  3 Aug 2017 10:04:46 +0000 (UTC)
+Received: from UHIL19PA06.eemsg.mil (unknown [192.168.14.5])
+ by UHILFEID08.oob.disa.mil (Postfix) with ESMTP id 3xNQdk3y2gzPT2P
+ for <selinux@tycho.nsa.gov>; Thu,  3 Aug 2017 10:04:42 +0000 (UTC)
+To: Michal Hocko <mhocko@kernel.org>, Paul Moore <pmoore@redhat.com>
+Cc: Jeff Vander Stoep <jeffv@google.com>, linux-mm@kvack.org,
+ LKML <linux-kernel@vger.kernel.org>, selinux@tycho.nsa.gov,
+ Mel Gorman <mgorman@suse.de>
 References: <20170802105018.GA2529@dhcp22.suse.cz>
  <CAGH-Kgt_9So8bDe=yDF3yLZHDfDgeXsnBEu_X6uE_nQnoi=5Vg@mail.gmail.com>
  <20170803081152.GC12521@dhcp22.suse.cz>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Message-ID: <5aca0179-3b04-aa1a-58cd-668a04f63ae7@I-love.SAKURA.ne.jp>
+Date: Thu, 3 Aug 2017 19:02:57 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
 In-Reply-To: <20170803081152.GC12521@dhcp22.suse.cz>
+Content-Type: text/plain; charset=utf-8
 Subject: Re: suspicious __GFP_NOMEMALLOC in selinux
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Aug 03, 2017 at 10:11:52AM +0200, Michal Hocko wrote:
-> > The GFP_ATOMIC|__GFP_NOMEMALLOC use in SELinux appears to be limited
-> > to security/selinux/avc.c, and digging a bit, I'm guessing commit
-> > fa1aa143ac4a copied the combination from 6290c2c43973 ("selinux: tag
-> > avc cache alloc as non-critical") and the avc_alloc_node() function.
+On 2017/08/03 17:11, Michal Hocko wrote:
+> [CC Mel]
+> 
+> On Wed 02-08-17 17:45:56, Paul Moore wrote:
+>> On Wed, Aug 2, 2017 at 6:50 AM, Michal Hocko <mhocko@kernel.org> wrote:
+>>> Hi,
+>>> while doing something completely unrelated to selinux I've noticed a
+>>> really strange __GFP_NOMEMALLOC usage pattern in selinux, especially
+>>> GFP_ATOMIC | __GFP_NOMEMALLOC doesn't make much sense to me. GFP_ATOMIC
+>>> on its own allows to access memory reserves while the later flag tells
+>>> we cannot use memory reserves at all. The primary usecase for
+>>> __GFP_NOMEMALLOC is to override a global PF_MEMALLOC should there be a
+>>> need.
+>>>
+>>> It all leads to fa1aa143ac4a ("selinux: extended permissions for
+>>> ioctls") which doesn't explain this aspect so let me ask. Why is the
+>>> flag used at all? Moreover shouldn't GFP_ATOMIC be actually GFP_NOWAIT.
+>>> What makes this path important to access memory reserves?
+>>
+>> [NOTE: added the SELinux list to the CC line, please include that list
+>> when asking SELinux questions]
+> 
+> Sorry about that. Will keep it in mind for next posts
+>  
+>> The GFP_ATOMIC|__GFP_NOMEMALLOC use in SELinux appears to be limited
+>> to security/selinux/avc.c, and digging a bit, I'm guessing commit
+>> fa1aa143ac4a copied the combination from 6290c2c43973 ("selinux: tag
+>> avc cache alloc as non-critical") and the avc_alloc_node() function.
 > 
 > Thanks for the pointer. That makes much more sense now. Back in 2012 we
 > really didn't have a good way to distinguish non sleeping and atomic
 > with reserves allocations.
 >  
-
-Yes, and GFP_NOWAIT is the right way to express that now. It'll still
-wake kswapd but it won't stall on direct reclaim and won't dip into
-reserves.
-
-Thanks Michal.
-
-> ---
-> From 6d506a75da83c0724ed399966971711f37d67411 Mon Sep 17 00:00:00 2001
-> From: Michal Hocko <mhocko@suse.com>
-> Date: Thu, 3 Aug 2017 10:04:20 +0200
-> Subject: [PATCH] selinux: replace GFP_ATOMIC | __GFP_NOMEMALLOC with
->  GFP_NOWAIT
+>> I can't say that I'm an expert at the vm subsystem and the variety of
+>> different GFP_* flags, but your suggestion of moving to GFP_NOWAIT in
+>> security/selinux/avc.c seems reasonable and in keeping with the idea
+>> behind commit 6290c2c43973.
 > 
-> selinux avc code uses a weird combination of gfp flags. It asks for
-> GFP_ATOMIC which allows access to memory reserves while it requests
-> to not consume memory reserves by __GFP_NOMEMALLOC. This seems to be
-> copying the pattern from 6290c2c43973 ("selinux: tag avc cache alloc as
-> non-critical").
-> 
-> Back then (before d0164adc89f6 ("mm, page_alloc: distinguish between
-> being unable to sleep, unwilling to sleep and avoiding waking kswapd"))
-> we didn't have a good way to distinguish nowait and atomic allocations
-> so the construct made some sense. Now we do not have to play tricks
-> though and GFP_NOWAIT will provide the required semantic (aka do not
-> sleep and do not consume any memory reserves).
-> 
-> Signed-off-by: Michal Hocko <mhocko@suse.com>
+> What do you think about the following? I haven't tested it but it should
+> be rather straightforward.
 
-Looks right to me
-
-Acked-by: Mel Gorman <mgorman@suse.de>
-
--- 
-Mel Gorman
-SUSE Labs
+Why not at least __GFP_NOWARN ? And why not also __GFP_NOMEMALLOC ?
+http://lkml.kernel.org/r/201706302210.GCA05089.MFFOtQVJSOLHOF@I-love.SAKURA.ne.jp
