@@ -1,65 +1,170 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v74HCZEM027063
- for <selinux@tycho.nsa.gov>; Fri, 4 Aug 2017 13:12:36 -0400
-Received: by mail-lf0-f44.google.com with SMTP id d17so9614700lfe.0
- for <selinux@tycho.nsa.gov>; Fri, 04 Aug 2017 10:12:06 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20170804075636.GD26029@dhcp22.suse.cz>
-References: <20170802105018.GA2529@dhcp22.suse.cz>
- <CAGH-Kgt_9So8bDe=yDF3yLZHDfDgeXsnBEu_X6uE_nQnoi=5Vg@mail.gmail.com>
- <20170803081152.GC12521@dhcp22.suse.cz>
- <5aca0179-3b04-aa1a-58cd-668a04f63ae7@I-love.SAKURA.ne.jp>
- <20170803103337.GH12521@dhcp22.suse.cz>
- <201708031944.JCB39029.SJOOOLHFQFMVFt@I-love.SAKURA.ne.jp>
- <20170803110548.GK12521@dhcp22.suse.cz>
- <CAHC9VhQ_TtFPQL76OEui8_rfvDJ5i6AEdPdYLSHtn1vtWEKTOA@mail.gmail.com>
- <20170804075636.GD26029@dhcp22.suse.cz>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 4 Aug 2017 13:12:04 -0400
-Message-ID: <CAHC9VhR_SJUg2wkKhoeXHJeLrNFh=KYwSgz-5X57xx0Maa95Mg@mail.gmail.com>
-To: Michal Hocko <mhocko@kernel.org>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, mgorman@suse.de,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, selinux@tycho.nsa.gov
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v74IqUfv004312
+ for <selinux@tycho.nsa.gov>; Fri, 4 Aug 2017 14:52:30 -0400
+Message-ID: <1501873040.23158.3.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Date: Fri, 04 Aug 2017 14:57:20 -0400
+In-Reply-To: <1497028696.26846.9.camel@tycho.nsa.gov>
+References: <1497028696.26846.9.camel@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: suspicious __GFP_NOMEMALLOC in selinux
+Mime-Version: 1.0
+Subject: ANN: SELinux userspace release 20170804 / 2.7
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 4, 2017 at 3:56 AM, Michal Hocko <mhocko@kernel.org> wrote:
-> On Thu 03-08-17 14:17:26, Paul Moore wrote:
->> On Thu, Aug 3, 2017 at 7:05 AM, Michal Hocko <mhocko@kernel.org> wrote:
->> > On Thu 03-08-17 19:44:46, Tetsuo Handa wrote:
-> [...]
->> >> When allocating thread is selected as an OOM victim, it gets TIF_MEMDIE.
->> >> Since that function might be called from !in_interrupt() context, it is
->> >> possible that gfp_pfmemalloc_allowed() returns true due to TIF_MEMDIE and
->> >> the OOM victim will dip into memory reserves even when allocation failure
->> >> is not a problem.
->> >
->> > Yes this is possible but I do not see any major problem with that.
->> > I wouldn't add __GFP_NOMEMALLOC unless there is a real runaway of some
->> > sort that could be abused.
->>
->> Adding __GFP_NOMEMALLOC would not hurt anything would it?
->
-> I is not harmfull but I fail to see how it would be useful either and as
-> such it just adds a pointless gfp flag and confusion to whoever tries to
-> modify the code in future. Really the main purpose of __GFP_NOMEMALLOC
-> is to override the process scope PF_MEMALLOC. As such it is quite a hack
-> and the fewer users we have the better.
+The 20170804 / 2.7 release for the SELinux userspace release is now
+available from:
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-Okay, that is a viable explanation for me.
+Below are some notes on this release for packagers and users of the
+SELinux userspace.  git log and git shortlog output for all changes
+since the 20161014 / 2.6 release are linked from the release page. 
+Thanks to all the contributors to this release!
 
-> Btw. Should I resend the patch or somebody will take it from this email
-> thread?
+If you notice corrections or additional items that should be added to
+the release notes (below and also linked from the releases page), reply
+to this message with your suggested changes/additions and we'll add
+them to the one linked from the releases page too.
 
-No, unless your mailer mangled the patch I should be able to pull it
-from this thread.  However, I'm probably going to let this sit until
-early next week on the odd chance that anyone else wants to comment on
-the flag choice.  I'll send another reply once I merge the patch.
+* This is the first release with the split up policycoreutils (see
+https://www.mail-archive.com/selinux@tycho.nsa.gov/msg02914.html and
+the rest of that thread). Fedora already packages many of these
+components separately, although not always with the same organization
+and naming scheme.  Note that a number of these components are not
+necessary for basic use of SELinux and likely should not be installed
+by default, e.g. selinux-dbus, selinux-gui, mcstrans, restorecond,
+selinux-sandbox.
 
--- 
-paul moore
-www.paul-moore.com
+* libsepol now has binary module support for ioctl xperms rules
+(module version 18), making it possible to use allowxperm rules in
+modularly built refpolicy-based policies. Previously, ioctl xperms
+rules were only supported in monolithic policy and in CIL modules. 
+This change means that refpolicy and/or policies derived from it can
+begin to leverage ioctl whitelisting, which has already been leveraged
+for some time in Android policies, which do not rely on binary modules.
+
+* This release introduces support for Infiniband object labeling,
+including support for kernel policy version 31 and module version 19,
+policy.conf and CIL language support, and semanage support.  The
+corresponding kernel support was introduced in Linux v4.13.
+
+* This release introduces support for building policies with the
+extended_socket_class, cgroup_seclabel, and nnp_nosuid_transition
+policy
+capabilities enabled:
+
+** The extended_socket_class policy capability allows distinctions to
+be made in policy among socket address families that were previously
+mapped to the generic socket class (e.g. bluetooth, nfc, and many
+other socket address families that previously did not have their own
+distinct security class) as well as for SCTP and ICMP/ping sockets
+that were previously mapped to the rawip_socket class.  This policy
+capability is supported by Linux v4.11 and later. Enabling this
+capability
+in policy requires reviewing existing rules on socket and rawip_socket
+classes to determine whether they should be duplicated for the new
+classes.
+
+** The cgroup_seclabel policy capability allows userspace to set
+labels on cgroup/cgroup2 files, enabling fine-grained labeling of
+cgroup files by userspace.  This policy capability is also supported
+by Linux v4.11 and later. Note that enabling this capability will
+break current Android userspace/policy and requires introducing
+appropriate file_contexts definitions for cgroup files (or a change to
+the Android init program's handling of them) in order to avoid
+mislabeling them.
+
+** The nnp_nosuid_transition policy capability enables SELinux domain
+transitions to occur under no_new_privs (NNP) or on nosuid mounts if
+the corresponding permission (nnp_transition for NNP,
+nosuid_transition for nosuid; both in the newly defined process2
+security class / access vector) is allowed between the old and new
+contexts.  This change was motivated by the increasing use of NNP by
+systemd for confining system services and the desire to be able to
+leverage NNP/nosuid-provided protections in combination with SELinux
+rather than having to make undesirable tradeoffs in security. With
+this policy capability enabled and the corresponding permissions
+allowed where required, it should be possible to use upstream systemd
+unit files without modification on SELinux-enabled systems.
+NB: Allowing nnp_transition between two contexts opens up the
+potential for the old context to subvert the new context by
+installing seccomp filters before the execve.  Allowing
+nosuid_transition between two contexts opens up the potential for
+a context transition to occur on a file from an untrusted
+filesystem (e.g. removable media or remote filesystem).  Use with
+care.
+
+* checkpolicy now supports generating CIL or policy.conf from a
+kernel binary policy.  Sample usage is checkpolicy -M -C -b policy.N -o
+policy.cil and checkpolicy -M -F -b policy.N -o policy.conf.  There is
+also now a secil2conf program that can generate policy.conf from CIL,
+e.g. secil2conf -o policy.conf policy.cil.
+
+* Attribute generation and expansion has changed in several ways in
+order to address kernel runtime performance issues that occur when
+types have many attributes assigned to them while ensuring preservation
+of attributes where desired.  Binary module to CIL conversion now
+ensures that duplicate attributes are not generated for the same type
+set. secilc now supports -G and -X options to force expansion of
+automatically generated attributes (-G) and/or attributes that have
+fewer than a specified number of types (-X number).  secilc will also
+now more aggressively expand attributes based on whether they will
+actually be used by the kernel, are needed for debugging denials by
+audit2allow/why, or are needed for neverallow checking of binary
+policies (in Android).  New statements are supported in policy.conf
+(expandattribute) and in CIL (expandtypeattribute) to support
+specifying in source policy that specific attributes should always be
+expanded or never be expanded in order to override the default
+behaviors in checkpolicy and secilc.
+
+* checkpolicy/checkmodule now treats it as an error if a type is
+declared as an attribute or vice versa in a require block.  Such
+mismatches between declarations and require statements are an error in
+policy and should be corrected in policy; refpolicy master should
+already be fixed.
+
+* A change to libsepol-internal data structures breaks the build of
+setools4.  This is fixed by setools4 commit
+743d2a0eaaae7d99302dd3099549ca7ad868eab on the master branch.  The
+change was to align the libsepol structures with the kernel in order to
+allow direct comparison of libsepol-generated policy files against
+/sys/fs/selinux/policy after normalizing them through checkpolicy.
+
+* audit2why now understands type bounds failures and reports them as
+such, although it does not yet provide detailed reporting.  Detailed
+bounds violation reporting can be obtained already by enabling expand-
+check=1 in semanage.conf or by running semodule_expand (without -a) at
+policy validation time.
+
+* libsemanage now saves the linked policy and skips re-linking
+whenever possible.  This significantly improves the performance and
+memory overhead of semanage commands that do not affect policy modules
+(setting booleans and adding, deleting, or modifying local context
+mappings). Previously, libsemanage only skipped re-linking when setting
+booleans as a special case, but this was found to have a bug that could
+yield duplicate object context entries (e.g. portcon) in policy.  That
+optimization was therefore reverted and replaced with this one, which
+both fixes the bug and generalizes the optimization beyond just setting
+booleans.  The change does bring an associated storage cost, primarily
+storing an extra copy of the kernel policy file (if a concern, this
+could be made optional but it seems well worth it). The first semanage
+or setsebool -P command run with the new libsemanage will not
+demonstrate any improvement due to needing to generate the linked
+policy for the first time, but subsequent commands will leverage the
+saved linked policy.
+
+* libsemanage no longer depends on ustr.
+
+* libselinux/utils Makefile now uses SBINDIR instead of USRBINDIR.
+
+* mcstrans/utils Makefile now uses SBINDIR instead of BINDIR.
+
+* Some packages (libselinux, checkpolicy, selinux-python,
+semodule-utils and mcstrans) require LIBSEPOLA to be set to the
+absolute path to libsepol.a when building with DESTDIR set.
+
+* policycoreutils make install no longer creates a symlink from
+/usr/sbin/load_policy to /sbin/load_policy.
