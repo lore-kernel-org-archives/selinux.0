@@ -1,43 +1,56 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v776wdxU006626
- for <selinux@tycho.nsa.gov>; Mon, 7 Aug 2017 02:58:39 -0400
-Date: Mon, 7 Aug 2017 08:58:27 +0200
-From: Michal Hocko <mhocko@kernel.org>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, mgorman@suse.de,
- linux-kernel@vger.kernel.org, linux-mm@kvack.org, selinux@tycho.nsa.gov
-Message-ID: <20170807065827.GC32434@dhcp22.suse.cz>
-References: <20170802105018.GA2529@dhcp22.suse.cz>
- <CAGH-Kgt_9So8bDe=yDF3yLZHDfDgeXsnBEu_X6uE_nQnoi=5Vg@mail.gmail.com>
- <20170803081152.GC12521@dhcp22.suse.cz>
- <5aca0179-3b04-aa1a-58cd-668a04f63ae7@I-love.SAKURA.ne.jp>
- <20170803103337.GH12521@dhcp22.suse.cz>
- <201708031944.JCB39029.SJOOOLHFQFMVFt@I-love.SAKURA.ne.jp>
- <20170803110548.GK12521@dhcp22.suse.cz>
- <CAHC9VhQ_TtFPQL76OEui8_rfvDJ5i6AEdPdYLSHtn1vtWEKTOA@mail.gmail.com>
- <20170804075636.GD26029@dhcp22.suse.cz>
- <CAHC9VhR_SJUg2wkKhoeXHJeLrNFh=KYwSgz-5X57xx0Maa95Mg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhR_SJUg2wkKhoeXHJeLrNFh=KYwSgz-5X57xx0Maa95Mg@mail.gmail.com>
-Subject: Re: suspicious __GFP_NOMEMALLOC in selinux
+Message-ID: <1502117108.4300.7.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 07 Aug 2017 10:45:08 -0400
+In-Reply-To: <20170805101649.4931-2-nicolas.iooss@m4x.org>
+References: <20170805101649.4931-1-nicolas.iooss@m4x.org>
+ <20170805101649.4931-2-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH 2/2] Travis-CI: do not test gold linkers with clang
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri 04-08-17 13:12:04, Paul Moore wrote:
-> On Fri, Aug 4, 2017 at 3:56 AM, Michal Hocko <mhocko@kernel.org> wrote:
-[...]
-> > Btw. Should I resend the patch or somebody will take it from this email
-> > thread?
+On Sat, 2017-08-05 at 12:16 +0200, Nicolas Iooss wrote:
+> clang does not know -fuse-ld=gold. It only needs -flto, which
+> automatically adds -plugin=LLVMgold.so to the linker command line,
+> but
+> this does not work on Travis-CI because the gold linker plugin is not
+> installed:
 > 
-> No, unless your mailer mangled the patch I should be able to pull it
-> from this thread.  However, I'm probably going to let this sit until
-> early next week on the odd chance that anyone else wants to comment on
-> the flag choice.  I'll send another reply once I merge the patch.
+>     /usr/bin/ld: /usr/local/clang-3.9.0/bin/../lib/LLVMgold.so: error
+>     loading plugin: /usr/local/clang-3.9.0/bin/../lib/LLVMgold.so:
+>     cannot open shared object file: No such file or directory
+> 
+> Disable in the build matrix the combination of linking with special
+> linkers with using clang.
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-OK, there is certainly no hurry for merging this. Thanks!
--- 
-Michal Hocko
-SUSE Labs
+Thanks, applied both patches.
+
+> ---
+>  .travis.yml | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/.travis.yml b/.travis.yml
+> index 27c0013d6e9e..1b761496dd12 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -29,6 +29,13 @@ env:
+>      - PYVER=python3.6 RUBYLIBVER=2.2
+>      - PYVER=python3.6 RUBYLIBVER=2.3
+>  
+> +matrix:
+> +  exclude:
+> +    - compiler: clang
+> +      env: PYVER=python3.6 RUBYLIBVER=2.4 LINKER=gold
+> +    - compiler: clang
+> +      env: PYVER=python3.6 RUBYLIBVER=2.4 LINKER=bfd
+> +
+>  # Use Travis-CI Ubuntu 14.04 Trusty infrastructure, "full image"
+> variant
+>  sudo: required
+>  dist: trusty
