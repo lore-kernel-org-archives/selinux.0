@@ -1,48 +1,72 @@
-Message-ID: <1502117158.4300.8.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Date: Mon, 07 Aug 2017 10:45:58 -0400
-In-Reply-To: <20170805163750.1920-6-nicolas.iooss@m4x.org>
-References: <20170805163750.1920-1-nicolas.iooss@m4x.org>
- <20170805163750.1920-6-nicolas.iooss@m4x.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v78DocZQ009695
+ for <selinux@tycho.nsa.gov>; Tue, 8 Aug 2017 09:50:39 -0400
+Received: by mail-lf0-f53.google.com with SMTP id t128so14992632lff.2
+ for <selinux@tycho.nsa.gov>; Tue, 08 Aug 2017 06:34:16 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20170807065827.GC32434@dhcp22.suse.cz>
+References: <20170802105018.GA2529@dhcp22.suse.cz>
+ <CAGH-Kgt_9So8bDe=yDF3yLZHDfDgeXsnBEu_X6uE_nQnoi=5Vg@mail.gmail.com>
+ <20170803081152.GC12521@dhcp22.suse.cz>
+ <5aca0179-3b04-aa1a-58cd-668a04f63ae7@I-love.SAKURA.ne.jp>
+ <20170803103337.GH12521@dhcp22.suse.cz>
+ <201708031944.JCB39029.SJOOOLHFQFMVFt@I-love.SAKURA.ne.jp>
+ <20170803110548.GK12521@dhcp22.suse.cz>
+ <CAHC9VhQ_TtFPQL76OEui8_rfvDJ5i6AEdPdYLSHtn1vtWEKTOA@mail.gmail.com>
+ <20170804075636.GD26029@dhcp22.suse.cz>
+ <CAHC9VhR_SJUg2wkKhoeXHJeLrNFh=KYwSgz-5X57xx0Maa95Mg@mail.gmail.com>
+ <20170807065827.GC32434@dhcp22.suse.cz>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 8 Aug 2017 09:34:15 -0400
+Message-ID: <CAHC9VhRGmBn7EA1iLzHjv2A3nawc5ZtZs+cjdVm4BUX0wGGHVA@mail.gmail.com>
+To: Michal Hocko <mhocko@kernel.org>, mgorman@suse.de
+Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ linux-kernel@vger.kernel.org, linux-mm@kvack.org, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH 6/6] sepolicy: remove stray space in section "SEE ALSO"
+Subject: Re: suspicious __GFP_NOMEMALLOC in selinux
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, 2017-08-05 at 18:37 +0200, Nicolas Iooss wrote:
-> The space after "sepolicy(8)" breaks the formatting of section SEE
-> ALSO
-> in man pages generated with sepolicy:
-> 
->   SEE ALSO
->     selinux(8), ssh(8), semanage(8), restorecon(8), chcon(1),
-> sepolicy(8)  ,  setsebool(8),
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+On Mon, Aug 7, 2017 at 2:58 AM, Michal Hocko <mhocko@kernel.org> wrote:
+> On Fri 04-08-17 13:12:04, Paul Moore wrote:
+>> On Fri, Aug 4, 2017 at 3:56 AM, Michal Hocko <mhocko@kernel.org> wrote:
+> [...]
+>> > Btw. Should I resend the patch or somebody will take it from this email
+>> > thread?
+>>
+>> No, unless your mailer mangled the patch I should be able to pull it
+>> from this thread.  However, I'm probably going to let this sit until
+>> early next week on the odd chance that anyone else wants to comment on
+>> the flag choice.  I'll send another reply once I merge the patch.
+>
+> OK, there is certainly no hurry for merging this. Thanks!
+> --
+> Michal Hocko
+> SUSE Labs
 
-Thanks, applied all six patches.
+Merged into selinux/next with this patch description, and your
+sign-off (I had to munge the description a bit based on the thread).
+Are you okay with this, especially your sign-off?
 
-> ---
->  python/sepolicy/sepolicy/manpage.py | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/python/sepolicy/sepolicy/manpage.py
-> b/python/sepolicy/sepolicy/manpage.py
-> index 35b3722dbe45..ed8cb71cd6d4 100755
-> --- a/python/sepolicy/sepolicy/manpage.py
-> +++ b/python/sepolicy/sepolicy/manpage.py
-> @@ -922,8 +922,7 @@ This manual page was auto-generated using
->  .B "sepolicy manpage".
->  
->  .SH "SEE ALSO"
-> -selinux(8), %s(8), semanage(8), restorecon(8), chcon(1), sepolicy(8)
-> -""" % (self.domainname))
-> +selinux(8), %s(8), semanage(8), restorecon(8), chcon(1),
-> sepolicy(8)""" % (self.domainname))
->  
->          if self.booltext != "":
->              self.fd.write(", setsebool(8)")
+  commit 476accbe2f6ef69caeebe99f52a286e12ac35aee
+  Author: Michal Hocko <mhocko@kernel.org>
+  Date:   Thu Aug 3 10:11:52 2017 +0200
+
+   selinux: use GFP_NOWAIT in the AVC kmem_caches
+
+   There is a strange __GFP_NOMEMALLOC usage pattern in SELinux,
+   specifically GFP_ATOMIC | __GFP_NOMEMALLOC which doesn't make much
+   sense.  GFP_ATOMIC on its own allows to access memory reserves while
+   __GFP_NOMEMALLOC dictates we cannot use memory reserves.  Replace this
+   with the much more sane GFP_NOWAIT in the AVC code as we can tolerate
+   memory allocation failures in that code.
+
+   Signed-off-by: Michal Hocko <mhocko@kernel.org>
+   Acked-by: Mel Gorman <mgorman@suse.de>
+   Signed-off-by: Paul Moore <paul@paul-moore.com>
+
+-- 
+paul moore
+www.paul-moore.com
