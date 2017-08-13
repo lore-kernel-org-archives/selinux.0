@@ -1,4 +1,4 @@
-Date: Sun, 13 Aug 2017 10:41:33 -0500
+Date: Sun, 13 Aug 2017 11:22:33 -0500
 From: "Serge E. Hallyn" <serge@hallyn.com>
 To: SF Markus Elfring <elfring@users.sourceforge.net>
 Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
@@ -9,14 +9,13 @@ Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  "Serge E. Hallyn" <serge@hallyn.com>, Stephen Smalley <sds@tycho.nsa.gov>,
  William Roberts <william.c.roberts@intel.com>,
  LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-Message-ID: <20170813154133.GA4515@mail.hallyn.com>
+Message-ID: <20170813162233.GB4515@mail.hallyn.com>
 References: <e9f47cc9-fda7-dc54-bca9-cae6488914e0@users.sourceforge.net>
- <b74d176c-b028-7e82-80c6-a3014d57d648@users.sourceforge.net>
+ <05edc763-dddd-fe48-b98c-21e4ad5463a3@users.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <b74d176c-b028-7e82-80c6-a3014d57d648@users.sourceforge.net>
-Subject: Re: [PATCH 4/4] selinux: Adjust five checks for null
- pointers
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <05edc763-dddd-fe48-b98c-21e4ad5463a3@users.sourceforge.net>
+Subject: Re: [PATCH 1/4] selinux: Delete eight unnecessary variable assignments
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -24,63 +23,133 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Quoting SF Markus Elfring (elfring@users.sourceforge.net):
 > From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sun, 13 Aug 2017 16:16:05 +0200
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
+> Date: Sun, 13 Aug 2017 14:17:48 +0200
 > 
-> The script “checkpatch.pl” pointed information out like the following.
-> 
-> Comparison to NULL could be written …
-
-...  could be written all sorts of ways.  But what's the advantage of this?
-Personally I find "x == NULL" easier to read, and AFAIK psychology backs me
-up on the idea that negation is harder on the brain and worth avoiding when
-possible.
-
-> Thus fix affected source code places.
+> One local variable was reset to zero at the end of these functions.
+> This value will also be set by a previous call of a function if it was
+> executed successfully. Thus omit an extra assignment there.
 > 
 > Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+
+Acked-by: Serge Hallyn <serge@hallyn.com>
+
 > ---
->  security/selinux/ss/ebitmap.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+>  security/selinux/selinuxfs.c   |  1 -
+>  security/selinux/ss/avtab.c    |  2 --
+>  security/selinux/ss/ebitmap.c  |  4 +---
+>  security/selinux/ss/policydb.c | 10 ++--------
+>  4 files changed, 3 insertions(+), 14 deletions(-)
 > 
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 00eed842c491..7565c312a198 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -1724,7 +1724,6 @@ static int sel_make_classes(void)
+>  		if (rc)
+>  			goto out;
+>  	}
+> -	rc = 0;
+>  out:
+>  	for (i = 0; i < nclasses; i++)
+>  		kfree(classes[i]);
+> diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+> index 3628d3a868b6..a8218905e286 100644
+> --- a/security/selinux/ss/avtab.c
+> +++ b/security/selinux/ss/avtab.c
+> @@ -587,8 +587,6 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
+>  			goto bad;
+>  		}
+>  	}
+> -
+> -	rc = 0;
+>  out:
+>  	return rc;
+>  
 > diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-> index 697bd748760a..c778135989f5 100644
+> index ad38299164c3..ccf372db689c 100644
 > --- a/security/selinux/ss/ebitmap.c
 > +++ b/security/selinux/ss/ebitmap.c
-> @@ -96,12 +96,12 @@ int ebitmap_netlbl_export(struct ebitmap *ebmap,
->  	unsigned int iter;
->  	int rc;
+> @@ -373,7 +373,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
 >  
-> -	if (e_iter == NULL) {
-> +	if (!e_iter) {
->  		*catmap = NULL;
->  		return 0;
+>  	if (!e->highbit) {
+>  		e->node = NULL;
+> -		goto ok;
+> +		goto out;
 >  	}
 >  
-> -	if (*catmap != NULL)
-> +	if (*catmap)
->  		netlbl_catmap_free(*catmap);
->  	*catmap = NULL;
+>  	if (e->highbit && !count)
+> @@ -436,8 +436,6 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+>  			map = EBITMAP_SHIFT_UNIT_SIZE(map);
+>  		}
+>  	}
+> -ok:
+> -	rc = 0;
+>  out:
+>  	return rc;
+>  bad:
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index aa6500abb178..a2356fc263c6 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -599,7 +599,6 @@ static int policydb_index(struct policydb *p)
+>  		if (rc)
+>  			goto out;
+>  	}
+> -	rc = 0;
+>  out:
+>  	return rc;
+>  }
+> @@ -903,10 +902,10 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
 >  
-> @@ -161,14 +161,14 @@ int ebitmap_netlbl_import(struct ebitmap *ebmap,
->  			continue;
+>  	head = p->ocontexts[OCON_ISID];
+>  	for (c = head; c; c = c->next) {
+> -		rc = -EINVAL;
+>  		if (!c->context[0].user) {
+>  			printk(KERN_ERR "SELinux:  SID %s was never defined.\n",
+>  				c->u.name);
+> +			rc = -EINVAL;
+>  			goto out;
 >  		}
 >  
-> -		if (e_iter == NULL ||
-> +		if (!e_iter ||
->  		    offset >= e_iter->startbit + EBITMAP_SIZE) {
->  			e_prev = e_iter;
->  			e_iter = kmem_cache_zalloc(ebitmap_node_cachep, GFP_ATOMIC);
-> -			if (e_iter == NULL)
-> +			if (!e_iter)
->  				goto netlbl_import_failure;
->  			e_iter->startbit = offset - (offset % EBITMAP_SIZE);
-> -			if (e_prev == NULL)
-> +			if (!e_prev)
->  				ebmap->node = e_iter;
->  			else
->  				e_prev->next = e_iter;
+> @@ -917,7 +916,6 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+>  			goto out;
+>  		}
+>  	}
+> -	rc = 0;
+>  out:
+>  	return rc;
+>  }
+> @@ -1074,13 +1072,12 @@ static int context_read_and_validate(struct context *c,
+>  		}
+>  	}
+>  
+> -	rc = -EINVAL;
+>  	if (!policydb_context_isvalid(p, c)) {
+>  		printk(KERN_ERR "SELinux:  invalid security context\n");
+>  		context_destroy(c);
+> +		rc = -EINVAL;
+>  		goto out;
+>  	}
+> -	rc = 0;
+>  out:
+>  	return rc;
+>  }
+> @@ -1900,7 +1897,6 @@ static int range_read(struct policydb *p, void *fp)
+>  		r = NULL;
+>  	}
+>  	hash_eval(p->range_tr, "rangetr");
+> -	rc = 0;
+>  out:
+>  	kfree(rt);
+>  	kfree(r);
+> @@ -2550,8 +2546,6 @@ int policydb_read(struct policydb *p, void *fp)
+>  	rc = policydb_bounds_sanity_check(p);
+>  	if (rc)
+>  		goto bad;
+> -
+> -	rc = 0;
+>  out:
+>  	return rc;
+>  bad:
 > -- 
 > 2.14.0
