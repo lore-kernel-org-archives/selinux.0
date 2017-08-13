@@ -8,143 +8,135 @@ To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  William Roberts <william.c.roberts@intel.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
 References: <e9f47cc9-fda7-dc54-bca9-cae6488914e0@users.sourceforge.net>
-Message-ID: <05edc763-dddd-fe48-b98c-21e4ad5463a3@users.sourceforge.net>
-Date: Sun, 13 Aug 2017 16:45:10 +0200
+Message-ID: <2c4582c9-efc1-4b8c-1095-84e00062c7de@users.sourceforge.net>
+Date: Sun, 13 Aug 2017 16:46:53 +0200
 MIME-Version: 1.0
 In-Reply-To: <e9f47cc9-fda7-dc54-bca9-cae6488914e0@users.sourceforge.net>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH 1/4] selinux: Delete eight unnecessary variable
- assignments
+Subject: [PATCH 2/4] selinux: Adjust jump targets in ebitmap_read()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 13 Aug 2017 14:17:48 +0200
+Date: Sun, 13 Aug 2017 15:21:43 +0200
 
-One local variable was reset to zero at the end of these functions.
-This value will also be set by a previous call of a function if it was
-executed successfully. Thus omit an extra assignment there.
+Adjust jump targets so that the function implementation becomes smaller.
+
+* Move an error message so that it is present only once here.
+
+* Avoid another check for the local variable "rc" at the end.
 
 Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
 ---
- security/selinux/selinuxfs.c   |  1 -
- security/selinux/ss/avtab.c    |  2 --
- security/selinux/ss/ebitmap.c  |  4 +---
- security/selinux/ss/policydb.c | 10 ++--------
- 4 files changed, 3 insertions(+), 14 deletions(-)
+ security/selinux/ss/ebitmap.c | 38 ++++++++++++++++++--------------------
+ 1 file changed, 18 insertions(+), 20 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 00eed842c491..7565c312a198 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1724,7 +1724,6 @@ static int sel_make_classes(void)
- 		if (rc)
- 			goto out;
- 	}
--	rc = 0;
- out:
- 	for (i = 0; i < nclasses; i++)
- 		kfree(classes[i]);
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 3628d3a868b6..a8218905e286 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -587,8 +587,6 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
- 			goto bad;
- 		}
- 	}
--
--	rc = 0;
- out:
- 	return rc;
- 
 diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index ad38299164c3..ccf372db689c 100644
+index ccf372db689c..03581d7ef817 100644
 --- a/security/selinux/ss/ebitmap.c
 +++ b/security/selinux/ss/ebitmap.c
-@@ -373,7 +373,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+@@ -350,21 +350,20 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 	__le32 buf[3];
+ 	int rc, i;
  
- 	if (!e->highbit) {
- 		e->node = NULL;
--		goto ok;
-+		goto out;
+-	ebitmap_init(e);
+-
+ 	rc = next_entry(buf, fp, sizeof buf);
+ 	if (rc < 0)
+ 		goto out;
+ 
+-	mapunit = le32_to_cpu(buf[0]);
++	ebitmap_init(e);
+ 	e->highbit = le32_to_cpu(buf[1]);
+ 	count = le32_to_cpu(buf[2]);
++	mapunit = le32_to_cpu(buf[0]);
+ 
+ 	if (mapunit != BITS_PER_U64) {
+ 		printk(KERN_ERR "SELinux: ebitmap: map size %u does not "
+ 		       "match my size %zd (high bit was %d)\n",
+ 		       mapunit, BITS_PER_U64, e->highbit);
+-		goto bad;
++		goto destroy_bitmap;
+ 	}
+ 
+ 	/* round up e->highbit */
+@@ -377,27 +376,26 @@ int ebitmap_read(struct ebitmap *e, void *fp)
  	}
  
  	if (e->highbit && !count)
-@@ -436,8 +436,6 @@ int ebitmap_read(struct ebitmap *e, void *fp)
- 			map = EBITMAP_SHIFT_UNIT_SIZE(map);
- 		}
- 	}
--ok:
--	rc = 0;
- out:
- 	return rc;
- bad:
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index aa6500abb178..a2356fc263c6 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -599,7 +599,6 @@ static int policydb_index(struct policydb *p)
- 		if (rc)
- 			goto out;
- 	}
--	rc = 0;
- out:
- 	return rc;
- }
-@@ -903,10 +902,10 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+-		goto bad;
++		goto destroy_bitmap;
  
- 	head = p->ocontexts[OCON_ISID];
- 	for (c = head; c; c = c->next) {
+ 	for (i = 0; i < count; i++) {
+ 		rc = next_entry(&startbit, fp, sizeof(u32));
+-		if (rc < 0) {
+-			printk(KERN_ERR "SELinux: ebitmap: truncated map\n");
+-			goto bad;
+-		}
++		if (rc)
++			goto report_truncated_map;
++
+ 		startbit = le32_to_cpu(startbit);
+ 
+ 		if (startbit & (mapunit - 1)) {
+ 			printk(KERN_ERR "SELinux: ebitmap start bit (%d) is "
+ 			       "not a multiple of the map unit size (%u)\n",
+ 			       startbit, mapunit);
+-			goto bad;
++			goto destroy_bitmap;
+ 		}
+ 		if (startbit > e->highbit - mapunit) {
+ 			printk(KERN_ERR "SELinux: ebitmap start bit (%d) is "
+ 			       "beyond the end of the bitmap (%u)\n",
+ 			       startbit, (e->highbit - mapunit));
+-			goto bad;
++			goto destroy_bitmap;
+ 		}
+ 
+ 		if (!n || startbit >= n->startbit + EBITMAP_SIZE) {
+@@ -407,7 +405,7 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 				printk(KERN_ERR
+ 				       "SELinux: ebitmap: out of memory\n");
+ 				rc = -ENOMEM;
+-				goto bad;
++				goto destroy_bitmap;
+ 			}
+ 			/* round down */
+ 			tmp->startbit = startbit - (startbit % EBITMAP_SIZE);
+@@ -420,14 +418,13 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 			printk(KERN_ERR "SELinux: ebitmap: start bit %d"
+ 			       " comes after start bit %d\n",
+ 			       startbit, n->startbit);
+-			goto bad;
++			goto destroy_bitmap;
+ 		}
+ 
+ 		rc = next_entry(&map, fp, sizeof(u64));
+-		if (rc < 0) {
+-			printk(KERN_ERR "SELinux: ebitmap: truncated map\n");
+-			goto bad;
+-		}
++		if (rc)
++			goto report_truncated_map;
++
+ 		map = le64_to_cpu(map);
+ 
+ 		index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
+@@ -438,9 +435,10 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+ 	}
+ out:
+ 	return rc;
+-bad:
+-	if (!rc)
 -		rc = -EINVAL;
- 		if (!c->context[0].user) {
- 			printk(KERN_ERR "SELinux:  SID %s was never defined.\n",
- 				c->u.name);
-+			rc = -EINVAL;
- 			goto out;
- 		}
- 
-@@ -917,7 +916,6 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
- 			goto out;
- 		}
- 	}
--	rc = 0;
- out:
- 	return rc;
++report_truncated_map:
++	printk(KERN_ERR "SELinux: ebitmap: truncated map\n");
++	rc = -EINVAL;
++destroy_bitmap:
+ 	ebitmap_destroy(e);
+ 	goto out;
  }
-@@ -1074,13 +1072,12 @@ static int context_read_and_validate(struct context *c,
- 		}
- 	}
- 
--	rc = -EINVAL;
- 	if (!policydb_context_isvalid(p, c)) {
- 		printk(KERN_ERR "SELinux:  invalid security context\n");
- 		context_destroy(c);
-+		rc = -EINVAL;
- 		goto out;
- 	}
--	rc = 0;
- out:
- 	return rc;
- }
-@@ -1900,7 +1897,6 @@ static int range_read(struct policydb *p, void *fp)
- 		r = NULL;
- 	}
- 	hash_eval(p->range_tr, "rangetr");
--	rc = 0;
- out:
- 	kfree(rt);
- 	kfree(r);
-@@ -2550,8 +2546,6 @@ int policydb_read(struct policydb *p, void *fp)
- 	rc = policydb_bounds_sanity_check(p);
- 	if (rc)
- 		goto bad;
--
--	rc = 0;
- out:
- 	return rc;
- bad:
 -- 
 2.14.0
