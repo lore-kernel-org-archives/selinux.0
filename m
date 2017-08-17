@@ -1,371 +1,198 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: paul@paul-moore.com
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- jmorris@namei.org, Stephen Smalley <sds@tycho.nsa.gov>
-Date: Thu, 17 Aug 2017 13:32:36 -0400
-Message-Id: <20170817173237.5858-1-sds@tycho.nsa.gov>
-Subject: [PATCH 1/2] selinux: update my email address
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7HI6Xtl007613
+ for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2017 14:06:34 -0400
+Received: by mail-pg0-f48.google.com with SMTP id y129so47694027pgy.4
+ for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2017 11:04:49 -0700 (PDT)
+From: Daniel Cashman <dcashman@android.com>
+To: selinux@tycho.nsa.gov
+Cc: dcashman@android.com, dcashman@google.com, jeffv@google.com,
+ jwcart2@tycho.nsa.gov
+Date: Thu, 17 Aug 2017 11:04:25 -0700
+Message-Id: <20170817180425.141871-2-dcashman@android.com>
+In-Reply-To: <20170817180425.141871-1-dcashman@android.com>
+References: <20170817180425.141871-1-dcashman@android.com>
+Subject: [PATCH 1/1] libsepol: cil: Add ability to redeclare types[attributes]
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Update my email address since epoch.ncsc.mil no longer exists.
-MAINTAINERS and CREDITS are already correct.
+From: Dan Cashman <dcashman@google.com>
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Dan Cashman <dcashman@android.com>
+Change-Id: I5a72f2e6c339baee8ebc07e3e9176296320e2c80
 ---
- security/selinux/avc.c              | 2 +-
- security/selinux/hooks.c            | 2 +-
- security/selinux/include/avc.h      | 2 +-
- security/selinux/include/avc_ss.h   | 2 +-
- security/selinux/include/objsec.h   | 2 +-
- security/selinux/include/security.h | 2 +-
- security/selinux/ss/avtab.c         | 2 +-
- security/selinux/ss/avtab.h         | 2 +-
- security/selinux/ss/constraint.h    | 2 +-
- security/selinux/ss/context.h       | 2 +-
- security/selinux/ss/ebitmap.c       | 2 +-
- security/selinux/ss/ebitmap.h       | 2 +-
- security/selinux/ss/hashtab.c       | 2 +-
- security/selinux/ss/hashtab.h       | 2 +-
- security/selinux/ss/mls.c           | 2 +-
- security/selinux/ss/mls.h           | 2 +-
- security/selinux/ss/mls_types.h     | 2 +-
- security/selinux/ss/policydb.c      | 2 +-
- security/selinux/ss/policydb.h      | 2 +-
- security/selinux/ss/services.c      | 2 +-
- security/selinux/ss/services.h      | 2 +-
- security/selinux/ss/sidtab.c        | 2 +-
- security/selinux/ss/sidtab.h        | 2 +-
- security/selinux/ss/symtab.c        | 2 +-
- security/selinux/ss/symtab.h        | 2 +-
- 25 files changed, 25 insertions(+), 25 deletions(-)
+ libsepol/cil/include/cil/cil.h   |  1 +
+ libsepol/cil/src/cil.c           |  5 +++++
+ libsepol/cil/src/cil_build_ast.c | 46 ++++++++++++++++++++++++++++++++++------
+ libsepol/cil/src/cil_internal.h  |  1 +
+ secilc/secilc.c                  |  9 +++++++-
+ 5 files changed, 54 insertions(+), 8 deletions(-)
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 52f3c55..f14ae9c 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the kernel access vector cache (AVC).
-  *
-- * Authors:  Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Authors:  Stephen Smalley, <sds@tycho.nsa.gov>
-  *	     James Morris <jmorris@redhat.com>
-  *
-  * Update:   KaiGai, Kohei <kaigai@ak.jp.nec.com>
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 04b8e10..2bd7b82 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3,7 +3,7 @@
-  *
-  *  This file contains the SELinux hook function implementations.
-  *
-- *  Authors:  Stephen Smalley, <sds@epoch.ncsc.mil>
-+ *  Authors:  Stephen Smalley, <sds@tycho.nsa.gov>
-  *	      Chris Vance, <cvance@nai.com>
-  *	      Wayne Salamon, <wsalamon@nai.com>
-  *	      James Morris <jmorris@redhat.com>
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 0999df0..a5004e9 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -1,7 +1,7 @@
- /*
-  * Access vector cache interface for object managers.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SELINUX_AVC_H_
- #define _SELINUX_AVC_H_
-diff --git a/security/selinux/include/avc_ss.h b/security/selinux/include/avc_ss.h
-index d5c3284..37d57da 100644
---- a/security/selinux/include/avc_ss.h
-+++ b/security/selinux/include/avc_ss.h
-@@ -1,7 +1,7 @@
- /*
-  * Access vector cache interface for the security server.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SELINUX_AVC_SS_H_
- #define _SELINUX_AVC_SS_H_
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 6ebc61e..1649cd1 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -3,7 +3,7 @@
-  *
-  *  This file contains the SELinux security data structures for kernel objects.
-  *
-- *  Author(s):  Stephen Smalley, <sds@epoch.ncsc.mil>
-+ *  Author(s):  Stephen Smalley, <sds@tycho.nsa.gov>
-  *		Chris Vance, <cvance@nai.com>
-  *		Wayne Salamon, <wsalamon@nai.com>
-  *		James Morris <jmorris@redhat.com>
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 3e32317..28dfb2f 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -1,7 +1,7 @@
- /*
-  * Security server interface.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  *
-  */
+diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
+index 4507892c..4df646a0 100644
+--- a/libsepol/cil/include/cil/cil.h
++++ b/libsepol/cil/include/cil/cil.h
+@@ -46,6 +46,7 @@ extern int cil_userprefixes_to_string(cil_db_t *db, char **out, size_t *size);
+ extern int cil_selinuxusers_to_string(cil_db_t *db, char **out, size_t *size);
+ extern int cil_filecons_to_string(cil_db_t *db, char **out, size_t *size);
+ extern void cil_set_disable_dontaudit(cil_db_t *db, int disable_dontaudit);
++extern void cil_set_multiple_decls(cil_db_t *db, int multiple_decls);
+ extern void cil_set_disable_neverallow(cil_db_t *db, int disable_neverallow);
+ extern void cil_set_preserve_tunables(cil_db_t *db, int preserve_tunables);
+ extern int cil_set_handle_unknown(cil_db_t *db, int handle_unknown);
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index 9b9ccc36..e8bbbfdf 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -1675,6 +1675,11 @@ void cil_set_mls(struct cil_db *db, int mls)
+ 	db->mls = mls;
+ }
  
-diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-index 3628d3a..2c3c7d0 100644
---- a/security/selinux/ss/avtab.c
-+++ b/security/selinux/ss/avtab.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the access vector table type.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
++void cil_set_multiple_decls(struct cil_db *db, int multiple_decls)
++{
++	db->multiple_decls = multiple_decls;
++}
++
+ void cil_set_target_platform(struct cil_db *db, int target_platform)
+ {
+ 	db->target_platform = target_platform;
+diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+index 36cc6735..9a2fd0d5 100644
+--- a/libsepol/cil/src/cil_build_ast.c
++++ b/libsepol/cil/src/cil_build_ast.c
+@@ -82,10 +82,33 @@ exit:
+ 	return rc;
+ }
  
- /* Updated: Frank Mayer <mayerf@tresys.com> and Karl MacMillan <kmacmillan@tresys.com>
-diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
-index d946c9d..725853c 100644
---- a/security/selinux/ss/avtab.h
-+++ b/security/selinux/ss/avtab.h
-@@ -5,7 +5,7 @@
-  * table is used to represent the type enforcement
-  * tables.
-  *
-- *  Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ *  Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
++/*
++ * Determine whether or not multiple declarations of the same key can share a
++ * datum, given the new datum and the one already present in a given symtab.
++ */
++int cil_is_datum_multiple_decl(__attribute__((unused)) struct cil_symtab_datum *cur,
++                               __attribute__((unused)) struct cil_symtab_datum *old,
++                               enum cil_flavor f)
++{
++	int rc = CIL_FALSE;
++
++	switch (f) {
++	case CIL_TYPE:
++	case CIL_TYPEATTRIBUTE:
++		/* type and typeattribute statements insert empty datums, ret true */
++		rc = CIL_TRUE;
++		break;
++	default:
++		break;
++	}
++	return rc;
++}
++
+ int cil_gen_node(__attribute__((unused)) struct cil_db *db, struct cil_tree_node *ast_node, struct cil_symtab_datum *datum, hashtab_key_t key, enum cil_sym_index sflavor, enum cil_flavor nflavor)
+ {
+ 	int rc = SEPOL_ERR;
+ 	symtab_t *symtab = NULL;
++	struct cil_symtab_datum *prev;
  
- /* Updated: Frank Mayer <mayerf@tresys.com> and Karl MacMillan <kmacmillan@tresys.com>
-diff --git a/security/selinux/ss/constraint.h b/security/selinux/ss/constraint.h
-index 96fd947..33ae2ae 100644
---- a/security/selinux/ss/constraint.h
-+++ b/security/selinux/ss/constraint.h
-@@ -10,7 +10,7 @@
-  * process from labeling an object with a different user
-  * identity.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SS_CONSTRAINT_H_
- #define _SS_CONSTRAINT_H_
-diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
-index 212e347..a2c0f37c 100644
---- a/security/selinux/ss/context.h
-+++ b/security/selinux/ss/context.h
-@@ -10,7 +10,7 @@
-  * security server and can be changed without affecting
-  * clients of the security server.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SS_CONTEXT_H_
- #define _SS_CONTEXT_H_
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index ad38299..fc28149 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the extensible bitmap type.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- /*
-  * Updated: Hewlett-Packard <paul@paul-moore.com>
-diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
-index 6d5a9ac..da1325d 100644
---- a/security/selinux/ss/ebitmap.h
-+++ b/security/selinux/ss/ebitmap.h
-@@ -9,7 +9,7 @@
-  * an explicitly specified starting bit position within
-  * the total bitmap.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SS_EBITMAP_H_
- #define _SS_EBITMAP_H_
-diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
-index 3858706..686c391 100644
---- a/security/selinux/ss/hashtab.c
-+++ b/security/selinux/ss/hashtab.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the hash table type.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #include <linux/kernel.h>
- #include <linux/slab.h>
-diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
-index 953872c..009fb5e 100644
---- a/security/selinux/ss/hashtab.h
-+++ b/security/selinux/ss/hashtab.h
-@@ -5,7 +5,7 @@
-  * functions for hash computation and key comparison are
-  * provided by the creator of the table.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SS_HASHTAB_H_
- #define _SS_HASHTAB_H_
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index e108884..d9dc34f4 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the multi-level security (MLS) policy.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- /*
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index e4369e3..0f0a1d6 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -1,7 +1,7 @@
- /*
-  * Multi-level security (MLS) policy operations.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- /*
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-diff --git a/security/selinux/ss/mls_types.h b/security/selinux/ss/mls_types.h
-index e936487..47f3702 100644
---- a/security/selinux/ss/mls_types.h
-+++ b/security/selinux/ss/mls_types.h
-@@ -1,7 +1,7 @@
- /*
-  * Type definitions for the multi-level security (MLS) policy.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- /*
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index aa6500a..6e8c805 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the policy database.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
+ 	rc = __cil_verify_name((const char*)key);
+ 	if (rc != SEPOL_OK) {
+@@ -103,15 +126,24 @@ int cil_gen_node(__attribute__((unused)) struct cil_db *db, struct cil_tree_node
+ 	if (symtab != NULL) {
+ 		rc = cil_symtab_insert(symtab, (hashtab_key_t)key, datum, ast_node);
+ 		if (rc == SEPOL_EEXIST) {
+-			cil_log(CIL_ERR, "Re-declaration of %s %s\n", 
+-				cil_node_to_string(ast_node), key);
+-			if (cil_symtab_get_datum(symtab, key, &datum) == SEPOL_OK) {
+-				if (sflavor == CIL_SYM_BLOCKS) {
+-					struct cil_tree_node *node = datum->nodes->head->data;
+-					cil_tree_log(node, CIL_ERR, "Previous declaration");
++			if (!db->multiple_decls ||
++			    cil_symtab_get_datum(symtab, (hashtab_key_t)key, &prev) != SEPOL_OK ||
++			    !cil_is_datum_multiple_decl(datum, prev, nflavor)) {
++
++				/* multiple_decls not ok, ret error */
++				cil_log(CIL_ERR, "Re-declaration of %s %s\n",
++					cil_node_to_string(ast_node), key);
++				if (cil_symtab_get_datum(symtab, key, &datum) == SEPOL_OK) {
++					if (sflavor == CIL_SYM_BLOCKS) {
++						struct cil_tree_node *node = datum->nodes->head->data;
++						cil_tree_log(node, CIL_ERR, "Previous declaration");
++					}
+ 				}
++				goto exit;
+ 			}
+-			goto exit;
++			/* multiple_decls is enabled and works for this datum type, add node */
++			cil_list_append(prev->nodes, CIL_NODE, ast_node);
++			ast_node->data = prev;
+ 		}
+ 	}
  
- /*
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 5d23eed..215f8f3 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -2,7 +2,7 @@
-  * A policy database (policydb) specifies the
-  * configuration data for the security policy.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
+diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
+index aee3f00c..abfacd8d 100644
+--- a/libsepol/cil/src/cil_internal.h
++++ b/libsepol/cil/src/cil_internal.h
+@@ -312,6 +312,7 @@ struct cil_db {
+ 	int preserve_tunables;
+ 	int handle_unknown;
+ 	int mls;
++	int multiple_decls;
+ 	int target_platform;
+ 	int policy_version;
+ };
+diff --git a/secilc/secilc.c b/secilc/secilc.c
+index f2232e72..0be6975b 100644
+--- a/secilc/secilc.c
++++ b/secilc/secilc.c
+@@ -63,6 +63,7 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
+ 	printf("                                 statement if present in the policy\n");
+ 	printf("  -D, --disable-dontaudit        do not add dontaudit rules to the binary policy\n");
+ 	printf("  -P, --preserve-tunables        treat tunables as booleans\n");
++	printf("  -m, --multiple-decls           allow some statements to be re-declared\n");
+ 	printf("  -N, --disable-neverallow       do not check neverallow rules\n");
+ 	printf("  -G, --expand-generated         Expand and remove auto-generated attributes\n");
+ 	printf("  -X, --expand-size <SIZE>       Expand type attributes with fewer than <SIZE>\n");
+@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
+ 	int target = SEPOL_TARGET_SELINUX;
+ 	int mls = -1;
+ 	int disable_dontaudit = 0;
++	int multiple_decls = 0;
+ 	int disable_neverallow = 0;
+ 	int preserve_tunables = 0;
+ 	int handle_unknown = -1;
+@@ -108,6 +110,7 @@ int main(int argc, char *argv[])
+ 		{"policyversion", required_argument, 0, 'c'},
+ 		{"handle-unknown", required_argument, 0, 'U'},
+ 		{"disable-dontaudit", no_argument, 0, 'D'},
++		{"multiple-decls", no_argument, 0, 'm'},
+ 		{"disable-neverallow", no_argument, 0, 'N'},
+ 		{"preserve-tunables", no_argument, 0, 'P'},
+ 		{"output", required_argument, 0, 'o'},
+@@ -119,7 +122,7 @@ int main(int argc, char *argv[])
+ 	int i;
  
- /*
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 16c55de..e4a1c0d 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the security services.
-  *
-- * Authors : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Authors : Stephen Smalley, <sds@tycho.nsa.gov>
-  *	     James Morris <jmorris@redhat.com>
-  *
-  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
-index 6abcd87..3d9fa95 100644
---- a/security/selinux/ss/services.h
-+++ b/security/selinux/ss/services.h
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the security services.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SS_SERVICES_H_
- #define _SS_SERVICES_H_
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index c5f436b..6ae08ef 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the SID table type.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #include <linux/kernel.h>
- #include <linux/slab.h>
-diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-index 84dc154..de5d0ea 100644
---- a/security/selinux/ss/sidtab.h
-+++ b/security/selinux/ss/sidtab.h
-@@ -2,7 +2,7 @@
-  * A security identifier table (sidtab) is a hash table
-  * of security context structures indexed by SID value.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SS_SIDTAB_H_
- #define _SS_SIDTAB_H_
-diff --git a/security/selinux/ss/symtab.c b/security/selinux/ss/symtab.c
-index 160326e..d1a6745 100644
---- a/security/selinux/ss/symtab.c
-+++ b/security/selinux/ss/symtab.c
-@@ -1,7 +1,7 @@
- /*
-  * Implementation of the symbol table type.
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #include <linux/kernel.h>
- #include <linux/string.h>
-diff --git a/security/selinux/ss/symtab.h b/security/selinux/ss/symtab.h
-index ca422b4..0bc12d5 100644
---- a/security/selinux/ss/symtab.h
-+++ b/security/selinux/ss/symtab.h
-@@ -4,7 +4,7 @@
-  * is arbitrary.  The symbol table type is implemented
-  * using the hash table type (hashtab).
-  *
-- * Author : Stephen Smalley, <sds@epoch.ncsc.mil>
-+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
-  */
- #ifndef _SS_SYMTAB_H_
- #define _SS_SYMTAB_H_
+ 	while (1) {
+-		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDNc:GX:", long_opts, &opt_index);
++		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDmNc:GX:", long_opts, &opt_index);
+ 		if (opt_char == -1) {
+ 			break;
+ 		}
+@@ -175,6 +178,9 @@ int main(int argc, char *argv[])
+ 			case 'D':
+ 				disable_dontaudit = 1;
+ 				break;
++			case 'm':
++				multiple_decls = 1;
++				break;
+ 			case 'N':
+ 				disable_neverallow = 1;
+ 				break;
+@@ -223,6 +229,7 @@ int main(int argc, char *argv[])
+ 
+ 	cil_db_init(&db);
+ 	cil_set_disable_dontaudit(db, disable_dontaudit);
++	cil_set_multiple_decls(db, multiple_decls);
+ 	cil_set_disable_neverallow(db, disable_neverallow);
+ 	cil_set_preserve_tunables(db, preserve_tunables);
+ 	if (handle_unknown != -1) {
 -- 
-2.9.4
+2.14.1.480.gb18f417b89-goog
