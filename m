@@ -1,198 +1,452 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7HI6Xtl007613
- for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2017 14:06:34 -0400
-Received: by mail-pg0-f48.google.com with SMTP id y129so47694027pgy.4
- for <selinux@tycho.nsa.gov>; Thu, 17 Aug 2017 11:04:49 -0700 (PDT)
-From: Daniel Cashman <dcashman@android.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
-Cc: dcashman@android.com, dcashman@google.com, jeffv@google.com,
- jwcart2@tycho.nsa.gov
-Date: Thu, 17 Aug 2017 11:04:25 -0700
-Message-Id: <20170817180425.141871-2-dcashman@android.com>
-In-Reply-To: <20170817180425.141871-1-dcashman@android.com>
-References: <20170817180425.141871-1-dcashman@android.com>
-Subject: [PATCH 1/1] libsepol: cil: Add ability to redeclare types[attributes]
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu, 17 Aug 2017 14:19:46 -0400
+Message-Id: <20170817181946.7444-1-sds@tycho.nsa.gov>
+Subject: [PATCH] checkpolicy, libselinux, libsepol,
+ policycoreutils: Update my email address
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Dan Cashman <dcashman@google.com>
+Update my email address since epoch.ncsc.mil no longer exists.
 
-Signed-off-by: Dan Cashman <dcashman@android.com>
-Change-Id: I5a72f2e6c339baee8ebc07e3e9176296320e2c80
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- libsepol/cil/include/cil/cil.h   |  1 +
- libsepol/cil/src/cil.c           |  5 +++++
- libsepol/cil/src/cil_build_ast.c | 46 ++++++++++++++++++++++++++++++++++------
- libsepol/cil/src/cil_internal.h  |  1 +
- secilc/secilc.c                  |  9 +++++++-
- 5 files changed, 54 insertions(+), 8 deletions(-)
+ checkpolicy/checkmodule.8                     | 2 +-
+ checkpolicy/checkpolicy.8                     | 4 ++--
+ checkpolicy/checkpolicy.c                     | 2 +-
+ checkpolicy/policy_define.c                   | 2 +-
+ checkpolicy/policy_parse.y                    | 2 +-
+ checkpolicy/policy_scan.l                     | 2 +-
+ checkpolicy/queue.c                           | 2 +-
+ checkpolicy/queue.h                           | 2 +-
+ libselinux/src/avc.c                          | 2 +-
+ libsepol/include/sepol/policydb/avtab.h       | 2 +-
+ libsepol/include/sepol/policydb/constraint.h  | 2 +-
+ libsepol/include/sepol/policydb/context.h     | 2 +-
+ libsepol/include/sepol/policydb/ebitmap.h     | 2 +-
+ libsepol/include/sepol/policydb/flask_types.h | 2 +-
+ libsepol/include/sepol/policydb/hashtab.h     | 2 +-
+ libsepol/include/sepol/policydb/mls_types.h   | 2 +-
+ libsepol/include/sepol/policydb/policydb.h    | 2 +-
+ libsepol/include/sepol/policydb/services.h    | 2 +-
+ libsepol/include/sepol/policydb/sidtab.h      | 2 +-
+ libsepol/include/sepol/policydb/symtab.h      | 2 +-
+ libsepol/man/man3/sepol_genbools.3            | 2 +-
+ libsepol/man/man8/genpolbools.8               | 2 +-
+ libsepol/src/avtab.c                          | 2 +-
+ libsepol/src/ebitmap.c                        | 2 +-
+ libsepol/src/hashtab.c                        | 2 +-
+ libsepol/src/mls.c                            | 2 +-
+ libsepol/src/mls.h                            | 2 +-
+ libsepol/src/policydb.c                       | 2 +-
+ libsepol/src/services.c                       | 2 +-
+ libsepol/src/sidtab.c                         | 2 +-
+ libsepol/src/symtab.c                         | 2 +-
+ libsepol/src/write.c                          | 2 +-
+ policycoreutils/load_policy/load_policy.8     | 2 +-
+ policycoreutils/newrole/hashtab.c             | 2 +-
+ policycoreutils/newrole/hashtab.h             | 2 +-
+ policycoreutils/setfiles/setfiles.8           | 2 +-
+ 36 files changed, 37 insertions(+), 37 deletions(-)
 
-diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
-index 4507892c..4df646a0 100644
---- a/libsepol/cil/include/cil/cil.h
-+++ b/libsepol/cil/include/cil/cil.h
-@@ -46,6 +46,7 @@ extern int cil_userprefixes_to_string(cil_db_t *db, char **out, size_t *size);
- extern int cil_selinuxusers_to_string(cil_db_t *db, char **out, size_t *size);
- extern int cil_filecons_to_string(cil_db_t *db, char **out, size_t *size);
- extern void cil_set_disable_dontaudit(cil_db_t *db, int disable_dontaudit);
-+extern void cil_set_multiple_decls(cil_db_t *db, int multiple_decls);
- extern void cil_set_disable_neverallow(cil_db_t *db, int disable_neverallow);
- extern void cil_set_preserve_tunables(cil_db_t *db, int preserve_tunables);
- extern int cil_set_handle_unknown(cil_db_t *db, int handle_unknown);
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 9b9ccc36..e8bbbfdf 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -1675,6 +1675,11 @@ void cil_set_mls(struct cil_db *db, int mls)
- 	db->mls = mls;
- }
+diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
+index ee95882..cf76591 100644
+--- a/checkpolicy/checkmodule.8
++++ b/checkpolicy/checkmodule.8
+@@ -64,4 +64,4 @@ especially "Configuring the SELinux Policy".
+ This manual page was copied from the checkpolicy man page 
+ written by Arpad Magosanyi <mag@bunuel.tii.matav.hu>, 
+ and edited by Dan Walsh <dwalsh@redhat.com>.
+-The program was written by Stephen Smalley <sds@epoch.ncsc.mil>.
++The program was written by Stephen Smalley <sds@tycho.nsa.gov>.
+diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
+index 7b28696..1c8805d 100644
+--- a/checkpolicy/checkpolicy.8
++++ b/checkpolicy/checkpolicy.8
+@@ -58,5 +58,5 @@ especially "Configuring the SELinux Policy".
  
-+void cil_set_multiple_decls(struct cil_db *db, int multiple_decls)
-+{
-+	db->multiple_decls = multiple_decls;
-+}
-+
- void cil_set_target_platform(struct cil_db *db, int target_platform)
- {
- 	db->target_platform = target_platform;
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 36cc6735..9a2fd0d5 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -82,10 +82,33 @@ exit:
- 	return rc;
- }
+ .SH AUTHOR
+ This manual page was written by Arpad Magosanyi <mag@bunuel.tii.matav.hu>,
+-and edited by Stephen Smalley <sds@epoch.ncsc.mil>.
+-The program was written by Stephen Smalley <sds@epoch.ncsc.mil>.
++and edited by Stephen Smalley <sds@tycho.nsa.gov>.
++The program was written by Stephen Smalley <sds@tycho.nsa.gov>.
+diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+index b75f2af..923b47c 100644
+--- a/checkpolicy/checkpolicy.c
++++ b/checkpolicy/checkpolicy.c
+@@ -1,6 +1,6 @@
  
-+/*
-+ * Determine whether or not multiple declarations of the same key can share a
-+ * datum, given the new datum and the one already present in a given symtab.
-+ */
-+int cil_is_datum_multiple_decl(__attribute__((unused)) struct cil_symtab_datum *cur,
-+                               __attribute__((unused)) struct cil_symtab_datum *old,
-+                               enum cil_flavor f)
-+{
-+	int rc = CIL_FALSE;
-+
-+	switch (f) {
-+	case CIL_TYPE:
-+	case CIL_TYPEATTRIBUTE:
-+		/* type and typeattribute statements insert empty datums, ret true */
-+		rc = CIL_TRUE;
-+		break;
-+	default:
-+		break;
-+	}
-+	return rc;
-+}
-+
- int cil_gen_node(__attribute__((unused)) struct cil_db *db, struct cil_tree_node *ast_node, struct cil_symtab_datum *datum, hashtab_key_t key, enum cil_sym_index sflavor, enum cil_flavor nflavor)
- {
- 	int rc = SEPOL_ERR;
- 	symtab_t *symtab = NULL;
-+	struct cil_symtab_datum *prev;
+ /*
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
  
- 	rc = __cil_verify_name((const char*)key);
- 	if (rc != SEPOL_OK) {
-@@ -103,15 +126,24 @@ int cil_gen_node(__attribute__((unused)) struct cil_db *db, struct cil_tree_node
- 	if (symtab != NULL) {
- 		rc = cil_symtab_insert(symtab, (hashtab_key_t)key, datum, ast_node);
- 		if (rc == SEPOL_EEXIST) {
--			cil_log(CIL_ERR, "Re-declaration of %s %s\n", 
--				cil_node_to_string(ast_node), key);
--			if (cil_symtab_get_datum(symtab, key, &datum) == SEPOL_OK) {
--				if (sflavor == CIL_SYM_BLOCKS) {
--					struct cil_tree_node *node = datum->nodes->head->data;
--					cil_tree_log(node, CIL_ERR, "Previous declaration");
-+			if (!db->multiple_decls ||
-+			    cil_symtab_get_datum(symtab, (hashtab_key_t)key, &prev) != SEPOL_OK ||
-+			    !cil_is_datum_multiple_decl(datum, prev, nflavor)) {
-+
-+				/* multiple_decls not ok, ret error */
-+				cil_log(CIL_ERR, "Re-declaration of %s %s\n",
-+					cil_node_to_string(ast_node), key);
-+				if (cil_symtab_get_datum(symtab, key, &datum) == SEPOL_OK) {
-+					if (sflavor == CIL_SYM_BLOCKS) {
-+						struct cil_tree_node *node = datum->nodes->head->data;
-+						cil_tree_log(node, CIL_ERR, "Previous declaration");
-+					}
- 				}
-+				goto exit;
- 			}
--			goto exit;
-+			/* multiple_decls is enabled and works for this datum type, add node */
-+			cil_list_append(prev->nodes, CIL_NODE, ast_node);
-+			ast_node->data = prev;
- 		}
- 	}
+ /*
+diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+index f12ebdb..2c5db55 100644
+--- a/checkpolicy/policy_define.c
++++ b/checkpolicy/policy_define.c
+@@ -1,5 +1,5 @@
+ /*
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
  
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index aee3f00c..abfacd8d 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -312,6 +312,7 @@ struct cil_db {
- 	int preserve_tunables;
- 	int handle_unknown;
- 	int mls;
-+	int multiple_decls;
- 	int target_platform;
- 	int policy_version;
- };
-diff --git a/secilc/secilc.c b/secilc/secilc.c
-index f2232e72..0be6975b 100644
---- a/secilc/secilc.c
-+++ b/secilc/secilc.c
-@@ -63,6 +63,7 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
- 	printf("                                 statement if present in the policy\n");
- 	printf("  -D, --disable-dontaudit        do not add dontaudit rules to the binary policy\n");
- 	printf("  -P, --preserve-tunables        treat tunables as booleans\n");
-+	printf("  -m, --multiple-decls           allow some statements to be re-declared\n");
- 	printf("  -N, --disable-neverallow       do not check neverallow rules\n");
- 	printf("  -G, --expand-generated         Expand and remove auto-generated attributes\n");
- 	printf("  -X, --expand-size <SIZE>       Expand type attributes with fewer than <SIZE>\n");
-@@ -89,6 +90,7 @@ int main(int argc, char *argv[])
- 	int target = SEPOL_TARGET_SELINUX;
- 	int mls = -1;
- 	int disable_dontaudit = 0;
-+	int multiple_decls = 0;
- 	int disable_neverallow = 0;
- 	int preserve_tunables = 0;
- 	int handle_unknown = -1;
-@@ -108,6 +110,7 @@ int main(int argc, char *argv[])
- 		{"policyversion", required_argument, 0, 'c'},
- 		{"handle-unknown", required_argument, 0, 'U'},
- 		{"disable-dontaudit", no_argument, 0, 'D'},
-+		{"multiple-decls", no_argument, 0, 'm'},
- 		{"disable-neverallow", no_argument, 0, 'N'},
- 		{"preserve-tunables", no_argument, 0, 'P'},
- 		{"output", required_argument, 0, 'o'},
-@@ -119,7 +122,7 @@ int main(int argc, char *argv[])
- 	int i;
+ /*
+diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+index 6b406c8..247bd4e 100644
+--- a/checkpolicy/policy_parse.y
++++ b/checkpolicy/policy_parse.y
+@@ -1,6 +1,6 @@
  
- 	while (1) {
--		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDNc:GX:", long_opts, &opt_index);
-+		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDmNc:GX:", long_opts, &opt_index);
- 		if (opt_char == -1) {
- 			break;
- 		}
-@@ -175,6 +178,9 @@ int main(int argc, char *argv[])
- 			case 'D':
- 				disable_dontaudit = 1;
- 				break;
-+			case 'm':
-+				multiple_decls = 1;
-+				break;
- 			case 'N':
- 				disable_neverallow = 1;
- 				break;
-@@ -223,6 +229,7 @@ int main(int argc, char *argv[])
+ /*
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
  
- 	cil_db_init(&db);
- 	cil_set_disable_dontaudit(db, disable_dontaudit);
-+	cil_set_multiple_decls(db, multiple_decls);
- 	cil_set_disable_neverallow(db, disable_neverallow);
- 	cil_set_preserve_tunables(db, preserve_tunables);
- 	if (handle_unknown != -1) {
+ /*
+diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+index e6c4898..e93ccb6 100644
+--- a/checkpolicy/policy_scan.l
++++ b/checkpolicy/policy_scan.l
+@@ -1,6 +1,6 @@
+ 
+ /* 
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ 
+ /* Updated: David Caplan, <dac@tresys.com>
+diff --git a/checkpolicy/queue.c b/checkpolicy/queue.c
+index acc991c..82e6673 100644
+--- a/checkpolicy/queue.c
++++ b/checkpolicy/queue.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/checkpolicy/queue.h b/checkpolicy/queue.h
+index 655c94b..60c07fe 100644
+--- a/checkpolicy/queue.h
++++ b/checkpolicy/queue.h
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
+index 96b2678..5230efd 100644
+--- a/libselinux/src/avc.c
++++ b/libselinux/src/avc.c
+@@ -4,7 +4,7 @@
+  * Author : Eamon Walsh <ewalsh@epoch.ncsc.mil>
+  *
+  * Derived from the kernel AVC implementation by
+- * Stephen Smalley <sds@epoch.ncsc.mil> and 
++ * Stephen Smalley <sds@tycho.nsa.gov> and
+  * James Morris <jmorris@redhat.com>.
+  */
+ #include <selinux/avc.h>
+diff --git a/libsepol/include/sepol/policydb/avtab.h b/libsepol/include/sepol/policydb/avtab.h
+index 958848e..10ecde9 100644
+--- a/libsepol/include/sepol/policydb/avtab.h
++++ b/libsepol/include/sepol/policydb/avtab.h
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /*
+  * Updated: Yuichi Nakamura <ynakam@hitachisoft.jp>
+diff --git a/libsepol/include/sepol/policydb/constraint.h b/libsepol/include/sepol/policydb/constraint.h
+index 927bdc0..b91fc4e 100644
+--- a/libsepol/include/sepol/policydb/constraint.h
++++ b/libsepol/include/sepol/policydb/constraint.h
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/include/sepol/policydb/context.h b/libsepol/include/sepol/policydb/context.h
+index 2eaa686..c27c334 100644
+--- a/libsepol/include/sepol/policydb/context.h
++++ b/libsepol/include/sepol/policydb/context.h
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
+index e90371e..94fb7ef 100644
+--- a/libsepol/include/sepol/policydb/ebitmap.h
++++ b/libsepol/include/sepol/policydb/ebitmap.h
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/include/sepol/policydb/flask_types.h b/libsepol/include/sepol/policydb/flask_types.h
+index e01669c..714176f 100644
+--- a/libsepol/include/sepol/policydb/flask_types.h
++++ b/libsepol/include/sepol/policydb/flask_types.h
+@@ -1,7 +1,7 @@
+ /* -*- linux-c -*- */
+ 
+ /*
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ 
+ #ifndef _SEPOL_POLICYDB_FLASK_TYPES_H_
+diff --git a/libsepol/include/sepol/policydb/hashtab.h b/libsepol/include/sepol/policydb/hashtab.h
+index ae5674a..ef1bb67 100644
+--- a/libsepol/include/sepol/policydb/hashtab.h
++++ b/libsepol/include/sepol/policydb/hashtab.h
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/include/sepol/policydb/mls_types.h b/libsepol/include/sepol/policydb/mls_types.h
+index 568386c..a06723b 100644
+--- a/libsepol/include/sepol/policydb/mls_types.h
++++ b/libsepol/include/sepol/policydb/mls_types.h
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ /*
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+  *
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index 1b2d782..f8626ef 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /*
+  * Updated: Joshua Brindle <jbrindle@tresys.com>
+diff --git a/libsepol/include/sepol/policydb/services.h b/libsepol/include/sepol/policydb/services.h
+index efdf7de..6ef27a8 100644
+--- a/libsepol/include/sepol/policydb/services.h
++++ b/libsepol/include/sepol/policydb/services.h
+@@ -2,7 +2,7 @@
+ /* -*- linux-c -*- */
+ 
+ /*
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ 
+ #ifndef _SEPOL_POLICYDB_SERVICES_H_
+diff --git a/libsepol/include/sepol/policydb/sidtab.h b/libsepol/include/sepol/policydb/sidtab.h
+index 2df1a50..893e6f0 100644
+--- a/libsepol/include/sepol/policydb/sidtab.h
++++ b/libsepol/include/sepol/policydb/sidtab.h
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/include/sepol/policydb/symtab.h b/libsepol/include/sepol/policydb/symtab.h
+index 68b5ad4..8b9ddca 100644
+--- a/libsepol/include/sepol/policydb/symtab.h
++++ b/libsepol/include/sepol/policydb/symtab.h
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/man/man3/sepol_genbools.3 b/libsepol/man/man3/sepol_genbools.3
+index dcfb69d..5363383 100644
+--- a/libsepol/man/man3/sepol_genbools.3
++++ b/libsepol/man/man3/sepol_genbools.3
+@@ -1,4 +1,4 @@
+-.TH "sepol_genbools" "3" "11 August 2004" "sds@epoch.ncsc.mil" "SE Linux binary policy API documentation"
++.TH "sepol_genbools" "3" "11 August 2004" "sds@tycho.nsa.gov" "SE Linux binary policy API documentation"
+ .SH "NAME"
+ sepol_genbools \- Rewrite a binary policy with different boolean settings
+ .SH "SYNOPSIS"
+diff --git a/libsepol/man/man8/genpolbools.8 b/libsepol/man/man8/genpolbools.8
+index afeaced..fc792c8 100644
+--- a/libsepol/man/man8/genpolbools.8
++++ b/libsepol/man/man8/genpolbools.8
+@@ -1,4 +1,4 @@
+-.TH "genpolbools" "8" "11 August 2004" "sds@epoch.ncsc.mil" "SELinux Command Line documentation"
++.TH "genpolbools" "8" "11 August 2004" "sds@tycho.nsa.gov" "SELinux Command Line documentation"
+ .SH "NAME"
+ genpolbools \- Rewrite a binary policy with different boolean settings
+ .SH "SYNOPSIS"
+diff --git a/libsepol/src/avtab.c b/libsepol/src/avtab.c
+index 3854d6f..257f051 100644
+--- a/libsepol/src/avtab.c
++++ b/libsepol/src/avtab.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /*
+  * Updated: Yuichi Nakamura <ynakam@hitachisoft.jp>
+diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+index 218adc2..76e6e41 100644
+--- a/libsepol/src/ebitmap.c
++++ b/libsepol/src/ebitmap.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
+index ec49c15..f5407ab 100644
+--- a/libsepol/src/hashtab.c
++++ b/libsepol/src/hashtab.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /*
+  * Updated : Karl MacMillan <kmacmillan@mentalrootkit.com>
+diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
+index be85475..bf1fdbd 100644
+--- a/libsepol/src/mls.c
++++ b/libsepol/src/mls.c
+@@ -1,4 +1,4 @@
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ /*
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+  *
+diff --git a/libsepol/src/mls.h b/libsepol/src/mls.h
+index 98da3d3..5ca3cd5 100644
+--- a/libsepol/src/mls.h
++++ b/libsepol/src/mls.h
+@@ -1,4 +1,4 @@
+-/* Author: Stephen Smalley, <sds@epoch.ncsc.mil> 
++/* Author: Stephen Smalley, <sds@tycho.nsa.gov>
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+  * 
+  *      Support for enhanced MLS infrastructure.
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 691101e..37788f3 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /*
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+index 10338a6..d40793e 100644
+--- a/libsepol/src/services.c
++++ b/libsepol/src/services.c
+@@ -1,6 +1,6 @@
+ 
+ /*
+- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
++ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+  */
+ /*
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+diff --git a/libsepol/src/sidtab.c b/libsepol/src/sidtab.c
+index 5bd7999..23b2e8f 100644
+--- a/libsepol/src/sidtab.c
++++ b/libsepol/src/sidtab.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/src/symtab.c b/libsepol/src/symtab.c
+index c1e625d..9a417ca 100644
+--- a/libsepol/src/symtab.c
++++ b/libsepol/src/symtab.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index e486e28..1fb3095 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /*
+  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+diff --git a/policycoreutils/load_policy/load_policy.8 b/policycoreutils/load_policy/load_policy.8
+index 5f5550d..0810995 100644
+--- a/policycoreutils/load_policy/load_policy.8
++++ b/policycoreutils/load_policy/load_policy.8
+@@ -39,4 +39,4 @@ Initial policy load failed and enforcing mode requested
+ .SH AUTHORS
+ .nf
+ This manual page was written by Dan Walsh <dwalsh@redhat.com>.
+-The program was written by Stephen Smalley <sds@epoch.ncsc.mil>.
++The program was written by Stephen Smalley <sds@tycho.nsa.gov>.
+diff --git a/policycoreutils/newrole/hashtab.c b/policycoreutils/newrole/hashtab.c
+index 77ed143..24c65c4 100644
+--- a/policycoreutils/newrole/hashtab.c
++++ b/policycoreutils/newrole/hashtab.c
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/policycoreutils/newrole/hashtab.h b/policycoreutils/newrole/hashtab.h
+index 9f737df..3790f0a 100644
+--- a/policycoreutils/newrole/hashtab.h
++++ b/policycoreutils/newrole/hashtab.h
+@@ -1,5 +1,5 @@
+ 
+-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
++/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
+ 
+ /* FLASK */
+ 
+diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+index 9501845..ccaaf4d 100644
+--- a/policycoreutils/setfiles/setfiles.8
++++ b/policycoreutils/setfiles/setfiles.8
+@@ -255,7 +255,7 @@ being updated provided there are no errors.
+ 
+ .SH "AUTHOR"
+ This man page was written by Russell Coker <russell@coker.com.au>.
+-The program was written by Stephen Smalley <sds@epoch.ncsc.mil>
++The program was written by Stephen Smalley <sds@tycho.nsa.gov>
+ 
+ .SH "SEE ALSO"
+ .BR restorecon (8),
 -- 
-2.14.1.480.gb18f417b89-goog
+2.9.4
