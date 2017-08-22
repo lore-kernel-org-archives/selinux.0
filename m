@@ -1,87 +1,27 @@
-To: Daniel Cashman <dcashman@android.com>, selinux@tycho.nsa.gov
-Cc: dcashman@google.com, jeffv@google.com
-References: <20170817180425.141871-1-dcashman@android.com>
-From: jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <0a409e77-1d1a-5bf7-e95a-2aea6332d36c@tycho.nsa.gov>
-Date: Fri, 18 Aug 2017 13:38:30 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7MCM22P003685
+ for <selinux@tycho.nsa.gov>; Tue, 22 Aug 2017 08:22:02 -0400
+Received: from mxback3o.mail.yandex.net (mxback3o.mail.yandex.net
+ [IPv6:2a02:6b8:0:1a2d::1d])
+ by forward101o.mail.yandex.net (Yandex) with ESMTP id C5C85134497E
+ for <selinux@tycho.nsa.gov>; Tue, 22 Aug 2017 15:15:36 +0300 (MSK)
+From: Sky Autumn <autumnsky00@yandex.ru>
+To: selinux@tycho.nsa.gov
 MIME-Version: 1.0
-In-Reply-To: <20170817180425.141871-1-dcashman@android.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH 0/1] RFC: Allow for multiple cil declarations.
+Message-Id: <31471503404136@web31o.yandex.ru>
+Date: Tue, 22 Aug 2017 15:15:36 +0300
+Content-Type: text/html; charset=utf-8
+Subject: 
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/17/2017 02:04 PM, Daniel Cashman wrote:
-> From: Dan Cashman <dcashman@google.com>
-> 
-> In Android O, the SELinux policy was split from a monolithic policy
-> created at build-time for each device into two main components, one
-> on /system and one on /vendor, which get combined at boot.  This
-> introduced several new challenges, including the creation of a need
-> to maintain compatibility between the two policies, i.e. new policy
-> on the /system image needs to work with the /vendor policy that is
-> based on the policy it's replacing, and updates to the /vendor policy
-> need to work with the /system policy.
-> 
-> The ultimate goal of this is to allow updates to /system without
-> changing /vendor.  Android currently accomplishes this by exporting
-> 'public' policy types that /vendor policy can use. It makes sure that
-> changes in object labels don't break the /vendor policy by changing all
-> public types into attributes, copying the public policy into the /vendor
-> policy and keepign a mapping between public types and the attributes
-> that are included in the /vendor policy.
-> 
-> This leads to complications, though, when trying to use different /system
-> images with the same /vendor image: the /vendor policy might rely on a
-> /system policy to provide a type definition or an attribute definition,
-> but another, non-customized /system policy might not provide it.
-> 
-
-I can see were this can help prevent the policy failing to compile, but it seems 
-like there can still be run time problems. If one system policy defines type A 
-and has rules for type A and another doesn't, then, even if the vendor policy 
-defines type A (so there is no compile error), it would still be missing the 
-right allow rules and it could experience runtime denials.
-
-That being said, this could be useful in some cases, such as virus scanning in 
-Fedora's policy, where multiple modules would like to use the same type and it 
-might be possible to have more than one of them loaded.
-
-Jim
-
-
-> Luckily, CIL statements are often reduced to the minimum amount of
-> information needed and are generally order-independent.  Type statements,
-> for instance, are just the type keyword followed by an identifier, and I
-> believe nothing is lost in allowing them to be repeated.
-> 
-> This patch is a proposal for one way to allow multiple declarations.  At
-> the moment, android is primarily concerned with types and attributes, but
-> this could (should!) be extended to many other declaration types.
-> 
-> The proposal here is to modify cil_gen_node() to check to see if the cil_db
-> supports multiple declarations, and if so, to check whether or not the
-> repeated symbol is eligible to share the existing, already-stored datum. The
-> only types considered so far have been CIL_TYPE and CIL_TYPEATTRIBUTE, both
-> of which intall empty datums during AST building, so they automatically return
-> true.
-> 
-> Signed-off-by: Dan Cashman <dcashman@android.com>
-> 
-> Dan Cashman (1):
->    libsepol: cil: Add ability to redeclare types[attributes]
-> 
->   libsepol/cil/include/cil/cil.h   |  1 +
->   libsepol/cil/src/cil.c           |  5 +++++
->   libsepol/cil/src/cil_build_ast.c | 46 ++++++++++++++++++++++++++++++++++------
->   libsepol/cil/src/cil_internal.h  |  1 +
->   secilc/secilc.c                  |  9 +++++++-
->   5 files changed, 54 insertions(+), 8 deletions(-)
-> 
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+<div><div><div>Hello, everyone.=C2=A0</div><div>There's my problem. When =
+I try to set label on directory with russian letters in name with policy =
+module, the following error occur:=C2=A0</div><div>=C2=A0/etc/selinux/fin=
+al/targeted/contexts/files/file_contexts: =C2=A0line 5206 error due to: N=
+on-ASCII characters found</div><div>=C2=A0</div><div>On other machine it =
+works fine. libselinux version on first machine 2.5-6, on second 2.2.2-6.=
+ Can I somehow install such policy on first machine without renaming dire=
+ctory? Thank you.</div></div></div>
