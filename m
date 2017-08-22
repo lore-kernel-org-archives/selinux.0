@@ -1,58 +1,61 @@
-Message-ID: <1503406104.5873.5.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sky Autumn <autumnsky00@yandex.ru>, selinux@tycho.nsa.gov
-Cc: william.c.roberts@intel.com
-Date: Tue, 22 Aug 2017 08:48:24 -0400
-In-Reply-To: <31471503404136@web31o.yandex.ru>
+From: Sky Autumn <autumnsky00@yandex.ru>
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Cc: "william.c.roberts@intel.com" <william.c.roberts@intel.com>
+In-Reply-To: <1503406104.5873.5.camel@tycho.nsa.gov>
 References: <31471503404136@web31o.yandex.ru>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+ <1503406104.5873.5.camel@tycho.nsa.gov>
+MIME-Version: 1.0
+Message-Id: <45151503408432@web42g.yandex.ru>
+Date: Tue, 22 Aug 2017 16:27:12 +0300
+Content-Type: text/html; charset=utf-8
 Subject: Re: file_contexts non-ascii error
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-08-22 at 15:15 +0300, Sky Autumn wrote:
-> Hello, everyone. 
-> There's my problem. When I try to set label on directory with russian
-> letters in name with policy module, the following error occur: 
->  /etc/selinux/final/targeted/contexts/files/file_contexts:  line 5206
-> error due to: Non-ASCII characters found
->  
-> On other machine it works fine. libselinux version on first machine
-> 2.5-6, on second 2.2.2-6. Can I somehow install such policy on first
-> machine without renaming directory? Thank you.
-
-The check for non-ASCII characters was introduced by the following
-commit:
-
-commit 2981e0ba3a869d12ed6f376581277847421db2e7
-Author: William Roberts <william.c.roberts@intel.com>
-Date:   Tue Feb 9 13:59:46 2016 -0800
-
-    read_spec_entry: fail on non-ascii
-    
-    Inserting non-ascii characters into the following files:
-     * file_contexts
-     * property_contexts
-     * service_contexts
-    can cause a failure on labeling but still result in a successful
-    build.
-    
-    Hard error on non-ascii characters with:
-    <path>:  line 229 error due to: Non-ASCII characters found
-    
-    Signed-off-by: William Roberts <william.c.roberts@intel.com>
-
-Even before that change, the code did not truly support unicode
-strings, so you could have inserted the module but restorecon or other
-commands could easily have mislabeled the directory.  I guess the
-question is what exactly would need to change to truly support unicode
-strings in the libselinux label code; at the least, we'd need to pass
-additional flags to pcre_compile().
-
-As a workaround, I would think you could use regex meta characters e.g.
-.* or .+ to match the portion of the pathname that contains unicode
-characters, as long as that doesn't cause other directories/files to
-become mislabeled.
+PGRpdj5UaGFuayB5b3UsIFN0ZXBoZW4sIEkgd291bGQga2VlcCBpdCBpbiBtaW5kLjwvZGl2Pjxk
+aXY+PGJyIC8+PC9kaXY+PGRpdj48YnIgLz48L2Rpdj48ZGl2PjIyLjA4LjIwMTcsIDE1OjQzLCAi
+U3RlcGhlbiBTbWFsbGV5IiAmbHQ7c2RzQHR5Y2hvLm5zYS5nb3YmZ3Q7OjwvZGl2PjxibG9ja3F1
+b3RlIHR5cGU9ImNpdGUiPjxwPk9uIFR1ZSwgPHNwYW4+MjAxNy0wOC0yMjwvc3Bhbj4gYXQgMTU6
+MTUgKzAzMDAsIFNreSBBdXR1bW4gd3JvdGU6PGJyIC8+PC9wPjxibG9ja3F1b3RlPsKgSGVsbG8s
+IGV2ZXJ5b25lLsKgPGJyIC8+wqBUaGVyZSdzIG15IHByb2JsZW0uIFdoZW4gSSB0cnkgdG8gc2V0
+IGxhYmVsIG9uIGRpcmVjdG9yeSB3aXRoIHJ1c3NpYW48YnIgLz7CoGxldHRlcnMgaW4gbmFtZSB3
+aXRoIHBvbGljeSBtb2R1bGUsIHRoZSBmb2xsb3dpbmcgZXJyb3Igb2NjdXI6wqA8YnIgLz7CoMKg
+L2V0Yy9zZWxpbnV4L2ZpbmFsL3RhcmdldGVkL2NvbnRleHRzL2ZpbGVzL2ZpbGVfY29udGV4dHM6
+IMKgbGluZSA1MjA2PGJyIC8+wqBlcnJvciBkdWUgdG86IE5vbi1BU0NJSSBjaGFyYWN0ZXJzIGZv
+dW5kPGJyIC8+wqDCoDxiciAvPsKgT24gb3RoZXIgbWFjaGluZSBpdCB3b3JrcyBmaW5lLiBsaWJz
+ZWxpbnV4IHZlcnNpb24gb24gZmlyc3QgbWFjaGluZTxiciAvPsKgMi41LTYsIG9uIHNlY29uZCAy
+LjIuMi02LiBDYW4gSSBzb21laG93IGluc3RhbGwgc3VjaCBwb2xpY3kgb24gZmlyc3Q8YnIgLz7C
+oG1hY2hpbmUgd2l0aG91dCByZW5hbWluZyBkaXJlY3Rvcnk/IFRoYW5rIHlvdS48YnIgLz48L2Js
+b2NrcXVvdGU+PHA+PGJyIC8+VGhlIGNoZWNrIGZvciBub24tQVNDSUkgY2hhcmFjdGVycyB3YXMg
+aW50cm9kdWNlZCBieSB0aGUgZm9sbG93aW5nPGJyIC8+Y29tbWl0OjxiciAvPjxiciAvPmNvbW1p
+dCAyOTgxZTBiYTNhODY5ZDEyZWQ2ZjxzcGFuPjM3NjU4MTI3Nzg0NzQyMTwvc3Bhbj5kYjJlNzxi
+ciAvPkF1dGhvcjogV2lsbGlhbSBSb2JlcnRzICZsdDs8YSBocmVmPSJtYWlsdG86d2lsbGlhbS5j
+LnJvYmVydHNAaW50ZWwuY29tIj53aWxsaWFtLmMucm9iZXJ0c0BpbnRlbC5jb208L2E+Jmd0Ozxi
+ciAvPkRhdGU6wqDCoMKgVHVlIEZlYiA5IDEzOjU5OjxzcGFuPjQ2IDIwMTYgLTA4MDA8L3NwYW4+
+PGJyIC8+PGJyIC8+wqDCoMKgwqByZWFkX3NwZWNfZW50cnk6IGZhaWwgb24gbm9uLWFzY2lpPGJy
+IC8+wqDCoMKgwqA8YnIgLz7CoMKgwqDCoEluc2VydGluZyBub24tYXNjaWkgY2hhcmFjdGVycyBp
+bnRvIHRoZSBmb2xsb3dpbmcgZmlsZXM6PGJyIC8+wqDCoMKgwqDCoCogZmlsZV9jb250ZXh0czxi
+ciAvPsKgwqDCoMKgwqAqIHByb3BlcnR5X2NvbnRleHRzPGJyIC8+wqDCoMKgwqDCoCogc2Vydmlj
+ZV9jb250ZXh0czxiciAvPsKgwqDCoMKgY2FuIGNhdXNlIGEgZmFpbHVyZSBvbiBsYWJlbGluZyBi
+dXQgc3RpbGwgcmVzdWx0IGluIGEgc3VjY2Vzc2Z1bDxiciAvPsKgwqDCoMKgYnVpbGQuPGJyIC8+
+wqDCoMKgwqA8YnIgLz7CoMKgwqDCoEhhcmQgZXJyb3Igb24gbm9uLWFzY2lpIGNoYXJhY3RlcnMg
+d2l0aDo8YnIgLz7CoMKgwqDCoCZsdDtwYXRoJmd0OzrCoMKgbGluZSAyMjkgZXJyb3IgZHVlIHRv
+OiBOb24tQVNDSUkgY2hhcmFjdGVycyBmb3VuZDxiciAvPsKgwqDCoMKgPGJyIC8+wqDCoMKgwqBT
+aWduZWQtb2ZmLWJ5OiBXaWxsaWFtIFJvYmVydHMgJmx0OzxhIGhyZWY9Im1haWx0bzp3aWxsaWFt
+LmMucm9iZXJ0c0BpbnRlbC5jb20iPndpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbTwvYT4mZ3Q7
+PGJyIC8+PGJyIC8+RXZlbiBiZWZvcmUgdGhhdCBjaGFuZ2UsIHRoZSBjb2RlIGRpZCBub3QgdHJ1
+bHkgc3VwcG9ydCB1bmljb2RlPGJyIC8+c3RyaW5ncywgc28geW91IGNvdWxkIGhhdmUgaW5zZXJ0
+ZWQgdGhlIG1vZHVsZSBidXQgcmVzdG9yZWNvbiBvciBvdGhlcjxiciAvPmNvbW1hbmRzIGNvdWxk
+IGVhc2lseSBoYXZlIG1pc2xhYmVsZWQgdGhlIGRpcmVjdG9yeS4gIEkgZ3Vlc3MgdGhlPGJyIC8+
+cXVlc3Rpb24gaXMgd2hhdCBleGFjdGx5IHdvdWxkIG5lZWQgdG8gY2hhbmdlIHRvIHRydWx5IHN1
+cHBvcnQgdW5pY29kZTxiciAvPnN0cmluZ3MgaW4gdGhlIGxpYnNlbGludXggbGFiZWwgY29kZTsg
+YXQgdGhlIGxlYXN0LCB3ZSdkIG5lZWQgdG8gcGFzczxiciAvPmFkZGl0aW9uYWwgZmxhZ3MgdG8g
+cGNyZV9jb21waWxlKCkuPGJyIC8+PGJyIC8+QXMgYSB3b3JrYXJvdW5kLCBJIHdvdWxkIHRoaW5r
+IHlvdSBjb3VsZCB1c2UgcmVnZXggbWV0YSBjaGFyYWN0ZXJzIGUuZy48YnIgLz4uKiBvciAuKyB0
+byBtYXRjaCB0aGUgcG9ydGlvbiBvZiB0aGUgcGF0aG5hbWUgdGhhdCBjb250YWlucyB1bmljb2Rl
+PGJyIC8+Y2hhcmFjdGVycywgYXMgbG9uZyBhcyB0aGF0IGRvZXNuJ3QgY2F1c2Ugb3RoZXIgZGly
+ZWN0b3JpZXMvZmlsZXMgdG88YnIgLz5iZWNvbWUgbWlzbGFiZWxlZC48YnIgLz48YnIgLz48L3A+
+PC9ibG9ja3F1b3RlPg==
