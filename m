@@ -1,27 +1,58 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7MCM22P003685
- for <selinux@tycho.nsa.gov>; Tue, 22 Aug 2017 08:22:02 -0400
-Received: from mxback3o.mail.yandex.net (mxback3o.mail.yandex.net
- [IPv6:2a02:6b8:0:1a2d::1d])
- by forward101o.mail.yandex.net (Yandex) with ESMTP id C5C85134497E
- for <selinux@tycho.nsa.gov>; Tue, 22 Aug 2017 15:15:36 +0300 (MSK)
-From: Sky Autumn <autumnsky00@yandex.ru>
-To: selinux@tycho.nsa.gov
-MIME-Version: 1.0
-Message-Id: <31471503404136@web31o.yandex.ru>
-Date: Tue, 22 Aug 2017 15:15:36 +0300
-Content-Type: text/html; charset=utf-8
-Subject: 
+Message-ID: <1503406104.5873.5.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Sky Autumn <autumnsky00@yandex.ru>, selinux@tycho.nsa.gov
+Cc: william.c.roberts@intel.com
+Date: Tue, 22 Aug 2017 08:48:24 -0400
+In-Reply-To: <31471503404136@web31o.yandex.ru>
+References: <31471503404136@web31o.yandex.ru>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: file_contexts non-ascii error
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-<div><div><div>Hello, everyone.=C2=A0</div><div>There's my problem. When =
-I try to set label on directory with russian letters in name with policy =
-module, the following error occur:=C2=A0</div><div>=C2=A0/etc/selinux/fin=
-al/targeted/contexts/files/file_contexts: =C2=A0line 5206 error due to: N=
-on-ASCII characters found</div><div>=C2=A0</div><div>On other machine it =
-works fine. libselinux version on first machine 2.5-6, on second 2.2.2-6.=
- Can I somehow install such policy on first machine without renaming dire=
-ctory? Thank you.</div></div></div>
+On Tue, 2017-08-22 at 15:15 +0300, Sky Autumn wrote:
+> Hello, everyone. 
+> There's my problem. When I try to set label on directory with russian
+> letters in name with policy module, the following error occur: 
+>  /etc/selinux/final/targeted/contexts/files/file_contexts:  line 5206
+> error due to: Non-ASCII characters found
+>  
+> On other machine it works fine. libselinux version on first machine
+> 2.5-6, on second 2.2.2-6. Can I somehow install such policy on first
+> machine without renaming directory? Thank you.
+
+The check for non-ASCII characters was introduced by the following
+commit:
+
+commit 2981e0ba3a869d12ed6f376581277847421db2e7
+Author: William Roberts <william.c.roberts@intel.com>
+Date:   Tue Feb 9 13:59:46 2016 -0800
+
+    read_spec_entry: fail on non-ascii
+    
+    Inserting non-ascii characters into the following files:
+     * file_contexts
+     * property_contexts
+     * service_contexts
+    can cause a failure on labeling but still result in a successful
+    build.
+    
+    Hard error on non-ascii characters with:
+    <path>:  line 229 error due to: Non-ASCII characters found
+    
+    Signed-off-by: William Roberts <william.c.roberts@intel.com>
+
+Even before that change, the code did not truly support unicode
+strings, so you could have inserted the module but restorecon or other
+commands could easily have mislabeled the directory.  I guess the
+question is what exactly would need to change to truly support unicode
+strings in the libselinux label code; at the least, we'd need to pass
+additional flags to pcre_compile().
+
+As a workaround, I would think you could use regex meta characters e.g.
+.* or .+ to match the portion of the pathname that contains unicode
+characters, as long as that doesn't cause other directories/files to
+become mislabeled.
