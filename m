@@ -1,45 +1,35 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7P9l4Cn002016
- for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2017 05:47:04 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 04B154A6E9
- for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2017 09:46:57 +0000 (UTC)
-Received: from dhcp-24-158.brq.redhat.com (unknown [10.43.12.17])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7E2495D9CD
- for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2017 09:46:56 +0000 (UTC)
-From: Jan Zarsky <jzarsky@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Fri, 25 Aug 2017 11:46:47 +0200
-Message-Id: <20170825094647.7925-1-jzarsky@redhat.com>
-Subject: [PATCH] libsepol: reset pointer after free
+MIME-Version: 1.0
+From: Jeffrey Vander Stoep <jeffv@google.com>
+Date: Fri, 25 Aug 2017 11:01:16 -0700
+Message-ID: <CABXk95AiYO7D8o79TBdt0_0g1TXfULSpL5i7KzHF3R4i-WhwHw@mail.gmail.com>
+To: Chenbo Feng <fengc@google.com>, netdev@vger.kernel.org,
+ SELinux <Selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Permissions for eBPF objects
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In cil_strpool_destroy(), cil_strpool_tab is freed but it is not reset to NULL.
-When cil_strpool_init() is called again it assumes that cil_strpool_tab was
-already initialized. Other functions then work with invalid data.
+I’d like to get your thoughts on adding LSM permission checks on BPF objects.
 
-Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
----
- libsepol/cil/src/cil_strpool.c | 1 +
- 1 file changed, 1 insertion(+)
+By default, the ability to create and use eBPF maps/programs requires
+CAP_SYS_ADMIN [1]. Alternatively, all processes can be granted access
+to bpf() functions. This seems like poor granularity. [2]
 
-diff --git a/libsepol/cil/src/cil_strpool.c b/libsepol/cil/src/cil_strpool.c
-index b1396d2..97d4c4b 100644
---- a/libsepol/cil/src/cil_strpool.c
-+++ b/libsepol/cil/src/cil_strpool.c
-@@ -119,6 +119,7 @@ void cil_strpool_destroy(void)
- 	if (cil_strpool_readers == 0) {
- 		hashtab_map(cil_strpool_tab, cil_strpool_entry_destroy, NULL);
- 		hashtab_destroy(cil_strpool_tab);
-+		cil_strpool_tab = NULL;
- 	}
- 	pthread_mutex_unlock(&cil_strpool_mutex);
- }
--- 
-2.9.5
+Like files and sockets, eBPF maps and programs can be passed between
+processes by FD and have a number of functions that map cleanly to
+permissions.
+
+Let me know what you think. Are there simpler alternative approaches
+that we haven’t considered?
+
+Thanks!
+Jeff
+
+[1] http://man7.org/linux/man-pages/man2/bpf.2.html NOTES section
+[2] We are considering eBPF for network filtering by netd. Giving netd
+CAP_SYS_ADMIN would considerably increase netd’s privileges.
+Alternatively allowing all processes permission to use bpf() goes
+against the principle of least privilege exposing a lot of kernel
+attack surface to processes that do not actually need it.
