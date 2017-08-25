@@ -1,83 +1,45 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7NErKId012008
- for <selinux@tycho.nsa.gov>; Wed, 23 Aug 2017 10:53:20 -0400
-Date: Wed, 23 Aug 2017 10:52:45 -0400
-From: Richard Guy Briggs <rgb@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-audit@redhat.com, SElinux list <selinux@tycho.nsa.gov>
-Message-ID: <20170823145245.GT29957@madcap2.tricolour.ca>
-References: <ce5219eaed412cc02caef75934b8c3b40087db83.1501158372.git.rgb@redhat.com>
- <CAHC9VhSDkVQAw50bunnmUFzx39eL0H7uoUTpA3XgGO4ywspBmQ@mail.gmail.com>
- <20170823085557.GR29957@madcap2.tricolour.ca>
- <CAHC9VhTLp49s2q9Y6H6H72eo-MswGer51ZtpYK0nDQFiLy7-bg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhTLp49s2q9Y6H6H72eo-MswGer51ZtpYK0nDQFiLy7-bg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: remove AVC init audit log message
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7P9l4Cn002016
+ for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2017 05:47:04 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 04B154A6E9
+ for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2017 09:46:57 +0000 (UTC)
+Received: from dhcp-24-158.brq.redhat.com (unknown [10.43.12.17])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 7E2495D9CD
+ for <selinux@tycho.nsa.gov>; Fri, 25 Aug 2017 09:46:56 +0000 (UTC)
+From: Jan Zarsky <jzarsky@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Fri, 25 Aug 2017 11:46:47 +0200
+Message-Id: <20170825094647.7925-1-jzarsky@redhat.com>
+Subject: [PATCH] libsepol: reset pointer after free
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 2017-08-23 08:41, Paul Moore wrote:
-> On Wed, Aug 23, 2017 at 4:55 AM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> > On 2017-07-28 18:47, Paul Moore wrote:
-> >> On Fri, Jul 28, 2017 at 3:23 AM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> >> > In the process of normalizing audit log messages, it was noticed that the AVC
-> >> > initialization code registered an audit log KERNEL record that didn't fit the
-> >> > standard format.  In the process of attempting to normalize it it was
-> >> > determined that this record was not even necessary.  Remove it.
-> >> >
-> >> > Ref: http://marc.info/?l=selinux&m=149614868525826&w=2
-> >> > See: https://github.com/linux-audit/audit-kernel/issues/48
-> >> > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> >> > ---
-> >> >  security/selinux/avc.c |    2 --
-> >> >  1 files changed, 0 insertions(+), 2 deletions(-)
-> >>
-> >> Merged, thanks.
-> >
-> > Where has this been merged?  I'm not able to find it in linux-2.6,
-> > selinux/next or pcmoore-audit/next
-> 
-> I have no idea what you mean by pcmoore-audit/next, that isn't the
-> official audit repository or a mirror, but it has been merged into the
-> audit/next branch and is present in both the official audit repo on
-> kernel.org as well as the https://github.com/linux-audit/audit-kernel
-> mirror on GitHub.
+In cil_strpool_destroy(), cil_strpool_tab is freed but it is not reset to NULL.
+When cil_strpool_init() is called again it assumes that cil_strpool_tab was
+already initialized. Other functions then work with invalid data.
 
-My bad.  I forgot to update my git remote references from
-infradead...pcmoore/audit to kernel.org...pcmoore/audit
+Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
+---
+ libsepol/cil/src/cil_strpool.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-I now see it is in pcmoore-audit/next and linux-next/master.
-
-Sorry for the noise.
-
->  commit 739bde1f22292d76a179d4cbe29fc7bae86ef5e4
->  Author: Richard Guy Briggs <rgb@redhat.com>
->  Date:   Fri Jul 28 03:23:31 2017 -0400
-> 
->    selinux: remove AVC init audit log message
-> 
->    In the process of normalizing audit log messages, it was noticed that the AVC
->    initialization code registered an audit log KERNEL record that didn't fit the
->    standard format.  In the process of attempting to normalize it it was
->    determined that this record was not even necessary.  Remove it.
-> 
->    Ref: http://marc.info/?l=selinux&m=149614868525826&w=2
->    See: https://github.com/linux-audit/audit-kernel/issues/48
->    Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
->    Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->    Acked-by: Steve Grubb <sgrubb@redhat.com>
->    Signed-off-by: Paul Moore <paul@paul-moore.com>
-> 
-> paul moore
-
-- RGB
-
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
+diff --git a/libsepol/cil/src/cil_strpool.c b/libsepol/cil/src/cil_strpool.c
+index b1396d2..97d4c4b 100644
+--- a/libsepol/cil/src/cil_strpool.c
++++ b/libsepol/cil/src/cil_strpool.c
+@@ -119,6 +119,7 @@ void cil_strpool_destroy(void)
+ 	if (cil_strpool_readers == 0) {
+ 		hashtab_map(cil_strpool_tab, cil_strpool_entry_destroy, NULL);
+ 		hashtab_destroy(cil_strpool_tab);
++		cil_strpool_tab = NULL;
+ 	}
+ 	pthread_mutex_unlock(&cil_strpool_mutex);
+ }
+-- 
+2.9.5
