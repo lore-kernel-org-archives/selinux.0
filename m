@@ -1,35 +1,36 @@
-Date: Fri, 25 Aug 2017 18:03:32 -0700
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-To: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Chenbo Feng <fengc@google.com>, Jeffrey Vander Stoep <jeffv@google.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>, mic@digikod.net
-Message-ID: <20170826010330.tuospq5h43fv3tlp@ast-mbp>
-References: <CABXk95AiYO7D8o79TBdt0_0g1TXfULSpL5i7KzHF3R4i-WhwHw@mail.gmail.com>
- <1503689199.9977.4.camel@tycho.nsa.gov>
- <CABXk95BkyU5MBLry0PEp+QwhtY7rM4DCmQq3CeQi6=TQtQQPwA@mail.gmail.com>
- <CAMOXUJkQ-Wh==9nzgx3Sq4RUEBK5ArHk4b=AL0N65L9g6cAqcg@mail.gmail.com>
- <59A0837F.9090301@iogearbox.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <59A0837F.9090301@iogearbox.net>
-Subject: Re: Permissions for eBPF objects
+From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+To: selinux@tycho.nsa.gov, serge@hallyn.com, james.l.morris@oracle.com,
+ eparis@parisplace.org, sds@tycho.nsa.gov, paul@paul-moore.com
+Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
+Date: Sat, 26 Aug 2017 16:17:35 +0530
+Message-Id: <0cf3cc3fd48c3b0b9d1766c73ac4faea2a733bf3.1503744266.git.arvind.yadav.cs@gmail.com>
+Subject: [PATCH] selinux: constify nf_hook_ops
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 25, 2017 at 10:07:27PM +0200, Daniel Borkmann wrote:
-> On 08/25/2017 09:52 PM, Chenbo Feng wrote:
-> > On Fri, Aug 25, 2017 at 12:45 PM, Jeffrey Vander Stoep <jeffv@google.com> wrote:
-> > > On Fri, Aug 25, 2017 at 12:26 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > > On Fri, 2017-08-25 at 11:01 -0700, Jeffrey Vander Stoep via Selinux
-> > > > wrote:
-> > > > > I’d like to get your thoughts on adding LSM permission checks on BPF
-> > > > > objects.
+nf_hook_ops are not supposed to change at runtime. nf_register_net_hooks
+and nf_unregister_net_hooks are working with const nf_hook_ops.
+So mark the non-const nf_hook_ops structs as const.
 
-before reinventing the wheel please take a look at landlock work.
-Everything that was discussed in this thread is covered by it.
-The patches have been in development for more than a year and most of the early
-issues have been resolved.
-It will be presented again during security summit in LA in September.
+Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
+---
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 33fd061..2f2e133 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6530,7 +6530,7 @@ security_initcall(selinux_init);
+ 
+ #if defined(CONFIG_NETFILTER)
+ 
+-static struct nf_hook_ops selinux_nf_ops[] = {
++static const struct nf_hook_ops selinux_nf_ops[] = {
+ 	{
+ 		.hook =		selinux_ipv4_postroute,
+ 		.pf =		NFPROTO_IPV4,
+-- 
+2.7.4
