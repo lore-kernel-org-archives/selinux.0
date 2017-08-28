@@ -1,36 +1,48 @@
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
-To: selinux@tycho.nsa.gov, serge@hallyn.com, james.l.morris@oracle.com,
- eparis@parisplace.org, sds@tycho.nsa.gov, paul@paul-moore.com
-Cc: linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org
-Date: Sat, 26 Aug 2017 16:17:35 +0530
-Message-Id: <0cf3cc3fd48c3b0b9d1766c73ac4faea2a733bf3.1503744266.git.arvind.yadav.cs@gmail.com>
-Subject: [PATCH] selinux: constify nf_hook_ops
+To: Jan Zarsky <jzarsky@redhat.com>, selinux@tycho.nsa.gov
+References: <20170825094647.7925-1-jzarsky@redhat.com>
+From: jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <845c0825-07c8-193d-24c9-fd1451332f13@tycho.nsa.gov>
+Date: Mon, 28 Aug 2017 16:10:09 -0400
+MIME-Version: 1.0
+In-Reply-To: <20170825094647.7925-1-jzarsky@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH] libsepol: reset pointer after free
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-nf_hook_ops are not supposed to change at runtime. nf_register_net_hooks
-and nf_unregister_net_hooks are working with const nf_hook_ops.
-So mark the non-const nf_hook_ops structs as const.
+On 08/25/2017 05:46 AM, Jan Zarsky wrote:
+> In cil_strpool_destroy(), cil_strpool_tab is freed but it is not reset to NULL.
+> When cil_strpool_init() is called again it assumes that cil_strpool_tab was
+> already initialized. Other functions then work with invalid data.
+> 
+> Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
----
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Applied.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 33fd061..2f2e133 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6530,7 +6530,7 @@ security_initcall(selinux_init);
- 
- #if defined(CONFIG_NETFILTER)
- 
--static struct nf_hook_ops selinux_nf_ops[] = {
-+static const struct nf_hook_ops selinux_nf_ops[] = {
- 	{
- 		.hook =		selinux_ipv4_postroute,
- 		.pf =		NFPROTO_IPV4,
+Thanks,
+Jim
+
+> ---
+>   libsepol/cil/src/cil_strpool.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/libsepol/cil/src/cil_strpool.c b/libsepol/cil/src/cil_strpool.c
+> index b1396d2..97d4c4b 100644
+> --- a/libsepol/cil/src/cil_strpool.c
+> +++ b/libsepol/cil/src/cil_strpool.c
+> @@ -119,6 +119,7 @@ void cil_strpool_destroy(void)
+>   	if (cil_strpool_readers == 0) {
+>   		hashtab_map(cil_strpool_tab, cil_strpool_entry_destroy, NULL);
+>   		hashtab_destroy(cil_strpool_tab);
+> +		cil_strpool_tab = NULL;
+>   	}
+>   	pthread_mutex_unlock(&cil_strpool_mutex);
+>   }
+> 
+
+
 -- 
-2.7.4
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
