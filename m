@@ -1,230 +1,195 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7TIEavq013310
- for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2017 14:14:37 -0400
-Received: by mail-pg0-f43.google.com with SMTP id b8so12261051pgn.5
- for <selinux@tycho.nsa.gov>; Tue, 29 Aug 2017 09:35:53 -0700 (PDT)
-To: selinux@tycho.nsa.gov
-Cc: jeffv@google.com, jwcart2@tycho.nsa.gov, dcashman@google.com
-References: <20170829163205.11085-1-dcashman@android.com>
-From: Dan Cashman <dcashman@android.com>
-Message-ID: <ae211088-efdd-e6f2-0d1f-1982c781204f@android.com>
-Date: Tue, 29 Aug 2017 09:35:50 -0700
 MIME-Version: 1.0
-In-Reply-To: <20170829163205.11085-1-dcashman@android.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH v2] libsepol: cil: Add ability to redeclare
- types[attributes]
+References: <CABXk95BhYEZUQn74_H5Y0Ogxm23ZoLZA2Eiz22QTJwKG741B=Q@mail.gmail.com>
+ <1504011284.5220.2.camel@tycho.nsa.gov>
+In-Reply-To: <1504011284.5220.2.camel@tycho.nsa.gov>
+From: Jeffrey Vander Stoep <jeffv@google.com>
+Date: Tue, 29 Aug 2017 17:06:42 +0000
+Message-ID: <CABXk95DVc9EQ4hHngvG8fC_oKOf9-h3AOo2PfLz13aCShCWf0Q@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <Selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary="94eb2c0483a42761170557e77004"
+Subject: Re: sysfs symlinks in genfscon
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/29/2017 09:32 AM, Daniel Cashman wrote:
-> From: Dan Cashman <dcashman@android.com>
-> 
-> Modify cil_gen_node() to check to see if the cil_db supports multiple
-> declarations, and if so, to check whether or not the
-> repeated symbol is eligible to share the existing, already-stored datum. The
-> only types considered so far are CIL_TYPE and CIL_TYPEATTRIBUTE, both of
-> which intall empty datums during AST building, so they automatically return
-> true.
-> 
-> Test: Build policy with multilpe type and attribute declarations, and
-> without. Policies are binary-identical.
-> 
-> Signed-off-by: Dan Cashman <dcashman@android.com>
-> ---
->   libsepol/cil/include/cil/cil.h   |  1 +
->   libsepol/cil/src/cil.c           |  5 +++++
->   libsepol/cil/src/cil_build_ast.c | 48 ++++++++++++++++++++++++++++++++++------
->   libsepol/cil/src/cil_internal.h  |  1 +
->   libsepol/src/libsepol.map.in     |  5 +++++
->   secilc/secilc.c                  |  9 +++++++-
->   6 files changed, 61 insertions(+), 8 deletions(-)
-> 
-> diff --git a/libsepol/cil/include/cil/cil.h b/libsepol/cil/include/cil/cil.h
-> index 86117f24..f8cfc3be 100644
-> --- a/libsepol/cil/include/cil/cil.h
-> +++ b/libsepol/cil/include/cil/cil.h
-> @@ -50,6 +50,7 @@ extern int cil_userprefixes_to_string(cil_db_t *db, char **out, size_t *size);
->   extern int cil_selinuxusers_to_string(cil_db_t *db, char **out, size_t *size);
->   extern int cil_filecons_to_string(cil_db_t *db, char **out, size_t *size);
->   extern void cil_set_disable_dontaudit(cil_db_t *db, int disable_dontaudit);
-> +extern void cil_set_multiple_decls(cil_db_t *db, int multiple_decls);
->   extern void cil_set_disable_neverallow(cil_db_t *db, int disable_neverallow);
->   extern void cil_set_preserve_tunables(cil_db_t *db, int preserve_tunables);
->   extern int cil_set_handle_unknown(cil_db_t *db, int handle_unknown);
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index c02a41a5..3fe68af8 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -1691,6 +1691,11 @@ void cil_set_mls(struct cil_db *db, int mls)
->   	db->mls = mls;
->   }
->   
-> +void cil_set_multiple_decls(struct cil_db *db, int multiple_decls)
-> +{
-> +	db->multiple_decls = multiple_decls;
-> +}
-> +
->   void cil_set_target_platform(struct cil_db *db, int target_platform)
->   {
->   	db->target_platform = target_platform;
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> index 04492e52..9fc8ab87 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -82,10 +82,33 @@ exit:
->   	return rc;
->   }
->   
-> +/*
-> + * Determine whether or not multiple declarations of the same key can share a
-> + * datum, given the new datum and the one already present in a given symtab.
-> + */
-> +int cil_is_datum_multiple_decl(__attribute__((unused)) struct cil_symtab_datum *cur,
-> +                               __attribute__((unused)) struct cil_symtab_datum *old,
-> +                               enum cil_flavor f)
-> +{
-> +	int rc = CIL_FALSE;
-> +
-> +	switch (f) {
-> +	case CIL_TYPE:
-> +	case CIL_TYPEATTRIBUTE:
-> +		/* type and typeattribute statements insert empty datums, ret true */
-> +		rc = CIL_TRUE;
-> +		break;
-> +	default:
-> +		break;
-> +	}
-> +	return rc;
-> +}
-> +
->   int cil_gen_node(__attribute__((unused)) struct cil_db *db, struct cil_tree_node *ast_node, struct cil_symtab_datum *datum, hashtab_key_t key, enum cil_sym_index sflavor, enum cil_flavor nflavor)
->   {
->   	int rc = SEPOL_ERR;
->   	symtab_t *symtab = NULL;
-> +	struct cil_symtab_datum *prev;
->   
->   	rc = __cil_verify_name((const char*)key);
->   	if (rc != SEPOL_OK) {
-> @@ -103,15 +126,26 @@ int cil_gen_node(__attribute__((unused)) struct cil_db *db, struct cil_tree_node
->   	if (symtab != NULL) {
->   		rc = cil_symtab_insert(symtab, (hashtab_key_t)key, datum, ast_node);
->   		if (rc == SEPOL_EEXIST) {
-> -			cil_log(CIL_ERR, "Re-declaration of %s %s\n",
-> -				cil_node_to_string(ast_node), key);
-> -			if (cil_symtab_get_datum(symtab, key, &datum) == SEPOL_OK) {
-> -				if (sflavor == CIL_SYM_BLOCKS) {
-> -					struct cil_tree_node *node = datum->nodes->head->data;
-> -					cil_tree_log(node, CIL_ERR, "Previous declaration");
-> +			if (!db->multiple_decls ||
-> +			    cil_symtab_get_datum(symtab, (hashtab_key_t)key, &prev) != SEPOL_OK ||
-> +			    !cil_is_datum_multiple_decl(datum, prev, nflavor)) {
-> +
-> +				/* multiple_decls not ok, ret error */
-> +				cil_log(CIL_ERR, "Re-declaration of %s %s\n",
-> +					cil_node_to_string(ast_node), key);
-> +				if (cil_symtab_get_datum(symtab, key, &datum) == SEPOL_OK) {
-> +					if (sflavor == CIL_SYM_BLOCKS) {
-> +						struct cil_tree_node *node = datum->nodes->head->data;
-> +						cil_tree_log(node, CIL_ERR, "Previous declaration");
-> +					}
->   				}
-> +				goto exit;
->   			}
-> -			goto exit;
-> +			/* multiple_decls is enabled and works for this datum type, add node */
-> +			cil_list_append(prev->nodes, CIL_NODE, ast_node);
-> +			ast_node->data = prev;
-> +			cil_symtab_datum_destroy(datum);
-> +			free(datum);
->   		}
->   	}
->   
-> diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-> index 6d6a7d90..136a0049 100644
-> --- a/libsepol/cil/src/cil_internal.h
-> +++ b/libsepol/cil/src/cil_internal.h
-> @@ -316,6 +316,7 @@ struct cil_db {
->   	int preserve_tunables;
->   	int handle_unknown;
->   	int mls;
-> +	int multiple_decls;
->   	int target_platform;
->   	int policy_version;
->   };
-> diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
-> index dd1fec21..aace91a2 100644
-> --- a/libsepol/src/libsepol.map.in
-> +++ b/libsepol/src/libsepol.map.in
-> @@ -56,3 +56,8 @@ LIBSEPOL_1.1 {
->   	sepol_kernel_policydb_to_cil;
->   	sepol_kernel_policydb_to_conf;
->   } LIBSEPOL_1.0;
-> +
-> +LIBSEPOL_1.2 {
-> +  global:
-> +	cil_set_multiple_decls;
-> +} LIBSEPOL_1.1;
+--94eb2c0483a42761170557e77004
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-I cargo-culted/best-guessed the number here.  Other options considered 
-were 1.1 (add to old) and 2.7 (match with library version).  Please
-enlighten/correct.
+On Tue, Aug 29, 2017 at 5:50 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> diff --git a/secilc/secilc.c b/secilc/secilc.c
-> index f2232e72..0be6975b 100644
-> --- a/secilc/secilc.c
-> +++ b/secilc/secilc.c
-> @@ -63,6 +63,7 @@ static __attribute__((__noreturn__)) void usage(const char *prog)
->   	printf("                                 statement if present in the policy\n");
->   	printf("  -D, --disable-dontaudit        do not add dontaudit rules to the binary policy\n");
->   	printf("  -P, --preserve-tunables        treat tunables as booleans\n");
-> +	printf("  -m, --multiple-decls           allow some statements to be re-declared\n");
->   	printf("  -N, --disable-neverallow       do not check neverallow rules\n");
->   	printf("  -G, --expand-generated         Expand and remove auto-generated attributes\n");
->   	printf("  -X, --expand-size <SIZE>       Expand type attributes with fewer than <SIZE>\n");
-> @@ -89,6 +90,7 @@ int main(int argc, char *argv[])
->   	int target = SEPOL_TARGET_SELINUX;
->   	int mls = -1;
->   	int disable_dontaudit = 0;
-> +	int multiple_decls = 0;
->   	int disable_neverallow = 0;
->   	int preserve_tunables = 0;
->   	int handle_unknown = -1;
-> @@ -108,6 +110,7 @@ int main(int argc, char *argv[])
->   		{"policyversion", required_argument, 0, 'c'},
->   		{"handle-unknown", required_argument, 0, 'U'},
->   		{"disable-dontaudit", no_argument, 0, 'D'},
-> +		{"multiple-decls", no_argument, 0, 'm'},
->   		{"disable-neverallow", no_argument, 0, 'N'},
->   		{"preserve-tunables", no_argument, 0, 'P'},
->   		{"output", required_argument, 0, 'o'},
-> @@ -119,7 +122,7 @@ int main(int argc, char *argv[])
->   	int i;
->   
->   	while (1) {
-> -		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDNc:GX:", long_opts, &opt_index);
-> +		opt_char = getopt_long(argc, argv, "o:f:U:hvt:M:PDmNc:GX:", long_opts, &opt_index);
->   		if (opt_char == -1) {
->   			break;
->   		}
-> @@ -175,6 +178,9 @@ int main(int argc, char *argv[])
->   			case 'D':
->   				disable_dontaudit = 1;
->   				break;
-> +			case 'm':
-> +				multiple_decls = 1;
-> +				break;
->   			case 'N':
->   				disable_neverallow = 1;
->   				break;
-> @@ -223,6 +229,7 @@ int main(int argc, char *argv[])
->   
->   	cil_db_init(&db);
->   	cil_set_disable_dontaudit(db, disable_dontaudit);
-> +	cil_set_multiple_decls(db, multiple_decls);
->   	cil_set_disable_neverallow(db, disable_neverallow);
->   	cil_set_preserve_tunables(db, preserve_tunables);
->   	if (handle_unknown != -1) {
-> 
+> On Mon, 2017-08-28 at 14:58 -0700, Jeffrey Vander Stoep via Selinux
+> wrote:
+> > Genfs_contexts does not label symlinks in sysfs, instead it leaves
+> > them with the default =E2=80=9Csysfs=E2=80=9D label. Is this a bug?
+>
+> We excluded symlinks from genfscon labeling back when only proc was
+> using genfscon for per-file labeling and we encountered a compatibility
+> problem when /proc/net was moved to /proc/self/net for network
+> namespaces (see commit cited below). Suddenly applications were getting
+> proc_net_t:lnk_file read denials when accessing /proc/net because
+> existing policies only allowed proc_t:lnk_file read and
+> proc_net_t:dir/file read, so new kernel + old policy broke userspace,
+> which is not allowed by Linus.  At the time, I couldn't see a use case
+> where we would need to support per-file labeling of symlinks in proc,
+> since the only meaningful operation on a proc symlink is read/getattr.
+> The real access controls are to the individual directories/files, not
+> the symlinks.
+>
+>
+We previously allowed read on all symlinks with "sysfs" label. I've added
+getattr here:
+https://android-review.googlesource.com/#/c/platform/system/sepolicy/+/4705=
+00/
+
+Sounds like that should be sufficient to avoid breaking anything, at least
+for sysfs.
+
+
+> Do you truly need per-file labeling of symlinks in sysfs?  What's the
+> use case?  I guess it is an inconsistency between the support for sysfs
+> labeling via setxattr vs genfscon, but there are likely other more
+> significant inconsistencies due to the support for pathname regexes in
+> file_contexts versus pathname prefixes in genfscon, e.g. see
+> https://github.com/SELinuxProject/selinux-kernel/issues/29
+>
+> That said, I agree it is an ugly hack and should likely be removed if
+> it doesn't cause compatibility problems (we'd need to test on RHEL 6/7
+> at least).
+>
+> Have you measured to see the impact of switching from setxattr to
+> genfscon for sysfs labeling?
+>
+
+Yes, a couple of data points
+1. Moving sysfs and debugfs to genfscon resulted in ~200 ms faster boot
+time on Marlin.
+2. Also on Marlin, coming out of suspend with screen off (which happens
+somewhat regularly) takes about 500 ms. We were spending ~120 ms of that in
+restorecon of /sys/devices/system/cpu. Moving to genfscon reduced the
+restorecon time from 120 ms to 3 ms, resulting in a significant improvement
+in screen-off battery life.
+
+
+>
+> commit ea6b184f7d521a503ecab71feca6e4057562252b
+> Author: Stephen Smalley <sds@tycho.nsa.gov>
+> Date:   Mon Sep 22 15:41:19 2008 -0400
+>
+>     selinux: use default proc sid on symlinks
+>
+>     As we are not concerned with fine-grained control over reading of
+>     symlinks in proc, always use the default proc SID for all proc
+> symlinks.
+>     This should help avoid permission issues upon changes to the proc
+> tree
+>     as in the /proc/net -> /proc/self/net example.
+>     This does not alter labeling of symlinks within /proc/pid
+> directories.
+>     ls -Zd /proc/net output before and after the patch should show the
+> differenc
+> e.
+>
+>     Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
+>     Signed-off-by: James Morris <jmorris@namei.org>
+>
+>
+
+--94eb2c0483a42761170557e77004
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><br><div class=3D"gmail_quote"><div dir=3D"ltr">On Tue=
+, Aug 29, 2017 at 5:50 AM Stephen Smalley &lt;<a href=3D"mailto:sds@tycho.n=
+sa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br></div><blockquote class=3D"gmai=
+l_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left=
+:1ex">On Mon, 2017-08-28 at 14:58 -0700, Jeffrey Vander Stoep via Selinux<b=
+r>
+wrote:<br>
+&gt; Genfs_contexts does not label symlinks in sysfs, instead it leaves<br>
+&gt; them with the default =E2=80=9Csysfs=E2=80=9D label. Is this a bug?<br=
+>
+<br>
+We excluded symlinks from genfscon labeling back when only proc was<br>
+using genfscon for per-file labeling and we encountered a compatibility<br>
+problem when /proc/net was moved to /proc/self/net for network<br>
+namespaces (see commit cited below). Suddenly applications were getting<br>
+proc_net_t:lnk_file read denials when accessing /proc/net because<br>
+existing policies only allowed proc_t:lnk_file read and<br>
+proc_net_t:dir/file read, so new kernel + old policy broke userspace,<br>
+which is not allowed by Linus.=C2=A0 At the time, I couldn&#39;t see a use =
+case<br>
+where we would need to support per-file labeling of symlinks in proc,<br>
+since the only meaningful operation on a proc symlink is read/getattr.<br>
+The real access controls are to the individual directories/files, not<br>
+the symlinks.<br>
+<br></blockquote><div>=C2=A0</div><div>We previously allowed read on all sy=
+mlinks with &quot;sysfs&quot; label. I&#39;ve added getattr here:=C2=A0<a h=
+ref=3D"https://android-review.googlesource.com/#/c/platform/system/sepolicy=
+/+/470500/">https://android-review.googlesource.com/#/c/platform/system/sep=
+olicy/+/470500/</a></div><div><br></div><div>Sounds like that should be suf=
+ficient to avoid breaking anything, at least for sysfs.</div><div>=C2=A0</d=
+iv><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left=
+:1px #ccc solid;padding-left:1ex">
+Do you truly need per-file labeling of symlinks in sysfs?=C2=A0 What&#39;s =
+the<br>
+use case?=C2=A0 I guess it is an inconsistency between the support for sysf=
+s<br>
+labeling via setxattr vs genfscon, but there are likely other more<br>
+significant inconsistencies due to the support for pathname regexes in<br>
+file_contexts versus pathname prefixes in genfscon, e.g. see<br>
+<a href=3D"https://github.com/SELinuxProject/selinux-kernel/issues/29" rel=
+=3D"noreferrer" target=3D"_blank">https://github.com/SELinuxProject/selinux=
+-kernel/issues/29</a><br>
+<br>
+That said, I agree it is an ugly hack and should likely be removed if<br>
+it doesn&#39;t cause compatibility problems (we&#39;d need to test on RHEL =
+6/7<br>
+at least).<br>
+<br>
+Have you measured to see the impact of switching from setxattr to<br>
+genfscon for sysfs labeling?<br></blockquote><div><br></div><div>Yes, a cou=
+ple of data points</div><div>1. Moving sysfs and debugfs to genfscon result=
+ed in ~200 ms faster boot time on Marlin.</div><div>2. Also on Marlin, comi=
+ng out of suspend with screen off (which happens somewhat regularly) takes =
+about 500 ms. We were spending ~120 ms of that in restorecon of /sys/device=
+s/system/cpu. Moving to genfscon reduced the restorecon time from 120 ms to=
+ 3 ms, resulting in a significant improvement in screen-off battery life.</=
+div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 =
+0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<br>
+commit ea6b184f7d521a503ecab71feca6e4057562252b<br>
+Author: Stephen Smalley &lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"=
+_blank">sds@tycho.nsa.gov</a>&gt;<br>
+Date:=C2=A0=C2=A0=C2=A0Mon Sep 22 15:41:19 2008 -0400<br>
+<br>
+=C2=A0=C2=A0=C2=A0=C2=A0selinux: use default proc sid on symlinks<br>
+=C2=A0=C2=A0=C2=A0=C2=A0<br>
+=C2=A0=C2=A0=C2=A0=C2=A0As we are not concerned with fine-grained control o=
+ver reading of<br>
+=C2=A0=C2=A0=C2=A0=C2=A0symlinks in proc, always use the default proc SID f=
+or all proc<br>
+symlinks.<br>
+=C2=A0=C2=A0=C2=A0=C2=A0This should help avoid permission issues upon chang=
+es to the proc<br>
+tree<br>
+=C2=A0=C2=A0=C2=A0=C2=A0as in the /proc/net -&gt; /proc/self/net example.<b=
+r>
+=C2=A0=C2=A0=C2=A0=C2=A0This does not alter labeling of symlinks within /pr=
+oc/pid<br>
+directories.<br>
+=C2=A0=C2=A0=C2=A0=C2=A0ls -Zd /proc/net output before and after the patch =
+should show the<br>
+differenc<br>
+e.<br>
+=C2=A0=C2=A0=C2=A0=C2=A0<br>
+=C2=A0=C2=A0=C2=A0=C2=A0Signed-off-by:=C2=A0=C2=A0Stephen D. Smalley &lt;<a=
+ href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&=
+gt;<br>
+=C2=A0=C2=A0=C2=A0=C2=A0Signed-off-by: James Morris &lt;<a href=3D"mailto:j=
+morris@namei.org" target=3D"_blank">jmorris@namei.org</a>&gt;<br>
+<br>
+</blockquote></div></div>
+
+--94eb2c0483a42761170557e77004--
