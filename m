@@ -1,195 +1,128 @@
+To: Chenbo Feng <fengc@google.com>,
+ Alexei Starovoitov <alexei.starovoitov@gmail.com>
+References: <CABXk95AiYO7D8o79TBdt0_0g1TXfULSpL5i7KzHF3R4i-WhwHw@mail.gmail.com>
+ <1503689199.9977.4.camel@tycho.nsa.gov>
+ <CABXk95BkyU5MBLry0PEp+QwhtY7rM4DCmQq3CeQi6=TQtQQPwA@mail.gmail.com>
+ <CAMOXUJkQ-Wh==9nzgx3Sq4RUEBK5ArHk4b=AL0N65L9g6cAqcg@mail.gmail.com>
+ <59A0837F.9090301@iogearbox.net> <20170826010330.tuospq5h43fv3tlp@ast-mbp>
+ <CAMOXUJ=kiZDEpuBfys0Me4o8wqSymCz+Eu_qdQdOH5+Czzfj8g@mail.gmail.com>
+ <20170829011545.hjhpmyaerd44r5xo@ast-mbp>
+ <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>,
+ Jeffrey Vander Stoep <jeffv@google.com>, Stephen Smalley
+ <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
+ SELinux <Selinux@tycho.nsa.gov>
+From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+Message-ID: <08c7118e-42cc-cd39-c076-8cf90fa0ee17@digikod.net>
+Date: Wed, 30 Aug 2017 00:23:50 +0200
 MIME-Version: 1.0
-References: <CABXk95BhYEZUQn74_H5Y0Ogxm23ZoLZA2Eiz22QTJwKG741B=Q@mail.gmail.com>
- <1504011284.5220.2.camel@tycho.nsa.gov>
-In-Reply-To: <1504011284.5220.2.camel@tycho.nsa.gov>
-From: Jeffrey Vander Stoep <jeffv@google.com>
-Date: Tue, 29 Aug 2017 17:06:42 +0000
-Message-ID: <CABXk95DVc9EQ4hHngvG8fC_oKOf9-h3AOo2PfLz13aCShCWf0Q@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <Selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary="94eb2c0483a42761170557e77004"
-Subject: Re: sysfs symlinks in genfscon
+In-Reply-To: <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw"
+Subject: Re: Permissions for eBPF objects
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---94eb2c0483a42761170557e77004
-Content-Type: text/plain; charset="UTF-8"
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw
+Content-Type: multipart/mixed; boundary="vp2isTQfEweDRI4bCHpenJF94GahUxjbP";
+ protected-headers="v1"
+From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+To: Chenbo Feng <fengc@google.com>,
+ Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: Daniel Borkmann <daniel@iogearbox.net>,
+ Jeffrey Vander Stoep <jeffv@google.com>, Stephen Smalley
+ <sds@tycho.nsa.gov>, netdev@vger.kernel.org, SELinux <Selinux@tycho.nsa.gov>
+Message-ID: <08c7118e-42cc-cd39-c076-8cf90fa0ee17@digikod.net>
+Subject: Re: Permissions for eBPF objects
+References: <CABXk95AiYO7D8o79TBdt0_0g1TXfULSpL5i7KzHF3R4i-WhwHw@mail.gmail.com>
+ <1503689199.9977.4.camel@tycho.nsa.gov>
+ <CABXk95BkyU5MBLry0PEp+QwhtY7rM4DCmQq3CeQi6=TQtQQPwA@mail.gmail.com>
+ <CAMOXUJkQ-Wh==9nzgx3Sq4RUEBK5ArHk4b=AL0N65L9g6cAqcg@mail.gmail.com>
+ <59A0837F.9090301@iogearbox.net> <20170826010330.tuospq5h43fv3tlp@ast-mbp>
+ <CAMOXUJ=kiZDEpuBfys0Me4o8wqSymCz+Eu_qdQdOH5+Czzfj8g@mail.gmail.com>
+ <20170829011545.hjhpmyaerd44r5xo@ast-mbp>
+ <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
+In-Reply-To: <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
+
+--vp2isTQfEweDRI4bCHpenJF94GahUxjbP
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Aug 29, 2017 at 5:50 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
 
-> On Mon, 2017-08-28 at 14:58 -0700, Jeffrey Vander Stoep via Selinux
-> wrote:
-> > Genfs_contexts does not label symlinks in sysfs, instead it leaves
-> > them with the default =E2=80=9Csysfs=E2=80=9D label. Is this a bug?
->
-> We excluded symlinks from genfscon labeling back when only proc was
-> using genfscon for per-file labeling and we encountered a compatibility
-> problem when /proc/net was moved to /proc/self/net for network
-> namespaces (see commit cited below). Suddenly applications were getting
-> proc_net_t:lnk_file read denials when accessing /proc/net because
-> existing policies only allowed proc_t:lnk_file read and
-> proc_net_t:dir/file read, so new kernel + old policy broke userspace,
-> which is not allowed by Linus.  At the time, I couldn't see a use case
-> where we would need to support per-file labeling of symlinks in proc,
-> since the only meaningful operation on a proc symlink is read/getattr.
-> The real access controls are to the individual directories/files, not
-> the symlinks.
->
->
-We previously allowed read on all symlinks with "sysfs" label. I've added
-getattr here:
-https://android-review.googlesource.com/#/c/platform/system/sepolicy/+/4705=
-00/
+On 29/08/2017 03:44, Chenbo Feng wrote:
+> On Mon, Aug 28, 2017 at 6:15 PM, Alexei Starovoitov
+> <alexei.starovoitov@gmail.com> wrote:
+>> On Mon, Aug 28, 2017 at 05:47:19PM -0700, Chenbo Feng wrote:
+>>> On Fri, Aug 25, 2017 at 6:03 PM, Alexei Starovoitov
+>>> <alexei.starovoitov@gmail.com> wrote:
+>>>> On Fri, Aug 25, 2017 at 10:07:27PM +0200, Daniel Borkmann wrote:
+>>>>> On 08/25/2017 09:52 PM, Chenbo Feng wrote:
+>>>>>> On Fri, Aug 25, 2017 at 12:45 PM, Jeffrey Vander Stoep <jeffv@goog=
+le.com> wrote:
+>>>>>>> On Fri, Aug 25, 2017 at 12:26 PM, Stephen Smalley <sds@tycho.nsa.=
+gov> wrote:
+>>>>>>>> On Fri, 2017-08-25 at 11:01 -0700, Jeffrey Vander Stoep via Seli=
+nux
+>>>>>>>> wrote:
+>>>>>>>>> I=E2=80=99d like to get your thoughts on adding LSM permission =
+checks on BPF
+>>>>>>>>> objects.
+>>>>
+>>>> before reinventing the wheel please take a look at landlock work.
+>>>> Everything that was discussed in this thread is covered by it.
+>>>> The patches have been in development for more than a year and most o=
+f the early
+>>>> issues have been resolved.
+>>>> It will be presented again during security summit in LA in September=
+=2E
+>>>>
+>>> I am not very familiar with landlock lsm, isn't this module also
+>>> depend on the lsm hooks to do
+>>> the landlock check? If so then adding lsm hooks for eBPF object seems=
 
-Sounds like that should be sufficient to avoid breaking anything, at least
-for sysfs.
+>>> not conflict with the
+>>> work on progress.
+>>
+>> I see. I got it the other way around. What lsm checks are you proposin=
+g?
+>> and why unprivileged_bpf_disabled is not enough?
+>> you want to allow unpriv only for specific user(s) ?
+>>
+> Exactly, the proposal patch I am currently working on will add checks
+> before map creation,
+> map read,  and map modify, since all these functionalities will be
+> available to all users when
+> unprivileged_bpf_disabled is turned off. And eBPF prog_load may also
+> need a check as well
+> since loading some types of program is not restricted either.
+>=20
+
+It would be interesting to be able to check a wide range of actions
+performed with the BPF syscall: the command and the union bpf_attr
+argument. Because it is a multiplexer, that may be challenging, though.
 
 
-> Do you truly need per-file labeling of symlinks in sysfs?  What's the
-> use case?  I guess it is an inconsistency between the support for sysfs
-> labeling via setxattr vs genfscon, but there are likely other more
-> significant inconsistencies due to the support for pathname regexes in
-> file_contexts versus pathname prefixes in genfscon, e.g. see
-> https://github.com/SELinuxProject/selinux-kernel/issues/29
->
-> That said, I agree it is an ugly hack and should likely be removed if
-> it doesn't cause compatibility problems (we'd need to test on RHEL 6/7
-> at least).
->
-> Have you measured to see the impact of switching from setxattr to
-> genfscon for sysfs labeling?
->
+--vp2isTQfEweDRI4bCHpenJF94GahUxjbP--
 
-Yes, a couple of data points
-1. Moving sysfs and debugfs to genfscon resulted in ~200 ms faster boot
-time on Marlin.
-2. Also on Marlin, coming out of suspend with screen off (which happens
-somewhat regularly) takes about 500 ms. We were spending ~120 ms of that in
-restorecon of /sys/devices/system/cpu. Moving to genfscon reduced the
-restorecon time from 120 ms to 3 ms, resulting in a significant improvement
-in screen-off battery life.
+--35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
->
-> commit ea6b184f7d521a503ecab71feca6e4057562252b
-> Author: Stephen Smalley <sds@tycho.nsa.gov>
-> Date:   Mon Sep 22 15:41:19 2008 -0400
->
->     selinux: use default proc sid on symlinks
->
->     As we are not concerned with fine-grained control over reading of
->     symlinks in proc, always use the default proc SID for all proc
-> symlinks.
->     This should help avoid permission issues upon changes to the proc
-> tree
->     as in the /proc/net -> /proc/self/net example.
->     This does not alter labeling of symlinks within /proc/pid
-> directories.
->     ls -Zd /proc/net output before and after the patch should show the
-> differenc
-> e.
->
->     Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
->     Signed-off-by: James Morris <jmorris@namei.org>
->
->
+iQEzBAEBCgAdFiEEUysCyY8er9Axt7hqIt7+33O9apUFAlml6XYACgkQIt7+33O9
+apXi3Af/YYkcHzCQ9IpEcZl3kMHrTKzUDhGoziIAswCqRT/dyw3Gxa4Ar6BA/GlZ
+HaUUBY6sWd5FI0wJJuK0D6BO0jZwp53lAYqsIckKpQi6g7C/bGeSbTDq1yXtYVfg
+BT1ppSuaO0mEtyoYvlgwi1Wk3UYnU0djCE0ltpO1tPSSSEHXp8G0aJq4mj4kqCXU
+Y9rOc1h5FKKmwtcxB7dRYb4XJiiFYnS5uLE8GA252AMc1gJt9dMcR0EmI0q7gRt4
+6GmTR5af2yFvgMyNdqDr7Dh0md4np4b9p8AVbjdHClszB3Rrux8jQIzuk2XCJNqF
+rp+G53Z4CMwMlndoY14hcBbgGd//xw==
+=mEM+
+-----END PGP SIGNATURE-----
 
---94eb2c0483a42761170557e77004
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br><br><div class=3D"gmail_quote"><div dir=3D"ltr">On Tue=
-, Aug 29, 2017 at 5:50 AM Stephen Smalley &lt;<a href=3D"mailto:sds@tycho.n=
-sa.gov">sds@tycho.nsa.gov</a>&gt; wrote:<br></div><blockquote class=3D"gmai=
-l_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left=
-:1ex">On Mon, 2017-08-28 at 14:58 -0700, Jeffrey Vander Stoep via Selinux<b=
-r>
-wrote:<br>
-&gt; Genfs_contexts does not label symlinks in sysfs, instead it leaves<br>
-&gt; them with the default =E2=80=9Csysfs=E2=80=9D label. Is this a bug?<br=
->
-<br>
-We excluded symlinks from genfscon labeling back when only proc was<br>
-using genfscon for per-file labeling and we encountered a compatibility<br>
-problem when /proc/net was moved to /proc/self/net for network<br>
-namespaces (see commit cited below). Suddenly applications were getting<br>
-proc_net_t:lnk_file read denials when accessing /proc/net because<br>
-existing policies only allowed proc_t:lnk_file read and<br>
-proc_net_t:dir/file read, so new kernel + old policy broke userspace,<br>
-which is not allowed by Linus.=C2=A0 At the time, I couldn&#39;t see a use =
-case<br>
-where we would need to support per-file labeling of symlinks in proc,<br>
-since the only meaningful operation on a proc symlink is read/getattr.<br>
-The real access controls are to the individual directories/files, not<br>
-the symlinks.<br>
-<br></blockquote><div>=C2=A0</div><div>We previously allowed read on all sy=
-mlinks with &quot;sysfs&quot; label. I&#39;ve added getattr here:=C2=A0<a h=
-ref=3D"https://android-review.googlesource.com/#/c/platform/system/sepolicy=
-/+/470500/">https://android-review.googlesource.com/#/c/platform/system/sep=
-olicy/+/470500/</a></div><div><br></div><div>Sounds like that should be suf=
-ficient to avoid breaking anything, at least for sysfs.</div><div>=C2=A0</d=
-iv><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left=
-:1px #ccc solid;padding-left:1ex">
-Do you truly need per-file labeling of symlinks in sysfs?=C2=A0 What&#39;s =
-the<br>
-use case?=C2=A0 I guess it is an inconsistency between the support for sysf=
-s<br>
-labeling via setxattr vs genfscon, but there are likely other more<br>
-significant inconsistencies due to the support for pathname regexes in<br>
-file_contexts versus pathname prefixes in genfscon, e.g. see<br>
-<a href=3D"https://github.com/SELinuxProject/selinux-kernel/issues/29" rel=
-=3D"noreferrer" target=3D"_blank">https://github.com/SELinuxProject/selinux=
--kernel/issues/29</a><br>
-<br>
-That said, I agree it is an ugly hack and should likely be removed if<br>
-it doesn&#39;t cause compatibility problems (we&#39;d need to test on RHEL =
-6/7<br>
-at least).<br>
-<br>
-Have you measured to see the impact of switching from setxattr to<br>
-genfscon for sysfs labeling?<br></blockquote><div><br></div><div>Yes, a cou=
-ple of data points</div><div>1. Moving sysfs and debugfs to genfscon result=
-ed in ~200 ms faster boot time on Marlin.</div><div>2. Also on Marlin, comi=
-ng out of suspend with screen off (which happens somewhat regularly) takes =
-about 500 ms. We were spending ~120 ms of that in restorecon of /sys/device=
-s/system/cpu. Moving to genfscon reduced the restorecon time from 120 ms to=
- 3 ms, resulting in a significant improvement in screen-off battery life.</=
-div><div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 =
-0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-<br>
-commit ea6b184f7d521a503ecab71feca6e4057562252b<br>
-Author: Stephen Smalley &lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"=
-_blank">sds@tycho.nsa.gov</a>&gt;<br>
-Date:=C2=A0=C2=A0=C2=A0Mon Sep 22 15:41:19 2008 -0400<br>
-<br>
-=C2=A0=C2=A0=C2=A0=C2=A0selinux: use default proc sid on symlinks<br>
-=C2=A0=C2=A0=C2=A0=C2=A0<br>
-=C2=A0=C2=A0=C2=A0=C2=A0As we are not concerned with fine-grained control o=
-ver reading of<br>
-=C2=A0=C2=A0=C2=A0=C2=A0symlinks in proc, always use the default proc SID f=
-or all proc<br>
-symlinks.<br>
-=C2=A0=C2=A0=C2=A0=C2=A0This should help avoid permission issues upon chang=
-es to the proc<br>
-tree<br>
-=C2=A0=C2=A0=C2=A0=C2=A0as in the /proc/net -&gt; /proc/self/net example.<b=
-r>
-=C2=A0=C2=A0=C2=A0=C2=A0This does not alter labeling of symlinks within /pr=
-oc/pid<br>
-directories.<br>
-=C2=A0=C2=A0=C2=A0=C2=A0ls -Zd /proc/net output before and after the patch =
-should show the<br>
-differenc<br>
-e.<br>
-=C2=A0=C2=A0=C2=A0=C2=A0<br>
-=C2=A0=C2=A0=C2=A0=C2=A0Signed-off-by:=C2=A0=C2=A0Stephen D. Smalley &lt;<a=
- href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a>&=
-gt;<br>
-=C2=A0=C2=A0=C2=A0=C2=A0Signed-off-by: James Morris &lt;<a href=3D"mailto:j=
-morris@namei.org" target=3D"_blank">jmorris@namei.org</a>&gt;<br>
-<br>
-</blockquote></div></div>
-
---94eb2c0483a42761170557e77004--
+--35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw--
