@@ -1,62 +1,66 @@
-MIME-Version: 1.0
-In-Reply-To: <20170829011545.hjhpmyaerd44r5xo@ast-mbp>
-References: <CABXk95AiYO7D8o79TBdt0_0g1TXfULSpL5i7KzHF3R4i-WhwHw@mail.gmail.com>
- <1503689199.9977.4.camel@tycho.nsa.gov>
- <CABXk95BkyU5MBLry0PEp+QwhtY7rM4DCmQq3CeQi6=TQtQQPwA@mail.gmail.com>
- <CAMOXUJkQ-Wh==9nzgx3Sq4RUEBK5ArHk4b=AL0N65L9g6cAqcg@mail.gmail.com>
- <59A0837F.9090301@iogearbox.net> <20170826010330.tuospq5h43fv3tlp@ast-mbp>
- <CAMOXUJ=kiZDEpuBfys0Me4o8wqSymCz+Eu_qdQdOH5+Czzfj8g@mail.gmail.com>
- <20170829011545.hjhpmyaerd44r5xo@ast-mbp>
-From: Chenbo Feng <fengc@google.com>
-Date: Mon, 28 Aug 2017 18:44:25 -0700
-Message-ID: <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>,
- Jeffrey Vander Stoep <jeffv@google.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>,
- =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
+Message-ID: <1504011284.5220.2.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jeffrey Vander Stoep <jeffv@google.com>, SELinux <Selinux@tycho.nsa.gov>
+Date: Tue, 29 Aug 2017 08:54:44 -0400
+In-Reply-To: <CABXk95BhYEZUQn74_H5Y0Ogxm23ZoLZA2Eiz22QTJwKG741B=Q@mail.gmail.com>
+References: <CABXk95BhYEZUQn74_H5Y0Ogxm23ZoLZA2Eiz22QTJwKG741B=Q@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: Permissions for eBPF objects
+Mime-Version: 1.0
+Subject: Re: sysfs symlinks in genfscon
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Aug 28, 2017 at 6:15 PM, Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
-> On Mon, Aug 28, 2017 at 05:47:19PM -0700, Chenbo Feng wrote:
->> On Fri, Aug 25, 2017 at 6:03 PM, Alexei Starovoitov
->> <alexei.starovoitov@gmail.com> wrote:
->> > On Fri, Aug 25, 2017 at 10:07:27PM +0200, Daniel Borkmann wrote:
->> >> On 08/25/2017 09:52 PM, Chenbo Feng wrote:
->> >> > On Fri, Aug 25, 2017 at 12:45 PM, Jeffrey Vander Stoep <jeffv@google.com> wrote:
->> >> > > On Fri, Aug 25, 2017 at 12:26 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> >> > > > On Fri, 2017-08-25 at 11:01 -0700, Jeffrey Vander Stoep via Selinux
->> >> > > > wrote:
->> >> > > > > I’d like to get your thoughts on adding LSM permission checks on BPF
->> >> > > > > objects.
->> >
->> > before reinventing the wheel please take a look at landlock work.
->> > Everything that was discussed in this thread is covered by it.
->> > The patches have been in development for more than a year and most of the early
->> > issues have been resolved.
->> > It will be presented again during security summit in LA in September.
->> >
->> I am not very familiar with landlock lsm, isn't this module also
->> depend on the lsm hooks to do
->> the landlock check? If so then adding lsm hooks for eBPF object seems
->> not conflict with the
->> work on progress.
->
-> I see. I got it the other way around. What lsm checks are you proposing?
-> and why unprivileged_bpf_disabled is not enough?
-> you want to allow unpriv only for specific user(s) ?
->
-Exactly, the proposal patch I am currently working on will add checks
-before map creation,
-map read,  and map modify, since all these functionalities will be
-available to all users when
-unprivileged_bpf_disabled is turned off. And eBPF prog_load may also
-need a check as well
-since loading some types of program is not restricted either.
+On Mon, 2017-08-28 at 14:58 -0700, Jeffrey Vander Stoep via Selinux
+wrote:
+> Genfs_contexts does not label symlinks in sysfs, instead it leaves
+> them with the default “sysfs” label. Is this a bug?
+
+We excluded symlinks from genfscon labeling back when only proc was
+using genfscon for per-file labeling and we encountered a compatibility
+problem when /proc/net was moved to /proc/self/net for network
+namespaces (see commit cited below). Suddenly applications were getting
+proc_net_t:lnk_file read denials when accessing /proc/net because
+existing policies only allowed proc_t:lnk_file read and
+proc_net_t:dir/file read, so new kernel + old policy broke userspace,
+which is not allowed by Linus.  At the time, I couldn't see a use case
+where we would need to support per-file labeling of symlinks in proc,
+since the only meaningful operation on a proc symlink is read/getattr. 
+The real access controls are to the individual directories/files, not
+the symlinks.
+
+Do you truly need per-file labeling of symlinks in sysfs?  What's the
+use case?  I guess it is an inconsistency between the support for sysfs
+labeling via setxattr vs genfscon, but there are likely other more
+significant inconsistencies due to the support for pathname regexes in
+file_contexts versus pathname prefixes in genfscon, e.g. see
+https://github.com/SELinuxProject/selinux-kernel/issues/29
+
+That said, I agree it is an ugly hack and should likely be removed if
+it doesn't cause compatibility problems (we'd need to test on RHEL 6/7
+at least).
+
+Have you measured to see the impact of switching from setxattr to
+genfscon for sysfs labeling?
+
+commit ea6b184f7d521a503ecab71feca6e4057562252b
+Author: Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Mon Sep 22 15:41:19 2008 -0400
+
+    selinux: use default proc sid on symlinks
+    
+    As we are not concerned with fine-grained control over reading of
+    symlinks in proc, always use the default proc SID for all proc
+symlinks.
+    This should help avoid permission issues upon changes to the proc
+tree
+    as in the /proc/net -> /proc/self/net example.
+    This does not alter labeling of symlinks within /proc/pid
+directories.
+    ls -Zd /proc/net output before and after the patch should show the
+differenc
+e.
+    
+    Signed-off-by:  Stephen D. Smalley <sds@tycho.nsa.gov>
+    Signed-off-by: James Morris <jmorris@namei.org>
