@@ -1,128 +1,126 @@
-To: Chenbo Feng <fengc@google.com>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>
-References: <CABXk95AiYO7D8o79TBdt0_0g1TXfULSpL5i7KzHF3R4i-WhwHw@mail.gmail.com>
- <1503689199.9977.4.camel@tycho.nsa.gov>
- <CABXk95BkyU5MBLry0PEp+QwhtY7rM4DCmQq3CeQi6=TQtQQPwA@mail.gmail.com>
- <CAMOXUJkQ-Wh==9nzgx3Sq4RUEBK5ArHk4b=AL0N65L9g6cAqcg@mail.gmail.com>
- <59A0837F.9090301@iogearbox.net> <20170826010330.tuospq5h43fv3tlp@ast-mbp>
- <CAMOXUJ=kiZDEpuBfys0Me4o8wqSymCz+Eu_qdQdOH5+Czzfj8g@mail.gmail.com>
- <20170829011545.hjhpmyaerd44r5xo@ast-mbp>
- <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>,
- Jeffrey Vander Stoep <jeffv@google.com>, Stephen Smalley
- <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>
-From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <08c7118e-42cc-cd39-c076-8cf90fa0ee17@digikod.net>
-Date: Wed, 30 Aug 2017 00:23:50 +0200
-MIME-Version: 1.0
-In-Reply-To: <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw"
-Subject: Re: Permissions for eBPF objects
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7UJanpS029527
+ for <selinux@tycho.nsa.gov>; Wed, 30 Aug 2017 15:36:49 -0400
+From: James Carter <jwcart2@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Date: Wed, 30 Aug 2017 15:38:20 -0400
+Message-Id: <20170830193820.31204-1-jwcart2@tycho.nsa.gov>
+Subject: [PATCH] libsepol/cil: Keep attributes used by generated attributes in
+ neverallow rules
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw
-Content-Type: multipart/mixed; boundary="vp2isTQfEweDRI4bCHpenJF94GahUxjbP";
- protected-headers="v1"
-From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-To: Chenbo Feng <fengc@google.com>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>,
- Jeffrey Vander Stoep <jeffv@google.com>, Stephen Smalley
- <sds@tycho.nsa.gov>, netdev@vger.kernel.org, SELinux <Selinux@tycho.nsa.gov>
-Message-ID: <08c7118e-42cc-cd39-c076-8cf90fa0ee17@digikod.net>
-Subject: Re: Permissions for eBPF objects
-References: <CABXk95AiYO7D8o79TBdt0_0g1TXfULSpL5i7KzHF3R4i-WhwHw@mail.gmail.com>
- <1503689199.9977.4.camel@tycho.nsa.gov>
- <CABXk95BkyU5MBLry0PEp+QwhtY7rM4DCmQq3CeQi6=TQtQQPwA@mail.gmail.com>
- <CAMOXUJkQ-Wh==9nzgx3Sq4RUEBK5ArHk4b=AL0N65L9g6cAqcg@mail.gmail.com>
- <59A0837F.9090301@iogearbox.net> <20170826010330.tuospq5h43fv3tlp@ast-mbp>
- <CAMOXUJ=kiZDEpuBfys0Me4o8wqSymCz+Eu_qdQdOH5+Czzfj8g@mail.gmail.com>
- <20170829011545.hjhpmyaerd44r5xo@ast-mbp>
- <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
-In-Reply-To: <CAMOXUJknLRNjtfQmFy65xiO974MhPK7As5D7La_3udqmS-BxNg@mail.gmail.com>
+In order to reduce policy size, CIL removes attributes that are not used
+by a policy rule in the generated binary policy. However, CIL keeps
+attributes used by neverallow rules (which are checked at compile time
+and not in the binary policy) even if the attribute is not used anywhere
+else in the policy. This behavior is useful to Google who pulls neverallow
+rules out of the original policy.conf for compatibility testing, but
+converts the policy.conf to CIL and uses the CIL compiler to generate
+policy. Without this behavior, the generated binary policy might not have
+an attribute referred to by one of the neverallow rules used for testing.
 
---vp2isTQfEweDRI4bCHpenJF94GahUxjbP
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+The one exception to this behavior is for attributes generated in
+module_to_cil (these have an "_typeattr_" in the middle of their name).
+Since these attributes are only created because CIL does not allow a
+type expression in an AV rule, they are removed if they only appear in
+a neverallow rule (which is the case for most of them) or if the
+option to expand generated attributes (-G or --expand-generated) is
+specified for secilc when compiling the policy.
 
+Removing generated attributes causes a problem, however, if the type
+expression that the generated attribute is replacing uses an attribute
+that is removed. In this case, the original neverallow rule will refer
+to an attribute that does not exist in the generated binary policy.
 
-On 29/08/2017 03:44, Chenbo Feng wrote:
-> On Mon, Aug 28, 2017 at 6:15 PM, Alexei Starovoitov
-> <alexei.starovoitov@gmail.com> wrote:
->> On Mon, Aug 28, 2017 at 05:47:19PM -0700, Chenbo Feng wrote:
->>> On Fri, Aug 25, 2017 at 6:03 PM, Alexei Starovoitov
->>> <alexei.starovoitov@gmail.com> wrote:
->>>> On Fri, Aug 25, 2017 at 10:07:27PM +0200, Daniel Borkmann wrote:
->>>>> On 08/25/2017 09:52 PM, Chenbo Feng wrote:
->>>>>> On Fri, Aug 25, 2017 at 12:45 PM, Jeffrey Vander Stoep <jeffv@goog=
-le.com> wrote:
->>>>>>> On Fri, Aug 25, 2017 at 12:26 PM, Stephen Smalley <sds@tycho.nsa.=
-gov> wrote:
->>>>>>>> On Fri, 2017-08-25 at 11:01 -0700, Jeffrey Vander Stoep via Seli=
-nux
->>>>>>>> wrote:
->>>>>>>>> I=E2=80=99d like to get your thoughts on adding LSM permission =
-checks on BPF
->>>>>>>>> objects.
->>>>
->>>> before reinventing the wheel please take a look at landlock work.
->>>> Everything that was discussed in this thread is covered by it.
->>>> The patches have been in development for more than a year and most o=
-f the early
->>>> issues have been resolved.
->>>> It will be presented again during security summit in LA in September=
-=2E
->>>>
->>> I am not very familiar with landlock lsm, isn't this module also
->>> depend on the lsm hooks to do
->>> the landlock check? If so then adding lsm hooks for eBPF object seems=
+Now any non-generated attribute used in a typeattributeset rule for a
+generated attribute which is used in a neverallow rule will be treated
+like it was used in a neverallow rule.
 
->>> not conflict with the
->>> work on progress.
->>
->> I see. I got it the other way around. What lsm checks are you proposin=
-g?
->> and why unprivileged_bpf_disabled is not enough?
->> you want to allow unpriv only for specific user(s) ?
->>
-> Exactly, the proposal patch I am currently working on will add checks
-> before map creation,
-> map read,  and map modify, since all these functionalities will be
-> available to all users when
-> unprivileged_bpf_disabled is turned off. And eBPF prog_load may also
-> need a check as well
-> since loading some types of program is not restricted either.
->=20
+This does not change the behavior of an expandtypeattribute rule for
+the attribute. That rule, if it exists, will take precedence.
 
-It would be interesting to be able to check a wide range of actions
-performed with the BPF syscall: the command and the union bpf_attr
-argument. Because it is a multiplexer, that may be challenging, though.
+Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+---
+ libsepol/cil/src/cil_post.c | 57 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
-
---vp2isTQfEweDRI4bCHpenJF94GahUxjbP--
-
---35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEUysCyY8er9Axt7hqIt7+33O9apUFAlml6XYACgkQIt7+33O9
-apXi3Af/YYkcHzCQ9IpEcZl3kMHrTKzUDhGoziIAswCqRT/dyw3Gxa4Ar6BA/GlZ
-HaUUBY6sWd5FI0wJJuK0D6BO0jZwp53lAYqsIckKpQi6g7C/bGeSbTDq1yXtYVfg
-BT1ppSuaO0mEtyoYvlgwi1Wk3UYnU0djCE0ltpO1tPSSSEHXp8G0aJq4mj4kqCXU
-Y9rOc1h5FKKmwtcxB7dRYb4XJiiFYnS5uLE8GA252AMc1gJt9dMcR0EmI0q7gRt4
-6GmTR5af2yFvgMyNdqDr7Dh0md4np4b9p8AVbjdHClszB3Rrux8jQIzuk2XCJNqF
-rp+G53Z4CMwMlndoY14hcBbgGd//xw==
-=mEM+
------END PGP SIGNATURE-----
-
---35fIEL7eu91c8HXmE0Fq8GaeAf7o3IGIw--
+diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
+index ad073e8..ee693d4 100644
+--- a/libsepol/cil/src/cil_post.c
++++ b/libsepol/cil/src/cil_post.c
+@@ -1297,6 +1297,57 @@ static int cil_typeattribute_used(struct cil_typeattribute *attr, struct cil_db
+ 	return CIL_TRUE;
+ }
+ 
++static void __mark_neverallow_attrs(struct cil_list *expr_list)
++{
++	struct cil_list_item *curr;
++
++	cil_list_for_each(curr, expr_list) {
++		if (curr->flavor == CIL_DATUM) {
++			if (NODE(curr->data)->flavor == CIL_TYPEATTRIBUTE) {
++				struct cil_typeattribute *attr = curr->data;
++				if (strstr(DATUM(attr)->name, TYPEATTR_INFIX)) {
++					__mark_neverallow_attrs(attr->expr_list);
++				} else {
++					attr->used |= CIL_ATTR_NEVERALLOW;
++				}
++			}
++		} else if (curr->flavor == CIL_LIST) {
++			 __mark_neverallow_attrs(curr->data);
++		}
++	}
++}
++
++static int __cil_post_db_neverallow_attr_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
++{
++	struct cil_db *db = extra_args;
++
++	switch (node->flavor) {
++	case CIL_BLOCK: {
++		struct cil_block *blk = node->data;
++		if (blk->is_abstract == CIL_TRUE) {
++			*finished = CIL_TREE_SKIP_HEAD;
++		}
++		break;
++	}
++	case CIL_MACRO: {
++		*finished = CIL_TREE_SKIP_HEAD;
++		break;
++	}
++	case CIL_TYPEATTRIBUTE: {
++		struct cil_typeattribute *attr = node->data;
++		if ((attr->used & CIL_ATTR_NEVERALLOW) &&
++		    strstr(DATUM(attr)->name, TYPEATTR_INFIX)) {
++			__mark_neverallow_attrs(attr->expr_list);
++		}
++		break;
++	}
++	default:
++		break;
++	}
++
++	return SEPOL_OK;
++}
++
+ static int __cil_post_db_attr_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
+ {
+ 	int rc = SEPOL_ERR;
+@@ -2031,6 +2082,12 @@ static int cil_post_db(struct cil_db *db)
+ 		goto exit;
+ 	}
+ 
++	rc = cil_tree_walk(db->ast->root, __cil_post_db_neverallow_attr_helper, NULL, NULL, db);
++	if (rc != SEPOL_OK) {
++		cil_log(CIL_INFO, "Failed to mark attributes used by generated attributes used in neverallow rules\n");
++		goto exit;
++	}
++
+ 	rc = cil_tree_walk(db->ast->root, __cil_post_db_attr_helper, NULL, NULL, db);
+ 	if (rc != SEPOL_OK) {
+ 		cil_log(CIL_INFO, "Failed to create attribute bitmaps\n");
+-- 
+2.9.5
