@@ -4,12 +4,11 @@ Cc: Jeffrey Vander Stoep <jeffv@google.com>, netdev@vger.kernel.org,
  SELinux <Selinux@tycho.nsa.gov>,
  Alexei Starovoitov <alexei.starovoitov@gmail.com>, lorenzo@google.com,
  Chenbo Feng <fengc@google.com>
-Date: Thu, 31 Aug 2017 13:56:34 -0700
-Message-Id: <20170831205635.80256-3-chenbofeng.kernel@gmail.com>
+Date: Thu, 31 Aug 2017 13:56:35 -0700
+Message-Id: <20170831205635.80256-4-chenbofeng.kernel@gmail.com>
 In-Reply-To: <20170831205635.80256-1-chenbofeng.kernel@gmail.com>
 References: <20170831205635.80256-1-chenbofeng.kernel@gmail.com>
-Subject: [PATCH 2/3] security: bpf: Add eBPF LSM hooks and security
- field to eBPF map
+Subject: [PATCH 3/3] selinux: bpf: Implement the selinux checks for eBPF object
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -17,113 +16,123 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Chenbo Feng <fengc@google.com>
 
-Introduce a pointer into struct bpf_map to hold the security information
-about the map. The actual security struct varies based on the security
-models implemented. Place the LSM hooks before each of the unrestricted
-eBPF operations, the map_update_elem and map_delete_elem operations are
-checked by security_map_modify. The map_lookup_elem and map_get_next_key
-operations are checked by securtiy_map_read.
+Introduce 5 new selinux checks for eBPF object related operations. The
+check is based on the ownership information of eBPF maps and the
+capability of creating eBPF object.
 
 Signed-off-by: Chenbo Feng <fengc@google.com>
 ---
- include/linux/bpf.h  |  3 +++
- kernel/bpf/syscall.c | 28 ++++++++++++++++++++++++++++
- 2 files changed, 31 insertions(+)
+ security/selinux/hooks.c            | 54 +++++++++++++++++++++++++++++++++++++
+ security/selinux/include/classmap.h |  2 ++
+ security/selinux/include/objsec.h   |  4 +++
+ 3 files changed, 60 insertions(+)
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index b69e7a5869ff..ca3e6ff7091d 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -53,6 +53,9 @@ struct bpf_map {
- 	struct work_struct work;
- 	atomic_t usercnt;
- 	struct bpf_map *inner_map_meta;
-+#ifdef CONFIG_SECURITY
-+	void *security;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 33fd061305c4..39ad7d9f335d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -85,6 +85,7 @@
+ #include <linux/export.h>
+ #include <linux/msg.h>
+ #include <linux/shm.h>
++#include <linux/bpf.h>
+ 
+ #include "avc.h"
+ #include "objsec.h"
+@@ -6245,6 +6246,52 @@ static void selinux_ib_free_security(void *ib_sec)
+ }
+ #endif
+ 
++#ifdef CONFIG_BPF_SYSCALL
++static int selinux_bpf_map_create(void)
++{
++	u32 sid = current_sid();
++
++	return avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_CREATE, NULL);
++}
++
++static int selinux_bpf_map_modify(struct bpf_map *map)
++{
++	struct bpf_security_struct *bpfsec = map->security;
++
++	return avc_has_perm(current_sid(), bpfsec->sid, SECCLASS_BPF,
++			    BPF__MAP_MODIFY, NULL);
++}
++
++static int selinux_bpf_map_read(struct bpf_map *map)
++{
++	struct bpf_security_struct *bpfsec = map->security;
++
++	return avc_has_perm(current_sid(), bpfsec->sid, SECCLASS_BPF,
++			    BPF__MAP_READ, NULL);
++}
++
++static int selinux_bpf_prog_load(void)
++{
++	u32 sid = current_sid();
++
++	return avc_has_perm(sid, sid, SECCLASS_BPF, BPF__PROG_LOAD, NULL);
++}
++
++static int selinux_bpf_post_create(struct bpf_map *map)
++{
++	struct bpf_security_struct *bpfsec;
++
++	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
++	if (!bpfsec)
++		return -ENOMEM;
++
++	bpfsec->sid = current_sid();
++	map->security = bpfsec;
++
++	return 0;
++}
++#endif
++
+ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
+ 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+@@ -6465,6 +6512,13 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(audit_rule_match, selinux_audit_rule_match),
+ 	LSM_HOOK_INIT(audit_rule_free, selinux_audit_rule_free),
+ #endif
++#ifdef CONFIG_BPF_SYSCALL
++	LSM_HOOK_INIT(bpf_map_create, selinux_bpf_map_create),
++	LSM_HOOK_INIT(bpf_map_modify, selinux_bpf_map_modify),
++	LSM_HOOK_INIT(bpf_map_read, selinux_bpf_map_read),
++	LSM_HOOK_INIT(bpf_prog_load, selinux_bpf_prog_load),
++	LSM_HOOK_INIT(bpf_post_create, selinux_bpf_post_create),
 +#endif
  };
  
- /* function argument constraints */
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 045646da97cc..b15580bcf3b1 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -279,6 +279,10 @@ static int map_create(union bpf_attr *attr)
- 	if (err)
- 		return -EINVAL;
+ static __init int selinux_init(void)
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index b9fe3434b036..83c880fb17b4 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -235,6 +235,8 @@ struct security_class_mapping secclass_map[] = {
+ 	  { "access", NULL } },
+ 	{ "infiniband_endport",
+ 	  { "manage_subnet", NULL } },
++	{ "bpf",
++	  {"map_create", "map_modify", "map_read", "prog_load" } },
+ 	{ NULL }
+   };
  
-+	err = security_map_create();
-+	if (err)
-+		return -EACCES;
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 6ebc61e370ff..ba564f662b0d 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -150,6 +150,10 @@ struct pkey_security_struct {
+ 	u32	sid;	/* SID of pkey */
+ };
+ 
++struct bpf_security_struct {
++	u32 sid;	/*SID of bpf obj creater*/
++};
 +
- 	/* find map type and init map: hashtable vs rbtree vs bloom vs ... */
- 	map = find_and_alloc_map(attr);
- 	if (IS_ERR(map))
-@@ -291,6 +295,10 @@ static int map_create(union bpf_attr *attr)
- 	if (err)
- 		goto free_map_nouncharge;
+ extern unsigned int selinux_checkreqprot;
  
-+	err = security_post_create(map);
-+	if (err < 0)
-+		goto free_map;
-+
- 	err = bpf_map_alloc_id(map);
- 	if (err)
- 		goto free_map;
-@@ -410,6 +418,10 @@ static int map_lookup_elem(union bpf_attr *attr)
- 	if (IS_ERR(map))
- 		return PTR_ERR(map);
- 
-+	err = security_map_read(map);
-+	if (err)
-+		return -EACCES;
-+
- 	key = memdup_user(ukey, map->key_size);
- 	if (IS_ERR(key)) {
- 		err = PTR_ERR(key);
-@@ -490,6 +502,10 @@ static int map_update_elem(union bpf_attr *attr)
- 	if (IS_ERR(map))
- 		return PTR_ERR(map);
- 
-+	err = security_map_modify(map);
-+	if (err)
-+		return -EACCES;
-+
- 	key = memdup_user(ukey, map->key_size);
- 	if (IS_ERR(key)) {
- 		err = PTR_ERR(key);
-@@ -573,6 +589,10 @@ static int map_delete_elem(union bpf_attr *attr)
- 	if (IS_ERR(map))
- 		return PTR_ERR(map);
- 
-+	err = security_map_modify(map);
-+	if (err)
-+		return -EACCES;
-+
- 	key = memdup_user(ukey, map->key_size);
- 	if (IS_ERR(key)) {
- 		err = PTR_ERR(key);
-@@ -616,6 +636,10 @@ static int map_get_next_key(union bpf_attr *attr)
- 	if (IS_ERR(map))
- 		return PTR_ERR(map);
- 
-+	err = security_map_read(map);
-+	if (err)
-+		return -EACCES;
-+
- 	if (ukey) {
- 		key = memdup_user(ukey, map->key_size);
- 		if (IS_ERR(key)) {
-@@ -935,6 +959,10 @@ static int bpf_prog_load(union bpf_attr *attr)
- 	if (CHECK_ATTR(BPF_PROG_LOAD))
- 		return -EINVAL;
- 
-+	err = security_prog_load();
-+	if (err)
-+		return -EACCES;
-+
- 	if (attr->prog_flags & ~BPF_F_STRICT_ALIGNMENT)
- 		return -EINVAL;
- 
+ #endif /* _SELINUX_OBJSEC_H_ */
 -- 
 2.14.1.581.gf28d330327-goog
