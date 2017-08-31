@@ -1,38 +1,129 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v812N078020788
- for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2017 22:23:01 -0400
-Date: Fri, 1 Sep 2017 12:22:49 +1000 (AEST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul@paul-moore.com>
-cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-In-Reply-To: <CAHC9VhRCnJAHLA8o7t0kF4a=KtA-mrmr5=okLODvb4WEntPTrQ@mail.gmail.com>
-Message-ID: <alpine.LRH.2.20.1709011222340.6889@namei.org>
-References: <CAHC9VhRCnJAHLA8o7t0kF4a=KtA-mrmr5=okLODvb4WEntPTrQ@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: Re: [GIT PULL] SELinux patches for v4.14
+From: Chenbo Feng <chenbofeng.kernel@gmail.com>
+To: linux-security-module@vger.kernel.org
+Cc: Jeffrey Vander Stoep <jeffv@google.com>, netdev@vger.kernel.org,
+ SELinux <Selinux@tycho.nsa.gov>,
+ Alexei Starovoitov <alexei.starovoitov@gmail.com>, lorenzo@google.com,
+ Chenbo Feng <fengc@google.com>
+Date: Thu, 31 Aug 2017 13:56:34 -0700
+Message-Id: <20170831205635.80256-3-chenbofeng.kernel@gmail.com>
+In-Reply-To: <20170831205635.80256-1-chenbofeng.kernel@gmail.com>
+References: <20170831205635.80256-1-chenbofeng.kernel@gmail.com>
+Subject: [PATCH 2/3] security: bpf: Add eBPF LSM hooks and security
+ field to eBPF map
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 31 Aug 2017, Paul Moore wrote:
+From: Chenbo Feng <fengc@google.com>
 
-> Hi James,
-> 
-> A relatively quiet period for SELinux, 11 patches with only two/three
-> having any substantive changes.  These noteworthy changes include
-> another tweak to the NNP/nosuid handling, per-file labeling for
-> cgroups, and an object class fix for AF_UNIX/SOCK_RAW sockets; the
-> rest of the changes are minor tweaks or administrative updates
-> (Stephen's email update explains the file explosion in the diffstat).
-> Everything passes the selinux-testsuite and merged cleanly on top of
-> the linux-security/next branch from earlier today.
-> 
-> Please apply.
+Introduce a pointer into struct bpf_map to hold the security information
+about the map. The actual security struct varies based on the security
+models implemented. Place the LSM hooks before each of the unrestricted
+eBPF operations, the map_update_elem and map_delete_elem operations are
+checked by security_map_modify. The map_lookup_elem and map_get_next_key
+operations are checked by securtiy_map_read.
 
-Merged, thanks.
+Signed-off-by: Chenbo Feng <fengc@google.com>
+---
+ include/linux/bpf.h  |  3 +++
+ kernel/bpf/syscall.c | 28 ++++++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
 
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index b69e7a5869ff..ca3e6ff7091d 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -53,6 +53,9 @@ struct bpf_map {
+ 	struct work_struct work;
+ 	atomic_t usercnt;
+ 	struct bpf_map *inner_map_meta;
++#ifdef CONFIG_SECURITY
++	void *security;
++#endif
+ };
+ 
+ /* function argument constraints */
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 045646da97cc..b15580bcf3b1 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -279,6 +279,10 @@ static int map_create(union bpf_attr *attr)
+ 	if (err)
+ 		return -EINVAL;
+ 
++	err = security_map_create();
++	if (err)
++		return -EACCES;
++
+ 	/* find map type and init map: hashtable vs rbtree vs bloom vs ... */
+ 	map = find_and_alloc_map(attr);
+ 	if (IS_ERR(map))
+@@ -291,6 +295,10 @@ static int map_create(union bpf_attr *attr)
+ 	if (err)
+ 		goto free_map_nouncharge;
+ 
++	err = security_post_create(map);
++	if (err < 0)
++		goto free_map;
++
+ 	err = bpf_map_alloc_id(map);
+ 	if (err)
+ 		goto free_map;
+@@ -410,6 +418,10 @@ static int map_lookup_elem(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	err = security_map_read(map);
++	if (err)
++		return -EACCES;
++
+ 	key = memdup_user(ukey, map->key_size);
+ 	if (IS_ERR(key)) {
+ 		err = PTR_ERR(key);
+@@ -490,6 +502,10 @@ static int map_update_elem(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	err = security_map_modify(map);
++	if (err)
++		return -EACCES;
++
+ 	key = memdup_user(ukey, map->key_size);
+ 	if (IS_ERR(key)) {
+ 		err = PTR_ERR(key);
+@@ -573,6 +589,10 @@ static int map_delete_elem(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	err = security_map_modify(map);
++	if (err)
++		return -EACCES;
++
+ 	key = memdup_user(ukey, map->key_size);
+ 	if (IS_ERR(key)) {
+ 		err = PTR_ERR(key);
+@@ -616,6 +636,10 @@ static int map_get_next_key(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	err = security_map_read(map);
++	if (err)
++		return -EACCES;
++
+ 	if (ukey) {
+ 		key = memdup_user(ukey, map->key_size);
+ 		if (IS_ERR(key)) {
+@@ -935,6 +959,10 @@ static int bpf_prog_load(union bpf_attr *attr)
+ 	if (CHECK_ATTR(BPF_PROG_LOAD))
+ 		return -EINVAL;
+ 
++	err = security_prog_load();
++	if (err)
++		return -EACCES;
++
+ 	if (attr->prog_flags & ~BPF_F_STRICT_ALIGNMENT)
+ 		return -EINVAL;
+ 
 -- 
-James Morris
-<jmorris@namei.org>
+2.14.1.581.gf28d330327-goog
