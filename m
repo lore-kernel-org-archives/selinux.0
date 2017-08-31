@@ -1,140 +1,112 @@
-Received: from [192.168.25.4] (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7VItEx4002814
- for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2017 14:55:14 -0400
-To: selinux@tycho.nsa.gov
-References: <20170830193820.31204-1-jwcart2@tycho.nsa.gov>
-From: jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <7b850cc5-d252-cff4-9775-2597a0738803@tycho.nsa.gov>
-Date: Thu, 31 Aug 2017 14:56:45 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v7VJe2JK024566
+ for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2017 15:40:03 -0400
+Received: by mail-lf0-f66.google.com with SMTP id l140so339000lfg.3
+ for <selinux@tycho.nsa.gov>; Thu, 31 Aug 2017 12:39:54 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20170830193820.31204-1-jwcart2@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH] libsepol/cil: Keep attributes used by generated
- attributes in neverallow rules
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 31 Aug 2017 15:37:44 -0400
+Message-ID: <CAHC9VhRCnJAHLA8o7t0kF4a=KtA-mrmr5=okLODvb4WEntPTrQ@mail.gmail.com>
+To: James Morris <jmorris@namei.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: [GIT PULL] SELinux patches for v4.14
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/30/2017 03:38 PM, James Carter wrote:
-> In order to reduce policy size, CIL removes attributes that are not used
-> by a policy rule in the generated binary policy. However, CIL keeps
-> attributes used by neverallow rules (which are checked at compile time
-> and not in the binary policy) even if the attribute is not used anywhere
-> else in the policy. This behavior is useful to Google who pulls neverallow
-> rules out of the original policy.conf for compatibility testing, but
-> converts the policy.conf to CIL and uses the CIL compiler to generate
-> policy. Without this behavior, the generated binary policy might not have
-> an attribute referred to by one of the neverallow rules used for testing.
-> 
-> The one exception to this behavior is for attributes generated in
-> module_to_cil (these have an "_typeattr_" in the middle of their name).
-> Since these attributes are only created because CIL does not allow a
-> type expression in an AV rule, they are removed if they only appear in
-> a neverallow rule (which is the case for most of them) or if the
-> option to expand generated attributes (-G or --expand-generated) is
-> specified for secilc when compiling the policy.
-> 
-> Removing generated attributes causes a problem, however, if the type
-> expression that the generated attribute is replacing uses an attribute
-> that is removed. In this case, the original neverallow rule will refer
-> to an attribute that does not exist in the generated binary policy.
-> 
-> Now any non-generated attribute used in a typeattributeset rule for a
-> generated attribute which is used in a neverallow rule will be treated
-> like it was used in a neverallow rule.
-> 
-> This does not change the behavior of an expandtypeattribute rule for
-> the attribute. That rule, if it exists, will take precedence.
-> 
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+Hi James,
 
-This has been applied.
+A relatively quiet period for SELinux, 11 patches with only two/three
+having any substantive changes.  These noteworthy changes include
+another tweak to the NNP/nosuid handling, per-file labeling for
+cgroups, and an object class fix for AF_UNIX/SOCK_RAW sockets; the
+rest of the changes are minor tweaks or administrative updates
+(Stephen's email update explains the file explosion in the diffstat).
+Everything passes the selinux-testsuite and merged cleanly on top of
+the linux-security/next branch from earlier today.
 
-Jim
+Please apply.
 
-> ---
->   libsepol/cil/src/cil_post.c | 57 +++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 57 insertions(+)
-> 
-> diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-> index ad073e8..ee693d4 100644
-> --- a/libsepol/cil/src/cil_post.c
-> +++ b/libsepol/cil/src/cil_post.c
-> @@ -1297,6 +1297,57 @@ static int cil_typeattribute_used(struct cil_typeattribute *attr, struct cil_db
->   	return CIL_TRUE;
->   }
->   
-> +static void __mark_neverallow_attrs(struct cil_list *expr_list)
-> +{
-> +	struct cil_list_item *curr;
-> +
-> +	cil_list_for_each(curr, expr_list) {
-> +		if (curr->flavor == CIL_DATUM) {
-> +			if (NODE(curr->data)->flavor == CIL_TYPEATTRIBUTE) {
-> +				struct cil_typeattribute *attr = curr->data;
-> +				if (strstr(DATUM(attr)->name, TYPEATTR_INFIX)) {
-> +					__mark_neverallow_attrs(attr->expr_list);
-> +				} else {
-> +					attr->used |= CIL_ATTR_NEVERALLOW;
-> +				}
-> +			}
-> +		} else if (curr->flavor == CIL_LIST) {
-> +			 __mark_neverallow_attrs(curr->data);
-> +		}
-> +	}
-> +}
-> +
-> +static int __cil_post_db_neverallow_attr_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
-> +{
-> +	struct cil_db *db = extra_args;
-> +
-> +	switch (node->flavor) {
-> +	case CIL_BLOCK: {
-> +		struct cil_block *blk = node->data;
-> +		if (blk->is_abstract == CIL_TRUE) {
-> +			*finished = CIL_TREE_SKIP_HEAD;
-> +		}
-> +		break;
-> +	}
-> +	case CIL_MACRO: {
-> +		*finished = CIL_TREE_SKIP_HEAD;
-> +		break;
-> +	}
-> +	case CIL_TYPEATTRIBUTE: {
-> +		struct cil_typeattribute *attr = node->data;
-> +		if ((attr->used & CIL_ATTR_NEVERALLOW) &&
-> +		    strstr(DATUM(attr)->name, TYPEATTR_INFIX)) {
-> +			__mark_neverallow_attrs(attr->expr_list);
-> +		}
-> +		break;
-> +	}
-> +	default:
-> +		break;
-> +	}
-> +
-> +	return SEPOL_OK;
-> +}
-> +
->   static int __cil_post_db_attr_helper(struct cil_tree_node *node, uint32_t *finished, void *extra_args)
->   {
->   	int rc = SEPOL_ERR;
-> @@ -2031,6 +2082,12 @@ static int cil_post_db(struct cil_db *db)
->   		goto exit;
->   	}
->   
-> +	rc = cil_tree_walk(db->ast->root, __cil_post_db_neverallow_attr_helper, NULL, NULL, db);
-> +	if (rc != SEPOL_OK) {
-> +		cil_log(CIL_INFO, "Failed to mark attributes used by generated attributes used in neverallow rules\n");
-> +		goto exit;
-> +	}
-> +
->   	rc = cil_tree_walk(db->ast->root, __cil_post_db_attr_helper, NULL, NULL, db);
->   	if (rc != SEPOL_OK) {
->   		cil_log(CIL_INFO, "Failed to create attribute bitmaps\n");
-> 
+Thanks,
+-Paul
 
+---
+The following changes since commit 31368ce83c59a5422ee621a38aeea98142d0ecf7:
+
+ tomoyo: Update URLs in Documentation/admin-guide/LSM/tomoyo.rst
+  (2017-07-25 11:00:26 +1000)
+
+are available in the git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+  tags/selinux-pr-20170831
+
+for you to fetch changes up to 0c3014f22dec0e1d14c8298551bfb6434638bdd9:
+
+ selinux: constify nf_hook_ops (2017-08-28 17:33:19 -0400)
+
+----------------------------------------------------------------
+selinux/stable-4.14 PR 20170831
+
+----------------------------------------------------------------
+Antonio Murdaca (1):
+     selinux: allow per-file labeling for cgroupfs
+
+Arvind Yadav (1):
+     selinux: constify nf_hook_ops
+
+Luis Ressel (1):
+     selinux: Assign proper class to PF_UNIX/SOCK_RAW sockets
+
+Michal Hocko (1):
+     selinux: use GFP_NOWAIT in the AVC kmem_caches
+
+Paul Moore (3):
+     credits: update Paul Moore's info
+     selinux: update the selinux info in MAINTAINERS
+     MAINTAINERS: update the NetLabel and Labeled Networking information
+
+Stephen Smalley (4):
+     selinux: genheaders should fail if too many permissions are defined
+     selinux: Generalize support for NNP/nosuid SELinux domain transitions
+     selinux: update my email address
+     lsm_audit: update my email address
+
+CREDITS                                 |  8 ++---
+MAINTAINERS                             | 29 ++++++++++-------
+include/linux/lsm_audit.h               |  2 +-
+scripts/selinux/genheaders/genheaders.c |  7 ++++-
+security/lsm_audit.c                    |  2 +-
+security/selinux/avc.c                  | 16 +++++-----
+security/selinux/hooks.c                | 56 ++++++++++++++++++++---------
+security/selinux/include/avc.h          |  2 +-
+security/selinux/include/avc_ss.h       |  2 +-
+security/selinux/include/classmap.h     |  2 ++
+security/selinux/include/objsec.h       |  2 +-
+security/selinux/include/security.h     |  4 ++-
+security/selinux/ss/avtab.c             |  2 +-
+security/selinux/ss/avtab.h             |  2 +-
+security/selinux/ss/constraint.h        |  2 +-
+security/selinux/ss/context.h           |  2 +-
+security/selinux/ss/ebitmap.c           |  2 +-
+security/selinux/ss/ebitmap.h           |  2 +-
+security/selinux/ss/hashtab.c           |  2 +-
+security/selinux/ss/hashtab.h           |  2 +-
+security/selinux/ss/mls.c               |  2 +-
+security/selinux/ss/mls.h               |  2 +-
+security/selinux/ss/mls_types.h         |  2 +-
+security/selinux/ss/policydb.c          |  2 +-
+security/selinux/ss/policydb.h          |  2 +-
+security/selinux/ss/services.c          |  9 ++++--
+security/selinux/ss/services.h          |  2 +-
+security/selinux/ss/sidtab.c            |  2 +-
+security/selinux/ss/sidtab.h            |  2 +-
+security/selinux/ss/symtab.c            |  2 +-
+security/selinux/ss/symtab.h            |  2 +-
+31 files changed, 106 insertions(+), 71 deletions(-)
 
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+paul moore
+www.paul-moore.com
