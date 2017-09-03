@@ -1,56 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v83CL5f4026262
- for <selinux@tycho.nsa.gov>; Sun, 3 Sep 2017 08:21:09 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v83CLSQJ026267
+ for <selinux@tycho.nsa.gov>; Sun, 3 Sep 2017 08:21:28 -0400
 Received: from localhost.localdomain (abo-140-56-69.avi.modulonet.fr
  [85.69.56.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 96DE35646D1
- for <selinux@tycho.nsa.gov>; Sun,  3 Sep 2017 14:20:01 +0200 (CEST)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id D06205646D2
+ for <selinux@tycho.nsa.gov>; Sun,  3 Sep 2017 14:20:10 +0200 (CEST)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Date: Sun,  3 Sep 2017 14:19:25 +0200
-Message-Id: <20170903121928.24024-3-nicolas.iooss@m4x.org>
+Date: Sun,  3 Sep 2017 14:19:28 +0200
+Message-Id: <20170903121928.24024-6-nicolas.iooss@m4x.org>
 In-Reply-To: <20170903121928.24024-1-nicolas.iooss@m4x.org>
 References: <20170903121928.24024-1-nicolas.iooss@m4x.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Subject: [PATCH 3/6] libsepol/cil: fix -Wwrite-strings warning
+Subject: [PATCH 6/6] Makefile: define a default value for CFLAGS
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-cil_defaults_to_policy() defines its third argument as non-const "char
-*kind" even though it is called with literal strings. This makes gcc
-report the following warning when compiling with -Wwrite-strings:
+When building the project with "make DESTDIR=... install", the root
+Makefile defines CFLAGS and LDFLAGS without any warning flags ("CFLAGS
++= -I$(DESTDIR)/usr/include" and "LDFLAGS += -L$(DESTDIR)/usr/lib"). As
+the Makefiles in subdirectories do not override the flags with warning
+flags, the code gets compiled without any enabled warning.
 
-    ../cil/src/cil_policy.c: In function ‘cil_gen_policy’:
-    ../cil/src/cil_policy.c:1931:60: error: passing argument 3 of
-    ‘cil_defaults_to_policy’ discards ‘const’ qualifier from pointer
-    target type [-Werror=discarded-qualifiers]
+This leads for example to code being introduced which breaks building
+libsepol from its directory, while building it from the root Makefile
+still works fine.
 
-      cil_defaults_to_policy(out, lists[CIL_LIST_DEFAULT_USER],
-                             "default_user");
-                             ^~~~~~~~~~~~~~
+This issue can be fixed by defining a set of flags in the root Makefile
+which are used by all Makefiles in subdirectories. The flags have been
+chosen following these principles:
+* they are compatible with both clang and gcc,
+* they already appear in at least one Makefile, and
+* they are not triggered with the current git master version.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsepol/cil/src/cil_policy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Makefile | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
-index 729b6e06e9c5..6d4987c4e4e6 100644
---- a/libsepol/cil/src/cil_policy.c
-+++ b/libsepol/cil/src/cil_policy.c
-@@ -775,7 +775,7 @@ static void cil_classes_to_policy(FILE *out, struct cil_list *classorder)
- 	}
- }
+diff --git a/Makefile b/Makefile
+index 7701e16252fe..6da7f7b71bdc 100644
+--- a/Makefile
++++ b/Makefile
+@@ -6,6 +6,16 @@ DISTCLEANSUBDIRS=libselinux libsemanage
+ ifeq ($(DEBUG),1)
+ 	export CFLAGS = -g3 -O0 -gdwarf-2 -fno-strict-aliasing -Wall -Wshadow -Werror
+ 	export LDFLAGS = -g
++else
++	export CFLAGS ?= -O2 -Werror -Wall -Wextra \
++		-Wmissing-format-attribute \
++		-Wmissing-noreturn \
++		-Wpointer-arith \
++		-Wshadow \
++		-Wstrict-prototypes \
++		-Wundef \
++		-Wunused \
++		-Wwrite-strings
+ endif
  
--static void cil_defaults_to_policy(FILE *out, struct cil_list *defaults, char *kind)
-+static void cil_defaults_to_policy(FILE *out, struct cil_list *defaults, const char *kind)
- {
- 	struct cil_list_item *i1, *i2, *i3;
- 	struct cil_default *def;
+ ifneq ($(DESTDIR),)
 -- 
 2.14.1
