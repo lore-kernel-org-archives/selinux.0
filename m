@@ -1,80 +1,242 @@
 MIME-Version: 1.0
-In-Reply-To: <20170901020520.uifv6b7tvelgxumf@ast-mbp>
+In-Reply-To: <1504270223.8240.2.camel@tycho.nsa.gov>
 References: <20170831205635.80256-1-chenbofeng.kernel@gmail.com>
- <20170831205635.80256-3-chenbofeng.kernel@gmail.com>
- <20170901020520.uifv6b7tvelgxumf@ast-mbp>
+ <20170831205635.80256-2-chenbofeng.kernel@gmail.com>
+ <1504270223.8240.2.camel@tycho.nsa.gov>
 From: Chenbo Feng <fengc@google.com>
-Date: Tue, 5 Sep 2017 14:59:38 -0700
-Message-ID: <CAMOXUJnF=UoWM7xm-Uk-zyhA1N9exjtDf8Xt+_EF2Kj6YUV0OQ@mail.gmail.com>
-To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date: Tue, 5 Sep 2017 15:24:22 -0700
+Message-ID: <CAMOXUJ=r1AEO_6Pg7-tio9UPn2YCJKOrLS=xbn7U4SE_mBYyJQ@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: Chenbo Feng <chenbofeng.kernel@gmail.com>,
- Daniel Borkmann <daniel@iogearbox.net>,
- linux-security-module@vger.kernel.org,
- Jeffrey Vander Stoep <jeffv@google.com>, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>, Lorenzo Colitti <lorenzo@google.com>
+ linux-security-module@vger.kernel.org, SELinux <Selinux@tycho.nsa.gov>,
+ netdev@vger.kernel.org, Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+ Lorenzo Colitti <lorenzo@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 2/3] security: bpf: Add eBPF LSM hooks and
- security field to eBPF map
+Subject: Re: [PATCH 1/3] security: bpf: Add eBPF LSM hooks to security module
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Aug 31, 2017 at 7:05 PM, Alexei Starovoitov
-<alexei.starovoitov@gmail.com> wrote:
-> On Thu, Aug 31, 2017 at 01:56:34PM -0700, Chenbo Feng wrote:
+On Fri, Sep 1, 2017 at 5:50 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Thu, 2017-08-31 at 13:56 -0700, Chenbo Feng wrote:
 >> From: Chenbo Feng <fengc@google.com>
 >>
->> Introduce a pointer into struct bpf_map to hold the security information
->> about the map. The actual security struct varies based on the security
->> models implemented. Place the LSM hooks before each of the unrestricted
->> eBPF operations, the map_update_elem and map_delete_elem operations are
->> checked by security_map_modify. The map_lookup_elem and map_get_next_key
->> operations are checked by securtiy_map_read.
+>> Introduce 5 LSM hooks to provide finer granularity controls on eBPF
+>> related operations including create eBPF maps, modify and read eBPF
+>> maps
+>> content and load eBPF programs to the kernel. Hooks use the new
+>> security
+>> pointer inside the eBPF map struct to store the owner's security
+>> information and the different security modules can perform different
+>> checks based on the information stored inside the security field.
 >>
 >> Signed-off-by: Chenbo Feng <fengc@google.com>
->
-> ...
->
->> @@ -410,6 +418,10 @@ static int map_lookup_elem(union bpf_attr *attr)
->>       if (IS_ERR(map))
->>               return PTR_ERR(map);
+>> ---
+>>  include/linux/lsm_hooks.h | 41
+>> +++++++++++++++++++++++++++++++++++++++++
+>>  include/linux/security.h  | 36 ++++++++++++++++++++++++++++++++++++
+>>  security/security.c       | 28 ++++++++++++++++++++++++++++
+>>  3 files changed, 105 insertions(+)
 >>
->> +     err = security_map_read(map);
->> +     if (err)
->> +             return -EACCES;
+>> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+>> index ce02f76a6188..3aaf9a08a983 100644
+>> --- a/include/linux/lsm_hooks.h
+>> +++ b/include/linux/lsm_hooks.h
+>> @@ -1353,6 +1353,32 @@
+>>   *   @inode we wish to get the security context of.
+>>   *   @ctx is a pointer in which to place the allocated security
+>> context.
+>>   *   @ctxlen points to the place to put the length of @ctx.
+>> + *
+>> + * Security hooks for using the eBPF maps and programs
+>> functionalities through
+>> + * eBPF syscalls.
+>> + *
+>> + * @bpf_map_create:
+>> + *   Check permissions prior to creating a new bpf map.
+>> + *   Return 0 if the permission is granted.
+>> + *
+>> + * @bpf_map_modify:
+>> + *   Check permission prior to insert, update and delete map
+>> content.
+>> + *   @map pointer to the struct bpf_map that contains map
+>> information.
+>> + *   Return 0 if the permission is granted.
+>> + *
+>> + * @bpf_map_read:
+>> + *   Check permission prior to read a bpf map content.
+>> + *   @map pointer to the struct bpf_map that contains map
+>> information.
+>> + *   Return 0 if the permission is granted.
+>> + *
+>> + * @bpf_prog_load:
+>> + *   Check permission prior to load eBPF program.
+>> + *   Return 0 if the permission is granted.
+>> + *
+>> + * @bpf_post_create:
+>> + *   Initialize the bpf object security field inside struct
+>> bpf_maps and
+>> + *   it is used for future security checks.
+>> + *
+>>   */
+>>  union security_list_options {
+>>       int (*binder_set_context_mgr)(struct task_struct *mgr);
+>> @@ -1685,6 +1711,14 @@ union security_list_options {
+>>                               struct audit_context *actx);
+>>       void (*audit_rule_free)(void *lsmrule);
+>>  #endif /* CONFIG_AUDIT */
 >> +
->>       key = memdup_user(ukey, map->key_size);
->>       if (IS_ERR(key)) {
->>               err = PTR_ERR(key);
->> @@ -490,6 +502,10 @@ static int map_update_elem(union bpf_attr *attr)
->>       if (IS_ERR(map))
->>               return PTR_ERR(map);
+>> +#ifdef CONFIG_BPF_SYSCALL
+>> +     int (*bpf_map_create)(void);
+>> +     int (*bpf_map_read)(struct bpf_map *map);
+>> +     int (*bpf_map_modify)(struct bpf_map *map);
+>> +     int (*bpf_prog_load)(void);
+>> +     int (*bpf_post_create)(struct bpf_map *map);
+>> +#endif /* CONFIG_BPF_SYSCALL */
+>>  };
 >>
->> +     err = security_map_modify(map);
+>>  struct security_hook_heads {
+>> @@ -1905,6 +1939,13 @@ struct security_hook_heads {
+>>       struct list_head audit_rule_match;
+>>       struct list_head audit_rule_free;
+>>  #endif /* CONFIG_AUDIT */
+>> +#ifdef CONFIG_BPF_SYSCALL
+>> +     struct list_head bpf_map_create;
+>> +     struct list_head bpf_map_read;
+>> +     struct list_head bpf_map_modify;
+>> +     struct list_head bpf_prog_load;
+>> +     struct list_head bpf_post_create;
+>> +#endif /* CONFIG_BPF_SYSCALL */
+>>  } __randomize_layout;
+>>
+>>  /*
+>> diff --git a/include/linux/security.h b/include/linux/security.h
+>> index 458e24bea2d4..0656a4f74d14 100644
+>> --- a/include/linux/security.h
+>> +++ b/include/linux/security.h
+>> @@ -31,6 +31,7 @@
+>>  #include <linux/string.h>
+>>  #include <linux/mm.h>
+>>  #include <linux/fs.h>
+>> +#include <linux/bpf.h>
+>>
+>>  struct linux_binprm;
+>>  struct cred;
+>> @@ -1735,6 +1736,41 @@ static inline void securityfs_remove(struct
+>> dentry *dentry)
+>>
+>>  #endif
+>>
+>> +#ifdef CONFIG_BPF_SYSCALL
+>> +#ifdef CONFIG_SECURITY
+>> +int security_map_create(void);
+>> +int security_map_modify(struct bpf_map *map);
+>> +int security_map_read(struct bpf_map *map);
+>> +int security_prog_load(void);
+>> +int security_post_create(struct bpf_map *map);
+>> +#else
+>> +static inline int security_map_create(void)
+>> +{
+>> +     return 0;
+>> +}
+>> +
+>> +static inline int security_map_read(struct bpf_map *map)
+>> +{
+>> +     return 0;
+>> +}
+>> +
+>> +static inline int security_map_modify(struct bpf_map *map)
+>> +{
+>> +     return 0;
+>> +}
+>> +
+>> +static inline int security_prog_load(void)
+>> +{
+>> +     return 0;
+>> +}
+>> +
+>> +static inline int security_post_create(struct bpf_map *map)
+>> +{
+>> +     return 0;
+>> +}
+>> +#endif /* CONFIG_SECURITY */
+>> +#endif /* CONFIG_BPF_SYSCALL */
 >
-> I don't feel these extra hooks are really thought through.
-> With such hook you'll disallow map_update for given map. That's it.
-> The key/values etc won't be used in such security decision.
-> In such case you don't need such hooks in update/lookup at all.
-> Only in map_creation and object_get calls where FD can be received.
-> In other words I suggest to follow standard unix practices:
-> Do permissions checks in open() and allow read/write() if FD is valid.
-> Same here. Do permission checks in prog_load/map_create/obj_pin/get
-> and that will be enough to jail bpf subsystem.
-> bpf cmds that need to be fast (like lookup and update) should not
-> have security hooks.
+> These should be named consistently with the ones in lsm_hooks.h and
+> should unambiguously indicate that these are hooks for bpf
+> objects/operations, i.e. security_bpf_map_create(),
+> security_bpf_map_read(), etc.
 >
-Thanks for pointing out this. I agree we should only do checks on
-creating and passing
-the object from one processes to another. And if we can still
-distinguish the read/write operation
-when obtaining the file fd, that would be great. But that may require
-us to add a new mode
-field into bpf_map struct and change the attribute struct when doing
-the bpf syscall. How do you
-think about this approach? Or we can do simple checks for
-bpf_obj_create and bpf_obj_use when
-creating the object and passing the object respectively but this
-solution cannot distinguish map modify and
-read.
+Thanks for pointing out, will fix this.
+> Do you need this level of granularity?
+>
+The cover letter of this patch series described a possible use cases of
+these lsm hooks and this level of granularity would be ideal to reach that
+goal. We can also implement two hooks such as bpf_obj_create and
+bpf_obj_use to restrict the creation and using when get the bpf fd from
+kernel. But that will be less powerful and flexible.
+> Could you coalesce the map_create() and post_map_create() hooks into
+> one hook and just unwind the create in that case?
+>
+Okay, I will take a look on how to fix this.
+> Why do you label bpf maps but not bpf progs?  Should we be controlling
+> the ability to attach/detach a bpf prog (partly controlled by
+> CAP_NET_ADMIN, but also somewhat broad in scope and doesn't allow
+> control based on who created the prog)?
+>
+> Should there be a top-level security_bpf_use() hook and permission
+> check that limits ability to use bpf() at all?
+>
+This could be useful but having additional lsm hooks check when reading
+and write to eBPF maps may cause performance issue. Instead maybe we
+could have a hook for creating eBPF object and retrieve object fd to restrict
+the access.
+>> +
+>>  #ifdef CONFIG_SECURITY
+>>
+>>  static inline char *alloc_secdata(void)
+>> diff --git a/security/security.c b/security/security.c
+>> index 55b5997e4b72..02272f93a89e 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> @@ -12,6 +12,7 @@
+>>   *   (at your option) any later version.
+>>   */
+>>
+>> +#include <linux/bpf.h>
+>>  #include <linux/capability.h>
+>>  #include <linux/dcache.h>
+>>  #include <linux/module.h>
+>> @@ -1708,3 +1709,30 @@ int security_audit_rule_match(u32 secid, u32
+>> field, u32 op, void *lsmrule,
+>>                               actx);
+>>  }
+>>  #endif /* CONFIG_AUDIT */
+>> +
+>> +#ifdef CONFIG_BPF_SYSCALL
+>> +int security_map_create(void)
+>> +{
+>> +     return call_int_hook(bpf_map_create, 0);
+>> +}
+>> +
+>> +int security_map_modify(struct bpf_map *map)
+>> +{
+>> +     return call_int_hook(bpf_map_modify, 0, map);
+>> +}
+>> +
+>> +int security_map_read(struct bpf_map *map)
+>> +{
+>> +     return call_int_hook(bpf_map_read, 0, map);
+>> +}
+>> +
+>> +int security_prog_load(void)
+>> +{
+>> +     return call_int_hook(bpf_prog_load, 0);
+>> +}
+>> +
+>> +int security_post_create(struct bpf_map *map)
+>> +{
+>> +     return call_int_hook(bpf_post_create, 0, map);
+>> +}
+>> +#endif /* CONFIG_BPF_SYSCALL */
