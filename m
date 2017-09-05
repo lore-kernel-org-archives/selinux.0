@@ -1,45 +1,80 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v83CLxhn026271
- for <selinux@tycho.nsa.gov>; Sun, 3 Sep 2017 08:21:59 -0400
-Received: from localhost.localdomain (abo-140-56-69.avi.modulonet.fr
- [85.69.56.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 5E0395646D2
- for <selinux@tycho.nsa.gov>; Sun,  3 Sep 2017 14:20:05 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Date: Sun,  3 Sep 2017 14:19:26 +0200
-Message-Id: <20170903121928.24024-4-nicolas.iooss@m4x.org>
-In-Reply-To: <20170903121928.24024-1-nicolas.iooss@m4x.org>
-References: <20170903121928.24024-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 4/6] libsepol/cil: drop wrong unused attribute
+MIME-Version: 1.0
+In-Reply-To: <20170901020520.uifv6b7tvelgxumf@ast-mbp>
+References: <20170831205635.80256-1-chenbofeng.kernel@gmail.com>
+ <20170831205635.80256-3-chenbofeng.kernel@gmail.com>
+ <20170901020520.uifv6b7tvelgxumf@ast-mbp>
+From: Chenbo Feng <fengc@google.com>
+Date: Tue, 5 Sep 2017 14:59:38 -0700
+Message-ID: <CAMOXUJnF=UoWM7xm-Uk-zyhA1N9exjtDf8Xt+_EF2Kj6YUV0OQ@mail.gmail.com>
+To: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc: Chenbo Feng <chenbofeng.kernel@gmail.com>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ linux-security-module@vger.kernel.org,
+ Jeffrey Vander Stoep <jeffv@google.com>, netdev@vger.kernel.org,
+ SELinux <Selinux@tycho.nsa.gov>, Lorenzo Colitti <lorenzo@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 2/3] security: bpf: Add eBPF LSM hooks and
+ security field to eBPF map
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-cil_gen_node() has been using its argument "db" since commit
-fafe4c212bf6 ("libsepol: cil: Add ability to redeclare
-types[attributes]"). Drop attribute "unused" on this argument.
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/cil/src/cil_build_ast.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index 9fc8ab87dec2..e84336bfbe73 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -104,7 +104,7 @@ int cil_is_datum_multiple_decl(__attribute__((unused)) struct cil_symtab_datum *
- 	return rc;
- }
- 
--int cil_gen_node(__attribute__((unused)) struct cil_db *db, struct cil_tree_node *ast_node, struct cil_symtab_datum *datum, hashtab_key_t key, enum cil_sym_index sflavor, enum cil_flavor nflavor)
-+int cil_gen_node(struct cil_db *db, struct cil_tree_node *ast_node, struct cil_symtab_datum *datum, hashtab_key_t key, enum cil_sym_index sflavor, enum cil_flavor nflavor)
- {
- 	int rc = SEPOL_ERR;
- 	symtab_t *symtab = NULL;
--- 
-2.14.1
+On Thu, Aug 31, 2017 at 7:05 PM, Alexei Starovoitov
+<alexei.starovoitov@gmail.com> wrote:
+> On Thu, Aug 31, 2017 at 01:56:34PM -0700, Chenbo Feng wrote:
+>> From: Chenbo Feng <fengc@google.com>
+>>
+>> Introduce a pointer into struct bpf_map to hold the security information
+>> about the map. The actual security struct varies based on the security
+>> models implemented. Place the LSM hooks before each of the unrestricted
+>> eBPF operations, the map_update_elem and map_delete_elem operations are
+>> checked by security_map_modify. The map_lookup_elem and map_get_next_key
+>> operations are checked by securtiy_map_read.
+>>
+>> Signed-off-by: Chenbo Feng <fengc@google.com>
+>
+> ...
+>
+>> @@ -410,6 +418,10 @@ static int map_lookup_elem(union bpf_attr *attr)
+>>       if (IS_ERR(map))
+>>               return PTR_ERR(map);
+>>
+>> +     err = security_map_read(map);
+>> +     if (err)
+>> +             return -EACCES;
+>> +
+>>       key = memdup_user(ukey, map->key_size);
+>>       if (IS_ERR(key)) {
+>>               err = PTR_ERR(key);
+>> @@ -490,6 +502,10 @@ static int map_update_elem(union bpf_attr *attr)
+>>       if (IS_ERR(map))
+>>               return PTR_ERR(map);
+>>
+>> +     err = security_map_modify(map);
+>
+> I don't feel these extra hooks are really thought through.
+> With such hook you'll disallow map_update for given map. That's it.
+> The key/values etc won't be used in such security decision.
+> In such case you don't need such hooks in update/lookup at all.
+> Only in map_creation and object_get calls where FD can be received.
+> In other words I suggest to follow standard unix practices:
+> Do permissions checks in open() and allow read/write() if FD is valid.
+> Same here. Do permission checks in prog_load/map_create/obj_pin/get
+> and that will be enough to jail bpf subsystem.
+> bpf cmds that need to be fast (like lookup and update) should not
+> have security hooks.
+>
+Thanks for pointing out this. I agree we should only do checks on
+creating and passing
+the object from one processes to another. And if we can still
+distinguish the read/write operation
+when obtaining the file fd, that would be great. But that may require
+us to add a new mode
+field into bpf_map struct and change the attribute struct when doing
+the bpf syscall. How do you
+think about this approach? Or we can do simple checks for
+bpf_obj_create and bpf_obj_use when
+creating the object and passing the object respectively but this
+solution cannot distinguish map modify and
+read.
