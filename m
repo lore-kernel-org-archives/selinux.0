@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v87DhraR016812
- for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2017 09:43:53 -0400
-Received: by mail-wm0-f41.google.com with SMTP id r10so4032588wmf.1
- for <selinux@tycho.nsa.gov>; Thu, 07 Sep 2017 06:35:42 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v87DoUHI019808
+ for <selinux@tycho.nsa.gov>; Thu, 7 Sep 2017 09:50:30 -0400
+Received: by mail-wm0-f46.google.com with SMTP id r10so4301960wmf.1
+ for <selinux@tycho.nsa.gov>; Thu, 07 Sep 2017 06:50:08 -0700 (PDT)
 Received: from julius.enp8s0.d30 ([217.19.26.10])
- by smtp.gmail.com with ESMTPSA id o12sm2487002edc.39.2017.09.07.06.35.38
+ by smtp.gmail.com with ESMTPSA id p14sm2465611edj.21.2017.09.07.06.50.03
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Thu, 07 Sep 2017 06:35:38 -0700 (PDT)
-Date: Thu, 7 Sep 2017 15:35:36 +0200
+ Thu, 07 Sep 2017 06:50:03 -0700 (PDT)
+Date: Thu, 7 Sep 2017 15:50:02 +0200
 From: Dominick Grift <dac.override@gmail.com>
 To: selinux@tycho.nsa.gov
-Message-ID: <20170907133536.GE1813@julius.enp8s0.d30>
+Message-ID: <20170907135002.GF1813@julius.enp8s0.d30>
 References: <20170907090534.GA1813@julius.enp8s0.d30>
  <1504788923.22845.10.camel@tycho.nsa.gov>
  <20170907132242.GC1813@julius.enp8s0.d30>
  <20170907133047.GD1813@julius.enp8s0.d30>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="7LkOrbQMr4cezO2T"
+ protocol="application/pgp-signature"; boundary="+jhVVhN62yS6hEJ8"
 In-Reply-To: <20170907133047.GD1813@julius.enp8s0.d30>
 Subject: Re: pam_selinux and systemd
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -27,7 +27,7 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 
---7LkOrbQMr4cezO2T
+--+jhVVhN62yS6hEJ8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
@@ -100,9 +100,6 @@ ing pam_selinux)
 > > > Failed to get shell PTY: Access denied
 > >=20
 > > Probably SELinux blocking then?
-
-Actually, It probably the absence of polkit that is causing this
-
 > >=20
 > > $ id -Z
 > > wheel.id:wheel.role:wheel.subj:s0
@@ -148,6 +145,15 @@ cess without polkit:
 >=20
 > Yes i would be able to do this by just not allowing the systemd --user in=
 stances to execute a shell
+
+So that will be my short term solution. Eventually I would like to figure o=
+ut a way to make this work though.
+
+That would require, i suspect, that pam_selinux be modified somehow so that=
+ systemd --system spawns -bin/sh (ex. sysadm.id:sysadm.role:sysadm.subj:s0)=
+ with a different context than when it spawns /usr/lib/systemd --user (ex. =
+sysadm.id:sysadm.role:sysadm_system.subj:s0)
+
 >=20
 > >=20
 > > >=20
@@ -177,22 +183,22 @@ Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
 https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
 Dominick Grift
 
---7LkOrbQMr4cezO2T
+--+jhVVhN62yS6hEJ8
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlmxSyQACgkQJXSOVTf5
-R2mDyQwAkGp0t7qs+vFGV3ORnDKFARQk++lkYLnvcYe4MSOmDxHXndSIHUInD4Pa
-fUk8vnhYA4RC2xshuVGZ9mK3loJsz0crUdiBBZv2i8kni6ZUTZ1v6rGaNpJl+yON
-RHcIcR+RtZT4rD/ZIaDUTSi9T04Vk72PuDMLLCyBvxUpcIg86XqVnEXLLWARBVED
-TCpF0E6G464AmRX3v1FQZW2FMUoLFt0VQ7kqp3P5CYQPSjKkRItqowrJhpHlmvUv
-rkMWEB3Dkmf7LB07/hn8antGLOC0Qvlx2ecQ6gtYaqN59hcjEvfro63G4jR4hxki
-oBC386vq1/En255hGtLBakor9i9mZfGuYyZ9Agvb+j4bzNg9LD64oPJqtUS3xw8N
-0714cVNNsbbCPcnCdui3+ZS3jldFODc24whcIc3VSj6fZ0HpE+snyp2nQaf8eicF
-LOA9cCowZiehPaetRowoDlIHFehSQIrAS7c5en+0dRrGiBo82HyOjU9cfMZVofPy
-PWnwynCT
-=4XdU
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlmxToUACgkQJXSOVTf5
+R2lbXwv8CcfEiEmgKQuOQItKtUKgGuk3o5n7USusu71pllnA2+mZoPvTJS4ksHnR
+up1bEOE7d36bU6MMk4UaSexaR9EXadg1gJ0NRDrqLZVcPBM/QeZ5kyQvGdow+OSb
+2wzvdAXtHwY9pSyNF1OkiFII1CYWXgxw4cWrR5sIwFUp10kyO7ejM1YQ79GjtbTC
+oraC99hOrgdDMXLTsi5Xxq1Asioa2M790MU9ufGe5oz6vg37FuzdfI6ukPahLEwl
+mBiHfegi5c5nTgFYnXcfqzdS5t63lWuxUSImgPKb+dC3hfDYgIT9P0cIiy2xjnAS
+pAAXZrC/pe5dQusWiCZXZGG2y47m4JrjirrIGMiIE4a65psLQmsXbxm8HHUVTAMR
+iDjUJj9lmnAz7XgEyowhvzRyEg6KIQgTL2gyPP+D4rPP5n4FE42QXR9ltdBpo+XO
+XpazKjyIUssJk1v5zQYZnhNnqURT0mYAWFkYSUZLMgicw+jpTrrtmwb0L1PmExCD
+bMOOGsTW
+=tMfM
 -----END PGP SIGNATURE-----
 
---7LkOrbQMr4cezO2T--
+--+jhVVhN62yS6hEJ8--
