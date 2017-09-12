@@ -1,109 +1,74 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8CHwWTB020952
- for <selinux@tycho.nsa.gov>; Tue, 12 Sep 2017 13:58:33 -0400
-Received: by mail-lf0-f67.google.com with SMTP id l196so5677313lfl.3
- for <selinux@tycho.nsa.gov>; Tue, 12 Sep 2017 10:35:01 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8CJEH5Q027639
+ for <selinux@tycho.nsa.gov>; Tue, 12 Sep 2017 15:14:19 -0400
+Received: by mail-lf0-f67.google.com with SMTP id q132so5742386lfe.4
+ for <selinux@tycho.nsa.gov>; Tue, 12 Sep 2017 11:55:40 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <20170912173659.GB5111@julius.enp8s0.d30>
+References: <20170912133835.GA5111@julius.enp8s0.d30>
+ <CAB9W1A0yYAg3UzwPMo6RVUZEdHDNr3BhjKb=vhvJ4GcmyEA+mw@mail.gmail.com>
+ <20170912173659.GB5111@julius.enp8s0.d30>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 12 Sep 2017 13:33:54 -0400
-Message-ID: <CAHC9VhQr8R-=Sgqb7biFkz3G_dAAQG-PRMGe+Lp7SvoHKM=v+w@mail.gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: James Morris <jmorris@namei.org>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Tue, 12 Sep 2017 14:55:38 -0400
+Message-ID: <CAHC9VhSg02C_xd1HnRPkgGvD8WxPQWj3K5+6MpHnZvhHT0vDRA@mail.gmail.com>
+To: selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Subject: [GIT PULL] SELinux patches for v4.14
+Subject: Re: with extended_socket_class should be still be seeing
+ "socket"?
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-As discussed on the linux-security pull request thread, this is the
-direct SELinux pull request; the content/tag is the same as what I
-sent to James/linux-security earlier:
+On Tue, Sep 12, 2017 at 1:36 PM, Dominick Grift <dac.override@gmail.com> wrote:
+> On Tue, Sep 12, 2017 at 12:01:35PM -0400, Stephen Smalley wrote:
+>> On Sep 12, 2017 7:01 AM, "Dominick Grift" <dac.override@gmail.com> wrote:
+>>
+>> I have extended socket class polcap enabled but i am still seeing "socket"
+>> class events and i was wondering whether that is to be expected?
+>>
+>> avc:  denied  { create } for  pid=10484 comm="nethogs" scontext=wheel.id:
+>> sysadm.role:nethogs.subj:s0 tcontext=wheel.id:sysadm.role:nethogs.subj:s0
+>> tclass=socket permissive=0
+>>
+>> This seems to be common to processes that also create (and map! [1])
+>> "packet_socket" sockets (tcpdump/nethogs)
+>>
+>> [1] avc:  denied  { map } for  pid=10525 comm="nethogs"
+>> path="socket:[56040]" dev="sockfs" ino=56040
+>> scontext=wheel.id:sysadm.role:nethogs.subj:s0
+>> tcontext=wheel.id:sysadm.role:nethogs.subj:s0 tclass=packet_socket
+>> permissive=0
+>>
+>>
+>> No, that is not expected. Can you enable sys call audit and get those
+>> records?
+>
+> type=PROCTITLE msg=audit(09/12/2017 19:35:54.063:4458) : proctitle=nethogs enp8s0
+> type=SYSCALL msg=audit(09/12/2017 19:35:54.063:4458) : arch=x86_64 syscall=socket success=yes exit=5 a0=local a1=SOCK_RAW a2=ip a3=0xb4 items=0 ppid=3251 pid=8963 auid=kcinimod uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=pts5 ses=1 comm=nethogs exe=/usr/sbin/nethogs subj=wheel.id:sysadm.role:nethogs.subj:s0 key=(null)
+> type=AVC msg=audit(09/12/2017 19:35:54.063:4458) : avc:  denied  { create } for  pid=8963 comm=nethogs scontext=wheel.id:sysadm.role:nethogs.subj:s0 tcontext=wheel.id:sysadm.role:nethogs.subj:s0 tclass=socket permissive=1
 
-"A relatively quiet period for SELinux, 11 patches with only two/three
- having any substantive changes.  These noteworthy changes include
- another tweak to the NNP/nosuid handling, per-file labeling for
- cgroups, and an object class fix for AF_UNIX/SOCK_RAW sockets; the
- rest of the changes are minor tweaks or administrative updates
- (Stephen's email update explains the file explosion in the diffstat).
- Everything passes the selinux-testsuite and merged cleanly on top of
- the linux-security/next branch from earlier today."
+Ah ha, AF_UNIX/SOCK_RAW, that's the problem.  Luis Ressel fixed this
+(see the commit below) and it should make it up to Linus during the
+current merge window (eventually, maybe, hopefully).
 
----
-The following changes since commit 31368ce83c59a5422ee621a38aeea98142d0ecf7:
+If you run Fedora Rawhide, you can try one of recent kernel builds in
+the COPR repo below, it should have the fix.
 
- tomoyo: Update URLs in Documentation/admin-guide/LSM/tomoyo.rst
-  (2017-07-25 11:00:26 +1000)
+*  https://copr.fedorainfracloud.org/coprs/pcmoore/kernel-secnext
 
-are available in the git repository at:
+  commit 2a764b529ae57bed61da2c90ff132b9fec97f80b
+  Author: Luis Ressel <aranea@aixah.de>
+  Date:   Tue Jul 25 15:13:41 2017 -0400
 
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-  tags/selinux-pr-20170831
+   selinux: Assign proper class to PF_UNIX/SOCK_RAW sockets
 
-for you to fetch changes up to 0c3014f22dec0e1d14c8298551bfb6434638bdd9:
+   For PF_UNIX, SOCK_RAW is synonymous with SOCK_DGRAM (cf.
+   net/unix/af_unix.c). This is a tad obscure, but libpcap uses it.
 
- selinux: constify nf_hook_ops (2017-08-28 17:33:19 -0400)
-
-----------------------------------------------------------------
-selinux/stable-4.14 PR 20170831
-
-----------------------------------------------------------------
-Antonio Murdaca (1):
-     selinux: allow per-file labeling for cgroupfs
-
-Arvind Yadav (1):
-     selinux: constify nf_hook_ops
-
-Luis Ressel (1):
-     selinux: Assign proper class to PF_UNIX/SOCK_RAW sockets
-
-Michal Hocko (1):
-     selinux: use GFP_NOWAIT in the AVC kmem_caches
-
-Paul Moore (3):
-     credits: update Paul Moore's info
-     selinux: update the selinux info in MAINTAINERS
-     MAINTAINERS: update the NetLabel and Labeled Networking information
-
-Stephen Smalley (4):
-     selinux: genheaders should fail if too many permissions are defined
-     selinux: Generalize support for NNP/nosuid SELinux domain transitions
-     selinux: update my email address
-     lsm_audit: update my email address
-
-CREDITS                                 |  8 ++---
-MAINTAINERS                             | 29 ++++++++++-------
-include/linux/lsm_audit.h               |  2 +-
-scripts/selinux/genheaders/genheaders.c |  7 ++++-
-security/lsm_audit.c                    |  2 +-
-security/selinux/avc.c                  | 16 +++++-----
-security/selinux/hooks.c                | 56 ++++++++++++++++++++---------
-security/selinux/include/avc.h          |  2 +-
-security/selinux/include/avc_ss.h       |  2 +-
-security/selinux/include/classmap.h     |  2 ++
-security/selinux/include/objsec.h       |  2 +-
-security/selinux/include/security.h     |  4 ++-
-security/selinux/ss/avtab.c             |  2 +-
-security/selinux/ss/avtab.h             |  2 +-
-security/selinux/ss/constraint.h        |  2 +-
-security/selinux/ss/context.h           |  2 +-
-security/selinux/ss/ebitmap.c           |  2 +-
-security/selinux/ss/ebitmap.h           |  2 +-
-security/selinux/ss/hashtab.c           |  2 +-
-security/selinux/ss/hashtab.h           |  2 +-
-security/selinux/ss/mls.c               |  2 +-
-security/selinux/ss/mls.h               |  2 +-
-security/selinux/ss/mls_types.h         |  2 +-
-security/selinux/ss/policydb.c          |  2 +-
-security/selinux/ss/policydb.h          |  2 +-
-security/selinux/ss/services.c          |  9 ++++--
-security/selinux/ss/services.h          |  2 +-
-security/selinux/ss/sidtab.c            |  2 +-
-security/selinux/ss/sidtab.h            |  2 +-
-security/selinux/ss/symtab.c            |  2 +-
-security/selinux/ss/symtab.h            |  2 +-
-31 files changed, 106 insertions(+), 71 deletions(-)
+   Signed-off-by: Luis Ressel <aranea@aixah.de>
+   Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+   Signed-off-by: Paul Moore <paul@paul-moore.com>
 
 -- 
 paul moore
