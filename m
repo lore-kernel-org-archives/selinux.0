@@ -1,37 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8KG1PoO012972
- for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2017 12:01:27 -0400
-Received: by mail-lf0-f48.google.com with SMTP id u21so3155844lfk.12
- for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2017 09:01:07 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8KGI430019440
+ for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2017 12:18:06 -0400
+Received: by mail-lf0-f65.google.com with SMTP id q132so1624780lfe.4
+ for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2017 09:09:18 -0700 (PDT)
 MIME-Version: 1.0
+In-Reply-To: <CAHC9VhTfvOLw-v8ZbEhCkKn3FR9C5SzPS6kdz3w=fWxEGBAF1w@mail.gmail.com>
+References: <1504691419-26972-1-git-send-email-kyeongdon.kim@lge.com>
+ <CAHC9VhTfvOLw-v8ZbEhCkKn3FR9C5SzPS6kdz3w=fWxEGBAF1w@mail.gmail.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 20 Sep 2017 12:01:03 -0400
-Message-ID: <CAHC9VhRwuN15zRtKPF_sF=H9h7J4qzqFuB7okY-EAXOqaSzXeg@mail.gmail.com>
-To: selinux@tycho.nsa.gov
+Date: Wed, 20 Sep 2017 12:09:16 -0400
+Message-ID: <CAHC9VhSowi09zxj6bihnr3qLzt4MEsL3fY7y3Dcj50v8VNc0xg@mail.gmail.com>
+To: Kyeongdon Kim <kyeongdon.kim@lge.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
+ elfring@users.sourceforge.net, danielj@mellanox.com,
+ junil0814.lee@lge.com, mka@chromium.org, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Subject: FYI: selinux/next rebase to v4.14-rc1
+Subject: Re: [PATCH] selinux: Use kmem_cache for hashtab_node
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-If you've been following the SELinux and LSM mailing lists over the
-past couple of weeks you know that there has been a shift in how the
-SELinux kernel tree feeds into Linus' tree: we are now sending pull
-request directly to Linus.  As part of this change I'm now going to be
-basing the selinux/next branch on Linus' tree instead of the
-linux-security/next; other than this change the process should be
-pretty much the same.
+On Thu, Sep 7, 2017 at 7:18 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Sep 6, 2017 at 5:50 AM, Kyeongdon Kim <kyeongdon.kim@lge.com> wrote:
+>> During random test as own device to check slub account,
+>> we found some slack memory from hashtab_node(kmalloc-64).
+>> By using kzalloc(), middle of test result like below:
+>> allocated size 240768
+>> request size 45144
+>> slack size 195624
+>> allocation count 3762
+>>
+>> So, we want to use kmem_cache_zalloc() and that
+>> can reduce memory size 52byte(slack size/alloc count) per each struct.
+>>
+>> Signed-off-by: Kyeongdon Kim <kyeongdon.kim@lge.com>
+>> ---
+>>  security/selinux/ss/hashtab.c  | 17 +++++++++++++++--
+>>  security/selinux/ss/hashtab.h  |  4 ++++
+>>  security/selinux/ss/services.c |  4 ++++
+>>  3 files changed, 23 insertions(+), 2 deletions(-)
+>
+> This seems reasonale, but I'm going to refrain from merging this until
+> after the merge window closes.
 
-The only immediate effect you may notice is that selinux/next is now
-currently based on v4.14-rc1.  This is a side-effect of the
-changeover, future rebases will aim to be based on major releases when
-possible.
-
-I've updated my blog post from earlier in the year for those who may
-not be familiar on the process:
-
-* http://www.paul-moore.com/blog/d/2017/07/kernel-repo-process.html
+I just merged this into selinux/next, thanks for your patience.
 
 -- 
 paul moore
