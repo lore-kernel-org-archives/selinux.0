@@ -1,59 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8KFKciK021244
- for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2017 11:20:39 -0400
-Received: by mail-it0-f49.google.com with SMTP id o200so2996608itg.0
- for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2017 06:19:45 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8L4DTT9007234
+ for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2017 00:13:29 -0400
+Received: by mail-yw0-f193.google.com with SMTP id v72so2336579ywa.1
+ for <selinux@tycho.nsa.gov>; Wed, 20 Sep 2017 21:13:26 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1505913308.31597.1.camel@tycho.nsa.gov>
-References: <CABk5Pj+nDC3i+6wLadq3g6jc6CKXzA28KcPcfj89G9j09YwM3Q@mail.gmail.com>
- <1505913308.31597.1.camel@tycho.nsa.gov>
-From: masoom alam <masoom.alam@wanclouds.net>
-Date: Wed, 20 Sep 2017 18:19:42 +0500
-Message-ID: <CABk5Pj+nRanarOuu++s9Ei+1BXiTYWmDawFT_JiKbDtwAzUogw@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary="94eb2c088be23c934305599ed451"
-Subject: Re: Shepherd - A mandatory Access Controller (Selinux) for
- VMs/Containers
+Sender: masoom.alam@imsciences.edu.pk
+From: masoom alam <masoom.alam@gmail.com>
+Date: Thu, 21 Sep 2017 09:13:23 +0500
+Message-ID: <CAPihp9nPSh1mnnAsZ3aHL3KqBq80RQKLjq8N_AF29iNn3UKj+A@mail.gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary="94eb2c0b8f383ba8270559ab504e"
+Subject: A casestudy where selinux has stopped malware attacks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---94eb2c088be23c934305599ed451
+--94eb2c0b8f383ba8270559ab504e
 Content-Type: text/plain; charset="UTF-8"
 
-Hi Stephen
+Hi every one,
 
-It was merely for getting comments.... Not advertisement.
+Do we have some thing like the mentioned subject documented?
 
-Thanks
+Thank you.
 
-On Sep 20, 2017 6:10 PM, "Stephen Smalley" <sds@tycho.nsa.gov> wrote:
 
-> Hi,
->
-> The selinux mailing list is for developer discussions regarding
-> SELinux.  Advertisements for commercial products are not acceptable on
-> the list.  Please refrain from doing so again.  Thanks.
->
+*----*
+*Dr. Masoom Alam,*
+Associate Professor,
+Department of Computer Science,
+COMSATS Institute of Information Technology,
+Park Road, Islamabad
+Off +92-51-9049-5391
+Cell +92-332-9298-404
 
---94eb2c088be23c934305599ed451
+--94eb2c0b8f383ba8270559ab504e
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"auto">Hi Stephen<div dir=3D"auto"><br></div><div dir=3D"auto">I=
-t was merely for getting comments.... Not advertisement.</div><div dir=3D"a=
-uto"><br></div><div dir=3D"auto">Thanks</div></div><div class=3D"gmail_extr=
-a"><br><div class=3D"gmail_quote">On Sep 20, 2017 6:10 PM, &quot;Stephen Sm=
-alley&quot; &lt;<a href=3D"mailto:sds@tycho.nsa.gov">sds@tycho.nsa.gov</a>&=
-gt; wrote:<br type=3D"attribution"><blockquote class=3D"gmail_quote" style=
-=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Hi,<br>
-<br>
-The selinux mailing list is for developer discussions regarding<br>
-SELinux.=C2=A0 Advertisements for commercial products are not acceptable on=
-<br>
-the list.=C2=A0 Please refrain from doing so again.=C2=A0 Thanks.<br>
-</blockquote></div></div>
+<div dir=3D"ltr">Hi every one,=C2=A0<div><br></div><div>Do we have some thi=
+ng like the mentioned subject documented?</div><div><br></div><div>Thank yo=
+u.=C2=A0</div><div><br></div><div><br clear=3D"all"><div><div class=3D"gmai=
+l_signature" data-smartmail=3D"gmail_signature"><div dir=3D"ltr"><div><div =
+dir=3D"ltr"><font color=3D"#666666" style=3D"font-size:12.8px"><b>----</b><=
+/font></div><div dir=3D"ltr"><font color=3D"#666666" style=3D"font-size:12.=
+8px"><b>Dr. Masoom Alam,</b><br></font><div style=3D"font-size:12.8px"><div=
+ style=3D"font-size:12.8px"><span style=3D"color:rgb(102,102,102);font-size=
+:small">Associate Professor,</span><span style=3D"color:rgb(102,102,102)"><=
+br></span></div><div><font color=3D"#666666" size=3D"2">Department of Compu=
+ter Science,</font></div><div style=3D"font-size:12.8px"><span style=3D"col=
+or:rgb(102,102,102)">COMSATS Institute of Information Technology,</span></d=
+iv><div style=3D"font-size:12.8px"><span style=3D"color:rgb(102,102,102)">P=
+ark Road, Islamabad</span></div><div style=3D"font-size:12.8px"><font color=
+=3D"#666666">Off +92-51-9049-5391</font></div></div><div style=3D"font-size=
+:12.8px"><font color=3D"#666666">Cell +92-332-9298-404</font></div></div></=
+div></div></div></div>
+</div></div>
 
---94eb2c088be23c934305599ed451--
+--94eb2c0b8f383ba8270559ab504e--
