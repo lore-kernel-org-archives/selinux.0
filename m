@@ -1,62 +1,83 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8LFCGNv016260
- for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2017 11:12:17 -0400
-Received: by mail-wr0-f170.google.com with SMTP id l39so4745358wrl.12
- for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2017 07:39:10 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8LF91oL014024
+ for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2017 11:09:02 -0400
+Received: by mail-yw0-f176.google.com with SMTP id v72so4187968ywa.3
+ for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2017 07:31:31 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAPihp9nPSh1mnnAsZ3aHL3KqBq80RQKLjq8N_AF29iNn3UKj+A@mail.gmail.com>
+Sender: masoom.alam@imsciences.edu.pk
+In-Reply-To: <59C3CC27.7010102@quarksecurity.com>
 References: <CAPihp9nPSh1mnnAsZ3aHL3KqBq80RQKLjq8N_AF29iNn3UKj+A@mail.gmail.com>
-From: Nick Kralevich <nnk@google.com>
-Date: Thu, 21 Sep 2017 07:38:05 -0700
-Message-ID: <CAFJ0LnG7MR=ahh-tmdA=g0DonuUSkB9V7bHnqXbXeJs++-MMPQ@mail.gmail.com>
-To: masoom alam <masoom.alam@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+ <59C3CC27.7010102@quarksecurity.com>
+From: masoom alam <masoom.alam@gmail.com>
+Date: Thu, 21 Sep 2017 19:31:26 +0500
+Message-ID: <CAPihp9=4MJC15jyWhGA+k-6mrPrRireCjCZF0OJE+uV67RGb9w@mail.gmail.com>
+To: Joshua Brindle <brindle@quarksecurity.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary="001a114e51949d57870559b3f2ca"
 Subject: Re: A casestudy where selinux has stopped malware attacks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Android has tried to document pretty extensively how the reduction of
-attack surface provided by SELinux has resulted in a significant
-percentage of bugs being unreachable.
+--001a114e51949d57870559b3f2ca
+Content-Type: text/plain; charset="UTF-8"
 
-See, for example
-https://www.blackhat.com/docs/us-17/thursday/us-17-Kralevich-Honey-I-Shrunk-The-Attack-Surface-Adventures-In-Android-Security-Hardening.pdf
-slide 52, where 44% of our security bulletin class bugs are reduced in
-severity because of SELinux attack surface management.
-
-However, SELinux's primary goal isn't attack surface management
-(although it's very good at it). It's primary purpose is containment
-and being able to reason about the state of the system assuming a
-compromise of any component. If SELinux stops a malware author, that
-malware author will simply choose to not publish their non-working
-code. Most people, including malware authors, will only celebrate
-their successes, but won't publicize their failures. Measurements in
-this area are hard.
-
--- Nick
+Many thanks.
 
 
-On Wed, Sep 20, 2017 at 9:13 PM, masoom alam <masoom.alam@gmail.com> wrote:
-> Hi every one,
+
+On Sep 21, 2017 7:26 PM, "Joshua Brindle" <brindle@quarksecurity.com> wrote:
+
+> masoom alam wrote:
 >
-> Do we have some thing like the mentioned subject documented?
+>> Hi every one,
+>>
+>> Do we have some thing like the mentioned subject documented?
+>>
+>> Thank you.
+>>
+>>
+> Probably one of the better catalogued set of malware stopped by SELinux,
+> which shows various ways SELinux mitigated the attacks, is The Case For
+> SEAndroid from Stephen Smalley:
 >
-> Thank you.
+> https://selinuxproject.org/~jmorris/lss2011_slides/caseforseandroid.pdf
 >
 >
-> ----
-> Dr. Masoom Alam,
-> Associate Professor,
-> Department of Computer Science,
-> COMSATS Institute of Information Technology,
-> Park Road, Islamabad
-> Off +92-51-9049-5391
-> Cell +92-332-9298-404
+>
+>
 
+--001a114e51949d57870559b3f2ca
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+<div dir=3D"auto">Many thanks.<div dir=3D"auto"><br></div><div dir=3D"auto"=
+><br></div></div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">=
+On Sep 21, 2017 7:26 PM, &quot;Joshua Brindle&quot; &lt;<a href=3D"mailto:b=
+rindle@quarksecurity.com">brindle@quarksecurity.com</a>&gt; wrote:<br type=
+=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8=
+ex;border-left:1px #ccc solid;padding-left:1ex">masoom alam wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex">
+Hi every one,<br>
+<br>
+Do we have some thing like the mentioned subject documented?<br>
+<br>
+Thank you.<br>
+<br>
+</blockquote>
+<br>
+Probably one of the better catalogued set of malware stopped by SELinux, wh=
+ich shows various ways SELinux mitigated the attacks, is The Case For SEAnd=
+roid from Stephen Smalley:<br>
+<br>
+<a href=3D"https://selinuxproject.org/~jmorris/lss2011_slides/caseforseandr=
+oid.pdf" rel=3D"noreferrer" target=3D"_blank">https://selinuxproject.org/~j=
+m<wbr>orris/lss2011_slides/caseforse<wbr>android.pdf</a><br>
+<br>
+<br>
+<br>
+</blockquote></div></div>
 
--- 
-Nick Kralevich | Android Security | nnk@google.com | 650.214.4037
+--001a114e51949d57870559b3f2ca--
