@@ -1,83 +1,111 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8LF91oL014024
- for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2017 11:09:02 -0400
-Received: by mail-yw0-f176.google.com with SMTP id v72so4187968ywa.3
- for <selinux@tycho.nsa.gov>; Thu, 21 Sep 2017 07:31:31 -0700 (PDT)
-MIME-Version: 1.0
-Sender: masoom.alam@imsciences.edu.pk
-In-Reply-To: <59C3CC27.7010102@quarksecurity.com>
-References: <CAPihp9nPSh1mnnAsZ3aHL3KqBq80RQKLjq8N_AF29iNn3UKj+A@mail.gmail.com>
- <59C3CC27.7010102@quarksecurity.com>
-From: masoom alam <masoom.alam@gmail.com>
-Date: Thu, 21 Sep 2017 19:31:26 +0500
-Message-ID: <CAPihp9=4MJC15jyWhGA+k-6mrPrRireCjCZF0OJE+uV67RGb9w@mail.gmail.com>
-To: Joshua Brindle <brindle@quarksecurity.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary="001a114e51949d57870559b3f2ca"
-Subject: Re: A casestudy where selinux has stopped malware attacks
+Message-ID: <1506025105.12380.9.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Thu, 21 Sep 2017 16:18:25 -0400
+In-Reply-To: <20170919204916.2943-1-nicolas.iooss@m4x.org>
+References: <20170919204916.2943-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH v2 1/1] sepolicy: do not fail when file_contexts.local
+ or .subs do not exist
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a114e51949d57870559b3f2ca
-Content-Type: text/plain; charset="UTF-8"
+On Tue, 2017-09-19 at 22:49 +0200, Nicolas Iooss wrote:
+> On a system without any file context customizations, "sepolicy gui"
+> fails to load because it tries to read a non-existing file:
+> 
+>     FileNotFoundError: [Errno 2] No such file or directory:
+>     '/etc/selinux/refpolicy-git/contexts/files/file_contexts.local'
+> 
+> Once this issue is fixed, another one is triggered:
+> 
+>     FileNotFoundError: [Errno 2] No such file or directory:
+>     '/etc/selinux/refpolicy-git/contexts/files/file_contexts.subs
+> 
+> Use try/except to catch these exceptions and use OSError/errno.ENOENT
+> to
+> keep the code compatible with Python 2.
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Many thanks.
+Thanks, applied.
 
-
-
-On Sep 21, 2017 7:26 PM, "Joshua Brindle" <brindle@quarksecurity.com> wrote:
-
-> masoom alam wrote:
->
->> Hi every one,
->>
->> Do we have some thing like the mentioned subject documented?
->>
->> Thank you.
->>
->>
-> Probably one of the better catalogued set of malware stopped by SELinux,
-> which shows various ways SELinux mitigated the attacks, is The Case For
-> SEAndroid from Stephen Smalley:
->
-> https://selinuxproject.org/~jmorris/lss2011_slides/caseforseandroid.pdf
->
->
->
->
-
---001a114e51949d57870559b3f2ca
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"auto">Many thanks.<div dir=3D"auto"><br></div><div dir=3D"auto"=
-><br></div></div><div class=3D"gmail_extra"><br><div class=3D"gmail_quote">=
-On Sep 21, 2017 7:26 PM, &quot;Joshua Brindle&quot; &lt;<a href=3D"mailto:b=
-rindle@quarksecurity.com">brindle@quarksecurity.com</a>&gt; wrote:<br type=
-=3D"attribution"><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8=
-ex;border-left:1px #ccc solid;padding-left:1ex">masoom alam wrote:<br>
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">
-Hi every one,<br>
-<br>
-Do we have some thing like the mentioned subject documented?<br>
-<br>
-Thank you.<br>
-<br>
-</blockquote>
-<br>
-Probably one of the better catalogued set of malware stopped by SELinux, wh=
-ich shows various ways SELinux mitigated the attacks, is The Case For SEAnd=
-roid from Stephen Smalley:<br>
-<br>
-<a href=3D"https://selinuxproject.org/~jmorris/lss2011_slides/caseforseandr=
-oid.pdf" rel=3D"noreferrer" target=3D"_blank">https://selinuxproject.org/~j=
-m<wbr>orris/lss2011_slides/caseforse<wbr>android.pdf</a><br>
-<br>
-<br>
-<br>
-</blockquote></div></div>
-
---001a114e51949d57870559b3f2ca--
+> ---
+>  python/sepolicy/sepolicy/__init__.py | 36 +++++++++++++++++++++++---
+> ----------
+>  1 file changed, 23 insertions(+), 13 deletions(-)
+> 
+> diff --git a/python/sepolicy/sepolicy/__init__.py
+> b/python/sepolicy/sepolicy/__init__.py
+> index 03742346caf0..d41fc6ae1543 100644
+> --- a/python/sepolicy/sepolicy/__init__.py
+> +++ b/python/sepolicy/sepolicy/__init__.py
+> @@ -4,6 +4,7 @@
+>  # Author: Ryan Hallisey <rhallise@redhat.com>
+>  # Author: Jason Zaman <perfinion@gentoo.org>
+>  
+> +import errno
+>  import selinux
+>  import setools
+>  import glob
+> @@ -523,12 +524,15 @@ def find_entrypoint_path(exe, exclude_list=[]):
+>  
+>  
+>  def read_file_equiv(edict, fc_path, modify):
+> -    fd = open(fc_path, "r")
+> -    fc = fd.readlines()
+> -    fd.close()
+> -    for e in fc:
+> -        f = e.split()
+> -        edict[f[0]] = {"equiv": f[1], "modify": modify}
+> +    try:
+> +        with open(fc_path, "r") as fd:
+> +            fc = fd.readlines()
+> +            for e in fc:
+> +                f = e.split()
+> +                edict[f[0]] = {"equiv": f[1], "modify": modify}
+> +    except OSError as e:
+> +        if e.errno != errno.ENOENT:
+> +            raise
+>      return edict
+>  
+>  
+> @@ -555,9 +559,13 @@ def
+> get_local_file_paths(fc_path=selinux.selinux_file_context_path()):
+>      if local_files:
+>          return local_files
+>      local_files = []
+> -    fd = open(fc_path + ".local", "r")
+> -    fc = fd.readlines()
+> -    fd.close()
+> +    try:
+> +        with open(fc_path + ".local", "r") as fd:
+> +            fc = fd.readlines()
+> +    except OSError as e:
+> +        if e.errno != errno.ENOENT:
+> +            raise
+> +        return []
+>      for i in fc:
+>          rec = i.split()
+>          if len(rec) == 0:
+> @@ -585,10 +593,12 @@ def
+> get_fcdict(fc_path=selinux.selinux_file_context_path()):
+>      fc += fd.readlines()
+>      fd.close()
+>      fcdict = {}
+> -    if os.path.exists(fc_path + ".local"):
+> -        fd = open(fc_path + ".local", "r")
+> -        fc += fd.readlines()
+> -        fd.close()
+> +    try:
+> +        with open(fc_path + ".local", "r") as fd:
+> +            fc += fd.readlines()
+> +    except OSError as e:
+> +        if e.errno != errno.ENOENT:
+> +            raise
+>  
+>      for i in fc:
+>          rec = i.split()
