@@ -1,106 +1,175 @@
-Message-ID: <1506359288.5963.12.camel@tycho.nsa.gov>
+Message-ID: <1506359405.5963.14.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-Date: Mon, 25 Sep 2017 13:08:08 -0400
-In-Reply-To: <20170923134553.2098-1-nicolas.iooss@m4x.org>
-References: <20170923134553.2098-1-nicolas.iooss@m4x.org>
+Date: Mon, 25 Sep 2017 13:10:05 -0400
+In-Reply-To: <20170924170456.5531-2-nicolas.iooss@m4x.org>
+References: <20170924170456.5531-1-nicolas.iooss@m4x.org>
+ <20170924170456.5531-2-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [PATCH 1/1] Travis-CI: fix configuration after September's update
+Subject: Re: [PATCH 2/2] sepolicy: support non-MLS policy in gui
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, 2017-09-23 at 15:45 +0200, Nicolas Iooss wrote:
-> The latest update to Travis-CI build environment splitted sugilite
-> environment into amethyst and garnet and deprecated sugilite. As
-> garnet
-> provides tools for languages C and Python, and as it is automatically
-> selected according to
-> https://travis-ci.org/fishilico/selinux/jobs/278927391 , remove
-> "group:
-> sugilite" from Travis-CI configuration file.
-> 
-> This update introduced two issues:
-> 
-> - Ruby 2.1 is no longer provided. As it has reached End Of Life
->   according to https://www.ruby-lang.org/en/downloads/, remove it
-> from
->   the tested versions
-> 
-> - Python 3.3, 3.4 and 3.5 are no longer installed by default. When
->   Travis-CI builds Python projects using these versions, it
->   automatically download and extract an archive from
->   https://s3.amazonaws.com/travis-python-archives/binaries/ubuntu/14.
-> 04/x86_64/.
->   Implement this process in .travis.yml directly (because Travis-CI
-> does
->   not support multi-language projects which use several versions of C
->   compilers and Python and Ruby interpreters).
-> 
-> Last but not least, it is now possible to build with PyPy3. Enable
-> this
-> interpreter in the build environment matrix.
-> 
-> More information about the Travis-CI update is available at
-> https://docs.travis-ci.com/user/build-environment-updates/2017-09-06/
+On Sun, 2017-09-24 at 19:04 +0200, Nicolas Iooss wrote:
+> Several "sepolic gui" tabs raise exceptions when using a policy
+> without
+> MLS because some dictionaries describing users and logins lack level
+> and
+> range properties. Use conditions and get() where appropriate in order
+> to make "sepolicy gui" usable again with a non-MLS policy.
 > 
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Thanks, applied.
+Thanks, applied both.
 
 > ---
->  .travis.yml | 14 ++++++++++----
->  1 file changed, 10 insertions(+), 4 deletions(-)
+>  python/sepolicy/sepolicy/__init__.py |  5 +++--
+>  python/sepolicy/sepolicy/gui.py      | 31 +++++++++++++++++++-------
+> -----
+>  2 files changed, 22 insertions(+), 14 deletions(-)
 > 
-> diff --git a/.travis.yml b/.travis.yml
-> index 1b761496dd12..e21b4d2198e5 100644
-> --- a/.travis.yml
-> +++ b/.travis.yml
-> @@ -21,11 +21,10 @@ env:
->      - PYVER=python3.3 RUBYLIBVER=2.4
->      - PYVER=python3.4 RUBYLIBVER=2.4
->      - PYVER=python3.5 RUBYLIBVER=2.4
-> -    - PYVER=pypy2 RUBYLIBVER=2.4
-> -    #- PYVER=pypy3 RUBYLIBVER=2.3 # PyPy3 5.5.0 provides the Python2
-> form of some structures, which makes it incompatible with SWIG
-> +    - PYVER=pypy RUBYLIBVER=2.4
-> +    - PYVER=pypy3 RUBYLIBVER=2.4
+> diff --git a/python/sepolicy/sepolicy/__init__.py
+> b/python/sepolicy/sepolicy/__init__.py
+> index bf2494a813c8..89346aba0b15 100644
+> --- a/python/sepolicy/sepolicy/__init__.py
+> +++ b/python/sepolicy/sepolicy/__init__.py
+> @@ -879,8 +879,9 @@ def get_selinux_users():
+>      global selinux_user_list
+>      if not selinux_user_list:
+>          selinux_user_list = list(info(USER))
+> -        for x in selinux_user_list:
+> -            x['range'] = "".join(x['range'].split(" "))
+> +        if _pol.mls:
+> +            for x in selinux_user_list:
+> +                x['range'] = "".join(x['range'].split(" "))
+>      return selinux_user_list
 >  
->      # Test several Ruby versions
-> -    - PYVER=python3.6 RUBYLIBVER=2.1
->      - PYVER=python3.6 RUBYLIBVER=2.2
->      - PYVER=python3.6 RUBYLIBVER=2.3
 >  
-> @@ -39,7 +38,6 @@ matrix:
->  # Use Travis-CI Ubuntu 14.04 Trusty infrastructure, "full image"
-> variant
->  sudo: required
->  dist: trusty
-> -group: sugilite
+> diff --git a/python/sepolicy/sepolicy/gui.py
+> b/python/sepolicy/sepolicy/gui.py
+> index 007c94a71c08..6562aa850c98 100644
+> --- a/python/sepolicy/sepolicy/gui.py
+> +++ b/python/sepolicy/sepolicy/gui.py
+> @@ -907,8 +907,8 @@ class SELinuxGui():
+>              if "object_r" in roles:
+>                  roles.remove("object_r")
+>              self.user_liststore.set_value(iter, 1, ", ".join(roles))
+> -            self.user_liststore.set_value(iter, 2, u["level"])
+> -            self.user_liststore.set_value(iter, 3, u["range"])
+> +            self.user_liststore.set_value(iter, 2, u.get("level",
+> ""))
+> +            self.user_liststore.set_value(iter, 3, u.get("range",
+> ""))
+>              self.user_liststore.set_value(iter, 4, True)
+>          self.ready_mouse()
 >  
->  # Install SELinux userspace utilities dependencies
->  addons:
-> @@ -76,6 +74,14 @@ install:
->    # Make sepolgen tests work without really installing anything in
-> the real root (doing this would conflict with Ubuntu packages)
->    - sed -e "s,\"\(/usr/bin/[cs]\),\"$TRAVIS_BUILD_DIR/installdir\1,"
-> -i python/sepolgen/src/sepolgen/module.py
+> @@ -1755,14 +1755,14 @@ class SELinuxGui():
+>          if self.login_mls_entry.get_text() == "":
+>              for u in sepolicy.get_selinux_users():
+>                  if seuser == u['name']:
+> -                    self.login_mls_entry.set_text(u['range'])
+> +                    self.login_mls_entry.set_text(u.get('range',
+> ''))
 >  
-> +  # Download the required python version if it is not installed
-> +  - VIRTUAL_ENV="$HOME/virtualenv/$PYVER"
-> +  - if ! [ -d "$VIRTUAL_ENV" ] ; then
-> +        curl -o python.tar.bz2 "https://s3.amazonaws.com/travis-pyth
-> on-archives/binaries/ubuntu/14.04/x86_64/${PYVER/python/python-
-> }.tar.bz2" &&
-> +        sudo tar xjf python.tar.bz2 --directory / &&
-> +        rm python.tar.bz2 ;
-> +    fi
-> +
->  before_script:
->    # clang on Travis-CI 14.04 environment is too old to support
-> -Wdouble-promotion
->    - if "$CC" --version |grep -q clang; then sed 's/ -Wdouble-
-> promotion / /' -i libselinux/src/Makefile libselinux/utils/Makefile ;
-> fi
+>      def user_roles_combobox_change(self, combo, *args):
+>          serole = self.combo_get_active_text(combo)
+>          if self.user_mls_entry.get_text() == "":
+>              for u in sepolicy.get_all_roles():
+>                  if serole == u['name']:
+> -                    self.user_mls_entry.set_text(u['range'])
+> +                    self.user_mls_entry.set_text(u.get('range', ''))
+>  
+>      def get_selected_iter(self):
+>          iter = None
+> @@ -1973,7 +1973,10 @@ class SELinuxGui():
+>              self.cur_dict["user"][name] = {"action": "-m", "range":
+> mls_range, "level": level, "role": roles, "oldrange": oldrange,
+> "oldlevel": oldlevel, "oldroles": oldroles, "oldname": oldname}
+>          else:
+>              iter = self.liststore.append(None)
+> -            self.cur_dict["user"][name] = {"action": "-a", "range":
+> mls_range, "level": level, "role": roles}
+> +            if mls_range or level:
+> +                self.cur_dict["user"][name] = {"action": "-a",
+> "range": mls_range, "level": level, "role": roles}
+> +            else:
+> +                self.cur_dict["user"][name] = {"action": "-a",
+> "role": roles}
+>  
+>          self.liststore.set_value(iter, 0, name)
+>          self.liststore.set_value(iter, 1, roles)
+> @@ -2089,8 +2092,8 @@ class SELinuxGui():
+>              user_dict = self.cust_dict["user"]
+>              for user in user_dict:
+>                  roles = user_dict[user]["role"]
+> -                mls = user_dict[user]["range"]
+> -                level = user_dict[user]["level"]
+> +                mls = user_dict[user].get("range", "")
+> +                level = user_dict[user].get("level", "")
+>                  iter = self.user_delete_liststore.append()
+>                  self.user_delete_liststore.set_value(iter, 1, user)
+>                  self.user_delete_liststore.set_value(iter, 2, roles)
+> @@ -2104,7 +2107,7 @@ class SELinuxGui():
+>              login_dict = self.cust_dict["login"]
+>              for login in login_dict:
+>                  seuser = login_dict[login]["seuser"]
+> -                mls = login_dict[login]["range"]
+> +                mls = login_dict[login].get("range", "")
+>                  iter = self.login_delete_liststore.append()
+>                  self.login_delete_liststore.set_value(iter, 1,
+> seuser)
+>                  self.login_delete_liststore.set_value(iter, 2,
+> login)
+> @@ -2268,7 +2271,7 @@ class SELinuxGui():
+>              self.update_treestore.set_value(niter, 3, False)
+>              roles = self.cur_dict["user"][user]["role"]
+>              self.update_treestore.set_value(niter, 1, (_("Roles:
+> %s")) % roles)
+> -            mls = self.cur_dict["user"][user]["range"]
+> +            mls = self.cur_dict["user"][user].get("range", "")
+>              niter = self.update_treestore.append(iter)
+>              self.update_treestore.set_value(niter, 3, False)
+>              self.update_treestore.set_value(niter, 1, _("MLS/MCS
+> Range: %s") % mls)
+> @@ -2293,7 +2296,7 @@ class SELinuxGui():
+>              self.update_treestore.set_value(niter, 3, False)
+>              seuser = self.cur_dict["login"][login]["seuser"]
+>              self.update_treestore.set_value(niter, 1, (_("SELinux
+> User: %s")) % seuser)
+> -            mls = self.cur_dict["login"][login]["range"]
+> +            mls = self.cur_dict["login"][login].get("range", "")
+>              niter = self.update_treestore.append(iter)
+>              self.update_treestore.set_value(niter, 3, False)
+>              self.update_treestore.set_value(niter, 1, _("MLS/MCS
+> Range: %s") % mls)
+> @@ -2487,14 +2490,18 @@ class SELinuxGui():
+>                  for l in self.cur_dict[k]:
+>                      if self.cur_dict[k][l]["action"] == "-d":
+>                          update_buffer += "login -d %s\n" % l
+> -                    else:
+> +                    elif "range" in self.cur_dict[k][l]:
+>                          update_buffer += "login %s -s %s -r %s %s\n"
+> % (self.cur_dict[k][l]["action"], self.cur_dict[k][l]["seuser"],
+> self.cur_dict[k][l]["range"], l)
+> +                    else:
+> +                        update_buffer += "login %s -s %s %s\n" %
+> (self.cur_dict[k][l]["action"], self.cur_dict[k][l]["seuser"], l)
+>              if k in "user":
+>                  for u in self.cur_dict[k]:
+>                      if self.cur_dict[k][u]["action"] == "-d":
+>                          update_buffer += "user -d %s\n" % u
+> -                    else:
+> +                    elif "level" in self.cur_dict[k][u] and "range"
+> in self.cur_dict[k][u]:
+>                          update_buffer += "user %s -L %s -r %s -R %s
+> %s\n" % (self.cur_dict[k][u]["action"], self.cur_dict[k][u]["level"],
+> self.cur_dict[k][u]["range"], self.cur_dict[k][u]["role"], u)
+> +                    else:
+> +                        update_buffer += "user %s -R %s %s\n" %
+> (self.cur_dict[k][u]["action"], self.cur_dict[k][u]["role"], u)
+>  
+>              if k in "fcontext-equiv":
+>                  for f in self.cur_dict[k]:
