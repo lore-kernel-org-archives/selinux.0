@@ -1,60 +1,106 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v8OH8ElX023536
- for <selinux@tycho.nsa.gov>; Sun, 24 Sep 2017 13:08:14 -0400
-Received: from localhost.localdomain (abo-251-56-69.avi.modulonet.fr
- [85.69.56.251])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 3E7A5564806
- for <selinux@tycho.nsa.gov>; Sun, 24 Sep 2017 19:05:32 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Date: Sun, 24 Sep 2017 19:04:55 +0200
-Message-Id: <20170924170456.5531-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 1/2] sepolicy: ignore comments and empty lines in
- file_contexts.subs_dist
+Message-ID: <1506359288.5963.12.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+Date: Mon, 25 Sep 2017 13:08:08 -0400
+In-Reply-To: <20170923134553.2098-1-nicolas.iooss@m4x.org>
+References: <20170923134553.2098-1-nicolas.iooss@m4x.org>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH 1/1] Travis-CI: fix configuration after September's update
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In refpolicy, file_contexts.subs_dist begins with comments:
+On Sat, 2017-09-23 at 15:45 +0200, Nicolas Iooss wrote:
+> The latest update to Travis-CI build environment splitted sugilite
+> environment into amethyst and garnet and deprecated sugilite. As
+> garnet
+> provides tools for languages C and Python, and as it is automatically
+> selected according to
+> https://travis-ci.org/fishilico/selinux/jobs/278927391 , remove
+> "group:
+> sugilite" from Travis-CI configuration file.
+> 
+> This update introduced two issues:
+> 
+> - Ruby 2.1 is no longer provided. As it has reached End Of Life
+>   according to https://www.ruby-lang.org/en/downloads/, remove it
+> from
+>   the tested versions
+> 
+> - Python 3.3, 3.4 and 3.5 are no longer installed by default. When
+>   Travis-CI builds Python projects using these versions, it
+>   automatically download and extract an archive from
+>   https://s3.amazonaws.com/travis-python-archives/binaries/ubuntu/14.
+> 04/x86_64/.
+>   Implement this process in .travis.yml directly (because Travis-CI
+> does
+>   not support multi-language projects which use several versions of C
+>   compilers and Python and Ruby interpreters).
+> 
+> Last but not least, it is now possible to build with PyPy3. Enable
+> this
+> interpreter in the build environment matrix.
+> 
+> More information about the Travis-CI update is available at
+> https://docs.travis-ci.com/user/build-environment-updates/2017-09-06/
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-    # This file can is used to configure base path aliases as in:
-    #
-    # /aliased_path /original_path_as_configured_in_file_contexts
-    #
+Thanks, applied.
 
-The first line gets parsed in read_file_equiv even though it is not a
-valid path substitution and the second line triggers an exception when
-accessing f[1]:
-
-    IndexError: list index out of range
-
-Parse substitutions only for lines which are not comment.
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- python/sepolicy/sepolicy/__init__.py | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
-index d41fc6ae1543..bf2494a813c8 100644
---- a/python/sepolicy/sepolicy/__init__.py
-+++ b/python/sepolicy/sepolicy/__init__.py
-@@ -526,10 +526,10 @@ def find_entrypoint_path(exe, exclude_list=[]):
- def read_file_equiv(edict, fc_path, modify):
-     try:
-         with open(fc_path, "r") as fd:
--            fc = fd.readlines()
--            for e in fc:
-+            for e in fd:
-                 f = e.split()
--                edict[f[0]] = {"equiv": f[1], "modify": modify}
-+                if f and not f[0].startswith('#'):
-+                    edict[f[0]] = {"equiv": f[1], "modify": modify}
-     except OSError as e:
-         if e.errno != errno.ENOENT:
-             raise
--- 
-2.14.1
+> ---
+>  .travis.yml | 14 ++++++++++----
+>  1 file changed, 10 insertions(+), 4 deletions(-)
+> 
+> diff --git a/.travis.yml b/.travis.yml
+> index 1b761496dd12..e21b4d2198e5 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -21,11 +21,10 @@ env:
+>      - PYVER=python3.3 RUBYLIBVER=2.4
+>      - PYVER=python3.4 RUBYLIBVER=2.4
+>      - PYVER=python3.5 RUBYLIBVER=2.4
+> -    - PYVER=pypy2 RUBYLIBVER=2.4
+> -    #- PYVER=pypy3 RUBYLIBVER=2.3 # PyPy3 5.5.0 provides the Python2
+> form of some structures, which makes it incompatible with SWIG
+> +    - PYVER=pypy RUBYLIBVER=2.4
+> +    - PYVER=pypy3 RUBYLIBVER=2.4
+>  
+>      # Test several Ruby versions
+> -    - PYVER=python3.6 RUBYLIBVER=2.1
+>      - PYVER=python3.6 RUBYLIBVER=2.2
+>      - PYVER=python3.6 RUBYLIBVER=2.3
+>  
+> @@ -39,7 +38,6 @@ matrix:
+>  # Use Travis-CI Ubuntu 14.04 Trusty infrastructure, "full image"
+> variant
+>  sudo: required
+>  dist: trusty
+> -group: sugilite
+>  
+>  # Install SELinux userspace utilities dependencies
+>  addons:
+> @@ -76,6 +74,14 @@ install:
+>    # Make sepolgen tests work without really installing anything in
+> the real root (doing this would conflict with Ubuntu packages)
+>    - sed -e "s,\"\(/usr/bin/[cs]\),\"$TRAVIS_BUILD_DIR/installdir\1,"
+> -i python/sepolgen/src/sepolgen/module.py
+>  
+> +  # Download the required python version if it is not installed
+> +  - VIRTUAL_ENV="$HOME/virtualenv/$PYVER"
+> +  - if ! [ -d "$VIRTUAL_ENV" ] ; then
+> +        curl -o python.tar.bz2 "https://s3.amazonaws.com/travis-pyth
+> on-archives/binaries/ubuntu/14.04/x86_64/${PYVER/python/python-
+> }.tar.bz2" &&
+> +        sudo tar xjf python.tar.bz2 --directory / &&
+> +        rm python.tar.bz2 ;
+> +    fi
+> +
+>  before_script:
+>    # clang on Travis-CI 14.04 environment is too old to support
+> -Wdouble-promotion
+>    - if "$CC" --version |grep -q clang; then sed 's/ -Wdouble-
+> promotion / /' -i libselinux/src/Makefile libselinux/utils/Makefile ;
+> fi
