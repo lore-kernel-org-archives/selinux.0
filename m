@@ -1,180 +1,226 @@
-Message-ID: <1506536279.27095.13.camel@tycho.nsa.gov>
+Message-ID: <1506609472.7655.2.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-Date: Wed, 27 Sep 2017 14:17:59 -0400
-In-Reply-To: <1506534133.27095.9.camel@tycho.nsa.gov>
-References: <20170927081645.32481-1-vmojzis@redhat.com>
- <20170927081645.32481-2-vmojzis@redhat.com>
- <1506534133.27095.9.camel@tycho.nsa.gov>
+Date: Thu, 28 Sep 2017 10:37:52 -0400
+In-Reply-To: <20170626123835.8234-3-vmojzis@redhat.com>
+References: <1495202170.2209.3.camel@tycho.nsa.gov>
+ <20170626123835.8234-1-vmojzis@redhat.com>
+ <20170626123835.8234-3-vmojzis@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [PATCH 1/2] libsemanage: Add support for listing
- fcontext.homedirs file
+Subject: Re: [PATCH 3/3] libsemanage: replace access(, F_OK) checks to make
+ setuid programs work
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-09-27 at 13:42 -0400, Stephen Smalley wrote:
-> On Wed, 2017-09-27 at 10:16 +0200, Vit Mojzis wrote:
-> > Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1409813
-> > ---
-> >  libsemanage/include/semanage/fcontexts_policy.h |  4 ++++
-> >  libsemanage/src/direct_api.c                    |  6 ++++++
-> >  libsemanage/src/fcontexts_policy.c              |  8 ++++++++
-> >  libsemanage/src/handle.h                        | 19 +++++++++++++
-> > ------
-> >  4 files changed, 31 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/libsemanage/include/semanage/fcontexts_policy.h
-> > b/libsemanage/include/semanage/fcontexts_policy.h
-> > index a50db2b..199a1e1 100644
-> > --- a/libsemanage/include/semanage/fcontexts_policy.h
-> > +++ b/libsemanage/include/semanage/fcontexts_policy.h
-> > @@ -26,4 +26,8 @@ extern int
-> > semanage_fcontext_list(semanage_handle_t
-> > * handle,
-> >  				  semanage_fcontext_t *** records,
-> >  				  unsigned int *count);
-> >  
-> > +extern int semanage_fcontext_list_homedirs(semanage_handle_t *
-> > handle,
-> > +				  semanage_fcontext_t *** records,
-> > +				  unsigned int *count);
-> > +
-> >  #endif
-> > diff --git a/libsemanage/src/direct_api.c
-> > b/libsemanage/src/direct_api.c
-> > index 65842df..886a228 100644
-> > --- a/libsemanage/src/direct_api.c
-> > +++ b/libsemanage/src/direct_api.c
-> > @@ -210,6 +210,12 @@ int semanage_direct_connect(semanage_handle_t
-> > *
-> > sh)
-> >  				     semanage_fcontext_dbase_local
-> > (s
-> > h)) < 0)
-> >  		goto err;
-> >  
-> > +	if (fcontext_file_dbase_init(sh,
-> > +				     selinux_file_context_homedir_
-> > pa
-> > th(),
-> > +				     selinux_file_context_homedir_
-> > pa
-> > th(),
+On Mon, 2017-06-26 at 14:38 +0200, Vit Mojzis wrote:
+> access() uses real UID instead of effective UID which causes false
+> negative checks in setuid programs.
+> Replace access(,F_OK) (i.e. tests for file existence) by stat().
 > 
-> This will return the wrong results if one specifies a policy store
-> other than the active one to semodule (via -s) or semanage (via -S),
-> e.g. semanage fcontext -S mls -l.  You shouldn't be using the path of
-> the active, installed file_contexts.homedirs file but rather one from
-> the per-policy-store sandbox.  The libsemanage functions always act
-> on
-> the sandbox. Also, you shouldn't be passing the same path as the ro
-> and
-> rw paths here, as you don't want a dbase flush to suddenly overwrite
-> the installed file_contexts.homedirs file.
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
 > 
-> I guess the problem you currently have is we aren't keeping around a
-> copy of the generated file_contexts.homedirs in the sandbox; it is
-> only
-> created in the final tmp location and that entire directory tree is
-> deleted once we complete the transaction.  You'd need to regenerate
-> it
-> on demand or keep it around if you want to do this.
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-The easiest way to do this would likely be to add a
-SEMANAGE_STORE_FC_HOMEDIRS definition to semanage_sandbox_defs, add
-"/file_contexts.homedirs" to semanage_sandbox_paths[] at the
-corresponding index, and change semanage_genhomedircon() to set
-s.fcfilepath to semanage_path(SEMANAGE_TMP,
-SEMANAGE_STORE_FC_HOMEDIRS), and then semanage_copy_file() it to
-semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_HOMEDIRS).  Then
-you can call dbase_init on semanage_path(SEMANAGE_ACTIVE,
-SEMANAGE_STORE_FC_HOMEDIRS) as the ro path and
-semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS) as the rw path.
-Requires an extra copy of file_contexts.homedirs to stay around, but
-that's not significant.
+Did you decide to not pursue this further?  I didn't see any follow-up
+since my last set of comments in June.
 
+> ---
+>  libsemanage/src/direct_api.c | 50 +++++++++++++++++++++++++++++-----
+> ----------
+>  1 file changed, 33 insertions(+), 17 deletions(-)
 > 
-> > +				     semanage_fcontext_dbase_homed
-> > ir
-> > s(sh)) < 0)
-> > +		goto err;
-> > +
-> >  	if (seuser_file_dbase_init(sh,
-> >  				   semanage_path(SEMANAGE_ACTIVE,
-> >  						 SEMANAGE_SEUSERS_
-> > LO
-> > CAL),
-> > diff --git a/libsemanage/src/fcontexts_policy.c
-> > b/libsemanage/src/fcontexts_policy.c
-> > index 0b063b1..98490ab 100644
-> > --- a/libsemanage/src/fcontexts_policy.c
-> > +++ b/libsemanage/src/fcontexts_policy.c
-> > @@ -51,3 +51,11 @@ int semanage_fcontext_list(semanage_handle_t *
-> > handle,
-> >  	dbase_config_t *dconfig =
-> > semanage_fcontext_dbase_policy(handle);
-> >  	return dbase_list(handle, dconfig, records, count);
-> >  }
-> > +
-> > +int semanage_fcontext_list_homedirs(semanage_handle_t * handle,
-> > +			   semanage_fcontext_t *** records,
-> > unsigned
-> > int *count)
-> > +{
-> > +
-> > +	dbase_config_t *dconfig =
-> > semanage_fcontext_dbase_homedirs(handle);
-> > +	return dbase_list(handle, dconfig, records, count);
-> > +}
-> > diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
-> > index 889871d..1780ac8 100644
-> > --- a/libsemanage/src/handle.h
-> > +++ b/libsemanage/src/handle.h
-> > @@ -79,7 +79,7 @@ struct semanage_handle {
-> >  	struct semanage_policy_table *funcs;
-> >  
-> >  	/* Object databases */
-> > -#define DBASE_COUNT      23
-> > +#define DBASE_COUNT      24
-> >  
-> >  /* Local modifications */
-> >  #define DBASE_LOCAL_USERS_BASE  0
-> > @@ -102,13 +102,14 @@ struct semanage_handle {
-> >  #define DBASE_POLICY_INTERFACES  15
-> >  #define DBASE_POLICY_BOOLEANS    16
-> >  #define DBASE_POLICY_FCONTEXTS   17
-> > -#define DBASE_POLICY_SEUSERS     18
-> > -#define DBASE_POLICY_NODES       19
-> > -#define DBASE_POLICY_IBPKEYS     20
-> > -#define DBASE_POLICY_IBENDPORTS  21
-> > +#define DBASE_POLICY_FCONTEXTS_H 18
-> > +#define DBASE_POLICY_SEUSERS     19
-> > +#define DBASE_POLICY_NODES       20
-> > +#define DBASE_POLICY_IBPKEYS     21
-> > +#define DBASE_POLICY_IBENDPORTS  22
-> >  
-> >  /* Active kernel policy */
-> > -#define DBASE_ACTIVE_BOOLEANS    22
-> > +#define DBASE_ACTIVE_BOOLEANS    23
-> >  	dbase_config_t dbase[DBASE_COUNT];
-> >  };
-> >  
-> > @@ -236,6 +237,12 @@ static inline
-> >  }
-> >  
-> >  static inline
-> > +    dbase_config_t *
-> > semanage_fcontext_dbase_homedirs(semanage_handle_t * handle)
-> > +{
-> > +	return &handle->dbase[DBASE_POLICY_FCONTEXTS_H];
-> > +}
-> > +
-> > +static inline
-> >      dbase_config_t *
-> > semanage_seuser_dbase_policy(semanage_handle_t
-> > * handle)
-> >  {
-> >  	return &handle->dbase[DBASE_POLICY_SEUSERS];
+> diff --git a/libsemanage/src/direct_api.c
+> b/libsemanage/src/direct_api.c
+> index ed11a7c..3d1c354 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -296,10 +296,19 @@ int semanage_direct_connect(semanage_handle_t *
+> sh)
+>  
+>  	/* set the disable dontaudit value */
+>  	path = semanage_path(SEMANAGE_ACTIVE,
+> SEMANAGE_DISABLE_DONTAUDIT);
+> -	if (access(path, F_OK) == 0)
+> +
+> +	struct stat sb;
+> +	if (stat(path, &sb) == 0)
+>  		sepol_set_disable_dontaudit(sh->sepolh, 1);
+> -	else
+> -		sepol_set_disable_dontaudit(sh->sepolh, 0);
+> +	else{
+> +		if (errno == ENOENT){
+> +			sepol_set_disable_dontaudit(sh->sepolh, 0);
+> +		}
+> +		else{
+> +			ERR(sh, "Unable to access disable_dontaudit
+> file at %s: %s\n",path , strerror(errno));
+> +			goto err;
+> +		}
+> +	}
+>  
+>  	return STATUS_SUCCESS;
+>  
+> @@ -1114,6 +1123,7 @@ static int
+> semanage_compile_hll_modules(semanage_handle_t *sh,
+>  	int status = 0;
+>  	int i;
+>  	char cil_path[PATH_MAX];
+> +	struct stat sb;
+>  
+>  	assert(sh);
+>  	assert(modinfos);
+> @@ -1130,9 +1140,12 @@ static int
+> semanage_compile_hll_modules(semanage_handle_t *sh,
+>  		}
+>  
+>  		if (semanage_get_ignore_module_cache(sh) == 0 &&
+> -				access(cil_path, F_OK) == 0) {
+> +				(status = stat(cil_path, &sb)) == 0)
+> {
+>  			continue;
+>  		}
+> +		if (status != 0 && status != ENOENT) {
+> +			goto cleanup; //an error in the "stat" call
+> +		}
+>  
+>  		status = semanage_compile_module(sh, &modinfos[i]);
+>  		if (status < 0) {
+> @@ -1200,7 +1213,8 @@ static int
+> semanage_direct_commit(semanage_handle_t * sh)
+>  
+>  	/* Create or remove the disable_dontaudit flag file. */
+>  	path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_DISABLE_DONTAUDIT);
+> -	if (access(path, F_OK) == 0)
+> +	struct stat sb;
+> +	if (stat(path, &sb) == 0)
+>  		do_rebuild |= !(sepol_get_disable_dontaudit(sh-
+> >sepolh) == 1);
+>  	else
+>  		do_rebuild |= (sepol_get_disable_dontaudit(sh-
+> >sepolh) == 1);
+> @@ -1225,7 +1239,7 @@ static int
+> semanage_direct_commit(semanage_handle_t * sh)
+>  
+>  	/* Create or remove the preserve_tunables flag file. */
+>  	path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_PRESERVE_TUNABLES);
+> -	if (access(path, F_OK) == 0)
+> +	if (stat(path, &sb) == 0)
+>  		do_rebuild |= !(sepol_get_preserve_tunables(sh-
+> >sepolh) == 1);
+>  	else
+>  		do_rebuild |= (sepol_get_preserve_tunables(sh-
+> >sepolh) == 1);
+> @@ -1266,37 +1280,37 @@ static int
+> semanage_direct_commit(semanage_handle_t * sh)
+>  	 */
+>  	if (!do_rebuild) {
+>  		path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_STORE_KERNEL);
+> -		if (access(path, F_OK) != 0) {
+> +		if (stat(path, &sb) != 0) {
+>  			do_rebuild = 1;
+>  			goto rebuild;
+>  		}
+>  
+>  		path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_STORE_FC);
+> -		if (access(path, F_OK) != 0) {
+> +		if (stat(path, &sb) != 0) {
+>  			do_rebuild = 1;
+>  			goto rebuild;
+>  		}
+>  
+>  		path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_STORE_SEUSERS);
+> -		if (access(path, F_OK) != 0) {
+> +		if (stat(path, &sb) != 0) {
+>  			do_rebuild = 1;
+>  			goto rebuild;
+>  		}
+>  
+>  		path = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
+> -		if (access(path, F_OK) != 0) {
+> +		if (stat(path, &sb) != 0) {
+>  			do_rebuild = 1;
+>  			goto rebuild;
+>  		}
+>  
+>  		path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_SEUSERS_LINKED);
+> -		if (access(path, F_OK) != 0) {
+> +		if (stat(path, &sb) != 0) {
+>  			do_rebuild = 1;
+>  			goto rebuild;
+>  		}
+>  
+>  		path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_USERS_EXTRA_LINKED);
+> -		if (access(path, F_OK) != 0) {
+> +		if (stat(path, &sb) != 0) {
+>  			do_rebuild = 1;
+>  			goto rebuild;
+>  		}
+> @@ -1431,7 +1445,7 @@ rebuild:
+>  			goto cleanup;
+>  
+>  		path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_SEUSERS_LINKED);
+> -		if (access(path, F_OK) == 0) {
+> +		if (stat(path, &sb) == 0) {
+>  			retval = semanage_copy_file(path,
+>  						    semanage_path(SE
+> MANAGE_TMP,
+>  								  SE
+> MANAGE_STORE_SEUSERS),
+> @@ -1444,7 +1458,7 @@ rebuild:
+>  		}
+>  
+>  		path = semanage_path(SEMANAGE_TMP,
+> SEMANAGE_USERS_EXTRA_LINKED);
+> -		if (access(path, F_OK) == 0) {
+> +		if (stat(path, &sb) == 0) {
+>  			retval = semanage_copy_file(path,
+>  						    semanage_path(SE
+> MANAGE_TMP,
+>  								  SE
+> MANAGE_USERS_EXTRA),
+> @@ -1785,7 +1799,8 @@ static int
+> semanage_direct_extract(semanage_handle_t * sh,
+>  		goto cleanup;
+>  	}
+>  
+> -	if (access(module_path, F_OK) != 0) {
+> +	struct stat sb;
+> +	if (stat(module_path, &sb) != 0) {
+>  		ERR(sh, "Module does not exist: %s", module_path);
+>  		rc = -1;
+>  		goto cleanup;
+> @@ -1815,7 +1830,7 @@ static int
+> semanage_direct_extract(semanage_handle_t * sh,
+>  		goto cleanup;
+>  	}
+>  
+> -	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") &&
+> access(input_file, F_OK) != 0) {
+> +	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") &&
+> stat(input_file, &sb) != 0) {
+>  		rc = semanage_compile_module(sh, _modinfo);
+>  		if (rc < 0) {
+>  			goto cleanup;
+> @@ -2790,7 +2805,8 @@ static int
+> semanage_direct_install_info(semanage_handle_t *sh,
+>  			goto cleanup;
+>  		}
+>  
+> -		if (access(path, F_OK) == 0) {
+> +		struct stat sb;
+> +		if (stat(path, &sb) == 0) {
+>  			ret = unlink(path);
+>  			if (ret != 0) {
+>  				ERR(sh, "Error while removing cached
+> CIL file %s: %s", path, strerror(errno));
