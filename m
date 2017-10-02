@@ -1,392 +1,202 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: paul@paul-moore.com, jmorris@namei.org, Stephen Smalley <sds@tycho.nsa.gov>
-Date: Mon,  2 Oct 2017 11:58:23 -0400
-Message-Id: <20171002155825.28620-9-sds@tycho.nsa.gov>
+Date: Mon,  2 Oct 2017 11:58:24 -0400
+Message-Id: <20171002155825.28620-10-sds@tycho.nsa.gov>
 In-Reply-To: <20171002155825.28620-1-sds@tycho.nsa.gov>
 References: <20171002155825.28620-1-sds@tycho.nsa.gov>
-Subject: [RFC 08/10] selinux: support per-namespace superblock security
- structures
+Subject: [RFC 09/10] selinux: add a selinuxfs interface to unshare selinux
+ namespace
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Extend the superblock security structure to include a reference
-to the associated selinux namespace, and turn it into a list so
-that we can maintain per-superblock security state for each namespace.
-This is necessary because the superblock SIDs and labeling behavior
-are per selinux namespace.  It further enables one to context-mount
-a filesystem with a particular context in one namespace while using
-xattrs in another, e.g. one might context mount a container filesystem
-in the init selinux namespace to provide MCS-style isolation of the
-containers while using per-file xattrs within the container to support
-conventional SELinux targeted policy.
+Provide a userspace API to unshare the selinux namespace.
+Currently implemented via a selinuxfs node. This could be
+coupled with unsharing of other namespaces (e.g.  mount namespace,
+network namespace) that will always be needed or left independent.
+Don't get hung up on the interface itself, it is just to allow
+experimentation and testing.
 
-Introduce a superblock_security() helper to return the superblock
-security blob for the current selinux namespace and replace direct uses
-of sb->s_security with calls to it.
+Sample usage:
+echo 1 > /sys/fs/selinux/unshare
+unshare -m -n
+umount /sys/fs/selinux
+mount -t selinuxfs none /sys/fs/selinux
+load_policy
+getenforce
+id
+echo $$
 
-Also revert the changes made by
-commit a64c54cf0811b8032fdab8c9d52576f0370837fa ("SELinux: pass a
-superblock to security_fs_use") so that access to the superblock
-security structure is properly encapsulated and we can support
-per-namespace structures.
+The above will show that the process now views itself as running in the
+kernel domain in permissive mode, as would be the case at boot.
+>From a different shell on the host system, running ps -eZ or
+cat /proc/<pid>/attr/current will show that the process that
+unshared its selinux namespace is still running in its original
+context in the initial namespace, and getenforce will show the
+the initial namespace remains enforcing.  Enforcing mode or policy
+changes in the child will not affect the parent.
 
-This change has similar problems as with the inode security structure
-change, see the list of issues in that commit.
+This is not yet safe; do not use on production systems.
+Known issues include at least the following items:
+
+* The policy loading code has not been thoroughly audited
+and hardened for use by unprivileged code, both with respect to
+ensuring that the policy is internally consistent and restricting
+the range of values used from the policy as loop bounds and memory
+allocation sizes to sane limits.
+
+* The SELinux hook functions have not been modified to be
+namespace-aware, so the hooks only perform checking against the
+current namespace.  Thus, unsharing allows the process to escape
+confinement by the parent.  Fixing this requires updating each hook to
+perform its processing on the current namespace and all of its ancestors
+up to the init namespace.
+
+* Some of the hook functions can be called outside of process context
+(e.g. task_kill, send_sigiotask, network input/forward) and should not use
+the current task's selinux namespace. These hooks need to be updated to
+obtain the proper selinux namespace to use instead from the caller or
+cached in a suitable data structure (e.g. the file or sock security
+structures).
+
+* There are number of issues with the inode and superblock security blob
+handling for multiple namespaces, see those commits for more details.
+
+* Only a subset of object security blobs have been updated to
+be namespace-aware and support multiple namespaces.  The ones that
+have not yet been updated could end up performing permission checks or
+other operations on SIDs created in a different selinux namespace.
+
+* The network SID caches (netif, netnode, netport) have not yet
+been instantiated per selinux namespace, unlike the AVC and SS.
+
+* There is no way currently to restrict or bound nesting of
+namespaces; if you allow it to a domain in the init namespace,
+then that domain can in turn unshare to arbitrary depths and can
+grant the same to any domain in its own policy.  Related to this
+is the fact that there is no way to control resource usage due to
+selinux namespaces and they can be substantial (per-namespace
+policydb, sidtab, AVC, etc).
+
+* SIDs may be cached by audit and networking code and in external
+kernel data structures and used later, potentially in a different
+selinux namespace than the one in which the SID was originally created.
+
+* No doubt other things I'm forgetting or haven't thought of.
+Use at your own risk.
 
 Not-signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/hooks.c            | 109 ++++++++++++++++++++++++++++--------
- security/selinux/include/objsec.h   |   5 +-
- security/selinux/include/security.h |   3 +-
- security/selinux/ss/services.c      |  19 ++++---
- 4 files changed, 102 insertions(+), 34 deletions(-)
+ security/selinux/include/classmap.h |  3 +-
+ security/selinux/selinuxfs.c        | 66 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 68 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8a52e71..3daad14 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -478,33 +478,90 @@ static void file_free_security(struct file *file)
- 	kmem_cache_free(file_security_cache, fsec);
- }
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 35ffb29..82c8f9c 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -39,7 +39,8 @@ struct security_class_mapping secclass_map[] = {
+ 	  { "compute_av", "compute_create", "compute_member",
+ 	    "check_context", "load_policy", "compute_relabel",
+ 	    "compute_user", "setenforce", "setbool", "setsecparam",
+-	    "setcheckreqprot", "read_policy", "validate_trans", NULL } },
++	    "setcheckreqprot", "read_policy", "validate_trans", "unshare",
++	    NULL } },
+ 	{ "process",
+ 	  { "fork", "transition", "sigchld", "sigkill",
+ 	    "sigstop", "signull", "signal", "ptrace", "getsched", "setsched",
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index a7e6bdb..dedb3cc9 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -63,6 +63,7 @@ enum sel_inos {
+ 	SEL_STATUS,	/* export current status using mmap() */
+ 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
+ 	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
++	SEL_UNSHARE,	    /* unshare selinux namespace */
+ 	SEL_INO_NEXT,	/* The next inode number to use */
+ };
  
--static int superblock_alloc_security(struct super_block *sb)
-+static struct superblock_security_struct *sbsec_alloc(
-+	const struct super_block *sb)
- {
- 	struct superblock_security_struct *sbsec;
+@@ -321,6 +322,70 @@ static const struct file_operations sel_disable_ops = {
+ 	.llseek		= generic_file_llseek,
+ };
  
--	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_KERNEL);
-+	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_NOFS);
- 	if (!sbsec)
--		return -ENOMEM;
-+		return NULL;
- 
- 	mutex_init(&sbsec->lock);
- 	INIT_LIST_HEAD(&sbsec->isec_head);
- 	spin_lock_init(&sbsec->isec_lock);
--	sbsec->sb = sb;
- 	sbsec->sid = SECINITSID_UNLABELED;
- 	sbsec->def_sid = SECINITSID_FILE;
- 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
--	sb->s_security = sbsec;
-+	sbsec->sb = sb;
-+	sbsec->ns = get_selinux_ns(current_selinux_ns);
-+	INIT_LIST_HEAD(&sbsec->sbsec_list);
-+	return sbsec;
-+}
++static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
++				 size_t count, loff_t *ppos)
 +
-+static int superblock_alloc_security(struct super_block *sb)
 +{
-+	struct superblock_security_struct *sbsec = sbsec_alloc(sb);
++	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
++	struct selinux_ns *ns = fsi->ns;
++	char *page;
++	ssize_t length;
++	bool set;
++	int rc;
 +
-+	if (!sbsec)
++	if (count >= PAGE_SIZE)
 +		return -ENOMEM;
- 
-+	sb->s_security = sbsec;
- 	return 0;
- }
- 
- static void superblock_free_security(struct super_block *sb)
- {
--	struct superblock_security_struct *sbsec = sb->s_security;
-+	struct superblock_security_struct *sbsec = sb->s_security, *entry, *tmp;
- 	sb->s_security = NULL;
-+	put_selinux_ns(sbsec->ns);
-+	list_for_each_entry_safe(entry, tmp, &sbsec->sbsec_list, sbsec_list) {
-+		put_selinux_ns(entry->ns);
-+		kfree(entry);
-+	}
- 	kfree(sbsec);
- }
- 
-+static struct superblock_security_struct *superblock_security(
-+	const struct super_block *sb)
-+{
-+	struct superblock_security_struct *sbsec = sb->s_security;
-+	struct superblock_security_struct *cur, *new;
 +
-+	if (sbsec->ns == current_selinux_ns)
-+		return sbsec;
++	/* No partial writes. */
++	if (*ppos != 0)
++		return -EINVAL;
 +
-+	spin_lock(&sbsec->sbsec_list_lock);
++	rc = avc_has_perm(current_selinux_ns, current_sid(),
++			  SECINITSID_SECURITY, SECCLASS_SECURITY,
++			  SECURITY__UNSHARE, NULL);
++	if (rc)
++		return rc;
 +
-+	list_for_each_entry(cur, &sbsec->sbsec_list, sbsec_list) {
-+		if (cur->ns == current_selinux_ns)
-+			goto out;
-+	}
++	page = memdup_user_nul(buf, count);
++	if (IS_ERR(page))
++		return PTR_ERR(page);
 +
-+	spin_unlock(&sbsec->sbsec_list_lock);
-+
-+	new = sbsec_alloc(sb);
-+	if (!new) {
-+		cur = NULL;
++	length = -EINVAL;
++	if (kstrtobool(page, &set))
 +		goto out;
-+	}
 +
-+	spin_lock(&sbsec->sbsec_list_lock);
++	if (set) {
++		struct cred *cred = prepare_creds();
++		struct task_security_struct *tsec;
 +
-+	list_for_each_entry(cur, &sbsec->sbsec_list, sbsec_list) {
-+		if (cur->ns == current_selinux_ns) {
-+			kfree(new);
++		if (!cred) {
++			length = -ENOMEM;
 +			goto out;
 +		}
++		tsec = cred->security;
++		if (selinux_ns_create(ns, &tsec->ns)) {
++			abort_creds(cred);
++			length = -ENOMEM;
++			goto out;
++		}
++		tsec->osid = tsec->sid = SECINITSID_KERNEL;
++		tsec->exec_sid = tsec->create_sid = tsec->keycreate_sid =
++			tsec->sockcreate_sid = SECSID_NULL;
++		tsec->parent_cred = get_current_cred();
++		commit_creds(cred);
 +	}
 +
-+	list_add(&new->sbsec_list, &sbsec->sbsec_list);
-+	cur = new;
++	length = count;
 +out:
-+	spin_unlock(&sbsec->sbsec_list_lock);
-+	return cur;
++	kfree(page);
++	return length;
 +}
 +
- static inline int inode_doinit(struct inode *inode)
- {
- 	return inode_doinit_with_dentry(inode, NULL, find_isec(inode, true));
-@@ -572,7 +629,7 @@ static int may_context_mount_inode_relabel(u32 sid,
- 
- static int selinux_is_sblabel_mnt(struct super_block *sb)
- {
--	struct superblock_security_struct *sbsec = sb->s_security;
-+	struct superblock_security_struct *sbsec = superblock_security(sb);
- 
- 	return sbsec->behavior == SECURITY_FS_USE_XATTR ||
- 		sbsec->behavior == SECURITY_FS_USE_TRANS ||
-@@ -591,7 +648,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
- 
- static int sb_finish_set_opts(struct super_block *sb)
- {
--	struct superblock_security_struct *sbsec = sb->s_security;
-+	struct superblock_security_struct *sbsec = superblock_security(sb);
- 	struct dentry *root = sb->s_root;
- 	struct inode *root_inode = d_backing_inode(root);
- 	int rc = 0;
-@@ -675,7 +732,7 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
- 				struct security_mnt_opts *opts)
- {
- 	int rc = 0, i;
--	struct superblock_security_struct *sbsec = sb->s_security;
-+	struct superblock_security_struct *sbsec = superblock_security(sb);
- 	char *context = NULL;
- 	u32 len;
- 	char tmp;
-@@ -796,7 +853,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- {
- 	const struct cred *cred = current_cred();
- 	int rc = 0, i;
--	struct superblock_security_struct *sbsec = sb->s_security;
-+	struct superblock_security_struct *sbsec = superblock_security(sb);
- 	const char *name = sb->s_type->name;
- 	struct dentry *root = sbsec->sb->s_root;
- 	struct inode_security_struct *root_isec;
-@@ -932,7 +989,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- 		 * Determine the labeling behavior to use for this
- 		 * filesystem type.
- 		 */
--		rc = security_fs_use(current_selinux_ns, sb);
-+		rc = security_fs_use(current_selinux_ns, sb->s_type->name,
-+				     &sbsec->behavior, &sbsec->sid);
- 		if (rc) {
- 			printk(KERN_WARNING
- 				"%s: security_fs_use(%s) returned %d\n",
-@@ -1051,8 +1109,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
- static int selinux_cmp_sb_context(const struct super_block *oldsb,
- 				    const struct super_block *newsb)
- {
--	struct superblock_security_struct *old = oldsb->s_security;
--	struct superblock_security_struct *new = newsb->s_security;
-+	struct superblock_security_struct *old = superblock_security(oldsb);
-+	struct superblock_security_struct *new = superblock_security(newsb);
- 	char oldflags = old->flags & SE_MNTMASK;
- 	char newflags = new->flags & SE_MNTMASK;
- 
-@@ -1084,8 +1142,10 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
- 					unsigned long *set_kern_flags)
- {
- 	int rc = 0;
--	const struct superblock_security_struct *oldsbsec = oldsb->s_security;
--	struct superblock_security_struct *newsbsec = newsb->s_security;
-+	const struct superblock_security_struct *oldsbsec =
-+		superblock_security(oldsb);
-+	struct superblock_security_struct *newsbsec =
-+		superblock_security(newsb);
- 
- 	int set_fscontext =	(oldsbsec->flags & FSCONTEXT_MNT);
- 	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
-@@ -1122,7 +1182,8 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
- 
- 	if (newsbsec->behavior == SECURITY_FS_USE_NATIVE &&
- 		!(kern_flags & SECURITY_LSM_NATIVE_LABELS) && !set_context) {
--		rc = security_fs_use(current_selinux_ns, newsb);
-+		rc = security_fs_use(current_selinux_ns, newsb->s_type->name,
-+				     &newsbsec->behavior, &newsbsec->sid);
- 		if (rc)
- 			goto out;
- 	}
-@@ -1603,6 +1664,8 @@ static int inode_doinit_with_dentry(struct inode *inode,
- 	if (isec->initialized == LABEL_INITIALIZED)
- 		return 0;
- 
-+	sbsec = superblock_security(inode->i_sb);
++static const struct file_operations sel_unshare_ops = {
++	.write		= sel_write_unshare,
++	.llseek		= generic_file_llseek,
++};
 +
- 	spin_lock(&isec->lock);
- 	if (isec->initialized == LABEL_INITIALIZED)
- 		goto out_unlock;
-@@ -1610,7 +1673,6 @@ static int inode_doinit_with_dentry(struct inode *inode,
- 	if (isec->sclass == SECCLASS_FILE)
- 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 
--	sbsec = inode->i_sb->s_security;
- 	if (!current_selinux_ns->initialized ||
- 	    !(sbsec->flags & SE_SBINITIALIZED)) {
- 		/* Defer initialization until selinux_complete_init,
-@@ -1980,7 +2042,8 @@ selinux_determine_inode_label(const struct task_security_struct *tsec,
- 				 const struct qstr *name, u16 tclass,
- 				 u32 *_new_isid)
+ static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
+ 				   size_t count, loff_t *ppos)
  {
--	const struct superblock_security_struct *sbsec = dir->i_sb->s_security;
-+	const struct superblock_security_struct *sbsec =
-+		superblock_security(dir->i_sb);
- 
- 	if ((sbsec->flags & SE_SBINITIALIZED) &&
- 	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
-@@ -2011,7 +2074,7 @@ static int may_create(struct inode *dir,
- 	int rc;
- 
- 	dsec = inode_security(dir);
--	sbsec = dir->i_sb->s_security;
-+	sbsec = superblock_security(dir->i_sb);
- 
- 	sid = tsec->sid;
- 
-@@ -2160,7 +2223,7 @@ static int superblock_has_perm(const struct cred *cred,
- 	struct superblock_security_struct *sbsec;
- 	u32 sid = cred_sid(cred);
- 
--	sbsec = sb->s_security;
-+	sbsec = superblock_security(sb);
- 	return avc_has_perm(cred_selinux_ns(cred),
- 			    sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
- }
-@@ -2885,7 +2948,7 @@ static int selinux_sb_remount(struct super_block *sb, void *data)
- 	int rc, i, *flags;
- 	struct security_mnt_opts opts;
- 	char *secdata, **mount_options;
--	struct superblock_security_struct *sbsec = sb->s_security;
-+	struct superblock_security_struct *sbsec = superblock_security(sb);
- 
- 	if (!(sbsec->flags & SE_SBINITIALIZED))
- 		return 0;
-@@ -3079,7 +3142,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 	int rc;
- 	char *context;
- 
--	sbsec = dir->i_sb->s_security;
-+	sbsec = superblock_security(dir->i_sb);
- 
- 	sid = tsec->sid;
- 	newsid = tsec->create_sid;
-@@ -3332,7 +3395,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
- 	if (strcmp(name, XATTR_NAME_SELINUX))
- 		return selinux_inode_setotherxattr(dentry, name);
- 
--	sbsec = inode->i_sb->s_security;
-+	sbsec = superblock_security(inode->i_sb);
- 	if (!(sbsec->flags & SBLABEL_MNT))
- 		return -EOPNOTSUPP;
- 
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 04514ee..dba80d3 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -68,7 +68,7 @@ struct file_security_struct {
- };
- 
- struct superblock_security_struct {
--	struct super_block *sb;		/* back pointer to sb object */
-+	const struct super_block *sb;	/* back pointer to sb object */
- 	u32 sid;			/* SID of file system superblock */
- 	u32 def_sid;			/* default SID for labeling */
- 	u32 mntpoint_sid;		/* SECURITY_FS_USE_MNTPOINT context for files */
-@@ -77,6 +77,9 @@ struct superblock_security_struct {
- 	struct mutex lock;
- 	struct list_head isec_head;
- 	spinlock_t isec_lock;
-+	struct selinux_ns *ns;
-+	struct list_head sbsec_list;
-+	spinlock_t sbsec_list_lock;
- };
- 
- struct msg_security_struct {
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 005d65c..b80f9bd 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -324,7 +324,8 @@ int security_get_allow_unknown(struct selinux_ns *ns);
- #define SECURITY_FS_USE_NATIVE		7 /* use native label support */
- #define SECURITY_FS_USE_MAX		7 /* Highest SECURITY_FS_USE_XXX */
- 
--int security_fs_use(struct selinux_ns *ns, struct super_block *sb);
-+int security_fs_use(struct selinux_ns *ns,
-+		    const char *fstype, unsigned short *behavior, u32 *sid);
- 
- int security_genfs_sid(struct selinux_ns *ns,
- 		       const char *fstype, char *name, u16 sclass,
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index e1c3881..abc5383 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2770,16 +2770,17 @@ int security_genfs_sid(struct selinux_ns *ns,
- 
- /**
-  * security_fs_use - Determine how to handle labeling for a filesystem.
-- * @sb: superblock in question
-+ * @fstype: filesystem type
-+ * @behavior: labeling behavior
-+ * @sid: SID for filesystem (superblock)
-  */
--int security_fs_use(struct selinux_ns *ns, struct super_block *sb)
-+int security_fs_use(struct selinux_ns *ns, const char *fstype,
-+		    unsigned short *behavior, u32 *sid)
- {
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
- 	int rc = 0;
- 	struct ocontext *c;
--	struct superblock_security_struct *sbsec = sb->s_security;
--	const char *fstype = sb->s_type->name;
- 
- 	read_lock(&ns->ss->policy_rwlock);
- 
-@@ -2794,22 +2795,22 @@ int security_fs_use(struct selinux_ns *ns, struct super_block *sb)
- 	}
- 
- 	if (c) {
--		sbsec->behavior = c->v.behavior;
-+		*behavior = c->v.behavior;
- 		if (!c->sid[0]) {
- 			rc = sidtab_context_to_sid(sidtab, &c->context[0],
- 						   &c->sid[0]);
- 			if (rc)
- 				goto out;
- 		}
--		sbsec->sid = c->sid[0];
-+		*sid = c->sid[0];
- 	} else {
- 		rc = __security_genfs_sid(ns, fstype, "/", SECCLASS_DIR,
--					  &sbsec->sid);
-+					  sid);
- 		if (rc) {
--			sbsec->behavior = SECURITY_FS_USE_NONE;
-+			*behavior = SECURITY_FS_USE_NONE;
- 			rc = 0;
- 		} else {
--			sbsec->behavior = SECURITY_FS_USE_GENFS;
-+			*behavior = SECURITY_FS_USE_GENFS;
- 		}
- 	}
+@@ -1923,6 +1988,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+ 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
+ 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
+ 					S_IWUGO},
++		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0222},
+ 		/* last one */ {""}
+ 	};
  
 -- 
 2.9.5
