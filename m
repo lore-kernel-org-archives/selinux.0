@@ -1,202 +1,224 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: paul@paul-moore.com, jmorris@namei.org, Stephen Smalley <sds@tycho.nsa.gov>
-Date: Mon,  2 Oct 2017 11:58:24 -0400
-Message-Id: <20171002155825.28620-10-sds@tycho.nsa.gov>
+Date: Mon,  2 Oct 2017 11:58:21 -0400
+Message-Id: <20171002155825.28620-7-sds@tycho.nsa.gov>
 In-Reply-To: <20171002155825.28620-1-sds@tycho.nsa.gov>
 References: <20171002155825.28620-1-sds@tycho.nsa.gov>
-Subject: [RFC 09/10] selinux: add a selinuxfs interface to unshare selinux
- namespace
+Subject: [RFC 06/10] selinux: introduce cred_selinux_ns() and use it
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Provide a userspace API to unshare the selinux namespace.
-Currently implemented via a selinuxfs node. This could be
-coupled with unsharing of other namespaces (e.g.  mount namespace,
-network namespace) that will always be needed or left independent.
-Don't get hung up on the interface itself, it is just to allow
-experimentation and testing.
-
-Sample usage:
-echo 1 > /sys/fs/selinux/unshare
-unshare -m -n
-umount /sys/fs/selinux
-mount -t selinuxfs none /sys/fs/selinux
-load_policy
-getenforce
-id
-echo $$
-
-The above will show that the process now views itself as running in the
-kernel domain in permissive mode, as would be the case at boot.
->From a different shell on the host system, running ps -eZ or
-cat /proc/<pid>/attr/current will show that the process that
-unshared its selinux namespace is still running in its original
-context in the initial namespace, and getenforce will show the
-the initial namespace remains enforcing.  Enforcing mode or policy
-changes in the child will not affect the parent.
-
-This is not yet safe; do not use on production systems.
-Known issues include at least the following items:
-
-* The policy loading code has not been thoroughly audited
-and hardened for use by unprivileged code, both with respect to
-ensuring that the policy is internally consistent and restricting
-the range of values used from the policy as loop bounds and memory
-allocation sizes to sane limits.
-
-* The SELinux hook functions have not been modified to be
-namespace-aware, so the hooks only perform checking against the
-current namespace.  Thus, unsharing allows the process to escape
-confinement by the parent.  Fixing this requires updating each hook to
-perform its processing on the current namespace and all of its ancestors
-up to the init namespace.
-
-* Some of the hook functions can be called outside of process context
-(e.g. task_kill, send_sigiotask, network input/forward) and should not use
-the current task's selinux namespace. These hooks need to be updated to
-obtain the proper selinux namespace to use instead from the caller or
-cached in a suitable data structure (e.g. the file or sock security
-structures).
-
-* There are number of issues with the inode and superblock security blob
-handling for multiple namespaces, see those commits for more details.
-
-* Only a subset of object security blobs have been updated to
-be namespace-aware and support multiple namespaces.  The ones that
-have not yet been updated could end up performing permission checks or
-other operations on SIDs created in a different selinux namespace.
-
-* The network SID caches (netif, netnode, netport) have not yet
-been instantiated per selinux namespace, unlike the AVC and SS.
-
-* There is no way currently to restrict or bound nesting of
-namespaces; if you allow it to a domain in the init namespace,
-then that domain can in turn unshare to arbitrary depths and can
-grant the same to any domain in its own policy.  Related to this
-is the fact that there is no way to control resource usage due to
-selinux namespaces and they can be substantial (per-namespace
-policydb, sidtab, AVC, etc).
-
-* SIDs may be cached by audit and networking code and in external
-kernel data structures and used later, potentially in a different
-selinux namespace than the one in which the SID was originally created.
-
-* No doubt other things I'm forgetting or haven't thought of.
-Use at your own risk.
+When using the SID from a cred, we should pass the selinux
+namespace associated with the cred on security server calls
+rather than the current selinux namespace, since they could differ.
+In some of these cases, the cred is always obtained from the current
+task so there is no real change, but this is cleaner and hopefully
+less fragile. In other cases, the cred could in fact differ.
 
 Not-signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/include/classmap.h |  3 +-
- security/selinux/selinuxfs.c        | 66 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 68 insertions(+), 1 deletion(-)
+ security/selinux/hooks.c            | 42 ++++++++++++++++++-------------------
+ security/selinux/include/security.h |  2 ++
+ 2 files changed, 23 insertions(+), 21 deletions(-)
 
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 35ffb29..82c8f9c 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -39,7 +39,8 @@ struct security_class_mapping secclass_map[] = {
- 	  { "compute_av", "compute_create", "compute_member",
- 	    "check_context", "load_policy", "compute_relabel",
- 	    "compute_user", "setenforce", "setbool", "setsecparam",
--	    "setcheckreqprot", "read_policy", "validate_trans", NULL } },
-+	    "setcheckreqprot", "read_policy", "validate_trans", "unshare",
-+	    NULL } },
- 	{ "process",
- 	  { "fork", "transition", "sigchld", "sigkill",
- 	    "sigstop", "signull", "signal", "ptrace", "getsched", "setsched",
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index a7e6bdb..dedb3cc9 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -63,6 +63,7 @@ enum sel_inos {
- 	SEL_STATUS,	/* export current status using mmap() */
- 	SEL_POLICY,	/* allow userspace to read the in kernel policy */
- 	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
-+	SEL_UNSHARE,	    /* unshare selinux namespace */
- 	SEL_INO_NEXT,	/* The next inode number to use */
- };
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f9c1e2c..efe8083 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -483,13 +483,13 @@ static int may_context_mount_sb_relabel(u32 sid,
+ 	const struct task_security_struct *tsec = cred->security;
+ 	int rc;
  
-@@ -321,6 +322,70 @@ static const struct file_operations sel_disable_ops = {
- 	.llseek		= generic_file_llseek,
- };
+-	rc = avc_has_perm(current_selinux_ns,
++	rc = avc_has_perm(cred_selinux_ns(cred),
+ 			  tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELFROM, NULL);
+ 	if (rc)
+ 		return rc;
  
-+static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
-+				 size_t count, loff_t *ppos)
-+
-+{
-+	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
-+	struct selinux_ns *ns = fsi->ns;
-+	char *page;
-+	ssize_t length;
-+	bool set;
-+	int rc;
-+
-+	if (count >= PAGE_SIZE)
-+		return -ENOMEM;
-+
-+	/* No partial writes. */
-+	if (*ppos != 0)
-+		return -EINVAL;
-+
-+	rc = avc_has_perm(current_selinux_ns, current_sid(),
-+			  SECINITSID_SECURITY, SECCLASS_SECURITY,
-+			  SECURITY__UNSHARE, NULL);
-+	if (rc)
-+		return rc;
-+
-+	page = memdup_user_nul(buf, count);
-+	if (IS_ERR(page))
-+		return PTR_ERR(page);
-+
-+	length = -EINVAL;
-+	if (kstrtobool(page, &set))
-+		goto out;
-+
-+	if (set) {
-+		struct cred *cred = prepare_creds();
-+		struct task_security_struct *tsec;
-+
-+		if (!cred) {
-+			length = -ENOMEM;
-+			goto out;
-+		}
-+		tsec = cred->security;
-+		if (selinux_ns_create(ns, &tsec->ns)) {
-+			abort_creds(cred);
-+			length = -ENOMEM;
-+			goto out;
-+		}
-+		tsec->osid = tsec->sid = SECINITSID_KERNEL;
-+		tsec->exec_sid = tsec->create_sid = tsec->keycreate_sid =
-+			tsec->sockcreate_sid = SECSID_NULL;
-+		tsec->parent_cred = get_current_cred();
-+		commit_creds(cred);
-+	}
-+
-+	length = count;
-+out:
-+	kfree(page);
-+	return length;
-+}
-+
-+static const struct file_operations sel_unshare_ops = {
-+	.write		= sel_write_unshare,
-+	.llseek		= generic_file_llseek,
-+};
-+
- static ssize_t sel_read_policyvers(struct file *filp, char __user *buf,
- 				   size_t count, loff_t *ppos)
+-	rc = avc_has_perm(current_selinux_ns,
++	rc = avc_has_perm(cred_selinux_ns(cred),
+ 			  tsec->sid, sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELTO, NULL);
+ 	return rc;
+@@ -501,13 +501,13 @@ static int may_context_mount_inode_relabel(u32 sid,
  {
-@@ -1923,6 +1988,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
- 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
- 					S_IWUGO},
-+		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0222},
- 		/* last one */ {""}
- 	};
+ 	const struct task_security_struct *tsec = cred->security;
+ 	int rc;
+-	rc = avc_has_perm(current_selinux_ns,
++	rc = avc_has_perm(cred_selinux_ns(cred),
+ 			  tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__RELABELFROM, NULL);
+ 	if (rc)
+ 		return rc;
  
+-	rc = avc_has_perm(current_selinux_ns,
++	rc = avc_has_perm(cred_selinux_ns(cred),
+ 			  sid, sbsec->sid, SECCLASS_FILESYSTEM,
+ 			  FILESYSTEM__ASSOCIATE, NULL);
+ 	return rc;
+@@ -1793,10 +1793,10 @@ static int cred_has_capability(const struct cred *cred,
+ 		return -EINVAL;
+ 	}
+ 
+-	rc = avc_has_perm_noaudit(current_selinux_ns,
++	rc = avc_has_perm_noaudit(cred_selinux_ns(cred),
+ 				  sid, sid, sclass, av, 0, &avd);
+ 	if (audit == SECURITY_CAP_AUDIT) {
+-		int rc2 = avc_audit(current_selinux_ns,
++		int rc2 = avc_audit(cred_selinux_ns(cred),
+ 				    sid, sid, sclass, av, &avd, rc, &ad, 0);
+ 		if (rc2)
+ 			return rc2;
+@@ -1823,7 +1823,7 @@ static int inode_has_perm(const struct cred *cred,
+ 	sid = cred_sid(cred);
+ 	isec = inode->i_security;
+ 
+-	return avc_has_perm(current_selinux_ns,
++	return avc_has_perm(cred_selinux_ns(cred),
+ 			    sid, isec->sid, isec->sclass, perms, adp);
+ }
+ 
+@@ -1893,7 +1893,7 @@ static int file_has_perm(const struct cred *cred,
+ 	ad.u.file = file;
+ 
+ 	if (sid != fsec->sid) {
+-		rc = avc_has_perm(current_selinux_ns,
++		rc = avc_has_perm(cred_selinux_ns(cred),
+ 				  sid, fsec->sid,
+ 				  SECCLASS_FD,
+ 				  FD__USE,
+@@ -2101,7 +2101,7 @@ static int superblock_has_perm(const struct cred *cred,
+ 	u32 sid = cred_sid(cred);
+ 
+ 	sbsec = sb->s_security;
+-	return avc_has_perm(current_selinux_ns,
++	return avc_has_perm(cred_selinux_ns(cred),
+ 			    sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
+ }
+ 
+@@ -2282,7 +2282,7 @@ static int selinux_capset(struct cred *new, const struct cred *old,
+ 			  const kernel_cap_t *inheritable,
+ 			  const kernel_cap_t *permitted)
+ {
+-	return avc_has_perm(current_selinux_ns,
++	return avc_has_perm(cred_selinux_ns(old),
+ 			    cred_sid(old), cred_sid(new), SECCLASS_PROCESS,
+ 			    PROCESS__SETCAP, NULL);
+ }
+@@ -3122,7 +3122,7 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
+ 	if (IS_ERR(isec))
+ 		return PTR_ERR(isec);
+ 
+-	return avc_has_perm_flags(current_selinux_ns,
++	return avc_has_perm_flags(cred_selinux_ns(cred),
+ 				  sid, isec->sid, isec->sclass, FILE__READ, &ad,
+ 				  rcu ? MAY_NOT_BLOCK : 0);
+ }
+@@ -3178,7 +3178,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ 	if (IS_ERR(isec))
+ 		return PTR_ERR(isec);
+ 
+-	rc = avc_has_perm_noaudit(current_selinux_ns,
++	rc = avc_has_perm_noaudit(cred_selinux_ns(cred),
+ 				  sid, isec->sid, isec->sclass, perms, 0, &avd);
+ 	audited = avc_audit_required(perms, &avd, rc,
+ 				     from_access ? FILE__AUDIT_ACCESS : 0,
+@@ -3584,7 +3584,7 @@ static int ioctl_has_perm(const struct cred *cred, struct file *file,
+ 	ad.u.op->path = file->f_path;
+ 
+ 	if (ssid != fsec->sid) {
+-		rc = avc_has_perm(current_selinux_ns,
++		rc = avc_has_perm(cred_selinux_ns(cred),
+ 				  ssid, fsec->sid,
+ 				SECCLASS_FD,
+ 				FD__USE,
+@@ -3667,7 +3667,7 @@ static int file_map_prot_check(struct file *file, unsigned long prot, int shared
+ 		 * private file mapping that will also be writable.
+ 		 * This has an additional check.
+ 		 */
+-		rc = avc_has_perm(current_selinux_ns,
++		rc = avc_has_perm(cred_selinux_ns(cred),
+ 				  sid, sid, SECCLASS_PROCESS,
+ 				  PROCESS__EXECMEM, NULL);
+ 		if (rc)
+@@ -3743,14 +3743,14 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
+ 		int rc = 0;
+ 		if (vma->vm_start >= vma->vm_mm->start_brk &&
+ 		    vma->vm_end <= vma->vm_mm->brk) {
+-			rc = avc_has_perm(current_selinux_ns,
++			rc = avc_has_perm(cred_selinux_ns(cred),
+ 					  sid, sid, SECCLASS_PROCESS,
+ 					  PROCESS__EXECHEAP, NULL);
+ 		} else if (!vma->vm_file &&
+ 			   ((vma->vm_start <= vma->vm_mm->start_stack &&
+ 			     vma->vm_end >= vma->vm_mm->start_stack) ||
+ 			    vma_is_stack_for_current(vma))) {
+-			rc = avc_has_perm(current_selinux_ns,
++			rc = avc_has_perm(cred_selinux_ns(cred),
+ 					  sid, sid, SECCLASS_PROCESS,
+ 					  PROCESS__EXECSTACK, NULL);
+ 		} else if (vma->vm_file && vma->anon_vma) {
+@@ -3870,7 +3870,7 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
+ 	 * struct as its SID.
+ 	 */
+ 	fsec->isid = isec->sid;
+-	fsec->pseqno = avc_policy_seqno(current_selinux_ns);
++	fsec->pseqno = avc_policy_seqno(cred_selinux_ns(cred));
+ 	/*
+ 	 * Since the inode label or policy seqno may have changed
+ 	 * between the selinux_inode_permission check and the saving
+@@ -3973,7 +3973,7 @@ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+-	ret = avc_has_perm(current_selinux_ns,
++	ret = avc_has_perm(tsec->ns,
+ 			   sid, secid,
+ 			   SECCLASS_KERNEL_SERVICE,
+ 			   KERNEL_SERVICE__USE_AS_OVERRIDE,
+@@ -3998,7 +3998,7 @@ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+-	ret = avc_has_perm(current_selinux_ns,
++	ret = avc_has_perm(tsec->ns,
+ 			   sid, isec->sid,
+ 			   SECCLASS_KERNEL_SERVICE,
+ 			   KERNEL_SERVICE__CREATE_FILES_AS,
+@@ -4128,7 +4128,7 @@ int selinux_task_prlimit(const struct cred *cred, const struct cred *tcred,
+ 		av |= PROCESS__SETRLIMIT;
+ 	if (flags & LSM_PRLIMIT_READ)
+ 		av |= PROCESS__GETRLIMIT;
+-	return avc_has_perm(current_selinux_ns,
++	return avc_has_perm(cred_selinux_ns(cred),
+ 			    cred_sid(cred), cred_sid(tcred),
+ 			    SECCLASS_PROCESS, av, NULL);
+ }
+@@ -6371,7 +6371,7 @@ static int selinux_key_permission(key_ref_t key_ref,
+ 	key = key_ref_to_ptr(key_ref);
+ 	ksec = key->security;
+ 
+-	return avc_has_perm(current_selinux_ns,
++	return avc_has_perm(cred_selinux_ns(cred),
+ 			    sid, ksec->sid, SECCLASS_KEY, perm, NULL);
+ }
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 246f9de..005d65c 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -146,6 +146,8 @@ struct task_security_struct {
+ 
+ #define current_selinux_ns (((struct task_security_struct *)current_security())->ns)
+ 
++#define cred_selinux_ns(cred) (((struct task_security_struct *)(cred)->security)->ns)
++
+ #define ss_initialized (current_selinux_ns->initialized)
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
 -- 
 2.9.5
