@@ -1,224 +1,386 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: paul@paul-moore.com, jmorris@namei.org, Stephen Smalley <sds@tycho.nsa.gov>
-Date: Mon,  2 Oct 2017 11:58:21 -0400
-Message-Id: <20171002155825.28620-7-sds@tycho.nsa.gov>
+Date: Mon,  2 Oct 2017 11:58:22 -0400
+Message-Id: <20171002155825.28620-8-sds@tycho.nsa.gov>
 In-Reply-To: <20171002155825.28620-1-sds@tycho.nsa.gov>
 References: <20171002155825.28620-1-sds@tycho.nsa.gov>
-Subject: [RFC 06/10] selinux: introduce cred_selinux_ns() and use it
+Subject: [RFC 07/10] selinux: support per-namespace inode security structures
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When using the SID from a cred, we should pass the selinux
-namespace associated with the cred on security server calls
-rather than the current selinux namespace, since they could differ.
-In some of these cases, the cred is always obtained from the current
-task so there is no real change, but this is cleaner and hopefully
-less fragile. In other cases, the cred could in fact differ.
+Extend the inode security structure to include a reference to the
+associated selinux namespace, and turn it into a list so that we
+can maintain per-inode security state for each namespace.  This is
+necessary since the inode SIDs are per-namespace and multiple namespaces
+may access the same inodes.
+
+Introduce a find_isec() helper to find the correct inode security
+structure for the current selinux namespace, creating one if one
+does not already exist.  Update the existing inode_security*()
+helpers to use this helper, to pass the per-namespace inode security
+structure for initialization, and to return the resulting inode security
+structure to the caller.  Replace direct references to inode->i_security
+with the appropriate helper or to use the returned result.
+
+This change is problematic in several respects, so it is unclear
+it will survive in the final implementation.  Some of the issues are:
+1) The inode security structures pin the selinux namespace in memory
+for all namespaces that ever access the inode, preventing timely
+(or possibly ever) freeing of the namespace.
+
+2) Not everything in the inode security structure needs to be replicated
+per namespace, so this is wasteful and potentially confusing (e.g. inode
+back pointer, rcu head - but that overlaps with the list which does need
+to be per-namespace, sclass unless we anticipate policy-driven file class
+assignments in the future as we already have for sockets).
+
+3) It is not safe to sleep from all callers of inode_security*(), and
+thus we cannot always allocate a security blob for the namespace or
+fetch the xattr on demand.  Thus, we could encounter a memory allocation
+failure or fail to fetch the xattr and map it to a SID in the caller's
+namespace.   This is not handled safely currently!
+
+4) We only support a single security.selinux xattr, which must be mappable
+to a SID in every namespace that accesses the inodes (or it will be mapped
+to the unlabeled SID, which must then be accessible if we wish to permit
+access from that namespace).
+
+5) We do not yet properly handle setxattr of security.selinux; at present,
+it will modify the on-disk xattr but will only update the in-core SID for
+the current namespace and could leave other namespaces out of sync until
+the inode is evicted and refetched.
 
 Not-signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/hooks.c            | 42 ++++++++++++++++++-------------------
- security/selinux/include/security.h |  2 ++
- 2 files changed, 23 insertions(+), 21 deletions(-)
+ security/selinux/hooks.c          | 137 +++++++++++++++++++++++++++-----------
+ security/selinux/include/objsec.h |   4 ++
+ security/selinux/selinuxfs.c      |   2 +-
+ 3 files changed, 104 insertions(+), 39 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f9c1e2c..efe8083 100644
+index efe8083..8a52e71 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -483,13 +483,13 @@ static int may_context_mount_sb_relabel(u32 sid,
- 	const struct task_security_struct *tsec = cred->security;
- 	int rc;
+@@ -263,28 +263,83 @@ static inline u32 task_sid(const struct task_struct *task)
  
--	rc = avc_has_perm(current_selinux_ns,
-+	rc = avc_has_perm(cred_selinux_ns(cred),
- 			  tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
- 			  FILESYSTEM__RELABELFROM, NULL);
- 	if (rc)
- 		return rc;
+ /* Allocate and free functions for each kind of security blob. */
  
--	rc = avc_has_perm(current_selinux_ns,
-+	rc = avc_has_perm(cred_selinux_ns(cred),
- 			  tsec->sid, sid, SECCLASS_FILESYSTEM,
- 			  FILESYSTEM__RELABELTO, NULL);
- 	return rc;
-@@ -501,13 +501,13 @@ static int may_context_mount_inode_relabel(u32 sid,
+-static int inode_alloc_security(struct inode *inode)
++static struct inode_security_struct *isec_alloc(bool may_sleep)
  {
- 	const struct task_security_struct *tsec = cred->security;
- 	int rc;
--	rc = avc_has_perm(current_selinux_ns,
-+	rc = avc_has_perm(cred_selinux_ns(cred),
- 			  tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
- 			  FILESYSTEM__RELABELFROM, NULL);
- 	if (rc)
- 		return rc;
- 
--	rc = avc_has_perm(current_selinux_ns,
-+	rc = avc_has_perm(cred_selinux_ns(cred),
- 			  sid, sbsec->sid, SECCLASS_FILESYSTEM,
- 			  FILESYSTEM__ASSOCIATE, NULL);
- 	return rc;
-@@ -1793,10 +1793,10 @@ static int cred_has_capability(const struct cred *cred,
- 		return -EINVAL;
- 	}
- 
--	rc = avc_has_perm_noaudit(current_selinux_ns,
-+	rc = avc_has_perm_noaudit(cred_selinux_ns(cred),
- 				  sid, sid, sclass, av, 0, &avd);
- 	if (audit == SECURITY_CAP_AUDIT) {
--		int rc2 = avc_audit(current_selinux_ns,
-+		int rc2 = avc_audit(cred_selinux_ns(cred),
- 				    sid, sid, sclass, av, &avd, rc, &ad, 0);
- 		if (rc2)
- 			return rc2;
-@@ -1823,7 +1823,7 @@ static int inode_has_perm(const struct cred *cred,
- 	sid = cred_sid(cred);
- 	isec = inode->i_security;
- 
--	return avc_has_perm(current_selinux_ns,
-+	return avc_has_perm(cred_selinux_ns(cred),
- 			    sid, isec->sid, isec->sclass, perms, adp);
- }
- 
-@@ -1893,7 +1893,7 @@ static int file_has_perm(const struct cred *cred,
- 	ad.u.file = file;
- 
- 	if (sid != fsec->sid) {
--		rc = avc_has_perm(current_selinux_ns,
-+		rc = avc_has_perm(cred_selinux_ns(cred),
- 				  sid, fsec->sid,
- 				  SECCLASS_FD,
- 				  FD__USE,
-@@ -2101,7 +2101,7 @@ static int superblock_has_perm(const struct cred *cred,
- 	u32 sid = cred_sid(cred);
- 
- 	sbsec = sb->s_security;
--	return avc_has_perm(current_selinux_ns,
-+	return avc_has_perm(cred_selinux_ns(cred),
- 			    sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
- }
- 
-@@ -2282,7 +2282,7 @@ static int selinux_capset(struct cred *new, const struct cred *old,
- 			  const kernel_cap_t *inheritable,
- 			  const kernel_cap_t *permitted)
- {
--	return avc_has_perm(current_selinux_ns,
-+	return avc_has_perm(cred_selinux_ns(old),
- 			    cred_sid(old), cred_sid(new), SECCLASS_PROCESS,
- 			    PROCESS__SETCAP, NULL);
- }
-@@ -3122,7 +3122,7 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
- 	if (IS_ERR(isec))
- 		return PTR_ERR(isec);
- 
--	return avc_has_perm_flags(current_selinux_ns,
-+	return avc_has_perm_flags(cred_selinux_ns(cred),
- 				  sid, isec->sid, isec->sclass, FILE__READ, &ad,
- 				  rcu ? MAY_NOT_BLOCK : 0);
- }
-@@ -3178,7 +3178,7 @@ static int selinux_inode_permission(struct inode *inode, int mask)
- 	if (IS_ERR(isec))
- 		return PTR_ERR(isec);
- 
--	rc = avc_has_perm_noaudit(current_selinux_ns,
-+	rc = avc_has_perm_noaudit(cred_selinux_ns(cred),
- 				  sid, isec->sid, isec->sclass, perms, 0, &avd);
- 	audited = avc_audit_required(perms, &avd, rc,
- 				     from_access ? FILE__AUDIT_ACCESS : 0,
-@@ -3584,7 +3584,7 @@ static int ioctl_has_perm(const struct cred *cred, struct file *file,
- 	ad.u.op->path = file->f_path;
- 
- 	if (ssid != fsec->sid) {
--		rc = avc_has_perm(current_selinux_ns,
-+		rc = avc_has_perm(cred_selinux_ns(cred),
- 				  ssid, fsec->sid,
- 				SECCLASS_FD,
- 				FD__USE,
-@@ -3667,7 +3667,7 @@ static int file_map_prot_check(struct file *file, unsigned long prot, int shared
- 		 * private file mapping that will also be writable.
- 		 * This has an additional check.
- 		 */
--		rc = avc_has_perm(current_selinux_ns,
-+		rc = avc_has_perm(cred_selinux_ns(cred),
- 				  sid, sid, SECCLASS_PROCESS,
- 				  PROCESS__EXECMEM, NULL);
- 		if (rc)
-@@ -3743,14 +3743,14 @@ static int selinux_file_mprotect(struct vm_area_struct *vma,
- 		int rc = 0;
- 		if (vma->vm_start >= vma->vm_mm->start_brk &&
- 		    vma->vm_end <= vma->vm_mm->brk) {
--			rc = avc_has_perm(current_selinux_ns,
-+			rc = avc_has_perm(cred_selinux_ns(cred),
- 					  sid, sid, SECCLASS_PROCESS,
- 					  PROCESS__EXECHEAP, NULL);
- 		} else if (!vma->vm_file &&
- 			   ((vma->vm_start <= vma->vm_mm->start_stack &&
- 			     vma->vm_end >= vma->vm_mm->start_stack) ||
- 			    vma_is_stack_for_current(vma))) {
--			rc = avc_has_perm(current_selinux_ns,
-+			rc = avc_has_perm(cred_selinux_ns(cred),
- 					  sid, sid, SECCLASS_PROCESS,
- 					  PROCESS__EXECSTACK, NULL);
- 		} else if (vma->vm_file && vma->anon_vma) {
-@@ -3870,7 +3870,7 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
- 	 * struct as its SID.
- 	 */
- 	fsec->isid = isec->sid;
--	fsec->pseqno = avc_policy_seqno(current_selinux_ns);
-+	fsec->pseqno = avc_policy_seqno(cred_selinux_ns(cred));
- 	/*
- 	 * Since the inode label or policy seqno may have changed
- 	 * between the selinux_inode_permission check and the saving
-@@ -3973,7 +3973,7 @@ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ 	struct inode_security_struct *isec;
  	u32 sid = current_sid();
- 	int ret;
++	gfp_t flags = may_sleep ? GFP_NOFS : GFP_NOWAIT;
  
--	ret = avc_has_perm(current_selinux_ns,
-+	ret = avc_has_perm(tsec->ns,
- 			   sid, secid,
- 			   SECCLASS_KERNEL_SERVICE,
- 			   KERNEL_SERVICE__USE_AS_OVERRIDE,
-@@ -3998,7 +3998,7 @@ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
- 	u32 sid = current_sid();
- 	int ret;
+-	isec = kmem_cache_zalloc(sel_inode_cache, GFP_NOFS);
++	isec = kmem_cache_zalloc(sel_inode_cache, flags);
+ 	if (!isec)
+-		return -ENOMEM;
++		return NULL;
  
--	ret = avc_has_perm(current_selinux_ns,
-+	ret = avc_has_perm(tsec->ns,
- 			   sid, isec->sid,
- 			   SECCLASS_KERNEL_SERVICE,
- 			   KERNEL_SERVICE__CREATE_FILES_AS,
-@@ -4128,7 +4128,7 @@ int selinux_task_prlimit(const struct cred *cred, const struct cred *tcred,
- 		av |= PROCESS__SETRLIMIT;
- 	if (flags & LSM_PRLIMIT_READ)
- 		av |= PROCESS__GETRLIMIT;
--	return avc_has_perm(current_selinux_ns,
-+	return avc_has_perm(cred_selinux_ns(cred),
- 			    cred_sid(cred), cred_sid(tcred),
- 			    SECCLASS_PROCESS, av, NULL);
- }
-@@ -6371,7 +6371,7 @@ static int selinux_key_permission(key_ref_t key_ref,
- 	key = key_ref_to_ptr(key_ref);
- 	ksec = key->security;
- 
--	return avc_has_perm(current_selinux_ns,
-+	return avc_has_perm(cred_selinux_ns(cred),
- 			    sid, ksec->sid, SECCLASS_KEY, perm, NULL);
- }
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 246f9de..005d65c 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -146,6 +146,8 @@ struct task_security_struct {
- 
- #define current_selinux_ns (((struct task_security_struct *)current_security())->ns)
- 
-+#define cred_selinux_ns(cred) (((struct task_security_struct *)(cred)->security)->ns)
+ 	spin_lock_init(&isec->lock);
+ 	INIT_LIST_HEAD(&isec->list);
+-	isec->inode = inode;
+ 	isec->sid = SECINITSID_UNLABELED;
+ 	isec->sclass = SECCLASS_FILE;
+ 	isec->task_sid = sid;
+ 	isec->initialized = LABEL_INVALID;
+-	inode->i_security = isec;
++	isec->ns = get_selinux_ns(current_selinux_ns);
++	INIT_LIST_HEAD(&isec->isec_list);
++	return isec;
++}
 +
- #define ss_initialized (current_selinux_ns->initialized)
++static int inode_alloc_security(struct inode *inode)
++{
++	struct inode_security_struct *isec = isec_alloc(true);
++
++	if (!isec)
++		return -ENOMEM;
  
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
++	isec->inode = inode;
++	inode->i_security = isec;
+ 	return 0;
+ }
+ 
+-static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
++static int inode_doinit_with_dentry(struct inode *inode,
++				    struct dentry *opt_dentry,
++				    struct inode_security_struct *isec);
++
++static struct inode_security_struct *find_isec(struct inode *inode,
++					       bool may_sleep)
++{
++	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *cur, *new;
++
++	if (isec->ns == current_selinux_ns)
++		return isec;
++
++	spin_lock(&isec->lock);
++
++	list_for_each_entry(cur, &isec->isec_list, isec_list) {
++		if (cur->ns == current_selinux_ns)
++			goto out;
++	}
++
++	spin_unlock(&isec->lock);
++
++	new = isec_alloc(may_sleep);
++	if (!new) {
++		cur = NULL;
++		goto out;
++	}
++	new->inode = inode;
++
++	spin_lock(&isec->lock);
++
++	list_for_each_entry(cur, &isec->isec_list, isec_list) {
++		if (cur->ns == current_selinux_ns) {
++			kmem_cache_free(sel_inode_cache, new);
++			goto out;
++		}
++	}
++
++	list_add(&new->isec_list, &isec->isec_list);
++	cur = new;
++out:
++	spin_unlock(&isec->lock);
++	return cur;
++}
+ 
+ /*
+  * Try reloading inode security labels that have been marked as invalid.  The
+@@ -293,57 +348,52 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+  * invalid.  The @opt_dentry parameter should be set to a dentry of the inode;
+  * when no dentry is available, set it to NULL instead.
+  */
+-static int __inode_security_revalidate(struct inode *inode,
+-				       struct dentry *opt_dentry,
+-				       bool may_sleep)
++static struct inode_security_struct *
++__inode_security_revalidate(struct inode *inode,
++			    struct dentry *opt_dentry,
++			    bool may_sleep)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = find_isec(inode, may_sleep);
+ 
+ 	might_sleep_if(may_sleep);
+ 
+ 	if (ss_initialized && isec->initialized != LABEL_INITIALIZED) {
+ 		if (!may_sleep)
+-			return -ECHILD;
++			return ERR_PTR(-ECHILD);
+ 
+ 		/*
+ 		 * Try reloading the inode security label.  This will fail if
+ 		 * @opt_dentry is NULL and no dentry for this inode can be
+ 		 * found; in that case, continue using the old label.
+ 		 */
+-		inode_doinit_with_dentry(inode, opt_dentry);
++		inode_doinit_with_dentry(inode, opt_dentry, isec);
+ 	}
+-	return 0;
++	return isec;
+ }
+ 
+ static struct inode_security_struct *inode_security_novalidate(struct inode *inode)
+ {
+-	return inode->i_security;
++	return find_isec(inode, false);
+ }
+ 
+ static struct inode_security_struct *inode_security_rcu(struct inode *inode, bool rcu)
+ {
+-	int error;
+-
+-	error = __inode_security_revalidate(inode, NULL, !rcu);
+-	if (error)
+-		return ERR_PTR(error);
+-	return inode->i_security;
++	return __inode_security_revalidate(inode, NULL, !rcu);
+ }
+ 
+ /*
+  * Get the security label of an inode.
+  */
+-static struct inode_security_struct *inode_security(struct inode *inode)
++struct inode_security_struct *inode_security(struct inode *inode)
+ {
+-	__inode_security_revalidate(inode, NULL, true);
+-	return inode->i_security;
++	return __inode_security_revalidate(inode, NULL, true);
+ }
+ 
+ static struct inode_security_struct *backing_inode_security_novalidate(struct dentry *dentry)
+ {
+ 	struct inode *inode = d_backing_inode(dentry);
+ 
+-	return inode->i_security;
++	return find_isec(inode, false);
+ }
+ 
+ /*
+@@ -353,15 +403,22 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
+ {
+ 	struct inode *inode = d_backing_inode(dentry);
+ 
+-	__inode_security_revalidate(inode, dentry, true);
+-	return inode->i_security;
++	return __inode_security_revalidate(inode, dentry, true);
+ }
+ 
+ static void inode_free_rcu(struct rcu_head *head)
+ {
+-	struct inode_security_struct *isec;
++	struct inode_security_struct *isec, *entry, *tmp;
+ 
+ 	isec = container_of(head, struct inode_security_struct, rcu);
++
++	list_for_each_entry_safe(entry, tmp, &isec->isec_list, isec_list) {
++		put_selinux_ns(entry->ns);
++		kmem_cache_free(sel_inode_cache, entry);
++	}
++
++	put_selinux_ns(isec->ns);
++
+ 	kmem_cache_free(sel_inode_cache, isec);
+ }
+ 
+@@ -450,7 +507,7 @@ static void superblock_free_security(struct super_block *sb)
+ 
+ static inline int inode_doinit(struct inode *inode)
+ {
+-	return inode_doinit_with_dentry(inode, NULL);
++	return inode_doinit_with_dentry(inode, NULL, find_isec(inode, true));
+ }
+ 
+ enum {
+@@ -579,7 +636,8 @@ static int sb_finish_set_opts(struct super_block *sb)
+ 		sbsec->flags &= ~SBLABEL_MNT;
+ 
+ 	/* Initialize the root inode. */
+-	rc = inode_doinit_with_dentry(root_inode, root);
++	rc = inode_doinit_with_dentry(root_inode, root, find_isec(root_inode,
++								  true));
+ 
+ 	/* Initialize any other inodes associated with the superblock, e.g.
+ 	   inodes created prior to initial policy load or inodes created
+@@ -1529,10 +1587,11 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+ }
+ 
+ /* The inode's security attributes must be initialized before first use. */
+-static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
++static int inode_doinit_with_dentry(struct inode *inode,
++				    struct dentry *opt_dentry,
++				    struct inode_security_struct *isec)
+ {
+ 	struct superblock_security_struct *sbsec = NULL;
+-	struct inode_security_struct *isec = inode->i_security;
+ 	u32 task_sid, sid = 0;
+ 	u16 sclass;
+ 	struct dentry *dentry;
+@@ -1552,7 +1611,8 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 
+ 	sbsec = inode->i_sb->s_security;
+-	if (!(sbsec->flags & SE_SBINITIALIZED)) {
++	if (!current_selinux_ns->initialized ||
++	    !(sbsec->flags & SE_SBINITIALIZED)) {
+ 		/* Defer initialization until selinux_complete_init,
+ 		   after the initial policy is loaded and the security
+ 		   server is ready to handle calls. */
+@@ -1821,7 +1881,7 @@ static int inode_has_perm(const struct cred *cred,
+ 		return 0;
+ 
+ 	sid = cred_sid(cred);
+-	isec = inode->i_security;
++	isec = inode_security_novalidate(inode);
+ 
+ 	return avc_has_perm(cred_selinux_ns(cred),
+ 			    sid, isec->sid, isec->sclass, perms, adp);
+@@ -3033,7 +3093,8 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 
+ 	/* Possibly defer initialization to selinux_complete_init. */
+ 	if (sbsec->flags & SE_SBINITIALIZED) {
+-		struct inode_security_struct *isec = inode->i_security;
++		struct inode_security_struct *isec =
++			inode_security_novalidate(inode);
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 		isec->sid = newsid;
+ 		isec->initialized = LABEL_INITIALIZED;
+@@ -3133,7 +3194,7 @@ static noinline int audit_inode_permission(struct inode *inode,
+ 					   unsigned flags)
+ {
+ 	struct common_audit_data ad;
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = inode_security_novalidate(inode);
+ 	int rc;
+ 
+ 	ad.type = LSM_AUDIT_DATA_INODE;
+@@ -4189,7 +4250,7 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
+ static void selinux_task_to_inode(struct task_struct *p,
+ 				  struct inode *inode)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = inode_security(inode);
+ 	u32 sid = task_sid(p);
+ 
+ 	spin_lock(&isec->lock);
+@@ -6072,7 +6133,7 @@ static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
+ static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
+ {
+ 	if (inode)
+-		inode_doinit_with_dentry(inode, dentry);
++		inode_doinit_with_dentry(inode, dentry, find_isec(inode, true));
+ }
+ 
+ static int selinux_getprocattr(struct task_struct *p,
+@@ -6289,7 +6350,7 @@ static void selinux_release_secctx(char *secdata, u32 seclen)
+ 
+ static void selinux_inode_invalidate_secctx(struct inode *inode)
+ {
+-	struct inode_security_struct *isec = inode->i_security;
++	struct inode_security_struct *isec = inode_security_novalidate(inode);
+ 
+ 	spin_lock(&isec->lock);
+ 	isec->initialized = LABEL_INVALID;
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 051b804..04514ee 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -56,6 +56,8 @@ struct inode_security_struct {
+ 	u16 sclass;		/* security class of this object */
+ 	unsigned char initialized;	/* initialization flag */
+ 	spinlock_t lock;
++	struct selinux_ns *ns;
++	struct list_head isec_list;
+ };
+ 
+ struct file_security_struct {
+@@ -141,4 +143,6 @@ struct pkey_security_struct {
+ 	u32	sid;	/* SID of pkey */
+ };
+ 
++struct inode_security_struct *inode_security(struct inode *inode);
++
+ #endif /* _SELINUX_OBJSEC_H_ */
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 90424454..a7e6bdb 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1387,7 +1387,7 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
+ 		if (len >= PAGE_SIZE)
+ 			goto out;
+ 
+-		isec = (struct inode_security_struct *)inode->i_security;
++		isec = inode_security(inode);
+ 		ret = security_genfs_sid(fsi->ns, "selinuxfs", page,
+ 					 SECCLASS_FILE, &sid);
+ 		if (ret) {
 -- 
 2.9.5
