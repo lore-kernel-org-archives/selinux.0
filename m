@@ -1,554 +1,164 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v93L86SO009109
+ for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2017 17:08:06 -0400
+Received: by mail-lf0-f66.google.com with SMTP id j73so3953188lfg.0
+ for <selinux@tycho.nsa.gov>; Tue, 03 Oct 2017 14:08:01 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20171003142143.24107-1-sds@tycho.nsa.gov>
-References: <20171003142143.24107-1-sds@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Tue, 3 Oct 2017 10:51:18 -0700
-Message-ID: <CAFftDdrnMV4LhZHZUwwovG7zROxxOt_Eha8MenHUNCvifKPDHg@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <873771ipib.fsf_-_@xmission.com>
+References: <87tvzmqwoi.fsf@xmission.com>
+ <1506688601.5571.1.camel@tycho.nsa.gov>
+ <873771ipib.fsf_-_@xmission.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 3 Oct 2017 17:08:00 -0400
+Message-ID: <CAHC9VhTzDKbP-h=GBaCTYOM9Sm=3C=nhNghmPoCRZitCpJj6YA@mail.gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Cc: linux-security-module@vger.kernel.org,
+ Linux Containers <containers@lists.linux-foundation.org>,
+ Serge Hallyn <serge@hallyn.com>, Chris Wright <chrisw@sous-sol.org>,
+ James Morris <james.l.morris@oracle.com>,
+ Eric Paris <eparis@parisplace.org>,
+ Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] semodule-utils: remove semodule_deps
+Subject: Re: [PATCH] selinux: Perform both commoncap and selinux xattr checks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Oct 3, 2017 at 7:21 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> As discussed in https://github.com/SELinuxProject/selinux/issues/64,
-> semodule_deps has apparently been broken for a very long time for
-> binary modules and is completely irrelevant for CIL modules.  If there
-> are any users of it, they ought to be rewritten anyway since it is
-> not producing correct dependency information, and the ultimate goal
-> is to stop using binary modules altogether so it is not worth fixing.
-> Remove it to avoid any further broken usage.
+On Mon, Oct 2, 2017 at 10:38 AM, Eric W. Biederman
+<ebiederm@xmission.com> wrote:
 >
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> When selinux is loaded the relax permission checks for writing
+> security.capable are not honored.  Which keeps file capabilities
+> from being used in user namespaces.
+>
+> Stephen Smalley <sds@tycho.nsa.gov> writes:
+>> Originally SELinux called the cap functions directly since there was no
+>> stacking support in the infrastructure and one had to manually stack a
+>> secondary module internally.  inode_setxattr and inode_removexattr
+>> however were special cases because the cap functions would check
+>> CAP_SYS_ADMIN for any non-capability attributes in the security.*
+>> namespace, and we don't want to impose that requirement on setting
+>> security.selinux.  Thus, we inlined the capabilities logic into the
+>> selinux hook functions and adapted it appropriately.
+>
+> Now that the permission checks in commoncap have evolved this
+> inlining of their contents has become a problem.  So restructure
+> selinux_inode_removexattr, and selinux_inode_setxattr to call
+> both the corresponding cap_inode_ function and dentry_has_perm
+> when the attribute is not a selinux security xattr.   This ensures
+> the policies of both commoncap and selinux are enforced.
+>
+> This results in smack and selinux having the same basic structure
+> for setxattr and removexattr.  Performing their own special permission
+> checks when it is their modules xattr being written to, and deferring
+> to commoncap when that is not the case.  Then finally performing their
+> generic module policy on all xattr writes.
+>
+> This structure is fine when you only consider stacking with the
+> commoncap lsm, but it becomes a problem if two lsms that don't want
+> the commoncap security checks on their own attributes need to be
+> stack.  This means there will need to be updates in the future as lsm
+> stacking is improved, but at least now the structure between smack and
+> selinux is common making the code easier to refactor.
+>
+> This change also has the effect that selinux_linux_setotherxattr becomes
+> unnecessary so it is removed.
+>
+> Fixes: 8db6c34f1dbc ("Introduce v3 namespaced file capabilities")
+> Fixes: 7bbf0e052b76 ("[PATCH] selinux merge")
+> Historical Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 > ---
->  semodule-utils/.gitignore                    |   1 -
->  semodule-utils/Makefile                      |   2 +-
->  semodule-utils/semodule_deps/Makefile        |  28 --
->  semodule-utils/semodule_deps/semodule_deps.8 |  46 ---
->  semodule-utils/semodule_deps/semodule_deps.c | 401 ---------------------------
->  5 files changed, 1 insertion(+), 477 deletions(-)
->  delete mode 100644 semodule-utils/semodule_deps/Makefile
->  delete mode 100644 semodule-utils/semodule_deps/semodule_deps.8
->  delete mode 100644 semodule-utils/semodule_deps/semodule_deps.c
 >
-> diff --git a/semodule-utils/.gitignore b/semodule-utils/.gitignore
-> index 1667564..6ec4efe 100644
-> --- a/semodule-utils/.gitignore
-> +++ b/semodule-utils/.gitignore
-> @@ -1,5 +1,4 @@
->  semodule_package/semodule_package
->  semodule_package/semodule_unpackage
-> -semodule_deps/semodule_deps
->  semodule_expand/semodule_expand
->  semodule_link/semodule_link
-> diff --git a/semodule-utils/Makefile b/semodule-utils/Makefile
-> index 6bf4aee..e0a6579 100644
-> --- a/semodule-utils/Makefile
-> +++ b/semodule-utils/Makefile
-> @@ -1,4 +1,4 @@
-> -SUBDIRS = semodule_package semodule_link semodule_expand semodule_deps
-> +SUBDIRS = semodule_package semodule_link semodule_expand
+> While this fixes some things this isn't a regression so it should be
+> able to wait until the next merge window to be merged.   Would you like
+> to take this through the selinux tree?  Or shall I take it through mine?
 >
->  all install relabel clean indent:
->         @for subdir in $(SUBDIRS); do \
-> diff --git a/semodule-utils/semodule_deps/Makefile b/semodule-utils/semodule_deps/Makefile
-> deleted file mode 100644
-> index 328a503..0000000
-> --- a/semodule-utils/semodule_deps/Makefile
-> +++ /dev/null
-> @@ -1,28 +0,0 @@
-> -# Installation directories.
-> -PREFIX ?= $(DESTDIR)/usr
-> -INCLUDEDIR ?= $(PREFIX)/include
-> -BINDIR ?= $(PREFIX)/bin
-> -LIBDIR ?= $(PREFIX)/lib
-> -MANDIR ?= $(PREFIX)/share/man
-> -LIBSEPOLA ?= $(LIBDIR)/libsepol.a
-> -
-> -CFLAGS ?= -Werror -Wall -W
-> -
-> -all: semodule_deps
-> -
-> -semodule_deps:  semodule_deps.o $(LIBSEPOLA)
-> -
-> -install: all
-> -       -mkdir -p $(BINDIR)
-> -       install -m 755 semodule_deps $(BINDIR)
-> -       test -d $(MANDIR)/man8 || install -m 755 -d $(MANDIR)/man8
-> -       install -m 644 semodule_deps.8 $(MANDIR)/man8/
-> -
-> -relabel:
-> -
-> -clean:
-> -       -rm -f semodule_deps *.o
-> -
-> -indent:
-> -       ../../scripts/Lindent $(wildcard *.[ch])
-> -
-> diff --git a/semodule-utils/semodule_deps/semodule_deps.8 b/semodule-utils/semodule_deps/semodule_deps.8
-> deleted file mode 100644
-> index 6f21a64..0000000
-> --- a/semodule-utils/semodule_deps/semodule_deps.8
-> +++ /dev/null
-> @@ -1,46 +0,0 @@
-> -.TH SEMODULE_DEPS "8" "June 2006" "Security Enhanced Linux" NSA
-> -.SH NAME
-> -semodule_deps \- show the dependencies between SELinux policy packages.
-> -
-> -.SH SYNOPSIS
-> -.B semodule_deps [\-v \-g \-b] basemodpkg modpkg1 [modpkg2 ... ]
-> -.br
-> -.SH DESCRIPTION
-> -.PP
-> -semodule_deps is a developer tool for showing the dependencies
-> -between policy packages. For each module it prints a list of
-> -modules that must be present for a module's requirements to
-> -be satisfied. It only deals with requirements, not optional
-> -dependencies.
-> -
-> -In order for semodule_deps to give useful information the list
-> -of packages passed in cannot have unsatisfied dependencies. In
-> -general this means that the list of modules will usually be
-> -quite long.
-> -
-> -By default options to the base module are excluded as almost every
-> -module has this dependency. The \-b option will include these
-> -dependencies.
-> -
-> -In addition to human readable output, semodule_deps can output the
-> -dependencies in the Graphviz dot format (http://www.graphviz.org/)
-> -using the \-g option. This is useful for producing a picture of the
-> -dependencies.
-> -
-> -.SH "OPTIONS"
-> -.TP
-> -.B \-v
-> -verbose mode
-> -.TP
-> -.B \-g
-> -output dependency information in Graphviz dot format
-> -.TP
-> -.B \-b
-> -include dependencies to the base module - by default these are excluded
-> -
-> -.SH SEE ALSO
-> -.B checkmodule(8), semodule_package(8), semodule(8), semodule_link(8)
-> -.SH AUTHORS
-> -.nf
-> -This manual page was written by Karl MacMillan <kmacmillan@mentalrootkit.com>.
-> -The program was written by Karl MacMillan <kmacmillan@mentalrootkit.com>.
-> diff --git a/semodule-utils/semodule_deps/semodule_deps.c b/semodule-utils/semodule_deps/semodule_deps.c
-> deleted file mode 100644
-> index 7a7ff2f..0000000
-> --- a/semodule-utils/semodule_deps/semodule_deps.c
-> +++ /dev/null
-> @@ -1,401 +0,0 @@
-> -/* Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
-> - *
-> - * Copyright (C) 2006 Tresys Technology, LLC
-> - * Copyright (C) 2006-2007 Red Hat, Inc.
-> - *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License as published by
-> - * the Free Software Foundation, version 2.
-> - *
-> - */
-> -
-> -/* Because we _must_ muck around in the internal representation of
-> - * the policydb (and include the internal header below) this program
-> - * must be statically linked to libsepol like checkpolicy. It is
-> - * not clear if it is worthwhile to fix this, as exposing the details
-> - * of avrule_blocks - even in an ABI safe way - seems undesirable.
-> - */
-> -#include <sepol/module.h>
-> -#include <sepol/errcodes.h>
-> -#include <sepol/policydb/policydb.h>
-> -
-> -#include <getopt.h>
-> -#include <fcntl.h>
-> -#include <stdio.h>
-> -#include <errno.h>
-> -#include <sys/mman.h>
-> -#include <sys/types.h>
-> -#include <sys/stat.h>
-> -#include <stdlib.h>
-> -#include <unistd.h>
-> -#include <string.h>
-> -#include <assert.h>
-> -
-> -/* for getopt */
-> -extern char *optarg;
-> -extern int optind;
-> -
-> -/* This is really a horrible hack, but the base module
-> - * is referred to with the following name. The same
-> - * thing is done in the linker for displaying error
-> - * messages.
-> - */
-> -#define BASE_NAME ((char *)"BASE")
-> -
-> -static __attribute__((__noreturn__)) void usage(const char *program_name)
+> security/selinux/hooks.c | 43 ++++++++++++++++++-------------------------
+>  1 file changed, 18 insertions(+), 25 deletions(-)
+
+This patch looks sane to me and I believe it addresses Stephen's
+concerns, but I'll wait on him to comment on-list.
+
+As far as how this gets merged, I'd much prefer to take this via the
+SELinux tree given that all of the changes are internal to SELinux.
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index f5d304736852..c78dbec627f6 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3124,27 +3124,6 @@ static int selinux_inode_getattr(const struct path *path)
+>         return path_has_perm(current_cred(), path, FILE__GETATTR);
+>  }
+>
+> -static int selinux_inode_setotherxattr(struct dentry *dentry, const char *name)
 > -{
-> -       printf("usage: %s [-v -g -b] basemodpkg modpkg1 [modpkg2 ... ]\n",
-> -              program_name);
-> -       exit(1);
-> -}
+> -       const struct cred *cred = current_cred();
 > -
-> -/* Basic string hash and compare for the hashtables used in
-> - * generate_requires. Copied from symtab.c.
-> - */
-> -static unsigned int reqsymhash(hashtab_t h, const_hashtab_key_t key)
-> -{
-> -       const char *p, *keyp;
-> -       size_t size;
-> -       unsigned int val;
-> -
-> -       val = 0;
-> -       keyp = (const char *)key;
-> -       size = strlen(keyp);
-> -       for (p = keyp; ((size_t) (p - keyp)) < size; p++)
-> -               val =
-> -                   (val << 4 | (val >> (8 * sizeof(unsigned int) - 4))) ^ (*p);
-> -       return val & (h->size - 1);
-> -}
-> -
-> -static int reqsymcmp(hashtab_t h
-> -                    __attribute__ ((unused)), const_hashtab_key_t key1,
-> -                    const_hashtab_key_t key2)
-> -{
-> -       return strcmp(key1, key2);
-> -}
-> -
-> -/* Load a policy package from the given filename. Progname is used for
-> - * error reporting.
-> - */
-> -static sepol_module_package_t *load_module(char *filename, char *progname)
-> -{
-> -       int ret;
-> -       FILE *fp = NULL;
-> -       struct sepol_policy_file *pf = NULL;
-> -       sepol_module_package_t *p = NULL;
-> -
-> -       if (sepol_module_package_create(&p)) {
-> -               fprintf(stderr, "%s:  Out of memory\n", progname);
-> -               goto bad;
-> -       }
-> -       if (sepol_policy_file_create(&pf)) {
-> -               fprintf(stderr, "%s:  Out of memory\n", progname);
-> -               goto bad;
-> -       }
-> -       fp = fopen(filename, "r");
-> -       if (!fp) {
-> -               fprintf(stderr, "%s:  Could not open package %s:  %s", progname,
-> -                       filename, strerror(errno));
-> -               goto bad;
-> -       }
-> -       sepol_policy_file_set_fp(pf, fp);
-> -
-> -       ret = sepol_module_package_read(p, pf, 0);
-> -       if (ret) {
-> -               fprintf(stderr, "%s:  Error while reading package from %s\n",
-> -                       progname, filename);
-> -               goto bad;
-> -       }
-> -       fclose(fp);
-> -       sepol_policy_file_free(pf);
-> -       return p;
-> -      bad:
-> -       sepol_module_package_free(p);
-> -       sepol_policy_file_free(pf);
-> -       if (fp)
-> -               fclose(fp);
-> -       return NULL;
-> -}
-> -
-> -/* This function generates the requirements graph and stores it in
-> - * a set of nested hashtables. The top level hash table stores modules
-> - * keyed by name. The value of that module is a hashtable storing all
-> - * of the requirements keyed by name. There is no value for the requirements
-> - * hashtable.
-> - *
-> - * This only tracks symbols that are _required_ - optional symbols
-> - * are completely ignored. A future version might look at this.
-> - *
-> - * This requirement generation only looks at booleans and types because:
-> - *  - object classes: (for now) only present in bases
-> - *  - roles: since they are multiply declared it is not clear how
-> - *           to present these requirements as they will be satisfied
-> - *           by multiple modules.
-> - *  - users: same problem as roles plus they are usually defined outside
-> - *           of the policy.
-> - *  - levels / cats: can't be required or used in modules.
-> - */
-> -static hashtab_t generate_requires(policydb_t * p)
-> -{
-> -       avrule_block_t *block;
-> -       avrule_decl_t *decl;
-> -       char *mod_name, *req_name, *id;
-> -       ebitmap_t *b;
-> -       ebitmap_node_t *node;
-> -       uint32_t i, j;
-> -       int ret;
-> -       scope_datum_t *scope;
-> -       hashtab_t mods;
-> -       hashtab_t reqs;
-> -
-> -       mods = hashtab_create(reqsymhash, reqsymcmp, 64);
-> -       if (mods == NULL)
-> -               return NULL;
-> -
-> -       for (block = p->global; block != NULL; block = block->next) {
-> -               if (block->flags & AVRULE_OPTIONAL)
-> -                       continue;
-> -               for (decl = block->branch_list; decl != NULL; decl = decl->next) {
-> -                       mod_name =
-> -                           decl->module_name ? decl->module_name : BASE_NAME;
-> -                       for (i = 0; i < SYM_NUM; i++) {
-> -                               if (!(i == SYM_TYPES || i == SYM_BOOLS))
-> -                                       continue;
-> -                               b = &decl->required.scope[i];
-> -                               ebitmap_for_each_bit(b, node, j) {
-> -                                       if (!ebitmap_node_get_bit(node, j))
-> -                                               continue;
-> -                                       id = p->sym_val_to_name[i][j];
-> -                                       scope =
-> -                                           (scope_datum_t *) hashtab_search(p->
-> -                                                                            scope
-> -                                                                            [i].
-> -                                                                            table,
-> -                                                                            id);
-> -                                       /* since this is only called after a successful link,
-> -                                        * this should never happen */
-> -                                       assert(scope->scope == SCOPE_DECL);
-> -                                       req_name =
-> -                                           p->decl_val_to_struct[scope->
-> -                                                                 decl_ids[0]]->
-> -                                           module_name ? p->
-> -                                           decl_val_to_struct[scope->
-> -                                                              decl_ids[0]]->
-> -                                           module_name : BASE_NAME;
-> -
-> -                                       reqs =
-> -                                           (hashtab_t) hashtab_search(mods,
-> -                                                                      mod_name);
-> -                                       if (!reqs) {
-> -                                               reqs =
-> -                                                   hashtab_create(reqsymhash,
-> -                                                                  reqsymcmp,
-> -                                                                  64);
-> -                                               if (reqs == NULL) {
-> -                                                       return NULL;
-> -                                               }
-> -                                               ret =
-> -                                                   hashtab_insert(mods,
-> -                                                                  mod_name,
-> -                                                                  reqs);
-> -                                               if (ret != SEPOL_OK)
-> -                                                       return NULL;
-> -                                       }
-> -                                       ret =
-> -                                           hashtab_insert(reqs, req_name,
-> -                                                          NULL);
-> -                                       if (!
-> -                                           (ret == SEPOL_EEXIST
-> -                                            || ret == SEPOL_OK))
-> -                                               return NULL;
-> -                               }
-> -                       }
-> -
+> -       if (!strncmp(name, XATTR_SECURITY_PREFIX,
+> -                    sizeof XATTR_SECURITY_PREFIX - 1)) {
+> -               if (!strcmp(name, XATTR_NAME_CAPS)) {
+> -                       if (!capable(CAP_SETFCAP))
+> -                               return -EPERM;
+> -               } else if (!capable(CAP_SYS_ADMIN)) {
+> -                       /* A different attribute in the security namespace.
+> -                          Restrict to administrator. */
+> -                       return -EPERM;
 > -               }
 > -       }
 > -
-> -       return mods;
+> -       /* Not an attribute we recognize, so just check the
+> -          ordinary setattr permission. */
+> -       return dentry_has_perm(cred, dentry, FILE__SETATTR);
 > -}
 > -
-> -static void free_requires(hashtab_t req)
-> -{
-> -       unsigned int i;
-> -       hashtab_ptr_t cur;
-> -
-> -       /* We steal memory for everything stored in the hash tables
-> -        * from the policydb, so this only looks like it leaks.
-> -        */
-> -       for (i = 0; i < req->size; i++) {
-> -               cur = req->htable[i];
-> -               while (cur != NULL) {
-> -                       hashtab_destroy((hashtab_t) cur->datum);
-> -                       cur = cur->next;
-> -               }
-> -       }
-> -       hashtab_destroy(req);
-> -}
-> -
-> -static void output_graphviz(hashtab_t mods, int exclude_base, FILE * f)
-> -{
-> -       unsigned int i, j;
-> -       hashtab_ptr_t cur, cur2;
-> -       hashtab_t reqs;
-> -
-> -       fprintf(f, "digraph mod_deps {\n");
-> -       fprintf(f, "\toverlap=false\n");
-> -
-> -       for (i = 0; i < mods->size; i++) {
-> -               cur = mods->htable[i];
-> -               while (cur != NULL) {
-> -                       reqs = (hashtab_t) cur->datum;
-> -                       assert(reqs);
-> -                       for (j = 0; j < reqs->size; j++) {
-> -                               cur2 = reqs->htable[j];
-> -                               while (cur2 != NULL) {
-> -                                       if (exclude_base
-> -                                           && strcmp(cur2->key,
-> -                                                     BASE_NAME) == 0) {
-> -                                               cur2 = cur2->next;
-> -                                               continue;
-> -                                       }
-> -                                       fprintf(f, "\t%s -> %s\n", cur->key,
-> -                                               cur2->key);
-> -                                       cur2 = cur2->next;
-> -                               }
-> -                       }
-> -                       cur = cur->next;
-> -               }
-> -       }
-> -       fprintf(f, "}\n");
-> -}
-> -
-> -static void output_requirements(hashtab_t mods, int exclude_base, FILE * f)
-> -{
-> -       unsigned int i, j;
-> -       hashtab_ptr_t cur, cur2;
-> -       hashtab_t reqs;
-> -       int found_req;
-> -
-> -       for (i = 0; i < mods->size; i++) {
-> -               cur = mods->htable[i];
-> -               while (cur != NULL) {
-> -                       reqs = (hashtab_t) cur->datum;
-> -                       assert(reqs);
-> -                       fprintf(f, "module: %s\n", cur->key);
-> -                       found_req = 0;
-> -                       for (j = 0; j < reqs->size; j++) {
-> -                               cur2 = reqs->htable[j];
-> -                               while (cur2 != NULL) {
-> -                                       if (exclude_base
-> -                                           && strcmp(cur2->key,
-> -                                                     BASE_NAME) == 0) {
-> -                                               cur2 = cur2->next;
-> -                                               continue;
-> -                                       }
-> -                                       found_req = 1;
-> -                                       fprintf(f, "\t%s\n", cur2->key);
-> -                                       cur2 = cur2->next;
-> -                               }
-> -                       }
-> -                       if (!found_req)
-> -                               fprintf(f, "\t[no dependencies]\n");
-> -                       cur = cur->next;
-> -               }
-> -       }
-> -       fprintf(f, "}\n");
-> -}
-> -
-> -/* Possible commands - see the command variable in
-> - * main below and the man page for more info.
-> - */
-> -#define SHOW_DEPS    1
-> -#define GEN_GRAPHVIZ 2
-> -
-> -int main(int argc, char **argv)
-> -{
-> -       int ch, i, num_mods;
-> -       int verbose = 0, exclude_base = 1, command = SHOW_DEPS;
-> -       char *basename;
-> -       sepol_module_package_t *base, **mods;
-> -       policydb_t *p;
-> -       hashtab_t req;
-> -
-> -       while ((ch = getopt(argc, argv, "vgb")) != EOF) {
-> -               switch (ch) {
-> -               case 'v':
-> -                       verbose = 1;
-> -                       break;
-> -               case 'g':
-> -                       command = GEN_GRAPHVIZ;
-> -                       break;
-> -               case 'b':
-> -                       exclude_base = 0;
-> -                       break;
-> -               default:
-> -                       usage(argv[0]);
-> -               }
-> -       }
-> -
-> -       /* check args */
-> -       if (argc < 3 || !(optind != (argc - 1))) {
-> -               fprintf(stderr,
-> -                       "%s:  You must provide the base module package and at least one other module package\n",
-> -                       argv[0]);
-> -               usage(argv[0]);
-> -       }
-> -
-> -       basename = argv[optind++];
-> -       base = load_module(basename, argv[0]);
-> -       if (!base) {
-> -               fprintf(stderr,
-> -                       "%s:  Could not load base module from file %s\n",
-> -                       argv[0], basename);
-> -               exit(1);
-> -       }
-> -
-> -       num_mods = argc - optind;
-> -       mods =
-> -           (sepol_module_package_t **) malloc(sizeof(sepol_module_package_t *)
-> -                                              * num_mods);
-> -       if (!mods) {
-> -               fprintf(stderr, "%s:  Out of memory\n", argv[0]);
-> -               exit(1);
-> -       }
-> -       memset(mods, 0, sizeof(sepol_module_package_t *) * num_mods);
-> -
-> -       for (i = 0; optind < argc; optind++, i++) {
-> -               mods[i] = load_module(argv[optind], argv[0]);
-> -               if (!mods[i]) {
-> -                       fprintf(stderr,
-> -                               "%s:  Could not load module from file %s\n",
-> -                               argv[0], argv[optind]);
-> -                       exit(1);
-> -               }
-> -       }
-> -
-> -       if (sepol_link_packages(NULL, base, mods, num_mods, verbose)) {
-> -               fprintf(stderr, "%s:  Error while linking packages\n", argv[0]);
-> -               exit(1);
-> -       }
-> -
-> -       p = (policydb_t *) sepol_module_package_get_policy(base);
-> -       if (p == NULL)
-> -               exit(1);
-> -
-> -       req = generate_requires(p);
-> -       if (req == NULL)
-> -               exit(1);
-> -
-> -       if (command == SHOW_DEPS)
-> -               output_requirements(req, exclude_base, stdout);
-> -       else
-> -               output_graphviz(req, exclude_base, stdout);
-> -
-> -       sepol_module_package_free(base);
-> -       for (i = 0; i < num_mods; i++)
-> -               sepol_module_package_free(mods[i]);
-> -
-> -       free_requires(req);
-> -
-> -       exit(0);
-> -}
+>  static bool has_cap_mac_admin(bool audit)
+>  {
+>         const struct cred *cred = current_cred();
+> @@ -3167,8 +3146,15 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+>         u32 newsid, sid = current_sid();
+>         int rc = 0;
+>
+> -       if (strcmp(name, XATTR_NAME_SELINUX))
+> -               return selinux_inode_setotherxattr(dentry, name);
+> +       if (strcmp(name, XATTR_NAME_SELINUX)) {
+> +               rc = cap_inode_setxattr(dentry, name, value, size, flags);
+> +               if (rc)
+> +                       return rc;
+> +
+> +               /* Not an attribute we recognize, so just check the
+> +                  ordinary setattr permission. */
+> +               return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
+> +       }
+>
+>         sbsec = inode->i_sb->s_security;
+>         if (!(sbsec->flags & SBLABEL_MNT))
+> @@ -3282,8 +3268,15 @@ static int selinux_inode_listxattr(struct dentry *dentry)
+>
+>  static int selinux_inode_removexattr(struct dentry *dentry, const char *name)
+>  {
+> -       if (strcmp(name, XATTR_NAME_SELINUX))
+> -               return selinux_inode_setotherxattr(dentry, name);
+> +       if (strcmp(name, XATTR_NAME_SELINUX)) {
+> +               int rc = cap_inode_removexattr(dentry, name);
+> +               if (rc)
+> +                       return rc;
+> +
+> +               /* Not an attribute we recognize, so just check the
+> +                  ordinary setattr permission. */
+> +               return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
+> +       }
+>
+>         /* No one is allowed to remove a SELinux security label.
+>            You can change the label, but all data must be labeled. */
 > --
-> 2.9.5
+> 2.14.1
 >
 
-ack
+
+
+-- 
+paul moore
+www.paul-moore.com
