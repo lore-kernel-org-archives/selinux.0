@@ -1,96 +1,134 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v938YESD013476
- for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2017 04:34:14 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v939wVsR013847
+ for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2017 05:58:31 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 67E3381233
- for <selinux@tycho.nsa.gov>; Tue,  3 Oct 2017 08:33:39 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id 55D3F81E19
+ for <selinux@tycho.nsa.gov>; Tue,  3 Oct 2017 09:58:25 +0000 (UTC)
+Received: from Thinkpad_450.brq.redhat.com (unknown [10.43.12.77])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id CDA1160251
+ for <selinux@tycho.nsa.gov>; Tue,  3 Oct 2017 09:58:24 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-References: <CAENH-vA_rbUf8UyDcGmCto3-R9zNPy1jMMoH+XKwRqx7c4P-qQ@mail.gmail.com>
- <20170802163500.GA16782@julius.enp8s0.d30>
- <1501700374.3000.15.camel@tycho.nsa.gov>
- <20170802190137.GA10043@julius.enp8s0.d30>
-Cc: Joe Orton <jorton@redhat.com>
-From: Lukas Vrabec <lvrabec@redhat.com>
-Message-ID: <9be86028-d01e-361b-ee0b-115657189ea4@redhat.com>
-Date: Tue, 3 Oct 2017 10:33:37 +0200
-MIME-Version: 1.0
-In-Reply-To: <20170802190137.GA10043@julius.enp8s0.d30>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Subject: Re: httpd_graceful_shutdown makes httpd_can_network_connect
- mostly mute
+Date: Tue,  3 Oct 2017 11:57:37 +0200
+Message-Id: <20171003095737.9027-1-vmojzis@redhat.com>
+In-Reply-To: <1506971246.23398.11.camel@tycho.nsa.gov>
+References: <1506971246.23398.11.camel@tycho.nsa.gov>
+Subject: [PATCH] libsemanage: Add support for listing fcontext.homedirs file
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/02/2017 09:01 PM, Dominick Grift wrote:
-> On Wed, Aug 02, 2017 at 02:59:34PM -0400, Stephen Smalley wrote:
->> On Wed, 2017-08-02 at 18:35 +0200, Dominick Grift wrote:
->>> On Wed, Aug 02, 2017 at 04:41:00PM +0100, Carlos Rodrigues wrote:
->>>> Hi,
->>>>
->>>> I don't know if this a too basic question to ask here, or the
->>>> proper
->>>> place, but here it goes:
->>>>
->>>> I've been chasing some weird (to me) behavior with the targeted
->>>> policy
->>>> on a VM running nginx as a reverse proxy. What happens is that the
->>>> "httpd_can_network_connect" boolean needs to be enabled for nginx
->>>> to
->>>> be able to reach its upstream servers. So far, so good.
->>>>
->>>> However, if the upsteam server happens to be listening in one of
->>>> the
->>>> "http_port_t" ports, "httpd_can_network_connect" isn't needed
->>>> because
->>>> the "httpd_graceful_shutdown" (default enabled) provides the
->>>> required
->>>> allow rule ("name_connect").
->>>>
->>>> This seems strange to me. Is this supposed to be like this? I would
->>>> expect nginx to be totally unable to establish outbound connections
->>>> by
->>>> default.
->>>>
->>>> Best regards,
->>>>
->>>> Carlos Rodrigues
->>>>
->>>> PS: I just spent a few hours on this, wondering why one machine
->>>> needed
->>>> "httpd_can_network_connect" and another did not. I guess I've
->>>> mostly
->>>> been setting up reverse proxies for "http_port_t" upstreams on
->>>> CentOS
->>>> all this time...
->>>
->>> I think the "httpd_graceful_shutdown" is an apache thing (probably
->>> for "apachectl graceful-stop"). However I cannot reproduce this
->>> behavior with httpd-2.4.27-4.fc27.
->>
->> Hmm...neither can I; seemingly apachectl graceful-stop works without
->> requiring this boolean anymore.  So maybe it can be disabled by default
->> and removed at some point in Fedora policy?
->>
-> 
-> Would be nice if we would be able to confirm this with the apache maintainer before jumping to conclusions.
-> 
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1409813
+---
+ libsemanage/include/semanage/fcontexts_policy.h |  4 ++++
+ libsemanage/src/direct_api.c                    |  7 +++++++
+ libsemanage/src/fcontexts_policy.c              |  8 ++++++++
+ libsemanage/src/handle.h                        | 19 +++++++++++++------
+ 4 files changed, 32 insertions(+), 6 deletions(-)
 
-I had a discussion with apache maintainer in Fedora and he confirmed 
-that this boolean is no longer needed in Fedora 27 or higher. Adding him 
-to CC.
-
-I see that in refpolicy, default value of httpd_graceful_shutdown is 
-off, so we need to fix it only in Fedora distro policy. I'll prepare the 
-patch.
-
-Lukas.
-
+diff --git a/libsemanage/include/semanage/fcontexts_policy.h b/libsemanage/include/semanage/fcontexts_policy.h
+index a50db2b..199a1e1 100644
+--- a/libsemanage/include/semanage/fcontexts_policy.h
++++ b/libsemanage/include/semanage/fcontexts_policy.h
+@@ -26,4 +26,8 @@ extern int semanage_fcontext_list(semanage_handle_t * handle,
+ 				  semanage_fcontext_t *** records,
+ 				  unsigned int *count);
+ 
++extern int semanage_fcontext_list_homedirs(semanage_handle_t * handle,
++				  semanage_fcontext_t *** records,
++				  unsigned int *count);
++
+ #endif
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 971a08f..00ad820 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -210,6 +210,12 @@ int semanage_direct_connect(semanage_handle_t * sh)
+ 				     semanage_fcontext_dbase_local(sh)) < 0)
+ 		goto err;
+ 
++	if (fcontext_file_dbase_init(sh,
++				     semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC_HOMEDIRS),
++				     semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS),
++				     semanage_fcontext_dbase_homedirs(sh)) < 0)
++		goto err;
++
+ 	if (seuser_file_dbase_init(sh,
+ 				   semanage_path(SEMANAGE_ACTIVE,
+ 						 SEMANAGE_SEUSERS_LOCAL),
+@@ -349,6 +355,7 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
+ 	iface_file_dbase_release(semanage_iface_dbase_local(sh));
+ 	bool_file_dbase_release(semanage_bool_dbase_local(sh));
+ 	fcontext_file_dbase_release(semanage_fcontext_dbase_local(sh));
++	fcontext_file_dbase_release(semanage_fcontext_dbase_homedirs(sh));
+ 	seuser_file_dbase_release(semanage_seuser_dbase_local(sh));
+ 	node_file_dbase_release(semanage_node_dbase_local(sh));
+ 
+diff --git a/libsemanage/src/fcontexts_policy.c b/libsemanage/src/fcontexts_policy.c
+index 0b063b1..98490ab 100644
+--- a/libsemanage/src/fcontexts_policy.c
++++ b/libsemanage/src/fcontexts_policy.c
+@@ -51,3 +51,11 @@ int semanage_fcontext_list(semanage_handle_t * handle,
+ 	dbase_config_t *dconfig = semanage_fcontext_dbase_policy(handle);
+ 	return dbase_list(handle, dconfig, records, count);
+ }
++
++int semanage_fcontext_list_homedirs(semanage_handle_t * handle,
++			   semanage_fcontext_t *** records, unsigned int *count)
++{
++
++	dbase_config_t *dconfig = semanage_fcontext_dbase_homedirs(handle);
++	return dbase_list(handle, dconfig, records, count);
++}
+diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
+index 889871d..1780ac8 100644
+--- a/libsemanage/src/handle.h
++++ b/libsemanage/src/handle.h
+@@ -79,7 +79,7 @@ struct semanage_handle {
+ 	struct semanage_policy_table *funcs;
+ 
+ 	/* Object databases */
+-#define DBASE_COUNT      23
++#define DBASE_COUNT      24
+ 
+ /* Local modifications */
+ #define DBASE_LOCAL_USERS_BASE  0
+@@ -102,13 +102,14 @@ struct semanage_handle {
+ #define DBASE_POLICY_INTERFACES  15
+ #define DBASE_POLICY_BOOLEANS    16
+ #define DBASE_POLICY_FCONTEXTS   17
+-#define DBASE_POLICY_SEUSERS     18
+-#define DBASE_POLICY_NODES       19
+-#define DBASE_POLICY_IBPKEYS     20
+-#define DBASE_POLICY_IBENDPORTS  21
++#define DBASE_POLICY_FCONTEXTS_H 18
++#define DBASE_POLICY_SEUSERS     19
++#define DBASE_POLICY_NODES       20
++#define DBASE_POLICY_IBPKEYS     21
++#define DBASE_POLICY_IBENDPORTS  22
+ 
+ /* Active kernel policy */
+-#define DBASE_ACTIVE_BOOLEANS    22
++#define DBASE_ACTIVE_BOOLEANS    23
+ 	dbase_config_t dbase[DBASE_COUNT];
+ };
+ 
+@@ -236,6 +237,12 @@ static inline
+ }
+ 
+ static inline
++    dbase_config_t * semanage_fcontext_dbase_homedirs(semanage_handle_t * handle)
++{
++	return &handle->dbase[DBASE_POLICY_FCONTEXTS_H];
++}
++
++static inline
+     dbase_config_t * semanage_seuser_dbase_policy(semanage_handle_t * handle)
+ {
+ 	return &handle->dbase[DBASE_POLICY_SEUSERS];
 -- 
-Lukas Vrabec
-Software Engineer, Security Technologies
-Red Hat, Inc.
+2.9.4
