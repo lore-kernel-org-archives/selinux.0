@@ -1,546 +1,279 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Tue,  3 Oct 2017 10:21:43 -0400
-Message-Id: <20171003142143.24107-1-sds@tycho.nsa.gov>
-Subject: [PATCH] semodule-utils: remove semodule_deps
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v93HEg1S029217
+ for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2017 13:14:49 -0400
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ James Morris <jmorris@namei.org>, Paul Moore <paul@paul-moore.com>
+References: <20171002155825.28620-1-sds@tycho.nsa.gov>
+ <20171002155825.28620-10-sds@tycho.nsa.gov>
+ <b8001307-2374-97ff-a81a-e0d2965f117b@schaufler-ca.com>
+ <1507033768.17197.1.camel@tycho.nsa.gov>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <18e6adfd-b245-7d75-4b0b-91a00e5569c8@schaufler-ca.com>
+Date: Tue, 3 Oct 2017 10:14:16 -0700
+MIME-Version: 1.0
+In-Reply-To: <1507033768.17197.1.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [RFC 09/10] selinux: add a selinuxfs interface to
+ unshare selinux namespace
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-As discussed in https://github.com/SELinuxProject/selinux/issues/64,
-semodule_deps has apparently been broken for a very long time for
-binary modules and is completely irrelevant for CIL modules.  If there
-are any users of it, they ought to be rewritten anyway since it is
-not producing correct dependency information, and the ultimate goal
-is to stop using binary modules altogether so it is not worth fixing.
-Remove it to avoid any further broken usage.
+On 10/3/2017 5:29 AM, Stephen Smalley wrote:
+> On Mon, 2017-10-02 at 16:56 -0700, Casey Schaufler wrote:
+>> On 10/2/2017 8:58 AM, Stephen Smalley wrote:
+>>> Provide a userspace API to unshare the selinux namespace.
+>>> Currently implemented via a selinuxfs node. This could be
+>>> coupled with unsharing of other namespaces (e.g.  mount namespace,
+>>> network namespace) that will always be needed or left independent.
+>>> Don't get hung up on the interface itself, it is just to allow
+>>> experimentation and testing.
+>>>
+>>> Sample usage:
+>>> echo 1 > /sys/fs/selinux/unshare
+>>> unshare -m -n
+>>> umount /sys/fs/selinux
+>>> mount -t selinuxfs none /sys/fs/selinux
+>>> load_policy
+>>> getenforce
+>>> id
+>>> echo $$
+>>>
+>>> The above will show that the process now views itself as running in
+>>> the
+>>> kernel domain in permissive mode, as would be the case at boot.
+>>>> From a different shell on the host system, running ps -eZ or
+>>> cat /proc/<pid>/attr/current will show that the process that
+>>> unshared its selinux namespace is still running in its original
+>>> context in the initial namespace, and getenforce will show the
+>>> the initial namespace remains enforcing.  Enforcing mode or policy
+>>> changes in the child will not affect the parent.
+>>>
+>>> This is not yet safe; do not use on production systems.
+>>> Known issues include at least the following items:
+>>>
+>>> * The policy loading code has not been thoroughly audited
+>>> and hardened for use by unprivileged code, both with respect to
+>>> ensuring that the policy is internally consistent and restricting
+>>> the range of values used from the policy as loop bounds and memory
+>>> allocation sizes to sane limits.
+>>>
+>>> * The SELinux hook functions have not been modified to be
+>>> namespace-aware, so the hooks only perform checking against the
+>>> current namespace.  Thus, unsharing allows the process to escape
+>>> confinement by the parent.  Fixing this requires updating each hook
+>>> to
+>>> perform its processing on the current namespace and all of its
+>>> ancestors
+>>> up to the init namespace.
+>>>
+>>> * Some of the hook functions can be called outside of process
+>>> context
+>>> (e.g. task_kill, send_sigiotask, network input/forward) and should
+>>> not use
+>>> the current task's selinux namespace. These hooks need to be
+>>> updated to
+>>> obtain the proper selinux namespace to use instead from the caller
+>>> or
+>>> cached in a suitable data structure (e.g. the file or sock security
+>>> structures).
+>>>
+>>> * There are number of issues with the inode and superblock security
+>>> blob
+>>> handling for multiple namespaces, see those commits for more
+>>> details.
+>>>
+>>> * Only a subset of object security blobs have been updated to
+>>> be namespace-aware and support multiple namespaces.  The ones that
+>>> have not yet been updated could end up performing permission checks
+>>> or
+>>> other operations on SIDs created in a different selinux namespace.
+>>>
+>>> * The network SID caches (netif, netnode, netport) have not yet
+>>> been instantiated per selinux namespace, unlike the AVC and SS.
+>>>
+>>> * There is no way currently to restrict or bound nesting of
+>>> namespaces; if you allow it to a domain in the init namespace,
+>>> then that domain can in turn unshare to arbitrary depths and can
+>>> grant the same to any domain in its own policy.  Related to this
+>>> is the fact that there is no way to control resource usage due to
+>>> selinux namespaces and they can be substantial (per-namespace
+>>> policydb, sidtab, AVC, etc).
+>>>
+>>> * SIDs may be cached by audit and networking code and in external
+>>> kernel data structures and used later, potentially in a different
+>>> selinux namespace than the one in which the SID was originally
+>>> created.
+>> Is there a good reason that SIDs (and security contexts) need to
+>> be maintained separately in the namespaces? Using the same secid
+>> to map to a different context depending on the namespace seems like
+>> you're asking for trouble you don't need. A namespace that hasn't
+>> policy for a context/SID won't use it if it is defined for a
+>> different namespace, and should detect the fact if it somehow gets
+>> referenced, because it isn't in the policy.
+>>
+>> Do the context/SID mapping globally. Or, if you must duplicate
+>> contexts,
+>> allocate the SIDs from a single source so that they aren't ambiguous.
+> Yes, that may be the right answer, but it requires introducing a new
+> SID/context layer above the current security server layer (or changing
+> the latter),
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- semodule-utils/.gitignore                    |   1 -
- semodule-utils/Makefile                      |   2 +-
- semodule-utils/semodule_deps/Makefile        |  28 --
- semodule-utils/semodule_deps/semodule_deps.8 |  46 ---
- semodule-utils/semodule_deps/semodule_deps.c | 401 ---------------------------
- 5 files changed, 1 insertion(+), 477 deletions(-)
- delete mode 100644 semodule-utils/semodule_deps/Makefile
- delete mode 100644 semodule-utils/semodule_deps/semodule_deps.8
- delete mode 100644 semodule-utils/semodule_deps/semodule_deps.c
+It could be as simple as using a global next_sid instead of attaching
+that to the sidtab (s->next_sid).
 
-diff --git a/semodule-utils/.gitignore b/semodule-utils/.gitignore
-index 1667564..6ec4efe 100644
---- a/semodule-utils/.gitignore
-+++ b/semodule-utils/.gitignore
-@@ -1,5 +1,4 @@
- semodule_package/semodule_package
- semodule_package/semodule_unpackage
--semodule_deps/semodule_deps
- semodule_expand/semodule_expand
- semodule_link/semodule_link
-diff --git a/semodule-utils/Makefile b/semodule-utils/Makefile
-index 6bf4aee..e0a6579 100644
---- a/semodule-utils/Makefile
-+++ b/semodule-utils/Makefile
-@@ -1,4 +1,4 @@
--SUBDIRS = semodule_package semodule_link semodule_expand semodule_deps
-+SUBDIRS = semodule_package semodule_link semodule_expand
- 
- all install relabel clean indent:
- 	@for subdir in $(SUBDIRS); do \
-diff --git a/semodule-utils/semodule_deps/Makefile b/semodule-utils/semodule_deps/Makefile
-deleted file mode 100644
-index 328a503..0000000
---- a/semodule-utils/semodule_deps/Makefile
-+++ /dev/null
-@@ -1,28 +0,0 @@
--# Installation directories.
--PREFIX ?= $(DESTDIR)/usr
--INCLUDEDIR ?= $(PREFIX)/include
--BINDIR ?= $(PREFIX)/bin
--LIBDIR ?= $(PREFIX)/lib
--MANDIR ?= $(PREFIX)/share/man
--LIBSEPOLA ?= $(LIBDIR)/libsepol.a
--
--CFLAGS ?= -Werror -Wall -W
--
--all: semodule_deps
--
--semodule_deps:  semodule_deps.o $(LIBSEPOLA)
--
--install: all
--	-mkdir -p $(BINDIR)
--	install -m 755 semodule_deps $(BINDIR)
--	test -d $(MANDIR)/man8 || install -m 755 -d $(MANDIR)/man8
--	install -m 644 semodule_deps.8 $(MANDIR)/man8/
--
--relabel:
--
--clean:
--	-rm -f semodule_deps *.o
--
--indent:
--	../../scripts/Lindent $(wildcard *.[ch])
--
-diff --git a/semodule-utils/semodule_deps/semodule_deps.8 b/semodule-utils/semodule_deps/semodule_deps.8
-deleted file mode 100644
-index 6f21a64..0000000
---- a/semodule-utils/semodule_deps/semodule_deps.8
-+++ /dev/null
-@@ -1,46 +0,0 @@
--.TH SEMODULE_DEPS "8" "June 2006" "Security Enhanced Linux" NSA
--.SH NAME 
--semodule_deps \- show the dependencies between SELinux policy packages.
--
--.SH SYNOPSIS
--.B semodule_deps [\-v \-g \-b] basemodpkg modpkg1 [modpkg2 ... ]
--.br
--.SH DESCRIPTION
--.PP
--semodule_deps is a developer tool for showing the dependencies
--between policy packages. For each module it prints a list of
--modules that must be present for a module's requirements to
--be satisfied. It only deals with requirements, not optional
--dependencies.
--
--In order for semodule_deps to give useful information the list
--of packages passed in cannot have unsatisfied dependencies. In
--general this means that the list of modules will usually be
--quite long.
--
--By default options to the base module are excluded as almost every
--module has this dependency. The \-b option will include these
--dependencies.
--
--In addition to human readable output, semodule_deps can output the
--dependencies in the Graphviz dot format (http://www.graphviz.org/)
--using the \-g option. This is useful for producing a picture of the
--dependencies.
--
--.SH "OPTIONS"
--.TP
--.B \-v
--verbose mode
--.TP
--.B \-g
--output dependency information in Graphviz dot format
--.TP
--.B \-b
--include dependencies to the base module - by default these are excluded
--
--.SH SEE ALSO
--.B checkmodule(8), semodule_package(8), semodule(8), semodule_link(8)
--.SH AUTHORS
--.nf
--This manual page was written by Karl MacMillan <kmacmillan@mentalrootkit.com>.
--The program was written by Karl MacMillan <kmacmillan@mentalrootkit.com>.
-diff --git a/semodule-utils/semodule_deps/semodule_deps.c b/semodule-utils/semodule_deps/semodule_deps.c
-deleted file mode 100644
-index 7a7ff2f..0000000
---- a/semodule-utils/semodule_deps/semodule_deps.c
-+++ /dev/null
-@@ -1,401 +0,0 @@
--/* Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
-- *
-- * Copyright (C) 2006 Tresys Technology, LLC
-- * Copyright (C) 2006-2007 Red Hat, Inc.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation, version 2.
-- *
-- */
--
--/* Because we _must_ muck around in the internal representation of
-- * the policydb (and include the internal header below) this program
-- * must be statically linked to libsepol like checkpolicy. It is
-- * not clear if it is worthwhile to fix this, as exposing the details
-- * of avrule_blocks - even in an ABI safe way - seems undesirable.
-- */
--#include <sepol/module.h>
--#include <sepol/errcodes.h>
--#include <sepol/policydb/policydb.h>
--
--#include <getopt.h>
--#include <fcntl.h>
--#include <stdio.h>
--#include <errno.h>
--#include <sys/mman.h>
--#include <sys/types.h>
--#include <sys/stat.h>
--#include <stdlib.h>
--#include <unistd.h>
--#include <string.h>
--#include <assert.h>
--
--/* for getopt */
--extern char *optarg;
--extern int optind;
--
--/* This is really a horrible hack, but the base module
-- * is referred to with the following name. The same
-- * thing is done in the linker for displaying error
-- * messages.
-- */
--#define BASE_NAME ((char *)"BASE")
--
--static __attribute__((__noreturn__)) void usage(const char *program_name)
--{
--	printf("usage: %s [-v -g -b] basemodpkg modpkg1 [modpkg2 ... ]\n",
--	       program_name);
--	exit(1);
--}
--
--/* Basic string hash and compare for the hashtables used in
-- * generate_requires. Copied from symtab.c.
-- */
--static unsigned int reqsymhash(hashtab_t h, const_hashtab_key_t key)
--{
--	const char *p, *keyp;
--	size_t size;
--	unsigned int val;
--
--	val = 0;
--	keyp = (const char *)key;
--	size = strlen(keyp);
--	for (p = keyp; ((size_t) (p - keyp)) < size; p++)
--		val =
--		    (val << 4 | (val >> (8 * sizeof(unsigned int) - 4))) ^ (*p);
--	return val & (h->size - 1);
--}
--
--static int reqsymcmp(hashtab_t h
--		     __attribute__ ((unused)), const_hashtab_key_t key1,
--		     const_hashtab_key_t key2)
--{
--	return strcmp(key1, key2);
--}
--
--/* Load a policy package from the given filename. Progname is used for
-- * error reporting.
-- */
--static sepol_module_package_t *load_module(char *filename, char *progname)
--{
--	int ret;
--	FILE *fp = NULL;
--	struct sepol_policy_file *pf = NULL;
--	sepol_module_package_t *p = NULL;
--
--	if (sepol_module_package_create(&p)) {
--		fprintf(stderr, "%s:  Out of memory\n", progname);
--		goto bad;
--	}
--	if (sepol_policy_file_create(&pf)) {
--		fprintf(stderr, "%s:  Out of memory\n", progname);
--		goto bad;
--	}
--	fp = fopen(filename, "r");
--	if (!fp) {
--		fprintf(stderr, "%s:  Could not open package %s:  %s", progname,
--			filename, strerror(errno));
--		goto bad;
--	}
--	sepol_policy_file_set_fp(pf, fp);
--
--	ret = sepol_module_package_read(p, pf, 0);
--	if (ret) {
--		fprintf(stderr, "%s:  Error while reading package from %s\n",
--			progname, filename);
--		goto bad;
--	}
--	fclose(fp);
--	sepol_policy_file_free(pf);
--	return p;
--      bad:
--	sepol_module_package_free(p);
--	sepol_policy_file_free(pf);
--	if (fp)
--		fclose(fp);
--	return NULL;
--}
--
--/* This function generates the requirements graph and stores it in
-- * a set of nested hashtables. The top level hash table stores modules
-- * keyed by name. The value of that module is a hashtable storing all
-- * of the requirements keyed by name. There is no value for the requirements
-- * hashtable.
-- *
-- * This only tracks symbols that are _required_ - optional symbols
-- * are completely ignored. A future version might look at this.
-- *
-- * This requirement generation only looks at booleans and types because:
-- *  - object classes: (for now) only present in bases
-- *  - roles: since they are multiply declared it is not clear how
-- *           to present these requirements as they will be satisfied
-- *           by multiple modules.
-- *  - users: same problem as roles plus they are usually defined outside
-- *           of the policy.
-- *  - levels / cats: can't be required or used in modules.
-- */
--static hashtab_t generate_requires(policydb_t * p)
--{
--	avrule_block_t *block;
--	avrule_decl_t *decl;
--	char *mod_name, *req_name, *id;
--	ebitmap_t *b;
--	ebitmap_node_t *node;
--	uint32_t i, j;
--	int ret;
--	scope_datum_t *scope;
--	hashtab_t mods;
--	hashtab_t reqs;
--
--	mods = hashtab_create(reqsymhash, reqsymcmp, 64);
--	if (mods == NULL)
--		return NULL;
--
--	for (block = p->global; block != NULL; block = block->next) {
--		if (block->flags & AVRULE_OPTIONAL)
--			continue;
--		for (decl = block->branch_list; decl != NULL; decl = decl->next) {
--			mod_name =
--			    decl->module_name ? decl->module_name : BASE_NAME;
--			for (i = 0; i < SYM_NUM; i++) {
--				if (!(i == SYM_TYPES || i == SYM_BOOLS))
--					continue;
--				b = &decl->required.scope[i];
--				ebitmap_for_each_bit(b, node, j) {
--					if (!ebitmap_node_get_bit(node, j))
--						continue;
--					id = p->sym_val_to_name[i][j];
--					scope =
--					    (scope_datum_t *) hashtab_search(p->
--									     scope
--									     [i].
--									     table,
--									     id);
--					/* since this is only called after a successful link,
--					 * this should never happen */
--					assert(scope->scope == SCOPE_DECL);
--					req_name =
--					    p->decl_val_to_struct[scope->
--								  decl_ids[0]]->
--					    module_name ? p->
--					    decl_val_to_struct[scope->
--							       decl_ids[0]]->
--					    module_name : BASE_NAME;
--
--					reqs =
--					    (hashtab_t) hashtab_search(mods,
--								       mod_name);
--					if (!reqs) {
--						reqs =
--						    hashtab_create(reqsymhash,
--								   reqsymcmp,
--								   64);
--						if (reqs == NULL) {
--							return NULL;
--						}
--						ret =
--						    hashtab_insert(mods,
--								   mod_name,
--								   reqs);
--						if (ret != SEPOL_OK)
--							return NULL;
--					}
--					ret =
--					    hashtab_insert(reqs, req_name,
--							   NULL);
--					if (!
--					    (ret == SEPOL_EEXIST
--					     || ret == SEPOL_OK))
--						return NULL;
--				}
--			}
--
--		}
--	}
--
--	return mods;
--}
--
--static void free_requires(hashtab_t req)
--{
--	unsigned int i;
--	hashtab_ptr_t cur;
--
--	/* We steal memory for everything stored in the hash tables
--	 * from the policydb, so this only looks like it leaks.
--	 */
--	for (i = 0; i < req->size; i++) {
--		cur = req->htable[i];
--		while (cur != NULL) {
--			hashtab_destroy((hashtab_t) cur->datum);
--			cur = cur->next;
--		}
--	}
--	hashtab_destroy(req);
--}
--
--static void output_graphviz(hashtab_t mods, int exclude_base, FILE * f)
--{
--	unsigned int i, j;
--	hashtab_ptr_t cur, cur2;
--	hashtab_t reqs;
--
--	fprintf(f, "digraph mod_deps {\n");
--	fprintf(f, "\toverlap=false\n");
--
--	for (i = 0; i < mods->size; i++) {
--		cur = mods->htable[i];
--		while (cur != NULL) {
--			reqs = (hashtab_t) cur->datum;
--			assert(reqs);
--			for (j = 0; j < reqs->size; j++) {
--				cur2 = reqs->htable[j];
--				while (cur2 != NULL) {
--					if (exclude_base
--					    && strcmp(cur2->key,
--						      BASE_NAME) == 0) {
--						cur2 = cur2->next;
--						continue;
--					}
--					fprintf(f, "\t%s -> %s\n", cur->key,
--						cur2->key);
--					cur2 = cur2->next;
--				}
--			}
--			cur = cur->next;
--		}
--	}
--	fprintf(f, "}\n");
--}
--
--static void output_requirements(hashtab_t mods, int exclude_base, FILE * f)
--{
--	unsigned int i, j;
--	hashtab_ptr_t cur, cur2;
--	hashtab_t reqs;
--	int found_req;
--
--	for (i = 0; i < mods->size; i++) {
--		cur = mods->htable[i];
--		while (cur != NULL) {
--			reqs = (hashtab_t) cur->datum;
--			assert(reqs);
--			fprintf(f, "module: %s\n", cur->key);
--			found_req = 0;
--			for (j = 0; j < reqs->size; j++) {
--				cur2 = reqs->htable[j];
--				while (cur2 != NULL) {
--					if (exclude_base
--					    && strcmp(cur2->key,
--						      BASE_NAME) == 0) {
--						cur2 = cur2->next;
--						continue;
--					}
--					found_req = 1;
--					fprintf(f, "\t%s\n", cur2->key);
--					cur2 = cur2->next;
--				}
--			}
--			if (!found_req)
--				fprintf(f, "\t[no dependencies]\n");
--			cur = cur->next;
--		}
--	}
--	fprintf(f, "}\n");
--}
--
--/* Possible commands - see the command variable in
-- * main below and the man page for more info.
-- */
--#define SHOW_DEPS    1
--#define GEN_GRAPHVIZ 2
--
--int main(int argc, char **argv)
--{
--	int ch, i, num_mods;
--	int verbose = 0, exclude_base = 1, command = SHOW_DEPS;
--	char *basename;
--	sepol_module_package_t *base, **mods;
--	policydb_t *p;
--	hashtab_t req;
--
--	while ((ch = getopt(argc, argv, "vgb")) != EOF) {
--		switch (ch) {
--		case 'v':
--			verbose = 1;
--			break;
--		case 'g':
--			command = GEN_GRAPHVIZ;
--			break;
--		case 'b':
--			exclude_base = 0;
--			break;
--		default:
--			usage(argv[0]);
--		}
--	}
--
--	/* check args */
--	if (argc < 3 || !(optind != (argc - 1))) {
--		fprintf(stderr,
--			"%s:  You must provide the base module package and at least one other module package\n",
--			argv[0]);
--		usage(argv[0]);
--	}
--
--	basename = argv[optind++];
--	base = load_module(basename, argv[0]);
--	if (!base) {
--		fprintf(stderr,
--			"%s:  Could not load base module from file %s\n",
--			argv[0], basename);
--		exit(1);
--	}
--
--	num_mods = argc - optind;
--	mods =
--	    (sepol_module_package_t **) malloc(sizeof(sepol_module_package_t *)
--					       * num_mods);
--	if (!mods) {
--		fprintf(stderr, "%s:  Out of memory\n", argv[0]);
--		exit(1);
--	}
--	memset(mods, 0, sizeof(sepol_module_package_t *) * num_mods);
--
--	for (i = 0; optind < argc; optind++, i++) {
--		mods[i] = load_module(argv[optind], argv[0]);
--		if (!mods[i]) {
--			fprintf(stderr,
--				"%s:  Could not load module from file %s\n",
--				argv[0], argv[optind]);
--			exit(1);
--		}
--	}
--
--	if (sepol_link_packages(NULL, base, mods, num_mods, verbose)) {
--		fprintf(stderr, "%s:  Error while linking packages\n", argv[0]);
--		exit(1);
--	}
--
--	p = (policydb_t *) sepol_module_package_get_policy(base);
--	if (p == NULL)
--		exit(1);
--
--	req = generate_requires(p);
--	if (req == NULL)
--		exit(1);
--
--	if (command == SHOW_DEPS)
--		output_requirements(req, exclude_base, stdout);
--	else
--		output_graphviz(req, exclude_base, stdout);
--
--	sepol_module_package_free(base);
--	for (i = 0; i < num_mods; i++)
--		sepol_module_package_free(mods[i]);
--
--	free_requires(req);
--
--	exit(0);
--}
--- 
-2.9.5
+What I'm really afraid of is an ambiguous secid being set in
+a secmark. In the stacking case it's going to be bad enough
+mapping a set of secids into a "token" without having to deal
+with the possibility that SELinux could give you a secid that
+has multiple possible mappings depending on which namespace it
+came from and/or which it is going into.
+
+
+>  because the security server SID/context mappings are from
+> SIDs to internal struct representations of the context, where the
+> struct representation is policy-specific.  Also, certain SIDs (e.g. the
+> kernel SID, the unlabeled SID, etc) are predefined for system
+> initialization before policy load and to support usage from policy-
+> independent code, but may be mapped to different context values by
+> different policies.  So even the SID->string mappings may differ for
+> different policies, and hence for different namespaces.
+>
+>>> * No doubt other things I'm forgetting or haven't thought of.
+>>> Use at your own risk.
+>>>
+>>> Not-signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>> ---
+>>>  security/selinux/include/classmap.h |  3 +-
+>>>  security/selinux/selinuxfs.c        | 66
+>>> +++++++++++++++++++++++++++++++++++++
+>>>  2 files changed, 68 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/security/selinux/include/classmap.h
+>>> b/security/selinux/include/classmap.h
+>>> index 35ffb29..82c8f9c 100644
+>>> --- a/security/selinux/include/classmap.h
+>>> +++ b/security/selinux/include/classmap.h
+>>> @@ -39,7 +39,8 @@ struct security_class_mapping secclass_map[] = {
+>>>  	  { "compute_av", "compute_create", "compute_member",
+>>>  	    "check_context", "load_policy", "compute_relabel",
+>>>  	    "compute_user", "setenforce", "setbool",
+>>> "setsecparam",
+>>> -	    "setcheckreqprot", "read_policy", "validate_trans",
+>>> NULL } },
+>>> +	    "setcheckreqprot", "read_policy", "validate_trans",
+>>> "unshare",
+>>> +	    NULL } },
+>>>  	{ "process",
+>>>  	  { "fork", "transition", "sigchld", "sigkill",
+>>>  	    "sigstop", "signull", "signal", "ptrace", "getsched",
+>>> "setsched",
+>>> diff --git a/security/selinux/selinuxfs.c
+>>> b/security/selinux/selinuxfs.c
+>>> index a7e6bdb..dedb3cc9 100644
+>>> --- a/security/selinux/selinuxfs.c
+>>> +++ b/security/selinux/selinuxfs.c
+>>> @@ -63,6 +63,7 @@ enum sel_inos {
+>>>  	SEL_STATUS,	/* export current status using mmap()
+>>> */
+>>>  	SEL_POLICY,	/* allow userspace to read the in
+>>> kernel policy */
+>>>  	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
+>>> +	SEL_UNSHARE,	    /* unshare selinux namespace */
+>>>  	SEL_INO_NEXT,	/* The next inode number to use */
+>>>  };
+>>>  
+>>> @@ -321,6 +322,70 @@ static const struct file_operations
+>>> sel_disable_ops = {
+>>>  	.llseek		= generic_file_llseek,
+>>>  };
+>>>  
+>>> +static ssize_t sel_write_unshare(struct file *file, const char
+>>> __user *buf,
+>>> +				 size_t count, loff_t *ppos)
+>>> +
+>>> +{
+>>> +	struct selinux_fs_info *fsi = file_inode(file)->i_sb-
+>>>> s_fs_info;
+>>> +	struct selinux_ns *ns = fsi->ns;
+>>> +	char *page;
+>>> +	ssize_t length;
+>>> +	bool set;
+>>> +	int rc;
+>>> +
+>>> +	if (count >= PAGE_SIZE)
+>>> +		return -ENOMEM;
+>>> +
+>>> +	/* No partial writes. */
+>>> +	if (*ppos != 0)
+>>> +		return -EINVAL;
+>>> +
+>>> +	rc = avc_has_perm(current_selinux_ns, current_sid(),
+>>> +			  SECINITSID_SECURITY, SECCLASS_SECURITY,
+>>> +			  SECURITY__UNSHARE, NULL);
+>>> +	if (rc)
+>>> +		return rc;
+>>> +
+>>> +	page = memdup_user_nul(buf, count);
+>>> +	if (IS_ERR(page))
+>>> +		return PTR_ERR(page);
+>>> +
+>>> +	length = -EINVAL;
+>>> +	if (kstrtobool(page, &set))
+>>> +		goto out;
+>>> +
+>>> +	if (set) {
+>>> +		struct cred *cred = prepare_creds();
+>>> +		struct task_security_struct *tsec;
+>>> +
+>>> +		if (!cred) {
+>>> +			length = -ENOMEM;
+>>> +			goto out;
+>>> +		}
+>>> +		tsec = cred->security;
+>>> +		if (selinux_ns_create(ns, &tsec->ns)) {
+>>> +			abort_creds(cred);
+>>> +			length = -ENOMEM;
+>>> +			goto out;
+>>> +		}
+>>> +		tsec->osid = tsec->sid = SECINITSID_KERNEL;
+>>> +		tsec->exec_sid = tsec->create_sid = tsec-
+>>>> keycreate_sid =
+>>> +			tsec->sockcreate_sid = SECSID_NULL;
+>>> +		tsec->parent_cred = get_current_cred();
+>>> +		commit_creds(cred);
+>>> +	}
+>>> +
+>>> +	length = count;
+>>> +out:
+>>> +	kfree(page);
+>>> +	return length;
+>>> +}
+>>> +
+>>> +static const struct file_operations sel_unshare_ops = {
+>>> +	.write		= sel_write_unshare,
+>>> +	.llseek		= generic_file_llseek,
+>>> +};
+>>> +
+>>>  static ssize_t sel_read_policyvers(struct file *filp, char __user
+>>> *buf,
+>>>  				   size_t count, loff_t *ppos)
+>>>  {
+>>> @@ -1923,6 +1988,7 @@ static int sel_fill_super(struct super_block
+>>> *sb, void *data, int silent)
+>>>  		[SEL_POLICY] = {"policy", &sel_policy_ops,
+>>> S_IRUGO},
+>>>  		[SEL_VALIDATE_TRANS] = {"validatetrans",
+>>> &sel_transition_ops,
+>>>  					S_IWUGO},
+>>> +		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops,
+>>> 0222},
+>>>  		/* last one */ {""}
+>>>  	};
+>>>  
+>>
+>> .
+
+
+.
