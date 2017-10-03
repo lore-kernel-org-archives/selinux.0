@@ -1,134 +1,264 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v939wVsR013847
- for <selinux@tycho.nsa.gov>; Tue, 3 Oct 2017 05:58:31 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 55D3F81E19
- for <selinux@tycho.nsa.gov>; Tue,  3 Oct 2017 09:58:25 +0000 (UTC)
-Received: from Thinkpad_450.brq.redhat.com (unknown [10.43.12.77])
- by smtp.corp.redhat.com (Postfix) with ESMTP id CDA1160251
- for <selinux@tycho.nsa.gov>; Tue,  3 Oct 2017 09:58:24 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Tue,  3 Oct 2017 11:57:37 +0200
-Message-Id: <20171003095737.9027-1-vmojzis@redhat.com>
-In-Reply-To: <1506971246.23398.11.camel@tycho.nsa.gov>
-References: <1506971246.23398.11.camel@tycho.nsa.gov>
-Subject: [PATCH] libsemanage: Add support for listing fcontext.homedirs file
+Message-ID: <1507033768.17197.1.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov, James
+ Morris <jmorris@namei.org>, Paul Moore <paul@paul-moore.com>
+Date: Tue, 03 Oct 2017 08:29:28 -0400
+In-Reply-To: <b8001307-2374-97ff-a81a-e0d2965f117b@schaufler-ca.com>
+References: <20171002155825.28620-1-sds@tycho.nsa.gov>
+ <20171002155825.28620-10-sds@tycho.nsa.gov>
+ <b8001307-2374-97ff-a81a-e0d2965f117b@schaufler-ca.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [RFC 09/10] selinux: add a selinuxfs interface to unshare
+ selinux namespace
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1409813
----
- libsemanage/include/semanage/fcontexts_policy.h |  4 ++++
- libsemanage/src/direct_api.c                    |  7 +++++++
- libsemanage/src/fcontexts_policy.c              |  8 ++++++++
- libsemanage/src/handle.h                        | 19 +++++++++++++------
- 4 files changed, 32 insertions(+), 6 deletions(-)
+On Mon, 2017-10-02 at 16:56 -0700, Casey Schaufler wrote:
+> On 10/2/2017 8:58 AM, Stephen Smalley wrote:
+> > Provide a userspace API to unshare the selinux namespace.
+> > Currently implemented via a selinuxfs node. This could be
+> > coupled with unsharing of other namespaces (e.g.  mount namespace,
+> > network namespace) that will always be needed or left independent.
+> > Don't get hung up on the interface itself, it is just to allow
+> > experimentation and testing.
+> > 
+> > Sample usage:
+> > echo 1 > /sys/fs/selinux/unshare
+> > unshare -m -n
+> > umount /sys/fs/selinux
+> > mount -t selinuxfs none /sys/fs/selinux
+> > load_policy
+> > getenforce
+> > id
+> > echo $$
+> > 
+> > The above will show that the process now views itself as running in
+> > the
+> > kernel domain in permissive mode, as would be the case at boot.
+> > > From a different shell on the host system, running ps -eZ or
+> > 
+> > cat /proc/<pid>/attr/current will show that the process that
+> > unshared its selinux namespace is still running in its original
+> > context in the initial namespace, and getenforce will show the
+> > the initial namespace remains enforcing.  Enforcing mode or policy
+> > changes in the child will not affect the parent.
+> > 
+> > This is not yet safe; do not use on production systems.
+> > Known issues include at least the following items:
+> > 
+> > * The policy loading code has not been thoroughly audited
+> > and hardened for use by unprivileged code, both with respect to
+> > ensuring that the policy is internally consistent and restricting
+> > the range of values used from the policy as loop bounds and memory
+> > allocation sizes to sane limits.
+> > 
+> > * The SELinux hook functions have not been modified to be
+> > namespace-aware, so the hooks only perform checking against the
+> > current namespace.  Thus, unsharing allows the process to escape
+> > confinement by the parent.  Fixing this requires updating each hook
+> > to
+> > perform its processing on the current namespace and all of its
+> > ancestors
+> > up to the init namespace.
+> > 
+> > * Some of the hook functions can be called outside of process
+> > context
+> > (e.g. task_kill, send_sigiotask, network input/forward) and should
+> > not use
+> > the current task's selinux namespace. These hooks need to be
+> > updated to
+> > obtain the proper selinux namespace to use instead from the caller
+> > or
+> > cached in a suitable data structure (e.g. the file or sock security
+> > structures).
+> > 
+> > * There are number of issues with the inode and superblock security
+> > blob
+> > handling for multiple namespaces, see those commits for more
+> > details.
+> > 
+> > * Only a subset of object security blobs have been updated to
+> > be namespace-aware and support multiple namespaces.  The ones that
+> > have not yet been updated could end up performing permission checks
+> > or
+> > other operations on SIDs created in a different selinux namespace.
+> > 
+> > * The network SID caches (netif, netnode, netport) have not yet
+> > been instantiated per selinux namespace, unlike the AVC and SS.
+> > 
+> > * There is no way currently to restrict or bound nesting of
+> > namespaces; if you allow it to a domain in the init namespace,
+> > then that domain can in turn unshare to arbitrary depths and can
+> > grant the same to any domain in its own policy.  Related to this
+> > is the fact that there is no way to control resource usage due to
+> > selinux namespaces and they can be substantial (per-namespace
+> > policydb, sidtab, AVC, etc).
+> > 
+> > * SIDs may be cached by audit and networking code and in external
+> > kernel data structures and used later, potentially in a different
+> > selinux namespace than the one in which the SID was originally
+> > created.
+> 
+> Is there a good reason that SIDs (and security contexts) need to
+> be maintained separately in the namespaces? Using the same secid
+> to map to a different context depending on the namespace seems like
+> you're asking for trouble you don't need. A namespace that hasn't
+> policy for a context/SID won't use it if it is defined for a
+> different namespace, and should detect the fact if it somehow gets
+> referenced, because it isn't in the policy.
+> 
+> Do the context/SID mapping globally. Or, if you must duplicate
+> contexts,
+> allocate the SIDs from a single source so that they aren't ambiguous.
 
-diff --git a/libsemanage/include/semanage/fcontexts_policy.h b/libsemanage/include/semanage/fcontexts_policy.h
-index a50db2b..199a1e1 100644
---- a/libsemanage/include/semanage/fcontexts_policy.h
-+++ b/libsemanage/include/semanage/fcontexts_policy.h
-@@ -26,4 +26,8 @@ extern int semanage_fcontext_list(semanage_handle_t * handle,
- 				  semanage_fcontext_t *** records,
- 				  unsigned int *count);
- 
-+extern int semanage_fcontext_list_homedirs(semanage_handle_t * handle,
-+				  semanage_fcontext_t *** records,
-+				  unsigned int *count);
-+
- #endif
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 971a08f..00ad820 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -210,6 +210,12 @@ int semanage_direct_connect(semanage_handle_t * sh)
- 				     semanage_fcontext_dbase_local(sh)) < 0)
- 		goto err;
- 
-+	if (fcontext_file_dbase_init(sh,
-+				     semanage_path(SEMANAGE_ACTIVE, SEMANAGE_STORE_FC_HOMEDIRS),
-+				     semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS),
-+				     semanage_fcontext_dbase_homedirs(sh)) < 0)
-+		goto err;
-+
- 	if (seuser_file_dbase_init(sh,
- 				   semanage_path(SEMANAGE_ACTIVE,
- 						 SEMANAGE_SEUSERS_LOCAL),
-@@ -349,6 +355,7 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
- 	iface_file_dbase_release(semanage_iface_dbase_local(sh));
- 	bool_file_dbase_release(semanage_bool_dbase_local(sh));
- 	fcontext_file_dbase_release(semanage_fcontext_dbase_local(sh));
-+	fcontext_file_dbase_release(semanage_fcontext_dbase_homedirs(sh));
- 	seuser_file_dbase_release(semanage_seuser_dbase_local(sh));
- 	node_file_dbase_release(semanage_node_dbase_local(sh));
- 
-diff --git a/libsemanage/src/fcontexts_policy.c b/libsemanage/src/fcontexts_policy.c
-index 0b063b1..98490ab 100644
---- a/libsemanage/src/fcontexts_policy.c
-+++ b/libsemanage/src/fcontexts_policy.c
-@@ -51,3 +51,11 @@ int semanage_fcontext_list(semanage_handle_t * handle,
- 	dbase_config_t *dconfig = semanage_fcontext_dbase_policy(handle);
- 	return dbase_list(handle, dconfig, records, count);
- }
-+
-+int semanage_fcontext_list_homedirs(semanage_handle_t * handle,
-+			   semanage_fcontext_t *** records, unsigned int *count)
-+{
-+
-+	dbase_config_t *dconfig = semanage_fcontext_dbase_homedirs(handle);
-+	return dbase_list(handle, dconfig, records, count);
-+}
-diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
-index 889871d..1780ac8 100644
---- a/libsemanage/src/handle.h
-+++ b/libsemanage/src/handle.h
-@@ -79,7 +79,7 @@ struct semanage_handle {
- 	struct semanage_policy_table *funcs;
- 
- 	/* Object databases */
--#define DBASE_COUNT      23
-+#define DBASE_COUNT      24
- 
- /* Local modifications */
- #define DBASE_LOCAL_USERS_BASE  0
-@@ -102,13 +102,14 @@ struct semanage_handle {
- #define DBASE_POLICY_INTERFACES  15
- #define DBASE_POLICY_BOOLEANS    16
- #define DBASE_POLICY_FCONTEXTS   17
--#define DBASE_POLICY_SEUSERS     18
--#define DBASE_POLICY_NODES       19
--#define DBASE_POLICY_IBPKEYS     20
--#define DBASE_POLICY_IBENDPORTS  21
-+#define DBASE_POLICY_FCONTEXTS_H 18
-+#define DBASE_POLICY_SEUSERS     19
-+#define DBASE_POLICY_NODES       20
-+#define DBASE_POLICY_IBPKEYS     21
-+#define DBASE_POLICY_IBENDPORTS  22
- 
- /* Active kernel policy */
--#define DBASE_ACTIVE_BOOLEANS    22
-+#define DBASE_ACTIVE_BOOLEANS    23
- 	dbase_config_t dbase[DBASE_COUNT];
- };
- 
-@@ -236,6 +237,12 @@ static inline
- }
- 
- static inline
-+    dbase_config_t * semanage_fcontext_dbase_homedirs(semanage_handle_t * handle)
-+{
-+	return &handle->dbase[DBASE_POLICY_FCONTEXTS_H];
-+}
-+
-+static inline
-     dbase_config_t * semanage_seuser_dbase_policy(semanage_handle_t * handle)
- {
- 	return &handle->dbase[DBASE_POLICY_SEUSERS];
--- 
-2.9.4
+Yes, that may be the right answer, but it requires introducing a new
+SID/context layer above the current security server layer (or changing
+the latter), because the security server SID/context mappings are from
+SIDs to internal struct representations of the context, where the
+struct representation is policy-specific.  Also, certain SIDs (e.g. the
+kernel SID, the unlabeled SID, etc) are predefined for system
+initialization before policy load and to support usage from policy-
+independent code, but may be mapped to different context values by
+different policies.  So even the SID->string mappings may differ for
+different policies, and hence for different namespaces.
+
+> 
+> > 
+> > * No doubt other things I'm forgetting or haven't thought of.
+> > Use at your own risk.
+> > 
+> > Not-signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >  security/selinux/include/classmap.h |  3 +-
+> >  security/selinux/selinuxfs.c        | 66
+> > +++++++++++++++++++++++++++++++++++++
+> >  2 files changed, 68 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/security/selinux/include/classmap.h
+> > b/security/selinux/include/classmap.h
+> > index 35ffb29..82c8f9c 100644
+> > --- a/security/selinux/include/classmap.h
+> > +++ b/security/selinux/include/classmap.h
+> > @@ -39,7 +39,8 @@ struct security_class_mapping secclass_map[] = {
+> >  	  { "compute_av", "compute_create", "compute_member",
+> >  	    "check_context", "load_policy", "compute_relabel",
+> >  	    "compute_user", "setenforce", "setbool",
+> > "setsecparam",
+> > -	    "setcheckreqprot", "read_policy", "validate_trans",
+> > NULL } },
+> > +	    "setcheckreqprot", "read_policy", "validate_trans",
+> > "unshare",
+> > +	    NULL } },
+> >  	{ "process",
+> >  	  { "fork", "transition", "sigchld", "sigkill",
+> >  	    "sigstop", "signull", "signal", "ptrace", "getsched",
+> > "setsched",
+> > diff --git a/security/selinux/selinuxfs.c
+> > b/security/selinux/selinuxfs.c
+> > index a7e6bdb..dedb3cc9 100644
+> > --- a/security/selinux/selinuxfs.c
+> > +++ b/security/selinux/selinuxfs.c
+> > @@ -63,6 +63,7 @@ enum sel_inos {
+> >  	SEL_STATUS,	/* export current status using mmap()
+> > */
+> >  	SEL_POLICY,	/* allow userspace to read the in
+> > kernel policy */
+> >  	SEL_VALIDATE_TRANS, /* compute validatetrans decision */
+> > +	SEL_UNSHARE,	    /* unshare selinux namespace */
+> >  	SEL_INO_NEXT,	/* The next inode number to use */
+> >  };
+> >  
+> > @@ -321,6 +322,70 @@ static const struct file_operations
+> > sel_disable_ops = {
+> >  	.llseek		= generic_file_llseek,
+> >  };
+> >  
+> > +static ssize_t sel_write_unshare(struct file *file, const char
+> > __user *buf,
+> > +				 size_t count, loff_t *ppos)
+> > +
+> > +{
+> > +	struct selinux_fs_info *fsi = file_inode(file)->i_sb-
+> > >s_fs_info;
+> > +	struct selinux_ns *ns = fsi->ns;
+> > +	char *page;
+> > +	ssize_t length;
+> > +	bool set;
+> > +	int rc;
+> > +
+> > +	if (count >= PAGE_SIZE)
+> > +		return -ENOMEM;
+> > +
+> > +	/* No partial writes. */
+> > +	if (*ppos != 0)
+> > +		return -EINVAL;
+> > +
+> > +	rc = avc_has_perm(current_selinux_ns, current_sid(),
+> > +			  SECINITSID_SECURITY, SECCLASS_SECURITY,
+> > +			  SECURITY__UNSHARE, NULL);
+> > +	if (rc)
+> > +		return rc;
+> > +
+> > +	page = memdup_user_nul(buf, count);
+> > +	if (IS_ERR(page))
+> > +		return PTR_ERR(page);
+> > +
+> > +	length = -EINVAL;
+> > +	if (kstrtobool(page, &set))
+> > +		goto out;
+> > +
+> > +	if (set) {
+> > +		struct cred *cred = prepare_creds();
+> > +		struct task_security_struct *tsec;
+> > +
+> > +		if (!cred) {
+> > +			length = -ENOMEM;
+> > +			goto out;
+> > +		}
+> > +		tsec = cred->security;
+> > +		if (selinux_ns_create(ns, &tsec->ns)) {
+> > +			abort_creds(cred);
+> > +			length = -ENOMEM;
+> > +			goto out;
+> > +		}
+> > +		tsec->osid = tsec->sid = SECINITSID_KERNEL;
+> > +		tsec->exec_sid = tsec->create_sid = tsec-
+> > >keycreate_sid =
+> > +			tsec->sockcreate_sid = SECSID_NULL;
+> > +		tsec->parent_cred = get_current_cred();
+> > +		commit_creds(cred);
+> > +	}
+> > +
+> > +	length = count;
+> > +out:
+> > +	kfree(page);
+> > +	return length;
+> > +}
+> > +
+> > +static const struct file_operations sel_unshare_ops = {
+> > +	.write		= sel_write_unshare,
+> > +	.llseek		= generic_file_llseek,
+> > +};
+> > +
+> >  static ssize_t sel_read_policyvers(struct file *filp, char __user
+> > *buf,
+> >  				   size_t count, loff_t *ppos)
+> >  {
+> > @@ -1923,6 +1988,7 @@ static int sel_fill_super(struct super_block
+> > *sb, void *data, int silent)
+> >  		[SEL_POLICY] = {"policy", &sel_policy_ops,
+> > S_IRUGO},
+> >  		[SEL_VALIDATE_TRANS] = {"validatetrans",
+> > &sel_transition_ops,
+> >  					S_IWUGO},
+> > +		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops,
+> > 0222},
+> >  		/* last one */ {""}
+> >  	};
+> >  
+> 
+> 
+> .
