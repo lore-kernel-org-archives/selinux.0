@@ -1,65 +1,53 @@
-Message-ID: <1507148678.1491.9.camel@tycho.nsa.gov>
+Message-ID: <1507148778.1491.10.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-Date: Wed, 04 Oct 2017 16:24:38 -0400
-In-Reply-To: <20171004153604.5817-3-vmojzis@redhat.com>
-References: <1dcea489-7584-e7a3-aa50-99a974440734@redhat.com>
- <20171004153604.5817-1-vmojzis@redhat.com>
- <20171004153604.5817-3-vmojzis@redhat.com>
+To: Corentin Labbe <clabbe.montjoie@gmail.com>, paul@paul-moore.com,
+ eparis@parisplace.org, james.l.morris@oracle.com, serge@hallyn.com
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Date: Wed, 04 Oct 2017 16:26:18 -0400
+In-Reply-To: <20171004183218.4786-1-clabbe.montjoie@gmail.com>
+References: <20171004183218.4786-1-clabbe.montjoie@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [PATCH 3/3] python/semanage: Enable listing file_contexts.homedirs
+Subject: Re: [PATCH 1/2] selinux: fix build warning by removing the unused
+ sid variable
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-10-04 at 17:36 +0200, Vit Mojzis wrote:
-> Include entries from file_contexts.homedirs when listing file
-> contexts
-> via "semanage fcontext -l"
+On Wed, 2017-10-04 at 20:32 +0200, Corentin Labbe wrote:
+> This patch remove the unused variable sid
+> This fix the following build warning:
+> security/selinux/hooks.c:2921:6: warning: variable 'sid' set but not
+> used [-Wunused-but-set-variable]
 > 
-> "semanage fcontext -l" so far ignored content of
-> file_contexts.homedirs
-> file, which is confusing for users (more specific rules may be
-> ignored in
-> favor of rules unseen to the user since file_contexts.homedirs has
-> higher priority than file_contexts).
-> 
-> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1409813
-> 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
 
-For all three patches:
-Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
-
-Queued for merging in a couple of days.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->  python/semanage/seobject.py | 5 +++++
->  1 file changed, 5 insertions(+)
+>  security/selinux/hooks.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
 > 
-> diff --git a/python/semanage/seobject.py
-> b/python/semanage/seobject.py
-> index 70fd192..1385315 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -2566,10 +2566,15 @@ class fcontextRecords(semanageRecords):
->              if rc < 0:
->                  raise ValueError(_("Could not list file contexts"))
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index f5d304736852..8507a56f85e4 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2918,13 +2918,12 @@ static int selinux_inode_init_security(struct
+> inode *inode, struct inode *dir,
+>  {
+>  	const struct task_security_struct *tsec =
+> current_security();
+>  	struct superblock_security_struct *sbsec;
+> -	u32 sid, newsid, clen;
+> +	u32 newsid, clen;
+>  	int rc;
+>  	char *context;
 >  
-> +            (rc, fchomedirs) =
-> semanage_fcontext_list_homedirs(self.sh)
-> +            if rc < 0:
-> +                raise ValueError(_("Could not list file contexts for
-> home directories"))
-> +
->              (rc, fclocal) = semanage_fcontext_list_local(self.sh)
->              if rc < 0:
->                  raise ValueError(_("Could not list local file
-> contexts"))
+>  	sbsec = dir->i_sb->s_security;
 >  
-> +            self.flist += fchomedirs
->              self.flist += fclocal
+> -	sid = tsec->sid;
+>  	newsid = tsec->create_sid;
 >  
->          ddict = {}
+>  	rc = selinux_determine_inode_label(current_security(),
