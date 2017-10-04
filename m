@@ -1,167 +1,151 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
- Linux Containers <containers@lists.linux-foundation.org>,
- Serge Hallyn <serge@hallyn.com>, Chris Wright <chrisw@sous-sol.org>,
- James Morris <james.l.morris@oracle.com>,
- Eric Paris <eparis@parisplace.org>,
- Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
-References: <87tvzmqwoi.fsf@xmission.com>
- <1506688601.5571.1.camel@tycho.nsa.gov>
- <873771ipib.fsf_-_@xmission.com>
- <CAHC9VhTzDKbP-h=GBaCTYOM9Sm=3C=nhNghmPoCRZitCpJj6YA@mail.gmail.com>
-Date: Tue, 03 Oct 2017 16:26:29 -0500
-In-Reply-To: <CAHC9VhTzDKbP-h=GBaCTYOM9Sm=3C=nhNghmPoCRZitCpJj6YA@mail.gmail.com>
- (Paul Moore's message of "Tue, 3 Oct 2017 17:08:00 -0400")
-Message-ID: <87a8179b3u.fsf@xmission.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: [PATCH] selinux: Perform both commoncap and selinux xattr checks
+Message-ID: <1507126077.1491.2.camel@tycho.ncsc.mil>
+From: Stephen Smalley <sds@tycho.ncsc.mil>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+Date: Wed, 04 Oct 2017 10:07:57 -0400
+In-Reply-To: <20171003095737.9027-1-vmojzis@redhat.com>
+References: <1506971246.23398.11.camel@tycho.nsa.gov>
+ <20171003095737.9027-1-vmojzis@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH] libsemanage: Add support for listing fcontext.homedirs
+ file
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Paul Moore <paul@paul-moore.com> writes:
+On Tue, 2017-10-03 at 11:57 +0200, Vit Mojzis wrote:
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1409813
 
-> On Mon, Oct 2, 2017 at 10:38 AM, Eric W. Biederman
-> <ebiederm@xmission.com> wrote:
->>
->> When selinux is loaded the relax permission checks for writing
->> security.capable are not honored.  Which keeps file capabilities
->> from being used in user namespaces.
->>
->> Stephen Smalley <sds@tycho.nsa.gov> writes:
->>> Originally SELinux called the cap functions directly since there was no
->>> stacking support in the infrastructure and one had to manually stack a
->>> secondary module internally.  inode_setxattr and inode_removexattr
->>> however were special cases because the cap functions would check
->>> CAP_SYS_ADMIN for any non-capability attributes in the security.*
->>> namespace, and we don't want to impose that requirement on setting
->>> security.selinux.  Thus, we inlined the capabilities logic into the
->>> selinux hook functions and adapted it appropriately.
->>
->> Now that the permission checks in commoncap have evolved this
->> inlining of their contents has become a problem.  So restructure
->> selinux_inode_removexattr, and selinux_inode_setxattr to call
->> both the corresponding cap_inode_ function and dentry_has_perm
->> when the attribute is not a selinux security xattr.   This ensures
->> the policies of both commoncap and selinux are enforced.
->>
->> This results in smack and selinux having the same basic structure
->> for setxattr and removexattr.  Performing their own special permission
->> checks when it is their modules xattr being written to, and deferring
->> to commoncap when that is not the case.  Then finally performing their
->> generic module policy on all xattr writes.
->>
->> This structure is fine when you only consider stacking with the
->> commoncap lsm, but it becomes a problem if two lsms that don't want
->> the commoncap security checks on their own attributes need to be
->> stack.  This means there will need to be updates in the future as lsm
->> stacking is improved, but at least now the structure between smack and
->> selinux is common making the code easier to refactor.
->>
->> This change also has the effect that selinux_linux_setotherxattr becomes
->> unnecessary so it is removed.
->>
->> Fixes: 8db6c34f1dbc ("Introduce v3 namespaced file capabilities")
->> Fixes: 7bbf0e052b76 ("[PATCH] selinux merge")
->> Historical Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
->> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
->> ---
->>
->> While this fixes some things this isn't a regression so it should be
->> able to wait until the next merge window to be merged.   Would you like
->> to take this through the selinux tree?  Or shall I take it through mine?
->>
->> security/selinux/hooks.c | 43 ++++++++++++++++++-------------------------
->>  1 file changed, 18 insertions(+), 25 deletions(-)
->
-> This patch looks sane to me and I believe it addresses Stephen's
-> concerns, but I'll wait on him to comment on-list.
+These all look good to me now.  Could you please re-post them all with
+Signed-off-by: lines, and then we'll merge them in a couple of days
+barring any other concerns?
 
-He has alredy acked this publicly.
-
-I may have skipped Cc'ing the selinux list as the discussion was
-originally more general and the selinux list is reported to be
-subscribers (not me) only.
-
-> As far as how this gets merged, I'd much prefer to take this via the
-> SELinux tree given that all of the changes are internal to SELinux.
-
-Sounds good.  I just care that it get's picked up.
-
-Eric
-
-
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index f5d304736852..c78dbec627f6 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -3124,27 +3124,6 @@ static int selinux_inode_getattr(const struct path *path)
->>         return path_has_perm(current_cred(), path, FILE__GETATTR);
->>  }
->>
->> -static int selinux_inode_setotherxattr(struct dentry *dentry, const char *name)
->> -{
->> -       const struct cred *cred = current_cred();
->> -
->> -       if (!strncmp(name, XATTR_SECURITY_PREFIX,
->> -                    sizeof XATTR_SECURITY_PREFIX - 1)) {
->> -               if (!strcmp(name, XATTR_NAME_CAPS)) {
->> -                       if (!capable(CAP_SETFCAP))
->> -                               return -EPERM;
->> -               } else if (!capable(CAP_SYS_ADMIN)) {
->> -                       /* A different attribute in the security namespace.
->> -                          Restrict to administrator. */
->> -                       return -EPERM;
->> -               }
->> -       }
->> -
->> -       /* Not an attribute we recognize, so just check the
->> -          ordinary setattr permission. */
->> -       return dentry_has_perm(cred, dentry, FILE__SETATTR);
->> -}
->> -
->>  static bool has_cap_mac_admin(bool audit)
->>  {
->>         const struct cred *cred = current_cred();
->> @@ -3167,8 +3146,15 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
->>         u32 newsid, sid = current_sid();
->>         int rc = 0;
->>
->> -       if (strcmp(name, XATTR_NAME_SELINUX))
->> -               return selinux_inode_setotherxattr(dentry, name);
->> +       if (strcmp(name, XATTR_NAME_SELINUX)) {
->> +               rc = cap_inode_setxattr(dentry, name, value, size, flags);
->> +               if (rc)
->> +                       return rc;
->> +
->> +               /* Not an attribute we recognize, so just check the
->> +                  ordinary setattr permission. */
->> +               return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
->> +       }
->>
->>         sbsec = inode->i_sb->s_security;
->>         if (!(sbsec->flags & SBLABEL_MNT))
->> @@ -3282,8 +3268,15 @@ static int selinux_inode_listxattr(struct dentry *dentry)
->>
->>  static int selinux_inode_removexattr(struct dentry *dentry, const char *name)
->>  {
->> -       if (strcmp(name, XATTR_NAME_SELINUX))
->> -               return selinux_inode_setotherxattr(dentry, name);
->> +       if (strcmp(name, XATTR_NAME_SELINUX)) {
->> +               int rc = cap_inode_removexattr(dentry, name);
->> +               if (rc)
->> +                       return rc;
->> +
->> +               /* Not an attribute we recognize, so just check the
->> +                  ordinary setattr permission. */
->> +               return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
->> +       }
->>
->>         /* No one is allowed to remove a SELinux security label.
->>            You can change the label, but all data must be labeled. */
->> --
->> 2.14.1
->>
+> ---
+>  libsemanage/include/semanage/fcontexts_policy.h |  4 ++++
+>  libsemanage/src/direct_api.c                    |  7 +++++++
+>  libsemanage/src/fcontexts_policy.c              |  8 ++++++++
+>  libsemanage/src/handle.h                        | 19 +++++++++++++
+> ------
+>  4 files changed, 32 insertions(+), 6 deletions(-)
+> 
+> diff --git a/libsemanage/include/semanage/fcontexts_policy.h
+> b/libsemanage/include/semanage/fcontexts_policy.h
+> index a50db2b..199a1e1 100644
+> --- a/libsemanage/include/semanage/fcontexts_policy.h
+> +++ b/libsemanage/include/semanage/fcontexts_policy.h
+> @@ -26,4 +26,8 @@ extern int semanage_fcontext_list(semanage_handle_t
+> * handle,
+>  				  semanage_fcontext_t *** records,
+>  				  unsigned int *count);
+>  
+> +extern int semanage_fcontext_list_homedirs(semanage_handle_t *
+> handle,
+> +				  semanage_fcontext_t *** records,
+> +				  unsigned int *count);
+> +
+>  #endif
+> diff --git a/libsemanage/src/direct_api.c
+> b/libsemanage/src/direct_api.c
+> index 971a08f..00ad820 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -210,6 +210,12 @@ int semanage_direct_connect(semanage_handle_t *
+> sh)
+>  				     semanage_fcontext_dbase_local(s
+> h)) < 0)
+>  		goto err;
+>  
+> +	if (fcontext_file_dbase_init(sh,
+> +				     semanage_path(SEMANAGE_ACTIVE,
+> SEMANAGE_STORE_FC_HOMEDIRS),
+> +				     semanage_path(SEMANAGE_TMP,
+> SEMANAGE_STORE_FC_HOMEDIRS),
+> +				     semanage_fcontext_dbase_homedir
+> s(sh)) < 0)
+> +		goto err;
+> +
+>  	if (seuser_file_dbase_init(sh,
+>  				   semanage_path(SEMANAGE_ACTIVE,
+>  						 SEMANAGE_SEUSERS_LO
+> CAL),
+> @@ -349,6 +355,7 @@ static int
+> semanage_direct_disconnect(semanage_handle_t * sh)
+>  	iface_file_dbase_release(semanage_iface_dbase_local(sh));
+>  	bool_file_dbase_release(semanage_bool_dbase_local(sh));
+>  	fcontext_file_dbase_release(semanage_fcontext_dbase_local(sh
+> ));
+> +	fcontext_file_dbase_release(semanage_fcontext_dbase_homedirs
+> (sh));
+>  	seuser_file_dbase_release(semanage_seuser_dbase_local(sh));
+>  	node_file_dbase_release(semanage_node_dbase_local(sh));
+>  
+> diff --git a/libsemanage/src/fcontexts_policy.c
+> b/libsemanage/src/fcontexts_policy.c
+> index 0b063b1..98490ab 100644
+> --- a/libsemanage/src/fcontexts_policy.c
+> +++ b/libsemanage/src/fcontexts_policy.c
+> @@ -51,3 +51,11 @@ int semanage_fcontext_list(semanage_handle_t *
+> handle,
+>  	dbase_config_t *dconfig =
+> semanage_fcontext_dbase_policy(handle);
+>  	return dbase_list(handle, dconfig, records, count);
+>  }
+> +
+> +int semanage_fcontext_list_homedirs(semanage_handle_t * handle,
+> +			   semanage_fcontext_t *** records, unsigned
+> int *count)
+> +{
+> +
+> +	dbase_config_t *dconfig =
+> semanage_fcontext_dbase_homedirs(handle);
+> +	return dbase_list(handle, dconfig, records, count);
+> +}
+> diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
+> index 889871d..1780ac8 100644
+> --- a/libsemanage/src/handle.h
+> +++ b/libsemanage/src/handle.h
+> @@ -79,7 +79,7 @@ struct semanage_handle {
+>  	struct semanage_policy_table *funcs;
+>  
+>  	/* Object databases */
+> -#define DBASE_COUNT      23
+> +#define DBASE_COUNT      24
+>  
+>  /* Local modifications */
+>  #define DBASE_LOCAL_USERS_BASE  0
+> @@ -102,13 +102,14 @@ struct semanage_handle {
+>  #define DBASE_POLICY_INTERFACES  15
+>  #define DBASE_POLICY_BOOLEANS    16
+>  #define DBASE_POLICY_FCONTEXTS   17
+> -#define DBASE_POLICY_SEUSERS     18
+> -#define DBASE_POLICY_NODES       19
+> -#define DBASE_POLICY_IBPKEYS     20
+> -#define DBASE_POLICY_IBENDPORTS  21
+> +#define DBASE_POLICY_FCONTEXTS_H 18
+> +#define DBASE_POLICY_SEUSERS     19
+> +#define DBASE_POLICY_NODES       20
+> +#define DBASE_POLICY_IBPKEYS     21
+> +#define DBASE_POLICY_IBENDPORTS  22
+>  
+>  /* Active kernel policy */
+> -#define DBASE_ACTIVE_BOOLEANS    22
+> +#define DBASE_ACTIVE_BOOLEANS    23
+>  	dbase_config_t dbase[DBASE_COUNT];
+>  };
+>  
+> @@ -236,6 +237,12 @@ static inline
+>  }
+>  
+>  static inline
+> +    dbase_config_t *
+> semanage_fcontext_dbase_homedirs(semanage_handle_t * handle)
+> +{
+> +	return &handle->dbase[DBASE_POLICY_FCONTEXTS_H];
+> +}
+> +
+> +static inline
+>      dbase_config_t * semanage_seuser_dbase_policy(semanage_handle_t
+> * handle)
+>  {
+>  	return &handle->dbase[DBASE_POLICY_SEUSERS];
