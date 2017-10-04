@@ -1,109 +1,111 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v94GGuHq006748
- for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2017 12:16:57 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 26094C04B92A
- for <selinux@tycho.nsa.gov>; Wed,  4 Oct 2017 15:36:14 +0000 (UTC)
-Received: from Thinkpad_450.redhat.com (unknown [10.40.205.103])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 609E46FF11
- for <selinux@tycho.nsa.gov>; Wed,  4 Oct 2017 15:36:13 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Wed,  4 Oct 2017 17:36:02 +0200
-Message-Id: <20171004153604.5817-1-vmojzis@redhat.com>
-In-Reply-To: <1dcea489-7584-e7a3-aa50-99a974440734@redhat.com>
-References: <1dcea489-7584-e7a3-aa50-99a974440734@redhat.com>
-Subject: [PATCH 1/3] libsemanage: Keep copy of
- file_contexts.homedirs in policy store
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v94F1MJ5002567
+ for <selinux@tycho.nsa.gov>; Wed, 4 Oct 2017 11:01:26 -0400
+Received: by mail-lf0-f67.google.com with SMTP id q132so4858275lfe.4
+ for <selinux@tycho.nsa.gov>; Wed, 04 Oct 2017 07:55:57 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <87a8179b3u.fsf@xmission.com>
+References: <87tvzmqwoi.fsf@xmission.com>
+ <1506688601.5571.1.camel@tycho.nsa.gov>
+ <873771ipib.fsf_-_@xmission.com>
+ <CAHC9VhTzDKbP-h=GBaCTYOM9Sm=3C=nhNghmPoCRZitCpJj6YA@mail.gmail.com>
+ <87a8179b3u.fsf@xmission.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 4 Oct 2017 10:53:54 -0400
+Message-ID: <CAHC9VhQFGiE_VrN=oYODRP=rDSkM4Se5=XUcirUHxvMTC1Xf5w@mail.gmail.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
+ Linux Containers <containers@lists.linux-foundation.org>,
+ Serge Hallyn <serge@hallyn.com>, Chris Wright <chrisw@sous-sol.org>,
+ James Morris <james.l.morris@oracle.com>,
+ Eric Paris <eparis@parisplace.org>,
+ Casey Schaufler <casey@schaufler-ca.com>, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux: Perform both commoncap and selinux xattr checks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This will allow listing the correct file_contexts.homedirs
-using libsemanage regardless of selected policy store.
+On Tue, Oct 3, 2017 at 5:26 PM, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> Paul Moore <paul@paul-moore.com> writes:
+>
+>> On Mon, Oct 2, 2017 at 10:38 AM, Eric W. Biederman
+>> <ebiederm@xmission.com> wrote:
+>>>
+>>> When selinux is loaded the relax permission checks for writing
+>>> security.capable are not honored.  Which keeps file capabilities
+>>> from being used in user namespaces.
+>>>
+>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
+>>>> Originally SELinux called the cap functions directly since there was no
+>>>> stacking support in the infrastructure and one had to manually stack a
+>>>> secondary module internally.  inode_setxattr and inode_removexattr
+>>>> however were special cases because the cap functions would check
+>>>> CAP_SYS_ADMIN for any non-capability attributes in the security.*
+>>>> namespace, and we don't want to impose that requirement on setting
+>>>> security.selinux.  Thus, we inlined the capabilities logic into the
+>>>> selinux hook functions and adapted it appropriately.
+>>>
+>>> Now that the permission checks in commoncap have evolved this
+>>> inlining of their contents has become a problem.  So restructure
+>>> selinux_inode_removexattr, and selinux_inode_setxattr to call
+>>> both the corresponding cap_inode_ function and dentry_has_perm
+>>> when the attribute is not a selinux security xattr.   This ensures
+>>> the policies of both commoncap and selinux are enforced.
+>>>
+>>> This results in smack and selinux having the same basic structure
+>>> for setxattr and removexattr.  Performing their own special permission
+>>> checks when it is their modules xattr being written to, and deferring
+>>> to commoncap when that is not the case.  Then finally performing their
+>>> generic module policy on all xattr writes.
+>>>
+>>> This structure is fine when you only consider stacking with the
+>>> commoncap lsm, but it becomes a problem if two lsms that don't want
+>>> the commoncap security checks on their own attributes need to be
+>>> stack.  This means there will need to be updates in the future as lsm
+>>> stacking is improved, but at least now the structure between smack and
+>>> selinux is common making the code easier to refactor.
+>>>
+>>> This change also has the effect that selinux_linux_setotherxattr becomes
+>>> unnecessary so it is removed.
+>>>
+>>> Fixes: 8db6c34f1dbc ("Introduce v3 namespaced file capabilities")
+>>> Fixes: 7bbf0e052b76 ("[PATCH] selinux merge")
+>>> Historical Tree: https://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+>>> Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+>>> ---
+>>>
+>>> While this fixes some things this isn't a regression so it should be
+>>> able to wait until the next merge window to be merged.   Would you like
+>>> to take this through the selinux tree?  Or shall I take it through mine?
+>>>
+>>> security/selinux/hooks.c | 43 ++++++++++++++++++-------------------------
+>>>  1 file changed, 18 insertions(+), 25 deletions(-)
+>>
+>> This patch looks sane to me and I believe it addresses Stephen's
+>> concerns, but I'll wait on him to comment on-list.
+>
+> He has alredy acked this publicly.
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1409813
+So he did, for some reason I missed it in this thread, my apologies.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsemanage/src/direct_api.c     | 19 ++++++++++++++-----
- libsemanage/src/genhomedircon.c  |  4 ++--
- libsemanage/src/semanage_store.c |  1 +
- libsemanage/src/semanage_store.h |  1 +
- 4 files changed, 18 insertions(+), 7 deletions(-)
+> I may have skipped Cc'ing the selinux list as the discussion was
+> originally more general and the selinux list is reported to be
+> subscribers (not me) only.
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 65842df..971a08f 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -1577,11 +1577,20 @@ rebuild:
- 	/* run genhomedircon if its enabled, this should be the last operation
- 	 * which requires the out policydb */
- 	if (!sh->conf->disable_genhomedircon) {
--		if (out && (retval =
--			semanage_genhomedircon(sh, out, sh->conf->usepasswd, sh->conf->ignoredirs)) != 0) {
--			ERR(sh, "semanage_genhomedircon returned error code %d.",
--			    retval);
--			goto cleanup;
-+		if (out){
-+			if ((retval = semanage_genhomedircon(sh, out, sh->conf->usepasswd,
-+								sh->conf->ignoredirs)) != 0) {
-+				ERR(sh, "semanage_genhomedircon returned error code %d.", retval);
-+				goto cleanup;
-+			}
-+			/* file_contexts.homedirs was created in SEMANAGE_TMP store */
-+			retval = semanage_copy_file(
-+						semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS),
-+						semanage_final_path(SEMANAGE_FINAL_TMP,	SEMANAGE_FC_HOMEDIRS),
-+						sh->conf->file_mode);
-+			if (retval < 0) {
-+				goto cleanup;
-+			}
- 		}
- 	} else {
- 		WARN(sh, "WARNING: genhomedircon is disabled. \
-diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
-index b9a74b7..27a269e 100644
---- a/libsemanage/src/genhomedircon.c
-+++ b/libsemanage/src/genhomedircon.c
-@@ -1345,8 +1345,8 @@ int semanage_genhomedircon(semanage_handle_t * sh,
- 
- 	s.homedir_template_path =
- 	    semanage_path(SEMANAGE_TMP, SEMANAGE_HOMEDIR_TMPL);
--	s.fcfilepath = semanage_final_path(SEMANAGE_FINAL_TMP,
--					   SEMANAGE_FC_HOMEDIRS);
-+	s.fcfilepath =
-+		semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS);
- 
- 	s.fallback = calloc(1, sizeof(genhomedircon_user_entry_t));
- 	if (s.fallback == NULL) {
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 6158d08..63c80b0 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -116,6 +116,7 @@ static const char *semanage_sandbox_paths[SEMANAGE_STORE_NUM_PATHS] = {
- 	"/modules/disabled",
- 	"/policy.kern",
- 	"/file_contexts.local",
-+	"/file_contexts.homedirs",
- 	"/file_contexts",
- 	"/seusers"
- };
-diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
-index fcaa505..34bf852 100644
---- a/libsemanage/src/semanage_store.h
-+++ b/libsemanage/src/semanage_store.h
-@@ -61,6 +61,7 @@ enum semanage_sandbox_defs {
- 	SEMANAGE_MODULES_DISABLED,
- 	SEMANAGE_STORE_KERNEL,
- 	SEMANAGE_STORE_FC_LOCAL,
-+	SEMANAGE_STORE_FC_HOMEDIRS,
- 	SEMANAGE_STORE_FC,
- 	SEMANAGE_STORE_SEUSERS,
- 	SEMANAGE_STORE_NUM_PATHS
+The list is quasi-open, non-members can post, they are just moderated.
+That said I know the mailing list has been having some problems
+lately.
+
+>> As far as how this gets merged, I'd much prefer to take this via the
+>> SELinux tree given that all of the changes are internal to SELinux.
+>
+> Sounds good.  I just care that it get's picked up.
+
+Yep.  I just merged it into the SELinux next branch and I'll be
+sending this up during the next merge window.
+
 -- 
-2.9.4
+paul moore
+www.paul-moore.com
