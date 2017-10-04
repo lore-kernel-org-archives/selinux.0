@@ -1,55 +1,92 @@
-Message-ID: <59D5745B.5010604@iogearbox.net>
-Date: Thu, 05 Oct 2017 01:52:59 +0200
-From: Daniel Borkmann <daniel@iogearbox.net>
 MIME-Version: 1.0
-To: Chenbo Feng <chenbofeng.kernel@gmail.com>, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org
-CC: Jeffrey Vander Stoep <jeffv@google.com>,
- Lorenzo Colitti <lorenzo@google.com>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Chenbo Feng <fengc@google.com>
+In-Reply-To: <59D56EED.1030804@iogearbox.net>
 References: <20171004182932.140028-1-chenbofeng.kernel@gmail.com>
- <20171004182932.140028-5-chenbofeng.kernel@gmail.com>
- <59D57263.3080601@iogearbox.net>
-In-Reply-To: <59D57263.3080601@iogearbox.net>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Subject: Re: [PATCH net-next 4/4] selinux: bpf: Add addtional check
- for bpf object file receive
+ <20171004182932.140028-2-chenbofeng.kernel@gmail.com>
+ <59D56EED.1030804@iogearbox.net>
+From: Chenbo Feng <fengc@google.com>
+Date: Wed, 4 Oct 2017 16:58:05 -0700
+Message-ID: <CAMOXUJnpuvZjF7fiPXB+3ao0fopm6kS6Y9tACh8trq4PKG0RsA@mail.gmail.com>
+To: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Chenbo Feng <chenbofeng.kernel@gmail.com>, netdev@vger.kernel.org,
+ SELinux <Selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org,
+ Jeffrey Vander Stoep <jeffv@google.com>,
+ Lorenzo Colitti <lorenzo@google.com>,
+ Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH net-next 1/4] bpf: Add file mode configuration
+ into bpf maps
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/05/2017 01:44 AM, Daniel Borkmann wrote:
+On Wed, Oct 4, 2017 at 4:29 PM, Daniel Borkmann <daniel@iogearbox.net> wrote:
 > On 10/04/2017 08:29 PM, Chenbo Feng wrote:
+>>
 >> From: Chenbo Feng <fengc@google.com>
 >>
->> Introduce a bpf object related check when sending and receiving files
->> through unix domain socket as well as binder. It checks if the receiving
->> process have privilege to read/write the bpf map or use the bpf program.
->> This check is necessary because the bpf maps and programs are using a
->> anonymous inode as their shared inode so the normal way of checking the
->> files and sockets when passing between processes cannot work properly on
->> eBPF object. This check only works when the BPF_SYSCALL is configured.
+>> Introduce the map read/write flags to the eBPF syscalls that returns the
+>> map fd. The flags is used to set up the file mode when construct a new
+>> file descriptor for bpf maps. To not break the backward capability, the
+>> f_flags is set to O_RDWR if the flag passed by syscall is 0. Otherwise
+>> it should be O_RDONLY or O_WRONLY. When the userspace want to modify or
+>> read the map content, it will check the file mode to see if it is
+>> allowed to make the change.
 >
 > [...]
->> +/* This function will check the file pass through unix socket or binder to see
->> + * if it is a bpf related object. And apply correspinding checks on the bpf
->> + * object based on the type. The bpf maps and programs, not like other files and
->> + * socket, are using a shared anonymous inode inside the kernel as their inode.
->> + * So checking that inode cannot identify if the process have privilege to
->> + * access the bpf object and that's why we have to add this additional check in
->> + * selinux_file_receive and selinux_binder_transfer_files.
->> + */
-> [...]
+>>
+>> +int bpf_get_file_flag(int flags)
+>> +{
+>> +       if ((flags & BPF_F_RDONLY) && (flags & BPF_F_WRONLY))
+>> +               return -EINVAL;
+>> +       if (flags & BPF_F_RDONLY)
+>> +               return O_RDONLY;
+>> +       if (flags & BPF_F_WRONLY)
+>> +               return O_WRONLY;
+>> +       return O_RDWR;
+>>   }
+>>
+>>   /* helper macro to check that unused fields 'union bpf_attr' are zero */
+>> @@ -345,12 +376,17 @@ static int map_create(union bpf_attr *attr)
+>>   {
+>>         int numa_node = bpf_map_attr_numa_node(attr);
+>>         struct bpf_map *map;
+>> +       int f_flags;
+>>         int err;
+>>
+>>         err = CHECK_ATTR(BPF_MAP_CREATE);
+>>         if (err)
+>>                 return -EINVAL;
+>>
+>> +       f_flags = bpf_get_file_flag(attr->map_flags);
+>> +       if (f_flags < 0)
+>> +               return f_flags;
 >
-> If selinux/lsm folks have some input on this one in particular, would
-> be great. The issue is not really tied to bpf specifically, but to the
-> use of anon-inodes wrt fd passing. Maybe some generic resolution can
-> be found to tackle this ...
+>
+> Wait, I just noticed, given you add BPF_F_RDONLY/BPF_F_WRONLY
+> to attr->map_flags, and later go into find_and_alloc_map(),
+> for map alloc, which is e.g. array_map_alloc(). There, we
+> bail out with EINVAL on attr->map_flags & ~BPF_F_NUMA_NODE,
+> which is the case for both BPF_F_RDONLY/BPF_F_WRONLY ... I
+> would have expected that the entire code was tested properly;
+> what was tested exactly in the set?
+>
 
-Perhaps even just a generic callback in struct file_operations might be
-better in order to just retrieve the secctx from the underlying object
-in case of anon-inodes and then have a generic check in selinux_file_receive()
-for the case when such callback is set, such that we don't need to put
-specific bpf logic there.
+Thanks for pointing out this, my test for the patch create the map
+with RD/WR flag which is 0.... that's why I didn't catch this. And
+bpf_obj_get do not have similar checks for map_flags.
+>>         if (numa_node != NUMA_NO_NODE &&
+>>             ((unsigned int)numa_node >= nr_node_ids ||
+>>              !node_online(numa_node)))
+>> @@ -376,7 +412,7 @@ static int map_create(union bpf_attr *attr)
+>>         if (err)
+>>                 goto free_map;
+>>
+>> -       err = bpf_map_new_fd(map);
+>> +       err = bpf_map_new_fd(map, f_flags);
+>>         if (err < 0) {
+>>                 /* failed to allocate fd.
+>>                  * bpf_map_put() is needed because the above
+>> @@ -491,6 +527,11 @@ static int map_lookup_elem(union bpf_attr *attr)
+>
+> [...]
