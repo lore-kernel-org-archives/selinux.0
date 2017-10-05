@@ -1,213 +1,76 @@
-Message-ID: <1507210621.27146.7.camel@tycho.nsa.gov>
+Message-ID: <1507212415.27146.10.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chenbo Feng <chenbofeng.kernel@gmail.com>, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org
-Cc: Chenbo Feng <fengc@google.com>, Alexei Starovoitov
- <alexei.starovoitov@gmail.com>, Daniel Borkmann <daniel@iogearbox.net>,
- Lorenzo Colitti <lorenzo@google.com>
-Date: Thu, 05 Oct 2017 09:37:01 -0400
-In-Reply-To: <20171004182932.140028-5-chenbofeng.kernel@gmail.com>
-References: <20171004182932.140028-1-chenbofeng.kernel@gmail.com>
- <20171004182932.140028-5-chenbofeng.kernel@gmail.com>
+To: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>, Paul Moore
+ <paul@paul-moore.com>
+Date: Thu, 05 Oct 2017 10:06:55 -0400
+In-Reply-To: <20171005054739.GA10620@mail.hallyn.com>
+References: <20171002155825.28620-1-sds@tycho.nsa.gov>
+ <20171002155825.28620-5-sds@tycho.nsa.gov>
+ <20171005054739.GA10620@mail.hallyn.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [PATCH net-next 4/4] selinux: bpf: Add addtional check for bpf
- object file receive
+Subject: Re: [RFC 04/10] netns, selinux: create the selinux netlink socket
+ per network namespace
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-10-04 at 11:29 -0700, Chenbo Feng wrote:
-> From: Chenbo Feng <fengc@google.com>
+On Thu, 2017-10-05 at 00:47 -0500, Serge E. Hallyn wrote:
+> On Mon, Oct 02, 2017 at 11:58:19AM -0400, Stephen Smalley wrote:
+> > The selinux netlink socket is used to notify userspace of changes
+> > to
+> > the enforcing mode and policy reloads.  At present, these
+> > notifications
+> > are always sent to the initial network namespace.  In order to
+> > support
+> > multiple selinux namespaces, each with its own enforcing mode and
+> > policy, we need to create and use a separate selinux netlink socket
+> > for each network namespace.
 > 
-> Introduce a bpf object related check when sending and receiving files
-> through unix domain socket as well as binder. It checks if the
-> receiving
-> process have privilege to read/write the bpf map or use the bpf
-> program.
-> This check is necessary because the bpf maps and programs are using a
-> anonymous inode as their shared inode so the normal way of checking
-> the
-> files and sockets when passing between processes cannot work properly
-> on
-> eBPF object. This check only works when the BPF_SYSCALL is
-> configured.
+> ...
 > 
-> Signed-off-by: Chenbo Feng <fengc@google.com>
-> ---
->  include/linux/bpf.h      |  3 +++
->  kernel/bpf/syscall.c     |  4 ++--
->  security/selinux/hooks.c | 57
-> +++++++++++++++++++++++++++++++++++++++++++++++-
->  3 files changed, 61 insertions(+), 3 deletions(-)
+> > +static int __init selnl_init(void)
+> > +{
+> > +	if (register_pernet_subsys(&selnl_net_ops))
+> > +		panic("Could not register selinux netlink
+> > operations\n");
+> >  	return 0;
+> >  }
 > 
-> diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-> index d757ea3f2228..ac8428a36d56 100644
-> --- a/include/linux/bpf.h
-> +++ b/include/linux/bpf.h
-> @@ -250,6 +250,9 @@ int bpf_prog_test_run_skb(struct bpf_prog *prog,
-> const union bpf_attr *kattr,
->  #ifdef CONFIG_BPF_SYSCALL
->  DECLARE_PER_CPU(int, bpf_prog_active);
->  
-> +extern const struct file_operations bpf_map_fops;
-> +extern const struct file_operations bpf_prog_fops;
-> +
->  #define BPF_PROG_TYPE(_id, _ops) \
->  	extern const struct bpf_verifier_ops _ops;
->  #define BPF_MAP_TYPE(_id, _ops) \
-> diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-> index 58ff769d58ab..5789a5359f0a 100644
-> --- a/kernel/bpf/syscall.c
-> +++ b/kernel/bpf/syscall.c
-> @@ -313,7 +313,7 @@ static ssize_t bpf_dummy_write(struct file *filp,
-> const char __user *buf,
->  	return -EINVAL;
->  }
->  
-> -static const struct file_operations bpf_map_fops = {
-> +const struct file_operations bpf_map_fops = {
->  #ifdef CONFIG_PROC_FS
->  	.show_fdinfo	= bpf_map_show_fdinfo,
->  #endif
-> @@ -965,7 +965,7 @@ static void bpf_prog_show_fdinfo(struct seq_file
-> *m, struct file *filp)
->  }
->  #endif
->  
-> -static const struct file_operations bpf_prog_fops = {
-> +const struct file_operations bpf_prog_fops = {
->  #ifdef CONFIG_PROC_FS
->  	.show_fdinfo	= bpf_prog_show_fdinfo,
->  #endif
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 41aba4e3d57c..381474ce3216 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1847,6 +1847,7 @@ static int file_has_perm(const struct cred
-> *cred,
->  
->  	/* av is zero if only checking access to the descriptor. */
->  	rc = 0;
-> +
->  	if (av)
->  		rc = inode_has_perm(cred, inode, av, &ad);
->  
-> @@ -2142,6 +2143,10 @@ static int
-> selinux_binder_transfer_binder(struct task_struct *from,
->  			    NULL);
->  }
->  
-> +#ifdef CONFIG_BPF_SYSCALL
-> +static int bpf_fd_pass(struct file *file, u32 sid);
-> +#endif
-> +
->  static int selinux_binder_transfer_file(struct task_struct *from,
->  					struct task_struct *to,
->  					struct file *file)
-> @@ -2165,6 +2170,12 @@ static int selinux_binder_transfer_file(struct
-> task_struct *from,
->  			return rc;
->  	}
->  
-> +#ifdef CONFIG_BPF_SYSCALL
-> +	rc = bpf_fd_pass(file, sid);
-> +	if (rc)
-> +		return rc;
-> +#endif
-> +
->  	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
->  		return 0;
->  
-> @@ -3735,8 +3746,18 @@ static int selinux_file_send_sigiotask(struct
-> task_struct *tsk,
->  static int selinux_file_receive(struct file *file)
->  {
->  	const struct cred *cred = current_cred();
-> +	int rc;
-> +
-> +	rc = file_has_perm(cred, file, file_to_av(file));
-> +	if (rc)
-> +		goto out;
-> +
-> +#ifdef CONFIG_BPF_SYSCALL
-> +	rc = bpf_fd_pass(file, cred_sid(sid));
-> +#endif
->  
-> -	return file_has_perm(cred, file, file_to_av(file));
-> +out:
-> +	return rc;
->  }
->  
->  static int selinux_file_open(struct file *file, const struct cred
-> *cred)
-> @@ -6288,6 +6309,40 @@ static u32 bpf_map_fmode_to_av(fmode_t fmode)
->  	return av;
->  }
->  
-> +/* This function will check the file pass through unix socket or
-> binder to see
-> + * if it is a bpf related object. And apply correspinding checks on
-> the bpf
-> + * object based on the type. The bpf maps and programs, not like
-> other files and
-> + * socket, are using a shared anonymous inode inside the kernel as
-> their inode.
-> + * So checking that inode cannot identify if the process have
-> privilege to
-> + * access the bpf object and that's why we have to add this
-> additional check in
-> + * selinux_file_receive and selinux_binder_transfer_files.
-> + */
-> +static int bpf_fd_pass(struct file *file, u32 sid)
-> +{
-> +	struct bpf_security_struct *bpfsec;
-> +	u32 sid = cred_sid(cred);
-> +	struct bpf_prog *prog;
-> +	struct bpf_map *map;
-> +	int ret;
-> +
-> +	if (file->f_op == &bpf_map_fops) {
-> +		map = file->private_data;
-> +		bpfsec = map->security;
-> +		ret = avc_has_perm(sid, bpfsec->sid,
-> SECCLASS_BPF_MAP,
-> +				   bpf_map_fmode_to_av(file-
-> >f_mode), NULL);
-> +		if (ret)
-> +			return ret;
-> +	} else if (file->f_op == &bpf_prog_fops) {
-> +		prog = file->private_data;
-> +		bpfsec = prog->aux->security;
-> +		ret = avc_has_perm(sid, bpfsec->sid,
-> SECCLASS_BPF_PROG,
-> +				   BPF_PROG__USE, NULL);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +	return 0;
-> +}
+> This doesn't seem right to me.  If the socket is only used to send
+> notifications to userspace, then every net_ns doesn't need a socket,
+> only the first netns that the selinux ns was associated, right?
 
-When the struct file is allocated for the bpf map and/or prog, you
-could call a hook at that time passing both, and note the fact that it
-is a bpf map/prog in the file_security_struct.  Then, on
-file_receive/binder_transfer_file, you could apply the appropriate
-checking.  Further, if we know that the file is always allocated at the
-same point as the bpf map/prog, then they should have the same SID (i.e
-fsec->sid should be the same as bpfsec->sid), so we shouldn't even need
-to dereference the bpf map/prog.  Unless I'm missing something.
+What does "the first netns that the selinux ns was associated" mean?
+We could unshare them in any order; in the sample command sequence I
+gave in the patch description for "selinux: add a selinuxfs interface
+to unshare selinux namespace", I unshared the SELinux namespace first,
+then the network namespace, but we could just as easily do it in the
+reverse order (or at the same time if unshare(2) supported that).  So
+you can't assume that the network namespace in which you are running at
+the time you unshare selinux namespace is the right one, nor that the
+first unshare of the network namespace after unsharing the selinux
+namespace is the right one (not that we even have a way to catch that
+currently).
 
-Also, are we concerned about doing the same in
-flush_unauthorized_files(), for inheriting descriptors across a
-context-changing execve?  Should this checking actually go into
-file_has_perm() itself so it is always applied on any use of the struct
-file?
+> So long as there is a way to find the netns to which an selinux ns
+> is tied, a userspace logger could even setns into that netns to
+> listen
+> for updates, if it wasn't certain to be in the right ns when it ran.
+> 
+> Otherwise (I haven't peeked ahead) you'll have to keep the *list* of
+> net_ns which live in a given selinuxfs and copy all messages to all
+> of
+> those namesapces?
 
-Lastly, do we need/want these checks if sid == bpfsec->sid?  We skip
-FD__USE in the case where sid == fsec->sid, for example.
-
-> +
->  static int selinux_bpf_map(struct bpf_map *map, fmode_t fmode)
->  {
->  	u32 sid = current_sid();
+No, we only deliver to the network namespace of the process that
+performed the setenforce or policy load (most commonly init, could also
+be an admin running a management command or installing a policy rpm). 
+We assume the container runtime properly handles unsharing of the
+mount, network, and selinux namespaces before launching the container
+init.  A container process that subsequently unshares its network
+namespace won't see notifications for any subsequent policy reloads or
+setenforce calls.  I don't know if that will prove to be a problem in
+practice.
