@@ -1,356 +1,47 @@
-From: Chenbo Feng <chenbofeng.kernel@gmail.com>
-To: netdev@vger.kernel.org, SELinux <Selinux@tycho.nsa.gov>,
- linux-security-module@vger.kernel.org
-Cc: Jeffrey Vander Stoep <jeffv@google.com>,
- Lorenzo Colitti <lorenzo@google.com>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Daniel Borkmann <daniel@iogearbox.net>, Chenbo Feng <fengc@google.com>
-Date: Wed,  4 Oct 2017 11:29:30 -0700
-Message-Id: <20171004182932.140028-3-chenbofeng.kernel@gmail.com>
-In-Reply-To: <20171004182932.140028-1-chenbofeng.kernel@gmail.com>
-References: <20171004182932.140028-1-chenbofeng.kernel@gmail.com>
-Subject: [PATCH net-next 2/4] security: bpf: Add LSM hooks for bpf
- object related syscall
+Date: Thu, 5 Oct 2017 00:47:39 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Message-ID: <20171005054739.GA10620@mail.hallyn.com>
+References: <20171002155825.28620-1-sds@tycho.nsa.gov>
+ <20171002155825.28620-5-sds@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20171002155825.28620-5-sds@tycho.nsa.gov>
+Subject: Re: [RFC 04/10] netns,
+ selinux: create the selinux netlink socket per network namespace
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Chenbo Feng <fengc@google.com>
+On Mon, Oct 02, 2017 at 11:58:19AM -0400, Stephen Smalley wrote:
+> The selinux netlink socket is used to notify userspace of changes to
+> the enforcing mode and policy reloads.  At present, these notifications
+> are always sent to the initial network namespace.  In order to support
+> multiple selinux namespaces, each with its own enforcing mode and
+> policy, we need to create and use a separate selinux netlink socket
+> for each network namespace.
 
-Introduce several LSM hooks for the syscalls that will allow the
-userspace to access to eBPF object such as eBPF programs and eBPF maps.
-The security check is aimed to enforce a per object security protection
-for eBPF object so only processes with the right priviliges can
-read/write to a specific map or use a specific eBPF program. Besides
-that, a general security hook is added before the multiplexer of bpf
-syscall to check the cmd and the attribute used for the command. The
-actual security module can decide which command need to be checked and
-how the cmd should be checked.
+...
 
-Signed-off-by: Chenbo Feng <fengc@google.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
----
- include/linux/bpf.h       |  6 ++++++
- include/linux/lsm_hooks.h | 54 +++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/security.h  | 45 +++++++++++++++++++++++++++++++++++++++
- kernel/bpf/syscall.c      | 28 ++++++++++++++++++++++--
- security/security.c       | 32 ++++++++++++++++++++++++++++
- 5 files changed, 163 insertions(+), 2 deletions(-)
+> +static int __init selnl_init(void)
+> +{
+> +	if (register_pernet_subsys(&selnl_net_ops))
+> +		panic("Could not register selinux netlink operations\n");
+>  	return 0;
+>  }
 
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index d826be859589..d757ea3f2228 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -57,6 +57,9 @@ struct bpf_map {
- 	atomic_t usercnt;
- 	struct bpf_map *inner_map_meta;
- 	u8 name[BPF_OBJ_NAME_LEN];
-+#ifdef CONFIG_SECURITY
-+	void *security;
-+#endif
- };
- 
- /* function argument constraints */
-@@ -190,6 +193,9 @@ struct bpf_prog_aux {
- 	struct user_struct *user;
- 	u64 load_time; /* ns since boottime */
- 	u8 name[BPF_OBJ_NAME_LEN];
-+#ifdef CONFIG_SECURITY
-+	void *security;
-+#endif
- 	union {
- 		struct work_struct work;
- 		struct rcu_head	rcu;
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index c9258124e417..7161d8e7ee79 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1351,6 +1351,40 @@
-  *	@inode we wish to get the security context of.
-  *	@ctx is a pointer in which to place the allocated security context.
-  *	@ctxlen points to the place to put the length of @ctx.
-+ *
-+ * Security hooks for using the eBPF maps and programs functionalities through
-+ * eBPF syscalls.
-+ *
-+ * @bpf:
-+ *	Do a initial check for all bpf syscalls after the attribute is copied
-+ *	into the kernel. The actual security module can implement their own
-+ *	rules to check the specific cmd they need.
-+ *
-+ * @bpf_map:
-+ *	Do a check when the kernel generate and return a file descriptor for
-+ *	eBPF maps.
-+ *
-+ *	@map: bpf map that we want to access
-+ *	@mask: the access flags
-+ *
-+ * @bpf_prog:
-+ *	Do a check when the kernel generate and return a file descriptor for
-+ *	eBPF programs.
-+ *
-+ *	@prog: bpf prog that userspace want to use.
-+ *
-+ * @bpf_map_alloc_security:
-+ *	Initialize the security field inside bpf map.
-+ *
-+ * @bpf_map_free_security:
-+ *	Clean up the security information stored inside bpf map.
-+ *
-+ * @bpf_prog_alloc_security:
-+ *	Initialize the security field inside bpf program.
-+ *
-+ * @bpf_prog_free_security:
-+ *	Clean up the security information stored inside bpf prog.
-+ *
-  */
- union security_list_options {
- 	int (*binder_set_context_mgr)(struct task_struct *mgr);
-@@ -1682,6 +1716,17 @@ union security_list_options {
- 				struct audit_context *actx);
- 	void (*audit_rule_free)(void *lsmrule);
- #endif /* CONFIG_AUDIT */
-+
-+#ifdef CONFIG_BPF_SYSCALL
-+	int (*bpf)(int cmd, union bpf_attr *attr,
-+				 unsigned int size);
-+	int (*bpf_map)(struct bpf_map *map, fmode_t fmode);
-+	int (*bpf_prog)(struct bpf_prog *prog);
-+	int (*bpf_map_alloc_security)(struct bpf_map *map);
-+	void (*bpf_map_free_security)(struct bpf_map *map);
-+	int (*bpf_prog_alloc_security)(struct bpf_prog_aux *aux);
-+	void (*bpf_prog_free_security)(struct bpf_prog_aux *aux);
-+#endif /* CONFIG_BPF_SYSCALL */
- };
- 
- struct security_hook_heads {
-@@ -1901,6 +1946,15 @@ struct security_hook_heads {
- 	struct list_head audit_rule_match;
- 	struct list_head audit_rule_free;
- #endif /* CONFIG_AUDIT */
-+#ifdef CONFIG_BPF_SYSCALL
-+	struct list_head bpf;
-+	struct list_head bpf_map;
-+	struct list_head bpf_prog;
-+	struct list_head bpf_map_alloc_security;
-+	struct list_head bpf_map_free_security;
-+	struct list_head bpf_prog_alloc_security;
-+	struct list_head bpf_prog_free_security;
-+#endif /* CONFIG_BPF_SYSCALL */
- } __randomize_layout;
- 
- /*
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ce6265960d6c..18800b0911e5 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -31,6 +31,7 @@
- #include <linux/string.h>
- #include <linux/mm.h>
- #include <linux/fs.h>
-+#include <linux/bpf.h>
- 
- struct linux_binprm;
- struct cred;
-@@ -1730,6 +1731,50 @@ static inline void securityfs_remove(struct dentry *dentry)
- 
- #endif
- 
-+#ifdef CONFIG_BPF_SYSCALL
-+#ifdef CONFIG_SECURITY
-+extern int security_bpf(int cmd, union bpf_attr *attr, unsigned int size);
-+extern int security_bpf_map(struct bpf_map *map, fmode_t fmode);
-+extern int security_bpf_prog(struct bpf_prog *prog);
-+extern int security_bpf_map_alloc(struct bpf_map *map);
-+extern void security_bpf_map_free(struct bpf_map *map);
-+extern int security_bpf_prog_alloc(struct bpf_prog_aux *aux);
-+extern void security_bpf_prog_free(struct bpf_prog_aux *aux);
-+#else
-+static inline int security_bpf(int cmd, union bpf_attr *attr,
-+					     unsigned int size)
-+{
-+	return 0;
-+}
-+
-+static inline int security_bpf_map(struct bpf_map *map, fmode_t fmode)
-+{
-+	return 0;
-+}
-+
-+static inline int security_bpf_prog(struct bpf_prog *prog)
-+{
-+	return 0;
-+}
-+
-+static inline int security_bpf_map_alloc(struct bpf_map *map)
-+{
-+	return 0;
-+}
-+
-+static inline void security_bpf_map_free(struct bpf_map *map)
-+{ }
-+
-+static inline int security_bpf_prog_alloc(struct bpf_prog_aux *aux)
-+{
-+	return 0;
-+}
-+
-+static inline void security_bpf_prog_free(struct bpf_prog_aux *aux)
-+{ }
-+#endif /* CONFIG_SECURITY */
-+#endif /* CONFIG_BPF_SYSCALL */
-+
- #ifdef CONFIG_SECURITY
- 
- static inline char *alloc_secdata(void)
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 7c8a9964a41d..58ff769d58ab 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -210,6 +210,7 @@ static void bpf_map_free_deferred(struct work_struct *work)
- 	struct bpf_map *map = container_of(work, struct bpf_map, work);
- 
- 	bpf_map_uncharge_memlock(map);
-+	security_bpf_map_free(map);
- 	/* implementation dependent freeing */
- 	map->ops->map_free(map);
- }
-@@ -323,6 +324,9 @@ static const struct file_operations bpf_map_fops = {
- 
- int bpf_map_new_fd(struct bpf_map *map, int flags)
- {
-+	if (security_bpf_map(map, OPEN_FMODE(flags)))
-+		return -EPERM;
-+
- 	return anon_inode_getfd("bpf-map", &bpf_map_fops, map,
- 				flags | O_CLOEXEC);
- }
-@@ -404,10 +408,14 @@ static int map_create(union bpf_attr *attr)
- 	atomic_set(&map->refcnt, 1);
- 	atomic_set(&map->usercnt, 1);
- 
--	err = bpf_map_charge_memlock(map);
-+	err = security_bpf_map_alloc(map);
- 	if (err)
- 		goto free_map_nouncharge;
- 
-+	err = bpf_map_charge_memlock(map);
-+	if (err)
-+		goto free_map_sec;
-+
- 	err = bpf_map_alloc_id(map);
- 	if (err)
- 		goto free_map;
-@@ -429,6 +437,8 @@ static int map_create(union bpf_attr *attr)
- 
- free_map:
- 	bpf_map_uncharge_memlock(map);
-+free_map_sec:
-+	security_bpf_map_free(map);
- free_map_nouncharge:
- 	map->ops->map_free(map);
- 	return err;
-@@ -907,6 +917,7 @@ static void __bpf_prog_put_rcu(struct rcu_head *rcu)
- 
- 	free_used_maps(aux);
- 	bpf_prog_uncharge_memlock(aux->prog);
-+	security_bpf_prog_free(aux);
- 	bpf_prog_free(aux->prog);
- }
- 
-@@ -965,6 +976,9 @@ static const struct file_operations bpf_prog_fops = {
- 
- int bpf_prog_new_fd(struct bpf_prog *prog)
- {
-+	if (security_bpf_prog(prog))
-+		return -EPERM;
-+
- 	return anon_inode_getfd("bpf-prog", &bpf_prog_fops, prog,
- 				O_RDWR | O_CLOEXEC);
- }
-@@ -1104,10 +1118,14 @@ static int bpf_prog_load(union bpf_attr *attr)
- 	if (!prog)
- 		return -ENOMEM;
- 
--	err = bpf_prog_charge_memlock(prog);
-+	err = security_bpf_prog_alloc(prog->aux);
- 	if (err)
- 		goto free_prog_nouncharge;
- 
-+	err = bpf_prog_charge_memlock(prog);
-+	if (err)
-+		goto free_prog_sec;
-+
- 	prog->len = attr->insn_cnt;
- 
- 	err = -EFAULT;
-@@ -1165,6 +1183,8 @@ static int bpf_prog_load(union bpf_attr *attr)
- 	free_used_maps(prog->aux);
- free_prog:
- 	bpf_prog_uncharge_memlock(prog);
-+free_prog_sec:
-+	security_bpf_prog_free(prog->aux);
- free_prog_nouncharge:
- 	bpf_prog_free(prog);
- 	return err;
-@@ -1585,6 +1605,10 @@ SYSCALL_DEFINE3(bpf, int, cmd, union bpf_attr __user *, uattr, unsigned int, siz
- 	if (copy_from_user(&attr, uattr, size) != 0)
- 		return -EFAULT;
- 
-+	err = security_bpf(cmd, &attr, size);
-+	if (err)
-+		return -EPERM;
-+
- 	switch (cmd) {
- 	case BPF_MAP_CREATE:
- 		err = map_create(&attr);
-diff --git a/security/security.c b/security/security.c
-index 4bf0f571b4ef..1cd8526cb0b7 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -12,6 +12,7 @@
-  *	(at your option) any later version.
-  */
- 
-+#include <linux/bpf.h>
- #include <linux/capability.h>
- #include <linux/dcache.h>
- #include <linux/module.h>
-@@ -1703,3 +1704,34 @@ int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
- 				actx);
- }
- #endif /* CONFIG_AUDIT */
-+
-+#ifdef CONFIG_BPF_SYSCALL
-+int security_bpf(int cmd, union bpf_attr *attr, unsigned int size)
-+{
-+	return call_int_hook(bpf, 0, cmd, attr, size);
-+}
-+int security_bpf_map(struct bpf_map *map, fmode_t fmode)
-+{
-+	return call_int_hook(bpf_map, 0, map, fmode);
-+}
-+int security_bpf_prog(struct bpf_prog *prog)
-+{
-+	return call_int_hook(bpf_prog, 0, prog);
-+}
-+int security_bpf_map_alloc(struct bpf_map *map)
-+{
-+	return call_int_hook(bpf_map_alloc_security, 0, map);
-+}
-+int security_bpf_prog_alloc(struct bpf_prog_aux *aux)
-+{
-+	return call_int_hook(bpf_prog_alloc_security, 0, aux);
-+}
-+void security_bpf_map_free(struct bpf_map *map)
-+{
-+	call_void_hook(bpf_map_free_security, map);
-+}
-+void security_bpf_prog_free(struct bpf_prog_aux *aux)
-+{
-+	call_void_hook(bpf_prog_free_security, aux);
-+}
-+#endif /* CONFIG_BPF_SYSCALL */
--- 
-2.14.2.920.gcf0c67979c-goog
+This doesn't seem right to me.  If the socket is only used to send
+notifications to userspace, then every net_ns doesn't need a socket,
+only the first netns that the selinux ns was associated, right?
+
+So long as there is a way to find the netns to which an selinux ns
+is tied, a userspace logger could even setns into that netns to listen
+for updates, if it wasn't certain to be in the right ns when it ran.
+
+Otherwise (I haven't peeked ahead) you'll have to keep the *list* of
+net_ns which live in a given selinuxfs and copy all messages to all of
+those namesapces?
+
+-serge
