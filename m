@@ -1,45 +1,33 @@
-Date: Tue, 10 Oct 2017 10:04:15 +1100 (AEDT)
-From: James Morris <jmorris@namei.org>
-To: Stephen Smalley <stephen.smalley@gmail.com>
-cc: "Stephen D. Smalley" <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
-In-Reply-To: <CAB9W1A1s9phxBocqadVif1t58jp4is+1nssZmi1O95BJhHKvSw@mail.gmail.com>
-Message-ID: <alpine.LRH.2.21.1710101003480.9099@namei.org>
-References: <20171002155825.28620-1-sds@tycho.nsa.gov>
- <20171002155825.28620-10-sds@tycho.nsa.gov>
- <1507217234.27146.14.camel@tycho.nsa.gov>
- <alpine.LRH.2.21.1710091250460.23916@namei.org>
- <CAB9W1A2-PT8QU-md1s9fxhNg+Cv0C4Xu-i1w_q0XzQ+K9rsyAg@mail.gmail.com>
- <CAB9W1A1s9phxBocqadVif1t58jp4is+1nssZmi1O95BJhHKvSw@mail.gmail.com>
+To: Antonio Murdaca <runcom@redhat.com>
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov, Tejun Heo <tj@kernel.org>,
+ lkml <linux-kernel@vger.kernel.org>
+From: Waiman Long <longman@redhat.com>
+Message-ID: <8009753d-c022-12ec-406d-7d6cf01f5f73@redhat.com>
+Date: Fri, 6 Oct 2017 13:53:07 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: Re: [RFC 09/10] selinux: add a selinuxfs interface to
- unshare selinux namespace
+Content-Type: text/plain; charset=utf-8
+Subject: About commit 901ef845fa2469c ("selinux: allow per-file
+ labeling for cgroupfs")
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 9 Oct 2017, Stephen Smalley wrote:
+Antonio,
 
-> On Oct 8, 2017 9:54 PM, "James Morris" <jmorris@namei.org> wrote:
-> 
-> On Thu, 5 Oct 2017, Stephen Smalley wrote:
-> 
-> > inet_socket test failures are expected due to running in a non-init
-> > network namespace; they don't work even without unsharing the selinux
-> > namespace.
-> 
-> Do these results all look as expected?
-> 
-> 
-> No, that suggests that you either didn't insert the policy module allowing
-> access to unlabeled fds or you didn't run restorecon -R /dev before running
-> the tests. The only expected failures are the inet socket ones.
-> 
+I have a question about your 4.14 upstream commit 901ef845fa2469c
+("selinux: allow per-file labeling for cgroupfs"). With that, I am no
+longer able to mount the cgroup2 filesystem with a 4.14 kernel. The
+problem is that your commit sets the SE_SBGENFS flag, which causes
+selinux to lookup the genfs database for a filesystem type match.
+However, the filesystem type "cgroup2" isn't in the genfs database in my
+RHEL7 based test system. The "cgroup" filesystem type is in the genfs database,
+so I have no problem with v1 cgroup mount.
 
-Looking better now -- I think it was the restorecon.
+Do you know where the genfs database is defined? I need some way to add cgroup2
+as a valid genfs fstype, or I have to manually back out the commit in order to
+do my cgroup2 testing.
 
-
--- 
-James Morris
-<jmorris@namei.org>
+Thanks,
+Longman
