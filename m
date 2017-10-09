@@ -1,42 +1,53 @@
-Date: Mon, 9 Oct 2017 09:08:42 +1100 (AEDT)
+Date: Mon, 9 Oct 2017 12:52:34 +1100 (AEDT)
 From: James Morris <jmorris@namei.org>
-To: "Serge E. Hallyn" <serge@hallyn.com>
-cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-In-Reply-To: <20171006192519.GB8935@mail.hallyn.com>
-Message-ID: <alpine.LRH.2.21.1710090907060.3670@namei.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>
+In-Reply-To: <1507217234.27146.14.camel@tycho.nsa.gov>
+Message-ID: <alpine.LRH.2.21.1710091250460.23916@namei.org>
 References: <20171002155825.28620-1-sds@tycho.nsa.gov>
- <20171002155825.28620-6-sds@tycho.nsa.gov>
- <alpine.LRH.2.21.1710061210140.19396@namei.org>
- <20171006192519.GB8935@mail.hallyn.com>
+ <20171002155825.28620-10-sds@tycho.nsa.gov>
+ <1507217234.27146.14.camel@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Subject: Re: [RFC 05/10] selinux: support per-task/cred selinux
- namespace
+Subject: Re: [RFC 09/10] selinux: add a selinuxfs interface to
+ unshare selinux namespace
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 6 Oct 2017, Serge E. Hallyn wrote:
+On Thu, 5 Oct 2017, Stephen Smalley wrote:
 
-> Quoting James Morris (jmorris@namei.org):
-> > On Mon, 2 Oct 2017, Stephen Smalley wrote:
-> > 
-> > > An alternative would be to hang the selinux namespace off of the
-> > > user namespace, which itself is associated with the cred.  This
-> > > seems undesirable however since DAC and MAC are orthogonal, and
-> > > there appear to be real use cases where one will want to use selinux
-> > > namespaces without user namespaces and vice versa. 
-> > 
-> > Indeed, an Oracle use-case is for privileged containers and for this MAC 
-> > must remain separate.
-> 
-> Will that always be the case?  Is that to allow (selinux-confined) device
-> administration from containers?
+> inet_socket test failures are expected due to running in a non-init
+> network namespace; they don't work even without unsharing the selinux
+> namespace.
 
-It's to provide the user with a full OS experience generally.  It's not 
-necessarily the only use-case, though.
+Do these results all look as expected?
 
+Test Summary Report
+-------------------
+fdreceive/test         (Wstat: 0 Tests: 3 Failed: 1)
+  Failed test:  3
+inherit/test           (Wstat: 0 Tests: 3 Failed: 1)
+  Failed test:  1
+file/test              (Wstat: 0 Tests: 16 Failed: 1)
+  Failed test:  8
+bounds/test            (Wstat: 0 Tests: 24 Failed: 5)
+  Failed tests:  3, 6, 12, 21, 23
+mmap/test              (Wstat: 0 Tests: 46 Failed: 2)
+  Failed tests:  9, 13
+inet_socket/test       (Wstat: 3584 Tests: 33 Failed: 14)
+  Failed tests:  1, 3, 5-6, 8, 16, 18, 20, 22, 25-26, 28
+                30, 32
+  Non-zero exit status: 14
+overlay/test           (Wstat: 3072 Tests: 121 Failed: 12)
+  Failed tests:  1, 25, 27, 39-40, 57, 63, 87, 89, 98-99
+                116
+  Non-zero exit status: 12
+Files=51, Tests=485, 28 wallclock secs ( 0.60 usr  0.13 sys +  2.67 cusr  
+3.76 csys =  7.16 CPU)
+Result: FAIL
+Failed 7/51 test programs. 36/485 subtests failed.
 
 
 -- 
