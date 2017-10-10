@@ -1,377 +1,329 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9ALJIM9029043
+ for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2017 17:19:18 -0400
+Received: by mail-pf0-f173.google.com with SMTP id x7so8262035pfa.1
+ for <selinux@tycho.nsa.gov>; Tue, 10 Oct 2017 14:19:02 -0700 (PDT)
+To: sds@tycho.nsa.gov, selinux@tycho.nsa.gov
+Cc: jwcart2@tycho.nsa.gov, Dan Cashman <dcashman@google.com>
+References: <1505939283.31597.11.camel@tycho.nsa.gov>
+ <20171010211257.18474-1-dcashman@android.com>
+From: Dan Cashman <dcashman@android.com>
+Message-ID: <7126d75f-f70d-cf20-d703-2f974b2b6c3b@android.com>
+Date: Tue, 10 Oct 2017 14:19:00 -0700
 MIME-Version: 1.0
-In-Reply-To: <1507663408.30616.18.camel@tycho.nsa.gov>
-References: <20171009222028.13096-1-chenbofeng.kernel@gmail.com>
- <20171009222028.13096-6-chenbofeng.kernel@gmail.com>
- <1507645461.30616.9.camel@tycho.nsa.gov>
- <CAMOXUJnuxe8mYUv9Dw5wo40M5Bhszg+uf54dzsp6t=JiBgNZ2Q@mail.gmail.com>
- <1507663408.30616.18.camel@tycho.nsa.gov>
-From: Chenbo Feng <fengc@google.com>
-Date: Tue, 10 Oct 2017 12:42:43 -0700
-Message-ID: <CAMOXUJnAKtMGMhsJ1VQTTBQ3eHoGDo=TxWupCVEtMErfrZKFQw@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Chenbo Feng <chenbofeng.kernel@gmail.com>,
- linux-security-module@vger.kernel.org, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>, Daniel Borkmann <daniel@iogearbox.net>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Lorenzo Colitti <lorenzo@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re:  Re: [PATCH net-next v2 5/5] selinux: bpf: Add
- addtional check for bpf object file receive
+In-Reply-To: <20171010211257.18474-1-dcashman@android.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH] selinux: libselinux: Enable multiple input
+ files to selabel_open.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Oct 10, 2017 at 12:23 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Tue, 2017-10-10 at 10:48 -0700, Chenbo Feng wrote:
->> On Tue, Oct 10, 2017 at 7:24 AM, Stephen Smalley <sds@tycho.nsa.gov>
->> wrote:
->> > On Mon, 2017-10-09 at 15:20 -0700, Chenbo Feng wrote:
->> > > From: Chenbo Feng <fengc@google.com>
->> > >
->> > > Introduce a bpf object related check when sending and receiving
->> > > files
->> > > through unix domain socket as well as binder. It checks if the
->> > > receiving
->> > > process have privilege to read/write the bpf map or use the bpf
->> > > program.
->> > > This check is necessary because the bpf maps and programs are
->> > > using a
->> > > anonymous inode as their shared inode so the normal way of
->> > > checking
->> > > the
->> > > files and sockets when passing between processes cannot work
->> > > properly
->> > > on
->> > > eBPF object. This check only works when the BPF_SYSCALL is
->> > > configured.
->> > > The information stored inside the file security struct is the
->> > > same as
->> > > the information in bpf object security struct.
->> > >
->> > > Signed-off-by: Chenbo Feng <fengc@google.com>
->> > > ---
->> > >  include/linux/bpf.h       |  3 +++
->> > >  include/linux/lsm_hooks.h | 17 +++++++++++++
->> > >  include/linux/security.h  |  9 +++++++
->> > >  kernel/bpf/syscall.c      |  4 ++--
->> > >  security/security.c       |  8 +++++++
->> > >  security/selinux/hooks.c  | 61
->> > > +++++++++++++++++++++++++++++++++++++++++++++++
->> > >  6 files changed, 100 insertions(+), 2 deletions(-)
->> > >
->> > > diff --git a/include/linux/bpf.h b/include/linux/bpf.h
->> > > index 225740688ab7..81d6c01b8825 100644
->> > > --- a/include/linux/bpf.h
->> > > +++ b/include/linux/bpf.h
->> > > @@ -285,6 +285,9 @@ int bpf_prog_array_copy_to_user(struct
->> > > bpf_prog_array __rcu *progs,
->> > >  #ifdef CONFIG_BPF_SYSCALL
->> > >  DECLARE_PER_CPU(int, bpf_prog_active);
->> > >
->> > > +extern const struct file_operations bpf_map_fops;
->> > > +extern const struct file_operations bpf_prog_fops;
->> > > +
->> > >  #define BPF_PROG_TYPE(_id, _ops) \
->> > >       extern const struct bpf_verifier_ops _ops;
->> > >  #define BPF_MAP_TYPE(_id, _ops) \
->> > > diff --git a/include/linux/lsm_hooks.h
->> > > b/include/linux/lsm_hooks.h
->> > > index 7161d8e7ee79..517dea60b87b 100644
->> > > --- a/include/linux/lsm_hooks.h
->> > > +++ b/include/linux/lsm_hooks.h
->> > > @@ -1385,6 +1385,19 @@
->> > >   * @bpf_prog_free_security:
->> > >   *   Clean up the security information stored inside bpf prog.
->> > >   *
->> > > + * @bpf_map_file:
->> > > + *   When creating a bpf map fd, set up the file security
->> > > information with
->> > > + *   the bpf security information stored in the map struct. So
->> > > when the map
->> > > + *   fd is passed between processes, the security module can
->> > > directly read
->> > > + *   the security information from file security struct rather
->> > > than the bpf
->> > > + *   security struct.
->> > > + *
->> > > + * @bpf_prog_file:
->> > > + *   When creating a bpf prog fd, set up the file security
->> > > information with
->> > > + *   the bpf security information stored in the prog struct. So
->> > > when the prog
->> > > + *   fd is passed between processes, the security module can
->> > > directly read
->> > > + *   the security information from file security struct rather
->> > > than the bpf
->> > > + *   security struct.
->> > >   */
->> > >  union security_list_options {
->> > >       int (*binder_set_context_mgr)(struct task_struct *mgr);
->> > > @@ -1726,6 +1739,8 @@ union security_list_options {
->> > >       void (*bpf_map_free_security)(struct bpf_map *map);
->> > >       int (*bpf_prog_alloc_security)(struct bpf_prog_aux *aux);
->> > >       void (*bpf_prog_free_security)(struct bpf_prog_aux *aux);
->> > > +     void (*bpf_map_file)(struct bpf_map *map, struct file
->> > > *file);
->> > > +     void (*bpf_prog_file)(struct bpf_prog_aux *aux, struct file
->> > > *file);
->> > >  #endif /* CONFIG_BPF_SYSCALL */
->> > >  };
->> > >
->> > > @@ -1954,6 +1969,8 @@ struct security_hook_heads {
->> > >       struct list_head bpf_map_free_security;
->> > >       struct list_head bpf_prog_alloc_security;
->> > >       struct list_head bpf_prog_free_security;
->> > > +     struct list_head bpf_map_file;
->> > > +     struct list_head bpf_prog_file;
->> > >  #endif /* CONFIG_BPF_SYSCALL */
->> > >  } __randomize_layout;
->> > >
->> > > diff --git a/include/linux/security.h b/include/linux/security.h
->> > > index 18800b0911e5..57573b794e2d 100644
->> > > --- a/include/linux/security.h
->> > > +++ b/include/linux/security.h
->> > > @@ -1740,6 +1740,8 @@ extern int security_bpf_map_alloc(struct
->> > > bpf_map *map);
->> > >  extern void security_bpf_map_free(struct bpf_map *map);
->> > >  extern int security_bpf_prog_alloc(struct bpf_prog_aux *aux);
->> > >  extern void security_bpf_prog_free(struct bpf_prog_aux *aux);
->> > > +extern void security_bpf_map_file(struct bpf_map *map, struct
->> > > file
->> > > *file);
->> > > +extern void security_bpf_prog_file(struct bpf_prog_aux *aux,
->> > > struct
->> > > file *file);
->> > >  #else
->> > >  static inline int security_bpf(int cmd, union bpf_attr *attr,
->> > >                                            unsigned int size)
->> > > @@ -1772,6 +1774,13 @@ static inline int
->> > > security_bpf_prog_alloc(struct bpf_prog_aux *aux)
->> > >
->> > >  static inline void security_bpf_prog_free(struct bpf_prog_aux
->> > > *aux)
->> > >  { }
->> > > +
->> > > +static inline void security_bpf_map_file(struct bpf_map *map,
->> > > struct
->> > > file *file)
->> > > +{ }
->> > > +
->> > > +static inline void security_bpf_prog_file(struct bpf_prog_aux
->> > > *aux,
->> > > +                                       struct file *file)
->> > > +{ }
->> > >  #endif /* CONFIG_SECURITY */
->> > >  #endif /* CONFIG_BPF_SYSCALL */
->> > >
->> > > diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
->> > > index 1cf31ddd7616..b144181d3f3a 100644
->> > > --- a/kernel/bpf/syscall.c
->> > > +++ b/kernel/bpf/syscall.c
->> > > @@ -313,7 +313,7 @@ static ssize_t bpf_dummy_write(struct file
->> > > *filp,
->> > > const char __user *buf,
->> > >       return -EINVAL;
->> > >  }
->> > >
->> > > -static const struct file_operations bpf_map_fops = {
->> > > +const struct file_operations bpf_map_fops = {
->> > >  #ifdef CONFIG_PROC_FS
->> > >       .show_fdinfo    = bpf_map_show_fdinfo,
->> > >  #endif
->> > > @@ -964,7 +964,7 @@ static void bpf_prog_show_fdinfo(struct
->> > > seq_file
->> > > *m, struct file *filp)
->> > >  }
->> > >  #endif
->> > >
->> > > -static const struct file_operations bpf_prog_fops = {
->> > > +const struct file_operations bpf_prog_fops = {
->> > >  #ifdef CONFIG_PROC_FS
->> > >       .show_fdinfo    = bpf_prog_show_fdinfo,
->> > >  #endif
->> > > diff --git a/security/security.c b/security/security.c
->> > > index 1cd8526cb0b7..dacf649b8cfa 100644
->> > > --- a/security/security.c
->> > > +++ b/security/security.c
->> > > @@ -1734,4 +1734,12 @@ void security_bpf_prog_free(struct
->> > > bpf_prog_aux *aux)
->> > >  {
->> > >       call_void_hook(bpf_prog_free_security, aux);
->> > >  }
->> > > +void security_bpf_map_file(struct bpf_map *map, struct file
->> > > *file)
->> > > +{
->> > > +     call_void_hook(bpf_map_file, map, file);
->> > > +}
->> > > +void security_bpf_prog_file(struct bpf_prog_aux *aux, struct
->> > > file
->> > > *file)
->> > > +{
->> > > +     call_void_hook(bpf_prog_file, aux, file);
->> > > +}
->> > >  #endif /* CONFIG_BPF_SYSCALL */
->> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> > > index 41aba4e3d57c..fea88655e0ee 100644
->> > > --- a/security/selinux/hooks.c
->> > > +++ b/security/selinux/hooks.c
->> > > @@ -1815,6 +1815,10 @@ static inline int file_path_has_perm(const
->> > > struct cred *cred,
->> > >       return inode_has_perm(cred, file_inode(file), av, &ad);
->> > >  }
->> > >
->> > > +#ifdef CONFIG_BPF_SYSCALL
->> > > +static int bpf_file_check(struct file *file, u32 sid);
->> > > +#endif
->> > > +
->> > >  /* Check whether a task can use an open file descriptor to
->> > >     access an inode in a given way.  Check access to the
->> > >     descriptor itself, and then use dentry_has_perm to
->> > > @@ -1845,6 +1849,12 @@ static int file_has_perm(const struct cred
->> > > *cred,
->> > >                       goto out;
->> > >       }
->> > >
->> > > +#ifdef CONFIG_BPF_SYSCALL
->> > > +     rc = bpf_file_check(file, cred_sid(cred));
->> > > +     if (rc)
->> > > +             goto out;
->> > > +#endif
->> > > +
->> > >       /* av is zero if only checking access to the descriptor. */
->> > >       rc = 0;
->> > >       if (av)
->> > > @@ -2165,6 +2175,12 @@ static int
->> > > selinux_binder_transfer_file(struct
->> > > task_struct *from,
->> > >                       return rc;
->> > >       }
->> > >
->> > > +#ifdef CONFIG_BPF_SYSCALL
->> > > +     rc = bpf_file_check(file, sid);
->> > > +     if (rc)
->> > > +             return rc;
->> > > +#endif
->> > > +
->> > >       if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
->> > >               return 0;
->> > >
->> > > @@ -6288,6 +6304,33 @@ static u32 bpf_map_fmode_to_av(fmode_t
->> > > fmode)
->> > >       return av;
->> > >  }
->> > >
->> > > +/* This function will check the file pass through unix socket or
->> > > binder to see
->> > > + * if it is a bpf related object. And apply correspinding checks
->> > > on
->> > > the bpf
->> > > + * object based on the type. The bpf maps and programs, not like
->> > > other files and
->> > > + * socket, are using a shared anonymous inode inside the kernel
->> > > as
->> > > their inode.
->> > > + * So checking that inode cannot identify if the process have
->> > > privilege to
->> > > + * access the bpf object and that's why we have to add this
->> > > additional check in
->> > > + * selinux_file_receive and selinux_binder_transfer_files.
->> > > + */
->> > > +static int bpf_file_check(struct file *file, u32 sid)
->> > > +{
->> > > +     struct file_security_struct *fsec = file->f_security;
->> > > +     int ret;
->> > > +
->> > > +     if (file->f_op == &bpf_map_fops) {
->> > > +             ret = avc_has_perm(sid, fsec->sid,
->> > > SECCLASS_BPF_MAP,
->> > > +                                bpf_map_fmode_to_av(file-
->> > > > f_mode), NULL);
->> > >
->> > > +             if (ret)
->> > > +                     return ret;
->> > > +     } else if (file->f_op == &bpf_prog_fops) {
->> > > +             ret = avc_has_perm(sid, fsec->sid,
->> > > SECCLASS_BPF_PROG,
->> > > +                                BPF_PROG__USE, NULL);
->> > > +             if (ret)
->> > > +                     return ret;
->> > > +     }
->> > > +     return 0;
->> > > +}
->> > > +
->> > >  static int selinux_bpf_map(struct bpf_map *map, fmode_t fmode)
->> > >  {
->> > >       u32 sid = current_sid();
->> > > @@ -6351,6 +6394,22 @@ static void selinux_bpf_prog_free(struct
->> > > bpf_prog_aux *aux)
->> > >       aux->security = NULL;
->> > >       kfree(bpfsec);
->> > >  }
->> > > +
->> > > +static void selinux_bpf_map_file(struct bpf_map *map, struct
->> > > file
->> > > *file)
->> > > +{
->> > > +     struct bpf_security_struct *bpfsec = map->security;
->> > > +     struct file_security_struct *fsec = file->f_security;
->> > > +
->> > > +     fsec->sid = bpfsec->sid;
->> > > +}
->> > > +
->> > > +static void selinux_bpf_prog_file(struct bpf_prog_aux *aux,
->> > > struct
->> > > file *file)
->> > > +{
->> > > +     struct bpf_security_struct *bpfsec = aux->security;
->> > > +     struct file_security_struct *fsec = file->f_security;
->> > > +
->> > > +     fsec->sid = bpfsec->sid;
->> >
->> > I could be wrong, but isn't it the case that fsec->sid already will
->> > equal bpfsec->sid, because they are both created by the same thread
->> > during the same system call, and they each inherit the SID of the
->> > current task?
->> >
->>
->> This is true when bpf object is created by the same process that
->> obtains the fd. But there are other ways of getting a bpf object fd
->> from the kernel such as bpf_obj_get and bpf_get_obj_fd_by_id. These
->> action will ask the kernel to allocate a new file for the bpf object
->> and the file sid would be the process ask for fd while the bpfsec-
->> >sid
->> is the sid when bpf object get created. These two could be different.
->
-> Oh, in that case you shouldn't change the fsec->sid; you'll need to use
-> the bpfsec->sid in your checks instead.  But you can still do what I
-> described below.
->
-Okay, I will add a bpf flag and a bpf sid in the file security struct
-to store the flag and sid for selinux checking when fd get transfered.
->> > What I expected you to do was to add and set a flags field in the
->> > file_security_struct to indicate that this is a bpf map or prog,
->> > and
->> > then test for that in your bpf_file_check() function instead of
->> > having
->> > to export and test the fops structures.
->> >
->> >
->> > > +}
->> > >  #endif
->> > >
->> > >  static struct security_hook_list selinux_hooks[]
->> > > __lsm_ro_after_init
->> > > = {
->> > > @@ -6581,6 +6640,8 @@ static struct security_hook_list
->> > > selinux_hooks[] __lsm_ro_after_init = {
->> > >       LSM_HOOK_INIT(bpf_prog_alloc_security,
->> > > selinux_bpf_prog_alloc),
->> > >       LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
->> > >       LSM_HOOK_INIT(bpf_prog_free_security,
->> > > selinux_bpf_prog_free),
->> > > +     LSM_HOOK_INIT(bpf_map_file, selinux_bpf_map_file),
->> > > +     LSM_HOOK_INIT(bpf_prog_file, selinux_bpf_prog_file),
->> > >  #endif
->> > >  };
->> > >
+On 10/10/2017 02:12 PM, Daniel Cashman wrote:
+> From: Dan Cashman <dcashman@google.com>
+> 
+> The file_contexts labeling backend, specified in label_file.c, currently assumes
+> that only one path will be specified as an option to selabel_open().  The split
+> of platform and non-platform policy on device, however, will necessitate the
+> loading of two disparate policy files.  Rather than combining the files and then
+> calling the existing API on a newly-formed file, just add the ability to specify
+> multiple files to use.  Order of opt specification to selabel_open matters.
+> 
+> This corresponds to AOSP commit 50400d38203e4db08314168e60c281cc61a717a8, which
+> lead to a fork with upstream, which we'd like to correct.
+> 
+> Signed-off-by: Dan Cashman <dcashman@android.com>
+> ---
+>   libselinux/src/label.c          |  21 +++++---
+>   libselinux/src/label_db.c       |   4 +-
+>   libselinux/src/label_file.c     | 104 +++++++++++++++++++++++++++++-----------
+>   libselinux/src/label_internal.h |   5 +-
+>   libselinux/src/label_media.c    |   4 +-
+>   libselinux/src/label_x.c        |   4 +-
+>   6 files changed, 103 insertions(+), 39 deletions(-)
+> 
+> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+> index 48f4d2d6..0dfa054c 100644
+> --- a/libselinux/src/label.c
+> +++ b/libselinux/src/label.c
+> @@ -143,7 +143,11 @@ static int selabel_fini(struct selabel_handle *rec,
+>   			    struct selabel_lookup_rec *lr,
+>   			    int translating)
+>   {
+> -	if (compat_validate(rec, lr, rec->spec_file, 0))
+> +	char *path = NULL;
+> +
+> +	if (rec->spec_files)
+> +		path = rec->spec_files[0];
+> +	if (compat_validate(rec, lr, path, 0))
+>   		return -1;
+>   
+>   	if (translating && !lr->ctx_trans &&
+> @@ -226,11 +230,9 @@ struct selabel_handle *selabel_open(unsigned int backend,
+>   	rec->digest = selabel_is_digest_set(opts, nopts, rec->digest);
+>   
+>   	if ((*initfuncs[backend])(rec, opts, nopts)) {
+> -		free(rec->spec_file);
+> -		free(rec);
+> +		selabel_close(rec);
+>   		rec = NULL;
+>   	}
+> -
+>   out:
+>   	return rec;
+>   }
+> @@ -337,10 +339,17 @@ int selabel_digest(struct selabel_handle *rec,
+>   
+>   void selabel_close(struct selabel_handle *rec)
+>   {
+> +	size_t i;
+> +
+> +	if (rec->spec_files) {
+> +		for (i = 0; i < rec->spec_files_len; i++)
+> +			free(rec->spec_files[i]);
+> +		free(rec->spec_files);
+> +	}
+>   	if (rec->digest)
+>   		selabel_digest_fini(rec->digest);
+> -	rec->func_close(rec);
+> -	free(rec->spec_file);
+> +	if (rec->func_close)
+> +		rec->func_close(rec);
+>   	free(rec);
+>   }
+>   
+> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+> index c46d0a1d..205ff5f4 100644
+> --- a/libselinux/src/label_db.c
+> +++ b/libselinux/src/label_db.c
+> @@ -290,7 +290,9 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
+>   		errno = EINVAL;
+>   		return NULL;
+>   	}
+> -	rec->spec_file = strdup(path);
+> +	rec->spec_files_len = 1;
+> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
+> +	rec->spec_files[0] = strdup(path);
+>   
+>   	/*
+>   	 * Parse for each lines
+> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+> index 560d8c3d..b3b36bc2 100644
+> --- a/libselinux/src/label_file.c
+> +++ b/libselinux/src/label_file.c
+> @@ -709,28 +709,61 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+>   		unsigned n)
+>   {
+>   	struct saved_data *data = (struct saved_data *)rec->data;
+> -	const char *path = NULL;
+> +	size_t num_paths = 0;
+> +	char **path = NULL;
+>   	const char *prefix = NULL;
+> -	int status = -1, baseonly = 0;
+> +	int status = -1;
+> +	size_t i;
+> +	bool baseonly = false;
+> +	bool path_provided;
+>   
+>   	/* Process arguments */
+> -	while (n--)
+> -		switch(opts[n].type) {
+> +	i = n;
+> +	while (i--)
+> +		switch(opts[i].type) {
+>   		case SELABEL_OPT_PATH:
+> -			path = opts[n].value;
+> +			num_paths++;
+>   			break;
+>   		case SELABEL_OPT_SUBSET:
+> -			prefix = opts[n].value;
+> +			prefix = opts[i].value;
+>   			break;
+>   		case SELABEL_OPT_BASEONLY:
+> -			baseonly = !!opts[n].value;
+> +			baseonly = !!opts[i].value;
+>   			break;
+>   		}
+>   
+> +	if (!num_paths) {
+> +		num_paths = 1;
+> +		path_provided = false;
+> +	} else {
+> +		path_provided = true;
+> +	}
+> +
+> +	path = calloc(num_paths, sizeof(*path));
+> +	if (path == NULL) {
+> +		goto finish;
+> +	}
+> +	rec->spec_files = path;
+> +	rec->spec_files_len = num_paths;
+> +
+> +	if (path_provided) {
+> +		for (i = 0; i < n; i++) {
+> +			switch(opts[i].type) {
+> +			case SELABEL_OPT_PATH:
+> +				*path = strdup(opts[i].value);
+> +				if (*path == NULL)
+> +					goto finish;
+> +				path++;
+> +				break;
+> +			default:
+> +				break;
+> +			}
+> +		}
+> +	}
+>   #if !defined(BUILD_HOST) && !defined(ANDROID)
+>   	char subs_file[PATH_MAX + 1];
+>   	/* Process local and distribution substitution files */
+> -	if (!path) {
+> +	if (!path_provided) {
+>   		status = selabel_subs_init(
+>   			selinux_file_context_subs_dist_path(),
+>   			rec->digest, &data->dist_subs);
+> @@ -740,43 +773,52 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+>   			rec->digest, &data->subs);
+>   		if (status)
+>   			goto finish;
+> -		path = selinux_file_context_path();
+> +		rec->spec_files[0] = strdup(selinux_file_context_path());
+> +		if (rec->spec_files[0] == NULL)
+> +			goto finish;
+>   	} else {
+> -		snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", path);
+> -		status = selabel_subs_init(subs_file, rec->digest,
+> +		for (i = 0; i < num_paths; i++) {
+> +			snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", rec->spec_files[i]);
+> +			status = selabel_subs_init(subs_file, rec->digest,
+>   					   &data->dist_subs);
+> -		if (status)
+> -			goto finish;
+> -		snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
+> -		status = selabel_subs_init(subs_file, rec->digest,
+> +			if (status)
+> +				goto finish;
+> +			snprintf(subs_file, sizeof(subs_file), "%s.subs", rec->spec_files[i]);
+> +			status = selabel_subs_init(subs_file, rec->digest,
+>   					   &data->subs);
+> -		if (status)
+> -			goto finish;
+> +			if (status)
+> +				goto finish;
+> +		}
+> +	}
+> +#else
+> +	if (!path_provided) {
+> +		selinux_log(SELINUX_ERROR, "No path given to file labeling backend\n");
+> +		goto finish;
+>   	}
+> -
+>   #endif
+> -	rec->spec_file = strdup(path);
+>   
+>   	/*
+> -	 * The do detailed validation of the input and fill the spec array
+> +	 * Do detailed validation of the input and fill the spec array
+>   	 */
+> -	status = process_file(path, NULL, rec, prefix, rec->digest);
+> -	if (status)
+> -		goto finish;
+> -
+> -	if (rec->validating) {
+> -		status = nodups_specs(data, path);
+> +	for (i = 0; i < num_paths; i++) {
+> +		status = process_file(rec->spec_files[i], NULL, rec, prefix, rec->digest);
+>   		if (status)
+>   			goto finish;
+> +
+> +		if (rec->validating) {
+> +			status = nodups_specs(data, rec->spec_files[i]);
+> +			if (status)
+> +				goto finish;
+> +		}
+>   	}
+>   
+>   	if (!baseonly) {
+> -		status = process_file(path, "homedirs", rec, prefix,
+> +		status = process_file(rec->spec_files[0], "homedirs", rec, prefix,
+>   							    rec->digest);
+>   		if (status && errno != ENOENT)
+>   			goto finish;
+>   
+> -		status = process_file(path, "local", rec, prefix,
+> +		status = process_file(rec->spec_files[0], "local", rec, prefix,
+>   							    rec->digest);
+>   		if (status && errno != ENOENT)
+>   			goto finish;
+> @@ -804,6 +846,12 @@ static void closef(struct selabel_handle *rec)
+>   	struct stem *stem;
+>   	unsigned int i;
+>   
+> +	if (!data)
+> +		return;
+> +
+> +	/* make sure successive ->func_close() calls are harmless */
+> +	rec->data = NULL;
+> +
+>   	selabel_subs_fini(data->subs);
+>   	selabel_subs_fini(data->dist_subs);
+>   
+> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+> index c55efb75..43b63513 100644
+> --- a/libselinux/src/label_internal.h
+> +++ b/libselinux/src/label_internal.h
+> @@ -98,10 +98,11 @@ struct selabel_handle {
+>   	void *data;
+>   
+>   	/*
+> -	 * The main spec file used. Note for file contexts the local and/or
+> +	 * The main spec file(s) used. Note for file contexts the local and/or
+>   	 * homedirs could also have been used to resolve a context.
+>   	 */
+> -	char *spec_file;
+> +	size_t spec_files_len;
+> +	char **spec_files;
+>   
+>   	/* ptr to SHA1 hash information if SELABEL_OPT_DIGEST set */
+>   	struct selabel_digest *digest;
+> diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
+> index d202e5d5..f4a46ffe 100644
+> --- a/libselinux/src/label_media.c
+> +++ b/libselinux/src/label_media.c
+> @@ -100,7 +100,9 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+>   		errno = EINVAL;
+>   		return -1;
+>   	}
+> -	rec->spec_file = strdup(path);
+> +	rec->spec_files_len = 1;
+> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
+> +	rec->spec_files[0] = strdup(path);
+>   
+>   	/*
+>   	 * Perform two passes over the specification file.
+> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+> index 96745299..54ebd2eb 100644
+> --- a/libselinux/src/label_x.c
+> +++ b/libselinux/src/label_x.c
+> @@ -127,7 +127,9 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+>   		errno = EINVAL;
+>   		return -1;
+>   	}
+> -	rec->spec_file = strdup(path);
+> +	rec->spec_files_len = 1;
+> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
+> +	rec->spec_files[0] = strdup(path);
+>   
+>   	/*
+>   	 * Perform two passes over the specification file.
+> 
+
+Sorry, I completely overlooked the non-compilation of the other 
+backends. I actually would like to see us integrate the upstream
+tests and build so that we're not just flying by the android build 
+system, but for now I think this is all that is required.  I'll be 
+sending a follow-up patch for the android backends that is basically
+AOSP commit: c75d01302f68d7714235600bd5b237bae2e8b893.
+
+Thanks,
+Dan
