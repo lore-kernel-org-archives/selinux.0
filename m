@@ -1,439 +1,561 @@
-Message-ID: <1507811112.30307.2.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Chenbo Feng <fengc@google.com>
-Cc: Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org, Chenbo
- Feng <chenbofeng.kernel@gmail.com>,
- linux-security-module@vger.kernel.org, SELinux <Selinux@tycho.nsa.gov>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>,
- Lorenzo Colitti <lorenzo@google.com>
-Date: Thu, 12 Oct 2017 08:25:12 -0400
-In-Reply-To: <CAMOXUJktUZ=s35gv9ttp0UYj9xn8Oqe8YkYtkkuhBBY+4wgExA@mail.gmail.com>
-References: <20171011000930.133308-1-chenbofeng.kernel@gmail.com>
- <20171011000930.133308-6-chenbofeng.kernel@gmail.com>
- <1507726470.15898.3.camel@tycho.nsa.gov>
- <CAMOXUJktUZ=s35gv9ttp0UYj9xn8Oqe8YkYtkkuhBBY+4wgExA@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <20171003142143.24107-1-sds@tycho.nsa.gov>
+References: <20171003142143.24107-1-sds@tycho.nsa.gov>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Thu, 12 Oct 2017 11:18:35 -0700
+Message-ID: <CAFftDdpxg1uZLMWdBZ667MXMfC-ZGERVpOQmoE0eHkKis314EQ@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH net-next v3 5/5] selinux: bpf: Add addtional check for
- bpf object file receive
+Subject: Re: [PATCH] semodule-utils: remove semodule_deps
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-10-11 at 13:43 -0700, Chenbo Feng via Selinux wrote:
-> On Wed, Oct 11, 2017 at 5:54 AM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On Tue, 2017-10-10 at 17:09 -0700, Chenbo Feng wrote:
-> > > From: Chenbo Feng <fengc@google.com>
-> > > 
-> > > Introduce a bpf object related check when sending and receiving
-> > > files
-> > > through unix domain socket as well as binder. It checks if the
-> > > receiving
-> > > process have privilege to read/write the bpf map or use the bpf
-> > > program.
-> > > This check is necessary because the bpf maps and programs are
-> > > using a
-> > > anonymous inode as their shared inode so the normal way of
-> > > checking
-> > > the
-> > > files and sockets when passing between processes cannot work
-> > > properly
-> > > on
-> > > eBPF object. This check only works when the BPF_SYSCALL is
-> > > configured.
-> > > The information stored inside the file security struct is the
-> > > same as
-> > > the information in bpf object security struct.
-> > > 
-> > > Signed-off-by: Chenbo Feng <fengc@google.com>
-> > > ---
-> > >  include/linux/lsm_hooks.h         | 17 ++++++++++
-> > >  include/linux/security.h          |  9 ++++++
-> > >  kernel/bpf/syscall.c              | 27 ++++++++++++++--
-> > >  security/security.c               |  8 +++++
-> > >  security/selinux/hooks.c          | 67
-> > > +++++++++++++++++++++++++++++++++++++++
-> > >  security/selinux/include/objsec.h |  9 ++++++
-> > >  6 files changed, 135 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/include/linux/lsm_hooks.h
-> > > b/include/linux/lsm_hooks.h
-> > > index 7161d8e7ee79..517dea60b87b 100644
-> > > --- a/include/linux/lsm_hooks.h
-> > > +++ b/include/linux/lsm_hooks.h
-> > > @@ -1385,6 +1385,19 @@
-> > >   * @bpf_prog_free_security:
-> > >   *   Clean up the security information stored inside bpf prog.
-> > >   *
-> > > + * @bpf_map_file:
-> > > + *   When creating a bpf map fd, set up the file security
-> > > information with
-> > > + *   the bpf security information stored in the map struct. So
-> > > when the map
-> > > + *   fd is passed between processes, the security module can
-> > > directly read
-> > > + *   the security information from file security struct rather
-> > > than the bpf
-> > > + *   security struct.
-> > > + *
-> > > + * @bpf_prog_file:
-> > > + *   When creating a bpf prog fd, set up the file security
-> > > information with
-> > > + *   the bpf security information stored in the prog struct. So
-> > > when the prog
-> > > + *   fd is passed between processes, the security module can
-> > > directly read
-> > > + *   the security information from file security struct rather
-> > > than the bpf
-> > > + *   security struct.
-> > >   */
-> > >  union security_list_options {
-> > >       int (*binder_set_context_mgr)(struct task_struct *mgr);
-> > > @@ -1726,6 +1739,8 @@ union security_list_options {
-> > >       void (*bpf_map_free_security)(struct bpf_map *map);
-> > >       int (*bpf_prog_alloc_security)(struct bpf_prog_aux *aux);
-> > >       void (*bpf_prog_free_security)(struct bpf_prog_aux *aux);
-> > > +     void (*bpf_map_file)(struct bpf_map *map, struct file
-> > > *file);
-> > > +     void (*bpf_prog_file)(struct bpf_prog_aux *aux, struct file
-> > > *file);
-> > >  #endif /* CONFIG_BPF_SYSCALL */
-> > >  };
-> > > 
-> > > @@ -1954,6 +1969,8 @@ struct security_hook_heads {
-> > >       struct list_head bpf_map_free_security;
-> > >       struct list_head bpf_prog_alloc_security;
-> > >       struct list_head bpf_prog_free_security;
-> > > +     struct list_head bpf_map_file;
-> > > +     struct list_head bpf_prog_file;
-> > >  #endif /* CONFIG_BPF_SYSCALL */
-> > >  } __randomize_layout;
-> > > 
-> > > diff --git a/include/linux/security.h b/include/linux/security.h
-> > > index 18800b0911e5..57573b794e2d 100644
-> > > --- a/include/linux/security.h
-> > > +++ b/include/linux/security.h
-> > > @@ -1740,6 +1740,8 @@ extern int security_bpf_map_alloc(struct
-> > > bpf_map *map);
-> > >  extern void security_bpf_map_free(struct bpf_map *map);
-> > >  extern int security_bpf_prog_alloc(struct bpf_prog_aux *aux);
-> > >  extern void security_bpf_prog_free(struct bpf_prog_aux *aux);
-> > > +extern void security_bpf_map_file(struct bpf_map *map, struct
-> > > file
-> > > *file);
-> > > +extern void security_bpf_prog_file(struct bpf_prog_aux *aux,
-> > > struct
-> > > file *file);
-> > >  #else
-> > >  static inline int security_bpf(int cmd, union bpf_attr *attr,
-> > >                                            unsigned int size)
-> > > @@ -1772,6 +1774,13 @@ static inline int
-> > > security_bpf_prog_alloc(struct bpf_prog_aux *aux)
-> > > 
-> > >  static inline void security_bpf_prog_free(struct bpf_prog_aux
-> > > *aux)
-> > >  { }
-> > > +
-> > > +static inline void security_bpf_map_file(struct bpf_map *map,
-> > > struct
-> > > file *file)
-> > > +{ }
-> > > +
-> > > +static inline void security_bpf_prog_file(struct bpf_prog_aux
-> > > *aux,
-> > > +                                       struct file *file)
-> > > +{ }
-> > >  #endif /* CONFIG_SECURITY */
-> > >  #endif /* CONFIG_BPF_SYSCALL */
-> > > 
-> > > diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-> > > index 1cf31ddd7616..aee69e564c50 100644
-> > > --- a/kernel/bpf/syscall.c
-> > > +++ b/kernel/bpf/syscall.c
-> > > @@ -324,11 +324,22 @@ static const struct file_operations
-> > > bpf_map_fops = {
-> > > 
-> > >  int bpf_map_new_fd(struct bpf_map *map, int flags)
-> > >  {
-> > > +     int fd;
-> > > +     struct fd f;
-> > >       if (security_bpf_map(map, OPEN_FMODE(flags)))
-> > >               return -EPERM;
-> > > 
-> > > -     return anon_inode_getfd("bpf-map", &bpf_map_fops, map,
-> > > +     fd = anon_inode_getfd("bpf-map", &bpf_map_fops, map,
-> > >                               flags | O_CLOEXEC);
-> > > +     if (fd < 0)
-> > > +             return fd;
-> > > +
-> > > +     f = fdget(fd);
-> > > +     if (!f.file)
-> > > +             return -EBADF;
-> > 
-> > This seems convoluted and unnecessarily inefficient, since
-> > anon_inode_getfd() has the struct file and could have directly
-> > returned
-> > it instead of having to go through fdget() on a fd we just
-> > installed.
-> > Also, couldn't the fd->file mapping have changed underneath us
-> > between
-> > fd_install() and fdget()?
-> > I would think it would be safer and more efficient to create an
-> > anon_inode_getfdandfile() or similar interface and use that, so
-> > that we
-> > can just pass the file it set up to the hook.  Obviously that would
-> > need to be reviewed by the vfs folks.
-> > 
-> 
-> Do you mean create a anonymous inode interface specifically for eBPF
-> object? Is it okay that we add the hooks inside anon_inode_getfd and
-> pass the file to the hook before fd install.
+Applied: https://github.com/SELinuxProject/selinux/pull/65
 
-No, I meant to create a general helper, anon_inode_getfile(), that
-returns the file and the fd to the caller, and then the BPF-specific
-logic can stay in the BPF code.
+On Tue, Oct 3, 2017 at 7:21 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> As discussed in https://github.com/SELinuxProject/selinux/issues/64,
+> semodule_deps has apparently been broken for a very long time for
+> binary modules and is completely irrelevant for CIL modules.  If there
+> are any users of it, they ought to be rewritten anyway since it is
+> not producing correct dependency information, and the ultimate goal
+> is to stop using binary modules altogether so it is not worth fixing.
+> Remove it to avoid any further broken usage.
+>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  semodule-utils/.gitignore                    |   1 -
+>  semodule-utils/Makefile                      |   2 +-
+>  semodule-utils/semodule_deps/Makefile        |  28 --
+>  semodule-utils/semodule_deps/semodule_deps.8 |  46 ---
+>  semodule-utils/semodule_deps/semodule_deps.c | 401 ---------------------------
+>  5 files changed, 1 insertion(+), 477 deletions(-)
+>  delete mode 100644 semodule-utils/semodule_deps/Makefile
+>  delete mode 100644 semodule-utils/semodule_deps/semodule_deps.8
+>  delete mode 100644 semodule-utils/semodule_deps/semodule_deps.c
+>
+> diff --git a/semodule-utils/.gitignore b/semodule-utils/.gitignore
+> index 1667564..6ec4efe 100644
+> --- a/semodule-utils/.gitignore
+> +++ b/semodule-utils/.gitignore
+> @@ -1,5 +1,4 @@
+>  semodule_package/semodule_package
+>  semodule_package/semodule_unpackage
+> -semodule_deps/semodule_deps
+>  semodule_expand/semodule_expand
+>  semodule_link/semodule_link
+> diff --git a/semodule-utils/Makefile b/semodule-utils/Makefile
+> index 6bf4aee..e0a6579 100644
+> --- a/semodule-utils/Makefile
+> +++ b/semodule-utils/Makefile
+> @@ -1,4 +1,4 @@
+> -SUBDIRS = semodule_package semodule_link semodule_expand semodule_deps
+> +SUBDIRS = semodule_package semodule_link semodule_expand
+>
+>  all install relabel clean indent:
+>         @for subdir in $(SUBDIRS); do \
+> diff --git a/semodule-utils/semodule_deps/Makefile b/semodule-utils/semodule_deps/Makefile
+> deleted file mode 100644
+> index 328a503..0000000
+> --- a/semodule-utils/semodule_deps/Makefile
+> +++ /dev/null
+> @@ -1,28 +0,0 @@
+> -# Installation directories.
+> -PREFIX ?= $(DESTDIR)/usr
+> -INCLUDEDIR ?= $(PREFIX)/include
+> -BINDIR ?= $(PREFIX)/bin
+> -LIBDIR ?= $(PREFIX)/lib
+> -MANDIR ?= $(PREFIX)/share/man
+> -LIBSEPOLA ?= $(LIBDIR)/libsepol.a
+> -
+> -CFLAGS ?= -Werror -Wall -W
+> -
+> -all: semodule_deps
+> -
+> -semodule_deps:  semodule_deps.o $(LIBSEPOLA)
+> -
+> -install: all
+> -       -mkdir -p $(BINDIR)
+> -       install -m 755 semodule_deps $(BINDIR)
+> -       test -d $(MANDIR)/man8 || install -m 755 -d $(MANDIR)/man8
+> -       install -m 644 semodule_deps.8 $(MANDIR)/man8/
+> -
+> -relabel:
+> -
+> -clean:
+> -       -rm -f semodule_deps *.o
+> -
+> -indent:
+> -       ../../scripts/Lindent $(wildcard *.[ch])
+> -
+> diff --git a/semodule-utils/semodule_deps/semodule_deps.8 b/semodule-utils/semodule_deps/semodule_deps.8
+> deleted file mode 100644
+> index 6f21a64..0000000
+> --- a/semodule-utils/semodule_deps/semodule_deps.8
+> +++ /dev/null
+> @@ -1,46 +0,0 @@
+> -.TH SEMODULE_DEPS "8" "June 2006" "Security Enhanced Linux" NSA
+> -.SH NAME
+> -semodule_deps \- show the dependencies between SELinux policy packages.
+> -
+> -.SH SYNOPSIS
+> -.B semodule_deps [\-v \-g \-b] basemodpkg modpkg1 [modpkg2 ... ]
+> -.br
+> -.SH DESCRIPTION
+> -.PP
+> -semodule_deps is a developer tool for showing the dependencies
+> -between policy packages. For each module it prints a list of
+> -modules that must be present for a module's requirements to
+> -be satisfied. It only deals with requirements, not optional
+> -dependencies.
+> -
+> -In order for semodule_deps to give useful information the list
+> -of packages passed in cannot have unsatisfied dependencies. In
+> -general this means that the list of modules will usually be
+> -quite long.
+> -
+> -By default options to the base module are excluded as almost every
+> -module has this dependency. The \-b option will include these
+> -dependencies.
+> -
+> -In addition to human readable output, semodule_deps can output the
+> -dependencies in the Graphviz dot format (http://www.graphviz.org/)
+> -using the \-g option. This is useful for producing a picture of the
+> -dependencies.
+> -
+> -.SH "OPTIONS"
+> -.TP
+> -.B \-v
+> -verbose mode
+> -.TP
+> -.B \-g
+> -output dependency information in Graphviz dot format
+> -.TP
+> -.B \-b
+> -include dependencies to the base module - by default these are excluded
+> -
+> -.SH SEE ALSO
+> -.B checkmodule(8), semodule_package(8), semodule(8), semodule_link(8)
+> -.SH AUTHORS
+> -.nf
+> -This manual page was written by Karl MacMillan <kmacmillan@mentalrootkit.com>.
+> -The program was written by Karl MacMillan <kmacmillan@mentalrootkit.com>.
+> diff --git a/semodule-utils/semodule_deps/semodule_deps.c b/semodule-utils/semodule_deps/semodule_deps.c
+> deleted file mode 100644
+> index 7a7ff2f..0000000
+> --- a/semodule-utils/semodule_deps/semodule_deps.c
+> +++ /dev/null
+> @@ -1,401 +0,0 @@
+> -/* Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+> - *
+> - * Copyright (C) 2006 Tresys Technology, LLC
+> - * Copyright (C) 2006-2007 Red Hat, Inc.
+> - *
+> - * This program is free software; you can redistribute it and/or modify
+> - * it under the terms of the GNU General Public License as published by
+> - * the Free Software Foundation, version 2.
+> - *
+> - */
+> -
+> -/* Because we _must_ muck around in the internal representation of
+> - * the policydb (and include the internal header below) this program
+> - * must be statically linked to libsepol like checkpolicy. It is
+> - * not clear if it is worthwhile to fix this, as exposing the details
+> - * of avrule_blocks - even in an ABI safe way - seems undesirable.
+> - */
+> -#include <sepol/module.h>
+> -#include <sepol/errcodes.h>
+> -#include <sepol/policydb/policydb.h>
+> -
+> -#include <getopt.h>
+> -#include <fcntl.h>
+> -#include <stdio.h>
+> -#include <errno.h>
+> -#include <sys/mman.h>
+> -#include <sys/types.h>
+> -#include <sys/stat.h>
+> -#include <stdlib.h>
+> -#include <unistd.h>
+> -#include <string.h>
+> -#include <assert.h>
+> -
+> -/* for getopt */
+> -extern char *optarg;
+> -extern int optind;
+> -
+> -/* This is really a horrible hack, but the base module
+> - * is referred to with the following name. The same
+> - * thing is done in the linker for displaying error
+> - * messages.
+> - */
+> -#define BASE_NAME ((char *)"BASE")
+> -
+> -static __attribute__((__noreturn__)) void usage(const char *program_name)
+> -{
+> -       printf("usage: %s [-v -g -b] basemodpkg modpkg1 [modpkg2 ... ]\n",
+> -              program_name);
+> -       exit(1);
+> -}
+> -
+> -/* Basic string hash and compare for the hashtables used in
+> - * generate_requires. Copied from symtab.c.
+> - */
+> -static unsigned int reqsymhash(hashtab_t h, const_hashtab_key_t key)
+> -{
+> -       const char *p, *keyp;
+> -       size_t size;
+> -       unsigned int val;
+> -
+> -       val = 0;
+> -       keyp = (const char *)key;
+> -       size = strlen(keyp);
+> -       for (p = keyp; ((size_t) (p - keyp)) < size; p++)
+> -               val =
+> -                   (val << 4 | (val >> (8 * sizeof(unsigned int) - 4))) ^ (*p);
+> -       return val & (h->size - 1);
+> -}
+> -
+> -static int reqsymcmp(hashtab_t h
+> -                    __attribute__ ((unused)), const_hashtab_key_t key1,
+> -                    const_hashtab_key_t key2)
+> -{
+> -       return strcmp(key1, key2);
+> -}
+> -
+> -/* Load a policy package from the given filename. Progname is used for
+> - * error reporting.
+> - */
+> -static sepol_module_package_t *load_module(char *filename, char *progname)
+> -{
+> -       int ret;
+> -       FILE *fp = NULL;
+> -       struct sepol_policy_file *pf = NULL;
+> -       sepol_module_package_t *p = NULL;
+> -
+> -       if (sepol_module_package_create(&p)) {
+> -               fprintf(stderr, "%s:  Out of memory\n", progname);
+> -               goto bad;
+> -       }
+> -       if (sepol_policy_file_create(&pf)) {
+> -               fprintf(stderr, "%s:  Out of memory\n", progname);
+> -               goto bad;
+> -       }
+> -       fp = fopen(filename, "r");
+> -       if (!fp) {
+> -               fprintf(stderr, "%s:  Could not open package %s:  %s", progname,
+> -                       filename, strerror(errno));
+> -               goto bad;
+> -       }
+> -       sepol_policy_file_set_fp(pf, fp);
+> -
+> -       ret = sepol_module_package_read(p, pf, 0);
+> -       if (ret) {
+> -               fprintf(stderr, "%s:  Error while reading package from %s\n",
+> -                       progname, filename);
+> -               goto bad;
+> -       }
+> -       fclose(fp);
+> -       sepol_policy_file_free(pf);
+> -       return p;
+> -      bad:
+> -       sepol_module_package_free(p);
+> -       sepol_policy_file_free(pf);
+> -       if (fp)
+> -               fclose(fp);
+> -       return NULL;
+> -}
+> -
+> -/* This function generates the requirements graph and stores it in
+> - * a set of nested hashtables. The top level hash table stores modules
+> - * keyed by name. The value of that module is a hashtable storing all
+> - * of the requirements keyed by name. There is no value for the requirements
+> - * hashtable.
+> - *
+> - * This only tracks symbols that are _required_ - optional symbols
+> - * are completely ignored. A future version might look at this.
+> - *
+> - * This requirement generation only looks at booleans and types because:
+> - *  - object classes: (for now) only present in bases
+> - *  - roles: since they are multiply declared it is not clear how
+> - *           to present these requirements as they will be satisfied
+> - *           by multiple modules.
+> - *  - users: same problem as roles plus they are usually defined outside
+> - *           of the policy.
+> - *  - levels / cats: can't be required or used in modules.
+> - */
+> -static hashtab_t generate_requires(policydb_t * p)
+> -{
+> -       avrule_block_t *block;
+> -       avrule_decl_t *decl;
+> -       char *mod_name, *req_name, *id;
+> -       ebitmap_t *b;
+> -       ebitmap_node_t *node;
+> -       uint32_t i, j;
+> -       int ret;
+> -       scope_datum_t *scope;
+> -       hashtab_t mods;
+> -       hashtab_t reqs;
+> -
+> -       mods = hashtab_create(reqsymhash, reqsymcmp, 64);
+> -       if (mods == NULL)
+> -               return NULL;
+> -
+> -       for (block = p->global; block != NULL; block = block->next) {
+> -               if (block->flags & AVRULE_OPTIONAL)
+> -                       continue;
+> -               for (decl = block->branch_list; decl != NULL; decl = decl->next) {
+> -                       mod_name =
+> -                           decl->module_name ? decl->module_name : BASE_NAME;
+> -                       for (i = 0; i < SYM_NUM; i++) {
+> -                               if (!(i == SYM_TYPES || i == SYM_BOOLS))
+> -                                       continue;
+> -                               b = &decl->required.scope[i];
+> -                               ebitmap_for_each_bit(b, node, j) {
+> -                                       if (!ebitmap_node_get_bit(node, j))
+> -                                               continue;
+> -                                       id = p->sym_val_to_name[i][j];
+> -                                       scope =
+> -                                           (scope_datum_t *) hashtab_search(p->
+> -                                                                            scope
+> -                                                                            [i].
+> -                                                                            table,
+> -                                                                            id);
+> -                                       /* since this is only called after a successful link,
+> -                                        * this should never happen */
+> -                                       assert(scope->scope == SCOPE_DECL);
+> -                                       req_name =
+> -                                           p->decl_val_to_struct[scope->
+> -                                                                 decl_ids[0]]->
+> -                                           module_name ? p->
+> -                                           decl_val_to_struct[scope->
+> -                                                              decl_ids[0]]->
+> -                                           module_name : BASE_NAME;
+> -
+> -                                       reqs =
+> -                                           (hashtab_t) hashtab_search(mods,
+> -                                                                      mod_name);
+> -                                       if (!reqs) {
+> -                                               reqs =
+> -                                                   hashtab_create(reqsymhash,
+> -                                                                  reqsymcmp,
+> -                                                                  64);
+> -                                               if (reqs == NULL) {
+> -                                                       return NULL;
+> -                                               }
+> -                                               ret =
+> -                                                   hashtab_insert(mods,
+> -                                                                  mod_name,
+> -                                                                  reqs);
+> -                                               if (ret != SEPOL_OK)
+> -                                                       return NULL;
+> -                                       }
+> -                                       ret =
+> -                                           hashtab_insert(reqs, req_name,
+> -                                                          NULL);
+> -                                       if (!
+> -                                           (ret == SEPOL_EEXIST
+> -                                            || ret == SEPOL_OK))
+> -                                               return NULL;
+> -                               }
+> -                       }
+> -
+> -               }
+> -       }
+> -
+> -       return mods;
+> -}
+> -
+> -static void free_requires(hashtab_t req)
+> -{
+> -       unsigned int i;
+> -       hashtab_ptr_t cur;
+> -
+> -       /* We steal memory for everything stored in the hash tables
+> -        * from the policydb, so this only looks like it leaks.
+> -        */
+> -       for (i = 0; i < req->size; i++) {
+> -               cur = req->htable[i];
+> -               while (cur != NULL) {
+> -                       hashtab_destroy((hashtab_t) cur->datum);
+> -                       cur = cur->next;
+> -               }
+> -       }
+> -       hashtab_destroy(req);
+> -}
+> -
+> -static void output_graphviz(hashtab_t mods, int exclude_base, FILE * f)
+> -{
+> -       unsigned int i, j;
+> -       hashtab_ptr_t cur, cur2;
+> -       hashtab_t reqs;
+> -
+> -       fprintf(f, "digraph mod_deps {\n");
+> -       fprintf(f, "\toverlap=false\n");
+> -
+> -       for (i = 0; i < mods->size; i++) {
+> -               cur = mods->htable[i];
+> -               while (cur != NULL) {
+> -                       reqs = (hashtab_t) cur->datum;
+> -                       assert(reqs);
+> -                       for (j = 0; j < reqs->size; j++) {
+> -                               cur2 = reqs->htable[j];
+> -                               while (cur2 != NULL) {
+> -                                       if (exclude_base
+> -                                           && strcmp(cur2->key,
+> -                                                     BASE_NAME) == 0) {
+> -                                               cur2 = cur2->next;
+> -                                               continue;
+> -                                       }
+> -                                       fprintf(f, "\t%s -> %s\n", cur->key,
+> -                                               cur2->key);
+> -                                       cur2 = cur2->next;
+> -                               }
+> -                       }
+> -                       cur = cur->next;
+> -               }
+> -       }
+> -       fprintf(f, "}\n");
+> -}
+> -
+> -static void output_requirements(hashtab_t mods, int exclude_base, FILE * f)
+> -{
+> -       unsigned int i, j;
+> -       hashtab_ptr_t cur, cur2;
+> -       hashtab_t reqs;
+> -       int found_req;
+> -
+> -       for (i = 0; i < mods->size; i++) {
+> -               cur = mods->htable[i];
+> -               while (cur != NULL) {
+> -                       reqs = (hashtab_t) cur->datum;
+> -                       assert(reqs);
+> -                       fprintf(f, "module: %s\n", cur->key);
+> -                       found_req = 0;
+> -                       for (j = 0; j < reqs->size; j++) {
+> -                               cur2 = reqs->htable[j];
+> -                               while (cur2 != NULL) {
+> -                                       if (exclude_base
+> -                                           && strcmp(cur2->key,
+> -                                                     BASE_NAME) == 0) {
+> -                                               cur2 = cur2->next;
+> -                                               continue;
+> -                                       }
+> -                                       found_req = 1;
+> -                                       fprintf(f, "\t%s\n", cur2->key);
+> -                                       cur2 = cur2->next;
+> -                               }
+> -                       }
+> -                       if (!found_req)
+> -                               fprintf(f, "\t[no dependencies]\n");
+> -                       cur = cur->next;
+> -               }
+> -       }
+> -       fprintf(f, "}\n");
+> -}
+> -
+> -/* Possible commands - see the command variable in
+> - * main below and the man page for more info.
+> - */
+> -#define SHOW_DEPS    1
+> -#define GEN_GRAPHVIZ 2
+> -
+> -int main(int argc, char **argv)
+> -{
+> -       int ch, i, num_mods;
+> -       int verbose = 0, exclude_base = 1, command = SHOW_DEPS;
+> -       char *basename;
+> -       sepol_module_package_t *base, **mods;
+> -       policydb_t *p;
+> -       hashtab_t req;
+> -
+> -       while ((ch = getopt(argc, argv, "vgb")) != EOF) {
+> -               switch (ch) {
+> -               case 'v':
+> -                       verbose = 1;
+> -                       break;
+> -               case 'g':
+> -                       command = GEN_GRAPHVIZ;
+> -                       break;
+> -               case 'b':
+> -                       exclude_base = 0;
+> -                       break;
+> -               default:
+> -                       usage(argv[0]);
+> -               }
+> -       }
+> -
+> -       /* check args */
+> -       if (argc < 3 || !(optind != (argc - 1))) {
+> -               fprintf(stderr,
+> -                       "%s:  You must provide the base module package and at least one other module package\n",
+> -                       argv[0]);
+> -               usage(argv[0]);
+> -       }
+> -
+> -       basename = argv[optind++];
+> -       base = load_module(basename, argv[0]);
+> -       if (!base) {
+> -               fprintf(stderr,
+> -                       "%s:  Could not load base module from file %s\n",
+> -                       argv[0], basename);
+> -               exit(1);
+> -       }
+> -
+> -       num_mods = argc - optind;
+> -       mods =
+> -           (sepol_module_package_t **) malloc(sizeof(sepol_module_package_t *)
+> -                                              * num_mods);
+> -       if (!mods) {
+> -               fprintf(stderr, "%s:  Out of memory\n", argv[0]);
+> -               exit(1);
+> -       }
+> -       memset(mods, 0, sizeof(sepol_module_package_t *) * num_mods);
+> -
+> -       for (i = 0; optind < argc; optind++, i++) {
+> -               mods[i] = load_module(argv[optind], argv[0]);
+> -               if (!mods[i]) {
+> -                       fprintf(stderr,
+> -                               "%s:  Could not load module from file %s\n",
+> -                               argv[0], argv[optind]);
+> -                       exit(1);
+> -               }
+> -       }
+> -
+> -       if (sepol_link_packages(NULL, base, mods, num_mods, verbose)) {
+> -               fprintf(stderr, "%s:  Error while linking packages\n", argv[0]);
+> -               exit(1);
+> -       }
+> -
+> -       p = (policydb_t *) sepol_module_package_get_policy(base);
+> -       if (p == NULL)
+> -               exit(1);
+> -
+> -       req = generate_requires(p);
+> -       if (req == NULL)
+> -               exit(1);
+> -
+> -       if (command == SHOW_DEPS)
+> -               output_requirements(req, exclude_base, stdout);
+> -       else
+> -               output_graphviz(req, exclude_base, stdout);
+> -
+> -       sepol_module_package_free(base);
+> -       for (i = 0; i < num_mods; i++)
+> -               sepol_module_package_free(mods[i]);
+> -
+> -       free_requires(req);
+> -
+> -       exit(0);
+> -}
+> --
+> 2.9.5
+>
 
-However, if storing the bpf type in the file_security_struct is in fact
-having a significant impact on per-file memory usage, then perhaps your
-original approach of exporting and testing the fops was the right one,
-albeit ugly.
 
-> > > +     security_bpf_map_file(map, f.file);
-> > > +     fdput(f);
-> > > +     return fd;
-> > >  }
-> > > 
-> > >  int bpf_get_file_flag(int flags)
-> > > @@ -975,11 +986,23 @@ static const struct file_operations
-> > > bpf_prog_fops = {
-> > > 
-> > >  int bpf_prog_new_fd(struct bpf_prog *prog)
-> > >  {
-> > > +     int fd;
-> > > +     struct fd f;
-> > > +
-> > >       if (security_bpf_prog(prog))
-> > >               return -EPERM;
-> > > 
-> > > -     return anon_inode_getfd("bpf-prog", &bpf_prog_fops, prog,
-> > > +     fd =  anon_inode_getfd("bpf-prog", &bpf_prog_fops, prog,
-> > >                               O_RDWR | O_CLOEXEC);
-> > > +     if (fd < 0)
-> > > +             return fd;
-> > > +
-> > > +     f = fdget(fd);
-> > > +     if (!f.file)
-> > > +             return -EBADF;
-> > > +     security_bpf_prog_file(prog->aux, f.file);
-> > > +     fdput(f);
-> > > +     return fd;
-> > >  }
-> > > 
-> > >  static struct bpf_prog *____bpf_prog_get(struct fd f)
-> > > diff --git a/security/security.c b/security/security.c
-> > > index 1cd8526cb0b7..dacf649b8cfa 100644
-> > > --- a/security/security.c
-> > > +++ b/security/security.c
-> > > @@ -1734,4 +1734,12 @@ void security_bpf_prog_free(struct
-> > > bpf_prog_aux *aux)
-> > >  {
-> > >       call_void_hook(bpf_prog_free_security, aux);
-> > >  }
-> > > +void security_bpf_map_file(struct bpf_map *map, struct file
-> > > *file)
-> > > +{
-> > > +     call_void_hook(bpf_map_file, map, file);
-> > > +}
-> > > +void security_bpf_prog_file(struct bpf_prog_aux *aux, struct
-> > > file
-> > > *file)
-> > > +{
-> > > +     call_void_hook(bpf_prog_file, aux, file);
-> > > +}
-> > >  #endif /* CONFIG_BPF_SYSCALL */
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 94e473b9c884..0a6ef20513b0 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -1815,6 +1815,10 @@ static inline int file_path_has_perm(const
-> > > struct cred *cred,
-> > >       return inode_has_perm(cred, file_inode(file), av, &ad);
-> > >  }
-> > > 
-> > > +#ifdef CONFIG_BPF_SYSCALL
-> > > +static int bpf_file_check(struct file *file, u32 sid);
-> > > +#endif
-> > > +
-> > >  /* Check whether a task can use an open file descriptor to
-> > >     access an inode in a given way.  Check access to the
-> > >     descriptor itself, and then use dentry_has_perm to
-> > > @@ -1845,6 +1849,14 @@ static int file_has_perm(const struct cred
-> > > *cred,
-> > >                       goto out;
-> > >       }
-> > > 
-> > > +#ifdef CONFIG_BPF_SYSCALL
-> > > +     if (fsec->bpf_type) {
-> > > +             rc = bpf_file_check(file, cred_sid(cred));
-> > > +             if (rc)
-> > > +                     goto out;
-> > > +     }
-> > > +#endif
-> > > +
-> > >       /* av is zero if only checking access to the descriptor. */
-> > >       rc = 0;
-> > >       if (av)
-> > > @@ -2165,6 +2177,14 @@ static int
-> > > selinux_binder_transfer_file(struct
-> > > task_struct *from,
-> > >                       return rc;
-> > >       }
-> > > 
-> > > +#ifdef CONFIG_BPF_SYSCALL
-> > > +     if (fsec->bpf_type) {
-> > > +             rc = bpf_file_check(file, sid);
-> > > +             if (rc)
-> > > +                     return rc;
-> > > +     }
-> > > +#endif
-> > > +
-> > >       if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
-> > >               return 0;
-> > > 
-> > > @@ -6288,6 +6308,33 @@ static u32 bpf_map_fmode_to_av(fmode_t
-> > > fmode)
-> > >       return av;
-> > >  }
-> > > 
-> > > +/* This function will check the file pass through unix socket or
-> > > binder to see
-> > > + * if it is a bpf related object. And apply correspinding checks
-> > > on
-> > > the bpf
-> > > + * object based on the type. The bpf maps and programs, not like
-> > > other files and
-> > > + * socket, are using a shared anonymous inode inside the kernel
-> > > as
-> > > their inode.
-> > > + * So checking that inode cannot identify if the process have
-> > > privilege to
-> > > + * access the bpf object and that's why we have to add this
-> > > additional check in
-> > > + * selinux_file_receive and selinux_binder_transfer_files.
-> > > + */
-> > > +static int bpf_file_check(struct file *file, u32 sid)
-> > > +{
-> > > +     struct file_security_struct *fsec = file->f_security;
-> > > +     int ret;
-> > > +
-> > > +     if (fsec->bpf_type == BPF_MAP) {
-> > > +             ret = avc_has_perm(sid, fsec->bpf_sid,
-> > > SECCLASS_BPF,
-> > > +                                bpf_map_fmode_to_av(file-
-> > > > f_mode), NULL);
-> > > 
-> > > +             if (ret)
-> > > +                     return ret;
-> > > +     } else if (fsec->bpf_type == BPF_PROG) {
-> > > +             ret = avc_has_perm(sid, fsec->bpf_sid,
-> > > SECCLASS_BPF,
-> > > +                                BPF__PROG_USE, NULL);
-> > > +             if (ret)
-> > > +                     return ret;
-> > > +     }
-> > > +     return 0;
-> > > +}
-> > > +
-> > >  static int selinux_bpf_map(struct bpf_map *map, fmode_t fmode)
-> > >  {
-> > >       u32 sid = current_sid();
-> > > @@ -6351,6 +6398,24 @@ static void selinux_bpf_prog_free(struct
-> > > bpf_prog_aux *aux)
-> > >       aux->security = NULL;
-> > >       kfree(bpfsec);
-> > >  }
-> > > +
-> > > +static void selinux_bpf_map_file(struct bpf_map *map, struct
-> > > file
-> > > *file)
-> > > +{
-> > > +     struct bpf_security_struct *bpfsec = map->security;
-> > > +     struct file_security_struct *fsec = file->f_security;
-> > > +
-> > > +     fsec->bpf_type = BPF_MAP;
-> > > +     fsec->bpf_sid = bpfsec->sid;
-> > > +}
-> > > +
-> > > +static void selinux_bpf_prog_file(struct bpf_prog_aux *aux,
-> > > struct
-> > > file *file)
-> > > +{
-> > > +     struct bpf_security_struct *bpfsec = aux->security;
-> > > +     struct file_security_struct *fsec = file->f_security;
-> > > +
-> > > +     fsec->bpf_type = BPF_PROG;
-> > > +     fsec->bpf_sid = bpfsec->sid;
-> > > +}
-> > >  #endif
-> > > 
-> > >  static struct security_hook_list selinux_hooks[]
-> > > __lsm_ro_after_init
-> > > = {
-> > > @@ -6581,6 +6646,8 @@ static struct security_hook_list
-> > > selinux_hooks[] __lsm_ro_after_init = {
-> > >       LSM_HOOK_INIT(bpf_prog_alloc_security,
-> > > selinux_bpf_prog_alloc),
-> > >       LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
-> > >       LSM_HOOK_INIT(bpf_prog_free_security,
-> > > selinux_bpf_prog_free),
-> > > +     LSM_HOOK_INIT(bpf_map_file, selinux_bpf_map_file),
-> > > +     LSM_HOOK_INIT(bpf_prog_file, selinux_bpf_prog_file),
-> > >  #endif
-> > >  };
-> > > 
-> > > diff --git a/security/selinux/include/objsec.h
-> > > b/security/selinux/include/objsec.h
-> > > index 3d54468ce334..0162648761f9 100644
-> > > --- a/security/selinux/include/objsec.h
-> > > +++ b/security/selinux/include/objsec.h
-> > > @@ -67,11 +67,20 @@ struct inode_security_struct {
-> > >       spinlock_t lock;
-> > >  };
-> > > 
-> > > +enum bpf_obj_type {
-> > > +     BPF_MAP = 1,
-> > > +     BPF_PROG,
-> > > +};
-> > > +
-> > >  struct file_security_struct {
-> > >       u32 sid;                /* SID of open file description */
-> > >       u32 fown_sid;           /* SID of file owner (for
-> > > SIGIO) */
-> > >       u32 isid;               /* SID of inode at the time of file
-> > > open */
-> > >       u32 pseqno;             /* Policy seqno at the time of
-> > > file open */
-> > > +#ifdef CONFIG_BPF_SYSCALL
-> > > +     unsigned char bpf_type;
-> > > +     u32 bpf_sid;
-> > > +#endif
-> > >  };
-> > 
-> > Can you check how this impacts the size of the file_security_cache
-> > objects, and thus the memory overhead imposed on all open files?
-> > 
-> > If it is significant, do we need to cache the bpf_sid here or could
-> > we
-> > just store the bpf_type and then dereference the bpfsec if it is a
-> > map
-> > or prog?
-> > 
-> > From proc/slabinfo I find the number of object and the object size
-> 
-> grows a lot after adding this two field. I will try to dereference
-> the
-> bpfsec instead to see if it helps.
-> > > 
-> > >  struct superblock_security_struct {
+
+-- 
+Respectfully,
+
+William C Roberts
