@@ -1,84 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9EATh0C027598
- for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2017 06:29:44 -0400
-Received: from c-sl556.itechfrontiers.net (c-sl556.itechfrontiers.net
- [66.36.250.115])
- by c-sl428.itechfrontiers.net (ITechFrontiers-Post) with ESMTP id 42AE656419
- for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2017 06:29:40 -0400 (EDT)
-Received: from c-sl428.itechfrontiers.net ([66.36.250.114])
- by c-sl556.itechfrontiers.net (c-sl556.itechfrontiers.net [66.36.250.115])
- (ITech Frontiers SecureMail)
- with ESMTP id tD9QQqZ3TpUY for <selinux@tycho.nsa.gov>;
- Sat, 14 Oct 2017 06:29:37 -0400 (EDT)
-Received: from c-sl556.itechfrontiers.net (c-sl556.itechfrontiers.net
- [66.36.250.115])
- by c-sl428.itechfrontiers.net (ITechFrontiers-Post) with ESMTP id 220F75641A
- for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2017 06:29:37 -0400 (EDT)
-Received: from c-sl428.itechfrontiers.net ([66.36.250.114])
- by c-sl556.itechfrontiers.net (c-sl556.itechfrontiers.net [66.36.250.115])
- (ITech Frontiers SecureMail)
- with ESMTP id dWus8fcZbHkd for <selinux@tycho.nsa.gov>;
- Sat, 14 Oct 2017 06:29:34 -0400 (EDT)
-Received: from rhea.itechfrontiers.com ([10.7.14.47])
- (using TLSv1 with cipher DHE-RSA-AES128-SHA (128/128 bits))
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9FCBZ8m009072
+ for <selinux@tycho.nsa.gov>; Sun, 15 Oct 2017 08:11:35 -0400
+Received: from mail-lf0-f52.google.com (mail-lf0-f52.google.com
+ [209.85.215.52])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- (Authenticated sender: cto@itechfrontiers.com)
- by c-sl428.itechfrontiers.net (ITechFrontiers-Post) with ESMTPSA id 34D5256419
- for <selinux@tycho.nsa.gov>; Sat, 14 Oct 2017 06:29:33 -0400 (EDT)
-To: SELinux <selinux@tycho.nsa.gov>
-From: "Patrick K., ITF" <cto@itechfrontiers.com>
-Message-ID: <931fd53b-672e-808c-73e7-077dd75affed@itechfrontiers.com>
-Date: Sat, 14 Oct 2017 06:29:37 -0400
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id A4169560692
+ for <selinux@tycho.nsa.gov>; Sun, 15 Oct 2017 14:10:26 +0200 (CEST)
+Received: by mail-lf0-f52.google.com with SMTP id k40so14058281lfi.4
+ for <selinux@tycho.nsa.gov>; Sun, 15 Oct 2017 05:10:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: RowHammer Protection
+In-Reply-To: <CAFftDdpFtE3fDPJxYTb5Q7Ooa3UpEHAHzRJYee60a_QsNxngiw@mail.gmail.com>
+References: <CAFftDdoa-iO3E62FSefdnARHGVzLE4znzaFfSd2Q=9bhdG3=eQ@mail.gmail.com>
+ <1507841294.30307.4.camel@tycho.nsa.gov>
+ <CAFftDdpFtE3fDPJxYTb5Q7Ooa3UpEHAHzRJYee60a_QsNxngiw@mail.gmail.com>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Sun, 15 Oct 2017 14:10:25 +0200
+Message-ID: <CAJfZ7=n7j6kbxd2SGW3FjxMr=EZSiYdttG9mfotUt0F3UFEdgQ@mail.gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: travis CI
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello,
+On Fri, Oct 13, 2017 at 1:50 AM, William Roberts
+<bill.c.roberts@gmail.com> wrote:
+> On Thu, Oct 12, 2017 at 1:48 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On Thu, 2017-10-12 at 11:29 -0700, William Roberts wrote:
+>>> I see a travis.yml file, recently modified by Nicolas, but I failed
+>>> to
+>>> find the Travis CI instance on travis.org, where is it?
+>>>
+>>> We should likely have it running on commits to the repo and PRs so we
+>>> can have some independent way of verifying that our run of the tests
+>>> was compromised by some env variation or mistake.
+>>>
+>>> Thoughts?
+>>
+>> To date he has just run it on his own fork.  Not opposed to enabling
+>> it, just haven't looked into that...
+>
+> I have done it for my some of my projects, Ill go ahead and set this up.
 
-Any proposed method using SELinux to counter RowHammer attacks On Linux?
+I configured Travis-CI to test the branches in my Github repository a
+little more than one year ago, after several build configurations got
+broken (clang on Linux for example). I later added more features to it
+(for example warning about missing .gitignore entries, testing several
+Ruby and Python versions, etc), before I upstreamed my .travis.yml
+file (a few months ago). When I did it, my main motivation was to
+simplify the job of anyone who would want to configure a CI system on
+the project (the building rules and dependencies should be quite
+similar). Using a continuous integration system is useful to prevent
+simple regression issues which would otherwise only be detected when
+someone running a specific configuration tries to build the project.
 
-Unfortunately hardware based protection is no longer any use as the Row 
-Hammer attack evolved and bypassed hardware protection, and the 
-following paper defeats the protection mechanisms we took.
+Before asking to enable Travis-CI on the main SELinux repository, I
+wanted to make sure it was stable/reliable enough. To do this, I
+created a branch named "travis-upstream" in my repository, which
+tracked the master branch of the main repository. All went well for
+quite some time, until Travis-CI modified this summer their
+environments, introducing some incompatibilities with projects which
+use several programming languages. Thankfully these changes have been
+documented in Travis-CI's blog and I updated the config file to fix
+the builds with commits b1ea8120832d ("Travis-CI: use sugulite
+environment") and 6d9258e5a05f ("Travis-CI: fix configuration after
+September's update"). As Travis-CI does not seem to want to support
+multi-language projects (cf.
+https://github.com/travis-ci/travis-ci/issues/4090 for example), more
+breaking changes could be introduced as the provided environment are
+upgraded. Nevertheless I expect that such changes are quite easily
+fixable.
 
-Any proposals?
+In short, using a CI platform is useful and Travis-CI is a free one
+which makes it possible to test several build configurations (I also
+tried Circle-CI, which did not provide a similar feature) and
+maintaining a working configuration does not require much effort.
+Moreover when a Travis-CI job fails, the log contains the console
+output which usually is very clear about what has gone wrong.
+Travis-CI now also provides Docker images which help reproducing
+issues and understanding their cause without needing to submit a new
+job.
 
-Paper: Another Flip in the Wall of Rowhammer Defenses
-https://arxiv.org/pdf/1710.00551.pdf
+If you want to set this platform up for SELinux userspace project,
+please go ahead :)
 
-
-Note: Please consider sudo here is a sample, so just blocking sudo won't 
-help really.
-
-QUOTE
-XI. Conclusion
-In this paper, we showed that even a combination of all state-of-the-art 
-Rowhammer defenses does not prevent Rowhammer attacks. Our novel attack 
-and exploitation primitives systematically undermine the assumptions of 
-all defenses. With one-location hammering, we showed that previous 
-assumptions on how the Rowhammer bug can be triggered are invalid and 
-keeping only one DRAM row constantly open is sufficient to induce bit 
-flips. With a slow-down factor of only 3.3, it is still on par with 
-previous (now mitigated) techniques. With opcode flipping, we bypass all 
-memory layout-based defenses by flipping bits in a predictable and 
-targeted way in the userspace sudo binary. We present 29 bit offsets, 
-each allowing an attacker to obtain root privileges in practice. With 
-memory waylaying, we present a reliable technique to replace conspicuous 
-and unstable memory spraying and grooming techniques. Coaxing the 
-operating system into relocating any binary page takes 2.68 s with our 
-stealth-optimized variant, and only 36.7 µs with our speed-optimized 
-variant. Finally, we leveraged Intel SGX to hide the full 
-privilege-escalation attack, making any inspection or detection of the 
-attack infeasible. Consequently, our attack evades all previously 
-proposed countermeasures for commodity systems
-
-UNQUOTE
-
-Best regards,
-
--- 
-  Patrick K.
+Cheers,
+Nicolas
