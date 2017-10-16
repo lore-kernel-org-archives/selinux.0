@@ -1,204 +1,194 @@
-From: Chenbo Feng <chenbofeng.kernel@gmail.com>
-To: netdev@vger.kernel.org, SELinux <Selinux@tycho.nsa.gov>,
- linux-security-module@vger.kernel.org
-Cc: Jeffrey Vander Stoep <jeffv@google.com>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>, lorenzo@google.com,
- Daniel Borkmann <daniel@iogearbox.net>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- James Morris <james.l.morris@oracle.com>,
- Paul Moore <paul@paul-moore.com>, Chenbo Feng <fengc@google.com>
-Date: Mon, 16 Oct 2017 12:11:34 -0700
-Message-Id: <20171016191135.8046-5-chenbofeng.kernel@gmail.com>
-In-Reply-To: <20171016191135.8046-1-chenbofeng.kernel@gmail.com>
-References: <20171016191135.8046-1-chenbofeng.kernel@gmail.com>
-Subject: [PATCH net-next v6 4/5] selinux: bpf: Add selinux check for
- eBPF syscall operations
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9GMEQhO018479
+ for <selinux@tycho.nsa.gov>; Mon, 16 Oct 2017 18:14:26 -0400
+To: Matthew Garrett <mjg59@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, Mimi Zohar
+ <zohar@linux.vnet.ibm.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ linux-integrity@vger.kernel.org
+References: <20171016203709.11199-1-mjg59@google.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <f438abf6-de2a-847d-40fa-0b139135b97f@schaufler-ca.com>
+Date: Mon, 16 Oct 2017 14:58:05 -0700
+MIME-Version: 1.0
+In-Reply-To: <20171016203709.11199-1-mjg59@google.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH 1/2] security: Add a cred_getsecid hook
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Chenbo Feng <fengc@google.com>
+On 10/16/2017 1:37 PM, Matthew Garrett wrote:
+> For IMA purposes, we want to be able to obtain the prepared secid in the
+> bprm structure before the credentials are committed. Add a cred_getsecid
+> hook that makes this possible.
 
-Implement the actual checks introduced to eBPF related syscalls. This
-implementation use the security field inside bpf object to store a sid that
-identify the bpf object. And when processes try to access the object,
-selinux will check if processes have the right privileges. The creation
-of eBPF object are also checked at the general bpf check hook and new
-cmd introduced to eBPF domain can also be checked there.
+Why do you want the secid? What are you planning to do with it?
 
-Signed-off-by: Chenbo Feng <fengc@google.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- security/selinux/hooks.c            | 111 ++++++++++++++++++++++++++++++++++++
- security/selinux/include/classmap.h |   2 +
- security/selinux/include/objsec.h   |   4 ++
- 3 files changed, 117 insertions(+)
+>
+> Signed-off-by: Matthew Garrett <mjg59@google.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: selinux@tycho.nsa.gov
+> Cc: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: linux-security-module@vger.kernel.org
+> Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+> Cc: Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
+> Cc: linux-integrity@vger.kernel.org
+> ---
+>  include/linux/lsm_hooks.h  |  6 ++++++
+>  include/linux/security.h   |  1 +
+>  security/security.c        |  7 +++++++
+>  security/selinux/hooks.c   |  8 ++++++++
+>  security/smack/smack.h     | 10 ++++++++++
+>  security/smack/smack_lsm.c | 14 ++++++++++++++
+>  6 files changed, 46 insertions(+)
+>
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index ce02f76a6188..48a929fd47e6 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -556,6 +556,10 @@
+>   *	@new points to the new credentials.
+>   *	@old points to the original credentials.
+>   *	Transfer data from original creds to new creds
+> + * @cred_getsecid:
+> + *	Retrieve the security identifier of the cred structure @c
+> + *	@p contains the credentials, secid will be placed into @secid.
+> + *	In case of failure, @secid will be set to zero.
+>   * @kernel_act_as:
+>   *	Set the credentials for a kernel service to act as (subjective context).
+>   *	@new points to the credentials to be modified.
+> @@ -1510,6 +1514,7 @@ union security_list_options {
+>  	int (*cred_prepare)(struct cred *new, const struct cred *old,
+>  				gfp_t gfp);
+>  	void (*cred_transfer)(struct cred *new, const struct cred *old);
+> +	void (*cred_getsecid)(const struct cred *c, u32 *secid);
+>  	int (*kernel_act_as)(struct cred *new, u32 secid);
+>  	int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
+>  	int (*kernel_module_request)(char *kmod_name);
+> @@ -1783,6 +1788,7 @@ struct security_hook_heads {
+>  	struct list_head cred_free;
+>  	struct list_head cred_prepare;
+>  	struct list_head cred_transfer;
+> +	struct list_head cred_getsecid;
+>  	struct list_head kernel_act_as;
+>  	struct list_head kernel_create_files_as;
+>  	struct list_head kernel_read_file;
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 458e24bea2d4..8d969958c25e 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -324,6 +324,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+>  void security_cred_free(struct cred *cred);
+>  int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
+>  void security_transfer_creds(struct cred *new, const struct cred *old);
+> +void security_cred_getsecid(const struct cred *c, u32 *secid);
+>  int security_kernel_act_as(struct cred *new, u32 secid);
+>  int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+>  int security_kernel_module_request(char *kmod_name);
+> diff --git a/security/security.c b/security/security.c
+> index 55b5997e4b72..0f5784880c94 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1009,6 +1009,13 @@ void security_transfer_creds(struct cred *new, const struct cred *old)
+>  	call_void_hook(cred_transfer, new, old);
+>  }
+>  
+> +void security_cred_getsecid(const struct cred *c, u32 *secid)
+> +{
+> +	*secid = 0;
+> +	call_void_hook(cred_getsecid, c, secid);
+> +}
+> +EXPORT_SYMBOL(security_cred_getsecid);
+> +
+>  int security_kernel_act_as(struct cred *new, u32 secid)
+>  {
+>  	return call_int_hook(kernel_act_as, 0, new, secid);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 33fd061305c4..e0828e9130c7 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3829,6 +3829,13 @@ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+>  	*tsec = *old_tsec;
+>  }
+>  
+> +static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
+> +{
+> +	rcu_read_lock();
+> +	*secid = cred_sid(c);
+> +	rcu_read_unlock();
+> +}
+> +
+>  /*
+>   * set the security data for a kernel service
+>   * - all the creation contexts are set to unlabelled
+> @@ -6332,6 +6339,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(cred_free, selinux_cred_free),
+>  	LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
+>  	LSM_HOOK_INIT(cred_transfer, selinux_cred_transfer),
+> +	LSM_HOOK_INIT(cred_getsecid, selinux_cred_getsecid),
+>  	LSM_HOOK_INIT(kernel_act_as, selinux_kernel_act_as),
+>  	LSM_HOOK_INIT(kernel_create_files_as, selinux_kernel_create_files_as),
+>  	LSM_HOOK_INIT(kernel_module_request, selinux_kernel_module_request),
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index 6a71fc7831ab..5af7b7e709bc 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -391,6 +391,16 @@ static inline struct smack_known *smk_of_task_struct(const struct task_struct *t
+>  	return skp;
+>  }
+>  
+> +static inline struct smack_known *smk_of_cred(const struct cred *c)
+> +{
+> +	struct smack_known *skp;
+> +
+> +	rcu_read_lock();
+> +	skp = smk_of_task(c->security);
+> +	rcu_read_unlock();
+> +	return skp;
+> +}
+> +
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f5d304736852..12cf7de8cbed 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -85,6 +85,7 @@
- #include <linux/export.h>
- #include <linux/msg.h>
- #include <linux/shm.h>
-+#include <linux/bpf.h>
- 
- #include "avc.h"
- #include "objsec.h"
-@@ -6252,6 +6253,106 @@ static void selinux_ib_free_security(void *ib_sec)
- }
- #endif
- 
-+#ifdef CONFIG_BPF_SYSCALL
-+static int selinux_bpf(int cmd, union bpf_attr *attr,
-+				     unsigned int size)
-+{
-+	u32 sid = current_sid();
-+	int ret;
-+
-+	switch (cmd) {
-+	case BPF_MAP_CREATE:
-+		ret = avc_has_perm(sid, sid, SECCLASS_BPF, BPF__MAP_CREATE,
-+				   NULL);
-+		break;
-+	case BPF_PROG_LOAD:
-+		ret = avc_has_perm(sid, sid, SECCLASS_BPF, BPF__PROG_LOAD,
-+				   NULL);
-+		break;
-+	default:
-+		ret = 0;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+static u32 bpf_map_fmode_to_av(fmode_t fmode)
-+{
-+	u32 av = 0;
-+
-+	if (fmode & FMODE_READ)
-+		av |= BPF__MAP_READ;
-+	if (fmode & FMODE_WRITE)
-+		av |= BPF__MAP_WRITE;
-+	return av;
-+}
-+
-+static int selinux_bpf_map(struct bpf_map *map, fmode_t fmode)
-+{
-+	u32 sid = current_sid();
-+	struct bpf_security_struct *bpfsec;
-+
-+	bpfsec = map->security;
-+	return avc_has_perm(sid, bpfsec->sid, SECCLASS_BPF,
-+			    bpf_map_fmode_to_av(fmode), NULL);
-+}
-+
-+static int selinux_bpf_prog(struct bpf_prog *prog)
-+{
-+	u32 sid = current_sid();
-+	struct bpf_security_struct *bpfsec;
-+
-+	bpfsec = prog->aux->security;
-+	return avc_has_perm(sid, bpfsec->sid, SECCLASS_BPF,
-+			    BPF__PROG_RUN, NULL);
-+}
-+
-+static int selinux_bpf_map_alloc(struct bpf_map *map)
-+{
-+	struct bpf_security_struct *bpfsec;
-+
-+	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
-+	if (!bpfsec)
-+		return -ENOMEM;
-+
-+	bpfsec->sid = current_sid();
-+	map->security = bpfsec;
-+
-+	return 0;
-+}
-+
-+static void selinux_bpf_map_free(struct bpf_map *map)
-+{
-+	struct bpf_security_struct *bpfsec = map->security;
-+
-+	map->security = NULL;
-+	kfree(bpfsec);
-+}
-+
-+static int selinux_bpf_prog_alloc(struct bpf_prog_aux *aux)
-+{
-+	struct bpf_security_struct *bpfsec;
-+
-+	bpfsec = kzalloc(sizeof(*bpfsec), GFP_KERNEL);
-+	if (!bpfsec)
-+		return -ENOMEM;
-+
-+	bpfsec->sid = current_sid();
-+	aux->security = bpfsec;
-+
-+	return 0;
-+}
-+
-+static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
-+{
-+	struct bpf_security_struct *bpfsec = aux->security;
-+
-+	aux->security = NULL;
-+	kfree(bpfsec);
-+}
-+#endif
-+
- static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
- 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
-@@ -6471,6 +6572,16 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(audit_rule_match, selinux_audit_rule_match),
- 	LSM_HOOK_INIT(audit_rule_free, selinux_audit_rule_free),
- #endif
-+
-+#ifdef CONFIG_BPF_SYSCALL
-+	LSM_HOOK_INIT(bpf, selinux_bpf),
-+	LSM_HOOK_INIT(bpf_map, selinux_bpf_map),
-+	LSM_HOOK_INIT(bpf_prog, selinux_bpf_prog),
-+	LSM_HOOK_INIT(bpf_map_alloc_security, selinux_bpf_map_alloc),
-+	LSM_HOOK_INIT(bpf_prog_alloc_security, selinux_bpf_prog_alloc),
-+	LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
-+	LSM_HOOK_INIT(bpf_prog_free_security, selinux_bpf_prog_free),
-+#endif
- };
- 
- static __init int selinux_init(void)
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 35ffb29a69cb..0a7023b5f000 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -237,6 +237,8 @@ struct security_class_mapping secclass_map[] = {
- 	  { "access", NULL } },
- 	{ "infiniband_endport",
- 	  { "manage_subnet", NULL } },
-+	{ "bpf",
-+	  {"map_create", "map_read", "map_write", "prog_load", "prog_run"} },
- 	{ NULL }
-   };
- 
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 1649cd18eb0b..3d54468ce334 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -150,6 +150,10 @@ struct pkey_security_struct {
- 	u32	sid;	/* SID of pkey */
- };
- 
-+struct bpf_security_struct {
-+	u32 sid;  /*SID of bpf obj creater*/
-+};
-+
- extern unsigned int selinux_checkreqprot;
- 
- #endif /* _SELINUX_OBJSEC_H_ */
--- 
-2.15.0.rc0.271.g36b669edcc-goog
+Don't put a one-use function in the header file. Code it
+directly in smack_cred_getsecid(). You're doubling the size
+of the code and obscuring it doing it this way.
+
+>  /*
+>   * Present a pointer to the forked smack label entry in an task blob.
+>   */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 463af86812c7..f1710cf76f7f 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -2080,6 +2080,19 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
+>  	/* cbs copy rule list */
+>  }
+>  
+> +/**
+> + * smack_cred_getsecid - get the secid corresponding to a creds structure
+> + * @c: the object creds
+> + * @secid: where to put the result
+> + *
+> + * Sets the secid to contain a u32 version of the smack label.
+> + */
+> +static void smack_cred_getsecid(const struct cred *c, u32 *secid)
+> +{
+> +	struct smack_known *skp = smk_of_cred(c);
+> +	*secid = skp->smk_secid;
+> +}
+> +
+>  /**
+>   * smack_kernel_act_as - Set the subjective context in a set of credentials
+>   * @new: points to the set of credentials to be modified.
+> @@ -4684,6 +4697,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+>  	LSM_HOOK_INIT(cred_free, smack_cred_free),
+>  	LSM_HOOK_INIT(cred_prepare, smack_cred_prepare),
+>  	LSM_HOOK_INIT(cred_transfer, smack_cred_transfer),
+> +	LSM_HOOK_INIT(cred_getsecid, smack_cred_getsecid),
+>  	LSM_HOOK_INIT(kernel_act_as, smack_kernel_act_as),
+>  	LSM_HOOK_INIT(kernel_create_files_as, smack_kernel_create_files_as),
+>  	LSM_HOOK_INIT(task_setpgid, smack_task_setpgid),
