@@ -1,48 +1,46 @@
-From: Colin King <colin.king@canonical.com>
-To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E . Hallyn" <serge@hallyn.com>,
- Markus Elfring <elfring@users.sourceforge.net>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Sat, 14 Oct 2017 16:38:56 +0100
-Message-Id: <20171014153856.3539-1-colin.king@canonical.com>
+Date: Mon, 16 Oct 2017 17:08:39 +0200
+From: Petr Lautrbach <plautrba@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, jzarsky@redhat.com
+Message-ID: <20171016150838.GB8669@pl-rpi.tpb.lab.eng.brq.redhat.com>
+References: <20171011085345.31496-1-plautrba@redhat.com>
+ <1507923099.15007.12.camel@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Subject: [PATCH][V2] selinux: remove extraneous initialization of
- slots_used and max_chain_len
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1507923099.15007.12.camel@tycho.nsa.gov>
+Subject: Value of file_contexts.bin after the move to pcre2
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Colin Ian King <colin.king@canonical.com>
+On Fri, Oct 13, 2017 at 03:31:39PM -0400, Stephen Smalley wrote:
+> We still need to revisit the value proposition of file_contexts.bin
+> after the move to pcre2, given the large increase in file size and the
+> runtime overhead.  We can add -r to the sefcontext_compile args via
+> semanage.conf, but then I'm wondering whether it is worth having
+> file_contexts.bin at all.
 
-Variables slots_used and max_chain_len are being initialized to zero
-twice. Remove the second set of initializations in the for loop.
-Cleans up the clang warnings:
+We already use -r in Fedora 27 by default.
 
-Value stored to 'slots_used' is never read
-Value stored to 'max_chain_len' is never read
+Jan Zarsky did some investigation related to file_contexts.bin [1] and
+according to his results, we it looks like we can simply drop file_contexts.bin
+completely.
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- security/selinux/ss/hashtab.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+But there were some bugs in past which prevented Anaconda and systems
+based on OSTree to work when there was no such file in
+selinux-policy-targeted package. Therefore we need to confirm that if
+we drop it in Fedora it wouldn't affect them.
 
-diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
-index bef7577d1270..e0443f4afea5 100644
---- a/security/selinux/ss/hashtab.c
-+++ b/security/selinux/ss/hashtab.c
-@@ -150,7 +150,7 @@ void hashtab_stat(struct hashtab *h, struct hashtab_info *info)
- 
- 	slots_used = 0;
- 	max_chain_len = 0;
--	for (slots_used = max_chain_len = i = 0; i < h->size; i++) {
-+	for (i = 0; i < h->size; i++) {
- 		cur = h->htable[i];
- 		if (cur) {
- 			slots_used++;
--- 
-2.14.1
+Using this configuration in semanage.conf we can avoid creating such
+files without any change in the code:
+
+[sefcontext_compile]
+path = /bin/true
+[end]
+
+
+[1] https://janzarskyblog.wordpress.com/2017/09/06/why-we-dont-need-to-ship-file_contexts-bin-with-selinux-policy/
+
+
+Petr
