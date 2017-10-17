@@ -1,104 +1,71 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9HJ19D1009223
- for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 15:01:09 -0400
-Received: by mail-io0-f171.google.com with SMTP id i38so3376283iod.2
- for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 11:49:48 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <CAJfZ7=n7j6kbxd2SGW3FjxMr=EZSiYdttG9mfotUt0F3UFEdgQ@mail.gmail.com>
-References: <CAFftDdoa-iO3E62FSefdnARHGVzLE4znzaFfSd2Q=9bhdG3=eQ@mail.gmail.com>
- <1507841294.30307.4.camel@tycho.nsa.gov>
- <CAFftDdpFtE3fDPJxYTb5Q7Ooa3UpEHAHzRJYee60a_QsNxngiw@mail.gmail.com>
- <CAJfZ7=n7j6kbxd2SGW3FjxMr=EZSiYdttG9mfotUt0F3UFEdgQ@mail.gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Tue, 17 Oct 2017 11:49:46 -0700
-Message-ID: <CAFftDdqD-tCZrSu2yB37p0BrtKu7avKes_W5OLmEGCO9ofWt0A@mail.gmail.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9HJ7P0J010760
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 15:07:25 -0400
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id
+ v9HJ5kha109510
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 15:07:17 -0400
+Received: from e06smtp14.uk.ibm.com (e06smtp14.uk.ibm.com [195.75.94.110])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 2dnmaaj5qk-1
+ (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 15:07:17 -0400
+Received: from localhost
+ by e06smtp14.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
+ Violators will be prosecuted
+ for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
+ Tue, 17 Oct 2017 20:07:14 +0100
+From: Mimi Zohar <zohar@linux.vnet.ibm.com>
+To: Matthew Garrett <mjg59@google.com>
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov, Casey Schaufler
+ <casey@schaufler-ca.com>, linux-security-module@vger.kernel.org, Dmitry
+ Kasatkin <dmitry.kasatkin@gmail.com>, linux-integrity@vger.kernel.org
+Date: Tue, 17 Oct 2017 15:07:03 -0400
+In-Reply-To: <20171016203709.11199-2-mjg59@google.com>
+References: <20171016203709.11199-1-mjg59@google.com>
+ <20171016203709.11199-2-mjg59@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: travis CI
+Mime-Version: 1.0
+Message-Id: <1508267223.4513.23.camel@linux.vnet.ibm.com>
+Subject: Re: [PATCH 2/2] IMA: Support using new creds in appraisal
+ policy
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, Oct 15, 2017 at 5:10 AM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> On Fri, Oct 13, 2017 at 1:50 AM, William Roberts
-> <bill.c.roberts@gmail.com> wrote:
->> On Thu, Oct 12, 2017 at 1:48 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> On Thu, 2017-10-12 at 11:29 -0700, William Roberts wrote:
->>>> I see a travis.yml file, recently modified by Nicolas, but I failed
->>>> to
->>>> find the Travis CI instance on travis.org, where is it?
->>>>
->>>> We should likely have it running on commits to the repo and PRs so we
->>>> can have some independent way of verifying that our run of the tests
->>>> was compromised by some env variation or mistake.
->>>>
->>>> Thoughts?
->>>
->>> To date he has just run it on his own fork.  Not opposed to enabling
->>> it, just haven't looked into that...
->>
->> I have done it for my some of my projects, Ill go ahead and set this up.
->
-> I configured Travis-CI to test the branches in my Github repository a
-> little more than one year ago, after several build configurations got
-> broken (clang on Linux for example). I later added more features to it
-> (for example warning about missing .gitignore entries, testing several
-> Ruby and Python versions, etc), before I upstreamed my .travis.yml
-> file (a few months ago). When I did it, my main motivation was to
-> simplify the job of anyone who would want to configure a CI system on
-> the project (the building rules and dependencies should be quite
-> similar). Using a continuous integration system is useful to prevent
-> simple regression issues which would otherwise only be detected when
-> someone running a specific configuration tries to build the project.
->
-> Before asking to enable Travis-CI on the main SELinux repository, I
-> wanted to make sure it was stable/reliable enough. To do this, I
-> created a branch named "travis-upstream" in my repository, which
-> tracked the master branch of the main repository. All went well for
-> quite some time, until Travis-CI modified this summer their
-> environments, introducing some incompatibilities with projects which
-> use several programming languages. Thankfully these changes have been
-> documented in Travis-CI's blog and I updated the config file to fix
-> the builds with commits b1ea8120832d ("Travis-CI: use sugulite
-> environment") and 6d9258e5a05f ("Travis-CI: fix configuration after
-> September's update"). As Travis-CI does not seem to want to support
-> multi-language projects (cf.
-> https://github.com/travis-ci/travis-ci/issues/4090 for example), more
-> breaking changes could be introduced as the provided environment are
-> upgraded. Nevertheless I expect that such changes are quite easily
-> fixable.
->
-> In short, using a CI platform is useful and Travis-CI is a free one
-> which makes it possible to test several build configurations (I also
-> tried Circle-CI, which did not provide a similar feature) and
-> maintaining a working configuration does not require much effort.
-> Moreover when a Travis-CI job fails, the log contains the console
-> output which usually is very clear about what has gone wrong.
-> Travis-CI now also provides Docker images which help reproducing
-> issues and understanding their cause without needing to submit a new
-> job.
->
-> If you want to set this platform up for SELinux userspace project,
-> please go ahead :)
->
-> Cheers,
-> Nicolas
->
+On Mon, 2017-10-16 at 13:37 -0700, Matthew Garrett wrote:
 
-I tried to turn it on in travis, but got the message:
+>  static int __init init_ima(void)
+> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+> index 95209a5f8595..c9d5735711eb 100644
+> --- a/security/integrity/ima/ima_policy.c
+> +++ b/security/integrity/ima/ima_policy.c
+> @@ -247,10 +247,9 @@ static void ima_lsm_update_rules(void)
+>   * Returns true on rule match, false on failure.
+>   */
+>  static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+> -			    enum ima_hooks func, int mask)
+> +			    const struct cred *cred, enum ima_hooks func,
+> +			    int mask)
+>  {
+> -	struct task_struct *tsk = current;
+> -	const struct cred *cred = current_cred();
+>  	int i;
+> 
+>  	if ((rule->flags & IMA_FUNC) &&
+> @@ -305,7 +304,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>  		case LSM_SUBJ_USER:
+>  		case LSM_SUBJ_ROLE:
+>  		case LSM_SUBJ_TYPE:
+> -			security_task_getsecid(tsk, &sid);
+> +			security_cred_getsecid(cred, &sid);
+>  			rc = security_filter_rule_match(sid,
+>  							rule->lsm[i].type,
+>  							Audit_equal,
 
-This is not an active repository
+By replacing the call from security_task_getsec() to
+security_cred_getsecid(), I assume you're expecting different results.
+ Will this change break existing IMA policies?
 
-You don't have sufficient rights to enable this repo on Travis.
-Please contact the admin to enable it or to receive admin rights yourself.
-
-Stephen maybe you can do this, or grant me the permissions?
-
-You should be able to go here:
-https://travis-ci.org
-
-And login, and then in your organization for selinux flip the switch
-for travis. Once it's on, and working, we can add the badge to the README
-file for build status.
+Mimi
