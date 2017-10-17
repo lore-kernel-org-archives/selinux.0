@@ -1,159 +1,124 @@
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org
-Cc: paul@paul-moore.com, vyasevich@gmail.com, nhorman@tuxdriver.com,
- sds@tycho.nsa.gov, eparis@parisplace.org, marcelo.leitner@gmail.com,
- Richard Haines <richard_c_haines@btinternet.com>
-Date: Tue, 17 Oct 2017 14:58:54 +0100
-Message-Id: <20171017135854.4343-1-richard_c_haines@btinternet.com>
-Subject: [RFC PATCH 4/5] netlabel: Add SCTP support
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9HH5J4k008946
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 13:05:21 -0400
+Received: by mail-io0-f174.google.com with SMTP id m16so2964778iod.1
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 09:38:34 -0700 (PDT)
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Cc: jwcart2@tycho.nsa.gov, Dan Cashman <dcashman@google.com>
+References: <1505939283.31597.11.camel@tycho.nsa.gov>
+ <20171010211257.18474-1-dcashman@android.com>
+ <1507922626.15007.10.camel@tycho.nsa.gov>
+From: Dan Cashman <dcashman@android.com>
+Message-ID: <067977d4-8c8e-f9bc-c19d-b887ed30cdc5@android.com>
+Date: Tue, 17 Oct 2017 09:38:15 -0700
+MIME-Version: 1.0
+In-Reply-To: <1507922626.15007.10.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH] selinux: libselinux: Enable multiple input
+ files to selabel_open.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add support to label SCTP associations and cater for a situation where
-family = PF_INET6 with an ip_hdr(skb)->version = 4.
+On 10/13/2017 12:23 PM, Stephen Smalley wrote:
+> On Tue, 2017-10-10 at 14:12 -0700, Daniel Cashman wrote:
+>> From: Dan Cashman <dcashman@google.com>
+>>
+>> The file_contexts labeling backend, specified in label_file.c,
+>> currently assumes
+>> that only one path will be specified as an option to
+>> selabel_open().  The split
+>> of platform and non-platform policy on device, however, will
+>> necessitate the
+>> loading of two disparate policy files.  Rather than combining the
+>> files and then
+>> calling the existing API on a newly-formed file, just add the ability
+>> to specify
+>> multiple files to use.  Order of opt specification to selabel_open
+>> matters.
+>>
+>> This corresponds to AOSP commit
+>> 50400d38203e4db08314168e60c281cc61a717a8, which
+>> lead to a fork with upstream, which we'd like to correct.
+>>
+>> Signed-off-by: Dan Cashman <dcashman@android.com>
+>> ---
+>>   libselinux/src/label.c          |  21 +++++---
+>>   libselinux/src/label_db.c       |   4 +-
+>>   libselinux/src/label_file.c     | 104 +++++++++++++++++++++++++++++-
+>> ----------
+>>   libselinux/src/label_internal.h |   5 +-
+>>   libselinux/src/label_media.c    |   4 +-
+>>   libselinux/src/label_x.c        |   4 +-
+>>   6 files changed, 103 insertions(+), 39 deletions(-)
+>>
+> 
+>> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+>> index c46d0a1d..205ff5f4 100644
+>> --- a/libselinux/src/label_db.c
+>> +++ b/libselinux/src/label_db.c
+>> @@ -290,7 +290,9 @@ db_init(const struct selinux_opt *opts, unsigned
+>> nopts,
+>>   		errno = EINVAL;
+>>   		return NULL;
+>>   	}
+>> -	rec->spec_file = strdup(path);
+>> +	rec->spec_files_len = 1;
+>> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
+> 
+> Missing semicolon, and a check for NULL.  Also should likely be
+> sizeof(rec->spec_files[0]) or sizeof(char *); path isn't really
+> relevant here.
+> 
+>> +	rec->spec_files[0] = strdup(path);
+> 
+> Ditto, although I see you didn't introduce that per se; we ought to fix
+> it anyway.
+> 
+>> diff --git a/libselinux/src/label_media.c
+>> b/libselinux/src/label_media.c
+>> index d202e5d5..f4a46ffe 100644
+>> --- a/libselinux/src/label_media.c
+>> +++ b/libselinux/src/label_media.c
+>> @@ -100,7 +100,9 @@ static int init(struct selabel_handle *rec, const
+>> struct selinux_opt *opts,
+>>   		errno = EINVAL;
+>>   		return -1;
+>>   	}
+>> -	rec->spec_file = strdup(path);
+>> +	rec->spec_files_len = 1;
+>> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
+>> +	rec->spec_files[0] = strdup(path);
+> 
+> Same as for label_db.c.
+> 
+>>   
+>>   	/*
+>>   	 * Perform two passes over the specification file.
+>> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+>> index 96745299..54ebd2eb 100644
+>> --- a/libselinux/src/label_x.c
+>> +++ b/libselinux/src/label_x.c
+>> @@ -127,7 +127,9 @@ static int init(struct selabel_handle *rec, const
+>> struct selinux_opt *opts,
+>>   		errno = EINVAL;
+>>   		return -1;
+>>   	}
+>> -	rec->spec_file = strdup(path);
+>> +	rec->spec_files_len = 1;
+>> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
+>> +	rec->spec_files[0] = strdup(path);
+> 
+> And again.
+> 
+>>   
+>>   	/*
+>>   	 * Perform two passes over the specification file.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- include/net/netlabel.h            |  3 ++
- net/netlabel/netlabel_kapi.c      | 80 +++++++++++++++++++++++++++++++++++++++
- net/netlabel/netlabel_unlabeled.c | 10 +++++
- 3 files changed, 93 insertions(+)
+Well that was embarrassing.  Twice bitten, thrice shy?  I've now setup a 
+fedora vm to at least test whether or not patches will build, so that's 
+a good outcome of this.  Submitted v3 to the list (rather than 
+continuing this thread).  Thanks for the review!
 
-diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index 72d6435..7348966 100644
---- a/include/net/netlabel.h
-+++ b/include/net/netlabel.h
-@@ -494,6 +494,9 @@ int netlbl_conn_setattr(struct sock *sk,
- 			const struct netlbl_lsm_secattr *secattr);
- int netlbl_req_setattr(struct request_sock *req,
- 		       const struct netlbl_lsm_secattr *secattr);
-+int netlbl_sctp_setattr(struct sock *sk,
-+			struct sk_buff *skb,
-+			const struct netlbl_lsm_secattr *secattr);
- void netlbl_req_delattr(struct request_sock *req);
- int netlbl_skbuff_setattr(struct sk_buff *skb,
- 			  u16 family,
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index ea7c670..1c82bbe 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -1121,6 +1121,7 @@ int netlbl_conn_setattr(struct sock *sk,
- 	switch (addr->sa_family) {
- 	case AF_INET:
- 		addr4 = (struct sockaddr_in *)addr;
-+
- 		entry = netlbl_domhsh_getentry_af4(secattr->domain,
- 						   addr4->sin_addr.s_addr);
- 		if (entry == NULL) {
-@@ -1177,6 +1178,85 @@ int netlbl_conn_setattr(struct sock *sk,
- }
- 
- /**
-+ * netlbl_sctp_setattr - Label an incoming sctp association socket using
-+ * the correct protocol
-+ * @sk: the socket to label
-+ * @skb: the packet
-+ * @secattr: the security attributes
-+ *
-+ * Description:
-+ * Attach the correct label to the given socket using the security attributes
-+ * specified in @secattr.  Returns zero on success, negative values on failure.
-+ *
-+ */
-+int netlbl_sctp_setattr(struct sock *sk,
-+			struct sk_buff *skb,
-+			const struct netlbl_lsm_secattr *secattr)
-+{
-+	int ret_val = -EINVAL;
-+	struct netlbl_dommap_def *entry;
-+	struct iphdr *hdr4;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	struct ipv6hdr *hdr6;
-+#endif
-+
-+	rcu_read_lock();
-+	switch (sk->sk_family) {
-+	case AF_INET:
-+		hdr4 = ip_hdr(skb);
-+
-+		entry = netlbl_domhsh_getentry_af4(secattr->domain,
-+						   hdr4->saddr);
-+		if (entry == NULL) {
-+			ret_val = -ENOENT;
-+			goto sctp_setattr_return;
-+		}
-+		switch (entry->type) {
-+		case NETLBL_NLTYPE_CIPSOV4:
-+			ret_val = cipso_v4_sock_setattr(sk, entry->cipso,
-+							secattr);
-+			break;
-+		case NETLBL_NLTYPE_UNLABELED:
-+			netlbl_sock_delattr(sk);
-+			ret_val = 0;
-+			break;
-+		default:
-+			ret_val = -ENOENT;
-+		}
-+		break;
-+#if IS_ENABLED(CONFIG_IPV6)
-+	case AF_INET6:
-+		hdr6 = ipv6_hdr(skb);
-+		entry = netlbl_domhsh_getentry_af6(secattr->domain,
-+						   &hdr6->saddr);
-+		if (entry == NULL) {
-+			ret_val = -ENOENT;
-+			goto sctp_setattr_return;
-+		}
-+		switch (entry->type) {
-+		case NETLBL_NLTYPE_CALIPSO:
-+			ret_val = calipso_sock_setattr(sk, entry->calipso,
-+						       secattr);
-+			break;
-+		case NETLBL_NLTYPE_UNLABELED:
-+			netlbl_sock_delattr(sk);
-+			ret_val = 0;
-+			break;
-+		default:
-+			ret_val = -ENOENT;
-+		}
-+		break;
-+#endif /* IPv6 */
-+	default:
-+		ret_val = -EPROTONOSUPPORT;
-+	}
-+
-+sctp_setattr_return:
-+	rcu_read_unlock();
-+	return ret_val;
-+}
-+
-+/**
-  * netlbl_req_setattr - Label a request socket using the correct protocol
-  * @req: the request socket to label
-  * @secattr: the security attributes
-diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index 22dc1b9..c070dfc 100644
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -1472,6 +1472,16 @@ int netlbl_unlabel_getattr(const struct sk_buff *skb,
- 		iface = rcu_dereference(netlbl_unlhsh_def);
- 	if (iface == NULL || !iface->valid)
- 		goto unlabel_getattr_nolabel;
-+
-+#if IS_ENABLED(CONFIG_IPV6)
-+	/* When resolving a fallback label, check the sk_buff version as
-+	 * it is possible (e.g. SCTP) to have family = PF_INET6 while
-+	 * receiving ip_hdr(skb)->version = 4.
-+	 */
-+	if (family == PF_INET6 && ip_hdr(skb)->version == 4)
-+		family = PF_INET;
-+#endif /* IPv6 */
-+
- 	switch (family) {
- 	case PF_INET: {
- 		struct iphdr *hdr4;
--- 
-2.13.6
+-Dan
