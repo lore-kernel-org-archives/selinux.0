@@ -1,407 +1,402 @@
-Sender: Mikhail Kurinnoi <viewizard@gmail.com>
-Date: Tue, 17 Oct 2017 00:03:03 +0300
-From: Mikhail Kurinnoi <viewizard@viewizard.com>
-To: Matthew Garrett <mjg59@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov, Casey Schaufler
- <casey@schaufler-ca.com>, linux-security-module@vger.kernel.org, Mimi Zohar
- <zohar@linux.vnet.ibm.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- linux-integrity@vger.kernel.org
-Message-ID: <20171017000303.46e56b42@totoro>
-In-Reply-To: <20171016203709.11199-2-mjg59@google.com>
-References: <20171016203709.11199-1-mjg59@google.com>
- <20171016203709.11199-2-mjg59@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Subject: Re: [PATCH 2/2] IMA: Support using new creds in appraisal
- policy
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org
+Cc: paul@paul-moore.com, vyasevich@gmail.com, nhorman@tuxdriver.com,
+ sds@tycho.nsa.gov, eparis@parisplace.org, marcelo.leitner@gmail.com,
+ Richard Haines <richard_c_haines@btinternet.com>
+Date: Tue, 17 Oct 2017 15:02:47 +0100
+Message-Id: <20171017140247.4604-1-richard_c_haines@btinternet.com>
+Subject: [RFC PATCH 1/5] security: Add support for SCTP security
+ hooks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-В Mon, 16 Oct 2017 13:37:09 -0700
-Matthew Garrett <mjg59@google.com> пишет:
+The SCTP security hooks are explained in:
+Documentation/security/LSM-sctp.txt
 
-> The existing BPRM_CHECK functionality in IMA validates against the
-> credentials of the existing process, not any new credentials that the
-> child process may transition to. Add an additional CREDS_CHECK target
-> and refactor IMA to pass the appropriate creds structure. In
-> ima_bprm_check(), check with both the existing process credentials and
-> the credentials that will be committed when the new process is
-> started.
-> 
-> Signed-off-by: Matthew Garrett <mjg59@google.com>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: selinux@tycho.nsa.gov
-> Cc: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: linux-security-module@vger.kernel.org
-> Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
-> Cc: Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
-> Cc: linux-integrity@vger.kernel.org
-> ---
->  Documentation/ABI/testing/ima_policy  |  2 +-
->  security/integrity/iint.c             |  1 +
->  security/integrity/ima/ima.h          |  7 ++++---
->  security/integrity/ima/ima_api.c      |  8 +++++---
->  security/integrity/ima/ima_appraise.c | 10 +++++++++-
->  security/integrity/ima/ima_main.c     | 26 +++++++++++++++++---------
->  security/integrity/ima/ima_policy.c   | 19 ++++++++++++-------
->  security/integrity/integrity.h        |  9 +++++++--
->  8 files changed, 56 insertions(+), 26 deletions(-)
-> 
-> diff --git a/Documentation/ABI/testing/ima_policy
-> b/Documentation/ABI/testing/ima_policy index
-> e76432b9954d..5dc9eed035fb 100644 ---
-> a/Documentation/ABI/testing/ima_policy +++
-> b/Documentation/ABI/testing/ima_policy @@ -25,7 +25,7 @@ Description:
->  				 [obj_user=] [obj_role=] [obj_type=]]
->  			option:	[[appraise_type=]]
-> [permit_directio] 
-> -		base: 	func:=
-> [BPRM_CHECK][MMAP_CHECK][FILE_CHECK][MODULE_CHECK]
-> +		base: 	func:=
-> [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
-> [FIRMWARE_CHECK] [KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
->  			mask:= [[^]MAY_READ] [[^]MAY_WRITE]
-> [[^]MAY_APPEND] diff --git a/security/integrity/iint.c
-> b/security/integrity/iint.c index 6fc888ca468e..ad30094a58b4 100644
-> --- a/security/integrity/iint.c
-> +++ b/security/integrity/iint.c
-> @@ -78,6 +78,7 @@ static void iint_free(struct integrity_iint_cache
-> *iint) iint->ima_mmap_status = INTEGRITY_UNKNOWN;
->  	iint->ima_bprm_status = INTEGRITY_UNKNOWN;
->  	iint->ima_read_status = INTEGRITY_UNKNOWN;
-> +	iint->ima_creds_status = INTEGRITY_UNKNOWN;
->  	iint->evm_status = INTEGRITY_UNKNOWN;
->  	iint->measured_pcrs = 0;
->  	kmem_cache_free(iint_cache, iint);
-> diff --git a/security/integrity/ima/ima.h
-> b/security/integrity/ima/ima.h index d52b487ad259..0703a96072b5 100644
-> --- a/security/integrity/ima/ima.h
-> +++ b/security/integrity/ima/ima.h
-> @@ -177,6 +177,7 @@ static inline unsigned long ima_hash_key(u8
-> *digest) hook(FILE_CHECK)		\
->  	hook(MMAP_CHECK)		\
->  	hook(BPRM_CHECK)		\
-> +	hook(CREDS_CHECK)		\
->  	hook(POST_SETATTR)		\
->  	hook(MODULE_CHECK)		\
->  	hook(FIRMWARE_CHECK)		\
-> @@ -191,7 +192,7 @@ enum ima_hooks {
->  };
->  
->  /* LIM API function definitions */
-> -int ima_get_action(struct inode *inode, int mask,
-> +int ima_get_action(struct inode *inode, const struct cred *cred, int
-> mask, enum ima_hooks func, int *pcr);
->  int ima_must_measure(struct inode *inode, int mask, enum ima_hooks
-> func); int ima_collect_measurement(struct integrity_iint_cache *iint,
-> @@ -212,8 +213,8 @@ void ima_free_template_entry(struct
-> ima_template_entry *entry); const char *ima_d_path(const struct path
-> *path, char **pathbuf, char *filename); 
->  /* IMA policy related functions */
-> -int ima_match_policy(struct inode *inode, enum ima_hooks func, int
-> mask,
-> -		     int flags, int *pcr);
-> +int ima_match_policy(struct inode *inode, const struct cred *cred,
-> +		     enum ima_hooks func, int mask, int flags, int
-> *pcr); void ima_init_policy(void);
->  void ima_update_policy(void);
->  void ima_update_policy_flag(void);
-> diff --git a/security/integrity/ima/ima_api.c
-> b/security/integrity/ima/ima_api.c index c2edba8de35e..ff33b7e65a07
-> 100644 --- a/security/integrity/ima/ima_api.c
-> +++ b/security/integrity/ima/ima_api.c
-> @@ -157,6 +157,7 @@ void ima_add_violation(struct file *file, const
-> unsigned char *filename, /**
->   * ima_get_action - appraise & measure decision based on policy.
->   * @inode: pointer to inode to measure
-> + * @cred: pointer to credentials structure to validate
->   * @mask: contains the permission mask (MAY_READ, MAY_WRITE,
-> MAY_EXEC,
->   *        MAY_APPEND)
->   * @func: caller identifier
-> @@ -165,20 +166,21 @@ void ima_add_violation(struct file *file, const
-> unsigned char *filename,
->   * The policy is defined in terms of keypairs:
->   *		subj=, obj=, type=, func=, mask=, fsmagic=
->   *	subj,obj, and type: are LSM specific.
-> - *	func: FILE_CHECK | BPRM_CHECK | MMAP_CHECK | MODULE_CHECK
-> + *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK |
-> MODULE_CHECK
->   *	mask: contains the permission mask
->   *	fsmagic: hex value
->   *
->   * Returns IMA_MEASURE, IMA_APPRAISE mask.
->   *
->   */
-> -int ima_get_action(struct inode *inode, int mask, enum ima_hooks
-> func, int *pcr) +int ima_get_action(struct inode *inode, const struct
-> cred *cred, int mask,
-> +		   enum ima_hooks func, int *pcr)
->  {
->  	int flags = IMA_MEASURE | IMA_AUDIT | IMA_APPRAISE;
->  
->  	flags &= ima_policy_flag;
->  
-> -	return ima_match_policy(inode, func, mask, flags, pcr);
-> +	return ima_match_policy(inode, cred, func, mask, flags, pcr);
->  }
->  
->  /*
-> diff --git a/security/integrity/ima/ima_appraise.c
-> b/security/integrity/ima/ima_appraise.c index
-> 809ba70fbbbf..137b8d1708c6 100644 ---
-> a/security/integrity/ima/ima_appraise.c +++
-> b/security/integrity/ima/ima_appraise.c @@ -53,7 +53,8 @@ int
-> ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
-> if (!ima_appraise) return 0;
->  
-> -	return ima_match_policy(inode, func, mask, IMA_APPRAISE,
-> NULL);
-> +	return ima_match_policy(inode, current_cred(), func, mask,
-> +				IMA_APPRAISE, NULL);
->  }
->  
->  static int ima_fix_xattr(struct dentry *dentry,
-> @@ -86,6 +87,8 @@ enum integrity_status ima_get_cache_status(struct
-> integrity_iint_cache *iint, return iint->ima_mmap_status;
->  	case BPRM_CHECK:
->  		return iint->ima_bprm_status;
-> +	case CREDS_CHECK:
-> +		return iint->ima_creds_status;
->  	case FILE_CHECK:
->  	case POST_SETATTR:
->  		return iint->ima_file_status;
-> @@ -106,6 +109,8 @@ static void ima_set_cache_status(struct
-> integrity_iint_cache *iint, case BPRM_CHECK:
->  		iint->ima_bprm_status = status;
->  		break;
-> +	case CREDS_CHECK:
-> +		iint->ima_creds_status = status;
->  	case FILE_CHECK:
->  	case POST_SETATTR:
->  		iint->ima_file_status = status;
-> @@ -127,6 +132,9 @@ static void ima_cache_flags(struct
-> integrity_iint_cache *iint, case BPRM_CHECK:
->  		iint->flags |= (IMA_BPRM_APPRAISED | IMA_APPRAISED);
->  		break;
-> +	case CREDS_CHECK:
-> +		iint->flags |= (IMA_CREDS_APPRAISED | IMA_APPRAISED);
-> +		break;
->  	case FILE_CHECK:
->  	case POST_SETATTR:
->  		iint->flags |= (IMA_FILE_APPRAISED | IMA_APPRAISED);
-> diff --git a/security/integrity/ima/ima_main.c
-> b/security/integrity/ima/ima_main.c index 2aebb7984437..f41aa427792b
-> 100644 --- a/security/integrity/ima/ima_main.c
-> +++ b/security/integrity/ima/ima_main.c
-> @@ -155,8 +155,9 @@ void ima_file_free(struct file *file)
->  	ima_check_last_writer(iint, inode, file);
->  }
->  
-> -static int process_measurement(struct file *file, char *buf, loff_t
-> size,
-> -			       int mask, enum ima_hooks func, int
-> opened) +static int process_measurement(struct file *file, const
-> struct cred *cred,
-> +			       char *buf, loff_t size, int mask,
-> +			       enum ima_hooks func, int opened)
->  {
->  	struct inode *inode = file_inode(file);
->  	struct integrity_iint_cache *iint = NULL;
-> @@ -178,7 +179,7 @@ static int process_measurement(struct file *file,
-> char *buf, loff_t size,
->  	 * bitmask based on the appraise/audit/measurement policy.
->  	 * Included is the appraise submask.
->  	 */
-> -	action = ima_get_action(inode, mask, func, &pcr);
-> +	action = ima_get_action(inode, cred, mask, func, &pcr);
->  	violation_check = ((func == FILE_CHECK || func ==
-> MMAP_CHECK) && (ima_policy_flag & IMA_MEASURE));
->  	if (!action && !violation_check)
-> @@ -282,8 +283,8 @@ static int process_measurement(struct file *file,
-> char *buf, loff_t size, int ima_file_mmap(struct file *file, unsigned
-> long prot) {
->  	if (file && (prot & PROT_EXEC))
-> -		return process_measurement(file, NULL, 0, MAY_EXEC,
-> -					   MMAP_CHECK, 0);
-> +		return process_measurement(file, current_cred(),
-> NULL, 0,
-> +					   MAY_EXEC, MMAP_CHECK, 0);
->  	return 0;
->  }
->  
-> @@ -302,8 +303,14 @@ int ima_file_mmap(struct file *file, unsigned
-> long prot) */
->  int ima_bprm_check(struct linux_binprm *bprm)
->  {
-> -	return process_measurement(bprm->file, NULL, 0, MAY_EXEC,
-> -				   BPRM_CHECK, 0);
-> +	int ret;
-> +
-> +	ret = process_measurement(bprm->file, current_cred(), NULL,
-> 0,
-> +				  MAY_EXEC, BPRM_CHECK, 0);
-> +	if (ret)
-> +		return ret;
-> +	return process_measurement(bprm->file, bprm->cred, NULL, 0,
-> +				   MAY_EXEC, CREDS_CHECK, 0);
->  }
->  
->  /**
-> @@ -318,7 +325,7 @@ int ima_bprm_check(struct linux_binprm *bprm)
->   */
->  int ima_file_check(struct file *file, int mask, int opened)
->  {
-> -	return process_measurement(file, NULL, 0,
-> +	return process_measurement(file, current_cred(), NULL, 0,
->  				   mask & (MAY_READ | MAY_WRITE |
-> MAY_EXEC | MAY_APPEND), FILE_CHECK, opened);
->  }
-> @@ -413,7 +420,8 @@ int ima_post_read_file(struct file *file, void
-> *buf, loff_t size, }
->  
->  	func = read_idmap[read_id] ?: FILE_CHECK;
-> -	return process_measurement(file, buf, size, MAY_READ, func,
-> 0);
-> +	return process_measurement(file, current_cred(), buf, size,
-> MAY_READ,
-> +				   func, 0);
->  }
->  
->  static int __init init_ima(void)
-> diff --git a/security/integrity/ima/ima_policy.c
-> b/security/integrity/ima/ima_policy.c index
-> 95209a5f8595..c9d5735711eb 100644 ---
-> a/security/integrity/ima/ima_policy.c +++
-> b/security/integrity/ima/ima_policy.c @@ -247,10 +247,9 @@ static
-> void ima_lsm_update_rules(void)
->   * Returns true on rule match, false on failure.
->   */
->  static bool ima_match_rules(struct ima_rule_entry *rule, struct
-> inode *inode,
-> -			    enum ima_hooks func, int mask)
-> +			    const struct cred *cred, enum ima_hooks
-> func,
-> +			    int mask)
->  {
-> -	struct task_struct *tsk = current;
-> -	const struct cred *cred = current_cred();
->  	int i;
->  
->  	if ((rule->flags & IMA_FUNC) &&
-> @@ -305,7 +304,7 @@ static bool ima_match_rules(struct ima_rule_entry
-> *rule, struct inode *inode, case LSM_SUBJ_USER:
->  		case LSM_SUBJ_ROLE:
->  		case LSM_SUBJ_TYPE:
-> -			security_task_getsecid(tsk, &sid);
-> +			security_cred_getsecid(cred, &sid);
->  			rc = security_filter_rule_match(sid,
->  							rule->lsm[i].type,
->  							Audit_equal,
-> @@ -339,6 +338,8 @@ static int get_subaction(struct ima_rule_entry
-> *rule, enum ima_hooks func) return IMA_MMAP_APPRAISE;
->  	case BPRM_CHECK:
->  		return IMA_BPRM_APPRAISE;
-> +	case CREDS_CHECK:
-> +		return IMA_CREDS_APPRAISE;
->  	case FILE_CHECK:
->  	case POST_SETATTR:
->  		return IMA_FILE_APPRAISE;
-> @@ -351,6 +352,8 @@ static int get_subaction(struct ima_rule_entry
-> *rule, enum ima_hooks func) /**
->   * ima_match_policy - decision based on LSM and other conditions
->   * @inode: pointer to an inode for which the policy decision is
-> being made
-> + * @cred: pointer to a credentials structure for which the policy
-> decision is
-> + *        being made
->   * @func: IMA hook identifier
->   * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND |
-> MAY_EXEC)
->   * @pcr: set the pcr to extend
-> @@ -362,8 +365,8 @@ static int get_subaction(struct ima_rule_entry
-> *rule, enum ima_hooks func)
->   * list when walking it.  Reads are many orders of magnitude more
-> numerous
->   * than writes so ima_match_policy() is classical RCU candidate.
->   */
-> -int ima_match_policy(struct inode *inode, enum ima_hooks func, int
-> mask,
-> -		     int flags, int *pcr)
-> +int ima_match_policy(struct inode *inode, const struct cred *cred,
-> +		     enum ima_hooks func, int mask, int flags, int
-> *pcr) {
->  	struct ima_rule_entry *entry;
->  	int action = 0, actmask = flags | (flags << 1);
-> @@ -374,7 +377,7 @@ int ima_match_policy(struct inode *inode, enum
-> ima_hooks func, int mask, if (!(entry->action & actmask))
->  			continue;
->  
-> -		if (!ima_match_rules(entry, inode, func, mask))
-> +		if (!ima_match_rules(entry, inode, cred, func, mask))
->  			continue;
->  
->  		action |= entry->flags & IMA_ACTION_FLAGS;
-> @@ -691,6 +694,8 @@ static int ima_parse_rule(char *rule, struct
-> ima_rule_entry *entry) entry->func = MMAP_CHECK;
->  			else if (strcmp(args[0].from, "BPRM_CHECK")
-> == 0) entry->func = BPRM_CHECK;
-> +			else if (strcmp(args[0].from, "CREDS_CHECK")
-> == 0)
-> +				entry->func = CREDS_CHECK;
->  			else if (strcmp(args[0].from,
-> "KEXEC_KERNEL_CHECK") == 0)
->  				entry->func = KEXEC_KERNEL_CHECK;
-> diff --git a/security/integrity/integrity.h
-> b/security/integrity/integrity.h index 0a721c110e92..8d532c3557b5
-> 100644 --- a/security/integrity/integrity.h
-> +++ b/security/integrity/integrity.h
-> @@ -48,10 +48,14 @@
->  #define IMA_BPRM_APPRAISED	0x00002000
->  #define IMA_READ_APPRAISE	0x00004000
->  #define IMA_READ_APPRAISED	0x00008000
-> +#define IMA_CREDS_APPRAISE	0x00004000
-> +#define IMA_CREDS_APPRAISED	0x00008000
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ Documentation/security/LSM-sctp.txt | 212 ++++++++++++++++++++++++++++++++++++
+ include/linux/lsm_hooks.h           |  37 +++++++
+ include/linux/security.h            |  27 +++++
+ security/security.c                 |  23 ++++
+ 4 files changed, 299 insertions(+)
+ create mode 100644 Documentation/security/LSM-sctp.txt
 
-Is this correct, that the IMA_CREDS_APPRAISE and IMA_CREDS_APPRAISED
-same as IMA_READ_APPRAISE and IMA_READ_APPRAISED?
-
-
-
-
->  #define IMA_APPRAISE_SUBMASK	(IMA_FILE_APPRAISE |
-> IMA_MMAP_APPRAISE | \
-> -				 IMA_BPRM_APPRAISE |
-> IMA_READ_APPRAISE)
-> +				 IMA_BPRM_APPRAISE |
-> IMA_READ_APPRAISE | \
-> +				 IMA_CREDS_APPRAISE)
->  #define IMA_APPRAISED_SUBMASK	(IMA_FILE_APPRAISED |
-> IMA_MMAP_APPRAISED | \
-> -				 IMA_BPRM_APPRAISED |
-> IMA_READ_APPRAISED)
-> +				 IMA_BPRM_APPRAISED |
-> IMA_READ_APPRAISED | \
-> +				 IMA_CREDS_APPRAISED)
->  
->  enum evm_ima_xattr_type {
->  	IMA_XATTR_DIGEST = 0x01,
-> @@ -109,6 +113,7 @@ struct integrity_iint_cache {
->  	enum integrity_status ima_mmap_status:4;
->  	enum integrity_status ima_bprm_status:4;
->  	enum integrity_status ima_read_status:4;
-> +	enum integrity_status ima_creds_status:4;
->  	enum integrity_status evm_status:4;
->  	struct ima_digest_data *ima_hash;
->  };
-
-
-
+diff --git a/Documentation/security/LSM-sctp.txt b/Documentation/security/LSM-sctp.txt
+new file mode 100644
+index 0000000..30fe9b5
+--- /dev/null
++++ b/Documentation/security/LSM-sctp.txt
+@@ -0,0 +1,212 @@
++                               SCTP LSM Support
++                              ==================
++
++For security module support, three sctp specific hooks have been implemented:
++    security_sctp_assoc_request()
++    security_sctp_bind_connect()
++    security_sctp_sk_clone()
++
++Also the following security hook has been utilised:
++    security_inet_conn_established()
++
++The usage of these hooks are described below with the SELinux implementation
++described in Documentation/security/SELinux-sctp.txt
++
++
++security_sctp_assoc_request()
++------------------------------
++This new hook has been added to net/sctp/sm_statefuns.c where it passes the
++@ep and @chunk->skb (the association INIT or INIT ACK packet) to the security
++module. Returns 0 on success, error on failure.
++
++    @ep - pointer to sctp endpoint structure.
++    @skb - pointer to skbuff of association packet.
++    @sctp_cid - set to sctp packet type (SCTP_CID_INIT or SCTP_CID_INIT_ACK).
++
++The security module performs the following operations:
++  1) If this is the first association on @ep->base.sk, then set the peer sid
++     to that in @skb. This will ensure there is only one peer sid assigned
++     to @ep->base.sk that may support multiple associations.
++
++  2) If not the first association, validate the @ep->base.sk peer_sid against
++     the @skb peer sid to determine whether the association should be allowed
++     or denied.
++
++  3) If @sctp_cid = SCTP_CID_INIT, then set the sctp @ep sid to socket's sid
++     (from ep->base.sk) with MLS portion taken from @skb peer sid. This will
++     only be used by SCTP TCP style sockets and peeled off connections as they
++     cause a new socket to be generated.
++
++     If IP security options are configured (CIPSO/CALIPSO), then the ip options
++     are set on the socket.
++
++     To support this hook include/net/sctp/structs.h "struct sctp_endpoint"
++     has been updated with the following:
++
++	/* Security identifiers from incoming (INIT). These are set by
++	 * security_sctp_assoc_request(). These will only be used by
++	 * SCTP TCP type sockets and peeled off connections as they
++	 * cause a new socket to be generated. security_sctp_sk_clone()
++	 * will then plug these into the new socket.
++	 */
++	u32 secid;
++	u32 peer_secid;
++
++
++security_sctp_bind_connect()
++-----------------------------
++This new hook has been added to net/sctp/socket.c and net/sctp/sm_make_chunk.c.
++It passes one or more ipv4/ipv6 addresses to the security module for
++validation based on the @optname that will result in either a bind or connect
++service as shown in the permission check tables below.
++Returns 0 on success, error on failure.
++
++    @sk      - Pointer to sock structure.
++    @optname - Name of the option to validate.
++    @address - One or more ipv4 / ipv6 addresses.
++    @addrlen - The total length of address(s). This is calculated on each
++               ipv4 or ipv6 address using sizeof(struct sockaddr_in) or
++               sizeof(struct sockaddr_in6).
++
++  ------------------------------------------------------------------
++  |                     BIND Type Checks                           |
++  |       @optname             |         @address contains         |
++  |----------------------------|-----------------------------------|
++  | SCTP_SOCKOPT_BINDX_ADD     | One or more ipv4 / ipv6 addresses |
++  | SCTP_PRIMARY_ADDR          | Single ipv4 or ipv6 address       |
++  | SCTP_SET_PEER_PRIMARY_ADDR | Single ipv4 or ipv6 address       |
++  ------------------------------------------------------------------
++
++  ------------------------------------------------------------------
++  |                   CONNECT Type Checks                          |
++  |       @optname             |         @address contains         |
++  |----------------------------|-----------------------------------|
++  | SCTP_SOCKOPT_CONNECTX      | One or more ipv4 / ipv6 addresses |
++  | SCTP_PARAM_ADD_IP          | One or more ipv4 / ipv6 addresses |
++  | SCTP_SENDMSG_CONNECT       | Single ipv4 or ipv6 address       |
++  | SCTP_PARAM_SET_PRIMARY     | Single ipv4 or ipv6 address       |
++  ------------------------------------------------------------------
++
++A summary of the @optname entries is as follows:
++
++    SCTP_SOCKOPT_BINDX_ADD - Allows additional bind addresses to be
++                             associated after (optionally) calling
++                             bind(3).
++                             sctp_bindx(3) adds a set of bind
++	                     addresses on a socket.
++
++    SCTP_SOCKOPT_CONNECTX - Allows the allocation of multiple
++                            addresses for reaching a peer
++                            (multi-homed).
++                            sctp_connectx(3) initiates a connection
++                            on an SCTP socket using multiple
++                            destination addresses.
++
++    SCTP_SENDMSG_CONNECT  - Initiate a connection that is generated by a
++                            sendmsg(2) or sctp_sendmsg(3) on a new asociation.
++
++    SCTP_PRIMARY_ADDR     - Set local primary address.
++
++    SCTP_SET_PEER_PRIMARY_ADDR - Request peer sets address as
++                                 association primary.
++
++    SCTP_PARAM_ADD_IP          - These are used when Dynamic Address
++    SCTP_PARAM_SET_PRIMARY     - Reconfiguration is enabled as explained below.
++
++
++To support Dynamic Address Reconfiguration the following parameters must be
++enabled on both endpoints (or use the appropriate setsockopts):
++    /proc/sys/net/sctp/addip_enable
++    /proc/sys/net/sctp/addip_noauth_enable
++
++then the following *_PARAM_*'s are sent to the peer in an
++ASCONF chunk when the corresponding @optname's are present:
++
++          @optname                ASCONF Parameter
++    SCTP_SOCKOPT_BINDX_ADD     -> SCTP_PARAM_ADD_IP
++    SCTP_SET_PEER_PRIMARY_ADDR -> SCTP_PARAM_SET_PRIMARY
++
++
++security_sctp_sk_clone()
++-------------------------
++This new hook has been added to net/sctp/socket.c sctp_sock_migrate() that is
++called whenever a new socket is created by accept(2) (i.e. a TCP style socket)
++or when a socket is 'peeled off' e.g userspace calls sctp_peeloff(3).
++security_sctp_sk_clone() will set the new sockets sid and peer sid to that
++contained in the @ep sid and @ep peer sid respectively.
++
++    @ep - pointer to old sctp endpoint structure.
++    @sk - pointer to old sock structure.
++    @sk - pointer to new sock structure.
++
++security_inet_conn_established()
++---------------------------------
++This hook has been added to net/sctp/sm_statefuns.c COOKIE ECHO processing
++where it sets the connection's peer sid to that in @skb.
++
++    @sk  - pointer to sock structure.
++    @skb - pointer to skbuff of the COOKIE ECHO packet.
++
++
++Security Hooks used for Association Establishment
++==================================================
++The following diagram shows the use of security_sctp_connect_bind(),
++security_sctp_assoc_request(), security_inet_conn_established() in
++net/sctp/sm_statefuns.c and security_sctp_sk_clone() in net/sctp/socket.c,
++when establishing an association.
++
++      SCTP endpoint "A"                                SCTP endpoint "Z"
++      =================                                =================
++    sctp_sf_do_prm_asoc()
++ Association setup can be initiated
++ by a connect(2), sctp_connectx(3),
++ sendmsg(2) or sctp_sendmsg(3).
++ These will result in a call to
++ security_sctp_bind_connect() to
++ initiate an association to
++ SCTP peer endpoint "Z".
++         INIT --------------------------------------------->
++                                                   sctp_sf_do_5_1B_init()
++                                                 Respond to an INIT chunk.
++                                             SCTP peer endpoint "A" is
++                                             asking for an association. Call
++                                             security_sctp_assoc_request()
++                                             to set the peer label if first
++                                             association.
++                                             If not first association, check
++                                             whether allowed, IF so send:
++          <----------------------------------------------- INIT ACK
++          |                                  ELSE audit event and silently
++          |                                       discard the packet.
++    sctp_sf_do_5_1C_ack
++ Respond to an INIT ACK chunk.
++ SCTP peer endpoint"A" initiated
++ this association to SCTP peer
++ endpoint "Z". Call
++ security_sctp_assoc_request()
++ to set the peer label if first
++ association. If not first
++ association, check whether
++ allowed, IF so send:
++    COOKIE ECHO ------------------------------------------>
++ ELSE audit event and silently                            |
++      discard the packet.                                 |
++                                                          |
++          <------------------------------------------- COOKIE ACK
++          |                                               |
++    sctp_sf_do_5_1E_ca                                    |
++ Call security_inet_conn_established()                    |
++ to set the correct peer sid.                             |
++          |                                               |
++          |                               net/sctp/socket.c sctp_copy_sock()
++          |                               If SCTP_SOCKET_TCP or peeled off
++          |                               socket security_sctp_sk_clone() is
++          |                               called to clone the new socket.
++          |                                               |
++      ESTABLISHED                                    ESTABLISHED
++          |                                               |
++    ------------------------------------------------------------------
++    |                     Association Established                    |
++    ------------------------------------------------------------------
++
++
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 3a90feb..42370a7 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -913,6 +913,33 @@
+  *	associated with the TUN device's security structure.
+  *	@security pointer to the TUN devices's security structure.
+  *
++ * Security hooks for SCTP
++ *
++ * @sctp_assoc_request:
++ *	If first association, then set the peer sid to that in @skb. If
++ *	@sctp_cid is from an INIT chunk, then set the sctp endpoint sid to
++ *	socket's sid (ep->base.sk) with MLS portion taken from peer sid.
++ *	@ep pointer to sctp endpoint structure.
++ *	@skb pointer to skbuff of association packet.
++ *	@sctp_cid whether association from INIT or INIT_ACK chunk.
++ *	Return 0 on success, error on failure.
++ * @sctp_bind_connect:
++ *	Validiate permissions required for each address associated with sock
++ *	@sk. Depending on @optname, the addresses will be treated as either
++ *	for a connect or bind service. The @addrlen is calculated on each
++ *	ipv4 and ipv6 address using sizeof(struct sockaddr_in) or
++ *	sizeof(struct sockaddr_in6).
++ *	@sk pointer to sock structure.
++ *	@optname name of the option to validate.
++ *	@address list containing one or more ipv4/ipv6 addresses.
++ *	@addrlen total length of address(s).
++ *	Return 0 on success, error on failure.
++ * @sctp_sk_clone:
++ *	Sets the new child socket's sid to the old endpoint sid.
++ *	@ep pointer to old sctp endpoint structure.
++ *	@sk pointer to old sock structure.
++ *	@sk pointer to new sock structure.
++ *
+  * Security hooks for Infiniband
+  *
+  * @ib_pkey_access:
+@@ -1640,6 +1667,13 @@ union security_list_options {
+ 	int (*tun_dev_attach_queue)(void *security);
+ 	int (*tun_dev_attach)(struct sock *sk, void *security);
+ 	int (*tun_dev_open)(void *security);
++	int (*sctp_assoc_request)(struct sctp_endpoint *ep,
++				  struct sk_buff *skb,
++				  int sctp_cid);
++	int (*sctp_bind_connect)(struct sock *sk, int optname,
++				 struct sockaddr *address, int addrlen);
++	void (*sctp_sk_clone)(struct sctp_endpoint *ep, struct sock *sk,
++			      struct sock *newsk);
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+@@ -1880,6 +1914,9 @@ struct security_hook_heads {
+ 	struct list_head tun_dev_attach_queue;
+ 	struct list_head tun_dev_attach;
+ 	struct list_head tun_dev_open;
++	struct list_head sctp_assoc_request;
++	struct list_head sctp_bind_connect;
++	struct list_head sctp_sk_clone;
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ #ifdef CONFIG_SECURITY_INFINIBAND
+ 	struct list_head ib_pkey_access;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 834b355..2054023 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -114,6 +114,7 @@ struct xfrm_policy;
+ struct xfrm_state;
+ struct xfrm_user_sec_ctx;
+ struct seq_file;
++struct sctp_endpoint;
+ 
+ #ifdef CONFIG_MMU
+ extern unsigned long mmap_min_addr;
+@@ -1240,6 +1241,12 @@ int security_tun_dev_create(void);
+ int security_tun_dev_attach_queue(void *security);
+ int security_tun_dev_attach(struct sock *sk, void *security);
+ int security_tun_dev_open(void *security);
++int security_sctp_assoc_request(struct sctp_endpoint *ep, struct sk_buff *skb,
++				int sctp_cid);
++int security_sctp_bind_connect(struct sock *sk, int optname,
++			       struct sockaddr *address, int addrlen);
++void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
++			    struct sock *newsk);
+ 
+ #else	/* CONFIG_SECURITY_NETWORK */
+ static inline int security_unix_stream_connect(struct sock *sock,
+@@ -1432,6 +1439,26 @@ static inline int security_tun_dev_open(void *security)
+ {
+ 	return 0;
+ }
++
++static inline int security_sctp_assoc_request(struct sctp_endpoint *ep,
++					      struct sk_buff *skb,
++					      int sctp_cid)
++{
++	return 0;
++}
++
++static inline int security_sctp_bind_connect(struct sock *sk, int optname,
++					     struct sockaddr *address,
++					     int addrlen)
++{
++	return 0;
++}
++
++static inline void security_sctp_sk_clone(struct sctp_endpoint *ep,
++					  struct sock *sk,
++					  struct sock *newsk)
++{
++}
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
+diff --git a/security/security.c b/security/security.c
+index 3013237..798fc6e 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1482,6 +1482,7 @@ void security_inet_conn_established(struct sock *sk,
+ {
+ 	call_void_hook(inet_conn_established, sk, skb);
+ }
++EXPORT_SYMBOL(security_inet_conn_established);
+ 
+ int security_secmark_relabel_packet(u32 secid)
+ {
+@@ -1537,6 +1538,28 @@ int security_tun_dev_open(void *security)
+ }
+ EXPORT_SYMBOL(security_tun_dev_open);
+ 
++int security_sctp_assoc_request(struct sctp_endpoint *ep, struct sk_buff *skb,
++				int sctp_cid)
++{
++	return call_int_hook(sctp_assoc_request, 0, ep, skb, sctp_cid);
++}
++EXPORT_SYMBOL(security_sctp_assoc_request);
++
++int security_sctp_bind_connect(struct sock *sk, int optname,
++			       struct sockaddr *address, int addrlen)
++{
++	return call_int_hook(sctp_bind_connect, 0, sk, optname,
++			     address, addrlen);
++}
++EXPORT_SYMBOL(security_sctp_bind_connect);
++
++void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
++			    struct sock *newsk)
++{
++	call_void_hook(sctp_sk_clone, ep, sk, newsk);
++}
++EXPORT_SYMBOL(security_sctp_sk_clone);
++
+ #endif	/* CONFIG_SECURITY_NETWORK */
+ 
+ #ifdef CONFIG_SECURITY_INFINIBAND
 -- 
-Best regards,
-Mikhail Kurinnoi
+2.13.6
