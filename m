@@ -1,124 +1,342 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9HH5J4k008946
- for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 13:05:21 -0400
-Received: by mail-io0-f174.google.com with SMTP id m16so2964778iod.1
- for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 09:38:34 -0700 (PDT)
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Cc: jwcart2@tycho.nsa.gov, Dan Cashman <dcashman@google.com>
-References: <1505939283.31597.11.camel@tycho.nsa.gov>
- <20171010211257.18474-1-dcashman@android.com>
- <1507922626.15007.10.camel@tycho.nsa.gov>
-From: Dan Cashman <dcashman@android.com>
-Message-ID: <067977d4-8c8e-f9bc-c19d-b887ed30cdc5@android.com>
-Date: Tue, 17 Oct 2017 09:38:15 -0700
-MIME-Version: 1.0
-In-Reply-To: <1507922626.15007.10.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH] selinux: libselinux: Enable multiple input
- files to selabel_open.
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9HHdWJ0025686
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 13:39:34 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 3yGhbR3DjTz2Sj6F
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 17:13:07 +0000 (UTC)
+Received: from UPDC3CPA06.eemsg.mil (unknown [192.168.18.13])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 3yGhbR2HCXz2Sj6C
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 17:13:07 +0000 (UTC)
+Received: by mail-it0-f51.google.com with SMTP id j140so3093112itj.1
+ for <selinux@tycho.nsa.gov>; Tue, 17 Oct 2017 09:33:35 -0700 (PDT)
+From: Daniel Cashman <dcashman@android.com>
+To: selinux@tycho.nsa.gov, sds@tycho.nsa.gov
+Cc: jeffv@google.com, jwcart@tycho.nsa.gov, dcashman@google.com,
+ Dan Cashman <dcashman@android.com>
+Date: Tue, 17 Oct 2017 09:33:28 -0700
+Message-Id: <20171017163328.117702-1-dcashman@android.com>
+Subject: [PATCH v3] selinux: libselinux: Enable multiple input files
+ to selabel_open.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 10/13/2017 12:23 PM, Stephen Smalley wrote:
-> On Tue, 2017-10-10 at 14:12 -0700, Daniel Cashman wrote:
->> From: Dan Cashman <dcashman@google.com>
->>
->> The file_contexts labeling backend, specified in label_file.c,
->> currently assumes
->> that only one path will be specified as an option to
->> selabel_open().  The split
->> of platform and non-platform policy on device, however, will
->> necessitate the
->> loading of two disparate policy files.  Rather than combining the
->> files and then
->> calling the existing API on a newly-formed file, just add the ability
->> to specify
->> multiple files to use.  Order of opt specification to selabel_open
->> matters.
->>
->> This corresponds to AOSP commit
->> 50400d38203e4db08314168e60c281cc61a717a8, which
->> lead to a fork with upstream, which we'd like to correct.
->>
->> Signed-off-by: Dan Cashman <dcashman@android.com>
->> ---
->>   libselinux/src/label.c          |  21 +++++---
->>   libselinux/src/label_db.c       |   4 +-
->>   libselinux/src/label_file.c     | 104 +++++++++++++++++++++++++++++-
->> ----------
->>   libselinux/src/label_internal.h |   5 +-
->>   libselinux/src/label_media.c    |   4 +-
->>   libselinux/src/label_x.c        |   4 +-
->>   6 files changed, 103 insertions(+), 39 deletions(-)
->>
-> 
->> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
->> index c46d0a1d..205ff5f4 100644
->> --- a/libselinux/src/label_db.c
->> +++ b/libselinux/src/label_db.c
->> @@ -290,7 +290,9 @@ db_init(const struct selinux_opt *opts, unsigned
->> nopts,
->>   		errno = EINVAL;
->>   		return NULL;
->>   	}
->> -	rec->spec_file = strdup(path);
->> +	rec->spec_files_len = 1;
->> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
-> 
-> Missing semicolon, and a check for NULL.  Also should likely be
-> sizeof(rec->spec_files[0]) or sizeof(char *); path isn't really
-> relevant here.
-> 
->> +	rec->spec_files[0] = strdup(path);
-> 
-> Ditto, although I see you didn't introduce that per se; we ought to fix
-> it anyway.
-> 
->> diff --git a/libselinux/src/label_media.c
->> b/libselinux/src/label_media.c
->> index d202e5d5..f4a46ffe 100644
->> --- a/libselinux/src/label_media.c
->> +++ b/libselinux/src/label_media.c
->> @@ -100,7 +100,9 @@ static int init(struct selabel_handle *rec, const
->> struct selinux_opt *opts,
->>   		errno = EINVAL;
->>   		return -1;
->>   	}
->> -	rec->spec_file = strdup(path);
->> +	rec->spec_files_len = 1;
->> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
->> +	rec->spec_files[0] = strdup(path);
-> 
-> Same as for label_db.c.
-> 
->>   
->>   	/*
->>   	 * Perform two passes over the specification file.
->> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
->> index 96745299..54ebd2eb 100644
->> --- a/libselinux/src/label_x.c
->> +++ b/libselinux/src/label_x.c
->> @@ -127,7 +127,9 @@ static int init(struct selabel_handle *rec, const
->> struct selinux_opt *opts,
->>   		errno = EINVAL;
->>   		return -1;
->>   	}
->> -	rec->spec_file = strdup(path);
->> +	rec->spec_files_len = 1;
->> +	rec->spec_files = calloc(rec->spec_files_len, sizeof(path))
->> +	rec->spec_files[0] = strdup(path);
-> 
-> And again.
-> 
->>   
->>   	/*
->>   	 * Perform two passes over the specification file.
+From: Dan Cashman <dcashman@google.com>
 
-Well that was embarrassing.  Twice bitten, thrice shy?  I've now setup a 
-fedora vm to at least test whether or not patches will build, so that's 
-a good outcome of this.  Submitted v3 to the list (rather than 
-continuing this thread).  Thanks for the review!
+The file_contexts labeling backend, specified in label_file.c, currently assumes
+that only one path will be specified as an option to selabel_open().  The split
+of platform and non-platform policy on device, however, will necessitate the
+loading of two disparate policy files.  Rather than combining the files and then
+calling the existing API on a newly-formed file, just add the ability to specify
+multiple files to use.  Order of opt specification to selabel_open matters.
 
--Dan
+This corresponds to AOSP commit 50400d38203e4db08314168e60c281cc61a717a8, which
+lead to a fork with upstream, which we'd like to correct.
+
+Signed-off-by: Dan Cashman <dcashman@android.com>
+---
+ libselinux/src/label.c          |  21 +++++---
+ libselinux/src/label_db.c       |  13 ++++-
+ libselinux/src/label_file.c     | 104 +++++++++++++++++++++++++++++-----------
+ libselinux/src/label_internal.h |   5 +-
+ libselinux/src/label_media.c    |  10 +++-
+ libselinux/src/label_x.c        |  10 +++-
+ 6 files changed, 124 insertions(+), 39 deletions(-)
+
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 48f4d2d6..0dfa054c 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -143,7 +143,11 @@ static int selabel_fini(struct selabel_handle *rec,
+ 			    struct selabel_lookup_rec *lr,
+ 			    int translating)
+ {
+-	if (compat_validate(rec, lr, rec->spec_file, 0))
++	char *path = NULL;
++
++	if (rec->spec_files)
++		path = rec->spec_files[0];
++	if (compat_validate(rec, lr, path, 0))
+ 		return -1;
+ 
+ 	if (translating && !lr->ctx_trans &&
+@@ -226,11 +230,9 @@ struct selabel_handle *selabel_open(unsigned int backend,
+ 	rec->digest = selabel_is_digest_set(opts, nopts, rec->digest);
+ 
+ 	if ((*initfuncs[backend])(rec, opts, nopts)) {
+-		free(rec->spec_file);
+-		free(rec);
++		selabel_close(rec);
+ 		rec = NULL;
+ 	}
+-
+ out:
+ 	return rec;
+ }
+@@ -337,10 +339,17 @@ int selabel_digest(struct selabel_handle *rec,
+ 
+ void selabel_close(struct selabel_handle *rec)
+ {
++	size_t i;
++
++	if (rec->spec_files) {
++		for (i = 0; i < rec->spec_files_len; i++)
++			free(rec->spec_files[i]);
++		free(rec->spec_files);
++	}
+ 	if (rec->digest)
+ 		selabel_digest_fini(rec->digest);
+-	rec->func_close(rec);
+-	free(rec->spec_file);
++	if (rec->func_close)
++		rec->func_close(rec);
+ 	free(rec);
+ }
+ 
+diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+index c46d0a1d..9a35abea 100644
+--- a/libselinux/src/label_db.c
++++ b/libselinux/src/label_db.c
+@@ -290,7 +290,18 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
+ 		errno = EINVAL;
+ 		return NULL;
+ 	}
+-	rec->spec_file = strdup(path);
++	rec->spec_files_len = 1;
++	rec->spec_files = calloc(rec->spec_files_len, sizeof(rec->spec_files[0]));
++	if (!rec->spec_files) {
++		free(catalog);
++		return NULL;
++	}
++	rec->spec_files[0] = strdup(path);
++	if (!rec->spec_files[0]) {
++		free(catalog);
++		free(rec->spec_files);
++		return NULL;
++	}
+ 
+ 	/*
+ 	 * Parse for each lines
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 560d8c3d..b3b36bc2 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -709,28 +709,61 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		unsigned n)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+-	const char *path = NULL;
++	size_t num_paths = 0;
++	char **path = NULL;
+ 	const char *prefix = NULL;
+-	int status = -1, baseonly = 0;
++	int status = -1;
++	size_t i;
++	bool baseonly = false;
++	bool path_provided;
+ 
+ 	/* Process arguments */
+-	while (n--)
+-		switch(opts[n].type) {
++	i = n;
++	while (i--)
++		switch(opts[i].type) {
+ 		case SELABEL_OPT_PATH:
+-			path = opts[n].value;
++			num_paths++;
+ 			break;
+ 		case SELABEL_OPT_SUBSET:
+-			prefix = opts[n].value;
++			prefix = opts[i].value;
+ 			break;
+ 		case SELABEL_OPT_BASEONLY:
+-			baseonly = !!opts[n].value;
++			baseonly = !!opts[i].value;
+ 			break;
+ 		}
+ 
++	if (!num_paths) {
++		num_paths = 1;
++		path_provided = false;
++	} else {
++		path_provided = true;
++	}
++
++	path = calloc(num_paths, sizeof(*path));
++	if (path == NULL) {
++		goto finish;
++	}
++	rec->spec_files = path;
++	rec->spec_files_len = num_paths;
++
++	if (path_provided) {
++		for (i = 0; i < n; i++) {
++			switch(opts[i].type) {
++			case SELABEL_OPT_PATH:
++				*path = strdup(opts[i].value);
++				if (*path == NULL)
++					goto finish;
++				path++;
++				break;
++			default:
++				break;
++			}
++		}
++	}
+ #if !defined(BUILD_HOST) && !defined(ANDROID)
+ 	char subs_file[PATH_MAX + 1];
+ 	/* Process local and distribution substitution files */
+-	if (!path) {
++	if (!path_provided) {
+ 		status = selabel_subs_init(
+ 			selinux_file_context_subs_dist_path(),
+ 			rec->digest, &data->dist_subs);
+@@ -740,43 +773,52 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 			rec->digest, &data->subs);
+ 		if (status)
+ 			goto finish;
+-		path = selinux_file_context_path();
++		rec->spec_files[0] = strdup(selinux_file_context_path());
++		if (rec->spec_files[0] == NULL)
++			goto finish;
+ 	} else {
+-		snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", path);
+-		status = selabel_subs_init(subs_file, rec->digest,
++		for (i = 0; i < num_paths; i++) {
++			snprintf(subs_file, sizeof(subs_file), "%s.subs_dist", rec->spec_files[i]);
++			status = selabel_subs_init(subs_file, rec->digest,
+ 					   &data->dist_subs);
+-		if (status)
+-			goto finish;
+-		snprintf(subs_file, sizeof(subs_file), "%s.subs", path);
+-		status = selabel_subs_init(subs_file, rec->digest,
++			if (status)
++				goto finish;
++			snprintf(subs_file, sizeof(subs_file), "%s.subs", rec->spec_files[i]);
++			status = selabel_subs_init(subs_file, rec->digest,
+ 					   &data->subs);
+-		if (status)
+-			goto finish;
++			if (status)
++				goto finish;
++		}
++	}
++#else
++	if (!path_provided) {
++		selinux_log(SELINUX_ERROR, "No path given to file labeling backend\n");
++		goto finish;
+ 	}
+-
+ #endif
+-	rec->spec_file = strdup(path);
+ 
+ 	/*
+-	 * The do detailed validation of the input and fill the spec array
++	 * Do detailed validation of the input and fill the spec array
+ 	 */
+-	status = process_file(path, NULL, rec, prefix, rec->digest);
+-	if (status)
+-		goto finish;
+-
+-	if (rec->validating) {
+-		status = nodups_specs(data, path);
++	for (i = 0; i < num_paths; i++) {
++		status = process_file(rec->spec_files[i], NULL, rec, prefix, rec->digest);
+ 		if (status)
+ 			goto finish;
++
++		if (rec->validating) {
++			status = nodups_specs(data, rec->spec_files[i]);
++			if (status)
++				goto finish;
++		}
+ 	}
+ 
+ 	if (!baseonly) {
+-		status = process_file(path, "homedirs", rec, prefix,
++		status = process_file(rec->spec_files[0], "homedirs", rec, prefix,
+ 							    rec->digest);
+ 		if (status && errno != ENOENT)
+ 			goto finish;
+ 
+-		status = process_file(path, "local", rec, prefix,
++		status = process_file(rec->spec_files[0], "local", rec, prefix,
+ 							    rec->digest);
+ 		if (status && errno != ENOENT)
+ 			goto finish;
+@@ -804,6 +846,12 @@ static void closef(struct selabel_handle *rec)
+ 	struct stem *stem;
+ 	unsigned int i;
+ 
++	if (!data)
++		return;
++
++	/* make sure successive ->func_close() calls are harmless */
++	rec->data = NULL;
++
+ 	selabel_subs_fini(data->subs);
+ 	selabel_subs_fini(data->dist_subs);
+ 
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+index c55efb75..43b63513 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -98,10 +98,11 @@ struct selabel_handle {
+ 	void *data;
+ 
+ 	/*
+-	 * The main spec file used. Note for file contexts the local and/or
++	 * The main spec file(s) used. Note for file contexts the local and/or
+ 	 * homedirs could also have been used to resolve a context.
+ 	 */
+-	char *spec_file;
++	size_t spec_files_len;
++	char **spec_files;
+ 
+ 	/* ptr to SHA1 hash information if SELABEL_OPT_DIGEST set */
+ 	struct selabel_digest *digest;
+diff --git a/libselinux/src/label_media.c b/libselinux/src/label_media.c
+index d202e5d5..34260cbb 100644
+--- a/libselinux/src/label_media.c
++++ b/libselinux/src/label_media.c
+@@ -100,7 +100,15 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		errno = EINVAL;
+ 		return -1;
+ 	}
+-	rec->spec_file = strdup(path);
++	rec->spec_files_len = 1;
++	rec->spec_files = calloc(rec->spec_files_len, sizeof(rec->spec_files[0]));
++	if (!rec->spec_files)
++		return -1;
++	rec->spec_files[0] = strdup(path);
++	if (!rec->spec_files[0]) {
++		free(rec->spec_files);
++		return -1;
++	}
+ 
+ 	/* 
+ 	 * Perform two passes over the specification file.
+diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+index 96745299..fafe034a 100644
+--- a/libselinux/src/label_x.c
++++ b/libselinux/src/label_x.c
+@@ -127,7 +127,15 @@ static int init(struct selabel_handle *rec, const struct selinux_opt *opts,
+ 		errno = EINVAL;
+ 		return -1;
+ 	}
+-	rec->spec_file = strdup(path);
++	rec->spec_files_len = 1;
++	rec->spec_files = calloc(rec->spec_files_len, sizeof(rec->spec_files[0]));
++	if (!rec->spec_files)
++		return -1;
++	rec->spec_files[0] = strdup(path);
++	if (!rec->spec_files[0]) {
++		free(rec->spec_files);
++		return -1;
++	}
+ 
+ 	/* 
+ 	 * Perform two passes over the specification file.
+-- 
+2.15.0.rc0.271.g36b669edcc-goog
