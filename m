@@ -1,131 +1,72 @@
+Message-ID: <59E75C98.5080603@iogearbox.net>
+Date: Wed, 18 Oct 2017 15:52:24 +0200
+From: Daniel Borkmann <daniel@iogearbox.net>
 MIME-Version: 1.0
-In-Reply-To: <20171017135833.4292-1-richard_c_haines@btinternet.com>
-References: <20171017135833.4292-1-richard_c_haines@btinternet.com>
-From: Xin Long <lucien.xin@gmail.com>
-Date: Wed, 18 Oct 2017 23:05:09 +0800
-Message-ID: <CADvbK_d+LKRQHZXn5LMy+4L0Nq+ZEkvHGk=zn3odUr7FrzvkBQ@mail.gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov, network dev <netdev@vger.kernel.org>,
- linux-sctp@vger.kernel.org, linux-security-module@vger.kernel.org,
- paul@paul-moore.com, Vlad Yasevich <vyasevich@gmail.com>,
- Neil Horman <nhorman@tuxdriver.com>, sds@tycho.nsa.gov,
- eparis@parisplace.org, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [RFC PATCH 3/5] sctp: Add LSM hooks
+To: Chenbo Feng <chenbofeng.kernel@gmail.com>, netdev@vger.kernel.org,
+ SELinux <Selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org
+CC: Jeffrey Vander Stoep <jeffv@google.com>,
+ Alexei Starovoitov <alexei.starovoitov@gmail.com>, lorenzo@google.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ James Morris <james.l.morris@oracle.com>,
+ Paul Moore <paul@paul-moore.com>, Chenbo Feng <fengc@google.com>
+References: <20171016191135.8046-1-chenbofeng.kernel@gmail.com>
+ <20171016191135.8046-2-chenbofeng.kernel@gmail.com>
+In-Reply-To: <20171016191135.8046-2-chenbofeng.kernel@gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Subject: Re: [PATCH net-next v6 1/5] bpf: Add file mode
+ configuration into bpf maps
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Oct 17, 2017 at 9:58 PM, Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> Add security hooks to allow security modules to exercise access control
-> over SCTP.
+Hey Chenbo,
+
+there's still one thing I noticed later one; would have sent a
+follow-up, but as you need to respin anyway for the build issue,
+here's what is still missing uapi-wise:
+
+On 10/16/2017 09:11 PM, Chenbo Feng wrote:
+[...]
+> +int bpf_get_file_flag(int flags)
+> +{
+> +	if ((flags & BPF_F_RDONLY) && (flags & BPF_F_WRONLY))
+> +		return -EINVAL;
+> +	if (flags & BPF_F_RDONLY)
+> +		return O_RDONLY;
+> +	if (flags & BPF_F_WRONLY)
+> +		return O_WRONLY;
+> +	return O_RDWR;
+>   }
+[...]
+> -#define BPF_OBJ_LAST_FIELD bpf_fd
+> +#define BPF_OBJ_LAST_FIELD file_flags
 >
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  include/net/sctp/structs.h | 10 ++++++++
->  include/uapi/linux/sctp.h  |  1 +
->  net/sctp/sm_make_chunk.c   | 12 +++++++++
->  net/sctp/sm_statefuns.c    | 14 ++++++++++-
->  net/sctp/socket.c          | 61 +++++++++++++++++++++++++++++++++++++++++++++-
->  5 files changed, 96 insertions(+), 2 deletions(-)
+>   static int bpf_obj_pin(const union bpf_attr *attr)
+>   {
+> -	if (CHECK_ATTR(BPF_OBJ))
+> +	if (CHECK_ATTR(BPF_OBJ) || attr->file_flags != 0)
+>   		return -EINVAL;
 >
-> diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
-> index 7767577..6e72e3e 100644
-> --- a/include/net/sctp/structs.h
-> +++ b/include/net/sctp/structs.h
-> @@ -1270,6 +1270,16 @@ struct sctp_endpoint {
->               reconf_enable:1;
+>   	return bpf_obj_pin_user(attr->bpf_fd, u64_to_user_ptr(attr->pathname));
+> @@ -1126,7 +1184,8 @@ static int bpf_obj_get(const union bpf_attr *attr)
+>   	if (CHECK_ATTR(BPF_OBJ) || attr->bpf_fd != 0)
+
+Here, we also need to check and bail out on ...
+
+attr->file_flags & ~(BPF_F_RDONLY | BPF_F_WRONLY)
+
+... otherwise we cannot extend it with more flags in future. Basically
+same principle for mask check you do on map creation, but not yet here.
+
+The same is needed in bpf_map_get_fd_by_id(), too.
+
+The bpf_prog_get_fd_by_id() is covered since BPF_PROG_GET_FD_BY_ID_LAST_FIELD
+still points to prog_id, so ok.
+
+>   		return -EINVAL;
+> -	return bpf_obj_get_user(u64_to_user_ptr(attr->pathname));
+> +	return bpf_obj_get_user(u64_to_user_ptr(attr->pathname),
+> +				attr->file_flags);
+>   }
 >
->         __u8  strreset_enable;
-> +
-> +       /* Security identifiers from incoming (INIT). These are set by
-> +        * security_sctp_assoc_request(). These will only be used by
-> +        * SCTP TCP type sockets and peeled off connections as they
-> +        * cause a new socket to be generated. security_sctp_sk_clone()
-> +        * will then plug these into the new socket.
-> +        */
-> +
-> +       u32 secid;
-> +       u32 peer_secid;
->  };
->
->  /* Recover the outter endpoint structure. */
-> diff --git a/include/uapi/linux/sctp.h b/include/uapi/linux/sctp.h
-> index 6217ff8..c04812f 100644
-> --- a/include/uapi/linux/sctp.h
-> +++ b/include/uapi/linux/sctp.h
-> @@ -122,6 +122,7 @@ typedef __s32 sctp_assoc_t;
->  #define SCTP_RESET_ASSOC       120
->  #define SCTP_ADD_STREAMS       121
->  #define SCTP_SOCKOPT_PEELOFF_FLAGS 122
-> +#define SCTP_SENDMSG_CONNECT   123
->
->  /* PR-SCTP policies */
->  #define SCTP_PR_SCTP_NONE      0x0000
-> diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
-> index 6110447..ca4705b 100644
-> --- a/net/sctp/sm_make_chunk.c
-> +++ b/net/sctp/sm_make_chunk.c
-> @@ -3059,6 +3059,12 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
->                 if (af->is_any(&addr))
->                         memcpy(&addr, &asconf->source, sizeof(addr));
->
-> +               if (security_sctp_bind_connect(asoc->ep->base.sk,
-> +                                              SCTP_PARAM_ADD_IP,
-> +                                              (struct sockaddr *)&addr,
-> +                                              af->sockaddr_len))
-> +                       return SCTP_ERROR_REQ_REFUSED;
-> +
->                 /* ADDIP 4.3 D9) If an endpoint receives an ADD IP address
->                  * request and does not have the local resources to add this
->                  * new address to the association, it MUST return an Error
-> @@ -3125,6 +3131,12 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
->                 if (af->is_any(&addr))
->                         memcpy(&addr.v4, sctp_source(asconf), sizeof(addr));
->
-> +               if (security_sctp_bind_connect(asoc->ep->base.sk,
-> +                                              SCTP_PARAM_SET_PRIMARY,
-> +                                              (struct sockaddr *)&addr,
-> +                                              af->sockaddr_len))
-> +                       return SCTP_ERROR_REQ_REFUSED;
-> +
->                 peer = sctp_assoc_lookup_paddr(asoc, &addr);
->                 if (!peer)
->                         return SCTP_ERROR_DNS_FAILED;
-> diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-> index b2a74c3..4ba5805 100644
-> --- a/net/sctp/sm_statefuns.c
-> +++ b/net/sctp/sm_statefuns.c
-> @@ -314,6 +314,11 @@ sctp_disposition_t sctp_sf_do_5_1B_init(struct net *net,
->         sctp_unrecognized_param_t *unk_param;
->         int len;
->
-> +       /* Update socket peer label if first association. */
-> +       if (security_sctp_assoc_request((struct sctp_endpoint *)ep,
-> +                                       chunk->skb, SCTP_CID_INIT))
-> +               return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-> +
->         /* 6.10 Bundling
->          * An endpoint MUST NOT bundle INIT, INIT ACK or
->          * SHUTDOWN COMPLETE with any other chunks.
-> @@ -446,7 +451,6 @@ sctp_disposition_t sctp_sf_do_5_1B_init(struct net *net,
->         }
->
->         sctp_add_cmd_sf(commands, SCTP_CMD_NEW_ASOC, SCTP_ASOC(new_asoc));
-> -
->         sctp_add_cmd_sf(commands, SCTP_CMD_REPLY, SCTP_CHUNK(repl));
->
->         /*
-> @@ -507,6 +511,11 @@ sctp_disposition_t sctp_sf_do_5_1C_ack(struct net *net,
->         struct sctp_chunk *err_chunk;
->         struct sctp_packet *packet;
->
-> +       /* Update socket peer label if first association. */
-> +       if (security_sctp_assoc_request((struct sctp_endpoint *)ep,
-> +                                       chunk->skb, SCTP_CID_INIT_ACK))
-> +               return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-> +
-Just thinking security_sctp_assoc_request hook should also be in
-sctp_sf_do_unexpected_init() and sctp_sf_do_5_2_4_dupcook() ?
