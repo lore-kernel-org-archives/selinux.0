@@ -1,136 +1,522 @@
-MIME-Version: 1.0
-In-Reply-To: <1508269837.21073.4.camel@tycho.nsa.gov>
-References: <CAFftDdoa-iO3E62FSefdnARHGVzLE4znzaFfSd2Q=9bhdG3=eQ@mail.gmail.com>
- <1507841294.30307.4.camel@tycho.nsa.gov>
- <CAFftDdpFtE3fDPJxYTb5Q7Ooa3UpEHAHzRJYee60a_QsNxngiw@mail.gmail.com>
- <CAJfZ7=n7j6kbxd2SGW3FjxMr=EZSiYdttG9mfotUt0F3UFEdgQ@mail.gmail.com>
- <CAFftDdqD-tCZrSu2yB37p0BrtKu7avKes_W5OLmEGCO9ofWt0A@mail.gmail.com>
- <1508269837.21073.4.camel@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Wed, 18 Oct 2017 19:30:02 -0700
-Message-ID: <CAFftDdqfBkaomb3SpcEv0vt=a1riHzYQEfzPY5W8OiSEmHrYSw@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Nicolas Iooss <nicolas.iooss@m4x.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: travis CI
+From: Chenbo Feng <chenbofeng.kernel@gmail.com>
+To: netdev@vger.kernel.org, SELinux <Selinux@tycho.nsa.gov>,
+ linux-security-module@vger.kernel.org
+Cc: Jeffrey Vander Stoep <jeffv@google.com>,
+ Alexei Starovoitov <alexei.starovoitov@gmail.com>, lorenzo@google.com,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ James Morris <james.l.morris@oracle.com>,
+ Paul Moore <paul@paul-moore.com>, Chenbo Feng <fengc@google.com>
+Date: Wed, 18 Oct 2017 13:00:22 -0700
+Message-Id: <20171018200026.146093-2-chenbofeng.kernel@gmail.com>
+In-Reply-To: <20171018200026.146093-1-chenbofeng.kernel@gmail.com>
+References: <20171018200026.146093-1-chenbofeng.kernel@gmail.com>
+Subject: [PATCH net-next v7 1/5] bpf: Add file mode configuration into bpf maps
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Oct 17, 2017 at 12:50 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Tue, 2017-10-17 at 11:49 -0700, William Roberts wrote:
->> On Sun, Oct 15, 2017 at 5:10 AM, Nicolas Iooss <nicolas.iooss@m4x.org
->> > wrote:
->> > On Fri, Oct 13, 2017 at 1:50 AM, William Roberts
->> > <bill.c.roberts@gmail.com> wrote:
->> > > On Thu, Oct 12, 2017 at 1:48 PM, Stephen Smalley <sds@tycho.nsa.g
->> > > ov> wrote:
->> > > > On Thu, 2017-10-12 at 11:29 -0700, William Roberts wrote:
->> > > > > I see a travis.yml file, recently modified by Nicolas, but I
->> > > > > failed
->> > > > > to
->> > > > > find the Travis CI instance on travis.org, where is it?
->> > > > >
->> > > > > We should likely have it running on commits to the repo and
->> > > > > PRs so we
->> > > > > can have some independent way of verifying that our run of
->> > > > > the tests
->> > > > > was compromised by some env variation or mistake.
->> > > > >
->> > > > > Thoughts?
->> > > >
->> > > > To date he has just run it on his own fork.  Not opposed to
->> > > > enabling
->> > > > it, just haven't looked into that...
->> > >
->> > > I have done it for my some of my projects, Ill go ahead and set
->> > > this up.
->> >
->> > I configured Travis-CI to test the branches in my Github repository
->> > a
->> > little more than one year ago, after several build configurations
->> > got
->> > broken (clang on Linux for example). I later added more features to
->> > it
->> > (for example warning about missing .gitignore entries, testing
->> > several
->> > Ruby and Python versions, etc), before I upstreamed my .travis.yml
->> > file (a few months ago). When I did it, my main motivation was to
->> > simplify the job of anyone who would want to configure a CI system
->> > on
->> > the project (the building rules and dependencies should be quite
->> > similar). Using a continuous integration system is useful to
->> > prevent
->> > simple regression issues which would otherwise only be detected
->> > when
->> > someone running a specific configuration tries to build the
->> > project.
->> >
->> > Before asking to enable Travis-CI on the main SELinux repository, I
->> > wanted to make sure it was stable/reliable enough. To do this, I
->> > created a branch named "travis-upstream" in my repository, which
->> > tracked the master branch of the main repository. All went well for
->> > quite some time, until Travis-CI modified this summer their
->> > environments, introducing some incompatibilities with projects
->> > which
->> > use several programming languages. Thankfully these changes have
->> > been
->> > documented in Travis-CI's blog and I updated the config file to fix
->> > the builds with commits b1ea8120832d ("Travis-CI: use sugulite
->> > environment") and 6d9258e5a05f ("Travis-CI: fix configuration after
->> > September's update"). As Travis-CI does not seem to want to support
->> > multi-language projects (cf.
->> > https://github.com/travis-ci/travis-ci/issues/4090 for example),
->> > more
->> > breaking changes could be introduced as the provided environment
->> > are
->> > upgraded. Nevertheless I expect that such changes are quite easily
->> > fixable.
->> >
->> > In short, using a CI platform is useful and Travis-CI is a free one
->> > which makes it possible to test several build configurations (I
->> > also
->> > tried Circle-CI, which did not provide a similar feature) and
->> > maintaining a working configuration does not require much effort.
->> > Moreover when a Travis-CI job fails, the log contains the console
->> > output which usually is very clear about what has gone wrong.
->> > Travis-CI now also provides Docker images which help reproducing
->> > issues and understanding their cause without needing to submit a
->> > new
->> > job.
->> >
->> > If you want to set this platform up for SELinux userspace project,
->> > please go ahead :)
->> >
->> > Cheers,
->> > Nicolas
->> >
->>
->> I tried to turn it on in travis, but got the message:
->>
->> This is not an active repository
->>
->> You don't have sufficient rights to enable this repo on Travis.
->> Please contact the admin to enable it or to receive admin rights
->> yourself.
->>
->> Stephen maybe you can do this, or grant me the permissions?
->>
->> You should be able to go here:
->> https://travis-ci.org
->>
->> And login, and then in your organization for selinux flip the switch
->> for travis. Once it's on, and working, we can add the badge to the
->> README
->> file for build status.
->
-> Enabled now for the selinux repo.
->
-FYI this is up and running thanks to Nicolas's .travis.yml.
+From: Chenbo Feng <fengc@google.com>
 
-You can see it verifying this PR
-https://github.com/SELinuxProject/selinux/pull/66
+Introduce the map read/write flags to the eBPF syscalls that returns the
+map fd. The flags is used to set up the file mode when construct a new
+file descriptor for bpf maps. To not break the backward capability, the
+f_flags is set to O_RDWR if the flag passed by syscall is 0. Otherwise
+it should be O_RDONLY or O_WRONLY. When the userspace want to modify or
+read the map content, it will check the file mode to see if it is
+allowed to make the change.
 
-I've submitted that patch to the mailing list as well.
+Signed-off-by: Chenbo Feng <fengc@google.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+---
+ include/linux/bpf.h      |  8 +++--
+ include/uapi/linux/bpf.h |  6 ++++
+ kernel/bpf/arraymap.c    |  6 +++-
+ kernel/bpf/devmap.c      |  5 ++-
+ kernel/bpf/hashtab.c     |  5 +--
+ kernel/bpf/inode.c       | 15 ++++++---
+ kernel/bpf/lpm_trie.c    |  3 +-
+ kernel/bpf/sockmap.c     |  5 ++-
+ kernel/bpf/stackmap.c    |  5 ++-
+ kernel/bpf/syscall.c     | 88 ++++++++++++++++++++++++++++++++++++++++++------
+ net/netfilter/xt_bpf.c   |  2 +-
+ 11 files changed, 122 insertions(+), 26 deletions(-)
+
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index d67ccdc0099f..3e5508f2fa87 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -315,11 +315,11 @@ void bpf_map_area_free(void *base);
+ 
+ extern int sysctl_unprivileged_bpf_disabled;
+ 
+-int bpf_map_new_fd(struct bpf_map *map);
++int bpf_map_new_fd(struct bpf_map *map, int flags);
+ int bpf_prog_new_fd(struct bpf_prog *prog);
+ 
+ int bpf_obj_pin_user(u32 ufd, const char __user *pathname);
+-int bpf_obj_get_user(const char __user *pathname);
++int bpf_obj_get_user(const char __user *pathname, int flags);
+ 
+ int bpf_percpu_hash_copy(struct bpf_map *map, void *key, void *value);
+ int bpf_percpu_array_copy(struct bpf_map *map, void *key, void *value);
+@@ -338,6 +338,8 @@ int bpf_fd_htab_map_update_elem(struct bpf_map *map, struct file *map_file,
+ 				void *key, void *value, u64 map_flags);
+ int bpf_fd_htab_map_lookup_elem(struct bpf_map *map, void *key, u32 *value);
+ 
++int bpf_get_file_flag(int flags);
++
+ /* memcpy that is used with 8-byte aligned pointers, power-of-8 size and
+  * forced to use 'long' read/writes to try to atomically copy long counters.
+  * Best-effort only.  No barriers here, since it _will_ race with concurrent
+@@ -421,7 +423,7 @@ static inline void __bpf_prog_uncharge(struct user_struct *user, u32 pages)
+ {
+ }
+ 
+-static inline int bpf_obj_get_user(const char __user *pathname)
++static inline int bpf_obj_get_user(const char __user *pathname, int flags)
+ {
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/include/uapi/linux/bpf.h b/include/uapi/linux/bpf.h
+index 4303fb6c3817..d83f95ea6a1b 100644
+--- a/include/uapi/linux/bpf.h
++++ b/include/uapi/linux/bpf.h
+@@ -218,6 +218,10 @@ enum bpf_attach_type {
+ 
+ #define BPF_OBJ_NAME_LEN 16U
+ 
++/* Flags for accessing BPF object */
++#define BPF_F_RDONLY		(1U << 3)
++#define BPF_F_WRONLY		(1U << 4)
++
+ union bpf_attr {
+ 	struct { /* anonymous struct used by BPF_MAP_CREATE command */
+ 		__u32	map_type;	/* one of enum bpf_map_type */
+@@ -260,6 +264,7 @@ union bpf_attr {
+ 	struct { /* anonymous struct used by BPF_OBJ_* commands */
+ 		__aligned_u64	pathname;
+ 		__u32		bpf_fd;
++		__u32		file_flags;
+ 	};
+ 
+ 	struct { /* anonymous struct used by BPF_PROG_ATTACH/DETACH commands */
+@@ -287,6 +292,7 @@ union bpf_attr {
+ 			__u32		map_id;
+ 		};
+ 		__u32		next_id;
++		__u32		open_flags;
+ 	};
+ 
+ 	struct { /* anonymous struct used by BPF_OBJ_GET_INFO_BY_FD */
+diff --git a/kernel/bpf/arraymap.c b/kernel/bpf/arraymap.c
+index 68d866628be0..988c04c91e10 100644
+--- a/kernel/bpf/arraymap.c
++++ b/kernel/bpf/arraymap.c
+@@ -19,6 +19,9 @@
+ 
+ #include "map_in_map.h"
+ 
++#define ARRAY_CREATE_FLAG_MASK \
++	(BPF_F_NUMA_NODE | BPF_F_RDONLY | BPF_F_WRONLY)
++
+ static void bpf_array_free_percpu(struct bpf_array *array)
+ {
+ 	int i;
+@@ -56,7 +59,8 @@ static struct bpf_map *array_map_alloc(union bpf_attr *attr)
+ 
+ 	/* check sanity of attributes */
+ 	if (attr->max_entries == 0 || attr->key_size != 4 ||
+-	    attr->value_size == 0 || attr->map_flags & ~BPF_F_NUMA_NODE ||
++	    attr->value_size == 0 ||
++	    attr->map_flags & ~ARRAY_CREATE_FLAG_MASK ||
+ 	    (percpu && numa_node != NUMA_NO_NODE))
+ 		return ERR_PTR(-EINVAL);
+ 
+diff --git a/kernel/bpf/devmap.c b/kernel/bpf/devmap.c
+index e093d9a2c4dd..e5d3de7cff2e 100644
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -50,6 +50,9 @@
+ #include <linux/bpf.h>
+ #include <linux/filter.h>
+ 
++#define DEV_CREATE_FLAG_MASK \
++	(BPF_F_NUMA_NODE | BPF_F_RDONLY | BPF_F_WRONLY)
++
+ struct bpf_dtab_netdev {
+ 	struct net_device *dev;
+ 	struct bpf_dtab *dtab;
+@@ -80,7 +83,7 @@ static struct bpf_map *dev_map_alloc(union bpf_attr *attr)
+ 
+ 	/* check sanity of attributes */
+ 	if (attr->max_entries == 0 || attr->key_size != 4 ||
+-	    attr->value_size != 4 || attr->map_flags & ~BPF_F_NUMA_NODE)
++	    attr->value_size != 4 || attr->map_flags & ~DEV_CREATE_FLAG_MASK)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	dtab = kzalloc(sizeof(*dtab), GFP_USER);
+diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
+index 431126f31ea3..919955236e63 100644
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -18,8 +18,9 @@
+ #include "bpf_lru_list.h"
+ #include "map_in_map.h"
+ 
+-#define HTAB_CREATE_FLAG_MASK \
+-	(BPF_F_NO_PREALLOC | BPF_F_NO_COMMON_LRU | BPF_F_NUMA_NODE)
++#define HTAB_CREATE_FLAG_MASK						\
++	(BPF_F_NO_PREALLOC | BPF_F_NO_COMMON_LRU | BPF_F_NUMA_NODE |	\
++	 BPF_F_RDONLY | BPF_F_WRONLY)
+ 
+ struct bucket {
+ 	struct hlist_nulls_head head;
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index be1dde967208..01aaef1a77c5 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -295,7 +295,7 @@ int bpf_obj_pin_user(u32 ufd, const char __user *pathname)
+ }
+ 
+ static void *bpf_obj_do_get(const struct filename *pathname,
+-			    enum bpf_type *type)
++			    enum bpf_type *type, int flags)
+ {
+ 	struct inode *inode;
+ 	struct path path;
+@@ -307,7 +307,7 @@ static void *bpf_obj_do_get(const struct filename *pathname,
+ 		return ERR_PTR(ret);
+ 
+ 	inode = d_backing_inode(path.dentry);
+-	ret = inode_permission(inode, MAY_WRITE);
++	ret = inode_permission(inode, ACC_MODE(flags));
+ 	if (ret)
+ 		goto out;
+ 
+@@ -326,18 +326,23 @@ static void *bpf_obj_do_get(const struct filename *pathname,
+ 	return ERR_PTR(ret);
+ }
+ 
+-int bpf_obj_get_user(const char __user *pathname)
++int bpf_obj_get_user(const char __user *pathname, int flags)
+ {
+ 	enum bpf_type type = BPF_TYPE_UNSPEC;
+ 	struct filename *pname;
+ 	int ret = -ENOENT;
++	int f_flags;
+ 	void *raw;
+ 
++	f_flags = bpf_get_file_flag(flags);
++	if (f_flags < 0)
++		return f_flags;
++
+ 	pname = getname(pathname);
+ 	if (IS_ERR(pname))
+ 		return PTR_ERR(pname);
+ 
+-	raw = bpf_obj_do_get(pname, &type);
++	raw = bpf_obj_do_get(pname, &type, f_flags);
+ 	if (IS_ERR(raw)) {
+ 		ret = PTR_ERR(raw);
+ 		goto out;
+@@ -346,7 +351,7 @@ int bpf_obj_get_user(const char __user *pathname)
+ 	if (type == BPF_TYPE_PROG)
+ 		ret = bpf_prog_new_fd(raw);
+ 	else if (type == BPF_TYPE_MAP)
+-		ret = bpf_map_new_fd(raw);
++		ret = bpf_map_new_fd(raw, f_flags);
+ 	else
+ 		goto out;
+ 
+diff --git a/kernel/bpf/lpm_trie.c b/kernel/bpf/lpm_trie.c
+index 34d8a690ea05..885e45479680 100644
+--- a/kernel/bpf/lpm_trie.c
++++ b/kernel/bpf/lpm_trie.c
+@@ -495,7 +495,8 @@ static int trie_delete_elem(struct bpf_map *map, void *_key)
+ #define LPM_KEY_SIZE_MAX	LPM_KEY_SIZE(LPM_DATA_SIZE_MAX)
+ #define LPM_KEY_SIZE_MIN	LPM_KEY_SIZE(LPM_DATA_SIZE_MIN)
+ 
+-#define LPM_CREATE_FLAG_MASK	(BPF_F_NO_PREALLOC | BPF_F_NUMA_NODE)
++#define LPM_CREATE_FLAG_MASK	(BPF_F_NO_PREALLOC | BPF_F_NUMA_NODE |	\
++				 BPF_F_RDONLY | BPF_F_WRONLY)
+ 
+ static struct bpf_map *trie_alloc(union bpf_attr *attr)
+ {
+diff --git a/kernel/bpf/sockmap.c b/kernel/bpf/sockmap.c
+index a298d6666698..86ec846f2d5e 100644
+--- a/kernel/bpf/sockmap.c
++++ b/kernel/bpf/sockmap.c
+@@ -40,6 +40,9 @@
+ #include <linux/list.h>
+ #include <net/strparser.h>
+ 
++#define SOCK_CREATE_FLAG_MASK \
++	(BPF_F_NUMA_NODE | BPF_F_RDONLY | BPF_F_WRONLY)
++
+ struct bpf_stab {
+ 	struct bpf_map map;
+ 	struct sock **sock_map;
+@@ -489,7 +492,7 @@ static struct bpf_map *sock_map_alloc(union bpf_attr *attr)
+ 
+ 	/* check sanity of attributes */
+ 	if (attr->max_entries == 0 || attr->key_size != 4 ||
+-	    attr->value_size != 4 || attr->map_flags & ~BPF_F_NUMA_NODE)
++	    attr->value_size != 4 || attr->map_flags & ~SOCK_CREATE_FLAG_MASK)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	if (attr->value_size > KMALLOC_MAX_SIZE)
+diff --git a/kernel/bpf/stackmap.c b/kernel/bpf/stackmap.c
+index 135be433e9a0..a15bc636cc98 100644
+--- a/kernel/bpf/stackmap.c
++++ b/kernel/bpf/stackmap.c
+@@ -11,6 +11,9 @@
+ #include <linux/perf_event.h>
+ #include "percpu_freelist.h"
+ 
++#define STACK_CREATE_FLAG_MASK \
++	(BPF_F_NUMA_NODE | BPF_F_RDONLY | BPF_F_WRONLY)
++
+ struct stack_map_bucket {
+ 	struct pcpu_freelist_node fnode;
+ 	u32 hash;
+@@ -60,7 +63,7 @@ static struct bpf_map *stack_map_alloc(union bpf_attr *attr)
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return ERR_PTR(-EPERM);
+ 
+-	if (attr->map_flags & ~BPF_F_NUMA_NODE)
++	if (attr->map_flags & ~STACK_CREATE_FLAG_MASK)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	/* check sanity of attributes */
+diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
+index 0e893cac6795..676a06e6b322 100644
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -34,6 +34,8 @@
+ #define IS_FD_HASH(map) ((map)->map_type == BPF_MAP_TYPE_HASH_OF_MAPS)
+ #define IS_FD_MAP(map) (IS_FD_ARRAY(map) || IS_FD_HASH(map))
+ 
++#define BPF_OBJ_FLAG_MASK   (BPF_F_RDONLY | BPF_F_WRONLY)
++
+ DEFINE_PER_CPU(int, bpf_prog_active);
+ static DEFINE_IDR(prog_idr);
+ static DEFINE_SPINLOCK(prog_idr_lock);
+@@ -294,17 +296,48 @@ static void bpf_map_show_fdinfo(struct seq_file *m, struct file *filp)
+ }
+ #endif
+ 
++static ssize_t bpf_dummy_read(struct file *filp, char __user *buf, size_t siz,
++			      loff_t *ppos)
++{
++	/* We need this handler such that alloc_file() enables
++	 * f_mode with FMODE_CAN_READ.
++	 */
++	return -EINVAL;
++}
++
++static ssize_t bpf_dummy_write(struct file *filp, const char __user *buf,
++			       size_t siz, loff_t *ppos)
++{
++	/* We need this handler such that alloc_file() enables
++	 * f_mode with FMODE_CAN_WRITE.
++	 */
++	return -EINVAL;
++}
++
+ static const struct file_operations bpf_map_fops = {
+ #ifdef CONFIG_PROC_FS
+ 	.show_fdinfo	= bpf_map_show_fdinfo,
+ #endif
+ 	.release	= bpf_map_release,
++	.read		= bpf_dummy_read,
++	.write		= bpf_dummy_write,
+ };
+ 
+-int bpf_map_new_fd(struct bpf_map *map)
++int bpf_map_new_fd(struct bpf_map *map, int flags)
+ {
+ 	return anon_inode_getfd("bpf-map", &bpf_map_fops, map,
+-				O_RDWR | O_CLOEXEC);
++				flags | O_CLOEXEC);
++}
++
++int bpf_get_file_flag(int flags)
++{
++	if ((flags & BPF_F_RDONLY) && (flags & BPF_F_WRONLY))
++		return -EINVAL;
++	if (flags & BPF_F_RDONLY)
++		return O_RDONLY;
++	if (flags & BPF_F_WRONLY)
++		return O_WRONLY;
++	return O_RDWR;
+ }
+ 
+ /* helper macro to check that unused fields 'union bpf_attr' are zero */
+@@ -344,12 +377,17 @@ static int map_create(union bpf_attr *attr)
+ {
+ 	int numa_node = bpf_map_attr_numa_node(attr);
+ 	struct bpf_map *map;
++	int f_flags;
+ 	int err;
+ 
+ 	err = CHECK_ATTR(BPF_MAP_CREATE);
+ 	if (err)
+ 		return -EINVAL;
+ 
++	f_flags = bpf_get_file_flag(attr->map_flags);
++	if (f_flags < 0)
++		return f_flags;
++
+ 	if (numa_node != NUMA_NO_NODE &&
+ 	    ((unsigned int)numa_node >= nr_node_ids ||
+ 	     !node_online(numa_node)))
+@@ -375,7 +413,7 @@ static int map_create(union bpf_attr *attr)
+ 	if (err)
+ 		goto free_map;
+ 
+-	err = bpf_map_new_fd(map);
++	err = bpf_map_new_fd(map, f_flags);
+ 	if (err < 0) {
+ 		/* failed to allocate fd.
+ 		 * bpf_map_put() is needed because the above
+@@ -490,6 +528,11 @@ static int map_lookup_elem(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	if (!(f.file->f_mode & FMODE_CAN_READ)) {
++		err = -EPERM;
++		goto err_put;
++	}
++
+ 	key = memdup_user(ukey, map->key_size);
+ 	if (IS_ERR(key)) {
+ 		err = PTR_ERR(key);
+@@ -570,6 +613,11 @@ static int map_update_elem(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	if (!(f.file->f_mode & FMODE_CAN_WRITE)) {
++		err = -EPERM;
++		goto err_put;
++	}
++
+ 	key = memdup_user(ukey, map->key_size);
+ 	if (IS_ERR(key)) {
+ 		err = PTR_ERR(key);
+@@ -659,6 +707,11 @@ static int map_delete_elem(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	if (!(f.file->f_mode & FMODE_CAN_WRITE)) {
++		err = -EPERM;
++		goto err_put;
++	}
++
+ 	key = memdup_user(ukey, map->key_size);
+ 	if (IS_ERR(key)) {
+ 		err = PTR_ERR(key);
+@@ -702,6 +755,11 @@ static int map_get_next_key(union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
++	if (!(f.file->f_mode & FMODE_CAN_READ)) {
++		err = -EPERM;
++		goto err_put;
++	}
++
+ 	if (ukey) {
+ 		key = memdup_user(ukey, map->key_size);
+ 		if (IS_ERR(key)) {
+@@ -908,6 +966,8 @@ static const struct file_operations bpf_prog_fops = {
+ 	.show_fdinfo	= bpf_prog_show_fdinfo,
+ #endif
+ 	.release	= bpf_prog_release,
++	.read		= bpf_dummy_read,
++	.write		= bpf_dummy_write,
+ };
+ 
+ int bpf_prog_new_fd(struct bpf_prog *prog)
+@@ -1117,11 +1177,11 @@ static int bpf_prog_load(union bpf_attr *attr)
+ 	return err;
+ }
+ 
+-#define BPF_OBJ_LAST_FIELD bpf_fd
++#define BPF_OBJ_LAST_FIELD file_flags
+ 
+ static int bpf_obj_pin(const union bpf_attr *attr)
+ {
+-	if (CHECK_ATTR(BPF_OBJ))
++	if (CHECK_ATTR(BPF_OBJ) || attr->file_flags != 0)
+ 		return -EINVAL;
+ 
+ 	return bpf_obj_pin_user(attr->bpf_fd, u64_to_user_ptr(attr->pathname));
+@@ -1129,10 +1189,12 @@ static int bpf_obj_pin(const union bpf_attr *attr)
+ 
+ static int bpf_obj_get(const union bpf_attr *attr)
+ {
+-	if (CHECK_ATTR(BPF_OBJ) || attr->bpf_fd != 0)
++	if (CHECK_ATTR(BPF_OBJ) || attr->bpf_fd != 0 ||
++	    attr->file_flags & ~BPF_OBJ_FLAG_MASK)
+ 		return -EINVAL;
+ 
+-	return bpf_obj_get_user(u64_to_user_ptr(attr->pathname));
++	return bpf_obj_get_user(u64_to_user_ptr(attr->pathname),
++				attr->file_flags);
+ }
+ 
+ #ifdef CONFIG_CGROUP_BPF
+@@ -1392,20 +1454,26 @@ static int bpf_prog_get_fd_by_id(const union bpf_attr *attr)
+ 	return fd;
+ }
+ 
+-#define BPF_MAP_GET_FD_BY_ID_LAST_FIELD map_id
++#define BPF_MAP_GET_FD_BY_ID_LAST_FIELD open_flags
+ 
+ static int bpf_map_get_fd_by_id(const union bpf_attr *attr)
+ {
+ 	struct bpf_map *map;
+ 	u32 id = attr->map_id;
++	int f_flags;
+ 	int fd;
+ 
+-	if (CHECK_ATTR(BPF_MAP_GET_FD_BY_ID))
++	if (CHECK_ATTR(BPF_MAP_GET_FD_BY_ID) ||
++	    attr->open_flags & ~BPF_OBJ_FLAG_MASK)
+ 		return -EINVAL;
+ 
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
++	f_flags = bpf_get_file_flag(attr->open_flags);
++	if (f_flags < 0)
++		return f_flags;
++
+ 	spin_lock_bh(&map_idr_lock);
+ 	map = idr_find(&map_idr, id);
+ 	if (map)
+@@ -1417,7 +1485,7 @@ static int bpf_map_get_fd_by_id(const union bpf_attr *attr)
+ 	if (IS_ERR(map))
+ 		return PTR_ERR(map);
+ 
+-	fd = bpf_map_new_fd(map);
++	fd = bpf_map_new_fd(map, f_flags);
+ 	if (fd < 0)
+ 		bpf_map_put(map);
+ 
+diff --git a/net/netfilter/xt_bpf.c b/net/netfilter/xt_bpf.c
+index 29123934887b..041da0d9c06f 100644
+--- a/net/netfilter/xt_bpf.c
++++ b/net/netfilter/xt_bpf.c
+@@ -56,7 +56,7 @@ static int __bpf_mt_check_path(const char *path, struct bpf_prog **ret)
+ 	int retval, fd;
+ 
+ 	set_fs(KERNEL_DS);
+-	fd = bpf_obj_get_user(path);
++	fd = bpf_obj_get_user(path, 0);
+ 	set_fs(oldfs);
+ 	if (fd < 0)
+ 		return fd;
+-- 
+2.15.0.rc1.287.g2b38de12cc-goog
