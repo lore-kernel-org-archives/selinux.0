@@ -1,127 +1,70 @@
-Message-ID: <1508269837.21073.4.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>, Nicolas Iooss
- <nicolas.iooss@m4x.org>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Tue, 17 Oct 2017 15:50:37 -0400
-In-Reply-To: <CAFftDdqD-tCZrSu2yB37p0BrtKu7avKes_W5OLmEGCO9ofWt0A@mail.gmail.com>
-References: <CAFftDdoa-iO3E62FSefdnARHGVzLE4znzaFfSd2Q=9bhdG3=eQ@mail.gmail.com>
- <1507841294.30307.4.camel@tycho.nsa.gov>
- <CAFftDdpFtE3fDPJxYTb5Q7Ooa3UpEHAHzRJYee60a_QsNxngiw@mail.gmail.com>
- <CAJfZ7=n7j6kbxd2SGW3FjxMr=EZSiYdttG9mfotUt0F3UFEdgQ@mail.gmail.com>
- <CAFftDdqD-tCZrSu2yB37p0BrtKu7avKes_W5OLmEGCO9ofWt0A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Date: Wed, 18 Oct 2017 13:47:29 +0100 (WEST)
+Message-Id: <20171018.134729.837318478487425125.davem@davemloft.net>
+To: chenbofeng.kernel@gmail.com
+Cc: netdev@vger.kernel.org, Selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, jeffv@google.com,
+ alexei.starovoitov@gmail.com, lorenzo@google.com, daniel@iogearbox.net,
+ sds@tycho.nsa.gov, james.l.morris@oracle.com, paul@paul-moore.com,
+ fengc@google.com
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20171016191135.8046-1-chenbofeng.kernel@gmail.com>
+References: <20171016191135.8046-1-chenbofeng.kernel@gmail.com>
 Mime-Version: 1.0
-Subject: Re: travis CI
+Content-Type: Text/Plain; charset=us-ascii
+Subject: Re: [PATCH net-next v6 0/5] bpf: security: New file mode
+ and LSM hooks for eBPF object permission control
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-10-17 at 11:49 -0700, William Roberts wrote:
-> On Sun, Oct 15, 2017 at 5:10 AM, Nicolas Iooss <nicolas.iooss@m4x.org
-> > wrote:
-> > On Fri, Oct 13, 2017 at 1:50 AM, William Roberts
-> > <bill.c.roberts@gmail.com> wrote:
-> > > On Thu, Oct 12, 2017 at 1:48 PM, Stephen Smalley <sds@tycho.nsa.g
-> > > ov> wrote:
-> > > > On Thu, 2017-10-12 at 11:29 -0700, William Roberts wrote:
-> > > > > I see a travis.yml file, recently modified by Nicolas, but I
-> > > > > failed
-> > > > > to
-> > > > > find the Travis CI instance on travis.org, where is it?
-> > > > > 
-> > > > > We should likely have it running on commits to the repo and
-> > > > > PRs so we
-> > > > > can have some independent way of verifying that our run of
-> > > > > the tests
-> > > > > was compromised by some env variation or mistake.
-> > > > > 
-> > > > > Thoughts?
-> > > > 
-> > > > To date he has just run it on his own fork.  Not opposed to
-> > > > enabling
-> > > > it, just haven't looked into that...
-> > > 
-> > > I have done it for my some of my projects, Ill go ahead and set
-> > > this up.
-> > 
-> > I configured Travis-CI to test the branches in my Github repository
-> > a
-> > little more than one year ago, after several build configurations
-> > got
-> > broken (clang on Linux for example). I later added more features to
-> > it
-> > (for example warning about missing .gitignore entries, testing
-> > several
-> > Ruby and Python versions, etc), before I upstreamed my .travis.yml
-> > file (a few months ago). When I did it, my main motivation was to
-> > simplify the job of anyone who would want to configure a CI system
-> > on
-> > the project (the building rules and dependencies should be quite
-> > similar). Using a continuous integration system is useful to
-> > prevent
-> > simple regression issues which would otherwise only be detected
-> > when
-> > someone running a specific configuration tries to build the
-> > project.
-> > 
-> > Before asking to enable Travis-CI on the main SELinux repository, I
-> > wanted to make sure it was stable/reliable enough. To do this, I
-> > created a branch named "travis-upstream" in my repository, which
-> > tracked the master branch of the main repository. All went well for
-> > quite some time, until Travis-CI modified this summer their
-> > environments, introducing some incompatibilities with projects
-> > which
-> > use several programming languages. Thankfully these changes have
-> > been
-> > documented in Travis-CI's blog and I updated the config file to fix
-> > the builds with commits b1ea8120832d ("Travis-CI: use sugulite
-> > environment") and 6d9258e5a05f ("Travis-CI: fix configuration after
-> > September's update"). As Travis-CI does not seem to want to support
-> > multi-language projects (cf.
-> > https://github.com/travis-ci/travis-ci/issues/4090 for example),
-> > more
-> > breaking changes could be introduced as the provided environment
-> > are
-> > upgraded. Nevertheless I expect that such changes are quite easily
-> > fixable.
-> > 
-> > In short, using a CI platform is useful and Travis-CI is a free one
-> > which makes it possible to test several build configurations (I
-> > also
-> > tried Circle-CI, which did not provide a similar feature) and
-> > maintaining a working configuration does not require much effort.
-> > Moreover when a Travis-CI job fails, the log contains the console
-> > output which usually is very clear about what has gone wrong.
-> > Travis-CI now also provides Docker images which help reproducing
-> > issues and understanding their cause without needing to submit a
-> > new
-> > job.
-> > 
-> > If you want to set this platform up for SELinux userspace project,
-> > please go ahead :)
-> > 
-> > Cheers,
-> > Nicolas
-> > 
-> 
-> I tried to turn it on in travis, but got the message:
-> 
-> This is not an active repository
-> 
-> You don't have sufficient rights to enable this repo on Travis.
-> Please contact the admin to enable it or to receive admin rights
-> yourself.
-> 
-> Stephen maybe you can do this, or grant me the permissions?
-> 
-> You should be able to go here:
-> https://travis-ci.org
-> 
-> And login, and then in your organization for selinux flip the switch
-> for travis. Once it's on, and working, we can add the badge to the
-> README
-> file for build status.
+From: Chenbo Feng <chenbofeng.kernel@gmail.com>
+Date: Mon, 16 Oct 2017 12:11:30 -0700
 
-Enabled now for the selinux repo.
+> Much like files and sockets, eBPF objects are accessed, controlled, and
+> shared via a file descriptor (FD). Unlike files and sockets, the
+> existing mechanism for eBPF object access control is very limited.
+> Currently there are two options for granting accessing to eBPF
+> operations: grant access to all processes, or only CAP_SYS_ADMIN
+> processes. The CAP_SYS_ADMIN-only mode is not ideal because most users
+> do not have this capability and granting a user CAP_SYS_ADMIN grants too
+> many other security-sensitive permissions. It also unnecessarily allows
+> all CAP_SYS_ADMIN processes access to eBPF functionality. Allowing all
+> processes to access to eBPF objects is also undesirable since it has
+> potential to allow unprivileged processes to consume kernel memory, and
+> opens up attack surface to the kernel.
+> 
+> Adding LSM hooks maintains the status quo for systems which do not use
+> an LSM, preserving compatibility with userspace, while allowing security
+> modules to choose how best to handle permissions on eBPF objects. Here
+> is a possible use case for the lsm hooks with selinux module:
+> 
+> The network-control daemon (netd) creates and loads an eBPF object for
+> network packet filtering and analysis. It passes the object FD to an
+> unprivileged network monitor app (netmonitor), which is not allowed to
+> create, modify or load eBPF objects, but is allowed to read the traffic
+> stats from the map.
+> 
+> Selinux could use these hooks to grant the following permissions:
+> allow netd self:bpf_map { create read write};
+> allow netmonitor netd:fd use;
+> allow netmonitor netd:bpf_map read;
+> 
+> In this patch series, A file mode is added to bpf map to store the
+> accessing mode. With this file mode flags, the map can be obtained read
+> only, write only or read and write. With the help of this file mode,
+> several security hooks can be added to the eBPF syscall implementations
+> to do permissions checks. These LSM hooks are mainly focused on checking
+> the process privileges before it obtains the fd for a specific bpf
+> object. No matter from a file location or from a eBPF id. Besides that,
+> a general check hook is also implemented at the start of bpf syscalls so
+> that each security module can have their own implementation on the reset
+> of bpf object related functionalities.
+> 
+> In order to store the ownership and security information about eBPF
+> maps, a security field pointer is added to the struct bpf_map. And the
+> last two patch set are implementation of selinux check on these hooks
+> introduced, plus an additional check when eBPF object is passed between
+> processes using unix socket as well as binder IPC.
+
+Series applied.
