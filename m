@@ -1,16 +1,18 @@
-Date: Thu, 19 Oct 2017 12:49:59 +1100 (AEDT)
-From: James Morris <james.l.morris@oracle.com>
-To: David Miller <davem@davemloft.net>
-cc: chenbofeng.kernel@gmail.com, netdev@vger.kernel.org, Selinux@tycho.nsa.gov,
+Message-ID: <59E874F1.6040609@iogearbox.net>
+Date: Thu, 19 Oct 2017 11:48:33 +0200
+From: Daniel Borkmann <daniel@iogearbox.net>
+MIME-Version: 1.0
+To: James Morris <james.l.morris@oracle.com>,
+ David Miller <davem@davemloft.net>
+CC: chenbofeng.kernel@gmail.com, netdev@vger.kernel.org, Selinux@tycho.nsa.gov,
  linux-security-module@vger.kernel.org, jeffv@google.com,
- alexei.starovoitov@gmail.com, lorenzo@google.com, daniel@iogearbox.net,
- sds@tycho.nsa.gov, paul@paul-moore.com, fengc@google.com
-In-Reply-To: <20171018.134729.837318478487425125.davem@davemloft.net>
-Message-ID: <alpine.LFD.2.20.1710191248100.1108@t440.gateway.2wire.net>
+ alexei.starovoitov@gmail.com, lorenzo@google.com, sds@tycho.nsa.gov,
+ paul@paul-moore.com, fengc@google.com
 References: <20171016191135.8046-1-chenbofeng.kernel@gmail.com>
  <20171018.134729.837318478487425125.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+ <alpine.LFD.2.20.1710191248100.1108@t440.gateway.2wire.net>
+In-Reply-To: <alpine.LFD.2.20.1710191248100.1108@t440.gateway.2wire.net>
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Subject: Re: [PATCH net-next v6 0/5] bpf: security: New file mode
  and LSM hooks for eBPF object permission control
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -18,17 +20,21 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 18 Oct 2017, David Miller wrote:
+On 10/19/2017 03:49 AM, James Morris wrote:
+> On Wed, 18 Oct 2017, David Miller wrote:
+>
+>> Series applied.
+>
+> I hadn't gotten to reviewing this patchset yet.
+>
+> Please wait for more acks/reviews from LSM folk for things touching
+> security/, next time.
 
-> Series applied.
+It didn't get applied yet due to a build error, v7 is pending here
+if you want to take a look (the series is already on the lists with
+multiple feedback rounds since beginning of Oct):
 
-I hadn't gotten to reviewing this patchset yet.
+   http://patchwork.ozlabs.org/project/netdev/list/?series=8967
 
-Please wait for more acks/reviews from LSM folk for things touching 
-security/, next time.
-
-
-
--- 
-James Morris
-<james.l.morris@oracle.com>
+Thanks,
+Daniel
