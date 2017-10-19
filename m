@@ -1,313 +1,399 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9JHX1L1029278
- for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 13:33:01 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 3yHvSx4DrNzrKb7
- for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 16:26:41 +0000 (UTC)
-Received: from UPBD19PA12.eemsg.mil (unknown [192.168.18.16])
- by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 3yHvSx347lzrKb4
- for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 16:26:41 +0000 (UTC)
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov
-Date: Thu, 19 Oct 2017 16:57:47 +0100
-Message-Id: <20171019155747.26673-1-richard_c_haines@btinternet.com>
-Subject: [RFC PATCH 1/1] selinux-testsuite: Add CALIPSO/IPv6 tests
+MIME-Version: 1.0
+In-Reply-To: <1508423206.17050.4.camel@tycho.nsa.gov>
+References: <20171017163328.117702-1-dcashman@android.com>
+ <1508423206.17050.4.camel@tycho.nsa.gov>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Thu, 19 Oct 2017 09:25:17 -0700
+Message-ID: <CAFftDdpVWRO2oKH=OdAMwipnMQkOhPrE3HLxxt1BdXEBG2L1OA@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Daniel Cashman <dcashman@android.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ Daniel Cashman <dcashman@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v3] selinux: libselinux: Enable multiple input
+ files to selabel_open.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add CALIPSO tests to inet_socket.
+On Thu, Oct 19, 2017 at 7:26 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Tue, 2017-10-17 at 09:33 -0700, Daniel Cashman wrote:
+>> From: Dan Cashman <dcashman@google.com>
+>>
+>> The file_contexts labeling backend, specified in label_file.c,
+>> currently assumes
+>> that only one path will be specified as an option to
+>> selabel_open().  The split
+>> of platform and non-platform policy on device, however, will
+>> necessitate the
+>> loading of two disparate policy files.  Rather than combining the
+>> files and then
+>> calling the existing API on a newly-formed file, just add the ability
+>> to specify
+>> multiple files to use.  Order of opt specification to selabel_open
+>> matters.
+>>
+>> This corresponds to AOSP commit
+>> 50400d38203e4db08314168e60c281cc61a717a8, which
+>> lead to a fork with upstream, which we'd like to correct.
+>>
+>> Signed-off-by: Dan Cashman <dcashman@android.com>
+>> ---
+>>  libselinux/src/label.c          |  21 +++++---
+>>  libselinux/src/label_db.c       |  13 ++++-
+>>  libselinux/src/label_file.c     | 104 +++++++++++++++++++++++++++++-
+>> ----------
+>>  libselinux/src/label_internal.h |   5 +-
+>>  libselinux/src/label_media.c    |  10 +++-
+>>  libselinux/src/label_x.c        |  10 +++-
+>>  6 files changed, 124 insertions(+), 39 deletions(-)
+>>
+>> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+>> index 48f4d2d6..0dfa054c 100644
+>> --- a/libselinux/src/label.c
+>> +++ b/libselinux/src/label.c
+>> @@ -143,7 +143,11 @@ static int selabel_fini(struct selabel_handle
+>> *rec,
+>>                           struct selabel_lookup_rec *lr,
+>>                           int translating)
+>>  {
+>> -     if (compat_validate(rec, lr, rec->spec_file, 0))
+>> +     char *path = NULL;
+>> +
+>> +     if (rec->spec_files)
+>> +             path = rec->spec_files[0];
+>> +     if (compat_validate(rec, lr, path, 0))
+>>               return -1;
+>>
+>>       if (translating && !lr->ctx_trans &&
+>> @@ -226,11 +230,9 @@ struct selabel_handle *selabel_open(unsigned int
+>> backend,
+>>       rec->digest = selabel_is_digest_set(opts, nopts, rec-
+>> >digest);
+>>
+>>       if ((*initfuncs[backend])(rec, opts, nopts)) {
+>> -             free(rec->spec_file);
+>> -             free(rec);
+>> +             selabel_close(rec);
+>>               rec = NULL;
+>>       }
+>> -
+>>  out:
+>>       return rec;
+>>  }
+>> @@ -337,10 +339,17 @@ int selabel_digest(struct selabel_handle *rec,
+>>
+>>  void selabel_close(struct selabel_handle *rec)
+>>  {
+>> +     size_t i;
+>> +
+>> +     if (rec->spec_files) {
+>> +             for (i = 0; i < rec->spec_files_len; i++)
+>> +                     free(rec->spec_files[i]);
+>> +             free(rec->spec_files);
+>> +     }
+>>       if (rec->digest)
+>>               selabel_digest_fini(rec->digest);
+>> -     rec->func_close(rec);
+>> -     free(rec->spec_file);
+>> +     if (rec->func_close)
+>> +             rec->func_close(rec);
+>>       free(rec);
+>>  }
+>>
+>> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+>> index c46d0a1d..9a35abea 100644
+>> --- a/libselinux/src/label_db.c
+>> +++ b/libselinux/src/label_db.c
+>> @@ -290,7 +290,18 @@ db_init(const struct selinux_opt *opts, unsigned
+>> nopts,
+>>               errno = EINVAL;
+>>               return NULL;
+>>       }
+>> -     rec->spec_file = strdup(path);
+>> +     rec->spec_files_len = 1;
+>> +     rec->spec_files = calloc(rec->spec_files_len, sizeof(rec-
+>> >spec_files[0]));
+>> +     if (!rec->spec_files) {
+>> +             free(catalog);
+>> +             return NULL;
+>> +     }
+>> +     rec->spec_files[0] = strdup(path);
+>> +     if (!rec->spec_files[0]) {
+>> +             free(catalog);
+>> +             free(rec->spec_files);
+>> +             return NULL;
+>> +     }
+>>
+>>       /*
+>>        * Parse for each lines
+>> diff --git a/libselinux/src/label_file.c
+>> b/libselinux/src/label_file.c
+>> index 560d8c3d..b3b36bc2 100644
+>> --- a/libselinux/src/label_file.c
+>> +++ b/libselinux/src/label_file.c
+>> @@ -709,28 +709,61 @@ static int init(struct selabel_handle *rec,
+>> const struct selinux_opt *opts,
+>>               unsigned n)
+>>  {
+>>       struct saved_data *data = (struct saved_data *)rec->data;
+>> -     const char *path = NULL;
+>> +     size_t num_paths = 0;
+>> +     char **path = NULL;
+>>       const char *prefix = NULL;
+>> -     int status = -1, baseonly = 0;
+>> +     int status = -1;
+>> +     size_t i;
+>> +     bool baseonly = false;
+>> +     bool path_provided;
+>>
+>>       /* Process arguments */
+>> -     while (n--)
+>> -             switch(opts[n].type) {
+>> +     i = n;
+>> +     while (i--)
+>> +             switch(opts[i].type) {
+>>               case SELABEL_OPT_PATH:
+>> -                     path = opts[n].value;
+>> +                     num_paths++;
+>>                       break;
+>>               case SELABEL_OPT_SUBSET:
+>> -                     prefix = opts[n].value;
+>> +                     prefix = opts[i].value;
+>>                       break;
+>>               case SELABEL_OPT_BASEONLY:
+>> -                     baseonly = !!opts[n].value;
+>> +                     baseonly = !!opts[i].value;
+>>                       break;
+>>               }
+>>
+>> +     if (!num_paths) {
+>> +             num_paths = 1;
+>> +             path_provided = false;
+>> +     } else {
+>> +             path_provided = true;
+>> +     }
+>> +
+>> +     path = calloc(num_paths, sizeof(*path));
+>> +     if (path == NULL) {
+>> +             goto finish;
+>> +     }
+>> +     rec->spec_files = path;
+>> +     rec->spec_files_len = num_paths;
+>> +
+>> +     if (path_provided) {
+>> +             for (i = 0; i < n; i++) {
+>> +                     switch(opts[i].type) {
+>> +                     case SELABEL_OPT_PATH:
+>> +                             *path = strdup(opts[i].value);
+>
+> Perhaps surprisingly, opts[i].value can be NULL here and some callers
+> rely on that.  After applying your patch, coreutils, selabel_lookup,
+> and other userspace programs all seg fault as a result.  The use case
+> is programs where the selinux_opt structure is declared with a
+> SELABEL_OPT_PATH entry whose value is subsequently filled in, and left
+> NULL if they want to use the default path for file_contexts.
+> Internally, libselinux also does this from the
+> matchpathcon_init_prefix() function.
+>
+> In any event, you need to handle this case.
+>
 
-Note the CALIPSO/IPv6 datagram tests check whether the kernel patch
-described in "Add SCM_SECURITY support to IPv6" [1] is installed.
+Poor Stephen has turned into your test bot :-)
 
-[1] https://github.com/SELinuxProject/selinux-kernel/issues/24
+Does any of the test suite exercise this? Maybe make a PR
+on github first to get Travis to test these?
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- tests/inet_socket/Makefile      |   3 +
- tests/inet_socket/calipso-flush |   5 ++
- tests/inet_socket/calipso-load  |   7 +++
- tests/inet_socket/server.c      |  67 +++++++++++++++++------
- tests/inet_socket/test          | 118 ++++++++++++++++++++++++++++++++++++----
- 5 files changed, 173 insertions(+), 27 deletions(-)
- create mode 100644 tests/inet_socket/calipso-flush
- create mode 100644 tests/inet_socket/calipso-load
+Stephen can you share with how your testing this so Dan can follow
+suit?
 
-diff --git a/tests/inet_socket/Makefile b/tests/inet_socket/Makefile
-index 5bfd561..a0a0d47 100644
---- a/tests/inet_socket/Makefile
-+++ b/tests/inet_socket/Makefile
-@@ -3,5 +3,8 @@ TARGETS=client server bind connect
- LDLIBS+= -lselinux
- 
- all: $(TARGETS)
-+	chmod +x *-load
-+	chmod +x *-flush
-+
- clean:
- 	rm -f $(TARGETS)
-diff --git a/tests/inet_socket/calipso-flush b/tests/inet_socket/calipso-flush
-new file mode 100644
-index 0000000..5143962
---- /dev/null
-+++ b/tests/inet_socket/calipso-flush
-@@ -0,0 +1,5 @@
-+#!/bin/sh
-+# Reset NetLabel configuration to unlabeled after CALIPSO/IPv6 tests.
-+netlabelctl map del default
-+netlabelctl calipso del doi:16
-+netlabelctl map add default protocol:unlbl
-diff --git a/tests/inet_socket/calipso-load b/tests/inet_socket/calipso-load
-new file mode 100644
-index 0000000..4bb9c7f
---- /dev/null
-+++ b/tests/inet_socket/calipso-load
-@@ -0,0 +1,7 @@
-+#!/bin/sh
-+# Define a doi for testing loopback for CALIPSO/IPv6.
-+netlabelctl calipso add pass doi:16
-+netlabelctl map del default
-+netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
-+netlabelctl map add default address:::/0 protocol:unlbl
-+netlabelctl map add default address:::1 protocol:calipso,16
-diff --git a/tests/inet_socket/server.c b/tests/inet_socket/server.c
-index 2801397..f7e38c8 100644
---- a/tests/inet_socket/server.c
-+++ b/tests/inet_socket/server.c
-@@ -10,6 +10,9 @@
- #include <stdio.h>
- #include <stdbool.h>
- 
-+ /* Defines IPV6_PASSSEC if kernel supports IPV6 cmsg_type */
-+#include <linux/in6.h>
-+
- #ifndef SO_PEERSEC
- #define SO_PEERSEC 31
- #endif
-@@ -79,11 +82,25 @@ int main(int argc, char **argv)
- 		perror("socket");
- 		exit(1);
- 	}
--	result = setsockopt(sock, SOL_IP, IP_PASSSEC, &on, sizeof(on));
--	if (result < 0) {
--		perror("setsockopt: SO_PASSSEC");
--		close(sock);
--		exit(1);
-+
-+	/* Allow retrival of IPv4 and IPv6 UDP/Datagram security contexts */
-+	if (hints.ai_socktype == SOCK_DGRAM) {
-+		result = setsockopt(sock, SOL_IP, IP_PASSSEC, &on, sizeof(on));
-+		if (result < 0) {
-+			perror("setsockopt: IP_PASSSEC");
-+			close(sock);
-+			exit(1);
-+		}
-+
-+#ifdef IPV6_PASSSEC
-+		result = setsockopt(sock, SOL_IPV6, IPV6_PASSSEC, &on,
-+				    sizeof(on));
-+		if (result < 0) {
-+			perror("setsockopt: IPV6_PASSSEC");
-+			close(sock);
-+			exit(1);
-+		}
-+#endif
- 	}
- 
- 	result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
-@@ -176,18 +193,34 @@ int main(int argc, char **argv)
- 			}
- 			if (nopeer) {
- 				strcpy(msglabel, "nopeer");
--			}
--			for (cmsg = CMSG_FIRSTHDR(&msg); cmsg;
--			     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
--				if (cmsg->cmsg_level == SOL_IP &&
--				    cmsg->cmsg_type == SCM_SECURITY) {
--					size_t len = cmsg->cmsg_len - CMSG_LEN(0);
--
--					if (len > 0 && len < sizeof(msglabel)) {
--						memcpy(msglabel, CMSG_DATA(cmsg), len);
--						msglabel[len] = 0;
--						printf("%s: Got SCM_SECURITY=%s\n",
--						       argv[0], msglabel);
-+			} else {
-+				for (cmsg = CMSG_FIRSTHDR(&msg); cmsg;
-+				     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-+#ifdef IPV6_PASSSEC
-+					if ((cmsg->cmsg_level == SOL_IP &&
-+					    cmsg->cmsg_type == SCM_SECURITY) ||
-+					    (cmsg->cmsg_level == SOL_IPV6 &&
-+					    cmsg->cmsg_type == IPV6_PASSSEC)) {
-+#else
-+					if (cmsg->cmsg_level == SOL_IP &&
-+					    cmsg->cmsg_type == SCM_SECURITY) {
-+#endif
-+						size_t len = cmsg->cmsg_len - CMSG_LEN(0);
-+
-+						if (len > 0 && len < sizeof(msglabel)) {
-+							memcpy(msglabel, CMSG_DATA(cmsg), len);
-+							msglabel[len] = 0;
-+#ifdef IPV6_PASSSEC
-+							printf("%s: Got %s=%s\n",
-+							       argv[0],
-+							       cmsg->cmsg_type == SCM_SECURITY ?
-+							       "SCM_SECURITY" : "IPV6_PASSSEC",
-+							       msglabel);
-+#else
-+							printf("%s: Got SCM_SECURITY=%s\n",
-+							       argv[0], msglabel);
-+#endif
-+						}
- 					}
- 				}
- 			}
-diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-index 81d0959..736e064 100755
---- a/tests/inet_socket/test
-+++ b/tests/inet_socket/test
-@@ -2,19 +2,53 @@
- use Test::More;
- 
- BEGIN {
--    # check if ip xfrm supports ctx parameter
--    if ( system("ip xfrm policy help 2>&1 | grep -q ctx") != 0 ) {
--        plan skip_all => "ctx not supported in ip xfrm policy";
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    $test_count = 25;
-+
-+    $test_ipsec = 0;
-+    if (system("ip xfrm policy help 2>&1 | grep -q ctx") != 0) {
-+        print "ctx not supported in ip xfrm policy";
-+    } else {
-+        $test_count += 8;
-+        $test_ipsec = 1;
-     }
--    else {
--        plan tests => 33;
-+
-+    # Determine if CALIPSO supported by netlabelctl(8) and kernel.
-+    $test_calipso_stream = 0;
-+    $test_calipso_dgram = 0;
-+    $netlabelctl = `netlabelctl -V`;
-+    $netlabelctl =~ s/\D//g;
-+    $kvercur = `uname -r`;
-+    chomp($kvercur);
-+    $kverminstream = "4.8";
-+
-+    $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
-+    if ($netlabelctl gt "021" and $rc > 0) {
-+        $test_count += 4;
-+        $test_calipso_stream = 1;
-+
-+        # Check if socket option IPV6_PASSSEC defined for datagram support
-+        my $filename = '/usr/include/linux/in6.h';
-+        $entry = 'IPV6_PASSSEC';
-+        if (open(my $fh, '<:encoding(UTF-8)', $filename)) {
-+            while (defined(my $row = <$fh>) and $test_calipso_dgram eq 0) {
-+                chomp $row;
-+                if ($row =~ /\b$entry\b/){
-+	            $test_calipso_dgram = 1;
-+                    $test_count += 4;
-+                }
-+            }
-+        }
-+    } else {
-+        print "calipso not supported\n";
-     }
--}
- 
--$basedir = $0;
--$basedir =~ s|(.*)/[^/]*|$1|;
-+    plan tests => $test_count;
-+}
- 
--# Load NetLabel configuration for full CIPSO4 labeling over loopback.
-+# Load NetLabel configuration for full CIPSO/IPv4 labeling over loopback.
- system "$basedir/cipso-fl-load";
- 
- # Start the stream server.
-@@ -60,7 +94,7 @@ kill TERM, $pid;
- # Flush NetLabel configuration.
- system "$basedir/cipso-fl-flush";
- 
--# Load NetLabel configuration for CIPSO4 over loopback.
-+# Load NetLabel configuration for CIPSO/IPv4 over loopback.
- system "$basedir/cipso-load";
- 
- # Start the stream server with a defined level.
-@@ -293,4 +327,68 @@ kill TERM, $pid;
- # Flush iptables configuration.
- system "$basedir/iptables-flush";
- 
-+if ($test_calipso_stream) {
-+    # Load NetLabel configuration for CALIPSO/IPv6 labeling over loopback.
-+    system "$basedir/calipso-load";
-+
-+    # Start the stream server.
-+    if (($pid = fork()) == 0) {
-+        exec "runcon -t test_inet_server_t -l s0:c0.c10 $basedir/server stream 65535";
-+    }
-+
-+    sleep 1; # Give it a moment to initialize.
-+    # Verify that authorized client can communicate with the server.
-+    $result = system "runcon -t test_inet_client_t -l s0:c0.c10 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c0.c10 stream ::1 65535";
-+    ok($result eq 0);
-+
-+    # Verify that authorized client can communicate with the server using different valid level.
-+    $result = system "runcon -t test_inet_client_t -l s0:c8.c10 $basedir/client -e  system_u:object_r:netlabel_peer_t:s0:c8.c10 stream ::1 65535";
-+    ok($result eq 0);
-+
-+    # Verify that authorized client cannot communicate with the server using invalid level.
-+    $result = system "runcon -t test_inet_client_t -l s0:c8.c12 -- $basedir/client stream ::1 65535 2>&1";
-+    ok($result);
-+
-+    # CALIPSO does not support mixed DGRAM->STREAM.
-+    $result = system "runcon -t test_inet_client_t -l s0:c8.c10 $basedir/client -e  system_u:object_r:netlabel_peer_t:s0:c8.c10 dgram ::1 65535 2>&1";
-+    ok($result);
-+
-+    # Kill the stream server.
-+    kill TERM, $pid;
-+
-+    system "$basedir/calipso-flush";
-+}
-+
-+if ($test_calipso_dgram) {
-+    system "$basedir/calipso-load";
-+
-+    # Start the dgram server.
-+    if (($pid = fork()) == 0) {
-+        exec "runcon -t test_inet_server_t -l s0:c20.c50 $basedir/server dgram 65535";
-+    }
-+
-+    sleep 1; # Give it a moment to initialize
-+
-+    # Verify that authorized client can communicate with the server using same levels.
-+    $result = system "runcon -t test_inet_client_t -l s0:c20.c50 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c20.c50 dgram ::1 65535";
-+    ok($result eq 0);
-+
-+    # CALIPSO does not allow client to communicate with server using different valid levels.
-+    $result = system "runcon -t test_inet_client_t -l s0:c22.c30 $basedir/client -e  system_u:object_r:netlabel_peer_t:s0:c22.c30 dgram ::1 65535 2>&1";
-+    ok($result);
-+
-+    # Verify that authorized client cannot communicate with the server using invalid level.
-+    $result = system "runcon -t test_inet_client_t -l s0:c40.c51 -- $basedir/client dgram ::1 65535 2>&1";
-+    ok($result);
-+
-+    # CALIPSO does not support mixed STREAM->DGRAM.
-+    $result = system "runcon -t test_inet_client_t -l s0:c20.c50 $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c20.c50 stream ::1 65535 2>&1";
-+    ok($result);
-+
-+    # Kill the dgram server.
-+    kill TERM, $pid;
-+
-+    system "$basedir/calipso-flush";
-+}
-+
- exit;
--- 
-2.13.6
+
+>> +                             if (*path == NULL)
+>> +                                     goto finish;
+>> +                             path++;
+>> +                             break;
+>> +                     default:
+>> +                             break;
+>> +                     }
+>> +             }
+>> +     }
+>>  #if !defined(BUILD_HOST) && !defined(ANDROID)
+>>       char subs_file[PATH_MAX + 1];
+>>       /* Process local and distribution substitution files */
+>> -     if (!path) {
+>> +     if (!path_provided) {
+>>               status = selabel_subs_init(
+>>                       selinux_file_context_subs_dist_path(),
+>>                       rec->digest, &data->dist_subs);
+>> @@ -740,43 +773,52 @@ static int init(struct selabel_handle *rec,
+>> const struct selinux_opt *opts,
+>>                       rec->digest, &data->subs);
+>>               if (status)
+>>                       goto finish;
+>> -             path = selinux_file_context_path();
+>> +             rec->spec_files[0] =
+>> strdup(selinux_file_context_path());
+>> +             if (rec->spec_files[0] == NULL)
+>> +                     goto finish;
+>>       } else {
+>> -             snprintf(subs_file, sizeof(subs_file),
+>> "%s.subs_dist", path);
+>> -             status = selabel_subs_init(subs_file, rec->digest,
+>> +             for (i = 0; i < num_paths; i++) {
+>> +                     snprintf(subs_file, sizeof(subs_file),
+>> "%s.subs_dist", rec->spec_files[i]);
+>> +                     status = selabel_subs_init(subs_file, rec-
+>> >digest,
+>>                                          &data->dist_subs);
+>> -             if (status)
+>> -                     goto finish;
+>> -             snprintf(subs_file, sizeof(subs_file), "%s.subs",
+>> path);
+>> -             status = selabel_subs_init(subs_file, rec->digest,
+>> +                     if (status)
+>> +                             goto finish;
+>> +                     snprintf(subs_file, sizeof(subs_file),
+>> "%s.subs", rec->spec_files[i]);
+>> +                     status = selabel_subs_init(subs_file, rec-
+>> >digest,
+>>                                          &data->subs);
+>> -             if (status)
+>> -                     goto finish;
+>> +                     if (status)
+>> +                             goto finish;
+>> +             }
+>> +     }
+>> +#else
+>> +     if (!path_provided) {
+>> +             selinux_log(SELINUX_ERROR, "No path given to file
+>> labeling backend\n");
+>> +             goto finish;
+>>       }
+>> -
+>>  #endif
+>> -     rec->spec_file = strdup(path);
+>>
+>>       /*
+>> -      * The do detailed validation of the input and fill the spec
+>> array
+>> +      * Do detailed validation of the input and fill the spec
+>> array
+>>        */
+>> -     status = process_file(path, NULL, rec, prefix, rec->digest);
+>> -     if (status)
+>> -             goto finish;
+>> -
+>> -     if (rec->validating) {
+>> -             status = nodups_specs(data, path);
+>> +     for (i = 0; i < num_paths; i++) {
+>> +             status = process_file(rec->spec_files[i], NULL, rec,
+>> prefix, rec->digest);
+>>               if (status)
+>>                       goto finish;
+>> +
+>> +             if (rec->validating) {
+>> +                     status = nodups_specs(data, rec-
+>> >spec_files[i]);
+>> +                     if (status)
+>> +                             goto finish;
+>> +             }
+>>       }
+>>
+>>       if (!baseonly) {
+>> -             status = process_file(path, "homedirs", rec, prefix,
+>> +             status = process_file(rec->spec_files[0],
+>> "homedirs", rec, prefix,
+>>                                                           rec-
+>> >digest);
+>>               if (status && errno != ENOENT)
+>>                       goto finish;
+>>
+>> -             status = process_file(path, "local", rec, prefix,
+>> +             status = process_file(rec->spec_files[0], "local",
+>> rec, prefix,
+>>                                                           rec-
+>> >digest);
+>>               if (status && errno != ENOENT)
+>>                       goto finish;
+>> @@ -804,6 +846,12 @@ static void closef(struct selabel_handle *rec)
+>>       struct stem *stem;
+>>       unsigned int i;
+>>
+>> +     if (!data)
+>> +             return;
+>> +
+>> +     /* make sure successive ->func_close() calls are harmless */
+>> +     rec->data = NULL;
+>> +
+>>       selabel_subs_fini(data->subs);
+>>       selabel_subs_fini(data->dist_subs);
+>>
+>> diff --git a/libselinux/src/label_internal.h
+>> b/libselinux/src/label_internal.h
+>> index c55efb75..43b63513 100644
+>> --- a/libselinux/src/label_internal.h
+>> +++ b/libselinux/src/label_internal.h
+>> @@ -98,10 +98,11 @@ struct selabel_handle {
+>>       void *data;
+>>
+>>       /*
+>> -      * The main spec file used. Note for file contexts the local
+>> and/or
+>> +      * The main spec file(s) used. Note for file contexts the
+>> local and/or
+>>        * homedirs could also have been used to resolve a context.
+>>        */
+>> -     char *spec_file;
+>> +     size_t spec_files_len;
+>> +     char **spec_files;
+>>
+>>       /* ptr to SHA1 hash information if SELABEL_OPT_DIGEST set */
+>>       struct selabel_digest *digest;
+>> diff --git a/libselinux/src/label_media.c
+>> b/libselinux/src/label_media.c
+>> index d202e5d5..34260cbb 100644
+>> --- a/libselinux/src/label_media.c
+>> +++ b/libselinux/src/label_media.c
+>> @@ -100,7 +100,15 @@ static int init(struct selabel_handle *rec,
+>> const struct selinux_opt *opts,
+>>               errno = EINVAL;
+>>               return -1;
+>>       }
+>> -     rec->spec_file = strdup(path);
+>> +     rec->spec_files_len = 1;
+>> +     rec->spec_files = calloc(rec->spec_files_len, sizeof(rec-
+>> >spec_files[0]));
+>> +     if (!rec->spec_files)
+>> +             return -1;
+>> +     rec->spec_files[0] = strdup(path);
+>> +     if (!rec->spec_files[0]) {
+>> +             free(rec->spec_files);
+>> +             return -1;
+>> +     }
+>>
+>>       /*
+>>        * Perform two passes over the specification file.
+>> diff --git a/libselinux/src/label_x.c b/libselinux/src/label_x.c
+>> index 96745299..fafe034a 100644
+>> --- a/libselinux/src/label_x.c
+>> +++ b/libselinux/src/label_x.c
+>> @@ -127,7 +127,15 @@ static int init(struct selabel_handle *rec,
+>> const struct selinux_opt *opts,
+>>               errno = EINVAL;
+>>               return -1;
+>>       }
+>> -     rec->spec_file = strdup(path);
+>> +     rec->spec_files_len = 1;
+>> +     rec->spec_files = calloc(rec->spec_files_len, sizeof(rec-
+>> >spec_files[0]));
+>> +     if (!rec->spec_files)
+>> +             return -1;
+>> +     rec->spec_files[0] = strdup(path);
+>> +     if (!rec->spec_files[0]) {
+>> +             free(rec->spec_files);
+>> +             return -1;
+>> +     }
+>>
+>>       /*
+>>        * Perform two passes over the specification file.
