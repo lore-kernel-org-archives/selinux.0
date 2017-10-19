@@ -1,13 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9JNEml3005397
- for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 19:14:48 -0400
-Received: by mail-qk0-f202.google.com with SMTP id t5so9719008qkc.14
- for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 16:14:40 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9JNEml6005397
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 19:14:52 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3yJ4Wn2qDsz62r0
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 23:14:45 +0000 (UTC)
+Received: from UPBD19PA03.eemsg.mil (unknown [192.168.18.4])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3yJ4Wn1mjYz62qt
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 23:14:44 +0000 (UTC)
+Received: by mail-yw0-f201.google.com with SMTP id j4so7870004ywb.17
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 16:14:38 -0700 (PDT)
 MIME-Version: 1.0
-Date: Thu, 19 Oct 2017 16:14:33 -0700
-In-Reply-To: <20171019231433.11723-1-mjg59@google.com>
-Message-Id: <20171019231433.11723-2-mjg59@google.com>
-References: <20171019231433.11723-1-mjg59@google.com>
+Date: Thu, 19 Oct 2017 16:14:32 -0700
+Message-Id: <20171019231433.11723-1-mjg59@google.com>
 From: Matthew Garrett <mjg59@google.com>
 To: linux-integrity@vger.kernel.org
 Cc: Matthew Garrett <mjg59@google.com>, Paul Moore <paul@paul-moore.com>,
@@ -18,18 +22,15 @@ Cc: Matthew Garrett <mjg59@google.com>, Paul Moore <paul@paul-moore.com>,
  Mimi Zohar <zohar@linux.vnet.ibm.com>,
  Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: [PATCH 2/2] IMA: Support using new creds in appraisal policy
+Subject: [PATCH 1/2] security: Add a cred_getsecid hook
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The existing BPRM_CHECK functionality in IMA validates against the
-credentials of the existing process, not any new credentials that the
-child process may transition to. Add an additional CREDS_CHECK target
-and refactor IMA to pass the appropriate creds structure. In
-ima_bprm_check(), check with both the existing process credentials and
-the credentials that will be committed when the new process is started.
+For IMA purposes, we want to be able to obtain the prepared secid in the
+bprm structure before the credentials are committed. Add a cred_getsecid
+hook that makes this possible.
 
 Signed-off-by: Matthew Garrett <mjg59@google.com>
 Cc: Paul Moore <paul@paul-moore.com>
@@ -42,326 +43,134 @@ Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
 Cc: Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
 Cc: linux-integrity@vger.kernel.org
 ---
- V2: Fix the IMA_CRED_CHECK defines
- Documentation/ABI/testing/ima_policy  |  2 +-
- security/integrity/iint.c             |  1 +
- security/integrity/ima/ima.h          |  7 ++++---
- security/integrity/ima/ima_api.c      |  8 +++++---
- security/integrity/ima/ima_appraise.c | 10 +++++++++-
- security/integrity/ima/ima_main.c     | 26 +++++++++++++++++---------
- security/integrity/ima/ima_policy.c   | 19 ++++++++++++-------
- security/integrity/integrity.h        |  9 +++++++--
- 8 files changed, 56 insertions(+), 26 deletions(-)
+ V2: incorporate Casey's requested change
 
-diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-index e76432b9954d..5dc9eed035fb 100644
---- a/Documentation/ABI/testing/ima_policy
-+++ b/Documentation/ABI/testing/ima_policy
-@@ -25,7 +25,7 @@ Description:
- 				 [obj_user=] [obj_role=] [obj_type=]]
- 			option:	[[appraise_type=]] [permit_directio]
- 
--		base: 	func:= [BPRM_CHECK][MMAP_CHECK][FILE_CHECK][MODULE_CHECK]
-+		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
- 				[FIRMWARE_CHECK]
- 				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
- 			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
-diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-index 6fc888ca468e..ad30094a58b4 100644
---- a/security/integrity/iint.c
-+++ b/security/integrity/iint.c
-@@ -78,6 +78,7 @@ static void iint_free(struct integrity_iint_cache *iint)
- 	iint->ima_mmap_status = INTEGRITY_UNKNOWN;
- 	iint->ima_bprm_status = INTEGRITY_UNKNOWN;
- 	iint->ima_read_status = INTEGRITY_UNKNOWN;
-+	iint->ima_creds_status = INTEGRITY_UNKNOWN;
- 	iint->evm_status = INTEGRITY_UNKNOWN;
- 	iint->measured_pcrs = 0;
- 	kmem_cache_free(iint_cache, iint);
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index d52b487ad259..0703a96072b5 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -177,6 +177,7 @@ static inline unsigned long ima_hash_key(u8 *digest)
- 	hook(FILE_CHECK)		\
- 	hook(MMAP_CHECK)		\
- 	hook(BPRM_CHECK)		\
-+	hook(CREDS_CHECK)		\
- 	hook(POST_SETATTR)		\
- 	hook(MODULE_CHECK)		\
- 	hook(FIRMWARE_CHECK)		\
-@@ -191,7 +192,7 @@ enum ima_hooks {
- };
- 
- /* LIM API function definitions */
--int ima_get_action(struct inode *inode, int mask,
-+int ima_get_action(struct inode *inode, const struct cred *cred, int mask,
- 		   enum ima_hooks func, int *pcr);
- int ima_must_measure(struct inode *inode, int mask, enum ima_hooks func);
- int ima_collect_measurement(struct integrity_iint_cache *iint,
-@@ -212,8 +213,8 @@ void ima_free_template_entry(struct ima_template_entry *entry);
- const char *ima_d_path(const struct path *path, char **pathbuf, char *filename);
- 
- /* IMA policy related functions */
--int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
--		     int flags, int *pcr);
-+int ima_match_policy(struct inode *inode, const struct cred *cred,
-+		     enum ima_hooks func, int mask, int flags, int *pcr);
- void ima_init_policy(void);
- void ima_update_policy(void);
- void ima_update_policy_flag(void);
-diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
-index c2edba8de35e..ff33b7e65a07 100644
---- a/security/integrity/ima/ima_api.c
-+++ b/security/integrity/ima/ima_api.c
-@@ -157,6 +157,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
- /**
-  * ima_get_action - appraise & measure decision based on policy.
-  * @inode: pointer to inode to measure
-+ * @cred: pointer to credentials structure to validate
-  * @mask: contains the permission mask (MAY_READ, MAY_WRITE, MAY_EXEC,
-  *        MAY_APPEND)
-  * @func: caller identifier
-@@ -165,20 +166,21 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  * The policy is defined in terms of keypairs:
-  *		subj=, obj=, type=, func=, mask=, fsmagic=
-  *	subj,obj, and type: are LSM specific.
-- *	func: FILE_CHECK | BPRM_CHECK | MMAP_CHECK | MODULE_CHECK
-+ *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
-  *	mask: contains the permission mask
-  *	fsmagic: hex value
-  *
-  * Returns IMA_MEASURE, IMA_APPRAISE mask.
-  *
-  */
--int ima_get_action(struct inode *inode, int mask, enum ima_hooks func, int *pcr)
-+int ima_get_action(struct inode *inode, const struct cred *cred, int mask,
-+		   enum ima_hooks func, int *pcr)
- {
- 	int flags = IMA_MEASURE | IMA_AUDIT | IMA_APPRAISE;
- 
- 	flags &= ima_policy_flag;
- 
--	return ima_match_policy(inode, func, mask, flags, pcr);
-+	return ima_match_policy(inode, cred, func, mask, flags, pcr);
+ include/linux/lsm_hooks.h  |  6 ++++++
+ include/linux/security.h   |  1 +
+ security/security.c        |  7 +++++++
+ security/selinux/hooks.c   |  8 ++++++++
+ security/smack/smack_lsm.c | 15 +++++++++++++++
+ 5 files changed, 37 insertions(+)
+
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index c9258124e417..c28c6f8b65dc 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -554,6 +554,10 @@
+  *	@new points to the new credentials.
+  *	@old points to the original credentials.
+  *	Transfer data from original creds to new creds
++ * @cred_getsecid:
++ *	Retrieve the security identifier of the cred structure @c
++ *	@c contains the credentials, secid will be placed into @secid.
++ *	In case of failure, @secid will be set to zero.
+  * @kernel_act_as:
+  *	Set the credentials for a kernel service to act as (subjective context).
+  *	@new points to the credentials to be modified.
+@@ -1507,6 +1511,7 @@ union security_list_options {
+ 	int (*cred_prepare)(struct cred *new, const struct cred *old,
+ 				gfp_t gfp);
+ 	void (*cred_transfer)(struct cred *new, const struct cred *old);
++	void (*cred_getsecid)(const struct cred *c, u32 *secid);
+ 	int (*kernel_act_as)(struct cred *new, u32 secid);
+ 	int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
+ 	int (*kernel_module_request)(char *kmod_name);
+@@ -1779,6 +1784,7 @@ struct security_hook_heads {
+ 	struct list_head cred_free;
+ 	struct list_head cred_prepare;
+ 	struct list_head cred_transfer;
++	struct list_head cred_getsecid;
+ 	struct list_head kernel_act_as;
+ 	struct list_head kernel_create_files_as;
+ 	struct list_head kernel_read_file;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ce6265960d6c..14848fef8f62 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -324,6 +324,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+ void security_cred_free(struct cred *cred);
+ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
+ void security_transfer_creds(struct cred *new, const struct cred *old);
++void security_cred_getsecid(const struct cred *c, u32 *secid);
+ int security_kernel_act_as(struct cred *new, u32 secid);
+ int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+ int security_kernel_module_request(char *kmod_name);
+diff --git a/security/security.c b/security/security.c
+index 4bf0f571b4ef..02d217597400 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1004,6 +1004,13 @@ void security_transfer_creds(struct cred *new, const struct cred *old)
+ 	call_void_hook(cred_transfer, new, old);
  }
  
- /*
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index 809ba70fbbbf..137b8d1708c6 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -53,7 +53,8 @@ int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
- 	if (!ima_appraise)
- 		return 0;
- 
--	return ima_match_policy(inode, func, mask, IMA_APPRAISE, NULL);
-+	return ima_match_policy(inode, current_cred(), func, mask,
-+				IMA_APPRAISE, NULL);
- }
- 
- static int ima_fix_xattr(struct dentry *dentry,
-@@ -86,6 +87,8 @@ enum integrity_status ima_get_cache_status(struct integrity_iint_cache *iint,
- 		return iint->ima_mmap_status;
- 	case BPRM_CHECK:
- 		return iint->ima_bprm_status;
-+	case CREDS_CHECK:
-+		return iint->ima_creds_status;
- 	case FILE_CHECK:
- 	case POST_SETATTR:
- 		return iint->ima_file_status;
-@@ -106,6 +109,8 @@ static void ima_set_cache_status(struct integrity_iint_cache *iint,
- 	case BPRM_CHECK:
- 		iint->ima_bprm_status = status;
- 		break;
-+	case CREDS_CHECK:
-+		iint->ima_creds_status = status;
- 	case FILE_CHECK:
- 	case POST_SETATTR:
- 		iint->ima_file_status = status;
-@@ -127,6 +132,9 @@ static void ima_cache_flags(struct integrity_iint_cache *iint,
- 	case BPRM_CHECK:
- 		iint->flags |= (IMA_BPRM_APPRAISED | IMA_APPRAISED);
- 		break;
-+	case CREDS_CHECK:
-+		iint->flags |= (IMA_CREDS_APPRAISED | IMA_APPRAISED);
-+		break;
- 	case FILE_CHECK:
- 	case POST_SETATTR:
- 		iint->flags |= (IMA_FILE_APPRAISED | IMA_APPRAISED);
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index 2aebb7984437..f41aa427792b 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -155,8 +155,9 @@ void ima_file_free(struct file *file)
- 	ima_check_last_writer(iint, inode, file);
- }
- 
--static int process_measurement(struct file *file, char *buf, loff_t size,
--			       int mask, enum ima_hooks func, int opened)
-+static int process_measurement(struct file *file, const struct cred *cred,
-+			       char *buf, loff_t size, int mask,
-+			       enum ima_hooks func, int opened)
- {
- 	struct inode *inode = file_inode(file);
- 	struct integrity_iint_cache *iint = NULL;
-@@ -178,7 +179,7 @@ static int process_measurement(struct file *file, char *buf, loff_t size,
- 	 * bitmask based on the appraise/audit/measurement policy.
- 	 * Included is the appraise submask.
- 	 */
--	action = ima_get_action(inode, mask, func, &pcr);
-+	action = ima_get_action(inode, cred, mask, func, &pcr);
- 	violation_check = ((func == FILE_CHECK || func == MMAP_CHECK) &&
- 			   (ima_policy_flag & IMA_MEASURE));
- 	if (!action && !violation_check)
-@@ -282,8 +283,8 @@ static int process_measurement(struct file *file, char *buf, loff_t size,
- int ima_file_mmap(struct file *file, unsigned long prot)
- {
- 	if (file && (prot & PROT_EXEC))
--		return process_measurement(file, NULL, 0, MAY_EXEC,
--					   MMAP_CHECK, 0);
-+		return process_measurement(file, current_cred(), NULL, 0,
-+					   MAY_EXEC, MMAP_CHECK, 0);
- 	return 0;
- }
- 
-@@ -302,8 +303,14 @@ int ima_file_mmap(struct file *file, unsigned long prot)
-  */
- int ima_bprm_check(struct linux_binprm *bprm)
- {
--	return process_measurement(bprm->file, NULL, 0, MAY_EXEC,
--				   BPRM_CHECK, 0);
-+	int ret;
++void security_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	*secid = 0;
++	call_void_hook(cred_getsecid, c, secid);
++}
++EXPORT_SYMBOL(security_cred_getsecid);
 +
-+	ret = process_measurement(bprm->file, current_cred(), NULL, 0,
-+				  MAY_EXEC, BPRM_CHECK, 0);
-+	if (ret)
-+		return ret;
-+	return process_measurement(bprm->file, bprm->cred, NULL, 0,
-+				   MAY_EXEC, CREDS_CHECK, 0);
+ int security_kernel_act_as(struct cred *new, u32 secid)
+ {
+ 	return call_int_hook(kernel_act_as, 0, new, secid);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f5d304736852..1d11679674a6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3836,6 +3836,13 @@ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+ 	*tsec = *old_tsec;
  }
  
++static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	rcu_read_lock();
++	*secid = cred_sid(c);
++	rcu_read_unlock();
++}
++
+ /*
+  * set the security data for a kernel service
+  * - all the creation contexts are set to unlabelled
+@@ -6338,6 +6345,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(cred_free, selinux_cred_free),
+ 	LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
+ 	LSM_HOOK_INIT(cred_transfer, selinux_cred_transfer),
++	LSM_HOOK_INIT(cred_getsecid, selinux_cred_getsecid),
+ 	LSM_HOOK_INIT(kernel_act_as, selinux_kernel_act_as),
+ 	LSM_HOOK_INIT(kernel_create_files_as, selinux_kernel_create_files_as),
+ 	LSM_HOOK_INIT(kernel_module_request, selinux_kernel_module_request),
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 286171a16ed2..ed1bbf201e2f 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2049,6 +2049,20 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
+ 	/* cbs copy rule list */
+ }
+ 
++/**
++ * smack_cred_getsecid - get the secid corresponding to a creds structure
++ * @c: the object creds
++ * @secid: where to put the result
++ *
++ * Sets the secid to contain a u32 version of the smack label.
++ */
++static void smack_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	rcu_read_lock();
++	*secid = smk_of_task(c->security);
++	rcu_read_unlock();
++}
++
  /**
-@@ -318,7 +325,7 @@ int ima_bprm_check(struct linux_binprm *bprm)
-  */
- int ima_file_check(struct file *file, int mask, int opened)
- {
--	return process_measurement(file, NULL, 0,
-+	return process_measurement(file, current_cred(), NULL, 0,
- 				   mask & (MAY_READ | MAY_WRITE | MAY_EXEC |
- 					   MAY_APPEND), FILE_CHECK, opened);
- }
-@@ -413,7 +420,8 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
- 	}
- 
- 	func = read_idmap[read_id] ?: FILE_CHECK;
--	return process_measurement(file, buf, size, MAY_READ, func, 0);
-+	return process_measurement(file, current_cred(), buf, size, MAY_READ,
-+				   func, 0);
- }
- 
- static int __init init_ima(void)
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 95209a5f8595..c9d5735711eb 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -247,10 +247,9 @@ static void ima_lsm_update_rules(void)
-  * Returns true on rule match, false on failure.
-  */
- static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
--			    enum ima_hooks func, int mask)
-+			    const struct cred *cred, enum ima_hooks func,
-+			    int mask)
- {
--	struct task_struct *tsk = current;
--	const struct cred *cred = current_cred();
- 	int i;
- 
- 	if ((rule->flags & IMA_FUNC) &&
-@@ -305,7 +304,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
--			security_task_getsecid(tsk, &sid);
-+			security_cred_getsecid(cred, &sid);
- 			rc = security_filter_rule_match(sid,
- 							rule->lsm[i].type,
- 							Audit_equal,
-@@ -339,6 +338,8 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
- 		return IMA_MMAP_APPRAISE;
- 	case BPRM_CHECK:
- 		return IMA_BPRM_APPRAISE;
-+	case CREDS_CHECK:
-+		return IMA_CREDS_APPRAISE;
- 	case FILE_CHECK:
- 	case POST_SETATTR:
- 		return IMA_FILE_APPRAISE;
-@@ -351,6 +352,8 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
- /**
-  * ima_match_policy - decision based on LSM and other conditions
-  * @inode: pointer to an inode for which the policy decision is being made
-+ * @cred: pointer to a credentials structure for which the policy decision is
-+ *        being made
-  * @func: IMA hook identifier
-  * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_EXEC)
-  * @pcr: set the pcr to extend
-@@ -362,8 +365,8 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
-  * list when walking it.  Reads are many orders of magnitude more numerous
-  * than writes so ima_match_policy() is classical RCU candidate.
-  */
--int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
--		     int flags, int *pcr)
-+int ima_match_policy(struct inode *inode, const struct cred *cred,
-+		     enum ima_hooks func, int mask, int flags, int *pcr)
- {
- 	struct ima_rule_entry *entry;
- 	int action = 0, actmask = flags | (flags << 1);
-@@ -374,7 +377,7 @@ int ima_match_policy(struct inode *inode, enum ima_hooks func, int mask,
- 		if (!(entry->action & actmask))
- 			continue;
- 
--		if (!ima_match_rules(entry, inode, func, mask))
-+		if (!ima_match_rules(entry, inode, cred, func, mask))
- 			continue;
- 
- 		action |= entry->flags & IMA_ACTION_FLAGS;
-@@ -691,6 +694,8 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
- 				entry->func = MMAP_CHECK;
- 			else if (strcmp(args[0].from, "BPRM_CHECK") == 0)
- 				entry->func = BPRM_CHECK;
-+			else if (strcmp(args[0].from, "CREDS_CHECK") == 0)
-+				entry->func = CREDS_CHECK;
- 			else if (strcmp(args[0].from, "KEXEC_KERNEL_CHECK") ==
- 				 0)
- 				entry->func = KEXEC_KERNEL_CHECK;
-diff --git a/security/integrity/integrity.h b/security/integrity/integrity.h
-index a53e7e4ab06c..45ba0e4501d6 100644
---- a/security/integrity/integrity.h
-+++ b/security/integrity/integrity.h
-@@ -48,10 +48,14 @@
- #define IMA_BPRM_APPRAISED	0x00002000
- #define IMA_READ_APPRAISE	0x00004000
- #define IMA_READ_APPRAISED	0x00008000
-+#define IMA_CREDS_APPRAISE	0x00010000
-+#define IMA_CREDS_APPRAISED	0x00020000
- #define IMA_APPRAISE_SUBMASK	(IMA_FILE_APPRAISE | IMA_MMAP_APPRAISE | \
--				 IMA_BPRM_APPRAISE | IMA_READ_APPRAISE)
-+				 IMA_BPRM_APPRAISE | IMA_READ_APPRAISE | \
-+				 IMA_CREDS_APPRAISE)
- #define IMA_APPRAISED_SUBMASK	(IMA_FILE_APPRAISED | IMA_MMAP_APPRAISED | \
--				 IMA_BPRM_APPRAISED | IMA_READ_APPRAISED)
-+				 IMA_BPRM_APPRAISED | IMA_READ_APPRAISED | \
-+				 IMA_CREDS_APPRAISED)
- 
- enum evm_ima_xattr_type {
- 	IMA_XATTR_DIGEST = 0x01,
-@@ -108,6 +112,7 @@ struct integrity_iint_cache {
- 	enum integrity_status ima_mmap_status:4;
- 	enum integrity_status ima_bprm_status:4;
- 	enum integrity_status ima_read_status:4;
-+	enum integrity_status ima_creds_status:4;
- 	enum integrity_status evm_status:4;
- 	struct ima_digest_data *ima_hash;
- };
+  * smack_kernel_act_as - Set the subjective context in a set of credentials
+  * @new: points to the set of credentials to be modified.
+@@ -4651,6 +4665,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(cred_free, smack_cred_free),
+ 	LSM_HOOK_INIT(cred_prepare, smack_cred_prepare),
+ 	LSM_HOOK_INIT(cred_transfer, smack_cred_transfer),
++	LSM_HOOK_INIT(cred_getsecid, smack_cred_getsecid),
+ 	LSM_HOOK_INIT(kernel_act_as, smack_kernel_act_as),
+ 	LSM_HOOK_INIT(kernel_create_files_as, smack_kernel_create_files_as),
+ 	LSM_HOOK_INIT(task_setpgid, smack_task_setpgid),
 -- 
 2.15.0.rc0.271.g36b669edcc-goog
