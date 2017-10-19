@@ -1,36 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9JH8E8M015294
- for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 13:08:15 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9JHQBEL023918
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 13:26:11 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC07.oob.disa.mil (Postfix) with SMTP id 3yHvY42SbCz1wyJn
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 16:30:16 +0000 (UTC)
+Received: from UPBD19PA13.eemsg.mil (unknown [192.168.18.15])
+ by UPDCF3IC07.oob.disa.mil (Postfix) with ESMTP id 3yHvY409hFz1wyJg
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 16:30:16 +0000 (UTC)
 From: Richard Haines <richard_c_haines@btinternet.com>
 To: selinux@tycho.nsa.gov
-Date: Thu, 19 Oct 2017 16:57:31 +0100
-Message-Id: <20171019155731.26625-1-richard_c_haines@btinternet.com>
-Subject: [RFC PATCH 0/1] selinux-testsuite: Add CALIPSO/IPv6 tests
+Date: Thu, 19 Oct 2017 16:56:47 +0100
+Message-Id: <20171019155647.26565-1-richard_c_haines@btinternet.com>
+Subject: [PATCH] selinux-testsuite: Stop Infiniband building if not
+ enabled
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-I've tested this patch with and without the kernel patch described in
-"Add SCM_SECURITY support to IPv6" [1] over a few kernel releases (4.13.4
-was my latest test).
+The default is not to test, however it still tries to build
+create_modify_qp.c that requires a header and library that may not
+exist.
 
-Thought I would post and see how it goes as you may want the datagram
-support removed as the kernel patch has not been submitted yet.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ tests/infiniband_pkey/Makefile | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-[1] https://github.com/SELinuxProject/selinux-kernel/issues/24
-
-Richard Haines (1):
-  selinux-testsuite: Add CALIPSO/IPv6 tests
-
- tests/inet_socket/Makefile      |   3 +
- tests/inet_socket/calipso-flush |   5 ++
- tests/inet_socket/calipso-load  |   7 +++
- tests/inet_socket/server.c      |  67 +++++++++++++++++------
- tests/inet_socket/test          | 118 ++++++++++++++++++++++++++++++++++++----
- 5 files changed, 173 insertions(+), 27 deletions(-)
- create mode 100644 tests/inet_socket/calipso-flush
- create mode 100644 tests/inet_socket/calipso-load
-
+diff --git a/tests/infiniband_pkey/Makefile b/tests/infiniband_pkey/Makefile
+index 60f0d24..4fa6fb2 100644
+--- a/tests/infiniband_pkey/Makefile
++++ b/tests/infiniband_pkey/Makefile
+@@ -2,6 +2,14 @@ TARGETS=create_modify_qp
+ 
+ LDLIBS+= -libverbs
+ 
+-all: $(TARGETS)
++RESULT=$(shell grep "SELINUX_INFINIBAND_PKEY_TEST=0" ./ibpkey_test.conf)
++
++ifeq  ($(RESULT), )
++    all: $(TARGETS)
++else
++    all:
++	@echo "Infiniband test disabled"
++endif
++
+ clean:
+ 	rm -f $(TARGETS)
 -- 
 2.13.6
