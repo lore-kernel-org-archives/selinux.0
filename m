@@ -1,72 +1,53 @@
-Message-ID: <59E75C98.5080603@iogearbox.net>
-Date: Wed, 18 Oct 2017 15:52:24 +0200
-From: Daniel Borkmann <daniel@iogearbox.net>
-MIME-Version: 1.0
-To: Chenbo Feng <chenbofeng.kernel@gmail.com>, netdev@vger.kernel.org,
- SELinux <Selinux@tycho.nsa.gov>, linux-security-module@vger.kernel.org
-CC: Jeffrey Vander Stoep <jeffv@google.com>,
- Alexei Starovoitov <alexei.starovoitov@gmail.com>, lorenzo@google.com,
- Stephen Smalley <sds@tycho.nsa.gov>,
- James Morris <james.l.morris@oracle.com>,
- Paul Moore <paul@paul-moore.com>, Chenbo Feng <fengc@google.com>
-References: <20171016191135.8046-1-chenbofeng.kernel@gmail.com>
- <20171016191135.8046-2-chenbofeng.kernel@gmail.com>
-In-Reply-To: <20171016191135.8046-2-chenbofeng.kernel@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Subject: Re: [PATCH net-next v6 1/5] bpf: Add file mode
- configuration into bpf maps
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9J2Kp5j028573
+ for <selinux@tycho.nsa.gov>; Wed, 18 Oct 2017 22:20:51 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 3yHXht0btTzg47f
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 02:20:46 +0000 (UTC)
+Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 3yHXht01SQzg47W
+ for <selinux@tycho.nsa.gov>; Thu, 19 Oct 2017 02:20:46 +0000 (UTC)
+Received: by mail-pf0-f194.google.com with SMTP id i5so5376376pfe.6
+ for <selinux@tycho.nsa.gov>; Wed, 18 Oct 2017 19:20:44 -0700 (PDT)
+From: bill.c.roberts@gmail.com
+To: selinux@tycho.nsa.gov
+Cc: William Roberts <william.c.roberts@intel.com>
+Date: Wed, 18 Oct 2017 19:20:38 -0700
+Message-Id: <1508379638-19927-1-git-send-email-william.c.roberts@intel.com>
+Subject: [PATCH] CleanSpec.mk: remove
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hey Chenbo,
+From: William Roberts <william.c.roberts@intel.com>
 
-there's still one thing I noticed later one; would have sent a
-follow-up, but as you need to respin anyway for the build issue,
-here's what is still missing uapi-wise:
+The Android.mk files were removed but the CleanSpec.mk lingered on,
+remove it.
 
-On 10/16/2017 09:11 PM, Chenbo Feng wrote:
-[...]
-> +int bpf_get_file_flag(int flags)
-> +{
-> +	if ((flags & BPF_F_RDONLY) && (flags & BPF_F_WRONLY))
-> +		return -EINVAL;
-> +	if (flags & BPF_F_RDONLY)
-> +		return O_RDONLY;
-> +	if (flags & BPF_F_WRONLY)
-> +		return O_WRONLY;
-> +	return O_RDWR;
->   }
-[...]
-> -#define BPF_OBJ_LAST_FIELD bpf_fd
-> +#define BPF_OBJ_LAST_FIELD file_flags
->
->   static int bpf_obj_pin(const union bpf_attr *attr)
->   {
-> -	if (CHECK_ATTR(BPF_OBJ))
-> +	if (CHECK_ATTR(BPF_OBJ) || attr->file_flags != 0)
->   		return -EINVAL;
->
->   	return bpf_obj_pin_user(attr->bpf_fd, u64_to_user_ptr(attr->pathname));
-> @@ -1126,7 +1184,8 @@ static int bpf_obj_get(const union bpf_attr *attr)
->   	if (CHECK_ATTR(BPF_OBJ) || attr->bpf_fd != 0)
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
 
-Here, we also need to check and bail out on ...
+For those who whish to see the Travis-CI integration, go to:
+  https://github.com/SELinuxProject/selinux/pull/66
 
-attr->file_flags & ~(BPF_F_RDONLY | BPF_F_WRONLY)
+Travis will build both PRs and direct pushes to the tree:
+  https://travis-ci.org/SELinuxProject/selinux/jobs/289577844
 
-... otherwise we cannot extend it with more flags in future. Basically
-same principle for mask check you do on map creation, but not yet here.
+It currently builds a whopping 22 configurations and runs the
+unit test suites. Thanks Nicolas!
 
-The same is needed in bpf_map_get_fd_by_id(), too.
+ CleanSpec.mk | 2 --
+ 1 file changed, 2 deletions(-)
+ delete mode 100644 CleanSpec.mk
 
-The bpf_prog_get_fd_by_id() is covered since BPF_PROG_GET_FD_BY_ID_LAST_FIELD
-still points to prog_id, so ok.
-
->   		return -EINVAL;
-> -	return bpf_obj_get_user(u64_to_user_ptr(attr->pathname));
-> +	return bpf_obj_get_user(u64_to_user_ptr(attr->pathname),
-> +				attr->file_flags);
->   }
->
+diff --git a/CleanSpec.mk b/CleanSpec.mk
+deleted file mode 100644
+index 1ac5a62..0000000
+--- a/CleanSpec.mk
++++ /dev/null
+@@ -1,2 +0,0 @@
+-# This empty CleanSpec.mk file will prevent the build system
+-# from descending into subdirs.
+-- 
+2.7.4
