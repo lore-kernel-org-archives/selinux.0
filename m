@@ -1,150 +1,191 @@
-MIME-Version: 1.0
-In-Reply-To: <1508442389.17050.10.camel@tycho.nsa.gov>
-References: <20171017163328.117702-1-dcashman@android.com>
- <1508423206.17050.4.camel@tycho.nsa.gov>
- <CAFftDdpVWRO2oKH=OdAMwipnMQkOhPrE3HLxxt1BdXEBG2L1OA@mail.gmail.com>
- <1508437655.17050.8.camel@tycho.nsa.gov>
- <1508442389.17050.10.camel@tycho.nsa.gov>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Fri, 20 Oct 2017 00:12:15 +0200
-Message-ID: <CAJfZ7=m2Qd2DAk0UYWR=iLQ3tjaNHtDzzZMnv6RFc6Nx4Fs-0A@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- William Roberts <bill.c.roberts@gmail.com>
-Cc: Daniel Cashman <dcashman@google.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9KC7aw7012287
+ for <selinux@tycho.nsa.gov>; Fri, 20 Oct 2017 08:07:36 -0400
+Message-ID: <1508501095.8370.7.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Neil Horman <nhorman@tuxdriver.com>, Xin Long <lucien.xin@gmail.com>
+Cc: selinux@tycho.nsa.gov, network dev <netdev@vger.kernel.org>,
+ linux-sctp@vger.kernel.org, linux-security-module@vger.kernel.org
+Date: Fri, 20 Oct 2017 13:04:55 +0100
+In-Reply-To: <20171020111637.GA14713@neilslaptop.think-freely.org>
+References: <20171017135833.4292-1-richard_c_haines@btinternet.com>
+ <CADvbK_d+LKRQHZXn5LMy+4L0Nq+ZEkvHGk=zn3odUr7FrzvkBQ@mail.gmail.com>
+ <20171020111637.GA14713@neilslaptop.think-freely.org>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v3] selinux: libselinux: Enable multiple input
- files to selabel_open.
+Mime-Version: 1.0
+Subject: Re: [RFC PATCH 3/5] sctp: Add LSM hooks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Oct 19, 2017 at 9:46 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2017-10-19 at 14:27 -0400, Stephen Smalley wrote:
->> On Thu, 2017-10-19 at 09:25 -0700, William Roberts wrote:
->> > On Thu, Oct 19, 2017 at 7:26 AM, Stephen Smalley <sds@tycho.nsa.gov
->> > >
->> > wrote:
->> > > On Tue, 2017-10-17 at 09:33 -0700, Daniel Cashman wrote:
->> > > > [...]
->> > > > diff --git a/libselinux/src/label_file.c
->> > > > b/libselinux/src/label_file.c
->> > > > index 560d8c3d..b3b36bc2 100644
->> > > > --- a/libselinux/src/label_file.c
->> > > > +++ b/libselinux/src/label_file.c
->> > > > @@ -709,28 +709,61 @@ static int init(struct selabel_handle
->> > > > *rec,
->> > > > const struct selinux_opt *opts,
->> > > >               unsigned n)
->> > > >  {
->> > > >       struct saved_data *data = (struct saved_data *)rec->data;
->> > > > -     const char *path = NULL;
->> > > > +     size_t num_paths = 0;
->> > > > +     char **path = NULL;
->> > > >       const char *prefix = NULL;
->> > > > -     int status = -1, baseonly = 0;
->> > > > +     int status = -1;
->> > > > +     size_t i;
->> > > > +     bool baseonly = false;
->> > > > +     bool path_provided;
->> > > >
->> > > >       /* Process arguments */
->> > > > -     while (n--)
->> > > > -             switch(opts[n].type) {
->> > > > +     i = n;
->> > > > +     while (i--)
->> > > > +             switch(opts[i].type) {
->> > > >               case SELABEL_OPT_PATH:
->> > > > -                     path = opts[n].value;
->> > > > +                     num_paths++;
->> > > >                       break;
->> > > >               case SELABEL_OPT_SUBSET:
->> > > > -                     prefix = opts[n].value;
->> > > > +                     prefix = opts[i].value;
->> > > >                       break;
->> > > >               case SELABEL_OPT_BASEONLY:
->> > > > -                     baseonly = !!opts[n].value;
->> > > > +                     baseonly = !!opts[i].value;
->> > > >                       break;
->> > > >               }
->> > > >
->> > > > +     if (!num_paths) {
->> > > > +             num_paths = 1;
->> > > > +             path_provided = false;
->> > > > +     } else {
->> > > > +             path_provided = true;
->> > > > +     }
->> > > > +
->> > > > +     path = calloc(num_paths, sizeof(*path));
->> > > > +     if (path == NULL) {
->> > > > +             goto finish;
->> > > > +     }
->> > > > +     rec->spec_files = path;
->> > > > +     rec->spec_files_len = num_paths;
->> > > > +
->> > > > +     if (path_provided) {
->> > > > +             for (i = 0; i < n; i++) {
->> > > > +                     switch(opts[i].type) {
->> > > > +                     case SELABEL_OPT_PATH:
->> > > > +                             *path = strdup(opts[i].value);
->> > >
->> > > Perhaps surprisingly, opts[i].value can be NULL here and some
->> > > callers
->> > > rely on that.  After applying your patch, coreutils,
->> > > selabel_lookup,
->> > > and other userspace programs all seg fault as a result.  The use
->> > > case
->> > > is programs where the selinux_opt structure is declared with a
->> > > SELABEL_OPT_PATH entry whose value is subsequently filled in, and
->> > > left
->> > > NULL if they want to use the default path for file_contexts.
->> > > Internally, libselinux also does this from the
->> > > matchpathcon_init_prefix() function.
->> > >
->> > > In any event, you need to handle this case.
->> > >
->> >
->> > Poor Stephen has turned into your test bot :-)
->> >
->> > Does any of the test suite exercise this? Maybe make a PR
->> > on github first to get Travis to test these?
->>
->> Unfortunately the travis-ci tests don't catch this one currently.
->>
->> > Stephen can you share with how your testing this so Dan can follow
->> > suit?
->>
->> In this case, you could build and install to a private directory as
->> per
->> the README, then set your LD_LIBRARY_PATH=~/obj/lib or whatever and
->> run
->> selabel_lookup.
->
-> Ala:
-> $ make DESTDIR=~/obj install
-> $ LD_LIBRARY_PATH=~/obj/lib selabel_lookup -b file -k /etc
-> Segmentation fault (core dumped)
->
-> BTW, I guess this exposes another issue with the patch; there is no
-> support for exercising the new code included with it, e.g. an extension
-> to utils/selabel_lookup.c to permit specifying multiple input files via
-> multiple -f options.  Otherwise, we have no upstream way of testing it.
+On Fri, 2017-10-20 at 07:16 -0400, Neil Horman wrote:
+> On Wed, Oct 18, 2017 at 11:05:09PM +0800, Xin Long wrote:
+> > On Tue, Oct 17, 2017 at 9:58 PM, Richard Haines
+> > <richard_c_haines@btinternet.com> wrote:
+> > > Add security hooks to allow security modules to exercise access
+> > > control
+> > > over SCTP.
+> > > 
+> > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > > ---
+> > >  include/net/sctp/structs.h | 10 ++++++++
+> > >  include/uapi/linux/sctp.h  |  1 +
+> > >  net/sctp/sm_make_chunk.c   | 12 +++++++++
+> > >  net/sctp/sm_statefuns.c    | 14 ++++++++++-
+> > >  net/sctp/socket.c          | 61
+> > > +++++++++++++++++++++++++++++++++++++++++++++-
+> > >  5 files changed, 96 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/include/net/sctp/structs.h
+> > > b/include/net/sctp/structs.h
+> > > index 7767577..6e72e3e 100644
+> > > --- a/include/net/sctp/structs.h
+> > > +++ b/include/net/sctp/structs.h
+> > > @@ -1270,6 +1270,16 @@ struct sctp_endpoint {
+> > >               reconf_enable:1;
+> > > 
+> > >         __u8  strreset_enable;
+> > > +
+> > > +       /* Security identifiers from incoming (INIT). These are
+> > > set by
+> > > +        * security_sctp_assoc_request(). These will only be used
+> > > by
+> > > +        * SCTP TCP type sockets and peeled off connections as
+> > > they
+> > > +        * cause a new socket to be generated.
+> > > security_sctp_sk_clone()
+> > > +        * will then plug these into the new socket.
+> > > +        */
+> > > +
+> > > +       u32 secid;
+> > > +       u32 peer_secid;
+> > >  };
+> > > 
+> > >  /* Recover the outter endpoint structure. */
+> > > diff --git a/include/uapi/linux/sctp.h
+> > > b/include/uapi/linux/sctp.h
+> > > index 6217ff8..c04812f 100644
+> > > --- a/include/uapi/linux/sctp.h
+> > > +++ b/include/uapi/linux/sctp.h
+> > > @@ -122,6 +122,7 @@ typedef __s32 sctp_assoc_t;
+> > >  #define SCTP_RESET_ASSOC       120
+> > >  #define SCTP_ADD_STREAMS       121
+> > >  #define SCTP_SOCKOPT_PEELOFF_FLAGS 122
+> > > +#define SCTP_SENDMSG_CONNECT   123
+> > > 
+> > >  /* PR-SCTP policies */
+> > >  #define SCTP_PR_SCTP_NONE      0x0000
+> > > diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
+> > > index 6110447..ca4705b 100644
+> > > --- a/net/sctp/sm_make_chunk.c
+> > > +++ b/net/sctp/sm_make_chunk.c
+> > > @@ -3059,6 +3059,12 @@ static __be16
+> > > sctp_process_asconf_param(struct sctp_association *asoc,
+> > >                 if (af->is_any(&addr))
+> > >                         memcpy(&addr, &asconf->source,
+> > > sizeof(addr));
+> > > 
+> > > +               if (security_sctp_bind_connect(asoc->ep->base.sk,
+> > > +                                              SCTP_PARAM_ADD_IP,
+> > > +                                              (struct sockaddr
+> > > *)&addr,
+> > > +                                              af->sockaddr_len))
+> > > +                       return SCTP_ERROR_REQ_REFUSED;
+> > > +
+> > >                 /* ADDIP 4.3 D9) If an endpoint receives an ADD
+> > > IP address
+> > >                  * request and does not have the local resources
+> > > to add this
+> > >                  * new address to the association, it MUST return
+> > > an Error
+> > > @@ -3125,6 +3131,12 @@ static __be16
+> > > sctp_process_asconf_param(struct sctp_association *asoc,
+> > >                 if (af->is_any(&addr))
+> > >                         memcpy(&addr.v4, sctp_source(asconf),
+> > > sizeof(addr));
+> > > 
+> > > +               if (security_sctp_bind_connect(asoc->ep->base.sk,
+> > > +                                              SCTP_PARAM_SET_PRI
+> > > MARY,
+> > > +                                              (struct sockaddr
+> > > *)&addr,
+> > > +                                              af->sockaddr_len))
+> > > +                       return SCTP_ERROR_REQ_REFUSED;
+> > > +
+> > >                 peer = sctp_assoc_lookup_paddr(asoc, &addr);
+> > >                 if (!peer)
+> > >                         return SCTP_ERROR_DNS_FAILED;
+> > > diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+> > > index b2a74c3..4ba5805 100644
+> > > --- a/net/sctp/sm_statefuns.c
+> > > +++ b/net/sctp/sm_statefuns.c
+> > > @@ -314,6 +314,11 @@ sctp_disposition_t
+> > > sctp_sf_do_5_1B_init(struct net *net,
+> > >         sctp_unrecognized_param_t *unk_param;
+> > >         int len;
+> > > 
+> > > +       /* Update socket peer label if first association. */
+> > > +       if (security_sctp_assoc_request((struct sctp_endpoint
+> > > *)ep,
+> > > +                                       chunk->skb,
+> > > SCTP_CID_INIT))
+> > > +               return sctp_sf_pdiscard(net, ep, asoc, type, arg,
+> > > commands);
+> > > +
+> > >         /* 6.10 Bundling
+> > >          * An endpoint MUST NOT bundle INIT, INIT ACK or
+> > >          * SHUTDOWN COMPLETE with any other chunks.
+> > > @@ -446,7 +451,6 @@ sctp_disposition_t
+> > > sctp_sf_do_5_1B_init(struct net *net,
+> > >         }
+> > > 
+> > >         sctp_add_cmd_sf(commands, SCTP_CMD_NEW_ASOC,
+> > > SCTP_ASOC(new_asoc));
+> > > -
+> > >         sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+> > > SCTP_CHUNK(repl));
+> > > 
+> > >         /*
+> > > @@ -507,6 +511,11 @@ sctp_disposition_t
+> > > sctp_sf_do_5_1C_ack(struct net *net,
+> > >         struct sctp_chunk *err_chunk;
+> > >         struct sctp_packet *packet;
+> > > 
+> > > +       /* Update socket peer label if first association. */
+> > > +       if (security_sctp_assoc_request((struct sctp_endpoint
+> > > *)ep,
+> > > +                                       chunk->skb,
+> > > SCTP_CID_INIT_ACK))
+> > > +               return sctp_sf_pdiscard(net, ep, asoc, type, arg,
+> > > commands);
+> > > +
+> > 
+> > Just thinking security_sctp_assoc_request hook should also be in
+> > sctp_sf_do_unexpected_init() and sctp_sf_do_5_2_4_dupcook() ?
+> 
+> I agree, i think if this hook is gating on the creation of a new
+> association,
+> they should be in all the locations where that happens
+> Neil
 
-For selabel_lookup, it would be possible to write a test script (or a
-CUnit-based test program like libsepol and libsemanage have) which
-does not need an SELinux policy to be installed on the system, thanks
-to option -f.
-Nevertheless other parts of libselinux (and programs) can not
-currently be tested on a system without SELinux, as /etc/selinux and
-/sys/fs/selinux are needed. If we want to automatize the testing of
-such parts in a CI like Travis-CI, I suppose we would need to run a
-virtual machine with its own filesystem, a kernel with SELinux
-enabled, and some programs like coreutils compiled with the tested
-version of libselinux/libsepol/... As implementing such an idea may
-take quite a long time, would there be simpler ways to perform
-automatic testing of libselinux? Perhaps using another continuous
-integration system?
+Thanks for the comments. I've just added the hook as requested for my
+next update, however I have not managed to trigger these areas using
+the lksctp-tools tests. Can you suggest any suitable tools for testing
+these scenarios.
 
-Cheers,
-Nicolas
+Thanks
+Richard
+> 
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-
+> > sctp" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sctp" 
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
