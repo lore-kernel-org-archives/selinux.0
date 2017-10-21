@@ -1,8 +1,8 @@
-Date: Sat, 21 Oct 2017 11:03:02 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: Nicolas Belouin <nicolas@belouin.fr>
-Cc: Jan Kara <jack@suse.com>, "Theodore Ts'o" <tytso@mit.edu>,
- Andreas Dilger <adilger.kernel@dilger.ca>,
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9LHPpds020362
+ for <selinux@tycho.nsa.gov>; Sat, 21 Oct 2017 13:25:51 -0400
+To: Nicolas Belouin <nicolas@belouin.fr>, Jan Kara <jack@suse.com>,
+ "Theodore Ts'o" <tytso@mit.edu>, Andreas Dilger <adilger.kernel@dilger.ca>,
  Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
  David Woodhouse <dwmw2@infradead.org>,
  Dave Kleikamp <shaggy@kernel.org>, Mark Fasheh <mfasheh@versity.com>,
@@ -21,19 +21,21 @@ Cc: Jan Kara <jack@suse.com>, "Theodore Ts'o" <tytso@mit.edu>,
  linux-unionfs@vger.kernel.org, reiserfs-devel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  linux-api@vger.kernel.org, kernel-hardening@lists.openwall.com
-Message-ID: <20171021160302.GA2842@mail.hallyn.com>
 References: <20171021134558.21195-1-nicolas@belouin.fr>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <d3e1c911-138d-082a-b941-651217d0faf8@schaufler-ca.com>
+Date: Sat, 21 Oct 2017 10:25:21 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <20171021134558.21195-1-nicolas@belouin.fr>
-Subject: Re: [RFC PATCH 1/2] security,
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [kernel-hardening] [RFC PATCH 1/2] security,
  capabilities: create CAP_TRUSTED
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting Nicolas Belouin (nicolas@belouin.fr):
+On 10/21/2017 6:45 AM, Nicolas Belouin wrote:
 > with CAP_SYS_ADMIN being bloated, the usefulness of using it to
 > flag a process to be entrusted for e.g reading and writing trusted
 > xattr is near zero.
@@ -41,8 +43,47 @@ Quoting Nicolas Belouin (nicolas@belouin.fr):
 > entrusted to do specific (not specially admin-centered) actions. It
 > would for example allow a process to red/write the trusted xattrs.
 
-You say "for example".  Are you intending to add more uses?  If so, what
-are they?  If not, how about renaming it CAP_TRUSTED_XATTR?
+Please explain how this is different from CAP_MAC_ADMIN in
+any existing use case. If it is significantly different, how
+would the two interact?
 
-What all does allowing writes to trusted xattrs give you?  There are
-the overlayfs whiteouts, what else?
+> Signed-off-by: Nicolas Belouin <nicolas@belouin.fr>
+> ---
+>  include/uapi/linux/capability.h     | 6 +++++-
+>  security/selinux/include/classmap.h | 5 +++--
+>  2 files changed, 8 insertions(+), 3 deletions(-)
+>
+> diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+> index ce230aa6d928..27e457b93c84 100644
+> --- a/include/uapi/linux/capability.h
+> +++ b/include/uapi/linux/capability.h
+> @@ -369,7 +369,11 @@ struct vfs_ns_cap_data {
+>  
+>  #define CAP_SYS_MOUNT		38
+>  
+> -#define CAP_LAST_CAP         CAP_SYS_MOUNT
+> +/* Allow read/write trusted xattr */
+> +
+> +#define CAP_TRUSTED		39
+> +
+> +#define CAP_LAST_CAP         CAP_TRUSTED
+>  
+>  #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
+>  
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index a873dce97fd5..f5dc8e109f5a 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -24,9 +24,10 @@
+>  	    "audit_control", "setfcap"
+>  
+>  #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+> -		"wake_alarm", "block_suspend", "audit_read", "sys_mount"
+> +		"wake_alarm", "block_suspend", "audit_read", "sys_mount", \
+> +		"trusted"
+>  
+> -#if CAP_LAST_CAP > CAP_SYS_MOUNT
+> +#if CAP_LAST_CAP > CAP_TRUSTED
+>  #error New capability defined, please update COMMON_CAP2_PERMS.
+>  #endif
+>  
