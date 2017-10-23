@@ -1,381 +1,208 @@
-Message-ID: <1508790365.24902.9.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
-Date: Mon, 23 Oct 2017 16:26:05 -0400
-In-Reply-To: <20171019155747.26673-1-richard_c_haines@btinternet.com>
-References: <20171019155747.26673-1-richard_c_haines@btinternet.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9NNL1mx019525
+ for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2017 19:21:05 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3yLXSx0N54z14wTc
+ for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2017 23:20:49 +0000 (UTC)
+Received: from UPDC3CPA06.eemsg.mil (unknown [192.168.18.13])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3yLXSw6czHz14wTb
+ for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2017 23:20:48 +0000 (UTC)
+Received: by mail-lf0-f66.google.com with SMTP id n69so21941512lfn.2
+ for <selinux@tycho.nsa.gov>; Mon, 23 Oct 2017 16:20:48 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <20171016203709.11199-1-mjg59@google.com>
+References: <20171016203709.11199-1-mjg59@google.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 23 Oct 2017 19:20:44 -0400
+Message-ID: <CAHC9VhSsnPO+FBaUWOyAF=SxoNzy+nJZeGuWc-u9SrVR0VJOyA@mail.gmail.com>
+To: Matthew Garrett <mjg59@google.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ selinux@tycho.nsa.gov, Casey Schaufler <casey@schaufler-ca.com>,
+ linux-security-module@vger.kernel.org,
+ Mimi Zohar <zohar@linux.vnet.ibm.com>,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+ linux-integrity@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [RFC PATCH 1/1] selinux-testsuite: Add CALIPSO/IPv6 tests
+Subject: Re: [PATCH 1/2] security: Add a cred_getsecid hook
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-10-19 at 16:57 +0100, Richard Haines wrote:
-> Add CALIPSO tests to inet_socket.
-> 
-> Note the CALIPSO/IPv6 datagram tests check whether the kernel patch
-> described in "Add SCM_SECURITY support to IPv6" [1] is installed.
-> 
-> [1] https://github.com/SELinuxProject/selinux-kernel/issues/24
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+On Mon, Oct 16, 2017 at 4:37 PM, Matthew Garrett <mjg59@google.com> wrote:
+> For IMA purposes, we want to be able to obtain the prepared secid in the
+> bprm structure before the credentials are committed. Add a cred_getsecid
+> hook that makes this possible.
+>
+> Signed-off-by: Matthew Garrett <mjg59@google.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: selinux@tycho.nsa.gov
+> Cc: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: linux-security-module@vger.kernel.org
+> Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+> Cc: Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
+> Cc: linux-integrity@vger.kernel.org
 > ---
->  tests/inet_socket/Makefile      |   3 +
->  tests/inet_socket/calipso-flush |   5 ++
->  tests/inet_socket/calipso-load  |   7 +++
->  tests/inet_socket/server.c      |  67 +++++++++++++++++------
->  tests/inet_socket/test          | 118
-> ++++++++++++++++++++++++++++++++++++----
->  5 files changed, 173 insertions(+), 27 deletions(-)
->  create mode 100644 tests/inet_socket/calipso-flush
->  create mode 100644 tests/inet_socket/calipso-load
-> 
-> diff --git a/tests/inet_socket/Makefile b/tests/inet_socket/Makefile
-> index 5bfd561..a0a0d47 100644
-> --- a/tests/inet_socket/Makefile
-> +++ b/tests/inet_socket/Makefile
-> @@ -3,5 +3,8 @@ TARGETS=client server bind connect
->  LDLIBS+= -lselinux
->  
->  all: $(TARGETS)
-> +	chmod +x *-load
-> +	chmod +x *-flush
+>  include/linux/lsm_hooks.h  |  6 ++++++
+>  include/linux/security.h   |  1 +
+>  security/security.c        |  7 +++++++
+>  security/selinux/hooks.c   |  8 ++++++++
+>  security/smack/smack.h     | 10 ++++++++++
+>  security/smack/smack_lsm.c | 14 ++++++++++++++
+>  6 files changed, 46 insertions(+)
 
-Can't we just fix the created file mode in git and avoid running this
-all the time?  Alternatively, run the scripts explicitly via /bin/sh to
-remove the dependency on the file mode being set?
+No argument from me on the SELinux/LSM bits:
 
-> +
->  clean:
->  	rm -f $(TARGETS)
-> diff --git a/tests/inet_socket/calipso-flush
-> b/tests/inet_socket/calipso-flush
-> new file mode 100644
-> index 0000000..5143962
-> --- /dev/null
-> +++ b/tests/inet_socket/calipso-flush
-> @@ -0,0 +1,5 @@
-> +#!/bin/sh
-> +# Reset NetLabel configuration to unlabeled after CALIPSO/IPv6
-> tests.
-> +netlabelctl map del default
-> +netlabelctl calipso del doi:16
-> +netlabelctl map add default protocol:unlbl
-> diff --git a/tests/inet_socket/calipso-load
-> b/tests/inet_socket/calipso-load
-> new file mode 100644
-> index 0000000..4bb9c7f
-> --- /dev/null
-> +++ b/tests/inet_socket/calipso-load
-> @@ -0,0 +1,7 @@
-> +#!/bin/sh
-> +# Define a doi for testing loopback for CALIPSO/IPv6.
-> +netlabelctl calipso add pass doi:16
-> +netlabelctl map del default
-> +netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
-> +netlabelctl map add default address:::/0 protocol:unlbl
-> +netlabelctl map add default address:::1 protocol:calipso,16
-> diff --git a/tests/inet_socket/server.c b/tests/inet_socket/server.c
-> index 2801397..f7e38c8 100644
-> --- a/tests/inet_socket/server.c
-> +++ b/tests/inet_socket/server.c
-> @@ -10,6 +10,9 @@
->  #include <stdio.h>
->  #include <stdbool.h>
->  
-> + /* Defines IPV6_PASSSEC if kernel supports IPV6 cmsg_type */
-> +#include <linux/in6.h>
-> +
->  #ifndef SO_PEERSEC
->  #define SO_PEERSEC 31
->  #endif
-> @@ -79,11 +82,25 @@ int main(int argc, char **argv)
->  		perror("socket");
->  		exit(1);
->  	}
-> -	result = setsockopt(sock, SOL_IP, IP_PASSSEC, &on,
-> sizeof(on));
-> -	if (result < 0) {
-> -		perror("setsockopt: SO_PASSSEC");
-> -		close(sock);
-> -		exit(1);
-> +
-> +	/* Allow retrival of IPv4 and IPv6 UDP/Datagram security
-> contexts */
+Acked-by: Paul Moore <paul@paul-moore.com>
 
-retrieval
-
-> +	if (hints.ai_socktype == SOCK_DGRAM) {
-> +		result = setsockopt(sock, SOL_IP, IP_PASSSEC, &on,
-> sizeof(on));
-> +		if (result < 0) {
-> +			perror("setsockopt: IP_PASSSEC");
-> +			close(sock);
-> +			exit(1);
-> +		}
-> +
-> +#ifdef IPV6_PASSSEC
-> +		result = setsockopt(sock, SOL_IPV6, IPV6_PASSSEC,
-> &on,
-> +				    sizeof(on));
-> +		if (result < 0) {
-> +			perror("setsockopt: IPV6_PASSSEC");
-> +			close(sock);
-> +			exit(1);
-> +		}
-> +#endif
-
-Let's minimize use of #ifdef's here and throughout.  Same model as the
-kernel; wrap it up in a macro or static inline that can then be
-unconditionally called.  Also not sure we want this at all until it is
-in mainline or at least Paul's tree?
-
->  	}
->  
->  	result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on,
-> sizeof(on));
-> @@ -176,18 +193,34 @@ int main(int argc, char **argv)
->  			}
->  			if (nopeer) {
->  				strcpy(msglabel, "nopeer");
-> -			}
-> -			for (cmsg = CMSG_FIRSTHDR(&msg); cmsg;
-> -			     cmsg = CMSG_NXTHDR(&msg, cmsg)) {
-> -				if (cmsg->cmsg_level == SOL_IP &&
-> -				    cmsg->cmsg_type == SCM_SECURITY)
-> {
-> -					size_t len = cmsg->cmsg_len
-> - CMSG_LEN(0);
-> -
-> -					if (len > 0 && len <
-> sizeof(msglabel)) {
-> -						memcpy(msglabel,
-> CMSG_DATA(cmsg), len);
-> -						msglabel[len] = 0;
-> -						printf("%s: Got
-> SCM_SECURITY=%s\n",
-> -						       argv[0],
-> msglabel);
-> +			} else {
-> +				for (cmsg = CMSG_FIRSTHDR(&msg);
-> cmsg;
-> +				     cmsg = CMSG_NXTHDR(&msg, cmsg))
-> {
-> +#ifdef IPV6_PASSSEC
-> +					if ((cmsg->cmsg_level ==
-> SOL_IP &&
-> +					    cmsg->cmsg_type ==
-> SCM_SECURITY) ||
-> +					    (cmsg->cmsg_level ==
-> SOL_IPV6 &&
-> +					    cmsg->cmsg_type ==
-> IPV6_PASSSEC)) {
-> +#else
-> +					if (cmsg->cmsg_level ==
-> SOL_IP &&
-> +					    cmsg->cmsg_type ==
-> SCM_SECURITY) {
-> +#endif
-> +						size_t len = cmsg-
-> >cmsg_len - CMSG_LEN(0);
-> +
-> +						if (len > 0 && len <
-> sizeof(msglabel)) {
-> +							memcpy(msgla
-> bel, CMSG_DATA(cmsg), len);
-> +							msglabel[len
-> ] = 0;
-> +#ifdef IPV6_PASSSEC
-> +							printf("%s:
-> Got %s=%s\n",
-> +							       argv[
-> 0],
-> +							       cmsg-
-> >cmsg_type == SCM_SECURITY ?
-> +							       "SCM_
-> SECURITY" : "IPV6_PASSSEC",
-> +							       msgla
-> bel);
-> +#else
-> +							printf("%s:
-> Got SCM_SECURITY=%s\n",
-> +							       argv[
-> 0], msglabel);
-> +#endif
-> +						}
->  					}
->  				}
->  			}
-> diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-> index 81d0959..736e064 100755
-> --- a/tests/inet_socket/test
-> +++ b/tests/inet_socket/test
-> @@ -2,19 +2,53 @@
->  use Test::More;
->  
->  BEGIN {
-> -    # check if ip xfrm supports ctx parameter
-> -    if ( system("ip xfrm policy help 2>&1 | grep -q ctx") != 0 ) {
-> -        plan skip_all => "ctx not supported in ip xfrm policy";
-> +    $basedir = $0;
-> +    $basedir =~ s|(.*)/[^/]*|$1|;
-> +
-> +    $test_count = 25;
-> +
-> +    $test_ipsec = 0;
-> +    if (system("ip xfrm policy help 2>&1 | grep -q ctx") != 0) {
-> +        print "ctx not supported in ip xfrm policy";
-> +    } else {
-> +        $test_count += 8;
-> +        $test_ipsec = 1;
->      }
-> -    else {
-> -        plan tests => 33;
-> +
-> +    # Determine if CALIPSO supported by netlabelctl(8) and kernel.
-> +    $test_calipso_stream = 0;
-> +    $test_calipso_dgram = 0;
-> +    $netlabelctl = `netlabelctl -V`;
-> +    $netlabelctl =~ s/\D//g;
-> +    $kvercur = `uname -r`;
-> +    chomp($kvercur);
-> +    $kverminstream = "4.8";
-> +
-> +    $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
-> +    if ($netlabelctl gt "021" and $rc > 0) {
-> +        $test_count += 4;
-> +        $test_calipso_stream = 1;
-> +
-> +        # Check if socket option IPV6_PASSSEC defined for datagram
-> support
-> +        my $filename = '/usr/include/linux/in6.h';
-> +        $entry = 'IPV6_PASSSEC';
-> +        if (open(my $fh, '<:encoding(UTF-8)', $filename)) {
-> +            while (defined(my $row = <$fh>) and $test_calipso_dgram
-> eq 0) {
-> +                chomp $row;
-> +                if ($row =~ /\b$entry\b/){
-> +	            $test_calipso_dgram = 1;
-> +                    $test_count += 4;
-> +                }
-> +            }
-> +        }
-> +    } else {
-> +        print "calipso not supported\n";
->      }
-> -}
->  
-> -$basedir = $0;
-> -$basedir =~ s|(.*)/[^/]*|$1|;
-> +    plan tests => $test_count;
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index ce02f76a6188..48a929fd47e6 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -556,6 +556,10 @@
+>   *     @new points to the new credentials.
+>   *     @old points to the original credentials.
+>   *     Transfer data from original creds to new creds
+> + * @cred_getsecid:
+> + *     Retrieve the security identifier of the cred structure @c
+> + *     @p contains the credentials, secid will be placed into @secid.
+> + *     In case of failure, @secid will be set to zero.
+>   * @kernel_act_as:
+>   *     Set the credentials for a kernel service to act as (subjective context).
+>   *     @new points to the credentials to be modified.
+> @@ -1510,6 +1514,7 @@ union security_list_options {
+>         int (*cred_prepare)(struct cred *new, const struct cred *old,
+>                                 gfp_t gfp);
+>         void (*cred_transfer)(struct cred *new, const struct cred *old);
+> +       void (*cred_getsecid)(const struct cred *c, u32 *secid);
+>         int (*kernel_act_as)(struct cred *new, u32 secid);
+>         int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
+>         int (*kernel_module_request)(char *kmod_name);
+> @@ -1783,6 +1788,7 @@ struct security_hook_heads {
+>         struct list_head cred_free;
+>         struct list_head cred_prepare;
+>         struct list_head cred_transfer;
+> +       struct list_head cred_getsecid;
+>         struct list_head kernel_act_as;
+>         struct list_head kernel_create_files_as;
+>         struct list_head kernel_read_file;
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 458e24bea2d4..8d969958c25e 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -324,6 +324,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+>  void security_cred_free(struct cred *cred);
+>  int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
+>  void security_transfer_creds(struct cred *new, const struct cred *old);
+> +void security_cred_getsecid(const struct cred *c, u32 *secid);
+>  int security_kernel_act_as(struct cred *new, u32 secid);
+>  int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+>  int security_kernel_module_request(char *kmod_name);
+> diff --git a/security/security.c b/security/security.c
+> index 55b5997e4b72..0f5784880c94 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1009,6 +1009,13 @@ void security_transfer_creds(struct cred *new, const struct cred *old)
+>         call_void_hook(cred_transfer, new, old);
+>  }
+>
+> +void security_cred_getsecid(const struct cred *c, u32 *secid)
+> +{
+> +       *secid = 0;
+> +       call_void_hook(cred_getsecid, c, secid);
 > +}
->  
-> -# Load NetLabel configuration for full CIPSO4 labeling over
-> loopback.
-> +# Load NetLabel configuration for full CIPSO/IPv4 labeling over
-> loopback.
->  system "$basedir/cipso-fl-load";
->  
->  # Start the stream server.
-> @@ -60,7 +94,7 @@ kill TERM, $pid;
->  # Flush NetLabel configuration.
->  system "$basedir/cipso-fl-flush";
->  
-> -# Load NetLabel configuration for CIPSO4 over loopback.
-> +# Load NetLabel configuration for CIPSO/IPv4 over loopback.
->  system "$basedir/cipso-load";
->  
->  # Start the stream server with a defined level.
-> @@ -293,4 +327,68 @@ kill TERM, $pid;
->  # Flush iptables configuration.
->  system "$basedir/iptables-flush";
->  
-> +if ($test_calipso_stream) {
-> +    # Load NetLabel configuration for CALIPSO/IPv6 labeling over
-> loopback.
-> +    system "$basedir/calipso-load";
+> +EXPORT_SYMBOL(security_cred_getsecid);
 > +
-> +    # Start the stream server.
-> +    if (($pid = fork()) == 0) {
-> +        exec "runcon -t test_inet_server_t -l s0:c0.c10
-> $basedir/server stream 65535";
-> +    }
-> +
-> +    sleep 1; # Give it a moment to initialize.
-> +    # Verify that authorized client can communicate with the server.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c0.c10
-> $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c0.c10 stream
-> ::1 65535";
-> +    ok($result eq 0);
-> +
-> +    # Verify that authorized client can communicate with the server
-> using different valid level.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c8.c10
-> $basedir/client -e  system_u:object_r:netlabel_peer_t:s0:c8.c10
-> stream ::1 65535";
-> +    ok($result eq 0);
-> +
-> +    # Verify that authorized client cannot communicate with the
-> server using invalid level.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c8.c12 --
-> $basedir/client stream ::1 65535 2>&1";
-> +    ok($result);
-> +
-> +    # CALIPSO does not support mixed DGRAM->STREAM.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c8.c10
-> $basedir/client -e  system_u:object_r:netlabel_peer_t:s0:c8.c10 dgram
-> ::1 65535 2>&1";
-> +    ok($result);
-> +
-> +    # Kill the stream server.
-> +    kill TERM, $pid;
-> +
-> +    system "$basedir/calipso-flush";
+>  int security_kernel_act_as(struct cred *new, u32 secid)
+>  {
+>         return call_int_hook(kernel_act_as, 0, new, secid);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 33fd061305c4..e0828e9130c7 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3829,6 +3829,13 @@ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+>         *tsec = *old_tsec;
+>  }
+>
+> +static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
+> +{
+> +       rcu_read_lock();
+> +       *secid = cred_sid(c);
+> +       rcu_read_unlock();
 > +}
 > +
-> +if ($test_calipso_dgram) {
-> +    system "$basedir/calipso-load";
+>  /*
+>   * set the security data for a kernel service
+>   * - all the creation contexts are set to unlabelled
+> @@ -6332,6 +6339,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+>         LSM_HOOK_INIT(cred_free, selinux_cred_free),
+>         LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
+>         LSM_HOOK_INIT(cred_transfer, selinux_cred_transfer),
+> +       LSM_HOOK_INIT(cred_getsecid, selinux_cred_getsecid),
+>         LSM_HOOK_INIT(kernel_act_as, selinux_kernel_act_as),
+>         LSM_HOOK_INIT(kernel_create_files_as, selinux_kernel_create_files_as),
+>         LSM_HOOK_INIT(kernel_module_request, selinux_kernel_module_request),
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index 6a71fc7831ab..5af7b7e709bc 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -391,6 +391,16 @@ static inline struct smack_known *smk_of_task_struct(const struct task_struct *t
+>         return skp;
+>  }
+>
+> +static inline struct smack_known *smk_of_cred(const struct cred *c)
+> +{
+> +       struct smack_known *skp;
 > +
-> +    # Start the dgram server.
-> +    if (($pid = fork()) == 0) {
-> +        exec "runcon -t test_inet_server_t -l s0:c20.c50
-> $basedir/server dgram 65535";
-> +    }
-> +
-> +    sleep 1; # Give it a moment to initialize
-> +
-> +    # Verify that authorized client can communicate with the server
-> using same levels.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c20.c50
-> $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c20.c50 dgram
-> ::1 65535";
-> +    ok($result eq 0);
-> +
-> +    # CALIPSO does not allow client to communicate with server using
-> different valid levels.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c22.c30
-> $basedir/client -e  system_u:object_r:netlabel_peer_t:s0:c22.c30
-> dgram ::1 65535 2>&1";
-> +    ok($result);
-> +
-> +    # Verify that authorized client cannot communicate with the
-> server using invalid level.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c40.c51 --
-> $basedir/client dgram ::1 65535 2>&1";
-> +    ok($result);
-> +
-> +    # CALIPSO does not support mixed STREAM->DGRAM.
-> +    $result = system "runcon -t test_inet_client_t -l s0:c20.c50
-> $basedir/client -e system_u:object_r:netlabel_peer_t:s0:c20.c50
-> stream ::1 65535 2>&1";
-> +    ok($result);
-> +
-> +    # Kill the dgram server.
-> +    kill TERM, $pid;
-> +
-> +    system "$basedir/calipso-flush";
+> +       rcu_read_lock();
+> +       skp = smk_of_task(c->security);
+> +       rcu_read_unlock();
+> +       return skp;
 > +}
 > +
->  exit;
+>  /*
+>   * Present a pointer to the forked smack label entry in an task blob.
+>   */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 463af86812c7..f1710cf76f7f 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -2080,6 +2080,19 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
+>         /* cbs copy rule list */
+>  }
+>
+> +/**
+> + * smack_cred_getsecid - get the secid corresponding to a creds structure
+> + * @c: the object creds
+> + * @secid: where to put the result
+> + *
+> + * Sets the secid to contain a u32 version of the smack label.
+> + */
+> +static void smack_cred_getsecid(const struct cred *c, u32 *secid)
+> +{
+> +       struct smack_known *skp = smk_of_cred(c);
+> +       *secid = skp->smk_secid;
+> +}
+> +
+>  /**
+>   * smack_kernel_act_as - Set the subjective context in a set of credentials
+>   * @new: points to the set of credentials to be modified.
+> @@ -4684,6 +4697,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+>         LSM_HOOK_INIT(cred_free, smack_cred_free),
+>         LSM_HOOK_INIT(cred_prepare, smack_cred_prepare),
+>         LSM_HOOK_INIT(cred_transfer, smack_cred_transfer),
+> +       LSM_HOOK_INIT(cred_getsecid, smack_cred_getsecid),
+>         LSM_HOOK_INIT(kernel_act_as, smack_kernel_act_as),
+>         LSM_HOOK_INIT(kernel_create_files_as, smack_kernel_create_files_as),
+>         LSM_HOOK_INIT(task_setpgid, smack_task_setpgid),
+> --
+> 2.15.0.rc0.271.g36b669edcc-goog
+>
+
+
+
+-- 
+paul moore
+www.paul-moore.com
