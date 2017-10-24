@@ -1,232 +1,338 @@
-Message-ID: <1508875836.22356.6.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, Nicolas Iooss
- <nicolas.iooss@m4x.org>
-Date: Tue, 24 Oct 2017 16:10:36 -0400
-In-Reply-To: <CAFftDdoQ8HDtnSp9aakXFH4VV2kUMtJ6pShau99=YXpiYypgCQ@mail.gmail.com>
-References: <CAFftDdoa-iO3E62FSefdnARHGVzLE4znzaFfSd2Q=9bhdG3=eQ@mail.gmail.com>
- <1507841294.30307.4.camel@tycho.nsa.gov>
- <CAFftDdpFtE3fDPJxYTb5Q7Ooa3UpEHAHzRJYee60a_QsNxngiw@mail.gmail.com>
- <CAJfZ7=n7j6kbxd2SGW3FjxMr=EZSiYdttG9mfotUt0F3UFEdgQ@mail.gmail.com>
- <CAFftDdqD-tCZrSu2yB37p0BrtKu7avKes_W5OLmEGCO9ofWt0A@mail.gmail.com>
- <1508269837.21073.4.camel@tycho.nsa.gov>
- <CAFftDdqfBkaomb3SpcEv0vt=a1riHzYQEfzPY5W8OiSEmHrYSw@mail.gmail.com>
- <1508861159.22356.4.camel@tycho.nsa.gov>
- <CAFftDdoQ8HDtnSp9aakXFH4VV2kUMtJ6pShau99=YXpiYypgCQ@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9OLFcOk024347
+ for <selinux@tycho.nsa.gov>; Tue, 24 Oct 2017 17:15:38 -0400
+Message-ID: <1508876871.26687.5.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Xin Long <lucien.xin@gmail.com>
+Cc: Neil Horman <nhorman@tuxdriver.com>, selinux@tycho.nsa.gov, network dev
+ <netdev@vger.kernel.org>, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org
+Date: Tue, 24 Oct 2017 21:27:51 +0100
+In-Reply-To: <CADvbK_cLGA4PH_c4FB0eSUAMoV0XgtyA++cTFsGDkb=nvtR68g@mail.gmail.com>
+References: <20171017135833.4292-1-richard_c_haines@btinternet.com>
+ <CADvbK_d+LKRQHZXn5LMy+4L0Nq+ZEkvHGk=zn3odUr7FrzvkBQ@mail.gmail.com>
+ <20171020111637.GA14713@neilslaptop.think-freely.org>
+ <1508501095.8370.7.camel@btinternet.com>
+ <CADvbK_cLGA4PH_c4FB0eSUAMoV0XgtyA++cTFsGDkb=nvtR68g@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: travis CI
+Subject: Re: [RFC PATCH 3/5] sctp: Add LSM hooks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-10-24 at 09:26 -0700, William Roberts wrote:
-> Error 52, which if it lines up with what I am reading is
-> CURLE_GOT_NOTHING
-> https://curl.haxx.se/libcurl/c/libcurl-errors.html
-> 
-> That url/command combo seems valid, likely a transient issue with
-> github.
-
-I restarted the job, and it failed again in the same way (but on
-different cases).  Then I restarted it a third time, and this time it
-ran to completion.  This seems problematic; we likely need to
-reconsider any use of curl from the travis.yml file.
-
-> 
-> 
-> 
-> 
-> On Tue, Oct 24, 2017 at 9:05 AM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On Wed, 2017-10-18 at 19:30 -0700, William Roberts wrote:
-> > > On Tue, Oct 17, 2017 at 12:50 PM, Stephen Smalley <sds@tycho.nsa.
-> > > gov>
-> > > wrote:
-> > > > On Tue, 2017-10-17 at 11:49 -0700, William Roberts wrote:
-> > > > > On Sun, Oct 15, 2017 at 5:10 AM, Nicolas Iooss <nicolas.iooss
-> > > > > @m4x
-> > > > > .org
-> > > > > > wrote:
-> > > > > > On Fri, Oct 13, 2017 at 1:50 AM, William Roberts
-> > > > > > <bill.c.roberts@gmail.com> wrote:
-> > > > > > > On Thu, Oct 12, 2017 at 1:48 PM, Stephen Smalley <sds@tyc
-> > > > > > > ho.n
-> > > > > > > sa.g
-> > > > > > > ov> wrote:
-> > > > > > > > On Thu, 2017-10-12 at 11:29 -0700, William Roberts
-> > > > > > > > wrote:
-> > > > > > > > > I see a travis.yml file, recently modified by
-> > > > > > > > > Nicolas,
-> > > > > > > > > but I
-> > > > > > > > > failed
-> > > > > > > > > to
-> > > > > > > > > find the Travis CI instance on travis.org, where is
-> > > > > > > > > it?
-> > > > > > > > > 
-> > > > > > > > > We should likely have it running on commits to the
-> > > > > > > > > repo
-> > > > > > > > > and
-> > > > > > > > > PRs so we
-> > > > > > > > > can have some independent way of verifying that our
-> > > > > > > > > run
-> > > > > > > > > of
-> > > > > > > > > the tests
-> > > > > > > > > was compromised by some env variation or mistake.
-> > > > > > > > > 
-> > > > > > > > > Thoughts?
-> > > > > > > > 
-> > > > > > > > To date he has just run it on his own fork.  Not
-> > > > > > > > opposed to
-> > > > > > > > enabling
-> > > > > > > > it, just haven't looked into that...
-> > > > > > > 
-> > > > > > > I have done it for my some of my projects, Ill go ahead
-> > > > > > > and
-> > > > > > > set
-> > > > > > > this up.
-> > > > > > 
-> > > > > > I configured Travis-CI to test the branches in my Github
-> > > > > > repository
-> > > > > > a
-> > > > > > little more than one year ago, after several build
-> > > > > > configurations
-> > > > > > got
-> > > > > > broken (clang on Linux for example). I later added more
-> > > > > > features to
-> > > > > > it
-> > > > > > (for example warning about missing .gitignore entries,
-> > > > > > testing
-> > > > > > several
-> > > > > > Ruby and Python versions, etc), before I upstreamed my
-> > > > > > .travis.yml
-> > > > > > file (a few months ago). When I did it, my main motivation
-> > > > > > was
-> > > > > > to
-> > > > > > simplify the job of anyone who would want to configure a CI
-> > > > > > system
-> > > > > > on
-> > > > > > the project (the building rules and dependencies should be
-> > > > > > quite
-> > > > > > similar). Using a continuous integration system is useful
-> > > > > > to
-> > > > > > prevent
-> > > > > > simple regression issues which would otherwise only be
-> > > > > > detected
-> > > > > > when
-> > > > > > someone running a specific configuration tries to build the
-> > > > > > project.
-> > > > > > 
-> > > > > > Before asking to enable Travis-CI on the main SELinux
-> > > > > > repository, I
-> > > > > > wanted to make sure it was stable/reliable enough. To do
-> > > > > > this,
-> > > > > > I
-> > > > > > created a branch named "travis-upstream" in my repository,
-> > > > > > which
-> > > > > > tracked the master branch of the main repository. All went
-> > > > > > well
-> > > > > > for
-> > > > > > quite some time, until Travis-CI modified this summer their
-> > > > > > environments, introducing some incompatibilities with
-> > > > > > projects
-> > > > > > which
-> > > > > > use several programming languages. Thankfully these changes
-> > > > > > have
-> > > > > > been
-> > > > > > documented in Travis-CI's blog and I updated the config
-> > > > > > file to
-> > > > > > fix
-> > > > > > the builds with commits b1ea8120832d ("Travis-CI: use
-> > > > > > sugulite
-> > > > > > environment") and 6d9258e5a05f ("Travis-CI: fix
-> > > > > > configuration
-> > > > > > after
-> > > > > > September's update"). As Travis-CI does not seem to want to
-> > > > > > support
-> > > > > > multi-language projects (cf.
-> > > > > > https://github.com/travis-ci/travis-ci/issues/4090 for
-> > > > > > example),
-> > > > > > more
-> > > > > > breaking changes could be introduced as the provided
-> > > > > > environment
-> > > > > > are
-> > > > > > upgraded. Nevertheless I expect that such changes are quite
-> > > > > > easily
-> > > > > > fixable.
-> > > > > > 
-> > > > > > In short, using a CI platform is useful and Travis-CI is a
-> > > > > > free
-> > > > > > one
-> > > > > > which makes it possible to test several build
-> > > > > > configurations (I
-> > > > > > also
-> > > > > > tried Circle-CI, which did not provide a similar feature)
-> > > > > > and
-> > > > > > maintaining a working configuration does not require much
-> > > > > > effort.
-> > > > > > Moreover when a Travis-CI job fails, the log contains the
-> > > > > > console
-> > > > > > output which usually is very clear about what has gone
-> > > > > > wrong.
-> > > > > > Travis-CI now also provides Docker images which help
-> > > > > > reproducing
-> > > > > > issues and understanding their cause without needing to
-> > > > > > submit
-> > > > > > a
-> > > > > > new
-> > > > > > job.
-> > > > > > 
-> > > > > > If you want to set this platform up for SELinux userspace
-> > > > > > project,
-> > > > > > please go ahead :)
-> > > > > > 
-> > > > > > Cheers,
-> > > > > > Nicolas
-> > > > > > 
+On Fri, 2017-10-20 at 21:14 +0800, Xin Long wrote:
+> On Fri, Oct 20, 2017 at 8:04 PM, Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > On Fri, 2017-10-20 at 07:16 -0400, Neil Horman wrote:
+> > > On Wed, Oct 18, 2017 at 11:05:09PM +0800, Xin Long wrote:
+> > > > On Tue, Oct 17, 2017 at 9:58 PM, Richard Haines
+> > > > <richard_c_haines@btinternet.com> wrote:
+> > > > > Add security hooks to allow security modules to exercise
+> > > > > access
+> > > > > control
+> > > > > over SCTP.
 > > > > > 
-> > > > > I tried to turn it on in travis, but got the message:
+> > > > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.co
+> > > > > m>
+> > > > > ---
+> > > > >  include/net/sctp/structs.h | 10 ++++++++
+> > > > >  include/uapi/linux/sctp.h  |  1 +
+> > > > >  net/sctp/sm_make_chunk.c   | 12 +++++++++
+> > > > >  net/sctp/sm_statefuns.c    | 14 ++++++++++-
+> > > > >  net/sctp/socket.c          | 61
+> > > > > +++++++++++++++++++++++++++++++++++++++++++++-
+> > > > >  5 files changed, 96 insertions(+), 2 deletions(-)
 > > > > > 
-> > > > > This is not an active repository
+> > > > > diff --git a/include/net/sctp/structs.h
+> > > > > b/include/net/sctp/structs.h
+> > > > > index 7767577..6e72e3e 100644
+> > > > > --- a/include/net/sctp/structs.h
+> > > > > +++ b/include/net/sctp/structs.h
+> > > > > @@ -1270,6 +1270,16 @@ struct sctp_endpoint {
+> > > > >               reconf_enable:1;
 > > > > > 
-> > > > > You don't have sufficient rights to enable this repo on
-> > > > > Travis.
-> > > > > Please contact the admin to enable it or to receive admin
-> > > > > rights
-> > > > > yourself.
+> > > > >         __u8  strreset_enable;
+> > > > > +
+> > > > > +       /* Security identifiers from incoming (INIT). These
+> > > > > are
+> > > > > set by
+> > > > > +        * security_sctp_assoc_request(). These will only be
+> > > > > used
+> > > > > by
+> > > > > +        * SCTP TCP type sockets and peeled off connections
+> > > > > as
+> > > > > they
+> > > > > +        * cause a new socket to be generated.
+> > > > > security_sctp_sk_clone()
+> > > > > +        * will then plug these into the new socket.
+> > > > > +        */
+> > > > > +
+> > > > > +       u32 secid;
+> > > > > +       u32 peer_secid;
+> > > > >  };
 > > > > > 
-> > > > > Stephen maybe you can do this, or grant me the permissions?
+> > > > >  /* Recover the outter endpoint structure. */
+> > > > > diff --git a/include/uapi/linux/sctp.h
+> > > > > b/include/uapi/linux/sctp.h
+> > > > > index 6217ff8..c04812f 100644
+> > > > > --- a/include/uapi/linux/sctp.h
+> > > > > +++ b/include/uapi/linux/sctp.h
+> > > > > @@ -122,6 +122,7 @@ typedef __s32 sctp_assoc_t;
+> > > > >  #define SCTP_RESET_ASSOC       120
+> > > > >  #define SCTP_ADD_STREAMS       121
+> > > > >  #define SCTP_SOCKOPT_PEELOFF_FLAGS 122
+> > > > > +#define SCTP_SENDMSG_CONNECT   123
 > > > > > 
-> > > > > You should be able to go here:
-> > > > > https://travis-ci.org
+> > > > >  /* PR-SCTP policies */
+> > > > >  #define SCTP_PR_SCTP_NONE      0x0000
+> > > > > diff --git a/net/sctp/sm_make_chunk.c
+> > > > > b/net/sctp/sm_make_chunk.c
+> > > > > index 6110447..ca4705b 100644
+> > > > > --- a/net/sctp/sm_make_chunk.c
+> > > > > +++ b/net/sctp/sm_make_chunk.c
+> > > > > @@ -3059,6 +3059,12 @@ static __be16
+> > > > > sctp_process_asconf_param(struct sctp_association *asoc,
+> > > > >                 if (af->is_any(&addr))
+> > > > >                         memcpy(&addr, &asconf->source,
+> > > > > sizeof(addr));
 > > > > > 
-> > > > > And login, and then in your organization for selinux flip the
-> > > > > switch
-> > > > > for travis. Once it's on, and working, we can add the badge
-> > > > > to
-> > > > > the
-> > > > > README
-> > > > > file for build status.
+> > > > > +               if (security_sctp_bind_connect(asoc->ep-
+> > > > > >base.sk,
+> > > > > +                                              SCTP_PARAM_ADD
+> > > > > _IP,
+> > > > > +                                              (struct
+> > > > > sockaddr
+> > > > > *)&addr,
+> > > > > +                                              af-
+> > > > > >sockaddr_len))
+> > > > > +                       return SCTP_ERROR_REQ_REFUSED;
+> > > > > +
+> > > > >                 /* ADDIP 4.3 D9) If an endpoint receives an
+> > > > > ADD
+> > > > > IP address
+> > > > >                  * request and does not have the local
+> > > > > resources
+> > > > > to add this
+> > > > >                  * new address to the association, it MUST
+> > > > > return
+> > > > > an Error
+> > > > > @@ -3125,6 +3131,12 @@ static __be16
+> > > > > sctp_process_asconf_param(struct sctp_association *asoc,
+> > > > >                 if (af->is_any(&addr))
+> > > > >                         memcpy(&addr.v4, sctp_source(asconf),
+> > > > > sizeof(addr));
+> > > > > 
+> > > > > +               if (security_sctp_bind_connect(asoc->ep-
+> > > > > >base.sk,
+> > > > > +                                              SCTP_PARAM_SET
+> > > > > _PRI
+> > > > > MARY,
+> > > > > +                                              (struct
+> > > > > sockaddr
+> > > > > *)&addr,
+> > > > > +                                              af-
+> > > > > >sockaddr_len))
+> > > > > +                       return SCTP_ERROR_REQ_REFUSED;
+> > > > > +
+> > > > >                 peer = sctp_assoc_lookup_paddr(asoc, &addr);
+> > > > >                 if (!peer)
+> > > > >                         return SCTP_ERROR_DNS_FAILED;
+> > > > > diff --git a/net/sctp/sm_statefuns.c
+> > > > > b/net/sctp/sm_statefuns.c
+> > > > > index b2a74c3..4ba5805 100644
+> > > > > --- a/net/sctp/sm_statefuns.c
+> > > > > +++ b/net/sctp/sm_statefuns.c
+> > > > > @@ -314,6 +314,11 @@ sctp_disposition_t
+> > > > > sctp_sf_do_5_1B_init(struct net *net,
+> > > > >         sctp_unrecognized_param_t *unk_param;
+> > > > >         int len;
+> > > > > 
+> > > > > +       /* Update socket peer label if first association. */
+> > > > > +       if (security_sctp_assoc_request((struct sctp_endpoint
+> > > > > *)ep,
+> > > > > +                                       chunk->skb,
+> > > > > SCTP_CID_INIT))
+> > > > > +               return sctp_sf_pdiscard(net, ep, asoc, type,
+> > > > > arg,
+> > > > > commands);
+> > > > > +
+> > > > >         /* 6.10 Bundling
+> > > > >          * An endpoint MUST NOT bundle INIT, INIT ACK or
+> > > > >          * SHUTDOWN COMPLETE with any other chunks.
+> > > > > @@ -446,7 +451,6 @@ sctp_disposition_t
+> > > > > sctp_sf_do_5_1B_init(struct net *net,
+> > > > >         }
+> > > > > 
+> > > > >         sctp_add_cmd_sf(commands, SCTP_CMD_NEW_ASOC,
+> > > > > SCTP_ASOC(new_asoc));
+> > > > > -
+> > > > >         sctp_add_cmd_sf(commands, SCTP_CMD_REPLY,
+> > > > > SCTP_CHUNK(repl));
+> > > > > 
+> > > > >         /*
+> > > > > @@ -507,6 +511,11 @@ sctp_disposition_t
+> > > > > sctp_sf_do_5_1C_ack(struct net *net,
+> > > > >         struct sctp_chunk *err_chunk;
+> > > > >         struct sctp_packet *packet;
+> > > > > 
+> > > > > +       /* Update socket peer label if first association. */
+> > > > > +       if (security_sctp_assoc_request((struct sctp_endpoint
+> > > > > *)ep,
+> > > > > +                                       chunk->skb,
+> > > > > SCTP_CID_INIT_ACK))
+> > > > > +               return sctp_sf_pdiscard(net, ep, asoc, type,
+> > > > > arg,
+> > > > > commands);
+> > > > > +
 > > > > 
-> > > > Enabled now for the selinux repo.
-> > > > 
+> > > > Just thinking security_sctp_assoc_request hook should also be
+> > > > in
+> > > > sctp_sf_do_unexpected_init() and sctp_sf_do_5_2_4_dupcook() ?
 > > > 
-> > > FYI this is up and running thanks to Nicolas's .travis.yml.
-> > > 
-> > > You can see it verifying this PR
-> > > https://github.com/SELinuxProject/selinux/pull/66
-> > > 
-> > > I've submitted that patch to the mailing list as well.
+> > > I agree, i think if this hook is gating on the creation of a new
+> > > association,
+> > > they should be in all the locations where that happens
+> > > Neil
 > > 
-> > Our .travis.yml seems to yield unstable results,
-> > https://travis-ci.org/SELinuxProject/selinux/jobs/292128434
-> > 
-> > Don't know if it would help to instead download a refpolicy release
-> > and
-> > extract it, or if this is just transient.
-> > 
+> > Thanks for the comments. I've just added the hook as requested for
+> > my
+> > next update, however I have not managed to trigger these areas
+> > using
+> > the lksctp-tools tests. Can you suggest any suitable tools for
+> > testing
+> > these scenarios.
+> 
+> It's all a matter of timing:
+> 
+> sctp_sf_do_5_2_2_dupinit():
+> Case A:
+> 
+>   Endpoint A                           Endpoint B                ULP
+>   (CLOSED)                             (CLOSED)
+> 
+>   INIT          ----------------->
+> 
+>                 <-----------------      INIT-ACK
+> 
+>   COOKIE-ECHO   ----------------->
+> 
+>                 <-----------------      COOKIE-ACK
+>                                          Communication Up ---------->
+>   INIT          ----------------->
+>   (Different INIT-TAG)
+>                 <-----------------      INIT-ACK
+> 
+>   COOKIE-ECHO   ----------------->
+> 
+>                 <-----------------      COOKIE-ACK
+> 
+>   DATA          ----------------->
+> 
+>                 <-----------------      SACK
 > 
 > 
+> sctp_sf_do_5_2_1_siminit():
+>  Case B:
 > 
+>   Endpoint A                           Endpoint B                ULP
+>   (CLOSED)                             (CLOSED)
+> 
+>                                                    <--
+> ---    Associate
+>                 <-----------------      INIT
+> 
+>   INIT          ----------------->
+> 
+>                 <-----------------      INIT-ACK
+> 
+>   COOKIE-ECHO   ----------------->
+> 
+>                 <-----------------      COOKIE-ACK
+>                                          Communication Up ---------->
+> 
+> 
+> sctp_sf_do_5_2_4_dupcook():
+> Case D:
+> 
+>   Endpoint A                           Endpoint B                ULP
+>   (CLOSED)                             (CLOSED)
+> 
+>                                                    <--
+> ---    Associate
+>   INIT          ----------------->
+> 
+>                 <-----------------      INIT-ACK
+> 
+>   COOKIE-ECHO   ----------------->
+> 
+>                 <-----------------      COOKIE-ACK
+>                                          Communication Up ---------->
+>   COOKIE-ECHO   ----------------->
+> 
+>                 <-----------------      COOKIE-ACK
+> 
+> I think scapy could help with 4-shake stuff:
+> # iptables -A OUTPUT -p sctp -d 192.0.0.2 --chunk-type only abort -o
+> eth1 -j DROP
+> and
+> something like:
+>         def start_assoc(self, target, local):
+>                 target_host, target_port = target
+>                 local_host,  local_port  = local
+> 
+>                 # init snd
+>                 self._tsn = 2017
+>                 self._cnt = 15
+> 
+>                 SCTP_HEADER = (IP(dst=target_host, flags="DF") /
+> SCTP(sport=local_port, dport=target_port, tag=0))
+>                 INIT = (SCTP_HEADER / SCTPChunkInit(init_tag=1,
+> a_rwnd=106496, n_out_streams=self._cnt, n_in_streams=self._cnt,
+> init_tsn=self._tsn,
+> 
+> params=[SCTPParamSupport(types=[64])]))
+>                 INIT_ACK = sr1(INIT, timeout=3, verbose=0)
+>                 if INIT_ACK == None or not
+> INIT_ACK.haslayer(SCTPChunkInitAck):
+>                         return False
+> 
+>                 # cookie echo snd
+>                 SCTP_HEADER[SCTP].tag =
+> INIT_ACK[SCTPChunkInitAck].init_tag
+>                 COOKIE_ECHO = (SCTP_HEADER /
+> SCTPChunkCookieEcho(cookie=INIT_ACK[SCTPChunkParamStateCookie].cookie
+> ))
+>                 COOKIE_ACK = sr1(COOKIE_ECHO, timeout=3, verbose=0)
+>                 if COOKIE_ACK == None or not
+> COOKIE_ACK.haslayer(SCTPChunkCookieAck):
+>                         return False
+
+That looks a bit complicated for me so I found some SCTP Conformance
+Test Tools at: https://github.com/nplab
+
+I added the required hooks as suggested above and then built and ran
+"ETSI-SCTP-Conformance-Testsuite" and "sctp-tests" with the following
+specific tests for the above scenarios according to RFC2960 sections
+5.2.2 and 5.2.4:
+sctp-dm-o-4-8
+sctp-as-o-1-9-1
+sctp-as-o-1-9-2
+sctp-dm-o-4-2-1
+
+They all passed except when running:
+"sctp-tests" runsctptest sctp-as-o-1-9-2 - TIMEOUT
+This is because the SUT needs to reply with a new IP address that
+required a modified test server (I just used a simple sctp server),
+however the ETSI-SCTP-Conformance-Testsuite did pass as I guess that
+provided the required IP address.
+
+Are these tests okay ??
+Does anyone on the list use these conformance tools ???
+
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-
+> security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
