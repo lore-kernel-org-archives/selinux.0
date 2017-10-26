@@ -1,69 +1,179 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9PGA8YZ001730
- for <selinux@tycho.nsa.gov>; Wed, 25 Oct 2017 12:10:08 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9Q8f7Yu005984
+ for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 04:41:07 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC06.oob.disa.mil (Postfix) with SMTP id 3yMZn74NDCz2twNt
- for <selinux@tycho.nsa.gov>; Wed, 25 Oct 2017 16:08:27 +0000 (UTC)
-Received: from UPDC3CPA03.eemsg.mil (unknown [192.168.18.10])
- by UPDCF3IC06.oob.disa.mil (Postfix) with ESMTP id 3yMZn61txNz19YjL
- for <selinux@tycho.nsa.gov>; Wed, 25 Oct 2017 16:08:26 +0000 (UTC)
-Received: by mail-io0-f196.google.com with SMTP id e89so1529283ioi.11
- for <selinux@tycho.nsa.gov>; Wed, 25 Oct 2017 09:06:41 -0700 (PDT)
+ by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 3yN0pT0pYtz2Sj64
+ for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 08:41:05 +0000 (UTC)
+Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 3yN0pS6NW6z2Sj5t
+ for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 08:41:04 +0000 (UTC)
+Received: by mail-oi0-f74.google.com with SMTP id 14so2782355oii.2
+ for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 01:41:02 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20171024213939.7414-1-nicolas.iooss@m4x.org>
-References: <20171024213939.7414-1-nicolas.iooss@m4x.org>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Wed, 25 Oct 2017 09:06:40 -0700
-Message-ID: <CAFftDdrpa=ax3hjBJQ=Dn+SEJ4DuzdJZL5o1oYykX6nfT3jj2w@mail.gmail.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Thu, 26 Oct 2017 01:40:54 -0700
+Message-Id: <20171026084055.25482-1-mjg59@google.com>
+From: Matthew Garrett <mjg59@google.com>
+To: linux-integrity@vger.kernel.org
+Cc: zohar@linux.vnet.ibm.com, Matthew Garrett <mjg59@google.com>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ Casey Schaufler <casey@schaufler-ca.com>,
+ linux-security-module@vger.kernel.org,
+ Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 1/1] Travis-CI: try working around network
- issues by retrying downloads
+Subject: [PATCH V3 1/2] security: Add a cred_getsecid hook
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Oct 24, 2017 at 2:39 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> Some Travis-CI builds failed because of issues when downloading
-> refpolicy files for sepolgen tests. Use curl's option --retry to make
-> the downloads work when the networking issues are only transient.
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> ---
->  .travis.yml | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/.travis.yml b/.travis.yml
-> index e21b4d2198e5..88f6297e63bc 100644
-> --- a/.travis.yml
-> +++ b/.travis.yml
-> @@ -64,10 +64,10 @@ addons:
->  install:
->    # Download refpolicy Makefile for sepolgen tests
->    - sudo mkdir -p /usr/share/selinux/default
-> -  - sudo curl -o /usr/share/selinux/default/Makefile 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/support/Makefile.devel'
-> +  - sudo curl --retry 10 -o /usr/share/selinux/default/Makefile 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/support/Makefile.devel'
->    - sudo sed "s,^PREFIX :=.*,PREFIX := $TRAVIS_BUILD_DIR/installdir/usr," -i /usr/share/selinux/default/Makefile
->    - sudo mkdir -p /usr/share/selinux/refpolicy/include
-> -  - sudo curl -o /usr/share/selinux/refpolicy/include/build.conf 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/build.conf'
-> +  - sudo curl --retry 10 -o /usr/share/selinux/refpolicy/include/build.conf 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/build.conf'
->    - sudo mkdir -p /etc/selinux
->    - echo 'SELINUXTYPE=refpolicy' | sudo tee /etc/selinux/config
->
-> @@ -77,7 +77,7 @@ install:
->    # Download the required python version if it is not installed
->    - VIRTUAL_ENV="$HOME/virtualenv/$PYVER"
->    - if ! [ -d "$VIRTUAL_ENV" ] ; then
-> -        curl -o python.tar.bz2 "https://s3.amazonaws.com/travis-python-archives/binaries/ubuntu/14.04/x86_64/${PYVER/python/python-}.tar.bz2" &&
-> +        curl --retry 10 -o python.tar.bz2 "https://s3.amazonaws.com/travis-python-archives/binaries/ubuntu/14.04/x86_64/${PYVER/python/python-}.tar.bz2" &&
->          sudo tar xjf python.tar.bz2 --directory / &&
->          rm python.tar.bz2 ;
->      fi
-> --
-> 2.14.2
->
->
+For IMA purposes, we want to be able to obtain the prepared secid in the
+bprm structure before the credentials are committed. Add a cred_getsecid
+hook that makes this possible.
 
-Ack
+Signed-off-by: Matthew Garrett <mjg59@google.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: selinux@tycho.nsa.gov
+Cc: Casey Schaufler <casey@schaufler-ca.com>
+Cc: linux-security-module@vger.kernel.org
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Cc: Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
+Cc: linux-integrity@vger.kernel.org
+---
+ V3: Fix smack_cred_getsecid()
+
+ include/linux/lsm_hooks.h  |  6 ++++++
+ include/linux/security.h   |  1 +
+ security/security.c        |  7 +++++++
+ security/selinux/hooks.c   |  8 ++++++++
+ security/smack/smack_lsm.c | 18 ++++++++++++++++++
+ 5 files changed, 40 insertions(+)
+
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index c9258124e417..c28c6f8b65dc 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -554,6 +554,10 @@
+  *	@new points to the new credentials.
+  *	@old points to the original credentials.
+  *	Transfer data from original creds to new creds
++ * @cred_getsecid:
++ *	Retrieve the security identifier of the cred structure @c
++ *	@c contains the credentials, secid will be placed into @secid.
++ *	In case of failure, @secid will be set to zero.
+  * @kernel_act_as:
+  *	Set the credentials for a kernel service to act as (subjective context).
+  *	@new points to the credentials to be modified.
+@@ -1507,6 +1511,7 @@ union security_list_options {
+ 	int (*cred_prepare)(struct cred *new, const struct cred *old,
+ 				gfp_t gfp);
+ 	void (*cred_transfer)(struct cred *new, const struct cred *old);
++	void (*cred_getsecid)(const struct cred *c, u32 *secid);
+ 	int (*kernel_act_as)(struct cred *new, u32 secid);
+ 	int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
+ 	int (*kernel_module_request)(char *kmod_name);
+@@ -1779,6 +1784,7 @@ struct security_hook_heads {
+ 	struct list_head cred_free;
+ 	struct list_head cred_prepare;
+ 	struct list_head cred_transfer;
++	struct list_head cred_getsecid;
+ 	struct list_head kernel_act_as;
+ 	struct list_head kernel_create_files_as;
+ 	struct list_head kernel_read_file;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ce6265960d6c..14848fef8f62 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -324,6 +324,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+ void security_cred_free(struct cred *cred);
+ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
+ void security_transfer_creds(struct cred *new, const struct cred *old);
++void security_cred_getsecid(const struct cred *c, u32 *secid);
+ int security_kernel_act_as(struct cred *new, u32 secid);
+ int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+ int security_kernel_module_request(char *kmod_name);
+diff --git a/security/security.c b/security/security.c
+index 4bf0f571b4ef..02d217597400 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1004,6 +1004,13 @@ void security_transfer_creds(struct cred *new, const struct cred *old)
+ 	call_void_hook(cred_transfer, new, old);
+ }
+ 
++void security_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	*secid = 0;
++	call_void_hook(cred_getsecid, c, secid);
++}
++EXPORT_SYMBOL(security_cred_getsecid);
++
+ int security_kernel_act_as(struct cred *new, u32 secid)
+ {
+ 	return call_int_hook(kernel_act_as, 0, new, secid);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f5d304736852..1d11679674a6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3836,6 +3836,13 @@ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+ 	*tsec = *old_tsec;
+ }
+ 
++static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	rcu_read_lock();
++	*secid = cred_sid(c);
++	rcu_read_unlock();
++}
++
+ /*
+  * set the security data for a kernel service
+  * - all the creation contexts are set to unlabelled
+@@ -6338,6 +6345,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(cred_free, selinux_cred_free),
+ 	LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
+ 	LSM_HOOK_INIT(cred_transfer, selinux_cred_transfer),
++	LSM_HOOK_INIT(cred_getsecid, selinux_cred_getsecid),
+ 	LSM_HOOK_INIT(kernel_act_as, selinux_kernel_act_as),
+ 	LSM_HOOK_INIT(kernel_create_files_as, selinux_kernel_create_files_as),
+ 	LSM_HOOK_INIT(kernel_module_request, selinux_kernel_module_request),
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 286171a16ed2..37c35aaa6955 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2049,6 +2049,23 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
+ 	/* cbs copy rule list */
+ }
+ 
++/**
++ * smack_cred_getsecid - get the secid corresponding to a creds structure
++ * @c: the object creds
++ * @secid: where to put the result
++ *
++ * Sets the secid to contain a u32 version of the smack label.
++ */
++static void smack_cred_getsecid(const struct cred *c, u32 *secid)
++{
++	struct smack_known *skp;
++
++	rcu_read_lock();
++	skp = smk_of_task(c->security);
++	*secid = skp->smk_secid;
++	rcu_read_unlock();
++}
++
+ /**
+  * smack_kernel_act_as - Set the subjective context in a set of credentials
+  * @new: points to the set of credentials to be modified.
+@@ -4651,6 +4668,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(cred_free, smack_cred_free),
+ 	LSM_HOOK_INIT(cred_prepare, smack_cred_prepare),
+ 	LSM_HOOK_INIT(cred_transfer, smack_cred_transfer),
++	LSM_HOOK_INIT(cred_getsecid, smack_cred_getsecid),
+ 	LSM_HOOK_INIT(kernel_act_as, smack_kernel_act_as),
+ 	LSM_HOOK_INIT(kernel_create_files_as, smack_kernel_create_files_as),
+ 	LSM_HOOK_INIT(task_setpgid, smack_task_setpgid),
+-- 
+2.15.0.rc2.357.g7e34df9404-goog
