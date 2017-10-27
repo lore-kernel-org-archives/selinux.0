@@ -1,78 +1,49 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9QNPQia027688
- for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 19:25:26 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 3yNKmm3bdxz4BPFd
- for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 21:25:44 +0000 (UTC)
-Received: from UPDC3CPA06.eemsg.mil (unknown [192.168.18.13])
- by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 3yNKmm1jKNz4BPFZ
- for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 21:25:44 +0000 (UTC)
-Received: by mail-io0-f195.google.com with SMTP id f20so7941738ioj.9
- for <selinux@tycho.nsa.gov>; Thu, 26 Oct 2017 12:51:45 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20171024213939.7414-1-nicolas.iooss@m4x.org>
-References: <20171024213939.7414-1-nicolas.iooss@m4x.org>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 26 Oct 2017 12:51:42 -0700
-Message-ID: <CAFftDdpkHGTCyfsd_ugNncgEmryLk+1LSEr9_KbGj0Z=zaCgRQ@mail.gmail.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 1/1] Travis-CI: try working around network
- issues by retrying downloads
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+Cc: paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
+Date: Fri, 27 Oct 2017 11:28:22 -0400
+Message-Id: <20171027152822.16406-1-sds@tycho.nsa.gov>
+Subject: [RFC PATCH] xfrm: fix regression introduced by xdst pcpu cache
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thank you. Applied.
-https://github.com/SELinuxProject/selinux/pull/69
+commit ec30d78c14a813db39a647b6a348b4286 ("xfrm: add xdst pcpu cache")
+introduced a regression in the use of labeled IPSEC.  The cache was only
+checking that the policies are the same, but did not validate that the
+policy, state, and flow matched with respect to security context labeling.
+As a result, the wrong SA could be used and the receiver could end up
+performing permission checking and providing SO_PEERSEC or SCM_SECURITY
+values for the wrong security context.  This was triggering failures in
+the selinux-testsuite.  The security_xfrm_state_pol_flow_match() hook
+exists for this purpose and is already called elsewhere from the xfrm
+state code for matching purposes.  Add a call to this hook when validating
+the cache entry.  With this change, the selinux-testsuite passes all tests
+again.
 
+Fixes: ec30d78c14a813db39a647b6a348b4286ba4abf5 ("xfrm: add xdst pcpu cache")
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+Sending this as an RFC to lsm and selinux for comments before sending it
+to netdev. See https://github.com/SELinuxProject/selinux-kernel/issues/36
+for earlier discussion about the bug.
 
-On Tue, Oct 24, 2017 at 2:39 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> Some Travis-CI builds failed because of issues when downloading
-> refpolicy files for sepolgen tests. Use curl's option --retry to make
-> the downloads work when the networking issues are only transient.
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> ---
->  .travis.yml | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/.travis.yml b/.travis.yml
-> index e21b4d2198e5..88f6297e63bc 100644
-> --- a/.travis.yml
-> +++ b/.travis.yml
-> @@ -64,10 +64,10 @@ addons:
->  install:
->    # Download refpolicy Makefile for sepolgen tests
->    - sudo mkdir -p /usr/share/selinux/default
-> -  - sudo curl -o /usr/share/selinux/default/Makefile 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/support/Makefile.devel'
-> +  - sudo curl --retry 10 -o /usr/share/selinux/default/Makefile 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/support/Makefile.devel'
->    - sudo sed "s,^PREFIX :=.*,PREFIX := $TRAVIS_BUILD_DIR/installdir/usr," -i /usr/share/selinux/default/Makefile
->    - sudo mkdir -p /usr/share/selinux/refpolicy/include
-> -  - sudo curl -o /usr/share/selinux/refpolicy/include/build.conf 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/build.conf'
-> +  - sudo curl --retry 10 -o /usr/share/selinux/refpolicy/include/build.conf 'https://raw.githubusercontent.com/TresysTechnology/refpolicy/RELEASE_2_20170204/build.conf'
->    - sudo mkdir -p /etc/selinux
->    - echo 'SELINUXTYPE=refpolicy' | sudo tee /etc/selinux/config
->
-> @@ -77,7 +77,7 @@ install:
->    # Download the required python version if it is not installed
->    - VIRTUAL_ENV="$HOME/virtualenv/$PYVER"
->    - if ! [ -d "$VIRTUAL_ENV" ] ; then
-> -        curl -o python.tar.bz2 "https://s3.amazonaws.com/travis-python-archives/binaries/ubuntu/14.04/x86_64/${PYVER/python/python-}.tar.bz2" &&
-> +        curl --retry 10 -o python.tar.bz2 "https://s3.amazonaws.com/travis-python-archives/binaries/ubuntu/14.04/x86_64/${PYVER/python/python-}.tar.bz2" &&
->          sudo tar xjf python.tar.bz2 --directory / &&
->          rm python.tar.bz2 ;
->      fi
-> --
-> 2.14.2
->
->
+ net/xfrm/xfrm_policy.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-
-
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index f062539..e7ec47f 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -1820,6 +1820,8 @@ xfrm_resolve_and_create_bundle(struct xfrm_policy **pols, int num_pols,
+ 	    !xfrm_pol_dead(xdst) &&
+ 	    memcmp(xdst->pols, pols,
+ 		   sizeof(struct xfrm_policy *) * num_pols) == 0 &&
++	    security_xfrm_state_pol_flow_match(xdst->u.dst.xfrm,
++					       xdst->pols[0], fl) &&
+ 	    xfrm_bundle_ok(xdst)) {
+ 		dst_hold(&xdst->u.dst);
+ 		return xdst;
 -- 
-Respectfully,
-
-William C Roberts
+2.9.5
