@@ -1,114 +1,36 @@
-Message-ID: <1509458646.20694.10.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <james.l.morris@oracle.com>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Date: Tue, 31 Oct 2017 10:04:06 -0400
-In-Reply-To: <1509454842.20694.1.camel@tycho.nsa.gov>
-References: <alpine.LFD.2.20.1710301859170.11614@localhost>
- <1509390973.10174.9.camel@tycho.nsa.gov>
- <alpine.LFD.2.20.1710311357320.22021@localhost>
- <1509454842.20694.1.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [RFC v0.1][PATCH] selinuxns: extend namespace support to
- security.selinux xattrs
+Date: Tue, 31 Oct 2017 15:15:20 +0100
+From: Florian Westphal <fw@strlen.de>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Florian Westphal <fw@strlen.de>, herbert@gondor.apana.org.au,
+ netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, davem@davemloft.net,
+ Paul Moore <paul@paul-moore.com>
+Message-ID: <20171031141520.GC7663@breakpoint.cc>
+References: <20171030145843.13496-1-sds@tycho.nsa.gov>
+ <20171031111122.GB7663@breakpoint.cc>
+ <1509457420.20694.4.camel@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <1509457420.20694.4.camel@tycho.nsa.gov>
+Subject: Re: [RFC PATCH] xfrm: fix regression introduced by xdst
+ pcpu cache
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-10-31 at 09:00 -0400, Stephen Smalley wrote:
-> On Tue, 2017-10-31 at 14:11 +1100, James Morris wrote:
-> > On Mon, 30 Oct 2017, Stephen Smalley wrote:
-> > 
-> > > Thanks, interesting approach. One drawback is that it doesn't
-> > > presently
-> > > support any form of inheritance of labels from the parent
-> > > namespace, so
-> > > files that are shared read-only from the init namespace will show
-> > > up as
-> > > unlabeled in the child namespace until they are assigned the
-> > > namespaced
-> > > attributes.  This for example breaks running the selinux-
-> > > testsuite
-> > > with
-> > > this patch applied (unless perhaps you run restorecon -R / after
-> > > unsharing); otherwise just trying to invoke /usr/bin/runcon will
-> > > fail
-> > > since it is unlabeled in the child.  It seems like we should
-> > > provide
-> > > some form of inheritance from the parent when there is no xattr
-> > > for
-> > > the
-> > > namespace itself.
-> > 
-> > I was assuming that practical use of this would involve doing a
-> > filesystem 
-> > relabel under the newly loaded policy, on first instantiation at
-> > least.
-> 
-> I think that would be problematic, e.g. if you want to share /usr
-> read-
-> only to all of the containers or similar, then they cannot relabel it
-> themselves and even if you provided a way to set the xattrs from the
-> init namespace, in the case where you are using the same or very
-> similar policies, it seems wasteful to set the same xattr values for
-> N
-> xattr names for N containers.  So I think inheritance support will be
-> necessary.  This will be easier if we make the xattr names themselves
-> hierarchical (e.g. if vm8 writes vm1 to /sys/fs/selinux/unshare, then
-> the child xattr name would be security.selinux.ns.vm8.vm1, and we
-> would
-> inherit from either security.selinux.ns.vm8 or security.selinux if
-> security.selinux.ns.vm8.vm1 is not set.)
+Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> It is a regression; the correct SA was being used prior to the xdst
+> pcpu cache commit.
 
-This btw would be a bit cleaner if we dropped the .ns. portion of the
-name, such that we would have:
-security.selinux # xattr name in the init namespace
-security.selinux.vmN # xattr name in the vmN namespace
-security.selinux.vmN.vmM # xattr name in the vmN.vmM namespace
-...
+I don't doubt that at all.  I would like to understand why the flow
+cache did not have this problem.
 
-> 
-> > 
-> > We could try adding an selinuxfs node to specify default handling
-> > of 
-> > unlabeled files in a child namespace, and write to that after
-> > mounting 
-> > selinuxfs in that namespace.
-> > 
-> > e.g. echo inherit > /sys/fs/selinux/parent_ns_labels
-> > 
-> > or something.
-> > 
-> > 
-> > > 
-> > > Another potential concern is that files created in a non-init
-> > > namespace
-> > > are left completely unlabeled in the init namespace (or in any
-> > > parent).
-> > >     As long as access to unlabeled is tightly controlled, this
-> > > might
-> > > not be a problem, but I'm not sure that's guaranteed by the
-> > > refpolicy
-> > > or Fedora/RHEL policies.  We might want to initialize an xattr at
-> > > every
-> > > level of the namespace hierarchy when a new file is created based
-> > > on
-> > > the process and parent directory labels and policy at that
-> > > level. 
-> > > Otherwise, we lose all provenance information for the file
-> > > outside
-> > > of
-> > > the namespace. 
-> > 
-> > Ok.
-> > 
-> > 
-> > > For example, suppose I want to leak information out of
-> > > my category set; I unshare and create files with the information,
-> > > and
-> > > they appear in the init namespace with no categories.
-> > 
-> > Nice :)
-> > 
+> easily run on a Fedora VM,
+> git clone https://github.com/SELinuxProject/selinux-testsuite/
+> sudo dnf install perl-Test perl-Test-Harness perl-Test-Simple selinux-policy-devel gcc libselinux-devel net-tools netlabel_tools iptables
+> sudo make -C policy load
+> cd tests/inet_socket
+> while sudo ./test; do : ; done
+
+Thanks, I'll have a look.
