@@ -1,136 +1,66 @@
-Date: Tue, 31 Oct 2017 14:41:53 -0200
+Date: Tue, 31 Oct 2017 15:26:44 -0200
 From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 To: Richard Haines <richard_c_haines@btinternet.com>
 Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
  linux-security-module@vger.kernel.org, paul@paul-moore.com,
  vyasevich@gmail.com, nhorman@tuxdriver.com, sds@tycho.nsa.gov,
  eparis@parisplace.org
-Message-ID: <20171031164153.GC3675@localhost.localdomain>
-References: <20171017140247.4604-1-richard_c_haines@btinternet.com>
+Message-ID: <20171031172644.GF3675@localhost.localdomain>
+References: <20171017135359.4010-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171017140247.4604-1-richard_c_haines@btinternet.com>
-Subject: Re: [RFC PATCH 1/5] security: Add support for SCTP security
- hooks
+In-Reply-To: <20171017135359.4010-1-richard_c_haines@btinternet.com>
+Subject: Re: [RFC PATCH 0/5] Add SELinux SCTP protocol support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Oct 17, 2017 at 03:02:47PM +0100, Richard Haines wrote:
-> The SCTP security hooks are explained in:
-> Documentation/security/LSM-sctp.txt
+On Tue, Oct 17, 2017 at 02:53:59PM +0100, Richard Haines wrote:
+> This patch set adds SELinux support to SCTP and incorporates all the
+> comments received from my previous attemps (thanks to all who responded).
+> There are also other changes mainly supporting ip options so that CIPSO
+> and CALIPSO work over SCTP.
 > 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  Documentation/security/LSM-sctp.txt | 212 ++++++++++++++++++++++++++++++++++++
->  include/linux/lsm_hooks.h           |  37 +++++++
->  include/linux/security.h            |  27 +++++
->  security/security.c                 |  23 ++++
->  4 files changed, 299 insertions(+)
->  create mode 100644 Documentation/security/LSM-sctp.txt
+> The kernel patches have been built on Fedora 26 with kernel 4.13.4 plus the
+> following userspace patches to enable testing:
 > 
-> diff --git a/Documentation/security/LSM-sctp.txt b/Documentation/security/LSM-sctp.txt
-> new file mode 100644
-> index 0000000..30fe9b5
-> --- /dev/null
-> +++ b/Documentation/security/LSM-sctp.txt
-> @@ -0,0 +1,212 @@
-> +                               SCTP LSM Support
-> +                              ==================
-> +
-> +For security module support, three sctp specific hooks have been implemented:
-> +    security_sctp_assoc_request()
-> +    security_sctp_bind_connect()
-> +    security_sctp_sk_clone()
-> +
-> +Also the following security hook has been utilised:
-> +    security_inet_conn_established()
-> +
-> +The usage of these hooks are described below with the SELinux implementation
-> +described in Documentation/security/SELinux-sctp.txt
-> +
-> +
-> +security_sctp_assoc_request()
-> +------------------------------
-> +This new hook has been added to net/sctp/sm_statefuns.c where it passes the
-> +@ep and @chunk->skb (the association INIT or INIT ACK packet) to the security
-> +module. Returns 0 on success, error on failure.
-> +
-> +    @ep - pointer to sctp endpoint structure.
-> +    @skb - pointer to skbuff of association packet.
-> +    @sctp_cid - set to sctp packet type (SCTP_CID_INIT or SCTP_CID_INIT_ACK).
-> +
-> +The security module performs the following operations:
-> +  1) If this is the first association on @ep->base.sk, then set the peer sid
-> +     to that in @skb. This will ensure there is only one peer sid assigned
-> +     to @ep->base.sk that may support multiple associations.
-> +
-> +  2) If not the first association, validate the @ep->base.sk peer_sid against
-> +     the @skb peer sid to determine whether the association should be allowed
-> +     or denied.
-> +
-> +  3) If @sctp_cid = SCTP_CID_INIT, then set the sctp @ep sid to socket's sid
-> +     (from ep->base.sk) with MLS portion taken from @skb peer sid. This will
-> +     only be used by SCTP TCP style sockets and peeled off connections as they
-> +     cause a new socket to be generated.
-> +
-> +     If IP security options are configured (CIPSO/CALIPSO), then the ip options
-> +     are set on the socket.
-> +
-> +     To support this hook include/net/sctp/structs.h "struct sctp_endpoint"
-> +     has been updated with the following:
-> +
-> +	/* Security identifiers from incoming (INIT). These are set by
-> +	 * security_sctp_assoc_request(). These will only be used by
-> +	 * SCTP TCP type sockets and peeled off connections as they
-> +	 * cause a new socket to be generated. security_sctp_sk_clone()
-> +	 * will then plug these into the new socket.
-> +	 */
-> +	u32 secid;
-> +	u32 peer_secid;
-> +
-> +
-> +security_sctp_bind_connect()
-> +-----------------------------
-> +This new hook has been added to net/sctp/socket.c and net/sctp/sm_make_chunk.c.
-> +It passes one or more ipv4/ipv6 addresses to the security module for
-> +validation based on the @optname that will result in either a bind or connect
-> +service as shown in the permission check tables below.
-> +Returns 0 on success, error on failure.
-> +
-> +    @sk      - Pointer to sock structure.
-> +    @optname - Name of the option to validate.
-> +    @address - One or more ipv4 / ipv6 addresses.
-> +    @addrlen - The total length of address(s). This is calculated on each
-> +               ipv4 or ipv6 address using sizeof(struct sockaddr_in) or
-> +               sizeof(struct sockaddr_in6).
-> +
-> +  ------------------------------------------------------------------
-> +  |                     BIND Type Checks                           |
-> +  |       @optname             |         @address contains         |
-> +  |----------------------------|-----------------------------------|
-> +  | SCTP_SOCKOPT_BINDX_ADD     | One or more ipv4 / ipv6 addresses |
-> +  | SCTP_PRIMARY_ADDR          | Single ipv4 or ipv6 address       |
-> +  | SCTP_SET_PEER_PRIMARY_ADDR | Single ipv4 or ipv6 address       |
-> +  ------------------------------------------------------------------
-> +
-> +  ------------------------------------------------------------------
-> +  |                   CONNECT Type Checks                          |
-> +  |       @optname             |         @address contains         |
-> +  |----------------------------|-----------------------------------|
-> +  | SCTP_SOCKOPT_CONNECTX      | One or more ipv4 / ipv6 addresses |
-> +  | SCTP_PARAM_ADD_IP          | One or more ipv4 / ipv6 addresses |
-> +  | SCTP_SENDMSG_CONNECT       | Single ipv4 or ipv6 address       |
-> +  | SCTP_PARAM_SET_PRIMARY     | Single ipv4 or ipv6 address       |
-> +  ------------------------------------------------------------------
-> +
-> +A summary of the @optname entries is as follows:
-> +
-> +    SCTP_SOCKOPT_BINDX_ADD - Allows additional bind addresses to be
-> +                             associated after (optionally) calling
-> +                             bind(3).
-> +                             sctp_bindx(3) adds a set of bind
-> +	                     addresses on a socket.
+> 1) Updates to libsepol 2.7 to support the sctp portcon statement.
+>    The patch is available from:
+>          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+>          selinux-Add-support-for-the-SCTP-portcon-keyword.patch
+> 
+> 2) Updates to the SELinux Test Suite adding SCTP tests. Please read the
+>    selinux-testsuite/README.sctp for details. The patch is available from:
+>          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+>          selinux-testsuite-Add-SCTP-test-support.patch
+> 
+> 3) Updates to lksctp-tools that show SELinux info in sctp_darn and
+>    sctp_test. It also contains a minor patch for test_1_to_1_connect.c
+>    as when CIPSO/CALIPSO configured, NetLabel returns a different error
+>    code for illegal addresses in test 5. The patch is available from:
+>          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+>          lksctp-tools-Add-SELinux-support-to-sctp_test-and-sc.patch
+> 
+> All SCTP lksctp-tools/src/func_tests run correctly in enforcing mode.
+> 
+> All SCTP regression tests "./sctp-tests run" run correctly in enforcing
+> mode. These tests are obtained from: https://github.com/sctp/sctp-tests
+> 
+> The selinux-testsuite patch also adds remote tests (that need some manual
+> configuration). These are useful for testing CIPSO/CALIPSO over a network
+> with a number of categories to produce large ip option fields with various
+> message sizes forcing fragmentation etc..
+> 
+> 
+> Richard Haines (5):
+>   security: Add support for SCTP security hooks
+>   sctp: Add ip option support
+>   sctp: Add LSM hooks
+>   netlabel: Add SCTP support
+>   selinux: Add SCTP support
 
-Nit, indentation issue above.
+Other than the notes I just sent, patchset LGTM.
+
+Thanks,
+Marcelo
