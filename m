@@ -1,25 +1,16 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id v9VMtfEf014190
- for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2017 18:55:41 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 3yRQ6v0KbFzg4Cq
- for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2017 21:52:07 +0000 (UTC)
-Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
- by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 3yRQ6t6h0Bzg4Cn
- for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2017 21:52:06 +0000 (UTC)
-Received: by mail-lf0-f43.google.com with SMTP id e143so272542lfg.12
- for <selinux@tycho.nsa.gov>; Tue, 31 Oct 2017 13:39:33 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20171030145843.13496-1-sds@tycho.nsa.gov>
+Date: Wed, 1 Nov 2017 00:08:09 +0100
+From: Florian Westphal <fw@strlen.de>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ fw@strlen.de, davem@davemloft.net, herbert@gondor.apana.org.au,
+ steffen.klassert@secunet.com
+Message-ID: <20171031230809.GD7663@breakpoint.cc>
 References: <20171030145843.13496-1-sds@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 31 Oct 2017 16:39:23 -0400
-Message-ID: <CAHC9VhT6b1DJ0E65syC7XoVxfSTs3RUq9-HNLuzt2H-vrj69RA@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, fw@strlen.de, davem@davemloft.net,
- herbert@gondor.apana.org.au, steffen.klassert@secunet.com
-Content-Type: text/plain; charset="UTF-8"
+ <CAHC9VhT6b1DJ0E65syC7XoVxfSTs3RUq9-HNLuzt2H-vrj69RA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHC9VhT6b1DJ0E65syC7XoVxfSTs3RUq9-HNLuzt2H-vrj69RA@mail.gmail.com>
 Subject: Re: [RFC PATCH] xfrm: fix regression introduced by xdst
  pcpu cache
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -27,79 +18,123 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Oct 30, 2017 at 10:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> Since 4.14-rc1, the selinux-testsuite has been encountering sporadic
-> failures during testing of labeled IPSEC. git bisect pointed to
-> commit ec30d78c14a813db39a647b6a348b4286 ("xfrm: add xdst pcpu cache").
-> The xdst pcpu cache is only checking that the policies are the same,
-> but does not validate that the policy, state, and flow match with respect
-> to security context labeling.  As a result, the wrong SA could be used
-> and the receiver could end up performing permission checking and
-> providing SO_PEERSEC or SCM_SECURITY values for the wrong security context.
-> security_xfrm_state_pol_flow_match() exists for this purpose and is
-> already called from xfrm_state_look_at() for matching purposes.
-> Further, xfrm_state_look_at() also performs a xfrm_selector_match() test,
-> which is also missing from the xdst pcpu cache logic.  Add calls to both
-> of these functions when validating the cache entry.  With these changes,
-> the selinux-testsuite passes all tests again.
->
-> Fixes: ec30d78c14a813db39a647b6a348b4286ba4abf5 ("xfrm: add xdst pcpu cache")
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Oct 30, 2017 at 10:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > matching before (as in this patch) or after calling xfrm_bundle_ok()?
+> 
+> I would probably make the LSM call the last check, as you've done; but
+> I have to say that is just so it is consistent with the "LSM last"
+> philosophy and not because of any performance related argument.
+> 
+> > ... Also,
+> > do we need to test xfrm->sel.family before calling xfrm_selector_match
+> > (as in this patch) or not - xfrm_state_look_at() does so when the
+> > state is XFRM_STATE_VALID but not when it is _ERROR or _EXPIRED?
+> 
+> Speaking purely from a SELinux perspective, I'm not sure it matters:
+> as long as the labels match we are happy.  However, from a general
+> IPsec perspective it does seem like a reasonable thing.
+> 
+> Granted I'm probably missing something, but it seems a little odd that
+> the code isn't already checking that the selectors match (... what am
+> I missing?).  It does check the policies, maybe that is enough in the
+> normal IPsec case?
 
-Thanks for chasing this down while I was on vacation :)
+The assumption was that identical policies would yield the same SAs,
+but thats not correct.
 
-> This is an RFC because I am not entirely confident in the fix, e.g. is it
-> sufficient to perform this matching only on the first xfrm or do they all
-> need to be walked as in xfrm_bundle_ok()?
+> > diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+> > index 2746b62..171818b 100644
+> > --- a/net/xfrm/xfrm_policy.c
+> > +++ b/net/xfrm/xfrm_policy.c
+> > @@ -1820,6 +1820,11 @@ xfrm_resolve_and_create_bundle(struct xfrm_policy **pols, int num_pols,
+> >             !xfrm_pol_dead(xdst) &&
+> >             memcmp(xdst->pols, pols,
+> >                    sizeof(struct xfrm_policy *) * num_pols) == 0 &&
+> > +           (!xdst->u.dst.xfrm->sel.family ||
+> > +            xfrm_selector_match(&xdst->u.dst.xfrm->sel, fl,
+> > +                                xdst->u.dst.xfrm->sel.family)) &&
+> > +           security_xfrm_state_pol_flow_match(xdst->u.dst.xfrm,
+> > +                                              xdst->pols[0], fl) &&
 
-If you look at how we handle outgoing labeled IPsec traffic, e.g.
-selinux_xfrm_skb_sid_egress(), you'll see that we only check the first
-xfrm because I don't believe it is ever possible for us to create a
-xfrm bundle with mis-matching SELinux labels.
+... so this needs to walk the bundle and validate each selector.
 
-Inbound traffic is another story, we need to check the entire bundle.
+Alternatively we could always do template resolution and then check
+that all states found match those of the old pcpu xdst:
 
-> ... Also, should we perform this
-> matching before (as in this patch) or after calling xfrm_bundle_ok()?
-
-I would probably make the LSM call the last check, as you've done; but
-I have to say that is just so it is consistent with the "LSM last"
-philosophy and not because of any performance related argument.
-
-> ... Also,
-> do we need to test xfrm->sel.family before calling xfrm_selector_match
-> (as in this patch) or not - xfrm_state_look_at() does so when the
-> state is XFRM_STATE_VALID but not when it is _ERROR or _EXPIRED?
-
-Speaking purely from a SELinux perspective, I'm not sure it matters:
-as long as the labels match we are happy.  However, from a general
-IPsec perspective it does seem like a reasonable thing.
-
-Granted I'm probably missing something, but it seems a little odd that
-the code isn't already checking that the selectors match (... what am
-I missing?).  It does check the policies, maybe that is enough in the
-normal IPsec case?
-
-> diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-> index 2746b62..171818b 100644
-> --- a/net/xfrm/xfrm_policy.c
-> +++ b/net/xfrm/xfrm_policy.c
-> @@ -1820,6 +1820,11 @@ xfrm_resolve_and_create_bundle(struct xfrm_policy **pols, int num_pols,
->             !xfrm_pol_dead(xdst) &&
->             memcmp(xdst->pols, pols,
->                    sizeof(struct xfrm_policy *) * num_pols) == 0 &&
-> +           (!xdst->u.dst.xfrm->sel.family ||
-> +            xfrm_selector_match(&xdst->u.dst.xfrm->sel, fl,
-> +                                xdst->u.dst.xfrm->sel.family)) &&
-> +           security_xfrm_state_pol_flow_match(xdst->u.dst.xfrm,
-> +                                              xdst->pols[0], fl) &&
->             xfrm_bundle_ok(xdst)) {
->                 dst_hold(&xdst->u.dst);
->                 return xdst;
-> --
-> 2.9.5
->
-
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -1786,19 +1786,23 @@ void xfrm_policy_cache_flush(void)
+ 	put_online_cpus();
+ }
+ 
+-static bool xfrm_pol_dead(struct xfrm_dst *xdst)
++static bool xfrm_xdst_can_reuse(struct xfrm_dst *xdst,
++				struct xfrm_state * const xfrm[],
++				int num)
+ {
+-	unsigned int num_pols = xdst->num_pols;
+-	unsigned int pol_dead = 0, i;
++	const struct dst_entry *dst = &xdst->u.dst;
++	int i;
+ 
+-	for (i = 0; i < num_pols; i++)
+-		pol_dead |= xdst->pols[i]->walk.dead;
++	if (xdst->num_xfrms != num)
++		return false;
+ 
+-	/* Mark DST_OBSOLETE_DEAD to fail the next xfrm_dst_check() */
+-	if (pol_dead)
+-		xdst->u.dst.obsolete = DST_OBSOLETE_DEAD;
++	for (i = 0; i < num; i++) {
++		if (!dst || dst->xfrm != xfrm[i])
++			return false;
++		dst = dst->child;
++	}
+ 
+-	return pol_dead;
++	return xfrm_bundle_ok(xdst);
+ }
+ 
+ static struct xfrm_dst *
+@@ -1812,26 +1816,28 @@ xfrm_resolve_and_create_bundle(struct xfrm_policy **pols, int num_pols,
+ 	struct dst_entry *dst;
+ 	int err;
+ 
++	/* Try to instantiate a bundle */
++	err = xfrm_tmpl_resolve(pols, num_pols, fl, xfrm, family);
++	if (err <= 0) {
++		if (err != 0 && err != -EAGAIN)
++			XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTPOLERROR);
++		return ERR_PTR(err);
++	}
++
+ 	xdst = this_cpu_read(xfrm_last_dst);
+ 	if (xdst &&
+ 	    xdst->u.dst.dev == dst_orig->dev &&
+ 	    xdst->num_pols == num_pols &&
+-	    !xfrm_pol_dead(xdst) &&
+ 	    memcmp(xdst->pols, pols,
+ 		   sizeof(struct xfrm_policy *) * num_pols) == 0 &&
+-	    xfrm_bundle_ok(xdst)) {
++	    xfrm_xdst_can_reuse(xdst, xfrm, err)) {
+ 		dst_hold(&xdst->u.dst);
++		while (err > 0)
++			xfrm_state_put(xfrm[--err]);
+ 		return xdst;
+ 	}
+ 
+ 	old = xdst;
+-	/* Try to instantiate a bundle */
+-	err = xfrm_tmpl_resolve(pols, num_pols, fl, xfrm, family);
+-	if (err <= 0) {
+-		if (err != 0 && err != -EAGAIN)
+-			XFRM_INC_STATS(net, LINUX_MIB_XFRMOUTPOLERROR);
+-		return ERR_PTR(err);
+-	}
+ 
+ 	dst = xfrm_bundle_create(pols[0], xfrm, err, fl, dst_orig);
+ 	if (IS_ERR(dst)) {
 -- 
-paul moore
-www.paul-moore.com
+2.13.6
