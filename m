@@ -1,47 +1,190 @@
-Message-ID: <1509549725.24459.6.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: James Morris <james.l.morris@oracle.com>
-Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
-Date: Wed, 01 Nov 2017 11:22:05 -0400
-In-Reply-To: <alpine.LFD.2.20.1711011738110.6046@localhost>
-References: <alpine.LFD.2.20.1710301859170.11614@localhost>
- <1509390973.10174.9.camel@tycho.nsa.gov>
- <alpine.LFD.2.20.1710311357320.22021@localhost>
- <1509454842.20694.1.camel@tycho.nsa.gov>
- <1509458646.20694.10.camel@tycho.nsa.gov>
- <alpine.LFD.2.20.1711011738110.6046@localhost>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vA1LcblZ032163
+ for <selinux@tycho.nsa.gov>; Wed, 1 Nov 2017 17:38:37 -0400
+Message-ID: <1509572303.2954.8.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org
+Date: Wed, 01 Nov 2017 21:38:23 +0000
+In-Reply-To: <20171031164153.GC3675@localhost.localdomain>
+References: <20171017140247.4604-1-richard_c_haines@btinternet.com>
+ <20171031164153.GC3675@localhost.localdomain>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [RFC v0.1][PATCH] selinuxns: extend namespace support to
- security.selinux xattrs
+Subject: Re: [RFC PATCH 1/5] security: Add support for SCTP security
+ hooks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-11-01 at 17:40 +1100, James Morris wrote:
-> On Tue, 31 Oct 2017, Stephen Smalley wrote:
+On Tue, 2017-10-31 at 14:41 -0200, Marcelo Ricardo Leitner wrote:
+> On Tue, Oct 17, 2017 at 03:02:47PM +0100, Richard Haines wrote:
+> > The SCTP security hooks are explained in:
+> > Documentation/security/LSM-sctp.txt
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> >  Documentation/security/LSM-sctp.txt | 212
+> > ++++++++++++++++++++++++++++++++++++
+> >  include/linux/lsm_hooks.h           |  37 +++++++
+> >  include/linux/security.h            |  27 +++++
+> >  security/security.c                 |  23 ++++
+> >  4 files changed, 299 insertions(+)
+> >  create mode 100644 Documentation/security/LSM-sctp.txt
+> > 
+> > diff --git a/Documentation/security/LSM-sctp.txt
+> > b/Documentation/security/LSM-sctp.txt
+> > new file mode 100644
+> > index 0000000..30fe9b5
+> > --- /dev/null
+> > +++ b/Documentation/security/LSM-sctp.txt
+> > @@ -0,0 +1,212 @@
+> > +                               SCTP LSM Support
+> > +                              ==================
+> > +
+> > +For security module support, three sctp specific hooks have been
+> > implemented:
+> > +    security_sctp_assoc_request()
+> > +    security_sctp_bind_connect()
+> > +    security_sctp_sk_clone()
+> > +
+> > +Also the following security hook has been utilised:
+> > +    security_inet_conn_established()
+> > +
+> > +The usage of these hooks are described below with the SELinux
+> > implementation
+> > +described in Documentation/security/SELinux-sctp.txt
+> > +
+> > +
+> > +security_sctp_assoc_request()
+> > +------------------------------
+> > +This new hook has been added to net/sctp/sm_statefuns.c where it
+> > passes the
+> > +@ep and @chunk->skb (the association INIT or INIT ACK packet) to
+> > the security
+> > +module. Returns 0 on success, error on failure.
+> > +
+> > +    @ep - pointer to sctp endpoint structure.
+> > +    @skb - pointer to skbuff of association packet.
+> > +    @sctp_cid - set to sctp packet type (SCTP_CID_INIT or
+> > SCTP_CID_INIT_ACK).
+> > +
+> > +The security module performs the following operations:
+> > +  1) If this is the first association on @ep->base.sk, then set
+> > the peer sid
+> > +     to that in @skb. This will ensure there is only one peer sid
+> > assigned
+> > +     to @ep->base.sk that may support multiple associations.
+> > +
+> > +  2) If not the first association, validate the @ep->base.sk
+> > peer_sid against
+> > +     the @skb peer sid to determine whether the association should
+> > be allowed
+> > +     or denied.
+> > +
+> > +  3) If @sctp_cid = SCTP_CID_INIT, then set the sctp @ep sid to
+> > socket's sid
+> > +     (from ep->base.sk) with MLS portion taken from @skb peer sid.
+> > This will
+> > +     only be used by SCTP TCP style sockets and peeled off
+> > connections as they
+> > +     cause a new socket to be generated.
+> > +
+> > +     If IP security options are configured (CIPSO/CALIPSO), then
+> > the ip options
+> > +     are set on the socket.
+> > +
+> > +     To support this hook include/net/sctp/structs.h "struct
+> > sctp_endpoint"
+> > +     has been updated with the following:
+> > +
+> > +	/* Security identifiers from incoming (INIT). These are
+> > set by
+> > +	 * security_sctp_assoc_request(). These will only be used
+> > by
+> > +	 * SCTP TCP type sockets and peeled off connections as
+> > they
+> > +	 * cause a new socket to be generated.
+> > security_sctp_sk_clone()
+> > +	 * will then plug these into the new socket.
+> > +	 */
+> > +	u32 secid;
+> > +	u32 peer_secid;
+> > +
+> > +
+> > +security_sctp_bind_connect()
+> > +-----------------------------
+> > +This new hook has been added to net/sctp/socket.c and
+> > net/sctp/sm_make_chunk.c.
+> > +It passes one or more ipv4/ipv6 addresses to the security module
+> > for
+> > +validation based on the @optname that will result in either a bind
+> > or connect
+> > +service as shown in the permission check tables below.
+> > +Returns 0 on success, error on failure.
+> > +
+> > +    @sk      - Pointer to sock structure.
+> > +    @optname - Name of the option to validate.
+> > +    @address - One or more ipv4 / ipv6 addresses.
+> > +    @addrlen - The total length of address(s). This is calculated
+> > on each
+> > +               ipv4 or ipv6 address using sizeof(struct
+> > sockaddr_in) or
+> > +               sizeof(struct sockaddr_in6).
+> > +
+> > +  --------------------------------------------------------------
+> > ----
+> > +  |                     BIND Type
+> > Checks                           |
+> > +  |       @optname             |         @address
+> > contains         |
+> > +  |----------------------------|--------------------------------
+> > ---|
+> > +  | SCTP_SOCKOPT_BINDX_ADD     | One or more ipv4 / ipv6 addresses
+> > |
+> > +  | SCTP_PRIMARY_ADDR          | Single ipv4 or ipv6
+> > address       |
+> > +  | SCTP_SET_PEER_PRIMARY_ADDR | Single ipv4 or ipv6
+> > address       |
+> > +  --------------------------------------------------------------
+> > ----
+> > +
+> > +  --------------------------------------------------------------
+> > ----
+> > +  |                   CONNECT Type
+> > Checks                          |
+> > +  |       @optname             |         @address
+> > contains         |
+> > +  |----------------------------|--------------------------------
+> > ---|
+> > +  | SCTP_SOCKOPT_CONNECTX      | One or more ipv4 / ipv6 addresses
+> > |
+> > +  | SCTP_PARAM_ADD_IP          | One or more ipv4 / ipv6 addresses
+> > |
+> > +  | SCTP_SENDMSG_CONNECT       | Single ipv4 or ipv6
+> > address       |
+> > +  | SCTP_PARAM_SET_PRIMARY     | Single ipv4 or ipv6
+> > address       |
+> > +  --------------------------------------------------------------
+> > ----
+> > +
+> > +A summary of the @optname entries is as follows:
+> > +
+> > +    SCTP_SOCKOPT_BINDX_ADD - Allows additional bind addresses to
+> > be
+> > +                             associated after (optionally) calling
+> > +                             bind(3).
+> > +                             sctp_bindx(3) adds a set of bind
+> > +	                     addresses on a socket.
 > 
-> > This btw would be a bit cleaner if we dropped the .ns. portion of
-> > the
-> > name, such that we would have:
-> > security.selinux # xattr name in the init namespace
-> > security.selinux.vmN # xattr name in the vmN namespace
-> > security.selinux.vmN.vmM # xattr name in the vmN.vmM namespace
+> Nit, indentation issue above.
+The nit has been squashed
+Thanks for all your comments
 > 
-> I used 'ns' to diffetentiate against other potential extensions of
-> the 
-> xattr name.  If that's not a concern, then yes it will be cleaner.
-> 
-> Do we limit the number of nestings?
-
-Not in the current code, but I think we will need to do so. That's
-mentioned in the list of known issues in the next-to-last commit:
-
-    * There is no way currently to restrict or bound nesting of
-    namespaces; if you allow it to a domain in the init namespace,
-    then that domain can in turn unshare to arbitrary depths and can
-    grant the same to any domain in its own policy.  Related to this
-    is the fact that there is no way to control resource usage due to
-    selinux namespaces and they can be substantial (per-namespace
-    policydb, sidtab, AVC, etc).
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-
+> security-module" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
