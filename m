@@ -1,368 +1,196 @@
-Message-ID: <1509571753.2954.3.camel@btinternet.com>
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org, paul@paul-moore.com,
- vyasevich@gmail.com, nhorman@tuxdriver.com, sds@tycho.nsa.gov,
- eparis@parisplace.org
-Date: Wed, 01 Nov 2017 21:29:13 +0000
-In-Reply-To: <20171031170606.GD3675@localhost.localdomain>
-References: <20171017135806.4244-1-richard_c_haines@btinternet.com>
- <20171031170606.GD3675@localhost.localdomain>
+Message-ID: <1509627538.4623.1.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul@paul-moore.com>, Florian Westphal <fw@strlen.de>
+Cc: herbert@gondor.apana.org.au, netdev@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ davem@davemloft.net
+Date: Thu, 02 Nov 2017 08:58:58 -0400
+In-Reply-To: <CAHC9VhT7FOeoJgX=KmMPr_ACKSgJ8V9DEHNM=cnfV9-sdrHC2g@mail.gmail.com>
+References: <20171030145843.13496-1-sds@tycho.nsa.gov>
+ <CAHC9VhT6b1DJ0E65syC7XoVxfSTs3RUq9-HNLuzt2H-vrj69RA@mail.gmail.com>
+ <20171031230809.GD7663@breakpoint.cc>
+ <CAHC9VhT7FOeoJgX=KmMPr_ACKSgJ8V9DEHNM=cnfV9-sdrHC2g@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [RFC PATCH 2/5] sctp: Add ip option support
+Subject: Re: [RFC PATCH] xfrm: fix regression introduced by xdst pcpu cache
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-10-31 at 15:06 -0200, Marcelo Ricardo Leitner wrote:
-> Hello,
-> 
-> On Tue, Oct 17, 2017 at 02:58:06PM +0100, Richard Haines wrote:
-> > Add ip option support to allow LSM security modules to utilise
-> > CIPSO/IPv4
-> > and CALIPSO/IPv6 services.
+On Wed, 2017-11-01 at 17:39 -0400, Paul Moore wrote:
+> On Tue, Oct 31, 2017 at 7:08 PM, Florian Westphal <fw@strlen.de>
+> wrote:
+> > Paul Moore <paul@paul-moore.com> wrote:
+> > > On Mon, Oct 30, 2017 at 10:58 AM, Stephen Smalley <sds@tycho.nsa.
+> > > gov> wrote:
+> > > > matching before (as in this patch) or after calling
+> > > > xfrm_bundle_ok()?
+> > > 
+> > > I would probably make the LSM call the last check, as you've
+> > > done; but
+> > > I have to say that is just so it is consistent with the "LSM
+> > > last"
+> > > philosophy and not because of any performance related argument.
+> > > 
+> > > > ... Also,
+> > > > do we need to test xfrm->sel.family before calling
+> > > > xfrm_selector_match
+> > > > (as in this patch) or not - xfrm_state_look_at() does so when
+> > > > the
+> > > > state is XFRM_STATE_VALID but not when it is _ERROR or
+> > > > _EXPIRED?
+> > > 
+> > > Speaking purely from a SELinux perspective, I'm not sure it
+> > > matters:
+> > > as long as the labels match we are happy.  However, from a
+> > > general
+> > > IPsec perspective it does seem like a reasonable thing.
+> > > 
+> > > Granted I'm probably missing something, but it seems a little odd
+> > > that
+> > > the code isn't already checking that the selectors match (...
+> > > what am
+> > > I missing?).  It does check the policies, maybe that is enough in
+> > > the
+> > > normal IPsec case?
 > > 
-> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> > ---
-> >  include/net/sctp/structs.h |  2 ++
-> >  net/sctp/chunk.c           |  7 ++++---
-> >  net/sctp/ipv6.c            | 37 ++++++++++++++++++++++++++++++--
-> > -----
-> >  net/sctp/output.c          |  3 ++-
-> >  net/sctp/protocol.c        | 36
-> > ++++++++++++++++++++++++++++++++++++
-> >  net/sctp/socket.c          |  5 ++++-
-> >  6 files changed, 78 insertions(+), 12 deletions(-)
+> > The assumption was that identical policies would yield the same
+> > SAs,
+> > but thats not correct.
+> 
+> Well, to be fair, I think the assumption is valid for normal,
+> unlabeled IPsec.  The problem comes when SELinux starts labeling SAs
+> and now you have multiple SAs for a given policy, each differing only
+> in the SELinux/LSM label.
+
+No, it is invalid for normal, unlabeled IPSEC too, in the case where
+one has defined xfrm state selectors.  That's what my other testsuite
+patch (which is presently only on the xfrmselectortest branch) is
+exercising - matching of xfrm state selectors.  But in any event,
+Florian's patch fixes both, so I'm fine with it.  I don't know though
+how it compares performance-wise with walking the bundle and just
+calling security_xfrm_state_pol_flow_match() and xfrm_selector_match()
+on each one.
+
+> 
+> Considering that adding the SELinux/LSM label effectively adds an
+> additional selector, I'm wondering if we should simply add the
+> SELinux/LSM label matching to xfrm_selector_match()?  Looking quickly
+> at the code it seems as though we always follow xfrm_selector_match()
+> with a LSM check anyway, the one exception being in
+> __xfrm_policy_check() ... which *might* be a valid exception, as we
+> don't do our access checks for inbound traffic at that point in the
+> stack.
+
+Possibly, but that should probably be a separate patch. We should just
+fix this regression for 4.14, either via Florian's patch or by
+augmenting my patch to perform the matching calls on all of the xfrms.
+
+> 
+> > > > diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+> > > > index 2746b62..171818b 100644
+> > > > --- a/net/xfrm/xfrm_policy.c
+> > > > +++ b/net/xfrm/xfrm_policy.c
+> > > > @@ -1820,6 +1820,11 @@ xfrm_resolve_and_create_bundle(struct
+> > > > xfrm_policy **pols, int num_pols,
+> > > >             !xfrm_pol_dead(xdst) &&
+> > > >             memcmp(xdst->pols, pols,
+> > > >                    sizeof(struct xfrm_policy *) * num_pols) ==
+> > > > 0 &&
+> > > > +           (!xdst->u.dst.xfrm->sel.family ||
+> > > > +            xfrm_selector_match(&xdst->u.dst.xfrm->sel, fl,
+> > > > +                                xdst->u.dst.xfrm->sel.family)) 
+> > > > &&
+> > > > +           security_xfrm_state_pol_flow_match(xdst-
+> > > > >u.dst.xfrm,
+> > > > +                                              xdst->pols[0],
+> > > > fl) &&
 > > 
-> > diff --git a/include/net/sctp/structs.h
-> > b/include/net/sctp/structs.h
-> > index 5ab29af..7767577 100644
-> > --- a/include/net/sctp/structs.h
-> > +++ b/include/net/sctp/structs.h
-> > @@ -461,6 +461,7 @@ struct sctp_af {
-> >  	void		(*ecn_capable)(struct sock *sk);
-> >  	__u16		net_header_len;
-> >  	int		sockaddr_len;
-> > +	int		(*ip_options_len)(struct sock *sk);
-> >  	sa_family_t	sa_family;
-> >  	struct list_head list;
-> >  };
-> > @@ -485,6 +486,7 @@ struct sctp_pf {
-> >  	int (*addr_to_user)(struct sctp_sock *sk, union sctp_addr
-> > *addr);
-> >  	void (*to_sk_saddr)(union sctp_addr *, struct sock *sk);
-> >  	void (*to_sk_daddr)(union sctp_addr *, struct sock *sk);
-> > +	void (*copy_ip_options)(struct sock *sk, struct sock
-> > *newsk);
-> >  	struct sctp_af *af;
-> >  };
-> >  
-> > diff --git a/net/sctp/chunk.c b/net/sctp/chunk.c
-> > index 1323d41..e49e240 100644
-> > --- a/net/sctp/chunk.c
-> > +++ b/net/sctp/chunk.c
-> > @@ -153,7 +153,6 @@ static void sctp_datamsg_assign(struct
-> > sctp_datamsg *msg, struct sctp_chunk *chu
-> >  	chunk->msg = msg;
-> >  }
-> >  
-> > -
-> >  /* A data chunk can have a maximum payload of (2^16 - 20).  Break
-> >   * down any such message into smaller chunks.  Opportunistically,
-> > fragment
-> >   * the chunks down to the current MTU constraints.  We may get
-> > refragmented
-> > @@ -190,7 +189,10 @@ struct sctp_datamsg
-> > *sctp_datamsg_from_user(struct sctp_association *asoc,
-> >  	 */
-> >  	max_data = asoc->pathmtu -
-> >  		   sctp_sk(asoc->base.sk)->pf->af->net_header_len
-> > -
-> 
->                                         ^^^^^^^^
-> > -		   sizeof(struct sctphdr) - sizeof(struct
-> > sctp_data_chunk);
-> > +		   sizeof(struct sctphdr) - sizeof(struct
-> > sctp_data_chunk) -
-> > +		   sctp_sk(asoc->base.sk)->pf->af->
-> 
->                                         ^^^^^^^^
-> > +		   ip_options_len(asoc->base.sk);
-> 
-> Please add a var for sctp_sk(asoc->base.sk)->pf->af. That should also
-> help to not break the dereferencing into multiple lines.
-DONE
-> 
-> > +
-> >  	max_data = SCTP_TRUNC4(max_data);
-> >  
-> >  	/* If the the peer requested that we authenticate DATA
-> > chunks
-> > @@ -210,7 +212,6 @@ struct sctp_datamsg
-> > *sctp_datamsg_from_user(struct sctp_association *asoc,
-> >  
-> >  	/* Set first_len and then account for possible bundles on
-> > first frag */
-> >  	first_len = max_data;
-> > -
-> >  	/* Check to see if we have a pending SACK and try to let
-> > it be bundled
-> >  	 * with this message.  Do this if we don't have any data
-> > queued already.
-> >  	 * To check that, look at out_qlen and retransmit list.
-> > diff --git a/net/sctp/ipv6.c b/net/sctp/ipv6.c
-> > index a4b6ffb..49c9011 100644
-> > --- a/net/sctp/ipv6.c
-> > +++ b/net/sctp/ipv6.c
-> > @@ -423,6 +423,33 @@ static void sctp_v6_copy_addrlist(struct
-> > list_head *addrlist,
-> >  	rcu_read_unlock();
-> >  }
-> >  
-> > +/* Copy over any ip options */
-> > +static void sctp_v6_copy_ip_options(struct sock *sk, struct sock
-> > *newsk)
-> > +{
-> > +	struct ipv6_pinfo *newnp, *np = inet6_sk(sk);
-> > +	struct ipv6_txoptions *opt;
-> > +
-> > +	newnp = inet6_sk(newsk);
-> > +
-> > +	rcu_read_lock();
-> > +	opt = rcu_dereference(np->opt);
-> > +	if (opt)
-> > +		opt = ipv6_dup_options(newsk, opt);
-> > +	RCU_INIT_POINTER(newnp->opt, opt);
-> > +	rcu_read_unlock();
-> > +}
-> > +
-> > +/* Account for the IP options */
-> > +static int sctp_v6_ip_options_len(struct sock *sk)
-> > +{
-> > +	struct ipv6_pinfo *inet6 = inet6_sk(sk);
-> > +
-> > +	if (inet6->opt)
-> > +		return inet6->opt->opt_flen + inet6->opt-
-> > >opt_nflen;
-> 
-> Seems we need RCU protection here.
-> And please add a var for inet6->opt.
-I've changed and tested the following:
-
-/* Account for the IP options */
-static int sctp_v6_ip_options_len(struct sock *sk)
-{
-	struct ipv6_pinfo *np = inet6_sk(sk);
-	struct ipv6_txoptions *opt;
-	int len = 0;
-
-	rcu_read_lock();
-	opt = rcu_dereference(np->opt);
-	if (opt)
-		len = opt->opt_flen + opt->opt_nflen;
-
-	rcu_read_unlock();
-	return len;
-}
-> 
-> > +	else
-> > +		return 0;
-> > +}
-> > +
-> >  /* Initialize a sockaddr_storage from in incoming skb. */
-> >  static void sctp_v6_from_skb(union sctp_addr *addr, struct sk_buff
-> > *skb,
-> >  			     int is_saddr)
-> > @@ -662,7 +689,6 @@ static struct sock
-> > *sctp_v6_create_accept_sk(struct sock *sk,
-> >  	struct sock *newsk;
-> >  	struct ipv6_pinfo *newnp, *np = inet6_sk(sk);
-> >  	struct sctp6_sock *newsctp6sk;
-> > -	struct ipv6_txoptions *opt;
-> >  
-> >  	newsk = sk_alloc(sock_net(sk), PF_INET6, GFP_KERNEL, sk-
-> > >sk_prot, kern);
-> >  	if (!newsk)
-> > @@ -685,12 +711,7 @@ static struct sock
-> > *sctp_v6_create_accept_sk(struct sock *sk,
-> >  	newnp->ipv6_ac_list = NULL;
-> >  	newnp->ipv6_fl_list = NULL;
-> >  
-> > -	rcu_read_lock();
-> > -	opt = rcu_dereference(np->opt);
-> > -	if (opt)
-> > -		opt = ipv6_dup_options(newsk, opt);
-> > -	RCU_INIT_POINTER(newnp->opt, opt);
-> > -	rcu_read_unlock();
-> > +	sctp_v6_copy_ip_options(sk, newsk);
-> >  
-> >  	/* Initialize sk's sport, dport, rcv_saddr and daddr for
-> > getsockname()
-> >  	 * and getpeername().
-> > @@ -1033,6 +1054,7 @@ static struct sctp_af sctp_af_inet6 = {
-> >  	.ecn_capable	   = sctp_v6_ecn_capable,
-> >  	.net_header_len	   = sizeof(struct ipv6hdr),
-> >  	.sockaddr_len	   = sizeof(struct sockaddr_in6),
-> > +	.ip_options_len	   = sctp_v6_ip_options_len,
-> >  #ifdef CONFIG_COMPAT
-> >  	.compat_setsockopt = compat_ipv6_setsockopt,
-> >  	.compat_getsockopt = compat_ipv6_getsockopt,
-> > @@ -1051,6 +1073,7 @@ static struct sctp_pf sctp_pf_inet6 = {
-> >  	.addr_to_user  = sctp_v6_addr_to_user,
-> >  	.to_sk_saddr   = sctp_v6_to_sk_saddr,
-> >  	.to_sk_daddr   = sctp_v6_to_sk_daddr,
-> > +	.copy_ip_options = sctp_v6_copy_ip_options,
-> >  	.af            = &sctp_af_inet6,
-> >  };
-> >  
-> > diff --git a/net/sctp/output.c b/net/sctp/output.c
-> > index 9d85049..85bcd5b 100644
-> > --- a/net/sctp/output.c
-> > +++ b/net/sctp/output.c
-> > @@ -151,7 +151,8 @@ void sctp_packet_init(struct sctp_packet
-> > *packet,
-> >  	INIT_LIST_HEAD(&packet->chunk_list);
-> >  	if (asoc) {
-> >  		struct sctp_sock *sp = sctp_sk(asoc->base.sk);
-> > -		overhead = sp->pf->af->net_header_len;
-> > +		overhead = sp->pf->af->net_header_len +
-> > +			   sp->pf->af->ip_options_len(asoc-
-> > >base.sk);
-> 
-> Here you may also add a var for sp->pf->af.
-DONE
-> 
-> >  	} else {
-> >  		overhead = sizeof(struct ipv6hdr);
-> >  	}
-> > diff --git a/net/sctp/protocol.c b/net/sctp/protocol.c
-> > index 989a900..a9e54ac 100644
-> > --- a/net/sctp/protocol.c
-> > +++ b/net/sctp/protocol.c
-> > @@ -237,6 +237,38 @@ int sctp_copy_local_addr_list(struct net *net,
-> > struct sctp_bind_addr *bp,
-> >  	return error;
-> >  }
-> >  
-> > +/* Copy over any ip options */
-> > +static void sctp_v4_copy_ip_options(struct sock *sk, struct sock
-> > *newsk)
-> > +{
-> > +	struct inet_sock *newinet, *inet = inet_sk(sk);
-> > +	struct ip_options_rcu *inet_opt, *newopt = NULL;
-> > +
-> > +	newinet = inet_sk(newsk);
-> > +
-> > +	rcu_read_lock();
-> > +	inet_opt = rcu_dereference(inet->inet_opt);
-> > +	if (inet_opt) {
-> > +		newopt = sock_kmalloc(newsk, sizeof(*inet_opt) +
-> > +				      inet_opt->opt.optlen,
-> > GFP_ATOMIC);
-> > +		if (newopt)
-> > +			memcpy(newopt, inet_opt, sizeof(*inet_opt)
-> > +
-> > +			       inet_opt->opt.optlen);
-> > +	}
-> > +	RCU_INIT_POINTER(newinet->inet_opt, newopt);
-> > +	rcu_read_unlock();
-> > +}
-> > +
-> > +/* Account for the IP options */
-> > +static int sctp_v4_ip_options_len(struct sock *sk)
-> > +{
-> > +	struct inet_sock *inet = inet_sk(sk);
-> > +
-> > +	if (inet->inet_opt)
-> > +		return inet->inet_opt->opt.optlen;
-> > +	else
-> > +		return 0;
-> > +}
-> > +
-> >  /* Initialize a sctp_addr from in incoming skb.  */
-> >  static void sctp_v4_from_skb(union sctp_addr *addr, struct sk_buff
-> > *skb,
-> >  			     int is_saddr)
-> > @@ -590,6 +622,8 @@ static struct sock
-> > *sctp_v4_create_accept_sk(struct sock *sk,
-> >  	sctp_copy_sock(newsk, sk, asoc);
-> >  	sock_reset_flag(newsk, SOCK_ZAPPED);
-> >  
-> > +	sctp_v4_copy_ip_options(sk, newsk);
-> > +
-> >  	newinet = inet_sk(newsk);
-> >  
-> >  	newinet->inet_daddr = asoc-
-> > >peer.primary_addr.v4.sin_addr.s_addr;
-> > @@ -1008,6 +1042,7 @@ static struct sctp_pf sctp_pf_inet = {
-> >  	.addr_to_user  = sctp_v4_addr_to_user,
-> >  	.to_sk_saddr   = sctp_v4_to_sk_saddr,
-> >  	.to_sk_daddr   = sctp_v4_to_sk_daddr,
-> > +	.copy_ip_options = sctp_v4_copy_ip_options,
-> >  	.af            = &sctp_af_inet
-> >  };
-> >  
-> > @@ -1092,6 +1127,7 @@ static struct sctp_af sctp_af_inet = {
-> >  	.ecn_capable	   = sctp_v4_ecn_capable,
-> >  	.net_header_len	   = sizeof(struct iphdr),
-> >  	.sockaddr_len	   = sizeof(struct sockaddr_in),
-> > +	.ip_options_len	   = sctp_v4_ip_options_len,
-> >  #ifdef CONFIG_COMPAT
-> >  	.compat_setsockopt = compat_ip_setsockopt,
-> >  	.compat_getsockopt = compat_ip_getsockopt,
-> > diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-> > index 8d76086..70355a0 100644
-> > --- a/net/sctp/socket.c
-> > +++ b/net/sctp/socket.c
-> > @@ -3124,6 +3124,7 @@ static int sctp_setsockopt_maxseg(struct sock
-> > *sk, char __user *optval, unsigned
-> >  	if (asoc) {
-> >  		if (val == 0) {
-> >  			val = asoc->pathmtu;
-> > +			val -= sp->pf->af->ip_options_len(asoc-
-> > >base.sk);
-> >  			val -= sp->pf->af->net_header_len;
-> 
-> Also here. May even be inside the if() block.
-DONE
-> 
-> Thanks
-> 
-> >  			val -= sizeof(struct sctphdr) +
-> >  					sizeof(struct
-> > sctp_data_chunk);
-> > @@ -4917,9 +4918,11 @@ int sctp_do_peeloff(struct sock *sk,
-> > sctp_assoc_t id, struct socket **sockp)
-> >  	sctp_copy_sock(sock->sk, sk, asoc);
-> >  
-> >  	/* Make peeled-off sockets more like 1-1 accepted sockets.
-> > -	 * Set the daddr and initialize id to something more
-> > random
-> > +	 * Set the daddr and initialize id to something more
-> > random and also
-> > +	 * copy over any ip options.
-> >  	 */
-> >  	sp->pf->to_sk_daddr(&asoc->peer.primary_addr, sk);
-> > +	sp->pf->copy_ip_options(sk, sock->sk);
-> >  
-> >  	/* Populate the fields of the newsk from the oldsk and
-> > migrate the
-> >  	 * asoc to the newsk.
-> > -- 
-> > 2.13.6
+> > ... so this needs to walk the bundle and validate each selector.
 > > 
+> > Alternatively we could always do template resolution and then check
+> > that all states found match those of the old pcpu xdst:
+> > 
+> > diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+> > --- a/net/xfrm/xfrm_policy.c
+> > +++ b/net/xfrm/xfrm_policy.c
+> > @@ -1786,19 +1786,23 @@ void xfrm_policy_cache_flush(void)
+> >         put_online_cpus();
+> >  }
+> > 
+> > -static bool xfrm_pol_dead(struct xfrm_dst *xdst)
+> > +static bool xfrm_xdst_can_reuse(struct xfrm_dst *xdst,
+> > +                               struct xfrm_state * const xfrm[],
+> > +                               int num)
+> >  {
+> > -       unsigned int num_pols = xdst->num_pols;
+> > -       unsigned int pol_dead = 0, i;
+> > +       const struct dst_entry *dst = &xdst->u.dst;
+> > +       int i;
+> > 
+> > -       for (i = 0; i < num_pols; i++)
+> > -               pol_dead |= xdst->pols[i]->walk.dead;
+> > +       if (xdst->num_xfrms != num)
+> > +               return false;
+> > 
+> > -       /* Mark DST_OBSOLETE_DEAD to fail the next xfrm_dst_check()
+> > */
+> > -       if (pol_dead)
+> > -               xdst->u.dst.obsolete = DST_OBSOLETE_DEAD;
+> > +       for (i = 0; i < num; i++) {
+> > +               if (!dst || dst->xfrm != xfrm[i])
+> > +                       return false;
+> > +               dst = dst->child;
+> > +       }
+> > 
+> > -       return pol_dead;
+> > +       return xfrm_bundle_ok(xdst);
+> >  }
+> > 
+> >  static struct xfrm_dst *
+> > @@ -1812,26 +1816,28 @@ xfrm_resolve_and_create_bundle(struct
+> > xfrm_policy **pols, int num_pols,
+> >         struct dst_entry *dst;
+> >         int err;
+> > 
+> > +       /* Try to instantiate a bundle */
+> > +       err = xfrm_tmpl_resolve(pols, num_pols, fl, xfrm, family);
+> > +       if (err <= 0) {
+> > +               if (err != 0 && err != -EAGAIN)
+> > +                       XFRM_INC_STATS(net,
+> > LINUX_MIB_XFRMOUTPOLERROR);
+> > +               return ERR_PTR(err);
+> > +       }
+> > +
+> >         xdst = this_cpu_read(xfrm_last_dst);
+> >         if (xdst &&
+> >             xdst->u.dst.dev == dst_orig->dev &&
+> >             xdst->num_pols == num_pols &&
+> > -           !xfrm_pol_dead(xdst) &&
+> >             memcmp(xdst->pols, pols,
+> >                    sizeof(struct xfrm_policy *) * num_pols) == 0 &&
+> > -           xfrm_bundle_ok(xdst)) {
+> > +           xfrm_xdst_can_reuse(xdst, xfrm, err)) {
+> >                 dst_hold(&xdst->u.dst);
+> > +               while (err > 0)
+> > +                       xfrm_state_put(xfrm[--err]);
+> >                 return xdst;
+> >         }
+> > 
+> >         old = xdst;
+> > -       /* Try to instantiate a bundle */
+> > -       err = xfrm_tmpl_resolve(pols, num_pols, fl, xfrm, family);
+> > -       if (err <= 0) {
+> > -               if (err != 0 && err != -EAGAIN)
+> > -                       XFRM_INC_STATS(net,
+> > LINUX_MIB_XFRMOUTPOLERROR);
+> > -               return ERR_PTR(err);
+> > -       }
+> > 
+> >         dst = xfrm_bundle_create(pols[0], xfrm, err, fl, dst_orig);
+> >         if (IS_ERR(dst)) {
 > > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-
-> > sctp" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > 
+> > 2.13.6
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-
-> security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
