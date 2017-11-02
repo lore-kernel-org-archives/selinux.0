@@ -1,19 +1,8 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vA2ERAnV005498
- for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2017 10:27:10 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 3ySRrb4NZwz1pJCR
- for <selinux@tycho.nsa.gov>; Thu,  2 Nov 2017 14:13:19 +0000 (UTC)
-Received: from UPBD19PA12.eemsg.mil (unknown [192.168.18.16])
- by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 3ySRrZ6B5Tz1pJCH
- for <selinux@tycho.nsa.gov>; Thu,  2 Nov 2017 14:13:18 +0000 (UTC)
-Received: by mail-pf0-f193.google.com with SMTP id z11so4701852pfk.4
- for <selinux@tycho.nsa.gov>; Thu, 02 Nov 2017 07:05:13 -0700 (PDT)
-Date: Thu, 2 Nov 2017 22:05:04 +0800
-From: Jason Zaman <jason@perfinion.com>
+Date: Thu, 2 Nov 2017 15:17:17 +0100
+From: Petr Lautrbach <plautrba@redhat.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-Message-ID: <20171102140504.GA1098@meriadoc.perfinion.com>
+Cc: selinux@tycho.nsa.gov
+Message-ID: <20171102141717.GA1469@pl-rpi.tpb.lab.eng.brq.redhat.com>
 References: <20171102131930.11585-1-plautrba@redhat.com>
  <1509630745.4623.4.camel@tycho.nsa.gov>
 MIME-Version: 1.0
@@ -39,13 +28,29 @@ On Thu, Nov 02, 2017 at 09:52:25AM -0400, Stephen Smalley wrote:
 > -1), so why is it that seobject.py is manually deciding whether to
 > reload policy?
 
-seobject.py is like a pile of hacks now, im not surprised its bad. We
-really need to kill it completely (ie use setools directly instead of the
-annoying wrappers in seobject). I keep meaning to go through and
-port over the consumers of it slowly but -ENOTIME :(.
+semanageRecords.commit() method calls semanage_set_reload(self.sh, self.load)
+and this overrides the default value set in semanage_handle_create()
 
--- Jason
+the flow something like this:
 
+seobject: __init__(self, store):
+    self.sh = self.get_handle(store)
+
+semanage: semanageRecords.get_handle()
+    handle = semanage_handle_create()
+
+libsemanage: semanage_handle_create()
+    sh->do_reload = (is_selinux_enabled() > 0);
+
+seobject: commit()
+    semanage_set_reload(self.sh, self.load)
+
+Looking into this, the check if SELinux is enabled could be moved to
+libsemanage: semanage_set_reload() and maybe with WARN message in case
+that it doesn't set a new value.
+
+
+> > 
 > > Fixes:
 > > $ sudo umount /sys/fs/selinux
 > > 
