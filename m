@@ -1,122 +1,109 @@
-Message-ID: <1509634111.4623.7.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Petr Lautrbach <plautrba@redhat.com>
-Cc: selinux@tycho.nsa.gov
-Date: Thu, 02 Nov 2017 10:48:31 -0400
-In-Reply-To: <20171102141717.GA1469@pl-rpi.tpb.lab.eng.brq.redhat.com>
-References: <20171102131930.11585-1-plautrba@redhat.com>
- <1509630745.4623.4.camel@tycho.nsa.gov>
- <20171102141717.GA1469@pl-rpi.tpb.lab.eng.brq.redhat.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vA2NtETG011453
+ for <selinux@tycho.nsa.gov>; Thu, 2 Nov 2017 19:55:14 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 3ySh4875R1z1pJw8
+ for <selinux@tycho.nsa.gov>; Thu,  2 Nov 2017 23:24:08 +0000 (UTC)
+Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 3ySh486Kdrz1pJvw
+ for <selinux@tycho.nsa.gov>; Thu,  2 Nov 2017 23:24:08 +0000 (UTC)
+Received: by mail-lf0-f45.google.com with SMTP id r129so1137776lff.8
+ for <selinux@tycho.nsa.gov>; Thu, 02 Nov 2017 15:37:30 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <1509627538.4623.1.camel@tycho.nsa.gov>
+References: <20171030145843.13496-1-sds@tycho.nsa.gov>
+ <CAHC9VhT6b1DJ0E65syC7XoVxfSTs3RUq9-HNLuzt2H-vrj69RA@mail.gmail.com>
+ <20171031230809.GD7663@breakpoint.cc>
+ <CAHC9VhT7FOeoJgX=KmMPr_ACKSgJ8V9DEHNM=cnfV9-sdrHC2g@mail.gmail.com>
+ <1509627538.4623.1.camel@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 2 Nov 2017 18:37:27 -0400
+Message-ID: <CAHC9VhR9UMzh4euR87OaqcjfqodvEAr-KBLjGYa4C+Z7zVTZ9A@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Florian Westphal <fw@strlen.de>, herbert@gondor.apana.org.au,
+ netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, davem@davemloft.net
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH] python/semanage: Do not try to reload policy when
- SELinux is disabled
+Subject: Re: [RFC PATCH] xfrm: fix regression introduced by xdst
+ pcpu cache
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-11-02 at 15:17 +0100, Petr Lautrbach wrote:
-> On Thu, Nov 02, 2017 at 09:52:25AM -0400, Stephen Smalley wrote:
-> > On Thu, 2017-11-02 at 14:19 +0100, Petr Lautrbach wrote:
-> > > When SELinux is disabled, semanage without -N fails with a quite
-> > > complicated
-> > > error message when it tries to reload a new policy. Since reload
-> > > in
-> > > this case
-> > > doesn't make sense, we should probably try to avoid that.
-> > 
-> > I haven't looked closely at this yet, but I know libsemanage itself
-> > internally sets ->do_reload to false if is_selinux_enabled() is 0
-> > (or
-> > -1), so why is it that seobject.py is manually deciding whether to
-> > reload policy?
-> 
-> semanageRecords.commit() method calls semanage_set_reload(self.sh,
-> self.load)
-> and this overrides the default value set in semanage_handle_create()
-> 
-> the flow something like this:
-> 
-> seobject: __init__(self, store):
->     self.sh = self.get_handle(store)
-> 
-> semanage: semanageRecords.get_handle()
->     handle = semanage_handle_create()
-> 
-> libsemanage: semanage_handle_create()
->     sh->do_reload = (is_selinux_enabled() > 0);
-> 
-> seobject: commit()
->     semanage_set_reload(self.sh, self.load)
-> 
-> Looking into this, the check if SELinux is enabled could be moved to
-> libsemanage: semanage_set_reload() and maybe with WARN message in
-> case
-> that it doesn't set a new value.
+On Thu, Nov 2, 2017 at 8:58 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Wed, 2017-11-01 at 17:39 -0400, Paul Moore wrote:
+>> On Tue, Oct 31, 2017 at 7:08 PM, Florian Westphal <fw@strlen.de>
+>> wrote:
+>> > Paul Moore <paul@paul-moore.com> wrote:
+>> > > On Mon, Oct 30, 2017 at 10:58 AM, Stephen Smalley <sds@tycho.nsa.
+>> > > gov> wrote:
+>> > > > matching before (as in this patch) or after calling
+>> > > > xfrm_bundle_ok()?
+>> > >
+>> > > I would probably make the LSM call the last check, as you've
+>> > > done; but
+>> > > I have to say that is just so it is consistent with the "LSM
+>> > > last"
+>> > > philosophy and not because of any performance related argument.
+>> > >
+>> > > > ... Also,
+>> > > > do we need to test xfrm->sel.family before calling
+>> > > > xfrm_selector_match
+>> > > > (as in this patch) or not - xfrm_state_look_at() does so when
+>> > > > the
+>> > > > state is XFRM_STATE_VALID but not when it is _ERROR or
+>> > > > _EXPIRED?
+>> > >
+>> > > Speaking purely from a SELinux perspective, I'm not sure it
+>> > > matters:
+>> > > as long as the labels match we are happy.  However, from a
+>> > > general
+>> > > IPsec perspective it does seem like a reasonable thing.
+>> > >
+>> > > Granted I'm probably missing something, but it seems a little odd
+>> > > that
+>> > > the code isn't already checking that the selectors match (...
+>> > > what am
+>> > > I missing?).  It does check the policies, maybe that is enough in
+>> > > the
+>> > > normal IPsec case?
+>> >
+>> > The assumption was that identical policies would yield the same
+>> > SAs,
+>> > but thats not correct.
+>>
+>> Well, to be fair, I think the assumption is valid for normal,
+>> unlabeled IPsec.  The problem comes when SELinux starts labeling SAs
+>> and now you have multiple SAs for a given policy, each differing only
+>> in the SELinux/LSM label.
+>
+> No, it is invalid for normal, unlabeled IPSEC too, in the case where
+> one has defined xfrm state selectors.  That's what my other testsuite
+> patch (which is presently only on the xfrmselectortest branch) is
+> exercising - matching of xfrm state selectors.  But in any event,
+> Florian's patch fixes both, so I'm fine with it.  I don't know though
+> how it compares performance-wise with walking the bundle and just
+> calling security_xfrm_state_pol_flow_match() and xfrm_selector_match()
+> on each one.
+>
+>> Considering that adding the SELinux/LSM label effectively adds an
+>> additional selector, I'm wondering if we should simply add the
+>> SELinux/LSM label matching to xfrm_selector_match()?  Looking quickly
+>> at the code it seems as though we always follow xfrm_selector_match()
+>> with a LSM check anyway, the one exception being in
+>> __xfrm_policy_check() ... which *might* be a valid exception, as we
+>> don't do our access checks for inbound traffic at that point in the
+>> stack.
+>
+> Possibly, but that should probably be a separate patch. We should just
+> fix this regression for 4.14, either via Florian's patch or by
+> augmenting my patch to perform the matching calls on all of the xfrms.
 
-Hmm...why does seobject.py call semanage_set_reload() at all except in
-the case where it is explicitly called with -N and wants to forcibly
-suppress policy reload?  If we can avoid making the call except in that
-case, then we don't need to change libsemanage at all.
+I agree that v4.14 should get the smallest patch possible that fixes
+the problem.  I was just looking at the patches presented so far and
+thinking out loud.
 
-> 
-> 
-> > > 
-> > > Fixes:
-> > > $ sudo umount /sys/fs/selinux
-> > > 
-> > > $ sudo semanage fcontext -a --type=postfix_local_tmp_t
-> > > /var/opt/01789667
-> > > SELinux:  Could not downgrade policy file
-> > > /etc/selinux/targeted/policy/policy.31, searching for an older
-> > > version.
-> > > SELinux:  Could not open policy file <=
-> > > /etc/selinux/targeted/policy/policy.31:  No such file or
-> > > directory
-> > > /sbin/load_policy:  Can't load policy:  No such file or directory
-> > > libsemanage.semanage_reload_policy: load_policy returned error
-> > > code
-> > > 2. (No such file or directory).
-> > > SELinux:  Could not downgrade policy file
-> > > /etc/selinux/targeted/policy/policy.31, searching for an older
-> > > version.
-> > > SELinux:  Could not open policy file <=
-> > > /etc/selinux/targeted/policy/policy.31:  No such file or
-> > > directory
-> > > /sbin/load_policy:  Can't load policy:  No such file or directory
-> > > libsemanage.semanage_reload_policy: load_policy returned error
-> > > code
-> > > 2. (No such file or directory).
-> > > FileNotFoundError: [Errno 2] No such file or directory
-> > > 
-> > > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> > > ---
-> > >  python/semanage/seobject.py | 4 ++--
-> > >  1 file changed, 2 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/python/semanage/seobject.py
-> > > b/python/semanage/seobject.py
-> > > index 1385315f..37f2b8c6 100644
-> > > --- a/python/semanage/seobject.py
-> > > +++ b/python/semanage/seobject.py
-> > > @@ -241,7 +241,7 @@ class semanageRecords:
-> > >  
-> > >      def __init__(self, store):
-> > >          global handle
-> > > -        self.load = True
-> > > +        self.load = selinux.is_selinux_enabled()
-> > >          self.sh = self.get_handle(store)
-> > >  
-> > >          rc, localstore = selinux.selinux_getpolicytype()
-> > > @@ -251,7 +251,7 @@ class semanageRecords:
-> > >              self.mylog = nulllogger()
-> > >  
-> > >      def set_reload(self, load):
-> > > -        self.load = load
-> > > +        self.load = selinux.is_selinux_enabled() and load
-> > >  
-> > >      def get_handle(self, store):
-> > >          global is_mls_enabled
-> 
-> 
+-- 
+paul moore
+www.paul-moore.com
