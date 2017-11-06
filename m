@@ -1,31 +1,180 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vA86xdXr030891
- for <selinux@tycho.nsa.gov>; Wed, 8 Nov 2017 01:59:39 -0500
-Received: by mail-pg0-f53.google.com with SMTP id o7so1212185pgc.4
- for <selinux@tycho.nsa.gov>; Tue, 07 Nov 2017 22:59:36 -0800 (PST)
-Date: Wed, 8 Nov 2017 14:59:33 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Petr Lautrbach <plautrba@redhat.com>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20171108065933.GB9205@meriadoc.perfinion.com>
-References: <20171103082211.GA8075@pl-rpi.tpb.lab.eng.brq.redhat.com>
- <20171106150040.25300-1-plautrba@redhat.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vA6NtFB5024237
+ for <selinux@tycho.nsa.gov>; Mon, 6 Nov 2017 18:55:15 -0500
+Received: by mail-lf0-f67.google.com with SMTP id a2so12343582lfh.11
+ for <selinux@tycho.nsa.gov>; Mon, 06 Nov 2017 15:15:35 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171106150040.25300-1-plautrba@redhat.com>
-Subject: Re: [PATCH] python/semanage: Do not try to reload policy
- when SELinux is disabled
+In-Reply-To: <20171017135854.4343-1-richard_c_haines@btinternet.com>
+References: <20171017135854.4343-1-richard_c_haines@btinternet.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 6 Nov 2017 18:15:31 -0500
+Message-ID: <CAHC9VhT1T+ZMreYNa33YVA-drHN=Tg6xQb4nmMWUuX+8OYO9fQ@mail.gmail.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, marcelo.leitner@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [RFC PATCH 4/5] netlabel: Add SCTP support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Nov 06, 2017 at 04:00:37PM +0100, Petr Lautrbach wrote:
-> First two patches do a little cleanup and try to re factorize the code
-> used for seobject object initialization.
-> 
-> The 3rd patch changes the behavior in order to call
-> semanage_set_reload() only if -N is used.
+On Tue, Oct 17, 2017 at 9:58 AM, Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> Add support to label SCTP associations and cater for a situation where
+> family = PF_INET6 with an ip_hdr(skb)->version = 4.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  include/net/netlabel.h            |  3 ++
+>  net/netlabel/netlabel_kapi.c      | 80 +++++++++++++++++++++++++++++++++++++++
+>  net/netlabel/netlabel_unlabeled.c | 10 +++++
+>  3 files changed, 93 insertions(+)
+>
+> diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+> index 72d6435..7348966 100644
+> --- a/include/net/netlabel.h
+> +++ b/include/net/netlabel.h
+> @@ -494,6 +494,9 @@ int netlbl_conn_setattr(struct sock *sk,
+>                         const struct netlbl_lsm_secattr *secattr);
+>  int netlbl_req_setattr(struct request_sock *req,
+>                        const struct netlbl_lsm_secattr *secattr);
+> +int netlbl_sctp_setattr(struct sock *sk,
+> +                       struct sk_buff *skb,
+> +                       const struct netlbl_lsm_secattr *secattr);
+>  void netlbl_req_delattr(struct request_sock *req);
+>  int netlbl_skbuff_setattr(struct sk_buff *skb,
+>                           u16 family,
+> diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
+> index ea7c670..1c82bbe 100644
+> --- a/net/netlabel/netlabel_kapi.c
+> +++ b/net/netlabel/netlabel_kapi.c
+> @@ -1121,6 +1121,7 @@ int netlbl_conn_setattr(struct sock *sk,
+>         switch (addr->sa_family) {
+>         case AF_INET:
+>                 addr4 = (struct sockaddr_in *)addr;
+> +
 
-all looks good to me,
-merged :)
+I'm guessing this bit of extra whitespace was an accident; but just in
+case, drop it from this patch please.
+
+>                 entry = netlbl_domhsh_getentry_af4(secattr->domain,
+>                                                    addr4->sin_addr.s_addr);
+>                 if (entry == NULL) {
+> @@ -1177,6 +1178,85 @@ int netlbl_conn_setattr(struct sock *sk,
+>  }
+>
+>  /**
+> + * netlbl_sctp_setattr - Label an incoming sctp association socket using
+> + * the correct protocol
+> + * @sk: the socket to label
+> + * @skb: the packet
+> + * @secattr: the security attributes
+> + *
+> + * Description:
+> + * Attach the correct label to the given socket using the security attributes
+> + * specified in @secattr.  Returns zero on success, negative values on failure.
+> + *
+> + */
+> +int netlbl_sctp_setattr(struct sock *sk,
+> +                       struct sk_buff *skb,
+> +                       const struct netlbl_lsm_secattr *secattr)
+> +{
+> +       int ret_val = -EINVAL;
+> +       struct netlbl_dommap_def *entry;
+> +       struct iphdr *hdr4;
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +       struct ipv6hdr *hdr6;
+> +#endif
+> +
+> +       rcu_read_lock();
+> +       switch (sk->sk_family) {
+> +       case AF_INET:
+> +               hdr4 = ip_hdr(skb);
+> +
+> +               entry = netlbl_domhsh_getentry_af4(secattr->domain,
+> +                                                  hdr4->saddr);
+> +               if (entry == NULL) {
+> +                       ret_val = -ENOENT;
+> +                       goto sctp_setattr_return;
+> +               }
+> +               switch (entry->type) {
+> +               case NETLBL_NLTYPE_CIPSOV4:
+> +                       ret_val = cipso_v4_sock_setattr(sk, entry->cipso,
+> +                                                       secattr);
+> +                       break;
+> +               case NETLBL_NLTYPE_UNLABELED:
+> +                       netlbl_sock_delattr(sk);
+> +                       ret_val = 0;
+> +                       break;
+> +               default:
+> +                       ret_val = -ENOENT;
+> +               }
+> +               break;
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +       case AF_INET6:
+> +               hdr6 = ipv6_hdr(skb);
+> +               entry = netlbl_domhsh_getentry_af6(secattr->domain,
+> +                                                  &hdr6->saddr);
+> +               if (entry == NULL) {
+> +                       ret_val = -ENOENT;
+> +                       goto sctp_setattr_return;
+> +               }
+> +               switch (entry->type) {
+> +               case NETLBL_NLTYPE_CALIPSO:
+> +                       ret_val = calipso_sock_setattr(sk, entry->calipso,
+> +                                                      secattr);
+> +                       break;
+> +               case NETLBL_NLTYPE_UNLABELED:
+> +                       netlbl_sock_delattr(sk);
+> +                       ret_val = 0;
+> +                       break;
+> +               default:
+> +                       ret_val = -ENOENT;
+> +               }
+> +               break;
+> +#endif /* IPv6 */
+> +       default:
+> +               ret_val = -EPROTONOSUPPORT;
+> +       }
+> +
+> +sctp_setattr_return:
+> +       rcu_read_unlock();
+> +       return ret_val;
+> +}
+
+It seems like we should try to leverage the code in
+netlbl_conn_setattr() a bit more.  I would suggest either tweaking the
+callers to use a sockaddr struct and netlbl_conn_setattr(), or
+implement netlbl_sctp_setattr() as a simple wrapper around
+netlbl_conn_setattr() ... the former seems a bit cleaner, but I
+suspect patch 5/5 will make it clear which approach is better.
+
+> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+> index 22dc1b9..c070dfc 100644
+> --- a/net/netlabel/netlabel_unlabeled.c
+> +++ b/net/netlabel/netlabel_unlabeled.c
+> @@ -1472,6 +1472,16 @@ int netlbl_unlabel_getattr(const struct sk_buff *skb,
+>                 iface = rcu_dereference(netlbl_unlhsh_def);
+>         if (iface == NULL || !iface->valid)
+>                 goto unlabel_getattr_nolabel;
+> +
+> +#if IS_ENABLED(CONFIG_IPV6)
+> +       /* When resolving a fallback label, check the sk_buff version as
+> +        * it is possible (e.g. SCTP) to have family = PF_INET6 while
+> +        * receiving ip_hdr(skb)->version = 4.
+> +        */
+> +       if (family == PF_INET6 && ip_hdr(skb)->version == 4)
+> +               family = PF_INET;
+> +#endif /* IPv6 */
+> +
+
+It seems like this should be pulled out into it's own patch as a fix
+that extends beyond SCTP, what do you think?
+
+-- 
+paul moore
+www.paul-moore.com
