@@ -1,22 +1,22 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vADNcs27023404
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 18:38:55 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAE09QFA006728
+ for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 19:09:26 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 3ybRt355xDz1pJF8
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 23:38:51 +0000 (UTC)
-Received: from UPDC3CPA05.eemsg.mil (unknown [192.168.18.12])
- by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 3ybRt34BlRz1pJF6
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 23:38:51 +0000 (UTC)
-Received: by mail-lf0-f66.google.com with SMTP id o66so11887478lfg.0
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 14:27:03 -0800 (PST)
+ by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 3ybS1b5jWXzJ3BX
+ for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 23:45:23 +0000 (UTC)
+Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 3ybS1b0QhtzJ3BR
+ for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 23:45:22 +0000 (UTC)
+Received: by mail-lf0-f67.google.com with SMTP id 73so5816902lfu.10
+ for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 14:41:58 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1510606217.2636.4.camel@btinternet.com>
-References: <20171017135854.4343-1-richard_c_haines@btinternet.com>
- <CAHC9VhT1T+ZMreYNa33YVA-drHN=Tg6xQb4nmMWUuX+8OYO9fQ@mail.gmail.com>
- <1510606217.2636.4.camel@btinternet.com>
+In-Reply-To: <1510610721.3652.8.camel@btinternet.com>
+References: <20171017135953.4419-1-richard_c_haines@btinternet.com>
+ <CAHC9VhShAjQiw-P5vvuULbEZJ7KYHch5ZsnRk=d9vP5kyDvYzQ@mail.gmail.com>
+ <1510610721.3652.8.camel@btinternet.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 13 Nov 2017 17:26:56 -0500
-Message-ID: <CAHC9VhTVY-dk1BO7EosaYS=7h-5UAva8NE_vv0p6e0g_TcaySQ@mail.gmail.com>
+Date: Mon, 13 Nov 2017 17:40:57 -0500
+Message-ID: <CAHC9VhRg9xS=ustdcORVPsb9H18nMEq6A99Y3KyOm2sm6Mo5xg@mail.gmail.com>
 To: Richard Haines <richard_c_haines@btinternet.com>
 Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
  linux-security-module@vger.kernel.org,
@@ -24,167 +24,187 @@ Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
  Stephen Smalley <sds@tycho.nsa.gov>,
  Eric Paris <eparis@parisplace.org>, marcelo.leitner@gmail.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [RFC PATCH 4/5] netlabel: Add SCTP support
+Subject: Re: [RFC PATCH 5/5] selinux: Add SCTP support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Nov 13, 2017 at 3:50 PM, Richard Haines
+On Mon, Nov 13, 2017 at 5:05 PM, Richard Haines
 <richard_c_haines@btinternet.com> wrote:
-> On Mon, 2017-11-06 at 18:15 -0500, Paul Moore wrote:
->> On Tue, Oct 17, 2017 at 9:58 AM, Richard Haines
+> On Mon, 2017-11-06 at 19:09 -0500, Paul Moore wrote:
+>> On Tue, Oct 17, 2017 at 9:59 AM, Richard Haines
 >> <richard_c_haines@btinternet.com> wrote:
->> > Add support to label SCTP associations and cater for a situation
->> > where
->> > family = PF_INET6 with an ip_hdr(skb)->version = 4.
+>> > The SELinux SCTP implementation is explained in:
+>> > Documentation/security/SELinux-sctp.txt
 >> >
 >> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 >> > ---
->> >  include/net/netlabel.h            |  3 ++
->> >  net/netlabel/netlabel_kapi.c      | 80
->> > +++++++++++++++++++++++++++++++++++++++
->> >  net/netlabel/netlabel_unlabeled.c | 10 +++++
->> >  3 files changed, 93 insertions(+)
+>> >  Documentation/security/SELinux-sctp.txt | 108 +++++++++++++
+>> >  security/selinux/hooks.c                | 268
+>> > ++++++++++++++++++++++++++++++--
+>> >  security/selinux/include/classmap.h     |   3 +-
+>> >  security/selinux/include/netlabel.h     |   9 +-
+>> >  security/selinux/include/objsec.h       |   5 +
+>> >  security/selinux/netlabel.c             |  52 ++++++-
+>> >  6 files changed, 427 insertions(+), 18 deletions(-)
+>> >  create mode 100644 Documentation/security/SELinux-sctp.txt
 
->> >  /**
->> > + * netlbl_sctp_setattr - Label an incoming sctp association socket
->> > using
->> > + * the correct protocol
->> > + * @sk: the socket to label
->> > + * @skb: the packet
->> > + * @secattr: the security attributes
->> > + *
->> > + * Description:
->> > + * Attach the correct label to the given socket using the security
->> > attributes
->> > + * specified in @secattr.  Returns zero on success, negative
->> > values on failure.
->> > + *
->> > + */
->> > +int netlbl_sctp_setattr(struct sock *sk,
->> > +                       struct sk_buff *skb,
->> > +                       const struct netlbl_lsm_secattr *secattr)
+...
+
+>> > +Policy Statements
+>> > +==================
+>> > +The following class and permissions to support SCTP are available
+>> > within the
+>> > +kernel:
+>> > +    class sctp_socket inherits socket { node_bind }
+>> > +
+>> > +whenever the following policy capability is enabled:
+>> > +    policycap extended_socket_class;
+>> > +
+>> > +The SELinux SCTP support adds the additional permissions that are
+>> > explained
+>> > +in the sections below:
+>> > +    association bindx connectx
+>>
+>> Is the distinction between bind and bindx significant?  The same
+>> question applies to connect/connectx.  I think we can probably just
+>> reuse bind and connect in these cases.
+>
+> This has been discussed before with Marcelo and keeping bindx/connectx
+> is a useful distinction.
+
+My apologies, I must have forgotten/missed that discussion.  Do you
+have an archive pointer?
+
+>> > +SCTP Peer Labeling
+>> > +===================
+>> > +An SCTP socket will only have one peer label assigned to it. This
+>> > will be
+>> > +assigned during the establishment of the first association. Once
+>> > the peer
+>> > +label has been assigned, any new associations will have the
+>> > "association"
+>> > +permission validated by checking the socket peer sid against the
+>> > received
+>> > +packets peer sid to determine whether the association should be
+>> > allowed or
+>> > +denied.
+>> > +
+>> > +NOTES:
+>> > +   1) If peer labeling is not enabled, then the peer context will
+>> > always be
+>> > +      SECINITSID_UNLABELED (unlabeled_t in Reference Policy).
+>> > +
+>> > +   2) As SCTP supports multiple endpoints with multi-homing on a
+>> > single socket
+>> > +      it is recommended that peer labels are consistent.
+>>
+>> My apologies if I'm confused, but I thought it was multiple
+>> associations per-endpoint, with the associations providing the
+>> multi-homing functionality, no?
+>
+> I've reworded to:
+> As SCTP can support more than one transport address per endpoint
+> (multi-homing) on a single socket, it is possible to configure policy
+> and NetLabel to provide different peer labels for each of these. As the
+> socket peer label is determined by the first associations transport
+> address, it is recommended that all peer labels are consistent.
+
+I'm still not sure this makes complete sense to me, but since I'm
+still not 100% confident in my understanding of SCTP I'm willing to
+punt on this for the moment.
+
+>> > +   3) getpeercon(3) may be used by userspace to retrieve the
+>> > sockets peer
+>> > +       context.
+>> > +
+>> > +   4) If using NetLabel be aware that if a label is assigned to a
+>> > specific
+>> > +      interface, and that interface 'goes down', then the NetLabel
+>> > service
+>> > +      will remove the entry. Therefore ensure that the network
+>> > startup scripts
+>> > +      call netlabelctl(8) to set the required label (see netlabel-
+>> > config(8)
+>> > +      helper script for details).
+>>
+>> Maybe this will be made clear as I work my way through this patch,
+>> but
+>> how is point #4 SCTP specific?
+>
+> It's not, I added this as a useful hint as I keep forgetting about it,
+> I'll reword to: While not SCTP specific, be aware .....
+
+Okay.  Better.
+
+>> > +/* Called whenever SCTP receives an INIT or INIT_ACK chunk */
+>> > +static int selinux_sctp_assoc_request(struct sctp_endpoint *ep,
+>> > +                                     struct sk_buff *skb,
+>> > +                                     int sctp_cid)
 >> > +{
->> > +       int ret_val = -EINVAL;
->> > +       struct netlbl_dommap_def *entry;
->> > +       struct iphdr *hdr4;
->> > +#if IS_ENABLED(CONFIG_IPV6)
->> > +       struct ipv6hdr *hdr6;
->> > +#endif
+>> > +       struct sk_security_struct *sksec = ep->base.sk-
+>> > >sk_security;
+>> > +       struct common_audit_data ad;
+>> > +       struct lsm_network_audit net = {0,};
+>> > +       u8 peerlbl_active;
+>> > +       u32 peer_sid = SECINITSID_UNLABELED;
+>> > +       u32 conn_sid;
+>> > +       int err;
 >> > +
->> > +       rcu_read_lock();
->> > +       switch (sk->sk_family) {
->> > +       case AF_INET:
->> > +               hdr4 = ip_hdr(skb);
+>> > +       if (!selinux_policycap_extsockclass)
+>> > +               return 0;
+>>
+>> We *may* need to protect a lot of the new SCTP code with a new policy
+>> capability, I think reusing extsockclass here could be problematic.
+>
+> I hope not. I will need some direction here as I've not had problems
+> (yet).
+
+It's actually not that bad, take a look at the NNP/nosuid patch from
+Stephen, af63f4193f9f ("selinux: Generalize support for NNP/nosuid
+SELinux domain transitions"), pay attention to the
+"selinux_policycap_nnp_nosuid_transition" variable.
+
+>> > +               if (err)
+>> > +                       return err;
 >> > +
->> > +               entry = netlbl_domhsh_getentry_af4(secattr->domain,
->> > +                                                  hdr4->saddr);
->> > +               if (entry == NULL) {
->> > +                       ret_val = -ENOENT;
->> > +                       goto sctp_setattr_return;
->> > +               }
->> > +               switch (entry->type) {
->> > +               case NETLBL_NLTYPE_CIPSOV4:
->> > +                       ret_val = cipso_v4_sock_setattr(sk, entry-
->> > >cipso,
->> > +                                                       secattr);
->> > +                       break;
->> > +               case NETLBL_NLTYPE_UNLABELED:
->> > +                       netlbl_sock_delattr(sk);
->> > +                       ret_val = 0;
->> > +                       break;
->> > +               default:
->> > +                       ret_val = -ENOENT;
->> > +               }
->> > +               break;
->> > +#if IS_ENABLED(CONFIG_IPV6)
->> > +       case AF_INET6:
->> > +               hdr6 = ipv6_hdr(skb);
->> > +               entry = netlbl_domhsh_getentry_af6(secattr->domain,
->> > +                                                  &hdr6->saddr);
->> > +               if (entry == NULL) {
->> > +                       ret_val = -ENOENT;
->> > +                       goto sctp_setattr_return;
->> > +               }
->> > +               switch (entry->type) {
->> > +               case NETLBL_NLTYPE_CALIPSO:
->> > +                       ret_val = calipso_sock_setattr(sk, entry-
->> > >calipso,
->> > +                                                      secattr);
->> > +                       break;
->> > +               case NETLBL_NLTYPE_UNLABELED:
->> > +                       netlbl_sock_delattr(sk);
->> > +                       ret_val = 0;
->> > +                       break;
->> > +               default:
->> > +                       ret_val = -ENOENT;
->> > +               }
->> > +               break;
->> > +#endif /* IPv6 */
->> > +       default:
->> > +               ret_val = -EPROTONOSUPPORT;
+>> > +               if (peer_sid == SECSID_NULL)
+>> > +                       peer_sid = SECINITSID_UNLABELED;
 >> > +       }
 >> > +
->> > +sctp_setattr_return:
->> > +       rcu_read_unlock();
->> > +       return ret_val;
->> > +}
->>
->> It seems like we should try to leverage the code in
->> netlbl_conn_setattr() a bit more.  I would suggest either tweaking
->> the
->> callers to use a sockaddr struct and netlbl_conn_setattr(), or
->> implement netlbl_sctp_setattr() as a simple wrapper around
->> netlbl_conn_setattr() ... the former seems a bit cleaner, but I
->> suspect patch 5/5 will make it clear which approach is better.
->
-> I've now modified selinux_netlbl_sctp_assoc_request() to extract the ip
-> address info from skb and add to a sockaddr struct, then call
-> netlbl_conn_setattr(). This removes any specific SCTP code from
-> netlabel_kapi.c
-
-Great, I think that's probably the best option.
-
->> > diff --git a/net/netlabel/netlabel_unlabeled.c
->> > b/net/netlabel/netlabel_unlabeled.c
->> > index 22dc1b9..c070dfc 100644
->> > --- a/net/netlabel/netlabel_unlabeled.c
->> > +++ b/net/netlabel/netlabel_unlabeled.c
->> > @@ -1472,6 +1472,16 @@ int netlbl_unlabel_getattr(const struct
->> > sk_buff *skb,
->> >                 iface = rcu_dereference(netlbl_unlhsh_def);
->> >         if (iface == NULL || !iface->valid)
->> >                 goto unlabel_getattr_nolabel;
+>> > +       if (sksec->sctp_assoc_state == SCTP_ASSOC_UNSET) {
+>> > +               sksec->sctp_assoc_state = SCTP_ASSOC_SET;
 >> > +
->> > +#if IS_ENABLED(CONFIG_IPV6)
->> > +       /* When resolving a fallback label, check the sk_buff
->> > version as
->> > +        * it is possible (e.g. SCTP) to have family = PF_INET6
->> > while
->> > +        * receiving ip_hdr(skb)->version = 4.
->> > +        */
->> > +       if (family == PF_INET6 && ip_hdr(skb)->version == 4)
->> > +               family = PF_INET;
->> > +#endif /* IPv6 */
->> > +
+>> > +               /* Here as first association on socket. As the peer
+>> > SID
+>> > +                * was allowed by peer recv (and the netif/node
+>> > checks),
+>> > +                * then it is approved by policy and used as the
+>> > primary
+>> > +                * peer SID for getpeercon(3).
+>> > +                */
+>> > +               sksec->peer_sid = peer_sid;
+>> > +       } else if  (sksec->peer_sid != peer_sid) {
+>> > +               /* Other association peer SIDs are checked to
+>> > enforce
+>> > +                * consistency among the peer SIDs.
+>> > +                */
+>> > +               ad.type = LSM_AUDIT_DATA_NET;
+>> > +               ad.u.net = &net;
+>> > +               ad.u.net->sk = ep->base.sk;
+>> > +               err = avc_has_perm(sksec->peer_sid, peer_sid,
+>> > sksec->sclass,
+>> > +                                  SCTP_SOCKET__ASSOCIATION, &ad);
 >>
->> It seems like this should be pulled out into it's own patch as a fix
->> that extends beyond SCTP, what do you think?
+>> Can anyone think of any reason why we would ever want to allow an
+>> association that doesn't have the same label as the existing
+>> associations?  Maybe I'm thinking about this wrong, but I can't
+>> imagine this being a good idea ...
 >
-> I'll submit this as a separate NetLabel patch today.
+> This has been discussed a number of times and evolved to this ...
 
-Saw it and ACK'd it, thank you.
-
-> Thanks for all your comments on the patchset, will probably take a few
-> weeks to respond to them all.
-
-No worries, we've waited some time for someone to implement proper
-SCTP support, a few more weeks isn't going to hurt anyone :)
-
-Also, apologies for some confusion on my part regarding SCTP in my
-latest comments; I've since learned I wasn't thinking about endpoints
-and associations correctly.
+Yes, I think my comment was the result of faulty SCTP understanding on my part.
 
 -- 
 paul moore
