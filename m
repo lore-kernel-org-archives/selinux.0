@@ -1,81 +1,46 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vADMgLDV028358
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 17:42:21 -0500
-Received: by mail-lf0-f65.google.com with SMTP id o66so11818584lfg.0
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 13:59:37 -0800 (PST)
-MIME-Version: 1.0
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 13 Nov 2017 16:58:35 -0500
-Message-ID: <CAHC9VhTHcp7DyX0n19F0ZS__ZwoL3KeouBsmsjc0UZ68fP9OXw@mail.gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Subject: [GIT PULL] SELinux patches for v4.15
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vADNZpIv022844
+ for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 18:35:54 -0500
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: paul@paul-moore.com, selinux@tycho.nsa.gov, netdev@vger.kernel.org
+Date: Mon, 13 Nov 2017 20:54:22 +0000
+Message-Id: <20171113205422.2918-1-richard_c_haines@btinternet.com>
+Subject: [PATCH] netlabel: If PF_INET6,
+ check sk_buff ip header version
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi Linus,
+When resolving a fallback label, check the sk_buff version as it
+is possible (e.g. SCTP) to have family = PF_INET6 while
+receiving ip_hdr(skb)->version = 4.
 
-Seven SELinux patches for v4.15, although five of the seven are small
-build fixes and cleanups.  Of the remaining two patches, the only one
-worth really calling out is Eric's fix for the SELinux filesystem
-xattr set/remove code; the other patch simply converts the SELinux
-hash table implementation to use kmem_cache.  Eric's
-setxattr/removexattr tweak converts SELinux back to calling the
-commoncap implementations when the xattr is not SELinux related.  The
-immediate win is to fixup filesystem capabilities in user namespaces,
-but it makes things a bit saner overall; more information in the
-commit description.
-
-Please merge for v4.15.
-
-Thanks,
--Paul
-
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
-The following changes since commit 2bd6bf03f4c1c59381d62c61d03f6cc3fe71f66e:
+ net/netlabel/netlabel_unlabeled.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
- Linux 4.14-rc1 (2017-09-16 15:47:51 -0700)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-  tags/selinux-pr-20171113
-
-for you to fetch changes up to 5794ed762ac2125299644494766704da94168ec0:
-
- selinux: remove extraneous initialization of slots_used and max_chain_len
-  (2017-10-16 18:40:09 -0400)
-
-----------------------------------------------------------------
-selinux/stable-4.15 PR 20171113
-
-----------------------------------------------------------------
-Colin Ian King (3):
-     selinux: remove redundant assignment to str
-     selinux: remove redundant assignment to len
-     selinux: remove extraneous initialization of slots_used and max_chain_len
-
-Corentin LABBE (2):
-     selinux: fix build warning by removing the unused sid variable
-     selinux: fix build warning
-
-Eric W. Biederman (1):
-     selinux: Perform both commoncap and selinux xattr checks
-
-Kyeongdon Kim (1):
-     selinux: Use kmem_cache for hashtab_node
-
-security/selinux/hooks.c          | 55 ++++++++++++++---------------------
-security/selinux/ss/conditional.c |  1 -
-security/selinux/ss/hashtab.c     | 19 +++++++++++---
-security/selinux/ss/hashtab.h     |  4 +++
-security/selinux/ss/services.c    |  4 +++
-5 files changed, 47 insertions(+), 36 deletions(-)
-
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index 22dc1b9..c070dfc 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -1472,6 +1472,16 @@ int netlbl_unlabel_getattr(const struct sk_buff *skb,
+ 		iface = rcu_dereference(netlbl_unlhsh_def);
+ 	if (iface == NULL || !iface->valid)
+ 		goto unlabel_getattr_nolabel;
++
++#if IS_ENABLED(CONFIG_IPV6)
++	/* When resolving a fallback label, check the sk_buff version as
++	 * it is possible (e.g. SCTP) to have family = PF_INET6 while
++	 * receiving ip_hdr(skb)->version = 4.
++	 */
++	if (family == PF_INET6 && ip_hdr(skb)->version == 4)
++		family = PF_INET;
++#endif /* IPv6 */
++
+ 	switch (family) {
+ 	case PF_INET: {
+ 		struct iphdr *hdr4;
 -- 
-paul moore
-www.paul-moore.com
+2.13.6
