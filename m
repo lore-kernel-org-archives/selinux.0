@@ -1,102 +1,201 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAE8Y7LT005944
- for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2017 03:34:07 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 980BBC04AC4C
- for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2017 08:33:57 +0000 (UTC)
-Date: Tue, 14 Nov 2017 09:33:54 +0100
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Vit Mojzis <vmojzis@redhat.com>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20171114083353.GA26700@pl-rpi.tpb.lab.eng.brq.redhat.com>
-References: <20171110152844.32037-1-vmojzis@redhat.com>
- <20171113085626.5636-1-vmojzis@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171113085626.5636-1-vmojzis@redhat.com>
-Subject: Re: [PATCH] python/semanage: Update Infiniband code to work on python3
+Message-ID: <1510606217.2636.4.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org, Vlad
+ Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com, Stephen Smalley
+ <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, marcelo.leitner@gmail.com
+Date: Mon, 13 Nov 2017 20:50:17 +0000
+In-Reply-To: <CAHC9VhT1T+ZMreYNa33YVA-drHN=Tg6xQb4nmMWUuX+8OYO9fQ@mail.gmail.com>
+References: <20171017135854.4343-1-richard_c_haines@btinternet.com>
+ <CAHC9VhT1T+ZMreYNa33YVA-drHN=Tg6xQb4nmMWUuX+8OYO9fQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [RFC PATCH 4/5] netlabel: Add SCTP support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Nov 13, 2017 at 09:56:26AM +0100, Vit Mojzis wrote:
-> Update Infiniband "port" and "key" listing and export to work on
-> python3.
-> {}.keys() does not support .sort() operation on Py3.
+On Mon, 2017-11-06 at 18:15 -0500, Paul Moore wrote:
+> On Tue, Oct 17, 2017 at 9:58 AM, Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > Add support to label SCTP associations and cater for a situation
+> > where
+> > family = PF_INET6 with an ip_hdr(skb)->version = 4.
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> >  include/net/netlabel.h            |  3 ++
+> >  net/netlabel/netlabel_kapi.c      | 80
+> > +++++++++++++++++++++++++++++++++++++++
+> >  net/netlabel/netlabel_unlabeled.c | 10 +++++
+> >  3 files changed, 93 insertions(+)
+> > 
+> > diff --git a/include/net/netlabel.h b/include/net/netlabel.h
+> > index 72d6435..7348966 100644
+> > --- a/include/net/netlabel.h
+> > +++ b/include/net/netlabel.h
+> > @@ -494,6 +494,9 @@ int netlbl_conn_setattr(struct sock *sk,
+> >                         const struct netlbl_lsm_secattr *secattr);
+> >  int netlbl_req_setattr(struct request_sock *req,
+> >                        const struct netlbl_lsm_secattr *secattr);
+> > +int netlbl_sctp_setattr(struct sock *sk,
+> > +                       struct sk_buff *skb,
+> > +                       const struct netlbl_lsm_secattr *secattr);
+> >  void netlbl_req_delattr(struct request_sock *req);
+> >  int netlbl_skbuff_setattr(struct sk_buff *skb,
+> >                           u16 family,
+> > diff --git a/net/netlabel/netlabel_kapi.c
+> > b/net/netlabel/netlabel_kapi.c
+> > index ea7c670..1c82bbe 100644
+> > --- a/net/netlabel/netlabel_kapi.c
+> > +++ b/net/netlabel/netlabel_kapi.c
+> > @@ -1121,6 +1121,7 @@ int netlbl_conn_setattr(struct sock *sk,
+> >         switch (addr->sa_family) {
+> >         case AF_INET:
+> >                 addr4 = (struct sockaddr_in *)addr;
+> > +
 > 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-
-Both patches look good to me. I'll merge them tomorrow if there's no
-other comments.
-
-Thanks,
-
-Petr
-
-
-> ---
->  python/semanage/seobject.py | 16 ++++++----------
->  1 file changed, 6 insertions(+), 10 deletions(-)
+> I'm guessing this bit of extra whitespace was an accident; but just
+> in
+> case, drop it from this patch please.
+Done
 > 
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index 380256b..770745e 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -1543,9 +1543,8 @@ class ibpkeyRecords(semanageRecords):
->      def customized(self):
->          l = []
->          ddict = self.get_all(True)
-> -        keys = ddict.keys()
-> -        keys.sort()
-> -        for k in keys:
-> +
-> +        for k in sorted(ddict.keys()):
->              if k[0] == k[1]:
->                  l.append("-a -t %s -x %s %s" % (ddict[k][0], k[2], k[0]))
->              else:
-> @@ -1557,11 +1556,10 @@ class ibpkeyRecords(semanageRecords):
->          keys = ddict.keys()
->          if len(keys) == 0:
->              return
-> -        keys.sort()
->  
->          if heading:
->              print("%-30s %-18s %s\n" % (_("SELinux IB Pkey Type"), _("Subnet_Prefix"), _("Pkey Number")))
-> -        for i in keys:
-> +        for i in sorted(keys):
->              rec = "%-30s %-18s " % i
->              rec += "%s" % ddict[i][0]
->              for p in ddict[i][1:]:
-> @@ -1785,9 +1783,8 @@ class ibendportRecords(semanageRecords):
->      def customized(self):
->          l = []
->          ddict = self.get_all(True)
-> -        keys = ddict.keys()
-> -        keys.sort()
-> -        for k in keys:
-> +
-> +        for k in sorted(ddict.keys()):
->              l.append("-a -t %s -r %s -z %s %s" % (ddict[k][0], ddict[k][1], k[1], k[0]))
->          return l
->  
-> @@ -1796,11 +1793,10 @@ class ibendportRecords(semanageRecords):
->          keys = ddict.keys()
->          if len(keys) == 0:
->              return
-> -        keys.sort()
->  
->          if heading:
->              print("%-30s %-18s %s\n" % (_("SELinux IB End Port Type"), _("IB Device Name"), _("Port Number")))
-> -        for i in keys:
-> +        for i in sorted(keys):
->              rec = "%-30s %-18s " % i
->              rec += "%s" % ddict[i][0]
->              for p in ddict[i][1:]:
-> -- 
-> 2.9.4
+> >                 entry = netlbl_domhsh_getentry_af4(secattr->domain,
+> >                                                    addr4-
+> > >sin_addr.s_addr);
+> >                 if (entry == NULL) {
+> > @@ -1177,6 +1178,85 @@ int netlbl_conn_setattr(struct sock *sk,
+> >  }
+> > 
+> >  /**
+> > + * netlbl_sctp_setattr - Label an incoming sctp association socket
+> > using
+> > + * the correct protocol
+> > + * @sk: the socket to label
+> > + * @skb: the packet
+> > + * @secattr: the security attributes
+> > + *
+> > + * Description:
+> > + * Attach the correct label to the given socket using the security
+> > attributes
+> > + * specified in @secattr.  Returns zero on success, negative
+> > values on failure.
+> > + *
+> > + */
+> > +int netlbl_sctp_setattr(struct sock *sk,
+> > +                       struct sk_buff *skb,
+> > +                       const struct netlbl_lsm_secattr *secattr)
+> > +{
+> > +       int ret_val = -EINVAL;
+> > +       struct netlbl_dommap_def *entry;
+> > +       struct iphdr *hdr4;
+> > +#if IS_ENABLED(CONFIG_IPV6)
+> > +       struct ipv6hdr *hdr6;
+> > +#endif
+> > +
+> > +       rcu_read_lock();
+> > +       switch (sk->sk_family) {
+> > +       case AF_INET:
+> > +               hdr4 = ip_hdr(skb);
+> > +
+> > +               entry = netlbl_domhsh_getentry_af4(secattr->domain,
+> > +                                                  hdr4->saddr);
+> > +               if (entry == NULL) {
+> > +                       ret_val = -ENOENT;
+> > +                       goto sctp_setattr_return;
+> > +               }
+> > +               switch (entry->type) {
+> > +               case NETLBL_NLTYPE_CIPSOV4:
+> > +                       ret_val = cipso_v4_sock_setattr(sk, entry-
+> > >cipso,
+> > +                                                       secattr);
+> > +                       break;
+> > +               case NETLBL_NLTYPE_UNLABELED:
+> > +                       netlbl_sock_delattr(sk);
+> > +                       ret_val = 0;
+> > +                       break;
+> > +               default:
+> > +                       ret_val = -ENOENT;
+> > +               }
+> > +               break;
+> > +#if IS_ENABLED(CONFIG_IPV6)
+> > +       case AF_INET6:
+> > +               hdr6 = ipv6_hdr(skb);
+> > +               entry = netlbl_domhsh_getentry_af6(secattr->domain,
+> > +                                                  &hdr6->saddr);
+> > +               if (entry == NULL) {
+> > +                       ret_val = -ENOENT;
+> > +                       goto sctp_setattr_return;
+> > +               }
+> > +               switch (entry->type) {
+> > +               case NETLBL_NLTYPE_CALIPSO:
+> > +                       ret_val = calipso_sock_setattr(sk, entry-
+> > >calipso,
+> > +                                                      secattr);
+> > +                       break;
+> > +               case NETLBL_NLTYPE_UNLABELED:
+> > +                       netlbl_sock_delattr(sk);
+> > +                       ret_val = 0;
+> > +                       break;
+> > +               default:
+> > +                       ret_val = -ENOENT;
+> > +               }
+> > +               break;
+> > +#endif /* IPv6 */
+> > +       default:
+> > +               ret_val = -EPROTONOSUPPORT;
+> > +       }
+> > +
+> > +sctp_setattr_return:
+> > +       rcu_read_unlock();
+> > +       return ret_val;
+> > +}
 > 
+> It seems like we should try to leverage the code in
+> netlbl_conn_setattr() a bit more.  I would suggest either tweaking
+> the
+> callers to use a sockaddr struct and netlbl_conn_setattr(), or
+> implement netlbl_sctp_setattr() as a simple wrapper around
+> netlbl_conn_setattr() ... the former seems a bit cleaner, but I
+> suspect patch 5/5 will make it clear which approach is better.
+
+I've now modified selinux_netlbl_sctp_assoc_request() to extract the ip
+address info from skb and add to a sockaddr struct, then call
+netlbl_conn_setattr(). This removes any specific SCTP code from
+netlabel_kapi.c
+
+> 
+> > diff --git a/net/netlabel/netlabel_unlabeled.c
+> > b/net/netlabel/netlabel_unlabeled.c
+> > index 22dc1b9..c070dfc 100644
+> > --- a/net/netlabel/netlabel_unlabeled.c
+> > +++ b/net/netlabel/netlabel_unlabeled.c
+> > @@ -1472,6 +1472,16 @@ int netlbl_unlabel_getattr(const struct
+> > sk_buff *skb,
+> >                 iface = rcu_dereference(netlbl_unlhsh_def);
+> >         if (iface == NULL || !iface->valid)
+> >                 goto unlabel_getattr_nolabel;
+> > +
+> > +#if IS_ENABLED(CONFIG_IPV6)
+> > +       /* When resolving a fallback label, check the sk_buff
+> > version as
+> > +        * it is possible (e.g. SCTP) to have family = PF_INET6
+> > while
+> > +        * receiving ip_hdr(skb)->version = 4.
+> > +        */
+> > +       if (family == PF_INET6 && ip_hdr(skb)->version == 4)
+> > +               family = PF_INET;
+> > +#endif /* IPv6 */
+> > +
+> 
+> It seems like this should be pulled out into it's own patch as a fix
+> that extends beyond SCTP, what do you think?
+
+I'll submit this as a separate NetLabel patch today.
+
+Thanks for all your comments on the patchset, will probably take a few
+weeks to respond to them all.
 > 
