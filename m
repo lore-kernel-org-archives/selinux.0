@@ -1,68 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAE03AMP005639
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 19:03:15 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAE0AIiV008336
+ for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 19:10:18 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 3ybRWW6Nd9zrKdC
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 23:22:47 +0000 (UTC)
-Received: from UPDC3CPA06.eemsg.mil (unknown [192.168.18.13])
- by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 3ybRWW5WlFzrKdY
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 23:22:47 +0000 (UTC)
-Received: by mail-lf0-f67.google.com with SMTP id s16so19841609lfs.1
- for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 14:13:37 -0800 (PST)
+ by UPDCF3IC07.oob.disa.mil (Postfix) with SMTP id 3ybSZC2dn6z1wyMK
+ for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2017 00:10:11 +0000 (UTC)
+Received: from UPBD19PA01.eemsg.mil (unknown [192.168.18.2])
+ by UPDCF3IC07.oob.disa.mil (Postfix) with ESMTP id 3ybSZC21ghz1wyMC
+ for <selinux@tycho.nsa.gov>; Tue, 14 Nov 2017 00:10:11 +0000 (UTC)
+Received: by mail-lf0-f66.google.com with SMTP id n69so20174337lfn.2
+ for <selinux@tycho.nsa.gov>; Mon, 13 Nov 2017 14:41:47 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20171113205422.2918-1-richard_c_haines@btinternet.com>
-References: <20171113205422.2918-1-richard_c_haines@btinternet.com>
+In-Reply-To: <1510569641-28179-1-git-send-email-yamada.masahiro@socionext.com>
+References: <1510569641-28179-1-git-send-email-yamada.masahiro@socionext.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 13 Nov 2017 17:13:34 -0500
-Message-ID: <CAHC9VhT-mALY2UB2nR2fOu5Bc-RRTQw0oXed1OJZNFv2KAcK3w@mail.gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org
+Date: Mon, 13 Nov 2017 17:41:45 -0500
+Message-ID: <CAHC9VhTuxTzTTB6PBesK1UktWbpQD_MN-w9J1S77Exn87-1AwA@mail.gmail.com>
+To: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: linux-kbuild@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
+ selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+ Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] netlabel: If PF_INET6,
- check sk_buff ip header version
+Subject: Re: [PATCH] selinux: remove unnecessary assignment to
+ subdir-
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Nov 13, 2017 at 3:54 PM, Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> When resolving a fallback label, check the sk_buff version as it
-> is possible (e.g. SCTP) to have family = PF_INET6 while
-> receiving ip_hdr(skb)->version = 4.
+On Mon, Nov 13, 2017 at 5:40 AM, Masahiro Yamada
+<yamada.masahiro@socionext.com> wrote:
+> Makefile.clean descends into $(subdir-y).  Dummy assignment to subdir-
+> is meaningless.
 >
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 > ---
->  net/netlabel/netlabel_unlabeled.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
+>
+> I will pick this up for kbuild tree
+> since this is very trivial from the build system point of view.
 
-Thanks Richard.
+Okay, thanks.
 
 Acked-by: Paul Moore <paul@paul-moore.com>
 
-> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-> index 22dc1b9..c070dfc 100644
-> --- a/net/netlabel/netlabel_unlabeled.c
-> +++ b/net/netlabel/netlabel_unlabeled.c
-> @@ -1472,6 +1472,16 @@ int netlbl_unlabel_getattr(const struct sk_buff *skb,
->                 iface = rcu_dereference(netlbl_unlhsh_def);
->         if (iface == NULL || !iface->valid)
->                 goto unlabel_getattr_nolabel;
-> +
-> +#if IS_ENABLED(CONFIG_IPV6)
-> +       /* When resolving a fallback label, check the sk_buff version as
-> +        * it is possible (e.g. SCTP) to have family = PF_INET6 while
-> +        * receiving ip_hdr(skb)->version = 4.
-> +        */
-> +       if (family == PF_INET6 && ip_hdr(skb)->version == 4)
-> +               family = PF_INET;
-> +#endif /* IPv6 */
-> +
->         switch (family) {
->         case PF_INET: {
->                 struct iphdr *hdr4;
+>  scripts/selinux/Makefile | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/scripts/selinux/Makefile b/scripts/selinux/Makefile
+> index e8049da..b3048b8 100644
+> --- a/scripts/selinux/Makefile
+> +++ b/scripts/selinux/Makefile
+> @@ -1,2 +1 @@
+>  subdir-y := mdp genheaders
+> -subdir-        += mdp genheaders
 > --
-> 2.13.6
+> 2.7.4
 
 -- 
 paul moore
