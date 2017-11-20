@@ -1,144 +1,82 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAHD9BSd013367
- for <selinux@tycho.nsa.gov>; Fri, 17 Nov 2017 08:09:11 -0500
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Fri, 17 Nov 2017 08:09:52 -0500
-Message-Id: <20171117130952.28527-1-jwcart2@tycho.nsa.gov>
-Subject: [PATCH] libsepol/cil: Create new keep field for type attribute sets
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAKMo8vb015054
+ for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2017 17:50:08 -0500
+Received: by mail-lf0-f42.google.com with SMTP id x68so11568967lff.0
+ for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2017 12:25:21 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <20171114101053.29533-1-martink@posteo.de>
+References: <20171114101053.29533-1-martink@posteo.de>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 20 Nov 2017 15:25:15 -0500
+Message-ID: <CAHC9VhSVX0xYjEGAnuWYpZER=gvnjSuPn4-w9p2Cb5OOXQ5Rhw@mail.gmail.com>
+To: Martin Kepplinger <martink@posteo.de>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>, serge@hallyn.com,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] security: replace FSF address with web source
+ in license notices
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Daniel Cashman <dcashman@android.com> discovered the following:
-When using cil_db multiple_decls, the different cil_attribute nodes
-all point to the same underlying cil_attribute struct.  This leads
-to problems, though, when modifying the used value in the struct.
-__cil_post_db_attr() changes the value of the field to based on
-the output of cil_typeattribute_used(), for use later in
-cil_typeattribute_to_policydb and cil_typeattribute_to_bitmap, but
-due to the multiple declarations, cil_typeattribute_used() could be
-called again by a second node.  In this second call, the value used
-is the modifed value of CIL_TRUE or CIL_FALSE, not the flags actually
-needed. This could result in the field being reset again, to an
-incorrect CIL_FALSE value.
+On Tue, Nov 14, 2017 at 5:10 AM, Martin Kepplinger <martink@posteo.de> wrote:
+> A few years ago the FSF moved and "59 Temple Place" is wrong. Having this
+> still in our source files feels old and unmaintained.
+>
+> Let's take the license statement serious and not confuse users.
+>
+> As https://www.gnu.org/licenses/gpl-howto.html suggests, we replace the
+> postal address with "<http://www.gnu.org/licenses/>" in the security
+> directory.
+>
+> Signed-off-by: Martin Kepplinger <martink@posteo.de>
+> ---
+>  security/selinux/include/netlabel.h | 3 +--
+>  security/selinux/netlabel.c         | 3 +--
+>  2 files changed, 2 insertions(+), 4 deletions(-)
 
-Add the field "keep" to struct cil_typeattributeset, set its value
-using cil_typeattribute_used(), and use it when determining whether
-the attribute is to be kept or if it should be expanded.
+[NOTE: added the SELinux list to the CC line]
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/cil/src/cil.c           | 1 +
- libsepol/cil/src/cil_binary.c    | 8 ++++----
- libsepol/cil/src/cil_internal.h  | 1 +
- libsepol/cil/src/cil_policy.c    | 2 +-
- libsepol/cil/src/cil_post.c      | 2 +-
- libsepol/cil/src/cil_reset_ast.c | 1 +
- 6 files changed, 9 insertions(+), 6 deletions(-)
+Looks fine to me, I'll add it to the SELinux queue for after the merge
+window closes.
 
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 3fe68af8..5a64c2bc 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -2064,6 +2064,7 @@ void cil_typeattribute_init(struct cil_typeattribute **attr)
- 	(*attr)->expr_list = NULL;
- 	(*attr)->types = NULL;
- 	(*attr)->used = CIL_FALSE;
-+	(*attr)->keep = CIL_FALSE;
- }
- 
- void cil_typeattributeset_init(struct cil_typeattributeset **attrset)
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index c0ca60f2..431cd9cd 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -567,7 +567,7 @@ int cil_typeattribute_to_policydb(policydb_t *pdb, struct cil_typeattribute *cil
- 	char *key = NULL;
- 	type_datum_t *sepol_attr = NULL;
- 
--	if (!cil_attr->used) {
-+	if (!cil_attr->keep) {
- 		return SEPOL_OK;		
- 	}
- 
-@@ -632,7 +632,7 @@ int cil_typeattribute_to_bitmap(policydb_t *pdb, const struct cil_db *db, struct
- 	ebitmap_node_t *tnode;
- 	unsigned int i;
- 
--	if (!cil_attr->used) {
-+	if (!cil_attr->keep) {
- 		return SEPOL_OK;
- 	}
- 
-@@ -1442,7 +1442,7 @@ static int __cil_should_expand_attribute( const struct cil_db *db, struct cil_sy
- 
- 	attr = (struct cil_typeattribute *)datum;
- 
--	return !attr->used || (ebitmap_cardinality(attr->types) < db->attrs_expand_size);
-+	return !attr->keep || (ebitmap_cardinality(attr->types) < db->attrs_expand_size);
- }
- 
- int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_avrule *cil_avrule, cond_node_t *cond_node, enum cil_flavor cond_flavor)
-@@ -2525,7 +2525,7 @@ int __cil_constrain_expr_datum_to_sepol_expr(policydb_t *pdb, const struct cil_d
- 			if (rc != SEPOL_OK) {
- 				if (FLAVOR(item->data) == CIL_TYPEATTRIBUTE) {
- 					struct cil_typeattribute *attr = item->data;
--					if (!attr->used) {
-+					if (!attr->keep) {
- 						rc = 0;
- 					}
- 				}
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index 136a0049..8393e391 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -531,6 +531,7 @@ struct cil_typeattribute {
- 	struct cil_list *expr_list;
- 	ebitmap_t *types;
- 	int used;	// whether or not this attribute was used in a binary policy rule
-+	int keep;
- };
- 
- struct cil_typeattributeset {
-diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
-index 6d4987c4..99eb53c2 100644
---- a/libsepol/cil/src/cil_policy.c
-+++ b/libsepol/cil/src/cil_policy.c
-@@ -1085,7 +1085,7 @@ static void cil_typeattributes_to_policy(FILE *out, struct cil_list *types, stru
- 		type = i1->data;
- 		cil_list_for_each(i2, attributes) {
- 			attribute = i2->data;
--			if (!attribute->used)
-+			if (!attribute->keep)
- 				continue;
- 			if (ebitmap_get_bit(attribute->types, type->value)) {
- 				if (first) {
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index 3e013c97..a2122454 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -1369,7 +1369,7 @@ static int __cil_post_db_attr_helper(struct cil_tree_node *node, uint32_t *finis
- 			rc = __evaluate_type_expression(attr, db);
- 			if (rc != SEPOL_OK) goto exit;
- 		}
--		attr->used = cil_typeattribute_used(attr, db);
-+		attr->keep = cil_typeattribute_used(attr, db);
- 		break;
- 	}
- 	case CIL_ROLEATTRIBUTE: {
-diff --git a/libsepol/cil/src/cil_reset_ast.c b/libsepol/cil/src/cil_reset_ast.c
-index 8a13a1c1..43e6b88e 100644
---- a/libsepol/cil/src/cil_reset_ast.c
-+++ b/libsepol/cil/src/cil_reset_ast.c
-@@ -186,6 +186,7 @@ static void cil_reset_typeattr(struct cil_typeattribute *attr)
- 		attr->expr_list = NULL;
- 	}
- 	attr->used = CIL_FALSE;
-+	attr->keep = CIL_FALSE;
- }
- 
- static void cil_reset_typeattributeset(struct cil_typeattributeset *tas)
+> diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
+> index 75686d53df07..e77a5e307955 100644
+> --- a/security/selinux/include/netlabel.h
+> +++ b/security/selinux/include/netlabel.h
+> @@ -19,8 +19,7 @@
+>   * the GNU General Public License for more details.
+>   *
+>   * You should have received a copy of the GNU General Public License
+> - * along with this program;  if not, write to the Free Software
+> - * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+>   *
+>   */
+>
+> diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+> index aaba6677ee2e..2c297b995b16 100644
+> --- a/security/selinux/netlabel.c
+> +++ b/security/selinux/netlabel.c
+> @@ -22,8 +22,7 @@
+>   * the GNU General Public License for more details.
+>   *
+>   * You should have received a copy of the GNU General Public License
+> - * along with this program;  if not, write to the Free Software
+> - * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+> + * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+>   *
+>   */
+>
+> --
+> 2.11.0
+>
+
+
+
 -- 
-2.13.6
+paul moore
+www.paul-moore.com
