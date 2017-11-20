@@ -1,676 +1,278 @@
-Date: Tue, 21 Nov 2017 20:49:23 +1100 (AEDT)
-From: James Morris <james.l.morris@oracle.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-cc: linux-security-module@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Message-ID: <alpine.LFD.2.20.1711212009330.6297@localhost>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAL1SE5Y024329
+ for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2017 20:28:14 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 3ygmFZ2H4QzrKgJ
+ for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2017 00:10:42 +0000 (UTC)
+Received: from UPBD19PA02.eemsg.mil (unknown [192.168.18.3])
+ by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 3ygmFZ0N2zzrKgF
+ for <selinux@tycho.nsa.gov>; Tue, 21 Nov 2017 00:10:42 +0000 (UTC)
+Received: by mail-lf0-f68.google.com with SMTP id k66so11813200lfg.3
+ for <selinux@tycho.nsa.gov>; Mon, 20 Nov 2017 13:55:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: [RFC][PATCH][v0.2] selinuxns: extend namespace support to
- security.selinux xattrs
+In-Reply-To: <1510696377.2564.24.camel@btinternet.com>
+References: <20171017135953.4419-1-richard_c_haines@btinternet.com>
+ <CAHC9VhShAjQiw-P5vvuULbEZJ7KYHch5ZsnRk=d9vP5kyDvYzQ@mail.gmail.com>
+ <1510610721.3652.8.camel@btinternet.com>
+ <CAHC9VhRg9xS=ustdcORVPsb9H18nMEq6A99Y3KyOm2sm6Mo5xg@mail.gmail.com>
+ <1510696377.2564.24.camel@btinternet.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 20 Nov 2017 16:55:33 -0500
+Message-ID: <CAHC9VhT2g4FXkjzz+DnMhahFx_gHDUg6jTzK9qzVQdKmc7LHqg@mail.gmail.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, marcelo.leitner@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [RFC PATCH 5/5] selinux: Add SCTP support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an updated version of the patch which I first posted here:
+On Tue, Nov 14, 2017 at 4:52 PM, Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Mon, 2017-11-13 at 17:40 -0500, Paul Moore wrote:
+>> On Mon, Nov 13, 2017 at 5:05 PM, Richard Haines
+>> <richard_c_haines@btinternet.com> wrote:
+>> > On Mon, 2017-11-06 at 19:09 -0500, Paul Moore wrote:
+>> > > On Tue, Oct 17, 2017 at 9:59 AM, Richard Haines
+>> > > <richard_c_haines@btinternet.com> wrote:
+>> > > > The SELinux SCTP implementation is explained in:
+>> > > > Documentation/security/SELinux-sctp.txt
+>> > > >
+>> > > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>> > > > ---
+>> > > >  Documentation/security/SELinux-sctp.txt | 108 +++++++++++++
+>> > > >  security/selinux/hooks.c                | 268
+>> > > > ++++++++++++++++++++++++++++++--
+>> > > >  security/selinux/include/classmap.h     |   3 +-
+>> > > >  security/selinux/include/netlabel.h     |   9 +-
+>> > > >  security/selinux/include/objsec.h       |   5 +
+>> > > >  security/selinux/netlabel.c             |  52 ++++++-
+>> > > >  6 files changed, 427 insertions(+), 18 deletions(-)
+>> > > >  create mode 100644 Documentation/security/SELinux-sctp.txt
+>>
+>> ...
+>>
+>> > > > +Policy Statements
+>> > > > +==================
+>> > > > +The following class and permissions to support SCTP are
+>> > > > available
+>> > > > within the
+>> > > > +kernel:
+>> > > > +    class sctp_socket inherits socket { node_bind }
+>> > > > +
+>> > > > +whenever the following policy capability is enabled:
+>> > > > +    policycap extended_socket_class;
+>> > > > +
+>> > > > +The SELinux SCTP support adds the additional permissions that
+>> > > > are
+>> > > > explained
+>> > > > +in the sections below:
+>> > > > +    association bindx connectx
+>> > >
+>> > > Is the distinction between bind and bindx significant?  The same
+>> > > question applies to connect/connectx.  I think we can probably
+>> > > just
+>> > > reuse bind and connect in these cases.
+>> >
+>> > This has been discussed before with Marcelo and keeping
+>> > bindx/connectx
+>> > is a useful distinction.
+>>
+>> My apologies, I must have forgotten/missed that discussion.  Do you
+>> have an archive pointer?
+>
+> No this was off list, however I've copied the relevant bits:
+>
+>> SCTP Socket Option Permissions
+>> ===============================
+>> Permissions that are validated on setsockopt(2) calls (note that the
+>> sctp_socket SETOPT permission must be allowed):
+>>
+>> This option requires the BINDX_ADDR permission:
+>> SCTP_SOCKOPT_BINDX_REM - Remove additional bind address.
+>
+> Can't see an usage for this one.
+>
+>>
+>> These options require the SET_PARAMS permission:
+>> SCTP_PEER_ADDR_PARAMS  - Set heartbeats and address max
+>> retransmissions.
+>> SCTP_PEER_ADDR_THLDS  - Set thresholds.
+>> SCTP_ASSOCINFO        - Set association / endpoint parameters.
+>
+> Also for these, considering we are not willing to go as deep as to only
+> allow these if within a given threshold. But still even then, sounds
+> like too much.
+>
+>>
+>>
+>> SCTP Bind, Connect and ASCONF Chunk Parameter Permission Checks
+>> ==============================================================
+>> The hook security_sctp_addr_list() is called by SCTP when processing
+>> various options (@optname) to check permissions required for the list
+>> of ipv4/ipv6 addresses (@address) as follows:
+>> --------------------------------------------------------------------
+>> |                sctp_socket BIND type permission checks          |
+>> |            (The socket must also have the BIND permission)      |
+>> |      @optname            | Permission  |  @address              |
+>> |--------------------------|-------------|-------------------------|
+>> |SCTP_SOCKOPT_BINDX_ADD    |BINDX_ADDRS  |One or more ipv4/ipv6 adr|
+>
+> This one can be useful, for that privilege-dropping case.
+>
+> Paul note: I later changed BINDX_ADDRS to just BINDX
+>
+>> |SCTP_PRIMARY_ADDR        |SET_PRI_ADDR |Single ipv4 or ipv6 adr  |
+>> |SCTP_SET_PEER_PRIMARY_ADDR|SET_PEER_ADDR|Single ipv4 or ipv6 adr  |
+>
+> But these, can't use an use-case.
+>
+>> --------------------------------------------------------------------
+>> --------------------------------------------------------------------
+>> |                sctp_socket CONNECT type permission checks        |
+>> |            (The socket must also have the CONNECT permission)    |
+>> |      @optname            | Permission  |  @address              |
+>> |--------------------------|-------------|-------------------------|
+>> |SCTP_SOCKOPT_CONNECTX    |CONNECTX    |One or more ipv4/ipv6 adr|
+>> |SCTP_PARAM_ADD_IP        |BINDX_ADDRS  |One or more ipv4/ipv6 adr|
+>
+> The 2 above, can be useful.
+>
+>> |SCTP_PARAM_DEL_IP        |BINDX_ADDRS  |One or more ipv4/ipv6 adr|
+>> |SCTP_PARAM_SET_PRIMARY    |SET_PRI_ADDR |Single ipv4 or ipv6 adr  |
+>
+> But not these two..
+>
+>> --------------------------------------------------------------------
+>>
+>> SCTP_SOCKOPT_BINDX_ADD - Allows additional bind addresses to be
+>> associated after (optionally) calling
+>> bind(3).
+>> sctp_bindx(3) adds a set of bind
+>> addresses on a socket.
+>>
+>> SCTP_SOCKOPT_CONNECTX - Allows the allocation of multiple
+>> addresses for reaching a peer
+>> (multi-homed).
+>> sctp_connectx(3) initiates a connection
+>> on an SCTP socket using multiple
+>> destination addresses.
+>>
+>> SCTP_PRIMARY_ADDR    - Set local primary address.
+>>
+>> SCTP_SET_PEER_PRIMARY_ADDR - Request peer sets address as
+>> association primary.
+>
+> No and no for the 2 above.
 
-http://kernsec.org/pipermail/linux-security-module-archive/2017-October/004053.html
+I still don't undetstand how, from a security perspective,
+sctp_socket:bindx is different from sctp_socket:bind.  I understand
+the distinction is important from a SCTP perspective, but from a
+SELinux perspective isn't sctp_socket:bindx simply sctp_socket:bind?
+How is bindx different from bind?
 
-I've incorporated some of the feedback provided, as follows:
+The same applies for connect/connectx.
 
-1. The init namespace is now an empty string, rather than a hidden "init".
+>> > > > +SCTP Peer Labeling
+>> > > > +===================
+>> > > > +An SCTP socket will only have one peer label assigned to it.
+>> > > > This
+>> > > > will be
+>> > > > +assigned during the establishment of the first association.
+>> > > > Once
+>> > > > the peer
+>> > > > +label has been assigned, any new associations will have the
+>> > > > "association"
+>> > > > +permission validated by checking the socket peer sid against
+>> > > > the
+>> > > > received
+>> > > > +packets peer sid to determine whether the association should
+>> > > > be
+>> > > > allowed or
+>> > > > +denied.
+>> > > > +
+>> > > > +NOTES:
+>> > > > +   1) If peer labeling is not enabled, then the peer context
+>> > > > will
+>> > > > always be
+>> > > > +      SECINITSID_UNLABELED (unlabeled_t in Reference Policy).
+>> > > > +
+>> > > > +   2) As SCTP supports multiple endpoints with multi-homing on
+>> > > > a
+>> > > > single socket
+>> > > > +      it is recommended that peer labels are consistent.
+>> > >
+>> > > My apologies if I'm confused, but I thought it was multiple
+>> > > associations per-endpoint, with the associations providing the
+>> > > multi-homing functionality, no?
+>> >
+>> > I've reworded to:
+>> > As SCTP can support more than one transport address per endpoint
+>> > (multi-homing) on a single socket, it is possible to configure
+>> > policy
+>> > and NetLabel to provide different peer labels for each of these. As
+>> > the
+>> > socket peer label is determined by the first associations transport
+>> > address, it is recommended that all peer labels are consistent.
+>>
+>> I'm still not sure this makes complete sense to me, but since I'm
+>> still not 100% confident in my understanding of SCTP I'm willing to
+>> punt on this for the moment.
+>
+> I would like you to be happy with this so I've added what I think is
+> some clarification.
+>
+> The code that handles this is the selinux_sctp_assoc_request() in
+> hooks.c. If not the first association, then the other association peer
+> SIDs are validated to enforce consistency among the peer SIDs. However
+> what I recommend is that all peer labels should be the same. For
+> example:
+>
+> Don't configure this (although valid):
+> netlabelctl unlbl add interface:lo address:127.0.0.0/8 \
+>     label:system_u:object_r:netlabel_peer_lo_t:s0
+> netlabelctl unlbl add interface:wlp12s0 address:192.168.1.0/24 \
+>     label:system_u:object_r:netlabel_peer_wlan_t:s0
+> netlabelctl unlbl add interface:enp9s0 address:193.168.1.0/24 \
+>     label:system_u:object_r:netlabel_peer_eth_t:s0
+>
+> As this is recommended:
+> netlabelctl unlbl add interface:lo address:127.0.0.0/8 \
+>     label:system_u:object_r:netlabel_peer_t:s0
+> netlabelctl unlbl add interface:wlp12s0 address:192.168.1.0/24 \
+>     label:system_u:object_r:netlabel_peer_t:s0
+> netlabelctl unlbl add interface:enp9s0 address:193.168.1.0/24 \
+>     label:system_u:object_r:netlabel_peer_t:s0
+>
+> Would you prefer me to delete this section ?
 
-2. The ".ns." field for namespaced SELinux xattrs has been removed.
+Okay, I think I'm getting a better idea of this ... let me walk
+through some of this, slowly.
 
-3. Namespace names are now hierarchical, and always include parent 
-   namespace names preceding the current namespace.
+On the send/egress side of things we don't really need to worry about
+the remote peer label as we only do access control checks using the
+sender's label (the local process/socket).  There is a slight
+exception with respect to forwarded traffic, but I think we handle
+that correctly for SCTP by substituting the traffic's label for the
+local process/socket label (current behavior).
 
-As before, this works transparently for normal applications.
+On the receive/ingress side we could receive traffic from any of the
+associations, with the peer:recv permission checking the remote peer
+label (aka the sending association's label) against the local
+receiving socket.  This seems right to me.  As far as userspace is
+concerned, *_getpeersec_dgram() should work correctly, but
+*_getpeersec_stream() will only return the peer label we stored during
+the initial association setup, yes?  This seems ... not the best.
+Although I'm not sure how to solve this.
 
-Some usage examples with this patch:
+Is this why the requirement exists for each association to have an
+equivalent label?
 
-- Create a namespace "VM1":
-
-# echo VM1 > /sys/fs/selinux/unshare
-# unshare -m -n
-# umount /sys/fs/selinux && mount -t selinuxfs none /sys/fs/selinux && load_policy
-# runcon unconfined_u:unconfined_r:unconfined_t:s0:c0.c1023 /bin/bash
-# setenforce 1
-# cat /sys/fs/selinux/unshare
-VM1
-
-
-- Note that the current directory appears unlabeled:
-
-# ls -dZ
-drwxr-xr-x. root root system_u:object_r:unlabeled_t:s0 .
-
-
-- If you create a file, it will also thus be unlabeled:
-
-# touch b
-# ls -Z
--rw-r--r--. root root unconfined_u:object_r:unlabeled_t:s0 b
-
-
-- With the current code, you need to manually label the current directory 
-if you want labeling to work correctly:
-
-# restorecon -v .
-restorecon reset /root/selinux/test context 
-  system_u:object_r:unlabeled_t:s0->system_u:object_r:admin_home_t:s0
-
-# touch c
-# ls -lZ
--rw-r--r--. root root unconfined_u:object_r:unlabeled_t:s0 b
--rw-r--r--. root root unconfined_u:object_r:admin_home_t:s0 c
-
-
-- The on-disk label looks like this:
-
-# getfattr -d -m . c
-# file: c
-security.selinux.VM1="unconfined_u:object_r:admin_home_t:s0"
-
-
-- Now, create a nested namespace, "VM2":
-
-# echo VM2 > /sys/fs/selinux/unshare
-# unshare -m -n
-#  umount /sys/fs/selinux && mount -t selinuxfs none /sys/fs/selinux && load_policy
-# runcon unconfined_u:unconfined_r:unconfined_t:s0:c0.c1023 /bin/bash
-# setenforce 1
-# cat /sys/fs/selinux/unshare 
-VM1.VM2
-
-- Label .:
-
-# restorecon -v .
-restorecon reset /root/selinux/test context 
-  system_u:object_r:unlabeled_t:s0->system_u:object_r:admin_home_t:s0
-
-
-- Create a new file (note files from parent namespace are unlabled in this 
-  one):
-
-# touch d
-# ls -Z
--rw-r--r--. root root system_u:object_r:unlabeled_t:s0 b
--rw-r--r--. root root system_u:object_r:unlabeled_t:s0 c
--rw-r--r--. root root unconfined_u:object_r:admin_home_t:s0 d
-
-
-- Relabel the file:
-
-# chcon -t etc_t d
-# ls -Z d
--rw-r--r--. root root unconfined_u:object_r:etc_t:s0   d
-
-
-- View the on-disk label:
-
-# getfattr -d -m . d
-# file: d
-security.selinux.VM1.VM2="unconfined_u:object_r:etc_t:s0"
-
-
-There's a lot more work to do but I figured it would be useful for folk to 
-see the hierarchical namespacing changes.  Feedback welcome!
-
-Next TODO items:
-
-- Perform labeling of files in ancestor namespaces upon creation in a 
-  child namespace.
-- Label inheritence & label sharing (both ro/rw).
-
-
----
-
->From 91bcb0b9fe058d9b7b0de1d5a1c22e5e7303989a Mon Sep 17 00:00:00 2001
-From: James Morris <james.l.morris@oracle.com>
-Date: Tue, 21 Nov 2017 19:45:22 +1100
-Subject: [PATCH] selinuxns: extend namespace support to security.selinux
- xattrs
-
-RFC v0.2
-
-Signed-off-by: James Morris <james.l.morris@oracle.com>
-
----
-
- fs/xattr.c                            | 12 +++--
- include/linux/lsm_hooks.h             |  2 +
- include/linux/security.h              |  6 +++
- include/linux/xattr.h                 |  2 +-
- security/integrity/evm/evm_crypto.c   |  2 +-
- security/integrity/ima/ima_appraise.c |  2 +-
- security/security.c                   |  6 +++
- security/selinux/hooks.c              | 95 +++++++++++++++++++++++++++++++----
- security/selinux/include/security.h   |  7 ++-
- security/selinux/selinuxfs.c          | 63 ++++++++++++++---------
- security/smack/smack_lsm.c            |  2 +-
- 11 files changed, 159 insertions(+), 40 deletions(-)
-
-diff --git a/fs/xattr.c b/fs/xattr.c
-index 4424f7f..d8107b7 100644
---- a/fs/xattr.c
-+++ b/fs/xattr.c
-@@ -157,6 +157,7 @@
-  *
-  *  @dentry - object to perform setxattr on
-  *  @name - xattr name to set
-+ *  @nsname - namespaced xattr name, use instead of @name if set
-  *  @value - value to set @name to
-  *  @size - size of @value
-  *  @flags - flags to pass into filesystem operations
-@@ -168,7 +169,7 @@
-  *  permission checks.
-  */
- int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
--		const void *value, size_t size, int flags)
-+		const char *nsname, const void *value, size_t size, int flags)
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error = -EAGAIN;
-@@ -178,7 +179,8 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
- 	if (issec)
- 		inode->i_flags &= ~S_NOSEC;
- 	if (inode->i_opflags & IOP_XATTR) {
--		error = __vfs_setxattr(dentry, inode, name, value, size, flags);
-+		error = __vfs_setxattr(dentry, inode, nsname?:name, value,
-+					size, flags);
- 		if (!error) {
- 			fsnotify_xattr(dentry);
- 			security_inode_post_setxattr(dentry, name, value,
-@@ -211,6 +213,7 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
- {
- 	struct inode *inode = dentry->d_inode;
- 	int error;
-+	char *nsname = NULL;
- 
- 	error = xattr_permission(inode, name, MAY_WRITE);
- 	if (error)
-@@ -221,8 +224,11 @@ int __vfs_setxattr_noperm(struct dentry *dentry, const char *name,
- 	if (error)
- 		goto out;
- 
--	error = __vfs_setxattr_noperm(dentry, name, value, size, flags);
-+	error = security_inode_translate_xattr_to_ns(name, &nsname);
-+	if (error)
-+		goto out;
- 
-+	error = __vfs_setxattr_noperm(dentry, name, nsname, value, size, flags);
- out:
- 	inode_unlock(inode);
- 	return error;
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index c925812..e4eb43e 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1480,6 +1480,7 @@
- 	void (*inode_getsecid)(struct inode *inode, u32 *secid);
- 	int (*inode_copy_up)(struct dentry *src, struct cred **new);
- 	int (*inode_copy_up_xattr)(const char *name);
-+	int (*inode_translate_xattr_to_ns)(const char *name, char **tr);
- 
- 	int (*file_permission)(struct file *file, int mask);
- 	int (*file_alloc_security)(struct file *file);
-@@ -1760,6 +1761,7 @@ struct security_hook_heads {
- 	struct list_head inode_getsecid;
- 	struct list_head inode_copy_up;
- 	struct list_head inode_copy_up_xattr;
-+	struct list_head inode_translate_xattr_to_ns;
- 	struct list_head file_permission;
- 	struct list_head file_alloc_security;
- 	struct list_head file_free_security;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ce62659..64297e1 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -302,6 +302,7 @@ void security_inode_post_setxattr(struct dentry *dentry, const char *name,
- void security_inode_getsecid(struct inode *inode, u32 *secid);
- int security_inode_copy_up(struct dentry *src, struct cred **new);
- int security_inode_copy_up_xattr(const char *name);
-+int security_inode_translate_xattr_to_ns(const char *name, char **tr);
- int security_file_permission(struct file *file, int mask);
- int security_file_alloc(struct file *file);
- void security_file_free(struct file *file);
-@@ -808,6 +809,11 @@ static inline int security_inode_copy_up_xattr(const char *name)
- 	return -EOPNOTSUPP;
- }
- 
-+static inline int security_inode_translate_xattr_to_ns(const char *name, char **tr)
-+{
-+	return 0;
-+}
-+
- static inline int security_file_permission(struct file *file, int mask)
- {
- 	return 0;
-diff --git a/include/linux/xattr.h b/include/linux/xattr.h
-index e77605a..c25eb8a 100644
---- a/include/linux/xattr.h
-+++ b/include/linux/xattr.h
-@@ -50,7 +50,7 @@ struct xattr {
- ssize_t vfs_getxattr(struct dentry *, const char *, void *, size_t);
- ssize_t vfs_listxattr(struct dentry *d, char *list, size_t size);
- int __vfs_setxattr(struct dentry *, struct inode *, const char *, const void *, size_t, int);
--int __vfs_setxattr_noperm(struct dentry *, const char *, const void *, size_t, int);
-+int __vfs_setxattr_noperm(struct dentry *, const char *, const char *, const void *, size_t, int);
- int vfs_setxattr(struct dentry *, const char *, const void *, size_t, int);
- int __vfs_removexattr(struct dentry *, const char *);
- int vfs_removexattr(struct dentry *, const char *);
-diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
-index 1d32cd2..2249186 100644
---- a/security/integrity/evm/evm_crypto.c
-+++ b/security/integrity/evm/evm_crypto.c
-@@ -260,7 +260,7 @@ int evm_update_evmxattr(struct dentry *dentry, const char *xattr_name,
- 	if (rc == 0) {
- 		xattr_data.type = EVM_XATTR_HMAC;
- 		rc = __vfs_setxattr_noperm(dentry, XATTR_NAME_EVM,
--					   &xattr_data,
-+					   NULL, &xattr_data,
- 					   sizeof(xattr_data), 0);
- 	} else if (rc == -ENODATA && (inode->i_opflags & IOP_XATTR)) {
- 		rc = __vfs_removexattr(dentry, XATTR_NAME_EVM);
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index 809ba70..914cf5f 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -71,7 +71,7 @@ static int ima_fix_xattr(struct dentry *dentry,
- 		iint->ima_hash->xattr.ng.algo = algo;
- 	}
- 	rc = __vfs_setxattr_noperm(dentry, XATTR_NAME_IMA,
--				   &iint->ima_hash->xattr.data[offset],
-+				   NULL, &iint->ima_hash->xattr.data[offset],
- 				   (sizeof(iint->ima_hash->xattr) - offset) +
- 				   iint->ima_hash->length, 0);
- 	return rc;
-diff --git a/security/security.c b/security/security.c
-index 4bf0f57..7fce259 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -856,6 +856,12 @@ int security_inode_copy_up_xattr(const char *name)
- }
- EXPORT_SYMBOL(security_inode_copy_up_xattr);
- 
-+int security_inode_translate_xattr_to_ns(const char *name, char **tr)
-+{
-+	return call_int_hook(inode_translate_xattr_to_ns, 0, name, tr);
-+}
-+EXPORT_SYMBOL(security_inode_translate_xattr_to_ns);
-+
- int security_file_permission(struct file *file, int mask)
- {
- 	int ret;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3daad14..e439ce2 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -646,6 +646,16 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
- 		  !strcmp(sb->s_type->name, "cgroup2")));
- }
- 
-+static char *current_xattr_suffix(void)
-+{
-+	return current_selinux_ns->xattr_name + XATTR_SECURITY_PREFIX_LEN;
-+}
-+
-+static char *current_xattr_name(void)
-+{
-+	return current_selinux_ns->xattr_name;
-+}
-+
- static int sb_finish_set_opts(struct super_block *sb)
- {
- 	struct superblock_security_struct *sbsec = superblock_security(sb);
-@@ -654,6 +664,8 @@ static int sb_finish_set_opts(struct super_block *sb)
- 	int rc = 0;
- 
- 	if (sbsec->behavior == SECURITY_FS_USE_XATTR) {
-+		char *name;
-+
- 		/* Make sure that the xattr handler exists and that no
- 		   error other than -ENODATA is returned by getxattr on
- 		   the root directory.  -ENODATA is ok, as this may be
-@@ -666,7 +678,9 @@ static int sb_finish_set_opts(struct super_block *sb)
- 			goto out;
- 		}
- 
--		rc = __vfs_getxattr(root, root_inode, XATTR_NAME_SELINUX, NULL, 0);
-+		name = current_xattr_name();
-+
-+		rc = __vfs_getxattr(root, root_inode, name, NULL, 0);
- 		if (rc < 0 && rc != -ENODATA) {
- 			if (rc == -EOPNOTSUPP)
- 				printk(KERN_WARNING "SELinux: (dev %s, type "
-@@ -1660,6 +1674,7 @@ static int inode_doinit_with_dentry(struct inode *inode,
- 	char *context = NULL;
- 	unsigned len = 0;
- 	int rc = 0;
-+	char *name;
- 
- 	if (isec->initialized == LABEL_INITIALIZED)
- 		return 0;
-@@ -1729,12 +1744,14 @@ static int inode_doinit_with_dentry(struct inode *inode,
- 			goto out;
- 		}
- 		context[len] = '\0';
--		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
-+
-+		name = current_xattr_name();
-+		rc = __vfs_getxattr(dentry, inode, name, context, len);
- 		if (rc == -ERANGE) {
- 			kfree(context);
- 
- 			/* Need a larger buffer.  Query for the right size. */
--			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
-+			rc = __vfs_getxattr(dentry, inode, name, NULL, 0);
- 			if (rc < 0) {
- 				dput(dentry);
- 				goto out;
-@@ -1747,7 +1764,7 @@ static int inode_doinit_with_dentry(struct inode *inode,
- 				goto out;
- 			}
- 			context[len] = '\0';
--			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
-+			rc = __vfs_getxattr(dentry, inode, name, context, len);
- 		}
- 		dput(dentry);
- 		if (rc < 0) {
-@@ -3167,7 +3184,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 		return -EOPNOTSUPP;
- 
- 	if (name)
--		*name = XATTR_SELINUX_SUFFIX;
-+		*name = current_xattr_suffix();
- 
- 	if (value && len) {
- 		rc = security_sid_to_context_force(current_selinux_ns, newsid,
-@@ -3382,6 +3399,10 @@ static bool has_cap_mac_admin(bool audit)
- 	return true;
- }
- 
-+/* TODO:
-+ * - audit
-+ * - handle raw namespaced xattrs
-+ */
- static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
- 				  const void *value, size_t size, int flags)
- {
-@@ -3392,8 +3413,12 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
- 	u32 newsid, sid = current_sid();
- 	int rc = 0;
- 
--	if (strcmp(name, XATTR_NAME_SELINUX))
-+	if (strcmp(name, XATTR_NAME_SELINUX)) {
-+		/* No raw namespaced xattrs, yet */
-+		if (!strncmp(name, XATTR_NAME_SELINUX, strlen(XATTR_NAME_SELINUX)))
-+			return -EACCES;
- 		return selinux_inode_setotherxattr(dentry, name);
-+	}
- 
- 	sbsec = superblock_security(inode->i_sb);
- 	if (!(sbsec->flags & SBLABEL_MNT))
-@@ -3640,6 +3665,13 @@ static int selinux_inode_copy_up_xattr(const char *name)
- 	return -EOPNOTSUPP;
- }
- 
-+static int selinux_inode_translate_xattr_to_ns(const char *name, char **tr)
-+{
-+	if(!strcmp(name, XATTR_NAME_SELINUX))
-+		*tr = current_xattr_name();
-+	return 0;
-+}
-+
- /* file security operations */
- 
- static int selinux_revalidate_file_permission(struct file *file, int mask)
-@@ -6430,10 +6462,11 @@ static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen
- 
- /*
-  *	called with inode->i_mutex locked
-+ *	TODO: namespace translation
-  */
- static int selinux_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
- {
--	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SELINUX, ctx, ctxlen, 0);
-+	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SELINUX, NULL, ctx, ctxlen, 0);
- }
- 
- static int selinux_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-@@ -6647,6 +6680,7 @@ static void selinux_ib_free_security(void *ib_sec)
- 	LSM_HOOK_INIT(inode_getsecid, selinux_inode_getsecid),
- 	LSM_HOOK_INIT(inode_copy_up, selinux_inode_copy_up),
- 	LSM_HOOK_INIT(inode_copy_up_xattr, selinux_inode_copy_up_xattr),
-+	LSM_HOOK_INIT(inode_translate_xattr_to_ns, selinux_inode_translate_xattr_to_ns),
- 
- 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
- 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
-@@ -6805,7 +6839,37 @@ static void selinux_ib_free_security(void *ib_sec)
- 
- static void selinux_ns_free(struct work_struct *work);
- 
--int selinux_ns_create(struct selinux_ns *parent, struct selinux_ns **ns)
-+static int selinux_ns_create_name(struct selinux_ns *parent, struct selinux_ns *newns, const char *name)
-+{
-+	int rc = 0;
-+
-+	if (parent && parent->parent)
-+		newns->name = kasprintf(GFP_KERNEL, "%s.%s", parent->name, name);
-+	else
-+		newns->name = kstrdup(name, GFP_KERNEL);
-+	
-+	if (!newns->name)
-+		rc = -ENOMEM;
-+
-+	return rc;
-+}
-+
-+static int selinux_ns_create_xattr_name(struct selinux_ns *parent, struct selinux_ns *newns)
-+{
-+	int rc = 0;
-+
-+	if (!parent)
-+		newns->xattr_name = kstrdup(XATTR_NAME_SELINUX, GFP_KERNEL);
-+	else 
-+		newns->xattr_name = kasprintf(GFP_KERNEL, "%s.%s", XATTR_NAME_SELINUX, newns->name);
-+
-+	if (!newns->xattr_name)
-+		rc = -ENOMEM;
-+
-+	return rc;
-+}
-+
-+int selinux_ns_create(struct selinux_ns *parent, struct selinux_ns **ns, const char *name)
- {
- 	struct selinux_ns *newns;
- 	int rc;
-@@ -6825,14 +6889,25 @@ int selinux_ns_create(struct selinux_ns *parent, struct selinux_ns **ns)
- 	if (rc)
- 		goto err;
- 
-+	rc = selinux_ns_create_name(parent, newns, name);
-+	if (rc)
-+		goto err_avc;
-+
-+	rc = selinux_ns_create_xattr_name(parent, newns);
-+	if (rc)
-+		goto err_avc;
-+
- 	if (parent)
- 		newns->parent = get_selinux_ns(parent);
- 
- 	*ns = newns;
- 	return 0;
-+err_avc:
-+	selinux_avc_free(newns->avc);
- err:
- 	selinux_ss_free(newns->ss);
- 	kfree(newns);
-+	kfree(newns->name);
- 	return rc;
- }
- 
-@@ -6845,6 +6920,8 @@ static void selinux_ns_free(struct work_struct *work)
- 		parent = ns->parent;
- 		selinux_ss_free(ns->ss);
- 		selinux_avc_free(ns->avc);
-+		kfree(ns->name);
-+		kfree(ns->xattr_name);
- 		kfree(ns);
- 		ns = parent;
- 	} while (ns && refcount_dec_and_test(&ns->count));
-@@ -6869,7 +6946,7 @@ static __init int selinux_init(void)
- 
- 	printk(KERN_INFO "SELinux:  Initializing.\n");
- 
--	if (selinux_ns_create(NULL, &init_selinux_ns))
-+	if (selinux_ns_create(NULL, &init_selinux_ns, SELINUX_NS_INIT_NAME))
- 		panic("SELinux: Could not create initial namespace\n");
- 
- 	set_ns_enforcing(init_selinux_ns, selinux_enforcing_boot);
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index b80f9bd..300cc8a 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -92,6 +92,9 @@ enum {
- /* limitation of boundary depth  */
- #define POLICYDB_BOUNDS_MAXDEPTH	4
- 
-+/* Name of SELinux initial namespace */
-+#define SELINUX_NS_INIT_NAME ""
-+
- struct selinux_avc;
- struct selinux_ss;
- 
-@@ -108,9 +111,11 @@ struct selinux_ns {
- 	struct selinux_avc *avc;
- 	struct selinux_ss *ss;
- 	struct selinux_ns *parent;
-+	char *name;
-+	char *xattr_name;
- };
- 
--int selinux_ns_create(struct selinux_ns *parent, struct selinux_ns **ns);
-+int selinux_ns_create(struct selinux_ns *parent, struct selinux_ns **ns, const char *name);
- void __put_selinux_ns(struct selinux_ns *ns);
- 
- int selinux_ss_create(struct selinux_ss **ss);
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 6c52d24..d190213 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -334,9 +334,10 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
- {
- 	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
- 	struct selinux_ns *ns = fsi->ns;
-+	struct cred *cred;
-+	struct task_security_struct *tsec;
- 	char *page;
- 	ssize_t length;
--	bool set;
- 	int rc;
- 
- 	if (ns != current_selinux_ns)
-@@ -359,30 +360,32 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
- 	if (IS_ERR(page))
- 		return PTR_ERR(page);
- 
--	length = -EINVAL;
--	if (kstrtobool(page, &set))
--		goto out;
-+	/* strip any trailing newline */
-+	if (page[strlen(page) - 1] == '\n')
-+		page[strlen(page) - 1] = 0;
- 
--	if (set) {
--		struct cred *cred = prepare_creds();
--		struct task_security_struct *tsec;
-+	/* TODO: check for uniqueness! */
-+	if (!strcmp(SELINUX_NS_INIT_NAME, page)) {
-+		length = -EINVAL;
-+		goto out;
-+	}
- 
--		if (!cred) {
--			length = -ENOMEM;
--			goto out;
--		}
--		tsec = cred->security;
--		if (selinux_ns_create(ns, &tsec->ns)) {
--			abort_creds(cred);
--			length = -ENOMEM;
--			goto out;
--		}
--		tsec->osid = tsec->sid = SECINITSID_KERNEL;
--		tsec->exec_sid = tsec->create_sid = tsec->keycreate_sid =
--			tsec->sockcreate_sid = SECSID_NULL;
--		tsec->parent_cred = get_current_cred();
--		commit_creds(cred);
-+	cred = prepare_creds();
-+	if (!cred) {
-+		length = -ENOMEM;
-+		goto out;
-+	}
-+	tsec = cred->security;
-+	if (selinux_ns_create(ns, &tsec->ns, page)) {
-+		abort_creds(cred);
-+		length = -ENOMEM;
-+		goto out;
- 	}
-+	tsec->osid = tsec->sid = SECINITSID_KERNEL;
-+	tsec->exec_sid = tsec->create_sid = tsec->keycreate_sid =
-+		tsec->sockcreate_sid = SECSID_NULL;
-+	tsec->parent_cred = get_current_cred();
-+	commit_creds(cred);
- 
- 	length = count;
- out:
-@@ -390,8 +393,22 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
- 	return length;
- }
- 
-+static ssize_t sel_read_unshare(struct file *file, char __user *buf,
-+				size_t count, loff_t *ppos)
-+{
-+	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
-+	struct selinux_ns *ns = fsi->ns;
-+	char *name = ns->name;
-+
-+	if (ns != current_selinux_ns)
-+		return -EPERM;
-+
-+	return simple_read_from_buffer(buf, count, ppos, name, strlen(name));
-+}
-+
- static const struct file_operations sel_unshare_ops = {
- 	.write		= sel_write_unshare,
-+	.read		= sel_read_unshare,
- 	.llseek		= generic_file_llseek,
- };
- 
-@@ -2021,7 +2038,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- 		[SEL_POLICY] = {"policy", &sel_policy_ops, S_IRUGO},
- 		[SEL_VALIDATE_TRANS] = {"validatetrans", &sel_transition_ops,
- 					S_IWUGO},
--		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0222},
-+		[SEL_UNSHARE] = {"unshare", &sel_unshare_ops, 0666},
- 		/* last one */ {""}
- 	};
- 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 319add3..5ea841f 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4591,7 +4591,7 @@ static int smack_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
- 
- static int smack_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
- {
--	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SMACK, ctx, ctxlen, 0);
-+	return __vfs_setxattr_noperm(dentry, XATTR_NAME_SMACK, NULL, ctx, ctxlen, 0);
- }
- 
- static int smack_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
 -- 
-1.8.3.1
+paul moore
+www.paul-moore.com
