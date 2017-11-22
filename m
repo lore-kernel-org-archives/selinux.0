@@ -1,62 +1,175 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAM8scV3015481
- for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2017 03:54:38 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
- [10.5.11.16])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 4B0344A6FF
- for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2017 08:54:35 +0000 (UTC)
-Date: Wed, 22 Nov 2017 09:54:31 +0100
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Lukas Vrabec <lvrabec@redhat.com>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20171122085430.GA21640@pl-rpi.tpb.lab.eng.brq.redhat.com>
-References: <20171115132553.17599-1-lvrabec@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20171115132553.17599-1-lvrabec@redhat.com>
-Subject: Re: [PATCH] python/sepolicy: Fix sepolicy manpage.
+Message-ID: <1511369562.28491.10.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: James Carter <jwcart2@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Cc: Daniel Cashman <dcashman@google.com>
+Date: Wed, 22 Nov 2017 11:52:42 -0500
+In-Reply-To: <20171117130952.28527-1-jwcart2@tycho.nsa.gov>
+References: <20171117130952.28527-1-jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH] libsepol/cil: Create new keep field for type attribute
+ sets
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Nov 15, 2017 at 02:25:53PM +0100, Lukas Vrabec wrote:
-> Arguments generate and gui was mixed together and information didn't make sense. This fix split gui and generate sections.
+On Fri, 2017-11-17 at 08:09 -0500, James Carter wrote:
+> Daniel Cashman <dcashman@android.com> discovered the following:
+> When using cil_db multiple_decls, the different cil_attribute nodes
+> all point to the same underlying cil_attribute struct.  This leads
+> to problems, though, when modifying the used value in the struct.
+> __cil_post_db_attr() changes the value of the field to based on
+> the output of cil_typeattribute_used(), for use later in
+> cil_typeattribute_to_policydb and cil_typeattribute_to_bitmap, but
+> due to the multiple declarations, cil_typeattribute_used() could be
+> called again by a second node.  In this second call, the value used
+> is the modifed value of CIL_TRUE or CIL_FALSE, not the flags actually
+> needed. This could result in the field being reset again, to an
+> incorrect CIL_FALSE value.
 > 
-> Signed-off-by: Lukas Vrabec <lvrabec@redhat.com>
+> Add the field "keep" to struct cil_typeattributeset, set its value
+> using cil_typeattribute_used(), and use it when determining whether
+> the attribute is to be kept or if it should be expanded.
+> 
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
-Applied, thanks.
+Thanks, applied.
+
+Dan, let us know if this resolves your issue.
 
 > ---
->  python/sepolicy/sepolicy.8 | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
+>  libsepol/cil/src/cil.c           | 1 +
+>  libsepol/cil/src/cil_binary.c    | 8 ++++----
+>  libsepol/cil/src/cil_internal.h  | 1 +
+>  libsepol/cil/src/cil_policy.c    | 2 +-
+>  libsepol/cil/src/cil_post.c      | 2 +-
+>  libsepol/cil/src/cil_reset_ast.c | 1 +
+>  6 files changed, 9 insertions(+), 6 deletions(-)
 > 
-> diff --git a/python/sepolicy/sepolicy.8 b/python/sepolicy/sepolicy.8
-> index 79005866..09d2b247 100644
-> --- a/python/sepolicy/sepolicy.8
-> +++ b/python/sepolicy/sepolicy.8
-> @@ -22,14 +22,15 @@ Query SELinux policy to see if domains can communicate with each other
->  .br
->  
->  .B    generate
-> -.br 
->  .br
->  Generate SELinux Policy module template
-> -.B    gui
-> +.B sepolicy-generate(8)
->  .br
-> +
-> +.B    gui
->  .br
->  Launch Graphical User Interface for SELinux Policy, requires policycoreutils-gui package.
-> -.B sepolicy-generate(8)
-> +.B sepolicy-gui(8)
->  .br
->  
->  .B    interface
-> -- 
-> 2.13.6
-> 
-> 
+> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> index 3fe68af8..5a64c2bc 100644
+> --- a/libsepol/cil/src/cil.c
+> +++ b/libsepol/cil/src/cil.c
+> @@ -2064,6 +2064,7 @@ void cil_typeattribute_init(struct
+> cil_typeattribute **attr)
+>  	(*attr)->expr_list = NULL;
+>  	(*attr)->types = NULL;
+>  	(*attr)->used = CIL_FALSE;
+> +	(*attr)->keep = CIL_FALSE;
+>  }
+>  
+>  void cil_typeattributeset_init(struct cil_typeattributeset
+> **attrset)
+> diff --git a/libsepol/cil/src/cil_binary.c
+> b/libsepol/cil/src/cil_binary.c
+> index c0ca60f2..431cd9cd 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -567,7 +567,7 @@ int cil_typeattribute_to_policydb(policydb_t
+> *pdb, struct cil_typeattribute *cil
+>  	char *key = NULL;
+>  	type_datum_t *sepol_attr = NULL;
+>  
+> -	if (!cil_attr->used) {
+> +	if (!cil_attr->keep) {
+>  		return SEPOL_OK;		
+>  	}
+>  
+> @@ -632,7 +632,7 @@ int cil_typeattribute_to_bitmap(policydb_t *pdb,
+> const struct cil_db *db, struct
+>  	ebitmap_node_t *tnode;
+>  	unsigned int i;
+>  
+> -	if (!cil_attr->used) {
+> +	if (!cil_attr->keep) {
+>  		return SEPOL_OK;
+>  	}
+>  
+> @@ -1442,7 +1442,7 @@ static int __cil_should_expand_attribute( const
+> struct cil_db *db, struct cil_sy
+>  
+>  	attr = (struct cil_typeattribute *)datum;
+>  
+> -	return !attr->used || (ebitmap_cardinality(attr->types) <
+> db->attrs_expand_size);
+> +	return !attr->keep || (ebitmap_cardinality(attr->types) <
+> db->attrs_expand_size);
+>  }
+>  
+>  int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db,
+> struct cil_avrule *cil_avrule, cond_node_t *cond_node, enum
+> cil_flavor cond_flavor)
+> @@ -2525,7 +2525,7 @@ int
+> __cil_constrain_expr_datum_to_sepol_expr(policydb_t *pdb, const
+> struct cil_d
+>  			if (rc != SEPOL_OK) {
+>  				if (FLAVOR(item->data) ==
+> CIL_TYPEATTRIBUTE) {
+>  					struct cil_typeattribute
+> *attr = item->data;
+> -					if (!attr->used) {
+> +					if (!attr->keep) {
+>  						rc = 0;
+>  					}
+>  				}
+> diff --git a/libsepol/cil/src/cil_internal.h
+> b/libsepol/cil/src/cil_internal.h
+> index 136a0049..8393e391 100644
+> --- a/libsepol/cil/src/cil_internal.h
+> +++ b/libsepol/cil/src/cil_internal.h
+> @@ -531,6 +531,7 @@ struct cil_typeattribute {
+>  	struct cil_list *expr_list;
+>  	ebitmap_t *types;
+>  	int used;	// whether or not this attribute was used
+> in a binary policy rule
+> +	int keep;
+>  };
+>  
+>  struct cil_typeattributeset {
+> diff --git a/libsepol/cil/src/cil_policy.c
+> b/libsepol/cil/src/cil_policy.c
+> index 6d4987c4..99eb53c2 100644
+> --- a/libsepol/cil/src/cil_policy.c
+> +++ b/libsepol/cil/src/cil_policy.c
+> @@ -1085,7 +1085,7 @@ static void cil_typeattributes_to_policy(FILE
+> *out, struct cil_list *types, stru
+>  		type = i1->data;
+>  		cil_list_for_each(i2, attributes) {
+>  			attribute = i2->data;
+> -			if (!attribute->used)
+> +			if (!attribute->keep)
+>  				continue;
+>  			if (ebitmap_get_bit(attribute->types, type-
+> >value)) {
+>  				if (first) {
+> diff --git a/libsepol/cil/src/cil_post.c
+> b/libsepol/cil/src/cil_post.c
+> index 3e013c97..a2122454 100644
+> --- a/libsepol/cil/src/cil_post.c
+> +++ b/libsepol/cil/src/cil_post.c
+> @@ -1369,7 +1369,7 @@ static int __cil_post_db_attr_helper(struct
+> cil_tree_node *node, uint32_t *finis
+>  			rc = __evaluate_type_expression(attr, db);
+>  			if (rc != SEPOL_OK) goto exit;
+>  		}
+> -		attr->used = cil_typeattribute_used(attr, db);
+> +		attr->keep = cil_typeattribute_used(attr, db);
+>  		break;
+>  	}
+>  	case CIL_ROLEATTRIBUTE: {
+> diff --git a/libsepol/cil/src/cil_reset_ast.c
+> b/libsepol/cil/src/cil_reset_ast.c
+> index 8a13a1c1..43e6b88e 100644
+> --- a/libsepol/cil/src/cil_reset_ast.c
+> +++ b/libsepol/cil/src/cil_reset_ast.c
+> @@ -186,6 +186,7 @@ static void cil_reset_typeattr(struct
+> cil_typeattribute *attr)
+>  		attr->expr_list = NULL;
+>  	}
+>  	attr->used = CIL_FALSE;
+> +	attr->keep = CIL_FALSE;
+>  }
+>  
+>  static void cil_reset_typeattributeset(struct cil_typeattributeset
+> *tas)
