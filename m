@@ -1,185 +1,58 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAN1vC8I019420
- for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2017 20:57:12 -0500
-Received: by mail-pl0-f68.google.com with SMTP id k7so1637333pln.13
- for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2017 15:44:10 -0800 (PST)
-To: Stephen Smalley <sds@tycho.nsa.gov>, James Carter <jwcart2@tycho.nsa.gov>,
- selinux@tycho.nsa.gov
-References: <20171117130952.28527-1-jwcart2@tycho.nsa.gov>
- <1511369562.28491.10.camel@tycho.nsa.gov>
-Cc: Daniel Cashman <dcashman@google.com>
-From: Dan Cashman <dcashman@android.com>
-Message-ID: <653ba01b-3ce1-750f-d9f5-98dbf8bcfd10@android.com>
-Date: Wed, 22 Nov 2017 15:44:01 -0800
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAN3NJRc004104
+ for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2017 22:23:19 -0500
+Received: by mail-io0-f181.google.com with SMTP id u42so24639272ioi.9
+ for <selinux@tycho.nsa.gov>; Wed, 22 Nov 2017 13:35:08 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1511369562.28491.10.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH] libsepol/cil: Create new keep field for type
- attribute sets
+In-Reply-To: <20171122150959.20243-1-jzarsky@redhat.com>
+References: <20171122150959.20243-1-jzarsky@redhat.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 22 Nov 2017 13:35:05 -0800
+Message-ID: <CAFftDdosb4sqRyexNmT11mjgATWLNW4jrabJ-u0zKuuCOWx4-g@mail.gmail.com>
+To: Jan Zarsky <jzarsky@redhat.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] libsemanage: properly check return value of
+ iterate function
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Yep, this works too.  Thank you!
+On Wed, Nov 22, 2017 at 7:09 AM, Jan Zarsky <jzarsky@redhat.com> wrote:
+> Function dbase_llist_iterate iterates over records and checks return
+> value of iterate function. According to a manpage semanage_iterate(3),
+> handler can return value 1 for early exit. dbase_llist_iterate
+> currently checks for return value > 1, which does not include
+> expected value 1. This affects most of the semanage_*_iterate
+> and semanage_*_local functions.
 
+Can you update this message to describe what is affected.
 
-On 11/22/17 8:52 AM, Stephen Smalley wrote:
-> On Fri, 2017-11-17 at 08:09 -0500, James Carter wrote:
->> Daniel Cashman <dcashman@android.com> discovered the following:
->> When using cil_db multiple_decls, the different cil_attribute nodes
->> all point to the same underlying cil_attribute struct.  This leads
->> to problems, though, when modifying the used value in the struct.
->> __cil_post_db_attr() changes the value of the field to based on
->> the output of cil_typeattribute_used(), for use later in
->> cil_typeattribute_to_policydb and cil_typeattribute_to_bitmap, but
->> due to the multiple declarations, cil_typeattribute_used() could be
->> called again by a second node.  In this second call, the value used
->> is the modifed value of CIL_TRUE or CIL_FALSE, not the flags actually
->> needed. This could result in the field being reset again, to an
->> incorrect CIL_FALSE value.
->>
->> Add the field "keep" to struct cil_typeattributeset, set its value
->> using cil_typeattribute_used(), and use it when determining whether
->> the attribute is to be kept or if it should be expanded.
->>
->> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
-> Thanks, applied.
 >
-> Dan, let us know if this resolves your issue.
+> Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
+> ---
+>  libsemanage/src/database_llist.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
->> ---
->>   libsepol/cil/src/cil.c           | 1 +
->>   libsepol/cil/src/cil_binary.c    | 8 ++++----
->>   libsepol/cil/src/cil_internal.h  | 1 +
->>   libsepol/cil/src/cil_policy.c    | 2 +-
->>   libsepol/cil/src/cil_post.c      | 2 +-
->>   libsepol/cil/src/cil_reset_ast.c | 1 +
->>   6 files changed, 9 insertions(+), 6 deletions(-)
->>
->> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
->> index 3fe68af8..5a64c2bc 100644
->> --- a/libsepol/cil/src/cil.c
->> +++ b/libsepol/cil/src/cil.c
->> @@ -2064,6 +2064,7 @@ void cil_typeattribute_init(struct
->> cil_typeattribute **attr)
->>   	(*attr)->expr_list = NULL;
->>   	(*attr)->types = NULL;
->>   	(*attr)->used = CIL_FALSE;
->> +	(*attr)->keep = CIL_FALSE;
->>   }
->>   
->>   void cil_typeattributeset_init(struct cil_typeattributeset
->> **attrset)
->> diff --git a/libsepol/cil/src/cil_binary.c
->> b/libsepol/cil/src/cil_binary.c
->> index c0ca60f2..431cd9cd 100644
->> --- a/libsepol/cil/src/cil_binary.c
->> +++ b/libsepol/cil/src/cil_binary.c
->> @@ -567,7 +567,7 @@ int cil_typeattribute_to_policydb(policydb_t
->> *pdb, struct cil_typeattribute *cil
->>   	char *key = NULL;
->>   	type_datum_t *sepol_attr = NULL;
->>   
->> -	if (!cil_attr->used) {
->> +	if (!cil_attr->keep) {
->>   		return SEPOL_OK;		
->>   	}
->>   
->> @@ -632,7 +632,7 @@ int cil_typeattribute_to_bitmap(policydb_t *pdb,
->> const struct cil_db *db, struct
->>   	ebitmap_node_t *tnode;
->>   	unsigned int i;
->>   
->> -	if (!cil_attr->used) {
->> +	if (!cil_attr->keep) {
->>   		return SEPOL_OK;
->>   	}
->>   
->> @@ -1442,7 +1442,7 @@ static int __cil_should_expand_attribute( const
->> struct cil_db *db, struct cil_sy
->>   
->>   	attr = (struct cil_typeattribute *)datum;
->>   
->> -	return !attr->used || (ebitmap_cardinality(attr->types) <
->> db->attrs_expand_size);
->> +	return !attr->keep || (ebitmap_cardinality(attr->types) <
->> db->attrs_expand_size);
->>   }
->>   
->>   int __cil_avrule_to_avtab(policydb_t *pdb, const struct cil_db *db,
->> struct cil_avrule *cil_avrule, cond_node_t *cond_node, enum
->> cil_flavor cond_flavor)
->> @@ -2525,7 +2525,7 @@ int
->> __cil_constrain_expr_datum_to_sepol_expr(policydb_t *pdb, const
->> struct cil_d
->>   			if (rc != SEPOL_OK) {
->>   				if (FLAVOR(item->data) ==
->> CIL_TYPEATTRIBUTE) {
->>   					struct cil_typeattribute
->> *attr = item->data;
->> -					if (!attr->used) {
->> +					if (!attr->keep) {
->>   						rc = 0;
->>   					}
->>   				}
->> diff --git a/libsepol/cil/src/cil_internal.h
->> b/libsepol/cil/src/cil_internal.h
->> index 136a0049..8393e391 100644
->> --- a/libsepol/cil/src/cil_internal.h
->> +++ b/libsepol/cil/src/cil_internal.h
->> @@ -531,6 +531,7 @@ struct cil_typeattribute {
->>   	struct cil_list *expr_list;
->>   	ebitmap_t *types;
->>   	int used;	// whether or not this attribute was used
->> in a binary policy rule
->> +	int keep;
->>   };
->>   
->>   struct cil_typeattributeset {
->> diff --git a/libsepol/cil/src/cil_policy.c
->> b/libsepol/cil/src/cil_policy.c
->> index 6d4987c4..99eb53c2 100644
->> --- a/libsepol/cil/src/cil_policy.c
->> +++ b/libsepol/cil/src/cil_policy.c
->> @@ -1085,7 +1085,7 @@ static void cil_typeattributes_to_policy(FILE
->> *out, struct cil_list *types, stru
->>   		type = i1->data;
->>   		cil_list_for_each(i2, attributes) {
->>   			attribute = i2->data;
->> -			if (!attribute->used)
->> +			if (!attribute->keep)
->>   				continue;
->>   			if (ebitmap_get_bit(attribute->types, type-
->>> value)) {
->>   				if (first) {
->> diff --git a/libsepol/cil/src/cil_post.c
->> b/libsepol/cil/src/cil_post.c
->> index 3e013c97..a2122454 100644
->> --- a/libsepol/cil/src/cil_post.c
->> +++ b/libsepol/cil/src/cil_post.c
->> @@ -1369,7 +1369,7 @@ static int __cil_post_db_attr_helper(struct
->> cil_tree_node *node, uint32_t *finis
->>   			rc = __evaluate_type_expression(attr, db);
->>   			if (rc != SEPOL_OK) goto exit;
->>   		}
->> -		attr->used = cil_typeattribute_used(attr, db);
->> +		attr->keep = cil_typeattribute_used(attr, db);
->>   		break;
->>   	}
->>   	case CIL_ROLEATTRIBUTE: {
->> diff --git a/libsepol/cil/src/cil_reset_ast.c
->> b/libsepol/cil/src/cil_reset_ast.c
->> index 8a13a1c1..43e6b88e 100644
->> --- a/libsepol/cil/src/cil_reset_ast.c
->> +++ b/libsepol/cil/src/cil_reset_ast.c
->> @@ -186,6 +186,7 @@ static void cil_reset_typeattr(struct
->> cil_typeattribute *attr)
->>   		attr->expr_list = NULL;
->>   	}
->>   	attr->used = CIL_FALSE;
->> +	attr->keep = CIL_FALSE;
->>   }
->>   
->>   static void cil_reset_typeattributeset(struct cil_typeattributeset
->> *tas)
+> diff --git a/libsemanage/src/database_llist.c b/libsemanage/src/database_llist.c
+> index 8ce2e2c1..c8f4ff0b 100644
+> --- a/libsemanage/src/database_llist.c
+> +++ b/libsemanage/src/database_llist.c
+> @@ -263,7 +263,7 @@ int dbase_llist_iterate(semanage_handle_t * handle,
+>                 if (rc < 0)
+>                         goto err;
+>
+> -               else if (rc > 1)
+> +               else if (rc > 0)
+
+This looks fine to me.
+
+>                         break;
+>         }
+>
+> --
+> 2.14.3
+>
+
+Please resend with the message updated and I'll ack.
