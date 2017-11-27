@@ -1,22 +1,22 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vARLOAaB018922
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 16:24:10 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vARLgQAT007957
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 16:42:26 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 3ylwK73G0wz2SjFH
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:28:11 +0000 (UTC)
-Received: from UPDC3CPA04.eemsg.mil (unknown [192.168.18.11])
- by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 3ylwK575mJz2SjF9
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:28:09 +0000 (UTC)
-Received: by mail-lf0-f66.google.com with SMTP id y2so32476672lfj.4
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 08:17:42 -0800 (PST)
+ by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 3ylwN43ffsz2SjFy
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:30:44 +0000 (UTC)
+Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 3ylwN431q3z2SjFw
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:30:44 +0000 (UTC)
+Received: by mail-lf0-f67.google.com with SMTP id o41so33385538lfi.2
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 08:19:42 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
 References: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 27 Nov 2017 11:17:38 -0500
-Message-ID: <CAHC9VhSMpCRUxCypPfvCnvkrSB=Y08_88jTLM4X9LhrxcpAB0Q@mail.gmail.com>
+Date: Mon, 27 Nov 2017 11:19:38 -0500
+Message-ID: <CAHC9VhRqB4DxRjR=ceaJuc12M5R4ZAXgmBrEKws4BQMGVeASzw@mail.gmail.com>
 To: Dan Jurgens <danielj@mellanox.com>, selinux@tycho.nsa.gov
-Cc: pebenito@ieee.org, refpolicy@oss-tresys.com, honli@redhat.com
+Cc: pebenito@ieee.org, honli@redhat.com, refpolicy@oss.tresys.com
 Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [PATCH 1/1] networkmanager: Grant access to unlabeled
  PKeys
@@ -36,6 +36,8 @@ On Mon, Nov 27, 2017 at 9:03 AM, Dan Jurgens <danielj@mellanox.com> wrote:
 > ---
 >  networkmanager.te |    2 ++
 >  1 files changed, 2 insertions(+), 0 deletions(-)
+
+[NOTE: resending due to a typo in the refpol mailing list address]
 
 We obviously need something like this now so we don't break IPoIB, but
 I wonder if we should make the IB access controls dynamic like the
