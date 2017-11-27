@@ -1,67 +1,60 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vARLgQAT007957
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 16:42:26 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 3ylwN43ffsz2SjFy
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:30:44 +0000 (UTC)
-Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
- by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 3ylwN431q3z2SjFw
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:30:44 +0000 (UTC)
-Received: by mail-lf0-f67.google.com with SMTP id o41so33385538lfi.2
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 08:19:42 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAS5MwNH016294
+ for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 00:22:58 -0500
+Received: by mail-io0-f174.google.com with SMTP id d21so15306228ioe.7
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 11:09:47 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
-References: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 27 Nov 2017 11:19:38 -0500
-Message-ID: <CAHC9VhRqB4DxRjR=ceaJuc12M5R4ZAXgmBrEKws4BQMGVeASzw@mail.gmail.com>
-To: Dan Jurgens <danielj@mellanox.com>, selinux@tycho.nsa.gov
-Cc: pebenito@ieee.org, honli@redhat.com, refpolicy@oss.tresys.com
+In-Reply-To: <20171122150959.20243-1-jzarsky@redhat.com>
+References: <20171122150959.20243-1-jzarsky@redhat.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Mon, 27 Nov 2017 11:09:44 -0800
+Message-ID: <CAFftDdoYHWkPcaYPdgQwYcNTnxHfS1QVKnXV-Zfx33pYg1RTZA@mail.gmail.com>
+To: Jan Zarsky <jzarsky@redhat.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 1/1] networkmanager: Grant access to unlabeled
- PKeys
+Subject: Re: [PATCH] libsemanage: properly check return value of
+ iterate function
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Nov 27, 2017 at 9:03 AM, Dan Jurgens <danielj@mellanox.com> wrote:
-> From: Daniel Jurgens <danielj@mellanox.com>
+Thanks. Applied: https://github.com/SELinuxProject/selinux/pull/71
+
+On Wed, Nov 22, 2017 at 7:09 AM, Jan Zarsky <jzarsky@redhat.com> wrote:
+> Function dbase_llist_iterate iterates over records and checks return
+> value of iterate function. According to a manpage semanage_iterate(3),
+> handler can return value 1 for early exit. dbase_llist_iterate
+> currently checks for return value > 1, which does not include
+> expected value 1. This affects most of the semanage_*_iterate
+> and semanage_*_local functions.
 >
-> For controlling IPoIB VLANs
->
-> Reported-by: Honggang LI <honli@redhat.com>
-> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
-> Tested-by: Honggang LI <honli@redhat.com>
+> Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
 > ---
->  networkmanager.te |    2 ++
->  1 files changed, 2 insertions(+), 0 deletions(-)
-
-[NOTE: resending due to a typo in the refpol mailing list address]
-
-We obviously need something like this now so we don't break IPoIB, but
-I wonder if we should make the IB access controls dynamic like the
-per-packet network access controls.  We could key off the presence of
-the IB pkey and endport definitions: if there are any objects defined
-in the loaded policy we enable the controls, otherwise we disable
-them.
-
-> diff --git a/networkmanager.te b/networkmanager.te
-> index 76d0106..5e881f4 100644
-> --- a/networkmanager.te
-> +++ b/networkmanager.te
-> @@ -184,6 +184,8 @@ userdom_write_user_tmp_sockets(NetworkManager_t)
->  userdom_dontaudit_use_unpriv_user_fds(NetworkManager_t)
->  userdom_dontaudit_use_user_ttys(NetworkManager_t)
+>  libsemanage/src/database_llist.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> +corenet_ib_access_unlabeled_pkeys(NetworkManager_t)
-> +
->  optional_policy(`
->         avahi_domtrans(NetworkManager_t)
->         avahi_kill(NetworkManager_t)
+> diff --git a/libsemanage/src/database_llist.c b/libsemanage/src/database_llist.c
+> index 8ce2e2c1..c8f4ff0b 100644
+> --- a/libsemanage/src/database_llist.c
+> +++ b/libsemanage/src/database_llist.c
+> @@ -263,7 +263,7 @@ int dbase_llist_iterate(semanage_handle_t * handle,
+>                 if (rc < 0)
+>                         goto err;
+>
+> -               else if (rc > 1)
+> +               else if (rc > 0)
+>                         break;
+>         }
+>
 > --
-> 1.7.1
+> 2.14.3
+>
+>
+
+
 
 -- 
-paul moore
-www.paul-moore.com
+Respectfully,
+
+William C Roberts
