@@ -1,143 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAS8YNqD029484
- for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 03:34:27 -0500
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 04E778553E
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 20:33:17 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Mon, 27 Nov 2017 21:33:12 +0100
-Message-Id: <20171127203312.24986-1-plautrba@redhat.com>
-In-Reply-To: <1511800156.23941.8.camel@tycho.nsa.gov>
-References: <1511800156.23941.8.camel@tycho.nsa.gov>
-Subject: [PATCH v2] libsemanage: Use umask(0077) for fopen() write operations
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAS91xma027809
+ for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 04:01:59 -0500
+To: Paul Moore <paul@paul-moore.com>, selinux@tycho.nsa.gov
+Cc: pebenito@ieee.org, honli@redhat.com, refpolicy@oss.tresys.com
+References: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
+ <CAHC9VhRqB4DxRjR=ceaJuc12M5R4ZAXgmBrEKws4BQMGVeASzw@mail.gmail.com>
+From: Daniel Jurgens <danielj@mellanox.com>
+Message-ID: <6ced2e0c-e6a3-9481-f20d-ca81027e6d2f@mellanox.com>
+Date: Mon, 27 Nov 2017 14:04:19 -0600
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhRqB4DxRjR=ceaJuc12M5R4ZAXgmBrEKws4BQMGVeASzw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH 1/1] networkmanager: Grant access to unlabeled
+ PKeys
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When a calling process uses umask(0) some files in the SELinux module
-store can be created to be world writeable. With this patch, libsemanage
-sets umask(0077) before fopen() operations and restores the original
-umask value when it's done.
+On 11/27/2017 10:19 AM, Paul Moore wrote:
+> On Mon, Nov 27, 2017 at 9:03 AM, Dan Jurgens <danielj@mellanox.com> wrote:
+>> From: Daniel Jurgens <danielj@mellanox.com>
+>>
+>> For controlling IPoIB VLANs
+>>
+>> Reported-by: Honggang LI <honli@redhat.com>
+>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>> Tested-by: Honggang LI <honli@redhat.com>
+>> ---
+>>  networkmanager.te |    2 ++
+>>  1 files changed, 2 insertions(+), 0 deletions(-)
+> [NOTE: resending due to a typo in the refpol mailing list address]
+>
+> We obviously need something like this now so we don't break IPoIB, but
+> I wonder if we should make the IB access controls dynamic like the
+> per-packet network access controls.  We could key off the presence of
+> the IB pkey and endport definitions: if there are any objects defined
+> in the loaded policy we enable the controls, otherwise we disable
+> them.
 
-Fixes:
-drwx------. /var/lib/selinux/targeted/active
--rw-rw-rw-. /var/lib/selinux/targeted/active/booleans.local
--rw-rw-rw-. /var/lib/selinux/targeted/active/policy.linked
--rw-rw-rw-. /var/lib/selinux/targeted/active/seusers.local
+I think I understand what you're saying Paul, but I'm not clear on the mechanism.  Are you referring to the netlabel/IPSEC enable checks? They are wrapped up in selinux_peerlbl_enabled.
 
-drwx------. /var/lib/selinux/targeted/active/modules/400/permissive_sshd_t
--rw-rw-rw-. /var/lib/selinux/targeted/active/modules/400/permissive_sshd_t/cil
--rw-rw-rw-. /var/lib/selinux/targeted/active/modules/400/permissive_sshd_t/lang_ext
-drwx------. /var/lib/selinux/targeted/active/modules/disabled
--rw-rw-rw-. /var/lib/selinux/targeted/active/modules/disabled/zosremote
-
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libsemanage/src/database_file.c  | 3 +++
- libsemanage/src/direct_api.c     | 8 ++++++++
- libsemanage/src/semanage_store.c | 2 ++
- 3 files changed, 13 insertions(+)
-
-diff --git a/libsemanage/src/database_file.c b/libsemanage/src/database_file.c
-index a21b3eeb..a51269e7 100644
---- a/libsemanage/src/database_file.c
-+++ b/libsemanage/src/database_file.c
-@@ -119,13 +119,16 @@ static int dbase_file_flush(semanage_handle_t * handle, dbase_file_t * dbase)
- 	cache_entry_t *ptr;
- 	const char *fname = NULL;
- 	FILE *str = NULL;
-+	mode_t mask;
- 
- 	if (!dbase_llist_is_modified(&dbase->llist))
- 		return STATUS_SUCCESS;
- 
- 	fname = dbase->path[handle->is_in_transaction];
- 
-+	mask = umask(0077);
- 	str = fopen(fname, "w");
-+	umask(mask);
- 	if (!str) {
- 		ERR(handle, "could not open %s for writing: %s",
- 		    fname, strerror(errno));
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 00ad8201..a455612f 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -1176,6 +1176,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	sepol_policydb_t *out = NULL;
- 	struct cil_db *cildb = NULL;
- 	semanage_module_info_t *modinfos = NULL;
-+	mode_t mask = umask(0077);
- 
- 	int do_rebuild, do_write_kernel, do_install;
- 	int fcontexts_modified, ports_modified, seusers_modified,
-@@ -1645,6 +1646,8 @@ cleanup:
- 	semanage_remove_directory(semanage_final_path
- 				  (SEMANAGE_FINAL_TMP,
- 				   SEMANAGE_FINAL_TOPLEVEL));
-+	umask(mask);
-+
- 	return retval;
- }
- 
-@@ -2016,6 +2019,7 @@ static int semanage_direct_set_enabled(semanage_handle_t *sh,
- 	const char *path = NULL;
- 	FILE *fp = NULL;
- 	semanage_module_info_t *modinfo = NULL;
-+	mode_t mask;
- 
- 	/* check transaction */
- 	if (!sh->is_in_transaction) {
-@@ -2076,7 +2080,9 @@ static int semanage_direct_set_enabled(semanage_handle_t *sh,
- 
- 	switch (enabled) {
- 		case 0: /* disable the module */
-+			mask = umask(0077);
- 			fp = fopen(fn, "w");
-+			umask(mask);
- 
- 			if (fp == NULL) {
- 				ERR(sh,
-@@ -2722,6 +2728,7 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
- 	int type;
- 
- 	char path[PATH_MAX];
-+	mode_t mask = umask(0077);
- 
- 	semanage_module_info_t *higher_info = NULL;
- 	semanage_module_key_t higher_key;
-@@ -2833,6 +2840,7 @@ cleanup:
- 	semanage_module_key_destroy(sh, &higher_key);
- 	semanage_module_info_destroy(sh, higher_info);
- 	free(higher_info);
-+	umask(mask);
- 
- 	return status;
- }
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 63c80b04..37ff5ace 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -2099,6 +2099,7 @@ int semanage_write_policydb(semanage_handle_t * sh, sepol_policydb_t * out,
- 	const char *kernel_filename = NULL;
- 	struct sepol_policy_file *pf = NULL;
- 	FILE *outfile = NULL;
-+	mode_t mask = umask(0077);
- 
- 	if ((kernel_filename =
- 	     semanage_path(SEMANAGE_TMP, file)) == NULL) {
-@@ -2127,6 +2128,7 @@ int semanage_write_policydb(semanage_handle_t * sh, sepol_policydb_t * out,
- 	if (outfile != NULL) {
- 		fclose(outfile);
- 	}
-+	umask(mask);
- 	sepol_policy_file_free(pf);
- 	return retval;
- }
--- 
-2.15.0
+>
+>> diff --git a/networkmanager.te b/networkmanager.te
+>> index 76d0106..5e881f4 100644
+>> --- a/networkmanager.te
+>> +++ b/networkmanager.te
+>> @@ -184,6 +184,8 @@ userdom_write_user_tmp_sockets(NetworkManager_t)
+>>  userdom_dontaudit_use_unpriv_user_fds(NetworkManager_t)
+>>  userdom_dontaudit_use_user_ttys(NetworkManager_t)
+>>
+>> +corenet_ib_access_unlabeled_pkeys(NetworkManager_t)
+>> +
+>>  optional_policy(`
+>>         avahi_domtrans(NetworkManager_t)
+>>         avahi_kill(NetworkManager_t)
+>> --
+>> 1.7.1
