@@ -1,80 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vARHnfFt006733
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 12:49:41 -0500
-Received: by mail-it0-f52.google.com with SMTP id x13so21823342iti.4
- for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 07:50:29 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vARLOAaB018922
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 16:24:10 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 3ylwK73G0wz2SjFH
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:28:11 +0000 (UTC)
+Received: from UPDC3CPA04.eemsg.mil (unknown [192.168.18.11])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 3ylwK575mJz2SjF9
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 18:28:09 +0000 (UTC)
+Received: by mail-lf0-f66.google.com with SMTP id y2so32476672lfj.4
+ for <selinux@tycho.nsa.gov>; Mon, 27 Nov 2017 08:17:42 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20171127100102.4409-1-jzarsky@redhat.com>
-References: <CAFftDdosb4sqRyexNmT11mjgATWLNW4jrabJ-u0zKuuCOWx4-g@mail.gmail.com>
- <20171127100102.4409-1-jzarsky@redhat.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 27 Nov 2017 07:50:27 -0800
-Message-ID: <CAFftDdpvouX1L9d_iwKWxYmFw9=W7ORQ+AvZzhniR1kGbf3sHA@mail.gmail.com>
-To: Jan Zarsky <jzarsky@redhat.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+In-Reply-To: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
+References: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Mon, 27 Nov 2017 11:17:38 -0500
+Message-ID: <CAHC9VhSMpCRUxCypPfvCnvkrSB=Y08_88jTLM4X9LhrxcpAB0Q@mail.gmail.com>
+To: Dan Jurgens <danielj@mellanox.com>, selinux@tycho.nsa.gov
+Cc: pebenito@ieee.org, refpolicy@oss-tresys.com, honli@redhat.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] libsemanage: properly check return value of
- iterate function
+Subject: Re: [PATCH 1/1] networkmanager: Grant access to unlabeled
+ PKeys
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Nov 27, 2017 at 2:01 AM, Jan Zarsky <jzarsky@redhat.com> wrote:
-> Function dbase_llist_iterate() iterates over records and checks return
-> value of iterate function. According to a manpage semanage_iterate(3),
-> handler can return value 1 for early exit. dbase_llist_iterate()
-> currently checks for return value > 1, which does not include
-> expected value 1.
+On Mon, Nov 27, 2017 at 9:03 AM, Dan Jurgens <danielj@mellanox.com> wrote:
+> From: Daniel Jurgens <danielj@mellanox.com>
 >
-> Affected functions:
-> semanage_bool_iterate_local
-> semanage_fcontext_iterate
-> semanage_fcontext_iterate_local
-> semanage_ibendport_iterate_local
-> semanage_ibpkey_iterate_local
-> semanage_iface_iterate_local
-> semanage_node_iterate_local
-> semanage_port_iterate_local
-> semanage_seuser_iterate
-> semanage_seuser_iterate_local
-> semanage_user_iterate
-> semanage_user_iterate_local
-
-Not really what I had in mind. I meant what was the affect. This is simple
-enough to gather, so ack on v1,
-
-My understanding is that the affect is that it that it doesn't short
-circuit the iterate
-routine so lockups take longer than they need be, is that correct?
-
+> For controlling IPoIB VLANs
 >
-> Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
+> Reported-by: Honggang LI <honli@redhat.com>
+> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+> Tested-by: Honggang LI <honli@redhat.com>
 > ---
->  libsemanage/src/database_llist.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  networkmanager.te |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+
+We obviously need something like this now so we don't break IPoIB, but
+I wonder if we should make the IB access controls dynamic like the
+per-packet network access controls.  We could key off the presence of
+the IB pkey and endport definitions: if there are any objects defined
+in the loaded policy we enable the controls, otherwise we disable
+them.
+
+> diff --git a/networkmanager.te b/networkmanager.te
+> index 76d0106..5e881f4 100644
+> --- a/networkmanager.te
+> +++ b/networkmanager.te
+> @@ -184,6 +184,8 @@ userdom_write_user_tmp_sockets(NetworkManager_t)
+>  userdom_dontaudit_use_unpriv_user_fds(NetworkManager_t)
+>  userdom_dontaudit_use_user_ttys(NetworkManager_t)
 >
-> diff --git a/libsemanage/src/database_llist.c b/libsemanage/src/database_llist.c
-> index 8ce2e2c1..c8f4ff0b 100644
-> --- a/libsemanage/src/database_llist.c
-> +++ b/libsemanage/src/database_llist.c
-> @@ -263,7 +263,7 @@ int dbase_llist_iterate(semanage_handle_t * handle,
->                 if (rc < 0)
->                         goto err;
->
-> -               else if (rc > 1)
-> +               else if (rc > 0)
->                         break;
->         }
->
+> +corenet_ib_access_unlabeled_pkeys(NetworkManager_t)
+> +
+>  optional_policy(`
+>         avahi_domtrans(NetworkManager_t)
+>         avahi_kill(NetworkManager_t)
 > --
-> 2.14.3
->
->
-
-
+> 1.7.1
 
 -- 
-Respectfully,
-
-William C Roberts
+paul moore
+www.paul-moore.com
