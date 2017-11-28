@@ -1,279 +1,158 @@
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org
-Cc: paul@paul-moore.com, vyasevich@gmail.com, nhorman@tuxdriver.com,
- sds@tycho.nsa.gov, eparis@parisplace.org, marcelo.leitner@gmail.com,
- Richard Haines <richard_c_haines@btinternet.com>
-Date: Mon, 27 Nov 2017 19:31:54 +0000
-Message-Id: <20171127193154.2719-1-richard_c_haines@btinternet.com>
-Subject: [PATCH 3/4] sctp: Add LSM hooks
+Message-ID: <1511885948.30337.14.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+Date: Tue, 28 Nov 2017 11:19:08 -0500
+In-Reply-To: <20171127203312.24986-1-plautrba@redhat.com>
+References: <1511800156.23941.8.camel@tycho.nsa.gov>
+ <20171127203312.24986-1-plautrba@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH v2] libsemanage: Use umask(0077) for fopen() write
+ operations
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add security hooks to allow security modules to exercise access control
-over SCTP.
+On Mon, 2017-11-27 at 21:33 +0100, Petr Lautrbach wrote:
+> When a calling process uses umask(0) some files in the SELinux module
+> store can be created to be world writeable. With this patch,
+> libsemanage
+> sets umask(0077) before fopen() operations and restores the original
+> umask value when it's done.
+> 
+> Fixes:
+> drwx------. /var/lib/selinux/targeted/active
+> -rw-rw-rw-. /var/lib/selinux/targeted/active/booleans.local
+> -rw-rw-rw-. /var/lib/selinux/targeted/active/policy.linked
+> -rw-rw-rw-. /var/lib/selinux/targeted/active/seusers.local
+> 
+> drwx------.
+> /var/lib/selinux/targeted/active/modules/400/permissive_sshd_t
+> -rw-rw-rw-.
+> /var/lib/selinux/targeted/active/modules/400/permissive_sshd_t/cil
+> -rw-rw-rw-.
+> /var/lib/selinux/targeted/active/modules/400/permissive_sshd_t/lang_e
+> xt
+> drwx------. /var/lib/selinux/targeted/active/modules/disabled
+> -rw-rw-rw-.
+> /var/lib/selinux/targeted/active/modules/disabled/zosremote
+> 
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- include/net/sctp/structs.h | 10 ++++++++
- include/uapi/linux/sctp.h  |  1 +
- net/sctp/sm_make_chunk.c   | 12 +++++++++
- net/sctp/sm_statefuns.c    | 18 ++++++++++++++
- net/sctp/socket.c          | 61 +++++++++++++++++++++++++++++++++++++++++++++-
- 5 files changed, 101 insertions(+), 1 deletion(-)
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
-index 7767577..6e72e3e 100644
---- a/include/net/sctp/structs.h
-+++ b/include/net/sctp/structs.h
-@@ -1270,6 +1270,16 @@ struct sctp_endpoint {
- 	      reconf_enable:1;
- 
- 	__u8  strreset_enable;
-+
-+	/* Security identifiers from incoming (INIT). These are set by
-+	 * security_sctp_assoc_request(). These will only be used by
-+	 * SCTP TCP type sockets and peeled off connections as they
-+	 * cause a new socket to be generated. security_sctp_sk_clone()
-+	 * will then plug these into the new socket.
-+	 */
-+
-+	u32 secid;
-+	u32 peer_secid;
- };
- 
- /* Recover the outter endpoint structure. */
-diff --git a/include/uapi/linux/sctp.h b/include/uapi/linux/sctp.h
-index 6217ff8..c04812f 100644
---- a/include/uapi/linux/sctp.h
-+++ b/include/uapi/linux/sctp.h
-@@ -122,6 +122,7 @@ typedef __s32 sctp_assoc_t;
- #define SCTP_RESET_ASSOC	120
- #define SCTP_ADD_STREAMS	121
- #define SCTP_SOCKOPT_PEELOFF_FLAGS 122
-+#define SCTP_SENDMSG_CONNECT	123
- 
- /* PR-SCTP policies */
- #define SCTP_PR_SCTP_NONE	0x0000
-diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
-index 6110447..ca4705b 100644
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -3059,6 +3059,12 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
- 		if (af->is_any(&addr))
- 			memcpy(&addr, &asconf->source, sizeof(addr));
- 
-+		if (security_sctp_bind_connect(asoc->ep->base.sk,
-+					       SCTP_PARAM_ADD_IP,
-+					       (struct sockaddr *)&addr,
-+					       af->sockaddr_len))
-+			return SCTP_ERROR_REQ_REFUSED;
-+
- 		/* ADDIP 4.3 D9) If an endpoint receives an ADD IP address
- 		 * request and does not have the local resources to add this
- 		 * new address to the association, it MUST return an Error
-@@ -3125,6 +3131,12 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
- 		if (af->is_any(&addr))
- 			memcpy(&addr.v4, sctp_source(asconf), sizeof(addr));
- 
-+		if (security_sctp_bind_connect(asoc->ep->base.sk,
-+					       SCTP_PARAM_SET_PRIMARY,
-+					       (struct sockaddr *)&addr,
-+					       af->sockaddr_len))
-+			return SCTP_ERROR_REQ_REFUSED;
-+
- 		peer = sctp_assoc_lookup_paddr(asoc, &addr);
- 		if (!peer)
- 			return SCTP_ERROR_DNS_FAILED;
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index b2a74c3..67c6a7d 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -314,6 +314,11 @@ sctp_disposition_t sctp_sf_do_5_1B_init(struct net *net,
- 	sctp_unrecognized_param_t *unk_param;
- 	int len;
- 
-+	/* Update socket peer label if first association. */
-+	if (security_sctp_assoc_request((struct sctp_endpoint *)ep,
-+					chunk->skb))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
- 	/* 6.10 Bundling
- 	 * An endpoint MUST NOT bundle INIT, INIT ACK or
- 	 * SHUTDOWN COMPLETE with any other chunks.
-@@ -899,6 +904,9 @@ sctp_disposition_t sctp_sf_do_5_1E_ca(struct net *net,
- 	 */
- 	sctp_add_cmd_sf(commands, SCTP_CMD_INIT_COUNTER_RESET, SCTP_NULL());
- 
-+	/* Set peer label for connection. */
-+	security_inet_conn_established(ep->base.sk, chunk->skb);
-+
- 	/* RFC 2960 5.1 Normal Establishment of an Association
- 	 *
- 	 * E) Upon reception of the COOKIE ACK, endpoint "A" will move
-@@ -1428,6 +1436,11 @@ static sctp_disposition_t sctp_sf_do_unexpected_init(
- 	sctp_unrecognized_param_t *unk_param;
- 	int len;
- 
-+	/* Update socket peer label if first association. */
-+	if (security_sctp_assoc_request((struct sctp_endpoint *)ep,
-+					chunk->skb))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
- 	/* 6.10 Bundling
- 	 * An endpoint MUST NOT bundle INIT, INIT ACK or
- 	 * SHUTDOWN COMPLETE with any other chunks.
-@@ -2089,6 +2102,11 @@ sctp_disposition_t sctp_sf_do_5_2_4_dupcook(struct net *net,
- 		}
- 	}
- 
-+	/* Update socket peer label if first association. */
-+	if (security_sctp_assoc_request((struct sctp_endpoint *)ep,
-+					chunk->skb))
-+		return sctp_sf_pdiscard(net, ep, asoc, type, arg, commands);
-+
- 	/* Set temp so that it won't be added into hashtable */
- 	new_asoc->temp = 1;
- 
-diff --git a/net/sctp/socket.c b/net/sctp/socket.c
-index f2d9c84..3e1db9a 100644
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1014,6 +1014,12 @@ static int sctp_setsockopt_bindx(struct sock *sk,
- 	/* Do the work. */
- 	switch (op) {
- 	case SCTP_BINDX_ADD_ADDR:
-+		/* Allow security module to validate bindx addresses. */
-+		err = security_sctp_bind_connect(sk, SCTP_SOCKOPT_BINDX_ADD,
-+						 (struct sockaddr *)kaddrs,
-+						 addrs_size);
-+		if (err)
-+			goto out;
- 		err = sctp_bindx_add(sk, kaddrs, addrcnt);
- 		if (err)
- 			goto out;
-@@ -1223,6 +1229,7 @@ static int __sctp_connect(struct sock *sk,
- 
- 	if (assoc_id)
- 		*assoc_id = asoc->assoc_id;
-+
- 	err = sctp_wait_for_connect(asoc, &timeo);
- 	/* Note: the asoc may be freed after the return of
- 	 * sctp_wait_for_connect.
-@@ -1336,9 +1343,17 @@ static int __sctp_setsockopt_connectx(struct sock *sk,
- 	if (__copy_from_user(kaddrs, addrs, addrs_size)) {
- 		err = -EFAULT;
- 	} else {
-+		/* Allow security module to validate connectx addresses. */
-+		err = security_sctp_bind_connect(sk, SCTP_SOCKOPT_CONNECTX,
-+						 (struct sockaddr *)kaddrs,
-+						  addrs_size);
-+		if (err)
-+			goto out_free;
-+
- 		err = __sctp_connect(sk, kaddrs, addrs_size, assoc_id);
- 	}
- 
-+out_free:
- 	kfree(kaddrs);
- 
- 	return err;
-@@ -1604,6 +1619,7 @@ static int sctp_sendmsg(struct sock *sk, struct msghdr *msg, size_t msg_len)
- 	struct sctp_transport *transport, *chunk_tp;
- 	struct sctp_chunk *chunk;
- 	union sctp_addr to;
-+	struct sctp_af *af;
- 	struct sockaddr *msg_name = NULL;
- 	struct sctp_sndrcvinfo default_sinfo;
- 	struct sctp_sndrcvinfo *sinfo;
-@@ -1833,6 +1849,24 @@ static int sctp_sendmsg(struct sock *sk, struct msghdr *msg, size_t msg_len)
- 		}
- 
- 		scope = sctp_scope(&to);
-+
-+		/* Label connection socket for first association 1-to-many
-+		 * style for client sequence socket()->sendmsg(). This
-+		 * needs to be done before sctp_assoc_add_peer() as that will
-+		 * set up the initial packet that needs to account for any
-+		 * security ip options (CIPSO/CALIPSO) added to the packet.
-+		 */
-+		af = sctp_get_af_specific(to.sa.sa_family);
-+		if (!af) {
-+			err = -EINVAL;
-+			goto out_unlock;
-+		}
-+		err = security_sctp_bind_connect(sk, SCTP_SENDMSG_CONNECT,
-+						 (struct sockaddr *)&to,
-+						 af->sockaddr_len);
-+		if (err < 0)
-+			goto out_unlock;
-+
- 		new_asoc = sctp_association_new(ep, sk, scope, GFP_KERNEL);
- 		if (!new_asoc) {
- 			err = -ENOMEM;
-@@ -2865,6 +2899,8 @@ static int sctp_setsockopt_primary_addr(struct sock *sk, char __user *optval,
- {
- 	struct sctp_prim prim;
- 	struct sctp_transport *trans;
-+	struct sctp_af *af;
-+	int err;
- 
- 	if (optlen != sizeof(struct sctp_prim))
- 		return -EINVAL;
-@@ -2872,6 +2908,17 @@ static int sctp_setsockopt_primary_addr(struct sock *sk, char __user *optval,
- 	if (copy_from_user(&prim, optval, sizeof(struct sctp_prim)))
- 		return -EFAULT;
- 
-+	/* Allow security module to validate address but need address len. */
-+	af = sctp_get_af_specific(prim.ssp_addr.ss_family);
-+	if (!af)
-+		return -EINVAL;
-+
-+	err = security_sctp_bind_connect(sk, SCTP_PRIMARY_ADDR,
-+					 (struct sockaddr *)&prim.ssp_addr,
-+					 af->sockaddr_len);
-+	if (err)
-+		return err;
-+
- 	trans = sctp_addr_id2transport(sk, &prim.ssp_addr, prim.ssp_assoc_id);
- 	if (!trans)
- 		return -EINVAL;
-@@ -3193,6 +3240,13 @@ static int sctp_setsockopt_peer_primary_addr(struct sock *sk, char __user *optva
- 	if (!sctp_assoc_lookup_laddr(asoc, (union sctp_addr *)&prim.sspp_addr))
- 		return -EADDRNOTAVAIL;
- 
-+	/* Allow security module to validate address. */
-+	err = security_sctp_bind_connect(sk, SCTP_SET_PEER_PRIMARY_ADDR,
-+					 (struct sockaddr *)&prim.sspp_addr,
-+					 af->sockaddr_len);
-+	if (err)
-+		return err;
-+
- 	/* Create an ASCONF chunk with SET_PRIMARY parameter	*/
- 	chunk = sctp_make_asconf_set_prim(asoc,
- 					  (union sctp_addr *)&prim.sspp_addr);
-@@ -8025,6 +8079,8 @@ void sctp_copy_sock(struct sock *newsk, struct sock *sk,
- {
- 	struct inet_sock *inet = inet_sk(sk);
- 	struct inet_sock *newinet;
-+	struct sctp_sock *sp = sctp_sk(sk);
-+	struct sctp_endpoint *ep = sp->ep;
- 
- 	newsk->sk_type = sk->sk_type;
- 	newsk->sk_bound_dev_if = sk->sk_bound_dev_if;
-@@ -8067,7 +8123,10 @@ void sctp_copy_sock(struct sock *newsk, struct sock *sk,
- 	if (newsk->sk_flags & SK_FLAGS_TIMESTAMP)
- 		net_enable_timestamp();
- 
--	security_sk_clone(sk, newsk);
-+	/* Set newsk security attributes from orginal sk and connection
-+	 * security attribute from ep.
-+	 */
-+	security_sctp_sk_clone(ep, sk, newsk);
- }
- 
- static inline void sctp_copy_descendant(struct sock *sk_to,
--- 
-2.14.3
+Queued for merge.
+
+> ---
+>  libsemanage/src/database_file.c  | 3 +++
+>  libsemanage/src/direct_api.c     | 8 ++++++++
+>  libsemanage/src/semanage_store.c | 2 ++
+>  3 files changed, 13 insertions(+)
+> 
+> diff --git a/libsemanage/src/database_file.c
+> b/libsemanage/src/database_file.c
+> index a21b3eeb..a51269e7 100644
+> --- a/libsemanage/src/database_file.c
+> +++ b/libsemanage/src/database_file.c
+> @@ -119,13 +119,16 @@ static int dbase_file_flush(semanage_handle_t *
+> handle, dbase_file_t * dbase)
+>  	cache_entry_t *ptr;
+>  	const char *fname = NULL;
+>  	FILE *str = NULL;
+> +	mode_t mask;
+>  
+>  	if (!dbase_llist_is_modified(&dbase->llist))
+>  		return STATUS_SUCCESS;
+>  
+>  	fname = dbase->path[handle->is_in_transaction];
+>  
+> +	mask = umask(0077);
+>  	str = fopen(fname, "w");
+> +	umask(mask);
+>  	if (!str) {
+>  		ERR(handle, "could not open %s for writing: %s",
+>  		    fname, strerror(errno));
+> diff --git a/libsemanage/src/direct_api.c
+> b/libsemanage/src/direct_api.c
+> index 00ad8201..a455612f 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -1176,6 +1176,7 @@ static int
+> semanage_direct_commit(semanage_handle_t * sh)
+>  	sepol_policydb_t *out = NULL;
+>  	struct cil_db *cildb = NULL;
+>  	semanage_module_info_t *modinfos = NULL;
+> +	mode_t mask = umask(0077);
+>  
+>  	int do_rebuild, do_write_kernel, do_install;
+>  	int fcontexts_modified, ports_modified, seusers_modified,
+> @@ -1645,6 +1646,8 @@ cleanup:
+>  	semanage_remove_directory(semanage_final_path
+>  				  (SEMANAGE_FINAL_TMP,
+>  				   SEMANAGE_FINAL_TOPLEVEL));
+> +	umask(mask);
+> +
+>  	return retval;
+>  }
+>  
+> @@ -2016,6 +2019,7 @@ static int
+> semanage_direct_set_enabled(semanage_handle_t *sh,
+>  	const char *path = NULL;
+>  	FILE *fp = NULL;
+>  	semanage_module_info_t *modinfo = NULL;
+> +	mode_t mask;
+>  
+>  	/* check transaction */
+>  	if (!sh->is_in_transaction) {
+> @@ -2076,7 +2080,9 @@ static int
+> semanage_direct_set_enabled(semanage_handle_t *sh,
+>  
+>  	switch (enabled) {
+>  		case 0: /* disable the module */
+> +			mask = umask(0077);
+>  			fp = fopen(fn, "w");
+> +			umask(mask);
+>  
+>  			if (fp == NULL) {
+>  				ERR(sh,
+> @@ -2722,6 +2728,7 @@ static int
+> semanage_direct_install_info(semanage_handle_t *sh,
+>  	int type;
+>  
+>  	char path[PATH_MAX];
+> +	mode_t mask = umask(0077);
+>  
+>  	semanage_module_info_t *higher_info = NULL;
+>  	semanage_module_key_t higher_key;
+> @@ -2833,6 +2840,7 @@ cleanup:
+>  	semanage_module_key_destroy(sh, &higher_key);
+>  	semanage_module_info_destroy(sh, higher_info);
+>  	free(higher_info);
+> +	umask(mask);
+>  
+>  	return status;
+>  }
+> diff --git a/libsemanage/src/semanage_store.c
+> b/libsemanage/src/semanage_store.c
+> index 63c80b04..37ff5ace 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -2099,6 +2099,7 @@ int semanage_write_policydb(semanage_handle_t *
+> sh, sepol_policydb_t * out,
+>  	const char *kernel_filename = NULL;
+>  	struct sepol_policy_file *pf = NULL;
+>  	FILE *outfile = NULL;
+> +	mode_t mask = umask(0077);
+>  
+>  	if ((kernel_filename =
+>  	     semanage_path(SEMANAGE_TMP, file)) == NULL) {
+> @@ -2127,6 +2128,7 @@ int semanage_write_policydb(semanage_handle_t *
+> sh, sepol_policydb_t * out,
+>  	if (outfile != NULL) {
+>  		fclose(outfile);
+>  	}
+> +	umask(mask);
+>  	sepol_policy_file_free(pf);
+>  	return retval;
+>  }
