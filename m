@@ -1,244 +1,114 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAT9BENB021451
- for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2017 04:11:14 -0500
-Received: by mail-wm0-f52.google.com with SMTP id t8so4620975wmc.3
- for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2017 01:11:07 -0800 (PST)
-Received: from julius.enp8s0.d30 ([217.19.26.10])
- by smtp.gmail.com with ESMTPSA id b30sm1327021ede.53.2017.11.29.01.11.05
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Wed, 29 Nov 2017 01:11:05 -0800 (PST)
-Date: Wed, 29 Nov 2017 10:11:03 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <20171129091103.GB1225@julius.enp8s0.d30>
-References: <CAPMH7-9gpgonG5tMJ-yp6Ny5pSZfH5ypEFNffcWc_ypRzERDYw@mail.gmail.com>
- <CAPMH7-_i8y2J217Pp86Evgd8rBB6a4zGRah=nB=gcWb0i+a+Rg@mail.gmail.com>
- <CAPMH7-9WAFhKQN2yeG3CNp+jaa4Rvc6ZnGcyu-zt6GWHys=N8w@mail.gmail.com>
- <1511798379.23941.6.camel@tycho.nsa.gov>
- <CAPMH7-_49TWi5C0U7RsW-24ScdwzNoEq-Gkq=TVvRFO6_yrPHQ@mail.gmail.com>
- <20171129082215.GA1225@julius.enp8s0.d30>
- <CAPMH7-9r-TTzrjVYMNCQftnFyz1N2cAT7dYQufUhSs91hszsQg@mail.gmail.com>
+Date: Wed, 29 Nov 2017 21:26:36 +1100 (AEDT)
+From: James Morris <james.l.morris@oracle.com>
+To: Paul Moore <paul@paul-moore.com>, Eric Dumazet <edumazet@google.com>
+cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <alpine.LFD.2.20.1711292113350.7808@localhost>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="pvezYHf7grwyp3Bc"
-In-Reply-To: <CAPMH7-9r-TTzrjVYMNCQftnFyz1N2cAT7dYQufUhSs91hszsQg@mail.gmail.com>
-Subject: Re: Fwd: Qwery regarding Selinux Change Id context
+Content-Type: text/plain; charset=US-ASCII
+Subject: [BUG] kernel stack corruption during/after Netlabel error
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+I'm seeing a kernel stack corruption bug (detected via gcc) when running 
+the SELinux testsuite on a 4.15-rc1 kernel, in the 2nd inet_socket test:
 
---pvezYHf7grwyp3Bc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+https://github.com/SELinuxProject/selinux-testsuite/blob/master/tests/inet_socket/test
 
-On Wed, Nov 29, 2017 at 02:21:46PM +0530, Aman Sharma wrote:
-> Hi ,
->=20
-> Check the output for the same.
->=20
-> * getsebool -a | grep ssh*
-> fenced_can_ssh --> off
-> selinuxuser_use_ssh_chroot --> on
-> ssh_chroot_rw_homedirs --> off
-> ssh_keysign --> off
-> ssh_sysadm_login --> on
+  # Verify that unauthorized client cannot communicate with the server.
+  $result = system
+  "runcon -t test_inet_bad_client_t -- $basedir/client stream 127.0.0.1 65535 2>&1";
 
-Thanks. That means I was wrong.
+This correctlly causes an access control error in the Netlabel code, and 
+the bug seems to be triggered during the ICMP send:
 
->=20
->=20
-> On Wed, Nov 29, 2017 at 1:52 PM, Dominick Grift <dac.override@gmail.com>
-> wrote:
->=20
-> > On Wed, Nov 29, 2017 at 09:33:31AM +0530, Aman Sharma wrote:
-> > > Hi Stephen,
-> > >
-> > > Below is the output of command :
-> > >
-> > > * sestatus -v output*
-> > > *SELinux status:                 enabled*
-> > > *SELinuxfs mount:                /sys/fs/selinux*
-> > > *SELinux root directory:         /etc/selinux*
-> > > *Loaded policy name:             targeted*
-> > > *Current mode:                   enforcing*
-> > > *Mode from config file:          permissive*
-> > > *Policy MLS status:              enabled*
-> > > *Policy deny_unknown status:     allowed*
-> > > *Max kernel policy version:      28*
-> > >
-> > > *Process contexts:*
-> > > *Current context:
-> > > system_u:system_r:unconfined_t:s0-s0:c0.c1023*
-> > > *Init context:                   system_u:system_r:init_t:s0*
-> > > */usr/sbin/sshd                  system_u:system_r:sshd_t:s0-
-> > s0:c0.c1023*
-> > >
-> > > *File contexts:*
-> > > *Controlling terminal:           system_u:object_r:sshd_devpts_t:s0*
-> > > */etc/passwd                     system_u:object_r:passwd_file_t:s0*
-> > > */etc/shadow                     system_u:object_r:shadow_t:s0*
-> > > */bin/bash                       system_u:object_r:shell_exec_t:s0*
-> > > */bin/login                      system_u:object_r:login_exec_t:s0*
-> > > */bin/sh                         system_u:object_r:bin_t:s0 ->
-> > > system_u:object_r:shell_exec_t:s0*
-> > > */sbin/agetty                    system_u:object_r:getty_exec_t:s0*
-> > > */sbin/init                      system_u:object_r:bin_t:s0 ->
-> > > system_u:object_r:init_exec_t:s0*
-> > > */usr/sbin/sshd                  system_u:object_r:sshd_exec_t:s0*
-> > > */lib/libc.so.6                  system_u:object_r:lib_t:s0 ->
-> > > system_u:object_r:lib_t:s0*
-> > > */lib/ld-linux.so.2              system_u:object_r:lib_t:s0 ->
-> > > system_u:object_r:ld_so_t:s0*
-> > >
-> > > *Also I am using ssh session for login.*
-> > >
-> > > *Please let me know how to change id command context to unconfined_u =
-or
-> > > Sysadm_u.*
-> > >
-> > > Thanks in advance
-> > > Aman
-> >
-> > not sure and shot in dark, but:
-> >
-> > root is assoc. with sysadm_u. sysadm_u is only authorized to use sysadm=
-_r.
-> > if you have the boolean ssh_priv_login set to off then
-> > sysadm_u:sysadm_r:sysadm_t:s0 is inaccessible
-> > pam_selinux attempts to use any other contexts that are accessible, and=
- it
-> > appears that system_u:system_r:unconfined_t was it.
-> >
-> > Do you have the ssh_priv_login boolean set to off? `getsebool -a | grep
-> > ssh`
-> >
-> > >
-> > > On Mon, Nov 27, 2017 at 9:29 PM, Stephen Smalley <sds@tycho.nsa.gov>
-> > wrote:
-> > >
-> > > > On Fri, 2017-11-24 at 10:47 +0530, Aman Sharma wrote:
-> > > > >
-> > > > >
-> > > > > Hi All,
-> > > > >
-> > > > > Currently Working on Cent OS 7.3 and login as a root User and my =
-Id
-> > > > > command output is :
-> > > > >
-> > > > > id
-> > > > > uid=3D0(root) gid=3D0(root) groups=3D0(root)
-> > > > > context=3Dsystem_u:system_r:unconfined_t:s0-s0:c0.c1023
-> > > > >
-> > > > > I want to change System_u:system_r:unconfined_t to sysadm_u:sysad=
-m_r
-> > > > > or unconfined_u:unconfined_r.
-> > > > >
-> > > > > Also showing the output of following command :
-> > > > >
-> > > > > semanage user -l
-> > > > >
-> > > > >                 Labeling   MLS/       MLS/
-> > > > > SELinux User    Prefix     MCS Level  MCS Range
-> > > > > SELinux Roles
-> > > > >
-> > > > > admin_u         user       s0         s0-s0:c0.c1023
-> > > > >  sysadm_r system_r
-> > > > > guest_u         user       s0         s0
-> > > > >  guest_r
-> > > > > root            user       s0         s0-s0:c0.c1023
-> > > > >  staff_r sysadm_r
-> > > > > specialuser_u   user       s0         s0
-> > > > >  sysadm_r system_r
-> > > > > staff_u         user       s0         s0-s0:c0.c1023
-> > > > >  staff_r sysadm_r system_r
-> > > > > sysadm_u        user       s0         s0-s0:c0.c1023
-> > > > >  sysadm_r
-> > > > > system_u        user       s0         s0-s0:c0.c1023
-> > > > >  system_r
-> > > > > unconfined_u    user       s0         s0-s0:c0.c1023
-> > > > >  system_r unconfined_r
-> > > > > user_u          user       s0         s0
-> > > > >  user_r
-> > > > > xguest_u        user       s0         s0
-> > > > >  xguest_r
-> > > > >
-> > > > >
-> > > > >  semanage login -l
-> > > > >
-> > > > > Login Name           SELinux User         MLS/MCS Range
-> > > > > Service
-> > > > >
-> > > > > __default__          sysadm_u             s0-s0:c0.c1023       *
-> > > > > ccmservice           specialuser_u        s0                   *
-> > > > > cucm                 admin_u              s0-s0:c0.c1023       *
-> > > > > drfkeys              specialuser_u        s0                   *
-> > > > > drfuser              specialuser_u        s0                   *
-> > > > > informix             specialuser_u        s0                   *
-> > > > > pwrecovery           specialuser_u        s0                   *
-> > > > > root                 sysadm_u             s0-s0:c0.c1023       *
-> > > > > sftpuser             specialuser_u        s0                   *
-> > > > > system_u             sysadm_u             s0-s0:c0.c1023       *
-> > > > >
-> > > > >
-> > > > > Can anybody Please help me.
-> > > >
-> > > > What is your sestatus -v output?  How are you logging in (console, =
-gdm,
-> > > > ssh, ...)?
-> > > >
-> > > > You don't appear to be running the default policy, or if you are,
-> > > > someone has heavily customized your user and login mappings.
-> > > >
-> > > >
-> > > >
-> > >
-> > >
-> > > --
-> > >
-> > > Thanks
-> > > Aman
-> > > Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
-> >
-> > --
-> > Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> > https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6=
-B02
-> > Dominick Grift
-> >
->=20
->=20
->=20
-> --=20
->=20
-> Thanks
-> Aman
-> Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
+[  339.806024] SELinux: failure in selinux_parse_skb(), unable to parse packet
+[  339.822505] Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: ffffffff81745af5
+[  339.822505] 
+[  339.852250] CPU: 4 PID: 3642 Comm: client Not tainted 4.15.0-rc1-test #15
+[  339.868498] Hardware name: LENOVO 10FGS0VA1L/30BC, BIOS FWKT68A   01/19/2017
+[  339.885060] Call Trace:
+[  339.896875]  <IRQ>
+[  339.908103]  dump_stack+0x63/0x87
+[  339.920645]  panic+0xe8/0x248
+[  339.932668]  ? ip_push_pending_frames+0x33/0x40
+[  339.946328]  ? icmp_send+0x525/0x530
+[  339.958861]  ? kfree_skbmem+0x60/0x70
+[  339.971431]  __stack_chk_fail+0x1b/0x20
+[  339.984049]  icmp_send+0x525/0x530
+[  339.996205]  ? netlbl_skbuff_err+0x36/0x40
+[  340.008997]  ? selinux_netlbl_err+0x11/0x20
+[  340.021816]  ? selinux_socket_sock_rcv_skb+0x211/0x230
+[  340.035529]  ? security_sock_rcv_skb+0x3b/0x50
+[  340.048471]  ? sk_filter_trim_cap+0x44/0x1c0
+[  340.061246]  ? tcp_v4_inbound_md5_hash+0x69/0x1b0
+[  340.074562]  ? tcp_filter+0x2c/0x40
+[  340.086400]  ? tcp_v4_rcv+0x820/0xa20
+[  340.098329]  ? ip_local_deliver_finish+0x71/0x1a0
+[  340.111279]  ? ip_local_deliver+0x6f/0xe0
+[  340.123535]  ? ip_rcv_finish+0x3a0/0x3a0
+[  340.135523]  ? ip_rcv_finish+0xdb/0x3a0
+[  340.147442]  ? ip_rcv+0x27c/0x3c0
+[  340.158668]  ? inet_del_offload+0x40/0x40
+[  340.170580]  ? __netif_receive_skb_core+0x4ac/0x900
+[  340.183285]  ? rcu_accelerate_cbs+0x5b/0x80
+[  340.195282]  ? __netif_receive_skb+0x18/0x60
+[  340.207288]  ? process_backlog+0x95/0x140
+[  340.218948]  ? net_rx_action+0x26c/0x3b0
+[  340.230416]  ? __do_softirq+0xc9/0x26a
+[  340.241625]  ? do_softirq_own_stack+0x2a/0x40
+[  340.253368]  </IRQ>
+[  340.262673]  ? do_softirq+0x50/0x60
+[  340.273450]  ? __local_bh_enable_ip+0x57/0x60
+[  340.285045]  ? ip_finish_output2+0x175/0x350
+[  340.296403]  ? ip_finish_output+0x127/0x1d0
+[  340.307665]  ? nf_hook_slow+0x3c/0xb0
+[  340.318230]  ? ip_output+0x72/0xe0
+[  340.328524]  ? ip_fragment.constprop.54+0x80/0x80
+[  340.340070]  ? ip_local_out+0x35/0x40
+[  340.350497]  ? ip_queue_xmit+0x15c/0x3f0
+[  340.361060]  ? __kmalloc_reserve.isra.40+0x31/0x90
+[  340.372484]  ? __skb_clone+0x2e/0x130
+[  340.382633]  ? tcp_transmit_skb+0x558/0xa10
+[  340.393262]  ? tcp_connect+0x938/0xad0
+[  340.403370]  ? ktime_get_with_offset+0x4c/0xb0
+[  340.414206]  ? tcp_v4_connect+0x457/0x4e0
+[  340.424471]  ? __inet_stream_connect+0xb3/0x300
+[  340.435195]  ? inet_stream_connect+0x3b/0x60
+[  340.445607]  ? SYSC_connect+0xd9/0x110
+[  340.455455]  ? __audit_syscall_entry+0xaf/0x100
+[  340.466112]  ? syscall_trace_enter+0x1d0/0x2b0
+[  340.476636]  ? __audit_syscall_exit+0x209/0x290
+[  340.487151]  ? SyS_connect+0xe/0x10
+[  340.496453]  ? do_syscall_64+0x67/0x1b0
+[  340.506078]  ? entry_SYSCALL64_slow_path+0x25/0x25
+[  340.516693] Kernel Offset: disabled
+[  340.526393] Rebooting in 11 seconds..
 
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
+This is mostly reliable, and I'm only seeing it on bare metal (not in a 
+virtualbox vm).
 
---pvezYHf7grwyp3Bc
-Content-Type: application/pgp-signature; name="signature.asc"
+The SELinux skb parse error at the start only sometimes appears, and 
+looking at the code, I suspect some kind of memory corruption being the 
+cause at that point (basic packet header checks).
 
------BEGIN PGP SIGNATURE-----
+I bisected the bug down to the following change:
 
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAloeeaQACgkQJXSOVTf5
-R2lNjAv/ZMmN5itY76HcMArTJRY+qfPo5PuU+UJR/NuO/faGsrX2IrxnNAgTanEp
-ZeTYmsOuDnrDo1KfkShR3xxcq99cbcbSJBXmlk/xb4yFK3wF/u8dx256FvljiB80
-qA4yaDN9UUdoFbQFOGzUy5xmSaGh1alz4qkiHEJpvDIzTmdIzAwt1vCGjkCi/eie
-wd+CjjxCggcbnZ7ScBAgu38q9e9CPnTV3y3x3sQQ0D5bx3gcCc7LQ8q2OCRjk/8a
-pl/ScMk924U/9nG1ha4DfRJVN6FDDM0S+jCjR9Qm6CfDXUs5Ay+KUXVpmVaesAL7
-I/yoDJDv+Ybl9JD69fdp9apX7FpPjDzD/SMdhI3OBtZ4779JdjqigBvUj9fWlDcF
-hGWx93hr/54CAOpZwrbESElWfnZF9EbcnjoAxvP4wcymvdGH86e+7AmXSHSCBMV+
-dnWmK52Ntxl51OUf4Jxqtu1hGkHW12FY/+OCMuGoGIROVziudzOG5/7RI4Pes5aC
-8xjMc9mf
-=bO4y
------END PGP SIGNATURE-----
+commit bffa72cf7f9df842f0016ba03586039296b4caaf
+Author: Eric Dumazet <edumazet@google.com>
+Date:   Tue Sep 19 05:14:24 2017 -0700
 
---pvezYHf7grwyp3Bc--
+    net: sk_buff rbnode reorg
+    ...
+
+
+Anyone else able to reproduce this, or have any ideas on what's happening?
+
+
+
+- James
+-- 
+James Morris
+<james.l.morris@oracle.com>
