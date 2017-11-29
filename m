@@ -1,80 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vASMXo0O031103
- for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 17:33:50 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC06.oob.disa.mil (Postfix) with SMTP id 3ymdjZ3NsWz19Z1w
- for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 22:33:22 +0000 (UTC)
-Received: from UPBD19PA12.eemsg.mil (unknown [192.168.18.16])
- by UPDCF3IC06.oob.disa.mil (Postfix) with ESMTP id 3ymdjZ2ggRz19Z1g
- for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 22:33:22 +0000 (UTC)
-Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.16.0.21/8.16.0.21) with SMTP id
- vASMWSrK075580
- for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 17:33:19 -0500
-Received: from e06smtp11.uk.ibm.com (e06smtp11.uk.ibm.com [195.75.94.107])
- by mx0a-001b2d01.pphosted.com with ESMTP id 2ehcpya4cb-1
- (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
- for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 17:33:19 -0500
-Received: from localhost
- by e06smtp11.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
- Violators will be prosecuted
- for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
- Tue, 28 Nov 2017 22:33:17 -0000
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: Matthew Garrett <mjg59@google.com>
-Cc: linux-integrity <linux-integrity@vger.kernel.org>, Paul Moore
- <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris
- <eparis@parisplace.org>, selinux@tycho.nsa.gov, Casey Schaufler
- <casey@schaufler-ca.com>, LSM List <linux-security-module@vger.kernel.org>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
-Date: Tue, 28 Nov 2017 17:33:10 -0500
-In-Reply-To: <CACdnJuvN6NxHLG=hS4iDRHBGWWdzFeUMfkF3ETRjXCbwiXpgnQ@mail.gmail.com>
-References: <20171026084055.25482-1-mjg59@google.com>
- <20171026084055.25482-2-mjg59@google.com>
- <1511902135.3473.5.camel@linux.vnet.ibm.com>
- <CACdnJus2Wha_CjL-8g2BdY=evfNjFqHwKQorsxhUQa8Na_0kCg@mail.gmail.com>
- <1511904917.3473.15.camel@linux.vnet.ibm.com>
- <CACdnJuvN6NxHLG=hS4iDRHBGWWdzFeUMfkF3ETRjXCbwiXpgnQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Message-Id: <1511908390.3473.30.camel@linux.vnet.ibm.com>
-Subject: Re: [PATCH V3 2/2] IMA: Support using new creds in appraisal policy
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAT1nE4l017530
+ for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 20:49:14 -0500
+Received: by mail-qt0-f174.google.com with SMTP id d4so2485650qtj.5
+ for <selinux@tycho.nsa.gov>; Tue, 28 Nov 2017 17:49:03 -0800 (PST)
+To: Paul Moore <paul@paul-moore.com>, Daniel Jurgens <danielj@mellanox.com>
+Cc: selinux@tycho.nsa.gov, honli@redhat.com, refpolicy@oss.tresys.com
+References: <1511791439-15957-1-git-send-email-danielj@mellanox.com>
+ <CAHC9VhRqB4DxRjR=ceaJuc12M5R4ZAXgmBrEKws4BQMGVeASzw@mail.gmail.com>
+ <6ced2e0c-e6a3-9481-f20d-ca81027e6d2f@mellanox.com>
+ <CAHC9VhSTR250fQvNs61VbftsLOX=Lxt5t-CoH1BzXjWRJw2xDw@mail.gmail.com>
+From: Chris PeBenito <pebenito@ieee.org>
+Message-ID: <163e0282-3638-1655-e726-6820265bad19@ieee.org>
+Date: Tue, 28 Nov 2017 20:25:05 -0500
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhSTR250fQvNs61VbftsLOX=Lxt5t-CoH1BzXjWRJw2xDw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH 1/1] networkmanager: Grant access to unlabeled
+ PKeys
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2017-11-28 at 13:37 -0800, Matthew Garrett wrote:
-> On Tue, Nov 28, 2017 at 1:35 PM, Mimi Zohar <zohar@linux.vnet.ibm.com> wrote:
-> > On Tue, 2017-11-28 at 13:22 -0800, Matthew Garrett wrote:
-> >> We need to check against the appropriate credentials structure, and
-> >> since we're doing this before commit_creds() has been called we can't
-> >> just do it against the one in the task structure.  For BPRM_CHECK
-> >> that'll be current_cred(), which means there's no change in
-> >> functionality, whereas for CREDS_CHECK it'll be the new credentials
-> >> structure.
-> >
-> > The existing code calls security_task_getsecid() with "current" not
-> > "current_cred".  Will replacing security_task_getsecid() with
-> > security_cred_getsecid() return the same info for the original
-> > BRPM_CHECK?
+On 11/27/2017 05:50 PM, Paul Moore wrote:
+> On Mon, Nov 27, 2017 at 3:04 PM, Daniel Jurgens <danielj@mellanox.com> wrote:
+>> On 11/27/2017 10:19 AM, Paul Moore wrote:
+>>> On Mon, Nov 27, 2017 at 9:03 AM, Dan Jurgens <danielj@mellanox.com> wrote:
+>>>> From: Daniel Jurgens <danielj@mellanox.com>
+>>>>
+>>>> For controlling IPoIB VLANs
+>>>>
+>>>> Reported-by: Honggang LI <honli@redhat.com>
+>>>> Signed-off-by: Daniel Jurgens <danielj@mellanox.com>
+>>>> Tested-by: Honggang LI <honli@redhat.com>
+>>>> ---
+>>>>   networkmanager.te |    2 ++
+>>>>   1 files changed, 2 insertions(+), 0 deletions(-)
+>>> [NOTE: resending due to a typo in the refpol mailing list address]
+>>>
+>>> We obviously need something like this now so we don't break IPoIB, but
+>>> I wonder if we should make the IB access controls dynamic like the
+>>> per-packet network access controls.  We could key off the presence of
+>>> the IB pkey and endport definitions: if there are any objects defined
+>>> in the loaded policy we enable the controls, otherwise we disable
+>>> them.
+>>
+>> I think I understand what you're saying Paul, but I'm not clear on the mechanism.  Are you referring to the netlabel/IPSEC enable checks? They are wrapped up in selinux_peerlbl_enabled.
 > 
-> security_task_getsecid(current) will give the same results as
-> security_cred_getsecid(current_creds())
+> Basically, yes.  We could add a new variable/function that gates the
+> access control checks in selinux_ib_pkey_access() and
+> selinux_ib_endport_manage_subnet(); the checks would be enabled when
+> there was Infiniband configuration loaded with the policy.  Without
+> the IB config loaded, all the checks would end up being just a domain
+> check against unlabeled_t, which isn't very interesting, so we would
+> just drop the checks.
 
-Unwinding security_task_getsecid(current) looks like it is using
-real_cred, while current_cred() is using cred.
+As long as it also respects policycap always_check_network, it works for me.
 
-selinux_task_getsecid() -> task_sid() -> cred_sid(__task_cred())
-
-#define __task_cred(task)       \
-        rcu_dereference((task)->real_cred)
-
-selinux_task_getsecid() -> cred_sid()
-
-#define current_cred() \
-        rcu_dereference_protected(current->cred, 1)
-
-Is the change intentional?
-
-Mimi
+-- 
+Chris PeBenito
