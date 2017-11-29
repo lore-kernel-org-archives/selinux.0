@@ -1,140 +1,171 @@
-MIME-Version: 1.0
-In-Reply-To: <1511965250.10464.5.camel@tycho.nsa.gov>
-References: <CAPMH7--5mGMZ4UMLM9763ukX-CBOzfUD96_wnCea57+RM8uakw@mail.gmail.com>
- <1511963807.10464.4.camel@tycho.nsa.gov>
- <1511965250.10464.5.camel@tycho.nsa.gov>
-From: Aman Sharma <amansh.sharma5@gmail.com>
-Date: Wed, 29 Nov 2017 20:14:27 +0530
-Message-ID: <CAPMH7-8unpJmwWiTvnO3zAsKosDfqtxDXhYgkj3PKbJxvF0aEw@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <1511966833.10464.7.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Aman Sharma <amansh.sharma5@gmail.com>
 Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary="001a11351a0024e130055f202cf7"
-Subject: Re: Default User in Selinux
+Date: Wed, 29 Nov 2017 09:47:13 -0500
+In-Reply-To: <CAPMH7-80BqKG1XB1UDXWAJp1cHKYL3ri_0XjVYdppCNdyom9hQ@mail.gmail.com>
+References: <CAPMH7-9gpgonG5tMJ-yp6Ny5pSZfH5ypEFNffcWc_ypRzERDYw@mail.gmail.com>
+ <CAPMH7-_i8y2J217Pp86Evgd8rBB6a4zGRah=nB=gcWb0i+a+Rg@mail.gmail.com>
+ <CAPMH7-9WAFhKQN2yeG3CNp+jaa4Rvc6ZnGcyu-zt6GWHys=N8w@mail.gmail.com>
+ <1511798379.23941.6.camel@tycho.nsa.gov>
+ <CAPMH7-_49TWi5C0U7RsW-24ScdwzNoEq-Gkq=TVvRFO6_yrPHQ@mail.gmail.com>
+ <1511963505.10464.2.camel@tycho.nsa.gov>
+ <CAPMH7-80BqKG1XB1UDXWAJp1cHKYL3ri_0XjVYdppCNdyom9hQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: Fwd: Qwery regarding Selinux Change Id context
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---001a11351a0024e130055f202cf7
-Content-Type: text/plain; charset="UTF-8"
+On Wed, 2017-11-29 at 20:11 +0530, Aman Sharma wrote:
+> Hi Stephen,
+> 
+> Thanks for the reply.
+> 
+> Can you please let me know how to delete all local customizations
+> (via semanage or manually) and revert
+> to a default policy. 
 
-Hi Stephen,
+First, save any local customizations in case you want to restore them
+later:
+semanage export > localchanges
 
-During boot up,this error message is coming i.e. command is not working but
-after the system boot up, this command is working fine.
+Then, delete them:
+semanage login -D
+semanage user -D
 
-Means facing the issue during boot up.
+Then logout and log back in.
 
-Please let me know your comments on this.
-
-Thanks
-Aman
-
-
-
-On Wed, Nov 29, 2017 at 7:50 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-
-> On Wed, 2017-11-29 at 08:56 -0500, Stephen Smalley wrote:
-> > On Wed, 2017-11-29 at 17:19 +0530, Aman Sharma wrote:
-> > > Hi All,
+> 
+> Otherwise the output of semanage login -l and semanage user -l  :
+> 
+> semanage user -l
+> 
+>                 Labeling   MLS/       MLS/                          
+> SELinux User    Prefix     MCS Level  MCS Range                     
+> SELinux Roles
+> 
+> admin_u         user       s0         s0-s0:c0.c1023               
+>  sysadm_r system_r
+> guest_u         user       s0         s0                           
+>  guest_r
+> root            user       s0         s0-s0:c0.c1023               
+>  staff_r sysadm_r
+> specialuser_u   user       s0         s0                           
+>  sysadm_r system_r
+> staff_u         user       s0         s0-s0:c0.c1023               
+>  staff_r sysadm_r system_r
+> sysadm_u        user       s0         s0-s0:c0.c1023               
+>  sysadm_r
+> system_u        user       s0         s0-s0:c0.c1023               
+>  system_r
+> unconfined_u    user       s0         s0-s0:c0.c1023               
+>  system_r unconfined_r
+> user_u          user       s0         s0                           
+>  user_r
+> xguest_u        user       s0         s0                           
+>  xguest_r
+> 
+> 
+>  semanage login -l
+> 
+> Login Name           SELinux User         MLS/MCS Range       
+> Service
+> 
+> __default__          sysadm_u             s0-s0:c0.c1023       *
+> ccmservice           specialuser_u        s0                   *
+> cucm                 admin_u              s0-s0:c0.c1023       *
+> drfkeys              specialuser_u        s0                   *
+> drfuser              specialuser_u        s0                   *
+> informix             specialuser_u        s0                   *
+> pwrecovery           specialuser_u        s0                   *
+> root                 sysadm_u             s0-s0:c0.c1023       *
+> sftpuser             specialuser_u        s0                   *
+> system_u             sysadm_u             s0-s0:c0.c1023       *
+> 
+> Please let me know if any comments are there.
+> 
+> Thanks
+> Aman
+> 
+> On Wed, Nov 29, 2017 at 7:21 PM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> > On Wed, 2017-11-29 at 09:33 +0530, Aman Sharma wrote:
+> > > Hi Stephen,
 > > >
-> > > During System boot up, I am running some semanage commands to
-> > > change
-> > > the User to sysadm_u.  But in Cent OS 7.3 , Below error message is
-> > > coming i.e.  ValueError: Login mapping for __default__ is not
-> > > defined.
+> > > Below is the output of command :
 > > >
-> > > /usr/sbin/semanage login -m -S targeted -s user_u -r s0
-> > > __default__
-> > >     ValueError: Login mapping for __default__ is not defined
+> > >  sestatus -v output
+> > > SELinux status:                 enabled
+> > > SELinuxfs mount:                /sys/fs/selinux
+> > > SELinux root directory:         /etc/selinux
+> > > Loaded policy name:             targeted
+> > > Current mode:                   enforcing
+> > > Mode from config file:          permissive
+> > > Policy MLS status:              enabled
+> > > Policy deny_unknown status:     allowed
+> > > Max kernel policy version:      28
 > > >
-> > > But the same command is working fine in Cent OS 6.8.
+> > > Process contexts:
+> > > Current context:               
+> > system_u:system_r:unconfined_t:s0-
+> > > s0:c0.c1023
+> > > Init context:                   system_u:system_r:init_t:s0
+> > > /usr/sbin/sshd                  system_u:system_r:sshd_t:s0-
+> > > s0:c0.c1023
 > > >
-> > > Please let me know why this error message is coming for Cent OS 7.
-> >
-> > That suggests something is very wrong with your seusers
-> > configuration,
-> > or maybe you have too many underscores before or after default
-> > (should
-> > be two _ before and after).
->
-> BTW, the command above works fine for me on CentOS 7.4 (don't have 7.3
-> handy).
->
-> >
-> > You can delete all local customizations to your seusers configuration
-> > via semanage login -D.  This will revert to the stock configuration
-> > in
-> > your policy package.  Likewise for semanage user -D.
->
-
-
-
--- 
-
-Thanks
-Aman
-Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
-
---001a11351a0024e130055f202cf7
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi Stephen,<div><br></div><div>During boot up,this error m=
-essage is coming i.e. command is not working but after the system boot up, =
-this command is working fine.</div><div><br></div><div>Means facing the iss=
-ue during boot up.</div><div><br></div><div>Please let me know your comment=
-s on this.</div><div><br></div><div>Thanks</div><div>Aman=C2=A0<br><div><br=
-></div><div><br></div></div></div><div class=3D"gmail_extra"><br><div class=
-=3D"gmail_quote">On Wed, Nov 29, 2017 at 7:50 PM, Stephen Smalley <span dir=
-=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank">sds@tyc=
-ho.nsa.gov</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=
-=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><span cl=
-ass=3D"">On Wed, 2017-11-29 at 08:56 -0500, Stephen Smalley wrote:<br>
-&gt; On Wed, 2017-11-29 at 17:19 +0530, Aman Sharma wrote:<br>
-&gt; &gt; Hi All,<br>
-&gt; &gt;<br>
-&gt; &gt; During System boot up, I am running some semanage commands to<br>
-&gt; &gt; change<br>
-&gt; &gt; the User to sysadm_u.=C2=A0 But in Cent OS 7.3 , Below error mess=
-age is<br>
-&gt; &gt; coming i.e.=C2=A0=C2=A0ValueError: Login mapping for __default__ =
-is not<br>
-&gt; &gt; defined.<br>
-&gt; &gt;<br>
-&gt; &gt; /usr/sbin/semanage login -m -S targeted -s user_u -r s0<br>
-&gt; &gt; __default__=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<br>
-&gt; &gt; =C2=A0=C2=A0=C2=A0=C2=A0ValueError: Login mapping for __default__=
- is not defined<br>
-&gt; &gt;<br>
-&gt; &gt; But the same command is working fine in Cent OS 6.8.=C2=A0<br>
-&gt; &gt;<br>
-&gt; &gt; Please let me know why this error message is coming for Cent OS 7=
-.<br>
-&gt;<br>
-&gt; That suggests something is very wrong with your seusers<br>
-&gt; configuration,<br>
-&gt; or maybe you have too many underscores before or after default<br>
-&gt; (should<br>
-&gt; be two _ before and after).<br>
-<br>
-</span>BTW, the command above works fine for me on CentOS 7.4 (don&#39;t ha=
-ve 7.3<br>
-handy).<br>
-<div class=3D"HOEnZb"><div class=3D"h5"><br>
-&gt;<br>
-&gt; You can delete all local customizations to your seusers configuration<=
-br>
-&gt; via semanage login -D.=C2=A0=C2=A0This will revert to the stock config=
-uration<br>
-&gt; in<br>
-&gt; your policy package.=C2=A0=C2=A0Likewise for semanage user -D.<br>
-</div></div></blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>=
-<div class=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div dir=
-=3D"ltr"><div><br></div><div>Thanks</div><div>Aman</div><div>Cell: +91 9990=
-296404 | =C2=A0Email ID : <a href=3D"mailto:amansh.sharma5@gmail.com" targe=
-t=3D"_blank">amansh.sharma5@gmail.com</a></div></div></div>
-</div>
-
---001a11351a0024e130055f202cf7--
+> > > File contexts:
+> > > Controlling terminal:         
+> >  system_u:object_r:sshd_devpts_t:s0
+> > > /etc/passwd                   
+> >  system_u:object_r:passwd_file_t:s0
+> > > /etc/shadow                     system_u:object_r:shadow_t:s0
+> > > /bin/bash                       system_u:object_r:shell_exec_t:s0
+> > > /bin/login                      system_u:object_r:login_exec_t:s0
+> > > /bin/sh                         system_u:object_r:bin_t:s0 ->
+> > > system_u:object_r:shell_exec_t:s0
+> > > /sbin/agetty                    system_u:object_r:getty_exec_t:s0
+> > > /sbin/init                      system_u:object_r:bin_t:s0 ->
+> > > system_u:object_r:init_exec_t:s0
+> > > /usr/sbin/sshd                  system_u:object_r:sshd_exec_t:s0
+> > > /lib/libc.so.6                  system_u:object_r:lib_t:s0 ->
+> > > system_u:object_r:lib_t:s0
+> > > /lib/ld-linux.so.2              system_u:object_r:lib_t:s0 ->
+> > > system_u:object_r:ld_so_t:s0
+> > >
+> > > Also I am using ssh session for login.
+> > >
+> > > Please let me know how to change id command context to
+> > unconfined_u
+> > > or Sysadm_u.
+> > 
+> > So from your earlier message, it is clear that you (or someone
+> > else)
+> > has heavily customized your semanage login and user mappings from
+> > the
+> > stock targeted policy.  The question is why, and whether you
+> > want/need
+> > to retain any of those customizations.  If not, then you could just
+> > delete all local customizations (via semanage or manually) and
+> > revert
+> > to a stock policy.
+> > 
+> > If you do need to retain some of those customizations, then please
+> > show
+> > your current semanage login -l and semanage user -l output since
+> > you
+> > said you ran some further semanage commands after the last output
+> > you
+> > showed.
+> > 
+> > 
+> 
+> 
+> 
+> -- 
+> 
+> Thanks
+> Aman
+> Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
