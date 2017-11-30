@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAUEXQp2019354
- for <selinux@tycho.nsa.gov>; Thu, 30 Nov 2017 09:33:27 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAUFRoFk026842
+ for <selinux@tycho.nsa.gov>; Thu, 30 Nov 2017 10:27:51 -0500
 To: Eric Dumazet <eric.dumazet@gmail.com>,
  James Morris <james.l.morris@oracle.com>
 Cc: Paul Moore <paul@paul-moore.com>, netdev@vger.kernel.org,
@@ -12,8 +12,8 @@ References: <alpine.LFD.2.20.1711292113350.7808@localhost>
  <ae2e71e4-c366-5a1e-9fd6-4de944f4a158@schaufler-ca.com>
  <1512039044.19682.12.camel@gmail.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <ce871ca4-6269-2ae7-bb29-cd2091c6defb@schaufler-ca.com>
-Date: Thu, 30 Nov 2017 06:33:17 -0800
+Message-ID: <e0aa9e39-6055-0074-7b59-1f80646a4ca5@schaufler-ca.com>
+Date: Thu, 30 Nov 2017 07:11:06 -0800
 MIME-Version: 1.0
 In-Reply-To: <1512039044.19682.12.camel@gmail.com>
 Content-Type: text/plain; charset=utf-8
@@ -37,7 +37,9 @@ On 11/30/2017 2:50 AM, Eric Dumazet wrote:
 >> The patch does fix the problem I was seeing in Smack.
 > Can you guys test the following more complete patch ?
 
-Building now. I should have results soon.
+My tests are passing. Thank you.
+
+Tested-by: Casey Schaufler <casey@schaufler-ca.com>
 
 >
 > It should cover IPv4 and IPv6, and also the corner cases.
