@@ -1,19 +1,17 @@
-Date: Thu, 30 Nov 2017 10:41:29 +1100 (AEDT)
-From: James Morris <james.l.morris@oracle.com>
-To: Eric Dumazet <eric.dumazet@gmail.com>
-cc: Eric Dumazet <edumazet@google.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>, netdev <netdev@vger.kernel.org>,
- selinux@tycho.nsa.gov
-In-Reply-To: <1511995754.16595.27.camel@gmail.com>
-Message-ID: <alpine.LFD.2.20.1711301040400.16533@localhost>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vAU0MsjZ020209
+ for <selinux@tycho.nsa.gov>; Wed, 29 Nov 2017 19:22:54 -0500
+To: James Morris <james.l.morris@oracle.com>, Paul Moore
+ <paul@paul-moore.com>, Eric Dumazet <edumazet@google.com>
+Cc: netdev@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov, LSM <linux-security-module@vger.kernel.org>
 References: <alpine.LFD.2.20.1711292113350.7808@localhost>
- <1511976706.10464.19.camel@tycho.nsa.gov>
- <CANn89iJc=tZkN41WoCm5Zy9nPfs1tfZf9nuSXYS9EB_aem+y4g@mail.gmail.com>
- <1511985547.10464.22.camel@tycho.nsa.gov>
- <CANn89iK23gDN_ma3MyybzgDkBr_A7R-MPfAG3dS_f7ehpiJtJQ@mail.gmail.com>
- <1511995754.16595.27.camel@gmail.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <4d73f839-7a86-6edc-b44b-e296bd5947c2@schaufler-ca.com>
+Date: Wed, 29 Nov 2017 16:22:41 -0800
 MIME-Version: 1.0
-Content-Type: multipart/mixed; BOUNDARY="8323328-1073903225-1511998893=:16533"
+In-Reply-To: <alpine.LFD.2.20.1711292113350.7808@localhost>
+Content-Type: text/plain; charset=utf-8
 Subject: Re: [BUG] kernel stack corruption during/after Netlabel
  error
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -21,40 +19,51 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---8323328-1073903225-1511998893=:16533
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+On 11/29/2017 2:26 AM, James Morris wrote:
+> I'm seeing a kernel stack corruption bug (detected via gcc) when running 
+> the SELinux testsuite on a 4.15-rc1 kernel, in the 2nd inet_socket test:
+>
+> https://github.com/SELinuxProject/selinux-testsuite/blob/master/tests/inet_socket/test
+>
+>   # Verify that unauthorized client cannot communicate with the server.
+>   $result = system
+>   "runcon -t test_inet_bad_client_t -- $basedir/client stream 127.0.0.1 65535 2>&1";
+>
+> This correctlly causes an access control error in the Netlabel code, and 
+> the bug seems to be triggered during the ICMP send:
+>
+> ...<SNIP>...
+>
+> This is mostly reliable, and I'm only seeing it on bare metal (not in a 
+> virtualbox vm).
+>
+> The SELinux skb parse error at the start only sometimes appears, and 
+> looking at the code, I suspect some kind of memory corruption being the 
+> cause at that point (basic packet header checks).
+>
+> I bisected the bug down to the following change:
+>
+> commit bffa72cf7f9df842f0016ba03586039296b4caaf
+> Author: Eric Dumazet <edumazet@google.com>
+> Date:   Tue Sep 19 05:14:24 2017 -0700
+>
+>     net: sk_buff rbnode reorg
+>     ...
+>
+>
+> Anyone else able to reproduce this, or have any ideas on what's happening?
 
-On Wed, 29 Nov 2017, Eric Dumazet wrote:
+I have also bisected a problem to this change. I do not have a trace
+because the problem manifests as a hard system hang without a trace
+being presented. The issue arises when Smack attempts to relabel a TCP
+socket using netlbl_sock_setattr().
 
-> On Wed, 2017-11-29 at 12:23 -0800, Eric Dumazet wrote:
-> >=20
-> > I suspect this exposes an ancient bug, caused by fact that TCP moves
-> > IP[6]CB in skb->cb[]
-> >=20
-> > Basically the 2nd tcp_filter() added in commit
-> > 8fac365f63c866a00015fa13932d8ffc584518b8
-> > ("tcp: Add a tcp_filter hook before handle ack packet") was not
-> > expecting selinux code being called a 2nd time,
-> > while skb->cb[] has been mangled [1]
-> >=20
-> > [1]
-> > memmove(&TCP_SKB_CB(skb)->header.h4, IPCB(skb),
-> > =C2=A0=C2=A0=C2=A0=C2=A0sizeof(struct inet_skb_parm));
->=20
-> Please try this fix for IPv4 (a similar patch will be needed for IPv6)
->=20
->  net/ipv4/tcp_ipv4.c |   51 ++++++++++++++++++++++++++----------------
->  1 file changed, 32 insertions(+), 19 deletions(-)
+I see that there is a proposed fix later in the thread, but I don't see
+the patch. Could you send it to me, so I can try it on my problem?
 
-Works for me, no crashes with the testsuite running in a loop.
+Thank you.
 
-
-Tested-by: James Morris <james.l.morris@oracle.com>
-
-
---=20
-James Morris
-<james.l.morris@oracle.com>
-
---8323328-1073903225-1511998893=:16533--
+>
+>
+>
+> - James
