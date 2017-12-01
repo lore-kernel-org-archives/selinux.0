@@ -1,153 +1,88 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vB1JGfkS027762
- for <selinux@tycho.nsa.gov>; Fri, 1 Dec 2017 14:16:42 -0500
-Date: Fri, 1 Dec 2017 14:16:33 -0500 (EST)
-From: Simon Sekidde <ssekidde@redhat.com>
-To: Aman Sharma <amansh.sharma5@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Message-ID: <935734452.20069825.1512155793791.JavaMail.zimbra@redhat.com>
-In-Reply-To: <CAPMH7-9zGFSRz3qPJup2y8=zNo6X1dRgNf8gUWv=d+UK1EdO9A@mail.gmail.com>
-References: <1511966833.10464.7.camel@tycho.nsa.gov>
- <CAPMH7-9JxKDOO8dMC_wZwRTm+Z8G4gOPvYZxf3obsB1GBGSMhQ@mail.gmail.com>
- <1511972400.10464.16.camel@tycho.nsa.gov>
- <CAPMH7-8Urca69_7SHXjbPP9Re+8SQ9Wykj_+U6yqtSsNXUVQJA@mail.gmail.com>
- <1511976858.10464.20.camel@tycho.nsa.gov>
- <CAPMH7-9GusaaSkfiBcX1+wQM1pdT++jcpz3pku1WQixdWMJ60Q@mail.gmail.com>
- <20171130201920.GA32637@julius.enp8s0.d30>
- <CAPMH7-9zGFSRz3qPJup2y8=zNo6X1dRgNf8gUWv=d+UK1EdO9A@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Subject: Re: Qwery regarding Selinux Change Id context
+Message-ID: <1512156017.5144.11.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <pmoore@redhat.com>, William Roberts <bill.c.roberts@gmail.com>
+Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+Date: Fri, 01 Dec 2017 14:20:17 -0500
+In-Reply-To: <CAGH-Kgtzi_P9ZCLEd2_-6y4kn0eA6EHBA3OVvV=64czxUjRQQQ@mail.gmail.com>
+References: <151206074183.32567.881282052709289967.stgit@chester>
+ <CAFftDdp34FQf45OEx+2AaVE62Y=imG2SstMySR9tN__=yoec4g@mail.gmail.com>
+ <CAGH-Kgtzi_P9ZCLEd2_-6y4kn0eA6EHBA3OVvV=64czxUjRQQQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH] selinux: ensure the context is NULL terminated in
+ security_context_to_sid_core()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-
------ Original Message -----
-> From: "Aman Sharma" <amansh.sharma5@gmail.com>
-> To: "SELinux" <selinux@tycho.nsa.gov>
-> Sent: Thursday, November 30, 2017 11:26:21 PM
-> Subject: Re: Fwd: Qwery regarding Selinux Change Id context
-> 
-> Hi ,
-> 
-> mv /var/lib/selinux/targeted /var/lib/selinux/targeted.old
-> 
-> This targeted folder is not there.
-> 
-> After searching I got the below result :
-> 
-> find / -type d -name "*targeted" -print
-> 
-> /usr/share/selinux/targeted
-> /etc/selinux/targeted
-> 
-> Pleas let me know your comments.
-> 
-
-Run
-
-mv /etc/selinux/targeted /etc/selinux/targeted.old 
-yum reinstall selinux-policy-targeted
-
-Also what does this output show 
-
-ps -aelfZ | grep -i ssh 
-
-> 
-> On Fri, Dec 1, 2017 at 1:49 AM, Dominick Grift <dac.override@gmail.com>
-> wrote:
-> 
-> > On Thu, Nov 30, 2017 at 11:10:43AM +0530, Aman Sharma wrote:
-> > > Hi Stephen,
-> > >
-> > > After reseting Selinux targeted folder also (the steps you mentioned in
-> > the
-> > > earlier mail), Still its showing the same Id context i.e.
-> > >
-> > > *id*
-> > > *uid=0(root) gid=0(root) groups=0(root)
-> > > context=system_u:system_r:unconfined_t:s0-s0:c0.c1023*
-> > > *[root@cucm2 ~]# id -Z*
-> > > *system_u:system_r:unconfined_t:s0-s0:c0.c1023*
-> > >
-> > > *And semanage login -l is showing blank output. *
-> > >
-> > > *Do you have any idea about this.*
-> > >
-> > > *Thanks*
-> > > *Aman*
-> >
-> > Try the same procedure again but this time also do before reinstalling:
-> >
-> > mv /var/lib/selinux/targeted /var/lib/selinux/targeted.old
-> >
-> > >
-> > >
-> > > On Wed, Nov 29, 2017 at 11:04 PM, Stephen Smalley <sds@tycho.nsa.gov>
+On Fri, 2017-12-01 at 10:34 -0500, Paul Moore wrote:
+> On Thu, Nov 30, 2017 at 6:44 PM, William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> > On Thu, Nov 30, 2017 at 8:52 AM, Paul Moore <pmoore@redhat.com>
 > > wrote:
-> > >
-> > > > On Wed, 2017-11-29 at 22:01 +0530, Aman Sharma wrote:
-> > > > > After resetting boolean also, showing the same id context.
-> > > >
-> > > > And did you try fully resetting your policy as I suggested:
-> > > > mv /etc/selinux/targeted /etc/selinux/targeted.old
-> > > > yum reinstall selinux-policy-targeted
-> > > > reboot
-> > > >
-> > > > >
-> > > > >
-> > > > > On Wed, Nov 29, 2017 at 9:50 PM, Stephen Smalley <sds@tycho.nsa.gov>
-> > > > > wrote:
-> > > > > > On Wed, 2017-11-29 at 21:39 +0530, Aman Sharma wrote:
-> > > > > > > Hi Stephen,
-> > > > > > >
-> > > > > > > After enabling the unconfined module and after reboot also, Still
-> > > > > > > showing the same id context.
-> > > > > > >
-> > > > > > > Is there any way to make the id context to normal state again ?
-> > > > > >
-> > > > > > Hmmm...try resetting all booleans too?  semanage boolean -D
-> > > > > >
-> > > > > > Or you could be drastic and completely reset your policy:
-> > > > > > mv /etc/selinux/targeted /etc/selinux/targeted.old
-> > > > > > yum reinstall selinux-policy-targeted
-> > > > > >
-> > > > >
-> > > > >
-> > > > >
-> > > > > --
-> > > > >
-> > > > > Thanks
-> > > > > Aman
-> > > > > Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
-> > > >
-> > >
-> > >
-> > >
-> > > --
-> > >
-> > > Thanks
-> > > Aman
-> > > Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
-> >
-> > --
-> > Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> > https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-> > Dominick Grift
-> >
+> > > From: Paul Moore <paul@paul-moore.com>
+> > > 
+> > > The syzbot/syzkaller automated tests found a problem in
+> > > security_context_to_sid_core() during early boot (before we load
+> > > the
+> > > SELinux policy) where we could potentially feed context strings
+> > > without
+> > > NULL terminators into the strcmp() function.
+> > > 
+> > > We already guard against this during normal operation (after the
+> > > SELinux
+> > > policy has been loaded) by making a copy of the context strings
+> > > and
+> > > explicitly adding a NULL terminator to the end.  The patch
+> > > extends this
+> > > protection to the early boot case (no loaded policy) by moving
+> > > the context
+> > > copy earlier in security_context_to_sid_core().
+> > > 
+> > > Reported-by: syzbot <syzkaller@googlegroups.com>
+> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > > ---
+> > >  security/selinux/ss/services.c |   20 ++++++++++----------
+> > >  1 file changed, 10 insertions(+), 10 deletions(-)
+> > > 
+> > > diff --git a/security/selinux/ss/services.c
+> > > b/security/selinux/ss/services.c
+> > > index 33cfe5d3d6cb..6ec4cdc8af8f 100644
+> > > --- a/security/selinux/ss/services.c
+> > > +++ b/security/selinux/ss/services.c
+> > > @@ -1413,27 +1413,27 @@ static int
+> > > security_context_to_sid_core(const char *scontext, u32
+> > > scontext_len,
+> > >         if (!scontext_len)
+> > >                 return -EINVAL;
+> > > 
+> > > +       /* Copy the string to allow changes and ensure a NULL
+> > > terminator */
+> > > +       scontext2 = kmalloc(scontext_len + 1, gfp_flags);
+> > > +       if (!scontext2)
+> > > +               return -ENOMEM;
+> > > +       memcpy(scontext2, scontext, scontext_len);
+> > > +       scontext2[scontext_len] = 0;
+> > 
+> > Call me crazy, but can't we use kmemdup_nul() here?
 > 
+> Crazy good idea ;)
 > 
-> 
-> --
-> 
-> Thanks
-> Aman
-> Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
-> 
+> I didn't realize that function existed, I'll respin.  Thanks.
 
--- 
-Simon Sekidde
-gpg: 5848 958E 73BA 04D3 7C06 F096 1BA1 2DBF 94BC 377E
+Also note that it should be NUL not NULL in the patch subject and
+description.  '\0' vs (void*)0
+
+> 
+> > /**
+> >  * kmemdup_nul - Create a NUL-terminated string from unterminated
+> > data
+> >  * @s: The data to stringify
+> >  * @len: The size of the data
+> >  * @gfp: the GFP mask used in the kmalloc() call when allocating
+> > memory
+> >  */
+> > char *kmemdup_nul(const char *s, size_t len, gfp_t gfp)
+> 
+> 
