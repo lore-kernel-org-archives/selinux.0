@@ -1,48 +1,47 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vB10XJBQ010031
- for <selinux@tycho.nsa.gov>; Thu, 30 Nov 2017 19:33:19 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC13.oob.disa.mil (Postfix) with SMTP id 3ynwH00lMCz25sjD
- for <selinux@tycho.nsa.gov>; Fri,  1 Dec 2017 00:33:16 +0000 (UTC)
-Received: from UPBD19PA11.eemsg.mil (unknown [192.168.18.17])
- by UPDCF3IC13.oob.disa.mil (Postfix) with ESMTP id 3ynwH00B52z25sgK
- for <selinux@tycho.nsa.gov>; Fri,  1 Dec 2017 00:33:16 +0000 (UTC)
-Date: Fri, 1 Dec 2017 11:33:05 +1100 (AEDT)
+Date: Fri, 1 Dec 2017 12:55:18 +1100 (AEDT)
 From: James Morris <james.l.morris@oracle.com>
-To: Paul Moore <pmoore@redhat.com>
-cc: selinux@tycho.nsa.gov
-In-Reply-To: <151206074183.32567.881282052709289967.stgit@chester>
-Message-ID: <alpine.LFD.2.20.1712011132550.31584@localhost>
-References: <151206074183.32567.881282052709289967.stgit@chester>
+To: Eric Dumazet <eric.dumazet@gmail.com>
+cc: Casey Schaufler <casey@schaufler-ca.com>, Paul Moore <paul@paul-moore.com>,
+ netdev@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov, LSM <linux-security-module@vger.kernel.org>
+In-Reply-To: <1512039044.19682.12.camel@gmail.com>
+Message-ID: <alpine.LFD.2.20.1712011253310.366@localhost>
+References: <alpine.LFD.2.20.1711292113350.7808@localhost>
+ <4d73f839-7a86-6edc-b44b-e296bd5947c2@schaufler-ca.com>
+ <alpine.LFD.2.20.1711301130330.17322@localhost>
+ <ae2e71e4-c366-5a1e-9fd6-4de944f4a158@schaufler-ca.com>
+ <1512039044.19682.12.camel@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Subject: Re: [PATCH] selinux: ensure the context is NULL terminated
- in security_context_to_sid_core()
+Subject: Re: [BUG] kernel stack corruption during/after Netlabel
+ error
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 30 Nov 2017, Paul Moore wrote:
+On Thu, 30 Nov 2017, Eric Dumazet wrote:
 
-> From: Paul Moore <paul@paul-moore.com>
+> On Wed, 2017-11-29 at 19:16 -0800, Casey Schaufler wrote:
+> > On 11/29/2017 4:31 PM, James Morris wrote:
+> > > On Wed, 29 Nov 2017, Casey Schaufler wrote:
+> > > 
+> > > > I see that there is a proposed fix later in the thread, but I
+> > > > don't see
+> > > > the patch. Could you send it to me, so I can try it on my
+> > > > problem?
+> > > 
+> > > Forwarded off-list.
+> > 
+> > The patch does fix the problem I was seeing in Smack.
 > 
-> The syzbot/syzkaller automated tests found a problem in
-> security_context_to_sid_core() during early boot (before we load the
-> SELinux policy) where we could potentially feed context strings without
-> NULL terminators into the strcmp() function.
+> Can you guys test the following more complete patch ?
 > 
-> We already guard against this during normal operation (after the SELinux
-> policy has been loaded) by making a copy of the context strings and
-> explicitly adding a NULL terminator to the end.  The patch extends this
-> protection to the early boot case (no loaded policy) by moving the context
-> copy earlier in security_context_to_sid_core().
-> 
-> Reported-by: syzbot <syzkaller@googlegroups.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> It should cover IPv4 and IPv6, and also the corner cases.
 
 
-Reviewed-by: James Morris <james.l.morris@oracle.com>
+Tested-by: James Morris <james.l.morris@oracle.com>
+
 
 
 -- 
