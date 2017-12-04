@@ -1,225 +1,160 @@
-Message-ID: <1512405482.20988.32.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Aman Sharma <amansh.sharma5@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Date: Mon, 04 Dec 2017 11:38:02 -0500
-In-Reply-To: <CAPMH7--Sow6Pvkti+Dk_yL67CANPSZojRuAvGk8a2-dPonKxPw@mail.gmail.com>
-References: <1511966833.10464.7.camel@tycho.nsa.gov>
- <CAPMH7-8Urca69_7SHXjbPP9Re+8SQ9Wykj_+U6yqtSsNXUVQJA@mail.gmail.com>
- <1511976858.10464.20.camel@tycho.nsa.gov>
- <CAPMH7-9GusaaSkfiBcX1+wQM1pdT++jcpz3pku1WQixdWMJ60Q@mail.gmail.com>
- <20171130201920.GA32637@julius.enp8s0.d30>
- <CAPMH7-9zGFSRz3qPJup2y8=zNo6X1dRgNf8gUWv=d+UK1EdO9A@mail.gmail.com>
- <935734452.20069825.1512155793791.JavaMail.zimbra@redhat.com>
- <1512156497.5144.17.camel@tycho.nsa.gov>
- <1770894405.20077010.1512156904680.JavaMail.zimbra@redhat.com>
- <CAPMH7-_-GpDCKmiiJx72jsdbkmviNm3o7QMkE6DpxdQxEP-WYA@mail.gmail.com>
- <1512402030.20988.22.camel@tycho.nsa.gov>
- <CAPMH7--RQXXPH4iWzgi6_OnidDSNYFRBT0aDdV6jxLTZBn-AHg@mail.gmail.com>
- <1512403784.20988.27.camel@tycho.nsa.gov>
- <CAPMH7--Sow6Pvkti+Dk_yL67CANPSZojRuAvGk8a2-dPonKxPw@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vB4GeBYa018774
+ for <selinux@tycho.nsa.gov>; Mon, 4 Dec 2017 11:40:12 -0500
+Received: by mail-pf0-f178.google.com with SMTP id a90so8926966pfk.1
+ for <selinux@tycho.nsa.gov>; Mon, 04 Dec 2017 08:40:08 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAGH-Kgv+Nj2fpR+3SjnKJk1KMBZqqm9CwD2UAMau539nxtpU4g@mail.gmail.com>
+References: <001a113f711a721c58055f052200@google.com>
+ <089e08259d282c063e055f4bddbd@google.com>
+ <97d6bab0-d278-9945-5d82-a0a76b8b78c5@I-love.SAKURA.ne.jp>
+ <1512395025.20988.3.camel@tycho.nsa.gov>
+ <CACT4Y+Z50TGJj8PhJczMt4zF8aMyr5586GsJ7LAmS-Bf-QkXiw@mail.gmail.com>
+ <CAGH-Kgv+Nj2fpR+3SjnKJk1KMBZqqm9CwD2UAMau539nxtpU4g@mail.gmail.com>
+From: Dmitry Vyukov <dvyukov@google.com>
+Date: Mon, 4 Dec 2017 17:39:46 +0100
+Message-ID: <CACT4Y+aWCOxe0xH+bPtchX8OyNE3yVkpHmdE4QQwG443_G4aMg@mail.gmail.com>
+To: Paul Moore <pmoore@redhat.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, syzbot
+ <bot+015afdb01dbf2abb6a6bfdd5430b72e5503fca6d@syzkaller.appspotmail.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ syzkaller-bugs@googlegroups.com, LKML <linux-kernel@vger.kernel.org>,
+ dledford@redhat.com, Matthias Kaehlcke <mka@chromium.org>,
+ junil0814.lee@lge.com, kyeongdon kim <kyeongdon.kim@lge.com>
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: Qwery regarding Selinux Change Id context
+Subject: Re: KASAN: slab-out-of-bounds Read in strcmp
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-12-04 at 22:04 +0530, Aman Sharma wrote:
-> Hi Stephen,
-> 
-> Thanks alot for the help. 
-> 
-> I got the issue. Its due to the problem in /etc/pam.d/sshd file.
-> 
-> After fixing this, now is working fine. Thanks alot once again.
+On Mon, Dec 4, 2017 at 2:59 PM, Paul Moore <pmoore@redhat.com> wrote:
+>>>> On 2017/12/02 3:52, syzbot wrote:
+>>>> > ==================================================================
+>>>> > BUG: KASAN: slab-out-of-bounds in strcmp+0x96/0xb0 lib/string.c:328
+>>>> > Read of size 1 at addr ffff8801cd99d2c1 by task
+>>>> > syzkaller242593/3087
+>>>> >
+>>>> > CPU: 0 PID: 3087 Comm: syzkaller242593 Not tainted 4.15.0-rc1-next-
+>>>> > 20171201+ #57
+>>>> > Hardware name: Google Google Compute Engine/Google Compute Engine,
+>>>> > BIOS Google 01/01/2011
+>>>> > Call Trace:
+>>>> >  __dump_stack lib/dump_stack.c:17 [inline]
+>>>> >  dump_stack+0x194/0x257 lib/dump_stack.c:53
+>>>> >  print_address_description+0x73/0x250 mm/kasan/report.c:252
+>>>> >  kasan_report_error mm/kasan/report.c:351 [inline]
+>>>> >  kasan_report+0x25b/0x340 mm/kasan/report.c:409
+>>>> >  __asan_report_load1_noabort+0x14/0x20 mm/kasan/report.c:427
+>>>> >  strcmp+0x96/0xb0 lib/string.c:328
+>>>>
+>>>> This seems to be out of bound read for "scontext" at
+>>>>
+>>>>       for (i = 1; i < SECINITSID_NUM; i++) {
+>>>>               if (!strcmp(initial_sid_to_string[i], scontext)) {
+>>>>                       *sid = i;
+>>>>                       return 0;
+>>>>               }
+>>>>       }
+>>>>
+>>>> because "initial_sid_to_string[i]" is "const char *".
+>>>>
+>>>> >  security_context_to_sid_core+0x437/0x620
+>>>> > security/selinux/ss/services.c:1420
+>>>> >  security_context_to_sid+0x32/0x40
+>>>> > security/selinux/ss/services.c:1479
+>>>> >  selinux_setprocattr+0x51c/0xb50 security/selinux/hooks.c:5986
+>>>> >  security_setprocattr+0x85/0xc0 security/security.c:1264
+>>>>
+>>>> If "value" does not terminate with '\0' or '\n', "value" and
+>>>> "size" are as-is passed to "scontext" and "scontext_len" above
+>>>>
+>>>>       /* Obtain a SID for the context, if one was specified. */
+>>>>       if (size && str[0] && str[0] != '\n') {
+>>>>               if (str[size-1] == '\n') {
+>>>>                       str[size-1] = 0;
+>>>>                       size--;
+>>>>               }
+>>>>               error = security_context_to_sid(value, size, &sid,
+>>>> GFP_KERNEL);
+>>>>
+>>>> which will allow strcmp() to trigger out of bound read when "size" is
+>>>> larger than strlen(initial_sid_to_string[i]).
+>>>>
+>>>> Thus, I guess the simplest fix is to use strncmp() instead of
+>>>> strcmp().
+>>>
+>>> Already fixed by
+>>> https://www.spinics.net/lists/selinux/msg23589.html
+>>
+>>
+>> Paul, please also follow this part:
+>>
+>>> syzbot will keep track of this bug report.
+>>> Once a fix for this bug is committed, please reply to this email with:
+>>> #syz fix: exact-commit-title
+>>> Note: all commands must start from beginning of the line in the email body.
+>>
+>> This will greatly help to keep overall process running. Thanks.
+>
+> When is the right time to do this?  The text say to reply when a patch
+> has been committed, but where?  My selinux/next branch?  Linus'
+> master?  Your docs and the end of the email needs to be more clear on
+> this.
+>
+> For the record, I did see that part of the syzbot mail but I was
+> waiting until I merged that patch; v2 was posted late in the week and
+> I was giving it a few days in case someone saw something
+> objectionable.
+>
+> Also, while we are on the topic of syzbot, what SELinux policy (if
+> any) do you load on the system that is undergoing testing?  Based on
+> some of the recent reports it would appear that you are running a
+> SELinux enabled kernel but might not be loading a SELinux policy, is
+> that correct?
 
-Ok, can you explain what exactly what wrong in your /etc/pam.d/sshd
-file, so that if someone else encounters this behavior in the future,
-they can find a solution in the list archives?
 
-> 
-> On Mon, Dec 4, 2017 at 9:39 PM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On Mon, 2017-12-04 at 21:31 +0530, Aman Sharma wrote:
-> > > Hi Stephen,
-> > >
-> > > I got the below logs from the file .Can you please if these logs
-> > are
-> > > fine or not :
-> > >
-> > > journalctl | grep selinux
-> > > Dec 05 02:55:46 localhost.localdomain kernel: EVM:
-> > security.selinux
-> > > Dec 04 21:26:10 cucm audispd[569]: node=localhost.localdomain
-> > > type=USER_START msg=audit(1512402970.129:107): pid=7145 uid=0
-> > auid=0
-> > > ses=2 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023
-> > > msg='op=PAM:session_open
-> > >
-> > grantors=pam_selinux,pam_loginuid,pam_selinux,pam_namespace,pam_key
-> > in
-> > > it,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_lastlog
-> > > acct="root" exe="/usr/sbin/sshd" hostname=10.97.7.209
-> > > addr=10.97.7.209 terminal=ssh res=success'
-> > > Dec 04 21:26:10 cucm audispd[569]: node=localhost.localdomain
-> > > type=USER_START msg=audit(1512402970.131:108): pid=7568 uid=0
-> > auid=0
-> > > ses=3 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023
-> > > msg='op=PAM:session_open
-> > >
-> > grantors=pam_selinux,pam_loginuid,pam_selinux,pam_namespace,pam_key
-> > in
-> > > it,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_lastlog
-> > > acct="root" exe="/usr/sbin/sshd" hostname=10.97.7.209
-> > > addr=10.97.7.209 terminal=ssh res=success'
-> > >
-> > > Please let me know if any comments are there.
-> > 
-> > Those are normal.  Check journalctl and /var/log/secure for any
-> > errors
-> > from sshd.
-> > Also try the selinuxdefcon command I mentioned.
-> > 
-> > >
-> > > On Mon, Dec 4, 2017 at 9:10 PM, Stephen Smalley <sds@tycho.nsa.go
-> > v>
-> > > wrote:
-> > > > On Sat, 2017-12-02 at 09:29 +0530, Aman Sharma wrote:
-> > > > > Hi All,
-> > > > >
-> > > > > Thanks for the information.
-> > > > >
-> > > > > But after resetting the semanage User/login, and moving the
-> > > > targeted
-> > > > > folder to old one and then install the default target. then
-> > also
-> > > > its
-> > > > > still showing the 
-> > > > > Id context as context=system_u:system_r:unconfined_t:s0-
-> > > > s0:c0.c1023.
-> > > > >
-> > > > > What I observed is after changing the permission using
-> > semanage
-> > > > > command also, its still showing the system_u:system_r. 
-> > > > >
-> > > > > Check the semanage login/User output :
-> > > > >
-> > > > > semanage login -l
-> > > > >
-> > > > > Login Name           SELinux User         MLS/MCS Range     
-> >  
-> > > > > Service
-> > > > >
-> > > > > __default__          unconfined_u         s0-s0:c0.c1023     
-> >  *
-> > > > > root                 unconfined_u         s0-s0:c0.c1023     
-> >  *
-> > > > > system_u             system_u             s0-s0:c0.c1023     
-> >  *
-> > > > >
-> > > > >
-> > > > > semanage user -l
-> > > > >
-> > > > >                 Labeling   MLS/       MLS/                   
-> >    
-> > > >   
-> > > > > SELinux User    Prefix     MCS Level  MCS Range             
-> >    
-> > > >    
-> > > > > SELinux Roles
-> > > > >
-> > > > > guest_u         user       s0         s0                     
-> >    
-> > > >  
-> > > > >  guest_r
-> > > > > root            user       s0         s0-s0:c0.c1023         
-> >    
-> > > >  
-> > > > >  staff_r sysadm_r system_r unconfined_r
-> > > > > staff_u         user       s0         s0-s0:c0.c1023         
-> >    
-> > > >  
-> > > > >  staff_r sysadm_r system_r unconfined_r
-> > > > > sysadm_u        user       s0         s0-s0:c0.c1023         
-> >    
-> > > >  
-> > > > >  sysadm_r
-> > > > > system_u        user       s0         s0-s0:c0.c1023         
-> >    
-> > > >  
-> > > > >  system_r unconfined_r
-> > > > > unconfined_u    user       s0         s0-s0:c0.c1023         
-> >    
-> > > >  
-> > > > >  system_r unconfined_r
-> > > > > user_u          user       s0         s0                     
-> >    
-> > > >  
-> > > > >  user_r
-> > > > > xguest_u        user       s0         s0                     
-> >    
-> > > >  
-> > > > >  xguest_r
-> > > > >
-> > > > >
-> > > > > Looks like its related to some other issue. What you think
-> > about
-> > > > > this.
-> > > >
-> > > > Do you have any relevant error messages in /var/log/secure or
-> > > > journalctl -rb?  Look for anything that refers to selinux or
-> > > > context.
-> > > >
-> > > > I'm guessing that pam_selinux is unable to determine a valid
-> > > > context
-> > > > for your login for some reason, and this is causing it to fall
-> > back
-> > > > to
-> > > > this one.  Or something like that.
-> > > >
-> > > > You could try to emulate this process via selinuxdefcon,
-> > although
-> > > > I'm
-> > > > not sure how closely it matches pam_selinux anymore.  Sample
-> > usage:
-> > > >
-> > > > 1. See what context sshd is running in.
-> > > >
-> > > > ps -eZ | grep sshd
-> > > >
-> > > > It should be:
-> > > > system_u:system_r:sshd_t:s0-s0:c0.c1023
-> > > >
-> > > > 2. Run selinuxdefcon to compute the default context for root
-> > when
-> > > > logging in from sshd:
-> > > >
-> > > > # Second argument should be whatever was shown by ps -eZ | grep
-> > > > sshd
-> > > > above.
-> > > > selinuxdefcon root system_u:system_r:sshd_t:s0-s0.c0123
-> > > >
-> > > > It should be:
-> > > > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> > > >
-> > > >
-> > > >
-> > >
-> > >
-> > >
-> > > -- 
-> > >
-> > > Thanks
-> > > Aman
-> > > Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
-> > 
-> 
-> 
-> 
-> -- 
-> 
-> Thanks
-> Aman
-> Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
+This is good question. The problem is that we are testing almost all
+kernel subsystems, but are not experts in most of them. So frequently
+we doing some non-sense. And that's where we need you help.
+That's what we have for grep SECURITY .config:
+
+CONFIG_EXT4_FS_SECURITY=y
+# CONFIG_9P_FS_SECURITY is not set
+# CONFIG_SECURITY_DMESG_RESTRICT is not set
+CONFIG_SECURITY=y
+CONFIG_SECURITY_WRITABLE_HOOKS=y
+# CONFIG_SECURITYFS is not set
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_NETWORK_XFRM=y
+CONFIG_SECURITY_PATH=y
+CONFIG_SECURITY_SELINUX=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+CONFIG_SECURITY_SELINUX_DISABLE=y
+CONFIG_SECURITY_SELINUX_DEVELOP=y
+CONFIG_SECURITY_SELINUX_AVC_STATS=y
+CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=0
+# CONFIG_SECURITY_SMACK is not set
+# CONFIG_SECURITY_TOMOYO is not set
+# CONFIG_SECURITY_APPARMOR is not set
+# CONFIG_SECURITY_LOADPIN is not set
+# CONFIG_SECURITY_YAMA is not set
+CONFIG_DEFAULT_SECURITY_SELINUX=y
+# CONFIG_DEFAULT_SECURITY_DAC is not set
+CONFIG_DEFAULT_SECURITY="selinux"
+
+
+I don't think we do anything else besides that.
+To be fair I don't know what is SELinux policy nor how to load it. Can
+you suggest a policy that would be good for testing of kernel in
+general and SELinux in particular? Obviously, we don't want to
+prohibit access to any major parts of kernel APIs entirely (because
+then we won't test them). syzkaller also creates a local temp dir per
+test process, and the process mostly accesses files there (except for
+opening /dev/* and /proc/self/*). Is it possible to selectively
+prohibit something there, so that we test both positive and negative
+cases?
+
+Thanks
