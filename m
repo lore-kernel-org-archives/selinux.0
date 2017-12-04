@@ -1,167 +1,258 @@
-Message-ID: <1512403784.20988.27.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Aman Sharma <amansh.sharma5@gmail.com>
-Cc: Simon Sekidde <ssekidde@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-Date: Mon, 04 Dec 2017 11:09:44 -0500
-In-Reply-To: <CAPMH7--RQXXPH4iWzgi6_OnidDSNYFRBT0aDdV6jxLTZBn-AHg@mail.gmail.com>
-References: <1511966833.10464.7.camel@tycho.nsa.gov>
- <CAPMH7-8Urca69_7SHXjbPP9Re+8SQ9Wykj_+U6yqtSsNXUVQJA@mail.gmail.com>
- <1511976858.10464.20.camel@tycho.nsa.gov>
- <CAPMH7-9GusaaSkfiBcX1+wQM1pdT++jcpz3pku1WQixdWMJ60Q@mail.gmail.com>
- <20171130201920.GA32637@julius.enp8s0.d30>
- <CAPMH7-9zGFSRz3qPJup2y8=zNo6X1dRgNf8gUWv=d+UK1EdO9A@mail.gmail.com>
- <935734452.20069825.1512155793791.JavaMail.zimbra@redhat.com>
- <1512156497.5144.17.camel@tycho.nsa.gov>
- <1770894405.20077010.1512156904680.JavaMail.zimbra@redhat.com>
- <CAPMH7-_-GpDCKmiiJx72jsdbkmviNm3o7QMkE6DpxdQxEP-WYA@mail.gmail.com>
- <1512402030.20988.22.camel@tycho.nsa.gov>
- <CAPMH7--RQXXPH4iWzgi6_OnidDSNYFRBT0aDdV6jxLTZBn-AHg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: Qwery regarding Selinux Change Id context
+MIME-Version: 1.0
+In-Reply-To: <1512403233.20988.25.camel@tycho.nsa.gov>
+References: <CAPMH7-9ci7BmMNLrFDcbKVsj+oYQW_e4h942UFK1VL1O99R1gQ@mail.gmail.com>
+ <1512402299.20988.23.camel@tycho.nsa.gov>
+ <1512403233.20988.25.camel@tycho.nsa.gov>
+From: Aman Sharma <amansh.sharma5@gmail.com>
+Date: Mon, 4 Dec 2017 21:45:58 +0530
+Message-ID: <CAPMH7-_pGOPjqLPuiwTE5S7WgkH8WsTeNtuz6OeGF=K0Dz6rtw@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary="001a113f8cc4a346c0055f86086f"
+Subject: Re: Issue regarding Selinux
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-12-04 at 21:31 +0530, Aman Sharma wrote:
-> Hi Stephen,
-> 
-> I got the below logs from the file .Can you please if these logs are
-> fine or not :
-> 
-> journalctl | grep selinux
-> Dec 05 02:55:46 localhost.localdomain kernel: EVM: security.selinux
-> Dec 04 21:26:10 cucm audispd[569]: node=localhost.localdomain
-> type=USER_START msg=audit(1512402970.129:107): pid=7145 uid=0 auid=0
-> ses=2 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023
-> msg='op=PAM:session_open
-> grantors=pam_selinux,pam_loginuid,pam_selinux,pam_namespace,pam_keyin
-> it,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_lastlog
-> acct="root" exe="/usr/sbin/sshd" hostname=10.97.7.209
-> addr=10.97.7.209 terminal=ssh res=success'
-> Dec 04 21:26:10 cucm audispd[569]: node=localhost.localdomain
-> type=USER_START msg=audit(1512402970.131:108): pid=7568 uid=0 auid=0
-> ses=3 subj=system_u:system_r:sshd_t:s0-s0:c0.c1023
-> msg='op=PAM:session_open
-> grantors=pam_selinux,pam_loginuid,pam_selinux,pam_namespace,pam_keyin
-> it,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_lastlog
-> acct="root" exe="/usr/sbin/sshd" hostname=10.97.7.209
-> addr=10.97.7.209 terminal=ssh res=success'
-> 
-> Please let me know if any comments are there.
+--001a113f8cc4a346c0055f86086f
+Content-Type: text/plain; charset="UTF-8"
 
-Those are normal.  Check journalctl and /var/log/secure for any errors
-from sshd.
-Also try the selinuxdefcon command I mentioned.
+Hi Stephen,
 
-> 
-> On Mon, Dec 4, 2017 at 9:10 PM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On Sat, 2017-12-02 at 09:29 +0530, Aman Sharma wrote:
+sestatus -v
+SELinux status:                 enabled
+SELinuxfs mount:                /sys/fs/selinux
+SELinux root directory:         /etc/selinux
+Loaded policy name:             targeted
+Current mode:                   enforcing
+Mode from config file:          enforcing
+Policy MLS status:              enabled
+Policy deny_unknown status:     allowed
+Max kernel policy version:      28
+
+Process contexts:
+Current context:
+system_u:system_r:unconfined_t:s0-s0:c0.c1023
+Init context:                   system_u:system_r:init_t:s0
+/usr/sbin/sshd                  system_u:system_r:sshd_t:s0-s0:c0.c1023
+
+File contexts:
+Controlling terminal:           system_u:object_r:sshd_devpts_t:s0
+/etc/passwd                     system_u:object_r:passwd_file_t:s0
+/etc/shadow                     system_u:object_r:shadow_t:s0
+/bin/bash                       system_u:object_r:shell_exec_t:s0
+/bin/login                      system_u:object_r:login_exec_t:s0
+/bin/sh                         system_u:object_r:bin_t:s0 ->
+system_u:object_r:shell_exec_t:s0
+/sbin/agetty                    system_u:object_r:getty_exec_t:s0
+/sbin/init                      system_u:object_r:bin_t:s0 ->
+system_u:object_r:init_exec_t:s0
+/usr/sbin/sshd                  system_u:object_r:sshd_exec_t:s0
+/lib/libc.so.6                  system_u:object_r:lib_t:s0 ->
+system_u:object_r:lib_t:s0
+/lib/ld-linux.so.2              system_u:object_r:lib_t:s0 ->
+system_u:object_r:ld_so_t:s0
+
+
+ rpm -q libselinux
+libselinux-2.5-6.el7.i686
+libselinux-2.5-6.el7.x86_64
+
+Please let me know if you want any other details .
+
+Thanks
+
+On Mon, Dec 4, 2017 at 9:30 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+> On Mon, 2017-12-04 at 10:44 -0500, Stephen Smalley wrote:
+> > On Mon, 2017-12-04 at 15:15 +0530, Aman Sharma wrote:
 > > > Hi All,
 > > >
-> > > Thanks for the information.
+> > > I am seeing a number of su core files after a fresh install of Cent
+> > > OS 7 Machine. In this particular case I have 622 cores files found.
+> > > The backtrace is given below
 > > >
-> > > But after resetting the semanage User/login, and moving the
-> > targeted
-> > > folder to old one and then install the default target. then also
-> > its
-> > > still showing the 
-> > > Id context as context=system_u:system_r:unconfined_t:s0-
-> > s0:c0.c1023.
+> > > Reading symbols from /usr/bin/su...Reading symbols from
+> > > /usr/bin/su...(no debugging symbols found)...done.
+> > > (no debugging symbols found)...done.
+> > > [New LWP 15427]
+> > > [Thread debugging using libthread_db enabled]
+> > > Using host libthread_db library "/lib64/libthread_db.so.1".
+> > > Core was generated by `su - informix -c source
+> > > /usr/local/cm/db/informix/local/ids.env; /usr/local/cm/'.
+> > > Program terminated with signal 6, Aborted.
+> > > #0 0x00007f74f109a1d7 in raise () from /lib64/libc.so.6
 > > >
-> > > What I observed is after changing the permission using semanage
-> > > command also, its still showing the system_u:system_r. 
+> > >   ====================================
+> > >  backtrace
+> > >  ===================================
+> > >  #0 0x00007f74f109a1d7 in raise () from /lib64/libc.so.6
+> > > #1 0x00007f74f109b8c8 in abort () from /lib64/libc.so.6
+> > > #2 0x00007f74f1093146 in __assert_fail_base () from
+> > > /lib64/libc.so.6
+> > > #3 0x00007f74f10931f2 in __assert_fail () from /lib64/libc.so.6
+> > > #4 0x00007f74e9ed46ac in avc_context_to_sid_raw () from
+> > > /lib64/libselinux.so.1
+> > > #5 0x00007f74e9ed46e5 in avc_context_to_sid () from
+> > > /lib64/libselinux.so.1
+> > > #6 0x00007f74e9ed83ad in selinux_check_access () from
+> > > /lib64/libselinux.so.1
+> > > #7 0x00007f74ea0f4d76 in check_for_root () from
+> > > /lib/security/../../lib64/security/pam_rootok.so
+> > > #8 0x00007f74f162cf1a in _pam_dispatch () from /lib64/libpam.so.0
+> > > #9 0x00007f74f162c7e0 in pam_authenticate () from
+> > > /lib64/libpam.so.0
+> > > #10 0x00007f74f1a5f857 in su_main ()
+> > > #11 0x00007f74f1086b35 in __libc_start_main () from
+> > > /lib64/libc.so.6
+> > > #12 0x00007f74f1a5e890 in _start ()
+> > >  ====================================
 > > >
-> > > Check the semanage login/User output :
-> > >
-> > > semanage login -l
-> > >
-> > > Login Name           SELinux User         MLS/MCS Range       
-> > > Service
-> > >
-> > > __default__          unconfined_u         s0-s0:c0.c1023       *
-> > > root                 unconfined_u         s0-s0:c0.c1023       *
-> > > system_u             system_u             s0-s0:c0.c1023       *
-> > >
-> > >
-> > > semanage user -l
-> > >
-> > >                 Labeling   MLS/       MLS/                       
-> >   
-> > > SELinux User    Prefix     MCS Level  MCS Range                 
-> >    
-> > > SELinux Roles
-> > >
-> > > guest_u         user       s0         s0                         
-> >  
-> > >  guest_r
-> > > root            user       s0         s0-s0:c0.c1023             
-> >  
-> > >  staff_r sysadm_r system_r unconfined_r
-> > > staff_u         user       s0         s0-s0:c0.c1023             
-> >  
-> > >  staff_r sysadm_r system_r unconfined_r
-> > > sysadm_u        user       s0         s0-s0:c0.c1023             
-> >  
-> > >  sysadm_r
-> > > system_u        user       s0         s0-s0:c0.c1023             
-> >  
-> > >  system_r unconfined_r
-> > > unconfined_u    user       s0         s0-s0:c0.c1023             
-> >  
-> > >  system_r unconfined_r
-> > > user_u          user       s0         s0                         
-> >  
-> > >  user_r
-> > > xguest_u        user       s0         s0                         
-> >  
-> > >  xguest_r
-> > >
-> > >
-> > > Looks like its related to some other issue. What you think about
-> > > this.
-> > 
-> > Do you have any relevant error messages in /var/log/secure or
-> > journalctl -rb?  Look for anything that refers to selinux or
-> > context.
-> > 
-> > I'm guessing that pam_selinux is unable to determine a valid
-> > context
-> > for your login for some reason, and this is causing it to fall back
-> > to
-> > this one.  Or something like that.
-> > 
-> > You could try to emulate this process via selinuxdefcon, although
-> > I'm
-> > not sure how closely it matches pam_selinux anymore.  Sample usage:
-> > 
-> > 1. See what context sshd is running in.
-> > 
-> > ps -eZ | grep sshd
-> > 
-> > It should be:
-> > system_u:system_r:sshd_t:s0-s0:c0.c1023
-> > 
-> > 2. Run selinuxdefcon to compute the default context for root when
-> > logging in from sshd:
-> > 
-> > # Second argument should be whatever was shown by ps -eZ | grep
-> > sshd
-> > above.
-> > selinuxdefcon root system_u:system_r:sshd_t:s0-s0.c0123
-> > 
-> > It should be:
-> > unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> > 
-> > 
-> > 
-> 
-> 
-> 
-> -- 
-> 
-> Thanks
-> Aman
-> Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
+> > > From the Back trace logs , looks like crash is related to Selinux.
+> > > Can Any body Please help me on this. why its getting crash.
+> >
+> > Implication is that pam_rootok passed a NULL context to
+> > selinux_check_access().  Which would be a bug in pam.  What does
+> > sestatus -v show for this machine?
+>
+> Sorry, I'm wrong; the assert is on avc_running, which implies that the
+> AVC wasn't initialized.  sestatus -v would still be useful.  Also rpm
+> -q libselinux.
+>
+>
+
+
+-- 
+
+Thanks
+Aman
+Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
+
+--001a113f8cc4a346c0055f86086f
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Stephen,<div><br></div><div><div>sestatus -v</div><div>=
+SELinux status:=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0enabled</div><div>SELinuxfs mount:=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 /sys/fs/selinux</div><div>SELinux root directory:=C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0/etc/selinux</div><div>Loaded policy name:=C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0targeted</div><div>Current mode:=
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0enforc=
+ing</div><div>Mode from config file:=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 enfo=
+rcing</div><div>Policy MLS status:=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 enabled</div><div>Policy deny_unknown status:=C2=A0 =C2=A0 =C2=A0al=
+lowed</div><div>Max kernel policy version:=C2=A0 =C2=A0 =C2=A0 28</div><div=
+><br></div><div>Process contexts:</div><div>Current context:=C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 system_u:system_r:unconfined_t:s0=
+-s0:c0.c1023</div><div>Init context:=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0system_u:system_r:init_t:s0</div><div>/usr/s=
+bin/sshd=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 syst=
+em_u:system_r:sshd_t:s0-s0:c0.c1023</div><div><br></div><div>File contexts:=
+</div><div>Controlling terminal:=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0sy=
+stem_u:object_r:sshd_devpts_t:s0</div><div>/etc/passwd=C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0system_u:object_r:pa=
+sswd_file_t:s0</div><div>/etc/shadow=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0system_u:object_r:shadow_t:s0</div><d=
+iv>/bin/bash=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0system_u:object_r:shell_exec_t:s0</div><div>/bin/login=
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 system_u:object_r:login_exec_t:s0</div><div>/bin/sh=C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0syste=
+m_u:object_r:bin_t:s0 -&gt; system_u:object_r:shell_exec_t:s0</div><div>/sb=
+in/agetty=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 system_u:object_r:getty_exec_t:s0</div><div>/sbin/init=C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 system_u:object=
+_r:bin_t:s0 -&gt; system_u:object_r:init_exec_t:s0</div><div>/usr/sbin/sshd=
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 system_u:obj=
+ect_r:sshd_exec_t:s0</div><div>/lib/libc.so.6=C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 system_u:object_r:lib_t:s0 -&gt; system_=
+u:object_r:lib_t:s0</div><div>/lib/ld-linux.so.2=C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 system_u:object_r:lib_t:s0 -&gt; system_u:object_r:ld=
+_so_t:s0</div></div><div><br></div><div><br></div><div><div>=C2=A0rpm -q li=
+bselinux</div><div>libselinux-2.5-6.el7.i686</div><div>libselinux-2.5-6.el7=
+.x86_64</div></div><div><br></div><div>Please let me know if you want any o=
+ther details .</div><div><br></div><div>Thanks</div></div><div class=3D"gma=
+il_extra"><br><div class=3D"gmail_quote">On Mon, Dec 4, 2017 at 9:30 PM, St=
+ephen Smalley <span dir=3D"ltr">&lt;<a href=3D"mailto:sds@tycho.nsa.gov" ta=
+rget=3D"_blank">sds@tycho.nsa.gov</a>&gt;</span> wrote:<br><blockquote clas=
+s=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;pad=
+ding-left:1ex"><div class=3D"HOEnZb"><div class=3D"h5">On Mon, 2017-12-04 a=
+t 10:44 -0500, Stephen Smalley wrote:<br>
+&gt; On Mon, 2017-12-04 at 15:15 +0530, Aman Sharma wrote:<br>
+&gt; &gt; Hi All,<br>
+&gt; &gt;<br>
+&gt; &gt; I am seeing a number of su core files after a fresh install of Ce=
+nt<br>
+&gt; &gt; OS 7 Machine. In this particular case I have 622 cores files foun=
+d.<br>
+&gt; &gt; The backtrace is given below=C2=A0<br>
+&gt; &gt;<br>
+&gt; &gt; Reading symbols from /usr/bin/su...Reading symbols from<br>
+&gt; &gt; /usr/bin/su...(no debugging symbols found)...done.=C2=A0<br>
+&gt; &gt; (no debugging symbols found)...done.=C2=A0<br>
+&gt; &gt; [New LWP 15427]=C2=A0<br>
+&gt; &gt; [Thread debugging using libthread_db enabled]=C2=A0<br>
+&gt; &gt; Using host libthread_db library &quot;/lib64/libthread_db.so.1&qu=
+ot;.=C2=A0<br>
+&gt; &gt; Core was generated by `su - informix -c source<br>
+&gt; &gt; /usr/local/cm/db/informix/<wbr>local/ids.env; /usr/local/cm/&#39;=
+.<br>
+&gt; &gt; Program terminated with signal 6, Aborted.=C2=A0<br>
+&gt; &gt; #0 0x00007f74f109a1d7 in raise () from /lib64/libc.so.6=C2=A0<br>
+&gt; &gt;<br>
+&gt; &gt; =C2=A0=C2=A0=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D<wbr>=3D=3D=3D=3D=3D=3D=3D=3D=C2=A0<br>
+&gt; &gt; =C2=A0backtrace<br>
+&gt; &gt; =C2=A0=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D<wbr>=3D=3D=3D=3D=3D=3D=C2=A0<br>
+&gt; &gt; =C2=A0#0 0x00007f74f109a1d7 in raise () from /lib64/libc.so.6=C2=
+=A0<br>
+&gt; &gt; #1 0x00007f74f109b8c8 in abort () from /lib64/libc.so.6=C2=A0<br>
+&gt; &gt; #2 0x00007f74f1093146 in __assert_fail_base () from<br>
+&gt; &gt; /lib64/libc.so.6=C2=A0<br>
+&gt; &gt; #3 0x00007f74f10931f2 in __assert_fail () from /lib64/libc.so.6=
+=C2=A0<br>
+&gt; &gt; #4 0x00007f74e9ed46ac in avc_context_to_sid_raw () from<br>
+&gt; &gt; /lib64/libselinux.so.1=C2=A0<br>
+&gt; &gt; #5 0x00007f74e9ed46e5 in avc_context_to_sid () from<br>
+&gt; &gt; /lib64/libselinux.so.1=C2=A0<br>
+&gt; &gt; #6 0x00007f74e9ed83ad in selinux_check_access () from<br>
+&gt; &gt; /lib64/libselinux.so.1=C2=A0<br>
+&gt; &gt; #7 0x00007f74ea0f4d76 in check_for_root () from<br>
+&gt; &gt; /lib/security/../../lib64/<wbr>security/pam_rootok.so=C2=A0<br>
+&gt; &gt; #8 0x00007f74f162cf1a in _pam_dispatch () from /lib64/libpam.so.0=
+=C2=A0<br>
+&gt; &gt; #9 0x00007f74f162c7e0 in pam_authenticate () from<br>
+&gt; &gt; /lib64/libpam.so.0=C2=A0<br>
+&gt; &gt; #10 0x00007f74f1a5f857 in su_main ()=C2=A0<br>
+&gt; &gt; #11 0x00007f74f1086b35 in __libc_start_main () from<br>
+&gt; &gt; /lib64/libc.so.6=C2=A0<br>
+&gt; &gt; #12 0x00007f74f1a5e890 in _start ()=C2=A0<br>
+&gt; &gt; =C2=A0=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D<wbr>=3D=3D=3D=3D=3D=3D=3D=C2=A0<br>
+&gt; &gt;<br>
+&gt; &gt; From the Back trace logs , looks like crash is related to Selinux=
+.<br>
+&gt; &gt; Can Any body Please help me on this. why its getting crash.<br>
+&gt;<br>
+&gt; Implication is that pam_rootok passed a NULL context to<br>
+&gt; selinux_check_access().=C2=A0=C2=A0Which would be a bug in pam.=C2=A0=
+=C2=A0What does<br>
+&gt; sestatus -v show for this machine?<br>
+<br>
+</div></div>Sorry, I&#39;m wrong; the assert is on avc_running, which impli=
+es that the<br>
+AVC wasn&#39;t initialized.=C2=A0 sestatus -v would still be useful.=C2=A0 =
+Also rpm<br>
+-q libselinux.<br>
+<br>
+</blockquote></div><br><br clear=3D"all"><div><br></div>-- <br><div class=
+=3D"gmail_signature" data-smartmail=3D"gmail_signature"><div dir=3D"ltr"><d=
+iv><br></div><div>Thanks</div><div>Aman</div><div>Cell: +91 9990296404 | =
+=C2=A0Email ID : <a href=3D"mailto:amansh.sharma5@gmail.com" target=3D"_bla=
+nk">amansh.sharma5@gmail.com</a></div></div></div>
+</div>
+
+--001a113f8cc4a346c0055f86086f--
