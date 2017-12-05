@@ -1,23 +1,29 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vB59dpZr021841
- for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2017 04:39:53 -0500
-Received: by mail-pg0-f47.google.com with SMTP id g7so10309735pgs.0
- for <selinux@tycho.nsa.gov>; Tue, 05 Dec 2017 01:39:47 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vB5A1BcI018834
+ for <selinux@tycho.nsa.gov>; Tue, 5 Dec 2017 05:01:12 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC09.oob.disa.mil (Postfix) with SMTP id 3yrchN3b5Hz2NhZ4
+ for <selinux@tycho.nsa.gov>; Tue,  5 Dec 2017 10:01:08 +0000 (UTC)
+Received: from UPDC3CPA06.eemsg.mil (unknown [192.168.18.13])
+ by UPDCF3IC09.oob.disa.mil (Postfix) with ESMTP id 3yrchN2gmnz2NhYY
+ for <selinux@tycho.nsa.gov>; Tue,  5 Dec 2017 10:01:08 +0000 (UTC)
+Received: by mail-pg0-f53.google.com with SMTP id f12so10342896pgo.5
+ for <selinux@tycho.nsa.gov>; Tue, 05 Dec 2017 02:01:06 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAGH-KgvjP35Sz=_MO8Mcdpe06j5-z7Jh1pUwJrD+QxyuzWyQAA@mail.gmail.com>
+In-Reply-To: <1512408782.20988.38.camel@tycho.nsa.gov>
 References: <001a113f711a721c58055f052200@google.com>
  <089e08259d282c063e055f4bddbd@google.com>
  <97d6bab0-d278-9945-5d82-a0a76b8b78c5@I-love.SAKURA.ne.jp>
  <1512395025.20988.3.camel@tycho.nsa.gov>
  <CACT4Y+Z50TGJj8PhJczMt4zF8aMyr5586GsJ7LAmS-Bf-QkXiw@mail.gmail.com>
  <CAGH-Kgv+Nj2fpR+3SjnKJk1KMBZqqm9CwD2UAMau539nxtpU4g@mail.gmail.com>
- <CACT4Y+bKC5d135iFAP0qdU7EG+11n7HeCm2d54KwqNfCLMGrpA@mail.gmail.com>
- <CAGH-KgvjP35Sz=_MO8Mcdpe06j5-z7Jh1pUwJrD+QxyuzWyQAA@mail.gmail.com>
+ <CACT4Y+aWCOxe0xH+bPtchX8OyNE3yVkpHmdE4QQwG443_G4aMg@mail.gmail.com>
+ <1512408782.20988.38.camel@tycho.nsa.gov>
 From: Dmitry Vyukov <dvyukov@google.com>
-Date: Tue, 5 Dec 2017 10:39:25 +0100
-Message-ID: <CACT4Y+Y23S4EmiciJwWDk+qpo9ntuggSeujcG6+6wL6x8QoOMw@mail.gmail.com>
-To: Paul Moore <pmoore@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+Date: Tue, 5 Dec 2017 11:00:44 +0100
+Message-ID: <CACT4Y+bEp5wsEWHCGuB=FDywynxzL2yqMuta5LsAjrHeHOMPeA@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Paul Moore <pmoore@redhat.com>,
  Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, syzbot
  <bot+015afdb01dbf2abb6a6bfdd5430b72e5503fca6d@syzkaller.appspotmail.com>,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
@@ -31,96 +37,175 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Dec 4, 2017 at 10:10 PM, Paul Moore <pmoore@redhat.com> wrote:
->> Hi Paul,
+On Mon, Dec 4, 2017 at 6:33 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On Mon, 2017-12-04 at 17:39 +0100, Dmitry Vyukov wrote:
+>> On Mon, Dec 4, 2017 at 2:59 PM, Paul Moore <pmoore@redhat.com> wrote:
+>> > > > > On 2017/12/02 3:52, syzbot wrote:
+>> > > > > > ===========================================================
+>> > > > > > =======
+>> > > > > > BUG: KASAN: slab-out-of-bounds in strcmp+0x96/0xb0
+>> > > > > > lib/string.c:328
+>> > > > > > Read of size 1 at addr ffff8801cd99d2c1 by task
+>> > > > > > syzkaller242593/3087
+>> > > > > >
+>> > > > > > CPU: 0 PID: 3087 Comm: syzkaller242593 Not tainted 4.15.0-
+>> > > > > > rc1-next-
+>> > > > > > 20171201+ #57
+>> > > > > > Hardware name: Google Google Compute Engine/Google Compute
+>> > > > > > Engine,
+>> > > > > > BIOS Google 01/01/2011
+>> > > > > > Call Trace:
+>> > > > > >  __dump_stack lib/dump_stack.c:17 [inline]
+>> > > > > >  dump_stack+0x194/0x257 lib/dump_stack.c:53
+>> > > > > >  print_address_description+0x73/0x250 mm/kasan/report.c:252
+>> > > > > >  kasan_report_error mm/kasan/report.c:351 [inline]
+>> > > > > >  kasan_report+0x25b/0x340 mm/kasan/report.c:409
+>> > > > > >  __asan_report_load1_noabort+0x14/0x20
+>> > > > > > mm/kasan/report.c:427
+>> > > > > >  strcmp+0x96/0xb0 lib/string.c:328
+>> > > > >
+>> > > > > This seems to be out of bound read for "scontext" at
+>> > > > >
+>> > > > >       for (i = 1; i < SECINITSID_NUM; i++) {
+>> > > > >               if (!strcmp(initial_sid_to_string[i],
+>> > > > > scontext)) {
+>> > > > >                       *sid = i;
+>> > > > >                       return 0;
+>> > > > >               }
+>> > > > >       }
+>> > > > >
+>> > > > > because "initial_sid_to_string[i]" is "const char *".
+>> > > > >
+>> > > > > >  security_context_to_sid_core+0x437/0x620
+>> > > > > > security/selinux/ss/services.c:1420
+>> > > > > >  security_context_to_sid+0x32/0x40
+>> > > > > > security/selinux/ss/services.c:1479
+>> > > > > >  selinux_setprocattr+0x51c/0xb50
+>> > > > > > security/selinux/hooks.c:5986
+>> > > > > >  security_setprocattr+0x85/0xc0 security/security.c:1264
+>> > > > >
+>> > > > > If "value" does not terminate with '\0' or '\n', "value" and
+>> > > > > "size" are as-is passed to "scontext" and "scontext_len"
+>> > > > > above
+>> > > > >
+>> > > > >       /* Obtain a SID for the context, if one was specified.
+>> > > > > */
+>> > > > >       if (size && str[0] && str[0] != '\n') {
+>> > > > >               if (str[size-1] == '\n') {
+>> > > > >                       str[size-1] = 0;
+>> > > > >                       size--;
+>> > > > >               }
+>> > > > >               error = security_context_to_sid(value, size,
+>> > > > > &sid,
+>> > > > > GFP_KERNEL);
+>> > > > >
+>> > > > > which will allow strcmp() to trigger out of bound read when
+>> > > > > "size" is
+>> > > > > larger than strlen(initial_sid_to_string[i]).
+>> > > > >
+>> > > > > Thus, I guess the simplest fix is to use strncmp() instead of
+>> > > > > strcmp().
+>> > > >
+>> > > > Already fixed by
+>> > > > https://www.spinics.net/lists/selinux/msg23589.html
+>> > >
+>> > >
+>> > > Paul, please also follow this part:
+>> > >
+>> > > > syzbot will keep track of this bug report.
+>> > > > Once a fix for this bug is committed, please reply to this
+>> > > > email with:
+>> > > > #syz fix: exact-commit-title
+>> > > > Note: all commands must start from beginning of the line in the
+>> > > > email body.
+>> > >
+>> > > This will greatly help to keep overall process running. Thanks.
+>> >
+>> > When is the right time to do this?  The text say to reply when a
+>> > patch
+>> > has been committed, but where?  My selinux/next branch?  Linus'
+>> > master?  Your docs and the end of the email needs to be more clear
+>> > on
+>> > this.
+>> >
+>> > For the record, I did see that part of the syzbot mail but I was
+>> > waiting until I merged that patch; v2 was posted late in the week
+>> > and
+>> > I was giving it a few days in case someone saw something
+>> > objectionable.
+>> >
+>> > Also, while we are on the topic of syzbot, what SELinux policy (if
+>> > any) do you load on the system that is undergoing testing?  Based
+>> > on
+>> > some of the recent reports it would appear that you are running a
+>> > SELinux enabled kernel but might not be loading a SELinux policy,
+>> > is
+>> > that correct?
 >>
->> We are just rolling in the process. Feedback is much appreciated!
 >>
->> The idea is that we need to know the title as it will appear in Linus
->> tree and in other tested trees. It's also possible to override the
->> title later, if there is any mess with it. So sending "#syz fix" as
->> soon as it is merged into any tree looks like the best option (to not
->> require you to keep in mind that you also need to do that tiny bit in
->> a month).
+>> This is good question. The problem is that we are testing almost all
+>> kernel subsystems, but are not experts in most of them. So frequently
+>> we doing some non-sense. And that's where we need you help.
+>> That's what we have for grep SECURITY .config:
 >>
->> Are the following changes look good to you?
->> For email footer:
+>> CONFIG_EXT4_FS_SECURITY=y
+>> # CONFIG_9P_FS_SECURITY is not set
+>> # CONFIG_SECURITY_DMESG_RESTRICT is not set
+>> CONFIG_SECURITY=y
+>> CONFIG_SECURITY_WRITABLE_HOOKS=y
+>> # CONFIG_SECURITYFS is not set
+>> CONFIG_SECURITY_NETWORK=y
+>> CONFIG_SECURITY_NETWORK_XFRM=y
+>> CONFIG_SECURITY_PATH=y
+>> CONFIG_SECURITY_SELINUX=y
+>> CONFIG_SECURITY_SELINUX_BOOTPARAM=y
+>> CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE=1
+>> CONFIG_SECURITY_SELINUX_DISABLE=y
+>> CONFIG_SECURITY_SELINUX_DEVELOP=y
+>> CONFIG_SECURITY_SELINUX_AVC_STATS=y
+>> CONFIG_SECURITY_SELINUX_CHECKREQPROT_VALUE=0
+>> # CONFIG_SECURITY_SMACK is not set
+>> # CONFIG_SECURITY_TOMOYO is not set
+>> # CONFIG_SECURITY_APPARMOR is not set
+>> # CONFIG_SECURITY_LOADPIN is not set
+>> # CONFIG_SECURITY_YAMA is not set
+>> CONFIG_DEFAULT_SECURITY_SELINUX=y
+>> # CONFIG_DEFAULT_SECURITY_DAC is not set
+>> CONFIG_DEFAULT_SECURITY="selinux"
 >>
->> -Once a fix for this bug is committed, please reply to this email with:
->> +Once a fix for this bug is merged into any tree, reply to this email with:
->> #syz fix: exact-commit-title
 >>
->> And for the https://github.com/google/syzkaller/blob/master/docs/syzbot.md page:
->>
->> to attach a fixing commit to the bug:
->> #syz fix: exact-commit-title
->> +It's enough that the commit is merged into any tree, in particular,
->> +you don't need to wait for the commit to be merged into upstream tree.
->> +syzbot only needs to know the title by which it will appear in tested trees.
->> +In case of an error or a title change, you can override the commit simply
->> +by sending another #syz fix command.
+>> I don't think we do anything else besides that.
+>> To be fair I don't know what is SELinux policy nor how to load it.
+>> Can
+>> you suggest a policy that would be good for testing of kernel in
+>> general and SELinux in particular? Obviously, we don't want to
+>> prohibit access to any major parts of kernel APIs entirely (because
+>> then we won't test them). syzkaller also creates a local temp dir per
+>> test process, and the process mostly accesses files there (except for
+>> opening /dev/* and /proc/self/*). Is it possible to selectively
+>> prohibit something there, so that we test both positive and negative
+>> cases?
 >
-> That is an improvement, yes.  I might also mention that you would
-> prefer if the syzkaller-bugs list is CC'd on the commands; that wasn't
-> clear to me until I got a message back from syzbot just now.
+> SELinux policy is loaded by userspace; the support is integrated into
+> the various init programs, but you need to have a policy installed.
 >
->>> For the record, I did see that part of the syzbot mail but I was
->>
->> Then sorry for pinging. We are trying to establish the process, and
->> some developers don't notice that part, so I just wanted to make sure.
+> Best way would just be to run the test on Fedora (or CentOS) with
+> selinux-policy-targeted installed.  Then you would be testing with a
+> real policy loaded.  You could run syzkaller from the unconfined_t
+> domain and it should be largely unimpeded, and it could transition to a
+> different domain if you want to test denials.  For reference, the
+> selinux testsuite itself is at
+>  https://github.com/SELinuxProject/selinux-testsuite/
+> It includes a defconfig fragment that can be merged, although portions
+> of that are only required for particular test programs (see the
+> comments in it).
 >
-> I would *strongly* suggest spending some time trying to find a
-> mechanism that doesn't rely on developers needing to send special
-> commands to your system to register fixes; that seems prone to failure
-> if you want my honest opinion.
+> If that's not viable, then another approach would be to generate a
+> minimal allow-all policy from the kernel source tree, see
+> Documentation/admin-guide/LSM/SELinux.rst and scripts/selinux/*.
+> The downside of that approach is that SELinux developers and users
+> don't use that policy themselves for anything, and it won't exercise
+> any permission denial code paths.
 
 
-I completely agree. I've spent time trying to find such scheme, and
-I've talked to other kernel developers, and we were not able to come
-up with anything working.
-Similar user-space system assume that the target is single-threaded
-and deterministic and that they always have a _reliable_ reproducer
-and that re-testing is fast; and than they just re-test everything on
-every build. Nothing of this is true for kernel: it's highly
-concurrent and non-deterministic, we don't always have reproducers,
-when we have them they are not reliable and testing takes whole lot of
-time. If we try to do the same, we will produce email churn declaring
-bugs as fixed and then filing them as new bugs again.
-
-One option that come up, though, is that a different of doing this
-could be adding something like:
-
-Syzbot-bug: 015afdb01dbf2abb6a6bfdd5430b72e5503fca6d
-
-tag to commits. But then again, people will miss that, people will
-mess that, and we will have to add "#syz fix" tags here and there.
-
-A full-fledged bug tracking system would help, but as far as I
-understand kernel bugzilla is ignored by most, and when it's not
-ignored, from what I saw, people don't bother even marking fixed bugs
-as fixed.
-
-If somebody has other ideas, I am listening.
-
-
-> At the very least you might consider moving the instructions to the
-> top of the message.
-
-Yes, this is probably something we need to consider.
-
->>> waiting until I merged that patch; v2 was posted late in the week and
->>> I was giving it a few days in case someone saw something
->>> objectionable.
->>
->> In such case you can do either way. You can wait, or you can post
->> commit title as soon as you have enough assurance that that's the
->> title with which it will appear in trees. We don't want to put too
->> much burden on developers. As I said, it's possible to override it
->> later, or we will notice that there is a commit that bot is waiting
->> for too long.
->>
->> Thanks
->
-> --
-> paul moore
-> security @ redhat
+Thanks, I will see what we can do here. Still lots to learn for me.
