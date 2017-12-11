@@ -1,104 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vB8I7cIx025852
- for <selinux@tycho.nsa.gov>; Fri, 8 Dec 2017 13:07:38 -0500
-Received: by mail-pf0-f174.google.com with SMTP id n6so7778534pfa.4
- for <selinux@tycho.nsa.gov>; Fri, 08 Dec 2017 09:50:22 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBBDm1og018107
+ for <selinux@tycho.nsa.gov>; Mon, 11 Dec 2017 08:48:01 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3ywPRL06Z0z14wTb
+ for <selinux@tycho.nsa.gov>; Mon, 11 Dec 2017 13:47:58 +0000 (UTC)
+Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3ywPRK6c1zz14wTX
+ for <selinux@tycho.nsa.gov>; Mon, 11 Dec 2017 13:47:57 +0000 (UTC)
+Date: Mon, 11 Dec 2017 08:47:53 -0500 (EST)
+From: Jan Zarsky <jzarsky@redhat.com>
+To: William Roberts <bill.c.roberts@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Message-ID: <978800513.47600060.1513000073843.JavaMail.zimbra@redhat.com>
+In-Reply-To: <CAFftDdpvouX1L9d_iwKWxYmFw9=W7ORQ+AvZzhniR1kGbf3sHA@mail.gmail.com>
+References: <CAFftDdosb4sqRyexNmT11mjgATWLNW4jrabJ-u0zKuuCOWx4-g@mail.gmail.com>
+ <20171127100102.4409-1-jzarsky@redhat.com>
+ <CAFftDdpvouX1L9d_iwKWxYmFw9=W7ORQ+AvZzhniR1kGbf3sHA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <CAGH-KgvjP35Sz=_MO8Mcdpe06j5-z7Jh1pUwJrD+QxyuzWyQAA@mail.gmail.com>
-References: <001a113f711a721c58055f052200@google.com>
- <089e08259d282c063e055f4bddbd@google.com>
- <97d6bab0-d278-9945-5d82-a0a76b8b78c5@I-love.SAKURA.ne.jp>
- <1512395025.20988.3.camel@tycho.nsa.gov>
- <CACT4Y+Z50TGJj8PhJczMt4zF8aMyr5586GsJ7LAmS-Bf-QkXiw@mail.gmail.com>
- <CAGH-Kgv+Nj2fpR+3SjnKJk1KMBZqqm9CwD2UAMau539nxtpU4g@mail.gmail.com>
- <CACT4Y+bKC5d135iFAP0qdU7EG+11n7HeCm2d54KwqNfCLMGrpA@mail.gmail.com>
- <CAGH-KgvjP35Sz=_MO8Mcdpe06j5-z7Jh1pUwJrD+QxyuzWyQAA@mail.gmail.com>
-From: Dmitry Vyukov <dvyukov@google.com>
-Date: Fri, 8 Dec 2017 18:50:00 +0100
-Message-ID: <CACT4Y+bNcwOkZXHd2-NTkh7kNB-ASyPWy+-1rvCD_UgdTB2SHg@mail.gmail.com>
-To: Paul Moore <pmoore@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, syzbot
- <bot+015afdb01dbf2abb6a6bfdd5430b72e5503fca6d@syzkaller.appspotmail.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- syzkaller-bugs@googlegroups.com, LKML <linux-kernel@vger.kernel.org>,
- dledford@redhat.com, Matthias Kaehlcke <mka@chromium.org>,
- junil0814.lee@lge.com, kyeongdon kim <kyeongdon.kim@lge.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: KASAN: slab-out-of-bounds Read in strcmp
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH] libsemanage: properly check return value of
+ iterate function
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Dec 4, 2017 at 10:10 PM, Paul Moore <pmoore@redhat.com> wrote:
->> Hi Paul,
->>
->> We are just rolling in the process. Feedback is much appreciated!
->>
->> The idea is that we need to know the title as it will appear in Linus
->> tree and in other tested trees. It's also possible to override the
->> title later, if there is any mess with it. So sending "#syz fix" as
->> soon as it is merged into any tree looks like the best option (to not
->> require you to keep in mind that you also need to do that tiny bit in
->> a month).
->>
->> Are the following changes look good to you?
->> For email footer:
->>
->> -Once a fix for this bug is committed, please reply to this email with:
->> +Once a fix for this bug is merged into any tree, reply to this email with:
->> #syz fix: exact-commit-title
->>
->> And for the https://github.com/google/syzkaller/blob/master/docs/syzbot.md page:
->>
->> to attach a fixing commit to the bug:
->> #syz fix: exact-commit-title
->> +It's enough that the commit is merged into any tree, in particular,
->> +you don't need to wait for the commit to be merged into upstream tree.
->> +syzbot only needs to know the title by which it will appear in tested trees.
->> +In case of an error or a title change, you can override the commit simply
->> +by sending another #syz fix command.
->
-> That is an improvement, yes.  I might also mention that you would
-> prefer if the syzkaller-bugs list is CC'd on the commands; that wasn't
-> clear to me until I got a message back from syzbot just now.
+----- Original Message -----
+> On Mon, Nov 27, 2017 at 2:01 AM, Jan Zarsky <jzarsky@redhat.com> wrote:
+> > Function dbase_llist_iterate() iterates over records and checks return
+> > value of iterate function. According to a manpage semanage_iterate(3),
+> > handler can return value 1 for early exit. dbase_llist_iterate()
+> > currently checks for return value > 1, which does not include
+> > expected value 1.
+> >
+> > Affected functions:
+> > semanage_bool_iterate_local
+> > semanage_fcontext_iterate
+> > semanage_fcontext_iterate_local
+> > semanage_ibendport_iterate_local
+> > semanage_ibpkey_iterate_local
+> > semanage_iface_iterate_local
+> > semanage_node_iterate_local
+> > semanage_port_iterate_local
+> > semanage_seuser_iterate
+> > semanage_seuser_iterate_local
+> > semanage_user_iterate
+> > semanage_user_iterate_local
+> 
+> Not really what I had in mind. I meant what was the affect. This is simple
+> enough to gather, so ack on v1,
+> 
+> My understanding is that the affect is that it that it doesn't short
+> circuit the iterate
+> routine so lockups take longer than they need be, is that correct?
 
+Yes, that is the exactly the problem. I will try to be more clear next time.
 
-Fixed with:
-
-https://github.com/google/syzkaller/commit/2f6fb923683af1397d3d6abea0bde51a9bdcdca7
-https://github.com/google/syzkaller/commit/8e1e4403ac29a60350169da5449a1497635ee13b
-
-
-
-
->>> For the record, I did see that part of the syzbot mail but I was
->>
->> Then sorry for pinging. We are trying to establish the process, and
->> some developers don't notice that part, so I just wanted to make sure.
->
-> I would *strongly* suggest spending some time trying to find a
-> mechanism that doesn't rely on developers needing to send special
-> commands to your system to register fixes; that seems prone to failure
-> if you want my honest opinion.
->
-> At the very least you might consider moving the instructions to the
-> top of the message.
->
->>> waiting until I merged that patch; v2 was posted late in the week and
->>> I was giving it a few days in case someone saw something
->>> objectionable.
->>
->> In such case you can do either way. You can wait, or you can post
->> commit title as soon as you have enough assurance that that's the
->> title with which it will appear in trees. We don't want to put too
->> much burden on developers. As I said, it's possible to override it
->> later, or we will notice that there is a commit that bot is waiting
->> for too long.
->>
->> Thanks
->
+> 
+> >
+> > Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
+> > ---
+> >  libsemanage/src/database_llist.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/libsemanage/src/database_llist.c
+> > b/libsemanage/src/database_llist.c
+> > index 8ce2e2c1..c8f4ff0b 100644
+> > --- a/libsemanage/src/database_llist.c
+> > +++ b/libsemanage/src/database_llist.c
+> > @@ -263,7 +263,7 @@ int dbase_llist_iterate(semanage_handle_t * handle,
+> >                 if (rc < 0)
+> >                         goto err;
+> >
+> > -               else if (rc > 1)
+> > +               else if (rc > 0)
+> >                         break;
+> >         }
+> >
+> > --
+> > 2.14.3
+> >
+> >
+> 
+> 
+> 
 > --
-> paul moore
-> security @ redhat
+> Respectfully,
+> 
+> William C Roberts
+> 
