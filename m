@@ -1,58 +1,49 @@
-Date: Tue, 12 Dec 2017 19:56:38 -0200
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
- netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org,
- Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>
-Message-ID: <20171212215638.GH3532@localhost.localdomain>
-References: <20171127193121.2666-1-richard_c_haines@btinternet.com>
- <20171212160800.GE3532@localhost.localdomain>
- <CAHC9VhR+WoO3UtdXLp+9mQ=c=avpEQ5-W8vTkEWfxXH1EkUS8A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhR+WoO3UtdXLp+9mQ=c=avpEQ5-W8vTkEWfxXH1EkUS8A@mail.gmail.com>
-Subject: Re: [PATCH 2/4] sctp: Add ip option support
+From: Aman Sharma <amansh.sharma5@gmail.com>
+Date: Wed, 13 Dec 2017 10:17:46 +0530
+Message-ID: <CAPMH7--1HHC1tj9SYpMp2Mcxo6_kjBRgViA76qbSo4PQ-_dstA@mail.gmail.com>
+To: SELinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>,
+ centos@centos.org
+Content-Type: multipart/alternative; boundary="001a11351a0007b2c005603178f8"
+Subject: PAM Security related issue
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Dec 12, 2017 at 04:33:03PM -0500, Paul Moore wrote:
-> On Tue, Dec 12, 2017 at 11:08 AM, Marcelo Ricardo Leitner
-> <marcelo.leitner@gmail.com> wrote:
-> > Hi Richard,
-> >
-> > On Mon, Nov 27, 2017 at 07:31:21PM +0000, Richard Haines wrote:
-> > ...
-> >> --- a/net/sctp/socket.c
-> >> +++ b/net/sctp/socket.c
-> >> @@ -3123,8 +3123,10 @@ static int sctp_setsockopt_maxseg(struct sock *sk, char __user *optval, unsigned
-> >>
-> >>       if (asoc) {
-> >>               if (val == 0) {
-> >> +                     struct sctp_af *af = sp->pf->af;
-> >>                       val = asoc->pathmtu;
-> >> -                     val -= sp->pf->af->net_header_len;
-> >> +                     val -= af->ip_options_len(asoc->base.sk);
-> >> +                     val -= af->net_header_len;
-> >>                       val -= sizeof(struct sctphdr) +
-> >>                                       sizeof(struct sctp_data_chunk);
-> >>               }
-> >
-> > Right below here there is a call to sctp_frag_point(). That function
-> > also needs this tweak.
-> >
-> > Yes, we should simplify all these calculations. I have a patch to use
-> > sctp_frag_point on where it is currently recalculating it on
-> > sctp_datamsg_from_user(), but probably should include other places as
-> > well.
-> 
-> FYI: Richard let me know he is occupied with another project at the
-> moment and likely won't be able to do another respin until next week
-> at the earliest.
+--001a11351a0007b2c005603178f8
+Content-Type: text/plain; charset="UTF-8"
 
-Okay, thanks. I can do a follow-up patch if it helps.
+Hi All,
 
-  Marcelo
+just wanted to know the meaning of line *session    required
+ pam_selinux.so open env_params *added in */etc/pam.d/sshd *file. Actually
+I am facing one issue related to this. When I changed this *env_params to
+restore *then my Sftp is not working.
+
+Can anybody Please guide me on this.
+
+
+-- 
+
+Thanks
+Aman
+Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
+
+--001a11351a0007b2c005603178f8
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi All,<div><br></div><div>just wanted to know the meaning=
+ of line=C2=A0<b>session=C2=A0 =C2=A0 required=C2=A0 =C2=A0 =C2=A0pam_selin=
+ux.so open env_params </b>added in <b>/etc/pam.d/sshd </b>file. Actually I =
+am facing one issue related to this. When I changed this <b>env_params to r=
+estore </b>then my Sftp is not working.=C2=A0</div><div><br></div><div>Can =
+anybody Please guide me on this.</div><div>=C2=A0=C2=A0<br></div><div><div>=
+<br></div>-- <br><div class=3D"gmail_signature"><div dir=3D"ltr"><div><br><=
+/div><div>Thanks</div><div>Aman</div><div>Cell: +91 9990296404 | =C2=A0Emai=
+l ID : <a href=3D"mailto:amansh.sharma5@gmail.com" target=3D"_blank">amansh=
+.sharma5@gmail.com</a></div></div></div>
+</div></div>
+
+--001a11351a0007b2c005603178f8--
