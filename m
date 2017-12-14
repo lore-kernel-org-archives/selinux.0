@@ -1,68 +1,69 @@
-Message-ID: <1513256850.18008.1.camel@tycho.nsa.gov>
+Message-ID: <1513259397.18008.3.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: yangjihong <yangjihong1@huawei.com>, "paul@paul-moore.com"
- <paul@paul-moore.com>, "eparis@parisplace.org" <eparis@parisplace.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Daniel J Walsh <dwalsh@redhat.com>, Lukas Vrabec <lvrabec@redhat.com>,
- Petr Lautrbach <plautrba@redhat.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 14 Dec 2017 08:07:30 -0500
-In-Reply-To: <1BC3DBD98AD61A4A9B2569BC1C0B4437D5D2AF@DGGEMM506-MBS.china.huawei.com>
-References: <1BC3DBD98AD61A4A9B2569BC1C0B4437D5D1F3@DGGEMM506-MBS.china.huawei.com>
- <1513178296.19161.8.camel@tycho.nsa.gov>
- <1BC3DBD98AD61A4A9B2569BC1C0B4437D5D2AF@DGGEMM506-MBS.china.huawei.com>
+To: Aman Sharma <amansh.sharma5@gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Date: Thu, 14 Dec 2017 08:49:57 -0500
+In-Reply-To: <CAPMH7-9F4H_e-VmHqOzdpCq0JkN-y71-ye152yBixZrHHmOd5g@mail.gmail.com>
+References: <CAPMH7--1HHC1tj9SYpMp2Mcxo6_kjBRgViA76qbSo4PQ-_dstA@mail.gmail.com>
+ <1513178677.19161.10.camel@tycho.nsa.gov>
+ <CAPMH7-_kGWkvWY=YgYMQ5urCparVum4ejytg_ui3n=cgFz7atA@mail.gmail.com>
+ <1513192514.25026.5.camel@tycho.nsa.gov>
+ <CAPMH7-9F4H_e-VmHqOzdpCq0JkN-y71-ye152yBixZrHHmOd5g@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [BUG]kernel softlockup due to sidtab_search_context run for
- long time because of too many sidtab context node
+Subject: Re: PAM Security related issue
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2017-12-14 at 03:19 +0000, yangjihong wrote:
-> Hello,
+On Thu, 2017-12-14 at 12:48 +0530, Aman Sharma wrote:
+> Hi All,
 > 
-> >  So, does docker just keep allocating a unique category set for
-> > every new container, never reusing them even if the container is
-> > destroyed? 
-> >  That would be a bug in docker IMHO.  Or are you creating an
-> > unbounded number of containers and never destroying the older ones?
+> Below is the output of semanage USer command output for sftpuser:
 > 
-> I creat a containers, then destroy it,  and create second one,
-> destroy it.......
-> When docker created, it will mount overlay fs, because every
-> containers has different selinux context, so a new sidtab node is
-> generated and insert into the sidtab list  
-> When docker destroyed, it will umount overlay fs, but umount
-> operation does not seem relevant to "delete the node" hooks function,
-> resulting in longer and longer sidtab list
-> I think when umount, its selinux context will never reuse, so sidtab
-> node is useless, it is best to delete i
+> specialuser_u   user       s0         s0                           
+>  sysadm_r system_r
+> 
+> and for command semanage login -l , output is :
+> 
+> sftpuser             specialuser_u        s0                   *
+> 
+> and also, after adding the debugging option, its showing the below
+> error message as 
+> 
+> Dec 13 15:46:10 cucmSUB authpriv 3 sshd: pam_selinux(sshd:session):
+> Unable to get valid context for sftpuser
+> Dec 13 15:46:10 cucmSUB authpriv 5 sshd: pam_selinux(sshd:session):
+> Open Session
+> Dec 13 15:46:11 cucmSUB authpriv 7 sshd: pam_selinux(sshd:session):
+> Username= sftpuser SELinux User= specialuser_u Level= s0
+> Dec 13 15:46:11 cucmSUB authpriv 3 sshd: pam_selinux(sshd:session):
+> Unable to get valid context for sftpuser
+> 
+> also Selinuxdefcon command is showing error while running for
+> sftpuser i.e. 
+> sudo /usr/sbin/selinuxdefcon sftpuser system_u:system_r:sshd_t:s0
+> /usr/sbin/selinuxdefcon: Invalid argument
+> 
+> Please let me know your comments on this.
 
-The "selinux context will never reuse" is IMHO a bug in docker; if you
-truly destroy the container (i.e. don't just stop its execution, but
-delete it entirely), then the context should be reusable.
+Is there a reason why you've added your own unique SELinux user and
+login entries for sftpuser rather than either just mapping to one of
+the existing users if you want it to be confined or leaving it
+unspecified and just using the __default__ entry if you want it to be
+unconfined?
 
-> >  sidtab_search_context() could no doubt be optimized for the
-> > negative case; there was an earlier optimization for the positive
-> > case by adding a cache to sidtab_context_to_sid() prior to calling
-> > it.  It's a reverse lookup in the sidtab.
-> 
-> I think add cache may be not very userful, because every containers
-> has different selinux context, so when one docker created, it will
-> search the whole sidtab list, until compare the last node, When a new
-> node arrives, it is always necessary to compare all the nodes first,
-> and then insert. 
-> All as long as the list does not delete the node, list will always
-> increase, and search time will longer and longer, eventually leading
-> to softlockup
-> 
-> 
-> Is there any solution to this problem?
+The entries above say that sftpuser is to be mapped to specialuser_u,
+and that specialuser_u can only use the sysadm_r or system_r roles.  To
+make that work, you would also need to enable the ssh_sysadm_login
+boolean and cp /etc/selinux/targeted/contexts/users/sysadm_u
+/etc/selinux/targeted/contexts/users/specialuser_u.  But that seems
+pointless since you could just leave it unmapped or map it to sysadm_u
+in the first place if that was really what you wanted.
 
-On the kernel side, we could certainly implement a reverse lookup hash
-table.  And there could be a faster way to quickly check whether a
-given category set has ever been used if we wanted to specialize in
-that manner.  But that won't fix the fact that docker is allocating
-unbounded security contexts.
+If you want sftpuser to be unrestricted, just remove the mappings, i.e.
+$ sudo semanage login -d sftpuser
+$ sudo semanage user -d specialuser_u
+$ selinuxdefcon sftpuser system_u:system_r:sshd_t:s0-s0:c0.c1023
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
