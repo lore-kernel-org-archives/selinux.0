@@ -1,49 +1,190 @@
-Message-ID: <1513626772.2675.4.camel@tycho.nsa.gov>
+Message-ID: <1513630117.2675.7.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: "Arnold, Paul C CTR USARMY PEO STRI (US)" <paul.c.arnold4.ctr@mail.mil>,
- SELinux =?UTF-8?Q?=E2=80=8E=5Bselinux=40tycho=2Ensa=2Egov=5D=E2=80=8E?=
- <selinux@tycho.nsa.gov>
-Date: Mon, 18 Dec 2017 14:52:52 -0500
-In-Reply-To: <7322D64AC622D441BC921DE15D30CD21A2082E61@UGUNHPAFH.easf.csd.disa.mil>
-References: <7322D64AC622D441BC921DE15D30CD21A2082E61@UGUNHPAFH.easf.csd.disa.mil>
+To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
+Date: Mon, 18 Dec 2017 15:48:37 -0500
+In-Reply-To: <20171213121633.11721-1-plautrba@redhat.com>
+References: <20171213121633.11721-1-plautrba@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: Object range_transition issue when type_transition is involved
+Subject: Re: [PATCH] python/semanage: make seobject.py backward compatible
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 2017-12-18 at 17:36 +0000, Arnold, Paul C CTR USARMY PEO STRI
-(US) wrote:
-> All,
->  
-> I am experiencing some issues using range_transition on objects when
-> type_transition is also involved on the object.  Specifically, a
-> range_transition rule on a target object with a "final" type (e.g. a
-> type which went through a type_transition) does not seem to perform
-> the range transition.
->  
->  
-> For example, using a private var log type (uses a type_transition
-> from var_log_t) does not perform the range transition:
->  
-> range_transition mydomain_t mypriv_var_log_t:file mySystemHigh;
->  
->  
-> I am confident my source domain is correct, I believe the issue is
-> with the target object.  Policy version is 24.
+On Wed, 2017-12-13 at 13:16 +0100, Petr Lautrbach wrote:
+> Commit 985753f changed behavior of seobject class constructors. While
+> semanage itself was fixed, there are other tools like
+> system-config-selinux and chcat which depend on the original
+> behavior.
+> This change make the constructors backward compatible.
+> 
+> Fixes: $ system-config-selinux
+> Traceback (most recent call last):
+>   File "/usr/share/system-config-selinux/system-config-selinux.py",
+> line 196, in <module>
+>     app = childWindow()
+>   File "/usr/share/system-config-selinux/system-config-selinux.py",
+> line 100, in __init__
+>     self.add_page(booleansPage.booleansPage(xml))
+>   File "/usr/share/system-config-selinux/booleansPage.py", line 142,
+> in __init__
+>     self.load(self.filter)
+>   File "/usr/share/system-config-selinux/booleansPage.py", line 212,
+> in load
+>     self.booleans = seobject.booleanRecords()
+> TypeError: __init__() missing 1 required positional argument: 'args'
+> 
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-Sorry, are you saying that mydomain_t is creating a file in /var/log,
-and that you both want the file type to be set to mypriv_var_log_t and
-the level set to mySystemHigh?
+Thanks, applied.
 
-If so, then I believe the correct incantation would be:
-type_transition mydomain_t var_log_t:file mypriv_var_log_t;
-range_transition mydomain_t var_log_t:file mySystemHigh;
-(obviously you might instead be using refpolicy macros/interfaces to
-achieve the same end)
-
-In both cases, the source type corresponds to the creating process, the
-target type corresponds to the parent directory type, and the new type
-or level is applied to new files.
+> ---
+>  python/semanage/seobject.py | 45 +++++++++++++++++++++++++--------
+> ------------
+>  1 file changed, 25 insertions(+), 20 deletions(-)
+> 
+> diff --git a/python/semanage/seobject.py
+> b/python/semanage/seobject.py
+> index 770745e4..b927b184 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -240,17 +240,22 @@ class semanageRecords:
+>      store = None
+>      args = None
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          global handle
+> -        self.args = args
+> -        try:
+> -            self.noreload = args.noreload
+> -        except:
+> -            self.noreload = False
+> -        self.sh = self.get_handle(args.store)
+> +        if args:
+> +            # legacy code - args was store originally
+> +            if type(args) == str:
+> +                self.store = args
+> +            else:
+> +                self.args = args
+> +        self.noreload = getattr(args, "noreload", False)
+> +        if not self.store:
+> +            self.store = getattr(args, "store", "")
+> +
+> +        self.sh = self.get_handle(self.store)
+>  
+>          rc, localstore = selinux.selinux_getpolicytype()
+> -        if args.store == "" or args.store == localstore:
+> +        if self.store == "" or self.store == localstore:
+>              self.mylog = logger()
+>          else:
+>              self.mylog = nulllogger()
+> @@ -331,7 +336,7 @@ class semanageRecords:
+>  
+>  class moduleRecords(semanageRecords):
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def get_all(self):
+> @@ -443,7 +448,7 @@ class moduleRecords(semanageRecords):
+>  
+>  class dontauditClass(semanageRecords):
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def toggle(self, dontaudit):
+> @@ -456,7 +461,7 @@ class dontauditClass(semanageRecords):
+>  
+>  class permissiveRecords(semanageRecords):
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def get_all(self):
+> @@ -525,7 +530,7 @@ class permissiveRecords(semanageRecords):
+>  
+>  class loginRecords(semanageRecords):
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>          self.oldsename = None
+>          self.oldserange = None
+> @@ -782,7 +787,7 @@ class loginRecords(semanageRecords):
+>  
+>  class seluserRecords(semanageRecords):
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def get(self, name):
+> @@ -1045,7 +1050,7 @@ class portRecords(semanageRecords):
+>      except RuntimeError:
+>          valid_types = []
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def __genkey(self, port, proto):
+> @@ -1320,7 +1325,7 @@ class ibpkeyRecords(semanageRecords):
+>      except:
+>          valid_types = []
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def __genkey(self, pkey, subnet_prefix):
+> @@ -1573,7 +1578,7 @@ class ibendportRecords(semanageRecords):
+>      except:
+>          valid_types = []
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def __genkey(self, ibendport, ibdev_name):
+> @@ -1809,7 +1814,7 @@ class nodeRecords(semanageRecords):
+>      except RuntimeError:
+>          valid_types = []
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>          self.protocol = ["ipv4", "ipv6"]
+>  
+> @@ -2045,7 +2050,7 @@ class nodeRecords(semanageRecords):
+>  
+>  class interfaceRecords(semanageRecords):
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>  
+>      def __add(self, interface, serange, ctype):
+> @@ -2242,7 +2247,7 @@ class fcontextRecords(semanageRecords):
+>      except RuntimeError:
+>          valid_types = []
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>          self.equiv = {}
+>          self.equiv_dist = {}
+> @@ -2631,7 +2636,7 @@ class fcontextRecords(semanageRecords):
+>  
+>  class booleanRecords(semanageRecords):
+>  
+> -    def __init__(self, args):
+> +    def __init__(self, args = None):
+>          semanageRecords.__init__(self, args)
+>          self.dict = {}
+>          self.dict["TRUE"] = 1
