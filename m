@@ -1,190 +1,151 @@
-Message-ID: <1513630117.2675.7.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-Date: Mon, 18 Dec 2017 15:48:37 -0500
-In-Reply-To: <20171213121633.11721-1-plautrba@redhat.com>
-References: <20171213121633.11721-1-plautrba@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH] python/semanage: make seobject.py backward compatible
+To: Stephen Smalley <sds@tycho.nsa.gov>,
+ "=?UTF-8?Q?SELinux_=e2=80=8e_[selinux@tycho.nsa.gov]_=e2=80=8e?="
+ <selinux@tycho.nsa.gov>
+References: <7322D64AC622D441BC921DE15D30CD21A2082E61@UGUNHPAFH.easf.csd.disa.mil>
+ <1513626772.2675.4.camel@tycho.nsa.gov>
+From: "Arnold, Paul C CTR USARMY PEO STRI (US)" <paul.c.arnold4.ctr@mail.mil>
+Message-ID: <5aa23cc3-f409-ba6f-70b4-1fbb1520c153@mail.mil>
+Date: Tue, 19 Dec 2017 09:36:38 -0500
+MIME-Version: 1.0
+In-Reply-To: <1513626772.2675.4.camel@tycho.nsa.gov>
+Content-Type: multipart/signed; protocol="application/pkcs7-signature";
+ micalg=sha-256; boundary="------------ms040302050203030805020404"
+Subject: Re: Object range_transition issue when type_transition is involved
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2017-12-13 at 13:16 +0100, Petr Lautrbach wrote:
-> Commit 985753f changed behavior of seobject class constructors. While
-> semanage itself was fixed, there are other tools like
-> system-config-selinux and chcat which depend on the original
-> behavior.
-> This change make the constructors backward compatible.
-> 
-> Fixes: $ system-config-selinux
-> Traceback (most recent call last):
->   File "/usr/share/system-config-selinux/system-config-selinux.py",
-> line 196, in <module>
->     app = childWindow()
->   File "/usr/share/system-config-selinux/system-config-selinux.py",
-> line 100, in __init__
->     self.add_page(booleansPage.booleansPage(xml))
->   File "/usr/share/system-config-selinux/booleansPage.py", line 142,
-> in __init__
->     self.load(self.filter)
->   File "/usr/share/system-config-selinux/booleansPage.py", line 212,
-> in load
->     self.booleans = seobject.booleanRecords()
-> TypeError: __init__() missing 1 required positional argument: 'args'
-> 
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+This is a cryptographically signed message in MIME format.
 
-Thanks, applied.
+--------------ms040302050203030805020404
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
 
-> ---
->  python/semanage/seobject.py | 45 +++++++++++++++++++++++++--------
-> ------------
->  1 file changed, 25 insertions(+), 20 deletions(-)
-> 
-> diff --git a/python/semanage/seobject.py
-> b/python/semanage/seobject.py
-> index 770745e4..b927b184 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -240,17 +240,22 @@ class semanageRecords:
->      store = None
->      args = None
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          global handle
-> -        self.args = args
-> -        try:
-> -            self.noreload = args.noreload
-> -        except:
-> -            self.noreload = False
-> -        self.sh = self.get_handle(args.store)
-> +        if args:
-> +            # legacy code - args was store originally
-> +            if type(args) == str:
-> +                self.store = args
-> +            else:
-> +                self.args = args
-> +        self.noreload = getattr(args, "noreload", False)
-> +        if not self.store:
-> +            self.store = getattr(args, "store", "")
-> +
-> +        self.sh = self.get_handle(self.store)
->  
->          rc, localstore = selinux.selinux_getpolicytype()
-> -        if args.store == "" or args.store == localstore:
-> +        if self.store == "" or self.store == localstore:
->              self.mylog = logger()
->          else:
->              self.mylog = nulllogger()
-> @@ -331,7 +336,7 @@ class semanageRecords:
->  
->  class moduleRecords(semanageRecords):
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def get_all(self):
-> @@ -443,7 +448,7 @@ class moduleRecords(semanageRecords):
->  
->  class dontauditClass(semanageRecords):
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def toggle(self, dontaudit):
-> @@ -456,7 +461,7 @@ class dontauditClass(semanageRecords):
->  
->  class permissiveRecords(semanageRecords):
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def get_all(self):
-> @@ -525,7 +530,7 @@ class permissiveRecords(semanageRecords):
->  
->  class loginRecords(semanageRecords):
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->          self.oldsename = None
->          self.oldserange = None
-> @@ -782,7 +787,7 @@ class loginRecords(semanageRecords):
->  
->  class seluserRecords(semanageRecords):
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def get(self, name):
-> @@ -1045,7 +1050,7 @@ class portRecords(semanageRecords):
->      except RuntimeError:
->          valid_types = []
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def __genkey(self, port, proto):
-> @@ -1320,7 +1325,7 @@ class ibpkeyRecords(semanageRecords):
->      except:
->          valid_types = []
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def __genkey(self, pkey, subnet_prefix):
-> @@ -1573,7 +1578,7 @@ class ibendportRecords(semanageRecords):
->      except:
->          valid_types = []
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def __genkey(self, ibendport, ibdev_name):
-> @@ -1809,7 +1814,7 @@ class nodeRecords(semanageRecords):
->      except RuntimeError:
->          valid_types = []
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->          self.protocol = ["ipv4", "ipv6"]
->  
-> @@ -2045,7 +2050,7 @@ class nodeRecords(semanageRecords):
->  
->  class interfaceRecords(semanageRecords):
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->  
->      def __add(self, interface, serange, ctype):
-> @@ -2242,7 +2247,7 @@ class fcontextRecords(semanageRecords):
->      except RuntimeError:
->          valid_types = []
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->          self.equiv = {}
->          self.equiv_dist = {}
-> @@ -2631,7 +2636,7 @@ class fcontextRecords(semanageRecords):
->  
->  class booleanRecords(semanageRecords):
->  
-> -    def __init__(self, args):
-> +    def __init__(self, args = None):
->          semanageRecords.__init__(self, args)
->          self.dict = {}
->          self.dict["TRUE"] = 1
+On 12/18/2017 02:55 PM, Stephen Smalley wrote:
+> Sorry, are you saying that mydomain_t is creating a file in /var/log,
+> and that you both want the file type to be set to mypriv_var_log_t and
+> the level set to mySystemHigh?
+
+That is correct.
+
+
+> If so, then I believe the correct incantation would be:
+> type_transition mydomain_t var_log_t:file mypriv_var_log_t;
+> range_transition mydomain_t var_log_t:file mySystemHigh;
+> (obviously you might instead be using refpolicy macros/interfaces to
+> achieve the same end)
+>
+> In both cases, the source type corresponds to the creating process, the=
+
+> target type corresponds to the parent directory type, and the new type
+> or level is applied to new files.
+
+
+Ah, using the parent type for the range_transition was not obvious to=20
+me.=C2=A0 It is working properly for me now, thanks for your assistance.
+
+
+Regards,
+
+--=20
+Paul Arnold, CISSP
+Cole Engineering Services, Inc.
+
+
+
+--------------ms040302050203030805020404
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+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
+HkFSTk9MRC5QQVVMLkNIQVJMRVMuMTQxMDc2NzI1OTCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAOttH+7UV7C0XtejWuVYbAoWr1XMy8Drd/8PO+zYrq0iiHyYgCMvMeybqxV5
+nYZ0q1/wL5GyqKmxflsEYRMOpRSPr8Ys/vgHRIvPQHLgiaFzpB/Q7ocw+c1FR7GdhCeElqdf
+Hy906s0dbGpi8X+TfD0HmXqRxBtTiqvKm61DEScgqfk91XzyzvoJEmtUjgF8Ys2xMi+Gmgc4
+yfE+lxvt43ugsZPEI6GLbfhTB2N+XYPkJfaqvBI+//F6/v+r/jxIz+b8Jg15fDnK8irx0NWE
+SQzLl1+V/EpK6cOxnyBPPjADG1+h4fpKJzSvE0iUwtgJLpCv6dThuYHLrnpe3i8a4gsCAwEA
+AaOCAa8wggGrMB8GA1UdIwQYMBaAFA+GWX7j+ucT+zE7wTkMfGCLQMLdMDoGA1UdHwQzMDEw
+L6AtoCuGKWh0dHA6Ly9jcmwuZGlzYS5taWwvY3JsL0RPREVNQUlMQ0FfMzQuY3JsMA4GA1Ud
+DwEB/wQEAwIGwDAjBgNVHSAEHDAaMAsGCWCGSAFlAgELCTALBglghkgBZQIBCxMwHQYDVR0O
+BBYEFCVC9iLRRRfBP1NAHmgBi/rPi506MGgGCCsGAQUFBwEBBFwwWjA2BggrBgEFBQcwAoYq
+aHR0cDovL2NybC5kaXNhLm1pbC9zaWduL0RPREVNQUlMQ0FfMzQuY2VyMCAGCCsGAQUFBzAB
+hhRodHRwOi8vb2NzcC5kaXNhLm1pbDBGBgNVHREEPzA9gRtwYXVsLmMuYXJub2xkNC5jdHJA
+bWFpbC5taWygHgYKKwYBBAGCNxQCA6AQDA4xNDEwNzY3MjU5QG1pbDAbBgNVHQkEFDASMBAG
+CCsGAQUFBwkEMQQTAlVTMCkGA1UdJQQiMCAGCisGAQQBgjcUAgIGCCsGAQUFBwMCBggrBgEF
+BQcDBDANBgkqhkiG9w0BAQUFAAOCAQEAOVy11EvO7C36FJFzsSm4spdOdj/HfPgMo2tTzy/b
+Ffk4iaXeCraj2a03B5/jRVya6ZiBfqeAiR7y3Bbb7UTiL/2er0aejkPM6G1QuV8u5HisQJic
+Q+a2N4o+5J54DkY67WPzbRiD0EHesbSeUjB709PoU1SWfsnIBbAavurNdbaWSVUb43TSw21g
+QC1lHGJg0fmiw3DHb4v7bKol+0fLUeehibpudedEWIo+aWrt9mzFeIkHeUnYLv4e2UBW419x
+xUjOs8aae3eOLKp+Ze+MXtBlWrkhmk3BHa5cB7kzlgqV++TWBlqpaL9WC20PwDk23PqkXCSu
+iX+flniUgvOdDTGCA1YwggNSAgEBMGQwXTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4g
+R292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxGDAWBgNVBAMTD0RPRCBF
+TUFJTCBDQS0zNAIDDNzaMA0GCWCGSAFlAwQCAQUAoIIBwzAYBgkqhkiG9w0BCQMxCwYJKoZI
+hvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNzEyMTkxNDM2MzhaMC8GCSqGSIb3DQEJBDEiBCDg
+JOeoFVSKR+1QUnZQG+yNBaHL2OoLRJuXbnT3sn3MvDBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCG
+SAFlAwQBKjALBglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqG
+SIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMHMGCSsGAQQBgjcQBDFmMGQwXTEL
+MAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQww
+CgYDVQQLEwNQS0kxGDAWBgNVBAMTD0RPRCBFTUFJTCBDQS0zNAIDDNzbMHUGCyqGSIb3DQEJ
+EAILMWagZDBdMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPVS5TLiBHb3Zlcm5tZW50MQwwCgYD
+VQQLEwNEb0QxDDAKBgNVBAsTA1BLSTEYMBYGA1UEAxMPRE9EIEVNQUlMIENBLTM0AgMM3Nsw
+DQYJKoZIhvcNAQEBBQAEggEArK3PNWw8WU/DjjYcTUOiywjF6NVpLCCuP9qz6MbR95XMIH8j
+cUgz6EQlC8pPSmVHRkn0VYaYRxFSF5IUmrZzrjyt7pvDjH6Gknw0Uj66Jtef3v3awdvWK4RC
+EHDjODDnXnRKuPxed7gJuZ6L6KAE2SokDL2zK/kDxBc50DQXoLuON2C5ikCWY6E05ah/wHSU
+9B0LU35heUcLcNsEe+rn2//+kR2tjGt42ChG8F1rZ7uQEC4C4Z1tZWffBhTUySDpmPLdGAaf
+FstBvPUZ+5cRy2siXo/2d+e6T0qvPvJ6Ds/clBT2mfrplF5x5rK3tn+8leL1Bndk5ed5Nz5G
+wWCvgwAAAAAAAA==
+--------------ms040302050203030805020404--
