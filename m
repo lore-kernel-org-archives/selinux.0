@@ -1,383 +1,124 @@
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org
-Cc: paul@paul-moore.com, vyasevich@gmail.com, nhorman@tuxdriver.com,
- sds@tycho.nsa.gov, eparis@parisplace.org, marcelo.leitner@gmail.com,
- richard_c_haines@btinternet.com
-Date: Fri, 22 Dec 2017 11:05:16 -0200
-Message-Id: <80e6a4fb06ec6b8f81577abd11827d75dd6689ce.1513940757.git.marcelo.leitner@gmail.com>
-In-Reply-To: <cover.1513940757.git.marcelo.leitner@gmail.com>
-References: <cover.1513940757.git.marcelo.leitner@gmail.com>
-Subject: [PATCH v3 1/4] security: Add support for SCTP security hooks
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBME4AbV018185
+ for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 09:04:10 -0500
+Received: by mail-lf0-f68.google.com with SMTP id g80so27203512lfg.0
+ for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 06:03:03 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CACT4Y+ZkrWR9=s9qVUAiF6bEeGgdhLGE_W_wWwX7HsaVo1MLiQ@mail.gmail.com>
+References: <94eb2c0d010a8dcf040560c0cdf5@google.com>
+ <CAHC9VhT5qK4nUmWo5Pksq0rsxa6Wk7wBEa0Gn41pNx5oS_NDCQ@mail.gmail.com>
+ <CACT4Y+ZkrWR9=s9qVUAiF6bEeGgdhLGE_W_wWwX7HsaVo1MLiQ@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 22 Dec 2017 09:03:02 -0500
+Message-ID: <CAHC9VhTjfaOiGm99w3OQMb5m7_zzZg92C_=vPpDhZ1uJBcRdLw@mail.gmail.com>
+To: Dmitry Vyukov <dvyukov@google.com>
+Cc: syzbot
+ <bot+904436b33e141b4f4c57c1ddc94199ffd2e34b9d@syzkaller.appspotmail.com>,
+ elfring@users.sourceforge.net, Eric Paris <eparis@parisplace.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ James Morris <james.l.morris@oracle.com>,
+ LKML <linux-kernel@vger.kernel.org>, linux-security-module@vger.kernel.org,
+ Philippe Ombredanne <pombredanne@nexb.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ serge@hallyn.com, syzkaller-bugs@googlegroups.com,
+ Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: BUG: unable to handle kernel NULL pointer dereference
+ in sidtab_search_core
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Richard Haines <richard_c_haines@btinternet.com>
+On Fri, Dec 22, 2017 at 4:14 AM, Dmitry Vyukov <dvyukov@google.com> wrote:
+> On Thu, Dec 21, 2017 at 9:40 PM, Paul Moore <paul@paul-moore.com> wrote:
+>> On Wed, Dec 20, 2017 at 2:48 AM, syzbot
+>> <bot+904436b33e141b4f4c57c1ddc94199ffd2e34b9d@syzkaller.appspotmail.com>
+>> wrote:
+>>> Hello,
+>>>
+>>> syzkaller hit the following crash on
+>>> 6084b576dca2e898f5c101baef151f7bfdbb606d
+>>> git://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/master
+>>> compiler: gcc (GCC) 7.1.1 20170620
+>>> .config is attached
+>>> Raw console output is attached.
+>>> C reproducer is attached
+>>> syzkaller reproducer is attached. See https://goo.gl/kgGztJ
+>>> for information about syzkaller reproducers
+>>>
+>>>
+>>> SELinux: security_compute_sid:  unrecognized SID 1
+>>> SELinux: security_compute_sid:  unrecognized SID 1
+>>> SELinux: security_compute_sid:  unrecognized SID 1
+>>> SELinux: security_compute_sid:  unrecognized SID 1
+>>> SELinux: security_compute_sid:  unrecognized SID 1
+>>> BUG: unable to handle kernel NULL pointer dereference at 0000000000000001
+>>> IP: sidtab_search_core+0x88/0x110 security/selinux/ss/sidtab.c:100
+>>> PGD 0 P4D 0
+>>> Oops: 0000 [#1] SMP
+>>> Dumping ftrace buffer:
+>>>    (ftrace buffer empty)
+>>> Modules linked in:
+>>> CPU: 1 PID: 4252 Comm: kworker/u4:1 Not tainted 4.15.0-rc3-next-20171214+
+>>> #67
+>>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+>>> Google 01/01/2011
+>>> RIP: 0010:sidtab_search_core+0x88/0x110 security/selinux/ss/sidtab.c:100
+>>> RSP: 0018:ffffc900028abc18 EFLAGS: 00010293
+>>> RAX: ffff8802131a87c0 RBX: 0000000000000001 RCX: ffffffff8165d978
+>>> RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffffffff83fd17a0
+>>> RBP: ffffc900028abc40 R08: 0000000000000001 R09: 0000000000000001
+>>> R10: ffffc900028abbe0 R11: 0000000000000000 R12: 0000000000000001
+>>> R13: 0000000000000001 R14: 0000000000000000 R15: ffff880214d93800
+>>> FS:  0000000000000000(0000) GS:ffff88021fd00000(0000) knlGS:0000000000000000
+>>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>>> CR2: 0000000000000001 CR3: 0000000214e31000 CR4: 00000000001406e0
+>>> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>>> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>>> Call Trace:
+>>>  sidtab_search+0x1f/0x30 security/selinux/ss/sidtab.c:111
+>>>  security_compute_sid.part.11+0xe2/0x710 security/selinux/ss/services.c:1618
+>>>  security_compute_sid+0x92/0xa0 security/selinux/ss/services.c:1598
+>>>  security_transition_sid+0x57/0x70 security/selinux/ss/services.c:1764
+>>>  selinux_bprm_set_creds+0x215/0x2f0 security/selinux/hooks.c:2423
+>>>  security_bprm_set_creds+0x41/0x60 security/security.c:332
+>>>  prepare_binprm+0xae/0x1f0 fs/exec.c:1561
+>>>  do_execveat_common.isra.30+0x6f7/0xb90 fs/exec.c:1784
+>>>  do_execve+0x31/0x40 fs/exec.c:1848
+>>>  call_usermodehelper_exec_async+0x104/0x190 kernel/umh.c:100
+>>>  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:524
+>>> Code: 8b 5b 50 48 85 db 75 e5 e8 e6 c9 c5 ff 49 8b 5f 18 48 85 db 75 10 eb
+>>> 43 e8 d6 c9 c5 ff 48 8b 5b 50 48 85 db 74 35 e8 c8 c9 c5 ff <44> 8b 23 41 83
+>>> fc 02 76 e4 e8 ba c9 c5 ff 41 83 fc 03 75 1c 48
+>>> RIP: sidtab_search_core+0x88/0x110 security/selinux/ss/sidtab.c:100 RSP:
+>>> ffffc900028abc18
+>>> CR2: 0000000000000001
+>>> ---[ end trace 571c0ea6c6959387 ]---
+>>> Kernel panic - not syncing: Fatal exception
+>>> Dumping ftrace buffer:
+>>>    (ftrace buffer empty)
+>>> Kernel Offset: disabled
+>>> Rebooting in 86400 seconds..
+>>
+>> Based on the reproducer and the stack trace, I'm guessing the system
+>> is attempting to load a kernel module for a a defined, but unloaded,
+>> protocol.  Looking quickly at the SELinux bprm and sidtab code,
+>> nothing obvious is jumping out at me.  Considering the number of false
+>> positives I've been seeing from syzbot lately, I'm assuming this is
+>> more of the same.
+>
+> Hi Paul,
+>
+> What are these false positives? Please elaborate.
+> There is no single false positive that I am aware of. All the ones
+> that were debugged are real kernel bugs.
 
-The SCTP security hooks are explained in:
-Documentation/security/LSM-sctp.rst
+I've replied to several of the syzbot automated reports with the
+"invalid" response.  I haven't been keeping track, but it seems like
+approximately 50% of the SELinux related reports don't make sense upon
+inspection.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
----
- Documentation/security/LSM-sctp.rst | 194 ++++++++++++++++++++++++++++++++++++
- include/linux/lsm_hooks.h           |  35 +++++++
- include/linux/security.h            |  25 +++++
- security/security.c                 |  22 ++++
- 4 files changed, 276 insertions(+)
- create mode 100644 Documentation/security/LSM-sctp.rst
-
-diff --git a/Documentation/security/LSM-sctp.rst b/Documentation/security/LSM-sctp.rst
-new file mode 100644
-index 0000000000000000000000000000000000000000..61373672ce9f63bbd52d953500f44cdf3427c3f0
---- /dev/null
-+++ b/Documentation/security/LSM-sctp.rst
-@@ -0,0 +1,194 @@
-+SCTP LSM Support
-+================
-+
-+For security module support, three sctp specific hooks have been implemented::
-+
-+    security_sctp_assoc_request()
-+    security_sctp_bind_connect()
-+    security_sctp_sk_clone()
-+
-+Also the following security hook has been utilised::
-+
-+    security_inet_conn_established()
-+
-+The usage of these hooks are described below with the SELinux implementation
-+described in ``Documentation/security/SELinux-sctp.rst``
-+
-+
-+security_sctp_assoc_request()
-+-----------------------------
-+This new hook passes the ``@ep`` and ``@chunk->skb`` (the association INIT
-+packet) to the security module. Returns 0 on success, error on failure.
-+::
-+
-+    @ep - pointer to sctp endpoint structure.
-+    @skb - pointer to skbuff of association packet.
-+
-+The security module performs the following operations:
-+     IF this is the first association on ``@ep->base.sk``, then set the peer
-+     sid to that in ``@skb``. This will ensure there is only one peer sid
-+     assigned to ``@ep->base.sk`` that may support multiple associations.
-+
-+     ELSE validate the ``@ep->base.sk peer_sid`` against the ``@skb peer sid``
-+     to determine whether the association should be allowed or denied.
-+
-+     Set the sctp ``@ep sid`` to socket's sid (from ``ep->base.sk``) with
-+     MLS portion taken from ``@skb peer sid``. This will be used by SCTP
-+     TCP style sockets and peeled off connections as they cause a new socket
-+     to be generated.
-+
-+     If IP security options are configured (CIPSO/CALIPSO), then the ip
-+     options are set on the socket.
-+
-+
-+security_sctp_bind_connect()
-+-----------------------------
-+This new hook passes one or more ipv4/ipv6 addresses to the security module
-+for validation based on the ``@optname`` that will result in either a bind or
-+connect service as shown in the permission check tables below.
-+Returns 0 on success, error on failure.
-+::
-+
-+    @sk      - Pointer to sock structure.
-+    @optname - Name of the option to validate.
-+    @address - One or more ipv4 / ipv6 addresses.
-+    @addrlen - The total length of address(s). This is calculated on each
-+               ipv4 or ipv6 address using sizeof(struct sockaddr_in) or
-+               sizeof(struct sockaddr_in6).
-+
-+  ------------------------------------------------------------------
-+  |                     BIND Type Checks                           |
-+  |       @optname             |         @address contains         |
-+  |----------------------------|-----------------------------------|
-+  | SCTP_SOCKOPT_BINDX_ADD     | One or more ipv4 / ipv6 addresses |
-+  | SCTP_PRIMARY_ADDR          | Single ipv4 or ipv6 address       |
-+  | SCTP_SET_PEER_PRIMARY_ADDR | Single ipv4 or ipv6 address       |
-+  ------------------------------------------------------------------
-+
-+  ------------------------------------------------------------------
-+  |                   CONNECT Type Checks                          |
-+  |       @optname             |         @address contains         |
-+  |----------------------------|-----------------------------------|
-+  | SCTP_SOCKOPT_CONNECTX      | One or more ipv4 / ipv6 addresses |
-+  | SCTP_PARAM_ADD_IP          | One or more ipv4 / ipv6 addresses |
-+  | SCTP_SENDMSG_CONNECT       | Single ipv4 or ipv6 address       |
-+  | SCTP_PARAM_SET_PRIMARY     | Single ipv4 or ipv6 address       |
-+  ------------------------------------------------------------------
-+
-+A summary of the ``@optname`` entries is as follows::
-+
-+    SCTP_SOCKOPT_BINDX_ADD - Allows additional bind addresses to be
-+                             associated after (optionally) calling
-+                             bind(3).
-+                             sctp_bindx(3) adds a set of bind
-+                             addresses on a socket.
-+
-+    SCTP_SOCKOPT_CONNECTX - Allows the allocation of multiple
-+                            addresses for reaching a peer
-+                            (multi-homed).
-+                            sctp_connectx(3) initiates a connection
-+                            on an SCTP socket using multiple
-+                            destination addresses.
-+
-+    SCTP_SENDMSG_CONNECT  - Initiate a connection that is generated by a
-+                            sendmsg(2) or sctp_sendmsg(3) on a new asociation.
-+
-+    SCTP_PRIMARY_ADDR     - Set local primary address.
-+
-+    SCTP_SET_PEER_PRIMARY_ADDR - Request peer sets address as
-+                                 association primary.
-+
-+    SCTP_PARAM_ADD_IP          - These are used when Dynamic Address
-+    SCTP_PARAM_SET_PRIMARY     - Reconfiguration is enabled as explained below.
-+
-+
-+To support Dynamic Address Reconfiguration the following parameters must be
-+enabled on both endpoints (or use the appropriate **setsockopt**\(2))::
-+
-+    /proc/sys/net/sctp/addip_enable
-+    /proc/sys/net/sctp/addip_noauth_enable
-+
-+then the following *_PARAM_*'s are sent to the peer in an
-+ASCONF chunk when the corresponding ``@optname``'s are present::
-+
-+          @optname                      ASCONF Parameter
-+         ----------                    ------------------
-+    SCTP_SOCKOPT_BINDX_ADD     ->   SCTP_PARAM_ADD_IP
-+    SCTP_SET_PEER_PRIMARY_ADDR ->   SCTP_PARAM_SET_PRIMARY
-+
-+
-+security_sctp_sk_clone()
-+-------------------------
-+This new hook is called whenever a new socket is created by **accept**\(2)
-+(i.e. a TCP style socket) or when a socket is 'peeled off' e.g userspace
-+calls **sctp_peeloff**\(3). ``security_sctp_sk_clone()`` will set the new
-+sockets sid and peer sid to that contained in the ``@ep sid`` and
-+``@ep peer sid`` respectively.
-+::
-+
-+    @ep - pointer to old sctp endpoint structure.
-+    @sk - pointer to old sock structure.
-+    @sk - pointer to new sock structure.
-+
-+
-+security_inet_conn_established()
-+---------------------------------
-+This hook has been added to the receive COOKIE ACK processing where it sets
-+the connection's peer sid to that in ``@skb``::
-+
-+    @sk  - pointer to sock structure.
-+    @skb - pointer to skbuff of the COOKIE ACK packet.
-+
-+
-+Security Hooks used for Association Establishment
-+=================================================
-+The following diagram shows the use of ``security_sctp_connect_bind()``,
-+``security_sctp_assoc_request()``, ``security_inet_conn_established()`` when
-+establishing an association.
-+::
-+
-+      SCTP endpoint "A"                                SCTP endpoint "Z"
-+      =================                                =================
-+    sctp_sf_do_prm_asoc()
-+ Association setup can be initiated
-+ by a connect(2), sctp_connectx(3),
-+ sendmsg(2) or sctp_sendmsg(3).
-+ These will result in a call to
-+ security_sctp_bind_connect() to
-+ initiate an association to
-+ SCTP peer endpoint "Z".
-+         INIT --------------------------------------------->
-+                                                   sctp_sf_do_5_1B_init()
-+                                                 Respond to an INIT chunk.
-+                                             SCTP peer endpoint "A" is
-+                                             asking for an association. Call
-+                                             security_sctp_assoc_request()
-+                                             to set the peer label if first
-+                                             association.
-+                                             If not first association, check
-+                                             whether allowed, IF so send:
-+          <----------------------------------------------- INIT ACK
-+          |                                  ELSE audit event and silently
-+          |                                       discard the packet.
-+          |
-+    COOKIE ECHO ------------------------------------------>
-+                                                          |
-+                                                          |
-+                                                          |
-+          <------------------------------------------- COOKIE ACK
-+          |                                               |
-+    sctp_sf_do_5_1E_ca                                    |
-+ Call security_inet_conn_established()                    |
-+ to set the correct peer sid.                             |
-+          |                                               |
-+          |                               If SCTP_SOCKET_TCP or peeled off
-+          |                               socket security_sctp_sk_clone() is
-+          |                               called to clone the new socket.
-+          |                                               |
-+      ESTABLISHED                                    ESTABLISHED
-+          |                                               |
-+    ------------------------------------------------------------------
-+    |                     Association Established                    |
-+    ------------------------------------------------------------------
-+
-+
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index c9258124e41757187cdb8b2f83c5901966345902..92ee9c6c604212ce38590bd2e5fcba55617b9c04 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -906,6 +906,32 @@
-  *	associated with the TUN device's security structure.
-  *	@security pointer to the TUN devices's security structure.
-  *
-+ * Security hooks for SCTP
-+ *
-+ * @sctp_assoc_request:
-+ *	If first association, then set the peer sid to that in @skb. If
-+ *	@sctp_cid is from an INIT chunk, then set the sctp endpoint sid to
-+ *	socket's sid (ep->base.sk) with MLS portion taken from peer sid.
-+ *	@ep pointer to sctp endpoint structure.
-+ *	@skb pointer to skbuff of association packet.
-+ *	Return 0 on success, error on failure.
-+ * @sctp_bind_connect:
-+ *	Validiate permissions required for each address associated with sock
-+ *	@sk. Depending on @optname, the addresses will be treated as either
-+ *	for a connect or bind service. The @addrlen is calculated on each
-+ *	ipv4 and ipv6 address using sizeof(struct sockaddr_in) or
-+ *	sizeof(struct sockaddr_in6).
-+ *	@sk pointer to sock structure.
-+ *	@optname name of the option to validate.
-+ *	@address list containing one or more ipv4/ipv6 addresses.
-+ *	@addrlen total length of address(s).
-+ *	Return 0 on success, error on failure.
-+ * @sctp_sk_clone:
-+ *	Sets the new child socket's sid to the old endpoint sid.
-+ *	@ep pointer to old sctp endpoint structure.
-+ *	@sk pointer to old sock structure.
-+ *	@sk pointer to new sock structure.
-+ *
-  * Security hooks for Infiniband
-  *
-  * @ib_pkey_access:
-@@ -1631,6 +1657,12 @@ union security_list_options {
- 	int (*tun_dev_attach_queue)(void *security);
- 	int (*tun_dev_attach)(struct sock *sk, void *security);
- 	int (*tun_dev_open)(void *security);
-+	int (*sctp_assoc_request)(struct sctp_endpoint *ep,
-+				  struct sk_buff *skb);
-+	int (*sctp_bind_connect)(struct sock *sk, int optname,
-+				 struct sockaddr *address, int addrlen);
-+	void (*sctp_sk_clone)(struct sctp_endpoint *ep, struct sock *sk,
-+			      struct sock *newsk);
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
-@@ -1869,6 +1901,9 @@ struct security_hook_heads {
- 	struct list_head tun_dev_attach_queue;
- 	struct list_head tun_dev_attach;
- 	struct list_head tun_dev_open;
-+	struct list_head sctp_assoc_request;
-+	struct list_head sctp_bind_connect;
-+	struct list_head sctp_sk_clone;
- #endif	/* CONFIG_SECURITY_NETWORK */
- #ifdef CONFIG_SECURITY_INFINIBAND
- 	struct list_head ib_pkey_access;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ce6265960d6c430a90e1ad3c3749d0a438ecaca9..51f6cc2417f278674dfbd434587af805cb0c03d3 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -115,6 +115,7 @@ struct xfrm_policy;
- struct xfrm_state;
- struct xfrm_user_sec_ctx;
- struct seq_file;
-+struct sctp_endpoint;
- 
- #ifdef CONFIG_MMU
- extern unsigned long mmap_min_addr;
-@@ -1229,6 +1230,11 @@ int security_tun_dev_create(void);
- int security_tun_dev_attach_queue(void *security);
- int security_tun_dev_attach(struct sock *sk, void *security);
- int security_tun_dev_open(void *security);
-+int security_sctp_assoc_request(struct sctp_endpoint *ep, struct sk_buff *skb);
-+int security_sctp_bind_connect(struct sock *sk, int optname,
-+			       struct sockaddr *address, int addrlen);
-+void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
-+			    struct sock *newsk);
- 
- #else	/* CONFIG_SECURITY_NETWORK */
- static inline int security_unix_stream_connect(struct sock *sock,
-@@ -1421,6 +1427,25 @@ static inline int security_tun_dev_open(void *security)
- {
- 	return 0;
- }
-+
-+static inline int security_sctp_assoc_request(struct sctp_endpoint *ep,
-+					      struct sk_buff *skb)
-+{
-+	return 0;
-+}
-+
-+static inline int security_sctp_bind_connect(struct sock *sk, int optname,
-+					     struct sockaddr *address,
-+					     int addrlen)
-+{
-+	return 0;
-+}
-+
-+static inline void security_sctp_sk_clone(struct sctp_endpoint *ep,
-+					  struct sock *sk,
-+					  struct sock *newsk)
-+{
-+}
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
-diff --git a/security/security.c b/security/security.c
-index 4bf0f571b4ef94df1d3c44b7fed6b7b651c1924f..1400678f6b72b36123f2fa2b909f35d257a62cd4 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1472,6 +1472,7 @@ void security_inet_conn_established(struct sock *sk,
- {
- 	call_void_hook(inet_conn_established, sk, skb);
- }
-+EXPORT_SYMBOL(security_inet_conn_established);
- 
- int security_secmark_relabel_packet(u32 secid)
- {
-@@ -1527,6 +1528,27 @@ int security_tun_dev_open(void *security)
- }
- EXPORT_SYMBOL(security_tun_dev_open);
- 
-+int security_sctp_assoc_request(struct sctp_endpoint *ep, struct sk_buff *skb)
-+{
-+	return call_int_hook(sctp_assoc_request, 0, ep, skb);
-+}
-+EXPORT_SYMBOL(security_sctp_assoc_request);
-+
-+int security_sctp_bind_connect(struct sock *sk, int optname,
-+			       struct sockaddr *address, int addrlen)
-+{
-+	return call_int_hook(sctp_bind_connect, 0, sk, optname,
-+			     address, addrlen);
-+}
-+EXPORT_SYMBOL(security_sctp_bind_connect);
-+
-+void security_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
-+			    struct sock *newsk)
-+{
-+	call_void_hook(sctp_sk_clone, ep, sk, newsk);
-+}
-+EXPORT_SYMBOL(security_sctp_sk_clone);
-+
- #endif	/* CONFIG_SECURITY_NETWORK */
- 
- #ifdef CONFIG_SECURITY_INFINIBAND
 -- 
-2.14.3
+paul moore
+www.paul-moore.com
