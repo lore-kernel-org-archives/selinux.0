@@ -1,14 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBMFnPq6032355
- for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 10:49:26 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBMG3aKZ016903
+ for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 11:03:36 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC08.oob.disa.mil (Postfix) with SMTP id 3z3CcM0ms1z34qms
- for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 15:49:23 +0000 (UTC)
-Received: from UPBD19PA11.eemsg.mil (unknown [192.168.18.17])
- by UPDCF3IC08.oob.disa.mil (Postfix) with ESMTP id 3z3CcL6yZxz34qmq
- for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 15:49:22 +0000 (UTC)
-Received: by mail-pf0-f193.google.com with SMTP id j124so15457075pfc.2
- for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 07:49:20 -0800 (PST)
+ by UPDCF3IC15.oob.disa.mil (Postfix) with SMTP id 3z3Cwh45PWz3GDLv
+ for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 16:03:32 +0000 (UTC)
+Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
+ by UPDCF3IC15.oob.disa.mil (Postfix) with ESMTP id 3z3Cwh399xz3GDLj
+ for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 16:03:32 +0000 (UTC)
+Received: by mail-lf0-f66.google.com with SMTP id r143so31981912lfe.13
+ for <selinux@tycho.nsa.gov>; Fri, 22 Dec 2017 08:03:31 -0800 (PST)
 MIME-Version: 1.0
 In-Reply-To: <CACT4Y+bq3DLE1Pv9cP5cM4+m8UO6aovRMbqZ-SdvLv7b=AFmyg@mail.gmail.com>
 References: <94eb2c0d010a8dcf040560c0cdf5@google.com>
@@ -16,10 +16,10 @@ References: <94eb2c0d010a8dcf040560c0cdf5@google.com>
  <CACT4Y+ZkrWR9=s9qVUAiF6bEeGgdhLGE_W_wWwX7HsaVo1MLiQ@mail.gmail.com>
  <CAHC9VhTjfaOiGm99w3OQMb5m7_zzZg92C_=vPpDhZ1uJBcRdLw@mail.gmail.com>
  <CACT4Y+bq3DLE1Pv9cP5cM4+m8UO6aovRMbqZ-SdvLv7b=AFmyg@mail.gmail.com>
-From: Dmitry Vyukov <dvyukov@google.com>
-Date: Fri, 22 Dec 2017 16:48:58 +0100
-Message-ID: <CACT4Y+bxacBxs=5L=V4e_m-N=Wmez=C5w9TLFkSEseZoCDNcnA@mail.gmail.com>
-To: Paul Moore <paul@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 22 Dec 2017 11:03:29 -0500
+Message-ID: <CAHC9VhSB74i5Teczp-yMk7rWkOBGGFXPQM455iyLcFu33ar5iA@mail.gmail.com>
+To: Dmitry Vyukov <dvyukov@google.com>
 Cc: syzbot
  <bot+904436b33e141b4f4c57c1ddc94199ffd2e34b9d@syzkaller.appspotmail.com>,
  elfring@users.sourceforge.net, Eric Paris <eparis@parisplace.org>,
@@ -38,7 +38,10 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Dec 22, 2017 at 4:48 PM, Dmitry Vyukov <dvyukov@google.com> wrote:
+On Fri, Dec 22, 2017 at 10:48 AM, Dmitry Vyukov <dvyukov@google.com> wrote:
+> On Fri, Dec 22, 2017 at 3:03 PM, Paul Moore <paul@paul-moore.com> wrote:
+>> On Fri, Dec 22, 2017 at 4:14 AM, Dmitry Vyukov <dvyukov@google.com> wrote:
+>>> On Thu, Dec 21, 2017 at 9:40 PM, Paul Moore <paul@paul-moore.com> wrote:
 >>>> On Wed, Dec 20, 2017 at 2:48 AM, syzbot
 >>>> <bot+904436b33e141b4f4c57c1ddc94199ffd2e34b9d@syzkaller.appspotmail.com>
 >>>> wrote:
@@ -126,180 +129,12 @@ On Fri, Dec 22, 2017 at 4:48 PM, Dmitry Vyukov <dvyukov@google.com> wrote:
 >> approximately 50% of the SELinux related reports don't make sense upon
 >> inspection.
 >
->
 > Can you please point me to some of these bugs? I don't see anything
 > like this in my inbox, in google group nor in database.
 
+Not easily, no.  I don't keep track of these reports once I've
+responded to the syzbot mail.
 
-Btw, this one I was able to reproduce with the syzbot provided
-reproducer in a second.
-It maybe doesn't make sense, but it's true.
-
-
-[ 1768.418388] ==================================================================
-[ 1768.420222] kasan: CONFIG_KASAN_INLINE enabled
-[ 1768.420254] kasan: GPF could be caused by NULL-ptr deref or user
-memory access
-[ 1768.420283] general protection fault: 0000 [#1] SMP KASAN
-[ 1768.420290] Modules linked in:
-[ 1768.420309] CPU: 2 PID: 1705 Comm: kworker/u8:6 Not tainted 4.15.0-rc4+ #2
-[ 1768.420313] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS Bochs 01/01/2011
-[ 1768.420363] RIP: 0010:sidtab_search_core+0x96/0x320
-[ 1768.420368] RSP: 0018:ffff8800644df6d8 EFLAGS: 00010a02
-[ 1768.420380] RAX: dffffc0000000000 RBX: c4c001a5000006a8 RCX: ffffffff82207e95
-[ 1768.420385] RDX: 18980034a00000d5 RSI: 0000000000000005 RDI: ffffffff874c29a0
-[ 1768.420391] RBP: ffff8800644df708 R08: 1ffff1000c89be25 R09: 0000000000000006
-[ 1768.420395] R10: ffff8800644df5f0 R11: 0000000000000000 R12: 0000000000000005
-[ 1768.420400] R13: 0000000000000005 R14: ffff880065e4db40 R15: ffff8800644df8a8
-[ 1768.420407] FS:  0000000000000000(0000) GS:ffff88006cd00000(0000)
-knlGS:0000000000000000
-[ 1768.420413] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ 1768.420418] CR2: 0000000020269000 CR3: 0000000005e22003 CR4: 00000000001606e0
-[ 1768.420425] Call Trace:
-[ 1768.420443]  sidtab_search+0x1f/0x30
-[ 1768.420454]  security_compute_sid+0x31b/0x18f0
-[ 1768.420473]  ? security_context_to_sid_core+0x620/0x620
-[ 1768.420489]  ? __lock_is_held+0xb6/0x140
-[ 1768.420534]  ? ret_from_fork+0x24/0x30
-[ 1768.420552]  security_transition_sid+0x75/0x90
-[ 1768.420567]  selinux_bprm_set_creds+0x779/0xc20
-[ 1768.420582]  ? selinux_setprocattr+0xb50/0xb50
-[ 1768.420603]  ? debug_lockdep_rcu_enabled+0x77/0x90
-[ 1768.420617]  security_bprm_set_creds+0x6d/0xa0
-[ 1768.420635]  prepare_binprm+0x390/0x9f0
-[ 1768.420648]  ? install_exec_creds+0x170/0x170
-[ 1768.420657]  ? cpu_weight_nice_write_s64+0xd/0x80
-[ 1768.420672]  ? __might_fault+0x8e/0x1d0
-[ 1768.420684]  ? get_user_arg_ptr.isra.17+0x47/0xa0
-[ 1768.420711]  ? count.isra.19.constprop.32+0xbe/0x120
-[ 1768.420725]  do_execveat_common.isra.30+0x14b5/0x23c0
-[ 1768.420733]  ? save_stack+0xa3/0xd0
-[ 1768.420747]  ? path_openat+0x3510/0x3530
-[ 1768.420756]  ? ptregs_sys_rt_sigreturn+0x10/0x10
-[ 1768.420767]  ? prepare_bprm_creds+0x110/0x110
-[ 1768.420776]  ? check_noncircular+0x20/0x20
-[ 1768.420789]  ? find_held_lock+0x35/0x1d0
-[ 1768.420821]  ? trace_event_raw_event_sched_switch+0x800/0x800
-[ 1768.420831]  ? rcu_pm_notify+0xc0/0xc0
-[ 1768.420843]  ? getname_kernel+0x54/0x340
-[ 1768.420859]  ? rcu_read_lock_sched_held+0x108/0x120
-[ 1768.420871]  ? kmem_cache_alloc+0x466/0x760
-[ 1768.420881]  ? do_raw_spin_trylock+0x190/0x190
-[ 1768.420892]  ? get_task_cred+0x3b0/0x3b0
-[ 1768.420905]  do_execve+0x31/0x40
-[ 1768.420918]  call_usermodehelper_exec_async+0x457/0x8f0
-[ 1768.420926]  ? finish_task_switch+0x1d3/0x740
-[ 1768.420932]  ? finish_task_switch+0x1aa/0x740
-[ 1768.420941]  ? umh_complete+0x90/0x90
-[ 1768.420952]  ? copy_overflow+0x20/0x20
-[ 1768.420966]  ? umh_complete+0x90/0x90
-[ 1768.420975]  ? umh_complete+0x90/0x90
-[ 1768.420986]  ret_from_fork+0x24/0x30
-[ 1768.421011] Code: 3c 02 00 0f 85 41 02 00 00 48 8b 1b 48 85 db 0f
-84 8b 00 00 00 e8 bb 6a 4f ff 48 89 da 48 b8 00 00 00 00 00 fc ff df
-48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e f4 01 00 00 44 8b 3b
-45 39
-[ 1768.421166] RIP: sidtab_search_core+0x96/0x320 RSP: ffff8800644df6d8
-[ 1768.421279] ---[ end trace bfed1c399df72093 ]---
-[ 1768.421285] Kernel panic - not syncing: Fatal exception
-[ 1768.486255] BUG: KASAN: use-after-free in sidtab_search_core+0x2bd/0x320
-[ 1768.487474] Read of size 8 at addr ffff880065e4db48 by task id/1702
-[ 1768.488619]
-[ 1768.488914] CPU: 1 PID: 1702 Comm: id Tainted: G      D
-4.15.0-rc4+ #2
-[ 1768.490264] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS Bochs 01/01/2011
-[ 1768.491718] Call Trace:
-[ 1768.492193]  dump_stack+0x194/0x257
-[ 1768.492849]  ? arch_local_irq_restore+0x53/0x53
-[ 1768.493709]  ? show_regs_print_info+0x18/0x18
-[ 1768.494431]  ? lock_acquire+0x1d5/0x580
-[ 1768.495079]  ? sidtab_search_core+0x2bd/0x320
-[ 1768.495894]  print_address_description+0x73/0x250
-[ 1768.496707]  ? sidtab_search_core+0x2bd/0x320
-[ 1768.497481]  kasan_report+0x25b/0x340
-[ 1768.498136]  __asan_report_load8_noabort+0x14/0x20
-[ 1768.498962]  sidtab_search_core+0x2bd/0x320
-[ 1768.499702]  sidtab_search+0x1f/0x30
-[ 1768.500344]  security_sid_mls_copy+0x1cf/0xa30
-[ 1768.501123]  ? security_get_bool_value+0xb0/0xb0
-[ 1768.501934]  ? avc_has_perm+0x43e/0x680
-[ 1768.502602]  ? avc_has_perm_noaudit+0x520/0x520
-[ 1768.503385]  ? lock_release+0xa40/0xa40
-[ 1768.504052]  ? lock_downgrade+0x980/0x980
-[ 1768.504751]  ? do_raw_spin_unlock+0x1ec/0x300
-[ 1768.505625]  ? mnt_get_count+0x150/0x150
-[ 1768.506298]  ? dput.part.23+0x207/0x830
-[ 1768.506938]  selinux_socket_unix_stream_connect+0x364/0x590
-[ 1768.507853]  ? lock_acquire+0x1d5/0x580
-[ 1768.508495]  ? lock_acquire+0x1d5/0x580
-[ 1768.509138]  ? selinux_inet_conn_request+0x390/0x390
-[ 1768.509972]  ? lock_release+0xa40/0xa40
-[ 1768.510634]  ? unix_bind+0xf90/0xf90
-[ 1768.511246]  security_unix_stream_connect+0x7d/0xb0
-[ 1768.512066]  unix_stream_connect+0x8bc/0x1580
-[ 1768.512824]  ? unix_release+0x90/0x90
-[ 1768.513446]  ? __might_sleep+0x95/0x190
-[ 1768.514101]  ? security_socket_connect+0x89/0xb0
-[ 1768.514880]  SYSC_connect+0x213/0x4a0
-[ 1768.515589]  ? SYSC_bind+0x410/0x410
-[ 1768.516193]  ? get_unused_fd_flags+0x121/0x190
-[ 1768.516944]  ? entry_SYSCALL_64_fastpath+0x5/0x96
-[ 1768.517736]  ? trace_hardirqs_on_caller+0x421/0x5c0
-[ 1768.518531]  SyS_connect+0x24/0x30
-[ 1768.519081]  entry_SYSCALL_64_fastpath+0x1f/0x96
-[ 1768.519820] RIP: 0033:0x7f0bbb592fd0
-[ 1768.520392] RSP: 002b:00007ffe7688aed8 EFLAGS: 00000246 ORIG_RAX:
-000000000000002a
-[ 1768.521574] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f0bbb592fd0
-[ 1768.522678] RDX: 000000000000006e RSI: 00007ffe7688aee0 RDI: 0000000000000003
-[ 1768.523788] RBP: 0000000000608260 R08: 0000000000000004 R09: 000000000064d010
-[ 1768.524896] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000001
-[ 1768.526080] R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000001
-[ 1768.527182]
-[ 1768.527439] Allocated by task 1:
-[ 1768.527961]  save_stack+0x43/0xd0
-[ 1768.528492]  kasan_kmalloc+0xad/0xe0
-[ 1768.529061]  kmem_cache_alloc_trace+0x136/0x750
-[ 1768.529791]  sidtab_init+0x4b/0x1c0
-[ 1768.530346]  policydb_load_isids+0x20/0x220
-[ 1768.531043]  security_load_policy+0x5c1/0x1260
-[ 1768.531790]  sel_write_load+0x241/0x1910
-[ 1768.532447]  __vfs_write+0xef/0x970
-[ 1768.533035]  vfs_write+0x189/0x510
-[ 1768.533613]  SyS_write+0xef/0x220
-[ 1768.534167]  entry_SYSCALL_64_fastpath+0x1f/0x96
-[ 1768.534891]
-[ 1768.535141] Freed by task 0:
-[ 1768.535695] (stack is not available)
-[ 1768.536266]
-[ 1768.536521] The buggy address belongs to the object at ffff880065e4db40
-[ 1768.536521]  which belongs to the cache kmalloc-1024 of size 1024
-[ 1768.538504] The buggy address is located 8 bytes inside of
-[ 1768.538504]  1024-byte region [ffff880065e4db40, ffff880065e4df40)
-[ 1768.540296] The buggy address belongs to the page:
-[ 1768.541057] page:00000000221ddb34 count:1 mapcount:0
-mapping:00000000c8b57d81 index:0x0 compound_mapcount: 0
-[ 1768.542565] flags: 0x1fffc0000008100(slab|head)
-[ 1768.543261] raw: 01fffc0000008100 ffff880065e4c040 0000000000000000
-0000000100000007
-[ 1768.544419] raw: ffffea0001b0fba0 ffffea0001aa1920 ffff88006c800ac0
-0000000000000000
-[ 1768.545595] page dumped because: kasan: bad access detected
-[ 1768.546497]
-[ 1768.546741] Memory state around the buggy address:
-[ 1768.547469]  ffff880065e4da00: fb fb fb fb fb fb fb fb fb fb fb fb
-fb fb fb fb
-[ 1768.548554]  ffff880065e4da80: fb fb fb fb fb fb fb fb fb fb fb fb
-fb fb fb fb
-[ 1768.549679] >ffff880065e4db00: fb fb fb fb fb fb fb fb fb fb fb fb
-00 00 00 00
-[ 1768.550737]                                               ^
-[ 1768.551565]  ffff880065e4db80: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00
-[ 1768.552627]  ffff880065e4dc00: 00 00 00 00 00 00 00 00 00 00 00 00
-00 00 00 00
-[ 1768.553694] ==================================================================
-[ 1768.554780] Kernel Offset: disabled
-[ 1768.555312] Rebooting in 86400 seconds..
+-- 
+paul moore
+www.paul-moore.com
