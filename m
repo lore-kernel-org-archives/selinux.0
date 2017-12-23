@@ -1,151 +1,215 @@
-To: Stephen Smalley <sds@tycho.nsa.gov>,
- "=?UTF-8?Q?SELinux_=e2=80=8e_[selinux@tycho.nsa.gov]_=e2=80=8e?="
- <selinux@tycho.nsa.gov>
-References: <7322D64AC622D441BC921DE15D30CD21A2082E61@UGUNHPAFH.easf.csd.disa.mil>
- <1513626772.2675.4.camel@tycho.nsa.gov>
-From: "Arnold, Paul C CTR USARMY PEO STRI (US)" <paul.c.arnold4.ctr@mail.mil>
-Message-ID: <5aa23cc3-f409-ba6f-70b4-1fbb1520c153@mail.mil>
-Date: Tue, 19 Dec 2017 09:36:38 -0500
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBN8BHYg024458
+ for <selinux@tycho.nsa.gov>; Sat, 23 Dec 2017 03:11:17 -0500
+Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
+ by Forcepoint Email with ESMTP id E9641314E6575
+ for <selinux@tycho.nsa.gov>; Sat, 23 Dec 2017 16:10:27 +0800 (CST)
+From: Li Kun <hw.likun@huawei.com>
+To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+CC: wangboshi <wangboshi@huawei.com>, Qiuxishi <qiuxishi@huawei.com>
+Message-ID: <30dd3248-b703-828b-13ba-8d7ace8a09da@huawei.com>
+Date: Sat, 23 Dec 2017 16:03:43 +0800
 MIME-Version: 1.0
-In-Reply-To: <1513626772.2675.4.camel@tycho.nsa.gov>
-Content-Type: multipart/signed; protocol="application/pkcs7-signature";
- micalg=sha-256; boundary="------------ms040302050203030805020404"
-Subject: Re: Object range_transition issue when type_transition is involved
+Content-Type: multipart/alternative;
+ boundary="------------69162A3100FA30B4CBE6AFA9"
+Subject: [BUG RFD]selinux: sidtab_context_to_sid return -NOMEM when
+ concurrent with security_load_policy
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is a cryptographically signed message in MIME format.
+--------------69162A3100FA30B4CBE6AFA9
+Content-Type: text/plain; charset="windows-1252"; format=flowed
+Content-Transfer-Encoding: 7bit
 
---------------ms040302050203030805020404
-Content-Type: text/plain; charset=utf-8; format=flowed
+Hi all,
+When i start a docker container, the runc will call selinux_setprocattr 
+to set the exec_sid before start the container.
+Meanwhile if i use "semodule -i" to load a policy pp, the old sidtab 
+will be shutdown before switch to the new sidtab, and cause
+sidtab_context_to_sid  failed with the errno -NOMEM.
+
+Error message:
+Dec 14 09:18:18 wuwenming_vudfua_0 docker: 
+time="2017-12-14T09:18:18.549862564+08:00" level=error msg="Handler for 
+GET /v1.23/containers/192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2/json 
+returned error: No such container: 
+192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2"
+Dec 14 09:18:18 wuwenming_vudfua_0 kernel: [   48.463179] SELinux: 
+security_context_to_sid(system_u:object_r:svirt_sandbox_file_t:s0:c290,c371) 
+failed for (dev overlay, type overlay) errno=-12
+Dec 14 09:18:18 wuwenming_vudfua_0 dbus-daemon: dbus[720]: avc: received 
+policyload notice (seqno=2)
+Dec 14 09:18:18 wuwenming_vudfua_0 dbus[720]: avc:  received policyload 
+notice (seqno=2)
+
+
+runc         semodule
+->selinux_setprocattr ->security_load_policy
+     ->security_context_to_sid ->sidtab_shutdown(oldsidtab)
+         ->read_lock(&policy_rwlock);     ->sidtab_map(&oldsidtab, 
+clone_sid, &newsidtab);
+
+         ->sidtab_context_to_sid
+             {
+                         ....
+                         if (s->next_sid == UINT_MAX || s->shutdown) {
+                         ret = -ENOMEM;
+                         ....
+             }
+         ->read_unlock(&policy_rwlock);
+         ->write_lock_irq(&policy_rwlock);
+           ->"switch to new policydb"
+         ->write_unlock_irq(&policy_rwlock);
+
+I wonder that if this is the intention or a bug?
+If it is the intention, what should the application do when it get 
+-ENOMEM error,  to try again?
+If it is a bug, may the two options below suitable to solve the issue?
+Option1:
+     use policy_rwlock to protect the "sidtab_shutdown" & "sidtab_map" , 
+load_policy is rarely to be called after system bringing up,
+so i think it will not impact much on the performance.
+Option2:
+     Use a temp list to store the sid in oldsidtab after it is shutdown, 
+and deal with it
+after cloning the major sids from oldsidtab to newsidtab and getting the 
+policy_rwlock.
+
+
+-- 
+Best Regards
+Li Kun
+
+
+--------------69162A3100FA30B4CBE6AFA9
+Content-Type: text/html; charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
 
-On 12/18/2017 02:55 PM, Stephen Smalley wrote:
-> Sorry, are you saying that mydomain_t is creating a file in /var/log,
-> and that you both want the file type to be set to mypriv_var_log_t and
-> the level set to mySystemHigh?
+<html>
+  <head>
 
-That is correct.
+    <meta http-equiv=3D"content-type" content=3D"text/html; charset=3Dwin=
+dows-1252">
+  </head>
+  <body bgcolor=3D"#FFFFFF" text=3D"#000000">
+    Hi all,<br>
+    When i start a docker container, the runc will call
+    selinux_setprocattr to set the exec_sid before start the container.<b=
+r>
+    Meanwhile if i use "semodule -i" to load a policy pp, the old sidtab
+    will be shutdown before switch to the new sidtab, and cause <br>
+    sidtab_context_to_sid=A0 failed with the errno -NOMEM.<br>
+    <br>
+    Error message:<br>
+    Dec 14 09:18:18 wuwenming_vudfua_0 docker:
+    time=3D"2017-12-14T09:18:18.549862564+08:00" level=3Derror msg=3D"Han=
+dler
+    for GET
+    /v1.23/containers/192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2/json
+    returned error: No such container:
+    192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2"<br>
+    Dec 14 09:18:18 wuwenming_vudfua_0 kernel: [=A0=A0 48.463179] SELinux=
+:
+security_context_to_sid(system_u:object_r:svirt_sandbox_file_t:s0:c290,c3=
+71)
+    failed for (dev overlay, type overlay) errno=3D-12<br>
+    Dec 14 09:18:18 wuwenming_vudfua_0 dbus-daemon: dbus[720]: avc:=A0
+    received policyload notice (seqno=3D2)<br>
+    Dec 14 09:18:18 wuwenming_vudfua_0 dbus[720]: avc:=A0 received
+    policyload notice (seqno=3D2)<br>
+    <br>
+    <br>
+runc=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 semodule<br>
+-&gt;selinux_setprocattr=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0
+    -&gt;security_load_policy<br>
+    =A0=A0=A0 -&gt;security_context_to_sid=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0
+    -&gt;sidtab_shutdown(oldsidtab)<br>
+    =A0=A0=A0=A0=A0=A0=A0 -&gt;read_lock(&amp;policy_rwlock);=A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0=A0=A0
+    =A0=A0=A0 -&gt;sidtab_map(&amp;oldsidtab, clone_sid, &amp;newsidtab);=
+<br>
+    =A0=A0=A0 =A0=A0=A0 <br>
+    =A0=A0=A0=A0=A0=A0=A0 -&gt;sidtab_context_to_sid=A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 <br>
+    =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 {<br>
+    =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ ....<br>
+    =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ if (s-&gt;next_sid =3D=3D UINT_MAX || s-&gt;<font
+      color=3D"#ff0000">shutdown</font>) {<br>
+    =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ ret =3D -<font color=3D"#ff0000">ENOMEM</font>;<br>
+    =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ ....<br>
+    =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 }<br>
+    =A0=A0=A0=A0=A0=A0=A0 -&gt;read_unlock(&amp;policy_rwlock);=A0=A0=A0 =
+=A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 <br>
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 -&gt;write_lock_irq(&amp;policy_rwlock);<br>
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0 =A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0 -&gt;"switch to new policydb"<br>
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0=
+ =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=A0=A0 =A0=
+=A0=A0 =A0=A0=A0 =A0=A0=A0
+    =A0=A0=A0 =A0=A0=A0 -&gt;write_unlock_irq(&amp;policy_rwlock);<br>
+    <br>
+    I wonder that if this is the intention or a bug?<br>
+    If it is the intention, what should the application do when it get
+    -ENOMEM error,=A0 to try again?<br>
+    If it is a bug, may the two options below suitable to solve the
+    issue?<br>
+    Option1:<br>
+    =A0=A0=A0 use policy_rwlock to protect the "sidtab_shutdown" &amp;
+    "sidtab_map" , load_policy is rarely to be called after system
+    bringing up,=A0 <br>
+    so i think it will not impact much on the performance.<br>
+    Option2:<br>
+    =A0=A0=A0 Use a temp list to store the sid in oldsidtab after it is
+    shutdown, and deal with it <br>
+    after cloning the major sids from oldsidtab to newsidtab and getting
+    the policy_rwlock.<br>
+    <br>
+    <br>
+    <pre class=3D"moz-signature" cols=3D"72">--=20
+Best Regards
+Li Kun</pre>
+  </body>
+</html>
 
-
-> If so, then I believe the correct incantation would be:
-> type_transition mydomain_t var_log_t:file mypriv_var_log_t;
-> range_transition mydomain_t var_log_t:file mySystemHigh;
-> (obviously you might instead be using refpolicy macros/interfaces to
-> achieve the same end)
->
-> In both cases, the source type corresponds to the creating process, the=
-
-> target type corresponds to the parent directory type, and the new type
-> or level is applied to new files.
-
-
-Ah, using the parent type for the range_transition was not obvious to=20
-me.=C2=A0 It is working properly for me now, thanks for your assistance.
-
-
-Regards,
-
---=20
-Paul Arnold, CISSP
-Cole Engineering Services, Inc.
-
-
-
---------------ms040302050203030805020404
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-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
-HkFSTk9MRC5QQVVMLkNIQVJMRVMuMTQxMDc2NzI1OTCCASIwDQYJKoZIhvcNAQEBBQADggEP
-ADCCAQoCggEBAOttH+7UV7C0XtejWuVYbAoWr1XMy8Drd/8PO+zYrq0iiHyYgCMvMeybqxV5
-nYZ0q1/wL5GyqKmxflsEYRMOpRSPr8Ys/vgHRIvPQHLgiaFzpB/Q7ocw+c1FR7GdhCeElqdf
-Hy906s0dbGpi8X+TfD0HmXqRxBtTiqvKm61DEScgqfk91XzyzvoJEmtUjgF8Ys2xMi+Gmgc4
-yfE+lxvt43ugsZPEI6GLbfhTB2N+XYPkJfaqvBI+//F6/v+r/jxIz+b8Jg15fDnK8irx0NWE
-SQzLl1+V/EpK6cOxnyBPPjADG1+h4fpKJzSvE0iUwtgJLpCv6dThuYHLrnpe3i8a4gsCAwEA
-AaOCAa8wggGrMB8GA1UdIwQYMBaAFA+GWX7j+ucT+zE7wTkMfGCLQMLdMDoGA1UdHwQzMDEw
-L6AtoCuGKWh0dHA6Ly9jcmwuZGlzYS5taWwvY3JsL0RPREVNQUlMQ0FfMzQuY3JsMA4GA1Ud
-DwEB/wQEAwIGwDAjBgNVHSAEHDAaMAsGCWCGSAFlAgELCTALBglghkgBZQIBCxMwHQYDVR0O
-BBYEFCVC9iLRRRfBP1NAHmgBi/rPi506MGgGCCsGAQUFBwEBBFwwWjA2BggrBgEFBQcwAoYq
-aHR0cDovL2NybC5kaXNhLm1pbC9zaWduL0RPREVNQUlMQ0FfMzQuY2VyMCAGCCsGAQUFBzAB
-hhRodHRwOi8vb2NzcC5kaXNhLm1pbDBGBgNVHREEPzA9gRtwYXVsLmMuYXJub2xkNC5jdHJA
-bWFpbC5taWygHgYKKwYBBAGCNxQCA6AQDA4xNDEwNzY3MjU5QG1pbDAbBgNVHQkEFDASMBAG
-CCsGAQUFBwkEMQQTAlVTMCkGA1UdJQQiMCAGCisGAQQBgjcUAgIGCCsGAQUFBwMCBggrBgEF
-BQcDBDANBgkqhkiG9w0BAQUFAAOCAQEAOVy11EvO7C36FJFzsSm4spdOdj/HfPgMo2tTzy/b
-Ffk4iaXeCraj2a03B5/jRVya6ZiBfqeAiR7y3Bbb7UTiL/2er0aejkPM6G1QuV8u5HisQJic
-Q+a2N4o+5J54DkY67WPzbRiD0EHesbSeUjB709PoU1SWfsnIBbAavurNdbaWSVUb43TSw21g
-QC1lHGJg0fmiw3DHb4v7bKol+0fLUeehibpudedEWIo+aWrt9mzFeIkHeUnYLv4e2UBW419x
-xUjOs8aae3eOLKp+Ze+MXtBlWrkhmk3BHa5cB7kzlgqV++TWBlqpaL9WC20PwDk23PqkXCSu
-iX+flniUgvOdDTGCA1YwggNSAgEBMGQwXTELMAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4g
-R292ZXJubWVudDEMMAoGA1UECxMDRG9EMQwwCgYDVQQLEwNQS0kxGDAWBgNVBAMTD0RPRCBF
-TUFJTCBDQS0zNAIDDNzaMA0GCWCGSAFlAwQCAQUAoIIBwzAYBgkqhkiG9w0BCQMxCwYJKoZI
-hvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNzEyMTkxNDM2MzhaMC8GCSqGSIb3DQEJBDEiBCDg
-JOeoFVSKR+1QUnZQG+yNBaHL2OoLRJuXbnT3sn3MvDBsBgkqhkiG9w0BCQ8xXzBdMAsGCWCG
-SAFlAwQBKjALBglghkgBZQMEAQIwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqG
-SIb3DQMCAgFAMAcGBSsOAwIHMA0GCCqGSIb3DQMCAgEoMHMGCSsGAQQBgjcQBDFmMGQwXTEL
-MAkGA1UEBhMCVVMxGDAWBgNVBAoTD1UuUy4gR292ZXJubWVudDEMMAoGA1UECxMDRG9EMQww
-CgYDVQQLEwNQS0kxGDAWBgNVBAMTD0RPRCBFTUFJTCBDQS0zNAIDDNzbMHUGCyqGSIb3DQEJ
-EAILMWagZDBdMQswCQYDVQQGEwJVUzEYMBYGA1UEChMPVS5TLiBHb3Zlcm5tZW50MQwwCgYD
-VQQLEwNEb0QxDDAKBgNVBAsTA1BLSTEYMBYGA1UEAxMPRE9EIEVNQUlMIENBLTM0AgMM3Nsw
-DQYJKoZIhvcNAQEBBQAEggEArK3PNWw8WU/DjjYcTUOiywjF6NVpLCCuP9qz6MbR95XMIH8j
-cUgz6EQlC8pPSmVHRkn0VYaYRxFSF5IUmrZzrjyt7pvDjH6Gknw0Uj66Jtef3v3awdvWK4RC
-EHDjODDnXnRKuPxed7gJuZ6L6KAE2SokDL2zK/kDxBc50DQXoLuON2C5ikCWY6E05ah/wHSU
-9B0LU35heUcLcNsEe+rn2//+kR2tjGt42ChG8F1rZ7uQEC4C4Z1tZWffBhTUySDpmPLdGAaf
-FstBvPUZ+5cRy2siXo/2d+e6T0qvPvJ6Ds/clBT2mfrplF5x5rK3tn+8leL1Bndk5ed5Nz5G
-wWCvgwAAAAAAAA==
---------------ms040302050203030805020404--
+--------------69162A3100FA30B4CBE6AFA9--
