@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBN8BHYg024458
- for <selinux@tycho.nsa.gov>; Sat, 23 Dec 2017 03:11:17 -0500
-Received: from DGGEMS401-HUB.china.huawei.com (unknown [172.30.72.59])
- by Forcepoint Email with ESMTP id E9641314E6575
- for <selinux@tycho.nsa.gov>; Sat, 23 Dec 2017 16:10:27 +0800 (CST)
-From: Li Kun <hw.likun@huawei.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBP1isLm018041
+ for <selinux@tycho.nsa.gov>; Sun, 24 Dec 2017 20:44:55 -0500
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.59])
+ by Forcepoint Email with ESMTP id 2988AA4DCC5C8
+ for <selinux@tycho.nsa.gov>; Mon, 25 Dec 2017 09:44:24 +0800 (CST)
 To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-CC: wangboshi <wangboshi@huawei.com>, Qiuxishi <qiuxishi@huawei.com>
-Message-ID: <30dd3248-b703-828b-13ba-8d7ace8a09da@huawei.com>
-Date: Sat, 23 Dec 2017 16:03:43 +0800
+CC: Qiuxishi <qiuxishi@huawei.com>, wangboshi <wangboshi@huawei.com>
+From: Li Kun <hw.likun@huawei.com>
+Message-ID: <3b8d201d-5dec-522e-1475-aa97ef82acf4@huawei.com>
+Date: Mon, 25 Dec 2017 09:44:17 +0800
 MIME-Version: 1.0
 Content-Type: multipart/alternative;
- boundary="------------69162A3100FA30B4CBE6AFA9"
+ boundary="------------BFEA75FA15B4076C47603D0D"
 Subject: [BUG RFD]selinux: sidtab_context_to_sid return -NOMEM when
  concurrent with security_load_policy
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -19,9 +19,10 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---------------69162A3100FA30B4CBE6AFA9
+--------------BFEA75FA15B4076C47603D0D
 Content-Type: text/plain; charset="windows-1252"; format=flowed
 Content-Transfer-Encoding: 7bit
+
 
 Hi all,
 When i start a docker container, the runc will call selinux_setprocattr 
@@ -77,13 +78,12 @@ and deal with it
 after cloning the major sids from oldsidtab to newsidtab and getting the 
 policy_rwlock.
 
-
 -- 
 Best Regards
 Li Kun
 
 
---------------69162A3100FA30B4CBE6AFA9
+--------------BFEA75FA15B4076C47603D0D
 Content-Type: text/html; charset="windows-1252"
 Content-Transfer-Encoding: quoted-printable
 
@@ -94,6 +94,8 @@ Content-Transfer-Encoding: quoted-printable
 dows-1252">
   </head>
   <body bgcolor=3D"#FFFFFF" text=3D"#000000">
+    <p><br>
+    </p>
     Hi all,<br>
     When i start a docker container, the runc will call
     selinux_setprocattr to set the exec_sid before start the container.<b=
@@ -203,13 +205,11 @@ runc=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
     =A0=A0=A0 Use a temp list to store the sid in oldsidtab after it is
     shutdown, and deal with it <br>
     after cloning the major sids from oldsidtab to newsidtab and getting
-    the policy_rwlock.<br>
-    <br>
-    <br>
+    the policy_rwlock.
     <pre class=3D"moz-signature" cols=3D"72">--=20
 Best Regards
 Li Kun</pre>
   </body>
 </html>
 
---------------69162A3100FA30B4CBE6AFA9--
+--------------BFEA75FA15B4076C47603D0D--
