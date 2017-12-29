@@ -1,19 +1,26 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBT3F0o4019932
- for <selinux@tycho.nsa.gov>; Thu, 28 Dec 2017 22:15:00 -0500
-To: Stephen Smalley <stephen.smalley@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id vBTHPEJa012231
+ for <selinux@tycho.nsa.gov>; Fri, 29 Dec 2017 12:25:14 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID15.oob.disa.mil (Postfix) with SMTP id 3z7YPg4hbzz4KVh8
+ for <selinux@tycho.nsa.gov>; Fri, 29 Dec 2017 17:25:11 +0000 (UTC)
+Received: from USFB19PA17.eemsg.mil (unknown [192.168.16.15])
+ by USFBF3ID15.oob.disa.mil (Postfix) with ESMTP id 3z7YPb2Dlrz4KVg6
+ for <selinux@tycho.nsa.gov>; Fri, 29 Dec 2017 17:25:07 +0000 (UTC)
+Received: by mail-it0-f50.google.com with SMTP id d137so32205824itc.2
+ for <selinux@tycho.nsa.gov>; Fri, 29 Dec 2017 09:25:05 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <4b891871-c334-8d08-df77-2b15b1392e33@huawei.com>
 References: <30dd3248-b703-828b-13ba-8d7ace8a09da@huawei.com>
  <CAB9W1A0fN2QSA60JwYEjrCOHxFnobypJdDskkQ8Fz4zrXycy6Q@mail.gmail.com>
-CC: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, Qiuxishi
- <qiuxishi@huawei.com>, wangboshi <wangboshi@huawei.com>, Paul Moore
- <paul@paul-moore.com>
-From: Li Kun <hw.likun@huawei.com>
-Message-ID: <4b891871-c334-8d08-df77-2b15b1392e33@huawei.com>
-Date: Fri, 29 Dec 2017 11:14:20 +0800
-MIME-Version: 1.0
-In-Reply-To: <CAB9W1A0fN2QSA60JwYEjrCOHxFnobypJdDskkQ8Fz4zrXycy6Q@mail.gmail.com>
-Content-Type: multipart/alternative;
- boundary="------------5B42A6629657EA3CA1832D16"
+ <4b891871-c334-8d08-df77-2b15b1392e33@huawei.com>
+From: Stephen Smalley <stephen.smalley@gmail.com>
+Date: Fri, 29 Dec 2017 12:25:03 -0500
+Message-ID: <CAB9W1A0D9EuU0Y6x2aZYBv2Xb=cbmBiXUGAe2zcrBb3edTiDsQ@mail.gmail.com>
+To: Li Kun <hw.likun@huawei.com>
+Cc: selinux <selinux@tycho.nsa.gov>, Qiuxishi <qiuxishi@huawei.com>,
+ wangboshi <wangboshi@huawei.com>, Paul Moore <paul@paul-moore.com>
+Content-Type: multipart/alternative; boundary="001a114410eec84b8e05617de9ea"
 Subject: Re: [BUG RFD]selinux: sidtab_context_to_sid return -NOMEM
  when concurrent with security_load_policy
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -21,346 +28,284 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---------------5B42A6629657EA3CA1832D16
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+--001a114410eec84b8e05617de9ea
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+
+On Dec 28, 2017 10:14 PM, "Li Kun" <hw.likun@huawei.com> wrote:
 
 
 
 =E5=9C=A8 2017/12/28 22:57, Stephen Smalley =E5=86=99=E9=81=93:
-> On Sat, Dec 23, 2017 at 3:03 AM, Li Kun <hw.likun@huawei.com=20
-> <mailto:hw.likun@huawei.com>> wrote:
+
+On Sat, Dec 23, 2017 at 3:03 AM, Li Kun <hw.likun@huawei.com> wrote:
+
+> Hi all,
+> When i start a docker container, the runc will call selinux_setprocattr t=
+o
+> set the exec_sid before start the container.
+> Meanwhile if i use "semodule -i" to load a policy pp, the old sidtab will
+> be shutdown before switch to the new sidtab, and cause
+> sidtab_context_to_sid  failed with the errno -NOMEM.
 >
->     Hi all,
->     When i start a docker container, the runc will call
->     selinux_setprocattr to set the exec_sid before start the container.
->     Meanwhile if i use "semodule -i" to load a policy pp, the old
->     sidtab will be shutdown before switch to the new sidtab, and cause
->     sidtab_context_to_sid  failed with the errno -NOMEM.
->
->     Error message:
->     Dec 14 09:18:18 wuwenming_vudfua_0 docker:
->     time=3D"2017-12-14T09:18:18.549862564+08:00" level=3Derror
->     msg=3D"Handler for GET
->     /v1.23/containers/192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2/json
->     <http://192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2/json>
->     returned error: No such container:
->     192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2
->     <http://192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2>"
->     Dec 14 09:18:18 wuwenming_vudfua_0 kernel: [ 48.463179] SELinux:
->     security_context_to_sid(system_u:object_r:svirt_sandbox_file_t:s0:c=
-290,c371)
->     failed for (dev overlay, type overlay) errno=3D-12
->     Dec 14 09:18:18 wuwenming_vudfua_0 dbus-daemon: dbus[720]: avc:=20
->     received policyload notice (seqno=3D2)
->     Dec 14 09:18:18 wuwenming_vudfua_0 dbus[720]: avc: received
->     policyload notice (seqno=3D2)
+> Error message:
+> Dec 14 09:18:18 wuwenming_vudfua_0 docker: time=3D"2017-12-14T09:18:18.54=
+9862564+08:00"
+> level=3Derror msg=3D"Handler for GET /v1.23/containers/192.168.0.2:
+> 9082/dfs_d:V100R013C11SPC000BCD2/json returned error: No such container:
+> 192.168.0.2:9082/dfs_d:V100R013C11SPC000BCD2"
+> Dec 14 09:18:18 wuwenming_vudfua_0 kernel: [   48.463179] SELinux:
+> security_context_to_sid(system_u:object_r:svirt_sandbox_file_t:s0:c290,c3=
+71)
+> failed for (dev overlay, type overlay) errno=3D-12
+> Dec 14 09:18:18 wuwenming_vudfua_0 dbus-daemon: dbus[720]: avc:  received
+> policyload notice (seqno=3D2)
+> Dec 14 09:18:18 wuwenming_vudfua_0 dbus[720]: avc:  received policyload
+> notice (seqno=3D2)
 >
 >
->     runc         semodule
->     ->selinux_setprocattr ->security_load_policy
->         ->security_context_to_sid                       =20
->     ->sidtab_shutdown(oldsidtab)
->             ->read_lock(&policy_rwlock); ->sidtab_map(&oldsidtab,
->     clone_sid, &newsidtab);
+> runc
 >
->             ->sidtab_context_to_sid
->                 {
->                             ....
->                             if (s->next_sid =3D=3D UINT_MAX || s->shutd=
-own) {
->                             ret =3D -ENOMEM;
->                             ....
->                 }
->             ->read_unlock(&policy_rwlock);
->     ->write_lock_irq(&policy_rwlock);
->                                     ->"switch to new policydb"
->     ->write_unlock_irq(&policy_rwlock);
+>     semodule
+> ->selinux_setprocattr
 >
->     I wonder that if this is the intention or a bug?
->     If it is the intention, what should the application do when it get
->     -ENOMEM error,  to try again?
->     If it is a bug, may the two options below suitable to solve the iss=
-ue?
->     Option1:
->         use policy_rwlock to protect the "sidtab_shutdown" &
->     "sidtab_map" , load_policy is rarely to be called after system
->     bringing up,
->     so i think it will not impact much on the performance.
->     Option2:
->         Use a temp list to store the sid in oldsidtab after it is
->     shutdown, and deal with it
->     after cloning the major sids from oldsidtab to newsidtab and
->     getting the policy_rwlock.
+> ->security_load_policy
+>     ->security_context_to_sid
+>
+> ->sidtab_shutdown(oldsidtab)
+>         ->read_lock(&policy_rwlock);
+>
+> ->sidtab_map(&oldsidtab, clone_sid, &newsidtab);
+>
+>         ->sidtab_context_to_sid
+>
+>             {
+>                         ....
+>                         if (s->next_sid =3D=3D UINT_MAX || s->shutdown) {
+>                         ret =3D -ENOMEM;
+>                         ....
+>             }
+>         ->read_unlock(&policy_rwlock);
 >
 >
-> The current logic is intentional.  One might argue that a different=20
-> error code might be more suitable in this situation (e.g. EAGAIN or=20
-> something), but ENOMEM is already a possible error code when loading=20
-> policy upon transient OOM conditions, so the caller might have to=20
-> retry regardless.  The policy write lock must only be held for the=20
-> minimal critical section as otherwise all system activity could be=20
-> blocked; it is only held when making the new policydb and sidtab=20
-> active not during their allocation and setup - ideally it would be=20
-> further reduced to a couple of pointer updates. Is this scenario=20
-> something you are encountering in actual practice or just a=20
-> theoretically possible one?
+>
+> ->write_lock_irq(&policy_rwlock);
+>
+>
+> ->"switch to new policydb"
+>
+>
+> ->write_unlock_irq(&policy_rwlock);
+>
+> I wonder that if this is the intention or a bug?
+> If it is the intention, what should the application do when it get -ENOME=
+M
+> error,  to try again?
+> If it is a bug, may the two options below suitable to solve the issue?
+> Option1:
+>     use policy_rwlock to protect the "sidtab_shutdown" & "sidtab_map" ,
+> load_policy is rarely to be called after system bringing up,
+> so i think it will not impact much on the performance.
+> Option2:
+>     Use a temp list to store the sid in oldsidtab after it is shutdown,
+> and deal with it
+> after cloning the major sids from oldsidtab to newsidtab and getting the
+> policy_rwlock.
+>
+
+The current logic is intentional.  One might argue that a different error
+code might be more suitable in this situation (e.g. EAGAIN or something),
+but ENOMEM is already a possible error code when loading policy upon
+transient OOM conditions, so the caller might have to retry regardless.
+The policy write lock must only be held for the minimal critical section as
+otherwise all system activity could be blocked; it is only held when making
+the new policydb and sidtab active not during their allocation and setup -
+ideally it would be further reduced to a couple of pointer updates. Is this
+scenario something you are encountering in actual practice or just a
+theoretically possible one?
+
 Thank you very much for your reply.
 Yes, we encounter this issue in our implementation.
-We have an intertion in our design that we can divide the policy into=20
+We have an intertion in our design that we can divide the policy into
 several parts to load separately.
-So after the red-hat linux bringing up, which has loaded the system=20
-policy db released by redhat, we begin to load the policy released by=20
-our product ,
-and meanwhile someone want to start a docker container, and the runc get=20
-an ENOMEM error like i mentioned above.
-Should we merge all the policy into the system policy db and just load on=
-ce?
+So after the red-hat linux bringing up, which has loaded the system policy
+db released by redhat, we begin to load the policy released by our product
+,
+and meanwhile someone want to start a docker container, and the runc get an
+ENOMEM error like i mentioned above.
+Should we merge all the policy into the system policy db and just load once=
+?
+
 
 --=20
 Best Regards
 Li Kun
 
+Typically you would install your policy module when your package is
+installed and not need to do it at runtime.
 
---------------5B42A6629657EA3CA1832D16
+--001a114410eec84b8e05617de9ea
 Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: base64
 
-<html>
-  <head>
-    <meta content=3D"text/html; charset=3DUTF-8" http-equiv=3D"Content-Ty=
-pe">
-  </head>
-  <body bgcolor=3D"#FFFFFF" text=3D"#000000">
-    <p><br>
-    </p>
-    <br>
-    <div class=3D"moz-cite-prefix">=E5=9C=A8 2017/12/28 22:57, Stephen Sm=
-alley =E5=86=99=E9=81=93:<br>
-    </div>
-    <blockquote
-cite=3D"mid:CAB9W1A0fN2QSA60JwYEjrCOHxFnobypJdDskkQ8Fz4zrXycy6Q@mail.gmai=
-l.com"
-      type=3D"cite">
-      <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3DU=
-TF-8">
-      <div dir=3D"ltr">
-        <div class=3D"gmail_extra">
-          <div class=3D"gmail_quote">On Sat, Dec 23, 2017 at 3:03 AM, Li
-            Kun <span dir=3D"ltr">&lt;<a moz-do-not-send=3D"true"
-                href=3D"mailto:hw.likun@huawei.com" target=3D"_blank">hw.=
-likun@huawei.com</a>&gt;</span>
-            wrote:<br>
-            <blockquote class=3D"gmail_quote" style=3D"margin:0 0 0
-              .8ex;border-left:1px #ccc solid;padding-left:1ex">
-              <div bgcolor=3D"#FFFFFF" text=3D"#000000"> Hi all,<br>
-                When i start a docker container, the runc will call
-                selinux_setprocattr to set the exec_sid before start the
-                container.<br>
-                Meanwhile if i use "semodule -i" to load a policy pp,
-                the old sidtab will be shutdown before switch to the new
-                sidtab, and cause <br>
-                sidtab_context_to_sid=C2=A0 failed with the errno -NOMEM.=
-<br>
-                <br>
-                Error message:<br>
-                Dec 14 09:18:18 wuwenming_vudfua_0 docker:
-                time=3D"2017-12-14T09:18:18.<wbr>549862564+08:00"
-                level=3Derror msg=3D"Handler for GET /v1.23/containers/<a
-                  moz-do-not-send=3D"true"
-                  href=3D"http://192.168.0.2:9082/dfs_d:V100R013C11SPC000=
-BCD2/json"
-                  target=3D"_blank">192.168.0.2:<wbr>9082/dfs_d:<wbr>V100=
-R013C11SPC000BCD2/json</a>
-                returned error: No such container: <a
-                  moz-do-not-send=3D"true"
-                  href=3D"http://192.168.0.2:9082/dfs_d:V100R013C11SPC000=
-BCD2"
-                  target=3D"_blank">192.168.0.2:9082/dfs_d:<wbr>V100R013C=
-11SPC000BCD2</a>"<br>
-                Dec 14 09:18:18 wuwenming_vudfua_0 kernel: [=C2=A0=C2=A0
-                48.463179] SELinux:
-                security_context_to_sid(<wbr>system_u:object_r:svirt_<wbr=
->sandbox_file_t:s0:c290,c371)
-                failed for (dev overlay, type overlay) errno=3D-12<br>
-                Dec 14 09:18:18 wuwenming_vudfua_0 dbus-daemon:
-                dbus[720]: avc:=C2=A0 received policyload notice (seqno=3D=
-2)<br>
-                Dec 14 09:18:18 wuwenming_vudfua_0 dbus[720]: avc:=C2=A0
-                received policyload notice (seqno=3D2)<br>
-                <br>
-                <br>
-                runc=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 semodule<br>
-                -&gt;selinux_setprocattr=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0<wbr>=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0
-                -&gt;security_load_policy<br>
-                =C2=A0=C2=A0=C2=A0 -&gt;security_context_to_sid=C2=A0=C2=A0=
-=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=
-=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 -&gt;sidtab_shut=
-down(oldsidtab)<br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 -&gt;read_lock=
-(&amp;policy_rwlock);=C2=A0=C2=A0<wbr>=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 =C2=A0=
-=C2=A0=C2=A0
-                -&gt;sidtab_map(&amp;oldsidtab, clone_sid,
-                &amp;newsidtab);<br>
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 <br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 -&gt;sidtab_co=
-ntext_to_sid=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=
-=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 <br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 {<br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 ....<br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 if (s-&gt;next_sid =3D=3D UINT_MAX
-                || s-&gt;<font color=3D"#ff0000">shutdown</font>) {<br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 ret =3D -<font color=3D"#ff0000">ENOMEM</font>;<br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 ....<br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0 }<br>
-                =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 -&gt;read_unlo=
-ck(&amp;policy_rwlock);<wbr>=C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 <br>
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0
-                -&gt;write_lock_irq(&amp;policy_<wbr>rwlock);<br>
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=
-=A0=C2=A0 =C2=A0 -&gt;"switch to new
-                policydb"<br>
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=
-=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0
-                =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0=
- =C2=A0=C2=A0=C2=A0
-                -&gt;write_unlock_irq(&amp;policy_<wbr>rwlock);<br>
-                <br>
-                I wonder that if this is the intention or a bug?<br>
-                If it is the intention, what should the application do
-                when it get -ENOMEM error,=C2=A0 to try again?<br>
-                If it is a bug, may the two options below suitable to
-                solve the issue?<br>
-                Option1:<br>
-                =C2=A0=C2=A0=C2=A0 use policy_rwlock to protect the "sidt=
-ab_shutdown"
-                &amp; "sidtab_map" , load_policy is rarely to be called
-                after system bringing up,=C2=A0 <br>
-                so i think it will not impact much on the performance.<br=
->
-                Option2:<br>
-                =C2=A0=C2=A0=C2=A0 Use a temp list to store the sid in ol=
-dsidtab after
-                it is shutdown, and deal with it <br>
-                after cloning the major sids from oldsidtab to newsidtab
-                and getting the policy_rwlock.</div>
-            </blockquote>
-            <div><br>
-            </div>
-            <div>The current logic is intentional.=C2=A0 One might argue =
-that
-              a different error code might be more suitable in this
-              situation (e.g. EAGAIN or something), but ENOMEM is
-              already a possible error code when loading policy upon
-              transient OOM conditions, so the caller might have to
-              retry regardless.=C2=A0 The policy write lock must only be =
-held
-              for the minimal critical section as otherwise all system
-              activity could be blocked; it is only held when making the
-              new policydb and sidtab active not during their allocation
-              and setup - ideally it would be further reduced to a
-              couple of pointer updates. Is this scenario something you
-              are encountering in actual practice or just a
-              theoretically possible one?=C2=A0 <br>
-            </div>
-          </div>
-        </div>
-      </div>
-    </blockquote>
-    Thank you very much for your reply.<br>
-    Yes, we encounter this issue in our implementation.<br>
-    We have an intertion in our design that we can divide the policy
-    into several parts to load separately. <br>
-    So after the red-hat linux bringing up, which has loaded the system
-    policy db released by redhat, we begin to load the policy released
-    by our product , <br>
-    and meanwhile someone want to start a docker container, and the runc
-    get an ENOMEM error like i mentioned above.<br>
-    Should we merge all the policy into the system policy db and just
-    load once?<br>
-    <br>
-    <pre class=3D"moz-signature" cols=3D"72">--=20
-Best Regards
-Li Kun</pre>
-  </body>
-</html>
-
---------------5B42A6629657EA3CA1832D16--
+PGRpdiBkaXI9ImF1dG8iPjxkaXY+PGRpdiBjbGFzcz0iZ21haWxfZXh0cmEiPjxkaXYgY2xhc3M9
+ImdtYWlsX3F1b3RlIj5PbiBEZWMgMjgsIDIwMTcgMTA6MTQgUE0sICZxdW90O0xpIEt1biZxdW90
+OyAmbHQ7PGEgaHJlZj0ibWFpbHRvOmh3Lmxpa3VuQGh1YXdlaS5jb20iPmh3Lmxpa3VuQGh1YXdl
+aS5jb208L2E+Jmd0OyB3cm90ZTo8YnIgdHlwZT0iYXR0cmlidXRpb24iPjxibG9ja3F1b3RlIGNs
+YXNzPSJxdW90ZSIgc3R5bGU9Im1hcmdpbjowIDAgMCAuOGV4O2JvcmRlci1sZWZ0OjFweCAjY2Nj
+IHNvbGlkO3BhZGRpbmctbGVmdDoxZXgiPg0KICANCiAgICANCiAgDQogIDxkaXYgYmdjb2xvcj0i
+I0ZGRkZGRiIgdGV4dD0iIzAwMDAwMCI+PGRpdiBjbGFzcz0iZWxpZGVkLXRleHQiPg0KICAgIDxw
+Pjxicj4NCiAgICA8L3A+DQogICAgPGJyPg0KICAgIDxkaXYgY2xhc3M9Im1fLTY2ODQ5MTQ0NTM3
+NDI5NDM0NTBtb3otY2l0ZS1wcmVmaXgiPuWcqCAyMDE3LzEyLzI4IDIyOjU3LCBTdGVwaGVuIFNt
+YWxsZXkg5YaZ6YGTOjxicj4NCiAgICA8L2Rpdj4NCiAgICA8YmxvY2txdW90ZSB0eXBlPSJjaXRl
+Ij4NCiAgICAgIA0KICAgICAgPGRpdiBkaXI9Imx0ciI+DQogICAgICAgIDxkaXYgY2xhc3M9Imdt
+YWlsX2V4dHJhIj4NCiAgICAgICAgICA8ZGl2IGNsYXNzPSJnbWFpbF9xdW90ZSI+T24gU2F0LCBE
+ZWMgMjMsIDIwMTcgYXQgMzowMyBBTSwgTGkNCiAgICAgICAgICAgIEt1biA8c3BhbiBkaXI9Imx0
+ciI+Jmx0OzxhIGhyZWY9Im1haWx0bzpody5saWt1bkBodWF3ZWkuY29tIiB0YXJnZXQ9Il9ibGFu
+ayI+aHcubGlrdW5AaHVhd2VpLmNvbTwvYT4mZ3Q7PC9zcGFuPg0KICAgICAgICAgICAgd3JvdGU6
+PGJyPg0KICAgICAgICAgICAgPGJsb2NrcXVvdGUgY2xhc3M9ImdtYWlsX3F1b3RlIiBzdHlsZT0i
+bWFyZ2luOjAgMCAwIC44ZXg7Ym9yZGVyLWxlZnQ6MXB4ICNjY2Mgc29saWQ7cGFkZGluZy1sZWZ0
+OjFleCI+DQogICAgICAgICAgICAgIDxkaXYgYmdjb2xvcj0iI0ZGRkZGRiIgdGV4dD0iIzAwMDAw
+MCI+IEhpIGFsbCw8YnI+DQogICAgICAgICAgICAgICAgV2hlbiBpIHN0YXJ0IGEgZG9ja2VyIGNv
+bnRhaW5lciwgdGhlIHJ1bmMgd2lsbCBjYWxsDQogICAgICAgICAgICAgICAgc2VsaW51eF9zZXRw
+cm9jYXR0ciB0byBzZXQgdGhlIGV4ZWNfc2lkIGJlZm9yZSBzdGFydCB0aGUNCiAgICAgICAgICAg
+ICAgICBjb250YWluZXIuPGJyPg0KICAgICAgICAgICAgICAgIE1lYW53aGlsZSBpZiBpIHVzZSAm
+cXVvdDtzZW1vZHVsZSAtaSZxdW90OyB0byBsb2FkIGEgcG9saWN5IHBwLA0KICAgICAgICAgICAg
+ICAgIHRoZSBvbGQgc2lkdGFiIHdpbGwgYmUgc2h1dGRvd24gYmVmb3JlIHN3aXRjaCB0byB0aGUg
+bmV3DQogICAgICAgICAgICAgICAgc2lkdGFiLCBhbmQgY2F1c2UgPGJyPg0KICAgICAgICAgICAg
+ICAgIHNpZHRhYl9jb250ZXh0X3RvX3NpZMKgIGZhaWxlZCB3aXRoIHRoZSBlcnJubyAtTk9NRU0u
+PGJyPg0KICAgICAgICAgICAgICAgIDxicj4NCiAgICAgICAgICAgICAgICBFcnJvciBtZXNzYWdl
+Ojxicj4NCiAgICAgICAgICAgICAgICBEZWMgMTQgMDk6MTg6MTggd3V3ZW5taW5nX3Z1ZGZ1YV8w
+IGRvY2tlcjoNCiAgICAgICAgICAgICAgICB0aW1lPSZxdW90OzIwMTctMTItMTRUMDk6MTg6MTgu
+NTQ5ODx3YnI+NjI1NjQrMDg6MDAmcXVvdDsNCiAgICAgICAgICAgICAgICBsZXZlbD1lcnJvciBt
+c2c9JnF1b3Q7SGFuZGxlciBmb3IgR0VUIC92MS4yMy9jb250YWluZXJzLzxhIGhyZWY9Imh0dHA6
+Ly8xOTIuMTY4LjAuMjo5MDgyL2Rmc19kOlYxMDBSMDEzQzExU1BDMDAwQkNEMi9qc29uIiB0YXJn
+ZXQ9Il9ibGFuayI+MTkyLjE2OC4wLjI6PHdicj45MDgyL2Rmc19kOlYxMDBSMDEzQzExU1BDMDAw
+QkM8d2JyPkQyL2pzb248L2E+DQogICAgICAgICAgICAgICAgcmV0dXJuZWQgZXJyb3I6IE5vIHN1
+Y2ggY29udGFpbmVyOiA8YSBocmVmPSJodHRwOi8vMTkyLjE2OC4wLjI6OTA4Mi9kZnNfZDpWMTAw
+UjAxM0MxMVNQQzAwMEJDRDIiIHRhcmdldD0iX2JsYW5rIj4xOTIuMTY4LjAuMjo5MDgyL2Rmc19k
+OlYxMDBSMDE8d2JyPjNDMTFTUEMwMDBCQ0QyPC9hPiZxdW90Ozxicj4NCiAgICAgICAgICAgICAg
+ICBEZWMgMTQgMDk6MTg6MTggd3V3ZW5taW5nX3Z1ZGZ1YV8wIGtlcm5lbDogW8KgwqANCiAgICAg
+ICAgICAgICAgICA0OC40NjMxNzldIFNFTGludXg6DQogICAgICAgICAgICAgICAgc2VjdXJpdHlf
+Y29udGV4dF90b19zaWQoc3lzdGVtPHdicj5fdTpvYmplY3RfcjpzdmlydF9zYW5kYm94Xzx3YnI+
+ZmlsZV90OnMwOmMyOTAsYzM3MSkNCiAgICAgICAgICAgICAgICBmYWlsZWQgZm9yIChkZXYgb3Zl
+cmxheSwgdHlwZSBvdmVybGF5KSBlcnJubz0tMTI8YnI+DQogICAgICAgICAgICAgICAgRGVjIDE0
+IDA5OjE4OjE4IHd1d2VubWluZ192dWRmdWFfMCBkYnVzLWRhZW1vbjoNCiAgICAgICAgICAgICAg
+ICBkYnVzWzcyMF06IGF2YzrCoCByZWNlaXZlZCBwb2xpY3lsb2FkIG5vdGljZSAoc2Vxbm89Mik8
+YnI+DQogICAgICAgICAgICAgICAgRGVjIDE0IDA5OjE4OjE4IHd1d2VubWluZ192dWRmdWFfMCBk
+YnVzWzcyMF06IGF2YzrCoA0KICAgICAgICAgICAgICAgIHJlY2VpdmVkIHBvbGljeWxvYWQgbm90
+aWNlIChzZXFubz0yKTxicj4NCiAgICAgICAgICAgICAgICA8YnI+DQogICAgICAgICAgICAgICAg
+PGJyPg0KICAgICAgICAgICAgICAgIHJ1bmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgPHdicj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqA8d2JyPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoDx3YnI+wqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgPHdicj7CoMKgwqDC
+oMKgwqDCoA0KICAgICAgICAgICAgICAgIMKgwqDCoCDCoMKgwqAgc2Vtb2R1bGU8YnI+DQogICAg
+ICAgICAgICAgICAgLSZndDtzZWxpbnV4X3NldHByb2NhdHRywqDCoMKgwqDCoMKgwqDCoMKgPHdi
+cj7CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqA8d2JyPsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoDx3YnI+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgPHdicj7CoMKgwqDCoMKgwqDCoA0KICAgICAgICAgICAgICAg
+IC0mZ3Q7c2VjdXJpdHlfbG9hZF9wb2xpY3k8YnI+DQogICAgICAgICAgICAgICAgwqDCoMKgIC0m
+Z3Q7c2VjdXJpdHlfY29udGV4dF90b19zaWTCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDC
+oMKgIMKgwqDCoA0KICAgICAgICAgICAgICAgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDC
+oMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKg
+wqDCoCDCoMKgwqANCiAgICAgICAgICAgICAgICDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAg
+wqDCoMKgIMKgwqDCoCAtJmd0O3NpZHRhYl9zaHV0ZG93bihvbGRzaWR0YWIpPGJyPg0KICAgICAg
+ICAgICAgICAgIMKgwqDCoMKgwqDCoMKgIC0mZ3Q7cmVhZF9sb2NrKCZhbXA7cG9saWN5X3J3bG9j
+ayk7wqDCoDx3YnI+wqAgwqDCoMKgDQogICAgICAgICAgICAgICAgwqDCoMKgIMKgwqDCoCDCoMKg
+wqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDC
+oCDCoMKgwqAgwqDCoMKgIMKgwqDCoA0KICAgICAgICAgICAgICAgIMKgwqDCoCDCoMKgwqAgwqDC
+oMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgwqDCoCDCoMKgwqANCiAgICAgICAgICAgICAgICAtJmd0
+O3NpZHRhYl9tYXAoJmFtcDtvbGRzaWR0YWIsIGNsb25lX3NpZCwNCiAgICAgICAgICAgICAgICAm
+YW1wO25ld3NpZHRhYik7PGJyPg0KICAgICAgICAgICAgICAgIMKgwqDCoCDCoMKgwqAgPGJyPg0K
+ICAgICAgICAgICAgICAgIMKgwqDCoMKgwqDCoMKgIC0mZ3Q7c2lkdGFiX2NvbnRleHRfdG9fc2lk
+wqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoA0KICAgICAgICAgICAgICAgIMKgwqDC
+oCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKg
+IDxicj4NCiAgICAgICAgICAgICAgICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHs8YnI+DQogICAg
+ICAgICAgICAgICAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCAuLi4uPGJyPg0KICAgICAgICAgICAgICAgIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgaWYgKHMtJmd0O25leHRfc2lkID09IFVJTlRfTUFYDQogICAgICAg
+ICAgICAgICAgfHwgcy0mZ3Q7PGZvbnQgY29sb3I9IiNmZjAwMDAiPnNodXRkb3duPC9mb250Pikg
+ezxicj4NCiAgICAgICAgICAgICAgICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgIHJldCA9IC08Zm9udCBjb2xvcj0iI2ZmMDAwMCI+RU5PTUVNPC9mb250Pjs8
+YnI+DQogICAgICAgICAgICAgICAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCAuLi4uPGJyPg0KICAgICAgICAgICAgICAgIMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgfTxicj4NCiAgICAgICAgICAgICAgICDCoMKgwqDCoMKgwqDCoCAtJmd0O3JlYWRfdW5sb2Nr
+KCZhbXA7cG9saWN5X3J3bG9jayk7PHdicj7CoMKgwqANCiAgICAgICAgICAgICAgICDCoMKgwqAg
+wqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDC
+oMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgDQogICAgICAgICAgICAgICAgwqDCoMKg
+IMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAg
+PGJyPg0KICAgICAgICAgICAgICAgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAg
+wqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDC
+oMKgwqANCiAgICAgICAgICAgICAgICDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKg
+IMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAg
+wqDCoMKgDQogICAgICAgICAgICAgICAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDC
+oCDCoMKgwqAgwqDCoMKgIMKgwqDCoA0KICAgICAgICAgICAgICAgIC0mZ3Q7d3JpdGVfbG9ja19p
+cnEoJmFtcDtwb2xpY3lfcndsb2M8d2JyPmspOzxicj4NCiAgICAgICAgICAgICAgICDCoMKgwqAg
+wqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDC
+oMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgDQogICAgICAgICAgICAgICAgwqDCoMKg
+IMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAg
+wqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoA0KICAgICAgICAgICAgICAgIMKgwqDC
+oCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgIMKgwqAgwqDCoMKgIMKgwqDCoCDCoCAtJmd0OyZx
+dW90O3N3aXRjaCB0byBuZXcNCiAgICAgICAgICAgICAgICBwb2xpY3lkYiZxdW90Ozxicj4NCiAg
+ICAgICAgICAgICAgICDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDC
+oMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgDQog
+ICAgICAgICAgICAgICAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAg
+wqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoA0K
+ICAgICAgICAgICAgICAgIMKgwqDCoCDCoMKgwqAgwqDCoMKgIMKgwqDCoCDCoMKgwqAgwqDCoMKg
+IMKgwqDCoCDCoMKgwqANCiAgICAgICAgICAgICAgICAtJmd0O3dyaXRlX3VubG9ja19pcnEoJmFt
+cDtwb2xpY3lfcndsPHdicj5vY2spOzxicj4NCiAgICAgICAgICAgICAgICA8YnI+DQogICAgICAg
+ICAgICAgICAgSSB3b25kZXIgdGhhdCBpZiB0aGlzIGlzIHRoZSBpbnRlbnRpb24gb3IgYSBidWc/
+PGJyPg0KICAgICAgICAgICAgICAgIElmIGl0IGlzIHRoZSBpbnRlbnRpb24sIHdoYXQgc2hvdWxk
+IHRoZSBhcHBsaWNhdGlvbiBkbw0KICAgICAgICAgICAgICAgIHdoZW4gaXQgZ2V0IC1FTk9NRU0g
+ZXJyb3IswqAgdG8gdHJ5IGFnYWluPzxicj4NCiAgICAgICAgICAgICAgICBJZiBpdCBpcyBhIGJ1
+ZywgbWF5IHRoZSB0d28gb3B0aW9ucyBiZWxvdyBzdWl0YWJsZSB0bw0KICAgICAgICAgICAgICAg
+IHNvbHZlIHRoZSBpc3N1ZT88YnI+DQogICAgICAgICAgICAgICAgT3B0aW9uMTo8YnI+DQogICAg
+ICAgICAgICAgICAgwqDCoMKgIHVzZSBwb2xpY3lfcndsb2NrIHRvIHByb3RlY3QgdGhlICZxdW90
+O3NpZHRhYl9zaHV0ZG93biZxdW90Ow0KICAgICAgICAgICAgICAgICZhbXA7ICZxdW90O3NpZHRh
+Yl9tYXAmcXVvdDsgLCBsb2FkX3BvbGljeSBpcyByYXJlbHkgdG8gYmUgY2FsbGVkDQogICAgICAg
+ICAgICAgICAgYWZ0ZXIgc3lzdGVtIGJyaW5naW5nIHVwLMKgIDxicj4NCiAgICAgICAgICAgICAg
+ICBzbyBpIHRoaW5rIGl0IHdpbGwgbm90IGltcGFjdCBtdWNoIG9uIHRoZSBwZXJmb3JtYW5jZS48
+YnI+DQogICAgICAgICAgICAgICAgT3B0aW9uMjo8YnI+DQogICAgICAgICAgICAgICAgwqDCoMKg
+IFVzZSBhIHRlbXAgbGlzdCB0byBzdG9yZSB0aGUgc2lkIGluIG9sZHNpZHRhYiBhZnRlcg0KICAg
+ICAgICAgICAgICAgIGl0IGlzIHNodXRkb3duLCBhbmQgZGVhbCB3aXRoIGl0IDxicj4NCiAgICAg
+ICAgICAgICAgICBhZnRlciBjbG9uaW5nIHRoZSBtYWpvciBzaWRzIGZyb20gb2xkc2lkdGFiIHRv
+IG5ld3NpZHRhYg0KICAgICAgICAgICAgICAgIGFuZCBnZXR0aW5nIHRoZSBwb2xpY3lfcndsb2Nr
+LjwvZGl2Pg0KICAgICAgICAgICAgPC9ibG9ja3F1b3RlPg0KICAgICAgICAgICAgPGRpdj48YnI+
+DQogICAgICAgICAgICA8L2Rpdj4NCiAgICAgICAgICAgIDxkaXY+VGhlIGN1cnJlbnQgbG9naWMg
+aXMgaW50ZW50aW9uYWwuwqAgT25lIG1pZ2h0IGFyZ3VlIHRoYXQNCiAgICAgICAgICAgICAgYSBk
+aWZmZXJlbnQgZXJyb3IgY29kZSBtaWdodCBiZSBtb3JlIHN1aXRhYmxlIGluIHRoaXMNCiAgICAg
+ICAgICAgICAgc2l0dWF0aW9uIChlLmcuIEVBR0FJTiBvciBzb21ldGhpbmcpLCBidXQgRU5PTUVN
+IGlzDQogICAgICAgICAgICAgIGFscmVhZHkgYSBwb3NzaWJsZSBlcnJvciBjb2RlIHdoZW4gbG9h
+ZGluZyBwb2xpY3kgdXBvbg0KICAgICAgICAgICAgICB0cmFuc2llbnQgT09NIGNvbmRpdGlvbnMs
+IHNvIHRoZSBjYWxsZXIgbWlnaHQgaGF2ZSB0bw0KICAgICAgICAgICAgICByZXRyeSByZWdhcmRs
+ZXNzLsKgIFRoZSBwb2xpY3kgd3JpdGUgbG9jayBtdXN0IG9ubHkgYmUgaGVsZA0KICAgICAgICAg
+ICAgICBmb3IgdGhlIG1pbmltYWwgY3JpdGljYWwgc2VjdGlvbiBhcyBvdGhlcndpc2UgYWxsIHN5
+c3RlbQ0KICAgICAgICAgICAgICBhY3Rpdml0eSBjb3VsZCBiZSBibG9ja2VkOyBpdCBpcyBvbmx5
+IGhlbGQgd2hlbiBtYWtpbmcgdGhlDQogICAgICAgICAgICAgIG5ldyBwb2xpY3lkYiBhbmQgc2lk
+dGFiIGFjdGl2ZSBub3QgZHVyaW5nIHRoZWlyIGFsbG9jYXRpb24NCiAgICAgICAgICAgICAgYW5k
+IHNldHVwIC0gaWRlYWxseSBpdCB3b3VsZCBiZSBmdXJ0aGVyIHJlZHVjZWQgdG8gYQ0KICAgICAg
+ICAgICAgICBjb3VwbGUgb2YgcG9pbnRlciB1cGRhdGVzLiBJcyB0aGlzIHNjZW5hcmlvIHNvbWV0
+aGluZyB5b3UNCiAgICAgICAgICAgICAgYXJlIGVuY291bnRlcmluZyBpbiBhY3R1YWwgcHJhY3Rp
+Y2Ugb3IganVzdCBhDQogICAgICAgICAgICAgIHRoZW9yZXRpY2FsbHkgcG9zc2libGUgb25lP8Kg
+IDxicj4NCiAgICAgICAgICAgIDwvZGl2Pg0KICAgICAgICAgIDwvZGl2Pg0KICAgICAgICA8L2Rp
+dj4NCiAgICAgIDwvZGl2Pg0KICAgIDwvYmxvY2txdW90ZT48L2Rpdj4NCiAgICBUaGFuayB5b3Ug
+dmVyeSBtdWNoIGZvciB5b3VyIHJlcGx5Ljxicj4NCiAgICBZZXMsIHdlIGVuY291bnRlciB0aGlz
+IGlzc3VlIGluIG91ciBpbXBsZW1lbnRhdGlvbi48YnI+DQogICAgV2UgaGF2ZSBhbiBpbnRlcnRp
+b24gaW4gb3VyIGRlc2lnbiB0aGF0IHdlIGNhbiBkaXZpZGUgdGhlIHBvbGljeQ0KICAgIGludG8g
+c2V2ZXJhbCBwYXJ0cyB0byBsb2FkIHNlcGFyYXRlbHkuIDxicj4NCiAgICBTbyBhZnRlciB0aGUg
+cmVkLWhhdCBsaW51eCBicmluZ2luZyB1cCwgd2hpY2ggaGFzIGxvYWRlZCB0aGUgc3lzdGVtDQog
+ICAgcG9saWN5IGRiIHJlbGVhc2VkIGJ5IHJlZGhhdCwgd2UgYmVnaW4gdG8gbG9hZCB0aGUgcG9s
+aWN5IHJlbGVhc2VkDQogICAgYnkgb3VyIHByb2R1Y3QgLCA8YnI+DQogICAgYW5kIG1lYW53aGls
+ZSBzb21lb25lIHdhbnQgdG8gc3RhcnQgYSBkb2NrZXIgY29udGFpbmVyLCBhbmQgdGhlIHJ1bmMN
+CiAgICBnZXQgYW4gRU5PTUVNIGVycm9yIGxpa2UgaSBtZW50aW9uZWQgYWJvdmUuPGJyPg0KICAg
+IFNob3VsZCB3ZSBtZXJnZSBhbGwgdGhlIHBvbGljeSBpbnRvIHRoZSBzeXN0ZW0gcG9saWN5IGRi
+IGFuZCBqdXN0DQogICAgbG9hZCBvbmNlPzxkaXYgY2xhc3M9InF1b3RlZC10ZXh0Ij48YnI+DQog
+ICAgPGJyPg0KICAgIDxwcmUgY2xhc3M9Im1fLTY2ODQ5MTQ0NTM3NDI5NDM0NTBtb3otc2lnbmF0
+dXJlIiBjb2xzPSI3MiI+LS0gDQpCZXN0IFJlZ2FyZHMNCkxpIEt1bjwvcHJlPg0KICA8L2Rpdj48
+L2Rpdj4NCg0KPC9ibG9ja3F1b3RlPjwvZGl2PjxzcGFuIHN0eWxlPSJmb250LWZhbWlseTpzYW5z
+LXNlcmlmIj5UeXBpY2FsbHkgeW91IHdvdWxkIGluc3RhbGwgeW91ciBwb2xpY3kgbW9kdWxlIHdo
+ZW4geW91ciBwYWNrYWdlIGlzIGluc3RhbGxlZCBhbmQgbm90IG5lZWQgdG8gZG8gaXQgYXQgcnVu
+dGltZS7CoDwvc3Bhbj48YnI+PC9kaXY+PC9kaXY+PC9kaXY+DQo=
+--001a114410eec84b8e05617de9ea--
