@@ -1,79 +1,116 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w03FsrN1029646
- for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2018 10:54:54 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w03GU6h1002429
+ for <selinux@tycho.nsa.gov>; Wed, 3 Jan 2018 11:30:06 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 3zBb945qgTzrL3l
- for <selinux@tycho.nsa.gov>; Wed,  3 Jan 2018 15:54:48 +0000 (UTC)
-Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
- by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 3zBb944N9JzrL3f
- for <selinux@tycho.nsa.gov>; Wed,  3 Jan 2018 15:54:48 +0000 (UTC)
-To: Matthew Garrett <mjg59@google.com>, linux-integrity@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, Mimi Zohar
- <zohar@linux.vnet.ibm.com>, Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
-References: <20180103012017.7022-1-mjg59@google.com>
- <20180103012017.7022-2-mjg59@google.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <cd89f3cf-b620-b098-a3db-c53f05d330bf@schaufler-ca.com>
-Date: Wed, 3 Jan 2018 07:54:38 -0800
-MIME-Version: 1.0
-In-Reply-To: <20180103012017.7022-2-mjg59@google.com>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH V4 2/3] IMA: Use consistent creds
+ by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3zBbxj4wKVz633f
+ for <selinux@tycho.nsa.gov>; Wed,  3 Jan 2018 16:30:01 +0000 (UTC)
+Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3zBbxj3yMQz633c
+ for <selinux@tycho.nsa.gov>; Wed,  3 Jan 2018 16:30:01 +0000 (UTC)
+Received: by mail-lf0-f68.google.com with SMTP id h140so2248618lfg.1
+ for <selinux@tycho.nsa.gov>; Wed, 03 Jan 2018 08:30:00 -0800 (PST)
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: selinux@tycho.nsa.gov
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>
+Date: Wed,  3 Jan 2018 17:29:55 +0100
+Message-Id: <20180103162955.22677-1-marcus.folkesson@gmail.com>
+Subject: [PATCH] libselinux: introduce PCPREFIX substitute variables
+ for .pc files
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 1/2/2018 5:20 PM, Matthew Garrett wrote:
-> Right now most of the IMA code is using current->creds, but the LSM
-> checks are using security_task_getsecid() which ends up looking at
-> real_creds. Switch to using security_cred_getsecid() in order to make
-> this consistent.
->
-> Signed-off-by: Matthew Garrett <mjg59@google.com>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: selinux@tycho.nsa.gov
-> Cc: Casey Schaufler <casey@schaufler-ca.com>
-> Cc: linux-security-module@vger.kernel.org
-> Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
-> Cc: Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
-> Cc: linux-integrity@vger.kernel.org
-> ---
->  security/integrity/ima/ima_policy.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index ee4613fa5840..52951ac445ea 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
-> @@ -249,7 +249,6 @@ static void ima_lsm_update_rules(void)
->  static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
->  			    enum ima_hooks func, int mask)
->  {
-> -	struct task_struct *tsk = current;
->  	const struct cred *cred = current_cred();
->  	int i;
->  
-> @@ -305,7 +304,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
->  		case LSM_SUBJ_USER:
->  		case LSM_SUBJ_ROLE:
->  		case LSM_SUBJ_TYPE:
-> -			security_task_getsecid(tsk, &sid);
-> +			security_cred_getsecid(cred, &sid);
->  			rc = security_filter_rule_match(sid,
+Some environments (e.g. Buildroot [1] ) when using specified sysroot does
+not expect `prefix` (or `exec_prefix`) to be an absolute paths including
+sysroot directory.
 
-security_filter_rule_match() is security_audit_rule_match() in
-sheep's clothing. Using the cred secid in this case, where the
-task secid is used elsewhere is going to lead to tears. It's
-going to make *me* cry as I work on untangling secids for
-stacking/namespaces. I can't predict how else it's going to
-bite us, but I'm betting on it.
+`includedir` may be overridden by `INCLUDEDIR` but `libdir` is using
+`PREFIX` that is used in other places than .pc-files.
 
+Therefor, introduce PCPREFIX to make it possible to generate a more
+customized .pc file.
+
+[1] https://buildroot.org/
+
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+---
+ libselinux/src/Makefile  | 5 +++--
+ libsemanage/src/Makefile | 5 +++--
+ libsepol/src/Makefile    | 5 +++--
+ 3 files changed, 9 insertions(+), 6 deletions(-)
+
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 18df75c8..baa2ba0f 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -9,9 +9,10 @@ PKG_CONFIG ?= pkg-config
  
-
->  							rule->lsm[i].type,
->  							Audit_equal,
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
++PCPREFIX ?= $(PREFIX)
+ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+-INCLUDEDIR ?= $(PREFIX)/include
++INCLUDEDIR ?= $(PCPREFIX)/include
+ PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+ PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
+@@ -148,7 +149,7 @@ $(LIBSO): $(LOBJS)
+ 	ln -sf $@ $(TARGET)
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
+-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODULE):' < $< > $@
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PCPREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODULE):' < $< > $@
+ 
+ selinuxswig_python_exception.i: ../include/selinux/selinux.h
+ 	bash -e exception.sh > $@ || (rm -f $@ ; false)
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index fdb178f5..8fe2f6dd 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -9,9 +9,10 @@ PKG_CONFIG ?= pkg-config
+ 
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
++PCPREFIX ?= $(PREFIX)
+ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+-INCLUDEDIR ?= $(PREFIX)/include
++INCLUDEDIR ?= $(PCPREFIX)/include
+ PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+ PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
+@@ -95,7 +96,7 @@ $(LIBSO): $(LOBJS)
+ 	ln -sf $@ $(TARGET)
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
+-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PCPREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+ 
+ semanageswig_python_exception.i: ../include/semanage/semanage.h
+ 	bash -e exception.sh > $@ || (rm -f $@ ; false)
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index 819d261b..59c287aa 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -1,6 +1,7 @@
+ # Installation directories.
+ PREFIX ?= $(DESTDIR)/usr
+-INCLUDEDIR ?= $(PREFIX)/include
++PCPREFIX ?= $(PREFIX)
++INCLUDEDIR ?= $(PCPREFIX)/include
+ LIBDIR ?= $(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+ RANLIB ?= ranlib
+@@ -52,7 +53,7 @@ $(LIBSO): $(LOBJS) $(LIBMAP)
+ 	ln -sf $@ $(TARGET) 
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
+-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PCPREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+ 
+ $(LIBMAP): $(LIBMAP).in
+ ifneq ($(DISABLE_CIL),y)
+-- 
+2.15.1
