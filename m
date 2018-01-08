@@ -1,61 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w08CIc5W027459
- for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2018 07:18:38 -0500
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.21) with SMTP id
- w08CDvPD026151
- for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2018 07:18:34 -0500
-Received: from e06smtp14.uk.ibm.com (e06smtp14.uk.ibm.com [195.75.94.110])
- by mx0a-001b2d01.pphosted.com with ESMTP id 2fc8f689fg-1
- (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
- for <selinux@tycho.nsa.gov>; Mon, 08 Jan 2018 07:18:33 -0500
-Received: from localhost
- by e06smtp14.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
- Violators will be prosecuted
- for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
- Mon, 8 Jan 2018 12:18:31 -0000
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: Matthew Garrett <mjg59@google.com>, linux-integrity@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov, Casey Schaufler
- <casey@schaufler-ca.com>, linux-security-module@vger.kernel.org, Dmitry
- Kasatkin <dmitry.kasatkin@gmail.com>
-Date: Mon, 08 Jan 2018 07:18:25 -0500
-In-Reply-To: <20180105211536.11611-2-mjg59@google.com>
-References: <20180105211536.11611-1-mjg59@google.com>
- <20180105211536.11611-2-mjg59@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Message-Id: <1515413905.3460.40.camel@linux.vnet.ibm.com>
-Subject: Re: [PATCH V5 2/2] IMA: Support using new creds in appraisal policy
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w08FB0xu009716
+ for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2018 10:11:00 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 93B19C056789
+ for <selinux@tycho.nsa.gov>; Mon,  8 Jan 2018 15:10:44 +0000 (UTC)
+Received: from [10.43.12.77] (unknown [10.43.12.77])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 37E305C3F9
+ for <selinux@tycho.nsa.gov>; Mon,  8 Jan 2018 15:10:43 +0000 (UTC)
+To: SELinux <selinux@tycho.nsa.gov>
+From: Vit Mojzis <vmojzis@redhat.com>
+Message-ID: <2f76cc8e-b5a5-024e-2c60-baff93fa0bb9@redhat.com>
+Date: Mon, 8 Jan 2018 16:10:42 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: selabel_lookup() with MEDIA backend issue
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2018-01-05 at 13:15 -0800, Matthew Garrett wrote:
-> The existing BPRM_CHECK functionality in IMA validates against the
-> credentials of the existing process, not any new credentials that the
-> child process may transition to. Add an additional CREDS_CHECK target
-> and refactor IMA to pass the appropriate creds structure. In
-> ima_bprm_check(), check with both the existing process credentials and
-> the credentials that will be committed when the new process is started.
-> This will not change behaviour unless the system policy is extended to
-> include CREDS_CHECK targets - BPRM_CHECK will continue to check the same
-> credentials that it did previously.
+Hi all,
+there seems to be a discrepancy between man page and actual behavior of 
+selabel_lookup() with MEDIA backend.
+selabel_media man page says:
+     "Should there not be a valid entry in the media file, then the 
+default removable_context file will be read (see removable_context(5))."
 
-Refactoring IMA to pass the creds structure all the way down is a
-generic solution, but if the CREDS_CHECK rule is only being called
-from ima_bprm_check(), "container_of" the bprm->file returns a pointer
-to the bprm structure.  Perhaps you could limit the amount of
-refactoring needed based on the func.
+but the removable_context file is never used (for more details and a 
+reproducer see https://bugzilla.redhat.com/show_bug.cgi?id=1395621).
 
-I would prefer new arguments be added to process_measurement() only as
-a last resort.
+I can see two possible solutions:
+   1) Remove the removable_context file and adjust man pages accordingly.
 
-Could you include in the patch description a simple method for testing
-this change?
+   2) (Probably better) Add mechanism for using the removable_context
 
-thanks,
+Which one would you prefer?
 
-Mimi
+In case of the latter, would adding the content of removable_context 
+file to saved_data->spec_arr[nspec + 1] (label_media.c) and returning it 
+in case lookup fails be a reasonable solution?
+
+Thank you.
+
+Vit Mojzis
