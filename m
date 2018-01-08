@@ -1,137 +1,61 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w07KdcnH007420
- for <selinux@tycho.nsa.gov>; Sun, 7 Jan 2018 15:39:38 -0500
-Received: from mail-lf0-f49.google.com (mail-lf0-f49.google.com
- [209.85.215.49])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id AA2C5564AE9
- for <selinux@tycho.nsa.gov>; Sun,  7 Jan 2018 21:38:59 +0100 (CET)
-Received: by mail-lf0-f49.google.com with SMTP id y71so10097229lfd.12
- for <selinux@tycho.nsa.gov>; Sun, 07 Jan 2018 12:38:59 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20180103211346.27213-1-marcus.folkesson@gmail.com>
-References: <20180103162955.22677-1-marcus.folkesson@gmail.com>
- <20180103211346.27213-1-marcus.folkesson@gmail.com>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Sun, 7 Jan 2018 21:38:58 +0100
-Message-ID: <CAJfZ7=kaGwRKBGD1os2ApK0cUBkEzhiQnE3s3RSWaHBU9Z1tFg@mail.gmail.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w08CIc5W027459
+ for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2018 07:18:38 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.21) with SMTP id
+ w08CDvPD026151
+ for <selinux@tycho.nsa.gov>; Mon, 8 Jan 2018 07:18:34 -0500
+Received: from e06smtp14.uk.ibm.com (e06smtp14.uk.ibm.com [195.75.94.110])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 2fc8f689fg-1
+ (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
+ for <selinux@tycho.nsa.gov>; Mon, 08 Jan 2018 07:18:33 -0500
+Received: from localhost
+ by e06smtp14.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
+ Violators will be prosecuted
+ for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
+ Mon, 8 Jan 2018 12:18:31 -0000
+From: Mimi Zohar <zohar@linux.vnet.ibm.com>
+To: Matthew Garrett <mjg59@google.com>, linux-integrity@vger.kernel.org
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov, Casey Schaufler
+ <casey@schaufler-ca.com>, linux-security-module@vger.kernel.org, Dmitry
+ Kasatkin <dmitry.kasatkin@gmail.com>
+Date: Mon, 08 Jan 2018 07:18:25 -0500
+In-Reply-To: <20180105211536.11611-2-mjg59@google.com>
+References: <20180105211536.11611-1-mjg59@google.com>
+ <20180105211536.11611-2-mjg59@google.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v2] libselinux: introduce PCPREFIX substitute
- variable for .pc files
+Mime-Version: 1.0
+Message-Id: <1515413905.3460.40.camel@linux.vnet.ibm.com>
+Subject: Re: [PATCH V5 2/2] IMA: Support using new creds in appraisal policy
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Jan 3, 2018 at 10:13 PM, Marcus Folkesson
-<marcus.folkesson@gmail.com> wrote:
-> `prefix` in the .pc file may be messed up when using a buildsystem
-> that has specified a sysroot as DESTDIR.
-> We need to make it possible to override the default `libdir`
-> and `includedir`.
->
-> `includedir` may be overridden by `INCLUDEDIR` but `libdir` is using
-> `PREFIX` to setup the path.
->
-> Therefore, introduce PCPREFIX to make it possible to generate a more
-> customized .pc file.
->
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+On Fri, 2018-01-05 at 13:15 -0800, Matthew Garrett wrote:
+> The existing BPRM_CHECK functionality in IMA validates against the
+> credentials of the existing process, not any new credentials that the
+> child process may transition to. Add an additional CREDS_CHECK target
+> and refactor IMA to pass the appropriate creds structure. In
+> ima_bprm_check(), check with both the existing process credentials and
+> the credentials that will be committed when the new process is started.
+> This will not change behaviour unless the system policy is extended to
+> include CREDS_CHECK targets - BPRM_CHECK will continue to check the same
+> credentials that it did previously.
 
-Looks good to me. This patch does not seem to break the existing usage
-and adds more flexibility for packagers. By the way, I was worried by
-the modification on INCLUDEDIR, but as this variable is only used to
-generate pkg-config files, it is reasonable to use PCPREFIX instead of
-PREFIX in its definition.
+Refactoring IMA to pass the creds structure all the way down is a
+generic solution, but if the CREDS_CHECK rule is only being called
+from ima_bprm_check(), "container_of" the bprm->file returns a pointer
+to the bprm structure.  Perhaps you could limit the amount of
+refactoring needed based on the func.
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+I would prefer new arguments be added to process_measurement() only as
+a last resort.
 
-> ---
->
-> v2:
->         - Reword commit message to be easier to understand...
->
->  libselinux/src/Makefile  | 5 +++--
->  libsemanage/src/Makefile | 5 +++--
->  libsepol/src/Makefile    | 5 +++--
->  3 files changed, 9 insertions(+), 6 deletions(-)
->
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index 18df75c8..baa2ba0f 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -9,9 +9,10 @@ PKG_CONFIG ?= pkg-config
->
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
-> +PCPREFIX ?= $(PREFIX)
->  LIBDIR ?= $(PREFIX)/lib
->  SHLIBDIR ?= $(DESTDIR)/lib
-> -INCLUDEDIR ?= $(PREFIX)/include
-> +INCLUDEDIR ?= $(PCPREFIX)/include
->  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
->  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
->  PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
-> @@ -148,7 +149,7 @@ $(LIBSO): $(LOBJS)
->         ln -sf $@ $(TARGET)
->
->  $(LIBPC): $(LIBPC).in ../VERSION
-> -       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODULE):' < $< > $@
-> +       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PCPREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODULE):' < $< > $@
->
->  selinuxswig_python_exception.i: ../include/selinux/selinux.h
->         bash -e exception.sh > $@ || (rm -f $@ ; false)
-> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-> index fdb178f5..8fe2f6dd 100644
-> --- a/libsemanage/src/Makefile
-> +++ b/libsemanage/src/Makefile
-> @@ -9,9 +9,10 @@ PKG_CONFIG ?= pkg-config
->
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
-> +PCPREFIX ?= $(PREFIX)
->  LIBDIR ?= $(PREFIX)/lib
->  SHLIBDIR ?= $(DESTDIR)/lib
-> -INCLUDEDIR ?= $(PREFIX)/include
-> +INCLUDEDIR ?= $(PCPREFIX)/include
->  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
->  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
->  PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
-> @@ -95,7 +96,7 @@ $(LIBSO): $(LOBJS)
->         ln -sf $@ $(TARGET)
->
->  $(LIBPC): $(LIBPC).in ../VERSION
-> -       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
-> +       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PCPREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
->
->  semanageswig_python_exception.i: ../include/semanage/semanage.h
->         bash -e exception.sh > $@ || (rm -f $@ ; false)
-> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> index 819d261b..59c287aa 100644
-> --- a/libsepol/src/Makefile
-> +++ b/libsepol/src/Makefile
-> @@ -1,6 +1,7 @@
->  # Installation directories.
->  PREFIX ?= $(DESTDIR)/usr
-> -INCLUDEDIR ?= $(PREFIX)/include
-> +PCPREFIX ?= $(PREFIX)
-> +INCLUDEDIR ?= $(PCPREFIX)/include
->  LIBDIR ?= $(PREFIX)/lib
->  SHLIBDIR ?= $(DESTDIR)/lib
->  RANLIB ?= ranlib
-> @@ -52,7 +53,7 @@ $(LIBSO): $(LOBJS) $(LIBMAP)
->         ln -sf $@ $(TARGET)
->
->  $(LIBPC): $(LIBPC).in ../VERSION
-> -       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
-> +       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PCPREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
->
->  $(LIBMAP): $(LIBMAP).in
->  ifneq ($(DISABLE_CIL),y)
-> --
-> 2.15.1
->
->
+Could you include in the patch description a simple method for testing
+this change?
+
+thanks,
+
+Mimi
