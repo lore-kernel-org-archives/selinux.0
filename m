@@ -1,130 +1,117 @@
-Message-ID: <1515605860.21056.1.camel@btinternet.com>
-From: Richard Haines <richard_c_haines@btinternet.com>
+Date: Wed, 10 Jan 2018 16:51:27 -0200
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org, Vlad
- Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com, Stephen Smalley
- <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, marcelo.leitner@gmail.com,
- casey@schaufler-ca.com
-Date: Wed, 10 Jan 2018 17:37:40 +0000
-In-Reply-To: <CAHC9VhR9AkU4nF8VjCiGERtTU5OEtSUQFcDDhJeyJe2gzM=1gQ@mail.gmail.com>
-References: <20171230172035.15837-1-richard_c_haines@btinternet.com>
- <CAHC9VhR9AkU4nF8VjCiGERtTU5OEtSUQFcDDhJeyJe2gzM=1gQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH V4 4/4] selinux: Add SCTP support
+Cc: linux-sctp@vger.kernel.org,
+ Richard Haines <richard_c_haines@btinternet.com>,
+ selinux@tycho.nsa.gov, netdev@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com
+Message-ID: <20180110185127.GH627@localhost.localdomain>
+References: <20171230171853.15639-1-richard_c_haines@btinternet.com>
+ <CAHC9VhS_txcE=3r9MFNRwNuxNwK1JT1272h+yeqqx-gXMdYgzQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHC9VhS_txcE=3r9MFNRwNuxNwK1JT1272h+yeqqx-gXMdYgzQ@mail.gmail.com>
+Subject: Re: [PATCH V4 0/4] Add SELinux SCTP protocol support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2018-01-10 at 11:37 -0500, Paul Moore wrote:
-> On Sat, Dec 30, 2017 at 12:20 PM, Richard Haines
+On Wed, Jan 10, 2018 at 11:39:45AM -0500, Paul Moore wrote:
+> On Sat, Dec 30, 2017 at 12:18 PM, Richard Haines
 > <richard_c_haines@btinternet.com> wrote:
-> > The SELinux SCTP implementation is explained in:
-> > Documentation/security/SELinux-sctp.rst
-> > 
-> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> > ---
-> >  Documentation/security/SELinux-sctp.rst | 157 ++++++++++++++++++
-> >  security/selinux/hooks.c                | 280
-> > +++++++++++++++++++++++++++++---
-> >  security/selinux/include/classmap.h     |   2 +-
-> >  security/selinux/include/netlabel.h     |  21 ++-
-> >  security/selinux/include/objsec.h       |   4 +
-> >  security/selinux/netlabel.c             | 138 ++++++++++++++--
-> >  6 files changed, 570 insertions(+), 32 deletions(-)
-> >  create mode 100644 Documentation/security/SELinux-sctp.rst
+> > Note: Some conflicts are expected when merging with current net-next due to
+> > Interleaving Data (I-DATA) sets of patches:
+> > PATCH 2/4 - Where 'sctp_datachk_len(&asoc->stream)' has replaced
+> > 'sizeof(struct sctp_data_chunk)' in include/net/sctp/sctp.h,
+> > net/sctp/chunk.c and net/sctp/socket.c
+> > PATCH 3/4 - Where include/uapi/linux/sctp.h requires a fix to update the
+> > #define SCTP_SENDMSG_CONNECT to a higher number.
+> >
+> > These patches have been built on Fedora 27 with kernel 4.14.8 plus
+> > the following userspace patches to enable testing:
+> >
+> > 1) Updates to libsepol 2.7 to support the sctp portcon statement.
+> >    The patch is available from:
+> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+> >          selinux-Add-support-for-the-SCTP-portcon-keyword.patch
+> >
+> > 2) Updates to the SELinux Test Suite adding SCTP tests. Please read the
+> >    selinux-testsuite/README.sctp for details. The patch is available from:
+> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+> >          selinux-testsuite-Add-SCTP-test-support.patch
+> >
+> > 3) Updates to lksctp-tools that show SELinux info in sctp_darn and
+> >    sctp_test. It also contains a minor patch for test_1_to_1_connect.c
+> >    as when CIPSO/CALIPSO configured, NetLabel returns a different error
+> >    code for illegal addresses in test 5. The patch is available from:
+> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+> >          lksctp-tools-Add-SELinux-support-to-sctp_test-and-sc.patch
+> >
+> > All SCTP lksctp-tools/src/func_tests run correctly in enforcing mode.
+> >
+> > All SCTP regression tests "./sctp-tests run" run correctly in enforcing
+> > mode. These tests are obtained from: https://github.com/sctp/sctp-tests
+> >
+> > The selinux-testsuite patch also adds remote tests (that need some manual
+> > configuration). These are useful for testing CIPSO/CALIPSO over a network
+> > with a number of categories to produce large ip option fields with various
+> > message sizes forcing fragmentation etc..
+> >
+> > Changes since RFC Patch:
+> > Removed the NetLabel patch (was [RFC PATCH 4/5] netlabel: Add SCTP support)
+> > as re-engineered. However this patchset will require the NetLabel
+> > patch at [1] to fully run the SCTP selinux-testsuite.
+> >
+> > V1 Changes:
+> > PATCH 1/4
+> > Remove unused parameter from security_sctp_assoc_request().
+> > Reformat and update LSM-sctp.rst documentation.
+> > PATCH 2/4
+> > Add variables and RCU locks as requested in [2] to support IP options.
+> > PATCH 3/4
+> > Added security_sctp_assoc_request() hook to sctp_sf_do_unexpected_init()
+> > and sctp_sf_do_5_2_4_dupcook().
+> > Removed security_sctp_assoc_request() hook from sctp_sf_do_5_1C_ack() as
+> > no longer required.
+> > PATCH 4/4
+> > Reformat and update SELinux-sctp.rst documentation.
+> > Remove bindx and connectx permissions.
+> > Rework selinux_socket_connect() and selinux_netlbl_socket_connect() to
+> > utilise helpers for code reuse.
+> > Add spinlock to selinux_sctp_assoc_request().
+> > Remove unused parameter from security_sctp_assoc_request().
+> > Use address->sa_family == AF_INET in *_bind and *_connect to ensure
+> > correct address type.
+> > Minor cleanups.
+> >
+> > V2 Changes:
+> > PATCH 4/4 - Remove spin lock from selinux_sctp_assoc_request()
+> > PATCH 4/4 - Fix selinux_sctp_sk_clone() kbuild test robot catch [3]
+> >
+> > V3 Changes:
+> > PATCH 2/4 - Account for IP options length in sctp.h sctp_frag_point() by
+> > Marcelo
+> >
+> > V4 Changes:
+> > PATCH 1/4 - Move specific SELinux descriptions from LSM-sctp.rst and
+> > lsm_hooks.h to SELinux-sctp.rst in PATCH 4/4
+> > PATCH 4/4 - Rename selinux_netlbl_sctp_socket_connect() to
+> > selinux_netlbl_socket_connect_locked() and move description comments to
+> > selinux_sctp_bind_connect()
+> >
+> > [1] https://marc.info/?l=selinux&m=151061619115945&w=2
+> > [2] https://marc.info/?l=selinux&m=150962470215797&w=2
+> > [3] https://marc.info/?l=selinux&m=151198281817779&w=2
 > 
-> ...
-> 
-> > +/**
-> > + * selinux_netlbl_socket_connect - Label a client-side socket on
-> > connect
-> > + * @sk: the socket to label
-> > + * @addr: the destination address
-> > + *
-> > + * Description:
-> > + * Attempt to label a connected socket with NetLabel using the
-> > given address.
-> > + * Returns zero values on success, negative values on failure.
-> > + *
-> > + */
-> > +int selinux_netlbl_socket_connect(struct sock *sk, struct sockaddr
-> > *addr)
-> > +{
-> > +       int rc;
-> > +       struct sk_security_struct *sksec = sk->sk_security;
-> > +
-> > +       if (sksec->nlbl_state != NLBL_REQSKB &&
-> > +           sksec->nlbl_state != NLBL_CONNLABELED)
-> > +               return 0;
-> > +
-> > +       lock_sock(sk);
-> > +       rc = selinux_netlbl_socket_connect_helper(sk, addr);
-> >         release_sock(sk);
-> > +
-> >         return rc;
-> >  }
-> > +
-> > +/**
-> > + * selinux_netlbl_socket_connect_locked - Label a client-side
-> > socket on
-> > + * connect
-> > + * @sk: the socket to label
-> > + * @addr: the destination address
-> > + *
-> > + * Description:
-> > + * Attempt to label a connected socket that already has the socket
-> > locked
-> > + * with NetLabel using the given address.
-> > + * Returns zero values on success, negative values on failure.
-> > + *
-> > + */
-> > +int selinux_netlbl_socket_connect_locked(struct sock *sk,
-> > +                                        struct sockaddr *addr)
-> > +{
-> > +       struct sk_security_struct *sksec = sk->sk_security;
-> > +
-> > +       if (sksec->nlbl_state != NLBL_REQSKB &&
-> > +           sksec->nlbl_state != NLBL_CONNLABELED)
-> > +               return 0;
-> > +
-> > +       return selinux_netlbl_socket_connect_helper(sk, addr);
-> > +}
-> 
-> [Sorry for the review delay, the holidays and some associated travel
-> made it hard to find some quiet time to look at the latest patches.]
-> 
-> I probably should have been a bit more clear in my last comment, but
-> what I had in mind was something like the following:
-> 
-> int selinux_netlbl_socket_connect_locked(...)
-> {
->     if (sksec->nlbl_state ...)
->         return 0;
-> 
->     return selinux_netlbl_socket_connect_helper();
-> }
-> 
-> int selinux_netlbl_socket_connect(...)
-> {
->     int rc;
-> 
->     lock_sock();
->     rc = selinux_netlbl_socket_connect_locked();
->     release_sock();
-> 
->     return rc;
-> }
-> 
-> Yes, you do end up checking nlbl_state while the socket lock is held,
-> but I believe the benefit of consolidating the code outweighs any
-> additional overhead (I believe it would be "noise" anyway).
+> SCTP folks, any objections?  I'm planning on merging these into
+> selinux-next after the next merge window so if you want to see any
+> changes, please speak up ...
 
-Okay I'll send an updated [PATCH V5 4/4] tomorrow.
+No objections from my side.
 
-> 
-> Otherwise, this all looks good to me.
-> 
+Thanks,
+Marcelo
