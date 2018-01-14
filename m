@@ -1,80 +1,164 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0DIp1CV011616
- for <selinux@tycho.nsa.gov>; Sat, 13 Jan 2018 13:51:01 -0500
-Received: by mail-it0-f68.google.com with SMTP id q8so1150148itb.2
- for <selinux@tycho.nsa.gov>; Sat, 13 Jan 2018 10:50:41 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20180110141238.8766-1-richard_c_haines@btinternet.com>
-References: <20180110141238.8766-1-richard_c_haines@btinternet.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Sat, 13 Jan 2018 10:50:40 -0800
-Message-ID: <CAFftDdpuFfudhxP-FZ17+AHV1bKxyJApU0bQKTMqEpk7KcgwBA@mail.gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] libselinux: Correct manpages regarding removable_context
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0EFYp4G025348
+ for <selinux@tycho.nsa.gov>; Sun, 14 Jan 2018 10:34:52 -0500
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov
+Date: Sun, 14 Jan 2018 15:34:36 +0000
+Message-Id: <20180114153436.21916-1-richard_c_haines@btinternet.com>
+Subject: [PATCH] libsemanage: Allow tmp files to be kept if a
+ compile fails
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Jan 10, 2018 at 6:12 AM, Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> The selabel_media(5) man page incorrectly stated that the
-> removable_context(5) would be read if an selabel_lookup(3)
-> failed. Correct the man pages that fixes [1].
->
-> [1] https://bugzilla.redhat.com/show_bug.cgi?id=1395621
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  libselinux/man/man5/removable_context.5 | 5 ++---
->  libselinux/man/man5/selabel_media.5     | 4 +---
->  2 files changed, 3 insertions(+), 6 deletions(-)
->
-> diff --git a/libselinux/man/man5/removable_context.5 b/libselinux/man/man5/removable_context.5
-> index 60aaa938..f16e8bdc 100644
-> --- a/libselinux/man/man5/removable_context.5
-> +++ b/libselinux/man/man5/removable_context.5
-> @@ -3,8 +3,7 @@
->  removable_context \- The SELinux removable devices context configuration file
->  .
->  .SH "DESCRIPTION"
-> -This file contains the default label that should be used for removable devices that are not defined in the \fImedia\fR file (that is described in
-> -.BR selabel_media "(5)). "
-> +This file contains the default label that should be used for removable devices.
->  .sp
->  .BR selinux_removable_context_path "(3) "
->  will return the active policy path to this file. The default removable context file is:
-> @@ -34,4 +33,4 @@ A user, role, type and optional range (for MCS/MLS) separated by colons (:) that
->  system_u:object_r:removable_t:s0
->  .
->  .SH "SEE ALSO"
-> -.BR selinux "(8), " selinux_removable_context_path "(3), " selabel_media "(5), " selinux_config "(5) "
-> +.BR selinux "(8), " selinux_removable_context_path "(3), " selinux_config "(5) "
-> diff --git a/libselinux/man/man5/selabel_media.5 b/libselinux/man/man5/selabel_media.5
-> index 395ed0e7..b7c28e32 100644
-> --- a/libselinux/man/man5/selabel_media.5
-> +++ b/libselinux/man/man5/selabel_media.5
-> @@ -52,8 +52,6 @@ The default media contexts file is:
->  .RE
->  .sp
->  Where \fI{SELINUXTYPE}\fR is the entry from the selinux configuration file \fIconfig\fR (see \fBselinux_config\fR(5)).
-> -.sp
-> -Should there not be a valid entry in the \fImedia\fR file, then the default \fIremovable_context\fR file will be read (see \fBremovable_context\fR(5)).
->  .
->  .SH "FILE FORMAT"
->  Each line within the \fImedia\fR file is as follows:
-> @@ -90,4 +88,4 @@ this is not set, then it is possible for an invalid context to be returned.
->  .SH "SEE ALSO"
->  .ad l
->  .nh
-> -.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_media_context_path "(3), " freecon "(3), " selinux_config "(5), " removable_context "(5) "
-> +.BR selinux "(8), " selabel_open "(3), " selabel_lookup "(3), " selabel_stats "(3), " selabel_close "(3), " selinux_set_callback "(3), " selinux_media_context_path "(3), " freecon "(3), " selinux_config "(5) "
-> --
-> 2.14.3
->
->
+Add new option to semanage.conf that allows the tmp build files
+to be kept for debugging when building policy.
 
-Thanks applied.
-https://github.com/SELinuxProject/selinux/pull/74
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ libsemanage/man/man5/semanage.conf.5 |  8 ++++++++
+ libsemanage/src/conf-parse.y         | 15 ++++++++++++++-
+ libsemanage/src/conf-scan.l          |  1 +
+ libsemanage/src/direct_api.c         | 21 ++++++++++++---------
+ libsemanage/src/semanage_conf.h      |  1 +
+ 5 files changed, 36 insertions(+), 10 deletions(-)
+
+diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man5/semanage.conf.5
+index 8f8de55a..10cab65a 100644
+--- a/libsemanage/man/man5/semanage.conf.5
++++ b/libsemanage/man/man5/semanage.conf.5
+@@ -121,6 +121,14 @@ and by default it is set to "false".
+ Please note that since this option deletes all HLL files, an updated HLL compiler will not be able to recompile the original HLL file into CIL.
+ In order to compile the original HLL file into CIL, the same HLL file will need to be reinstalled.
+ 
++.TP
++.B retain-tmp
++When set to "true", tmp directories (the sandbox at \fBstore-root/\fR[\fIpolicy-store\fR]\fB/tmp \fRand/or the final policy at \fBstore-root/final/\fR[\fIpolicy-store\fR]) will be retained after compilation to allow debugging of any build errors. Note that on a successful build the sandbox becomes \fBstore-root/\fR[\fIpolicy-store\fR]\fB/active\fR.
++.br
++The
++.B retain-tmp
++option can be set to either "true" or "false" and by default it is set to "false".
++
+ .SH "SEE ALSO"
+ .TP
+ semanage(8)
+diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+index b527e893..f098e55d 100644
+--- a/libsemanage/src/conf-parse.y
++++ b/libsemanage/src/conf-parse.y
+@@ -61,7 +61,7 @@ static int parse_errors;
+ 
+ %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT
+ %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
+-%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
++%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL RETAIN_TMP
+ %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+ %token PROG_PATH PROG_ARGS
+ %token <s> ARG
+@@ -95,6 +95,7 @@ single_opt:     module_store
+ 	|	bzip_blocksize
+ 	|	bzip_small
+ 	|	remove_hll
++	|	retain_tmp
+         ;
+ 
+ module_store:   MODULE_STORE '=' ARG {
+@@ -268,6 +269,17 @@ remove_hll:  REMOVE_HLL'=' ARG {
+ 	free($3);
+ }
+ 
++retain_tmp:  RETAIN_TMP'=' ARG {
++	if (strcasecmp($3, "false") == 0) {
++		current_conf->retain_tmp = 0;
++	} else if (strcasecmp($3, "true") == 0) {
++		current_conf->retain_tmp = 1;
++	} else {
++		yyerror("retain-tmp can only be 'true' or 'false'");
++	}
++	free($3);
++}
++
+ command_block: 
+                 command_start external_opts BLOCK_END  {
+                         if (new_external->path == NULL) {
+@@ -352,6 +364,7 @@ static int semanage_conf_init(semanage_conf_t * conf)
+ 	conf->bzip_small = 0;
+ 	conf->ignore_module_cache = 0;
+ 	conf->remove_hll = 0;
++	conf->retain_tmp = 0;
+ 
+ 	conf->save_previous = 0;
+ 	conf->save_linked = 0;
+diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
+index 607bbf0b..e26c3494 100644
+--- a/libsemanage/src/conf-scan.l
++++ b/libsemanage/src/conf-scan.l
+@@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
+ bzip-blocksize	return BZIP_BLOCKSIZE;
+ bzip-small	return BZIP_SMALL;
+ remove-hll	return REMOVE_HLL;
++retain-tmp	return RETAIN_TMP;
+ "[load_policy]"   return LOAD_POLICY_START;
+ "[setfiles]"      return SETFILES_START;
+ "[sefcontext_compile]"      return SEFCONTEXT_COMPILE_START;
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index a455612f..5d2a443c 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -326,7 +326,10 @@ static void semanage_direct_destroy(semanage_handle_t * sh
+ static int semanage_direct_disconnect(semanage_handle_t * sh)
+ {
+ 	/* destroy transaction */
+-	if (sh->is_in_transaction) {
++	if (sh->is_in_transaction)
++		semanage_release_trans_lock(sh);
++
++	if (!sh->conf->retain_tmp && sh->is_in_transaction) {
+ 		/* destroy sandbox */
+ 		if (semanage_remove_directory
+ 		    (semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL)) < 0) {
+@@ -342,7 +345,6 @@ static int semanage_direct_disconnect(semanage_handle_t * sh)
+ 						SEMANAGE_FINAL_TOPLEVEL));
+ 			return -1;
+ 		}
+-		semanage_release_trans_lock(sh);
+ 	}
+ 
+ 	/* Release object databases: local modifications */
+@@ -1639,13 +1641,14 @@ cleanup:
+ 
+ 	free(fc_buffer);
+ 
+-	/* regardless if the commit was successful or not, remove the
+-	   sandbox if it is still there */
+-	semanage_remove_directory(semanage_path
+-				  (SEMANAGE_TMP, SEMANAGE_TOPLEVEL));
+-	semanage_remove_directory(semanage_final_path
+-				  (SEMANAGE_FINAL_TMP,
+-				   SEMANAGE_FINAL_TOPLEVEL));
++	/* Delete sandbox unless requested by semanage.conf */
++	if (!sh->conf->retain_tmp) {
++		semanage_remove_directory(semanage_path
++					  (SEMANAGE_TMP, SEMANAGE_TOPLEVEL));
++		semanage_remove_directory(semanage_final_path
++					  (SEMANAGE_FINAL_TMP,
++					   SEMANAGE_FINAL_TOPLEVEL));
++	}
+ 	umask(mask);
+ 
+ 	return retval;
+diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
+index c99ac8c7..f7bba754 100644
+--- a/libsemanage/src/semanage_conf.h
++++ b/libsemanage/src/semanage_conf.h
+@@ -46,6 +46,7 @@ typedef struct semanage_conf {
+ 	int bzip_blocksize;
+ 	int bzip_small;
+ 	int remove_hll;
++	int retain_tmp;
+ 	int ignore_module_cache;
+ 	char *ignoredirs;	/* ";" separated of list for genhomedircon to ignore */
+ 	struct external_prog *load_policy;
+-- 
+2.14.3
