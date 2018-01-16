@@ -1,167 +1,219 @@
-Message-ID: <1516117354.10453.7.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>, selinux@tycho.nsa.gov,
- nicolas.iooss@m4x.org
-Date: Tue, 16 Jan 2018 10:42:34 -0500
-In-Reply-To: <20180112151135.13202-2-marcus.folkesson@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180112151135.13202-1-marcus.folkesson@gmail.com>
- <20180112151135.13202-2-marcus.folkesson@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0GFmNfL009786
+ for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2018 10:48:23 -0500
+Received: by mail-io0-f193.google.com with SMTP id w188so17253958iod.10
+ for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2018 07:47:51 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <CAB9W1A3F67LHE9bG7C2y7hnoXkxh51RLyvtnsOd98DaSSnohww@mail.gmail.com>
+References: <20180114153436.21916-1-richard_c_haines@btinternet.com>
+ <CAB9W1A1RmO4jbo-yyZPUNhLU6S9e3C0rmY3ZOLR8TNGd+vx_Xg@mail.gmail.com>
+ <CAB9W1A3dOC7G9-=Y1i4Fb=JnQuOO26+dV794nQKZk+cj-A+DXQ@mail.gmail.com>
+ <CAB9W1A3F67LHE9bG7C2y7hnoXkxh51RLyvtnsOd98DaSSnohww@mail.gmail.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Tue, 16 Jan 2018 07:47:49 -0800
+Message-ID: <CAFftDdqhzFptFePGfWGT+NwpuzVPb1RAsyitGEy-BeqinS2nRw@mail.gmail.com>
+To: Stephen Smalley <stephen.smalley@gmail.com>
+Cc: Richard Haines <richard_c_haines@btinternet.com>,
+ selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH 1/3] libsepol: build: follow standard semantics for
- DESTDIR and PREFIX
+Subject: Re: [PATCH] libsemanage: Allow tmp files to be kept if a compile fails
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2018-01-12 at 16:11 +0100, Marcus Folkesson wrote:
-> This patch solves the following issues:
-> - The pkg-config files generates odd paths when using DESTDIR without
-> PREFIX
-> - DESTDIR is needed during compile time to compute library and header
-> paths which it should not.
-> - Installing with both DESTDIR and PREFIX set gives us odd paths
-> - Make usage of DESTDIR and PREFIX more standard
-> 
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+On Mon, Jan 15, 2018 at 9:32 AM, Stephen Smalley
+<stephen.smalley@gmail.com> wrote:
+> On Jan 14, 2018 10:36 AM, "Richard Haines" <richard_c_haines@btinternet.com>
+> wrote:
+>
+> Add new option to semanage.conf that allows the tmp build files
+> to be kept for debugging when building policy.
+>
+>
+> Would it be better to just retain the files by default if there is an error?
+
+I thought about this as well, my reasoning as to why Richard's approach was
+better is that if someone does it N times trying to figure out an issue,
+then there would be N piles of files in the tmp folder. This way they
+have to opt in to have their tmp folder spammed.
+
+>
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  README                      |  2 +-
->  libsepol/include/Makefile   |  4 ++--
->  libsepol/man/Makefile       |  5 +++--
->  libsepol/src/Makefile       | 23 +++++++++++------------
->  libsepol/src/libsepol.pc.in |  2 +-
->  libsepol/utils/Makefile     |  4 ++--
->  6 files changed, 20 insertions(+), 20 deletions(-)
-> 
-> diff --git a/README b/README
-> index 7fc7b17b..174551a1 100644
-> --- a/README
-> +++ b/README
-> @@ -19,6 +19,6 @@ lacks library functions or other dependencies
-> relied upon by your
->  distribution.  If it breaks, you get to keep both pieces.
->  
->  To install libsepol on macOS (mainly for policy analysis):
-> -cd libsepol; make DESTDIR=/usr/local PREFIX=/usr/local install
-> +cd libsepol; make PREFIX=/usr/local install
->  
->  This requires GNU coreutils (brew install coreutils).
-> diff --git a/libsepol/include/Makefile b/libsepol/include/Makefile
-> index 56b7a114..ad5c34a4 100644
-> --- a/libsepol/include/Makefile
-> +++ b/libsepol/include/Makefile
-> @@ -1,6 +1,6 @@
->  # Installation directories.
-> -PREFIX ?= $(DESTDIR)/usr
-> -INCDIR ?= $(PREFIX)/include/sepol
-> +PREFIX ?= /usr
-> +INCDIR = $(DESTDIR)$(PREFIX)/include/sepol
->  CILDIR ?= ../cil
->  
->  all:
-> diff --git a/libsepol/man/Makefile b/libsepol/man/Makefile
-> index 11924334..4f3d9fa2 100644
-> --- a/libsepol/man/Makefile
-> +++ b/libsepol/man/Makefile
-> @@ -1,6 +1,7 @@
->  # Installation directories.
-> -MAN8DIR ?= $(DESTDIR)/usr/share/man/man8
-> -MAN3DIR ?= $(DESTDIR)/usr/share/man/man3
-> +PREFIX ?= /usr
-> +MAN8DIR ?= $(DESTDIR)$(PREFIX)/share/man/man8
-> +MAN3DIR ?= $(DESTDIR)$(PREFIX)/share/man/man3
->  
->  all:
->  
-> diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
-> index 819d261b..35b7829d 100644
-> --- a/libsepol/src/Makefile
-> +++ b/libsepol/src/Makefile
-> @@ -1,11 +1,10 @@
->  # Installation directories.
-> -PREFIX ?= $(DESTDIR)/usr
-> +PREFIX ?= /usr
->  INCLUDEDIR ?= $(PREFIX)/include
->  LIBDIR ?= $(PREFIX)/lib
-> -SHLIBDIR ?= $(DESTDIR)/lib
->  RANLIB ?= ranlib
-> -LIBBASE ?= $(shell basename $(LIBDIR))
->  CILDIR ?= ../cil
-> +LIBINSTALL = $(DESTDIR)$(LIBDIR)
->  
->  VERSION = $(shell cat ../VERSION)
->  LIBVERSION = 1
-> @@ -52,7 +51,7 @@ $(LIBSO): $(LOBJS) $(LIBMAP)
->  	ln -sf $@ $(TARGET) 
->  
->  $(LIBPC): $(LIBPC).in ../VERSION
-> -	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):;
-> s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
-> +	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):;
-> s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
->  
->  $(LIBMAP): $(LIBMAP).in
->  ifneq ($(DISABLE_CIL),y)
-> @@ -80,16 +79,16 @@ endif
->  	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
->  
->  install: all
-> -	test -d $(LIBDIR) || install -m 755 -d $(LIBDIR)
-> -	install -m 644 $(LIBA) $(LIBDIR)
-> -	test -d $(SHLIBDIR) || install -m 755 -d $(SHLIBDIR)
-> -	install -m 755 $(LIBSO) $(SHLIBDIR)
-> -	test -d $(LIBDIR)/pkgconfig || install -m 755 -d
-> $(LIBDIR)/pkgconfig
-> -	install -m 644 $(LIBPC) $(LIBDIR)/pkgconfig
-> -	$(LN) -sf --relative $(SHLIBDIR)/$(LIBSO)
-> $(LIBDIR)/$(TARGET)
-> +	test -d $(LIBINSTALL) || install -m 755 -d $(LIBINSTALL)
-> +	install -m 644 $(LIBA) $(LIBINSTALL)
-> +	test -d $(LIBINSTALL) || install -m 755 -d $(LIBINSTALL)
-> +	install -m 755 $(LIBSO) $(LIBINSTALL)
-> +	test -d $(LIBINSTALL)/pkgconfig || install -m 755 -d
-> $(LIBINSTALL)/pkgconfig
-> +	install -m 644 $(LIBPC) $(LIBINSTALL)/pkgconfig
-> +	$(LN) -sf --relative $(LIBINSTALL)/$(LIBSO)
-> $(LIBINSTALL)/$(TARGET)
+>  libsemanage/man/man5/semanage.conf.5 |  8 ++++++++
+>  libsemanage/src/conf-parse.y         | 15 ++++++++++++++-
+>  libsemanage/src/conf-scan.l          |  1 +
+>  libsemanage/src/direct_api.c         | 21 ++++++++++++---------
+>  libsemanage/src/semanage_conf.h      |  1 +
+>  5 files changed, 36 insertions(+), 10 deletions(-)
+>
+> diff --git a/libsemanage/man/man5/semanage.conf.5
+> b/libsemanage/man/man5/semanage.conf.5
+> index 8f8de55a..10cab65a 100644
+> --- a/libsemanage/man/man5/semanage.conf.5
+> +++ b/libsemanage/man/man5/semanage.conf.5
+> @@ -121,6 +121,14 @@ and by default it is set to "false".
+>  Please note that since this option deletes all HLL files, an updated HLL
+> compiler will not be able to recompile the original HLL file into CIL.
+>  In order to compile the original HLL file into CIL, the same HLL file will
+> need to be reinstalled.
+>
+> +.TP
+> +.B retain-tmp
+> +When set to "true", tmp directories (the sandbox at
+> \fBstore-root/\fR[\fIpolicy-store\fR]\fB/tmp \fRand/or the final policy at
+> \fBstore-root/final/\fR[\fIpolicy-store\fR]) will be retained after
+> compilation to allow debugging of any build errors. Note that on a
+> successful build the sandbox becomes
+> \fBstore-root/\fR[\fIpolicy-store\fR]\fB/active\fR.
+> +.br
+> +The
+> +.B retain-tmp
+> +option can be set to either "true" or "false" and by default it is set to
+> "false".
+> +
+>  .SH "SEE ALSO"
+>  .TP
+>  semanage(8)
+> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+> index b527e893..f098e55d 100644
+> --- a/libsemanage/src/conf-parse.y
+> +++ b/libsemanage/src/conf-parse.y
+> @@ -61,7 +61,7 @@ static int parse_errors;
+>
+>  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS
+> SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT
+>  %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START
+> DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
+> -%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
+> +%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL RETAIN_TMP
+>  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
+>  %token PROG_PATH PROG_ARGS
+>  %token <s> ARG
+> @@ -95,6 +95,7 @@ single_opt:     module_store
+>         |       bzip_blocksize
+>         |       bzip_small
+>         |       remove_hll
+> +       |       retain_tmp
+>          ;
+>
+>  module_store:   MODULE_STORE '=' ARG {
+> @@ -268,6 +269,17 @@ remove_hll:  REMOVE_HLL'=' ARG {
+>         free($3);
+>  }
+>
+> +retain_tmp:  RETAIN_TMP'=' ARG {
+> +       if (strcasecmp($3, "false") == 0) {
+> +               current_conf->retain_tmp = 0;
+> +       } else if (strcasecmp($3, "true") == 0) {
+> +               current_conf->retain_tmp = 1;
+> +       } else {
+> +               yyerror("retain-tmp can only be 'true' or 'false'");
+> +       }
+> +       free($3);
+> +}
+> +
+>  command_block:
+>                  command_start external_opts BLOCK_END  {
+>                          if (new_external->path == NULL) {
+> @@ -352,6 +364,7 @@ static int semanage_conf_init(semanage_conf_t * conf)
+>         conf->bzip_small = 0;
+>         conf->ignore_module_cache = 0;
+>         conf->remove_hll = 0;
+> +       conf->retain_tmp = 0;
+>
+>         conf->save_previous = 0;
+>         conf->save_linked = 0;
+> diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
+> index 607bbf0b..e26c3494 100644
+> --- a/libsemanage/src/conf-scan.l
+> +++ b/libsemanage/src/conf-scan.l
+> @@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
+>  bzip-blocksize return BZIP_BLOCKSIZE;
+>  bzip-small     return BZIP_SMALL;
+>  remove-hll     return REMOVE_HLL;
+> +retain-tmp     return RETAIN_TMP;
+>  "[load_policy]"   return LOAD_POLICY_START;
+>  "[setfiles]"      return SETFILES_START;
+>  "[sefcontext_compile]"      return SEFCONTEXT_COMPILE_START;
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index a455612f..5d2a443c 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -326,7 +326,10 @@ static void semanage_direct_destroy(semanage_handle_t *
+> sh
+>  static int semanage_direct_disconnect(semanage_handle_t * sh)
+>  {
+>         /* destroy transaction */
+> -       if (sh->is_in_transaction) {
+> +       if (sh->is_in_transaction)
+> +               semanage_release_trans_lock(sh);
+>
+>
+> Is it safe to release the trans lock before deleting the sandbox?
+>
+> +
+> +       if (!sh->conf->retain_tmp && sh->is_in_transaction) {
+>                 /* destroy sandbox */
+>                 if (semanage_remove_directory
+>                     (semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL)) < 0) {
+> @@ -342,7 +345,6 @@ static int semanage_direct_disconnect(semanage_handle_t
+> * sh)
+>                                                 SEMANAGE_FINAL_TOPLEVEL));
+>                         return -1;
+>                 }
+> -               semanage_release_trans_lock(sh);
+>         }
+>
+>         /* Release object databases: local modifications */
+> @@ -1639,13 +1641,14 @@ cleanup:
+>
+>         free(fc_buffer);
+>
+> -       /* regardless if the commit was successful or not, remove the
+> -          sandbox if it is still there */
+> -       semanage_remove_directory(semanage_path
+> -                                 (SEMANAGE_TMP, SEMANAGE_TOPLEVEL));
+> -       semanage_remove_directory(semanage_final_path
+> -                                 (SEMANAGE_FINAL_TMP,
+> -                                  SEMANAGE_FINAL_TOPLEVEL));
+> +       /* Delete sandbox unless requested by semanage.conf */
+> +       if (!sh->conf->retain_tmp) {
+> +               semanage_remove_directory(semanage_path
+> +                                         (SEMANAGE_TMP,
+> SEMANAGE_TOPLEVEL));
+> +               semanage_remove_directory(semanage_final_path
+> +                                         (SEMANAGE_FINAL_TMP,
+> +                                          SEMANAGE_FINAL_TOPLEVEL));
+> +       }
+>         umask(mask);
+>
+>         return retval;
+> diff --git a/libsemanage/src/semanage_conf.h
+> b/libsemanage/src/semanage_conf.h
+> index c99ac8c7..f7bba754 100644
+> --- a/libsemanage/src/semanage_conf.h
+> +++ b/libsemanage/src/semanage_conf.h
+> @@ -46,6 +46,7 @@ typedef struct semanage_conf {
+>         int bzip_blocksize;
+>         int bzip_small;
+>         int remove_hll;
+> +       int retain_tmp;
+>         int ignore_module_cache;
+>         char *ignoredirs;       /* ";" separated of list for genhomedircon
+> to ignore */
+>         struct external_prog *load_policy;
+> --
+> 2.14.3
+>
+>
+>
 
-This changes where the shared objects are installed, from /lib or
-/lib64 to /usr/lib or /usr/lib64. On systems with usrmerge, this will
-not matter, but it will matter on systems without usrmerge.
 
->  
->  relabel:
-> -	/sbin/restorecon $(SHLIBDIR)/$(LIBSO)
-> +	/sbin/restorecon $(LIBINSTALL)/$(LIBSO)
->  
->  clean: 
->  	-rm -f $(LIBPC) $(LIBMAP) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO)
-> $(TARGET) $(CIL_GENERATED)
-> diff --git a/libsepol/src/libsepol.pc.in
-> b/libsepol/src/libsepol.pc.in
-> index e52f5892..f807fec6 100644
-> --- a/libsepol/src/libsepol.pc.in
-> +++ b/libsepol/src/libsepol.pc.in
-> @@ -1,6 +1,6 @@
->  prefix=@prefix@
->  exec_prefix=${prefix}
-> -libdir=${exec_prefix}/@libdir@
-> +libdir=@libdir@
->  includedir=@includedir@
->  
->  Name: libsepol
-> diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
-> index fba1d8a0..8ce4bf47 100644
-> --- a/libsepol/utils/Makefile
-> +++ b/libsepol/utils/Makefile
-> @@ -1,6 +1,6 @@
->  # Installation directories.
-> -PREFIX ?= $(DESTDIR)/usr
-> -BINDIR ?= $(PREFIX)/bin
-> +PREFIX ?= /usr
-> +BINDIR ?= $(DESTDIR)$(PREFIX)/bin
->  
->  CFLAGS ?= -Wall -Werror
->  override CFLAGS += -I../include
+
+-- 
+Respectfully,
+
+William C Roberts
