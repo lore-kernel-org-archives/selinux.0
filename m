@@ -1,13 +1,13 @@
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: selinux@tycho.nsa.gov, nicolas.iooss@m4x.org, sds@tycho.nsa.gov
 Cc: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Tue, 16 Jan 2018 21:23:25 +0100
-Message-Id: <20180116202327.23253-13-marcus.folkesson@gmail.com>
+Date: Tue, 16 Jan 2018 21:23:23 +0100
+Message-Id: <20180116202327.23253-11-marcus.folkesson@gmail.com>
 In-Reply-To: <20180116202327.23253-1-marcus.folkesson@gmail.com>
 References: <marcus.folkesson@gmail.com>
  <20180116202327.23253-1-marcus.folkesson@gmail.com>
-Subject: [PATCH v2 12/14] semodule-utils: build: follow standard
- semantics for DESTDIR and PREFIX
+Subject: [PATCH v2 10/14] sandbox: build: follow standard semantics
+ for DESTDIR and PREFIX
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -15,61 +15,33 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- semodule-utils/semodule_expand/Makefile  | 8 +++-----
- semodule-utils/semodule_link/Makefile    | 8 +++-----
- semodule-utils/semodule_package/Makefile | 8 +++-----
- 3 files changed, 9 insertions(+), 15 deletions(-)
+ sandbox/Makefile | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/semodule-utils/semodule_expand/Makefile b/semodule-utils/semodule_expand/Makefile
-index 072f2137..c2ab3f65 100644
---- a/semodule-utils/semodule_expand/Makefile
-+++ b/semodule-utils/semodule_expand/Makefile
-@@ -1,9 +1,7 @@
+diff --git a/sandbox/Makefile b/sandbox/Makefile
+index 05c3d658..5a6b707a 100644
+--- a/sandbox/Makefile
++++ b/sandbox/Makefile
+@@ -1,14 +1,14 @@
+ PYTHON ?= python
+ 
  # Installation directories.
 -PREFIX ?= $(DESTDIR)/usr
--INCLUDEDIR ?= $(PREFIX)/include
--BINDIR ?= $(PREFIX)/bin
--LIBDIR ?= $(PREFIX)/lib
--MANDIR ?= $(PREFIX)/share/man
 +PREFIX ?= /usr
-+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
- 
- CFLAGS ?= -Werror -Wall -W
- override LDLIBS += -lsepol
-diff --git a/semodule-utils/semodule_link/Makefile b/semodule-utils/semodule_link/Makefile
-index cc4687bd..bcf98765 100644
---- a/semodule-utils/semodule_link/Makefile
-+++ b/semodule-utils/semodule_link/Makefile
-@@ -1,9 +1,7 @@
- # Installation directories.
--PREFIX ?= $(DESTDIR)/usr
--INCLUDEDIR ?= $(PREFIX)/include
--BINDIR ?= $(PREFIX)/bin
--MANDIR ?= $(PREFIX)/share/man
+ SYSCONFDIR ?= $(DESTDIR)/etc/sysconfig
 -LIBDIR ?= $(PREFIX)/lib
-+PREFIX ?= /usr
-+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
- 
- CFLAGS ?= -Werror -Wall -W
- override LDLIBS += -lsepol
-diff --git a/semodule-utils/semodule_package/Makefile b/semodule-utils/semodule_package/Makefile
-index 96dd7c4f..33a95e16 100644
---- a/semodule-utils/semodule_package/Makefile
-+++ b/semodule-utils/semodule_package/Makefile
-@@ -1,9 +1,7 @@
- # Installation directories.
--PREFIX ?= $(DESTDIR)/usr
--INCLUDEDIR ?= $(PREFIX)/include
 -BINDIR ?= $(PREFIX)/bin
--LIBDIR ?= $(PREFIX)/lib
+-SBINDIR ?= $(PREFIX)/sbin
 -MANDIR ?= $(PREFIX)/share/man
-+PREFIX ?= /usr
++LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
 +BINDIR ?= $(DESTDIR)$(PREFIX)/bin
++SBINDIR ?= $(DESTDIR)$(PREFIX)/sbin
 +MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
- 
- CFLAGS ?= -Werror -Wall -W
- override LDLIBS += -lsepol
+ LOCALEDIR ?= /usr/share/locale
+-SHAREDIR ?= $(PREFIX)/share/sandbox
++SHAREDIR ?= $(DESTDIR)$(PREFIX)/share/sandbox
+ override CFLAGS += -DPACKAGE="\"policycoreutils\"" -Wall -Werror -Wextra -W
+ override LDLIBS += -lselinux -lcap-ng
+ SEUNSHARE_OBJS = seunshare.o
 -- 
 2.15.1
