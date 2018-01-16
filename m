@@ -1,37 +1,36 @@
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: selinux@tycho.nsa.gov, nicolas.iooss@m4x.org, sds@tycho.nsa.gov
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Tue, 16 Jan 2018 21:23:27 +0100
-Message-Id: <20180116202327.23253-15-marcus.folkesson@gmail.com>
-In-Reply-To: <20180116202327.23253-1-marcus.folkesson@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180116202327.23253-1-marcus.folkesson@gmail.com>
-Subject: [PATCH v2 14/14] build: add prefix for includes in top
- Makefile
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0GNrnoE016113
+ for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2018 18:53:49 -0500
+Received: by mail-qk0-f182.google.com with SMTP id l64so23061261qke.13
+ for <selinux@tycho.nsa.gov>; Tue, 16 Jan 2018 15:53:43 -0800 (PST)
+To: Stephen Smalley <sds@tycho.nsa.gov>, refpolicy <refpolicy@oss.tresys.com>,
+ SELinux <selinux@tycho.nsa.gov>
+References: <0d560876-f29f-1da8-7c30-459abcb4e1a9@ieee.org>
+ <1516118572.10453.11.camel@tycho.nsa.gov>
+From: Chris PeBenito <pebenito@ieee.org>
+Message-ID: <0d7f0979-b793-4fd5-f01a-6aca189f3144@ieee.org>
+Date: Tue, 16 Jan 2018 18:53:42 -0500
+MIME-Version: 1.0
+In-Reply-To: <1516118572.10453.11.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: ANN: Reference Policy 2.20180114
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
----
- Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+On 01/16/2018 11:02 AM, Stephen Smalley wrote:
+> On Sun, 2018-01-14 at 15:02 -0500, Chris PeBenito via refpolicy wrote:
+>> A new release, 2.20180114, of the SELinux Reference Policy is now
+>> available on the GitHub site:
+>>
+>> https://github.com/TresysTechnology/refpolicy/wiki/DownloadRelease
+> 
+> Could we get the nnp_nosuid_transition policy capability enabled in the
+> next release?
 
-diff --git a/Makefile b/Makefile
-index 6da7f7b7..74d662d4 100644
---- a/Makefile
-+++ b/Makefile
-@@ -19,8 +19,8 @@ else
- endif
- 
- ifneq ($(DESTDIR),)
--	CFLAGS += -I$(DESTDIR)/usr/include
--	LDFLAGS += -L$(DESTDIR)/usr/lib
-+	CFLAGS += -I$(DESTDIR)$(PREFIX)/include
-+	LDFLAGS += -L$(DESTDIR)$(PREFIX)/lib
- 	export CFLAGS
- 	export LDFLAGS
- endif
+That's my mistake; I should have enabled it in this release.  Enabled in 
+master now.
+
 -- 
-2.15.1
+Chris PeBenito
