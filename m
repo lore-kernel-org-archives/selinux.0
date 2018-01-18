@@ -1,125 +1,115 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0IMb73b008210
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 17:37:08 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 3zMzMr4XShz2t1d
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 22:36:40 +0000 (UTC)
+Received: from UPDC3CPA06.eemsg.mil (unknown [192.168.18.13])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 3zMzMr3hLGzJ3dv
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 22:36:40 +0000 (UTC)
+Received: by mail-lf0-f68.google.com with SMTP id q194so17198799lfe.13
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 14:36:39 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20180116202327.23253-3-marcus.folkesson@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180116202327.23253-1-marcus.folkesson@gmail.com>
- <20180116202327.23253-3-marcus.folkesson@gmail.com>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 17 Jan 2018 23:12:56 +0100
-Message-ID: <CAJfZ7==ONcncWgfN7dOV7tFMqkasrsS9UG_+oRADWeFRdYCwxQ@mail.gmail.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+In-Reply-To: <20180118215853.228182-1-salyzyn@android.com>
+References: <20180118215853.228182-1-salyzyn@android.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 18 Jan 2018 17:36:38 -0500
+Message-ID: <CAHC9VhT=tgkKGiQ8CGSw4eBY+crc3iBdkxWGF4M6DoMT4VDGYg@mail.gmail.com>
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v2 02/14] libselinux: build: follow standard
- semantics for DESTDIR and PREFIX
+Subject: Re: [PATCH] general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jan 16, 2018 at 9:23 PM, Marcus Folkesson
-<marcus.folkesson@gmail.com> wrote:
-> This patch solves the following issues:
-> - The pkg-config files generates odd paths when using DESTDIR without PREFIX
-> - DESTDIR is needed during compile time to compute library and header paths which it should not.
-> - Installing with both DESTDIR and PREFIX set gives us odd paths
-> - Make usage of DESTDIR and PREFIX more standard
+On Thu, Jan 18, 2018 at 4:58 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+> general protection fault: 0000 [#1] PREEMPT SMP KASAN
+> CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
+> task: ffff8801d1095f00 task.stack: ffff8800b5950000
+> RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+> RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
+> RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
+> RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
+> RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
+> R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
+> R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
+> FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Stack:
+>  ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
+>  ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
+>  ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
+>  ffff880000000001
+> Call Trace:
+> [<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
+> [<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
+> [<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
+> [<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
+> [<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
+> Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
+> f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
+> fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
+> 00 41 8b 75 10 31
+> RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+> RSP <ffff8800b5957ce0>
+> ---[ end trace 7b5aaf788fef6174 ]---
 >
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
+> flag") and all the associated infrastructure changes to take advantage
+> of a RCU grace period before freeing, there is a heightened
+> possibility that a security check is performed while an ill-timed
+> setsockopt call races in from user space.  It then is prudent to null
+> check sk_security, and if the case, reject the permissions.
+>
+> This adjustment is orthogonal to infrastructure improvements that may
+> nullify the needed check, but should be added as good code hygiene.
+
+I'm skeptical that this is the full solution for systems that lack the
+SOCK_RCU_FREE protection.  Is this really limited to just
+setsockopt()?
+
+> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+> Cc: Paul Moore <paul@paul-moore.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: James Morris <james.l.morris@oracle.com>
+> Cc: "Serge E. Hallyn" <serge@hallyn.com>
+> Cc: selinux@tycho.nsa.gov
+> Cc: linux-security-module@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Cc: stable@vger.kernel.org
 > ---
->  libselinux/include/Makefile     |  4 ++--
->  libselinux/man/Makefile         |  7 ++++---
->  libselinux/src/Makefile         | 12 +++++-------
->  libselinux/src/libselinux.pc.in |  2 +-
->  libselinux/utils/Makefile       |  6 ++----
->  5 files changed, 14 insertions(+), 17 deletions(-)
+> This patch should be applied to all stable trees (author wants
+> minimum of 3.18, 4.4, 4.9 and 4.14)
 >
-> diff --git a/libselinux/include/Makefile b/libselinux/include/Makefile
-> index 757a6c9c..3b51f5ce 100644
-> --- a/libselinux/include/Makefile
-> +++ b/libselinux/include/Makefile
-> @@ -1,6 +1,6 @@
->  # Installation directories.
-> -PREFIX ?= $(DESTDIR)/usr
-> -INCDIR ?= $(PREFIX)/include/selinux
-> +PREFIX ?= /usr
-> +INCDIR = $(DESTDIR)$(PREFIX)/include/selinux
+>  security/selinux/hooks.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
->  all:
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 8644d864e3c1..95d7c8143373 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4342,7 +4342,7 @@ static int sock_has_perm(struct sock *sk, u32 perms)
+>         struct common_audit_data ad;
+>         struct lsm_network_audit net = {0,};
 >
-> diff --git a/libselinux/man/Makefile b/libselinux/man/Makefile
-> index 0643e6af..233bfaa9 100644
-> --- a/libselinux/man/Makefile
-> +++ b/libselinux/man/Makefile
-> @@ -1,7 +1,8 @@
->  # Installation directories.
-> -MAN8DIR ?= $(DESTDIR)/usr/share/man/man8
-> -MAN5DIR ?= $(DESTDIR)/usr/share/man/man5
-> -MAN3DIR ?= $(DESTDIR)/usr/share/man/man3
-> +PREFIX ?= /usr
-> +MAN8DIR ?= $(DESTDIR)$(PREFIX)/share/man/man8
-> +MAN5DIR ?= $(DESTDIR)$(PREFIX)/share/man/man5
-> +MAN3DIR ?= $(DESTDIR)$(PREFIX)/share/man/man3
+> -       if (sksec->sid == SECINITSID_KERNEL)
+> +       if (!sksec || sksec->sid == SECINITSID_KERNEL)
+>                 return 0;
 >
->  all:
->
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index 18df75c8..18a58164 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -8,8 +8,8 @@ RUBYPREFIX ?= $(notdir $(RUBY))
->  PKG_CONFIG ?= pkg-config
->
->  # Installation directories.
-> -PREFIX ?= $(DESTDIR)/usr
-> -LIBDIR ?= $(PREFIX)/lib
-> +PREFIX ?= /usr
-> +LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
->  SHLIBDIR ?= $(DESTDIR)/lib
->  INCLUDEDIR ?= $(PREFIX)/include
->  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
-> @@ -19,8 +19,6 @@ PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixe
->  RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
->  RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
->  RUBYINSTALL ?= $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
-> -LIBBASE ?= $(shell basename $(LIBDIR))
-> -LIBSEPOLA ?= $(LIBDIR)/libsepol.a
->
->  VERSION = $(shell cat ../VERSION)
->  LIBVERSION = 1
-> @@ -148,7 +146,7 @@ $(LIBSO): $(LOBJS)
->         ln -sf $@ $(TARGET)
->
->  $(LIBPC): $(LIBPC).in ../VERSION
-> -       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODULE):' < $< > $@
-> +       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODULE):' < $< > $@
->
->  selinuxswig_python_exception.i: ../include/selinux/selinux.h
->         bash -e exception.sh > $@ || (rm -f $@ ; false)
-> @@ -156,8 +154,8 @@ selinuxswig_python_exception.i: ../include/selinux/selinux.h
->  $(AUDIT2WHYLOBJ): audit2why.c
->         $(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED -c -o $@ $<
->
-> -$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ) $(LIBSEPOLA)
-> -       $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(PYLIBS)
-> +$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)
-> +       $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(PYLIBS) -l:libsepol.a
+>         ad.type = LSM_AUDIT_DATA_NET;
+> --
+> 2.16.0.rc1.238.g530d649a79-goog
 
-Hello,
-This change makes audit2why.so no longer being rebuilt when libsepol's
-code change. This is an issue when debugging issues in libsepol, which
-is why I added $(LIBSEPOLA) to the dependencies of $(AUDIT2WHYSO) in
-commit dcd135cc06ab ("Re-link programs after libsepol.a is updated"
-[1]).
-By the way, I like the change from using a "hardcoded" path to
-libsepol.a to telling the compiler to look into directories specified
-with option -L in LDFLAGS. This would ease the packaging a little bit,
-as it makes defining LIBSEPOLA no longer necessary (if I understood
-the changes correctly, I have not tested this point). Is there a way
-to ask the compiler for the resolved location of a static library, in
-a way which can be used to compute the value of LIBSEPOLA? ("gcc
--Wl,--trace ..." displays it but it is not easily usable).
-
-Best regards,
-Nicolas
-
-[1] https://github.com/SELinuxProject/selinux/commit/dcd135cc06abd8cd662d2d7a896e368f09380dd2
+-- 
+paul moore
+www.paul-moore.com
