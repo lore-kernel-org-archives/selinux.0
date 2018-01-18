@@ -1,155 +1,96 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0JCD8k4024295
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 07:13:08 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC15.oob.disa.mil (Postfix) with SMTP id 3zNKTs526mz3GDS1
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 12:13:05 +0000 (UTC)
-Received: from UPDC3CPA01.eemsg.mil (unknown [192.168.18.8])
- by UPDCF3IC15.oob.disa.mil (Postfix) with ESMTP id 3zNKTq74F7z3GD9h
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 12:13:03 +0000 (UTC)
-Received: by mail-wm0-f41.google.com with SMTP id b21so3119136wme.4
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 04:13:03 -0800 (PST)
-Received: from julius.enp8s0.d30 ([217.19.26.10])
- by smtp.gmail.com with ESMTPSA id g55sm6037203eda.70.2018.01.19.04.13.01
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Fri, 19 Jan 2018 04:13:01 -0800 (PST)
-Date: Fri, 19 Jan 2018 13:12:59 +0100
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <20180119121259.GD4126@julius.enp8s0.d30>
-References: <20180119101951.GA4126@julius.enp8s0.d30>
- <20180119103437.GB4126@julius.enp8s0.d30>
- <20180119104333.GC4126@julius.enp8s0.d30>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="zbGR4y+acU1DwHSi"
-In-Reply-To: <20180119104333.GC4126@julius.enp8s0.d30>
-Subject: Re: default_type limitations
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0ILxNR1017614
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 16:59:23 -0500
+Received: by mail-pg0-f65.google.com with SMTP id k68so7801965pga.3
+ for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 13:59:20 -0800 (PST)
+From: Mark Salyzyn <salyzyn@android.com>
+To: linux-kernel@vger.kernel.org
+Cc: Mark Salyzyn <salyzyn@android.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, stable@vger.kernel.org
+Date: Thu, 18 Jan 2018 13:58:45 -0800
+Message-Id: <20180118215853.228182-1-salyzyn@android.com>
+Subject: [PATCH] general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
+task: ffff8801d1095f00 task.stack: ffff8800b5950000
+RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
+RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
+RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
+R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
+R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
+FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Stack:
+ ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
+ ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
+ ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
+ ffff880000000001
+Call Trace:
+[<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
+[<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
+[<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
+[<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
+[<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
+Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
+f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
+fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
+00 41 8b 75 10 31
+RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+RSP <ffff8800b5957ce0>
+---[ end trace 7b5aaf788fef6174 ]---
 
---zbGR4y+acU1DwHSi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
+flag") and all the associated infrastructure changes to take advantage
+of a RCU grace period before freeing, there is a heightened
+possibility that a security check is performed while an ill-timed
+setsockopt call races in from user space.  It then is prudent to null
+check sk_security, and if the case, reject the permissions.
 
-On Fri, Jan 19, 2018 at 11:43:33AM +0100, Dominick Grift wrote:
-> On Fri, Jan 19, 2018 at 11:34:37AM +0100, Dominick Grift wrote:
-> > On Fri, Jan 19, 2018 at 11:19:51AM +0100, Dominick Grift wrote:
-> > > The default_type functionality is too limited because it assumes that=
- all login programs associate the same type with a given role
-> > >=20
-> > > This is not the case
-> > >=20
-> > > For example:
-> > >=20
-> > > default_type for local_login: joe.role:joe.type
-> > > default_type for sshd: joe.role:joe_ssh_server.type
-> > > default_type for cockpit joe.role:joe_cockpit_bridge.type
-> >=20
-> > The thing is that login programs these day's often dont just run a shel=
-l on behalf of users directly.
-> > There is often an intermediate process that should not be associated wi=
-th the shell type ideally
-> >=20
-> > For example sshd uses pam_selinux to associate a context with the privi=
-leged user sshd process. This process needs
-> > all kinds of extra permissions for tunneling, forwarding, chroots etc.
-> >=20
-> > this privileged process then runs a shell on half of the user:
-> >=20
-> > sshd -> user "priv" sshd process -> user shell
-> >=20
-> > This works because it uses pam_selinux for the user "priv" sshd manual =
-process transition, and then i can use a transparent automatic type transit=
-ion to associate a context with the shell (user_sshd.type -> shell -> user.=
-type)
-> >=20
-> > Same with cockpit:
-> > cockpits_session -> user cockpit bridge -> user shell
-> >=20
-> > unlike local_login:
-> > login -> user shell
->=20
-> I other words: There is no such thing as a "default_type". The default ty=
-pe associated with a given role can vary per login program.
+This adjustment is orthogonal to infrastructure improvements that may
+nullify the needed check, but should be added as good code hygiene.
 
-hmm, never mind. I will have to investigate further... looks like i got con=
-fused
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: James Morris <james.l.morris@oracle.com>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: selinux@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+---
+This patch should be applied to all stable trees (author wants
+minimum of 3.18, 4.4, 4.9 and 4.14)
 
->=20
-> >=20
-> > >=20
-> > > etc
-> > >=20
-> > > So pam_selinux "select_context" can only support a single login progr=
-am due to this
-> > >=20
-> > > I do not understand why default_type is needed in the first place. Th=
-e contexts/users/ file is more specific:
-> > >=20
-> > > /etc/selinux/TYPE/contexts/users/joe.user:
-> > > sys.role:login.type:s0 joe.role:joe.type:s0 joe1.role:joe1.type:s0
-> > > sys.role:sshd.type:s0 joe.role:joe_ssh_server.type:s0 joe1.role:joe1_=
-ssh_server.type:s0
-> > > sys.role:cockpit_session.subj:s0 joe.role:joe_cockpit_bridge.type:s0 =
-joe1:joe1_cockpit_bridge.type:s0
-> > >=20
-> > > ie. its already specified that for example joe1.type is default type =
-for joe1.role for local_login and that joe1_ssh_server.type is default type=
- for joe1.role for sshd
-> > >=20
-> > > So unless i am overlooking something, the default_type file is redund=
-ant and it actually adds an extra file to configure
-> > >=20
-> > > --=20
-> > > Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> > > https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7=
-B6B02
-> > > Dominick Grift
-> >=20
-> >=20
-> >=20
-> > --=20
-> > Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> > https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6=
-B02
-> > Dominick Grift
->=20
->=20
->=20
-> --=20
-> Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-> Dominick Grift
+ security/selinux/hooks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---zbGR4y+acU1DwHSi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlph4McACgkQJXSOVTf5
-R2k4gAv8DlCmzvqXu+WPgDJ/k1nsYRf90l1bNUvVyxWpMaWNOceKg5FpCatW9a5J
-m30pF0wrhvJ7zF78AGF85DfYt4d+LUaJSQXtAtSwDhOmkkTNapbbhD8uvQHcUiti
-CCEXfU8TgKXKqhA8UEp5rBHpi17Z6ZbLdWbhebmrLhhajqkHCiK8xU1wTsf1laWB
-tBvfgyyMvoGIc42r2gsQXCb7SsSU/NgbtiWePF7yceuT8JzbJeY0hXVW1WO1zydN
-b3zQ8Nd4SFQbjDJKGVuRuttbgG9RLLBdjq7CHipe7CokGe0cswpF5GXTNCG8Wo7u
-SVhnFICJE11zxfzdYCZvB7f8U7NqinEKt6fO6SuUJKh9oo9kJMIkvbSb13hxxj/7
-rtDQT9eJ5PJtERuXyq2VCsqYI9CopvcPAseFo1pmONHEVqlt/RD9ZwE0SIBAEKig
-WUU/uJK5R515ALYIyrnBwsgspXgNEp6prZHCKmTDSJ1w9GSDbCvzYV29fvHNjw0V
-7kdk5oJD
-=PW6y
------END PGP SIGNATURE-----
-
---zbGR4y+acU1DwHSi--
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 8644d864e3c1..95d7c8143373 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4342,7 +4342,7 @@ static int sock_has_perm(struct sock *sk, u32 perms)
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 
+-	if (sksec->sid == SECINITSID_KERNEL)
++	if (!sksec || sksec->sid == SECINITSID_KERNEL)
+ 		return 0;
+ 
+ 	ad.type = LSM_AUDIT_DATA_NET;
+-- 
+2.16.0.rc1.238.g530d649a79-goog
