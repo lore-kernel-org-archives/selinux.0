@@ -1,79 +1,289 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0JHYfpa018847
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 12:34:43 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3zNScw428Jz18llQ
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 17:34:40 +0000 (UTC)
-Received: from UPDC3CPA05.eemsg.mil (unknown [192.168.18.12])
- by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3zNScw2V3jz18llN
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 17:34:40 +0000 (UTC)
-Received: by mail-pf0-f196.google.com with SMTP id t5so1861833pfi.0
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 09:34:39 -0800 (PST)
-To: Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org
-Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>, "Serge E. Hallyn"
- <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, stable@vger.kernel.org
-References: <20180118215853.228182-1-salyzyn@android.com>
- <1516382386.2560.11.camel@tycho.nsa.gov>
-From: Mark Salyzyn <salyzyn@android.com>
-Message-ID: <fe1be13d-3242-8f60-aa53-71e2548b7858@android.com>
-Date: Fri, 19 Jan 2018 09:34:36 -0800
 MIME-Version: 1.0
-In-Reply-To: <1516382386.2560.11.camel@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH] general protection fault in sock_has_perm
+In-Reply-To: <CAFftDdouC3zjPkaQCzgF8v0HLinmrQ1ujcyZzu7ED89-H6zUrA@mail.gmail.com>
+References: <20180114153436.21916-1-richard_c_haines@btinternet.com>
+ <CAB9W1A1RmO4jbo-yyZPUNhLU6S9e3C0rmY3ZOLR8TNGd+vx_Xg@mail.gmail.com>
+ <CAB9W1A3dOC7G9-=Y1i4Fb=JnQuOO26+dV794nQKZk+cj-A+DXQ@mail.gmail.com>
+ <CAB9W1A3F67LHE9bG7C2y7hnoXkxh51RLyvtnsOd98DaSSnohww@mail.gmail.com>
+ <CAFftDdqhzFptFePGfWGT+NwpuzVPb1RAsyitGEy-BeqinS2nRw@mail.gmail.com>
+ <1516118446.10453.9.camel@tycho.nsa.gov>
+ <CAFftDdouC3zjPkaQCzgF8v0HLinmrQ1ujcyZzu7ED89-H6zUrA@mail.gmail.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Fri, 19 Jan 2018 12:04:46 -0800
+Message-ID: <CAFftDdrr0Vwv-nOEUa6AAYoXH0bKRorVPq3EoTsO_3HG=_io5g@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Stephen Smalley <stephen.smalley@gmail.com>,
+ Richard Haines <richard_c_haines@btinternet.com>,
+ selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] libsemanage: Allow tmp files to be kept if a compile fails
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/19/2018 09:19 AM, Stephen Smalley wrote:
-> On Thu, 2018-01-18 at 13:58 -0800, Mark Salyzyn wrote:
->> general protection fault: 0000 [#1] PREEMPT SMP KASAN
->> . . .
+Richard, are you going to respin this?
+
+On Tue, Jan 16, 2018 at 9:35 AM, William Roberts
+<bill.c.roberts@gmail.com> wrote:
+> On Tue, Jan 16, 2018 at 8:00 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On Tue, 2018-01-16 at 07:47 -0800, William Roberts wrote:
+>>> On Mon, Jan 15, 2018 at 9:32 AM, Stephen Smalley
+>>> <stephen.smalley@gmail.com> wrote:
+>>> > On Jan 14, 2018 10:36 AM, "Richard Haines" <richard_c_haines@btinte
+>>> > rnet.com>
+>>> > wrote:
+>>> >
+>>> > Add new option to semanage.conf that allows the tmp build files
+>>> > to be kept for debugging when building policy.
+>>> >
+>>> >
+>>> > Would it be better to just retain the files by default if there is
+>>> > an error?
+>>>
+>>> I thought about this as well, my reasoning as to why Richard's
+>>> approach was
+>>> better is that if someone does it N times trying to figure out an
+>>> issue,
+>>> then there would be N piles of files in the tmp folder. This way they
+>>> have to opt in to have their tmp folder spammed.
 >>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 8644d864e3c1..95d7c8143373 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -4342,7 +4342,7 @@ static int sock_has_perm(struct sock *sk, u32
->> perms)
->>   	struct common_audit_data ad;
->>   	struct lsm_network_audit net = {0,};
->>   
->> -	if (sksec->sid == SECINITSID_KERNEL)
->> +	if (!sksec || sksec->sid == SECINITSID_KERNEL)
->>   		return 0;
-> The patch description says "null check the sk_security, and if the
-> case, reject the permissions."  The patch code instead has it return
-> 0/success, i.e. permission granted.  Which one is correct?
-<oops> -EACCESS would be advised, yes. THANKS.
-
-<please remove my mistake from my permanent record ;-} >
-> If we
-> return -EACCES, then we might break userspace; if we return 0, we might
-> be allowing an operation that should have been denied.  Both seem like
-> losing propositions.
-if the sk_security is NULL, it is in-effect a form of UAF, so kernel 
-_and_ user space is already 'sick'. I think it is a significantly larger 
-losing proposition to panic the kernel? Reporting -EACCESS (as was 
-proper) is a error propagation way to let user space deal with the 
-erroneous condition.
-
+>> I believe that the tmp directories are deleted and re-created by
+>> libsemanage each time before use (otherwise we'd have a different
+>> problem with not removing them, since we could end up with a mix of
+>> files from different, incomplete transactions being intermingled
+>> there). So I don't think this would be a problem.  It might however
 >
-> Could we instead have selinux_sk_free_security() defer freeing of the
-> sock security blob to a call_rcu(), like we did for
-> inode_free_security, or change the caller of it to not free it until
-> the sock is truly freed?
+> Oh I see it looks like its just generating a /tmp "store" directory
+> under the semanage path. I thought that enum was triggering a true
+> /tmp style thing. I should have looksed closer.
+>
+>> require saving the commit success/failure result in the handle so that
+>> we know in semanage_direct_disconnect() whether or not we should delete
+>> it.
+>
+> Now that I understand that tid-bit, I think you're right, let's just
+> leave it on error.
+>
+>>
+>> If we truly need to make it optional, then I'd rather have it be an
+>> option flag to semodule and a runtime setting of libsemanage (ala
+>> reload, disable_dontaudit, etc) than a semanage.conf setting, as this
+>> is something a user will want to be able to use without having to edit
+>> a config file, re-run the transaction, and then re-edit the config file
+>> each time.  But I'm not convinced we can't just make it the default
+>> behavior whenever the commit fails.  Deleting the tmp files
+>> automatically only really makes sense when it succeeds.
+>
+>
+>
+>>
+>>>
+>>> >
+>>> >
+>>> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>>> > ---
+>>> >  libsemanage/man/man5/semanage.conf.5 |  8 ++++++++
+>>> >  libsemanage/src/conf-parse.y         | 15 ++++++++++++++-
+>>> >  libsemanage/src/conf-scan.l          |  1 +
+>>> >  libsemanage/src/direct_api.c         | 21 ++++++++++++---------
+>>> >  libsemanage/src/semanage_conf.h      |  1 +
+>>> >  5 files changed, 36 insertions(+), 10 deletions(-)
+>>> >
+>>> > diff --git a/libsemanage/man/man5/semanage.conf.5
+>>> > b/libsemanage/man/man5/semanage.conf.5
+>>> > index 8f8de55a..10cab65a 100644
+>>> > --- a/libsemanage/man/man5/semanage.conf.5
+>>> > +++ b/libsemanage/man/man5/semanage.conf.5
+>>> > @@ -121,6 +121,14 @@ and by default it is set to "false".
+>>> >  Please note that since this option deletes all HLL files, an
+>>> > updated HLL
+>>> > compiler will not be able to recompile the original HLL file into
+>>> > CIL.
+>>> >  In order to compile the original HLL file into CIL, the same HLL
+>>> > file will
+>>> > need to be reinstalled.
+>>> >
+>>> > +.TP
+>>> > +.B retain-tmp
+>>> > +When set to "true", tmp directories (the sandbox at
+>>> > \fBstore-root/\fR[\fIpolicy-store\fR]\fB/tmp \fRand/or the final
+>>> > policy at
+>>> > \fBstore-root/final/\fR[\fIpolicy-store\fR]) will be retained after
+>>> > compilation to allow debugging of any build errors. Note that on a
+>>> > successful build the sandbox becomes
+>>> > \fBstore-root/\fR[\fIpolicy-store\fR]\fB/active\fR.
+>>> > +.br
+>>> > +The
+>>> > +.B retain-tmp
+>>> > +option can be set to either "true" or "false" and by default it is
+>>> > set to
+>>> > "false".
+>>> > +
+>>> >  .SH "SEE ALSO"
+>>> >  .TP
+>>> >  semanage(8)
+>>> > diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-
+>>> > parse.y
+>>> > index b527e893..f098e55d 100644
+>>> > --- a/libsemanage/src/conf-parse.y
+>>> > +++ b/libsemanage/src/conf-parse.y
+>>> > @@ -61,7 +61,7 @@ static int parse_errors;
+>>> >
+>>> >  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS
+>>> > SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE
+>>> > STORE_ROOT
+>>> >  %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START
+>>> > DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
+>>> > -%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
+>>> > +%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL RETAIN_TMP
+>>> >  %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START
+>>> > BLOCK_END
+>>> >  %token PROG_PATH PROG_ARGS
+>>> >  %token <s> ARG
+>>> > @@ -95,6 +95,7 @@ single_opt:     module_store
+>>> >         |       bzip_blocksize
+>>> >         |       bzip_small
+>>> >         |       remove_hll
+>>> > +       |       retain_tmp
+>>> >          ;
+>>> >
+>>> >  module_store:   MODULE_STORE '=' ARG {
+>>> > @@ -268,6 +269,17 @@ remove_hll:  REMOVE_HLL'=' ARG {
+>>> >         free($3);
+>>> >  }
+>>> >
+>>> > +retain_tmp:  RETAIN_TMP'=' ARG {
+>>> > +       if (strcasecmp($3, "false") == 0) {
+>>> > +               current_conf->retain_tmp = 0;
+>>> > +       } else if (strcasecmp($3, "true") == 0) {
+>>> > +               current_conf->retain_tmp = 1;
+>>> > +       } else {
+>>> > +               yyerror("retain-tmp can only be 'true' or
+>>> > 'false'");
+>>> > +       }
+>>> > +       free($3);
+>>> > +}
+>>> > +
+>>> >  command_block:
+>>> >                  command_start external_opts BLOCK_END  {
+>>> >                          if (new_external->path == NULL) {
+>>> > @@ -352,6 +364,7 @@ static int semanage_conf_init(semanage_conf_t *
+>>> > conf)
+>>> >         conf->bzip_small = 0;
+>>> >         conf->ignore_module_cache = 0;
+>>> >         conf->remove_hll = 0;
+>>> > +       conf->retain_tmp = 0;
+>>> >
+>>> >         conf->save_previous = 0;
+>>> >         conf->save_linked = 0;
+>>> > diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-
+>>> > scan.l
+>>> > index 607bbf0b..e26c3494 100644
+>>> > --- a/libsemanage/src/conf-scan.l
+>>> > +++ b/libsemanage/src/conf-scan.l
+>>> > @@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
+>>> >  bzip-blocksize return BZIP_BLOCKSIZE;
+>>> >  bzip-small     return BZIP_SMALL;
+>>> >  remove-hll     return REMOVE_HLL;
+>>> > +retain-tmp     return RETAIN_TMP;
+>>> >  "[load_policy]"   return LOAD_POLICY_START;
+>>> >  "[setfiles]"      return SETFILES_START;
+>>> >  "[sefcontext_compile]"      return SEFCONTEXT_COMPILE_START;
+>>> > diff --git a/libsemanage/src/direct_api.c
+>>> > b/libsemanage/src/direct_api.c
+>>> > index a455612f..5d2a443c 100644
+>>> > --- a/libsemanage/src/direct_api.c
+>>> > +++ b/libsemanage/src/direct_api.c
+>>> > @@ -326,7 +326,10 @@ static void
+>>> > semanage_direct_destroy(semanage_handle_t *
+>>> > sh
+>>> >  static int semanage_direct_disconnect(semanage_handle_t * sh)
+>>> >  {
+>>> >         /* destroy transaction */
+>>> > -       if (sh->is_in_transaction) {
+>>> > +       if (sh->is_in_transaction)
+>>> > +               semanage_release_trans_lock(sh);
+>>> >
+>>> >
+>>> > Is it safe to release the trans lock before deleting the sandbox?
+>>> >
+>>> > +
+>>> > +       if (!sh->conf->retain_tmp && sh->is_in_transaction) {
+>>> >                 /* destroy sandbox */
+>>> >                 if (semanage_remove_directory
+>>> >                     (semanage_path(SEMANAGE_TMP,
+>>> > SEMANAGE_TOPLEVEL)) < 0) {
+>>> > @@ -342,7 +345,6 @@ static int
+>>> > semanage_direct_disconnect(semanage_handle_t
+>>> > * sh)
+>>> >                                                 SEMANAGE_FINAL_TOPL
+>>> > EVEL));
+>>> >                         return -1;
+>>> >                 }
+>>> > -               semanage_release_trans_lock(sh);
+>>> >         }
+>>> >
+>>> >         /* Release object databases: local modifications */
+>>> > @@ -1639,13 +1641,14 @@ cleanup:
+>>> >
+>>> >         free(fc_buffer);
+>>> >
+>>> > -       /* regardless if the commit was successful or not, remove
+>>> > the
+>>> > -          sandbox if it is still there */
+>>> > -       semanage_remove_directory(semanage_path
+>>> > -                                 (SEMANAGE_TMP,
+>>> > SEMANAGE_TOPLEVEL));
+>>> > -       semanage_remove_directory(semanage_final_path
+>>> > -                                 (SEMANAGE_FINAL_TMP,
+>>> > -                                  SEMANAGE_FINAL_TOPLEVEL));
+>>> > +       /* Delete sandbox unless requested by semanage.conf */
+>>> > +       if (!sh->conf->retain_tmp) {
+>>> > +               semanage_remove_directory(semanage_path
+>>> > +                                         (SEMANAGE_TMP,
+>>> > SEMANAGE_TOPLEVEL));
+>>> > +               semanage_remove_directory(semanage_final_path
+>>> > +                                         (SEMANAGE_FINAL_TMP,
+>>> > +                                          SEMANAGE_FINAL_TOPLEVEL)
+>>> > );
+>>> > +       }
+>>> >         umask(mask);
+>>> >
+>>> >         return retval;
+>>> > diff --git a/libsemanage/src/semanage_conf.h
+>>> > b/libsemanage/src/semanage_conf.h
+>>> > index c99ac8c7..f7bba754 100644
+>>> > --- a/libsemanage/src/semanage_conf.h
+>>> > +++ b/libsemanage/src/semanage_conf.h
+>>> > @@ -46,6 +46,7 @@ typedef struct semanage_conf {
+>>> >         int bzip_blocksize;
+>>> >         int bzip_small;
+>>> >         int remove_hll;
+>>> > +       int retain_tmp;
+>>> >         int ignore_module_cache;
+>>> >         char *ignoredirs;       /* ";" separated of list for
+>>> > genhomedircon
+>>> > to ignore */
+>>> >         struct external_prog *load_policy;
+>>> > --
+>>> > 2.14.3
+>>> >
+>>> >
+>>> >
+>>>
+>>>
+>>>
+>
+>
+>
+> --
+> Respectfully,
+>
+> William C Roberts
 
-AFAIK the upper issue is the premature closing on an RCU protected 
-object, and the _right_ answer is that its call should have been 
-properly deferred to a synchronization or grace period. Having 
-sk_free_security be deferred by the grace period runs the risk that it 
-is in a race with the proper deletion of a languishing read object in an 
-RCU. It is a bug in the upper layers. My proposal in this KISS stability 
-patch is to make security deal with those bugs gracefully until all 
-those issues are fixed (in ToT).
 
--- Mark
+
+-- 
+Respectfully,
+
+William C Roberts
