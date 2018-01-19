@@ -1,115 +1,92 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0IMb73b008210
- for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 17:37:08 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0JAJx19008024
+ for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 05:19:59 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 3zMzMr4XShz2t1d
- for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 22:36:40 +0000 (UTC)
-Received: from UPDC3CPA06.eemsg.mil (unknown [192.168.18.13])
- by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 3zMzMr3hLGzJ3dv
- for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 22:36:40 +0000 (UTC)
-Received: by mail-lf0-f68.google.com with SMTP id q194so17198799lfe.13
- for <selinux@tycho.nsa.gov>; Thu, 18 Jan 2018 14:36:39 -0800 (PST)
+ by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 3zNGzJ73cqz2VpdS
+ for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 10:19:56 +0000 (UTC)
+Received: from UPBD19PA11.eemsg.mil (unknown [192.168.18.17])
+ by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 3zNGzH2G7Xz2VpBS
+ for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 10:19:55 +0000 (UTC)
+Received: by mail-wm0-f50.google.com with SMTP id v123so2433668wmd.5
+ for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 02:19:54 -0800 (PST)
+Received: from julius.enp8s0.d30 ([217.19.26.10])
+ by smtp.gmail.com with ESMTPSA id o26sm3132352edi.18.2018.01.19.02.19.52
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+ Fri, 19 Jan 2018 02:19:53 -0800 (PST)
+Date: Fri, 19 Jan 2018 11:19:51 +0100
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <20180119101951.GA4126@julius.enp8s0.d30>
 MIME-Version: 1.0
-In-Reply-To: <20180118215853.228182-1-salyzyn@android.com>
-References: <20180118215853.228182-1-salyzyn@android.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 18 Jan 2018 17:36:38 -0500
-Message-ID: <CAHC9VhT=tgkKGiQ8CGSw4eBY+crc3iBdkxWGF4M6DoMT4VDGYg@mail.gmail.com>
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] general protection fault in sock_has_perm
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+Subject: default_type limitations
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jan 18, 2018 at 4:58 PM, Mark Salyzyn <salyzyn@android.com> wrote:
-> general protection fault: 0000 [#1] PREEMPT SMP KASAN
-> CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
-> task: ffff8801d1095f00 task.stack: ffff8800b5950000
-> RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
-> RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
-> RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
-> RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
-> RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
-> R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
-> R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
-> FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Stack:
->  ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
->  ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
->  ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
->  ffff880000000001
-> Call Trace:
-> [<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
-> [<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
-> [<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
-> [<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
-> [<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
-> Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
-> f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
-> fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
-> 00 41 8b 75 10 31
-> RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
-> RSP <ffff8800b5957ce0>
-> ---[ end trace 7b5aaf788fef6174 ]---
->
-> In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
-> flag") and all the associated infrastructure changes to take advantage
-> of a RCU grace period before freeing, there is a heightened
-> possibility that a security check is performed while an ill-timed
-> setsockopt call races in from user space.  It then is prudent to null
-> check sk_security, and if the case, reject the permissions.
->
-> This adjustment is orthogonal to infrastructure improvements that may
-> nullify the needed check, but should be added as good code hygiene.
 
-I'm skeptical that this is the full solution for systems that lack the
-SOCK_RCU_FREE protection.  Is this really limited to just
-setsockopt()?
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: James Morris <james.l.morris@oracle.com>
-> Cc: "Serge E. Hallyn" <serge@hallyn.com>
-> Cc: selinux@tycho.nsa.gov
-> Cc: linux-security-module@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> ---
-> This patch should be applied to all stable trees (author wants
-> minimum of 3.18, 4.4, 4.9 and 4.14)
->
->  security/selinux/hooks.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 8644d864e3c1..95d7c8143373 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4342,7 +4342,7 @@ static int sock_has_perm(struct sock *sk, u32 perms)
->         struct common_audit_data ad;
->         struct lsm_network_audit net = {0,};
->
-> -       if (sksec->sid == SECINITSID_KERNEL)
-> +       if (!sksec || sksec->sid == SECINITSID_KERNEL)
->                 return 0;
->
->         ad.type = LSM_AUDIT_DATA_NET;
-> --
-> 2.16.0.rc1.238.g530d649a79-goog
+The default_type functionality is too limited because it assumes that all l=
+ogin programs associate the same type with a given role
 
--- 
-paul moore
-www.paul-moore.com
+This is not the case
+
+For example:
+
+default_type for local_login: joe.role:joe.type
+default_type for sshd: joe.role:joe_ssh_server.type
+default_type for cockpit joe.role:joe_cockpit_bridge.type
+
+etc
+
+So pam_selinux "select_context" can only support a single login program due=
+ to this
+
+I do not understand why default_type is needed in the first place. The cont=
+exts/users/ file is more specific:
+
+/etc/selinux/TYPE/contexts/users/joe.user:
+sys.role:login.type:s0 joe.role:joe.type:s0 joe1.role:joe1.type:s0
+sys.role:sshd.type:s0 joe.role:joe_ssh_server.type:s0 joe1.role:joe1_ssh_se=
+rver.type:s0
+sys.role:cockpit_session.subj:s0 joe.role:joe_cockpit_bridge.type:s0 joe1:j=
+oe1_cockpit_bridge.type:s0
+
+ie. its already specified that for example joe1.type is default type for jo=
+e1.role for local_login and that joe1_ssh_server.type is default type for j=
+oe1.role for sshd
+
+So unless i am overlooking something, the default_type file is redundant an=
+d it actually adds an extra file to configure
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
+
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlphxkMACgkQJXSOVTf5
+R2knhQwAgRg/3xK0fPF+hRNjgYoNDHZPJuJF6VMb/MiLiXet5YmytNwkmyWcakcE
+0uyHa8Q6IPGk8pMudEo13cRxGWQCxMuQvNoPlKL50izsaZZPmNUPVnazsLkzCqJD
+0aXsVqNXquwznOvH/7zFcmTRIk0+iZRVh8P0exDdNf/rSbrhDbwIR8UPj0P6Q9zq
+jSNxmNGEALqGg1zLEQpWdxBZi3epoWxcDWq8jASkXF+FDz4hL1RzITCWtAqTvvzc
+H0aHzUQlmnrUB6z+g6N8NZrkKjcUyH8zGQntbwZK8g9xpqdND3lrvep1arUKchzm
+4oYu3YSOF51oD5JKJoYxR5zMe/fvuPBohgK/hxW2gz/b1qUWC5tE65o8K4xMGPH3
+Q27McEwxWRwgZAz/+psjrSbYmxP+LGAwLWwhPOIuTt6uThfXoI8vOWeJboJD7A+y
+wprQhUBgyUx1gFdxNagse28xgew7I+Axr4V1871O85TCc13FcsMS2L5bXeXUl0ne
+MMoi21mU
+=8et6
+-----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--
