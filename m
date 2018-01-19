@@ -1,327 +1,110 @@
-Message-ID: <1516444683.2718.0.camel@btinternet.com>
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: William Roberts <bill.c.roberts@gmail.com>, Stephen Smalley
- <sds@tycho.nsa.gov>
-Cc: Stephen Smalley <stephen.smalley@gmail.com>, selinux
- <selinux@tycho.nsa.gov>
-Date: Sat, 20 Jan 2018 10:38:03 +0000
-In-Reply-To: <CAFftDdrr0Vwv-nOEUa6AAYoXH0bKRorVPq3EoTsO_3HG=_io5g@mail.gmail.com>
-References: <20180114153436.21916-1-richard_c_haines@btinternet.com>
- <CAB9W1A1RmO4jbo-yyZPUNhLU6S9e3C0rmY3ZOLR8TNGd+vx_Xg@mail.gmail.com>
- <CAB9W1A3dOC7G9-=Y1i4Fb=JnQuOO26+dV794nQKZk+cj-A+DXQ@mail.gmail.com>
- <CAB9W1A3F67LHE9bG7C2y7hnoXkxh51RLyvtnsOd98DaSSnohww@mail.gmail.com>
- <CAFftDdqhzFptFePGfWGT+NwpuzVPb1RAsyitGEy-BeqinS2nRw@mail.gmail.com>
- <1516118446.10453.9.camel@tycho.nsa.gov>
- <CAFftDdouC3zjPkaQCzgF8v0HLinmrQ1ujcyZzu7ED89-H6zUrA@mail.gmail.com>
- <CAFftDdrr0Vwv-nOEUa6AAYoXH0bKRorVPq3EoTsO_3HG=_io5g@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH] libsemanage: Allow tmp files to be kept if a compile fails
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0JHl2ku024781
+ for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 12:47:02 -0500
+Received: by mail-pf0-f170.google.com with SMTP id y26so1865947pfi.10
+ for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 09:46:58 -0800 (PST)
+To: Paul Moore <paul@paul-moore.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, James Morris
+ <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, stable@vger.kernel.org,
+ Eric Dumazer <edumazet@google.com>
+References: <20180118215853.228182-1-salyzyn@android.com>
+ <CAHC9VhT=tgkKGiQ8CGSw4eBY+crc3iBdkxWGF4M6DoMT4VDGYg@mail.gmail.com>
+ <1f185712-9136-be88-02c0-5613a7683619@android.com>
+ <CAHC9VhQ=ik+TGX-MfVe4a17sHCBHVQ88HM6ZV4qQAmy8u+5eRg@mail.gmail.com>
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <0cab9b55-b21e-48b6-82f3-3750f470ea5b@android.com>
+Date: Fri, 19 Jan 2018 09:46:55 -0800
+MIME-Version: 1.0
+In-Reply-To: <CAHC9VhQ=ik+TGX-MfVe4a17sHCBHVQ88HM6ZV4qQAmy8u+5eRg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH] general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2018-01-19 at 12:04 -0800, William Roberts wrote:
-> Richard, are you going to respin this?
+On 01/19/2018 09:06 AM, Paul Moore wrote:
+> On Fri, Jan 19, 2018 at 10:49 AM, Mark Salyzyn <salyzyn@android.com> wrote:
+>> On 01/18/2018 02:36 PM, Paul Moore wrote:
+>>> On Thu, Jan 18, 2018 at 4:58 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+>>>> general protection fault: 0000 [#1] PREEMPT SMP KASAN
+>>>> CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
+>>>> . . .
+>>>> [<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80
+>>>> security/selinux/hooks.c:4338
+>>>> [<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0
+>>>> security/security.c:1257
+>>>> [<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
+>>>> [<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
+>>>> [<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
+>>>> Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
+>>>> f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
+>>>> fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
+>>>> 00 41 8b 75 10 31
+>>>> RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0
+>>>> security/selinux/hooks.c:4069
+>>>> RSP <ffff8800b5957ce0>
+>>>> ---[ end trace 7b5aaf788fef6174 ]---
+>>>>
+>>>> In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
+>>>> flag") and all the associated infrastructure changes to take advantage
+>>>> of a RCU grace period before freeing, there is a heightened
+>>>> possibility that a security check is performed while an ill-timed
+>>>> setsockopt call races in from user space.  It then is prudent to null
+>>>> check sk_security, and if the case, reject the permissions.
+>>>>
+>>>> This adjustment is orthogonal to infrastructure improvements that may
+>>>> nullify the needed check, but should be added as good code hygiene.
+>>> I'm skeptical that this is the full solution for systems that lack the
+>>> SOCK_RCU_FREE protection.  Is this really limited to just
+>>> setsockopt()?
+>> Maybe overstepped in my analysis and assumptions?
+>>
+>> This is a result of a fuzzer hitting an android 4.4 KASAN kernel. We (so
+>> far) have _not_ seen this with an android 4.9 KASAN kernel (which has the
+>> SOCK_RCU_FREE adjustments). There is no standalone duplication or PoC
+>> _except_ via the fuzzer. The rest of the statements stands based on this
+>> tidbit (statements of general good code hygiene, not 100% sure SOCK_RCU_FREE
+>> usage is completely covered, KISS solution etc).
+>>
+>> To be honest, yes, this may be a layer in the onion (swat this NULL check
+>> does not by itself solve the _problem_), I'd prefer kernel continuing on in
+>> a rational manner rather than panic ... and I have a gut feeling this could
+>> be a gratuitous NULL check if all the bugs in the network layer have been
+>> solved <that may be sarcasm, I can not tell>. Programming to solve a problem
+>> with one's gut is not a good practice, but hygiene is. This is 10
+>> characters, and an estimated 1.2ns of added hygiene.
+>>
+>> No, I do not think this is limited to setsockopt, but would be willing to
+>> believe a multithreaded attack of any socket functions or ioctl would drop
+>> down to the check with sock_has_perm at possibly the wrong time in socket
+>> teardown.
+> I'm not necessarily opposed to adding additional safety checks, if
+> warranted, but I am opposed to adding a single check and declaring
+> mission accomplished when there is a suspicion that additional checks
+> may be needed.
+>
+> Perhaps in this particular case it really is only setsockopt(), but
+> from what I can tell from your comments and the SOCK_RCU_FREE commit
+> message it would appear that there is a race condition here between a
+> socket's lifetime and its visibility to userspace.
 
-Yes - Next week
+I will need to fix my comments to be clearer ... (besides, I got the 
+error return wrong, so I will have to respin it anyways).
 
-> 
-> On Tue, Jan 16, 2018 at 9:35 AM, William Roberts
-> <bill.c.roberts@gmail.com> wrote:
-> > On Tue, Jan 16, 2018 at 8:00 AM, Stephen Smalley <sds@tycho.nsa.gov
-> > > wrote:
-> > > On Tue, 2018-01-16 at 07:47 -0800, William Roberts wrote:
-> > > > On Mon, Jan 15, 2018 at 9:32 AM, Stephen Smalley
-> > > > <stephen.smalley@gmail.com> wrote:
-> > > > > On Jan 14, 2018 10:36 AM, "Richard Haines" <richard_c_haines@
-> > > > > btinte
-> > > > > rnet.com>
-> > > > > wrote:
-> > > > > 
-> > > > > Add new option to semanage.conf that allows the tmp build
-> > > > > files
-> > > > > to be kept for debugging when building policy.
-> > > > > 
-> > > > > 
-> > > > > Would it be better to just retain the files by default if
-> > > > > there is
-> > > > > an error?
-> > > > 
-> > > > I thought about this as well, my reasoning as to why Richard's
-> > > > approach was
-> > > > better is that if someone does it N times trying to figure out
-> > > > an
-> > > > issue,
-> > > > then there would be N piles of files in the tmp folder. This
-> > > > way they
-> > > > have to opt in to have their tmp folder spammed.
-> > > 
-> > > I believe that the tmp directories are deleted and re-created by
-> > > libsemanage each time before use (otherwise we'd have a different
-> > > problem with not removing them, since we could end up with a mix
-> > > of
-> > > files from different, incomplete transactions being intermingled
-> > > there). So I don't think this would be a problem.  It might
-> > > however
-> > 
-> > Oh I see it looks like its just generating a /tmp "store" directory
-> > under the semanage path. I thought that enum was triggering a true
-> > /tmp style thing. I should have looksed closer.
-> > 
-> > > require saving the commit success/failure result in the handle so
-> > > that
-> > > we know in semanage_direct_disconnect() whether or not we should
-> > > delete
-> > > it.
-> > 
-> > Now that I understand that tid-bit, I think you're right, let's
-> > just
-> > leave it on error.
-> > 
-> > > 
-> > > If we truly need to make it optional, then I'd rather have it be
-> > > an
-> > > option flag to semodule and a runtime setting of libsemanage (ala
-> > > reload, disable_dontaudit, etc) than a semanage.conf setting, as
-> > > this
-> > > is something a user will want to be able to use without having to
-> > > edit
-> > > a config file, re-run the transaction, and then re-edit the
-> > > config file
-> > > each time.  But I'm not convinced we can't just make it the
-> > > default
-> > > behavior whenever the commit fails.  Deleting the tmp files
-> > > automatically only really makes sense when it succeeds.
-> > 
-> > 
-> > 
-> > > 
-> > > > 
-> > > > > 
-> > > > > 
-> > > > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.co
-> > > > > m>
-> > > > > ---
-> > > > >  libsemanage/man/man5/semanage.conf.5 |  8 ++++++++
-> > > > >  libsemanage/src/conf-parse.y         | 15 ++++++++++++++-
-> > > > >  libsemanage/src/conf-scan.l          |  1 +
-> > > > >  libsemanage/src/direct_api.c         | 21 ++++++++++++----
-> > > > > -----
-> > > > >  libsemanage/src/semanage_conf.h      |  1 +
-> > > > >  5 files changed, 36 insertions(+), 10 deletions(-)
-> > > > > 
-> > > > > diff --git a/libsemanage/man/man5/semanage.conf.5
-> > > > > b/libsemanage/man/man5/semanage.conf.5
-> > > > > index 8f8de55a..10cab65a 100644
-> > > > > --- a/libsemanage/man/man5/semanage.conf.5
-> > > > > +++ b/libsemanage/man/man5/semanage.conf.5
-> > > > > @@ -121,6 +121,14 @@ and by default it is set to "false".
-> > > > >  Please note that since this option deletes all HLL files, an
-> > > > > updated HLL
-> > > > > compiler will not be able to recompile the original HLL file
-> > > > > into
-> > > > > CIL.
-> > > > >  In order to compile the original HLL file into CIL, the same
-> > > > > HLL
-> > > > > file will
-> > > > > need to be reinstalled.
-> > > > > 
-> > > > > +.TP
-> > > > > +.B retain-tmp
-> > > > > +When set to "true", tmp directories (the sandbox at
-> > > > > \fBstore-root/\fR[\fIpolicy-store\fR]\fB/tmp \fRand/or the
-> > > > > final
-> > > > > policy at
-> > > > > \fBstore-root/final/\fR[\fIpolicy-store\fR]) will be retained
-> > > > > after
-> > > > > compilation to allow debugging of any build errors. Note that
-> > > > > on a
-> > > > > successful build the sandbox becomes
-> > > > > \fBstore-root/\fR[\fIpolicy-store\fR]\fB/active\fR.
-> > > > > +.br
-> > > > > +The
-> > > > > +.B retain-tmp
-> > > > > +option can be set to either "true" or "false" and by default
-> > > > > it is
-> > > > > set to
-> > > > > "false".
-> > > > > +
-> > > > >  .SH "SEE ALSO"
-> > > > >  .TP
-> > > > >  semanage(8)
-> > > > > diff --git a/libsemanage/src/conf-parse.y
-> > > > > b/libsemanage/src/conf-
-> > > > > parse.y
-> > > > > index b527e893..f098e55d 100644
-> > > > > --- a/libsemanage/src/conf-parse.y
-> > > > > +++ b/libsemanage/src/conf-parse.y
-> > > > > @@ -61,7 +61,7 @@ static int parse_errors;
-> > > > > 
-> > > > >  %token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE
-> > > > > SAVE_PREVIOUS
-> > > > > SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE
-> > > > > STORE_ROOT
-> > > > >  %token LOAD_POLICY_START SETFILES_START
-> > > > > SEFCONTEXT_COMPILE_START
-> > > > > DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
-> > > > > -%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
-> > > > > +%token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL RETAIN_TMP
-> > > > >  %token VERIFY_MOD_START VERIFY_LINKED_START
-> > > > > VERIFY_KERNEL_START
-> > > > > BLOCK_END
-> > > > >  %token PROG_PATH PROG_ARGS
-> > > > >  %token <s> ARG
-> > > > > @@ -95,6 +95,7 @@ single_opt:     module_store
-> > > > >         |       bzip_blocksize
-> > > > >         |       bzip_small
-> > > > >         |       remove_hll
-> > > > > +       |       retain_tmp
-> > > > >          ;
-> > > > > 
-> > > > >  module_store:   MODULE_STORE '=' ARG {
-> > > > > @@ -268,6 +269,17 @@ remove_hll:  REMOVE_HLL'=' ARG {
-> > > > >         free($3);
-> > > > >  }
-> > > > > 
-> > > > > +retain_tmp:  RETAIN_TMP'=' ARG {
-> > > > > +       if (strcasecmp($3, "false") == 0) {
-> > > > > +               current_conf->retain_tmp = 0;
-> > > > > +       } else if (strcasecmp($3, "true") == 0) {
-> > > > > +               current_conf->retain_tmp = 1;
-> > > > > +       } else {
-> > > > > +               yyerror("retain-tmp can only be 'true' or
-> > > > > 'false'");
-> > > > > +       }
-> > > > > +       free($3);
-> > > > > +}
-> > > > > +
-> > > > >  command_block:
-> > > > >                  command_start external_opts BLOCK_END  {
-> > > > >                          if (new_external->path == NULL) {
-> > > > > @@ -352,6 +364,7 @@ static int
-> > > > > semanage_conf_init(semanage_conf_t *
-> > > > > conf)
-> > > > >         conf->bzip_small = 0;
-> > > > >         conf->ignore_module_cache = 0;
-> > > > >         conf->remove_hll = 0;
-> > > > > +       conf->retain_tmp = 0;
-> > > > > 
-> > > > >         conf->save_previous = 0;
-> > > > >         conf->save_linked = 0;
-> > > > > diff --git a/libsemanage/src/conf-scan.l
-> > > > > b/libsemanage/src/conf-
-> > > > > scan.l
-> > > > > index 607bbf0b..e26c3494 100644
-> > > > > --- a/libsemanage/src/conf-scan.l
-> > > > > +++ b/libsemanage/src/conf-scan.l
-> > > > > @@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
-> > > > >  bzip-blocksize return BZIP_BLOCKSIZE;
-> > > > >  bzip-small     return BZIP_SMALL;
-> > > > >  remove-hll     return REMOVE_HLL;
-> > > > > +retain-tmp     return RETAIN_TMP;
-> > > > >  "[load_policy]"   return LOAD_POLICY_START;
-> > > > >  "[setfiles]"      return SETFILES_START;
-> > > > >  "[sefcontext_compile]"      return SEFCONTEXT_COMPILE_START;
-> > > > > diff --git a/libsemanage/src/direct_api.c
-> > > > > b/libsemanage/src/direct_api.c
-> > > > > index a455612f..5d2a443c 100644
-> > > > > --- a/libsemanage/src/direct_api.c
-> > > > > +++ b/libsemanage/src/direct_api.c
-> > > > > @@ -326,7 +326,10 @@ static void
-> > > > > semanage_direct_destroy(semanage_handle_t *
-> > > > > sh
-> > > > >  static int semanage_direct_disconnect(semanage_handle_t *
-> > > > > sh)
-> > > > >  {
-> > > > >         /* destroy transaction */
-> > > > > -       if (sh->is_in_transaction) {
-> > > > > +       if (sh->is_in_transaction)
-> > > > > +               semanage_release_trans_lock(sh);
-> > > > > 
-> > > > > 
-> > > > > Is it safe to release the trans lock before deleting the
-> > > > > sandbox?
-> > > > > 
-> > > > > +
-> > > > > +       if (!sh->conf->retain_tmp && sh->is_in_transaction) {
-> > > > >                 /* destroy sandbox */
-> > > > >                 if (semanage_remove_directory
-> > > > >                     (semanage_path(SEMANAGE_TMP,
-> > > > > SEMANAGE_TOPLEVEL)) < 0) {
-> > > > > @@ -342,7 +345,6 @@ static int
-> > > > > semanage_direct_disconnect(semanage_handle_t
-> > > > > * sh)
-> > > > >                                                 SEMANAGE_FINA
-> > > > > L_TOPL
-> > > > > EVEL));
-> > > > >                         return -1;
-> > > > >                 }
-> > > > > -               semanage_release_trans_lock(sh);
-> > > > >         }
-> > > > > 
-> > > > >         /* Release object databases: local modifications */
-> > > > > @@ -1639,13 +1641,14 @@ cleanup:
-> > > > > 
-> > > > >         free(fc_buffer);
-> > > > > 
-> > > > > -       /* regardless if the commit was successful or not,
-> > > > > remove
-> > > > > the
-> > > > > -          sandbox if it is still there */
-> > > > > -       semanage_remove_directory(semanage_path
-> > > > > -                                 (SEMANAGE_TMP,
-> > > > > SEMANAGE_TOPLEVEL));
-> > > > > -       semanage_remove_directory(semanage_final_path
-> > > > > -                                 (SEMANAGE_FINAL_TMP,
-> > > > > -                                  SEMANAGE_FINAL_TOPLEVEL));
-> > > > > +       /* Delete sandbox unless requested by semanage.conf
-> > > > > */
-> > > > > +       if (!sh->conf->retain_tmp) {
-> > > > > +               semanage_remove_directory(semanage_path
-> > > > > +                                         (SEMANAGE_TMP,
-> > > > > SEMANAGE_TOPLEVEL));
-> > > > > +               semanage_remove_directory(semanage_final_path
-> > > > > +                                         (SEMANAGE_FINAL_TMP
-> > > > > ,
-> > > > > +                                          SEMANAGE_FINAL_TOP
-> > > > > LEVEL)
-> > > > > );
-> > > > > +       }
-> > > > >         umask(mask);
-> > > > > 
-> > > > >         return retval;
-> > > > > diff --git a/libsemanage/src/semanage_conf.h
-> > > > > b/libsemanage/src/semanage_conf.h
-> > > > > index c99ac8c7..f7bba754 100644
-> > > > > --- a/libsemanage/src/semanage_conf.h
-> > > > > +++ b/libsemanage/src/semanage_conf.h
-> > > > > @@ -46,6 +46,7 @@ typedef struct semanage_conf {
-> > > > >         int bzip_blocksize;
-> > > > >         int bzip_small;
-> > > > >         int remove_hll;
-> > > > > +       int retain_tmp;
-> > > > >         int ignore_module_cache;
-> > > > >         char *ignoredirs;       /* ";" separated of list for
-> > > > > genhomedircon
-> > > > > to ignore */
-> > > > >         struct external_prog *load_policy;
-> > > > > --
-> > > > > 2.14.3
-> > > > > 
-> > > > > 
-> > > > > 
-> > > > 
-> > > > 
-> > > > 
-> > 
-> > 
-> > 
-> > --
-> > Respectfully,
-> > 
-> > William C Roberts
-> 
-> 
-> 
+In later kernels SOCK_RCU_FREE _appears_ to fix the race condition. In 
+earlier kernels there is _no_ SOCK_RCU_FREE infrastructure, and thus the 
+race condition exists. That race conditions _should_ have been solved in 
+ToT. I have evaluated that porting all the SOCK_RCU_FREE refactoring may 
+be too risky an endeavor for stable kernels though (maybe I am wrong 
+about that? The author of those fixes edumazet@google.com has been 
+notified, have yet to receive a response).
+
+Because I can not confirm that SOCK_RCU_FREE solves the problem, I am 
+making a case for this to land in 4.9+ to ToT kernels as good hygiene. 
+But maybe this should only go in 4.4- stable ...
+
+-- Mark
