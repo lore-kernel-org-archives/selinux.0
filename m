@@ -1,86 +1,217 @@
-Date: Fri, 19 Jan 2018 08:48:12 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: linux-kernel@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, stable@vger.kernel.org
-Message-ID: <20180119074812.GA25687@kroah.com>
-References: <20180118215853.228182-1-salyzyn@android.com>
+Date: Fri, 19 Jan 2018 13:07:13 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <20180119120713.GA16873@gmail.com>
+References: <marcus.folkesson@gmail.com>
+ <20180116202327.23253-1-marcus.folkesson@gmail.com>
+ <20180116202327.23253-3-marcus.folkesson@gmail.com>
+ <CAJfZ7==ONcncWgfN7dOV7tFMqkasrsS9UG_+oRADWeFRdYCwxQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180118215853.228182-1-salyzyn@android.com>
-Subject: Re: [PATCH] general protection fault in sock_has_perm
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="5mCyUwZo2JvN/JJP"
+In-Reply-To: <CAJfZ7==ONcncWgfN7dOV7tFMqkasrsS9UG_+oRADWeFRdYCwxQ@mail.gmail.com>
+Subject: Re: [PATCH v2 02/14] libselinux: build: follow standard
+ semantics for DESTDIR and PREFIX
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Jan 18, 2018 at 01:58:45PM -0800, Mark Salyzyn wrote:
-> general protection fault: 0000 [#1] PREEMPT SMP KASAN
-> CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
-> task: ffff8801d1095f00 task.stack: ffff8800b5950000
-> RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
-> RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
-> RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
-> RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
-> RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
-> R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
-> R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
-> FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Stack:
->  ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
->  ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
->  ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
->  ffff880000000001
-> Call Trace:
-> [<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
-> [<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
-> [<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
-> [<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
-> [<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
-> Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
-> f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
-> fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
-> 00 41 8b 75 10 31
-> RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
-> RSP <ffff8800b5957ce0>
-> ---[ end trace 7b5aaf788fef6174 ]---
-> 
-> In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
-> flag") and all the associated infrastructure changes to take advantage
-> of a RCU grace period before freeing, there is a heightened
-> possibility that a security check is performed while an ill-timed
-> setsockopt call races in from user space.  It then is prudent to null
-> check sk_security, and if the case, reject the permissions.
-> 
-> This adjustment is orthogonal to infrastructure improvements that may
-> nullify the needed check, but should be added as good code hygiene.
-> 
-> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
-> Cc: Paul Moore <paul@paul-moore.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: James Morris <james.l.morris@oracle.com>
-> Cc: "Serge E. Hallyn" <serge@hallyn.com>
-> Cc: selinux@tycho.nsa.gov
-> Cc: linux-security-module@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> ---
-> This patch should be applied to all stable trees (author wants
-> minimum of 3.18, 4.4, 4.9 and 4.14)
 
-Note, if you want this type of thing to show up in the patch itself, so
-I will see it when it hits Linus's tree, you can just change the stable
-line to be:
-	cc: stable <stable@vger.kernel.org> # 3.18+
+--5mCyUwZo2JvN/JJP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+Hi Nicolas!
 
-greg k-h
+On Wed, Jan 17, 2018 at 11:12:56PM +0100, Nicolas Iooss wrote:
+> On Tue, Jan 16, 2018 at 9:23 PM, Marcus Folkesson
+> <marcus.folkesson@gmail.com> wrote:
+> > This patch solves the following issues:
+> > - The pkg-config files generates odd paths when using DESTDIR without P=
+REFIX
+> > - DESTDIR is needed during compile time to compute library and header p=
+aths which it should not.
+> > - Installing with both DESTDIR and PREFIX set gives us odd paths
+> > - Make usage of DESTDIR and PREFIX more standard
+> >
+> > Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> > ---
+> >  libselinux/include/Makefile     |  4 ++--
+> >  libselinux/man/Makefile         |  7 ++++---
+> >  libselinux/src/Makefile         | 12 +++++-------
+> >  libselinux/src/libselinux.pc.in |  2 +-
+> >  libselinux/utils/Makefile       |  6 ++----
+> >  5 files changed, 14 insertions(+), 17 deletions(-)
+> >
+> > diff --git a/libselinux/include/Makefile b/libselinux/include/Makefile
+> > index 757a6c9c..3b51f5ce 100644
+> > --- a/libselinux/include/Makefile
+> > +++ b/libselinux/include/Makefile
+> > @@ -1,6 +1,6 @@
+> >  # Installation directories.
+> > -PREFIX ?=3D $(DESTDIR)/usr
+> > -INCDIR ?=3D $(PREFIX)/include/selinux
+> > +PREFIX ?=3D /usr
+> > +INCDIR =3D $(DESTDIR)$(PREFIX)/include/selinux
+> >
+> >  all:
+> >
+> > diff --git a/libselinux/man/Makefile b/libselinux/man/Makefile
+> > index 0643e6af..233bfaa9 100644
+> > --- a/libselinux/man/Makefile
+> > +++ b/libselinux/man/Makefile
+> > @@ -1,7 +1,8 @@
+> >  # Installation directories.
+> > -MAN8DIR ?=3D $(DESTDIR)/usr/share/man/man8
+> > -MAN5DIR ?=3D $(DESTDIR)/usr/share/man/man5
+> > -MAN3DIR ?=3D $(DESTDIR)/usr/share/man/man3
+> > +PREFIX ?=3D /usr
+> > +MAN8DIR ?=3D $(DESTDIR)$(PREFIX)/share/man/man8
+> > +MAN5DIR ?=3D $(DESTDIR)$(PREFIX)/share/man/man5
+> > +MAN3DIR ?=3D $(DESTDIR)$(PREFIX)/share/man/man3
+> >
+> >  all:
+> >
+> > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> > index 18df75c8..18a58164 100644
+> > --- a/libselinux/src/Makefile
+> > +++ b/libselinux/src/Makefile
+> > @@ -8,8 +8,8 @@ RUBYPREFIX ?=3D $(notdir $(RUBY))
+> >  PKG_CONFIG ?=3D pkg-config
+> >
+> >  # Installation directories.
+> > -PREFIX ?=3D $(DESTDIR)/usr
+> > -LIBDIR ?=3D $(PREFIX)/lib
+> > +PREFIX ?=3D /usr
+> > +LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
+> >  SHLIBDIR ?=3D $(DESTDIR)/lib
+> >  INCLUDEDIR ?=3D $(PREFIX)/include
+> >  PYINC ?=3D $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+> > @@ -19,8 +19,6 @@ PYCEXT ?=3D $(shell $(PYTHON) -c 'import imp;print([s=
+ for s,m,t in imp.get_suffixe
+> >  RUBYINC ?=3D $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarc=
+hhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+> >  RUBYLIBS ?=3D $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir=
+"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRU=
+BYARG_SHARED"]')
+> >  RUBYINSTALL ?=3D $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["=
+vendorarchdir"]')
+> > -LIBBASE ?=3D $(shell basename $(LIBDIR))
+> > -LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
+> >
+> >  VERSION =3D $(shell cat ../VERSION)
+> >  LIBVERSION =3D 1
+> > @@ -148,7 +146,7 @@ $(LIBSO): $(LOBJS)
+> >         ln -sf $@ $(TARGET)
+> >
+> >  $(LIBPC): $(LIBPC).in ../VERSION
+> > -       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libd=
+ir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODU=
+LE):' < $< > $@
+> > +       sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libd=
+ir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):; s:@PCRE_MODULE@:$(PCRE_MODUL=
+E):' < $< > $@
+> >
+> >  selinuxswig_python_exception.i: ../include/selinux/selinux.h
+> >         bash -e exception.sh > $@ || (rm -f $@ ; false)
+> > @@ -156,8 +154,8 @@ selinuxswig_python_exception.i: ../include/selinux/=
+selinux.h
+> >  $(AUDIT2WHYLOBJ): audit2why.c
+> >         $(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED =
+-c -o $@ $<
+> >
+> > -$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ) $(LIBSEPOLA)
+> > -       $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(PYL=
+IBS)
+> > +$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ)
+> > +       $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(PYL=
+IBS) -l:libsepol.a
+>=20
+> Hello,
+> This change makes audit2why.so no longer being rebuilt when libsepol's
+> code change. This is an issue when debugging issues in libsepol, which
+> is why I added $(LIBSEPOLA) to the dependencies of $(AUDIT2WHYSO) in
+> commit dcd135cc06ab ("Re-link programs after libsepol.a is updated"
+> [1]).
+> By the way, I like the change from using a "hardcoded" path to
+> libsepol.a to telling the compiler to look into directories specified
+> with option -L in LDFLAGS. This would ease the packaging a little bit,
+> as it makes defining LIBSEPOLA no longer necessary (if I understood
+> the changes correctly, I have not tested this point). Is there a way
+> to ask the compiler for the resolved location of a static library, in
+> a way which can be used to compute the value of LIBSEPOLA? ("gcc
+> -Wl,--trace ..." displays it but it is not easily usable).
+
+First of all, thank you for your review.
+
+Actually, I do not have any "good" way to address this issue.
+Is $(LIBSEPOLA) mostly used during debug/development?
+
+What do you think about this change:
+
+-----------------8<--------------------------------------------
+
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 18df75c8..b722a584 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -20,7 +20,11 @@ RUBYINC ?=3D $(shell $(RUBY) -e 'puts "-I" + RbConfig::C=
+ONFIG["rubyarchhdrdir"] +
+ RUBYLIBS ?=3D $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] +=
+ " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYAR=
+G_SHARED"]')
+ RUBYINSTALL ?=3D $(DESTDIR)$(shell $(RUBY) -e 'puts RbConfig::CONFIG["vend=
+orarchdir"]')
+ LIBBASE ?=3D $(shell basename $(LIBDIR))
+-LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
++
++# If no specific libsepol.a is specified, fall back on LDFLAGS search path
++ifeq ($(LIBSEPOLA),)
++       LDFLAGS +=3D -l:libsepol.a
++endif
+
+ VERSION =3D $(shell cat ../VERSION)
+ LIBVERSION =3D 1
+
+-----------------8<--------------------------------------------
+
+This will search for libsepol.a in paths specified in LDFLAGS, but keep
+the possibility to "track" a specific libsepol.a to make dependent subproje=
+cts
+recompile if libsepol.a is changed.
+
+>=20
+> Best regards,
+> Nicolas
+>=20
+> [1] https://github.com/SELinuxProject/selinux/commit/dcd135cc06abd8cd662d=
+2d7a896e368f09380dd2
+>=20
+
+Best regards
+Marcus Folkesson
+
+--5mCyUwZo2JvN/JJP
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlph32sACgkQiIBOb1ld
+UjLENg/+KP/XWAE62tqZ3bgCrN7/52GEr+lKIKx71LNSe/LbnstAWjcnjbGtC32k
+MF6d100JNFZQD85psxC7qVKJk5szZxnkjypImIJwM2Eta1hGSXyJ/p5MQJ/zZMif
+ownWDCNhb0p7e4+nATVCAHwKEqimNrFpCU1+03CTQOciRqWeRk4Ubn3cNzeby0BV
+WeiB/aEnhPHTDhEtADQjCeKfgmN2nLCNK0XCC33I6xQiIsDw9MPaabZm1+oeWdfK
+YkKp2K+dpAQxRioENbPy4agr+R3VRH4ZZhMtEY0OW1K+QQ/+FZY+u1Yruy6eV+5R
++j/CmJSF2r++EYZDT68AiFgcS5g6ptzaCUcU5PNnYZ1iaoXuKQlEyFh8N93T3Xpq
+D0YAfqtHyJs6fBVpg9UdoR89J2mjLQUmpd4tLXO8PytO/g59piVY8J/27jWEJiFx
+lD6jPgIjEsVXKxz3lPuBkPju44RFceBqFZLCr8QiGv7/eou/fRAlm51kgLQcel3Z
+JNjKhKjAptfP7Sho+ubOY1eq/Z8BDZ7zga6Vwumdt4DfEXZ203/BRaIiTna1Aju1
+nQ3KsYsGSzSaAa+v5RY+uilza0deemqkgK3ZjZveEFCRxGtd6KzWQs6yELhOHCpV
+hqVI2ETBun4rYDm+KkcMuf8JzLkDvpurvRgvfGBNNks5X2tnu6E=
+=IPx5
+-----END PGP SIGNATURE-----
+
+--5mCyUwZo2JvN/JJP--
