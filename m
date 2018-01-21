@@ -1,13 +1,13 @@
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: selinux@tycho.nsa.gov, nicolas.iooss@m4x.org, sds@tycho.nsa.gov
 Cc: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Sun, 21 Jan 2018 22:46:15 +0100
-Message-Id: <20180121214617.8975-13-marcus.folkesson@gmail.com>
+Date: Sun, 21 Jan 2018 22:46:16 +0100
+Message-Id: <20180121214617.8975-14-marcus.folkesson@gmail.com>
 In-Reply-To: <20180121214617.8975-1-marcus.folkesson@gmail.com>
 References: <marcus.folkesson@gmail.com>
  <20180121214617.8975-1-marcus.folkesson@gmail.com>
-Subject: [PATCH v3 12/14] semodule-utils: build: follow standard
- semantics for DESTDIR and PREFIX
+Subject: [PATCH v3 13/14] dbus: build: follow standard semantics for
+ DESTDIR and PREFIX
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -15,61 +15,37 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- semodule-utils/semodule_expand/Makefile  | 8 +++-----
- semodule-utils/semodule_link/Makefile    | 8 +++-----
- semodule-utils/semodule_package/Makefile | 8 +++-----
- 3 files changed, 9 insertions(+), 15 deletions(-)
+ dbus/Makefile | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/semodule-utils/semodule_expand/Makefile b/semodule-utils/semodule_expand/Makefile
-index 072f2137..c2ab3f65 100644
---- a/semodule-utils/semodule_expand/Makefile
-+++ b/semodule-utils/semodule_expand/Makefile
-@@ -1,9 +1,7 @@
- # Installation directories.
--PREFIX ?= $(DESTDIR)/usr
--INCLUDEDIR ?= $(PREFIX)/include
--BINDIR ?= $(PREFIX)/bin
--LIBDIR ?= $(PREFIX)/lib
--MANDIR ?= $(PREFIX)/share/man
+diff --git a/dbus/Makefile b/dbus/Makefile
+index 9a6cc90e..53143aff 100644
+--- a/dbus/Makefile
++++ b/dbus/Makefile
+@@ -1,3 +1,5 @@
 +PREFIX ?= /usr
-+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
++
+ all:
  
- CFLAGS ?= -Werror -Wall -W
- override LDLIBS += -lsepol
-diff --git a/semodule-utils/semodule_link/Makefile b/semodule-utils/semodule_link/Makefile
-index cc4687bd..bcf98765 100644
---- a/semodule-utils/semodule_link/Makefile
-+++ b/semodule-utils/semodule_link/Makefile
-@@ -1,9 +1,7 @@
- # Installation directories.
--PREFIX ?= $(DESTDIR)/usr
--INCLUDEDIR ?= $(PREFIX)/include
--BINDIR ?= $(PREFIX)/bin
--MANDIR ?= $(PREFIX)/share/man
--LIBDIR ?= $(PREFIX)/lib
-+PREFIX ?= /usr
-+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
+ clean:
+@@ -5,12 +7,12 @@ clean:
+ install:
+ 	-mkdir -p $(DESTDIR)/etc/dbus-1/system.d/
+ 	install -m 644 org.selinux.conf $(DESTDIR)/etc/dbus-1/system.d/
+-	-mkdir -p $(DESTDIR)/usr/share/dbus-1/system-services
+-	install -m 644 org.selinux.service $(DESTDIR)/usr/share/dbus-1/system-services
+-	-mkdir -p $(DESTDIR)/usr/share/polkit-1/actions/
+-	install -m 644 org.selinux.policy $(DESTDIR)/usr/share/polkit-1/actions/
+-	-mkdir -p $(DESTDIR)/usr/share/system-config-selinux
+-	install -m 755 selinux_server.py $(DESTDIR)/usr/share/system-config-selinux
++	-mkdir -p $(DESTDIR)$(PREFIX)/share/dbus-1/system-services
++	install -m 644 org.selinux.service $(DESTDIR)$(PREFIX)/share/dbus-1/system-services
++	-mkdir -p $(DESTDIR)$(PREFIX)/share/polkit-1/actions/
++	install -m 644 org.selinux.policy $(DESTDIR)$(PREFIX)/share/polkit-1/actions/
++	-mkdir -p $(DESTDIR)$(PREFIX)/share/system-config-selinux
++	install -m 755 selinux_server.py $(DESTDIR)$(PREFIX)/share/system-config-selinux
  
- CFLAGS ?= -Werror -Wall -W
- override LDLIBS += -lsepol
-diff --git a/semodule-utils/semodule_package/Makefile b/semodule-utils/semodule_package/Makefile
-index 96dd7c4f..33a95e16 100644
---- a/semodule-utils/semodule_package/Makefile
-+++ b/semodule-utils/semodule_package/Makefile
-@@ -1,9 +1,7 @@
- # Installation directories.
--PREFIX ?= $(DESTDIR)/usr
--INCLUDEDIR ?= $(PREFIX)/include
--BINDIR ?= $(PREFIX)/bin
--LIBDIR ?= $(PREFIX)/lib
--MANDIR ?= $(PREFIX)/share/man
-+PREFIX ?= /usr
-+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
+ relabel:
  
- CFLAGS ?= -Werror -Wall -W
- override LDLIBS += -lsepol
 -- 
 2.15.1
