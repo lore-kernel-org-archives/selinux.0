@@ -1,110 +1,123 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0JHl2ku024781
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 12:47:02 -0500
-Received: by mail-pf0-f170.google.com with SMTP id y26so1865947pfi.10
- for <selinux@tycho.nsa.gov>; Fri, 19 Jan 2018 09:46:58 -0800 (PST)
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, James Morris
- <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, stable@vger.kernel.org,
- Eric Dumazer <edumazet@google.com>
-References: <20180118215853.228182-1-salyzyn@android.com>
- <CAHC9VhT=tgkKGiQ8CGSw4eBY+crc3iBdkxWGF4M6DoMT4VDGYg@mail.gmail.com>
- <1f185712-9136-be88-02c0-5613a7683619@android.com>
- <CAHC9VhQ=ik+TGX-MfVe4a17sHCBHVQ88HM6ZV4qQAmy8u+5eRg@mail.gmail.com>
-From: Mark Salyzyn <salyzyn@android.com>
-Message-ID: <0cab9b55-b21e-48b6-82f3-3750f470ea5b@android.com>
-Date: Fri, 19 Jan 2018 09:46:55 -0800
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQ=ik+TGX-MfVe4a17sHCBHVQ88HM6ZV4qQAmy8u+5eRg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH] general protection fault in sock_has_perm
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: selinux@tycho.nsa.gov, nicolas.iooss@m4x.org, sds@tycho.nsa.gov
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>
+Date: Sun, 21 Jan 2018 22:46:04 +0100
+Message-Id: <20180121214617.8975-2-marcus.folkesson@gmail.com>
+In-Reply-To: <20180121214617.8975-1-marcus.folkesson@gmail.com>
+References: <marcus.folkesson@gmail.com>
+ <20180121214617.8975-1-marcus.folkesson@gmail.com>
+Subject: [PATCH v3 01/14] libsepol: build: follow standard semantics
+ for DESTDIR and PREFIX
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 01/19/2018 09:06 AM, Paul Moore wrote:
-> On Fri, Jan 19, 2018 at 10:49 AM, Mark Salyzyn <salyzyn@android.com> wrote:
->> On 01/18/2018 02:36 PM, Paul Moore wrote:
->>> On Thu, Jan 18, 2018 at 4:58 PM, Mark Salyzyn <salyzyn@android.com> wrote:
->>>> general protection fault: 0000 [#1] PREEMPT SMP KASAN
->>>> CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
->>>> . . .
->>>> [<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80
->>>> security/selinux/hooks.c:4338
->>>> [<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0
->>>> security/security.c:1257
->>>> [<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
->>>> [<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
->>>> [<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
->>>> Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
->>>> f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
->>>> fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
->>>> 00 41 8b 75 10 31
->>>> RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0
->>>> security/selinux/hooks.c:4069
->>>> RSP <ffff8800b5957ce0>
->>>> ---[ end trace 7b5aaf788fef6174 ]---
->>>>
->>>> In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
->>>> flag") and all the associated infrastructure changes to take advantage
->>>> of a RCU grace period before freeing, there is a heightened
->>>> possibility that a security check is performed while an ill-timed
->>>> setsockopt call races in from user space.  It then is prudent to null
->>>> check sk_security, and if the case, reject the permissions.
->>>>
->>>> This adjustment is orthogonal to infrastructure improvements that may
->>>> nullify the needed check, but should be added as good code hygiene.
->>> I'm skeptical that this is the full solution for systems that lack the
->>> SOCK_RCU_FREE protection.  Is this really limited to just
->>> setsockopt()?
->> Maybe overstepped in my analysis and assumptions?
->>
->> This is a result of a fuzzer hitting an android 4.4 KASAN kernel. We (so
->> far) have _not_ seen this with an android 4.9 KASAN kernel (which has the
->> SOCK_RCU_FREE adjustments). There is no standalone duplication or PoC
->> _except_ via the fuzzer. The rest of the statements stands based on this
->> tidbit (statements of general good code hygiene, not 100% sure SOCK_RCU_FREE
->> usage is completely covered, KISS solution etc).
->>
->> To be honest, yes, this may be a layer in the onion (swat this NULL check
->> does not by itself solve the _problem_), I'd prefer kernel continuing on in
->> a rational manner rather than panic ... and I have a gut feeling this could
->> be a gratuitous NULL check if all the bugs in the network layer have been
->> solved <that may be sarcasm, I can not tell>. Programming to solve a problem
->> with one's gut is not a good practice, but hygiene is. This is 10
->> characters, and an estimated 1.2ns of added hygiene.
->>
->> No, I do not think this is limited to setsockopt, but would be willing to
->> believe a multithreaded attack of any socket functions or ioctl would drop
->> down to the check with sock_has_perm at possibly the wrong time in socket
->> teardown.
-> I'm not necessarily opposed to adding additional safety checks, if
-> warranted, but I am opposed to adding a single check and declaring
-> mission accomplished when there is a suspicion that additional checks
-> may be needed.
->
-> Perhaps in this particular case it really is only setsockopt(), but
-> from what I can tell from your comments and the SOCK_RCU_FREE commit
-> message it would appear that there is a race condition here between a
-> socket's lifetime and its visibility to userspace.
+This patch solves the following issues:
+- The pkg-config files generates odd paths when using DESTDIR without PREFIX
+- DESTDIR is needed during compile time to compute library and header paths which it should not.
+- Installing with both DESTDIR and PREFIX set gives us odd paths
+- Make usage of DESTDIR and PREFIX more standard
 
-I will need to fix my comments to be clearer ... (besides, I got the 
-error return wrong, so I will have to respin it anyways).
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+---
+ README                      | 2 +-
+ libsepol/include/Makefile   | 4 ++--
+ libsepol/man/Makefile       | 5 +++--
+ libsepol/src/Makefile       | 7 +++----
+ libsepol/src/libsepol.pc.in | 2 +-
+ libsepol/utils/Makefile     | 4 ++--
+ 6 files changed, 12 insertions(+), 12 deletions(-)
 
-In later kernels SOCK_RCU_FREE _appears_ to fix the race condition. In 
-earlier kernels there is _no_ SOCK_RCU_FREE infrastructure, and thus the 
-race condition exists. That race conditions _should_ have been solved in 
-ToT. I have evaluated that porting all the SOCK_RCU_FREE refactoring may 
-be too risky an endeavor for stable kernels though (maybe I am wrong 
-about that? The author of those fixes edumazet@google.com has been 
-notified, have yet to receive a response).
-
-Because I can not confirm that SOCK_RCU_FREE solves the problem, I am 
-making a case for this to land in 4.9+ to ToT kernels as good hygiene. 
-But maybe this should only go in 4.4- stable ...
-
--- Mark
+diff --git a/README b/README
+index 7fc7b17b..174551a1 100644
+--- a/README
++++ b/README
+@@ -19,6 +19,6 @@ lacks library functions or other dependencies relied upon by your
+ distribution.  If it breaks, you get to keep both pieces.
+ 
+ To install libsepol on macOS (mainly for policy analysis):
+-cd libsepol; make DESTDIR=/usr/local PREFIX=/usr/local install
++cd libsepol; make PREFIX=/usr/local install
+ 
+ This requires GNU coreutils (brew install coreutils).
+diff --git a/libsepol/include/Makefile b/libsepol/include/Makefile
+index 56b7a114..ad5c34a4 100644
+--- a/libsepol/include/Makefile
++++ b/libsepol/include/Makefile
+@@ -1,6 +1,6 @@
+ # Installation directories.
+-PREFIX ?= $(DESTDIR)/usr
+-INCDIR ?= $(PREFIX)/include/sepol
++PREFIX ?= /usr
++INCDIR = $(DESTDIR)$(PREFIX)/include/sepol
+ CILDIR ?= ../cil
+ 
+ all:
+diff --git a/libsepol/man/Makefile b/libsepol/man/Makefile
+index 11924334..4f3d9fa2 100644
+--- a/libsepol/man/Makefile
++++ b/libsepol/man/Makefile
+@@ -1,6 +1,7 @@
+ # Installation directories.
+-MAN8DIR ?= $(DESTDIR)/usr/share/man/man8
+-MAN3DIR ?= $(DESTDIR)/usr/share/man/man3
++PREFIX ?= /usr
++MAN8DIR ?= $(DESTDIR)$(PREFIX)/share/man/man8
++MAN3DIR ?= $(DESTDIR)$(PREFIX)/share/man/man3
+ 
+ all:
+ 
+diff --git a/libsepol/src/Makefile b/libsepol/src/Makefile
+index 819d261b..d158398f 100644
+--- a/libsepol/src/Makefile
++++ b/libsepol/src/Makefile
+@@ -1,10 +1,9 @@
+ # Installation directories.
+-PREFIX ?= $(DESTDIR)/usr
++PREFIX ?= /usr
+ INCLUDEDIR ?= $(PREFIX)/include
+-LIBDIR ?= $(PREFIX)/lib
++LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
+ SHLIBDIR ?= $(DESTDIR)/lib
+ RANLIB ?= ranlib
+-LIBBASE ?= $(shell basename $(LIBDIR))
+ CILDIR ?= ../cil
+ 
+ VERSION = $(shell cat ../VERSION)
+@@ -52,7 +51,7 @@ $(LIBSO): $(LOBJS) $(LIBMAP)
+ 	ln -sf $@ $(TARGET) 
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
+-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBBASE):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
++	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+ 
+ $(LIBMAP): $(LIBMAP).in
+ ifneq ($(DISABLE_CIL),y)
+diff --git a/libsepol/src/libsepol.pc.in b/libsepol/src/libsepol.pc.in
+index e52f5892..f807fec6 100644
+--- a/libsepol/src/libsepol.pc.in
++++ b/libsepol/src/libsepol.pc.in
+@@ -1,6 +1,6 @@
+ prefix=@prefix@
+ exec_prefix=${prefix}
+-libdir=${exec_prefix}/@libdir@
++libdir=@libdir@
+ includedir=@includedir@
+ 
+ Name: libsepol
+diff --git a/libsepol/utils/Makefile b/libsepol/utils/Makefile
+index fba1d8a0..8ce4bf47 100644
+--- a/libsepol/utils/Makefile
++++ b/libsepol/utils/Makefile
+@@ -1,6 +1,6 @@
+ # Installation directories.
+-PREFIX ?= $(DESTDIR)/usr
+-BINDIR ?= $(PREFIX)/bin
++PREFIX ?= /usr
++BINDIR ?= $(DESTDIR)$(PREFIX)/bin
+ 
+ CFLAGS ?= -Wall -Werror
+ override CFLAGS += -I../include
+-- 
+2.15.1
