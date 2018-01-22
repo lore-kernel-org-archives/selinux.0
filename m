@@ -1,38 +1,42 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0M6Ij4t006346
- for <selinux@tycho.nsa.gov>; Mon, 22 Jan 2018 01:18:46 -0500
-To: Matthew Garrett <mjg59@google.com>,
- linux-integrity <linux-integrity@vger.kernel.org>
-Cc: James Morris <james.l.morris@oracle.com>, Paul Moore
- <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
- LSM List <linux-security-module@vger.kernel.org>,
- Mimi Zohar <zohar@linux.vnet.ibm.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <20180108213620.170042-1-mjg59@google.com>
- <CACdnJuutxPpzr4DPaJLuffHCcMWQN_22dA6wzxMQq3XR2R6+Gg@mail.gmail.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <8b7f9729-af09-a59e-0cd0-8db58d82ea56@schaufler-ca.com>
-Date: Sun, 21 Jan 2018 22:14:36 -0800
-MIME-Version: 1.0
-In-Reply-To: <CACdnJuutxPpzr4DPaJLuffHCcMWQN_22dA6wzxMQq3XR2R6+Gg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH V6 1/2] security: Add a cred_getsecid hook
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0MGcapo024000
+ for <selinux@tycho.nsa.gov>; Mon, 22 Jan 2018 11:38:37 -0500
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: selinux@tycho.nsa.gov
+Date: Mon, 22 Jan 2018 16:38:11 +0000
+Message-Id: <20180122163811.16512-1-richard_c_haines@btinternet.com>
+Subject: [PATCH] libsemanage: Return commit number if save-previous
+ false
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 1/21/2018 9:27 PM, Matthew Garrett wrote:
-> On Tue, Jan 9, 2018 at 8:36 AM, Matthew Garrett <mjg59@google.com> wrote:
->> For IMA purposes, we want to be able to obtain the prepared secid in the
->> bprm structure before the credentials are committed. Add a cred_getsecid
->> hook that makes this possible.
-> Any feedback on this version of the set?
+Stop overwriting the commit number for the default save-previous flag
+setting (false) in semanage.conf.
 
+Allows semodule -v -i <policy> to show the correct commit number.
 
-Sorry for the delay. I'm having a mindset crisis on secids just
-now, and I'm not completely sure if I have any issue with this
-particular hook. Don't wait for me. If everyone else is OK with
-it, go ahead.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ libsemanage/src/semanage_store.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 37ff5ace..936e6495 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -1740,9 +1740,9 @@ static int semanage_commit_sandbox(semanage_handle_t * sh)
+ 
+ 	if (!sh->conf->save_previous) {
+ 		int errsv = errno;
+-		retval = semanage_remove_directory(backup);
+-		if (retval < 0) {
++		if (semanage_remove_directory(backup) != 0) {
+ 			ERR(sh, "Could not delete previous directory %s.", backup);
++			retval = -1;
+ 			goto cleanup;
+ 		}
+ 		errno = errsv;
+-- 
+2.14.3
