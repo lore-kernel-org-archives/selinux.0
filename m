@@ -1,207 +1,169 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0NAPU42024327
- for <selinux@tycho.nsa.gov>; Tue, 23 Jan 2018 05:25:30 -0500
-Date: Tue, 23 Jan 2018 11:24:47 +0100
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20180123102446.GA19889@pl-rpi.tpb.lab.eng.brq.redhat.com>
-References: <marcus.folkesson@gmail.com>
- <20180121214617.8975-1-marcus.folkesson@gmail.com>
- <20180121214617.8975-9-marcus.folkesson@gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
-In-Reply-To: <20180121214617.8975-9-marcus.folkesson@gmail.com>
-Subject: Re: [PATCH v3 08/14] python: build: follow standard
- semantics for DESTDIR and PREFIX
+Message-ID: <1516728418.2490.35.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+Date: Tue, 23 Jan 2018 12:26:58 -0500
+In-Reply-To: <20180122163836.16567-1-richard_c_haines@btinternet.com>
+References: <20180122163836.16567-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH V2] libsemanage: Allow tmp files to be kept if a compile
+ fails
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Jan 21, 2018 at 10:46:11PM +0100, Marcus Folkesson wrote:
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+On Mon, 2018-01-22 at 16:38 +0000, Richard Haines wrote:
+> Allow the tmp build files to be kept for debugging when a policy
+> build fails.
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
->  python/audit2allow/Makefile           | 17 ++++++++++-------
->  python/chcat/Makefile                 |  8 ++++----
->  python/semanage/Makefile              | 11 +++++------
->  python/sepolgen/src/sepolgen/Makefile |  3 ++-
->  python/sepolicy/Makefile              | 18 +++++++++---------
->  5 files changed, 30 insertions(+), 27 deletions(-)
->=20
-> diff --git a/python/audit2allow/Makefile b/python/audit2allow/Makefile
-> index 8db8075f..d1d4ca8d 100644
-> --- a/python/audit2allow/Makefile
-> +++ b/python/audit2allow/Makefile
-> @@ -1,19 +1,22 @@
->  PYTHON ?=3D python
-> =20
->  # Installation directories.
-> -PREFIX ?=3D $(DESTDIR)/usr
-> -BINDIR ?=3D $(PREFIX)/bin
-> -LIBDIR ?=3D $(PREFIX)/lib
-> -MANDIR ?=3D $(PREFIX)/share/man
-> -LOCALEDIR ?=3D /usr/share/locale
-> -INCLUDEDIR ?=3D $(PREFIX)/include
-> -LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
-> +PREFIX ?=3D /usr
-> +BINDIR ?=3D $(DESTDIR)$(PREFIX)/bin
-> +LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
-> +MANDIR ?=3D $(DESTDIR)$(PREFIX)/share/man
-> =20
->  CFLAGS ?=3D -Werror -Wall -W
-> =20
-> +# If no specific libsepol.a is specified, fall back on LDFLAGS search pa=
-th
-> +ifeq ($(LIBSEPOLA),)
-> +       LDFLAGS +=3D -l:libsepol.a
-> +endif
+> V2 Changes: 
+> Remove the retain-tmp flag and just keep tmp files on build errors.
+> 
+>  libsemanage/src/direct_api.c | 54 ++++++++++++++++++++++++++++++--
+> ------------
+>  libsemanage/src/handle.c     |  2 ++
+>  libsemanage/src/handle.h     |  1 +
+>  3 files changed, 40 insertions(+), 17 deletions(-)
+> 
+> diff --git a/libsemanage/src/direct_api.c
+> b/libsemanage/src/direct_api.c
+> index a455612f..3d1cf1fe 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -323,26 +323,44 @@ static void
+> semanage_direct_destroy(semanage_handle_t * sh
+>  	/* do nothing */
+>  }
+>  
+> -static int semanage_direct_disconnect(semanage_handle_t * sh)
+> +static int semanage_remove_tmps(semanage_handle_t *sh)
+>  {
+> -	/* destroy transaction */
+> -	if (sh->is_in_transaction) {
+> -		/* destroy sandbox */
+> -		if (semanage_remove_directory
+> -		    (semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL))
+> < 0) {
+> +	if (sh->commit_err)
+> +		return 0;
 > +
->  all: audit2why sepolgen-ifgen-attr-helper
-> =20
->  sepolgen-ifgen-attr-helper: sepolgen-ifgen-attr-helper.o $(LIBSEPOLA)
-> +	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-> =20
->  audit2why:
->  	ln -sf audit2allow audit2why
-> diff --git a/python/chcat/Makefile b/python/chcat/Makefile
-> index 0fd12d6d..947734a0 100644
-> --- a/python/chcat/Makefile
-> +++ b/python/chcat/Makefile
-> @@ -1,8 +1,8 @@
->  # Installation directories.
-> -PREFIX ?=3D $(DESTDIR)/usr
-> -BINDIR ?=3D $(PREFIX)/bin
-> -MANDIR ?=3D $(PREFIX)/share/man
-> -LOCALEDIR ?=3D $(PREFIX)/share/locale
-> +PREFIX ?=3D /usr
-> +BINDIR ?=3D $(DESTDIR)$(PREFIX)/bin
-> +MANDIR ?=3D $(DESTDIR)$(PREFIX)/share/man
-> +LOCALEDIR ?=3D $(DESTDIR)$(PREFIX)/share/locale
-> =20
->  .PHONY: all
->  all: chcat
-> diff --git a/python/semanage/Makefile b/python/semanage/Makefile
-> index 132162bc..0218222d 100644
-> --- a/python/semanage/Makefile
-> +++ b/python/semanage/Makefile
-> @@ -1,13 +1,12 @@
->  PYTHON ?=3D python
-> =20
->  # Installation directories.
-> -PREFIX ?=3D $(DESTDIR)/usr
-> -LIBDIR ?=3D $(PREFIX)/lib
-> -SBINDIR ?=3D $(PREFIX)/sbin
-> -MANDIR =3D $(PREFIX)/share/man
-> -PYTHONLIBDIR ?=3D $(shell $(PYTHON) -c "from distutils.sysconfig import =
-*; print(get_python_lib(1))")
-> +PREFIX ?=3D /usr
-> +SBINDIR ?=3D $(DESTDIR)$(PREFIX)/sbin
-> +MANDIR =3D $(DESTDIR)$(PREFIX)/share/man
-> +PYTHONLIBDIR ?=3D $(shell $(PYTHON) -c "from distutils.sysconfig import =
-*; print(get_python_lib(prefix=3D'$(PREFIX)'))")
+> +	/* destroy sandbox if it exists */
+> +	if (semanage_remove_directory
+> +	    (semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL)) < 0) {
+> +		if (errno != ENOENT) {
+>  			ERR(sh, "Could not cleanly remove sandbox
+> %s.",
+>  			    semanage_path(SEMANAGE_TMP,
+> SEMANAGE_TOPLEVEL));
+>  			return -1;
+>  		}
+> -		if (semanage_remove_directory
+> -		    (semanage_final_path(SEMANAGE_FINAL_TMP,
+> -					 SEMANAGE_FINAL_TOPLEVEL)) <
+> 0) {
+> +	}
+> +
+> +	/* destroy tmp policy if it exists */
+> +	if (semanage_remove_directory
+> +	    (semanage_final_path(SEMANAGE_FINAL_TMP,
+> +				 SEMANAGE_FINAL_TOPLEVEL)) < 0) {
+> +		if (errno != ENOENT) {
+>  			ERR(sh, "Could not cleanly remove tmp %s.",
+>  			    semanage_final_path(SEMANAGE_FINAL_TMP,
+>  						SEMANAGE_FINAL_TOPLE
+> VEL));
+>  			return -1;
+>  		}
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +static int semanage_direct_disconnect(semanage_handle_t *sh)
+> +{
+> +	int retval = 0;
+> +
+> +	/* destroy transaction and remove tmp files if no commit
+> error */
+> +	if (sh->is_in_transaction) {
+>  		semanage_release_trans_lock(sh);
 
-Note that this change move paths for modules from platform-specific to
-platform-shared:
+Don't we need to wait until after we have deleted it to release the
+trans lock?  Otherwise, what prevents another process from taking the
+trans lock, creating the tmp directory, and having it deleted
+underneath it by this process?
 
-- /home/vagrant/build/usr/lib64/python3.6/site-packages/seobject.py
-+ /home/vagrant/build/usr/lib/python3.6/site-packages/seobject.py
-
-I think it's a good change given that there's only pure python
-modules, but it would be good to document it in the commit message.
-
-
->  PACKAGEDIR ?=3D $(DESTDIR)/$(PYTHONLIBDIR)
-> -BASHCOMPLETIONDIR ?=3D $(DESTDIR)/usr/share/bash-completion/completions
-> +BASHCOMPLETIONDIR ?=3D $(DESTDIR)$(PREFIX)/share/bash-completion/complet=
-ions
-> =20
->  TARGETS=3Dsemanage
-> =20
-> diff --git a/python/sepolgen/src/sepolgen/Makefile b/python/sepolgen/src/=
-sepolgen/Makefile
-> index d3aa7715..2121a955 100644
-> --- a/python/sepolgen/src/sepolgen/Makefile
-> +++ b/python/sepolgen/src/sepolgen/Makefile
-> @@ -1,5 +1,6 @@
-> +PREFIX ?=3D /usr
->  PYTHON ?=3D python
-> -PYTHONLIBDIR ?=3D $(shell $(PYTHON) -c "from distutils.sysconfig import =
-*; print(get_python_lib(1))")
-> +PYTHONLIBDIR ?=3D $(shell $(PYTHON) -c "from distutils.sysconfig import =
-*; print(get_python_lib(prefix=3D'$(PREFIX)'))")
->  PACKAGEDIR ?=3D $(DESTDIR)/$(PYTHONLIBDIR)/sepolgen
-> =20
->  all:
-> diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-> index 5a56e6c8..1c02ee06 100644
-> --- a/python/sepolicy/Makefile
-> +++ b/python/sepolicy/Makefile
-> @@ -1,14 +1,14 @@
->  PYTHON ?=3D python
-> =20
->  # Installation directories.
-> -PREFIX ?=3D $(DESTDIR)/usr
-> -LIBDIR ?=3D $(PREFIX)/lib
-> -BINDIR ?=3D $(PREFIX)/bin
-> -DATADIR ?=3D $(PREFIX)/share
-> -MANDIR ?=3D $(PREFIX)/share/man
-> -LOCALEDIR ?=3D /usr/share/locale
-> -BASHCOMPLETIONDIR ?=3D $(DESTDIR)/usr/share/bash-completion/completions
-> -SHAREDIR ?=3D $(PREFIX)/share/sandbox
-> +PREFIX ?=3D /usr
-> +LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
-> +BINDIR ?=3D $(DESTDIR)$(PREFIX)/bin
-> +DATADIR ?=3D $(DESTDIR)$(PREFIX)/share
-> +MANDIR ?=3D $(DESTDIR)$(PREFIX)/share/man
-> +LOCALEDIR ?=3D $(DESTDIR)$(PREFIX)/share/locale
-> +BASHCOMPLETIONDIR ?=3D $(DESTDIR)$(PREFIX)/share/bash-completion/complet=
-ions
-> +SHAREDIR ?=3D $(DESTDIR)$(PREFIX)/share/sandbox
->  CFLAGS ?=3D -Wall -Werror -Wextra -W
->  override CFLAGS +=3D -DPACKAGE=3D"policycoreutils" -DSHARED -shared
-> =20
-> @@ -30,7 +30,7 @@ test:
->  	@$(PYTHON) test_sepolicy.py -v
-> =20
->  install:
-> -	$(PYTHON) setup.py install `test -n "$(DESTDIR)" && echo --root $(DESTD=
-IR)`
-> +	$(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)" &=
-& echo --root $(DESTDIR)`
->  	[ -d $(BINDIR) ] || mkdir -p $(BINDIR)
->  	install -m 755 sepolicy.py $(BINDIR)/sepolicy
->  	(cd $(BINDIR); ln -sf sepolicy sepolgen)
-> --=20
-> 2.15.1
->=20
->=20
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE6FPBhIsBhc9Chk3zY6itS5gsQ3MFAlpnDWkACgkQY6itS5gs
-Q3NZzA/+IWz97ik0D2bbkSgyY++0PD6nDDKokd085oZO8wfvUd3+mnwRuwVDQFhq
-zd1uLOCMFjCbequekuEgLgbdCJFd0NtY8aqFH0IiqnWfCTQor/thfHtEqv04cKeo
-SGfejdx+LCjXx9iP5nwCSCgkOPp6EsIilqnAVlMynwCsyz4woQU+q/6gsyfB9e5I
-BCVqdssjYh9Q2M0daqwseUvMta56NsBmgxME+pw+IBI3rXln3JUNTpbMsFaUmgbe
-fNVraWItC0bJ8hhTH6efqfhDY66dgxY6c8LxwnG9SiuTBQqnDmnzU0MkG7keOmJU
-xfcT7/hSEnPY6MGXjqir4CLFMx04HW/w69QU22Mr+I4awnXzFx90A0hBJEToPWmR
-lGZfWGskKBWYHRxFLSVUQgQkh3c2lmkW3KOOvRNtMvVX5427Y7ydXi8v2NxaKczx
-BCr3UsKGpXFw1h4Z5k8ZPWK9qTpNdcgexomCRhEWv5ZfXkGfSJUmak5n9GOXww1Z
-qjg4HD+n6KQJs9EhE9J0Ms0BJwDA/SZS7KJ6Ofw0xVfayalSCuoaacBZV1MMFxFz
-iZS0+3vPiKgJRWni0VFNNkncICtsruDMNoFXdPK8HGU3tiCt0wcGvh3fAUZECQB9
-OVkTf4IZjGEEdVdakVt6MTz9rQbfMekMLP38m+CrP+A7FKKaSg4=
-=8cdu
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+> +		retval = semanage_remove_tmps(sh);
+>  	}
+>  
+>  	/* Release object databases: local modifications */
+> @@ -375,7 +393,7 @@ static int
+> semanage_direct_disconnect(semanage_handle_t * sh)
+>  	/* Release object databases: active kernel policy */
+>  	bool_activedb_dbase_release(semanage_bool_dbase_active(sh));
+>  
+> -	return 0;
+> +	return retval;
+>  }
+>  
+>  static int semanage_direct_begintrans(semanage_handle_t * sh)
+> @@ -1639,13 +1657,15 @@ cleanup:
+>  
+>  	free(fc_buffer);
+>  
+> -	/* regardless if the commit was successful or not, remove
+> the
+> -	   sandbox if it is still there */
+> -	semanage_remove_directory(semanage_path
+> -				  (SEMANAGE_TMP,
+> SEMANAGE_TOPLEVEL));
+> -	semanage_remove_directory(semanage_final_path
+> -				  (SEMANAGE_FINAL_TMP,
+> -				   SEMANAGE_FINAL_TOPLEVEL));
+> +	/* Set commit_err so other functions can detect any errors.
+> Note that
+> +	 * retval > 0 will be the commit number.
+> +	 */
+> +	if (retval < 0)
+> +		sh->commit_err = retval;
+> +
+> +	if (semanage_remove_tmps(sh) != 0)
+> +		retval = -1;
+> +
+>  	umask(mask);
+>  
+>  	return retval;
+> diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
+> index 4ce1df03..a6567bd4 100644
+> --- a/libsemanage/src/handle.c
+> +++ b/libsemanage/src/handle.c
+> @@ -86,6 +86,8 @@ semanage_handle_t *semanage_handle_create(void)
+>  	 * If any changes are made, this flag is ignored */
+>  	sh->do_rebuild = 0;
+>  
+> +	sh->commit_err = 0;
+> +
+>  	/* By default always reload policy after commit if SELinux
+> is enabled. */
+>  	sh->do_reload = (is_selinux_enabled() > 0);
+>  
+> diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
+> index 1780ac81..65b15600 100644
+> --- a/libsemanage/src/handle.h
+> +++ b/libsemanage/src/handle.h
+> @@ -62,6 +62,7 @@ struct semanage_handle {
+>  	int is_in_transaction;
+>  	int do_reload;		/* whether to reload policy
+> after commit */
+>  	int do_rebuild;		/* whether to rebuild policy
+> if there were no changes */
+> +	int commit_err;		/* set by
+> semanage_direct_commit() */
+>  	int modules_modified;
+>  	int create_store;	/* whether to create the store if
+> it does not exist
+>  				 * this will only have an effect on
+> direct connections */
