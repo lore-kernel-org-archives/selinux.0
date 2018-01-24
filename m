@@ -1,13 +1,13 @@
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
 To: selinux@tycho.nsa.gov, nicolas.iooss@m4x.org, sds@tycho.nsa.gov
 Cc: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Wed, 24 Jan 2018 10:27:33 +0100
-Message-Id: <20180124092736.8432-13-marcus.folkesson@gmail.com>
+Date: Wed, 24 Jan 2018 10:27:36 +0100
+Message-Id: <20180124092736.8432-16-marcus.folkesson@gmail.com>
 In-Reply-To: <20180124092736.8432-1-marcus.folkesson@gmail.com>
 References: <marcus.folkesson@gmail.com>
  <20180124092736.8432-1-marcus.folkesson@gmail.com>
-Subject: [PATCH v4 12/15] secilc: build: follow standard semantics
- for DESTDIR and PREFIX
+Subject: [PATCH v4 15/15] build: setup buildpaths if DESTDIR is
+ specified
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -15,24 +15,34 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- secilc/Makefile | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ Makefile | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/secilc/Makefile b/secilc/Makefile
-index 1cac53e4..5b0a4852 100644
---- a/secilc/Makefile
-+++ b/secilc/Makefile
-@@ -1,8 +1,6 @@
--PREFIX ?= $(DESTDIR)/usr
--BINDIR ?= $(PREFIX)/bin
--MANDIR ?= $(PREFIX)/share/man
--LIBDIR ?= $(PREFIX)/lib
--INCLUDEDIR ?= $(PREFIX)/include
+diff --git a/Makefile b/Makefile
+index 6da7f7b7..c238dbc8 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,3 +1,4 @@
 +PREFIX ?= /usr
-+BINDIR ?= $(DESTDIR)$(PREFIX)/bin
-+MANDIR ?= $(DESTDIR)$(PREFIX)/share/man
+ OPT_SUBDIRS ?= dbus gui mcstrans python restorecond sandbox semodule-utils
+ SUBDIRS=libsepol libselinux libsemanage checkpolicy secilc policycoreutils $(OPT_SUBDIRS)
+ PYSUBDIRS=libselinux libsemanage
+@@ -19,10 +20,14 @@ else
+ endif
  
- SECILC = secilc
- SECILC_SRCS := secilc.c
+ ifneq ($(DESTDIR),)
+-	CFLAGS += -I$(DESTDIR)/usr/include
+-	LDFLAGS += -L$(DESTDIR)/usr/lib
++	LIBDIR ?= $(DESTDIR)$(PREFIX)/lib
++	LIBSEPOLA ?= $(LIBDIR)/libsepol.a
++
++	CFLAGS += -I$(DESTDIR)$(PREFIX)/include
++	LDFLAGS += -L$(DESTDIR)$(PREFIX)/lib -L$(LIBDIR)
+ 	export CFLAGS
+ 	export LDFLAGS
++	export LIBSEPOLA
+ endif
+ 
+ all install relabel clean test indent:
 -- 
 2.15.1
