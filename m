@@ -1,79 +1,51 @@
-Message-ID: <1516888283.9570.1.camel@tycho.nsa.gov>
+Message-ID: <1516892911.9570.3.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Thu, 25 Jan 2018 08:51:23 -0500
-References: <1516850875-25066-15-git-send-email-takondra@cisco.com>
+To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+Date: Thu, 25 Jan 2018 10:08:31 -0500
+In-Reply-To: <20180122163811.16512-1-richard_c_haines@btinternet.com>
+References: <20180122163811.16512-1-richard_c_haines@btinternet.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: [Fwd: [PATCH v2 14/15] selinux: allow setxattr on rootfs so
- initramfs code can set them]
+Subject: Re: [PATCH] libsemanage: Return commit number if save-previous false
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
--------- Forwarded Message --------
-From: Taras Kondratiuk <takondra@cisco.com>
-To: H. Peter Anvin <hpa@zytor.com>, Al Viro <viro@zeniv.linux.org.uk>,
-Arnd Bergmann <arnd@arndb.de>, Rob Landley <rob@landley.net>, Mimi
-Zohar <zohar@linux.vnet.ibm.com>, Jonathan Corbet <corbet@lwn.net>,
-James McMechan <james.w.mcmechan@gmail.com>
-Cc: initramfs@vger.kernel.org, Victor Kamensky <kamensky@cisco.com>, li
-nux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-security-m
-odule@vger.kernel.org, xe-linux-external@cisco.com
-Subject: [PATCH v2 14/15] selinux: allow setxattr on
-rootfs so initramfs code can set them
-Date: Thu, 25 Jan 2018 03:27:54 +0000
+On Mon, 2018-01-22 at 16:38 +0000, Richard Haines wrote:
+> Stop overwriting the commit number for the default save-previous flag
+> setting (false) in semanage.conf.
+> 
+> Allows semodule -v -i <policy> to show the correct commit number.
 
-From: Victor Kamensky <kamensky@cisco.com>
+Thanks, applied.  I was concerned that this could possibly break buggy
+callers (e.g. if they were handling any non-zero return as an error),
+but since the man page does document the return convention and a quick
+look at callers suggests they do the right thing, I applied this. I
+guess we'll see if anyone complains.
 
-initramfs code supporting extended cpio format have ability to
-fill extended attributes from cpio archive, but if SELinux enabled
-and security server is not initialized yet, selinux callback would
-refuse setxattr made by initramfs code.
-
-Solution enable SBLABEL_MNT on rootfs even if secrurity server is
-not initialized yet.
-
-Signed-off-by: Victor Kamensky <kamensky@cisco.com>
----
- security/selinux/hooks.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 8644d864e3c1..f3fe65589f02 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -706,6 +706,18 @@ static int selinux_set_mnt_opts(struct super_block
-*sb,
- 
- 	if (!ss_initialized) {
- 		if (!num_opts) {
-+			/*
-+			 * Special handling for rootfs. Is genfs but
-supports
-+			 * setting SELinux context on in-core inodes.
-+			 *
-+			 * Chicken and egg problem: policy may reside
-in rootfs
-+			 * but for initramfs code to fill in
-attributes, it
-+			 * needs selinux to allow that.
-+			 */
-+			if (!strncmp(sb->s_type->name, "rootfs",
-+				     sizeof("rootfs")))
-+				sbsec->flags |= SBLABEL_MNT;
-+
- 			/* Defer initialization until
-selinux_complete_init,
- 			   after the initial policy is loaded and the
-security
- 			   server is ready to handle calls. */
--- 
-2.10.3.dirty
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-
-security-module" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  libsemanage/src/semanage_store.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/libsemanage/src/semanage_store.c
+> b/libsemanage/src/semanage_store.c
+> index 37ff5ace..936e6495 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -1740,9 +1740,9 @@ static int
+> semanage_commit_sandbox(semanage_handle_t * sh)
+>  
+>  	if (!sh->conf->save_previous) {
+>  		int errsv = errno;
+> -		retval = semanage_remove_directory(backup);
+> -		if (retval < 0) {
+> +		if (semanage_remove_directory(backup) != 0) {
+>  			ERR(sh, "Could not delete previous directory
+> %s.", backup);
+> +			retval = -1;
+>  			goto cleanup;
+>  		}
+>  		errno = errsv;
