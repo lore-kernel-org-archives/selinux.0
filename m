@@ -1,202 +1,86 @@
-MIME-Version: 1.0
-In-Reply-To: <1516906168.9570.6.camel@tycho.nsa.gov>
-References: <20180124094254.6171-1-richard_c_haines@btinternet.com>
- <CAFftDdqc2E6Sk3aYEDXwzovhRok1CWVKT0BJ8AtF2gy7zB_k0w@mail.gmail.com>
- <1516906168.9570.6.camel@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Thu, 25 Jan 2018 12:28:00 -0800
-Message-ID: <CAFftDdqA_vG=V8SSSD2UrZPEqdgdqsh-0_=UV0bFmF_tdi+vsQ@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Richard Haines <richard_c_haines@btinternet.com>,
- selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH V3] libsemanage: Allow tmp files to be kept if a
- compile fails
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0PKs0iO013330
+ for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2018 15:54:00 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC07.oob.disa.mil (Postfix) with SMTP id 3zSDld3Y37z2KHws
+ for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2018 20:53:33 +0000 (UTC)
+Received: from UPDC3CPA05.eemsg.mil (unknown [192.168.18.12])
+ by UPDCF3IC07.oob.disa.mil (Postfix) with ESMTP id 3zSDld2vxzz2KHwq
+ for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2018 20:53:33 +0000 (UTC)
+Received: from localhost.localdomain (abo-251-56-69.avi.modulonet.fr
+ [85.69.56.251])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 814A156484B
+ for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2018 21:52:00 +0100 (CET)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Date: Thu, 25 Jan 2018 21:51:13 +0100
+Message-Id: <20180125205113.18453-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20180125205113.18453-1-nicolas.iooss@m4x.org>
+References: <20180125205113.18453-1-nicolas.iooss@m4x.org>
+Subject: [PATCH 2/2] gui: remove "new" button in Modules page
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Thanks, applied: https://github.com/SELinuxProject/selinux/pull/76
+This used to invoke polgengui, which has been removed.
 
-On Thu, Jan 25, 2018 at 10:49 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Thu, 2018-01-25 at 10:22 -0800, William Roberts wrote:
->> On Wed, Jan 24, 2018 at 1:42 AM, Richard Haines
->> <richard_c_haines@btinternet.com> wrote:
->> > Allow the tmp build files to be kept for debugging when a policy
->> > build fails.
->> >
->> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->> > ---
->> > V2 Changes:
->> > Remove the retain-tmp flag and just keep tmp files on build errors.
->> > V3 Changes:
->> > Release transaction lock after tmp files removed.
->> > Add additional comments to commit_err in handle.h
->> >
->> >  libsemanage/src/direct_api.c | 56 ++++++++++++++++++++++++++++++
->> > --------------
->> >  libsemanage/src/handle.c     |  2 ++
->> >  libsemanage/src/handle.h     |  4 ++++
->> >  3 files changed, 44 insertions(+), 18 deletions(-)
->> >
->> > diff --git a/libsemanage/src/direct_api.c
->> > b/libsemanage/src/direct_api.c
->> > index a455612f..88873c43 100644
->> > --- a/libsemanage/src/direct_api.c
->> > +++ b/libsemanage/src/direct_api.c
->> > @@ -323,25 +323,43 @@ static void
->> > semanage_direct_destroy(semanage_handle_t * sh
->> >         /* do nothing */
->> >  }
->> >
->> > -static int semanage_direct_disconnect(semanage_handle_t * sh)
->> > +static int semanage_remove_tmps(semanage_handle_t *sh)
->> >  {
->> > -       /* destroy transaction */
->> > -       if (sh->is_in_transaction) {
->> > -               /* destroy sandbox */
->> > -               if (semanage_remove_directory
->> > -                   (semanage_path(SEMANAGE_TMP,
->> > SEMANAGE_TOPLEVEL)) < 0) {
->> > +       if (sh->commit_err)
->> > +               return 0;
->> > +
->> > +       /* destroy sandbox if it exists */
->> > +       if (semanage_remove_directory
->> > +           (semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL)) < 0) {
->> > +               if (errno != ENOENT) {
->> >                         ERR(sh, "Could not cleanly remove sandbox
->> > %s.",
->> >                             semanage_path(SEMANAGE_TMP,
->> > SEMANAGE_TOPLEVEL));
->> >                         return -1;
->> >                 }
->> > -               if (semanage_remove_directory
->> > -                   (semanage_final_path(SEMANAGE_FINAL_TMP,
->> > -                                        SEMANAGE_FINAL_TOPLEVEL))
->> > < 0) {
->> > +       }
->> > +
->> > +       /* destroy tmp policy if it exists */
->> > +       if (semanage_remove_directory
->> > +           (semanage_final_path(SEMANAGE_FINAL_TMP,
->> > +                                SEMANAGE_FINAL_TOPLEVEL)) < 0) {
->> > +               if (errno != ENOENT) {
->> >                         ERR(sh, "Could not cleanly remove tmp %s.",
->> >                             semanage_final_path(SEMANAGE_FINAL_TMP,
->> >                                                 SEMANAGE_FINAL_TOPL
->> > EVEL));
->> >                         return -1;
->> >                 }
->> > +       }
->> > +
->> > +       return 0;
->> > +}
->> > +
->> > +static int semanage_direct_disconnect(semanage_handle_t *sh)
->> > +{
->> > +       int retval = 0;
->> > +
->> > +       /* destroy transaction and remove tmp files if no commit
->> > error */
->> > +       if (sh->is_in_transaction) {
->> > +               retval = semanage_remove_tmps(sh);
->> >                 semanage_release_trans_lock(sh);
->> >         }
->> >
->> > @@ -375,7 +393,7 @@ static int
->> > semanage_direct_disconnect(semanage_handle_t * sh)
->> >         /* Release object databases: active kernel policy */
->> >         bool_activedb_dbase_release(semanage_bool_dbase_active(sh))
->> > ;
->> >
->> > -       return 0;
->> > +       return retval;
->> >  }
->> >
->> >  static int semanage_direct_begintrans(semanage_handle_t * sh)
->> > @@ -1635,17 +1653,19 @@ cleanup:
->> >         free(mod_filenames);
->> >         sepol_policydb_free(out);
->> >         cil_db_destroy(&cildb);
->> > -       semanage_release_trans_lock(sh);
->> >
->> >         free(fc_buffer);
->> >
->> > -       /* regardless if the commit was successful or not, remove
->> > the
->> > -          sandbox if it is still there */
->> > -       semanage_remove_directory(semanage_path
->> > -                                 (SEMANAGE_TMP,
->> > SEMANAGE_TOPLEVEL));
->> > -       semanage_remove_directory(semanage_final_path
->> > -                                 (SEMANAGE_FINAL_TMP,
->> > -                                  SEMANAGE_FINAL_TOPLEVEL));
->> > +       /* Set commit_err so other functions can detect any errors.
->> > Note that
->> > +        * retval > 0 will be the commit number.
->> > +        */
->> > +       if (retval < 0)
->> > +               sh->commit_err = retval;
->> > +
->> > +       if (semanage_remove_tmps(sh) != 0)
->> > +               retval = -1;
->> > +
->> > +       semanage_release_trans_lock(sh);
->> >         umask(mask);
->> >
->> >         return retval;
->> > diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
->> > index 4ce1df03..a6567bd4 100644
->> > --- a/libsemanage/src/handle.c
->> > +++ b/libsemanage/src/handle.c
->> > @@ -86,6 +86,8 @@ semanage_handle_t *semanage_handle_create(void)
->> >          * If any changes are made, this flag is ignored */
->> >         sh->do_rebuild = 0;
->> >
->> > +       sh->commit_err = 0;
->> > +
->> >         /* By default always reload policy after commit if SELinux
->> > is enabled. */
->> >         sh->do_reload = (is_selinux_enabled() > 0);
->> >
->> > diff --git a/libsemanage/src/handle.h b/libsemanage/src/handle.h
->> > index 1780ac81..a91907b0 100644
->> > --- a/libsemanage/src/handle.h
->> > +++ b/libsemanage/src/handle.h
->> > @@ -62,6 +62,10 @@ struct semanage_handle {
->> >         int is_in_transaction;
->> >         int do_reload;          /* whether to reload policy after
->> > commit */
->> >         int do_rebuild;         /* whether to rebuild policy if
->> > there were no changes */
->> > +       int commit_err;         /* set by semanage_direct_commit()
->> > if there are
->> > +                                * any errors when building or
->> > committing the
->> > +                                * sandbox to kernel policy at
->> > /etc/selinux
->> > +                                */
->> >         int modules_modified;
->> >         int create_store;       /* whether to create the store if
->> > it does not exist
->> >                                  * this will only have an effect on
->> > direct connections */
->> > --
->> > 2.14.3
->> >
->> >
->>
->> LGTM. Stephen any other comments? I have this going through the CI
->> tests as we speak.
->
-> LGTM too.
->
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ gui/modulesPage.py           |  8 --------
+ gui/system-config-selinux.ui | 12 ------------
+ 2 files changed, 20 deletions(-)
 
-
-
+diff --git a/gui/modulesPage.py b/gui/modulesPage.py
+index 34c5d9e3c488..8a325155451f 100644
+--- a/gui/modulesPage.py
++++ b/gui/modulesPage.py
+@@ -70,8 +70,6 @@ class modulesPage(semanagePage):
+         col = Gtk.TreeViewColumn(_("Priority"), Gtk.CellRendererText(), text=1)
+         self.enable_audit_button = xml.get_object("enableAuditButton")
+         self.enable_audit_button.connect("clicked", self.enable_audit)
+-        self.new_button = xml.get_object("newModuleButton")
+-        self.new_button.connect("clicked", self.new_module)
+         col.set_sort_column_id(1)
+         col.set_resizable(True)
+         self.view.append_column(col)
+@@ -116,12 +114,6 @@ class modulesPage(semanagePage):
+             pass
+         self.view.get_selection().select_path((0,))
+ 
+-    def new_module(self, args):
+-        try:
+-            Popen(["/usr/share/system-config-selinux/polgengui.py"])
+-        except ValueError as e:
+-            self.error(e.args[0])
+-
+     def delete(self):
+         store, iter = self.view.get_selection().get_selected()
+         module = store.get_value(iter, 0)
+diff --git a/gui/system-config-selinux.ui b/gui/system-config-selinux.ui
+index 7cc1cc532a1f..f5d0bb728eca 100644
+--- a/gui/system-config-selinux.ui
++++ b/gui/system-config-selinux.ui
+@@ -1595,18 +1595,6 @@ Level</property>
+                         <property name="visible">True</property>
+                         <property name="can_focus">False</property>
+                         <property name="toolbar_style">both</property>
+-                        <child>
+-                          <object class="GtkToolButton" id="newModuleButton">
+-                            <property name="visible">True</property>
+-                            <property name="can_focus">False</property>
+-                            <property name="tooltip_text" translatable="yes">Generate new policy module</property>
+-                            <property name="stock_id">gtk-new</property>
+-                          </object>
+-                          <packing>
+-                            <property name="expand">False</property>
+-                            <property name="homogeneous">True</property>
+-                          </packing>
+-                        </child>
+                         <child>
+                           <object class="GtkToolButton" id="toolbutton23">
+                             <property name="visible">True</property>
 -- 
-Respectfully,
-
-William C Roberts
+2.16.0
