@@ -1,68 +1,116 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0PD3OKS021849
- for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2018 08:03:24 -0500
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.16.0.22/8.16.0.22) with SMTP id
- w0PD0mHc024144
- for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2018 08:03:03 -0500
-Received: from e06smtp14.uk.ibm.com (e06smtp14.uk.ibm.com [195.75.94.110])
- by mx0a-001b2d01.pphosted.com with ESMTP id 2fqf49j074-1
- (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NOT)
- for <selinux@tycho.nsa.gov>; Thu, 25 Jan 2018 08:03:02 -0500
-Received: from localhost
- by e06smtp14.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only!
- Violators will be prosecuted
- for <selinux@tycho.nsa.gov> from <zohar@linux.vnet.ibm.com>;
- Thu, 25 Jan 2018 13:02:59 -0000
-From: Mimi Zohar <zohar@linux.vnet.ibm.com>
-To: Matthew Garrett <mjg59@google.com>, Casey Schaufler
- <casey@schaufler-ca.com>
-Cc: linux-integrity <linux-integrity@vger.kernel.org>, James Morris
- <james.l.morris@oracle.com>, Paul Moore <paul@paul-moore.com>, Stephen
- Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
- LSM List <linux-security-module@vger.kernel.org>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
-Date: Thu, 25 Jan 2018 08:02:53 -0500
-In-Reply-To: <CACdnJutphETV-aGj9QTN0Z=VyQYod9R7=HjQSrXDVL2ASQfOzA@mail.gmail.com>
-References: <20180108213620.170042-1-mjg59@google.com>
- <CACdnJuutxPpzr4DPaJLuffHCcMWQN_22dA6wzxMQq3XR2R6+Gg@mail.gmail.com>
- <8b7f9729-af09-a59e-0cd0-8db58d82ea56@schaufler-ca.com>
- <CACdnJutphETV-aGj9QTN0Z=VyQYod9R7=HjQSrXDVL2ASQfOzA@mail.gmail.com>
+Message-ID: <1516888138.9570.0.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: selinux@tycho.nsa.gov
+Date: Thu, 25 Jan 2018 08:48:58 -0500
+References: <1516850875-25066-16-git-send-email-takondra@cisco.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Message-Id: <1516885373.3751.52.camel@linux.vnet.ibm.com>
-Subject: Re: [PATCH V6 1/2] security: Add a cred_getsecid hook
+Subject: [Fwd: [PATCH v2 15/15] selinux: delay sid population for rootfs
+ till init is complete]
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2018-01-25 at 11:58 +1100, Matthew Garrett wrote:
-> On Mon, Jan 22, 2018 at 5:14 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > On 1/21/2018 9:27 PM, Matthew Garrett wrote:
-> >> On Tue, Jan 9, 2018 at 8:36 AM, Matthew Garrett <mjg59@google.com> wrote:
-> >>> For IMA purposes, we want to be able to obtain the prepared secid in the
-> >>> bprm structure before the credentials are committed. Add a cred_getsecid
-> >>> hook that makes this possible.
-> >> Any feedback on this version of the set?
-> >
-> >
-> > Sorry for the delay. I'm having a mindset crisis on secids just
-> > now, and I'm not completely sure if I have any issue with this
-> > particular hook. Don't wait for me. If everyone else is OK with
-> > it, go ahead.
-> 
-> Thanks Casey - Mimi, are you ok with the IMA changes? If so, which
-> tree should these go through?
+-------- Forwarded Message --------
+From: Taras Kondratiuk <takondra@cisco.com>
+To: H. Peter Anvin <hpa@zytor.com>, Al Viro <viro@zeniv.linux.org.uk>,
+Arnd Bergmann <arnd@arndb.de>, Rob Landley <rob@landley.net>, Mimi
+Zohar <zohar@linux.vnet.ibm.com>, Jonathan Corbet <corbet@lwn.net>,
+James McMechan <james.w.mcmechan@gmail.com>
+Cc: initramfs@vger.kernel.org, Victor Kamensky <kamensky@cisco.com>, li
+nux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-security-m
+odule@vger.kernel.org, xe-linux-external@cisco.com
+Subject: [Non-DoD Source] [PATCH v2 15/15] selinux: delay sid
+population for rootfs till init is complete
+Date: Thu, 25 Jan 2018 03:27:55 +0000
 
-The IMA patch needs to be upstreamed via the IMA tree, but the only
-additional IMA patches being upstreamed for 4.16, at this point, are
-bug fixes.
+From: Victor Kamensky <kamensky@cisco.com>
 
-Sorry, I'm only getting back to this now.  Assuming all is good with
-the patch, I'll queue it for after resync'ing with ~4.16.0-rc2.
+With initramfs cpio format that supports extended attributes
+we need to skip sid population on sys_lsetxattr call from
+initramfs for rootfs if security server is not initialized yet.
 
-thanks,
+Otherwise callback in selinux_inode_post_setxattr will try to
+translate give security.selinux label into sid context and since
+security server is not available yet inode will receive default
+sid (typically kernel_t). Note that in the same time proper
+label will be stored in inode xattrs. Later, since inode sid
+would be already populated system will never look back at
+actual xattrs. But if we skip sid population for rootfs and
+we have policy that direct use of xattrs for rootfs, proper
+sid will be filled in from extended attributes one node is
+accessed and server is initialized.
 
-Mimi
+Note new DELAYAFTERINIT_MNT super block flag is introduced
+to only mark rootfs for such behavior. For other types of
+tmpfs original logic is still used.
+
+Signed-off-by: Victor Kamensky <kamensky@cisco.com>
+---
+ security/selinux/hooks.c            | 9 ++++++++-
+ security/selinux/include/security.h | 1 +
+ 2 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f3fe65589f02..bb25268f734e 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -716,7 +716,7 @@ static int selinux_set_mnt_opts(struct super_block
+*sb,
+ 			 */
+ 			if (!strncmp(sb->s_type->name, "rootfs",
+ 				     sizeof("rootfs")))
+-				sbsec->flags |= SBLABEL_MNT;
++				sbsec->flags |=
+SBLABEL_MNT|DELAYAFTERINIT_MNT;
+ 
+ 			/* Defer initialization until
+selinux_complete_init,
+ 			   after the initial policy is loaded and the
+security
+@@ -3253,6 +3253,7 @@ static void selinux_inode_post_setxattr(struct
+dentry *dentry, const char *name,
+ {
+ 	struct inode *inode = d_backing_inode(dentry);
+ 	struct inode_security_struct *isec;
++	struct superblock_security_struct *sbsec;
+ 	u32 newsid;
+ 	int rc;
+ 
+@@ -3261,6 +3262,12 @@ static void selinux_inode_post_setxattr(struct
+dentry *dentry, const char *name,
+ 		return;
+ 	}
+ 
++	if (!ss_initialized) {
++		sbsec = inode->i_sb->s_security;
++		if (sbsec->flags & DELAYAFTERINIT_MNT)
++			return;
++	}
++
+ 	rc = security_context_to_sid_force(value, size, &newsid);
+ 	if (rc) {
+ 		printk(KERN_ERR "SELinux:  unable to map context to
+SID"
+diff --git a/security/selinux/include/security.h
+b/security/selinux/include/security.h
+index 02f0412d42f2..585acfd6cbcf 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -52,6 +52,7 @@
+ #define ROOTCONTEXT_MNT	0x04
+ #define DEFCONTEXT_MNT	0x08
+ #define SBLABEL_MNT	0x10
++#define DELAYAFTERINIT_MNT 0x20
+ /* Non-mount related flags */
+ #define SE_SBINITIALIZED	0x0100
+ #define SE_SBPROC		0x0200
+-- 
+2.10.3.dirty
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-
+security-module" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
