@@ -1,175 +1,70 @@
-Date: Wed, 31 Jan 2018 12:58:20 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <20180131115820.GC13531@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180124092736.8432-1-marcus.folkesson@gmail.com>
- <20180124092736.8432-5-marcus.folkesson@gmail.com>
- <CAJfZ7=mZe7P10+akti9yvm+T9X8rb9Hd8PG2n14WOjefSZbJYQ@mail.gmail.com>
+Date: Tue, 30 Jan 2018 23:46:14 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
+ Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, stable@vger.kernel.org
+Message-ID: <20180130224614.GA13647@kroah.com>
+References: <20180118215853.228182-1-salyzyn@android.com>
+ <1516382386.2560.11.camel@tycho.nsa.gov>
+ <1516383672.2560.23.camel@tycho.nsa.gov>
+ <99c11fa6-ad9a-830c-467e-6a56e78aecf8@android.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="vEao7xgI/oilGqZ+"
-In-Reply-To: <CAJfZ7=mZe7P10+akti9yvm+T9X8rb9Hd8PG2n14WOjefSZbJYQ@mail.gmail.com>
-Subject: Re: [PATCH v4 04/15] checkpolicy: build: follow standard
- semantics for DESTDIR and PREFIX
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <99c11fa6-ad9a-830c-467e-6a56e78aecf8@android.com>
+Subject: Re: [PATCH] general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Tue, Jan 30, 2018 at 11:00:04AM -0800, Mark Salyzyn wrote:
+> On 01/19/2018 09:41 AM, Stephen Smalley wrote:
+> > If we can't safely dereference the sock in these hooks, then that seems
+> > to point back to the approach used in my original code, where in
+> > ancient history I had sock_has_perm() take the socket and use its inode
+> > i_security field instead of the sock.  commit
+> > 253bfae6e0ad97554799affa0266052968a45808 switched them to use the sock
+> > instead.
+> 
+> Because of the nature of this problem (hard to duplicate, no clear path), I
+> am understandably not comfortable reverting and submitting for testing in
+> order to prove this point. It is disruptive because it changes several
+> subroutine call signatures.
+> 
+> AFAIK this looks like a user request racing in without reference counting or
+> RCU grace period in the callers (could be viewed as not an issue with
+> security code). Effectively fixed in 4.9-stable, but broken in 4.4-stable.
+> 
+> hygiene, KISS and small, is all I do feel comfortable to submit to
+> 4.4-stable without pulling in all the infrastructure improvements.
+> 
+> -- Mark
+> 
+> ---
+>  security/selinux/hooks.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 34427384605d..be68992a28cb 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4066,6 +4066,8 @@ static int sock_has_perm(struct task_struct *task,
+> struct sock *sk, u32 perms)
+>      struct lsm_network_audit net = {0,};
+>      u32 tsid = task_sid(task);
+> 
+> +    if (!sksec)
+> +        return -EFAULT;
+>      if (sksec->sid == SECINITSID_KERNEL)
+>          return 0;
+> 
 
---vEao7xgI/oilGqZ+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This looks sane to me as a simple 4.4-only fix.  If the SELinux
+maintainer acks it, I can easily queue this up.
 
-On Wed, Jan 24, 2018 at 11:04:10PM +0100, Nicolas Iooss wrote:
-> On Wed, Jan 24, 2018 at 10:27 AM, Marcus Folkesson
-> <marcus.folkesson@gmail.com> wrote:
-> > This patch solves the following issues:
-> > - DESTDIR is needed during compile time to compute library
-> >   and header paths which it should not.
-> > - Installing with both DESTDIR and PREFIX set gives us odd paths
-> > - Make usage of DESTDIR and PREFIX more standard
-> >
-> > Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> > ---
-> >  checkpolicy/Makefile      | 19 +++++++++++++------
-> >  checkpolicy/test/Makefile | 17 ++++++++++++-----
-> >  2 files changed, 25 insertions(+), 11 deletions(-)
-> >
-> > diff --git a/checkpolicy/Makefile b/checkpolicy/Makefile
-> > index 68e11f2a..9a55b968 100644
-> > --- a/checkpolicy/Makefile
-> > +++ b/checkpolicy/Makefile
-> > @@ -1,12 +1,10 @@
-> >  #
-> >  # Makefile for building the checkpolicy program
-> >  #
-> > -PREFIX ?=3D $(DESTDIR)/usr
-> > -BINDIR ?=3D $(PREFIX)/bin
-> > -MANDIR ?=3D $(PREFIX)/share/man
-> > -LIBDIR ?=3D $(PREFIX)/lib
-> > -INCLUDEDIR ?=3D $(PREFIX)/include
-> > -LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
-> > +PREFIX ?=3D /usr
-> > +BINDIR ?=3D $(DESTDIR)$(PREFIX)/bin
-> > +MANDIR ?=3D $(DESTDIR)$(PREFIX)/share/man
-> > +LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
-> >  TARGETS =3D checkpolicy checkmodule
-> >
-> >  LEX =3D flex
-> > @@ -14,6 +12,13 @@ YACC =3D bison -y
-> >
-> >  CFLAGS ?=3D -g -Wall -Werror -Wshadow -O2 -pipe -fno-strict-aliasing
-> >
-> > +# If no specific libsepol.a is specified, fall back on LDFLAGS search =
-path
-> > +# Otherwise, as $(LIBSEPOLA) already appears in the dependencies, there
-> > +# is no need to define a value for LDLIBS_LIBSEPOLA
-> > +ifeq ($(LIBSEPOLA),)
-> > +        LDLIBS_LIBSEPOLA :=3D -l:libsepol.a
-> > +endif
-> > +
-> >  override CFLAGS +=3D -I.
+thanks,
 
-I will remove this override as well.
-
-> >
-> >  CHECKOBJS =3D y.tab.o lex.yy.o queue.o module_compiler.o parse_util.o \
-> > @@ -27,8 +32,10 @@ all:  $(TARGETS)
-> >         $(MAKE) -C test
-> >
-> >  checkpolicy: $(CHECKPOLOBJS) $(LIBSEPOLA)
-> > +       $(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
-> >
-> >  checkmodule: $(CHECKMODOBJS) $(LIBSEPOLA)
-> > +       $(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) $(LDLIBS_LIBSEPOLA)
->=20
-> Please do not introduce $(CFLAGS) in linking rules (if I remember
-> correctly, clang reports warnings when using some compile-time-only
-> options at link time, which breaks the build when using -Werror). The
-> rules for checkpolicy and checkmodule should be:
-> $(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
-
-Will do, thanks
-
->=20
-> >  %.o: %.c
-> >         $(CC) $(CFLAGS) -o $@ -c $<
-> > diff --git a/checkpolicy/test/Makefile b/checkpolicy/test/Makefile
-> > index 59fa4460..094e7ee2 100644
-> > --- a/checkpolicy/test/Makefile
-> > +++ b/checkpolicy/test/Makefile
-> > @@ -1,19 +1,26 @@
-> >  #
-> >  # Makefile for building the dispol program
-> >  #
-> > -PREFIX ?=3D $(DESTDIR)/usr
-> > -BINDIR ?=3D $(PREFIX)/bin
-> > -LIBDIR ?=3D $(PREFIX)/lib
-> > -INCLUDEDIR ?=3D $(PREFIX)/include
-> > -LIBSEPOLA ?=3D $(LIBDIR)/libsepol.a
-> > +PREFIX ?=3D /usr
-> > +BINDIR ?=3D $(DESTDIR)$(PREFIX)/bin
-> > +LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib
-> >
-> >  CFLAGS ?=3D -g -Wall -W -Werror -O2 -pipe
-> >
-> > +# If no specific libsepol.a is specified, fall back on LDFLAGS search =
-path
-> > +# Otherwise, as $(LIBSEPOLA) already appears in the dependencies, there
-> > +# is no need to define a value for LDLIBS_LIBSEPOLA
-> > +ifeq ($(LIBSEPOLA),)
-> > +        LDLIBS_LIBSEPOLA :=3D -l:libsepol.a
-> > +endif
-> > +
-> >  all: dispol dismod
-> >
-> >  dispol: dispol.o $(LIBSEPOLA)
-> > +       $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
-> >
-> >  dismod: dismod.o $(LIBSEPOLA)
-> > +       $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
->=20
-> Same comment here. Please remove $(CFLAGS).
-
-Will do, thanks
-
->=20
-> Best regards,
-> Nicolas
->=20
-> >
-> >  clean:
-> >         -rm -f dispol dismod *.o
-> > --
-> > 2.15.1
-> >
-
-
-Best regards
-Marcus
-
---vEao7xgI/oilGqZ+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlpxr1cACgkQiIBOb1ld
-UjL72xAArfdq+5Km4hZXAt3eBGXiF7Tn+0mD1hF1lg3UHV+ySk2xla2mvQhnWSsg
-idfNdRkzQv/19+8a5C44LCd54vVc9Cc7J3m1qJUtuO1ueZJg7HnQxUIvXajSLVfx
-vtZPRgAMfit9zReu/eU9Z3KiYALguJU02JTNwqWG5jeSjaNSWy6u3H/YauDhRfGc
-r0grkgJ2lZOlfbUtrJ5UjPlECc+ucJEhbdvCwXhegHoE1/C9BBELm+ImUk9VJZqj
-zWTdDt4q2PmS+dQPi9u9euIOEvEQe2dOAMGxiOM7UeNIgnifb0eKaVh4nebycRqU
-R/NmY0CWJt27G1TnaTjk5+VEOveszQuP3gOxk0pWGxqfSyLgYiy8U7CWGoxk9mj5
-ibaBIEZgZaEF2Ji1no7qaTAmTGn6ey38+78p2JMQZA/n/lCltnXOYdIvLEpVH/IM
-1OanP1W4Cq9pUFNKixJnGMLxrWC6W0ZHgOWmasUSBouMfC/qOJWfCjEpspcoSgZE
-E0p2P12kmEx8EDdQjXDxNVAGwEFcKAAlNOHTZGNkju7VjGHkMyx5vNP6MIArIWiD
-wjISZqXsO1K22s430Zk2osTbyhGPp/nKqjDLseq49ywkaWVO9gu7RC9Tu/ArBaHc
-AQL6tyzyKXfKfsfQlo6ab4j+aJg8v1UNQZDMDVK3JpRGofSRNY4=
-=S8RG
------END PGP SIGNATURE-----
-
---vEao7xgI/oilGqZ+--
+greg k-h
