@@ -1,68 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0UHWtuU017000
- for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2018 12:32:55 -0500
-Received: by mail-lf0-f47.google.com with SMTP id g72so16526972lfg.5
- for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2018 09:32:49 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0UJ0W91027411
+ for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2018 14:00:32 -0500
+Received: by mail-pg0-f65.google.com with SMTP id n17so7967607pgf.10
+ for <selinux@tycho.nsa.gov>; Tue, 30 Jan 2018 11:00:06 -0800 (PST)
+To: Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org
+Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>, "Serge E. Hallyn"
+ <serge@hallyn.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, stable@vger.kernel.org
+References: <20180118215853.228182-1-salyzyn@android.com>
+ <1516382386.2560.11.camel@tycho.nsa.gov>
+ <1516383672.2560.23.camel@tycho.nsa.gov>
+From: Mark Salyzyn <salyzyn@android.com>
+Message-ID: <99c11fa6-ad9a-830c-467e-6a56e78aecf8@android.com>
+Date: Tue, 30 Jan 2018 11:00:04 -0800
 MIME-Version: 1.0
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 30 Jan 2018 12:32:47 -0500
-Message-ID: <CAHC9VhRN1bsCBh4mada12fYSvGrcKhi0LrVGmSO0J+rZ-kzkbw@mail.gmail.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Subject: [GIT PULL] SELinux patches for v4.16
+In-Reply-To: <1516383672.2560.23.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH] general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi Linus,
+On 01/19/2018 09:41 AM, Stephen Smalley wrote:
+> If we can't safely dereference the sock in these hooks, then that seems
+> to point back to the approach used in my original code, where in
+> ancient history I had sock_has_perm() take the socket and use its inode
+> i_security field instead of the sock.  commit
+> 253bfae6e0ad97554799affa0266052968a45808 switched them to use the sock
+> instead.
 
-A small pull request this time, just three patches, and one of these
-is just a comment update (swap the FSF physical address for a URL).
-The other two patches are small bug fixes found by szybot/syzkaller;
-they individual patch descriptions should tell you all you ever wanted
-to know.
+Because of the nature of this problem (hard to duplicate, no clear 
+path), I am understandably not comfortable reverting and submitting for 
+testing in order to prove this point. It is disruptive because it 
+changes several subroutine call signatures.
 
-All the patches pass the selinux-testsuite, and it looks to merge
-cleanly on top of your tree (as of right now anyway).
+AFAIK this looks like a user request racing in without reference 
+counting or RCU grace period in the callers (could be viewed as not an 
+issue with security code). Effectively fixed in 4.9-stable, but broken 
+in 4.4-stable.
 
-Please pull, thanks.
--Paul
---
-The following changes since commit 5794ed762ac2125299644494766704da94168ec0:
+hygiene, KISS and small, is all I do feel comfortable to submit to 
+4.4-stable without pulling in all the infrastructure improvements.
 
- selinux: remove extraneous initialization of slots_used and max_chain_len
-          (2017-10-16 18:40:09 -0400)
+-- Mark
 
-are available in the Git repository at:
+---
+  security/selinux/hooks.c | 2 ++
+  1 file changed, 2 insertions(+)
 
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-       tags/selinux-pr-20180130
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 34427384605d..be68992a28cb 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4066,6 +4066,8 @@ static int sock_has_perm(struct task_struct *task, 
+struct sock *sk, u32 perms)
+      struct lsm_network_audit net = {0,};
+      u32 tsid = task_sid(task);
 
-for you to fetch changes up to 4b14752ec4e0d87126e636384cf37c8dd9df157c:
-
- selinux: skip bounded transition processing if the policy isn't loaded
-          (2017-12-05 17:17:43 -0500)
-
-----------------------------------------------------------------
-selinux/stable-4.16 PR 20180130
-
-----------------------------------------------------------------
-Martin Kepplinger (1):
-     security: replace FSF address with web source in license notices
-
-Paul Moore (2):
-     selinux: ensure the context is NUL terminated in security_context_to_sid_c
-ore()
-     selinux: skip bounded transition processing if the policy isn't loaded
-
-security/selinux/include/netlabel.h |  3 +--
-security/selinux/netlabel.c         |  3 +--
-security/selinux/ss/services.c      | 21 +++++++++++----------
-3 files changed, 13 insertions(+), 14 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
++    if (!sksec)
++        return -EFAULT;
+      if (sksec->sid == SECINITSID_KERNEL)
+          return 0;
