@@ -1,81 +1,69 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0V96iHr006512
- for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2018 04:06:48 -0500
-Received: by mail-lf0-f67.google.com with SMTP id q17so19519356lfa.9
- for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2018 01:06:39 -0800 (PST)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w0VKvBAa000655
+ for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2018 15:57:11 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC03.oob.disa.mil (Postfix) with SMTP id 3zWwXt44RDzJpBh
+ for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2018 20:57:02 +0000 (UTC)
+Received: from UPDC3CPA08_EEMSG_MP24.eemsg.mil (unknown [192.168.18.19])
+ by UPDCF3IC03.oob.disa.mil (Postfix) with ESMTP id 3zWwXs096LzJpBb
+ for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2018 20:57:00 +0000 (UTC)
+Received: by mail-wm0-f41.google.com with SMTP id v123so1625281wmd.5
+ for <selinux@tycho.nsa.gov>; Wed, 31 Jan 2018 12:56:59 -0800 (PST)
+Received: from julius.enp8s0.d30 ([217.19.26.10])
+ by smtp.gmail.com with ESMTPSA id c5sm10133206ede.30.2018.01.31.12.56.57
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+ Wed, 31 Jan 2018 12:56:57 -0800 (PST)
+Date: Wed, 31 Jan 2018 21:56:56 +0100
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <20180131205656.GA4618@julius.enp8s0.d30>
 MIME-Version: 1.0
-In-Reply-To: <20180130224614.GA13647@kroah.com>
-References: <20180118215853.228182-1-salyzyn@android.com>
- <1516382386.2560.11.camel@tycho.nsa.gov>
- <1516383672.2560.23.camel@tycho.nsa.gov>
- <99c11fa6-ad9a-830c-467e-6a56e78aecf8@android.com>
- <20180130224614.GA13647@kroah.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 31 Jan 2018 04:06:37 -0500
-Message-ID: <CAHC9VhTitwf5NLthRMxLdb=QrS+i7fDgVXq3qXkNmAt8ck8V3A@mail.gmail.com>
-To: Greg KH <gregkh@linuxfoundation.org>
-Cc: Mark Salyzyn <salyzyn@android.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- linux-kernel@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] general protection fault in sock_has_perm
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
+Subject: CIL: should this work?
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jan 30, 2018 at 5:46 PM, Greg KH <gregkh@linuxfoundation.org> wrote:
-> On Tue, Jan 30, 2018 at 11:00:04AM -0800, Mark Salyzyn wrote:
->> On 01/19/2018 09:41 AM, Stephen Smalley wrote:
->> > If we can't safely dereference the sock in these hooks, then that seems
->> > to point back to the approach used in my original code, where in
->> > ancient history I had sock_has_perm() take the socket and use its inode
->> > i_security field instead of the sock.  commit
->> > 253bfae6e0ad97554799affa0266052968a45808 switched them to use the sock
->> > instead.
->>
->> Because of the nature of this problem (hard to duplicate, no clear path), I
->> am understandably not comfortable reverting and submitting for testing in
->> order to prove this point. It is disruptive because it changes several
->> subroutine call signatures.
->>
->> AFAIK this looks like a user request racing in without reference counting or
->> RCU grace period in the callers (could be viewed as not an issue with
->> security code). Effectively fixed in 4.9-stable, but broken in 4.4-stable.
->>
->> hygiene, KISS and small, is all I do feel comfortable to submit to
->> 4.4-stable without pulling in all the infrastructure improvements.
->>
->> -- Mark
->>
->> ---
->>  security/selinux/hooks.c | 2 ++
->>  1 file changed, 2 insertions(+)
->>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 34427384605d..be68992a28cb 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -4066,6 +4066,8 @@ static int sock_has_perm(struct task_struct *task,
->> struct sock *sk, u32 perms)
->>      struct lsm_network_audit net = {0,};
->>      u32 tsid = task_sid(task);
->>
->> +    if (!sksec)
->> +        return -EFAULT;
->>      if (sksec->sid == SECINITSID_KERNEL)
->>          return 0;
->>
->
-> This looks sane to me as a simple 4.4-only fix.  If the SELinux
-> maintainer acks it, I can easily queue this up.
 
-This revision addresses my concerns with Mark's previous patch.
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+I have a template (blockabstract): foo.bar.template
 
--- 
-paul moore
-www.paul-moore.com
+in another module i want to inherit that like this:
+
+(in foo
+    (block baz
+    (blockinherit bar.template)))
+
+This does not seem to work fully.
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
+
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlpyLZQACgkQJXSOVTf5
+R2k89Qv/SFMeVElhPJ6Yx+Juav5VZ9aEqu3Dvafr9Z8XqWinttkFKeGIBcimj16i
+tbviubgl4O+6wTLBp+6bWduGjBD+dJyJvtCAPtBRrK8RIcyIuLKGLMctEJan/9Xb
+H30y+oJTkPtOFFI/n/B4xwVP3pofo3BW/33YEMmP5mjxrz3lTRddUZWX4B3PAT/x
+QDDOAsf64cc9U0PqE3gEo5R69HnZsRHE2+sXs79wLiqNrjtYDpZC6yvnD2cFLU3G
+ia7BxaJ5b3aAkhjEPNqBaS4vWNYU0JCN3z22Hg5B+9RiVofMKzdcmSGEuH9sF70a
+Jy8rT/0ywNgohNe6MTRhvYCRRmnbBUjoHeCO7tKdS5pDdlE3jg/7IiJ64AZE58Im
+2TYFxm3NHT6U3Ohv4987/RnNDJ+S5wNTAE30eNSnocgIYXteKEkpfcRF56rU57U/
+zJ9ry2574mF4rRLLAu7foeEejxY70qVg5WB+Da0XZNA6e02nUn5e1pso3NLhXJc2
+ba9Dcw0U
+=xlqd
+-----END PGP SIGNATURE-----
+
+--LQksG6bCIzRHxTLp--
