@@ -1,103 +1,100 @@
-Message-ID: <1517590190.28460.22.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: peter enderborg <peter.enderborg@sony.com>, Paul Moore
- <paul@paul-moore.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-Date: Fri, 02 Feb 2018 11:49:50 -0500
-In-Reply-To: <52754014-7f0f-bd9a-483f-b12fb90cb044@sony.com>
-References: <20180202080554.9689-1-peter.enderborg@sony.com>
- <1517580659.28460.9.camel@tycho.nsa.gov>
- <52754014-7f0f-bd9a-483f-b12fb90cb044@sony.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH-selinuxns] selinux: Annotate lockdep for services locks
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+ Mark Salyzyn <salyzyn@android.com>, Paul Moore <paul@paul-moore.com>,
+ Eric Dumazet <edumazet@google.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Date: Fri,  2 Feb 2018 17:58:34 +0100
+Message-Id: <20180202140822.373416996@linuxfoundation.org>
+In-Reply-To: <20180202140815.091718203@linuxfoundation.org>
+References: <20180202140815.091718203@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH 4.4 65/67] selinux: general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2018-02-02 at 15:40 +0100, peter enderborg wrote:
-> Resent with sign-off.
-> If you pick the patches that use the dynamic allocation of locks you
-> can pick it.
-> The patches for the annotation does not apply for the selinux-next at
-> the moment
-> so have to be for selinuxns.
-> I will send the patches to pauls next tree. Im abit confused on when
-> that is
-> appropriate. Obviously there will be collisions with the namespace,
-> but
-> the patches also solves few of my prerequisite topics.
+4.4-stable review patch.  If anyone has any objections, please let me know.
 
-FWIW, I created a selinuxns-base branch with just my first three
-commits and your commit (immediately after my first one, since it
-doesn't depend on the other ones), based on current selinux/next.  My
-first three commits are the ones that are purely restructuring and do
-not have any effect on SELinux behavior or APIs (userspace or LSM
-hooks, obviously SELinux-internal interfaces do change).  My fourth
-commit on the selinuxns branch ("netns,selinux: create the selinux
-netlink socket per network namespace") could perhaps also be added but
-that one might be more controversial since it does change existing
-SELinux behavior (although arguably the current behavior is wrong) and
-in any event I don't think it has any impact on your patches. You can
-probably base your work on top of selinuxns-base until those are either
-flushed to selinux/next or definitively rejected, although obviously
-they may have to change in response to review comments.  That branch
-will however get re-based when selinux/next is re-based (to something
-4.15 based).
+------------------
 
-> 
-> 
-> On 02/02/2018 03:10 PM, Stephen Smalley wrote:
-> > On Fri, 2018-02-02 at 09:05 +0100, Peter Enderborg wrote:
-> > > The locks are moved to dynamic allocation, we need to
-> > > help the lockdep system to classify the locks.
-> > > This adds to lockdep annotation for the page mutex and
-> > > for the ss lock.
-> > 
-> > Thanks, but missing a Signed-off-by: line.  Also, just to be clear,
-> > you
-> > shouldn't re-base your work on top of the entire selinuxns branch,
-> > since I only expect the first few patches to be mergeable in the
-> > near
-> > term.
-> > 
-> > I also will need to re-base again when the selinux next branch
-> > moves to
-> > something 4.15-based, including fixing up the bpf hooks that were
-> > introduced there.
-> > 
-> > > ---
-> > >  security/selinux/ss/services.c | 5 +++++
-> > >  1 file changed, 5 insertions(+)
-> > > 
-> > > diff --git a/security/selinux/ss/services.c
-> > > b/security/selinux/ss/services.c
-> > > index abc5383..ba463c0 100644
-> > > --- a/security/selinux/ss/services.c
-> > > +++ b/security/selinux/ss/services.c
-> > > @@ -70,6 +70,9 @@
-> > >  #include "ebitmap.h"
-> > >  #include "audit.h"
-> > >  
-> > > +static struct lock_class_key selinux_ss_class_key;
-> > > +static struct lock_class_key selinux_status_class_key;
-> > > +
-> > >  /* Policy capability names */
-> > >  char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
-> > >  	"network_peer_controls",
-> > > @@ -88,7 +91,9 @@ int selinux_ss_create(struct selinux_ss **ss)
-> > >  	if (!newss)
-> > >  		return -ENOMEM;
-> > >  	rwlock_init(&newss->policy_rwlock);
-> > > +	lockdep_set_class(&newss->policy_rwlock,
-> > > &selinux_ss_class_key);
-> > >  	mutex_init(&newss->status_lock);
-> > > +	lockdep_set_class(&newss->status_lock,
-> > > &selinux_status_class_key);
-> > >  	*ss = newss;
-> > >  	return 0;
-> > >  }
-> 
-> 
-> 
+From: Mark Salyzyn <salyzyn@android.com>
+
+In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
+flag") and all the associated infrastructure changes to take advantage
+of a RCU grace period before freeing, there is a heightened
+possibility that a security check is performed while an ill-timed
+setsockopt call races in from user space.  It then is prudent to null
+check sk_security, and if the case, reject the permissions.
+
+Because of the nature of this problem, hard to duplicate, no clear
+path, this patch is a simplified band-aid for stable trees lacking the
+infrastructure for the series of commits leading up to providing a
+suitable RCU grace period.  This adjustment is orthogonal to
+infrastructure improvements that may nullify the needed check, but
+could be added as good code hygiene in all trees.
+
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
+task: ffff8801d1095f00 task.stack: ffff8800b5950000
+RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
+RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
+RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
+R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
+R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
+FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Stack:
+ ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
+ ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
+ ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
+ ffff880000000001
+Call Trace:
+[<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
+[<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
+[<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
+[<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
+[<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
+Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
+f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
+fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
+00 41 8b 75 10 31
+RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+RSP <ffff8800b5957ce0>
+---[ end trace 7b5aaf788fef6174 ]---
+
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: Serge E. Hallyn <serge@hallyn.com>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ security/selinux/hooks.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4032,6 +4032,8 @@ static int sock_has_perm(struct task_str
+ 	struct lsm_network_audit net = {0,};
+ 	u32 tsid = task_sid(task);
+ 
++	if (!sksec)
++		return -EFAULT;
+ 	if (sksec->sid == SECINITSID_KERNEL)
+ 		return 0;
+ 
