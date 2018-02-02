@@ -1,131 +1,86 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w12AM5Z6002765
- for <selinux@tycho.nsa.gov>; Fri, 2 Feb 2018 05:22:05 -0500
-Date: Fri, 2 Feb 2018 11:21:53 +0100
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20180202102153.GA28019@pl-rpi.tpb.lab.eng.brq.redhat.com>
-References: <SELinuxProject/selinux/pull/77@github.com>
+Date: Fri, 2 Feb 2018 11:27:21 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Mark Salyzyn <salyzyn@android.com>
+Cc: linux-kernel@vger.kernel.org, Paul Moore <paul@linuxfoundation.org>,
+ Eric Dumazet <edumazet@google.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
+ "Serge E . Hallyn" <serge@hallyn.com>, stable <stable@vger.kernel.org>,
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>
+Message-ID: <20180202102721.GB22855@kroah.com>
+References: <20180201153708.63506-1-salyzyn@android.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-In-Reply-To: <SELinuxProject/selinux/pull/77@github.com>
-Subject: Re: [SELinuxProject/selinux] gui: remove
- selinux-sepolgengui (#77)
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180201153708.63506-1-salyzyn@android.com>
+Subject: Re: [PATCH v2] general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Thu, Feb 01, 2018 at 07:37:04AM -0800, Mark Salyzyn wrote:
+> In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
+> flag") and all the associated infrastructure changes to take advantage
+> of a RCU grace period before freeing, there is a heightened
+> possibility that a security check is performed while an ill-timed
+> setsockopt call races in from user space.  It then is prudent to null
+> check sk_security, and if the case, reject the permissions.
+> 
+> Because of the nature of this problem, hard to duplicate, no clear
+> path, this patch is a simplified band-aid for stable trees lacking the
+> infrastructure for the series of commits leading up to providing a
+> suitable RCU grace period.  This adjustment is orthogonal to
+> infrastructure improvements that may nullify the needed check, but
+> could be added as good code hygiene in all trees.
+> 
+> general protection fault: 0000 [#1] PREEMPT SMP KASAN
+> CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
+> task: ffff8801d1095f00 task.stack: ffff8800b5950000
+> RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+> RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
+> RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
+> RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
+> RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
+> R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
+> R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
+> FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Stack:
+>  ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
+>  ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
+>  ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
+>  ffff880000000001
+> Call Trace:
+> [<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
+> [<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
+> [<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
+> [<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
+> [<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
+> Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
+> f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
+> fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
+> 00 41 8b 75 10 31
+> RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+> RSP <ffff8800b5957ce0>
+> ---[ end trace 7b5aaf788fef6174 ]---
+> 
+> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+> Signed-off-by: Paul Moore <paul@linuxfoundation.org>
+> Signed-off-by: Greg KH <gregkh@linuxfoundation.org>
+> Cc: Eric Dumazet <edumazet@google.com>
+> Cc: Stephen Smalley <sds@tycho.nsa.gov>
+> Cc: selinux@tycho.nsa.gov
+> Cc: linux-security-module@vger.kernel.org
+> Cc: Eric Paris <eparis@parisplace.org>
+> Cc: Serge E. Hallyn <serge@hallyn.com>
+> Cc: stable <stable@vger.kernel.org> # 3.18, 4.4
+> Cc: linux-kernel@vger.kernel.org
+> ---
+> v2: return -EFAULT for null sk_security instead of 0
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Now queued up, thanks.
 
-On Thu, Jan 25, 2018 at 01:58:46PM -0800, Nicolas Iooss wrote:
-> Hi,
-> I sent a few hours ago these two patches on the mailing list, by as the f=
-irst one seems to be blocked somewhere (I have only received back the secon=
-d one), I am publishing them on Github too, as a Pull Request.
->=20
-> These patches removes selinux-sepolgengui because this application is not=
- compatible with Gtk3, Python 3 (it requires PyGTK), etc. and would otherwi=
-se require some effort to update it.
-> More precisely, even though ``pygi-convert.sh`` updated the code in order=
- to try making the application compatible with Python 3, PyGI... (in commit=
- 0f3beeb00e7a42cc2f44ef0392b8a3a7566a17d7), ``polgen.glade`` is still incom=
-patible with Gtk-Builder (it would need to be converted). I do not want to =
-spend time converting this file when I see that a bug preventing this appli=
-cation to launch has been present for more than one year.
-
-
-> polgengui.py is not compatible with Gtk3, Python 3, etc. Moreover it
-> fails to load at least since the release 2.6-rc1:
->=20
-> $ python2 /usr/share/system-config-selinux/polgengui.py
-> Traceback (most recent call last):
->   File "/usr/share/system-config-selinux/polgengui.py", line 778, in <mod=
-ule>
->     app =3D childWindow()
->   File "/usr/share/system-config-selinux/polgengui.py", line 205, in __in=
-it__
->     self.all_types =3D sepolicy.generate.get_all_types()
-> AttributeError: 'module' object has no attribute 'generate'
-
-This particular problem was fixed in Fedora by=20
-https://github.com/fedora-selinux/selinux/commit/ecd050d12cde54f3d7a31029be=
-8582223d3d6eba
-
-I must have forgotten to re-send it. Sorry.
-
-> In fact, this bug has been introduced more than a year ago by commit
-> b43991f ("policycoreutils: import sepolicy directly"), which
-> replaced "from sepolicy import generate" with "import sepolicy" instead
-> of "import sepolicy.generate".
->=20
-> As no one seems to have noticed, this application seems to be no longer
-> used. Remove it from gui/.
-
-
-I'd like to ask to postpone accepting this patch for another 2
-weeks. I'll try to port/convert polgengui.py to be compatible with
-Gtk-Builder. I'll come back either with patch or with Ack to drop it.
-
-Thanks,
-
-Petr
-
-
-> Cheers
-> You can view, comment on, or merge this pull request online at:
->=20
->   https://github.com/SELinuxProject/selinux/pull/77
->=20
-> -- Commit Summary --
->=20
->   * gui: remove selinux-polgengui application
->   * gui: remove "new" button in Modules page
->=20
-> -- File Changes --
->=20
->     M gui/Makefile (5)
->     M gui/modulesPage.py (8)
->     D gui/polgen.glade (2468)
->     D gui/polgengui.py (779)
->     D gui/selinux-polgengui.8 (35)
->     D gui/selinux-polgengui.desktop (66)
->     M gui/system-config-selinux.ui (12)
->=20
-> -- Patch Links --
->=20
-> https://github.com/SELinuxProject/selinux/pull/77.patch
-> https://github.com/SELinuxProject/selinux/pull/77.diff
->=20
-> --=20
-> You are receiving this because you are subscribed to this thread.
-> Reply to this email directly or view it on GitHub:
-> https://github.com/SELinuxProject/selinux/pull/77
-
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlp0O6oACgkQviIJHj72
-InVwZg//cs5IFmsYu1Hfdeydbp8U8zEO4NtBf7BkbqIJm6SrMlDGhxaZ/t61x/5k
-jLzZds9nRsTXRnxFvxBItHh08mgf/3VYH4F1yq3O1iT4OnSc0I3xb41B+fiMtz9J
-Wnu9OocR76tplzF6pc3brHvSvUBCfrjWoDBgkRDM8W24i4FaelQbIUe9QVIYMJ/o
-5Y16Gc65mRPalVy8zYJ0ROwyAklA4PMyBB2fh7hdcYvzNSEKswXOp4kJyGiEx10J
-2CwjFDpkt/QrqZjX7W4kEaZ9dybEfQprSKNOWt3ZhdRyOQBQY9ZoEgLkWE1owYAZ
-aUk9TEIYBw/VqxmYLKI6nFWYf4rC8FK+VegBGQMLIAGjTJ8BjTcPxqrLIAzH9rdb
-6VTfngwrCBy0b+WRMW0/AyKaM1c9Qf7QROWuhsSBSiCXdKPkOBoaEqpcQ4LNNi6i
-ge1HsvCIjVWHpi7cZWtYrtsYl1fjEEgSb78qvRuoOyJ7wASVi15mbm/ZYhlhZ5Av
-m/zFthgjKK35QzNKht+vmIZgjFO1axov69gDwOhLAimPVPbykr50gWBqVaGSe54r
-8/Dx6tjTorxhzP7skGMyYS2aXuLEeGJPFW8bL4G3V8MFh//udygGgf26CQDRggE4
-yPOrMiBlyS01Rb5lYQ4EhJOrNhxpB3ldT2qSygBY7goBQAdfWYM=
-=w2Rf
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--
+greg k-h
