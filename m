@@ -1,86 +1,62 @@
-Date: Fri, 2 Feb 2018 11:27:21 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Mark Salyzyn <salyzyn@android.com>
-Cc: linux-kernel@vger.kernel.org, Paul Moore <paul@linuxfoundation.org>,
- Eric Dumazet <edumazet@google.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
- "Serge E . Hallyn" <serge@hallyn.com>, stable <stable@vger.kernel.org>,
- Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>
-Message-ID: <20180202102721.GB22855@kroah.com>
-References: <20180201153708.63506-1-salyzyn@android.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180201153708.63506-1-salyzyn@android.com>
-Subject: Re: [PATCH v2] general protection fault in sock_has_perm
+Message-ID: <1517580659.28460.9.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Peter Enderborg <peter.enderborg@sony.com>, Paul Moore
+ <paul@paul-moore.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Date: Fri, 02 Feb 2018 09:10:59 -0500
+In-Reply-To: <20180202080554.9689-1-peter.enderborg@sony.com>
+References: <20180202080554.9689-1-peter.enderborg@sony.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH-selinuxns] selinux: Annotate lockdep for services locks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Feb 01, 2018 at 07:37:04AM -0800, Mark Salyzyn wrote:
-> In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
-> flag") and all the associated infrastructure changes to take advantage
-> of a RCU grace period before freeing, there is a heightened
-> possibility that a security check is performed while an ill-timed
-> setsockopt call races in from user space.  It then is prudent to null
-> check sk_security, and if the case, reject the permissions.
-> 
-> Because of the nature of this problem, hard to duplicate, no clear
-> path, this patch is a simplified band-aid for stable trees lacking the
-> infrastructure for the series of commits leading up to providing a
-> suitable RCU grace period.  This adjustment is orthogonal to
-> infrastructure improvements that may nullify the needed check, but
-> could be added as good code hygiene in all trees.
-> 
-> general protection fault: 0000 [#1] PREEMPT SMP KASAN
-> CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
-> task: ffff8801d1095f00 task.stack: ffff8800b5950000
-> RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
-> RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
-> RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
-> RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
-> RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
-> R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
-> R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
-> FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Stack:
->  ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
->  ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
->  ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
->  ffff880000000001
-> Call Trace:
-> [<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
-> [<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
-> [<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
-> [<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
-> [<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
-> Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
-> f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
-> fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
-> 00 41 8b 75 10 31
-> RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
-> RSP <ffff8800b5957ce0>
-> ---[ end trace 7b5aaf788fef6174 ]---
-> 
-> Signed-off-by: Mark Salyzyn <salyzyn@android.com>
-> Signed-off-by: Paul Moore <paul@linuxfoundation.org>
-> Signed-off-by: Greg KH <gregkh@linuxfoundation.org>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Stephen Smalley <sds@tycho.nsa.gov>
-> Cc: selinux@tycho.nsa.gov
-> Cc: linux-security-module@vger.kernel.org
-> Cc: Eric Paris <eparis@parisplace.org>
-> Cc: Serge E. Hallyn <serge@hallyn.com>
-> Cc: stable <stable@vger.kernel.org> # 3.18, 4.4
-> Cc: linux-kernel@vger.kernel.org
+On Fri, 2018-02-02 at 09:05 +0100, Peter Enderborg wrote:
+> The locks are moved to dynamic allocation, we need to
+> help the lockdep system to classify the locks.
+> This adds to lockdep annotation for the page mutex and
+> for the ss lock.
+
+Thanks, but missing a Signed-off-by: line.  Also, just to be clear, you
+shouldn't re-base your work on top of the entire selinuxns branch,
+since I only expect the first few patches to be mergeable in the near
+term.
+
+I also will need to re-base again when the selinux next branch moves to
+something 4.15-based, including fixing up the bpf hooks that were
+introduced there.
+
 > ---
-> v2: return -EFAULT for null sk_security instead of 0
-
-Now queued up, thanks.
-
-greg k-h
+>  security/selinux/ss/services.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
+> diff --git a/security/selinux/ss/services.c
+> b/security/selinux/ss/services.c
+> index abc5383..ba463c0 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -70,6 +70,9 @@
+>  #include "ebitmap.h"
+>  #include "audit.h"
+>  
+> +static struct lock_class_key selinux_ss_class_key;
+> +static struct lock_class_key selinux_status_class_key;
+> +
+>  /* Policy capability names */
+>  char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+>  	"network_peer_controls",
+> @@ -88,7 +91,9 @@ int selinux_ss_create(struct selinux_ss **ss)
+>  	if (!newss)
+>  		return -ENOMEM;
+>  	rwlock_init(&newss->policy_rwlock);
+> +	lockdep_set_class(&newss->policy_rwlock,
+> &selinux_ss_class_key);
+>  	mutex_init(&newss->status_lock);
+> +	lockdep_set_class(&newss->status_lock,
+> &selinux_status_class_key);
+>  	*ss = newss;
+>  	return 0;
+>  }
