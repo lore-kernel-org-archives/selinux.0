@@ -1,75 +1,100 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w159nTqJ002838
- for <selinux@tycho.nsa.gov>; Mon, 5 Feb 2018 04:49:29 -0500
-Received: from mail-lf0-f53.google.com (mail-lf0-f53.google.com
- [209.85.215.53])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 1502156123A
- for <selinux@tycho.nsa.gov>; Mon,  5 Feb 2018 10:48:38 +0100 (CET)
-Received: by mail-lf0-f53.google.com with SMTP id g72so40769304lfg.5
- for <selinux@tycho.nsa.gov>; Mon, 05 Feb 2018 01:48:38 -0800 (PST)
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+ Mark Salyzyn <salyzyn@android.com>, Paul Moore <paul@paul-moore.com>,
+ Eric Dumazet <edumazet@google.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, Eric Paris <eparis@parisplace.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>
+Date: Mon,  5 Feb 2018 10:24:02 -0800
+Message-Id: <20180205182353.178669604@linuxfoundation.org>
+In-Reply-To: <20180205182351.774761393@linuxfoundation.org>
+References: <20180205182351.774761393@linuxfoundation.org>
 MIME-Version: 1.0
-In-Reply-To: <20180202102153.GA28019@pl-rpi.tpb.lab.eng.brq.redhat.com>
-References: <SELinuxProject/selinux/pull/77@github.com>
- <20180202102153.GA28019@pl-rpi.tpb.lab.eng.brq.redhat.com>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Mon, 5 Feb 2018 10:48:36 +0100
-Message-ID: <CAJfZ7==c+Nn2pKu6QiZqxhVFg14MaU4Z3aGJz5bMOXgVK9PHzQ@mail.gmail.com>
-To: Petr Lautrbach <plautrba@redhat.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [SELinuxProject/selinux] gui: remove
- selinux-sepolgengui (#77)
+Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH 3.18 34/36] selinux: general protection fault in sock_has_perm
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Feb 2, 2018 at 11:21 AM, Petr Lautrbach <plautrba@redhat.com> wrote:
-> On Thu, Jan 25, 2018 at 01:58:46PM -0800, Nicolas Iooss wrote:
->> Hi,
->> I sent a few hours ago these two patches on the mailing list, by as the first one seems to be blocked somewhere (I have only received back the second one), I am publishing them on Github too, as a Pull Request.
->>
->> These patches removes selinux-sepolgengui because this application is not compatible with Gtk3, Python 3 (it requires PyGTK), etc. and would otherwise require some effort to update it.
->> More precisely, even though ``pygi-convert.sh`` updated the code in order to try making the application compatible with Python 3, PyGI... (in commit 0f3beeb00e7a42cc2f44ef0392b8a3a7566a17d7), ``polgen.glade`` is still incompatible with Gtk-Builder (it would need to be converted). I do not want to spend time converting this file when I see that a bug preventing this application to launch has been present for more than one year.
->
->
->> polgengui.py is not compatible with Gtk3, Python 3, etc. Moreover it
->> fails to load at least since the release 2.6-rc1:
->>
->> $ python2 /usr/share/system-config-selinux/polgengui.py
->> Traceback (most recent call last):
->>   File "/usr/share/system-config-selinux/polgengui.py", line 778, in <module>
->>     app = childWindow()
->>   File "/usr/share/system-config-selinux/polgengui.py", line 205, in __init__
->>     self.all_types = sepolicy.generate.get_all_types()
->> AttributeError: 'module' object has no attribute 'generate'
->
-> This particular problem was fixed in Fedora by
-> https://github.com/fedora-selinux/selinux/commit/ecd050d12cde54f3d7a31029be8582223d3d6eba
->
-> I must have forgotten to re-send it. Sorry.
->
->> In fact, this bug has been introduced more than a year ago by commit
->> b43991f ("policycoreutils: import sepolicy directly"), which
->> replaced "from sepolicy import generate" with "import sepolicy" instead
->> of "import sepolicy.generate".
->>
->> As no one seems to have noticed, this application seems to be no longer
->> used. Remove it from gui/.
->
->
-> I'd like to ask to postpone accepting this patch for another 2
-> weeks. I'll try to port/convert polgengui.py to be compatible with
-> Gtk-Builder. I'll come back either with patch or with Ack to drop it.
->
-> Thanks,
->
-> Petr
+3.18-stable review patch.  If anyone has any objections, please let me know.
 
-Sure, I agree with this plan. I will wait to hear back from you before
-merging or dropping the patches I posted.
+------------------
 
-Thanks,
-Nicolas
+From: Mark Salyzyn <salyzyn@android.com>
+
+In the absence of commit a4298e4522d6 ("net: add SOCK_RCU_FREE socket
+flag") and all the associated infrastructure changes to take advantage
+of a RCU grace period before freeing, there is a heightened
+possibility that a security check is performed while an ill-timed
+setsockopt call races in from user space.  It then is prudent to null
+check sk_security, and if the case, reject the permissions.
+
+Because of the nature of this problem, hard to duplicate, no clear
+path, this patch is a simplified band-aid for stable trees lacking the
+infrastructure for the series of commits leading up to providing a
+suitable RCU grace period.  This adjustment is orthogonal to
+infrastructure improvements that may nullify the needed check, but
+could be added as good code hygiene in all trees.
+
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 14233 Comm: syz-executor2 Not tainted 4.4.112-g5f6325b #28
+task: ffff8801d1095f00 task.stack: ffff8800b5950000
+RIP: 0010:[<ffffffff81b69b7e>]  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+RSP: 0018:ffff8800b5957ce0  EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 1ffff10016b2af9f RCX: ffffffff81b69b51
+RDX: 0000000000000002 RSI: 0000000000000000 RDI: 0000000000000010
+RBP: ffff8800b5957de0 R08: 0000000000000001 R09: 0000000000000001
+R10: 0000000000000000 R11: 1ffff10016b2af68 R12: ffff8800b5957db8
+R13: 0000000000000000 R14: ffff8800b7259f40 R15: 00000000000000d7
+FS:  00007f72f5ae2700(0000) GS:ffff8801db300000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000a2fa38 CR3: 00000001d7980000 CR4: 0000000000160670
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Stack:
+ ffffffff81b69a1f ffff8800b5957d58 00008000b5957d30 0000000041b58ab3
+ ffffffff83fc82f2 ffffffff81b69980 0000000000000246 ffff8801d1096770
+ ffff8801d3165668 ffffffff8157844b ffff8801d1095f00
+ ffff880000000001
+Call Trace:
+[<ffffffff81b6a19d>] selinux_socket_setsockopt+0x4d/0x80 security/selinux/hooks.c:4338
+[<ffffffff81b4873d>] security_socket_setsockopt+0x7d/0xb0 security/security.c:1257
+[<ffffffff82df1ac8>] SYSC_setsockopt net/socket.c:1757 [inline]
+[<ffffffff82df1ac8>] SyS_setsockopt+0xe8/0x250 net/socket.c:1746
+[<ffffffff83776499>] entry_SYSCALL_64_fastpath+0x16/0x92
+Code: c2 42 9b b6 81 be 01 00 00 00 48 c7 c7 a0 cb 2b 84 e8
+f7 2f 6d ff 49 8d 7d 10 48 b8 00 00 00 00 00 fc ff df 48 89
+fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 08 3c 03 0f 8e 83 01 00
+00 41 8b 75 10 31
+RIP  [<ffffffff81b69b7e>] sock_has_perm+0x1fe/0x3e0 security/selinux/hooks.c:4069
+RSP <ffff8800b5957ce0>
+---[ end trace 7b5aaf788fef6174 ]---
+
+Signed-off-by: Mark Salyzyn <salyzyn@android.com>
+Acked-by: Paul Moore <paul@paul-moore.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org
+Cc: Eric Paris <eparis@parisplace.org>
+Cc: Serge E. Hallyn <serge@hallyn.com>
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ security/selinux/hooks.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3969,6 +3969,8 @@ static int sock_has_perm(struct task_str
+ 	struct lsm_network_audit net = {0,};
+ 	u32 tsid = task_sid(task);
+ 
++	if (!sksec)
++		return -EFAULT;
+ 	if (sksec->sid == SECINITSID_KERNEL)
+ 		return 0;
+ 
