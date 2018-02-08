@@ -1,102 +1,107 @@
-Message-ID: <1518102162.21656.46.camel@tycho.nsa.gov>
+Message-ID: <1518102641.21656.52.camel@tycho.nsa.gov>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
-Date: Thu, 08 Feb 2018 10:02:42 -0500
-In-Reply-To: <CAHC9VhTt1GZeDuhacdMbF9J9q3xndqVO=k4UqQT6v_n_Cq3vrA@mail.gmail.com>
-References: <20171002155825.28620-1-sds@tycho.nsa.gov>
- <20171002155825.28620-2-sds@tycho.nsa.gov>
- <CAHC9VhTGF6_zP46tP3JdWna2_7BJ+oD0eKccmAhy3xXdfeRZ_w@mail.gmail.com>
- <1518025709.16883.48.camel@tycho.nsa.gov>
- <CAHC9VhTt1GZeDuhacdMbF9J9q3xndqVO=k4UqQT6v_n_Cq3vrA@mail.gmail.com>
+To: peter enderborg <peter.enderborg@sony.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Date: Thu, 08 Feb 2018 10:10:41 -0500
+In-Reply-To: <44f6385f-b2a5-2dbe-7034-851e5d06e42d@sony.com>
+References: <20180126143241.23108-1-peter.enderborg@sony.com>
+ <20180126143241.23108-5-peter.enderborg@sony.com>
+ <1517323047.14420.14.camel@tycho.nsa.gov>
+ <44f6385f-b2a5-2dbe-7034-851e5d06e42d@sony.com>
 Content-Type: text/plain; charset="UTF-8"
 Mime-Version: 1.0
-Subject: Re: [RFC 01/10] selinux: introduce a selinux namespace
+Subject: Re: [PATCH v2 4/5] selinux: Use pointer to switch policydb and sidtab
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 2018-02-07 at 14:56 -0500, Paul Moore wrote:
-> On Wed, Feb 7, 2018 at 12:48 PM, Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On Tue, 2018-02-06 at 17:18 -0500, Paul Moore wrote:
-> 
-> ...
-> 
-> > > While I don't think we need to tackle this as part of the
-> > > encapsulation work, this is another reminder that we should look
-> > > into
-> > > breaking the separation between the security server and the
-> > > Linux/hooks code.  I understand there were historical reasons for
-> > > this
-> > > split, but I think all of those reasons are now gone, and further
-> > > I
-> > > think enough Linux'isms have crept into the security server that
-> > > the
-> > > separation is no longer as meaningful as it may have been in the
-> > > past.
+On Thu, 2018-02-08 at 08:16 +0100, peter enderborg wrote:
+> On 01/30/2018 03:37 PM, Stephen Smalley wrote:
+> > On Fri, 2018-01-26 at 15:32 +0100, peter.enderborg@sony.com wrote:
+> > goto err;
+> >  
+> > -	rc = security_preserve_bools(newpolicydb);
+> > +	rc = security_preserve_bools(&next_rcu->policydb);
+> >  	if (rc) {
+> >  		printk(KERN_ERR "SELinux:  unable to preserve
+> > booleans\n");
+> >  		goto err;
+> > Most of this shouldn't need to be under the read lock.
 > > 
-> > I think we want to retain some degree of encapsulation of the
-> > policy
-> > logic and data structures, which is what the security server is
-> > supposed to provide.  That allows us to evolve that logic and
-> > structures without impacting the object label management and
-> > permission
-> > enforcement code.  Separation of policy from mechanism.  I don't
-> > mind
-> > nativizing the security server for Linux, and where appropriate,
-> > allowing some optimization of the interfaces between it and the
-> > rest of
-> > the SELinux code, but I wouldn't want to e.g. directly expose the
-> > policydb to the rest of the code.  There has been some leakage of
-> > policy awareness outside the security server in the past but I view
-> > that as a mistake that ought to be corrected over time.
+> > > @@ -2189,7 +2194,7 @@ int security_load_policy(void *data, size_t
+> > > len)
+> > >  	 * in the new SID table.
+> > >  	 */
+> > >  	args.oldp = &crm->policydb;
+> > > -	args.newp = newpolicydb;
+> > > +	args.newp = &next_rcu->policydb;
+> > >  	rc = sidtab_map(&newsidtab, convert_context, &args);
+> > >  	if (rc) {
+> > >  		printk(KERN_ERR "SELinux:  unable to convert the
+> > > internal"
+> > > @@ -2204,8 +2209,9 @@ int security_load_policy(void *data, size_t
+> > > len)
+> > >  
+> > >  	/* Install the new policydb and SID table. */
+> > >  	/* next */
+> > > +	security_load_policycaps(&next_rcu->policydb);
+> > 
+> > This cannot be done outside of the write lock; it has to be atomic
+> > with
+> > the policy switch.
 > 
-> I agree that a level of abstraction between the policydb code and the
-> enforcement code is a good thing, but I think there are some
-> boundaries between the hook code and the security server that we
-> could
-> do without.  Once again, not really part of this work, just popped up
-> in my head again while looking at these patches.
+> Can you please elaborate, does some else write the policydb without a
+> lock?
+> Is there any other data that is shared? I see this as a private until
+> we switch the pointer.
 
-I wanted to clarify that point because it motivates keeping selinux_ss
-as a separate struct from selinux_state (previously selinux_ns), and
-not exposing the selinux_ss struct definition outside of the security
-server.  So the selinux_state struct would still be something like:
-struct selinux_state {
-        bool disabled;
-#ifdef CONFIG_SECURITY_SELINUX_DEVELOP
-        bool enforcing;
-#endif
-        bool checkreqprot;
-        bool initialized;
-        bool policycap[__POLICYDB_CAPABILITY_MAX];
-        struct selinux_avc *avc;
-        struct selinux_ss *ss;
-}
+security_load_policycaps() updates the selinux_policycap_* variables
+from the policydb.  Those variables are used by the hooks to
+enable/disable policy-specific functionality, like whether to check
+open permission or assign finer-grained security classes to sockets. 
+We need to atomically update those variables with the active policy;
+otherwise, a hook may perform a permission check that wasn't supposed
+to be enabled under the old policy against the old policy (yielding an
+unexpected denial).  Everything done under the write lock currently is
+there for a reason.
 
-(dropping the reference count, work struct, and parent pointers that
-were part of selinux_ns as being specific to the namespace work).
-
-hooks.c would declare struct selinux_state selinux_state;.
-ss/services.c would declare static struct selinux_ss selinux_ss; and
-provide a selinux_ss_init() function (instead of selinux_ss_create)
-that would set the ->ss field to &selinux_ss.  Likewise for avc.c and
-the selinux_avc.  hooks.c:selinux_init() would call
-selinux_ss_init(&selinux_state.ss) and
-selinux_avc_init(&selinux_state.avc) to set those pointers to the
-appropriate structures private to the ss and avc code.  The _create and
-_free functions would go away and none of the structures would be
-dynamically allocated/freed.
-
-This is in contrast to exposing the selinux_ss struct definition
-outside the security server and directly embedding it in the
-selinux_state, since that would require exposing the policydb and
-sidtab structures as well (unless we were to make those opaque pointers
-within the selinux_ss; currently the policydb and sidtab are directly
-embedded within it).  Likewise for the selinux_avc and its embedded
-avc_cache structure.
-
-Trying to make sure we're in agreement on the data structures before I
-rewrite since I don't want to have to rewrite it twice ;)
+> > > +	read_unlock(&policy_rwlock);
+> > >  	write_lock_irq(&policy_rwlock);
+> > > -	memcpy(&next_rcu->policydb, newpolicydb, sizeof(struct
+> > > policydb));
+> > >  	sidtab_set(&next_rcu->sidtab, &newsidtab);
+> > >  	security_load_policycaps(&next_rcu->policydb);
+> > >  	oldmap = crm->current_mapping;
+> > > @@ -2213,8 +2219,9 @@ int security_load_policy(void *data, size_t
+> > > len)
+> > >  	next_rcu->current_mapping_size = map_size;
+> > >  
+> > >  	seqno = ++latest_granting;
+> > > -	write_unlock_irq(&policy_rwlock);
+> > > +	old_rcu = crm;
+> > >  	crm = next_rcu;
+> > > +	write_unlock_irq(&policy_rwlock);
+> > >  
+> > >  	/* Free the old policydb and SID table. */
+> > >  	policydb_destroy(oldpolicydb);
+> > > @@ -2226,17 +2233,16 @@ int security_load_policy(void *data,
+> > > size_t
+> > > len)
+> > >  	selinux_status_update_policyload(seqno);
+> > >  	selinux_netlbl_cache_invalidate();
+> > >  	selinux_xfrm_notify_policyload();
+> > > +	kfree(oldpolicydb);
+> > > +	kfree(old_rcu);
+> > >  
+> > >  	rc = 0;
+> > >  	goto out;
+> > > -
+> > >  err:
+> > >  	kfree(map);
+> > >  	sidtab_destroy(&newsidtab);
+> > > -	policydb_destroy(newpolicydb);
+> > > -
+> > > +	
+> 
+> 
