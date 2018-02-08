@@ -1,160 +1,102 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w18ECMJ7015552
- for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2018 09:12:22 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 3zcgBB3pTsz2VqB3
- for <selinux@tycho.nsa.gov>; Thu,  8 Feb 2018 14:12:18 +0000 (UTC)
-Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
- by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 3zcgBB26Rkz2VqB8
- for <selinux@tycho.nsa.gov>; Thu,  8 Feb 2018 14:12:18 +0000 (UTC)
-Reply-To: dwalsh@redhat.com
-To: Matt Callaway <matt.callaway@gmail.com>, selinux@tycho.nsa.gov
-References: <CALWSt-Q3Vcn1Vz9Huj_VJjQaBumdxET6s5L7YpUwrH9dNm0_PQ@mail.gmail.com>
-From: Daniel Walsh <dwalsh@redhat.com>
-Message-ID: <2081d8e4-c999-5d08-0970-a0bdef9d8ae5@redhat.com>
-Date: Thu, 8 Feb 2018 09:12:13 -0500
-MIME-Version: 1.0
-In-Reply-To: <CALWSt-Q3Vcn1Vz9Huj_VJjQaBumdxET6s5L7YpUwrH9dNm0_PQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: Does selinux work with kernel namespaces?
+Message-ID: <1518102162.21656.46.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>
+Date: Thu, 08 Feb 2018 10:02:42 -0500
+In-Reply-To: <CAHC9VhTt1GZeDuhacdMbF9J9q3xndqVO=k4UqQT6v_n_Cq3vrA@mail.gmail.com>
+References: <20171002155825.28620-1-sds@tycho.nsa.gov>
+ <20171002155825.28620-2-sds@tycho.nsa.gov>
+ <CAHC9VhTGF6_zP46tP3JdWna2_7BJ+oD0eKccmAhy3xXdfeRZ_w@mail.gmail.com>
+ <1518025709.16883.48.camel@tycho.nsa.gov>
+ <CAHC9VhTt1GZeDuhacdMbF9J9q3xndqVO=k4UqQT6v_n_Cq3vrA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [RFC 01/10] selinux: introduce a selinux namespace
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/07/2018 04:10 PM, Matt Callaway wrote:
-> Hello,
->
-> I am attempting to run Docker on CentOS 7.4 with selinux and kernel
-> namespaces enabled. When I do so I observe an error that leads me to
-> an issue filed in github and a kernel patch that suggests that the
-> cause should be fixed in kernel 4.11+. Yet I cannot run docker
-> containers in this fashion on a 4.15 kernel.
-Not sure what you mean by Kernel Namespace, are you talking about User 
-Namespace?
-> Should docker with selinux-enabled work on a 4.15.1 kernel on CentOS
-> 7.4 with namespaces enabled?
-Yes.
-> This might be a docker question, but the details I'll present below
-> suggest it might be more appropriate for this forum.
->
-> Details about the host and environment:
-What AVC messages are you seeing?
-> [root@localhost ~]# uname -r
-> 4.15.1-1.el7.elrepo.x86_64
->
-> [root@localhost ~]# cat /etc/redhat-release
-> CentOS Linux release 7.4.1708 (Core)
->
-> [root@localhost ~]# docker --version
-> Docker version 17.12.0-ce, build c97c6d6
->
-> This is the latest docker-ce package from Docker's repository:
->
-> [root@localhost ~]# repoquery -i docker-ce
->
-> Name        : docker-ce
-> Version     : 17.12.0.ce
-> Release     : 1.el7.centos
-> Architecture: x86_64
-> Size        : 128453687
-> Packager    : Docker <support@docker.com>
-> Group       : Tools/Docker
-> URL         : https://www.docker.com
-> Repository  : docker-ce-stable
-> Summary     : The open-source application container engine
-> Source      : docker-ce-17.12.0.ce-1.el7.centos.src.rpm
->
-> The kernel is 4.15.1 from ElRepo, because that seems to be the
-> accepted way to get a 4.x kernel on CentOS, which I did because data
-> suggested I needed at least 4.11+
->
-> [root@localhost ~]# repoquery -i kernel-ml
->
-> Name        : kernel-ml
-> Version     : 4.15.1
-> Release     : 1.el7.elrepo
-> Architecture: x86_64
-> Size        : 204626242
-> Packager    : Alan Bartlett <ajb@elrepo.org>
-> Group       : System Environment/Kernel
-> URL         : https://www.kernel.org/
-> Repository  : elrepo-kernel
-> Summary     : The Linux kernel. (The core of any Linux-based operating system.)
-> Source      : kernel-ml-4.15.1-1.el7.elrepo.src.rpm
->
->
-> Here we see selinux-enabled is true and userns-remap is set to default:
->
-> [root@localhost ~]# cat /etc/docker/daemon.json
-> {
->    "debug": true,
->    "selinux-enabled": true,
->    "userns-remap": "default"
-> }
->
-> [root@localhost ~]# docker info 2>&1 | grep -A3 Security
-> Security Options:
->   seccomp
->    Profile: default
->   selinux
->
->
-> So when I try it I get:
->
-> [root@localhost ~]# docker run hello-world
-> docker: Error response from daemon: OCI runtime create failed:
-> container_linux.go:296: starting container process caused
-> "process_linux.go:301: running exec setns process for init caused
-> \"exit status 40\"": unknown.
->
-> When running in Permissive mode I see a different error:
->
-> [root@localhost ~]# setenforce 0
->
-> [root@localhost ~]# docker run hello-world
-> docker: Error response from daemon: OCI runtime create failed:
-> container_linux.go:296: starting container process caused
-> "process_linux.go:398: container init caused \"rootfs_linux.go:58:
-> mounting \\\"devpts\\\" to rootfs
-> \\\"/var/lib/docker/1001.1001/overlay2/6798981d1cf925a748187e0f2e9151f47bca9352457aa5b933a2bcb55eff9570/merged\\\"
-> at \\\"/var/lib/docker/1001.1001/overlay2/6798981d1cf925a748187e0f2e9151f47bca9352457aa5b933a2bcb55eff9570/merged/dev/pts\\\"
-> caused \\\"invalid argument\\\"\"": unknown.
->
->
-> Looking around for these symptoms I find these references...
->
-> First message goes here:
->
-> https://github.com/moby/moby/issues/35336
->
-> Suggests the namespace.unpriv_enable=1 flag. I have already enabled that:
->
-> [root@localhost ~]# grep unpriv /boot/grub2/grub.cfg
-> linux16 /vmlinuz-4.15.1-1.el7.elrepo.x86_64
-> root=/dev/mapper/VolGroup00-LogVol00 ro no_timer_check console=tty0
-> console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 crashkernel=auto
-> rd.lvm.lv=VolGroup00/LogVol00 rd.lvm.lv=VolGroup00/LogVol01 rhgb quiet
-> LANG=en_US.UTF-8 namespace.unpriv_enable=1
->
->
-> Then I do setenforce 0 and we get the second devpts error which leads to:
->
-> https://github.com/opencontainers/runc/issues/1215
->
-> which leads to:
->
-> https://bugzilla.redhat.com/show_bug.cgi?id=1401537
->
-> which leads to a kernel patch:
->
-> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=01593d3299a1cfdb5e08acf95f63ec59dd674906
->
-> I've since discovered via the author that that patch was included in
-> kernel 4.11.
->
-> So... what am I missing? All signs suggest that this *should* work,
-> and yet does not.
->
-> Thank you for your time.
->
+On Wed, 2018-02-07 at 14:56 -0500, Paul Moore wrote:
+> On Wed, Feb 7, 2018 at 12:48 PM, Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> > On Tue, 2018-02-06 at 17:18 -0500, Paul Moore wrote:
+> 
+> ...
+> 
+> > > While I don't think we need to tackle this as part of the
+> > > encapsulation work, this is another reminder that we should look
+> > > into
+> > > breaking the separation between the security server and the
+> > > Linux/hooks code.  I understand there were historical reasons for
+> > > this
+> > > split, but I think all of those reasons are now gone, and further
+> > > I
+> > > think enough Linux'isms have crept into the security server that
+> > > the
+> > > separation is no longer as meaningful as it may have been in the
+> > > past.
+> > 
+> > I think we want to retain some degree of encapsulation of the
+> > policy
+> > logic and data structures, which is what the security server is
+> > supposed to provide.  That allows us to evolve that logic and
+> > structures without impacting the object label management and
+> > permission
+> > enforcement code.  Separation of policy from mechanism.  I don't
+> > mind
+> > nativizing the security server for Linux, and where appropriate,
+> > allowing some optimization of the interfaces between it and the
+> > rest of
+> > the SELinux code, but I wouldn't want to e.g. directly expose the
+> > policydb to the rest of the code.  There has been some leakage of
+> > policy awareness outside the security server in the past but I view
+> > that as a mistake that ought to be corrected over time.
+> 
+> I agree that a level of abstraction between the policydb code and the
+> enforcement code is a good thing, but I think there are some
+> boundaries between the hook code and the security server that we
+> could
+> do without.  Once again, not really part of this work, just popped up
+> in my head again while looking at these patches.
+
+I wanted to clarify that point because it motivates keeping selinux_ss
+as a separate struct from selinux_state (previously selinux_ns), and
+not exposing the selinux_ss struct definition outside of the security
+server.  So the selinux_state struct would still be something like:
+struct selinux_state {
+        bool disabled;
+#ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+        bool enforcing;
+#endif
+        bool checkreqprot;
+        bool initialized;
+        bool policycap[__POLICYDB_CAPABILITY_MAX];
+        struct selinux_avc *avc;
+        struct selinux_ss *ss;
+}
+
+(dropping the reference count, work struct, and parent pointers that
+were part of selinux_ns as being specific to the namespace work).
+
+hooks.c would declare struct selinux_state selinux_state;.
+ss/services.c would declare static struct selinux_ss selinux_ss; and
+provide a selinux_ss_init() function (instead of selinux_ss_create)
+that would set the ->ss field to &selinux_ss.  Likewise for avc.c and
+the selinux_avc.  hooks.c:selinux_init() would call
+selinux_ss_init(&selinux_state.ss) and
+selinux_avc_init(&selinux_state.avc) to set those pointers to the
+appropriate structures private to the ss and avc code.  The _create and
+_free functions would go away and none of the structures would be
+dynamically allocated/freed.
+
+This is in contrast to exposing the selinux_ss struct definition
+outside the security server and directly embedding it in the
+selinux_state, since that would require exposing the policydb and
+sidtab structures as well (unless we were to make those opaque pointers
+within the selinux_ss; currently the policydb and sidtab are directly
+embedded within it).  Likewise for the selinux_avc and its embedded
+avc_cache structure.
+
+Trying to make sure we're in agreement on the data structures before I
+rewrite since I don't want to have to rewrite it twice ;)
