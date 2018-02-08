@@ -1,107 +1,114 @@
-Message-ID: <1518102641.21656.52.camel@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: peter enderborg <peter.enderborg@sony.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-Date: Thu, 08 Feb 2018 10:10:41 -0500
-In-Reply-To: <44f6385f-b2a5-2dbe-7034-851e5d06e42d@sony.com>
-References: <20180126143241.23108-1-peter.enderborg@sony.com>
- <20180126143241.23108-5-peter.enderborg@sony.com>
- <1517323047.14420.14.camel@tycho.nsa.gov>
- <44f6385f-b2a5-2dbe-7034-851e5d06e42d@sony.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w18FKmx2008066
+ for <selinux@tycho.nsa.gov>; Thu, 8 Feb 2018 10:20:49 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC10.oob.disa.mil (Postfix) with SMTP id 3zchjB5hYjz4KRkp
+ for <selinux@tycho.nsa.gov>; Thu,  8 Feb 2018 15:20:46 +0000 (UTC)
+Received: from UPBD19PA11.eemsg.mil (unknown [192.168.18.17])
+ by UPDCF3IC10.oob.disa.mil (Postfix) with ESMTP id 3zchjB32DTz4KSFn
+ for <selinux@tycho.nsa.gov>; Thu,  8 Feb 2018 15:20:46 +0000 (UTC)
+Received: by mail-lf0-f46.google.com with SMTP id x196so6882906lfd.12
+ for <selinux@tycho.nsa.gov>; Thu, 08 Feb 2018 07:20:44 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <1518047169-9046-1-git-send-email-william.c.roberts@intel.com>
+References: <1518047169-9046-1-git-send-email-william.c.roberts@intel.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 8 Feb 2018 10:20:42 -0500
+Message-ID: <CAHC9VhQ-XkmCx0qWb7bfvgfwzYJDZvspJE7DUHnb3pmnhwo9uw@mail.gmail.com>
+To: william.c.roberts@intel.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [PATCH v2 4/5] selinux: Use pointer to switch policydb and sidtab
+Subject: Re: [PATCH] [RFC] sidtab: use memset vs loop for init
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, 2018-02-08 at 08:16 +0100, peter enderborg wrote:
-> On 01/30/2018 03:37 PM, Stephen Smalley wrote:
-> > On Fri, 2018-01-26 at 15:32 +0100, peter.enderborg@sony.com wrote:
-> > goto err;
-> >  
-> > -	rc = security_preserve_bools(newpolicydb);
-> > +	rc = security_preserve_bools(&next_rcu->policydb);
-> >  	if (rc) {
-> >  		printk(KERN_ERR "SELinux:  unable to preserve
-> > booleans\n");
-> >  		goto err;
-> > Most of this shouldn't need to be under the read lock.
-> > 
-> > > @@ -2189,7 +2194,7 @@ int security_load_policy(void *data, size_t
-> > > len)
-> > >  	 * in the new SID table.
-> > >  	 */
-> > >  	args.oldp = &crm->policydb;
-> > > -	args.newp = newpolicydb;
-> > > +	args.newp = &next_rcu->policydb;
-> > >  	rc = sidtab_map(&newsidtab, convert_context, &args);
-> > >  	if (rc) {
-> > >  		printk(KERN_ERR "SELinux:  unable to convert the
-> > > internal"
-> > > @@ -2204,8 +2209,9 @@ int security_load_policy(void *data, size_t
-> > > len)
-> > >  
-> > >  	/* Install the new policydb and SID table. */
-> > >  	/* next */
-> > > +	security_load_policycaps(&next_rcu->policydb);
-> > 
-> > This cannot be done outside of the write lock; it has to be atomic
-> > with
-> > the policy switch.
-> 
-> Can you please elaborate, does some else write the policydb without a
-> lock?
-> Is there any other data that is shared? I see this as a private until
-> we switch the pointer.
+On Wed, Feb 7, 2018 at 6:46 PM,  <william.c.roberts@intel.com> wrote:
+> From: William Roberts <william.c.roberts@intel.com>
+>
+> Commit:
+> 73ff5fc selinux: cache sidtab_context_to_sid results
 
-security_load_policycaps() updates the selinux_policycap_* variables
-from the policydb.  Those variables are used by the hooks to
-enable/disable policy-specific functionality, like whether to check
-open permission or assign finer-grained security classes to sockets. 
-We need to atomically update those variables with the active policy;
-otherwise, a hook may perform a permission check that wasn't supposed
-to be enabled under the old policy against the old policy (yielding an
-unexpected denial).  Everything done under the write lock currently is
-there for a reason.
+This wouldn't prevent me from merging the patch, but since it is an
+RFC I'll go ahead and provide some nitpickery here ... the general
+recommendation (for the kernel) when referencing previous comments is
+to use the following format:
 
-> > > +	read_unlock(&policy_rwlock);
-> > >  	write_lock_irq(&policy_rwlock);
-> > > -	memcpy(&next_rcu->policydb, newpolicydb, sizeof(struct
-> > > policydb));
-> > >  	sidtab_set(&next_rcu->sidtab, &newsidtab);
-> > >  	security_load_policycaps(&next_rcu->policydb);
-> > >  	oldmap = crm->current_mapping;
-> > > @@ -2213,8 +2219,9 @@ int security_load_policy(void *data, size_t
-> > > len)
-> > >  	next_rcu->current_mapping_size = map_size;
-> > >  
-> > >  	seqno = ++latest_granting;
-> > > -	write_unlock_irq(&policy_rwlock);
-> > > +	old_rcu = crm;
-> > >  	crm = next_rcu;
-> > > +	write_unlock_irq(&policy_rwlock);
-> > >  
-> > >  	/* Free the old policydb and SID table. */
-> > >  	policydb_destroy(oldpolicydb);
-> > > @@ -2226,17 +2233,16 @@ int security_load_policy(void *data,
-> > > size_t
-> > > len)
-> > >  	selinux_status_update_policyload(seqno);
-> > >  	selinux_netlbl_cache_invalidate();
-> > >  	selinux_xfrm_notify_policyload();
-> > > +	kfree(oldpolicydb);
-> > > +	kfree(old_rcu);
-> > >  
-> > >  	rc = 0;
-> > >  	goto out;
-> > > -
-> > >  err:
-> > >  	kfree(map);
-> > >  	sidtab_destroy(&newsidtab);
-> > > -	policydb_destroy(newpolicydb);
-> > > -
-> > > +	
-> 
-> 
+ <12_char_id> (<subj_in_quotes>)
+
+... so the reference in your patch should look like this:
+
+ 73ff5fc0a86b ("selinux: cache sidtab_context_to_sid results")
+
+.... as generated by the following git command line:
+
+ # git show -s --format="%h (\"%s\")" 73ff5fc
+ 73ff5fc0a86b ("selinux: cache sidtab_context_to_sid results")
+
+> Uses a for loop to NULL the sidtab_node cache pointers.
+> Use memset, which allows for compiler optimizations
+> when present. Note that gcc sometimes sees this loop/set
+> pattern and properly optimimizes it.
+>
+> I sent this as an RFC for 2 reasons:
+> 1. NOT TESTED
+
+So yes, this is a pretty trivial patch, and it is an RFC, but if you
+want me to merge this at some point you need to at least build and
+boot a patched kernel successfully.  I try not to be the grumpiest
+maintainer, but one of the things that does really bother me is when
+people submit code without testing and it blows up on me; that makes
+me not like you, which is generally a Bad Thing.
+
+> 2. Was there some point not clear in doing it via the loop?
+
+Nothing immediately comes to mind.  Although it is worth noting that
+this code will likely only be hit a few times on a normal system so I
+wouldn't really consider it "performance critical" in the traditional
+sense.  This doesn't mean we shouldn't improve the code, just that I
+don't think anyone has really looked that carefully at it.  It looks
+like there are other loops in ss/sidtab.c that could probably be
+memset'd too.
+
+Thinking out loud, I suppose we could also move the loop/memset
+outside the locked region as well since the lock is for the src sidtab
+and not the dst sidtab.  The same for clearing the shutdown field.
+
+Looking a bit deeper, I'm starting to question how we use
+sidtab_set(), especially since it looks like the only caller is
+security_load_policy() which takes a rather *creative* approach to
+changing the sidtab on policy (re)load (to be fair, this looks to be
+an effort to limit the work in the locked section).  I wonder if we
+are better served by getting rid of sidtab_set() and replacing it with
+a sidtab_replace() function that would release the old state and
+replace it with the new.  It would be a more work with the policy
+write lock held, but that may soon be less of an issue with some of
+the patches being discussed.  It would definitely be a bit cleaner.
+
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  security/selinux/ss/sidtab.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index 5be31b7..fb88ef4 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -292,8 +292,7 @@ void sidtab_set(struct sidtab *dst, struct sidtab *src)
+>         dst->nel = src->nel;
+>         dst->next_sid = src->next_sid;
+>         dst->shutdown = 0;
+> -       for (i = 0; i < SIDTAB_CACHE_LEN; i++)
+> -               dst->cache[i] = NULL;
+> +       memset(dst->cache, 0, sizeof(dst->cache));
+>         spin_unlock_irqrestore(&src->lock, flags);
+>  }
+>
+> --
+> 2.7.4
+
+-- 
+paul moore
+www.paul-moore.com
