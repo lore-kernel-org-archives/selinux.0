@@ -1,156 +1,86 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w17LAC9m029888
- for <selinux@tycho.nsa.gov>; Wed, 7 Feb 2018 16:10:12 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3zcDVm3v8lz63cM
- for <selinux@tycho.nsa.gov>; Wed,  7 Feb 2018 21:10:08 +0000 (UTC)
-Received: from UPBD19PA06.eemsg.mil (unknown [192.168.18.7])
- by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3zcDVm2N5Nz63cT
- for <selinux@tycho.nsa.gov>; Wed,  7 Feb 2018 21:10:08 +0000 (UTC)
-Received: by mail-lf0-f50.google.com with SMTP id g72so3373818lfg.5
- for <selinux@tycho.nsa.gov>; Wed, 07 Feb 2018 13:10:06 -0800 (PST)
+To: Stephen Smalley <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>,
+ <linux-security-module@vger.kernel.org>
+References: <20180126143241.23108-1-peter.enderborg@sony.com>
+ <20180126143241.23108-5-peter.enderborg@sony.com>
+ <1517323047.14420.14.camel@tycho.nsa.gov>
+From: peter enderborg <peter.enderborg@sony.com>
+Message-ID: <44f6385f-b2a5-2dbe-7034-851e5d06e42d@sony.com>
+Date: Thu, 8 Feb 2018 08:16:56 +0100
 MIME-Version: 1.0
-From: Matt Callaway <matt.callaway@gmail.com>
-Date: Wed, 7 Feb 2018 15:10:04 -0600
-Message-ID: <CALWSt-Q3Vcn1Vz9Huj_VJjQaBumdxET6s5L7YpUwrH9dNm0_PQ@mail.gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Subject: Does selinux work with kernel namespaces?
+In-Reply-To: <1517323047.14420.14.camel@tycho.nsa.gov>
+Content-Type: text/plain; charset="utf-8"
+Subject: Re: [PATCH v2 4/5] selinux: Use pointer to switch policydb and sidtab
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello,
-
-I am attempting to run Docker on CentOS 7.4 with selinux and kernel
-namespaces enabled. When I do so I observe an error that leads me to
-an issue filed in github and a kernel patch that suggests that the
-cause should be fixed in kernel 4.11+. Yet I cannot run docker
-containers in this fashion on a 4.15 kernel.
-
-Should docker with selinux-enabled work on a 4.15.1 kernel on CentOS
-7.4 with namespaces enabled?
-
-This might be a docker question, but the details I'll present below
-suggest it might be more appropriate for this forum.
-
-Details about the host and environment:
-
-[root@localhost ~]# uname -r
-4.15.1-1.el7.elrepo.x86_64
-
-[root@localhost ~]# cat /etc/redhat-release
-CentOS Linux release 7.4.1708 (Core)
-
-[root@localhost ~]# docker --version
-Docker version 17.12.0-ce, build c97c6d6
-
-This is the latest docker-ce package from Docker's repository:
-
-[root@localhost ~]# repoquery -i docker-ce
-
-Name        : docker-ce
-Version     : 17.12.0.ce
-Release     : 1.el7.centos
-Architecture: x86_64
-Size        : 128453687
-Packager    : Docker <support@docker.com>
-Group       : Tools/Docker
-URL         : https://www.docker.com
-Repository  : docker-ce-stable
-Summary     : The open-source application container engine
-Source      : docker-ce-17.12.0.ce-1.el7.centos.src.rpm
-
-The kernel is 4.15.1 from ElRepo, because that seems to be the
-accepted way to get a 4.x kernel on CentOS, which I did because data
-suggested I needed at least 4.11+
-
-[root@localhost ~]# repoquery -i kernel-ml
-
-Name        : kernel-ml
-Version     : 4.15.1
-Release     : 1.el7.elrepo
-Architecture: x86_64
-Size        : 204626242
-Packager    : Alan Bartlett <ajb@elrepo.org>
-Group       : System Environment/Kernel
-URL         : https://www.kernel.org/
-Repository  : elrepo-kernel
-Summary     : The Linux kernel. (The core of any Linux-based operating system.)
-Source      : kernel-ml-4.15.1-1.el7.elrepo.src.rpm
-
-
-Here we see selinux-enabled is true and userns-remap is set to default:
-
-[root@localhost ~]# cat /etc/docker/daemon.json
-{
-  "debug": true,
-  "selinux-enabled": true,
-  "userns-remap": "default"
-}
-
-[root@localhost ~]# docker info 2>&1 | grep -A3 Security
-Security Options:
- seccomp
-  Profile: default
- selinux
-
-
-So when I try it I get:
-
-[root@localhost ~]# docker run hello-world
-docker: Error response from daemon: OCI runtime create failed:
-container_linux.go:296: starting container process caused
-"process_linux.go:301: running exec setns process for init caused
-\"exit status 40\"": unknown.
-
-When running in Permissive mode I see a different error:
-
-[root@localhost ~]# setenforce 0
-
-[root@localhost ~]# docker run hello-world
-docker: Error response from daemon: OCI runtime create failed:
-container_linux.go:296: starting container process caused
-"process_linux.go:398: container init caused \"rootfs_linux.go:58:
-mounting \\\"devpts\\\" to rootfs
-\\\"/var/lib/docker/1001.1001/overlay2/6798981d1cf925a748187e0f2e9151f47bca9352457aa5b933a2bcb55eff9570/merged\\\"
-at \\\"/var/lib/docker/1001.1001/overlay2/6798981d1cf925a748187e0f2e9151f47bca9352457aa5b933a2bcb55eff9570/merged/dev/pts\\\"
-caused \\\"invalid argument\\\"\"": unknown.
-
-
-Looking around for these symptoms I find these references...
-
-First message goes here:
-
-https://github.com/moby/moby/issues/35336
-
-Suggests the namespace.unpriv_enable=1 flag. I have already enabled that:
-
-[root@localhost ~]# grep unpriv /boot/grub2/grub.cfg
-linux16 /vmlinuz-4.15.1-1.el7.elrepo.x86_64
-root=/dev/mapper/VolGroup00-LogVol00 ro no_timer_check console=tty0
-console=ttyS0,115200n8 net.ifnames=0 biosdevname=0 crashkernel=auto
-rd.lvm.lv=VolGroup00/LogVol00 rd.lvm.lv=VolGroup00/LogVol01 rhgb quiet
-LANG=en_US.UTF-8 namespace.unpriv_enable=1
-
-
-Then I do setenforce 0 and we get the second devpts error which leads to:
-
-https://github.com/opencontainers/runc/issues/1215
-
-which leads to:
-
-https://bugzilla.redhat.com/show_bug.cgi?id=1401537
-
-which leads to a kernel patch:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=01593d3299a1cfdb5e08acf95f63ec59dd674906
-
-I've since discovered via the author that that patch was included in
-kernel 4.11.
-
-So... what am I missing? All signs suggest that this *should* work,
-and yet does not.
-
-Thank you for your time.
+On 01/30/2018 03:37 PM, Stephen Smalley wrote:
+> On Fri, 2018-01-26 at 15:32 +0100, peter.enderborg@sony.com wrote:
+> goto err;
+>  
+> -	rc = security_preserve_bools(newpolicydb);
+> +	rc = security_preserve_bools(&next_rcu->policydb);
+>  	if (rc) {
+>  		printk(KERN_ERR "SELinux:  unable to preserve
+> booleans\n");
+>  		goto err;
+> Most of this shouldn't need to be under the read lock.
+>
+>> @@ -2189,7 +2194,7 @@ int security_load_policy(void *data, size_t
+>> len)
+>>  	 * in the new SID table.
+>>  	 */
+>>  	args.oldp = &crm->policydb;
+>> -	args.newp = newpolicydb;
+>> +	args.newp = &next_rcu->policydb;
+>>  	rc = sidtab_map(&newsidtab, convert_context, &args);
+>>  	if (rc) {
+>>  		printk(KERN_ERR "SELinux:  unable to convert the
+>> internal"
+>> @@ -2204,8 +2209,9 @@ int security_load_policy(void *data, size_t
+>> len)
+>>  
+>>  	/* Install the new policydb and SID table. */
+>>  	/* next */
+>> +	security_load_policycaps(&next_rcu->policydb);
+> This cannot be done outside of the write lock; it has to be atomic with
+> the policy switch.
+Can you please elaborate, does some else write the policydb without a lock?
+Is there any other data that is shared? I see this as a private until we switch the pointer.
+>> +	read_unlock(&policy_rwlock);
+>>  	write_lock_irq(&policy_rwlock);
+>> -	memcpy(&next_rcu->policydb, newpolicydb, sizeof(struct
+>> policydb));
+>>  	sidtab_set(&next_rcu->sidtab, &newsidtab);
+>>  	security_load_policycaps(&next_rcu->policydb);
+>>  	oldmap = crm->current_mapping;
+>> @@ -2213,8 +2219,9 @@ int security_load_policy(void *data, size_t
+>> len)
+>>  	next_rcu->current_mapping_size = map_size;
+>>  
+>>  	seqno = ++latest_granting;
+>> -	write_unlock_irq(&policy_rwlock);
+>> +	old_rcu = crm;
+>>  	crm = next_rcu;
+>> +	write_unlock_irq(&policy_rwlock);
+>>  
+>>  	/* Free the old policydb and SID table. */
+>>  	policydb_destroy(oldpolicydb);
+>> @@ -2226,17 +2233,16 @@ int security_load_policy(void *data, size_t
+>> len)
+>>  	selinux_status_update_policyload(seqno);
+>>  	selinux_netlbl_cache_invalidate();
+>>  	selinux_xfrm_notify_policyload();
+>> +	kfree(oldpolicydb);
+>> +	kfree(old_rcu);
+>>  
+>>  	rc = 0;
+>>  	goto out;
+>> -
+>>  err:
+>>  	kfree(map);
+>>  	sidtab_destroy(&newsidtab);
+>> -	policydb_destroy(newpolicydb);
+>> -
+>> +	
