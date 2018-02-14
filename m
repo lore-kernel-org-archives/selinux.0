@@ -1,71 +1,38 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1DM78v6011203
- for <selinux@tycho.nsa.gov>; Tue, 13 Feb 2018 17:07:08 -0500
-Message-ID: <1518559616.4898.4.camel@btinternet.com>
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: linux-sctp@vger.kernel.org, selinux@tycho.nsa.gov
-Date: Tue, 13 Feb 2018 22:06:56 +0000
-In-Reply-To: <CAHC9VhSxN2qcMWCmwx8oTb9+-XzE=uqGv+yhmz1MLPbSx5utZA@mail.gmail.com>
-References: <CAHC9VhR22eO9ugfAaY=PM9_aaHVa1hD05LFffNT-pXjz2Zt3Rw@mail.gmail.com>
- <1518538932.18249.14.camel@btinternet.com>
- <CAHC9VhSxN2qcMWCmwx8oTb9+-XzE=uqGv+yhmz1MLPbSx5utZA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: FYI: selinux/next rebased to v4.16-rc1
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1E9rqY6011953
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 04:53:53 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 3zhF986z60z4BPFY
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 09:53:48 +0000 (UTC)
+Received: from UPBD19PA02.eemsg.mil (unknown [192.168.18.3])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 3zhF986TrKz4BPFW
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 09:53:48 +0000 (UTC)
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.3])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 14B12408501B
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 09:53:47 +0000 (UTC)
+Received: from workstation.brq.redhat.com (unknown [10.43.12.173])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id AED8210073AA
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 09:53:46 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Wed, 14 Feb 2018 10:53:33 +0100
+Message-Id: <20180214095337.1945-1-plautrba@redhat.com>
+Subject: Update selinux-sepolgengui to be compatible with Gtk3,
+ Python 3
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2018-02-13 at 12:55 -0500, Paul Moore wrote:
-> On Tue, Feb 13, 2018 at 11:22 AM, Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > On Mon, 2018-02-12 at 16:13 -0500, Paul Moore wrote:
-> > > A quick note to let you know that I've just rebased the
-> > > selinux/next
-> > > branch to v4.16-rc1.  Over the next day or two I'm going to be
-> > > working
-> > > through the backlog of kernel patches, most notably the SCTP
-> > > work.
-> > > 
-> > 
-> > I've just rebuilt the SCTP patch set on Fedora using:
-> > 
-> > kernel-4.16.0-0.rc1.git0.1.fc28.src.rpm
-> > 
-> > I found there were a number of changes required to get the SCTP
-> > specific patches (2/4 and 3/4) to build as there have been many
-> > updates
-> > since kernel 4.14.
-> > 
-> > The 4-16 kernel build passes my SCTP SELinux Testsuite although I
-> > also
-> > added the "netlabel: If PF_INET6, check sk_buff ip header version"
-> > [1]
-> > patch as well.
-> > 
-> > It's probably best I post these patches so the SCTP team can
-> > finally ok
-> > them (or not).
-> 
-> If you don't mind doing the rebase that would be helpful.  We'll have
-> to wait and see what the changes look like, but I don't expect there
-> to be a problem with the SCTP folks, Marcelo has been very helpful
-> thus far.
-> 
-> As far as the NetLabel patch is concerned, yes, go ahead and include
-> that in the patchset.
+Hi,
 
-I did not include the "netlabel: If PF_INET6, check sk_buff ip header
-version" [1] in the final V6 patches as it was the only one that did
-not require a rebase, therefore [1] can still go standalone in kernel
-4.16
+The following set of patches update polgengui.py, rename polgen.glade to
+polgen.ui, convert it to new format, and fix some other sepolicy Python 3
+related issues.
 
-> 
-> Thanks!
-> 
-> > [1] https://marc.info/?l=selinux&m=151061619115945&w=2
-> 
-> 
-> 
+Thanks,
+
+Petr
