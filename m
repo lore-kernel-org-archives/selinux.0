@@ -1,120 +1,124 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1ELJGel022764
- for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 16:19:16 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC15.oob.disa.mil (Postfix) with SMTP id 3zhXMk2L4jz3GDw7
- for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 21:18:58 +0000 (UTC)
-Received: from UPDC3CPA11_EEMSG_MP27.eemsg.mil (unknown [192.168.18.22])
- by UPDCF3IC15.oob.disa.mil (Postfix) with ESMTP id 3zhXMk0bmqz3GDw4
- for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 21:18:58 +0000 (UTC)
-Received: from localhost.localdomain (abo-251-56-69.avi.modulonet.fr
- [85.69.56.251])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 5989B561259
- for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 22:16:50 +0100 (CET)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Date: Wed, 14 Feb 2018 22:16:25 +0100
-Message-Id: <20180214211625.531-3-nicolas.iooss@m4x.org>
-In-Reply-To: <20180214211625.531-1-nicolas.iooss@m4x.org>
-References: <20180214211625.531-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 3/3] python/sepolicy: Fix translated strings with parameters
+Date: Wed, 14 Feb 2018 19:16:39 -0200
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
+ netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
+ James Morris <james.l.morris@oracle.com>
+Message-ID: <20180214211639.GA4718@localhost.localdomain>
+References: <20180213205252.4447-1-richard_c_haines@btinternet.com>
+ <CAHC9VhRG8AYpy3O1eLNCg6LP_i8Hk_U4zEGy3_frE2TMzZnG6w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHC9VhRG8AYpy3O1eLNCg6LP_i8Hk_U4zEGy3_frE2TMzZnG6w@mail.gmail.com>
+Subject: Re: [PATCH V6 0/4] Add SELinux SCTP protocol support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-When a translated string takes parameters with %, the % and the
-parameters need to be after the call to the underline function in order
-to work properly.
+On Wed, Feb 14, 2018 at 02:19:03PM -0500, Paul Moore wrote:
+> On Tue, Feb 13, 2018 at 3:52 PM, Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > These patches have been built on Fedora 27 with kernel-4.16.0-0.rc1 plus
+> > the following userspace patches to enable testing:
+> >
+> > 1) Updates to libsepol 2.7 to support the sctp portcon statement.
+> >    The patch is available from:
+> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+> >          selinux-Add-support-for-the-SCTP-portcon-keyword.patch
+> >
+> > 2) Updates to the SELinux Test Suite adding SCTP tests. Please read the
+> >    selinux-testsuite/README.sctp for details. The patch is available from:
+> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+> >          selinux-testsuite-Add-SCTP-test-support.patch
+> >
+> > 3) Updates to lksctp-tools that show SELinux info in sctp_darn and
+> >    sctp_test. It also contains a minor patch for test_1_to_1_connect.c
+> >    as when CIPSO/CALIPSO configured, NetLabel returns a different error
+> >    code for illegal addresses in test 5. The patch is available from:
+> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
+> >          lksctp-tools-Add-SELinux-support-to-sctp_test-and-sc.patch
+> >
+> > All SCTP lksctp-tools/src/func_tests run correctly in enforcing mode.
+> >
+> > All SCTP regression tests "./sctp-tests run" run correctly in enforcing
+> > mode. These tests are obtained from: https://github.com/sctp/sctp-tests
+> >
+> > The selinux-testsuite patch also adds remote tests (that need some manual
+> > configuration). These are useful for testing CIPSO/CALIPSO over a network
+> > with a number of categories to produce large ip option fields with various
+> > message sizes forcing fragmentation etc..
+> >
+> > Changes since RFC Patch:
+> > Removed the NetLabel patch (was [RFC PATCH 4/5] netlabel: Add SCTP support)
+> > as re-engineered. However this patchset will require the NetLabel
+> > patch at [1] to fully run the SCTP selinux-testsuite.
+> >
+> > V1 Changes:
+> > PATCH 1/4
+> > Remove unused parameter from security_sctp_assoc_request().
+> > Reformat and update LSM-sctp.rst documentation.
+> > PATCH 2/4
+> > Add variables and RCU locks as requested in [2] to support IP options.
+> > PATCH 3/4
+> > Added security_sctp_assoc_request() hook to sctp_sf_do_unexpected_init()
+> > and sctp_sf_do_5_2_4_dupcook().
+> > Removed security_sctp_assoc_request() hook from sctp_sf_do_5_1C_ack() as
+> > no longer required.
+> > PATCH 4/4
+> > Reformat and update SELinux-sctp.rst documentation.
+> > Remove bindx and connectx permissions.
+> > Rework selinux_socket_connect() and selinux_netlbl_socket_connect() to
+> > utilise helpers for code reuse.
+> > Add spinlock to selinux_sctp_assoc_request().
+> > Remove unused parameter from security_sctp_assoc_request().
+> > Use address->sa_family == AF_INET in *_bind and *_connect to ensure
+> > correct address type.
+> > Minor cleanups.
+> >
+> > V2 Changes:
+> > PATCH 4/4 - Remove spin lock from selinux_sctp_assoc_request()
+> > PATCH 4/4 - Fix selinux_sctp_sk_clone() kbuild test robot catch [3]
+> >
+> > V3 Changes:
+> > PATCH 2/4 - Account for IP options length in sctp.h sctp_frag_point() by
+> > Marcelo
+> >
+> > V4 Changes:
+> > PATCH 1/4 - Move specific SELinux descriptions from LSM-sctp.rst and
+> > lsm_hooks.h to SELinux-sctp.rst in PATCH 4/4
+> > PATCH 4/4 - Rename selinux_netlbl_sctp_socket_connect() to
+> > selinux_netlbl_socket_connect_locked() and move description comments to
+> > selinux_sctp_bind_connect()
+> >
+> > V5 Change: Rework selinux_netlbl_socket_connect() and
+> > selinux_netlbl_socket_connect_locked as requested by Paul.
+> >
+> > V6 Changes:
+> > Rework SCTP patches 2/4 and 3/4 as there have been major SCTP updates since
+> > kernel 4.14.
+> >
+> > [1] https://marc.info/?l=selinux&m=151061619115945&w=2
+> > [2] https://marc.info/?l=selinux&m=150962470215797&w=2
+> > [3] https://marc.info/?l=selinux&m=151198281817779&w=2
+> >
+> > Richard Haines (4):
+> >   security: Add support for SCTP security hooks
+> >   sctp: Add ip option support
+> >   sctp: Add LSM hooks
+> >   selinux: Add SCTP support
+> 
+> Marcelo, or any other SCTP folks, do the SCTP changes still look okay
+> to you?  I'd like to merge these into the selinux/next tree by the end
+> of the week ...
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- python/sepolicy/sepolicy/generate.py  |  2 +-
- python/sepolicy/sepolicy/gui.py       | 28 ++++++++++++++--------------
- python/sepolicy/sepolicy/interface.py |  4 ++--
- 3 files changed, 17 insertions(+), 17 deletions(-)
+Other than the issue on patch 2/4, patchset LGTM yes.
+(Not really happy with the casts to remove the const attribute on
+patch 3, but I don't see other way out)
 
-diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
-index f885425806f1..325a3888be2b 100644
---- a/python/sepolicy/sepolicy/generate.py
-+++ b/python/sepolicy/sepolicy/generate.py
-@@ -191,7 +191,7 @@ def verify_ports(ports):
-                 temp.append(p)
-         return temp
-     except ValueError:
--        raise ValueError(_("Ports must be numbers or ranges of numbers from 1 to %d " % max_port))
-+        raise ValueError(_("Ports must be numbers or ranges of numbers from 1 to %d ") % max_port)
- 
- 
- class policy:
-diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-index 6562aa850c98..537d5168a536 100644
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -500,7 +500,7 @@ class SELinuxGui():
-         self.all_domains.sort(key=str.lower)
- 
-         if app and app not in self.all_domains:
--            self.error(_("%s is not a valid domain" % app))
-+            self.error(_("%s is not a valid domain") % app)
-             self.quit()
- 
-         loading_gui.show()
-@@ -1056,21 +1056,21 @@ class SELinuxGui():
-         self.application_files_initialize(app)
-         self.transitions_files_initialize(app)
- 
--        self.executable_files_tab.set_tooltip_text(_("File path used to enter the '%s' domain." % app))
--        self.writable_files_tab.set_tooltip_text(_("Files to which the '%s' domain can write." % app))
--        self.network_out_tab.set_tooltip_text(_("Network Ports to which the '%s' is allowed to connect." % app))
--        self.network_in_tab.set_tooltip_text(_("Network Ports to which the '%s' is allowed to listen." % app))
--        self.application_files_tab.set_tooltip_text(_("File Types defined for the '%s'." % app))
--        self.boolean_radio_button.set_tooltip_text(_("Display boolean information that can be used to modify the policy for the '%s'." % app))
--        self.files_radio_button.set_tooltip_text(_("Display file type information that can be used by the '%s'." % app))
--        self.network_radio_button.set_tooltip_text(_("Display network ports to which the '%s' can connect or listen to." % app))
--        self.transitions_into_tab.set_label(_("Application Transitions Into '%s'" % app))
--        self.transitions_from_tab.set_label(_("Application Transitions From '%s'" % app))
--        self.transitions_file_tab.set_label(_("File Transitions From '%s'" % app))
-+        self.executable_files_tab.set_tooltip_text(_("File path used to enter the '%s' domain.") % app)
-+        self.writable_files_tab.set_tooltip_text(_("Files to which the '%s' domain can write.") % app)
-+        self.network_out_tab.set_tooltip_text(_("Network Ports to which the '%s' is allowed to connect.") % app)
-+        self.network_in_tab.set_tooltip_text(_("Network Ports to which the '%s' is allowed to listen.") % app)
-+        self.application_files_tab.set_tooltip_text(_("File Types defined for the '%s'.") % app)
-+        self.boolean_radio_button.set_tooltip_text(_("Display boolean information that can be used to modify the policy for the '%s'.") % app)
-+        self.files_radio_button.set_tooltip_text(_("Display file type information that can be used by the '%s'.") % app)
-+        self.network_radio_button.set_tooltip_text(_("Display network ports to which the '%s' can connect or listen to.") % app)
-+        self.transitions_into_tab.set_label(_("Application Transitions Into '%s'") % app)
-+        self.transitions_from_tab.set_label(_("Application Transitions From '%s'") % app)
-+        self.transitions_file_tab.set_label(_("File Transitions From '%s'") % app)
-         self.transitions_into_tab.set_tooltip_text(_("Executables which will transition to '%s', when executing selected domains entrypoint.") % app)
-         self.transitions_from_tab.set_tooltip_text(_("Executables which will transition to a different domain, when '%s' executes them.") % app)
--        self.transitions_file_tab.set_tooltip_text(_("Files by '%s' with transitions to a different label." % app))
--        self.transitions_radio_button.set_tooltip_text(_("Display applications that can transition into or out of the '%s'." % app))
-+        self.transitions_file_tab.set_tooltip_text(_("Files by '%s' with transitions to a different label.") % app)
-+        self.transitions_radio_button.set_tooltip_text(_("Display applications that can transition into or out of the '%s'.") % app)
- 
-         self.application = app
-         self.applications_selection_button.set_label(self.application)
-diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
-index c64122e5e565..18374dcfed96 100644
---- a/python/sepolicy/sepolicy/interface.py
-+++ b/python/sepolicy/sepolicy/interface.py
-@@ -220,7 +220,7 @@ def interface_compile_test(interface, path="/usr/share/selinux/devel/policy.xml"
-     idict = get_interface_dict(path)
- 
-     if not (interface.split("_")[0] in exclude_interfaces or idict[interface][2] in exclude_interface_type):
--        print(_("Compiling %s interface" % interface))
-+        print(_("Compiling %s interface") % interface)
-         try:
-             fd = open(policy_files['te'], "w")
-             fd.write(generate_compile_te(interface, idict))
-@@ -237,4 +237,4 @@ def interface_compile_test(interface, path="/usr/share/selinux/devel/policy.xml"
-                 os.remove(v)
- 
-     else:
--        sys.stderr.write(_("\nCompiling of %s interface is not supported." % interface))
-+        sys.stderr.write(_("\nCompiling of %s interface is not supported.") % interface)
--- 
-2.16.0
+Thanks,
+Marcelo
