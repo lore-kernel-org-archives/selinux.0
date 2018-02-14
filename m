@@ -1,90 +1,75 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1EJ3XJ4007162
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 14:03:33 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 3zhTMR3RrJzrMHb
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 19:03:31 +0000 (UTC)
+Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
+ by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 3zhTMR2TzPzrMHZ
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 19:03:31 +0000 (UTC)
+Received: by mail-lf0-f46.google.com with SMTP id g72so30859612lfg.5
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 11:03:29 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20180214095717.1050-8-marcus.folkesson@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180214095717.1050-1-marcus.folkesson@gmail.com>
- <20180214095717.1050-8-marcus.folkesson@gmail.com>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 14 Feb 2018 20:00:36 +0100
-Message-ID: <CAJfZ7==vs7bZgbX4JYHJFV8grD4+rcK8hqJVJDGuycWDrqe1Sw@mail.gmail.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <CAHC9VhT-mALY2UB2nR2fOu5Bc-RRTQw0oXed1OJZNFv2KAcK3w@mail.gmail.com>
+References: <20171113205422.2918-1-richard_c_haines@btinternet.com>
+ <CAHC9VhT-mALY2UB2nR2fOu5Bc-RRTQw0oXed1OJZNFv2KAcK3w@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 14 Feb 2018 14:03:28 -0500
+Message-ID: <CAHC9VhQgsf6gK9oN9ziBOdSVN_38Kaec7_+CRXm+ZxvWBJ7V5w@mail.gmail.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v5 07/15] policycoreutils: build: follow
- standard semantics for DESTDIR and PREFIX
+Subject: Re: [PATCH] netlabel: If PF_INET6,
+ check sk_buff ip header version
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 14, 2018 at 10:57 AM, Marcus Folkesson
-<marcus.folkesson@gmail.com> wrote:
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> ---
+On Mon, Nov 13, 2017 at 5:13 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Nov 13, 2017 at 3:54 PM, Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+>> When resolving a fallback label, check the sk_buff version as it
+>> is possible (e.g. SCTP) to have family = PF_INET6 while
+>> receiving ip_hdr(skb)->version = 4.
+>>
+>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>> ---
+>>  net/netlabel/netlabel_unlabeled.c | 10 ++++++++++
+>>  1 file changed, 10 insertions(+)
 >
-> Notes:
->     v5:
->         - Only use $(DESTDIR) in install
->     v2:
->         - Rework all packages (not just selinux/sepol/semanage)
+> Thanks Richard.
 >
->  policycoreutils/hll/pp/Makefile      |  9 +++------
->  policycoreutils/load_policy/Makefile | 16 ++++++++--------
->  policycoreutils/man/Makefile         |  7 ++++---
->  policycoreutils/newrole/Makefile     | 24 ++++++++++++------------
->  policycoreutils/po/Makefile          |  7 ++++---
->  policycoreutils/run_init/Makefile    | 22 +++++++++++-----------
->  policycoreutils/scripts/Makefile     | 13 ++++++-------
->  policycoreutils/secon/Makefile       | 12 +++++-------
->  policycoreutils/semodule/Makefile    | 16 +++++++---------
->  policycoreutils/sestatus/Makefile    | 21 ++++++++++-----------
->  policycoreutils/setfiles/Makefile    | 23 +++++++++++------------
->  policycoreutils/setsebool/Makefile   | 18 ++++++++----------
->  12 files changed, 89 insertions(+), 99 deletions(-)
->
-[...]
-> diff --git a/policycoreutils/setsebool/Makefile b/policycoreutils/setsebool/Makefile
-> index bc254dab..3cd58353 100644
-> --- a/policycoreutils/setsebool/Makefile
-> +++ b/policycoreutils/setsebool/Makefile
-> @@ -1,10 +1,8 @@
->  # Installation directories.
-> -PREFIX ?= $(DESTDIR)/usr
-> -INCLUDEDIR ?= $(PREFIX)/include
-> +PREFIX ?= /usr
->  SBINDIR ?= $(PREFIX)/sbin
->  MANDIR = $(PREFIX)/share/man
-> -LIBDIR ?= $(PREFIX)/lib
-> -BASHCOMPLETIONDIR ?= $(DESTDIR)/usr/share/bash-completion/completions
-> +BASHCOMPLETIONDIR ?= $(DESTDIR)$(PREFIX)/share/bash-completion/completions
+> Acked-by: Paul Moore <paul@paul-moore.com>
 
-You forgot to remove $(DESTDIR) here, so setsebool's bash completion
-file gets installed in $DESTDIR/$DESTDIR/usr/... All the other
-modifications on variables look good to me.
-Thanks!
-Nicolas
+I don't believe the netdev folks picked this up, but I haven't heard
+any objections (and I can't imagine there would be any) so I'm going
+to go ahead and pull this into the selinux/next tree.
 
->
->  CFLAGS ?= -Werror -Wall -W
->  override LDLIBS += -lsepol -lselinux -lsemanage
-> @@ -17,12 +15,12 @@ all: setsebool
->  setsebool: $(SETSEBOOL_OBJS)
->
->  install: all
-> -       -mkdir -p $(SBINDIR)
-> -       install -m 755 setsebool $(SBINDIR)
-> -       -mkdir -p $(MANDIR)/man8
-> -       install -m 644 setsebool.8 $(MANDIR)/man8/
-> -       -mkdir -p $(BASHCOMPLETIONDIR)
-> -       install -m 644 $(BASHCOMPLETIONS) $(BASHCOMPLETIONDIR)/setsebool
-> +       -mkdir -p $(DESTDIR)$(SBINDIR)
-> +       install -m 755 setsebool $(DESTDIR)$(SBINDIR)
-> +       -mkdir -p $(DESTDIR)$(MANDIR)/man8
-> +       install -m 644 setsebool.8 $(DESTDIR)$(MANDIR)/man8/
-> +       -mkdir -p $(DESTDIR)$(BASHCOMPLETIONDIR)
-> +       install -m 644 $(BASHCOMPLETIONS) $(DESTDIR)$(BASHCOMPLETIONDIR)/setsebool
->
->  relabel:
->
-> --
-> 2.15.1
->
+>> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+>> index 22dc1b9..c070dfc 100644
+>> --- a/net/netlabel/netlabel_unlabeled.c
+>> +++ b/net/netlabel/netlabel_unlabeled.c
+>> @@ -1472,6 +1472,16 @@ int netlbl_unlabel_getattr(const struct sk_buff *skb,
+>>                 iface = rcu_dereference(netlbl_unlhsh_def);
+>>         if (iface == NULL || !iface->valid)
+>>                 goto unlabel_getattr_nolabel;
+>> +
+>> +#if IS_ENABLED(CONFIG_IPV6)
+>> +       /* When resolving a fallback label, check the sk_buff version as
+>> +        * it is possible (e.g. SCTP) to have family = PF_INET6 while
+>> +        * receiving ip_hdr(skb)->version = 4.
+>> +        */
+>> +       if (family == PF_INET6 && ip_hdr(skb)->version == 4)
+>> +               family = PF_INET;
+>> +#endif /* IPv6 */
+>> +
+>>         switch (family) {
+>>         case PF_INET: {
+>>                 struct iphdr *hdr4;
+>> --
+>> 2.13.6
+
+-- 
+paul moore
+www.paul-moore.com
