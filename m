@@ -1,60 +1,56 @@
-MIME-Version: 1.0
-In-Reply-To: <20180214095717.1050-1-marcus.folkesson@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180214095717.1050-1-marcus.folkesson@gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1EJTrei016102
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 14:29:54 -0500
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 14 Feb 2018 20:19:44 +0100
-Message-ID: <CAJfZ7=kT4VRgWzoQMyehL=a4qGNGGcNPqiUcw6523zVH9R+JHA@mail.gmail.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: Rework of makefiles v5
+To: selinux@tycho.nsa.gov
+Cc: Marcus Folkesson <marcus.folkesson@gmail.com>
+Date: Wed, 14 Feb 2018 20:27:47 +0100
+Message-Id: <20180214192747.26511-1-nicolas.iooss@m4x.org>
+Subject: [PATCH Rework of makefiles v5 16/15] Travis-CI: do not
+ duplicate $DESTDIR in $PYSITEDIR
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 14, 2018 at 10:57 AM, Marcus Folkesson
-<marcus.folkesson@gmail.com> wrote:
-> I have updated the patchset.
->
-> The biggest change is that $(DESTDIR) is now used in the
-> install stage only.
->
-> Also some overidden CFLAGS/LDFLAGS has been removed since we now have
-> explicit build rules.
->
-> I have moved the changelog into patches.
->
-> Please test to compile with:
-> make DESTDIR=/tmp/myroot PREFIX=/myusr install
-> or
-> make DESTDIR=/tmp/myroot install
->
-> Thanks for all feedback.
->
-> Best regards
-> Marcus Folkesson
->
+Recent commits removed $DESTDIR from $PYSITEDIR in libselinux and
+libsemanage:
 
-Hi,
-Thanks for this update! Here are three comments on this patchset:
+    -PYSITEDIR ?= $(DESTDIR)$(shell $(PYTHON) -c 'import site;
+    print(site.getsitepackages()[0])')
+    +PYSITEDIR ?= $(shell $(PYTHON) -c 'import site;
+    print(site.getsitepackages()[0])')
 
-* you forgot a $(DESTDIR) occurrence in patch 7.
-* .travis.yml needs a simple patch to fix the value of PYSITEDIR. I
-will send it later.
-* While reading the Makefile after patch 15, I have been surprised by
-"LIBDIR ?= $(DESTDIR)$(PREFIX)/lib", with DESTDIR. As this variable is
-not exported, it works fine as it is, but it might be cleaner to
-define it as "LIBDIR ?= $(PREFIX)/lib" and to use $(DESTDIR) in the
-following lines. This point may be addressed in a follow-up commit
-after the patchset has been merged.
+As "site.getsitepackages()" does not work within virtualenvs,
+.travis.yml defines PYSITEDIR's value in it and this definition needs to
+be updated too.
 
-As the patchset looks almost ready to be merged, I have created
-https://github.com/SELinuxProject/selinux/pull/79 with a modified
-patch 7 and my patch for .travis.yml. This pull request holds the
-commits I plan to apply in a few days if no other maintainer disagrees
-with this.
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ .travis.yml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Best,
-Nicolas
+diff --git a/.travis.yml b/.travis.yml
+index 88f6297e63bc..0312e996e333 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -98,7 +98,7 @@ before_script:
+   - if echo "$PYVER" | grep -q pypy ; then export PYINC=-I$($PYTHON -c 'import sys;print(sys.prefix)')/include PYLIBS= ; fi
+   # Python virtualenvs do not support "import site; print(site.getsitepackages()[0]"
+   # cf. https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452
+-  - export PYSITEDIR="$DESTDIR/usr/lib/$($PYTHON -c 'import sys;print("python%d.%d" % sys.version_info[:2])')/site-packages"
++  - export PYSITEDIR="/usr/lib/$($PYTHON -c 'import sys;print("python%d.%d" % sys.version_info[:2])')/site-packages"
+ 
+   # Find the Ruby executable with version $RUBYLIBVER
+   - export RUBY="$(ls -d -1 "$HOME/.rvm/rubies/ruby-$RUBYLIBVER"*/bin/ruby | head -n 1)"
+@@ -126,7 +126,7 @@ script:
+   # Set up environment variables for the tests
+   - export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
+   - export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH"
+-  - export PYTHONPATH="$PYSITEDIR"
++  - export PYTHONPATH="$DESTDIR$PYSITEDIR"
+   - export RUBYLIB="$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
+ 
+   # Show variables (to help debugging issues)
+-- 
+2.16.0
