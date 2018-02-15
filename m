@@ -1,38 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1FHYmHF007364
- for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2018 12:34:48 -0500
-Received: by mail-wm0-f66.google.com with SMTP id v71so2305843wmv.2
- for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2018 09:34:43 -0800 (PST)
-From: Dominick Grift <dac.override@gmail.com>
-To: selinux@tycho.nsa.gov
-Date: Thu, 15 Feb 2018 18:34:37 +0100
-Message-Id: <20180215173437.14632-1-dac.override@gmail.com>
-Subject: [PATCH] Describe multiple-decls in secilc.8.xml
+Message-ID: <1518727655.30922.11.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Aman Sharma <amansh.sharma5@gmail.com>, SELinux <selinux@tycho.nsa.gov>
+Date: Thu, 15 Feb 2018 15:47:35 -0500
+In-Reply-To: <CAPMH7-_9hM6Kp4DjzLZaAxyxatkrAPqxGV+jBrWdeftkE4xmFw@mail.gmail.com>
+References: <CAPMH7-_9hM6Kp4DjzLZaAxyxatkrAPqxGV+jBrWdeftkE4xmFw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: Facing problem while running the audit2allow command
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Signed-off-by: Dominick Grift <dac.override@gmail.com>
----
- secilc/secilc.8.xml | 5 +++++
- 1 file changed, 5 insertions(+)
+On Thu, 2018-02-15 at 10:30 +0530, Aman Sharma wrote:
+> Hi All,
+> 
+> I am getting one issue while running the command audit2allow and
+> below is the 
+> logs for the same :
+> 
+> After switching back to lower version, running "audit2allow -a"
+> command show below errors repeteadly and the command does not
+> return: 
+> libsepol.context_from_record: invalid security context:
+> "sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023" 
+> libsepol.context_from_record: could not create context structure 
+> libsepol.context_from_string: could not create context structure 
+> libsepol.sepol_context_to_sid: could not convert
+> sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023 to sid 
+> libsepol.context_from_record: invalid security context:
+> "sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023" 
+> libsepol.context_from_record: could not create context structure 
+> libsepol.context_from_string: could not create context structure 
+> libsepol.sepol_context_to_sid: could not convert
+> sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023 to sid 
+> libsepol.context_from_record: invalid security context:
+> "sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023" 
+> libsepol.context_from_record: could not create context structure 
+> libsepol.context_from_string: could not create context structure 
+> 
+> And also Unconfined is disabled in my System and I am suspecting that
+> after disabling , I am getting the above errors. Can anybody help me
+> on this.
+> 
+> Please let me know if any comments are there.
 
-diff --git a/secilc/secilc.8.xml b/secilc/secilc.8.xml
-index 4c779b64..e08a9624 100644
---- a/secilc/secilc.8.xml
-+++ b/secilc/secilc.8.xml
-@@ -75,6 +75,11 @@
-             <listitem><para>Treat tunables as booleans.</para></listitem>
-          </varlistentry>
- 
-+         <varlistentry>
-+            <term><option>-m, --multiple-decls</option></term>
-+            <listitem><para>Allow some statements to be re-declared.</para></listitem>
-+         </varlistentry>
-+
-          <varlistentry>
-             <term><option>-N, --disable-neverallow</option></term>
-             <listitem><para>Do not check <emphasis role="bold">neverallow</emphasis> rules.</para></listitem>
--- 
-2.16.1
+This is normal; you have old audit records from when your policy
+included unconfined, and now that you have removed unconfined,
+audit2allow can't process those audit records.  However, it won't stop
+working; it just continues to process any remaining audit records that
+are valid.  You can delete your old audit logs if you want to avoid the
+noise.  Or you can feed audit2allow only recent audit records, e.g.
+ausearch -m AVC -ts today | audit2allow
+to process today's audit records.
