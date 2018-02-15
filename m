@@ -1,129 +1,38 @@
-Date: Thu, 15 Feb 2018 09:21:09 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>,
- marcelo.leitner@gmail.com, selinux@tycho.nsa.gov,
- netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
- James Morris <james.l.morris@oracle.com>
-Message-ID: <20180215142109.GB21419@hmswarspite.think-freely.org>
-References: <20180213205252.4447-1-richard_c_haines@btinternet.com>
- <CAHC9VhRG8AYpy3O1eLNCg6LP_i8Hk_U4zEGy3_frE2TMzZnG6w@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhRG8AYpy3O1eLNCg6LP_i8Hk_U4zEGy3_frE2TMzZnG6w@mail.gmail.com>
-Subject: Re: [PATCH V6 0/4] Add SELinux SCTP protocol support
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1FHYmHF007364
+ for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2018 12:34:48 -0500
+Received: by mail-wm0-f66.google.com with SMTP id v71so2305843wmv.2
+ for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2018 09:34:43 -0800 (PST)
+From: Dominick Grift <dac.override@gmail.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 15 Feb 2018 18:34:37 +0100
+Message-Id: <20180215173437.14632-1-dac.override@gmail.com>
+Subject: [PATCH] Describe multiple-decls in secilc.8.xml
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 14, 2018 at 02:19:03PM -0500, Paul Moore wrote:
-> On Tue, Feb 13, 2018 at 3:52 PM, Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > These patches have been built on Fedora 27 with kernel-4.16.0-0.rc1 plus
-> > the following userspace patches to enable testing:
-> >
-> > 1) Updates to libsepol 2.7 to support the sctp portcon statement.
-> >    The patch is available from:
-> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
-> >          selinux-Add-support-for-the-SCTP-portcon-keyword.patch
-> >
-> > 2) Updates to the SELinux Test Suite adding SCTP tests. Please read the
-> >    selinux-testsuite/README.sctp for details. The patch is available from:
-> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
-> >          selinux-testsuite-Add-SCTP-test-support.patch
-> >
-> > 3) Updates to lksctp-tools that show SELinux info in sctp_darn and
-> >    sctp_test. It also contains a minor patch for test_1_to_1_connect.c
-> >    as when CIPSO/CALIPSO configured, NetLabel returns a different error
-> >    code for illegal addresses in test 5. The patch is available from:
-> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
-> >          lksctp-tools-Add-SELinux-support-to-sctp_test-and-sc.patch
-> >
-> > All SCTP lksctp-tools/src/func_tests run correctly in enforcing mode.
-> >
-> > All SCTP regression tests "./sctp-tests run" run correctly in enforcing
-> > mode. These tests are obtained from: https://github.com/sctp/sctp-tests
-> >
-> > The selinux-testsuite patch also adds remote tests (that need some manual
-> > configuration). These are useful for testing CIPSO/CALIPSO over a network
-> > with a number of categories to produce large ip option fields with various
-> > message sizes forcing fragmentation etc..
-> >
-> > Changes since RFC Patch:
-> > Removed the NetLabel patch (was [RFC PATCH 4/5] netlabel: Add SCTP support)
-> > as re-engineered. However this patchset will require the NetLabel
-> > patch at [1] to fully run the SCTP selinux-testsuite.
-> >
-> > V1 Changes:
-> > PATCH 1/4
-> > Remove unused parameter from security_sctp_assoc_request().
-> > Reformat and update LSM-sctp.rst documentation.
-> > PATCH 2/4
-> > Add variables and RCU locks as requested in [2] to support IP options.
-> > PATCH 3/4
-> > Added security_sctp_assoc_request() hook to sctp_sf_do_unexpected_init()
-> > and sctp_sf_do_5_2_4_dupcook().
-> > Removed security_sctp_assoc_request() hook from sctp_sf_do_5_1C_ack() as
-> > no longer required.
-> > PATCH 4/4
-> > Reformat and update SELinux-sctp.rst documentation.
-> > Remove bindx and connectx permissions.
-> > Rework selinux_socket_connect() and selinux_netlbl_socket_connect() to
-> > utilise helpers for code reuse.
-> > Add spinlock to selinux_sctp_assoc_request().
-> > Remove unused parameter from security_sctp_assoc_request().
-> > Use address->sa_family == AF_INET in *_bind and *_connect to ensure
-> > correct address type.
-> > Minor cleanups.
-> >
-> > V2 Changes:
-> > PATCH 4/4 - Remove spin lock from selinux_sctp_assoc_request()
-> > PATCH 4/4 - Fix selinux_sctp_sk_clone() kbuild test robot catch [3]
-> >
-> > V3 Changes:
-> > PATCH 2/4 - Account for IP options length in sctp.h sctp_frag_point() by
-> > Marcelo
-> >
-> > V4 Changes:
-> > PATCH 1/4 - Move specific SELinux descriptions from LSM-sctp.rst and
-> > lsm_hooks.h to SELinux-sctp.rst in PATCH 4/4
-> > PATCH 4/4 - Rename selinux_netlbl_sctp_socket_connect() to
-> > selinux_netlbl_socket_connect_locked() and move description comments to
-> > selinux_sctp_bind_connect()
-> >
-> > V5 Change: Rework selinux_netlbl_socket_connect() and
-> > selinux_netlbl_socket_connect_locked as requested by Paul.
-> >
-> > V6 Changes:
-> > Rework SCTP patches 2/4 and 3/4 as there have been major SCTP updates since
-> > kernel 4.14.
-> >
-> > [1] https://marc.info/?l=selinux&m=151061619115945&w=2
-> > [2] https://marc.info/?l=selinux&m=150962470215797&w=2
-> > [3] https://marc.info/?l=selinux&m=151198281817779&w=2
-> >
-> > Richard Haines (4):
-> >   security: Add support for SCTP security hooks
-> >   sctp: Add ip option support
-> >   sctp: Add LSM hooks
-> >   selinux: Add SCTP support
-> 
-> Marcelo, or any other SCTP folks, do the SCTP changes still look okay
-> to you?  I'd like to merge these into the selinux/next tree by the end
-> of the week ...
-> 
-I had a few comments that I just posted.
-Neil
+Signed-off-by: Dominick Grift <dac.override@gmail.com>
+---
+ secilc/secilc.8.xml | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-> -- 
-> paul moore
-> www.paul-moore.com
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sctp" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/secilc/secilc.8.xml b/secilc/secilc.8.xml
+index 4c779b64..e08a9624 100644
+--- a/secilc/secilc.8.xml
++++ b/secilc/secilc.8.xml
+@@ -75,6 +75,11 @@
+             <listitem><para>Treat tunables as booleans.</para></listitem>
+          </varlistentry>
+ 
++         <varlistentry>
++            <term><option>-m, --multiple-decls</option></term>
++            <listitem><para>Allow some statements to be re-declared.</para></listitem>
++         </varlistentry>
++
+          <varlistentry>
+             <term><option>-N, --disable-neverallow</option></term>
+             <listitem><para>Do not check <emphasis role="bold">neverallow</emphasis> rules.</para></listitem>
+-- 
+2.16.1
