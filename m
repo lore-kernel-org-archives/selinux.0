@@ -1,124 +1,224 @@
-Date: Wed, 14 Feb 2018 19:16:39 -0200
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
- netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org,
- Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
- James Morris <james.l.morris@oracle.com>
-Message-ID: <20180214211639.GA4718@localhost.localdomain>
-References: <20180213205252.4447-1-richard_c_haines@btinternet.com>
- <CAHC9VhRG8AYpy3O1eLNCg6LP_i8Hk_U4zEGy3_frE2TMzZnG6w@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1F50IpS011438
+ for <selinux@tycho.nsa.gov>; Thu, 15 Feb 2018 00:00:19 -0500
+Received: by mail-it0-f53.google.com with SMTP id 193so14966388iti.1
+ for <selinux@tycho.nsa.gov>; Wed, 14 Feb 2018 21:00:11 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhRG8AYpy3O1eLNCg6LP_i8Hk_U4zEGy3_frE2TMzZnG6w@mail.gmail.com>
-Subject: Re: [PATCH V6 0/4] Add SELinux SCTP protocol support
+From: Aman Sharma <amansh.sharma5@gmail.com>
+Date: Thu, 15 Feb 2018 10:30:10 +0530
+Message-ID: <CAPMH7-_9hM6Kp4DjzLZaAxyxatkrAPqxGV+jBrWdeftkE4xmFw@mail.gmail.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary="94eb2c06030637efe80565391ad8"
+Subject: Facing problem while running the audit2allow command
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 14, 2018 at 02:19:03PM -0500, Paul Moore wrote:
-> On Tue, Feb 13, 2018 at 3:52 PM, Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > These patches have been built on Fedora 27 with kernel-4.16.0-0.rc1 plus
-> > the following userspace patches to enable testing:
-> >
-> > 1) Updates to libsepol 2.7 to support the sctp portcon statement.
-> >    The patch is available from:
-> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
-> >          selinux-Add-support-for-the-SCTP-portcon-keyword.patch
-> >
-> > 2) Updates to the SELinux Test Suite adding SCTP tests. Please read the
-> >    selinux-testsuite/README.sctp for details. The patch is available from:
-> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
-> >          selinux-testsuite-Add-SCTP-test-support.patch
-> >
-> > 3) Updates to lksctp-tools that show SELinux info in sctp_darn and
-> >    sctp_test. It also contains a minor patch for test_1_to_1_connect.c
-> >    as when CIPSO/CALIPSO configured, NetLabel returns a different error
-> >    code for illegal addresses in test 5. The patch is available from:
-> >          http://arctic.selinuxproject.org/~rhaines/selinux-sctp/
-> >          lksctp-tools-Add-SELinux-support-to-sctp_test-and-sc.patch
-> >
-> > All SCTP lksctp-tools/src/func_tests run correctly in enforcing mode.
-> >
-> > All SCTP regression tests "./sctp-tests run" run correctly in enforcing
-> > mode. These tests are obtained from: https://github.com/sctp/sctp-tests
-> >
-> > The selinux-testsuite patch also adds remote tests (that need some manual
-> > configuration). These are useful for testing CIPSO/CALIPSO over a network
-> > with a number of categories to produce large ip option fields with various
-> > message sizes forcing fragmentation etc..
-> >
-> > Changes since RFC Patch:
-> > Removed the NetLabel patch (was [RFC PATCH 4/5] netlabel: Add SCTP support)
-> > as re-engineered. However this patchset will require the NetLabel
-> > patch at [1] to fully run the SCTP selinux-testsuite.
-> >
-> > V1 Changes:
-> > PATCH 1/4
-> > Remove unused parameter from security_sctp_assoc_request().
-> > Reformat and update LSM-sctp.rst documentation.
-> > PATCH 2/4
-> > Add variables and RCU locks as requested in [2] to support IP options.
-> > PATCH 3/4
-> > Added security_sctp_assoc_request() hook to sctp_sf_do_unexpected_init()
-> > and sctp_sf_do_5_2_4_dupcook().
-> > Removed security_sctp_assoc_request() hook from sctp_sf_do_5_1C_ack() as
-> > no longer required.
-> > PATCH 4/4
-> > Reformat and update SELinux-sctp.rst documentation.
-> > Remove bindx and connectx permissions.
-> > Rework selinux_socket_connect() and selinux_netlbl_socket_connect() to
-> > utilise helpers for code reuse.
-> > Add spinlock to selinux_sctp_assoc_request().
-> > Remove unused parameter from security_sctp_assoc_request().
-> > Use address->sa_family == AF_INET in *_bind and *_connect to ensure
-> > correct address type.
-> > Minor cleanups.
-> >
-> > V2 Changes:
-> > PATCH 4/4 - Remove spin lock from selinux_sctp_assoc_request()
-> > PATCH 4/4 - Fix selinux_sctp_sk_clone() kbuild test robot catch [3]
-> >
-> > V3 Changes:
-> > PATCH 2/4 - Account for IP options length in sctp.h sctp_frag_point() by
-> > Marcelo
-> >
-> > V4 Changes:
-> > PATCH 1/4 - Move specific SELinux descriptions from LSM-sctp.rst and
-> > lsm_hooks.h to SELinux-sctp.rst in PATCH 4/4
-> > PATCH 4/4 - Rename selinux_netlbl_sctp_socket_connect() to
-> > selinux_netlbl_socket_connect_locked() and move description comments to
-> > selinux_sctp_bind_connect()
-> >
-> > V5 Change: Rework selinux_netlbl_socket_connect() and
-> > selinux_netlbl_socket_connect_locked as requested by Paul.
-> >
-> > V6 Changes:
-> > Rework SCTP patches 2/4 and 3/4 as there have been major SCTP updates since
-> > kernel 4.14.
-> >
-> > [1] https://marc.info/?l=selinux&m=151061619115945&w=2
-> > [2] https://marc.info/?l=selinux&m=150962470215797&w=2
-> > [3] https://marc.info/?l=selinux&m=151198281817779&w=2
-> >
-> > Richard Haines (4):
-> >   security: Add support for SCTP security hooks
-> >   sctp: Add ip option support
-> >   sctp: Add LSM hooks
-> >   selinux: Add SCTP support
-> 
-> Marcelo, or any other SCTP folks, do the SCTP changes still look okay
-> to you?  I'd like to merge these into the selinux/next tree by the end
-> of the week ...
+--94eb2c06030637efe80565391ad8
+Content-Type: text/plain; charset="UTF-8"
 
-Other than the issue on patch 2/4, patchset LGTM yes.
-(Not really happy with the casts to remove the const attribute on
-patch 3, but I don't see other way out)
+Hi All,
 
-Thanks,
-Marcelo
+I am getting one issue while running the command *audit2allow *and below is
+the
+logs for the same :
+
+After switching back to lower version, running "audit2allow -a" command
+show below errors repeteadly and the command does not return:
+libsepol.context_from_record: invalid security context:
+"sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023"
+libsepol.context_from_record: could not create context structure
+libsepol.context_from_string: could not create context structure
+libsepol.sepol_context_to_sid: could not convert
+sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023 to sid
+libsepol.context_from_record: invalid security context:
+"sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023"
+libsepol.context_from_record: could not create context structure
+libsepol.context_from_string: could not create context structure
+libsepol.sepol_context_to_sid: could not convert
+sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023 to sid
+libsepol.context_from_record: invalid security context:
+"sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023"
+libsepol.context_from_record: could not create context structure
+libsepol.context_from_string: could not create context structure
+
+And also Unconfined is disabled in my System and I am suspecting that after
+disabling , I am getting the above errors. Can anybody help me on this.
+
+Please let me know if any comments are there.
+
+-- 
+
+Thanks
+Aman
+Cell: +91 9990296404 |  Email ID : amansh.sharma5@gmail.com
+
+--94eb2c06030637efe80565391ad8
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi All,<div><br></div><div>I am getting one issue while ru=
+nning the command <b>audit2allow </b>and below is the=C2=A0<br clear=3D"all=
+"><div>logs for the same :</div><div><br></div><div>
+
+<span style=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-size:1=
+4px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:norma=
+l;font-weight:400;letter-spacing:normal;text-align:left;text-indent:0px;tex=
+t-transform:none;white-space:normal;word-spacing:0px;background-color:rgb(2=
+55,255,255);text-decoration-style:initial;text-decoration-color:initial;flo=
+at:none;display:inline">After switching back to lower version, running &quo=
+t;audit2allow -a&quot; command show below errors repeteadly and the command=
+ does not return:<span>=C2=A0</span></span><br style=3D"color:rgb(51,51,51)=
+;font-family:Arial,sans-serif;font-size:14px;font-style:normal;font-variant=
+-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:n=
+ormal;text-align:left;text-indent:0px;text-transform:none;white-space:norma=
+l;word-spacing:0px;background-color:rgb(255,255,255);text-decoration-style:=
+initial;text-decoration-color:initial"><span style=3D"color:rgb(51,51,51);f=
+ont-family:Arial,sans-serif;font-size:14px;font-style:normal;font-variant-l=
+igatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:nor=
+mal;text-align:left;text-indent:0px;text-transform:none;white-space:normal;=
+word-spacing:0px;background-color:rgb(255,255,255);text-decoration-style:in=
+itial;text-decoration-color:initial;float:none;display:inline">libsepol.con=
+text_from_record: invalid security context: &quot;sysadm_u:system_r:unconfi=
+ned_java_t:s0-s0:c0.c1023&quot;<span>=C2=A0</span></span><br style=3D"color=
+:rgb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-style:norma=
+l;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;le=
+tter-spacing:normal;text-align:left;text-indent:0px;text-transform:none;whi=
+te-space:normal;word-spacing:0px;background-color:rgb(255,255,255);text-dec=
+oration-style:initial;text-decoration-color:initial"><span style=3D"color:r=
+gb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-style:normal;=
+font-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;lett=
+er-spacing:normal;text-align:left;text-indent:0px;text-transform:none;white=
+-space:normal;word-spacing:0px;background-color:rgb(255,255,255);text-decor=
+ation-style:initial;text-decoration-color:initial;float:none;display:inline=
+">libsepol.context_from_record: could not create context structure<span>=C2=
+=A0</span></span><br style=3D"color:rgb(51,51,51);font-family:Arial,sans-se=
+rif;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-var=
+iant-caps:normal;font-weight:400;letter-spacing:normal;text-align:left;text=
+-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;backgro=
+und-color:rgb(255,255,255);text-decoration-style:initial;text-decoration-co=
+lor:initial"><span style=3D"color:rgb(51,51,51);font-family:Arial,sans-seri=
+f;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-varia=
+nt-caps:normal;font-weight:400;letter-spacing:normal;text-align:left;text-i=
+ndent:0px;text-transform:none;white-space:normal;word-spacing:0px;backgroun=
+d-color:rgb(255,255,255);text-decoration-style:initial;text-decoration-colo=
+r:initial;float:none;display:inline">libsepol.context_from_string: could no=
+t create context structure<span>=C2=A0</span></span><br style=3D"color:rgb(=
+51,51,51);font-family:Arial,sans-serif;font-size:14px;font-style:normal;fon=
+t-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-=
+spacing:normal;text-align:left;text-indent:0px;text-transform:none;white-sp=
+ace:normal;word-spacing:0px;background-color:rgb(255,255,255);text-decorati=
+on-style:initial;text-decoration-color:initial"><span style=3D"color:rgb(51=
+,51,51);font-family:Arial,sans-serif;font-size:14px;font-style:normal;font-=
+variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-sp=
+acing:normal;text-align:left;text-indent:0px;text-transform:none;white-spac=
+e:normal;word-spacing:0px;background-color:rgb(255,255,255);text-decoration=
+-style:initial;text-decoration-color:initial;float:none;display:inline">lib=
+sepol.sepol_context_to_sid: could not convert sysadm_u:system_r:unconfined_=
+java_t:s0-s0:c0.c1023 to sid<span>=C2=A0</span></span><br style=3D"color:rg=
+b(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-style:normal;f=
+ont-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;lette=
+r-spacing:normal;text-align:left;text-indent:0px;text-transform:none;white-=
+space:normal;word-spacing:0px;background-color:rgb(255,255,255);text-decora=
+tion-style:initial;text-decoration-color:initial"><span style=3D"color:rgb(=
+51,51,51);font-family:Arial,sans-serif;font-size:14px;font-style:normal;fon=
+t-variant-ligatures:normal;font-variant-caps:normal;font-weight:400;letter-=
+spacing:normal;text-align:left;text-indent:0px;text-transform:none;white-sp=
+ace:normal;word-spacing:0px;background-color:rgb(255,255,255);text-decorati=
+on-style:initial;text-decoration-color:initial;float:none;display:inline">l=
+ibsepol.context_from_record: invalid security context: &quot;sysadm_u:syste=
+m_r:unconfined_java_t:s0-s0:c0.c1023&quot;<span>=C2=A0</span></span><br sty=
+le=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-=
+style:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-we=
+ight:400;letter-spacing:normal;text-align:left;text-indent:0px;text-transfo=
+rm:none;white-space:normal;word-spacing:0px;background-color:rgb(255,255,25=
+5);text-decoration-style:initial;text-decoration-color:initial"><span style=
+=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-st=
+yle:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weig=
+ht:400;letter-spacing:normal;text-align:left;text-indent:0px;text-transform=
+:none;white-space:normal;word-spacing:0px;background-color:rgb(255,255,255)=
+;text-decoration-style:initial;text-decoration-color:initial;float:none;dis=
+play:inline">libsepol.context_from_record: could not create context structu=
+re<span>=C2=A0</span></span><br style=3D"color:rgb(51,51,51);font-family:Ar=
+ial,sans-serif;font-size:14px;font-style:normal;font-variant-ligatures:norm=
+al;font-variant-caps:normal;font-weight:400;letter-spacing:normal;text-alig=
+n:left;text-indent:0px;text-transform:none;white-space:normal;word-spacing:=
+0px;background-color:rgb(255,255,255);text-decoration-style:initial;text-de=
+coration-color:initial"><span style=3D"color:rgb(51,51,51);font-family:Aria=
+l,sans-serif;font-size:14px;font-style:normal;font-variant-ligatures:normal=
+;font-variant-caps:normal;font-weight:400;letter-spacing:normal;text-align:=
+left;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0p=
+x;background-color:rgb(255,255,255);text-decoration-style:initial;text-deco=
+ration-color:initial;float:none;display:inline">libsepol.context_from_strin=
+g: could not create context structure<span>=C2=A0</span></span><br style=3D=
+"color:rgb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-style=
+:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:=
+400;letter-spacing:normal;text-align:left;text-indent:0px;text-transform:no=
+ne;white-space:normal;word-spacing:0px;background-color:rgb(255,255,255);te=
+xt-decoration-style:initial;text-decoration-color:initial"><span style=3D"c=
+olor:rgb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-style:n=
+ormal;font-variant-ligatures:normal;font-variant-caps:normal;font-weight:40=
+0;letter-spacing:normal;text-align:left;text-indent:0px;text-transform:none=
+;white-space:normal;word-spacing:0px;background-color:rgb(255,255,255);text=
+-decoration-style:initial;text-decoration-color:initial;float:none;display:=
+inline">libsepol.sepol_context_to_sid: could not convert sysadm_u:system_r:=
+unconfined_java_t:s0-s0:c0.c1023 to sid<span>=C2=A0</span></span><br style=
+=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-st=
+yle:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weig=
+ht:400;letter-spacing:normal;text-align:left;text-indent:0px;text-transform=
+:none;white-space:normal;word-spacing:0px;background-color:rgb(255,255,255)=
+;text-decoration-style:initial;text-decoration-color:initial"><span style=
+=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-size:14px;font-st=
+yle:normal;font-variant-ligatures:normal;font-variant-caps:normal;font-weig=
+ht:400;letter-spacing:normal;text-align:left;text-indent:0px;text-transform=
+:none;white-space:normal;word-spacing:0px;background-color:rgb(255,255,255)=
+;text-decoration-style:initial;text-decoration-color:initial;float:none;dis=
+play:inline">libsepol.context_from_record: invalid security context: &quot;=
+sysadm_u:system_r:unconfined_java_t:s0-s0:c0.c1023&quot;<span>=C2=A0</span>=
+</span><br style=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-s=
+ize:14px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:=
+normal;font-weight:400;letter-spacing:normal;text-align:left;text-indent:0p=
+x;text-transform:none;white-space:normal;word-spacing:0px;background-color:=
+rgb(255,255,255);text-decoration-style:initial;text-decoration-color:initia=
+l"><span style=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-siz=
+e:14px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:no=
+rmal;font-weight:400;letter-spacing:normal;text-align:left;text-indent:0px;=
+text-transform:none;white-space:normal;word-spacing:0px;background-color:rg=
+b(255,255,255);text-decoration-style:initial;text-decoration-color:initial;=
+float:none;display:inline">libsepol.context_from_record: could not create c=
+ontext structure<span>=C2=A0</span></span><br style=3D"color:rgb(51,51,51);=
+font-family:Arial,sans-serif;font-size:14px;font-style:normal;font-variant-=
+ligatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:no=
+rmal;text-align:left;text-indent:0px;text-transform:none;white-space:normal=
+;word-spacing:0px;background-color:rgb(255,255,255);text-decoration-style:i=
+nitial;text-decoration-color:initial"><span style=3D"color:rgb(51,51,51);fo=
+nt-family:Arial,sans-serif;font-size:14px;font-style:normal;font-variant-li=
+gatures:normal;font-variant-caps:normal;font-weight:400;letter-spacing:norm=
+al;text-align:left;text-indent:0px;text-transform:none;white-space:normal;w=
+ord-spacing:0px;background-color:rgb(255,255,255);text-decoration-style:ini=
+tial;text-decoration-color:initial;float:none;display:inline">libsepol.cont=
+ext_from_string: could not create context structure<span>=C2=A0</span></spa=
+n><br style=3D"color:rgb(51,51,51);font-family:Arial,sans-serif;font-size:1=
+4px;font-style:normal;font-variant-ligatures:normal;font-variant-caps:norma=
+l;font-weight:400;letter-spacing:normal;text-align:left;text-indent:0px;tex=
+t-transform:none;white-space:normal;word-spacing:0px;background-color:rgb(2=
+55,255,255);text-decoration-style:initial;text-decoration-color:initial"><b=
+r><font color=3D"#333333" face=3D"Arial, sans-serif"><span style=3D"font-si=
+ze:14px">And also Unconfined is disabled in my System and I am suspecting t=
+hat after disabling , I am getting the above errors. Can anybody help me on=
+ this.</span></font></div><div><br></div><div>Please let me know if any com=
+ments are there.<br style=3D"color:rgb(51,51,51);font-family:Arial,sans-ser=
+if;font-size:14px;font-style:normal;font-variant-ligatures:normal;font-vari=
+ant-caps:normal;font-weight:400;letter-spacing:normal;text-align:left;text-=
+indent:0px;text-transform:none;white-space:normal;word-spacing:0px;backgrou=
+nd-color:rgb(255,255,255);text-decoration-style:initial;text-decoration-col=
+or:initial">
+
+<br></div>-- <br><div class=3D"gmail_signature" data-smartmail=3D"gmail_sig=
+nature"><div dir=3D"ltr"><div><br></div><div>Thanks</div><div>Aman</div><di=
+v>Cell: +91 9990296404 | =C2=A0Email ID : <a href=3D"mailto:amansh.sharma5@=
+gmail.com" target=3D"_blank">amansh.sharma5@gmail.com</a></div></div></div>
+</div></div>
+
+--94eb2c06030637efe80565391ad8--
