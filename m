@@ -1,270 +1,92 @@
-Date: Fri, 16 Feb 2018 15:14:35 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
- netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org, paul@paul-moore.com,
- vyasevich@gmail.com, sds@tycho.nsa.gov, eparis@parisplace.org,
- casey@schaufler-ca.com, james.l.morris@oracle.com
-Message-ID: <20180216201435.GB10040@hmswarspite.think-freely.org>
-References: <20180213205444.4559-1-richard_c_haines@btinternet.com>
- <20180215141539.GA21419@hmswarspite.think-freely.org>
- <20180216125607.GC4718@localhost.localdomain>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1GKo2gG026863
+ for <selinux@tycho.nsa.gov>; Fri, 16 Feb 2018 15:50:02 -0500
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ peter.enderborg@sony.com
+References: <20180216171950.4344-1-sds@tycho.nsa.gov>
+ <35c7d386-f856-0b4c-0e17-e959e79f0b05@schaufler-ca.com>
+ <CAHC9VhTqeALBB16XUwsGnTBgj1LGjtuNyGxVwABsixg4Qjj+BQ@mail.gmail.com>
+ <1a47f052-5def-7b50-5fbf-c57cd5293bc3@schaufler-ca.com>
+ <CAHC9VhQE6Su+J9rzkA4rXqRcF5LK1EJpOThvcmQjusi3DiMGgg@mail.gmail.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <808aca8e-9f9f-4360-270d-05946d24f77e@schaufler-ca.com>
+Date: Fri, 16 Feb 2018 12:49:09 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180216125607.GC4718@localhost.localdomain>
-Subject: Re: [PATCH V6 2/4] sctp: Add ip option support
+In-Reply-To: <CAHC9VhQE6Su+J9rzkA4rXqRcF5LK1EJpOThvcmQjusi3DiMGgg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH] selinux: wrap global selinux state
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Feb 16, 2018 at 10:56:07AM -0200, Marcelo Ricardo Leitner wrote:
-> On Thu, Feb 15, 2018 at 09:15:40AM -0500, Neil Horman wrote:
-> > On Tue, Feb 13, 2018 at 08:54:44PM +0000, Richard Haines wrote:
-> > > Add ip option support to allow LSM security modules to utilise CIPSO/IPv4
-> > > and CALIPSO/IPv6 services.
-> > > 
-> > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> > > ---
-> > >  include/net/sctp/sctp.h    |  4 +++-
-> > >  include/net/sctp/structs.h |  2 ++
-> > >  net/sctp/chunk.c           | 12 +++++++-----
-> > >  net/sctp/ipv6.c            | 42 +++++++++++++++++++++++++++++++++++-------
-> > >  net/sctp/output.c          |  5 ++++-
-> > >  net/sctp/protocol.c        | 36 ++++++++++++++++++++++++++++++++++++
-> > >  net/sctp/socket.c          | 14 ++++++++++----
-> > >  7 files changed, 97 insertions(+), 18 deletions(-)
-> > > 
-> > > diff --git a/include/net/sctp/sctp.h b/include/net/sctp/sctp.h
-> > > index f7ae6b0..25c5c87 100644
-> > > --- a/include/net/sctp/sctp.h
-> > > +++ b/include/net/sctp/sctp.h
-> > > @@ -441,9 +441,11 @@ static inline int sctp_list_single_entry(struct list_head *head)
-> > >  static inline int sctp_frag_point(const struct sctp_association *asoc, int pmtu)
-> > >  {
-> > >  	struct sctp_sock *sp = sctp_sk(asoc->base.sk);
-> > > +	struct sctp_af *af = sp->pf->af;
-> > >  	int frag = pmtu;
-> > >  
-> > > -	frag -= sp->pf->af->net_header_len;
-> > > +	frag -= af->ip_options_len(asoc->base.sk);
-> > > +	frag -= af->net_header_len;
-> > >  	frag -= sizeof(struct sctphdr) + sctp_datachk_len(&asoc->stream);
-> > >  
-> > >  	if (asoc->user_frag)
-> > > diff --git a/include/net/sctp/structs.h b/include/net/sctp/structs.h
-> > > index 03e92dd..ead5fce 100644
-> > > --- a/include/net/sctp/structs.h
-> > > +++ b/include/net/sctp/structs.h
-> > > @@ -491,6 +491,7 @@ struct sctp_af {
-> > >  	void		(*ecn_capable)(struct sock *sk);
-> > >  	__u16		net_header_len;
-> > >  	int		sockaddr_len;
-> > > +	int		(*ip_options_len)(struct sock *sk);
-> > >  	sa_family_t	sa_family;
-> > >  	struct list_head list;
-> > >  };
-> > > @@ -515,6 +516,7 @@ struct sctp_pf {
-> > >  	int (*addr_to_user)(struct sctp_sock *sk, union sctp_addr *addr);
-> > >  	void (*to_sk_saddr)(union sctp_addr *, struct sock *sk);
-> > >  	void (*to_sk_daddr)(union sctp_addr *, struct sock *sk);
-> > > +	void (*copy_ip_options)(struct sock *sk, struct sock *newsk);
-> > >  	struct sctp_af *af;
-> > >  };
-> > >  
-> > > diff --git a/net/sctp/chunk.c b/net/sctp/chunk.c
-> > > index 991a530..d5c0ef7 100644
-> > > --- a/net/sctp/chunk.c
-> > > +++ b/net/sctp/chunk.c
-> > > @@ -154,7 +154,6 @@ static void sctp_datamsg_assign(struct sctp_datamsg *msg, struct sctp_chunk *chu
-> > >  	chunk->msg = msg;
-> > >  }
-> > >  
-> > > -
-> > >  /* A data chunk can have a maximum payload of (2^16 - 20).  Break
-> > >   * down any such message into smaller chunks.  Opportunistically, fragment
-> > >   * the chunks down to the current MTU constraints.  We may get refragmented
-> > > @@ -171,6 +170,8 @@ struct sctp_datamsg *sctp_datamsg_from_user(struct sctp_association *asoc,
-> > >  	struct list_head *pos, *temp;
-> > >  	struct sctp_chunk *chunk;
-> > >  	struct sctp_datamsg *msg;
-> > > +	struct sctp_sock *sp;
-> > > +	struct sctp_af *af;
-> > >  	int err;
-> > >  
-> > >  	msg = sctp_datamsg_new(GFP_KERNEL);
-> > > @@ -189,9 +190,11 @@ struct sctp_datamsg *sctp_datamsg_from_user(struct sctp_association *asoc,
-> > >  	/* This is the biggest possible DATA chunk that can fit into
-> > >  	 * the packet
-> > >  	 */
-> > > -	max_data = asoc->pathmtu -
-> > > -		   sctp_sk(asoc->base.sk)->pf->af->net_header_len -
-> > > -		   sizeof(struct sctphdr) - sctp_datachk_len(&asoc->stream);
-> > > +	sp = sctp_sk(asoc->base.sk);
-> > > +	af = sp->pf->af;
-> > > +	max_data = asoc->pathmtu - af->net_header_len -
-> > > +		   sizeof(struct sctphdr) - sctp_datachk_len(&asoc->stream) -
-> > > +		   af->ip_options_len(asoc->base.sk);
-> > >  	max_data = SCTP_TRUNC4(max_data);
-> > >  
-> > >  	/* If the the peer requested that we authenticate DATA chunks
-> > > @@ -211,7 +214,6 @@ struct sctp_datamsg *sctp_datamsg_from_user(struct sctp_association *asoc,
-> > >  
-> > >  	/* Set first_len and then account for possible bundles on first frag */
-> > >  	first_len = max_data;
-> > > -
-> > >  	/* Check to see if we have a pending SACK and try to let it be bundled
-> > >  	 * with this message.  Do this if we don't have any data queued already.
-> > >  	 * To check that, look at out_qlen and retransmit list.
-> > > diff --git a/net/sctp/ipv6.c b/net/sctp/ipv6.c
-> > > index e35d4f7..0b0f895 100644
-> > > --- a/net/sctp/ipv6.c
-> > > +++ b/net/sctp/ipv6.c
-> > > @@ -427,6 +427,38 @@ static void sctp_v6_copy_addrlist(struct list_head *addrlist,
-> > >  	rcu_read_unlock();
-> > >  }
-> > >  
-> > > +/* Copy over any ip options */
-> > > +static void sctp_v6_copy_ip_options(struct sock *sk, struct sock *newsk)
-> > > +{
-> > > +	struct ipv6_pinfo *newnp, *np = inet6_sk(sk);
-> > > +	struct ipv6_txoptions *opt;
-> > > +
-> > > +	newnp = inet6_sk(newsk);
-> > > +
-> > > +	rcu_read_lock();
-> > > +	opt = rcu_dereference(np->opt);
-> > > +	if (opt)
-> > > +		opt = ipv6_dup_options(newsk, opt);
-> > 		do you want to print a warning here in the event the allocation
-> > for the dup operation fails?
-> > 
-> > > +	RCU_INIT_POINTER(newnp->opt, opt);
-> > > +	rcu_read_unlock();
-> > > +}
-> > > +
-> > > +/* Account for the IP options */
-> > > +static int sctp_v6_ip_options_len(struct sock *sk)
-> > > +{
-> > > +	struct ipv6_pinfo *np = inet6_sk(sk);
-> > > +	struct ipv6_txoptions *opt;
-> > > +	int len = 0;
-> > > +
-> > > +	rcu_read_lock();
-> > > +	opt = rcu_dereference(np->opt);
-> > > +	if (opt)
-> > > +		len = opt->opt_flen + opt->opt_nflen;
-> > > +
-> > > +	rcu_read_unlock();
-> > > +	return len;
-> > > +}
-> > > +
-> > >  /* Initialize a sockaddr_storage from in incoming skb. */
-> > >  static void sctp_v6_from_skb(union sctp_addr *addr, struct sk_buff *skb,
-> > >  			     int is_saddr)
-> > > @@ -666,7 +698,6 @@ static struct sock *sctp_v6_create_accept_sk(struct sock *sk,
-> > >  	struct sock *newsk;
-> > >  	struct ipv6_pinfo *newnp, *np = inet6_sk(sk);
-> > >  	struct sctp6_sock *newsctp6sk;
-> > > -	struct ipv6_txoptions *opt;
-> > >  
-> > >  	newsk = sk_alloc(sock_net(sk), PF_INET6, GFP_KERNEL, sk->sk_prot, kern);
-> > >  	if (!newsk)
-> > > @@ -689,12 +720,7 @@ static struct sock *sctp_v6_create_accept_sk(struct sock *sk,
-> > >  	newnp->ipv6_ac_list = NULL;
-> > >  	newnp->ipv6_fl_list = NULL;
-> > >  
-> > > -	rcu_read_lock();
-> > > -	opt = rcu_dereference(np->opt);
-> > > -	if (opt)
-> > > -		opt = ipv6_dup_options(newsk, opt);
-> > > -	RCU_INIT_POINTER(newnp->opt, opt);
-> > > -	rcu_read_unlock();
-> > > +	sctp_v6_copy_ip_options(sk, newsk);
-> > >  
-> > >  	/* Initialize sk's sport, dport, rcv_saddr and daddr for getsockname()
-> > >  	 * and getpeername().
-> > > @@ -1041,6 +1067,7 @@ static struct sctp_af sctp_af_inet6 = {
-> > >  	.ecn_capable	   = sctp_v6_ecn_capable,
-> > >  	.net_header_len	   = sizeof(struct ipv6hdr),
-> > >  	.sockaddr_len	   = sizeof(struct sockaddr_in6),
-> > > +	.ip_options_len	   = sctp_v6_ip_options_len,
-> > >  #ifdef CONFIG_COMPAT
-> > >  	.compat_setsockopt = compat_ipv6_setsockopt,
-> > >  	.compat_getsockopt = compat_ipv6_getsockopt,
-> > > @@ -1059,6 +1086,7 @@ static struct sctp_pf sctp_pf_inet6 = {
-> > >  	.addr_to_user  = sctp_v6_addr_to_user,
-> > >  	.to_sk_saddr   = sctp_v6_to_sk_saddr,
-> > >  	.to_sk_daddr   = sctp_v6_to_sk_daddr,
-> > > +	.copy_ip_options = sctp_v6_copy_ip_options,
-> > >  	.af            = &sctp_af_inet6,
-> > >  };
-> > >  
-> > > diff --git a/net/sctp/output.c b/net/sctp/output.c
-> > > index 01a26ee..668e2fa 100644
-> > > --- a/net/sctp/output.c
-> > > +++ b/net/sctp/output.c
-> > > @@ -151,7 +151,10 @@ void sctp_packet_init(struct sctp_packet *packet,
-> > >  	INIT_LIST_HEAD(&packet->chunk_list);
-> > >  	if (asoc) {
-> > >  		struct sctp_sock *sp = sctp_sk(asoc->base.sk);
-> > > -		overhead = sp->pf->af->net_header_len;
-> > > +		struct sctp_af *af = sp->pf->af;
-> > > +
-> > > +		overhead = af->net_header_len +
-> > > +			   af->ip_options_len(asoc->base.sk);
-> > >  	} else {
-> > >  		overhead = sizeof(struct ipv6hdr);
-> > >  	}
-> > I'm a bit worried about this mechanism.  Unlike tcp or udp, where a packet is
-> > allocated its options field is pushed within the same call stack (or more
-> > notably, during a single cycle in which the sock lock is held), sctp allocates a
-> > packet here, and holds it for potentially multiple calls from userspace while
-> > chunks are collected and added to it.  During those multiple calls the socket
-> 
-> Not sure if you simplified it here but that's not exactly how it
-> works. The packet is not built chunk by chunk per sendmsg() call as
-> you described, but instead it will collect the chunks in a list (outq)
-> up to the point that it notices that it's time to send the packet.
-> Then, it will call sctp_outq_flush(), which will assemble the packet
-> and send to IP layer as needed. Chunks that won't fit on the packet
-> and that will only be sent later, they aren't added to any packet but
-> remains on outq list.
-> 
-Yes, I simplified it, and yes, given that I've maintained this code since 2012,
-I know how it works.
+On 2/16/2018 11:39 AM, Paul Moore wrote:
+> On Fri, Feb 16, 2018 at 1:52 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> On 2/16/2018 10:40 AM, Paul Moore wrote:
+>>> On Fri, Feb 16, 2018 at 12:44 PM, Casey Schaufler
+>>> <casey@schaufler-ca.com> wrote:
+>>>> On 2/16/2018 9:19 AM, Stephen Smalley wrote:
+>>>>> Define a selinux state structure (struct selinux_state) for
+>>>>> global SELinux state and pass it explicitly to all security server
+>>>>> functions.
+>>>> If you're already changing the security server APIs
+>>>> wholesale it would be delightful if you could change the
+>>>> prefix used from "security_" to something that doesn't
+>>>> clash with the LSM infrastructure. It might seem cosmetic
+>>>> if you're working inside SELinux, but over the past few
+>>>> years while I've been working on the LSM stacking the
+>>>> clash has driven me batty on multiple occasions. I have
+>>>> discussed this with Paul in the past, and he wasn't eager
+>>>> to take patches that were just name changes. I certainly
+>>>> see that position. But, since you're changing the APIs
+>>>> anyway, there won't be a better time to do this. I'm
+>>>> batty enough as it is.
+>>> Yes, there is a better time to change this, and it's the same time as
+>>> when we last talked about it.  We can look at changing the functions
+>>> when we tackle the bigger issue of (re)examining the boundary between
+>>> the SELinux LSM hooks and the SELinux security server.
+>> I'm not convinced.
+> Okay, that's your right.  Just know that I've heard your opinion and I
+> disagree with your evaluation.  
 
-> The packet is never freed, it's embedded into the transport. It's just
-> reconfigured.
-> 
-> Nevertheless, I agree the issue is there.
-> 
-Which is really the salient point.
+Fair enough.
 
-> > lock is released and reaquired, during which time the set of configured ip
-> > options might change.  Then when the packet is passed to the ip layer and the
-> > options copied into the packet, we might have a different option length leading
-> > to an skb_over panic.
-> > 
-> > Suggest that it might be better to buffer any changes in options and only have
-> > them take effect any time a new packet is allocated.
-> 
-> s/allocated/configured/ :)
-Seriously? You clearly knew what I was saying. I understand I misued the term,
-but do you really want to harp on it? 
+> As you surely know by now, this job
+> requires some subjective judgement calls from time to time, which is
+> what I'm doing here.  Counter opinions are always welcome, but please
+> recognize when I've made up my mind.
 
-> I think we can fix it by moving this code to sctp_packet_config()
-> instead. On a quick check here, seems all packet->overhead references
-> are after it gets called for a packet that is about to be built.
-> 
-Yeah, I agree we could move it there, though I think I would prefer to see it in
-sctp_packet_transmit.  If we do it there, then we only have to compute the
-overhead size once before building the skb (that is to say, if we do it in
-packet_config, we potentially compute it multiple times if we change
-transports). In fact, if we do it in sct_packet_transmit, then we potentially
-can eliminate the overhead member from the sctp_packet struct entirely, as we
-can just store the computed overhead in a stack variable and use it in the
-skb_reserve call.
+I can see that you've made up your mind, and honestly
+can't fault your position.
 
-Neil
+>
+> I try not to shout too loudly about all the things I believe you are
+> doing wrong with Smack, 
+
+I have never considered your feedback to be presented too loudly.
+
+> I would appreciate the same consideration.
+
+Sorry if I came across as shouting. It wasn't my intention.
+
+>
+>> Recent discussions on this list indicate that
+>> isn't going to happen, that the existing boundary is here to stay.
+>> It also may not result in changing *all* the interfaces, like this
+>> one does. It seems convenient to do it now. Thought I'd ask.
+> You did ask, which is fine.  I said "no", and you told me I was wrong,
+> which is also okay, but it's time to move on.
+
+Yup.
+
+>
+> >From my perspective the rename would only serve to muddy a fairly
+> large change, and I wont accept it right now.  Despite what you may
+> have taken from my conversation with Stephen, I remain convinced that
+> (re)evaluating the SELinux hooks/ss boundary is a worthwhile exercise;
+> it will not likely result in a total merge, but I believe there is
+> still the potential for a significant change, and that will be the
+> Right Time.
+
+OK, thanks for keeping the concern in mind.
