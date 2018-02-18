@@ -1,26 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1II9hJS014958
- for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 13:09:43 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1IIKQCq018122
+ for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 13:20:26 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC15.oob.disa.mil (Postfix) with SMTP id 3zkvzT3c33z3GDS1
- for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 18:09:41 +0000 (UTC)
-Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
- by UPDCF3IC15.oob.disa.mil (Postfix) with ESMTP id 3zkvzT2yLDz3GD9h
- for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 18:09:41 +0000 (UTC)
-Received: from mail-lf0-f53.google.com (mail-lf0-f53.google.com
- [209.85.215.53])
+ by UPDCF3IC06.oob.disa.mil (Postfix) with SMTP id 3zkwCc70Nkz19Ytj
+ for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 18:20:12 +0000 (UTC)
+Received: from UPBD19PA03.eemsg.mil (unknown [192.168.18.4])
+ by UPDCF3IC06.oob.disa.mil (Postfix) with ESMTP id 3zkwCc6DYbz19Ytg
+ for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 18:20:12 +0000 (UTC)
+Received: from mail-lf0-f47.google.com (mail-lf0-f47.google.com
+ [209.85.215.47])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 1AF4D56007D
- for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 19:09:36 +0100 (CET)
-Received: by mail-lf0-f53.google.com with SMTP id h78so10211270lfg.6
- for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 10:09:36 -0800 (PST)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 025F856126C
+ for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 19:20:04 +0100 (CET)
+Received: by mail-lf0-f47.google.com with SMTP id x196so10188614lfd.12
+ for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 10:20:03 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20180214095337.1945-1-plautrba@redhat.com>
+In-Reply-To: <CAJfZ7==9Xj-dXKygmcc2u5o811mA35JUv_9jtaHJu4TPXewB0A@mail.gmail.com>
 References: <20180214095337.1945-1-plautrba@redhat.com>
+ <CAJfZ7==9Xj-dXKygmcc2u5o811mA35JUv_9jtaHJu4TPXewB0A@mail.gmail.com>
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Sun, 18 Feb 2018 19:09:35 +0100
-Message-ID: <CAJfZ7==9Xj-dXKygmcc2u5o811mA35JUv_9jtaHJu4TPXewB0A@mail.gmail.com>
+Date: Sun, 18 Feb 2018 19:20:02 +0100
+Message-ID: <CAJfZ7==fjyC6Uh9CGJ=rqc+uG1MZt08AgPv5PY6V-rx23Dtz3w@mail.gmail.com>
 To: Petr Lautrbach <plautrba@redhat.com>
 Cc: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
@@ -30,12 +31,36 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Feb 14, 2018 at 10:53 AM, Petr Lautrbach <plautrba@redhat.com> wrote:
-> Hi,
+On Sun, Feb 18, 2018 at 7:09 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> On Wed, Feb 14, 2018 at 10:53 AM, Petr Lautrbach <plautrba@redhat.com> wrote:
+>> Hi,
+>>
+>> The following set of patches update polgengui.py, rename polgen.glade to
+>> polgen.ui, convert it to new format, and fix some other sepolicy Python 3
+>> related issues.
 >
-> The following set of patches update polgengui.py, rename polgen.glade to
-> polgen.ui, convert it to new format, and fix some other sepolicy Python 3
-> related issues.
+> Hi,
+> I have read and tested these patches and they look good to me.
+(Oops, the mail has been sent before I finished writing it...)
 
-Hi,
-I have read and tested these patches and they look good to me.
+In order to run polgengui on my development system which uses a policy
+without MLS, I needed a patch in sepolicy, that I sent a few days ago
+("[PATCH 1/3] python/sepolicy: Support non-MLS policy"). With this I
+have been able to play with polgengui and have been surprised by a
+warning which appears on my terminal every time I type anything in the
+"name" field of the form in the second tab ("Enter name of application
+or user role:"):
+
+polgengui.py:778: Warning: g_value_get_int: assertion
+'G_VALUE_HOLDS_INT (value)' failed
+  Gtk.main()
+
+Have you got such warning on your system? Do you know where this
+warning comes from? For information I use Gtk3 3.22.26 with
+python-gobject 3.26.1.
+
+Anyway, this looks like a harmless warning. Feel free to add
+"Tested-by: Nicolas Iooss <nicolas.iooss@m4x.org>" to your patches.
+
+Thanks,
+Nicolas
