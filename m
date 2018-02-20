@@ -1,37 +1,65 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1IMLvSB024450
- for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 17:21:57 -0500
-Received: by mail-vk0-f52.google.com with SMTP id m197so4688233vka.3
- for <selinux@tycho.nsa.gov>; Sun, 18 Feb 2018 14:21:54 -0800 (PST)
-From: Lee Stubbs <lee.stubbs@gmail.com>
-To: selinux@tycho.nsa.gov
-Cc: Lee Stubbs <lee.stubbs@gmail.com>
-Date: Sun, 18 Feb 2018 17:21:41 -0500
-Message-Id: <20180218222141.95374-1-lee.stubbs@gmail.com>
-Subject: [PATCH] Minor update for bash completion. Bash completion
- for ports is missing '-' for type. Based on documentation,
- it should be --type, not -type.
+Message-ID: <1519135142.10331.12.camel@tycho.nsa.gov>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Peter Enderborg <peter.enderborg@sony.com>, Paul Moore
+ <paul@paul-moore.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+Date: Tue, 20 Feb 2018 08:59:02 -0500
+In-Reply-To: <20180219151800.14442-1-peter.enderborg@sony.com>
+References: <20180219151800.14442-1-peter.enderborg@sony.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH selinux-next] selinux: Annotate lockdep for services locks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
----
- python/semanage/semanage-bash-completion.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Mon, 2018-02-19 at 16:18 +0100, Peter Enderborg wrote:
+> From: Peter <peter.enderborg@sony.com>
+> 
+> The locks are moved to dynamic allocation, we need to
+> help the lockdep system to classify the locks.
+> This adds to lockdep annotation for the page mutex and
+> for the ss lock.
+> 
+> Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
+> ---
+> This is the rebase of suggested patches from selinuxns tree
+> and are intended to be applyed on top of:
+> selinux: wrap global selinux state
+> from Stephen Smalley
+> 
+>  security/selinux/ss/services.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/security/selinux/ss/services.c
+> b/security/selinux/ss/services.c
+> index 3698352213d7..a741552e22b5 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -81,11 +81,15 @@ char
+> *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+>  };
+>  
+>  static struct selinux_ss selinux_ss;
+> +static struct lock_class_key selinux_ss_class_key;
+> +static struct lock_class_key selinux_status_class_key;
+>  
+>  void selinux_ss_init(struct selinux_ss **ss)
+>  {
+>  	rwlock_init(&selinux_ss.policy_rwlock);
+> +	lockdep_set_class(&selinux_ss.policy_rwlock,
+> &selinux_ss_class_key);
+>  	mutex_init(&selinux_ss.status_lock);
+> +	lockdep_set_class(&selinux_ss.status_lock,
+> &selinux_status_class_key);
+>  	*ss = &selinux_ss;
+>  }
 
-diff --git a/python/semanage/semanage-bash-completion.sh b/python/semanage/semanage-bash-completion.sh
-index 6b53292..2d811c9 100644
---- a/python/semanage/semanage-bash-completion.sh
-+++ b/python/semanage/semanage-bash-completion.sh
-@@ -59,7 +59,7 @@ __get_export_opts () { echo '$ALL_OPTS --f --output_file' ; }
- __get_boolean_opts () { echo '$ALL_OPTS --on -off -1 -0' ; }
- __get_user_opts () { echo '$ALL_OPTS $MANAGED_OPTS -L --level -r --range -R --role '; }
- __get_login_opts () { echo '$ALL_OPTS $MANAGED_OPTS -s --seuser -r --range'; }
--__get_port_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t -type -r --range -p --proto'; }
-+__get_port_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -r --range -p --proto'; }
- __get_interface_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type '; }
- __get_node_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -M --mask -p --proto'; }
- __get_fcontext_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -e --equal -f --ftype '; }
--- 
-2.10.1 (Apple Git-78)
+Pardon my ignorance, but can you explain why we need an explicit call
+to lockdep_set_class() here?  I see it used for e.g. the inode i_lock,
+but there the class is per-file_system_type.  It doesn't seem to be
+always be used for all locks when they are dynamically initialized or
+allocated, e.g. get_empty_filp does not call lockdep_set_class() for
+struct file's f_owner.lock or f_lock even though they are dynamically
+allocated and initialized.  What makes this case different?
