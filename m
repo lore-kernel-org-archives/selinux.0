@@ -1,11 +1,11 @@
-Date: Tue, 20 Feb 2018 22:44:27 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
+Date: Wed, 21 Feb 2018 11:33:45 -0300
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 To: Richard Haines <richard_c_haines@btinternet.com>
 Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
  linux-security-module@vger.kernel.org, paul@paul-moore.com,
- vyasevich@gmail.com, sds@tycho.nsa.gov, eparis@parisplace.org,
- marcelo.leitner@gmail.com, casey@schaufler-ca.com, jmorris@namei.org
-Message-ID: <20180221034427.GA28997@neilslaptop.think-freely.org>
+ vyasevich@gmail.com, nhorman@tuxdriver.com, sds@tycho.nsa.gov,
+ eparis@parisplace.org, casey@schaufler-ca.com, jmorris@namei.org
+Message-ID: <20180221143345.GA3888@localhost.localdomain>
 References: <20180220191527.14307-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -21,6 +21,11 @@ On Tue, Feb 20, 2018 at 07:15:27PM +0000, Richard Haines wrote:
 > and CALIPSO/IPv6 services.
 > 
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+
+LGTM too, thanks!
+
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+
 > ---
 > All SCTP lksctp-tools/src/func_tests run correctly in enforcing mode.
 > All "./sctp-tests run" obtained from: https://github.com/sctp/sctp-tests
@@ -396,6 +401,8 @@ On Tue, Feb 20, 2018 at 07:15:27PM +0000, Richard Haines wrote:
 > -- 
 > 2.14.3
 > 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sctp" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-I think this makes a good bit more sense, thanks for the extra pass
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
