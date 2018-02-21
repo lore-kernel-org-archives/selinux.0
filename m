@@ -1,41 +1,83 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1LKk35C028368
- for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2018 15:46:08 -0500
-Received: by mail-qt0-f196.google.com with SMTP id f4so3661450qtj.6
- for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2018 12:45:54 -0800 (PST)
-From: Paul Moore <paul@paul-moore.com>
-To: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
- Richard Haines <richard_c_haines@btinternet.com>
-CC: <selinux@tycho.nsa.gov>, <netdev@vger.kernel.org>,
- <linux-sctp@vger.kernel.org>, <linux-security-module@vger.kernel.org>,
- <vyasevich@gmail.com>, <nhorman@tuxdriver.com>, <sds@tycho.nsa.gov>,
- <eparis@parisplace.org>, <casey@schaufler-ca.com>, <jmorris@namei.org>
-Date: Wed, 21 Feb 2018 15:45:43 -0500
-Message-ID: <161ba1d60d8.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
-In-Reply-To: <20180221143345.GA3888@localhost.localdomain>
-References: <20180220191527.14307-1-richard_c_haines@btinternet.com>
- <20180221143345.GA3888@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Subject: Re: [PATCH V7 2/4] sctp: Add ip option support
+In-Reply-To: <20180215130455.GA20477@gmail.com>
+References: <marcus.folkesson@gmail.com>
+ <20180214095717.1050-1-marcus.folkesson@gmail.com>
+ <CAJfZ7=kT4VRgWzoQMyehL=a4qGNGGcNPqiUcw6523zVH9R+JHA@mail.gmail.com>
+ <20180215130455.GA20477@gmail.com>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Wed, 21 Feb 2018 22:46:45 +0100
+Message-ID: <CAJfZ7=mTNBzfVd8z-2-Q0Cwo-TfLVF-T9mBS=oZ6OsBW1WDyEw@mail.gmail.com>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: Rework of makefiles v5
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On February 21, 2018 9:33:51 AM Marcelo Ricardo Leitner <marcelo.leitner@gmail.com> wrote:
-> On Tue, Feb 20, 2018 at 07:15:27PM +0000, Richard Haines wrote:
->> Add ip option support to allow LSM security modules to utilise CIPSO/IPv4
->> and CALIPSO/IPv6 services.
->> 
->> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+On Thu, Feb 15, 2018 at 2:04 PM, Marcus Folkesson
+<marcus.folkesson@gmail.com> wrote:
+> Hi Nicolas,
 >
-> LGTM too, thanks!
+> First of all, thank you for your review.
 >
-> Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+> On Wed, Feb 14, 2018 at 08:19:44PM +0100, Nicolas Iooss wrote:
+>> On Wed, Feb 14, 2018 at 10:57 AM, Marcus Folkesson
+>> <marcus.folkesson@gmail.com> wrote:
+>> > I have updated the patchset.
+>> >
+>> > The biggest change is that $(DESTDIR) is now used in the
+>> > install stage only.
+>> >
+>> > Also some overidden CFLAGS/LDFLAGS has been removed since we now have
+>> > explicit build rules.
+>> >
+>> > I have moved the changelog into patches.
+>> >
+>> > Please test to compile with:
+>> > make DESTDIR=/tmp/myroot PREFIX=/myusr install
+>> > or
+>> > make DESTDIR=/tmp/myroot install
+>> >
+>> > Thanks for all feedback.
+>> >
+>> > Best regards
+>> > Marcus Folkesson
+>> >
+>>
+>> Hi,
+>> Thanks for this update! Here are three comments on this patchset:
+>>
+>> * you forgot a $(DESTDIR) occurrence in patch 7.
+>
+> Good catch!
+>
+>> * .travis.yml needs a simple patch to fix the value of PYSITEDIR. I
+>> will send it later.
+>
+> Please do.
+>
+>> * While reading the Makefile after patch 15, I have been surprised by
+>> "LIBDIR ?= $(DESTDIR)$(PREFIX)/lib", with DESTDIR. As this variable is
+>> not exported, it works fine as it is, but it might be cleaner to
+>> define it as "LIBDIR ?= $(PREFIX)/lib" and to use $(DESTDIR) in the
+>> following lines. This point may be addressed in a follow-up commit
+>> after the patchset has been merged.
+>
+> I agree.
+> I also think it could be part of a follow-up commit. I will take a note.
+>
+>>
+>> As the patchset looks almost ready to be merged, I have created
+>> https://github.com/SELinuxProject/selinux/pull/79 with a modified
+>> patch 7 and my patch for .travis.yml. This pull request holds the
+>> commits I plan to apply in a few days if no other maintainer disagrees
+>> with this.
+>
+> Ok, then I will not come up with a v6 that fixes your feedback for patch
+> #7.
 
-I agree, thanks everyone for all the work, review, and patience behind this patchset!  I'll work on merging this into selinux/next and I'll send a note when it's done.
+I have merged this patchset. Thanks!
 
---
-paul moore
-www.paul-moore.com
+Nicolas
