@@ -1,83 +1,61 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1LMN2PA031027
+ for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2018 17:23:02 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 3zmsSN2VqPz4BPFZ
+ for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2018 22:23:00 +0000 (UTC)
+Received: from UPBD19PA14.eemsg.mil (unknown [192.168.18.14])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 3zmsSN175pz4BPFX
+ for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2018 22:23:00 +0000 (UTC)
+Received: from mail-lf0-f47.google.com (mail-lf0-f47.google.com
+ [209.85.215.47])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 7A405560697
+ for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2018 23:13:43 +0100 (CET)
+Received: by mail-lf0-f47.google.com with SMTP id 37so4570511lfs.7
+ for <selinux@tycho.nsa.gov>; Wed, 21 Feb 2018 14:13:43 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20180215130455.GA20477@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180214095717.1050-1-marcus.folkesson@gmail.com>
- <CAJfZ7=kT4VRgWzoQMyehL=a4qGNGGcNPqiUcw6523zVH9R+JHA@mail.gmail.com>
- <20180215130455.GA20477@gmail.com>
+In-Reply-To: <20180215173437.14632-1-dac.override@gmail.com>
+References: <20180215173437.14632-1-dac.override@gmail.com>
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 21 Feb 2018 22:46:45 +0100
-Message-ID: <CAJfZ7=mTNBzfVd8z-2-Q0Cwo-TfLVF-T9mBS=oZ6OsBW1WDyEw@mail.gmail.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
+Date: Wed, 21 Feb 2018 23:13:42 +0100
+Message-ID: <CAJfZ7=nKU1C5Ng+awF9bL74VYG1LTxwZ35gPCAWhQ6Wtod-jKA@mail.gmail.com>
+To: Dominick Grift <dac.override@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: Rework of makefiles v5
+Subject: Re: [PATCH] Describe multiple-decls in secilc.8.xml
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Feb 15, 2018 at 2:04 PM, Marcus Folkesson
-<marcus.folkesson@gmail.com> wrote:
-> Hi Nicolas,
+On Thu, Feb 15, 2018 at 6:34 PM, Dominick Grift <dac.override@gmail.com> wrote:
+> Signed-off-by: Dominick Grift <dac.override@gmail.com>
+> ---
+>  secilc/secilc.8.xml | 5 +++++
+>  1 file changed, 5 insertions(+)
 >
-> First of all, thank you for your review.
+> diff --git a/secilc/secilc.8.xml b/secilc/secilc.8.xml
+> index 4c779b64..e08a9624 100644
+> --- a/secilc/secilc.8.xml
+> +++ b/secilc/secilc.8.xml
+> @@ -75,6 +75,11 @@
+>              <listitem><para>Treat tunables as booleans.</para></listitem>
+>           </varlistentry>
 >
-> On Wed, Feb 14, 2018 at 08:19:44PM +0100, Nicolas Iooss wrote:
->> On Wed, Feb 14, 2018 at 10:57 AM, Marcus Folkesson
->> <marcus.folkesson@gmail.com> wrote:
->> > I have updated the patchset.
->> >
->> > The biggest change is that $(DESTDIR) is now used in the
->> > install stage only.
->> >
->> > Also some overidden CFLAGS/LDFLAGS has been removed since we now have
->> > explicit build rules.
->> >
->> > I have moved the changelog into patches.
->> >
->> > Please test to compile with:
->> > make DESTDIR=/tmp/myroot PREFIX=/myusr install
->> > or
->> > make DESTDIR=/tmp/myroot install
->> >
->> > Thanks for all feedback.
->> >
->> > Best regards
->> > Marcus Folkesson
->> >
->>
->> Hi,
->> Thanks for this update! Here are three comments on this patchset:
->>
->> * you forgot a $(DESTDIR) occurrence in patch 7.
->
-> Good catch!
->
->> * .travis.yml needs a simple patch to fix the value of PYSITEDIR. I
->> will send it later.
->
-> Please do.
->
->> * While reading the Makefile after patch 15, I have been surprised by
->> "LIBDIR ?= $(DESTDIR)$(PREFIX)/lib", with DESTDIR. As this variable is
->> not exported, it works fine as it is, but it might be cleaner to
->> define it as "LIBDIR ?= $(PREFIX)/lib" and to use $(DESTDIR) in the
->> following lines. This point may be addressed in a follow-up commit
->> after the patchset has been merged.
->
-> I agree.
-> I also think it could be part of a follow-up commit. I will take a note.
->
->>
->> As the patchset looks almost ready to be merged, I have created
->> https://github.com/SELinuxProject/selinux/pull/79 with a modified
->> patch 7 and my patch for .travis.yml. This pull request holds the
->> commits I plan to apply in a few days if no other maintainer disagrees
->> with this.
->
-> Ok, then I will not come up with a v6 that fixes your feedback for patch
-> #7.
+> +         <varlistentry>
+> +            <term><option>-m, --multiple-decls</option></term>
+> +            <listitem><para>Allow some statements to be re-declared.</para></listitem>
+> +         </varlistentry>
+> +
+>           <varlistentry>
+>              <term><option>-N, --disable-neverallow</option></term>
+>              <listitem><para>Do not check <emphasis role="bold">neverallow</emphasis> rules.</para></listitem>
+> --
+> 2.16.1
 
-I have merged this patchset. Thanks!
-
+Hi,
+As this patch looks good to me, I have merged it.
+Thanks!
 Nicolas
