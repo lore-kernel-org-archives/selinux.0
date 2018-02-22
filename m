@@ -1,55 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1MDTfAA025096
- for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 08:29:41 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1MDXSZ9026939
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 08:33:28 -0500
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
  [10.11.54.6])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 9A2A08425E
- for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 13:29:38 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id DE5B08185328
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 13:33:25 +0000 (UTC)
 Received: from localhost.localdomain.com (unknown [10.43.12.26])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 3DEBA213AEE2
- for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 13:29:38 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 83378213AEE2
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 13:33:25 +0000 (UTC)
 From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Thu, 22 Feb 2018 14:29:33 +0100
-Message-Id: <20180222132933.5643-1-vmojzis@redhat.com>
-Subject: [PATCH] gui/semanagePage: Close "edit" and "add" dialogues
- when successfull
+Date: Thu, 22 Feb 2018 14:33:20 +0100
+Message-Id: <20180222133320.6111-1-vmojzis@redhat.com>
+Subject: [PATCH] semodule-utils/semodule_package: fix
+ semodule_unpackage man page
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-"Edit" and "add" dialogues weren't closed after successful transaction
-("add" and "edit" methods return "None" if successful).
+Fix command line arguments and description in man page.
+
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1334834
 
 Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- gui/semanagePage.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ semodule-utils/semodule_package/semodule_unpackage.8 | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/gui/semanagePage.py b/gui/semanagePage.py
-index 560ec077..4127804f 100644
---- a/gui/semanagePage.py
-+++ b/gui/semanagePage.py
-@@ -140,7 +140,7 @@ class semanagePage:
+diff --git a/semodule-utils/semodule_package/semodule_unpackage.8 b/semodule-utils/semodule_package/semodule_unpackage.8
+index d6e1be0a..5c92bf51 100644
+--- a/semodule-utils/semodule_package/semodule_unpackage.8
++++ b/semodule-utils/semodule_package/semodule_unpackage.8
+@@ -1,14 +1,14 @@
+ .TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux" NSA
+ .SH NAME
+-semodule_unpackage \- Extract policy module and file context file from an SELinux policy module unpackage.
++semodule_unpackage \- Extract policy module and file context file from an SELinux policy module package.
  
-         while self.dialog.run() == Gtk.ResponseType.OK:
-             try:
--                if not self.add():
-+                if self.add() is False:
-                     continue
-                 break
-             except ValueError as e:
-@@ -153,7 +153,7 @@ class semanagePage:
-         self.dialog.set_position(Gtk.WindowPosition.MOUSE)
-         while self.dialog.run() == Gtk.ResponseType.OK:
-             try:
--                if not self.modify():
-+                if self.modify() is False:
-                     continue
-                 break
-             except ValueError as e:
+ .SH SYNOPSIS
+-.B semodule_unpackage <module> [<file contexts>]
++.B semodule_unpackage ppfile modfile [fcfile]
+ .br
+ .SH DESCRIPTION
+ .PP
+-semodule_unpackage is the tool used to extract the SELinux policy module
+- and file context file from an SELinux Policy Package.
++semodule_unpackage is a tool used to extract SELinux policy module
++file and file context file from an SELinux Policy Package.
+ 
+ .SH EXAMPLE
+ .nf
 -- 
 2.14.3
