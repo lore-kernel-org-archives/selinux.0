@@ -1,57 +1,91 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1MDXSZ9026939
- for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 08:33:28 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id DE5B08185328
- for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 13:33:25 +0000 (UTC)
-Received: from localhost.localdomain.com (unknown [10.43.12.26])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 83378213AEE2
- for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 13:33:25 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Thu, 22 Feb 2018 14:33:20 +0100
-Message-Id: <20180222133320.6111-1-vmojzis@redhat.com>
-Subject: [PATCH] semodule-utils/semodule_package: fix
- semodule_unpackage man page
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1MFWFPh007981
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 10:32:16 -0500
+Date: Thu, 22 Feb 2018 16:31:46 +0100
+From: Petr Lautrbach <plautrba@redhat.com>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux <selinux@tycho.nsa.gov>
+Message-ID: <20180222153145.GB29029@workstation>
+References: <20180214095337.1945-1-plautrba@redhat.com>
+ <CAJfZ7==9Xj-dXKygmcc2u5o811mA35JUv_9jtaHJu4TPXewB0A@mail.gmail.com>
+ <CAJfZ7==fjyC6Uh9CGJ=rqc+uG1MZt08AgPv5PY6V-rx23Dtz3w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
+In-Reply-To: <CAJfZ7==fjyC6Uh9CGJ=rqc+uG1MZt08AgPv5PY6V-rx23Dtz3w@mail.gmail.com>
+Subject: Re: Update selinux-sepolgengui to be compatible with Gtk3, Python 3
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Fix command line arguments and description in man page.
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1334834
+--LyciRD1jyfeSSjG0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- semodule-utils/semodule_package/semodule_unpackage.8 | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+On Sun, Feb 18, 2018 at 07:20:02PM +0100, Nicolas Iooss wrote:
+> On Sun, Feb 18, 2018 at 7:09 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wr=
+ote:
+> > On Wed, Feb 14, 2018 at 10:53 AM, Petr Lautrbach <plautrba@redhat.com> =
+wrote:
+> >> Hi,
+> >>
+> >> The following set of patches update polgengui.py, rename polgen.glade =
+to
+> >> polgen.ui, convert it to new format, and fix some other sepolicy Pytho=
+n 3
+> >> related issues.
+> >
+> > Hi,
+> > I have read and tested these patches and they look good to me.
+> (Oops, the mail has been sent before I finished writing it...)
+>=20
+> In order to run polgengui on my development system which uses a policy
+> without MLS, I needed a patch in sepolicy, that I sent a few days ago
+> ("[PATCH 1/3] python/sepolicy: Support non-MLS policy"). With this I
+> have been able to play with polgengui and have been surprised by a
+> warning which appears on my terminal every time I type anything in the
+> "name" field of the form in the second tab ("Enter name of application
+> or user role:"):
+>=20
+> polgengui.py:778: Warning: g_value_get_int: assertion
+> 'G_VALUE_HOLDS_INT (value)' failed
+>   Gtk.main()
+>=20
+> Have you got such warning on your system? Do you know where this
+> warning comes from? For information I use Gtk3 3.22.26 with
+> python-gobject 3.26.1.
 
-diff --git a/semodule-utils/semodule_package/semodule_unpackage.8 b/semodule-utils/semodule_package/semodule_unpackage.8
-index d6e1be0a..5c92bf51 100644
---- a/semodule-utils/semodule_package/semodule_unpackage.8
-+++ b/semodule-utils/semodule_package/semodule_unpackage.8
-@@ -1,14 +1,14 @@
- .TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux" NSA
- .SH NAME
--semodule_unpackage \- Extract policy module and file context file from an SELinux policy module unpackage.
-+semodule_unpackage \- Extract policy module and file context file from an SELinux policy module package.
- 
- .SH SYNOPSIS
--.B semodule_unpackage <module> [<file contexts>]
-+.B semodule_unpackage ppfile modfile [fcfile]
- .br
- .SH DESCRIPTION
- .PP
--semodule_unpackage is the tool used to extract the SELinux policy module
-- and file context file from an SELinux Policy Package.
-+semodule_unpackage is a tool used to extract SELinux policy module
-+file and file context file from an SELinux Policy Package.
- 
- .SH EXAMPLE
- .nf
--- 
-2.14.3
+
+I see it as well. I'll try to find the problem and sent a patch for that.
+
+
+>
+> Anyway, this looks like a harmless warning. Feel free to add
+> "Tested-by: Nicolas Iooss <nicolas.iooss@m4x.org>" to your patches.
+>=20
+
+Thanks!
+--LyciRD1jyfeSSjG0
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlqO4loACgkQviIJHj72
+InV6CA//bzslL4dHYaeNxW/Ri+N442hittC8IAligt89cfFUzXL0pcP/GESvPdM1
+q9NBAmLX1OB48a7x/2LAAZUOf5iK/NBakvt50jogj/NgqNbwS/SIN5J8dyGQxLni
+KHxXGrO5nagPRbXKrMsWLQ2rrv8UPY9HktiMmmGXun7t/Q+gN5AX9mbDIR8GDQEN
+5fXDpb0X+9/9MfMg+BIz4bfMjiSj7EXOlqJ9jYloUzb7/syTuEgjmx4LeFkeYiOX
+01p3m3iFviH4BVFhss9CAc+B9lYFZNiYnvBV58rVxZrPStaXkwuIapbX5Vf8vOEX
+iKx5L2e3n0XpKmcVnJb47KBJNzM/Jr74rDswH/+riuyzdJENfpVZlSOqpeSdC8PX
+9i21NXVanQjvrfJzVhDvirl0VefXy0GG1x0cxDhlyE2CNW/JYZhuBV+mJZ/Mmcsi
+SSpiYdL0sXwczNbQ2i2ffGgsHYe/hXXoh1/sA5Ma1DU37bg373SiDyFFM0dMDtPr
+qI5cGnDOOIYhdC9yWo3mHZgWBUmu6AW1tI6HcAcdpHeGVADNwMjkRWFwYp7XgtGE
+AHh3e9Sdrvkqv6v5mZn/b6cU86PSj3kiHNGy+8mBI/MEYaw1IFFJRzWJ5BeiNc7U
+R0hGFMy/qIhiQPSy7YsvSk6KGDMk8qSb+f3DK/VV9PWHqGXoYkE=
+=8cNA
+-----END PGP SIGNATURE-----
+
+--LyciRD1jyfeSSjG0--
