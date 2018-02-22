@@ -1,160 +1,59 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1NBb8wp007430
- for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 06:37:08 -0500
-Message-ID: <1519385820.10225.2.camel@btinternet.com>
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: selinux@tycho.nsa.gov
-Date: Fri, 23 Feb 2018 11:37:00 +0000
-In-Reply-To: <201802230851.puwlEkXk%fengguang.wu@intel.com>
-References: <201802230851.puwlEkXk%fengguang.wu@intel.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1MN8DHU006819
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 18:08:13 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3znVQ12k3Pz63cG
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 23:08:09 +0000 (UTC)
+Received: from UPBD19PA01.eemsg.mil (unknown [192.168.18.2])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3znVQ11CSTz62qW
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 23:08:09 +0000 (UTC)
+Received: by mail-lf0-f68.google.com with SMTP id l191so9792671lfe.1
+ for <selinux@tycho.nsa.gov>; Thu, 22 Feb 2018 15:08:07 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <161ba1d60d8.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+References: <20180220191527.14307-1-richard_c_haines@btinternet.com>
+ <20180221143345.GA3888@localhost.localdomain>
+ <161ba1d60d8.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 22 Feb 2018 18:08:05 -0500
+Message-ID: <CAHC9VhSnPku5SYnNkyUqvi46OpzPZKbJf+fxeCR0y3ym0zcMYA@mail.gmail.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
+ James Morris <jmorris@namei.org>,
+ Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [pcmoore-selinux:next 5/5]
- security/selinux/include/netlabel.h:135:66: error: unknown type name 'sock'
+Subject: Re: [PATCH V7 2/4] sctp: Add ip option support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2018-02-23 at 08:21 +0800, kbuild test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selin
-> ux.git next
-> head:   db97c9f9d31217e3e133056fe2bea76639f87ec1
-> commit: db97c9f9d31217e3e133056fe2bea76639f87ec1 [5/5] selinux: Add
-> SCTP support
-> config: x86_64-allyesdebian (attached as .config)
-> compiler: gcc-7 (Debian 7.3.0-1) 7.3.0
-> reproduce:
->         git checkout db97c9f9d31217e3e133056fe2bea76639f87ec1
->         # save the attached .config to linux build tree
->         make ARCH=x86_64 
-> 
-> All errors (new ones prefixed by >>):
-> 
->    In file included from security/selinux/hooks.c:99:0:
-> > > security/selinux/include/netlabel.h:135:66: error: unknown type
-> > > name 'sock'
-> 
->     static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
-> sock *newsk)
->                                                                      
-> ^~~~
->    security/selinux/hooks.c: In function 'selinux_sctp_sk_clone':
-> > > security/selinux/hooks.c:5182:2: error: implicit declaration of
-> > > function 'selinux_netlbl_sctp_sk_clone'; did you mean
-> > > 'selinux_netlbl_inet_csk_clone'? [-Werror=implicit-function-
-> > > declaration]
-> 
->      selinux_netlbl_sctp_sk_clone(sk, newsk);
->      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
->      selinux_netlbl_inet_csk_clone
->    cc1: some warnings being treated as errors
-> --
->    In file included from security/selinux/ss/services.c:68:0:
-> > > security/selinux/include/netlabel.h:135:66: error: unknown type
-> > > name 'sock'
-> 
->     static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
-> sock *newsk)
->                                                                      
-> ^~~~
-> --
->    In file included from security//selinux/hooks.c:99:0:
-> > > security/selinux/include/netlabel.h:135:66: error: unknown type
-> > > name 'sock'
-> 
->     static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
-> sock *newsk)
->                                                                      
-> ^~~~
->    security//selinux/hooks.c: In function 'selinux_sctp_sk_clone':
->    security//selinux/hooks.c:5182:2: error: implicit declaration of
-> function 'selinux_netlbl_sctp_sk_clone'; did you mean
-> 'selinux_netlbl_inet_csk_clone'? [-Werror=implicit-function-
-> declaration]
->      selinux_netlbl_sctp_sk_clone(sk, newsk);
->      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
->      selinux_netlbl_inet_csk_clone
->    cc1: some warnings being treated as errors
-> 
-> vim +/sock +135 security/selinux/include/netlabel.h
-> 
->    120	
->    121	static inline int
-> selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
->    122							    str
-> uct sk_buff *skb)
->    123	{
->    124		return 0;
->    125	}
->    126	static inline int
-> selinux_netlbl_inet_conn_request(struct request_sock *req,
->    127							   u16
-> family)
->    128	{
->    129		return 0;
->    130	}
->    131	static inline void selinux_netlbl_inet_csk_clone(struct
-> sock *sk, u16 family)
->    132	{
->    133		return;
->    134	}
->  > 135	static inline void selinux_netlbl_sctp_sk_clone(struct
-> sock *sk, sock *newsk)
+On Wed, Feb 21, 2018 at 3:45 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On February 21, 2018 9:33:51 AM Marcelo Ricardo Leitner <marcelo.leitner@gmail.com> wrote:
+>> On Tue, Feb 20, 2018 at 07:15:27PM +0000, Richard Haines wrote:
+>>> Add ip option support to allow LSM security modules to utilise CIPSO/IPv4
+>>> and CALIPSO/IPv6 services.
+>>>
+>>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>>
+>> LGTM too, thanks!
+>>
+>> Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+>
+> I agree, thanks everyone for all the work, review, and patience behind this patchset!  I'll work on merging this into selinux/next and I'll send a note when it's done.
 
-Paul,
-Would you like a new selinux-Add-SCTP-support.patch to fix this.
+I just merged the four patches (1,3,4 from the v6 patchset, 2 from the
+v7 patchset) in selinux/next and did a quick sanity test on the kernel
+(booted, no basic SELinux regressions).  Additional testing help is
+always appreciated ...
 
->    136	{
->    137		return;
->    138	}
->    139	static inline int
-> selinux_netlbl_socket_post_create(struct sock *sk,
->    140							    u16
-> family)
->    141	{
->    142		return 0;
->    143	}
->    144	static inline int selinux_netlbl_sock_rcv_skb(struct
-> sk_security_struct *sksec,
->    145						      struct
-> sk_buff *skb,
->    146						      u16
-> family,
->    147						      struct
-> common_audit_data *ad)
->    148	{
->    149		return 0;
->    150	}
->    151	static inline int
-> selinux_netlbl_socket_setsockopt(struct socket *sock,
->    152							   int
-> level,
->    153							   int
-> optname)
->    154	{
->    155		return 0;
->    156	}
->    157	static inline int selinux_netlbl_socket_connect(struct
-> sock *sk,
->    158							struct
-> sockaddr *addr)
->    159	{
->    160		return 0;
->    161	}
->    162	static inline int
-> selinux_netlbl_socket_connect_locked(struct sock *sk,
->    163							       
-> struct sockaddr *addr)
->    164	{
->    165		return 0;
->    166	}
->    167	#endif /* CONFIG_NETLABEL */
->    168	
-> 
-> ---
-> 0-DAY kernel test infrastructure                Open Source
-> Technology Center
-> https://lists.01.org/pipermail/kbuild-all                   Intel
-> Corporation
+* git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+* https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+
+-- 
+paul moore
+www.paul-moore.com
