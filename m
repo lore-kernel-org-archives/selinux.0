@@ -1,57 +1,52 @@
-Date: Thu, 22 Feb 2018 23:40:10 -0300
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
- netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org,
- Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
- James Morris <jmorris@namei.org>
-Message-ID: <20180223024010.GE4375@localhost.localdomain>
-References: <20180220191527.14307-1-richard_c_haines@btinternet.com>
- <20180221143345.GA3888@localhost.localdomain>
- <161ba1d60d8.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
- <CAHC9VhSnPku5SYnNkyUqvi46OpzPZKbJf+fxeCR0y3ym0zcMYA@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1NGFDxT009494
+ for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 11:15:13 -0500
+Received: by mail-lf0-f68.google.com with SMTP id o145so9873058lff.0
+ for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 08:14:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhSnPku5SYnNkyUqvi46OpzPZKbJf+fxeCR0y3ym0zcMYA@mail.gmail.com>
-Subject: Re: [PATCH V7 2/4] sctp: Add ip option support
+In-Reply-To: <1519385820.10225.2.camel@btinternet.com>
+References: <201802230851.puwlEkXk%fengguang.wu@intel.com>
+ <1519385820.10225.2.camel@btinternet.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 23 Feb 2018 11:13:58 -0500
+Message-ID: <CAHC9VhRUMUXOfMRmH7DGzNTQHEE5V8Wu3Xx8abtN6WPH3+60fA@mail.gmail.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [pcmoore-selinux:next 5/5]
+ security/selinux/include/netlabel.h:135:66: error: unknown type name 'sock'
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Feb 22, 2018 at 06:08:05PM -0500, Paul Moore wrote:
-> On Wed, Feb 21, 2018 at 3:45 PM, Paul Moore <paul@paul-moore.com> wrote:
-> > On February 21, 2018 9:33:51 AM Marcelo Ricardo Leitner <marcelo.leitner@gmail.com> wrote:
-> >> On Tue, Feb 20, 2018 at 07:15:27PM +0000, Richard Haines wrote:
-> >>> Add ip option support to allow LSM security modules to utilise CIPSO/IPv4
-> >>> and CALIPSO/IPv6 services.
-> >>>
-> >>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> >>
-> >> LGTM too, thanks!
-> >>
-> >> Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-> >
-> > I agree, thanks everyone for all the work, review, and patience behind this patchset!  I'll work on merging this into selinux/next and I'll send a note when it's done.
-> 
-> I just merged the four patches (1,3,4 from the v6 patchset, 2 from the
-> v7 patchset) in selinux/next and did a quick sanity test on the kernel
-> (booted, no basic SELinux regressions).  Additional testing help is
-> always appreciated ...
+On Fri, Feb 23, 2018 at 6:37 AM, Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Fri, 2018-02-23 at 08:21 +0800, kbuild test robot wrote:
+>> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selin
+>> ux.git next
+>> head:   db97c9f9d31217e3e133056fe2bea76639f87ec1
+>> commit: db97c9f9d31217e3e133056fe2bea76639f87ec1 [5/5] selinux: Add
+>> SCTP support
+>> config: x86_64-allyesdebian (attached as .config)
+>> compiler: gcc-7 (Debian 7.3.0-1) 7.3.0
+>> reproduce:
+>>         git checkout db97c9f9d31217e3e133056fe2bea76639f87ec1
+>>         # save the attached .config to linux build tree
+>>         make ARCH=x86_64
+>>
+>> All errors (new ones prefixed by >>):
 
-I'll try it early next week.
+...
 
-Any ideas on when this is going to appear on Dave's net-next tree?
-We have a lot of SCTP changes to be posted on this cycle and would be
-nice if we could avoid merge conflicts.
+> Paul,
+> Would you like a new selinux-Add-SCTP-support.patch to fix this.
 
-> 
-> * git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-> * https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-> 
-> -- 
-> paul moore
-> www.paul-moore.com
+Yes please, that would save me having to fix them :)
+
+I assume you've also seen the sparse warning email from the kbuild
+robot?  We should fix that too.
+
+-- 
+paul moore
+www.paul-moore.com
