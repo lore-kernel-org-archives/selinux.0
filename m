@@ -1,125 +1,160 @@
-Date: Thu, 22 Feb 2018 20:19:24 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
-Message-ID: <20180222191337.GA742@gmail.com>
-References: <marcus.folkesson@gmail.com>
- <20180214095717.1050-1-marcus.folkesson@gmail.com>
- <CAJfZ7=kT4VRgWzoQMyehL=a4qGNGGcNPqiUcw6523zVH9R+JHA@mail.gmail.com>
- <20180215130455.GA20477@gmail.com>
- <CAJfZ7=mTNBzfVd8z-2-Q0Cwo-TfLVF-T9mBS=oZ6OsBW1WDyEw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="KN5l+BnMqAQyZLvT"
-In-Reply-To: <CAJfZ7=mTNBzfVd8z-2-Q0Cwo-TfLVF-T9mBS=oZ6OsBW1WDyEw@mail.gmail.com>
-Subject: Re: Rework of makefiles v5
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1NBb8wp007430
+ for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 06:37:08 -0500
+Message-ID: <1519385820.10225.2.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov
+Date: Fri, 23 Feb 2018 11:37:00 +0000
+In-Reply-To: <201802230851.puwlEkXk%fengguang.wu@intel.com>
+References: <201802230851.puwlEkXk%fengguang.wu@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [pcmoore-selinux:next 5/5]
+ security/selinux/include/netlabel.h:135:66: error: unknown type name 'sock'
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Fri, 2018-02-23 at 08:21 +0800, kbuild test robot wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selin
+> ux.git next
+> head:   db97c9f9d31217e3e133056fe2bea76639f87ec1
+> commit: db97c9f9d31217e3e133056fe2bea76639f87ec1 [5/5] selinux: Add
+> SCTP support
+> config: x86_64-allyesdebian (attached as .config)
+> compiler: gcc-7 (Debian 7.3.0-1) 7.3.0
+> reproduce:
+>         git checkout db97c9f9d31217e3e133056fe2bea76639f87ec1
+>         # save the attached .config to linux build tree
+>         make ARCH=x86_64 
+> 
+> All errors (new ones prefixed by >>):
+> 
+>    In file included from security/selinux/hooks.c:99:0:
+> > > security/selinux/include/netlabel.h:135:66: error: unknown type
+> > > name 'sock'
+> 
+>     static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
+> sock *newsk)
+>                                                                      
+> ^~~~
+>    security/selinux/hooks.c: In function 'selinux_sctp_sk_clone':
+> > > security/selinux/hooks.c:5182:2: error: implicit declaration of
+> > > function 'selinux_netlbl_sctp_sk_clone'; did you mean
+> > > 'selinux_netlbl_inet_csk_clone'? [-Werror=implicit-function-
+> > > declaration]
+> 
+>      selinux_netlbl_sctp_sk_clone(sk, newsk);
+>      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>      selinux_netlbl_inet_csk_clone
+>    cc1: some warnings being treated as errors
+> --
+>    In file included from security/selinux/ss/services.c:68:0:
+> > > security/selinux/include/netlabel.h:135:66: error: unknown type
+> > > name 'sock'
+> 
+>     static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
+> sock *newsk)
+>                                                                      
+> ^~~~
+> --
+>    In file included from security//selinux/hooks.c:99:0:
+> > > security/selinux/include/netlabel.h:135:66: error: unknown type
+> > > name 'sock'
+> 
+>     static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
+> sock *newsk)
+>                                                                      
+> ^~~~
+>    security//selinux/hooks.c: In function 'selinux_sctp_sk_clone':
+>    security//selinux/hooks.c:5182:2: error: implicit declaration of
+> function 'selinux_netlbl_sctp_sk_clone'; did you mean
+> 'selinux_netlbl_inet_csk_clone'? [-Werror=implicit-function-
+> declaration]
+>      selinux_netlbl_sctp_sk_clone(sk, newsk);
+>      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>      selinux_netlbl_inet_csk_clone
+>    cc1: some warnings being treated as errors
+> 
+> vim +/sock +135 security/selinux/include/netlabel.h
+> 
+>    120	
+>    121	static inline int
+> selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
+>    122							    str
+> uct sk_buff *skb)
+>    123	{
+>    124		return 0;
+>    125	}
+>    126	static inline int
+> selinux_netlbl_inet_conn_request(struct request_sock *req,
+>    127							   u16
+> family)
+>    128	{
+>    129		return 0;
+>    130	}
+>    131	static inline void selinux_netlbl_inet_csk_clone(struct
+> sock *sk, u16 family)
+>    132	{
+>    133		return;
+>    134	}
+>  > 135	static inline void selinux_netlbl_sctp_sk_clone(struct
+> sock *sk, sock *newsk)
 
---KN5l+BnMqAQyZLvT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Paul,
+Would you like a new selinux-Add-SCTP-support.patch to fix this.
 
-On Wed, Feb 21, 2018 at 10:46:45PM +0100, Nicolas Iooss wrote:
-> On Thu, Feb 15, 2018 at 2:04 PM, Marcus Folkesson
-> <marcus.folkesson@gmail.com> wrote:
-> > Hi Nicolas,
-> >
-> > First of all, thank you for your review.
-> >
-> > On Wed, Feb 14, 2018 at 08:19:44PM +0100, Nicolas Iooss wrote:
-> >> On Wed, Feb 14, 2018 at 10:57 AM, Marcus Folkesson
-> >> <marcus.folkesson@gmail.com> wrote:
-> >> > I have updated the patchset.
-> >> >
-> >> > The biggest change is that $(DESTDIR) is now used in the
-> >> > install stage only.
-> >> >
-> >> > Also some overidden CFLAGS/LDFLAGS has been removed since we now have
-> >> > explicit build rules.
-> >> >
-> >> > I have moved the changelog into patches.
-> >> >
-> >> > Please test to compile with:
-> >> > make DESTDIR=3D/tmp/myroot PREFIX=3D/myusr install
-> >> > or
-> >> > make DESTDIR=3D/tmp/myroot install
-> >> >
-> >> > Thanks for all feedback.
-> >> >
-> >> > Best regards
-> >> > Marcus Folkesson
-> >> >
-> >>
-> >> Hi,
-> >> Thanks for this update! Here are three comments on this patchset:
-> >>
-> >> * you forgot a $(DESTDIR) occurrence in patch 7.
-> >
-> > Good catch!
-> >
-> >> * .travis.yml needs a simple patch to fix the value of PYSITEDIR. I
-> >> will send it later.
-> >
-> > Please do.
-> >
-> >> * While reading the Makefile after patch 15, I have been surprised by
-> >> "LIBDIR ?=3D $(DESTDIR)$(PREFIX)/lib", with DESTDIR. As this variable =
-is
-> >> not exported, it works fine as it is, but it might be cleaner to
-> >> define it as "LIBDIR ?=3D $(PREFIX)/lib" and to use $(DESTDIR) in the
-> >> following lines. This point may be addressed in a follow-up commit
-> >> after the patchset has been merged.
-> >
-> > I agree.
-> > I also think it could be part of a follow-up commit. I will take a note.
-> >
-> >>
-> >> As the patchset looks almost ready to be merged, I have created
-> >> https://github.com/SELinuxProject/selinux/pull/79 with a modified
-> >> patch 7 and my patch for .travis.yml. This pull request holds the
-> >> commits I plan to apply in a few days if no other maintainer disagrees
-> >> with this.
-> >
-> > Ok, then I will not come up with a v6 that fixes your feedback for patch
-> > #7.
->=20
-> I have merged this patchset. Thanks!
-
-Thank you.
-
-Do you know when the next release is planned?
->=20
-> Nicolas
->=20
-
-Best regards
-Marcus Folkesson
-
-
-
---KN5l+BnMqAQyZLvT
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAlqPF7cACgkQiIBOb1ld
-UjJ4mw//QkQPMyHK3WDW3EfI3NveEmdw60X4cxX1240j+tFMSPrGiLysHHrteC4j
-oaHHInYgqV7dhu50rC6RgFVPPOpVjl743sCmBwPBXiZn7oqq9vHnsgFUHLk3U7C4
-7OhijbHQhxdRtibO8bydiLSc5SoyIRZUZPK1Zzqo0e6RO2Rj7LQRdzTGcei7LTpp
-asAIS6CK845EYz+IO5bqrjNW82KQH0kj0HdWNw/B/z8y8i32lBUEqrmfMw+cghyz
-ho1qN0vXYSy8Nk7XLO6+zNswHrkCLlW5S2QhBGw3kkdlaaAbtzmJdDw2RLBZpXJV
-qKaZJQpNQ1nqLa3KcUjKVvuQasc6o/WdQwGiVJS0YXYn02BKwmDC666wQjYNkWKU
-7kODbfDdVndTtWlE2X7Sy91c0BNDh4wSdgDdW3uYWhaSV5WunX6Lyg1w8f7jG2oX
-6lENQ5nfhwzjACkPy8KzVYq65J2/N4t5QO7Ipb8Y5UdGxYrsaexmMLERy7lAh6T8
-ttv4wwHVI0c2JMeSK17BoCX2JDgNLaZRZrUFWsJeZHW+jIrYbKQalDZNmPN2YGNt
-l0KRMTkNouwBdmoyuyPfbA6dPbkSbIEkEd8UCF+XSC9l/C4VW+qo/eqlRb7WQCtl
-yQaVGgdJ4L4NdqXxZy2vJfYc8LHlYGKqxxohCKQY2/w6QA9iyUs=
-=rxAF
------END PGP SIGNATURE-----
-
---KN5l+BnMqAQyZLvT--
+>    136	{
+>    137		return;
+>    138	}
+>    139	static inline int
+> selinux_netlbl_socket_post_create(struct sock *sk,
+>    140							    u16
+> family)
+>    141	{
+>    142		return 0;
+>    143	}
+>    144	static inline int selinux_netlbl_sock_rcv_skb(struct
+> sk_security_struct *sksec,
+>    145						      struct
+> sk_buff *skb,
+>    146						      u16
+> family,
+>    147						      struct
+> common_audit_data *ad)
+>    148	{
+>    149		return 0;
+>    150	}
+>    151	static inline int
+> selinux_netlbl_socket_setsockopt(struct socket *sock,
+>    152							   int
+> level,
+>    153							   int
+> optname)
+>    154	{
+>    155		return 0;
+>    156	}
+>    157	static inline int selinux_netlbl_socket_connect(struct
+> sock *sk,
+>    158							struct
+> sockaddr *addr)
+>    159	{
+>    160		return 0;
+>    161	}
+>    162	static inline int
+> selinux_netlbl_socket_connect_locked(struct sock *sk,
+>    163							       
+> struct sockaddr *addr)
+>    164	{
+>    165		return 0;
+>    166	}
+>    167	#endif /* CONFIG_NETLABEL */
+>    168	
+> 
+> ---
+> 0-DAY kernel test infrastructure                Open Source
+> Technology Center
+> https://lists.01.org/pipermail/kbuild-all                   Intel
+> Corporation
