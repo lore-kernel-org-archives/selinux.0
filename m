@@ -1,72 +1,93 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1O4vlen017913
- for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 23:57:47 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC03.oob.disa.mil (Postfix) with SMTP id 3zpG6x31TjzJnY6
- for <selinux@tycho.nsa.gov>; Sat, 24 Feb 2018 04:57:45 +0000 (UTC)
-Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
- by UPDCF3IC03.oob.disa.mil (Postfix) with ESMTP id 3zpG6x1WzdzJnXt
- for <selinux@tycho.nsa.gov>; Sat, 24 Feb 2018 04:57:45 +0000 (UTC)
-Received: by mail-qk0-f193.google.com with SMTP id l206so13347625qke.1
- for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 20:57:44 -0800 (PST)
-Received: from localhost.localdomain (c-76-100-110-125.hsd1.md.comcast.net.
- [76.100.110.125])
- by smtp.gmail.com with ESMTPSA id x28sm2957160qtx.20.2018.02.23.20.57.42
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Fri, 23 Feb 2018 20:57:42 -0800 (PST)
-From: Yuli Khodorkovskiy <ykhodo@gmail.com>
-To: selinux@tycho.nsa.gov
-Date: Sat, 24 Feb 2018 04:57:33 +0000
-Message-Id: <20180224045733.12509-1-ykhodo@gmail.com>
-Subject: [PATCH] secilc: Fix documentation build for OS X systems
+Date: Fri, 23 Feb 2018 21:56:00 -0300
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
+ netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
+ James Morris <jmorris@namei.org>
+Message-ID: <20180224005600.GG4375@localhost.localdomain>
+References: <20180220191527.14307-1-richard_c_haines@btinternet.com>
+ <20180221143345.GA3888@localhost.localdomain>
+ <161ba1d60d8.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+ <CAHC9VhSnPku5SYnNkyUqvi46OpzPZKbJf+fxeCR0y3ym0zcMYA@mail.gmail.com>
+ <20180223024010.GE4375@localhost.localdomain>
+ <CAHC9VhT_1GQJPoOBN0ambF=F1+ZXhoYB3mMc8kzgCFOep+hsCg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHC9VhT_1GQJPoOBN0ambF=F1+ZXhoYB3mMc8kzgCFOep+hsCg@mail.gmail.com>
+Subject: Re: [PATCH V7 2/4] sctp: Add ip option support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Since Darwin systems do not have GNU sed installed, the Darwin sed is
-missing the "regexp-extended" flag needed to modify the secilc markdown
-files before processing with pandoc.
+On Fri, Feb 23, 2018 at 11:11:50AM -0500, Paul Moore wrote:
+> On Thu, Feb 22, 2018 at 9:40 PM, Marcelo Ricardo Leitner
+> <marcelo.leitner@gmail.com> wrote:
+> > On Thu, Feb 22, 2018 at 06:08:05PM -0500, Paul Moore wrote:
+> >> On Wed, Feb 21, 2018 at 3:45 PM, Paul Moore <paul@paul-moore.com> wrote:
+> >> > On February 21, 2018 9:33:51 AM Marcelo Ricardo Leitner <marcelo.leitner@gmail.com> wrote:
+> >> >> On Tue, Feb 20, 2018 at 07:15:27PM +0000, Richard Haines wrote:
+> >> >>> Add ip option support to allow LSM security modules to utilise CIPSO/IPv4
+> >> >>> and CALIPSO/IPv6 services.
+> >> >>>
+> >> >>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> >> >>
+> >> >> LGTM too, thanks!
+> >> >>
+> >> >> Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+> >> >
+> >> > I agree, thanks everyone for all the work, review, and patience behind this patchset!  I'll work on merging this into selinux/next and I'll send a note when it's done.
+> >>
+> >> I just merged the four patches (1,3,4 from the v6 patchset, 2 from the
+> >> v7 patchset) in selinux/next and did a quick sanity test on the kernel
+> >> (booted, no basic SELinux regressions).  Additional testing help is
+> >> always appreciated ...
+> >
+> > I'll try it early next week.
+> >
+> > Any ideas on when this is going to appear on Dave's net-next tree?
+> > We have a lot of SCTP changes to be posted on this cycle and would be
+> > nice if we could avoid merge conflicts.
+> 
+> It's merged into the SELinux tree, next branch; see the links below.
+> Last I checked DaveM doesn't pull the selinux/next into his net-next
+> tree (that would be a little funny for historical reasons).
+> 
+> Any idea on how bad the merge conflicts are?
 
-A quick fix for Mac users is to `brew install gnu-sed` and to use gsed.
+I know about 5 patchsets that we are cooking. For 4 of them I think it
+would be mostly fine, perhaps one conflict here and there. But the
+other one is a refactoring on MTU handling and it touches lots of
+places that 92c49e12646e4 ("sctp: Add ip option support") also
+touched, like in the chunk below:
 
-Signed-off-by: Yuli Khodorkovskiy <ykhodo@gmail.com>
----
- secilc/docs/Makefile | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
++++ b/include/net/sctp/sctp.h
+@@ -441,9 +441,11 @@ static inline int sctp_list_single_entry(struct list_head *head)
+ static inline int sctp_frag_point(const struct sctp_association *asoc, int pmtu)
+ {
+ 	struct sctp_sock *sp = sctp_sk(asoc->base.sk);
++	struct sctp_af *af = sp->pf->af;
+ 	int frag = pmtu;
+ 
+-	frag -= sp->pf->af->net_header_len;
++	frag -= af->ip_options_len(asoc->base.sk);
++	frag -= af->net_header_len;
 
-diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
-index c0fa6b7f..6b07ce7f 100644
---- a/secilc/docs/Makefile
-+++ b/secilc/docs/Makefile
-@@ -31,6 +31,12 @@ PANDOC_FILE_LIST = $(addprefix $(TMPDIR)/,$(FILE_LIST))
- PDF_OUT=CIL_Reference_Guide.pdf
- HTML_OUT=CIL_Reference_Guide.html
- PANDOC = pandoc
-+SED ?= sed
-+
-+OS := $(shell uname)
-+ifeq ($(OS), Darwin)
-+	SED := gsed
-+endif
- 
- all: html pdf
- 
-@@ -40,12 +46,12 @@ $(TMPDIR):
- $(TMPDIR)/%.md: %.md | $(TMPDIR)
- 	cp -f $< $(TMPDIR)/
- 	@# Substitute markdown links for conversion into PDF links
--	sed -i -re 's:(\[`[^`]*`\])\([^#]*([^\)]):\1\(\2:g' $@
-+	$(SED) -i -re 's:(\[`[^`]*`\])\([^#]*([^\)]):\1\(\2:g' $@
- 
- $(TMPDIR)/policy.cil: $(TESTDIR)/policy.cil
- 	cp -f $< $@
- 	@# add a title for the TOC to policy.cil. This is needed to play nicely with the PDF conversion.
--	sed -i '1i Example Policy\n=========\n```' $@
-+	$(SED) -i '1i Example Policy\n=========\n```' $@
- 	echo '```' >> $@
- 
- html: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil
--- 
-2.14.3
+In the refactor I'm removing this function from here and adding a
+similar, not quite the same but similar, in a .c file. 
+
+I post the mtu patchset as RFC next week so we can know better.
+
+  Marcelo
+
+> 
+> >> * git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+> >> * https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+> 
+> -- 
+> paul moore
+> www.paul-moore.com
