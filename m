@@ -1,93 +1,80 @@
-Date: Fri, 23 Feb 2018 21:56:00 -0300
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov,
- netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org,
- Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
- James Morris <jmorris@namei.org>
-Message-ID: <20180224005600.GG4375@localhost.localdomain>
-References: <20180220191527.14307-1-richard_c_haines@btinternet.com>
- <20180221143345.GA3888@localhost.localdomain>
- <161ba1d60d8.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
- <CAHC9VhSnPku5SYnNkyUqvi46OpzPZKbJf+fxeCR0y3ym0zcMYA@mail.gmail.com>
- <20180223024010.GE4375@localhost.localdomain>
- <CAHC9VhT_1GQJPoOBN0ambF=F1+ZXhoYB3mMc8kzgCFOep+hsCg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CAHC9VhT_1GQJPoOBN0ambF=F1+ZXhoYB3mMc8kzgCFOep+hsCg@mail.gmail.com>
-Subject: Re: [PATCH V7 2/4] sctp: Add ip option support
+Message-ID: <1519468182.2469.7.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Paul Moore <paul@paul-moore.com>, Arnd Bergmann <arnd@arndb.de>,
+ nhorman@tuxdriver.com, marcelo.leitner@gmail.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ Martin Kepplinger <martink@posteo.de>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Sat, 24 Feb 2018 10:29:42 +0000
+In-Reply-To: <CAHC9VhTVaogfgf-R=so5mtrh9i1Vy9bnNm5CENgKKDKnSeWjZw@mail.gmail.com>
+References: <20180223211235.2402024-1-arnd@arndb.de>
+ <CAHC9VhTVaogfgf-R=so5mtrh9i1Vy9bnNm5CENgKKDKnSeWjZw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH] selinux: fix typo in
+ selinux_netlbl_sctp_sk_clone declaration
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Feb 23, 2018 at 11:11:50AM -0500, Paul Moore wrote:
-> On Thu, Feb 22, 2018 at 9:40 PM, Marcelo Ricardo Leitner
-> <marcelo.leitner@gmail.com> wrote:
-> > On Thu, Feb 22, 2018 at 06:08:05PM -0500, Paul Moore wrote:
-> >> On Wed, Feb 21, 2018 at 3:45 PM, Paul Moore <paul@paul-moore.com> wrote:
-> >> > On February 21, 2018 9:33:51 AM Marcelo Ricardo Leitner <marcelo.leitner@gmail.com> wrote:
-> >> >> On Tue, Feb 20, 2018 at 07:15:27PM +0000, Richard Haines wrote:
-> >> >>> Add ip option support to allow LSM security modules to utilise CIPSO/IPv4
-> >> >>> and CALIPSO/IPv6 services.
-> >> >>>
-> >> >>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> >> >>
-> >> >> LGTM too, thanks!
-> >> >>
-> >> >> Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-> >> >
-> >> > I agree, thanks everyone for all the work, review, and patience behind this patchset!  I'll work on merging this into selinux/next and I'll send a note when it's done.
-> >>
-> >> I just merged the four patches (1,3,4 from the v6 patchset, 2 from the
-> >> v7 patchset) in selinux/next and did a quick sanity test on the kernel
-> >> (booted, no basic SELinux regressions).  Additional testing help is
-> >> always appreciated ...
-> >
-> > I'll try it early next week.
-> >
-> > Any ideas on when this is going to appear on Dave's net-next tree?
-> > We have a lot of SCTP changes to be posted on this cycle and would be
-> > nice if we could avoid merge conflicts.
+On Fri, 2018-02-23 at 16:25 -0500, Paul Moore wrote:
+> On Fri, Feb 23, 2018 at 4:12 PM, Arnd Bergmann <arnd@arndb.de> wrote:
+> > A missing 'struct' keyword caused a build error when
+> > CONFIG_NETLABEL
+> > is disabled:
+> > 
+> > In file included from security/selinux/hooks.c:99:
+> > security/selinux/include/netlabel.h:135:66: error: unknown type
+> > name 'sock'
+> >  static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
+> > sock *newsk)
+> >                                                                   ^
+> > ~~~
+> > security/selinux/hooks.c: In function 'selinux_sctp_sk_clone':
+> > security/selinux/hooks.c:5188:2: error: implicit declaration of
+> > function 'selinux_netlbl_sctp_sk_clone'; did you mean
+> > 'selinux_netlbl_inet_csk_clone'? [-Werror=implicit-function-
+> > declaration]
+> > 
+> > Fixes: db97c9f9d312 ("selinux: Add SCTP support")
+> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> > ---
+> >  security/selinux/include/netlabel.h | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> It's merged into the SELinux tree, next branch; see the links below.
-> Last I checked DaveM doesn't pull the selinux/next into his net-next
-> tree (that would be a little funny for historical reasons).
+> Thanks, merged and pushed to selinux/next.
 > 
-> Any idea on how bad the merge conflicts are?
+> Richard was going to submit a patch for that, but I don't think he
+> would mind you beating him :)
 
-I know about 5 patchsets that we are cooking. For 4 of them I think it
-would be mostly fine, perhaps one conflict here and there. But the
-other one is a refactoring on MTU handling and it touches lots of
-places that 92c49e12646e4 ("sctp: Add ip option support") also
-touched, like in the chunk below:
+Don't mind at all. What I will do then is fix the problem highlighted
+by [1] that affects "[PATCH V7 2/4] sctp: Add ip option support", I'll
+issue a V8 asap.
 
-+++ b/include/net/sctp/sctp.h
-@@ -441,9 +441,11 @@ static inline int sctp_list_single_entry(struct list_head *head)
- static inline int sctp_frag_point(const struct sctp_association *asoc, int pmtu)
- {
- 	struct sctp_sock *sp = sctp_sk(asoc->base.sk);
-+	struct sctp_af *af = sp->pf->af;
- 	int frag = pmtu;
- 
--	frag -= sp->pf->af->net_header_len;
-+	frag -= af->ip_options_len(asoc->base.sk);
-+	frag -= af->net_header_len;
-
-In the refactor I'm removing this function from here and adding a
-similar, not quite the same but similar, in a .c file. 
-
-I post the mtu patchset as RFC next week so we can know better.
-
-  Marcelo
+[1] https://lists.01.org/pipermail/kbuild-all/2018-February/043695.html
 
 > 
-> >> * git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-> >> * https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+> > diff --git a/security/selinux/include/netlabel.h
+> > b/security/selinux/include/netlabel.h
+> > index 6ef4953431dc..8671de09c363 100644
+> > --- a/security/selinux/include/netlabel.h
+> > +++ b/security/selinux/include/netlabel.h
+> > @@ -132,7 +132,8 @@ static inline void
+> > selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
+> >  {
+> >         return;
+> >  }
+> > -static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
+> > sock *newsk)
+> > +static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
+> > +                                               struct sock *newsk)
+> >  {
+> >         return;
+> >  }
+> > --
+> > 2.9.0
+> > 
 > 
-> -- 
-> paul moore
-> www.paul-moore.com
+> 
