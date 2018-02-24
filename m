@@ -1,68 +1,72 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1NLPLeW026702
- for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 16:25:21 -0500
-Received: by mail-lf0-f66.google.com with SMTP id x196so14246463lfd.12
- for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 13:25:19 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <20180223211235.2402024-1-arnd@arndb.de>
-References: <20180223211235.2402024-1-arnd@arndb.de>
-From: Paul Moore <paul@paul-moore.com>
-Date: Fri, 23 Feb 2018 16:25:17 -0500
-Message-ID: <CAHC9VhTVaogfgf-R=so5mtrh9i1Vy9bnNm5CENgKKDKnSeWjZw@mail.gmail.com>
-To: Arnd Bergmann <arnd@arndb.de>,
- Richard Haines <richard_c_haines@btinternet.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Martin Kepplinger <martink@posteo.de>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux: fix typo in
- selinux_netlbl_sctp_sk_clone declaration
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1O4vlen017913
+ for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 23:57:47 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC03.oob.disa.mil (Postfix) with SMTP id 3zpG6x31TjzJnY6
+ for <selinux@tycho.nsa.gov>; Sat, 24 Feb 2018 04:57:45 +0000 (UTC)
+Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
+ by UPDCF3IC03.oob.disa.mil (Postfix) with ESMTP id 3zpG6x1WzdzJnXt
+ for <selinux@tycho.nsa.gov>; Sat, 24 Feb 2018 04:57:45 +0000 (UTC)
+Received: by mail-qk0-f193.google.com with SMTP id l206so13347625qke.1
+ for <selinux@tycho.nsa.gov>; Fri, 23 Feb 2018 20:57:44 -0800 (PST)
+Received: from localhost.localdomain (c-76-100-110-125.hsd1.md.comcast.net.
+ [76.100.110.125])
+ by smtp.gmail.com with ESMTPSA id x28sm2957160qtx.20.2018.02.23.20.57.42
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+ Fri, 23 Feb 2018 20:57:42 -0800 (PST)
+From: Yuli Khodorkovskiy <ykhodo@gmail.com>
+To: selinux@tycho.nsa.gov
+Date: Sat, 24 Feb 2018 04:57:33 +0000
+Message-Id: <20180224045733.12509-1-ykhodo@gmail.com>
+Subject: [PATCH] secilc: Fix documentation build for OS X systems
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Feb 23, 2018 at 4:12 PM, Arnd Bergmann <arnd@arndb.de> wrote:
-> A missing 'struct' keyword caused a build error when CONFIG_NETLABEL
-> is disabled:
->
-> In file included from security/selinux/hooks.c:99:
-> security/selinux/include/netlabel.h:135:66: error: unknown type name 'sock'
->  static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk, sock *newsk)
->                                                                   ^~~~
-> security/selinux/hooks.c: In function 'selinux_sctp_sk_clone':
-> security/selinux/hooks.c:5188:2: error: implicit declaration of function 'selinux_netlbl_sctp_sk_clone'; did you mean 'selinux_netlbl_inet_csk_clone'? [-Werror=implicit-function-declaration]
->
-> Fixes: db97c9f9d312 ("selinux: Add SCTP support")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> ---
->  security/selinux/include/netlabel.h | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+Since Darwin systems do not have GNU sed installed, the Darwin sed is
+missing the "regexp-extended" flag needed to modify the secilc markdown
+files before processing with pandoc.
 
-Thanks, merged and pushed to selinux/next.
+A quick fix for Mac users is to `brew install gnu-sed` and to use gsed.
 
-Richard was going to submit a patch for that, but I don't think he
-would mind you beating him :)
+Signed-off-by: Yuli Khodorkovskiy <ykhodo@gmail.com>
+---
+ secilc/docs/Makefile | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-> diff --git a/security/selinux/include/netlabel.h b/security/selinux/include/netlabel.h
-> index 6ef4953431dc..8671de09c363 100644
-> --- a/security/selinux/include/netlabel.h
-> +++ b/security/selinux/include/netlabel.h
-> @@ -132,7 +132,8 @@ static inline void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
->  {
->         return;
->  }
-> -static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk, sock *newsk)
-> +static inline void selinux_netlbl_sctp_sk_clone(struct sock *sk,
-> +                                               struct sock *newsk)
->  {
->         return;
->  }
-> --
-> 2.9.0
->
-
+diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
+index c0fa6b7f..6b07ce7f 100644
+--- a/secilc/docs/Makefile
++++ b/secilc/docs/Makefile
+@@ -31,6 +31,12 @@ PANDOC_FILE_LIST = $(addprefix $(TMPDIR)/,$(FILE_LIST))
+ PDF_OUT=CIL_Reference_Guide.pdf
+ HTML_OUT=CIL_Reference_Guide.html
+ PANDOC = pandoc
++SED ?= sed
++
++OS := $(shell uname)
++ifeq ($(OS), Darwin)
++	SED := gsed
++endif
+ 
+ all: html pdf
+ 
+@@ -40,12 +46,12 @@ $(TMPDIR):
+ $(TMPDIR)/%.md: %.md | $(TMPDIR)
+ 	cp -f $< $(TMPDIR)/
+ 	@# Substitute markdown links for conversion into PDF links
+-	sed -i -re 's:(\[`[^`]*`\])\([^#]*([^\)]):\1\(\2:g' $@
++	$(SED) -i -re 's:(\[`[^`]*`\])\([^#]*([^\)]):\1\(\2:g' $@
+ 
+ $(TMPDIR)/policy.cil: $(TESTDIR)/policy.cil
+ 	cp -f $< $@
+ 	@# add a title for the TOC to policy.cil. This is needed to play nicely with the PDF conversion.
+-	sed -i '1i Example Policy\n=========\n```' $@
++	$(SED) -i '1i Example Policy\n=========\n```' $@
+ 	echo '```' >> $@
+ 
+ html: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil
 -- 
-paul moore
-www.paul-moore.com
+2.14.3
