@@ -1,61 +1,52 @@
 To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-References: <20180222132933.5643-1-vmojzis@redhat.com>
+References: <20180222133320.6111-1-vmojzis@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <aaa79052-e646-716d-676f-d06554953b3f@tycho.nsa.gov>
-Date: Mon, 26 Feb 2018 09:51:32 -0500
+Message-ID: <7488158e-5cc8-3ad8-150d-6e0423281dc7@tycho.nsa.gov>
+Date: Mon, 26 Feb 2018 09:52:40 -0500
 MIME-Version: 1.0
-In-Reply-To: <20180222132933.5643-1-vmojzis@redhat.com>
+In-Reply-To: <20180222133320.6111-1-vmojzis@redhat.com>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH] gui/semanagePage: Close "edit" and "add" dialogues when
- successfull
+Subject: Re: [PATCH] semodule-utils/semodule_package: fix semodule_unpackage
+ man page
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/22/2018 08:29 AM, Vit Mojzis wrote:
-> "Edit" and "add" dialogues weren't closed after successful transaction
-> ("add" and "edit" methods return "None" if successful).
-
-I see the bug, but the behavior after applying the patch also seems to
-be wrong:
-Traceback (most recent call last):
-  File "/usr/share/system-config-selinux/system-config-selinux.py", line
-136, in add
-    self.tabs[self.notebook.get_current_page()].addDialog()
-  File "/usr/share/system-config-selinux/semanagePage.py", line 143, in
-addDialog
-    if self.add() is False:
-  File "/usr/share/system-config-selinux/fcontextPage.py", line 192, in add
-    ftype = list_model.get_value(it, 0)
-TypeError: Argument 1 does not allow None as a value
-
+On 02/22/2018 08:33 AM, Vit Mojzis wrote:
+> Fix command line arguments and description in man page.
+> 
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1334834
 > 
 > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+
+Thanks, applied.
+
 > ---
->  gui/semanagePage.py | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  semodule-utils/semodule_package/semodule_unpackage.8 | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 > 
-> diff --git a/gui/semanagePage.py b/gui/semanagePage.py
-> index 560ec077..4127804f 100644
-> --- a/gui/semanagePage.py
-> +++ b/gui/semanagePage.py
-> @@ -140,7 +140,7 @@ class semanagePage:
+> diff --git a/semodule-utils/semodule_package/semodule_unpackage.8 b/semodule-utils/semodule_package/semodule_unpackage.8
+> index d6e1be0a..5c92bf51 100644
+> --- a/semodule-utils/semodule_package/semodule_unpackage.8
+> +++ b/semodule-utils/semodule_package/semodule_unpackage.8
+> @@ -1,14 +1,14 @@
+>  .TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux" NSA
+>  .SH NAME
+> -semodule_unpackage \- Extract policy module and file context file from an SELinux policy module unpackage.
+> +semodule_unpackage \- Extract policy module and file context file from an SELinux policy module package.
 >  
->          while self.dialog.run() == Gtk.ResponseType.OK:
->              try:
-> -                if not self.add():
-> +                if self.add() is False:
->                      continue
->                  break
->              except ValueError as e:
-> @@ -153,7 +153,7 @@ class semanagePage:
->          self.dialog.set_position(Gtk.WindowPosition.MOUSE)
->          while self.dialog.run() == Gtk.ResponseType.OK:
->              try:
-> -                if not self.modify():
-> +                if self.modify() is False:
->                      continue
->                  break
->              except ValueError as e:
+>  .SH SYNOPSIS
+> -.B semodule_unpackage <module> [<file contexts>]
+> +.B semodule_unpackage ppfile modfile [fcfile]
+>  .br
+>  .SH DESCRIPTION
+>  .PP
+> -semodule_unpackage is the tool used to extract the SELinux policy module
+> - and file context file from an SELinux Policy Package.
+> +semodule_unpackage is a tool used to extract SELinux policy module
+> +file and file context file from an SELinux Policy Package.
+>  
+>  .SH EXAMPLE
+>  .nf
 > 
