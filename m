@@ -1,36 +1,61 @@
-To: Lee Stubbs <lee.stubbs@gmail.com>, selinux@tycho.nsa.gov
-References: <20180218222141.95374-1-lee.stubbs@gmail.com>
+To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
+References: <20180222132933.5643-1-vmojzis@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <b41c9ecd-3fe7-0a7d-ebfe-d859f44fa52f@tycho.nsa.gov>
-Date: Mon, 26 Feb 2018 09:34:39 -0500
+Message-ID: <aaa79052-e646-716d-676f-d06554953b3f@tycho.nsa.gov>
+Date: Mon, 26 Feb 2018 09:51:32 -0500
 MIME-Version: 1.0
-In-Reply-To: <20180218222141.95374-1-lee.stubbs@gmail.com>
+In-Reply-To: <20180222132933.5643-1-vmojzis@redhat.com>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH] Minor update for bash completion. Bash completion for
- ports is missing '-' for type. Based on documentation, it should be --type,
- not -type.
+Subject: Re: [PATCH] gui/semanagePage: Close "edit" and "add" dialogues when
+ successfull
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/18/2018 05:21 PM, Lee Stubbs wrote:
-> ---
->  python/semanage/semanage-bash-completion.sh | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/python/semanage/semanage-bash-completion.sh b/python/semanage/semanage-bash-completion.sh
-> index 6b53292..2d811c9 100644
-> --- a/python/semanage/semanage-bash-completion.sh
-> +++ b/python/semanage/semanage-bash-completion.sh
-> @@ -59,7 +59,7 @@ __get_export_opts () { echo '$ALL_OPTS --f --output_file' ; }
->  __get_boolean_opts () { echo '$ALL_OPTS --on -off -1 -0' ; }
->  __get_user_opts () { echo '$ALL_OPTS $MANAGED_OPTS -L --level -r --range -R --role '; }
->  __get_login_opts () { echo '$ALL_OPTS $MANAGED_OPTS -s --seuser -r --range'; }
-> -__get_port_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t -type -r --range -p --proto'; }
-> +__get_port_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -r --range -p --proto'; }
->  __get_interface_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type '; }
->  __get_node_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -M --mask -p --proto'; }
->  __get_fcontext_opts () { echo '$ALL_OPTS $MANAGED_OPTS -t --type -e --equal -f --ftype '; }
+On 02/22/2018 08:29 AM, Vit Mojzis wrote:
+> "Edit" and "add" dialogues weren't closed after successful transaction
+> ("add" and "edit" methods return "None" if successful).
 
-Thanks, applied
+I see the bug, but the behavior after applying the patch also seems to
+be wrong:
+Traceback (most recent call last):
+  File "/usr/share/system-config-selinux/system-config-selinux.py", line
+136, in add
+    self.tabs[self.notebook.get_current_page()].addDialog()
+  File "/usr/share/system-config-selinux/semanagePage.py", line 143, in
+addDialog
+    if self.add() is False:
+  File "/usr/share/system-config-selinux/fcontextPage.py", line 192, in add
+    ftype = list_model.get_value(it, 0)
+TypeError: Argument 1 does not allow None as a value
+
+> 
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> ---
+>  gui/semanagePage.py | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/gui/semanagePage.py b/gui/semanagePage.py
+> index 560ec077..4127804f 100644
+> --- a/gui/semanagePage.py
+> +++ b/gui/semanagePage.py
+> @@ -140,7 +140,7 @@ class semanagePage:
+>  
+>          while self.dialog.run() == Gtk.ResponseType.OK:
+>              try:
+> -                if not self.add():
+> +                if self.add() is False:
+>                      continue
+>                  break
+>              except ValueError as e:
+> @@ -153,7 +153,7 @@ class semanagePage:
+>          self.dialog.set_position(Gtk.WindowPosition.MOUSE)
+>          while self.dialog.run() == Gtk.ResponseType.OK:
+>              try:
+> -                if not self.modify():
+> +                if self.modify() is False:
+>                      continue
+>                  break
+>              except ValueError as e:
+> 
