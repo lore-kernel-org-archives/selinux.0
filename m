@@ -1,52 +1,62 @@
-To: Vit Mojzis <vmojzis@redhat.com>, selinux@tycho.nsa.gov
-References: <20180222133320.6111-1-vmojzis@redhat.com>
+To: Yuli Khodorkovskiy <ykhodo@gmail.com>, selinux@tycho.nsa.gov
+References: <20180224045733.12509-1-ykhodo@gmail.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <7488158e-5cc8-3ad8-150d-6e0423281dc7@tycho.nsa.gov>
-Date: Mon, 26 Feb 2018 09:52:40 -0500
+Message-ID: <ce2e0966-31da-333d-403c-875ee1db004e@tycho.nsa.gov>
+Date: Mon, 26 Feb 2018 09:56:24 -0500
 MIME-Version: 1.0
-In-Reply-To: <20180222133320.6111-1-vmojzis@redhat.com>
+In-Reply-To: <20180224045733.12509-1-ykhodo@gmail.com>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH] semodule-utils/semodule_package: fix semodule_unpackage
- man page
+Subject: Re: [PATCH] secilc: Fix documentation build for OS X systems
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 02/22/2018 08:33 AM, Vit Mojzis wrote:
-> Fix command line arguments and description in man page.
+On 02/23/2018 11:57 PM, Yuli Khodorkovskiy wrote:
+> Since Darwin systems do not have GNU sed installed, the Darwin sed is
+> missing the "regexp-extended" flag needed to modify the secilc markdown
+> files before processing with pandoc.
 > 
-> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1334834
+> A quick fix for Mac users is to `brew install gnu-sed` and to use gsed.
 > 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Signed-off-by: Yuli Khodorkovskiy <ykhodo@gmail.com>
 
 Thanks, applied.
 
 > ---
->  semodule-utils/semodule_package/semodule_unpackage.8 | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  secilc/docs/Makefile | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
 > 
-> diff --git a/semodule-utils/semodule_package/semodule_unpackage.8 b/semodule-utils/semodule_package/semodule_unpackage.8
-> index d6e1be0a..5c92bf51 100644
-> --- a/semodule-utils/semodule_package/semodule_unpackage.8
-> +++ b/semodule-utils/semodule_package/semodule_unpackage.8
-> @@ -1,14 +1,14 @@
->  .TH SEMODULE_PACKAGE "8" "Nov 2005" "Security Enhanced Linux" NSA
->  .SH NAME
-> -semodule_unpackage \- Extract policy module and file context file from an SELinux policy module unpackage.
-> +semodule_unpackage \- Extract policy module and file context file from an SELinux policy module package.
+> diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
+> index c0fa6b7f..6b07ce7f 100644
+> --- a/secilc/docs/Makefile
+> +++ b/secilc/docs/Makefile
+> @@ -31,6 +31,12 @@ PANDOC_FILE_LIST = $(addprefix $(TMPDIR)/,$(FILE_LIST))
+>  PDF_OUT=CIL_Reference_Guide.pdf
+>  HTML_OUT=CIL_Reference_Guide.html
+>  PANDOC = pandoc
+> +SED ?= sed
+> +
+> +OS := $(shell uname)
+> +ifeq ($(OS), Darwin)
+> +	SED := gsed
+> +endif
 >  
->  .SH SYNOPSIS
-> -.B semodule_unpackage <module> [<file contexts>]
-> +.B semodule_unpackage ppfile modfile [fcfile]
->  .br
->  .SH DESCRIPTION
->  .PP
-> -semodule_unpackage is the tool used to extract the SELinux policy module
-> - and file context file from an SELinux Policy Package.
-> +semodule_unpackage is a tool used to extract SELinux policy module
-> +file and file context file from an SELinux Policy Package.
+>  all: html pdf
 >  
->  .SH EXAMPLE
->  .nf
+> @@ -40,12 +46,12 @@ $(TMPDIR):
+>  $(TMPDIR)/%.md: %.md | $(TMPDIR)
+>  	cp -f $< $(TMPDIR)/
+>  	@# Substitute markdown links for conversion into PDF links
+> -	sed -i -re 's:(\[`[^`]*`\])\([^#]*([^\)]):\1\(\2:g' $@
+> +	$(SED) -i -re 's:(\[`[^`]*`\])\([^#]*([^\)]):\1\(\2:g' $@
+>  
+>  $(TMPDIR)/policy.cil: $(TESTDIR)/policy.cil
+>  	cp -f $< $@
+>  	@# add a title for the TOC to policy.cil. This is needed to play nicely with the PDF conversion.
+> -	sed -i '1i Example Policy\n=========\n```' $@
+> +	$(SED) -i '1i Example Policy\n=========\n```' $@
+>  	echo '```' >> $@
+>  
+>  html: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil
 > 
