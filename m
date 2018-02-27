@@ -1,13 +1,14 @@
-Date: Mon, 26 Feb 2018 19:57:44 -0300
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Date: Tue, 27 Feb 2018 07:24:24 -0500
+From: Neil Horman <nhorman@tuxdriver.com>
 To: Paul Moore <paul@paul-moore.com>
-Cc: Richard Haines <richard_c_haines@btinternet.com>, nhorman@tuxdriver.com,
- selinux@tycho.nsa.gov, netdev@vger.kernel.org,
- linux-sctp@vger.kernel.org, linux-security-module@vger.kernel.org,
- Vlad Yasevich <vyasevich@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+Cc: Richard Haines <richard_c_haines@btinternet.com>,
+ marcelo.leitner@gmail.com, selinux@tycho.nsa.gov,
+ netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org, Vlad Yasevich <vyasevich@gmail.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
  Eric Paris <eparis@parisplace.org>, casey@schaufler-ca.com,
  James Morris <jmorris@namei.org>
-Message-ID: <20180226225744.GK4375@localhost.localdomain>
+Message-ID: <20180227122424.GA22323@hmswarspite.think-freely.org>
 References: <20180224161851.29712-1-richard_c_haines@btinternet.com>
  <CAHC9VhQrNjdtujiazYyM9n535ov1QHZ_b7=u4f-kiYCJE-=YVw@mail.gmail.com>
 MIME-Version: 1.0
@@ -70,7 +71,6 @@ On Mon, Feb 26, 2018 at 05:48:48PM -0500, Paul Moore wrote:
 > 
 > Neil and Marcelo, I transfered your acked-by to this patch, if you've
 > got any objections to that please let me know.
-
-That's fine by me. Thanks
-
-  Marcelo
+> 
+I'm also fine with the transfer, thanks for checking!
+Neil
