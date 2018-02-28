@@ -1,90 +1,122 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1S9rOjD013094
- for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2018 04:53:24 -0500
-Received: by mail-wm0-f44.google.com with SMTP id x7so3827878wmc.0
- for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2018 01:53:20 -0800 (PST)
-Received: from julius.enp8s0.d30 ([217.19.26.10])
- by smtp.gmail.com with ESMTPSA id w41sm1545019edd.32.2018.02.28.01.53.18
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
- Wed, 28 Feb 2018 01:53:18 -0800 (PST)
-Date: Wed, 28 Feb 2018 10:53:17 +0100
-From: Dominick Grift <dac.override@gmail.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w1SAFSc4020865
+ for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2018 05:15:28 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.3])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 9BF9F4040855
+ for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2018 10:15:24 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.26])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 3E3E710B0F45
+ for <selinux@tycho.nsa.gov>; Wed, 28 Feb 2018 10:15:24 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Message-ID: <20180228095317.GB28719@julius.enp8s0.d30>
-References: <20180228092708.GA28719@julius.enp8s0.d30>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="gj572EiMnwbLXET9"
-In-Reply-To: <20180228092708.GA28719@julius.enp8s0.d30>
-Subject: Re: Linux 4.16 cap_sys_module
+Date: Wed, 28 Feb 2018 11:15:08 +0100
+Message-Id: <20180228101510.21023-1-vmojzis@redhat.com>
+In-Reply-To: <1498485334.13301.9.camel@tycho.nsa.gov>
+References: <1498485334.13301.9.camel@tycho.nsa.gov>
+Subject: [PATCH 1/3] libsemanage: remove access() check to make
+ setuid programs work
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+access() uses real UID instead of effective UID which causes false
+negative checks in setuid programs. Remove redundant access() checks
 
---gj572EiMnwbLXET9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
 
-On Wed, Feb 28, 2018 at 10:27:08AM +0100, Dominick Grift wrote:
-> Since Linux 4.16 (to atleast RC2) user space started to excessively trigg=
-er cap_sys_module
->=20
-> Here is one example of such and event:
->=20
-> type=3DSYSCALL msg=3Daudit(02/27/2018 08:06:40.017:74) : arch=3Dx86_64 sy=
-scall=3Dioctl success=3Dno exit=3DENOTTY(Inappropriate ioctl for device) a0=
-=3D0x2 a1=3DTCGETS a2=3D0x7fff2d89f8f0 a3=3D0x55ba203a9010 items=3D0 ppid=
-=3D1 pid=3D423 auid=3Dunset uid=3Droot gid=3Droot euid=3Droot suid=3Droot f=
-suid=3Droot egid=3Droot sgid=3Droot fsgid=3Droot tty=3D(none) ses=3Dunset c=
-omm=3Dsystemd-user-se exe=3D/usr/lib/systemd/systemd-user-sessions subj=3Ds=
-ys.id:sys.role:user_sessions.subj:s0 key=3D(null)
-> type=3DAVC msg=3Daudit(02/27/2018 08:06:40.017:74) : avc:  denied  { sys_=
-module } for  pid=3D423 comm=3Dsystemd-user-se capability=3Dsys_module  sco=
-ntext=3Dsys.id:sys.role:user_sessions.subj:s0 tcontext=3Dsys.id:sys.role:us=
-er_sessions.subj:s0 tclass=3Dcapability permissive=3D1
-> type=3DAVC msg=3Daudit(02/27/2018 08:06:40.017:74) : avc:  denied  { modu=
-le_request } for  pid=3D423 comm=3Dsystemd-user-se kmod=3D6E65746465762D80E=
-72A05257F scontext=3Dsys.id:sys.role:user_sessions.subj:s0 tcontext=3Dsys.i=
-d:sys.role:sys.isid:s0 tclass=3Dsystem permissive=3D1
->=20
-> Any idea what causes this and how to fix it?
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libsemanage/src/direct_api.c     |  7 -------
+ libsemanage/src/semanage_store.c | 17 ++++++++---------
+ 2 files changed, 8 insertions(+), 16 deletions(-)
 
-For reference: https://github.com/fedora-selinux/selinux-policy/commit/2c13=
-be1fb543c51935785e7a43b798a9f35f5aa0#comments
-
->=20
-> --=20
-> Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-> Dominick Grift
-
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---gj572EiMnwbLXET9
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAlqWfAkACgkQJXSOVTf5
-R2nN7Qv7BIGqPmVB7mh18Ezpra6MQXzE7DxMqmNWONozEb54h515z4Uy+ZMKlQad
-PF03UpU6iGXcYjXRkUz4ghoevfWW+9w27lmwgJM6GB1zZz9QdDOFxCl/pL4hKQii
-Eri4ydopCTvSltgA2MT09s1fd8s1KztZ3E/eTCtz03+1SUCtaZNvxmdCinIcnlFo
-nmpllKm8t3rMHq8EPYv+4U7MRMKIPnsPcZQLIQgSsVY41+ZCJF+J5jY5KuC14aat
-6vwjZGpmOYiDaLp0T9a8k/W8V3mUsPmYmp9RNGnCAvdix1IdKfz8TMgB5n67VTgT
-k4l6M8+S5BTFlCJlUIXZfMTlkxOrz6oYRLbm5LNDfhIiua+FBtgoFmFj0sITata+
-TY3L0t+ahcTI+63ZP2KB0ZTQgn6Vfv10Pj5ithtqycisWBLN3QbFDZxFNk9KuJZP
-67iSnM9C+ARv5nn40v9LVmwEn9dpYPx7IYnPaAM0zb0Qx5QP3b1z8GFR+qzXx5pn
-uCcA0ArU
-=Wxsn
------END PGP SIGNATURE-----
-
---gj572EiMnwbLXET9--
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 88873c43..b7899d68 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -148,9 +148,6 @@ int semanage_direct_connect(semanage_handle_t * sh)
+ 		if (semanage_create_store(sh, 1))
+ 			goto err;
+ 
+-	if (semanage_access_check(sh) < SEMANAGE_CAN_READ)
+-		goto err;
+-
+ 	sh->u.direct.translock_file_fd = -1;
+ 	sh->u.direct.activelock_file_fd = -1;
+ 
+@@ -398,10 +395,6 @@ static int semanage_direct_disconnect(semanage_handle_t *sh)
+ 
+ static int semanage_direct_begintrans(semanage_handle_t * sh)
+ {
+-
+-	if (semanage_access_check(sh) != SEMANAGE_CAN_WRITE) {
+-		return -1;
+-	}
+ 	if (semanage_get_trans_lock(sh) < 0) {
+ 		return -1;
+ 	}
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 936e6495..4bd1d651 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -538,7 +538,6 @@ char *semanage_conf_path(void)
+ int semanage_create_store(semanage_handle_t * sh, int create)
+ {
+ 	struct stat sb;
+-	int mode_mask = R_OK | W_OK | X_OK;
+ 	const char *path = semanage_files[SEMANAGE_ROOT];
+ 	int fd;
+ 
+@@ -557,9 +556,9 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 			return -1;
+ 		}
+ 	} else {
+-		if (!S_ISDIR(sb.st_mode) || access(path, mode_mask) == -1) {
++		if (!S_ISDIR(sb.st_mode)) {
+ 			ERR(sh,
+-			    "Could not access module store at %s, or it is not a directory.",
++			    "Module store at %s is not a directory.",
+ 			    path);
+ 			return -1;
+ 		}
+@@ -580,9 +579,9 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 			return -1;
+ 		}
+ 	} else {
+-		if (!S_ISDIR(sb.st_mode) || access(path, mode_mask) == -1) {
++		if (!S_ISDIR(sb.st_mode)) {
+ 			ERR(sh,
+-			    "Could not access module store active subdirectory at %s, or it is not a directory.",
++			    "Module store active subdirectory at %s is not a directory.",
+ 			    path);
+ 			return -1;
+ 		}
+@@ -603,9 +602,9 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 			return -1;
+ 		}
+ 	} else {
+-		if (!S_ISDIR(sb.st_mode) || access(path, mode_mask) == -1) {
++		if (!S_ISDIR(sb.st_mode)) {
+ 			ERR(sh,
+-			    "Could not access module store active modules subdirectory at %s, or it is not a directory.",
++			    "Module store active modules subdirectory at %s is not a directory.",
+ 			    path);
+ 			return -1;
+ 		}
+@@ -624,8 +623,8 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 			return -1;
+ 		}
+ 	} else {
+-		if (!S_ISREG(sb.st_mode) || access(path, R_OK | W_OK) == -1) {
+-			ERR(sh, "Could not access lock file at %s.", path);
++		if (!S_ISREG(sb.st_mode)) {
++			ERR(sh, "Object at %s is not a lock file.", path);
+ 			return -1;
+ 		}
+ 	}
+-- 
+2.14.3
