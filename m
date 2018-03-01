@@ -1,177 +1,99 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w21NqE7v027293
- for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2018 18:52:14 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
- [10.11.54.4])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id E99F340FB657
- for <selinux@tycho.nsa.gov>; Thu,  1 Mar 2018 23:52:08 +0000 (UTC)
-From: Paul Moore <pmoore@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Thu, 01 Mar 2018 18:52:08 -0500
-Message-ID: <151994832810.32269.8035664161422596677.stgit@chester>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w21Nqgv3027305
+ for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2018 18:52:42 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC09.oob.disa.mil (Postfix) with SMTP id 3zsq4651LCz2NjRV
+ for <selinux@tycho.nsa.gov>; Thu,  1 Mar 2018 23:52:38 +0000 (UTC)
+Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
+ by UPDCF3IC09.oob.disa.mil (Postfix) with ESMTP id 3zsq463z5tz2NjRT
+ for <selinux@tycho.nsa.gov>; Thu,  1 Mar 2018 23:52:38 +0000 (UTC)
+Received: by mail-lf0-f65.google.com with SMTP id 37so10907717lfs.7
+ for <selinux@tycho.nsa.gov>; Thu, 01 Mar 2018 15:52:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Subject: [PATCH] selinux: rename the {is,set}_enforcing() functions
+In-Reply-To: <CAHC9VhQKrp-SLPWT9VSHtQr9V05suL6GddAJ9XAa7WRBfxvLDw@mail.gmail.com>
+References: <20180216171950.4344-1-sds@tycho.nsa.gov>
+ <CAHC9VhQKrp-SLPWT9VSHtQr9V05suL6GddAJ9XAa7WRBfxvLDw@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 1 Mar 2018 18:51:36 -0500
+Message-ID: <CAHC9VhSQfkLVm9Qj7rxsfwC3+qoKGj38k=oVchfPZfS8M4V9qg@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, peter.enderborg@sony.com
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux: wrap global selinux state
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <paul@paul-moore.com>
+On Thu, Mar 1, 2018 at 6:00 PM, Paul Moore <paul@paul-moore.com> wrote:
+> On Fri, Feb 16, 2018 at 12:19 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> Define a selinux state structure (struct selinux_state) for
+>> global SELinux state and pass it explicitly to all security server
+>> functions.  The public portion of the structure contains state
+>> that is used throughout the SELinux code, such as the enforcing mode.
+>> The structure also contains a pointer to a selinux_ss structure whose
+>> definition is private to the security server and contains security
+>> server specific state such as the policy database and SID table.
+>>
+>> This change should have no effect on SELinux behavior or APIs
+>> (userspace or LSM).  It merely wraps SELinux state and passes it
+>> explicitly as needed.
+>>
+>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> ---
+>> This is effectively v2 of "selinux: introduce a selinux namespace",
+>> but rewritten per the review to only perform the encapsulation of state
+>> and rebased onto latest selinux/next, currently v4.16-rc1-based.
+>> Changes from v1:
+>> - Rename selinux_ns to selinux_state,
+>> - Statically allocate selinux_state and selinux_ss,
+>> - Drop any namespace-specific fields, code, and references,
+>> - Use static inlines rather than macros.
+>>
+>> I also intend to rework the "selinux: support multiple selinuxfs instances"
+>> and "selinux: move the AVC into the selinux namespace" patches similarly
+>> and re-base on this one, but want to wait until this one is finalized since
+>> every change to this own will require further reworking of the later ones.
+>
+> Thanks for the respin Stephen, I know that was probably a bit painful
+> given the size of the patch; it definitely wasn't fun to review.  For
+> the most part I think everything here looks fine (minor nitpick, see
+> below), and because of these points:
+>
+> 1) Everything here is internal to SELinux so we change it without
+> breaking userspace or even other parts of the kernel.
+>
+> 2) Other work is dependent on this patch.
+>
+> 3) A patch of this size and scopr, I want it in linux-next sooner
+> rather than later.
+>
+> ... I'm going to merge this now, or rather as soon as my test kernel
+> finishes building and I can give this a quick sanity check.
 
-Rename is_enforcing() to enforcing_enabled() and
-enforcing_set() to set_enforcing().
+Quick sanity tests looked good, it's in selinux/next as of right now.
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- security/selinux/avc.c              |    2 +-
- security/selinux/hooks.c            |    4 ++--
- security/selinux/include/security.h |    8 ++++----
- security/selinux/selinuxfs.c        |    6 +++---
- security/selinux/ss/services.c      |    6 +++---
- security/selinux/ss/status.c        |    2 +-
- 6 files changed, 14 insertions(+), 14 deletions(-)
+> As expected, there were some minor merge problems with the SCTP
+> patches, but those were trivially fixed.
+>
+>> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+>> index 02f0412d42f2..c3a1ef10e710 100644
+>> --- a/security/selinux/include/security.h
+>> +++ b/security/selinux/include/security.h
+>
+> ...
+>
+>> +static inline bool is_enforcing(struct selinux_state *state)
+>> +static inline void set_enforcing(struct selinux_state *state, bool value)
+>
+> More nitpickery: I'm not a fan of these names.
+>
+> I'm going to take partial blame for this as I didn't pay close enough
+> attention to the names earlier, I was focused on the #define vs inline
+> function nature of the functions.  I realize it's late, and I want to
+> get this merged (see above), so I'll put together a separate patch on
+> top of this to change the names.
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 36124f48a5ff..54b09cc03b55 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -985,7 +985,7 @@ static noinline int avc_denied(u32 ssid, u32 tsid,
- 	if (flags & AVC_STRICT)
- 		return -EACCES;
- 
--	if (is_enforcing(&selinux_state) &&
-+	if (enforcing_enabled(&selinux_state) &&
- 	    !(avd->flags & AVD_FLAGS_PERMISSIVE))
- 		return -EACCES;
- 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index d78f9e2f6df0..337fb325e5cc 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5407,7 +5407,7 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
- 			       sk->sk_protocol, nlh->nlmsg_type,
- 			       secclass_map[sksec->sclass - 1].name,
- 			       task_pid_nr(current), current->comm);
--			if (!is_enforcing(&selinux_state) ||
-+			if (!enforcing_enabled(&selinux_state) ||
- 			    security_get_allow_unknown(&selinux_state))
- 				err = 0;
- 		}
-@@ -6937,7 +6937,7 @@ static __init int selinux_init(void)
- 	printk(KERN_INFO "SELinux:  Initializing.\n");
- 
- 	memset(&selinux_state, 0, sizeof(selinux_state));
--	set_enforcing(&selinux_state, selinux_enforcing_boot);
-+	enforcing_set(&selinux_state, selinux_enforcing_boot);
- 	selinux_state.checkreqprot = selinux_checkreqprot_boot;
- 	selinux_ss_init(&selinux_state.ss);
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index c3a1ef10e710..f1db09a5f521 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -111,22 +111,22 @@ void selinux_ss_init(struct selinux_ss **ss);
- extern struct selinux_state selinux_state;
- 
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
--static inline bool is_enforcing(struct selinux_state *state)
-+static inline bool enforcing_enabled(struct selinux_state *state)
- {
- 	return state->enforcing;
- }
- 
--static inline void set_enforcing(struct selinux_state *state, bool value)
-+static inline void enforcing_set(struct selinux_state *state, bool value)
- {
- 	state->enforcing = value;
- }
- #else
--static inline bool is_enforcing(struct selinux_state *state)
-+static inline bool enforcing_enabled(struct selinux_state *state)
- {
- 	return true;
- }
- 
--static inline void set_enforcing(struct selinux_state *state, bool value)
-+static inline void enforcing_set(struct selinux_state *state, bool value)
- {
- }
- #endif
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 98492755adbf..0dbd5fd6a396 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -98,7 +98,7 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
- 	ssize_t length;
- 
- 	length = scnprintf(tmpbuf, TMPBUFLEN, "%d",
--			   is_enforcing(&selinux_state));
-+			   enforcing_enabled(&selinux_state));
- 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
- }
- 
-@@ -128,7 +128,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 
- 	new_value = !!new_value;
- 
--	old_value = is_enforcing(&selinux_state);
-+	old_value = enforcing_enabled(&selinux_state);
- 
- 	if (new_value != old_value) {
- 		length = avc_has_perm(current_sid(), SECINITSID_SECURITY,
-@@ -141,7 +141,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 			new_value, old_value,
- 			from_kuid(&init_user_ns, audit_get_loginuid(current)),
- 			audit_get_sessionid(current));
--		set_enforcing(&selinux_state, new_value);
-+		enforcing_set(&selinux_state, new_value);
- 		if (new_value)
- 			avc_ss_reset(0);
- 		selnl_notify_setenforce(new_value);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 3698352213d7..4785ca552d51 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -752,7 +752,7 @@ static int security_validtrans_handle_fail(struct selinux_state *state,
- 	kfree(n);
- 	kfree(t);
- 
--	if (!is_enforcing(state))
-+	if (!enforcing_enabled(state))
- 		return 0;
- 	return -EPERM;
- }
-@@ -1596,7 +1596,7 @@ static int compute_sid_handle_invalid_context(
- 	kfree(s);
- 	kfree(t);
- 	kfree(n);
--	if (!is_enforcing(state))
-+	if (!enforcing_enabled(state))
- 		return 0;
- 	return -EACCES;
- }
-@@ -1907,7 +1907,7 @@ static inline int convert_context_handle_invalid_context(
- 	char *s;
- 	u32 len;
- 
--	if (is_enforcing(state))
-+	if (enforcing_enabled(state))
- 		return -EINVAL;
- 
- 	if (!context_struct_to_string(policydb, context, &s, &len)) {
-diff --git a/security/selinux/ss/status.c b/security/selinux/ss/status.c
-index 043efc59f8e4..a121de45ac0e 100644
---- a/security/selinux/ss/status.c
-+++ b/security/selinux/ss/status.c
-@@ -56,7 +56,7 @@ struct page *selinux_kernel_status_page(struct selinux_state *state)
- 
- 			status->version = SELINUX_KERNEL_STATUS_VERSION;
- 			status->sequence = 0;
--			status->enforcing = is_enforcing(state);
-+			status->enforcing = enforcing_enabled(state);
- 			/*
- 			 * NOTE: the next policyload event shall set
- 			 * a positive value on the status->policyload,
+-- 
+paul moore
+www.paul-moore.com
