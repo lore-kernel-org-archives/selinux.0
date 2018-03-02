@@ -1,99 +1,162 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w21Nqgv3027305
- for <selinux@tycho.nsa.gov>; Thu, 1 Mar 2018 18:52:42 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w22GuA51017526
+ for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2018 11:56:10 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC09.oob.disa.mil (Postfix) with SMTP id 3zsq4651LCz2NjRV
- for <selinux@tycho.nsa.gov>; Thu,  1 Mar 2018 23:52:38 +0000 (UTC)
+ by UPDCF3IC03.oob.disa.mil (Postfix) with SMTP id 3ztFn25jR5zJpBQ
+ for <selinux@tycho.nsa.gov>; Fri,  2 Mar 2018 16:56:06 +0000 (UTC)
 Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
- by UPDCF3IC09.oob.disa.mil (Postfix) with ESMTP id 3zsq463z5tz2NjRT
- for <selinux@tycho.nsa.gov>; Thu,  1 Mar 2018 23:52:38 +0000 (UTC)
-Received: by mail-lf0-f65.google.com with SMTP id 37so10907717lfs.7
- for <selinux@tycho.nsa.gov>; Thu, 01 Mar 2018 15:52:37 -0800 (PST)
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQKrp-SLPWT9VSHtQr9V05suL6GddAJ9XAa7WRBfxvLDw@mail.gmail.com>
-References: <20180216171950.4344-1-sds@tycho.nsa.gov>
- <CAHC9VhQKrp-SLPWT9VSHtQr9V05suL6GddAJ9XAa7WRBfxvLDw@mail.gmail.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 1 Mar 2018 18:51:36 -0500
-Message-ID: <CAHC9VhSQfkLVm9Qj7rxsfwC3+qoKGj38k=oVchfPZfS8M4V9qg@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, peter.enderborg@sony.com
+ by UPDCF3IC03.oob.disa.mil (Postfix) with ESMTP id 3ztFn24YF4zJnYV
+ for <selinux@tycho.nsa.gov>; Fri,  2 Mar 2018 16:56:06 +0000 (UTC)
+Message-ID: <1520009758.23261.2.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, anders.roxell@linaro.org
+Date: Fri, 02 Mar 2018 16:55:58 +0000
+In-Reply-To: <161e2bc0f58.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+References: <20180301083316.GA6779@localhost.localdomain>
+ <CAHC9VhQAnsSTK4V2w3+CiikR6465Jpnu7_vr=3VFEQch7LECtA@mail.gmail.com>
+ <1519914989.3063.1.camel@btinternet.com>
+ <161e2bc0f58.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux: wrap global selinux state
+Mime-Version: 1.0
+Subject: Re: Regression found when running LTP connect01 on
+ next-20180301
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Mar 1, 2018 at 6:00 PM, Paul Moore <paul@paul-moore.com> wrote:
-> On Fri, Feb 16, 2018 at 12:19 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> Define a selinux state structure (struct selinux_state) for
->> global SELinux state and pass it explicitly to all security server
->> functions.  The public portion of the structure contains state
->> that is used throughout the SELinux code, such as the enforcing mode.
->> The structure also contains a pointer to a selinux_ss structure whose
->> definition is private to the security server and contains security
->> server specific state such as the policy database and SID table.
->>
->> This change should have no effect on SELinux behavior or APIs
->> (userspace or LSM).  It merely wraps SELinux state and passes it
->> explicitly as needed.
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> ---
->> This is effectively v2 of "selinux: introduce a selinux namespace",
->> but rewritten per the review to only perform the encapsulation of state
->> and rebased onto latest selinux/next, currently v4.16-rc1-based.
->> Changes from v1:
->> - Rename selinux_ns to selinux_state,
->> - Statically allocate selinux_state and selinux_ss,
->> - Drop any namespace-specific fields, code, and references,
->> - Use static inlines rather than macros.
->>
->> I also intend to rework the "selinux: support multiple selinuxfs instances"
->> and "selinux: move the AVC into the selinux namespace" patches similarly
->> and re-base on this one, but want to wait until this one is finalized since
->> every change to this own will require further reworking of the later ones.
->
-> Thanks for the respin Stephen, I know that was probably a bit painful
-> given the size of the patch; it definitely wasn't fun to review.  For
-> the most part I think everything here looks fine (minor nitpick, see
-> below), and because of these points:
->
-> 1) Everything here is internal to SELinux so we change it without
-> breaking userspace or even other parts of the kernel.
->
-> 2) Other work is dependent on this patch.
->
-> 3) A patch of this size and scopr, I want it in linux-next sooner
-> rather than later.
->
-> ... I'm going to merge this now, or rather as soon as my test kernel
-> finishes building and I can give this a quick sanity check.
+On Thu, 2018-03-01 at 13:03 -0500, Paul Moore wrote:
+> On March 1, 2018 9:36:37 AM Richard Haines <richard_c_haines@btintern
+> et.com> wrote:
+> > On Thu, 2018-03-01 at 08:42 -0500, Paul Moore wrote:
+> > > On Thu, Mar 1, 2018 at 3:33 AM, Anders Roxell <anders.roxell@lina
+> > > ro.o
+> > > rg> wrote:
+> > > > Hi,
+> > > > 
+> > > > I was running LTP's testcase connect01 [1] and found a
+> > > > regression
+> > > > in linux-next
+> > > > (next-20180301).  Bisect gave me this patch as the problematic
+> > > > patch (sha
+> > > > d452930fd3b9 "selinux: Add SCTP support") on a x86 target.
+> > > > 
+> > > > Output from the test(LTP release 20180118):
+> > > > $ cd /opt/ltp/
+> > > > $ cat runtest/syscalls |grep connect01>runtest/connect-syscall
+> > > > $ ./runltp -pq -f connect-syscall
+> > > > "
+> > > > Running tests.......
+> > > > connect01    1  TPASS  :  bad file descriptor successful
+> > > > connect01    2  TPASS  :  invalid socket buffer successful
+> > > > connect01    3  TPASS  :  invalid salen successful
+> > > > connect01    4  TPASS  :  invalid socket successful
+> > > > connect01    5  TPASS  :  already connected successful
+> > > > connect01    6  TPASS  :  connection refused successful
+> > > > connect01    7  TFAIL  :  connect01.c:146: invalid address
+> > > > family ;
+> > > > returned -1 (expected -1), errno 22 (expected 97)
+> > > > INFO: ltp-pan reported some tests FAIL
+> > > > LTP Version: 20180118
+> > > > "
+> > > > 
+> > > > The output from the test expected 97 and we received 22, can
+> > > > you
+> > > > please
+> > > > elaborate on what have been changed?
+> > > > 
+> > > > Cheers,
+> > > > Anders
+> > > > [1] https://github.com/linux-test-project/ltp/blob/20180118/tes
+> > > > tcas
+> > > > es/kernel/syscalls/connect/connect01.c#L146
+> > > 
+> > > Hi Anders,
+> > > 
+> > > Thanks for the report.  Out of curiosity, we're you running the
+> > > full
+> > > LTP test suite and this was the only failure, or did you just run
+> > > the
+> > > connect01 test?  Either answer is fine, I'm just trying to
+> > > understand
+> > > the scope of the regression.
+> > > 
+> > > Richard, are you able to look into this?  If not, let me know and
+> > > I'll
+> > > dig a bit deeper (I'll likely take a quick look today, but if the
+> > > failure is subtle it might require some digging).
+> > 
+> > I'll have a look today.
+> 
+> One more thing I forgot to mention earlier, if there is a patch to
+> fix this, could you please base it on top of the existing
+> SELinux/SCTP patches that have already been merged, and not respin an
+> earlier patch?
+> 
+> Thank you.
 
-Quick sanity tests looked good, it's in selinux/next as of right now.
 
-> As expected, there were some minor merge problems with the SCTP
-> patches, but those were trivially fixed.
->
->> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
->> index 02f0412d42f2..c3a1ef10e710 100644
->> --- a/security/selinux/include/security.h
->> +++ b/security/selinux/include/security.h
->
-> ...
->
->> +static inline bool is_enforcing(struct selinux_state *state)
->> +static inline void set_enforcing(struct selinux_state *state, bool value)
->
-> More nitpickery: I'm not a fan of these names.
->
-> I'm going to take partial blame for this as I didn't pay close enough
-> attention to the names earlier, I was focused on the #define vs inline
-> function nature of the functions.  I realize it's late, and I want to
-> get this merged (see above), so I'll put together a separate patch on
-> top of this to change the names.
+Just to keep you informed:
 
--- 
-paul moore
-www.paul-moore.com
+It appears that with the original hooks.c selinux_socket_connect()
+function check: if (sk->sk_family == PF_INET) {, the test fell through
+as sk->sk_family = 2 (AF_INET) with the error being picked up by the
+caller - even though the test set an illegal family of 47 - but not on
+the sk->sk_family, hence:
+
+With the new check: if (address->sa_family == AF_INET) {, the address-
+>sa_family = 47 and therefore treated it as an IPv6 address and failed
+with -EINVAL. By a fluke this is what SCTP services expects when
+invalid address family, however TCP and DCCP requires -EAFNOSUPPORT.
+
+I can fix this with the following simple patch:
+	switch (address->sa_family) {
+	case AF_INET:
+		addr4 = (struct sockaddr_in *)address;
+		if (addrlen < sizeof(struct sockaddr_in))
+			return -EINVAL;
+		snum = ntohs(addr4->sin_port);
+		break;
+	case AF_INET6:
+		addr6 = (struct sockaddr_in6 *)address;
+		if (addrlen < SIN6_LEN_RFC2133)
+			return -EINVAL;
+		snum = ntohs(addr6->sin6_port);
+		break;
+	default:
+		/* Note that SCTP services expect -EINVAL, whereas
+		 * others expect -EAFNOSUPPORT.
+		 */
+		if (sksec->sclass == SECCLASS_SCTP_SOCKET)
+			return -EINVAL;
+		else
+			return -EAFNOSUPPORT;
+	}
+
+This will pass the following LTP tests:
+./runltp -pq -f connect-syscall
+./runltp -pq -f net.sctp
+
+The selinux-testsuite inet_socket and sctp tests all pass as well.
+
+However: The selinux_socket_bind() function has the same issue that can
+be fixed by the same type of patch.
+
+So far I've tested three different patches to fix this problem and
+this one above seems best. I'll post a patch based on this covering
+the bind issue as well once I've done more testing.
+
+I think the SCTP services should return -EAFNOSUPPORT for this (as
+their sctp_connectx(3) man page states this), that will require kernel
+patch and patches to their test services (plus of course may impact
+some apps already out there ??).
+
+
+> 
+> --
+> paul moore
+> www.paul-moore.com
+> 
+> 
