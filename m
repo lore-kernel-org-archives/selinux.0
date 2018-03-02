@@ -1,43 +1,142 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w22JlY4t032668
- for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2018 14:47:34 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w22LQ5O6004201
+ for <selinux@tycho.nsa.gov>; Fri, 2 Mar 2018 16:26:05 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC03.oob.disa.mil (Postfix) with SMTP id 3ztKZr516YzJnYV
- for <selinux@tycho.nsa.gov>; Fri,  2 Mar 2018 19:47:32 +0000 (UTC)
-Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
- by UPDCF3IC03.oob.disa.mil (Postfix) with ESMTP id 3ztKZr2RRKzJpBW
- for <selinux@tycho.nsa.gov>; Fri,  2 Mar 2018 19:47:32 +0000 (UTC)
-Received: by mail-ot0-f176.google.com with SMTP id y11so9787728otg.0
- for <selinux@tycho.nsa.gov>; Fri, 02 Mar 2018 11:47:31 -0800 (PST)
+ by UPDCF3IC03.oob.disa.mil (Postfix) with SMTP id 3ztMmW2sSkzJnY6
+ for <selinux@tycho.nsa.gov>; Fri,  2 Mar 2018 21:26:03 +0000 (UTC)
+Received: from UPDC3CPA12_EEMSG_MP28.eemsg.mil (unknown [192.168.18.23])
+ by UPDCF3IC03.oob.disa.mil (Postfix) with ESMTP id 3ztMmW1l2MzJnW9
+ for <selinux@tycho.nsa.gov>; Fri,  2 Mar 2018 21:26:03 +0000 (UTC)
+Received: by mail-lf0-f45.google.com with SMTP id l191so15213028lfe.1
+ for <selinux@tycho.nsa.gov>; Fri, 02 Mar 2018 13:26:02 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <36517f76-3d9b-63e3-a259-90ebfd0271e3@ieee.org>
-References: <36517f76-3d9b-63e3-a259-90ebfd0271e3@ieee.org>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Fri, 2 Mar 2018 11:47:29 -0800
-Message-ID: <CAFftDdrDRG9PiXkstvasM_2Pnpf-N0hS1vFsVVcAc-ba2pgaEQ@mail.gmail.com>
-To: Chris PeBenito <pebenito@ieee.org>
-Cc: selinux <selinux@tycho.nsa.gov>
+In-Reply-To: <20180302195434.15435-1-richard_c_haines@btinternet.com>
+References: <20180302195434.15435-1-richard_c_haines@btinternet.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 2 Mar 2018 16:25:00 -0500
+Message-ID: <CAHC9VhQ33or9su_jw6XT=n=0NfO_6o++xGo7KyQ9XNBBn1jitw@mail.gmail.com>
+To: Richard Haines <richard_c_haines@btinternet.com>
+Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
+ linux-security-module@vger.kernel.org,
+ Vlad Yasevich <vyasevich@gmail.com>, nhorman@tuxdriver.com,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, marcelo.leitner@gmail.com,
+ casey@schaufler-ca.com, James Morris <jmorris@namei.org>,
+ anders.roxell@linaro.org
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: libsepol policycap names
+Subject: Re: [PATCH] selinux: Fix ltp test connect-syscall failure
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 2, 2018 at 10:49 AM, Chris PeBenito <pebenito@ieee.org> wrote:
-> I've been able to make SETools dynamically link to libsepol.  However, one
-> challenge is with policycap names.  They're static libsepol, with nothing
-> that exports them.  Can we either:
+On Fri, Mar 2, 2018 at 2:54 PM, Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> Fix the following error when running regression tests using LTP as follows:
+> cd /opt/ltp/
+> cat runtest/syscalls |grep connect01>runtest/connect-syscall
+> ./runltp -pq -f connect-syscall
 >
-> * export the sepol_polcap_getname() function, or
-> * move the polcap_names[] in polcaps.c into <sepol/policydb/polcaps.h> ?
+> Running tests.......
+> connect01    1  TPASS  :  bad file descriptor successful
+> connect01    2  TPASS  :  invalid socket buffer successful
+> connect01    3  TPASS  :  invalid salen successful
+> connect01    4  TPASS  :  invalid socket successful
+> connect01    5  TPASS  :  already connected successful
+> connect01    6  TPASS  :  connection refused successful
+> connect01    7  TFAIL  :  connect01.c:146: invalid address family ;
+> returned -1 (expected -1), errno 22 (expected 97)
+> INFO: ltp-pan reported some tests FAIL
+> LTP Version: 20180118
 >
-> Then I can avoid having to manually keep a polcap name list inside SETools.
+> Reported-by: Anders Roxell <anders.roxell@linaro.org>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  security/selinux/hooks.c | 42 ++++++++++++++++++++++++++++++------------
+>  1 file changed, 30 insertions(+), 12 deletions(-)
 
-I would rather export the sepol_polcap_getname() rather than the raw mapping
-array.
+Merged, thanks guys.
 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 28a5c4e..d614df1 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4470,22 +4470,29 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+>                  * need to check address->sa_family as it is possible to have
+>                  * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
+>                  */
+> -               if (address->sa_family == AF_INET) {
+> -                       if (addrlen < sizeof(struct sockaddr_in)) {
+> -                               err = -EINVAL;
+> -                               goto out;
+> -                       }
+> +               switch (address->sa_family) {
+> +               case AF_INET:
+> +                       if (addrlen < sizeof(struct sockaddr_in))
+> +                               return -EINVAL;
+>                         addr4 = (struct sockaddr_in *)address;
+>                         snum = ntohs(addr4->sin_port);
+>                         addrp = (char *)&addr4->sin_addr.s_addr;
+> -               } else {
+> -                       if (addrlen < SIN6_LEN_RFC2133) {
+> -                               err = -EINVAL;
+> -                               goto out;
+> -                       }
+> +                       break;
+> +               case AF_INET6:
+> +                       if (addrlen < SIN6_LEN_RFC2133)
+> +                               return -EINVAL;
+>                         addr6 = (struct sockaddr_in6 *)address;
+>                         snum = ntohs(addr6->sin6_port);
+>                         addrp = (char *)&addr6->sin6_addr.s6_addr;
+> +                       break;
+> +               default:
+> +                       /* Note that SCTP services expect -EINVAL, whereas
+> +                        * others expect -EAFNOSUPPORT.
+> +                        */
+> +                       if (sksec->sclass == SECCLASS_SCTP_SOCKET)
+> +                               return -EINVAL;
+> +                       else
+> +                               return -EAFNOSUPPORT;
+>                 }
 >
+>                 if (snum) {
+> @@ -4589,16 +4596,27 @@ static int selinux_socket_connect_helper(struct socket *sock,
+>                  * need to check address->sa_family as it is possible to have
+>                  * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
+>                  */
+> -               if (address->sa_family == AF_INET) {
+> +               switch (address->sa_family) {
+> +               case AF_INET:
+>                         addr4 = (struct sockaddr_in *)address;
+>                         if (addrlen < sizeof(struct sockaddr_in))
+>                                 return -EINVAL;
+>                         snum = ntohs(addr4->sin_port);
+> -               } else {
+> +                       break;
+> +               case AF_INET6:
+>                         addr6 = (struct sockaddr_in6 *)address;
+>                         if (addrlen < SIN6_LEN_RFC2133)
+>                                 return -EINVAL;
+>                         snum = ntohs(addr6->sin6_port);
+> +                       break;
+> +               default:
+> +                       /* Note that SCTP services expect -EINVAL, whereas
+> +                        * others expect -EAFNOSUPPORT.
+> +                        */
+> +                       if (sksec->sclass == SECCLASS_SCTP_SOCKET)
+> +                               return -EINVAL;
+> +                       else
+> +                               return -EAFNOSUPPORT;
+>                 }
+>
+>                 err = sel_netport_sid(sk->sk_protocol, snum, &sid);
 > --
-> Chris PeBenito
+> 2.14.3
 >
+
+
+
+-- 
+paul moore
+www.paul-moore.com
