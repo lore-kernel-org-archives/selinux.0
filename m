@@ -1,128 +1,27 @@
-Date: Fri, 2 Mar 2018 17:04:29 -0300
-From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov, netdev@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-security-module@vger.kernel.org, paul@paul-moore.com,
- vyasevich@gmail.com, nhorman@tuxdriver.com, sds@tycho.nsa.gov,
- eparis@parisplace.org, casey@schaufler-ca.com, jmorris@namei.org,
- anders.roxell@linaro.org
-Message-ID: <20180302200429.GC3888@localhost.localdomain>
-References: <20180302195434.15435-1-richard_c_haines@btinternet.com>
+To: Chris PeBenito <pebenito@ieee.org>, selinux@tycho.nsa.gov
+References: <36517f76-3d9b-63e3-a259-90ebfd0271e3@ieee.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <7f95f7a5-4d25-7a2f-39fa-f34fac50d81e@tycho.nsa.gov>
+Date: Mon, 5 Mar 2018 09:03:10 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180302195434.15435-1-richard_c_haines@btinternet.com>
-Subject: Re: [PATCH] selinux: Fix ltp test connect-syscall failure
+In-Reply-To: <36517f76-3d9b-63e3-a259-90ebfd0271e3@ieee.org>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: libsepol policycap names
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Mar 02, 2018 at 07:54:34PM +0000, Richard Haines wrote:
-> Fix the following error when running regression tests using LTP as follows:
-> cd /opt/ltp/
-> cat runtest/syscalls |grep connect01>runtest/connect-syscall
-> ./runltp -pq -f connect-syscall
+On 03/02/2018 01:49 PM, Chris PeBenito wrote:
+> I've been able to make SETools dynamically link to libsepol.  However,
+> one challenge is with policycap names.  They're static libsepol, with
+> nothing that exports them.  Can we either:
 > 
-> Running tests.......
-> connect01    1  TPASS  :  bad file descriptor successful
-> connect01    2  TPASS  :  invalid socket buffer successful
-> connect01    3  TPASS  :  invalid salen successful
-> connect01    4  TPASS  :  invalid socket successful
-> connect01    5  TPASS  :  already connected successful
-> connect01    6  TPASS  :  connection refused successful
-> connect01    7  TFAIL  :  connect01.c:146: invalid address family ;
-> returned -1 (expected -1), errno 22 (expected 97)
-> INFO: ltp-pan reported some tests FAIL
-> LTP Version: 20180118
+> * export the sepol_polcap_getname() function, or
+> * move the polcap_names[] in polcaps.c into <sepol/policydb/polcaps.h> ?
 > 
-> Reported-by: Anders Roxell <anders.roxell@linaro.org>
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> Then I can avoid having to manually keep a polcap name list inside SETools.
 
-Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-
-> ---
->  security/selinux/hooks.c | 42 ++++++++++++++++++++++++++++++------------
->  1 file changed, 30 insertions(+), 12 deletions(-)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 28a5c4e..d614df1 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4470,22 +4470,29 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
->  		 * need to check address->sa_family as it is possible to have
->  		 * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
->  		 */
-> -		if (address->sa_family == AF_INET) {
-> -			if (addrlen < sizeof(struct sockaddr_in)) {
-> -				err = -EINVAL;
-> -				goto out;
-> -			}
-> +		switch (address->sa_family) {
-> +		case AF_INET:
-> +			if (addrlen < sizeof(struct sockaddr_in))
-> +				return -EINVAL;
->  			addr4 = (struct sockaddr_in *)address;
->  			snum = ntohs(addr4->sin_port);
->  			addrp = (char *)&addr4->sin_addr.s_addr;
-> -		} else {
-> -			if (addrlen < SIN6_LEN_RFC2133) {
-> -				err = -EINVAL;
-> -				goto out;
-> -			}
-> +			break;
-> +		case AF_INET6:
-> +			if (addrlen < SIN6_LEN_RFC2133)
-> +				return -EINVAL;
->  			addr6 = (struct sockaddr_in6 *)address;
->  			snum = ntohs(addr6->sin6_port);
->  			addrp = (char *)&addr6->sin6_addr.s6_addr;
-> +			break;
-> +		default:
-> +			/* Note that SCTP services expect -EINVAL, whereas
-> +			 * others expect -EAFNOSUPPORT.
-> +			 */
-> +			if (sksec->sclass == SECCLASS_SCTP_SOCKET)
-> +				return -EINVAL;
-> +			else
-> +				return -EAFNOSUPPORT;
->  		}
->  
->  		if (snum) {
-> @@ -4589,16 +4596,27 @@ static int selinux_socket_connect_helper(struct socket *sock,
->  		 * need to check address->sa_family as it is possible to have
->  		 * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
->  		 */
-> -		if (address->sa_family == AF_INET) {
-> +		switch (address->sa_family) {
-> +		case AF_INET:
->  			addr4 = (struct sockaddr_in *)address;
->  			if (addrlen < sizeof(struct sockaddr_in))
->  				return -EINVAL;
->  			snum = ntohs(addr4->sin_port);
-> -		} else {
-> +			break;
-> +		case AF_INET6:
->  			addr6 = (struct sockaddr_in6 *)address;
->  			if (addrlen < SIN6_LEN_RFC2133)
->  				return -EINVAL;
->  			snum = ntohs(addr6->sin6_port);
-> +			break;
-> +		default:
-> +			/* Note that SCTP services expect -EINVAL, whereas
-> +			 * others expect -EAFNOSUPPORT.
-> +			 */
-> +			if (sksec->sclass == SECCLASS_SCTP_SOCKET)
-> +				return -EINVAL;
-> +			else
-> +				return -EAFNOSUPPORT;
->  		}
->  
->  		err = sel_netport_sid(sk->sk_protocol, snum, &sid);
-> -- 
-> 2.14.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sctp" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Let's do the former (and also export sepol_polcap_getnum for
+consistency).  Did you want to spin up a patch or were you asking us to
+do so?
