@@ -1,62 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w25N0941005656
- for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2018 18:00:14 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w25N0dx5005702
+ for <selinux@tycho.nsa.gov>; Mon, 5 Mar 2018 18:00:41 -0500
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC06.oob.disa.mil (Postfix) with SMTP id 3zwFjn4R0Xz19Yv0
- for <selinux@tycho.nsa.gov>; Mon,  5 Mar 2018 23:00:13 +0000 (UTC)
-Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
- by UPDCF3IC06.oob.disa.mil (Postfix) with ESMTP id 3zwFjn3qwQz19Ytg
- for <selinux@tycho.nsa.gov>; Mon,  5 Mar 2018 23:00:13 +0000 (UTC)
+ by UPDCF3IC13.oob.disa.mil (Postfix) with SMTP id 3zwFkJ38q0z25vbf
+ for <selinux@tycho.nsa.gov>; Mon,  5 Mar 2018 23:00:40 +0000 (UTC)
+Received: from UPDC3CPA11_EEMSG_MP27.eemsg.mil (unknown [192.168.18.22])
+ by UPDCF3IC13.oob.disa.mil (Postfix) with ESMTP id 3zwFkJ2Wm6z25vbb
+ for <selinux@tycho.nsa.gov>; Mon,  5 Mar 2018 23:00:40 +0000 (UTC)
 Received: from localhost.localdomain (abo-251-56-69.avi.modulonet.fr
  [85.69.56.251])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 380CD56128D
- for <selinux@tycho.nsa.gov>; Mon,  5 Mar 2018 23:58:30 +0100 (CET)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 73E8656128F
+ for <selinux@tycho.nsa.gov>; Mon,  5 Mar 2018 23:58:31 +0100 (CET)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Date: Mon,  5 Mar 2018 23:58:18 +0100
-Message-Id: <20180305225820.23610-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 1/3] libsepol: initialize tmp_key->ibdev_name if its
- allocation failed
+Date: Mon,  5 Mar 2018 23:58:19 +0100
+Message-Id: <20180305225820.23610-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20180305225820.23610-1-nicolas.iooss@m4x.org>
+References: <20180305225820.23610-1-nicolas.iooss@m4x.org>
+Subject: [PATCH 2/3] libsepol: cil: show an error when
+ cil_expr_to_string() fails
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In sepol_ibendport_key_create(), if sepol_ibendport_alloc_ibdev_name()
-fails to allocate tmp_key->ibdev_name, sepol_ibendport_key_free() is
-called to free the memory associated with tmp_key, which results in
-free() being called on uninitialized tmp_key->ibdev_name.
+cil_tree_print_expr() calls cil_expr_to_string() in order to compute a
+string expression into expr_str. If this function fails, expr_str is
+left unitialized but its value is dereferenced with:
 
-This issue is reported by clang's static analyzer with the following
-message:
+    cil_log(CIL_INFO, "%s)", expr_str);
 
-    ibendport_record.c:115:2: warning: 1st function call argument is an
-    uninitialized value
-            free(key->ibdev_name);
-            ^~~~~~~~~~~~~~~~~~~~~
+Prevent such an issue by checking cil_expr_to_string()'s return value
+before using expr_str.
+
+This issue has been found with clang's static analyzer.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsepol/src/ibendport_record.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ libsepol/cil/src/cil_tree.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/libsepol/src/ibendport_record.c b/libsepol/src/ibendport_record.c
-index 912aeb536fd9..8285a9d6ffcf 100644
---- a/libsepol/src/ibendport_record.c
-+++ b/libsepol/src/ibendport_record.c
-@@ -62,8 +62,10 @@ int sepol_ibendport_key_create(sepol_handle_t *handle,
- 		goto omem;
- 	}
+diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+index d36401b41dba..b394a9d849df 100644
+--- a/libsepol/cil/src/cil_tree.c
++++ b/libsepol/cil/src/cil_tree.c
+@@ -503,15 +503,19 @@ exit:
+ void cil_tree_print_expr(struct cil_list *datum_expr, struct cil_list *str_expr)
+ {
+ 	char *expr_str;
++	int rc;
  
--	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp_key->ibdev_name) < 0)
-+	if (sepol_ibendport_alloc_ibdev_name(handle, &tmp_key->ibdev_name) < 0) {
-+		tmp_key->ibdev_name = NULL;
- 		goto err;
+ 	cil_log(CIL_INFO, "(");
+ 
+ 	if (datum_expr != NULL) {
+-		cil_expr_to_string(datum_expr, &expr_str);
++		rc = cil_expr_to_string(datum_expr, &expr_str);
+ 	} else {
+-		cil_expr_to_string(str_expr, &expr_str);
++		rc = cil_expr_to_string(str_expr, &expr_str);
 +	}
- 
- 	strncpy(tmp_key->ibdev_name, ibdev_name, IB_DEVICE_NAME_MAX);
- 	tmp_key->port = port;
++	if (rc < 0) {
++		cil_log(CIL_INFO, "ERROR)");
++		return;
+ 	}
+-
+ 	cil_log(CIL_INFO, "%s)", expr_str);
+ 	free(expr_str);
+ }
 -- 
 2.16.0
