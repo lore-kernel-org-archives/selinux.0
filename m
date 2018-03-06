@@ -1,62 +1,58 @@
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
-References: <20180305225820.23610-1-nicolas.iooss@m4x.org>
- <20180305225820.23610-3-nicolas.iooss@m4x.org>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <4711cff6-c566-a034-7da3-dea78b67cd0f@tycho.nsa.gov>
-Date: Tue, 6 Mar 2018 16:31:49 -0500
+Date: Wed, 7 Mar 2018 09:10:10 +1100 (AEDT)
+From: James Morris <jmorris@namei.org>
+To: Casey Schaufler <casey@schaufler-ca.com>
+cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ John Johansen <john.johansen@canonical.com>,
+ gregkh@linuxfoundation.org, "Serge E. Hallyn" <serge@hallyn.com>,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov
+In-Reply-To: <8b1ea069-2389-5298-c187-647202762d72@schaufler-ca.com>
+Message-ID: <alpine.LRH.2.21.1803070909310.14366@namei.org>
+References: <20170908164001.21138-1-sds@tycho.nsa.gov>
+ <CAHC9VhSga+mg8VTtVoafdbpQ2K62PEBGrWidB8SUwWtRO+hahA@mail.gmail.com>
+ <alpine.LRH.2.21.1709090808200.15026@namei.org>
+ <CAHC9VhQ3YRmk7k5DQO9zoGKRXi3CSTHvmRuLa891NVWsVNCZZA@mail.gmail.com>
+ <8b1ea069-2389-5298-c187-647202762d72@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <20180305225820.23610-3-nicolas.iooss@m4x.org>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH 3/3] libsemanage: silence clang static analyzer report
+Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH] usb, signal, security: only pass the cred,
+ not the secid, to kill_pid_info_as_cred and security_task_kill
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/05/2018 05:58 PM, Nicolas Iooss wrote:
-> clang's static analyzer reports an out-of-bound array access in
-> semanage_user_roles() when num_roles is zero, with the following
-> statement:
-> 
->     strcpy(roles,roles_arr[0]);
-> 
-> When num_roles is zero, roles_arr[0] is not uninitialized and roles is
-> the result of malloc(0) so this strcpy is dangerous. Make
-> semanage_user_roles() return an empty string instead.
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+On Tue, 6 Mar 2018, Casey Schaufler wrote:
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> On 3/6/2018 11:01 AM, Paul Moore wrote:
+> > On Fri, Sep 8, 2017 at 6:09 PM, James Morris <jmorris@namei.org> wrote:
+> >> On Fri, 8 Sep 2017, Paul Moore wrote:
+> >>> Looks fine to me from a SELinux perspective.  If Casey and John are
+> >>> happy with this I can volunteer to pull it into the selinux/next tree
+> >>> (once the merge window closes), otherwise if someone else wants to
+> >>> merge this my ack is below.
+> >> As this impacts multiple LSMs, I'd prefer to take it via my tree.
+> > What happened to this James?  As best I can tell there were never any
+> > objections, and plenty of ACKs, but I don't see it in Linus' tree.
+> > I'll extend my offer to merge it, but I know you expressed a desire to
+> > pull this via your tree.
+> 
+> I was also surprised that it had not been included.
+> 
+> >
+> > * http://kernsec.org/pipermail/linux-security-module-archive/2017-September/003156.html
+> >
 
-> ---
->  libsemanage/src/seusers_local.c | 16 ++++++++++------
->  1 file changed, 10 insertions(+), 6 deletions(-)
-> 
-> diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
-> index 42c3a8b662c2..413ebdddeb34 100644
-> --- a/libsemanage/src/seusers_local.c
-> +++ b/libsemanage/src/seusers_local.c
-> @@ -35,12 +35,16 @@ static char *semanage_user_roles(semanage_handle_t * handle, const char *sename)
->  				for (i = 0; i<num_roles; i++) {
->  					size += (strlen(roles_arr[i]) + 1);
->  				}
-> -				roles = malloc(size);
-> -				if (roles) {
-> -					strcpy(roles,roles_arr[0]);
-> -					for (i = 1; i<num_roles; i++) {
-> -						strcat(roles,",");
-> -						strcat(roles,roles_arr[i]);
-> +				if (num_roles == 0) {
-> +					roles = strdup("");
-> +				} else {
-> +					roles = malloc(size);
-> +					if (roles) {
-> +						strcpy(roles,roles_arr[0]);
-> +						for (i = 1; i<num_roles; i++) {
-> +							strcat(roles,",");
-> +							strcat(roles,roles_arr[i]);
-> +						}
->  					}
->  				}
->  			}
-> 
+Oops,
+
+Now applied to:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security.git next-general
+and next-testing
+
+
+
+
+-- 
+James Morris
+<jmorris@namei.org>
