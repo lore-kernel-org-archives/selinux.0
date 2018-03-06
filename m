@@ -1,359 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w26BwQ1C025649
- for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2018 06:58:32 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
- [10.11.54.4])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 4C76E8182D0C
- for <selinux@tycho.nsa.gov>; Tue,  6 Mar 2018 11:58:28 +0000 (UTC)
-Received: from localhost.localdomain.com (unknown [10.43.12.26])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E5AB42026DFD
- for <selinux@tycho.nsa.gov>; Tue,  6 Mar 2018 11:58:27 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Tue,  6 Mar 2018 12:58:08 +0100
-Message-Id: <20180306115808.17470-4-vmojzis@redhat.com>
-In-Reply-To: <20180306115808.17470-1-vmojzis@redhat.com>
-References: <20180306115808.17470-1-vmojzis@redhat.com>
-Subject: [PATCH 3/3] libsemanage: replace access() checks to make
- setuid programs work
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w26J2Lxv010897
+ for <selinux@tycho.nsa.gov>; Tue, 6 Mar 2018 14:02:21 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC13.oob.disa.mil (Postfix) with SMTP id 3zwmNZ3mMLz2KQDZ
+ for <selinux@tycho.nsa.gov>; Tue,  6 Mar 2018 19:02:06 +0000 (UTC)
+Received: from UPDC3CPA11_EEMSG_MP27.eemsg.mil (unknown [192.168.18.22])
+ by UPDCF3IC13.oob.disa.mil (Postfix) with ESMTP id 3zwmNZ1Vqwz2KQDW
+ for <selinux@tycho.nsa.gov>; Tue,  6 Mar 2018 19:02:06 +0000 (UTC)
+Received: by mail-lf0-f46.google.com with SMTP id 37so30093848lfs.7
+ for <selinux@tycho.nsa.gov>; Tue, 06 Mar 2018 11:02:03 -0800 (PST)
+MIME-Version: 1.0
+In-Reply-To: <alpine.LRH.2.21.1709090808200.15026@namei.org>
+References: <20170908164001.21138-1-sds@tycho.nsa.gov>
+ <CAHC9VhSga+mg8VTtVoafdbpQ2K62PEBGrWidB8SUwWtRO+hahA@mail.gmail.com>
+ <alpine.LRH.2.21.1709090808200.15026@namei.org>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 6 Mar 2018 14:01:01 -0500
+Message-ID: <CAHC9VhQ3YRmk7k5DQO9zoGKRXi3CSTHvmRuLa891NVWsVNCZZA@mail.gmail.com>
+To: James Morris <jmorris@namei.org>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, casey@schaufler-ca.com,
+ John Johansen <john.johansen@canonical.com>,
+ James Morris <james.l.morris@oracle.com>, gregkh@linuxfoundation.org,
+ serge@hallyn.com, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] usb, signal, security: only pass the cred,
+ not the secid, to kill_pid_info_as_cred and security_task_kill
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-access() uses real UID instead of effective UID which causes false
-negative checks in setuid programs.
-Replace access(,F_OK) (i.e. tests for file existence) by stat().
-And access(,R_OK) by fopen(,"r")
+On Fri, Sep 8, 2017 at 6:09 PM, James Morris <jmorris@namei.org> wrote:
+> On Fri, 8 Sep 2017, Paul Moore wrote:
+>> Looks fine to me from a SELinux perspective.  If Casey and John are
+>> happy with this I can volunteer to pull it into the selinux/next tree
+>> (once the merge window closes), otherwise if someone else wants to
+>> merge this my ack is below.
+>
+> As this impacts multiple LSMs, I'd prefer to take it via my tree.
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
+What happened to this James?  As best I can tell there were never any
+objections, and plenty of ACKs, but I don't see it in Linus' tree.
+I'll extend my offer to merge it, but I know you expressed a desire to
+pull this via your tree.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsemanage/src/direct_api.c     | 133 +++++++++++++++++++++++++--------------
- libsemanage/src/semanage_store.c |  16 ++++-
- 2 files changed, 99 insertions(+), 50 deletions(-)
+* http://kernsec.org/pipermail/linux-security-module-archive/2017-September/003156.html
 
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 49cac14f..4e2af810 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -140,6 +140,7 @@ int semanage_direct_is_managed(semanage_handle_t * sh)
- int semanage_direct_connect(semanage_handle_t * sh)
- {
- 	const char *path;
-+	struct stat sb;
- 
- 	if (semanage_check_init(sh, sh->conf->store_root_path))
- 		goto err;
-@@ -302,10 +303,16 @@ int semanage_direct_connect(semanage_handle_t * sh)
- 
- 	/* set the disable dontaudit value */
- 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
--	if (access(path, F_OK) == 0)
-+
-+	if (stat(path, &sb) == 0)
- 		sepol_set_disable_dontaudit(sh->sepolh, 1);
--	else
-+	else if (errno == ENOENT) {
-+		/* The file does not exist */
- 		sepol_set_disable_dontaudit(sh->sepolh, 0);
-+	} else {
-+		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+		goto err;
-+	}
- 
- 	return STATUS_SUCCESS;
- 
-@@ -1139,6 +1146,7 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
- 	int status = 0;
- 	int i;
- 	char cil_path[PATH_MAX];
-+	struct stat sb;
- 
- 	assert(sh);
- 	assert(modinfos);
-@@ -1155,9 +1163,13 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
- 		}
- 
- 		if (semanage_get_ignore_module_cache(sh) == 0 &&
--				access(cil_path, F_OK) == 0) {
-+				(status = stat(cil_path, &sb)) == 0) {
- 			continue;
- 		}
-+		if (status != 0 && errno != ENOENT) {
-+			ERR(sh, "Unable to access %s: %s\n", cil_path, strerror(errno));
-+			goto cleanup; //an error in the "stat" call
-+		}
- 
- 		status = semanage_compile_module(sh, &modinfos[i]);
- 		if (status < 0) {
-@@ -1196,6 +1208,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	struct cil_db *cildb = NULL;
- 	semanage_module_info_t *modinfos = NULL;
- 	mode_t mask = umask(0077);
-+	struct stat sb;
- 
- 	int do_rebuild, do_write_kernel, do_install;
- 	int fcontexts_modified, ports_modified, seusers_modified,
-@@ -1234,10 +1247,15 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 
- 	/* Create or remove the disable_dontaudit flag file. */
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
--	if (access(path, F_OK) == 0)
-+	if (stat(path, &sb) == 0)
- 		do_rebuild |= !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
--	else
-+	else if (errno == ENOENT) {
-+		/* The file does not exist */
- 		do_rebuild |= (sepol_get_disable_dontaudit(sh->sepolh) == 1);
-+	} else {
-+		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+		goto cleanup;
-+	}
- 	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
- 		FILE *touch;
- 		touch = fopen(path, "w");
-@@ -1259,10 +1277,16 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 
- 	/* Create or remove the preserve_tunables flag file. */
- 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_PRESERVE_TUNABLES);
--	if (access(path, F_OK) == 0)
-+	if (stat(path, &sb) == 0)
- 		do_rebuild |= !(sepol_get_preserve_tunables(sh->sepolh) == 1);
--	else
-+	else if (errno == ENOENT) {
-+		/* The file does not exist */
- 		do_rebuild |= (sepol_get_preserve_tunables(sh->sepolh) == 1);
-+	} else {
-+		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+		goto cleanup;
-+	}
-+
- 	if (sepol_get_preserve_tunables(sh->sepolh) == 1) {
- 		FILE *touch;
- 		touch = fopen(path, "w");
-@@ -1299,40 +1323,24 @@ static int semanage_direct_commit(semanage_handle_t * sh)
- 	 * a rebuild.
- 	 */
- 	if (!do_rebuild) {
--		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
--		if (access(path, F_OK) != 0) {
--			do_rebuild = 1;
--			goto rebuild;
--		}
--
--		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
--		if (access(path, F_OK) != 0) {
--			do_rebuild = 1;
--			goto rebuild;
--		}
--
--		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
--		if (access(path, F_OK) != 0) {
--			do_rebuild = 1;
--			goto rebuild;
--		}
--
--		path = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
--		if (access(path, F_OK) != 0) {
--			do_rebuild = 1;
--			goto rebuild;
--		}
--
--		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
--		if (access(path, F_OK) != 0) {
--			do_rebuild = 1;
--			goto rebuild;
--		}
-+		int files[] = {SEMANAGE_STORE_KERNEL,
-+					   SEMANAGE_STORE_FC,
-+					   SEMANAGE_STORE_SEUSERS,
-+					   SEMANAGE_LINKED,
-+					   SEMANAGE_SEUSERS_LINKED,
-+					   SEMANAGE_USERS_EXTRA_LINKED};
-+
-+		for (i = 0; i < (int) sizeof(files); i++) {
-+			path = semanage_path(SEMANAGE_TMP, files[i]);
-+			if (stat(path, &sb) != 0) {
-+				if (errno != ENOENT) {
-+					ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+					goto cleanup;
-+				}
- 
--		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
--		if (access(path, F_OK) != 0) {
--			do_rebuild = 1;
--			goto rebuild;
-+				do_rebuild = 1;
-+				goto rebuild;
-+			}
- 		}
- 	}
- 
-@@ -1465,7 +1473,7 @@ rebuild:
- 			goto cleanup;
- 
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
--		if (access(path, F_OK) == 0) {
-+		if (stat(path, &sb) == 0) {
- 			retval = semanage_copy_file(path,
- 						    semanage_path(SEMANAGE_TMP,
- 								  SEMANAGE_STORE_SEUSERS),
-@@ -1473,12 +1481,18 @@ rebuild:
- 			if (retval < 0)
- 				goto cleanup;
- 			pseusers->dtable->drop_cache(pseusers->dbase);
--		} else {
-+		} else if (errno == ENOENT) {
-+			/* The file does not exist */
- 			pseusers->dtable->clear(sh, pseusers->dbase);
-+		} else {
-+			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+			goto cleanup;
- 		}
- 
-+
-+
- 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
--		if (access(path, F_OK) == 0) {
-+		if (stat(path, &sb) == 0) {
- 			retval = semanage_copy_file(path,
- 						    semanage_path(SEMANAGE_TMP,
- 								  SEMANAGE_USERS_EXTRA),
-@@ -1486,8 +1500,12 @@ rebuild:
- 			if (retval < 0)
- 				goto cleanup;
- 			pusers_extra->dtable->drop_cache(pusers_extra->dbase);
--		} else {
-+		} else if (errno == ENOENT) {
-+			/* The file does not exist */
- 			pusers_extra->dtable->clear(sh, pusers_extra->dbase);
-+		} else {
-+			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+			goto cleanup;
- 		}
- 	}
- 
-@@ -1817,6 +1835,7 @@ static int semanage_direct_extract(semanage_handle_t * sh,
- 	ssize_t _data_len;
- 	char *_data;
- 	int compressed;
-+	struct stat sb;
- 
- 	/* get path of module */
- 	rc = semanage_module_get_path(
-@@ -1829,8 +1848,8 @@ static int semanage_direct_extract(semanage_handle_t * sh,
- 		goto cleanup;
- 	}
- 
--	if (access(module_path, F_OK) != 0) {
--		ERR(sh, "Module does not exist: %s", module_path);
-+	if (stat(module_path, &sb) != 0) {
-+		ERR(sh, "Unable to access %s: %s\n", module_path, strerror(errno));
- 		rc = -1;
- 		goto cleanup;
- 	}
-@@ -1859,7 +1878,12 @@ static int semanage_direct_extract(semanage_handle_t * sh,
- 		goto cleanup;
- 	}
- 
--	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && access(input_file, F_OK) != 0) {
-+	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && stat(input_file, &sb) != 0) {
-+		if (errno != ENOENT) {
-+			ERR(sh, "Unable to access %s: %s\n", input_file, strerror(errno));
-+			goto cleanup;
-+		}
-+
- 		rc = semanage_compile_module(sh, _modinfo);
- 		if (rc < 0) {
- 			goto cleanup;
-@@ -2004,6 +2028,12 @@ static int semanage_direct_get_enabled(semanage_handle_t *sh,
- 	}
- 
- 	if (stat(path, &sb) < 0) {
-+		if (errno != ENOENT) {
-+			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+			status = -1;
-+			goto cleanup;
-+		}
-+
- 		*enabled = 1;
- 	}
- 	else {
-@@ -2330,6 +2360,12 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
- 
- 	/* set enabled/disabled status */
- 	if (stat(fn, &sb) < 0) {
-+		if (errno != ENOENT) {
-+			ERR(sh, "Unable to access %s: %s\n", fn, strerror(errno));
-+			status = -1;
-+			goto cleanup;
-+		}
-+
- 		ret = semanage_module_info_set_enabled(sh, *modinfo, 1);
- 		if (ret != 0) {
- 			status = -1;
-@@ -2738,6 +2774,7 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
- 	int status = 0;
- 	int ret = 0;
- 	int type;
-+	struct stat sb;
- 
- 	char path[PATH_MAX];
- 	mode_t mask = umask(0077);
-@@ -2838,7 +2875,7 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
- 			goto cleanup;
- 		}
- 
--		if (access(path, F_OK) == 0) {
-+		if (stat(path, &sb) == 0) {
- 			ret = unlink(path);
- 			if (ret != 0) {
- 				ERR(sh, "Error while removing cached CIL file %s: %s", path, strerror(errno));
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index 4bd1d651..10f8b306 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -514,6 +514,7 @@ char *semanage_conf_path(void)
- {
- 	char *semanage_conf = NULL;
- 	int len;
-+	struct stat sb;
- 
- 	len = strlen(semanage_root()) + strlen(selinux_path()) + strlen(SEMANAGE_CONF_FILE);
- 	semanage_conf = calloc(len + 1, sizeof(char));
-@@ -522,7 +523,12 @@ char *semanage_conf_path(void)
- 	snprintf(semanage_conf, len + 1, "%s%s%s", semanage_root(), selinux_path(),
- 		 SEMANAGE_CONF_FILE);
- 
--	if (access(semanage_conf, R_OK) != 0) {
-+	if (stat(semanage_conf, &sb) != 0) {
-+		if (errno != ENOENT) {
-+			/* semanage_conf exists but can't be accessed */
-+			return NULL;
-+		}
-+
- 		snprintf(semanage_conf, len + 1, "%s%s", selinux_path(), SEMANAGE_CONF_FILE);
- 	}
- 
-@@ -1508,8 +1514,14 @@ int semanage_split_fc(semanage_handle_t * sh)
- static int sefcontext_compile(semanage_handle_t * sh, const char *path) {
- 
- 	int r;
-+	struct stat sb;
-+
-+	if (stat(path, &sb) < 0) {
-+		if (errno != ENOENT) {
-+			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
-+			return -1;
-+		}
- 
--	if (access(path, F_OK) != 0) {
- 		return 0;
- 	}
- 
 -- 
-2.14.3
+paul moore
+www.paul-moore.com
