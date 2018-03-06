@@ -1,65 +1,62 @@
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov,
- James Carter <jwcart2@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
 References: <20180305225820.23610-1-nicolas.iooss@m4x.org>
- <20180305225820.23610-2-nicolas.iooss@m4x.org>
+ <20180305225820.23610-3-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <7c82f006-e291-ada6-a935-626436ccb156@tycho.nsa.gov>
-Date: Tue, 6 Mar 2018 16:29:57 -0500
+Message-ID: <4711cff6-c566-a034-7da3-dea78b67cd0f@tycho.nsa.gov>
+Date: Tue, 6 Mar 2018 16:31:49 -0500
 MIME-Version: 1.0
-In-Reply-To: <20180305225820.23610-2-nicolas.iooss@m4x.org>
+In-Reply-To: <20180305225820.23610-3-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH 2/3] libsepol: cil: show an error when
- cil_expr_to_string() fails
+Subject: Re: [PATCH 3/3] libsemanage: silence clang static analyzer report
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On 03/05/2018 05:58 PM, Nicolas Iooss wrote:
-> cil_tree_print_expr() calls cil_expr_to_string() in order to compute a
-> string expression into expr_str. If this function fails, expr_str is
-> left unitialized but its value is dereferenced with:
+> clang's static analyzer reports an out-of-bound array access in
+> semanage_user_roles() when num_roles is zero, with the following
+> statement:
 > 
->     cil_log(CIL_INFO, "%s)", expr_str);
+>     strcpy(roles,roles_arr[0]);
 > 
-> Prevent such an issue by checking cil_expr_to_string()'s return value
-> before using expr_str.
-> 
-> This issue has been found with clang's static analyzer.
+> When num_roles is zero, roles_arr[0] is not uninitialized and roles is
+> the result of malloc(0) so this strcpy is dangerous. Make
+> semanage_user_roles() return an empty string instead.
 > 
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
 > ---
->  libsepol/cil/src/cil_tree.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
+>  libsemanage/src/seusers_local.c | 16 ++++++++++------
+>  1 file changed, 10 insertions(+), 6 deletions(-)
 > 
-> diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
-> index d36401b41dba..b394a9d849df 100644
-> --- a/libsepol/cil/src/cil_tree.c
-> +++ b/libsepol/cil/src/cil_tree.c
-> @@ -503,15 +503,19 @@ exit:
->  void cil_tree_print_expr(struct cil_list *datum_expr, struct cil_list *str_expr)
->  {
->  	char *expr_str;
-> +	int rc;
->  
->  	cil_log(CIL_INFO, "(");
->  
->  	if (datum_expr != NULL) {
-> -		cil_expr_to_string(datum_expr, &expr_str);
-> +		rc = cil_expr_to_string(datum_expr, &expr_str);
->  	} else {
-> -		cil_expr_to_string(str_expr, &expr_str);
-> +		rc = cil_expr_to_string(str_expr, &expr_str);
-> +	}
-> +	if (rc < 0) {
-> +		cil_log(CIL_INFO, "ERROR)");
-> +		return;
-
-Wondering if we should abort or return an error to the caller instead of just logging an error and returning?
-
->  	}
-> -
->  	cil_log(CIL_INFO, "%s)", expr_str);
->  	free(expr_str);
->  }
+> diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
+> index 42c3a8b662c2..413ebdddeb34 100644
+> --- a/libsemanage/src/seusers_local.c
+> +++ b/libsemanage/src/seusers_local.c
+> @@ -35,12 +35,16 @@ static char *semanage_user_roles(semanage_handle_t * handle, const char *sename)
+>  				for (i = 0; i<num_roles; i++) {
+>  					size += (strlen(roles_arr[i]) + 1);
+>  				}
+> -				roles = malloc(size);
+> -				if (roles) {
+> -					strcpy(roles,roles_arr[0]);
+> -					for (i = 1; i<num_roles; i++) {
+> -						strcat(roles,",");
+> -						strcat(roles,roles_arr[i]);
+> +				if (num_roles == 0) {
+> +					roles = strdup("");
+> +				} else {
+> +					roles = malloc(size);
+> +					if (roles) {
+> +						strcpy(roles,roles_arr[0]);
+> +						for (i = 1; i<num_roles; i++) {
+> +							strcat(roles,",");
+> +							strcat(roles,roles_arr[i]);
+> +						}
+>  					}
+>  				}
+>  			}
 > 
