@@ -1,56 +1,55 @@
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w27F418p009766
- for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2018 10:04:01 -0500
-From: James Carter <jwcart2@tycho.nsa.gov>
-To: selinux@tycho.nsa.gov
-Date: Wed,  7 Mar 2018 10:05:38 -0500
-Message-Id: <20180307150538.14932-1-jwcart2@tycho.nsa.gov>
-Subject: [PATCH] libsepol: Prevent freeing unitialized value in ibendport
- handling
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w27KE8gB020618
+ for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2018 15:14:08 -0500
+Date: Wed, 07 Mar 2018 15:13:32 -0500 (EST)
+Message-Id: <20180307.151332.565301474495395127.davem@davemloft.net>
+To: paul@paul-moore.com
+Cc: pmoore@redhat.com, netdev@vger.kernel.org, viro@zeniv.linux.org.uk,
+ dac.override@gmail.com, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <CAHC9VhR4FzwsAEO9O9Pnpkm2jOBajwZUkn_i0FqOMR_4ycag2g@mail.gmail.com>
+References: <152037526427.18953.14013300464173153064.stgit@chester>
+ <CAHC9VhR4FzwsAEO9O9Pnpkm2jOBajwZUkn_i0FqOMR_4ycag2g@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Subject: Re: [PATCH] net: don't unnecessarily load kernel modules in
+ dev_ioctl()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Nicolas Iooss reports:
-In sepol_ibendport_key_create(), if sepol_ibendport_alloc_ibdev_name()
-fails to allocate tmp_key->ibdev_name, sepol_ibendport_key_free() is
-called to free the memory associated with tmp_key, which results in
-free() being called on uninitialized tmp_key->ibdev_name.
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 6 Mar 2018 17:32:47 -0500
 
-This issue is reported by clang's static analyzer with the following
-message:
+> On Tue, Mar 6, 2018 at 5:27 PM, Paul Moore <pmoore@redhat.com> wrote:
+>> From: Paul Moore <paul@paul-moore.com>
+>>
+>> Starting with v4.16-rc1 we've been seeing a higher than usual number
+>> of requests for the kernel to load networking modules, even on events
+>> which shouldn't trigger a module load (e.g. ioctl(TCGETS)).  Stephen
+>> Smalley suggested the problem may lie in commit 44c02a2c3dc5
+>> ("dev_ioctl(): move copyin/copyout to callers") which moves changes
+>> the network dev_ioctl() function to always call dev_load(),
+>> regardless of the requested ioctl.
+>>
+>> This patch moves the dev_load() calls back into the individual ioctls
+>> while preserving the rest of the original patch.
+>>
+>> Reported-by: Dominick Grift <dac.override@gmail.com>
+>> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> Signed-off-by: Paul Moore <paul@paul-moore.com>
+>> ---
+>>  net/core/dev_ioctl.c |    7 +++++--
+>>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> In the interest of full disclosure, I've compiled this code but I
+> haven't booted it yet (test kernel building now).  I just wanted to
+> post this sooner rather than later in case the networking folks, or
+> Al, had a different solution they would prefer.
 
-    ibendport_record.c:115:2: warning: 1st function call argument is an
-    uninitialized value
-            free(key->ibdev_name);
-            ^~~~~~~~~~~~~~~~~~~~~
+This is definitely the right fix, so patch applied.
 
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/src/ibendport_record.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
-
-diff --git a/libsepol/src/ibendport_record.c b/libsepol/src/ibendport_record.c
-index 912aeb53..bc56f090 100644
---- a/libsepol/src/ibendport_record.c
-+++ b/libsepol/src/ibendport_record.c
-@@ -32,14 +32,11 @@ struct sepol_ibendport_key {
- int sepol_ibendport_alloc_ibdev_name(sepol_handle_t *handle,
- 				     char **ibdev_name)
- {
--	char *tmp_ibdev_name = NULL;
--
--	tmp_ibdev_name = calloc(1, IB_DEVICE_NAME_MAX);
-+	*ibdev_name = calloc(1, IB_DEVICE_NAME_MAX);
- 
--	if (!tmp_ibdev_name)
-+	if (!*ibdev_name)
- 		goto omem;
- 
--	*ibdev_name = tmp_ibdev_name;
- 	return STATUS_SUCCESS;
- 
- omem:
--- 
-2.13.6
+Taking the dev_load() out of that switch statement definitely has
+side effects.
