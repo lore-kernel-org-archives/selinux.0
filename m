@@ -1,33 +1,40 @@
-To: Jan Zarsky <jzarsky@redhat.com>, selinux@tycho.nsa.gov
-References: <20180307091620.15232-1-jzarsky@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <96e3cf05-832e-cefe-02fb-0edc6da1bf5f@tycho.nsa.gov>
-Date: Thu, 8 Mar 2018 14:57:07 -0500
-MIME-Version: 1.0
-In-Reply-To: <20180307091620.15232-1-jzarsky@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH] python/sepolgen: fix typo in PolicyGenerator
+To: selinux@tycho.nsa.gov
+Cc: pebenito@ieee.org, Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu,  8 Mar 2018 15:19:26 -0500
+Message-Id: <20180308201926.28435-1-sds@tycho.nsa.gov>
+Subject: [PATCH] libsepol: Export sepol_polcap_getnum/name functions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/07/2018 04:16 AM, Jan Zarsky wrote:
-> ---
->  python/sepolgen/src/sepolgen/policygen.py | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/python/sepolgen/src/sepolgen/policygen.py b/python/sepolgen/src/sepolgen/policygen.py
-> index 34c84010..ee664fb7 100644
-> --- a/python/sepolgen/src/sepolgen/policygen.py
-> +++ b/python/sepolgen/src/sepolgen/policygen.py
-> @@ -77,7 +77,7 @@ class PolicyGenerator:
->          self.explain = NO_EXPLANATION
->          self.gen_requires = False
->          if module:
-> -            self.moduel = module
-> +            self.module = module
->          else:
->              self.module = refpolicy.Module()
+Export the sepol_polcap_getnum/name() functions to users of
+the shared library.  This will enable SETools to stop depending
+on the static library.
 
-Applied.  Remember Signed-off-by in the future, please.
+Note that we may want to move polcaps.h up one level since
+the convention is that headers directly under include/sepol are
+shared library APIs while headers under include/sepol/policydb
+are limited to static users.  However, this will unnecessarily
+break the build for existing static users so it is deferred.
+
+Suggested-by: Chris PeBenito <pebenito@ieee.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libsepol/src/libsepol.map.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+index 2a9996f7..d879016c 100644
+--- a/libsepol/src/libsepol.map.in
++++ b/libsepol/src/libsepol.map.in
+@@ -56,4 +56,6 @@ LIBSEPOL_1.1 {
+ 	sepol_module_policydb_to_cil;
+ 	sepol_kernel_policydb_to_cil;
+ 	sepol_kernel_policydb_to_conf;
++	sepol_polcap_getnum;
++	sepol_polcap_getname;
+ } LIBSEPOL_1.0;
+-- 
+2.14.3
