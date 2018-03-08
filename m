@@ -1,39 +1,79 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w28KrLLB019097
- for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2018 15:53:21 -0500
-Received: by mail-pg0-f65.google.com with SMTP id g8so2695323pgv.7
- for <selinux@tycho.nsa.gov>; Thu, 08 Mar 2018 12:53:16 -0800 (PST)
-To: David Miller <davem@davemloft.net>
-Cc: stephen@networkplumber.org, pmoore@redhat.com, netdev@vger.kernel.org,
- viro@zeniv.linux.org.uk, dac.override@gmail.com, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-References: <20180306155920.7b6379ac@xeon-e3>
- <20180308.123440.2224695014753871221.davem@davemloft.net>
- <c2d378b6-80b3-d9e1-7087-95f143875067@gmail.com>
- <20180308.131115.611191617522587758.davem@davemloft.net>
-From: Eric Dumazet <eric.dumazet@gmail.com>
-Message-ID: <b5ef30d9-5723-5f92-0f7b-b8d4da9a777a@gmail.com>
-Date: Thu, 8 Mar 2018 12:53:14 -0800
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, James Carter <jwcart2@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+References: <20180305225820.23610-1-nicolas.iooss@m4x.org>
+ <20180305225820.23610-2-nicolas.iooss@m4x.org>
+ <7c82f006-e291-ada6-a935-626436ccb156@tycho.nsa.gov>
+ <CAJfZ7==1vF4AKuuoVFdtNRydbnQ5YT+8it7+mDcSOcUhfrs+Fg@mail.gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5869eac8-fb14-2988-e78d-6f242b3690b7@tycho.nsa.gov>
+Date: Thu, 8 Mar 2018 16:28:46 -0500
 MIME-Version: 1.0
-In-Reply-To: <20180308.131115.611191617522587758.davem@davemloft.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH] net: don't unnecessarily load kernel modules in
- dev_ioctl()
+In-Reply-To: <CAJfZ7==1vF4AKuuoVFdtNRydbnQ5YT+8it7+mDcSOcUhfrs+Fg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re:  Re: [PATCH 2/3] libsepol: cil: show an error
+ when cil_expr_to_string() fails
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-
-On 03/08/2018 10:11 AM, David Miller wrote:
-
-> Yeah, understood.  At small scale the current behavior maybe made
-> sense, but these days it really doesn't.
+On 03/08/2018 03:42 PM, Nicolas Iooss wrote:
+> On Tue, Mar 6, 2018 at 10:29 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 03/05/2018 05:58 PM, Nicolas Iooss wrote:
+>>> cil_tree_print_expr() calls cil_expr_to_string() in order to compute a
+>>> string expression into expr_str. If this function fails, expr_str is
+>>> left unitialized but its value is dereferenced with:
+>>>
+>>>     cil_log(CIL_INFO, "%s)", expr_str);
+>>>
+>>> Prevent such an issue by checking cil_expr_to_string()'s return value
+>>> before using expr_str.
+>>>
+>>> This issue has been found with clang's static analyzer.
+>>>
+>>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>>> ---
+>>>  libsepol/cil/src/cil_tree.c | 10 +++++++---
+>>>  1 file changed, 7 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/libsepol/cil/src/cil_tree.c b/libsepol/cil/src/cil_tree.c
+>>> index d36401b41dba..b394a9d849df 100644
+>>> --- a/libsepol/cil/src/cil_tree.c
+>>> +++ b/libsepol/cil/src/cil_tree.c
+>>> @@ -503,15 +503,19 @@ exit:
+>>>  void cil_tree_print_expr(struct cil_list *datum_expr, struct cil_list *str_expr)
+>>>  {
+>>>       char *expr_str;
+>>> +     int rc;
+>>>
+>>>       cil_log(CIL_INFO, "(");
+>>>
+>>>       if (datum_expr != NULL) {
+>>> -             cil_expr_to_string(datum_expr, &expr_str);
+>>> +             rc = cil_expr_to_string(datum_expr, &expr_str);
+>>>       } else {
+>>> -             cil_expr_to_string(str_expr, &expr_str);
+>>> +             rc = cil_expr_to_string(str_expr, &expr_str);
+>>> +     }
+>>> +     if (rc < 0) {
+>>> +             cil_log(CIL_INFO, "ERROR)");
+>>> +             return;
+>>
+>> Wondering if we should abort or return an error to the caller instead of just logging an error and returning?
 > 
-> No objections to the knob if you want to submit it.
+> I believe this depends on the usage of cil_tree_print_expr(). I have
+> not found any caller of cil_tree_print_* outside of
+> libsepol/cil/src/cil_tree.c so I guess this interface is only used by
+> developers for debugging purpose when playing with libsepol's CIL
+> objects (being able to quickly print an object in a human-readable
+> form is a very valuable feature). Am I right? The current interface of
+> ignoring all errors and logging as much as possible without aborting
+> seems consistent with such a use-case.
 > 
+> If there is an interest in propagating errors found by
+> cil_tree_print_expr() back to its callers, I can spend some time to
+> clean up the code. Otherwise I will send other patches (once they are
+> in a suitable state) to fix some issues that clang's static analyzer
+> find.
 
-Thanks David, I have rebased my patch and sent it.
-
-New numbers on net-next are looking very nice, thanks to Kirill work.
+You are correct, and James agreed with your approach, which is why I merged the patch as is.
