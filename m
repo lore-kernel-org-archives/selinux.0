@@ -1,6 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w281rY5l030442
- for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2018 20:53:34 -0500
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w281rmSH030456
+ for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2018 20:53:48 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 3zxYT63XKBz2Slc4
+ for <selinux@tycho.nsa.gov>; Thu,  8 Mar 2018 01:53:46 +0000 (UTC)
+Received: from UPBD19PA11.eemsg.mil (unknown [192.168.18.17])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 3zxYT61l9pz2Slbq
+ for <selinux@tycho.nsa.gov>; Thu,  8 Mar 2018 01:53:46 +0000 (UTC)
 To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>
 Cc: John Johansen <john.johansen@canonical.com>,
@@ -10,477 +16,488 @@ Cc: John Johansen <john.johansen@canonical.com>,
  SMACK-announce@lists.01.org, Casey Schaufler <casey@schaufler-ca.com>
 References: <d2c25c38-e19d-1e08-8c49-4726a34e72bb@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <f74e3daf-ab58-be23-1ce2-cfe000c25195@schaufler-ca.com>
-Date: Wed, 7 Mar 2018 17:53:26 -0800
+Message-ID: <0273a24f-ad4a-f2cb-33ff-f9f850b21a50@schaufler-ca.com>
+Date: Wed, 7 Mar 2018 17:53:37 -0800
 MIME-Version: 1.0
 In-Reply-To: <d2c25c38-e19d-1e08-8c49-4726a34e72bb@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH 6/8] LSM: General stacking
+Subject: [PATCH 7/8] LSM: Multiple security mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Subject: [PATCH 6/8] LSM: General stacking
+Subject: [PATCH 7/8] LSM: Multiple security mount options
 
-Leverage the infrastructure management of the security blobs
-to allow stacking of security modules in all but the most
-extreme case. Security modules are informed of the location
-of their data within the blobs at module initialization.
+There needs to be separate data for each of the
+security modules that support mount options.
+Expand the security_mnt_opts structure to include
+an entry for each security module that uses them.
 
-Stacking is optional. If stacking is not configured the old
-limit of one "major" security module applies. If stacking is
-configured TOMOYO can be configured with an of the other
-modules. SELinux, Smack and AppArmor use (or in the AppArmor
-case, threaten to use) secids, which are not (yet) shareable.
+It would be better to have a variable size blob,
+but there isn't a convenient place to hang such.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- Documentation/admin-guide/LSM/index.rst | 14 ++++--
- include/linux/lsm_hooks.h               |  2 +-
- security/Kconfig                        | 86 +++++++++++++++++++++++++++++++++
- security/apparmor/include/context.h     | 10 ++++
- security/apparmor/lsm.c                 |  8 ++-
- security/security.c                     | 30 +++++++++++-
- security/selinux/hooks.c                |  3 +-
- security/selinux/include/objsec.h       |  8 +++
- security/smack/smack.h                  |  9 ++++
- security/smack/smack_lsm.c              | 17 +++----
- security/tomoyo/common.h                | 12 ++++-
- security/tomoyo/tomoyo.c                |  3 +-
- 12 files changed, 181 insertions(+), 21 deletions(-)
+ fs/btrfs/super.c           | 10 +++---
+ include/linux/security.h   | 45 ++++++++++++++++-------
+ security/security.c        | 14 ++++++--
+ security/selinux/hooks.c   | 90 +++++++++++++++++++++++-----------------------
+ security/smack/smack_lsm.c | 54 ++++++++++++++--------------
+ 5 files changed, 122 insertions(+), 91 deletions(-)
 
-diff --git a/Documentation/admin-guide/LSM/index.rst b/Documentation/admin-guide/LSM/index.rst
-index 9842e21afd4a..d3d8af174042 100644
---- a/Documentation/admin-guide/LSM/index.rst
-+++ b/Documentation/admin-guide/LSM/index.rst
-@@ -17,10 +17,16 @@ MAC extensions, other extensions can be built using the LSM to provide
- specific changes to system operation when these tweaks are not available
- in the core functionality of Linux itself.
+diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
+index 6e71a2a78363..53508e5f81c8 100644
+--- a/fs/btrfs/super.c
++++ b/fs/btrfs/super.c
+@@ -1486,15 +1486,15 @@ static int setup_security_options(struct btrfs_fs_info *fs_info,
+ 		return ret;
  
--The Linux capabilities modules will always be included. This may be
--followed by any number of "minor" modules and at most one "major" module.
--For more details on capabilities, see ``capabilities(7)`` in the Linux
--man-pages project.
-+The Linux capabilities modules will always be included. For more details
-+on capabilities, see ``capabilities(7)`` in the Linux man-pages project.
-+
-+Security modules that do not use the security data blobs maintained
-+by the LSM infrastructure are considered "minor" modules. These may be
-+included at compile time and stacked explicitly. Security modules that
-+use the LSM maintained security blobs are considered "major" modules.
-+These may only be stacked if the CONFIG_LSM_STACKED configuration
-+option is used. If this is chosen all of the security modules selected
-+will be used.
- 
- A list of the active security modules can be found by reading
- ``/sys/kernel/security/lsm``. This is a comma separated list, and
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 03f036ab7b59..2e05734bc46e 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -2030,7 +2030,7 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
- #define __lsm_ro_after_init	__ro_after_init
- #endif /* CONFIG_SECURITY_WRITABLE_HOOKS */
- 
--extern int __init security_module_enable(const char *module);
-+extern bool __init security_module_enable(const char *lsm, const bool stacked);
- extern void __init capability_add_hooks(void);
- #ifdef CONFIG_SECURITY_YAMA
- extern void __init yama_add_hooks(void);
-diff --git a/security/Kconfig b/security/Kconfig
-index 116dba966553..8225388b81c3 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -36,6 +36,28 @@ config SECURITY_WRITABLE_HOOKS
- 	bool
- 	default n
- 
-+config SECURITY_STACKING
-+	bool "Security module stacking"
-+	depends on SECURITY
-+	help
-+	  Allows multiple major security modules to be stacked.
-+	  Modules are invoked in the order registered with a
-+	  "bail on fail" policy, in which the infrastructure
-+	  will stop processing once a denial is detected. Not
-+	  all modules can be stacked. SELinux and Smack are
-+	  known to be incompatible. User space components may
-+	  have trouble identifying the security module providing
-+	  data in some cases.
-+
-+	  If you select this option you will have to select which
-+	  of the stackable modules you wish to be active. The
-+	  "Default security module" will be ignored. The boot line
-+	  "security=" option can be used to specify that one of
-+	  the modules identifed for stacking should be used instead
-+	  of the entire stack.
-+
-+	  If you are unsure how to answer this question, answer N.
-+
- config SECURITY_LSM_DEBUG
- 	bool "Enable debugging of the LSM infrastructure"
- 	depends on SECURITY
-@@ -251,6 +273,9 @@ source security/yama/Kconfig
- 
- source security/integrity/Kconfig
- 
-+menu "Security Module Selection"
-+	visible if !SECURITY_STACKING
-+
- choice
- 	prompt "Default security module"
- 	default DEFAULT_SECURITY_SELINUX if SECURITY_SELINUX
-@@ -290,3 +315,64 @@ config DEFAULT_SECURITY
- 
- endmenu
- 
-+menu "Security Module Stack"
-+	visible if SECURITY_STACKING
-+
-+choice
-+	prompt "Stacked 'extreme' security module"
-+	default SECURITY_SELINUX_STACKED if SECURITY_SELINUX
-+	default SECURITY_SMACK_STACKED if SECURITY_SMACK
-+	default SECURITY_APPARMOR_STACKED if SECURITY_APPARMOR
-+
-+	help
-+	  Enable an extreme security module. These modules cannot
-+	  be used at the same time.
-+
-+	config SECURITY_SELINUX_STACKED
-+		bool "SELinux" if SECURITY_SELINUX=y
-+	help
-+	  This option instructs the system to use the SELinux checks.
-+	  At this time the Smack security module is incompatible with this
-+	  module.
-+	  At this time the AppArmor security module is incompatible with this
-+	  module.
-+
-+	config SECURITY_SMACK_STACKED
-+		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
-+	help
-+	  This option instructs the system to use the Smack checks.
-+	  At this time the SELinux security module is incompatible with this
-+	  module.
-+	  At this time the AppArmor security module is incompatible with this
-+	  module.
-+
-+	config SECURITY_APPARMOR_STACKED
-+		bool "AppArmor" if SECURITY_APPARMOR=y
-+	help
-+	  This option instructs the system to use the AppArmor checks.
-+	  At this time the SELinux security module is incompatible with this
-+	  module.
-+	  At this time the Smack security module is incompatible with this
-+	  module.
-+
-+	config SECURITY_NOTHING_STACKED
-+		bool "Use no 'extreme' security module"
-+	help
-+	  Use none of the SELinux, Smack or AppArmor security module.
-+
-+endchoice
-+
-+config SECURITY_TOMOYO_STACKED
-+	bool "TOMOYO support is enabled by default"
-+	depends on SECURITY_TOMOYO && SECURITY_STACKING
-+	default n
-+	help
-+	  This option instructs the system to use the TOMOYO checks.
-+	  If not selected the module will not be invoked.
-+	  Stacked security modules may interact in unexpected ways.
-+
-+	  If you are unsure how to answer this question, answer N.
-+
-+endmenu
-+
-+endmenu
-diff --git a/security/apparmor/include/context.h b/security/apparmor/include/context.h
-index c6e106a533e8..c6d5dbbd18b0 100644
---- a/security/apparmor/include/context.h
-+++ b/security/apparmor/include/context.h
-@@ -55,9 +55,15 @@ int aa_set_current_hat(struct aa_label *label, u64 token);
- int aa_restore_previous_label(u64 cookie);
- struct aa_label *aa_get_task_label(struct task_struct *task);
- 
-+extern struct lsm_blob_sizes apparmor_blob_sizes;
-+
- static inline struct aa_task_ctx *apparmor_cred(const struct cred *cred)
- {
-+#ifdef CONFIG_SECURITY_STACKING
-+	return cred->security + apparmor_blob_sizes.lbs_cred;
-+#else
- 	return cred->security;
-+#endif
- }
- 
- /**
-@@ -89,7 +95,11 @@ static inline struct aa_label *aa_get_newest_cred_label(const struct cred *cred)
- 
- static inline struct aa_file_ctx *apparmor_file(const struct file *file)
- {
-+#ifdef CONFIG_SECURITY_STACKING
-+	return file->f_security + apparmor_blob_sizes.lbs_file;
-+#else
- 	return file->f_security;
-+#endif
- }
- 
- /**
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 03c7cbce4853..f0b1694c4a6f 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1105,7 +1105,9 @@ static int __init apparmor_init(void)
- 	int error;
- 
- 	if (!finish) {
--		if (apparmor_enabled && security_module_enable("apparmor"))
-+		if (apparmor_enabled &&
-+		    security_module_enable("apparmor",
-+				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED)))
- 			security_add_blobs(&apparmor_blob_sizes);
- 		else
- 			apparmor_enabled = false;
-@@ -1113,7 +1115,9 @@ static int __init apparmor_init(void)
- 		return 0;
+ #ifdef CONFIG_SECURITY
+-	if (!fs_info->security_opts.num_mnt_opts) {
++	if (fs_info->security_opts.selinux.num_mnt_opts != 0 ||
++	    fs_info->security_opts.smack.num_mnt_opts != 0) {
+ 		/* first time security setup, copy sec_opts to fs_info */
+ 		memcpy(&fs_info->security_opts, sec_opts, sizeof(*sec_opts));
+ 	} else {
+ 		/*
+-		 * Since SELinux (the only one supporting security_mnt_opts)
+-		 * does NOT support changing context during remount/mount of
+-		 * the same sb, this must be the same or part of the same
+-		 * security options, just free it.
++		 * Since no modules support changing context during
++		 * remount/mount of the same sb, this must be the same
++		 * or part of the same security options, just free it.
+ 		 */
+ 		security_free_mnt_opts(sec_opts);
  	}
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 6a31a3dba040..2912f34c2292 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -163,34 +163,55 @@ typedef int (*initxattrs) (struct inode *inode,
  
--	if (!apparmor_enabled || !security_module_enable("apparmor")) {
-+	if (!apparmor_enabled ||
-+	    !security_module_enable("apparmor",
-+				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED))) {
- 		aa_info_message("AppArmor disabled by boot time parameter");
- 		apparmor_enabled = false;
- 		return 0;
+ #ifdef CONFIG_SECURITY
+ 
+-struct security_mnt_opts {
++struct lsm_mnt_opts {
+ 	char **mnt_opts;
+ 	int *mnt_opts_flags;
+ 	int num_mnt_opts;
+ };
+ 
++
++struct security_mnt_opts {
++#ifdef CONFIG_SECURITY_STACKING
++	struct lsm_mnt_opts     selinux;
++	struct lsm_mnt_opts     smack;
++#else
++	union {
++		struct lsm_mnt_opts     selinux;
++		struct lsm_mnt_opts     smack;
++	};
++#endif
++};
++
+ int call_lsm_notifier(enum lsm_event event, void *data);
+ int register_lsm_notifier(struct notifier_block *nb);
+ int unregister_lsm_notifier(struct notifier_block *nb);
+ 
+ static inline void security_init_mnt_opts(struct security_mnt_opts *opts)
+ {
+-	opts->mnt_opts = NULL;
+-	opts->mnt_opts_flags = NULL;
+-	opts->num_mnt_opts = 0;
++	memset(opts, 0, sizeof(*opts));
+ }
+ 
+ static inline void security_free_mnt_opts(struct security_mnt_opts *opts)
+ {
+ 	int i;
+-	if (opts->mnt_opts)
+-		for (i = 0; i < opts->num_mnt_opts; i++)
+-			kfree(opts->mnt_opts[i]);
+-	kfree(opts->mnt_opts);
+-	opts->mnt_opts = NULL;
+-	kfree(opts->mnt_opts_flags);
+-	opts->mnt_opts_flags = NULL;
+-	opts->num_mnt_opts = 0;
++
++	if (opts->selinux.mnt_opts)
++		for (i = 0; i < opts->selinux.num_mnt_opts; i++)
++			kfree(opts->selinux.mnt_opts[i]);
++	kfree(opts->selinux.mnt_opts);
++	opts->selinux.mnt_opts = NULL;
++	kfree(opts->selinux.mnt_opts_flags);
++	opts->selinux.mnt_opts_flags = NULL;
++	opts->selinux.num_mnt_opts = 0;
++
++	if (opts->smack.mnt_opts)
++		for (i = 0; i < opts->smack.num_mnt_opts; i++)
++			kfree(opts->smack.mnt_opts[i]);
++	kfree(opts->smack.mnt_opts);
++	opts->smack.mnt_opts = NULL;
++	kfree(opts->smack.mnt_opts_flags);
++	opts->smack.mnt_opts_flags = NULL;
++	opts->smack.num_mnt_opts = 0;
+ }
+ 
+ /* prototypes */
 diff --git a/security/security.c b/security/security.c
-index 4ca49b5074f8..42255b40768a 100644
+index 42255b40768a..70994705ad62 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -36,6 +36,7 @@
- 
- /* Maximum number of letters for an LSM name string */
- #define SECURITY_NAME_MAX	10
-+#define MODULE_STACK		"(stacking)"
- 
- struct security_hook_heads security_hook_heads __lsm_ro_after_init;
- static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
-@@ -48,7 +49,11 @@ static struct lsm_blob_sizes blob_sizes;
- 
- /* Boot-time LSM user choice */
- static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
-+#ifdef CONFIG_SECURITY_STACKING
-+	MODULE_STACK;
-+#else
- 	CONFIG_DEFAULT_SECURITY;
-+#endif
- 
- static void __init do_security_initcalls(void)
+@@ -755,9 +755,17 @@ int security_sb_set_mnt_opts(struct super_block *sb,
+ 				unsigned long kern_flags,
+ 				unsigned long *set_kern_flags)
  {
-@@ -168,6 +173,7 @@ static int lsm_append(char *new, char **result)
- /**
-  * security_module_enable - Load given security module on boot ?
-  * @module: the name of the module
-+ * @stacked: indicates that the module wants to be stacked
-  *
-  * Each LSM must pass this method before registering its own operations
-  * to avoid security registration races. This method may also be used
-@@ -183,9 +189,29 @@ static int lsm_append(char *new, char **result)
-  *
-  * Otherwise, return false.
-  */
--int __init security_module_enable(const char *module)
-+bool __init security_module_enable(const char *lsm, const bool stacked)
- {
--	return !strcmp(module, chosen_lsm);
-+#ifdef CONFIG_SECURITY_STACKING
+-	return call_int_hook(sb_set_mnt_opts,
+-				opts->num_mnt_opts ? -EOPNOTSUPP : 0, sb,
+-				opts, kern_flags, set_kern_flags);
++	int nobody = 0;
++
 +	/*
-+	 * Module defined on the command line security=XXXX
++	 * Additional security modules that use mount options
++	 * need to be added here.
 +	 */
-+	if (strcmp(chosen_lsm, MODULE_STACK)) {
-+		if (!strcmp(lsm, chosen_lsm)) {
-+			pr_info("Command line sets the %s security module.\n",
-+				lsm);
-+			return true;
-+		}
-+		return false;
-+	}
-+	/*
-+	 * Module configured as stacked.
-+	 */
-+	return stacked;
-+#else
-+	if (strcmp(lsm, chosen_lsm) == 0)
-+		return true;
-+	return false;
-+#endif
++	if (opts->selinux.num_mnt_opts != 0 || opts->smack.num_mnt_opts != 0)
++		nobody = -EOPNOTSUPP;
++
++	return call_int_hook(sb_set_mnt_opts, nobody, sb, opts, kern_flags,
++				set_kern_flags);
  }
+ EXPORT_SYMBOL(security_sb_set_mnt_opts);
  
- /**
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index cb51b66c483b..5aa8caf2e23d 100644
+index 5aa8caf2e23d..52f6253cbcf8 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -6454,7 +6454,8 @@ static __init int selinux_init(void)
- {
- 	static int finish;
- 
--	if (!security_module_enable("selinux")) {
-+	if (!security_module_enable("selinux",
-+				IS_ENABLED(CONFIG_SECURITY_SELINUX_STACKED))) {
- 		selinux_enabled = 0;
- 		return 0;
+@@ -543,21 +543,23 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 	/* count the number of mount options for this sb */
+ 	for (i = 0; i < NUM_SEL_MNT_OPTS; i++) {
+ 		if (tmp & 0x01)
+-			opts->num_mnt_opts++;
++			opts->selinux.num_mnt_opts++;
+ 		tmp >>= 1;
  	}
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 56b9428ac934..e3f4f7b57b23 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -159,12 +159,20 @@ extern struct lsm_blob_sizes selinux_blob_sizes;
+ 	/* Check if the Label support flag is set */
+ 	if (sbsec->flags & SBLABEL_MNT)
+-		opts->num_mnt_opts++;
++		opts->selinux.num_mnt_opts++;
  
- static inline struct task_security_struct *selinux_cred(const struct cred *cred)
- {
-+#ifdef CONFIG_SECURITY_STACKING
-+	return cred->security + selinux_blob_sizes.lbs_cred;
-+#else
- 	return cred->security;
-+#endif
- }
+-	opts->mnt_opts = kcalloc(opts->num_mnt_opts, sizeof(char *), GFP_ATOMIC);
+-	if (!opts->mnt_opts) {
++	opts->selinux.mnt_opts = kcalloc(opts->selinux.num_mnt_opts,
++						sizeof(char *), GFP_ATOMIC);
++	if (!opts->selinux.mnt_opts) {
+ 		rc = -ENOMEM;
+ 		goto out_free;
+ 	}
  
- static inline struct file_security_struct *selinux_file(const struct file *file)
- {
-+#ifdef CONFIG_SECURITY_STACKING
-+	return file->f_security + selinux_blob_sizes.lbs_file;
-+#else
- 	return file->f_security;
-+#endif
- }
+-	opts->mnt_opts_flags = kcalloc(opts->num_mnt_opts, sizeof(int), GFP_ATOMIC);
+-	if (!opts->mnt_opts_flags) {
++	opts->selinux.mnt_opts_flags = kcalloc(opts->selinux.num_mnt_opts,
++						sizeof(int), GFP_ATOMIC);
++	if (!opts->selinux.mnt_opts_flags) {
+ 		rc = -ENOMEM;
+ 		goto out_free;
+ 	}
+@@ -567,22 +569,22 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 		rc = security_sid_to_context(sbsec->sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+-		opts->mnt_opts[i] = context;
+-		opts->mnt_opts_flags[i++] = FSCONTEXT_MNT;
++		opts->selinux.mnt_opts[i] = context;
++		opts->selinux.mnt_opts_flags[i++] = FSCONTEXT_MNT;
+ 	}
+ 	if (sbsec->flags & CONTEXT_MNT) {
+ 		rc = security_sid_to_context(sbsec->mntpoint_sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+-		opts->mnt_opts[i] = context;
+-		opts->mnt_opts_flags[i++] = CONTEXT_MNT;
++		opts->selinux.mnt_opts[i] = context;
++		opts->selinux.mnt_opts_flags[i++] = CONTEXT_MNT;
+ 	}
+ 	if (sbsec->flags & DEFCONTEXT_MNT) {
+ 		rc = security_sid_to_context(sbsec->def_sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+-		opts->mnt_opts[i] = context;
+-		opts->mnt_opts_flags[i++] = DEFCONTEXT_MNT;
++		opts->selinux.mnt_opts[i] = context;
++		opts->selinux.mnt_opts_flags[i++] = DEFCONTEXT_MNT;
+ 	}
+ 	if (sbsec->flags & ROOTCONTEXT_MNT) {
+ 		struct dentry *root = sbsec->sb->s_root;
+@@ -592,15 +594,15 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 		rc = security_sid_to_context(isec->sid, &context, &len);
+ 		if (rc)
+ 			goto out_free;
+-		opts->mnt_opts[i] = context;
+-		opts->mnt_opts_flags[i++] = ROOTCONTEXT_MNT;
++		opts->selinux.mnt_opts[i] = context;
++		opts->selinux.mnt_opts_flags[i++] = ROOTCONTEXT_MNT;
+ 	}
+ 	if (sbsec->flags & SBLABEL_MNT) {
+-		opts->mnt_opts[i] = NULL;
+-		opts->mnt_opts_flags[i++] = SBLABEL_MNT;
++		opts->selinux.mnt_opts[i] = NULL;
++		opts->selinux.mnt_opts_flags[i++] = SBLABEL_MNT;
+ 	}
  
- static inline struct inode_security_struct *selinux_inode(
-diff --git a/security/smack/smack.h b/security/smack/smack.h
-index d2df0af9e5b5..87ced0fc1a19 100644
---- a/security/smack/smack.h
-+++ b/security/smack/smack.h
-@@ -337,6 +337,7 @@ extern struct smack_known *smack_syslog_label;
- extern struct smack_known *smack_unconfined;
- #endif
- extern int smack_ptrace_rule;
-+extern struct lsm_blob_sizes smack_blob_sizes;
+-	BUG_ON(i != opts->num_mnt_opts);
++	BUG_ON(i != opts->selinux.num_mnt_opts);
  
- extern struct smack_known smack_known_floor;
- extern struct smack_known smack_known_hat;
-@@ -359,12 +360,20 @@ extern struct hlist_head smack_known_hash[SMACK_HASH_SLOTS];
+ 	return 0;
  
- static inline struct task_smack *smack_cred(const struct cred *cred)
- {
-+#ifdef CONFIG_SECURITY_STACKING
-+	return cred->security + smack_blob_sizes.lbs_cred;
-+#else
- 	return cred->security;
-+#endif
- }
+@@ -646,9 +648,9 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	struct inode_security_struct *root_isec;
+ 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+ 	u32 defcontext_sid = 0;
+-	char **mount_options = opts->mnt_opts;
+-	int *flags = opts->mnt_opts_flags;
+-	int num_opts = opts->num_mnt_opts;
++	char **mount_options = opts->selinux.mnt_opts;
++	int *flags = opts->selinux.mnt_opts_flags;
++	int num_opts = opts->selinux.num_mnt_opts;
  
- static inline struct smack_known **smack_file(const struct file *file)
- {
-+#ifdef CONFIG_SECURITY_STACKING
-+	return file->f_security + smack_blob_sizes.lbs_file;
-+#else
- 	return file->f_security;
-+#endif
- }
+ 	mutex_lock(&sbsec->lock);
  
- static inline struct inode_smack *smack_inode(const struct inode *inode)
+@@ -1008,7 +1010,7 @@ static int selinux_parse_opts_str(char *options,
+ 	char *fscontext = NULL, *rootcontext = NULL;
+ 	int rc, num_mnt_opts = 0;
+ 
+-	opts->num_mnt_opts = 0;
++	opts->selinux.num_mnt_opts = 0;
+ 
+ 	/* Standard string-based options. */
+ 	while ((p = strsep(&options, "|")) != NULL) {
+@@ -1075,41 +1077,39 @@ static int selinux_parse_opts_str(char *options,
+ 		case Opt_labelsupport:
+ 			break;
+ 		default:
+-			rc = -EINVAL;
+ 			printk(KERN_WARNING "SELinux:  unknown mount option\n");
+-			goto out_err;
+-
++			break;
+ 		}
+ 	}
+ 
+ 	rc = -ENOMEM;
+-	opts->mnt_opts = kcalloc(NUM_SEL_MNT_OPTS, sizeof(char *), GFP_KERNEL);
+-	if (!opts->mnt_opts)
++	opts->selinux.mnt_opts = kcalloc(NUM_SEL_MNT_OPTS, sizeof(char *), GFP_KERNEL);
++	if (!opts->selinux.mnt_opts)
+ 		goto out_err;
+ 
+-	opts->mnt_opts_flags = kcalloc(NUM_SEL_MNT_OPTS, sizeof(int),
++	opts->selinux.mnt_opts_flags = kcalloc(NUM_SEL_MNT_OPTS, sizeof(int),
+ 				       GFP_KERNEL);
+-	if (!opts->mnt_opts_flags)
++	if (!opts->selinux.mnt_opts_flags)
+ 		goto out_err;
+ 
+ 	if (fscontext) {
+-		opts->mnt_opts[num_mnt_opts] = fscontext;
+-		opts->mnt_opts_flags[num_mnt_opts++] = FSCONTEXT_MNT;
++		opts->selinux.mnt_opts[num_mnt_opts] = fscontext;
++		opts->selinux.mnt_opts_flags[num_mnt_opts++] = FSCONTEXT_MNT;
+ 	}
+ 	if (context) {
+-		opts->mnt_opts[num_mnt_opts] = context;
+-		opts->mnt_opts_flags[num_mnt_opts++] = CONTEXT_MNT;
++		opts->selinux.mnt_opts[num_mnt_opts] = context;
++		opts->selinux.mnt_opts_flags[num_mnt_opts++] = CONTEXT_MNT;
+ 	}
+ 	if (rootcontext) {
+-		opts->mnt_opts[num_mnt_opts] = rootcontext;
+-		opts->mnt_opts_flags[num_mnt_opts++] = ROOTCONTEXT_MNT;
++		opts->selinux.mnt_opts[num_mnt_opts] = rootcontext;
++		opts->selinux.mnt_opts_flags[num_mnt_opts++] = ROOTCONTEXT_MNT;
+ 	}
+ 	if (defcontext) {
+-		opts->mnt_opts[num_mnt_opts] = defcontext;
+-		opts->mnt_opts_flags[num_mnt_opts++] = DEFCONTEXT_MNT;
++		opts->selinux.mnt_opts[num_mnt_opts] = defcontext;
++		opts->selinux.mnt_opts_flags[num_mnt_opts++] = DEFCONTEXT_MNT;
+ 	}
+ 
+-	opts->num_mnt_opts = num_mnt_opts;
++	opts->selinux.num_mnt_opts = num_mnt_opts;
+ 	return 0;
+ 
+ out_err:
+@@ -1154,15 +1154,15 @@ static void selinux_write_opts(struct seq_file *m,
+ 	int i;
+ 	char *prefix;
+ 
+-	for (i = 0; i < opts->num_mnt_opts; i++) {
++	for (i = 0; i < opts->selinux.num_mnt_opts; i++) {
+ 		char *has_comma;
+ 
+-		if (opts->mnt_opts[i])
+-			has_comma = strchr(opts->mnt_opts[i], ',');
++		if (opts->selinux.mnt_opts[i])
++			has_comma = strchr(opts->selinux.mnt_opts[i], ',');
+ 		else
+ 			has_comma = NULL;
+ 
+-		switch (opts->mnt_opts_flags[i]) {
++		switch (opts->selinux.mnt_opts_flags[i]) {
+ 		case CONTEXT_MNT:
+ 			prefix = CONTEXT_STR;
+ 			break;
+@@ -1188,7 +1188,7 @@ static void selinux_write_opts(struct seq_file *m,
+ 		seq_puts(m, prefix);
+ 		if (has_comma)
+ 			seq_putc(m, '\"');
+-		seq_escape(m, opts->mnt_opts[i], "\"\n\\");
++		seq_escape(m, opts->selinux.mnt_opts[i], "\"\n\\");
+ 		if (has_comma)
+ 			seq_putc(m, '\"');
+ 	}
+@@ -2719,10 +2719,10 @@ static int selinux_sb_remount(struct super_block *sb, void *data)
+ 	if (rc)
+ 		goto out_free_secdata;
+ 
+-	mount_options = opts.mnt_opts;
+-	flags = opts.mnt_opts_flags;
++	mount_options = opts.selinux.mnt_opts;
++	flags = opts.selinux.mnt_opts_flags;
+ 
+-	for (i = 0; i < opts.num_mnt_opts; i++) {
++	for (i = 0; i < opts.selinux.num_mnt_opts; i++) {
+ 		u32 sid;
+ 
+ 		if (flags[i] == SBLABEL_MNT)
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 5197c7bf7f63..78086e5dc29f 100644
+index 78086e5dc29f..df096122dbeb 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -3424,18 +3424,16 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
- {
- 	struct smack_known *skp = smk_of_task_struct(p);
- 	char *cp;
--	int slen;
+@@ -601,7 +601,7 @@ static int smack_parse_opts_str(char *options,
+ 	int num_mnt_opts = 0;
+ 	int token;
  
--	if (strcmp(name, "current") != 0)
-+	if (strcmp(name, "current") == 0) {
-+		cp = kstrdup(skp->smk_known, GFP_KERNEL);
-+		if (cp == NULL)
-+			return -ENOMEM;
-+	} else
- 		return -EINVAL;
+-	opts->num_mnt_opts = 0;
++	opts->smack.num_mnt_opts = 0;
  
--	cp = kstrdup(skp->smk_known, GFP_KERNEL);
--	if (cp == NULL)
--		return -ENOMEM;
--
--	slen = strlen(cp);
- 	*value = cp;
--	return slen;
-+	return strlen(cp);
- }
- 
- /**
-@@ -4674,7 +4672,8 @@ static __init int smack_init(void)
- 	struct cred *cred = (struct cred *) current->cred;
- 	struct task_smack *tsp;
- 
--	if (!security_module_enable("smack"))
-+	if (!security_module_enable("smack",
-+				IS_ENABLED(CONFIG_SECURITY_SMACK_STACKED)))
+ 	if (!options)
  		return 0;
- 
- 	if (!finish) {
-diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
-index 0110bebe86e2..f386f92c57c5 100644
---- a/security/tomoyo/common.h
-+++ b/security/tomoyo/common.h
-@@ -1087,6 +1087,7 @@ extern struct tomoyo_domain_info tomoyo_kernel_domain;
- extern struct tomoyo_policy_namespace tomoyo_kernel_namespace;
- extern unsigned int tomoyo_memory_quota[TOMOYO_MAX_MEMORY_STAT];
- extern unsigned int tomoyo_memory_used[TOMOYO_MAX_MEMORY_STAT];
-+extern struct lsm_blob_sizes tomoyo_blob_sizes;
- 
- /********** Inlined functions. **********/
- 
-@@ -1206,7 +1207,11 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
-  */
- static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
- {
-+#ifdef CONFIG_SECURITY_STACKING
-+	return cred->security + tomoyo_blob_sizes.lbs_cred;
-+#else
- 	return cred->security;
-+#endif
- }
- 
- /**
-@@ -1216,8 +1221,13 @@ static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
-  */
- static inline struct tomoyo_domain_info *tomoyo_domain(void)
- {
--	struct tomoyo_domain_info **blob = tomoyo_cred(current_cred());
-+	const struct cred *cred = current_cred();
-+	struct tomoyo_domain_info **blob;
-+
-+	if (cred->security == NULL)
-+		return NULL;
- 
-+	blob = tomoyo_cred(cred);
- 	return *blob;
- }
- 
-diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
-index 821ca242a194..eb4b886b6076 100644
---- a/security/tomoyo/tomoyo.c
-+++ b/security/tomoyo/tomoyo.c
-@@ -564,7 +564,8 @@ static int __init tomoyo_init(void)
- 	struct cred *cred = (struct cred *) current_cred();
- 	struct tomoyo_domain_info **blob;
- 
--	if (!security_module_enable("tomoyo")) {
-+	if (!security_module_enable("tomoyo",
-+				IS_ENABLED(CONFIG_SECURITY_TOMOYO_STACKED))) {
- 		tomoyo_enabled = false;
- 		return 0;
+@@ -651,43 +651,45 @@ static int smack_parse_opts_str(char *options,
+ 				goto out_err;
+ 			break;
+ 		default:
+-			rc = -EINVAL;
+ 			pr_warn("Smack:  unknown mount option\n");
+-			goto out_err;
++			break;
+ 		}
  	}
+ 
+-	opts->mnt_opts = kcalloc(NUM_SMK_MNT_OPTS, sizeof(char *), GFP_KERNEL);
+-	if (!opts->mnt_opts)
++	opts->smack.mnt_opts = kcalloc(NUM_SMK_MNT_OPTS, sizeof(char *),
++					GFP_KERNEL);
++	if (!opts->smack.mnt_opts)
+ 		goto out_err;
+ 
+-	opts->mnt_opts_flags = kcalloc(NUM_SMK_MNT_OPTS, sizeof(int),
+-			GFP_KERNEL);
+-	if (!opts->mnt_opts_flags)
++	opts->smack.mnt_opts_flags = kcalloc(NUM_SMK_MNT_OPTS, sizeof(int),
++					GFP_KERNEL);
++	if (!opts->smack.mnt_opts_flags) {
++		kfree(opts->smack.mnt_opts);
+ 		goto out_err;
++	}
+ 
+ 	if (fsdefault) {
+-		opts->mnt_opts[num_mnt_opts] = fsdefault;
+-		opts->mnt_opts_flags[num_mnt_opts++] = FSDEFAULT_MNT;
++		opts->smack.mnt_opts[num_mnt_opts] = fsdefault;
++		opts->smack.mnt_opts_flags[num_mnt_opts++] = FSDEFAULT_MNT;
+ 	}
+ 	if (fsfloor) {
+-		opts->mnt_opts[num_mnt_opts] = fsfloor;
+-		opts->mnt_opts_flags[num_mnt_opts++] = FSFLOOR_MNT;
++		opts->smack.mnt_opts[num_mnt_opts] = fsfloor;
++		opts->smack.mnt_opts_flags[num_mnt_opts++] = FSFLOOR_MNT;
+ 	}
+ 	if (fshat) {
+-		opts->mnt_opts[num_mnt_opts] = fshat;
+-		opts->mnt_opts_flags[num_mnt_opts++] = FSHAT_MNT;
++		opts->smack.mnt_opts[num_mnt_opts] = fshat;
++		opts->smack.mnt_opts_flags[num_mnt_opts++] = FSHAT_MNT;
+ 	}
+ 	if (fsroot) {
+-		opts->mnt_opts[num_mnt_opts] = fsroot;
+-		opts->mnt_opts_flags[num_mnt_opts++] = FSROOT_MNT;
++		opts->smack.mnt_opts[num_mnt_opts] = fsroot;
++		opts->smack.mnt_opts_flags[num_mnt_opts++] = FSROOT_MNT;
+ 	}
+ 	if (fstransmute) {
+-		opts->mnt_opts[num_mnt_opts] = fstransmute;
+-		opts->mnt_opts_flags[num_mnt_opts++] = FSTRANS_MNT;
++		opts->smack.mnt_opts[num_mnt_opts] = fstransmute;
++		opts->smack.mnt_opts_flags[num_mnt_opts++] = FSTRANS_MNT;
+ 	}
+ 
+-	opts->num_mnt_opts = num_mnt_opts;
++	opts->smack.num_mnt_opts = num_mnt_opts;
+ 	return 0;
+ 
+ out_opt_err:
+@@ -726,7 +728,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 	struct inode_smack *isp;
+ 	struct smack_known *skp;
+ 	int i;
+-	int num_opts = opts->num_mnt_opts;
++	int num_opts = opts->smack.num_mnt_opts;
+ 	int transmute = 0;
+ 
+ 	if (sp->smk_flags & SMK_SB_INITIALIZED)
+@@ -760,33 +762,33 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 	sp->smk_flags |= SMK_SB_INITIALIZED;
+ 
+ 	for (i = 0; i < num_opts; i++) {
+-		switch (opts->mnt_opts_flags[i]) {
++		switch (opts->smack.mnt_opts_flags[i]) {
+ 		case FSDEFAULT_MNT:
+-			skp = smk_import_entry(opts->mnt_opts[i], 0);
++			skp = smk_import_entry(opts->smack.mnt_opts[i], 0);
+ 			if (IS_ERR(skp))
+ 				return PTR_ERR(skp);
+ 			sp->smk_default = skp;
+ 			break;
+ 		case FSFLOOR_MNT:
+-			skp = smk_import_entry(opts->mnt_opts[i], 0);
++			skp = smk_import_entry(opts->smack.mnt_opts[i], 0);
+ 			if (IS_ERR(skp))
+ 				return PTR_ERR(skp);
+ 			sp->smk_floor = skp;
+ 			break;
+ 		case FSHAT_MNT:
+-			skp = smk_import_entry(opts->mnt_opts[i], 0);
++			skp = smk_import_entry(opts->smack.mnt_opts[i], 0);
+ 			if (IS_ERR(skp))
+ 				return PTR_ERR(skp);
+ 			sp->smk_hat = skp;
+ 			break;
+ 		case FSROOT_MNT:
+-			skp = smk_import_entry(opts->mnt_opts[i], 0);
++			skp = smk_import_entry(opts->smack.mnt_opts[i], 0);
+ 			if (IS_ERR(skp))
+ 				return PTR_ERR(skp);
+ 			sp->smk_root = skp;
+ 			break;
+ 		case FSTRANS_MNT:
+-			skp = smk_import_entry(opts->mnt_opts[i], 0);
++			skp = smk_import_entry(opts->smack.mnt_opts[i], 0);
+ 			if (IS_ERR(skp))
+ 				return PTR_ERR(skp);
+ 			sp->smk_root = skp;
 -- 
 2.14.3
