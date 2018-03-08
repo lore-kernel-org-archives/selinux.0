@@ -1,45 +1,44 @@
-Reply-To: dwalsh@redhat.com
-To: Stephen Smalley <sds@tycho.nsa.gov>, Zvonko Kosic <zkosic@redhat.com>,
- selinux@tycho.nsa.gov
-References: <CAFrfeQ5LmB6bCTT7rP8Afbmvfy8M0MpZwzunfixWA0t_wW4oBQ@mail.gmail.com>
- <35c8119b-046b-ce96-10cc-c7e17ce7d943@tycho.nsa.gov>
-From: Daniel Walsh <dwalsh@redhat.com>
-Message-ID: <b1e332be-ace1-0d11-8541-53549d0e4499@redhat.com>
-Date: Thu, 8 Mar 2018 13:23:33 +0000
-MIME-Version: 1.0
-In-Reply-To: <35c8119b-046b-ce96-10cc-c7e17ce7d943@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: SELinux Namespace on bind mounted files
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w28HYpdR014027
+ for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2018 12:34:53 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC06.oob.disa.mil (Postfix) with SMTP id 3zxyLx2mstz19Yv4
+ for <selinux@tycho.nsa.gov>; Thu,  8 Mar 2018 17:34:49 +0000 (UTC)
+Received: from UPDC3CPA08_EEMSG_MP24.eemsg.mil (unknown [192.168.18.19])
+ by UPDCF3IC06.oob.disa.mil (Postfix) with ESMTP id 3zxyLx2DW9z19Ytv
+ for <selinux@tycho.nsa.gov>; Thu,  8 Mar 2018 17:34:49 +0000 (UTC)
+Date: Thu, 08 Mar 2018 12:34:40 -0500 (EST)
+Message-Id: <20180308.123440.2224695014753871221.davem@davemloft.net>
+To: stephen@networkplumber.org
+Cc: pmoore@redhat.com, netdev@vger.kernel.org, viro@zeniv.linux.org.uk,
+ dac.override@gmail.com, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20180306155920.7b6379ac@xeon-e3>
+References: <152037526427.18953.14013300464173153064.stgit@chester>
+ <20180306155920.7b6379ac@xeon-e3>
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Subject: Re: [PATCH] net: don't unnecessarily load kernel modules in
+ dev_ioctl()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/08/2018 01:20 PM, Stephen Smalley wrote:
-> On 03/08/2018 05:55 AM, Zvonko Kosic wrote:
->> I've seen the presentation by James Morrison about  namespacing SELinux and I have a question regarding a special case we have in our environment.
->>
->> We have third party prestart runtime hooks for docker which bind mount
->> files from the host into the container image, which have the wrong label.
->>
->> To change the SELinux labels on the host is not an option because
->> it breaks stuff on the host.
->>
->> Wil the SELinux namespacing work on files that are bind mounted?
-> I believe the answer is yes, since my patches support per-namespace in-core inode SIDs and James' additional patches support per-namespace on-disk xattrs (so the bind-mounted files can have two distinct labels, one of which will be presented to processes in the root/init namespace and the other to processes within the child namespace).  That said, this is all very much work in progress.
->
->
-I am not a big fan of Namespaced SELinux.  I think it complicates things 
-and will confuse people.  I would think a better solution would be to 
-run your container with a different type so that you could allow access 
-t othese file types.
+From: Stephen Hemminger <stephen@networkplumber.org>
+Date: Tue, 6 Mar 2018 15:59:20 -0800
 
-It would be a lot easier to create a type based on container-selinux 
-policy and just run your container with it.
+> Actually dev_load by ethernet name is really a legacy thing that
+> should just die,
+> 
+> It was kept around so that some very tunnel configuration using special names.
+> 
+> 	# ifconfig sit0
+> 
+> which probably several web pages still tell users to do...
+> We have much better control now with ip commands so that this is just
+> baggage.
 
-
-podman run -ti --security-opt label=type:mycontianer_t -v /SRC:/DEST IMAGE
-
-Or if  you must
-
-docker run -ti --security-opt label=type:mycontianer_t -v /SRC:/DEST IMAGE
+As you say, some people use this stuff, so we really can't break
+it at this point.
