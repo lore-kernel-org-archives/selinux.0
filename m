@@ -1,55 +1,70 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w27KE8gB020618
- for <selinux@tycho.nsa.gov>; Wed, 7 Mar 2018 15:14:08 -0500
-Date: Wed, 07 Mar 2018 15:13:32 -0500 (EST)
-Message-Id: <20180307.151332.565301474495395127.davem@davemloft.net>
-To: paul@paul-moore.com
-Cc: pmoore@redhat.com, netdev@vger.kernel.org, viro@zeniv.linux.org.uk,
- dac.override@gmail.com, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <CAHC9VhR4FzwsAEO9O9Pnpkm2jOBajwZUkn_i0FqOMR_4ycag2g@mail.gmail.com>
-References: <152037526427.18953.14013300464173153064.stgit@chester>
- <CAHC9VhR4FzwsAEO9O9Pnpkm2jOBajwZUkn_i0FqOMR_4ycag2g@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Subject: Re: [PATCH] net: don't unnecessarily load kernel modules in
- dev_ioctl()
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w28AtJUg004857
+ for <selinux@tycho.nsa.gov>; Thu, 8 Mar 2018 05:55:19 -0500
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID11.oob.disa.mil (Postfix) with SMTP id 3zxnTv2vWsz4QVYW
+ for <selinux@tycho.nsa.gov>; Thu,  8 Mar 2018 10:55:15 +0000 (UTC)
+Received: from USFB3CPA05_EEMSG_MP27.eemsg.mil (unknown [192.168.16.22])
+ by USFBF3ID11.oob.disa.mil (Postfix) with ESMTP id 3zxnTv2NDyz4QVYV
+ for <selinux@tycho.nsa.gov>; Thu,  8 Mar 2018 10:55:15 +0000 (UTC)
+Received: by mail-ot0-f175.google.com with SMTP id r30so5024074otr.2
+ for <selinux@tycho.nsa.gov>; Thu, 08 Mar 2018 02:55:14 -0800 (PST)
+MIME-Version: 1.0
+From: Zvonko Kosic <zkosic@redhat.com>
+Date: Thu, 08 Mar 2018 10:55:03 +0000
+Message-ID: <CAFrfeQ5LmB6bCTT7rP8Afbmvfy8M0MpZwzunfixWA0t_wW4oBQ@mail.gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary="089e082c7f849c0e360566e482bf"
+Subject: SELinux Namespace on bind mounted files
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 6 Mar 2018 17:32:47 -0500
+--089e082c7f849c0e360566e482bf
+Content-Type: text/plain; charset="UTF-8"
 
-> On Tue, Mar 6, 2018 at 5:27 PM, Paul Moore <pmoore@redhat.com> wrote:
->> From: Paul Moore <paul@paul-moore.com>
->>
->> Starting with v4.16-rc1 we've been seeing a higher than usual number
->> of requests for the kernel to load networking modules, even on events
->> which shouldn't trigger a module load (e.g. ioctl(TCGETS)).  Stephen
->> Smalley suggested the problem may lie in commit 44c02a2c3dc5
->> ("dev_ioctl(): move copyin/copyout to callers") which moves changes
->> the network dev_ioctl() function to always call dev_load(),
->> regardless of the requested ioctl.
->>
->> This patch moves the dev_load() calls back into the individual ioctls
->> while preserving the rest of the original patch.
->>
->> Reported-by: Dominick Grift <dac.override@gmail.com>
->> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
->> Signed-off-by: Paul Moore <paul@paul-moore.com>
->> ---
->>  net/core/dev_ioctl.c |    7 +++++--
->>  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> In the interest of full disclosure, I've compiled this code but I
-> haven't booted it yet (test kernel building now).  I just wanted to
-> post this sooner rather than later in case the networking folks, or
-> Al, had a different solution they would prefer.
+I've seen the presentation by James Morrison about  namespacing SELinux and
+I have a question regarding a special case we have in our environment.
 
-This is definitely the right fix, so patch applied.
+We have third party prestart runtime hooks for docker which bind mount
+files from the host into the container image, which have the wrong label.
 
-Taking the dev_load() out of that switch statement definitely has
-side effects.
+To change the SELinux labels on the host is not an option because
+it breaks stuff on the host.
+
+Wil the SELinux namespacing work on files that are bind mounted?
+
+
+Thanks & Regards,
+Zvonko Kosic
+
+--089e082c7f849c0e360566e482bf
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><div style=3D"color:rgb(33,33,33);font-size:10.5625px">I&#=
+39;ve seen the presentation by James Morrison about=C2=A0 namespacing=C2=A0=
+<span class=3D"inbox-inbox-lG" style=3D"background-color:rgba(251,246,167,0=
+.5);outline:transparent dashed 1px">SELinux</span>=C2=A0and I have a questi=
+on regarding a special case we have in our environment.=C2=A0</div><div sty=
+le=3D"color:rgb(33,33,33);font-size:10.5625px"><br></div><div style=3D"colo=
+r:rgb(33,33,33);font-size:10.5625px">We have third party prestart runtime h=
+ooks for docker which bind mount</div><div style=3D"color:rgb(33,33,33);fon=
+t-size:10.5625px">files from the host into the container image, which have =
+the wrong label.=C2=A0</div><div style=3D"color:rgb(33,33,33);font-size:10.=
+5625px"><br></div><div style=3D"color:rgb(33,33,33);font-size:10.5625px">To=
+ change the=C2=A0<span class=3D"inbox-inbox-lG" style=3D"background-color:r=
+gba(251,246,167,0.5);outline:transparent dashed 1px">SELinux</span>=C2=A0la=
+bels on the host is not an option because</div><div style=3D"color:rgb(33,3=
+3,33);font-size:10.5625px">it breaks stuff on the host.=C2=A0</div><div sty=
+le=3D"color:rgb(33,33,33);font-size:10.5625px"><br></div><div style=3D"colo=
+r:rgb(33,33,33);font-size:10.5625px">Wil the=C2=A0<span class=3D"inbox-inbo=
+x-lG" style=3D"background-color:rgba(251,246,167,0.5);outline:transparent d=
+ashed 1px">SELinux</span>=C2=A0namespacing work on files that are bind moun=
+ted?</div><div style=3D"color:rgb(33,33,33);font-size:10.5625px"><br></div>=
+<div style=3D"color:rgb(33,33,33);font-size:10.5625px"><br></div>Thanks=C2=
+=A0&amp; Regards,=C2=A0<div>Zvonko Kosic<br class=3D"inbox-inbox-Apple-inte=
+rchange-newline"><div><br></div></div></div>
+
+--089e082c7f849c0e360566e482bf--
