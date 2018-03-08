@@ -1,129 +1,62 @@
-To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov,
- Petr Lautrbach <plautrba@redhat.com>
-References: <20180305221611.19964-1-nicolas.iooss@m4x.org>
- <fde35f5b-92f0-5707-5af4-6e2ced3af8f6@tycho.nsa.gov>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@tycho.nsa.gov
+References: <20180305225820.23610-1-nicolas.iooss@m4x.org>
+ <20180305225820.23610-3-nicolas.iooss@m4x.org>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <408e7eeb-2e44-4487-a976-775df79197c8@tycho.nsa.gov>
-Date: Thu, 8 Mar 2018 14:34:35 -0500
+Message-ID: <8ce37eb3-e5e6-e9c2-9ea3-ae7333aad68a@tycho.nsa.gov>
+Date: Thu, 8 Mar 2018 14:49:38 -0500
 MIME-Version: 1.0
-In-Reply-To: <fde35f5b-92f0-5707-5af4-6e2ced3af8f6@tycho.nsa.gov>
+In-Reply-To: <20180305225820.23610-3-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH 1/1] libselinux, libsemanage: Replace PYSITEDIR with
- PYTHONLIBDIR
+Subject: Re: [PATCH 3/3] libsemanage: silence clang static analyzer report
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 03/06/2018 04:19 PM, Stephen Smalley wrote:
-> On 03/05/2018 05:16 PM, Nicolas Iooss wrote:
->> libselinux and libsemanage Makefiles invoke site.getsitepackages() in
->> order to get the path to the directory /usr/lib/pythonX.Y/site-packages
->> that matches the Python interpreter chosen with $(PYTHON). This method
->> is incompatible with Python virtual environments, as described in
->> https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452 .
->> This issue has been opened for more than 5 years.
->>
->> On the contrary python/semanage/ and python/sepolgen/ Makefiles use
->> distutils.sysconfig.get_python_lib() in order to get the site-packages
->> path into a variable named PYTHONLIBDIR. This way of computing
->> PYTHONLIBDIR is compatible with virtual environments and gives the same
->> result as PYSITEDIR.
->>
->> As PYTHONLIBDIR works in more cases than PYSITEDIR, make libselinux and
->> libsemanage Makefiles use it.
+On 03/05/2018 05:58 PM, Nicolas Iooss wrote:
+> clang's static analyzer reports an out-of-bound array access in
+> semanage_user_roles() when num_roles is zero, with the following
+> statement:
 > 
-> On Fedora x86_64, this changes the install location from /usr/lib64 to /usr/lib.
+>     strcpy(roles,roles_arr[0]);
+> 
+> When num_roles is zero, roles_arr[0] is not uninitialized and roles is
+> the result of malloc(0) so this strcpy is dangerous. Make
+> semanage_user_roles() return an empty string instead.
 
-That said I agree we ought to be consistent, and it does seem that we are not currently.
-I'm just not sure what the best fix is in this case and the impact on distro packagers.
+Applied patches 2 and 3; patch 1 will be obsoleted by James' patch when it is merged, unless there are objections to it.
 
 > 
->>
->> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->> ---
->>  .travis.yml              |  5 +----
->>  libselinux/src/Makefile  | 10 +++++-----
->>  libsemanage/src/Makefile |  8 ++++----
->>  3 files changed, 10 insertions(+), 13 deletions(-)
->>
->> diff --git a/.travis.yml b/.travis.yml
->> index 0312e996e333..63c7a544aa45 100644
->> --- a/.travis.yml
->> +++ b/.travis.yml
->> @@ -96,9 +96,6 @@ before_script:
->>    - export PKG_CONFIG_PATH="/opt/python/$($PYTHON -c 'import sys;print("%d.%d.%d" % sys.version_info[:3])')/lib/pkgconfig"
->>    # PyPy does not provide a config file for pkg-config nor a pypy-c.so
->>    - if echo "$PYVER" | grep -q pypy ; then export PYINC=-I$($PYTHON -c 'import sys;print(sys.prefix)')/include PYLIBS= ; fi
->> -  # Python virtualenvs do not support "import site; print(site.getsitepackages()[0]"
->> -  # cf. https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452
->> -  - export PYSITEDIR="/usr/lib/$($PYTHON -c 'import sys;print("python%d.%d" % sys.version_info[:2])')/site-packages"
->>  
->>    # Find the Ruby executable with version $RUBYLIBVER
->>    - export RUBY="$(ls -d -1 "$HOME/.rvm/rubies/ruby-$RUBYLIBVER"*/bin/ruby | head -n 1)"
->> @@ -126,7 +123,7 @@ script:
->>    # Set up environment variables for the tests
->>    - export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
->>    - export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH"
->> -  - export PYTHONPATH="$DESTDIR$PYSITEDIR"
->> +  - export PYTHONPATH="$DESTDIR$($PYTHON -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
->>    - export RUBYLIB="$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
->>  
->>    # Show variables (to help debugging issues)
->> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->> index 18588da586bf..ff55680e384a 100644
->> --- a/libselinux/src/Makefile
->> +++ b/libselinux/src/Makefile
->> @@ -14,7 +14,7 @@ SHLIBDIR ?= /lib
->>  INCLUDEDIR ?= $(PREFIX)/include
->>  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
->>  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
->> -PYSITEDIR ?= $(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
->> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
->>  PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
->>  RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
->>  RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
->> @@ -191,10 +191,10 @@ install: all
->>  	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
->>  
->>  install-pywrap: pywrap
->> -	test -d $(DESTDIR)$(PYSITEDIR)/selinux || install -m 755 -d $(DESTDIR)$(PYSITEDIR)/selinux
->> -	install -m 755 $(SWIGSO) $(DESTDIR)$(PYSITEDIR)/_selinux$(PYCEXT)
->> -	install -m 755 $(AUDIT2WHYSO) $(DESTDIR)$(PYSITEDIR)/selinux/audit2why$(PYCEXT)
->> -	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYSITEDIR)/selinux/__init__.py
->> +	test -d $(DESTDIR)$(PYTHONLIBDIR)/selinux || install -m 755 -d $(DESTDIR)$(PYTHONLIBDIR)/selinux
->> +	install -m 755 $(SWIGSO) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
->> +	install -m 755 $(AUDIT2WHYSO) $(DESTDIR)$(PYTHONLIBDIR)/selinux/audit2why$(PYCEXT)
->> +	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
->>  
->>  install-rubywrap: rubywrap
->>  	test -d $(DESTDIR)$(RUBYINSTALL) || install -m 755 -d $(DESTDIR)$(RUBYINSTALL) 
->> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
->> index e98d8760acb7..bcee93b36977 100644
->> --- a/libsemanage/src/Makefile
->> +++ b/libsemanage/src/Makefile
->> @@ -13,7 +13,7 @@ LIBDIR ?= $(PREFIX)/lib
->>  INCLUDEDIR ?= $(PREFIX)/include
->>  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
->>  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
->> -PYSITEDIR ?= $(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
->> +PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(prefix='$(PREFIX)'))")
->>  PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
->>  RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
->>  RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
->> @@ -142,9 +142,9 @@ install: all
->>  	cd $(DESTDIR)$(LIBDIR) && ln -sf $(LIBSO) $(TARGET)
->>  
->>  install-pywrap: pywrap 
->> -	test -d $(DESTDIR)$(PYSITEDIR) || install -m 755 -d $(DESTDIR)$(PYSITEDIR)
->> -	install -m 755 $(SWIGSO) $(DESTDIR)$(PYSITEDIR)/_semanage$(PYCEXT)
->> -	install -m 644 semanage.py $(DESTDIR)$(PYSITEDIR)
->> +	test -d $(DESTDIR)$(PYTHONLIBDIR) || install -m 755 -d $(DESTDIR)$(PYTHONLIBDIR)
->> +	install -m 755 $(SWIGSO) $(DESTDIR)$(PYTHONLIBDIR)/_semanage$(PYCEXT)
->> +	install -m 644 semanage.py $(DESTDIR)$(PYTHONLIBDIR)
->>  
->>  
->>  install-rubywrap: rubywrap
->>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsemanage/src/seusers_local.c | 16 ++++++++++------
+>  1 file changed, 10 insertions(+), 6 deletions(-)
 > 
+> diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
+> index 42c3a8b662c2..413ebdddeb34 100644
+> --- a/libsemanage/src/seusers_local.c
+> +++ b/libsemanage/src/seusers_local.c
+> @@ -35,12 +35,16 @@ static char *semanage_user_roles(semanage_handle_t * handle, const char *sename)
+>  				for (i = 0; i<num_roles; i++) {
+>  					size += (strlen(roles_arr[i]) + 1);
+>  				}
+> -				roles = malloc(size);
+> -				if (roles) {
+> -					strcpy(roles,roles_arr[0]);
+> -					for (i = 1; i<num_roles; i++) {
+> -						strcat(roles,",");
+> -						strcat(roles,roles_arr[i]);
+> +				if (num_roles == 0) {
+> +					roles = strdup("");
+> +				} else {
+> +					roles = malloc(size);
+> +					if (roles) {
+> +						strcpy(roles,roles_arr[0]);
+> +						for (i = 1; i<num_roles; i++) {
+> +							strcat(roles,",");
+> +							strcat(roles,roles_arr[i]);
+> +						}
+>  					}
+>  				}
+>  			}
 > 
