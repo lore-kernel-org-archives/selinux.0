@@ -1,151 +1,357 @@
-Date: Fri, 9 Mar 2018 15:39:13 +0100
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Nicolas Iooss <nicolas.iooss@m4x.org>, selinux <selinux@tycho.nsa.gov>
-Message-ID: <20180309143913.GB3849@workstation>
-References: <20180305221611.19964-1-nicolas.iooss@m4x.org>
- <fde35f5b-92f0-5707-5af4-6e2ced3af8f6@tycho.nsa.gov>
- <408e7eeb-2e44-4487-a976-775df79197c8@tycho.nsa.gov>
- <CAJfZ7==qgVM0KwHdSJ2z7E4iifTx-CPjT3ikFfX4iorG6vOAXw@mail.gmail.com>
- <20180309122556.GA3849@workstation>
- <7b11fb39-1d8d-c500-c6ca-30f7eb2e42cd@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
-In-Reply-To: <7b11fb39-1d8d-c500-c6ca-30f7eb2e42cd@tycho.nsa.gov>
-Subject: Re: [PATCH 1/1] libselinux,
- libsemanage: Replace PYSITEDIR with PYTHONLIBDIR
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w29FM1kf021987
+ for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2018 10:22:01 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id BB16180AD23B
+ for <selinux@tycho.nsa.gov>; Fri,  9 Mar 2018 15:21:53 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.26])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 439C52026DFD
+ for <selinux@tycho.nsa.gov>; Fri,  9 Mar 2018 15:21:53 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Fri,  9 Mar 2018 16:21:47 +0100
+Message-Id: <20180309152147.2635-1-vmojzis@redhat.com>
+In-Reply-To: <a0246309-6645-0947-28a3-cdc6a685d5d1@tycho.nsa.gov>
+References: <a0246309-6645-0947-28a3-cdc6a685d5d1@tycho.nsa.gov>
+Subject: [PATCH] libsemanage: replace access() checks to make setuid
+ programs work
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+access() uses real UID instead of effective UID which causes false
+negative checks in setuid programs.
+Replace access() calls (mostly tests for file existence) by stat().
 
---7iMSBzlTiPOCCT2k
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
 
-On Fri, Mar 09, 2018 at 08:55:11AM -0500, Stephen Smalley wrote:
-> On 03/09/2018 07:25 AM, Petr Lautrbach wrote:
-> > On Thu, Mar 08, 2018 at 10:19:26PM +0100, Nicolas Iooss wrote:
-> >> On Thu, Mar 8, 2018 at 8:34 PM, Stephen Smalley <sds@tycho.nsa.gov> wr=
-ote:
-> >>> On 03/06/2018 04:19 PM, Stephen Smalley wrote:
-> >>>> On 03/05/2018 05:16 PM, Nicolas Iooss wrote:
-> >>>>> libselinux and libsemanage Makefiles invoke site.getsitepackages() =
-in
-> >>>>> order to get the path to the directory /usr/lib/pythonX.Y/site-pack=
-ages
-> >>>>> that matches the Python interpreter chosen with $(PYTHON). This met=
-hod
-> >>>>> is incompatible with Python virtual environments, as described in
-> >>>>> https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452=
- .
-> >>>>> This issue has been opened for more than 5 years.
-> >>>>>
-> >>>>> On the contrary python/semanage/ and python/sepolgen/ Makefiles use
-> >>>>> distutils.sysconfig.get_python_lib() in order to get the site-packa=
-ges
-> >>>>> path into a variable named PYTHONLIBDIR. This way of computing
-> >>>>> PYTHONLIBDIR is compatible with virtual environments and gives the =
-same
-> >>>>> result as PYSITEDIR.
-> >>>>>
-> >>>>> As PYTHONLIBDIR works in more cases than PYSITEDIR, make libselinux=
- and
-> >>>>> libsemanage Makefiles use it.
-> >>>>
-> >>>> On Fedora x86_64, this changes the install location from /usr/lib64 =
-to /usr/lib.
-> >>>
-> >>> That said I agree we ought to be consistent, and it does seem that we=
- are not currently.
-> >>> I'm just not sure what the best fix is in this case and the impact on=
- distro packagers.
-> >>
-> >> Good point. I have read
-> >> https://marc.info/?l=3Dselinux&m=3D151670320132614&w=3D2 too quickly (=
-and
-> >> missed "given that there's only pure python modules"). This message
-> >> suggests that doing using get_python_lib(plat_specific=3D1) would keep
-> >> /usr/lib64 on Fedora (unfortunately I only have access to Debian,
-> >> Ubuntu and Arch Linux systems right now so I am not able to test).
-> >=20
-> > On Fedora Rawhide:
-> >=20
-> >>>> get_python_lib()
-> > '/usr/lib/python3.6/site-packages'
-> >>>> get_python_lib(plat_specific=3D1)
-> > '/usr/lib64/python3.6/site-packages'
-> >>>> get_python_lib(prefix=3D'/usr/local')
-> > '/usr/local/lib/python3.6/site-packages'
-> >>>> get_python_lib(prefix=3D'/usr/local', plat_specific=3D1)
-> > '/usr/local/lib64/python3.6/site-packages'
-> >=20
-> >=20
-> >> And
-> >> to be consistent, I suggest naming the variable differently from
-> >> PYTHONLIBDIR. For example:
-> >>
-> >> PYTHONPLATLIBDIR ?=3D $(shell $(PYTHON) -c "from distutils.sysconfig
-> >> import *; print(get_python_lib(plat_specific=3D1, prefix=3D'$(PREFIX)'=
-))")
-> >>
-> >> ... or PYPLATLIBDIR if PYTHONPLATLIBDIR is too long. Or we also can
-> >> keep the name PYSITEDIR while changing its definition, in order to
-> >> minimize the impact. What would be acceptable?
-> >>
-> >=20
-> > Given that libselinux and libsemanage provides only extension SWIG gene=
-rated
-> > modules I'd just set plat_specific=3D1 and use PYTHONLIBDIR in this cas=
-e.
->=20
-> Looking at the Fedora packages (on 27), I see that:
->=20
-> 1) libselinux-python{3} and libsemanage-python{3} puts all of their files=
- under /usr/lib64
-> 2) policycoreutils-python puts sepolicy under /usr/lib but the rest (e.g.=
- seobject, sepolgen) under /usr/lib64
->=20
-> Meanwhile, a "make LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64 install install-=
-pywrap relabel" from selinux userspace (as per the README) installs the lib=
-selinux and libsemanage python modules under /usr/lib64 (the same as the Fe=
-dora packages) but all of the former policycoreutils ones (now python/*) un=
-der /usr/lib, and this seems to have been a change as part of Marcus' recen=
-t patch series (python: build: move modules from platform-specific to platf=
-orm-shared).
->=20
-> So is Fedora also going to move all of the policycoreutils-python modules=
- to /usr/lib (maybe this has already happened in rawhide)?
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libsemanage/src/direct_api.c     | 137 +++++++++++++++++++++++++--------------
+ libsemanage/src/semanage_store.c |  11 +++-
+ 2 files changed, 98 insertions(+), 50 deletions(-)
 
-Yes. Everything from python/ will be moved to /usr/lib to follow the Marcus
-change. Currently, It's not in Fedora as I haven't rebased packages yet but=
- it should
-happen soon in F28 and Rawhide.
-
-
-
-
---7iMSBzlTiPOCCT2k
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlqinIoACgkQviIJHj72
-InWlHRAAgo3FWQGY1wNHyWvN1IQhBuCVolcQImjQexHaN78PEH6xoVnN2GsYa7G/
-eRkPMzUtp9KXYy0c1qkefttKGJUseGq7emfYVpGo2T7sdAReR5jpEdaKz47TZvTE
-7rzPj2Ww74M23rkEhACHtGj2tRzWxmorl968Qqx6Eag6jWi/+qsf3wTgiU42HJO3
-qIJkVEUUaQxdoA2D+C0Tbgtfr0MUvpxWmKtqJy5b3pSFdlxdFTpEmB8VxMYoPcBo
-wONZ2wZsUujhyy367tFsPBw4+ieeOC7nhuRDq9pnkSzd69Ei9ZtjS02eMLGjYJYn
-o01nUoCFSe1wonEzCFpFPPkh+WVtSWrsm2r8I0O0QLi9fJNDnMCQuD1Da/2kr82g
-FjMDIG8wyIEwYxPxN4izecm8wrzMUt80o1l3+Kjv14myQ1TEW08PgKxShQypt8yY
-AAamJ4fct4qEwWZ2UYuTqq1BIgXPc1bmXAXxTEnakVhKnVuIB+ttxAEUGyR3gl7K
-fVAruUKVDwo81VSkC3AifyODeOnNPwe4DuS3Rs6YnDnskdCTqgT7/nMtwsxHBvHB
-nu3qcBWRr+1gw9iBeSbgxoUA2ALmL9yOdovi6SLajfShTIv74pdnECai0Ngj1pfx
-NDDKG8DBuZIPe4TXFLMpIlaUcvAx8DoRFaRJuQFlyYGf2A6HdzU=
-=h9BH
------END PGP SIGNATURE-----
-
---7iMSBzlTiPOCCT2k--
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index 92d7517d..439122df 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -140,6 +140,7 @@ int semanage_direct_is_managed(semanage_handle_t * sh)
+ int semanage_direct_connect(semanage_handle_t * sh)
+ {
+ 	const char *path;
++	struct stat sb;
+ 
+ 	if (semanage_check_init(sh, sh->conf->store_root_path))
+ 		goto err;
+@@ -302,10 +303,16 @@ int semanage_direct_connect(semanage_handle_t * sh)
+ 
+ 	/* set the disable dontaudit value */
+ 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
+-	if (access(path, F_OK) == 0)
++
++	if (stat(path, &sb) == 0)
+ 		sepol_set_disable_dontaudit(sh->sepolh, 1);
+-	else
++	else if (errno == ENOENT) {
++		/* The file does not exist */
+ 		sepol_set_disable_dontaudit(sh->sepolh, 0);
++	} else {
++		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++		goto err;
++	}
+ 
+ 	return STATUS_SUCCESS;
+ 
+@@ -1139,6 +1146,7 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
+ 	int status = 0;
+ 	int i;
+ 	char cil_path[PATH_MAX];
++	struct stat sb;
+ 
+ 	assert(sh);
+ 	assert(modinfos);
+@@ -1155,9 +1163,13 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
+ 		}
+ 
+ 		if (semanage_get_ignore_module_cache(sh) == 0 &&
+-				access(cil_path, F_OK) == 0) {
++				(status = stat(cil_path, &sb)) == 0) {
+ 			continue;
+ 		}
++		if (status != 0 && errno != ENOENT) {
++			ERR(sh, "Unable to access %s: %s\n", cil_path, strerror(errno));
++			goto cleanup; //an error in the "stat" call
++		}
+ 
+ 		status = semanage_compile_module(sh, &modinfos[i]);
+ 		if (status < 0) {
+@@ -1196,6 +1208,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	struct cil_db *cildb = NULL;
+ 	semanage_module_info_t *modinfos = NULL;
+ 	mode_t mask = umask(0077);
++	struct stat sb;
+ 
+ 	int do_rebuild, do_write_kernel, do_install;
+ 	int fcontexts_modified, ports_modified, seusers_modified,
+@@ -1234,10 +1247,16 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 
+ 	/* Create or remove the disable_dontaudit flag file. */
+ 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
+-	if (access(path, F_OK) == 0)
++	if (stat(path, &sb) == 0)
+ 		do_rebuild |= !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
+-	else
++	else if (errno == ENOENT) {
++		/* The file does not exist */
+ 		do_rebuild |= (sepol_get_disable_dontaudit(sh->sepolh) == 1);
++	} else {
++		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++		retval = -1;
++		goto cleanup;
++	}
+ 	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
+ 		FILE *touch;
+ 		touch = fopen(path, "w");
+@@ -1259,10 +1278,17 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 
+ 	/* Create or remove the preserve_tunables flag file. */
+ 	path = semanage_path(SEMANAGE_TMP, SEMANAGE_PRESERVE_TUNABLES);
+-	if (access(path, F_OK) == 0)
++	if (stat(path, &sb) == 0)
+ 		do_rebuild |= !(sepol_get_preserve_tunables(sh->sepolh) == 1);
+-	else
++	else if (errno == ENOENT) {
++		/* The file does not exist */
+ 		do_rebuild |= (sepol_get_preserve_tunables(sh->sepolh) == 1);
++	} else {
++		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++		retval = -1;
++		goto cleanup;
++	}
++
+ 	if (sepol_get_preserve_tunables(sh->sepolh) == 1) {
+ 		FILE *touch;
+ 		touch = fopen(path, "w");
+@@ -1299,40 +1325,25 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+ 	 * a rebuild.
+ 	 */
+ 	if (!do_rebuild) {
+-		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
+-		if (access(path, F_OK) != 0) {
+-			do_rebuild = 1;
+-			goto rebuild;
+-		}
+-
+-		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
+-		if (access(path, F_OK) != 0) {
+-			do_rebuild = 1;
+-			goto rebuild;
+-		}
+-
+-		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
+-		if (access(path, F_OK) != 0) {
+-			do_rebuild = 1;
+-			goto rebuild;
+-		}
+-
+-		path = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
+-		if (access(path, F_OK) != 0) {
+-			do_rebuild = 1;
+-			goto rebuild;
+-		}
+-
+-		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
+-		if (access(path, F_OK) != 0) {
+-			do_rebuild = 1;
+-			goto rebuild;
+-		}
++		int files[] = {SEMANAGE_STORE_KERNEL,
++					   SEMANAGE_STORE_FC,
++					   SEMANAGE_STORE_SEUSERS,
++					   SEMANAGE_LINKED,
++					   SEMANAGE_SEUSERS_LINKED,
++					   SEMANAGE_USERS_EXTRA_LINKED};
++
++		for (i = 0; i < (int) sizeof(files); i++) {
++			path = semanage_path(SEMANAGE_TMP, files[i]);
++			if (stat(path, &sb) != 0) {
++				if (errno != ENOENT) {
++					ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++					retval = -1;
++					goto cleanup;
++				}
+ 
+-		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
+-		if (access(path, F_OK) != 0) {
+-			do_rebuild = 1;
+-			goto rebuild;
++				do_rebuild = 1;
++				goto rebuild;
++			}
+ 		}
+ 	}
+ 
+@@ -1465,7 +1476,7 @@ rebuild:
+ 			goto cleanup;
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
+-		if (access(path, F_OK) == 0) {
++		if (stat(path, &sb) == 0) {
+ 			retval = semanage_copy_file(path,
+ 						    semanage_path(SEMANAGE_TMP,
+ 								  SEMANAGE_STORE_SEUSERS),
+@@ -1473,12 +1484,17 @@ rebuild:
+ 			if (retval < 0)
+ 				goto cleanup;
+ 			pseusers->dtable->drop_cache(pseusers->dbase);
+-		} else {
++		} else if (errno == ENOENT) {
++			/* The file does not exist */
+ 			pseusers->dtable->clear(sh, pseusers->dbase);
++		} else {
++			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++			retval = -1;
++			goto cleanup;
+ 		}
+ 
+ 		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
+-		if (access(path, F_OK) == 0) {
++		if (stat(path, &sb) == 0) {
+ 			retval = semanage_copy_file(path,
+ 						    semanage_path(SEMANAGE_TMP,
+ 								  SEMANAGE_USERS_EXTRA),
+@@ -1486,8 +1502,13 @@ rebuild:
+ 			if (retval < 0)
+ 				goto cleanup;
+ 			pusers_extra->dtable->drop_cache(pusers_extra->dbase);
+-		} else {
++		} else if (errno == ENOENT) {
++			/* The file does not exist */
+ 			pusers_extra->dtable->clear(sh, pusers_extra->dbase);
++		} else {
++			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++			retval = -1;
++			goto cleanup;
+ 		}
+ 	}
+ 
+@@ -1817,6 +1838,7 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+ 	ssize_t _data_len;
+ 	char *_data;
+ 	int compressed;
++	struct stat sb;
+ 
+ 	/* get path of module */
+ 	rc = semanage_module_get_path(
+@@ -1829,8 +1851,8 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+ 		goto cleanup;
+ 	}
+ 
+-	if (access(module_path, F_OK) != 0) {
+-		ERR(sh, "Module does not exist: %s", module_path);
++	if (stat(module_path, &sb) != 0) {
++		ERR(sh, "Unable to access %s: %s\n", module_path, strerror(errno));
+ 		rc = -1;
+ 		goto cleanup;
+ 	}
+@@ -1859,7 +1881,13 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+ 		goto cleanup;
+ 	}
+ 
+-	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && access(input_file, F_OK) != 0) {
++	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && stat(input_file, &sb) != 0) {
++		if (errno != ENOENT) {
++			ERR(sh, "Unable to access %s: %s\n", input_file, strerror(errno));
++			rc = -1;
++			goto cleanup;
++		}
++
+ 		rc = semanage_compile_module(sh, _modinfo);
+ 		if (rc < 0) {
+ 			goto cleanup;
+@@ -2004,6 +2032,12 @@ static int semanage_direct_get_enabled(semanage_handle_t *sh,
+ 	}
+ 
+ 	if (stat(path, &sb) < 0) {
++		if (errno != ENOENT) {
++			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++			status = -1;
++			goto cleanup;
++		}
++
+ 		*enabled = 1;
+ 	}
+ 	else {
+@@ -2330,6 +2364,12 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
+ 
+ 	/* set enabled/disabled status */
+ 	if (stat(fn, &sb) < 0) {
++		if (errno != ENOENT) {
++			ERR(sh, "Unable to access %s: %s\n", fn, strerror(errno));
++			status = -1;
++			goto cleanup;
++		}
++
+ 		ret = semanage_module_info_set_enabled(sh, *modinfo, 1);
+ 		if (ret != 0) {
+ 			status = -1;
+@@ -2738,6 +2778,7 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
+ 	int status = 0;
+ 	int ret = 0;
+ 	int type;
++	struct stat sb;
+ 
+ 	char path[PATH_MAX];
+ 	mode_t mask = umask(0077);
+@@ -2838,7 +2879,7 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
+ 			goto cleanup;
+ 		}
+ 
+-		if (access(path, F_OK) == 0) {
++		if (stat(path, &sb) == 0) {
+ 			ret = unlink(path);
+ 			if (ret != 0) {
+ 				ERR(sh, "Error while removing cached CIL file %s: %s", path, strerror(errno));
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index 4bd1d651..1e71ab67 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -514,6 +514,7 @@ char *semanage_conf_path(void)
+ {
+ 	char *semanage_conf = NULL;
+ 	int len;
++	struct stat sb;
+ 
+ 	len = strlen(semanage_root()) + strlen(selinux_path()) + strlen(SEMANAGE_CONF_FILE);
+ 	semanage_conf = calloc(len + 1, sizeof(char));
+@@ -522,7 +523,7 @@ char *semanage_conf_path(void)
+ 	snprintf(semanage_conf, len + 1, "%s%s%s", semanage_root(), selinux_path(),
+ 		 SEMANAGE_CONF_FILE);
+ 
+-	if (access(semanage_conf, R_OK) != 0) {
++	if (stat(semanage_conf, &sb) != 0 && errno == ENONET) {
+ 		snprintf(semanage_conf, len + 1, "%s%s", selinux_path(), SEMANAGE_CONF_FILE);
+ 	}
+ 
+@@ -1508,8 +1509,14 @@ int semanage_split_fc(semanage_handle_t * sh)
+ static int sefcontext_compile(semanage_handle_t * sh, const char *path) {
+ 
+ 	int r;
++	struct stat sb;
++
++	if (stat(path, &sb) < 0) {
++		if (errno != ENOENT) {
++			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
++			return -1;
++		}
+ 
+-	if (access(path, F_OK) != 0) {
+ 		return 0;
+ 	}
+ 
+-- 
+2.14.3
