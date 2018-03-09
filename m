@@ -1,208 +1,170 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w29HHPL1028252
- for <selinux@tycho.nsa.gov>; Fri, 9 Mar 2018 12:17:25 -0500
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 3zyYwK2KH2z14wTm
- for <selinux@tycho.nsa.gov>; Fri,  9 Mar 2018 17:17:21 +0000 (UTC)
-Received: from UPDC3CPA07_EEMSG_MP23.eemsg.mil (unknown [192.168.18.18])
- by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 3zyYwK0chsz14wTk
- for <selinux@tycho.nsa.gov>; Fri,  9 Mar 2018 17:17:21 +0000 (UTC)
-To: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- linux-security-module@vger.kernel.org, jmorris@namei.org
-Cc: john.johansen@canonical.com, paul@paul-moore.com, keescook@chromium.org,
- sds@tycho.nsa.gov, selinux@tycho.nsa.gov, SMACK-announce@lists.01.org
-References: <d2c25c38-e19d-1e08-8c49-4726a34e72bb@schaufler-ca.com>
- <201803092029.JHB78680.HJOVFFSOtMQFLO@I-love.SAKURA.ne.jp>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <bd21dd72-2dba-d8f4-4a84-65ca66cbc778@schaufler-ca.com>
-Date: Fri, 9 Mar 2018 09:17:15 -0800
+Date: Fri, 9 Mar 2018 22:02:52 +0100
+From: Petr Lautrbach <plautrba@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+Message-ID: <20180309210251.GA14257@workstation>
+References: <20180305221611.19964-1-nicolas.iooss@m4x.org>
+ <fde35f5b-92f0-5707-5af4-6e2ced3af8f6@tycho.nsa.gov>
+ <408e7eeb-2e44-4487-a976-775df79197c8@tycho.nsa.gov>
+ <CAJfZ7==qgVM0KwHdSJ2z7E4iifTx-CPjT3ikFfX4iorG6vOAXw@mail.gmail.com>
+ <20180309122556.GA3849@workstation>
+ <7b11fb39-1d8d-c500-c6ca-30f7eb2e42cd@tycho.nsa.gov>
+ <20180309143913.GB3849@workstation>
 MIME-Version: 1.0
-In-Reply-To: <201803092029.JHB78680.HJOVFFSOtMQFLO@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH 0/8] LSM: Security module stacking
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
+In-Reply-To: <20180309143913.GB3849@workstation>
+Subject: Re: [PATCH 1/1] libselinux,
+ libsemanage: Replace PYSITEDIR with PYTHONLIBDIR
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 3/9/2018 3:29 AM, Tetsuo Handa wrote:
-> Casey Schaufler wrote:
->> 1/8: Add the smack subdirectory to /proc/.../attr
->> 2/8: Move management of cred security blobs to the LSM infrastructure
->> 3/8: Move management of file security blobs to the LSM infrastructure
->> 4/8: Move management of task security blobs to the LSM infrastructure
->> 5/8: Move management of the remaining security blobs to the LSM infrastructure
->> 6/8: Change the configuration controls for security stacking
->> 7/8: Allow multiple modules to provide mount options
->> 8/8: Maintain and use compound secids instead of a single integer
->>
->> Also available git://github.com/cschaufler/lsm_stacking.git#stacking-4.17
-> s/lsm_stacking/lsm-stacking/
 
-Thanks for the correction. I mess that up way to often.
+--7AUc2qLy4jB3hD7Z
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> Is there any objection regarding "LSM: Security module stacking" itself?
+On Fri, Mar 09, 2018 at 03:39:13PM +0100, Petr Lautrbach wrote:
+> On Fri, Mar 09, 2018 at 08:55:11AM -0500, Stephen Smalley wrote:
+> > On 03/09/2018 07:25 AM, Petr Lautrbach wrote:
+> > > On Thu, Mar 08, 2018 at 10:19:26PM +0100, Nicolas Iooss wrote:
+> > >> On Thu, Mar 8, 2018 at 8:34 PM, Stephen Smalley <sds@tycho.nsa.gov> =
+wrote:
+> > >>> On 03/06/2018 04:19 PM, Stephen Smalley wrote:
+> > >>>> On 03/05/2018 05:16 PM, Nicolas Iooss wrote:
+> > >>>>> libselinux and libsemanage Makefiles invoke site.getsitepackages(=
+) in
+> > >>>>> order to get the path to the directory /usr/lib/pythonX.Y/site-pa=
+ckages
+> > >>>>> that matches the Python interpreter chosen with $(PYTHON). This m=
+ethod
+> > >>>>> is incompatible with Python virtual environments, as described in
+> > >>>>> https://github.com/pypa/virtualenv/issues/355#issuecomment-102504=
+52 .
+> > >>>>> This issue has been opened for more than 5 years.
+> > >>>>>
+> > >>>>> On the contrary python/semanage/ and python/sepolgen/ Makefiles u=
+se
+> > >>>>> distutils.sysconfig.get_python_lib() in order to get the site-pac=
+kages
+> > >>>>> path into a variable named PYTHONLIBDIR. This way of computing
+> > >>>>> PYTHONLIBDIR is compatible with virtual environments and gives th=
+e same
+> > >>>>> result as PYSITEDIR.
+> > >>>>>
+> > >>>>> As PYTHONLIBDIR works in more cases than PYSITEDIR, make libselin=
+ux and
+> > >>>>> libsemanage Makefiles use it.
+> > >>>>
+> > >>>> On Fedora x86_64, this changes the install location from /usr/lib6=
+4 to /usr/lib.
+> > >>>
+> > >>> That said I agree we ought to be consistent, and it does seem that =
+we are not currently.
+> > >>> I'm just not sure what the best fix is in this case and the impact =
+on distro packagers.
+> > >>
+> > >> Good point. I have read
+> > >> https://marc.info/?l=3Dselinux&m=3D151670320132614&w=3D2 too quickly=
+ (and
+> > >> missed "given that there's only pure python modules"). This message
+> > >> suggests that doing using get_python_lib(plat_specific=3D1) would ke=
+ep
+> > >> /usr/lib64 on Fedora (unfortunately I only have access to Debian,
+> > >> Ubuntu and Arch Linux systems right now so I am not able to test).
+> > >=20
+> > > On Fedora Rawhide:
+> > >=20
+> > >>>> get_python_lib()
+> > > '/usr/lib/python3.6/site-packages'
+> > >>>> get_python_lib(plat_specific=3D1)
+> > > '/usr/lib64/python3.6/site-packages'
+> > >>>> get_python_lib(prefix=3D'/usr/local')
+> > > '/usr/local/lib/python3.6/site-packages'
+> > >>>> get_python_lib(prefix=3D'/usr/local', plat_specific=3D1)
+> > > '/usr/local/lib64/python3.6/site-packages'
+> > >=20
+> > >=20
+> > >> And
+> > >> to be consistent, I suggest naming the variable differently from
+> > >> PYTHONLIBDIR. For example:
+> > >>
+> > >> PYTHONPLATLIBDIR ?=3D $(shell $(PYTHON) -c "from distutils.sysconfig
+> > >> import *; print(get_python_lib(plat_specific=3D1, prefix=3D'$(PREFIX=
+)'))")
+> > >>
+> > >> ... or PYPLATLIBDIR if PYTHONPLATLIBDIR is too long. Or we also can
+> > >> keep the name PYSITEDIR while changing its definition, in order to
+> > >> minimize the impact. What would be acceptable?
+> > >>
+> > >=20
+> > > Given that libselinux and libsemanage provides only extension SWIG ge=
+nerated
+> > > modules I'd just set plat_specific=3D1 and use PYTHONLIBDIR in this c=
+ase.
+> >=20
+> > Looking at the Fedora packages (on 27), I see that:
+> >=20
+> > 1) libselinux-python{3} and libsemanage-python{3} puts all of their fil=
+es under /usr/lib64
+> > 2) policycoreutils-python puts sepolicy under /usr/lib but the rest (e.=
+g. seobject, sepolgen) under /usr/lib64
+> >=20
+> > Meanwhile, a "make LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64 install instal=
+l-pywrap relabel" from selinux userspace (as per the README) installs the l=
+ibselinux and libsemanage python modules under /usr/lib64 (the same as the =
+Fedora packages) but all of the former policycoreutils ones (now python/*) =
+under /usr/lib, and this seems to have been a change as part of Marcus' rec=
+ent patch series (python: build: move modules from platform-specific to pla=
+tform-shared).
+> >=20
+> > So is Fedora also going to move all of the policycoreutils-python modul=
+es to /usr/lib (maybe this has already happened in rawhide)?
+>=20
+> Yes. Everything from python/ will be moved to /usr/lib to follow the Marc=
+us
+> change. Currently, It's not in Fedora as I haven't rebased packages yet b=
+ut it should
+> happen soon in F28 and Rawhide.
+>=20
 
-Paul Moore has taken a strong position that he wants to see the
-complete solution, including the networking bits, before he will
-consider it seriously. There is merit to this position, which is
-why I haven't been pushing to get incremental portions upstream
-so far. With this patch set I believe I have provided that
-coverage, and expect the real feedback can begin.
+A test policycoreutils build based on latest changes can be found in my
+plautrba/selinux-fedora COPR repo [1]
 
-> If no objections, can we use step-by-step changes?
+$ rpm -qpl python2-policycoreutils-2.7-99.fc29.20180309170801.x86_64.rpm py=
+thon3-policycoreutils-2.7-99.fc29.20180309170801.x86_64.rpm | grep /usr/lib=
+64/ | wc -l
+0
 
-I would expect that with the ultimate direction nailed down
-it should be possible to move forward in chunks, with the
-infrastructure blob management first, the multiple secids
-and mount next, and the networking wrapping it up.
+$ rpm -qpl python2-policycoreutils-2.7-99.fc29.20180309170801.x86_64.rpm py=
+thon3-policycoreutils-2.7-99.fc29.20180309170801.x86_64.rpm | grep /usr/lib=
+/ | wc -l =20
+349
 
-> We are so easily
-> overlooking error handler paths because this series is trying to change
-> all-at-once.
 
-With the new development complete(ish) I should be able to spend
-more time on clean-up. If we can get a general approval on the direction
-I expect a flurry of helpful suggestions regarding issues like you
-point out below.
+[1] https://copr.fedorainfracloud.org/coprs/build/726366/
 
-> For example, security_inode_alloc() will cause an oops if SELinux is not
-> the first module linked to the inode_alloc_security list and an error
-> occurred inside the first module, for security_inode_alloc() will call
-> selinux_inode_free_security() even if selinux_inode_alloc_security() was
-> not called while "struct inode_security_struct" is initialized only when
-> selinux_inode_alloc_security() is called. And I don't like fixing it in
-> this series or next series, for we will likely overlook somewhere else.
+--7AUc2qLy4jB3hD7Z
+Content-Type: application/pgp-signature; name="signature.asc"
 
-You're right. All the free hooks need additional attention.
-There are without a doubt other edge cases lurking out there as well.
+-----BEGIN PGP SIGNATURE-----
 
->
-> ----------------------------------------
-> static int inode_alloc_security(struct inode *inode)
-> {
-> 	struct inode_security_struct *isec = selinux_inode(inode);
-> 	u32 sid = current_sid();
->
-> 	spin_lock_init(&isec->lock);
-> 	INIT_LIST_HEAD(&isec->list);
-> 	isec->inode = inode;
-> 	isec->sid = SECINITSID_UNLABELED;
-> 	isec->sclass = SECCLASS_FILE;
-> 	isec->task_sid = sid;
-> 	isec->initialized = LABEL_INVALID;
->
-> 	return 0;
-> }
->
-> static int selinux_inode_alloc_security(struct inode *inode)
-> {
-> 	return inode_alloc_security(inode);
-> }
->
-> static void inode_free_security(struct inode *inode)
-> {
-> 	struct inode_security_struct *isec = selinux_inode(inode);
-> 	struct superblock_security_struct *sbsec =
-> 					selinux_superblock(inode->i_sb);
->
-> 	/*
-> 	 * As not all inode security structures are in a list, we check for
-> 	 * empty list outside of the lock to make sure that we won't waste
-> 	 * time taking a lock doing nothing.
-> 	 *
-> 	 * The list_del_init() function can be safely called more than once.
-> 	 * It should not be possible for this function to be called with
-> 	 * concurrent list_add(), but for better safety against future changes
-> 	 * in the code, we use list_empty_careful() here.
-> 	 */
-> 	if (!list_empty_careful(&isec->list)) {
-> 		spin_lock(&sbsec->isec_lock);
-> 		list_del_init(&isec->list);
-> 		spin_unlock(&sbsec->isec_lock);
-> 	}
-> }
->
-> static void selinux_inode_free_security(struct inode *inode)
-> {
-> 	inode_free_security(inode);
-> }
->
-> int security_inode_alloc(struct inode *inode)
-> {
-> 	int rc = lsm_inode_alloc(inode);
->
-> 	if (unlikely(rc))
-> 		return rc;
-> 	rc = call_int_hook(inode_alloc_security, 0, inode);
-> 	if (unlikely(rc))
-> 		security_inode_free(inode);
-> 	return rc;
-> }
->
-> void security_inode_free(struct inode *inode)
-> {
-> 	integrity_inode_free(inode);
-> 	call_void_hook(inode_free_security, inode);
-> 	/*
-> 	 * The inode may still be referenced in a path walk and
-> 	 * a call to security_inode_permission() can be made
-> 	 * after inode_free_security() is called. Ideally, the VFS
-> 	 * wouldn't do this, but fixing that is a much harder
-> 	 * job. For now, simply free the i_security via RCU, and
-> 	 * leave the current inode->i_security pointer intact.
-> 	 * The inode will be freed after the RCU grace period too.
-> 	 */
-> 	if (inode->i_security)
-> 		call_rcu((struct rcu_head *)inode->i_security,
-> 				inode_free_by_rcu);
-> }
-> ----------------------------------------
->
-> What I prefer is to split this series into patches which involve functional
-> changes and patches which do not involve functional changes. For example,
-> we can apply
->
-> -	const struct task_security_struct *tsec = cred->security;
-> +	const struct task_security_struct *tsec = selinux_cred(cred);
->
-> by using a stub
->
-> +#define selinux_cred(cred) ((cred)->security)
->
-> and apply
->
->  int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
->  {
-> -	return call_int_hook(cred_alloc_blank, 0, cred, gfp);
-> +	int rc = lsm_cred_alloc(cred, gfp);
-> +
-> +	if (rc)
-> +		return rc;
-> +
-> +	rc = call_int_hook(cred_alloc_blank, 0, cred, gfp);
-> +	if (rc)
-> +		lsm_cred_free(cred);
-> +	return rc;
->  }
->
-> by using a stub
->
-> +#define lsm_cred_alloc(cred, gfp) 0
-> +#define lsm_cred_free(cred, gfp) do { } while(0)
->
-> before making other changes. Such stubs will allow each module to asynchronously
-> make changes towards the final shape without introducing any runtime overhead
-> until a patch which actually enables stacking is applied, reduce overall size of
-> subsequent series in order to reduce possibility of overlooking, and make the
-> review easier.
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlqi9nMACgkQviIJHj72
+InVwRQ/+J6QTB/lgdb0GokgDkg+CkrKYUGwc6vaCJzgMQNO0YE615RW4Vwlnf3ci
+f6REPq1F8ALssdxY3PGpyNTdS/BqQrTI5cR4aSUAt/KHEhXWgSMSIbxyjAJKqGMK
+OvvNZci12h48ElIjhl5hEQpDaWH7KiuhykY/Y5dkBZ4JbFz8jRbEkva3YLFjghDO
+FHapWcBxPjMslpflllZakNKXp/T6sJfIPx6OzJoVcYAETbThn/CsDTr115DTBjZ8
+1VmUX7JSNLyhEASr0q/MclCq5o8RWAtIFeEayeRePnAJzCF1usQ996P+MOrvPICt
+g+ieQr3NY8ldZPhG3wf+Emps8oj+ytJASJmHXrm1lDkqaiLuVM0l+U4X9PFTe3MN
+SRfVzEV5uDRAjDVihlbsz1RFM8bv9nKxdord8/0dRPSo3kb5V7fj2KxdsrUdThl/
+W8+Cc0OXkwDBSHolF3ojlC98YrO7yBJoz7BlN4D7Z48KalVSLpU9AbcENwvpFeML
+cOk2l1ToDJ+HUcbSHJESZw+afJdIh/qW2oCcc7BbqU+UF2l9ZHIN03v28L6O5BkC
+bhC+tAaa2kxkK9F0APeVBTcqlwRaPIMSXpW0boEZOF8Dm51/oRmYu1b8kNEbd3sk
+AheL/fyAXtubsPldV6CJSnTewx9l9X3IrsgTw+OryW/YOiTRYEY=
+=Eu7f
+-----END PGP SIGNATURE-----
 
-That's a lot of overhead. The smaller the patches, the more work
-required to make the patch set. You're right that the current patches
-are too big. Moving forward I will be providing smaller, easier to
-deal with patches. The sheer overhead of rebaseing a large patch set
-has slowed down the development considerably. Minions. What I need are
-minions.
-
-Oh, and the upcoming SELinux namespace changes are going to be lots
-of fun!
+--7AUc2qLy4jB3hD7Z--
