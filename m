@@ -1,164 +1,376 @@
-To: casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
- jmorris@namei.org
-Cc: john.johansen@canonical.com, paul@paul-moore.com, keescook@chromium.org,
- sds@tycho.nsa.gov, selinux@tycho.nsa.gov, SMACK-announce@lists.01.org
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-References: <d2c25c38-e19d-1e08-8c49-4726a34e72bb@schaufler-ca.com>
-In-Reply-To: <d2c25c38-e19d-1e08-8c49-4726a34e72bb@schaufler-ca.com>
-Message-Id: <201803092029.JHB78680.HJOVFFSOtMQFLO@I-love.SAKURA.ne.jp>
-Date: Fri, 9 Mar 2018 20:29:25 +0900
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Subject: Re: [PATCH 0/8] LSM: Security module stacking
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+References: <20180306115808.17470-1-vmojzis@redhat.com>
+ <20180306115808.17470-4-vmojzis@redhat.com>
+ <6fea57bc-4f8a-04e6-a3f8-f9a855bdd4fe@tycho.nsa.gov>
+From: Vit Mojzis <vmojzis@redhat.com>
+Message-ID: <5e2fc646-01ce-ee49-f176-ebe416db96bc@redhat.com>
+Date: Fri, 9 Mar 2018 14:14:05 +0100
+MIME-Version: 1.0
+In-Reply-To: <6fea57bc-4f8a-04e6-a3f8-f9a855bdd4fe@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH 3/3] libsemanage: replace access() checks to
+ make setuid programs work
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Casey Schaufler wrote:
-> 1/8: Add the smack subdirectory to /proc/.../attr
-> 2/8: Move management of cred security blobs to the LSM infrastructure
-> 3/8: Move management of file security blobs to the LSM infrastructure
-> 4/8: Move management of task security blobs to the LSM infrastructure
-> 5/8: Move management of the remaining security blobs to the LSM infrastructure
-> 6/8: Change the configuration controls for security stacking
-> 7/8: Allow multiple modules to provide mount options
-> 8/8: Maintain and use compound secids instead of a single integer
-> 
-> Also available git://github.com/cschaufler/lsm_stacking.git#stacking-4.17
-
-s/lsm_stacking/lsm-stacking/
 
 
+On 7.3.2018 15:59, Stephen Smalley wrote:
+> On 03/06/2018 06:58 AM, Vit Mojzis wrote:
+>> access() uses real UID instead of effective UID which causes false
+>> negative checks in setuid programs.
+>> Replace access(,F_OK) (i.e. tests for file existence) by stat().
+>> And access(,R_OK) by fopen(,"r")
+>>
+>> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186431
+>>
+>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+>> ---
+>>   libsemanage/src/direct_api.c     | 133 +++++++++++++++++++++++++--------------
+>>   libsemanage/src/semanage_store.c |  16 ++++-
+>>   2 files changed, 99 insertions(+), 50 deletions(-)
+>>
+>> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+>> index 49cac14f..4e2af810 100644
+>> --- a/libsemanage/src/direct_api.c
+>> +++ b/libsemanage/src/direct_api.c
+>> @@ -140,6 +140,7 @@ int semanage_direct_is_managed(semanage_handle_t * sh)
+>>   int semanage_direct_connect(semanage_handle_t * sh)
+>>   {
+>>   	const char *path;
+>> +	struct stat sb;
+>>   
+>>   	if (semanage_check_init(sh, sh->conf->store_root_path))
+>>   		goto err;
+>> @@ -302,10 +303,16 @@ int semanage_direct_connect(semanage_handle_t * sh)
+>>   
+>>   	/* set the disable dontaudit value */
+>>   	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_DISABLE_DONTAUDIT);
+>> -	if (access(path, F_OK) == 0)
+>> +
+>> +	if (stat(path, &sb) == 0)
+>>   		sepol_set_disable_dontaudit(sh->sepolh, 1);
+>> -	else
+>> +	else if (errno == ENOENT) {
+>> +		/* The file does not exist */
+>>   		sepol_set_disable_dontaudit(sh->sepolh, 0);
+>> +	} else {
+>> +		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+>> +		goto err;
+>> +	}
+>>   
+>>   	return STATUS_SUCCESS;
+>>   
+>> @@ -1139,6 +1146,7 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
+>>   	int status = 0;
+>>   	int i;
+>>   	char cil_path[PATH_MAX];
+>> +	struct stat sb;
+>>   
+>>   	assert(sh);
+>>   	assert(modinfos);
+>> @@ -1155,9 +1163,13 @@ static int semanage_compile_hll_modules(semanage_handle_t *sh,
+>>   		}
+>>   
+>>   		if (semanage_get_ignore_module_cache(sh) == 0 &&
+>> -				access(cil_path, F_OK) == 0) {
+>> +				(status = stat(cil_path, &sb)) == 0) {
+>>   			continue;
+>>   		}
+>> +		if (status != 0 && errno != ENOENT) {
+>> +			ERR(sh, "Unable to access %s: %s\n", cil_path, strerror(errno));
+>> +			goto cleanup; //an error in the "stat" call
+>> +		}
+>>   
+>>   		status = semanage_compile_module(sh, &modinfos[i]);
+>>   		if (status < 0) {
+>> @@ -1196,6 +1208,7 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>   	struct cil_db *cildb = NULL;
+>>   	semanage_module_info_t *modinfos = NULL;
+>>   	mode_t mask = umask(0077);
+>> +	struct stat sb;
+>>   
+>>   	int do_rebuild, do_write_kernel, do_install;
+>>   	int fcontexts_modified, ports_modified, seusers_modified,
+>> @@ -1234,10 +1247,15 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>   
+>>   	/* Create or remove the disable_dontaudit flag file. */
+>>   	path = semanage_path(SEMANAGE_TMP, SEMANAGE_DISABLE_DONTAUDIT);
+>> -	if (access(path, F_OK) == 0)
+>> +	if (stat(path, &sb) == 0)
+>>   		do_rebuild |= !(sepol_get_disable_dontaudit(sh->sepolh) == 1);
+>> -	else
+>> +	else if (errno == ENOENT) {
+>> +		/* The file does not exist */
+>>   		do_rebuild |= (sepol_get_disable_dontaudit(sh->sepolh) == 1);
+>> +	} else {
+>> +		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+> We need to ensure that retval is set in all of these cases.  Safest to always set it before goto cleanup,
+> either explicitly to -1 or to return value of stat() call above.
+Thank you.
+The retval is actually initialized to -1 (and stat() returns -1 for any 
+error) so it's not necessary to set it here. It will be necessary a 
+little bit down the road after the first assignment to retval, you're right.
+Should I set it to -1 here anyway to make it less prone to breaking due 
+to future changes in the code (what about the other ERR calls in this 
+section of the code)?
 
-Is there any objection regarding "LSM: Security module stacking" itself?
-If no objections, can we use step-by-step changes? We are so easily
-overlooking error handler paths because this series is trying to change
-all-at-once.
-
-For example, security_inode_alloc() will cause an oops if SELinux is not
-the first module linked to the inode_alloc_security list and an error
-occurred inside the first module, for security_inode_alloc() will call
-selinux_inode_free_security() even if selinux_inode_alloc_security() was
-not called while "struct inode_security_struct" is initialized only when
-selinux_inode_alloc_security() is called. And I don't like fixing it in
-this series or next series, for we will likely overlook somewhere else.
-
-----------------------------------------
-static int inode_alloc_security(struct inode *inode)
-{
-	struct inode_security_struct *isec = selinux_inode(inode);
-	u32 sid = current_sid();
-
-	spin_lock_init(&isec->lock);
-	INIT_LIST_HEAD(&isec->list);
-	isec->inode = inode;
-	isec->sid = SECINITSID_UNLABELED;
-	isec->sclass = SECCLASS_FILE;
-	isec->task_sid = sid;
-	isec->initialized = LABEL_INVALID;
-
-	return 0;
-}
-
-static int selinux_inode_alloc_security(struct inode *inode)
-{
-	return inode_alloc_security(inode);
-}
-
-static void inode_free_security(struct inode *inode)
-{
-	struct inode_security_struct *isec = selinux_inode(inode);
-	struct superblock_security_struct *sbsec =
-					selinux_superblock(inode->i_sb);
-
-	/*
-	 * As not all inode security structures are in a list, we check for
-	 * empty list outside of the lock to make sure that we won't waste
-	 * time taking a lock doing nothing.
-	 *
-	 * The list_del_init() function can be safely called more than once.
-	 * It should not be possible for this function to be called with
-	 * concurrent list_add(), but for better safety against future changes
-	 * in the code, we use list_empty_careful() here.
-	 */
-	if (!list_empty_careful(&isec->list)) {
-		spin_lock(&sbsec->isec_lock);
-		list_del_init(&isec->list);
-		spin_unlock(&sbsec->isec_lock);
-	}
-}
-
-static void selinux_inode_free_security(struct inode *inode)
-{
-	inode_free_security(inode);
-}
-
-int security_inode_alloc(struct inode *inode)
-{
-	int rc = lsm_inode_alloc(inode);
-
-	if (unlikely(rc))
-		return rc;
-	rc = call_int_hook(inode_alloc_security, 0, inode);
-	if (unlikely(rc))
-		security_inode_free(inode);
-	return rc;
-}
-
-void security_inode_free(struct inode *inode)
-{
-	integrity_inode_free(inode);
-	call_void_hook(inode_free_security, inode);
-	/*
-	 * The inode may still be referenced in a path walk and
-	 * a call to security_inode_permission() can be made
-	 * after inode_free_security() is called. Ideally, the VFS
-	 * wouldn't do this, but fixing that is a much harder
-	 * job. For now, simply free the i_security via RCU, and
-	 * leave the current inode->i_security pointer intact.
-	 * The inode will be freed after the RCU grace period too.
-	 */
-	if (inode->i_security)
-		call_rcu((struct rcu_head *)inode->i_security,
-				inode_free_by_rcu);
-}
-----------------------------------------
-
-What I prefer is to split this series into patches which involve functional
-changes and patches which do not involve functional changes. For example,
-we can apply
-
--	const struct task_security_struct *tsec = cred->security;
-+	const struct task_security_struct *tsec = selinux_cred(cred);
-
-by using a stub
-
-+#define selinux_cred(cred) ((cred)->security)
-
-and apply
-
- int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
- {
--	return call_int_hook(cred_alloc_blank, 0, cred, gfp);
-+	int rc = lsm_cred_alloc(cred, gfp);
-+
-+	if (rc)
-+		return rc;
-+
-+	rc = call_int_hook(cred_alloc_blank, 0, cred, gfp);
-+	if (rc)
-+		lsm_cred_free(cred);
-+	return rc;
- }
-
-by using a stub
-
-+#define lsm_cred_alloc(cred, gfp) 0
-+#define lsm_cred_free(cred, gfp) do { } while(0)
-
-before making other changes. Such stubs will allow each module to asynchronously
-make changes towards the final shape without introducing any runtime overhead
-until a patch which actually enables stacking is applied, reduce overall size of
-subsequent series in order to reduce possibility of overlooking, and make the
-review easier.
+>> +		goto cleanup;
+>> +	}
+>>   	if (sepol_get_disable_dontaudit(sh->sepolh) == 1) {
+>>   		FILE *touch;
+>>   		touch = fopen(path, "w");
+>> @@ -1259,10 +1277,16 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>   
+>>   	/* Create or remove the preserve_tunables flag file. */
+>>   	path = semanage_path(SEMANAGE_TMP, SEMANAGE_PRESERVE_TUNABLES);
+>> -	if (access(path, F_OK) == 0)
+>> +	if (stat(path, &sb) == 0)
+>>   		do_rebuild |= !(sepol_get_preserve_tunables(sh->sepolh) == 1);
+>> -	else
+>> +	else if (errno == ENOENT) {
+>> +		/* The file does not exist */
+>>   		do_rebuild |= (sepol_get_preserve_tunables(sh->sepolh) == 1);
+>> +	} else {
+>> +		ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+>> +		goto cleanup;
+>> +	}
+> Ditto
+>
+>> +
+>>   	if (sepol_get_preserve_tunables(sh->sepolh) == 1) {
+>>   		FILE *touch;
+>>   		touch = fopen(path, "w");
+>> @@ -1299,40 +1323,24 @@ static int semanage_direct_commit(semanage_handle_t * sh)
+>>   	 * a rebuild.
+>>   	 */
+>>   	if (!do_rebuild) {
+>> -		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL);
+>> -		if (access(path, F_OK) != 0) {
+>> -			do_rebuild = 1;
+>> -			goto rebuild;
+>> -		}
+>> -
+>> -		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC);
+>> -		if (access(path, F_OK) != 0) {
+>> -			do_rebuild = 1;
+>> -			goto rebuild;
+>> -		}
+>> -
+>> -		path = semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_SEUSERS);
+>> -		if (access(path, F_OK) != 0) {
+>> -			do_rebuild = 1;
+>> -			goto rebuild;
+>> -		}
+>> -
+>> -		path = semanage_path(SEMANAGE_TMP, SEMANAGE_LINKED);
+>> -		if (access(path, F_OK) != 0) {
+>> -			do_rebuild = 1;
+>> -			goto rebuild;
+>> -		}
+>> -
+>> -		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
+>> -		if (access(path, F_OK) != 0) {
+>> -			do_rebuild = 1;
+>> -			goto rebuild;
+>> -		}
+>> +		int files[] = {SEMANAGE_STORE_KERNEL,
+>> +					   SEMANAGE_STORE_FC,
+>> +					   SEMANAGE_STORE_SEUSERS,
+>> +					   SEMANAGE_LINKED,
+>> +					   SEMANAGE_SEUSERS_LINKED,
+>> +					   SEMANAGE_USERS_EXTRA_LINKED};
+>> +
+>> +		for (i = 0; i < (int) sizeof(files); i++) {
+>> +			path = semanage_path(SEMANAGE_TMP, files[i]);
+>> +			if (stat(path, &sb) != 0) {
+>> +				if (errno != ENOENT) {
+>> +					ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+>> +					goto cleanup;
+> Ditto
+>
+>> +				}
+>>   
+>> -		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
+>> -		if (access(path, F_OK) != 0) {
+>> -			do_rebuild = 1;
+>> -			goto rebuild;
+>> +				do_rebuild = 1;
+>> +				goto rebuild;
+>> +			}
+>>   		}
+>>   	}
+>>   
+>> @@ -1465,7 +1473,7 @@ rebuild:
+>>   			goto cleanup;
+>>   
+>>   		path = semanage_path(SEMANAGE_TMP, SEMANAGE_SEUSERS_LINKED);
+>> -		if (access(path, F_OK) == 0) {
+>> +		if (stat(path, &sb) == 0) {
+>>   			retval = semanage_copy_file(path,
+>>   						    semanage_path(SEMANAGE_TMP,
+>>   								  SEMANAGE_STORE_SEUSERS),
+>> @@ -1473,12 +1481,18 @@ rebuild:
+>>   			if (retval < 0)
+>>   				goto cleanup;
+>>   			pseusers->dtable->drop_cache(pseusers->dbase);
+>> -		} else {
+>> +		} else if (errno == ENOENT) {
+>> +			/* The file does not exist */
+>>   			pseusers->dtable->clear(sh, pseusers->dbase);
+>> +		} else {
+>> +			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+>> +			goto cleanup;
+> Ditto
+>
+>>   		}
+>>   
+>> +
+>> +
+>>   		path = semanage_path(SEMANAGE_TMP, SEMANAGE_USERS_EXTRA_LINKED);
+>> -		if (access(path, F_OK) == 0) {
+>> +		if (stat(path, &sb) == 0) {
+>>   			retval = semanage_copy_file(path,
+>>   						    semanage_path(SEMANAGE_TMP,
+>>   								  SEMANAGE_USERS_EXTRA),
+>> @@ -1486,8 +1500,12 @@ rebuild:
+>>   			if (retval < 0)
+>>   				goto cleanup;
+>>   			pusers_extra->dtable->drop_cache(pusers_extra->dbase);
+>> -		} else {
+>> +		} else if (errno == ENOENT) {
+>> +			/* The file does not exist */
+>>   			pusers_extra->dtable->clear(sh, pusers_extra->dbase);
+>> +		} else {
+>> +			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+>> +			goto cleanup;
+> Ditto
+>
+>>   		}
+>>   	}
+>>   
+>> @@ -1817,6 +1835,7 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+>>   	ssize_t _data_len;
+>>   	char *_data;
+>>   	int compressed;
+>> +	struct stat sb;
+>>   
+>>   	/* get path of module */
+>>   	rc = semanage_module_get_path(
+>> @@ -1829,8 +1848,8 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+>>   		goto cleanup;
+>>   	}
+>>   
+>> -	if (access(module_path, F_OK) != 0) {
+>> -		ERR(sh, "Module does not exist: %s", module_path);
+>> +	if (stat(module_path, &sb) != 0) {
+>> +		ERR(sh, "Unable to access %s: %s\n", module_path, strerror(errno));
+>>   		rc = -1;
+>>   		goto cleanup;
+>>   	}
+>> @@ -1859,7 +1878,12 @@ static int semanage_direct_extract(semanage_handle_t * sh,
+>>   		goto cleanup;
+>>   	}
+>>   
+>> -	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && access(input_file, F_OK) != 0) {
+>> +	if (extract_cil == 1 && strcmp(_modinfo->lang_ext, "cil") && stat(input_file, &sb) != 0) {
+>> +		if (errno != ENOENT) {
+>> +			ERR(sh, "Unable to access %s: %s\n", input_file, strerror(errno));
+> Ditto
+>
+>> +			goto cleanup;
+>> +	
+>> +
+>>   		rc = semanage_compile_module(sh, _modinfo);
+>>   		if (rc < 0) {
+>>   			goto cleanup;
+>> @@ -2004,6 +2028,12 @@ static int semanage_direct_get_enabled(semanage_handle_t *sh,
+>>   	}
+>>   
+>>   	if (stat(path, &sb) < 0) {
+>> +		if (errno != ENOENT) {
+>> +			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+>> +			status = -1;
+>> +			goto cleanup;
+>> +		}
+>> +
+>>   		*enabled = 1;
+>>   	}
+>>   	else {
+>> @@ -2330,6 +2360,12 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
+>>   
+>>   	/* set enabled/disabled status */
+>>   	if (stat(fn, &sb) < 0) {
+>> +		if (errno != ENOENT) {
+>> +			ERR(sh, "Unable to access %s: %s\n", fn, strerror(errno));
+>> +			status = -1;
+>> +			goto cleanup;
+>> +		}
+>> +
+>>   		ret = semanage_module_info_set_enabled(sh, *modinfo, 1);
+>>   		if (ret != 0) {
+>>   			status = -1;
+>> @@ -2738,6 +2774,7 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
+>>   	int status = 0;
+>>   	int ret = 0;
+>>   	int type;
+>> +	struct stat sb;
+>>   
+>>   	char path[PATH_MAX];
+>>   	mode_t mask = umask(0077);
+>> @@ -2838,7 +2875,7 @@ static int semanage_direct_install_info(semanage_handle_t *sh,
+>>   			goto cleanup;
+>>   		}
+>>   
+>> -		if (access(path, F_OK) == 0) {
+>> +		if (stat(path, &sb) == 0) {
+>>   			ret = unlink(path);
+>>   			if (ret != 0) {
+>>   				ERR(sh, "Error while removing cached CIL file %s: %s", path, strerror(errno));
+>> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+>> index 4bd1d651..10f8b306 100644
+>> --- a/libsemanage/src/semanage_store.c
+>> +++ b/libsemanage/src/semanage_store.c
+>> @@ -514,6 +514,7 @@ char *semanage_conf_path(void)
+>>   {
+>>   	char *semanage_conf = NULL;
+>>   	int len;
+>> +	struct stat sb;
+>>   
+>>   	len = strlen(semanage_root()) + strlen(selinux_path()) + strlen(SEMANAGE_CONF_FILE);
+>>   	semanage_conf = calloc(len + 1, sizeof(char));
+>> @@ -522,7 +523,12 @@ char *semanage_conf_path(void)
+>>   	snprintf(semanage_conf, len + 1, "%s%s%s", semanage_root(), selinux_path(),
+>>   		 SEMANAGE_CONF_FILE);
+>>   
+>> -	if (access(semanage_conf, R_OK) != 0) {
+>> +	if (stat(semanage_conf, &sb) != 0) {
+>> +		if (errno != ENOENT) {
+>> +			/* semanage_conf exists but can't be accessed */
+>> +			return NULL;
+> Not sure this is what we want. I think we'd just return semanage_conf here, and then let the caller fail when it tries to access it, so that we get a useful error message with the pathname.
+>
+>> +		}
+>> +
+>>   		snprintf(semanage_conf, len + 1, "%s%s", selinux_path(), SEMANAGE_CONF_FILE);
+>>   	}
+>>   
+>> @@ -1508,8 +1514,14 @@ int semanage_split_fc(semanage_handle_t * sh)
+>>   static int sefcontext_compile(semanage_handle_t * sh, const char *path) {
+>>   
+>>   	int r;
+>> +	struct stat sb;
+>> +
+>> +	if (stat(path, &sb) < 0) {
+>> +		if (errno != ENOENT) {
+>> +			ERR(sh, "Unable to access %s: %s\n", path, strerror(errno));
+>> +			return -1;
+>> +		}
+>>   
+>> -	if (access(path, F_OK) != 0) {
+>>   		return 0;
+>>   	}
+>>   
+>>
