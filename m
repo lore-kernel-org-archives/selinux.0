@@ -1,117 +1,164 @@
-Date: Fri, 9 Mar 2018 13:25:56 +0100
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, selinux <selinux@tycho.nsa.gov>
-Message-ID: <20180309122556.GA3849@workstation>
-References: <20180305221611.19964-1-nicolas.iooss@m4x.org>
- <fde35f5b-92f0-5707-5af4-6e2ced3af8f6@tycho.nsa.gov>
- <408e7eeb-2e44-4487-a976-775df79197c8@tycho.nsa.gov>
- <CAJfZ7==qgVM0KwHdSJ2z7E4iifTx-CPjT3ikFfX4iorG6vOAXw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-In-Reply-To: <CAJfZ7==qgVM0KwHdSJ2z7E4iifTx-CPjT3ikFfX4iorG6vOAXw@mail.gmail.com>
-Subject: Re: [PATCH 1/1] libselinux,
- libsemanage: Replace PYSITEDIR with PYTHONLIBDIR
+To: casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+ jmorris@namei.org
+Cc: john.johansen@canonical.com, paul@paul-moore.com, keescook@chromium.org,
+ sds@tycho.nsa.gov, selinux@tycho.nsa.gov, SMACK-announce@lists.01.org
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+References: <d2c25c38-e19d-1e08-8c49-4726a34e72bb@schaufler-ca.com>
+In-Reply-To: <d2c25c38-e19d-1e08-8c49-4726a34e72bb@schaufler-ca.com>
+Message-Id: <201803092029.JHB78680.HJOVFFSOtMQFLO@I-love.SAKURA.ne.jp>
+Date: Fri, 9 Mar 2018 20:29:25 +0900
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Subject: Re: [PATCH 0/8] LSM: Security module stacking
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Casey Schaufler wrote:
+> 1/8: Add the smack subdirectory to /proc/.../attr
+> 2/8: Move management of cred security blobs to the LSM infrastructure
+> 3/8: Move management of file security blobs to the LSM infrastructure
+> 4/8: Move management of task security blobs to the LSM infrastructure
+> 5/8: Move management of the remaining security blobs to the LSM infrastructure
+> 6/8: Change the configuration controls for security stacking
+> 7/8: Allow multiple modules to provide mount options
+> 8/8: Maintain and use compound secids instead of a single integer
+> 
+> Also available git://github.com/cschaufler/lsm_stacking.git#stacking-4.17
 
---FCuugMFkClbJLl1L
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Mar 08, 2018 at 10:19:26PM +0100, Nicolas Iooss wrote:
-> On Thu, Mar 8, 2018 at 8:34 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 03/06/2018 04:19 PM, Stephen Smalley wrote:
-> >> On 03/05/2018 05:16 PM, Nicolas Iooss wrote:
-> >>> libselinux and libsemanage Makefiles invoke site.getsitepackages() in
-> >>> order to get the path to the directory /usr/lib/pythonX.Y/site-packag=
-es
-> >>> that matches the Python interpreter chosen with $(PYTHON). This method
-> >>> is incompatible with Python virtual environments, as described in
-> >>> https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452 .
-> >>> This issue has been opened for more than 5 years.
-> >>>
-> >>> On the contrary python/semanage/ and python/sepolgen/ Makefiles use
-> >>> distutils.sysconfig.get_python_lib() in order to get the site-packages
-> >>> path into a variable named PYTHONLIBDIR. This way of computing
-> >>> PYTHONLIBDIR is compatible with virtual environments and gives the sa=
-me
-> >>> result as PYSITEDIR.
-> >>>
-> >>> As PYTHONLIBDIR works in more cases than PYSITEDIR, make libselinux a=
-nd
-> >>> libsemanage Makefiles use it.
-> >>
-> >> On Fedora x86_64, this changes the install location from /usr/lib64 to=
- /usr/lib.
-> >
-> > That said I agree we ought to be consistent, and it does seem that we a=
-re not currently.
-> > I'm just not sure what the best fix is in this case and the impact on d=
-istro packagers.
->=20
-> Good point. I have read
-> https://marc.info/?l=3Dselinux&m=3D151670320132614&w=3D2 too quickly (and
-> missed "given that there's only pure python modules"). This message
-> suggests that doing using get_python_lib(plat_specific=3D1) would keep
-> /usr/lib64 on Fedora (unfortunately I only have access to Debian,
-> Ubuntu and Arch Linux systems right now so I am not able to test).
-
-On Fedora Rawhide:
-
->>> get_python_lib()
-'/usr/lib/python3.6/site-packages'
->>> get_python_lib(plat_specific=3D1)
-'/usr/lib64/python3.6/site-packages'
->>> get_python_lib(prefix=3D'/usr/local')
-'/usr/local/lib/python3.6/site-packages'
->>> get_python_lib(prefix=3D'/usr/local', plat_specific=3D1)
-'/usr/local/lib64/python3.6/site-packages'
+s/lsm_stacking/lsm-stacking/
 
 
-> And
-> to be consistent, I suggest naming the variable differently from
-> PYTHONLIBDIR. For example:
->=20
-> PYTHONPLATLIBDIR ?=3D $(shell $(PYTHON) -c "from distutils.sysconfig
-> import *; print(get_python_lib(plat_specific=3D1, prefix=3D'$(PREFIX)'))")
->=20
-> ... or PYPLATLIBDIR if PYTHONPLATLIBDIR is too long. Or we also can
-> keep the name PYSITEDIR while changing its definition, in order to
-> minimize the impact. What would be acceptable?
->
 
-Given that libselinux and libsemanage provides only extension SWIG generated
-modules I'd just set plat_specific=3D1 and use PYTHONLIBDIR in this case.
+Is there any objection regarding "LSM: Security module stacking" itself?
+If no objections, can we use step-by-step changes? We are so easily
+overlooking error handler paths because this series is trying to change
+all-at-once.
 
+For example, security_inode_alloc() will cause an oops if SELinux is not
+the first module linked to the inode_alloc_security list and an error
+occurred inside the first module, for security_inode_alloc() will call
+selinux_inode_free_security() even if selinux_inode_alloc_security() was
+not called while "struct inode_security_struct" is initialized only when
+selinux_inode_alloc_security() is called. And I don't like fixing it in
+this series or next series, for we will likely overlook somewhere else.
 
-> Cheers,
-> Nicolas
->=20
+----------------------------------------
+static int inode_alloc_security(struct inode *inode)
+{
+	struct inode_security_struct *isec = selinux_inode(inode);
+	u32 sid = current_sid();
 
---FCuugMFkClbJLl1L
-Content-Type: application/pgp-signature; name="signature.asc"
+	spin_lock_init(&isec->lock);
+	INIT_LIST_HEAD(&isec->list);
+	isec->inode = inode;
+	isec->sid = SECINITSID_UNLABELED;
+	isec->sclass = SECCLASS_FILE;
+	isec->task_sid = sid;
+	isec->initialized = LABEL_INVALID;
 
------BEGIN PGP SIGNATURE-----
+	return 0;
+}
 
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlqifU0ACgkQviIJHj72
-InXx7g//TyCx+ahwQhGWclCpG/1UNiqb1C9OAGnzpnY12t89DnQoUk9xzjJaRQA+
-/bvpLBECMbL5SmlxNCxgBvfQes71kyVLkLCxglgc9Gxz/k7iP3QNVuxrGIb8A2or
-QJ6GBePpA5tiV2pWy9pXWFNZE/VM9pDml5ZCeih0RObnyNU73qlqWX6cNxm6fyy1
-XelExjaDNIWKD4iTMCl948tRWms7f7Lp41GPnzTKB3Lh3/TfvM2z+5lnJSLp4/Ap
-PrvSz3a4w3n9TjykFdoU2XY5L74SbOahIVk9BqK4Hiy14X5PNAIzVNFBt7iJQQ4H
-kh1MxKOzM6YDg7+aye69cs4vNRxW2FnwRsdW/ydODXtyIzkySVSof8mapFxPo1z0
-Zf5eFEXjf9kPvpJ61ivA2RXYc5E6tjvaa4hR0UmxNx9YivDY8d44CdUB1o/6tIH/
-UHl8Po+ZfY+fsXYg3FS+Efwj9FkW9GnYFFAGILovTJd46h1e6jIpRNxouDE0op/U
-YDeGiyvPgOAuLKA8lSIOvs+56wLwouYvcJsX77cgFzaShswoK9GvffViIcpS3WI4
-dvsgWCphPYjzbMGBwTulQyofscSnCqw91BZS5hxiaKykBVaZm+PxZ7l/KLliMBJW
-X4R9pnpNjN6OjBqgQd3pQsoVOz14UHSosECZGjuPUnTLkk35I3o=
-=fGGJ
------END PGP SIGNATURE-----
+static int selinux_inode_alloc_security(struct inode *inode)
+{
+	return inode_alloc_security(inode);
+}
 
---FCuugMFkClbJLl1L--
+static void inode_free_security(struct inode *inode)
+{
+	struct inode_security_struct *isec = selinux_inode(inode);
+	struct superblock_security_struct *sbsec =
+					selinux_superblock(inode->i_sb);
+
+	/*
+	 * As not all inode security structures are in a list, we check for
+	 * empty list outside of the lock to make sure that we won't waste
+	 * time taking a lock doing nothing.
+	 *
+	 * The list_del_init() function can be safely called more than once.
+	 * It should not be possible for this function to be called with
+	 * concurrent list_add(), but for better safety against future changes
+	 * in the code, we use list_empty_careful() here.
+	 */
+	if (!list_empty_careful(&isec->list)) {
+		spin_lock(&sbsec->isec_lock);
+		list_del_init(&isec->list);
+		spin_unlock(&sbsec->isec_lock);
+	}
+}
+
+static void selinux_inode_free_security(struct inode *inode)
+{
+	inode_free_security(inode);
+}
+
+int security_inode_alloc(struct inode *inode)
+{
+	int rc = lsm_inode_alloc(inode);
+
+	if (unlikely(rc))
+		return rc;
+	rc = call_int_hook(inode_alloc_security, 0, inode);
+	if (unlikely(rc))
+		security_inode_free(inode);
+	return rc;
+}
+
+void security_inode_free(struct inode *inode)
+{
+	integrity_inode_free(inode);
+	call_void_hook(inode_free_security, inode);
+	/*
+	 * The inode may still be referenced in a path walk and
+	 * a call to security_inode_permission() can be made
+	 * after inode_free_security() is called. Ideally, the VFS
+	 * wouldn't do this, but fixing that is a much harder
+	 * job. For now, simply free the i_security via RCU, and
+	 * leave the current inode->i_security pointer intact.
+	 * The inode will be freed after the RCU grace period too.
+	 */
+	if (inode->i_security)
+		call_rcu((struct rcu_head *)inode->i_security,
+				inode_free_by_rcu);
+}
+----------------------------------------
+
+What I prefer is to split this series into patches which involve functional
+changes and patches which do not involve functional changes. For example,
+we can apply
+
+-	const struct task_security_struct *tsec = cred->security;
++	const struct task_security_struct *tsec = selinux_cred(cred);
+
+by using a stub
+
++#define selinux_cred(cred) ((cred)->security)
+
+and apply
+
+ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+ {
+-	return call_int_hook(cred_alloc_blank, 0, cred, gfp);
++	int rc = lsm_cred_alloc(cred, gfp);
++
++	if (rc)
++		return rc;
++
++	rc = call_int_hook(cred_alloc_blank, 0, cred, gfp);
++	if (rc)
++		lsm_cred_free(cred);
++	return rc;
+ }
+
+by using a stub
+
++#define lsm_cred_alloc(cred, gfp) 0
++#define lsm_cred_free(cred, gfp) do { } while(0)
+
+before making other changes. Such stubs will allow each module to asynchronously
+make changes towards the final shape without introducing any runtime overhead
+until a patch which actually enables stacking is applied, reduce overall size of
+subsequent series in order to reduce possibility of overlooking, and make the
+review easier.
