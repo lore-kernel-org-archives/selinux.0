@@ -1,132 +1,161 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2BMGOb0032672
- for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2018 18:16:25 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC13.oob.disa.mil (Postfix) with SMTP id 3zzwSN2XfZz25vbg
- for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2018 22:16:20 +0000 (UTC)
-Received: from UPDC3CPA09_EEMSG_MP25.eemsg.mil (unknown [192.168.18.20])
- by UPDCF3IC13.oob.disa.mil (Postfix) with ESMTP id 3zzwSN1f5zz25vbf
- for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2018 22:16:20 +0000 (UTC)
-Received: from localhost.localdomain (abo-251-56-69.avi.modulonet.fr
- [85.69.56.251])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2CF9wO0000525
+ for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2018 11:09:58 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.3])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id C04FA561226
- for <selinux@tycho.nsa.gov>; Sun, 11 Mar 2018 23:16:10 +0100 (CET)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
+ by mx1.redhat.com (Postfix) with ESMTPS id D4042401C9AE
+ for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2018 15:09:53 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.54])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 78A7010B0F43
+ for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2018 15:09:53 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Sun, 11 Mar 2018 23:15:27 +0100
-Message-Id: <20180311221527.7626-1-nicolas.iooss@m4x.org>
-Subject: [PATCH v2 1/1] libselinux,
- libsemanage: Replace PYSITEDIR with PYTHONLIBDIR
+Date: Mon, 12 Mar 2018 16:09:48 +0100
+Message-Id: <20180312150948.3087-1-vmojzis@redhat.com>
+Subject: [PATCH] policycoreutils/semodule: Improve man page and
+ unify it with --help
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-libselinux and libsemanage Makefiles invoke site.getsitepackages() in
-order to get the path to the directory /usr/lib/pythonX.Y/site-packages
-that matches the Python interpreter chosen with $(PYTHON). This method
-is incompatible with Python virtual environments, as described in
-https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452 .
-This issue has been opened for more than 5 years.
+Unify the way parameters are described in man pages and --help message.
+Explain special syntax allowing the user to specify multiple modules when using
+-i/u/r/E mods.
+Point out that priority has to be specified in order to remove module at
+different priority than 400 and that "-d" disables all instances of
+given module across priorities.
 
-On the contrary python/semanage/ and python/sepolgen/ Makefiles use
-distutils.sysconfig.get_python_lib() in order to get the site-packages
-path into a variable named PYTHONLIBDIR. This way of computing
-PYTHONLIBDIR is compatible with virtual environments and gives the same
-result as PYSITEDIR.
-
-As PYTHONLIBDIR works in more cases than PYSITEDIR, make libselinux and
-libsemanage Makefiles use it. And as native code is installed (as part
-of the SWIG wrapper), use "plat_specific=1" in order to use /usr/lib64
-on systems which distinguish /usr/lib64 from /usr/lib.
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Resolves: rhbz#1320565, rhbz#1337192
 ---
-v2: add plat_specific=1
+ policycoreutils/semodule/semodule.8 | 34 ++++++++++++++++++++--------------
+ policycoreutils/semodule/semodule.c |  8 ++++----
+ 2 files changed, 24 insertions(+), 18 deletions(-)
 
- .travis.yml              |  5 +----
- libselinux/src/Makefile  | 10 +++++-----
- libsemanage/src/Makefile |  8 ++++----
- 3 files changed, 10 insertions(+), 13 deletions(-)
-
-diff --git a/.travis.yml b/.travis.yml
-index 0312e996e333..63c7a544aa45 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -96,9 +96,6 @@ before_script:
-   - export PKG_CONFIG_PATH="/opt/python/$($PYTHON -c 'import sys;print("%d.%d.%d" % sys.version_info[:3])')/lib/pkgconfig"
-   # PyPy does not provide a config file for pkg-config nor a pypy-c.so
-   - if echo "$PYVER" | grep -q pypy ; then export PYINC=-I$($PYTHON -c 'import sys;print(sys.prefix)')/include PYLIBS= ; fi
--  # Python virtualenvs do not support "import site; print(site.getsitepackages()[0]"
--  # cf. https://github.com/pypa/virtualenv/issues/355#issuecomment-10250452
--  - export PYSITEDIR="/usr/lib/$($PYTHON -c 'import sys;print("python%d.%d" % sys.version_info[:2])')/site-packages"
+diff --git a/policycoreutils/semodule/semodule.8 b/policycoreutils/semodule/semodule.8
+index 849a0426..18d4f708 100644
+--- a/policycoreutils/semodule/semodule.8
++++ b/policycoreutils/semodule/semodule.8
+@@ -3,7 +3,7 @@
+ semodule \- Manage SELinux policy modules.
  
-   # Find the Ruby executable with version $RUBYLIBVER
-   - export RUBY="$(ls -d -1 "$HOME/.rvm/rubies/ruby-$RUBYLIBVER"*/bin/ruby | head -n 1)"
-@@ -126,7 +123,7 @@ script:
-   # Set up environment variables for the tests
-   - export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
-   - export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH"
--  - export PYTHONPATH="$DESTDIR$PYSITEDIR"
-+  - export PYTHONPATH="$DESTDIR$($PYTHON -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
-   - export RUBYLIB="$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$($RUBY -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
+ .SH SYNOPSIS
+-.B semodule [options]... MODE [MODES]...
++.B semodule [option]... MODE...
+ .br
+ .SH DESCRIPTION
+ .PP
+@@ -15,7 +15,7 @@ any other transaction.  semodule acts on module packages created
+ by semodule_package.  Conventionally, these files have a .pp suffix
+ (policy package), although this is not mandated in any way.
  
-   # Show variables (to help debugging issues)
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 18588da586bf..8af04aab0ec2 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -14,7 +14,7 @@ SHLIBDIR ?= /lib
- INCLUDEDIR ?= $(PREFIX)/include
- PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
- PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
--PYSITEDIR ?= $(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
-+PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
- PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
- RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
- RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
-@@ -191,10 +191,10 @@ install: all
- 	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
+-.SH "OPTIONS"
++.SH "MODES"
+ .TP
+ .B \-R, \-\-reload
+ force a reload of policy
+@@ -36,16 +36,11 @@ deprecated, alias for --install
+ deprecated, alias for --install
+ .TP
+ .B  \-r,\-\-remove=MODULE_NAME
+-remove existing module
++remove existing module at desired priority (defaults to -X 400)
+ .TP
+ .B  \-l[KIND],\-\-list-modules[=KIND]
+ display list of installed modules (other than base)
+ .TP
+-.B  \-E,\-\-extract=MODULE_PKG
+-Extract a module from the store as an HLL or CIL file to the current directory.
+-A module is extracted as HLL by default. The name of the module written is
+-<module-name>.<lang_ext>
+-.TP
+ .B  KIND:
+ .TP
+ standard
+@@ -57,12 +52,18 @@ list all modules
+ .B  \-X,\-\-priority=PRIORITY
+ set priority for following operations (1-999)
+ .TP
+-.B  \-e,\-\-enabled=MODULE_NAME
++.B  \-e,\-\-enable=MODULE_NAME
+ enable module
+ .TP
+ .B  \-d,\-\-disable=MODULE_NAME
+ disable module
+ .TP
++.B  \-E,\-\-extract=MODULE_PKG
++Extract a module from the store as an HLL or CIL file to the current directory.
++A module is extracted as HLL by default. The name of the module written is
++<module-name>.<lang_ext>
++.SH "OPTIONS"
++.TP
+ .B  \-s,\-\-store
+ name of the store to operate on
+ .TP
+@@ -101,17 +102,22 @@ only modules listed in \-\-extract after this option.
+ $ semodule \-b base.pp
+ # Install or replace a non-base policy package.
+ $ semodule \-i httpd.pp
++# Install or replace all non-base modules in the current directory.
++# This syntax can be used with -i/u/r/E, but no other option can be entered after the module names
++$ semodule \-i *.pp
++# Install or replace all modules in the current directory.
++$ ls *.pp | grep \-Ev "base.pp|enableaudit.pp" | xargs /usr/sbin/semodule \-b base.pp \-i
+ # List non-base modules.
+ $ semodule \-l
++# List all modules including priorities
++$ semodule \-lfull
++# Remove a module at priority 100
++$ semodule \-X 100 \-r wireshark
+ # Turn on all AVC Messages for which SELinux currently is "dontaudit"ing.
+ $ semodule \-DB
+ # Turn "dontaudit" rules back on.
+ $ semodule \-B
+-# Install or replace all non-base modules in the current directory.
+-$ semodule \-i *.pp
+-# Install or replace all modules in the current directory.
+-$ ls *.pp | grep \-Ev "base.pp|enableaudit.pp" | xargs /usr/sbin/semodule \-b base.pp \-i
+-# Disable a module.
++# Disable a module (all instances of given module across priorities will be disabled).
+ $ semodule \-d alsa
+ # Install a module at a specific priority.
+ $ semodule \-X 100 \-i alsa.pp
+diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
+index c63a8647..504247d3 100644
+--- a/policycoreutils/semodule/semodule.c
++++ b/policycoreutils/semodule/semodule.c
+@@ -120,13 +120,14 @@ static void create_signal_handlers(void)
  
- install-pywrap: pywrap
--	test -d $(DESTDIR)$(PYSITEDIR)/selinux || install -m 755 -d $(DESTDIR)$(PYSITEDIR)/selinux
--	install -m 755 $(SWIGSO) $(DESTDIR)$(PYSITEDIR)/_selinux$(PYCEXT)
--	install -m 755 $(AUDIT2WHYSO) $(DESTDIR)$(PYSITEDIR)/selinux/audit2why$(PYCEXT)
--	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYSITEDIR)/selinux/__init__.py
-+	test -d $(DESTDIR)$(PYTHONLIBDIR)/selinux || install -m 755 -d $(DESTDIR)$(PYTHONLIBDIR)/selinux
-+	install -m 755 $(SWIGSO) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
-+	install -m 755 $(AUDIT2WHYSO) $(DESTDIR)$(PYTHONLIBDIR)/selinux/audit2why$(PYCEXT)
-+	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
- 
- install-rubywrap: rubywrap
- 	test -d $(DESTDIR)$(RUBYINSTALL) || install -m 755 -d $(DESTDIR)$(RUBYINSTALL) 
-diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
-index e98d8760acb7..dea751e5b436 100644
---- a/libsemanage/src/Makefile
-+++ b/libsemanage/src/Makefile
-@@ -13,7 +13,7 @@ LIBDIR ?= $(PREFIX)/lib
- INCLUDEDIR ?= $(PREFIX)/include
- PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
- PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
--PYSITEDIR ?= $(shell $(PYTHON) -c 'import site; print(site.getsitepackages()[0])')
-+PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
- PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
- RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
- RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
-@@ -142,9 +142,9 @@ install: all
- 	cd $(DESTDIR)$(LIBDIR) && ln -sf $(LIBSO) $(TARGET)
- 
- install-pywrap: pywrap 
--	test -d $(DESTDIR)$(PYSITEDIR) || install -m 755 -d $(DESTDIR)$(PYSITEDIR)
--	install -m 755 $(SWIGSO) $(DESTDIR)$(PYSITEDIR)/_semanage$(PYCEXT)
--	install -m 644 semanage.py $(DESTDIR)$(PYSITEDIR)
-+	test -d $(DESTDIR)$(PYTHONLIBDIR) || install -m 755 -d $(DESTDIR)$(PYTHONLIBDIR)
-+	install -m 755 $(SWIGSO) $(DESTDIR)$(PYTHONLIBDIR)/_semanage$(PYCEXT)
-+	install -m 644 semanage.py $(DESTDIR)$(PYTHONLIBDIR)
- 
- 
- install-rubywrap: rubywrap
+ static void usage(char *progname)
+ {
+-	printf("usage:  %s [options]... MODE [MODES]...\n", progname);
++	printf("usage:  %s [option]... MODE...\n", progname);
+ 	printf("Manage SELinux policy modules.\n");
+ 	printf("MODES:\n");
+ 	printf("  -R, --reload		    reload policy\n");
+ 	printf("  -B, --build		    build and reload policy\n");
++	printf("  -D,--disable_dontaudit    Remove dontaudits from policy\n");
+ 	printf("  -i,--install=MODULE_PKG   install a new module\n");
+-	printf("  -r,--remove=MODULE_NAME   remove existing module\n");
++	printf("  -r,--remove=MODULE_NAME   remove existing module at desired priority\n");
+ 	printf("  -l[KIND],--list-modules[=KIND]  display list of installed modules\n");
+ 	printf("     KIND:  standard  list highest priority, enabled modules\n");
+ 	printf("            full      list all modules\n");
+@@ -134,12 +135,11 @@ static void usage(char *progname)
+ 	printf("  -e,--enable=MODULE_NAME   enable module\n");
+ 	printf("  -d,--disable=MODULE_NAME  disable module\n");
+ 	printf("  -E,--extract=MODULE_NAME  extract module\n");
+-	printf("Other options:\n");
++	printf("Options:\n");
+ 	printf("  -s,--store	   name of the store to operate on\n");
+ 	printf("  -N,-n,--noreload do not reload policy after commit\n");
+ 	printf("  -h,--help        print this message and quit\n");
+ 	printf("  -v,--verbose     be verbose\n");
+-	printf("  -D,--disable_dontaudit	Remove dontaudits from policy\n");
+ 	printf("  -P,--preserve_tunables	Preserve tunables in policy\n");
+ 	printf("  -C,--ignore-module-cache	Rebuild CIL modules compiled from HLL files\n");
+ 	printf("  -p,--path        use an alternate path for the policy root\n");
 -- 
-2.16.0
+2.14.3
