@@ -1,19 +1,27 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2CF9wO0000525
- for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2018 11:09:58 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2D8D4kw017738
+ for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2018 04:13:04 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 400nf63Bqjz31Jv
+ for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2018 08:12:46 +0000 (UTC)
+Received: from UPDC3CPA07_EEMSG_MP23.eemsg.mil (unknown [192.168.18.18])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 400nf62B9pz31Jt
+ for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2018 08:12:46 +0000 (UTC)
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com
  [10.11.54.3])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id D4042401C9AE
- for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2018 15:09:53 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id 7C7554023BB3
+ for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2018 08:12:43 +0000 (UTC)
 Received: from localhost.localdomain.com (unknown [10.43.12.54])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 78A7010B0F43
- for <selinux@tycho.nsa.gov>; Mon, 12 Mar 2018 15:09:53 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 2059B1102E20
+ for <selinux@tycho.nsa.gov>; Tue, 13 Mar 2018 08:12:42 +0000 (UTC)
 From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Mon, 12 Mar 2018 16:09:48 +0100
-Message-Id: <20180312150948.3087-1-vmojzis@redhat.com>
+Date: Tue, 13 Mar 2018 09:12:37 +0100
+Message-Id: <20180313081237.23300-1-vmojzis@redhat.com>
+In-Reply-To: <20180312150948.3087-1-vmojzis@redhat.com>
+References: <20180312150948.3087-1-vmojzis@redhat.com>
 Subject: [PATCH] policycoreutils/semodule: Improve man page and
  unify it with --help
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -29,6 +37,8 @@ different priority than 400 and that "-d" disables all instances of
 given module across priorities.
 
 Resolves: rhbz#1320565, rhbz#1337192
+
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
  policycoreutils/semodule/semodule.8 | 34 ++++++++++++++++++++--------------
  policycoreutils/semodule/semodule.c |  8 ++++----
