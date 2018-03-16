@@ -1,20 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2GI4RIC026722
- for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2018 14:04:27 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 402td216pyz2Vpdf
- for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2018 18:04:06 +0000 (UTC)
-Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
- by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 402td16ZTWz2VpdY
- for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2018 18:04:05 +0000 (UTC)
-Received: by mail-pg0-f66.google.com with SMTP id s13so4353768pgn.12
- for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2018 11:04:04 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2GIBuFf029015
+ for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2018 14:11:56 -0400
+Received: by mail-pg0-f68.google.com with SMTP id o14so125529pgv.9
+ for <selinux@tycho.nsa.gov>; Fri, 16 Mar 2018 11:11:52 -0700 (PDT)
 From: Tri Vo <trong@android.com>
 To: selinux@tycho.nsa.gov
 Cc: jeffv@google.com, dcashman@google.com, sspatil@google.com,
  bill.c.roberts@gmail.com, jwcart2@tycho.nsa.gov, Tri Vo <trong@android.com>
-Date: Fri, 16 Mar 2018 11:02:52 -0700
-Message-Id: <20180316180252.78963-1-trong@android.com>
+Date: Fri, 16 Mar 2018 11:11:36 -0700
+Message-Id: <20180316181136.81215-1-trong@android.com>
 Subject: [PATCH v3] Resolve conflicts in expandattribute.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -31,6 +25,8 @@ For example, these statements resolve to false in policy language:
 Similarly, in CIL these also resolve to false.
  (expandtypeattribute (hal_audio) true)
  (expandtypeattribute (hal_audio) false)
+
+A warning will be issued on this conflict.
 
 Motivation
 When Android combines multiple .cil files from system.img and vendor.img
