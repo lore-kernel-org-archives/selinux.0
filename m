@@ -1,66 +1,77 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2KKS39i001495
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 16:28:03 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2KKiMi6006546
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 16:44:22 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 405PdC6Y6sz2VqB4
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:27:59 +0000 (UTC)
-Received: from UPDC3CPA04.eemsg.mil (unknown [192.168.18.11])
- by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 405PdC5SQ2z2VqB9
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:27:59 +0000 (UTC)
-Received: by mail-lf0-f67.google.com with SMTP id o102-v6so4585528lfg.8
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 13:27:52 -0700 (PDT)
+ by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 405Q0214Q2z2VpdY
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:44:18 +0000 (UTC)
+Received: from UPBD19PA02.eemsg.mil (unknown [192.168.18.3])
+ by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 405Q016ZXHz2VpdX
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:44:17 +0000 (UTC)
+Received: by mail-lf0-f67.google.com with SMTP id j68-v6so4621519lfg.13
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 13:44:17 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20180319173336.24730-1-richard_c_haines@btinternet.com>
-References: <20180319173336.24730-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20180320155911.7271-1-sds@tycho.nsa.gov>
+References: <20180320155911.7271-1-sds@tycho.nsa.gov>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 20 Mar 2018 16:27:51 -0400
-Message-ID: <CAHC9VhTLEgtw2KfWOgeoZ-bYQLWO2cDUKnd9Td8UKB_e14k0Sg@mail.gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov
+Date: Tue, 20 Mar 2018 16:43:16 -0400
+Message-ID: <CAHC9VhRFJ44+9+8wBrgztjcGzA6s9vq+wzcHygY+e8YwqDq+XA@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+ peter.enderborg@sony.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux: Update SELinux SCTP documentation
+Subject: Re: [PATCH 1/2] selinux: fix handling of uninitialized
+ selinux state in get_bools/classes
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Mar 19, 2018 at 1:33 PM, Richard Haines via Selinux
-<selinux@tycho.nsa.gov> wrote:
-> Update SELinux-sctp.rst "SCTP Peer Labeling" section to reflect
-> how the association permission is validated.
+On Tue, Mar 20, 2018 at 11:59 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> If security_get_bools/classes are called before the selinux state is
+> initialized (i.e. before first policy load), then they should just
+> return immediately with no booleans/classes.
 >
-> Reported-by: Dominick Grift <dac.override@gmail.com>
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  Documentation/security/SELinux-sctp.rst | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
+>  security/selinux/ss/services.c | 13 +++++++++++++
+>  1 file changed, 13 insertions(+)
 
-Merged, thanks Richard and Dominick.
+Merged.  Thanks for extracting this Stephen.
 
-> diff --git a/Documentation/security/SELinux-sctp.rst b/Documentation/security/SELinux-sctp.rst
-> index 2f66bf3..a332cb1 100644
-> --- a/Documentation/security/SELinux-sctp.rst
-> +++ b/Documentation/security/SELinux-sctp.rst
-> @@ -116,11 +116,12 @@ statement as shown in the following example::
->  SCTP Peer Labeling
->  ===================
->  An SCTP socket will only have one peer label assigned to it. This will be
-> -assigned during the establishment of the first association. Once the peer
-> -label has been assigned, any new associations will have the ``association``
-> -permission validated by checking the socket peer sid against the received
-> -packets peer sid to determine whether the association should be allowed or
-> -denied.
-> +assigned during the establishment of the first association. Any further
-> +associations on this socket will have their packet peer label compared to
-> +the sockets peer label, and only if they are different will the
-> +``association`` permission be validated. This is validated by checking the
-> +socket peer sid against the received packets peer sid to determine whether
-> +the association should be allowed or denied.
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 4785ca552d51..ccfa65f6bc17 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2811,6 +2811,13 @@ int security_get_bools(struct selinux_state *state,
+>         struct policydb *policydb;
+>         int i, rc;
 >
->  NOTES:
->     1) If peer labeling is not enabled, then the peer context will always be
+> +       if (!state->initialized) {
+> +               *len = 0;
+> +               *names = NULL;
+> +               *values = NULL;
+> +               return 0;
+> +       }
+> +
+>         read_lock(&state->ss->policy_rwlock);
+>
+>         policydb = &state->ss->policydb;
+> @@ -3141,6 +3148,12 @@ int security_get_classes(struct selinux_state *state,
+>         struct policydb *policydb = &state->ss->policydb;
+>         int rc;
+>
+> +       if (!state->initialized) {
+> +               *nclasses = 0;
+> +               *classes = NULL;
+> +               return 0;
+> +       }
+> +
+>         read_lock(&state->ss->policy_rwlock);
+>
+>         rc = -ENOMEM;
 > --
 > 2.14.3
+>
 
 -- 
 paul moore
