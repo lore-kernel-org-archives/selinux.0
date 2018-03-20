@@ -1,77 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2KKiMi6006546
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 16:44:22 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2KKwxtu010962
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 16:59:00 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 405Q0214Q2z2VpdY
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:44:18 +0000 (UTC)
-Received: from UPBD19PA02.eemsg.mil (unknown [192.168.18.3])
- by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 405Q016ZXHz2VpdX
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:44:17 +0000 (UTC)
-Received: by mail-lf0-f67.google.com with SMTP id j68-v6so4621519lfg.13
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 13:44:17 -0700 (PDT)
+ by UPDCF3IC09.oob.disa.mil (Postfix) with SMTP id 405QJr6XYqz2NjRX
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:58:52 +0000 (UTC)
+Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
+ by UPDCF3IC09.oob.disa.mil (Postfix) with ESMTP id 405QJr5mLBz2NjRT
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 20:58:52 +0000 (UTC)
+Received: by mail-lf0-f65.google.com with SMTP id y2-v6so4714637lfc.5
+ for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 13:58:50 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20180320155911.7271-1-sds@tycho.nsa.gov>
+In-Reply-To: <20180320155911.7271-2-sds@tycho.nsa.gov>
 References: <20180320155911.7271-1-sds@tycho.nsa.gov>
+ <20180320155911.7271-2-sds@tycho.nsa.gov>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 20 Mar 2018 16:43:16 -0400
-Message-ID: <CAHC9VhRFJ44+9+8wBrgztjcGzA6s9vq+wzcHygY+e8YwqDq+XA@mail.gmail.com>
+Date: Tue, 20 Mar 2018 16:57:49 -0400
+Message-ID: <CAHC9VhSUP1eUceRL4yhgimjvA3F_J5iK3mbsFENOiLYEpfYE2w@mail.gmail.com>
 To: Stephen Smalley <sds@tycho.nsa.gov>
 Cc: selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
  peter.enderborg@sony.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 1/2] selinux: fix handling of uninitialized
- selinux state in get_bools/classes
+Subject: Re: [PATCH 2/2] selinux: wrap selinuxfs state
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On Tue, Mar 20, 2018 at 11:59 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> If security_get_bools/classes are called before the selinux state is
-> initialized (i.e. before first policy load), then they should just
-> return immediately with no booleans/classes.
+> Move global selinuxfs state to a per-instance structure (selinux_fs_info),
+> and include a pointer to the selinux_state in this structure.
+> Pass this selinux_state to all security server operations, thereby
+> ensuring that each selinuxfs instance presents a view of and acts
+> as an interface to a particular selinux_state instance.
+>
+> This change should have no effect on SELinux behavior or APIs
+> (userspace or LSM).  It merely wraps the selinuxfs global state,
+> links it to a particular selinux_state (currently always the single
+> global selinux_state) and uses that state for all operations.
 >
 > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  security/selinux/ss/services.c | 13 +++++++++++++
->  1 file changed, 13 insertions(+)
+>  security/selinux/selinuxfs.c | 438 ++++++++++++++++++++++++++-----------------
+>  1 file changed, 261 insertions(+), 177 deletions(-)
 
-Merged.  Thanks for extracting this Stephen.
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 4785ca552d51..ccfa65f6bc17 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2811,6 +2811,13 @@ int security_get_bools(struct selinux_state *state,
->         struct policydb *policydb;
->         int i, rc;
->
-> +       if (!state->initialized) {
-> +               *len = 0;
-> +               *names = NULL;
-> +               *values = NULL;
-> +               return 0;
-> +       }
-> +
->         read_lock(&state->ss->policy_rwlock);
->
->         policydb = &state->ss->policydb;
-> @@ -3141,6 +3148,12 @@ int security_get_classes(struct selinux_state *state,
->         struct policydb *policydb = &state->ss->policydb;
->         int rc;
->
-> +       if (!state->initialized) {
-> +               *nclasses = 0;
-> +               *classes = NULL;
-> +               return 0;
-> +       }
-> +
->         read_lock(&state->ss->policy_rwlock);
->
->         rc = -ENOMEM;
-> --
-> 2.14.3
->
+Merged, thanks for the respin.
 
 -- 
 paul moore
