@@ -1,53 +1,76 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2KL11DB012316
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 17:01:01 -0400
-Received: by mail-lf0-f66.google.com with SMTP id p142-v6so4721280lfd.6
- for <selinux@tycho.nsa.gov>; Tue, 20 Mar 2018 14:00:59 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2LBJ3so008514
+ for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2018 07:19:03 -0400
+Received: by mail-lf0-f52.google.com with SMTP id z143-v6so7262069lff.3
+ for <selinux@tycho.nsa.gov>; Wed, 21 Mar 2018 04:18:57 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhS=brNsC89F9ou4TRPgA0mQN-6prUG3-mz-ksEu1PM=wQ@mail.gmail.com>
-References: <20180305164756.7878-1-sds@tycho.nsa.gov>
- <20180305164756.7878-2-sds@tycho.nsa.gov>
- <CAHC9VhS=brNsC89F9ou4TRPgA0mQN-6prUG3-mz-ksEu1PM=wQ@mail.gmail.com>
+In-Reply-To: <20180321143120.6d9bbe0f@canb.auug.org.au>
+References: <20180321143120.6d9bbe0f@canb.auug.org.au>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 20 Mar 2018 16:59:57 -0400
-Message-ID: <CAHC9VhS=STsX1zc51zngVXtwHMgAhEa3d4J7YK+zY2aUaBbuJw@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, peter.enderborg@sony.com,
- James Morris <jmorris@namei.org>
+Date: Wed, 21 Mar 2018 07:18:55 -0400
+Message-ID: <CAHC9VhTfHja9-NYG2boM6mv+5FSBSBEEX8E3tLNLNyaJm4c4TQ@mail.gmail.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: James Morris <jmorris@namei.org>,
+ Linux-Next Mailing List <linux-next@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 2/2] selinux: wrap AVC state
+Subject: Re: linux-next: manual merge of the selinux tree with the
+ security tree
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Mar 13, 2018 at 3:48 PM, Paul Moore <paul@paul-moore.com> wrote:
-> On Mon, Mar 5, 2018 at 11:47 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> Wrap the AVC state within the selinux_state structure and
->> pass it explicitly to all AVC functions.  The AVC private state
->> is encapsulated in a selinux_avc structure that is referenced
->> from the selinux_state.
->>
->> This change should have no effect on SELinux behavior or
->> APIs (userspace or LSM).
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> ---
->>  security/selinux/avc.c              | 284 ++++++++++++++-----------
->>  security/selinux/hooks.c            | 398 ++++++++++++++++++++++++------------
->>  security/selinux/include/avc.h      |  32 ++-
->>  security/selinux/include/avc_ss.h   |   3 +-
->>  security/selinux/include/security.h |   3 +
->>  security/selinux/netlabel.c         |   3 +-
->>  security/selinux/selinuxfs.c        |  60 ++++--
->>  security/selinux/ss/services.c      |   9 +-
->>  security/selinux/xfrm.c             |  17 +-
->>  9 files changed, 512 insertions(+), 297 deletions(-)
+On Tue, Mar 20, 2018 at 11:31 PM, Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> Hi Paul,
 >
-> This patch looks fine to me.  Once we sort out my questions/comments
-> in patch 1/2 I'll apply this.
+> Today's linux-next merge of the selinux tree got a conflict in:
+>
+>   security/selinux/hooks.c
+>
+> between commit:
+>
+>   6b4f3d01052a ("usb, signal, security: only pass the cred, not the secid, to kill_pid_info_as_cred and security_task_kill")
+>
+> from the security tree and commit:
+>
+>   6b6bc6205d98 ("selinux: wrap AVC state")
+>
+> from the selinux tree.
+>
+> I fixed it up (see below) and can carry the fix as necessary. This
+> is now fixed as far as linux-next is concerned, but any non trivial
+> conflicts should be mentioned to your upstream maintainer when your tree
+> is submitted for merging.  You may also want to consider cooperating
+> with the maintainer of the conflicting tree to minimise any particularly
+> complex conflicts.
+>
+> --
+> Cheers,
+> Stephen Rothwell
+>
+> diff --cc security/selinux/hooks.c
+> index fdd523e575e3,21b377aef69a..000000000000
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@@ -4050,11 -4164,10 +4170,12 @@@ static int selinux_task_kill(struct tas
+>                 perm = PROCESS__SIGNULL; /* null signal; existence test */
+>         else
+>                 perm = signal_to_av(sig);
+>  -      if (!secid)
+>  +      if (!cred)
+>                 secid = current_sid();
+>  +      else
+>  +              secid = cred_sid(cred);
+> -       return avc_has_perm(secid, task_sid(p), SECCLASS_PROCESS, perm, NULL);
+> +       return avc_has_perm(&selinux_state,
+> +                           secid, task_sid(p), SECCLASS_PROCESS, perm, NULL);
+>   }
+>
+>   static void selinux_task_to_inode(struct task_struct *p,
 
-With the other bits sorted, I just merged this.  Thank you.
+Thanks Stephen, that looks correct to me.
 
 -- 
 paul moore
