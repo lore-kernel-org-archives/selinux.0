@@ -1,89 +1,52 @@
-Sender: Pierre-Hugues Husson <phhusson@gmail.com>
-From: Pierre-Hugues Husson <phh@phh.me>
-To: selinux@tycho.nsa.gov
-Cc: phh@phh.me, Tri Vo <trong@android.com>, jwcart2@tycho.nsa.gov,
- Pierre-Hugues Husson <phhusson@gmail.com>
-Date: Fri, 23 Mar 2018 00:04:35 +0100
-Message-Id: <20180322230435.21048-2-phh@phh.me>
-In-Reply-To: <20180322230435.21048-1-phh@phh.me>
-References: <20180322230435.21048-1-phh@phh.me>
-Subject: [PATCH v2 1/1] Detect identical genfscon
+From: Laurent Bigonville <bigon@debian.org>
+To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+Cc: Simon McVittie <smcv@debian.org>
+References: <9dc38544-b297-741e-dd7e-e09778a0baf3@debian.org>
+ <7ba2608b-f5e1-a3ce-583a-1cabcffdffb9@tycho.nsa.gov>
+Message-ID: <82c84995-c4ba-545a-9b69-81f9731a4cb5@bigonville.be>
+Date: Fri, 23 Mar 2018 11:31:53 +0100
+MIME-Version: 1.0
+In-Reply-To: <7ba2608b-f5e1-a3ce-583a-1cabcffdffb9@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: dbus-daemon patches review
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Pierre-Hugues Husson <phhusson@gmail.com>
+Le 22/03/18 à 17:09, Stephen Smalley a écrit :
+> On 03/21/2018 07:58 AM, Laurent Bigonville wrote:
+>> Hello,
+>>
+>> Could somebody have a quick look at the two patches that I opened for two dbus bugs:
+>>
+>> https://bugs.freedesktop.org/show_bug.cgi?id=92831  (stop using avc_init())
+>>
+>> https://bugs.freedesktop.org/attachment.cgi?id=138021  (stop using selinux_set_mapping())
+>>
+>> I'm also wondering whether the call to avc_add_callback() shouldn't be replaced by selinux_set_callback(), an opinion on this?
+> Patches look sane to me although I'm not really familiar with dbus code.
 
-Currently secilc doesn't deal with duplicate genfscon rules
+Thanks for the review, Simon already had a look at the dbus part of the code
 
-This commit fixes this, and implements multiple_decls behaviour.
+> Looks like the callback is only used to trigger a reload of the dbus configuration (for dbus_contexts updates), and thus selinux_set_callback(SELINUX_CB_POLICYLOAD) is more appropriate than avc_add_callback(AVC_CALLBACK_RESET), since the latter is called upon setenforce 1 as well.  However, if it were truly only for that purpose, one might argue that it ought to be a watch on the dbus_contexts file instead and not be tied to selinux at all.
+I really don't know the original rational of this. But I guess that if 
+somebody is modifying dbus_contexts file, there are big chances that he 
+will reload the policy as well(?).
 
-To reduce the code changes, the compare function returns in its LSB
-whether the rules are only a matching rule match, or a full match.
----
- libsepol/cil/src/cil_post.c | 34 ++++++++++++++++++++++++++++++++--
- 1 file changed, 32 insertions(+), 2 deletions(-)
+I'll change avc_add_callback() by selinux_set_callback(), we could say 
+that as the file is in the SELinux path it's its responsibility.
 
-diff --git a/libsepol/cil/src/cil_post.c b/libsepol/cil/src/cil_post.c
-index a2122454..c054e9ce 100644
---- a/libsepol/cil/src/cil_post.c
-+++ b/libsepol/cil/src/cil_post.c
-@@ -53,6 +53,26 @@
- static int __cil_expr_to_bitmap(struct cil_list *expr, ebitmap_t *out, int max, struct cil_db *db);
- static int __cil_expr_list_to_bitmap(struct cil_list *expr_list, ebitmap_t *out, int max, struct cil_db *db);
- 
-+/* compare function returns whether a,b have the same context in the LSB */
-+static int compact(void* array, uint32_t *count, int len, int (*compare)(const void *, const void *), int multiple_decls) {
-+	char *a = (char*)array;
-+	uint32_t i, j = 0;
-+	int c;
-+	for(i=1; i<*count; i++) {
-+		c = compare(a+i*len, a+j*len);
-+		/* If LSB is set, it means the rules match except for the context
-+		 * We never want this */
-+		if(c&1) return SEPOL_ERR;
-+
-+		if(!multiple_decls && c == 0) return SEPOL_ERR;
-+
-+		if(c) j++;
-+		if(i != j) memcpy(a+j*len, a+i*len, len);
-+	}
-+	*count = j;
-+	return SEPOL_OK;
-+}
-+
- static int cil_verify_is_list(struct cil_list *list, enum cil_flavor flavor)
- {
- 	struct cil_list_item *curr;
-@@ -202,9 +222,14 @@ int cil_post_genfscon_compare(const void *a, const void *b)
- 	struct cil_genfscon *agenfscon = *(struct cil_genfscon**)a;
- 	struct cil_genfscon *bgenfscon = *(struct cil_genfscon**)b;
- 
--	rc = strcmp(agenfscon->fs_str, bgenfscon->fs_str);
-+	rc = 2*strcmp(agenfscon->fs_str, bgenfscon->fs_str);
- 	if (rc == 0) {
--		rc = strcmp(agenfscon->path_str, bgenfscon->path_str);
-+		rc = 2*strcmp(agenfscon->path_str, bgenfscon->path_str);
-+		if(rc == 0) {
-+			rc = strcmp(agenfscon->context_str, bgenfscon->context_str);
-+			if(rc > 0) rc = 1;
-+			if(rc < 0) rc = -1;
-+		}
- 	}
- 
- 	return rc;
-@@ -2118,6 +2143,11 @@ static int cil_post_db(struct cil_db *db)
- 
- 	qsort(db->netifcon->array, db->netifcon->count, sizeof(db->netifcon->array), cil_post_netifcon_compare);
- 	qsort(db->genfscon->array, db->genfscon->count, sizeof(db->genfscon->array), cil_post_genfscon_compare);
-+	rc = compact(db->genfscon->array, &db->genfscon->count, sizeof(db->genfscon->array), cil_post_genfscon_compare, db->multiple_decls);
-+	if (rc != SEPOL_OK) {
-+		cil_log(CIL_INFO, "Failed to de-dupe genfscon\n");
-+		goto exit;
-+	}
- 	qsort(db->ibpkeycon->array, db->ibpkeycon->count, sizeof(db->ibpkeycon->array), cil_post_ibpkeycon_compare);
- 	qsort(db->ibendportcon->array, db->ibendportcon->count, sizeof(db->ibendportcon->array), cil_post_ibendportcon_compare);
- 	qsort(db->portcon->array, db->portcon->count, sizeof(db->portcon->array), cil_post_portcon_compare);
--- 
-2.15.1
+> NB This still won't fix the case where dbusd has already performed a string_to_security_class/av_perm lookup and the result has been cached by the libselinux class cache and then a subsequent policy update alters those values.  That is what was fixed for systemd's usage of selinux_check_access() by selinux commit b408d72ca9104cb0c1bc4e154d8732cc7c0a9190.  Offhand, I'm now wondering why I didn't just call flush_class_cache() from avc_reset() itself.  That would fix it for other users of the AVC.  You can't directly call flush_class_cache() from the dbus selinux policyload callback because it is hidden presently.  If we can fix it directly in libselinux, then that is better.  If not, we'd need to export it and probably give it a more unique name, ala selinux_flush_class_cache().
+Right, that's a really good point, that I apparently overlooked...
+
+Is that cache really supposed to substantially speedup things? Would it 
+be possible to create a version of selinux_check_access() that allows to 
+pass a reference the cache or let selinux_check_access() create that 
+cache itself? If it's the case I guess that dbus-broker would benefit of 
+that as well as they are using selinux_check_access().
+
+Otherwise we can indeed clean up the cache our self, but wasn't the goal 
+of selinux_check_access() to be an "easy" interface to use, asking the 
+applications to do this kind of housekeeping is defeating that purpose, 
+isn't it?
