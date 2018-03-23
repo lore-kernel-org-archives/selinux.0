@@ -1,50 +1,54 @@
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
+To: Laurent Bigonville <bigon@debian.org>, selinux@tycho.nsa.gov
 Cc: Simon McVittie <smcv@debian.org>
 References: <9dc38544-b297-741e-dd7e-e09778a0baf3@debian.org>
  <7ba2608b-f5e1-a3ce-583a-1cabcffdffb9@tycho.nsa.gov>
  <82c84995-c4ba-545a-9b69-81f9731a4cb5@bigonville.be>
  <359e8425-480e-8a37-1fef-e7a39e746f7a@tycho.nsa.gov>
-From: Laurent Bigonville <bigon@debian.org>
-Message-ID: <bce64828-8710-1a68-d399-f7562d5a952f@debian.org>
-Date: Fri, 23 Mar 2018 13:44:58 +0100
+ <bce64828-8710-1a68-d399-f7562d5a952f@debian.org>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <bdd86439-e09c-05d1-f5a5-ef6449b67806@tycho.nsa.gov>
+Date: Fri, 23 Mar 2018 09:14:35 -0400
 MIME-Version: 1.0
-In-Reply-To: <359e8425-480e-8a37-1fef-e7a39e746f7a@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <bce64828-8710-1a68-d399-f7562d5a952f@debian.org>
+Content-Type: text/plain; charset=utf-8
 Subject: Re: dbus-daemon patches review
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Le 23/03/18 à 13:26, Stephen Smalley a écrit :
-> On 03/23/2018 06:31 AM, Laurent Bigonville wrote:
->> Le 22/03/18 à 17:09, Stephen Smalley a écrit :
->>> On 03/21/2018 07:58 AM, Laurent Bigonville wrote:
->>>> Hello,
->>>>
->>>> Could somebody have a quick look at the two patches that I opened for two dbus bugs:
->>>>
->>>> https://bugs.freedesktop.org/show_bug.cgi?id=92831  (stop using avc_init())
->>>>
->>>> https://bugs.freedesktop.org/attachment.cgi?id=138021  (stop using selinux_set_mapping())
->>>>
->>>> I'm also wondering whether the call to avc_add_callback() shouldn't be replaced by selinux_set_callback(), an opinion on this?
->>> Patches look sane to me although I'm not really familiar with dbus code.
->> Thanks for the review, Simon already had a look at the dbus part of the code
->>
->>> Looks like the callback is only used to trigger a reload of the dbus configuration (for dbus_contexts updates), and thus selinux_set_callback(SELINUX_CB_POLICYLOAD) is more appropriate than avc_add_callback(AVC_CALLBACK_RESET), since the latter is called upon setenforce 1 as well.  However, if it were truly only for that purpose, one might argue that it ought to be a watch on the dbus_contexts file instead and not be tied to selinux at all.
->> I really don't know the original rational of this. But I guess that if somebody is modifying dbus_contexts file, there are big chances that he will reload the policy as well(?).
->>
->> I'll change avc_add_callback() by selinux_set_callback(), we could say that as the file is in the SELinux path it's its responsibility.
->>
->>> NB This still won't fix the case where dbusd has already performed a string_to_security_class/av_perm lookup and the result has been cached by the libselinux class cache and then a subsequent policy update alters those values.  That is what was fixed for systemd's usage of selinux_check_access() by selinux commit b408d72ca9104cb0c1bc4e154d8732cc7c0a9190.  Offhand, I'm now wondering why I didn't just call flush_class_cache() from avc_reset() itself.  That would fix it for other users of the AVC.  You can't directly call flush_class_cache() from the dbus selinux policyload callback because it is hidden presently.  If we can fix it directly in libselinux, then that is better.  If not, we'd need to export it and probably give it a more unique name, ala selinux_flush_class_cache().
->> Right, that's a really good point, that I apparently overlooked...
->>
->> Is that cache really supposed to substantially speedup things? Would it be possible to create a version of selinux_check_access() that allows to pass a reference the cache or let selinux_check_access() create that cache itself? If it's the case I guess that dbus-broker would benefit of that as well as they are using selinux_check_access().
->>
->> Otherwise we can indeed clean up the cache our self, but wasn't the goal of selinux_check_access() to be an "easy" interface to use, asking the applications to do this kind of housekeeping is defeating that purpose, isn't it?
-> If you use selinux_check_access(), then the class cache is already flushed for you upon an AVC reset; that is what the commit I referenced above did.  The problem in the case of dbusd is that it is not using selinux_check_access() but rather its own direct usage of string_to_security_class/av_perm() and avc_has_perm().  That's why we need to either take the call to flush_class_cache() in libselinux to avc_reset() so that it is done for all users of the AVC, or we need to export it and have dbusd call it from its policy reload callback.
+On 03/23/2018 08:44 AM, Laurent Bigonville wrote:
+> Le 23/03/18 à 13:26, Stephen Smalley a écrit :
+>> On 03/23/2018 06:31 AM, Laurent Bigonville wrote:
+>>> Le 22/03/18 à 17:09, Stephen Smalley a écrit :
+>>>> On 03/21/2018 07:58 AM, Laurent Bigonville wrote:
+>>>>> Hello,
+>>>>>
+>>>>> Could somebody have a quick look at the two patches that I opened for two dbus bugs:
+>>>>>
+>>>>> https://bugs.freedesktop.org/show_bug.cgi?id=92831  (stop using avc_init())
+>>>>>
+>>>>> https://bugs.freedesktop.org/attachment.cgi?id=138021  (stop using selinux_set_mapping())
+>>>>>
+>>>>> I'm also wondering whether the call to avc_add_callback() shouldn't be replaced by selinux_set_callback(), an opinion on this?
+>>>> Patches look sane to me although I'm not really familiar with dbus code.
+>>> Thanks for the review, Simon already had a look at the dbus part of the code
+>>>
+>>>> Looks like the callback is only used to trigger a reload of the dbus configuration (for dbus_contexts updates), and thus selinux_set_callback(SELINUX_CB_POLICYLOAD) is more appropriate than avc_add_callback(AVC_CALLBACK_RESET), since the latter is called upon setenforce 1 as well.  However, if it were truly only for that purpose, one might argue that it ought to be a watch on the dbus_contexts file instead and not be tied to selinux at all.
+>>> I really don't know the original rational of this. But I guess that if somebody is modifying dbus_contexts file, there are big chances that he will reload the policy as well(?).
+>>>
+>>> I'll change avc_add_callback() by selinux_set_callback(), we could say that as the file is in the SELinux path it's its responsibility.
+>>>
+>>>> NB This still won't fix the case where dbusd has already performed a string_to_security_class/av_perm lookup and the result has been cached by the libselinux class cache and then a subsequent policy update alters those values.  That is what was fixed for systemd's usage of selinux_check_access() by selinux commit b408d72ca9104cb0c1bc4e154d8732cc7c0a9190.  Offhand, I'm now wondering why I didn't just call flush_class_cache() from avc_reset() itself.  That would fix it for other users of the AVC.  You can't directly call flush_class_cache() from the dbus selinux policyload callback because it is hidden presently.  If we can fix it directly in libselinux, then that is better.  If not, we'd need to export it and probably give it a more unique name, ala selinux_flush_class_cache().
+>>> Right, that's a really good point, that I apparently overlooked...
+>>>
+>>> Is that cache really supposed to substantially speedup things? Would it be possible to create a version of selinux_check_access() that allows to pass a reference the cache or let selinux_check_access() create that cache itself? If it's the case I guess that dbus-broker would benefit of that as well as they are using selinux_check_access().
+>>>
+>>> Otherwise we can indeed clean up the cache our self, but wasn't the goal of selinux_check_access() to be an "easy" interface to use, asking the applications to do this kind of housekeeping is defeating that purpose, isn't it?
+>> If you use selinux_check_access(), then the class cache is already flushed for you upon an AVC reset; that is what the commit I referenced above did.  The problem in the case of dbusd is that it is not using selinux_check_access() but rather its own direct usage of string_to_security_class/av_perm() and avc_has_perm().  That's why we need to either take the call to flush_class_cache() in libselinux to avc_reset() so that it is done for all users of the AVC, or we need to export it and have dbusd call it from its policy reload callback.
+> 
+> No, I meant the decision cache used by avc_has_perm(). dbus is not using selinux_check_access() because there is no way to set that decision cache (the 5th parameter of avc_has_perm() is NULL)
 
-No, I meant the decision cache used by avc_has_perm(). dbus is not using 
-selinux_check_access() because there is no way to set that decision 
-cache (the 5th parameter of avc_has_perm() is NULL)
+Oh, you mean the AVC entry reference.  Usually that would be cached in a per-object structure of some sort, e.g. in the kernel, there used to be an AVC entry reference cached in the task, inode, and other security structures.  However, the AVC entry references were dropped from the kernel altogether when the kernel AVC was converted to using RCU.  They are still used in the libselinux AVC, but I wouldn't expect dbusd is gaining much from using it especially since dbusd is only storing a single reference globally rather than any kind of per-object one. The larger cost of switching to using selinux_check_access() is probably the avc_context_to_sid() lookups since you already have the SIDs available to you.
+
+You don't necessarily have to switch to selinux_check_access().  But we do need to ensure that the class cache is flushed, either by adding a call to avc_reset() in libselinux if that is possible, or by exporting flush_class_cache() and calling it from the dbusd policy reload callback.
