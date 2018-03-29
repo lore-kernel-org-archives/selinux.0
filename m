@@ -17,45 +17,48 @@ To: dledford@redhat.com, jgg@ziepe.ca, davem@davemloft.net,
  netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
  dev@openvswitch.org, linux-wireless@vger.kernel.org,
  selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Thu, 29 Mar 2018 19:21:20 +0300
-Message-ID: <152234048028.19153.843006403471156320.stgit@localhost.localdomain>
+Date: Thu, 29 Mar 2018 19:21:09 +0300
+Message-ID: <152234046913.19153.5014546114733288472.stgit@localhost.localdomain>
 In-Reply-To: <152234005959.19153.17907173734141707348.stgit@localhost.localdomain>
 References: <152234005959.19153.17907173734141707348.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Subject: [PATCH net-next 5/5] net: Remove rtnl_lock() in
- nf_ct_iterate_destroy()
+Subject: [PATCH net-next 4/5] ovs: Remove rtnl_lock() from
+ ovs_exit_net()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-rtnl_lock() doesn't protect net::ct::count,
-and it's not needed for__nf_ct_unconfirmed_destroy()
-and for nf_queue_nf_hook_drop().
+Here we iterate for_each_net() and removes
+vport from alive net to the exiting net.
+
+ovs_net::dps are protected by ovs_mutex(),
+and the others, who change it (ovs_dp_cmd_new(),
+__dp_destroy()) also take it.
+The same with datapath::ports list.
+
+So, we remove rtnl_lock() here.
 
 Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 ---
- net/netfilter/nf_conntrack_core.c |    2 --
+ net/openvswitch/datapath.c |    2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
-index 370f9b7f051b..41ff04ee2554 100644
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -1763,7 +1763,6 @@ nf_ct_iterate_destroy(int (*iter)(struct nf_conn *i, void *data), void *data)
- {
- 	struct net *net;
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 9746ee30a99b..015e24e08909 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -2363,12 +2363,10 @@ static void __net_exit ovs_exit_net(struct net *dnet)
+ 	list_for_each_entry_safe(dp, dp_next, &ovs_net->dps, list_node)
+ 		__dp_destroy(dp);
  
 -	rtnl_lock();
  	down_read(&net_rwsem);
- 	for_each_net(net) {
- 		if (atomic_read(&net->ct.count) == 0)
-@@ -1772,7 +1771,6 @@ nf_ct_iterate_destroy(int (*iter)(struct nf_conn *i, void *data), void *data)
- 		nf_queue_nf_hook_drop(net);
- 	}
+ 	for_each_net(net)
+ 		list_vports_from_net(net, dnet, &head);
  	up_read(&net_rwsem);
 -	rtnl_unlock();
  
- 	/* Need to wait for netns cleanup worker to finish, if its
- 	 * running -- it might have deleted a net namespace from
+ 	/* Detach all vports from given namespace. */
+ 	list_for_each_entry_safe(vport, vport_next, &head, detach_list) {
