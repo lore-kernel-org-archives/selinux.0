@@ -17,48 +17,45 @@ To: dledford@redhat.com, jgg@ziepe.ca, davem@davemloft.net,
  netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
  dev@openvswitch.org, linux-wireless@vger.kernel.org,
  selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Thu, 29 Mar 2018 19:20:56 +0300
-Message-ID: <152234045636.19153.4897050357891895124.stgit@localhost.localdomain>
+Date: Thu, 29 Mar 2018 19:21:20 +0300
+Message-ID: <152234048028.19153.843006403471156320.stgit@localhost.localdomain>
 In-Reply-To: <152234005959.19153.17907173734141707348.stgit@localhost.localdomain>
 References: <152234005959.19153.17907173734141707348.stgit@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Subject: [PATCH net-next 3/5] security: Remove rtnl_lock() in
- selinux_xfrm_notify_policyload()
+Subject: [PATCH net-next 5/5] net: Remove rtnl_lock() in
+ nf_ct_iterate_destroy()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-rt_genid_bump_all() consists of ipv4 and ipv6 part.
-ipv4 part is incrementing of net::ipv4::rt_genid,
-and I see many places, where it's read without rtnl_lock().
-
-ipv6 part calls __fib6_clean_all(), and it's also
-called without rtnl_lock() in other places.
-
-So, rtnl_lock() here was used to iterate net_namespace_list only,
-and we can remove it.
+rtnl_lock() doesn't protect net::ct::count,
+and it's not needed for__nf_ct_unconfirmed_destroy()
+and for nf_queue_nf_hook_drop().
 
 Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
 ---
- security/selinux/include/xfrm.h |    2 --
+ net/netfilter/nf_conntrack_core.c |    2 --
  1 file changed, 2 deletions(-)
 
-diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
-index 31d66431be1e..a0b465316292 100644
---- a/security/selinux/include/xfrm.h
-+++ b/security/selinux/include/xfrm.h
-@@ -47,12 +47,10 @@ static inline void selinux_xfrm_notify_policyload(void)
+diff --git a/net/netfilter/nf_conntrack_core.c b/net/netfilter/nf_conntrack_core.c
+index 370f9b7f051b..41ff04ee2554 100644
+--- a/net/netfilter/nf_conntrack_core.c
++++ b/net/netfilter/nf_conntrack_core.c
+@@ -1763,7 +1763,6 @@ nf_ct_iterate_destroy(int (*iter)(struct nf_conn *i, void *data), void *data)
  {
  	struct net *net;
  
 -	rtnl_lock();
  	down_read(&net_rwsem);
- 	for_each_net(net)
- 		rt_genid_bump_all(net);
+ 	for_each_net(net) {
+ 		if (atomic_read(&net->ct.count) == 0)
+@@ -1772,7 +1771,6 @@ nf_ct_iterate_destroy(int (*iter)(struct nf_conn *i, void *data), void *data)
+ 		nf_queue_nf_hook_drop(net);
+ 	}
  	up_read(&net_rwsem);
 -	rtnl_unlock();
- }
- #else
- static inline int selinux_xfrm_enabled(void)
+ 
+ 	/* Need to wait for netns cleanup worker to finish, if its
+ 	 * running -- it might have deleted a net namespace from
