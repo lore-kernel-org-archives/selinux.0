@@ -1,61 +1,43 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2T3eMdE011820
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2T3eMdD011820
  for <selinux@tycho.nsa.gov>; Wed, 28 Mar 2018 23:40:23 -0400
-Received: by mail-qt0-f195.google.com with SMTP id j26so4898430qtl.11
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 40BVrM2syPzJ3dt
+ for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2018 03:40:19 +0000 (UTC)
+Received: from UPBD19PA13.eemsg.mil (unknown [192.168.18.15])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 40BVrM1RqXzJ3dZ
+ for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2018 03:40:19 +0000 (UTC)
+Received: by mail-qt0-f194.google.com with SMTP id j26so4898410qtl.11
  for <selinux@tycho.nsa.gov>; Wed, 28 Mar 2018 20:40:18 -0700 (PDT)
 Received: from localhost.localdomain (c-76-100-110-125.hsd1.md.comcast.net.
  [76.100.110.125])
- by smtp.gmail.com with ESMTPSA id b10sm3745189qtg.78.2018.03.28.20.40.17
+ by smtp.gmail.com with ESMTPSA id b10sm3745189qtg.78.2018.03.28.20.40.16
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
  Wed, 28 Mar 2018 20:40:17 -0700 (PDT)
 From: Yuli Khodorkovskiy <ykhodo@gmail.com>
 To: selinux@tycho.nsa.gov
-Date: Wed, 28 Mar 2018 20:40:02 -0700
-Message-Id: <20180329034003.2231-2-ykhodo@gmail.com>
-In-Reply-To: <20180329034003.2231-1-ykhodo@gmail.com>
-References: <20180329034003.2231-1-ykhodo@gmail.com>
-Subject: [PATCH v2 1/2] libselinux: verify file_contexts when using restorecon
+Date: Wed, 28 Mar 2018 20:40:01 -0700
+Message-Id: <20180329034003.2231-1-ykhodo@gmail.com>
+Subject: [PATCH v2 0/2] restorecon context validation improvement
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In permissive mode, calling restorecon with a bad label in file_contexts
-does not verify the label's existence in the loaded policy. This
-results in any label successfully applying to a file, as long as the
-file exists.
+In permissive, if a bad label is written to a file_context file,
+restorecon will not verify the label before succesfully applying the
+context. These patches fix validation of labels during restorecon
+while not breaking current behavior of lazy validation.
 
-This issue has two assumptions:
+Yuli Khodorkovskiy (2):
+  libselinux: verify file_contexts when using restorecon
+  libselinux: echo line number of bad label in selabel_fini()
 
-1) file_contexts must be manually updated with the invalid label.
-Running `semanage fcontext` will error when attempting to add
-an invalid label to file_contexts.
-2) the system must be in permissive. Although applying an invalid label
-in enforcing gives an error and fails, successfully labeling a file with a
-bad label could cause issues during policy development in permissive.
+ libselinux/src/label.c          | 4 ++--
+ libselinux/src/label_file.h     | 1 +
+ libselinux/src/label_internal.h | 1 +
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
-Instead, as each context is used, verify it is valid before blindly
-applying the label. If an error with validation occurs in restorecon,
-application of remaining valid labels will be uninterrupted as before.
-
-Signed-off-by: Yuli Khodorkovskiy <ykhodo@gmail.com>
----
- libselinux/src/label.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-index 48f4d2d6..e642a97b 100644
---- a/libselinux/src/label.c
-+++ b/libselinux/src/label.c
-@@ -126,7 +126,7 @@ int selabel_validate(struct selabel_handle *rec,
- {
- 	int rc = 0;
- 
--	if (!rec->validating || contexts->validated)
-+	if (contexts->validated)
- 		goto out;
- 
- 	rc = selinux_validate(&contexts->ctx_raw);
 -- 
 2.14.3
