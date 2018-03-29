@@ -1,47 +1,60 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w2T50wai003468
- for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2018 01:00:58 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC12.oob.disa.mil (Postfix) with SMTP id 40BXdL5495z1pFTX
- for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2018 05:00:54 +0000 (UTC)
-Received: from UPBD19PA06.eemsg.mil (unknown [192.168.18.7])
- by UPDCF3IC12.oob.disa.mil (Postfix) with ESMTP id 40BXdL3cWfz1pFT8
- for <selinux@tycho.nsa.gov>; Thu, 29 Mar 2018 05:00:54 +0000 (UTC)
-Received: by mail-oi0-f65.google.com with SMTP id z8-v6so4129355oix.2
- for <selinux@tycho.nsa.gov>; Wed, 28 Mar 2018 22:00:53 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <20180329034003.2231-1-ykhodo@gmail.com>
+To: Yuli Khodorkovskiy <ykhodo@gmail.com>, selinux@tycho.nsa.gov
 References: <20180329034003.2231-1-ykhodo@gmail.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Wed, 28 Mar 2018 22:00:51 -0700
-Message-ID: <CAFftDdpA8uN-UXWpDEG5gE_sM=_E8miu7kUsh8-_7OuLwt9DOQ@mail.gmail.com>
-To: Yuli Khodorkovskiy <ykhodo@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v2 0/2] restorecon context validation improvement
+ <20180329034003.2231-2-ykhodo@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <f2409ffd-fc1e-f1ac-6618-740130a87d96@tycho.nsa.gov>
+Date: Thu, 29 Mar 2018 08:37:14 -0400
+MIME-Version: 1.0
+In-Reply-To: <20180329034003.2231-2-ykhodo@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH v2 1/2] libselinux: verify file_contexts when using
+ restorecon
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Mar 28, 2018 at 8:40 PM, Yuli Khodorkovskiy <ykhodo@gmail.com> wrote:
-> In permissive, if a bad label is written to a file_context file,
-> restorecon will not verify the label before succesfully applying the
-> context. These patches fix validation of labels during restorecon
-> while not breaking current behavior of lazy validation.
->
-> Yuli Khodorkovskiy (2):
->   libselinux: verify file_contexts when using restorecon
->   libselinux: echo line number of bad label in selabel_fini()
->
->  libselinux/src/label.c          | 4 ++--
->  libselinux/src/label_file.h     | 1 +
->  libselinux/src/label_internal.h | 1 +
->  3 files changed, 4 insertions(+), 2 deletions(-)
->
-> --
-> 2.14.3
->
->
+On 03/28/2018 11:40 PM, Yuli Khodorkovskiy wrote:
+> In permissive mode, calling restorecon with a bad label in file_contexts
+> does not verify the label's existence in the loaded policy. This
+> results in any label successfully applying to a file, as long as the
+> file exists.
+> 
+> This issue has two assumptions:
+> 
+> 1) file_contexts must be manually updated with the invalid label.
+> Running `semanage fcontext` will error when attempting to add
+> an invalid label to file_contexts.
+> 2) the system must be in permissive. Although applying an invalid label
+> in enforcing gives an error and fails, successfully labeling a file with a
+> bad label could cause issues during policy development in permissive.
+> 
+> Instead, as each context is used, verify it is valid before blindly
+> applying the label. If an error with validation occurs in restorecon,
+> application of remaining valid labels will be uninterrupted as before.
+> 
+> Signed-off-by: Yuli Khodorkovskiy <ykhodo@gmail.com>
+> ---
+>  libselinux/src/label.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+> index 48f4d2d6..e642a97b 100644
+> --- a/libselinux/src/label.c
+> +++ b/libselinux/src/label.c
+> @@ -126,7 +126,7 @@ int selabel_validate(struct selabel_handle *rec,
+>  {
+>  	int rc = 0;
+>  
+> -	if (!rec->validating || contexts->validated)
+> +	if (contexts->validated)
+>  		goto out;
+>  
+>  	rc = selinux_validate(&contexts->ctx_raw);
+> 
 
-ack, LGTM.
+label.c: In function ‘selabel_validate’:
+label.c:124:45: error: unused parameter ‘rec’ [-Werror=unused-parameter]
+ int selabel_validate(struct selabel_handle *rec,
+                                             ^~~
+Need to drop the rec argument to selabel_validate() since it is no longer used.
