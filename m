@@ -1,97 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w37GsSHD007431
- for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2018 12:54:28 -0400
-Message-ID: <1523120055.31267.13.camel@btinternet.com>
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>, Paul Moore
- <paul@paul-moore.com>, Xin Long <lucien.xin@gmail.com>
-Cc: selinux@tycho.nsa.gov, LSM List <linux-security-module@vger.kernel.org>,
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w38Cjsiw027128
+ for <selinux@tycho.nsa.gov>; Sun, 8 Apr 2018 08:45:54 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC07.oob.disa.mil (Postfix) with SMTP id 40JtTB14p7z1x08Z
+ for <selinux@tycho.nsa.gov>; Sun,  8 Apr 2018 12:45:50 +0000 (UTC)
+Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
+ by UPDCF3IC07.oob.disa.mil (Postfix) with ESMTP id 40JtTB09bHz1wybx
+ for <selinux@tycho.nsa.gov>; Sun,  8 Apr 2018 12:45:50 +0000 (UTC)
+Received: by mail-qk0-f194.google.com with SMTP id w6so6341238qkb.4
+ for <selinux@tycho.nsa.gov>; Sun, 08 Apr 2018 05:45:48 -0700 (PDT)
+From: Paul Moore <paul@paul-moore.com>
+To: Xin Long <lucien.xin@gmail.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>
+CC: <selinux@tycho.nsa.gov>, LSM List <linux-security-module@vger.kernel.org>,
  Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Sat, 07 Apr 2018 17:54:15 +0100
-In-Reply-To: <CA+55aFzzxfAL+Khed9nc-RzB2P3FxrCgr6Whmh_bYondTQvO6A@mail.gmail.com>
+Date: Sun, 08 Apr 2018 08:45:45 -0400
+Message-ID: <162a54a7ca8.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+In-Reply-To: <CADvbK_dCWw5D572zB8Ohvv1+xcrTJNjmjjfqmjQAsfHZGRSFyg@mail.gmail.com>
 References: <CAHC9VhQExmdXutVEhysGzf95CDzO_0sXFWQqndeeuChQ=0xbmA@mail.gmail.com>
  <CA+55aFzzxfAL+Khed9nc-RzB2P3FxrCgr6Whmh_bYondTQvO6A@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
+ <CADvbK_dCWw5D572zB8Ohvv1+xcrTJNjmjjfqmjQAsfHZGRSFyg@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Subject: Re: [GIT PULL] SELinux patches for v4.17
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, 2018-04-06 at 16:07 -0700, Linus Torvalds wrote:
-> On Tue, Apr 3, 2018 at 6:37 PM, Paul Moore <paul@paul-moore.com>
-> wrote:
-> > 
-> > Everything passes the selinux-testsuite, but there are a few known
-> > merge conflicts.  The first is with the netdev tree and is in
-> > net/sctp/socket.c.  Unfortunately it is a bit ugly, thankfully
-> > Stephen
-> > Rothwell has already done the heavy lifting in resolving the merge
-> > for
-> > you, and the SCTP folks have given his merge patch a thumbs-up.
-> 
-> I ended up re-doing the merge, and it looks like some more sctp
-> changes happened after Stephen's merge anyway, so mine didn't end up
-> quite like his.
-> 
-> Adding Xin Long to see if he can verify it again, but it all *looks*
-> sane.
-> 
-> While looking at it, it struck me that the new security hooks don't
-> seem to hook into __sctp_connect(), which also does that
-> 
->                         scope = sctp_scope(&to);
->                         asoc = sctp_association_new(ep, sk, scope,
-> GFP_KERNEL);
-> 
-> thing. Is that intentional? The sendmsg case does that
-> security_sctp_bind_connect, the actual __sctp_connect() does not.
-> 
-> This is not because I screwed up the merge - it's that way in the
-> SELinux tree too. And I obviously _left_ it that way, but while doing
-> the merge and trying to understand what was going on, this struck me.
-> 
-> I'm probably missing something really obvious why the connect case
-> doesn't want to do it thgere.
-> 
-> NOTE! I do see it being done in __sctp_setsockopt_connectx(). But
-> __sctp_connect() has another caller (in sctp_connect()) which doesn't
-> have that security_sctp_bind_connect() call.
-> 
-> So please check my resolution, but also somebody should tell me
-> "Linus, you're a cretin, sctp_connect() doesn't want that
-> security_sctp_bind_connect() at all because it was already done by
-> XYZ"
-> 
->                  Linus
+On April 8, 2018 2:13:51 AM Xin Long <lucien.xin@gmail.com> wrote:
+On Sat, Apr 7, 2018 at 7:07 AM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+On Tue, Apr 3, 2018 at 6:37 PM, Paul Moore <paul@paul-moore.com> wrote:
 
-Thought I would answer the questions as I wrote the SELinux/SCTP
-patches.
+Everything passes the selinux-testsuite, but there are a few known
+merge conflicts.  The first is with the netdev tree and is in
+net/sctp/socket.c.  Unfortunately it is a bit ugly, thankfully Stephen
+Rothwell has already done the heavy lifting in resolving the merge for
+you, and the SCTP folks have given his merge patch a thumbs-up.
 
-sctp_connect() or __sctp_connect() do not need to call
-security_sctp_bind_connect(). This is because the connect(2) call will
-handle the checks required via security_socket_connect():
+I ended up re-doing the merge, and it looks like some more sctp
+changes happened after Stephen's merge anyway, so mine didn't end up
+quite like his.
+You're right, a sctp fix went into net-next after Stephen's that merge.
+https://patchwork.ozlabs.org/patch/884469/ (v1)
+https://patchwork.ozlabs.org/patch/884971/ (v2)
 
-       connect(2)
-          |
- SYSCALL_DEFINE3(connect, ....)
-          |
-   security_socket_connect()
-          |
-     sctp_connect()
+Which caused the resolution to have changed again.
 
-SCTP uses security_sctp_bind_connect() as this can handle one or more
-addresses for either sctp_connectx(3) or sctp_bindx(3). It is also used
-for handling the sendmsg(2) and sctp_sendmsg(3) calls in SCTP for a new
-association (that is effectively a "connect").
+I've checked the new resolution on your tree, the SCTP part is all good.
 
-Hope this helps
+Thanks for double checking that Xin.
 
-Richard
-
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-
-> security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--
+paul moore
+www.paul-moore.com
