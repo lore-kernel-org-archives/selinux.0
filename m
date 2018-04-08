@@ -1,20 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w37H42mn008054
- for <selinux@tycho.nsa.gov>; Sat, 7 Apr 2018 13:04:03 -0400
-Received: by mail-io0-f176.google.com with SMTP id q84so5121330iod.10
- for <selinux@tycho.nsa.gov>; Sat, 07 Apr 2018 10:03:57 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w386DvHV009783
+ for <selinux@tycho.nsa.gov>; Sun, 8 Apr 2018 02:13:57 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID16.oob.disa.mil (Postfix) with SMTP id 40Jjmw0yRFzQ5Wf
+ for <selinux@tycho.nsa.gov>; Sun,  8 Apr 2018 06:13:52 +0000 (UTC)
+Received: from USFB3CPA02_EEMSG_MP24.eemsg.mil (unknown [192.168.16.19])
+ by USFBF3ID16.oob.disa.mil (Postfix) with ESMTP id 40Jjmv6VSZzQ5Wd
+ for <selinux@tycho.nsa.gov>; Sun,  8 Apr 2018 06:13:51 +0000 (UTC)
+Received: by mail-io0-f194.google.com with SMTP id p139so6104149iod.0
+ for <selinux@tycho.nsa.gov>; Sat, 07 Apr 2018 23:13:51 -0700 (PDT)
 MIME-Version: 1.0
-Sender: linus971@gmail.com
-In-Reply-To: <1523120055.31267.13.camel@btinternet.com>
+In-Reply-To: <CA+55aFzzxfAL+Khed9nc-RzB2P3FxrCgr6Whmh_bYondTQvO6A@mail.gmail.com>
 References: <CAHC9VhQExmdXutVEhysGzf95CDzO_0sXFWQqndeeuChQ=0xbmA@mail.gmail.com>
  <CA+55aFzzxfAL+Khed9nc-RzB2P3FxrCgr6Whmh_bYondTQvO6A@mail.gmail.com>
- <1523120055.31267.13.camel@btinternet.com>
-From: Linus Torvalds <torvalds@linux-foundation.org>
-Date: Sat, 7 Apr 2018 10:03:56 -0700
-Message-ID: <CA+55aFxo4Z3S7qG66esSL_qxg5jwzcFgZpYR0gRpto4Z_yghTQ@mail.gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: Paul Moore <paul@paul-moore.com>, Xin Long <lucien.xin@gmail.com>,
- selinux@tycho.nsa.gov, LSM List <linux-security-module@vger.kernel.org>,
+From: Xin Long <lucien.xin@gmail.com>
+Date: Sun, 8 Apr 2018 14:13:49 +0800
+Message-ID: <CADvbK_dCWw5D572zB8Ohvv1+xcrTJNjmjjfqmjQAsfHZGRSFyg@mail.gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul Moore <paul@paul-moore.com>, selinux@tycho.nsa.gov,
+ LSM List <linux-security-module@vger.kernel.org>,
  Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [GIT PULL] SELinux patches for v4.17
@@ -23,23 +27,26 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, Apr 7, 2018 at 9:54 AM, Richard Haines
-<richard_c_haines@btinternet.com> wrote:
+On Sat, Apr 7, 2018 at 7:07 AM, Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Tue, Apr 3, 2018 at 6:37 PM, Paul Moore <paul@paul-moore.com> wrote:
 >>
->> So please check my resolution, but also somebody should tell me
->> "Linus, you're a cretin, sctp_connect() doesn't want that
->> security_sctp_bind_connect() at all because it was already done by
->> XYZ"
+>> Everything passes the selinux-testsuite, but there are a few known
+>> merge conflicts.  The first is with the netdev tree and is in
+>> net/sctp/socket.c.  Unfortunately it is a bit ugly, thankfully Stephen
+>> Rothwell has already done the heavy lifting in resolving the merge for
+>> you, and the SCTP folks have given his merge patch a thumbs-up.
 >
-> sctp_connect() or __sctp_connect() do not need to call
-> security_sctp_bind_connect(). This is because the connect(2) call will
-> handle the checks required via security_socket_connect():
+> I ended up re-doing the merge, and it looks like some more sctp
+> changes happened after Stephen's merge anyway, so mine didn't end up
+ > quite like his.
+>
+You're right, a sctp fix went into net-next after Stephen's that merge.
+https://patchwork.ozlabs.org/patch/884469/ (v1)
+https://patchwork.ozlabs.org/patch/884971/ (v2)
 
-Ok, thanks, that's exactly what I wanted to get.
+Which caused the resolution to have changed again.
 
-Anyway, somebody should still verify that it all looks good in my
-tree, but I don't actually expect the merge to have had any issues
-even if the refactoring made it a bit more complex than most merges
-are.
+I've checked the new resolution on your tree, the SCTP part is all good.
 
-                      Linus
+Thanks.
