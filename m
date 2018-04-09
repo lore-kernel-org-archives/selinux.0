@@ -1,167 +1,73 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w395Vd8u023118
- for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2018 01:31:39 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC09.oob.disa.mil (Postfix) with SMTP id 40KJn95WJPz2NjRY
- for <selinux@tycho.nsa.gov>; Mon,  9 Apr 2018 05:31:09 +0000 (UTC)
-Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
- by UPDCF3IC09.oob.disa.mil (Postfix) with ESMTP id 40KJn94Gv7z2NjRV
- for <selinux@tycho.nsa.gov>; Mon,  9 Apr 2018 05:31:09 +0000 (UTC)
-Received: by mail-it0-f41.google.com with SMTP id b5-v6so9265031itj.1
- for <selinux@tycho.nsa.gov>; Sun, 08 Apr 2018 22:31:08 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w39Cuub7024907
+ for <selinux@tycho.nsa.gov>; Mon, 9 Apr 2018 08:56:56 -0400
+Received: from gtierney.internal.digirati.com ([62.254.125.26]) by
+ mail.gmx.com (mrgmx003 [212.227.17.184]) with ESMTPSA (Nemesis) id
+ 0MYP57-1f0lDn2qZt-00V91z for <selinux@tycho.nsa.gov>; Mon, 09 Apr 2018
+ 14:56:18 +0200
+Date: Mon, 9 Apr 2018 13:56:16 +0100
+From: Gary Tierney <gary.tierney@gmx.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <20180409125616.GA12076@gtierney.internal.digirati.com>
+References: <6a2368f9-5979-737f-ca56-2e8b85e90e93@redhat.com>
+ <20180409075523.GA2087@julius.enp8s0.d30>
+ <20180409084124.GB2087@julius.enp8s0.d30>
+ <d72be794-a882-a7ff-381b-fd1ffb78d0c8@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <1523227451.5003.1.camel@btinternet.com>
-References: <CAHC9VhQExmdXutVEhysGzf95CDzO_0sXFWQqndeeuChQ=0xbmA@mail.gmail.com>
- <CA+55aFzzxfAL+Khed9nc-RzB2P3FxrCgr6Whmh_bYondTQvO6A@mail.gmail.com>
- <1523120055.31267.13.camel@btinternet.com>
- <CA+55aFxo4Z3S7qG66esSL_qxg5jwzcFgZpYR0gRpto4Z_yghTQ@mail.gmail.com>
- <162a54f1470.2781.85c95baa4474aabc7814e68940a78392@paul-moore.com>
- <1523196560.6192.3.camel@btinternet.com>
- <CADvbK_eFNkA5uJ36sBEFxWnWXLOPwKyvgUuTHJG96g0zxOwPLg@mail.gmail.com>
- <1523213955.3552.9.camel@btinternet.com>
- <1523227451.5003.1.camel@btinternet.com>
-From: Xin Long <lucien.xin@gmail.com>
-Date: Mon, 9 Apr 2018 13:31:05 +0800
-Message-ID: <CADvbK_chP8w+9+mUscLs3vgcepv+J+wTW5QRSE3HK2AvyBjGGQ@mail.gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: LSM List <linux-security-module@vger.kernel.org>,
- Linus Torvalds <torvalds@linux-foundation.org>, selinux@tycho.nsa.gov,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [GIT PULL] SELinux patches for v4.17
+Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <d72be794-a882-a7ff-381b-fd1ffb78d0c8@redhat.com>
+Subject: Re: CIL namespaces and blockinheritfilter keyword.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Apr 9, 2018 at 6:44 AM, Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> On Sun, 2018-04-08 at 19:59 +0100, Richard Haines via Selinux wrote:
->> On Mon, 2018-04-09 at 01:43 +0800, Xin Long wrote:
->> > On Sun, Apr 8, 2018 at 10:09 PM, Richard Haines
->> > <richard_c_haines@btinternet.com> wrote:
->> > > On Sun, 2018-04-08 at 08:50 -0400, Paul Moore wrote:
->> > > > On April 7, 2018 1:03:57 PM Linus Torvalds <torvalds@linux-foun
->> > > > da
->> > > > tion
->> > > > .org> wrote:
->> > > > On Sat, Apr 7, 2018 at 9:54 AM, Richard Haines
->> > > > <richard_c_haines@btinternet.com> wrote:
->> > > >
->> > > > So please check my resolution, but also somebody should tell me
->> > > > "Linus, you're a cretin, sctp_connect() doesn't want that
->> > > > security_sctp_bind_connect() at all because it was already done
->> > > > by
->> > > > XYZ"
->> > > >
->> > > > sctp_connect() or __sctp_connect() do not need to call
->> > > > security_sctp_bind_connect(). This is because the connect(2)
->> > > > call
->> > > > will
->> > > > handle the checks required via security_socket_connect():
->> > > >
->> > > > Ok, thanks, that's exactly what I wanted to get.
->> > > >
->> > > > Anyway, somebody should still verify that it all looks good in
->> > > > my
->> > > > tree, but I don't actually expect the merge to have had any
->> > > > issues
->> > > > even if the refactoring made it a bit more complex than most
->> > > > merges
->> > > > are.
->> > > >
->> > > > Thanks for the quick response Richard.
->> > > >
->> > > > Xin Long looked it over and gave it the thumbs up, I'll take a
->> > > > look
->> > > > too, but to be honest I trust his SCTP understanding much more
->> > > > than
->> > > > mine.  I also do weekly tests of each rcX release at a minimum
->> > > > so
->> > > > if
->> > > > something odd pops up I'll make sure you get a fix.
->> > > >
->> > > > Thanks again everyone.
->> > >
->> > > I built the kernel this morning and sorry to spoil the party, but
->> > > I've
->> > > run into a problem with lksctp-tools when running the func_tests:
->> > >
->> > > make v6test
->> > > ..
->> > > ..
->> > > ./test_timetolive_v6
->> > > test_timetolive.c  0 INFO : Creating fillmsg of size 3087
->> > > test_timetolive.c  1 PASS : Send a message with timeout
->> > > test_timetolive.c  2 PASS : Send a message with no timeout
->> > > test_timetolive.c  3 PASS : Send a fragmented message with
->> > > timeout
->> > > test_timetolive.c  0 INFO :  **  SLEEPING for 3 seconds **
->> > > test_timetolive.c  4 BROK : Got a datamsg of unexpected
->> > > length:23,
->> > > expected length:27
->> > > DUMP_CORE sctputil.c: 247
->> > > /bin/sh: line 1: 30981 Segmentation fault      (core dumped) ./$a
->> > > test_timetolive_v6 fails
->> > >
->> > > make v4 test fails the same way. I'm using lksctp-tools from [1].
->> > > I
->> > > have not investigated the cause yet as just found this and
->> > > thought
->> > > I
->> > > should flag first just in case someone has the answer !!!
->> >
->> > test_timetolive(_v6) works for me, In lksctp-tools/src/func_tests,
->> > I
->> > had
->> > another case failed,./test_1_to_1_events,  it's caused by:
->> > commit 30f6ebf65bc46161c5aaff1db2e6e7c76aa4a06b
->> > Author: Xin Long <lucien.xin@gmail.com>
->> > Date:   Wed Mar 14 19:05:34 2018 +0800
->> >
->> >     sctp: add SCTP_AUTH_NO_AUTH type for AUTHENTICATION_EVENT
->> >
->> > It's not kernel's issue, after that commit, ./test_1_to_1_events
->> > should
->> > have been improved. or avoid it by 'sysctl -w
->> > net.sctp.auth_enable=1'
->> >
->> > I'm not sure why test_timetolive(_v6) is not working in your env.
->>
->> It appears to depend on the run sequence of the tests. I rebooted the
->> system, ran test_timetolive_v6, it worked okay.
->> Ran "sctp-tests run" on a terminal, then ran test_timetolive_v6 at
->> various intervals on another terminal. Once sctp-tests started the
->> "===
->> ndatasched ===" sequence, test_timetolive_v6 failed.
+On Mon, Apr 09, 2018 at 01:41:12PM +0200, Lukas Vrabec wrote:
+
+... snip ...
+
+Those wiki pages on SELinuxProject/cil are now pretty out of date 
+(you'll notice that some other statements mentioned there like 
+`template` are not implemented as well).  The updated documentation is 
+at https://github.com/SELinuxProject/selinux/tree/master/secilc/docs.
+
+>Hi Dominick,
 >
-> 1) When SCTP is initialised /proc/sys/net/sctp/prsctp_enable = 1
-> 2) When sctp-tests/testcase/regression/extoverflow/test.sh is executed,
-> on exit it sets prsctp_enable = 0. This seems to be causing the issue
-> I'm seeing. I can now simulate the problem:
+>Yes, This is one of the options to create hierarchy when the block on
+>top will have just minimum rules and every child block will append new
+>rules.
 >
-> Running from fresh boot:
-> checksctp
-> cat /proc/sys/net/sctp/prsctp_enable
-> 1
-> ./test_timetolive_v6
-> passes
-> echo 0 > /proc/sys/net/sctp/prsctp_enable
-> ./test_timetolive_v6
-> fails
-> echo 1 > /proc/sys/net/sctp/prsctp_enable
-> ./test_timetolive_v6
-> passes
-I see ...
+>Unfortunately, this probably won't work in real world. Let's say that I
+>have this hierarchy and badlogger block contains several allow rules and
+>I want to inherit all of them except one, *BUT* I'm not SELinux policy
+>expert and don't know how hierarchy looks like. That's the reason why
+>I'm looking for blockinheritfilter.
+>
 
-commit 8ae808eb853e3789b81b8a502cdf22bb01b76880
-Author: Xin Long <lucien.xin@gmail.com>
-Date:   Sat Oct 8 11:40:16 2016 +0800
+I think it's more reasonable for someone not intimate with the policy to
+familiarize themselves with the hierarchy/composition of a well structured
+policy, rather than what they may need to disallow in a given scope (which may
+come from other inherited blocks, calls to macros, or `in` statements scattered
+across several policy modules).  This means they can compose their policy out
+of high level building blocks rather than low level allow rules (which arguably
+would require a policy expert to fully understand the implications of).
 
-    sctp: remove the old ttl expires policy
+"blockinheritfilter" also seems to be at odds with the permission
+whitelisting/deny-by-default model of SELinux by having the policy author
+revoke permissions rather than permit them.
 
-ttl expire is considered as one of the prsctp policies after
-this commit, so prsctp_enable is required. I will think to
-update this test case in lksctp-tools.
+Thanks,
+Gary.
 
-Thanks for the reproducer.
+>However, we should go via creating block namespaces hierarchy as you
+>described if there are no plans to implement this feature.
+>
+>Thanks,
+>Lukas.
+>
+>
+>-- 
+>Lukas Vrabec
+>Software Engineer, Security Technologies
+>Red Hat, Inc.
+>
