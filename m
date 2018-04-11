@@ -1,135 +1,103 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3BHf9Uk027523
- for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 13:41:09 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
- [10.11.54.4])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id C83398160F99
- for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 17:40:59 +0000 (UTC)
-Received: from [10.40.204.88] (ovpn-204-88.brq.redhat.com [10.40.204.88])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 2D8C72026E03
- for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 17:40:58 +0000 (UTC)
-To: selinux@tycho.nsa.gov
-References: <20180406124909.3603-1-vmojzis@redhat.com>
- <fe8e7ba6-0e90-0495-4b49-6ef54e6e6cc7@tycho.nsa.gov>
-From: Lukas Vrabec <lvrabec@redhat.com>
-Message-ID: <7e53c7ee-0e0f-84ac-45d3-2792ab844d60@redhat.com>
-Date: Wed, 11 Apr 2018 19:40:54 +0200
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3BL8frD023977
+ for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 17:08:41 -0400
+Received: by mail-lf0-f65.google.com with SMTP id q5-v6so4611961lff.12
+ for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 14:08:35 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <fe8e7ba6-0e90-0495-4b49-6ef54e6e6cc7@tycho.nsa.gov>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="P7p0a5FgFWq3ln6svT3NG2PSU5ZsQ7Zio"
-Subject: Re: [PATCH] python/sepolicy: Fix type for cgi scripts
+In-Reply-To: <6b939250a519668af109adf877d85ff018b217d7.1523316267.git.rgb@redhat.com>
+References: <6b939250a519668af109adf877d85ff018b217d7.1523316267.git.rgb@redhat.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 11 Apr 2018 17:08:34 -0400
+Message-ID: <CAHC9VhQzt4-f5zYkh18NWcp0HALXNR3iB+jeGOPkxdZZx8SdLQ@mail.gmail.com>
+To: Richard Guy Briggs <rgb@redhat.com>
+Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
+ LKML <linux-kernel@vger.kernel.org>, SElinux list <selinux@tycho.nsa.gov>,
+ Linux Security Module list <linux-security-module@vger.kernel.org>,
+ Eric Paris <eparis@redhat.com>, Steve Grubb <sgrubb@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH ghak46 V1] audit: normalize MAC_STATUS record
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---P7p0a5FgFWq3ln6svT3NG2PSU5ZsQ7Zio
-Content-Type: multipart/mixed; boundary="XL6hG3uCInDfHCzkLTJxswgm9RpgizwU3";
- protected-headers="v1"
-From: Lukas Vrabec <lvrabec@redhat.com>
-To: selinux@tycho.nsa.gov
-Message-ID: <7e53c7ee-0e0f-84ac-45d3-2792ab844d60@redhat.com>
-Subject: Re: [PATCH] python/sepolicy: Fix type for cgi scripts
-References: <20180406124909.3603-1-vmojzis@redhat.com>
- <fe8e7ba6-0e90-0495-4b49-6ef54e6e6cc7@tycho.nsa.gov>
-In-Reply-To: <fe8e7ba6-0e90-0495-4b49-6ef54e6e6cc7@tycho.nsa.gov>
+On Mon, Apr 9, 2018 at 7:34 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
+> There were two formats of the audit MAC_STATUS record, one of which was more
+> standard than the other.  One listed enforcing status changes and the
+> other listed enabled status changes with a non-standard label.  In
+> addition, the record was missing information about which LSM was
+> responsible and the operation's completion status.  While this record is
+> only issued on success, the parser expects the res= field to be present.
+>
+> old enforcing/permissive:
+> type=MAC_STATUS msg=audit(1523312831.378:24514): enforcing=0 old_enforcing=1 auid=0 ses=1
+> old enable/disable:
+> type=MAC_STATUS msg=audit(1523312831.378:24514): selinux=0 auid=0 ses=1
+>
+> List both sets of status and old values and add the lsm= field and the
+> res= field.
+>
+> Here is the new format:
+> type=MAC_STATUS msg=audit(1523293828.657:891): enforcing=0 old_enforcing=1 auid=0 ses=1 enabled=1 old-enabled=1 lsm=selinux res=1
+>
+> This record already accompanied a SYSCALL record.
+>
+> See: https://github.com/linux-audit/audit-kernel/issues/46
+> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> ---
+>  security/selinux/selinuxfs.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+>
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 00eed84..00b21b2 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -145,10 +145,11 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+>                 if (length)
+>                         goto out;
+>                 audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
+> -                       "enforcing=%d old_enforcing=%d auid=%u ses=%u",
+> +                       "enforcing=%d old_enforcing=%d auid=%u ses=%u"
+> +                       " enabled=%d old-enabled=%d lsm=selinux res=1",
+>                         new_value, selinux_enforcing,
+>                         from_kuid(&init_user_ns, audit_get_loginuid(current)),
+> -                       audit_get_sessionid(current));
+> +                       audit_get_sessionid(current), selinux_enabled, selinux_enabled);
 
---XL6hG3uCInDfHCzkLTJxswgm9RpgizwU3
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+This looks fine.
 
-On 04/11/2018 04:26 PM, Stephen Smalley wrote:
-> On 04/06/2018 08:49 AM, Vit Mojzis wrote:
->> The type generated by apache_content_template macro for cgi scripts
->> changed from httpd_$1_script_t to $1_script_t.
->> Update sepolicy accordingly.
->>
->> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=3D1271324
->=20
-> This seems to be a change only present in Fedora policy, not upstream
-> refpolicy.  So merging this would break users of refpolicy and
-> potentially distributions other than Fedora.  Why was this change made,=
-> and why wasn't a typealias added to preserve compatibility?
->=20
+>                 selinux_enforcing = new_value;
+>                 if (selinux_enforcing)
+>                         avc_ss_reset(0);
+> @@ -272,9 +273,11 @@ static ssize_t sel_write_disable(struct file *file, const char __user *buf,
+>                 if (length)
+>                         goto out;
+>                 audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_STATUS,
+> -                       "selinux=0 auid=%u ses=%u",
+> +                       "enforcing=%d old_enforcing=%d auid=%u ses=%u"
+> +                       " enabled=%d old-enabled=%d lsm=selinux res=1",
+> +                       selinux_enforcing, selinux_enforcing,
+>                         from_kuid(&init_user_ns, audit_get_loginuid(current)),
+> -                       audit_get_sessionid(current));
+> +                       audit_get_sessionid(current), 0, 1);
 
-Hi Stephen,
+It needs to be said again that I'm opposed to changes like this:
+inserting new fields, removing fields, or otherwise changing the
+format in ways that aren't strictly the addition of new fields to the
+end of a record is a Bad Thing.  However, there are exceptions (there
+are *always* exceptions), and this seems like a reasonable change that
+shouldn't negatively affect anyone.
 
-You're right with this change, however commit in our selinux-policy
-sources changing this is from 2013. I will look on it and add proper
-typealiases.
+I'll merge this once the merge window comes to a close (we are going
+to need to base selinux/next on v4.17-rc1).
 
-Thanks for heads up.
-Lukas.
+>         }
+>
+>         length = count;
+> --
+> 1.8.3.1
+>
 
->>
->> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->> ---
->>  python/sepolicy/sepolicy/generate.py             | 2 +-
->>  python/sepolicy/sepolicy/templates/executable.py | 2 +-
->>  2 files changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/se=
-policy/generate.py
->> index f814e278..675b99d6 100644
->> --- a/python/sepolicy/sepolicy/generate.py
->> +++ b/python/sepolicy/sepolicy/generate.py
->> @@ -347,7 +347,7 @@ class policy:
->>              raise ValueError(_("Name must be alpha numberic with no s=
-paces. Consider using option \"-n MODULENAME\""))
->> =20
->>          if type =3D=3D CGI:
->> -            self.name =3D "httpd_%s_script" % name
->> +            self.name =3D "%s_script" % name
->>          else:
->>              self.name =3D name
->> =20
->> diff --git a/python/sepolicy/sepolicy/templates/executable.py b/python=
-/sepolicy/sepolicy/templates/executable.py
->> index f2679938..e1b17486 100644
->> --- a/python/sepolicy/sepolicy/templates/executable.py
->> +++ b/python/sepolicy/sepolicy/templates/executable.py
->> @@ -116,7 +116,7 @@ policy_module(TEMPLATETYPE, 1.0.0)
->> =20
->>  apache_content_template(TEMPLATETYPE)
->> =20
->> -permissive httpd_TEMPLATETYPE_script_t;
->> +permissive TEMPLATETYPE_script_t;
->>  """
->> =20
->>  te_daemon_rules=3D"""\
->>
->=20
-
-
---=20
-Lukas Vrabec
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
-
---XL6hG3uCInDfHCzkLTJxswgm9RpgizwU3--
-
---P7p0a5FgFWq3ln6svT3NG2PSU5ZsQ7Zio
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEE3wrP3ArXoyYgAS7LRyAaxC8pzgYFAlrOSKYACgkQRyAaxC8p
-zgaI6gf+LRZapPsNZ63Jr2mLQj0L2Q9HieQDImLdpFNWmCv3KshxUq47FmuPykEN
-ze+le5Gd0gC/oA8DUDYHyJe+d6oIu4FmeTZxoOGgjtOS+wZjL3Izo9RygDZlYeAa
-J9Ygmr0X+EuZOaxx5R/QsMsg+S2/zCc2elY5xi9m1VSoWdQx9Md2idAq+2dcJ2Xp
-SW1sS3bCGymAhSFLP6ZF6dxZhEK5iW4U0kiGnjHANnCw9oBj8RdKQ5+aO1BeCqCl
-dYcBsphWpa/93pRtIZf74FTzst2MFYWN+fcPuRc8uh4Ra/8DUq5HjIr6ZBQAffKF
-h+QJCmRfR6NVqtTS5Qdi80RK9KSsvQ==
-=2ouZ
------END PGP SIGNATURE-----
-
---P7p0a5FgFWq3ln6svT3NG2PSU5ZsQ7Zio--
+-- 
+paul moore
+www.paul-moore.com
