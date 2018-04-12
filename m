@@ -1,78 +1,68 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3BLBpHW024876
- for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 17:11:51 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3C7fcSK026278
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 03:41:38 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC15.oob.disa.mil (Postfix) with SMTP id 40LxYZ6yXLz2kr7X
- for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 21:11:46 +0000 (UTC)
-Received: from UPDC3CPA12_EEMSG_MP28.eemsg.mil (unknown [192.168.18.23])
- by UPDCF3IC15.oob.disa.mil (Postfix) with ESMTP id 40LxYZ5jXFz2kr7D
- for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 21:11:46 +0000 (UTC)
-Received: by mail-lf0-f68.google.com with SMTP id v207-v6so4631431lfa.10
- for <selinux@tycho.nsa.gov>; Wed, 11 Apr 2018 14:11:45 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <eb67b174e6a3d0fe174cc738d9109cd7fda96a9b.1523316291.git.rgb@redhat.com>
-References: <eb67b174e6a3d0fe174cc738d9109cd7fda96a9b.1523316291.git.rgb@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 11 Apr 2018 17:11:44 -0400
-Message-ID: <CAHC9VhTv_2ErGe38u+Z2CGY2BhNqbG0u_tqbMmwOYUsr4jJ3aQ@mail.gmail.com>
-To: Richard Guy Briggs <rgb@redhat.com>
-Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>, SElinux list <selinux@tycho.nsa.gov>,
- Linux Security Module list <linux-security-module@vger.kernel.org>,
- Eric Paris <eparis@redhat.com>, Steve Grubb <sgrubb@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH ghak47 V1] audit: normalize MAC_POLICY_LOAD
- record
+ by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 40MCXG1Rmdzg47K
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:34 +0000 (UTC)
+Received: from UPDC3CPA01.eemsg.mil (unknown [192.168.18.8])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 40MCXG0j0Czg46x
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:34 +0000 (UTC)
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.6])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id E7DA9EBFE5
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:30 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.160])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 8AC2D215CDC6
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:30 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Thu, 12 Apr 2018 09:41:26 +0200
+Message-Id: <20180412074126.26156-1-vmojzis@redhat.com>
+In-Reply-To: <7c0df9c3-db88-47fd-aff4-f7ff900194b0@tycho.nsa.gov>
+References: <7c0df9c3-db88-47fd-aff4-f7ff900194b0@tycho.nsa.gov>
+Subject: [PATCH] python/sepolgen: Try to translate SELinux contexts
+ to raw
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Apr 9, 2018 at 7:36 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> The audit MAC_POLICY_LOAD record had redundant dangling keywords and was
-> missing information about which LSM was responsible and its completion
-> status.  While this record is only issued on success, the parser expects
-> the res= field to be present.
->
-> Old record:
-> type=MAC_POLICY_LOAD msg=audit(1479299795.404:43): policy loaded auid=0 ses=1
->
-> Delete the redundant dangling keywords, add the lsm= field and the res=
-> field.
->
-> New record:
-> type=MAC_POLICY_LOAD msg=audit(1523293846.204:894): auid=0 ses=1 lsm=selinux res=1
->
-> See: https://github.com/linux-audit/audit-kernel/issues/47
-> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> ---
->  security/selinux/selinuxfs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 00b21b2..496915a 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -531,7 +531,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
->
->  out1:
->         audit_log(current->audit_context, GFP_KERNEL, AUDIT_MAC_POLICY_LOAD,
-> -               "policy loaded auid=%u ses=%u",
-> +               "auid=%u ses=%u lsm=selinux res=1",
+This allows sepolgen to generate policy from AVC messages that contain
+contexts translated by mcstrans.
 
-This is another case of NACK on principle, but I think we can make an
-exception in this particular case.
+Fixes:
 
-Also like the other patch, this will need to wait for the merge window
-to close before I can merge it.
+\# echo "type=USER_AVC msg=audit(1468415802.940:2199604): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0-s15:c0.c1023 msg='avc:  denied  { status } for auid=n/a uid=0 gid=0 cmdline="/usr/lib/systemd/systemd-logind" scontext=system_u:system_r:systemd_logind_t:SystemLow-SystemHigh tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=system  exe="/usr/lib/systemd/systemd" sauid=0 hostname=? addr=? terminal=?'" | audit2allow
 
->                 from_kuid(&init_user_ns, audit_get_loginuid(current)),
->                 audit_get_sessionid(current));
->  out:
-> --
-> 1.8.3.1
->
+libsepol.mls_from_string: invalid MLS context SystemLow-SystemHigh
+libsepol.mls_from_string: could not construct mls context structure
+libsepol.context_from_record: could not create context structure
+libsepol.context_from_string: could not create context structure
+libsepol.sepol_context_to_sid: could not convert
+system_u:system_r:systemd_logind_t:SystemLow-SystemHigh to sid
 
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ python/sepolgen/src/sepolgen/refpolicy.py | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/python/sepolgen/src/sepolgen/refpolicy.py b/python/sepolgen/src/sepolgen/refpolicy.py
+index 2ee029c1..352b1878 100644
+--- a/python/sepolgen/src/sepolgen/refpolicy.py
++++ b/python/sepolgen/src/sepolgen/refpolicy.py
+@@ -284,6 +284,11 @@ class SecurityContext(Leaf):
+ 
+         Raises ValueError if the string is not parsable as a security context.
+         """
++        # try to translate the context string to raw form
++        raw = selinux.selinux_trans_to_raw_context(context)
++        if raw[0] == 0:
++            context = raw[1]
++
+         fields = context.split(":")
+         if len(fields) < 3:
+             raise ValueError("context string [%s] not in a valid format" % context)
 -- 
-paul moore
-www.paul-moore.com
+2.14.3
