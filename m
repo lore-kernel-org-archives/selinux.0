@@ -1,68 +1,80 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3C7fcSK026278
- for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 03:41:38 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3CAQErs003319
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 06:26:14 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 40MCXG1Rmdzg47K
- for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:34 +0000 (UTC)
-Received: from UPDC3CPA01.eemsg.mil (unknown [192.168.18.8])
- by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 40MCXG0j0Czg46x
- for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:34 +0000 (UTC)
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com
- [10.11.54.6])
+ by UPDCF3IC03.oob.disa.mil (Postfix) with SMTP id 40MHB93tjmzJnW9
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 10:26:09 +0000 (UTC)
+Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
+ by UPDCF3IC03.oob.disa.mil (Postfix) with ESMTP id 40MHB937kRzJmrD
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 10:26:09 +0000 (UTC)
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id E7DA9EBFE5
- for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:30 +0000 (UTC)
+ by mx1.redhat.com (Postfix) with ESMTPS id 252B8EBFE5
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 10:26:06 +0000 (UTC)
 Received: from localhost.localdomain.com (unknown [10.43.12.160])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 8AC2D215CDC6
- for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 07:41:30 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id B8E7DDEEC6
+ for <selinux@tycho.nsa.gov>; Thu, 12 Apr 2018 10:26:05 +0000 (UTC)
 From: Vit Mojzis <vmojzis@redhat.com>
 To: selinux@tycho.nsa.gov
-Date: Thu, 12 Apr 2018 09:41:26 +0200
-Message-Id: <20180412074126.26156-1-vmojzis@redhat.com>
-In-Reply-To: <7c0df9c3-db88-47fd-aff4-f7ff900194b0@tycho.nsa.gov>
-References: <7c0df9c3-db88-47fd-aff4-f7ff900194b0@tycho.nsa.gov>
-Subject: [PATCH] python/sepolgen: Try to translate SELinux contexts
- to raw
+Date: Thu, 12 Apr 2018 12:26:01 +0200
+Message-Id: <20180412102601.32191-1-vmojzis@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH] libsemanage: do not change file mode of seusers and
+ users_extra
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This allows sepolgen to generate policy from AVC messages that contain
-contexts translated by mcstrans.
+Commit 8702a865e08b5660561e194a83e4a363061edc03 causes file mode of
+seusers and users_extra to change based on the value defined in config
+file whenever direct_commit is called and policy is not rebuilt.
+(e.g. when setting a boolean).
 
-Fixes:
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1512639
 
-\# echo "type=USER_AVC msg=audit(1468415802.940:2199604): pid=1 uid=0 auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0-s15:c0.c1023 msg='avc:  denied  { status } for auid=n/a uid=0 gid=0 cmdline="/usr/lib/systemd/systemd-logind" scontext=system_u:system_r:systemd_logind_t:SystemLow-SystemHigh tcontext=system_u:system_r:init_t:s0-s15:c0.c1023 tclass=system  exe="/usr/lib/systemd/systemd" sauid=0 hostname=? addr=? terminal=?'" | audit2allow
-
-libsepol.mls_from_string: invalid MLS context SystemLow-SystemHigh
-libsepol.mls_from_string: could not construct mls context structure
-libsepol.context_from_record: could not create context structure
-libsepol.context_from_string: could not create context structure
-libsepol.sepol_context_to_sid: could not convert
-system_u:system_r:systemd_logind_t:SystemLow-SystemHigh to sid
+$ ll /var/lib/selinux/targeted/active/users_extra
+-rw-------. 1 root root 101 11. dub 17.31 /var/lib/selinux/targeted/active/users_extra
+$ ll /var/lib/selinux/targeted/active/seusers
+-rw-------. 1 root root 73 11. dub 17.31 /var/lib/selinux/targeted/active/seusers
+$ semanage boolean -m --on httpd_can_network_connect
+$ ll /var/lib/selinux/targeted/active/seusers
+-rw-r--r--. 1 root root 73 23. bře 16.59 /var/lib/selinux/targeted/active/seusers
+$ ll /var/lib/selinux/targeted/active/users_extra
+-rw-r--r--. 1 root root 101 23. bře 16.59 /var/lib/selinux/targeted/active/users_extra
+$ rpm -Vq selinux-policy-targeted
+.M.....T.    /var/lib/selinux/targeted/active/seusers
+.M.....T.    /var/lib/selinux/targeted/active/users_extra
 
 Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- python/sepolgen/src/sepolgen/refpolicy.py | 5 +++++
- 1 file changed, 5 insertions(+)
+ libsemanage/src/direct_api.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/python/sepolgen/src/sepolgen/refpolicy.py b/python/sepolgen/src/sepolgen/refpolicy.py
-index 2ee029c1..352b1878 100644
---- a/python/sepolgen/src/sepolgen/refpolicy.py
-+++ b/python/sepolgen/src/sepolgen/refpolicy.py
-@@ -284,6 +284,11 @@ class SecurityContext(Leaf):
- 
-         Raises ValueError if the string is not parsable as a security context.
-         """
-+        # try to translate the context string to raw form
-+        raw = selinux.selinux_trans_to_raw_context(context)
-+        if raw[0] == 0:
-+            context = raw[1]
-+
-         fields = context.split(":")
-         if len(fields) < 3:
-             raise ValueError("context string [%s] not in a valid format" % context)
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index e7ec952f..c58961be 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -1481,7 +1481,7 @@ rebuild:
+ 			retval = semanage_copy_file(path,
+ 						    semanage_path(SEMANAGE_TMP,
+ 								  SEMANAGE_STORE_SEUSERS),
+-						    sh->conf->file_mode);
++						    0);
+ 			if (retval < 0)
+ 				goto cleanup;
+ 			pseusers->dtable->drop_cache(pseusers->dbase);
+@@ -1499,7 +1499,7 @@ rebuild:
+ 			retval = semanage_copy_file(path,
+ 						    semanage_path(SEMANAGE_TMP,
+ 								  SEMANAGE_USERS_EXTRA),
+-						    sh->conf->file_mode);
++						    0);
+ 			if (retval < 0)
+ 				goto cleanup;
+ 			pusers_extra->dtable->drop_cache(pusers_extra->dbase);
 -- 
 2.14.3
