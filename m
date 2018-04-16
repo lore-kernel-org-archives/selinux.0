@@ -1,93 +1,159 @@
-To: William Roberts <bill.c.roberts@gmail.com>,
- Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-References: <20180413203424.20542-1-nicolas.iooss@m4x.org>
- <20180413203424.20542-5-nicolas.iooss@m4x.org>
- <CAFftDdqZh7r6VE-f0f+hVEd0fXp89PZiubZTcLPcqgjfhNoqZw@mail.gmail.com>
- <186a7aed-f9ff-4144-d03a-ff8e83e8b851@tycho.nsa.gov>
- <CAFftDdpE+7ee7pE3GUUooh7vkGDRJLAJXZJ9Cpg2mVhH3xnDwQ@mail.gmail.com>
-From: jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <8e9cac32-27d5-8afd-81a6-3c02cd7e7ad2@tycho.nsa.gov>
-Date: Mon, 16 Apr 2018 12:47:43 -0400
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3GI7VV8029661
+ for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2018 14:07:31 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC13.oob.disa.mil (Postfix) with SMTP id 40PxDX4m4Kz25sSn
+ for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2018 18:07:24 +0000 (UTC)
+Received: from UPDC3CPA01.eemsg.mil (unknown [192.168.18.8])
+ by UPDCF3IC13.oob.disa.mil (Postfix) with ESMTP id 40PxDX3bnQz25sSX
+ for <selinux@tycho.nsa.gov>; Mon, 16 Apr 2018 18:07:24 +0000 (UTC)
+From: Steve Grubb <sgrubb@redhat.com>
+To: linux-audit@redhat.com
+Cc: Richard Guy Briggs <rgb@redhat.com>, Ondrej Mosnacek <omosnace@redhat.com>,
+ Linux Security Module list <linux-security-module@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>, SElinux list <selinux@tycho.nsa.gov>
+Date: Mon, 16 Apr 2018 14:07:21 -0400
+Message-ID: <1817813.xZzHaMM7Yh@x2>
+In-Reply-To: <20180416141101.zcovkknupxcgiwf2@madcap2.tricolour.ca>
+References: <6b939250a519668af109adf877d85ff018b217d7.1523316267.git.rgb@redhat.com>
+ <CAFqZXNuEwxp7vThtVH1oYSE5bAisvwNpBH3ry9tyL5BPSwXK=g@mail.gmail.com>
+ <20180416141101.zcovkknupxcgiwf2@madcap2.tricolour.ca>
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdpE+7ee7pE3GUUooh7vkGDRJLAJXZJ9Cpg2mVhH3xnDwQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH 5/5] libselinux: remove unused variable usercon
+Content-Type: text/plain; charset="us-ascii"
+Subject: Re: [PATCH ghak46 V1] audit: normalize MAC_STATUS record
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/16/2018 11:30 AM, William Roberts wrote:
-> On Mon, Apr 16, 2018 at 5:34 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 04/13/2018 08:40 PM, William Roberts wrote:
->>> In general this series looks fine.
->>>
->>> However, checkpatch.pl is complaining about DOS line endings in your patches:
->>>
->>> For example:
->>> ERROR: DOS line endings
->>> #325: FILE: libselinux/src/label_file.h:281:
->>> +^I^Iint alloc_stems = data->alloc_stems * 2 + 16;^M$
->>
->> If needed, dos2unix can be used to strip them. However, I think git am takes care of this for you.
->>
-> 
-> FYI your patches are staged here:
-> https://github.com/SELinuxProject/selinux/pull/93
-> 
-> If no one nacks them, ill merge latter this week. Thanks.
-> 
+On Monday, April 16, 2018 10:11:01 AM EDT Richard Guy Briggs wrote:
+> On 2018-04-16 09:26, Ondrej Mosnacek wrote:
+> > 2018-04-10 1:34 GMT+02:00 Richard Guy Briggs <rgb@redhat.com>:
+> > > There were two formats of the audit MAC_STATUS record, one of which was
+> > > more standard than the other.  One listed enforcing status changes and
+> > > the other listed enabled status changes with a non-standard label.  In
+> > > addition, the record was missing information about which LSM was
+> > > responsible and the operation's completion status.  While this record
+> > > is
+> > > only issued on success, the parser expects the res= field to be
+> > > present.
+> > > 
+> > > old enforcing/permissive:
+> > > type=MAC_STATUS msg=audit(1523312831.378:24514): enforcing=0
+> > > old_enforcing=1 auid=0 ses=1 old enable/disable:
+> > > type=MAC_STATUS msg=audit(1523312831.378:24514): selinux=0 auid=0 ses=1
+> > > 
+> > > List both sets of status and old values and add the lsm= field and the
+> > > res= field.
+> > > 
+> > > Here is the new format:
+> > > type=MAC_STATUS msg=audit(1523293828.657:891): enforcing=0
+> > > old_enforcing=1 auid=0 ses=1 enabled=1 old-enabled=1 lsm=selinux res=1
+> > > 
+> > > This record already accompanied a SYSCALL record.
+> > > 
+> > > See: https://github.com/linux-audit/audit-kernel/issues/46
+> > > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> > > ---
+> > > 
+> > >  security/selinux/selinuxfs.c | 11 +++++++----
+> > >  1 file changed, 7 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/security/selinux/selinuxfs.c
+> > > b/security/selinux/selinuxfs.c
+> > > index 00eed84..00b21b2 100644
+> > > --- a/security/selinux/selinuxfs.c
+> > > +++ b/security/selinux/selinuxfs.c
+> > > @@ -145,10 +145,11 @@ static ssize_t sel_write_enforce(struct file
+> > > *file, const char __user *buf,> > 
+> > >                 if (length)
+> > >                 
+> > >                         goto out;
+> > >                 
+> > >                 audit_log(current->audit_context, GFP_KERNEL,
+> > >                 AUDIT_MAC_STATUS,
+> > > 
+> > > -                       "enforcing=%d old_enforcing=%d auid=%u ses=%u",
+> > > +                       "enforcing=%d old_enforcing=%d auid=%u ses=%u"
+> > > +                       " enabled=%d old-enabled=%d lsm=selinux res=1",
+> > 
+> > This is just a tiny nit but why does "old_enforcing" use an underscore
+> > and "old-enabled" a dash? Shouldn't the style be consistent across
+> > fields?
 
-These patches look good to me.
+Well, we have this thing called the field dictionary:
 
-Thanks,
-Jim
+https://github.com/linux-audit/audit-documentation/blob/master/specs/fields/
+field-dictionary.csv
 
->>>
->>>
->>>
->>>
->>>
->>> On Fri, Apr 13, 2018 at 1:34 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->>>> In getconlist.c, main() does not use usercon. Remove this variable.
->>>>
->>>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->>>> ---
->>>>   libselinux/utils/getconlist.c | 3 +--
->>>>   1 file changed, 1 insertion(+), 2 deletions(-)
->>>>
->>>> diff --git a/libselinux/utils/getconlist.c b/libselinux/utils/getconlist.c
->>>> index abfe2c742bfb..5ac0ca85075c 100644
->>>> --- a/libselinux/utils/getconlist.c
->>>> +++ b/libselinux/utils/getconlist.c
->>>> @@ -19,7 +19,7 @@ static __attribute__ ((__noreturn__)) void usage(const char *name, const char *d
->>>>
->>>>   int main(int argc, char **argv)
->>>>   {
->>>> -       char **list, *usercon = NULL, *cur_context = NULL;
->>>> +       char **list, *cur_context = NULL;
->>>>          char *user = NULL, *level = NULL;
->>>>          int ret, i, opt;
->>>>
->>>> @@ -69,7 +69,6 @@ int main(int argc, char **argv)
->>>>                  freeconary(list);
->>>>          }
->>>>
->>>> -       free(usercon);
->>>>          free(level);
->>>>
->>>>          return 0;
->>>> --
->>>> 2.17.0
->>>>
->>>>
->>>
->>
+If a field exists, we should reuse it and follow the exact formatting for the 
+value side. In this case, old_enforcing is in the dictionary. So, it should 
+be used.
+
+> Yes, but my understanding is a preference for underscore, and not to
+> change existing field names.
 > 
+> Steve?
+
+When you are gluing 2 words together, I prefer a dash. But, in this case we 
+alreday have precedent that the field name exists, so we should reuse it.
+
+-Steve
+
+> > Just my two cents...
 > 
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+> These details are worth noticing, thank you.
+> 
+> > >                         new_value, selinux_enforcing,
+> > >                         from_kuid(&init_user_ns,
+> > >                         audit_get_loginuid(current)),
+> > > 
+> > > -                       audit_get_sessionid(current));
+> > > +                       audit_get_sessionid(current), selinux_enabled,
+> > > selinux_enabled);> > 
+> > >                 selinux_enforcing = new_value;
+> > >                 if (selinux_enforcing)
+> > >                 
+> > >                         avc_ss_reset(0);
+> > > 
+> > > @@ -272,9 +273,11 @@ static ssize_t sel_write_disable(struct file
+> > > *file, const char __user *buf,> > 
+> > >                 if (length)
+> > >                 
+> > >                         goto out;
+> > >                 
+> > >                 audit_log(current->audit_context, GFP_KERNEL,
+> > >                 AUDIT_MAC_STATUS,
+> > > 
+> > > -                       "selinux=0 auid=%u ses=%u",
+> > > +                       "enforcing=%d old_enforcing=%d auid=%u ses=%u"
+> > > +                       " enabled=%d old-enabled=%d lsm=selinux res=1",
+> > > +                       selinux_enforcing, selinux_enforcing,
+> > 
+> > ^ also here
+> > 
+> > >                         from_kuid(&init_user_ns,
+> > >                         audit_get_loginuid(current)),
+> > > 
+> > > -                       audit_get_sessionid(current));
+> > > +                       audit_get_sessionid(current), 0, 1);
+> > > 
+> > >         }
+> > >         
+> > >         length = count;
+> > 
+> > Ondrej Mosnacek <omosnace at redhat dot com>
+> 
+> - RGB
+> 
+> --
+> Richard Guy Briggs <rgb@redhat.com>
+> Sr. S/W Engineer, Kernel Security, Base Operating Systems
+> Remote, Ottawa, Red Hat Canada
+> IRC: rgb, SunRaycer
+> Voice: +1.647.777.2635, Internal: (81) 32635
+> 
+> --
+> Linux-audit mailing list
+> Linux-audit@redhat.com
+> https://www.redhat.com/mailman/listinfo/linux-audit
