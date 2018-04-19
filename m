@@ -1,108 +1,166 @@
-To: Jaap <jjb@xs4all.nl>, SELinux <selinux@tycho.nsa.gov>
-References: <10d21875-321f-28fb-3c94-92f91a06947a@xs4all.nl>
- <99f11a38-42f0-0dac-8205-7f2cab015298@tycho.nsa.gov>
- <a01e6aec-2cf0-5d4c-b4b5-2149666fe192@tycho.nsa.gov>
- <8fce61a3-9973-24aa-048d-01c410afc333@xs4all.nl>
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3JF6Fub004821
+ for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2018 11:06:15 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: "selinux@lists.fedoraproject.org" <selinux@lists.fedoraproject.org>
-Message-ID: <7a1b6984-9a42-38bf-e634-bdac7a4e07bc@tycho.nsa.gov>
-Date: Thu, 19 Apr 2018 09:31:40 -0400
+To: SELinux <selinux@tycho.nsa.gov>
+Message-ID: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
+Date: Thu, 19 Apr 2018 11:07:39 -0400
 MIME-Version: 1.0
-In-Reply-To: <8fce61a3-9973-24aa-048d-01c410afc333@xs4all.nl>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: selinux crashes always at startup
+Subject: ANN: SELinux userspace 2.8-rc1 release candidate
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/18/2018 04:44 PM, Jaap wrote:
-> I am on Fedora 28, 4.16.2-300.fc28.x86_64 On a Dell laptop
-> policy:   selinux-policy.noarch 3.14.1-18.fc28
+A 2.8-rc1 release candidate for the SELinux userspace is now available at:
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-(restored selinux list to cc line)
+Please give it a test and let us know if there are any issues.
 
-Since this is Fedora-specific, I also added the Fedora selinux mailing list to the cc line above.
-You may wish to subscribe to that list if not already on it.
+If there are specific changes that you think should be called out in
+release notes for packagers and users in the final release announcement, let us know.
 
-> I do not know if / where Selinux messages are about the crash of selinux. Does selinux have a log?
+Thanks to all the contributors to this release candidate!
 
-ausearch -i -m AVC,SELINUX_ERR,USER_AVC -ts boot will show all SELinux kernel permission denials (AVC), kernel errors (SELINUX_ERR), and userspace permission denials (USER_AVC) since boot.  You can use other start time values (e.g. recent, today, ...) and other selectors to control exactly what is reported.
+A shortlog of changes since the 2.7 release is below.
 
-> 
-> 
-> On 04/18/2018 10:04 PM, Stephen Smalley wrote:
->> On 04/18/2018 04:01 PM, Stephen Smalley wrote:
->>> On 04/18/2018 03:40 PM, Jaap wrote:
->>>> selinux crashes always at startup. problem is always reported (says selinux) But it does not get better.
->>> None of the SELinux messages you showed are errors.  They are just informational, and the message "the above unknown
->>> classes and permissions will be allowed" indicates that they won't cause any permission denials.
->> Also, you didn't provide any information about your kernel, distro, policy, etc.
->> Please provide a more complete log (particularly one that shows the actual error) and
->> information about the system in question.
-> journalctl | grep selinux gives this:
-> 
-> Apr 18 21:26:06 localhost.localdomain audit[1170]: USER_START pid=1170 uid=0 auid=42 ses=1 subj=system_u:system_r:init_t:s0 msg='op=PAM:session_open grantors=pam_selinux,pam_selinux,pam_loginuid,pam_keyinit,pam_limits,pam_systemd,pam_unix acct="gdm" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
-> Apr 18 21:26:06 localhost.localdomain systemd[1170]: selinux: avc: denied  { status } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gdm-wayland-session gnome-session --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:07 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:07 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:07 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:07 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:07 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:07 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:08 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:08 localhost.localdomain systemd[1170]: selinux: avc: denied  { reload } for auid=n/a uid=42 gid=42 cmdline="/usr/libexec/gnome-session-binary --autostart /usr/share/gdm/greeter/autostart" scontext=system_u:system_r:xdm_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=system permissive=0
-> Apr 18 21:26:17 localhost.localdomain audit[1613]: USER_START pid=1613 uid=0 auid=1000 ses=3 subj=system_u:system_r:init_t:s0 msg='op=PAM:session_open grantors=pam_selinux,pam_selinux,pam_loginuid,pam_keyinit,pam_limits,pam_systemd,pam_unix acct="jaap" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
-> Apr 18 21:26:17 localhost.localdomain audit[1606]: USER_START pid=1606 uid=0 auid=1000 ses=2 subj=system_u:system_r:xdm_t:s0-s0:c0.c1023 msg='op=PAM:session_open grantors=pam_selinux,pam_loginuid,pam_selinux,pam_keyinit,pam_namespace,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_gnome_keyring acct="jaap" exe="/usr/libexec/gdm-session-worker" hostname=localhost.localdomain addr=? terminal=/dev/tty2 res=success'
-> Apr 18 21:26:50 localhost.localdomain audit[1606]: USER_END pid=1606 uid=0 auid=1000 ses=2 subj=system_u:system_r:xdm_t:s0-s0:c0.c1023 msg='op=PAM:session_close grantors=pam_selinux,pam_loginuid,pam_selinux,pam_keyinit,pam_namespace,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_gnome_keyring acct="jaap" exe="/usr/libexec/gdm-session-worker" hostname=localhost.localdomain addr=? terminal=/dev/tty2 res=success'
-> Apr 18 21:26:57 localhost.localdomain audit[2919]: USER_START pid=2919 uid=0 auid=1000 ses=5 subj=system_u:system_r:init_t:s0 msg='op=PAM:session_open grantors=pam_selinux,pam_selinux,pam_loginuid,pam_keyinit,pam_limits,pam_systemd,pam_unix acct="jaap" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
-> Apr 18 21:26:57 localhost.localdomain audit[2869]: USER_START pid=2869 uid=0 auid=1000 ses=4 subj=system_u:system_r:xdm_t:s0-s0:c0.c1023 msg='op=PAM:session_open grantors=pam_selinux,pam_loginuid,pam_selinux,pam_keyinit,pam_namespace,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_gnome_keyring acct="jaap" exe="/usr/libexec/gdm-session-worker" hostname=localhost.localdomain addr=? terminal=/dev/tty2 res=success'
-> Apr 18 21:27:33 localhost.localdomain audit[2869]: USER_END pid=2869 uid=0 auid=1000 ses=4 subj=system_u:system_r:xdm_t:s0-s0:c0.c1023 msg='op=PAM:session_close grantors=pam_selinux,pam_loginuid,pam_selinux,pam_keyinit,pam_namespace,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_gnome_keyring acct="jaap" exe="/usr/libexec/gdm-session-worker" hostname=localhost.localdomain addr=? terminal=/dev/tty2 res=success'
-> Apr 18 21:27:40 localhost.localdomain audit[3983]: USER_START pid=3983 uid=0 auid=1000 ses=7 subj=system_u:system_r:init_t:s0 msg='op=PAM:session_open grantors=pam_selinux,pam_selinux,pam_loginuid,pam_keyinit,pam_limits,pam_systemd,pam_unix acct="jaap" exe="/usr/lib/systemd/systemd" hostname=? addr=? terminal=? res=success'
-> Apr 18 21:27:40 localhost.localdomain audit[3940]: USER_START pid=3940 uid=0 auid=1000 ses=6 subj=system_u:system_r:xdm_t:s0-s0:c0.c1023 msg='op=PAM:session_open grantors=pam_selinux,pam_loginuid,pam_selinux,pam_keyinit,pam_namespace,pam_keyinit,pam_limits,pam_systemd,pam_unix,pam_gnome_keyring acct="jaap" exe="/usr/libexec/gdm-session-worker" hostname=localhost.localdomain addr=? terminal=/dev/tty2 res=success'
-> [jaap@localhost ~]$
-> 
->>>> from journalctl:
->>>>
->>>>
->>>> n systemd-journald[207]: Received SIGTERM from PID 1 (systemd).
->>>> Aug 15 20:43:44 localhost.localdomain kernel: systemd: 15 output lines suppressed due to ratelimiting
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux: 32768 avtab hash slots, 107409 rules.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux: 32768 avtab hash slots, 107409 rules.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  8 users, 14 roles, 5094 types, 312 bools, 1 sens, 1024 cats
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  94 classes, 107409 rules
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class sctp_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class icmp_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class ax25_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class ipx_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class netrom_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class atmpvc_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class x25_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class rose_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class decnet_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class atmsvc_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class rds_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class irda_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class pppox_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class llc_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class can_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class tipc_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class bluetooth_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class iucv_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class rxrpc_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class isdn_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class phonet_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class ieee802154_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class caif_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class alg_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class nfc_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class vsock_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class kcm_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class qipcrtr_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Class smc_socket not defined in policy.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux: the above unknown classes and permissions will be allowed
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Completing initialization.
->>>> Aug 15 20:43:44 localhost.localdomain kernel: SELinux:  Setting up existing superblocks.
->>>
-> 
-> 
+Dan Cashman (1):
+      libsepol: cil: Add ability to redeclare types[attributes]
+
+Dominick Grift (1):
+      Describe multiple-decls in secilc.8.xml
+
+Grégoire Colbert (1):
+      Fixed bad reference in roleattribute
+
+James Carter (4):
+      libsepol/cil: Keep attributes used by generated attributes in neverallow rules
+      libsepol/cil: Create new keep field for type attribute sets
+      libsepol: Prevent freeing unitialized value in ibendport handling
+      libsepol/cil: Improve processing of context rules
+
+Jan Zarsky (6):
+      libsepol: reset pointer after free
+      libsepol: fix memory leak in sepol_bool_query()
+      libsepol: free ibendport device names
+      libsemanage: free genhomedircon fallback user
+      libsemanage: properly check return value of iterate function
+      python/sepolgen: fix typo in PolicyGenerator
+
+Lee Stubbs (1):
+      Minor update for bash completion. Bash completion for ports is missing '-' for type. Based on documentation, it should be --type, not -type.
+
+Lukas Vrabec (1):
+      python/sepolicy: Fix sepolicy manpage.
+
+Marcus Folkesson (15):
+      libsepol: build: follow standard semantics for DESTDIR and PREFIX
+      libselinux: build: follow standard semantics for DESTDIR and PREFIX
+      libsemanage: build: follow standard semantics for DESTDIR and PREFIX
+      checkpolicy: build: follow standard semantics for DESTDIR and PREFIX
+      gui: build: follow standard semantics for DESTDIR and PREFIX
+      mcstrans: build: follow standard semantics for DESTDIR and PREFIX
+      policycoreutils: build: follow standard semantics for DESTDIR and PREFIX
+      python: build: follow standard semantics for DESTDIR and PREFIX
+      python: build: move modules from platform-specific to platform-shared
+      restorecond: build: follow standard semantics for DESTDIR and PREFIX
+      sandbox: build: follow standard semantics for DESTDIR and PREFIX
+      secilc: build: follow standard semantics for DESTDIR and PREFIX
+      semodule-utils: build: follow standard semantics for DESTDIR and PREFIX
+      dbus: build: follow standard semantics for DESTDIR and PREFIX
+      build: setup buildpaths if DESTDIR is specified
+
+Nicolas Iooss (36):
+      Travis-CI: use sugulite environment
+      Travis-CI: do not test gold linkers with clang
+      sepolicy: fix Python3 syntax in manpage
+      sepolicy: do not fail when file_contexts.local does not exist
+      sepolicy: fix misspelling of _ra_content_t suffix
+      sepolicy: support non-MLS policy in manpage
+      sepolicy: support non-MCS policy in manpage
+      sepolicy: remove stray space in section "SEE ALSO"
+      libsepol: use IN6ADDR_ANY_INIT to initialize IPv6 addresses
+      libsepol/cil: __cil_post_db_neverallow_attr_helper() does not use extra_args
+      libsepol/cil: fix -Wwrite-strings warning
+      libsepol/cil: drop wrong unused attribute
+      restorecond: check write() and daemon() results
+      Makefile: define a default value for CFLAGS
+      sepolicy: do not fail when file_contexts.local or .subs do not exist
+      gui: port to Python 3 by migrating to PyGI
+      Travis-CI: fix configuration after September's update
+      sepolicy: ignore comments and empty lines in file_contexts.subs_dist
+      sepolicy: support non-MLS policy in gui
+      gui: remove the status bar
+      gui: fix parsing of "semodule -lfull" in tab Modules
+      gui: delete overridden definition of usersPage.delete()
+      gui: remove mappingsPage
+      Travis-CI: try working around network issues by retrying downloads
+      Travis-CI: do not duplicate $DESTDIR in $PYSITEDIR
+      python/sepolicy: Fix translated strings with parameters
+      python/sepolicy: Support non-MLS policy
+      python/sepolicy: Initialize policy.ports as a dict in generate.py
+      libsepol: cil: show an error when cil_expr_to_string() fails
+      libsemanage: silence clang static analyzer report
+      libselinux,libsemanage: Replace PYSITEDIR with PYTHONLIBDIR
+      libsepol: do not dereference NULL if stack_init fails
+      libsepol: ensure the level context is not empty
+      libselinux: label_file: fix memory management in store_stem()
+      libselinux: fix memory leak in getconlist
+      libselinux: remove unused variable usercon
+
+Petr Lautrbach (12):
+      libselinux: Add support for pcre2 to pkgconfig definition
+      python/semanage: drop *_ini functions
+      python/semanage: Don't use global setup variable
+      python/semanage: Enforce noreload only if it's requested by -N option
+      libsemanage: Use umask(0077) for fopen() write operations
+      python/semanage: make seobject.py backward compatible
+      python/semanage: bring semanageRecords.set_reload back
+      gui/polgengui.py: Fix sepolicy.generate import in polgengui.py
+      gui/polgengui.py: Convert polgen.glade to Builder format polgen.ui
+      python/sepolicy: Use list instead of map
+      python/sepolicy: Do not use types.BooleanType
+      gui/polgengui.py: Use stop_emission_by_name instead of emit_stop_by_name
+
+Richard Haines (3):
+      libselinux: Correct manpages regarding removable_context
+      libsemanage: Return commit number if save-previous false
+      libsemanage: Allow tmp files to be kept if a compile fails
+
+Richard Haines via Selinux (1):
+      selinux: Add support for the SCTP portcon keyword
+
+Stephen Smalley (4):
+      checkpolicy,libselinux,libsepol,policycoreutils: Update my email address
+      semodule-utils: remove semodule_deps
+      libsepol: Export sepol_polcap_getnum/name functions
+      Update VERSION files to 2.8-rc1
+
+Tri Vo (1):
+      Resolve conflicts in expandattribute.
+
+Vit Mojzis (18):
+      libsemanage: Keep copy of file_contexts.homedirs in policy store
+      libsemanage: Add support for listing fcontext.homedirs file
+      python/semanage: Enable listing file_contexts.homedirs
+      python/semanage: Fix export of ibendport entries
+      python/semanage: Update Infiniband code to work on python3
+      python/semanage: Remove redundant and broken moduleRecords.modify()
+      semodule-utils/semodule_package: fix semodule_unpackage man page
+      libsemanage: Improve warning for installing disabled module
+      gui/semanagePage: Close "edit" and "add" dialogues when successfull
+      gui/fcontextPage: Set default object class in addDialog
+      libsemanage: remove access() check to make setuid programs work
+      libsemanage: remove access() check to make setuid programs work
+      libsemanage: replace access() checks to make setuid programs work
+      libsemanage/direct_api.c: Fix iterating over array
+      policycoreutils/semodule: Improve man page and unify it with --help
+      policycoreutils/semodule: Allow enabling/disabling multiple modules at once
+      python/sepolgen: Try to translate SELinux contexts to raw
+      libsemanage: do not change file mode of seusers and users_extra
+
+Yuli Khodorkovskiy (3):
+      secilc: Fix documentation build for OS X systems
+      libselinux: verify file_contexts when using restorecon
+      libselinux: echo line number of bad label in selabel_fini()
