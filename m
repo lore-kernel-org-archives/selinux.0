@@ -1,574 +1,278 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3JKWnXK026917
- for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2018 16:32:49 -0400
-Received: by mail-lf0-f67.google.com with SMTP id d20-v6so2057882lfe.3
- for <selinux@tycho.nsa.gov>; Thu, 19 Apr 2018 13:32:41 -0700 (PDT)
+Date: Fri, 20 Apr 2018 14:31:36 +0200
+From: Petr Lautrbach <plautrba@redhat.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: SELinux <selinux@tycho.nsa.gov>
+Message-ID: <20180420123135.GA2126@workstation>
+References: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <152414469006.23902.8132059438921850399.stgit@warthog.procyon.org.uk>
-References: <152414466005.23902.12967974041384198114.stgit@warthog.procyon.org.uk>
- <152414469006.23902.8132059438921850399.stgit@warthog.procyon.org.uk>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 19 Apr 2018 16:32:39 -0400
-Message-ID: <CAHC9VhQhaBNBFwAXJ4TxKO56UTcwb_LcT2G8LwNxdxOD96tTvA@mail.gmail.com>
-To: David Howells <dhowells@redhat.com>
-Cc: viro@zeniv.linux.org.uk, linux-nfs@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-security-module@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-afs@lists.infradead.org,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 04/24] VFS: Add LSM hooks for filesystem context [ver #7]
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature"; boundary="ibTvN161/egqYuK8"
+In-Reply-To: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
+Subject: Re: ANN: SELinux userspace 2.8-rc1 release candidate
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Apr 19, 2018 at 9:31 AM, David Howells <dhowells@redhat.com> wrote:
-> Add LSM hooks for use by the filesystem context code.  This includes:
->
->  (1) Hooks to handle allocation, duplication and freeing of the security
->      record attached to a filesystem context.
->
->  (2) A hook to snoop a mount options in key[=val] form.  If the LSM decides
->      it wants to handle it, it can suppress the option being passed to the
->      filesystem.  Note that 'val' may include commas and binary data with
->      the fsopen patch.
->
->  (3) A hook to transfer the security from the context to a newly created
->      superblock.
->
->  (4) A hook to rule on whether a path point can be used as a mountpoint.
->
-> These are intended to replace:
->
->         security_sb_copy_data
->         security_sb_kern_mount
->         security_sb_mount
->         security_sb_set_mnt_opts
->         security_sb_clone_mnt_opts
->         security_sb_parse_opts_str
->
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: linux-security-module@vger.kernel.org
-> ---
->
->  include/linux/lsm_hooks.h |   62 +++++++++++
->  include/linux/security.h  |   44 ++++++++
->  security/security.c       |   41 +++++++
->  security/selinux/hooks.c  |  262 +++++++++++++++++++++++++++++++++++++++++++++
->  4 files changed, 409 insertions(+)
 
-Adding the SELinux mailing list to the CC line; in the future please
-include the SELinux mailing list on patches like this.  It would also
-be very helpful to include "selinux" somewhere in the subject line
-when the patch is predominately SELinux related (much like you did for
-the other LSMs in this patchset).
+--ibTvN161/egqYuK8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I can't say I've digested all of this yet, but what SELinux testing
-have you done with this patchset?
+On Thu, Apr 19, 2018 at 11:07:39AM -0400, Stephen Smalley wrote:
+> A 2.8-rc1 release candidate for the SELinux userspace is now available at:
+> https://github.com/SELinuxProject/selinux/wiki/Releases
+>=20
+> Please give it a test and let us know if there are any issues.
 
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 9d0b286f3dba..da20f90d40bb 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -76,6 +76,50 @@
->   *     changes on the process such as clearing out non-inheritable signal
->   *     state.  This is called immediately after commit_creds().
->   *
-> + * Security hooks for mount using fd context.
-> + *
-> + * @fs_context_alloc:
-> + *     Allocate and attach a security structure to sc->security.  This pointer
-> + *     is initialised to NULL by the caller.
-> + *     @fc indicates the new filesystem context.
-> + *     @src_sb indicates the source superblock of a submount.
-> + * @fs_context_dup:
-> + *     Allocate and attach a security structure to sc->security.  This pointer
-> + *     is initialised to NULL by the caller.
-> + *     @fc indicates the new filesystem context.
-> + *     @src_fc indicates the original filesystem context.
-> + * @fs_context_free:
-> + *     Clean up a filesystem context.
-> + *     @fc indicates the filesystem context.
-> + * @fs_context_parse_option:
-> + *     Userspace provided an option to configure a superblock.  The LSM may
-> + *     reject it with an error and may use it for itself, in which case it
-> + *     should return 1; otherwise it should return 0 to pass it on to the
-> + *     filesystem.
-> + *     @fc indicates the filesystem context.
-> + *     @opt indicates the option in "key[=val]" form.  It is NUL-terminated,
-> + *     but val may be binary data.
-> + *     @len indicates the size of the option.
-> + * @fs_context_validate:
-> + *     Validate the filesystem context preparatory to applying it.  This is
-> + *     done after all the options have been parsed.
-> + *     @fc indicates the filesystem context.
-> + * @sb_get_tree:
-> + *     Assign the security to a newly created superblock.
-> + *     @fc indicates the filesystem context.
-> + *     @fc->root indicates the root that will be mounted.
-> + *     @fc->root->d_sb points to the superblock.
-> + * @sb_reconfigure:
-> + *     Apply reconfiguration to the security on a superblock.
-> + *     @fc indicates the filesystem context.
-> + *     @fc->root indicates a dentry in the mount.
-> + *     @fc->root->d_sb points to the superblock.
-> + * @sb_mountpoint:
-> + *     Equivalent of sb_mount, but with an fs_context.
-> + *     @fc indicates the filesystem context.
-> + *     @mountpoint indicates the path on which the mount will take place.
-> + *     @mnt_flags indicates the MNT_* flags specified.
-> + *
->   * Security hooks for filesystem operations.
->   *
->   * @sb_alloc_security:
-> @@ -1450,6 +1494,16 @@ union security_list_options {
->         void (*bprm_committing_creds)(struct linux_binprm *bprm);
->         void (*bprm_committed_creds)(struct linux_binprm *bprm);
->
-> +       int (*fs_context_alloc)(struct fs_context *fc, struct super_block *src_sb);
-> +       int (*fs_context_dup)(struct fs_context *fc, struct fs_context *src_sc);
-> +       void (*fs_context_free)(struct fs_context *fc);
-> +       int (*fs_context_parse_option)(struct fs_context *fc, char *opt, size_t len);
-> +       int (*fs_context_validate)(struct fs_context *fc);
-> +       int (*sb_get_tree)(struct fs_context *fc);
-> +       void (*sb_reconfigure)(struct fs_context *fc);
-> +       int (*sb_mountpoint)(struct fs_context *fc, struct path *mountpoint,
-> +                            unsigned int mnt_flags);
-> +
->         int (*sb_alloc_security)(struct super_block *sb);
->         void (*sb_free_security)(struct super_block *sb);
->         int (*sb_copy_data)(char *orig, char *copy);
-> @@ -1787,6 +1841,14 @@ struct security_hook_heads {
->         struct hlist_head bprm_check_security;
->         struct hlist_head bprm_committing_creds;
->         struct hlist_head bprm_committed_creds;
-> +       struct hlist_head fs_context_alloc;
-> +       struct hlist_head fs_context_dup;
-> +       struct hlist_head fs_context_free;
-> +       struct hlist_head fs_context_parse_option;
-> +       struct hlist_head fs_context_validate;
-> +       struct hlist_head sb_get_tree;
-> +       struct hlist_head sb_reconfigure;
-> +       struct hlist_head sb_mountpoint;
->         struct hlist_head sb_alloc_security;
->         struct hlist_head sb_free_security;
->         struct hlist_head sb_copy_data;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 200920f521a1..60a85bd9dfef 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -53,6 +53,7 @@ struct msg_msg;
->  struct xattr;
->  struct xfrm_sec_ctx;
->  struct mm_struct;
-> +struct fs_context;
->
->  /* If capable should audit the security request */
->  #define SECURITY_CAP_NOAUDIT 0
-> @@ -231,6 +232,15 @@ int security_bprm_set_creds(struct linux_binprm *bprm);
->  int security_bprm_check(struct linux_binprm *bprm);
->  void security_bprm_committing_creds(struct linux_binprm *bprm);
->  void security_bprm_committed_creds(struct linux_binprm *bprm);
-> +int security_fs_context_alloc(struct fs_context *fc, struct super_block *sb);
-> +int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc);
-> +void security_fs_context_free(struct fs_context *fc);
-> +int security_fs_context_parse_option(struct fs_context *fc, char *opt, size_t len);
-> +int security_fs_context_validate(struct fs_context *fc);
-> +int security_sb_get_tree(struct fs_context *fc);
-> +void security_sb_reconfigure(struct fs_context *fc);
-> +int security_sb_mountpoint(struct fs_context *fc, struct path *mountpoint,
-> +                          unsigned int mnt_flags);
->  int security_sb_alloc(struct super_block *sb);
->  void security_sb_free(struct super_block *sb);
->  int security_sb_copy_data(char *orig, char *copy);
-> @@ -539,6 +549,40 @@ static inline void security_bprm_committed_creds(struct linux_binprm *bprm)
->  {
->  }
->
-> +static inline int security_fs_context_alloc(struct fs_context *fc,
-> +                                           struct super_block *src_sb)
-> +{
-> +       return 0;
-> +}
-> +static inline int security_fs_context_dup(struct fs_context *fc,
-> +                                         struct fs_context *src_fc)
-> +{
-> +       return 0;
-> +}
-> +static inline void security_fs_context_free(struct fs_context *fc)
-> +{
-> +}
-> +static inline int security_fs_context_parse_option(struct fs_context *fc, char *opt, size_t len)
-> +{
-> +       return 0;
-> +}
-> +static inline int security_fs_context_validate(struct fs_context *fc)
-> +{
-> +       return 0;
-> +}
-> +static inline int security_sb_get_tree(struct fs_context *fc)
-> +{
-> +       return 0;
-> +}
-> +static inline void security_sb_reconfigure(struct fs_context *fc)
-> +{
-> +}
-> +static inline int security_sb_mountpoint(struct fs_context *fc, struct path *mountpoint,
-> +                                        unsigned int mnt_flags)
-> +{
-> +       return 0;
-> +}
-> +
->  static inline int security_sb_alloc(struct super_block *sb)
->  {
->         return 0;
-> diff --git a/security/security.c b/security/security.c
-> index 7bc2fde023a7..42e4ea19b61c 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -358,6 +358,47 @@ void security_bprm_committed_creds(struct linux_binprm *bprm)
->         call_void_hook(bprm_committed_creds, bprm);
->  }
->
-> +int security_fs_context_alloc(struct fs_context *fc, struct super_block *src_sb)
-> +{
-> +       return call_int_hook(fs_context_alloc, 0, fc, src_sb);
-> +}
-> +
-> +int security_fs_context_dup(struct fs_context *fc, struct fs_context *src_fc)
-> +{
-> +       return call_int_hook(fs_context_dup, 0, fc, src_fc);
-> +}
-> +
-> +void security_fs_context_free(struct fs_context *fc)
-> +{
-> +       call_void_hook(fs_context_free, fc);
-> +}
-> +
-> +int security_fs_context_parse_option(struct fs_context *fc, char *opt, size_t len)
-> +{
-> +       return call_int_hook(fs_context_parse_option, 0, fc, opt, len);
-> +}
-> +
-> +int security_fs_context_validate(struct fs_context *fc)
-> +{
-> +       return call_int_hook(fs_context_validate, 0, fc);
-> +}
-> +
-> +int security_sb_get_tree(struct fs_context *fc)
-> +{
-> +       return call_int_hook(sb_get_tree, 0, fc);
-> +}
-> +
-> +void security_sb_reconfigure(struct fs_context *fc)
-> +{
-> +       call_void_hook(sb_reconfigure, fc);
-> +}
-> +
-> +int security_sb_mountpoint(struct fs_context *fc, struct path *mountpoint,
-> +                          unsigned int mnt_flags)
-> +{
-> +       return call_int_hook(sb_mountpoint, 0, fc, mountpoint, mnt_flags);
-> +}
-> +
->  int security_sb_alloc(struct super_block *sb)
->  {
->         return call_int_hook(sb_alloc_security, 0, sb);
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 1f0316bf7e29..969a2a0dc582 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -48,6 +48,7 @@
->  #include <linux/fdtable.h>
->  #include <linux/namei.h>
->  #include <linux/mount.h>
-> +#include <linux/fs_context.h>
->  #include <linux/netfilter_ipv4.h>
->  #include <linux/netfilter_ipv6.h>
->  #include <linux/tty.h>
-> @@ -2960,6 +2961,259 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
->                                    FILESYSTEM__UNMOUNT, NULL);
->  }
->
-> +/* fsopen mount context operations */
-> +
-> +static int selinux_fs_context_alloc(struct fs_context *fc,
-> +                                   struct super_block *src_sb)
-> +{
-> +       struct security_mnt_opts *opts;
-> +
-> +       opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-> +       if (!opts)
-> +               return -ENOMEM;
-> +
-> +       fc->security = opts;
-> +       return 0;
-> +}
-> +
-> +static int selinux_fs_context_dup(struct fs_context *fc,
-> +                                 struct fs_context *src_fc)
-> +{
-> +       const struct security_mnt_opts *src = src_fc->security;
-> +       struct security_mnt_opts *opts;
-> +       int i, n;
-> +
-> +       opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-> +       if (!opts)
-> +               return -ENOMEM;
-> +       fc->security = opts;
-> +
-> +       if (!src || !src->num_mnt_opts)
-> +               return 0;
-> +       n = opts->num_mnt_opts = src->num_mnt_opts;
-> +
-> +       if (src->mnt_opts) {
-> +               opts->mnt_opts = kcalloc(n, sizeof(char *), GFP_KERNEL);
-> +               if (!opts->mnt_opts)
-> +                       return -ENOMEM;
-> +
-> +               for (i = 0; i < n; i++) {
-> +                       if (src->mnt_opts[i]) {
-> +                               opts->mnt_opts[i] = kstrdup(src->mnt_opts[i],
-> +                                                           GFP_KERNEL);
-> +                               if (!opts->mnt_opts[i])
-> +                                       return -ENOMEM;
-> +                       }
-> +               }
-> +       }
-> +
-> +       if (src->mnt_opts_flags) {
-> +               opts->mnt_opts_flags = kmemdup(src->mnt_opts_flags,
-> +                                              n * sizeof(int), GFP_KERNEL);
-> +               if (!opts->mnt_opts_flags)
-> +                       return -ENOMEM;
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static void selinux_fs_context_free(struct fs_context *fc)
-> +{
-> +       struct security_mnt_opts *opts = fc->security;
-> +
-> +       security_free_mnt_opts(opts);
-> +       fc->security = NULL;
-> +}
-> +
-> +static int selinux_fs_context_parse_option(struct fs_context *fc, char *opt, size_t len)
-> +{
-> +       struct security_mnt_opts *opts = fc->security;
-> +       substring_t args[MAX_OPT_ARGS];
-> +       unsigned int have;
-> +       char *c, **oo;
-> +       int token, ctx, i, *of;
-> +
-> +       token = match_token(opt, tokens, args);
-> +       if (token == Opt_error)
-> +               return 0; /* Doesn't belong to us. */
-> +
-> +       have = 0;
-> +       for (i = 0; i < opts->num_mnt_opts; i++)
-> +               have |= 1 << opts->mnt_opts_flags[i];
-> +       if (have & (1 << token))
-> +               return -EINVAL;
-> +
-> +       switch (token) {
-> +       case Opt_context:
-> +               if (have & (1 << Opt_defcontext))
-> +                       goto incompatible;
-> +               ctx = CONTEXT_MNT;
-> +               goto copy_context_string;
-> +
-> +       case Opt_fscontext:
-> +               ctx = FSCONTEXT_MNT;
-> +               goto copy_context_string;
-> +
-> +       case Opt_rootcontext:
-> +               ctx = ROOTCONTEXT_MNT;
-> +               goto copy_context_string;
-> +
-> +       case Opt_defcontext:
-> +               if (have & (1 << Opt_context))
-> +                       goto incompatible;
-> +               ctx = DEFCONTEXT_MNT;
-> +               goto copy_context_string;
-> +
-> +       case Opt_labelsupport:
-> +               return 1;
-> +
-> +       default:
-> +               return -EINVAL;
-> +       }
-> +
-> +copy_context_string:
-> +       if (opts->num_mnt_opts > 3)
-> +               return -EINVAL;
-> +
-> +       of = krealloc(opts->mnt_opts_flags,
-> +                     (opts->num_mnt_opts + 1) * sizeof(int), GFP_KERNEL);
-> +       if (!of)
-> +               return -ENOMEM;
-> +       of[opts->num_mnt_opts] = 0;
-> +       opts->mnt_opts_flags = of;
-> +
-> +       oo = krealloc(opts->mnt_opts,
-> +                     (opts->num_mnt_opts + 1) * sizeof(char *), GFP_KERNEL);
-> +       if (!oo)
-> +               return -ENOMEM;
-> +       oo[opts->num_mnt_opts] = NULL;
-> +       opts->mnt_opts = oo;
-> +
-> +       c = match_strdup(&args[0]);
-> +       if (!c)
-> +               return -ENOMEM;
-> +       opts->mnt_opts[opts->num_mnt_opts] = c;
-> +       opts->mnt_opts_flags[opts->num_mnt_opts] = ctx;
-> +       opts->num_mnt_opts++;
-> +       return 1;
-> +
-> +incompatible:
-> +       return -EINVAL;
-> +}
-> +
-> +/*
-> + * Validate the security parameters supplied for a reconfiguration/remount
-> + * event.
-> + */
-> +static int selinux_validate_for_sb_reconfigure(struct fs_context *fc)
-> +{
-> +       struct super_block *sb = fc->root->d_sb;
-> +       struct superblock_security_struct *sbsec = sb->s_security;
-> +       struct security_mnt_opts *opts = fc->security;
-> +       int rc, i, *flags;
-> +       char **mount_options;
-> +
-> +       if (!(sbsec->flags & SE_SBINITIALIZED))
-> +               return 0;
-> +
-> +       mount_options = opts->mnt_opts;
-> +       flags = opts->mnt_opts_flags;
-> +
-> +       for (i = 0; i < opts->num_mnt_opts; i++) {
-> +               u32 sid;
-> +
-> +               if (flags[i] == SBLABEL_MNT)
-> +                       continue;
-> +
-> +               rc = security_context_str_to_sid(&selinux_state, mount_options[i],
-> +                                                &sid, GFP_KERNEL);
-> +               if (rc) {
-> +                       pr_warn("SELinux: security_context_str_to_sid"
-> +                               "(%s) failed for (dev %s, type %s) errno=%d\n",
-> +                               mount_options[i], sb->s_id, sb->s_type->name, rc);
-> +                       goto inval;
-> +               }
-> +
-> +               switch (flags[i]) {
-> +               case FSCONTEXT_MNT:
-> +                       if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
-> +                               goto bad_option;
-> +                       break;
-> +               case CONTEXT_MNT:
-> +                       if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-> +                               goto bad_option;
-> +                       break;
-> +               case ROOTCONTEXT_MNT: {
-> +                       struct inode_security_struct *root_isec;
-> +                       root_isec = backing_inode_security(sb->s_root);
-> +
-> +                       if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
-> +                               goto bad_option;
-> +                       break;
-> +               }
-> +               case DEFCONTEXT_MNT:
-> +                       if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-> +                               goto bad_option;
-> +                       break;
-> +               default:
-> +                       goto inval;
-> +               }
-> +       }
-> +
-> +       rc = 0;
-> +out:
-> +       return rc;
-> +
-> +bad_option:
-> +       pr_warn("SELinux: unable to change security options "
-> +               "during remount (dev %s, type=%s)\n",
-> +               sb->s_id, sb->s_type->name);
-> +inval:
-> +       rc = -EINVAL;
-> +       goto out;
-> +}
-> +
-> +/*
-> + * Validate the security context assembled from the option data supplied to
-> + * mount.
-> + */
-> +static int selinux_fs_context_validate(struct fs_context *fc)
-> +{
-> +       if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE)
-> +               return selinux_validate_for_sb_reconfigure(fc);
-> +       return 0;
-> +}
-> +
-> +/*
-> + * Set the security context on a superblock.
-> + */
-> +static int selinux_sb_get_tree(struct fs_context *fc)
-> +{
-> +       const struct cred *cred = current_cred();
-> +       struct common_audit_data ad;
-> +       int rc;
-> +
-> +       rc = selinux_set_mnt_opts(fc->root->d_sb, fc->security, 0, NULL);
-> +       if (rc)
-> +               return rc;
-> +
-> +       /* Allow all mounts performed by the kernel */
-> +       if (fc->purpose == FS_CONTEXT_FOR_KERNEL_MOUNT)
-> +               return 0;
-> +
-> +       ad.type = LSM_AUDIT_DATA_DENTRY;
-> +       ad.u.dentry = fc->root;
-> +       return superblock_has_perm(cred, fc->root->d_sb, FILESYSTEM__MOUNT, &ad);
-> +}
-> +
-> +static int selinux_sb_mountpoint(struct fs_context *fc, struct path *mountpoint,
-> +                                unsigned int mnt_flags)
-> +{
-> +       const struct cred *cred = current_cred();
-> +
-> +       return path_has_perm(cred, mountpoint, FILE__MOUNTON);
-> +}
-> +
->  /* inode security operations */
->
->  static int selinux_inode_alloc_security(struct inode *inode)
-> @@ -6871,6 +7125,14 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->         LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds),
->         LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
->
-> +       LSM_HOOK_INIT(fs_context_alloc, selinux_fs_context_alloc),
-> +       LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
-> +       LSM_HOOK_INIT(fs_context_free, selinux_fs_context_free),
-> +       LSM_HOOK_INIT(fs_context_parse_option, selinux_fs_context_parse_option),
-> +       LSM_HOOK_INIT(fs_context_validate, selinux_fs_context_validate),
-> +       LSM_HOOK_INIT(sb_get_tree, selinux_sb_get_tree),
-> +       LSM_HOOK_INIT(sb_mountpoint, selinux_sb_mountpoint),
-> +
->         LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
->         LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
->         LSM_HOOK_INIT(sb_copy_data, selinux_sb_copy_data),
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+I've built in my Fedora COPR repo [1] and I'm running Fedora CI [2] tests o=
+n it.=20
+
+So far there's one problem found by libselinux/selabel-function [3] test. It
+looks like commit 814631d3aebaa changed the behavior of selabel_open() when
+SELABEL_OPT_VALIDATE is null - a context should not be validated, but it is.
+
+The reproducer code:
+
+#include <errno.h>
+#include <stdio.h>
+
+#include <selinux/selinux.h>
+#include <selinux/label.h>
+
+int main() {
+  struct selabel_handle *hnd =3D NULL;
+  security_context_t selabel_context;
+
+  struct selinux_opt selabel_option [] =3D {
+    { SELABEL_OPT_PATH, "my_contexts" },
+    { SELABEL_OPT_SUBSET, NULL },
+    { SELABEL_OPT_VALIDATE, (char *) 0 },
+    { SELABEL_OPT_BASEONLY, (char *) 0 }
+  };
+  int result =3D 0;
+
+  if ((hnd =3D selabel_open(SELABEL_CTX_FILE, selabel_option, 4)) =3D=3D NU=
+LL) {
+    return 1;
+  }
+
+  if ((result =3D selabel_lookup_raw(hnd, &selabel_context, "/tmp/mypath", =
+0)) =3D=3D -1) {
+    perror("selabel_lookup_raw - ERROR");
+    return 1;
+  }
+
+  printf("%s\n", selabel_context);
+
+  return 0;
+}
+
+---
+
+$ gcc -o selabel_reproducer selabel_reproducer.c -lselinux
+$ echo '/tmp/mypath  my_user_u:my_role_r:my_type_t:s' > my_contexts
+
+Before:
+
+$ ./selabel_reproducer
+my_user_u:my_role_r:my_type_t:s
+
+After:
+
+$ ./selabel_reproducer
+my_contexts: line 1 has invalid context my_user_u:my_role_r:my_type_t:s
+selabel_lookup_raw - ERROR: Invalid argument
 
 
 
--- 
-paul moore
-www.paul-moore.com
+
+[1] https://copr.fedorainfracloud.org/coprs/plautrba/selinux-fedora/package=
+s/
+[2] https://src.fedoraproject.org/tests/selinux/tree/master
+[3] https://src.fedoraproject.org/tests/selinux/blob/master/f/libselinux/se=
+label-functions
+
+> If there are specific changes that you think should be called out in
+> release notes for packagers and users in the final release announcement, =
+let us know.
+>=20
+> Thanks to all the contributors to this release candidate!
+>=20
+> A shortlog of changes since the 2.7 release is below.
+>=20
+> Dan Cashman (1):
+>       libsepol: cil: Add ability to redeclare types[attributes]
+>=20
+> Dominick Grift (1):
+>       Describe multiple-decls in secilc.8.xml
+>=20
+> Gr=E9goire Colbert (1):
+>       Fixed bad reference in roleattribute
+>=20
+> James Carter (4):
+>       libsepol/cil: Keep attributes used by generated attributes in never=
+allow rules
+>       libsepol/cil: Create new keep field for type attribute sets
+>       libsepol: Prevent freeing unitialized value in ibendport handling
+>       libsepol/cil: Improve processing of context rules
+>=20
+> Jan Zarsky (6):
+>       libsepol: reset pointer after free
+>       libsepol: fix memory leak in sepol_bool_query()
+>       libsepol: free ibendport device names
+>       libsemanage: free genhomedircon fallback user
+>       libsemanage: properly check return value of iterate function
+>       python/sepolgen: fix typo in PolicyGenerator
+>=20
+> Lee Stubbs (1):
+>       Minor update for bash completion. Bash completion for ports is miss=
+ing '-' for type. Based on documentation, it should be --type, not -type.
+>=20
+> Lukas Vrabec (1):
+>       python/sepolicy: Fix sepolicy manpage.
+>=20
+> Marcus Folkesson (15):
+>       libsepol: build: follow standard semantics for DESTDIR and PREFIX
+>       libselinux: build: follow standard semantics for DESTDIR and PREFIX
+>       libsemanage: build: follow standard semantics for DESTDIR and PREFIX
+>       checkpolicy: build: follow standard semantics for DESTDIR and PREFIX
+>       gui: build: follow standard semantics for DESTDIR and PREFIX
+>       mcstrans: build: follow standard semantics for DESTDIR and PREFIX
+>       policycoreutils: build: follow standard semantics for DESTDIR and P=
+REFIX
+>       python: build: follow standard semantics for DESTDIR and PREFIX
+>       python: build: move modules from platform-specific to platform-shar=
+ed
+>       restorecond: build: follow standard semantics for DESTDIR and PREFIX
+>       sandbox: build: follow standard semantics for DESTDIR and PREFIX
+>       secilc: build: follow standard semantics for DESTDIR and PREFIX
+>       semodule-utils: build: follow standard semantics for DESTDIR and PR=
+EFIX
+>       dbus: build: follow standard semantics for DESTDIR and PREFIX
+>       build: setup buildpaths if DESTDIR is specified
+>=20
+> Nicolas Iooss (36):
+>       Travis-CI: use sugulite environment
+>       Travis-CI: do not test gold linkers with clang
+>       sepolicy: fix Python3 syntax in manpage
+>       sepolicy: do not fail when file_contexts.local does not exist
+>       sepolicy: fix misspelling of _ra_content_t suffix
+>       sepolicy: support non-MLS policy in manpage
+>       sepolicy: support non-MCS policy in manpage
+>       sepolicy: remove stray space in section "SEE ALSO"
+>       libsepol: use IN6ADDR_ANY_INIT to initialize IPv6 addresses
+>       libsepol/cil: __cil_post_db_neverallow_attr_helper() does not use e=
+xtra_args
+>       libsepol/cil: fix -Wwrite-strings warning
+>       libsepol/cil: drop wrong unused attribute
+>       restorecond: check write() and daemon() results
+>       Makefile: define a default value for CFLAGS
+>       sepolicy: do not fail when file_contexts.local or .subs do not exist
+>       gui: port to Python 3 by migrating to PyGI
+>       Travis-CI: fix configuration after September's update
+>       sepolicy: ignore comments and empty lines in file_contexts.subs_dist
+>       sepolicy: support non-MLS policy in gui
+>       gui: remove the status bar
+>       gui: fix parsing of "semodule -lfull" in tab Modules
+>       gui: delete overridden definition of usersPage.delete()
+>       gui: remove mappingsPage
+>       Travis-CI: try working around network issues by retrying downloads
+>       Travis-CI: do not duplicate $DESTDIR in $PYSITEDIR
+>       python/sepolicy: Fix translated strings with parameters
+>       python/sepolicy: Support non-MLS policy
+>       python/sepolicy: Initialize policy.ports as a dict in generate.py
+>       libsepol: cil: show an error when cil_expr_to_string() fails
+>       libsemanage: silence clang static analyzer report
+>       libselinux,libsemanage: Replace PYSITEDIR with PYTHONLIBDIR
+>       libsepol: do not dereference NULL if stack_init fails
+>       libsepol: ensure the level context is not empty
+>       libselinux: label_file: fix memory management in store_stem()
+>       libselinux: fix memory leak in getconlist
+>       libselinux: remove unused variable usercon
+>=20
+> Petr Lautrbach (12):
+>       libselinux: Add support for pcre2 to pkgconfig definition
+>       python/semanage: drop *_ini functions
+>       python/semanage: Don't use global setup variable
+>       python/semanage: Enforce noreload only if it's requested by -N opti=
+on
+>       libsemanage: Use umask(0077) for fopen() write operations
+>       python/semanage: make seobject.py backward compatible
+>       python/semanage: bring semanageRecords.set_reload back
+>       gui/polgengui.py: Fix sepolicy.generate import in polgengui.py
+>       gui/polgengui.py: Convert polgen.glade to Builder format polgen.ui
+>       python/sepolicy: Use list instead of map
+>       python/sepolicy: Do not use types.BooleanType
+>       gui/polgengui.py: Use stop_emission_by_name instead of emit_stop_by=
+_name
+>=20
+> Richard Haines (3):
+>       libselinux: Correct manpages regarding removable_context
+>       libsemanage: Return commit number if save-previous false
+>       libsemanage: Allow tmp files to be kept if a compile fails
+>=20
+> Richard Haines via Selinux (1):
+>       selinux: Add support for the SCTP portcon keyword
+>=20
+> Stephen Smalley (4):
+>       checkpolicy,libselinux,libsepol,policycoreutils: Update my email ad=
+dress
+>       semodule-utils: remove semodule_deps
+>       libsepol: Export sepol_polcap_getnum/name functions
+>       Update VERSION files to 2.8-rc1
+>=20
+> Tri Vo (1):
+>       Resolve conflicts in expandattribute.
+>=20
+> Vit Mojzis (18):
+>       libsemanage: Keep copy of file_contexts.homedirs in policy store
+>       libsemanage: Add support for listing fcontext.homedirs file
+>       python/semanage: Enable listing file_contexts.homedirs
+>       python/semanage: Fix export of ibendport entries
+>       python/semanage: Update Infiniband code to work on python3
+>       python/semanage: Remove redundant and broken moduleRecords.modify()
+>       semodule-utils/semodule_package: fix semodule_unpackage man page
+>       libsemanage: Improve warning for installing disabled module
+>       gui/semanagePage: Close "edit" and "add" dialogues when successfull
+>       gui/fcontextPage: Set default object class in addDialog
+>       libsemanage: remove access() check to make setuid programs work
+>       libsemanage: remove access() check to make setuid programs work
+>       libsemanage: replace access() checks to make setuid programs work
+>       libsemanage/direct_api.c: Fix iterating over array
+>       policycoreutils/semodule: Improve man page and unify it with --help
+>       policycoreutils/semodule: Allow enabling/disabling multiple modules=
+ at once
+>       python/sepolgen: Try to translate SELinux contexts to raw
+>       libsemanage: do not change file mode of seusers and users_extra
+>=20
+> Yuli Khodorkovskiy (3):
+>       secilc: Fix documentation build for OS X systems
+>       libselinux: verify file_contexts when using restorecon
+>       libselinux: echo line number of bad label in selabel_fini()
+>=20
+>=20
+
+--ibTvN161/egqYuK8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlrZ3ZIACgkQviIJHj72
+InUanRAArNaSnNN13jnqF1rEhMEfkTbJHwJH7SS9g1c7U51u0SsnHDpgQSkKjdky
+Dgtp9apUTmbQYRerE7mtpVLZa+L9MQqr25JueK3tRZfTHQKKjmjdOl1c4umqmAuT
+C3YzVDoklrl2ijHZjVEvK71BTw40feYqkL/QaPezCKENblV3T2uJ7gxCz0Q0JY0m
+LvAKifWDj09+tedp8tcPjmfjZhXgFJ/LsS4swU4LPzMmLpYvS+ofVjfUpvlMoulr
+n4zzu+1Ktx95yW63DZsVmTIc1BpHFgU/zyqVWBaZnVCNJ/7mCyAJqQ5HTAnratck
+RIU1h2XVXlrsvISArhrl6uhHgC/dG1wHHxdOtpzEFFxcwKJ2gNkPKZGzJaHitXqG
+nc20zYeujkN3EkN8sf7i/P5jGvz2m3b8HpiN3ApJwolU/zNcwgPOjY6ahsCsHNU7
+6kO5P72zZytUhDk+/1t1svLMZOgMokCZ097lhneBkUyXqDW/SuDGC5AVAShcpIXB
+9FvB0eNC0o7VoDtfv1ZWYF7T9j9J/V4E90TF1oZ0ggb/DHs2tvVCPDzz38MlcDE/
+Jb0KJWWx2vdTlwhCAkbOFvORBpgXuCut4YhIV3GBxG2LR4B4FutD9KQgG+TAvlkq
+n+HTabxa5m7A5fBgDhc9jNOlIowFcriC9zWWoilZgL8CA917v2I=
+=iiBK
+-----END PGP SIGNATURE-----
+
+--ibTvN161/egqYuK8--
