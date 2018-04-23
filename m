@@ -6,40 +6,55 @@ Cc: James Morris <jmorris@namei.org>, Paul Moore <paul@paul-moore.com>,
  Eric Paris <eparis@parisplace.org>, serge@hallyn.com,
  davem@davemloft.net, netdev@vger.kernel.org,
  David Herrmann <dh.herrmann@gmail.com>
-Date: Mon, 23 Apr 2018 15:30:14 +0200
-Message-Id: <20180423133015.5455-3-dh.herrmann@gmail.com>
+Date: Mon, 23 Apr 2018 15:30:15 +0200
+Message-Id: <20180423133015.5455-4-dh.herrmann@gmail.com>
 In-Reply-To: <20180423133015.5455-1-dh.herrmann@gmail.com>
 References: <20180423133015.5455-1-dh.herrmann@gmail.com>
-Subject: [PATCH 2/3] net/unix: hook unix_socketpair() into LSM
+Subject: [PATCH 3/3] selinux: provide unix_stream_socketpair callback
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Use the newly created LSM-hook for unix_socketpair(). The default hook
-return-value is 0, so behavior stays the same unless LSMs start using
-this hook.
+Make sure to implement the new unix_stream_socketpair callback so the
+SO_PEERSEC call on socketpair(2)s will return correct information.
 
 Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
 ---
- net/unix/af_unix.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ security/selinux/hooks.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index 68bb70a62afe..bc9705ace9b1 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -1371,6 +1371,11 @@ static int unix_stream_connect(struct socket *sock, struct sockaddr *uaddr,
- static int unix_socketpair(struct socket *socka, struct socket *sockb)
- {
- 	struct sock *ska = socka->sk, *skb = sockb->sk;
-+	int err;
-+
-+	err = security_unix_stream_socketpair(ska, skb);
-+	if (err)
-+		return err;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 4cafe6a19167..828881d9a41d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4905,6 +4905,18 @@ static int selinux_socket_unix_stream_connect(struct sock *sock,
+ 	return 0;
+ }
  
- 	/* Join our sockets back to back */
- 	sock_hold(ska);
++static int selinux_socket_unix_stream_socketpair(struct sock *socka,
++						 struct sock *sockb)
++{
++	struct sk_security_struct *sksec_a = socka->sk_security;
++	struct sk_security_struct *sksec_b = sockb->sk_security;
++
++	sksec_a->peer_sid = sksec_b->sid;
++	sksec_b->peer_sid = sksec_a->sid;
++
++	return 0;
++}
++
+ static int selinux_socket_unix_may_send(struct socket *sock,
+ 					struct socket *other)
+ {
+@@ -6995,6 +7007,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(inode_getsecctx, selinux_inode_getsecctx),
+ 
+ 	LSM_HOOK_INIT(unix_stream_connect, selinux_socket_unix_stream_connect),
++	LSM_HOOK_INIT(unix_stream_socketpair,
++			selinux_socket_unix_stream_socketpair),
+ 	LSM_HOOK_INIT(unix_may_send, selinux_socket_unix_may_send),
+ 
+ 	LSM_HOOK_INIT(socket_create, selinux_socket_create),
 -- 
 2.17.0
