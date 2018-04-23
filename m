@@ -1,153 +1,69 @@
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3NH4W30015906
+ for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2018 13:04:33 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID11.oob.disa.mil (Postfix) with SMTP id 40VCVk526HzXq2H
+ for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2018 17:04:30 +0000 (UTC)
+Received: from USFB19PA09_EEMSG_MP5.eemsg.mil (unknown [192.168.16.6])
+ by USFBF3ID11.oob.disa.mil (Postfix) with ESMTP id 40VCVk25yJzXq3F
+ for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2018 17:04:30 +0000 (UTC)
+To: David Herrmann <dh.herrmann@gmail.com>, linux-kernel@vger.kernel.org
+Cc: James Morris <jmorris@namei.org>, Paul Moore <paul@paul-moore.com>,
+ teg@jklm.no, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ Eric Paris <eparis@parisplace.org>, serge@hallyn.com,
+ davem@davemloft.net, netdev@vger.kernel.org,
+ Casey Schaufler <casey@schaufler-ca.com>
+References: <20180423133015.5455-1-dh.herrmann@gmail.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <32eea1d6-450c-bc68-59d6-74bc5011ead2@schaufler-ca.com>
+Date: Mon, 23 Apr 2018 10:04:19 -0700
 MIME-Version: 1.0
-In-Reply-To: <20180420141754.30272-1-sds@tycho.nsa.gov>
-References: <20180420141754.30272-1-sds@tycho.nsa.gov>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 23 Apr 2018 09:55:46 -0700
-Message-ID: <CAFftDdoQh=fOKjtkVHUVV-TBafdfNWpWKBwonpaZ8x3g2QbfdA@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] Revert "libselinux: verify file_contexts when
- using restorecon"
+In-Reply-To: <20180423133015.5455-1-dh.herrmann@gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH 0/3] Introduce LSM-hook for socketpair(2)
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Apr 20, 2018 at 7:17 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> This reverts commit 814631d3aebaa041073a42c677c1ed62ce7830d5.
-> As reported by Petr Lautrbach, this commit changed the behavior
-> of selabel_open() when SELABEL_OPT_VALIDATE is 0, and this would
-> be an API change.
+On 4/23/2018 6:30 AM, David Herrmann wrote:
+> Hi
 >
-> Reported-by: Petr Lautrbach <plautrba@redhat.com>
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  libselinux/src/label.c                  | 7 ++++---
->  libselinux/src/label_backends_android.c | 2 +-
->  libselinux/src/label_file.c             | 2 +-
->  libselinux/src/label_file.h             | 2 +-
->  libselinux/src/label_internal.h         | 6 ++++--
->  libselinux/src/matchpathcon.c           | 5 +++--
->  6 files changed, 14 insertions(+), 10 deletions(-)
+> This series adds a new LSM hook for the socketpair(2) syscall. The idea
+> is to allow SO_PEERSEC to be called on AF_UNIX sockets created via
+> socketpair(2), and return the same information as if you emulated
+> socketpair(2) via a temporary listener socket. Right now SO_PEERSEC
+> will return the unlabeled credentials for a socketpair, rather than the
+> actual credentials of the creating process.
 >
-> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
-> index 591815a7..8d586bda 100644
-> --- a/libselinux/src/label.c
-> +++ b/libselinux/src/label.c
-> @@ -121,11 +121,12 @@ static inline int selabel_is_validate_set(const struct selinux_opt *opts,
->         return 0;
->  }
+> ...
 >
-> -int selabel_validate(struct selabel_lookup_rec *contexts)
-> +int selabel_validate(struct selabel_handle *rec,
-> +                    struct selabel_lookup_rec *contexts)
->  {
->         int rc = 0;
->
-> -       if (contexts->validated)
-> +       if (!rec->validating || contexts->validated)
->                 goto out;
->
->         rc = selinux_validate(&contexts->ctx_raw);
-> @@ -142,7 +143,7 @@ static int selabel_fini(struct selabel_handle *rec,
->                             struct selabel_lookup_rec *lr,
->                             int translating)
->  {
-> -       if (compat_validate(lr, rec->spec_file, lr->lineno))
-> +       if (compat_validate(rec, lr, rec->spec_file, lr->lineno))
->                 return -1;
->
->         if (translating && !lr->ctx_trans &&
-> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
-> index 49e39ec8..cb8aae26 100644
-> --- a/libselinux/src/label_backends_android.c
-> +++ b/libselinux/src/label_backends_android.c
-> @@ -122,7 +122,7 @@ static int process_line(struct selabel_handle *rec,
->                 spec_arr[nspec].lr.ctx_raw = context;
->
->                 if (rec->validating) {
-> -                       if (selabel_validate(&spec_arr[nspec].lr) < 0) {
-> +                       if (selabel_validate(rec, &spec_arr[nspec].lr) < 0) {
->                                 selinux_log(SELINUX_ERROR,
->                                             "%s:  line %u has invalid context %s\n",
->                                             path, lineno, spec_arr[nspec].lr.ctx_raw);
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 169fed70..560d8c3d 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -328,7 +328,7 @@ end_arch_check:
->                 spec->lr.ctx_raw = str_buf;
->
->                 if (strcmp(spec->lr.ctx_raw, "<<none>>") && rec->validating) {
-> -                       if (selabel_validate(&spec->lr) < 0) {
-> +                       if (selabel_validate(rec, &spec->lr) < 0) {
->                                 selinux_log(SELINUX_ERROR,
->                                             "%s: context %s is invalid\n",
->                                             path, spec->lr.ctx_raw);
-> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
-> index 1ab139e9..2fa85474 100644
-> --- a/libselinux/src/label_file.h
-> +++ b/libselinux/src/label_file.h
-> @@ -509,7 +509,7 @@ static inline int process_line(struct selabel_handle *rec,
->         spec_hasMetaChars(&spec_arr[nspec]);
->
->         if (strcmp(context, "<<none>>") && rec->validating)
-> -               return compat_validate(&spec_arr[nspec].lr, path, lineno);
-> +               return compat_validate(rec, &spec_arr[nspec].lr, path, lineno);
->
->         return 0;
->  }
-> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
-> index b0d05882..0e020557 100644
-> --- a/libselinux/src/label_internal.h
-> +++ b/libselinux/src/label_internal.h
-> @@ -112,7 +112,8 @@ struct selabel_handle {
->   * Validation function
->   */
->  extern int
-> -selabel_validate(struct selabel_lookup_rec *contexts) hidden;
-> +selabel_validate(struct selabel_handle *rec,
-> +                struct selabel_lookup_rec *contexts) hidden;
->
->  /*
->   * Compatibility support
-> @@ -127,7 +128,8 @@ extern void __attribute__ ((format(printf, 1, 2)))
->                 selinux_log(type, fmt);
->
->  extern int
-> -compat_validate(struct selabel_lookup_rec *contexts,
-> +compat_validate(struct selabel_handle *rec,
-> +               struct selabel_lookup_rec *contexts,
->                 const char *path, unsigned lineno) hidden;
->
->  /*
-> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-> index c66739af..58b4144a 100644
-> --- a/libselinux/src/matchpathcon.c
-> +++ b/libselinux/src/matchpathcon.c
-> @@ -35,7 +35,8 @@ void set_matchpathcon_printf(void (*f) (const char *fmt, ...))
->         myprintf_compat = 1;
->  }
->
-> -int compat_validate(struct selabel_lookup_rec *contexts,
-> +int compat_validate(struct selabel_handle *rec,
-> +                   struct selabel_lookup_rec *contexts,
->                     const char *path, unsigned lineno)
->  {
->         int rc;
-> @@ -46,7 +47,7 @@ int compat_validate(struct selabel_lookup_rec *contexts,
->         else if (mycanoncon)
->                 rc = mycanoncon(path, lineno, ctx);
->         else {
-> -               rc = selabel_validate(contexts);
-> +               rc = selabel_validate(rec, contexts);
->                 if (rc < 0) {
->                         if (lineno) {
->                                 COMPAT_LOG(SELINUX_WARNING,
-> --
-> 2.14.3
->
+> This series only adds SELinux backends, since that is what we need for
+> RHEL. I will gladly extend the other LSMs if needed.
 
-Sorry for the delay, yes this does indeed break the behavior of the
-open flags and needs to be reverted.
+I would be very happy to see a proposed patch for Smack. It shouldn't
+be much different from the SELinux version, with the exception that it
+will use pointers to smk_known structures instead of secids. It would be
+a big help, as someone just threw a whole new species of scorpion into
+this pit.
+
+>
+> Thanks
+> David
+>
+> [1] https://github.com/bus1/dbus-broker/blob/master/src/util/test-peersec.c
+> [2] https://www.spinics.net/lists/selinux/msg22674.html
+>
+> David Herrmann (3):
+>   security: add hook for socketpair(AF_UNIX, ...)
+>   net/unix: hook unix_socketpair() into LSM
+>   selinux: provide unix_stream_socketpair callback
+>
+>  include/linux/lsm_hooks.h |  8 ++++++++
+>  include/linux/security.h  |  7 +++++++
+>  net/unix/af_unix.c        |  5 +++++
+>  security/security.c       |  6 ++++++
+>  security/selinux/hooks.c  | 14 ++++++++++++++
+>  5 files changed, 40 insertions(+)
+>
