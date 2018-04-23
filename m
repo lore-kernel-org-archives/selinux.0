@@ -1,69 +1,89 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3NH4W30015906
- for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2018 13:04:33 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by USFBF3ID11.oob.disa.mil (Postfix) with SMTP id 40VCVk526HzXq2H
- for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2018 17:04:30 +0000 (UTC)
-Received: from USFB19PA09_EEMSG_MP5.eemsg.mil (unknown [192.168.16.6])
- by USFBF3ID11.oob.disa.mil (Postfix) with ESMTP id 40VCVk25yJzXq3F
- for <selinux@tycho.nsa.gov>; Mon, 23 Apr 2018 17:04:30 +0000 (UTC)
-To: David Herrmann <dh.herrmann@gmail.com>, linux-kernel@vger.kernel.org
-Cc: James Morris <jmorris@namei.org>, Paul Moore <paul@paul-moore.com>,
- teg@jklm.no, Stephen Smalley <sds@tycho.nsa.gov>,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+Date: Mon, 23 Apr 2018 12:52:33 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@namei.org>,
+ Paul Moore <paul@paul-moore.com>, teg@jklm.no,
+ Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org,
  Eric Paris <eparis@parisplace.org>, serge@hallyn.com,
- davem@davemloft.net, netdev@vger.kernel.org,
- Casey Schaufler <casey@schaufler-ca.com>
+ davem@davemloft.net, netdev@vger.kernel.org
+Message-ID: <20180423175233.GA4284@mail.hallyn.com>
 References: <20180423133015.5455-1-dh.herrmann@gmail.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <32eea1d6-450c-bc68-59d6-74bc5011ead2@schaufler-ca.com>
-Date: Mon, 23 Apr 2018 10:04:19 -0700
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <20180423133015.5455-1-dh.herrmann@gmail.com>
-Content-Type: text/plain; charset=utf-8
 Subject: Re: [PATCH 0/3] Introduce LSM-hook for socketpair(2)
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 4/23/2018 6:30 AM, David Herrmann wrote:
+Quoting David Herrmann (dh.herrmann@gmail.com):
 > Hi
->
+> 
 > This series adds a new LSM hook for the socketpair(2) syscall. The idea
 > is to allow SO_PEERSEC to be called on AF_UNIX sockets created via
 > socketpair(2), and return the same information as if you emulated
 > socketpair(2) via a temporary listener socket. Right now SO_PEERSEC
 > will return the unlabeled credentials for a socketpair, rather than the
 > actual credentials of the creating process.
->
-> ...
->
+> 
+> A simple call to:
+> 
+>     socketpair(AF_UNIX, SOCK_STREAM, 0, out);
+> 
+> can be emulated via a temporary listener socket bound to a unique,
+> random name in the abstract namespace. By connecting to this listener
+> socket, accept(2) will return the second part of the pair. If
+> SO_PEERSEC is queried on these, the correct credentials of the creating
+> process are returned. A simple comparison between the behavior of
+> SO_PEERSEC on socketpair(2) and an emulated socketpair is included in
+> the dbus-broker test-suite [1].
+> 
+> This patch series tries to close this gap and makes both behave the
+> same. A new LSM-hook is added which allows LSMs to cache the correct
+> peer information on newly created socket-pairs.
+> 
+> Apart from fixing this behavioral difference, the dbus-broker project
+> actually needs to query the credentials of socketpairs, and currently
+> must resort to racy procfs(2) queries to get the LSM credentials of its
+> controller socket. Several parts of the dbus-broker project allow you
+> to pass in a socket during execve(2), which will be used by the child
+> process to accept control-commands from its parent. One natural way to
+> create this communication channel is to use socketpair(2). However,
+> right now SO_PEERSEC does not return any useful information, hence, the
+> child-process would need other means to retrieve this information. By
+> avoiding socketpair(2) and using the hacky-emulated version, this is not
+> an issue.
+> 
+> There was a previous discussion on this matter [2] roughly a year ago.
+> Back then there was the suspicion that proper SO_PEERSEC would confuse
+> applications. However, we could not find any evidence backing this
+> suspicion. Furthermore, we now actually see the contrary. Lack of
+> SO_PEERSEC makes it a hassle to use socketpairs with LSM credentials.
+> Hence, we propose to implement full SO_PEERSEC for socketpairs.
+> 
 > This series only adds SELinux backends, since that is what we need for
 > RHEL. I will gladly extend the other LSMs if needed.
-
-I would be very happy to see a proposed patch for Smack. It shouldn't
-be much different from the SELinux version, with the exception that it
-will use pointers to smk_known structures instead of secids. It would be
-a big help, as someone just threw a whole new species of scorpion into
-this pit.
-
->
+> 
 > Thanks
 > David
->
+> 
 > [1] https://github.com/bus1/dbus-broker/blob/master/src/util/test-peersec.c
 > [2] https://www.spinics.net/lists/selinux/msg22674.html
->
+> 
 > David Herrmann (3):
 >   security: add hook for socketpair(AF_UNIX, ...)
 >   net/unix: hook unix_socketpair() into LSM
 >   selinux: provide unix_stream_socketpair callback
->
+> 
 >  include/linux/lsm_hooks.h |  8 ++++++++
 >  include/linux/security.h  |  7 +++++++
 >  net/unix/af_unix.c        |  5 +++++
 >  security/security.c       |  6 ++++++
 >  security/selinux/hooks.c  | 14 ++++++++++++++
 >  5 files changed, 40 insertions(+)
->
+
+Makes sense to me, thanks.
+
+Acked-by: Serge Hallyn <serge@hallyn.com>
