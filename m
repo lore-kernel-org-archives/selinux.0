@@ -1,52 +1,64 @@
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <aca7e68c-022b-47ac-c249-59e042d431e8@tycho.nsa.gov>
-References: <aca7e68c-022b-47ac-c249-59e042d431e8@tycho.nsa.gov>
- <CAHC9VhQhaBNBFwAXJ4TxKO56UTcwb_LcT2G8LwNxdxOD96tTvA@mail.gmail.com>
- <152414466005.23902.12967974041384198114.stgit@warthog.procyon.org.uk>
- <152414469006.23902.8132059438921850399.stgit@warthog.procyon.org.uk>
- <3232.1524238511@warthog.procyon.org.uk>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: dhowells@redhat.com, Paul Moore <paul@paul-moore.com>,
- linux-nfs@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, viro@zeniv.linux.org.uk,
- selinux@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
- linux-afs@lists.infradead.org
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3OHtxb8023865
+ for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2018 13:56:00 -0400
+Received: by mail-lf0-f67.google.com with SMTP id v85-v6so50415lfa.13
+ for <selinux@tycho.nsa.gov>; Tue, 24 Apr 2018 10:55:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 24 Apr 2018 16:22:47 +0100
-Message-ID: <703.1524583367@warthog.procyon.org.uk>
-Subject: Re: [PATCH 04/24] VFS: Add LSM hooks for filesystem context [ver #7]
+In-Reply-To: <20180423133015.5455-3-dh.herrmann@gmail.com>
+References: <20180423133015.5455-1-dh.herrmann@gmail.com>
+ <20180423133015.5455-3-dh.herrmann@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 24 Apr 2018 13:55:31 -0400
+Message-ID: <CAHC9VhSv6tacFb+nEs1cCUOj52Vu+wXD6ZPZ1r1W4pYXo0VJMQ@mail.gmail.com>
+To: David Herrmann <dh.herrmann@gmail.com>
+Cc: linux-kernel@vger.kernel.org, James Morris <jmorris@namei.org>,
+ teg@jklm.no, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ Eric Paris <eparis@parisplace.org>, serge@hallyn.com,
+ davem@davemloft.net, netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 2/3] net/unix: hook unix_socketpair() into LSM
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+On Mon, Apr 23, 2018 at 9:30 AM, David Herrmann <dh.herrmann@gmail.com> wrote:
+> Use the newly created LSM-hook for unix_socketpair(). The default hook
+> return-value is 0, so behavior stays the same unless LSMs start using
+> this hook.
+>
+> Signed-off-by: David Herrmann <dh.herrmann@gmail.com>
+> ---
+>  net/unix/af_unix.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+> index 68bb70a62afe..bc9705ace9b1 100644
+> --- a/net/unix/af_unix.c
+> +++ b/net/unix/af_unix.c
+> @@ -1371,6 +1371,11 @@ static int unix_stream_connect(struct socket *sock, struct sockaddr *uaddr,
+>  static int unix_socketpair(struct socket *socka, struct socket *sockb)
+>  {
+>         struct sock *ska = socka->sk, *skb = sockb->sk;
+> +       int err;
+> +
+> +       err = security_unix_stream_socketpair(ska, skb);
+> +       if (err)
+> +               return err;
 
-> Neither fsopen() nor fscontext_fs_write() appear to perform any kind of
-> up-front permission checking (DAC or MAC), although some security hooks may
-> be ultimately called to allocate structures, parse security options, etc.
-> Is there a reason not apply a may_mount() or similar check up front?
+I recognize that AF_UNIX is really the only protocol that supports
+socketpair(2) at the moment, but I like to avoid protocol specific LSM
+hooks whenever possible.  Unless someone can think of a good
+objection, I would prefer to see the hook placed in __sys_socketpair()
+instead (and obviously drop the "unix_stream" portion from the hook
+name).
 
-may_mount() is called by fsmount() at the moment.  It may make sense to move
-this earlier to fsopen().  Note that there's also going to be something that
-looks like:
+>         /* Join our sockets back to back */
+>         sock_hold(ska);
+> --
+> 2.17.0
 
-	fd = fspick("/mnt");
-	fsmount(fd, "/a", MNT_NOEXEC); // ie. bind mount
-
-or:
-
-	fd = fspick("/mnt");
-	write(fd, "o intr");
-	write(fd, "x reconfigure"); // ie. something like remount
-	close(fd);
-
-I guess we'd want to call may_mount() in fspick() too.  But there's also the
-possibility of using this to create a query interfact too:
-
-	fd = fspick("/mnt");
-	write(fd, "q intr");
-	read(fd, value_buffer);
-
-David
+-- 
+paul moore
+www.paul-moore.com
