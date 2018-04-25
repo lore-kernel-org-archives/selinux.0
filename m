@@ -1,67 +1,159 @@
-To: Yuli Khodorkovskiy <ykhodo@gmail.com>
-Cc: Petr Lautrbach <plautrba@redhat.com>, SELinux <selinux@tycho.nsa.gov>
-References: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
- <20180420123135.GA2126@workstation>
- <1ec7a74e-c05e-48ef-c2d1-b97d5c8ef58f@tycho.nsa.gov>
- <20180420133104.GB2126@workstation>
- <b812c22d-5bd8-cab2-467b-998d9fd4d1f0@tycho.nsa.gov>
- <CAHnwOHDgZE-JL4ktAAivDQWLW22WCRnNT25zdDnF-t+uVbk9pg@mail.gmail.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <097b7f8c-dffc-9c7f-4821-eda250024016@tycho.nsa.gov>
-Date: Wed, 25 Apr 2018 10:32:35 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAHnwOHDgZE-JL4ktAAivDQWLW22WCRnNT25zdDnF-t+uVbk9pg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: ANN: SELinux userspace 2.8-rc1 release candidate
+In-Reply-To: <CAFftDdoQh=fOKjtkVHUVV-TBafdfNWpWKBwonpaZ8x3g2QbfdA@mail.gmail.com>
+References: <20180420141754.30272-1-sds@tycho.nsa.gov>
+ <CAFftDdoQh=fOKjtkVHUVV-TBafdfNWpWKBwonpaZ8x3g2QbfdA@mail.gmail.com>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Wed, 25 Apr 2018 09:14:02 -0700
+Message-ID: <CAFftDdoVoR1xVLu3-qOoxqeLAMQ=1nkcA1xZuR_N-VdAM7Dyog@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] Revert "libselinux: verify file_contexts when
+ using restorecon"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 04/25/2018 10:11 AM, Yuli Khodorkovskiy wrote:
-> On Fri, Apr 20, 2018 at 10:09 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 04/20/2018 09:31 AM, Petr Lautrbach wrote:
->>> On Fri, Apr 20, 2018 at 08:49:41AM -0400, Stephen Smalley wrote:
->>>> On 04/20/2018 08:31 AM, Petr Lautrbach wrote:
->>>>> On Thu, Apr 19, 2018 at 11:07:39AM -0400, Stephen Smalley wrote:
->>>>>> A 2.8-rc1 release candidate for the SELinux userspace is now available at:
->>>>>> https://github.com/SELinuxProject/selinux/wiki/Releases
->>>>>>
->>>>>> Please give it a test and let us know if there are any issues.
->>>>>
->>>>>
->>>>> I've built in my Fedora COPR repo [1] and I'm running Fedora CI [2] tests on it.
->>>>>
->>>>> So far there's one problem found by libselinux/selabel-function [3] test. It
->>>>> looks like commit 814631d3aebaa changed the behavior of selabel_open() when
->>>>> SELABEL_OPT_VALIDATE is null - a context should not be validated, but it is.
->>>>
->>>> So, is this a bug in the test or a bug in libselinux?  As noted in that commit description,
->>>> failing to verify contexts at all before use can lead to applying an invalid label (if the system is permissive).
->>>
->>> selabel_open(3) states that "an invalid context may not be treated as  an
->>> error unless it is actually encountered during a lookup operation ". So at
->>> least, it's some disproportion between the code and the documentation.
->>>
->>> I read the commit message as that a context should be validated before it's
->>> applied. But now it's validated during lookup.
+On Mon, Apr 23, 2018 at 9:55 AM, William Roberts
+<bill.c.roberts@gmail.com> wrote:
+> On Fri, Apr 20, 2018 at 7:17 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> This reverts commit 814631d3aebaa041073a42c677c1ed62ce7830d5.
+>> As reported by Petr Lautrbach, this commit changed the behavior
+>> of selabel_open() when SELABEL_OPT_VALIDATE is 0, and this would
+>> be an API change.
 >>
->> I guess it would be an API change given the way SELABEL_OPT_VALIDATE is documented in the man page,
->> although that description doesn't quite match the current code either.
+>> Reported-by: Petr Lautrbach <plautrba@redhat.com>
+>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> ---
+>>  libselinux/src/label.c                  | 7 ++++---
+>>  libselinux/src/label_backends_android.c | 2 +-
+>>  libselinux/src/label_file.c             | 2 +-
+>>  libselinux/src/label_file.h             | 2 +-
+>>  libselinux/src/label_internal.h         | 6 ++++--
+>>  libselinux/src/matchpathcon.c           | 5 +++--
+>>  6 files changed, 14 insertions(+), 10 deletions(-)
 >>
->> I was thinking that {SELABEL_OPT_VALIDATE,1} was intended to mean "validate all contexts during selabel_open() and fail the open on any errors".  Which is good for setfiles (particularly when invoked by libsemanage to check file_contexts against the policy) but was considered problematic for restorecon, as it meant that a single typo in file_contexts could prevent your system from booting (e.g. restorecon -R /dev or similar during boot may fail even if the error has nothing to do with /dev entries).  I thought {SELABEL_OPT_VALIDATE,0} was intended to mean "don't validate during selabel_open(); instead, lazily validate just before returning from selabel_lookup()".  That makes more sense to me.
+>> diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+>> index 591815a7..8d586bda 100644
+>> --- a/libselinux/src/label.c
+>> +++ b/libselinux/src/label.c
+>> @@ -121,11 +121,12 @@ static inline int selabel_is_validate_set(const struct selinux_opt *opts,
+>>         return 0;
+>>  }
 >>
->> However, if it is an API change, I guess we have to revert it.  In which case maybe we should just change restorecon itself
->> to validate the context it gets from selabel_lookup (which might have been Yuli's original approach; I don't remember -
->> I think I sent him down this path instead).
-> 
-> Iirc, my original patch did not do lazy validation, which is why we
-> went down this path. Is the right approach to change restorecon or to
-> update the API and maintain compatibility?
+>> -int selabel_validate(struct selabel_lookup_rec *contexts)
+>> +int selabel_validate(struct selabel_handle *rec,
+>> +                    struct selabel_lookup_rec *contexts)
+>>  {
+>>         int rc = 0;
+>>
+>> -       if (contexts->validated)
+>> +       if (!rec->validating || contexts->validated)
+>>                 goto out;
+>>
+>>         rc = selinux_validate(&contexts->ctx_raw);
+>> @@ -142,7 +143,7 @@ static int selabel_fini(struct selabel_handle *rec,
+>>                             struct selabel_lookup_rec *lr,
+>>                             int translating)
+>>  {
+>> -       if (compat_validate(lr, rec->spec_file, lr->lineno))
+>> +       if (compat_validate(rec, lr, rec->spec_file, lr->lineno))
+>>                 return -1;
+>>
+>>         if (translating && !lr->ctx_trans &&
+>> diff --git a/libselinux/src/label_backends_android.c b/libselinux/src/label_backends_android.c
+>> index 49e39ec8..cb8aae26 100644
+>> --- a/libselinux/src/label_backends_android.c
+>> +++ b/libselinux/src/label_backends_android.c
+>> @@ -122,7 +122,7 @@ static int process_line(struct selabel_handle *rec,
+>>                 spec_arr[nspec].lr.ctx_raw = context;
+>>
+>>                 if (rec->validating) {
+>> -                       if (selabel_validate(&spec_arr[nspec].lr) < 0) {
+>> +                       if (selabel_validate(rec, &spec_arr[nspec].lr) < 0) {
+>>                                 selinux_log(SELINUX_ERROR,
+>>                                             "%s:  line %u has invalid context %s\n",
+>>                                             path, lineno, spec_arr[nspec].lr.ctx_raw);
+>> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+>> index 169fed70..560d8c3d 100644
+>> --- a/libselinux/src/label_file.c
+>> +++ b/libselinux/src/label_file.c
+>> @@ -328,7 +328,7 @@ end_arch_check:
+>>                 spec->lr.ctx_raw = str_buf;
+>>
+>>                 if (strcmp(spec->lr.ctx_raw, "<<none>>") && rec->validating) {
+>> -                       if (selabel_validate(&spec->lr) < 0) {
+>> +                       if (selabel_validate(rec, &spec->lr) < 0) {
+>>                                 selinux_log(SELINUX_ERROR,
+>>                                             "%s: context %s is invalid\n",
+>>                                             path, spec->lr.ctx_raw);
+>> diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+>> index 1ab139e9..2fa85474 100644
+>> --- a/libselinux/src/label_file.h
+>> +++ b/libselinux/src/label_file.h
+>> @@ -509,7 +509,7 @@ static inline int process_line(struct selabel_handle *rec,
+>>         spec_hasMetaChars(&spec_arr[nspec]);
+>>
+>>         if (strcmp(context, "<<none>>") && rec->validating)
+>> -               return compat_validate(&spec_arr[nspec].lr, path, lineno);
+>> +               return compat_validate(rec, &spec_arr[nspec].lr, path, lineno);
+>>
+>>         return 0;
+>>  }
+>> diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+>> index b0d05882..0e020557 100644
+>> --- a/libselinux/src/label_internal.h
+>> +++ b/libselinux/src/label_internal.h
+>> @@ -112,7 +112,8 @@ struct selabel_handle {
+>>   * Validation function
+>>   */
+>>  extern int
+>> -selabel_validate(struct selabel_lookup_rec *contexts) hidden;
+>> +selabel_validate(struct selabel_handle *rec,
+>> +                struct selabel_lookup_rec *contexts) hidden;
+>>
+>>  /*
+>>   * Compatibility support
+>> @@ -127,7 +128,8 @@ extern void __attribute__ ((format(printf, 1, 2)))
+>>                 selinux_log(type, fmt);
+>>
+>>  extern int
+>> -compat_validate(struct selabel_lookup_rec *contexts,
+>> +compat_validate(struct selabel_handle *rec,
+>> +               struct selabel_lookup_rec *contexts,
+>>                 const char *path, unsigned lineno) hidden;
+>>
+>>  /*
+>> diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+>> index c66739af..58b4144a 100644
+>> --- a/libselinux/src/matchpathcon.c
+>> +++ b/libselinux/src/matchpathcon.c
+>> @@ -35,7 +35,8 @@ void set_matchpathcon_printf(void (*f) (const char *fmt, ...))
+>>         myprintf_compat = 1;
+>>  }
+>>
+>> -int compat_validate(struct selabel_lookup_rec *contexts,
+>> +int compat_validate(struct selabel_handle *rec,
+>> +                   struct selabel_lookup_rec *contexts,
+>>                     const char *path, unsigned lineno)
+>>  {
+>>         int rc;
+>> @@ -46,7 +47,7 @@ int compat_validate(struct selabel_lookup_rec *contexts,
+>>         else if (mycanoncon)
+>>                 rc = mycanoncon(path, lineno, ctx);
+>>         else {
+>> -               rc = selabel_validate(contexts);
+>> +               rc = selabel_validate(rec, contexts);
+>>                 if (rc < 0) {
+>>                         if (lineno) {
+>>                                 COMPAT_LOG(SELINUX_WARNING,
+>> --
+>> 2.14.3
+>>
+>
+> Sorry for the delay, yes this does indeed break the behavior of the
+> open flags and needs to be reverted.
 
-I reverted the change because technically it breaks the documented semantics of SELABEL_OPT_VALIDATE and thus could
-break existing external users, particularly ones that do not specify SELABEL_OPT_VALIDATE at all or specify it as 0.  Use case example is for labeling filesystem images where the file contexts aren't defined in the host policy.
-
-If we want to address the problem with restorecon potentially setting an invalid context when run in permissive mode,
-then we would likely need to introduce yet another SELABEL_OPT_* value, e.g. SELABEL_OPT_VALIDATE_LAZILY, and have restorecon explicitly specify that as part of its selabel_open() call, in order to cause the lazy validation to occur
-before returning from selabel_lookup().  This would avoid any compatibility breakage with existing callers of selabel_open().  restorecon (and setfiles) would still need an option to disable such validation for use cases where it isn't desirable.
+FYI: this was merged:
+https://github.com/SELinuxProject/selinux/commit/87a58b6b4ebf88da78bf1386c36d8d982ca41525
