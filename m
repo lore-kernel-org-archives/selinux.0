@@ -1,21 +1,26 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3PHABmt025336
- for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2018 13:10:13 -0400
-Received: by mail-ot0-f193.google.com with SMTP id i5-v6so26179319oth.1
- for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2018 10:09:52 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3PHIPlF025907
+ for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2018 13:18:25 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID14.oob.disa.mil (Postfix) with SMTP id 40WRjq3hszz3dvtf
+ for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2018 17:18:23 +0000 (UTC)
+Received: from USFB19PA08.eemsg.mil (unknown [192.168.16.5])
+ by USFBF3ID14.oob.disa.mil (Postfix) with ESMTP id 40WRjp1vrbz3dvtc
+ for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2018 17:18:22 +0000 (UTC)
+Received: by mail-oi0-f49.google.com with SMTP id n65-v6so21555006oig.6
+ for <selinux@tycho.nsa.gov>; Wed, 25 Apr 2018 10:18:21 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdq8sfyE5w-1-_-psMc5547cvh5zXvZ0ZWDgkpc8vk1o_w@mail.gmail.com>
-References: <20180422192148.7320-1-nicolas.iooss@m4x.org>
- <20180422192148.7320-2-nicolas.iooss@m4x.org>
- <CAFftDdq8sfyE5w-1-_-psMc5547cvh5zXvZ0ZWDgkpc8vk1o_w@mail.gmail.com>
+In-Reply-To: <CAFftDdr+rtJ8=FNS00CvdGXKGZf6K_Kix4J3FQvpxMnF7j9EZw@mail.gmail.com>
+References: <20180422193032.8132-1-nicolas.iooss@m4x.org>
+ <CAFftDdr+rtJ8=FNS00CvdGXKGZf6K_Kix4J3FQvpxMnF7j9EZw@mail.gmail.com>
 From: William Roberts <bill.c.roberts@gmail.com>
-Date: Wed, 25 Apr 2018 10:09:40 -0700
-Message-ID: <CAFftDdp9XsENjYomF8nn7d3_z1+dfMVAXDxtV2f=uKQ7BkFmBQ@mail.gmail.com>
+Date: Wed, 25 Apr 2018 10:09:30 -0700
+Message-ID: <CAFftDdo1wmExpQmgjGnL1va4uFiZts3m2R6bdE7+xF6N1xNjkg@mail.gmail.com>
 To: Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 2/2] sestatus: free process and file contexts
- which are checked
+Subject: Re: [PATCH 1/1] libsemanage: always check append_arg return
+ value
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -23,40 +28,51 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 Merged: https://github.com/SELinuxProject/selinux/pull/94
 
-On Mon, Apr 23, 2018 at 9:54 AM, William Roberts
+On Mon, Apr 23, 2018 at 9:50 AM, William Roberts
 <bill.c.roberts@gmail.com> wrote:
-> On Sun, Apr 22, 2018 at 12:21 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->> clang's static analyzer reports a potential memory leak because the
->> buffers allocated in pc and fc are not freed in main(), in sestatus.c.
->> Free these buffers properly.
+> On Sun, Apr 22, 2018 at 12:30 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>> When split_args() calls append_arg(), the returned value needs to be
+>> checked in order to detect memory allocation failure. Checks were
+>> missing in two places, which are spotted by clang's static analyzer:
+>>
+>>     semanage_store.c:1352:7: warning: Value stored to 'rc' is never
+>>     read
+>>             rc = append_arg(&argv, &num_args, arg);
+>>             ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>     semanage_store.c:1368:3: warning: Value stored to 'rc' is never read
+>>             rc = append_arg(&argv, &num_args, arg);
+>>             ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 >>
 >> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >> ---
->>  policycoreutils/sestatus/sestatus.c | 2 ++
->>  1 file changed, 2 insertions(+)
+>>  libsemanage/src/semanage_store.c | 4 ++++
+>>  1 file changed, 4 insertions(+)
 >>
->> diff --git a/policycoreutils/sestatus/sestatus.c b/policycoreutils/sestatus/sestatus.c
->> index d7f198c2fa0d..9a92e72ff4fd 100644
->> --- a/policycoreutils/sestatus/sestatus.c
->> +++ b/policycoreutils/sestatus/sestatus.c
->> @@ -436,6 +436,7 @@ int main(int argc, char **argv)
->>                         printf("%s\n", context);
->>                         freecon(context);
->>                 }
->> +               free(pc[i]);
+>> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+>> index 14ad99c152ad..bce648c46464 100644
+>> --- a/libsemanage/src/semanage_store.c
+>> +++ b/libsemanage/src/semanage_store.c
+>> @@ -1350,6 +1350,8 @@ static char **split_args(const char *arg0, char *arg_string,
+>>                                 if (isspace(*s) && !in_quote && !in_dquote) {
+>>                                         if (arg != NULL) {
+>>                                                 rc = append_arg(&argv, &num_args, arg);
+>> +                                               if (rc)
+>> +                                                       goto cleanup;
+>>                                                 free(arg);
+>>                                                 arg = NULL;
+>>                                         }
+>> @@ -1366,6 +1368,8 @@ static char **split_args(const char *arg0, char *arg_string,
 >>         }
->>
->>         printf("\nFile contexts:\n");
->> @@ -478,6 +479,7 @@ int main(int argc, char **argv)
->>                                 freecon(context);
->>                         }
->>                 }
->> +               free(fc[i]);
+>>         if (arg != NULL) {
+>>                 rc = append_arg(&argv, &num_args, arg);
+>> +               if (rc)
+>> +                       goto cleanup;
+>>                 free(arg);
+>>                 arg = NULL;
 >>         }
->>
->>         return 0;
 >> --
 >> 2.17.0
 >>
 >>
-> ack on both patches in this series.
+>
+> ack
