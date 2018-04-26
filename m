@@ -1,46 +1,39 @@
-Date: Thu, 26 Apr 2018 05:02:27 +1000 (AEST)
-From: James Morris <jmorris@namei.org>
-To: Paul Moore <paul@paul-moore.com>
-cc: David Herrmann <dh.herrmann@gmail.com>, linux-kernel@vger.kernel.org,
- teg@jklm.no, Stephen Smalley <sds@tycho.nsa.gov>,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- Eric Paris <eparis@parisplace.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-In-Reply-To: <CAHC9VhR-V1R2BpCt1aA56q4yT_PWv1kzoWtksbNkm08stcOGPw@mail.gmail.com>
-Message-ID: <alpine.LRH.2.21.1804260502030.12534@namei.org>
-References: <20180423133015.5455-1-dh.herrmann@gmail.com>
- <alpine.LRH.2.21.1804260443110.11568@namei.org>
- <CAHC9VhR-V1R2BpCt1aA56q4yT_PWv1kzoWtksbNkm08stcOGPw@mail.gmail.com>
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w3QHYTSD002787
+ for <selinux@tycho.nsa.gov>; Thu, 26 Apr 2018 13:34:29 -0400
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: SELinux <selinux@tycho.nsa.gov>
+References: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
+Message-ID: <83e8bd2a-a2c9-5d2e-4667-e98ab2821cd9@tycho.nsa.gov>
+Date: Thu, 26 Apr 2018 13:35:46 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: Re: [PATCH 0/3] Introduce LSM-hook for socketpair(2)
+In-Reply-To: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
+Subject: ANN: SELinux userspace 2.8-rc2 release candidate
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, 25 Apr 2018, Paul Moore wrote:
+A 2.8-rc2 release candidate for the SELinux userspace is now available at:
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-> On Wed, Apr 25, 2018 at 2:44 PM, James Morris <jmorris@namei.org> wrote:
-> > On Mon, 23 Apr 2018, David Herrmann wrote:
-> >> This patch series tries to close this gap and makes both behave the
-> >> same. A new LSM-hook is added which allows LSMs to cache the correct
-> >> peer information on newly created socket-pairs.
-> >
-> > Looks okay to me.
-> >
-> > Once it's respun with the Smack backend and maybe the hook name change,
-> > I'll merge this unless DaveM wants it to go in via his networking tree.
-> 
-> Note my objection to the hook placement in patch 2/3; I think we
-> should move the hook out of the AF_UNIX layer and up into the socket
-> layer.
+Please give it a test and let us know if there are any issues.
 
-I vote for this as it maintains the intended abstraction of the socket 
-API.
+A draft of the release notes is now available from the Releases page,
+as is the full git log output and git shortlog output since the 2.7
+release.  If there are further items we should mention or if something
+should be amended in the release notes, let us know.
 
+Thanks to all the contributors to this release candidate!
 
+A shortlog of changes since the 2.8-rc1 release candidate is below.
 
--- 
-James Morris
-<jmorris@namei.org>
+Nicolas Iooss (3):
+      sestatus: resolve symlinks in path when looking for a process
+      sestatus: free process and file contexts which are checked
+      libsemanage: always check append_arg return value
+
+Stephen Smalley (2):
+      Revert "libselinux: verify file_contexts when using restorecon"
+      Update VERSION files to 2.8-rc2.
