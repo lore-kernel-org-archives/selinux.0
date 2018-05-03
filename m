@@ -1,71 +1,34 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w43EpD6e018025
- for <selinux@tycho.nsa.gov>; Thu, 3 May 2018 10:51:13 -0400
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: SELinux <selinux@tycho.nsa.gov>
-References: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
- <83e8bd2a-a2c9-5d2e-4667-e98ab2821cd9@tycho.nsa.gov>
-Message-ID: <709e6b08-2a3a-84ec-da43-f514469d45f7@tycho.nsa.gov>
-Date: Thu, 3 May 2018 10:52:24 -0400
+To: selinux@tycho.nsa.gov
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Thu,  3 May 2018 14:48:41 -0400
+Message-Id: <20180503184845.19790-1-sds@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <83e8bd2a-a2c9-5d2e-4667-e98ab2821cd9@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Subject: Last call for selinux userspace 2.8 release
+Content-Type: text/plain; charset=UTF-8
+Subject: [PATCH 0/4] Fix build warnings with gcc 8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hi,
+I encountered a number of build warnings on the selinux userspace
+using gcc 8, which is the default now in F28 and rawhide. This fixes
+the ones that are treated as fatal errors by default.  There are still
+known warnings due to the flex skeleton and something to do with the
+python bindings, but those are not new.
 
-If you have encountered any unreported problems with the 2.8-rcX releases or have any
-pending patches you believe should be included in the 2.8 release, please post them soon.
-Also, let us know of any additions or changes that should be made to the release notes;
-the current draft is as follows.
+Stephen Smalley (4):
+  libsepol: remove unused function and type
+  libselinux: fix build warning in save_booleans()
+  libselinux: avcstat: fix build warning
+  libselinux: audit2why: fix build warnings
 
-User-visible changes:
+ libselinux/src/audit2why.c                 | 2 +-
+ libselinux/src/booleans.c                  | 4 +++-
+ libselinux/utils/avcstat.c                 | 3 ++-
+ libsepol/include/sepol/policydb/policydb.h | 3 ---
+ libsepol/src/policydb.c                    | 8 --------
+ 5 files changed, 6 insertions(+), 14 deletions(-)
 
-* semanage fcontext -l now also lists home directory entries from
-file_contexts.homedirs.
-
-* semodule can now enable or disable multiple modules in the same
-operation by specifying a list of modules after -e or -d, making them
-consistent with the -i/u/r/E options.
-
-* CIL now supports multiple declarations of types, attributes, and
-(non-conflicting) object contexts (e.g. genfscon), enabled via the -m
-or --multiple-decls option to secilc.
-
-* libsemanage no longer deletes the tmp directory if there is an error
-while committing the policy transaction, so that any temporary files
-can be further inspected for debugging purposes (e.g. to examine a
-particular line of the generated CIL module).  The tmp directory will
-be deleted upon the next transaction, so no manual removal is needed.
-
-* Support was added for SCTP portcon statements. The corresponding
-kernel support was introduced in Linux 4.17, and is only active if the
-extended_socket_class policy capability is enabled in the policy.
-
-* sepol_polcap_getnum/name() were exported as part of the shared libsepol
-interface, initially for use by setools4.
-
-* semodule_deps was removed since it has long been broken and is not useful
-for CIL modules.
-
-Packaging-relevant changes:
-
-* When overriding PREFIX, BINDIR, SBINDIR, SHLIBDIR, LIBEXECDIR, etc.,
-DESTDIR has to be removed from the definition. For example on Arch
-Linux, SBINDIR="${pkgdir}/usr/bin" was changed to SBINDIR="/usr/bin".
-
-* Defining variable LIBSEPOLA (to /usr/lib/libsepol.a, for example) is
-no longer mandatory (thanks to the switch to "-l:libsepol.a" in
-Makefiles).
-
-* PYSITEDIR has been renamed PYTHONLIBDIR (and its definition changed).
-
-* selinux-gui (i.e. system-config-selinux GUI application) is now
-compatible with Python 3. Doing this required migrating away from
-PyGTK to the supported PyGI library. This means that selinux-gui now
-depends on python-gobject, Gtk+ 3 and selinux-python. It no longer
-requires PyGtk or Python 2.
+-- 
+2.14.3
