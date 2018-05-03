@@ -1,65 +1,79 @@
 From: Stephen Smalley <sds@tycho.nsa.gov>
 To: selinux@tycho.nsa.gov
 Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Thu,  3 May 2018 14:48:42 -0400
-Message-Id: <20180503184845.19790-2-sds@tycho.nsa.gov>
+Date: Thu,  3 May 2018 14:48:43 -0400
+Message-Id: <20180503184845.19790-3-sds@tycho.nsa.gov>
 In-Reply-To: <20180503184845.19790-1-sds@tycho.nsa.gov>
 References: <20180503184845.19790-1-sds@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Subject: [PATCH 1/4] libsepol: remove unused function and type
+Subject: [PATCH 2/4] libselinux: fix build warning in save_booleans()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Fix the following build warning:
-policydb.c: In function ‘get_symtab_destroy_func’:
-policydb.c:1581:9: error: cast between incompatible function types from ‘int (*)(char *, void *, void *)’ to ‘void (*)(char *, void *, void *)’ [-Werror=cast-function-type]
-  return (hashtab_destroy_func_t) destroy_f[sym_num];
-         ^
+Fix the following warning in save_booleans().  We could likely drop
+the function altogether, either ignoring or returning EINVAL if
+a non-zero permanent argument is passed to security_set_boolean_list(),
+since setting persistent booleans is now handled via libsemanage.  This
+code and the corresponding security_load_booleans() code is legacy from
+RHEL4 days and could be removed although we would need to keep the ABI
+for compatibility.
 
-It turns out that this function and type are long unused in libsepol
-and are not exported APIs for the shared library, so just remove them.
+booleans.c: In function ‘save_booleans’:
+booleans.c:441:13: error: ‘%d’ directive output may be truncated writing between 1 and 11 bytes into a region of size between 0 and 8191 [-Werror=format-truncation=]
+         "%s=%d\n", boolname,
+             ^~
+booleans.c:440:7: note: ‘snprintf’ output between 4 and 8205 bytes into a destination of size 8192
+       snprintf(outbuf, sizeof(outbuf),
+       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         "%s=%d\n", boolname,
+         ~~~~~~~~~~~~~~~~~~~~
+         boollist[i].value);
+         ~~~~~~~~~~~~~~~~~~
+booleans.c:454:12: error: ‘%d’ directive output may be truncated writing between 1 and 11 bytes into a region of size between 0 and 8191 [-Werror=format-truncation=]
+        "%s=%d\n", boolname, val);
+            ^~
+booleans.c:453:6: note: ‘snprintf’ output between 4 and 8205 bytes into a destination of size 8192
+      snprintf(outbuf, sizeof(outbuf),
+      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        "%s=%d\n", boolname, val);
+        ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- libsepol/include/sepol/policydb/policydb.h | 3 ---
- libsepol/src/policydb.c                    | 8 --------
- 2 files changed, 11 deletions(-)
+ libselinux/src/booleans.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index f8626ef4..271a82c9 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -646,9 +646,6 @@ extern int policydb_context_isvalid(const policydb_t * p,
+diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+index 1da55bfd..b3ea3623 100644
+--- a/libselinux/src/booleans.c
++++ b/libselinux/src/booleans.c
+@@ -416,7 +416,7 @@ static int save_booleans(size_t boolcnt, SELboolean * boollist)
+ 		ssize_t ret;
+ 		size_t size = 0;
+ 		int val;
+-		char boolname[BUFSIZ];
++		char boolname[BUFSIZ-3];
+ 		char *buffer;
+ 		inbuf = NULL;
+ 		__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+@@ -450,6 +450,7 @@ static int save_booleans(size_t boolcnt, SELboolean * boollist)
+ 					}
+ 				}
+ 				if (i == boolcnt) {
++					val = !!val;
+ 					snprintf(outbuf, sizeof(outbuf),
+ 						 "%s=%d\n", boolname, val);
+ 					len = strlen(outbuf);
+@@ -505,6 +506,7 @@ int security_set_boolean_list(size_t boolcnt, SELboolean * boollist,
  
- extern void symtabs_destroy(symtab_t * symtab);
- extern int scope_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p);
--typedef void (*hashtab_destroy_func_t) (hashtab_key_t k, hashtab_datum_t d,
--					void *args);
--extern hashtab_destroy_func_t get_symtab_destroy_func(int sym_num);
- 
- extern void class_perm_node_init(class_perm_node_t * x);
- extern void type_set_init(type_set_t * x);
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index c7521235..dfedfafe 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -1573,14 +1573,6 @@ int scope_destroy(hashtab_key_t key, hashtab_datum_t datum, void *p
- 	return 0;
- }
- 
--hashtab_destroy_func_t get_symtab_destroy_func(int sym_num)
--{
--	if (sym_num < 0 || sym_num >= SYM_NUM) {
--		return NULL;
--	}
--	return (hashtab_destroy_func_t) destroy_f[sym_num];
--}
--
- /*
-  * Load the initial SIDs specified in a policy database
-  * structure into a SID table.
+ 	size_t i;
+ 	for (i = 0; i < boolcnt; i++) {
++		boollist[i].value = !!boollist[i].value;
+ 		if (security_set_boolean(boollist[i].name, boollist[i].value)) {
+ 			rollback(boollist, i);
+ 			return -1;
 -- 
 2.14.3
