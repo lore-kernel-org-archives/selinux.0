@@ -1,14 +1,16 @@
-To: Jason Zaman <jason@perfinion.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w44D8AY9026518
+ for <selinux@tycho.nsa.gov>; Fri, 4 May 2018 09:08:10 -0400
+To: selinux@tycho.nsa.gov
 References: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
  <83e8bd2a-a2c9-5d2e-4667-e98ab2821cd9@tycho.nsa.gov>
  <709e6b08-2a3a-84ec-da43-f514469d45f7@tycho.nsa.gov>
- <20180504075510.GB5101@baraddur.perfinion.com>
+ <20180504121915.GA3263@julius.enp8s0.d30>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3c51abc9-2d3a-3cef-2ba1-d976dee651c5@tycho.nsa.gov>
-Date: Fri, 4 May 2018 09:08:36 -0400
+Message-ID: <4b96edef-b5cd-c547-b57f-64e13564bd4c@tycho.nsa.gov>
+Date: Fri, 4 May 2018 09:09:20 -0400
 MIME-Version: 1.0
-In-Reply-To: <20180504075510.GB5101@baraddur.perfinion.com>
+In-Reply-To: <20180504121915.GA3263@julius.enp8s0.d30>
 Content-Type: text/plain; charset=utf-8
 Subject: Re: Last call for selinux userspace 2.8 release
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -16,27 +18,24 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/04/2018 03:55 AM, Jason Zaman wrote:
+On 05/04/2018 08:19 AM, Dominick Grift wrote:
 > On Thu, May 03, 2018 at 10:52:24AM -0400, Stephen Smalley wrote:
 >> Hi,
 >>
 >> If you have encountered any unreported problems with the 2.8-rcX releases or have any
 >> pending patches you believe should be included in the 2.8 release, please post them soon.
-> 
-> the rc2 release has been fine for me for several days now. And I havent
-> heard any issues from any gentoo users either so we're probably good to
-> go. -rc1 failed to boot properly for me because some important things in
-> /run or /dev didnt get labeled but that was fixed in rc2.
-
-Hmm...I'd like to understand that better. The change was verifying file_contexts when using restorecon,
-which was reverted in -rc2.  But the fact that it prevented labeling files in -rc1 means that either
-you have a bug in your file_contexts configuration or there is some other bug there.
-
-> 
 >> Also, let us know of any additions or changes that should be made to the release notes;
 >> the current draft is as follows.
 >>
 >> User-visible changes:
+> 
+> One might see processes "validate_context" where they didnt before
+> 
+> Generally processes that use lgetfilecon/lsetfilecon i suspect (like lvm, various systemd components etc)
+
+That should no longer be true as of -rc2 since I reverted the libselinux: verify file_contexts when using restorecon change.
+
+> 
 >>
 >> * semanage fcontext -l now also lists home directory entries from
 >> file_contexts.homedirs.
@@ -58,17 +57,7 @@ you have a bug in your file_contexts configuration or there is some other bug th
 >> * Support was added for SCTP portcon statements. The corresponding
 >> kernel support was introduced in Linux 4.17, and is only active if the
 >> extended_socket_class policy capability is enabled in the policy.
-> 
-> Perhaps also note that the sctp stuff is in refpolicy and this 2.8
-> release is required to compile it.
-> 
-> I tried doing a release of the gentoo policy (we merge from HEAD fairly
-> frequently not only the big releases) and it fails to compile. I will
-> add the sctp stuff back into gentoo's policy later then make the
-> policies require >=2.8.
-> 
-> -- Jason
-> 
+>>
 >> * sepol_polcap_getnum/name() were exported as part of the shared libsepol
 >> interface, initially for use by setools4.
 >>
