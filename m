@@ -1,81 +1,72 @@
-Date: Fri, 4 May 2018 22:12:35 +0200
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20180504201234.GB3111@workstation>
-References: <20180504115146.19532-1-plautrba@redhat.com>
- <d705f8cf-43c7-2882-ca42-e2d5dc90c010@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="hYooF8G/hrfVAmum"
-In-Reply-To: <d705f8cf-43c7-2882-ca42-e2d5dc90c010@tycho.nsa.gov>
-Subject: Re: [PATCH] python/semanage/seobject.py: Fix undefined
- store check
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w44KtLm4032021
+ for <selinux@tycho.nsa.gov>; Fri, 4 May 2018 16:55:21 -0400
+From: Richard Guy Briggs <rgb@redhat.com>
+To: Linux-Audit Mailing List <linux-audit@redhat.com>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
+ Netfilter Devel List <netfilter-devel@vger.kernel.org>,
+ Linux Security Module list <linux-security-module@vger.kernel.org>,
+ Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
+ SElinux list <selinux@tycho.nsa.gov>
+Cc: Eric Paris <eparis@redhat.com>, Paul Moore <paul@paul-moore.com>,
+ Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+ David Howells <dhowells@redhat.com>, Richard Guy Briggs <rgb@redhat.com>
+Date: Fri,  4 May 2018 16:54:33 -0400
+Message-Id: <cover.1525466167.git.rgb@redhat.com>
+Subject: [PATCH ghak81 RFC V1 0/5] audit: group task params
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Group the audit parameters for each task into one structure.
+In particular, remove the loginuid and sessionid values and the audit
+context pointer from the task structure, replacing them with an audit
+task information structure to contain them.  Use access functions to
+access audit values.
 
---hYooF8G/hrfVAmum
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Note:  Use static allocation of the audit task information structure
+initially.  Dynamic allocation was considered and attempted, but isn't
+ready yet.  Static allocation has the limitation that future audit task
+information structure changes would cause a visible change to the rest
+of the kernel, whereas dynamic allocation would mostly hide any future
+changes.
 
-On Fri, May 04, 2018 at 01:58:08PM -0400, Stephen Smalley wrote:
-> On 05/04/2018 07:51 AM, Petr Lautrbach wrote:
-> > From: Vit Mojzis <vmojzis@redhat.com>
-> >=20
-> > self.store is always a string (actual store name or "") because of
-> > semanageRecords.__init__. Fix check for not defined store.
-> >=20
-> > Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=3D1559174#c3
-> >=20
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> > ---
-> >  python/semanage/seobject.py | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >=20
-> > diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> > index ac310ea6..c76dce85 100644
-> > --- a/python/semanage/seobject.py
-> > +++ b/python/semanage/seobject.py
-> > @@ -2651,7 +2651,7 @@ class booleanRecords(semanageRecords):
-> >              self.current_booleans =3D []
-> >              ptype =3D None
-> > =20
-> > -        if self.store is None or self.store =3D=3D ptype:
-> > +        if self.store =3D=3D "" or self.store =3D=3D ptype:
-> >              self.modify_local =3D True
-> >          else:
-> >              self.modify_local =3D False
-> >=20
->=20
-> Is there a reason you didn't use if not self.store here?
->=20
+The first four access normalization patches could stand alone.
 
-There's a similar check on line 258 and this just follows the same pattern.
+Passes audit-testsuite.
 
+Richard Guy Briggs (5):
+  audit: normalize loginuid read access
+  audit: convert sessionid unset to a macro
+  audit: use inline function to get audit context
+  audit: use inline function to set audit context
+  audit: collect audit task parameters
 
+ MAINTAINERS                          |  2 +-
+ include/linux/audit.h                | 30 ++++++++++---
+ include/linux/audit_task.h           | 31 ++++++++++++++
+ include/linux/sched.h                |  6 +--
+ include/net/xfrm.h                   |  4 +-
+ include/uapi/linux/audit.h           |  1 +
+ init/init_task.c                     |  8 +++-
+ kernel/audit.c                       |  4 +-
+ kernel/audit_watch.c                 |  2 +-
+ kernel/auditsc.c                     | 82 ++++++++++++++++++------------------
+ kernel/fork.c                        |  2 +-
+ net/bridge/netfilter/ebtables.c      |  2 +-
+ net/core/dev.c                       |  2 +-
+ net/netfilter/x_tables.c             |  2 +-
+ net/netlabel/netlabel_user.c         |  2 +-
+ security/integrity/ima/ima_api.c     |  2 +-
+ security/integrity/integrity_audit.c |  2 +-
+ security/lsm_audit.c                 |  2 +-
+ security/selinux/hooks.c             |  4 +-
+ security/selinux/selinuxfs.c         |  6 +--
+ security/selinux/ss/services.c       | 12 +++---
+ 21 files changed, 129 insertions(+), 79 deletions(-)
+ create mode 100644 include/linux/audit_task.h
 
---hYooF8G/hrfVAmum
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlrsvqsACgkQviIJHj72
-InVhbBAApRzNRjjN2T33HIoMO2FR2ke3XjemFeShEaxWmJOEm72VzovZIqPncTsF
-VsS3O5Kflg7tj3retWUdPrq1Ne5ekIjZ2FYpCinD8alKK8Z6C9YkwznmG1deL/D8
-ZWBmhw5AbHAngAAVdQP6g0a+E6yy8VzrENdyeyqhe/QMgUjeKqcMBKZa4IXLQX41
-aR7iHcVzsgn6qOEwFkpz6nAGdFMbETGQDTSx4rxwUFghu1Re8lV+Tb6IlY2xH6kE
-cywxGiDTQZk68MaETO4fP0DES7owW8KGMZfkvZdgt+bqJC3RD5fq+ReoZj8s1hE4
-+Gd4wS8nUXYDTlHS6iAsZ07+NR2jWc9z6/J8f5pflcIMx5BFov7otJsScEajrEeG
-etfan2JBbt0WwNOxuIQZcXTGIY7Q6dZfYLfa1EQn2vdmeahDNM4GSQ0yxMzOlb3S
-DVF/MN0MbhDNDVHFx4twRi5i5pCxGeshs2NdSqP+qZThmpLJ8EbIKW4cxXlmpWBb
-TJaJ8FSozK7/9AIhNKR0kPsv49uEBT/5AjBskE/ptNlefcxjG2LUmZhRcA7L22Ol
-SrSw3nKdiG1F0PGHKkOLNnlUd6kns2602XpXSbihgda6YZPpPerLClLOWSszjEn7
-7xhMcefCi5fUkg5ng8MfVg03C1/fWxtH50aFraMI6GZ2y9TdJhs=
-=vhEP
------END PGP SIGNATURE-----
-
---hYooF8G/hrfVAmum--
+-- 
+1.8.3.1
