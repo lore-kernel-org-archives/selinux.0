@@ -1,38 +1,71 @@
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w48CGW7p004583
- for <selinux@tycho.nsa.gov>; Tue, 8 May 2018 08:16:32 -0400
-To: SELinux <selinux@tycho.nsa.gov>
-References: <20180503184845.19790-1-sds@tycho.nsa.gov>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <07f523e4-0650-e21f-2d5b-1bd3efb246dc@tycho.nsa.gov>
-Date: Tue, 8 May 2018 08:17:38 -0400
-MIME-Version: 1.0
-In-Reply-To: <20180503184845.19790-1-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH 0/4] Fix build warnings with gcc 8
+From: Alexey Kodanev <alexey.kodanev@oracle.com>
+To: selinux@tycho.nsa.gov
+Cc: Richard Haines <richard_c_haines@btinternet.com>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>,
+ linux-security-module@vger.kernel.org, netdev <netdev@vger.kernel.org>,
+ Alexey Kodanev <alexey.kodanev@oracle.com>
+Date: Tue,  8 May 2018 17:05:03 +0300
+Message-Id: <1525788303-23244-1-git-send-email-alexey.kodanev@oracle.com>
+Subject: [PATCH] selinux: add AF_UNSPEC and INADDR_ANY checks to
+ selinux_socket_bind()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/03/2018 02:48 PM, Stephen Smalley wrote:
-> I encountered a number of build warnings on the selinux userspace
-> using gcc 8, which is the default now in F28 and rawhide. This fixes
-> the ones that are treated as fatal errors by default.  There are still
-> known warnings due to the flex skeleton and something to do with the
-> python bindings, but those are not new.
-> 
-> Stephen Smalley (4):
->   libsepol: remove unused function and type
->   libselinux: fix build warning in save_booleans()
->   libselinux: avcstat: fix build warning
->   libselinux: audit2why: fix build warnings
-> 
->  libselinux/src/audit2why.c                 | 2 +-
->  libselinux/src/booleans.c                  | 4 +++-
->  libselinux/utils/avcstat.c                 | 3 ++-
->  libsepol/include/sepol/policydb/policydb.h | 3 ---
->  libsepol/src/policydb.c                    | 8 --------
->  5 files changed, 6 insertions(+), 14 deletions(-)
+Commit d452930fd3b9 ("selinux: Add SCTP support") breaks compatibility
+with the old programs that can pass sockaddr_in with AF_UNSPEC and
+INADDR_ANY to bind(). As a result, bind() returns EAFNOSUPPORT error.
+It was found with LTP/asapi_01 test.
 
-Applied.
+Similar to commit 29c486df6a20 ("net: ipv4: relax AF_INET check in
+bind()"), which relaxed AF_INET check for compatibility, add AF_UNSPEC
+case to AF_INET and make sure that the address is INADDR_ANY.
+
+Also, in the end of selinux_socket_bind(), instead of adding AF_UNSPEC
+to 'address->sa_family == AF_INET', verify AF_INET6 first.
+
+Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+Signed-off-by: Alexey Kodanev <alexey.kodanev@oracle.com>
+---
+ security/selinux/hooks.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 4cafe6a..649a3be 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4602,10 +4602,16 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 		 * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
+ 		 */
+ 		switch (address->sa_family) {
++		case AF_UNSPEC:
+ 		case AF_INET:
+ 			if (addrlen < sizeof(struct sockaddr_in))
+ 				return -EINVAL;
+ 			addr4 = (struct sockaddr_in *)address;
++
++			if (address->sa_family == AF_UNSPEC &&
++			    addr4->sin_addr.s_addr != htonl(INADDR_ANY))
++				return -EAFNOSUPPORT;
++
+ 			snum = ntohs(addr4->sin_port);
+ 			addrp = (char *)&addr4->sin_addr.s_addr;
+ 			break;
+@@ -4681,10 +4687,10 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+ 		ad.u.net->sport = htons(snum);
+ 		ad.u.net->family = family;
+ 
+-		if (address->sa_family == AF_INET)
+-			ad.u.net->v4info.saddr = addr4->sin_addr.s_addr;
+-		else
++		if (address->sa_family == AF_INET6)
+ 			ad.u.net->v6info.saddr = addr6->sin6_addr;
++		else
++			ad.u.net->v4info.saddr = addr4->sin_addr.s_addr;
+ 
+ 		err = avc_has_perm(&selinux_state,
+ 				   sksec->sid, sid,
+-- 
+1.8.3.1
