@@ -1,142 +1,152 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w491Yfor030544
- for <selinux@tycho.nsa.gov>; Tue, 8 May 2018 21:34:41 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 40gf6P0hFZzrKYR
- for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 01:34:37 +0000 (UTC)
-Received: from UPBD19PA13.eemsg.mil (unknown [192.168.18.15])
- by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 40gf6N27G4zrKYF
- for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 01:34:36 +0000 (UTC)
-Date: Tue, 8 May 2018 21:34:15 -0400
-From: Richard Guy Briggs <rgb@redhat.com>
-To: Linux-Audit Mailing List <linux-audit@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
- Netfilter Devel List <netfilter-devel@vger.kernel.org>,
- Linux Security Module list <linux-security-module@vger.kernel.org>,
- Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
- SElinux list <selinux@tycho.nsa.gov>
-Cc: David Howells <dhowells@redhat.com>, Ingo Molnar <mingo@redhat.com>
-Message-ID: <20180509013415.sohoc2jbofdqqw5v@madcap2.tricolour.ca>
-References: <cover.1525466167.git.rgb@redhat.com>
- <91fd13c7a66718dc827d299fa101883e5d0a864f.1525466167.git.rgb@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Alexey Kodanev <alexey.kodanev@oracle.com>,
+ Richard Haines <richard_c_haines@btinternet.com>,
+ selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+ linux-security-module@vger.kernel.org, netdev <netdev@vger.kernel.org>
+References: <1525788303-23244-1-git-send-email-alexey.kodanev@oracle.com>
+ <CAHC9VhTACGPt2dSkUN9Efxs-HQVSAsxoiwPxHcujd++O-mMafg@mail.gmail.com>
+ <1eb10913-8802-e2dd-68f0-9483435cd949@tycho.nsa.gov>
+ <CAHC9VhT1+-ch1Ncv5YCNgu7tPnUj1Qx8S=a=q=Fn=Dwx4SnTKg@mail.gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <7fdbaf13-fea2-4a2c-213d-fa291db67081@tycho.nsa.gov>
+Date: Wed, 9 May 2018 08:37:19 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <91fd13c7a66718dc827d299fa101883e5d0a864f.1525466167.git.rgb@redhat.com>
-Subject: Re: [PATCH ghak81 RFC V1 2/5] audit: convert sessionid
- unset to a macro
+In-Reply-To: <CAHC9VhT1+-ch1Ncv5YCNgu7tPnUj1Qx8S=a=q=Fn=Dwx4SnTKg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH] selinux: add AF_UNSPEC and INADDR_ANY checks to
+ selinux_socket_bind()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 2018-05-04 16:54, Richard Guy Briggs wrote:
-> Use a macro, "AUDIT_SID_UNSET", to replace each instance of
-> initialization and comparison to an audit session ID.
+On 05/08/2018 08:25 PM, Paul Moore wrote:
+> On Tue, May 8, 2018 at 2:40 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 05/08/2018 01:05 PM, Paul Moore wrote:
+>>> On Tue, May 8, 2018 at 10:05 AM, Alexey Kodanev
+>>> <alexey.kodanev@oracle.com> wrote:
+>>>> Commit d452930fd3b9 ("selinux: Add SCTP support") breaks compatibility
+>>>> with the old programs that can pass sockaddr_in with AF_UNSPEC and
+>>>> INADDR_ANY to bind(). As a result, bind() returns EAFNOSUPPORT error.
+>>>> It was found with LTP/asapi_01 test.
+>>>>
+>>>> Similar to commit 29c486df6a20 ("net: ipv4: relax AF_INET check in
+>>>> bind()"), which relaxed AF_INET check for compatibility, add AF_UNSPEC
+>>>> case to AF_INET and make sure that the address is INADDR_ANY.
+>>>>
+>>>> Also, in the end of selinux_socket_bind(), instead of adding AF_UNSPEC
+>>>> to 'address->sa_family == AF_INET', verify AF_INET6 first.
+>>>>
+>>>> Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+>>>> Signed-off-by: Alexey Kodanev <alexey.kodanev@oracle.com>
+>>>> ---
+>>>>  security/selinux/hooks.c | 12 +++++++++---
+>>>>  1 file changed, 9 insertions(+), 3 deletions(-)
+>>>
+>>> Thanks for finding and reporting this regression.
+>>>
+>>> I think I would prefer to avoid having to duplicate the
+>>> AF_UNSPEC/INADDR_ANY checking logic in the SELinux hook, even though
+>>> it is a small bit of code and unlikely to change.  I'm wondering if it
+>>> would be better to check both the socket and sockaddr address family
+>>> in the main if conditional inside selinux_socket_bind(), what do you
+>>> think?  Another option would be to go back to just checking the
+>>> soackaddr address family; we moved away from that for a reason which
+>>> escapes at the moment (code cleanliness?), but perhaps that was a
+>>> mistake.
+>>
+>> We've always used the sk->sk_family there; it was only the recent code from Richard that started
+>> using the socket address family.
 > 
-> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-
-There's a minor issue with this patch, adding a header include to
-init/init_task.c in this patch and removing it from patch 5.  That'll be
-in the next revision.
-
-I have dynamic allocation working, so that has a good chance of
-appearing  too.
-
-> ---
->  include/linux/audit.h      | 2 +-
->  include/net/xfrm.h         | 2 +-
->  include/uapi/linux/audit.h | 1 +
->  init/init_task.c           | 2 +-
->  kernel/auditsc.c           | 4 ++--
->  5 files changed, 6 insertions(+), 5 deletions(-)
+> Yes I know, I thought I was the one that suggested it at some point
+> (I'll take the blame) ... although now that I'm looking at the git
+> log, maybe I'm confusing it with something else.
 > 
-> diff --git a/include/linux/audit.h b/include/linux/audit.h
-> index 75d5b03..5f86f7c 100644
-> --- a/include/linux/audit.h
-> +++ b/include/linux/audit.h
-> @@ -513,7 +513,7 @@ static inline kuid_t audit_get_loginuid(struct task_struct *tsk)
->  }
->  static inline unsigned int audit_get_sessionid(struct task_struct *tsk)
->  {
-> -	return -1;
-> +	return AUDIT_SID_UNSET;
->  }
->  static inline void audit_ipc_obj(struct kern_ipc_perm *ipcp)
->  { }
-> diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-> index a872379..fcce8ee 100644
-> --- a/include/net/xfrm.h
-> +++ b/include/net/xfrm.h
-> @@ -751,7 +751,7 @@ static inline void xfrm_audit_helper_usrinfo(bool task_valid,
->  					    audit_get_loginuid(current) :
->  					    INVALID_UID);
->  	const unsigned int ses = task_valid ? audit_get_sessionid(current) :
-> -		(unsigned int) -1;
-> +		AUDIT_SID_UNSET;
->  
->  	audit_log_format(audit_buf, " auid=%u ses=%u", auid, ses);
->  	audit_log_task_context(audit_buf);
-> diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-> index 4e61a9e..04f9bd2 100644
-> --- a/include/uapi/linux/audit.h
-> +++ b/include/uapi/linux/audit.h
-> @@ -465,6 +465,7 @@ struct audit_tty_status {
->  };
->  
->  #define AUDIT_UID_UNSET (unsigned int)-1
-> +#define AUDIT_SID_UNSET ((unsigned int)-1)
->  
->  /* audit_rule_data supports filter rules with both integer and string
->   * fields.  It corresponds with AUDIT_ADD_RULE, AUDIT_DEL_RULE and
-> diff --git a/init/init_task.c b/init/init_task.c
-> index 3ac6e75..c788f91 100644
-> --- a/init/init_task.c
-> +++ b/init/init_task.c
-> @@ -119,7 +119,7 @@ struct task_struct init_task
->  	.thread_node	= LIST_HEAD_INIT(init_signals.thread_head),
->  #ifdef CONFIG_AUDITSYSCALL
->  	.loginuid	= INVALID_UID,
-> -	.sessionid	= (unsigned int)-1,
-> +	.sessionid	= AUDIT_SID_UNSET,
->  #endif
->  #ifdef CONFIG_PERF_EVENTS
->  	.perf_event_mutex = __MUTEX_INITIALIZER(init_task.perf_event_mutex),
-> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> index f3817d0..6e3ceb9 100644
-> --- a/kernel/auditsc.c
-> +++ b/kernel/auditsc.c
-> @@ -2050,7 +2050,7 @@ static void audit_log_set_loginuid(kuid_t koldloginuid, kuid_t kloginuid,
->  int audit_set_loginuid(kuid_t loginuid)
->  {
->  	struct task_struct *task = current;
-> -	unsigned int oldsessionid, sessionid = (unsigned int)-1;
-> +	unsigned int oldsessionid, sessionid = AUDIT_SID_UNSET;
->  	kuid_t oldloginuid;
->  	int rc;
->  
-> @@ -2064,7 +2064,7 @@ int audit_set_loginuid(kuid_t loginuid)
->  	/* are we setting or clearing? */
->  	if (uid_valid(loginuid)) {
->  		sessionid = (unsigned int)atomic_inc_return(&session_id);
-> -		if (unlikely(sessionid == (unsigned int)-1))
-> +		if (unlikely(sessionid == AUDIT_SID_UNSET))
->  			sessionid = (unsigned int)atomic_inc_return(&session_id);
->  	}
->  
-> -- 
-> 1.8.3.1
+>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>> index 4cafe6a19167..a3789b167667 100644
+>>> --- a/security/selinux/hooks.c
+>>> +++ b/security/selinux/hooks.c
+>>> @@ -4577,6 +4577,7 @@ static int selinux_socket_bind(struct socket *sock, struc>
+>>> {
+>>>        struct sock *sk = sock->sk;
+>>>        u16 family;
+>>> +       u16 family_sa;
+>>>        int err;
+>>>
+>>>        err = sock_has_perm(sk, SOCKET__BIND);
+>>> @@ -4585,7 +4586,9 @@ static int selinux_socket_bind(struct socket *sock, struc>
+>>>
+>>>        /* If PF_INET or PF_INET6, check name_bind permission for the port. */
+>>>        family = sk->sk_family;
+>>> -       if (family == PF_INET || family == PF_INET6) {
+>>> +       family_sa = address->sa_family;
+>>> +       if ((family == PF_INET || family == PF_INET6) &&
+>>> +           (family_sa == PF_INET || family_sa == PF_INET6)) {
+>>
+>> Wouldn't this allow bypassing the name_bind permission check by passing in AF_UNSPEC?
 > 
-> --
-> Linux-audit mailing list
-> Linux-audit@redhat.com
-> https://www.redhat.com/mailman/listinfo/linux-audit
+> I believe these name_bind permission checkis skipped for AF_UNSPEC
+> already, isn't it?  The only way the name_bind check would be
+> triggered is if the source port, snum, was non-zero and I didn't think
+> that was really legal for AF_UNSPEC/INADDR_ANY, is it?
 
-- RGB
+1) What in inet_bind() prevents that from occurring?
+2) Regardless, what about the node_bind check?
 
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
+> 
+>>>                char *addrp;
+>>>                struct sk_security_struct *sksec = sk->sk_security;
+>>>                struct common_audit_data ad;
+>>> @@ -4601,7 +4604,7 @@ static int selinux_socket_bind(struct socket *sock, struc>
+>>>                 * need to check address->sa_family as it is possible to have
+>>>                 * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
+>>>                 */
+>>> -               switch (address->sa_family) {
+>>> +               switch (family_sa) {
+>>>                case AF_INET:
+>>>                        if (addrlen < sizeof(struct sockaddr_in))
+>>>                                return -EINVAL;
+>>>
+>>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>>> index 4cafe6a..649a3be 100644
+>>>> --- a/security/selinux/hooks.c
+>>>> +++ b/security/selinux/hooks.c
+>>>> @@ -4602,10 +4602,16 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+>>>>                  * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
+>>>>                  */
+>>>>                 switch (address->sa_family) {
+>>>> +               case AF_UNSPEC:
+>>>>                 case AF_INET:
+>>>>                         if (addrlen < sizeof(struct sockaddr_in))
+>>>>                                 return -EINVAL;
+>>>>                         addr4 = (struct sockaddr_in *)address;
+>>>> +
+>>>> +                       if (address->sa_family == AF_UNSPEC &&
+>>>> +                           addr4->sin_addr.s_addr != htonl(INADDR_ANY))
+>>>> +                               return -EAFNOSUPPORT;
+>>>> +
+>>>>                         snum = ntohs(addr4->sin_port);
+>>>>                         addrp = (char *)&addr4->sin_addr.s_addr;
+>>>>                         break;
+>>>> @@ -4681,10 +4687,10 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+>>>>                 ad.u.net->sport = htons(snum);
+>>>>                 ad.u.net->family = family;
+>>>>
+>>>> -               if (address->sa_family == AF_INET)
+>>>> -                       ad.u.net->v4info.saddr = addr4->sin_addr.s_addr;
+>>>> -               else
+>>>> +               if (address->sa_family == AF_INET6)
+>>>>                         ad.u.net->v6info.saddr = addr6->sin6_addr;
+>>>> +               else
+>>>> +                       ad.u.net->v4info.saddr = addr4->sin_addr.s_addr;
+>>>>
+>>>>                 err = avc_has_perm(&selinux_state,
+>>>>                                    sksec->sid, sid,
+>>>> --
+>>>> 1.8.3.1
+>>>>
+>>>
+>>
+> 
+> 
+> 
