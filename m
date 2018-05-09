@@ -1,170 +1,194 @@
-Date: Wed, 9 May 2018 19:15:01 +0200
-From: Andrea Parri <parri.andrea@gmail.com>
-To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
- Mauro Carvalho Chehab <mchehab@infradead.org>,
- linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>,
- Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
- "David S. Miller" <davem@davemloft.net>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Harry Wei <harryxiyou@gmail.com>, Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will.deacon@arm.com>, Michal Simek <monstr@monstr.eu>,
- Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
- Guan Xuetao <gxt@pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>,
- Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
- x86@kernel.org, Chris Zankel <chris@zankel.net>,
- Max Filippov <jcmvbkbc@gmail.com>, Jens Axboe <axboe@kernel.dk>,
- David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
- Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Michael Turquette <mturquette@baylibre.com>,
- Stephen Boyd <sboyd@kernel.org>, David Airlie <airlied@linux.ie>,
- Gustavo Padovan <gustavo@padovan.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Sean Paul <seanpaul@chromium.org>,
- Pali =?iso-8859-1?Q?Roh=E1r?= <pali.rohar@gmail.com>,
- Matias Bjorling <mb@lightnvm.io>, Michael Lyle <mlyle@lyle.org>,
- Kent Overstreet <kent.overstreet@gmail.com>,
- Malcolm Priestley <tvboxspy@gmail.com>,
- Antoine Jacquet <royale@zerezo.com>,
- Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
- Steven Rostedt <rostedt@goodmis.org>,
- "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
- Josh Triplett <josh@joshtriplett.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Lai Jiangshan <jiangshanlai@gmail.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Juergen Gross <jgross@suse.com>, Li Zefan <lizefan@huawei.com>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>, Alan Stern <stern@rowland.harvard.edu>,
- Peter Zijlstra <peterz@infradead.org>,
- Boqun Feng <boqun.feng@gmail.com>, Nicholas Piggin <npiggin@gmail.com>,
- Jade Alglave <j.alglave@ucl.ac.uk>, Luc Maranget <luc.maranget@inria.fr>,
- Akira Yokosawa <akiyks@gmail.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>,
- Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
- linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@zh-kernel.org, user-mode-linux-devel@lists.sourceforge.net,
- user-mode-linux-user@lists.sourceforge.net,
- linux-xtensa@linux-xtensa.org, linux-block@vger.kernel.org,
- keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org,
- patches@opensource.cirrus.com, linux-bcache@vger.kernel.org,
- linux-usb@vger.kernel.org, devel@driverdev.osuosl.org,
- xen-devel@lists.xenproject.org, cgroups@vger.kernel.org,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- alsa-devel@alsa-project.org
-Message-ID: <20180509171501.GA17405@andrea>
-References: <cover.1525870886.git.mchehab+samsung@kernel.org>
- <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w49HVotL014099
+ for <selinux@tycho.nsa.gov>; Wed, 9 May 2018 13:31:50 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC15.oob.disa.mil (Postfix) with SMTP id 40h0lC0jKMz3GFwp
+ for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 15:34:15 +0000 (UTC)
+Received: from UPBD19PA12.eemsg.mil (unknown [192.168.18.16])
+ by UPDCF3IC15.oob.disa.mil (Postfix) with ESMTP id 40h0lB4DNCz3GFwm
+ for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 15:34:14 +0000 (UTC)
+Received: by mail-lf0-f51.google.com with SMTP id r25-v6so7811843lfd.1
+ for <selinux@tycho.nsa.gov>; Wed, 09 May 2018 08:34:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
-Subject: Re: [PATCH v2 09/11] docs: Fix some broken references
+In-Reply-To: <d637da77-2789-e08b-c78b-b48821cbf0fe@tycho.nsa.gov>
+References: <1525788303-23244-1-git-send-email-alexey.kodanev@oracle.com>
+ <CAHC9VhTACGPt2dSkUN9Efxs-HQVSAsxoiwPxHcujd++O-mMafg@mail.gmail.com>
+ <1eb10913-8802-e2dd-68f0-9483435cd949@tycho.nsa.gov>
+ <CAHC9VhT1+-ch1Ncv5YCNgu7tPnUj1Qx8S=a=q=Fn=Dwx4SnTKg@mail.gmail.com>
+ <7fdbaf13-fea2-4a2c-213d-fa291db67081@tycho.nsa.gov>
+ <CAHC9VhTNS-sEL2Az4hs1nmz7naqoyhiohzhPTrqp_M=_Ys1N6A@mail.gmail.com>
+ <d637da77-2789-e08b-c78b-b48821cbf0fe@tycho.nsa.gov>
+From: Paul Moore <paul@paul-moore.com>
+Date: Wed, 9 May 2018 11:34:11 -0400
+Message-ID: <CAHC9VhSg9UAmXaK0xsy_h9HfzM4uUBqCNKN5qtf3hHLSi=ZENw@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Alexey Kodanev <alexey.kodanev@oracle.com>,
+ Richard Haines <richard_c_haines@btinternet.com>,
+ selinux@tycho.nsa.gov, Eric Paris <eparis@parisplace.org>,
+ linux-security-module@vger.kernel.org, netdev <netdev@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux: add AF_UNSPEC and INADDR_ANY checks to
+ selinux_socket_bind()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, May 09, 2018 at 10:18:52AM -0300, Mauro Carvalho Chehab wrote:
-> As we move stuff around, some doc references are broken. Fix some of
-> them via this script:
-> 	./scripts/documentation-file-ref-check --fix-rst
-> 
-> Manually checked if the produced result is valid, removing a few
-> false-positives.
-> 
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+On Wed, May 9, 2018 at 11:11 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 05/09/2018 11:01 AM, Paul Moore wrote:
+>> On Wed, May 9, 2018 at 8:37 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> On 05/08/2018 08:25 PM, Paul Moore wrote:
+>>>> On Tue, May 8, 2018 at 2:40 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>>>> On 05/08/2018 01:05 PM, Paul Moore wrote:
+>>>>>> On Tue, May 8, 2018 at 10:05 AM, Alexey Kodanev
+>>>>>> <alexey.kodanev@oracle.com> wrote:
+>>>>>>> Commit d452930fd3b9 ("selinux: Add SCTP support") breaks compatibility
+>>>>>>> with the old programs that can pass sockaddr_in with AF_UNSPEC and
+>>>>>>> INADDR_ANY to bind(). As a result, bind() returns EAFNOSUPPORT error.
+>>>>>>> It was found with LTP/asapi_01 test.
+>>>>>>>
+>>>>>>> Similar to commit 29c486df6a20 ("net: ipv4: relax AF_INET check in
+>>>>>>> bind()"), which relaxed AF_INET check for compatibility, add AF_UNSPEC
+>>>>>>> case to AF_INET and make sure that the address is INADDR_ANY.
+>>>>>>>
+>>>>>>> Also, in the end of selinux_socket_bind(), instead of adding AF_UNSPEC
+>>>>>>> to 'address->sa_family == AF_INET', verify AF_INET6 first.
+>>>>>>>
+>>>>>>> Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+>>>>>>> Signed-off-by: Alexey Kodanev <alexey.kodanev@oracle.com>
+>>>>>>> ---
+>>>>>>>  security/selinux/hooks.c | 12 +++++++++---
+>>>>>>>  1 file changed, 9 insertions(+), 3 deletions(-)
+>>>>>>
+>>>>>> Thanks for finding and reporting this regression.
+>>>>>>
+>>>>>> I think I would prefer to avoid having to duplicate the
+>>>>>> AF_UNSPEC/INADDR_ANY checking logic in the SELinux hook, even though
+>>>>>> it is a small bit of code and unlikely to change.  I'm wondering if it
+>>>>>> would be better to check both the socket and sockaddr address family
+>>>>>> in the main if conditional inside selinux_socket_bind(), what do you
+>>>>>> think?  Another option would be to go back to just checking the
+>>>>>> soackaddr address family; we moved away from that for a reason which
+>>>>>> escapes at the moment (code cleanliness?), but perhaps that was a
+>>>>>> mistake.
+>>>>>
+>>>>> We've always used the sk->sk_family there; it was only the recent code from Richard that started
+>>>>> using the socket address family.
+>>>>
+>>>> Yes I know, I thought I was the one that suggested it at some point
+>>>> (I'll take the blame) ... although now that I'm looking at the git
+>>>> log, maybe I'm confusing it with something else.
+>>>>
+>>>>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>>>>> index 4cafe6a19167..a3789b167667 100644
+>>>>>> --- a/security/selinux/hooks.c
+>>>>>> +++ b/security/selinux/hooks.c
+>>>>>> @@ -4577,6 +4577,7 @@ static int selinux_socket_bind(struct socket *sock, struc>
+>>>>>> {
+>>>>>>        struct sock *sk = sock->sk;
+>>>>>>        u16 family;
+>>>>>> +       u16 family_sa;
+>>>>>>        int err;
+>>>>>>
+>>>>>>        err = sock_has_perm(sk, SOCKET__BIND);
+>>>>>> @@ -4585,7 +4586,9 @@ static int selinux_socket_bind(struct socket *sock, struc>
+>>>>>>
+>>>>>>        /* If PF_INET or PF_INET6, check name_bind permission for the port. */
+>>>>>>        family = sk->sk_family;
+>>>>>> -       if (family == PF_INET || family == PF_INET6) {
+>>>>>> +       family_sa = address->sa_family;
+>>>>>> +       if ((family == PF_INET || family == PF_INET6) &&
+>>>>>> +           (family_sa == PF_INET || family_sa == PF_INET6)) {
+>>>>>
+>>>>> Wouldn't this allow bypassing the name_bind permission check by passing in AF_UNSPEC?
+>>>>
+>>>> I believe these name_bind permission checkis skipped for AF_UNSPEC
+>>>> already, isn't it?  The only way the name_bind check would be
+>>>> triggered is if the source port, snum, was non-zero and I didn't think
+>>>> that was really legal for AF_UNSPEC/INADDR_ANY, is it?
+>>>
+>>> 1) What in inet_bind() prevents that from occurring?
+>>> 2) Regardless, what about the node_bind check?
+>>
+>> Fair enough.  As mentioned above, perhaps the right fix is to move the
+>> address family checking back to how it was pre-SCTP.
+>
+> It isn't clear to me how to do that without breaking SCTP multiple address binding, which is why
+> Richard had to switch to checking address->sa_family instead of just using the sk->sk_family.
+> Alexey's original fix might be the simplest solution.
 
-Thank you again for doing this,
+I'm going to have to apologize, I'm traveling at the moment and more
+distracted than usual as a result.  Let me take a closer look later
+today.  It may be that Alexey's original fix the only practical
+solution, but I really would like to avoid having to duplicate checks
+like that in the SELinux code.
+
+>> Alexey, is this something you want to do, or should we take care of that?
+>>
+>>>>>>                char *addrp;
+>>>>>>                struct sk_security_struct *sksec = sk->sk_security;
+>>>>>>                struct common_audit_data ad;
+>>>>>> @@ -4601,7 +4604,7 @@ static int selinux_socket_bind(struct socket *sock, struc>
+>>>>>>                 * need to check address->sa_family as it is possible to have
+>>>>>>                 * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
+>>>>>>                 */
+>>>>>> -               switch (address->sa_family) {
+>>>>>> +               switch (family_sa) {
+>>>>>>                case AF_INET:
+>>>>>>                        if (addrlen < sizeof(struct sockaddr_in))
+>>>>>>                                return -EINVAL;
+>>>>>>
+>>>>>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>>>>>> index 4cafe6a..649a3be 100644
+>>>>>>> --- a/security/selinux/hooks.c
+>>>>>>> +++ b/security/selinux/hooks.c
+>>>>>>> @@ -4602,10 +4602,16 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+>>>>>>>                  * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
+>>>>>>>                  */
+>>>>>>>                 switch (address->sa_family) {
+>>>>>>> +               case AF_UNSPEC:
+>>>>>>>                 case AF_INET:
+>>>>>>>                         if (addrlen < sizeof(struct sockaddr_in))
+>>>>>>>                                 return -EINVAL;
+>>>>>>>                         addr4 = (struct sockaddr_in *)address;
+>>>>>>> +
+>>>>>>> +                       if (address->sa_family == AF_UNSPEC &&
+>>>>>>> +                           addr4->sin_addr.s_addr != htonl(INADDR_ANY))
+>>>>>>> +                               return -EAFNOSUPPORT;
+>>>>>>> +
+>>>>>>>                         snum = ntohs(addr4->sin_port);
+>>>>>>>                         addrp = (char *)&addr4->sin_addr.s_addr;
+>>>>>>>                         break;
+>>>>>>> @@ -4681,10 +4687,10 @@ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, in
+>>>>>>>                 ad.u.net->sport = htons(snum);
+>>>>>>>                 ad.u.net->family = family;
+>>>>>>>
+>>>>>>> -               if (address->sa_family == AF_INET)
+>>>>>>> -                       ad.u.net->v4info.saddr = addr4->sin_addr.s_addr;
+>>>>>>> -               else
+>>>>>>> +               if (address->sa_family == AF_INET6)
+>>>>>>>                         ad.u.net->v6info.saddr = addr6->sin6_addr;
+>>>>>>> +               else
+>>>>>>> +                       ad.u.net->v4info.saddr = addr4->sin_addr.s_addr;
+>>>>>>>
+>>>>>>>                 err = avc_has_perm(&selinux_state,
+>>>>>>>                                    sksec->sid, sid,
+>>>>>>> --
+>>>>>>> 1.8.3.1
+>>>>>>>
+>>>>>>
+>>>>>
+>>>>
+>>>>
+>>>>
+>>>
+>>
+>>
+>>
+>
 
 
-> ---
->  .../admin-guide/kernel-parameters.txt         |  4 ++--
->  .../bindings/input/rotary-encoder.txt         |  2 +-
->  Documentation/driver-api/gpio/consumer.rst    |  2 +-
->  Documentation/kprobes.txt                     |  4 ++--
->  Documentation/trace/coresight.txt             |  2 +-
->  Documentation/trace/events.rst                |  2 +-
->  Documentation/trace/ftrace-uses.rst           |  2 +-
->  Documentation/trace/histogram.txt             |  2 +-
->  Documentation/trace/intel_th.rst              |  2 +-
->  Documentation/trace/tracepoint-analysis.rst   |  6 +++---
->  Documentation/translations/ja_JP/howto.rst    |  4 ++--
->  .../translations/zh_CN/magic-number.txt       |  4 ++--
->  .../zh_CN/video4linux/omap3isp.txt            |  4 ++--
->  MAINTAINERS                                   | 20 +++++++++----------
->  arch/Kconfig                                  |  2 +-
->  arch/arm/include/asm/cacheflush.h             |  2 +-
->  arch/arm64/include/asm/cacheflush.h           |  2 +-
->  arch/microblaze/include/asm/cacheflush.h      |  2 +-
->  arch/um/Kconfig.um                            |  2 +-
->  arch/unicore32/include/asm/cacheflush.h       |  2 +-
->  arch/x86/entry/vsyscall/vsyscall_64.c         |  2 +-
->  arch/xtensa/include/asm/cacheflush.h          |  4 ++--
->  block/Kconfig                                 |  2 +-
->  certs/Kconfig                                 |  2 +-
->  crypto/asymmetric_keys/asymmetric_type.c      |  2 +-
->  crypto/asymmetric_keys/signature.c            |  2 +-
->  drivers/char/Kconfig                          |  2 +-
->  drivers/clk/clk.c                             |  4 ++--
->  drivers/clk/ingenic/cgu.h                     |  2 +-
->  drivers/gpu/vga/Kconfig                       |  2 +-
->  drivers/gpu/vga/vgaarb.c                      |  2 +-
->  drivers/input/joystick/Kconfig                | 10 +++++-----
->  drivers/input/joystick/iforce/Kconfig         |  2 +-
->  drivers/input/joystick/walkera0701.c          |  2 +-
->  drivers/input/misc/Kconfig                    |  4 ++--
->  drivers/input/misc/rotary_encoder.c           |  2 +-
->  drivers/input/mouse/Kconfig                   |  6 +++---
->  drivers/input/mouse/alps.c                    |  2 +-
->  drivers/input/touchscreen/wm97xx-core.c       |  2 +-
->  drivers/lightnvm/pblk-rb.c                    |  2 +-
->  drivers/md/bcache/Kconfig                     |  2 +-
->  drivers/md/bcache/btree.c                     |  2 +-
->  drivers/md/bcache/extents.c                   |  2 +-
->  drivers/media/dvb-core/dvb_ringbuffer.c       |  2 +-
->  drivers/media/pci/meye/Kconfig                |  2 +-
->  drivers/media/platform/pxa_camera.c           |  4 ++--
->  .../soc_camera/sh_mobile_ceu_camera.c         |  2 +-
->  drivers/media/radio/Kconfig                   |  2 +-
->  drivers/media/radio/si470x/Kconfig            |  2 +-
->  drivers/media/usb/dvb-usb-v2/lmedm04.c        |  2 +-
->  drivers/media/usb/zr364xx/Kconfig             |  2 +-
->  drivers/parport/Kconfig                       |  6 +++---
->  drivers/staging/media/bcm2048/TODO            |  2 +-
->  include/keys/asymmetric-subtype.h             |  2 +-
->  include/keys/asymmetric-type.h                |  2 +-
->  include/linux/assoc_array.h                   |  2 +-
->  include/linux/assoc_array_priv.h              |  2 +-
->  include/linux/circ_buf.h                      |  2 +-
->  include/linux/ftrace.h                        |  2 +-
->  include/linux/rculist_nulls.h                 |  2 +-
->  include/uapi/linux/prctl.h                    |  2 +-
->  include/xen/interface/io/kbdif.h              |  2 +-
->  kernel/cgroup/cpuset.c                        |  2 +-
->  kernel/trace/Kconfig                          | 16 +++++++--------
->  lib/Kconfig                                   |  2 +-
->  security/selinux/hooks.c                      |  2 +-
->  sound/core/Kconfig                            |  4 ++--
->  sound/drivers/Kconfig                         |  4 ++--
->  sound/pci/Kconfig                             | 10 +++++-----
->  tools/include/uapi/linux/prctl.h              |  2 +-
->  tools/lib/api/fs/fs.c                         |  2 +-
->  tools/memory-model/README                     | 10 +++++-----
 
-As mentioned in the previous thread, I am for keeping the current
-references: the REAMDE is listing the doc files, as well as other
-files in tools/memory-model/, relatively to that directory.
-
-  Andrea
+-- 
+paul moore
+www.paul-moore.com
