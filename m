@@ -1,20 +1,21 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w49GWdgL009589
- for <selinux@tycho.nsa.gov>; Wed, 9 May 2018 12:32:39 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w49Gt726011133
+ for <selinux@tycho.nsa.gov>; Wed, 9 May 2018 12:55:07 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 40h1nj1Vpzz4564Z
- for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 16:21:29 +0000 (UTC)
-Received: from UPDC3CPA09_EEMSG_MP25.eemsg.mil (unknown [192.168.18.20])
- by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 40h1nh3ck6z4565p
- for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 16:21:28 +0000 (UTC)
-Received: by mail-lf0-f67.google.com with SMTP id t129-v6so12509649lff.3
- for <selinux@tycho.nsa.gov>; Wed, 09 May 2018 09:21:26 -0700 (PDT)
+ by UPDCF3IC10.oob.disa.mil (Postfix) with SMTP id 40h0dB1HP3z3yM6N
+ for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 15:29:02 +0000 (UTC)
+Received: from UPBD19PA03.eemsg.mil (unknown [192.168.18.4])
+ by UPDCF3IC10.oob.disa.mil (Postfix) with ESMTP id 40h0d90pv4z3yM6k
+ for <selinux@tycho.nsa.gov>; Wed,  9 May 2018 15:29:01 +0000 (UTC)
+Received: by mail-lf0-f66.google.com with SMTP id j193-v6so51566441lfg.6
+ for <selinux@tycho.nsa.gov>; Wed, 09 May 2018 08:28:59 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cover.1525466167.git.rgb@redhat.com>
+In-Reply-To: <0e43c5135c197209b3189032d538244571e7443d.1525466167.git.rgb@redhat.com>
 References: <cover.1525466167.git.rgb@redhat.com>
+ <0e43c5135c197209b3189032d538244571e7443d.1525466167.git.rgb@redhat.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 9 May 2018 11:53:57 -0400
-Message-ID: <CAHC9VhRY-hhBb+Kg19Cfy87MSHseUO40j9PC8wsdmHQmcV0zDQ@mail.gmail.com>
+Date: Wed, 9 May 2018 11:28:58 -0400
+Message-ID: <CAHC9VhSbMaJ72jJnEivDd-M2UXDomexva8B-xsWXapTyeF0JVQ@mail.gmail.com>
 To: Richard Guy Briggs <rgb@redhat.com>
 Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
  LKML <linux-kernel@vger.kernel.org>,
@@ -26,54 +27,25 @@ Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
  Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
  David Howells <dhowells@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH ghak81 RFC V1 0/5] audit: group task params
+Subject: Re: [PATCH ghak81 RFC V1 3/5] audit: use inline function to
+ get audit context
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On Fri, May 4, 2018 at 4:54 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> Group the audit parameters for each task into one structure.
-> In particular, remove the loginuid and sessionid values and the audit
-> context pointer from the task structure, replacing them with an audit
-> task information structure to contain them.  Use access functions to
-> access audit values.
+> Recognizing that the audit context is an internal audit value, use an
+> access function to retrieve the audit context pointer for the task
+> rather than reaching directly into the task struct to get it.
 >
-> Note:  Use static allocation of the audit task information structure
-> initially.  Dynamic allocation was considered and attempted, but isn't
-> ready yet.  Static allocation has the limitation that future audit task
-> information structure changes would cause a visible change to the rest
-> of the kernel, whereas dynamic allocation would mostly hide any future
-> changes.
->
-> The first four access normalization patches could stand alone.
-
-I agree that the first four patches have some standalone value, and
-since we are currently at -rc4, did you want to post another patchset
-of just those four patches with feedback incorporated?  I imagine that
-should be quick work, and that way they aren't help up with any
-problems/discussion regarding the take_struct changes.
-
-> Passes audit-testsuite.
->
-> Richard Guy Briggs (5):
->   audit: normalize loginuid read access
->   audit: convert sessionid unset to a macro
->   audit: use inline function to get audit context
->   audit: use inline function to set audit context
->   audit: collect audit task parameters
->
->  MAINTAINERS                          |  2 +-
->  include/linux/audit.h                | 30 ++++++++++---
->  include/linux/audit_task.h           | 31 ++++++++++++++
->  include/linux/sched.h                |  6 +--
->  include/net/xfrm.h                   |  4 +-
->  include/uapi/linux/audit.h           |  1 +
->  init/init_task.c                     |  8 +++-
->  kernel/audit.c                       |  4 +-
+> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> ---
+>  include/linux/audit.h                | 16 ++++++++---
+>  include/net/xfrm.h                   |  2 +-
+>  kernel/audit.c                       |  4 +--
 >  kernel/audit_watch.c                 |  2 +-
->  kernel/auditsc.c                     | 82 ++++++++++++++++++------------------
->  kernel/fork.c                        |  2 +-
+>  kernel/auditsc.c                     | 52 ++++++++++++++++++------------------
 >  net/bridge/netfilter/ebtables.c      |  2 +-
 >  net/core/dev.c                       |  2 +-
 >  net/netfilter/x_tables.c             |  2 +-
@@ -81,17 +53,60 @@ problems/discussion regarding the take_struct changes.
 >  security/integrity/ima/ima_api.c     |  2 +-
 >  security/integrity/integrity_audit.c |  2 +-
 >  security/lsm_audit.c                 |  2 +-
->  security/selinux/hooks.c             |  4 +-
->  security/selinux/selinuxfs.c         |  6 +--
->  security/selinux/ss/services.c       | 12 +++---
->  21 files changed, 129 insertions(+), 79 deletions(-)
->  create mode 100644 include/linux/audit_task.h
+>  security/selinux/hooks.c             |  4 +--
+>  security/selinux/selinuxfs.c         |  6 ++---
+>  security/selinux/ss/services.c       | 12 ++++-----
+>  15 files changed, 60 insertions(+), 52 deletions(-)
 >
-> --
-> 1.8.3.1
+> diff --git a/include/linux/audit.h b/include/linux/audit.h
+> index 5f86f7c..93e4c61 100644
+> --- a/include/linux/audit.h
+> +++ b/include/linux/audit.h
+> @@ -235,26 +235,30 @@ extern void __audit_inode_child(struct inode *parent,
+>  extern void __audit_seccomp(unsigned long syscall, long signr, int code);
+>  extern void __audit_ptrace(struct task_struct *t);
 >
+> +static inline struct audit_context *audit_context(struct task_struct *task)
+> +{
+> +       return task->audit_context;
+> +}
 
+Another case where I think I agree with everything here on principle,
+especially when one considers it in the larger context of the audit
+container ID work.  However, I think we might be able to somply this a
+bit by eliminating the parameter to the new audit_context() helper and
+making it always reference the current task_struct.  Based on this
+patch it would appear that this change would work for all callers
+except for audit_take_context() and __audit_syscall_entry(), both of
+which are contained within the core audit code and are enough of a
+special case that I think it is acceptable for them to access the
+context directly.  I'm trying to think of reasons why a non-audit
+kernel subsystem would ever need to access the audit context of a
+process other than current and I can't think of any ... removing the
+task_struct pointer might help prevent mistakes/abuse in the future.
 
+> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> index 6e3ceb9..a4bbdcc 100644
+> --- a/kernel/auditsc.c
+> +++ b/kernel/auditsc.c
+> @@ -836,7 +836,7 @@ static inline struct audit_context *audit_take_context(struct task_struct *tsk,
+>                                                       int return_valid,
+>                                                       long return_code)
+>  {
+> -       struct audit_context *context = tsk->audit_context;
+> +       struct audit_context *context = audit_context(tsk);
+>
+>         if (!context)
+>                 return NULL;
+> @@ -1510,7 +1510,7 @@ void __audit_syscall_entry(int major, unsigned long a1, unsigned long a2,
+>                            unsigned long a3, unsigned long a4)
+>  {
+>         struct task_struct *tsk = current;
+> -       struct audit_context *context = tsk->audit_context;
+> +       struct audit_context *context = audit_context(tsk);
+>         enum audit_state     state;
+>
+>         if (!audit_enabled || !context)
 
 -- 
 paul moore
