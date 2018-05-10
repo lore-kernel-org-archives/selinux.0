@@ -1,151 +1,133 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4AGFv51025106
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 12:15:57 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4ALIR2V017554
+ for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 17:18:27 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 40hdcq3j1XzrKYF
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 16:15:55 +0000 (UTC)
-Received: from UPDC3CPA03.eemsg.mil (unknown [192.168.18.10])
- by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 40hdcp1w2RzrKYR
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 16:15:54 +0000 (UTC)
-Received: by mail-lf0-f68.google.com with SMTP id q2-v6so3746600lfc.12
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 09:15:53 -0700 (PDT)
+ by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 40hmKb36lxzg47W
+ for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 21:18:11 +0000 (UTC)
+Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 40hmKb05yGzg47K
+ for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 21:18:11 +0000 (UTC)
+Date: Thu, 10 May 2018 17:17:46 -0400
+From: Richard Guy Briggs <rgb@redhat.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
+ Netfilter Devel List <netfilter-devel@vger.kernel.org>,
+ Linux Security Module list <linux-security-module@vger.kernel.org>,
+ Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
+ SElinux list <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+ Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+ David Howells <dhowells@redhat.com>
+Message-ID: <20180510211746.o3bb4wdnfue2fecf@madcap2.tricolour.ca>
+References: <cover.1525466167.git.rgb@redhat.com>
+ <0e43c5135c197209b3189032d538244571e7443d.1525466167.git.rgb@redhat.com>
+ <CAHC9VhSbMaJ72jJnEivDd-M2UXDomexva8B-xsWXapTyeF0JVQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <799f2558f37c5480d42c03e3465754aa8bb30e70.1525964385.git.joe@perches.com>
-References: <cover.1525964381.git.joe@perches.com>
- <799f2558f37c5480d42c03e3465754aa8bb30e70.1525964385.git.joe@perches.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 10 May 2018 12:15:51 -0400
-Message-ID: <CAHC9VhQb72hBo5Tv0gu-LurhdjQYyt3B=7mz6oJ1XqZfc9GZ_Q@mail.gmail.com>
-To: Joe Perches <joe@perches.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 15/18] security: Remove pr_fmt duplicate logging prefixes
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAHC9VhSbMaJ72jJnEivDd-M2UXDomexva8B-xsWXapTyeF0JVQ@mail.gmail.com>
+Subject: Re: [PATCH ghak81 RFC V1 3/5] audit: use inline function to
+ get audit context
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, May 10, 2018 at 11:45 AM, Joe Perches <joe@perches.com> wrote:
-> Converting pr_fmt from a simple define to use KBUILD_MODNAME added
-> some duplicate logging prefixes to existing uses.
->
-> Remove them.
->
-> Signed-off-by: Joe Perches <joe@perches.com>
-> ---
->  security/selinux/selinuxfs.c | 29 ++++++++++++++---------------
->  1 file changed, 14 insertions(+), 15 deletions(-)
+On 2018-05-09 11:28, Paul Moore wrote:
+> On Fri, May 4, 2018 at 4:54 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
+> > Recognizing that the audit context is an internal audit value, use an
+> > access function to retrieve the audit context pointer for the task
+> > rather than reaching directly into the task struct to get it.
+> >
+> > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+> > ---
+> >  include/linux/audit.h                | 16 ++++++++---
+> >  include/net/xfrm.h                   |  2 +-
+> >  kernel/audit.c                       |  4 +--
+> >  kernel/audit_watch.c                 |  2 +-
+> >  kernel/auditsc.c                     | 52 ++++++++++++++++++------------------
+> >  net/bridge/netfilter/ebtables.c      |  2 +-
+> >  net/core/dev.c                       |  2 +-
+> >  net/netfilter/x_tables.c             |  2 +-
+> >  net/netlabel/netlabel_user.c         |  2 +-
+> >  security/integrity/ima/ima_api.c     |  2 +-
+> >  security/integrity/integrity_audit.c |  2 +-
+> >  security/lsm_audit.c                 |  2 +-
+> >  security/selinux/hooks.c             |  4 +--
+> >  security/selinux/selinuxfs.c         |  6 ++---
+> >  security/selinux/ss/services.c       | 12 ++++-----
+> >  15 files changed, 60 insertions(+), 52 deletions(-)
+> >
+> > diff --git a/include/linux/audit.h b/include/linux/audit.h
+> > index 5f86f7c..93e4c61 100644
+> > --- a/include/linux/audit.h
+> > +++ b/include/linux/audit.h
+> > @@ -235,26 +235,30 @@ extern void __audit_inode_child(struct inode *parent,
+> >  extern void __audit_seccomp(unsigned long syscall, long signr, int code);
+> >  extern void __audit_ptrace(struct task_struct *t);
+> >
+> > +static inline struct audit_context *audit_context(struct task_struct *task)
+> > +{
+> > +       return task->audit_context;
+> > +}
+> 
+> Another case where I think I agree with everything here on principle,
+> especially when one considers it in the larger context of the audit
+> container ID work.  However, I think we might be able to somply this a
+> bit by eliminating the parameter to the new audit_context() helper and
+> making it always reference the current task_struct.  Based on this
+> patch it would appear that this change would work for all callers
+> except for audit_take_context() and __audit_syscall_entry(), both of
+> which are contained within the core audit code and are enough of a
+> special case that I think it is acceptable for them to access the
+> context directly.  I'm trying to think of reasons why a non-audit
+> kernel subsystem would ever need to access the audit context of a
+> process other than current and I can't think of any ... removing the
+> task_struct pointer might help prevent mistakes/abuse in the future.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+As for __audit_syscall_{entry,exit}() and audit_signal_info(), they are
+using current.  current is assigned to local variable tsk only to be
+used as the LHS in assignments and for locking.
 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index c0cadbc5f85c..be8f186a6256 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -515,19 +515,19 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi)
->
->         ret = sel_make_bools(fsi);
->         if (ret) {
-> -               pr_err("SELinux: failed to load policy booleans\n");
-> +               pr_err("failed to load policy booleans\n");
->                 return ret;
->         }
->
->         ret = sel_make_classes(fsi);
->         if (ret) {
-> -               pr_err("SELinux: failed to load policy classes\n");
-> +               pr_err("failed to load policy classes\n");
->                 return ret;
->         }
->
->         ret = sel_make_policycap(fsi);
->         if (ret) {
-> -               pr_err("SELinux: failed to load policy capabilities\n");
-> +               pr_err("failed to load policy capabilities\n");
->                 return ret;
->         }
->
-> @@ -570,7 +570,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
->
->         length = security_load_policy(fsi->state, data, count);
->         if (length) {
-> -               pr_warn_ratelimited("SELinux: failed to load policy\n");
-> +               pr_warn_ratelimited("failed to load policy\n");
->                 goto out;
->         }
->
-> @@ -620,8 +620,8 @@ static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
->
->         length = -ERANGE;
->         if (len > SIMPLE_TRANSACTION_LIMIT) {
-> -               printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
-> -                       "payload max\n", __func__, len);
-> +               pr_err("%s:  context size (%u) exceeds payload max\n",
-> +                      __func__, len);
->                 goto out;
->         }
->
-> @@ -956,8 +956,8 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
->
->         length = -ERANGE;
->         if (len > SIMPLE_TRANSACTION_LIMIT) {
-> -               printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
-> -                       "payload max\n", __func__, len);
-> +               pr_err("%s:  context size (%u) exceeds payload max\n",
-> +                      __func__, len);
->                 goto out;
->         }
->
-> @@ -1147,8 +1147,8 @@ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
->
->         length = -ERANGE;
->         if (len > SIMPLE_TRANSACTION_LIMIT) {
-> -               printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
-> -                       "payload max\n", __func__, len);
-> +               pr_err("%s:  context size (%u) exceeds payload max\n",
-> +                      __func__, len);
->                 goto out;
->         }
->
-> @@ -1389,8 +1389,8 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
->                 ret = security_genfs_sid(fsi->state, "selinuxfs", page,
->                                          SECCLASS_FILE, &sid);
->                 if (ret) {
-> -                       pr_warn_ratelimited("SELinux: no sid found, defaulting to security isid for %s\n",
-> -                                          page);
-> +                       pr_warn_ratelimited("no sid found, defaulting to security isid for %s\n",
-> +                                           page);
->                         sid = SECINITSID_SECURITY;
->                 }
->
-> @@ -1996,8 +1996,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
->                 goto err;
->         return 0;
->  err:
-> -       printk(KERN_ERR "SELinux: %s:  failed while creating inodes\n",
-> -               __func__);
-> +       pr_err("%s:  failed while creating inodes\n", __func__);
->
->         selinux_fs_info_free(sb);
->
-> @@ -2046,7 +2045,7 @@ static int __init init_sel_fs(void)
->
->         selinux_null.mnt = selinuxfs_mount = kern_mount(&sel_fs_type);
->         if (IS_ERR(selinuxfs_mount)) {
-> -               printk(KERN_ERR "selinuxfs:  could not mount!\n");
-> +               pr_err("selinuxfs:  could not mount!\n");
->                 err = PTR_ERR(selinuxfs_mount);
->                 selinuxfs_mount = NULL;
->         }
-> --
-> 2.15.0
->
+But, audit_take_context() and audit_log_exit() are both called also from
+__audit_free() which can have non-current handed to it by copy_process()
+cleaning up, while do_exit() appears to still be in current.
 
+So, Ok, ditch the parameter to audit_context() and use local access when
+needed.
 
+> > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> > index 6e3ceb9..a4bbdcc 100644
+> > --- a/kernel/auditsc.c
+> > +++ b/kernel/auditsc.c
+> > @@ -836,7 +836,7 @@ static inline struct audit_context *audit_take_context(struct task_struct *tsk,
+> >                                                       int return_valid,
+> >                                                       long return_code)
+> >  {
+> > -       struct audit_context *context = tsk->audit_context;
+> > +       struct audit_context *context = audit_context(tsk);
+> >
+> >         if (!context)
+> >                 return NULL;
+> > @@ -1510,7 +1510,7 @@ void __audit_syscall_entry(int major, unsigned long a1, unsigned long a2,
+> >                            unsigned long a3, unsigned long a4)
+> >  {
+> >         struct task_struct *tsk = current;
+> > -       struct audit_context *context = tsk->audit_context;
+> > +       struct audit_context *context = audit_context(tsk);
+> >         enum audit_state     state;
+> >
+> >         if (!audit_enabled || !context)
+> 
+> -- 
+> paul moore
+> www.paul-moore.com
 
--- 
-paul moore
-www.paul-moore.com
+- RGB
+
+--
+Richard Guy Briggs <rgb@redhat.com>
+Sr. S/W Engineer, Kernel Security, Base Operating Systems
+Remote, Ottawa, Red Hat Canada
+IRC: rgb, SunRaycer
+Voice: +1.647.777.2635, Internal: (81) 32635
