@@ -1,169 +1,128 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4AFleLg022470
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 11:47:42 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC07.oob.disa.mil (Postfix) with SMTP id 40hcyS0Hv2z1wyJP
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 15:46:08 +0000 (UTC)
-Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
- by UPDCF3IC07.oob.disa.mil (Postfix) with ESMTP id 40hcyQ5xKFz1wyJW
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 15:46:06 +0000 (UTC)
 From: Joe Perches <joe@perches.com>
-To: Steven Rostedt <rostedt@goodmis.org>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- Lai Jiangshan <jiangshanlai@gmail.com>,
- Andy Lutomirski <luto@amacapital.net>, Will Drewry <wad@chromium.org>,
- linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
- netdev@vger.kernel.org, linux-fbdev@vger.kernel.org,
- linux-audit@redhat.com, linux-kernel@vger.kernel.org,
- iommu@lists.linux-foundation.org, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, linux-integrity@vger.kernel.org,
- keyrings@vger.kernel.org, selinux@tycho.nsa.gov
-Cc: dri-devel@lists.freedesktop.org, linux-security-module@vger.kernel.org
-Date: Thu, 10 May 2018 08:45:26 -0700
-Message-Id: <cover.1525964381.git.joe@perches.com>
-Subject: [PATCH 00/18] Convert default pr_fmt from empty to
- KBUILD_MODNAME
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>
+Cc: James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Date: Thu, 10 May 2018 08:45:41 -0700
+Message-Id: <799f2558f37c5480d42c03e3465754aa8bb30e70.1525964385.git.joe@perches.com>
+In-Reply-To: <cover.1525964381.git.joe@perches.com>
+References: <cover.1525964381.git.joe@perches.com>
+Subject: [PATCH 15/18] security: Remove pr_fmt duplicate logging
+ prefixes
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-pr_<level> logging uses allow a prefix to be specified with a
-specific #define pr_fmt
+Converting pr_fmt from a simple define to use KBUILD_MODNAME added
+some duplicate logging prefixes to existing uses.
 
-The default of pr_fmt in printk.h is #define pr_fmt(fmt) fmt
-so no prefixing of logging output is generically done.
+Remove them.
 
-There are several output logging uses like dump_stack() that are
-unprefixed and should remain unprefixed.
+Signed-off-by: Joe Perches <joe@perches.com>
+---
+ security/selinux/selinuxfs.c | 29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
-This patch series attempts to convert the default #define of pr_fmt to
-KBUILD_MODNAME ": " fmt and as well update the various bits of the kernel
-that should _not_ be prefixed by adding #define pr_fmt(fmt) fmt to those
-compilation units that do not want output message prefixing.
-
-There are about 1200 uses of #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-that could be removed if the default is changed.
-
-A script that does this removal (and removes any blank lines that follow)
-for the linux-kernel tree is included below:
-
-$ git grep -P --name-only "define\s+pr_fmt\b" | \
-  grep -v include/linux/printk.h | \
-  xargs perl -i -e 'local $/; while (<>) {s/(\n)*[ \t]*#[ \t]*define[ \t]+pr_fmt[ \t]*\([ \t]*(\w+)[ \t]*\)[ \t]*KBUILD_MODNAME[ \t]*\": \"[ \t]*\2[ \t]*\n\s*/\1\n/; s/^\n//; print;}'
-
-This script should be run after this patch series is applied.
-
-The above script output diff is currently:
-
-1198 files changed, 70 insertions(+), 2241 deletions(-)
-
-Joe Perches (18):
-  kernel: Use pr_fmt
-  lib: Use pr_fmt
-  printk: Convert pr_fmt from blank define to KBUILD_MODNAME
-  x86: Remove pr_fmt duplicate logging prefixes
-  x86/mtrr: Rename main.c to mtrr.c and remove duplicate prefixes
-  net: Remove pr_fmt duplicate logging prefixes
-  blk-mq: Remove pr_fmt duplicate logging prefixes
-  random: Remove pr_fmt duplicate logging prefixes
-  ptp: Remove pr_fmt duplicate logging prefixes
-  efifb: Remove pr_fmt duplicate logging prefixes
-  proc: Remove pr_fmt duplicate logging prefixes
-  uprobes: Remove pr_fmt duplicate logging prefixes
-  printk: Remove pr_fmt duplicate logging prefixes
-  lib/mpi: Remove pr_fmt duplicate logging prefixes
-  security: Remove pr_fmt duplicate logging prefixes
-  aoe: Remove pr_fmt duplicate logging prefixes
-  security: encrypted-keys: Remove pr_fmt duplicate logging prefixes
-  rcu: Use pr_fmt to prefix "rcu: " to logging output
-
- arch/x86/events/amd/ibs.c                      |  2 +-
- arch/x86/kernel/cpu/mtrr/Makefile              |  2 +-
- arch/x86/kernel/cpu/mtrr/{main.c => mtrr.c}    | 33 ++++++-------
- arch/x86/kernel/e820.c                         | 32 ++++++------
- arch/x86/kernel/hpet.c                         |  5 +-
- arch/x86/kernel/uprobes.c                      |  4 +-
- arch/x86/mm/numa.c                             | 22 ++++-----
- block/blk-mq.c                                 |  9 ++--
- drivers/block/aoe/aoeblk.c                     | 29 ++++++-----
- drivers/block/aoe/aoechr.c                     | 11 ++---
- drivers/block/aoe/aoecmd.c                     | 34 ++++++-------
- drivers/block/aoe/aoedev.c                     | 19 +++-----
- drivers/block/aoe/aoemain.c                    |  6 +--
- drivers/block/aoe/aoenet.c                     | 19 +++-----
- drivers/char/hw_random/via-rng.c               | 10 ++--
- drivers/char/random.c                          | 16 +++---
- drivers/ptp/ptp_clock.c                        |  4 +-
- drivers/video/fbdev/efifb.c                    | 48 +++++++++---------
- fs/proc/root.c                                 |  6 +--
- include/linux/printk.h                         |  2 +-
- kernel/acct.c                                  |  2 +
- kernel/async.c                                 | 14 +++---
- kernel/audit_tree.c                            |  2 +-
- kernel/backtracetest.c                         |  8 +--
- kernel/crash_core.c                            | 29 ++++++-----
- kernel/events/uprobes.c                        |  3 +-
- kernel/exit.c                                  |  2 +
- kernel/hung_task.c                             | 13 +++--
- kernel/kprobes.c                               | 20 +++++---
- kernel/module.c                                | 59 +++++++++++------------
- kernel/panic.c                                 |  3 ++
- kernel/params.c                                | 13 +++--
- kernel/pid.c                                   |  2 +
- kernel/printk/printk.c                         |  2 +-
- kernel/profile.c                               |  2 +
- kernel/range.c                                 |  2 +-
- kernel/rcu/rcu_segcblist.c                     |  2 +
- kernel/rcu/rcuperf.c                           | 10 ++--
- kernel/rcu/rcutorture.c                        | 46 +++++++++---------
- kernel/rcu/srcutiny.c                          |  2 +
- kernel/rcu/srcutree.c                          |  5 +-
- kernel/rcu/tiny.c                              |  3 ++
- kernel/rcu/tree.c                              |  8 +--
- kernel/rcu/tree_plugin.h                       | 67 +++++++++++++++-----------
- kernel/rcu/update.c                            | 19 +++++---
- kernel/relay.c                                 |  5 +-
- kernel/seccomp.c                               |  4 +-
- kernel/signal.c                                | 10 ++--
- kernel/smpboot.c                               |  5 +-
- kernel/taskstats.c                             |  4 +-
- kernel/torture.c                               |  6 ++-
- kernel/tracepoint.c                            |  3 ++
- kernel/workqueue.c                             |  2 +
- lib/cpu_rmap.c                                 | 15 +++---
- lib/crc32test.c                                |  2 +
- lib/earlycpio.c                                |  5 +-
- lib/find_bit_benchmark.c                       |  2 +
- lib/kobject.c                                  | 36 +++++++-------
- lib/kobject_uevent.c                           | 27 +++++------
- lib/mpi/mpicoder.c                             | 10 ++--
- lib/nmi_backtrace.c                            |  3 ++
- lib/percpu_ida.c                               |  4 +-
- lib/percpu_test.c                              |  2 +
- lib/random32.c                                 | 10 ++--
- lib/stmp_device.c                              |  2 +
- lib/string.c                                   |  2 +
- lib/swiotlb.c                                  |  4 +-
- lib/test_debug_virtual.c                       |  2 +
- lib/test_rhashtable.c                          | 44 +++++++++--------
- lib/test_sort.c                                |  2 +
- lib/ubsan.c                                    | 61 ++++++++++++-----------
- net/ipv4/ipconfig.c                            | 59 ++++++++++-------------
- net/ipv4/ipmr.c                                |  2 +-
- net/ipv4/netfilter/nf_conntrack_l3proto_ipv4.c |  9 ++--
- net/ipv6/ip6mr.c                               |  2 +-
- net/ipv6/netfilter/nf_conntrack_l3proto_ipv6.c |  6 +--
- net/ipv6/netfilter/nf_defrag_ipv6_hooks.c      |  4 +-
- net/netfilter/nf_conntrack_helper.c            | 11 ++---
- net/netfilter/nf_conntrack_standalone.c        |  2 +-
- net/socket.c                                   |  2 +-
- security/keys/encrypted-keys/encrypted.c       | 63 +++++++++++-------------
- security/selinux/selinuxfs.c                   | 29 ++++++-----
- 82 files changed, 580 insertions(+), 532 deletions(-)
- rename arch/x86/kernel/cpu/mtrr/{main.c => mtrr.c} (96%)
-
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index c0cadbc5f85c..be8f186a6256 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -515,19 +515,19 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi)
+ 
+ 	ret = sel_make_bools(fsi);
+ 	if (ret) {
+-		pr_err("SELinux: failed to load policy booleans\n");
++		pr_err("failed to load policy booleans\n");
+ 		return ret;
+ 	}
+ 
+ 	ret = sel_make_classes(fsi);
+ 	if (ret) {
+-		pr_err("SELinux: failed to load policy classes\n");
++		pr_err("failed to load policy classes\n");
+ 		return ret;
+ 	}
+ 
+ 	ret = sel_make_policycap(fsi);
+ 	if (ret) {
+-		pr_err("SELinux: failed to load policy capabilities\n");
++		pr_err("failed to load policy capabilities\n");
+ 		return ret;
+ 	}
+ 
+@@ -570,7 +570,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
+ 
+ 	length = security_load_policy(fsi->state, data, count);
+ 	if (length) {
+-		pr_warn_ratelimited("SELinux: failed to load policy\n");
++		pr_warn_ratelimited("failed to load policy\n");
+ 		goto out;
+ 	}
+ 
+@@ -620,8 +620,8 @@ static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
+ 
+ 	length = -ERANGE;
+ 	if (len > SIMPLE_TRANSACTION_LIMIT) {
+-		printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
+-			"payload max\n", __func__, len);
++		pr_err("%s:  context size (%u) exceeds payload max\n",
++		       __func__, len);
+ 		goto out;
+ 	}
+ 
+@@ -956,8 +956,8 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+ 
+ 	length = -ERANGE;
+ 	if (len > SIMPLE_TRANSACTION_LIMIT) {
+-		printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
+-			"payload max\n", __func__, len);
++		pr_err("%s:  context size (%u) exceeds payload max\n",
++		       __func__, len);
+ 		goto out;
+ 	}
+ 
+@@ -1147,8 +1147,8 @@ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
+ 
+ 	length = -ERANGE;
+ 	if (len > SIMPLE_TRANSACTION_LIMIT) {
+-		printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
+-			"payload max\n", __func__, len);
++		pr_err("%s:  context size (%u) exceeds payload max\n",
++		       __func__, len);
+ 		goto out;
+ 	}
+ 
+@@ -1389,8 +1389,8 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
+ 		ret = security_genfs_sid(fsi->state, "selinuxfs", page,
+ 					 SECCLASS_FILE, &sid);
+ 		if (ret) {
+-			pr_warn_ratelimited("SELinux: no sid found, defaulting to security isid for %s\n",
+-					   page);
++			pr_warn_ratelimited("no sid found, defaulting to security isid for %s\n",
++					    page);
+ 			sid = SECINITSID_SECURITY;
+ 		}
+ 
+@@ -1996,8 +1996,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+ 		goto err;
+ 	return 0;
+ err:
+-	printk(KERN_ERR "SELinux: %s:  failed while creating inodes\n",
+-		__func__);
++	pr_err("%s:  failed while creating inodes\n", __func__);
+ 
+ 	selinux_fs_info_free(sb);
+ 
+@@ -2046,7 +2045,7 @@ static int __init init_sel_fs(void)
+ 
+ 	selinux_null.mnt = selinuxfs_mount = kern_mount(&sel_fs_type);
+ 	if (IS_ERR(selinuxfs_mount)) {
+-		printk(KERN_ERR "selinuxfs:  could not mount!\n");
++		pr_err("selinuxfs:  could not mount!\n");
+ 		err = PTR_ERR(selinuxfs_mount);
+ 		selinuxfs_mount = NULL;
+ 	}
 -- 
 2.15.0
