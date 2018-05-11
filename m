@@ -1,12 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4B0UrbF032379
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 20:30:53 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC07.oob.disa.mil (Postfix) with SMTP id 40hrbv4H6Kz1wyJT
- for <selinux@tycho.nsa.gov>; Fri, 11 May 2018 00:30:51 +0000 (UTC)
-Received: from UPBD19PA12.eemsg.mil (unknown [192.168.18.16])
- by UPDCF3IC07.oob.disa.mil (Postfix) with ESMTP id 40hrbt6nvXz1wyJg
- for <selinux@tycho.nsa.gov>; Fri, 11 May 2018 00:30:50 +0000 (UTC)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4B0qGwV001494
+ for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 20:52:16 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
@@ -15,131 +9,268 @@ To: LSM <linux-security-module@vger.kernel.org>,
  Kees Cook <keescook@chromium.org>,
  Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
  James Morris <jmorris@namei.org>
+References: <7e8702ce-2598-e0a3-31a2-bc29157fb73d@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <7e8702ce-2598-e0a3-31a2-bc29157fb73d@schaufler-ca.com>
-Date: Thu, 10 May 2018 17:30:44 -0700
+Message-ID: <fcc51e4a-b0dc-bbd2-d98a-52b0835bbe31@schaufler-ca.com>
+Date: Thu, 10 May 2018 17:52:06 -0700
 MIME-Version: 1.0
+In-Reply-To: <7e8702ce-2598-e0a3-31a2-bc29157fb73d@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH 00/23] LSM: Full security module stacking
+Subject: [PATCH 01/23] procfs: add smack subdir to attrs
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Subject: [PATCH 00/23] LSM: Full security module stacking
+From: Casey Schaufler <casey@schaufler-ca.com>
+Date: Thu, 10 May 2018 13:26:52 -0700
+Subject: [PATCH 01/23] procfs: add smack subdir to attrs
 
-Here it is, the whole nine yards, broken into mostly
-review friendly pieces. I believe that it would make
-a good deal of sense to take this in two bites, with
-the infrastructure managed blobs going first and the
-secid conversion coming later. I hope there will be some
-debate around that.
+Back in 2007 I made what turned out to be a rather serious
+mistake in the implementation of the Smack security module.
+The SELinux module used an interface in /proc to manipulate
+the security context on processes. Rather than use a similar
+interface, I used the same interface. The AppArmor team did
+likewise. Now /proc/.../attr/current will tell you the
+security "context" of the process, but it will be different
+depending on the security module you're using.
 
-The blob management part is pretty clean by now. I
-welcome serious review on that. The secid part is more
-wobbly, but I am convinced that it's the right direction
-if not perhaps always the best possible implementation.
-AppArmor in in the process of a major overhaul, and that
-slowed me down a bit as I had to do new work to convert
-it to use the new mechanisms.
+This patch provides a subdirectory in /proc/.../attr for
+Smack. Smack user space can use the "current" file in
+this subdirectory and never have to worry about getting
+SELinux attributes by mistake. Programs that use the
+old interface will continue to work (or fail, as the case
+may be) as before.
 
-I had experimented with secid "tokens" in the hope of
-minimizing API changes. That doesn't work. Changing
-the APIs to use a struct secids pointer in place of a
-u32 is brutal to the diffstat, but reduces the amount
-of active code that has to change, and really makes
-data management easier.
-
-If there are two possible ways to do a thing you will
-find them both in the networking code. AF_UNIX, netfilter,
-SO_PEERSEC and netlabel each has its own clever ways
-to manipulate security information. I think I nailed
-them all, but I'm not betting more than a beer on it.
-
-There could be issues in the audit code, although nothing
-jumped out immediately. The same goes for the integrity
-subsystem. I haven't tried Infiniband or very many
-filesystem types that don't com standard with Fedora or
-Ubuntu.
-
-I have fixed everything I've found. If you find something
-(please look!) let me know.
-
-Tested primarily on virtual machines.
-	Fedora 25-27 - SELinux, Smack and the two together
-	Ubuntu 17.04 - AppArmor and AppArmor + Smack
-
-The SELinux test suite completes successfully unless
-you add in Smack, in which case it fails where you would
-expect it to due to the different use models for netlabel.
-Smack tests work as well. AppArmor was tested by booting
-Ubuntu, but not beyond.
+The original implementation is by Kees Cook.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-
 ---
- Documentation/admin-guide/LSM/index.rst   |  23 +-
- fs/btrfs/super.c                          |  10 +-
- fs/proc/base.c                            |  63 +-
- fs/proc/internal.h                        |   1 +
- include/linux/cred.h                      |   3 +-
- include/linux/lsm_hooks.h                 |  85 ++-
- include/linux/security.h                  | 211 +++++--
- include/net/flow.h                        |   5 +-
- include/net/netlabel.h                    |  16 +-
- include/net/scm.h                         |   4 +-
- include/uapi/linux/netfilter/xt_SECMARK.h |   1 +
- include/uapi/linux/prctl.h                |   4 +
- kernel/audit.c                            |  25 +-
- kernel/audit.h                            |   9 +-
- kernel/auditfilter.c                      |   4 +-
- kernel/auditsc.c                          |  44 +-
- kernel/cred.c                             |  19 +-
- kernel/fork.c                             |   3 +
- net/ipv4/cipso_ipv4.c                     |  19 +-
- net/ipv4/ip_sockglue.c                    |   6 +-
- net/netfilter/nf_conntrack_netlink.c      |  22 +-
- net/netfilter/nf_conntrack_standalone.c   |  11 +-
- net/netfilter/nfnetlink_queue.c           |  14 +-
- net/netfilter/xt_SECMARK.c                |  44 +-
- net/netlabel/netlabel_kapi.c              |  52 +-
- net/netlabel/netlabel_unlabeled.c         |  30 +-
- net/netlabel/netlabel_unlabeled.h         |   2 +-
- net/netlabel/netlabel_user.c              |   4 +-
- net/unix/af_unix.c                        |  19 +-
- net/xfrm/xfrm_policy.c                    |   5 +-
- net/xfrm/xfrm_state.c                     |   2 +-
- security/Kconfig                          |  80 +++
- security/Makefile                         |   1 +
- security/apparmor/domain.c                |   2 +-
- security/apparmor/include/cred.h          |  24 +-
- security/apparmor/include/file.h          |   9 +-
- security/apparmor/include/lib.h           |   4 +
- security/apparmor/include/net.h           |  10 +-
- security/apparmor/include/task.h          |  22 +-
- security/apparmor/lsm.c                   | 131 ++--
- security/apparmor/task.c                  |   6 +-
- security/integrity/ima/ima.h              |  10 +-
- security/integrity/ima/ima_api.c          |   5 +-
- security/integrity/ima/ima_appraise.c     |   4 +-
- security/integrity/ima/ima_main.c         |  22 +-
- security/integrity/ima/ima_policy.c       |  11 +-
- security/security.c                       | 973 +++++++++++++++++++++++++++---
- security/selinux/hooks.c                  | 658 ++++++++------------
- security/selinux/include/audit.h          |   2 +-
- security/selinux/include/objsec.h         |  87 ++-
- security/selinux/include/xfrm.h           |   9 +-
- security/selinux/netlabel.c               |  33 +-
- security/selinux/selinuxfs.c              |   5 +-
- security/selinux/ss/services.c            |  13 +-
- security/selinux/xfrm.c                   |  29 +-
- security/smack/smack.h                    |  90 ++-
- security/smack/smack_access.c             |   6 +-
- security/smack/smack_lsm.c                | 673 ++++++++++-----------
- security/smack/smack_netfilter.c          |  19 +-
- security/smack/smackfs.c                  |  32 +-
- security/tomoyo/common.h                  |  31 +-
- security/tomoyo/domain.c                  |   4 +-
- security/tomoyo/securityfs_if.c           |  15 +-
- security/tomoyo/tomoyo.c                  |  57 +-
- 64 files changed, 2581 insertions(+), 1256 deletions(-)
+ Documentation/admin-guide/LSM/index.rst | 13 +++++--
+ fs/proc/base.c                          | 63 ++++++++++++++++++++++++++++-----
+ fs/proc/internal.h                      |  1 +
+ include/linux/security.h                | 15 +++++---
+ security/security.c                     | 24 ++++++++++---
+ 5 files changed, 95 insertions(+), 21 deletions(-)
+
+diff --git a/Documentation/admin-guide/LSM/index.rst b/Documentation/admin-guide/LSM/index.rst
+index c980dfe9abf1..9842e21afd4a 100644
+--- a/Documentation/admin-guide/LSM/index.rst
++++ b/Documentation/admin-guide/LSM/index.rst
+@@ -17,9 +17,8 @@ MAC extensions, other extensions can be built using the LSM to provide
+ specific changes to system operation when these tweaks are not available
+ in the core functionality of Linux itself.
+ 
+-Without a specific LSM built into the kernel, the default LSM will be the
+-Linux capabilities system. Most LSMs choose to extend the capabilities
+-system, building their checks on top of the defined capability hooks.
++The Linux capabilities modules will always be included. This may be
++followed by any number of "minor" modules and at most one "major" module.
+ For more details on capabilities, see ``capabilities(7)`` in the Linux
+ man-pages project.
+ 
+@@ -30,6 +29,14 @@ order in which checks are made. The capability module will always
+ be first, followed by any "minor" modules (e.g. Yama) and then
+ the one "major" module (e.g. SELinux) if there is one configured.
+ 
++Process attributes associated with "major" security modules should
++be accessed and maintained using the special files in ``/proc/.../attr``.
++A security module may maintain a module specific subdirectory there,
++named after the module. ``/proc/.../attr/smack`` is provided by the Smack
++security module and contains all its special files. The files directly
++in ``/proc/.../attr`` remain as legacy interfaces for modules that provide
++subdirectories.
++
+ .. toctree::
+    :maxdepth: 1
+ 
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index 1b2ede6abcdf..fa1681a0b75e 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -140,9 +140,13 @@ struct pid_entry {
+ #define REG(NAME, MODE, fops)				\
+ 	NOD(NAME, (S_IFREG|(MODE)), NULL, &fops, {})
+ #define ONE(NAME, MODE, show)				\
+-	NOD(NAME, (S_IFREG|(MODE)), 			\
++	NOD(NAME, (S_IFREG|(MODE)),			\
+ 		NULL, &proc_single_file_operations,	\
+ 		{ .proc_show = show } )
++#define ATTR(LSM, NAME, MODE)				\
++	NOD(NAME, (S_IFREG|(MODE)),			\
++		NULL, &proc_pid_attr_operations,	\
++		{ .lsm = LSM })
+ 
+ /*
+  * Count the number of hardlinks for the pid_entry table, excluding the .
+@@ -2536,7 +2540,7 @@ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
+ 	if (!task)
+ 		return -ESRCH;
+ 
+-	length = security_getprocattr(task,
++	length = security_getprocattr(task, PROC_I(inode)->op.lsm,
+ 				      (char*)file->f_path.dentry->d_name.name,
+ 				      &p);
+ 	put_task_struct(task);
+@@ -2582,7 +2586,8 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
+ 	if (length < 0)
+ 		goto out_free;
+ 
+-	length = security_setprocattr(file->f_path.dentry->d_name.name,
++	length = security_setprocattr(PROC_I(inode)->op.lsm,
++				      file->f_path.dentry->d_name.name,
+ 				      page, count);
+ 	mutex_unlock(&current->signal->cred_guard_mutex);
+ out_free:
+@@ -2599,13 +2604,53 @@ static const struct file_operations proc_pid_attr_operations = {
+ 	.llseek		= generic_file_llseek,
+ };
+ 
++#define LSM_DIR_OPS(LSM) \
++static int proc_##LSM##_attr_dir_iterate(struct file *filp, \
++			     struct dir_context *ctx) \
++{ \
++	return proc_pident_readdir(filp, ctx, \
++				   LSM##_attr_dir_stuff, \
++				   ARRAY_SIZE(LSM##_attr_dir_stuff)); \
++} \
++\
++static const struct file_operations proc_##LSM##_attr_dir_ops = { \
++	.read		= generic_read_dir, \
++	.iterate	= proc_##LSM##_attr_dir_iterate, \
++	.llseek		= default_llseek, \
++}; \
++\
++static struct dentry *proc_##LSM##_attr_dir_lookup(struct inode *dir, \
++				struct dentry *dentry, unsigned int flags) \
++{ \
++	return proc_pident_lookup(dir, dentry, \
++				  LSM##_attr_dir_stuff, \
++				  ARRAY_SIZE(LSM##_attr_dir_stuff)); \
++} \
++\
++static const struct inode_operations proc_##LSM##_attr_dir_inode_ops = { \
++	.lookup		= proc_##LSM##_attr_dir_lookup, \
++	.getattr	= pid_getattr, \
++	.setattr	= proc_setattr, \
++}
++
++#ifdef CONFIG_SECURITY_SMACK
++static const struct pid_entry smack_attr_dir_stuff[] = {
++	ATTR("smack", "current",	0666),
++};
++LSM_DIR_OPS(smack);
++#endif
++
+ static const struct pid_entry attr_dir_stuff[] = {
+-	REG("current",    S_IRUGO|S_IWUGO, proc_pid_attr_operations),
+-	REG("prev",       S_IRUGO,	   proc_pid_attr_operations),
+-	REG("exec",       S_IRUGO|S_IWUGO, proc_pid_attr_operations),
+-	REG("fscreate",   S_IRUGO|S_IWUGO, proc_pid_attr_operations),
+-	REG("keycreate",  S_IRUGO|S_IWUGO, proc_pid_attr_operations),
+-	REG("sockcreate", S_IRUGO|S_IWUGO, proc_pid_attr_operations),
++	ATTR(NULL, "current",		0666),
++	ATTR(NULL, "prev",		0444),
++	ATTR(NULL, "exec",		0666),
++	ATTR(NULL, "fscreate",		0666),
++	ATTR(NULL, "keycreate",		0666),
++	ATTR(NULL, "sockcreate",	0666),
++#ifdef CONFIG_SECURITY_SMACK
++	DIR("smack",			0555,
++	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
++#endif
+ };
+ 
+ static int proc_attr_dir_readdir(struct file *file, struct dir_context *ctx)
+diff --git a/fs/proc/internal.h b/fs/proc/internal.h
+index 0f1692e63cb6..e3a655a788a7 100644
+--- a/fs/proc/internal.h
++++ b/fs/proc/internal.h
+@@ -72,6 +72,7 @@ union proc_op {
+ 	int (*proc_show)(struct seq_file *m,
+ 		struct pid_namespace *ns, struct pid *pid,
+ 		struct task_struct *task);
++	const char *lsm;
+ };
+ 
+ struct proc_inode {
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ecb06e1357dd..9afe7a509030 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -368,8 +368,10 @@ int security_sem_semctl(struct kern_ipc_perm *sma, int cmd);
+ int security_sem_semop(struct kern_ipc_perm *sma, struct sembuf *sops,
+ 			unsigned nsops, int alter);
+ void security_d_instantiate(struct dentry *dentry, struct inode *inode);
+-int security_getprocattr(struct task_struct *p, char *name, char **value);
+-int security_setprocattr(const char *name, void *value, size_t size);
++int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
++			 char **value);
++int security_setprocattr(const char *lsm, const char *name, void *value,
++			 size_t size);
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_ismaclabel(const char *name);
+ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
+@@ -1113,15 +1115,18 @@ static inline int security_sem_semop(struct kern_ipc_perm *sma,
+ 	return 0;
+ }
+ 
+-static inline void security_d_instantiate(struct dentry *dentry, struct inode *inode)
++static inline void security_d_instantiate(struct dentry *dentry,
++					  struct inode *inode)
+ { }
+ 
+-static inline int security_getprocattr(struct task_struct *p, char *name, char **value)
++static inline int security_getprocattr(struct task_struct *p, const char *lsm,
++				       char *name, char **value)
+ {
+ 	return -EINVAL;
+ }
+ 
+-static inline int security_setprocattr(char *name, void *value, size_t size)
++static inline int security_setprocattr(const char *lsm, char *name,
++				       void *value, size_t size)
+ {
+ 	return -EINVAL;
+ }
+diff --git a/security/security.c b/security/security.c
+index 7bc2fde023a7..3d3c746fd517 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1267,14 +1267,30 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode)
+ }
+ EXPORT_SYMBOL(security_d_instantiate);
+ 
+-int security_getprocattr(struct task_struct *p, char *name, char **value)
++int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
++				char **value)
+ {
+-	return call_int_hook(getprocattr, -EINVAL, p, name, value);
++	struct security_hook_list *hp;
++
++	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
++		if (lsm != NULL && strcmp(lsm, hp->lsm))
++			continue;
++		return hp->hook.getprocattr(p, name, value);
++	}
++	return -EINVAL;
+ }
+ 
+-int security_setprocattr(const char *name, void *value, size_t size)
++int security_setprocattr(const char *lsm, const char *name, void *value,
++			 size_t size)
+ {
+-	return call_int_hook(setprocattr, -EINVAL, name, value, size);
++	struct security_hook_list *hp;
++
++	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
++		if (lsm != NULL && strcmp(lsm, hp->lsm))
++			continue;
++		return hp->hook.setprocattr(name, value, size);
++	}
++	return -EINVAL;
+ }
+ 
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+-- 
+2.14.3
