@@ -1,6 +1,12 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4B0r060001521
- for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 20:53:06 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4B0rIQB001585
+ for <selinux@tycho.nsa.gov>; Thu, 10 May 2018 20:53:18 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID01.oob.disa.mil (Postfix) with SMTP id 40hs5k5qmCz3tZXj
+ for <selinux@tycho.nsa.gov>; Fri, 11 May 2018 00:53:14 +0000 (UTC)
+Received: from USFB19PA08.eemsg.mil (unknown [192.168.16.5])
+ by USFBF3ID01.oob.disa.mil (Postfix) with ESMTP id 40hs5k2pjyz3tZXh
+ for <selinux@tycho.nsa.gov>; Fri, 11 May 2018 00:53:14 +0000 (UTC)
 To: LSM <linux-security-module@vger.kernel.org>,
  LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
@@ -11,128 +17,375 @@ To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>
 References: <7e8702ce-2598-e0a3-31a2-bc29157fb73d@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <552c12d4-8254-5805-4586-34aaa5c1f389@schaufler-ca.com>
-Date: Thu, 10 May 2018 17:52:57 -0700
+Message-ID: <02e30ff5-3cd8-b013-35e8-fb1040fffe6d@schaufler-ca.com>
+Date: Thu, 10 May 2018 17:53:07 -0700
 MIME-Version: 1.0
 In-Reply-To: <7e8702ce-2598-e0a3-31a2-bc29157fb73d@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH 05/23] SELinux: Abstract use of file security blob
+Subject: [PATCH 06/23] LSM: Infrastructure management of the file
+ security
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Casey Schaufler <casey@schaufler-ca.com>
-Date: Thu, 10 May 2018 14:01:52 -0700
-Subject: [PATCH 05/23] SELinux: Abstract use of file security blob
+Date: Thu, 10 May 2018 14:04:35 -0700
+Subject: [PATCH 06/23] LSM: Infrastructure management of the file security
+ blob
 
-Don't use the file->f_security pointer directly.
-Provide a helper function that provides the security blob pointer.
+Move management of the file->f_security blob out of the
+individual security modules and into the infrastructure.
+The modules no longer allocate or free the data, instead
+they tell the infrastructure how much space they require.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/selinux/hooks.c          | 18 +++++++++---------
- security/selinux/include/objsec.h |  5 +++++
- 2 files changed, 14 insertions(+), 9 deletions(-)
+ include/linux/lsm_hooks.h  |  1 +
+ security/apparmor/lsm.c    | 19 ++++++++--------
+ security/security.c        | 54 +++++++++++++++++++++++++++++++++++++++++++---
+ security/selinux/hooks.c   | 25 ++-------------------
+ security/smack/smack.h     |  5 +++++
+ security/smack/smack_lsm.c | 26 ++++++++--------------
+ 6 files changed, 78 insertions(+), 52 deletions(-)
 
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index ee22b2b9b458..2268e43709d4 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2016,6 +2016,7 @@ struct security_hook_list {
+  */
+ struct lsm_blob_sizes {
+ 	int	lbs_cred;
++	int	lbs_file;
+ };
+ 
+ /*
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index a35ef9473b71..e986a0eed01e 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -429,21 +429,21 @@ static int apparmor_file_open(struct file *file, const struct cred *cred)
+ 
+ static int apparmor_file_alloc_security(struct file *file)
+ {
+-	int error = 0;
+-
+-	/* freed by apparmor_file_free_security */
++	struct aa_file_ctx *ctx = file_ctx(file);
+ 	struct aa_label *label = begin_current_label_crit_section();
+-	file->f_security = aa_alloc_file_ctx(label, GFP_KERNEL);
+-	if (!file_ctx(file))
+-		error = -ENOMEM;
+-	end_current_label_crit_section(label);
+ 
+-	return error;
++	spin_lock_init(&ctx->lock);
++	rcu_assign_pointer(ctx->label, aa_get_label(label));
++	end_current_label_crit_section(label);
++	return 0;
+ }
+ 
+ static void apparmor_file_free_security(struct file *file)
+ {
+-	aa_free_file_ctx(file_ctx(file));
++	struct aa_file_ctx *ctx = file_ctx(file);
++
++	if (ctx)
++		aa_put_label(rcu_access_pointer(ctx->label));
+ }
+ 
+ static int common_file_perm(const char *op, struct file *file, u32 mask)
+@@ -1122,6 +1122,7 @@ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
+  */
+ struct lsm_blob_sizes apparmor_blob_sizes = {
+ 	.lbs_cred = sizeof(struct aa_task_ctx *),
++	.lbs_file = sizeof(struct aa_file_ctx),
+ };
+ 
+ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+diff --git a/security/security.c b/security/security.c
+index 16e8fb077412..ee77af08086b 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -40,6 +40,8 @@
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
+ static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
+ 
++static struct kmem_cache *lsm_file_cache;
++
+ char *lsm_names;
+ static struct lsm_blob_sizes blob_sizes;
+ 
+@@ -89,6 +91,13 @@ int __init security_init(void)
+ 	 */
+ 	do_security_initcalls();
+ 
++	/*
++	 * Create any kmem_caches needed for blobs
++	 */
++	if (blob_sizes.lbs_file)
++		lsm_file_cache = kmem_cache_create("lsm_file_cache",
++						   blob_sizes.lbs_file, 0,
++						   SLAB_PANIC, NULL);
+ 	/*
+ 	 * The second call to a module specific init function
+ 	 * adds hooks to the hook lists and does any other early
+@@ -98,6 +107,7 @@ int __init security_init(void)
+ 
+ #ifdef CONFIG_SECURITY_LSM_DEBUG
+ 	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
++	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
+ #endif
+ 
+ 	return 0;
+@@ -272,6 +282,28 @@ static void __init lsm_set_size(int *need, int *lbs)
+ void __init security_add_blobs(struct lsm_blob_sizes *needed)
+ {
+ 	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
++	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
++}
++
++/**
++ * lsm_file_alloc - allocate a composite file blob
++ * @file: the file that needs a blob
++ *
++ * Allocate the file blob for all the modules
++ *
++ * Returns 0, or -ENOMEM if memory can't be allocated.
++ */
++int lsm_file_alloc(struct file *file)
++{
++	if (!lsm_file_cache) {
++		file->f_security = NULL;
++		return 0;
++	}
++
++	file->f_security = kmem_cache_zalloc(lsm_file_cache, GFP_KERNEL);
++	if (file->f_security == NULL)
++		return -ENOMEM;
++	return 0;
+ }
+ 
+ /*
+@@ -957,12 +989,28 @@ int security_file_permission(struct file *file, int mask)
+ 
+ int security_file_alloc(struct file *file)
+ {
+-	return call_int_hook(file_alloc_security, 0, file);
++	int rc = lsm_file_alloc(file);
++
++	if (rc)
++		return rc;
++	rc = call_int_hook(file_alloc_security, 0, file);
++	if (unlikely(rc))
++		security_file_free(file);
++	return rc;
+ }
+ 
+ void security_file_free(struct file *file)
+ {
++	void *blob;
++
++	if (!lsm_file_cache)
++		return;
++
+ 	call_void_hook(file_free_security, file);
++
++	blob = file->f_security;
++	file->f_security = NULL;
++	kmem_cache_free(lsm_file_cache, blob);
+ }
+ 
+ int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+@@ -1080,7 +1128,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+ 		return rc;
+ 
+ 	rc = call_int_hook(cred_alloc_blank, 0, cred, gfp);
+-	if (rc)
++	if (unlikely(rc))
+ 		security_cred_free(cred);
+ 	return rc;
+ }
+@@ -1101,7 +1149,7 @@ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp)
+ 		return rc;
+ 
+ 	rc = call_int_hook(cred_prepare, 0, new, old, gfp);
+-	if (rc)
++	if (unlikely(rc))
+ 		security_cred_free(new);
+ 	return rc;
+ }
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f4179eb572e8..1d0a4a9fa08b 100644
+index 1d0a4a9fa08b..334f47305551 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -398,7 +398,7 @@ static int file_alloc_security(struct file *file)
+@@ -149,7 +149,6 @@ static int __init checkreqprot_setup(char *str)
+ __setup("checkreqprot=", checkreqprot_setup);
  
- static void file_free_security(struct file *file)
+ static struct kmem_cache *sel_inode_cache;
+-static struct kmem_cache *file_security_cache;
+ 
+ /**
+  * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
+@@ -382,27 +381,15 @@ static void inode_free_security(struct inode *inode)
+ 
+ static int file_alloc_security(struct file *file)
  {
--	struct file_security_struct *fsec = file->f_security;
+-	struct file_security_struct *fsec;
 +	struct file_security_struct *fsec = selinux_file(file);
- 	file->f_security = NULL;
- 	kmem_cache_free(file_security_cache, fsec);
- }
-@@ -1869,7 +1869,7 @@ static int file_has_perm(const struct cred *cred,
- 			 struct file *file,
- 			 u32 av)
- {
--	struct file_security_struct *fsec = file->f_security;
-+	struct file_security_struct *fsec = selinux_file(file);
- 	struct inode *inode = file_inode(file);
- 	struct common_audit_data ad;
- 	u32 sid = cred_sid(cred);
-@@ -2213,7 +2213,7 @@ static int selinux_binder_transfer_file(struct task_struct *from,
- 					struct file *file)
- {
- 	u32 sid = task_sid(to);
--	struct file_security_struct *fsec = file->f_security;
-+	struct file_security_struct *fsec = selinux_file(file);
- 	struct dentry *dentry = file->f_path.dentry;
- 	struct inode_security_struct *isec;
- 	struct common_audit_data ad;
-@@ -3524,7 +3524,7 @@ static int selinux_revalidate_file_permission(struct file *file, int mask)
- static int selinux_file_permission(struct file *file, int mask)
- {
- 	struct inode *inode = file_inode(file);
--	struct file_security_struct *fsec = file->f_security;
-+	struct file_security_struct *fsec = selinux_file(file);
- 	struct inode_security_struct *isec;
  	u32 sid = current_sid();
  
-@@ -3559,7 +3559,7 @@ static int ioctl_has_perm(const struct cred *cred, struct file *file,
- 		u32 requested, u16 cmd)
- {
- 	struct common_audit_data ad;
--	struct file_security_struct *fsec = file->f_security;
-+	struct file_security_struct *fsec = selinux_file(file);
- 	struct inode *inode = file_inode(file);
- 	struct inode_security_struct *isec;
- 	struct lsm_ioctlop_audit ioctl;
-@@ -3811,7 +3811,7 @@ static void selinux_file_set_fowner(struct file *file)
- {
- 	struct file_security_struct *fsec;
+-	fsec = kmem_cache_zalloc(file_security_cache, GFP_KERNEL);
+-	if (!fsec)
+-		return -ENOMEM;
+-
+ 	fsec->sid = sid;
+ 	fsec->fown_sid = sid;
+-	file->f_security = fsec;
  
--	fsec = file->f_security;
-+	fsec = selinux_file(file);
- 	fsec->fown_sid = current_sid();
+ 	return 0;
  }
  
-@@ -3826,7 +3826,7 @@ static int selinux_file_send_sigiotask(struct task_struct *tsk,
- 	/* struct fown_struct is never outside the context of a struct file */
- 	file = container_of(fown, struct file, f_owner);
+-static void file_free_security(struct file *file)
+-{
+-	struct file_security_struct *fsec = selinux_file(file);
+-	file->f_security = NULL;
+-	kmem_cache_free(file_security_cache, fsec);
+-}
+-
+ static int superblock_alloc_security(struct super_block *sb)
+ {
+ 	struct superblock_security_struct *sbsec;
+@@ -3546,11 +3533,6 @@ static int selinux_file_alloc_security(struct file *file)
+ 	return file_alloc_security(file);
+ }
  
--	fsec = file->f_security;
-+	fsec = selinux_file(file);
+-static void selinux_file_free_security(struct file *file)
+-{
+-	file_free_security(file);
+-}
+-
+ /*
+  * Check whether a task has the ioctl permission and cmd
+  * operation to an inode.
+@@ -6811,6 +6793,7 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
  
- 	if (!signum)
- 		perm = signal_to_av(SIGIO); /* as per send_sigio_to_task */
-@@ -3850,7 +3850,7 @@ static int selinux_file_open(struct file *file, const struct cred *cred)
- 	struct file_security_struct *fsec;
- 	struct inode_security_struct *isec;
+ struct lsm_blob_sizes selinux_blob_sizes = {
+ 	.lbs_cred = sizeof(struct task_security_struct),
++	.lbs_file = sizeof(struct file_security_struct),
+ };
  
--	fsec = file->f_security;
-+	fsec = selinux_file(file);
- 	isec = inode_security(file_inode(file));
- 	/*
- 	 * Save inode label and policy sequence number
-@@ -3990,7 +3990,7 @@ static int selinux_kernel_module_from_file(struct file *file)
- 	ad.type = LSM_AUDIT_DATA_FILE;
- 	ad.u.file = file;
+ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+@@ -6881,7 +6864,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
  
--	fsec = file->f_security;
-+	fsec = selinux_file(file);
- 	if (sid != fsec->sid) {
- 		rc = avc_has_perm(&selinux_state,
- 				  sid, fsec->sid, SECCLASS_FD, FD__USE, &ad);
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index db1c7000ada3..2586fbc7e38c 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -167,4 +167,9 @@ static inline struct task_security_struct *selinux_cred(const struct cred *cred)
+ 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
+ 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
+-	LSM_HOOK_INIT(file_free_security, selinux_file_free_security),
+ 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
+ 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
+ 	LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
+@@ -7082,9 +7064,6 @@ static __init int selinux_init(void)
+ 	sel_inode_cache = kmem_cache_create("selinux_inode_security",
+ 					    sizeof(struct inode_security_struct),
+ 					    0, SLAB_PANIC, NULL);
+-	file_security_cache = kmem_cache_create("selinux_file_security",
+-					    sizeof(struct file_security_struct),
+-					    0, SLAB_PANIC, NULL);
+ 	avc_init();
+ 
+ 	avtab_cache_init();
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index 0c6dce446825..043525a52e94 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -362,6 +362,11 @@ static inline struct task_smack *smack_cred(const struct cred *cred)
  	return cred->security;
  }
  
-+static inline struct file_security_struct *selinux_file(const struct file *file)
++static inline struct smack_known **smack_file(const struct file *file)
 +{
 +	return file->f_security;
 +}
 +
- #endif /* _SELINUX_OBJSEC_H_ */
+ /*
+  * Is the directory transmuting?
+  */
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index bcba72d760f4..da22e31312b9 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1570,24 +1570,12 @@ static void smack_inode_getsecid(struct inode *inode, u32 *secid)
+  */
+ static int smack_file_alloc_security(struct file *file)
+ {
+-	struct smack_known *skp = smk_of_current();
++	struct smack_known **blob = smack_file(file);
+ 
+-	file->f_security = skp;
++	*blob = smk_of_current();
+ 	return 0;
+ }
+ 
+-/**
+- * smack_file_free_security - clear a file security blob
+- * @file: the object
+- *
+- * The security blob for a file is a pointer to the master
+- * label list, so no memory is freed.
+- */
+-static void smack_file_free_security(struct file *file)
+-{
+-	file->f_security = NULL;
+-}
+-
+ /**
+  * smack_file_ioctl - Smack check on ioctls
+  * @file: the object
+@@ -1812,7 +1800,9 @@ static int smack_mmap_file(struct file *file,
+  */
+ static void smack_file_set_fowner(struct file *file)
+ {
+-	file->f_security = smk_of_current();
++	struct smack_known **blob = smack_file(file);
++
++	*blob = smk_of_current();
+ }
+ 
+ /**
+@@ -1829,6 +1819,7 @@ static void smack_file_set_fowner(struct file *file)
+ static int smack_file_send_sigiotask(struct task_struct *tsk,
+ 				     struct fown_struct *fown, int signum)
+ {
++	struct smack_known **blob;
+ 	struct smack_known *skp;
+ 	struct smack_known *tkp = smk_of_task(smack_cred(tsk->cred));
+ 	struct file *file;
+@@ -1841,7 +1832,8 @@ static int smack_file_send_sigiotask(struct task_struct *tsk,
+ 	file = container_of(fown, struct file, f_owner);
+ 
+ 	/* we don't log here as rc can be overriden */
+-	skp = file->f_security;
++	blob = smack_file(file);
++	skp = *blob;
+ 	rc = smk_access(skp, tkp, MAY_DELIVER, NULL);
+ 	rc = smk_bu_note("sigiotask", skp, tkp, MAY_DELIVER, rc);
+ 	if (rc != 0 && has_capability(tsk, CAP_MAC_OVERRIDE))
+@@ -4596,6 +4588,7 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
+ 
+ struct lsm_blob_sizes smack_blob_sizes = {
+ 	.lbs_cred = sizeof(struct task_smack),
++	.lbs_file = sizeof(struct smack_known *),
+ };
+ 
+ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+@@ -4633,7 +4626,6 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(inode_getsecid, smack_inode_getsecid),
+ 
+ 	LSM_HOOK_INIT(file_alloc_security, smack_file_alloc_security),
+-	LSM_HOOK_INIT(file_free_security, smack_file_free_security),
+ 	LSM_HOOK_INIT(file_ioctl, smack_file_ioctl),
+ 	LSM_HOOK_INIT(file_lock, smack_file_lock),
+ 	LSM_HOOK_INIT(file_fcntl, smack_file_fcntl),
 -- 
 2.14.3
