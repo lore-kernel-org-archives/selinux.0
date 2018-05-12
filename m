@@ -1,128 +1,74 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4BMIKu0002812
- for <selinux@tycho.nsa.gov>; Fri, 11 May 2018 18:18:20 -0400
-Date: Fri, 11 May 2018 18:17:52 -0400
-From: Richard Guy Briggs <rgb@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, David Howells <dhowells@redhat.com>,
- Linux Security Module list <linux-security-module@vger.kernel.org>,
- Linux-Audit Mailing List <linux-audit@redhat.com>,
- Netfilter Devel List <netfilter-devel@vger.kernel.org>,
- SElinux list <selinux@tycho.nsa.gov>,
- Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
- Ingo Molnar <mingo@redhat.com>
-Message-ID: <20180511221752.6xtcf2r4rkumrp4u@madcap2.tricolour.ca>
-References: <cover.1525466167.git.rgb@redhat.com>
- <611e9c85fca8bcdb24e6fb6da412773663c007b3.1525466167.git.rgb@redhat.com>
- <CAHC9VhQKYt0PC0L65pwFRte1D98R=2tUDGxMVpc8bbJsMncGpw@mail.gmail.com>
- <20180510212114.pefeyw5cuqlmjewp@madcap2.tricolour.ca>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4CFkFd7001280
+ for <selinux@tycho.nsa.gov>; Sat, 12 May 2018 11:46:15 -0400
+Received: by mail-qt0-f193.google.com with SMTP id q6-v6so10988902qtn.3
+ for <selinux@tycho.nsa.gov>; Sat, 12 May 2018 08:46:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180510212114.pefeyw5cuqlmjewp@madcap2.tricolour.ca>
-Subject: Re: [PATCH ghak81 RFC V1 1/5] audit: normalize loginuid read access
+References: <1526129620.28749.19.camel@cepl.eu>
+In-Reply-To: <1526129620.28749.19.camel@cepl.eu>
+From: Neal Gompa <ngompa13@gmail.com>
+Date: Sat, 12 May 2018 11:45:35 -0400
+Message-ID: <CAEg-Je-1+e-YYT84QGEw8je+1rUUpuQkAr+E1yzkxU8n6O-9aA@mail.gmail.com>
+To: mcepl@cepl.eu
+Cc: selinux-devel@alioth-lists.debian.net,
+ SELinux List at Fedora Project <selinux@lists.fedoraproject.org>,
+ selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: Packaging policycoreutils for OpenSUSE
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 2018-05-10 17:21, Richard Guy Briggs wrote:
-> On 2018-05-09 11:13, Paul Moore wrote:
-> > On Fri, May 4, 2018 at 4:54 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> > > Recognizing that the loginuid is an internal audit value, use an access
-> > > function to retrieve the audit loginuid value for the task rather than
-> > > reaching directly into the task struct to get it.
-> > >
-> > > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> > > ---
-> > >  kernel/auditsc.c | 16 ++++++++--------
-> > >  1 file changed, 8 insertions(+), 8 deletions(-)
-> > >
-> > > diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> > > index 479c031..f3817d0 100644
-> > > --- a/kernel/auditsc.c
-> > > +++ b/kernel/auditsc.c
-> > > @@ -374,7 +374,7 @@ static int audit_field_compare(struct task_struct *tsk,
-> > >         case AUDIT_COMPARE_EGID_TO_OBJ_GID:
-> > >                 return audit_compare_gid(cred->egid, name, f, ctx);
-> > >         case AUDIT_COMPARE_AUID_TO_OBJ_UID:
-> > > -               return audit_compare_uid(tsk->loginuid, name, f, ctx);
-> > > +               return audit_compare_uid(audit_get_loginuid(tsk), name, f, ctx);
-> > >         case AUDIT_COMPARE_SUID_TO_OBJ_UID:
-> > >                 return audit_compare_uid(cred->suid, name, f, ctx);
-> > >         case AUDIT_COMPARE_SGID_TO_OBJ_GID:
-> > > @@ -385,7 +385,7 @@ static int audit_field_compare(struct task_struct *tsk,
-> > >                 return audit_compare_gid(cred->fsgid, name, f, ctx);
-> > >         /* uid comparisons */
-> > >         case AUDIT_COMPARE_UID_TO_AUID:
-> > > -               return audit_uid_comparator(cred->uid, f->op, tsk->loginuid);
-> > > +               return audit_uid_comparator(cred->uid, f->op, audit_get_loginuid(tsk));
-> > >         case AUDIT_COMPARE_UID_TO_EUID:
-> > >                 return audit_uid_comparator(cred->uid, f->op, cred->euid);
-> > >         case AUDIT_COMPARE_UID_TO_SUID:
-> > > @@ -394,11 +394,11 @@ static int audit_field_compare(struct task_struct *tsk,
-> > >                 return audit_uid_comparator(cred->uid, f->op, cred->fsuid);
-> > >         /* auid comparisons */
-> > >         case AUDIT_COMPARE_AUID_TO_EUID:
-> > > -               return audit_uid_comparator(tsk->loginuid, f->op, cred->euid);
-> > > +               return audit_uid_comparator(audit_get_loginuid(tsk), f->op, cred->euid);
-> > >         case AUDIT_COMPARE_AUID_TO_SUID:
-> > > -               return audit_uid_comparator(tsk->loginuid, f->op, cred->suid);
-> > > +               return audit_uid_comparator(audit_get_loginuid(tsk), f->op, cred->suid);
-> > >         case AUDIT_COMPARE_AUID_TO_FSUID:
-> > > -               return audit_uid_comparator(tsk->loginuid, f->op, cred->fsuid);
-> > > +               return audit_uid_comparator(audit_get_loginuid(tsk), f->op, cred->fsuid);
-> > >         /* euid comparisons */
-> > >         case AUDIT_COMPARE_EUID_TO_SUID:
-> > >                 return audit_uid_comparator(cred->euid, f->op, cred->suid);
-> > > @@ -611,7 +611,7 @@ static int audit_filter_rules(struct task_struct *tsk,
-> > >                                 result = match_tree_refs(ctx, rule->tree);
-> > >                         break;
-> > >                 case AUDIT_LOGINUID:
-> > > -                       result = audit_uid_comparator(tsk->loginuid, f->op, f->uid);
-> > > +                       result = audit_uid_comparator(audit_get_loginuid(tsk), f->op, f->uid);
-> > >                         break;
-> > >                 case AUDIT_LOGINUID_SET:
-> > >                         result = audit_comparator(audit_loginuid_set(tsk), f->op, f->val);
-> > > @@ -2287,8 +2287,8 @@ int audit_signal_info(int sig, struct task_struct *t)
-> > >             (sig == SIGTERM || sig == SIGHUP ||
-> > >              sig == SIGUSR1 || sig == SIGUSR2)) {
-> > >                 audit_sig_pid = task_tgid_nr(tsk);
-> > > -               if (uid_valid(tsk->loginuid))
-> > > -                       audit_sig_uid = tsk->loginuid;
-> > > +               if (uid_valid(audit_get_loginuid(tsk)))
-> > > +                       audit_sig_uid = audit_get_loginuid(tsk);
-> > 
-> > I realize this comment is a little silly given the nature of loginuid,
-> > but if we are going to abstract away loginuid accesses (which I think
-> > is good), we should probably access it once, store it in a local
-> > variable, perform the validity check on the local variable, then
-> > commit the local variable to audit_sig_uid.  I realize a TOCTOU
-> > problem is unlikely here, but with this new layer of abstraction it
-> > seems that some additional safety might be a good thing.
-> 
-> Ok, I'll just assign it to where it is going and check it there, holding
-> the audit_ctl_lock the whole time, since it should have been done
-> anyways for all of audit_sig_{pid,uid,sid} anyways to get a consistent
-> view from the AUDIT_SIGNAL_INFO fetch.
+On Sat, May 12, 2018 at 8:53 AM Matěj Cepl <mcepl@cepl.eu> wrote:
 
-Hmmm, holding audit_ctl_lock won't work because it could sleep trying to
-get the lock and the signal info is set in a context where sleeping
-isn't permitted.  I'll just use a local var...
+> Hi,
 
-> > >                 else
-> > >                         audit_sig_uid = uid;
-> > >                 security_task_getsecid(tsk, &audit_sig_sid);
-> 
-> > paul moore
-> 
-> - RGB
+> I am changing jobs (Red Hat -> SUSE; R&D, but not a security
+> related job), and although I will be switching my workstation to
+> OpenSUSE, I would love to keep SELinux working. Which meant I had
+> to dig into the current situation of SELinux and it is … not
+> good. So, I started to repackage all SELinux packages 2.7 for
+> OpenSUSE in my home build area
+> https://build.opensuse.org/project/show/home:mcepl:SELinux
+> . So,far I have packaged successfully packages for libselinux,
+> libselinux-bindings, checkpolicy, libsemanage, libsepol, and
+> python-semanage. Mostly I use original OpenSUSE packages for 2.6,
+> but if needed I seek inspiration in Fedora packages.
 
-- RGB
+> Unfortunately, I have trouble to package policycoreutils. First
+> of all, I don’t understand what’s the difference between two
+> upstream tarballs for it:
+> https://github.com/SELinuxProject/selinux/archive/policycoreutils
+> -2.7.tar.gz
+> (linked from https://github.com/SELinuxProject/selinux/releases)
+> and
+> https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/fil
+> es/releases/20170804/policycoreutils-2.7.tar.gz
+> (linked from
+> https://github.com/SELinuxProject/selinux/wiki/Releases). What’s
+> the point of confusing users with two different tarballs of the
+> same name?
 
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
+> Second, I don’t understand the behavior of the installation
+> scripts. Looking at https://is.gd/MivaE1 , why in the world that
+> installation scripts tons of stuff which is not part of
+> policycoreutils? Could anybody help me to get through this
+> obstacle, please?
+
+
+As the SELinux stack maintainer in Mageia, I've been through the same song
+and dance, and I can answer your questions.
+
+For your first question about the tarballs: The SELinux userspace is a
+monorepo, so the git tag archives actually contain all the content at
+seemingly random checkpoints. As a consequence of this, the upstream
+project has to create the tarballs themselves of the components and upload
+them. You _must_ use the the tarball from the Releases page, rather than
+the archive ones. This leads directly into the confusion for the second
+question. Please don't use the GitHub archive URLs as they lead to weird
+things like this.
+
+
+-- 
+真実はいつも一つ！/ Always, there's only one truth!
