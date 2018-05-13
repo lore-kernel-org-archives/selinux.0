@@ -1,122 +1,94 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4D203ww005760
- for <selinux@tycho.nsa.gov>; Sat, 12 May 2018 22:00:03 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 40k6Tt4JN6zJ34F
- for <selinux@tycho.nsa.gov>; Sun, 13 May 2018 02:00:02 +0000 (UTC)
-Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
- by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 40k6Ts53NTzJ33s
- for <selinux@tycho.nsa.gov>; Sun, 13 May 2018 02:00:01 +0000 (UTC)
-From: Richard Guy Briggs <rgb@redhat.com>
-To: Linux-Audit Mailing List <linux-audit@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
- Netfilter Devel List <netfilter-devel@vger.kernel.org>,
- Linux Security Module list <linux-security-module@vger.kernel.org>,
- Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
- SElinux list <selinux@tycho.nsa.gov>
-Cc: Eric Paris <eparis@redhat.com>, Paul Moore <paul@paul-moore.com>,
- Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
- David Howells <dhowells@redhat.com>, Richard Guy Briggs <rgb@redhat.com>
-Date: Sat, 12 May 2018 21:58:21 -0400
-Message-Id: <567735cef55507a38120e30bea178980bb146313.1526173613.git.rgb@redhat.com>
-In-Reply-To: <cover.1526173613.git.rgb@redhat.com>
-References: <cover.1526173613.git.rgb@redhat.com>
-In-Reply-To: <cover.1526173613.git.rgb@redhat.com>
-References: <cover.1526173613.git.rgb@redhat.com>
-Subject: [PATCH ghak81 RFC V2 4/5] audit: use inline function to set
- audit context
+Date: Sun, 13 May 2018 09:13:18 +0200
+Message-ID: <s5hr2mg81v5.wl-tiwai@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
+To: "Mauro Carvalho Chehab" <mchehab+samsung@kernel.org>
+Cc: "Linux Doc Mailing List" <linux-doc@vger.kernel.org>, "Jeff Dike"
+ <jdike@addtoit.com>, <alsa-devel@alsa-project.org>, "Catalin Marinas"
+ <catalin.marinas@arm.com>, "Mark Rutland" <mark.rutland@arm.com>,
+ "Will Deacon" <will.deacon@arm.com>, "Russell King"
+ <linux@armlinux.org.uk>, "Arnd Bergmann" <arnd@arndb.de>,
+ "Michael Turquette" <mturquette@baylibre.com>, "Sean Paul"
+ <seanpaul@chromium.org>, "David S. Miller"
+ <davem@davemloft.net>, <devel@driverdev.osuosl.org>, "Mathieu Desnoyers"
+ <mathieu.desnoyers@efficios.com>, "Akira Yokosawa" <akiyks@gmail.com>,
+ "Boqun Feng" <boqun.feng@gmail.com>, "Dmitry Torokhov"
+ <dmitry.torokhov@gmail.com>, "Harry Wei" <harryxiyou@gmail.com>,
+ "Max Filippov" <jcmvbkbc@gmail.com>, "Lai Jiangshan"
+ <jiangshanlai@gmail.com>, "Kent Overstreet" <kent.overstreet@gmail.com>,
+ "Nicholas Piggin" <npiggin@gmail.com>, =?UTF-8?B?IlBhbGkgUm9ow6FyIg==?=
+ <pali.rohar@gmail.com>, "Andrea Parri" <parri.andrea@gmail.com>,
+ "Sudip Mukherjee" <sudipm.mukherjee@gmail.com>, "Malcolm Priestley"
+ <tvboxspy@gmail.com>, "Herbert Xu" <herbert@gondor.apana.org.au>,
+ "Steven Rostedt" <rostedt@goodmis.org>, "Serge E. Hallyn"
+ <serge@hallyn.com>, "Li Zefan" <lizefan@huawei.com>, "David Woodhouse"
+ <dwmw2@infradead.org>, "Mauro Carvalho Chehab" <mchehab@infradead.org>,
+ "Peter Zijlstra" <peterz@infradead.org>, "Luc Maranget"
+ <luc.maranget@inria.fr>, "Anil S Keshavamurthy"
+ <anil.s.keshavamurthy@intel.com>, "Josh Triplett" <josh@joshtriplett.org>,
+ "Jens Axboe" <axboe@kernel.dk>, "Arnaldo Carvalho de Melo"
+ <acme@kernel.org>, "Masami Hiramatsu" <mhiramat@kernel.org>, "Namhyung Kim"
+ <namhyung@kernel.org>, "Rob Herring" <robh+dt@kernel.org>, "Stephen Boyd"
+ <sboyd@kernel.org>, <x86@kernel.org>, "Matias Bjorling" <mb@lightnvm.io>,
+ "Linus Walleij" <linus.walleij@linaro.org>, "Mathieu Poirier"
+ <mathieu.poirier@linaro.org>, "Thomas Gleixner" <tglx@linutronix.de>,
+ <linux-xtensa@linux-xtensa.org>, "David Airlie" <airlied@linux.ie>,
+ "Alexander Shishkin" <alexander.shishkin@linux.intel.com>,
+ "Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>,
+ "Ananth N Mavinakayanahalli" <ananth@linux.vnet.ibm.com>,
+ "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, "Greg Kroah-Hartman"
+ <gregkh@linuxfoundation.org>, <dri-devel@lists.freedesktop.org>,
+ <linux-arm-kernel@lists.infradead.org>,
+ <user-mode-linux-devel@lists.sourceforge.net>,
+ <user-mode-linux-user@lists.sourceforge.net>,
+ <xen-devel@lists.xenproject.org>, "Jonathan Corbet" <corbet@lwn.net>,
+ "Michael Lyle" <mlyle@lyle.org>, "Michal Simek" <monstr@monstr.eu>,
+ "James Morris" <jmorris@namei.org>, "Richard Weinberger" <richard@nod.at>,
+ <patches@opensource.cirrus.com>, "Boris Ostrovsky"
+ <boris.ostrovsky@oracle.com>, "Gustavo Padovan" <gustavo@padovan.org>,
+ "Eric Paris" <eparis@parisplace.org>,
+ "Paul Moore" <paul@paul-moore.com>, "Jaroslav Kysela" <perex@perex.cz>,
+ "Guan Xuetao" <gxt@pku.edu.cn>, "David Howells" <dhowells@redhat.com>,
+ "Jiri Olsa" <jolsa@redhat.com>, "Ingo Molnar" <mingo@redhat.com>,
+ "Alan Stern" <stern@rowland.harvard.edu>,
+ "Juergen Gross" <jgross@suse.com>, "Stephen Smalley"
+ <sds@tycho.nsa.gov>, <selinux@tycho.nsa.gov>, "Jade Alglave"
+ <j.alglave@ucl.ac.uk>, <cgroups@vger.kernel.org>,
+ <devicetree@vger.kernel.org>, <keyrings@vger.kernel.org>,
+ <linux-bcache@vger.kernel.org>, <linux-block@vger.kernel.org>,
+ <linux-clk@vger.kernel.org>, <linux-crypto@vger.kernel.org>,
+ <linux-gpio@vger.kernel.org>, <linux-input@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>,
+ <linux-security-module@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+ "Chris Zankel" <chris@zankel.net>,
+ "Antoine Jacquet" <royale@zerezo.com>, <linux-kernel@zh-kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>
+In-Reply-To: <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+References: <cover.1525870886.git.mchehab+samsung@kernel.org>
+ <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH v2 09/11] docs: Fix some broken references
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Recognizing that the audit context is an internal audit value, use an
-access function to set the audit context pointer for the task
-rather than reaching directly into the task struct to set it.
+On Wed, 09 May 2018 15:18:52 +0200,
+Mauro Carvalho Chehab wrote:
+> 
+> As we move stuff around, some doc references are broken. Fix some of
+> them via this script:
+> 	./scripts/documentation-file-ref-check --fix-rst
+> 
+> Manually checked if the produced result is valid, removing a few
+> false-positives.
+> 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
-Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
----
- include/linux/audit.h | 6 ++++++
- kernel/auditsc.c      | 7 +++----
- kernel/fork.c         | 2 +-
- 3 files changed, 10 insertions(+), 5 deletions(-)
+For sound stuff, feel free to take my ack (if it's not too late):
+  Acked-by: Takashi Iwai <tiwai@suse.de>
 
-diff --git a/include/linux/audit.h b/include/linux/audit.h
-index 786aa8e..f7973e4 100644
---- a/include/linux/audit.h
-+++ b/include/linux/audit.h
-@@ -235,6 +235,10 @@ extern void __audit_inode_child(struct inode *parent,
- extern void __audit_seccomp(unsigned long syscall, long signr, int code);
- extern void __audit_ptrace(struct task_struct *t);
- 
-+static inline void audit_set_context(struct task_struct *task, struct audit_context *ctx)
-+{
-+	task->audit_context = ctx;
-+}
- static inline struct audit_context *audit_context(void)
- {
- 	return current->audit_context;
-@@ -472,6 +476,8 @@ static inline bool audit_dummy_context(void)
- {
- 	return true;
- }
-+static inline void audit_set_context(struct task_struct *task, struct audit_context *ctx)
-+{ }
- static inline struct audit_context *audit_context(void)
- {
- 	return NULL;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index ecc0c23..d441d68 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -865,7 +865,7 @@ static inline struct audit_context *audit_take_context(struct task_struct *tsk,
- 		audit_filter_inodes(tsk, context);
- 	}
- 
--	tsk->audit_context = NULL;
-+	audit_set_context(tsk, NULL);
- 	return context;
- }
- 
-@@ -952,7 +952,7 @@ int audit_alloc(struct task_struct *tsk)
- 	}
- 	context->filterkey = key;
- 
--	tsk->audit_context  = context;
-+	audit_set_context(tsk, context);
- 	set_tsk_thread_flag(tsk, TIF_SYSCALL_AUDIT);
- 	return 0;
- }
-@@ -1554,7 +1554,6 @@ void __audit_syscall_entry(int major, unsigned long a1, unsigned long a2,
-  */
- void __audit_syscall_exit(int success, long return_code)
- {
--	struct task_struct *tsk = current;
- 	struct audit_context *context;
- 
- 	if (success)
-@@ -1589,7 +1588,7 @@ void __audit_syscall_exit(int success, long return_code)
- 		kfree(context->filterkey);
- 		context->filterkey = NULL;
- 	}
--	tsk->audit_context = context;
-+	audit_set_context(current, context);
- }
- 
- static inline void handle_one(const struct inode *inode)
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 242c8c9..cd18448 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -1713,7 +1713,7 @@ static __latent_entropy struct task_struct *copy_process(
- 	p->start_time = ktime_get_ns();
- 	p->real_start_time = ktime_get_boot_ns();
- 	p->io_context = NULL;
--	p->audit_context = NULL;
-+	audit_set_context(p, NULL);
- 	cgroup_fork(p);
- #ifdef CONFIG_NUMA
- 	p->mempolicy = mpol_dup(p->mempolicy);
--- 
-1.8.3.1
+
+thanks,
+
+Takashi
