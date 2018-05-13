@@ -1,74 +1,80 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4CFkFd7001280
- for <selinux@tycho.nsa.gov>; Sat, 12 May 2018 11:46:15 -0400
-Received: by mail-qt0-f193.google.com with SMTP id q6-v6so10988902qtn.3
- for <selinux@tycho.nsa.gov>; Sat, 12 May 2018 08:46:12 -0700 (PDT)
-MIME-Version: 1.0
-References: <1526129620.28749.19.camel@cepl.eu>
-In-Reply-To: <1526129620.28749.19.camel@cepl.eu>
-From: Neal Gompa <ngompa13@gmail.com>
-Date: Sat, 12 May 2018 11:45:35 -0400
-Message-ID: <CAEg-Je-1+e-YYT84QGEw8je+1rUUpuQkAr+E1yzkxU8n6O-9aA@mail.gmail.com>
-To: mcepl@cepl.eu
-Cc: selinux-devel@alioth-lists.debian.net,
- SELinux List at Fedora Project <selinux@lists.fedoraproject.org>,
- selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: Packaging policycoreutils for OpenSUSE
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4D1xZn4005566
+ for <selinux@tycho.nsa.gov>; Sat, 12 May 2018 21:59:35 -0400
+From: Richard Guy Briggs <rgb@redhat.com>
+To: Linux-Audit Mailing List <linux-audit@redhat.com>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
+ Netfilter Devel List <netfilter-devel@vger.kernel.org>,
+ Linux Security Module list <linux-security-module@vger.kernel.org>,
+ Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
+ SElinux list <selinux@tycho.nsa.gov>
+Cc: Eric Paris <eparis@redhat.com>, Paul Moore <paul@paul-moore.com>,
+ Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+ David Howells <dhowells@redhat.com>, Richard Guy Briggs <rgb@redhat.com>
+Date: Sat, 12 May 2018 21:58:17 -0400
+Message-Id: <cover.1526173613.git.rgb@redhat.com>
+Subject: [PATCH ghak81 RFC V2 0/5] audit: group task params
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, May 12, 2018 at 8:53 AM Matěj Cepl <mcepl@cepl.eu> wrote:
+Group the audit parameters for each task into one structure.
+In particular, remove the loginuid and sessionid values and the audit
+context pointer from the task structure, replacing them with an audit
+task information structure to contain them.  Use access functions to
+access audit values.
 
-> Hi,
+Note:  Use static allocation of the audit task information structure
+initially.  Dynamic allocation was considered and attempted, but isn't
+ready yet.  Static allocation has the limitation that future audit task
+information structure changes would cause a visible change to the rest
+of the kernel, whereas dynamic allocation would mostly hide any future
+changes.
 
-> I am changing jobs (Red Hat -> SUSE; R&D, but not a security
-> related job), and although I will be switching my workstation to
-> OpenSUSE, I would love to keep SELinux working. Which meant I had
-> to dig into the current situation of SELinux and it is … not
-> good. So, I started to repackage all SELinux packages 2.7 for
-> OpenSUSE in my home build area
-> https://build.opensuse.org/project/show/home:mcepl:SELinux
-> . So,far I have packaged successfully packages for libselinux,
-> libselinux-bindings, checkpolicy, libsemanage, libsepol, and
-> python-semanage. Mostly I use original OpenSUSE packages for 2.6,
-> but if needed I seek inspiration in Fedora packages.
+The first four access normalization patches could stand alone.
 
-> Unfortunately, I have trouble to package policycoreutils. First
-> of all, I don’t understand what’s the difference between two
-> upstream tarballs for it:
-> https://github.com/SELinuxProject/selinux/archive/policycoreutils
-> -2.7.tar.gz
-> (linked from https://github.com/SELinuxProject/selinux/releases)
-> and
-> https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/fil
-> es/releases/20170804/policycoreutils-2.7.tar.gz
-> (linked from
-> https://github.com/SELinuxProject/selinux/wiki/Releases). What’s
-> the point of confusing users with two different tarballs of the
-> same name?
+Passes audit-testsuite.
 
-> Second, I don’t understand the behavior of the installation
-> scripts. Looking at https://is.gd/MivaE1 , why in the world that
-> installation scripts tons of stuff which is not part of
-> policycoreutils? Could anybody help me to get through this
-> obstacle, please?
+Changelog:
+v2
+- p2/5: add audit header to init/init_task.c to quiet kbuildbot
+- audit_signal_info(): fetch loginuid once
+- remove task_struct from audit_context() param list
+- remove extra task_struct local vars
+- do nothing on request to set audit context when audit is disabled
 
+Richard Guy Briggs (5):
+  audit: normalize loginuid read access
+  audit: convert sessionid unset to a macro
+  audit: use inline function to get audit context
+  audit: use inline function to set audit context
+  audit: collect audit task parameters
 
-As the SELinux stack maintainer in Mageia, I've been through the same song
-and dance, and I can answer your questions.
-
-For your first question about the tarballs: The SELinux userspace is a
-monorepo, so the git tag archives actually contain all the content at
-seemingly random checkpoints. As a consequence of this, the upstream
-project has to create the tarballs themselves of the components and upload
-them. You _must_ use the the tarball from the Releases page, rather than
-the archive ones. This leads directly into the confusion for the second
-question. Please don't use the GitHub archive URLs as they lead to weird
-things like this.
-
+ MAINTAINERS                          |  2 +-
+ include/linux/audit.h                | 28 ++++++++---
+ include/linux/audit_task.h           | 31 ++++++++++++
+ include/linux/sched.h                |  6 +--
+ include/net/xfrm.h                   |  4 +-
+ include/uapi/linux/audit.h           |  1 +
+ init/init_task.c                     |  8 ++-
+ kernel/audit.c                       |  6 +--
+ kernel/audit_watch.c                 |  2 +-
+ kernel/auditsc.c                     | 97 +++++++++++++++++-------------------
+ kernel/fork.c                        |  2 +-
+ net/bridge/netfilter/ebtables.c      |  2 +-
+ net/core/dev.c                       |  2 +-
+ net/netfilter/x_tables.c             |  2 +-
+ net/netlabel/netlabel_user.c         |  2 +-
+ security/integrity/ima/ima_api.c     |  2 +-
+ security/integrity/integrity_audit.c |  2 +-
+ security/lsm_audit.c                 |  2 +-
+ security/selinux/hooks.c             |  4 +-
+ security/selinux/selinuxfs.c         |  6 +--
+ security/selinux/ss/services.c       | 12 ++---
+ 21 files changed, 133 insertions(+), 90 deletions(-)
+ create mode 100644 include/linux/audit_task.h
 
 -- 
-真実はいつも一つ！/ Always, there's only one truth!
+1.8.3.1
