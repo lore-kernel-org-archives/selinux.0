@@ -1,63 +1,125 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4EJes02002557
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 15:40:54 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4EJsvxP003465
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 15:54:57 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC12.oob.disa.mil (Postfix) with SMTP id 40l9zP1KCBz1pF1b
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 19:40:49 +0000 (UTC)
-Received: from UPDC3CPA08_EEMSG_MP24.eemsg.mil (unknown [192.168.18.19])
- by UPDCF3IC12.oob.disa.mil (Postfix) with ESMTP id 40l9zN3k15z1pF1Y
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 19:40:48 +0000 (UTC)
-Received: by mail-lf0-f67.google.com with SMTP id m17-v6so14619735lfj.8
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 12:40:06 -0700 (PDT)
+ by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 40lBHd25SJz2Vp8x
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 19:54:53 +0000 (UTC)
+Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
+ by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 40lBHc56yCz2Vp9C
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 19:54:52 +0000 (UTC)
+Received: by mail-lf0-f67.google.com with SMTP id r25-v6so19833002lfd.1
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 12:53:05 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1526058913-14198-1-git-send-email-alexey.kodanev@oracle.com>
-References: <1526058913-14198-1-git-send-email-alexey.kodanev@oracle.com>
+In-Reply-To: <33f131a40a50bd7532ed74ff51e3da920e9e8df5.1526173613.git.rgb@redhat.com>
+References: <cover.1526173613.git.rgb@redhat.com>
+ <33f131a40a50bd7532ed74ff51e3da920e9e8df5.1526173613.git.rgb@redhat.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 14 May 2018 15:39:04 -0400
-Message-ID: <CAHC9VhTk8YEwG8kaApH9so67uZOhv=6kKpPVbpwxUju8t9B-AA@mail.gmail.com>
-To: Alexey Kodanev <alexey.kodanev@oracle.com>,
- Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>,
- linux-security-module@vger.kernel.org, netdev <netdev@vger.kernel.org>
+Date: Mon, 14 May 2018 15:52:03 -0400
+Message-ID: <CAHC9VhSPY-49LppFRw9Vmupdw8b2ooMVzWmputdB0bKm3X0+FA@mail.gmail.com>
+To: Richard Guy Briggs <rgb@redhat.com>
+Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
+ Netfilter Devel List <netfilter-devel@vger.kernel.org>,
+ Linux Security Module list <linux-security-module@vger.kernel.org>,
+ Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
+ SElinux list <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
+ Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+ David Howells <dhowells@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v2 1/3] selinux: add AF_UNSPEC and INADDR_ANY
- checks to selinux_socket_bind()
+Subject: Re: [PATCH ghak81 RFC V2 1/5] audit: normalize loginuid read access
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, May 11, 2018 at 1:15 PM, Alexey Kodanev
-<alexey.kodanev@oracle.com> wrote:
-> Commit d452930fd3b9 ("selinux: Add SCTP support") breaks compatibility
-> with the old programs that can pass sockaddr_in structure with AF_UNSPEC
-> and INADDR_ANY to bind(). As a result, bind() returns EAFNOSUPPORT error.
-> This was found with LTP/asapi_01 test.
+On Sat, May 12, 2018 at 9:58 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
+> Recognizing that the loginuid is an internal audit value, use an access
+> function to retrieve the audit loginuid value for the task rather than
+> reaching directly into the task struct to get it.
 >
-> Similar to commit 29c486df6a20 ("net: ipv4: relax AF_INET check in
-> bind()"), which relaxed AF_INET check for compatibility, add AF_UNSPEC
-> case to AF_INET and make sure that the address is INADDR_ANY.
->
-> Fixes: d452930fd3b9 ("selinux: Add SCTP support")
-> Signed-off-by: Alexey Kodanev <alexey.kodanev@oracle.com>
+> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
 > ---
+>  kernel/auditsc.c | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
 >
-> v2: As suggested by Paul:
->     * return EINVAL for SCTP socket if sa_family is AF_UNSPEC and
->       address is not INADDR_ANY
->     * add new 'sa_family' variable so that it equals either AF_INET
->       or AF_INET6. Besides, it it will be used in the next patch that
->       fixes audit record.
+> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> index 479c031..0d4e269 100644
+> --- a/kernel/auditsc.c
+> +++ b/kernel/auditsc.c
+> @@ -374,7 +374,7 @@ static int audit_field_compare(struct task_struct *tsk,
+>         case AUDIT_COMPARE_EGID_TO_OBJ_GID:
+>                 return audit_compare_gid(cred->egid, name, f, ctx);
+>         case AUDIT_COMPARE_AUID_TO_OBJ_UID:
+> -               return audit_compare_uid(tsk->loginuid, name, f, ctx);
+> +               return audit_compare_uid(audit_get_loginuid(tsk), name, f, ctx);
+>         case AUDIT_COMPARE_SUID_TO_OBJ_UID:
+>                 return audit_compare_uid(cred->suid, name, f, ctx);
+>         case AUDIT_COMPARE_SGID_TO_OBJ_GID:
+> @@ -385,7 +385,7 @@ static int audit_field_compare(struct task_struct *tsk,
+>                 return audit_compare_gid(cred->fsgid, name, f, ctx);
+>         /* uid comparisons */
+>         case AUDIT_COMPARE_UID_TO_AUID:
+> -               return audit_uid_comparator(cred->uid, f->op, tsk->loginuid);
+> +               return audit_uid_comparator(cred->uid, f->op, audit_get_loginuid(tsk));
+>         case AUDIT_COMPARE_UID_TO_EUID:
+>                 return audit_uid_comparator(cred->uid, f->op, cred->euid);
+>         case AUDIT_COMPARE_UID_TO_SUID:
+> @@ -394,11 +394,11 @@ static int audit_field_compare(struct task_struct *tsk,
+>                 return audit_uid_comparator(cred->uid, f->op, cred->fsuid);
+>         /* auid comparisons */
+>         case AUDIT_COMPARE_AUID_TO_EUID:
+> -               return audit_uid_comparator(tsk->loginuid, f->op, cred->euid);
+> +               return audit_uid_comparator(audit_get_loginuid(tsk), f->op, cred->euid);
+>         case AUDIT_COMPARE_AUID_TO_SUID:
+> -               return audit_uid_comparator(tsk->loginuid, f->op, cred->suid);
+> +               return audit_uid_comparator(audit_get_loginuid(tsk), f->op, cred->suid);
+>         case AUDIT_COMPARE_AUID_TO_FSUID:
+> -               return audit_uid_comparator(tsk->loginuid, f->op, cred->fsuid);
+> +               return audit_uid_comparator(audit_get_loginuid(tsk), f->op, cred->fsuid);
+>         /* euid comparisons */
+>         case AUDIT_COMPARE_EUID_TO_SUID:
+>                 return audit_uid_comparator(cred->euid, f->op, cred->suid);
+> @@ -611,7 +611,7 @@ static int audit_filter_rules(struct task_struct *tsk,
+>                                 result = match_tree_refs(ctx, rule->tree);
+>                         break;
+>                 case AUDIT_LOGINUID:
+> -                       result = audit_uid_comparator(tsk->loginuid, f->op, f->uid);
+> +                       result = audit_uid_comparator(audit_get_loginuid(tsk), f->op, f->uid);
+>                         break;
+>                 case AUDIT_LOGINUID_SET:
+>                         result = audit_comparator(audit_loginuid_set(tsk), f->op, f->val);
+> @@ -2281,14 +2281,14 @@ int audit_signal_info(int sig, struct task_struct *t)
+>         struct audit_aux_data_pids *axp;
+>         struct task_struct *tsk = current;
+>         struct audit_context *ctx = tsk->audit_context;
+> -       kuid_t uid = current_uid(), t_uid = task_uid(t);
+> +       kuid_t uid = current_uid(), auid, t_uid = task_uid(t);
 >
->  security/selinux/hooks.c | 29 +++++++++++++++++++----------
->  1 file changed, 19 insertions(+), 10 deletions(-)
+>         if (auditd_test_task(t) &&
+>             (sig == SIGTERM || sig == SIGHUP ||
+>              sig == SIGUSR1 || sig == SIGUSR2)) {
+>                 audit_sig_pid = task_tgid_nr(tsk);
+> -               if (uid_valid(tsk->loginuid))
+> -                       audit_sig_uid = tsk->loginuid;
+> +               if (uid_valid(auid = audit_get_loginuid(tsk)))
+> +                       audit_sig_uid = auid;
+>                 else
+>                         audit_sig_uid = uid;
+>                 security_task_getsecid(tsk, &audit_sig_sid);
 
-All three patches looked good to me.  I've merged them into
-selinux/stable-4.17 and assuming nothing breaks in the next day or two
-I'll send it up to Linus mid-week.
+A gentle reminder that you should try to make you patches as
+"checkpatch clean" as possible (see scripts/checkpatch.pl).  There are
+several 80-char warnings, which aren't fatal, but the big no-no is
+below:
 
-Thanks everyone!
+  ERROR: do not use assignment in if condition
+  #72: FILE: kernel/auditsc.c:2290:
+  +               if (uid_valid(auid = audit_get_loginuid(tsk)))
+
+... while I don't completely agree with everything checkpatch has to
+say, I definitely agree with checkpatch when it comes to assignments
+in if conditions.
 
 -- 
 paul moore
