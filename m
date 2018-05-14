@@ -1,35 +1,23 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4ELEhdY010036
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 17:14:43 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC08.oob.disa.mil (Postfix) with SMTP id 40lD3j4Tptz34qRr
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 21:14:41 +0000 (UTC)
-Received: from UPBD19PA03.eemsg.mil (unknown [192.168.18.4])
- by UPDCF3IC08.oob.disa.mil (Postfix) with ESMTP id 40lD3j444Wz34qRc
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 21:14:41 +0000 (UTC)
-Received: by mail-it0-f47.google.com with SMTP id q4-v6so14691896ite.3
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 14:14:40 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4ENaHx4020615
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 19:36:17 -0400
+Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.105])
+ ([67.169.65.224])
+ by smtp426.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID
+ 6934a590f7fa4f181e34f76104c395cf for <selinux@tycho.nsa.gov>;
+ Mon, 14 May 2018 23:36:11 +0000 (UTC)
+To: selinux <selinux@tycho.nsa.gov>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <991a548d-1cdc-5e15-89d9-a36a557429d2@schaufler-ca.com>
+Date: Mon, 14 May 2018 16:36:09 -0700
 MIME-Version: 1.0
-Reply-To: ericbro@gmail.com
-From: Eric Brown <ericbro@gmail.com>
-Date: Mon, 14 May 2018 17:14:27 -0400
-Message-ID: <CAC1MGdxd2KaCs5WMvtKMMuQQZhVTKUpGQ44Qni6MBAXJx_RpQA@mail.gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary="0000000000003e47b4056c30f950"
-Subject: Unsubscribe
+Content-Type: text/plain; charset=utf-8
+Subject: Anyone using the SELinux test suite on Fedora 28?
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---0000000000003e47b4056c30f950
-Content-Type: text/plain; charset="UTF-8"
-
-
-
---0000000000003e47b4056c30f950
-Content-Type: text/html; charset="UTF-8"
-
-<div dir="auto"></div>
-
---0000000000003e47b4056c30f950--
+Has anyone had success with the SELinux test suite on Fedora 28?
+I find the chcon and newrole are unhappy with the contexts used
+in the suite.
