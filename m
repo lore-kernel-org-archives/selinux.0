@@ -1,129 +1,170 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4EEK8S8010034
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 10:20:08 -0400
-Received: by mail-pg0-f49.google.com with SMTP id e1-v6so5556681pga.6
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 07:19:20 -0700 (PDT)
-Date: Mon, 14 May 2018 22:19:11 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Nicolas Iooss <nicolas.iooss@m4x.org>,
- =?utf-8?B?TWF0xJtq?= Cepl <mcepl@cepl.eu>,
- selinux-devel@alioth-lists.debian.net, selinux@lists.fedoraproject.org,
- selinux <selinux@tycho.nsa.gov>
-Message-ID: <20180514141911.GA61110@baraddur.perfinion.com>
-References: <1526129620.28749.19.camel@cepl.eu>
- <CAJfZ7==pQDfffb8zW47YUYbzm0Lxqbi_F89K2wjVzL6BntcQvA@mail.gmail.com>
- <b72c36a6-f10d-a4af-bacf-2844faf843cd@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-In-Reply-To: <b72c36a6-f10d-a4af-bacf-2844faf843cd@tycho.nsa.gov>
-Subject: Re: Packaging policycoreutils for OpenSUSE
+Date: Mon, 14 May 2018 22:31:26 +0900
+From: Masami Hiramatsu <mhiramat@kernel.org>
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>, Mauro Carvalho
+ Chehab <mchehab@infradead.org>, linux-kernel@vger.kernel.org, Jonathan
+ Corbet <corbet@lwn.net>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob
+ Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Linus
+ Walleij <linus.walleij@linaro.org>, Ananth N Mavinakayanahalli
+ <ananth@linux.vnet.ibm.com>, Anil S Keshavamurthy
+ <anil.s.keshavamurthy@intel.com>, "David S. Miller" <davem@davemloft.net>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Poirier
+ <mathieu.poirier@linaro.org>, Alexander Shishkin
+ <alexander.shishkin@linux.intel.com>,
+ Harry Wei <harryxiyou@gmail.com>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will.deacon@arm.com>, Michal Simek <monstr@monstr.eu>,
+ Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+ Guan Xuetao <gxt@pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ x86@kernel.org, Chris Zankel <chris@zankel.net>, Max
+ Filippov <jcmvbkbc@gmail.com>, Jens Axboe <axboe@kernel.dk>, David Howells
+ <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>, Herbert Xu
+ <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Michael Turquette
+ <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, David Airlie
+ <airlied@linux.ie>, Gustavo Padovan <gustavo@padovan.org>, Maarten
+ Lankhorst <maarten.lankhorst@linux.intel.com>, Sean Paul
+ <seanpaul@chromium.org>, Pali =?UTF-8?B?Um9ow6Fy?= <pali.rohar@gmail.com>,
+ Matias Bjorling <mb@lightnvm.io>, Michael Lyle <mlyle@lyle.org>, Kent
+ Overstreet <kent.overstreet@gmail.com>, Malcolm Priestley
+ <tvboxspy@gmail.com>, Antoine Jacquet <royale@zerezo.com>, Sudip Mukherjee
+ <sudipm.mukherjee@gmail.com>, Steven Rostedt <rostedt@goodmis.org>,
+ "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>, Josh Triplett
+ <josh@joshtriplett.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Lai Jiangshan <jiangshanlai@gmail.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross
+ <jgross@suse.com>, Li Zefan <lizefan@huawei.com>, Paul Moore
+ <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris
+ <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>, Alan Stern <stern@rowland.harvard.edu>,
+ Andrea Parri <parri.andrea@gmail.com>, Peter Zijlstra
+ <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Nicholas Piggin
+ <npiggin@gmail.com>, Jade Alglave <j.alglave@ucl.ac.uk>, Luc Maranget
+ <luc.maranget@inria.fr>, Akira Yokosawa <akiyks@gmail.com>, Arnaldo
+ Carvalho de Melo <acme@kernel.org>, Jiri Olsa <jolsa@redhat.com>, Namhyung
+ Kim <namhyung@kernel.org>,
+ linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-kernel@zh-kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+ user-mode-linux-user@lists.sourceforge.net,
+ linux-xtensa@linux-xtensa.org, linux-block@vger.kernel.org,
+ keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ patches@opensource.cirrus.com, linux-bcache@vger.kernel.org,
+ linux-usb@vger.kernel.org, devel@driverdev.osuosl.org,
+ xen-devel@lists.xenproject.org, cgroups@vger.kernel.org,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ alsa-devel@alsa-project.org
+Message-Id: <20180514223126.8d738475fbb53fba9ff199d9@kernel.org>
+In-Reply-To: <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+References: <cover.1525870886.git.mchehab+samsung@kernel.org>
+ <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH v2 09/11] docs: Fix some broken references
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, May 14, 2018 at 09:30:41AM -0400, Stephen Smalley wrote:
-> On 05/13/2018 07:43 AM, Nicolas Iooss wrote:
-> > On Sat, May 12, 2018 at 2:53 PM, Matěj Cepl <mcepl@cepl.eu> wrote:
-> >> Hi,
-> >>
-> >> I am changing jobs (Red Hat -> SUSE; R&D, but not a security
-> >> related job), and although I will be switching my workstation to
-> >> OpenSUSE, I would love to keep SELinux working. Which meant I had
-> >> to dig into the current situation of SELinux and it is … not
-> >> good. So, I started to repackage all SELinux packages 2.7 for
-> >> OpenSUSE in my home build area
-> >> https://build.opensuse.org/project/show/home:mcepl:SELinux
-> >> . So,far I have packaged successfully packages for libselinux,
-> >> libselinux-bindings, checkpolicy, libsemanage, libsepol, and
-> >> python-semanage. Mostly I use original OpenSUSE packages for 2.6,
-> >> but if needed I seek inspiration in Fedora packages.
-> >>
-> >> Unfortunately, I have trouble to package policycoreutils. First
-> >> of all, I don’t understand what’s the difference between two
-> >> upstream tarballs for it:
-> >> https://github.com/SELinuxProject/selinux/archive/policycoreutils
-> >> -2.7.tar.gz
-> >> (linked from https://github.com/SELinuxProject/selinux/releases)
-> >> and
-> >> https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/fil
-> >> es/releases/20170804/policycoreutils-2.7.tar.gz
-> >> (linked from
-> >> https://github.com/SELinuxProject/selinux/wiki/Releases). What’s
-> >> the point of confusing users with two different tarballs of the
-> >> same name?
-> >>
-> >> Second, I don’t understand the behavior of the installation
-> >> scripts. Looking at https://is.gd/MivaE1 , why in the world that
-> >> installation scripts tons of stuff which is not part of
-> >> policycoreutils? Could anybody help me to get through this
-> >> obstacle, please?
-> >>
-> >> Thank you for any suggestions,
-> >>
-> >> Matěj
-> > 
-> > Hi,
-> > After we have discussed about it on IRC (#selinux on freenode), I have
-> > performed some tests on Github to better understand how its "Releases
-> > page" work. The main issue here is that Github shows tags of the git
-> > repository in the Releases page
-> > (https://github.com/SELinuxProject/selinux/releases) and there is no
-> > way to disabled this behavior. This has several consequences:
-> > 
-> > * Each tarball in https://github.com/SELinuxProject/selinux/releases
-> > contains the full tree of the project (which is why "that installation
-> > scripts tons of stuff which is not part of policycoreutils"), whereas
-> > the tarballs in the wiki page are created by properly splitting the
-> > subdirectories.
-> > * It is not possible to delete what is currently in Github's release
-> > page without deleting the tags.
-> > * It is possible to "upgrade" a tag to a release by adding release
-> > notes and files to them. For example
-> > https://github.com/gentilkiwi/mimikatz/releases uses this (you can see
-> > the differences between "Releases" and "Tags" pages of this project).
-> > When there are releases like this, it is possible to remove them all
-> > (for example using
-> > https://github.com/stevemao/github-remove-all-releases), which
-> > transforms the release page back to a list of tags (I have tested this
-> > today on a test repository).
-> > 
-> > Moreover it seems that the Releases page can not be disabled (if it
-> > can, I have not found how).
-> > 
-> > If my analysis of Github's release system is correct, would it make
-> > sense to change the way the releases are currently tagged to only
-> > create one tag (like "selinux-2.8-rc3") instead of creating one tag
-> > per sub-project? Would this break some tools? (If distribution
-> > packagers use tools to automatically detect when a new release is
-> > available, would such a change break these tools?)
-> 
-> Not speaking for the distributions obviously, but I have no objection to dropping
-> the per-component tags if they aren't being used and are causing confusion.
-> 
-> A bit of historical context: originally, we released the selinux userspace as a single
-> tarball with a single date-based version.  When SELinux was first being integrated into Fedora,
-> the Fedora packagers wanted releases to be split into separate source tarballs for each component each
-> with its own independent version, so this was done for formal releases but the source continued to live
-> in a single source code repository. (This all predates the move to GitHub, of course). 
-> The individual component versioning has limited utility in my view given that there is almost always
-> at least one source level change to every component between any two releases and there tends to be
-> a strong coupling among many of the components.
-> 
-> In the past, we have considered either going back to a single source tarball with a single version,
-> or splitting the source code repository itself to be per-component.  Either approach would allow direct
-> use of the github releases as the official release mechanism and avoid the need to separately create
-> and maintain the release tarballs on the wiki pages.
+On Wed,  9 May 2018 10:18:52 -0300
+Mauro Carvalho Chehab <mchehab+samsung@kernel.org> wrote:
 
-I'd rather not rely on the github automatic releases, they have been
-known to change over time randomly. Especially for security sensitive
-stuff, its better to have the tarballs generated with the sha sums like
-they are now.
+> As we move stuff around, some doc references are broken. Fix some of
+> them via this script:
+> 	./scripts/documentation-file-ref-check --fix-rst
+> 
+> Manually checked if the produced result is valid, removing a few
+> false-positives.
 
-Having many tags or one doesnt make a huge difference but I dont see any
-reason to change either so *shrug*. perhaps we could just put a small
-note in the github releases part that links to the wiki page for that
-specific release and a note to not use the github tarballs.
+The part of kprobes and trace_kprobe changes look good to me :)
 
--- Jason
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+
+Thank you,
+
+> 
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> ---
+>  .../admin-guide/kernel-parameters.txt         |  4 ++--
+>  .../bindings/input/rotary-encoder.txt         |  2 +-
+>  Documentation/driver-api/gpio/consumer.rst    |  2 +-
+>  Documentation/kprobes.txt                     |  4 ++--
+>  Documentation/trace/coresight.txt             |  2 +-
+>  Documentation/trace/events.rst                |  2 +-
+>  Documentation/trace/ftrace-uses.rst           |  2 +-
+>  Documentation/trace/histogram.txt             |  2 +-
+>  Documentation/trace/intel_th.rst              |  2 +-
+>  Documentation/trace/tracepoint-analysis.rst   |  6 +++---
+>  Documentation/translations/ja_JP/howto.rst    |  4 ++--
+>  .../translations/zh_CN/magic-number.txt       |  4 ++--
+>  .../zh_CN/video4linux/omap3isp.txt            |  4 ++--
+>  MAINTAINERS                                   | 20 +++++++++----------
+>  arch/Kconfig                                  |  2 +-
+>  arch/arm/include/asm/cacheflush.h             |  2 +-
+>  arch/arm64/include/asm/cacheflush.h           |  2 +-
+>  arch/microblaze/include/asm/cacheflush.h      |  2 +-
+>  arch/um/Kconfig.um                            |  2 +-
+>  arch/unicore32/include/asm/cacheflush.h       |  2 +-
+>  arch/x86/entry/vsyscall/vsyscall_64.c         |  2 +-
+>  arch/xtensa/include/asm/cacheflush.h          |  4 ++--
+>  block/Kconfig                                 |  2 +-
+>  certs/Kconfig                                 |  2 +-
+>  crypto/asymmetric_keys/asymmetric_type.c      |  2 +-
+>  crypto/asymmetric_keys/signature.c            |  2 +-
+>  drivers/char/Kconfig                          |  2 +-
+>  drivers/clk/clk.c                             |  4 ++--
+>  drivers/clk/ingenic/cgu.h                     |  2 +-
+>  drivers/gpu/vga/Kconfig                       |  2 +-
+>  drivers/gpu/vga/vgaarb.c                      |  2 +-
+>  drivers/input/joystick/Kconfig                | 10 +++++-----
+>  drivers/input/joystick/iforce/Kconfig         |  2 +-
+>  drivers/input/joystick/walkera0701.c          |  2 +-
+>  drivers/input/misc/Kconfig                    |  4 ++--
+>  drivers/input/misc/rotary_encoder.c           |  2 +-
+>  drivers/input/mouse/Kconfig                   |  6 +++---
+>  drivers/input/mouse/alps.c                    |  2 +-
+>  drivers/input/touchscreen/wm97xx-core.c       |  2 +-
+>  drivers/lightnvm/pblk-rb.c                    |  2 +-
+>  drivers/md/bcache/Kconfig                     |  2 +-
+>  drivers/md/bcache/btree.c                     |  2 +-
+>  drivers/md/bcache/extents.c                   |  2 +-
+>  drivers/media/dvb-core/dvb_ringbuffer.c       |  2 +-
+>  drivers/media/pci/meye/Kconfig                |  2 +-
+>  drivers/media/platform/pxa_camera.c           |  4 ++--
+>  .../soc_camera/sh_mobile_ceu_camera.c         |  2 +-
+>  drivers/media/radio/Kconfig                   |  2 +-
+>  drivers/media/radio/si470x/Kconfig            |  2 +-
+>  drivers/media/usb/dvb-usb-v2/lmedm04.c        |  2 +-
+>  drivers/media/usb/zr364xx/Kconfig             |  2 +-
+>  drivers/parport/Kconfig                       |  6 +++---
+>  drivers/staging/media/bcm2048/TODO            |  2 +-
+>  include/keys/asymmetric-subtype.h             |  2 +-
+>  include/keys/asymmetric-type.h                |  2 +-
+>  include/linux/assoc_array.h                   |  2 +-
+>  include/linux/assoc_array_priv.h              |  2 +-
+>  include/linux/circ_buf.h                      |  2 +-
+>  include/linux/ftrace.h                        |  2 +-
+>  include/linux/rculist_nulls.h                 |  2 +-
+>  include/uapi/linux/prctl.h                    |  2 +-
+>  include/xen/interface/io/kbdif.h              |  2 +-
+>  kernel/cgroup/cpuset.c                        |  2 +-
+>  kernel/trace/Kconfig                          | 16 +++++++--------
+>  lib/Kconfig                                   |  2 +-
+>  security/selinux/hooks.c                      |  2 +-
+>  sound/core/Kconfig                            |  4 ++--
+>  sound/drivers/Kconfig                         |  4 ++--
+>  sound/pci/Kconfig                             | 10 +++++-----
+>  tools/include/uapi/linux/prctl.h              |  2 +-
+>  tools/lib/api/fs/fs.c                         |  2 +-
+>  tools/memory-model/README                     | 10 +++++-----
+>  tools/perf/util/bpf-prologue.c                |  2 +-
+>  .../config/custom-timeline-functions.cfg      |  4 ++--
+>  74 files changed, 120 insertions(+), 120 deletions(-)
+> 
+
+
+-- 
+Masami Hiramatsu <mhiramat@kernel.org>
