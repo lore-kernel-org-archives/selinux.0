@@ -1,141 +1,35 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4EKLgFV005763
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 16:21:42 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4ELEhdY010036
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 17:14:43 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 40lBtR0pS2z1pJ9M
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 20:21:35 +0000 (UTC)
-Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
- by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 40lBtQ4GfZz1pJ9C
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 20:21:34 +0000 (UTC)
-Received: by mail-lf0-f66.google.com with SMTP id p85-v6so19923970lfg.7
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 13:15:29 -0700 (PDT)
+ by UPDCF3IC08.oob.disa.mil (Postfix) with SMTP id 40lD3j4Tptz34qRr
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 21:14:41 +0000 (UTC)
+Received: from UPBD19PA03.eemsg.mil (unknown [192.168.18.4])
+ by UPDCF3IC08.oob.disa.mil (Postfix) with ESMTP id 40lD3j444Wz34qRc
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 21:14:41 +0000 (UTC)
+Received: by mail-it0-f47.google.com with SMTP id q4-v6so14691896ite.3
+ for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 14:14:40 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <d9b6713caf339af2346eacc1324280b180a519e1.1526173613.git.rgb@redhat.com>
-References: <cover.1526173613.git.rgb@redhat.com>
- <d9b6713caf339af2346eacc1324280b180a519e1.1526173613.git.rgb@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 14 May 2018 16:15:26 -0400
-Message-ID: <CAHC9VhSfrmQ=-LhC-1QZGkMTUf2u971tE0k7sg5Tebx=2tRzpA@mail.gmail.com>
-To: Richard Guy Briggs <rgb@redhat.com>
-Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
- Netfilter Devel List <netfilter-devel@vger.kernel.org>,
- Linux Security Module list <linux-security-module@vger.kernel.org>,
- Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
- SElinux list <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
- Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
- David Howells <dhowells@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH ghak81 RFC V2 2/5] audit: convert sessionid
- unset to a macro
+Reply-To: ericbro@gmail.com
+From: Eric Brown <ericbro@gmail.com>
+Date: Mon, 14 May 2018 17:14:27 -0400
+Message-ID: <CAC1MGdxd2KaCs5WMvtKMMuQQZhVTKUpGQ44Qni6MBAXJx_RpQA@mail.gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary="0000000000003e47b4056c30f950"
+Subject: Unsubscribe
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, May 12, 2018 at 9:58 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> Use a macro, "AUDIT_SID_UNSET", to replace each instance of
-> initialization and comparison to an audit session ID.
->
-> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> ---
->  include/linux/audit.h      | 2 +-
->  include/net/xfrm.h         | 2 +-
->  include/uapi/linux/audit.h | 1 +
->  init/init_task.c           | 3 ++-
->  kernel/auditsc.c           | 4 ++--
->  5 files changed, 7 insertions(+), 5 deletions(-)
-
-Merged, thanks.
-
-> diff --git a/include/linux/audit.h b/include/linux/audit.h
-> index 75d5b03..5f86f7c 100644
-> --- a/include/linux/audit.h
-> +++ b/include/linux/audit.h
-> @@ -513,7 +513,7 @@ static inline kuid_t audit_get_loginuid(struct task_struct *tsk)
->  }
->  static inline unsigned int audit_get_sessionid(struct task_struct *tsk)
->  {
-> -       return -1;
-> +       return AUDIT_SID_UNSET;
->  }
->  static inline void audit_ipc_obj(struct kern_ipc_perm *ipcp)
->  { }
-> diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-> index a872379..fcce8ee 100644
-> --- a/include/net/xfrm.h
-> +++ b/include/net/xfrm.h
-> @@ -751,7 +751,7 @@ static inline void xfrm_audit_helper_usrinfo(bool task_valid,
->                                             audit_get_loginuid(current) :
->                                             INVALID_UID);
->         const unsigned int ses = task_valid ? audit_get_sessionid(current) :
-> -               (unsigned int) -1;
-> +               AUDIT_SID_UNSET;
->
->         audit_log_format(audit_buf, " auid=%u ses=%u", auid, ses);
->         audit_log_task_context(audit_buf);
-> diff --git a/include/uapi/linux/audit.h b/include/uapi/linux/audit.h
-> index 4e61a9e..04f9bd2 100644
-> --- a/include/uapi/linux/audit.h
-> +++ b/include/uapi/linux/audit.h
-> @@ -465,6 +465,7 @@ struct audit_tty_status {
->  };
->
->  #define AUDIT_UID_UNSET (unsigned int)-1
-> +#define AUDIT_SID_UNSET ((unsigned int)-1)
->
->  /* audit_rule_data supports filter rules with both integer and string
->   * fields.  It corresponds with AUDIT_ADD_RULE, AUDIT_DEL_RULE and
-> diff --git a/init/init_task.c b/init/init_task.c
-> index 3ac6e75..74f60ba 100644
-> --- a/init/init_task.c
-> +++ b/init/init_task.c
-> @@ -9,6 +9,7 @@
->  #include <linux/init.h>
->  #include <linux/fs.h>
->  #include <linux/mm.h>
-> +#include <linux/audit.h>
->
->  #include <asm/pgtable.h>
->  #include <linux/uaccess.h>
-> @@ -119,7 +120,7 @@ struct task_struct init_task
->         .thread_node    = LIST_HEAD_INIT(init_signals.thread_head),
->  #ifdef CONFIG_AUDITSYSCALL
->         .loginuid       = INVALID_UID,
-> -       .sessionid      = (unsigned int)-1,
-> +       .sessionid      = AUDIT_SID_UNSET,
->  #endif
->  #ifdef CONFIG_PERF_EVENTS
->         .perf_event_mutex = __MUTEX_INITIALIZER(init_task.perf_event_mutex),
-> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> index 0d4e269..e157595 100644
-> --- a/kernel/auditsc.c
-> +++ b/kernel/auditsc.c
-> @@ -2050,7 +2050,7 @@ static void audit_log_set_loginuid(kuid_t koldloginuid, kuid_t kloginuid,
->  int audit_set_loginuid(kuid_t loginuid)
->  {
->         struct task_struct *task = current;
-> -       unsigned int oldsessionid, sessionid = (unsigned int)-1;
-> +       unsigned int oldsessionid, sessionid = AUDIT_SID_UNSET;
->         kuid_t oldloginuid;
->         int rc;
->
-> @@ -2064,7 +2064,7 @@ int audit_set_loginuid(kuid_t loginuid)
->         /* are we setting or clearing? */
->         if (uid_valid(loginuid)) {
->                 sessionid = (unsigned int)atomic_inc_return(&session_id);
-> -               if (unlikely(sessionid == (unsigned int)-1))
-> +               if (unlikely(sessionid == AUDIT_SID_UNSET))
->                         sessionid = (unsigned int)atomic_inc_return(&session_id);
->         }
->
-> --
-> 1.8.3.1
->
+--0000000000003e47b4056c30f950
+Content-Type: text/plain; charset="UTF-8"
 
 
 
--- 
-paul moore
-www.paul-moore.com
+--0000000000003e47b4056c30f950
+Content-Type: text/html; charset="UTF-8"
+
+<div dir="auto"></div>
+
+--0000000000003e47b4056c30f950--
