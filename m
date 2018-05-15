@@ -1,82 +1,138 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4F3ShtJ003994
- for <selinux@tycho.nsa.gov>; Mon, 14 May 2018 23:28:43 -0400
-Date: Mon, 14 May 2018 23:28:08 -0400
-From: Richard Guy Briggs <rgb@redhat.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
- Netfilter Devel List <netfilter-devel@vger.kernel.org>,
- Linux Security Module list <linux-security-module@vger.kernel.org>,
- Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
- SElinux list <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
- Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
- David Howells <dhowells@redhat.com>
-Message-ID: <20180515032808.ulyaotjyu4ye3ajp@madcap2.tricolour.ca>
-References: <cover.1526173613.git.rgb@redhat.com>
- <baa29a694e352bd4fe8acd0f46f7baca1ad2c147.1526173613.git.rgb@redhat.com>
- <CAHC9VhQXr76FXPCe8vUWNwa2VshcPg1mZmMY7M30H1F6w30rFA@mail.gmail.com>
- <20180515030545.7oiyz33rzoj6sxs5@madcap2.tricolour.ca>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4F8USCS024749
+ for <selinux@tycho.nsa.gov>; Tue, 15 May 2018 04:30:28 -0400
+From: "Reshetova, Elena" <elena.reshetova@intel.com>
+To: "linux-security-module@vger.kernel.org"
+ <linux-security-module@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+ <linux-kernel@vger.kernel.org>
+CC: James Morris <jmorris@namei.org>, "lwn@lwn.net" <lwn@lwn.net>,
+ "fedora-selinux-list@redhat.com" <fedora-selinux-list@redhat.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, "Linux Security Summit
+ Program Committee" <lss-pc@lists.linuxfoundation.org>,
+ "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, Audit-ML
+ <linux-audit@redhat.com>, "gentoo-hardened@gentoo.org"
+ <gentoo-hardened@gentoo.org>, "keyrings@linux-nfs.org"
+ <keyrings@linux-nfs.org>, "tpmdd-devel@lists.sourceforge.net"
+ <tpmdd-devel@lists.sourceforge.net>, "kernel-hardening@lists.openwall.com"
+ <kernel-hardening@lists.openwall.com>
+Date: Tue, 15 May 2018 08:30:15 +0000
+Message-ID: <2236FBA76BA1254E88B949DDB74E612B8D492DB4@IRSMSX102.ger.corp.intel.com>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180515030545.7oiyz33rzoj6sxs5@madcap2.tricolour.ca>
-Subject: Re: [PATCH ghak81 RFC V2 3/5] audit: use inline function to
- get audit context
+Subject: [ANNOUNCE] Linux Security Summit Europe 2018 - CFP
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 2018-05-14 23:05, Richard Guy Briggs wrote:
-> On 2018-05-14 17:44, Paul Moore wrote:
-> > On Sat, May 12, 2018 at 9:58 PM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> > > Recognizing that the audit context is an internal audit value, use an
-> > > access function to retrieve the audit context pointer for the task
-> > > rather than reaching directly into the task struct to get it.
-> > >
-> > > Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> > > ---
-> > >  include/linux/audit.h                | 14 ++++++--
-> > >  include/net/xfrm.h                   |  2 +-
-> > >  kernel/audit.c                       |  6 ++--
-> > >  kernel/audit_watch.c                 |  2 +-
-> > >  kernel/auditsc.c                     | 64 +++++++++++++++++-------------------
-> > >  net/bridge/netfilter/ebtables.c      |  2 +-
-> > >  net/core/dev.c                       |  2 +-
-> > >  net/netfilter/x_tables.c             |  2 +-
-> > >  net/netlabel/netlabel_user.c         |  2 +-
-> > >  security/integrity/ima/ima_api.c     |  2 +-
-> > >  security/integrity/integrity_audit.c |  2 +-
-> > >  security/lsm_audit.c                 |  2 +-
-> > >  security/selinux/hooks.c             |  4 +--
-> > >  security/selinux/selinuxfs.c         |  6 ++--
-> > >  security/selinux/ss/services.c       | 12 +++----
-> > >  15 files changed, 64 insertions(+), 60 deletions(-)
-> > 
-> > Merged, but there was some fuzz due to the missing 1/5 patch and a
-> > handfull of checkpatch.pl fixes.  Please take a look at the commit in
-> > the audit/next branch and if anything looks awry please send a patch
-> > to fix it.
-> 
-> Some of that fuzz was due to the two patches (ghak46/47) that went
-> through the xelinux tree...  There will be a merge conflict.
-> 
-> Otherwise, looks ok.
+==============================================================================
+		   ANNOUNCEMENT AND CALL FOR PARTICIPATION
 
-Spoke too soon, missed one from the new seccomp actions_logged...
+		   LINUX SECURITY SUMMIT EUROPE 2018
+                             
+			         25-26 October
+			       EDINBURGH, UK
+==============================================================================
 
-Patch pending...
 
-> > paul moore
-> 
-> - RGB
+DESCRIPTION
 
-- RGB
+ The Linux Security Summit (LSS) is a technical forum for collaboration
+ between Linux developers, researchers, and end users. Its primary aim is to
+ foster community efforts in analyzing and solving Linux security challenges.
 
---
-Richard Guy Briggs <rgb@redhat.com>
-Sr. S/W Engineer, Kernel Security, Base Operating Systems
-Remote, Ottawa, Red Hat Canada
-IRC: rgb, SunRaycer
-Voice: +1.647.777.2635, Internal: (81) 32635
+ This year, for the first time, the Linux Security Summit is going to
+ be also held in Europe (LSS-EU) in order to facilitate broader participation in Linux
+ Security development. Similar to LSS-North America, LSS-EU provides a unique
+ opportunity for to have discussions and networking opportunities with key people 
+ in  the Linux kernel security community , present your work and ideas and 
+ affect the future direction of Linux security.  
+
+ In addition to the refereed presentations, panels and BoF sessions, this year's
+ LSS-EU program will have an introduction into various Linux kernel security
+ subsystems in order to get participants acquainted with their main concepts
+ and goals, as well as outline the areas of future development, where contribution
+ by the community is welcomed. 
+
+
+  The program committee currently seeks proposals for:
+
+    * Refereed Presentations:
+      45 minutes in length.
+
+    * Panel Discussion Topics:
+      45 minutes in length.
+
+    * Short Topics:
+      30 minutes in total, including at least 10 minutes discussion.
+
+    * BoF Sessions.
+
+  Topic areas include, but are not limited to:
+
+    * Kernel self-protection
+    * Access control
+    * Cryptography and key management
+    * Integrity control
+    * Hardware Security
+    * Iot and embedded security
+    * Virtualization and containers
+    * System-specific system hardening
+    * Case studies
+    * Security tools
+    * Security UX
+    * Emerging technologies, threats & techniques 
+
+  Proposals should be submitted via:
+    https://events.linuxfoundation.org/events/linux-security-summit-europe-2018/program/cfp/
+
+
+DATES
+
+  * CFP Close: July 16, 2018
+  * CFP Notifications: July 23, 2018
+  * Schedule Announced: Aug 25, 2018
+  * Event: October 25-26, 2018
+
+
+WHO SHOULD ATTEND
+
+  We're seeking a diverse range of attendees, and welcome participation by
+  people involved in Linux security development, operations, and research.
+
+  The LSS is a unique global event which provides the opportunity to present
+  and discuss your work or research with key Linux security community members
+  and maintainers. It?s also useful for those who wish to keep up with the
+  latest in Linux security development, and to provide input to the
+  development process.
+
+
+WEB SITE
+
+  https://events.linuxfoundation.org/events/linux-security-summit-europe-2018/
+
+
+TWITTER
+
+  For event updates and announcements, follow:
+
+    https://twitter.com/LinuxSecSummit
+  
+
+PROGRAM COMMITTEE
+
+  The program committee for LSS-EU 2018 is:
+
+    * Elena Reshetova, Intel
+    * James Morris, Microsoft
+    * Serge Hallyn, Cisco
+    * Paul Moore, Red Hat
+    * Stephen Smalley, NSA
+    * John Johansen, Canonical
+    * Kees Cook, Google
+    * Casey Schaufler, Intel
+    * Mimi Zohar, IBM
+    * David A. Wheeler, Institute for Defense Analyses
+
+  The program committee may be contacted as a group via email:
+    lss-pc () lists.linuxfoundation.org
