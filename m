@@ -1,69 +1,52 @@
+To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
+References: <20180515082524.30252-1-richard_c_haines@btinternet.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Casey Schaufler <casey@schaufler-ca.com>,
- Stephen Smalley <stephen.smalley@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>
-References: <991a548d-1cdc-5e15-89d9-a36a557429d2@schaufler-ca.com>
- <CAB9W1A1=mRMn_HuUu-Qsxy8goWMW1C3U5eCOTWV1JSj2+9F2BA@mail.gmail.com>
- <ae956be3-3fef-3b87-53b3-75779d3f5286@schaufler-ca.com>
- <d44677e9-65dc-969a-4162-97c447740d2c@tycho.nsa.gov>
-Message-ID: <66b82a04-52af-f7aa-98ba-8bb344da850c@tycho.nsa.gov>
-Date: Tue, 15 May 2018 08:57:42 -0400
+Message-ID: <cfae1463-aa5e-a1d3-68a5-800ff154ee0b@tycho.nsa.gov>
+Date: Tue, 15 May 2018 09:11:40 -0400
 MIME-Version: 1.0
-In-Reply-To: <d44677e9-65dc-969a-4162-97c447740d2c@tycho.nsa.gov>
+In-Reply-To: <20180515082524.30252-1-richard_c_haines@btinternet.com>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: Anyone using the SELinux test suite on Fedora 28?
+Subject: Re: [RFC PATCH 0/1] selinux-testsuite: Add binder tests
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/15/2018 08:28 AM, Stephen Smalley wrote:
-> On 05/14/2018 08:10 PM, Casey Schaufler wrote:
->> On 5/14/2018 4:48 PM, Stephen Smalley wrote:
->>> It's been running fine for me. Maybe you just need to clean your tree and do a fresh make test.
->>
->> Did that first thing.
->>
->> Digging down, I find that the "make -C policy load" is failing.
->>
->> make[1]: Leaving directory '/home/cschaufler/SELinux/selinux-testsuite/policy/test_policy'
->> # General policy load
->> /usr/sbin/semodule -i test_policy/test_policy.pp
->> neverallow check failed at /var/lib/selinux/targeted/tmp/modules/100/base/cil:4703
->>   (neverallow base_typeattr_6 base_typeattr_7 (process (fork transition sigchld sigkill sigstop signull signal ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh dyntransition setcurrent execmem execstack execheap setkeycreate setsockcreate getrlimit)))
->>     <root>
->>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2565
->>       (allow test_create_no_t unconfined_t (process (sigchld)))
->>     <root>
->>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2569
->>       (allow test_create_no_t self (process (transition sigchld sigkill sigstop signull signal ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh dyntransition setcurrent execmem execstack execheap setkeycreate setsockcreate getrlimit)))
->>     <root>
->>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2606
->>       (allow test_create_no_t self (process (setexec)))
->>     <root>
->>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2634
->>       (allow test_create_d sysadm_t (process (sigchld)))
->>
->> I bet the reason it's doing this is obvious. Just not to me.
-> 
-> Add or uncomment expand-check = 0 in /etc/selinux/semanage.conf.
-> That's noted in the README but used to be the default in Fedora (changed in 28).
+On 05/15/2018 04:25 AM, Richard Haines via Selinux wrote:
+> Not sure how useful this is but saw [1] and thought I'll have a go out
+> of idle curiosity.
 
-Also, just FYI, expand-check controls whether neverallow and type bounds checking is performed when the policy
-is linked/expanded.  The test policy necessarily violates some of these policy assertions in order to test the
-kernel functionality, and thus we have to disable the userspace checking when installing the test policy.  Fedora
-used to disable this checking anyway (except when the policy is built as a package) because it was a) slow and
-b) could prevent users from installing local policy modules that would violate these assertions (but might be
-necessary to fix some issue they had).
+I haven't looked at the code yet but I'm in favor of adding it - this should
+help prevent regressions in the binder SELinux checks in upstream kernels.
 
 > 
->>
->>> On Mon, May 14, 2018, 7:37 PM Casey Schaufler <casey@schaufler-ca.com <mailto:casey@schaufler-ca.com>> wrote:
->>>
->>>     Has anyone had success with the SELinux test suite on Fedora 28?
->>>     I find the chcon and newrole are unhappy with the contexts used
->>>     in the suite.
->>>
->>>
->>
+> I've only tested on Fedora 27 with kernel-4.16.3-200.fc27.x86_64
+> 
+> Use ./test -v to see the flow of binder info
+> 
+> I just added the following to the standard kernel-x86_64.config:
+> CONFIG_ANDROID_BINDER_DEVICES="binder"
+> CONFIG_ANDROID_BINDER_IPC=y
+> # CONFIG_ANDROID_BINDER_IPC_SELFTEST is not set
+> 
+> [1] https://github.com/SELinuxProject/selinux-testsuite/issues/27
+> 
+> Richard Haines (1):
+>   selinux-testsuite: Add binder tests
+> 
+>  README.md                   |   8 +
+>  defconfig                   |   8 +
+>  policy/Makefile             |   2 +-
+>  policy/test_binder.te       |  83 +++++++
+>  tests/Makefile              |   2 +-
+>  tests/binder/Makefile       |   7 +
+>  tests/binder/check_binder.c |  80 +++++++
+>  tests/binder/test           | 131 +++++++++++
+>  tests/binder/test_binder.c  | 543 ++++++++++++++++++++++++++++++++++++++++++++
+>  9 files changed, 862 insertions(+), 2 deletions(-)
+>  create mode 100644 policy/test_binder.te
+>  create mode 100644 tests/binder/Makefile
+>  create mode 100644 tests/binder/check_binder.c
+>  create mode 100644 tests/binder/test
+>  create mode 100644 tests/binder/test_binder.c
 > 
