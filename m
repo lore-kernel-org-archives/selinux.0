@@ -1,166 +1,56 @@
-Message-ID: <1526406906.5459.3.camel@btinternet.com>
-From: Richard Haines <richard_c_haines@btinternet.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov
-Date: Tue, 15 May 2018 18:55:06 +0100
-In-Reply-To: <8bf84661-2a00-a9e8-ece1-d8a200c3c6ed@tycho.nsa.gov>
-References: <20180515082553.30310-1-richard_c_haines@btinternet.com>
- <0c5025b1-b90e-3e8f-b6f9-7ff080f5f772@tycho.nsa.gov>
- <0193e640-4792-57b1-2408-a6944731baf4@tycho.nsa.gov>
- <f662a095-582f-3e00-1e53-e4c3ba1f6ed3@tycho.nsa.gov>
- <2775c733-c8e8-f25b-884f-0a03d6e26b9a@tycho.nsa.gov>
- <1526405695.5019.2.camel@btinternet.com>
- <8bf84661-2a00-a9e8-ece1-d8a200c3c6ed@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Mime-Version: 1.0
-Subject: Re: [RFC PATCH 1/1] selinux-testsuite: Add binder tests
+From: Paul Moore <pmoore@redhat.com>
+To: selinux@tycho.nsa.gov, Stephen Smalley <sds@tycho.nsa.gov>
+Date: Tue, 15 May 2018 17:03:42 -0400
+Message-ID: <152641822270.15123.8804483748550258349.stgit@chester>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Subject: [RFC PATCH] selinux-testsuite: check the "expand-check"
+ setting in semanage.conf
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 2018-05-15 at 13:45 -0400, Stephen Smalley wrote:
-> On 05/15/2018 01:34 PM, Richard Haines wrote:
-> > On Tue, 2018-05-15 at 12:56 -0400, Stephen Smalley wrote:
-> > > On 05/15/2018 12:38 PM, Stephen Smalley wrote:
-> > > > On 05/15/2018 09:43 AM, Stephen Smalley wrote:
-> > > > > On 05/15/2018 09:36 AM, Stephen Smalley wrote:
-> > > > > > This test is failing for me (with or without -v):
-> > > > > > # ./test -v
-> > > > > > 1..6
-> > > > > > Manager PID: 5608 Process context:
-> > > > > > 	unconfined_u:unconfined_r:test_binder_mgr_t:s0-
-> > > > > > s0:c0.c1023
-> > > > > > Client PID: 5609 Process context:
-> > > > > > 	unconfined_u:unconfined_r:test_binder_client_t:s0-
-> > > > > > s0:c0.c1023
-> > > > > > Client read_consumed: 28
-> > > > > > Manager read_consumed: 72
-> > > > > > Client command: BR_NOOP
-> > > > > > Manager command: BR_NOOP
-> > > > > > Client command: BR_INCREFS
-> > > > > > Manager command: BR_TRANSACTION
-> > > > > > Client command: BR_TRANSACTION_COMPLETE
-> > > > > > BR_TRANSACTION data:
-> > > > > > 	handle: 0
-> > > > > > 	cookie: 0
-> > > > > > 	code: 0
-> > > > > > 	flag: TF_ACCEPT_FDS
-> > > > > > 	sender pid: 5609
-> > > > > > 	sender euid: 0
-> > > > > > 	data_size: 24
-> > > > > > 	offsets_size: 8
-> > > > > > Sending BC_REPLY
-> > > > > > Manager read_consumed: 8
-> > > > > > Manager command: BR_NOOP
-> > > > > > Manager command: BR_TRANSACTION_COMPLETE
-> > > > > > Client read_consumed: 72
-> > > > > > Client command: BR_NOOP
-> > > > > > Client command: BR_REPLY
-> > > > > > BR_REPLY data:
-> > > > > > 	handle: 0
-> > > > > > 	cookie: 0
-> > > > > > 	code: 0
-> > > > > > 	flag: TF_ACCEPT_FDS
-> > > > > > 	sender pid: 0
-> > > > > > 	sender euid: 0
-> > > > > > 	data_size: 24
-> > > > > > 	offsets_size: 8
-> > > > > > Retrieved Managers fd: 4 st_dev: 6
-> > > > > > Client read_consumed: 8
-> > > > > > Client using Managers FD command: BR_NOOP
-> > > > > > Client using Managers FD command: BR_FAILED_REPLY
-> > > > > > Client using Managers received FD failed response
-> > > > > > Manager read_consumed: 4
-> > > > > > Manager command: BR_NOOP
-> > > > > > not ok 1
-> > > > > > #   Failed test at ./test line 36.
-> > > > > 
-> > > > > Just realized that I was testing with a kernel that still had
-> > > > > Casey's stacking support enabled.
-> > > > > Will re-try without that.
-> > > > 
-> > > > Still fails for me on F28 with stock/linus 4.17.0-rc5.  No AVC
-> > > > messages from the failing test itself,
-> > > > just the other ones.
-> > > 
-> > > Traced the client and saw that it was getting BR_FAILED_REPLY
-> > > from
-> > > the kernel.
-> > > Looked at /sys/kernel/debug/binder/failed_transaction_log and saw
-> > > that the failure
-> > > occurs on line 2847.  Did a git blame on that line and found this
-> > > commit,
-> > > 
-> > > commit 7aa135fcf26377f92dc0680a57566b4c7f3e281b
-> > > Author: Martijn Coenen <maco@android.com>
-> > > Date:   Wed Mar 28 11:14:50 2018 +0200
-> > > 
-> > >     ANDROID: binder: prevent transactions into own process.
-> > >     
-> > >     This can't happen with normal nodes (because you can't get a
-> > > ref
-> > >     to a node you own), but it could happen with the context
-> > > manager;
-> > >     to make the behavior consistent with regular nodes, reject
-> > >     transactions into the context manager by the process owning
-> > > it.
-> > >     
-> > >     Reported-by: syzbot+09e05aba06723a94d43d@syzkaller.appspotmai
-> > > l.co
-> > > m
-> > >     Signed-off-by: Martijn Coenen <maco@android.com>
-> > >     Cc: stable <stable@vger.kernel.org>
-> > >     Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org
-> > > >
-> > > 
-> > > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-> > > index 764b63a5aade..e578eee31589 100644
-> > > --- a/drivers/android/binder.c
-> > > +++ b/drivers/android/binder.c
-> > > @@ -2839,6 +2839,14 @@ static void binder_transaction(struct
-> > > binder_proc *proc,
-> > >                         else
-> > >                                 return_error = BR_DEAD_REPLY;
-> > >                         mutex_unlock(&context-
-> > > > context_mgr_node_lock);
-> > > 
-> > > +                       if (target_node && target_proc == proc) {
-> > > +                               binder_user_error("%d:%d got
-> > > transaction to context manager from process owning it\n",
-> > > +                                                 proc->pid,
-> > > thread-
-> > > > pid);
-> > > 
-> > > +                               return_error = BR_FAILED_REPLY;
-> > > +                               return_error_param = -EINVAL;
-> > > +                               return_error_line = __LINE__;
-> > > +                               goto err_invalid_target_handle;
-> > > +                       }
-> > >                 }
-> > >                 if (!target_node) {
-> > >                         /*
-> > > 
-> > > 
-> > > So that's a change in kernel behavior in v4.17-rc3 and later that
-> > > breaks your test code.
-> > 
-> > Thanks for the info. I'll get a new kernel and see how far I can
-> > get.
-> 
-> Simplest fix is to just not do the impersonation test, i.e. don't
-> pass the
-> context manager's fd to the client at all.
+From: Paul Moore <paul@paul-moore.com>
 
-Thanks for the advice, I'll do the simplest option for now and save the
-other for a rainy day (probably longer !!)
+If expand-check is non-zero in semanage.conf the policy load will likely fail,
+try to provide a more helpful error to users running the tests.
 
-> 
-> Alternatively, you could introduce a third process ("server"), have
-> it register
-> a binder with the context manager, have the client get a reference to
-> it from
-> the context manager, have the client receive a ref to either the
-> manager's or
-> the server's binder fd via binder, and have the client try to use
-> that in a call
-> to the other one.  But that's a lot more complexity in your test.
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ policy/Makefile |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/policy/Makefile b/policy/Makefile
+index 8ed5e46..cc022e3 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -87,6 +87,14 @@ build: $(BUILD_TARGET)
+ load: $(LOAD_TARGET)
+ unload: $(UNLOAD_TARGET)
+ 
++expand_check:
++	# Test for "expand-check = 0" in /etc/selinux/semanage.conf
++	@cat /etc/selinux/semanage.conf | \
++		sed -n 's/^[ \t]*expand-check[ \t]*=[ \t]*0/OK/p' | \
++		grep -q "OK" || \
++		(echo "ERROR: set 'expand-check = 0' in semanage.conf"; \
++		 /bin/false)
++
+ build_rhel: $(TARGETS)
+ 	# RHEL specific policy build
+ 	$(MAKE) -C redhat/$(RHEL_VERS) all
+@@ -103,11 +111,11 @@ build_general: $(TARGETS)
+ 		echo "ERROR: You must have selinux-policy-devel installed."; \
+ 	fi
+ 
+-load_rhel: all
++load_rhel: expand_check all
+ 	# RHEL specific policy load
+ 	$(MAKE) -C redhat/$(RHEL_VERS) load
+ 
+-load_general: all
++load_general: expand_check all
+ 	# General policy load
+ 	@-/usr/sbin/setsebool allow_domain_fd_use=0
+ 	$(SEMODULE) -i test_policy/test_policy.pp
