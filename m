@@ -1,138 +1,58 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4F8USCS024749
- for <selinux@tycho.nsa.gov>; Tue, 15 May 2018 04:30:28 -0400
-From: "Reshetova, Elena" <elena.reshetova@intel.com>
-To: "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, "linux-kernel@vger.kernel.org"
- <linux-kernel@vger.kernel.org>
-CC: James Morris <jmorris@namei.org>, "lwn@lwn.net" <lwn@lwn.net>,
- "fedora-selinux-list@redhat.com" <fedora-selinux-list@redhat.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>, "Linux Security Summit
- Program Committee" <lss-pc@lists.linuxfoundation.org>,
- "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, Audit-ML
- <linux-audit@redhat.com>, "gentoo-hardened@gentoo.org"
- <gentoo-hardened@gentoo.org>, "keyrings@linux-nfs.org"
- <keyrings@linux-nfs.org>, "tpmdd-devel@lists.sourceforge.net"
- <tpmdd-devel@lists.sourceforge.net>, "kernel-hardening@lists.openwall.com"
- <kernel-hardening@lists.openwall.com>
-Date: Tue, 15 May 2018 08:30:15 +0000
-Message-ID: <2236FBA76BA1254E88B949DDB74E612B8D492DB4@IRSMSX102.ger.corp.intel.com>
-Content-Type: text/plain; charset="us-ascii"
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Stephen Smalley <stephen.smalley@gmail.com>
+Cc: selinux <selinux@tycho.nsa.gov>
+References: <991a548d-1cdc-5e15-89d9-a36a557429d2@schaufler-ca.com>
+ <CAB9W1A1=mRMn_HuUu-Qsxy8goWMW1C3U5eCOTWV1JSj2+9F2BA@mail.gmail.com>
+ <ae956be3-3fef-3b87-53b3-75779d3f5286@schaufler-ca.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <d44677e9-65dc-969a-4162-97c447740d2c@tycho.nsa.gov>
+Date: Tue, 15 May 2018 08:28:18 -0400
 MIME-Version: 1.0
-Subject: [ANNOUNCE] Linux Security Summit Europe 2018 - CFP
+In-Reply-To: <ae956be3-3fef-3b87-53b3-75779d3f5286@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: Anyone using the SELinux test suite on Fedora 28?
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-==============================================================================
-		   ANNOUNCEMENT AND CALL FOR PARTICIPATION
+On 05/14/2018 08:10 PM, Casey Schaufler wrote:
+> On 5/14/2018 4:48 PM, Stephen Smalley wrote:
+>> It's been running fine for me. Maybe you just need to clean your tree and do a fresh make test.
+> 
+> Did that first thing.
+> 
+> Digging down, I find that the "make -C policy load" is failing.
+> 
+> make[1]: Leaving directory '/home/cschaufler/SELinux/selinux-testsuite/policy/test_policy'
+> # General policy load
+> /usr/sbin/semodule -i test_policy/test_policy.pp
+> neverallow check failed at /var/lib/selinux/targeted/tmp/modules/100/base/cil:4703
+>   (neverallow base_typeattr_6 base_typeattr_7 (process (fork transition sigchld sigkill sigstop signull signal ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh dyntransition setcurrent execmem execstack execheap setkeycreate setsockcreate getrlimit)))
+>     <root>
+>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2565
+>       (allow test_create_no_t unconfined_t (process (sigchld)))
+>     <root>
+>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2569
+>       (allow test_create_no_t self (process (transition sigchld sigkill sigstop signull signal ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh dyntransition setcurrent execmem execstack execheap setkeycreate setsockcreate getrlimit)))
+>     <root>
+>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2606
+>       (allow test_create_no_t self (process (setexec)))
+>     <root>
+>     allow at /var/lib/selinux/targeted/tmp/modules/400/test_policy/cil:2634
+>       (allow test_create_d sysadm_t (process (sigchld)))
+> 
+> I bet the reason it's doing this is obvious. Just not to me.
 
-		   LINUX SECURITY SUMMIT EUROPE 2018
-                             
-			         25-26 October
-			       EDINBURGH, UK
-==============================================================================
+Add or uncomment expand-check = 0 in /etc/selinux/semanage.conf.
+That's noted in the README but used to be the default in Fedora (changed in 28).
 
-
-DESCRIPTION
-
- The Linux Security Summit (LSS) is a technical forum for collaboration
- between Linux developers, researchers, and end users. Its primary aim is to
- foster community efforts in analyzing and solving Linux security challenges.
-
- This year, for the first time, the Linux Security Summit is going to
- be also held in Europe (LSS-EU) in order to facilitate broader participation in Linux
- Security development. Similar to LSS-North America, LSS-EU provides a unique
- opportunity for to have discussions and networking opportunities with key people 
- in  the Linux kernel security community , present your work and ideas and 
- affect the future direction of Linux security.  
-
- In addition to the refereed presentations, panels and BoF sessions, this year's
- LSS-EU program will have an introduction into various Linux kernel security
- subsystems in order to get participants acquainted with their main concepts
- and goals, as well as outline the areas of future development, where contribution
- by the community is welcomed. 
-
-
-  The program committee currently seeks proposals for:
-
-    * Refereed Presentations:
-      45 minutes in length.
-
-    * Panel Discussion Topics:
-      45 minutes in length.
-
-    * Short Topics:
-      30 minutes in total, including at least 10 minutes discussion.
-
-    * BoF Sessions.
-
-  Topic areas include, but are not limited to:
-
-    * Kernel self-protection
-    * Access control
-    * Cryptography and key management
-    * Integrity control
-    * Hardware Security
-    * Iot and embedded security
-    * Virtualization and containers
-    * System-specific system hardening
-    * Case studies
-    * Security tools
-    * Security UX
-    * Emerging technologies, threats & techniques 
-
-  Proposals should be submitted via:
-    https://events.linuxfoundation.org/events/linux-security-summit-europe-2018/program/cfp/
-
-
-DATES
-
-  * CFP Close: July 16, 2018
-  * CFP Notifications: July 23, 2018
-  * Schedule Announced: Aug 25, 2018
-  * Event: October 25-26, 2018
-
-
-WHO SHOULD ATTEND
-
-  We're seeking a diverse range of attendees, and welcome participation by
-  people involved in Linux security development, operations, and research.
-
-  The LSS is a unique global event which provides the opportunity to present
-  and discuss your work or research with key Linux security community members
-  and maintainers. It?s also useful for those who wish to keep up with the
-  latest in Linux security development, and to provide input to the
-  development process.
-
-
-WEB SITE
-
-  https://events.linuxfoundation.org/events/linux-security-summit-europe-2018/
-
-
-TWITTER
-
-  For event updates and announcements, follow:
-
-    https://twitter.com/LinuxSecSummit
-  
-
-PROGRAM COMMITTEE
-
-  The program committee for LSS-EU 2018 is:
-
-    * Elena Reshetova, Intel
-    * James Morris, Microsoft
-    * Serge Hallyn, Cisco
-    * Paul Moore, Red Hat
-    * Stephen Smalley, NSA
-    * John Johansen, Canonical
-    * Kees Cook, Google
-    * Casey Schaufler, Intel
-    * Mimi Zohar, IBM
-    * David A. Wheeler, Institute for Defense Analyses
-
-  The program committee may be contacted as a group via email:
-    lss-pc () lists.linuxfoundation.org
+> 
+>> On Mon, May 14, 2018, 7:37 PM Casey Schaufler <casey@schaufler-ca.com <mailto:casey@schaufler-ca.com>> wrote:
+>>
+>>     Has anyone had success with the SELinux test suite on Fedora 28?
+>>     I find the chcon and newrole are unhappy with the contexts used
+>>     in the suite.
+>>
+>>
+> 
