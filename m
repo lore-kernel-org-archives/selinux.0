@@ -1,56 +1,111 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4H5JFUj005851
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 01:19:15 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC09.oob.disa.mil (Postfix) with SMTP id 40mfjq4zQmz2NhLm
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 05:19:11 +0000 (UTC)
-Received: from UPBD19PA11.eemsg.mil (unknown [192.168.18.17])
- by UPDCF3IC09.oob.disa.mil (Postfix) with ESMTP id 40mfjp6T6Pz2NhLj
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 05:19:10 +0000 (UTC)
-Received: by mail-pg0-f42.google.com with SMTP id p9-v6so1281847pgc.9
- for <selinux@tycho.nsa.gov>; Wed, 16 May 2018 22:19:09 -0700 (PDT)
-From: Jason Zaman <jason@perfinion.com>
-To: selinux@tycho.nsa.gov
-Date: Thu, 17 May 2018 13:11:14 +0800
-Message-Id: <20180517051117.48454-3-jason@perfinion.com>
-In-Reply-To: <20180517051117.48454-1-jason@perfinion.com>
-References: <20180517051117.48454-1-jason@perfinion.com>
-Subject: [PATCH 2/5] libselinux: enable linking to musl-fts
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4GFDBRa010451
+ for <selinux@tycho.nsa.gov>; Wed, 16 May 2018 11:13:13 -0400
+Received: by mail-wm0-f66.google.com with SMTP id n10-v6so2721527wmc.1
+ for <selinux@tycho.nsa.gov>; Wed, 16 May 2018 08:12:57 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+References: <cover.1525870886.git.mchehab+samsung@kernel.org>
+ <e959f23d6f6905ee606fadfda13e2bb37deed017.1525870886.git.mchehab+samsung@kernel.org>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Date: Wed, 16 May 2018 09:12:56 -0600
+Message-ID: <CANLsYkwXUGJ-DM4M48SXuy+31r6sC7_Q3fc9Rgue6wFdeMQv6g@mail.gmail.com>
+To: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+ Mauro Carvalho Chehab <mchehab@infradead.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Jonathan Corbet <corbet@lwn.net>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Rob Herring <robh+dt@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Ananth N Mavinakayanahalli <ananth@linux.vnet.ibm.com>,
+ Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+ "David S. Miller" <davem@davemloft.net>,
+ Masami Hiramatsu <mhiramat@kernel.org>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Harry Wei <harryxiyou@gmail.com>, Russell King <linux@armlinux.org.uk>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Will Deacon <will.deacon@arm.com>, Michal Simek <monstr@monstr.eu>,
+ Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>,
+ Guan Xuetao <gxt@pku.edu.cn>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ x86@kernel.org, Chris Zankel <chris@zankel.net>,
+ Max Filippov <jcmvbkbc@gmail.com>, Jens Axboe <axboe@kernel.dk>,
+ David Howells <dhowells@redhat.com>, David Woodhouse <dwmw2@infradead.org>,
+ Herbert Xu <herbert@gondor.apana.org.au>, Arnd Bergmann <arnd@arndb.de>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Michael Turquette <mturquette@baylibre.com>,
+ Stephen Boyd <sboyd@kernel.org>, David Airlie <airlied@linux.ie>,
+ Gustavo Padovan <gustavo@padovan.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Sean Paul <seanpaul@chromium.org>,
+ =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali.rohar@gmail.com>,
+ Matias Bjorling <mb@lightnvm.io>, Michael Lyle <mlyle@lyle.org>,
+ Kent Overstreet <kent.overstreet@gmail.com>,
+ Malcolm Priestley <tvboxspy@gmail.com>,
+ Antoine Jacquet <royale@zerezo.com>,
+ Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+ Steven Rostedt <rostedt@goodmis.org>,
+ "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+ Josh Triplett <josh@joshtriplett.org>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+ Lai Jiangshan <jiangshanlai@gmail.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Juergen Gross <jgross@suse.com>, Li Zefan <lizefan@huawei.com>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>, Alan Stern <stern@rowland.harvard.edu>,
+ Andrea Parri <parri.andrea@gmail.com>,
+ Peter Zijlstra <peterz@infradead.org>,
+ Boqun Feng <boqun.feng@gmail.com>, Nicholas Piggin <npiggin@gmail.com>,
+ Jade Alglave <j.alglave@ucl.ac.uk>, Luc Maranget <luc.maranget@inria.fr>,
+ Akira Yokosawa <akiyks@gmail.com>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
+ linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-gpio@vger.kernel.org,
+ linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+ linux-kernel@zh-kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+ user-mode-linux-user@lists.sourceforge.net,
+ linux-xtensa@linux-xtensa.org, linux-block@vger.kernel.org,
+ keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-clk@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ patches@opensource.cirrus.com, linux-bcache@vger.kernel.org,
+ linux-usb@vger.kernel.org, devel@driverdev.osuosl.org,
+ xen-devel@lists.xenproject.org, cgroups@vger.kernel.org,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ alsa-devel@alsa-project.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v2 09/11] docs: Fix some broken references
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Musl libc does not include the fts(3) functions so need to link to the
-musl-fts library
-https://github.com/pullmoll/musl-fts
+On 9 May 2018 at 07:18, Mauro Carvalho Chehab
+<mchehab+samsung@kernel.org> wrote:
+> As we move stuff around, some doc references are broken. Fix some of
+> them via this script:
+>         ./scripts/documentation-file-ref-check --fix-rst
+>
+> Manually checked if the produced result is valid, removing a few
+> false-positives.
+>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+> ---
 
-Signed-off-by: Jason Zaman <jason@perfinion.com>
----
- libselinux/src/Makefile | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+>
+> diff --git a/Documentation/trace/coresight.txt b/Documentation/trace/coresight.txt
+> index 1d74ad0202b6..efbc832146e7 100644
+> --- a/Documentation/trace/coresight.txt
+> +++ b/Documentation/trace/coresight.txt
+> @@ -426,5 +426,5 @@ root@genericarmv8:~#
+>  Details on how to use the generic STM API can be found here [2].
+>
+>  [1]. Documentation/ABI/testing/sysfs-bus-coresight-devices-stm
+> -[2]. Documentation/trace/stm.txt
+> +[2]. Documentation/trace/stm.rst
+>  [3]. https://github.com/Linaro/perf-opencsd
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 8af04aab..977b5c8c 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -98,6 +98,8 @@ LD_SONAME_FLAGS=-install_name,$(LIBSO)
- endif
- 
- PCRE_LDLIBS ?= -lpcre
-+# override with -lfts when building on Musl libc to use fts-standalone
-+FTS_LDLIBS ?=
- 
- override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
- 
-@@ -149,7 +151,7 @@ $(LIBA): $(OBJS)
- 	$(RANLIB) $@
- 
- $(LIBSO): $(LOBJS)
--	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ $(PCRE_LDLIBS) -ldl -Wl,$(LD_SONAME_FLAGS)
-+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ $(PCRE_LDLIBS) $(FTS_LDLIBS) -ldl -Wl,$(LD_SONAME_FLAGS)
- 	ln -sf $@ $(TARGET)
- 
- $(LIBPC): $(LIBPC).in ../VERSION
--- 
-2.16.1
+Acked-by: Mathieu Poirier <mathieu.poirier@linaro.org>
