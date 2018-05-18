@@ -1,344 +1,53 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4HN4f0D015904
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 19:04:42 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 40n6MC1gZ1z62qT
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 23:04:39 +0000 (UTC)
-Received: from UPDC3CPA11_EEMSG_MP27.eemsg.mil (unknown [192.168.18.22])
- by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 40n6MB5BgCz62qL
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 23:04:38 +0000 (UTC)
-Received: by mail-lf0-f67.google.com with SMTP id m17-v6so11143958lfj.8
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 16:04:37 -0700 (PDT)
+To: Jason Zaman <jason@perfinion.com>, Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux <selinux@tycho.nsa.gov>
+References: <20180517051117.48454-1-jason@perfinion.com>
+ <CAJfZ7==n4+U6U2TGZDDSO8C6GQp5-8fMAV3C26eoqJfP6Z51OA@mail.gmail.com>
+ <20180518050318.GA6239@baraddur.perfinion.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <acddd718-3b1f-9745-00fc-d3115964178a@tycho.nsa.gov>
+Date: Fri, 18 May 2018 08:58:58 -0400
 MIME-Version: 1.0
-In-Reply-To: <fbed63483b5206009ee43ae889b30d43051f386c.1526430313.git.rgb@redhat.com>
-References: <cover.1526430313.git.rgb@redhat.com>
- <fbed63483b5206009ee43ae889b30d43051f386c.1526430313.git.rgb@redhat.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 17 May 2018 19:04:35 -0400
-Message-ID: <CAHC9VhRXn782LH5nvh9fKpk+EzbmmCEaHsj7fNTG3Yi5fp03_g@mail.gmail.com>
-To: Richard Guy Briggs <rgb@redhat.com>
-Cc: Linux-Audit Mailing List <linux-audit@redhat.com>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux NetDev Upstream Mailing List <netdev@vger.kernel.org>,
- Netfilter Devel List <netfilter-devel@vger.kernel.org>,
- Linux Security Module list <linux-security-module@vger.kernel.org>,
- Integrity Measurement Architecture <linux-integrity@vger.kernel.org>,
- SElinux list <selinux@tycho.nsa.gov>, Eric Paris <eparis@redhat.com>,
- Steve Grubb <sgrubb@redhat.com>, Ingo Molnar <mingo@redhat.com>,
- David Howells <dhowells@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH ghak81 V3 3/3] audit: collect audit task
- parameters
+In-Reply-To: <20180518050318.GA6239@baraddur.perfinion.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: SELinux musl support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, May 16, 2018 at 7:55 AM, Richard Guy Briggs <rgb@redhat.com> wrote:
-> The audit-related parameters in struct task_struct should ideally be
-> collected together and accessed through a standard audit API.
->
-> Collect the existing loginuid, sessionid and audit_context together in a
-> new struct audit_task_info called "audit" in struct task_struct.
->
-> Use kmem_cache to manage this pool of memory.
-> Un-inline audit_free() to be able to always recover that memory.
->
-> See: https://github.com/linux-audit/audit-kernel/issues/81
->
-> Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
-> ---
->  include/linux/audit.h | 34 ++++++++++++++++++++++++----------
->  include/linux/sched.h |  5 +----
->  init/init_task.c      |  3 +--
->  init/main.c           |  2 ++
->  kernel/auditsc.c      | 51 ++++++++++++++++++++++++++++++++++++++++++---------
->  kernel/fork.c         |  2 +-
->  6 files changed, 71 insertions(+), 26 deletions(-)
+On 05/18/2018 01:03 AM, Jason Zaman wrote:
+> On Thu, May 17, 2018 at 09:22:01PM +0200, Nicolas Iooss wrote:
+>> On Thu, May 17, 2018 at 7:11 AM, Jason Zaman <jason@perfinion.com> wrote:
+>>> This series fixes compiling and running on musl libc.
+>>>
+>>> patches 1-2 are fairly trivial.
+>>>
+>>> patches 3-4 are a feature change on that platform since it does not
+>>> support GLOB_TILDE and GLOB_BRACE. tilde is coming in musl 1.1.21
+>>> according to [1]. brace support is not documented anywhere or in the
+>>> example configs so that is probably not a big problem.
+>>>
+>>> patch 5 fixes a bug and it just happens that glibc returns a value for
+>>> sysconf and the error handling was wrong but never noticed.
+>>>
+>>> [1]: https://wiki.musl-libc.org/roadmap.html
+>>>
+>>> [PATCH 1/5] sestatus: include limits.h for PATH_MAX
+>>> [PATCH 2/5] libselinux: enable linking to musl-fts
+>>> [PATCH 3/5] setfiles: Musl compatibility for GLOB_BRACE and
+>>> [PATCH 4/5] restorecond: Musl compatibility for GLOB_BRACE and
+>>> [PATCH 5/5] genhomedircon: sysconf can return -1 without failure
+>>
+>> Thanks! These patches look good to me and I would also appreciate if
+>> they are merged in 2.8.
+> 
+> Awesome, I'll push them on monday then unless there are any issues
+> before then :)
 
-As discussed on-list and offline, I'm going to hold off on this change
-until the audit container ID work is father along.  That is the main
-driver for this change, and until that is closer to ready I just can't
-justify the extra overhead.
+FWIW, the patches look fine to me as well and I did a test PR to trigger travis CI testing
+and they passed,
+https://github.com/SELinuxProject/selinux/pull/96
 
-> diff --git a/include/linux/audit.h b/include/linux/audit.h
-> index 69c7847..4f824c4 100644
-> --- a/include/linux/audit.h
-> +++ b/include/linux/audit.h
-> @@ -216,8 +216,15 @@ static inline void audit_log_task_info(struct audit_buffer *ab,
->
->  /* These are defined in auditsc.c */
->                                 /* Public API */
-> +struct audit_task_info {
-> +       kuid_t                  loginuid;
-> +       unsigned int            sessionid;
-> +       struct audit_context    *ctx;
-> +};
-> +extern struct audit_task_info init_struct_audit;
-> +extern void __init audit_task_init(void);
->  extern int  audit_alloc(struct task_struct *task);
-> -extern void __audit_free(struct task_struct *task);
-> +extern void audit_free(struct task_struct *task);
->  extern void __audit_syscall_entry(int major, unsigned long a0, unsigned long a1,
->                                   unsigned long a2, unsigned long a3);
->  extern void __audit_syscall_exit(int ret_success, long ret_value);
-> @@ -239,12 +246,15 @@ extern void audit_seccomp_actions_logged(const char *names,
->
->  static inline void audit_set_context(struct task_struct *task, struct audit_context *ctx)
->  {
-> -       task->audit_context = ctx;
-> +       task->audit->ctx = ctx;
->  }
->
->  static inline struct audit_context *audit_context(void)
->  {
-> -       return current->audit_context;
-> +       if (current->audit)
-> +               return current->audit->ctx;
-> +       else
-> +               return NULL;
->  }
->
->  static inline bool audit_dummy_context(void)
-> @@ -252,11 +262,7 @@ static inline bool audit_dummy_context(void)
->         void *p = audit_context();
->         return !p || *(int *)p;
->  }
-> -static inline void audit_free(struct task_struct *task)
-> -{
-> -       if (unlikely(task->audit_context))
-> -               __audit_free(task);
-> -}
-> +
->  static inline void audit_syscall_entry(int major, unsigned long a0,
->                                        unsigned long a1, unsigned long a2,
->                                        unsigned long a3)
-> @@ -328,12 +334,18 @@ extern int auditsc_get_stamp(struct audit_context *ctx,
->
->  static inline kuid_t audit_get_loginuid(struct task_struct *tsk)
->  {
-> -       return tsk->loginuid;
-> +       if (tsk->audit)
-> +               return tsk->audit->loginuid;
-> +       else
-> +               return INVALID_UID;
->  }
->
->  static inline unsigned int audit_get_sessionid(struct task_struct *tsk)
->  {
-> -       return tsk->sessionid;
-> +       if (tsk->audit)
-> +               return tsk->audit->sessionid;
-> +       else
-> +               return AUDIT_SID_UNSET;
->  }
->
->  extern void __audit_ipc_obj(struct kern_ipc_perm *ipcp);
-> @@ -458,6 +470,8 @@ static inline void audit_fanotify(unsigned int response)
->  extern int audit_n_rules;
->  extern int audit_signals;
->  #else /* CONFIG_AUDITSYSCALL */
-> +static inline void __init audit_task_init(void)
-> +{ }
->  static inline int audit_alloc(struct task_struct *task)
->  {
->         return 0;
-> diff --git a/include/linux/sched.h b/include/linux/sched.h
-> index b3d697f..6a5db0e 100644
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -29,7 +29,6 @@
->  #include <linux/task_io_accounting.h>
->
->  /* task_struct member predeclarations (sorted alphabetically): */
-> -struct audit_context;
->  struct backing_dev_info;
->  struct bio_list;
->  struct blk_plug;
-> @@ -832,10 +831,8 @@ struct task_struct {
->
->         struct callback_head            *task_works;
->
-> -       struct audit_context            *audit_context;
->  #ifdef CONFIG_AUDITSYSCALL
-> -       kuid_t                          loginuid;
-> -       unsigned int                    sessionid;
-> +       struct audit_task_info          *audit;
->  #endif
->         struct seccomp                  seccomp;
->
-> diff --git a/init/init_task.c b/init/init_task.c
-> index 74f60ba..4058840 100644
-> --- a/init/init_task.c
-> +++ b/init/init_task.c
-> @@ -119,8 +119,7 @@ struct task_struct init_task
->         .thread_group   = LIST_HEAD_INIT(init_task.thread_group),
->         .thread_node    = LIST_HEAD_INIT(init_signals.thread_head),
->  #ifdef CONFIG_AUDITSYSCALL
-> -       .loginuid       = INVALID_UID,
-> -       .sessionid      = AUDIT_SID_UNSET,
-> +       .audit          = &init_struct_audit,
->  #endif
->  #ifdef CONFIG_PERF_EVENTS
->         .perf_event_mutex = __MUTEX_INITIALIZER(init_task.perf_event_mutex),
-> diff --git a/init/main.c b/init/main.c
-> index b795aa3..7ca3dfb 100644
-> --- a/init/main.c
-> +++ b/init/main.c
-> @@ -91,6 +91,7 @@
->  #include <linux/cache.h>
->  #include <linux/rodata_test.h>
->  #include <linux/jump_label.h>
-> +#include <linux/audit.h>
->
->  #include <asm/io.h>
->  #include <asm/bugs.h>
-> @@ -720,6 +721,7 @@ asmlinkage __visible void __init start_kernel(void)
->         nsfs_init();
->         cpuset_init();
->         cgroup_init();
-> +       audit_task_init();
->         taskstats_init_early();
->         delayacct_init();
->
-> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> index ef3e189..4b1138a 100644
-> --- a/kernel/auditsc.c
-> +++ b/kernel/auditsc.c
-> @@ -841,7 +841,7 @@ static inline struct audit_context *audit_take_context(struct task_struct *tsk,
->                                                       int return_valid,
->                                                       long return_code)
->  {
-> -       struct audit_context *context = tsk->audit_context;
-> +       struct audit_context *context = tsk->audit->ctx;
->
->         if (!context)
->                 return NULL;
-> @@ -926,6 +926,15 @@ static inline struct audit_context *audit_alloc_context(enum audit_state state)
->         return context;
->  }
->
-> +static struct kmem_cache *audit_task_cache;
-> +
-> +void __init audit_task_init(void)
-> +{
-> +       audit_task_cache = kmem_cache_create("audit_task",
-> +                                            sizeof(struct audit_task_info),
-> +                                            0, SLAB_PANIC, NULL);
-> +}
-> +
->  /**
->   * audit_alloc - allocate an audit context block for a task
->   * @tsk: task
-> @@ -940,17 +949,28 @@ int audit_alloc(struct task_struct *tsk)
->         struct audit_context *context;
->         enum audit_state     state;
->         char *key = NULL;
-> +       struct audit_task_info *info;
-> +
-> +       info = kmem_cache_zalloc(audit_task_cache, GFP_KERNEL);
-> +       if (!info)
-> +               return -ENOMEM;
-> +       info->loginuid = audit_get_loginuid(current);
-> +       info->sessionid = audit_get_sessionid(current);
-> +       tsk->audit = info;
->
->         if (likely(!audit_ever_enabled))
->                 return 0; /* Return if not auditing. */
->
->         state = audit_filter_task(tsk, &key);
->         if (state == AUDIT_DISABLED) {
-> +               audit_set_context(tsk, NULL);
->                 clear_tsk_thread_flag(tsk, TIF_SYSCALL_AUDIT);
->                 return 0;
->         }
->
->         if (!(context = audit_alloc_context(state))) {
-> +               tsk->audit = NULL;
-> +               kmem_cache_free(audit_task_cache, info);
->                 kfree(key);
->                 audit_log_lost("out of memory in audit_alloc");
->                 return -ENOMEM;
-> @@ -962,6 +982,12 @@ int audit_alloc(struct task_struct *tsk)
->         return 0;
->  }
->
-> +struct audit_task_info init_struct_audit = {
-> +       .loginuid = INVALID_UID,
-> +       .sessionid = AUDIT_SID_UNSET,
-> +       .ctx = NULL,
-> +};
-> +
->  static inline void audit_free_context(struct audit_context *context)
->  {
->         audit_free_names(context);
-> @@ -1469,26 +1495,33 @@ static void audit_log_exit(struct audit_context *context, struct task_struct *ts
->  }
->
->  /**
-> - * __audit_free - free a per-task audit context
-> + * audit_free - free a per-task audit context
->   * @tsk: task whose audit context block to free
->   *
->   * Called from copy_process and do_exit
->   */
-> -void __audit_free(struct task_struct *tsk)
-> +void audit_free(struct task_struct *tsk)
->  {
->         struct audit_context *context;
-> +       struct audit_task_info *info;
->
->         context = audit_take_context(tsk, 0, 0);
-> -       if (!context)
-> -               return;
-> -
->         /* Check for system calls that do not go through the exit
->          * function (e.g., exit_group), then free context block.
->          * We use GFP_ATOMIC here because we might be doing this
->          * in the context of the idle thread */
->         /* that can happen only if we are called from do_exit() */
-> -       if (context->in_syscall && context->current_state == AUDIT_RECORD_CONTEXT)
-> +       if (context && context->in_syscall &&
-> +           context->current_state == AUDIT_RECORD_CONTEXT)
->                 audit_log_exit(context, tsk);
-> +       /* Freeing the audit_task_info struct must be performed after
-> +        * audit_log_exit() due to need for loginuid and sessionid.
-> +        */
-> +       info = tsk->audit;
-> +       tsk->audit = NULL;
-> +       kmem_cache_free(audit_task_cache, info);
-> +       if (!context)
-> +               return;
->         if (!list_empty(&context->killed_trees))
->                 audit_kill_trees(&context->killed_trees);
->
-> @@ -2071,8 +2104,8 @@ int audit_set_loginuid(kuid_t loginuid)
->                         sessionid = (unsigned int)atomic_inc_return(&session_id);
->         }
->
-> -       task->sessionid = sessionid;
-> -       task->loginuid = loginuid;
-> +       task->audit->sessionid = sessionid;
-> +       task->audit->loginuid = loginuid;
->  out:
->         audit_log_set_loginuid(oldloginuid, loginuid, oldsessionid, sessionid, rc);
->         return rc;
-> diff --git a/kernel/fork.c b/kernel/fork.c
-> index cd18448..92ab849 100644
-> --- a/kernel/fork.c
-> +++ b/kernel/fork.c
-> @@ -1713,7 +1713,7 @@ static __latent_entropy struct task_struct *copy_process(
->         p->start_time = ktime_get_ns();
->         p->real_start_time = ktime_get_boot_ns();
->         p->io_context = NULL;
-> -       audit_set_context(p, NULL);
-> +       p->audit = NULL;
->         cgroup_fork(p);
->  #ifdef CONFIG_NUMA
->         p->mempolicy = mpol_dup(p->mempolicy);
-> --
-> 1.8.3.1
-
--- 
-paul moore
-www.paul-moore.com
+One possible area for improvement (but not necessary to merge this) would be to fix the
+genhomedircon code to also then handle the case where getpwnam_r/getgrnam_r returns ERANGE,
+in which case we are supposed to realloc a larger buffer and try again per the man page.
