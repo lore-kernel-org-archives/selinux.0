@@ -1,258 +1,51 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4I0SKQw020335
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 20:28:26 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 40n8Cn5kkKz62qT
- for <selinux@tycho.nsa.gov>; Fri, 18 May 2018 00:28:21 +0000 (UTC)
-Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
- by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 40n8Cm65vvz62qL
- for <selinux@tycho.nsa.gov>; Fri, 18 May 2018 00:28:20 +0000 (UTC)
-Received: by mail-lf0-f68.google.com with SMTP id n18-v6so11324529lfh.10
- for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 17:28:19 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4I54dBd003762
+ for <selinux@tycho.nsa.gov>; Fri, 18 May 2018 01:04:39 -0400
+Received: by mail-pf0-f196.google.com with SMTP id x9-v6so3166677pfm.2
+ for <selinux@tycho.nsa.gov>; Thu, 17 May 2018 22:03:37 -0700 (PDT)
+Date: Fri, 18 May 2018 13:03:18 +0800
+From: Jason Zaman <jason@perfinion.com>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux <selinux@tycho.nsa.gov>
+Message-ID: <20180518050318.GA6239@baraddur.perfinion.com>
+References: <20180517051117.48454-1-jason@perfinion.com>
+ <CAJfZ7==n4+U6U2TGZDDSO8C6GQp5-8fMAV3C26eoqJfP6Z51OA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <2d45fbe7-ed2b-8e84-39cc-27b94ac0a33c@schaufler-ca.com>
-References: <7e8702ce-2598-e0a3-31a2-bc29157fb73d@schaufler-ca.com>
- <523afc0b-5bfc-8b95-05ee-450679254a47@tycho.nsa.gov>
- <5716ab22-4d3c-1935-41f1-ba848570ccab@tycho.nsa.gov>
- <eab001ca-10ff-1cfe-9436-805840628784@schaufler-ca.com>
- <5db90fec-7640-73d5-2e96-b4c996b7ae8d@tycho.nsa.gov>
- <ad30d628-ed11-2dd6-6782-3089bf733702@schaufler-ca.com>
- <alpine.LRH.2.21.1805160747300.8368@namei.org>
- <77dbe49f-b0fc-5b58-f8c2-a87db6b00ebc@schaufler-ca.com>
- <CAHC9VhT9JcADHexQq3qkEZ6JfkPwyw8tD3mD6JUFbwKN+w10=A@mail.gmail.com>
- <2d45fbe7-ed2b-8e84-39cc-27b94ac0a33c@schaufler-ca.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 17 May 2018 20:28:17 -0400
-Message-ID: <CAHC9VhS3t=CDobOfwhsTon-Qmwc1yZcpyfPPxmu-1pJFHZkemA@mail.gmail.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: James Morris <jmorris@namei.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- LSM <linux-security-module@vger.kernel.org>,
- SELinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 00/23] LSM: Full security module stacking
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <CAJfZ7==n4+U6U2TGZDDSO8C6GQp5-8fMAV3C26eoqJfP6Z51OA@mail.gmail.com>
+Subject: Re: SELinux musl support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, May 16, 2018 at 9:05 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 5/16/2018 5:19 PM, Paul Moore wrote:
->> On Wed, May 16, 2018 at 1:42 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
->>> On 5/15/2018 2:49 PM, James Morris wrote:
->>>> On Tue, 15 May 2018, Casey Schaufler wrote:
->>>>
->>>>> Both SELinux and Smack use netlbl_sock_setattr() in their socket_post_create()
->>>>> hooks to establish the CIPSO to use if nothing else interferes. An unfortunate
->>>>> artifact of the Smack "ambient label" implementation is that the default
->>>>> configuration is going to delete the netlbl attribute for the floor ("_")
->>>>> label. This will conflict with any value that SELinux sets. :( Smack clearly
->>>>> needs to have it's use of netlabel revised, and that is work that's going on
->>>>> in parallel with stacking. That, however, is not an infrastructure issue, it's
->>>>> an issue with how the two modules use the facilities.
->>>> Can this kind of problem be prevented at the API level?  i.e. ensure you
->>>> can't accidentally conflict with another LSM's use of the label here?
->>> What we're seeing isn't an accidental conflict. SELinux and Smack
->>> use netlabel differently. SELinux uses netlabel the way it and the
->>> way CIPSO intended, to mark the MLS levels and categories on a
->>> packet. Smack (ab)uses netlabel to put the Smack label directly on
->>> the packet. In most cases a SELinux system won't be sending a CIPSO
->>> header at all, because it won't be using MLS. A Smack system, on
->>> the other hand, sends a CIPSO header unless the label is the
->>> "ambient" label. Further, the label transitions for a process using
->>> both SELinux and Smack will be different. Two system services may
->>> have different SELinux contexts but the same Smack label.
->> Also, to clarify things a bit for those who haven't dug too deeply
->> into the per-packet bits, the label match/conflict is not done using
->> the individual LSM labels, that would be impossible, it is done using
->> the netlbl_lsm_secattr values.  The netlbl_lsm_secattr "label" was
->> always intended to be both LSM and protocol agnostic so it lends
->> itself better for this type of comparison.
->
-> Paul is correct. What goes into the netlbl_ls_secattr *is* comparable
-> across modules, and that's what this patch set uses.
->
->> At least that is what Casey and I discussed.  I haven't had a chance
->> to look at the most recent patches in-depth.
->>
->> [ASIDE: I was just digging through the patches to look for some of the
->> networking changes and it appears there is confusion around SELinux's
->> use of secmark and the NetLabel/IPsec "peer" labels.  As an example,
->> the term "secmark" should never appear in cipso_ipv4.c; the secmark
->> labels are completely independent to the peer labels.]
->
-> ... And in the end it doesn't. There is an intermediate patch that
-> uses the secids.secmark, but at that point it's a union. It could
-> just as well use secids.smack or secids.selinux.
+On Thu, May 17, 2018 at 09:22:01PM +0200, Nicolas Iooss wrote:
+> On Thu, May 17, 2018 at 7:11 AM, Jason Zaman <jason@perfinion.com> wrote:
+> > This series fixes compiling and running on musl libc.
+> >
+> > patches 1-2 are fairly trivial.
+> >
+> > patches 3-4 are a feature change on that platform since it does not
+> > support GLOB_TILDE and GLOB_BRACE. tilde is coming in musl 1.1.21
+> > according to [1]. brace support is not documented anywhere or in the
+> > example configs so that is probably not a big problem.
+> >
+> > patch 5 fixes a bug and it just happens that glibc returns a value for
+> > sysconf and the error handling was wrong but never noticed.
+> >
+> > [1]: https://wiki.musl-libc.org/roadmap.html
+> >
+> > [PATCH 1/5] sestatus: include limits.h for PATH_MAX
+> > [PATCH 2/5] libselinux: enable linking to musl-fts
+> > [PATCH 3/5] setfiles: Musl compatibility for GLOB_BRACE and
+> > [PATCH 4/5] restorecond: Musl compatibility for GLOB_BRACE and
+> > [PATCH 5/5] genhomedircon: sysconf can return -1 without failure
+> 
+> Thanks! These patches look good to me and I would also appreciate if
+> they are merged in 2.8.
 
-Okay, thanks.  I was going through the patches rather quickly last
-night while replying, I'm sure I've missed a lot.  I would request
-that future versions of the patchset refrain from using the secmark
-union field in the CIPSO code, even intermediate patches.  The labeled
-networking code is already confusing enough. :)
-
->> [ASIDE #2: Are you ever comparing the packet labels for
->> domains/sockets which are setup for destination specific labeling
->> (NetLabel's "address selector" feature)?  I'm probably missing it, but
->> I don't see it in the patches.]
->
-> Smack doesn't use the address selector properly, and hence
-> the situation will never arise. When I do get a fix in for Smack
-> to use address selectors properly I plan to address that case.
-> It is more likely to result in a useful system than the current code.
-
-ASIDE #2 came from my thinking that we may be better off comparing the
-on-wire labels (more on that below).  If we go the way of on-wire
-comparison, the address selector path will need to be taken into
-consideration, even if Smack doesn't use it today.
-
->>> The Smack code clearly needs to be revised. It does a horrible job
->>> on single-level hosts. It works, but does not take advantage of the
->>> netlabel facilities well. The ambient label processing is pretty
->>> kludgey. If the Smack use of netlabel were more in line with the
->>> SELinux model I expect there would be more cases where they work
->>> together. But even in the best case, it's going to take some real
->>> configuration wizardry to get a lot of agreement on packet labeling.
->> The answer may be to do the label comparison farther down the stack.
->
-> That would require storing multiple netlbl_ls_secattr in sockets, on
-> interfaces, etc. I'm not saying that would necessarily be bad, but I
-> expect some people would be concerned.
-
-I'm not sure I follow your thinking here, can you elaborate a bit more
-on why we would need to store the netlbl_lsm_secattr in the socket?
-
-For the traditional, non-address-selector case, NetLabel should be
-able to determine at socket creation time, based on the existing
-configuration and the netlbl_lsm_secattr values, what the on-wire
-label will look like.  That's what goes into the socket's IP/IPv6
-options in the case of CIPSO or CALIPSO, it's a no-op for a fallback
-configuration.
-
-In the address-selector case it gets a bit trickier as we have to use
-the INET_LOCAL_OUT and INET_FORWARD netfilter hooks, but I think we
-have a shot if we introduce new LSM-level netfilter hooks and then
-shift the individual LSMs to using the LSM/netfilter interface instead
-(positive spin: it would be more consistent with the rest of the LSM
-interface).  The new LSM/netfilter functions would then need to do a
-label comparison similar to the what we would be doing at socket
-creation time using the existing NetLabel configuration and the
-netlbl_lsm_secattr structs from the individual LSMs.  That's my
-initial thinking anyway, it may fall apart as it gets further along :)
-
->> What does it matter if the LSMs don't agree on their network labels so
->> long as the outgoing packets would be labeled the same?
->
-> I agree. The trick is holding onto enough information to make the call.
-> The netlabel code is currently set up to squirrel away the option header
-> so that it can be snapped up and used when the packet is being put together.
-> With multiple sources of possible options, creating the option header has
-> to be deferred until packet assembly time. That is going to have
-> performance impact and require some significant data and code change.
-> Not impossible, but harder to justify for the somewhat obscure use case.
-
-Keep in mind that normal outbound userspace network traffic has a
-valid pointer from the sk_buff to the originating sock struct (and
-it's security blob).  Accessing the information shouldn't be a problem
-in the local case.  The forwarded traffic case is a pain, and not
-really solved in the general sense, but I believe we should be able to
-maintain functional parity with the existing code if we do the
-comparison at the wire level.
-
->> In the
->> default SELinux and Smack configurations both send unlabeled traffic
->> (Smack would be using the ambient label by default, yes?) so if we ask
->> NetLabel to compare the on-wire label vs the LSM label, or the
->> netlbl_lsm_secattr label, it *should* be okay.
->
-> The comparison has to happen when we know about whether the label is
-> coming from the socket, the interface or the host. Or, as it's done now,
-> when the socket is created. It's really all about managing multiple
-> netlbl_ls_secattr values, which the existing netlabel code isn't set
-> up for. Doable, I expect.
-
-All the information you need to compare the on-wire labels should be
-present in the configuration and the netlbl_lsm_secattr.  Oh, and I
-guess you would need to include the sk_buff itself for the purpose of
-determining the destination address in the address selector case, but
-netfilter gives that (the skb) to you for free.
-
->> Incoming packets, even labeled ones, *should* work just fine so long
->> as the NetLabel caching mechanism is avoided (although you *really*
->> want to use the caching mechanism).  It should be easy enough to add
->> multiple LSM support to NetLabel's caching mechanism to fix this.
->
-> Yes, I expect you're right.
->
->> We get a pass on labeled IPsec because it is only used by SELinux.
->> Thank goodness.  That's a feature that should fade away.
->
-> Agreed!
->
->>> I'm not saying that API level changes wouldn't be welcome. I would
->>> be happier if the networking code called security hooks like the
->>> other subsystems do. I also understand that there are critical
->>> performance issues that drove the existing implementation, and that
->>> a call to security_label_packet() in the IP stack could be a hard
->>> sell.
->> Honestly, after my last round with the netdev folks, the issue isn't
->> so much the hooks themselves, but rather the sk_buff and their
->> insistence on not giving us any more than 32-bits.
->
-> Yes. My attempts to stuff multiple secids into a single u32 have
-> taught me much.
->
->> Even trading
->> 32-bits for 64 was a no-go despite multiple different alignment
->> attempts.  It's unfortunate because independent of stacking there are
->> several use cases we handle poorly today because of this (anyone
->> looked at packet forwarding for labeled traffic?  have you looked at
->> forwarding labeled traffic across different protocols?).
->
-> I confess to having fallen short of these important issues.
-
-Those were rhetorical questions just to point out use cases that are
-poorly handled today because we don't have proper security blobs in
-the sk_buff.  The only way we make a lot of the other stuff work is
-that we can fake it by going back to the IP header to fetch the
-on-wire label; we basically treat the IP header as a security blob.
-
->> Having thought about this on and off for several years now, I think
->> the only realistic solution may be to repurpose the secmark field as
->> an index into a larger label store where we can store a more
->> traditional security blob (stacked or otherwise).
->
-> I would of course defer to those wiser and/or more clever than I,
-> but all my attempts to do this have ended in tears. There are too
-> many places where you have to allocate a new association where you
-> either shouldn't or just can't.
-
-Long ago I had some notes on all the different places in the stack we
-would need hooks, and I don't remember it being too bad.  The part
-that turns me off is having to keep track of, and manage, those memory
-blocks ourselves.
-
->> I hold out some
->> hope that we might be able to do something with skb_shared_info; it's
->> common across cloned packets, but I don't think that would be a
->> problem for us.  We might even be able to strike a bargain with the
->> netdev folks: "I'll trade you 32-bits in sk_buff for a pointer in
->> skb_shared_info along with the necessary lifecycle hooks." ... fair
->> warning, that last bit is speculation on my part; I'm guessing they
->> are slightly (so very slightly) less picky about skb_shared_info but
->> there is a good chance I'm wrong about that.
->
-> We can hope. I have tried to err on the side of "don't piss off dev-net".
-> On the side of "don't piss off Paul Moore", too.
-
-Words to live by :)
-
-> I am of course willing to consider changes that will improve the way
-> modules can cooperate with using netlabel. I don't see that what I've
-> presented is the way it'll end up. I hope I've demonstrated that it's
-> neither being ignored nor impossible.
-
-Understood.  Like you, I was just tossing out some ideas.
-
--- 
-paul moore
-www.paul-moore.com
+Awesome, I'll push them on monday then unless there are any issues
+before then :)
+> 
+> Nicolas
+> 
