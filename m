@@ -1,8 +1,8 @@
 To: Richard Haines <richard_c_haines@btinternet.com>, selinux@tycho.nsa.gov
 References: <20180520182506.19665-1-richard_c_haines@btinternet.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3437cda5-3901-68be-9b37-9baea3ace727@tycho.nsa.gov>
-Date: Mon, 21 May 2018 10:37:01 -0400
+Message-ID: <21be01d4-cfb7-4ac7-a6dc-30edf19d6987@tycho.nsa.gov>
+Date: Mon, 21 May 2018 10:41:43 -0400
 MIME-Version: 1.0
 In-Reply-To: <20180520182506.19665-1-richard_c_haines@btinternet.com>
 Content-Type: text/plain; charset=utf-8
@@ -16,12 +16,9 @@ On 05/20/2018 02:25 PM, Richard Haines wrote:
 > Add binder tests. See tests/binder/test_binder.c for details on
 > message flows to test security_binder*() functions.
 
-Every test fails for me with:
-create_shm shm_open: Permission denied
-create_shm shm_open: No such file or directory
-
-and denials of the form:
-type=AVC msg=audit(1526902487.392:712): avc:  denied  { write } for  pid=3693 comm="test_binder" name="/" dev="tmpfs" ino=14124 scontext=unconfined_u:unconfined_r:test_binder_provider_t:s0-s0:c0.c1023 tcontext=system_u:object_r:tmpfs_t:s0 tclass=dir permissive=0
+Also, it breaks the policy build on RHEL/CentOS 7, due to map permission not being defined.
+You need to use the allow_map() macro as we already do in many of the test policy files,
+allow_map(domain, type, class).
 
 > 
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
