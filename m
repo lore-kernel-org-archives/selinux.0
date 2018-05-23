@@ -1,51 +1,55 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4NDeZVY028139
- for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 09:40:35 -0400
-Date: Wed, 23 May 2018 07:39:17 -0600
-From: Jonathan Corbet <corbet@lwn.net>
-To: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
- akpm@linux-foundation.org, willy@infradead.org,
- gregkh@linuxfoundation.org, linux-security-module@vger.kernel.org,
- selinux@tycho.nsa.gov, dev@openvswitch.org, shli@kernel.org,
- linux-raid@vger.kernel.org
-Message-ID: <20180523073917.618db21a@lwn.net>
-In-Reply-To: <20180523011821.12165-6-kent.overstreet@gmail.com>
-References: <20180523011821.12165-1-kent.overstreet@gmail.com>
- <20180523011821.12165-6-kent.overstreet@gmail.com>
+To: Jason Zaman <jason@perfinion.com>
+Cc: SELinux <selinux@tycho.nsa.gov>
+References: <27be33f6-67d1-38bf-0351-4ea5af2fb1e1@tycho.nsa.gov>
+ <83e8bd2a-a2c9-5d2e-4667-e98ab2821cd9@tycho.nsa.gov>
+ <921a3a88-e10d-40dc-fde5-7ef12f775e32@tycho.nsa.gov>
+ <20180516173138.GA12679@baraddur.perfinion.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <ab37bde9-1900-1900-e62f-2a83109d9108@tycho.nsa.gov>
+Date: Wed, 23 May 2018 13:16:18 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: Re: [PATCH 6/6] Drop flex_arrays
+In-Reply-To: <20180516173138.GA12679@baraddur.perfinion.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: ANN: SELinux userspace 2.8-rc3 release candidate
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, 22 May 2018 21:18:21 -0400
-Kent Overstreet <kent.overstreet@gmail.com> wrote:
+On 05/16/2018 01:31 PM, Jason Zaman wrote:
+> Just a quick note in case the release is soon.
+> I have a couple patches to make everything work on
+> Musl libc that im gonna clean them up and post in the morning.
 
-> All existing users have been converted to generic radix trees
+Given that these have been merged and I've seen no other activity, I assume we can make a final 2.8 release anytime.
+If anyone objects, speak up now.
+
 > 
-> Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
-> ---
->  Documentation/core-api/flexible-arrays.rst | 130 -------
->  Documentation/flexible-arrays.txt          | 123 -------
->  include/linux/flex_array.h                 | 149 --------
->  include/linux/poison.h                     |   3 -
->  lib/Makefile                               |   2 +-
->  lib/flex_array.c                           | 398 ---------------------
->  tools/include/linux/poison.h               |   3 -
->  7 files changed, 1 insertion(+), 807 deletions(-)
->  delete mode 100644 Documentation/core-api/flexible-arrays.rst
->  delete mode 100644 Documentation/flexible-arrays.txt
->  delete mode 100644 include/linux/flex_array.h
->  delete mode 100644 lib/flex_array.c
-
-Interesting, I didn't realize that flexible-arrays.txt was still there;
-that should go regardless (and 00-INDEX adjusted accordingly).  If you zap
-the RST file, though, you should also fix Documentation/core-api/index.rst
-or you'll break the docs build.
-
-Thanks,
-
-jon
+> On Thu, May 10, 2018 at 11:20:01AM -0400, Stephen Smalley wrote:
+>> A 2.8-rc3 release candidate for the SELinux userspace is now available at:
+>> https://github.com/SELinuxProject/selinux/wiki/Releases
+>>
+>> Please give it a test and let us know if there are any issues.
+>>
+>> A draft of the release notes is available from the Releases page, as
+>> is the full git log output and git shortlog output since the 2.7
+>> release.  If there are further items we should mention or if something
+>> should be amended in the release notes, let us know.
+>>  
+>> Thanks to all the contributors to this release candidate!
+>>  
+>> A shortlog of changes since the 2.8-rc2 release candidate is below.
+>>
+>> Stephen Smalley (7):
+>>       libsepol: remove unused function and type
+>>       libselinux: fix build warning in save_booleans()
+>>       libselinux: avcstat: fix build warning
+>>       libselinux: audit2why: fix build warnings
+>>       libsemanage: prevent string overflow on final paths
+>>       libsepol: cil: prevent stack buffer overflow in cil_expr_to_string
+>>       Update VERSION files to 2.8-rc3
+>>
+>> Vit Mojzis (1):
+>>       python/semanage/seobject.py: Fix undefined store check
+> 
+> 
