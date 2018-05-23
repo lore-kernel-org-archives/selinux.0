@@ -1,8 +1,14 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4N1IlLx026098
- for <selinux@tycho.nsa.gov>; Tue, 22 May 2018 21:18:48 -0400
-Received: by mail-qt0-f193.google.com with SMTP id m5-v6so26058877qti.1
- for <selinux@tycho.nsa.gov>; Tue, 22 May 2018 18:18:44 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4N1IlM0026098
+ for <selinux@tycho.nsa.gov>; Tue, 22 May 2018 21:18:51 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 40rF5j5ncVzrKYY
+ for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 01:18:49 +0000 (UTC)
+Received: from UPBD19PA11.eemsg.mil (unknown [192.168.18.17])
+ by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 40rF5j2z4SzrKYV
+ for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 01:18:49 +0000 (UTC)
+Received: by mail-qk0-f195.google.com with SMTP id n207-v6so3558342qke.3
+ for <selinux@tycho.nsa.gov>; Tue, 22 May 2018 18:18:48 -0700 (PDT)
 From: Kent Overstreet <kent.overstreet@gmail.com>
 To: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
  akpm@linux-foundation.org, willy@infradead.org,
@@ -10,11 +16,11 @@ To: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
  selinux@tycho.nsa.gov, dev@openvswitch.org, shli@kernel.org,
  linux-raid@vger.kernel.org
 Cc: Kent Overstreet <kent.overstreet@gmail.com>
-Date: Tue, 22 May 2018 21:18:17 -0400
-Message-Id: <20180523011821.12165-2-kent.overstreet@gmail.com>
+Date: Tue, 22 May 2018 21:18:19 -0400
+Message-Id: <20180523011821.12165-4-kent.overstreet@gmail.com>
 In-Reply-To: <20180523011821.12165-1-kent.overstreet@gmail.com>
 References: <20180523011821.12165-1-kent.overstreet@gmail.com>
-Subject: [PATCH 2/6] proc: commit to genradix
+Subject: [PATCH 4/6] openvswitch: convert to genradix
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -26,114 +32,163 @@ converted
 
 Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
 ---
- fs/proc/base.c | 48 +++++++++++++++++-------------------------------
- 1 file changed, 17 insertions(+), 31 deletions(-)
+ net/openvswitch/flow.h         |  1 -
+ net/openvswitch/flow_netlink.h |  1 -
+ net/openvswitch/flow_table.c   | 45 ++++++++++------------------------
+ net/openvswitch/flow_table.h   |  4 +--
+ 4 files changed, 15 insertions(+), 36 deletions(-)
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index 9298324325..0a762eda64 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -59,6 +59,7 @@
- #include <linux/capability.h>
- #include <linux/file.h>
- #include <linux/fdtable.h>
-+#include <linux/generic-radix-tree.h>
- #include <linux/string.h>
- #include <linux/seq_file.h>
- #include <linux/namei.h>
-@@ -92,7 +93,6 @@
- #include <linux/sched/coredump.h>
- #include <linux/sched/debug.h>
- #include <linux/sched/stat.h>
+diff --git a/net/openvswitch/flow.h b/net/openvswitch/flow.h
+index c670dd24b8..4f06278166 100644
+--- a/net/openvswitch/flow.h
++++ b/net/openvswitch/flow.h
+@@ -30,7 +30,6 @@
+ #include <linux/in6.h>
+ #include <linux/jiffies.h>
+ #include <linux/time.h>
 -#include <linux/flex_array.h>
- #include <linux/posix-timers.h>
- #ifdef CONFIG_HARDWALL
- #include <asm/hardwall.h>
-@@ -2140,11 +2140,12 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
- 	struct task_struct *task;
- 	struct mm_struct *mm;
- 	unsigned long nr_files, pos, i;
--	struct flex_array *fa = NULL;
--	struct map_files_info info;
-+	GENRADIX(struct map_files_info) fa;
- 	struct map_files_info *p;
- 	int ret;
+ #include <linux/cpumask.h>
+ #include <net/inet_ecn.h>
+ #include <net/ip_tunnels.h>
+diff --git a/net/openvswitch/flow_netlink.h b/net/openvswitch/flow_netlink.h
+index 6657606b2b..66f9553758 100644
+--- a/net/openvswitch/flow_netlink.h
++++ b/net/openvswitch/flow_netlink.h
+@@ -30,7 +30,6 @@
+ #include <linux/in6.h>
+ #include <linux/jiffies.h>
+ #include <linux/time.h>
+-#include <linux/flex_array.h>
  
-+	genradix_init(&fa);
-+
- 	ret = -ENOENT;
- 	task = get_proc_task(file_inode(file));
- 	if (!task)
-@@ -2176,35 +2177,21 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
- 	 */
- 
- 	for (vma = mm->mmap, pos = 2; vma; vma = vma->vm_next) {
--		if (vma->vm_file && ++pos > ctx->pos)
--			nr_files++;
--	}
-+		if (!vma->vm_file)
-+			continue;
-+		if (++pos <= ctx->pos)
-+			continue;
- 
--	if (nr_files) {
--		fa = flex_array_alloc(sizeof(info), nr_files,
--					GFP_KERNEL);
--		if (!fa || flex_array_prealloc(fa, 0, nr_files,
--						GFP_KERNEL)) {
-+		p = genradix_ptr_alloc(&fa, nr_files++, GFP_KERNEL);
-+		if (!p) {
- 			ret = -ENOMEM;
--			if (fa)
--				flex_array_free(fa);
- 			up_read(&mm->mmap_sem);
--			mmput(mm);
--			goto out_put_task;
-+			goto out_put_mm;
- 		}
--		for (i = 0, vma = mm->mmap, pos = 2; vma;
--				vma = vma->vm_next) {
--			if (!vma->vm_file)
--				continue;
--			if (++pos <= ctx->pos)
--				continue;
- 
--			info.start = vma->vm_start;
--			info.end = vma->vm_end;
--			info.mode = vma->vm_file->f_mode;
--			if (flex_array_put(fa, i++, &info, GFP_KERNEL))
--				BUG();
--		}
-+		p->start = vma->vm_start;
-+		p->end = vma->vm_end;
-+		p->mode = vma->vm_file->f_mode;
- 	}
- 	up_read(&mm->mmap_sem);
- 
-@@ -2212,7 +2199,7 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
- 		char buf[4 * sizeof(long) + 2];	/* max: %lx-%lx\0 */
- 		unsigned int len;
- 
--		p = flex_array_get(fa, i);
-+		p = genradix_ptr(&fa, i);
- 		len = snprintf(buf, sizeof(buf), "%lx-%lx", p->start, p->end);
- 		if (!proc_fill_cache(file, ctx,
- 				      buf, len,
-@@ -2222,13 +2209,12 @@ proc_map_files_readdir(struct file *file, struct dir_context *ctx)
- 			break;
- 		ctx->pos++;
- 	}
--	if (fa)
--		flex_array_free(fa);
-+out_put_mm:
- 	mmput(mm);
--
- out_put_task:
- 	put_task_struct(task);
- out:
-+	genradix_free(&fa);
- 	return ret;
+ #include <net/inet_ecn.h>
+ #include <net/ip_tunnels.h>
+diff --git a/net/openvswitch/flow_table.c b/net/openvswitch/flow_table.c
+index 80ea2a7185..284f44d832 100644
+--- a/net/openvswitch/flow_table.c
++++ b/net/openvswitch/flow_table.c
+@@ -111,27 +111,19 @@ int ovs_flow_tbl_count(const struct flow_table *table)
+ 	return table->count;
  }
  
+-static struct flex_array *alloc_buckets(unsigned int n_buckets)
++static int alloc_buckets(struct table_instance *ti, unsigned int n_buckets)
+ {
+-	struct flex_array *buckets;
+-	int i, err;
++	int i;
+ 
+-	buckets = flex_array_alloc(sizeof(struct hlist_head),
+-				   n_buckets, GFP_KERNEL);
+-	if (!buckets)
+-		return NULL;
++	genradix_init(&ti->buckets);
+ 
+-	err = flex_array_prealloc(buckets, 0, n_buckets, GFP_KERNEL);
+-	if (err) {
+-		flex_array_free(buckets);
+-		return NULL;
+-	}
++	if (genradix_prealloc(&ti->buckets, n_buckets, GFP_KERNEL))
++		return -ENOMEM;
+ 
+ 	for (i = 0; i < n_buckets; i++)
+-		INIT_HLIST_HEAD((struct hlist_head *)
+-					flex_array_get(buckets, i));
++		INIT_HLIST_HEAD(genradix_ptr(&ti->buckets, i));
+ 
+-	return buckets;
++	return 0;
+ }
+ 
+ static void flow_free(struct sw_flow *flow)
+@@ -168,15 +160,9 @@ void ovs_flow_free(struct sw_flow *flow, bool deferred)
+ 		flow_free(flow);
+ }
+ 
+-static void free_buckets(struct flex_array *buckets)
+-{
+-	flex_array_free(buckets);
+-}
+-
+-
+ static void __table_instance_destroy(struct table_instance *ti)
+ {
+-	free_buckets(ti->buckets);
++	genradix_free(&ti->buckets);
+ 	kfree(ti);
+ }
+ 
+@@ -187,9 +173,7 @@ static struct table_instance *table_instance_alloc(int new_size)
+ 	if (!ti)
+ 		return NULL;
+ 
+-	ti->buckets = alloc_buckets(new_size);
+-
+-	if (!ti->buckets) {
++	if (alloc_buckets(ti, new_size)) {
+ 		kfree(ti);
+ 		return NULL;
+ 	}
+@@ -249,7 +233,7 @@ static void table_instance_destroy(struct table_instance *ti,
+ 
+ 	for (i = 0; i < ti->n_buckets; i++) {
+ 		struct sw_flow *flow;
+-		struct hlist_head *head = flex_array_get(ti->buckets, i);
++		struct hlist_head *head = genradix_ptr(&ti->buckets, i);
+ 		struct hlist_node *n;
+ 		int ver = ti->node_ver;
+ 		int ufid_ver = ufid_ti->node_ver;
+@@ -294,7 +278,7 @@ struct sw_flow *ovs_flow_tbl_dump_next(struct table_instance *ti,
+ 	ver = ti->node_ver;
+ 	while (*bucket < ti->n_buckets) {
+ 		i = 0;
+-		head = flex_array_get(ti->buckets, *bucket);
++		head = genradix_ptr(&ti->buckets, *bucket);
+ 		hlist_for_each_entry_rcu(flow, head, flow_table.node[ver]) {
+ 			if (i < *last) {
+ 				i++;
+@@ -313,8 +297,7 @@ struct sw_flow *ovs_flow_tbl_dump_next(struct table_instance *ti,
+ static struct hlist_head *find_bucket(struct table_instance *ti, u32 hash)
+ {
+ 	hash = jhash_1word(hash, ti->hash_seed);
+-	return flex_array_get(ti->buckets,
+-				(hash & (ti->n_buckets - 1)));
++	return genradix_ptr(&ti->buckets, hash & (ti->n_buckets - 1));
+ }
+ 
+ static void table_instance_insert(struct table_instance *ti,
+@@ -347,9 +330,7 @@ static void flow_table_copy_flows(struct table_instance *old,
+ 	/* Insert in new table. */
+ 	for (i = 0; i < old->n_buckets; i++) {
+ 		struct sw_flow *flow;
+-		struct hlist_head *head;
+-
+-		head = flex_array_get(old->buckets, i);
++		struct hlist_head *head = genradix_ptr(&old->buckets, i);
+ 
+ 		if (ufid)
+ 			hlist_for_each_entry(flow, head,
+diff --git a/net/openvswitch/flow_table.h b/net/openvswitch/flow_table.h
+index 2dd9900f53..57fe93570a 100644
+--- a/net/openvswitch/flow_table.h
++++ b/net/openvswitch/flow_table.h
+@@ -29,7 +29,7 @@
+ #include <linux/in6.h>
+ #include <linux/jiffies.h>
+ #include <linux/time.h>
+-#include <linux/flex_array.h>
++#include <linux/generic-radix-tree.h>
+ 
+ #include <net/inet_ecn.h>
+ #include <net/ip_tunnels.h>
+@@ -37,7 +37,7 @@
+ #include "flow.h"
+ 
+ struct table_instance {
+-	struct flex_array *buckets;
++	GENRADIX(struct hlist_head) buckets;
+ 	unsigned int n_buckets;
+ 	struct rcu_head rcu;
+ 	int node_ver;
 -- 
 2.17.0
