@@ -1,46 +1,70 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4NMPIHY011448
- for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 18:25:18 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4O5mp06012673
+ for <selinux@tycho.nsa.gov>; Thu, 24 May 2018 01:48:51 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by USFBF3ID15.oob.disa.mil (Postfix) with SMTP id 40rnBY6TMKz4KWLJ
- for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 22:24:53 +0000 (UTC)
-Received: from USFB3CPA05_EEMSG_MP27.eemsg.mil (unknown [192.168.16.22])
- by USFBF3ID15.oob.disa.mil (Postfix) with ESMTP id 40rnBY4gPbz4KWKm
- for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 22:24:53 +0000 (UTC)
-Received: by mail-qk0-f194.google.com with SMTP id z75-v6so18812405qkb.6
- for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 15:24:32 -0700 (PDT)
-Date: Wed, 23 May 2018 18:24:28 -0400
-From: Kent Overstreet <kent.overstreet@gmail.com>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
- akpm@linux-foundation.org, gregkh@linuxfoundation.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- dev@openvswitch.org, shli@kernel.org, linux-raid@vger.kernel.org,
- Artur Paszkiewicz <artur.paszkiewicz@intel.com>
-Message-ID: <20180523222428.GC23040@kmo-pixel>
-References: <20180523011821.12165-1-kent.overstreet@gmail.com>
- <20180523011821.12165-4-kent.overstreet@gmail.com>
- <20180523123401.GB19987@bombadil.infradead.org>
+ by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 40rz2L0jlYzrKYS
+ for <selinux@tycho.nsa.gov>; Thu, 24 May 2018 05:48:26 +0000 (UTC)
+Received: from UPBD19PA03.eemsg.mil (unknown [192.168.18.4])
+ by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 40rz2K5Z1XzrKYR
+ for <selinux@tycho.nsa.gov>; Thu, 24 May 2018 05:48:25 +0000 (UTC)
+Received: by mail-ot0-f169.google.com with SMTP id i5-v6so521235otf.1
+ for <selinux@tycho.nsa.gov>; Wed, 23 May 2018 22:48:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180523123401.GB19987@bombadil.infradead.org>
-Subject: Re: [PATCH 4/6] openvswitch: convert to genradix
+From: shagun maheshwari <shagunmaheshwariitmec@gmail.com>
+Date: Thu, 24 May 2018 11:18:23 +0530
+Message-ID: <CAMYJFZ9V2stVKHZVuS0OqRTqk-iUXAZRzrys1oULDdV_mGi5wg@mail.gmail.com>
+To: selinux@tycho.nsa.gov
+Content-Type: multipart/alternative; boundary="000000000000153027056ced3321"
+Subject: Selinux load_policy command on inactive partition is
+ loading policy on active partition
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, May 23, 2018 at 05:34:01AM -0700, Matthew Wilcox wrote:
-> On Tue, May 22, 2018 at 09:18:19PM -0400, Kent Overstreet wrote:
-> > the new generic radix trees have a simpler API and implementation, and
-> > no limitations on number of elements, so all flex_array users are being
-> > converted
-> 
-> This doesn't really feel like it should be a flexarray / genradix user.
-> It just wants to allocate a lot of buckets and use them.  Maybe kvmalloc
-> is the right approach for this user of flexarray?
+--000000000000153027056ced3321
+Content-Type: text/plain; charset="UTF-8"
 
-Yeah probably, or a rhashtable.
+Hi,
 
-Now that you mention it, I think the md code should definitely be using kvmalloc
-too.
+We have done changes in our Centos7.4 to disable the unconfined user from
+our code. We have created an iso in which we have replaced unconfined with
+sysadm and we are performing an upgrade using the new iso.
+After upgrade current partition stop working. It started expecting policies
+for unconfined when we perform reboot things started working fine again.
+We are suspecting some issues with this command "load_policy -qi" when this
+command is being executed on partB in permissive mode and after we move the
+system to enforcing mode. It starts giving denials for unconfined.
+
+Can you explain what exactly load_policy do?
+Does it load the policies for all the partitions of the system?
+
+
+Regards,
+Shagun
+
+--000000000000153027056ced3321
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi,<div><br></div><div>We have done changes in our Centos7=
+.4 to disable the unconfined user from our code.=C2=A0We have created an is=
+o in which we have replaced unconfined with sysadm and=C2=A0we are performi=
+ng an upgrade using the new iso.=C2=A0</div><div>After upgrade current part=
+ition stop working. It started expecting policies for unconfined when we pe=
+rform reboot things started working fine again.=C2=A0</div><div>We are susp=
+ecting some issues with this command &quot;load_policy -qi&quot; when this =
+command is being executed on partB in permissive mode and after we move the=
+ system to enforcing mode. It starts giving denials for unconfined.=C2=A0</=
+div><div><br></div><div>Can you explain what exactly load_policy do?=C2=A0<=
+/div><div>Does=C2=A0it load the policies for all the partitions of the syst=
+em?</div><div><p class=3D"MsoNormal" style=3D"margin:0in 0in 0.0001pt;font-=
+size:11pt;font-family:Calibri,sans-serif"><br></p>
+
+
+
+
+
+Regards,</div><div>Shagun</div></div>
+
+--000000000000153027056ced3321--
