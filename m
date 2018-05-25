@@ -1,56 +1,34 @@
-From: Sachin Grover <sgrover@codeaurora.org>
-To: paul@paul-moore.com, sds@tycho.nsa.gov
-Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- selinux@tycho.nsa.gov, Sachin Grover <sgrover@codeaurora.org>
-Date: Fri, 25 May 2018 14:01:39 +0530
-Message-Id: <1527237099-9728-1-git-send-email-sgrover@codeaurora.org>
-Subject: [PATCH] selinux: KASAN: slab-out-of-bounds in
- xattr_getsecurity
+To: bhawna goel <bhawnagoel13@gmail.com>, selinux@tycho.nsa.gov
+References: <CABCvxxqSZa8kqtjvPy0601REvawdbH60VpwUEAwGQp9dky8meQ@mail.gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <d24fc7c1-31b2-132f-49d4-4c612bf0816e@tycho.nsa.gov>
+Date: Fri, 25 May 2018 08:24:09 -0400
+MIME-Version: 1.0
+In-Reply-To: <CABCvxxqSZa8kqtjvPy0601REvawdbH60VpwUEAwGQp9dky8meQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: Selinux load_policy command on chrooted partition is loading
+ policy on active partition
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Call trace:
- [<ffffff9203a8d7a8>] dump_backtrace+0x0/0x428
- [<ffffff9203a8dbf8>] show_stack+0x28/0x38
- [<ffffff920409bfb8>] dump_stack+0xd4/0x124
- [<ffffff9203d187e8>] print_address_description+0x68/0x258
- [<ffffff9203d18c00>] kasan_report.part.2+0x228/0x2f0
- [<ffffff9203d1927c>] kasan_report+0x5c/0x70
- [<ffffff9203d1776c>] check_memory_region+0x12c/0x1c0
- [<ffffff9203d17cdc>] memcpy+0x34/0x68
- [<ffffff9203d75348>] xattr_getsecurity+0xe0/0x160
- [<ffffff9203d75490>] vfs_getxattr+0xc8/0x120
- [<ffffff9203d75d68>] getxattr+0x100/0x2c8
- [<ffffff9203d76fb4>] SyS_fgetxattr+0x64/0xa0
- [<ffffff9203a83f70>] el0_svc_naked+0x24/0x28
+On 05/25/2018 04:08 AM, bhawna goel wrote:
+> Hi Team,
+> 
+> We are facing an issue with load_policy command on Centos 7.4.. Need to understand what it exactly does.
+> 
+> We have Centos 7.4 machine which have two partitions .
+> Ist partition (partA) have all the policies with unconfined and when we are installing second partition (partB) we are adding all the policies for sysadm. 
+> During installation of partB below command is getting executed from partA
+> chroot partB load_policy -qi.
+> 
+> Just after executing this command partA stops working with unconfined policies . partA giving denials which was working before executing this command.
+> 
+> Just to recover my system i executed load_policy -q in partA and it gets back to normal.
+> 
+> I wanted to understand what exactly load_policy do . Why my partA stopped working when load_policy is executed in partB .Is this expected behavior or there is some issue.
+> 
+> Thanks in advance.
 
-If user get root access and calls security.selinux setxattr() with an
-embedded NUL on a file and then if some process performs a getxattr()
-on that file with a length greater than the actual length of the string,
-it would result in a panic.
-
-To fix this, add the actual length of the string to the security context
-instead of the length passed by the userspace process.
-
-Signed-off-by: Sachin Grover <sgrover@codeaurora.org>
----
- security/selinux/ss/services.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 66ea81c..d17f5b4 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1434,7 +1434,7 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
- 				      scontext_len, &context, def_sid);
- 	if (rc == -EINVAL && force) {
- 		context.str = str;
--		context.len = scontext_len;
-+		context.len = strlen(str) + 1;
- 		str = NULL;
- 	} else if (rc)
- 		goto out_unlock;
--- 
-1.9.1
+I thought I answered this yesterday, but let's try again: load_policy always loads the active policy as defined by /etc/selinux/config relative to its root. So if you perform a chroot /path/to/partB load_policy it will load the policy from /path/to/partB/etc/selinux into the kernel.  And then your partA will stop working.  There is only one kernel policy; it isn't relative to any particular root.  Don't load policy from partB unless you are actually booting from partB.
