@@ -1,70 +1,56 @@
-Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4P88W8f013495
- for <selinux@tycho.nsa.gov>; Fri, 25 May 2018 04:08:32 -0400
-Received: by mail-ua0-f172.google.com with SMTP id g9-v6so2908756uak.7
- for <selinux@tycho.nsa.gov>; Fri, 25 May 2018 01:08:28 -0700 (PDT)
-MIME-Version: 1.0
-From: bhawna goel <bhawnagoel13@gmail.com>
-Date: Fri, 25 May 2018 13:38:27 +0530
-Message-ID: <CABCvxxqSZa8kqtjvPy0601REvawdbH60VpwUEAwGQp9dky8meQ@mail.gmail.com>
-To: selinux@tycho.nsa.gov
-Content-Type: multipart/alternative; boundary="000000000000dba631056d03455e"
-Subject: Selinux load_policy command on chrooted partition is
- loading policy on active partition
+From: Sachin Grover <sgrover@codeaurora.org>
+To: paul@paul-moore.com, sds@tycho.nsa.gov
+Cc: linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov, Sachin Grover <sgrover@codeaurora.org>
+Date: Fri, 25 May 2018 14:01:39 +0530
+Message-Id: <1527237099-9728-1-git-send-email-sgrover@codeaurora.org>
+Subject: [PATCH] selinux: KASAN: slab-out-of-bounds in
+ xattr_getsecurity
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---000000000000dba631056d03455e
-Content-Type: text/plain; charset="UTF-8"
+Call trace:
+ [<ffffff9203a8d7a8>] dump_backtrace+0x0/0x428
+ [<ffffff9203a8dbf8>] show_stack+0x28/0x38
+ [<ffffff920409bfb8>] dump_stack+0xd4/0x124
+ [<ffffff9203d187e8>] print_address_description+0x68/0x258
+ [<ffffff9203d18c00>] kasan_report.part.2+0x228/0x2f0
+ [<ffffff9203d1927c>] kasan_report+0x5c/0x70
+ [<ffffff9203d1776c>] check_memory_region+0x12c/0x1c0
+ [<ffffff9203d17cdc>] memcpy+0x34/0x68
+ [<ffffff9203d75348>] xattr_getsecurity+0xe0/0x160
+ [<ffffff9203d75490>] vfs_getxattr+0xc8/0x120
+ [<ffffff9203d75d68>] getxattr+0x100/0x2c8
+ [<ffffff9203d76fb4>] SyS_fgetxattr+0x64/0xa0
+ [<ffffff9203a83f70>] el0_svc_naked+0x24/0x28
 
-Hi Team,
+If user get root access and calls security.selinux setxattr() with an
+embedded NUL on a file and then if some process performs a getxattr()
+on that file with a length greater than the actual length of the string,
+it would result in a panic.
 
-We are facing an issue with load_policy command on Centos 7.4.. Need to
-understand what it exactly does.
+To fix this, add the actual length of the string to the security context
+instead of the length passed by the userspace process.
 
-We have Centos 7.4 machine which have two partitions .
-Ist partition (partA) have all the policies with unconfined and when we are
-installing second partition (partB) we are adding all the policies for
-sysadm.
-During installation of partB below command is getting executed from partA
-chroot partB load_policy -qi.
+Signed-off-by: Sachin Grover <sgrover@codeaurora.org>
+---
+ security/selinux/ss/services.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Just after executing this command partA stops working with unconfined
-policies . partA giving denials which was working before executing this
-command.
-
-Just to recover my system i executed load_policy -q in partA and it gets
-back to normal.
-
-I wanted to understand what exactly load_policy do . Why my partA stopped
-working when load_policy is executed in partB .Is this expected behavior or
-there is some issue.
-
-Thanks in advance.
-
-Regards,
-Bhawna
-
---000000000000dba631056d03455e
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Hi Team,<div><br></div><div>We are facing an issue with lo=
-ad_policy command on Centos 7.4.. Need to understand what it exactly does.<=
-/div><div><br></div><div>We have Centos 7.4 machine which have two partitio=
-ns .</div><div>Ist partition (partA) have all the policies with unconfined =
-and when we are installing second partition (partB) we are adding all the p=
-olicies for sysadm.=C2=A0</div><div>During installation of partB below comm=
-and is getting executed from partA</div><div>chroot partB load_policy -qi.<=
-/div><div><br></div><div>Just after executing this command partA stops work=
-ing with unconfined policies . partA giving denials which was working befor=
-e executing this command.</div><div><br></div><div>Just to recover my syste=
-m i executed load_policy -q in partA and it gets back to normal.</div><div>=
-<br></div><div>I wanted to understand what exactly load_policy do . Why my =
-partA stopped working when load_policy is executed in partB .Is this expect=
-ed behavior or there is some issue.</div><div><br></div><div>Thanks in adva=
-nce.</div><div><br></div><div>Regards,</div><div>Bhawna</div></div>
-
---000000000000dba631056d03455e--
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 66ea81c..d17f5b4 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1434,7 +1434,7 @@ static int security_context_to_sid_core(const char *scontext, u32 scontext_len,
+ 				      scontext_len, &context, def_sid);
+ 	if (rc == -EINVAL && force) {
+ 		context.str = str;
+-		context.len = scontext_len;
++		context.len = strlen(str) + 1;
+ 		str = NULL;
+ 	} else if (rc)
+ 		goto out_unlock;
+-- 
+1.9.1
