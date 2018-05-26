@@ -1,78 +1,495 @@
 Received: from goalie.tycho.ncsc.mil (goalie [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4S4gG6m013966
- for <selinux@tycho.nsa.gov>; Mon, 28 May 2018 00:42:16 -0400
-Received: by mail-pg0-f65.google.com with SMTP id k2-v6so4746159pgc.1
- for <selinux@tycho.nsa.gov>; Sun, 27 May 2018 21:42:11 -0700 (PDT)
-Date: Mon, 28 May 2018 12:42:07 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20180528044207.GA9472@baraddur.perfinion.com>
-References: <20180526184213.4896-1-nicolas.iooss@m4x.org>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4Q3HAPv005556
+ for <selinux@tycho.nsa.gov>; Fri, 25 May 2018 23:17:10 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID08.oob.disa.mil (Postfix) with SMTP id 40t7ZQ0r40z3TWMV
+ for <selinux@tycho.nsa.gov>; Sat, 26 May 2018 03:16:46 +0000 (UTC)
+Received: from USFB19PA17.eemsg.mil (unknown [192.168.16.15])
+ by USFBF3ID08.oob.disa.mil (Postfix) with ESMTP id 40t7ZP1khDz3TWMQ
+ for <selinux@tycho.nsa.gov>; Sat, 26 May 2018 03:16:45 +0000 (UTC)
+Received: by mail-it0-f67.google.com with SMTP id y189-v6so9087525itb.2
+ for <selinux@tycho.nsa.gov>; Fri, 25 May 2018 20:16:43 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180526184213.4896-1-nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 0/7] Fix some issues spotted by static analyzers
+In-Reply-To: <20180523011821.12165-1-kent.overstreet@gmail.com>
+References: <20180523011821.12165-1-kent.overstreet@gmail.com>
+From: Liu Bo <obuil.liubo@gmail.com>
+Date: Sat, 26 May 2018 11:16:42 +0800
+Message-ID: <CANQeFDCLc56thuuGYBMdb_qvw_O=t7sLkJiP-LNYfKwgz74H_w@mail.gmail.com>
+To: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+ akpm@linux-foundation.org, willy@infradead.org,
+ gregkh@linuxfoundation.org, linux-security-module@vger.kernel.org,
+ selinux@tycho.nsa.gov, dev@openvswitch.org, shli@kernel.org,
+ linux-raid@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 1/6] Generic radix trees
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, May 26, 2018 at 08:42:06PM +0200, Nicolas Iooss wrote:
-> Hi,
-> As you may have noticed, I have been using clang's static analyzer for
-> a few months and submitted fixes for bugs that it found. There are also
-> many minor issues in the code (memory leaks, dead assignments, etc.)
-> which introduce much noise and make it harder to find real issues. For
-> example if a reported "dead variable assignment" is about the return
-> value of a function which would need to be checked and the wrong
-> variable is used in the check, this would be detected by the analyzer
-> but would be in the noise of other minor issues.
-> 
-> Therefore this patchset (and the ones that I would like to send in the
-> following weeks) is about reducing this noise.
-> 
-> I am starting with libsepol/src/module_to_cil.c and while cleaning up
-> the commits I have written in order to use clang's static analyzer, I
-> stumbled upon some other local commits I forgot to send, which fix more
-> important bugs (like a missing call to va_end(), in the last patch).
-> This explains why there are other files which are modified.
-> 
-> Here is the git shortlog:
-> 
-> Nicolas Iooss (7):
->   libsepol: cil: silence clang analyzer false positive
->   libsepol: do not leak memory if list_prepend fails
->   libsepol: remove some dead assignments
->   libsepol: do not call malloc with 0 byte
->   libsepol: remove unused variable
->   checkpolicy: destroy the class datum if it fails to initialize
->   libsepol: destroy the copied va_list
-> 
->  checkpolicy/module_compiler.c   |  1 +
->  libsepol/cil/src/cil_tree.c     |  2 +-
->  libsepol/src/kernel_to_common.c |  3 +++
->  libsepol/src/module_to_cil.c    | 21 +++++++++++++--------
->  4 files changed, 18 insertions(+), 9 deletions(-)
+Hi Kent,
 
-These all look good to me. I didnt compile test since your CI has
-already done that many many times.
+(Add all ML to cc this time.)
 
-For the whole series:
-Acked-by: Jason Zaman <jason@perfinion.com>
+On Wed, May 23, 2018 at 9:18 AM, Kent Overstreet
+<kent.overstreet@gmail.com> wrote:
+> Very simple radix tree implementation that supports storing arbitrary
+> size entries, up to PAGE_SIZE - upcoming patches will convert existing
+> flex_array users to genradixes. The new genradix code has a much simpler
+> API and implementation, and doesn't have a hard limit on the number of
+> elements like flex_array does.
+>
+> Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
+> ---
+>  include/linux/generic-radix-tree.h | 222 +++++++++++++++++++++++++++++
+>  lib/Makefile                       |   3 +-
+>  lib/generic-radix-tree.c           | 180 +++++++++++++++++++++++
+>  3 files changed, 404 insertions(+), 1 deletion(-)
+>  create mode 100644 include/linux/generic-radix-tree.h
+>  create mode 100644 lib/generic-radix-tree.c
+>
+> diff --git a/include/linux/generic-radix-tree.h b/include/linux/generic-radix-tree.h
+> new file mode 100644
+> index 0000000000..3328813322
+> --- /dev/null
+> +++ b/include/linux/generic-radix-tree.h
+> @@ -0,0 +1,222 @@
+> +#ifndef _LINUX_GENERIC_RADIX_TREE_H
+> +#define _LINUX_GENERIC_RADIX_TREE_H
+> +
+> +/*
+> + * Generic radix trees/sparse arrays:
+> + *
+> + * Very simple and minimalistic, supporting arbitrary size entries up to
+> + * PAGE_SIZE.
+> + *
+> + * A genradix is defined with the type it will store, like so:
+> + * static GENRADIX(struct foo) foo_genradix;
+> + *
+> + * The main operations are:
+> + * - genradix_init(radix) - initialize an empty genradix
+> + *
+> + * - genradix_free(radix) - free all memory owned by the genradix and
+> + *   reinitialize it
+> + *
+> + * - genradix_ptr(radix, idx) - gets a pointer to the entry at idx, returning
+> + *   NULL if that entry does not exist
+> + *
+> + * - genradix_ptr_alloc(radix, idx, gfp) - gets a pointer to an entry,
+> + *   allocating it if necessary
+> + *
+> + * - genradix_for_each(radix, iter, p) - iterate over each entry in a genradix
+> + *
+> + * The radix tree allocates one page of entries at a time, so entries may exist
+> + * that were never explicitly allocated - they will be initialized to all
+> + * zeroes.
+> + *
+> + * Internally, a genradix is just a radix tree of pages, and indexing works in
+> + * terms of byte offsets. The wrappers in this header file use sizeof on the
+> + * type the radix contains to calculate a byte offset from the index - see
+> + * __idx_to_offset.
+> + */
+> +
+> +#include <asm/page.h>
+> +#include <linux/bug.h>
+> +#include <linux/kernel.h>
+> +#include <linux/log2.h>
+> +
+> +struct genradix_node;
+> +
+> +struct __genradix {
+> +       struct genradix_node            *root;
+> +       size_t                          depth;
+> +};
+> +
+> +#define __GENRADIX_INITIALIZER                                 \
+> +       {                                                       \
+> +               .tree = {                                       \
+> +                       .root = NULL,                           \
+> +                       .depth = 0,                             \
+> +               }                                               \
+> +       }
+> +
+> +/*
+> + * We use a 0 size array to stash the type we're storing without taking any
+> + * space at runtime - then the various accessor macros can use typeof() to get
+> + * to it for casts/sizeof - we also force the alignment so that storing a type
+> + * with a ridiculous alignment doesn't blow up the alignment or size of the
+> + * genradix.
+> + */
+> +
+> +#define GENRADIX(_type)                                                \
+> +struct {                                                       \
+> +       struct __genradix       tree;                           \
+> +       _type                   type[0] __aligned(1);           \
+> +}
+> +
+> +#define DEFINE_GENRADIX(_name, _type)                          \
+> +       GENRADIX(_type) _name = __GENRADIX_INITIALIZER
+> +
+> +/**
+> + * genradix_init - initialize a genradix
+> + * @_radix:    genradix to initialize
+> + *
+> + * Does not fail
+> + */
+> +#define genradix_init(_radix)                                  \
+> +do {                                                           \
+> +       *(_radix) = (typeof(*_radix)) __GENRADIX_INITIALIZER;   \
+> +} while (0)
+> +
+> +void __genradix_free(struct __genradix *);
+> +
+> +/**
+> + * genradix_free: free all memory owned by a genradix
+> + *
+> + * After freeing, @_radix will be reinitialized and empty
+> + */
+> +#define genradix_free(_radix)  __genradix_free(&(_radix)->tree)
+> +
+> +static inline size_t __idx_to_offset(size_t idx, size_t obj_size)
+> +{
+> +       if (__builtin_constant_p(obj_size))
+> +               BUILD_BUG_ON(obj_size > PAGE_SIZE);
+> +       else
+> +               BUG_ON(obj_size > PAGE_SIZE);
+> +
+> +       if (!is_power_of_2(obj_size)) {
+> +               size_t objs_per_page = PAGE_SIZE / obj_size;
+> +
+> +               return (idx / objs_per_page) * PAGE_SIZE +
+> +                       (idx % objs_per_page) * obj_size;
+> +       } else {
+> +               return idx * obj_size;
+> +       }
+> +}
+> +
+> +#define __genradix_cast(_radix)                (typeof((_radix)->type[0]) *)
+> +#define __genradix_obj_size(_radix)    sizeof((_radix)->type[0])
+> +#define __genradix_idx_to_offset(_radix, _idx)                 \
+> +       __idx_to_offset(_idx, __genradix_obj_size(_radix))
+> +
+> +void *__genradix_ptr(struct __genradix *, size_t);
+> +
+> +/**
+> + * genradix_ptr - get a pointer to a genradix entry
+> + * @_radix:    genradix to access
+> + * @_idx:      index to fetch
+> + *
+> + * Returns a pointer to entry at @_idx, or NULL if that entry does not exist.
+> + */
+> +#define genradix_ptr(_radix, _idx)                             \
+> +       (__genradix_cast(_radix)                                \
+> +        __genradix_ptr(&(_radix)->tree,                        \
+> +                       __genradix_idx_to_offset(_radix, _idx)))
+> +
+> +void *__genradix_ptr_alloc(struct __genradix *, size_t, gfp_t);
+> +
+> +/**
+> + * genradix_ptr - get a pointer to a genradix entry, allocating it if necessary
+> + * @_radix:    genradix to access
+> + * @_idx:      index to fetch
+> + * @_gfp:      gfp mask
+> + *
+> + * Returns a pointer to entry at @_idx, or NULL on allocation failure
+> + */
+> +#define genradix_ptr_alloc(_radix, _idx, _gfp)                 \
+> +       (__genradix_cast(_radix)                                \
+> +        __genradix_ptr_alloc(&(_radix)->tree,                  \
+> +                       __genradix_idx_to_offset(_radix, _idx), \
+> +                       _gfp))
+> +
+> +struct genradix_iter {
+> +       size_t                  offset;
+> +       size_t                  pos;
+> +};
+> +
+> +/**
+> + * genradix_iter_init - initialize a genradix_iter
+> + * @_radix:    genradix that will be iterated over
+> + * @_idx       index to start iterating from
+> + */
+> +#define genradix_iter_init(_radix, _idx)                       \
+> +       ((struct genradix_iter) {                               \
+> +               .pos    = (_idx),                               \
+> +               .offset = __genradix_idx_to_offset((_radix), (_idx)),\
+> +       })
+> +
+> +void *__genradix_iter_peek(struct genradix_iter *, struct __genradix *, size_t);
+> +
+> +/**
+> + * genradix_iter_peek - get first entry at or above iterator's current
+> + *                     position
+> + * @_iter:     a genradix_iter
+> + * @_radix:    genradix being iterated over
+> + *
+> + * If no more entries exist at or above @_iter's current position, returns NULL
+> + */
+> +#define genradix_iter_peek(_iter, _radix)                      \
+> +       (__genradix_cast(_radix)                                \
+> +        __genradix_iter_peek(_iter, &(_radix)->tree,           \
+> +                             PAGE_SIZE / __genradix_obj_size(_radix)))
+> +
+> +static inline void __genradix_iter_advance(struct genradix_iter *iter,
+> +                                          size_t obj_size)
+> +{
+> +       iter->offset += obj_size;
+> +
+> +       if (!is_power_of_2(obj_size) &&
+> +           (iter->offset & (PAGE_SIZE - 1)) + obj_size > PAGE_SIZE)
+> +               iter->offset = round_up(iter->offset, PAGE_SIZE);
+> +
+> +       iter->pos++;
+> +}
+> +
+> +#define genradix_iter_advance(_iter, _radix)                   \
+> +       __genradix_iter_advance(_iter, __genradix_obj_size(_radix))
+> +
+> +/**
+> + * genradix_for_each - iterate over entry in a genradix
+> + * @_radix:    genradix to iterate over
+> + * @_iter:     a genradix_iter to track current position
+> + * @_p:                pointer to genradix entry type
+> + *
+> + * On every iteration, @_p will point to the current entry, and @_iter.pos
+> + * will be the current entry's index.
+> + */
+> +#define genradix_for_each(_radix, _iter, _p)                   \
+> +       for (_iter = genradix_iter_init(_radix, 0);             \
+> +            _p = genradix_iter_peek(&(_iter), _uradix);        \
+> +            genradix_iter_advance(&(_iter), _uradix))
+> +
+> +int __genradix_prealloc(struct __genradix *, size_t, gfp_t);
+> +
+> +/**
+> + * genradix_prealloc - preallocate entries in a generic radix tree
+> + * @_radix:    genradix to preallocate
+> + * @_nr:       number of entries to preallocate
+> + * @_gfp:      gfp mask
+> + *
+> + * Returns 0 on success, -ENOMEM on failure
+> + */
+> +#define genradix_prealloc(_radix, _nr, _gfp)                   \
+> +        __genradix_prealloc(&(_radix)->tree,                   \
+> +                       __genradix_idx_to_offset(_radix, _nr + 1),\
+> +                       _gfp)
+> +
+> +
+> +#endif /* _LINUX_GENERIC_RADIX_TREE_H */
+> diff --git a/lib/Makefile b/lib/Makefile
+> index a90d4fcd74..5db5a7fb1e 100644
+> --- a/lib/Makefile
+> +++ b/lib/Makefile
+> @@ -39,7 +39,8 @@ obj-y += bcd.o div64.o sort.o parser.o debug_locks.o random32.o \
+>          gcd.o lcm.o list_sort.o uuid.o flex_array.o iov_iter.o clz_ctz.o \
+>          bsearch.o find_bit.o llist.o memweight.o kfifo.o \
+>          percpu-refcount.o percpu_ida.o rhashtable.o reciprocal_div.o \
+> -        once.o refcount.o usercopy.o errseq.o bucket_locks.o
+> +        once.o refcount.o usercopy.o errseq.o bucket_locks.o \
+> +        generic-radix-tree.o
+>  obj-$(CONFIG_STRING_SELFTEST) += test_string.o
+>  obj-y += string_helpers.o
+>  obj-$(CONFIG_TEST_STRING_HELPERS) += test-string_helpers.o
+> diff --git a/lib/generic-radix-tree.c b/lib/generic-radix-tree.c
+> new file mode 100644
+> index 0000000000..4537c7c62c
+> --- /dev/null
+> +++ b/lib/generic-radix-tree.c
+> @@ -0,0 +1,180 @@
+> +
+> +#include <linux/export.h>
+> +#include <linux/generic-radix-tree.h>
+> +#include <linux/gfp.h>
+> +
+> +#define GENRADIX_ARY           (PAGE_SIZE / sizeof(struct genradix_node *))
+> +#define GENRADIX_ARY_SHIFT     ilog2(GENRADIX_ARY)
+> +
+> +struct genradix_node {
+> +       union {
+> +               /* Interior node: */
+> +               struct genradix_node    *children[GENRADIX_ARY];
+> +
+> +               /* Leaf: */
+> +               u8                      data[PAGE_SIZE];
+> +       };
+> +};
+> +
+> +static inline unsigned genradix_depth_shift(unsigned depth)
+> +{
+> +       return PAGE_SHIFT + GENRADIX_ARY_SHIFT * depth;
+> +}
+> +
+> +/*
+> + * Returns size (of data, in bytes) that a tree of a given depth holds:
+> + */
+> +static inline size_t genradix_depth_size(unsigned depth)
+> +{
+> +       return 1UL << genradix_depth_shift(depth);
+> +}
+> +
+> +/*
+> + * Returns pointer to the specified byte @offset within @radix, or NULL if not
+> + * allocated
+> + */
+> +void *__genradix_ptr(struct __genradix *radix, size_t offset)
+> +{
+> +       size_t level = radix->depth;
+> +       struct genradix_node *n = radix->root;
+> +
+> +       if (offset >= genradix_depth_size(radix->depth))
+> +               return NULL;
+> +
+> +       while (1) {
+> +               if (!n)
+> +                       return NULL;
+> +               if (!level)
+> +                       break;
+> +
+> +               level--;
+> +
+> +               n = n->children[offset >> genradix_depth_shift(level)];
+> +               offset &= genradix_depth_size(level) - 1;
+> +       }
+> +
+> +       return &n->data[offset];
+> +}
+> +EXPORT_SYMBOL(__genradix_ptr);
+> +
+> +/*
+> + * Returns pointer to the specified byte @offset within @radix, allocating it if
+> + * necessary - newly allocated slots are always zeroed out:
+> + */
+> +void *__genradix_ptr_alloc(struct __genradix *radix, size_t offset,
+> +                          gfp_t gfp_mask)
+> +{
+> +       struct genradix_node **n;
 
--- Jason
+Any reason that " struct genradix_node ** " is used here instead of "
+struct genradix_node * "?
 
-> 
-> Cheers,
-> Nicolas
-> 
-> -- 
+Looks like this function only manipulates *n, am I missing something?
+
+thanks,
+liubo
+
+> +       size_t level;
+> +
+> +       /* Increase tree depth if necessary: */
+> +
+> +       while (offset >= genradix_depth_size(radix->depth)) {
+> +               struct genradix_node *new_root =
+> +                       (void *) __get_free_page(gfp_mask|__GFP_ZERO);
+> +
+> +               if (!new_root)
+> +                       return NULL;
+> +
+> +               new_root->children[0] = radix->root;
+> +               radix->root = new_root;
+> +               radix->depth++;
+> +       }
+> +
+> +       n = &radix->root;
+> +       level = radix->depth;
+> +
+> +       while (1) {
+> +               if (!*n) {
+> +                       *n = (void *) __get_free_page(gfp_mask|__GFP_ZERO);
+> +                       if (!*n)
+> +                               return NULL;
+> +               }
+> +
+> +               if (!level)
+> +                       break;
+> +
+> +               level--;
+> +
+> +               n = &(*n)->children[offset >> genradix_depth_shift(level)];
+> +               offset &= genradix_depth_size(level) - 1;
+> +       }
+> +
+> +       return &(*n)->data[offset];
+> +}
+> +EXPORT_SYMBOL(__genradix_ptr_alloc);
+> +
+> +void *__genradix_iter_peek(struct genradix_iter *iter,
+> +                          struct __genradix *radix,
+> +                          size_t objs_per_page)
+> +{
+> +       struct genradix_node *n;
+> +       size_t level, i;
+> +
+> +       if (!radix->root)
+> +               return NULL;
+> +restart:
+> +       if (iter->offset >= genradix_depth_size(radix->depth))
+> +               return NULL;
+> +
+> +       n       = radix->root;
+> +       level   = radix->depth;
+> +
+> +       while (level) {
+> +               level--;
+> +
+> +               i = (iter->offset >> genradix_depth_shift(level)) &
+> +                       (GENRADIX_ARY - 1);
+> +
+> +               while (!n->children[i]) {
+> +                       i++;
+> +                       iter->offset = round_down(iter->offset +
+> +                                          genradix_depth_size(level),
+> +                                          genradix_depth_size(level));
+> +                       iter->pos = (iter->offset >> PAGE_SHIFT) *
+> +                               objs_per_page;
+> +                       if (i == GENRADIX_ARY)
+> +                               goto restart;
+> +               }
+> +
+> +               n = n->children[i];
+> +       }
+> +
+> +       return &n->data[iter->offset & (PAGE_SIZE - 1)];
+> +}
+> +EXPORT_SYMBOL(__genradix_iter_peek);
+> +
+> +static void genradix_free_recurse(struct genradix_node *n, unsigned level)
+> +{
+> +       if (level) {
+> +               unsigned i;
+> +
+> +               for (i = 0; i < GENRADIX_ARY; i++)
+> +                       if (n->children[i])
+> +                               genradix_free_recurse(n->children[i], level - 1);
+> +       }
+> +
+> +       free_page((unsigned long) n);
+> +}
+> +
+> +int __genradix_prealloc(struct __genradix *radix, size_t size,
+> +                       gfp_t gfp_mask)
+> +{
+> +       size_t offset;
+> +
+> +       for (offset = 0; offset < size; offset += PAGE_SIZE)
+> +               if (!__genradix_ptr_alloc(radix, offset, gfp_mask))
+> +                       return -ENOMEM;
+> +
+> +       return 0;
+> +}
+> +EXPORT_SYMBOL(__genradix_prealloc);
+> +
+> +void __genradix_free(struct __genradix *radix)
+> +{
+> +       genradix_free_recurse(radix->root, radix->depth);
+> +
+> +       radix->root = NULL;
+> +       radix->depth = 0;
+> +}
+> +EXPORT_SYMBOL(__genradix_free);
+> --
 > 2.17.0
-> 
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-raid" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
