@@ -1,30 +1,49 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Laurent Bigonville <bigon@debian.org>, selinux <selinux@tycho.nsa.gov>
-References: <e5db3333-4185-c009-6faf-4136757f829d@debian.org>
- <213ba37b-6726-d9d5-9202-ce02940c3cf7@tycho.nsa.gov>
-Message-ID: <227ce28b-7b2e-e00e-654b-3c2c7d0f927e@tycho.nsa.gov>
-Date: Tue, 29 May 2018 16:02:06 -0400
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4UDvv6F009197
+ for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 09:57:57 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 40wscM4LnlzJ34F
+ for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 13:57:55 +0000 (UTC)
+Received: from UPDC3CPA09_EEMSG_MP25.eemsg.mil (unknown [192.168.18.20])
+ by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 40wscM30zTzJ344
+ for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 13:57:55 +0000 (UTC)
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id F0DE21A0C0
+ for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 15:57:50 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id qDiWPK5v11ZE for <selinux@tycho.nsa.gov>;
+ Wed, 30 May 2018 15:57:25 +0200 (CEST)
+Received: from [10.20.225.173] (unknown [193.53.238.201])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 7D2D01A055
+ for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 15:57:25 +0200 (CEST)
+To: selinux <selinux@tycho.nsa.gov>
+From: Laurent Bigonville <bigon@debian.org>
+Message-ID: <f4d97b61-c4b5-3e05-707b-242500e2848e@debian.org>
+Date: Wed, 30 May 2018 15:57:17 +0200
 MIME-Version: 1.0
-In-Reply-To: <213ba37b-6726-d9d5-9202-ce02940c3cf7@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: fixfiles and load_policy moved from /sbin to /usr/sbin
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: system-config-selinux requires root to run
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/29/2018 02:28 PM, Stephen Smalley wrote:
-> On 05/29/2018 11:19 AM, Laurent Bigonville wrote:
->> Hello,
->>
->> While packaging policycoreutils 2.8 I've seen that the fixfiles and load_policy executables were moved from /sbin to /usr/sbin
->>
->> Any reasons for this? This seems to me like an involuntary side effect of the cleanup for DESTDIR and PREFIX in the build system.
->>
->> For distribution with usr-merge that will not change anything, but for others that could prevent early boot scripts to load the policy
->>
->> Shouldn't that be reverted?
-> 
-> Yes, I think that was an oversight.  However, generally policy loading is handled directly by init (both sysvinit and systemd) via libselinux w/o executing the load_policy executable, and libsemanage checks both locations for it, so I wouldn't expect policy loading to be broken.  fixfiles invocation from init scripts may be a different matter.  Likely should revert the location change for both (but not the rest of DESTDIR/PREFIX fixes).
+Hello,
 
-I guess the change might break systems calling load_policy from dracut initramfs scripts to load policy instead of calling libselinux from init, e.g. RHEL 6.  I'm not sure though that any distro other than RHEL 6 ever did that.
+I was planning to readd system-config-selinux in the debian package now 
+that it has been ported to GIR, python3 and GTK3.
+
+But I realized that it requires root rights (via pkexec) to work.
+
+The problem with that is that it doesn't work with wayland.
+
+Are there any plans to decouple (evermore) the GUI and the backend that 
+requires root?
+
+Kind regards,
+
+Laurent Bigonville
