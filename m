@@ -7,272 +7,184 @@ To: <peter.enderborg@sony.com>, Paul Moore <paul@paul-moore.com>, Stephen
  <linux-security-module@vger.kernel.org>,
  <linux-kernel@vger.kernel.org>, "Serge E . Hallyn" <serge@hallyn.com>,
  "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>
-Date: Wed, 30 May 2018 16:11:03 +0200
-Message-ID: <20180530141104.28569-5-peter.enderborg@sony.com>
+Date: Wed, 30 May 2018 16:11:02 +0200
+Message-ID: <20180530141104.28569-4-peter.enderborg@sony.com>
 In-Reply-To: <20180530141104.28569-1-peter.enderborg@sony.com>
 References: <20180530141104.28569-1-peter.enderborg@sony.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-Subject: [PATCH V3 4/5 selinux-next] selinux: seqno separation
+Subject: [PATCH V3 3/5 selinux-next] selinux: sidtab_clone switch to
+ use rwlock.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This patch separtate the locks for read and write, and
-to be sure that they are using the same structure the
-seqno is used. If the seqno is changed from the read to
-write section the function reportes an eagain error.
+We need a copy of sidtabs, so change the generic sidtab_clone
+as from a function pointer and let it use a read rwlock while
+do the clone.
 
 Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
 ---
- security/selinux/ss/services.c | 143 ++++++++++++++++++++++++++++-------------
- 1 file changed, 98 insertions(+), 45 deletions(-)
+ security/selinux/ss/services.c | 20 +-------------------
+ security/selinux/ss/sidtab.c   | 39 ++++++++++++++++++++++++++++++++-------
+ security/selinux/ss/sidtab.h   |  3 ++-
+ 3 files changed, 35 insertions(+), 27 deletions(-)
 
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 2be471d72c85..954ebe490516 100644
+index 4f3ce389084c..2be471d72c85 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -2104,6 +2104,9 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
- 	u32 seqno;
- 	int rc = 0;
- 	struct selinux_ruleset *next_set, *old_set;
-+	size_t size;
-+	void *storage;
-+	struct policydb *pdc;
- 	struct policy_file file = { data, len }, *fp = &file;
+@@ -1891,19 +1891,6 @@ int security_change_sid(struct selinux_state *state,
+ 				    out_sid, false);
+ }
  
- 	next_set = kzalloc(sizeof(struct selinux_ruleset), GFP_KERNEL);
-@@ -2111,14 +2114,15 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
- 		rc = -ENOMEM;
- 		goto out;
- 	}
-+
- 	next_set->sidtab = kzalloc(sizeof(struct sidtab), GFP_KERNEL);
- 	if (!next_set->sidtab) {
- 		rc = -ENOMEM;
--		kfree(next_set);
--		goto out;
-+		goto nexterr;
- 	}
- 
- 	if (!state->initialized) {
-+		/* sidtab exist before inititalisation */
- 		old_set = state->ss->active_set;
- 		rc = policydb_read(&next_set->policydb, fp);
- 		if (rc)
-@@ -2152,57 +2156,80 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
- 		kfree(old_set);
- 		goto out;
- 	}
-+
-+	pdc = kzalloc(sizeof(struct selinux_ruleset), GFP_KERNEL);
-+	if (!pdc)
-+		goto allocerr;
-+
-+	rc = policydb_flattened_alloc(&state->ss->active_set->policydb,
-+				      &storage, &size);
-+	if (rc)
-+		goto pdcerr;
-+
-+	read_lock(&state->ss->policy_rwlock);
- 	old_set = state->ss->active_set;
-+	rc = policydb_copy(&old_set->policydb, pdc, &storage, size);
-+
-+	/* save seq */
-+	seqno = state->ss->latest_granting;
-+
-+	read_unlock(&state->ss->policy_rwlock);
-+
-+	policydb_flattened_free(storage);
-+
-+	if (rc)
-+		goto cpyerr;
-+
- #if 0
- 	sidtab_hash_eval(sidtab, "sids");
- #endif
+-/* Clone the SID into the new SID table. */
+-static int clone_sid(u32 sid,
+-		     struct context *context,
+-		     void *arg)
+-{
+-	struct sidtab *s = arg;
 -
- 	rc = policydb_read(&next_set->policydb, fp);
- 	if (rc)
--		goto out;
-+		goto cpyerr;
- 
- 	next_set->policydb.len = len;
- 
- 	/* If switching between different policy types, log MLS status */
--	if (old_set->policydb.mls_enabled && !next_set->policydb.mls_enabled)
-+	if (pdc->mls_enabled && !next_set->policydb.mls_enabled)
- 		printk(KERN_INFO "SELinux: Disabling MLS support...\n");
--	else if (!old_set->policydb.mls_enabled
-+	else if (!pdc->mls_enabled
- 		 && next_set->policydb.mls_enabled)
- 		printk(KERN_INFO "SELinux: Enabling MLS support...\n");
-+
- 	rc = policydb_load_isids(&next_set->policydb, next_set->sidtab);
- 	if (rc) {
- 		printk(KERN_ERR "SELinux:  unable to load the initial SIDs\n");
--		policydb_destroy(&next_set->policydb);
--		goto out;
-+		goto cpyerr;
+-	if (sid > SECINITSID_NUM)
+-		return sidtab_insert(s, sid, context);
+-	else
+-		return 0;
+-}
+-
+ static inline int convert_context_handle_invalid_context(
+ 	struct selinux_state *state,
+ 	struct context *context)
+@@ -2199,10 +2186,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+ 		goto err;
  	}
  
- 	rc = selinux_set_mapping(&next_set->policydb, secclass_map, &newmap);
+-	/* Clone the SID table. */
+-	sidtab_shutdown(old_set->sidtab);
+-
+-	rc = sidtab_map(old_set->sidtab, clone_sid, next_set->sidtab);
++	rc = sidtab_clone(old_set->sidtab, next_set->sidtab);
  	if (rc)
--		goto err;
-+		goto loaderr;
+ 		goto err;
  
- 	rc = security_preserve_bools(state, &next_set->policydb);
- 	if (rc) {
- 		printk(KERN_ERR "SELinux:  unable to preserve booleans\n");
--		goto err;
-+		goto maperr;
+@@ -2926,8 +2910,6 @@ int security_set_bools(struct selinux_state *state, int len, int *values)
+ 			goto out;
  	}
  
- 	rc = sidtab_clone(old_set->sidtab, next_set->sidtab);
- 	if (rc)
--		goto err;
-+		goto maperr;
- 
- 	/*
- 	 * Convert the internal representations of contexts
- 	 * in the new SID table.
- 	 */
- 	args.state = state;
--	args.oldp = &old_set->policydb;
-+	args.oldp = pdc;
- 	args.newp = &next_set->policydb;
-+
- 	rc = sidtab_map(next_set->sidtab, convert_context, &args);
- 	if (rc) {
- 		printk(KERN_ERR "SELinux:  unable to convert the internal"
- 			" representation of contexts in the new SID"
- 			" table\n");
--		goto err;
-+		goto maperr;
- 	}
- 
- 	next_set->map.mapping = newmap.mapping;
-@@ -2210,30 +2237,44 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
- 
- 	/* Install the new policydb and SID table. */
- 	write_lock_irq(&state->ss->policy_rwlock);
--	security_load_policycaps(state, &next_set->policydb);
 -	seqno = ++state->ss->latest_granting;
 -	state->ss->active_set = next_set;
--	write_unlock_irq(&state->ss->policy_rwlock);
--
--	avc_ss_reset(state->avc, seqno);
--	selnl_notify_policyload(seqno);
--	selinux_status_update_policyload(state, seqno);
--	selinux_netlbl_cache_invalidate();
--	selinux_xfrm_notify_policyload();
--
--	/* Free the old policydb and SID table. */
--	policydb_destroy(&old_set->policydb);
--	sidtab_destroy(old_set->sidtab);
--	kfree(old_set->sidtab);
--	kfree(old_set->map.mapping);
--	kfree(old_set);
--	rc = 0;
--	goto out;
-+	if (seqno == state->ss->latest_granting) {
-+		security_load_policycaps(state, &next_set->policydb);
-+		seqno = ++state->ss->latest_granting;
-+		state->ss->active_set = next_set;
-+		write_unlock_irq(&state->ss->policy_rwlock);
- 
--err:
-+		avc_ss_reset(state->avc, seqno);
-+		selnl_notify_policyload(seqno);
-+		selinux_status_update_policyload(state, seqno);
-+		selinux_netlbl_cache_invalidate();
-+		selinux_xfrm_notify_policyload();
-+
-+		/* Free the old policydb and SID table. */
-+		policydb_destroy(pdc);
-+		kfree(pdc);
-+		sidtab_destroy(old_set->sidtab);
-+		policydb_destroy(&old_set->policydb);
-+		kfree(old_set->sidtab);
-+		kfree(old_set->map.mapping);
-+		kfree(old_set);
-+		rc = 0;
-+		goto out;
-+	} else {
-+		write_unlock_irq(&state->ss->policy_rwlock);
-+		rc = -EAGAIN;
-+	}
-+maperr:
- 	kfree(newmap.mapping);
-+loaderr:
- 	sidtab_destroy(next_set->sidtab);
-+cpyerr:
- 	policydb_destroy(&next_set->policydb);
-+	policydb_destroy(pdc);
-+pdcerr:
-+	kfree(pdc);
-+allocerr:
-+	kfree(next_set->sidtab);
-+nexterr:
- 	kfree(next_set);
- out:
- 	return rc;
-@@ -2873,11 +2914,13 @@ int security_set_bools(struct selinux_state *state, int len, int *values)
- 		goto errout;
- 	}
- 
--	write_lock_irq(&state->ss->policy_rwlock);
-+	read_lock(&state->ss->policy_rwlock);
- 	old_set = state->ss->active_set;
-+	seqno = state->ss->latest_granting;
- 	memcpy(next_set, old_set, sizeof(struct selinux_ruleset));
- 	rc = policydb_copy(&old_set->policydb, &next_set->policydb,
- 			   &storage, size);
-+	read_unlock(&state->ss->policy_rwlock);
- 	if (rc)
- 		goto out;
- 
-@@ -2913,19 +2956,29 @@ int security_set_bools(struct selinux_state *state, int len, int *values)
  	rc = 0;
  out:
  	if (!rc) {
--		seqno = ++state->ss->latest_granting;
--		state->ss->active_set = next_set;
--		rc = 0;
--		write_unlock_irq(&state->ss->policy_rwlock);
--		avc_ss_reset(state->avc, seqno);
--		selnl_notify_policyload(seqno);
--		selinux_status_update_policyload(state, seqno);
--		selinux_xfrm_notify_policyload();
--		policydb_destroy(&old_set->policydb);
--		kfree(old_set);
-+		write_lock_irq(&state->ss->policy_rwlock);
-+		if (seqno == state->ss->latest_granting) {
-+			seqno = ++state->ss->latest_granting;
-+			state->ss->active_set = next_set;
-+			rc = 0;
-+			write_unlock_irq(&state->ss->policy_rwlock);
-+			avc_ss_reset(state->avc, seqno);
-+			selnl_notify_policyload(seqno);
-+			selinux_status_update_policyload(state, seqno);
-+			selinux_xfrm_notify_policyload();
-+			policydb_destroy(&old_set->policydb);
-+			kfree(old_set);
-+		} else {
-+			rc = -ENOMEM;
-+			write_unlock_irq(&state->ss->policy_rwlock);
-+			printk(KERN_ERR "SELinux: %s failed in seqno %d\n",
-+			       __func__, rc);
-+			policydb_destroy(&next_set->policydb);
-+			kfree(next_set);
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 5be31b7af225..811503cd7c2b 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -27,7 +27,7 @@ int sidtab_init(struct sidtab *s)
+ 	s->nel = 0;
+ 	s->next_sid = 1;
+ 	s->shutdown = 0;
+-	spin_lock_init(&s->lock);
++	rwlock_init(&s->lock);
+ 	return 0;
+ }
+ 
+@@ -116,6 +116,31 @@ struct context *sidtab_search_force(struct sidtab *s, u32 sid)
+ 	return sidtab_search_core(s, sid, 1);
+ }
+ 
++int sidtab_clone(struct sidtab *s, struct sidtab *d)
++{
++	int i, rc = 0;
++	struct sidtab_node *cur;
++
++	if (!s || !d)
++		goto errout;
++
++	read_lock(&s->lock);
++	for (i = 0; i < SIDTAB_SIZE; i++) {
++		cur = s->htable[i];
++		while (cur) {
++			if (cur->sid > SECINITSID_NUM)
++				rc =  sidtab_insert(d, cur->sid, &cur->context);
++			if (rc)
++				goto out;
++			cur = cur->next;
 +		}
- 	} else {
- 		printk(KERN_ERR "SELinux: %s failed %d\n", __func__, rc);
--		write_unlock_irq(&state->ss->policy_rwlock);
-+		policydb_destroy(&next_set->policydb);
- 		kfree(next_set);
++	}
++out:
++	read_unlock(&s->lock);
++errout:
++	return rc;
++}
++
+ int sidtab_map(struct sidtab *s,
+ 	       int (*apply) (u32 sid,
+ 			     struct context *context,
+@@ -202,7 +227,7 @@ int sidtab_context_to_sid(struct sidtab *s,
+ 	if (!sid)
+ 		sid = sidtab_search_context(s, context);
+ 	if (!sid) {
+-		spin_lock_irqsave(&s->lock, flags);
++		write_lock_irqsave(&s->lock, flags);
+ 		/* Rescan now that we hold the lock. */
+ 		sid = sidtab_search_context(s, context);
+ 		if (sid)
+@@ -221,7 +246,7 @@ int sidtab_context_to_sid(struct sidtab *s,
+ 		if (ret)
+ 			s->next_sid--;
+ unlock_out:
+-		spin_unlock_irqrestore(&s->lock, flags);
++		write_unlock_irqrestore(&s->lock, flags);
  	}
- 	policydb_flattened_free(storage);
+ 
+ 	if (ret)
+@@ -287,21 +312,21 @@ void sidtab_set(struct sidtab *dst, struct sidtab *src)
+ 	unsigned long flags;
+ 	int i;
+ 
+-	spin_lock_irqsave(&src->lock, flags);
++	write_lock_irqsave(&src->lock, flags);
+ 	dst->htable = src->htable;
+ 	dst->nel = src->nel;
+ 	dst->next_sid = src->next_sid;
+ 	dst->shutdown = 0;
+ 	for (i = 0; i < SIDTAB_CACHE_LEN; i++)
+ 		dst->cache[i] = NULL;
+-	spin_unlock_irqrestore(&src->lock, flags);
++	write_unlock_irqrestore(&src->lock, flags);
+ }
+ 
+ void sidtab_shutdown(struct sidtab *s)
+ {
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&s->lock, flags);
++	write_lock_irqsave(&s->lock, flags);
+ 	s->shutdown = 1;
+-	spin_unlock_irqrestore(&s->lock, flags);
++	write_unlock_irqrestore(&s->lock, flags);
+ }
+diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+index a1a1d2617b6f..6751f8bcbd66 100644
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -29,7 +29,7 @@ struct sidtab {
+ 	unsigned char shutdown;
+ #define SIDTAB_CACHE_LEN	3
+ 	struct sidtab_node *cache[SIDTAB_CACHE_LEN];
+-	spinlock_t lock;
++	rwlock_t lock;
+ };
+ 
+ int sidtab_init(struct sidtab *s);
+@@ -51,6 +51,7 @@ void sidtab_hash_eval(struct sidtab *h, char *tag);
+ void sidtab_destroy(struct sidtab *s);
+ void sidtab_set(struct sidtab *dst, struct sidtab *src);
+ void sidtab_shutdown(struct sidtab *s);
++int sidtab_clone(struct sidtab *s, struct sidtab *d);
+ 
+ #endif	/* _SS_SIDTAB_H_ */
+ 
 -- 
 2.15.1
