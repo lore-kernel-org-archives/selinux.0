@@ -1,65 +1,85 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4UKSv5W013699
- for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 16:28:57 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC09.oob.disa.mil (Postfix) with SMTP id 40x2HW2YyLz2NhLn
- for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 20:28:55 +0000 (UTC)
-Received: from UPDC3CPA03.eemsg.mil (unknown [192.168.18.10])
- by UPDCF3IC09.oob.disa.mil (Postfix) with ESMTP id 40x2HV4W9rz2NhLm
- for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 20:28:54 +0000 (UTC)
-Received: from mail-oi0-f42.google.com (mail-oi0-f42.google.com
- [209.85.218.42])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 9C5D4564705
- for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 22:28:21 +0200 (CEST)
-Received: by mail-oi0-f42.google.com with SMTP id t27-v6so17538474oij.9
- for <selinux@tycho.nsa.gov>; Wed, 30 May 2018 13:28:21 -0700 (PDT)
+To: Peter Enderborg <peter.enderborg@sony.com>,
+ Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
+ James Morris <james.l.morris@oracle.com>,
+ Daniel Jurgens <danielj@mellanox.com>,
+ Doug Ledford <dledford@redhat.com>, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ "Serge E . Hallyn" <serge@hallyn.com>,
+ "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>
+References: <20180530141104.28569-1-peter.enderborg@sony.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <8bbb095e-31c3-0062-d17c-662e4832cc17@tycho.nsa.gov>
+Date: Wed, 30 May 2018 16:34:49 -0400
 MIME-Version: 1.0
-In-Reply-To: <20180528143016.31538-1-bigon@debian.org>
-References: <20180528143016.31538-1-bigon@debian.org>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 30 May 2018 22:28:20 +0200
-Message-ID: <CAJfZ7==0JipG0r9ySGGn1SM-PzX1QdnCJ+yPJwZNdiwGPgHypw@mail.gmail.com>
-To: Laurent Bigonville <bigon@debian.org>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] secilc: Make the clean target call the clean
- target of docs/
+In-Reply-To: <20180530141104.28569-1-peter.enderborg@sony.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH V3 0/5] selinux:Significant reduce of preempt_disable holds
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, May 28, 2018 at 4:30 PM, Laurent Bigonville <bigon@debian.org> wrote:
-> From: Laurent Bigonville <bigon@bigon.be>
->
-> Thanks to Russell Coker <russell@coker.com.au>
->
-> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=899083
->
-> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
-> ---
->  secilc/Makefile | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/secilc/Makefile b/secilc/Makefile
-> index dfd79cef..16640098 100644
-> --- a/secilc/Makefile
-> +++ b/secilc/Makefile
-> @@ -58,6 +58,7 @@ clean:
->         rm -f file_contexts
->         rm -f $(SECILC_MANPAGE)
->         rm -f $(SECIL2CONF_MANPAGE)
-> +       $(MAKE) -C docs clean
->
->  relabel:
->
-> --
-> 2.17.0
+On 05/30/2018 10:10 AM, Peter Enderborg wrote:
+> Holding the preempt_disable is very bad for low latency tasks
+> such as audio and therefore we need to break out the rule-set dependent
+> part from this disable. By using a RCU instead of rwlock we
+> have an efficient locking and less preemption interference.
+> 
+> Selinux uses a lot of read_locks. This patch replaces the rwlock
+> with RCU that does not hold preempt_disable.
+> 
+> Intel Xeon W3520 2.67 Ghz running FC27 with 4.15.0-rc9git (+measurement)
+> I get preempt_disable of about 1.2ms in security_compute_av().
+> With the patch I get 960us as the longest security_compute_av()
+> without preempt disabeld. There are very much noise in the measurement
+> but it is not likely a degrade.
+> 
+> And the preempt_disable times is also very dependent on the selinux
+> rule-set.
+> 
+> In security_get_user_sids() we have two nested for-loops and the
+> inner part calls sittab_context_to_sid() that calls
+> sidtab_search_context() that has a for loop() over a while() where
+> the loops is dependent on the rules.
+> 
+> On the test system the average lookup time is 60us and does
+> not change with the introduced RCU usage.
+> 
+> The boolean change becomes a lot more heavy with this patch,
+> but it is a very rare usage in compare with read only operations.
+> The lock held during a policydb_copy is about 1ms on a XEON.
 
-This looks good to me. Ack.
+This has a very substantial performance impact on setsebool, e.g. time setsebool httpd_can_sendmail=1.
+That's because you are doing a full vmalloc();policydb_write();policydb_read();vfree() sequence on it.
+In comparison, KaiGai's old attempt to replace the policy rwlock with RCU only duplicated the conditional policydb state (via a cond_policydb_dup) that he introduced.  Is there a reason you couldn't use that approach?
 
-Thanks!
-Nicolas
+> 
+> To use RCU the structure of policydb has to be accesses through a pointer.
+> We need 5 patches to get there.
+>  
+> [PATCH V3 1/5 selinux-next] selinux: Make allocation atomic in policydb objects functions.
+> This patch change the allocation for policydb objects. They are in its own patch
+> to make the complicated part easier to read.
+> 
+> [PATCH V3 2/5 selinux-next] selinux: Introduce selinux_ruleset struct
+> This makes the access for the rule evaluation going though a single pointer.
+> 
+> [PATCH V3 3/5 selinux-next] selinux: sidtab_clone switch to use rwlock.
+> We need to make sidtabs copys so this patch change the locks to a rwlock
+> and create a copy function.
+> 
+> [PATCH V3 4/5 selinux-next] selinux: seqno separation
+> This patch adds separation of the read and write and uses
+> the pointer to switch rule set. It uses seqno for error handling
+> since there are a possibility to have multiple access.
+> 
+> [PATCH V3 5/5 selinux-next] selinux: Switch to rcu read locks for avc_compute
+> All the preparation is done so this patch do the change of locks to rcu.
+> 
+> History:
+> V1 rwsem
+> V2 did not handle all policydb objects, solved with the policydb_copy
+>    did not handle sidtab for booleans, I think this one does however
+>    shutdown is not used but not removed. 
+> 
+> 
