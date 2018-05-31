@@ -1,48 +1,66 @@
-To: peter enderborg <peter.enderborg@sony.com>,
- Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- James Morris <james.l.morris@oracle.com>,
- Daniel Jurgens <danielj@mellanox.com>,
- Doug Ledford <dledford@redhat.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- "Serge E . Hallyn" <serge@hallyn.com>,
- "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>
-References: <20180530141104.28569-1-peter.enderborg@sony.com>
- <8bbb095e-31c3-0062-d17c-662e4832cc17@tycho.nsa.gov>
- <1cf240b9-57ee-eee3-228f-5ad4a3a39e57@sony.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9332801c-6102-2486-ab60-b48bb38ae207@tycho.nsa.gov>
-Date: Thu, 31 May 2018 08:42:06 -0400
-MIME-Version: 1.0
-In-Reply-To: <1cf240b9-57ee-eee3-228f-5ad4a3a39e57@sony.com>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH V3 0/5] selinux:Significant reduce of preempt_disable holds
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4VDIa9E027535
+ for <selinux@tycho.nsa.gov>; Thu, 31 May 2018 09:18:37 -0400
+Received: from anor.bigon.be (localhost.localdomain [127.0.0.1])
+ by anor.bigon.be (Postfix) with ESMTP id 27AE41A0C0
+ for <selinux@tycho.nsa.gov>; Thu, 31 May 2018 15:18:27 +0200 (CEST)
+Received: from anor.bigon.be ([127.0.0.1])
+ by anor.bigon.be (anor.bigon.be [127.0.0.1]) (amavisd-new, port 10026)
+ with ESMTP id 3BdLB0ceksjD for <selinux@tycho.nsa.gov>;
+ Thu, 31 May 2018 15:18:05 +0200 (CEST)
+Received: from valinor.bigon.be (unknown [193.53.238.201])
+ (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
+ (Client did not present a certificate) (Authenticated sender: bigon)
+ by anor.bigon.be (Postfix) with ESMTPSA id 4BED91A055
+ for <selinux@tycho.nsa.gov>; Thu, 31 May 2018 15:18:05 +0200 (CEST)
+From: Laurent Bigonville <bigon@debian.org>
+To: selinux@tycho.nsa.gov
+Date: Thu, 31 May 2018 15:18:04 +0200
+Message-Id: <20180531131804.8933-1-bigon@debian.org>
+Subject: [PATCH] restorecond: Fix consistancy of DESTDIR usage
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/31/2018 05:04 AM, peter enderborg wrote:
-> On 05/30/2018 10:34 PM, Stephen Smalley wrote:
->> On 05/30/2018 10:10 AM, Peter Enderborg wrote:
->>> The boolean change becomes a lot more heavy with this patch,
->>> but it is a very rare usage in compare with read only operations.
->>> The lock held during a policydb_copy is about 1ms on a XEON.
->> This has a very substantial performance impact on setsebool, e.g. time setsebool httpd_can_sendmail=1.
->> That's because you are doing a full vmalloc();policydb_write();policydb_read();vfree() sequence on it.
->> In comparison, KaiGai's old attempt to replace the policy rwlock with RCU only duplicated the conditional policydb state (via a cond_policydb_dup) that he introduced.  Is there a reason you couldn't use that approach?
-> That one did not make it, so I went for a other path. Make it simple, using the same serialisation that exist. That also make it easier to maintain.
-> We do not  use the booleans in android since they are not allowed so im not aware of any use case where this administrative function are
-> used in such frequent manner that it would have an impact. And it must be some other large overhead with interprocess communication and
-> a multiple writes to sysfs during a boolean settings?  However my concern is/was memory pressure, setting booleans will generate pressure
-> with lot of atomic allocation and large vmallocs.
+From: Laurent Bigonville <bigon@bigon.be>
 
-Yes, that is also a concern.  I would prefer to only duplicate the conditional policydb state as in KaiGai's patch.
-Keeping temporary setting of booleans lightweight is desirable for other use cases than Android.
+---
+ restorecond/Makefile | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-I'm also concerned by the implications of switching all of the allocations to atomic.  KaiGai's patch did not take that approach either, and it obviously could make policy reload more prone to transient failures.
-
- But my goal is the fast path for real time critical functions such as audio, and it will be a cost for
-> administrative tasks. On the xeon it takes about ~98 ms to run the security_set_bools compared to about ~8 ms without the overhead
-> of copying the policydb.  About ~6 ms is rcu sync and ~8 ms is the same as the original update of selinux statuses, and about ~25 ms
-> is policydb_destroy() of the old copy.
->>
+diff --git a/restorecond/Makefile b/restorecond/Makefile
+index 25be18d4..8a0ada1f 100644
+--- a/restorecond/Makefile
++++ b/restorecond/Makefile
+@@ -9,8 +9,8 @@ DBUSSERVICEDIR = $(PREFIX)/share/dbus-1/services
+ SYSTEMDDIR ?= $(PREFIX)/lib/systemd
+ 
+ autostart_DATA = sealertauto.desktop
+-INITDIR ?= $(DESTDIR)/etc/rc.d/init.d
+-SELINUXDIR = $(DESTDIR)/etc/selinux
++INITDIR ?= /etc/rc.d/init.d
++SELINUXDIR = /etc/selinux
+ 
+ DBUSFLAGS = -DHAVE_DBUS $(shell $(PKG_CONFIG) --cflags dbus-glib-1)
+ DBUSLIB = $(shell $(PKG_CONFIG) --libs dbus-glib-1)
+@@ -42,11 +42,11 @@ install: all
+ 	-mkdir -p $(DESTDIR)$(SBINDIR)
+ 	install -m 755 restorecond $(DESTDIR)$(SBINDIR)
+ 	install -m 644 restorecond.8 $(DESTDIR)$(MANDIR)/man8
+-	-mkdir -p $(INITDIR)
+-	install -m 755 restorecond.init $(INITDIR)/restorecond
+-	-mkdir -p $(SELINUXDIR)
+-	install -m 644 restorecond.conf $(SELINUXDIR)/restorecond.conf
+-	install -m 644 restorecond_user.conf $(SELINUXDIR)/restorecond_user.conf
++	-mkdir -p $(DESTDIR)$(INITDIR)
++	install -m 755 restorecond.init $(DESTDIR)$(INITDIR)/restorecond
++	-mkdir -p $(DESTDIR)$(SELINUXDIR)
++	install -m 644 restorecond.conf $(DESTDIR)$(SELINUXDIR)/restorecond.conf
++	install -m 644 restorecond_user.conf $(DESTDIR)$(SELINUXDIR)/restorecond_user.conf
+ 	-mkdir -p $(DESTDIR)$(AUTOSTARTDIR)
+ 	install -m 644 restorecond.desktop $(DESTDIR)$(AUTOSTARTDIR)/restorecond.desktop
+ 	-mkdir -p $(DESTDIR)$(DBUSSERVICEDIR)
+-- 
+2.17.1
