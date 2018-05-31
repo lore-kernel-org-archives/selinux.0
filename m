@@ -1,66 +1,55 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: peter enderborg <peter.enderborg@sony.com>,
- Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- James Morris <jmorris@namei.org>, Daniel Jurgens <danielj@mellanox.com>,
- Doug Ledford <dledford@redhat.com>, selinux@tycho.nsa.gov,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- "Serge E . Hallyn" <serge@hallyn.com>,
- "Paul E . McKenney" <paulmck@linux.vnet.ibm.com>
-References: <20180530141104.28569-1-peter.enderborg@sony.com>
- <8bbb095e-31c3-0062-d17c-662e4832cc17@tycho.nsa.gov>
- <1cf240b9-57ee-eee3-228f-5ad4a3a39e57@sony.com>
- <9332801c-6102-2486-ab60-b48bb38ae207@tycho.nsa.gov>
- <71925d61-743e-76a1-b0dd-1948468e2773@sony.com>
- <b4101249-af8e-579c-63f7-d0bc514c31dc@tycho.nsa.gov>
-Message-ID: <e0d14aba-c63a-327e-afeb-a56a51fb0ade@tycho.nsa.gov>
-Date: Thu, 31 May 2018 12:40:27 -0400
-MIME-Version: 1.0
-In-Reply-To: <b4101249-af8e-579c-63f7-d0bc514c31dc@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH V3 0/5] selinux:Significant reduce of preempt_disable holds
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w4VKQ8OB031974
+ for <selinux@tycho.nsa.gov>; Thu, 31 May 2018 16:26:08 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with SMTP id 40xf9q155Wz1pJ8x
+ for <selinux@tycho.nsa.gov>; Thu, 31 May 2018 20:26:07 +0000 (UTC)
+Received: from UPDC3CPA04.eemsg.mil (unknown [192.168.18.11])
+ by UPDCF3IC01.oob.disa.mil (Postfix) with ESMTP id 40xf9p2lYCz1pJ99
+ for <selinux@tycho.nsa.gov>; Thu, 31 May 2018 20:26:06 +0000 (UTC)
+Message-ID: <288948937c69526533c39c6f955c34349795ee7b.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov
+Date: Thu, 31 May 2018 21:26:01 +0100
+In-Reply-To: <CAHC9VhRwG2SkHMMkYNrfEr0sSeoEr8y5vpXFYP93HxzPqYNU7A@mail.gmail.com>
+References: <20180320174854.3154-1-richard_c_haines@btinternet.com>
+ <CAHC9VhRwG2SkHMMkYNrfEr0sSeoEr8y5vpXFYP93HxzPqYNU7A@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Subject: Re: [PATCH] selinux-testsuite: Add SCTP test support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 05/31/2018 10:21 AM, Stephen Smalley wrote:
-> On 05/31/2018 10:12 AM, peter enderborg wrote:
->> On 05/31/2018 02:42 PM, Stephen Smalley wrote:
->>> On 05/31/2018 05:04 AM, peter enderborg wrote:
->>>> On 05/30/2018 10:34 PM, Stephen Smalley wrote:
->>>>> On 05/30/2018 10:10 AM, Peter Enderborg wrote:
->>>>>> The boolean change becomes a lot more heavy with this patch,
->>>>>> but it is a very rare usage in compare with read only operations.
->>>>>> The lock held during a policydb_copy is about 1ms on a XEON.
->>>>> This has a very substantial performance impact on setsebool, e.g. time setsebool httpd_can_sendmail=1.
->>>>> That's because you are doing a full vmalloc();policydb_write();policydb_read();vfree() sequence on it.
->>>>> In comparison, KaiGai's old attempt to replace the policy rwlock with RCU only duplicated the conditional policydb state (via a cond_policydb_dup) that he introduced.  Is there a reason you couldn't use that approach?
->>>> That one did not make it, so I went for a other path. Make it simple, using the same serialisation that exist. That also make it easier to maintain.
->>>> We do not  use the booleans in android since they are not allowed so im not aware of any use case where this administrative function are
->>>> used in such frequent manner that it would have an impact. And it must be some other large overhead with interprocess communication and
->>>> a multiple writes to sysfs during a boolean settings?  However my concern is/was memory pressure, setting booleans will generate pressure
->>>> with lot of atomic allocation and large vmallocs.
->>> Yes, that is also a concern.  I would prefer to only duplicate the conditional policydb state as in KaiGai's patch.
->>> Keeping temporary setting of booleans lightweight is desirable for other use cases than Android.
->>>
->>> I'm also concerned by the implications of switching all of the allocations to atomic.  KaiGai's patch did not take that approach either, and it obviously could make policy reload more prone to transient failures.
->>
->> On the version 2 of the patchset you pointed out that I did a shallow copy, so I did a "deap" copy. As I see it the KaiGai cond_policydb_dup also do a shallow copy.
+On Wed, 2018-05-30 at 16:42 -0400, Paul Moore wrote:
+> On Tue, Mar 20, 2018 at 1:48 PM, Richard Haines via Selinux
+> <selinux@tycho.nsa.gov> wrote:
+> > The sctp testsuite tests all new sctp SELinux functionality.
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > 
-> In your earlier patch set, you just did a memcpy of the policydb and then proceeded to mutate parts of the conditional policydb state, which would have modified the original too.  KaiGai was performing a deep copy of the conditional portions of the policydb I believe.
+> Now that the new SELinux userspace is out, I applied this to my test
+> tree and noticed two problems at the start (both easily fixed):
 > 
->> You dont happend to know exactly why KaiGai's patch never was accepted?
+> * We need to list the lksctp-tools-devel package as a dependency in
+> README.md
+> * Minor merge conflict in policy/Makefile
 > 
-> As I recall, there wasn't anything wrong with the code itself; he just wasn't satisfied that it ended up being a worthwhile tradeoff based on his own performance testing.
+> ... actually running the test went rather well, but there was one
+> test
+> failure: test #11, the "asconf parameter chunk processing".  Looking
+> a
+> bit closer at the failure, it appears that the address detection code
+> at the top of tests/sctp/test needs to be a bit more robust as
+> 'hostname -I' returns multiple addresses, but they are a mix of IPv4
+> and IPv6 - all on one interface.
+> 
+> I would suggest taking a look at parsing the output of 'ip -o addr
+> show up scope global' and using that instead of 'hostname -I'.
+> 
 
-His use case however was different - he was concerned with networking performance, and the introduction of the netnode/netport caches largely eliminated the policy rwlock as a concern there.
-
-> 
->>
->>>  But my goal is the fast path for real time critical functions such as audio, and it will be a cost for
->>>> administrative tasks. On the xeon it takes about ~98 ms to run the security_set_bools compared to about ~8 ms without the overhead
->>>> of copying the policydb.  About ~6 ms is rcu sync and ~8 ms is the same as the original update of selinux statuses, and about ~25 ms
->>>> is policydb_destroy() of the old copy.
->>>
->>>
->>>
+Thanks for the feedback, I'll fix these and post a new patch in a few
+days.
