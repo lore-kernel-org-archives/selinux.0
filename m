@@ -1,77 +1,122 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w520UxSZ002053
- for <selinux@tycho.nsa.gov>; Fri, 1 Jun 2018 20:30:59 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC13.oob.disa.mil (Postfix) with SMTP id 40yMYs0SS5z25sS6
- for <selinux@tycho.nsa.gov>; Sat,  2 Jun 2018 00:30:57 +0000 (UTC)
-Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
- by UPDCF3IC13.oob.disa.mil (Postfix) with ESMTP id 40yMYq1SKRz25sRv
- for <selinux@tycho.nsa.gov>; Sat,  2 Jun 2018 00:30:55 +0000 (UTC)
-From: NeilBrown <neilb@suse.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Oleg Drokin <oleg.drokin@intel.com>,
- Andreas Dilger <andreas.dilger@intel.com>,
- James Simmons <jsimmons@infradead.org>
-Date: Sat, 02 Jun 2018 10:28:38 +1000
-Cc: linux-fsdevel@vger.kernel.org, devel@driverdev.osuosl.org,
- linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
- lustre-devel@lists.lustre.org
-In-Reply-To: <20180601091133.GA27521@kroah.com>
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w53KZ3Rf002882
+ for <selinux@tycho.nsa.gov>; Sun, 3 Jun 2018 16:35:03 -0400
+From: "Dilger, Andreas" <andreas.dilger@intel.com>
+To: NeilBrown <neilb@suse.com>
+CC: Doug Oucharek <doucharek@cray.com>, Andreas Dilger <adilger@dilger.ca>,
+ "devel@driverdev.osuosl.org" <devel@driverdev.osuosl.org>,
+ Christoph Hellwig <hch@infradead.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Linux
+ Kernel Mailing List" <linux-kernel@vger.kernel.org>, "Drokin, Oleg"
+ <oleg.drokin@intel.com>, "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
+ fsdevel <linux-fsdevel@vger.kernel.org>, lustre-devel
+ <lustre-devel@lists.lustre.org>
+Date: Sun, 3 Jun 2018 20:34:52 +0000
+Message-ID: <58123CDD-8424-4E1D-A11F-0F899970A49B@intel.com>
 References: <20180601091133.GA27521@kroah.com>
-Message-ID: <87bmcurpzd.fsf@notabene.neil.brown.name>
+ <20180601114151.GA25225@infradead.org>
+ <E5BF8501-35EB-4DDF-ADBE-6016CF31A502@dilger.ca>
+ <29ACF5A8-7608-46BB-8191-E3FEB77D0F24@cray.com>
+ <87h8mmrt6b.fsf@notabene.neil.brown.name>
+In-Reply-To: <87h8mmrt6b.fsf@notabene.neil.brown.name>
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
- micalg=pgp-sha256; protocol="application/pgp-signature"
-Subject: Re: [lustre-devel] [PATCH] staging: lustre: delete the
- filesystem from the tree.
+Subject: Re: [lustre-devel] [PATCH] staging: lustre: delete the filesystem
+ from the tree.
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---=-=-=
-Content-Type: text/plain
+On Jun 1, 2018, at 17:19, NeilBrown <neilb@suse.com> wrote:
+> 
+> On Fri, Jun 01 2018, Doug Oucharek wrote:
+> 
+>> Would it makes sense to land LNet and LNDs on their own first?  Get
+>> the networking house in order first before layering on the file
+>> system?
+> 
+> I'd like to turn that question on it's head:
+>  Do we need LNet and LNDs?  What value do they provide?
+> (this is a genuine question, not being sarcastic).
+> 
+> It is a while since I tried to understand LNet, and then it was a
+> fairly superficial look, but I think it is an abstraction layer
+> that provides packet-based send/receive with some numa-awareness
+> and routing functionality.  It sits over sockets (TCP) and IB and
+> provides a uniform interface.
 
-On Fri, Jun 01 2018, Greg Kroah-Hartman wrote:
+LNet is originally based on a high-performance networking stack called
+Portals (v3, http://www.cs.sandia.gov/Portals/), with additions for LNet
+routing to allow cross-network bridging.
 
->
-> So, let's just delete the whole mess.  Now the lustre developers can go
-> off and work in their out-of-tree codebase and not have to worry about
-> providing valid changelog entries and breaking their patches up into
-> logical pieces.
+A critical part of LNet is that it is for RDMA and not packet-based
+messages.  Everything in Lustre is structured around RDMA.  Of course,
+RDMA is not possible with TCP so it just does send/receive under the
+covers, though it can do zero copy data sends (and at one time zero-copy
+receives, but those changes were rejected by the kernel maintainers).
+It definitely does RDMA with IB, RoCE, OPA in the kernel, and other RDMA
+network types not in the kernel (e.g. Cray Gemini/Aries, Atos/Bull BXI,
+and previously older network types no longer supported).
 
-I find it incredible that anyone would think that not having to "worry
-about providing valid changelogs" and not "breaking their patches up
-into logic pieces" could ever be seen as a good idea.  I hope that if
-lustre development is excluded from mainline for a time, that we can
-still maintain the practices that demonstrably work so well.
+Even with TCP it has some improvements for performance, such as using
+separate sockets for send and receive of large messages, as well as
+a socket for small messages that has Nagle disabled so that it does
+not delay those packets for aggregation.
 
-For the record: I'm not in favor of ejecting this code from mainline.  I
-think that the long term result may be that it never comes back, and
-will like at least delay the process.
-But you must do what you think is best.
+In addition to the RDMA support, there is also multi-rail support in
+the out-of-tree version that we haven't been allowed to land, which
+can aggregate network bandwidth.  While there exists channel bonding
+for TCP connections, that does not exist for IB or other RDMA networks.
 
-Thanks,
-NeilBrown
+> That is almost a description of the xprt layer in sunrpc.  sunrpc
+> doesn't have routing, but it does have some numa awareness (for the
+> server side at least) and it definitely provides packet-based
+> send/receive over various transports - tcp, udp, local (unix domain),
+> and IB.
+> So: can we use sunrpc/xprt in place of LNet?
 
---=-=-=
-Content-Type: application/pgp-signature; name="signature.asc"
+No, that would totally kill the performance of Lustre.
 
------BEGIN PGP SIGNATURE-----
+> How much would we need to enhance sunrpc/xprt for this to work?  What
+> hooks would be needed to implement the routing as a separate layer.
+> 
+> If LNet is, in some way, much better than sunrpc, then can we share that
+> superior functionality with our NFS friends by adding it to sunrpc?
 
-iQIzBAEBCAAdFiEEG8Yp69OQ2HB7X0l6Oeye3VZigbkFAlsR5LcACgkQOeye3VZi
-gbmPsxAAvr7MWTuOxOV9FtPuu+c6OuCKo35Mg5WG3X4OpEUSqSitN8cmEB/2kAWX
-kPkXgWBeoczSOCLG+hJgUD87iDgGqAn6A/D3vDlHOmcKWAipu7DurZhPKEt6qC3S
-GjtNSejb98G/tAgeVnPAyTFXdQBx6KPCMeg+MfbNzzxQKCXfmUxNuASx1EmXQH6z
-zuDERm9jnF5jbTIox53D4in0i5GEUBbUOiD4K+MnDNhiyh02Kr8dCkUoKs1UJOJX
-H7sfaYJZumJuP9fL8GSqBk+AB1SJH/Box4o1JyI/u4XKHNxVw+BuT2ptWUA6vyBb
-Snja80L/LDH0Mm/AgWZYt+yR5NSc1onAU1LgfwnRj/UFVMFJvc2ZWBSBzvVGG7eB
-Uj2uBqCFYJ6az8wVWzWjhZfHlcemyTCR+nHIm+AwFXxmK5m5+hRbsJC9+sK3IWIv
-zl9gGrfLJK1FBAAGzMZ5hyyQkAlHFoSN2lo/HxknfT6SLrMsjWgR2KnyiajdXVEs
-rKF2/F8T4QeMaSMbWtpu2qtcV49v3/qpIC6L1ysWFHcLRhduFguunQjQOJdnJHHL
-WReoEYi9ianU5tXrfDzJNZZOW5z9DaWSgxJAQ/MDxw1dREDN468xsIXf9GrVvKMv
-nA4w+ADktG3het9Z6Hv3dHSq+Ffvi7ynuRW43r/Tj/BoGGk1N80=
-=zyLF
------END PGP SIGNATURE-----
---=-=-=--
+There was some discussion at NetApp about adding a Lustre/LNet transport
+for pNFS, but I don't think it ever got beyond the proposal stage:
+
+https://tools.ietf.org/html/draft-faibish-nfsv4-pnfs-lustre-layout-07
+
+> Maybe the answer to this is "no", but I think LNet would be hard to sell
+> without a clear statement of why that was the answer.
+
+There are other users outside of the kernel tree that use LNet in addition
+to just Lustre.  The Cray "DVS" I/O forwarding service[*] uses LNet, and
+another experimental filesystem named Zest[+] also used LNet.
+
+[*] https://www.alcf.anl.gov/files/Sugiyama-Wallace-Thursday16B-slides.pdf
+[+] https://www.psc.edu/images/zest/zest-sc07-paper.pdf
+
+> One reason that I would like to see lustre stay in drivers/staging (so I
+> do not support Greg's patch) is that this sort of transition of Lustre
+> to using an improved sunrpc/xprt would be much easier if both were in
+> the same tree.  Certainly it would be easier for a larger community to
+> be participating in the work.
+
+I don't think the proposal to encapsulate all of the Lustre protocol into
+pNFS made a lot of sense, since this would have only really been available
+on Linux, at which point it would be better to use the native Lustre client
+rather than funnel everything through pNFS.
+
+However, _just_ using the LNet transport for (p)NFS might make sense.  LNet
+is largely independent from Lustre (it used to be a separate source tree)
+and is very efficient over the network.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Lustre Principal Architect
+Intel Corporation
