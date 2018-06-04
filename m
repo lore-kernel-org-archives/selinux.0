@@ -1,62 +1,82 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w547FAeM006450
- for <selinux@tycho.nsa.gov>; Mon, 4 Jun 2018 03:15:11 -0400
-Date: Mon, 4 Jun 2018 09:14:43 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andreas Dilger <adilger@dilger.ca>, Oleg Drokin <oleg.drokin@intel.com>,
- Andreas Dilger <andreas.dilger@intel.com>,
- James Simmons <jsimmons@infradead.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- Linus Torvalds <torvalds@linuxfoundation.org>,
- lustre-devel <lustre-devel@lists.lustre.org>,
- fsdevel <linux-fsdevel@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, devel@driverdev.osuosl.org,
- selinux@tycho.nsa.gov
-Message-ID: <20180604071443.GA32335@kroah.com>
-References: <20180601091133.GA27521@kroah.com>
- <6A5E4E02-AE72-4068-BF93-38791BF38B4F@dilger.ca>
- <20180601190839.GA20734@kroah.com>
- <20180604070922.GA13156@infradead.org>
+To: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
+References: <1556412.5WZ4KfFcyq@liv>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <0b9a5099-c0e1-773f-e31c-a0baf81a8d78@tycho.nsa.gov>
+Date: Mon, 4 Jun 2018 08:44:29 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180604070922.GA13156@infradead.org>
-Subject: Re: [PATCH] staging: lustre: delete the filesystem from the
- tree.
+In-Reply-To: <1556412.5WZ4KfFcyq@liv>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: BTRFS losing SE Linux labels on power failure or "reboot -nffd".
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Jun 04, 2018 at 12:09:22AM -0700, Christoph Hellwig wrote:
-> On Fri, Jun 01, 2018 at 09:08:39PM +0200, Greg Kroah-Hartman wrote:
-> > Please, compare yourself to orangefs.  That is the perfect example of
-> > how to do everything right.  They got their code into staging, cleaned
-> > it up, talked to us about what was needed to do to get the remaining
-> > bits in proper shape, they assigned dedicated developers to do that
-> > work, talked with all of us at different conferences around the world to
-> > check up and constantly ensure that they were doing the right thing, and
-> > most importantly, they asked for feedback and acted on it.  In the end,
-> > their codebase is much smaller, works better, is in the "real" part of
-> > the kernel, and available to every Linux user out there.
+On 06/01/2018 09:03 AM, Russell Coker via Selinux wrote:
+> The command "reboot -nffd" (kernel reboot without flushing kernel buffers or writing status) when run on a BTRFS system will often result in /var/log/audit/audit.log being unlabeled. It also results in some systemd-journald files like /var/log/journal/c195779d29154ed8bcb4e8444c4a1728/system.journal being unlabeled but that is rarer. I think that the same problem afflicts both systemd-journald and auditd but it's a race condition that on my systems (both production and test) is more likely to affect auditd.
 > 
-> FYI, orangefs never went through the statging tree.  Which might be
-> one reason why it got merged so quickly - allowing rapid iteration
-> without respect to merged windows, and doing all the trivial cleanups
-> either before or after (but not at the same time as) the feature
-> work really does help productivity.
+>  
+> 
+> If this issue just affected "reboot -nffd" then a solution might be to just not run that command. However this affects systems after a power outage.
+> 
+>  
+> 
+> I have reproduced this bug with kernel 4.9.0-6-amd64 (the latest security update for Debian/Stretch which is the latest supported release of Debian). I have also reported it in an identical manner with kernel 4.16.0-1-amd64 (the latest from Debian/Unstable). For testing I reproduced this with a 4G filesystem in a VM, but in production it has happened on BTRFS RAID-1 arrays, both SSD and HDD.
+> 
+>  
+> 
+> #!/bin/bash
+> set -e
+> COUNT=$(ps aux|grep [s]bin/auditd|wc -l)
+> date
+> if [ "$COUNT" = "1" ]; then
+>  echo "all good"
+> else
+>  echo "failed"
+>  exit 1
+> fi
+> 
+> Firstly the above is the script /usr/local/sbin/testit, I test for auditd running because it aborts if the context on it's log file is wrong.
+> 
+>  
+> 
+> root@stretch:~# ls -liZ /var/log/audit/audit.log
+> 37952 -rw-------. 1 root root system_u:object_r:auditd_log_t:s0 4385230 Jun  1 12:23 /var/log/audit/audit.log
+> 
+> Above is before I do the tests.
+> 
+>  
+> 
+> while ssh stretch /usr/local/sbin/testit ; do
+>  ssh btrfs-local "reboot -nffd" > /dev/null 2>&1 &
+>  sleep 20
+> done
+> 
+> Above is the shell code I run to do the tests. Note that the VM in question runs on SSD storage which is why it can consistently boot in less than 20 seconds.
+> 
+>  
+> 
+> Fri  1 Jun 12:26:13 UTC 2018
+> all good
+> Fri  1 Jun 12:26:33 UTC 2018
+> failed
+> 
+> Above is the output from the shell code in question. After the first reboot it fails. The probability of failure on my test system is greater than 50%.
+> 
+>  
+> 
+> root@stretch:~# ls -liZ /var/log/audit/audit.log  
+> 37952 -rw-------. 1 root root system_u:object_r:unlabeled_t:s0 4396803 Jun  1 12:26 /var/log/audit/audit.log
+> 
+> Now the result. Note that the Inode has not changed. I could understand a newly created file missing an xattr, but this is an existing file which shouldn't have had it's xattr changed. But somehow it gets corrupted.
+> 
+>  
+> 
+> Could this be the fault of SE Linux code? I don't think it's likely but this is what the BTRFS developers will ask so it's best to discuss this here before sending it to them.
 
-Ah, my mistake, for some reason I thought it did, I guess I had offered
-to take it that way if the developers wanted it.
+No, that's definitely a filesystem bug.  It is the filesystem's responsibility to ensure that new inodes are assigned a security.* xattr in the same transaction as the file creation (ext[234] does this, for example, e.g. via ext4_init_security()), and that they don't lose them.  SELinux just provides the xattr suffix ("selinux") and the value/value_len pair.
 
-And yes, doing all of the needed cleanups and other changes outside of
-the kernel tree should be much much faster, which is why I bet it would
-only take 6 months max to get lustre merged "properly" if they really
-wanted to do it, by working out-of-tree.
-
-Heck, they already have an out-of-tree repo today, so it's not like
-removing the in-kernel version is going to change their normal
-development workflow :(
-
-greg k-h
+> 
+>  
+> 
+> Does anyone have any ideas of other tests I should run? Anyone want me to try a different kernel? I can give root on a VM to anyone who wants to poke at it. Anything else I should add when sending this to the BTRFS developers?
