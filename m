@@ -1,82 +1,53 @@
-To: Russell Coker <russell@coker.com.au>, selinux@tycho.nsa.gov
-References: <1556412.5WZ4KfFcyq@liv>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <0b9a5099-c0e1-773f-e31c-a0baf81a8d78@tycho.nsa.gov>
-Date: Mon, 4 Jun 2018 08:44:29 -0400
-MIME-Version: 1.0
-In-Reply-To: <1556412.5WZ4KfFcyq@liv>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: BTRFS losing SE Linux labels on power failure or "reboot -nffd".
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w55EZ4mj026501
+ for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2018 10:35:04 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 410Z7x6Ptczg47P
+ for <selinux@tycho.nsa.gov>; Tue,  5 Jun 2018 14:34:37 +0000 (UTC)
+Received: from UPBD19PA05.eemsg.mil (unknown [192.168.18.6])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 410Z7w6zDvzg47h
+ for <selinux@tycho.nsa.gov>; Tue,  5 Jun 2018 14:34:36 +0000 (UTC)
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 5AD9B4075387
+ for <selinux@tycho.nsa.gov>; Tue,  5 Jun 2018 14:34:31 +0000 (UTC)
+Received: from localhost.localdomain.com (ovpn-204-229.brq.redhat.com
+ [10.40.204.229])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id E5D2463531
+ for <selinux@tycho.nsa.gov>; Tue,  5 Jun 2018 14:34:30 +0000 (UTC)
+From: Jan Zarsky <jzarsky@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Tue,  5 Jun 2018 16:34:02 +0200
+Message-Id: <20180605143405.4491-1-jzarsky@redhat.com>
+Subject: [PATCH 0/3] xperms support in audit2allow
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/01/2018 09:03 AM, Russell Coker via Selinux wrote:
-> The command "reboot -nffd" (kernel reboot without flushing kernel buffers or writing status) when run on a BTRFS system will often result in /var/log/audit/audit.log being unlabeled. It also results in some systemd-journald files like /var/log/journal/c195779d29154ed8bcb4e8444c4a1728/system.journal being unlabeled but that is rarer. I think that the same problem afflicts both systemd-journald and auditd but it's a race condition that on my systems (both production and test) is more likely to affect auditd.
-> 
->  
-> 
-> If this issue just affected "reboot -nffd" then a solution might be to just not run that command. However this affects systems after a power outage.
-> 
->  
-> 
-> I have reproduced this bug with kernel 4.9.0-6-amd64 (the latest security update for Debian/Stretch which is the latest supported release of Debian). I have also reported it in an identical manner with kernel 4.16.0-1-amd64 (the latest from Debian/Unstable). For testing I reproduced this with a 4G filesystem in a VM, but in production it has happened on BTRFS RAID-1 arrays, both SSD and HDD.
-> 
->  
-> 
-> #!/bin/bash
-> set -e
-> COUNT=$(ps aux|grep [s]bin/auditd|wc -l)
-> date
-> if [ "$COUNT" = "1" ]; then
->  echo "all good"
-> else
->  echo "failed"
->  exit 1
-> fi
-> 
-> Firstly the above is the script /usr/local/sbin/testit, I test for auditd running because it aborts if the context on it's log file is wrong.
-> 
->  
-> 
-> root@stretch:~# ls -liZ /var/log/audit/audit.log
-> 37952 -rw-------. 1 root root system_u:object_r:auditd_log_t:s0 4385230 Jun  1 12:23 /var/log/audit/audit.log
-> 
-> Above is before I do the tests.
-> 
->  
-> 
-> while ssh stretch /usr/local/sbin/testit ; do
->  ssh btrfs-local "reboot -nffd" > /dev/null 2>&1 &
->  sleep 20
-> done
-> 
-> Above is the shell code I run to do the tests. Note that the VM in question runs on SSD storage which is why it can consistently boot in less than 20 seconds.
-> 
->  
-> 
-> Fri  1 Jun 12:26:13 UTC 2018
-> all good
-> Fri  1 Jun 12:26:33 UTC 2018
-> failed
-> 
-> Above is the output from the shell code in question. After the first reboot it fails. The probability of failure on my test system is greater than 50%.
-> 
->  
-> 
-> root@stretch:~# ls -liZ /var/log/audit/audit.log  
-> 37952 -rw-------. 1 root root system_u:object_r:unlabeled_t:s0 4396803 Jun  1 12:26 /var/log/audit/audit.log
-> 
-> Now the result. Note that the Inode has not changed. I could understand a newly created file missing an xattr, but this is an existing file which shouldn't have had it's xattr changed. But somehow it gets corrupted.
-> 
->  
-> 
-> Could this be the fault of SE Linux code? I don't think it's likely but this is what the BTRFS developers will ask so it's best to discuss this here before sending it to them.
+Hi,
+this patchset is the result of my bachelor's thesis. First two patches
+fix bugs in sepolgen and are not related to the third patch. The third
+patch provides xperms support to audit2allow.
 
-No, that's definitely a filesystem bug.  It is the filesystem's responsibility to ensure that new inodes are assigned a security.* xattr in the same transaction as the file creation (ext[234] does this, for example, e.g. via ext4_init_security()), and that they don't lose them.  SELinux just provides the xattr suffix ("selinux") and the value/value_len pair.
+Jan Zarsky (3):
+  python/sepolgen: print all AV rules correctly
+  python/sepolgen: fix access vector initialization
+  python: add xperms support to audit2allow
 
-> 
->  
-> 
-> Does anyone have any ideas of other tests I should run? Anyone want me to try a different kernel? I can give root on a VM to anyone who wants to poke at it. Anything else I should add when sending this to the BTRFS developers?
+ python/audit2allow/audit2allow            |   6 +
+ python/audit2allow/audit2allow.1          |   3 +
+ python/audit2allow/test.log               |   1 +
+ python/audit2allow/test_audit2allow.py    |   9 ++
+ python/sepolgen/src/sepolgen/access.py    |  54 +++++----
+ python/sepolgen/src/sepolgen/audit.py     |  28 +++--
+ python/sepolgen/src/sepolgen/policygen.py | 125 +++++++++++--------
+ python/sepolgen/src/sepolgen/refpolicy.py | 125 ++++++++++++++++++-
+ python/sepolgen/tests/test_access.py      | 129 ++++++++++++++++++++
+ python/sepolgen/tests/test_audit.py       |  50 ++++++++
+ python/sepolgen/tests/test_policygen.py   | 112 ++++++++++++++++-
+ python/sepolgen/tests/test_refpolicy.py   | 139 ++++++++++++++++++++++
+ 12 files changed, 700 insertions(+), 81 deletions(-)
