@@ -1,54 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w55EiCaQ027402
- for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2018 10:44:12 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
- [10.11.54.5])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 0D87B4075390
- for <selinux@tycho.nsa.gov>; Tue,  5 Jun 2018 14:34:32 +0000 (UTC)
-Received: from localhost.localdomain.com (ovpn-204-229.brq.redhat.com
- [10.40.204.229])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 9928663F48
- for <selinux@tycho.nsa.gov>; Tue,  5 Jun 2018 14:34:31 +0000 (UTC)
-From: Jan Zarsky <jzarsky@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Tue,  5 Jun 2018 16:34:03 +0200
-Message-Id: <20180605143405.4491-2-jzarsky@redhat.com>
-In-Reply-To: <20180605143405.4491-1-jzarsky@redhat.com>
-References: <20180605143405.4491-1-jzarsky@redhat.com>
-Subject: [PATCH 1/3] python/sepolgen: print all AV rules correctly
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w560ToJM024027
+ for <selinux@tycho.nsa.gov>; Tue, 5 Jun 2018 20:29:50 -0400
+Received: by mail-lf0-f67.google.com with SMTP id n15-v6so6341192lfn.10
+ for <selinux@tycho.nsa.gov>; Tue, 05 Jun 2018 17:29:46 -0700 (PDT)
+MIME-Version: 1.0
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 5 Jun 2018 20:29:45 -0400
+Message-ID: <CAHC9VhRwb_bg_6HJyKc1UutodES3WVF5zoq5A5BqS9sZoCF7cA@mail.gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: [GIT PULL] SELinux patches for v4.18
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-In refpolicy module, in AVRule.__rule_type_str() method, self.rule_type
-was not checked for value self.NEVERALLOW so that string "neverallow"
-was never returned. Fix this by checking all four possible values and
-returning correct strings.
+Hi Linus,
 
-Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
----
- python/sepolgen/src/sepolgen/refpolicy.py | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+SELinux is back with a quiet pull request for v4.18.  Three patches,
+all small: two cleanups of the SELinux audit records, and one to
+migrate to a newly defined type (vm_fault_t).
 
-diff --git a/python/sepolgen/src/sepolgen/refpolicy.py b/python/sepolgen/src/sepolgen/refpolicy.py
-index 352b1878..a262e1c5 100644
---- a/python/sepolgen/src/sepolgen/refpolicy.py
-+++ b/python/sepolgen/src/sepolgen/refpolicy.py
-@@ -472,8 +472,10 @@ class AVRule(Leaf):
-             return "allow"
-         elif self.rule_type == self.DONTAUDIT:
-             return "dontaudit"
--        else:
-+        elif self.rule_type == self.AUDITALLOW:
-             return "auditallow"
-+        elif self.rule_type == self.NEVERALLOW:
-+            return "neverallow"
- 
-     def from_av(self, av):
-         """Add the access from an access vector to this allow
+Everything passes our test suite, and as of about five minutes ago it
+merged cleanly with your tree.
+
+Please pull, thanks.
+-Paul
+--
+The following changes since commit 60cc43fc888428bb2f18f08997432d426a243338:
+
+ Linux 4.17-rc1 (2018-04-15 18:24:20 -0700)
+
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20180605
+
+for you to fetch changes up to d141136f523a3a6372d22981bdff7a8906f36fea:
+
+ audit: normalize MAC_POLICY_LOAD record (2018-04-17 17:54:11 -0400)
+
+----------------------------------------------------------------
+selinux/stable-4.18 PR 20180605
+
+----------------------------------------------------------------
+Richard Guy Briggs (2):
+     audit: normalize MAC_STATUS record
+     audit: normalize MAC_POLICY_LOAD record
+
+Souptick Joarder (1):
+     security: selinux: Change return type to vm_fault_t
+
+security/selinux/selinuxfs.c | 18 ++++++++++++------
+1 file changed, 12 insertions(+), 6 deletions(-)
+
 -- 
-2.14.4
+paul moore
+www.paul-moore.com
