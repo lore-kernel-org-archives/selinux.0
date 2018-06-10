@@ -1,93 +1,157 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w59K8mmR003290
- for <selinux@tycho.nsa.gov>; Sat, 9 Jun 2018 16:08:49 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5AFuEWB007553
+ for <selinux@tycho.nsa.gov>; Sun, 10 Jun 2018 11:56:17 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC14.oob.disa.mil (Postfix) with SMTP id 4139Mf0rMYzJ343
- for <selinux@tycho.nsa.gov>; Sat,  9 Jun 2018 20:08:46 +0000 (UTC)
-Received: from UPDC3CPA08_EEMSG_MP24.eemsg.mil (unknown [192.168.18.19])
- by UPDCF3IC14.oob.disa.mil (Postfix) with ESMTP id 4139Md3p5XzJ33s
- for <selinux@tycho.nsa.gov>; Sat,  9 Jun 2018 20:08:45 +0000 (UTC)
-Received: from localhost.localdomain (32.206.133.77.rev.sfr.net
- [77.133.206.32])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 26F3C5648EA
- for <selinux@tycho.nsa.gov>; Sat,  9 Jun 2018 22:08:42 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Date: Sat,  9 Jun 2018 22:08:34 +0200
-Message-Id: <20180609200834.9618-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 1/1] scripts: add a helper script to run clang's
- static analyzer
+ by UPDCF3IC08.oob.disa.mil (Postfix) with SMTP id 413gjL2SC3z34qRN
+ for <selinux@tycho.nsa.gov>; Sun, 10 Jun 2018 15:55:50 +0000 (UTC)
+Received: from UPBD19PA12.eemsg.mil (unknown [192.168.18.16])
+ by UPDCF3IC08.oob.disa.mil (Postfix) with ESMTP id 413gjK5mbWz34qRX
+ for <selinux@tycho.nsa.gov>; Sun, 10 Jun 2018 15:55:49 +0000 (UTC)
+Received: by mail-lf0-f42.google.com with SMTP id t134-v6so26930503lff.6
+ for <selinux@tycho.nsa.gov>; Sun, 10 Jun 2018 08:55:48 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <CANjv_kN1wXQngtLbcCEoY8j091P508KwYfDh+vmBarxKcna-FQ@mail.gmail.com>
+References: <CANjv_kN3XAjhJZbZ_uTh7aBJ2w3dhmeGrhrLtVvuKuDO_Y0g=A@mail.gmail.com>
+ <CAHC9VhQZzKmT1PXjT==3UstqEV47LyfWZwy0yrHJchJLN6kyQA@mail.gmail.com>
+ <CAHC9VhSTSvekvxv0gq5a1N-kxkd-mGL+SC71ia=2YPVN0R4jAQ@mail.gmail.com>
+ <CANjv_kN1wXQngtLbcCEoY8j091P508KwYfDh+vmBarxKcna-FQ@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Sun, 10 Jun 2018 11:55:46 -0400
+Message-ID: <CAHC9VhT0ycXoO=ekH37iet75Sbm0c-1ERMpZxoRPuaRhP+yo9Q@mail.gmail.com>
+To: Sgeeta Dhundale <sgeeta.in@gmail.com>
+Cc: selinux@tycho.nsa.gov
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: selinux-testsuite inet_socket test failure
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Using clang's static analyzer is as simple as running "scan-build make",
-but in order to obtain clean and reproducible results, the build
-environment has to be cleaned beforehand ("make clean distclean").
+On Sat, Jun 9, 2018 at 1:12 AM, Sgeeta Dhundale <sgeeta.in@gmail.com> wrote:
+> Thank you Paul for looking at the issue.
+> Yes I am using RHEL6.9/6.10 and OL6.9/6.10.
+> I would wait for the fix, hope it will be fixed soon.
 
-Moreover the project requires running "make install" before "make test"
-in order to install the dependencies needed for the tests, and running
-these tests with the newly-built libraries requires a specific
-LD_LIBRARY_PATH. This new script takes care of setting up everything
-which is needed.
+As a FYI, I believe this is simply an issue to be worked around using
+the selinux-testsuites's SELinux policy, I don't believe this is a
+problem with the kernel or userspace on RHEL-6.x based systems.
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- scripts/.gitignore     |  1 +
- scripts/run-scan-build | 33 +++++++++++++++++++++++++++++++++
- 2 files changed, 34 insertions(+)
- create mode 100644 scripts/.gitignore
- create mode 100755 scripts/run-scan-build
+I have some time set aside on Monday and Tuesday to work on SELinux
+policy, I'm hopeful that I'll have a fix then.
 
-diff --git a/scripts/.gitignore b/scripts/.gitignore
-new file mode 100644
-index 000000000000..54882b3b1507
---- /dev/null
-+++ b/scripts/.gitignore
-@@ -0,0 +1 @@
-+/output-scan-build/
-diff --git a/scripts/run-scan-build b/scripts/run-scan-build
-new file mode 100755
-index 000000000000..8b24a4d04647
---- /dev/null
-+++ b/scripts/run-scan-build
-@@ -0,0 +1,33 @@
-+#!/bin/sh
-+# Run clang's static analyzer (scan-build) and record its output in output-scan-build/
-+
-+# Ensure the current directory is where this script is
-+cd "$(dirname -- "$0")" || exit $?
-+
-+OUTPUTDIR="$(pwd)/output-scan-build"
-+
-+# Display the commands which are run, and make sure they succeed
-+set -x -e
-+
-+# Use a temporary directory as an installation directory, if $DESTDIR is not set
-+if [ -z "$DESTDIR" ] ; then
-+    DESTDIR="$(mktemp --tmpdir -d scan-build-destdir-XXXXXXXXXX)"
-+fi
-+
-+# Make sure to use the newly-installed libraries when running tests
-+export LD_LIBRARY_PATH="$DESTDIR/usr/lib:$DESTDIR/lib"
-+export PATH="$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR/bin:$PATH"
-+export PYTHONPATH="$DESTDIR$(${PYTHON:-python} -c "from distutils.sysconfig import *;print(get_python_lib(prefix='/usr'))")"
-+export RUBYLIB="$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorlibdir"]'):$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorarchdir"]')"
-+
-+# Build and analyze
-+make -C .. CC=clang clean distclean -j"$(nproc)"
-+scan-build -analyze-headers -o "$OUTPUTDIR" make -C .. CC=clang DESTDIR="$DESTDIR" install install-pywrap install-rubywrap all test
-+
-+# Reduce the verbosity in order to keep the message from scan-build saying
-+# "scan-build: Run 'scan-view /.../output-scan-build/2018-...' to examine bug reports.
-+set +x
-+
-+# Remove the destination directory without using "rm -rf"
-+chmod u+w "$DESTDIR/usr/bin/newrole"
-+rm -r "$DESTDIR"
+> On Fri, Jun 8, 2018 at 10:11 PM, Paul Moore <paul@paul-moore.com> wrote:
+>>
+>> On Fri, Jun 8, 2018 at 12:35 PM, Paul Moore <paul@paul-moore.com> wrote:
+>> > On Fri, Jun 8, 2018 at 9:17 AM, Sgeeta Dhundale <sgeeta.in@gmail.com>
+>> > wrote:
+>> >> Hi,
+>> >>   While running selinux testsuits I am seeing some of the inet_socket
+>> >> tests
+>> >> failure.
+>> >> Googled alotbut couldnt see any similler issue reported as such.
+>> >> It would be really helpful if you can give some pointer to  resolved
+>> >> this.
+>> >>
+>> >> Selinux rpms I am using =>
+>> >> # rpm -qa | grep selinux
+>> >> libselinux-devel-2.0.94-7.el6.x86_64
+>> >> libselinux-utils-2.0.94-7.el6.x86_64
+>> >> selinux-policy-targeted-3.7.19-312.0.1.el6.noarch
+>> >> libselinux-2.0.94-7.el6.x86_64
+>> >> selinux-policy-3.7.19-312.0.1.el6.noarch
+>> >> libselinux-python-2.0.94-7.el6.x86_64
+>> >> -------------------------------
+>> >>
+>> >> Output snippet of test run
+>> >> chcon -R -t test_file_t .
+>> >> Running as user root with context
+>> >> unconfined_u:unconfined_r:unconfined_t
+>> >>
+>> >> .....
+>> >> ......
+>> >> dyntrace/test ............ ok
+>> >> bounds/test .............. ok
+>> >> mmap/test ................ ok
+>> >> unix_socket/test ......... ok
+>> >> inet_socket/test .........
+>> >> Dubious, test returned 2 (wstat 512, 0x200)
+>> >> Failed 2/33 subtests
+>> >> checkreqprot/test ........ ok
+>> >> mqueue/test .............. skipped: mqueue fileystem not
+>> >> supported/mounted
+>> >> mac_admin/test ........... ok
+>> >> infiniband_pkey/test ..... ok
+>> >> infiniband_endport/test .. ok
+>> >>
+>> >> Test Summary Report
+>> >> -------------------
+>> >> inet_socket/test       (Wstat: 512 Tests: 33 Failed: 2)
+>> >>   Failed tests:  7, 9
+>> >>   Non-zero exit status: 2
+>> >> Files=46, Tests=325, 54 wallclock secs ( 0.27 usr  0.10 sys +  0.76
+>> >> cusr
+>> >> 1.46 csys =  2.59 CPU)
+>> >> Result: FAIL
+>> >> make: Leaving directory `/root/SELinux/selinux-testsuite-master/tests'
+>> >> ASSERT:SELinux-Test run failed, pls check testrun.log file for details
+>> >> expected:<0> but was:<1>
+>> >> FAILED
+>> >
+>> > It looks like you are running RHEL-6.x or CentOS-6.x?
+>> >
+>> > I just ran the tests on my RHEL-6.x test system and saw similar
+>> > results, it appears to be the result of the following commit to the
+>> > selinux-testsuite:
+>> >
+>> >  commit c618ab669b0c580bb3fa000b168d7d4b5a00c5ee
+>> >  Author: Stephen Smalley <sds@tycho.nsa.gov>
+>> >  Date:   Thu Oct 26 09:29:37 2017 -0400
+>> >
+>> >    selinux-testsuite: inet_socket: tighten checking
+>> >
+>> >    As demonstrated by
+>> > https://github.com/SELinuxProject/selinux-kernel/issues/3
+>> >    the inet_socket tests can "pass" for the wrong reasons.  Change the
+>> >    client program to use different exit codes for different failures,
+>> >    and change the test script to check the expected exit code for all
+>> > tests.
+>> >    With this change, getting an unexpected peer label causes a test
+>> > failure
+>> >    rather than being treated identically to a permission denial.
+>> >
+>> >    NB This could make the tests more fragile, e.g. it appears that we
+>> > encounter
+>> >    permission denial failures at different points for different tests,
+>> > so we
+>> >    may need to relax the checking somewhat based on testing a wider
+>> > range of
+>> >    older kernels.
+>> >
+>> >    Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> >
+>> > ... I think we may need to take a closer look at what RHEL-6.x based
+>> > kernels are currently doing to ensure they are "correct" (I'm going to
+>> > assume yes, but that is an assumption), and perhaps update the test
+>> > suite to reflect the RHEL-6.x behavior.
+>>
+>> FYI, I created an issue on GH to track this:
+>>
+>> * https://github.com/SELinuxProject/selinux-testsuite/issues/37
+>>
+>> --
+>> paul moore
+>> www.paul-moore.com
+>
+>
+>
+>
+> --
+> Regards,
+> -Sgeeta
+
+
+
 -- 
-2.17.1
+paul moore
+www.paul-moore.com
