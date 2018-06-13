@@ -1,109 +1,100 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5DJOHX5011262
- for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2018 15:24:17 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC05.oob.disa.mil (Postfix) with SMTP id 415cBP31W9zrKYX
- for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2018 19:24:13 +0000 (UTC)
-Received: from UPDC3CPA08_EEMSG_MP24.eemsg.mil (unknown [192.168.18.19])
- by UPDCF3IC05.oob.disa.mil (Postfix) with ESMTP id 415cBN5RVlzrKYY
- for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2018 19:24:12 +0000 (UTC)
-Received: by mail-lf0-f66.google.com with SMTP id i15-v6so5674668lfc.2
- for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2018 12:24:11 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <ae0ff4a782ed824fc92fa6fe4795c9c35c13967d.camel@btinternet.com>
-References: <20180413101315.21749-1-richard_c_haines@btinternet.com>
- <CAHC9VhRL54-kuytrqGCMG0AdL_nBNL9S2rFuFHbkh12F=STxjw@mail.gmail.com>
- <ae0ff4a782ed824fc92fa6fe4795c9c35c13967d.camel@btinternet.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 13 Jun 2018 15:23:09 -0400
-Message-ID: <CAHC9VhS+QMG26daM1C61eCmmbi280_8xb3SztCWb_n=7FaNWQg@mail.gmail.com>
-To: Richard Haines <richard_c_haines@btinternet.com>
-Cc: selinux@tycho.nsa.gov
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux-testsuite: Enhance inet_socket tests
+Message-ID: <38670733fba157f7acd9c1555b44a296420f0774.camel@perches.com>
+From: Joe Perches <joe@perches.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: James Morris <jmorris@namei.org>, Casey Schaufler <casey@schaufler-ca.com>,
+ John Johansen <john.johansen@canonical.com>,
+ Mimi Zohar <zohar@linux.vnet.ibm.com>, Dmitry Kasatkin
+ <dmitry.kasatkin@gmail.com>, Stephen Smalley <sds@tycho.nsa.gov>, Eric
+ Paris <eparis@parisplace.org>, Kentaro Takeda <takedakn@nttdata.co.jp>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, "Serge E. Hallyn"
+ <serge@hallyn.com>,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-integrity@vger.kernel.org, selinux@tycho.nsa.gov
+Date: Wed, 13 Jun 2018 12:30:17 -0700
+In-Reply-To: <CAHC9VhRXBx_Q2eM48FFqX9PbPz0k8R74gfFFoRhwV91n2_BPsQ@mail.gmail.com>
+References: <1e91f8e10ce76d3208239b6b5899aab76d1543ff.1528743633.git.joe@perches.com>
+ <fcac609a-08a8-b3ab-a69e-2e65e2ad63e9@schaufler-ca.com>
+ <alpine.LRH.2.21.1806130631400.13763@namei.org>
+ <CAHC9VhTpsYDT5+CjdtiBmLMDEKV9fmGv+DyXVtUuja9d4i2ecg@mail.gmail.com>
+ <3d890108a942b6a3fb9a5326501174af270707dc.camel@perches.com>
+ <CAHC9VhRHd+nxKQRj5PjoN7Te3NjomtWcb_0ZxzcxAzwX024m9A@mail.gmail.com>
+ <00961ef3fb41930a3304da935f1f73ebe386e83c.camel@perches.com>
+ <CAHC9VhRXBx_Q2eM48FFqX9PbPz0k8R74gfFFoRhwV91n2_BPsQ@mail.gmail.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Mime-Version: 1.0
+Subject: Re: [-next PATCH] security: use octal not symbolic
+ permissions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Jun 13, 2018 at 12:46 PM, Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> On Tue, 2018-06-12 at 18:02 -0400, Paul Moore wrote:
->> On Fri, Apr 13, 2018 at 6:13 AM, Richard Haines via Selinux
->> <selinux@tycho.nsa.gov> wrote:
->> > Enhance the tests as follows:
->> > 1) Determine number of tests to run with current config.
->> > 2) Add CALIPSO STREAM tests (DGRAM not supported in kernel. See
->> > [1]).
->> > 3) Add support for CIPSO TAGS 1 & 2. Closes [2].
->> > 4) Run scripts using /bin/sh.
->> > 5) Shorten sleep time as more tests.
->> >
->> > [1] https://github.com/SELinuxProject/selinux-kernel/issues/24
->> > [2] https://github.com/SELinuxProject/selinux-testsuite/issues/1
->> >
->> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->> > ---
->> >  tests/inet_socket/calipso-flush                 |   5 +
->> >  tests/inet_socket/calipso-load                  |   7 +
->> >  tests/inet_socket/cipso-fl-flush                |   0
->> >  tests/inet_socket/cipso-fl-load                 |   0
->> >  tests/inet_socket/cipso-flush                   |   0
->> >  tests/inet_socket/cipso-load-t1                 |  11 +
->> >  tests/inet_socket/cipso-load-t2                 |  11 +
->> >  tests/inet_socket/{cipso-load => cipso-load-t5} |   0
->> >  tests/inet_socket/ipsec-flush                   |   0
->> >  tests/inet_socket/ipsec-load                    |   0
->> >  tests/inet_socket/iptables-flush                |   0
->> >  tests/inet_socket/iptables-load                 |   0
->> >  tests/inet_socket/server.c                      |  16 +-
->> >  tests/inet_socket/test                          | 348
->> > ++++++++++++++++++------
->> >  14 files changed, 310 insertions(+), 88 deletions(-)
->> >  create mode 100644 tests/inet_socket/calipso-flush
->> >  create mode 100644 tests/inet_socket/calipso-load
->> >  mode change 100755 => 100644 tests/inet_socket/cipso-fl-flush
->> >  mode change 100755 => 100644 tests/inet_socket/cipso-fl-load
->> >  mode change 100755 => 100644 tests/inet_socket/cipso-flush
->> >  create mode 100644 tests/inet_socket/cipso-load-t1
->> >  create mode 100644 tests/inet_socket/cipso-load-t2
->> >  rename tests/inet_socket/{cipso-load => cipso-load-t5} (100%)
->> >  mode change 100755 => 100644
->> >  mode change 100755 => 100644 tests/inet_socket/ipsec-flush
->> >  mode change 100755 => 100644 tests/inet_socket/ipsec-load
->> >  mode change 100755 => 100644 tests/inet_socket/iptables-flush
->> >  mode change 100755 => 100644 tests/inet_socket/iptables-load
->> >  mode change 100755 => 100644 tests/inet_socket/test
->>
->> I had to fixup the file mode bits on tests/inet_socket/test, but
->> other
->> than that this looks fine to me, merged.  Thanks.
->
-> The reason I have not been setting +x on the tests/*/test scripts is
-> that the tests/Makefile does it for you. However as all the others are
-> set, I'll set +x in future (as you flagged this on the sctp and binder
-> patches I sent).
+On Wed, 2018-06-13 at 12:19 -0400, Paul Moore wrote:
+> On Wed, Jun 13, 2018 at 12:04 PM, Joe Perches <joe@perches.com> wrote:
+> > On Wed, 2018-06-13 at 11:49 -0400, Paul Moore wrote:
+> > > On Tue, Jun 12, 2018 at 8:29 PM, Joe Perches <joe@perches.com> wrote:
+> > > > On Tue, 2018-06-12 at 17:12 -0400, Paul Moore wrote:
+> > > > > Joe, in general I really appreciate the fixes you send, but these
+> > > > > patches that cross a lot of subsystem boundaries (this isn't the first
+> > > > > one that does this) causes unnecessary conflicts in -next and during
+> > > > > the merge window.  Could you split your patches up from now on please?
+> > > > 
+> > > > Sorry. No.  Merge conflicts are inherent in this system.
+> > > 
+> > > Yes, merge conflicts are inherent in this system when one makes a
+> > > single change which impacts multiple subsystems, e.g. changing a core
+> > > kernel function which is called by multiple subsystems.  However, that
+> > > isn't what this patch does, it makes a number of self-contained
+> > > changes across multiple subsystems; there are no cross-subsystem
+> > > dependencies in this patch.  You are increasing the likelihood of
+> > > conflicts for no good reason; that is why I'm asking you to split this
+> > > patch and others like it.
+> > 
+> > No.  History shows with high certainty that splitting
+> > patches like this across multiple subsystems of a primary
+> > subsystem means that the entire patchset is not completely
+> > applied.
+> 
+> I think that is due more to a lack of effort on the part of the patch
+> author to keep pushing the individual patches.
 
-Please do.  The issue is that whenever you run the tests it changes
-the mode bits from how they are in the git repository.  While not
-really a problem for people who just take a snapshot of the tests, it
-does cause problems for those of us who push/pull from the repo as it
-registers as a change (check "git status").
+Nope.  Try again.
 
->> I remain a little wary about the reduced sleep times (1s to 0.25s),
->> but I'm never comfortable with arbitrary sleep-and-hope-it-works
->> tricks anyway.
->
-> I've been using this value in the SCTP tests for some time and not had
-> any problems, that's why I used it for the inet tests (probably better
-> to have the client try connecting x times and do away with the wait)
+Resistance to change and desire for status quo
+occurs in many subsystems.
 
-It's working on my test VMs, so from a selfish point of view I'm fine
-with it for right now :)  My concern isn't from an observed failure
-with the change, but rather bad experiences with similar approaches on
-other projects.  In other words, I'm just being cranky.
+> > It's _much_ simpler and provides a generic mechanism to
+> > get the entire patch applied to send a single patch to the
+> > top level subsystem maintainer.
+> 
+> I understand it is simpler for you, but it is more difficult for everyone else.
 
--- 
-paul moore
-www.paul-moore.com
+Not true.
+
+It's simply a matter of merge resolution being pushed down
+where and when necessary.
+
+See changes like the additions of the SPDX license tags.
+
+> Further, where the LSMs are concerned, there is no "top level
+> subsystem maintainer" anymore.  SELinux and AppArmor send pull
+> requests directly to Linus.
+
+MAINTAINERS-SECURITY SUBSYSTEM
+MAINTAINERS-M:  James Morris <jmorris@namei.org>
+MAINTAINERS-M:  "Serge E. Hallyn" <serge@hallyn.com>
+MAINTAINERS-L:  linux-security-module@vger.kernel.org (suggested Cc:)
+MAINTAINERS-T:  git git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security.git
+MAINTAINERS-W:  http://kernsec.org/
+MAINTAINERS-S:  Supported
+MAINTAINERS:F:  security/
+MAINTAINERS-
+
+If James is not approving or merging security/selinux or
+security/tomoyo then perhaps the F: entries could be
+augmented with appropriate X: entries or made specific
+by using specific entries like:
+
+F:	security/*
+F:	security/integrity/
+F:	security/keys/
