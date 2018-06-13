@@ -1,78 +1,826 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5DGKDku029324
- for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2018 12:20:13 -0400
-Received: by mail-lf0-f65.google.com with SMTP id j13-v6so4818184lfb.13
- for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2018 09:19:14 -0700 (PDT)
-MIME-Version: 1.0
-In-Reply-To: <00961ef3fb41930a3304da935f1f73ebe386e83c.camel@perches.com>
-References: <1e91f8e10ce76d3208239b6b5899aab76d1543ff.1528743633.git.joe@perches.com>
- <fcac609a-08a8-b3ab-a69e-2e65e2ad63e9@schaufler-ca.com>
- <alpine.LRH.2.21.1806130631400.13763@namei.org>
- <CAHC9VhTpsYDT5+CjdtiBmLMDEKV9fmGv+DyXVtUuja9d4i2ecg@mail.gmail.com>
- <3d890108a942b6a3fb9a5326501174af270707dc.camel@perches.com>
- <CAHC9VhRHd+nxKQRj5PjoN7Te3NjomtWcb_0ZxzcxAzwX024m9A@mail.gmail.com>
- <00961ef3fb41930a3304da935f1f73ebe386e83c.camel@perches.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Wed, 13 Jun 2018 12:19:12 -0400
-Message-ID: <CAHC9VhRXBx_Q2eM48FFqX9PbPz0k8R74gfFFoRhwV91n2_BPsQ@mail.gmail.com>
-To: Joe Perches <joe@perches.com>
-Cc: James Morris <jmorris@namei.org>, Casey Schaufler <casey@schaufler-ca.com>,
- John Johansen <john.johansen@canonical.com>,
- Mimi Zohar <zohar@linux.vnet.ibm.com>,
- Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- Kentaro Takeda <takedakn@nttdata.co.jp>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-integrity@vger.kernel.org, selinux@tycho.nsa.gov
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5DGl0B9031307
+ for <selinux@tycho.nsa.gov>; Wed, 13 Jun 2018 12:47:01 -0400
+Message-ID: <ae0ff4a782ed824fc92fa6fe4795c9c35c13967d.camel@btinternet.com>
+From: Richard Haines <richard_c_haines@btinternet.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov
+Date: Wed, 13 Jun 2018 17:46:26 +0100
+In-Reply-To: <CAHC9VhRL54-kuytrqGCMG0AdL_nBNL9S2rFuFHbkh12F=STxjw@mail.gmail.com>
+References: <20180413101315.21749-1-richard_c_haines@btinternet.com>
+ <CAHC9VhRL54-kuytrqGCMG0AdL_nBNL9S2rFuFHbkh12F=STxjw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [-next PATCH] security: use octal not symbolic
- permissions
+Mime-Version: 1.0
+Subject: Re: [PATCH] selinux-testsuite: Enhance inet_socket tests
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Jun 13, 2018 at 12:04 PM, Joe Perches <joe@perches.com> wrote:
-> On Wed, 2018-06-13 at 11:49 -0400, Paul Moore wrote:
->> On Tue, Jun 12, 2018 at 8:29 PM, Joe Perches <joe@perches.com> wrote:
->> > On Tue, 2018-06-12 at 17:12 -0400, Paul Moore wrote:
->> > > Joe, in general I really appreciate the fixes you send, but these
->> > > patches that cross a lot of subsystem boundaries (this isn't the first
->> > > one that does this) causes unnecessary conflicts in -next and during
->> > > the merge window.  Could you split your patches up from now on please?
->> >
->> > Sorry. No.  Merge conflicts are inherent in this system.
->>
->> Yes, merge conflicts are inherent in this system when one makes a
->> single change which impacts multiple subsystems, e.g. changing a core
->> kernel function which is called by multiple subsystems.  However, that
->> isn't what this patch does, it makes a number of self-contained
->> changes across multiple subsystems; there are no cross-subsystem
->> dependencies in this patch.  You are increasing the likelihood of
->> conflicts for no good reason; that is why I'm asking you to split this
->> patch and others like it.
->
-> No.  History shows with high certainty that splitting
-> patches like this across multiple subsystems of a primary
-> subsystem means that the entire patchset is not completely
-> applied.
+On Tue, 2018-06-12 at 18:02 -0400, Paul Moore wrote:
+> On Fri, Apr 13, 2018 at 6:13 AM, Richard Haines via Selinux
+> <selinux@tycho.nsa.gov> wrote:
+> > Enhance the tests as follows:
+> > 1) Determine number of tests to run with current config.
+> > 2) Add CALIPSO STREAM tests (DGRAM not supported in kernel. See
+> > [1]).
+> > 3) Add support for CIPSO TAGS 1 & 2. Closes [2].
+> > 4) Run scripts using /bin/sh.
+> > 5) Shorten sleep time as more tests.
+> > 
+> > [1] https://github.com/SELinuxProject/selinux-kernel/issues/24
+> > [2] https://github.com/SELinuxProject/selinux-testsuite/issues/1
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> >  tests/inet_socket/calipso-flush                 |   5 +
+> >  tests/inet_socket/calipso-load                  |   7 +
+> >  tests/inet_socket/cipso-fl-flush                |   0
+> >  tests/inet_socket/cipso-fl-load                 |   0
+> >  tests/inet_socket/cipso-flush                   |   0
+> >  tests/inet_socket/cipso-load-t1                 |  11 +
+> >  tests/inet_socket/cipso-load-t2                 |  11 +
+> >  tests/inet_socket/{cipso-load => cipso-load-t5} |   0
+> >  tests/inet_socket/ipsec-flush                   |   0
+> >  tests/inet_socket/ipsec-load                    |   0
+> >  tests/inet_socket/iptables-flush                |   0
+> >  tests/inet_socket/iptables-load                 |   0
+> >  tests/inet_socket/server.c                      |  16 +-
+> >  tests/inet_socket/test                          | 348
+> > ++++++++++++++++++------
+> >  14 files changed, 310 insertions(+), 88 deletions(-)
+> >  create mode 100644 tests/inet_socket/calipso-flush
+> >  create mode 100644 tests/inet_socket/calipso-load
+> >  mode change 100755 => 100644 tests/inet_socket/cipso-fl-flush
+> >  mode change 100755 => 100644 tests/inet_socket/cipso-fl-load
+> >  mode change 100755 => 100644 tests/inet_socket/cipso-flush
+> >  create mode 100644 tests/inet_socket/cipso-load-t1
+> >  create mode 100644 tests/inet_socket/cipso-load-t2
+> >  rename tests/inet_socket/{cipso-load => cipso-load-t5} (100%)
+> >  mode change 100755 => 100644
+> >  mode change 100755 => 100644 tests/inet_socket/ipsec-flush
+> >  mode change 100755 => 100644 tests/inet_socket/ipsec-load
+> >  mode change 100755 => 100644 tests/inet_socket/iptables-flush
+> >  mode change 100755 => 100644 tests/inet_socket/iptables-load
+> >  mode change 100755 => 100644 tests/inet_socket/test
+> 
+> I had to fixup the file mode bits on tests/inet_socket/test, but
+> other
+> than that this looks fine to me, merged.  Thanks.
 
-I think that is due more to a lack of effort on the part of the patch
-author to keep pushing the individual patches.
+The reason I have not been setting +x on the tests/*/test scripts is
+that the tests/Makefile does it for you. However as all the others are
+set, I'll set +x in future (as you flagged this on the sctp and binder
+patches I sent).
+> 
+> I remain a little wary about the reduced sleep times (1s to 0.25s),
+> but I'm never comfortable with arbitrary sleep-and-hope-it-works
+> tricks anyway.
 
-> It's _much_ simpler and provides a generic mechanism to
-> get the entire patch applied to send a single patch to the
-> top level subsystem maintainer.
+I've been using this value in the SCTP tests for some time and not had
+any problems, that's why I used it for the inet tests (probably better
+to have the client try connecting x times and do away with the wait)
 
-I understand it is simpler for you, but it is more difficult for everyone else.
-
-Further, where the LSMs are concerned, there is no "top level
-subsystem maintainer" anymore.  SELinux and AppArmor send pull
-requests directly to Linus.
-
--- 
-paul moore
-www.paul-moore.com
+> 
+> > diff --git a/tests/inet_socket/calipso-flush
+> > b/tests/inet_socket/calipso-flush
+> > new file mode 100644
+> > index 0000000..5143962
+> > --- /dev/null
+> > +++ b/tests/inet_socket/calipso-flush
+> > @@ -0,0 +1,5 @@
+> > +#!/bin/sh
+> > +# Reset NetLabel configuration to unlabeled after CALIPSO/IPv6
+> > tests.
+> > +netlabelctl map del default
+> > +netlabelctl calipso del doi:16
+> > +netlabelctl map add default protocol:unlbl
+> > diff --git a/tests/inet_socket/calipso-load
+> > b/tests/inet_socket/calipso-load
+> > new file mode 100644
+> > index 0000000..4bb9c7f
+> > --- /dev/null
+> > +++ b/tests/inet_socket/calipso-load
+> > @@ -0,0 +1,7 @@
+> > +#!/bin/sh
+> > +# Define a doi for testing loopback for CALIPSO/IPv6.
+> > +netlabelctl calipso add pass doi:16
+> > +netlabelctl map del default
+> > +netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
+> > +netlabelctl map add default address:::/0 protocol:unlbl
+> > +netlabelctl map add default address:::1 protocol:calipso,16
+> > diff --git a/tests/inet_socket/cipso-fl-flush
+> > b/tests/inet_socket/cipso-fl-flush
+> > old mode 100755
+> > new mode 100644
+> > diff --git a/tests/inet_socket/cipso-fl-load
+> > b/tests/inet_socket/cipso-fl-load
+> > old mode 100755
+> > new mode 100644
+> > diff --git a/tests/inet_socket/cipso-flush
+> > b/tests/inet_socket/cipso-flush
+> > old mode 100755
+> > new mode 100644
+> > diff --git a/tests/inet_socket/cipso-load-t1
+> > b/tests/inet_socket/cipso-load-t1
+> > new file mode 100644
+> > index 0000000..974e746
+> > --- /dev/null
+> > +++ b/tests/inet_socket/cipso-load-t1
+> > @@ -0,0 +1,11 @@
+> > +#!/bin/sh
+> > +# Based on http://paulmoore.livejournal.com/7234.html.
+> > +#
+> > +# Modifications:
+> > +# - Defined a doi for testing loopback for CIPSOv4.
+> > +
+> > +netlabelctl cipsov4 add pass doi:16 tags:1
+> > +netlabelctl map del default
+> > +netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
+> > +netlabelctl map add default address:::/0 protocol:unlbl
+> > +netlabelctl map add default address:127.0.0.1 protocol:cipsov4,16
+> > diff --git a/tests/inet_socket/cipso-load-t2
+> > b/tests/inet_socket/cipso-load-t2
+> > new file mode 100644
+> > index 0000000..9892f81
+> > --- /dev/null
+> > +++ b/tests/inet_socket/cipso-load-t2
+> > @@ -0,0 +1,11 @@
+> > +#!/bin/sh
+> > +# Based on http://paulmoore.livejournal.com/7234.html.
+> > +#
+> > +# Modifications:
+> > +# - Defined a doi for testing loopback for CIPSOv4.
+> > +
+> > +netlabelctl cipsov4 add pass doi:16 tags:2
+> > +netlabelctl map del default
+> > +netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
+> > +netlabelctl map add default address:::/0 protocol:unlbl
+> > +netlabelctl map add default address:127.0.0.1 protocol:cipsov4,16
+> > diff --git a/tests/inet_socket/cipso-load
+> > b/tests/inet_socket/cipso-load-t5
+> > old mode 100755
+> > new mode 100644
+> > similarity index 100%
+> > rename from tests/inet_socket/cipso-load
+> > rename to tests/inet_socket/cipso-load-t5
+> > diff --git a/tests/inet_socket/ipsec-flush
+> > b/tests/inet_socket/ipsec-flush
+> > old mode 100755
+> > new mode 100644
+> > diff --git a/tests/inet_socket/ipsec-load
+> > b/tests/inet_socket/ipsec-load
+> > old mode 100755
+> > new mode 100644
+> > diff --git a/tests/inet_socket/iptables-flush
+> > b/tests/inet_socket/iptables-flush
+> > old mode 100755
+> > new mode 100644
+> > diff --git a/tests/inet_socket/iptables-load
+> > b/tests/inet_socket/iptables-load
+> > old mode 100755
+> > new mode 100644
+> > diff --git a/tests/inet_socket/server.c
+> > b/tests/inet_socket/server.c
+> > index 2801397..c8383b4 100644
+> > --- a/tests/inet_socket/server.c
+> > +++ b/tests/inet_socket/server.c
+> > @@ -79,11 +79,17 @@ int main(int argc, char **argv)
+> >                 perror("socket");
+> >                 exit(1);
+> >         }
+> > -       result = setsockopt(sock, SOL_IP, IP_PASSSEC, &on,
+> > sizeof(on));
+> > -       if (result < 0) {
+> > -               perror("setsockopt: SO_PASSSEC");
+> > -               close(sock);
+> > -               exit(1);
+> > +
+> > +       /* Allow retrieval of UDP/Datagram security contexts for
+> > IPv4 as
+> > +        * IPv6 is not currently supported.
+> > +        */
+> > +       if (hints.ai_socktype == SOCK_DGRAM) {
+> > +               result = setsockopt(sock, SOL_IP, IP_PASSSEC, &on,
+> > sizeof(on));
+> > +               if (result < 0) {
+> > +                       perror("setsockopt: IP_PASSSEC");
+> > +                       close(sock);
+> > +                       exit(1);
+> > +               }
+> >         }
+> > 
+> >         result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on,
+> > sizeof(on));
+> > diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+> > old mode 100755
+> > new mode 100644
+> > index 0bda2a4..6684260
+> > --- a/tests/inet_socket/test
+> > +++ b/tests/inet_socket/test
+> > @@ -2,27 +2,43 @@
+> >  use Test::More;
+> > 
+> >  BEGIN {
+> > -    # check if ip xfrm supports ctx parameter
+> > -    if ( system("ip xfrm policy help 2>&1 | grep -q ctx") != 0 ) {
+> > -        plan skip_all => "ctx not supported in ip xfrm policy";
+> > +    $basedir = $0;
+> > +    $basedir =~ s|(.*)/[^/]*|$1|;
+> > +
+> > +    $test_count = 38;
+> > +
+> > +    $test_ipsec = 0;
+> > +    if ( system("ip xfrm policy help 2>&1 | grep -q ctx") eq 0 ) {
+> > +        $test_count += 8;
+> > +        $test_ipsec = 1;
+> >      }
+> > -    else {
+> > -        plan tests => 33;
+> > +
+> > +    # Determine if CALIPSO supported by netlabelctl(8) and kernel.
+> > +    $test_calipso_stream = 0;
+> > +    $netlabelctl         = `netlabelctl -V`;
+> > +    $netlabelctl =~ s/\D//g;
+> > +    $kvercur = `uname -r`;
+> > +    chomp($kvercur);
+> > +    $kverminstream = "4.8";
+> > +
+> > +    $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
+> > +    if ( $netlabelctl gt "021" and $rc > 0 ) {
+> > +        $test_count += 3;
+> > +        $test_calipso_stream = 1;
+> >      }
+> > -}
+> > 
+> > -$basedir = $0;
+> > -$basedir =~ s|(.*)/[^/]*|$1|;
+> > +    plan tests => $test_count;
+> > +}
+> > 
+> > -# Load NetLabel configuration for full CIPSO4 labeling over
+> > loopback.
+> > -system "$basedir/cipso-fl-load";
+> > +# Load NetLabel configuration for full CIPSO/IPv4 labeling over
+> > loopback.
+> > +system "/bin/sh $basedir/cipso-fl-load";
+> > 
+> >  # Start the stream server.
+> >  if ( ( $pid = fork() ) == 0 ) {
+> >      exec "runcon -t test_inet_server_t $basedir/server stream
+> > 65535";
+> >  }
+> > 
+> > -sleep 1;    # Give it a moment to initialize.
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > 
+> >  # Verify that authorized client can communicate with the server.
+> >  $result =
+> > @@ -42,7 +58,7 @@ if ( ( $pid = fork() ) == 0 ) {
+> >      exec "runcon -t test_inet_server_t $basedir/server dgram
+> > 65535";
+> >  }
+> > 
+> > -sleep 1;    # Give it a moment to initialize
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize
+> > 
+> >  # Verify that authorized client can communicate with the server.
+> >  $result =
+> > @@ -58,32 +74,90 @@ ok( $result >> 8 eq 9 );
+> >  kill TERM, $pid;
+> > 
+> >  # Flush NetLabel configuration.
+> > -system "$basedir/cipso-fl-flush";
+> > +system "/bin/sh $basedir/cipso-fl-flush";
+> > +
+> > +# Load NetLabel configuration for CIPSO/IPv4 using TAG 1 over
+> > loopback.
+> > +system "/bin/sh $basedir/cipso-load-t1";
+> > +
+> > +# Start the stream server with a defined level.
+> > +if ( ( $pid = fork() ) == 0 ) {
+> > +    exec
+> > +"runcon -t test_inet_server_t -l s0:c20.c250 $basedir/server
+> > stream 65535";
+> > +}
+> > +
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > +
+> > +# Verify that authorized client can communicate with the server
+> > using level within T1 range.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c61.c239 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c61.c239 stream 127.0.0.1
+> > 65535";
+> > +ok( $result eq 0 );
+> > +
+> > +# Verify that authorized client cannot communicate with the server
+> > using different level.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c19,c120 $basedir/client
+> > stream 127.0.0.1 65535 2>&1";
+> > +ok( $result >> 8 eq 5 );
+> > +
+> > +# TAG 1 allows categories 0 to 239 to be sent, if greater then
+> > ENOSPC (No space left on device)
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c0.c240 $basedir/client stream
+> > 127.0.0.1 65535 2>&1";
+> > +ok( $result >> 8 eq 5 );
+> > +
+> > +# Kill the server.
+> > +kill TERM, $pid;
+> > +
+> > +# Start the dgram server with a defined level.
+> > +if ( ( $pid = fork() ) == 0 ) {
+> > +    exec
+> > +      "runcon -t test_inet_server_t -l s0:c20.c50 $basedir/server
+> > dgram 65535";
+> > +}
+> > +
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > +
+> > +# Verify that authorized client can communicate with the server
+> > using same levels.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c20.c50 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c20.c50 dgram 127.0.0.1
+> > 65535";
+> > +ok( $result eq 0 );
+> > +
+> > +# Verify that authorized client cannot communicate with the server
+> > using levels dominating the server.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c40.c51 $basedir/client dgram
+> > 127.0.0.1 65535 2>&1";
+> > +ok( $result >> 8 eq 9 );
+> > +
+> > +# Kill the server.
+> > +kill TERM, $pid;
+> > +
+> > +# Flush NetLabel configuration.
+> > +system "/bin/sh $basedir/cipso-flush";
+> > 
+> > -# Load NetLabel configuration for CIPSO4 over loopback.
+> > -system "$basedir/cipso-load";
+> > +# Load NetLabel configuration for CIPSO/IPv4 using TAG 2 over
+> > loopback.
+> > +system "/bin/sh $basedir/cipso-load-t2";
+> > 
+> >  # Start the stream server with a defined level.
+> >  if ( ( $pid = fork() ) == 0 ) {
+> >      exec
+> > -      "runcon -t test_inet_server_t -l s0:c0.c10 $basedir/server
+> > stream 65535";
+> > +      "runcon -t test_inet_server_t -l s0:c0.c100 $basedir/server
+> > stream 65535";
+> >  }
+> > 
+> > -sleep 1;    # Give it a moment to initialize.
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > 
+> >  # Verify that authorized client can communicate with the server
+> > using level.
+> >  $result = system
+> > -"runcon -t test_inet_client_t -l s0:c0.c10 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c0.c10 stream 127.0.0.1
+> > 65535";
+> > +"runcon -t test_inet_client_t -l s0:c90.c100 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c90.c100 stream 127.0.0.1
+> > 65535";
+> >  ok( $result eq 0 );
+> > 
+> >  # Verify that authorized client can communicate with the server
+> > using level.
+> >  $result = system
+> > -"runcon -t test_inet_client_t -l s0:c8.c10 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c8.c10 stream 127.0.0.1
+> > 65535";
+> > +"runcon -t test_inet_client_t -l s0:c0.c14 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c0.c14 stream 127.0.0.1
+> > 65535";
+> >  ok( $result eq 0 );
+> > 
+> >  # Verify that authorized client cannot communicate with the server
+> > using different level.
+> >  $result = system
+> > -"runcon -t test_inet_client_t -l s0:c8.c12 $basedir/client stream
+> > 127.0.0.1 65535 2>&1";
+> > +"runcon -t test_inet_client_t -l s0:c101 $basedir/client stream
+> > 127.0.0.1 65535 2>&1";
+> > +ok( $result >> 8 eq 5 );
+> > +
+> > +# TAG 2 allows a maximum of 15 categories in exchange, if greater
+> > then ENOSPC (No space left on device)
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c0.c16 -- $basedir/client
+> > dgram 127.0.0.1 65535 2>&1";
+> >  ok( $result >> 8 eq 5 );
+> > 
+> >  # Kill the server.
+> > @@ -92,26 +166,95 @@ kill TERM, $pid;
+> >  # Start the dgram server with a defined level.
+> >  if ( ( $pid = fork() ) == 0 ) {
+> >      exec
+> > -      "runcon -t test_inet_server_t -l s0:c20.c50 $basedir/server
+> > dgram 65535";
+> > +      "runcon -t test_inet_server_t -l s0:c0.c14 $basedir/server
+> > dgram 65535";
+> >  }
+> > 
+> > -sleep 1;    # Give it a moment to initialize.
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > 
+> >  # Verify that authorized client can communicate with the server
+> > using same levels.
+> >  $result = system
+> > -"runcon -t test_inet_client_t -l s0:c20.c50 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c20.c50 dgram 127.0.0.1
+> > 65535";
+> > +"runcon -t test_inet_client_t -l s0:c0.c14 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c0.c14 dgram 127.0.0.1 65535";
+> >  ok( $result eq 0 );
+> > 
+> >  # Verify that authorized client cannot communicate with the server
+> > using levels dominating the server.
+> >  $result = system
+> > -"runcon -t test_inet_client_t -l s0:c40.c51 $basedir/client dgram
+> > 127.0.0.1 65535 2>&1";
+> > +"runcon -t test_inet_client_t -l s0:c15 $basedir/client dgram
+> > 127.0.0.1 65535 2>&1";
+> >  ok( $result >> 8 eq 9 );
+> > 
+> >  # Kill the server.
+> >  kill TERM, $pid;
+> > 
+> >  # Flush NetLabel configuration.
+> > -system "$basedir/cipso-flush";
+> > +system "/bin/sh $basedir/cipso-flush";
+> > +
+> > +# Load NetLabel configuration for CIPSO/IPv4 using TAG 5 over
+> > loopback.
+> > +# TAG 5 allows a maximum of 7 ranges in exchange, if greater then
+> > ENOSPC (No space left on device), however
+> > +# note from kernel net/ipv4/cipso_ipv4.c comments:
+> > +# * You may note that the IETF draft states that the maximum
+> > number
+> > +# * of category ranges is 7, but if the low end of the last
+> > category range is
+> > +# * zero then it is possible to fit 8 category ranges because the
+> > zero should
+> > +# * be omitted. */
+> > +system "/bin/sh $basedir/cipso-load-t5";
+> > +
+> > +# Start the stream server with a defined level.
+> > +if ( ( $pid = fork() ) == 0 ) {
+> > +    exec
+> > +      "runcon -t test_inet_server_t -l s0:c0.c100 $basedir/server
+> > stream 65535";
+> > +}
+> > +
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > +
+> > +# Verify that authorized client can communicate with the server
+> > using level.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c0.c100 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c0.c100 stream 127.0.0.1
+> > 65535";
+> > +ok( $result eq 0 );
+> > +
+> > +# Verify that authorized client can communicate with the server
+> > using level.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c8.c100 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c8.c100 stream 127.0.0.1
+> > 65535";
+> > +ok( $result eq 0 );
+> > +
+> > +# Verify that authorized client cannot communicate with the server
+> > using different level.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c8.c101 $basedir/client stream
+> > 127.0.0.1 65535 2>&1";
+> > +ok( $result >> 8 eq 5 );
+> > +
+> > +# Verify ok with the 8 entries when cat c0:
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l
+> > s0:c0.c3,c20.c25,c30.c36,c40.c45,c50.c55,c60.c66,c70.c78,c80.c88
+> > $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c0.c3,c20.c25,c30.c36,c40.c45,
+> > c50.c55,c60.c66,c70.c78,c80.c88 stream 127.0.0.1 65535";
+> > +ok( $result eq 0 );
+> > +
+> > +# Verify fail with the 8 entries when cat !c0:
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l
+> > s0:c20.c25,c30.c36,c40.c45,c50.c55,c60.c66,c70.c78,c80.c88,c90.c99
+> > $basedir/client stream 127.0.0.1 65535 2>&1";
+> > +ok( $result >> 8 eq 5 );
+> > +
+> > +# Kill the server.
+> > +kill TERM, $pid;
+> > +
+> > +# Start the dgram server with a defined level.
+> > +if ( ( $pid = fork() ) == 0 ) {
+> > +    exec
+> > +      "runcon -t test_inet_server_t -l s0:c0.c100 $basedir/server
+> > dgram 65535";
+> > +}
+> > +
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > +
+> > +# Verify that authorized client can communicate with the server
+> > using same levels.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c0.c100 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c0.c100 dgram 127.0.0.1
+> > 65535";
+> > +ok( $result eq 0 );
+> > +
+> > +# Verify that authorized client cannot communicate with the server
+> > using levels dominating the server.
+> > +$result = system
+> > +"runcon -t test_inet_client_t -l s0:c40.c101 $basedir/client dgram
+> > 127.0.0.1 65535 2>&1";
+> > +ok( $result >> 8 eq 9 );
+> > +
+> > +# Kill the server.
+> > +kill TERM, $pid;
+> > +
+> > +# Flush NetLabel configuration.
+> > +system "/bin/sh $basedir/cipso-flush";
+> > 
+> >  # Verify that authorized domain can bind UDP sockets.
+> >  $result = system "runcon -t test_inet_bind_t -- $basedir/bind
+> > dgram 65535 2>&1";
+> > @@ -151,91 +294,96 @@ $result =
+> >    system "runcon -t test_inet_no_name_connect_t --
+> > $basedir/connect 65535 2>&1";
+> >  ok($result);
+> > 
+> > -# Load IPSEC configuration.
+> > -system "$basedir/ipsec-load";
+> > +if ($test_ipsec) {
+> > 
+> > -# Start the stream server.
+> > -if ( ( $pid = fork() ) == 0 ) {
+> > -    exec "runcon -t test_inet_server_t $basedir/server stream
+> > 65535";
+> > -}
+> > +    # Load IPSEC configuration.
+> > +    system "/bin/sh $basedir/ipsec-load";
+> > 
+> > -sleep 1;    # Give it a moment to initialize.
+> > +    # Start the stream server.
+> > +    if ( ( $pid = fork() ) == 0 ) {
+> > +        exec "runcon -t test_inet_server_t $basedir/server stream
+> > 65535";
+> > +    }
+> > 
+> > -# Verify that authorized client can communicate with the server.
+> > -$result =
+> > -  system "runcon -t test_inet_client_t $basedir/client stream
+> > 127.0.0.1 65535";
+> > -ok( $result eq 0 );
+> > +    select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > 
+> > -# Verify that unauthorized client cannot communicate with the
+> > server.
+> > -$result = system
+> > +    # Verify that authorized client can communicate with the
+> > server.
+> > +    $result =
+> > +      system
+> > +      "runcon -t test_inet_client_t $basedir/client stream
+> > 127.0.0.1 65535";
+> > +    ok( $result eq 0 );
+> > +
+> > +    # Verify that unauthorized client cannot communicate with the
+> > server.
+> > +    $result = system
+> >  "runcon -t test_inet_bad_client_t -- $basedir/client stream
+> > 127.0.0.1 65535 2>&1";
+> > -ok( $result >> 8 eq 5 );
+> > +    ok( $result >> 8 eq 5 );
+> > 
+> > -# Verify that authorized client can communicate with the server.
+> > -$result =
+> > -  system "runcon -t test_inet_client_t $basedir/client stream ::1
+> > 65535";
+> > -ok( $result eq 0 );
+> > +    # Verify that authorized client can communicate with the
+> > server.
+> > +    $result =
+> > +      system "runcon -t test_inet_client_t $basedir/client stream
+> > ::1 65535";
+> > +    ok( $result eq 0 );
+> > 
+> > -# Verify that unauthorized client cannot communicate with the
+> > server.
+> > -$result = system
+> > -  "runcon -t test_inet_bad_client_t -- $basedir/client stream ::1
+> > 65535 2>&1";
+> > -ok( $result >> 8 eq 5 );
+> > +    # Verify that unauthorized client cannot communicate with the
+> > server.
+> > +    $result = system
+> > +"runcon -t test_inet_bad_client_t -- $basedir/client stream ::1
+> > 65535 2>&1";
+> > +    ok( $result >> 8 eq 5 );
+> > 
+> > -# Kill the server.
+> > -kill TERM, $pid;
+> > +    # Kill the server.
+> > +    kill TERM, $pid;
+> > 
+> > -# Start the dgram server.
+> > -if ( ( $pid = fork() ) == 0 ) {
+> > -    exec "runcon -t test_inet_server_t $basedir/server dgram
+> > 65535";
+> > -}
+> > +    # Start the dgram server.
+> > +    if ( ( $pid = fork() ) == 0 ) {
+> > +        exec "runcon -t test_inet_server_t $basedir/server dgram
+> > 65535";
+> > +    }
+> > 
+> > -sleep 1;    # Give it a moment to initialize
+> > +    select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize
+> > 
+> > -# Verify that authorized client can communicate with the server.
+> > -$result =
+> > -  system "runcon -t test_inet_client_t $basedir/client dgram
+> > 127.0.0.1 65535";
+> > -ok( $result eq 0 );
+> > +    # Verify that authorized client can communicate with the
+> > server.
+> > +    $result =
+> > +      system
+> > +      "runcon -t test_inet_client_t $basedir/client dgram
+> > 127.0.0.1 65535";
+> > +    ok( $result eq 0 );
+> > 
+> > -# Verify that unauthorized client cannot communicate with the
+> > server.
+> > -$result = system
+> > +    # Verify that unauthorized client cannot communicate with the
+> > server.
+> > +    $result = system
+> >  "runcon -t test_inet_bad_client_t -- $basedir/client dgram
+> > 127.0.0.1 65535 2>&1";
+> > -ok( $result >> 8 eq 8 );
+> > +    ok( $result >> 8 eq 8 );
+> > 
+> > -# Verify that unauthorized client cannot communicate with the
+> > server.
+> > -$result = system
+> > -  "runcon -t test_inet_bad_client_t -- $basedir/client dgram ::1
+> > 65535 2>&1";
+> > -ok( $result >> 8 eq 8 );
+> > +    # Verify that unauthorized client cannot communicate with the
+> > server.
+> > +    $result = system
+> > +"runcon -t test_inet_bad_client_t -- $basedir/client dgram ::1
+> > 65535 2>&1";
+> > +    ok( $result >> 8 eq 8 );
+> > 
+> > -# Kill the server.
+> > -kill TERM, $pid;
+> > +    # Kill the server.
+> > +    kill TERM, $pid;
+> > 
+> >  # Start the dgram server for IPSEC test using IPv6 but do not
+> > request peer context.
+> > -if ( ( $pid = fork() ) == 0 ) {
+> > -    exec "runcon -t test_inet_server_t $basedir/server -n dgram
+> > 65535";
+> > -}
+> > +    if ( ( $pid = fork() ) == 0 ) {
+> > +        exec "runcon -t test_inet_server_t $basedir/server -n
+> > dgram 65535";
+> > +    }
+> > 
+> > -sleep 1;    # Give it a moment to initialize
+> > +    select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize
+> > 
+> > -# This test now passes.
+> > -$result = system
+> > -  "runcon -t test_inet_client_t $basedir/client -e nopeer dgram
+> > ::1 65535";
+> > -ok( $result eq 0 );
+> > +    # This test now passes.
+> > +    $result = system
+> > +      "runcon -t test_inet_client_t $basedir/client -e nopeer
+> > dgram ::1 65535";
+> > +    ok( $result eq 0 );
+> > 
+> > -# Kill the server.
+> > -kill TERM, $pid;
+> > +    # Kill the server.
+> > +    kill TERM, $pid;
+> > 
+> > -# Flush IPSEC configuration.
+> > -system "$basedir/ipsec-flush";
+> > +    # Flush IPSEC configuration.
+> > +    system "/bin/sh $basedir/ipsec-flush";
+> > +}
+> > 
+> >  # Load iptables (IPv4 & IPv6) configuration.
+> > -system "$basedir/iptables-load";
+> > +system "/bin/sh $basedir/iptables-load";
+> > 
+> >  # Start the stream server.
+> >  if ( ( $pid = fork() ) == 0 ) {
+> >      exec "runcon -t test_inet_server_t -- $basedir/server -n
+> > stream 65535";
+> >  }
+> > 
+> > -sleep 1;    # Give it a moment to initialize.
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > 
+> >  # Verify that authorized client can communicate with the server.
+> >  $result = system
+> > @@ -265,7 +413,7 @@ if ( ( $pid = fork() ) == 0 ) {
+> >      exec "runcon -t test_inet_server_t $basedir/server -n dgram
+> > 65535";
+> >  }
+> > 
+> > -sleep 1;    # Give it a moment to initialize
+> > +select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize
+> > 
+> >  # Verify that authorized client can communicate with the server.
+> >  $result = system
+> > @@ -291,6 +439,40 @@ ok( $result >> 8 eq 8 );
+> >  kill TERM, $pid;
+> > 
+> >  # Flush iptables configuration.
+> > -system "$basedir/iptables-flush";
+> > +system "/bin/sh $basedir/iptables-flush";
+> > +
+> > +if ($test_calipso_stream) {
+> > +
+> > +    # Load NetLabel configuration for CALIPSO/IPv6 labeling over
+> > loopback.
+> > +    system "/bin/sh $basedir/calipso-load";
+> > +
+> > +    # Start the stream server.
+> > +    if ( ( $pid = fork() ) == 0 ) {
+> > +        exec
+> > +"runcon -t test_inet_server_t -l s0:c0.c10 $basedir/server stream
+> > 65535";
+> > +    }
+> > +
+> > +    select( undef, undef, undef, 0.25 );    # Give it a moment to
+> > initialize.
+> > +
+> > +    # Verify that authorized client can communicate with the
+> > server.
+> > +    $result = system
+> > +"runcon -t test_inet_client_t -l s0:c0.c10 $basedir/client -e
+> > system_u:object_r:netlabel_peer_t:s0:c0.c10 stream ::1 65535";
+> > +    ok( $result eq 0 );
+> > +
+> > +# Verify that authorized client can communicate with the server
+> > using different valid level.
+> > +    $result = system
+> > +"runcon -t test_inet_client_t -l s0:c8.c10 $basedir/client
+> > -e  system_u:object_r:netlabel_peer_t:s0:c8.c10 stream ::1 65535";
+> > +    ok( $result eq 0 );
+> > +
+> > +# Verify that authorized client cannot communicate with the server
+> > using invalid level.
+> > +    $result = system
+> > +"runcon -t test_inet_client_t -l s0:c8.c12 -- $basedir/client
+> > stream ::1 65535 2>&1";
+> > +    ok( $result >> 8 eq 5 );
+> > +
+> > +    # Kill the stream server.
+> > +    kill TERM, $pid;
+> > +
+> > +    system "/bin/sh $basedir/calipso-flush";
+> > +}
+> > 
+> >  exit;
+> > --
+> > 2.14.3
+> > 
+> > 
+> 
+> 
+> 
