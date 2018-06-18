@@ -1,83 +1,83 @@
-To: Petr Lautrbach <plautrba@redhat.com>, selinux@tycho.nsa.gov
-References: <20180618192443.GA8162@workstation>
+To: Mike Hughes <mike@visionary.com>,
+ "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
+References: <DM6PR19MB22817204E97BC6C6F1F71870D1710@DM6PR19MB2281.namprd19.prod.outlook.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <b0a52b4d-ff8c-8970-d738-8901ff37b12a@tycho.nsa.gov>
-Date: Mon, 18 Jun 2018 16:06:11 -0400
+Message-ID: <91831205-cf9f-e8df-7019-aa1fffe54051@tycho.nsa.gov>
+Date: Mon, 18 Jun 2018 16:27:55 -0400
 MIME-Version: 1.0
-In-Reply-To: <20180618192443.GA8162@workstation>
+In-Reply-To: <DM6PR19MB22817204E97BC6C6F1F71870D1710@DM6PR19MB2281.namprd19.prod.outlook.com>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: is_selinux_enabled() after chroot()
+Subject: Re: 'setsebool -P' works but throws errors; changes not permanent
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/18/2018 03:24 PM, Petr Lautrbach wrote:
-> Hello,
+On 06/18/2018 03:44 PM, Mike Hughes wrote:
+> We use Yubikey for two-factor ssh authentication which requires enabling a Boolean called “authlogin_yubikey”. It has been working fine until a few weeks ago. Errors appear when attempting to set the policy:
 > 
-> libselinux sets selinut_mnt and has_selinux_config only in its constructor and
-> is_selinux_enabled() and others just use selinux_mnt to check if SELinux is
-> enabled. But it doesn't work correctly when you use chroot() to a directory without /proc
-> and /sys/fs/selinux mounted as it was discovered in
-> https://bugzilla.redhat.com/show_bug.cgi?id=1321375 
+>  
 > 
-> In this case, is_selinux_enabled() after chroot() returns true while in a new
-> program run from chrooted process it returns false. It can be demonstrated by
-> the steps below.
+> --
 > 
-> The solution could be to check if selinux_mnt still exists whenever a function
-> depending on this is called. Would this be acceptable?
+> [Cent-7:root@my_server home]# getsebool authlogin_yubikey
+> 
+> authlogin_yubikey --> off
+> 
+>  
+> 
+> [Cent-7:root@my_server home]# setsebool -P authlogin_yubikey on
+> 
+> libsepol.context_from_record: type gpio_device_t is not defined
+> 
+> libsepol.context_from_record: could not create context structure
+> 
+> libsepol.context_from_string: could not create context structure
+> 
+> libsepol.sepol_context_to_sid: could not convert system_u:object_r:gpio_device_t:s0 to sid
+> 
+> invalid context system_u:object_r:gpio_device_t:s0
 
-You want to call stat() or access(F_OK) on selinux_mnt and/or SELINUXCONFIG in is_selinux_enabled()?
-Could potentially trigger a permission check that wasn't previously required, thereby breaking existing policies.
-Caller might just be checking to see if SELinux is enabled before using interfaces other than selinuxfs (e.g. setexeccon, setfilecon, etc) and therefore didn't previously need permissions to selinuxfs or /etc/selinux/config.
-So, possible but you'd need to make sure you don't break anything.  Definitely don't want that changed in Android.
+Sounds like your policy is in an inconsistent internal state (somewhere you have a context with gpio_device_t but the type isn't defined in the policy).
+
+What's your policy version?  And did it perhaps fail during %post when it was updated - check yum.log?
+
+Does semodule -B fail?
+
+Might have to move aside your policy and reinstall it.
 
 > 
+>  
 > 
+> [Cent-7:root@my_server home]# getsebool authlogin_yubikey
 > 
+> authlogin_yubikey --> on
 > 
-> $ sudo dnf --nogpg --installroot=/var/lib/machines/example  install systemd
+> ---
 > 
-> $ cat > test_libselinux.c <<EOF
-> #include <selinux/selinux.h>
-> #include <stdio.h>
-> #include <sys/types.h>
-> #include <sys/wait.h>
-> #include <unistd.h>
+>  
 > 
-> int main(int argc, char *argv[]) {
->   pid_t pid;
->   int wstatus;
+> The system accepts two-factor while the above is set to “on”. After some undetermined time (or immediately after a reboot) the Boolean toggles off. This can be confirmed since semanage shows that the default is still set to “off”:
 > 
->   if (argc > 1) {
->     printf("SELinux in chrooted process: %d\n", is_selinux_enabled());
->     return 0;
->   }
->   if (chroot("/var/lib/machines/example") != 0)
->     return -1;
+>  
 > 
->   printf("SELinux in process after chroot(): %d\n", is_selinux_enabled());
->   printf("/sys/fs/selinux exists: %d\n", access("/sys/fs/selinux", F_OK));
->   printf("/etc/selinux/config exists: %d\n\n", access("/etc/selinux/config", F_OK));
+> --
 > 
->   if ((pid = fork()) == 0 ) {
->     execv("./test_is_selinux_enabled", (char *[]){ "./test_is_selinux_enabled", "chrooted", NULL});
->   }
+> [Cent-7:root@my_server ~]# semanage boolean -l | grep "authlogin_yubikey"
 > 
->   wait(&wstatus);
->   return 0;
-> }
-> EOF
+> SELinux boolean                State  Default Description
 > 
-> $ gcc -o test_is_selinux_enabled test_libselinux.c -lselinux
+> ...
 > 
-> $ sudo ./test_is_selinux_enabled                            
-> SELinux in process after chroot(): 1
-> /sys/fs/selinux exists: -1
-> /etc/selinux/config exists: -1
+> authlogin_yubikey              (on   ,  off)  Allow authlogin to yubikey
 > 
-> SELinux in chrooted process: 0
+> --
+> 
+>  
+> 
+> It looks similar to the following bug on Fedora:
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=1559174
 > 
 > 
 > 
