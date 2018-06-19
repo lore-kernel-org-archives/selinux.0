@@ -1,82 +1,247 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JGpa5u004363
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 12:51:36 -0400
-Received: by mail-lf0-f66.google.com with SMTP id t2-v6so527974lfd.6
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 09:51:29 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JH4Cvu005745
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 13:04:12 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC10.oob.disa.mil (Postfix) with SMTP id 419DnH44jmz4KRKn
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 17:03:31 +0000 (UTC)
+Received: from UPDC3CPA07_EEMSG_MP23.eemsg.mil (unknown [192.168.18.18])
+ by UPDCF3IC10.oob.disa.mil (Postfix) with ESMTP id 419DnH1wvJz4KRKf
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 17:03:31 +0000 (UTC)
+Received: by mail-lf0-f66.google.com with SMTP id y20-v6so627164lfy.0
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 10:03:30 -0700 (PDT)
 MIME-Version: 1.0
 References: <20180612080912.7827-1-peter.enderborg@sony.com>
- <20180612080912.7827-4-peter.enderborg@sony.com>
- <CAHC9VhTULXGAjbRSeriXm6g=aQbaG6XcfXtROVoJr632yis=Gw@mail.gmail.com>
- <e66cad5399b741b8d5c06c8ea772c8b84caf1150.camel@perches.com>
-In-Reply-To: <e66cad5399b741b8d5c06c8ea772c8b84caf1150.camel@perches.com>
+ <20180612080912.7827-6-peter.enderborg@sony.com>
+In-Reply-To: <20180612080912.7827-6-peter.enderborg@sony.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 19 Jun 2018 12:51:18 -0400
-Message-ID: <CAHC9VhRPeSjtWE_HNhRQGZedtOsHKfPN0d=_yC9-n=HhAtkMrg@mail.gmail.com>
-To: joe@perches.com
-Cc: peter.enderborg@sony.com, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
- danielj@mellanox.com, dledford@redhat.com, selinux@tycho.nsa.gov,
+Date: Tue, 19 Jun 2018 13:03:18 -0400
+Message-ID: <CAHC9VhT+NNUf2dxkz1DxG21Ydz7ygAA2S1b7WfvDUD25EgybuA@mail.gmail.com>
+To: peter.enderborg@sony.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <jmorris@namei.org>, danielj@mellanox.com,
+ dledford@redhat.com, selinux@tycho.nsa.gov,
  linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
  serge@hallyn.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 03/13] selinux: Cleanup printk logging in
- policydb
+Subject: Re: [PATCH 05/13] selinux: Cleanup printk logging in avtab
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Jun 19, 2018 at 12:45 PM Joe Perches <joe@perches.com> wrote:
+On Tue, Jun 12, 2018 at 4:09 AM Peter Enderborg
+<peter.enderborg@sony.com> wrote:
 >
-> On Tue, 2018-06-19 at 12:41 -0400, Paul Moore wrote:
-> > On Tue, Jun 12, 2018 at 4:09 AM Peter Enderborg
-> > <peter.enderborg@sony.com> wrote:
-> > >
-> > > Replace printk with pr_* to avoid checkpatch warnings and
-> > > replace KERN_CONT with 2 longer prints.
-> > >
-> > > Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
-> > > ---
-> > >  security/selinux/ss/policydb.c | 91 +++++++++++++++++++++---------------------
-> > >  1 file changed, 46 insertions(+), 45 deletions(-)
-> >
-> > Merged, thank you.  While removing the separate KERN_CONT message
-> > introduces some duplication, I think that's the right thing to do.
-> >
-> > > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> []
-> > > @@ -504,7 +504,7 @@ static void hash_eval(struct hashtab *h, const char *hash_name)
-> > >         struct hashtab_info info;
-> > >
-> > >         hashtab_stat(h, &info);
-> > > -       printk(KERN_DEBUG "SELinux: %s:  %d entries and %d/%d buckets used, "
-> > > +       pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, "
-> > >                "longest chain length %d\n", hash_name, h->nel,
-> > >                info.slots_used, h->size, info.max_chain_len);
-> > >  }
-> > > @@ -533,15 +533,17 @@ static int policydb_index(struct policydb *p)
-> > >  {
-> > >         int i, rc;
-> > >
-> > > -       printk(KERN_DEBUG "SELinux:  %d users, %d roles, %d types, %d bools",
-> > > -              p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim, p->p_bools.nprim);
-> > >         if (p->mls_enabled)
-> > > -               printk(KERN_CONT ", %d sens, %d cats", p->p_levels.nprim,
-> > > -                      p->p_cats.nprim);
-> > > -       printk(KERN_CONT "\n");
-> > > +               pr_debug("SELinux:  %d users, %d roles, %d types, %d bools, %d sens, %d cats",
-> > > +                        p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim,
-> > > +                        p->p_bools.nprim, p->p_levels.nprim, p->p_cats.nprim);
-> > > +       else
-> > > +               pr_debug("SELinux:  %d users, %d roles, %d types, %d bools",
-> > > +                        p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim,
-> > > +                        p->p_bools.nprim);
+> Replace printk with pr_* to avoid checkpatch warnings.
 >
-> This lost the terminating newline on each pr_debug
+> Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
+> ---
+>  security/selinux/ss/avtab.c | 51 +++++++++++++++++++++++----------------------
+>  1 file changed, 26 insertions(+), 25 deletions(-)
 
-Good catch.  I haven't pushed to selinux/next yet, and this is pretty
-minor, so I'll just fix that up in the merge.
+Merged, thanks.
+
+> diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+> index a2c9148b0662..c0417cf17fee 100644
+> --- a/security/selinux/ss/avtab.c
+> +++ b/security/selinux/ss/avtab.c
+> @@ -338,7 +338,7 @@ int avtab_alloc(struct avtab *h, u32 nrules)
+>         h->nel = 0;
+>         h->nslot = nslot;
+>         h->mask = mask;
+> -       printk(KERN_DEBUG "SELinux: %d avtab hash slots, %d rules.\n",
+> +       pr_debug("SELinux: %d avtab hash slots, %d rules.\n",
+>                h->nslot, nrules);
+>         return 0;
+>  }
+> @@ -368,7 +368,7 @@ void avtab_hash_eval(struct avtab *h, char *tag)
+>                 }
+>         }
+>
+> -       printk(KERN_DEBUG "SELinux: %s:  %d entries and %d/%d buckets used, "
+> +       pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, "
+>                "longest chain length %d sum of chain length^2 %llu\n",
+>                tag, h->nel, slots_used, h->nslot, max_chain_len,
+>                chain2_len_sum);
+> @@ -407,18 +407,18 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>         if (vers < POLICYDB_VERSION_AVTAB) {
+>                 rc = next_entry(buf32, fp, sizeof(u32));
+>                 if (rc) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+> +                       pr_err("SELinux: avtab: truncated entry\n");
+>                         return rc;
+>                 }
+>                 items2 = le32_to_cpu(buf32[0]);
+>                 if (items2 > ARRAY_SIZE(buf32)) {
+> -                       printk(KERN_ERR "SELinux: avtab: entry overflow\n");
+> +                       pr_err("SELinux: avtab: entry overflow\n");
+>                         return -EINVAL;
+>
+>                 }
+>                 rc = next_entry(buf32, fp, sizeof(u32)*items2);
+>                 if (rc) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+> +                       pr_err("SELinux: avtab: truncated entry\n");
+>                         return rc;
+>                 }
+>                 items = 0;
+> @@ -426,19 +426,19 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>                 val = le32_to_cpu(buf32[items++]);
+>                 key.source_type = (u16)val;
+>                 if (key.source_type != val) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated source type\n");
+> +                       pr_err("SELinux: avtab: truncated source type\n");
+>                         return -EINVAL;
+>                 }
+>                 val = le32_to_cpu(buf32[items++]);
+>                 key.target_type = (u16)val;
+>                 if (key.target_type != val) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated target type\n");
+> +                       pr_err("SELinux: avtab: truncated target type\n");
+>                         return -EINVAL;
+>                 }
+>                 val = le32_to_cpu(buf32[items++]);
+>                 key.target_class = (u16)val;
+>                 if (key.target_class != val) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated target class\n");
+> +                       pr_err("SELinux: avtab: truncated target class\n");
+>                         return -EINVAL;
+>                 }
+>
+> @@ -446,16 +446,16 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>                 enabled = (val & AVTAB_ENABLED_OLD) ? AVTAB_ENABLED : 0;
+>
+>                 if (!(val & (AVTAB_AV | AVTAB_TYPE))) {
+> -                       printk(KERN_ERR "SELinux: avtab: null entry\n");
+> +                       pr_err("SELinux: avtab: null entry\n");
+>                         return -EINVAL;
+>                 }
+>                 if ((val & AVTAB_AV) &&
+>                     (val & AVTAB_TYPE)) {
+> -                       printk(KERN_ERR "SELinux: avtab: entry has both access vectors and types\n");
+> +                       pr_err("SELinux: avtab: entry has both access vectors and types\n");
+>                         return -EINVAL;
+>                 }
+>                 if (val & AVTAB_XPERMS) {
+> -                       printk(KERN_ERR "SELinux: avtab: entry has extended permissions\n");
+> +                       pr_err("SELinux: avtab: entry has extended permissions\n");
+>                         return -EINVAL;
+>                 }
+>
+> @@ -470,7 +470,8 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>                 }
+>
+>                 if (items != items2) {
+> -                       printk(KERN_ERR "SELinux: avtab: entry only had %d items, expected %d\n", items2, items);
+> +                       pr_err("SELinux: avtab: entry only had %d items, expected %d\n",
+> +                              items2, items);
+>                         return -EINVAL;
+>                 }
+>                 return 0;
+> @@ -478,7 +479,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>
+>         rc = next_entry(buf16, fp, sizeof(u16)*4);
+>         if (rc) {
+> -               printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+> +               pr_err("SELinux: avtab: truncated entry\n");
+>                 return rc;
+>         }
+>
+> @@ -491,7 +492,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>         if (!policydb_type_isvalid(pol, key.source_type) ||
+>             !policydb_type_isvalid(pol, key.target_type) ||
+>             !policydb_class_isvalid(pol, key.target_class)) {
+> -               printk(KERN_ERR "SELinux: avtab: invalid type or class\n");
+> +               pr_err("SELinux: avtab: invalid type or class\n");
+>                 return -EINVAL;
+>         }
+>
+> @@ -501,13 +502,13 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>                         set++;
+>         }
+>         if (!set || set > 1) {
+> -               printk(KERN_ERR "SELinux:  avtab:  more than one specifier\n");
+> +               pr_err("SELinux:  avtab:  more than one specifier\n");
+>                 return -EINVAL;
+>         }
+>
+>         if ((vers < POLICYDB_VERSION_XPERMS_IOCTL) &&
+>                         (key.specified & AVTAB_XPERMS)) {
+> -               printk(KERN_ERR "SELinux:  avtab:  policy version %u does not "
+> +               pr_err("SELinux:  avtab:  policy version %u does not "
+>                                 "support extended permissions rules and one "
+>                                 "was specified\n", vers);
+>                 return -EINVAL;
+> @@ -515,17 +516,17 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>                 memset(&xperms, 0, sizeof(struct avtab_extended_perms));
+>                 rc = next_entry(&xperms.specified, fp, sizeof(u8));
+>                 if (rc) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+> +                       pr_err("SELinux: avtab: truncated entry\n");
+>                         return rc;
+>                 }
+>                 rc = next_entry(&xperms.driver, fp, sizeof(u8));
+>                 if (rc) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+> +                       pr_err("SELinux: avtab: truncated entry\n");
+>                         return rc;
+>                 }
+>                 rc = next_entry(buf32, fp, sizeof(u32)*ARRAY_SIZE(xperms.perms.p));
+>                 if (rc) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+> +                       pr_err("SELinux: avtab: truncated entry\n");
+>                         return rc;
+>                 }
+>                 for (i = 0; i < ARRAY_SIZE(xperms.perms.p); i++)
+> @@ -534,14 +535,14 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
+>         } else {
+>                 rc = next_entry(buf32, fp, sizeof(u32));
+>                 if (rc) {
+> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
+> +                       pr_err("SELinux: avtab: truncated entry\n");
+>                         return rc;
+>                 }
+>                 datum.u.data = le32_to_cpu(*buf32);
+>         }
+>         if ((key.specified & AVTAB_TYPE) &&
+>             !policydb_type_isvalid(pol, datum.u.data)) {
+> -               printk(KERN_ERR "SELinux: avtab: invalid type\n");
+> +               pr_err("SELinux: avtab: invalid type\n");
+>                 return -EINVAL;
+>         }
+>         return insertf(a, &key, &datum, p);
+> @@ -562,12 +563,12 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
+>
+>         rc = next_entry(buf, fp, sizeof(u32));
+>         if (rc < 0) {
+> -               printk(KERN_ERR "SELinux: avtab: truncated table\n");
+> +               pr_err("SELinux: avtab: truncated table\n");
+>                 goto bad;
+>         }
+>         nel = le32_to_cpu(buf[0]);
+>         if (!nel) {
+> -               printk(KERN_ERR "SELinux: avtab: table is empty\n");
+> +               pr_err("SELinux: avtab: table is empty\n");
+>                 rc = -EINVAL;
+>                 goto bad;
+>         }
+> @@ -580,9 +581,9 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
+>                 rc = avtab_read_item(a, fp, pol, avtab_insertf, NULL);
+>                 if (rc) {
+>                         if (rc == -ENOMEM)
+> -                               printk(KERN_ERR "SELinux: avtab: out of memory\n");
+> +                               pr_err("SELinux: avtab: out of memory\n");
+>                         else if (rc == -EEXIST)
+> -                               printk(KERN_ERR "SELinux: avtab: duplicate entry\n");
+> +                               pr_err("SELinux: avtab: duplicate entry\n");
+>
+>                         goto bad;
+>                 }
+> --
+> 2.15.1
+>
+
 
 -- 
 paul moore
