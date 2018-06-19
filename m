@@ -1,57 +1,96 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JHUlm7008123
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 13:30:47 -0400
-Received: by mail-lf0-f47.google.com with SMTP id u5-v6so679375lff.13
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 10:30:43 -0700 (PDT)
-Date: Tue, 19 Jun 2018 12:30:39 -0500
-From: Jalus Bilieyich <countolaf17@gmail.com>
-To: Mike Hughes <mike@visionary.com>
-Cc: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Message-Id: <20180619123039.7d93a4eeaeadc8ea8ab02058@gmail.com>
-In-Reply-To: <DM6PR19MB22817204E97BC6C6F1F71870D1710@DM6PR19MB2281.namprd19.prod.outlook.com>
-References: <DM6PR19MB22817204E97BC6C6F1F71870D1710@DM6PR19MB2281.namprd19.prod.outlook.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Subject: Re: 'setsebool -P' works but throws errors;
- changes not permanent
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JHFdv4006629
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 13:15:39 -0400
+Received: by mail-lf0-f48.google.com with SMTP id e13-v6so363852lfc.1
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 10:15:35 -0700 (PDT)
+MIME-Version: 1.0
+References: <20180612080912.7827-1-peter.enderborg@sony.com>
+ <20180612080912.7827-8-peter.enderborg@sony.com>
+In-Reply-To: <20180612080912.7827-8-peter.enderborg@sony.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 19 Jun 2018 13:15:24 -0400
+Message-ID: <CAHC9VhT_FRmjXe_6_t+FS3OvPKQTX91dzLK3=nVvJ3aPAohZcA@mail.gmail.com>
+To: peter.enderborg@sony.com
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ James Morris <jmorris@namei.org>, danielj@mellanox.com,
+ dledford@redhat.com, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ serge@hallyn.com
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 07/13] selinux: Cleanup printk logging in
+ selinuxfs
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, 18 Jun 2018 19:44:10 +0000
-Mike Hughes <mike@visionary.com> wrote:
-
-> We use Yubikey for two-factor ssh authentication which requires enabling a Boolean called "authlogin_yubikey". It has been working fine until a few weeks ago. Errors appear when attempting to set the policy:
-> 
-> --
-> [Cent-7:root@my_server home]# getsebool authlogin_yubikey
-> authlogin_yubikey --> off
-> 
-> [Cent-7:root@my_server home]# setsebool -P authlogin_yubikey on
-> libsepol.context_from_record: type gpio_device_t is not defined
-> libsepol.context_from_record: could not create context structure
-> libsepol.context_from_string: could not create context structure
-> libsepol.sepol_context_to_sid: could not convert system_u:object_r:gpio_device_t:s0 to sid
-> invalid context system_u:object_r:gpio_device_t:s0
-> 
-> [Cent-7:root@my_server home]# getsebool authlogin_yubikey
-> authlogin_yubikey --> on
+On Tue, Jun 12, 2018 at 4:09 AM Peter Enderborg
+<peter.enderborg@sony.com> wrote:
+>
+> Replace printk with pr_* to avoid checkpatch warnings.
+>
+> Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
 > ---
-> 
-> The system accepts two-factor while the above is set to "on". After some undetermined time (or immediately after a reboot) the Boolean toggles off. This can be confirmed since semanage shows that the default is still set to "off":
-> 
+>  security/selinux/selinuxfs.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+
+Merged, thanks.
+
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index c0cadbc5f85c..2adfade99945 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -620,7 +620,7 @@ static ssize_t sel_write_context(struct file *file, char *buf, size_t size)
+>
+>         length = -ERANGE;
+>         if (len > SIMPLE_TRANSACTION_LIMIT) {
+> -               printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
+> +               pr_err("SELinux: %s:  context size (%u) exceeds "
+>                         "payload max\n", __func__, len);
+>                 goto out;
+>         }
+> @@ -956,7 +956,7 @@ static ssize_t sel_write_create(struct file *file, char *buf, size_t size)
+>
+>         length = -ERANGE;
+>         if (len > SIMPLE_TRANSACTION_LIMIT) {
+> -               printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
+> +               pr_err("SELinux: %s:  context size (%u) exceeds "
+>                         "payload max\n", __func__, len);
+>                 goto out;
+>         }
+> @@ -1147,7 +1147,7 @@ static ssize_t sel_write_member(struct file *file, char *buf, size_t size)
+>
+>         length = -ERANGE;
+>         if (len > SIMPLE_TRANSACTION_LIMIT) {
+> -               printk(KERN_ERR "SELinux: %s:  context size (%u) exceeds "
+> +               pr_err("SELinux: %s:  context size (%u) exceeds "
+>                         "payload max\n", __func__, len);
+>                 goto out;
+>         }
+> @@ -1996,7 +1996,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+>                 goto err;
+>         return 0;
+>  err:
+> -       printk(KERN_ERR "SELinux: %s:  failed while creating inodes\n",
+> +       pr_err("SELinux: %s:  failed while creating inodes\n",
+>                 __func__);
+>
+>         selinux_fs_info_free(sb);
+> @@ -2046,7 +2046,7 @@ static int __init init_sel_fs(void)
+>
+>         selinux_null.mnt = selinuxfs_mount = kern_mount(&sel_fs_type);
+>         if (IS_ERR(selinuxfs_mount)) {
+> -               printk(KERN_ERR "selinuxfs:  could not mount!\n");
+> +               pr_err("selinuxfs:  could not mount!\n");
+>                 err = PTR_ERR(selinuxfs_mount);
+>                 selinuxfs_mount = NULL;
+>         }
 > --
-> [Cent-7:root@my_server ~]# semanage boolean -l | grep "authlogin_yubikey"
-> SELinux boolean                State  Default Description
-> ...
-> authlogin_yubikey              (on   ,  off)  Allow authlogin to yubikey
-> --
-> 
-> It looks similar to the following bug on Fedora:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1559174
+> 2.15.1
+>
 
 
 -- 
-Jalus Bilieyich <countolaf17@gmail.com>
+paul moore
+www.paul-moore.com
