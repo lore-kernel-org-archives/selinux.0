@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JGgi6U003724
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 12:42:44 -0400
-Received: by mail-lf0-f68.google.com with SMTP id y20-v6so524820lfy.0
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 09:41:14 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JGiUKx003852
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 12:44:32 -0400
+Received: by mail-lf0-f68.google.com with SMTP id e13-v6so217460lfc.1
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 09:44:25 -0700 (PDT)
 MIME-Version: 1.0
 References: <20180612080912.7827-1-peter.enderborg@sony.com>
- <20180612080912.7827-4-peter.enderborg@sony.com>
-In-Reply-To: <20180612080912.7827-4-peter.enderborg@sony.com>
+ <20180612080912.7827-5-peter.enderborg@sony.com>
+In-Reply-To: <20180612080912.7827-5-peter.enderborg@sony.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 19 Jun 2018 12:41:00 -0400
-Message-ID: <CAHC9VhTULXGAjbRSeriXm6g=aQbaG6XcfXtROVoJr632yis=Gw@mail.gmail.com>
+Date: Tue, 19 Jun 2018 12:44:13 -0400
+Message-ID: <CAHC9VhSPHUxnJ84g3urHwTZjvZTEbLKEyhdw_NQauFB9jTy4EQ@mail.gmail.com>
 To: peter.enderborg@sony.com
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
  James Morris <jmorris@namei.org>, danielj@mellanox.com,
@@ -18,8 +18,7 @@ Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
  linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
  serge@hallyn.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 03/13] selinux: Cleanup printk logging in
- policydb
+Subject: Re: [PATCH 04/13] selinux: Cleanup printk logging in hooks
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -28,363 +27,295 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 On Tue, Jun 12, 2018 at 4:09 AM Peter Enderborg
 <peter.enderborg@sony.com> wrote:
 >
-> Replace printk with pr_* to avoid checkpatch warnings and
-> replace KERN_CONT with 2 longer prints.
+> Replace printk with pr_* to avoid checkpatch warnings.
 >
 > Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
 > ---
->  security/selinux/ss/policydb.c | 91 +++++++++++++++++++++---------------------
->  1 file changed, 46 insertions(+), 45 deletions(-)
+>  security/selinux/hooks.c | 68 +++++++++++++++++++++++-------------------------
+>  1 file changed, 33 insertions(+), 35 deletions(-)
 
-Merged, thank you.  While removing the separate KERN_CONT message
-introduces some duplication, I think that's the right thing to do.
+Merged, thank you.
 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 6e8c8056d7ad..4e82c5fcd1a1 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -504,7 +504,7 @@ static void hash_eval(struct hashtab *h, const char *hash_name)
->         struct hashtab_info info;
->
->         hashtab_stat(h, &info);
-> -       printk(KERN_DEBUG "SELinux: %s:  %d entries and %d/%d buckets used, "
-> +       pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, "
->                "longest chain length %d\n", hash_name, h->nel,
->                info.slots_used, h->size, info.max_chain_len);
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 4cafe6a19167..3ab9687ac4c8 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -531,7 +531,7 @@ static int sb_finish_set_opts(struct super_block *sb)
+>                    the first boot of the SELinux kernel before we have
+>                    assigned xattr values to the filesystem. */
+>                 if (!(root_inode->i_opflags & IOP_XATTR)) {
+> -                       printk(KERN_WARNING "SELinux: (dev %s, type %s) has no "
+> +                       pr_warn("SELinux: (dev %s, type %s) has no "
+>                                "xattr support\n", sb->s_id, sb->s_type->name);
+>                         rc = -EOPNOTSUPP;
+>                         goto out;
+> @@ -540,11 +540,11 @@ static int sb_finish_set_opts(struct super_block *sb)
+>                 rc = __vfs_getxattr(root, root_inode, XATTR_NAME_SELINUX, NULL, 0);
+>                 if (rc < 0 && rc != -ENODATA) {
+>                         if (rc == -EOPNOTSUPP)
+> -                               printk(KERN_WARNING "SELinux: (dev %s, type "
+> +                               pr_warn("SELinux: (dev %s, type "
+>                                        "%s) has no security xattr handler\n",
+>                                        sb->s_id, sb->s_type->name);
+>                         else
+> -                               printk(KERN_WARNING "SELinux: (dev %s, type "
+> +                               pr_warn("SELinux: (dev %s, type "
+>                                        "%s) getxattr errno %d\n", sb->s_id,
+>                                        sb->s_type->name, -rc);
+>                         goto out;
+> @@ -743,7 +743,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>                         goto out;
+>                 }
+>                 rc = -EINVAL;
+> -               printk(KERN_WARNING "SELinux: Unable to set superblock options "
+> +               pr_warn("SELinux: Unable to set superblock options "
+>                         "before the security server is initialized\n");
+>                 goto out;
+>         }
+> @@ -785,7 +785,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>                                                  mount_options[i], &sid,
+>                                                  GFP_KERNEL);
+>                 if (rc) {
+> -                       printk(KERN_WARNING "SELinux: security_context_str_to_sid"
+> +                       pr_warn("SELinux: security_context_str_to_sid"
+>                                "(%s) failed for (dev %s, type %s) errno=%d\n",
+>                                mount_options[i], sb->s_id, name, rc);
+>                         goto out;
+> @@ -861,8 +861,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>                  */
+>                 rc = security_fs_use(&selinux_state, sb);
+>                 if (rc) {
+> -                       printk(KERN_WARNING
+> -                               "%s: security_fs_use(%s) returned %d\n",
+> +                       pr_warn("%s: security_fs_use(%s) returned %d\n",
+>                                         __func__, sb->s_type->name, rc);
+>                         goto out;
+>                 }
+> @@ -948,7 +947,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>                 if (sbsec->behavior != SECURITY_FS_USE_XATTR &&
+>                         sbsec->behavior != SECURITY_FS_USE_NATIVE) {
+>                         rc = -EINVAL;
+> -                       printk(KERN_WARNING "SELinux: defcontext option is "
+> +                       pr_warn("SELinux: defcontext option is "
+>                                "invalid for this filesystem type\n");
+>                         goto out;
+>                 }
+> @@ -970,7 +969,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>         return rc;
+>  out_double_mount:
+>         rc = -EINVAL;
+> -       printk(KERN_WARNING "SELinux: mount invalid.  Same superblock, different "
+> +       pr_warn("SELinux: mount invalid.  Same superblock, different "
+>                "security settings for (dev %s, type %s)\n", sb->s_id, name);
+>         goto out;
 >  }
-> @@ -533,15 +533,17 @@ static int policydb_index(struct policydb *p)
->  {
->         int i, rc;
->
-> -       printk(KERN_DEBUG "SELinux:  %d users, %d roles, %d types, %d bools",
-> -              p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim, p->p_bools.nprim);
->         if (p->mls_enabled)
-> -               printk(KERN_CONT ", %d sens, %d cats", p->p_levels.nprim,
-> -                      p->p_cats.nprim);
-> -       printk(KERN_CONT "\n");
-> +               pr_debug("SELinux:  %d users, %d roles, %d types, %d bools, %d sens, %d cats",
-> +                        p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim,
-> +                        p->p_bools.nprim, p->p_levels.nprim, p->p_cats.nprim);
-> +       else
-> +               pr_debug("SELinux:  %d users, %d roles, %d types, %d bools",
-> +                        p->p_users.nprim, p->p_roles.nprim, p->p_types.nprim,
-> +                        p->p_bools.nprim);
->
-> -       printk(KERN_DEBUG "SELinux:  %d classes, %d rules\n",
-> -              p->p_classes.nprim, p->te_avtab.nel);
-> +       pr_debug("SELinux:  %d classes, %d rules\n",
-> +                p->p_classes.nprim, p->te_avtab.nel);
->
->  #ifdef DEBUG_HASHES
->         avtab_hash_eval(&p->te_avtab, "rules");
-> @@ -897,7 +899,7 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
->
->         rc = sidtab_init(s);
->         if (rc) {
-> -               printk(KERN_ERR "SELinux:  out of memory on SID table init\n");
-> +               pr_err("SELinux:  out of memory on SID table init\n");
->                 goto out;
->         }
->
-> @@ -905,14 +907,14 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
->         for (c = head; c; c = c->next) {
->                 rc = -EINVAL;
->                 if (!c->context[0].user) {
-> -                       printk(KERN_ERR "SELinux:  SID %s was never defined.\n",
-> +                       pr_err("SELinux:  SID %s was never defined.\n",
->                                 c->u.name);
->                         goto out;
->                 }
->
->                 rc = sidtab_insert(s, c->sid[0], &c->context[0]);
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux:  unable to load initial SID %s.\n",
-> +                       pr_err("SELinux:  unable to load initial SID %s.\n",
->                                 c->u.name);
->                         goto out;
->                 }
-> @@ -1005,13 +1007,13 @@ static int mls_read_range_helper(struct mls_range *r, void *fp)
->         rc = -EINVAL;
->         items = le32_to_cpu(buf[0]);
->         if (items > ARRAY_SIZE(buf)) {
-> -               printk(KERN_ERR "SELinux: mls:  range overflow\n");
-> +               pr_err("SELinux: mls:  range overflow\n");
->                 goto out;
->         }
->
->         rc = next_entry(buf, fp, sizeof(u32) * items);
->         if (rc) {
-> -               printk(KERN_ERR "SELinux: mls:  truncated range\n");
-> +               pr_err("SELinux: mls:  truncated range\n");
->                 goto out;
->         }
->
-> @@ -1023,19 +1025,19 @@ static int mls_read_range_helper(struct mls_range *r, void *fp)
->
->         rc = ebitmap_read(&r->level[0].cat, fp);
->         if (rc) {
-> -               printk(KERN_ERR "SELinux: mls:  error reading low categories\n");
-> +               pr_err("SELinux: mls:  error reading low categories\n");
->                 goto out;
->         }
->         if (items > 1) {
->                 rc = ebitmap_read(&r->level[1].cat, fp);
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: mls:  error reading high categories\n");
-> +                       pr_err("SELinux: mls:  error reading high categories\n");
->                         goto bad_high;
->                 }
->         } else {
->                 rc = ebitmap_cpy(&r->level[1].cat, &r->level[0].cat);
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: mls:  out of memory\n");
-> +                       pr_err("SELinux: mls:  out of memory\n");
->                         goto bad_high;
->                 }
->         }
-> @@ -1060,7 +1062,7 @@ static int context_read_and_validate(struct context *c,
->
->         rc = next_entry(buf, fp, sizeof buf);
->         if (rc) {
-> -               printk(KERN_ERR "SELinux: context truncated\n");
-> +               pr_err("SELinux: context truncated\n");
->                 goto out;
->         }
->         c->user = le32_to_cpu(buf[0]);
-> @@ -1069,14 +1071,14 @@ static int context_read_and_validate(struct context *c,
->         if (p->policyvers >= POLICYDB_VERSION_MLS) {
->                 rc = mls_read_range_helper(&c->range, fp);
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: error reading MLS range of context\n");
-> +                       pr_err("SELinux: error reading MLS range of context\n");
->                         goto out;
->                 }
->         }
->
->         rc = -EINVAL;
->         if (!policydb_context_isvalid(p, c)) {
-> -               printk(KERN_ERR "SELinux:  invalid security context\n");
-> +               pr_err("SELinux:  invalid security context\n");
->                 context_destroy(c);
->                 goto out;
->         }
-> @@ -1352,7 +1354,8 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
->                 rc = -EINVAL;
->                 cladatum->comdatum = hashtab_search(p->p_commons.table, cladatum->comkey);
->                 if (!cladatum->comdatum) {
-> -                       printk(KERN_ERR "SELinux:  unknown common %s\n", cladatum->comkey);
-> +                       pr_err("SELinux:  unknown common %s\n",
-> +                              cladatum->comkey);
->                         goto bad;
->                 }
->         }
-> @@ -1444,7 +1447,7 @@ static int role_read(struct policydb *p, struct hashtab *h, void *fp)
->         if (strcmp(key, OBJECT_R) == 0) {
->                 rc = -EINVAL;
->                 if (role->value != OBJECT_R_VAL) {
-> -                       printk(KERN_ERR "SELinux: Role %s has wrong value %d\n",
-> +                       pr_err("SELinux: Role %s has wrong value %d\n",
->                                OBJECT_R, role->value);
->                         goto bad;
->                 }
-> @@ -1522,14 +1525,14 @@ static int mls_read_level(struct mls_level *lp, void *fp)
->
->         rc = next_entry(buf, fp, sizeof buf);
->         if (rc) {
-> -               printk(KERN_ERR "SELinux: mls: truncated level\n");
-> +               pr_err("SELinux: mls: truncated level\n");
->                 return rc;
->         }
->         lp->sens = le32_to_cpu(buf[0]);
->
->         rc = ebitmap_read(&lp->cat, fp);
->         if (rc) {
-> -               printk(KERN_ERR "SELinux: mls:  error reading level categories\n");
-> +               pr_err("SELinux: mls:  error reading level categories\n");
->                 return rc;
+> @@ -999,7 +998,7 @@ static int selinux_cmp_sb_context(const struct super_block *oldsb,
 >         }
 >         return 0;
-> @@ -1683,7 +1686,7 @@ static int user_bounds_sanity_check(void *key, void *datum, void *datap)
->                 unsigned long bit;
->
->                 if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
-> -                       printk(KERN_ERR "SELinux: user %s: "
-> +                       pr_err("SELinux: user %s: "
->                                "too deep or looped boundary",
->                                (char *) key);
->                         return -EINVAL;
-> @@ -1694,8 +1697,7 @@ static int user_bounds_sanity_check(void *key, void *datum, void *datap)
->                         if (ebitmap_get_bit(&upper->roles, bit))
->                                 continue;
->
-> -                       printk(KERN_ERR
-> -                              "SELinux: boundary violated policy: "
-> +                       pr_err("SELinux: boundary violated policy: "
->                                "user=%s role=%s bounds=%s\n",
->                                sym_name(p, SYM_USERS, user->value - 1),
->                                sym_name(p, SYM_ROLES, bit),
-> @@ -1720,7 +1722,7 @@ static int role_bounds_sanity_check(void *key, void *datum, void *datap)
->                 unsigned long bit;
->
->                 if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
-> -                       printk(KERN_ERR "SELinux: role %s: "
-> +                       pr_err("SELinux: role %s: "
->                                "too deep or looped bounds\n",
->                                (char *) key);
->                         return -EINVAL;
-> @@ -1731,8 +1733,7 @@ static int role_bounds_sanity_check(void *key, void *datum, void *datap)
->                         if (ebitmap_get_bit(&upper->types, bit))
->                                 continue;
->
-> -                       printk(KERN_ERR
-> -                              "SELinux: boundary violated policy: "
-> +                       pr_err("SELinux: boundary violated policy: "
->                                "role=%s type=%s bounds=%s\n",
->                                sym_name(p, SYM_ROLES, role->value - 1),
->                                sym_name(p, SYM_TYPES, bit),
-> @@ -1754,7 +1755,7 @@ static int type_bounds_sanity_check(void *key, void *datum, void *datap)
->         upper = datum;
->         while (upper->bounds) {
->                 if (++depth == POLICYDB_BOUNDS_MAXDEPTH) {
-> -                       printk(KERN_ERR "SELinux: type %s: "
-> +                       pr_err("SELinux: type %s: "
->                                "too deep or looped boundary\n",
->                                (char *) key);
->                         return -EINVAL;
-> @@ -1765,7 +1766,7 @@ static int type_bounds_sanity_check(void *key, void *datum, void *datap)
->                 BUG_ON(!upper);
->
->                 if (upper->attribute) {
-> -                       printk(KERN_ERR "SELinux: type %s: "
-> +                       pr_err("SELinux: type %s: "
->                                "bounded by attribute %s",
->                                (char *) key,
->                                sym_name(p, SYM_TYPES, upper->value - 1));
-> @@ -1888,7 +1889,7 @@ static int range_read(struct policydb *p, void *fp)
->
->                 rc = -EINVAL;
->                 if (!mls_range_isvalid(p, r)) {
-> -                       printk(KERN_WARNING "SELinux:  rangetrans:  invalid range\n");
-> +                       pr_warn("SELinux:  rangetrans:  invalid range\n");
->                         goto out;
->                 }
->
-> @@ -2023,7 +2024,7 @@ static int genfs_read(struct policydb *p, void *fp)
->                      genfs_p = genfs, genfs = genfs->next) {
->                         rc = -EINVAL;
->                         if (strcmp(newgenfs->fstype, genfs->fstype) == 0) {
-> -                               printk(KERN_ERR "SELinux:  dup genfs fstype %s\n",
-> +                               pr_err("SELinux:  dup genfs fstype %s\n",
->                                        newgenfs->fstype);
->                                 goto out;
+>  mismatch:
+> -       printk(KERN_WARNING "SELinux: mount invalid.  Same superblock, "
+> +       pr_warn("SELinux: mount invalid.  Same superblock, "
+>                             "different security settings for (dev %s, "
+>                             "type %s)\n", newsb->s_id, newsb->s_type->name);
+>         return -EBUSY;
+> @@ -1107,7 +1106,7 @@ static int selinux_parse_opts_str(char *options,
+>                 case Opt_context:
+>                         if (context || defcontext) {
+>                                 rc = -EINVAL;
+> -                               printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+> +                               pr_warn(SEL_MOUNT_FAIL_MSG);
+>                                 goto out_err;
 >                         }
-> @@ -2073,7 +2074,7 @@ static int genfs_read(struct policydb *p, void *fp)
->                                 if (!strcmp(newc->u.name, c->u.name) &&
->                                     (!c->v.sclass || !newc->v.sclass ||
->                                      newc->v.sclass == c->v.sclass)) {
-> -                                       printk(KERN_ERR "SELinux:  dup genfs entry (%s,%s)\n",
-> +                                       pr_err("SELinux:  dup genfs entry (%s,%s)\n",
->                                                genfs->fstype, c->u.name);
->                                         goto out;
+>                         context = match_strdup(&args[0]);
+> @@ -1120,7 +1119,7 @@ static int selinux_parse_opts_str(char *options,
+>                 case Opt_fscontext:
+>                         if (fscontext) {
+>                                 rc = -EINVAL;
+> -                               printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+> +                               pr_warn(SEL_MOUNT_FAIL_MSG);
+>                                 goto out_err;
+>                         }
+>                         fscontext = match_strdup(&args[0]);
+> @@ -1133,7 +1132,7 @@ static int selinux_parse_opts_str(char *options,
+>                 case Opt_rootcontext:
+>                         if (rootcontext) {
+>                                 rc = -EINVAL;
+> -                               printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+> +                               pr_warn(SEL_MOUNT_FAIL_MSG);
+>                                 goto out_err;
+>                         }
+>                         rootcontext = match_strdup(&args[0]);
+> @@ -1146,7 +1145,7 @@ static int selinux_parse_opts_str(char *options,
+>                 case Opt_defcontext:
+>                         if (context || defcontext) {
+>                                 rc = -EINVAL;
+> -                               printk(KERN_WARNING SEL_MOUNT_FAIL_MSG);
+> +                               pr_warn(SEL_MOUNT_FAIL_MSG);
+>                                 goto out_err;
+>                         }
+>                         defcontext = match_strdup(&args[0]);
+> @@ -1159,7 +1158,7 @@ static int selinux_parse_opts_str(char *options,
+>                         break;
+>                 default:
+>                         rc = -EINVAL;
+> -                       printk(KERN_WARNING "SELinux:  unknown mount option\n");
+> +                       pr_warn("SELinux:  unknown mount option\n");
+>                         goto out_err;
+>
+>                 }
+> @@ -1615,7 +1614,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+>                 dput(dentry);
+>                 if (rc < 0) {
+>                         if (rc != -ENODATA) {
+> -                               printk(KERN_WARNING "SELinux: %s:  getxattr returned "
+> +                               pr_warn("SELinux: %s:  getxattr returned "
+>                                        "%d for dev=%s ino=%ld\n", __func__,
+>                                        -rc, inode->i_sb->s_id, inode->i_ino);
+>                                 kfree(context);
+> @@ -1635,11 +1634,11 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+>
+>                                 if (rc == -EINVAL) {
+>                                         if (printk_ratelimit())
+> -                                               printk(KERN_NOTICE "SELinux: inode=%lu on dev=%s was found to have an invalid "
+> +                                               pr_notice("SELinux: inode=%lu on dev=%s was found to have an invalid "
+>                                                         "context=%s.  This indicates you may need to relabel the inode or the "
+>                                                         "filesystem in question.\n", ino, dev, context);
+>                                 } else {
+> -                                       printk(KERN_WARNING "SELinux: %s:  context_to_sid(%s) "
+> +                                       pr_warn("SELinux: %s:  context_to_sid(%s) "
+>                                                "returned %d for dev=%s ino=%ld\n",
+>                                                __func__, context, -rc, dev, ino);
 >                                 }
-> @@ -2295,7 +2296,7 @@ int policydb_read(struct policydb *p, void *fp)
->
->         rc = -EINVAL;
->         if (le32_to_cpu(buf[0]) != POLICYDB_MAGIC) {
-> -               printk(KERN_ERR "SELinux:  policydb magic number 0x%x does "
-> +               pr_err("SELinux:  policydb magic number 0x%x does "
->                        "not match expected magic number 0x%x\n",
->                        le32_to_cpu(buf[0]), POLICYDB_MAGIC);
->                 goto bad;
-> @@ -2304,7 +2305,7 @@ int policydb_read(struct policydb *p, void *fp)
->         rc = -EINVAL;
->         len = le32_to_cpu(buf[1]);
->         if (len != strlen(POLICYDB_STRING)) {
-> -               printk(KERN_ERR "SELinux:  policydb string length %d does not "
-> +               pr_err("SELinux:  policydb string length %d does not "
->                        "match expected length %zu\n",
->                        len, strlen(POLICYDB_STRING));
->                 goto bad;
-> @@ -2313,14 +2314,14 @@ int policydb_read(struct policydb *p, void *fp)
->         rc = -ENOMEM;
->         policydb_str = kmalloc(len + 1, GFP_KERNEL);
->         if (!policydb_str) {
-> -               printk(KERN_ERR "SELinux:  unable to allocate memory for policydb "
-> +               pr_err("SELinux:  unable to allocate memory for policydb "
->                        "string of length %d\n", len);
->                 goto bad;
+> @@ -1772,8 +1771,7 @@ static int cred_has_capability(const struct cred *cred,
+>                 sclass = initns ? SECCLASS_CAPABILITY2 : SECCLASS_CAP2_USERNS;
+>                 break;
+>         default:
+> -               printk(KERN_ERR
+> -                      "SELinux:  out of range capability %d\n", cap);
+> +               pr_err("SELinux:  out of range capability %d\n", cap);
+>                 BUG();
+>                 return -EINVAL;
 >         }
->
->         rc = next_entry(policydb_str, fp, len);
+> @@ -2016,7 +2014,7 @@ static int may_link(struct inode *dir,
+>                 av = DIR__RMDIR;
+>                 break;
+>         default:
+> -               printk(KERN_WARNING "SELinux: %s:  unrecognized kind %d\n",
+> +               pr_warn("SELinux: %s:  unrecognized kind %d\n",
+>                         __func__, kind);
+>                 return 0;
+>         }
+> @@ -2862,7 +2860,7 @@ static int selinux_sb_remount(struct super_block *sb, void *data)
+>                                                  mount_options[i], &sid,
+>                                                  GFP_KERNEL);
+>                 if (rc) {
+> -                       printk(KERN_WARNING "SELinux: security_context_str_to_sid"
+> +                       pr_warn("SELinux: security_context_str_to_sid"
+>                                "(%s) failed for (dev %s, type %s) errno=%d\n",
+>                                mount_options[i], sb->s_id, sb->s_type->name, rc);
+>                         goto out_free_opts;
+> @@ -2901,7 +2899,7 @@ static int selinux_sb_remount(struct super_block *sb, void *data)
+>         free_secdata(secdata);
+>         return rc;
+>  out_bad_option:
+> -       printk(KERN_WARNING "SELinux: unable to change security options "
+> +       pr_warn("SELinux: unable to change security options "
+>                "during remount (dev %s, type=%s)\n", sb->s_id,
+>                sb->s_type->name);
+>         goto out_free_opts;
+> @@ -3343,7 +3341,7 @@ static void selinux_inode_post_setxattr(struct dentry *dentry, const char *name,
+>         rc = security_context_to_sid_force(&selinux_state, value, size,
+>                                            &newsid);
 >         if (rc) {
-> -               printk(KERN_ERR "SELinux:  truncated policydb string identifier\n");
-> +               pr_err("SELinux:  truncated policydb string identifier\n");
->                 kfree(policydb_str);
->                 goto bad;
+> -               printk(KERN_ERR "SELinux:  unable to map context to SID"
+> +               pr_err("SELinux:  unable to map context to SID"
+>                        "for (%s, %lu), rc=%d\n",
+>                        inode->i_sb->s_id, inode->i_ino, -rc);
+>                 return;
+> @@ -4406,7 +4404,7 @@ static int selinux_parse_skb(struct sk_buff *skb, struct common_audit_data *ad,
 >         }
-> @@ -2328,7 +2329,7 @@ int policydb_read(struct policydb *p, void *fp)
->         rc = -EINVAL;
->         policydb_str[len] = '\0';
->         if (strcmp(policydb_str, POLICYDB_STRING)) {
-> -               printk(KERN_ERR "SELinux:  policydb string %s does not match "
-> +               pr_err("SELinux:  policydb string %s does not match "
->                        "my string %s\n", policydb_str, POLICYDB_STRING);
->                 kfree(policydb_str);
->                 goto bad;
-> @@ -2346,7 +2347,7 @@ int policydb_read(struct policydb *p, void *fp)
->         p->policyvers = le32_to_cpu(buf[0]);
->         if (p->policyvers < POLICYDB_VERSION_MIN ||
->             p->policyvers > POLICYDB_VERSION_MAX) {
-> -               printk(KERN_ERR "SELinux:  policydb version %d does not match "
-> +               pr_err("SELinux:  policydb version %d does not match "
->                        "my version range %d-%d\n",
->                        le32_to_cpu(buf[0]), POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
->                 goto bad;
-> @@ -2357,7 +2358,7 @@ int policydb_read(struct policydb *p, void *fp)
 >
->                 rc = -EINVAL;
->                 if (p->policyvers < POLICYDB_VERSION_MLS) {
-> -                       printk(KERN_ERR "SELinux: security policydb version %d "
-> +                       pr_err("SELinux: security policydb version %d "
->                                 "(MLS) not backwards compatible\n",
->                                 p->policyvers);
->                         goto bad;
-> @@ -2381,7 +2382,7 @@ int policydb_read(struct policydb *p, void *fp)
->         rc = -EINVAL;
->         info = policydb_lookup_compat(p->policyvers);
->         if (!info) {
-> -               printk(KERN_ERR "SELinux:  unable to find policy compat info "
-> +               pr_err("SELinux:  unable to find policy compat info "
->                        "for version %d\n", p->policyvers);
->                 goto bad;
+>  parse_error:
+> -       printk(KERN_WARNING
+> +       pr_warn(
+>                "SELinux: failure in selinux_parse_skb(),"
+>                " unable to parse packet\n");
+>         return ret;
+> @@ -4449,7 +4447,7 @@ static int selinux_skb_peerlbl_sid(struct sk_buff *skb, u16 family, u32 *sid)
+>         err = security_net_peersid_resolve(&selinux_state, nlbl_sid,
+>                                            nlbl_type, xfrm_sid, sid);
+>         if (unlikely(err)) {
+> -               printk(KERN_WARNING
+> +               pr_warn(
+>                        "SELinux: failure in selinux_skb_peerlbl_sid(),"
+>                        " unable to determine packet's peer label\n");
+>                 return -EACCES;
+> @@ -7091,11 +7089,11 @@ static __init int selinux_init(void)
 >         }
-> @@ -2389,7 +2390,7 @@ int policydb_read(struct policydb *p, void *fp)
->         rc = -EINVAL;
->         if (le32_to_cpu(buf[2]) != info->sym_num ||
->                 le32_to_cpu(buf[3]) != info->ocon_num) {
-> -               printk(KERN_ERR "SELinux:  policydb table sizes (%d,%d) do "
-> +               pr_err("SELinux:  policydb table sizes (%d,%d) do "
->                        "not match mine (%d,%d)\n", le32_to_cpu(buf[2]),
->                         le32_to_cpu(buf[3]),
->                        info->sym_num, info->ocon_num);
-> @@ -3417,7 +3418,7 @@ int policydb_write(struct policydb *p, void *fp)
->          * careful if you ever try to remove this restriction
->          */
->         if (p->policyvers < POLICYDB_VERSION_AVTAB) {
-> -               printk(KERN_ERR "SELinux: refusing to write policy version %d."
-> +               pr_err("SELinux: refusing to write policy version %d."
->                        "  Because it is less than version %d\n", p->policyvers,
->                        POLICYDB_VERSION_AVTAB);
->                 return -EINVAL;
-> @@ -3446,7 +3447,7 @@ int policydb_write(struct policydb *p, void *fp)
->         /* Write the version, config, and table sizes. */
->         info = policydb_lookup_compat(p->policyvers);
->         if (!info) {
-> -               printk(KERN_ERR "SELinux: compatibility lookup failed for policy "
-> +               pr_err("SELinux: compatibility lookup failed for policy "
->                     "version %d", p->policyvers);
->                 return -EINVAL;
+>
+>         if (!selinux_enabled) {
+> -               printk(KERN_INFO "SELinux:  Disabled at boot.\n");
+> +               pr_info("SELinux:  Disabled at boot.\n");
+>                 return 0;
 >         }
+>
+> -       printk(KERN_INFO "SELinux:  Initializing.\n");
+> +       pr_info("SELinux:  Initializing.\n");
+>
+>         memset(&selinux_state, 0, sizeof(selinux_state));
+>         enforcing_set(&selinux_state, selinux_enforcing_boot);
+> @@ -7131,9 +7129,9 @@ static __init int selinux_init(void)
+>                 panic("SELinux: Unable to register AVC LSM notifier callback\n");
+>
+>         if (selinux_enforcing_boot)
+> -               printk(KERN_DEBUG "SELinux:  Starting in enforcing mode\n");
+> +               pr_debug("SELinux:  Starting in enforcing mode\n");
+>         else
+> -               printk(KERN_DEBUG "SELinux:  Starting in permissive mode\n");
+> +               pr_debug("SELinux:  Starting in permissive mode\n");
+>
+>         return 0;
+>  }
+> @@ -7145,10 +7143,10 @@ static void delayed_superblock_init(struct super_block *sb, void *unused)
+>
+>  void selinux_complete_init(void)
+>  {
+> -       printk(KERN_DEBUG "SELinux:  Completing initialization.\n");
+> +       pr_debug("SELinux:  Completing initialization.\n");
+>
+>         /* Set up any superblocks initialized prior to the policy load. */
+> -       printk(KERN_DEBUG "SELinux:  Setting up existing superblocks.\n");
+> +       pr_debug("SELinux:  Setting up existing superblocks.\n");
+>         iterate_supers(delayed_superblock_init, NULL);
+>  }
+>
+> @@ -7223,7 +7221,7 @@ static int __init selinux_nf_ip_init(void)
+>         if (!selinux_enabled)
+>                 return 0;
+>
+> -       printk(KERN_DEBUG "SELinux:  Registering netfilter hooks\n");
+> +       pr_debug("SELinux:  Registering netfilter hooks\n");
+>
+>         err = register_pernet_subsys(&selinux_net_ops);
+>         if (err)
+> @@ -7236,7 +7234,7 @@ __initcall(selinux_nf_ip_init);
+>  #ifdef CONFIG_SECURITY_SELINUX_DISABLE
+>  static void selinux_nf_ip_exit(void)
+>  {
+> -       printk(KERN_DEBUG "SELinux:  Unregistering netfilter hooks\n");
+> +       pr_debug("SELinux:  Unregistering netfilter hooks\n");
+>
+>         unregister_pernet_subsys(&selinux_net_ops);
+>  }
+> @@ -7265,7 +7263,7 @@ int selinux_disable(struct selinux_state *state)
+>
+>         state->disabled = 1;
+>
+> -       printk(KERN_INFO "SELinux:  Disabled at runtime.\n");
+> +       pr_info("SELinux:  Disabled at runtime.\n");
+>
+>         selinux_enabled = 0;
+>
 > --
 > 2.15.1
 >
