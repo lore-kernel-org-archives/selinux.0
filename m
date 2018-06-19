@@ -1,22 +1,22 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JH4Cvu005745
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 13:04:12 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JHDPwK006453
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 13:13:26 -0400
 Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC10.oob.disa.mil (Postfix) with SMTP id 419DnH44jmz4KRKn
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 17:03:31 +0000 (UTC)
-Received: from UPDC3CPA07_EEMSG_MP23.eemsg.mil (unknown [192.168.18.18])
- by UPDCF3IC10.oob.disa.mil (Postfix) with ESMTP id 419DnH1wvJz4KRKf
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 17:03:31 +0000 (UTC)
-Received: by mail-lf0-f66.google.com with SMTP id y20-v6so627164lfy.0
- for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 10:03:30 -0700 (PDT)
+ by UPDCF3IC13.oob.disa.mil (Postfix) with SMTP id 419F0h0rkGz25sSH
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 17:13:24 +0000 (UTC)
+Received: from UPBD19PA04.eemsg.mil (unknown [192.168.18.5])
+ by UPDCF3IC13.oob.disa.mil (Postfix) with ESMTP id 419F0g0yncz25sSW
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 17:13:23 +0000 (UTC)
+Received: by mail-lf0-f48.google.com with SMTP id x13-v6so609630lff.10
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 10:13:22 -0700 (PDT)
 MIME-Version: 1.0
 References: <20180612080912.7827-1-peter.enderborg@sony.com>
- <20180612080912.7827-6-peter.enderborg@sony.com>
-In-Reply-To: <20180612080912.7827-6-peter.enderborg@sony.com>
+ <20180612080912.7827-7-peter.enderborg@sony.com>
+In-Reply-To: <20180612080912.7827-7-peter.enderborg@sony.com>
 From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 19 Jun 2018 13:03:18 -0400
-Message-ID: <CAHC9VhT+NNUf2dxkz1DxG21Ydz7ygAA2S1b7WfvDUD25EgybuA@mail.gmail.com>
+Date: Tue, 19 Jun 2018 13:13:10 -0400
+Message-ID: <CAHC9VhQ6yvALQ=PZC4Wmt4eLw_t_QeHxUsd_GeFP2cJ03P5W6w@mail.gmail.com>
 To: peter.enderborg@sony.com
 Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
  James Morris <jmorris@namei.org>, danielj@mellanox.com,
@@ -24,7 +24,8 @@ Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
  linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
  serge@hallyn.com
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 05/13] selinux: Cleanup printk logging in avtab
+Subject: Re: [PATCH 06/13] selinux: Cleanup printk logging in
+ services
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -37,207 +38,311 @@ On Tue, Jun 12, 2018 at 4:09 AM Peter Enderborg
 >
 > Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
 > ---
->  security/selinux/ss/avtab.c | 51 +++++++++++++++++++++++----------------------
->  1 file changed, 26 insertions(+), 25 deletions(-)
+>  security/selinux/ss/services.c | 71 +++++++++++++++++++++---------------------
+>  1 file changed, 35 insertions(+), 36 deletions(-)
 
 Merged, thanks.
 
-> diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
-> index a2c9148b0662..c0417cf17fee 100644
-> --- a/security/selinux/ss/avtab.c
-> +++ b/security/selinux/ss/avtab.c
-> @@ -338,7 +338,7 @@ int avtab_alloc(struct avtab *h, u32 nrules)
->         h->nel = 0;
->         h->nslot = nslot;
->         h->mask = mask;
-> -       printk(KERN_DEBUG "SELinux: %d avtab hash slots, %d rules.\n",
-> +       pr_debug("SELinux: %d avtab hash slots, %d rules.\n",
->                h->nslot, nrules);
->         return 0;
->  }
-> @@ -368,7 +368,7 @@ void avtab_hash_eval(struct avtab *h, char *tag)
->                 }
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 8057e19dc15f..9ad9b6c2f0a7 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -136,8 +136,7 @@ static int selinux_set_mapping(struct policydb *pol,
+>
+>                 p_out->value = string_to_security_class(pol, p_in->name);
+>                 if (!p_out->value) {
+> -                       printk(KERN_INFO
+> -                              "SELinux:  Class %s not defined in policy.\n",
+> +                       pr_info("SELinux:  Class %s not defined in policy.\n",
+>                                p_in->name);
+>                         if (pol->reject_unknown)
+>                                 goto err;
+> @@ -156,8 +155,7 @@ static int selinux_set_mapping(struct policydb *pol,
+>                         p_out->perms[k] = string_to_av_perm(pol, p_out->value,
+>                                                             p_in->perms[k]);
+>                         if (!p_out->perms[k]) {
+> -                               printk(KERN_INFO
+> -                                      "SELinux:  Permission %s in class %s not defined in policy.\n",
+> +                               pr_info("SELinux:  Permission %s in class %s not defined in policy.\n",
+>                                        p_in->perms[k], p_in->name);
+>                                 if (pol->reject_unknown)
+>                                         goto err;
+> @@ -170,7 +168,7 @@ static int selinux_set_mapping(struct policydb *pol,
 >         }
 >
-> -       printk(KERN_DEBUG "SELinux: %s:  %d entries and %d/%d buckets used, "
-> +       pr_debug("SELinux: %s:  %d entries and %d/%d buckets used, "
->                "longest chain length %d sum of chain length^2 %llu\n",
->                tag, h->nel, slots_used, h->nslot, max_chain_len,
->                chain2_len_sum);
-> @@ -407,18 +407,18 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->         if (vers < POLICYDB_VERSION_AVTAB) {
->                 rc = next_entry(buf32, fp, sizeof(u32));
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
-> +                       pr_err("SELinux: avtab: truncated entry\n");
->                         return rc;
->                 }
->                 items2 = le32_to_cpu(buf32[0]);
->                 if (items2 > ARRAY_SIZE(buf32)) {
-> -                       printk(KERN_ERR "SELinux: avtab: entry overflow\n");
-> +                       pr_err("SELinux: avtab: entry overflow\n");
->                         return -EINVAL;
+>         if (print_unknown_handle)
+> -               printk(KERN_INFO "SELinux: the above unknown classes and permissions will be %s\n",
+> +               pr_info("SELinux: the above unknown classes and permissions will be %s\n",
+>                        pol->allow_unknown ? "allowed" : "denied");
 >
->                 }
->                 rc = next_entry(buf32, fp, sizeof(u32)*items2);
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
-> +                       pr_err("SELinux: avtab: truncated entry\n");
->                         return rc;
->                 }
->                 items = 0;
-> @@ -426,19 +426,19 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->                 val = le32_to_cpu(buf32[items++]);
->                 key.source_type = (u16)val;
->                 if (key.source_type != val) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated source type\n");
-> +                       pr_err("SELinux: avtab: truncated source type\n");
->                         return -EINVAL;
->                 }
->                 val = le32_to_cpu(buf32[items++]);
->                 key.target_type = (u16)val;
->                 if (key.target_type != val) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated target type\n");
-> +                       pr_err("SELinux: avtab: truncated target type\n");
->                         return -EINVAL;
->                 }
->                 val = le32_to_cpu(buf32[items++]);
->                 key.target_class = (u16)val;
->                 if (key.target_class != val) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated target class\n");
-> +                       pr_err("SELinux: avtab: truncated target class\n");
->                         return -EINVAL;
->                 }
+>         out_map->size = i;
+> @@ -644,7 +642,7 @@ static void context_struct_compute_av(struct policydb *policydb,
 >
-> @@ -446,16 +446,16 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->                 enabled = (val & AVTAB_ENABLED_OLD) ? AVTAB_ENABLED : 0;
->
->                 if (!(val & (AVTAB_AV | AVTAB_TYPE))) {
-> -                       printk(KERN_ERR "SELinux: avtab: null entry\n");
-> +                       pr_err("SELinux: avtab: null entry\n");
->                         return -EINVAL;
->                 }
->                 if ((val & AVTAB_AV) &&
->                     (val & AVTAB_TYPE)) {
-> -                       printk(KERN_ERR "SELinux: avtab: entry has both access vectors and types\n");
-> +                       pr_err("SELinux: avtab: entry has both access vectors and types\n");
->                         return -EINVAL;
->                 }
->                 if (val & AVTAB_XPERMS) {
-> -                       printk(KERN_ERR "SELinux: avtab: entry has extended permissions\n");
-> +                       pr_err("SELinux: avtab: entry has extended permissions\n");
->                         return -EINVAL;
->                 }
->
-> @@ -470,7 +470,8 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->                 }
->
->                 if (items != items2) {
-> -                       printk(KERN_ERR "SELinux: avtab: entry only had %d items, expected %d\n", items2, items);
-> +                       pr_err("SELinux: avtab: entry only had %d items, expected %d\n",
-> +                              items2, items);
->                         return -EINVAL;
->                 }
->                 return 0;
-> @@ -478,7 +479,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->
->         rc = next_entry(buf16, fp, sizeof(u16)*4);
->         if (rc) {
-> -               printk(KERN_ERR "SELinux: avtab: truncated entry\n");
-> +               pr_err("SELinux: avtab: truncated entry\n");
->                 return rc;
+>         if (unlikely(!tclass || tclass > policydb->p_classes.nprim)) {
+>                 if (printk_ratelimit())
+> -                       printk(KERN_WARNING "SELinux:  Invalid class %hu\n", tclass);
+> +                       pr_warn("SELinux:  Invalid class %hu\n", tclass);
+>                 return;
 >         }
 >
-> @@ -491,7 +492,7 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->         if (!policydb_type_isvalid(pol, key.source_type) ||
->             !policydb_type_isvalid(pol, key.target_type) ||
->             !policydb_class_isvalid(pol, key.target_class)) {
-> -               printk(KERN_ERR "SELinux: avtab: invalid type or class\n");
-> +               pr_err("SELinux: avtab: invalid type or class\n");
->                 return -EINVAL;
->         }
+> @@ -793,7 +791,7 @@ static int security_compute_validatetrans(struct selinux_state *state,
 >
-> @@ -501,13 +502,13 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->                         set++;
->         }
->         if (!set || set > 1) {
-> -               printk(KERN_ERR "SELinux:  avtab:  more than one specifier\n");
-> +               pr_err("SELinux:  avtab:  more than one specifier\n");
->                 return -EINVAL;
->         }
->
->         if ((vers < POLICYDB_VERSION_XPERMS_IOCTL) &&
->                         (key.specified & AVTAB_XPERMS)) {
-> -               printk(KERN_ERR "SELinux:  avtab:  policy version %u does not "
-> +               pr_err("SELinux:  avtab:  policy version %u does not "
->                                 "support extended permissions rules and one "
->                                 "was specified\n", vers);
->                 return -EINVAL;
-> @@ -515,17 +516,17 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->                 memset(&xperms, 0, sizeof(struct avtab_extended_perms));
->                 rc = next_entry(&xperms.specified, fp, sizeof(u8));
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
-> +                       pr_err("SELinux: avtab: truncated entry\n");
->                         return rc;
->                 }
->                 rc = next_entry(&xperms.driver, fp, sizeof(u8));
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
-> +                       pr_err("SELinux: avtab: truncated entry\n");
->                         return rc;
->                 }
->                 rc = next_entry(buf32, fp, sizeof(u32)*ARRAY_SIZE(xperms.perms.p));
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
-> +                       pr_err("SELinux: avtab: truncated entry\n");
->                         return rc;
->                 }
->                 for (i = 0; i < ARRAY_SIZE(xperms.perms.p); i++)
-> @@ -534,14 +535,14 @@ int avtab_read_item(struct avtab *a, void *fp, struct policydb *pol,
->         } else {
->                 rc = next_entry(buf32, fp, sizeof(u32));
->                 if (rc) {
-> -                       printk(KERN_ERR "SELinux: avtab: truncated entry\n");
-> +                       pr_err("SELinux: avtab: truncated entry\n");
->                         return rc;
->                 }
->                 datum.u.data = le32_to_cpu(*buf32);
->         }
->         if ((key.specified & AVTAB_TYPE) &&
->             !policydb_type_isvalid(pol, datum.u.data)) {
-> -               printk(KERN_ERR "SELinux: avtab: invalid type\n");
-> +               pr_err("SELinux: avtab: invalid type\n");
->                 return -EINVAL;
->         }
->         return insertf(a, &key, &datum, p);
-> @@ -562,12 +563,12 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
->
->         rc = next_entry(buf, fp, sizeof(u32));
->         if (rc < 0) {
-> -               printk(KERN_ERR "SELinux: avtab: truncated table\n");
-> +               pr_err("SELinux: avtab: truncated table\n");
->                 goto bad;
->         }
->         nel = le32_to_cpu(buf[0]);
->         if (!nel) {
-> -               printk(KERN_ERR "SELinux: avtab: table is empty\n");
-> +               pr_err("SELinux: avtab: table is empty\n");
+>         ocontext = sidtab_search(sidtab, oldsid);
+>         if (!ocontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                         __func__, oldsid);
 >                 rc = -EINVAL;
->                 goto bad;
->         }
-> @@ -580,9 +581,9 @@ int avtab_read(struct avtab *a, void *fp, struct policydb *pol)
->                 rc = avtab_read_item(a, fp, pol, avtab_insertf, NULL);
->                 if (rc) {
->                         if (rc == -ENOMEM)
-> -                               printk(KERN_ERR "SELinux: avtab: out of memory\n");
-> +                               pr_err("SELinux: avtab: out of memory\n");
->                         else if (rc == -EEXIST)
-> -                               printk(KERN_ERR "SELinux: avtab: duplicate entry\n");
-> +                               pr_err("SELinux: avtab: duplicate entry\n");
+>                 goto out;
+> @@ -801,7 +799,7 @@ static int security_compute_validatetrans(struct selinux_state *state,
 >
+>         ncontext = sidtab_search(sidtab, newsid);
+>         if (!ncontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                         __func__, newsid);
+>                 rc = -EINVAL;
+>                 goto out;
+> @@ -809,7 +807,7 @@ static int security_compute_validatetrans(struct selinux_state *state,
+>
+>         tcontext = sidtab_search(sidtab, tasksid);
+>         if (!tcontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                         __func__, tasksid);
+>                 rc = -EINVAL;
+>                 goto out;
+> @@ -883,7 +881,7 @@ int security_bounded_transition(struct selinux_state *state,
+>         rc = -EINVAL;
+>         old_context = sidtab_search(sidtab, old_sid);
+>         if (!old_context) {
+> -               printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
+> +               pr_err("SELinux: %s: unrecognized SID %u\n",
+>                        __func__, old_sid);
+>                 goto out;
+>         }
+> @@ -891,7 +889,7 @@ int security_bounded_transition(struct selinux_state *state,
+>         rc = -EINVAL;
+>         new_context = sidtab_search(sidtab, new_sid);
+>         if (!new_context) {
+> -               printk(KERN_ERR "SELinux: %s: unrecognized SID %u\n",
+> +               pr_err("SELinux: %s: unrecognized SID %u\n",
+>                        __func__, new_sid);
+>                 goto out;
+>         }
+> @@ -1040,14 +1038,14 @@ void security_compute_xperms_decision(struct selinux_state *state,
+>
+>         scontext = sidtab_search(sidtab, ssid);
+>         if (!scontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, ssid);
+>                 goto out;
+>         }
+>
+>         tcontext = sidtab_search(sidtab, tsid);
+>         if (!tcontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, tsid);
+>                 goto out;
+>         }
+> @@ -1129,7 +1127,7 @@ void security_compute_av(struct selinux_state *state,
+>
+>         scontext = sidtab_search(sidtab, ssid);
+>         if (!scontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, ssid);
+>                 goto out;
+>         }
+> @@ -1140,7 +1138,7 @@ void security_compute_av(struct selinux_state *state,
+>
+>         tcontext = sidtab_search(sidtab, tsid);
+>         if (!tcontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, tsid);
+>                 goto out;
+>         }
+> @@ -1183,7 +1181,7 @@ void security_compute_av_user(struct selinux_state *state,
+>
+>         scontext = sidtab_search(sidtab, ssid);
+>         if (!scontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, ssid);
+>                 goto out;
+>         }
+> @@ -1194,7 +1192,7 @@ void security_compute_av_user(struct selinux_state *state,
+>
+>         tcontext = sidtab_search(sidtab, tsid);
+>         if (!tcontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, tsid);
+>                 goto out;
+>         }
+> @@ -1310,7 +1308,7 @@ static int security_sid_to_context_core(struct selinux_state *state,
+>                         *scontext = scontextp;
+>                         goto out;
+>                 }
+> -               printk(KERN_ERR "SELinux: %s:  called before initial "
+> +               pr_err("SELinux: %s:  called before initial "
+>                        "load_policy on unknown SID %d\n", __func__, sid);
+>                 rc = -EINVAL;
+>                 goto out;
+> @@ -1323,7 +1321,7 @@ static int security_sid_to_context_core(struct selinux_state *state,
+>         else
+>                 context = sidtab_search(sidtab, sid);
+>         if (!context) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                         __func__, sid);
+>                 rc = -EINVAL;
+>                 goto out_unlock;
+> @@ -1678,14 +1676,14 @@ static int security_compute_sid(struct selinux_state *state,
+>
+>         scontext = sidtab_search(sidtab, ssid);
+>         if (!scontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, ssid);
+>                 rc = -EINVAL;
+>                 goto out_unlock;
+>         }
+>         tcontext = sidtab_search(sidtab, tsid);
+>         if (!tcontext) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, tsid);
+>                 rc = -EINVAL;
+>                 goto out_unlock;
+> @@ -1911,7 +1909,8 @@ static inline int convert_context_handle_invalid_context(
+>                 return -EINVAL;
+>
+>         if (!context_struct_to_string(policydb, context, &s, &len)) {
+> -               printk(KERN_WARNING "SELinux:  Context %s would be invalid if enforcing\n", s);
+> +               pr_warn("SELinux:  Context %s would be invalid if enforcing\n",
+> +                       s);
+>                 kfree(s);
+>         }
+>         return 0;
+> @@ -1962,7 +1961,7 @@ static int convert_context(u32 key,
+>                                               c->len, &ctx, SECSID_NULL);
+>                 kfree(s);
+>                 if (!rc) {
+> -                       printk(KERN_INFO "SELinux:  Context %s became valid (mapped).\n",
+> +                       pr_info("SELinux:  Context %s became valid (mapped).\n",
+>                                c->str);
+>                         /* Replace string with mapped representation. */
+>                         kfree(c->str);
+> @@ -1974,7 +1973,7 @@ static int convert_context(u32 key,
+>                         goto out;
+>                 } else {
+>                         /* Other error condition, e.g. ENOMEM. */
+> -                       printk(KERN_ERR "SELinux:   Unable to map context %s, rc = %d.\n",
+> +                       pr_err("SELinux:   Unable to map context %s, rc = %d.\n",
+>                                c->str, -rc);
+>                         goto out;
+>                 }
+> @@ -2033,7 +2032,7 @@ static int convert_context(u32 key,
+>                         oc = oc->next;
+>                 rc = -EINVAL;
+>                 if (!oc) {
+> -                       printk(KERN_ERR "SELinux:  unable to look up"
+> +                       pr_err("SELinux:  unable to look up"
+>                                 " the initial SIDs list\n");
 >                         goto bad;
 >                 }
+> @@ -2065,7 +2064,7 @@ static int convert_context(u32 key,
+>         context_destroy(c);
+>         c->str = s;
+>         c->len = len;
+> -       printk(KERN_INFO "SELinux:  Context %s became invalid (unmapped).\n",
+> +       pr_info("SELinux:  Context %s became invalid (unmapped).\n",
+>                c->str);
+>         rc = 0;
+>         goto out;
+> @@ -2170,13 +2169,13 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>         newpolicydb->len = len;
+>         /* If switching between different policy types, log MLS status */
+>         if (policydb->mls_enabled && !newpolicydb->mls_enabled)
+> -               printk(KERN_INFO "SELinux: Disabling MLS support...\n");
+> +               pr_info("SELinux: Disabling MLS support...\n");
+>         else if (!policydb->mls_enabled && newpolicydb->mls_enabled)
+> -               printk(KERN_INFO "SELinux: Enabling MLS support...\n");
+> +               pr_info("SELinux: Enabling MLS support...\n");
+>
+>         rc = policydb_load_isids(newpolicydb, &newsidtab);
+>         if (rc) {
+> -               printk(KERN_ERR "SELinux:  unable to load the initial SIDs\n");
+> +               pr_err("SELinux:  unable to load the initial SIDs\n");
+>                 policydb_destroy(newpolicydb);
+>                 goto out;
+>         }
+> @@ -2187,7 +2186,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>
+>         rc = security_preserve_bools(state, newpolicydb);
+>         if (rc) {
+> -               printk(KERN_ERR "SELinux:  unable to preserve booleans\n");
+> +               pr_err("SELinux:  unable to preserve booleans\n");
+>                 goto err;
+>         }
+>
+> @@ -2207,7 +2206,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>         args.newp = newpolicydb;
+>         rc = sidtab_map(&newsidtab, convert_context, &args);
+>         if (rc) {
+> -               printk(KERN_ERR "SELinux:  unable to convert the internal"
+> +               pr_err("SELinux:  unable to convert the internal"
+>                         " representation of contexts in the new SID"
+>                         " table\n");
+>                 goto err;
+> @@ -2999,7 +2998,7 @@ int security_sid_mls_copy(struct selinux_state *state,
+>         rc = -EINVAL;
+>         context1 = sidtab_search(sidtab, sid);
+>         if (!context1) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                         __func__, sid);
+>                 goto out_unlock;
+>         }
+> @@ -3007,7 +3006,7 @@ int security_sid_mls_copy(struct selinux_state *state,
+>         rc = -EINVAL;
+>         context2 = sidtab_search(sidtab, mls_sid);
+>         if (!context2) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                         __func__, mls_sid);
+>                 goto out_unlock;
+>         }
+> @@ -3104,14 +3103,14 @@ int security_net_peersid_resolve(struct selinux_state *state,
+>         rc = -EINVAL;
+>         nlbl_ctx = sidtab_search(sidtab, nlbl_sid);
+>         if (!nlbl_ctx) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, nlbl_sid);
+>                 goto out;
+>         }
+>         rc = -EINVAL;
+>         xfrm_ctx = sidtab_search(sidtab, xfrm_sid);
+>         if (!xfrm_ctx) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized SID %d\n",
+> +               pr_err("SELinux: %s:  unrecognized SID %d\n",
+>                        __func__, xfrm_sid);
+>                 goto out;
+>         }
+> @@ -3202,7 +3201,7 @@ int security_get_permissions(struct selinux_state *state,
+>         rc = -EINVAL;
+>         match = hashtab_search(policydb->p_classes.table, class);
+>         if (!match) {
+> -               printk(KERN_ERR "SELinux: %s:  unrecognized class %s\n",
+> +               pr_err("SELinux: %s:  unrecognized class %s\n",
+>                         __func__, class);
+>                 goto out;
+>         }
 > --
 > 2.15.1
 >
