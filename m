@@ -1,157 +1,62 @@
-Date: Tue, 19 Jun 2018 18:32:24 +0200
-From: Petr Lautrbach <plautrba@redhat.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20180619163224.GC16326@workstation>
-References: <20180618192443.GA8162@workstation>
- <b0a52b4d-ff8c-8970-d738-8901ff37b12a@tycho.nsa.gov>
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5JFkebE031381
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 11:46:40 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by USFBF3ID06.oob.disa.mil (Postfix) with SMTP id 419C4Z3jHnz2Dbms
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 15:46:38 +0000 (UTC)
+Received: from USFB3CPA01_EEMSG_MP23.eemsg.mil (unknown [192.168.16.18])
+ by USFBF3ID06.oob.disa.mil (Postfix) with ESMTP id 419C4Y1ZxLz2Dbm0
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 15:46:37 +0000 (UTC)
+Received: by mail-lf0-f66.google.com with SMTP id i15-v6so240578lfc.2
+ for <selinux@tycho.nsa.gov>; Tue, 19 Jun 2018 08:46:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="f+W+jCU1fRNres8c"
-In-Reply-To: <b0a52b4d-ff8c-8970-d738-8901ff37b12a@tycho.nsa.gov>
-Subject: Re: is_selinux_enabled() after chroot()
+References: <20180612080912.7827-1-peter.enderborg@sony.com>
+ <20180612080912.7827-2-peter.enderborg@sony.com>
+ <a85d28e8cbd32acda21424ab6a46089f26969671.camel@perches.com>
+ <ef97b4b2-35da-7642-aa9d-de3e968cfb81@sony.com>
+In-Reply-To: <ef97b4b2-35da-7642-aa9d-de3e968cfb81@sony.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 19 Jun 2018 11:46:23 -0400
+Message-ID: <CAHC9VhR=1Z6sPJ=oetCg0fGFGb7yKq3OxRATeo15jhqMY5JoQQ@mail.gmail.com>
+To: peter.enderborg@sony.com
+Cc: joe@perches.com, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, James Morris <jmorris@namei.org>,
+ danielj@mellanox.com, dledford@redhat.com, selinux@tycho.nsa.gov,
+ linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
+ serge@hallyn.com
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 01/13] selinux: Cleanup printk logging in
+ conditional
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On Wed, Jun 13, 2018 at 2:23 AM peter enderborg
+<peter.enderborg@sony.com> wrote:
+> On 06/12/2018 04:38 PM, Joe Perches wrote:
+> > On Tue, 2018-06-12 at 10:09 +0200, Peter Enderborg wrote:
+> >> Replace printk with pr_* to avoid checkpatch warnings.
+> > I believe it would be nicer to remove the
+> > "SELinux: " prefix embbeded in each format
+> > and use a specific
+> >
+> > #define pr_fmt(fmt) "SELinux: " fmt
+> >
+> > to automatically prefix these formats.
+>
+> I cant argument about that, however some of the warnings and debug prints in this set does not have this
+> so it will then change the actual output. (And I also think that they should have a the prefix, but I don't
+> know why they don't) So I am not sure if it appropriate for a cleanup patch, it supposed to have no functional change.
 
---f+W+jCU1fRNres8c
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+As others have mentioned, I think this patch is still a step forward
+so I'm going to go ahead and merge it; thanks Peter.
 
-On Mon, Jun 18, 2018 at 04:06:11PM -0400, Stephen Smalley wrote:
-> On 06/18/2018 03:24 PM, Petr Lautrbach wrote:
-> > Hello,
-> >=20
-> > libselinux sets selinut_mnt and has_selinux_config only in its construc=
-tor and
-> > is_selinux_enabled() and others just use selinux_mnt to check if SELinu=
-x is
-> > enabled. But it doesn't work correctly when you use chroot() to a direc=
-tory without /proc
-> > and /sys/fs/selinux mounted as it was discovered in
-> > https://bugzilla.redhat.com/show_bug.cgi?id=3D1321375=20
-> >=20
-> > In this case, is_selinux_enabled() after chroot() returns true while in=
- a new
-> > program run from chrooted process it returns false. It can be demonstra=
-ted by
-> > the steps below.
-> >=20
-> > The solution could be to check if selinux_mnt still exists whenever a f=
-unction
-> > depending on this is called. Would this be acceptable?
->=20
-> You want to call stat() or access(F_OK) on selinux_mnt and/or SELINUXCONF=
-IG in is_selinux_enabled()?
+As far as the prefix, or lack of, is concerned, that's probably an
+oversight that we should fix at some point, but we would need to look
+at each instance to verify.
 
-Yes. I was thinking about something like this:
-
-@@ -16,7 +16,7 @@ int is_selinux_enabled(void)
- #ifdef ANDROID
- 	return (selinux_mnt ? 1 : 0);
- #else
--	return (selinux_mnt && has_selinux_config);
-+	return (selinux_mnt && (access(selinux_mnt, F_OK) =3D=3D 0) && has_selinu=
-x_config);
- #endif
- }
-
-But the problem seems to be more complex and it would probably be better to=
- fix
-it on a callers side - mount /sys/fs/selinux and /proc into chroots or do a=
-ll
-SELinux checks before chroot().
-
-> Could potentially trigger a permission check that wasn't previously requi=
-red, thereby breaking existing policies.
-> Caller might just be checking to see if SELinux is enabled before using i=
-nterfaces other than selinuxfs (e.g. setexeccon, setfilecon, etc) and there=
-fore didn't previously need permissions to selinuxfs or /etc/selinux/config.
-> So, possible but you'd need to make sure you don't break anything.  Defin=
-itely don't want that changed in Android.
-> >=20
-> >=20
-> >=20
-> >=20
-> > $ sudo dnf --nogpg --installroot=3D/var/lib/machines/example  install s=
-ystemd
-> >=20
-> > $ cat > test_libselinux.c <<EOF
-> > #include <selinux/selinux.h>
-> > #include <stdio.h>
-> > #include <sys/types.h>
-> > #include <sys/wait.h>
-> > #include <unistd.h>
-> >=20
-> > int main(int argc, char *argv[]) {
-> >   pid_t pid;
-> >   int wstatus;
-> >=20
-> >   if (argc > 1) {
-> >     printf("SELinux in chrooted process: %d\n", is_selinux_enabled());
-> >     return 0;
-> >   }
-> >   if (chroot("/var/lib/machines/example") !=3D 0)
-> >     return -1;
-> >=20
-> >   printf("SELinux in process after chroot(): %d\n", is_selinux_enabled(=
-));
-> >   printf("/sys/fs/selinux exists: %d\n", access("/sys/fs/selinux", F_OK=
-));
-> >   printf("/etc/selinux/config exists: %d\n\n", access("/etc/selinux/con=
-fig", F_OK));
-> >=20
-> >   if ((pid =3D fork()) =3D=3D 0 ) {
-> >     execv("./test_is_selinux_enabled", (char *[]){ "./test_is_selinux_e=
-nabled", "chrooted", NULL});
-> >   }
-> >=20
-> >   wait(&wstatus);
-> >   return 0;
-> > }
-> > EOF
-> >=20
-> > $ gcc -o test_is_selinux_enabled test_libselinux.c -lselinux
-> >=20
-> > $ sudo ./test_is_selinux_enabled                           =20
-> > SELinux in process after chroot(): 1
-> > /sys/fs/selinux exists: -1
-> > /etc/selinux/config exists: -1
-> >=20
-> > SELinux in chrooted process: 0
-> >=20
-> >=20
-> >=20
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
-> >=20
->=20
-
---f+W+jCU1fRNres8c
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAlspMBIACgkQviIJHj72
-InUJUQ//VVl+WG3exJSCxZa6T0Q+LijHhmG+AGsQUP9GBtqTeRDECuyyQ+1mVXLs
-sWbqdSZzli9MRltzU4hdAPt2MkdxRem6Z1/4H3bZPehdnaToqsJGC0WgcMGlt34R
-RNsgzGt9C3J6qF8UKySOjVJRn0/DspgWukeAOXESbNOMXpHSRaWlPC5FBqpjNB0o
-idOZfGrJ6oFx61SNCabgSEmqXb4jKDU0tZ9VmyWSgHKYfF/7AsMMrLSalxEH5mNT
-renLkGgsw96YLmBJJ4kbmJ/c5gjroWvvaJSZDEFrwGkzdmM/qiEWnglF+C79guhk
-7Zk+Rk+J3birF2fGj6f10LOC43cfoYJ57QlXPCPARb8ujK6xlJLD2Lrcq+iOvYwa
-xF9NQKXTriScZn5I9Rz3TYUReByi/mqfmuSMAhmNjKeDffpQKh59KuFOlajJjFN5
-Oj22gT4LC3KdXZWsSNUhHiG9xU+R2foI/Ex5uOKqx8Ji+23vg+dL5PQxpzsRJAHF
-+lxoUat5CfHLnxAF/d3nScreokP36QdIRASZdehOTGyW9P9ufFOurwn6fEUnluas
-JQgTWv/KWGf1k1PBzNTqBGe+b3IlcOUxNfkczo3YXNuhhjEeXHLBQVcZob9BKx9d
-FAitie9+tn+RsZvJiHukrwjcAYuNeGtHdZh9vU3JkH1qJ+0TLwo=
-=Tvcq
------END PGP SIGNATURE-----
-
---f+W+jCU1fRNres8c--
+-- 
+paul moore
+www.paul-moore.com
