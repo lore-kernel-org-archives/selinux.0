@@ -1,64 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5NCGQEH011308
- for <selinux@tycho.nsa.gov>; Sat, 23 Jun 2018 08:16:26 -0400
-Date: Sat, 23 Jun 2018 21:16:18 +0900 (KST)
-Message-Id: <20180623.211618.698435338116789998.davem@davemloft.net>
-To: pmoore@redhat.com
-Cc: netdev@vger.kernel.org, selinux@tycho.nsa.gov,
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w5NLQiUV008590
+ for <selinux@tycho.nsa.gov>; Sat, 23 Jun 2018 17:26:44 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC06.oob.disa.mil (Postfix) with SMTP id 41CpR23BvCz19Yj4
+ for <selinux@tycho.nsa.gov>; Sat, 23 Jun 2018 21:26:38 +0000 (UTC)
+Received: from UPDC3CPA02.eemsg.mil (unknown [192.168.18.9])
+ by UPDCF3IC06.oob.disa.mil (Postfix) with ESMTP id 41CpR22LQMz19Yj1
+ for <selinux@tycho.nsa.gov>; Sat, 23 Jun 2018 21:26:38 +0000 (UTC)
+Date: Sat, 23 Jun 2018 22:26:27 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: David Miller <davem@davemloft.net>
+Cc: pmoore@redhat.com, netdev@vger.kernel.org, selinux@tycho.nsa.gov,
  linux-security-module@vger.kernel.org
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <152970230022.7734.15824980755229329454.stgit@chester>
+Message-ID: <20180623212626.GD30522@ZenIV.linux.org.uk>
 References: <152970230022.7734.15824980755229329454.stgit@chester>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+ <20180623.105706.385733107379565893.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20180623.105706.385733107379565893.davem@davemloft.net>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Subject: Re: [PATCH] ipv6: avoid copy_from_user() via ipv6_renew_options_kern()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Paul Moore <pmoore@redhat.com>
-Date: Fri, 22 Jun 2018 17:18:20 -0400
-
-> From: Paul Moore <paul@paul-moore.com>
+On Sat, Jun 23, 2018 at 10:57:06AM +0900, David Miller wrote:
+> From: Paul Moore <pmoore@redhat.com>
+> Date: Fri, 22 Jun 2018 17:18:20 -0400
 > 
-> The ipv6_renew_options_kern() function eventually called into
-> copy_from_user(), despite it not using any userspace buffers, which
-> was problematic as that ended up calling access_ok() which emited
-> a warning on x86 (and likely other arches as well).
+> > -	const mm_segment_t old_fs = get_fs();
+> > -
+> > -	set_fs(KERNEL_DS);
+> > -	ret_val = ipv6_renew_options(sk, opt, newtype,
+> > -				     (struct ipv6_opt_hdr __user *)newopt,
+> > -				     newoptlen);
+> > -	set_fs(old_fs);
 > 
->   ipv6_renew_options_kern()
->     ipv6_renew_options()
->       ipv6_renew_option()
->         copy_from_user()
->           _copy_from_user()
->             access_ok()
+> So is it really the case that the traditional construct:
 > 
-> The access_ok() check inside _copy_from_user() is obviously the right
-> thing to do which means that calling copy_from_user() via
-> ipv6_renew_options_kern() is obviously the wrong thing to do.
+> 	set_fs(KERNEL_DS);
+> 	... copy_{from,to}_user(...);
+> 	set_fs(old_fs);
+> 
+> is no longer allowed?
 
-Ok, I re-read the code around here.
-
-access_ok() is not warning because we are calling copy_from_user()
-with a kernel pointer.  The set_ds(KERNEL_DS) adjusts the
-user_addr_max() setting, and thus that check passes.
-
-The problem is that we are invoking this from an interrupt, and this
-triggers the WARN_ON_IN_IRQ() in access_ok().
-
-Although I think that WARN_ON_IN_IRQ() is completely unnecessary when
-KERNEL_DS is set, the situation that really causes this problem is not
-at all clear from your commit message.
-
-I guess that for now your fix is fine, but I want you to please adjust
-the commit message.
-
-Provide the _full_ annotated kernel backtrace from the warning that
-triggers, because this will show the reader that we are in an
-interrupt.  And explain that being in the interrupt is strictly what
-causes this to warn, not that we are using kernel pointers.  The
-latter is %100 valid when set_fs(KERNEL_DS) is performed.
-
-Thank you.
+s/no longer allowed/best avoided/, but IMO in this case the replacement is
+too ugly to live ;-/
