@@ -1,208 +1,143 @@
-To: Jann Horn <jannh@google.com>
-Cc: Paul Moore <paul@paul-moore.com>, Eric Paris <eparis@parisplace.org>,
- selinux@tycho.nsa.gov, security@kernel.org,
- kernel list <linux-kernel@vger.kernel.org>
-References: <20180625163425.216965-1-jannh@google.com>
- <9d5d0cb7-5875-0814-835b-097db650b6a1@tycho.nsa.gov>
- <CAG48ez1oRA7ysqWXnNX3eGMm4P=dtakmVGuQamUrEz9i_9nvEg@mail.gmail.com>
+To: "Yan, Zheng" <zyan@redhat.com>, linux-security-module@vger.kernel.org
+Cc: jmorris@namei.org, paul@paul-moore.com, ceph-devel@vger.kernel.org,
+ SELinux <selinux@tycho.nsa.gov>
+References: <20180626084306.27511-1-zyan@redhat.com>
 From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9cfad0c4-bd08-f032-c7a5-92665545bd0a@tycho.nsa.gov>
-Date: Tue, 26 Jun 2018 08:48:26 -0400
+Message-ID: <e5248747-8aa0-8dcf-8c3c-74d02171be2a@tycho.nsa.gov>
+Date: Tue, 26 Jun 2018 09:28:51 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAG48ez1oRA7ysqWXnNX3eGMm4P=dtakmVGuQamUrEz9i_9nvEg@mail.gmail.com>
+In-Reply-To: <20180626084306.27511-1-zyan@redhat.com>
 Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH] selinux: move user accesses in selinuxfs out of locked
- regions
+Subject: Re: [PATCH 1/3] selinux: make dentry_init_security() return security
+ module name
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 06/26/2018 08:42 AM, Jann Horn wrote:
-> On Tue, Jun 26, 2018 at 2:15 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>
->> On 06/25/2018 12:34 PM, Jann Horn wrote:
->>> If a user is accessing a file in selinuxfs with a pointer to a userspace
->>> buffer that is backed by e.g. a userfaultfd, the userspace access can
->>> stall indefinitely, which can block fsi->mutex if it is held.
->>>
->>> For sel_read_policy(), remove the locking, since this method doesn't seem
->>> to access anything that requires locking.
->>>
->>> For sel_read_bool(), move the user access below the locked region.
->>>
->>> For sel_write_bool() and sel_commit_bools_write(), move the user access
->>> up above the locked region.
->>>
->>> Cc: stable@vger.kernel.org
->>> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
->>> Signed-off-by: Jann Horn <jannh@google.com>
->>
->> Only question I have is wrt the Fixes line, i.e. was this an issue until userfaultfd was introduced, and if not,
->> do we need it to be back-ported any further than the commit which introduced it.
-> 
-> You can also use FUSE, if the system is configured appropriately:
-> Mount a FUSE filesystem, mmap() a file from it, then pass a pointer to
-> the mmapped region to a syscall. AFAICS FUSE was added to the kernel
-> in commit d8a5ba45457e4a22aa39c939121efd7bb6c76672, first in
-> v2.6.16.28.
+On 06/26/2018 04:43 AM, Yan, Zheng wrote:
+> This is preparation for CephFS security label. CephFS's implementation uses
+> dentry_init_security() to get security context before inode is created,
+> then sends open/mkdir/mknod request to MDS, together with security xattr
+> "security.<security module name>"
 
-Ok, then I guess it would be splitting hairs to not just take it all the way back.
+Can you describe how your approach compares to the NFSv4 labeling support, and why it requires
+exporting this information from this hook when NFSv4 did not?
 
 > 
->> Otherwise, you can add my
->> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+> ---
+>  fs/nfs/nfs4proc.c         | 3 ++-
+>  include/linux/lsm_hooks.h | 4 ++--
+>  include/linux/security.h  | 9 +++++----
+>  security/security.c       | 7 ++++---
+>  security/selinux/hooks.c  | 8 ++++++--
+>  5 files changed, 19 insertions(+), 12 deletions(-)
 > 
-> This patch should go through Paul Moore's tree, right?
+> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+> index 6dd146885da9..d18a5fb7aec3 100644
+> --- a/fs/nfs/nfs4proc.c
+> +++ b/fs/nfs/nfs4proc.c
+> @@ -122,7 +122,8 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
+>  		return NULL;
+>  
+>  	err = security_dentry_init_security(dentry, sattr->ia_mode,
+> -				&dentry->d_name, (void **)&label->label, &label->len);
+> +				&dentry->d_name,  NULL,
+> +				(void **)&label->label, &label->len);
+>  	if (err == 0)
+>  		return label;
+>  
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 8f1131c8dd54..e176c2032bdc 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1476,8 +1476,8 @@ union security_list_options {
+>  					unsigned long *set_kern_flags);
+>  	int (*sb_parse_opts_str)(char *options, struct security_mnt_opts *opts);
+>  	int (*dentry_init_security)(struct dentry *dentry, int mode,
+> -					const struct qstr *name, void **ctx,
+> -					u32 *ctxlen);
+> +					const struct qstr *name, const char **label,
 
-Yes, thanks.
+Seems like "label" could be confusing given that it means something else in the NFSv4 code,
+and what is actually being provided here is the xattr name suffix.
 
+> +					void **ctx, u32 *ctxlen);
+>  	int (*dentry_create_files_as)(struct dentry *dentry, int mode,
+>  					struct qstr *name,
+>  					const struct cred *old,
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 63030c85ee19..df2d73998c64 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -246,8 +246,9 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
+>  				unsigned long *set_kern_flags);
+>  int security_sb_parse_opts_str(char *options, struct security_mnt_opts *opts);
+>  int security_dentry_init_security(struct dentry *dentry, int mode,
+> -					const struct qstr *name, void **ctx,
+> -					u32 *ctxlen);
+> +					const struct qstr *name,
+> +					const char **label,
+> +					void **ctx, u32 *ctxlen);
+>  int security_dentry_create_files_as(struct dentry *dentry, int mode,
+>  					struct qstr *name,
+>  					const struct cred *old,
+> @@ -609,8 +610,8 @@ static inline void security_inode_free(struct inode *inode)
+>  static inline int security_dentry_init_security(struct dentry *dentry,
+>  						 int mode,
+>  						 const struct qstr *name,
+> -						 void **ctx,
+> -						 u32 *ctxlen)
+> +						 const char **label,
+> +						 void **ctx, u32 *ctxlen)
+>  {
+>  	return -EOPNOTSUPP;
+>  }
+> diff --git a/security/security.c b/security/security.c
+> index 68f46d849abe..69818d46aa28 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -450,11 +450,12 @@ void security_inode_free(struct inode *inode)
+>  }
+>  
+>  int security_dentry_init_security(struct dentry *dentry, int mode,
+> -					const struct qstr *name, void **ctx,
+> -					u32 *ctxlen)
+> +					const struct qstr *name,
+> +					const char **label,
+> +					void **ctx, u32 *ctxlen)
+>  {
+>  	return call_int_hook(dentry_init_security, -EOPNOTSUPP, dentry, mode,
+> -				name, ctx, ctxlen);
+> +				name, label, ctx, ctxlen);
+>  }
+>  EXPORT_SYMBOL(security_dentry_init_security);
+>  
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 2b5ee5fbd652..eca3879d9357 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2985,8 +2985,9 @@ static void selinux_inode_free_security(struct inode *inode)
+>  }
+>  
+>  static int selinux_dentry_init_security(struct dentry *dentry, int mode,
+> -					const struct qstr *name, void **ctx,
+> -					u32 *ctxlen)
+> +					const struct qstr *name,
+> +					const char **label,
+> +					void **ctx, u32 *ctxlen)
+>  {
+>  	u32 newsid;
+>  	int rc;
+> @@ -2998,6 +2999,9 @@ static int selinux_dentry_init_security(struct dentry *dentry, int mode,
+>  	if (rc)
+>  		return rc;
+>  
+> +	if (label)
+> +		*label = XATTR_SELINUX_SUFFIX;
+> +
+>  	return security_sid_to_context(&selinux_state, newsid, (char **)ctx,
+>  				       ctxlen);
+>  }
 > 
->>> ---
->>>  security/selinux/selinuxfs.c | 77 ++++++++++++++++--------------------
->>>  1 file changed, 33 insertions(+), 44 deletions(-)
->>>
->>> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
->>> index f3d374d2ca04..065f8cea84e3 100644
->>> --- a/security/selinux/selinuxfs.c
->>> +++ b/security/selinux/selinuxfs.c
->>> @@ -445,18 +445,13 @@ static ssize_t sel_read_policy(struct file *filp, char __user *buf,
->>>       struct policy_load_memory *plm = filp->private_data;
->>>       int ret;
->>>
->>> -     mutex_lock(&fsi->mutex);
->>> -
->>>       ret = avc_has_perm(&selinux_state,
->>>                          current_sid(), SECINITSID_SECURITY,
->>>                         SECCLASS_SECURITY, SECURITY__READ_POLICY, NULL);
->>>       if (ret)
->>> -             goto out;
->>> +             return ret;
->>>
->>> -     ret = simple_read_from_buffer(buf, count, ppos, plm->data, plm->len);
->>> -out:
->>> -     mutex_unlock(&fsi->mutex);
->>> -     return ret;
->>> +     return simple_read_from_buffer(buf, count, ppos, plm->data, plm->len);
->>>  }
->>>
->>>  static vm_fault_t sel_mmap_policy_fault(struct vm_fault *vmf)
->>> @@ -1188,25 +1183,29 @@ static ssize_t sel_read_bool(struct file *filep, char __user *buf,
->>>       ret = -EINVAL;
->>>       if (index >= fsi->bool_num || strcmp(name,
->>>                                            fsi->bool_pending_names[index]))
->>> -             goto out;
->>> +             goto out_unlock;
->>>
->>>       ret = -ENOMEM;
->>>       page = (char *)get_zeroed_page(GFP_KERNEL);
->>>       if (!page)
->>> -             goto out;
->>> +             goto out_unlock;
->>>
->>>       cur_enforcing = security_get_bool_value(fsi->state, index);
->>>       if (cur_enforcing < 0) {
->>>               ret = cur_enforcing;
->>> -             goto out;
->>> +             goto out_unlock;
->>>       }
->>>       length = scnprintf(page, PAGE_SIZE, "%d %d", cur_enforcing,
->>>                         fsi->bool_pending_values[index]);
->>> -     ret = simple_read_from_buffer(buf, count, ppos, page, length);
->>> -out:
->>>       mutex_unlock(&fsi->mutex);
->>> +     ret = simple_read_from_buffer(buf, count, ppos, page, length);
->>> +out_free:
->>>       free_page((unsigned long)page);
->>>       return ret;
->>> +
->>> +out_unlock:
->>> +     mutex_unlock(&fsi->mutex);
->>> +     goto out_free;
->>>  }
->>>
->>>  static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
->>> @@ -1219,6 +1218,17 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
->>>       unsigned index = file_inode(filep)->i_ino & SEL_INO_MASK;
->>>       const char *name = filep->f_path.dentry->d_name.name;
->>>
->>> +     if (count >= PAGE_SIZE)
->>> +             return -ENOMEM;
->>> +
->>> +     /* No partial writes. */
->>> +     if (*ppos != 0)
->>> +             return -EINVAL;
->>> +
->>> +     page = memdup_user_nul(buf, count);
->>> +     if (IS_ERR(page))
->>> +             return PTR_ERR(page);
->>> +
->>>       mutex_lock(&fsi->mutex);
->>>
->>>       length = avc_has_perm(&selinux_state,
->>> @@ -1233,22 +1243,6 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
->>>                                            fsi->bool_pending_names[index]))
->>>               goto out;
->>>
->>> -     length = -ENOMEM;
->>> -     if (count >= PAGE_SIZE)
->>> -             goto out;
->>> -
->>> -     /* No partial writes. */
->>> -     length = -EINVAL;
->>> -     if (*ppos != 0)
->>> -             goto out;
->>> -
->>> -     page = memdup_user_nul(buf, count);
->>> -     if (IS_ERR(page)) {
->>> -             length = PTR_ERR(page);
->>> -             page = NULL;
->>> -             goto out;
->>> -     }
->>> -
->>>       length = -EINVAL;
->>>       if (sscanf(page, "%d", &new_value) != 1)
->>>               goto out;
->>> @@ -1280,6 +1274,17 @@ static ssize_t sel_commit_bools_write(struct file *filep,
->>>       ssize_t length;
->>>       int new_value;
->>>
->>> +     if (count >= PAGE_SIZE)
->>> +             return -ENOMEM;
->>> +
->>> +     /* No partial writes. */
->>> +     if (*ppos != 0)
->>> +             return -EINVAL;
->>> +
->>> +     page = memdup_user_nul(buf, count);
->>> +     if (IS_ERR(page))
->>> +             return PTR_ERR(page);
->>> +
->>>       mutex_lock(&fsi->mutex);
->>>
->>>       length = avc_has_perm(&selinux_state,
->>> @@ -1289,22 +1294,6 @@ static ssize_t sel_commit_bools_write(struct file *filep,
->>>       if (length)
->>>               goto out;
->>>
->>> -     length = -ENOMEM;
->>> -     if (count >= PAGE_SIZE)
->>> -             goto out;
->>> -
->>> -     /* No partial writes. */
->>> -     length = -EINVAL;
->>> -     if (*ppos != 0)
->>> -             goto out;
->>> -
->>> -     page = memdup_user_nul(buf, count);
->>> -     if (IS_ERR(page)) {
->>> -             length = PTR_ERR(page);
->>> -             page = NULL;
->>> -             goto out;
->>> -     }
->>> -
->>>       length = -EINVAL;
->>>       if (sscanf(page, "%d", &new_value) != 1)
->>>               goto out;
->>>
->>
