@@ -1,122 +1,68 @@
-From: =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>
-To: netdev@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- Jian-Hong Pan <starnight@g.ncu.edu.tw>, Jiri Pirko <jiri@resnulli.us>,
- Marcel Holtmann <marcel@holtmann.org>,
- "David S . Miller" <davem@davemloft.net>,
- Matthias Brugger <mbrugger@suse.com>, Janus Piwek <jpiwek@arroweurope.com>,
- =?UTF-8?q?Michael=20R=C3=B6der?= <michael.roeder@avnet.eu>,
- Dollar Chen <dollar.chen@wtmec.com>, Ken Yu <ken.yu@rakwireless.com>,
- =?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov
-Date: Sun,  1 Jul 2018 13:07:50 +0200
-Message-Id: <20180701110804.32415-2-afaerber@suse.de>
-In-Reply-To: <20180701110804.32415-1-afaerber@suse.de>
-References: <20180701110804.32415-1-afaerber@suse.de>
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w62DvVsN014146
+ for <selinux@tycho.nsa.gov>; Mon, 2 Jul 2018 09:57:34 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with SMTP id 41K82c5sxKzg473
+ for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2018 13:57:28 +0000 (UTC)
+Received: from UPDC3CPA07_EEMSG_MP23.eemsg.mil (unknown [192.168.18.18])
+ by UPDCF3IC11.oob.disa.mil (Postfix) with ESMTP id 41K82c1yhlzg47J
+ for <selinux@tycho.nsa.gov>; Mon,  2 Jul 2018 13:57:28 +0000 (UTC)
+Received: by mail-oi0-f66.google.com with SMTP id 13-v6so4120575ois.1
+ for <selinux@tycho.nsa.gov>; Mon, 02 Jul 2018 06:57:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Subject: [RFC net-next 01/15] net: Reserve protocol numbers for LoRa
+References: <20180625163425.216965-1-jannh@google.com>
+ <9d5d0cb7-5875-0814-835b-097db650b6a1@tycho.nsa.gov>
+ <CAHC9VhQ7ep3HSw8iqWBsiW0hhZ-drVtk7bW1rA1uAyUrbm3PqA@mail.gmail.com>
+ <CAHC9VhTcncUn3CgAgG-FiXyyoNiq5DdHF1cSYJeWpu8PvRXucw@mail.gmail.com>
+In-Reply-To: <CAHC9VhTcncUn3CgAgG-FiXyyoNiq5DdHF1cSYJeWpu8PvRXucw@mail.gmail.com>
+From: Jann Horn <jannh@google.com>
+Date: Mon, 2 Jul 2018 15:57:14 +0200
+Message-ID: <CAG48ez0GDpuFO1-uMv0GGoPjo08QSCv0sL5du2b7_mi0QFcE8Q@mail.gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ security@kernel.org, kernel list <linux-kernel@vger.kernel.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux: move user accesses in selinuxfs out of
+ locked regions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-LoRa is a long-range, low-power wireless network technology by Semtech.
-It serves as base for LoRaWAN as well as multiple proprietary protocols.
+On Fri, Jun 29, 2018 at 2:38 AM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Thu, Jun 28, 2018 at 8:23 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Tue, Jun 26, 2018 at 8:15 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > On 06/25/2018 12:34 PM, Jann Horn wrote:
+> > > > If a user is accessing a file in selinuxfs with a pointer to a userspace
+> > > > buffer that is backed by e.g. a userfaultfd, the userspace access can
+> > > > stall indefinitely, which can block fsi->mutex if it is held.
+> > > >
+> > > > For sel_read_policy(), remove the locking, since this method doesn't seem
+> > > > to access anything that requires locking.
+> > > >
+> > > > For sel_read_bool(), move the user access below the locked region.
+> > > >
+> > > > For sel_write_bool() and sel_commit_bools_write(), move the user access
+> > > > up above the locked region.
+> > > >
+> > > > Cc: stable@vger.kernel.org
+> > > > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> > > > Signed-off-by: Jann Horn <jannh@google.com>
+> > >
+> > > Only question I have is wrt the Fixes line, i.e. was this an issue until userfaultfd was introduced, and if not,
+> > > do we need it to be back-ported any further than the commit which introduced it.
+> >
+> > Considering we are talking about v2.6.12 I have to wonder if anyone is
+> > bothering with backports for kernels that old.  Even the RHEL-5.x
+> > based systems are at least on v2.6.18.
+> >
+> > Regardless, I think this is fine to merge as-is; thanks everyone.
+>
+> FYI, I did have to remove the "fsi" variable from sel_read_policy() to
+> keep the compiler happy.  Please double check to make sure your code
+> compiles cleanly in the future.
 
-AF_LORA
-PF_LORA
-ARPHRD_LORA
-ETH_P_LORA
-
-Signed-off-by: Andreas Färber <afaerber@suse.de>
----
- include/linux/socket.h              | 4 +++-
- include/uapi/linux/if_arp.h         | 1 +
- include/uapi/linux/if_ether.h       | 1 +
- security/selinux/hooks.c            | 4 +++-
- security/selinux/include/classmap.h | 4 +++-
- 5 files changed, 11 insertions(+), 3 deletions(-)
-
-diff --git a/include/linux/socket.h b/include/linux/socket.h
-index 7ed4713d5337..aa1e288b1659 100644
---- a/include/linux/socket.h
-+++ b/include/linux/socket.h
-@@ -208,8 +208,9 @@ struct ucred {
- 				 * reuses AF_INET address family
- 				 */
- #define AF_XDP		44	/* XDP sockets			*/
-+#define AF_LORA		45	/* LoRa sockets			*/
- 
--#define AF_MAX		45	/* For now.. */
-+#define AF_MAX		46	/* For now.. */
- 
- /* Protocol families, same as address families. */
- #define PF_UNSPEC	AF_UNSPEC
-@@ -259,6 +260,7 @@ struct ucred {
- #define PF_QIPCRTR	AF_QIPCRTR
- #define PF_SMC		AF_SMC
- #define PF_XDP		AF_XDP
-+#define PF_LORA		AF_LORA
- #define PF_MAX		AF_MAX
- 
- /* Maximum queue length specifiable by listen.  */
-diff --git a/include/uapi/linux/if_arp.h b/include/uapi/linux/if_arp.h
-index 4605527ca41b..1ed7cb3f2129 100644
---- a/include/uapi/linux/if_arp.h
-+++ b/include/uapi/linux/if_arp.h
-@@ -98,6 +98,7 @@
- #define ARPHRD_NETLINK	824		/* Netlink header		*/
- #define ARPHRD_6LOWPAN	825		/* IPv6 over LoWPAN             */
- #define ARPHRD_VSOCKMON	826		/* Vsock monitor header		*/
-+#define ARPHRD_LORA	827		/* LoRa				*/
- 
- #define ARPHRD_VOID	  0xFFFF	/* Void type, nothing is known */
- #define ARPHRD_NONE	  0xFFFE	/* zero header length */
-diff --git a/include/uapi/linux/if_ether.h b/include/uapi/linux/if_ether.h
-index 3a45b4ad71a3..45644dcf5b39 100644
---- a/include/uapi/linux/if_ether.h
-+++ b/include/uapi/linux/if_ether.h
-@@ -147,6 +147,7 @@
- #define ETH_P_MAP	0x00F9		/* Qualcomm multiplexing and
- 					 * aggregation protocol
- 					 */
-+#define ETH_P_LORA	0x00FA		/* LoRa				*/
- 
- /*
-  *	This is an Ethernet frame header.
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 10a5d2ce3870..b62bb0389d70 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1473,7 +1473,9 @@ static inline u16 socket_type_to_security_class(int family, int type, int protoc
- 			return SECCLASS_SMC_SOCKET;
- 		case PF_XDP:
- 			return SECCLASS_XDP_SOCKET;
--#if PF_MAX > 45
-+		case PF_LORA:
-+			return SECCLASS_LORA_SOCKET;
-+#if PF_MAX > 46
- #error New address family defined, please update this function.
- #endif
- 		}
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index bd5fe0d3204a..060d4bf8385e 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -242,9 +242,11 @@ struct security_class_mapping secclass_map[] = {
- 	  {"map_create", "map_read", "map_write", "prog_load", "prog_run"} },
- 	{ "xdp_socket",
- 	  { COMMON_SOCK_PERMS, NULL } },
-+	{ "lora_socket",
-+	  { COMMON_SOCK_PERMS, NULL } },
- 	{ NULL }
-   };
- 
--#if PF_MAX > 45
-+#if PF_MAX > 46
- #error New address family defined, please update secclass_map.
- #endif
--- 
-2.16.4
+Oof, don't know how I missed that. Sorry, I'll be more careful.
