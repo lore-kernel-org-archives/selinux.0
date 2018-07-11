@@ -1,330 +1,224 @@
-To: David Howells <dhowells@redhat.com>, viro@zeniv.linux.org.uk
-Cc: Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- linux-fsdevel@vger.kernel.org, torvalds@linux-foundation.org
-References: <153126248868.14533.9751473662727327569.stgit@warthog.procyon.org.uk>
- <153126253554.14533.643647579195359736.stgit@warthog.procyon.org.uk>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <078bdc66-3726-72ae-cc1e-85290bb7a16a@tycho.nsa.gov>
-Date: Wed, 11 Jul 2018 10:08:17 -0400
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6BGZa6W021650
+ for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2018 12:35:36 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.5])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 9B0FA40122BF
+ for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2018 16:34:55 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.18.25.204])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 6D1887C52
+ for <selinux@tycho.nsa.gov>; Wed, 11 Jul 2018 16:34:55 +0000 (UTC)
+Reply-To: dwalsh@redhat.com
+To: selinux@tycho.nsa.gov
+References: <8DB55F909F852648AD052B95F8C1001E4943C416@APSWP0835.ms.ds.uhc.com>
+From: Daniel Walsh <dwalsh@redhat.com>
+Message-ID: <dec06212-3bc0-ca2e-5a34-16abf489d933@redhat.com>
+Date: Wed, 11 Jul 2018 12:34:55 -0400
 MIME-Version: 1.0
-In-Reply-To: <153126253554.14533.643647579195359736.stgit@warthog.procyon.org.uk>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH 07/32] selinux: Implement the new mount API LSM hooks [ver
- #9]
+In-Reply-To: <8DB55F909F852648AD052B95F8C1001E4943C416@APSWP0835.ms.ds.uhc.com>
+Content-Type: multipart/alternative;
+ boundary="------------2B1FC3B90A5DDAF250005AF5"
+Subject: Re: blocking / mount using containers
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 07/10/2018 06:42 PM, David Howells wrote:
-> Implement the new mount API LSM hooks for SELinux.  At some point the old
-> hooks will need to be removed.
-> 
-> Question: Should the ->fs_context_parse_source() hook be implemented to
-> check the labels on any source devices specified?
+This is a multi-part message in MIME format.
+--------------2B1FC3B90A5DDAF250005AF5
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-The hook interface doesn't appear to lend itself to such validation, since you are just passing a string, not an inode.
-Looking up the inode within the security module could easily yield a different object than what is ultimately used for the actual mount.
+On 07/10/2018 10:00 AM, Mclain, Warren wrote:
+>
+> I am trying to find a solution for blocking the mounting of / from=20
+> containers. This is a major security hole for Docker and all of those=20
+> types of applications.
+>
+> I found the mount_anyfile =A0Boolean but nothing that digs into that to=
+=20
+> show how to disable specific mountings.
+>
+> Looking for any information that would help the container community in=20
+> general.
+>
+This seems mighty arbitrary. I would think you would want to block lots=20
+of directories from being mounted into the container in addition to /,=20
+/home, /var, /etc? for example.
 
-> 
-> Signed-off-by: David Howells <dhowells@redhat.com>
-> cc: Paul Moore <paul@paul-moore.com>
-> cc: Stephen Smalley <sds@tycho.nsa.gov>
-> cc: selinux@tycho.nsa.gov
-> cc: linux-security-module@vger.kernel.org
-> ---
-> 
->  security/selinux/hooks.c |  264 ++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 264 insertions(+)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 5bb53edd74cc..bdecae4b7306 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -48,6 +48,7 @@
->  #include <linux/fdtable.h>
->  #include <linux/namei.h>
->  #include <linux/mount.h>
-> +#include <linux/fs_context.h>
->  #include <linux/netfilter_ipv4.h>
->  #include <linux/netfilter_ipv6.h>
->  #include <linux/tty.h>
-> @@ -2973,6 +2974,261 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
->  				   FILESYSTEM__UNMOUNT, NULL);
->  }
->  
-> +/* fsopen mount context operations */
-> +
-> +static int selinux_fs_context_alloc(struct fs_context *fc,
-> +				    struct dentry *reference)
-> +{
-> +	struct security_mnt_opts *opts;
-> +
-> +	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-> +	if (!opts)
-> +		return -ENOMEM;
-> +
-> +	fc->security = opts;
-> +	return 0;
-> +}
-> +
-> +static int selinux_fs_context_dup(struct fs_context *fc,
-> +				  struct fs_context *src_fc)
-> +{
-> +	const struct security_mnt_opts *src = src_fc->security;
-> +	struct security_mnt_opts *opts;
-> +	int i, n;
-> +
-> +	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
-> +	if (!opts)
-> +		return -ENOMEM;
-> +	fc->security = opts;
-> +
-> +	if (!src || !src->num_mnt_opts)
-> +		return 0;
-> +	n = opts->num_mnt_opts = src->num_mnt_opts;
-> +
-> +	if (src->mnt_opts) {
-> +		opts->mnt_opts = kcalloc(n, sizeof(char *), GFP_KERNEL);
-> +		if (!opts->mnt_opts)
-> +			return -ENOMEM;
-> +
-> +		for (i = 0; i < n; i++) {
-> +			if (src->mnt_opts[i]) {
-> +				opts->mnt_opts[i] = kstrdup(src->mnt_opts[i],
-> +							    GFP_KERNEL);
-> +				if (!opts->mnt_opts[i])
-> +					return -ENOMEM;
-> +			}
-> +		}
-> +	}
-> +
-> +	if (src->mnt_opts_flags) {
-> +		opts->mnt_opts_flags = kmemdup(src->mnt_opts_flags,
-> +					       n * sizeof(int), GFP_KERNEL);
-> +		if (!opts->mnt_opts_flags)
-> +			return -ENOMEM;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void selinux_fs_context_free(struct fs_context *fc)
-> +{
-> +	struct security_mnt_opts *opts = fc->security;
-> +
-> +	if (opts) {
-> +		security_free_mnt_opts(opts);
-> +		fc->security = NULL;
-> +	}
-> +}
-> +
-> +static int selinux_fs_context_parse_option(struct fs_context *fc, char *opt, size_t len)
-> +{
-> +	struct security_mnt_opts *opts = fc->security;
-> +	substring_t args[MAX_OPT_ARGS];
-> +	unsigned int have;
-> +	char *c, **oo;
-> +	int token, ctx, i, *of;
-> +
-> +	token = match_token(opt, tokens, args);
-> +	if (token == Opt_error)
-> +		return 0; /* Doesn't belong to us. */
-> +
-> +	have = 0;
-> +	for (i = 0; i < opts->num_mnt_opts; i++)
-> +		have |= 1 << opts->mnt_opts_flags[i];
-> +	if (have & (1 << token))
-> +		return -EINVAL;
-> +
-> +	switch (token) {
-> +	case Opt_context:
-> +		if (have & (1 << Opt_defcontext))
-> +			goto incompatible;
-> +		ctx = CONTEXT_MNT;
-> +		goto copy_context_string;
-> +
-> +	case Opt_fscontext:
-> +		ctx = FSCONTEXT_MNT;
-> +		goto copy_context_string;
-> +
-> +	case Opt_rootcontext:
-> +		ctx = ROOTCONTEXT_MNT;
-> +		goto copy_context_string;
-> +
-> +	case Opt_defcontext:
-> +		if (have & (1 << Opt_context))
-> +			goto incompatible;
-> +		ctx = DEFCONTEXT_MNT;
-> +		goto copy_context_string;
-> +
-> +	case Opt_labelsupport:
-> +		return 1;
-> +
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +copy_context_string:
-> +	if (opts->num_mnt_opts > 3)
-> +		return -EINVAL;
-> +
-> +	of = krealloc(opts->mnt_opts_flags,
-> +		      (opts->num_mnt_opts + 1) * sizeof(int), GFP_KERNEL);
-> +	if (!of)
-> +		return -ENOMEM;
-> +	of[opts->num_mnt_opts] = 0;
-> +	opts->mnt_opts_flags = of;
-> +
-> +	oo = krealloc(opts->mnt_opts,
-> +		      (opts->num_mnt_opts + 1) * sizeof(char *), GFP_KERNEL);
-> +	if (!oo)
-> +		return -ENOMEM;
-> +	oo[opts->num_mnt_opts] = NULL;
-> +	opts->mnt_opts = oo;
-> +
-> +	c = match_strdup(&args[0]);
-> +	if (!c)
-> +		return -ENOMEM;
-> +	opts->mnt_opts[opts->num_mnt_opts] = c;
-> +	opts->mnt_opts_flags[opts->num_mnt_opts] = ctx;
-> +	opts->num_mnt_opts++;
-> +	return 1;
-> +
-> +incompatible:
-> +	return -EINVAL;
-> +}
-> +
-> +/*
-> + * Validate the security parameters supplied for a reconfiguration/remount
-> + * event.
-> + */
-> +static int selinux_validate_for_sb_reconfigure(struct fs_context *fc)
-> +{
-> +	struct super_block *sb = fc->root->d_sb;
-> +	struct superblock_security_struct *sbsec = sb->s_security;
-> +	struct security_mnt_opts *opts = fc->security;
-> +	int rc, i, *flags;
-> +	char **mount_options;
-> +
-> +	if (!(sbsec->flags & SE_SBINITIALIZED))
-> +		return 0;
-> +
-> +	mount_options = opts->mnt_opts;
-> +	flags = opts->mnt_opts_flags;
-> +
-> +	for (i = 0; i < opts->num_mnt_opts; i++) {
-> +		u32 sid;
-> +
-> +		if (flags[i] == SBLABEL_MNT)
-> +			continue;
-> +
-> +		rc = security_context_str_to_sid(&selinux_state, mount_options[i],
-> +						 &sid, GFP_KERNEL);
-> +		if (rc) {
-> +			pr_warn("SELinux: security_context_str_to_sid"
-> +				"(%s) failed for (dev %s, type %s) errno=%d\n",
-> +				mount_options[i], sb->s_id, sb->s_type->name, rc);
-> +			goto inval;
-> +		}
-> +
-> +		switch (flags[i]) {
-> +		case FSCONTEXT_MNT:
-> +			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
-> +				goto bad_option;
-> +			break;
-> +		case CONTEXT_MNT:
-> +			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
-> +				goto bad_option;
-> +			break;
-> +		case ROOTCONTEXT_MNT: {
-> +			struct inode_security_struct *root_isec;
-> +			root_isec = backing_inode_security(sb->s_root);
-> +
-> +			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
-> +				goto bad_option;
-> +			break;
-> +		}
-> +		case DEFCONTEXT_MNT:
-> +			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
-> +				goto bad_option;
-> +			break;
-> +		default:
-> +			goto inval;
-> +		}
-> +	}
-> +
-> +	rc = 0;
-> +out:
-> +	return rc;
-> +
-> +bad_option:
-> +	pr_warn("SELinux: unable to change security options "
-> +		"during remount (dev %s, type=%s)\n",
-> +		sb->s_id, sb->s_type->name);
-> +inval:
-> +	rc = -EINVAL;
-> +	goto out;
-> +}
-> +
-> +/*
-> + * Validate the security context assembled from the option data supplied to
-> + * mount.
-> + */
-> +static int selinux_fs_context_validate(struct fs_context *fc)
-> +{
-> +	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE)
-> +		return selinux_validate_for_sb_reconfigure(fc);
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Set the security context on a superblock.
-> + */
-> +static int selinux_sb_get_tree(struct fs_context *fc)
-> +{
-> +	const struct cred *cred = current_cred();
-> +	struct common_audit_data ad;
-> +	int rc;
-> +
-> +	rc = selinux_set_mnt_opts(fc->root->d_sb, fc->security, 0, NULL);
-> +	if (rc)
-> +		return rc;
-> +
-> +	/* Allow all mounts performed by the kernel */
-> +	if (fc->purpose == FS_CONTEXT_FOR_KERNEL_MOUNT)
-> +		return 0;
-> +
-> +	ad.type = LSM_AUDIT_DATA_DENTRY;
-> +	ad.u.dentry = fc->root;
-> +	return superblock_has_perm(cred, fc->root->d_sb, FILESYSTEM__MOUNT, &ad);
-> +}
-> +
-> +static int selinux_sb_mountpoint(struct fs_context *fc, struct path *mountpoint,
-> +				 unsigned int mnt_flags)
-> +{
-> +	const struct cred *cred = current_cred();
-> +
-> +	return path_has_perm(cred, mountpoint, FILE__MOUNTON);
-> +}
-> +
->  /* inode security operations */
->  
->  static int selinux_inode_alloc_security(struct inode *inode)
-> @@ -6905,6 +7161,14 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->  	LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds),
->  	LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
->  
-> +	LSM_HOOK_INIT(fs_context_alloc, selinux_fs_context_alloc),
-> +	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
-> +	LSM_HOOK_INIT(fs_context_free, selinux_fs_context_free),
-> +	LSM_HOOK_INIT(fs_context_parse_option, selinux_fs_context_parse_option),
-> +	LSM_HOOK_INIT(fs_context_validate, selinux_fs_context_validate),
-> +	LSM_HOOK_INIT(sb_get_tree, selinux_sb_get_tree),
-> +	LSM_HOOK_INIT(sb_mountpoint, selinux_sb_mountpoint),
-> +
->  	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
->  	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
->  	LSM_HOOK_INIT(sb_copy_data, selinux_sb_copy_data),
-> 
+What tool are you using, and what access to you want to grant to your use=
+rs?
+
+> thanks
+>
+> ___________________________________
+>
+> Warren McLain
+>
+> Enterprise Engineering Services
+>
+> IEI Foundation Engineering - Compute, Optum Technology
+>
+> =A0warren_mclain@optum.com Office: 763-744-3107
+>
+>
+> This e-mail, including attachments, may include confidential and/or
+> proprietary information, and may be used only by the person or entity
+> to which it is addressed. If the reader of this e-mail is not the inten=
+ded
+> recipient or his or her authorized agent, the reader is hereby notified
+> that any dissemination, distribution or copying of this e-mail is
+> prohibited. If you have received this e-mail in error, please notify th=
+e
+> sender by replying to this message and delete this e-mail immediately.
+>
+>
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.n=
+sa.gov.
+
+
+
+--------------2B1FC3B90A5DDAF250005AF5
+Content-Type: text/html; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+
+<html>
+  <head>
+    <meta http-equiv=3D"Content-Type" content=3D"text/html;
+      charset=3Dwindows-1252">
+  </head>
+  <body text=3D"#000000" bgcolor=3D"#FFFFFF">
+    <div class=3D"moz-cite-prefix">On 07/10/2018 10:00 AM, Mclain, Warren
+      wrote:<br>
+    </div>
+    <blockquote type=3D"cite"
+cite=3D"mid:8DB55F909F852648AD052B95F8C1001E4943C416@APSWP0835.ms.ds.uhc.=
+com">
+      <meta http-equiv=3D"Content-Type" content=3D"text/html;
+        charset=3Dwindows-1252">
+      <meta name=3D"Generator" content=3D"Microsoft Word 14 (filtered
+        medium)">
+      <style><!--
+/* Font Definitions */
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0in;
+	margin-bottom:.0001pt;
+	font-size:11.0pt;
+	font-family:"Calibri","sans-serif";}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{mso-style-priority:99;
+	color:purple;
+	text-decoration:underline;}
+span.EmailStyle17
+	{mso-style-type:personal-compose;
+	font-family:"Calibri","sans-serif";
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-family:"Calibri","sans-serif";}
+@page WordSection1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.0in 1.0in 1.0in;}
+div.WordSection1
+	{page:WordSection1;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+      <div class=3D"WordSection1">
+        <p class=3D"MsoNormal">I am trying to find a solution for blockin=
+g
+          the mounting of / from containers. This is a major security
+          hole for Docker and all of those types of applications.<o:p></o=
+:p></p>
+        <p class=3D"MsoNormal"><o:p>=A0</o:p></p>
+        <p class=3D"MsoNormal">I found the mount_anyfile =A0Boolean but
+          nothing that digs into that to show how to disable specific
+          mountings.<o:p></o:p></p>
+        <p class=3D"MsoNormal"><o:p>=A0</o:p></p>
+        <p class=3D"MsoNormal">Looking for any information that would hel=
+p
+          the container community in general.<o:p></o:p></p>
+      </div>
+    </blockquote>
+    This seems mighty arbitrary. I would think you would want to block
+    lots of directories from being mounted into the container in
+    addition to /, /home, /var, /etc? for example.<br>
+    <br>
+    What tool are you using, and what access to you want to grant to
+    your users?<br>
+    <br>
+    <blockquote type=3D"cite"
+cite=3D"mid:8DB55F909F852648AD052B95F8C1001E4943C416@APSWP0835.ms.ds.uhc.=
+com">
+      <div class=3D"WordSection1">
+        <p class=3D"MsoNormal"><o:p>=A0</o:p></p>
+        <p class=3D"MsoNormal">thanks<o:p></o:p></p>
+        <p class=3D"MsoNormal"><o:p>=A0</o:p></p>
+        <p class=3D"MsoNormal">___________________________________<o:p></=
+o:p></p>
+        <p class=3D"MsoNormal">Warren McLain<o:p></o:p></p>
+        <p class=3D"MsoNormal">Enterprise Engineering Services<o:p></o:p>=
+</p>
+        <p class=3D"MsoNormal">IEI Foundation Engineering - Compute, Optu=
+m
+          Technology <o:p>
+          </o:p></p>
+        <p class=3D"MsoNormal">=A0<a class=3D"moz-txt-link-abbreviated" h=
+ref=3D"mailto:warren_mclain@optum.com">warren_mclain@optum.com</a> Office=
+:
+          763-744-3107<o:p></o:p></p>
+        <p class=3D"MsoNormal"><o:p>=A0</o:p></p>
+      </div>
+      <p><br>
+        This e-mail, including attachments, may include confidential
+        and/or<br>
+        proprietary information, and may be used only by the person or
+        entity<br>
+        to which it is addressed. If the reader of this e-mail is not
+        the intended<br>
+        recipient or his or her authorized agent, the reader is hereby
+        notified<br>
+        that any dissemination, distribution or copying of this e-mail
+        is<br>
+        prohibited. If you have received this e-mail in error, please
+        notify the<br>
+        sender by replying to this message and delete this e-mail
+        immediately.</p>
+      <!--'"--><br>
+      <fieldset class=3D"mimeAttachmentHeader"></fieldset>
+      <br>
+      <pre wrap=3D"">_______________________________________________
+Selinux mailing list
+<a class=3D"moz-txt-link-abbreviated" href=3D"mailto:Selinux@tycho.nsa.go=
+v">Selinux@tycho.nsa.gov</a>
+To unsubscribe, send email to <a class=3D"moz-txt-link-abbreviated" href=3D=
+"mailto:Selinux-leave@tycho.nsa.gov">Selinux-leave@tycho.nsa.gov</a>.
+To get help, send an email containing "help" to <a class=3D"moz-txt-link-=
+abbreviated" href=3D"mailto:Selinux-request@tycho.nsa.gov">Selinux-reques=
+t@tycho.nsa.gov</a>.</pre>
+    </blockquote>
+    <p><br>
+    </p>
+  </body>
+</html>
+
+--------------2B1FC3B90A5DDAF250005AF5--
