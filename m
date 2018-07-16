@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GIOfnW020832
- for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:24:41 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GIOfnY020832
+ for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:24:42 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
@@ -14,372 +14,648 @@ Cc: "Schaufler, Casey" <casey.schaufler@intel.com>,
  Casey Schaufler <casey@schaufler-ca.com>
 References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <f7258d7f-31a8-37db-517a-ce42c45731d5@schaufler-ca.com>
-Date: Mon, 16 Jul 2018 11:22:52 -0700
+Message-ID: <9761013c-3261-e5df-55c4-6b8e577fc29f@schaufler-ca.com>
+Date: Mon, 16 Jul 2018 11:23:54 -0700
 MIME-Version: 1.0
 In-Reply-To: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v1 06/22] LSM: Infrastructure management of the file
+Subject: [PATCH v1 13/22] LSM: Infrastructure management of the ipc
  security blob
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-LSM: Infrastructure management of the file security blob
+LSM: Infrastructure management of the ipc security blob
 
-Move management of the file->f_security blob out of the
-individual security modules and into the infrastructure.
-The modules no longer allocate or free the data, instead
-they tell the infrastructure how much space they require.
+Move management of the kern_ipc_perm->security and
+msg_msg->security blobs out of the individual security
+modules and into the security infrastructure. Instead
+of allocating the blobs from within the modules the modules
+tell the infrastructure how much space is required, and
+the space is allocated there.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h  |  1 +
- security/apparmor/lsm.c    | 19 +++++++-------
- security/security.c        | 54 +++++++++++++++++++++++++++++++++++---
- security/selinux/hooks.c   | 25 ++----------------
- security/smack/smack.h     |  5 ++++
- security/smack/smack_lsm.c | 26 +++++++-----------
- 6 files changed, 78 insertions(+), 52 deletions(-)
+ include/linux/lsm_hooks.h         |   2 +
+ security/security.c               |  91 +++++++++++++++++++++--
+ security/selinux/hooks.c          | 116 ++++++------------------------
+ security/selinux/include/objsec.h |  12 ++++
+ security/smack/smack.h            |  10 +++
+ security/smack/smack_lsm.c        |  46 ++++--------
+ 6 files changed, 146 insertions(+), 131 deletions(-)
 
 diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 25de11adb4ea..ff8928dac619 100644
+index 5660c0f72d68..6e6967abc5b7 100644
 --- a/include/linux/lsm_hooks.h
 +++ b/include/linux/lsm_hooks.h
-@@ -2023,6 +2023,7 @@ struct security_hook_list {
-  */
- struct lsm_blob_sizes {
+@@ -2025,6 +2025,8 @@ struct lsm_blob_sizes {
  	int	lbs_cred;
-+	int	lbs_file;
- };
- 
- /*
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index f80fbfe50618..271d96c39129 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -431,21 +431,21 @@ static int apparmor_file_open(struct file *file, const struct cred *cred)
- 
- static int apparmor_file_alloc_security(struct file *file)
- {
--	int error = 0;
--
--	/* freed by apparmor_file_free_security */
-+	struct aa_file_ctx *ctx = file_ctx(file);
- 	struct aa_label *label = begin_current_label_crit_section();
--	file->f_security = aa_alloc_file_ctx(label, GFP_KERNEL);
--	if (!file_ctx(file))
--		error = -ENOMEM;
--	end_current_label_crit_section(label);
- 
--	return error;
-+	spin_lock_init(&ctx->lock);
-+	rcu_assign_pointer(ctx->label, aa_get_label(label));
-+	end_current_label_crit_section(label);
-+	return 0;
- }
- 
- static void apparmor_file_free_security(struct file *file)
- {
--	aa_free_file_ctx(file_ctx(file));
-+	struct aa_file_ctx *ctx = file_ctx(file);
-+
-+	if (ctx)
-+		aa_put_label(rcu_access_pointer(ctx->label));
- }
- 
- static int common_file_perm(const char *op, struct file *file, u32 mask)
-@@ -1131,6 +1131,7 @@ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
-  */
- struct lsm_blob_sizes apparmor_blob_sizes = {
- 	.lbs_cred = sizeof(struct aa_task_ctx *),
-+	.lbs_file = sizeof(struct aa_file_ctx),
- };
- 
- static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+ 	int	lbs_file;
+ 	int	lbs_inode;
++	int	lbs_ipc;
++	int	lbs_msg_msg;
+ 	int	lbs_sock;
+ 	int	lbs_superblock;
+ 	int	lbs_task;
 diff --git a/security/security.c b/security/security.c
-index a9fc6975c338..cec46acb4061 100644
+index 07ae8750cf28..500fb19d5aea 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -40,6 +40,8 @@
- struct security_hook_heads security_hook_heads __lsm_ro_after_init;
- static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
+@@ -28,6 +28,7 @@
+ #include <linux/personality.h>
+ #include <linux/backing-dev.h>
+ #include <linux/string.h>
++#include <linux/msg.h>
+ #include <net/flow.h>
+ #include <net/sock.h>
  
-+static struct kmem_cache *lsm_file_cache;
-+
- char *lsm_names;
- static struct lsm_blob_sizes blob_sizes;
- 
-@@ -89,6 +91,13 @@ int __init security_init(void)
- 	 */
- 	do_security_initcalls();
- 
-+	/*
-+	 * Create any kmem_caches needed for blobs
-+	 */
-+	if (blob_sizes.lbs_file)
-+		lsm_file_cache = kmem_cache_create("lsm_file_cache",
-+						   blob_sizes.lbs_file, 0,
-+						   SLAB_PANIC, NULL);
- 	/*
- 	 * The second call to a module specific init function
- 	 * adds hooks to the hook lists and does any other early
-@@ -98,6 +107,7 @@ int __init security_init(void)
- 
- #ifdef CONFIG_SECURITY_LSM_DEBUG
+@@ -115,6 +116,8 @@ int __init security_init(void)
  	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
-+	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
- #endif
- 
- 	return 0;
-@@ -272,6 +282,28 @@ static void __init lsm_set_size(int *need, int *lbs)
- void __init security_add_blobs(struct lsm_blob_sizes *needed)
+ 	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
+ 	pr_info("LSM: inode blob size      = %d\n", blob_sizes.lbs_inode);
++	pr_info("LSM: ipc blob size        = %d\n", blob_sizes.lbs_ipc);
++	pr_info("LSM: msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
+ 	pr_info("LSM: sock blob size       = %d\n", blob_sizes.lbs_sock);
+ 	pr_info("LSM: superblock blob size = %d\n", blob_sizes.lbs_superblock);
+ 	pr_info("LSM: task blob size       = %d\n", blob_sizes.lbs_task);
+@@ -293,6 +296,8 @@ void __init security_add_blobs(struct lsm_blob_sizes *needed)
  {
  	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
-+	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
-+}
-+
+ 	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
++	lsm_set_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
++	lsm_set_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
+ 	lsm_set_size(&needed->lbs_sock, &blob_sizes.lbs_sock);
+ 	lsm_set_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
+ 	lsm_set_size(&needed->lbs_task, &blob_sizes.lbs_task);
+@@ -406,6 +411,48 @@ void lsm_early_inode(struct inode *inode)
+ 		panic("%s: Early inode alloc failed.\n", __func__);
+ }
+ 
 +/**
-+ * lsm_file_alloc - allocate a composite file blob
-+ * @file: the file that needs a blob
++ * lsm_ipc_alloc - allocate a composite ipc blob
++ * @kip: the ipc that needs a blob
 + *
-+ * Allocate the file blob for all the modules
++ * Allocate the ipc blob for all the modules
 + *
 + * Returns 0, or -ENOMEM if memory can't be allocated.
 + */
-+int lsm_file_alloc(struct file *file)
++int lsm_ipc_alloc(struct kern_ipc_perm *kip)
 +{
-+	if (!lsm_file_cache) {
-+		file->f_security = NULL;
++	if (blob_sizes.lbs_ipc == 0) {
++		kip->security = NULL;
 +		return 0;
 +	}
 +
-+	file->f_security = kmem_cache_zalloc(lsm_file_cache, GFP_KERNEL);
-+	if (file->f_security == NULL)
++	kip->security = kzalloc(blob_sizes.lbs_ipc, GFP_KERNEL);
++	if (kip->security == NULL)
 +		return -ENOMEM;
 +	return 0;
- }
- 
- /*
-@@ -957,12 +989,28 @@ int security_file_permission(struct file *file, int mask)
- 
- int security_file_alloc(struct file *file)
- {
--	return call_int_hook(file_alloc_security, 0, file);
-+	int rc = lsm_file_alloc(file);
++}
 +
-+	if (rc)
-+		return rc;
-+	rc = call_int_hook(file_alloc_security, 0, file);
++/**
++ * lsm_msg_msg_alloc - allocate a composite msg_msg blob
++ * @mp: the msg_msg that needs a blob
++ *
++ * Allocate the ipc blob for all the modules
++ *
++ * Returns 0, or -ENOMEM if memory can't be allocated.
++ */
++int lsm_msg_msg_alloc(struct msg_msg *mp)
++{
++	if (blob_sizes.lbs_msg_msg == 0) {
++		mp->security = NULL;
++		return 0;
++	}
++
++	mp->security = kzalloc(blob_sizes.lbs_msg_msg, GFP_KERNEL);
++	if (mp->security == NULL)
++		return -ENOMEM;
++	return 0;
++}
++
+ /**
+  * lsm_sock_alloc - allocate a composite sock blob
+  * @sock: the sock that needs a blob
+@@ -1504,22 +1551,40 @@ void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
+ 
+ int security_msg_msg_alloc(struct msg_msg *msg)
+ {
+-	return call_int_hook(msg_msg_alloc_security, 0, msg);
++	int rc = lsm_msg_msg_alloc(msg);
++
 +	if (unlikely(rc))
-+		security_file_free(file);
++		return rc;
++	rc = call_int_hook(msg_msg_alloc_security, 0, msg);
++	if (unlikely(rc))
++		security_msg_msg_free(msg);
 +	return rc;
  }
  
- void security_file_free(struct file *file)
+ void security_msg_msg_free(struct msg_msg *msg)
  {
-+	void *blob;
-+
-+	if (!lsm_file_cache)
-+		return;
-+
- 	call_void_hook(file_free_security, file);
-+
-+	blob = file->f_security;
-+	file->f_security = NULL;
-+	kmem_cache_free(lsm_file_cache, blob);
+ 	call_void_hook(msg_msg_free_security, msg);
++	kfree(msg->security);
++	msg->security = NULL;
  }
  
- int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-@@ -1080,7 +1128,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
- 		return rc;
- 
- 	rc = call_int_hook(cred_alloc_blank, 0, cred, gfp);
--	if (rc)
+ int security_msg_queue_alloc(struct kern_ipc_perm *msq)
+ {
+-	return call_int_hook(msg_queue_alloc_security, 0, msq);
++	int rc = lsm_ipc_alloc(msq);
++
 +	if (unlikely(rc))
- 		security_cred_free(cred);
- 	return rc;
- }
-@@ -1101,7 +1149,7 @@ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp)
- 		return rc;
- 
- 	rc = call_int_hook(cred_prepare, 0, new, old, gfp);
--	if (rc)
++		return rc;
++	rc = call_int_hook(msg_queue_alloc_security, 0, msq);
 +	if (unlikely(rc))
- 		security_cred_free(new);
- 	return rc;
++		security_msg_queue_free(msq);
++	return rc;
  }
+ 
+ void security_msg_queue_free(struct kern_ipc_perm *msq)
+ {
+ 	call_void_hook(msg_queue_free_security, msq);
++	kfree(msq->security);
++	msq->security = NULL;
+ }
+ 
+ int security_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
+@@ -1546,12 +1611,21 @@ int security_msg_queue_msgrcv(struct kern_ipc_perm *msq, struct msg_msg *msg,
+ 
+ int security_shm_alloc(struct kern_ipc_perm *shp)
+ {
+-	return call_int_hook(shm_alloc_security, 0, shp);
++	int rc = lsm_ipc_alloc(shp);
++
++	if (unlikely(rc))
++		return rc;
++	rc = call_int_hook(shm_alloc_security, 0, shp);
++	if (unlikely(rc))
++		security_shm_free(shp);
++	return rc;
+ }
+ 
+ void security_shm_free(struct kern_ipc_perm *shp)
+ {
+ 	call_void_hook(shm_free_security, shp);
++	kfree(shp->security);
++	shp->security = NULL;
+ }
+ 
+ int security_shm_associate(struct kern_ipc_perm *shp, int shmflg)
+@@ -1571,12 +1645,21 @@ int security_shm_shmat(struct kern_ipc_perm *shp, char __user *shmaddr, int shmf
+ 
+ int security_sem_alloc(struct kern_ipc_perm *sma)
+ {
+-	return call_int_hook(sem_alloc_security, 0, sma);
++	int rc = lsm_ipc_alloc(sma);
++
++	if (unlikely(rc))
++		return rc;
++	rc = call_int_hook(sem_alloc_security, 0, sma);
++	if (unlikely(rc))
++		security_sem_free(sma);
++	return rc;
+ }
+ 
+ void security_sem_free(struct kern_ipc_perm *sma)
+ {
+ 	call_void_hook(sem_free_security, sma);
++	kfree(sma->security);
++	sma->security = NULL;
+ }
+ 
+ int security_sem_associate(struct kern_ipc_perm *sma, int semflg)
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 98ee88156e11..ea9557ad7b7a 100644
+index 5f7f2d3b14cd..ede12c1720a4 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -149,7 +149,6 @@ static int __init checkreqprot_setup(char *str)
- __setup("checkreqprot=", checkreqprot_setup);
+@@ -5803,51 +5803,22 @@ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+ 	return selinux_nlmsg_perm(sk, skb);
+ }
  
- static struct kmem_cache *sel_inode_cache;
--static struct kmem_cache *file_security_cache;
- 
- /**
-  * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
-@@ -381,27 +380,15 @@ static void inode_free_security(struct inode *inode)
- 
- static int file_alloc_security(struct file *file)
+-static int ipc_alloc_security(struct kern_ipc_perm *perm,
+-			      u16 sclass)
++static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
  {
--	struct file_security_struct *fsec;
-+	struct file_security_struct *fsec = selinux_file(file);
- 	u32 sid = current_sid();
- 
--	fsec = kmem_cache_zalloc(file_security_cache, GFP_KERNEL);
--	if (!fsec)
+-	struct ipc_security_struct *isec;
+-
+-	isec = kzalloc(sizeof(struct ipc_security_struct), GFP_KERNEL);
+-	if (!isec)
 -		return -ENOMEM;
 -
- 	fsec->sid = sid;
- 	fsec->fown_sid = sid;
--	file->f_security = fsec;
+ 	isec->sclass = sclass;
+ 	isec->sid = current_sid();
+-	perm->security = isec;
+-
+-	return 0;
+-}
+-
+-static void ipc_free_security(struct kern_ipc_perm *perm)
+-{
+-	struct ipc_security_struct *isec = perm->security;
+-	perm->security = NULL;
+-	kfree(isec);
+ }
+ 
+ static int msg_msg_alloc_security(struct msg_msg *msg)
+ {
+ 	struct msg_security_struct *msec;
+ 
+-	msec = kzalloc(sizeof(struct msg_security_struct), GFP_KERNEL);
+-	if (!msec)
+-		return -ENOMEM;
+-
++	msec = selinux_msg_msg(msg);
+ 	msec->sid = SECINITSID_UNLABELED;
+-	msg->security = msec;
  
  	return 0;
  }
  
--static void file_free_security(struct file *file)
+-static void msg_msg_free_security(struct msg_msg *msg)
 -{
--	struct file_security_struct *fsec = selinux_file(file);
--	file->f_security = NULL;
--	kmem_cache_free(file_security_cache, fsec);
+-	struct msg_security_struct *msec = msg->security;
+-
+-	msg->security = NULL;
+-	kfree(msec);
 -}
 -
- static int superblock_alloc_security(struct super_block *sb)
+ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
+ 			u32 perms)
  {
- 	struct superblock_security_struct *sbsec;
-@@ -3560,11 +3547,6 @@ static int selinux_file_alloc_security(struct file *file)
- 	return file_alloc_security(file);
+@@ -5855,7 +5826,7 @@ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = ipc_perms->security;
++	isec = selinux_ipc(ipc_perms);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = ipc_perms->key;
+@@ -5869,11 +5840,6 @@ static int selinux_msg_msg_alloc_security(struct msg_msg *msg)
+ 	return msg_msg_alloc_security(msg);
  }
  
--static void selinux_file_free_security(struct file *file)
+-static void selinux_msg_msg_free_security(struct msg_msg *msg)
 -{
--	file_free_security(file);
+-	msg_msg_free_security(msg);
 -}
 -
- /*
-  * Check whether a task has the ioctl permission and cmd
-  * operation to an inode.
-@@ -6845,6 +6827,7 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
+ /* message queue security operations */
+ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
+ {
+@@ -5882,11 +5848,8 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
+ 	u32 sid = current_sid();
+ 	int rc;
  
- struct lsm_blob_sizes selinux_blob_sizes = {
+-	rc = ipc_alloc_security(msq, SECCLASS_MSGQ);
+-	if (rc)
+-		return rc;
+-
+-	isec = msq->security;
++	isec = selinux_ipc(msq);
++	ipc_init_security(isec, SECCLASS_MSGQ);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = msq->key;
+@@ -5894,16 +5857,7 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
+ 	rc = avc_has_perm(&selinux_state,
+ 			  sid, isec->sid, SECCLASS_MSGQ,
+ 			  MSGQ__CREATE, &ad);
+-	if (rc) {
+-		ipc_free_security(msq);
+-		return rc;
+-	}
+-	return 0;
+-}
+-
+-static void selinux_msg_queue_free_security(struct kern_ipc_perm *msq)
+-{
+-	ipc_free_security(msq);
++	return rc;
+ }
+ 
+ static int selinux_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
+@@ -5912,7 +5866,7 @@ static int selinux_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = msq->security;
++	isec = selinux_ipc(msq);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = msq->key;
+@@ -5961,8 +5915,8 @@ static int selinux_msg_queue_msgsnd(struct kern_ipc_perm *msq, struct msg_msg *m
+ 	u32 sid = current_sid();
+ 	int rc;
+ 
+-	isec = msq->security;
+-	msec = msg->security;
++	isec = selinux_ipc(msq);
++	msec = selinux_msg_msg(msg);
+ 
+ 	/*
+ 	 * First time through, need to assign label to the message
+@@ -6009,8 +5963,8 @@ static int selinux_msg_queue_msgrcv(struct kern_ipc_perm *msq, struct msg_msg *m
+ 	u32 sid = task_sid(target);
+ 	int rc;
+ 
+-	isec = msq->security;
+-	msec = msg->security;
++	isec = selinux_ipc(msq);
++	msec = selinux_msg_msg(msg);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = msq->key;
+@@ -6033,11 +5987,8 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
+ 	u32 sid = current_sid();
+ 	int rc;
+ 
+-	rc = ipc_alloc_security(shp, SECCLASS_SHM);
+-	if (rc)
+-		return rc;
+-
+-	isec = shp->security;
++	isec = selinux_ipc(shp);
++	ipc_init_security(isec, SECCLASS_SHM);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = shp->key;
+@@ -6045,16 +5996,7 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
+ 	rc = avc_has_perm(&selinux_state,
+ 			  sid, isec->sid, SECCLASS_SHM,
+ 			  SHM__CREATE, &ad);
+-	if (rc) {
+-		ipc_free_security(shp);
+-		return rc;
+-	}
+-	return 0;
+-}
+-
+-static void selinux_shm_free_security(struct kern_ipc_perm *shp)
+-{
+-	ipc_free_security(shp);
++	return rc;
+ }
+ 
+ static int selinux_shm_associate(struct kern_ipc_perm *shp, int shmflg)
+@@ -6063,7 +6005,7 @@ static int selinux_shm_associate(struct kern_ipc_perm *shp, int shmflg)
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = shp->security;
++	isec = selinux_ipc(shp);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = shp->key;
+@@ -6130,11 +6072,8 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
+ 	u32 sid = current_sid();
+ 	int rc;
+ 
+-	rc = ipc_alloc_security(sma, SECCLASS_SEM);
+-	if (rc)
+-		return rc;
+-
+-	isec = sma->security;
++	isec = selinux_ipc(sma);
++	ipc_init_security(isec, SECCLASS_SEM);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = sma->key;
+@@ -6142,16 +6081,7 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
+ 	rc = avc_has_perm(&selinux_state,
+ 			  sid, isec->sid, SECCLASS_SEM,
+ 			  SEM__CREATE, &ad);
+-	if (rc) {
+-		ipc_free_security(sma);
+-		return rc;
+-	}
+-	return 0;
+-}
+-
+-static void selinux_sem_free_security(struct kern_ipc_perm *sma)
+-{
+-	ipc_free_security(sma);
++	return rc;
+ }
+ 
+ static int selinux_sem_associate(struct kern_ipc_perm *sma, int semflg)
+@@ -6160,7 +6090,7 @@ static int selinux_sem_associate(struct kern_ipc_perm *sma, int semflg)
+ 	struct common_audit_data ad;
+ 	u32 sid = current_sid();
+ 
+-	isec = sma->security;
++	isec = selinux_ipc(sma);
+ 
+ 	ad.type = LSM_AUDIT_DATA_IPC;
+ 	ad.u.ipc_id = sma->key;
+@@ -6246,7 +6176,7 @@ static int selinux_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
+ 
+ static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
+ {
+-	struct ipc_security_struct *isec = ipcp->security;
++	struct ipc_security_struct *isec = selinux_ipc(ipcp);
+ 	*secid = isec->sid;
+ }
+ 
+@@ -6784,6 +6714,8 @@ struct lsm_blob_sizes selinux_blob_sizes = {
  	.lbs_cred = sizeof(struct task_security_struct),
-+	.lbs_file = sizeof(struct file_security_struct),
+ 	.lbs_file = sizeof(struct file_security_struct),
+ 	.lbs_inode = sizeof(struct inode_security_struct),
++	.lbs_ipc = sizeof(struct ipc_security_struct),
++	.lbs_msg_msg = sizeof(struct msg_security_struct),
+ 	.lbs_sock = sizeof(struct sk_security_struct),
+ 	.lbs_superblock = sizeof(struct superblock_security_struct),
  };
+@@ -6894,24 +6826,20 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
  
- static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
-@@ -6915,7 +6898,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(msg_msg_alloc_security, selinux_msg_msg_alloc_security),
+-	LSM_HOOK_INIT(msg_msg_free_security, selinux_msg_msg_free_security),
  
- 	LSM_HOOK_INIT(file_permission, selinux_file_permission),
- 	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
--	LSM_HOOK_INIT(file_free_security, selinux_file_free_security),
- 	LSM_HOOK_INIT(file_ioctl, selinux_file_ioctl),
- 	LSM_HOOK_INIT(mmap_file, selinux_mmap_file),
- 	LSM_HOOK_INIT(mmap_addr, selinux_mmap_addr),
-@@ -7117,9 +7099,6 @@ static __init int selinux_init(void)
- 	sel_inode_cache = kmem_cache_create("selinux_inode_security",
- 					    sizeof(struct inode_security_struct),
- 					    0, SLAB_PANIC, NULL);
--	file_security_cache = kmem_cache_create("selinux_file_security",
--					    sizeof(struct file_security_struct),
--					    0, SLAB_PANIC, NULL);
- 	avc_init();
+ 	LSM_HOOK_INIT(msg_queue_alloc_security,
+ 			selinux_msg_queue_alloc_security),
+-	LSM_HOOK_INIT(msg_queue_free_security, selinux_msg_queue_free_security),
+ 	LSM_HOOK_INIT(msg_queue_associate, selinux_msg_queue_associate),
+ 	LSM_HOOK_INIT(msg_queue_msgctl, selinux_msg_queue_msgctl),
+ 	LSM_HOOK_INIT(msg_queue_msgsnd, selinux_msg_queue_msgsnd),
+ 	LSM_HOOK_INIT(msg_queue_msgrcv, selinux_msg_queue_msgrcv),
  
- 	avtab_cache_init();
+ 	LSM_HOOK_INIT(shm_alloc_security, selinux_shm_alloc_security),
+-	LSM_HOOK_INIT(shm_free_security, selinux_shm_free_security),
+ 	LSM_HOOK_INIT(shm_associate, selinux_shm_associate),
+ 	LSM_HOOK_INIT(shm_shmctl, selinux_shm_shmctl),
+ 	LSM_HOOK_INIT(shm_shmat, selinux_shm_shmat),
+ 
+ 	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
+-	LSM_HOOK_INIT(sem_free_security, selinux_sem_free_security),
+ 	LSM_HOOK_INIT(sem_associate, selinux_sem_associate),
+ 	LSM_HOOK_INIT(sem_semctl, selinux_sem_semctl),
+ 	LSM_HOOK_INIT(sem_semop, selinux_sem_semop),
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 92010a72d153..848ba24921c9 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -181,6 +181,18 @@ static inline struct superblock_security_struct *selinux_superblock(
+ 	return superblock->s_security;
+ }
+ 
++static inline struct msg_security_struct *selinux_msg_msg(
++						const struct msg_msg *msg_msg)
++{
++	return msg_msg->security;
++}
++
++static inline struct ipc_security_struct *selinux_ipc(
++						const struct kern_ipc_perm *ipc)
++{
++	return ipc->security;
++}
++
+ static inline struct sk_security_struct *selinux_sock(const struct sock *sock)
+ {
+ 	return sock->sk_security;
 diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 0c6dce446825..043525a52e94 100644
+index f457dd3b4aa0..42c36e37b0bd 100644
 --- a/security/smack/smack.h
 +++ b/security/smack/smack.h
-@@ -362,6 +362,11 @@ static inline struct task_smack *smack_cred(const struct cred *cred)
- 	return cred->security;
+@@ -383,6 +383,16 @@ static inline struct superblock_smack *smack_superblock(
+ 	return superblock->s_security;
  }
  
-+static inline struct smack_known **smack_file(const struct file *file)
++static inline struct smack_known **smack_msg_msg(const struct msg_msg *msg)
 +{
-+	return file->f_security;
++	return msg->security;
++}
++
++static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
++{
++	return ipc->security;
 +}
 +
  /*
   * Is the directory transmuting?
   */
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index dca1db48f38b..d5c99ed8047d 100644
+index d0375e3bd36b..f8c4b3e95e67 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -1570,24 +1570,12 @@ static void smack_inode_getsecid(struct inode *inode, u32 *secid)
+@@ -2854,23 +2854,12 @@ static int smack_flags_to_may(int flags)
   */
- static int smack_file_alloc_security(struct file *file)
+ static int smack_msg_msg_alloc_security(struct msg_msg *msg)
  {
 -	struct smack_known *skp = smk_of_current();
-+	struct smack_known **blob = smack_file(file);
++	struct smack_known **blob = smack_msg_msg(msg);
  
--	file->f_security = skp;
+-	msg->security = skp;
 +	*blob = smk_of_current();
  	return 0;
  }
  
 -/**
-- * smack_file_free_security - clear a file security blob
-- * @file: the object
+- * smack_msg_msg_free_security - Clear the security blob for msg_msg
+- * @msg: the object
 - *
-- * The security blob for a file is a pointer to the master
-- * label list, so no memory is freed.
+- * Clears the blob pointer
 - */
--static void smack_file_free_security(struct file *file)
+-static void smack_msg_msg_free_security(struct msg_msg *msg)
 -{
--	file->f_security = NULL;
+-	msg->security = NULL;
 -}
 -
  /**
-  * smack_file_ioctl - Smack check on ioctls
-  * @file: the object
-@@ -1812,7 +1800,9 @@ static int smack_mmap_file(struct file *file,
+  * smack_of_ipc - the smack pointer for the ipc
+  * @isp: the object
+@@ -2879,7 +2868,9 @@ static void smack_msg_msg_free_security(struct msg_msg *msg)
   */
- static void smack_file_set_fowner(struct file *file)
+ static struct smack_known *smack_of_ipc(struct kern_ipc_perm *isp)
  {
--	file->f_security = smk_of_current();
-+	struct smack_known **blob = smack_file(file);
+-	return (struct smack_known *)isp->security;
++	struct smack_known **blob = smack_ipc(isp);
 +
-+	*blob = smk_of_current();
++	return *blob;
  }
  
  /**
-@@ -1829,6 +1819,7 @@ static void smack_file_set_fowner(struct file *file)
- static int smack_file_send_sigiotask(struct task_struct *tsk,
- 				     struct fown_struct *fown, int signum)
+@@ -2890,23 +2881,12 @@ static struct smack_known *smack_of_ipc(struct kern_ipc_perm *isp)
+  */
+ static int smack_ipc_alloc_security(struct kern_ipc_perm *isp)
  {
-+	struct smack_known **blob;
- 	struct smack_known *skp;
- 	struct smack_known *tkp = smk_of_task(smack_cred(tsk->cred));
- 	struct file *file;
-@@ -1841,7 +1832,8 @@ static int smack_file_send_sigiotask(struct task_struct *tsk,
- 	file = container_of(fown, struct file, f_owner);
+-	struct smack_known *skp = smk_of_current();
++	struct smack_known **blob = smack_ipc(isp);
  
- 	/* we don't log here as rc can be overriden */
--	skp = file->f_security;
-+	blob = smack_file(file);
-+	skp = *blob;
- 	rc = smk_access(skp, tkp, MAY_DELIVER, NULL);
- 	rc = smk_bu_note("sigiotask", skp, tkp, MAY_DELIVER, rc);
- 	if (rc != 0 && has_capability(tsk, CAP_MAC_OVERRIDE))
-@@ -4615,6 +4607,7 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
+-	isp->security = skp;
++	*blob = smk_of_current();
+ 	return 0;
+ }
  
- struct lsm_blob_sizes smack_blob_sizes = {
+-/**
+- * smack_ipc_free_security - Clear the security blob for ipc
+- * @isp: the object
+- *
+- * Clears the blob pointer
+- */
+-static void smack_ipc_free_security(struct kern_ipc_perm *isp)
+-{
+-	isp->security = NULL;
+-}
+-
+ /**
+  * smk_curacc_shm : check if current has access on shm
+  * @isp : the object
+@@ -3204,7 +3184,8 @@ static int smack_msg_queue_msgrcv(struct kern_ipc_perm *isp, struct msg_msg *msg
+  */
+ static int smack_ipc_permission(struct kern_ipc_perm *ipp, short flag)
+ {
+-	struct smack_known *iskp = ipp->security;
++	struct smack_known **blob = smack_ipc(ipp);
++	struct smack_known *iskp = *blob;
+ 	int may = smack_flags_to_may(flag);
+ 	struct smk_audit_info ad;
+ 	int rc;
+@@ -3225,7 +3206,8 @@ static int smack_ipc_permission(struct kern_ipc_perm *ipp, short flag)
+  */
+ static void smack_ipc_getsecid(struct kern_ipc_perm *ipp, u32 *secid)
+ {
+-	struct smack_known *iskp = ipp->security;
++	struct smack_known **blob = smack_ipc(ipp);
++	struct smack_known *iskp = *blob;
+ 
+ 	*secid = iskp->smk_secid;
+ }
+@@ -4537,6 +4519,8 @@ struct lsm_blob_sizes smack_blob_sizes = {
  	.lbs_cred = sizeof(struct task_smack),
-+	.lbs_file = sizeof(struct smack_known *),
+ 	.lbs_file = sizeof(struct smack_known *),
+ 	.lbs_inode = sizeof(struct inode_smack),
++	.lbs_ipc = sizeof(struct smack_known *),
++	.lbs_msg_msg = sizeof(struct smack_known *),
+ 	.lbs_sock = sizeof(struct socket_smack),
+ 	.lbs_superblock = sizeof(struct superblock_smack),
  };
+@@ -4609,23 +4593,19 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(ipc_getsecid, smack_ipc_getsecid),
  
- static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
-@@ -4652,7 +4645,6 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(inode_getsecid, smack_inode_getsecid),
+ 	LSM_HOOK_INIT(msg_msg_alloc_security, smack_msg_msg_alloc_security),
+-	LSM_HOOK_INIT(msg_msg_free_security, smack_msg_msg_free_security),
  
- 	LSM_HOOK_INIT(file_alloc_security, smack_file_alloc_security),
--	LSM_HOOK_INIT(file_free_security, smack_file_free_security),
- 	LSM_HOOK_INIT(file_ioctl, smack_file_ioctl),
- 	LSM_HOOK_INIT(file_lock, smack_file_lock),
- 	LSM_HOOK_INIT(file_fcntl, smack_file_fcntl),
+ 	LSM_HOOK_INIT(msg_queue_alloc_security, smack_ipc_alloc_security),
+-	LSM_HOOK_INIT(msg_queue_free_security, smack_ipc_free_security),
+ 	LSM_HOOK_INIT(msg_queue_associate, smack_msg_queue_associate),
+ 	LSM_HOOK_INIT(msg_queue_msgctl, smack_msg_queue_msgctl),
+ 	LSM_HOOK_INIT(msg_queue_msgsnd, smack_msg_queue_msgsnd),
+ 	LSM_HOOK_INIT(msg_queue_msgrcv, smack_msg_queue_msgrcv),
+ 
+ 	LSM_HOOK_INIT(shm_alloc_security, smack_ipc_alloc_security),
+-	LSM_HOOK_INIT(shm_free_security, smack_ipc_free_security),
+ 	LSM_HOOK_INIT(shm_associate, smack_shm_associate),
+ 	LSM_HOOK_INIT(shm_shmctl, smack_shm_shmctl),
+ 	LSM_HOOK_INIT(shm_shmat, smack_shm_shmat),
+ 
+ 	LSM_HOOK_INIT(sem_alloc_security, smack_ipc_alloc_security),
+-	LSM_HOOK_INIT(sem_free_security, smack_ipc_free_security),
+ 	LSM_HOOK_INIT(sem_associate, smack_sem_associate),
+ 	LSM_HOOK_INIT(sem_semctl, smack_sem_semctl),
+ 	LSM_HOOK_INIT(sem_semop, smack_sem_semop),
 -- 
 2.17.1
