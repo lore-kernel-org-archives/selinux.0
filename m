@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GIPH7l020930
- for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:25:17 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GIPH7m020930
+ for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:25:20 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
@@ -14,1501 +14,670 @@ Cc: "Schaufler, Casey" <casey.schaufler@intel.com>,
  Casey Schaufler <casey@schaufler-ca.com>
 References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <a3e84f8d-23c2-b9e3-6b44-225f53499d8b@schaufler-ca.com>
-Date: Mon, 16 Jul 2018 11:24:29 -0700
+Message-ID: <203671d2-4f15-ae6e-cfae-271c24a13dbb@schaufler-ca.com>
+Date: Mon, 16 Jul 2018 11:24:12 -0700
 MIME-Version: 1.0
 In-Reply-To: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v1 18/22] LSM: Use multiple secids in security
- module interfaces
+Subject: [PATCH v1 16/22] LSM: Sharing of security blobs
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-LSM: Use multiple secids in security module interfaces
+[PATCH 16/22] LSM: Sharing of security blobs
 
-This is the first of two parts required to change the
-security module infrastructure from using a u32 to
-identify extended security attributes to using a pointer
-to a structure containing the information required for
-the set of security modules involved. You can't put an
-SELinux secid, a Smack secid and an AppArmor secid
-all into a u32. They don't fit. Schemes that map a
-single u32 into sets of u32s are frought with data
-management issues and as a result are not suitable for
-use in the variety of ways secids manifest themselves
-in the Linux kernel.
+Augment the security modules that use security blobs
+("Major" security modules) to allow sharing of the
+infrastructure allocated blobs. When CONFIG_SECURITY_STACKING
+is specified the blob pointer abstraction functions
+introduced earlier use the offset information provided
+by the infrastructure to find the data in the blob that is
+for use by the acting security module.
 
-This patch changes the interfaces to the security modules
-to use a "struct secids" pointer where they used a u32
-before. There are changes in networking code where the
-layering isn't so clean as I would like it to be.
+The mechanism for specifying the active security modules
+has been changed. SELinux, Smack and AppArmor have behaviors
+beyond the sharing of security blobs that prevent them from
+working together at this point. TOMOYO does not have this
+limitation.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h         | 38 +++++++-------
- include/linux/security.h          | 19 +++++++
- include/net/flow.h                |  5 +-
- include/net/netlabel.h            |  8 +--
- net/core/filter.c                 |  4 +-
- net/ipv4/cipso_ipv4.c             |  4 +-
- net/netlabel/netlabel_kapi.c      |  4 +-
- net/netlabel/netlabel_unlabeled.c | 29 ++++++-----
- net/netlabel/netlabel_user.c      |  4 +-
- net/netlabel/netlabel_user.h      |  2 +-
- net/xfrm/xfrm_policy.c            |  7 +--
- net/xfrm/xfrm_state.c             |  3 +-
- security/apparmor/audit.c         |  4 +-
- security/apparmor/include/audit.h |  2 +-
- security/apparmor/include/secid.h |  5 +-
- security/apparmor/lsm.c           |  7 +--
- security/apparmor/secid.c         |  9 ++--
- security/security.c               | 85 ++++++++++++++++++++++++-------
- security/selinux/hooks.c          | 59 +++++++++++----------
- security/selinux/include/audit.h  |  2 +-
- security/selinux/include/xfrm.h   |  9 ++--
- security/selinux/netlabel.c       |  2 +-
- security/selinux/ss/services.c    | 10 ++--
- security/selinux/xfrm.c           | 25 +++++----
- security/smack/smack_access.c     |  4 +-
- security/smack/smack_lsm.c        | 76 +++++++++++++++------------
- security/smack/smackfs.c          | 14 +++--
- 27 files changed, 275 insertions(+), 165 deletions(-)
+ Documentation/admin-guide/LSM/index.rst | 14 ++--
+ include/linux/lsm_hooks.h               |  2 +-
+ security/Kconfig                        | 86 +++++++++++++++++++++++++
+ security/apparmor/include/cred.h        |  8 +++
+ security/apparmor/include/file.h        |  9 ++-
+ security/apparmor/include/lib.h         |  4 ++
+ security/apparmor/include/net.h         |  4 ++
+ security/apparmor/include/task.h        |  4 ++
+ security/apparmor/lsm.c                 |  8 ++-
+ security/security.c                     | 30 ++++++++-
+ security/selinux/hooks.c                |  3 +-
+ security/selinux/include/objsec.h       | 32 +++++++++
+ security/smack/smack.h                  | 33 ++++++++++
+ security/smack/smack_lsm.c              | 17 +++--
+ security/tomoyo/common.h                | 12 +++-
+ security/tomoyo/tomoyo.c                |  3 +-
+ 16 files changed, 247 insertions(+), 22 deletions(-)
 
+diff --git a/Documentation/admin-guide/LSM/index.rst b/Documentation/admin-guide/LSM/index.rst
+index 9842e21afd4a..d3d8af174042 100644
+--- a/Documentation/admin-guide/LSM/index.rst
++++ b/Documentation/admin-guide/LSM/index.rst
+@@ -17,10 +17,16 @@ MAC extensions, other extensions can be built using the LSM to provide
+ specific changes to system operation when these tweaks are not available
+ in the core functionality of Linux itself.
+ 
+-The Linux capabilities modules will always be included. This may be
+-followed by any number of "minor" modules and at most one "major" module.
+-For more details on capabilities, see ``capabilities(7)`` in the Linux
+-man-pages project.
++The Linux capabilities modules will always be included. For more details
++on capabilities, see ``capabilities(7)`` in the Linux man-pages project.
++
++Security modules that do not use the security data blobs maintained
++by the LSM infrastructure are considered "minor" modules. These may be
++included at compile time and stacked explicitly. Security modules that
++use the LSM maintained security blobs are considered "major" modules.
++These may only be stacked if the CONFIG_LSM_STACKED configuration
++option is used. If this is chosen all of the security modules selected
++will be used.
+ 
+ A list of the active security modules can be found by reading
+ ``/sys/kernel/security/lsm``. This is a comma separated list, and
 diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 115e7cd89d88..7c321d11d994 100644
+index fe14a86c6df0..115e7cd89d88 100644
 --- a/include/linux/lsm_hooks.h
 +++ b/include/linux/lsm_hooks.h
-@@ -1548,7 +1548,7 @@ union security_list_options {
- 					int flags);
- 	int (*inode_listsecurity)(struct inode *inode, char *buffer,
- 					size_t buffer_size);
--	void (*inode_getsecid)(struct inode *inode, u32 *secid);
-+	void (*inode_getsecid)(struct inode *inode, struct secids *secid);
- 	int (*inode_copy_up)(struct dentry *src, struct cred **new);
- 	int (*inode_copy_up_xattr)(const char *name);
+@@ -2079,7 +2079,7 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
+ #define __lsm_ro_after_init	__ro_after_init
+ #endif /* CONFIG_SECURITY_WRITABLE_HOOKS */
  
-@@ -1578,8 +1578,8 @@ union security_list_options {
- 	int (*cred_prepare)(struct cred *new, const struct cred *old,
- 				gfp_t gfp);
- 	void (*cred_transfer)(struct cred *new, const struct cred *old);
--	void (*cred_getsecid)(const struct cred *c, u32 *secid);
--	int (*kernel_act_as)(struct cred *new, u32 secid);
-+	void (*cred_getsecid)(const struct cred *c, struct secids *secid);
-+	int (*kernel_act_as)(struct cred *new, struct secids *secid);
- 	int (*kernel_create_files_as)(struct cred *new, struct inode *inode);
- 	int (*kernel_module_request)(char *kmod_name);
- 	int (*kernel_read_file)(struct file *file, enum kernel_read_file_id id);
-@@ -1590,7 +1590,7 @@ union security_list_options {
- 	int (*task_setpgid)(struct task_struct *p, pid_t pgid);
- 	int (*task_getpgid)(struct task_struct *p);
- 	int (*task_getsid)(struct task_struct *p);
--	void (*task_getsecid)(struct task_struct *p, u32 *secid);
-+	void (*task_getsecid)(struct task_struct *p, struct secids *secid);
- 	int (*task_setnice)(struct task_struct *p, int nice);
- 	int (*task_setioprio)(struct task_struct *p, int ioprio);
- 	int (*task_getioprio)(struct task_struct *p);
-@@ -1608,7 +1608,7 @@ union security_list_options {
- 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
+-extern int __init security_module_enable(const char *module);
++extern bool __init security_module_enable(const char *lsm, const bool stacked);
+ extern void __init capability_add_hooks(void);
+ #ifdef CONFIG_SECURITY_YAMA
+ extern void __init yama_add_hooks(void);
+diff --git a/security/Kconfig b/security/Kconfig
+index 116dba966553..8225388b81c3 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -36,6 +36,28 @@ config SECURITY_WRITABLE_HOOKS
+ 	bool
+ 	default n
  
- 	int (*ipc_permission)(struct kern_ipc_perm *ipcp, short flag);
--	void (*ipc_getsecid)(struct kern_ipc_perm *ipcp, u32 *secid);
-+	void (*ipc_getsecid)(struct kern_ipc_perm *ipcp, struct secids *secid);
- 
- 	int (*msg_msg_alloc_security)(struct msg_msg *msg);
- 	void (*msg_msg_free_security)(struct msg_msg *msg);
-@@ -1644,8 +1644,10 @@ union security_list_options {
- 	int (*getprocattr)(struct task_struct *p, char *name, char **value);
- 	int (*setprocattr)(const char *name, void *value, size_t size);
- 	int (*ismaclabel)(const char *name);
--	int (*secid_to_secctx)(u32 secid, char **secdata, u32 *seclen);
--	int (*secctx_to_secid)(const char *secdata, u32 seclen, u32 *secid);
-+	int (*secid_to_secctx)(struct secids *secid, char **secdata,
-+				u32 *seclen);
-+	int (*secctx_to_secid)(const char *secdata, u32 seclen,
-+				struct secids *secid);
- 	void (*release_secctx)(char *secdata, u32 seclen);
- 
- 	void (*inode_invalidate_secctx)(struct inode *inode);
-@@ -1680,20 +1682,21 @@ union security_list_options {
- 	int (*socket_sock_rcv_skb)(struct sock *sk, struct sk_buff *skb);
- 	int (*socket_getpeersec_stream)(struct socket *sock,
- 					char __user *optval,
--					int __user *optlen, unsigned len);
-+					int __user *optlen, unsigned int len);
- 	int (*socket_getpeersec_dgram)(struct socket *sock,
--					struct sk_buff *skb, u32 *secid);
-+					struct sk_buff *skb,
-+					struct secids *secid);
- 	int (*sk_alloc_security)(struct sock *sk, int family, gfp_t priority);
- 	void (*sk_free_security)(struct sock *sk);
- 	void (*sk_clone_security)(const struct sock *sk, struct sock *newsk);
--	void (*sk_getsecid)(struct sock *sk, u32 *secid);
-+	void (*sk_getsecid)(struct sock *sk, struct secids *secid);
- 	void (*sock_graft)(struct sock *sk, struct socket *parent);
- 	int (*inet_conn_request)(struct sock *sk, struct sk_buff *skb,
- 					struct request_sock *req);
- 	void (*inet_csk_clone)(struct sock *newsk,
- 				const struct request_sock *req);
- 	void (*inet_conn_established)(struct sock *sk, struct sk_buff *skb);
--	int (*secmark_relabel_packet)(u32 secid);
-+	int (*secmark_relabel_packet)(struct secids *secid);
- 	void (*secmark_refcount_inc)(void);
- 	void (*secmark_refcount_dec)(void);
- 	void (*req_classify_flow)(const struct request_sock *req,
-@@ -1732,15 +1735,16 @@ union security_list_options {
- 				struct xfrm_user_sec_ctx *sec_ctx);
- 	int (*xfrm_state_alloc_acquire)(struct xfrm_state *x,
- 					struct xfrm_sec_ctx *polsec,
--					u32 secid);
-+					const struct secids *secid);
- 	void (*xfrm_state_free_security)(struct xfrm_state *x);
- 	int (*xfrm_state_delete_security)(struct xfrm_state *x);
--	int (*xfrm_policy_lookup)(struct xfrm_sec_ctx *ctx, u32 fl_secid,
--					u8 dir);
-+	int (*xfrm_policy_lookup)(struct xfrm_sec_ctx *ctx,
-+					struct secids *fl_secid, u8 dir);
- 	int (*xfrm_state_pol_flow_match)(struct xfrm_state *x,
- 						struct xfrm_policy *xp,
- 						const struct flowi *fl);
--	int (*xfrm_decode_session)(struct sk_buff *skb, u32 *secid, int ckall);
-+	int (*xfrm_decode_session)(struct sk_buff *skb, struct secids *secid,
-+					int ckall);
- #endif	/* CONFIG_SECURITY_NETWORK_XFRM */
- 
- 	/* key management security hooks */
-@@ -1757,8 +1761,8 @@ union security_list_options {
- 	int (*audit_rule_init)(u32 field, u32 op, char *rulestr,
- 				void **lsmrule);
- 	int (*audit_rule_known)(struct audit_krule *krule);
--	int (*audit_rule_match)(u32 secid, u32 field, u32 op, void *lsmrule,
--				struct audit_context *actx);
-+	int (*audit_rule_match)(struct secids *secid, u32 field, u32 op,
-+				void *lsmrule, struct audit_context *actx);
- 	void (*audit_rule_free)(void *lsmrule);
- #endif /* CONFIG_AUDIT */
- 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index ea875e761d14..6e8e98237a79 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -70,6 +70,25 @@ enum lsm_event {
- 	LSM_POLICY_CHANGE,
- };
- 
-+struct secids {
-+	union {
-+		u32 common;
-+		u32 selinux;
-+		u32 smack;
-+		u32 apparmor;
-+	};
-+};
++config SECURITY_STACKING
++	bool "Security module stacking"
++	depends on SECURITY
++	help
++	  Allows multiple major security modules to be stacked.
++	  Modules are invoked in the order registered with a
++	  "bail on fail" policy, in which the infrastructure
++	  will stop processing once a denial is detected. Not
++	  all modules can be stacked. SELinux and Smack are
++	  known to be incompatible. User space components may
++	  have trouble identifying the security module providing
++	  data in some cases.
 +
-+static inline bool secid_valid(const struct secids *secids)
++	  If you select this option you will have to select which
++	  of the stackable modules you wish to be active. The
++	  "Default security module" will be ignored. The boot line
++	  "security=" option can be used to specify that one of
++	  the modules identifed for stacking should be used instead
++	  of the entire stack.
++
++	  If you are unsure how to answer this question, answer N.
++
+ config SECURITY_LSM_DEBUG
+ 	bool "Enable debugging of the LSM infrastructure"
+ 	depends on SECURITY
+@@ -251,6 +273,9 @@ source security/yama/Kconfig
+ 
+ source security/integrity/Kconfig
+ 
++menu "Security Module Selection"
++	visible if !SECURITY_STACKING
++
+ choice
+ 	prompt "Default security module"
+ 	default DEFAULT_SECURITY_SELINUX if SECURITY_SELINUX
+@@ -290,3 +315,64 @@ config DEFAULT_SECURITY
+ 
+ endmenu
+ 
++menu "Security Module Stack"
++	visible if SECURITY_STACKING
++
++choice
++	prompt "Stacked 'extreme' security module"
++	default SECURITY_SELINUX_STACKED if SECURITY_SELINUX
++	default SECURITY_SMACK_STACKED if SECURITY_SMACK
++	default SECURITY_APPARMOR_STACKED if SECURITY_APPARMOR
++
++	help
++	  Enable an extreme security module. These modules cannot
++	  be used at the same time.
++
++	config SECURITY_SELINUX_STACKED
++		bool "SELinux" if SECURITY_SELINUX=y
++	help
++	  This option instructs the system to use the SELinux checks.
++	  At this time the Smack security module is incompatible with this
++	  module.
++	  At this time the AppArmor security module is incompatible with this
++	  module.
++
++	config SECURITY_SMACK_STACKED
++		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
++	help
++	  This option instructs the system to use the Smack checks.
++	  At this time the SELinux security module is incompatible with this
++	  module.
++	  At this time the AppArmor security module is incompatible with this
++	  module.
++
++	config SECURITY_APPARMOR_STACKED
++		bool "AppArmor" if SECURITY_APPARMOR=y
++	help
++	  This option instructs the system to use the AppArmor checks.
++	  At this time the SELinux security module is incompatible with this
++	  module.
++	  At this time the Smack security module is incompatible with this
++	  module.
++
++	config SECURITY_NOTHING_STACKED
++		bool "Use no 'extreme' security module"
++	help
++	  Use none of the SELinux, Smack or AppArmor security module.
++
++endchoice
++
++config SECURITY_TOMOYO_STACKED
++	bool "TOMOYO support is enabled by default"
++	depends on SECURITY_TOMOYO && SECURITY_STACKING
++	default n
++	help
++	  This option instructs the system to use the TOMOYO checks.
++	  If not selected the module will not be invoked.
++	  Stacked security modules may interact in unexpected ways.
++
++	  If you are unsure how to answer this question, answer N.
++
++endmenu
++
++endmenu
+diff --git a/security/apparmor/include/cred.h b/security/apparmor/include/cred.h
+index a90eae76d7c1..be7575adf6f0 100644
+--- a/security/apparmor/include/cred.h
++++ b/security/apparmor/include/cred.h
+@@ -25,7 +25,11 @@
+ 
+ static inline struct aa_label *cred_label(const struct cred *cred)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	struct aa_label **blob = cred->security + apparmor_blob_sizes.lbs_cred;
++#else
+ 	struct aa_label **blob = cred->security;
++#endif
+ 
+ 	AA_BUG(!blob);
+ 	return *blob;
+@@ -34,7 +38,11 @@ static inline struct aa_label *cred_label(const struct cred *cred)
+ static inline void set_cred_label(const struct cred *cred,
+ 				  struct aa_label *label)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	struct aa_label **blob = cred->security + apparmor_blob_sizes.lbs_cred;
++#else
+ 	struct aa_label **blob = cred->security;
++#endif
+ 
+ 	AA_BUG(!blob);
+ 	*blob = label;
+diff --git a/security/apparmor/include/file.h b/security/apparmor/include/file.h
+index 4c2c8ac8842f..aeb757471cc0 100644
+--- a/security/apparmor/include/file.h
++++ b/security/apparmor/include/file.h
+@@ -32,7 +32,14 @@ struct path;
+ 				 AA_MAY_CHMOD | AA_MAY_CHOWN | AA_MAY_LOCK | \
+ 				 AA_EXEC_MMAP | AA_MAY_LINK)
+ 
+-#define file_ctx(X) ((struct aa_file_ctx *)(X)->f_security)
++static inline struct aa_file_ctx *file_ctx(struct file *file)
 +{
-+	return secids->common != 0;
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + apparmor_blob_sizes.lbs_file;
++#else
++	return file->f_security;
++#endif
 +}
+ 
+ /* struct aa_file_ctx - the AppArmor context the file was opened in
+  * @lock: lock to update the ctx
+diff --git a/security/apparmor/include/lib.h b/security/apparmor/include/lib.h
+index 6505e1ad9e23..bbe9b384d71d 100644
+--- a/security/apparmor/include/lib.h
++++ b/security/apparmor/include/lib.h
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/slab.h>
+ #include <linux/fs.h>
++#include <linux/lsm_hooks.h>
+ 
+ #include "match.h"
+ 
+@@ -55,6 +56,9 @@ const char *aa_splitn_fqname(const char *fqname, size_t n, const char **ns_name,
+ 			     size_t *ns_len);
+ void aa_info_message(const char *str);
+ 
++/* Security blob offsets */
++extern struct lsm_blob_sizes apparmor_blob_sizes;
 +
-+static inline void secid_init(struct secids *secid)
-+{
-+	memset(secid, 0, sizeof(*secid));
-+}
-+
- /* These functions are in security/commoncap.c */
- extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
- 		       int cap, int audit);
-diff --git a/include/net/flow.h b/include/net/flow.h
-index 8ce21793094e..aa29d11bc3d7 100644
---- a/include/net/flow.h
-+++ b/include/net/flow.h
-@@ -11,6 +11,7 @@
- #include <linux/socket.h>
- #include <linux/in6.h>
- #include <linux/atomic.h>
-+#include <linux/security.h>
- #include <net/flow_dissector.h>
- #include <linux/uidgid.h>
- 
-@@ -37,7 +38,7 @@ struct flowi_common {
- #define FLOWI_FLAG_ANYSRC		0x01
- #define FLOWI_FLAG_KNOWN_NH		0x02
- #define FLOWI_FLAG_SKIP_NH_OIF		0x04
--	__u32	flowic_secid;
-+	struct secids flowic_secid;
- 	struct flowi_tunnel flowic_tun_key;
- 	kuid_t  flowic_uid;
- };
-@@ -107,7 +108,7 @@ static inline void flowi4_init_output(struct flowi4 *fl4, int oif,
- 	fl4->flowi4_scope = scope;
- 	fl4->flowi4_proto = proto;
- 	fl4->flowi4_flags = flags;
--	fl4->flowi4_secid = 0;
-+	secid_init(&fl4->flowi4_secid);
- 	fl4->flowi4_tun_key.tun_id = 0;
- 	fl4->flowi4_uid = uid;
- 	fl4->daddr = daddr;
-diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index 72d6435fc16c..51dacbb88886 100644
---- a/include/net/netlabel.h
-+++ b/include/net/netlabel.h
-@@ -111,7 +111,7 @@ struct calipso_doi;
- 
- /* NetLabel audit information */
- struct netlbl_audit {
--	u32 secid;
-+	struct secids secid;
- 	kuid_t loginuid;
- 	unsigned int sessionid;
- };
-@@ -215,7 +215,7 @@ struct netlbl_lsm_secattr {
- 			struct netlbl_lsm_catmap *cat;
- 			u32 lvl;
- 		} mls;
--		u32 secid;
-+		struct secids secid;
- 	} attr;
- };
- 
-@@ -429,7 +429,7 @@ int netlbl_cfg_unlbl_static_add(struct net *net,
- 				const void *addr,
- 				const void *mask,
- 				u16 family,
--				u32 secid,
-+				struct secids *secid,
- 				struct netlbl_audit *audit_info);
- int netlbl_cfg_unlbl_static_del(struct net *net,
- 				const char *dev_name,
-@@ -537,7 +537,7 @@ static inline int netlbl_cfg_unlbl_static_add(struct net *net,
- 					      const void *addr,
- 					      const void *mask,
- 					      u16 family,
--					      u32 secid,
-+					      struct secids *secid,
- 					      struct netlbl_audit *audit_info)
- {
- 	return -ENOSYS;
-diff --git a/net/core/filter.c b/net/core/filter.c
-index e7f12e9f598c..74cf4c829068 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -4128,7 +4128,7 @@ static int bpf_ipv4_fib_lookup(struct net *net, struct bpf_fib_lookup *params,
- 		err = fib_table_lookup(tb, &fl4, &res, FIB_LOOKUP_NOREF);
- 	} else {
- 		fl4.flowi4_mark = 0;
--		fl4.flowi4_secid = 0;
-+		secid_init(&fl4.flowi4_secid);
- 		fl4.flowi4_tun_key.tun_id = 0;
- 		fl4.flowi4_uid = sock_net_uid(net, NULL);
- 
-@@ -4230,7 +4230,7 @@ static int bpf_ipv6_fib_lookup(struct net *net, struct bpf_fib_lookup *params,
- 		f6i = ipv6_stub->fib6_table_lookup(net, tb, oif, &fl6, strict);
- 	} else {
- 		fl6.flowi6_mark = 0;
--		fl6.flowi6_secid = 0;
-+		secid_init(&fl6.flowi6_secid);
- 		fl6.flowi6_tun_key.tun_id = 0;
- 		fl6.flowi6_uid = sock_net_uid(net, NULL);
- 
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index 82178cc69c96..e17896a5a947 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -1480,7 +1480,7 @@ static int cipso_v4_gentag_loc(const struct cipso_v4_doi *doi_def,
- 
- 	buffer[0] = CIPSO_V4_TAG_LOCAL;
- 	buffer[1] = CIPSO_V4_TAG_LOC_BLEN;
--	*(u32 *)&buffer[2] = secattr->attr.secid;
-+	*(u32 *)&buffer[2] = secattr->attr.secid.common;
- 
- 	return CIPSO_V4_TAG_LOC_BLEN;
- }
-@@ -1500,7 +1500,7 @@ static int cipso_v4_parsetag_loc(const struct cipso_v4_doi *doi_def,
- 				 const unsigned char *tag,
- 				 struct netlbl_lsm_secattr *secattr)
- {
--	secattr->attr.secid = *(u32 *)&tag[2];
-+	secattr->attr.secid.common = *(u32 *)&tag[2];
- 	secattr->flags |= NETLBL_SECATTR_SECID;
- 
- 	return 0;
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index ea7c67050792..592ec7ba8822 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -224,7 +224,7 @@ int netlbl_cfg_unlbl_static_add(struct net *net,
- 				const void *addr,
- 				const void *mask,
- 				u16 family,
--				u32 secid,
-+				struct secids *secid,
- 				struct netlbl_audit *audit_info)
- {
- 	u32 addr_len;
-@@ -244,7 +244,7 @@ int netlbl_cfg_unlbl_static_add(struct net *net,
- 
- 	return netlbl_unlhsh_add(net,
- 				 dev_name, addr, mask, addr_len,
--				 secid, audit_info);
-+				 secid->common, audit_info);
- }
- 
  /**
-diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index c070dfc0190a..92744f4791c4 100644
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -80,7 +80,7 @@ struct netlbl_unlhsh_tbl {
- #define netlbl_unlhsh_addr4_entry(iter) \
- 	container_of(iter, struct netlbl_unlhsh_addr4, list)
- struct netlbl_unlhsh_addr4 {
--	u32 secid;
-+	struct secids secid;
+  * aa_strneq - compare null terminated @str to a non null terminated substring
+  * @str: a null terminated string
+diff --git a/security/apparmor/include/net.h b/security/apparmor/include/net.h
+index 79f66b9e117d..00252fd98cc1 100644
+--- a/security/apparmor/include/net.h
++++ b/security/apparmor/include/net.h
+@@ -57,7 +57,11 @@ struct aa_sk_ctx {
  
- 	struct netlbl_af4list list;
- 	struct rcu_head rcu;
-@@ -88,7 +88,7 @@ struct netlbl_unlhsh_addr4 {
- #define netlbl_unlhsh_addr6_entry(iter) \
- 	container_of(iter, struct netlbl_unlhsh_addr6, list)
- struct netlbl_unlhsh_addr6 {
--	u32 secid;
-+	struct secids secid;
- 
- 	struct netlbl_af6list list;
- 	struct rcu_head rcu;
-@@ -244,7 +244,7 @@ static struct netlbl_unlhsh_iface *netlbl_unlhsh_search_iface(int ifindex)
- static int netlbl_unlhsh_add_addr4(struct netlbl_unlhsh_iface *iface,
- 				   const struct in_addr *addr,
- 				   const struct in_addr *mask,
--				   u32 secid)
-+				   struct secids *secid)
+ static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
  {
- 	int ret_val;
- 	struct netlbl_unlhsh_addr4 *entry;
-@@ -256,7 +256,7 @@ static int netlbl_unlhsh_add_addr4(struct netlbl_unlhsh_iface *iface,
- 	entry->list.addr = addr->s_addr & mask->s_addr;
- 	entry->list.mask = mask->s_addr;
- 	entry->list.valid = 1;
--	entry->secid = secid;
-+	entry->secid = *secid;
- 
- 	spin_lock(&netlbl_unlhsh_lock);
- 	ret_val = netlbl_af4list_add(&entry->list, &iface->addr4_list);
-@@ -284,7 +284,7 @@ static int netlbl_unlhsh_add_addr4(struct netlbl_unlhsh_iface *iface,
- static int netlbl_unlhsh_add_addr6(struct netlbl_unlhsh_iface *iface,
- 				   const struct in6_addr *addr,
- 				   const struct in6_addr *mask,
--				   u32 secid)
-+				   struct secids *secid)
- {
- 	int ret_val;
- 	struct netlbl_unlhsh_addr6 *entry;
-@@ -300,7 +300,7 @@ static int netlbl_unlhsh_add_addr6(struct netlbl_unlhsh_iface *iface,
- 	entry->list.addr.s6_addr32[3] &= mask->s6_addr32[3];
- 	entry->list.mask = *mask;
- 	entry->list.valid = 1;
--	entry->secid = secid;
-+	entry->secid = *secid;
- 
- 	spin_lock(&netlbl_unlhsh_lock);
- 	ret_val = netlbl_af6list_add(&entry->list, &iface->addr6_list);
-@@ -389,6 +389,7 @@ int netlbl_unlhsh_add(struct net *net,
- 	struct audit_buffer *audit_buf = NULL;
- 	char *secctx = NULL;
- 	u32 secctx_len;
-+	struct secids ids;
- 
- 	if (addr_len != sizeof(struct in_addr) &&
- 	    addr_len != sizeof(struct in6_addr))
-@@ -421,7 +422,8 @@ int netlbl_unlhsh_add(struct net *net,
- 		const struct in_addr *addr4 = addr;
- 		const struct in_addr *mask4 = mask;
- 
--		ret_val = netlbl_unlhsh_add_addr4(iface, addr4, mask4, secid);
-+		ids.common = secid;
-+		ret_val = netlbl_unlhsh_add_addr4(iface, addr4, mask4, &ids);
- 		if (audit_buf != NULL)
- 			netlbl_af4list_audit_addr(audit_buf, 1,
- 						  dev_name,
-@@ -434,7 +436,8 @@ int netlbl_unlhsh_add(struct net *net,
- 		const struct in6_addr *addr6 = addr;
- 		const struct in6_addr *mask6 = mask;
- 
--		ret_val = netlbl_unlhsh_add_addr6(iface, addr6, mask6, secid);
-+		ids.common = secid;
-+		ret_val = netlbl_unlhsh_add_addr6(iface, addr6, mask6, &ids);
- 		if (audit_buf != NULL)
- 			netlbl_af6list_audit_addr(audit_buf, 1,
- 						  dev_name,
-@@ -508,7 +511,7 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
- 		if (dev != NULL)
- 			dev_put(dev);
- 		if (entry != NULL &&
--		    security_secid_to_secctx(entry->secid,
-+		    security_secid_to_secctx(entry->secid.common,
- 					     &secctx, &secctx_len) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
- 			security_release_secctx(secctx, secctx_len);
-@@ -569,7 +572,7 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
- 		if (dev != NULL)
- 			dev_put(dev);
- 		if (entry != NULL &&
--		    security_secid_to_secctx(entry->secid,
-+		    security_secid_to_secctx(entry->secid.common,
- 					     &secctx, &secctx_len) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
- 			security_release_secctx(secctx, secctx_len);
-@@ -1124,7 +1127,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
- 		if (ret_val != 0)
- 			goto list_cb_failure;
- 
--		secid = addr4->secid;
-+		secid = addr4->secid.common;
- 	} else {
- 		ret_val = nla_put_in6_addr(cb_arg->skb,
- 					   NLBL_UNLABEL_A_IPV6ADDR,
-@@ -1138,7 +1141,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
- 		if (ret_val != 0)
- 			goto list_cb_failure;
- 
--		secid = addr6->secid;
-+		secid = addr6->secid.common;
- 	}
- 
- 	ret_val = security_secid_to_secctx(secid, &secctx, &secctx_len);
-@@ -1543,7 +1546,7 @@ int __init netlbl_unlabel_defconf(void)
- 	/* Only the kernel is allowed to call this function and the only time
- 	 * it is called is at bootup before the audit subsystem is reporting
- 	 * messages so don't worry to much about these values. */
--	security_task_getsecid(current, &audit_info.secid);
-+	security_task_getsecid(current, &audit_info.secid.common);
- 	audit_info.loginuid = GLOBAL_ROOT_UID;
- 	audit_info.sessionid = 0;
- 
-diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user.c
-index 2f328af91a52..415643011499 100644
---- a/net/netlabel/netlabel_user.c
-+++ b/net/netlabel/netlabel_user.c
-@@ -112,8 +112,8 @@ struct audit_buffer *netlbl_audit_start_common(int type,
- 			 from_kuid(&init_user_ns, audit_info->loginuid),
- 			 audit_info->sessionid);
- 
--	if (audit_info->secid != 0 &&
--	    security_secid_to_secctx(audit_info->secid,
-+	if (audit_info->secid.common != 0 &&
-+	    security_secid_to_secctx(audit_info->secid.common,
- 				     &secctx,
- 				     &secctx_len) == 0) {
- 		audit_log_format(audit_buf, " subj=%s", secctx);
-diff --git a/net/netlabel/netlabel_user.h b/net/netlabel/netlabel_user.h
-index 4a397cde1a48..782ee194fdbd 100644
---- a/net/netlabel/netlabel_user.h
-+++ b/net/netlabel/netlabel_user.h
-@@ -48,7 +48,7 @@
- static inline void netlbl_netlink_auditinfo(struct sk_buff *skb,
- 					    struct netlbl_audit *audit_info)
- {
--	security_task_getsecid(current, &audit_info->secid);
-+	security_task_getsecid(current, &audit_info->secid.common);
- 	audit_info->loginuid = audit_get_loginuid(current);
- 	audit_info->sessionid = audit_get_sessionid(current);
- }
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 5f48251c1319..63fa1ff1a71d 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -1069,7 +1069,8 @@ static int xfrm_policy_match(const struct xfrm_policy *pol,
- 
- 	match = xfrm_selector_match(sel, fl, family);
- 	if (match)
--		ret = security_xfrm_policy_lookup(pol->security, fl->flowi_secid,
-+		ret = security_xfrm_policy_lookup(pol->security,
-+						  fl->flowi_secid.common,
- 						  dir);
- 
- 	return ret;
-@@ -1182,7 +1183,7 @@ static struct xfrm_policy *xfrm_sk_policy_lookup(const struct sock *sk, int dir,
- 				goto out;
- 			}
- 			err = security_xfrm_policy_lookup(pol->security,
--						      fl->flowi_secid,
-+						      fl->flowi_secid.common,
- 						      dir);
- 			if (!err) {
- 				if (!xfrm_pol_hold_rcu(pol))
-@@ -2365,7 +2366,7 @@ int __xfrm_decode_session(struct sk_buff *skb, struct flowi *fl,
- 		return -EAFNOSUPPORT;
- 
- 	afinfo->decode_session(skb, fl, reverse);
--	err = security_xfrm_decode_session(skb, &fl->flowi_secid);
-+	err = security_xfrm_decode_session(skb, &fl->flowi_secid.common);
- 	rcu_read_unlock();
- 	return err;
- }
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index 8308281f3253..30086d2eaf6f 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1011,7 +1011,8 @@ xfrm_state_find(const xfrm_address_t *daddr, const xfrm_address_t *saddr,
- 		xfrm_init_tempstate(x, fl, tmpl, daddr, saddr, family);
- 		memcpy(&x->mark, &pol->mark, sizeof(x->mark));
- 
--		error = security_xfrm_state_alloc_acquire(x, pol->security, fl->flowi_secid);
-+		error = security_xfrm_state_alloc_acquire(x, pol->security,
-+						fl->flowi_secid.common);
- 		if (error) {
- 			x->km.state = XFRM_STATE_DEAD;
- 			to_put = x;
-diff --git a/security/apparmor/audit.c b/security/apparmor/audit.c
-index eeaddfe0c0fb..d67faf77d6c5 100644
---- a/security/apparmor/audit.c
-+++ b/security/apparmor/audit.c
-@@ -225,14 +225,14 @@ int aa_audit_rule_known(struct audit_krule *rule)
- 	return 0;
++#ifdef CONFIG_SECURITY_STACKING
++	return sk->sk_security + apparmor_blob_sizes.lbs_sock;
++#else
+ 	return sk->sk_security;
++#endif
  }
  
--int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
-+int aa_audit_rule_match(struct secids *sid, u32 field, u32 op, void *vrule,
- 			struct audit_context *actx)
+ #define SOCK_ctx(X) SOCK_INODE(X)->i_security
+diff --git a/security/apparmor/include/task.h b/security/apparmor/include/task.h
+index 039c1e60887a..4fbe9370e6e0 100644
+--- a/security/apparmor/include/task.h
++++ b/security/apparmor/include/task.h
+@@ -16,7 +16,11 @@
+ 
+ static inline struct aa_task_ctx *task_ctx(struct task_struct *task)
  {
- 	struct aa_audit_rule *rule = vrule;
- 	struct aa_label *label;
- 	int found = 0;
++#ifdef CONFIG_SECURITY_STACKING
++	return task->security + apparmor_blob_sizes.lbs_task;
++#else
+ 	return task->security;
++#endif
+ }
  
--	label = aa_secid_to_label(sid);
-+	label = aa_secid_to_label(sid->apparmor);
- 
- 	if (!label)
- 		return -ENOENT;
-diff --git a/security/apparmor/include/audit.h b/security/apparmor/include/audit.h
-index b8c8b1066b0a..8042046eef90 100644
---- a/security/apparmor/include/audit.h
-+++ b/security/apparmor/include/audit.h
-@@ -192,7 +192,7 @@ static inline int complain_error(int error)
- void aa_audit_rule_free(void *vrule);
- int aa_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule);
- int aa_audit_rule_known(struct audit_krule *rule);
--int aa_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
-+int aa_audit_rule_match(struct secids *sid, u32 field, u32 op, void *vrule,
- 			struct audit_context *actx);
- 
- #endif /* __AA_AUDIT_H */
-diff --git a/security/apparmor/include/secid.h b/security/apparmor/include/secid.h
-index dee6fa3b6081..81f29538e415 100644
---- a/security/apparmor/include/secid.h
-+++ b/security/apparmor/include/secid.h
-@@ -23,8 +23,9 @@ struct aa_label;
- #define AA_SECID_INVALID 0
- 
- struct aa_label *aa_secid_to_label(u32 secid);
--int apparmor_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
--int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
-+int apparmor_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen);
-+int apparmor_secctx_to_secid(const char *secdata, u32 seclen,
-+			     struct secids *secid);
- void apparmor_release_secctx(char *secdata, u32 seclen);
- 
- 
+ /*
 diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index b0bf6ffe6a97..b0200481c811 100644
+index deba9c971dd2..b0bf6ffe6a97 100644
 --- a/security/apparmor/lsm.c
 +++ b/security/apparmor/lsm.c
-@@ -707,10 +707,10 @@ static void apparmor_bprm_committed_creds(struct linux_binprm *bprm)
- 	return;
- }
+@@ -1526,7 +1526,9 @@ static int __init apparmor_init(void)
+ 	int error;
  
--static void apparmor_task_getsecid(struct task_struct *p, u32 *secid)
-+static void apparmor_task_getsecid(struct task_struct *p, struct secids *secid)
- {
- 	struct aa_label *label = aa_get_task_label(p);
--	*secid = label->secid;
-+	secid->apparmor = label->secid;
- 	aa_put_label(label);
- }
+ 	if (!finish) {
+-		if (apparmor_enabled && security_module_enable("apparmor"))
++		if (apparmor_enabled &&
++		    security_module_enable("apparmor",
++				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED)))
+ 			security_add_blobs(&apparmor_blob_sizes);
+ 		else
+ 			apparmor_enabled = false;
+@@ -1534,7 +1536,9 @@ static int __init apparmor_init(void)
+ 		return 0;
+ 	}
  
-@@ -1077,7 +1077,8 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
-  * Sets the netlabel socket state on sk from parent
-  */
- static int apparmor_socket_getpeersec_dgram(struct socket *sock,
--					    struct sk_buff *skb, u32 *secid)
-+					    struct sk_buff *skb,
-+					    struct secids *secid)
- 
- {
- 	/* TODO: requires secid support */
-diff --git a/security/apparmor/secid.c b/security/apparmor/secid.c
-index f2f22d00db18..07a5024dd675 100644
---- a/security/apparmor/secid.c
-+++ b/security/apparmor/secid.c
-@@ -73,10 +73,10 @@ struct aa_label *aa_secid_to_label(u32 secid)
- 	return label;
- }
- 
--int apparmor_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
-+int apparmor_secid_to_secctx(struct secids *secid, char **secdata, u32 *seclen)
- {
- 	/* TODO: cache secctx and ref count so we don't have to recreate */
--	struct aa_label *label = aa_secid_to_label(secid);
-+	struct aa_label *label = aa_secid_to_label(secid->apparmor);
- 	int len;
- 
- 	AA_BUG(!secdata);
-@@ -102,7 +102,8 @@ int apparmor_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- 	return 0;
- }
- 
--int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
-+int apparmor_secctx_to_secid(const char *secdata, u32 seclen,
-+			     struct secids *secid)
- {
- 	struct aa_label *label;
- 
-@@ -110,7 +111,7 @@ int apparmor_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- 				    seclen, GFP_KERNEL, false, false);
- 	if (IS_ERR(label))
- 		return PTR_ERR(label);
--	*secid = label->secid;
-+	secid->apparmor = label->secid;
- 
- 	return 0;
- }
+-	if (!apparmor_enabled || !security_module_enable("apparmor")) {
++	if (!apparmor_enabled ||
++	    !security_module_enable("apparmor",
++				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED))) {
+ 		aa_info_message("AppArmor disabled by boot time parameter");
+ 		apparmor_enabled = false;
+ 		return 0;
 diff --git a/security/security.c b/security/security.c
-index eea36930f6f3..785cd38b1245 100644
+index de5008d6715c..878f0848b3f4 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -129,6 +129,7 @@ int __init security_init(void)
- 	pr_info("LSM: sock blob size       = %d\n", blob_sizes.lbs_sock);
- 	pr_info("LSM: superblock blob size = %d\n", blob_sizes.lbs_superblock);
- 	pr_info("LSM: task blob size       = %d\n", blob_sizes.lbs_task);
-+	pr_info("LSM: secid size           = %zu\n", sizeof(struct secids));
- #endif /* CONFIG_SECURITY_LSM_DEBUG */
+@@ -38,6 +38,7 @@
  
- 	return 0;
-@@ -1249,7 +1250,10 @@ EXPORT_SYMBOL(security_inode_listsecurity);
+ /* Maximum number of letters for an LSM name string */
+ #define SECURITY_NAME_MAX	10
++#define MODULE_STACK		"(stacking)"
  
- void security_inode_getsecid(struct inode *inode, u32 *secid)
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
+ static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
+@@ -50,7 +51,11 @@ static struct lsm_blob_sizes blob_sizes;
+ 
+ /* Boot-time LSM user choice */
+ static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
++#ifdef CONFIG_SECURITY_STACKING
++	MODULE_STACK;
++#else
+ 	CONFIG_DEFAULT_SECURITY;
++#endif
+ 
+ static void __init do_security_initcalls(void)
  {
--	call_void_hook(inode_getsecid, inode, secid);
-+	struct secids ids;
-+
-+	call_void_hook(inode_getsecid, inode, &ids);
-+	*secid = ids.common;
+@@ -174,6 +179,7 @@ static int lsm_append(char *new, char **result)
+ /**
+  * security_module_enable - Load given security module on boot ?
+  * @module: the name of the module
++ * @stacked: indicates that the module wants to be stacked
+  *
+  * Each LSM must pass this method before registering its own operations
+  * to avoid security registration races. This method may also be used
+@@ -189,9 +195,29 @@ static int lsm_append(char *new, char **result)
+  *
+  * Otherwise, return false.
+  */
+-int __init security_module_enable(const char *module)
++bool __init security_module_enable(const char *lsm, const bool stacked)
+ {
+-	return !strcmp(module, chosen_lsm);
++#ifdef CONFIG_SECURITY_STACKING
++	/*
++	 * Module defined on the command line security=XXXX
++	 */
++	if (strcmp(chosen_lsm, MODULE_STACK)) {
++		if (!strcmp(lsm, chosen_lsm)) {
++			pr_info("Command line sets the %s security module.\n",
++				lsm);
++			return true;
++		}
++		return false;
++	}
++	/*
++	 * Module configured as stacked.
++	 */
++	return stacked;
++#else
++	if (strcmp(lsm, chosen_lsm) == 0)
++		return true;
++	return false;
++#endif
  }
  
- int security_inode_copy_up(struct dentry *src, struct cred **new)
-@@ -1459,14 +1463,20 @@ void security_transfer_creds(struct cred *new, const struct cred *old)
- 
- void security_cred_getsecid(const struct cred *c, u32 *secid)
- {
--	*secid = 0;
--	call_void_hook(cred_getsecid, c, secid);
-+	struct secids ids;
-+
-+	ids.common = 0;
-+	call_void_hook(cred_getsecid, c, &ids);
-+	*secid = ids.common;
- }
- EXPORT_SYMBOL(security_cred_getsecid);
- 
- int security_kernel_act_as(struct cred *new, u32 secid)
- {
--	return call_int_hook(kernel_act_as, 0, new, secid);
-+	struct secids ids;
-+
-+	ids.common = secid;
-+	return call_int_hook(kernel_act_as, 0, new, &ids);
- }
- 
- int security_kernel_create_files_as(struct cred *new, struct inode *inode)
-@@ -1525,8 +1535,11 @@ int security_task_getsid(struct task_struct *p)
- 
- void security_task_getsecid(struct task_struct *p, u32 *secid)
- {
--	*secid = 0;
--	call_void_hook(task_getsecid, p, secid);
-+	struct secids ids;
-+
-+	ids.common = 0;
-+	call_void_hook(task_getsecid, p, &ids);
-+	*secid = ids.common;
- }
- EXPORT_SYMBOL(security_task_getsecid);
- 
-@@ -1608,8 +1621,11 @@ int security_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
- 
- void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
- {
--	*secid = 0;
--	call_void_hook(ipc_getsecid, ipcp, secid);
-+	struct secids ids;
-+
-+	ids.common = 0;
-+	call_void_hook(ipc_getsecid, ipcp, &ids);
-+	*secid = ids.common;
- }
- 
- int security_msg_msg_alloc(struct msg_msg *msg)
-@@ -1788,15 +1804,24 @@ EXPORT_SYMBOL(security_ismaclabel);
- 
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- {
--	return call_int_hook(secid_to_secctx, -EOPNOTSUPP, secid, secdata,
-+	struct secids ids;
-+
-+	ids.common = secid;
-+	return call_int_hook(secid_to_secctx, -EOPNOTSUPP, &ids, secdata,
- 				seclen);
- }
- EXPORT_SYMBOL(security_secid_to_secctx);
- 
- int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
- {
--	*secid = 0;
--	return call_int_hook(secctx_to_secid, 0, secdata, seclen, secid);
-+	struct secids ids;
-+	int rc;
-+
-+	ids.common = 0;
-+	rc = call_int_hook(secctx_to_secid, 0, secdata, seclen, &ids);
-+	*secid = ids.common;
-+
-+	return rc;
- }
- EXPORT_SYMBOL(security_secctx_to_secid);
- 
-@@ -1933,8 +1958,14 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
- 
- int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
- {
--	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
--			     skb, secid);
-+	struct secids ids;
-+	int rc;
-+
-+	rc = call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
-+			     skb, &ids);
-+	*secid = ids.common;
-+
-+	return rc;
- }
- EXPORT_SYMBOL(security_socket_getpeersec_dgram);
- 
-@@ -2003,7 +2034,10 @@ EXPORT_SYMBOL(security_inet_conn_established);
- 
- int security_secmark_relabel_packet(u32 secid)
- {
--	return call_int_hook(secmark_relabel_packet, 0, secid);
-+	struct secids ids;
-+
-+	ids.common = secid;
-+	return call_int_hook(secmark_relabel_packet, 0, &ids);
- }
- EXPORT_SYMBOL(security_secmark_relabel_packet);
- 
-@@ -2142,7 +2176,10 @@ EXPORT_SYMBOL(security_xfrm_state_alloc);
- int security_xfrm_state_alloc_acquire(struct xfrm_state *x,
- 				      struct xfrm_sec_ctx *polsec, u32 secid)
- {
--	return call_int_hook(xfrm_state_alloc_acquire, 0, x, polsec, secid);
-+	struct secids ids;
-+
-+	ids.common = secid;
-+	return call_int_hook(xfrm_state_alloc_acquire, 0, x, polsec, &ids);
- }
- 
- int security_xfrm_state_delete(struct xfrm_state *x)
-@@ -2158,7 +2195,10 @@ void security_xfrm_state_free(struct xfrm_state *x)
- 
- int security_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
- {
--	return call_int_hook(xfrm_policy_lookup, 0, ctx, fl_secid, dir);
-+	struct secids ids;
-+
-+	ids.common = fl_secid;
-+	return call_int_hook(xfrm_policy_lookup, 0, ctx, &ids, dir);
- }
- 
- int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
-@@ -2187,7 +2227,13 @@ int security_xfrm_state_pol_flow_match(struct xfrm_state *x,
- 
- int security_xfrm_decode_session(struct sk_buff *skb, u32 *secid)
- {
--	return call_int_hook(xfrm_decode_session, 0, skb, secid, 1);
-+	struct secids ids;
-+	int rc;
-+
-+	rc = call_int_hook(xfrm_decode_session, 0, skb, &ids, 1);
-+	*secid = ids.common;
-+
-+	return rc;
- }
- 
- void security_skb_classify_flow(struct sk_buff *skb, struct flowi *fl)
-@@ -2257,7 +2303,10 @@ void security_audit_rule_free(void *lsmrule)
- int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule,
- 			      struct audit_context *actx)
- {
--	return call_int_hook(audit_rule_match, 0, secid, field, op, lsmrule,
-+	struct secids ids;
-+
-+	ids.common = secid;
-+	return call_int_hook(audit_rule_match, 0, &ids, field, op, lsmrule,
- 				actx);
- }
- #endif /* CONFIG_AUDIT */
+ /**
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index fcdf1ea3c438..c12c36f72258 100644
+index 452d0c774c75..ab8a134d9945 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3426,15 +3426,15 @@ static int selinux_inode_listsecurity(struct inode *inode, char *buffer, size_t
- 	return len;
- }
- 
--static void selinux_inode_getsecid(struct inode *inode, u32 *secid)
-+static void selinux_inode_getsecid(struct inode *inode, struct secids *secid)
+@@ -6941,7 +6941,8 @@ static __init int selinux_init(void)
  {
- 	struct inode_security_struct *isec = inode_security_novalidate(inode);
--	*secid = isec->sid;
-+	secid->selinux = isec->sid;
- }
+ 	static int finish;
  
- static int selinux_inode_copy_up(struct dentry *src, struct cred **new)
- {
--	u32 sid;
-+	struct secids sids;
- 	struct task_security_struct *tsec;
- 	struct cred *new_creds = *new;
- 
-@@ -3446,8 +3446,8 @@ static int selinux_inode_copy_up(struct dentry *src, struct cred **new)
- 
- 	tsec = selinux_cred(new_creds);
- 	/* Get label from overlay inode and set it in create_sid */
--	selinux_inode_getsecid(d_inode(src), &sid);
--	tsec->create_sid = sid;
-+	selinux_inode_getsecid(d_inode(src), &sids);
-+	tsec->create_sid = sids.selinux;
- 	*new = new_creds;
- 	return 0;
- }
-@@ -3864,28 +3864,28 @@ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
- 	*tsec = *old_tsec;
- }
- 
--static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
-+static void selinux_cred_getsecid(const struct cred *c, struct secids *secid)
- {
--	*secid = cred_sid(c);
-+	secid->selinux = cred_sid(c);
- }
- 
- /*
-  * set the security data for a kernel service
-  * - all the creation contexts are set to unlabelled
-  */
--static int selinux_kernel_act_as(struct cred *new, u32 secid)
-+static int selinux_kernel_act_as(struct cred *new, struct secids *secid)
- {
- 	struct task_security_struct *tsec = selinux_cred(new);
- 	u32 sid = current_sid();
- 	int ret;
- 
- 	ret = avc_has_perm(&selinux_state,
--			   sid, secid,
-+			   sid, secid->selinux,
- 			   SECCLASS_KERNEL_SERVICE,
- 			   KERNEL_SERVICE__USE_AS_OVERRIDE,
- 			   NULL);
- 	if (ret == 0) {
--		tsec->sid = secid;
-+		tsec->sid = secid->selinux;
- 		tsec->create_sid = 0;
- 		tsec->keycreate_sid = 0;
- 		tsec->sockcreate_sid = 0;
-@@ -3997,9 +3997,9 @@ static int selinux_task_getsid(struct task_struct *p)
- 			    PROCESS__GETSESSION, NULL);
- }
- 
--static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
-+static void selinux_task_getsecid(struct task_struct *p, struct secids *secid)
- {
--	*secid = task_sid(p);
-+	secid->selinux = task_sid(p);
- }
- 
- static int selinux_task_setnice(struct task_struct *p, int nice)
-@@ -5024,7 +5024,9 @@ static int selinux_socket_getpeersec_stream(struct socket *sock,
- 	return err;
- }
- 
--static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
-+static int selinux_socket_getpeersec_dgram(struct socket *sock,
-+					   struct sk_buff *skb,
-+					   struct secids *secid)
- {
- 	u32 peer_secid = SECSID_NULL;
- 	u16 family;
-@@ -5046,7 +5048,7 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
- 		selinux_skb_peerlbl_sid(skb, family, &peer_secid);
- 
- out:
--	*secid = peer_secid;
-+	secid->selinux = peer_secid;
- 	if (peer_secid == SECSID_NULL)
- 		return -EINVAL;
- 	return 0;
-@@ -5083,14 +5085,14 @@ static void selinux_sk_clone_security(const struct sock *sk, struct sock *newsk)
- 	selinux_netlbl_sk_security_reset(newsksec);
- }
- 
--static void selinux_sk_getsecid(struct sock *sk, u32 *secid)
-+static void selinux_sk_getsecid(struct sock *sk, struct secids *secid)
- {
- 	if (!sk)
--		*secid = SECINITSID_ANY_SOCKET;
-+		secid->selinux = SECINITSID_ANY_SOCKET;
- 	else {
- 		struct sk_security_struct *sksec = selinux_sock(sk);
- 
--		*secid = sksec->sid;
-+		secid->selinux = sksec->sid;
- 	}
- }
- 
-@@ -5323,7 +5325,7 @@ static void selinux_inet_conn_established(struct sock *sk, struct sk_buff *skb)
- 	selinux_skb_peerlbl_sid(skb, family, &sksec->peer_sid);
- }
- 
--static int selinux_secmark_relabel_packet(u32 sid)
-+static int selinux_secmark_relabel_packet(struct secids *secid)
- {
- 	const struct task_security_struct *__tsec;
- 	u32 tsid;
-@@ -5332,8 +5334,8 @@ static int selinux_secmark_relabel_packet(u32 sid)
- 	tsid = __tsec->sid;
- 
- 	return avc_has_perm(&selinux_state,
--			    tsid, sid, SECCLASS_PACKET, PACKET__RELABELTO,
--			    NULL);
-+			    tsid, secid->selinux, SECCLASS_PACKET,
-+			    PACKET__RELABELTO, NULL);
- }
- 
- static void selinux_secmark_refcount_inc(void)
-@@ -5349,7 +5351,7 @@ static void selinux_secmark_refcount_dec(void)
- static void selinux_req_classify_flow(const struct request_sock *req,
- 				      struct flowi *fl)
- {
--	fl->flowi_secid = req->secid;
-+	fl->flowi_secid.selinux = req->secid;
- }
- 
- static int selinux_tun_dev_alloc_security(void **security)
-@@ -6174,10 +6176,11 @@ static int selinux_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
- 	return ipc_has_perm(ipcp, av);
- }
- 
--static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
-+static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp,
-+				 struct secids *secid)
- {
- 	struct ipc_security_struct *isec = selinux_ipc(ipcp);
--	*secid = isec->sid;
-+	secid->selinux = isec->sid;
- }
- 
- static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
-@@ -6383,16 +6386,18 @@ static int selinux_ismaclabel(const char *name)
- 	return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
- }
- 
--static int selinux_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
-+static int selinux_secid_to_secctx(struct secids *secid, char **secdata,
-+				   u32 *seclen)
- {
--	return security_sid_to_context(&selinux_state, secid,
-+	return security_sid_to_context(&selinux_state, secid->selinux,
- 				       secdata, seclen);
- }
- 
--static int selinux_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
-+static int selinux_secctx_to_secid(const char *secdata, u32 seclen,
-+				   struct secids *secid)
- {
- 	return security_context_to_sid(&selinux_state, secdata, seclen,
--				       secid, GFP_KERNEL);
-+				       &secid->selinux, GFP_KERNEL);
- }
- 
- static void selinux_release_secctx(char *secdata, u32 seclen)
-diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
-index 1bdf973433cc..c9cadad5660e 100644
---- a/security/selinux/include/audit.h
-+++ b/security/selinux/include/audit.h
-@@ -51,7 +51,7 @@ void selinux_audit_rule_free(void *rule);
-  *	Returns 1 if the context id matches the rule, 0 if it does not, and
-  *	-errno on failure.
-  */
--int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *rule,
-+int selinux_audit_rule_match(struct secids *sid, u32 field, u32 op, void *rule,
- 			     struct audit_context *actx);
- 
- /**
-diff --git a/security/selinux/include/xfrm.h b/security/selinux/include/xfrm.h
-index a0b465316292..99bac3ccfebd 100644
---- a/security/selinux/include/xfrm.h
-+++ b/security/selinux/include/xfrm.h
-@@ -20,10 +20,12 @@ int selinux_xfrm_policy_delete(struct xfrm_sec_ctx *ctx);
- int selinux_xfrm_state_alloc(struct xfrm_state *x,
- 			     struct xfrm_user_sec_ctx *uctx);
- int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
--				     struct xfrm_sec_ctx *polsec, u32 secid);
-+				     struct xfrm_sec_ctx *polsec,
-+				     const struct secids *secid);
- void selinux_xfrm_state_free(struct xfrm_state *x);
- int selinux_xfrm_state_delete(struct xfrm_state *x);
--int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir);
-+int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx,
-+			       struct secids *fl_secid, u8 dir);
- int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
- 				      struct xfrm_policy *xp,
- 				      const struct flowi *fl);
-@@ -40,7 +42,8 @@ int selinux_xfrm_sock_rcv_skb(u32 sk_sid, struct sk_buff *skb,
- 			      struct common_audit_data *ad);
- int selinux_xfrm_postroute_last(u32 sk_sid, struct sk_buff *skb,
- 				struct common_audit_data *ad, u8 proto);
--int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall);
-+int selinux_xfrm_decode_session(struct sk_buff *skb, struct secids *sid,
-+				int ckall);
- int selinux_xfrm_skb_sid(struct sk_buff *skb, u32 *sid);
- 
- static inline void selinux_xfrm_notify_policyload(void)
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index c40914a157b7..efc87a76af72 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -122,7 +122,7 @@ static struct netlbl_lsm_secattr *selinux_netlbl_sock_getattr(
- 		return NULL;
- 
- 	if ((secattr->flags & NETLBL_SECATTR_SECID) &&
--	    (secattr->attr.secid == sid))
-+	    (secattr->attr.secid.selinux == sid))
- 		return secattr;
- 
- 	return NULL;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 7f9c87b077f3..b79b5b2ddf59 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3410,7 +3410,7 @@ int selinux_audit_rule_known(struct audit_krule *rule)
- 	return 0;
- }
- 
--int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
-+int selinux_audit_rule_match(struct secids *sid, u32 field, u32 op, void *vrule,
- 			     struct audit_context *actx)
- {
- 	struct selinux_state *state = &selinux_state;
-@@ -3431,10 +3431,10 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule,
- 		goto out;
- 	}
- 
--	ctxt = sidtab_search(&state->ss->sidtab, sid);
-+	ctxt = sidtab_search(&state->ss->sidtab, sid->selinux);
- 	if (unlikely(!ctxt)) {
- 		WARN_ONCE(1, "selinux_audit_rule_match: unrecognized SID %d\n",
--			  sid);
-+			  sid->selinux);
- 		match = -ENOENT;
- 		goto out;
- 	}
-@@ -3609,7 +3609,7 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
- 	if (secattr->flags & NETLBL_SECATTR_CACHE)
- 		*sid = *(u32 *)secattr->cache->data;
- 	else if (secattr->flags & NETLBL_SECATTR_SECID)
--		*sid = secattr->attr.secid;
-+		*sid = secattr->attr.secid.selinux;
- 	else if (secattr->flags & NETLBL_SECATTR_MLS_LVL) {
- 		rc = -EIDRM;
- 		ctx = sidtab_search(sidtab, SECINITSID_NETMSG);
-@@ -3682,7 +3682,7 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
- 	if (secattr->domain == NULL)
- 		goto out;
- 
--	secattr->attr.secid = sid;
-+	secattr->attr.secid.selinux = sid;
- 	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY | NETLBL_SECATTR_SECID;
- 	mls_export_netlbl_lvl(policydb, ctx, secattr);
- 	rc = mls_export_netlbl_cat(policydb, ctx, secattr);
-diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
-index 8ffe7e1053c4..067dd8307a9b 100644
---- a/security/selinux/xfrm.c
-+++ b/security/selinux/xfrm.c
-@@ -153,7 +153,8 @@ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
-  * LSM hook implementation that authorizes that a flow can use a xfrm policy
-  * rule.
-  */
--int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
-+int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx,
-+				struct secids *fl_secid, u8 dir)
- {
- 	int rc;
- 
-@@ -167,7 +168,7 @@ int selinux_xfrm_policy_lookup(struct xfrm_sec_ctx *ctx, u32 fl_secid, u8 dir)
- 		return -EINVAL;
- 
- 	rc = avc_has_perm(&selinux_state,
--			  fl_secid, ctx->ctx_sid,
-+			  fl_secid->selinux, ctx->ctx_sid,
- 			  SECCLASS_ASSOCIATION, ASSOCIATION__POLMATCH, NULL);
- 	return (rc == -EACCES ? -ESRCH : rc);
- }
-@@ -200,14 +201,14 @@ int selinux_xfrm_state_pol_flow_match(struct xfrm_state *x,
- 
- 	state_sid = x->security->ctx_sid;
- 
--	if (fl->flowi_secid != state_sid)
-+	if (fl->flowi_secid.selinux != state_sid)
- 		return 0;
- 
- 	/* We don't need a separate SA Vs. policy polmatch check since the SA
- 	 * is now of the same label as the flow and a flow Vs. policy polmatch
- 	 * check had already happened in selinux_xfrm_policy_lookup() above. */
- 	return (avc_has_perm(&selinux_state,
--			     fl->flowi_secid, state_sid,
-+			     fl->flowi_secid.selinux, state_sid,
- 			    SECCLASS_ASSOCIATION, ASSOCIATION__SENDTO,
- 			    NULL) ? 0 : 1);
- }
-@@ -261,13 +262,14 @@ static int selinux_xfrm_skb_sid_ingress(struct sk_buff *skb,
-  * LSM hook implementation that checks and/or returns the xfrm sid for the
-  * incoming packet.
-  */
--int selinux_xfrm_decode_session(struct sk_buff *skb, u32 *sid, int ckall)
-+int selinux_xfrm_decode_session(struct sk_buff *skb, struct secids *sid,
-+				int ckall)
- {
- 	if (skb == NULL) {
--		*sid = SECSID_NULL;
-+		sid->selinux = SECSID_NULL;
+-	if (!security_module_enable("selinux")) {
++	if (!security_module_enable("selinux",
++				IS_ENABLED(CONFIG_SECURITY_SELINUX_STACKED))) {
+ 		selinux_enabled = 0;
  		return 0;
  	}
--	return selinux_xfrm_skb_sid_ingress(skb, sid, ckall);
-+	return selinux_xfrm_skb_sid_ingress(skb, &sid->selinux, ckall);
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 96cecdbcd3fb..da5b3eaa5a58 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -161,48 +161,80 @@ struct bpf_security_struct {
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+ static inline struct task_security_struct *selinux_cred(const struct cred *cred)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + selinux_blob_sizes.lbs_cred;
++#else
+ 	return cred->security;
++#endif
  }
  
- int selinux_xfrm_skb_sid(struct sk_buff *skb, u32 *sid)
-@@ -344,7 +346,8 @@ int selinux_xfrm_state_alloc(struct xfrm_state *x,
-  * on a secid.
-  */
- int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
--				     struct xfrm_sec_ctx *polsec, u32 secid)
-+				     struct xfrm_sec_ctx *polsec,
-+				     const struct secids *secid)
+ static inline struct file_security_struct *selinux_file(const struct file *file)
  {
- 	int rc;
- 	struct xfrm_sec_ctx *ctx;
-@@ -354,10 +357,10 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
- 	if (!polsec)
- 		return 0;
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + selinux_blob_sizes.lbs_file;
++#else
+ 	return file->f_security;
++#endif
+ }
  
--	if (secid == 0)
-+	if (!secid_valid(secid))
- 		return -EINVAL;
+ static inline struct inode_security_struct *selinux_inode(
+ 						const struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return inode->i_security + selinux_blob_sizes.lbs_inode;
++#else
+ 	return inode->i_security;
++#endif
+ }
  
--	rc = security_sid_to_context(&selinux_state, secid, &ctx_str,
-+	rc = security_sid_to_context(&selinux_state, secid->selinux, &ctx_str,
- 				     &str_len);
- 	if (rc)
- 		return rc;
-@@ -370,7 +373,7 @@ int selinux_xfrm_state_alloc_acquire(struct xfrm_state *x,
+ static inline struct superblock_security_struct *selinux_superblock(
+ 					const struct super_block *superblock)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return superblock->s_security + selinux_blob_sizes.lbs_superblock;
++#else
+ 	return superblock->s_security;
++#endif
+ }
  
- 	ctx->ctx_doi = XFRM_SC_DOI_LSM;
- 	ctx->ctx_alg = XFRM_SC_ALG_SELINUX;
--	ctx->ctx_sid = secid;
-+	ctx->ctx_sid = secid->selinux;
- 	ctx->ctx_len = str_len;
- 	memcpy(ctx->ctx_str, ctx_str, str_len);
+ static inline struct msg_security_struct *selinux_msg_msg(
+ 						const struct msg_msg *msg_msg)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return msg_msg->security + selinux_blob_sizes.lbs_msg_msg;
++#else
+ 	return msg_msg->security;
++#endif
+ }
  
-diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
-index 489d49a20b47..1bbbd53de78b 100644
---- a/security/smack/smack_access.c
-+++ b/security/smack/smack_access.c
-@@ -550,7 +550,9 @@ struct smack_known *smk_import_entry(const char *string, int len)
- 	skp->smk_secid = smack_next_secid++;
- 	skp->smk_netlabel.domain = skp->smk_known;
- 	skp->smk_netlabel.flags =
--		NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL;
-+		NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL |
-+		NETLBL_SECATTR_SECID;
-+	skp->smk_netlabel.attr.secid.smack = skp->smk_secid;
- 	/*
- 	 * If direct labeling works use it.
- 	 * Otherwise use mapped labeling.
+ static inline struct ipc_security_struct *selinux_ipc(
+ 						const struct kern_ipc_perm *ipc)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return ipc->security + selinux_blob_sizes.lbs_ipc;
++#else
+ 	return ipc->security;
++#endif
+ }
+ 
+ #ifdef CONFIG_KEYS
+ static inline struct key_security_struct *selinux_key(const struct key *key)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return key->security + selinux_blob_sizes.lbs_key;
++#else
+ 	return key->security;
++#endif
+ }
+ #endif /* CONFIG_KEYS */
+ 
+ static inline struct sk_security_struct *selinux_sock(const struct sock *sock)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return sock->sk_security + selinux_blob_sizes.lbs_sock;
++#else
+ 	return sock->sk_security;
++#endif
+ }
+ 
+ #endif /* _SELINUX_OBJSEC_H_ */
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index e50ed4945a40..87ced0fc1a19 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -337,6 +337,7 @@ extern struct smack_known *smack_syslog_label;
+ extern struct smack_known *smack_unconfined;
+ #endif
+ extern int smack_ptrace_rule;
++extern struct lsm_blob_sizes smack_blob_sizes;
+ 
+ extern struct smack_known smack_known_floor;
+ extern struct smack_known smack_known_hat;
+@@ -359,44 +360,76 @@ extern struct hlist_head smack_known_hash[SMACK_HASH_SLOTS];
+ 
+ static inline struct task_smack *smack_cred(const struct cred *cred)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + smack_blob_sizes.lbs_cred;
++#else
+ 	return cred->security;
++#endif
+ }
+ 
+ static inline struct smack_known **smack_file(const struct file *file)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + smack_blob_sizes.lbs_file;
++#else
+ 	return file->f_security;
++#endif
+ }
+ 
+ static inline struct inode_smack *smack_inode(const struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return inode->i_security + smack_blob_sizes.lbs_inode;
++#else
+ 	return inode->i_security;
++#endif
+ }
+ 
+ static inline struct socket_smack *smack_sock(const struct sock *sock)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return sock->sk_security + smack_blob_sizes.lbs_sock;
++#else
+ 	return sock->sk_security;
++#endif
+ }
+ 
+ static inline struct superblock_smack *smack_superblock(
+ 					const struct super_block *superblock)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return superblock->s_security + smack_blob_sizes.lbs_superblock;
++#else
+ 	return superblock->s_security;
++#endif
+ }
+ 
+ static inline struct smack_known **smack_msg_msg(const struct msg_msg *msg)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return msg->security + smack_blob_sizes.lbs_msg_msg;
++#else
+ 	return msg->security;
++#endif
+ }
+ 
+ static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return ipc->security + smack_blob_sizes.lbs_ipc;
++#else
+ 	return ipc->security;
++#endif
+ }
+ 
+ #ifdef CONFIG_KEYS
+ static inline struct smack_known **smack_key(const struct key *key)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return key->security + smack_blob_sizes.lbs_key;
++#else
+ 	return key->security;
++#endif
+ }
+ #endif /* CONFIG_KEYS */
+ 
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 2d1a3fba40eb..157c6a731305 100644
+index 319450174c17..feff5290c839 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -1471,11 +1471,11 @@ static int smack_inode_listsecurity(struct inode *inode, char *buffer,
-  * @inode: inode to extract the info from
-  * @secid: where result will be saved
-  */
--static void smack_inode_getsecid(struct inode *inode, u32 *secid)
-+static void smack_inode_getsecid(struct inode *inode, struct secids *secid)
- {
- 	struct smack_known *skp = smk_of_inode(inode);
- 
--	*secid = skp->smk_secid;
-+	secid->smack = skp->smk_secid;
- }
- 
- /*
-@@ -1941,12 +1941,15 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
- 	struct task_smack *old_tsp = smack_cred(old);
- 	struct task_smack *new_tsp = smack_cred(new);
- 
--	new_tsp->smk_task = old_tsp->smk_task;
--	new_tsp->smk_forked = old_tsp->smk_task;
--	mutex_init(&new_tsp->smk_rules_lock);
--	INIT_LIST_HEAD(&new_tsp->smk_rules);
-+	int rc;
-+
-+	init_task_smack(new_tsp, old_tsp->smk_task, old_tsp->smk_task);
- 
--	/* cbs copy rule list */
-+	rc = smk_copy_rules(&new_tsp->smk_rules, &old_tsp->smk_rules,
-+		GFP_KERNEL);
-+	if (rc == 0)
-+		rc = smk_copy_relabel(&new_tsp->smk_relabel,
-+					&old_tsp->smk_relabel, GFP_KERNEL);
- }
- 
- /**
-@@ -1956,13 +1959,13 @@ static void smack_cred_transfer(struct cred *new, const struct cred *old)
-  *
-  * Sets the secid to contain a u32 version of the smack label.
-  */
--static void smack_cred_getsecid(const struct cred *cred, u32 *secid)
-+static void smack_cred_getsecid(const struct cred *cred, struct secids *secid)
- {
- 	struct smack_known *skp;
- 
- 	rcu_read_lock();
- 	skp = smk_of_task(smack_cred(cred));
--	*secid = skp->smk_secid;
-+	secid->smack = skp->smk_secid;
- 	rcu_read_unlock();
- }
- 
-@@ -1973,11 +1976,11 @@ static void smack_cred_getsecid(const struct cred *cred, u32 *secid)
-  *
-  * Set the security data for a kernel service.
-  */
--static int smack_kernel_act_as(struct cred *new, u32 secid)
-+static int smack_kernel_act_as(struct cred *new, struct secids *secid)
- {
- 	struct task_smack *new_tsp = smack_cred(new);
- 
--	new_tsp->smk_task = smack_from_secid(secid);
-+	new_tsp->smk_task = smack_from_secid(secid->smack);
- 	return 0;
- }
- 
-@@ -2063,11 +2066,11 @@ static int smack_task_getsid(struct task_struct *p)
-  *
-  * Sets the secid to contain a u32 version of the smack label.
-  */
--static void smack_task_getsecid(struct task_struct *p, u32 *secid)
-+static void smack_task_getsecid(struct task_struct *p, struct secids *secid)
+@@ -3449,18 +3449,16 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
  {
  	struct smack_known *skp = smk_of_task_struct(p);
+ 	char *cp;
+-	int slen;
  
--	*secid = skp->smk_secid;
-+	secid->smack = skp->smk_secid;
- }
- 
- /**
-@@ -3206,12 +3209,12 @@ static int smack_ipc_permission(struct kern_ipc_perm *ipp, short flag)
-  * @ipp: the object permissions
-  * @secid: where result will be saved
-  */
--static void smack_ipc_getsecid(struct kern_ipc_perm *ipp, u32 *secid)
-+static void smack_ipc_getsecid(struct kern_ipc_perm *ipp, struct secids *secid)
- {
- 	struct smack_known **blob = smack_ipc(ipp);
- 	struct smack_known *iskp = *blob;
- 
--	*secid = iskp->smk_secid;
-+	secid->smack = iskp->smk_secid;
- }
- 
- /**
-@@ -3724,7 +3727,7 @@ static struct smack_known *smack_from_secattr(struct netlbl_lsm_secattr *sap,
- 		/*
- 		 * Looks like a fallback, which gives us a secid.
- 		 */
--		return smack_from_secid(sap->attr.secid);
-+		return smack_from_secid(sap->attr.secid.smack);
- 	/*
- 	 * Without guidance regarding the smack value
- 	 * for the packet fall back on the network
-@@ -3857,7 +3860,7 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		if (proto != IPPROTO_UDP && proto != IPPROTO_TCP)
- 			break;
- #ifdef SMACK_IPV6_SECMARK_LABELING
--		if (skb && skb->secmark != 0)
-+		if (skb)
- 			skp = smack_from_secid(skb->secmark);
- 		else
- 			skp = smack_ipv6host_label(&sadd);
-@@ -3928,7 +3931,8 @@ static int smack_socket_getpeersec_stream(struct socket *sock,
-  * Sets the netlabel socket state on sk from parent
-  */
- static int smack_socket_getpeersec_dgram(struct socket *sock,
--					 struct sk_buff *skb, u32 *secid)
-+					 struct sk_buff *skb,
-+					 struct secids *secid)
- 
- {
- 	struct netlbl_lsm_secattr secattr;
-@@ -3956,9 +3960,11 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
- 		break;
- 	case PF_INET:
- #ifdef CONFIG_SECURITY_SMACK_NETFILTER
--		s = skb->secmark;
--		if (s != 0)
--			break;
-+		if (skb->secmark) {
-+			s = skb->secmark;
-+			if (s != 0)
-+				break;
-+		}
- #endif
- 		/*
- 		 * Translate what netlabel gave us.
-@@ -3979,7 +3985,7 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
- #endif
- 		break;
- 	}
--	*secid = s;
-+	secid->smack = s;
- 	if (s == 0)
+-	if (strcmp(name, "current") != 0)
++	if (strcmp(name, "current") == 0) {
++		cp = kstrdup(skp->smk_known, GFP_KERNEL);
++		if (cp == NULL)
++			return -ENOMEM;
++	} else
  		return -EINVAL;
- 	return 0;
-@@ -4053,9 +4059,11 @@ static int smack_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	 * If there is no secmark fall back to CIPSO.
- 	 * The secmark is assumed to reflect policy better.
- 	 */
--	if (skb && skb->secmark != 0) {
--		skp = smack_from_secid(skb->secmark);
--		goto access_check;
-+	if (skb) {
-+		if (skb->secmark != 0) {
-+			skp = smack_from_secid(skb->secmark);
-+			goto access_check;
-+		}
- 	}
- #endif /* CONFIG_SECURITY_SMACK_NETFILTER */
  
-@@ -4326,8 +4334,8 @@ static int smack_audit_rule_known(struct audit_krule *krule)
-  * The core Audit hook. It's used to take the decision of
-  * whether to audit or not to audit a given object.
-  */
--static int smack_audit_rule_match(u32 secid, u32 field, u32 op, void *vrule,
--				  struct audit_context *actx)
-+static int smack_audit_rule_match(struct secids *secid, u32 field, u32 op,
-+				  void *vrule, struct audit_context *actx)
- {
- 	struct smack_known *skp;
- 	char *rule = vrule;
-@@ -4340,7 +4348,7 @@ static int smack_audit_rule_match(u32 secid, u32 field, u32 op, void *vrule,
- 	if (field != AUDIT_SUBJ_USER && field != AUDIT_OBJ_USER)
+-	cp = kstrdup(skp->smk_known, GFP_KERNEL);
+-	if (cp == NULL)
+-		return -ENOMEM;
+-
+-	slen = strlen(cp);
+ 	*value = cp;
+-	return slen;
++	return strlen(cp);
+ }
+ 
+ /**
+@@ -4699,7 +4697,8 @@ static __init int smack_init(void)
+ 	struct cred *cred = (struct cred *) current->cred;
+ 	struct task_smack *tsp;
+ 
+-	if (!security_module_enable("smack"))
++	if (!security_module_enable("smack",
++				IS_ENABLED(CONFIG_SECURITY_SMACK_STACKED)))
  		return 0;
  
--	skp = smack_from_secid(secid);
-+	skp = smack_from_secid(secid->smack);
+ 	if (!finish) {
+diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
+index 0110bebe86e2..f386f92c57c5 100644
+--- a/security/tomoyo/common.h
++++ b/security/tomoyo/common.h
+@@ -1087,6 +1087,7 @@ extern struct tomoyo_domain_info tomoyo_kernel_domain;
+ extern struct tomoyo_policy_namespace tomoyo_kernel_namespace;
+ extern unsigned int tomoyo_memory_quota[TOMOYO_MAX_MEMORY_STAT];
+ extern unsigned int tomoyo_memory_used[TOMOYO_MAX_MEMORY_STAT];
++extern struct lsm_blob_sizes tomoyo_blob_sizes;
  
- 	/*
- 	 * No need to do string comparisons. If a match occurs,
-@@ -4380,9 +4388,10 @@ static int smack_ismaclabel(const char *name)
-  *
-  * Exists for networking code.
+ /********** Inlined functions. **********/
+ 
+@@ -1206,7 +1207,11 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
   */
--static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
-+static int smack_secid_to_secctx(struct secids *secid, char **secdata,
-+					u32 *seclen)
+ static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
  {
--	struct smack_known *skp = smack_from_secid(secid);
-+	struct smack_known *skp = smack_from_secid(secid->smack);
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + tomoyo_blob_sizes.lbs_cred;
++#else
+ 	return cred->security;
++#endif
+ }
  
- 	if (secdata)
- 		*secdata = skp->smk_known;
-@@ -4398,14 +4407,15 @@ static int smack_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
-  *
-  * Exists for audit and networking code.
+ /**
+@@ -1216,8 +1221,13 @@ static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
   */
--static int smack_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
-+static int smack_secctx_to_secid(const char *secdata, u32 seclen,
-+					struct secids *secid)
+ static inline struct tomoyo_domain_info *tomoyo_domain(void)
  {
- 	struct smack_known *skp = smk_find_entry(secdata);
+-	struct tomoyo_domain_info **blob = tomoyo_cred(current_cred());
++	const struct cred *cred = current_cred();
++	struct tomoyo_domain_info **blob;
++
++	if (cred->security == NULL)
++		return NULL;
  
- 	if (skp)
--		*secid = skp->smk_secid;
-+		secid->smack = skp->smk_secid;
- 	else
--		*secid = 0;
-+		secid->smack = 0;
- 	return 0;
++	blob = tomoyo_cred(cred);
+ 	return *blob;
  }
  
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index 9d2dde608298..0a075c80abb4 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -197,7 +197,7 @@ static void smk_netlabel_audit_set(struct netlbl_audit *nap)
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index 821ca242a194..eb4b886b6076 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -564,7 +564,8 @@ static int __init tomoyo_init(void)
+ 	struct cred *cred = (struct cred *) current_cred();
+ 	struct tomoyo_domain_info **blob;
  
- 	nap->loginuid = audit_get_loginuid(current);
- 	nap->sessionid = audit_get_sessionid(current);
--	nap->secid = skp->smk_secid;
-+	nap->secid.smack = skp->smk_secid;
- }
- 
- /*
-@@ -1165,6 +1165,7 @@ static ssize_t smk_write_net4addr(struct file *file, const char __user *buf,
- 	u32 mask_bits = (1<<31);
- 	__be32 nsa;
- 	u32 temp_mask;
-+	struct secids secid;
- 
- 	/*
- 	 * Must have privilege.
-@@ -1281,10 +1282,13 @@ static ssize_t smk_write_net4addr(struct file *file, const char __user *buf,
- 	 * this host so that incoming packets get labeled.
- 	 * but only if we didn't get the special CIPSO option
- 	 */
--	if (rc == 0 && skp != NULL)
-+	if (rc == 0 && skp != NULL) {
-+		secid_init(&secid);
-+		secid.smack = snp->smk_label->smk_secid;
- 		rc = netlbl_cfg_unlbl_static_add(&init_net, NULL,
- 			&snp->smk_host, &snp->smk_mask, PF_INET,
--			snp->smk_label->smk_secid, &audit_info);
-+			&secid, &audit_info);
-+	}
- 
- 	if (rc == 0)
- 		rc = count;
-@@ -2951,7 +2955,9 @@ static int __init smk_preset_netlabel(struct smack_known *skp)
- {
- 	skp->smk_netlabel.domain = skp->smk_known;
- 	skp->smk_netlabel.flags =
--		NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL;
-+		NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL |
-+		NETLBL_SECATTR_SECID;
-+	skp->smk_netlabel.attr.secid.smack = skp->smk_secid;
- 	return smk_netlbl_mls(smack_cipso_direct, skp->smk_known,
- 				&skp->smk_netlabel, strlen(skp->smk_known));
- }
+-	if (!security_module_enable("tomoyo")) {
++	if (!security_module_enable("tomoyo",
++				IS_ENABLED(CONFIG_SECURITY_TOMOYO_STACKED))) {
+ 		tomoyo_enabled = false;
+ 		return 0;
+ 	}
 -- 
 2.17.1
