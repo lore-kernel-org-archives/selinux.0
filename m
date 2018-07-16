@@ -1,7 +1,13 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GINUvP020789
- for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:23:36 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GINjhN020802
+ for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:23:45 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with SMTP id 41TsHM1WRBz62qs
+ for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 18:23:43 +0000 (UTC)
+Received: from UPDC3CPA10_EEMSG_MP26.eemsg.mil (unknown [192.168.18.21])
+ by UPDCF3IC04.oob.disa.mil (Postfix) with ESMTP id 41TsHL6H2qz62qn
+ for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 18:23:42 +0000 (UTC)
 To: LSM <linux-security-module@vger.kernel.org>,
  LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
@@ -14,1027 +20,421 @@ Cc: "Schaufler, Casey" <casey.schaufler@intel.com>,
  Casey Schaufler <casey@schaufler-ca.com>
 References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <7062ae8d-cd07-8603-c8b9-be5943060dfa@schaufler-ca.com>
-Date: Mon, 16 Jul 2018 11:22:37 -0700
+Message-ID: <3d31d713-19cb-3f26-7b42-f79a8473b4b7@schaufler-ca.com>
+Date: Mon, 16 Jul 2018 11:23:33 -0700
 MIME-Version: 1.0
 In-Reply-To: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v1 04/22] LSM: Infrastructure management of the cred
- security blob
+Subject: [PATCH v1 10/22] LSM: Infrastructure management of the inode security
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-LSM: Infrastructure management of the cred security blob
+LSM: Infrastructure management of the inode security
 
-Move management of the cred security blob out of the
-security modules and into the security infrastructre.
-Instead of allocating and freeing space the security
-modules tell the infrastructure how much space they
-require.
-
-Some SELinux memory management debug code has been removed.
+Move management of the inode->i_security blob out
+of the individual security modules and into the security
+infrastructure. Instead of allocating the blobs from within
+the modules the modules tell the infrastructure how much
+space is required, and the space is allocated there.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h         |  14 ++++
- kernel/cred.c                     |  13 ----
- security/Kconfig                  |  11 ++++
- security/apparmor/domain.c        |   2 +-
- security/apparmor/include/cred.h  |  16 ++++-
- security/apparmor/lsm.c           |  28 ++++++--
- security/apparmor/task.c          |   6 +-
- security/security.c               | 106 +++++++++++++++++++++++++++++-
- security/selinux/hooks.c          |  63 +++++-------------
- security/selinux/include/objsec.h |   4 ++
- security/selinux/selinuxfs.c      |   1 +
- security/smack/smack.h            |   1 +
- security/smack/smack_lsm.c        |  85 +++++++++---------------
- security/tomoyo/common.h          |  21 +++++-
- security/tomoyo/domain.c          |   4 +-
- security/tomoyo/securityfs_if.c   |  15 +++--
- security/tomoyo/tomoyo.c          |  56 +++++++++++++---
- 17 files changed, 303 insertions(+), 143 deletions(-)
+ include/linux/lsm_hooks.h         |  3 ++
+ security/security.c               | 85 +++++++++++++++++++++++++++++--
+ security/selinux/hooks.c          | 32 +-----------
+ security/selinux/include/objsec.h |  5 +-
+ security/smack/smack_lsm.c        | 70 ++++---------------------
+ 5 files changed, 99 insertions(+), 96 deletions(-)
 
 diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 8f1131c8dd54..25de11adb4ea 100644
+index 00c6bdaf5cc1..12360f0ec8f7 100644
 --- a/include/linux/lsm_hooks.h
 +++ b/include/linux/lsm_hooks.h
-@@ -2018,6 +2018,13 @@ struct security_hook_list {
- 	char				*lsm;
- } __randomize_layout;
+@@ -2024,6 +2024,7 @@ struct security_hook_list {
+ struct lsm_blob_sizes {
+ 	int	lbs_cred;
+ 	int	lbs_file;
++	int	lbs_inode;
+ 	int	lbs_task;
+ };
  
-+/*
-+ * Security blob size or offset data.
-+ */
-+struct lsm_blob_sizes {
-+	int	lbs_cred;
-+};
-+
- /*
-  * Initializing a security_hook_list structure takes
-  * up a lot of space in a source file. This macro takes
-@@ -2030,6 +2037,7 @@ struct security_hook_list {
- extern struct security_hook_heads security_hook_heads;
- extern char *lsm_names;
- 
-+extern void security_add_blobs(struct lsm_blob_sizes *needed);
- extern void security_add_hooks(struct security_hook_list *hooks, int count,
- 				char *lsm);
- 
-@@ -2076,4 +2084,10 @@ void __init loadpin_add_hooks(void);
- static inline void loadpin_add_hooks(void) { };
+@@ -2087,10 +2088,12 @@ static inline void loadpin_add_hooks(void) { };
  #endif
  
-+extern int lsm_cred_alloc(struct cred *cred, gfp_t gfp);
-+
-+#ifdef CONFIG_SECURITY
-+void lsm_early_cred(struct cred *cred);
-+#endif
-+
+ extern int lsm_cred_alloc(struct cred *cred, gfp_t gfp);
++extern int lsm_inode_alloc(struct inode *inode);
+ 
+ #ifdef CONFIG_SECURITY
+ void lsm_early_cred(struct cred *cred);
+ void lsm_early_task(struct task_struct *task);
++void lsm_early_inode(struct inode *inode);
+ #endif
+ 
  #endif /* ! __LINUX_LSM_HOOKS_H */
-diff --git a/kernel/cred.c b/kernel/cred.c
-index ecf03657e71c..fa2061ee4955 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -704,19 +704,6 @@ bool creds_are_invalid(const struct cred *cred)
- {
- 	if (cred->magic != CRED_MAGIC)
- 		return true;
--#ifdef CONFIG_SECURITY_SELINUX
--	/*
--	 * cred->security == NULL if security_cred_alloc_blank() or
--	 * security_prepare_creds() returned an error.
--	 */
--	if (selinux_is_enabled() && cred->security) {
--		if ((unsigned long) cred->security < PAGE_SIZE)
--			return true;
--		if ((*(u32 *)cred->security & 0xffffff00) ==
--		    (POISON_FREE << 24 | POISON_FREE << 16 | POISON_FREE << 8))
--			return true;
--	}
--#endif
- 	return false;
- }
- EXPORT_SYMBOL(creds_are_invalid);
-diff --git a/security/Kconfig b/security/Kconfig
-index c4302067a3ad..116dba966553 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -36,6 +36,17 @@ config SECURITY_WRITABLE_HOOKS
- 	bool
- 	default n
- 
-+config SECURITY_LSM_DEBUG
-+	bool "Enable debugging of the LSM infrastructure"
-+	depends on SECURITY
-+	help
-+	  This allows you to choose debug messages related to
-+	  security modules configured into your kernel. These
-+	  messages may be helpful in determining how a security
-+	  module is using security blobs.
-+
-+	  If you are unsure how to answer this question, answer N.
-+
- config SECURITYFS
- 	bool "Enable the securityfs filesystem"
- 	help
-diff --git a/security/apparmor/domain.c b/security/apparmor/domain.c
-index 098d546d8253..dcd122223a68 100644
---- a/security/apparmor/domain.c
-+++ b/security/apparmor/domain.c
-@@ -975,7 +975,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
- 	}
- 	aa_put_label(cred_label(bprm->cred));
- 	/* transfer reference, released when cred is freed */
--	cred_label(bprm->cred) = new;
-+	set_cred_label(bprm->cred, new);
- 
- done:
- 	aa_put_label(label);
-diff --git a/security/apparmor/include/cred.h b/security/apparmor/include/cred.h
-index e287b7d0d4be..a90eae76d7c1 100644
---- a/security/apparmor/include/cred.h
-+++ b/security/apparmor/include/cred.h
-@@ -23,8 +23,22 @@
- #include "policy_ns.h"
- #include "task.h"
- 
--#define cred_label(X) ((X)->security)
-+static inline struct aa_label *cred_label(const struct cred *cred)
-+{
-+	struct aa_label **blob = cred->security;
-+
-+	AA_BUG(!blob);
-+	return *blob;
-+}
- 
-+static inline void set_cred_label(const struct cred *cred,
-+				  struct aa_label *label)
-+{
-+	struct aa_label **blob = cred->security;
-+
-+	AA_BUG(!blob);
-+	*blob = label;
-+}
- 
- /**
-  * aa_cred_raw_label - obtain cred's label
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 74f17376202b..f80fbfe50618 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -57,7 +57,7 @@ DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
- static void apparmor_cred_free(struct cred *cred)
- {
- 	aa_put_label(cred_label(cred));
--	cred_label(cred) = NULL;
-+	set_cred_label(cred, NULL);
- }
- 
- /*
-@@ -65,7 +65,7 @@ static void apparmor_cred_free(struct cred *cred)
-  */
- static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
- {
--	cred_label(cred) = NULL;
-+	set_cred_label(cred, NULL);
- 	return 0;
- }
- 
-@@ -75,7 +75,7 @@ static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
- static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
- 				 gfp_t gfp)
- {
--	cred_label(new) = aa_get_newest_label(cred_label(old));
-+	set_cred_label(new, aa_get_newest_label(cred_label(old)));
- 	return 0;
- }
- 
-@@ -84,7 +84,7 @@ static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
-  */
- static void apparmor_cred_transfer(struct cred *new, const struct cred *old)
- {
--	cred_label(new) = aa_get_newest_label(cred_label(old));
-+	set_cred_label(new, aa_get_newest_label(cred_label(old)));
- }
- 
- static void apparmor_task_free(struct task_struct *task)
-@@ -1126,6 +1126,13 @@ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
- 		ctx->label = aa_get_current_label();
- }
- 
-+/*
-+ * The cred blob is a pointer to, not an instance of, an aa_task_ctx.
-+ */
-+struct lsm_blob_sizes apparmor_blob_sizes = {
-+	.lbs_cred = sizeof(struct aa_task_ctx *),
-+};
-+
- static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ptrace_access_check, apparmor_ptrace_access_check),
- 	LSM_HOOK_INIT(ptrace_traceme, apparmor_ptrace_traceme),
-@@ -1455,7 +1462,8 @@ static int __init set_init_ctx(void)
- 	if (!ctx)
- 		return -ENOMEM;
- 
--	cred_label(cred) = aa_get_label(ns_unconfined(root_ns));
-+	lsm_early_cred(cred);
-+	set_cred_label(cred, aa_get_label(ns_unconfined(root_ns)));
- 	task_ctx(current) = ctx;
- 
- 	return 0;
-@@ -1540,8 +1548,18 @@ static inline int apparmor_init_sysctl(void)
- 
- static int __init apparmor_init(void)
- {
-+	static int finish;
- 	int error;
- 
-+	if (!finish) {
-+		if (apparmor_enabled && security_module_enable("apparmor"))
-+			security_add_blobs(&apparmor_blob_sizes);
-+		else
-+			apparmor_enabled = false;
-+		finish = 1;
-+		return 0;
-+	}
-+
- 	if (!apparmor_enabled || !security_module_enable("apparmor")) {
- 		aa_info_message("AppArmor disabled by boot time parameter");
- 		apparmor_enabled = false;
-diff --git a/security/apparmor/task.c b/security/apparmor/task.c
-index c6b78a14da91..4551110f0496 100644
---- a/security/apparmor/task.c
-+++ b/security/apparmor/task.c
-@@ -81,7 +81,7 @@ int aa_replace_current_label(struct aa_label *label)
- 	 */
- 	aa_get_label(label);
- 	aa_put_label(cred_label(new));
--	cred_label(new) = label;
-+	set_cred_label(new, label);
- 
- 	commit_creds(new);
- 	return 0;
-@@ -138,7 +138,7 @@ int aa_set_current_hat(struct aa_label *label, u64 token)
- 		return -EACCES;
- 	}
- 
--	cred_label(new) = aa_get_newest_label(label);
-+	set_cred_label(new, aa_get_newest_label(label));
- 	/* clear exec on switching context */
- 	aa_put_label(ctx->onexec);
- 	ctx->onexec = NULL;
-@@ -172,7 +172,7 @@ int aa_restore_previous_label(u64 token)
- 		return -ENOMEM;
- 
- 	aa_put_label(cred_label(new));
--	cred_label(new) = aa_get_newest_label(ctx->previous);
-+	set_cred_label(new, aa_get_newest_label(ctx->previous));
- 	AA_BUG(!cred_label(new));
- 	/* clear exec && prev information when restoring to previous context */
- 	aa_clear_task_ctx_trans(ctx);
 diff --git a/security/security.c b/security/security.c
-index 2551c4778a09..a9fc6975c338 100644
+index 40624fb81031..610cd57d11da 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -41,6 +41,8 @@ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
+@@ -41,6 +41,7 @@ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
  static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
  
+ static struct kmem_cache *lsm_file_cache;
++static struct kmem_cache *lsm_inode_cache;
+ 
  char *lsm_names;
-+static struct lsm_blob_sizes blob_sizes;
-+
- /* Boot-time LSM user choice */
- static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
- 	CONFIG_DEFAULT_SECURITY;
-@@ -82,10 +84,22 @@ int __init security_init(void)
- 	loadpin_add_hooks();
- 
+ static struct lsm_blob_sizes blob_sizes;
+@@ -98,6 +99,10 @@ int __init security_init(void)
+ 		lsm_file_cache = kmem_cache_create("lsm_file_cache",
+ 						   blob_sizes.lbs_file, 0,
+ 						   SLAB_PANIC, NULL);
++	if (blob_sizes.lbs_inode)
++		lsm_inode_cache = kmem_cache_create("lsm_inode_cache",
++						    blob_sizes.lbs_inode, 0,
++						    SLAB_PANIC, NULL);
  	/*
--	 * Load all the remaining security modules.
-+	 * The first call to a module specific init function
-+	 * updates the blob size requirements.
-+	 */
-+	do_security_initcalls();
-+
-+	/*
-+	 * The second call to a module specific init function
-+	 * adds hooks to the hook lists and does any other early
-+	 * initializations required.
- 	 */
- 	do_security_initcalls();
+ 	 * The second call to a module specific init function
+ 	 * adds hooks to the hook lists and does any other early
+@@ -108,8 +113,9 @@ int __init security_init(void)
+ #ifdef CONFIG_SECURITY_LSM_DEBUG
+ 	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
+ 	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
++	pr_info("LSM: inode blob size      = %d\n", blob_sizes.lbs_inode);
+ 	pr_info("LSM: task blob size       = %d\n", blob_sizes.lbs_task);
+-#endif
++#endif /* CONFIG_SECURITY_LSM_DEBUG */
  
-+#ifdef CONFIG_SECURITY_LSM_DEBUG
-+	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
-+#endif
-+
  	return 0;
  }
- 
-@@ -193,6 +207,73 @@ int unregister_lsm_notifier(struct notifier_block *nb)
+@@ -285,6 +291,13 @@ void __init security_add_blobs(struct lsm_blob_sizes *needed)
+ 	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
+ 	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
+ 	lsm_set_size(&needed->lbs_task, &blob_sizes.lbs_task);
++	/*
++	 * The inode blob gets an rcu_head in addition to
++	 * what the modules might need.
++	 */
++	if (needed->lbs_inode && blob_sizes.lbs_inode == 0)
++		blob_sizes.lbs_inode = sizeof(struct rcu_head);
++	lsm_set_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
  }
- EXPORT_SYMBOL(unregister_lsm_notifier);
+ 
+ /**
+@@ -348,6 +361,46 @@ void lsm_early_task(struct task_struct *task)
+ 		panic("%s: Early task alloc failed.\n", __func__);
+ }
  
 +/**
-+ * lsm_cred_alloc - allocate a composite cred blob
-+ * @cred: the cred that needs a blob
-+ * @gfp: allocation type
++ * lsm_inode_alloc - allocate a composite inode blob
++ * @inode: the inode that needs a blob
 + *
-+ * Allocate the cred blob for all the modules
++ * Allocate the inode blob for all the modules
 + *
 + * Returns 0, or -ENOMEM if memory can't be allocated.
 + */
-+int lsm_cred_alloc(struct cred *cred, gfp_t gfp)
++int lsm_inode_alloc(struct inode *inode)
 +{
-+	if (blob_sizes.lbs_cred == 0) {
-+		cred->security = NULL;
++	if (!lsm_inode_cache) {
++		inode->i_security = NULL;
 +		return 0;
 +	}
 +
-+	cred->security = kzalloc(blob_sizes.lbs_cred, gfp);
-+	if (cred->security == NULL)
++	inode->i_security = kmem_cache_zalloc(lsm_inode_cache, GFP_NOFS);
++	if (inode->i_security == NULL)
 +		return -ENOMEM;
 +	return 0;
 +}
 +
 +/**
-+ * lsm_early_cred - during initialization allocate a composite cred blob
-+ * @cred: the cred that needs a blob
++ * lsm_early_inode - during initialization allocate a composite inode blob
++ * @inode: the inode that needs a blob
 + *
-+ * Allocate the cred blob for all the modules if it's not already there
++ * Allocate the inode blob for all the modules if it's not already there
 + */
-+void lsm_early_cred(struct cred *cred)
++void lsm_early_inode(struct inode *inode)
 +{
 +	int rc;
 +
-+	if (cred == NULL)
-+		panic("%s: NULL cred.\n", __func__);
-+	if (cred->security != NULL)
++	if (inode == NULL)
++		panic("%s: NULL inode.\n", __func__);
++	if (inode->i_security != NULL)
 +		return;
-+	rc = lsm_cred_alloc(cred, GFP_KERNEL);
++	rc = lsm_inode_alloc(inode);
 +	if (rc)
-+		panic("%s: Early cred alloc failed.\n", __func__);
-+}
-+
-+static void __init lsm_set_size(int *need, int *lbs)
-+{
-+	int offset;
-+
-+	if (*need > 0) {
-+		offset = *lbs;
-+		*lbs += *need;
-+		*need = offset;
-+	}
-+}
-+
-+/**
-+ * security_add_blobs - Report blob sizes
-+ * @needed: the size of blobs needed by the module
-+ *
-+ * Each LSM has to register its blobs with the infrastructure.
-+ * The "needed" data tells the infrastructure how much memory
-+ * the module requires for each of its blobs. On return the
-+ * structure is filled with the offset that module should use
-+ * from the blob pointer.
-+ */
-+void __init security_add_blobs(struct lsm_blob_sizes *needed)
-+{
-+	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
++		panic("%s: Early inode alloc failed.\n", __func__);
 +}
 +
  /*
   * Hook list operation macros.
   *
-@@ -993,17 +1074,36 @@ void security_task_free(struct task_struct *task)
+@@ -594,14 +647,40 @@ EXPORT_SYMBOL(security_sb_parse_opts_str);
  
- int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+ int security_inode_alloc(struct inode *inode)
  {
--	return call_int_hook(cred_alloc_blank, 0, cred, gfp);
-+	int rc = lsm_cred_alloc(cred, gfp);
+-	inode->i_security = NULL;
+-	return call_int_hook(inode_alloc_security, 0, inode);
++	int rc = lsm_inode_alloc(inode);
 +
-+	if (rc)
++	if (unlikely(rc))
 +		return rc;
-+
-+	rc = call_int_hook(cred_alloc_blank, 0, cred, gfp);
-+	if (rc)
-+		security_cred_free(cred);
++	rc = call_int_hook(inode_alloc_security, 0, inode);
++	if (unlikely(rc))
++		security_inode_free(inode);
 +	return rc;
++}
++
++static void inode_free_by_rcu(struct rcu_head *head)
++{
++	/*
++	 * The rcu head is at the start of the inode blob
++	 */
++	kmem_cache_free(lsm_inode_cache, head);
  }
  
- void security_cred_free(struct cred *cred)
+ void security_inode_free(struct inode *inode)
  {
- 	call_void_hook(cred_free, cred);
-+
-+	kfree(cred->security);
-+	cred->security = NULL;
+ 	integrity_inode_free(inode);
+ 	call_void_hook(inode_free_security, inode);
++	/*
++	 * The inode may still be referenced in a path walk and
++	 * a call to security_inode_permission() can be made
++	 * after inode_free_security() is called. Ideally, the VFS
++	 * wouldn't do this, but fixing that is a much harder
++	 * job. For now, simply free the i_security via RCU, and
++	 * leave the current inode->i_security pointer intact.
++	 * The inode will be freed after the RCU grace period too.
++	 */
++	if (inode->i_security)
++		call_rcu((struct rcu_head *)inode->i_security,
++				inode_free_by_rcu);
  }
  
- int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp)
- {
--	return call_int_hook(cred_prepare, 0, new, old, gfp);
-+	int rc = lsm_cred_alloc(new, gfp);
-+
-+	if (rc)
-+		return rc;
-+
-+	rc = call_int_hook(cred_prepare, 0, new, old, gfp);
-+	if (rc)
-+		security_cred_free(new);
-+	return rc;
- }
- 
- void security_transfer_creds(struct cred *new, const struct cred *old)
+ int security_dentry_init_security(struct dentry *dentry, int mode,
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 4479c835c592..1d2487f8e88b 100644
+index aafd1506fe6b..0f5066c94270 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -213,12 +213,9 @@ static void cred_init_security(void)
- 	struct cred *cred = (struct cred *) current->real_cred;
- 	struct task_security_struct *tsec;
- 
--	tsec = kzalloc(sizeof(struct task_security_struct), GFP_KERNEL);
--	if (!tsec)
--		panic("SELinux:  Failed to initialize initial task.\n");
--
-+	lsm_early_cred(cred);
-+	tsec = selinux_cred(cred);
- 	tsec->osid = tsec->sid = SECINITSID_KERNEL;
--	cred->security = tsec;
+@@ -148,8 +148,6 @@ static int __init checkreqprot_setup(char *str)
  }
+ __setup("checkreqprot=", checkreqprot_setup);
  
- /*
-@@ -3900,53 +3897,17 @@ static int selinux_task_alloc(struct task_struct *task,
- 			    sid, sid, SECCLASS_PROCESS, PROCESS__FORK, NULL);
- }
+-static struct kmem_cache *sel_inode_cache;
+-
+ /**
+  * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
+  *
+@@ -245,13 +243,9 @@ static inline u32 task_sid(const struct task_struct *task)
  
--/*
-- * allocate the SELinux part of blank credentials
-- */
--static int selinux_cred_alloc_blank(struct cred *cred, gfp_t gfp)
--{
--	struct task_security_struct *tsec;
--
--	tsec = kzalloc(sizeof(struct task_security_struct), gfp);
--	if (!tsec)
--		return -ENOMEM;
--
--	cred->security = tsec;
--	return 0;
--}
--
--/*
-- * detach and free the LSM part of a set of credentials
-- */
--static void selinux_cred_free(struct cred *cred)
--{
--	struct task_security_struct *tsec = selinux_cred(cred);
--
--	/*
--	 * cred->security == NULL if security_cred_alloc_blank() or
--	 * security_prepare_creds() returned an error.
--	 */
--	BUG_ON(cred->security && (unsigned long) cred->security < PAGE_SIZE);
--	cred->security = (void *) 0x7UL;
--	kfree(tsec);
--}
--
- /*
-  * prepare a new set of credentials for modification
-  */
- static int selinux_cred_prepare(struct cred *new, const struct cred *old,
- 				gfp_t gfp)
+ static int inode_alloc_security(struct inode *inode)
  {
--	const struct task_security_struct *old_tsec;
--	struct task_security_struct *tsec;
--
--	old_tsec = selinux_cred(old);
-+	const struct task_security_struct *old_tsec = selinux_cred(old);
-+	struct task_security_struct *tsec = selinux_cred(new);
+-	struct inode_security_struct *isec;
++	struct inode_security_struct *isec = selinux_inode(inode);
+ 	u32 sid = current_sid();
  
--	tsec = kmemdup(old_tsec, sizeof(struct task_security_struct), gfp);
--	if (!tsec)
+-	isec = kmem_cache_zalloc(sel_inode_cache, GFP_NOFS);
+-	if (!isec)
 -		return -ENOMEM;
-+	*tsec = *old_tsec;
+-
+ 	spin_lock_init(&isec->lock);
+ 	INIT_LIST_HEAD(&isec->list);
+ 	isec->inode = inode;
+@@ -259,7 +253,6 @@ static int inode_alloc_security(struct inode *inode)
+ 	isec->sclass = SECCLASS_FILE;
+ 	isec->task_sid = sid;
+ 	isec->initialized = LABEL_INVALID;
+-	inode->i_security = isec;
  
--	new->security = tsec;
  	return 0;
  }
- 
-@@ -6882,6 +6843,10 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
+@@ -337,14 +330,6 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
+ 	return selinux_inode(inode);
  }
- #endif
  
-+struct lsm_blob_sizes selinux_blob_sizes = {
-+	.lbs_cred = sizeof(struct task_security_struct),
-+};
-+
- static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
- 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
-@@ -6964,8 +6929,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(file_open, selinux_file_open),
- 
- 	LSM_HOOK_INIT(task_alloc, selinux_task_alloc),
--	LSM_HOOK_INIT(cred_alloc_blank, selinux_cred_alloc_blank),
--	LSM_HOOK_INIT(cred_free, selinux_cred_free),
- 	LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
- 	LSM_HOOK_INIT(cred_transfer, selinux_cred_transfer),
- 	LSM_HOOK_INIT(cred_getsecid, selinux_cred_getsecid),
-@@ -7120,11 +7083,19 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 
- static __init int selinux_init(void)
+-static void inode_free_rcu(struct rcu_head *head)
+-{
+-	struct inode_security_struct *isec;
+-
+-	isec = container_of(head, struct inode_security_struct, rcu);
+-	kmem_cache_free(sel_inode_cache, isec);
+-}
+-
+ static void inode_free_security(struct inode *inode)
  {
-+	static int finish;
-+
- 	if (!security_module_enable("selinux")) {
- 		selinux_enabled = 0;
- 		return 0;
+ 	struct inode_security_struct *isec = selinux_inode(inode);
+@@ -365,17 +350,6 @@ static void inode_free_security(struct inode *inode)
+ 		list_del_init(&isec->list);
+ 		spin_unlock(&sbsec->isec_lock);
  	}
+-
+-	/*
+-	 * The inode may still be referenced in a path walk and
+-	 * a call to selinux_inode_permission() can be made
+-	 * after inode_free_security() is called. Ideally, the VFS
+-	 * wouldn't do this, but fixing that is a much harder
+-	 * job. For now, simply free the i_security via RCU, and
+-	 * leave the current inode->i_security pointer intact.
+-	 * The inode will be freed after the RCU grace period too.
+-	 */
+-	call_rcu(&isec->rcu, inode_free_rcu);
+ }
  
-+	if (!finish) {
-+		security_add_blobs(&selinux_blob_sizes);
-+		finish = 1;
-+		return 0;
-+	}
-+
- 	if (!selinux_enabled) {
- 		printk(KERN_INFO "SELinux:  Disabled at boot.\n");
- 		return 0;
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 734b6833bdff..db1c7000ada3 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -25,6 +25,9 @@
- #include <linux/binfmts.h>
- #include <linux/in.h>
- #include <linux/spinlock.h>
-+#include <linux/lsm_hooks.h>
-+#include <linux/msg.h>
-+#include <net/sock.h>
- #include <net/net_namespace.h>
- #include "flask.h"
- #include "avc.h"
-@@ -158,6 +161,7 @@ struct bpf_security_struct {
- 	u32 sid;  /*SID of bpf obj creater*/
+ static int file_alloc_security(struct file *file)
+@@ -6828,6 +6802,7 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
+ struct lsm_blob_sizes selinux_blob_sizes = {
+ 	.lbs_cred = sizeof(struct task_security_struct),
+ 	.lbs_file = sizeof(struct file_security_struct),
++	.lbs_inode = sizeof(struct inode_security_struct),
  };
  
-+extern struct lsm_blob_sizes selinux_blob_sizes;
- static inline struct task_security_struct *selinux_cred(const struct cred *cred)
- {
- 	return cred->security;
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index f3d374d2ca04..a0faf54c00b9 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -31,6 +31,7 @@
- #include <linux/uaccess.h>
- #include <linux/kobject.h>
- #include <linux/ctype.h>
-+#include <linux/lsm_hooks.h>
+ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+@@ -7096,9 +7071,6 @@ static __init int selinux_init(void)
  
- /* selinuxfs pseudo filesystem for exporting the security policy API.
-    Based on the proc code and the fs/nfsd/nfsctl.c code. */
-diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 0b55d6a55b26..0c6dce446825 100644
---- a/security/smack/smack.h
-+++ b/security/smack/smack.h
-@@ -24,6 +24,7 @@
- #include <linux/list.h>
- #include <linux/rculist.h>
- #include <linux/lsm_audit.h>
-+#include <linux/msg.h>
+ 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
  
- /*
-  * Use IPv6 port labeling if IPv6 is enabled and secmarks
+-	sel_inode_cache = kmem_cache_create("selinux_inode_security",
+-					    sizeof(struct inode_security_struct),
+-					    0, SLAB_PANIC, NULL);
+ 	avc_init();
+ 
+ 	avtab_cache_init();
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 3304a1ee58a4..7a3d18fa9b13 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -59,10 +59,7 @@ enum label_initialized {
+ 
+ struct inode_security_struct {
+ 	struct inode *inode;	/* back pointer to inode object */
+-	union {
+-		struct list_head list;	/* list of inode_security_struct */
+-		struct rcu_head rcu;	/* for freeing the inode_security_struct */
+-	};
++	struct list_head list;	/* list of inode_security_struct */
+ 	u32 task_sid;		/* SID of creating task */
+ 	u32 sid;		/* SID of this object */
+ 	u16 sclass;		/* security class of this object */
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index ec68fb48eabd..dca1db48f38b 100644
+index 23f1e62544bd..cdcbf205a52d 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -308,29 +308,20 @@ static struct inode_smack *new_inode_smack(struct smack_known *skp)
+@@ -287,24 +287,18 @@ static struct smack_known *smk_fetch(const char *name, struct inode *ip,
  }
  
  /**
-- * new_task_smack - allocate a task security blob
-+ * init_task_smack - initialize a task security blob
-+ * @tsp: blob to initialize
-  * @task: a pointer to the Smack label for the running task
-  * @forked: a pointer to the Smack label for the forked task
-- * @gfp: type of the memory for the allocation
+- * new_inode_smack - allocate an inode security blob
++ * init_inode_smack - initialize an inode security blob
++ * @isp: the blob to initialize
+  * @skp: a pointer to the Smack label entry to use in the blob
   *
 - * Returns the new blob or NULL if there's no memory available
   */
--static struct task_smack *new_task_smack(struct smack_known *task,
--					struct smack_known *forked, gfp_t gfp)
-+static void init_task_smack(struct task_smack *tsp, struct smack_known *task,
-+					struct smack_known *forked)
+-static struct inode_smack *new_inode_smack(struct smack_known *skp)
++static void init_inode_smack(struct inode *inode, struct smack_known *skp)
  {
--	struct task_smack *tsp;
+-	struct inode_smack *isp;
 -
--	tsp = kzalloc(sizeof(struct task_smack), gfp);
--	if (tsp == NULL)
+-	isp = kmem_cache_zalloc(smack_inode_cache, GFP_NOFS);
+-	if (isp == NULL)
 -		return NULL;
++	struct inode_smack *isp = smack_inode(inode);
+ 
+ 	isp->smk_inode = skp;
+ 	isp->smk_flags = 0;
+ 	mutex_init(&isp->smk_lock);
 -
- 	tsp->smk_task = task;
- 	tsp->smk_forked = forked;
- 	INIT_LIST_HEAD(&tsp->smk_rules);
- 	INIT_LIST_HEAD(&tsp->smk_relabel);
- 	mutex_init(&tsp->smk_rules_lock);
--
--	return tsp;
+-	return isp;
  }
  
  /**
-@@ -1957,14 +1948,7 @@ static int smack_file_open(struct file *file, const struct cred *cred)
-  */
- static int smack_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+@@ -823,17 +817,13 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 	/*
+ 	 * Initialize the root inode.
+ 	 */
+-	isp = smack_inode(inode);
+-	if (isp == NULL) {
+-		isp = new_inode_smack(sp->smk_root);
+-		if (isp == NULL)
+-			return -ENOMEM;
+-		inode->i_security = isp;
+-	} else
+-		isp->smk_inode = sp->smk_root;
++	lsm_early_inode(inode);
++	init_inode_smack(inode, sp->smk_root);
+ 
+-	if (transmute)
++	if (transmute) {
++		isp = smack_inode(inode);
+ 		isp->smk_flags |= SMK_INODE_TRANSMUTE;
++	}
+ 
+ 	return 0;
+ }
+@@ -962,48 +952,10 @@ static int smack_inode_alloc_security(struct inode *inode)
  {
--	struct task_smack *tsp;
--
--	tsp = new_task_smack(NULL, NULL, gfp);
--	if (tsp == NULL)
+ 	struct smack_known *skp = smk_of_current();
+ 
+-	inode->i_security = new_inode_smack(skp);
+-	if (inode->i_security == NULL)
 -		return -ENOMEM;
--
--	cred->security = tsp;
--
-+	init_task_smack(smack_cred(cred), NULL, NULL);
++	init_inode_smack(inode, skp);
  	return 0;
  }
  
-@@ -1981,10 +1965,6 @@ static void smack_cred_free(struct cred *cred)
- 	struct list_head *l;
- 	struct list_head *n;
- 
--	if (tsp == NULL)
--		return;
--	cred->security = NULL;
+-/**
+- * smack_inode_free_rcu - Free inode_smack blob from cache
+- * @head: the rcu_head for getting inode_smack pointer
+- *
+- *  Call back function called from call_rcu() to free
+- *  the i_security blob pointer in inode
+- */
+-static void smack_inode_free_rcu(struct rcu_head *head)
+-{
+-	struct inode_smack *issp;
 -
- 	smk_destroy_label_list(&tsp->smk_relabel);
- 
- 	list_for_each_safe(l, n, &tsp->smk_rules) {
-@@ -1992,7 +1972,6 @@ static void smack_cred_free(struct cred *cred)
- 		list_del(&rp->list);
- 		kfree(rp);
- 	}
--	kfree(tsp);
- }
- 
+-	issp = container_of(head, struct inode_smack, smk_rcu);
+-	kmem_cache_free(smack_inode_cache, issp);
+-}
+-
+-/**
+- * smack_inode_free_security - free an inode blob using call_rcu()
+- * @inode: the inode with a blob
+- *
+- * Clears the blob pointer in inode using RCU
+- */
+-static void smack_inode_free_security(struct inode *inode)
+-{
+-	struct inode_smack *issp = smack_inode(inode);
+-
+-	/*
+-	 * The inode may still be referenced in a path walk and
+-	 * a call to smack_inode_permission() can be made
+-	 * after smack_inode_free_security() is called.
+-	 * To avoid race condition free the i_security via RCU
+-	 * and leave the current inode->i_security pointer intact.
+-	 * The inode will be freed after the RCU grace period too.
+-	 */
+-	call_rcu(&issp->smk_rcu, smack_inode_free_rcu);
+-}
+-
  /**
-@@ -2007,14 +1986,10 @@ static int smack_cred_prepare(struct cred *new, const struct cred *old,
- 			      gfp_t gfp)
- {
- 	struct task_smack *old_tsp = smack_cred(old);
--	struct task_smack *new_tsp;
-+	struct task_smack *new_tsp = smack_cred(new);
- 	int rc;
+  * smack_inode_init_security - copy out the smack from an inode
+  * @inode: the newly created inode
+@@ -4608,6 +4560,7 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
+ struct lsm_blob_sizes smack_blob_sizes = {
+ 	.lbs_cred = sizeof(struct task_smack),
+ 	.lbs_file = sizeof(struct smack_known *),
++	.lbs_inode = sizeof(struct inode_smack),
+ };
  
--	new_tsp = new_task_smack(old_tsp->smk_task, old_tsp->smk_task, gfp);
--	if (new_tsp == NULL)
--		return -ENOMEM;
--
--	new->security = new_tsp;
-+	init_task_smack(new_tsp, old_tsp->smk_task, old_tsp->smk_task);
- 
- 	rc = smk_copy_rules(&new_tsp->smk_rules, &old_tsp->smk_rules, gfp);
- 	if (rc != 0)
-@@ -2022,10 +1997,7 @@ static int smack_cred_prepare(struct cred *new, const struct cred *old,
- 
- 	rc = smk_copy_relabel(&new_tsp->smk_relabel, &old_tsp->smk_relabel,
- 				gfp);
--	if (rc != 0)
--		return rc;
--
--	return 0;
-+	return rc;
- }
- 
- /**
-@@ -4641,6 +4613,10 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
- 	return 0;
- }
- 
-+struct lsm_blob_sizes smack_blob_sizes = {
-+	.lbs_cred = sizeof(struct task_smack),
-+};
-+
  static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ptrace_access_check, smack_ptrace_access_check),
- 	LSM_HOOK_INIT(ptrace_traceme, smack_ptrace_traceme),
-@@ -4819,23 +4795,35 @@ static __init void init_smack_known_list(void)
-  */
- static __init int smack_init(void)
- {
--	struct cred *cred;
-+	static int finish;
-+	struct cred *cred = (struct cred *) current->cred;
- 	struct task_smack *tsp;
+@@ -4626,7 +4579,6 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(bprm_set_creds, smack_bprm_set_creds),
  
- 	if (!security_module_enable("smack"))
- 		return 0;
- 
-+	if (!finish) {
-+		security_add_blobs(&smack_blob_sizes);
-+		finish = 1;
-+		return 0;
-+	}
-+
- 	smack_inode_cache = KMEM_CACHE(inode_smack, 0);
- 	if (!smack_inode_cache)
- 		return -ENOMEM;
- 
--	tsp = new_task_smack(&smack_known_floor, &smack_known_floor,
--				GFP_KERNEL);
--	if (tsp == NULL) {
--		kmem_cache_destroy(smack_inode_cache);
--		return -ENOMEM;
--	}
-+	lsm_early_cred(cred);
- 
-+	/*
-+	 * Set the security state for the initial task.
-+	 */
-+	tsp = smack_cred(cred);
-+	init_task_smack(tsp, &smack_known_floor, &smack_known_floor);
-+
-+	/*
-+	 * Register with LSM
-+	 */
-+	security_add_hooks(smack_hooks, ARRAY_SIZE(smack_hooks), "smack");
- 	smack_enabled = 1;
- 
- 	pr_info("Smack:  Initializing.\n");
-@@ -4849,20 +4837,9 @@ static __init int smack_init(void)
- 	pr_info("Smack:  IPv6 Netfilter enabled.\n");
- #endif
- 
--	/*
--	 * Set the security state for the initial task.
--	 */
--	cred = (struct cred *) current->cred;
--	cred->security = tsp;
--
- 	/* initialize the smack_known_list */
- 	init_smack_known_list();
- 
--	/*
--	 * Register with LSM
--	 */
--	security_add_hooks(smack_hooks, ARRAY_SIZE(smack_hooks), "smack");
--
- 	return 0;
- }
- 
-diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
-index 539bcdd30bb8..0110bebe86e2 100644
---- a/security/tomoyo/common.h
-+++ b/security/tomoyo/common.h
-@@ -29,6 +29,7 @@
- #include <linux/in.h>
- #include <linux/in6.h>
- #include <linux/un.h>
-+#include <linux/lsm_hooks.h>
- #include <net/sock.h>
- #include <net/af_unix.h>
- #include <net/ip.h>
-@@ -1062,6 +1063,7 @@ void tomoyo_write_log2(struct tomoyo_request_info *r, int len, const char *fmt,
- /********** External variable definitions. **********/
- 
- extern bool tomoyo_policy_loaded;
-+extern bool tomoyo_enabled;
- extern const char * const tomoyo_condition_keyword
- [TOMOYO_MAX_CONDITION_KEYWORD];
- extern const char * const tomoyo_dif[TOMOYO_MAX_DOMAIN_INFO_FLAGS];
-@@ -1196,6 +1198,17 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
- 		atomic_dec(&group->head.users);
- }
- 
-+/**
-+ * tomoyo_cred - Get a pointer to the tomoyo cred security blob
-+ * @cred - the relevant cred
-+ *
-+ * Returns pointer to the tomoyo cred blob.
-+ */
-+static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
-+{
-+	return cred->security;
-+}
-+
- /**
-  * tomoyo_domain - Get "struct tomoyo_domain_info" for current thread.
-  *
-@@ -1203,7 +1216,9 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
-  */
- static inline struct tomoyo_domain_info *tomoyo_domain(void)
- {
--	return current_cred()->security;
-+	struct tomoyo_domain_info **blob = tomoyo_cred(current_cred());
-+
-+	return *blob;
- }
- 
- /**
-@@ -1216,7 +1231,9 @@ static inline struct tomoyo_domain_info *tomoyo_domain(void)
- static inline struct tomoyo_domain_info *tomoyo_real_domain(struct task_struct
- 							    *task)
- {
--	return task_cred_xxx(task, security);
-+	struct tomoyo_domain_info **blob = tomoyo_cred(get_task_cred(task));
-+
-+	return *blob;
- }
- 
- /**
-diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
-index f6758dad981f..b7469fdbff01 100644
---- a/security/tomoyo/domain.c
-+++ b/security/tomoyo/domain.c
-@@ -678,6 +678,7 @@ static int tomoyo_environ(struct tomoyo_execve *ee)
-  */
- int tomoyo_find_next_domain(struct linux_binprm *bprm)
- {
-+	struct tomoyo_domain_info **blob;
- 	struct tomoyo_domain_info *old_domain = tomoyo_domain();
- 	struct tomoyo_domain_info *domain = NULL;
- 	const char *original_name = bprm->filename;
-@@ -843,7 +844,8 @@ int tomoyo_find_next_domain(struct linux_binprm *bprm)
- 		domain = old_domain;
- 	/* Update reference count on "struct tomoyo_domain_info". */
- 	atomic_inc(&domain->users);
--	bprm->cred->security = domain;
-+	blob = tomoyo_cred(bprm->cred);
-+	*blob = domain;
- 	kfree(exename.name);
- 	if (!retval) {
- 		ee->r.domain = domain;
-diff --git a/security/tomoyo/securityfs_if.c b/security/tomoyo/securityfs_if.c
-index 1d3d7e7a1f05..768dff9608b1 100644
---- a/security/tomoyo/securityfs_if.c
-+++ b/security/tomoyo/securityfs_if.c
-@@ -71,9 +71,12 @@ static ssize_t tomoyo_write_self(struct file *file, const char __user *buf,
- 				if (!cred) {
- 					error = -ENOMEM;
- 				} else {
--					struct tomoyo_domain_info *old_domain =
--						cred->security;
--					cred->security = new_domain;
-+					struct tomoyo_domain_info **blob;
-+					struct tomoyo_domain_info *old_domain;
-+
-+					blob = tomoyo_cred(cred);
-+					old_domain = *blob;
-+					*blob = new_domain;
- 					atomic_inc(&new_domain->users);
- 					atomic_dec(&old_domain->users);
- 					commit_creds(cred);
-@@ -234,10 +237,14 @@ static void __init tomoyo_create_entry(const char *name, const umode_t mode,
-  */
- static int __init tomoyo_initerface_init(void)
- {
-+	struct tomoyo_domain_info *domain;
- 	struct dentry *tomoyo_dir;
- 
-+	if (!tomoyo_enabled)
-+		return 0;
-+	domain = tomoyo_domain();
- 	/* Don't create securityfs entries unless registered. */
--	if (current_cred()->security != &tomoyo_kernel_domain)
-+	if (domain != &tomoyo_kernel_domain)
- 		return 0;
- 
- 	tomoyo_dir = securityfs_create_dir("tomoyo", NULL);
-diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
-index 213b8c593668..821ca242a194 100644
---- a/security/tomoyo/tomoyo.c
-+++ b/security/tomoyo/tomoyo.c
-@@ -18,7 +18,9 @@
-  */
- static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
- {
--	new->security = NULL;
-+	struct tomoyo_domain_info **blob = tomoyo_cred(new);
-+
-+	*blob = NULL;
- 	return 0;
- }
- 
-@@ -34,8 +36,13 @@ static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
- static int tomoyo_cred_prepare(struct cred *new, const struct cred *old,
- 			       gfp_t gfp)
- {
--	struct tomoyo_domain_info *domain = old->security;
--	new->security = domain;
-+	struct tomoyo_domain_info **old_blob = tomoyo_cred(old);
-+	struct tomoyo_domain_info **new_blob = tomoyo_cred(new);
-+	struct tomoyo_domain_info *domain;
-+
-+	domain = *old_blob;
-+	*new_blob = domain;
-+
- 	if (domain)
- 		atomic_inc(&domain->users);
- 	return 0;
-@@ -59,7 +66,9 @@ static void tomoyo_cred_transfer(struct cred *new, const struct cred *old)
-  */
- static void tomoyo_cred_free(struct cred *cred)
- {
--	struct tomoyo_domain_info *domain = cred->security;
-+	struct tomoyo_domain_info **blob = tomoyo_cred(cred);
-+	struct tomoyo_domain_info *domain = *blob;
-+
- 	if (domain)
- 		atomic_dec(&domain->users);
- }
-@@ -73,6 +82,9 @@ static void tomoyo_cred_free(struct cred *cred)
-  */
- static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
- {
-+	struct tomoyo_domain_info **blob;
-+	struct tomoyo_domain_info *domain;
-+
- 	/*
- 	 * Do only if this function is called for the first time of an execve
- 	 * operation.
-@@ -93,13 +105,14 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
- 	 * stored inside "bprm->cred->security" will be acquired later inside
- 	 * tomoyo_find_next_domain().
- 	 */
--	atomic_dec(&((struct tomoyo_domain_info *)
--		     bprm->cred->security)->users);
-+	blob = tomoyo_cred(bprm->cred);
-+	domain = *blob;
-+	atomic_dec(&domain->users);
- 	/*
- 	 * Tell tomoyo_bprm_check_security() is called for the first time of an
- 	 * execve operation.
- 	 */
--	bprm->cred->security = NULL;
-+	*blob = NULL;
- 	return 0;
- }
- 
-@@ -112,8 +125,11 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
-  */
- static int tomoyo_bprm_check_security(struct linux_binprm *bprm)
- {
--	struct tomoyo_domain_info *domain = bprm->cred->security;
-+	struct tomoyo_domain_info **blob;
-+	struct tomoyo_domain_info *domain;
- 
-+	blob = tomoyo_cred(bprm->cred);
-+	domain = *blob;
- 	/*
- 	 * Execute permission is checked against pathname passed to do_execve()
- 	 * using current domain.
-@@ -493,6 +509,10 @@ static int tomoyo_socket_sendmsg(struct socket *sock, struct msghdr *msg,
- 	return tomoyo_socket_sendmsg_permission(sock, msg, size);
- }
- 
-+struct lsm_blob_sizes tomoyo_blob_sizes = {
-+	.lbs_cred = sizeof(struct tomoyo_domain_info *),
-+};
-+
- /*
-  * tomoyo_security_ops is a "struct security_operations" which is used for
-  * registering TOMOYO.
-@@ -531,6 +551,8 @@ static struct security_hook_list tomoyo_hooks[] __lsm_ro_after_init = {
- /* Lock for GC. */
- DEFINE_SRCU(tomoyo_ss);
- 
-+bool tomoyo_enabled;
-+
- /**
-  * tomoyo_init - Register TOMOYO Linux as a LSM module.
-  *
-@@ -538,14 +560,28 @@ DEFINE_SRCU(tomoyo_ss);
-  */
- static int __init tomoyo_init(void)
- {
-+	static int finish;
- 	struct cred *cred = (struct cred *) current_cred();
-+	struct tomoyo_domain_info **blob;
-+
-+	if (!security_module_enable("tomoyo")) {
-+		tomoyo_enabled = false;
-+		return 0;
-+	}
-+	tomoyo_enabled = true;
- 
--	if (!security_module_enable("tomoyo"))
-+	if (!finish) {
-+		security_add_blobs(&tomoyo_blob_sizes);
-+		finish = 1;
- 		return 0;
-+	}
-+
- 	/* register ourselves with the security framework */
- 	security_add_hooks(tomoyo_hooks, ARRAY_SIZE(tomoyo_hooks), "tomoyo");
- 	printk(KERN_INFO "TOMOYO Linux initialized\n");
--	cred->security = &tomoyo_kernel_domain;
-+	lsm_early_cred(cred);
-+	blob = tomoyo_cred(cred);
-+	*blob = &tomoyo_kernel_domain;
- 	tomoyo_mm_init();
- 	return 0;
- }
+ 	LSM_HOOK_INIT(inode_alloc_security, smack_inode_alloc_security),
+-	LSM_HOOK_INIT(inode_free_security, smack_inode_free_security),
+ 	LSM_HOOK_INIT(inode_init_security, smack_inode_init_security),
+ 	LSM_HOOK_INIT(inode_link, smack_inode_link),
+ 	LSM_HOOK_INIT(inode_unlink, smack_inode_unlink),
 -- 
 2.17.1
