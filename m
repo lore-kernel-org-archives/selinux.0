@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GIad3a023502
- for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:36:39 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6GIbHQK023517
+ for <selinux@tycho.nsa.gov>; Mon, 16 Jul 2018 14:37:17 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
  Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
@@ -14,326 +14,238 @@ Cc: "Schaufler, Casey" <casey.schaufler@intel.com>,
  Casey Schaufler <casey@schaufler-ca.com>
 References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <73337db4-af36-0007-63a0-9e5a6fb7a43e@schaufler-ca.com>
-Date: Mon, 16 Jul 2018 11:23:59 -0700
+Message-ID: <ac4a4408-5c69-4b87-b57d-537dba588b18@schaufler-ca.com>
+Date: Mon, 16 Jul 2018 11:24:42 -0700
 MIME-Version: 1.0
 In-Reply-To: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v1 14/22] LSM: Infrastructure management of the key
- security blob
+Subject: [PATCH v1 20/22] Move common usercopy into security_getpeersec_stream
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-[PATCH 14/22] LSM: Infrastructure management of the key security blob
+[PATCH 20/22] Move common usercopy into security_getpeersec_stream
 
-Move management of the key->security blob out of the
-individual security modules and into the security
-infrastructure. Instead of allocating the blobs from within
-the modules the modules tell the infrastructure how much
-space is required, and the space is allocated there.
+The modules implementing hook for getpeersec_stream
+don't need to be duplicating the copy-to-user checks.
+Moving the user copy part into the infrastructure makes
+the security module code simpler and reduces the places
+where user copy code may go awry.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h         |  1 +
- security/security.c               | 40 ++++++++++++++++++++++++++++++-
- security/selinux/hooks.c          | 23 +++++-------------
- security/selinux/include/objsec.h |  7 ++++++
- security/smack/smack.h            |  7 ++++++
- security/smack/smack_lsm.c        | 33 ++++++++++++-------------
- 6 files changed, 75 insertions(+), 36 deletions(-)
+ include/linux/lsm_hooks.h  | 10 ++++------
+ include/linux/security.h   |  6 ++++--
+ security/apparmor/lsm.c    | 28 ++++++++++------------------
+ security/security.c        | 17 +++++++++++++++--
+ security/selinux/hooks.c   | 22 +++++++---------------
+ security/smack/smack_lsm.c | 19 ++++++++-----------
+ 6 files changed, 48 insertions(+), 54 deletions(-)
 
 diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 6e6967abc5b7..fe14a86c6df0 100644
+index 7c321d11d994..8d247e7ce2fb 100644
 --- a/include/linux/lsm_hooks.h
 +++ b/include/linux/lsm_hooks.h
-@@ -2026,6 +2026,7 @@ struct lsm_blob_sizes {
- 	int	lbs_file;
- 	int	lbs_inode;
- 	int	lbs_ipc;
-+	int	lbs_key;
- 	int	lbs_msg_msg;
- 	int	lbs_sock;
- 	int	lbs_superblock;
-diff --git a/security/security.c b/security/security.c
-index 500fb19d5aea..b95a151f7347 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -117,6 +117,9 @@ int __init security_init(void)
- 	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
- 	pr_info("LSM: inode blob size      = %d\n", blob_sizes.lbs_inode);
- 	pr_info("LSM: ipc blob size        = %d\n", blob_sizes.lbs_ipc);
-+#ifdef CONFIG_KEYS
-+	pr_info("LSM: key blob size        = %d\n", blob_sizes.lbs_key);
-+#endif /* CONFIG_KEYS */
- 	pr_info("LSM: msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
- 	pr_info("LSM: sock blob size       = %d\n", blob_sizes.lbs_sock);
- 	pr_info("LSM: superblock blob size = %d\n", blob_sizes.lbs_superblock);
-@@ -297,6 +300,9 @@ void __init security_add_blobs(struct lsm_blob_sizes *needed)
- 	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
- 	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
- 	lsm_set_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
-+#ifdef CONFIG_KEYS
-+	lsm_set_size(&needed->lbs_key, &blob_sizes.lbs_key);
-+#endif
- 	lsm_set_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
- 	lsm_set_size(&needed->lbs_sock, &blob_sizes.lbs_sock);
- 	lsm_set_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
-@@ -432,6 +438,29 @@ int lsm_ipc_alloc(struct kern_ipc_perm *kip)
+@@ -846,9 +846,8 @@
+  *	SO_GETPEERSEC.  For tcp sockets this can be meaningful if the
+  *	socket is associated with an ipsec SA.
+  *	@sock is the local socket.
+- *	@optval userspace memory where the security state is to be copied.
+- *	@optlen userspace int where the module should copy the actual length
+- *	of the security state.
++ *	@optval the security state.
++ *	@optlen the actual length of the security state.
+  *	@len as input is the maximum length to copy to userspace provided
+  *	by the caller.
+  *	Return 0 if all is well, otherwise, typical getsockopt return
+@@ -1680,9 +1679,8 @@ union security_list_options {
+ 	int (*socket_setsockopt)(struct socket *sock, int level, int optname);
+ 	int (*socket_shutdown)(struct socket *sock, int how);
+ 	int (*socket_sock_rcv_skb)(struct sock *sk, struct sk_buff *skb);
+-	int (*socket_getpeersec_stream)(struct socket *sock,
+-					char __user *optval,
+-					int __user *optlen, unsigned int len);
++	int (*socket_getpeersec_stream)(struct socket *sock, char **optval,
++					int *optlen, unsigned int len);
+ 	int (*socket_getpeersec_dgram)(struct socket *sock,
+ 					struct sk_buff *skb,
+ 					struct secids *secid);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 9095f63c65a9..7d3300d34f25 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1377,8 +1377,10 @@ static inline int security_sock_rcv_skb(struct sock *sk,
  	return 0;
  }
  
-+#ifdef CONFIG_KEYS
-+/**
-+ * lsm_key_alloc - allocate a composite key blob
-+ * @key: the key that needs a blob
-+ *
-+ * Allocate the key blob for all the modules
-+ *
-+ * Returns 0, or -ENOMEM if memory can't be allocated.
-+ */
-+int lsm_key_alloc(struct key *key)
-+{
-+	if (blob_sizes.lbs_key == 0) {
-+		key->security = NULL;
-+		return 0;
-+	}
-+
-+	key->security = kzalloc(blob_sizes.lbs_key, GFP_KERNEL);
-+	if (key->security == NULL)
-+		return -ENOMEM;
-+	return 0;
-+}
-+#endif /* CONFIG_KEYS */
-+
- /**
-  * lsm_msg_msg_alloc - allocate a composite msg_msg blob
-  * @mp: the msg_msg that needs a blob
-@@ -2143,12 +2172,21 @@ EXPORT_SYMBOL(security_skb_classify_flow);
- int security_key_alloc(struct key *key, const struct cred *cred,
- 		       unsigned long flags)
+-static inline int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+-						    int __user *optlen, unsigned len)
++static inline int security_socket_getpeersec_stream(struct socket *sock,
++						    char __user *optval,
++						    int __user *optlen,
++						    unsigned int len)
  {
--	return call_int_hook(key_alloc, 0, key, cred, flags);
-+	int rc = lsm_key_alloc(key);
+ 	return -ENOPROTOOPT;
+ }
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index b0200481c811..7a2a8d0efa09 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1026,10 +1026,8 @@ static struct aa_label *sk_peer_label(struct sock *sk)
+  *
+  * Note: for tcp only valid if using ipsec or cipso on lan
+  */
+-static int apparmor_socket_getpeersec_stream(struct socket *sock,
+-					     char __user *optval,
+-					     int __user *optlen,
+-					     unsigned int len)
++static int apparmor_socket_getpeersec_stream(struct socket *sock, char **optval,
++					     int *optlen, unsigned int len)
+ {
+ 	char *name;
+ 	int slen, error = 0;
+@@ -1046,22 +1044,16 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
+ 				 FLAG_SHOW_MODE | FLAG_VIEW_SUBNS |
+ 				 FLAG_HIDDEN_UNCONFINED, GFP_KERNEL);
+ 	/* don't include terminating \0 in slen, it breaks some apps */
+-	if (slen < 0) {
++	if (slen < 0)
+ 		error = -ENOMEM;
+-	} else {
+-		if (slen > len) {
+-			error = -ERANGE;
+-		} else if (copy_to_user(optval, name, slen)) {
+-			error = -EFAULT;
+-			goto out;
+-		}
+-		if (put_user(slen, optlen))
+-			error = -EFAULT;
+-out:
+-		kfree(name);
+-
++	else if (slen > len)
++		error = -ERANGE;
++	else {
++		*optlen = slen;
++		*optval = name;
+ 	}
+-
++	if (error)
++		kfree(name);
+ done:
+ 	end_current_label_crit_section(label);
+ 
+diff --git a/security/security.c b/security/security.c
+index 90e741db0a42..521afa12293e 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1930,8 +1930,21 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
+ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				      int __user *optlen, unsigned len)
+ {
+-	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
+-				optval, optlen, len);
++	char *tval = NULL;
++	u32 tlen;
++	int rc;
 +
-+	if (unlikely(rc))
-+		return rc;
-+	rc = call_int_hook(key_alloc, 0, key, cred, flags);
-+	if (unlikely(rc))
-+		security_key_free(key);
++	rc = call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
++			   &tval, &tlen, len);
++	if (rc == 0) {
++		tlen = strlen(tval) + 1;
++		if (put_user(tlen, optlen))
++			rc = -EFAULT;
++		else if (copy_to_user(optval, tval, tlen))
++			rc = -EFAULT;
++		kfree(tval);
++	}
 +	return rc;
  }
  
- void security_key_free(struct key *key)
- {
- 	call_void_hook(key_free, key);
-+	kfree(key->security);
-+	key->security = NULL;
- }
- 
- int security_key_permission(key_ref_t key_ref,
+ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ede12c1720a4..452d0c774c75 100644
+index c12c36f72258..6614d46feac4 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -6441,11 +6441,7 @@ static int selinux_key_alloc(struct key *k, const struct cred *cred,
- 			     unsigned long flags)
- {
- 	const struct task_security_struct *tsec;
--	struct key_security_struct *ksec;
--
--	ksec = kzalloc(sizeof(struct key_security_struct), GFP_KERNEL);
--	if (!ksec)
--		return -ENOMEM;
-+	struct key_security_struct *ksec = selinux_key(k);
- 
- 	tsec = selinux_cred(cred);
- 	if (tsec->keycreate_sid)
-@@ -6453,18 +6449,9 @@ static int selinux_key_alloc(struct key *k, const struct cred *cred,
- 	else
- 		ksec->sid = tsec->sid;
- 
--	k->security = ksec;
- 	return 0;
+@@ -4986,10 +4986,8 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	return err;
  }
  
--static void selinux_key_free(struct key *k)
--{
--	struct key_security_struct *ksec = k->security;
--
--	k->security = NULL;
--	kfree(ksec);
--}
--
- static int selinux_key_permission(key_ref_t key_ref,
- 				  const struct cred *cred,
- 				  unsigned perm)
-@@ -6482,7 +6469,7 @@ static int selinux_key_permission(key_ref_t key_ref,
- 	sid = cred_sid(cred);
- 
- 	key = key_ref_to_ptr(key_ref);
--	ksec = key->security;
-+	ksec = selinux_key(key);
- 
- 	return avc_has_perm(&selinux_state,
- 			    sid, ksec->sid, SECCLASS_KEY, perm, NULL);
-@@ -6490,7 +6477,7 @@ static int selinux_key_permission(key_ref_t key_ref,
- 
- static int selinux_key_getsecurity(struct key *key, char **_buffer)
+-static int selinux_socket_getpeersec_stream(struct socket *sock,
+-					    __user char *optval,
+-					    __user int *optlen,
+-					    unsigned int len)
++static int selinux_socket_getpeersec_stream(struct socket *sock, char **optval,
++					    int *optlen, unsigned int len)
  {
--	struct key_security_struct *ksec = key->security;
-+	struct key_security_struct *ksec = selinux_key(key);
- 	char *context = NULL;
- 	unsigned len;
- 	int rc;
-@@ -6715,6 +6702,9 @@ struct lsm_blob_sizes selinux_blob_sizes = {
- 	.lbs_file = sizeof(struct file_security_struct),
- 	.lbs_inode = sizeof(struct inode_security_struct),
- 	.lbs_ipc = sizeof(struct ipc_security_struct),
-+#ifdef CONFIG_KEYS
-+	.lbs_key = sizeof(struct key_security_struct),
-+#endif /* CONFIG_KEYS */
- 	.lbs_msg_msg = sizeof(struct msg_security_struct),
- 	.lbs_sock = sizeof(struct sk_security_struct),
- 	.lbs_superblock = sizeof(struct superblock_security_struct),
-@@ -6925,7 +6915,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	int err = 0;
+ 	char *scontext;
+@@ -5010,18 +5008,12 @@ static int selinux_socket_getpeersec_stream(struct socket *sock,
+ 		return err;
  
- #ifdef CONFIG_KEYS
- 	LSM_HOOK_INIT(key_alloc, selinux_key_alloc),
--	LSM_HOOK_INIT(key_free, selinux_key_free),
- 	LSM_HOOK_INIT(key_permission, selinux_key_permission),
- 	LSM_HOOK_INIT(key_getsecurity, selinux_key_getsecurity),
- #endif
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 848ba24921c9..96cecdbcd3fb 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -193,6 +193,13 @@ static inline struct ipc_security_struct *selinux_ipc(
- 	return ipc->security;
+ 	if (scontext_len > len) {
+-		err = -ERANGE;
+-		goto out_len;
++		kfree(scontext);
++		return -ERANGE;
+ 	}
+-
+-	if (copy_to_user(optval, scontext, scontext_len))
+-		err = -EFAULT;
+-
+-out_len:
+-	if (put_user(scontext_len, optlen))
+-		err = -EFAULT;
+-	kfree(scontext);
+-	return err;
++	*optval = scontext;
++	*optlen = scontext_len;
++	return 0;
  }
  
-+#ifdef CONFIG_KEYS
-+static inline struct key_security_struct *selinux_key(const struct key *key)
-+{
-+	return key->security;
-+}
-+#endif /* CONFIG_KEYS */
-+
- static inline struct sk_security_struct *selinux_sock(const struct sock *sock)
- {
- 	return sock->sk_security;
-diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 42c36e37b0bd..e50ed4945a40 100644
---- a/security/smack/smack.h
-+++ b/security/smack/smack.h
-@@ -393,6 +393,13 @@ static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
- 	return ipc->security;
- }
- 
-+#ifdef CONFIG_KEYS
-+static inline struct smack_known **smack_key(const struct key *key)
-+{
-+	return key->security;
-+}
-+#endif /* CONFIG_KEYS */
-+
- /*
-  * Is the directory transmuting?
-  */
+ static int selinux_socket_getpeersec_dgram(struct socket *sock,
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index f8c4b3e95e67..319450174c17 100644
+index 157c6a731305..d4552b2286bc 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -4153,23 +4153,13 @@ static void smack_inet_csk_clone(struct sock *sk,
- static int smack_key_alloc(struct key *key, const struct cred *cred,
- 			   unsigned long flags)
- {
-+	struct smack_known **blob = smack_key(key);
- 	struct smack_known *skp = smk_of_task(smack_cred(cred));
- 
--	key->security = skp;
-+	*blob = skp;
- 	return 0;
- }
- 
--/**
-- * smack_key_free - Clear the key security blob
-- * @key: the object
-- *
-- * Clear the blob pointer
-- */
--static void smack_key_free(struct key *key)
--{
--	key->security = NULL;
--}
--
- /**
-  * smack_key_permission - Smack access on a key
-  * @key_ref: gets to the object
-@@ -4182,6 +4172,8 @@ static void smack_key_free(struct key *key)
- static int smack_key_permission(key_ref_t key_ref,
- 				const struct cred *cred, unsigned perm)
- {
-+	struct smack_known **blob;
-+	struct smack_known *skp;
- 	struct key *keyp;
- 	struct smk_audit_info ad;
- 	struct smack_known *tkp = smk_of_task(smack_cred(cred));
-@@ -4195,7 +4187,9 @@ static int smack_key_permission(key_ref_t key_ref,
- 	 * If the key hasn't been initialized give it access so that
- 	 * it may do so.
- 	 */
--	if (keyp->security == NULL)
-+	blob = smack_key(keyp);
-+	skp = *blob;
-+	if (skp == NULL)
- 		return 0;
- 	/*
- 	 * This should not occur
-@@ -4215,8 +4209,8 @@ static int smack_key_permission(key_ref_t key_ref,
- 		request = MAY_READ;
- 	if (perm & (KEY_NEED_WRITE | KEY_NEED_LINK | KEY_NEED_SETATTR))
- 		request = MAY_WRITE;
--	rc = smk_access(tkp, keyp->security, request, &ad);
--	rc = smk_bu_note("key access", tkp, keyp->security, request, rc);
-+	rc = smk_access(tkp, skp, request, &ad);
-+	rc = smk_bu_note("key access", tkp, skp, request, rc);
- 	return rc;
- }
- 
-@@ -4231,11 +4225,12 @@ static int smack_key_permission(key_ref_t key_ref,
+@@ -3895,14 +3895,12 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+  *
+  * returns zero on success, an error code otherwise
   */
- static int smack_key_getsecurity(struct key *key, char **_buffer)
+-static int smack_socket_getpeersec_stream(struct socket *sock,
+-					  char __user *optval,
+-					  int __user *optlen, unsigned len)
++static int smack_socket_getpeersec_stream(struct socket *sock, char **optval,
++					  int *optlen, unsigned int len)
  {
--	struct smack_known *skp = key->security;
-+	struct smack_known **blob = smack_key(key);
-+	struct smack_known *skp = *blob;
- 	size_t length;
- 	char *copy;
+ 	struct socket_smack *ssp;
+ 	char *rcp = "";
+ 	int slen = 1;
+-	int rc = 0;
  
--	if (key->security == NULL) {
-+	if (skp == NULL) {
- 		*_buffer = NULL;
- 		return 0;
+ 	ssp = smack_sock(sock->sk);
+ 	if (ssp->smk_packet != NULL) {
+@@ -3911,14 +3909,13 @@ static int smack_socket_getpeersec_stream(struct socket *sock,
  	}
-@@ -4520,6 +4515,9 @@ struct lsm_blob_sizes smack_blob_sizes = {
- 	.lbs_file = sizeof(struct smack_known *),
- 	.lbs_inode = sizeof(struct inode_smack),
- 	.lbs_ipc = sizeof(struct smack_known *),
-+#ifdef CONFIG_KEYS
-+	.lbs_key = sizeof(struct smack_known *),
-+#endif /* CONFIG_KEYS */
- 	.lbs_msg_msg = sizeof(struct smack_known *),
- 	.lbs_sock = sizeof(struct socket_smack),
- 	.lbs_superblock = sizeof(struct superblock_smack),
-@@ -4639,7 +4637,6 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
-  /* key management security hooks */
- #ifdef CONFIG_KEYS
- 	LSM_HOOK_INIT(key_alloc, smack_key_alloc),
--	LSM_HOOK_INIT(key_free, smack_key_free),
- 	LSM_HOOK_INIT(key_permission, smack_key_permission),
- 	LSM_HOOK_INIT(key_getsecurity, smack_key_getsecurity),
- #endif /* CONFIG_KEYS */
+ 
+ 	if (slen > len)
+-		rc = -ERANGE;
+-	else if (copy_to_user(optval, rcp, slen) != 0)
+-		rc = -EFAULT;
+-
+-	if (put_user(slen, optlen) != 0)
+-		rc = -EFAULT;
++		return -ERANGE;
+ 
+-	return rc;
++	*optval = kstrdup(rcp, GFP_ATOMIC);
++	if (*optval == NULL)
++		return -ENOMEM;
++	*optlen = slen;
++	return 0;
+ }
+ 
+ 
 -- 
 2.17.1
