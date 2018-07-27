@@ -1,221 +1,356 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w6JHvcoS023746
- for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2018 13:57:38 -0400
-Received: from localhost.localdomain (localhost [127.0.0.1])
- by UPDCF3IC16.oob.disa.mil (Postfix) with SMTP id 41WhYr2zpSz2Vp8y
- for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2018 17:57:36 +0000 (UTC)
-Received: from UPBD19PA01.eemsg.mil (unknown [192.168.18.2])
- by UPDCF3IC16.oob.disa.mil (Postfix) with ESMTP id 41WhYp3k9vz2Vp8Y
- for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2018 17:57:34 +0000 (UTC)
-Received: by mail-ed1-f68.google.com with SMTP id w14-v6so7727264eds.6
- for <selinux@tycho.nsa.gov>; Thu, 19 Jul 2018 10:57:33 -0700 (PDT)
-Date: Thu, 19 Jul 2018 19:57:30 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: Lukas Vrabec via refpolicy <refpolicy@oss.tresys.com>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20180719175730.GD26209@julius.enp8s0.d30>
-References: <11ce07ad-6001-f686-29be-202c9062730e@redhat.com>
- <20180719164025.GA26209@julius.enp8s0.d30>
- <20180719165139.GB26209@julius.enp8s0.d30>
- <04962941-3775-f83e-fdc8-4dc30354d345@redhat.com>
- <20180719174713.GC26209@julius.enp8s0.d30>
- <a1d08e17-773d-0234-8b38-d0608384b239@redhat.com>
+From: David Howells <dhowells@redhat.com>
+To: viro@zeniv.linux.org.uk
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ torvalds@linux-foundation.org, dhowells@redhat.com,
+ linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Fri, 27 Jul 2018 18:32:23 +0100
+Message-ID: <153271274305.9458.13602378603425233117.stgit@warthog.procyon.org.uk>
+In-Reply-To: <153271267980.9458.7640156373438016898.stgit@warthog.procyon.org.uk>
+References: <153271267980.9458.7640156373438016898.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="6Nae48J/T25AfBN4"
-In-Reply-To: <a1d08e17-773d-0234-8b38-d0608384b239@redhat.com>
-Subject: Re: [refpolicy] map permission in can_exec() but not in
- domain_transition_pattern()
+Content-Type: text/plain; charset="utf-8"
+Subject: [PATCH 09/38] selinux: Implement the new mount API LSM hooks [ver #10]
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Implement the new mount API LSM hooks for SELinux.  At some point the old
+hooks will need to be removed.
 
---6Nae48J/T25AfBN4
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Question: Should the ->fs_context_parse_source() hook be implemented to
+check the labels on any source devices specified?
 
-On Thu, Jul 19, 2018 at 07:54:22PM +0200, Lukas Vrabec via refpolicy wrote:
-> On 07/19/2018 07:47 PM, Dominick Grift wrote:
-> > On Thu, Jul 19, 2018 at 07:42:53PM +0200, Lukas Vrabec via refpolicy wr=
-ote:
-> >> On 07/19/2018 06:51 PM, Dominick Grift via refpolicy wrote:
-> >>> On Thu, Jul 19, 2018 at 06:40:25PM +0200, Dominick Grift wrote:
-> >>>> On Thu, Jul 19, 2018 at 06:17:46PM +0200, Lukas Vrabec via refpolicy=
- wrote:
-> >>>>> Hi All,
-> >>>>>
-> >>>>> I found one thing in refpolicy which I don't completely understand.
-> >>>>>
-> >>>>> In "policy/support/misc_patterns.spt" there is definition of
-> >>>>> "domain_transition_pattern" and this contains line:
-> >>>>> allow $1 $2:file { getattr open read execute };
-> >>>>>
-> >>>>> There is missing map permission.
-> >>>>>
-> >>>>> However in "policy/support/misc_macros.spt" there is definition of
-> >>>>> "can_exec" and it contains allow rule:
-> >>>>> define(`can_exec',`allow $1 $2:file { mmap_exec_file_perms ioctl lo=
-ck
-> >>>>> execute_no_trans };')
-> >>>
-> >>> Sorry can_exec() should just use exec_file_perms which would should b=
-e mmap_exec_file_perms + execute_no_trans IMHO
-> >>>
-> >>>>
-> >>>> This should just use mmap_exec_file_perms
-> >>>>
-> >>
-> >> Should we remove lock permission?
-> >=20
-> > I would say yes, but i am not sure why it was added in the first place
-> >=20
->=20
-> It could be dangerous to remove it in such general macro. Let's test it
-> before.
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Paul Moore <paul@paul-moore.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov
+cc: linux-security-module@vger.kernel.org
+---
 
-You might also just add it to mmap_exec_file_perms, even though i do not be=
-lieve that either mmap_exec_file_perms or exec_file_perms need it, its not =
-such a big deal.
+ security/selinux/hooks.c |  290 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 290 insertions(+)
 
->=20
-> >>
-> >>>>>
-> >>>>> There is a mmap_exec_file_perms which contains:
-> >>>>> define(`mmap_exec_file_perms',`{ getattr open map read execute ioct=
-l }')
-> >>>>>
-> >>>>> Map is present in can_exec().
-> >>>>>
-> >>>>> So for domain transitions we don't allow map permission from calling
-> >>>>> domain on binary type but in can_exec macro there is map permission.
-> >>>>>
-> >>>>> I think this is a bug and in "domain_transition_pattern" there shou=
-ld be
-> >>>>> this line:
-> >>>>> allow $1 $2:file { getattr open read execute map };
-> >>>>
-> >>>> This should just use mmap_exec_file_perms as well
-> >>>>
-> >>>>>
-> >>>>> instead of:
-> >>>>> allow $1 $2:file { getattr open read execute };
-> >>>>>
-> >>>>> Am I right or missing something?
-> >>>>>
-> >>>>> Thanks for help!
-> >>>>> Lukas.
-> >>>>
-> >>>> permission sets provide a single point of failure and should used as=
- much as possible
-> >>>>
-> >>>> These were overlooked and because of this we now have a good example=
- what the purpose of permission sets and patterns is.
-> >>>>
-> >>
-> >> Thanks, I'll prepare patch.
-> >>
-> >> Lukas.
-> >>
-> >>>>>
-> >>>>> --=20
-> >>>>> Lukas Vrabec
-> >>>>> Software Engineer, Security Technologies
-> >>>>> Red Hat, Inc.
-> >>>>>
-> >>>>
-> >>>>
-> >>>>
-> >>>>
-> >>>>> _______________________________________________
-> >>>>> refpolicy mailing list
-> >>>>> refpolicy@oss.tresys.com
-> >>>>> http://oss.tresys.com/mailman/listinfo/refpolicy
-> >>>>
-> >>>>
-> >>>> --=20
-> >>>> Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B=
-02
-> >>>> https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C=
-7B6B02
-> >>>> Dominick Grift
-> >>>
-> >>>
-> >>>
-> >>>
-> >>>
-> >>> _______________________________________________
-> >>> refpolicy mailing list
-> >>> refpolicy@oss.tresys.com
-> >>> http://oss.tresys.com/mailman/listinfo/refpolicy
-> >>>
-> >>
-> >>
-> >> --=20
-> >> Lukas Vrabec
-> >> Software Engineer, Security Technologies
-> >> Red Hat, Inc.
-> >>
-> >=20
-> >=20
-> >=20
-> >=20
-> >> _______________________________________________
-> >> refpolicy mailing list
-> >> refpolicy@oss.tresys.com
-> >> http://oss.tresys.com/mailman/listinfo/refpolicy
-> >=20
-> >=20
-> >=20
-> >=20
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to Selinux-request@tycho.n=
-sa.gov.
-> >=20
->=20
->=20
-> --=20
-> Lukas Vrabec
-> Software Engineer, Security Technologies
-> Red Hat, Inc.
->=20
-
-
-
-
-> _______________________________________________
-> refpolicy mailing list
-> refpolicy@oss.tresys.com
-> http://oss.tresys.com/mailman/listinfo/refpolicy
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---6Nae48J/T25AfBN4
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAltQ0QUACgkQJXSOVTf5
-R2l97wwAk3t7Gv02fE2lHGV21VTvLwRtpNAkLhyS2+py9aqp5TGY02/uQvL2IwOX
-2TjOGEQ+RlNIzXspuC0jjhX0eGcM2y9p/4sevAbf+96C3zPpVzcfDhu2YyZO0W32
-ZAFctVcdSyPvaq5IoBLyT/t2WEXfr7T02LrFC847QT0iFfJny5SHOm6UuxOpeqwE
-KZozimFFHWm6P4V1wtvDmj8RL6xWVml2wAjk2DJfrnokTqH1RaqT09t0jfkdNutu
-R/lpmUj4hE2UpAfbUXrt2zcz7HMmoNLafZzWGxjhcGGOfPg5URFd3dNdJ9V+y0Xf
-AvfjaBn3pixJuLq6CP4ZpqS8b8AqasAXJaDhEB6Fvac1NVOQjYMxrtjr4GEVMUex
-LCiV0t1hUY9QflaFZsz3PSY6tWP6WKnZpOT2F8eWCtNbt3lS10zKMopFNl00mENL
-zKj2JmHLYeo+4ntC2sdr7dx8UPkPp5V8xCMhCHzCWOLClP2kZnwsxpiOxYBaiymC
-y1H8XL5K
-=WILM
------END PGP SIGNATURE-----
-
---6Nae48J/T25AfBN4--
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ef0428311a5c..9774d1f0e99f 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -48,6 +48,8 @@
+ #include <linux/fdtable.h>
+ #include <linux/namei.h>
+ #include <linux/mount.h>
++#include <linux/fs_context.h>
++#include <linux/fs_parser.h>
+ #include <linux/netfilter_ipv4.h>
+ #include <linux/netfilter_ipv6.h>
+ #include <linux/tty.h>
+@@ -446,6 +448,7 @@ enum {
+ 	Opt_rootcontext = 4,
+ 	Opt_labelsupport = 5,
+ 	Opt_nextmntopt = 6,
++	nr__selinux_params
+ };
+ 
+ #define NUM_SEL_MNT_OPTS	(Opt_nextmntopt - 1)
+@@ -2974,6 +2977,285 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
+ 				   FILESYSTEM__UNMOUNT, NULL);
+ }
+ 
++/* fsopen mount context operations */
++
++static int selinux_fs_context_alloc(struct fs_context *fc,
++				    struct dentry *reference)
++{
++	struct security_mnt_opts *opts;
++
++	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
++	if (!opts)
++		return -ENOMEM;
++
++	fc->security = opts;
++	return 0;
++}
++
++static int selinux_fs_context_dup(struct fs_context *fc,
++				  struct fs_context *src_fc)
++{
++	const struct security_mnt_opts *src = src_fc->security;
++	struct security_mnt_opts *opts;
++	int i, n;
++
++	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
++	if (!opts)
++		return -ENOMEM;
++	fc->security = opts;
++
++	if (!src || !src->num_mnt_opts)
++		return 0;
++	n = opts->num_mnt_opts = src->num_mnt_opts;
++
++	if (src->mnt_opts) {
++		opts->mnt_opts = kcalloc(n, sizeof(char *), GFP_KERNEL);
++		if (!opts->mnt_opts)
++			return -ENOMEM;
++
++		for (i = 0; i < n; i++) {
++			if (src->mnt_opts[i]) {
++				opts->mnt_opts[i] = kstrdup(src->mnt_opts[i],
++							    GFP_KERNEL);
++				if (!opts->mnt_opts[i])
++					return -ENOMEM;
++			}
++		}
++	}
++
++	if (src->mnt_opts_flags) {
++		opts->mnt_opts_flags = kmemdup(src->mnt_opts_flags,
++					       n * sizeof(int), GFP_KERNEL);
++		if (!opts->mnt_opts_flags)
++			return -ENOMEM;
++	}
++
++	return 0;
++}
++
++static void selinux_fs_context_free(struct fs_context *fc)
++{
++	struct security_mnt_opts *opts = fc->security;
++
++	if (opts) {
++		security_free_mnt_opts(opts);
++		fc->security = NULL;
++	}
++}
++
++static const struct fs_parameter_spec selinux_param_specs[nr__selinux_params] = {
++	[Opt_context]		= { fs_param_is_string },
++	[Opt_defcontext]	= { fs_param_is_string },
++	[Opt_fscontext]		= { fs_param_is_string },
++	[Opt_labelsupport]	= { fs_param_takes_no_value },
++	[Opt_rootcontext]	= { fs_param_is_string },
++};
++
++static const struct constant_table selinux_param_keys[] = {
++	{ CONTEXT_STR,		Opt_context },
++	{ DEFCONTEXT_STR,	Opt_defcontext },
++	{ FSCONTEXT_STR,	Opt_fscontext },
++	{ ROOTCONTEXT_STR,	Opt_rootcontext },
++	{ LABELSUPP_STR,	Opt_labelsupport },
++};
++
++static const struct fs_parameter_description selinux_fs_parameters = {
++	.name		= "SELinux",
++	.nr_params	= nr__selinux_params,
++	.nr_keys	= ARRAY_SIZE(selinux_param_keys),
++	.keys		= selinux_param_keys,
++	.specs		= selinux_param_specs,
++	.ignore_unknown	= true,
++};
++
++static int selinux_fs_context_parse_param(struct fs_context *fc,
++					  struct fs_parameter *param)
++{
++	struct security_mnt_opts *opts = fc->security;
++	struct fs_parse_result result;
++	unsigned int have;
++	char **oo;
++	int ret, ctx, i, *of;
++
++	ret = fs_parse(fc, &selinux_fs_parameters, param, &result);
++	if (ret <= 0)
++		return ret; /* Note: 0 indicates no match */
++
++	have = 0;
++	for (i = 0; i < opts->num_mnt_opts; i++)
++		have |= 1 << opts->mnt_opts_flags[i];
++	if (have & (1 << result.key))
++		return -EINVAL;
++
++	switch (result.key) {
++	case Opt_context:
++		if (have & (1 << Opt_defcontext))
++			goto incompatible;
++		ctx = CONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_fscontext:
++		ctx = FSCONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_rootcontext:
++		ctx = ROOTCONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_defcontext:
++		if (have & (1 << Opt_context))
++			goto incompatible;
++		ctx = DEFCONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_labelsupport:
++		return 1;
++
++	default:
++		return -EINVAL;
++	}
++
++copy_context_string:
++	if (opts->num_mnt_opts > 3)
++		return -EINVAL;
++
++	of = krealloc(opts->mnt_opts_flags,
++		      (opts->num_mnt_opts + 1) * sizeof(int), GFP_KERNEL);
++	if (!of)
++		return -ENOMEM;
++	of[opts->num_mnt_opts] = 0;
++	opts->mnt_opts_flags = of;
++
++	oo = krealloc(opts->mnt_opts,
++		      (opts->num_mnt_opts + 1) * sizeof(char *), GFP_KERNEL);
++	if (!oo)
++		return -ENOMEM;
++	oo[opts->num_mnt_opts] = NULL;
++	opts->mnt_opts = oo;
++
++	opts->mnt_opts[opts->num_mnt_opts] = param->string;
++	opts->mnt_opts_flags[opts->num_mnt_opts] = ctx;
++	opts->num_mnt_opts++;
++	param->string = NULL;
++	return 1;
++
++incompatible:
++	return -EINVAL;
++}
++
++/*
++ * Validate the security parameters supplied for a reconfiguration/remount
++ * event.
++ */
++static int selinux_validate_for_sb_reconfigure(struct fs_context *fc)
++{
++	struct super_block *sb = fc->root->d_sb;
++	struct superblock_security_struct *sbsec = sb->s_security;
++	struct security_mnt_opts *opts = fc->security;
++	int rc, i, *flags;
++	char **mount_options;
++
++	if (!(sbsec->flags & SE_SBINITIALIZED))
++		return 0;
++
++	mount_options = opts->mnt_opts;
++	flags = opts->mnt_opts_flags;
++
++	for (i = 0; i < opts->num_mnt_opts; i++) {
++		u32 sid;
++
++		if (flags[i] == SBLABEL_MNT)
++			continue;
++
++		rc = security_context_str_to_sid(&selinux_state, mount_options[i],
++						 &sid, GFP_KERNEL);
++		if (rc) {
++			pr_warn("SELinux: security_context_str_to_sid"
++				"(%s) failed for (dev %s, type %s) errno=%d\n",
++				mount_options[i], sb->s_id, sb->s_type->name, rc);
++			goto inval;
++		}
++
++		switch (flags[i]) {
++		case FSCONTEXT_MNT:
++			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
++				goto bad_option;
++			break;
++		case CONTEXT_MNT:
++			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
++				goto bad_option;
++			break;
++		case ROOTCONTEXT_MNT: {
++			struct inode_security_struct *root_isec;
++			root_isec = backing_inode_security(sb->s_root);
++
++			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
++				goto bad_option;
++			break;
++		}
++		case DEFCONTEXT_MNT:
++			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
++				goto bad_option;
++			break;
++		default:
++			goto inval;
++		}
++	}
++
++	rc = 0;
++out:
++	return rc;
++
++bad_option:
++	pr_warn("SELinux: unable to change security options "
++		"during remount (dev %s, type=%s)\n",
++		sb->s_id, sb->s_type->name);
++inval:
++	rc = -EINVAL;
++	goto out;
++}
++
++/*
++ * Validate the security context assembled from the option data supplied to
++ * mount.
++ */
++static int selinux_fs_context_validate(struct fs_context *fc)
++{
++	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE)
++		return selinux_validate_for_sb_reconfigure(fc);
++	return 0;
++}
++
++/*
++ * Set the security context on a superblock.
++ */
++static int selinux_sb_get_tree(struct fs_context *fc)
++{
++	const struct cred *cred = current_cred();
++	struct common_audit_data ad;
++	int rc;
++
++	rc = selinux_set_mnt_opts(fc->root->d_sb, fc->security, 0, NULL);
++	if (rc)
++		return rc;
++
++	/* Allow all mounts performed by the kernel */
++	if (fc->purpose == FS_CONTEXT_FOR_KERNEL_MOUNT)
++		return 0;
++
++	ad.type = LSM_AUDIT_DATA_DENTRY;
++	ad.u.dentry = fc->root;
++	return superblock_has_perm(cred, fc->root->d_sb, FILESYSTEM__MOUNT, &ad);
++}
++
++static int selinux_sb_mountpoint(struct fs_context *fc, struct path *mountpoint,
++				 unsigned int mnt_flags)
++{
++	const struct cred *cred = current_cred();
++
++	return path_has_perm(cred, mountpoint, FILE__MOUNTON);
++}
++
+ /* inode security operations */
+ 
+ static int selinux_inode_alloc_security(struct inode *inode)
+@@ -6906,6 +7188,14 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds),
+ 	LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
+ 
++	LSM_HOOK_INIT(fs_context_alloc, selinux_fs_context_alloc),
++	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
++	LSM_HOOK_INIT(fs_context_free, selinux_fs_context_free),
++	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
++	LSM_HOOK_INIT(fs_context_validate, selinux_fs_context_validate),
++	LSM_HOOK_INIT(sb_get_tree, selinux_sb_get_tree),
++	LSM_HOOK_INIT(sb_mountpoint, selinux_sb_mountpoint),
++
+ 	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
+ 	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+ 	LSM_HOOK_INIT(sb_copy_data, selinux_sb_copy_data),
