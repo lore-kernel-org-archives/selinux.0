@@ -1,56 +1,90 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w73GIxCM004137
- for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2018 12:18:59 -0400
-To: Piotr Sawicki <p.sawicki2@partner.samsung.com>,
- LSM <linux-security-module@vger.kernel.org>,
- LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
- "SMACK-discuss@lists.01.org" <SMACK-discuss@lists.01.org>,
- John Johansen <john.johansen@canonical.com>,
- Kees Cook <keescook@chromium.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- James Morris <jmorris@namei.org>
-Cc: "Schaufler, Casey" <casey.schaufler@intel.com>,
- Casey Schaufler <casey@schaufler-ca.com>
-References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
- <ac4a4408-5c69-4b87-b57d-537dba588b18@schaufler-ca.com>
- <CGME20180803091011eucas1p29e46a12d1986f11e63547ea1ec8e8663@eucas1p2.samsung.com>
- <20180803091011eucas1p29e46a12d1986f11e63547ea1ec8e8663~HVMbjcXDZ2739127391eucas1p2M@eucas1p2.samsung.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <0c4b4f28-e51f-8b5d-9259-c6ab97c5c506@schaufler-ca.com>
-Date: Fri, 3 Aug 2018 08:27:47 -0700
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w73J1rLJ026992
+ for <selinux@tycho.nsa.gov>; Fri, 3 Aug 2018 15:01:53 -0400
+Received: by mail-lj1-f193.google.com with SMTP id r13-v6so5725974ljg.10
+ for <selinux@tycho.nsa.gov>; Fri, 03 Aug 2018 12:01:30 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20180803091011eucas1p29e46a12d1986f11e63547ea1ec8e8663~HVMbjcXDZ2739127391eucas1p2M@eucas1p2.samsung.com>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: [PATCH v1 20/22] Move common usercopy into
- security_getpeersec_stream
+References: <E490CD805F7529488761C40FD9D26EF12A72A2C9@dggemm507-mbx.china.huawei.com>
+In-Reply-To: <E490CD805F7529488761C40FD9D26EF12A72A2C9@dggemm507-mbx.china.huawei.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Fri, 3 Aug 2018 15:01:16 -0400
+Message-ID: <CAHC9VhS4nwcErVriwBzvvRQTFLZ=U_p8gA7xQnjs1wBKtmSgxQ@mail.gmail.com>
+To: nixiaoming@huawei.com
+Cc: viro@zeniv.linux.org.uk, serge@hallyn.com,
+ James Morris <jmorris@namei.org>, Eric Paris <eparis@parisplace.org>,
+ Stephen Smalley <sds@tycho.nsa.gov>, lizefan@huawei.com,
+ miaoxie@huawei.com, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ linux-fsdevel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: maybe resource leak in security/selinux/selinuxfs.c
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 8/3/2018 2:10 AM, Piotr Sawicki wrote:
-> On 07/16/2018 08:24 PM, Casey Schaufler wrote:
->> [PATCH 20/22] Move common usercopy into security_getpeersec_stream
->>
->> The modules implementing hook for getpeersec_stream
->> don't need to be duplicating the copy-to-user checks.
->> Moving the user copy part into the infrastructure makes
->> the security module code simpler and reduces the places
->> where user copy code may go awry.
-> Hi,
+On Wed, Aug 1, 2018 at 5:39 AM Nixiaoming <nixiaoming@huawei.com> wrote:
 >
-> This change will break the API. Some clients may call getsockopt(..,SO_PEERSEC,..) twice. Firstly, to fetch the length. In that case xxx_socket_getpeersec_stream should return -ERANGE and set *optlen. Secondly, to retrieve a proper security label.
+> advisory:
+> 1 After creating dentry in d_alloc_name, should I call dput to release resources before the exception exit?
+> 2 After calling the new_inode to create an inode, should the inode resource be released before the exception exit?
+>
+> If the dentry and inode resources need to be actively released, there are multiple resource leaks in security/selinux/selinuxfs.c.
 
-Nuts. You're correct. I will fix this in the next round.
+Hello.  Sorry for the delay in responding, comments inline ...
 
+> Example:
+> Linux master branch v4.18-rc5
+> The function sel_make_avc_files in security/selinux/selinuxfs.c.
 >
-> Please take a look at the implementation of the getClientSmackLabel() function in Cynara: https://review.tizen.org/gerrit/#/c/26888/6/src/helpers/creds-socket/creds-socket-inner.cpp
-> Also there is an email thread about this socket option which tells us why it is made this way: "[RFC] SO_PEERSEC - security credentials for Unix stream sockets"
+> 1566 static int sel_make_avc_files(struct dentry *dir)
+> .......
+> 1580     for (i = 0; i < ARRAY_SIZE(files); i++) {
+> 1581         struct inode *inode;
+> 1582         struct dentry *dentry;
+> 1583
+> 1584         dentry = d_alloc_name(dir, files[i].name);
+> 1585         if (!dentry)
+> /*Resource leak: when i!=0, the release action of dentry and inode resources is missing*/
+
+I don't understand the leak in this case?  If d_alloc_name() fails on
+a partially constructed /sys/fs/selinux/avc directory the previously
+allocated dentry/inodes are not lost or leaked, d_alloc_name()
+attached them to the parent dentry.
+
+> 1586             return -ENOMEM;
+> 1587
+> 1588         inode = sel_make_inode(dir->d_sb, S_IFREG|files[i].mode);
+> 1589         if (!inode)
+> /*Resource leak: missing dput(dentry)*/
+> /*Resource leak: when i!=0, the release action of dentry and inode resources is missing*/
+
+Yes, in this case it does look like we are missing a call to dput().
+Would you like to submit a patch to fix this as well as the others in
+selinuxfs.c?
+
+> 1590             return -ENOMEM;
+> 1591
+> 1592         inode->i_fop = files[i].ops;
+> 1593         inode->i_ino = ++fsi->last_ino;
+> 1594         d_add(dentry, inode);
+> 1595     }
+> 1596
+> 1597     return 0;
+> 1598 }
 >
-> http://lists.jammed.com/linux-security-module/2003/12/0029.html
->
-> Regards,
-> Piotr
->
+> There are similar resource leaking functions:
+> Sel_make_bools
+> Sel_make_avc_files
+> Sel_make_initcon_files
+> Sel_make_perm_files
+> Sel_make_class_dir_entries
+> Sel_make_policycap
+> Sel_fill_super
+> Sel_make_policy_nodes
+> Sel_make_classes
+
+-- 
+paul moore
+www.paul-moore.com
