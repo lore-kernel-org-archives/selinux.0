@@ -1,51 +1,48 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w74JmCBB007477
- for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2018 15:48:15 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w74JmCBC007477
+ for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2018 15:48:18 -0400
 Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr
  [89.156.252.9])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 82C24561220
- for <selinux@tycho.nsa.gov>; Sat,  4 Aug 2018 21:48:06 +0200 (CEST)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 2990D561220
+ for <selinux@tycho.nsa.gov>; Sat,  4 Aug 2018 21:48:09 +0200 (CEST)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Date: Sat,  4 Aug 2018 21:47:28 +0200
-Message-Id: <20180804194734.12577-8-nicolas.iooss@m4x.org>
+Date: Sat,  4 Aug 2018 21:47:31 +0200
+Message-Id: <20180804194734.12577-11-nicolas.iooss@m4x.org>
 In-Reply-To: <20180804194734.12577-1-nicolas.iooss@m4x.org>
 References: <20180804194734.12577-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 07/13] python/sepolgen: silence linter warning about has_key
+Subject: [PATCH 10/13] python/sepolicy: fix "procotol" misspelling
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-flake8 warns about using has_key():
+procotol -> protocol
 
-    python/sepolgen/src/sepolgen/refparser.py:315:15: W601 .has_key() is
-    deprecated, use 'in'
+This issue has been found using flake8. This Python linter reported:
 
-However "spt.has_key(id)" uses function SupportMacros.has_key(), which
-is not the same as the "in" operator. Silence this warning by using "#
-noqa".
+    python/sepolicy/sepolicy/gui.py:2525:132: F821 undefined name 'procotol'
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- python/sepolgen/src/sepolgen/refparser.py | 2 +-
+ python/sepolicy/sepolicy/gui.py | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
-index 3415aff9b48f..97e2342c4693 100644
---- a/python/sepolgen/src/sepolgen/refparser.py
-+++ b/python/sepolgen/src/sepolgen/refparser.py
-@@ -312,7 +312,7 @@ def collect(stmts, parent, val=None):
+diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
+index 16f24a0ab2f9..6933f6a142ed 100644
+--- a/python/sepolicy/sepolicy/gui.py
++++ b/python/sepolicy/sepolicy/gui.py
+@@ -2522,7 +2522,7 @@ class SELinuxGui():
+                     if self.cur_dict[k][(port, protocol)]["action"] == "-d":
+                         update_buffer += "port -d -p %s %s\n" % (protocol, port)
+                     else:
+-                        update_buffer += "port %s -t %s -p %s %s\n" % (self.cur_dict[k][f]["action"], self.cur_dict[k][f]["type"], procotol, port)
++                        update_buffer += "port %s -t %s -p %s %s\n" % (self.cur_dict[k][f]["action"], self.cur_dict[k][f]["type"], protocol, port)
  
- def expand(ids, s):
-     for id in ids:
--        if spt.has_key(id):
-+        if spt.has_key(id):  # noqa
-             s.update(spt.by_name(id))
-         else:
-             s.add(id)
+         return update_buffer
+ 
 -- 
 2.18.0
