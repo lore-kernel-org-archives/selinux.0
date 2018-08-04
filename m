@@ -1,66 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w74JnE79007493
- for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2018 15:49:14 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w74JnWXL007499
+ for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2018 15:49:32 -0400
 Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr
  [89.156.252.9])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 0632B561220
- for <selinux@tycho.nsa.gov>; Sat,  4 Aug 2018 21:48:10 +0200 (CEST)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 8B625561220
+ for <selinux@tycho.nsa.gov>; Sat,  4 Aug 2018 21:48:05 +0200 (CEST)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Date: Sat,  4 Aug 2018 21:47:32 +0200
-Message-Id: <20180804194734.12577-12-nicolas.iooss@m4x.org>
+Date: Sat,  4 Aug 2018 21:47:27 +0200
+Message-Id: <20180804194734.12577-7-nicolas.iooss@m4x.org>
 In-Reply-To: <20180804194734.12577-1-nicolas.iooss@m4x.org>
 References: <20180804194734.12577-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 11/13] python/sepolicy: use variables which exists
- in the gui.py
+Subject: [PATCH 06/13] python/sepolgen: fix refpolicy parsing of "permissive"
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Some function used variables which were not defined when populating
-self.cur_dict with an operation. Fix this, even though the old values do
-not seem to be used.
+p_permissive() uses an undefined variable t, which is buggy. In order to
+ignore permissive statements, the function only needs to "pass".
 
-This issue has been found using flake8. This Python linter reported:
+flake8 reported the following error:
 
-    python/sepolicy/sepolicy/gui.py:2020:101: F821 undefined name 'oldsetype'
-    python/sepolicy/sepolicy/gui.py:2020:122: F821 undefined name 'oldmls'
-    python/sepolicy/sepolicy/gui.py:2020:142: F821 undefined name 'oldclass'
-    python/sepolicy/sepolicy/gui.py:2050:133: F821 undefined name 'oldmls'
+    python/sepolgen/src/sepolgen/refparser.py:789:5: F821 undefined name 't'
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- python/sepolicy/sepolicy/gui.py | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ python/sepolgen/src/sepolgen/refparser.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-index 6933f6a142ed..9d413652f2ed 100644
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -2015,9 +2015,9 @@ class SELinuxGui():
-         if self.modify:
-             iter = self.get_selected_iter()
-             oldpath = self.unmark(self.liststore.get_value(iter, 0))
--            setype = self.unmark(self.liststore.set_value(iter, 1))
-+            oldsetype = self.unmark(self.liststore.set_value(iter, 1))
-             oldtclass = self.liststore.get_value(iter, 2)
--            self.cur_dict["fcontext"][(path, tclass)] = {"action": "-m", "type": setype, "oldtype": oldsetype, "oldmls": oldmls, "oldclass": oldclass}
-+            self.cur_dict["fcontext"][(path, tclass)] = {"action": "-m", "type": setype, "oldtype": oldsetype, "oldpath": oldpath, "oldclass": oldtclass}
-         else:
-             iter = self.liststore.append(None)
-             self.cur_dict["fcontext"][(path, tclass)] = {"action": "-a", "type": setype}
-@@ -2047,7 +2047,7 @@ class SELinuxGui():
-             oldports = self.unmark(self.liststore.get_value(iter, 0))
-             oldprotocol = self.unmark(self.liststore.get_value(iter, 1))
-             oldsetype = self.unmark(self.liststore.set_value(iter, 2))
--            self.cur_dict["port"][(ports, protocol)] = {"action": "-m", "type": setype, "mls": mls, "oldtype": oldsetype, "oldmls": oldmls, "oldprotocol": oldprotocol, "oldports": oldports}
-+            self.cur_dict["port"][(ports, protocol)] = {"action": "-m", "type": setype, "mls": mls, "oldtype": oldsetype, "oldprotocol": oldprotocol, "oldports": oldports}
-         else:
-             iter = self.liststore.append(None)
-             self.cur_dict["port"][(ports, protocol)] = {"action": "-a", "type": setype, "mls": mls}
+diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
+index 2cef8e85c679..3415aff9b48f 100644
+--- a/python/sepolgen/src/sepolgen/refparser.py
++++ b/python/sepolgen/src/sepolgen/refparser.py
+@@ -786,7 +786,7 @@ def p_role_allow(p):
+ 
+ def p_permissive(p):
+     'permissive : PERMISSIVE names SEMI'
+-    t.skip(1)
++    pass
+ 
+ def p_avrule_def(p):
+     '''avrule_def : ALLOW names names COLON names names SEMI
 -- 
 2.18.0
