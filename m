@@ -1,55 +1,66 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w74JmZoS007487
- for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2018 15:48:43 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w74JnE79007493
+ for <selinux@tycho.nsa.gov>; Sat, 4 Aug 2018 15:49:14 -0400
 Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr
  [89.156.252.9])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 6DDC9561220
- for <selinux@tycho.nsa.gov>; Sat,  4 Aug 2018 21:48:08 +0200 (CEST)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 0632B561220
+ for <selinux@tycho.nsa.gov>; Sat,  4 Aug 2018 21:48:10 +0200 (CEST)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Date: Sat,  4 Aug 2018 21:47:30 +0200
-Message-Id: <20180804194734.12577-10-nicolas.iooss@m4x.org>
+Date: Sat,  4 Aug 2018 21:47:32 +0200
+Message-Id: <20180804194734.12577-12-nicolas.iooss@m4x.org>
 In-Reply-To: <20180804194734.12577-1-nicolas.iooss@m4x.org>
 References: <20180804194734.12577-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 09/13] python/sepolgen: use self when accessing
- members in FilesystemUse
+Subject: [PATCH 11/13] python/sepolicy: use variables which exists
+ in the gui.py
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This silences the following flake8 errors:
+Some function used variables which were not defined when populating
+self.cur_dict with an operation. Fix this, even though the old values do
+not seem to be used.
 
-    python/sepolgen/src/sepolgen/refpolicy.py:758:25: F821 undefined name 'XATTR'
-    python/sepolgen/src/sepolgen/refpolicy.py:760:27: F821 undefined name 'TRANS'
-    python/sepolgen/src/sepolgen/refpolicy.py:762:27: F821 undefined name 'TASK'
+This issue has been found using flake8. This Python linter reported:
+
+    python/sepolicy/sepolicy/gui.py:2020:101: F821 undefined name 'oldsetype'
+    python/sepolicy/sepolicy/gui.py:2020:122: F821 undefined name 'oldmls'
+    python/sepolicy/sepolicy/gui.py:2020:142: F821 undefined name 'oldclass'
+    python/sepolicy/sepolicy/gui.py:2050:133: F821 undefined name 'oldmls'
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- python/sepolgen/src/sepolgen/refpolicy.py | 6 +++---
+ python/sepolicy/sepolicy/gui.py | 6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/python/sepolgen/src/sepolgen/refpolicy.py b/python/sepolgen/src/sepolgen/refpolicy.py
-index c30a8c70f9ca..e3dd33a21935 100644
---- a/python/sepolgen/src/sepolgen/refpolicy.py
-+++ b/python/sepolgen/src/sepolgen/refpolicy.py
-@@ -755,11 +755,11 @@ class FilesystemUse(Leaf):
- 
-     def to_string(self):
-         s = ""
--        if self.type == XATTR:
-+        if self.type == self.XATTR:
-             s = "fs_use_xattr "
--        elif self.type == TRANS:
-+        elif self.type == self.TRANS:
-             s = "fs_use_trans "
--        elif self.type == TASK:
-+        elif self.type == self.TASK:
-             s = "fs_use_task "
- 
-         return "%s %s %s;" % (s, self.filesystem, str(self.context))
+diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
+index 6933f6a142ed..9d413652f2ed 100644
+--- a/python/sepolicy/sepolicy/gui.py
++++ b/python/sepolicy/sepolicy/gui.py
+@@ -2015,9 +2015,9 @@ class SELinuxGui():
+         if self.modify:
+             iter = self.get_selected_iter()
+             oldpath = self.unmark(self.liststore.get_value(iter, 0))
+-            setype = self.unmark(self.liststore.set_value(iter, 1))
++            oldsetype = self.unmark(self.liststore.set_value(iter, 1))
+             oldtclass = self.liststore.get_value(iter, 2)
+-            self.cur_dict["fcontext"][(path, tclass)] = {"action": "-m", "type": setype, "oldtype": oldsetype, "oldmls": oldmls, "oldclass": oldclass}
++            self.cur_dict["fcontext"][(path, tclass)] = {"action": "-m", "type": setype, "oldtype": oldsetype, "oldpath": oldpath, "oldclass": oldtclass}
+         else:
+             iter = self.liststore.append(None)
+             self.cur_dict["fcontext"][(path, tclass)] = {"action": "-a", "type": setype}
+@@ -2047,7 +2047,7 @@ class SELinuxGui():
+             oldports = self.unmark(self.liststore.get_value(iter, 0))
+             oldprotocol = self.unmark(self.liststore.get_value(iter, 1))
+             oldsetype = self.unmark(self.liststore.set_value(iter, 2))
+-            self.cur_dict["port"][(ports, protocol)] = {"action": "-m", "type": setype, "mls": mls, "oldtype": oldsetype, "oldmls": oldmls, "oldprotocol": oldprotocol, "oldports": oldports}
++            self.cur_dict["port"][(ports, protocol)] = {"action": "-m", "type": setype, "mls": mls, "oldtype": oldsetype, "oldprotocol": oldprotocol, "oldports": oldports}
+         else:
+             iter = self.liststore.append(None)
+             self.cur_dict["port"][(ports, protocol)] = {"action": "-a", "type": setype, "mls": mls}
 -- 
 2.18.0
