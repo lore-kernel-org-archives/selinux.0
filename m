@@ -1,173 +1,110 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w76F5mJg009854
- for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2018 11:05:49 -0400
-Received: by mail-oi0-f65.google.com with SMTP id j205-v6so22783161oib.4
- for <selinux@tycho.nsa.gov>; Mon, 06 Aug 2018 08:05:22 -0700 (PDT)
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w76JlmTj019998
+ for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2018 15:47:48 -0400
+Received: by mail-oi0-f67.google.com with SMTP id q11-v6so24292111oic.12
+ for <selinux@tycho.nsa.gov>; Mon, 06 Aug 2018 12:47:30 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20180804194734.12577-1-nicolas.iooss@m4x.org>
-References: <20180804194734.12577-1-nicolas.iooss@m4x.org>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 6 Aug 2018 08:05:19 -0700
-Message-ID: <CAFftDdoXp9T2fedoOzmAqnvO+iUknXxkT4_DmEkY=okkzn8cyA@mail.gmail.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary="000000000000163b010572c59b20"
-Subject: Re: [PATCH 00/13] Fix some issues found by flake8
+References: <20180803093604.38254-1-jannh@google.com>
+ <CAHC9VhT83LuwuGB4ndVpkqtfLZ2Se1Qqhw57CTEZ-5bzPATiag@mail.gmail.com>
+In-Reply-To: <CAHC9VhT83LuwuGB4ndVpkqtfLZ2Se1Qqhw57CTEZ-5bzPATiag@mail.gmail.com>
+From: Jann Horn <jannh@google.com>
+Date: Mon, 6 Aug 2018 21:47:02 +0200
+Message-ID: <CAG48ez0UPrDQ1t=3gWB3ahj3ksc1_FAC0T6-y2ngi6tLTpUUxg@mail.gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
+ selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ linux-security-module <linux-security-module@vger.kernel.org>,
+ kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux: stricter parsing in
+ mls_context_to_sid()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---000000000000163b010572c59b20
-Content-Type: text/plain; charset="UTF-8"
+On Sat, Aug 4, 2018 at 2:01 AM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Fri, Aug 3, 2018 at 5:36 AM Jann Horn <jannh@google.com> wrote:
+> >
+> > mls_context_to_sid incorrectly accepted MLS context strings that are
+> > followed by a dash and trailing garbage.
+> >
+> > Before this change, the following command works:
+> >
+> > # mount -t tmpfs -o 'context=system_u:object_r:tmp_t:s0-s0:c0-BLAH' \
+> > none mount
+> >
+> > After this change, it fails with the following error message in dmesg:
+> >
+> > SELinux: security_context_str_to_sid(system_u:object_r:tmp_t:s0-s0:c0-BLAH)
+> > failed for (dev tmpfs, type tmpfs) errno=-22
+> >
+> > This is not an important bug; but it is a small quirk that was useful for
+> > exploiting a vulnerability in fusermount.
+> >
+> > This patch does not change the behavior when the policy does not have MLS
+> > enabled.
+> >
+> > Signed-off-by: Jann Horn <jannh@google.com>
+> > ---
+> >  security/selinux/ss/mls.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> Ooof.  mls_context_to_sid() isn't exactly the most elegant function is
+> it?  I suppose some of that is due to the label format, but it still
+> seems like we can do better.  However, before I jump into that let me
+> say that speaking strictly about your patch, yes, it does look correct
+> to me.
+>
+> What I'm wonder is if we rework/reorder some of the parser to remove
+> some of the ordering specific (e.g. "l == 0") and reduce some
+> redundancy ... be patient with me for a moment ...
+>
+> The while loops immediately following the "Extract low sensitivity"
+> and "Extract high sensitivity" comments are basically the same,
+> including NULL'ing the delimiter if necessary, the only difference is
+> the additional '-' delimiter in the low sensitivity search.
+>
+> The only *legal* place for a '-' in the MLS portion of the label is to
+> separate the low/high portions.
+>
+> What if we were to do a quick search for the low/high separator before
+> extracting the low sensitivity and stored low/high pointers for later
+> use?  e.g.
+>
+>   rangep[0] = *scontext;
+>   rangep[1] = strchr(rangep[0], '-');
+>   if (rangep[1])
+>     rangep[1]++ = '\0';
+>
+> ... we could then move the "Extract X sensitivity" into the main for
+> loop as well remove all of the '-' special case parsing checks, e.g.
+>
+>   for (l = 0; l < 2; l++) {
+>
+>     scontextp = rangep[l];
+>     if (!scontextp)
+>       break;
+>
+>     while (*p && *p != ':')
+>       p++;
+>     delim = *p;
+>     if (delim != '\0')
+>       *p++ = '\0';
+>
+>     /* extract the level (use existing code) */
+>
+>     /* extract the category set, if present (use existing code) */
+>
+>     /* no need to worry about the '-' delimiter */
+>
+>   }
+>
+> I *believe* that should work.  I think.  Does that make sense?
 
-On Sat, Aug 4, 2018 at 12:47 PM, Nicolas Iooss <nicolas.iooss@m4x.org>
-wrote:
-
-> Hi,
->
-> I have been working on a script which uses flake8 to discover issues in
-> Python code. This led me to discover several issues which are fixed by
-> these patches. Distribution maintainers might be interested in
-> backporting some of them (at least patches 5 and 10 and probably the
-> ones which fix usage of undefined variables).
->
-> As Travis-CI is experiencing issues today (it fails to launch new
-> builds), I have not been able to test the integration of my script with
-> Travis-CI yet. Once it works again I will submit this script too.
->
-> Thanks,
-> Nicolas
->
-> ---
-> Here comes the description generated by "git format-patch --cover":
->
-> Nicolas Iooss (13):
->   libselinux: fix flake8 warnings in SWIG-generated code
->   python/sepolgen: do not import twice the modules
->   python/sepolgen: return NotImplemented instead of raising it
->   python/sepolicy: drop unused CheckPolicyType
->   python/sepolicy: use lowercase variable name
->   python/sepolgen: fix refpolicy parsing of "permissive"
->
-  python/sepolgen: silence linter warning about has_key
->
-
-This is the only one I don't particularly like:
-
->   python/sepolgen: comment buggy code
->
-
-If we choose to comment out it out, a block comment explaining why would be
-helpful or just delete it if it is dead code.
-
-   python/sepolgen: use self when accessing members in FilesystemUse
-
->   python/sepolicy: fix "procotol" misspelling
->   python/sepolicy: use variables which exists in the gui.py
->   python/sepolicy: do not import sepolicy.generate.DAEMON twice
->   python/sepolicy: do not import types
->
->  libselinux/src/selinuxswig_python.i        |  5 +++--
->  python/sepolgen/src/sepolgen/interfaces.py | 10 +++++-----
->  python/sepolgen/src/sepolgen/refparser.py  |  4 ++--
->  python/sepolgen/src/sepolgen/refpolicy.py  |  6 +++---
->  python/sepolgen/src/sepolgen/util.py       |  6 +-----
->  python/sepolicy/sepolicy.py                | 12 +-----------
->  python/sepolicy/sepolicy/generate.py       |  1 -
->  python/sepolicy/sepolicy/gui.py            | 12 ++++++------
->  8 files changed, 21 insertions(+), 35 deletions(-)
->
-> --
-> 2.18.0
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
->
-
---000000000000163b010572c59b20
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
-te">On Sat, Aug 4, 2018 at 12:47 PM, Nicolas Iooss <span dir=3D"ltr">&lt;<a=
- href=3D"mailto:nicolas.iooss@m4x.org" target=3D"_blank">nicolas.iooss@m4x.=
-org</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"mar=
-gin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Hi,<br>
-<br>
-I have been working on a script which uses flake8 to discover issues in<br>
-Python code. This led me to discover several issues which are fixed by<br>
-these patches. Distribution maintainers might be interested in<br>
-backporting some of them (at least patches 5 and 10 and probably the<br>
-ones which fix usage of undefined variables).<br>
-<br>
-As Travis-CI is experiencing issues today (it fails to launch new<br>
-builds), I have not been able to test the integration of my script with<br>
-Travis-CI yet. Once it works again I will submit this script too.<br>
-<br>
-Thanks,<br>
-Nicolas<br>
-<br>
----<br>
-Here comes the description generated by &quot;git format-patch --cover&quot=
-;:<br>
-<br>
-Nicolas Iooss (13):<br>
-=C2=A0 libselinux: fix flake8 warnings in SWIG-generated code<br>
-=C2=A0 python/sepolgen: do not import twice the modules<br>
-=C2=A0 python/sepolgen: return NotImplemented instead of raising it<br>
-=C2=A0 python/sepolicy: drop unused CheckPolicyType<br>
-=C2=A0 python/sepolicy: use lowercase variable name<br>
-=C2=A0 python/sepolgen: fix refpolicy parsing of &quot;permissive&quot;<br>
-</blockquote><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;b=
-order-left:1px #ccc solid;padding-left:1ex">=C2=A0 python/sepolgen: silence=
- linter warning about has_key<br>
-</blockquote><div><br></div><div>This is the only one I don&#39;t particula=
-rly like:=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 =
-0 .8ex;border-left:1px #ccc solid;padding-left:1ex">=C2=A0 python/sepolgen:=
- comment buggy code<br></blockquote><div><br></div><div>If we choose to com=
-ment out it out, a block comment explaining why would be</div><div>helpful =
-or just delete it if it is dead code.</div><div><br></div><div>=C2=A0 =C2=
-=A0python/sepolgen: use self when accessing members in FilesystemUse</div><=
-blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px=
- #ccc solid;padding-left:1ex">
-=C2=A0 python/sepolicy: fix &quot;procotol&quot; misspelling<br>
-=C2=A0 python/sepolicy: use variables which exists in the gui.py<br>
-=C2=A0 python/sepolicy: do not import sepolicy.generate.DAEMON twice<br>
-=C2=A0 python/sepolicy: do not import types<br>
-<br>
-=C2=A0libselinux/src/selinuxswig_<wbr>python.i=C2=A0 =C2=A0 =C2=A0 =C2=A0 |=
-=C2=A0 5 +++--<br>
-=C2=A0python/sepolgen/src/sepolgen/<wbr>interfaces.py | 10 +++++-----<br>
-=C2=A0python/sepolgen/src/sepolgen/<wbr>refparser.py=C2=A0 |=C2=A0 4 ++--<b=
-r>
-=C2=A0python/sepolgen/src/sepolgen/<wbr>refpolicy.py=C2=A0 |=C2=A0 6 +++---=
-<br>
-=C2=A0python/sepolgen/src/sepolgen/<wbr>util.py=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
-=C2=A0 6 +-----<br>
-=C2=A0python/sepolicy/sepolicy.py=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 =C2=A0 | 12 +-----------<br>
-=C2=A0python/sepolicy/sepolicy/<wbr>generate.py=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
-=C2=A0 1 -<br>
-=C2=A0python/sepolicy/sepolicy/gui.<wbr>py=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 | 12 ++++++------<br>
-=C2=A08 files changed, 21 insertions(+), 35 deletions(-)<br>
-<span class=3D"HOEnZb"><font color=3D"#888888"><br>
--- <br>
-2.18.0<br>
-<br>
-______________________________<wbr>_________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br>
-</font></span></blockquote></div><br></div></div>
-
---000000000000163b010572c59b20--
+I'm fiddling with the code a bit now - your suggestion sounds good to
+me, and I think there are a couple other small tweaks that can make
+the code more readable. I hope I'll have a patch ready soon.
