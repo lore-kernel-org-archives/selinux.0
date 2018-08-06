@@ -1,110 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w76JlmTj019998
- for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2018 15:47:48 -0400
-Received: by mail-oi0-f67.google.com with SMTP id q11-v6so24292111oic.12
- for <selinux@tycho.nsa.gov>; Mon, 06 Aug 2018 12:47:30 -0700 (PDT)
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w76KAWxY022791
+ for <selinux@tycho.nsa.gov>; Mon, 6 Aug 2018 16:10:34 -0400
+Received: from mail-oi0-f48.google.com (mail-oi0-f48.google.com
+ [209.85.218.48])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id C0D7F564847
+ for <selinux@tycho.nsa.gov>; Mon,  6 Aug 2018 22:08:45 +0200 (CEST)
+Received: by mail-oi0-f48.google.com with SMTP id y207-v6so24373422oie.13
+ for <selinux@tycho.nsa.gov>; Mon, 06 Aug 2018 13:08:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20180803093604.38254-1-jannh@google.com>
- <CAHC9VhT83LuwuGB4ndVpkqtfLZ2Se1Qqhw57CTEZ-5bzPATiag@mail.gmail.com>
-In-Reply-To: <CAHC9VhT83LuwuGB4ndVpkqtfLZ2Se1Qqhw57CTEZ-5bzPATiag@mail.gmail.com>
-From: Jann Horn <jannh@google.com>
-Date: Mon, 6 Aug 2018 21:47:02 +0200
-Message-ID: <CAG48ez0UPrDQ1t=3gWB3ahj3ksc1_FAC0T6-y2ngi6tLTpUUxg@mail.gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- linux-security-module <linux-security-module@vger.kernel.org>,
- kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <CAJfZ7=mucohHDUZRGBWLOSjhbtC=KsJyH4Dbq_KVPy-A2P3Ong@mail.gmail.com>
+References: <20180804091147.19092-1-nicolas.iooss@m4x.org>
+ <20180804093426.GA33404@baraddur.perfinion.com>
+ <CAJfZ7=mucohHDUZRGBWLOSjhbtC=KsJyH4Dbq_KVPy-A2P3Ong@mail.gmail.com>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Mon, 6 Aug 2018 22:08:44 +0200
+Message-ID: <CAJfZ7=kGiqQuHSzEVbuBbr10bePt=fa3ide++n9e+ONZnBVYKw@mail.gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux: stricter parsing in
- mls_context_to_sid()
+Subject: Re: [PATCH 1/1] python/semanage: fix Python syntax of
+ catching several exceptions
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sat, Aug 4, 2018 at 2:01 AM Paul Moore <paul@paul-moore.com> wrote:
+On Sat, Aug 4, 2018 at 2:16 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> On Sat, Aug 4, 2018 at 11:34 AM, Jason Zaman <jason@perfinion.com> wrote:
+>> On Sat, Aug 04, 2018 at 11:11:47AM +0200, Nicolas Iooss wrote:
+>>> "except OSError, ImportError:" does not perform what it says: it is the
+>>> Python 2 syntax of catching OSError exceptions as "ImportError" (like
+>>> "except OSError, e:"), and this is indeed caught by Python3:
+>>>
+>>>       File "./python/semanage/seobject.py", line 143
+>>>         except OSError, ImportError:
+>>>                       ^
+>>>     SyntaxError: invalid syntax
+>>>
+>>> The correct syntax consists in using parentheses.
+>>>
+>>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>>
+>> Acked-by: Jason Zaman <jason@perfinion.com>
 >
-> On Fri, Aug 3, 2018 at 5:36 AM Jann Horn <jannh@google.com> wrote:
-> >
-> > mls_context_to_sid incorrectly accepted MLS context strings that are
-> > followed by a dash and trailing garbage.
-> >
-> > Before this change, the following command works:
-> >
-> > # mount -t tmpfs -o 'context=system_u:object_r:tmp_t:s0-s0:c0-BLAH' \
-> > none mount
-> >
-> > After this change, it fails with the following error message in dmesg:
-> >
-> > SELinux: security_context_str_to_sid(system_u:object_r:tmp_t:s0-s0:c0-BLAH)
-> > failed for (dev tmpfs, type tmpfs) errno=-22
-> >
-> > This is not an important bug; but it is a small quirk that was useful for
-> > exploiting a vulnerability in fusermount.
-> >
-> > This patch does not change the behavior when the policy does not have MLS
-> > enabled.
-> >
-> > Signed-off-by: Jann Horn <jannh@google.com>
-> > ---
-> >  security/selinux/ss/mls.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> Ooof.  mls_context_to_sid() isn't exactly the most elegant function is
-> it?  I suppose some of that is due to the label format, but it still
-> seems like we can do better.  However, before I jump into that let me
-> say that speaking strictly about your patch, yes, it does look correct
-> to me.
->
-> What I'm wonder is if we rework/reorder some of the parser to remove
-> some of the ordering specific (e.g. "l == 0") and reduce some
-> redundancy ... be patient with me for a moment ...
->
-> The while loops immediately following the "Extract low sensitivity"
-> and "Extract high sensitivity" comments are basically the same,
-> including NULL'ing the delimiter if necessary, the only difference is
-> the additional '-' delimiter in the low sensitivity search.
->
-> The only *legal* place for a '-' in the MLS portion of the label is to
-> separate the low/high portions.
->
-> What if we were to do a quick search for the low/high separator before
-> extracting the low sensitivity and stored low/high pointers for later
-> use?  e.g.
->
->   rangep[0] = *scontext;
->   rangep[1] = strchr(rangep[0], '-');
->   if (rangep[1])
->     rangep[1]++ = '\0';
->
-> ... we could then move the "Extract X sensitivity" into the main for
-> loop as well remove all of the '-' special case parsing checks, e.g.
->
->   for (l = 0; l < 2; l++) {
->
->     scontextp = rangep[l];
->     if (!scontextp)
->       break;
->
->     while (*p && *p != ':')
->       p++;
->     delim = *p;
->     if (delim != '\0')
->       *p++ = '\0';
->
->     /* extract the level (use existing code) */
->
->     /* extract the category set, if present (use existing code) */
->
->     /* no need to worry about the '-' delimiter */
->
->   }
->
-> I *believe* that should work.  I think.  Does that make sense?
+> Thanks. I will wait one business day before merging this (in order to
+> let other developers the possibility to comment, even though this
+> change is trivial).
 
-I'm fiddling with the code a bit now - your suggestion sounds good to
-me, and I think there are a couple other small tweaks that can make
-the code more readable. I hope I'll have a patch ready soon.
+I applied this patch.
+Nicolas
