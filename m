@@ -1,151 +1,194 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w77LZsAq018915
- for <selinux@tycho.nsa.gov>; Tue, 7 Aug 2018 17:35:54 -0400
-Received: by mail-lf1-f66.google.com with SMTP id v22-v6so81881lfe.8
- for <selinux@tycho.nsa.gov>; Tue, 07 Aug 2018 14:35:18 -0700 (PDT)
-MIME-Version: 1.0
-References: <20180805091036.30035-1-nixiaoming@huawei.com>
-In-Reply-To: <20180805091036.30035-1-nixiaoming@huawei.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Tue, 7 Aug 2018 17:35:06 -0400
-Message-ID: <CAHC9VhQKBphcPi3Oya58f4-tfK6GYkufotstduhkTaQw8NTw2Q@mail.gmail.com>
-To: nixiaoming@huawei.com
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- James Morris <jmorris@namei.org>, serge@hallyn.com,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinuxfs: Fix the resource leak in the failed
- branch of sel_make_inode
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w78BoYWI011983
+ for <selinux@tycho.nsa.gov>; Wed, 8 Aug 2018 07:50:34 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id F010440241C3
+ for <selinux@tycho.nsa.gov>; Wed,  8 Aug 2018 11:50:25 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.40.205.66])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5762E2027047
+ for <selinux@tycho.nsa.gov>; Wed,  8 Aug 2018 11:50:25 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Wed,  8 Aug 2018 13:50:21 +0200
+Message-Id: <20180808115021.8929-1-vmojzis@redhat.com>
+Subject: [PATCH] libsemanage: reset umask before creating directories
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Sun, Aug 5, 2018 at 5:48 AM nixiaoming <nixiaoming@huawei.com> wrote:
-> If the resource requested by d_alloc_name is not added to the linked
-> list through d_add, then dput needs to be called to release the
-> subsequent abnormal branch to avoid resource leakage.
->
-> Add missing dput to selinuxfs.c
->
-> Signed-off-by: nixiaoming <nixiaoming@huawei.com>
-> ---
->  security/selinux/selinuxfs.c | 33 +++++++++++++++++++++++++--------
->  1 file changed, 25 insertions(+), 8 deletions(-)
+Restrictive umask may cause creating directories with with unintended
+access mode. Reset umask before creating directories to avoid this
+issue.
 
-Thanks for the quick follow-up on this patch.  It looks okay to me,
-assuming my test kernel works correctly (it's building now) I'll merge
-this into selinux/next.
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186422
 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 79d3709..0b66d728 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1365,13 +1365,18 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
->
->                 ret = -ENOMEM;
->                 inode = sel_make_inode(dir->d_sb, S_IFREG | S_IRUGO | S_IWUSR);
-> -               if (!inode)
-> +               if (!inode) {
-> +                       dput(dentry);
->                         goto out;
-> +               }
->
->                 ret = -ENAMETOOLONG;
->                 len = snprintf(page, PAGE_SIZE, "/%s/%s", BOOL_DIR_NAME, names[i]);
-> -               if (len >= PAGE_SIZE)
-> +               if (len >= PAGE_SIZE) {
-> +                       dput(dentry);
-> +                       iput(inode);
->                         goto out;
-> +               }
->
->                 isec = (struct inode_security_struct *)inode->i_security;
->                 ret = security_genfs_sid(fsi->state, "selinuxfs", page,
-> @@ -1586,8 +1591,10 @@ static int sel_make_avc_files(struct dentry *dir)
->                         return -ENOMEM;
->
->                 inode = sel_make_inode(dir->d_sb, S_IFREG|files[i].mode);
-> -               if (!inode)
-> +               if (!inode) {
-> +                       dput(dentry);
->                         return -ENOMEM;
-> +               }
->
->                 inode->i_fop = files[i].ops;
->                 inode->i_ino = ++fsi->last_ino;
-> @@ -1632,8 +1639,10 @@ static int sel_make_initcon_files(struct dentry *dir)
->                         return -ENOMEM;
->
->                 inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
-> -               if (!inode)
-> +               if (!inode) {
-> +                       dput(dentry);
->                         return -ENOMEM;
-> +               }
->
->                 inode->i_fop = &sel_initcon_ops;
->                 inode->i_ino = i|SEL_INITCON_INO_OFFSET;
-> @@ -1733,8 +1742,10 @@ static int sel_make_perm_files(char *objclass, int classvalue,
->
->                 rc = -ENOMEM;
->                 inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
-> -               if (!inode)
-> +               if (!inode) {
-> +                       dput(dentry);
->                         goto out;
-> +               }
->
->                 inode->i_fop = &sel_perm_ops;
->                 /* i+1 since perm values are 1-indexed */
-> @@ -1763,8 +1774,10 @@ static int sel_make_class_dir_entries(char *classname, int index,
->                 return -ENOMEM;
->
->         inode = sel_make_inode(dir->d_sb, S_IFREG|S_IRUGO);
-> -       if (!inode)
-> +       if (!inode) {
-> +               dput(dentry);
->                 return -ENOMEM;
-> +       }
->
->         inode->i_fop = &sel_class_ops;
->         inode->i_ino = sel_class_to_ino(index);
-> @@ -1838,8 +1851,10 @@ static int sel_make_policycap(struct selinux_fs_info *fsi)
->                         return -ENOMEM;
->
->                 inode = sel_make_inode(fsi->sb, S_IFREG | 0444);
-> -               if (inode == NULL)
-> +               if (inode == NULL) {
-> +                       dput(dentry);
->                         return -ENOMEM;
-> +               }
->
->                 inode->i_fop = &sel_policycap_ops;
->                 inode->i_ino = iter | SEL_POLICYCAP_INO_OFFSET;
-> @@ -1932,8 +1947,10 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
->
->         ret = -ENOMEM;
->         inode = sel_make_inode(sb, S_IFCHR | S_IRUGO | S_IWUGO);
-> -       if (!inode)
-> +       if (!inode) {
-> +               dput(dentry);
->                 goto err;
-> +       }
->
->         inode->i_ino = ++fsi->last_ino;
->         isec = (struct inode_security_struct *)inode->i_security;
-> --
-> 2.10.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ libsemanage/src/semanage_store.c | 31 +++++++++++++++++++++++++++++++
+ 1 file changed, 31 insertions(+)
 
-
-
+diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+index f1984c50..b5f73663 100644
+--- a/libsemanage/src/semanage_store.c
++++ b/libsemanage/src/semanage_store.c
+@@ -541,14 +541,18 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 	struct stat sb;
+ 	const char *path = semanage_files[SEMANAGE_ROOT];
+ 	int fd;
++	mode_t mask;
+ 
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
++			mask = umask(0);
+ 			if (mkdir(path, S_IRWXU) == -1) {
++				umask(mask);
+ 				ERR(sh, "Could not create module store at %s.",
+ 				    path);
+ 				return -2;
+ 			}
++			umask(mask);
+ 		} else {
+ 			if (create)
+ 				ERR(sh,
+@@ -567,12 +571,15 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
++			mask = umask(0);
+ 			if (mkdir(path, S_IRWXU) == -1) {
++				umask(mask);
+ 				ERR(sh,
+ 				    "Could not create module store, active subdirectory at %s.",
+ 				    path);
+ 				return -2;
+ 			}
++			umask(mask);
+ 		} else {
+ 			ERR(sh,
+ 			    "Could not read from module store, active subdirectory at %s.",
+@@ -590,12 +597,15 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
++			mask = umask(0);
+ 			if (mkdir(path, S_IRWXU) == -1) {
++				umask(mask);
+ 				ERR(sh,
+ 				    "Could not create module store, active modules subdirectory at %s.",
+ 				    path);
+ 				return -2;
+ 			}
++			umask(mask);
+ 		} else {
+ 			ERR(sh,
+ 			    "Could not read from module store, active modules subdirectory at %s.",
+@@ -613,11 +623,14 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+ 	path = semanage_files[SEMANAGE_READ_LOCK];
+ 	if (stat(path, &sb) == -1) {
+ 		if (errno == ENOENT && create) {
++			mask = umask(0);
+ 			if ((fd = creat(path, S_IRUSR | S_IWUSR)) == -1) {
++				umask(mask);
+ 				ERR(sh, "Could not create lock file at %s.",
+ 				    path);
+ 				return -2;
+ 			}
++			umask(mask);
+ 			close(fd);
+ 		} else {
+ 			ERR(sh, "Could not read lock file at %s.", path);
+@@ -763,6 +776,7 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+ 	struct stat sb;
+ 	struct dirent **names = NULL;
+ 	char path[PATH_MAX], path2[PATH_MAX];
++	mode_t mask;
+ 
+ 	if ((len = scandir(src, &names, semanage_filename_select, NULL)) == -1) {
+ 		fprintf(stderr, "Could not read the contents of %s: %s\n", src, strerror(errno));
+@@ -770,10 +784,13 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+ 	}
+ 
+ 	if (stat(dst, &sb) != 0) {
++		mask = umask(0);
+ 		if (mkdir(dst, S_IRWXU) != 0) {
++			umask(mask);
+ 			fprintf(stderr, "Could not create %s: %s\n", dst, strerror(errno));
+ 			goto cleanup;
+ 		}
++		umask(mask);
+ 	}
+ 
+ 	for (i = 0; i < len; i++) {
+@@ -785,14 +802,20 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+ 		}
+ 		snprintf(path2, sizeof(path2), "%s/%s", dst, names[i]->d_name);
+ 		if (S_ISDIR(sb.st_mode)) {
++			mask = umask(0);
+ 			if (mkdir(path2, 0700) == -1 ||
+ 			    semanage_copy_dir_flags(path, path2, flag) == -1) {
++				umask(mask);
+ 				goto cleanup;
+ 			}
++			umask(mask);
+ 		} else if (S_ISREG(sb.st_mode) && flag == 1) {
++			mask = umask(0);
+ 			if (semanage_copy_file(path, path2, sb.st_mode) < 0) {
++				umask(mask);
+ 				goto cleanup;
+ 			}
++			umask(mask);
+ 		}
+ 	}
+ 	retval = 0;
+@@ -872,16 +895,20 @@ int semanage_mkdir(semanage_handle_t *sh, const char *path)
+ {
+ 	int status = 0;
+ 	struct stat sb;
++	mode_t mask;
+ 
+ 	/* check if directory already exists */
+ 	if (stat(path, &sb) != 0) {
+ 		/* make the modules directory */
++		mask = umask(0);
+ 		if (mkdir(path, S_IRWXU) != 0) {
++			umask(mask);
+ 			ERR(sh, "Cannot make directory at %s", path);
+ 			status = -1;
+ 			goto cleanup;
+ 
+ 		}
++		umask(mask);
+ 	}
+ 	else {
+ 		/* check that it really is a directory */
+@@ -906,6 +933,7 @@ int semanage_make_sandbox(semanage_handle_t * sh)
+ 	const char *sandbox = semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL);
+ 	struct stat buf;
+ 	int errsv;
++	mode_t mask;
+ 
+ 	if (stat(sandbox, &buf) == -1) {
+ 		if (errno != ENOENT) {
+@@ -922,12 +950,15 @@ int semanage_make_sandbox(semanage_handle_t * sh)
+ 		}
+ 	}
+ 
++	mask = umask(0);
+ 	if (mkdir(sandbox, S_IRWXU) == -1 ||
+ 	    semanage_copy_dir(semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL),
+ 			      sandbox) == -1) {
++		umask(mask);
+ 		ERR(sh, "Could not copy files to sandbox %s.", sandbox);
+ 		goto cleanup;
+ 	}
++	umask(mask);
+ 	return 0;
+ 
+       cleanup:
 -- 
-paul moore
-www.paul-moore.com
+2.14.3
