@@ -1,94 +1,451 @@
-Date: Fri, 10 Aug 2018 15:12:34 -0700
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
-To: "Theodore Y. Ts'o" <tytso@mit.edu>, Andy Lutomirski <luto@kernel.org>,
- David Howells <dhowells@redhat.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- Al Viro <viro@zeniv.linux.org.uk>,
- John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
- apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
- Fenghua Yu <fenghua.yu@intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp,
- "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Miklos Szeredi <miklos@szeredi.hu>
-Message-ID: <20180810221234.GC4211@magnolia>
-References: <20180810153902.GH21087@thunk.org> <87d0uqpba5.fsf@xmission.com>
- <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <22361.1533913891@warthog.procyon.org.uk>
- <28045.1533916438@warthog.procyon.org.uk>
- <20180810161400.GA627@thunk.org>
- <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
- <20180810204639.GI627@thunk.org>
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7AN1cge014457
+ for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2018 19:01:40 -0400
+Received: by mail-oi0-f68.google.com with SMTP id d189-v6so18505772oib.6
+ for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2018 16:01:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180810204639.GI627@thunk.org>
-Subject: Re: BUG: Mount ignores mount options
+References: <20180806211932.198488-1-jannh@google.com>
+ <CAHC9VhR5S6jGsHVwrGXemGobB1O=tADHBHWZMRP5BuRMGqDrOQ@mail.gmail.com>
+ <CAGH-Kgvn5=BT0GQU2qHBwJos8Ev=VgasicXeqQEG166Mi8fc6w@mail.gmail.com>
+In-Reply-To: <CAGH-Kgvn5=BT0GQU2qHBwJos8Ev=VgasicXeqQEG166Mi8fc6w@mail.gmail.com>
+From: Jann Horn <jannh@google.com>
+Date: Sat, 11 Aug 2018 01:01:03 +0200
+Message-ID: <CAG48ez1QS6e4cBsunh=V0fx6Gj-VENGeuakz2XK9eQoHU6Uh6Q@mail.gmail.com>
+To: pmoore@redhat.com
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
+ linux-security-module <linux-security-module@vger.kernel.org>,
+ kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux: refactor mls_context_to_sid() and make
+ it stricter
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 10, 2018 at 04:46:39PM -0400, Theodore Y. Ts'o wrote:
-> On Fri, Aug 10, 2018 at 01:06:54PM -0700, Andy Lutomirski wrote:
-> > If the same block device is visible, with rw access, in two different
-> > containers, I don't see any anything good can happen.
-> 
-> It's worse than that.  I've fixed a lot of bugs which cause the kernel
-> to crash, and a few that might be levered into a privilege escalationh
-> attack, when you mount a maliciously corrupted file system using ext4.
-> I'm told told the security researcher filed similar reports with the
-> XFS community, and he was told, "that's what metadata checksums are
-> for; go away".
+On Thu, Aug 9, 2018 at 4:07 AM Paul Moore <pmoore@redhat.com> wrote:
+>
+> On Wed, Aug 8, 2018 at 9:56 PM Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > On Mon, Aug 6, 2018 at 5:19 PM Jann Horn <jannh@google.com> wrote:
+> > >
+> > > The intended behavior change for this patch is to reject any MLS strings
+> > > that contain (trailing) garbage if p->mls_enabled is true.
+> > >
+> > > As suggested by Paul Moore, change mls_context_to_sid() so that the two
+> > > parts of the range are extracted before the rest of the parsing. Because
+> > > now we don't have to scan for two different separators simultaneously
+> > > everywhere, we can actually switch to strchr() everywhere instead of the
+> > > open-coded loops that scan for two separators at once.
+> > >
+> > > mls_context_to_sid() used to signal how much of the input string was parsed
+> > > by updating `*scontext`. However, there is actually no case in which
+> > > mls_context_to_sid() only parses a subset of the input and still returns
+> > > a success (other than the buggy case with a second '-' in which it
+> > > incorrectly claims to have consumed the entire string). Turn `scontext`
+> > > into a simple pointer argument and stop redundantly checking whether the
+> > > entire input was consumed in string_to_context_struct(). This also lets us
+> > > remove the `scontext_len` argument from `string_to_context_struct()`.
+> > >
+> > > Signed-off-by: Jann Horn <jannh@google.com>
+> > > ---
+> > > Refactored version of
+> > > "[PATCH] selinux: stricter parsing in mls_context_to_sid()" based on
+> > > Paul's comments. WDYT?
+> > > I've thrown some inputs at it, and it seems to work.
+> > >
+> > >  security/selinux/ss/mls.c      | 178 ++++++++++++++-------------------
+> > >  security/selinux/ss/mls.h      |   2 +-
+> > >  security/selinux/ss/services.c |  12 +--
+> > >  3 files changed, 82 insertions(+), 110 deletions(-)
+> >
+> > Thanks for the rework, this looks much better than what we currently
+> > have.  I have some comments/questions below ...
+> >
+> > > diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+> > > index 39475fb455bc..2fe459df3c85 100644
+> > > --- a/security/selinux/ss/mls.c
+> > > +++ b/security/selinux/ss/mls.c
+> > > @@ -218,9 +218,7 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
+> > >  /*
+> > >   * Set the MLS fields in the security context structure
+> > >   * `context' based on the string representation in
+> > > - * the string `*scontext'.  Update `*scontext' to
+> > > - * point to the end of the string representation of
+> > > - * the MLS fields.
+> > > + * the string `scontext'.
+> > >   *
+> > >   * This function modifies the string in place, inserting
+> > >   * NULL characters to terminate the MLS fields.
+> > > @@ -235,22 +233,21 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
+> > >   */
+> > >  int mls_context_to_sid(struct policydb *pol,
+> > >                        char oldc,
+> > > -                      char **scontext,
+> > > +                      char *scontext,
+> > >                        struct context *context,
+> > >                        struct sidtab *s,
+> > >                        u32 def_sid)
+> > >  {
+> > > -
+> > > -       char delim;
+> > > -       char *scontextp, *p, *rngptr;
+> > > +       char *sensitivity, *cur_cat, *next_cat, *rngptr;
+> > >         struct level_datum *levdatum;
+> > >         struct cat_datum *catdatum, *rngdatum;
+> > > -       int l, rc = -EINVAL;
+> > > +       int l, rc, i;
+> > > +       char *rangep[2];
+> > >
+> > >         if (!pol->mls_enabled) {
+> > > -               if (def_sid != SECSID_NULL && oldc)
+> > > -                       *scontext += strlen(*scontext) + 1;
+> > > -               return 0;
+> > > +               if ((def_sid != SECSID_NULL && oldc) || (*scontext) == '\0')
+> > > +                       return 0;
+> > > +               return -EINVAL;
+> >
+> > Why are we simply not always return 0 in the case where MLS is not
+> > enabled in the policy?  The mls_context_to_sid() is pretty much a
+> > no-op in this case (even more so with your pat regardless of input and
+> > I worry that returning EINVAL here is a deviation from current
+> > behavior which could cause problems.
+>
+> Sorry, I was rephrasing the text above when I accidentally hit send.
+> While my emails are generally a good source of typos, the above is
+> pretty bad, so let me try again ...
+>
+> Why are we simply not always returning 0 in the case where MLS is not
+> enabled in the policy?  The mls_context_to_sid() function is pretty
+> much a no-op in this case regardless of input and I worry that
+> returning EINVAL here is a deviation from current behavior which could
+> cause problems.
 
-Hey now, there was a little more nuance to it than that[1][2].  The
-complaint in the first instance had much more to do with breaking
-existing V4 filesystems by adding format requirements that mkfs didn't
-know about when the filesystem was created.  Yes, you can create V4
-filesystems that will hang the system if the log was totally unformatted
-and metadata updates are made, but OTOH it's fairly obvious when that
-happens, you have to be root to mount a disk filesystem, and we try to
-avoid breaking existing users.
+Reverse call graph of mls_context_to_sid():
 
-XFS developers have been and will continue to examine security problems
-when they are brought to our attention and strengthen validation as
-needed to minimize the risk of incorrect behaviors, but filesystems are
-complex machines, complex machinery is risky, and we arbitrate some of
-that risk by requiring administrators to elect to mount an XFS.
+mls_context_to_sid()
+    mls_from_string()
+        selinux_audit_rule_init()
+            [...]
+    string_to_context_struct()
+        security_context_to_sid_core()
+            [...]
+        convert_context()
+            [...]
 
-> Given how much time it takes to work with these security researchers,
-> I don't blame them.
-> 
-> But in light of that, I'd make a somewhat stronger statement.  If you
-> let an untrusted container mount arbitrary block devices where they
-> have rw acccess to the underlying block device, nothing good can
-> happen.  Period.  :-)
-> 
-> Which is why I don't think the lack of being able to reject
-> "conflicting mount options" is really all that important.  It
-> certainly shouldn't block the fsopen patch series.  #1, it's a problem
-> we have today, and #2, I'm really not all sure supporting bind mounts
-> via specifying block device was ever a good idea to begin with.  And
-> #3, while I've been fixing ext4 against security issues caused by
-> maliciously corrupted file system images, I'm still sure that allowing
-> untrusted containers access to mount *any* file system via a block
-> device for which they have r/w access is a Really Bad Idea.
-> 
-> > It seems to me that the current approach mostly involves crossing our fingers.
-> 
-> Agreed!
+string_to_context_struct() currently has the following code:
 
-Crossing our fingers and demanding administrator intentionality when
-mounting filesystems off some piece of storage.
+        rc = mls_context_to_sid(pol, oldc, &p, ctx, sidtabp, def_sid);
+        if (rc)
+                goto out;
 
---D
+        rc = -EINVAL;
+        if ((p - scontext) < scontext_len)
+                goto out;
 
-[1] https://lkml.org/lkml/2018/5/21/649
-[2] https://lkml.org/lkml/2018/4/2/572
+In my patch, I tried to preserve the behavior of
+string_to_context_struct(), at the expense of slightly changing the
+behavior of selinux_audit_rule_init().
+
+But if you think that's a bad idea or unnecessary, say so and I'll change it.
+
+> > >         }
+> > >
+> > >         /*
+> > > @@ -261,113 +258,94 @@ int mls_context_to_sid(struct policydb *pol,
+> > >                 struct context *defcon;
+> > >
+> > >                 if (def_sid == SECSID_NULL)
+> > > -                       goto out;
+> > > +                       return -EINVAL;
+> > >
+> > >                 defcon = sidtab_search(s, def_sid);
+> > >                 if (!defcon)
+> > > -                       goto out;
+> > > +                       return -EINVAL;
+> > >
+> > > -               rc = mls_context_cpy(context, defcon);
+> > > -               goto out;
+> > > +               return mls_context_cpy(context, defcon);
+> > >         }
+> > >
+> > > -       /* Extract low sensitivity. */
+> > > -       scontextp = p = *scontext;
+> > > -       while (*p && *p != ':' && *p != '-')
+> > > -               p++;
+> > > -
+> > > -       delim = *p;
+> > > -       if (delim != '\0')
+> > > -               *p++ = '\0';
+> > > +       /*
+> > > +        * If we're dealing with a range, figure out where the two parts
+> > > +        * of the range begin.
+> > > +        */
+> > > +       rangep[0] = scontext;
+> > > +       rangep[1] = strchr(scontext, '-');
+> > > +       if (rangep[1]) {
+> > > +               rangep[1][0] = '\0';
+> > > +               rangep[1]++;
+> > > +       }
+> > >
+> > > +       /* For each part of the range: */
+> > >         for (l = 0; l < 2; l++) {
+> > > -               levdatum = hashtab_search(pol->p_levels.table, scontextp);
+> > > -               if (!levdatum) {
+> > > -                       rc = -EINVAL;
+> > > -                       goto out;
+> > > -               }
+> > > +               /* Split sensitivity and category set. */
+> > > +               sensitivity = rangep[l];
+> > > +               if (sensitivity == NULL)
+> > > +                       break;
+> > > +               next_cat = strchr(sensitivity, ':');
+> > > +               if (next_cat)
+> > > +                       *(next_cat++) = '\0';
+> > >
+> > > +               /* Parse sensitivity. */
+> > > +               levdatum = hashtab_search(pol->p_levels.table, sensitivity);
+> > > +               if (!levdatum)
+> > > +                       return -EINVAL;
+> > >                 context->range.level[l].sens = levdatum->level->sens;
+> > >
+> > > -               if (delim == ':') {
+> > > -                       /* Extract category set. */
+> > > -                       while (1) {
+> > > -                               scontextp = p;
+> > > -                               while (*p && *p != ',' && *p != '-')
+> > > -                                       p++;
+> > > -                               delim = *p;
+> > > -                               if (delim != '\0')
+> > > -                                       *p++ = '\0';
+> > > -
+> > > -                               /* Separate into range if exists */
+> > > -                               rngptr = strchr(scontextp, '.');
+> > > -                               if (rngptr != NULL) {
+> > > -                                       /* Remove '.' */
+> > > -                                       *rngptr++ = '\0';
+> > > -                               }
+> > > +               /* Extract category set. */
+> > > +               while (next_cat != NULL) {
+> > > +                       cur_cat = next_cat;
+> > > +                       next_cat = strchr(next_cat, ',');
+> > > +                       if (next_cat != NULL)
+> > > +                               *(next_cat++) = '\0';
+> > > +
+> > > +                       /* Separate into range if exists */
+> > > +                       rngptr = strchr(cur_cat, '.');
+> > > +                       if (rngptr != NULL) {
+> > > +                               /* Remove '.' */
+> >
+> > On the chance you need to respin this patch, you can probably get rid
+> > of the above comment and the if-body braces; we don't have "Remove X"
+> > comments in other similar places in this function.
+> >
+> > > +                               *rngptr++ = '\0';
+> > > +                       }
+> > >
+> > > -                               catdatum = hashtab_search(pol->p_cats.table,
+> > > -                                                         scontextp);
+> > > -                               if (!catdatum) {
+> > > -                                       rc = -EINVAL;
+> > > -                                       goto out;
+> > > -                               }
+> > > +                       catdatum = hashtab_search(pol->p_cats.table, cur_cat);
+> > > +                       if (!catdatum)
+> > > +                               return -EINVAL;
+> > >
+> > > -                               rc = ebitmap_set_bit(&context->range.level[l].cat,
+> > > -                                                    catdatum->value - 1, 1);
+> > > -                               if (rc)
+> > > -                                       goto out;
+> > > -
+> > > -                               /* If range, set all categories in range */
+> > > -                               if (rngptr) {
+> > > -                                       int i;
+> > > -
+> > > -                                       rngdatum = hashtab_search(pol->p_cats.table, rngptr);
+> > > -                                       if (!rngdatum) {
+> > > -                                               rc = -EINVAL;
+> > > -                                               goto out;
+> > > -                                       }
+> > > -
+> > > -                                       if (catdatum->value >= rngdatum->value) {
+> > > -                                               rc = -EINVAL;
+> > > -                                               goto out;
+> > > -                                       }
+> > > -
+> > > -                                       for (i = catdatum->value; i < rngdatum->value; i++) {
+> > > -                                               rc = ebitmap_set_bit(&context->range.level[l].cat, i, 1);
+> > > -                                               if (rc)
+> > > -                                                       goto out;
+> > > -                                       }
+> > > -                               }
+> > > +                       rc = ebitmap_set_bit(&context->range.level[l].cat,
+> > > +                                            catdatum->value - 1, 1);
+> > > +                       if (rc)
+> > > +                               return rc;
+> > > +
+> > > +                       /* If range, set all categories in range */
+> > > +                       if (rngptr == NULL)
+> > > +                               continue;
+> > > +
+> > > +                       rngdatum = hashtab_search(pol->p_cats.table, rngptr);
+> > > +                       if (!rngdatum)
+> > > +                               return -EINVAL;
+> > > +
+> > > +                       if (catdatum->value >= rngdatum->value)
+> > > +                               return -EINVAL;
+> > >
+> > > -                               if (delim != ',')
+> > > -                                       break;
+> > > +                       for (i = catdatum->value; i < rngdatum->value; i++) {
+> > > +                               rc = ebitmap_set_bit(&context->range.level[l].cat, i, 1);
+> > > +                               if (rc)
+> > > +                                       return rc;
+> > >                         }
+> > >                 }
+> > > -               if (delim == '-') {
+> > > -                       /* Extract high sensitivity. */
+> > > -                       scontextp = p;
+> > > -                       while (*p && *p != ':')
+> > > -                               p++;
+> > > -
+> > > -                       delim = *p;
+> > > -                       if (delim != '\0')
+> > > -                               *p++ = '\0';
+> > > -               } else
+> > > -                       break;
+> > >         }
+> > >
+> > > -       if (l == 0) {
+> > > +       /* If we didn't see a '-', the range start is also the range end. */
+> > > +       if (rangep[1] == NULL) {
+> > >                 context->range.level[1].sens = context->range.level[0].sens;
+> > >                 rc = ebitmap_cpy(&context->range.level[1].cat,
+> > >                                  &context->range.level[0].cat);
+> > >                 if (rc)
+> > > -                       goto out;
+> > > +                       return rc;
+> > >         }
+> > > -       *scontext = ++p;
+> > > -       rc = 0;
+> > > -out:
+> > > -       return rc;
+> > > +
+> > > +       return 0;
+> >
+> > In the case where we have a MLS policy loaded (pol->mls_enabled != 0)
+> > and scontext is empty (scontext[0] = '\0'), we could end up returning
+> > 0 couldn't we?  It seems like we might want a quick check for this
+> > before we parse the low/high portions of the field into the rangep
+> > array.
+> >
+> > >  }
+> > >
+> > >  /*
+> > > @@ -379,21 +357,19 @@ int mls_context_to_sid(struct policydb *pol,
+> > >  int mls_from_string(struct policydb *p, char *str, struct context *context,
+> > >                     gfp_t gfp_mask)
+> > >  {
+> > > -       char *tmpstr, *freestr;
+> > > +       char *tmpstr;
+> > >         int rc;
+> > >
+> > >         if (!p->mls_enabled)
+> > >                 return -EINVAL;
+> > >
+> > > -       /* we need freestr because mls_context_to_sid will change
+> > > -          the value of tmpstr */
+> > > -       tmpstr = freestr = kstrdup(str, gfp_mask);
+> > > +       tmpstr = kstrdup(str, gfp_mask);
+> > >         if (!tmpstr) {
+> > >                 rc = -ENOMEM;
+> > >         } else {
+> > > -               rc = mls_context_to_sid(p, ':', &tmpstr, context,
+> > > +               rc = mls_context_to_sid(p, ':', tmpstr, context,
+> > >                                         NULL, SECSID_NULL);
+> > > -               kfree(freestr);
+> > > +               kfree(tmpstr);
+> > >         }
+> > >
+> > >         return rc;
+> > > diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+> > > index 9a3ff7af70ad..67093647576d 100644
+> > > --- a/security/selinux/ss/mls.h
+> > > +++ b/security/selinux/ss/mls.h
+> > > @@ -34,7 +34,7 @@ int mls_level_isvalid(struct policydb *p, struct mls_level *l);
+> > >
+> > >  int mls_context_to_sid(struct policydb *p,
+> > >                        char oldc,
+> > > -                      char **scontext,
+> > > +                      char *scontext,
+> > >                        struct context *context,
+> > >                        struct sidtab *s,
+> > >                        u32 def_sid);
+> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > > index dd2ceec06fef..9212d4dd817a 100644
+> > > --- a/security/selinux/ss/services.c
+> > > +++ b/security/selinux/ss/services.c
+> > > @@ -1367,7 +1367,6 @@ int security_sid_to_context_force(struct selinux_state *state, u32 sid,
+> > >  static int string_to_context_struct(struct policydb *pol,
+> > >                                     struct sidtab *sidtabp,
+> > >                                     char *scontext,
+> > > -                                   u32 scontext_len,
+> > >                                     struct context *ctx,
+> > >                                     u32 def_sid)
+> > >  {
+> > > @@ -1428,15 +1427,12 @@ static int string_to_context_struct(struct policydb *pol,
+> > >
+> > >         ctx->type = typdatum->value;
+> > >
+> > > -       rc = mls_context_to_sid(pol, oldc, &p, ctx, sidtabp, def_sid);
+> > > +       rc = mls_context_to_sid(pol, oldc, p, ctx, sidtabp, def_sid);
+> > >         if (rc)
+> > >                 goto out;
+> > >
+> > > -       rc = -EINVAL;
+> > > -       if ((p - scontext) < scontext_len)
+> > > -               goto out;
+> > > -
+> > >         /* Check the validity of the new context. */
+> > > +       rc = -EINVAL;
+> > >         if (!policydb_context_isvalid(pol, ctx))
+> > >                 goto out;
+> > >         rc = 0;
+> > > @@ -1491,7 +1487,7 @@ static int security_context_to_sid_core(struct selinux_state *state,
+> > >         policydb = &state->ss->policydb;
+> > >         sidtab = &state->ss->sidtab;
+> > >         rc = string_to_context_struct(policydb, sidtab, scontext2,
+> > > -                                     scontext_len, &context, def_sid);
+> > > +                                     &context, def_sid);
+> > >         if (rc == -EINVAL && force) {
+> > >                 context.str = str;
+> > >                 context.len = strlen(str) + 1;
+> > > @@ -1959,7 +1955,7 @@ static int convert_context(u32 key,
+> > >                         goto out;
+> > >
+> > >                 rc = string_to_context_struct(args->newp, NULL, s,
+> > > -                                             c->len, &ctx, SECSID_NULL);
+> > > +                                             &ctx, SECSID_NULL);
+> > >                 kfree(s);
+> > >                 if (!rc) {
+> > >                         printk(KERN_INFO "SELinux:  Context %s became valid (mapped).\n",
+> > > --
+> > > 2.18.0.597.ga71716f1ad-goog
+> >
+> > --
+> > paul moore
+> > www.paul-moore.com
+> > --
+> > To unsubscribe from this list: send the line "unsubscribe linux-security-module" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
+>
+> --
+> paul moore
+> security @ redhat
