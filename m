@@ -1,21 +1,16 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7AEeTOC007263
- for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2018 10:40:29 -0400
-Received: by mail-pf1-f181.google.com with SMTP id b11-v6so4627405pfo.3
- for <selinux@tycho.nsa.gov>; Fri, 10 Aug 2018 07:36:26 -0700 (PDT)
-Content-Type: text/plain;
-	charset=us-ascii
-Mime-Version: 1.0 (1.0)
-From: Andy Lutomirski <luto@amacapital.net>
-In-Reply-To: <87d0uqpba5.fsf@xmission.com>
-Date: Fri, 10 Aug 2018 07:36:17 -0700
-Cc: David Howells <dhowells@redhat.com>, viro@zeniv.linux.org.uk,
- John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, linux-api@vger.kernel.org,
- apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
- fenghua.yu@intel.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <0F2FA70F-8C7E-4D7D-B685-244A76BDB459@amacapital.net>
+References: <0F2FA70F-8C7E-4D7D-B685-244A76BDB459@amacapital.net>
+ <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
+ <87d0uqpba5.fsf@xmission.com>
+To: Andy Lutomirski <luto@amacapital.net>
+Cc: dhowells@redhat.com, "Eric W. Biederman" <ebiederm@xmission.com>,
+ viro@zeniv.linux.org.uk, John Johansen <john.johansen@canonical.com>,
+ Tejun Heo <tj@kernel.org>, selinux@tycho.nsa.gov,
+ Paul Moore <paul@paul-moore.com>, Li Zefan <lizefan@huawei.com>,
+ linux-api@vger.kernel.org, apparmor@lists.ubuntu.com,
+ Casey Schaufler <casey@schaufler-ca.com>, fenghua.yu@intel.com,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  Eric Biggers <ebiggers@google.com>, linux-security-module@vger.kernel.org,
  Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
  Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
@@ -23,30 +18,33 @@ Cc: David Howells <dhowells@redhat.com>, viro@zeniv.linux.org.uk,
  torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
  linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
  Miklos Szeredi <miklos@szeredi.hu>
-Message-Id: <0F2FA70F-8C7E-4D7D-B685-244A76BDB459@amacapital.net>
-References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <87d0uqpba5.fsf@xmission.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Fri, 10 Aug 2018 16:13:11 +0100
+Message-ID: <22558.1533913991@warthog.procyon.org.uk>
 Subject: Re: BUG: Mount ignores mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+Andy Lutomirski <luto@amacapital.net> wrote:
 
-
-> On Aug 10, 2018, at 7:05 AM, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> > /dev/loop0 /root/loop0-noacl-noquota-nouser_xattr ext4 rw,relatime,nouser_xattr,noacl 0 0
+> > /dev/loop0 /root/loop0-acl-quota-user_xattr ext4 rw,relatime,nouser_xattr,noacl 0 0
 > 
+> To make sure I understand correctly: the problem is that the second mount
+> ignored the options because the device was already mounted, right?
 > 
-> There is a serious problem with mount options today that fsopen does not
-> address.  The problem is that mount options are ignored for block based
-> filesystems, and any other type of filesystem that follows the same
-> pattern.
-> 
+> For the new API, I think the only remotely sane approach is to refuse to
+> mount or init or whatever you call it an already mounted bdev. If user code
+> genuinely needs to bind-mount an existing mount that is known only by its
+> bdev, we can add a specific API just for that.
 
-> /dev/loop0 /root/loop0-noacl-noquota-nouser_xattr ext4 rw,relatime,nouser_xattr,noacl 0 0
-> /dev/loop0 /root/loop0-acl-quota-user_xattr ext4 rw,relatime,nouser_xattr,noacl 0 0
+I'm adding some flags to fsopen() to allow userspace to say whether it wants
+no sharing, same parameters-only sharing or anything-goes sharing (as now).
 
-To make sure I understand correctly: the problem is that the second mount ignored the options because the device was already mounted, right?
+I'm also adding a flag whereby userspace can forbid anyone else from sharing a
+new superblock it has just set up.
 
-For the new API, I think the only remotely sane approach is to refuse to mount or init or whatever you call it an already mounted bdev. If user code genuinely needs to bind-mount an existing mount that is known only by its bdev, we can add a specific API just for that.
+David
