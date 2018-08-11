@@ -1,65 +1,51 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc: "Theodore Y. Ts'o" <tytso@mit.edu>, Andy Lutomirski <luto@kernel.org>,
- David Howells <dhowells@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>,
+Date: Fri, 10 Aug 2018 21:46:19 -0400
+From: "Theodore Y. Ts'o" <tytso@mit.edu>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Al Viro <viro@ZenIV.linux.org.uk>, David Howells <dhowells@redhat.com>,
  John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
+ selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
+ Li Zefan <lizefan@huawei.com>, linux-api@vger.kernel.org,
  apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
- Fenghua Yu <fenghua.yu@intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ fenghua.yu@intel.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@google.com>, linux-security-module@vger.kernel.org,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
  Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp,
- "open list\:CONTROL GROUP \(CGROUP\)" <cgroups@vger.kernel.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Miklos Szeredi <miklos@szeredi.hu>
-References: <20180810153902.GH21087@thunk.org> <87d0uqpba5.fsf@xmission.com>
- <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <22361.1533913891@warthog.procyon.org.uk>
- <28045.1533916438@warthog.procyon.org.uk>
- <20180810161400.GA627@thunk.org>
- <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
- <20180810204639.GI627@thunk.org> <20180810221234.GC4211@magnolia>
- <20180810235447.GK627@thunk.org> <20180811003852.GA10463@magnolia>
-Date: Fri, 10 Aug 2018 20:32:04 -0500
-In-Reply-To: <20180811003852.GA10463@magnolia> (Darrick J. Wong's message of
- "Fri, 10 Aug 2018 17:38:52 -0700")
-Message-ID: <87zhxtg02z.fsf@xmission.com>
+ tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
+ torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
+Message-ID: <20180811014619.GA14368@thunk.org>
+References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
+ <87d0uqpba5.fsf@xmission.com>
+ <20180810151606.GA6515@ZenIV.linux.org.uk>
+ <87pnypiufr.fsf@xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <87pnypiufr.fsf@xmission.com>
 Subject: Re: BUG: Mount ignores mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-"Darrick J. Wong" <darrick.wong@oracle.com> writes:
+On Fri, Aug 10, 2018 at 08:05:44PM -0500, Eric W. Biederman wrote:
+> 
+> My complaint is that the current implemented behavior of practically
+> every filesystem in the kernel, is that it will ignore mount options
+> when mounted a second time.
 
-> On Fri, Aug 10, 2018 at 07:54:47PM -0400, Theodore Y. Ts'o wrote:
+The file system is ***not*** mounted a second time.
 
->> The reason why I bring this up here is that in container land, there
->> are those who believe that "container root" should be able to mount
->> file systems, and if the "container root" isn't trusted, the fact that
->> the "container root" can crash the host kernel, or worse, corrupt the
->> host kernel and break out of the container as a result, that would be
->> sad.
->> 
->> I was pretty sure most file system developers are on the same page
->> that allowing untrusted "container roots" the ability to mount
->> arbitrary block device file systems is insanity.
->
-> Agreed.
+The design bug is that we allow bind mounts to be specified via a
+block device.  A bind mount is not "a second mount" of the file
+system.  Bind mounts != mounts.
 
-For me I am happy with fuse.  That is sufficient to cover any container
-use cases people have.   If anyone comes bugging you for more I will be
-happy to push back.
+I had assumed we had allowed bind mounts to be specified via the block
+device because of container use cases.  If the container folks don't
+want it, I would be pushing to simply not allow bind mounts to be
+specified via block device at all.
 
-The only thing that containers have to do with this is I wind up
-touching a lot of the kernel/user boundary so I get to see a lot of it
-and sometimes see weird things.
+The only reason why we should support it is because we don't want to
+break scripts; and if the goal is not to break scripts, then we have
+to keep to the current semantics, however broken you think it is.
 
-Eric
+					- Ted
