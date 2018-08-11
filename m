@@ -1,6 +1,10 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: "Theodore Y. Ts'o" <tytso@mit.edu>
-Cc: Al Viro <viro@ZenIV.linux.org.uk>, David Howells <dhowells@redhat.com>,
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <87pnyphf8i.fsf@xmission.com>
+References: <87pnyphf8i.fsf@xmission.com> <87d0uqpba5.fsf@xmission.com>
+ <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
+ <22361.1533913891@warthog.procyon.org.uk>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: dhowells@redhat.com, viro@zeniv.linux.org.uk,
  John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
  selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
  Li Zefan <lizefan@huawei.com>, linux-api@vger.kernel.org,
@@ -11,50 +15,32 @@ Cc: Al Viro <viro@ZenIV.linux.org.uk>, David Howells <dhowells@redhat.com>,
  Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
  tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
  torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
-References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <87d0uqpba5.fsf@xmission.com>
- <20180810151606.GA6515@ZenIV.linux.org.uk>
- <87pnypiufr.fsf@xmission.com> <20180811014619.GA14368@thunk.org>
-Date: Fri, 10 Aug 2018 23:48:24 -0500
-In-Reply-To: <20180811014619.GA14368@thunk.org> (Theodore Y. Ts'o's message of
- "Fri, 10 Aug 2018 21:46:19 -0400")
-Message-ID: <8736vlo6ef.fsf@xmission.com>
+ linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
+ Miklos Szeredi <miklos@szeredi.hu>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="us-ascii"
+Date: Sat, 11 Aug 2018 08:29:46 +0100
+Message-ID: <30365.1533972586@warthog.procyon.org.uk>
 Subject: Re: BUG: Mount ignores mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-"Theodore Y. Ts'o" <tytso@mit.edu> writes:
+Eric W. Biederman <ebiederm@xmission.com> wrote:
 
-> On Fri, Aug 10, 2018 at 08:05:44PM -0500, Eric W. Biederman wrote:
->> 
->> My complaint is that the current implemented behavior of practically
->> every filesystem in the kernel, is that it will ignore mount options
->> when mounted a second time.
->
-> The file system is ***not*** mounted a second time.
->
-> The design bug is that we allow bind mounts to be specified via a
-> block device.  A bind mount is not "a second mount" of the file
-> system.  Bind mounts != mounts.
->
-> I had assumed we had allowed bind mounts to be specified via the block
-> device because of container use cases.  If the container folks don't
-> want it, I would be pushing to simply not allow bind mounts to be
-> specified via block device at all.
+> > Yes, I agree it would be nice to have, but it *doesn't* really need
+> > supporting right this minute, since what I have now oughtn't to break the
+> > current behaviour.
+> 
+> I am really reluctant to endorse anything that propagates the issues of
+> the current interface in the new mount interface.
 
-No it is not a container thing.
+Do realise that your problem cannot be solved through fsopen() until every
+filesystem is converted to the new fs_context-based sget() since the flag has
+to make it from the VFS through the filesystem to sget().
 
-> The only reason why we should support it is because we don't want to
-> break scripts; and if the goal is not to break scripts, then we have
-> to keep to the current semantics, however broken you think it is.
+I'm reluctant to add this flag till that point until that time unless we error
+out if the flag is set against a legacy filesystem.
 
-But we don't have to support returning filesystems with mismatched mount
-options in the new fsopen api.   That is my concern.  Confusing
-userspace this way has been shown to be harmful let's not keep doing it.
-
-Eric
+David
