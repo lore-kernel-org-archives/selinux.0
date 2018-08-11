@@ -1,7 +1,7 @@
-Date: Fri, 10 Aug 2018 21:46:19 -0400
-From: "Theodore Y. Ts'o" <tytso@mit.edu>
+Date: Sat, 11 Aug 2018 02:58:15 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
 To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Al Viro <viro@ZenIV.linux.org.uk>, David Howells <dhowells@redhat.com>,
+Cc: David Howells <dhowells@redhat.com>,
  John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
  selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
  Li Zefan <lizefan@huawei.com>, linux-api@vger.kernel.org,
@@ -12,8 +12,9 @@ Cc: Al Viro <viro@ZenIV.linux.org.uk>, David Howells <dhowells@redhat.com>,
  Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
  tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
  torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
-Message-ID: <20180811014619.GA14368@thunk.org>
+ linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
+ Miklos Szeredi <miklos@szeredi.hu>
+Message-ID: <20180811015815.GD6515@ZenIV.linux.org.uk>
 References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
  <87d0uqpba5.fsf@xmission.com>
  <20180810151606.GA6515@ZenIV.linux.org.uk>
@@ -21,6 +22,7 @@ References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 In-Reply-To: <87pnypiufr.fsf@xmission.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
 Subject: Re: BUG: Mount ignores mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
@@ -28,24 +30,51 @@ List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On Fri, Aug 10, 2018 at 08:05:44PM -0500, Eric W. Biederman wrote:
+
+> All I proposed was that we distinguish between a first mount and an
+> additional mount so that userspace knows the options will be ignored.
+
+For pity sake, just what does it take to explain to you that your
+notions of "first mount" and "additional mount" ARE HEAVILY FS-DEPENDENT
+and may depend upon the pieces of state userland (especially in container)
+simply does not have?
+
+One more time, slowly:
+
+mount -t nfs4 wank.example.org:/foo/bar /mnt/a
+mount -t nfs4 wank.example.org:/baz/barf /mnt/b
+
+yield the same superblock.  Is anyone who mounts something over NFS
+required to know if anybody else has mounted something from the same
+server, and if so how the hell are they supposed to find that out,
+so that they could decide whether they are creating the "first" or
+"additional" mount, whatever that might mean in this situation?
+
+And how, kernel-side, is that supposed to be handled by generic code
+of any description?  
+
+While we are at it,
+mount -t nfs4 wank.example.org:/foo/bar -o wsize=16384 /mnt/c
+is *NOT* the same superblock as the previous two.
+
+> I don't know how the above wound up being construed as asking that the
+> code call sget directly but that is what has happened.
+
+Not by me.  What I'm saying is that the entire superblock-creating
+machinery - all of it - is nothing but library helpers.  With the
+decision of when/how/if they are to be used being down to filesystem
+driver.  Your "first mount"/"additional mount" simply do not map
+to anything universally applicable.
+
+> > Having something like a second callback for mount_bdev() that would
+> > be called when we'd found an existing instance for the same block
+> > device?  Sure, no problem.  Having a helper for doing such comparison
+> > that would work in enough cases to bother, so that different fs
+> > could avoid boilerplate in that callback?  Again, more power to you.
 > 
-> My complaint is that the current implemented behavior of practically
-> every filesystem in the kernel, is that it will ignore mount options
-> when mounted a second time.
+> Normal forms etc.  If we want to do that it just requires a wee bit of
+> discipline.  And if all of the option parsing is being rewritten and
+> retested anyway I don't see why we can't do something like that as well.
+> So it does not sound unreasonable to me.
 
-The file system is ***not*** mounted a second time.
-
-The design bug is that we allow bind mounts to be specified via a
-block device.  A bind mount is not "a second mount" of the file
-system.  Bind mounts != mounts.
-
-I had assumed we had allowed bind mounts to be specified via the block
-device because of container use cases.  If the container folks don't
-want it, I would be pushing to simply not allow bind mounts to be
-specified via block device at all.
-
-The only reason why we should support it is because we don't want to
-break scripts; and if the goal is not to break scripts, then we have
-to keep to the current semantics, however broken you think it is.
-
-					- Ted
+See above.
