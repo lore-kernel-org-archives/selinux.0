@@ -1,102 +1,172 @@
-Date: Fri, 10 Aug 2018 17:38:52 -0700
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
-To: "Theodore Y. Ts'o" <tytso@mit.edu>, Andy Lutomirski <luto@kernel.org>,
- David Howells <dhowells@redhat.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- Al Viro <viro@zeniv.linux.org.uk>,
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: David Howells <dhowells@redhat.com>,
  John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
+ selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
+ Li Zefan <lizefan@huawei.com>, linux-api@vger.kernel.org,
  apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
- Fenghua Yu <fenghua.yu@intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ fenghua.yu@intel.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@google.com>, linux-security-module@vger.kernel.org,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
  Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp,
- "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Miklos Szeredi <miklos@szeredi.hu>
-Message-ID: <20180811003852.GA10463@magnolia>
-References: <20180810153902.GH21087@thunk.org> <87d0uqpba5.fsf@xmission.com>
- <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <22361.1533913891@warthog.procyon.org.uk>
- <28045.1533916438@warthog.procyon.org.uk>
- <20180810161400.GA627@thunk.org>
- <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
- <20180810204639.GI627@thunk.org> <20180810221234.GC4211@magnolia>
- <20180810235447.GK627@thunk.org>
+ tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
+ torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
+ linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
+ Miklos Szeredi <miklos@szeredi.hu>
+References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
+ <87d0uqpba5.fsf@xmission.com>
+ <20180810151606.GA6515@ZenIV.linux.org.uk>
+Date: Fri, 10 Aug 2018 20:05:44 -0500
+In-Reply-To: <20180810151606.GA6515@ZenIV.linux.org.uk> (Al Viro's message of
+ "Fri, 10 Aug 2018 16:16:06 +0100")
+Message-ID: <87pnypiufr.fsf@xmission.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180810235447.GK627@thunk.org>
+Content-Type: text/plain
 Subject: Re: BUG: Mount ignores mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 10, 2018 at 07:54:47PM -0400, Theodore Y. Ts'o wrote:
-> On Fri, Aug 10, 2018 at 03:12:34PM -0700, Darrick J. Wong wrote:
-> > Hey now, there was a little more nuance to it than that[1][2].  The
-> > complaint in the first instance had much more to do with breaking
-> > existing V4 filesystems by adding format requirements that mkfs didn't
-> > know about when the filesystem was created.  Yes, you can create V4
-> > filesystems that will hang the system if the log was totally unformatted
-> > and metadata updates are made, but OTOH it's fairly obvious when that
-> > happens, you have to be root to mount a disk filesystem, and we try to
-> > avoid breaking existing users.
-> 
-> I wasn't thinking about syzbot reports; I've largely written them off
-> as far as file system testing is concerned, but rather Wen Xu at
-> Georgia Tech, who is much more reasonable than Dmitry, and has helpeyd
-> me out a lot; and has complained that the XFS folks haven't been
-> engaging with him.
+Al Viro <viro@ZenIV.linux.org.uk> writes:
 
-Ahh, ok.  Yes, Wen has been easier to work with, and gives out
-filesystem images.  Hm, I'll go comb the bugzilla again...
+> On Fri, Aug 10, 2018 at 09:05:22AM -0500, Eric W. Biederman wrote:
+>> 
+>> There is a serious problem with mount options today that fsopen does not
+>> address.  The problem is that mount options are ignored for block based
+>> filesystems, and any other type of filesystem that follows the same
+>> pattern.
+>> 
+>> The script below demonstrates this bug.  Showing this bug can cause the
+>> ext4 "acl" "quota" and "user_xattr" options to be silently ignored.
+>> 
+>> fsopen has my nack until it addresses this issue.
+>> 
+>> I don't know if we can fix this in the context of sys_mount.  But we if
+>> we are redoing the option parsing of how we mount filesystems this needs
+>> to be fixed before we start worrying about bug compatibility.
+>> 
+>> Hopefully this report is simple and clear enough that we can at least
+>> agree on the problem.
+>
+> Sure, it is simple.  So's the solution: MNT_USERNS_SPECIAL_SEMANTICS that
+> would get passed to filesystems, so that Eric would be able to implement
+> his mount(2)-incompatible behaviour at leisure, without worrying about
+> compatibility issues.
+>
+> Does that address your complaint?
 
-> In either case, both security researchers are fuzzing file system
-> images, and then fixing the checksums, and discovering that this can
-> lead to kernel crashes, and in a few cases, buffer overruns that can
-> lead to potential privilege escalations.  Wen can generate reports
-> faster than syzbot, but at least he gives me file system images (as
-> opposed to having to dig them out of syzbot repro C files) and he
-> actually does some analysis and explains what he thinks is going on.
+Absolutely not.
 
-(FWIW I tried to figure out how to add fs image dumping to syzbot and
-whoah that was horrifying.
+My complaint is that the current implemented behavior of practically
+every filesystem in the kernel, is that it will ignore mount options
+when mounted a second time.  
 
-> I don't think anyone was claiming that format requirements should be
-> added to ext4 or xfs file systems.  But rather, that kernel code
-> should be made more robust against maliciously corrupted file system
-> images that have valid checksums.  I've been more willing to work with
-> Wen; Dave has expressed the opinion that these are not realistic bug
-> reports, and since only root can mount file systems, it's not high
-> priority.
+It is not some weird special case.
 
-I don't think they're high priority either, but they're at least worth
-/some/ attention.
+It is not some container thing.
 
-> The reason why I bring this up here is that in container land, there
-> are those who believe that "container root" should be able to mount
-> file systems, and if the "container root" isn't trusted, the fact that
-> the "container root" can crash the host kernel, or worse, corrupt the
-> host kernel and break out of the container as a result, that would be
-> sad.
-> 
-> I was pretty sure most file system developers are on the same page
-> that allowing untrusted "container roots" the ability to mount
-> arbitrary block device file systems is insanity.
+It is that the behavior of mount(2) with practically every filesystem
+type when that filesystem is already mounted somewhere else behaves
+in ways no one would expect.
 
-Agreed.
+With the new fsopen api the easy thing to do is simply have CMD_CREATE
+CMD_BIND_INTERNAL and be done with it.  CMD_CREATE guarantee that a new
+superblock is created.  CMD_BIND_INTERNAL would only work with an
+existing superblock.  Then root would at least know that he is
+connecting to an already mounted filesystem and could look at the
+options etc and fail if he didn't like what he saw.  No surprises, no
+muss, no fuss simple.
 
-> Whether or not we try to fix these sorts of bugs submitted by security
-> researchers.  :-)
 
-and agreed. :)
+But I have been told the simple solution above is somehow unacceptable.
+And an option to compare the mount options and see if they are the same
+was offered.  That would will work to.
 
---D
+I just care that we define the semantics in such a way that it is not
+easy for root to get confused and do something stupid that will bite
+later, and that we build the infrastructure so that all filesystems
+can implement it easily.
 
-> 	  	       	    	       		  - Ted
+So yes this is 100% a question about how filesystems should behave with
+respect to their option when mounted for a second time.  That is what
+Dave Howells patchset is addressing.
+
+> Because one thing we are not going to do is changing mount(2)
+> behaviour.
+
+I have not asked for that.  I have asked that we get it right for
+fsopen.
+
+> Reason: userland-visible behaviour of hell knows how many local scripts.
+
+
+
+> Another thing that
+> is flat-out not feasible is some kind of blanket "compare options"
+> stuff; it *can* be done as helpers to be used by filesystem when
+> it sees that new flag, but it's simply not going to work at the
+> fs-independent level.
+>
+> Trivial example with the same ext4:
+> mount /dev/sda1 /mnt/a -o bsddf vs. mount /dev/sda1 /mnt/b
+> ext4 can tell that these are the same.  syscall itself has no
+> clue.  What's more, it's not just explicitly spelled default
+> options - it's the stuff that has more than one form.  And while
+> we are at it, the things like two NFS mounts of different trees
+> from the same server; they might or might not get the same superblock.
+> Depending upon the options.
+>
+> Convenience helper that would allow ext4 to compare options and reject
+> the incompatible mount?  Not sure how much ext4-specific knowledge
+> would have to go in it, but if you can come up with one - more power
+> to you.  But the decision to use it *must* be ext4-specific.  Because
+> for e.g. NFS such thing as -o fsid=..., while certainly a part of
+> options, has a very different meaning - it's "use a separate fs instance"
+> (and let the server deal with coherency issues on its end).
+>
+> Decision to use sget() (and the way it's used) is up to filesystem.
+> We *can't* lift that into syscall.  Not without breaking the fuck out
+> of existing behaviour.
+
+I have never proposed that.  See above.  I may have talked in terms
+of what sget does and muddied the waters.  If so I apologize.
+
+All I proposed was that we distinguish between a first mount and an
+additional mount so that userspace knows the options will be ignored.
+
+Then the code to replicate the current behavior can look like:
+
+	fd = fsopen(...);
+	fsconfig(fd, ...);
+	fsconfig(fd, ...);
+	fsconfig(fd, ...);
+	fsconfig(fd, ...);
+	fsconfig(fd, ...);
+	fsconfig(fd, ...);
+	fsconfig(fd, ...);
+	
+	if (fsconfig(fd, CMD_CREATE) == -EBUSY) {
+        	fsconfig(fd, CMD_BIND_INTERNAL);
+        }
+
+But userspace would then be free to issue a warning or do something
+else if CMD_CREATE returns -EBUSY.
+
+I don't know how the above wound up being construed as asking that the
+code call sget directly but that is what has happened.
+
+> Having something like a second callback for mount_bdev() that would
+> be called when we'd found an existing instance for the same block
+> device?  Sure, no problem.  Having a helper for doing such comparison
+> that would work in enough cases to bother, so that different fs
+> could avoid boilerplate in that callback?  Again, more power to you.
+
+Normal forms etc.  If we want to do that it just requires a wee bit of
+discipline.  And if all of the option parsing is being rewritten and
+retested anyway I don't see why we can't do something like that as well.
+So it does not sound unreasonable to me.
+
+It does sound like more work than what I was proposing.
+
+Eric
