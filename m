@@ -1,6 +1,6 @@
 From: ebiederm@xmission.com (Eric W. Biederman)
-To: Al Viro <viro@ZenIV.linux.org.uk>
-Cc: David Howells <dhowells@redhat.com>,
+To: "Theodore Y. Ts'o" <tytso@mit.edu>
+Cc: Al Viro <viro@ZenIV.linux.org.uk>, David Howells <dhowells@redhat.com>,
  John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
  selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
  Li Zefan <lizefan@huawei.com>, linux-api@vger.kernel.org,
@@ -11,18 +11,15 @@ Cc: David Howells <dhowells@redhat.com>,
  Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
  tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
  torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org, "Theodore Y. Ts'o" <tytso@mit.edu>,
- Miklos Szeredi <miklos@szeredi.hu>
+ linux-kernel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
 References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
  <87d0uqpba5.fsf@xmission.com>
  <20180810151606.GA6515@ZenIV.linux.org.uk>
- <87pnypiufr.fsf@xmission.com>
- <20180811015815.GD6515@ZenIV.linux.org.uk>
- <20180811021704.GE6515@ZenIV.linux.org.uk>
-Date: Fri, 10 Aug 2018 23:43:20 -0500
-In-Reply-To: <20180811021704.GE6515@ZenIV.linux.org.uk> (Al Viro's message of
- "Sat, 11 Aug 2018 03:17:04 +0100")
-Message-ID: <87mutto6mv.fsf@xmission.com>
+ <87pnypiufr.fsf@xmission.com> <20180811014619.GA14368@thunk.org>
+Date: Fri, 10 Aug 2018 23:48:24 -0500
+In-Reply-To: <20180811014619.GA14368@thunk.org> (Theodore Y. Ts'o's message of
+ "Fri, 10 Aug 2018 21:46:19 -0400")
+Message-ID: <8736vlo6ef.fsf@xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 Subject: Re: BUG: Mount ignores mount options
@@ -31,59 +28,33 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Al Viro <viro@ZenIV.linux.org.uk> writes:
+"Theodore Y. Ts'o" <tytso@mit.edu> writes:
 
-> On Sat, Aug 11, 2018 at 02:58:15AM +0100, Al Viro wrote:
->> On Fri, Aug 10, 2018 at 08:05:44PM -0500, Eric W. Biederman wrote:
+> On Fri, Aug 10, 2018 at 08:05:44PM -0500, Eric W. Biederman wrote:
 >> 
->> > All I proposed was that we distinguish between a first mount and an
->> > additional mount so that userspace knows the options will be ignored.
->> 
->> For pity sake, just what does it take to explain to you that your
->> notions of "first mount" and "additional mount" ARE HEAVILY FS-DEPENDENT
->> and may depend upon the pieces of state userland (especially in container)
->> simply does not have?
->> 
->> One more time, slowly:
->> 
->> mount -t nfs4 wank.example.org:/foo/bar /mnt/a
->> mount -t nfs4 wank.example.org:/baz/barf /mnt/b
->> 
->> yield the same superblock.  Is anyone who mounts something over NFS
->> required to know if anybody else has mounted something from the same
->> server, and if so how the hell are they supposed to find that out,
->> so that they could decide whether they are creating the "first" or
->> "additional" mount, whatever that might mean in this situation?
->> 
->> And how, kernel-side, is that supposed to be handled by generic code
->> of any description?  
->> 
->> While we are at it,
->> mount -t nfs4 wank.example.org:/foo/bar -o wsize=16384 /mnt/c
->> is *NOT* the same superblock as the previous two.
+>> My complaint is that the current implemented behavior of practically
+>> every filesystem in the kernel, is that it will ignore mount options
+>> when mounted a second time.
 >
-> s/as the previous two/as in the previous two cases/, that is - the first two
-> examples yield one superblock, this one - another.
+> The file system is ***not*** mounted a second time.
+>
+> The design bug is that we allow bind mounts to be specified via a
+> block device.  A bind mount is not "a second mount" of the file
+> system.  Bind mounts != mounts.
+>
+> I had assumed we had allowed bind mounts to be specified via the block
+> device because of container use cases.  If the container folks don't
+> want it, I would be pushing to simply not allow bind mounts to be
+> specified via block device at all.
 
-Exactly because the mount options differ.
+No it is not a container thing.
 
-I don't have a problem if we have something sophisticated like nfs that
-handles all of the hairy details and does not reuse a superblock unless the
-mount options match.
+> The only reason why we should support it is because we don't want to
+> break scripts; and if the goal is not to break scripts, then we have
+> to keep to the current semantics, however broken you think it is.
 
-What I have a problem with is the helper for ordinary filesystems that
-are not as sophisticated as nfs that don't handle all of the option
-magic and give userspace something different from what userspace asked
-for.
-
-It may take a little generalization of the definitions I proposed but it
-still remains simple and straight forward.
-
-CMD_THESE_MOUNT_OPTIONS_NO_SURPRISES
-CMD_WHATEVER_ALREADY_EXISTS
-
-Or we can make the filesystems more sophisticated when we move
-them to the new API and perform the comparisons there.  I think
-that is what David Howells is working on.
+But we don't have to support returning filesystems with mismatched mount
+options in the new fsopen api.   That is my concern.  Confusing
+userspace this way has been shown to be harmful let's not keep doing it.
 
 Eric
