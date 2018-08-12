@@ -1,69 +1,66 @@
-Date: Fri, 10 Aug 2018 16:46:39 -0400
-From: "Theodore Y. Ts'o" <tytso@mit.edu>
-To: Andy Lutomirski <luto@kernel.org>
-Cc: David Howells <dhowells@redhat.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- Al Viro <viro@zeniv.linux.org.uk>,
- John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
- apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
- Fenghua Yu <fenghua.yu@intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp,
- "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Miklos Szeredi <miklos@szeredi.hu>
-Message-ID: <20180810204639.GI627@thunk.org>
-References: <20180810153902.GH21087@thunk.org> <87d0uqpba5.fsf@xmission.com>
- <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <22361.1533913891@warthog.procyon.org.uk>
- <28045.1533916438@warthog.procyon.org.uk>
- <20180810161400.GA627@thunk.org>
- <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
-Subject: Re: BUG: Mount ignores mount options
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7CKQ8KJ017820
+ for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 16:26:08 -0400
+Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr
+ [89.156.252.9])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id EC860564728
+ for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 22:26:04 +0200 (CEST)
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+To: selinux@tycho.nsa.gov
+Date: Sun, 12 Aug 2018 22:25:20 +0200
+Message-Id: <20180812202522.3743-12-nicolas.iooss@m4x.org>
+In-Reply-To: <20180812202522.3743-1-nicolas.iooss@m4x.org>
+References: <20180812202522.3743-1-nicolas.iooss@m4x.org>
+Subject: [PATCH v2 11/13] python/sepolicy: use variables which exist
+ in the gui.py
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Aug 10, 2018 at 01:06:54PM -0700, Andy Lutomirski wrote:
-> If the same block device is visible, with rw access, in two different
-> containers, I don't see any anything good can happen.
+Some function used variables which were not defined when populating
+self.cur_dict with an operation. Fix this, even though the old values do
+not seem to be used.
 
-It's worse than that.  I've fixed a lot of bugs which cause the kernel
-to crash, and a few that might be levered into a privilege escalationh
-attack, when you mount a maliciously corrupted file system using ext4.
-I'm told told the security researcher filed similar reports with the
-XFS community, and he was told, "that's what metadata checksums are
-for; go away".  Given how much time it takes to work with these
-security researchers, I don't blame them.
+This issue has been found using flake8. This Python linter reported:
 
-But in light of that, I'd make a somewhat stronger statement.  If you
-let an untrusted container mount arbitrary block devices where they
-have rw acccess to the underlying block device, nothing good can
-happen.  Period.  :-)
+    python/sepolicy/sepolicy/gui.py:2020:101: F821 undefined name 'oldsetype'
+    python/sepolicy/sepolicy/gui.py:2020:122: F821 undefined name 'oldmls'
+    python/sepolicy/sepolicy/gui.py:2020:142: F821 undefined name 'oldclass'
+    python/sepolicy/sepolicy/gui.py:2050:133: F821 undefined name 'oldmls'
 
-Which is why I don't think the lack of being able to reject
-"conflicting mount options" is really all that important.  It
-certainly shouldn't block the fsopen patch series.  #1, it's a problem
-we have today, and #2, I'm really not all sure supporting bind mounts
-via specifying block device was ever a good idea to begin with.  And
-#3, while I've been fixing ext4 against security issues caused by
-maliciously corrupted file system images, I'm still sure that allowing
-untrusted containers access to mount *any* file system via a block
-device for which they have r/w access is a Really Bad Idea.
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ python/sepolicy/sepolicy/gui.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> It seems to me that the current approach mostly involves crossing our fingers.
-
-Agreed!
-
-						- Ted
+diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
+index 6933f6a142ed..9d413652f2ed 100644
+--- a/python/sepolicy/sepolicy/gui.py
++++ b/python/sepolicy/sepolicy/gui.py
+@@ -2015,9 +2015,9 @@ class SELinuxGui():
+         if self.modify:
+             iter = self.get_selected_iter()
+             oldpath = self.unmark(self.liststore.get_value(iter, 0))
+-            setype = self.unmark(self.liststore.set_value(iter, 1))
++            oldsetype = self.unmark(self.liststore.set_value(iter, 1))
+             oldtclass = self.liststore.get_value(iter, 2)
+-            self.cur_dict["fcontext"][(path, tclass)] = {"action": "-m", "type": setype, "oldtype": oldsetype, "oldmls": oldmls, "oldclass": oldclass}
++            self.cur_dict["fcontext"][(path, tclass)] = {"action": "-m", "type": setype, "oldtype": oldsetype, "oldpath": oldpath, "oldclass": oldtclass}
+         else:
+             iter = self.liststore.append(None)
+             self.cur_dict["fcontext"][(path, tclass)] = {"action": "-a", "type": setype}
+@@ -2047,7 +2047,7 @@ class SELinuxGui():
+             oldports = self.unmark(self.liststore.get_value(iter, 0))
+             oldprotocol = self.unmark(self.liststore.get_value(iter, 1))
+             oldsetype = self.unmark(self.liststore.set_value(iter, 2))
+-            self.cur_dict["port"][(ports, protocol)] = {"action": "-m", "type": setype, "mls": mls, "oldtype": oldsetype, "oldmls": oldmls, "oldprotocol": oldprotocol, "oldports": oldports}
++            self.cur_dict["port"][(ports, protocol)] = {"action": "-m", "type": setype, "mls": mls, "oldtype": oldsetype, "oldprotocol": oldprotocol, "oldports": oldports}
+         else:
+             iter = self.liststore.append(None)
+             self.cur_dict["port"][(ports, protocol)] = {"action": "-a", "type": setype, "mls": mls}
+-- 
+2.18.0
