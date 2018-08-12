@@ -1,50 +1,65 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7CKRjSk017858
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7CKRjSl017858
  for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 16:27:45 -0400
 Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr
  [89.156.252.9])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 5D388564728
- for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 22:26:01 +0200 (CEST)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 074B856472A
+ for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 22:25:59 +0200 (CEST)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Date: Sun, 12 Aug 2018 22:25:15 +0200
-Message-Id: <20180812202522.3743-7-nicolas.iooss@m4x.org>
+Date: Sun, 12 Aug 2018 22:25:11 +0200
+Message-Id: <20180812202522.3743-3-nicolas.iooss@m4x.org>
 In-Reply-To: <20180812202522.3743-1-nicolas.iooss@m4x.org>
 References: <20180812202522.3743-1-nicolas.iooss@m4x.org>
-Subject: [PATCH v2 06/13] python/sepolgen: fix refpolicy parsing of
- "permissive"
+Subject: [PATCH v2 02/13] python/sepolgen: do not import twice the
+ modules
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-p_permissive() uses an undefined variable t, which is buggy. In order to
-ignore permissive statements, the function only needs to "pass".
-
-flake8 reported the following error:
-
-    python/sepolgen/src/sepolgen/refparser.py:789:5: F821 undefined name 't'
+util.py starts by importing "locale" and "sys", so there is no need to
+import these modules again in the functions.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- python/sepolgen/src/sepolgen/refparser.py | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ python/sepolgen/src/sepolgen/util.py | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
-index 2cef8e85c679..3415aff9b48f 100644
---- a/python/sepolgen/src/sepolgen/refparser.py
-+++ b/python/sepolgen/src/sepolgen/refparser.py
-@@ -786,7 +786,7 @@ def p_role_allow(p):
+diff --git a/python/sepolgen/src/sepolgen/util.py b/python/sepolgen/src/sepolgen/util.py
+index 1fca9717c05a..5d38bce29827 100644
+--- a/python/sepolgen/src/sepolgen/util.py
++++ b/python/sepolgen/src/sepolgen/util.py
+@@ -90,7 +90,6 @@ def first(s, sorted=False):
+             return x
  
- def p_permissive(p):
-     'permissive : PERMISSIVE names SEMI'
--    t.skip(1)
-+    pass
+ def encode_input(text):
+-    import locale
+     """Encode given text via preferred system encoding"""
+     # locale will often find out the correct encoding
+     encoding = locale.getpreferredencoding()
+@@ -104,7 +103,6 @@ def encode_input(text):
+     return encoded_text
  
- def p_avrule_def(p):
-     '''avrule_def : ALLOW names names COLON names names SEMI
+ def decode_input(text):
+-    import locale
+     """Decode given text via preferred system encoding"""
+     # locale will often find out the correct encoding
+     encoding = locale.getpreferredencoding()
+@@ -172,11 +170,9 @@ def cmp(first, second):
+     return (first > second) - (second > first)
+ 
+ if __name__ == "__main__":
+-    import sys
+     import time
+     p = ConsoleProgressBar(sys.stdout, steps=999)
+     p.start("computing pi")
+     for i in range(999):
+         p.step()
+         time.sleep(0.001)
+-
 -- 
 2.18.0
