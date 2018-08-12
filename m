@@ -1,58 +1,53 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7CKQ7C8017819
- for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 16:26:09 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7CKQ8KG017820
+ for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 16:26:08 -0400
 Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr
  [89.156.252.9])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id CB806564728
- for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 22:26:00 +0200 (CEST)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 9DC9F56472A
+ for <selinux@tycho.nsa.gov>; Sun, 12 Aug 2018 22:25:59 +0200 (CEST)
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
 To: selinux@tycho.nsa.gov
-Date: Sun, 12 Aug 2018 22:25:14 +0200
-Message-Id: <20180812202522.3743-6-nicolas.iooss@m4x.org>
+Date: Sun, 12 Aug 2018 22:25:12 +0200
+Message-Id: <20180812202522.3743-4-nicolas.iooss@m4x.org>
 In-Reply-To: <20180812202522.3743-1-nicolas.iooss@m4x.org>
 References: <20180812202522.3743-1-nicolas.iooss@m4x.org>
-Subject: [PATCH v2 05/13] python/sepolicy: use lowercase variable
- name
+Subject: [PATCH v2 03/13] python/sepolgen: return NotImplemented
+ instead of raising it
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-SELinuxGui.files_initial_data_insert() uses both "seLinux_label" and
-"selinux_label", which leads to using an undefined variable, as reported
-by flake8:
+sepolgen uses "return NotImplemented" (in access.py and matching.py) in
+order to make Python's sorting function use an other call to compare
+objects. For this to work, "NotImplemented" needs to be returned, not
+raised like _compare's default implementation does.
 
-    python/sepolicy/sepolicy/gui.py:1191:42: F821 undefined name 'selinux_label'
+This issue has been found using flake8. This Python linter reported:
+
+    python/sepolgen/src/sepolgen/util.py:128:9: F901 'raise
+    NotImplemented' should be 'raise NotImplementedError'
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- python/sepolicy/sepolicy/gui.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ python/sepolgen/src/sepolgen/util.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-index 537d5168a536..16f24a0ab2f9 100644
---- a/python/sepolicy/sepolicy/gui.py
-+++ b/python/sepolicy/sepolicy/gui.py
-@@ -1175,7 +1175,7 @@ class SELinuxGui():
-                         continue
-                 self.files_initial_data_insert(self.writable_files_liststore, path, write, file_class)
+diff --git a/python/sepolgen/src/sepolgen/util.py b/python/sepolgen/src/sepolgen/util.py
+index 5d38bce29827..f5b66d0370a2 100644
+--- a/python/sepolgen/src/sepolgen/util.py
++++ b/python/sepolgen/src/sepolgen/util.py
+@@ -123,7 +123,7 @@ class Comparison():
+     _compare function within your class."""
  
--    def files_initial_data_insert(self, liststore, path, seLinux_label, file_class):
-+    def files_initial_data_insert(self, liststore, path, selinux_label, file_class):
-         iter = liststore.append(None)
-         if path is None:
-             path = _("MISSING FILE PATH")
-@@ -1191,7 +1191,7 @@ class SELinuxGui():
-                 file_class = self.markup(selinux_label)
-                 file_class = self.markup(file_class)
-         liststore.set_value(iter, 0, path)
--        liststore.set_value(iter, 1, seLinux_label)
-+        liststore.set_value(iter, 1, selinux_label)
-         liststore.set_value(iter, 2, file_class)
-         liststore.set_value(iter, 7, modify)
+     def _compare(self, other, method):
+-        raise NotImplemented
++        return NotImplemented
  
+     def __eq__(self, other):
+         return self._compare(other, lambda a, b: a == b)
 -- 
 2.18.0
