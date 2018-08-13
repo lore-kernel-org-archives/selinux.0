@@ -1,96 +1,137 @@
-To: Sachin Grover <grover_sachin@outlook.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
-References: <CO1PR14MB10615AE03A49927CC39A041986390@CO1PR14MB1061.namprd14.prod.outlook.com>
- <531392a3-1a17-9732-3a89-4231339f800d@tycho.nsa.gov>
- <19b33f36-0dbd-12e3-e224-5aa4b8c796f2@tycho.nsa.gov>
- <CO1PR14MB10618CA82AFA6551A776376986390@CO1PR14MB1061.namprd14.prod.outlook.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <45661f73-3bfa-ad2d-d4c6-5ea03a093ac5@tycho.nsa.gov>
-Date: Mon, 13 Aug 2018 09:07:33 -0400
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7DFLrZ7018647
+ for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2018 11:21:53 -0400
+Received: by mail-oi0-f48.google.com with SMTP id s198-v6so27863961oih.11
+ for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2018 08:21:49 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CO1PR14MB10618CA82AFA6551A776376986390@CO1PR14MB1061.namprd14.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: Possible OOB Read in Kernel Heap Memory in call to
- ext4_xattr_set_entry()
+In-Reply-To: <20180812202522.3743-1-nicolas.iooss@m4x.org>
+References: <20180812202522.3743-1-nicolas.iooss@m4x.org>
+From: William Roberts <bill.c.roberts@gmail.com>
+Date: Mon, 13 Aug 2018 08:21:48 -0700
+Message-ID: <CAFftDdp5Xrh4FoJvE3C4Yqd3XC-kKUxK2rV0drETZSkkbNO1rA@mail.gmail.com>
+To: Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary="000000000000f30334057352a6d9"
+Subject: Re: [PATCH v2 00/13] Fix some issues found by flake8
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/13/2018 08:59 AM, Sachin Grover wrote:
-> I agree with you that it cannot be exploitable on Android, but Kasan is 
-> able to find it as OOB if I run syzkaller on x86 based VM image. My last 
-> commit is actually only fixing one path, but there are multiple path 
-> which are having same issue, so it would be better if fix is given in 
-> context_struct_to_string() where length is calculated.
-> 
-> Let me know what is your take on this.
+--000000000000f30334057352a6d9
+Content-Type: text/plain; charset="UTF-8"
 
-Are you sure that your earlier commit is included in the kernels you are 
-testing? If so, can you provide one of the other code paths not 
-addressed by your earlier commit?  It appears that context.len is only 
-ever set by security_context_to_sid_core(), and there it is set to 
-strlen(str)+1 after your commit (and context.str is set to str, which is 
-the result of kstrdup of the original context).  Thus, when we reach 
-context_struct_to_string() later, context->len can only be 
-strlen(context->str)+1 AFAICS.  What am I missing?
+On Sun, Aug 12, 2018 at 1:25 PM, Nicolas Iooss <nicolas.iooss@m4x.org>
+wrote:
 
-> 
-> 
-> 
-> 
-> From: Stephen Smalley
-> Sent: Monday 13 August, 18:05
-> Subject: Re: Possible OOB Read in Kernel Heap Memory in call to 
-> ext4_xattr_set_entry()
-> To: Sachin Grover, selinux@tycho.nsa.gov, Paul Moore
-> 
-> 
-> On 08/13/2018 08:23 AM, Stephen Smalley wrote: > On 08/13/2018 01:19 AM, 
-> Sachin Grover wrote: >> Hi Stephen/Paul, >> >> This issue was discovered 
-> using >> https://android.googlesource.com/kernel/common -b 
-> android-4.9-o, but >> I've verified the code path exists in msm-4.4. It 
-> likely exists in >> other kernel versions as well. >> >> As a privileged 
-> user, one can override the current SELinux context via >> a call to 
-> setfscreatecon() or by writing directly to >> /proc/self/attr/fscreate. 
-> The context is then used to label the next >> newly created file object, 
-> e.g. mknod(). Upon handling the creation of >> the new object on the 
-> EXT4 FS we end up calling >> selinux_inode_init_security() to create a 
-> new xattr object for the >> inode. This will end up calling 
-> context_struct_to_string() to convert >> the SID back to the string 
-> version of the SELinux security context >> that was stored. >> >> static 
-> int context_struct_to_string(struct context *context, char >> 
-> **scontext, u32 *scontext_len) >>   { >>      char *scontextp; >> >>    
->     if (scontext) >>           *scontext = NULL; >>       *scontext_len 
-> = 0; >> >>       if (context->len) { >>          *scontext_len = 
-> context->len; >>            if (scontext) { >>                *scontext 
-> = kstrdup(context->str, GFP_ATOMIC); >>                 if 
-> (!(*scontext)) >>                       return -ENOMEM; >>           } 
->  >>           return 0; >>       } >> >> scontext is populated with the 
-> context length, directly from the >> context structure, and using 
-> kstrdup() to copy the string. Much later >> down the call stack 
-> ext4_xattr_set_entry() is called with the SELinux >> xattr object. >> >> 
->  >>               if (i->value == EXT4_ZERO_XATTR_VALUE) { >>            
->         memset(val, 0, size); >>               } else { >>              
->       /* Clear the pad bytes first. */ >>                   memset(val + 
-> size - EXT4_XATTR_PAD, 0, >>                          EXT4_XATTR_PAD); 
->  >>                   memcpy(val, i->value, i->value_len); >>            
->     } >> >> SELinux allows for the creation of contexts that include 
-> NULL bytes. >> Unfortunately in this case if a NULL byte occurs not as 
-> the string >> terminator, then kstrdup() will allocate a memory region 
-> smaller than >> what context->len represents. Later in 
-> ext4_xattr_set_entry() the >> original context->len will be used in 
-> memcpy() and will exceed the >> heap memory allocated by kstrdup() 
-> leading to an OOB issue. There may >> also be the potential for memory 
-> corruption depending on the total >> length of the SELinux context, but 
-> this would require further analysis. >> >> Can you please let me know if 
-> my analysis is correct. >> As per me, it looks like there is problem in 
-> the code. > > Your earlier commit 
-> efe3de79e0b52ca281ef6691480c8c68c82a4657 ensures > that context->len is 
-> only ever set to strlen(str)+1.  So is it still > possible for this 
-> condition to occur? Also, as with the earlier bug, this one is only 
-> exploitable for a process with CAP_MAC_ADMIN that is allowed mac_admin 
-> permission in SELinux policy, and this is prohibited in Android policy 
-> via neverallow and checked by CTS.
-> 
+> Here is the second revision of this patchset. The changes were:
+>
+> * I removed the buggy code instead of commenting it, in python/sepolgen.
+> * I fixed a typo in the description of a patch.
+>
+>
+Ack on the patchset from me.
+
+
+>
+> Nicolas Iooss (13):
+>   libselinux: fix flake8 warnings in SWIG-generated code
+>   python/sepolgen: do not import twice the modules
+>   python/sepolgen: return NotImplemented instead of raising it
+>   python/sepolicy: drop unused CheckPolicyType
+>   python/sepolicy: use lowercase variable name
+>   python/sepolgen: fix refpolicy parsing of "permissive"
+>   python/sepolgen: silence linter warning about has_key
+>   python/sepolgen: remove buggy code
+>   python/sepolgen: use self when accessing members in FilesystemUse
+>   python/sepolicy: fix "procotol" misspelling
+>   python/sepolicy: use variables which exist in the gui.py
+>   python/sepolicy: do not import sepolicy.generate.DAEMON twice
+>   python/sepolicy: do not import types
+>
+>  libselinux/src/selinuxswig_python.i        |  5 +++--
+>  python/sepolgen/src/sepolgen/interfaces.py |  7 +------
+>  python/sepolgen/src/sepolgen/refparser.py  |  4 ++--
+>  python/sepolgen/src/sepolgen/refpolicy.py  |  6 +++---
+>  python/sepolgen/src/sepolgen/util.py       |  6 +-----
+>  python/sepolicy/sepolicy.py                | 12 +-----------
+>  python/sepolicy/sepolicy/generate.py       |  1 -
+>  python/sepolicy/sepolicy/gui.py            | 12 ++++++------
+>  8 files changed, 17 insertions(+), 36 deletions(-)
+>
+> --
+> 2.18.0
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+>
+
+--000000000000f30334057352a6d9
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><br><div class=3D"gmail_extra"><br><div class=3D"gmail_quo=
+te">On Sun, Aug 12, 2018 at 1:25 PM, Nicolas Iooss <span dir=3D"ltr">&lt;<a=
+ href=3D"mailto:nicolas.iooss@m4x.org" target=3D"_blank">nicolas.iooss@m4x.=
+org</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"mar=
+gin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">Here is the sec=
+ond revision of this patchset. The changes were:<br>
+<br>
+* I removed the buggy code instead of commenting it, in python/sepolgen.<br=
+>
+* I fixed a typo in the description of a patch.<br>
+<br></blockquote><div><br></div><div>Ack on the patchset from me.</div><div=
+>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;b=
+order-left:1px #ccc solid;padding-left:1ex">
+<br>
+Nicolas Iooss (13):<br>
+=C2=A0 libselinux: fix flake8 warnings in SWIG-generated code<br>
+=C2=A0 python/sepolgen: do not import twice the modules<br>
+=C2=A0 python/sepolgen: return NotImplemented instead of raising it<br>
+=C2=A0 python/sepolicy: drop unused CheckPolicyType<br>
+=C2=A0 python/sepolicy: use lowercase variable name<br>
+=C2=A0 python/sepolgen: fix refpolicy parsing of &quot;permissive&quot;<br>
+=C2=A0 python/sepolgen: silence linter warning about has_key<br>
+=C2=A0 python/sepolgen: remove buggy code<br>
+=C2=A0 python/sepolgen: use self when accessing members in FilesystemUse<br=
+>
+=C2=A0 python/sepolicy: fix &quot;procotol&quot; misspelling<br>
+=C2=A0 python/sepolicy: use variables which exist in the gui.py<br>
+=C2=A0 python/sepolicy: do not import sepolicy.generate.DAEMON twice<br>
+=C2=A0 python/sepolicy: do not import types<br>
+<br>
+=C2=A0libselinux/src/selinuxswig_<wbr>python.i=C2=A0 =C2=A0 =C2=A0 =C2=A0 |=
+=C2=A0 5 +++--<br>
+=C2=A0python/sepolgen/src/sepolgen/<wbr>interfaces.py |=C2=A0 7 +------<br>
+=C2=A0python/sepolgen/src/sepolgen/<wbr>refparser.py=C2=A0 |=C2=A0 4 ++--<b=
+r>
+=C2=A0python/sepolgen/src/sepolgen/<wbr>refpolicy.py=C2=A0 |=C2=A0 6 +++---=
+<br>
+=C2=A0python/sepolgen/src/sepolgen/<wbr>util.py=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
+=C2=A0 6 +-----<br>
+=C2=A0python/sepolicy/sepolicy.py=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 | 12 +-----------<br>
+=C2=A0python/sepolicy/sepolicy/<wbr>generate.py=C2=A0 =C2=A0 =C2=A0 =C2=A0|=
+=C2=A0 1 -<br>
+=C2=A0python/sepolicy/sepolicy/gui.<wbr>py=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 | 12 ++++++------<br>
+=C2=A08 files changed, 17 insertions(+), 36 deletions(-)<br>
+<span class=3D"HOEnZb"><font color=3D"#888888"><br>
+-- <br>
+2.18.0<br>
+<br>
+______________________________<wbr>_________________<br>
+Selinux mailing list<br>
+<a href=3D"mailto:Selinux@tycho.nsa.gov">Selinux@tycho.nsa.gov</a><br>
+To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
+">Selinux-leave@tycho.nsa.gov</a>.<br>
+To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
+:Selinux-request@tycho.nsa.gov">Selinux-request@tycho.nsa.gov</a>.<br>
+</font></span></blockquote></div><br></div></div>
+
+--000000000000f30334057352a6d9--
