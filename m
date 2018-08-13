@@ -1,79 +1,79 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7DJL059021398
- for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2018 15:21:00 -0400
-To: James Morris <jmorris@namei.org>, Al Viro <viro@ZenIV.linux.org.uk>
-Cc: Andy Lutomirski <luto@kernel.org>, Alan Cox <gnomes@lxorguk.ukuu.org.uk>,
- "Theodore Y. Ts'o" <tytso@mit.edu>, David Howells <dhowells@redhat.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
- apparmor@lists.ubuntu.com, Fenghua Yu <fenghua.yu@intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp,
- "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Miklos Szeredi <miklos@szeredi.hu>
-References: <20180810153902.GH21087@thunk.org> <87d0uqpba5.fsf@xmission.com>
- <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <22361.1533913891@warthog.procyon.org.uk>
- <28045.1533916438@warthog.procyon.org.uk> <20180810161400.GA627@thunk.org>
- <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
- <20180813173502.1a7a1d9c@alans-desktop>
- <CALCETrXvtSLjwx0swXo5g-vU3PmF-_6J6j1a_2pAba7bhzO9QQ@mail.gmail.com>
- <20180813172947.GS6515@ZenIV.linux.org.uk>
- <alpine.LRH.2.21.1808140458040.23296@namei.org>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <48e443ba-51b5-cf10-3342-cdeabb91b224@schaufler-ca.com>
-Date: Mon, 13 Aug 2018 12:20:14 -0700
+From: Hollis Blanchard <hollis_blanchard@mentor.com>
+To: <selinux@tycho.nsa.gov>
+CC: <tomcherry@google.com>, <sds@tycho.nsa.gov>, Hollis Blanchard
+ <hollis_blanchard@mentor.com>
+Date: Mon, 13 Aug 2018 12:42:14 -0700
+Message-ID: <20180813194214.20929-1-hollis_blanchard@mentor.com>
 MIME-Version: 1.0
-In-Reply-To: <alpine.LRH.2.21.1808140458040.23296@namei.org>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: BUG: Mount ignores mount options
+Content-Type: text/plain
+Subject: [PATCH] Fix build break around __atomic_*() with GCC<4.7
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 8/13/2018 12:00 PM, James Morris wrote:
-> On Mon, 13 Aug 2018, Al Viro wrote:
->
->> On Mon, Aug 13, 2018 at 09:48:53AM -0700, Andy Lutomirski wrote:
->>> Are there cases I'm missing?  It sounds like the API could be improved
->>> to fully model the last case, and everything will work nicely.
->> 	You know, that's starting to remind of this little gem of Borges:
->> http://www.alamut.com/subj/artiface/language/johnWilkins.html
->> Especially the delightful (fake) quote contained in there:
->> [...] it is written that the animals are divided into:
->> 	(a) belonging to the emperor,
->> 	(b) embalmed,
->> 	(c) tame,
->> 	(d) sucking pigs,
->> 	(e) sirens,
->> 	(f) fabulous,
->> 	(g) stray dogs,
->> 	(h) included in the present classification,
->> 	(i) frenzied,
->> 	(j) innumerable,
->> 	(k) drawn with a very fine camelhair brush,
->> 	(l) et cetera,
->> 	(m) having just broken the water pitcher,
->> 	(n) that from a long way off look like flies.
->
-> Coincidentally, this was also the model for Linux capabilities.
+The __atomic_* GCC primitives were introduced in GCC 4.7, but Red Hat
+Enterprise Linux 6.x (for example) provides GCC 4.4. Tweak the current code to
+use the (most conservative) __sync_synchronize() primitive provided by those
+older GCC versions.
 
-Linux capabilities are POSIX capabilities which are modeled closely
-to accommodate the historical behavior manifest in the P1003.1 specification.
-So except for (c), (f) and (k) you can use this characterization. 
+Fixes https://github.com/SELinuxProject/selinux/issues/97
 
-On a slightly more serious note, there's a lot of Linux, mount semantics
-included, that have grow organically and that aren't quite up to the
-usage models they are being applied to. I applaud David's work in part
-because it may make it possible to accommodate more of those cases going
-forward.
+(Really, no __atomic or __sync operations are needed here at all, since POSIX
+4.12 "Memory Synchronization" says pthread_mutex_lock() and
+pthread_mutex_unlock() "synchronize memory with respect to other threads"...)
+
+---
+ libselinux/src/label_file.h | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/libselinux/src/label_file.h b/libselinux/src/label_file.h
+index 2fa85474..47859baf 100644
+--- a/libselinux/src/label_file.h
++++ b/libselinux/src/label_file.h
+@@ -351,8 +351,14 @@ static inline int compile_regex(struct saved_data *data, struct spec *spec,
+ 	 * init_routine does not take a parameter, it's not possible
+ 	 * to use, so we generate the same effect with atomics and a
+ 	 * mutex */
++#ifdef __ATOMIC_RELAXED
+ 	regex_compiled =
+ 		__atomic_load_n(&spec->regex_compiled, __ATOMIC_ACQUIRE);
++#else
++	/* GCC <4.7 */
++	__sync_synchronize();
++	regex_compiled = spec->regex_compiled;
++#endif
+ 	if (regex_compiled) {
+ 		return 0; /* already done */
+ 	}
+@@ -360,8 +366,14 @@ static inline int compile_regex(struct saved_data *data, struct spec *spec,
+ 	__pthread_mutex_lock(&spec->regex_lock);
+ 	/* Check if another thread compiled the regex while we waited
+ 	 * on the mutex */
++#ifdef __ATOMIC_RELAXED
+ 	regex_compiled =
+ 		__atomic_load_n(&spec->regex_compiled, __ATOMIC_ACQUIRE);
++#else
++	/* GCC <4.7 */
++	__sync_synchronize();
++	regex_compiled = spec->regex_compiled;
++#endif
+ 	if (regex_compiled) {
+ 		__pthread_mutex_unlock(&spec->regex_lock);
+ 		return 0;
+@@ -404,7 +416,13 @@ static inline int compile_regex(struct saved_data *data, struct spec *spec,
+ 	}
+ 
+ 	/* Done. */
++#ifdef __ATOMIC_RELAXED
+ 	__atomic_store_n(&spec->regex_compiled, true, __ATOMIC_RELEASE);
++#else
++	/* GCC <4.7 */
++	spec->regex_compiled = true;
++	__sync_synchronize();
++#endif
+ 	__pthread_mutex_unlock(&spec->regex_lock);
+ 	return 0;
+ }
+-- 
+2.13.0
