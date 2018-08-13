@@ -1,91 +1,65 @@
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Sachin Grover <grover_sachin@outlook.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
-References: <CO1PR14MB10615AE03A49927CC39A041986390@CO1PR14MB1061.namprd14.prod.outlook.com>
- <531392a3-1a17-9732-3a89-4231339f800d@tycho.nsa.gov>
-Message-ID: <19b33f36-0dbd-12e3-e224-5aa4b8c796f2@tycho.nsa.gov>
-Date: Mon, 13 Aug 2018 08:35:30 -0400
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7DCsRdk029482
+ for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2018 08:54:27 -0400
+Received: by mail-oi0-f54.google.com with SMTP id v8-v6so26983375oie.5
+ for <selinux@tycho.nsa.gov>; Mon, 13 Aug 2018 05:54:04 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <531392a3-1a17-9732-3a89-4231339f800d@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: Possible OOB Read in Kernel Heap Memory in call to
- ext4_xattr_set_entry()
+In-Reply-To: <20180811015815.GD6515@ZenIV.linux.org.uk>
+References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
+ <87d0uqpba5.fsf@xmission.com> <20180810151606.GA6515@ZenIV.linux.org.uk>
+ <87pnypiufr.fsf@xmission.com> <20180811015815.GD6515@ZenIV.linux.org.uk>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 13 Aug 2018 14:54:02 +0200
+Message-ID: <CAJfpegtuf7=sEMJhaiQj8e31uvFzckRSHH4Bf9nTNn4gxV10Ow@mail.gmail.com>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+ David Howells <dhowells@redhat.com>,
+ John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
+ selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
+ Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
+ apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
+ fenghua.yu@intel.com, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@google.com>,
+ LSM <linux-security-module@vger.kernel.org>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+ tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+ "Theodore Y. Ts'o" <tytso@mit.edu>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: BUG: Mount ignores mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/13/2018 08:23 AM, Stephen Smalley wrote:
-> On 08/13/2018 01:19 AM, Sachin Grover wrote:
->> Hi Stephen/Paul,
->>
->> This issue was discovered using 
->> https://android.googlesource.com/kernel/common -b android-4.9-o, but 
->> I've verified the code path exists in msm-4.4. It likely exists in 
->> other kernel versions as well.
->>
->> As a privileged user, one can override the current SELinux context via 
->> a call to setfscreatecon() or by writing directly to 
->> /proc/self/attr/fscreate. The context is then used to label the next 
->> newly created file object, e.g. mknod(). Upon handling the creation of 
->> the new object on the EXT4 FS we end up calling 
->> selinux_inode_init_security() to create a new xattr object for the 
->> inode. This will end up calling context_struct_to_string() to convert 
->> the SID back to the string version of the SELinux security context 
->> that was stored.
->>
->> static int context_struct_to_string(struct context *context, char 
->> **scontext, u32 *scontext_len)
->>   {
->>      char *scontextp;
->>
->>       if (scontext)
->>           *scontext = NULL;
->>       *scontext_len = 0;
->>
->>       if (context->len) {
->>          *scontext_len = context->len;
->>            if (scontext) {
->>                *scontext = kstrdup(context->str, GFP_ATOMIC);
->>                 if (!(*scontext))
->>                       return -ENOMEM;
->>           }
->>           return 0;
->>       }
->>
->> scontext is populated with the context length, directly from the 
->> context structure, and using kstrdup() to copy the string. Much later 
->> down the call stack ext4_xattr_set_entry() is called with the SELinux 
->> xattr object.
->>
->>
->>               if (i->value == EXT4_ZERO_XATTR_VALUE) {
->>                   memset(val, 0, size);
->>               } else {
->>                   /* Clear the pad bytes first. */
->>                   memset(val + size - EXT4_XATTR_PAD, 0,
->>                          EXT4_XATTR_PAD);
->>                   memcpy(val, i->value, i->value_len);
->>               }
->>
->> SELinux allows for the creation of contexts that include NULL bytes. 
->> Unfortunately in this case if a NULL byte occurs not as the string 
->> terminator, then kstrdup() will allocate a memory region smaller than 
->> what context->len represents. Later in ext4_xattr_set_entry() the 
->> original context->len will be used in memcpy() and will exceed the 
->> heap memory allocated by kstrdup() leading to an OOB issue. There may 
->> also be the potential for memory corruption depending on the total 
->> length of the SELinux context, but this would require further analysis.
->>
->> Can you please let me know if my analysis is correct.
->> As per me, it looks like there is problem in the code.
-> 
-> Your earlier commit efe3de79e0b52ca281ef6691480c8c68c82a4657 ensures 
-> that context->len is only ever set to strlen(str)+1.  So is it still 
-> possible for this condition to occur?
+On Sat, Aug 11, 2018 at 3:58 AM, Al Viro <viro@zeniv.linux.org.uk> wrote:
 
-Also, as with the earlier bug, this one is only exploitable for a 
-process with CAP_MAC_ADMIN that is allowed mac_admin permission in 
-SELinux policy, and this is prohibited in Android policy via neverallow 
-and checked by CTS.
+>  What I'm saying is that the entire superblock-creating
+> machinery - all of it - is nothing but library helpers.  With the
+> decision of when/how/if they are to be used being down to filesystem
+> driver.  Your "first mount"/"additional mount" simply do not map
+> to anything universally applicable.
+
+Why so?   (Note: using the "mount" terminology here is fundamentally
+broken to start with, mounts have nothing to do with this...
+Filesystem instance is better word.)
+
+You bring up NFS as an example, but creating and/or reusing an nfs
+client instance connected to a certain server is certainly a clear and
+well defined concept.
+
+The question becomes:  does it make  sense to generalize this concept
+and export it to userspace with the new API?
+
+You know the Plan 9 fs interface much better, but to me it looks like
+there's a separate namespace for filesystem instances, and the mount
+command just refers to such an instance.  So there's no comparing of
+options or any such horror, just the need to explicitly instantiate a
+new instance when necessary.  Doesn't sound very difficult to
+implement in the new API.
+
+Thanks,
+Miklos
