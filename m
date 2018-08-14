@@ -1,59 +1,102 @@
-To: Tom Cherry <tomcherry@google.com>
-CC: <selinux@tycho.nsa.gov>, Stephen Smalley <sds@tycho.nsa.gov>
-References: <20180813194214.20929-1-hollis_blanchard@mentor.com>
- <CAPc65ax7Dz_niNOxypfds2hLCdiP=x8C2_KFWShVpBnWP62fFg@mail.gmail.com>
- <6a93e71c-a31a-d7e2-546c-e0e63d85c62d@mentor.com>
- <CAPc65azY7nrTRLARYfMMPAm7R+=rpmQby=wtbWaMZ=CfACOTBw@mail.gmail.com>
-From: Hollis Blanchard <hollis_blanchard@mentor.com>
-Message-ID: <1b1bd436-f443-d75b-c747-e34831b89339@mentor.com>
-Date: Mon, 13 Aug 2018 15:23:59 -0700
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7EKuNAK020511
+ for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2018 16:56:23 -0400
+Received: from localhost.localdomain (localhost [127.0.0.1])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with SMTP id 41ql3l0jD5z2Sjgn
+ for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2018 20:45:39 +0000 (UTC)
+Received: from UPDC3CPA04.eemsg.mil (unknown [192.168.18.11])
+ by UPDCF3IC02.oob.disa.mil (Postfix) with ESMTP id 41ql3k5K7wz2SjkP
+ for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2018 20:45:38 +0000 (UTC)
+Received: by mail-lf1-f66.google.com with SMTP id y200-v6so14769794lfd.7
+ for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2018 13:45:36 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAPc65azY7nrTRLARYfMMPAm7R+=rpmQby=wtbWaMZ=CfACOTBw@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Subject: Re: [PATCH] Fix build break around __atomic_*() with GCC<4.7
+From: Paul Moore <paul@paul-moore.com>
+Date: Tue, 14 Aug 2018 16:45:24 -0400
+Message-ID: <CAHC9VhT9X+OQEjE38iesRKtZm9w6V0qo=Cyf6kwQf3MnPP_NDw@mail.gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Subject: [GIT PULL] SELinux patches for v4.19
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/13/2018 02:18 PM, Tom Cherry wrote:
-> On Mon, Aug 13, 2018 at 1:49 PM Hollis Blanchard
-> <hollis_blanchard@mentor.com> wrote:
->> On 08/13/2018 01:45 PM, Tom Cherry wrote:
->>> On Mon, Aug 13, 2018 at 12:43 PM Hollis Blanchard
->>> <hollis_blanchard@mentor.com> wrote:
->>>> The __atomic_* GCC primitives were introduced in GCC 4.7, but Red Hat
->>>> Enterprise Linux 6.x (for example) provides GCC 4.4. Tweak the current code to
->>>> use the (most conservative) __sync_synchronize() primitive provided by those
->>>> older GCC versions.
->>>>
->>>> Fixes https://github.com/SELinuxProject/selinux/issues/97
->>>>
->>>> (Really, no __atomic or __sync operations are needed here at all, since POSIX
->>>> 4.12 "Memory Synchronization" says pthread_mutex_lock() and
->>>> pthread_mutex_unlock() "synchronize memory with respect to other threads"...)
->>> That section means that pthread_mutex_lock() and
->>> pthread_mutex_unlock() will perform an acquire / release operation
->>> respectively, so if you're guarding shared data with them, you don't
->>> need additional memory synchronization.
->>>
->>> In this case however, the fast path does not call pthread_mutex_lock()
->>> and thus there is no acquire operation.  pthread_mutex_unlock() will
->>> perform a release operation in the thread that actually compiled the
->>> regex (so technically, we don't actually need the __atomic_store_n),
->>> but we still need an acquire operation on the fast path, which is why
->>> we need the atomic.
->> You really don't. The fast path access will race whether it's "atomic"
->> or not. Luckily, it doesn't matter if you get false positives or false
->> negatives, because it will be checked for real under the mutex.
-> It does matter if you get false positives.  False positives do not
-> lock the mutex and return immediately that the regex has been
-> compiled.  Without the acquire operation, it's possible that
-> spec->regex_compiled is true, but the value of spec->regex hasn't been
-> made visible to the processor executing this thread, which results in
-> an error.
-Well, since there are no objections to this patch, I am happy to have it 
-committed to fix the build problem. :-)
+Hi Linus,
 
-Hollis Blanchard
-Mentor Graphics Emulation Division
+There are 16 patches in the SELinux PR for v4.19 but really only one
+that is of any significance.  That one patch is by nixiaoming and
+fixes a few places where we were not properly cleaning up dentry and
+inode objects in the selinuxfs error handling code.  The rest are
+either printk->pr_* conversions, constification tweaks, and a minor
+tweak to MAINTAINERS.
+
+Everything passes the selinux-testsuite and looks to merge cleanly
+against your master branch.
+
+Please pull, thanks.
+-Paul
+--
+The following changes since commit ce397d215ccd07b8ae3f71db689aedb85d56ab40:
+
+ Linux 4.18-rc1 (2018-06-17 08:04:49 +0900)
+
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20180814
+
+for you to fetch changes up to 7e4237faa7213c1cc1d0aa65a44c67ba4729ce9f:
+
+ selinux: cleanup dentry and inodes on error in selinuxfs
+   (2018-08-07 17:26:25 -0400)
+
+----------------------------------------------------------------
+selinux/stable-4.18 PR 20180814
+
+----------------------------------------------------------------
+Eric Biggers (1):
+     selinux: constify write_op[]
+
+Paul Moore (1):
+     MAINTAINERS: update the LSM and SELinux subsystems
+
+nixiaoming (1):
+     selinux: cleanup dentry and inodes on error in selinuxfs
+
+peter enderborg (13):
+     selinux: Cleanup printk logging in conditional
+     selinux: Cleanup printk logging in ebitmap
+     selinux: Cleanup printk logging in policydb
+     selinux: Cleanup printk logging in hooks
+     selinux: Cleanup printk logging in avtab
+     selinux: Cleanup printk logging in services
+     selinux: Cleanup printk logging in selinuxfs
+     selinux: Cleanup printk logging in netlink
+     selinux: Cleanup printk logging in sidtab
+     selinux: Cleanup printk logging in netport
+     selinux: Cleanup printk logging in netif
+     selinux: Cleanup printk logging in avc
+     selinux: Cleanup printk logging in netnode
+
+MAINTAINERS                       |  1 +
+security/selinux/avc.c            |  2 +-
+security/selinux/hooks.c          | 68 ++++++++++++++---------------
+security/selinux/netif.c          | 11 ++---
+security/selinux/netlink.c        |  2 +-
+security/selinux/netnode.c        |  5 +--
+security/selinux/netport.c        |  5 +--
+security/selinux/selinuxfs.c      | 45 +++++++++++++------
+security/selinux/ss/avtab.c       | 51 +++++++++++-----------
+security/selinux/ss/conditional.c | 16 +++----
+security/selinux/ss/ebitmap.c     | 15 +++----
+security/selinux/ss/policydb.c    | 91 ++++++++++++++++++-----------------
+security/selinux/ss/services.c    | 71 +++++++++++++++---------------
+security/selinux/ss/sidtab.c      |  5 +--
+14 files changed, 199 insertions(+), 189 deletions(-)
+
+--
+paul moore
+www.paul-moore.com
