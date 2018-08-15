@@ -1,43 +1,50 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7FKO2T0008488
- for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 16:24:06 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7FL5XPd013679
+ for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 17:05:33 -0400
 Received: from mail-oi0-f43.google.com (mail-oi0-f43.google.com
  [209.85.218.43])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id A62B9564708
- for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 22:23:09 +0200 (CEST)
-Received: by mail-oi0-f43.google.com with SMTP id v8-v6so4150984oie.5
- for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 13:23:09 -0700 (PDT)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 3EA04564766
+ for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 23:02:01 +0200 (CEST)
+Received: by mail-oi0-f43.google.com with SMTP id k12-v6so4312263oiw.8
+ for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 14:02:01 -0700 (PDT)
 MIME-Version: 1.0
-References: <20180812202522.3743-1-nicolas.iooss@m4x.org>
- <CAFftDdp5Xrh4FoJvE3C4Yqd3XC-kKUxK2rV0drETZSkkbNO1rA@mail.gmail.com>
-In-Reply-To: <CAFftDdp5Xrh4FoJvE3C4Yqd3XC-kKUxK2rV0drETZSkkbNO1rA@mail.gmail.com>
+References: <20180806202955.8638-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20180806202955.8638-1-nicolas.iooss@m4x.org>
 From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 15 Aug 2018 22:22:56 +0200
-Message-ID: <CAJfZ7=m+b+m=fjYJgHVfyTm+4wMbGj=bxG1-T1hzAMgJ771pWA@mail.gmail.com>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
+Date: Wed, 15 Aug 2018 23:01:48 +0200
+Message-ID: <CAJfZ7=nGfi_7rmgswqR4R7mXymsUCyJk8bj_bAZ-Z7FjzGHq0Q@mail.gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v2 00/13] Fix some issues found by flake8
+Subject: Re: [PATCH 1/1] python/sepolicy: add missing % in network
+ tab help text
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Aug 13, 2018 at 5:21 PM William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> On Sun, Aug 12, 2018 at 1:25 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->>
->> Here is the second revision of this patchset. The changes were:
->>
->> * I removed the buggy code instead of commenting it, in python/sepolgen.
->> * I fixed a typo in the description of a patch.
->>
+On Mon, Aug 6, 2018 at 10:31 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> Ack on the patchset from me.
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  python/sepolicy/sepolicy/help/ports_inbound.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/python/sepolicy/sepolicy/help/ports_inbound.txt b/python/sepolicy/sepolicy/help/ports_inbound.txt
+> index 1325abfeef1b..be16034462b2 100644
+> --- a/python/sepolicy/sepolicy/help/ports_inbound.txt
+> +++ b/python/sepolicy/sepolicy/help/ports_inbound.txt
+> @@ -3,4 +3,4 @@ This screen shows the network ports that processes running with the '%(APP)s' ty
+>
+>  SELinux controls the network ports that a application is allowed to bind to based on SELinux Port types.
+>
+> -This screen allows you to modify the port number/port type definitions, which the '(APP)s' is currently allowed to bind.
+> +This screen allows you to modify the port number/port type definitions, which the '%(APP)s' is currently allowed to bind.
+> --
+> 2.18.0
 
-Thanks. I applied it.
+I applied this patch.
 
 Nicolas
