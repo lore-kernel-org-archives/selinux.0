@@ -1,6 +1,6 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7FNsShk004257
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7FNsShm004257
  for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 19:54:29 -0400
 From: Casey Schaufler <casey.schaufler@intel.com>
 To: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
@@ -8,38 +8,51 @@ To: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
  SMACK-discuss@lists.01.org, casey.schaufler@intel.com,
  dave.hansen@intel.com, deneen.t.dock@intel.com,
  kristen@linux.intel.com, arjan@linux.intel.com
-Date: Wed, 15 Aug 2018 16:53:50 -0700
-Message-Id: <20180815235355.14908-1-casey.schaufler@intel.com>
-Subject: [PATCH RFC 0/5] LSM: Add and use a hook for side-channel safety checks
+Date: Wed, 15 Aug 2018 16:53:55 -0700
+Message-Id: <20180815235355.14908-6-casey.schaufler@intel.com>
+In-Reply-To: <20180815235355.14908-1-casey.schaufler@intel.com>
+References: <20180815235355.14908-1-casey.schaufler@intel.com>
+Subject: [PATCH RFC 5/5] SELinux: Support SELinux determination of
+ side-channel vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This patchset provide a mechanism by which a security module
-can advise the system about potential side-channel vulnerabilities.
-If security_task_safe_sidechannel() returns 0 the security modules do
-not know of any data that would be subject to a side-channel
-attack. If the security module maintains data that it believes
-may be susceptible to a side-channel attack it will return -EACCES.
-
-Simple hooks are provided for SELinux and Smack. A new security
-module is provided to make determinations regarding traditional
-task attributes, including user IDs, capability sets and namespaces.
+SELinux considers tasks to be side-channel safe if they
+have PROCESS_SHARE access.
 
 Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
-
 ---
- MAINTAINERS                        |   6 ++
- arch/x86/mm/tlb.c                  |  12 ++-
- include/linux/lsm_hooks.h          |  12 +++
- include/linux/security.h           |   1 +
- security/Kconfig                   |   1 +
- security/Makefile                  |   2 +
- security/security.c                |   6 ++
- security/selinux/hooks.c           |   9 +++
- security/sidechannel/Kconfig       |  60 ++++++++++++++
- security/sidechannel/Makefile      |   1 +
- security/sidechannel/sidechannel.c | 156 +++++++++++++++++++++++++++++++++++++
- security/smack/smack_lsm.c         |  18 +++++
- 12 files changed, 280 insertions(+), 4 deletions(-)
+ security/selinux/hooks.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a8bf324130f5..7fbd7d7ac1cb 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4219,6 +4219,14 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	spin_unlock(&isec->lock);
+ }
+ 
++static int selinux_task_safe_sidechannel(struct task_struct *p)
++{
++	struct av_decision avd;
++
++	return avc_has_perm_noaudit(&selinux_state, current_sid(), task_sid(p),
++				    SECCLASS_PROCESS, PROCESS__SHARE, 0, &avd);
++}
++
+ /* Returns error only if unable to parse addresses */
+ static int selinux_parse_skb_ipv4(struct sk_buff *skb,
+ 			struct common_audit_data *ad, u8 *proto)
+@@ -7002,6 +7010,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(task_movememory, selinux_task_movememory),
+ 	LSM_HOOK_INIT(task_kill, selinux_task_kill),
+ 	LSM_HOOK_INIT(task_to_inode, selinux_task_to_inode),
++	LSM_HOOK_INIT(task_safe_sidechannel, selinux_task_safe_sidechannel),
+ 
+ 	LSM_HOOK_INIT(ipc_permission, selinux_ipc_permission),
+ 	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
+-- 
+2.17.1
