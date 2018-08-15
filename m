@@ -1,73 +1,67 @@
-Date: Wed, 15 Aug 2018 18:29:51 -0500
-From: "Serge E. Hallyn" <serge@hallyn.com>
-To: James Morris <jmorris@namei.org>
-Cc: Al Viro <viro@ZenIV.linux.org.uk>, Andy Lutomirski <luto@kernel.org>,
- Alan Cox <gnomes@lxorguk.ukuu.org.uk>, "Theodore Y. Ts'o" <tytso@mit.edu>,
- David Howells <dhowells@redhat.com>,
- "Eric W. Biederman" <ebiederm@xmission.com>,
- John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- SELinux-NSA <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
- apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
- Fenghua Yu <fenghua.yu@intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>,
- LSM List <linux-security-module@vger.kernel.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp,
- "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Linux FS Devel <linux-fsdevel@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Miklos Szeredi <miklos@szeredi.hu>
-Message-ID: <20180815232951.GA6891@mail.hallyn.com>
-References: <87d0uqpba5.fsf@xmission.com>
- <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <22361.1533913891@warthog.procyon.org.uk>
- <28045.1533916438@warthog.procyon.org.uk>
- <20180810161400.GA627@thunk.org>
- <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
- <20180813173502.1a7a1d9c@alans-desktop>
- <CALCETrXvtSLjwx0swXo5g-vU3PmF-_6J6j1a_2pAba7bhzO9QQ@mail.gmail.com>
- <20180813172947.GS6515@ZenIV.linux.org.uk>
- <alpine.LRH.2.21.1808140458040.23296@namei.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <alpine.LRH.2.21.1808140458040.23296@namei.org>
-Subject: Re: BUG: Mount ignores mount options
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7FNsShl004257
+ for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 19:54:29 -0400
+From: Casey Schaufler <casey.schaufler@intel.com>
+To: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ SMACK-discuss@lists.01.org, casey.schaufler@intel.com,
+ dave.hansen@intel.com, deneen.t.dock@intel.com,
+ kristen@linux.intel.com, arjan@linux.intel.com
+Date: Wed, 15 Aug 2018 16:53:54 -0700
+Message-Id: <20180815235355.14908-5-casey.schaufler@intel.com>
+In-Reply-To: <20180815235355.14908-1-casey.schaufler@intel.com>
+References: <20180815235355.14908-1-casey.schaufler@intel.com>
+Subject: [PATCH RFC 4/5] Smack: Support determination of side-channel
+ vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting James Morris (jmorris@namei.org):
-> On Mon, 13 Aug 2018, Al Viro wrote:
-> 
-> > On Mon, Aug 13, 2018 at 09:48:53AM -0700, Andy Lutomirski wrote:
-> 
-> > > Are there cases I'm missing?  It sounds like the API could be improved
-> > > to fully model the last case, and everything will work nicely.
-> > 
-> > 	You know, that's starting to remind of this little gem of Borges:
-> > http://www.alamut.com/subj/artiface/language/johnWilkins.html
-> > Especially the delightful (fake) quote contained in there:
-> > [...] it is written that the animals are divided into:
-> > 	(a) belonging to the emperor,
-> > 	(b) embalmed,
-> > 	(c) tame,
-> > 	(d) sucking pigs,
-> > 	(e) sirens,
-> > 	(f) fabulous,
-> > 	(g) stray dogs,
-> > 	(h) included in the present classification,
-> > 	(i) frenzied,
-> > 	(j) innumerable,
-> > 	(k) drawn with a very fine camelhair brush,
-> > 	(l) et cetera,
-> > 	(m) having just broken the water pitcher,
-> > 	(n) that from a long way off look like flies.
-> 
-> 
-> Coincidentally, this was also the model for Linux capabilities.
+Smack considers its private task data safe if the current task
+has read access to the passed task.
 
-But maybe we want to split the stray dogs up by breed.
+Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
+---
+ security/smack/smack_lsm.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 91750205a5de..85dc053e610c 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2299,6 +2299,23 @@ static void smack_task_to_inode(struct task_struct *p, struct inode *inode)
+ 	isp->smk_inode = skp;
+ }
+ 
++/**
++ * smack_task_safe_sidechannel - Are the task and current sidechannel safe?
++ * @p: task to check on
++ *
++ * A crude value for sidechannel safety is that the current task is
++ * already allowed to read from the other.
++ *
++ * Returns 0 if the tasks are sidechannel safe, -EACCES otherwise.
++ */
++static int smack_task_safe_sidechannel(struct task_struct *p)
++{
++	struct smack_known *skp = smk_of_task_struct(p);
++	struct smack_known *ckp = smk_of_task_struct(current);
++
++	return smk_access(ckp, skp, MAY_READ, NULL);
++}
++
+ /*
+  * Socket hooks.
+  */
+@@ -4718,6 +4735,7 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(task_movememory, smack_task_movememory),
+ 	LSM_HOOK_INIT(task_kill, smack_task_kill),
+ 	LSM_HOOK_INIT(task_to_inode, smack_task_to_inode),
++	LSM_HOOK_INIT(task_safe_sidechannel, smack_task_safe_sidechannel),
+ 
+ 	LSM_HOOK_INIT(ipc_permission, smack_ipc_permission),
+ 	LSM_HOOK_INIT(ipc_getsecid, smack_ipc_getsecid),
+-- 
+2.17.1
