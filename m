@@ -1,74 +1,91 @@
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: "Theodore Y. Ts'o" <tytso@mit.edu>, Al Viro <viro@ZenIV.linux.org.uk>,
- David Howells <dhowells@redhat.com>,
- John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
- Li Zefan <lizefan@huawei.com>, linux-api@vger.kernel.org,
- apparmor@lists.ubuntu.com, fenghua.yu@intel.com,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>, linux-security-module@vger.kernel.org,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
- torvalds@linux-foundation.org, linux-fsdevel@vger.kernel.org,
- linux-kernel@vger.kernel.org, Miklos Szeredi <miklos@szeredi.hu>
-References: <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
- <87d0uqpba5.fsf@xmission.com>
- <20180810151606.GA6515@ZenIV.linux.org.uk>
- <87pnypiufr.fsf@xmission.com> <20180811014619.GA14368@thunk.org>
- <8736vlo6ef.fsf@xmission.com>
- <001a1608-d0fa-84c1-9c54-ae36df95fd89@schaufler-ca.com>
-Date: Tue, 14 Aug 2018 23:03:17 -0500
-In-Reply-To: <001a1608-d0fa-84c1-9c54-ae36df95fd89@schaufler-ca.com> (Casey
- Schaufler's message of "Sat, 11 Aug 2018 10:47:50 -0700")
-Message-ID: <87d0ukjmyi.fsf@xmission.com>
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7F5kDi0007899
+ for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 01:46:13 -0400
+Received: by mail-yw1-f65.google.com with SMTP id r184-v6so77021ywg.6
+ for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2018 22:19:27 -0700 (PDT)
+Received: from mail-yw1-f46.google.com (mail-yw1-f46.google.com.
+ [209.85.161.46])
+ by smtp.gmail.com with ESMTPSA id h63-v6sm9347286ywb.28.2018.08.14.22.19.23
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Tue, 14 Aug 2018 22:19:24 -0700 (PDT)
+Received: by mail-yw1-f46.google.com with SMTP id s68-v6so87238ywg.2
+ for <selinux@tycho.nsa.gov>; Tue, 14 Aug 2018 22:19:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-Subject: Re: BUG: Mount ignores mount options
+In-Reply-To: <8e2bdc10-3142-9e8d-ff05-70fa4d862dd5@schaufler-ca.com>
+References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
+ <CAMp4zn94SzqK_Q=de2E+Fpv5yeAhYv62XW-KU3=ghRma9d7Jvw@mail.gmail.com>
+ <a287800e-bd4d-2b99-8c4c-bd61ba87fab1@schaufler-ca.com>
+ <kubjHWMWfFDu8Rk19x79iMDKVbewTUMWwSjOA7vFGIbYsWYcGb50jb-Z-PSXxmcby3ZFMZWi0HCeuFgo3F8BRskxo_JUdSHFhdIsIlBxHyQ=@protonmail.ch>
+ <8e2bdc10-3142-9e8d-ff05-70fa4d862dd5@schaufler-ca.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Tue, 14 Aug 2018 22:19:22 -0700
+Message-ID: <CAGXu5jJ6Ngv8A=3TV5z5+x5kCkkXwjYtDfSQjUQgscP4hv_xYg@mail.gmail.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Jordan Glover <Golden_Miller83@protonmail.ch>,
+ Sargun Dhillon <sargun@sargun.me>,
+ LSM <linux-security-module@vger.kernel.org>,
+ LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+ "SMACK-discuss@lists.01.org" <SMACK-discuss@lists.01.org>,
+ John Johansen <john.johansen@canonical.com>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ James Morris <jmorris@namei.org>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>,
+ Salvatore Mesoraca <s.mesoraca16@gmail.com>,
+ =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v1 00/22] LSM: Full security module stacking
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Casey Schaufler <casey@schaufler-ca.com> writes:
+On Tue, Aug 14, 2018 at 4:50 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 8/14/2018 4:22 PM, Jordan Glover wrote:
+>> On August 14, 2018 8:28 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>
+>>>
+>>>>> The blob management part (through "LSM: Sharing of security blobs")
+>>>>> is ready for prime-time. These changes move the management of
+>>>>> security blobs out of the security modules and into the security
+>>>>> module infrastructure. With this change the proposed S.A.R.A,
+>>>>> LandLock and PTAGS security modules could co-exist with any of
+>>>>> the existing "major" security modules. The changes reduce some
+>>>>> code duplication.
+>>>>> Beyond the blob management there's a bit of clean-up.
+>>>>> Mounting filesystems had to be changed so that options
+>>>>> a security module doesn't recognize won't be considered
+>>>>> a fatal error. The mount infrastructure is somewhat
+>>>>> more complex than one might assume.
+>>>> Casey,
+>>>> Do you think you can break out 1 into its own patch? It seems like
+>>>> that'd be valuable to everyone.
+>>> Yes, I think that is a good idea. Landlock, S.A.R.A. and a couple
+>>> other security modules could be added upstream if this part of the
+>>> work was available. It would not provide everything needed to stack
+>>> all the existing modules. I believe there is concern that if this
+>>> much went upstream the work on finishing what's required to make
+>>> everything work might be abandoned.
+>>>
+>> On the other hand there is concern that those security modules might
+>> be abandoned if they have to wait until everything is finished :)
+>
+> There is some truth to that. If we can get commitment from the developers
+> of those security module to push for getting upstream, a statement of
+> intent to support additional modules (e.g. Landlock, S.A.R.A.) from a
+> significant distribution (e.g. Fedora, Ubuntu, SuSE) and ACKs from the
+> maintainers of the existing modules we should be able to breeze right in.
+>
+> Yeah, I think that's about all it would take.
 
-> Don't blame the filesystems for behaving as documented.
+I would strongly recommend Landlock and SARA for every distro. They're
+opt-in, and provide much-needed missing userspace defenses (and attack
+surface reduction).
 
-No.  This behavior is not documented.  At least I certainly don't see a
-word about this in any of the man pages.  Where does it say mounting a
-filesystem will not honor it's mount options?
+-Kees
 
-It is also rare enough in practice it is something it is reasonable to
-expect people to be surprised by.
-
-> The problem is not in the mount mechanism, it's in the way you want to
-> abuse it.
-
-I am not asking for this behavior.  I am pointing out this behavior
-exists.  I am pointing out this behavior is harmful.  I am asking we
-stop doing this harmful thing in the new API where we don't have a
-chance of breaking anything.
-
-The place where this has bitten the hardest is someone wrote a script to
-do something for Xen in a chroot.  That script involved a chroot that
-mounted devpts and in doing so happend to change the options of the main
-/dev/pts.  Which resulted in ptys created with /dev/ptmx outside the
-chroot with the wrong permissions.  That in turn caused several distros
-to retain the ancient suid pt_chown binary from libc that the devpts
-filesystem was built to make obsolete.  As the world turned that
-pt_chown binary could be confused into chowning the wrong pty if a pty
-from a container was used.
-
-The fix was to mount a new instance of devpts every time mount of devpts
-is called.  That simplified the code, and allowed pt_chown to be removed
-permanently.  The tricky bit was figuring out how keep /dev/ptmx
-working.  I wound up testing on every distribution I could think of to
-ensure no one would notice the slightly changed behavior of the devpts
-filesystem.
-
-The behavior in other filesystems of ignoring the options instead of
-changing them on the filesystem isn't quite as bad.  But it still has
-the potential for a lot of mischief.
-
-Eric
+-- 
+Kees Cook
+Pixel Security
