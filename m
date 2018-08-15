@@ -1,164 +1,73 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7FLBL8u013729
- for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 17:11:21 -0400
-Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr
- [89.156.252.9])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 4ACD8560008
- for <selinux@tycho.nsa.gov>; Wed, 15 Aug 2018 23:09:17 +0200 (CEST)
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-To: selinux@tycho.nsa.gov
-Date: Wed, 15 Aug 2018 23:08:53 +0200
-Message-Id: <20180815210853.15495-1-nicolas.iooss@m4x.org>
-Subject: [PATCH 1/1] Travis-CI: run flake8 on Python code
+Date: Wed, 15 Aug 2018 18:29:51 -0500
+From: "Serge E. Hallyn" <serge@hallyn.com>
+To: James Morris <jmorris@namei.org>
+Cc: Al Viro <viro@ZenIV.linux.org.uk>, Andy Lutomirski <luto@kernel.org>,
+ Alan Cox <gnomes@lxorguk.ukuu.org.uk>, "Theodore Y. Ts'o" <tytso@mit.edu>,
+ David Howells <dhowells@redhat.com>,
+ "Eric W. Biederman" <ebiederm@xmission.com>,
+ John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
+ SELinux-NSA <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
+ Li Zefan <lizefan@huawei.com>, Linux API <linux-api@vger.kernel.org>,
+ apparmor@lists.ubuntu.com, Casey Schaufler <casey@schaufler-ca.com>,
+ Fenghua Yu <fenghua.yu@intel.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Eric Biggers <ebiggers@google.com>,
+ LSM List <linux-security-module@vger.kernel.org>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
+ tomoyo-dev-en@lists.sourceforge.jp,
+ "open list:CONTROL GROUP (CGROUP)" <cgroups@vger.kernel.org>,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>, Miklos Szeredi <miklos@szeredi.hu>
+Message-ID: <20180815232951.GA6891@mail.hallyn.com>
+References: <87d0uqpba5.fsf@xmission.com>
+ <153313703562.13253.5766498657900728120.stgit@warthog.procyon.org.uk>
+ <22361.1533913891@warthog.procyon.org.uk>
+ <28045.1533916438@warthog.procyon.org.uk>
+ <20180810161400.GA627@thunk.org>
+ <CALCETrXC8Z-q+PzzqMC-McA7UdmFubVcs2dVsT0Dt+GbSqjF5A@mail.gmail.com>
+ <20180813173502.1a7a1d9c@alans-desktop>
+ <CALCETrXvtSLjwx0swXo5g-vU3PmF-_6J6j1a_2pAba7bhzO9QQ@mail.gmail.com>
+ <20180813172947.GS6515@ZenIV.linux.org.uk>
+ <alpine.LRH.2.21.1808140458040.23296@namei.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <alpine.LRH.2.21.1808140458040.23296@namei.org>
+Subject: Re: BUG: Mount ignores mount options
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-flake8 is a Python linter which is able to detect issues in Python code
-(syntax errors, undefined variables, etc.). It has been used to find
-bugs in the project. In order to prevent the introduction of new bugs
-which can be detected by it, add a script which runs it and use it in
-Travis-CI.
+Quoting James Morris (jmorris@namei.org):
+> On Mon, 13 Aug 2018, Al Viro wrote:
+> 
+> > On Mon, Aug 13, 2018 at 09:48:53AM -0700, Andy Lutomirski wrote:
+> 
+> > > Are there cases I'm missing?  It sounds like the API could be improved
+> > > to fully model the last case, and everything will work nicely.
+> > 
+> > 	You know, that's starting to remind of this little gem of Borges:
+> > http://www.alamut.com/subj/artiface/language/johnWilkins.html
+> > Especially the delightful (fake) quote contained in there:
+> > [...] it is written that the animals are divided into:
+> > 	(a) belonging to the emperor,
+> > 	(b) embalmed,
+> > 	(c) tame,
+> > 	(d) sucking pigs,
+> > 	(e) sirens,
+> > 	(f) fabulous,
+> > 	(g) stray dogs,
+> > 	(h) included in the present classification,
+> > 	(i) frenzied,
+> > 	(j) innumerable,
+> > 	(k) drawn with a very fine camelhair brush,
+> > 	(l) et cetera,
+> > 	(m) having just broken the water pitcher,
+> > 	(n) that from a long way off look like flies.
+> 
+> 
+> Coincidentally, this was also the model for Linux capabilities.
 
-flake8 can be used to detect code which is not written according to PEP8
-style guide (which forbids whitespaces in some places, enforces the use
-of space-indenting, specifies how many blank lines are used between
-functions, etc.). As SELinux code does not follow this style guide,
-scripts/run-flake8 disables many warnings related to this when running
-the linter.
-
-In order to silence flake8 warnings, the Python code can also be
-modified. However fixing every "do not use bare 'except'" in the project
-needs to be done carefully and takes much time.
-This is why the warnings which are disabled have been ordered in three
-lists:
-* The warnings which can be activated in a not-so-distant future after
-  the code has been modified.
-* The warnings related to PEP8 which cannot be activated without a major
-  cleaning work of the codebase (for example to modify white spaces)
-* The warnings which are introduced by code generated by SWIG 3.0.12,
-  which would require patches in SWIG in order to be activated (there
-  is right now only one such warning).
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- .travis.yml        |  6 ++++
- scripts/run-flake8 | 79 ++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 85 insertions(+)
- create mode 100755 scripts/run-flake8
-
-diff --git a/.travis.yml b/.travis.yml
-index 0612eb5480e5..09dd4749975e 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -83,6 +83,9 @@ install:
-         rm python.tar.bz2 ;
-     fi
- 
-+  # Install flake8 for the given python version
-+  - $VIRTUAL_ENV/bin/pip install flake8
-+
- before_script:
-   # clang on Travis-CI 14.04 environment is too old to support -Wdouble-promotion
-   - if "$CC" --version |grep -q clang; then sed 's/ -Wdouble-promotion / /' -i libselinux/src/Makefile libselinux/utils/Makefile ; fi
-@@ -141,6 +144,9 @@ script:
-   - $PYTHON -c 'import selinux;import selinux.audit2why;import semanage;print(selinux.is_selinux_enabled())'
-   - $RUBY -e 'require "selinux";require "semanage";puts Selinux::is_selinux_enabled()'
- 
-+  # Run Python linter
-+  - PATH="$VIRTUAL_ENV/bin:$PATH" ./scripts/run-flake8
-+
-   # Remove every installed files
-   - rm -rf "$DESTDIR"
- 
-diff --git a/scripts/run-flake8 b/scripts/run-flake8
-new file mode 100755
-index 000000000000..8a1f490b8a62
---- /dev/null
-+++ b/scripts/run-flake8
-@@ -0,0 +1,79 @@
-+#!/bin/sh
-+# Run flake8 (Python linter) on the source directory or on the given files/directories
-+
-+# Run on the base directory if no argument has been given
-+if [ $# -eq 0 ] ; then
-+    cd "$(dirname -- "$0")/.." || exit $?
-+fi
-+
-+# Assign each ignore warning on a line, in order to ease testing enabling the warning again
-+IGNORE_LIST=''
-+
-+# Important warnings that should be fixed
-+# (Comment one line and run this script in order to see where the warning occurs)
-+IGNORE_LIST="$IGNORE_LIST,W191" # indentation contains tabs
-+
-+IGNORE_LIST="$IGNORE_LIST,E101" # indentation contains mixed spaces and tabs
-+IGNORE_LIST="$IGNORE_LIST,E703" # statement ends with a semicolon
-+IGNORE_LIST="$IGNORE_LIST,E711" # comparison to None should be 'if cond is not None:'
-+IGNORE_LIST="$IGNORE_LIST,E712" # comparison to False should be 'if cond is False:' or 'if not cond:'
-+IGNORE_LIST="$IGNORE_LIST,E722" # do not use bare 'except'
-+IGNORE_LIST="$IGNORE_LIST,E999" # TabError: inconsistent use of tabs and spaces in indentation
-+
-+IGNORE_LIST="$IGNORE_LIST,F401" # module imported but unused
-+IGNORE_LIST="$IGNORE_LIST,F812" # list comprehension redefines 'f', in lex.py and yacc.py
-+IGNORE_LIST="$IGNORE_LIST,F841" # local variable '...' is assigned to but never used
-+
-+
-+# Less-important warnings
-+IGNORE_LIST="$IGNORE_LIST,W291" # trailing whitespace
-+IGNORE_LIST="$IGNORE_LIST,W293" # blank line contains whitespace
-+IGNORE_LIST="$IGNORE_LIST,W391" # blank line at end of file
-+IGNORE_LIST="$IGNORE_LIST,W503" # line break before binary operator
-+IGNORE_LIST="$IGNORE_LIST,W504" # line break after binary operator
-+
-+IGNORE_LIST="$IGNORE_LIST,E111" # indentation is not a multiple of four
-+IGNORE_LIST="$IGNORE_LIST,E114" # indentation is not a multiple of four (comment)
-+IGNORE_LIST="$IGNORE_LIST,E115" # expected an indented block (comment)
-+IGNORE_LIST="$IGNORE_LIST,E116" # unexpected indentation (comment)
-+IGNORE_LIST="$IGNORE_LIST,E122" # continuation line missing indentation or outdented
-+IGNORE_LIST="$IGNORE_LIST,E123" # closing bracket does not match indentation of opening bracket's line
-+IGNORE_LIST="$IGNORE_LIST,E126" # continuation line over-indented for hanging indent
-+IGNORE_LIST="$IGNORE_LIST,E127" # continuation line over-indented for visual indent
-+IGNORE_LIST="$IGNORE_LIST,E128" # continuation line under-indented for visual indent
-+IGNORE_LIST="$IGNORE_LIST,E201" # whitespace after '['
-+IGNORE_LIST="$IGNORE_LIST,E202" # whitespace before '}'
-+IGNORE_LIST="$IGNORE_LIST,E203" # whitespace before ':'
-+IGNORE_LIST="$IGNORE_LIST,E211" # whitespace before '('
-+IGNORE_LIST="$IGNORE_LIST,E221" # multiple spaces before operator
-+IGNORE_LIST="$IGNORE_LIST,E222" # multiple spaces after operator
-+IGNORE_LIST="$IGNORE_LIST,E225" # missing whitespace around operator
-+IGNORE_LIST="$IGNORE_LIST,E226" # missing whitespace around arithmetic operator
-+IGNORE_LIST="$IGNORE_LIST,E231" # missing whitespace after ','
-+IGNORE_LIST="$IGNORE_LIST,E241" # multiple spaces after ':'
-+IGNORE_LIST="$IGNORE_LIST,E251" # unexpected spaces around keyword / parameter equals
-+IGNORE_LIST="$IGNORE_LIST,E261" # at least two spaces before inline comment
-+IGNORE_LIST="$IGNORE_LIST,E265" # block comment should start with '# '
-+IGNORE_LIST="$IGNORE_LIST,E266" # too many leading '#' for block comment
-+IGNORE_LIST="$IGNORE_LIST,E272" # multiple spaces before keyword
-+IGNORE_LIST="$IGNORE_LIST,E301" # expected 1 blank line, found 0
-+IGNORE_LIST="$IGNORE_LIST,E302" # expected 2 blank lines, found 1
-+IGNORE_LIST="$IGNORE_LIST,E303" # too many blank lines
-+IGNORE_LIST="$IGNORE_LIST,E305" # expected 2 blank lines after class or function definition, found 0
-+IGNORE_LIST="$IGNORE_LIST,E306" # expected 1 blank line before a nested definition, found 0
-+IGNORE_LIST="$IGNORE_LIST,E401" # multiple imports on one line
-+IGNORE_LIST="$IGNORE_LIST,E402" # module level import not at top of file
-+IGNORE_LIST="$IGNORE_LIST,E501" # line too long
-+IGNORE_LIST="$IGNORE_LIST,E701" # multiple statements on one line (colon)
-+IGNORE_LIST="$IGNORE_LIST,E704" # multiple statements on one line (def)
-+IGNORE_LIST="$IGNORE_LIST,E731" # do not assign a lambda expression, use a def
-+IGNORE_LIST="$IGNORE_LIST,E741" # ambiguous variable name 'l' / 'I'
-+
-+IGNORE_LIST="$IGNORE_LIST,F403" # 'from ... import *' used; unable to detect undefined names
-+IGNORE_LIST="$IGNORE_LIST,F405" # '...' may be undefined, or defined from star imports
-+
-+# Ignore errors from files generated from SWIG
-+IGNORE_LIST="$IGNORE_LIST,F811" # redefinition of unused ...
-+
-+
-+exec flake8 --max-line-length=120 --builtins='_,unicode,lextab,parsetab' --ignore=",$IGNORE_LIST" "$@"
--- 
-2.18.0
+But maybe we want to split the stray dogs up by breed.
