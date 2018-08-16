@@ -1,16 +1,16 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7GEI7E6029497
- for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2018 10:18:07 -0400
-Received: by mail-oi0-f66.google.com with SMTP id d189-v6so8268239oib.6
- for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2018 07:16:20 -0700 (PDT)
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7GEMpgr029541
+ for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2018 10:22:51 -0400
+Received: by mail-oi0-f66.google.com with SMTP id j205-v6so8314190oib.4
+ for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2018 07:22:36 -0700 (PDT)
 MIME-Version: 1.0
 References: <20180815235355.14908-1-casey.schaufler@intel.com>
- <20180815235355.14908-4-casey.schaufler@intel.com>
-In-Reply-To: <20180815235355.14908-4-casey.schaufler@intel.com>
+ <20180815235355.14908-6-casey.schaufler@intel.com>
+In-Reply-To: <20180815235355.14908-6-casey.schaufler@intel.com>
 From: Jann Horn <jannh@google.com>
-Date: Thu, 16 Aug 2018 16:15:52 +0200
-Message-ID: <CAG48ez1kLTcc6aDf7hYXFMw4oD1hp9Dx74-wuAjbQ7hdAQzE=Q@mail.gmail.com>
+Date: Thu, 16 Aug 2018 16:22:08 +0200
+Message-ID: <CAG48ez0OAFqzak1=OEF5V8cZR_-dYUiXnUVp=mgnikexjQkELA@mail.gmail.com>
 To: casey.schaufler@intel.com
 Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
  kernel list <linux-kernel@vger.kernel.org>,
@@ -19,80 +19,46 @@ Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
  Dave Hansen <dave.hansen@intel.com>, deneen.t.dock@intel.com,
  kristen@linux.intel.com, Arjan van de Ven <arjan@linux.intel.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH RFC 3/5] LSM: Security module checking for
- side-channel dangers
+Subject: Re: [PATCH RFC 5/5] SELinux: Support SELinux determination
+ of side-channel vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Aug 16, 2018 at 11:51 AM Casey Schaufler
+On Thu, Aug 16, 2018 at 11:52 AM Casey Schaufler
 <casey.schaufler@intel.com> wrote:
 >
-> From: Casey Schaufler <cschaufler@localhost.localdomain>
->
-> The sidechannel LSM checks for cases where a side-channel
-> attack may be dangerous based on security attributes of tasks.
-> This includes:
->         Effective UID of the tasks is different
->         Capablity sets are different
->         Tasks are in different namespaces
-> An option is also provided to assert that task are never
-> to be considered safe. This is high paranoia, and expensive
-> as well.
+> SELinux considers tasks to be side-channel safe if they
+> have PROCESS_SHARE access.
 >
 > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
-[...]
-> +static int safe_by_uid(struct task_struct *p)
+> ---
+>  security/selinux/hooks.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index a8bf324130f5..7fbd7d7ac1cb 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -4219,6 +4219,14 @@ static void selinux_task_to_inode(struct task_struct *p,
+>         spin_unlock(&isec->lock);
+>  }
+>
+> +static int selinux_task_safe_sidechannel(struct task_struct *p)
 > +{
-> +       const struct cred *ccred = current->cred;
-> +       const struct cred *pcred = p->cred;
+> +       struct av_decision avd;
+> +
+> +       return avc_has_perm_noaudit(&selinux_state, current_sid(), task_sid(p),
+> +                                   SECCLASS_PROCESS, PROCESS__SHARE, 0, &avd);
+> +}
 
-See below.
+current_sid() -> current_security() -> current_cred_xxx() ->
+current_cred() accesses current->cred, the subjective credentials
+associated with the current syscall context, affected by
+override_creds(). You probably want to look at objective credentials
+here, since what you're interested in is not the security context of
+the current syscall, but the security context of the userspace code
+running in the current address space.
 
-[...]
-> +static int safe_by_capability(struct task_struct *p)
-> +{
-> +       const struct cred *ccred = current->cred;
-> +       const struct cred *pcred = p->cred;
-
-See below.
-
-[...]
-> +       if (current->cred->user_ns != p->cred->user_ns)
-> +               return -EACCES;
-
-Shouldn't this access be using one of the rcu_dereference_* helpers?
-Something like rcu_dereference_protected(..., 1).
-
-Also, you're looking at ->cred, and you don't want to do that. ->cred
-are the *subjective* credentials of the task, meaning the credentials
-that should only be used when this task actively performs an access.
-Depending on what userspace is doing, an unprivileged process' ->cred
-will randomly flake to something with GLOBAL_ROOT_UID because of
-override_creds() calls - for example, if you access a file through
-overlayfs in certain ways, your ->cred will temporarily be overwritten
-by ovl_override_creds(), which mostly switches to the credentials of
-the filesystem's creator (iow, normally root). coredumps can also
-override the EUID with GLOBAL_ROOT_UID:
-
-    if (__get_dumpable(cprm.mm_flags) == SUID_DUMP_ROOT) {
-        /* Setuid core dump mode */
-        cred->fsuid = GLOBAL_ROOT_UID;  /* Dump root private */
-        need_suid_safe = true;
-    }
-
-    retval = coredump_wait(siginfo->si_signo, &core_state);
-    if (retval < 0)
-        goto fail_creds;
-
-    old_cred = override_creds(cred);
-
-Please use the objective credentials (->real_cred) instead, which are
-not subject to random override_creds() effects, and are designed to be
-used when looking at the privileges associated with an overall task
-(as opposed to the privileges associated with the task's current
-syscall context).
-
-At least for the current-> access, you probably want
-current_real_cred(), which has been defined for this kind of use.
+task_sid() does the right thing and looks at the objective creds.
