@@ -1,69 +1,79 @@
-To: Casey Schaufler <casey.schaufler@intel.com>,
- kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- SMACK-discuss@lists.01.org, dave.hansen@intel.com,
- deneen.t.dock@intel.com, kristen@linux.intel.com, arjan@linux.intel.com
-References: <20180815235355.14908-1-casey.schaufler@intel.com>
- <20180815235355.14908-6-casey.schaufler@intel.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <0b383282-1369-79e9-d111-f03e2897660e@tycho.nsa.gov>
-Date: Thu, 16 Aug 2018 10:12:58 -0400
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7GEEAac029443
+ for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2018 10:14:10 -0400
+Received: by mail-oi0-f65.google.com with SMTP id k12-v6so8200554oiw.8
+ for <selinux@tycho.nsa.gov>; Thu, 16 Aug 2018 07:10:00 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20180815235355.14908-6-casey.schaufler@intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: [PATCH RFC 5/5] SELinux: Support SELinux determination of
+References: <20180815235355.14908-1-casey.schaufler@intel.com>
+ <20180815235355.14908-3-casey.schaufler@intel.com>
+In-Reply-To: <20180815235355.14908-3-casey.schaufler@intel.com>
+From: Jann Horn <jannh@google.com>
+Date: Thu, 16 Aug 2018 16:09:31 +0200
+Message-ID: <CAG48ez0=RSok9mAo9QHsho+Qnm_ZDqkH68Amfzj9A_jWmOZaOA@mail.gmail.com>
+To: casey.schaufler@intel.com
+Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
+ kernel list <linux-kernel@vger.kernel.org>,
+ linux-security-module <linux-security-module@vger.kernel.org>,
+ selinux@tycho.nsa.gov, SMACK-discuss@lists.01.org,
+ Dave Hansen <dave.hansen@intel.com>, deneen.t.dock@intel.com,
+ kristen@linux.intel.com, Arjan van de Ven <arjan@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH RFC 2/5] X86: Support LSM determination of
  side-channel vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/15/2018 07:53 PM, Casey Schaufler wrote:
-> SELinux considers tasks to be side-channel safe if they
-> have PROCESS_SHARE access.
-> 
+On Thu, Aug 16, 2018 at 11:51 AM Casey Schaufler
+<casey.schaufler@intel.com> wrote:
+>
+> From: Casey Schaufler <cschaufler@localhost.localdomain>
+>
+> When switching between tasks it may be necessary
+> to set an indirect branch prediction barrier if the
+> tasks are potentially vulnerable to side-channel
+> attacks. This adds a call to security_task_safe_sidechannel
+> so that security modules can weigh in on the decision.
+>
 > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
 > ---
->   security/selinux/hooks.c | 9 +++++++++
->   1 file changed, 9 insertions(+)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index a8bf324130f5..7fbd7d7ac1cb 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -4219,6 +4219,14 @@ static void selinux_task_to_inode(struct task_struct *p,
->   	spin_unlock(&isec->lock);
->   }
->   
-> +static int selinux_task_safe_sidechannel(struct task_struct *p)
-> +{
-> +	struct av_decision avd;
-> +
-> +	return avc_has_perm_noaudit(&selinux_state, current_sid(), task_sid(p),
-> +				    SECCLASS_PROCESS, PROCESS__SHARE, 0, &avd);
-> +}
+>  arch/x86/mm/tlb.c | 12 ++++++++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+>
+> diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+> index 6eb1f34c3c85..8714d4af06aa 100644
+> --- a/arch/x86/mm/tlb.c
+> +++ b/arch/x86/mm/tlb.c
+> @@ -7,6 +7,7 @@
+>  #include <linux/export.h>
+>  #include <linux/cpu.h>
+>  #include <linux/debugfs.h>
+> +#include <linux/security.h>
+>
+>  #include <asm/tlbflush.h>
+>  #include <asm/mmu_context.h>
+> @@ -270,11 +271,14 @@ void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
+>                  * threads. It will also not flush if we switch to idle
+>                  * thread and back to the same process. It will flush if we
+>                  * switch to a different non-dumpable process.
+> +                * If a security module thinks that the transition
+> +                * is unsafe do the flush.
+>                  */
+> -               if (tsk && tsk->mm &&
+> -                   tsk->mm->context.ctx_id != last_ctx_id &&
+> -                   get_dumpable(tsk->mm) != SUID_DUMP_USER)
+> -                       indirect_branch_prediction_barrier();
+> +               if (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id) {
+> +                       if (get_dumpable(tsk->mm) != SUID_DUMP_USER ||
+> +                           security_task_safe_sidechannel(tsk) != 0)
+> +                               indirect_branch_prediction_barrier();
+> +               }
 
-If you are going to apply this kind of check, is there a reason you 
-wouldn't just use the ptrace checking logic?  Just call 
-ptrace_may_access() with PTRACE_MODE_READ and dispense with having a 
-separate hook altogether.  Then you get uids/gids, caps, dumpable, and 
-security module checking for free.
-
-Regardless, I don't think share permission is the right answer here; it 
-has very different semantics and security implications, and is almost 
-never allowed in Android policy (just one instance for kernel->init 
-transition).
-
-> +
->   /* Returns error only if unable to parse addresses */
->   static int selinux_parse_skb_ipv4(struct sk_buff *skb,
->   			struct common_audit_data *ad, u8 *proto)
-> @@ -7002,6 +7010,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->   	LSM_HOOK_INIT(task_movememory, selinux_task_movememory),
->   	LSM_HOOK_INIT(task_kill, selinux_task_kill),
->   	LSM_HOOK_INIT(task_to_inode, selinux_task_to_inode),
-> +	LSM_HOOK_INIT(task_safe_sidechannel, selinux_task_safe_sidechannel),
->   
->   	LSM_HOOK_INIT(ipc_permission, selinux_ipc_permission),
->   	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
-> 
+Does this enforce transitivity? What happens if we first switch from
+an attacker task to a task without ->mm, and immediately afterwards
+from the task without ->mm to a victim task? In that case, whether a
+flush happens between the attacker task and the victim task depends on
+whether the LSM thinks that the mm-less task should have access to the
+victim task, right?
