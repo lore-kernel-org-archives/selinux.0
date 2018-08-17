@@ -1,66 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7HMGmF9010303
- for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2018 18:16:48 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7HMGmFA010303
+ for <selinux@tycho.nsa.gov>; Fri, 17 Aug 2018 18:16:49 -0400
 From: Casey Schaufler <casey.schaufler@intel.com>
 To: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  casey.schaufler@intel.com, dave.hansen@intel.com,
  deneen.t.dock@intel.com, kristen@linux.intel.com, arjan@linux.intel.com
-Date: Fri, 17 Aug 2018 15:16:21 -0700
-Message-Id: <20180817221624.10232-3-casey.schaufler@intel.com>
+Date: Fri, 17 Aug 2018 15:16:24 -0700
+Message-Id: <20180817221624.10232-6-casey.schaufler@intel.com>
 In-Reply-To: <20180817221624.10232-1-casey.schaufler@intel.com>
 References: <20180817221624.10232-1-casey.schaufler@intel.com>
-Subject: [PATCH RFC v2 2/5] X86: Support LSM determination of side-channel
- vulnerability
+Subject: [PATCH RFC v2 5/5] SELinux: Support SELinux determination of
+ side-channel vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Casey Schaufler <cschaufler@localhost.localdomain>
-
-When switching between tasks it may be necessary
-to set an indirect branch prediction barrier if the
-tasks are potentially vulnerable to side-channel
-attacks. This adds a call to security_task_safe_sidechannel
-so that security modules can weigh in on the decision.
+SELinux considers tasks to be side-channel safe if they
+have PROCESS_SHARE access.
 
 Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
 ---
- arch/x86/mm/tlb.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ security/selinux/hooks.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 6eb1f34c3c85..8714d4af06aa 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -7,6 +7,7 @@
- #include <linux/export.h>
- #include <linux/cpu.h>
- #include <linux/debugfs.h>
-+#include <linux/security.h>
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index a8bf324130f5..7fbd7d7ac1cb 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4219,6 +4219,14 @@ static void selinux_task_to_inode(struct task_struct *p,
+ 	spin_unlock(&isec->lock);
+ }
  
- #include <asm/tlbflush.h>
- #include <asm/mmu_context.h>
-@@ -270,11 +271,14 @@ void switch_mm_irqs_off(struct mm_struct *prev, struct mm_struct *next,
- 		 * threads. It will also not flush if we switch to idle
- 		 * thread and back to the same process. It will flush if we
- 		 * switch to a different non-dumpable process.
-+		 * If a security module thinks that the transition
-+		 * is unsafe do the flush.
- 		 */
--		if (tsk && tsk->mm &&
--		    tsk->mm->context.ctx_id != last_ctx_id &&
--		    get_dumpable(tsk->mm) != SUID_DUMP_USER)
--			indirect_branch_prediction_barrier();
-+		if (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id) {
-+			if (get_dumpable(tsk->mm) != SUID_DUMP_USER ||
-+			    security_task_safe_sidechannel(tsk) != 0)
-+				indirect_branch_prediction_barrier();
-+		}
++static int selinux_task_safe_sidechannel(struct task_struct *p)
++{
++	struct av_decision avd;
++
++	return avc_has_perm_noaudit(&selinux_state, current_sid(), task_sid(p),
++				    SECCLASS_FILE, FILE__READ, 0, &avd);
++}
++
+ /* Returns error only if unable to parse addresses */
+ static int selinux_parse_skb_ipv4(struct sk_buff *skb,
+ 			struct common_audit_data *ad, u8 *proto)
+@@ -7002,6 +7010,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(task_movememory, selinux_task_movememory),
+ 	LSM_HOOK_INIT(task_kill, selinux_task_kill),
+ 	LSM_HOOK_INIT(task_to_inode, selinux_task_to_inode),
++	LSM_HOOK_INIT(task_safe_sidechannel, selinux_task_safe_sidechannel),
  
- 		if (IS_ENABLED(CONFIG_VMAP_STACK)) {
- 			/*
+ 	LSM_HOOK_INIT(ipc_permission, selinux_ipc_permission),
+ 	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
 -- 
 2.17.1
