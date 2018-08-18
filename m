@@ -1,159 +1,191 @@
-To: Kees Cook <keescook@chromium.org>, Casey Schaufler <casey@schaufler-ca.com>
-Cc: Jordan Glover <Golden_Miller83@protonmail.ch>,
- Sargun Dhillon <sargun@sargun.me>,
- LSM <linux-security-module@vger.kernel.org>,
- LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
- "SMACK-discuss@lists.01.org" <SMACK-discuss@lists.01.org>,
- John Johansen <john.johansen@canonical.com>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- James Morris <jmorris@namei.org>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- Salvatore Mesoraca <s.mesoraca16@gmail.com>
-References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
- <CAMp4zn94SzqK_Q=de2E+Fpv5yeAhYv62XW-KU3=ghRma9d7Jvw@mail.gmail.com>
- <a287800e-bd4d-2b99-8c4c-bd61ba87fab1@schaufler-ca.com>
- <kubjHWMWfFDu8Rk19x79iMDKVbewTUMWwSjOA7vFGIbYsWYcGb50jb-Z-PSXxmcby3ZFMZWi0HCeuFgo3F8BRskxo_JUdSHFhdIsIlBxHyQ=@protonmail.ch>
- <8e2bdc10-3142-9e8d-ff05-70fa4d862dd5@schaufler-ca.com>
- <CAGXu5jJ6Ngv8A=3TV5z5+x5kCkkXwjYtDfSQjUQgscP4hv_xYg@mail.gmail.com>
-From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-Message-ID: <de387727-680e-7563-ff5b-17c3ea742e62@digikod.net>
-Date: Thu, 16 Aug 2018 21:45:27 +0200
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7IAB6h8013898
+ for <selinux@tycho.nsa.gov>; Sat, 18 Aug 2018 06:11:11 -0400
+Received: from mail-oi0-f50.google.com (mail-oi0-f50.google.com
+ [209.85.218.50])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 83ABE5605EE
+ for <selinux@tycho.nsa.gov>; Sat, 18 Aug 2018 12:10:23 +0200 (CEST)
+Received: by mail-oi0-f50.google.com with SMTP id v8-v6so18173790oie.5
+ for <selinux@tycho.nsa.gov>; Sat, 18 Aug 2018 03:10:23 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAGXu5jJ6Ngv8A=3TV5z5+x5kCkkXwjYtDfSQjUQgscP4hv_xYg@mail.gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha512;
- protocol="application/pgp-signature";
- boundary="Ax7RabQ5kPE8FeEKHjzLSbDTH0To8Nlsq"
-Subject: Re: [PATCH v1 00/22] LSM: Full security module stacking
+References: <20180815210853.15495-1-nicolas.iooss@m4x.org>
+ <CAFftDdotUJRsjxiHEyoOndZY3PX_epS8LQGBiBS-EO2gnF61TQ@mail.gmail.com>
+In-Reply-To: <CAFftDdotUJRsjxiHEyoOndZY3PX_epS8LQGBiBS-EO2gnF61TQ@mail.gmail.com>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Sat, 18 Aug 2018 12:10:10 +0200
+Message-ID: <CAJfZ7=n9=1BKyK1evSet7pObE2zQVPBJDqwpo_CTJLvig=XoVQ@mail.gmail.com>
+To: William Roberts <bill.c.roberts@gmail.com>, selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH 1/1] Travis-CI: run flake8 on Python code
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---Ax7RabQ5kPE8FeEKHjzLSbDTH0To8Nlsq
-Content-Type: multipart/mixed; boundary="m9V04fH7EEq5PnM5u0FQxw3mBDguziMHu";
- protected-headers="v1"
-From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
-To: Kees Cook <keescook@chromium.org>,
- Casey Schaufler <casey@schaufler-ca.com>
-Cc: Jordan Glover <Golden_Miller83@protonmail.ch>,
- Sargun Dhillon <sargun@sargun.me>,
- LSM <linux-security-module@vger.kernel.org>,
- LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
- "SMACK-discuss@lists.01.org" <SMACK-discuss@lists.01.org>,
- John Johansen <john.johansen@canonical.com>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- James Morris <jmorris@namei.org>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- Salvatore Mesoraca <s.mesoraca16@gmail.com>
-Message-ID: <de387727-680e-7563-ff5b-17c3ea742e62@digikod.net>
-Subject: Re: [PATCH v1 00/22] LSM: Full security module stacking
-References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
- <CAMp4zn94SzqK_Q=de2E+Fpv5yeAhYv62XW-KU3=ghRma9d7Jvw@mail.gmail.com>
- <a287800e-bd4d-2b99-8c4c-bd61ba87fab1@schaufler-ca.com>
- <kubjHWMWfFDu8Rk19x79iMDKVbewTUMWwSjOA7vFGIbYsWYcGb50jb-Z-PSXxmcby3ZFMZWi0HCeuFgo3F8BRskxo_JUdSHFhdIsIlBxHyQ=@protonmail.ch>
- <8e2bdc10-3142-9e8d-ff05-70fa4d862dd5@schaufler-ca.com>
- <CAGXu5jJ6Ngv8A=3TV5z5+x5kCkkXwjYtDfSQjUQgscP4hv_xYg@mail.gmail.com>
-In-Reply-To: <CAGXu5jJ6Ngv8A=3TV5z5+x5kCkkXwjYtDfSQjUQgscP4hv_xYg@mail.gmail.com>
+On Thu, Aug 16, 2018 at 10:26 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> I have no problems with this, seems like a reasonable plan going forward.
 
---m9V04fH7EEq5PnM5u0FQxw3mBDguziMHu
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Thanks. I applied this patch, so now all of our Python code gets
+checked for syntax errors every time the project is updated :)
 
+Nicolas
 
-On 08/15/2018 07:19 AM, Kees Cook wrote:
-> On Tue, Aug 14, 2018 at 4:50 PM, Casey Schaufler <casey@schaufler-ca.co=
-m> wrote:
->> On 8/14/2018 4:22 PM, Jordan Glover wrote:
->>> On August 14, 2018 8:28 PM, Casey Schaufler <casey@schaufler-ca.com> =
-wrote:
->>>
->>>>
->>>>>> The blob management part (through "LSM: Sharing of security blobs"=
-)
->>>>>> is ready for prime-time. These changes move the management of
->>>>>> security blobs out of the security modules and into the security
->>>>>> module infrastructure. With this change the proposed S.A.R.A,
->>>>>> LandLock and PTAGS security modules could co-exist with any of
->>>>>> the existing "major" security modules. The changes reduce some
->>>>>> code duplication.
->>>>>> Beyond the blob management there's a bit of clean-up.
->>>>>> Mounting filesystems had to be changed so that options
->>>>>> a security module doesn't recognize won't be considered
->>>>>> a fatal error. The mount infrastructure is somewhat
->>>>>> more complex than one might assume.
->>>>> Casey,
->>>>> Do you think you can break out 1 into its own patch? It seems like
->>>>> that'd be valuable to everyone.
->>>> Yes, I think that is a good idea. Landlock, S.A.R.A. and a couple
->>>> other security modules could be added upstream if this part of the
->>>> work was available. It would not provide everything needed to stack
->>>> all the existing modules. I believe there is concern that if this
->>>> much went upstream the work on finishing what's required to make
->>>> everything work might be abandoned.
->>>>
->>> On the other hand there is concern that those security modules might
->>> be abandoned if they have to wait until everything is finished :)
+> On Wed, Aug 15, 2018 at 2:08 PM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >>
->> There is some truth to that. If we can get commitment from the develop=
-ers
->> of those security module to push for getting upstream, a statement of
->> intent to support additional modules (e.g. Landlock, S.A.R.A.) from a
-
-I'm the developer of Landlock. I'm working on it on my free time but my
-employer is also interested and I have some dedicated time for Landlock
-at work too. I've been quite busy these past months but I'll get back on
-Landlock soon.
-
-As Salvatore said, my goal is also to get Landlock upstream. The current
-code is quite mature compared to the first version but there is still
-some work to do before the next patch series. BTW, code reviews are much
-appreciated!
-
-The LSM stacking patch series may not be a blocker for upstreaming
-Landlock but this series is needed to enable Landlock on common distro
-(which won't disable their current major LSM). It would be easier to
-have the LSM stacking upstream as soon as possible though.
-
->> significant distribution (e.g. Fedora, Ubuntu, SuSE) and ACKs from the=
-
->> maintainers of the existing modules we should be able to breeze right =
-in.
+>> flake8 is a Python linter which is able to detect issues in Python code
+>> (syntax errors, undefined variables, etc.). It has been used to find
+>> bugs in the project. In order to prevent the introduction of new bugs
+>> which can be detected by it, add a script which runs it and use it in
+>> Travis-CI.
 >>
->> Yeah, I think that's about all it would take.
->=20
-> I would strongly recommend Landlock and SARA for every distro. They're
-> opt-in, and provide much-needed missing userspace defenses (and attack
-> surface reduction).
->=20
-> -Kees
->=20
-
-Thanks Kees! And great work Casey!
-
- Micka=C3=ABl
-
-
---m9V04fH7EEq5PnM5u0FQxw3mBDguziMHu--
-
---Ax7RabQ5kPE8FeEKHjzLSbDTH0To8Nlsq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEUysCyY8er9Axt7hqIt7+33O9apUFAlt11FcACgkQIt7+33O9
-apUJlwf+I4XLIzJkMdNT+cZ863oGTUVOUFlu2g+jf1WszqyA/CMUb9Oi7Vp1yQKj
-rNJ80mLfDkCH5U65WY+Nq6CpymHu9XQRU8MuaxQzlZAwMr28+ne2fc4n+uNy4zRN
-S2sXrTCLgE1YJBIH9cL25zEe79xbzJIFr0ws4METB4PvvhK5m8mtWWtfvALOPd2J
-1er/qDM7jL0Y3jLRIJ9XRUaWcEm5aFBY7qBYh5seZL6rQerrHUNMf1Ik+smxH1PK
-odwTVHrb1pzCb51yDtvrTFvHtRCYygj9VaI3ajBU/jipurltMjHe/5KEKlXXLari
-VO1Z5TvUMVOOoAYwoNULSAs3o5WVeQ==
-=OhzK
------END PGP SIGNATURE-----
-
---Ax7RabQ5kPE8FeEKHjzLSbDTH0To8Nlsq--
+>> flake8 can be used to detect code which is not written according to PEP8
+>> style guide (which forbids whitespaces in some places, enforces the use
+>> of space-indenting, specifies how many blank lines are used between
+>> functions, etc.). As SELinux code does not follow this style guide,
+>> scripts/run-flake8 disables many warnings related to this when running
+>> the linter.
+>>
+>> In order to silence flake8 warnings, the Python code can also be
+>> modified. However fixing every "do not use bare 'except'" in the project
+>> needs to be done carefully and takes much time.
+>> This is why the warnings which are disabled have been ordered in three
+>> lists:
+>> * The warnings which can be activated in a not-so-distant future after
+>>   the code has been modified.
+>> * The warnings related to PEP8 which cannot be activated without a major
+>>   cleaning work of the codebase (for example to modify white spaces)
+>> * The warnings which are introduced by code generated by SWIG 3.0.12,
+>>   which would require patches in SWIG in order to be activated (there
+>>   is right now only one such warning).
+>>
+>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>> ---
+>>  .travis.yml        |  6 ++++
+>>  scripts/run-flake8 | 79 ++++++++++++++++++++++++++++++++++++++++++++++
+>>  2 files changed, 85 insertions(+)
+>>  create mode 100755 scripts/run-flake8
+>>
+>> diff --git a/.travis.yml b/.travis.yml
+>> index 0612eb5480e5..09dd4749975e 100644
+>> --- a/.travis.yml
+>> +++ b/.travis.yml
+>> @@ -83,6 +83,9 @@ install:
+>>          rm python.tar.bz2 ;
+>>      fi
+>>
+>> +  # Install flake8 for the given python version
+>> +  - $VIRTUAL_ENV/bin/pip install flake8
+>> +
+>>  before_script:
+>>    # clang on Travis-CI 14.04 environment is too old to support -Wdouble-promotion
+>>    - if "$CC" --version |grep -q clang; then sed 's/ -Wdouble-promotion / /' -i libselinux/src/Makefile libselinux/utils/Makefile ; fi
+>> @@ -141,6 +144,9 @@ script:
+>>    - $PYTHON -c 'import selinux;import selinux.audit2why;import semanage;print(selinux.is_selinux_enabled())'
+>>    - $RUBY -e 'require "selinux";require "semanage";puts Selinux::is_selinux_enabled()'
+>>
+>> +  # Run Python linter
+>> +  - PATH="$VIRTUAL_ENV/bin:$PATH" ./scripts/run-flake8
+>> +
+>>    # Remove every installed files
+>>    - rm -rf "$DESTDIR"
+>>
+>> diff --git a/scripts/run-flake8 b/scripts/run-flake8
+>> new file mode 100755
+>> index 000000000000..8a1f490b8a62
+>> --- /dev/null
+>> +++ b/scripts/run-flake8
+>> @@ -0,0 +1,79 @@
+>> +#!/bin/sh
+>> +# Run flake8 (Python linter) on the source directory or on the given files/directories
+>> +
+>> +# Run on the base directory if no argument has been given
+>> +if [ $# -eq 0 ] ; then
+>> +    cd "$(dirname -- "$0")/.." || exit $?
+>> +fi
+>> +
+>> +# Assign each ignore warning on a line, in order to ease testing enabling the warning again
+>> +IGNORE_LIST=''
+>> +
+>> +# Important warnings that should be fixed
+>> +# (Comment one line and run this script in order to see where the warning occurs)
+>> +IGNORE_LIST="$IGNORE_LIST,W191" # indentation contains tabs
+>> +
+>> +IGNORE_LIST="$IGNORE_LIST,E101" # indentation contains mixed spaces and tabs
+>> +IGNORE_LIST="$IGNORE_LIST,E703" # statement ends with a semicolon
+>> +IGNORE_LIST="$IGNORE_LIST,E711" # comparison to None should be 'if cond is not None:'
+>> +IGNORE_LIST="$IGNORE_LIST,E712" # comparison to False should be 'if cond is False:' or 'if not cond:'
+>> +IGNORE_LIST="$IGNORE_LIST,E722" # do not use bare 'except'
+>> +IGNORE_LIST="$IGNORE_LIST,E999" # TabError: inconsistent use of tabs and spaces in indentation
+>> +
+>> +IGNORE_LIST="$IGNORE_LIST,F401" # module imported but unused
+>> +IGNORE_LIST="$IGNORE_LIST,F812" # list comprehension redefines 'f', in lex.py and yacc.py
+>> +IGNORE_LIST="$IGNORE_LIST,F841" # local variable '...' is assigned to but never used
+>> +
+>> +
+>> +# Less-important warnings
+>> +IGNORE_LIST="$IGNORE_LIST,W291" # trailing whitespace
+>> +IGNORE_LIST="$IGNORE_LIST,W293" # blank line contains whitespace
+>> +IGNORE_LIST="$IGNORE_LIST,W391" # blank line at end of file
+>> +IGNORE_LIST="$IGNORE_LIST,W503" # line break before binary operator
+>> +IGNORE_LIST="$IGNORE_LIST,W504" # line break after binary operator
+>> +
+>> +IGNORE_LIST="$IGNORE_LIST,E111" # indentation is not a multiple of four
+>> +IGNORE_LIST="$IGNORE_LIST,E114" # indentation is not a multiple of four (comment)
+>> +IGNORE_LIST="$IGNORE_LIST,E115" # expected an indented block (comment)
+>> +IGNORE_LIST="$IGNORE_LIST,E116" # unexpected indentation (comment)
+>> +IGNORE_LIST="$IGNORE_LIST,E122" # continuation line missing indentation or outdented
+>> +IGNORE_LIST="$IGNORE_LIST,E123" # closing bracket does not match indentation of opening bracket's line
+>> +IGNORE_LIST="$IGNORE_LIST,E126" # continuation line over-indented for hanging indent
+>> +IGNORE_LIST="$IGNORE_LIST,E127" # continuation line over-indented for visual indent
+>> +IGNORE_LIST="$IGNORE_LIST,E128" # continuation line under-indented for visual indent
+>> +IGNORE_LIST="$IGNORE_LIST,E201" # whitespace after '['
+>> +IGNORE_LIST="$IGNORE_LIST,E202" # whitespace before '}'
+>> +IGNORE_LIST="$IGNORE_LIST,E203" # whitespace before ':'
+>> +IGNORE_LIST="$IGNORE_LIST,E211" # whitespace before '('
+>> +IGNORE_LIST="$IGNORE_LIST,E221" # multiple spaces before operator
+>> +IGNORE_LIST="$IGNORE_LIST,E222" # multiple spaces after operator
+>> +IGNORE_LIST="$IGNORE_LIST,E225" # missing whitespace around operator
+>> +IGNORE_LIST="$IGNORE_LIST,E226" # missing whitespace around arithmetic operator
+>> +IGNORE_LIST="$IGNORE_LIST,E231" # missing whitespace after ','
+>> +IGNORE_LIST="$IGNORE_LIST,E241" # multiple spaces after ':'
+>> +IGNORE_LIST="$IGNORE_LIST,E251" # unexpected spaces around keyword / parameter equals
+>> +IGNORE_LIST="$IGNORE_LIST,E261" # at least two spaces before inline comment
+>> +IGNORE_LIST="$IGNORE_LIST,E265" # block comment should start with '# '
+>> +IGNORE_LIST="$IGNORE_LIST,E266" # too many leading '#' for block comment
+>> +IGNORE_LIST="$IGNORE_LIST,E272" # multiple spaces before keyword
+>> +IGNORE_LIST="$IGNORE_LIST,E301" # expected 1 blank line, found 0
+>> +IGNORE_LIST="$IGNORE_LIST,E302" # expected 2 blank lines, found 1
+>> +IGNORE_LIST="$IGNORE_LIST,E303" # too many blank lines
+>> +IGNORE_LIST="$IGNORE_LIST,E305" # expected 2 blank lines after class or function definition, found 0
+>> +IGNORE_LIST="$IGNORE_LIST,E306" # expected 1 blank line before a nested definition, found 0
+>> +IGNORE_LIST="$IGNORE_LIST,E401" # multiple imports on one line
+>> +IGNORE_LIST="$IGNORE_LIST,E402" # module level import not at top of file
+>> +IGNORE_LIST="$IGNORE_LIST,E501" # line too long
+>> +IGNORE_LIST="$IGNORE_LIST,E701" # multiple statements on one line (colon)
+>> +IGNORE_LIST="$IGNORE_LIST,E704" # multiple statements on one line (def)
+>> +IGNORE_LIST="$IGNORE_LIST,E731" # do not assign a lambda expression, use a def
+>> +IGNORE_LIST="$IGNORE_LIST,E741" # ambiguous variable name 'l' / 'I'
+>> +
+>> +IGNORE_LIST="$IGNORE_LIST,F403" # 'from ... import *' used; unable to detect undefined names
+>> +IGNORE_LIST="$IGNORE_LIST,F405" # '...' may be undefined, or defined from star imports
+>> +
+>> +# Ignore errors from files generated from SWIG
+>> +IGNORE_LIST="$IGNORE_LIST,F811" # redefinition of unused ...
+>> +
+>> +
+>> +exec flake8 --max-line-length=120 --builtins='_,unicode,lextab,parsetab' --ignore=",$IGNORE_LIST" "$@"
+>> --
+>> 2.18.0
+>>
+>> _______________________________________________
+>> Selinux mailing list
+>> Selinux@tycho.nsa.gov
+>> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+>> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+>
+>
