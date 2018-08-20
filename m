@@ -1,147 +1,106 @@
-To: Sachin Grover <grover_sachin@outlook.com>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- Paul Moore <paul@paul-moore.com>
-References: <CO1PR14MB10615AE03A49927CC39A041986390@CO1PR14MB1061.namprd14.prod.outlook.com>
- <531392a3-1a17-9732-3a89-4231339f800d@tycho.nsa.gov>
- <19b33f36-0dbd-12e3-e224-5aa4b8c796f2@tycho.nsa.gov>
- <CO1PR14MB10618CA82AFA6551A776376986390@CO1PR14MB1061.namprd14.prod.outlook.com>
- <45661f73-3bfa-ad2d-d4c6-5ea03a093ac5@tycho.nsa.gov>
- <CO1PR14MB106114A87AD82A0D6895EC6986320@CO1PR14MB1061.namprd14.prod.outlook.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6341012b-a3ca-d00c-0d71-ed27f8a810ae@tycho.nsa.gov>
-Date: Mon, 20 Aug 2018 10:02:55 -0400
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7KEjEpf029565
+ for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2018 10:45:14 -0400
+From: "Schaufler, Casey" <casey.schaufler@intel.com>
+To: Jann Horn <jannh@google.com>
+CC: Kernel Hardening <kernel-hardening@lists.openwall.com>, kernel list
+ <linux-kernel@vger.kernel.org>, linux-security-module
+ <linux-security-module@vger.kernel.org>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>, "Hansen, Dave" <dave.hansen@intel.com>, "Dock,
+ Deneen T" <deneen.t.dock@intel.com>, "kristen@linux.intel.com"
+ <kristen@linux.intel.com>, Arjan van de Ven <arjan@linux.intel.com>
+Date: Mon, 20 Aug 2018 14:45:10 +0000
+Message-ID: <99FC4B6EFCEFD44486C35F4C281DC6732143F769@ORSMSX107.amr.corp.intel.com>
+References: <20180817221624.10232-1-casey.schaufler@intel.com>
+ <20180817221624.10232-3-casey.schaufler@intel.com>
+ <CAG48ez23G+wcnkCMNZV_mxYMS=h+pZkpx1451Wz5GB9_tcDv3Q@mail.gmail.com>
+In-Reply-To: <CAG48ez23G+wcnkCMNZV_mxYMS=h+pZkpx1451Wz5GB9_tcDv3Q@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <CO1PR14MB106114A87AD82A0D6895EC6986320@CO1PR14MB1061.namprd14.prod.outlook.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: Possible OOB Read in Kernel Heap Memory in call to
- ext4_xattr_set_entry()
+Subject: RE: [PATCH RFC v2 2/5] X86: Support LSM determination of
+ side-channel vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 08/20/2018 02:29 AM, Sachin Grover wrote:
-> Hi,
+> -----Original Message-----
+> From: Jann Horn [mailto:jannh@google.com]
+> Sent: Friday, August 17, 2018 4:55 PM
+> To: Schaufler, Casey <casey.schaufler@intel.com>
+> Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
+> <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
+> module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
+> <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
+> kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
+> Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
+> channel vulnerability
 > 
-> My POC uses fscreate() to modify the current SELinux context of the 
-> running process, it then creates a new node via mknod(), (), which is 
-> then going to assign the current SLEinux context over to that object.
+> On Sat, Aug 18, 2018 at 12:17 AM Casey Schaufler
+> <casey.schaufler@intel.com> wrote:
+> >
+> > From: Casey Schaufler <cschaufler@localhost.localdomain>
+> >
+> > When switching between tasks it may be necessary
+> > to set an indirect branch prediction barrier if the
+> > tasks are potentially vulnerable to side-channel
+> > attacks. This adds a call to security_task_safe_sidechannel
+> > so that security modules can weigh in on the decision.
+> >
+> > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
+> > ---
+> >  arch/x86/mm/tlb.c | 12 ++++++++----
+> >  1 file changed, 8 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+> > index 6eb1f34c3c85..8714d4af06aa 100644
+> > --- a/arch/x86/mm/tlb.c
+> > +++ b/arch/x86/mm/tlb.c
+> > @@ -7,6 +7,7 @@
+> >  #include <linux/export.h>
+> >  #include <linux/cpu.h>
+> >  #include <linux/debugfs.h>
+> > +#include <linux/security.h>
+> >
+> >  #include <asm/tlbflush.h>
+> >  #include <asm/mmu_context.h>
+> > @@ -270,11 +271,14 @@ void switch_mm_irqs_off(struct mm_struct *prev,
+> struct mm_struct *next,
+> >                  * threads. It will also not flush if we switch to idle
+> >                  * thread and back to the same process. It will flush if we
+> >                  * switch to a different non-dumpable process.
+> > +                * If a security module thinks that the transition
+> > +                * is unsafe do the flush.
+> >                  */
+> > -               if (tsk && tsk->mm &&
+> > -                   tsk->mm->context.ctx_id != last_ctx_id &&
+> > -                   get_dumpable(tsk->mm) != SUID_DUMP_USER)
+> > -                       indirect_branch_prediction_barrier();
+> > +               if (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id) {
+> > +                       if (get_dumpable(tsk->mm) != SUID_DUMP_USER ||
+> > +                           security_task_safe_sidechannel(tsk) != 0)
+> > +                               indirect_branch_prediction_barrier();
+> > +               }
 > 
-> In the call path I am seeing security_sid_to_context_core().
+> When you posted v1 of this series, I asked:
 > 
-> I see a code path where it in fact seem to correctly take the strlen() 
-> of the incoming context, based on the sid, and use kmemdup(), but that 
-> only occurs when SELinux is not initialized.
+> | Does this enforce transitivity? What happens if we first switch from
+> | an attacker task to a task without ->mm, and immediately afterwards
+> | from the task without ->mm to a victim task? In that case, whether a
+> | flush happens between the attacker task and the victim task depends on
+> | whether the LSM thinks that the mm-less task should have access to the
+> | victim task, right?
 > 
->      if (!ss_initialized) {
->             if (sid <= SECINITSID_NUM) {
->                     char *scontextp;
-> 
->                     *scontext_len = strlen(initial_sid_to_string[sid]) + 1;
->                     if (!scontext)
->                             goto out;
->                     scontextp = kmemdup(initial_sid_to_string[sid],
->                                        *scontext_len, GFP_ATOMIC);
->                     if (!scontextp) {
->                             rc = -ENOMEM;
->                             goto out;
->                     }
->                     *scontext = scontextp;
->                     goto out;
->             }
->             printk(KERN_ERR "SELinux: %s:  called before initial "
->                    "load_policy on unknown SID %d\n", __func__, sid);
->             rc = -EINVAL;
->             goto out;
->      }
-> 
-> Once SELinux is initialized that block will be skipped and further down 
-> you’ll see the call to context_struct_to_string() which copies the 
-> context using kstrdup() and uses the incoming length rather than the 
-> strlen() length.
+> Have you addressed that? I don't see it...
 
-context_struct_to_string() sets *scontext_len to context->len, which was 
-previously set by security_context_to_sid_core() to strlen(str) + 1 
-after your prior commit. Correct?
+Nope. That's going to require maintaining state about all the
+tasks in the chain that might still have cache involvement.
 
-  In addition to this I’m not sure how safe using
-> strlen() is in general as there seems to be an assumption that context 
-> strings can contain NULL characters based on this comment.
-> 
->                            /* We strip a nul only if it is at the end, 
-> otherwise the
->                             * context contains a nul and we should audit 
-> that */
->                            if (str[size - 1] == '\0')
->                                   audit_size = size - 1;
->                            else
->                                   audit_size = size;
+	A -> B -> C -> D
 
-This audit-related code has to deal with the possibility that there is 
-an embedded NUL (and might also lack a terminating NUL) because it is 
-dealing with the original user-supplied value, not a string that has 
-been stored in a context structure. After this audit-related code, we 
-proceed to call security_context_to_sid_force() which calls 
-security_context_to_sid_core() with force=1.  This first creates a 
-NUL-terminated copy of the value (scontext) as scontext2 using 
-kmemdup_nul(), which could potentially contain embedded NULs if the 
-original did.  In the force=1 case, it then creates a copy of scontext2 
-as str using kstrdup(), yielding a NUL-terminated string with no 
-embedded NULs. It is this NUL-terminated string (str) that is stored in 
-the context structure as context.str and context.len is set to 
-strlen(str)+1 after your earlier commit.
-
-How would we end up with a context->len other than 
-strlen(context->str)+1 in security_sid_to_context_core()?
-
-The point is that we ought to sanitize context->len when it is set, not 
-when it is read, and in theory that is exactly what we are doing in 
-security_context_to_sid_core(), such that security_sid_to_context_core() 
-can read that value without recomputing it.  If it is being set 
-incorrectly somewhere else, we ought to fix it there.  If it is being 
-corrupted through memory corruption, then we ought to fix the source of 
-the memory corruption.
-
-> 
-> Call StacK:
-> 
-> [<ffffffff80430b25>] kasan_report+0x32c/0x485 mm/kasan/report.c:309
-> [<ffffffff8042fafb>] check_memory_region_inline mm/kasan/kasan.c:301 
-> [inline]
-> [<ffffffff8042fafb>] check_memory_region+0x2b/0x130 mm/kasan/kasan.c:315
-> [<ffffffff8042fc38>] __asan_loadN+0xf/0x11 mm/kasan/kasan.c:745
-> [<ffffffff805775be>] ext4_xattr_set_entry+0x6a1/0x6d3 fs/ext4/xattr.c:747
-> [<ffffffff805790ab>] ext4_xattr_ibody_set.isra.9+0x4f/0x118 
-> fs/ext4/xattr.c:1118
-> [<ffffffff8057a1cb>] ext4_xattr_set_handle+0x39a/0x7b4 fs/ext4/xattr.c:1224
-> [<ffffffff80582683>] ext4_initxattrs+0x6b/0x96 fs/ext4/xattr_security.c:42
-> [<ffffffff805ecd43>] security_inode_init_security+0x170/0x1c9 
-> security/security.c:403
-> [<ffffffff8058275d>] ext4_init_security+0x35/0x3d 
-> fs/ext4/xattr_security.c:56
-> [<ffffffff8050295a>] __ext4_new_inode+0x1f24/0x2266 fs/ext4/ialloc.c:1059
-> [<ffffffff8051f771>] ext4_mknod+0x11a/0x263 fs/ext4/namei.c:2510
-> [<ffffffff8044d8e6>] vfs_mknod2+0x1ee/0x29f fs/namei.c:3722
-> [<ffffffff804554fb>] SYSC_mknodat fs/namei.c:3780 [inline]
-> [<ffffffff804554fb>] SyS_mknodat+0x19a/0x22a fs/namei.c:3752
-> [<ffffffff802028f9>] do_syscall_64+0xf8/0x191 arch/x86/entry/common.c:282
-> [<ffffffff80fa963e>] entry_SYSCALL_64_after_swapgs+0x58/0xc6
-> 
-> Syzkaller reproducer:
-> # {Threaded:false Collide:false Repeat:false Procs:1 Sandbox:none 
-> Fault:false FaultCall:-1 FaultNth:0 EnableTun:false UseTmpDir:false 
-> EnableCgroups:false EnableNetdev:false ResetNet:false HandleSegv:false 
-> WaitRepeat:false Debug:false Repro:false}
-> r0 = syz_open_procfs(0xffffffffffffffff, 
-> &(0x7f00000002c0)='attr/fscreate\x00')
-> write$cgroup_pid(r0, &(0x7f0000000180)=ANY=[
-> ANYBLOB <https://people.qualcomm.com/People?id=ANYBLOB>
-> ="37393430ad3c35020000000000000023959c533574eab7032c45f6d7384f73ab"], 0x20)
-> syz_fuseblk_mount(&(0x7f0000000000)='./file0\x00', 
-> &(0x7f0000000080)='./file0\x00', 0xe003, 0x0, 0x0, 0x100000000, 0x4, 0x0)
-> 
-> Please let me know if something is wrong with the way I am seeing this.
-I'm not clear on how to read the above reproducer information.  Are you 
-writing the string 
-"37393430ad3c35020000000000000023959c533574eab7032c45f6d7384f73ab" with 
-a length of 0x20 to /proc/self/attr/create?
+If B and C don't do anything cacheworthy D could conceivably attack A.
+The amount of state required to detect this case would be prohibitive.
+I think that if you're sufficiently concerned about this case you should just
+go ahead and set the barrier. I'm willing to learn something that says I'm
+wrong.
