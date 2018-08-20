@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7KEjEpf029565
- for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2018 10:45:14 -0400
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7KFVQB0005229
+ for <selinux@tycho.nsa.gov>; Mon, 20 Aug 2018 11:31:26 -0400
 From: "Schaufler, Casey" <casey.schaufler@intel.com>
 To: Jann Horn <jannh@google.com>
 CC: Kernel Hardening <kernel-hardening@lists.openwall.com>, kernel list
@@ -10,16 +10,16 @@ CC: Kernel Hardening <kernel-hardening@lists.openwall.com>, kernel list
  <selinux@tycho.nsa.gov>, "Hansen, Dave" <dave.hansen@intel.com>, "Dock,
  Deneen T" <deneen.t.dock@intel.com>, "kristen@linux.intel.com"
  <kristen@linux.intel.com>, Arjan van de Ven <arjan@linux.intel.com>
-Date: Mon, 20 Aug 2018 14:45:10 +0000
-Message-ID: <99FC4B6EFCEFD44486C35F4C281DC6732143F769@ORSMSX107.amr.corp.intel.com>
+Date: Mon, 20 Aug 2018 15:31:22 +0000
+Message-ID: <99FC4B6EFCEFD44486C35F4C281DC6732143F7A4@ORSMSX107.amr.corp.intel.com>
 References: <20180817221624.10232-1-casey.schaufler@intel.com>
- <20180817221624.10232-3-casey.schaufler@intel.com>
- <CAG48ez23G+wcnkCMNZV_mxYMS=h+pZkpx1451Wz5GB9_tcDv3Q@mail.gmail.com>
-In-Reply-To: <CAG48ez23G+wcnkCMNZV_mxYMS=h+pZkpx1451Wz5GB9_tcDv3Q@mail.gmail.com>
+ <20180817221624.10232-4-casey.schaufler@intel.com>
+ <CAG48ez3aB5X9=hqepovG6L4vQYZjzHZ6fWqdd4Vtzh92u2J5fQ@mail.gmail.com>
+In-Reply-To: <CAG48ez3aB5X9=hqepovG6L4vQYZjzHZ6fWqdd4Vtzh92u2J5fQ@mail.gmail.com>
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Subject: RE: [PATCH RFC v2 2/5] X86: Support LSM determination of
- side-channel vulnerability
+Subject: RE: [PATCH RFC v2 3/5] LSM: Security module checking for
+ side-channel dangers
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -27,80 +27,54 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 > -----Original Message-----
 > From: Jann Horn [mailto:jannh@google.com]
-> Sent: Friday, August 17, 2018 4:55 PM
+> Sent: Friday, August 17, 2018 4:53 PM
 > To: Schaufler, Casey <casey.schaufler@intel.com>
 > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
 > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
 > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
 > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
 > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
-> Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
-> channel vulnerability
+> Subject: Re: [PATCH RFC v2 3/5] LSM: Security module checking for side-
+> channel dangers
 > 
 > On Sat, Aug 18, 2018 at 12:17 AM Casey Schaufler
 > <casey.schaufler@intel.com> wrote:
 > >
 > > From: Casey Schaufler <cschaufler@localhost.localdomain>
 > >
-> > When switching between tasks it may be necessary
-> > to set an indirect branch prediction barrier if the
-> > tasks are potentially vulnerable to side-channel
-> > attacks. This adds a call to security_task_safe_sidechannel
-> > so that security modules can weigh in on the decision.
+> > The sidechannel LSM checks for cases where a side-channel
+> > attack may be dangerous based on security attributes of tasks.
+> > This includes:
+> >         Effective UID of the tasks is different
+> >         Capablity sets are different
+> >         Tasks are in different namespaces
+> > An option is also provided to assert that task are never
+> > to be considered safe. This is high paranoia, and expensive
+> > as well.
 > >
 > > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
-> > ---
-> >  arch/x86/mm/tlb.c | 12 ++++++++----
-> >  1 file changed, 8 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-> > index 6eb1f34c3c85..8714d4af06aa 100644
-> > --- a/arch/x86/mm/tlb.c
-> > +++ b/arch/x86/mm/tlb.c
-> > @@ -7,6 +7,7 @@
-> >  #include <linux/export.h>
-> >  #include <linux/cpu.h>
-> >  #include <linux/debugfs.h>
-> > +#include <linux/security.h>
-> >
-> >  #include <asm/tlbflush.h>
-> >  #include <asm/mmu_context.h>
-> > @@ -270,11 +271,14 @@ void switch_mm_irqs_off(struct mm_struct *prev,
-> struct mm_struct *next,
-> >                  * threads. It will also not flush if we switch to idle
-> >                  * thread and back to the same process. It will flush if we
-> >                  * switch to a different non-dumpable process.
-> > +                * If a security module thinks that the transition
-> > +                * is unsafe do the flush.
-> >                  */
-> > -               if (tsk && tsk->mm &&
-> > -                   tsk->mm->context.ctx_id != last_ctx_id &&
-> > -                   get_dumpable(tsk->mm) != SUID_DUMP_USER)
-> > -                       indirect_branch_prediction_barrier();
-> > +               if (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id) {
-> > +                       if (get_dumpable(tsk->mm) != SUID_DUMP_USER ||
-> > +                           security_task_safe_sidechannel(tsk) != 0)
-> > +                               indirect_branch_prediction_barrier();
-> > +               }
+> [...]
+> > +#ifdef CONFIG_SECURITY_SIDECHANNEL_UIDS
+> > +static int safe_by_uid(struct task_struct *p)
+> > +{
+> > +       const struct cred *ccred = current_real_cred();
+> > +       const struct cred *pcred = get_task_cred(p);
+> > +
+> > +       /*
+> > +        * Credential checks. Considered safe if:
+> > +        *      UIDs are the same
+> > +        */
+> > +       if (ccred != pcred && ccred->euid.val != pcred->euid.val)
+> > +               return -EACCES;
+> > +       return 0;
+> > +}
 > 
-> When you posted v1 of this series, I asked:
+> This function looks bogus. get_task_cred() bumps the refcount on the
+> returned cred struct pointer, but you don't drop it. You probably want
+> to use something that doesn't fiddle with the refcount at all here to
+> avoid cacheline bouncing - possibly a raw rcu_dereference_protected()
+> if there are no better helpers.
 > 
-> | Does this enforce transitivity? What happens if we first switch from
-> | an attacker task to a task without ->mm, and immediately afterwards
-> | from the task without ->mm to a victim task? In that case, whether a
-> | flush happens between the attacker task and the victim task depends on
-> | whether the LSM thinks that the mm-less task should have access to the
-> | victim task, right?
-> 
-> Have you addressed that? I don't see it...
+> Same thing for the other get_task_cred() calls further down in the patch.
 
-Nope. That's going to require maintaining state about all the
-tasks in the chain that might still have cache involvement.
-
-	A -> B -> C -> D
-
-If B and C don't do anything cacheworthy D could conceivably attack A.
-The amount of state required to detect this case would be prohibitive.
-I think that if you're sufficiently concerned about this case you should just
-go ahead and set the barrier. I'm willing to learn something that says I'm
-wrong.
+Thanks. Looks like I whacked out v2 a bit hastily.
