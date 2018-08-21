@@ -1,166 +1,137 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7LGbNAs031690
- for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 12:37:24 -0400
-From: "Schaufler, Casey" <casey.schaufler@intel.com>
-To: Jann Horn <jannh@google.com>
-CC: Kernel Hardening <kernel-hardening@lists.openwall.com>, kernel list
- <linux-kernel@vger.kernel.org>, linux-security-module
- <linux-security-module@vger.kernel.org>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>, "Hansen, Dave" <dave.hansen@intel.com>, "Dock,
- Deneen T" <deneen.t.dock@intel.com>, "kristen@linux.intel.com"
- <kristen@linux.intel.com>, Arjan van de Ven <arjan@linux.intel.com>
-Date: Tue, 21 Aug 2018 16:37:19 +0000
-Message-ID: <99FC4B6EFCEFD44486C35F4C281DC67321440056@ORSMSX107.amr.corp.intel.com>
-References: <20180817221624.10232-1-casey.schaufler@intel.com>
- <20180817221624.10232-3-casey.schaufler@intel.com>
- <CAG48ez23G+wcnkCMNZV_mxYMS=h+pZkpx1451Wz5GB9_tcDv3Q@mail.gmail.com>
- <99FC4B6EFCEFD44486C35F4C281DC6732143F769@ORSMSX107.amr.corp.intel.com>
- <CAG48ez1LHOHvB4ud+8asOjKARVLQJGV4ocdKVDJtvTXTfeMa9w@mail.gmail.com>
-In-Reply-To: <CAG48ez1LHOHvB4ud+8asOjKARVLQJGV4ocdKVDJtvTXTfeMa9w@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7LHOXhS007450
+ for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 13:24:34 -0400
+Received: by mail-oi0-f68.google.com with SMTP id j205-v6so33408551oib.4
+ for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 10:24:26 -0700 (PDT)
 MIME-Version: 1.0
-Subject: RE: [PATCH RFC v2 2/5] X86: Support LSM determination of
- side-channel vulnerability
+References: <20180821000444.7004-1-casey.schaufler@intel.com>
+ <20180821000444.7004-4-casey.schaufler@intel.com>
+In-Reply-To: <20180821000444.7004-4-casey.schaufler@intel.com>
+From: Jann Horn <jannh@google.com>
+Date: Tue, 21 Aug 2018 19:23:58 +0200
+Message-ID: <CAG48ez1D-DPBP8ACA1W5=XZLNKUeVj7ZOGUG8uJ2nL1xOSR_9Q@mail.gmail.com>
+To: Casey Schaufler <casey.schaufler@intel.com>
+Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
+ kernel list <linux-kernel@vger.kernel.org>,
+ linux-security-module <linux-security-module@vger.kernel.org>,
+ selinux@tycho.nsa.gov, Dave Hansen <dave.hansen@intel.com>,
+ deneen.t.dock@intel.com, kristen@linux.intel.com,
+ Arjan van de Ven <arjan@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v3 3/5] LSM: Security module checking for
+ side-channel dangers
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> -----Original Message-----
-> From: Jann Horn [mailto:jannh@google.com]
-> Sent: Tuesday, August 21, 2018 3:20 AM
-> To: Schaufler, Casey <casey.schaufler@intel.com>
-> Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
-> <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
-> module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
-> <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
-> kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
-> Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
-> channel vulnerability
-> 
-> On Mon, Aug 20, 2018 at 4:45 PM Schaufler, Casey
-> <casey.schaufler@intel.com> wrote:
-> >
-> > > -----Original Message-----
-> > > From: Jann Horn [mailto:jannh@google.com]
-> > > Sent: Friday, August 17, 2018 4:55 PM
-> > > To: Schaufler, Casey <casey.schaufler@intel.com>
-> > > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
-> > > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
-> > > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
-> > > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
-> > > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
-> > > Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
-> > > channel vulnerability
-> > >
-> > > On Sat, Aug 18, 2018 at 12:17 AM Casey Schaufler
-> > > <casey.schaufler@intel.com> wrote:
-> > > >
-> > > > From: Casey Schaufler <cschaufler@localhost.localdomain>
-> > > >
-> > > > When switching between tasks it may be necessary
-> > > > to set an indirect branch prediction barrier if the
-> > > > tasks are potentially vulnerable to side-channel
-> > > > attacks. This adds a call to security_task_safe_sidechannel
-> > > > so that security modules can weigh in on the decision.
-> > > >
-> > > > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
-> > > > ---
-> > > >  arch/x86/mm/tlb.c | 12 ++++++++----
-> > > >  1 file changed, 8 insertions(+), 4 deletions(-)
-> > > >
-> > > > diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-> > > > index 6eb1f34c3c85..8714d4af06aa 100644
-> > > > --- a/arch/x86/mm/tlb.c
-> > > > +++ b/arch/x86/mm/tlb.c
-> > > > @@ -7,6 +7,7 @@
-> > > >  #include <linux/export.h>
-> > > >  #include <linux/cpu.h>
-> > > >  #include <linux/debugfs.h>
-> > > > +#include <linux/security.h>
-> > > >
-> > > >  #include <asm/tlbflush.h>
-> > > >  #include <asm/mmu_context.h>
-> > > > @@ -270,11 +271,14 @@ void switch_mm_irqs_off(struct mm_struct
-> *prev,
-> > > struct mm_struct *next,
-> > > >                  * threads. It will also not flush if we switch to idle
-> > > >                  * thread and back to the same process. It will flush if we
-> > > >                  * switch to a different non-dumpable process.
-> > > > +                * If a security module thinks that the transition
-> > > > +                * is unsafe do the flush.
-> > > >                  */
-> > > > -               if (tsk && tsk->mm &&
-> > > > -                   tsk->mm->context.ctx_id != last_ctx_id &&
-> > > > -                   get_dumpable(tsk->mm) != SUID_DUMP_USER)
-> > > > -                       indirect_branch_prediction_barrier();
-> > > > +               if (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id)
-> {
-> > > > +                       if (get_dumpable(tsk->mm) != SUID_DUMP_USER ||
-> > > > +                           security_task_safe_sidechannel(tsk) != 0)
-> > > > +                               indirect_branch_prediction_barrier();
-> > > > +               }
-> > >
-> > > When you posted v1 of this series, I asked:
-> > >
-> > > | Does this enforce transitivity? What happens if we first switch from
-> > > | an attacker task to a task without ->mm, and immediately afterwards
-> > > | from the task without ->mm to a victim task? In that case, whether a
-> > > | flush happens between the attacker task and the victim task depends on
-> > > | whether the LSM thinks that the mm-less task should have access to the
-> > > | victim task, right?
-> > >
-> > > Have you addressed that? I don't see it...
-> >
-> > Nope. That's going to require maintaining state about all the
-> > tasks in the chain that might still have cache involvement.
-> >
-> >         A -> B -> C -> D
-> 
-> Really?
+On Tue, Aug 21, 2018 at 2:05 AM Casey Schaufler
+<casey.schaufler@intel.com> wrote:
+>
+> The sidechannel LSM checks for cases where a side-channel
+> attack may be dangerous based on security attributes of tasks.
+> This includes:
+>         Effective UID of the tasks is different
+>         Capablity sets are different
+>         Tasks are in different namespaces
+> An option is also provided to assert that task are never
+> to be considered safe. This is high paranoia, and expensive
+> as well.
+>
+> Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
+> ---
+[...]
+> diff --git a/security/sidechannel/Kconfig b/security/sidechannel/Kconfig
+> new file mode 100644
+> index 000000000000..af9396534128
+> --- /dev/null
+> +++ b/security/sidechannel/Kconfig
+[...]
+> +config SECURITY_SIDECHANNEL_CAPABILITIES
+> +       bool "Sidechannel check on capability sets"
+> +       depends on SECURITY_SIDECHANNEL
+> +       default n
+> +       help
+> +         Assume that tasks with different sets of privilege may be
+> +         subject to side-channel attacks. Potential interactions
+> +         where the attacker lacks capabilities the attacked has
+> +         are blocked.
+> +
+> +          If you are unsure how to answer this question, answer N.
+> +
+> +config SECURITY_SIDECHANNEL_NAMESPACES
+> +       bool "Sidechannel check on namespaces"
+> +       depends on SECURITY_SIDECHANNEL
+> +       depends on NAMESPACES
+> +       default n
+> +       help
+> +         Assume that tasks in different namespaces may be
+> +         subject to side-channel attacks. User, PID and cgroup
+> +         namespaces are checked.
+> +
+> +          If you are unsure how to answer this question, answer N.
+[...]
+> diff --git a/security/sidechannel/sidechannel.c b/security/sidechannel/sidechannel.c
+> new file mode 100644
+> index 000000000000..4da7d6dafdc5
+> --- /dev/null
+> +++ b/security/sidechannel/sidechannel.c
+[...]
+> +/*
+> + * safe_by_capability - Are task and current sidechannel safe?
+> + * @p: task to check on
+> + *
+> + * Returns 0 if the tasks are sidechannel safe, -EACCES otherwise.
+> + */
+> +#ifdef CONFIG_SECURITY_SIDECHANNEL_CAPABILITIES
+> +static int safe_by_capability(struct task_struct *p)
+> +{
+> +       const struct cred *ccred = current_real_cred();
+> +       const struct cred *pcred = rcu_dereference_protected(p->real_cred, 1);
+> +
+> +       /*
+> +        * Capabilities checks. Considered safe if:
+> +        *      current has all the capabilities p does
+> +        */
+> +       if (ccred != pcred &&
+> +           !cap_issubset(pcred->cap_effective, ccred->cap_effective))
+> +               return -EACCES;
+> +       return 0;
+> +}
 
-I am willing to be educated otherwise. My understanding
-of Modern Processor Technology will never be so deep that
-I won't listen to reason.
+On its own (without safe_by_namespace()), this check makes no sense, I
+think. You're performing a test on the namespaced capability sets
+without looking at which user namespaces they are relative to. Maybe
+either introduce a configuration dependency or add an extra namespace
+check here?
 
-> 
-> From what I can tell, it'd be enough to:
-> 
->  - ensure that the LSM-based access checks behave approximately transitively
->    (which I think they already do, mostly)
-
-Smack rules are explicitly and intentionally not transitive.
-
-A reads B, B reads C does *not* imply A reads C.
-
->  - keep a copy of the metadata of the last non-kernel task on the CPU
-
-Do you have a suggestion of how one might do that?
-I'm willing to believe the information could be available,
-but I have yet to come up with a mechanism for getting it.
-
-> 
-> > If B and C don't do anything cacheworthy D could conceivably attack A.
-> > The amount of state required to detect this case would be prohibitive.
-> > I think that if you're sufficiently concerned about this case you should just
-> > go ahead and set the barrier. I'm willing to learn something that says I'm
-> > wrong.
-> 
-> That means that an attacker who can e.g. get a CPU to first switch
-> from an attacker task to a softirqd (e.g. for network packet
-> processing or whatever), then switch from the softirqd to a root-owned
-> victim task would be able to bypass the check, right? That doesn't
-> sound like a very complicated attack...
-
-Maybe my brain is still stuck in the 1980's, but that sounds pretty
-complicated to me! Of course, the fact that it's beyond where I would
-go doesn't mean it's implausible.
-
-> 
-> I very much dislike the idea of adding a mitigation with a known
-> bypass technique to the kernel.
-
-That's fair. I'll look more closely at getting previous_cred_this_cpu().
-
-Thank!
+> +static int safe_by_namespace(struct task_struct *p)
+> +{
+> +       struct cgroup_namespace *ccgn = NULL;
+> +       struct cgroup_namespace *pcgn = NULL;
+> +       const struct cred *ccred;
+> +       const struct cred *pcred;
+> +
+> +       /*
+> +        * Namespace checks. Considered safe if:
+> +        *      cgroup namespace is the same
+> +        *      User namespace is the same
+> +        *      PID namespace is the same
+> +        */
+> +       if (current->nsproxy)
+> +               ccgn = current->nsproxy->cgroup_ns;
+> +       if (p->nsproxy)
+> +               pcgn = p->nsproxy->cgroup_ns;
+> +       if (ccgn != pcgn)
+> +               return -EACCES;
+> +
+> +       ccred = current_real_cred();
+> +       pcred = rcu_dereference_protected(p->real_cred, 1);
+> +
+> +       if (ccred->user_ns != pcred->user_ns)
+> +               return -EACCES;
+> +       if (task_active_pid_ns(current) != task_active_pid_ns(p))
+> +               return -EACCES;
+> +       return 0;
+> +}
