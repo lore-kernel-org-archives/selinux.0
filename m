@@ -1,134 +1,202 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7M60KFp017557
- for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2018 02:00:22 -0400
-Received: from mail-oi0-f52.google.com (mail-oi0-f52.google.com
- [209.85.218.52])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by ssl.polytechnique.org (Postfix) with ESMTPSA id 402415613B9
- for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2018 07:59:37 +0200 (CEST)
-Received: by mail-oi0-f52.google.com with SMTP id z185-v6so877545oia.5
- for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 22:59:37 -0700 (PDT)
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7LHjrZY010135
+ for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 13:45:53 -0400
+Received: by mail-oi0-f67.google.com with SMTP id c190-v6so4564608oig.6
+ for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 10:45:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <20180819184901.6395-1-nicolas.iooss@m4x.org>
- <20180819184901.6395-3-nicolas.iooss@m4x.org>
- <CAFftDdqrOxwdTVYeZkHckgkrTpLrA=jmjU+DvGneOLb+M+Euzg@mail.gmail.com>
-In-Reply-To: <CAFftDdqrOxwdTVYeZkHckgkrTpLrA=jmjU+DvGneOLb+M+Euzg@mail.gmail.com>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 22 Aug 2018 07:59:25 +0200
-Message-ID: <CAJfZ7=mfdPdZGau=1M7EB7GVeWTDzY-GuffwJeeP9K+LTEpixw@mail.gmail.com>
-To: William Roberts <bill.c.roberts@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
+References: <20180817221624.10232-1-casey.schaufler@intel.com>
+ <20180817221624.10232-3-casey.schaufler@intel.com>
+ <CAG48ez23G+wcnkCMNZV_mxYMS=h+pZkpx1451Wz5GB9_tcDv3Q@mail.gmail.com>
+ <99FC4B6EFCEFD44486C35F4C281DC6732143F769@ORSMSX107.amr.corp.intel.com>
+ <CAG48ez1LHOHvB4ud+8asOjKARVLQJGV4ocdKVDJtvTXTfeMa9w@mail.gmail.com>
+ <99FC4B6EFCEFD44486C35F4C281DC67321440056@ORSMSX107.amr.corp.intel.com>
+In-Reply-To: <99FC4B6EFCEFD44486C35F4C281DC67321440056@ORSMSX107.amr.corp.intel.com>
+From: Jann Horn <jannh@google.com>
+Date: Tue, 21 Aug 2018 19:45:03 +0200
+Message-ID: <CAG48ez0j4+4iaH60Xf857Oh8TwhXzA39M3-CC4kXJKf6Ctvchg@mail.gmail.com>
+To: Casey Schaufler <casey.schaufler@intel.com>
+Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
+ kernel list <linux-kernel@vger.kernel.org>,
+ linux-security-module <linux-security-module@vger.kernel.org>,
+ selinux@tycho.nsa.gov, Dave Hansen <dave.hansen@intel.com>,
+ deneen.t.dock@intel.com, kristen@linux.intel.com,
+ Arjan van de Ven <arjan@linux.intel.com>, Andy Lutomirski <luto@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 3/3] python: remove semicolon from end of lines
+Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of
+ side-channel vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Mon, Aug 20, 2018 at 11:51 PM William Roberts
-<bill.c.roberts@gmail.com> wrote:
+On Tue, Aug 21, 2018 at 6:37 PM Schaufler, Casey
+<casey.schaufler@intel.com> wrote:
 >
-> Ack on these as well
-
-Thanks, I applied these patches and the previous ones I sent.
-
-Nicolas
-
+> > -----Original Message-----
+> > From: Jann Horn [mailto:jannh@google.com]
+> > Sent: Tuesday, August 21, 2018 3:20 AM
+> > To: Schaufler, Casey <casey.schaufler@intel.com>
+> > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
+> > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
+> > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
+> > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
+> > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
+> > Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
+> > channel vulnerability
+> >
+> > On Mon, Aug 20, 2018 at 4:45 PM Schaufler, Casey
+> > <casey.schaufler@intel.com> wrote:
+> > >
+> > > > -----Original Message-----
+> > > > From: Jann Horn [mailto:jannh@google.com]
+> > > > Sent: Friday, August 17, 2018 4:55 PM
+> > > > To: Schaufler, Casey <casey.schaufler@intel.com>
+> > > > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
+> > > > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
+> > > > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
+> > > > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
+> > > > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
+> > > > Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
+> > > > channel vulnerability
+> > > >
+> > > > On Sat, Aug 18, 2018 at 12:17 AM Casey Schaufler
+> > > > <casey.schaufler@intel.com> wrote:
+> > > > >
+> > > > > From: Casey Schaufler <cschaufler@localhost.localdomain>
+> > > > >
+> > > > > When switching between tasks it may be necessary
+> > > > > to set an indirect branch prediction barrier if the
+> > > > > tasks are potentially vulnerable to side-channel
+> > > > > attacks. This adds a call to security_task_safe_sidechannel
+> > > > > so that security modules can weigh in on the decision.
+> > > > >
+> > > > > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
+> > > > > ---
+> > > > >  arch/x86/mm/tlb.c | 12 ++++++++----
+> > > > >  1 file changed, 8 insertions(+), 4 deletions(-)
+> > > > >
+> > > > > diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+> > > > > index 6eb1f34c3c85..8714d4af06aa 100644
+> > > > > --- a/arch/x86/mm/tlb.c
+> > > > > +++ b/arch/x86/mm/tlb.c
+> > > > > @@ -7,6 +7,7 @@
+> > > > >  #include <linux/export.h>
+> > > > >  #include <linux/cpu.h>
+> > > > >  #include <linux/debugfs.h>
+> > > > > +#include <linux/security.h>
+> > > > >
+> > > > >  #include <asm/tlbflush.h>
+> > > > >  #include <asm/mmu_context.h>
+> > > > > @@ -270,11 +271,14 @@ void switch_mm_irqs_off(struct mm_struct
+> > *prev,
+> > > > struct mm_struct *next,
+> > > > >                  * threads. It will also not flush if we switch to idle
+> > > > >                  * thread and back to the same process. It will flush if we
+> > > > >                  * switch to a different non-dumpable process.
+> > > > > +                * If a security module thinks that the transition
+> > > > > +                * is unsafe do the flush.
+> > > > >                  */
+> > > > > -               if (tsk && tsk->mm &&
+> > > > > -                   tsk->mm->context.ctx_id != last_ctx_id &&
+> > > > > -                   get_dumpable(tsk->mm) != SUID_DUMP_USER)
+> > > > > -                       indirect_branch_prediction_barrier();
+> > > > > +               if (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id)
+> > {
+> > > > > +                       if (get_dumpable(tsk->mm) != SUID_DUMP_USER ||
+> > > > > +                           security_task_safe_sidechannel(tsk) != 0)
+> > > > > +                               indirect_branch_prediction_barrier();
+> > > > > +               }
+> > > >
+> > > > When you posted v1 of this series, I asked:
+> > > >
+> > > > | Does this enforce transitivity? What happens if we first switch from
+> > > > | an attacker task to a task without ->mm, and immediately afterwards
+> > > > | from the task without ->mm to a victim task? In that case, whether a
+> > > > | flush happens between the attacker task and the victim task depends on
+> > > > | whether the LSM thinks that the mm-less task should have access to the
+> > > > | victim task, right?
+> > > >
+> > > > Have you addressed that? I don't see it...
+> > >
+> > > Nope. That's going to require maintaining state about all the
+> > > tasks in the chain that might still have cache involvement.
+> > >
+> > >         A -> B -> C -> D
+> >
+> > Really?
 >
-> On Sun, Aug 19, 2018 at 11:49 AM, Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->>
->> Python does not need to end a statement with a semicolon. Doing this
->> gets reported by linters such as flake8 ("E703 statement ends with a
->> semicolon").
->>
->> Remove such semicolons in the code and enable this warning in
->> scripts/run-flake8.
->>
->> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->> ---
->>  python/sepolgen/src/sepolgen/audit.py | 2 +-
->>  python/sepolgen/src/sepolgen/yacc.py  | 8 ++++----
->>  python/sepolicy/sepolicy/manpage.py   | 2 +-
->>  scripts/run-flake8                    | 1 -
->>  4 files changed, 6 insertions(+), 7 deletions(-)
->>
->> diff --git a/python/sepolgen/src/sepolgen/audit.py b/python/sepolgen/src/sepolgen/audit.py
->> index daed58ce9643..4adb851f3e93 100644
->> --- a/python/sepolgen/src/sepolgen/audit.py
->> +++ b/python/sepolgen/src/sepolgen/audit.py
->> @@ -258,7 +258,7 @@ class AVCMessage(AuditMessage):
->>          if (scontext, tcontext, self.tclass, access_tuple) in avcdict.keys():
->>              self.type, self.data = avcdict[(scontext, tcontext, self.tclass, access_tuple)]
->>          else:
->> -            self.type, self.data = audit2why.analyze(scontext, tcontext, self.tclass, self.accesses);
->> +            self.type, self.data = audit2why.analyze(scontext, tcontext, self.tclass, self.accesses)
->>              if self.type == audit2why.NOPOLICY:
->>                  self.type = audit2why.TERULE
->>              if self.type == audit2why.BADTCON:
->> diff --git a/python/sepolgen/src/sepolgen/yacc.py b/python/sepolgen/src/sepolgen/yacc.py
->> index f00635469af1..afef174849f2 100644
->> --- a/python/sepolgen/src/sepolgen/yacc.py
->> +++ b/python/sepolgen/src/sepolgen/yacc.py
->> @@ -1864,10 +1864,10 @@ del _lr_action_items
->>  """)
->>
->>          else:
->> -            f.write("\n_lr_action = { ");
->> +            f.write("\n_lr_action = { ")
->>              for k,v in _lr_action.items():
->>                  f.write("(%r,%r):%r," % (k[0],k[1],v))
->> -            f.write("}\n");
->> +            f.write("}\n")
->>
->>          if smaller:
->>              # Factor out names to try and make smaller
->> @@ -1901,10 +1901,10 @@ for _k, _v in _lr_goto_items.items():
->>  del _lr_goto_items
->>  """)
->>          else:
->> -            f.write("\n_lr_goto = { ");
->> +            f.write("\n_lr_goto = { ")
->>              for k,v in _lr_goto.items():
->>                  f.write("(%r,%r):%r," % (k[0],k[1],v))
->> -            f.write("}\n");
->> +            f.write("}\n")
->>
->>          # Write production table
->>          f.write("_lr_productions = [\n")
->> diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
->> index cb211ba083ca..cfcb7c3932d7 100755
->> --- a/python/sepolicy/sepolicy/manpage.py
->> +++ b/python/sepolicy/sepolicy/manpage.py
->> @@ -539,7 +539,7 @@ class ManPage:
->>                      self.fd = fd
->>                      self.man_page_path = man_page_path
->>              except KeyError:
->> -                continue;
->> +                continue
->>              self.attributes[domain_type] = next(sepolicy.info(sepolicy.TYPE, ("%s") % domain_type))["attributes"]
->>
->>          self._header()
->> diff --git a/scripts/run-flake8 b/scripts/run-flake8
->> index 8a1f490b8a62..207edd20dd89 100755
->> --- a/scripts/run-flake8
->> +++ b/scripts/run-flake8
->> @@ -14,7 +14,6 @@ IGNORE_LIST=''
->>  IGNORE_LIST="$IGNORE_LIST,W191" # indentation contains tabs
->>
->>  IGNORE_LIST="$IGNORE_LIST,E101" # indentation contains mixed spaces and tabs
->> -IGNORE_LIST="$IGNORE_LIST,E703" # statement ends with a semicolon
->>  IGNORE_LIST="$IGNORE_LIST,E711" # comparison to None should be 'if cond is not None:'
->>  IGNORE_LIST="$IGNORE_LIST,E712" # comparison to False should be 'if cond is False:' or 'if not cond:'
->>  IGNORE_LIST="$IGNORE_LIST,E722" # do not use bare 'except'
->> --
->> 2.18.0
->>
->> _______________________________________________
->> Selinux mailing list
->> Selinux@tycho.nsa.gov
->> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
->> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+> I am willing to be educated otherwise. My understanding
+> of Modern Processor Technology will never be so deep that
+> I won't listen to reason.
 >
+> >
+> > From what I can tell, it'd be enough to:
+> >
+> >  - ensure that the LSM-based access checks behave approximately transitively
+> >    (which I think they already do, mostly)
+>
+> Smack rules are explicitly and intentionally not transitive.
+>
+> A reads B, B reads C does *not* imply A reads C.
+
+Ah. :(
+
+Well, at least for UID-based checks, capability comparisons and
+namespace comparisons, the relationship should be transitive, right?
+
+> >  - keep a copy of the metadata of the last non-kernel task on the CPU
+>
+> Do you have a suggestion of how one might do that?
+> I'm willing to believe the information could be available,
+> but I have yet to come up with a mechanism for getting it.
+
+The obvious solution would be to take a refcounted reference on the
+old task's objective creds, but you probably want to avoid the
+resulting cache line bouncing...
+
+For safe_by_uid(), I think you could get away with just stashing the
+last UID in a percpu variable, instead of keeping the full creds
+struct around. That should be fairly cheap?
+
+Namespace comparisons, and whatever SELinux/Smack/AppArmor do
+internally, are probably more complicated, since you'd potentially
+have to deal with changes of internal IDs and such if the policy gets
+reloaded in the wrong moment.
+For namespaces, perhaps you could give each namespace a unique 128-bit
+ID and then save and compare those, just like UIDs.
+For LSMs whose internal IDs might change after a policy reload, things
+would probably be more messy. Perhaps you could save, e.g. for
+SELinux, something like an (sid,policy_generation_counter) pair? I
+don't know all that much about the internals of classic LSMs.
+
+> > > If B and C don't do anything cacheworthy D could conceivably attack A.
+> > > The amount of state required to detect this case would be prohibitive.
+> > > I think that if you're sufficiently concerned about this case you should just
+> > > go ahead and set the barrier. I'm willing to learn something that says I'm
+> > > wrong.
+> >
+> > That means that an attacker who can e.g. get a CPU to first switch
+> > from an attacker task to a softirqd (e.g. for network packet
+> > processing or whatever), then switch from the softirqd to a root-owned
+> > victim task would be able to bypass the check, right? That doesn't
+> > sound like a very complicated attack...
+>
+> Maybe my brain is still stuck in the 1980's, but that sounds pretty
+> complicated to me! Of course, the fact that it's beyond where I would
+> go doesn't mean it's implausible.
+
+It seems to me like this could happen relatively easily if you have
+one attacker task that keeps calling sched_yield() together with a
+victim task on a logical core that's also running a softirqd? Attacker
+voluntarily preempts, softirqd runs for packet processing, softirqd
+ends processing, kernel schedules victim? I'm not sure how high the
+injection success rate would be with that though.
+
+> > I very much dislike the idea of adding a mitigation with a known
+> > bypass technique to the kernel.
+>
+> That's fair. I'll look more closely at getting previous_cred_this_cpu().
+>
+> Thank!
 >
