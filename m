@@ -1,196 +1,166 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7LDHsdG001902
- for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 09:17:54 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com
- [10.11.54.5])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id 8D6AC4021FC2
- for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 13:17:48 +0000 (UTC)
-Received: from localhost.localdomain.com (unknown [10.40.205.110])
- by smtp.corp.redhat.com (Postfix) with ESMTP id CDAC57D4CA
- for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 13:17:47 +0000 (UTC)
-From: Vit Mojzis <vmojzis@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Tue, 21 Aug 2018 15:17:31 +0200
-Message-Id: <20180821131731.12104-1-vmojzis@redhat.com>
-In-Reply-To: <CAJfZ7=m205+Xsx2D4nf4xMk1Y3WCZjm4+xUHFPsmdELZP_e5PA@mail.gmail.com>
-References: <CAJfZ7=m205+Xsx2D4nf4xMk1Y3WCZjm4+xUHFPsmdELZP_e5PA@mail.gmail.com>
-Subject: [PATCH] libsemanage: reset umask before creating directories
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7LGbNAs031690
+ for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 12:37:24 -0400
+From: "Schaufler, Casey" <casey.schaufler@intel.com>
+To: Jann Horn <jannh@google.com>
+CC: Kernel Hardening <kernel-hardening@lists.openwall.com>, kernel list
+ <linux-kernel@vger.kernel.org>, linux-security-module
+ <linux-security-module@vger.kernel.org>, "selinux@tycho.nsa.gov"
+ <selinux@tycho.nsa.gov>, "Hansen, Dave" <dave.hansen@intel.com>, "Dock,
+ Deneen T" <deneen.t.dock@intel.com>, "kristen@linux.intel.com"
+ <kristen@linux.intel.com>, Arjan van de Ven <arjan@linux.intel.com>
+Date: Tue, 21 Aug 2018 16:37:19 +0000
+Message-ID: <99FC4B6EFCEFD44486C35F4C281DC67321440056@ORSMSX107.amr.corp.intel.com>
+References: <20180817221624.10232-1-casey.schaufler@intel.com>
+ <20180817221624.10232-3-casey.schaufler@intel.com>
+ <CAG48ez23G+wcnkCMNZV_mxYMS=h+pZkpx1451Wz5GB9_tcDv3Q@mail.gmail.com>
+ <99FC4B6EFCEFD44486C35F4C281DC6732143F769@ORSMSX107.amr.corp.intel.com>
+ <CAG48ez1LHOHvB4ud+8asOjKARVLQJGV4ocdKVDJtvTXTfeMa9w@mail.gmail.com>
+In-Reply-To: <CAG48ez1LHOHvB4ud+8asOjKARVLQJGV4ocdKVDJtvTXTfeMa9w@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Subject: RE: [PATCH RFC v2 2/5] X86: Support LSM determination of
+ side-channel vulnerability
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Restrictive umask may cause creating directories with with unintended
-access mode. Reset umask before creating directories to avoid this
-issue.
+> -----Original Message-----
+> From: Jann Horn [mailto:jannh@google.com]
+> Sent: Tuesday, August 21, 2018 3:20 AM
+> To: Schaufler, Casey <casey.schaufler@intel.com>
+> Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
+> <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
+> module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
+> <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
+> kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
+> Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
+> channel vulnerability
+> 
+> On Mon, Aug 20, 2018 at 4:45 PM Schaufler, Casey
+> <casey.schaufler@intel.com> wrote:
+> >
+> > > -----Original Message-----
+> > > From: Jann Horn [mailto:jannh@google.com]
+> > > Sent: Friday, August 17, 2018 4:55 PM
+> > > To: Schaufler, Casey <casey.schaufler@intel.com>
+> > > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
+> > > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
+> > > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
+> > > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
+> > > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
+> > > Subject: Re: [PATCH RFC v2 2/5] X86: Support LSM determination of side-
+> > > channel vulnerability
+> > >
+> > > On Sat, Aug 18, 2018 at 12:17 AM Casey Schaufler
+> > > <casey.schaufler@intel.com> wrote:
+> > > >
+> > > > From: Casey Schaufler <cschaufler@localhost.localdomain>
+> > > >
+> > > > When switching between tasks it may be necessary
+> > > > to set an indirect branch prediction barrier if the
+> > > > tasks are potentially vulnerable to side-channel
+> > > > attacks. This adds a call to security_task_safe_sidechannel
+> > > > so that security modules can weigh in on the decision.
+> > > >
+> > > > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
+> > > > ---
+> > > >  arch/x86/mm/tlb.c | 12 ++++++++----
+> > > >  1 file changed, 8 insertions(+), 4 deletions(-)
+> > > >
+> > > > diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+> > > > index 6eb1f34c3c85..8714d4af06aa 100644
+> > > > --- a/arch/x86/mm/tlb.c
+> > > > +++ b/arch/x86/mm/tlb.c
+> > > > @@ -7,6 +7,7 @@
+> > > >  #include <linux/export.h>
+> > > >  #include <linux/cpu.h>
+> > > >  #include <linux/debugfs.h>
+> > > > +#include <linux/security.h>
+> > > >
+> > > >  #include <asm/tlbflush.h>
+> > > >  #include <asm/mmu_context.h>
+> > > > @@ -270,11 +271,14 @@ void switch_mm_irqs_off(struct mm_struct
+> *prev,
+> > > struct mm_struct *next,
+> > > >                  * threads. It will also not flush if we switch to idle
+> > > >                  * thread and back to the same process. It will flush if we
+> > > >                  * switch to a different non-dumpable process.
+> > > > +                * If a security module thinks that the transition
+> > > > +                * is unsafe do the flush.
+> > > >                  */
+> > > > -               if (tsk && tsk->mm &&
+> > > > -                   tsk->mm->context.ctx_id != last_ctx_id &&
+> > > > -                   get_dumpable(tsk->mm) != SUID_DUMP_USER)
+> > > > -                       indirect_branch_prediction_barrier();
+> > > > +               if (tsk && tsk->mm && tsk->mm->context.ctx_id != last_ctx_id)
+> {
+> > > > +                       if (get_dumpable(tsk->mm) != SUID_DUMP_USER ||
+> > > > +                           security_task_safe_sidechannel(tsk) != 0)
+> > > > +                               indirect_branch_prediction_barrier();
+> > > > +               }
+> > >
+> > > When you posted v1 of this series, I asked:
+> > >
+> > > | Does this enforce transitivity? What happens if we first switch from
+> > > | an attacker task to a task without ->mm, and immediately afterwards
+> > > | from the task without ->mm to a victim task? In that case, whether a
+> > > | flush happens between the attacker task and the victim task depends on
+> > > | whether the LSM thinks that the mm-less task should have access to the
+> > > | victim task, right?
+> > >
+> > > Have you addressed that? I don't see it...
+> >
+> > Nope. That's going to require maintaining state about all the
+> > tasks in the chain that might still have cache involvement.
+> >
+> >         A -> B -> C -> D
+> 
+> Really?
 
-Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186422
+I am willing to be educated otherwise. My understanding
+of Modern Processor Technology will never be so deep that
+I won't listen to reason.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- libsemanage/src/semanage_store.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+> 
+> From what I can tell, it'd be enough to:
+> 
+>  - ensure that the LSM-based access checks behave approximately transitively
+>    (which I think they already do, mostly)
 
-diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
-index f1984c50..58dded6e 100644
---- a/libsemanage/src/semanage_store.c
-+++ b/libsemanage/src/semanage_store.c
-@@ -541,14 +541,18 @@ int semanage_create_store(semanage_handle_t * sh, int create)
- 	struct stat sb;
- 	const char *path = semanage_files[SEMANAGE_ROOT];
- 	int fd;
-+	mode_t mask;
- 
- 	if (stat(path, &sb) == -1) {
- 		if (errno == ENOENT && create) {
-+			mask = umask(0077);
- 			if (mkdir(path, S_IRWXU) == -1) {
-+				umask(mask);
- 				ERR(sh, "Could not create module store at %s.",
- 				    path);
- 				return -2;
- 			}
-+			umask(mask);
- 		} else {
- 			if (create)
- 				ERR(sh,
-@@ -567,12 +571,15 @@ int semanage_create_store(semanage_handle_t * sh, int create)
- 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
- 	if (stat(path, &sb) == -1) {
- 		if (errno == ENOENT && create) {
-+			mask = umask(0077);
- 			if (mkdir(path, S_IRWXU) == -1) {
-+				umask(mask);
- 				ERR(sh,
- 				    "Could not create module store, active subdirectory at %s.",
- 				    path);
- 				return -2;
- 			}
-+			umask(mask);
- 		} else {
- 			ERR(sh,
- 			    "Could not read from module store, active subdirectory at %s.",
-@@ -590,12 +597,15 @@ int semanage_create_store(semanage_handle_t * sh, int create)
- 	path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
- 	if (stat(path, &sb) == -1) {
- 		if (errno == ENOENT && create) {
-+			mask = umask(0077);
- 			if (mkdir(path, S_IRWXU) == -1) {
-+				umask(mask);
- 				ERR(sh,
- 				    "Could not create module store, active modules subdirectory at %s.",
- 				    path);
- 				return -2;
- 			}
-+			umask(mask);
- 		} else {
- 			ERR(sh,
- 			    "Could not read from module store, active modules subdirectory at %s.",
-@@ -613,11 +623,14 @@ int semanage_create_store(semanage_handle_t * sh, int create)
- 	path = semanage_files[SEMANAGE_READ_LOCK];
- 	if (stat(path, &sb) == -1) {
- 		if (errno == ENOENT && create) {
-+			mask = umask(0077);
- 			if ((fd = creat(path, S_IRUSR | S_IWUSR)) == -1) {
-+				umask(mask);
- 				ERR(sh, "Could not create lock file at %s.",
- 				    path);
- 				return -2;
- 			}
-+			umask(mask);
- 			close(fd);
- 		} else {
- 			ERR(sh, "Could not read lock file at %s.", path);
-@@ -763,6 +776,7 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
- 	struct stat sb;
- 	struct dirent **names = NULL;
- 	char path[PATH_MAX], path2[PATH_MAX];
-+	mode_t mask;
- 
- 	if ((len = scandir(src, &names, semanage_filename_select, NULL)) == -1) {
- 		fprintf(stderr, "Could not read the contents of %s: %s\n", src, strerror(errno));
-@@ -770,10 +784,13 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
- 	}
- 
- 	if (stat(dst, &sb) != 0) {
-+		mask = umask(0077);
- 		if (mkdir(dst, S_IRWXU) != 0) {
-+			umask(mask);
- 			fprintf(stderr, "Could not create %s: %s\n", dst, strerror(errno));
- 			goto cleanup;
- 		}
-+		umask(mask);
- 	}
- 
- 	for (i = 0; i < len; i++) {
-@@ -785,14 +802,20 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
- 		}
- 		snprintf(path2, sizeof(path2), "%s/%s", dst, names[i]->d_name);
- 		if (S_ISDIR(sb.st_mode)) {
-+			mask = umask(0077);
- 			if (mkdir(path2, 0700) == -1 ||
- 			    semanage_copy_dir_flags(path, path2, flag) == -1) {
-+				umask(mask);
- 				goto cleanup;
- 			}
-+			umask(mask);
- 		} else if (S_ISREG(sb.st_mode) && flag == 1) {
-+			mask = umask(0077);
- 			if (semanage_copy_file(path, path2, sb.st_mode) < 0) {
-+				umask(mask);
- 				goto cleanup;
- 			}
-+			umask(mask);
- 		}
- 	}
- 	retval = 0;
-@@ -872,16 +895,20 @@ int semanage_mkdir(semanage_handle_t *sh, const char *path)
- {
- 	int status = 0;
- 	struct stat sb;
-+	mode_t mask;
- 
- 	/* check if directory already exists */
- 	if (stat(path, &sb) != 0) {
- 		/* make the modules directory */
-+		mask = umask(0077);
- 		if (mkdir(path, S_IRWXU) != 0) {
-+			umask(mask);
- 			ERR(sh, "Cannot make directory at %s", path);
- 			status = -1;
- 			goto cleanup;
- 
- 		}
-+		umask(mask);
- 	}
- 	else {
- 		/* check that it really is a directory */
-@@ -906,6 +933,7 @@ int semanage_make_sandbox(semanage_handle_t * sh)
- 	const char *sandbox = semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL);
- 	struct stat buf;
- 	int errsv;
-+	mode_t mask;
- 
- 	if (stat(sandbox, &buf) == -1) {
- 		if (errno != ENOENT) {
-@@ -922,12 +950,15 @@ int semanage_make_sandbox(semanage_handle_t * sh)
- 		}
- 	}
- 
-+	mask = umask(0077);
- 	if (mkdir(sandbox, S_IRWXU) == -1 ||
- 	    semanage_copy_dir(semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL),
- 			      sandbox) == -1) {
-+		umask(mask);
- 		ERR(sh, "Could not copy files to sandbox %s.", sandbox);
- 		goto cleanup;
- 	}
-+	umask(mask);
- 	return 0;
- 
-       cleanup:
--- 
-2.14.3
+Smack rules are explicitly and intentionally not transitive.
+
+A reads B, B reads C does *not* imply A reads C.
+
+>  - keep a copy of the metadata of the last non-kernel task on the CPU
+
+Do you have a suggestion of how one might do that?
+I'm willing to believe the information could be available,
+but I have yet to come up with a mechanism for getting it.
+
+> 
+> > If B and C don't do anything cacheworthy D could conceivably attack A.
+> > The amount of state required to detect this case would be prohibitive.
+> > I think that if you're sufficiently concerned about this case you should just
+> > go ahead and set the barrier. I'm willing to learn something that says I'm
+> > wrong.
+> 
+> That means that an attacker who can e.g. get a CPU to first switch
+> from an attacker task to a softirqd (e.g. for network packet
+> processing or whatever), then switch from the softirqd to a root-owned
+> victim task would be able to bypass the check, right? That doesn't
+> sound like a very complicated attack...
+
+Maybe my brain is still stuck in the 1980's, but that sounds pretty
+complicated to me! Of course, the fact that it's beyond where I would
+go doesn't mean it's implausible.
+
+> 
+> I very much dislike the idea of adding a mitigation with a known
+> bypass technique to the kernel.
+
+That's fair. I'll look more closely at getting previous_cred_this_cpu().
+
+Thank!
