@@ -1,196 +1,49 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7M11qJM008296
- for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 21:01:52 -0400
-Received: by mail-oi0-f65.google.com with SMTP id m11-v6so479836oic.2
- for <selinux@tycho.nsa.gov>; Tue, 21 Aug 2018 18:01:49 -0700 (PDT)
+Date: Wed, 22 Aug 2018 19:59:19 +1000 (AEST)
+From: James Morris <jmorris@namei.org>
+To: Casey Schaufler <casey@schaufler-ca.com>
+cc: Jordan Glover <Golden_Miller83@protonmail.ch>,
+ Sargun Dhillon <sargun@sargun.me>,
+ LSM <linux-security-module@vger.kernel.org>,
+ LKLM <linux-kernel@vger.kernel.org>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>, SE Linux <selinux@tycho.nsa.gov>,
+ "SMACK-discuss@lists.01.org" <SMACK-discuss@lists.01.org>,
+ John Johansen <john.johansen@canonical.com>,
+ Kees Cook <keescook@chromium.org>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>
+In-Reply-To: <8e2bdc10-3142-9e8d-ff05-70fa4d862dd5@schaufler-ca.com>
+Message-ID: <alpine.LRH.2.21.1808221958170.29682@namei.org>
+References: <8a325db8-e7eb-9581-2b77-fc987a165df7@schaufler-ca.com>
+ <CAMp4zn94SzqK_Q=de2E+Fpv5yeAhYv62XW-KU3=ghRma9d7Jvw@mail.gmail.com>
+ <a287800e-bd4d-2b99-8c4c-bd61ba87fab1@schaufler-ca.com>
+ <kubjHWMWfFDu8Rk19x79iMDKVbewTUMWwSjOA7vFGIbYsWYcGb50jb-Z-PSXxmcby3ZFMZWi0HCeuFgo3F8BRskxo_JUdSHFhdIsIlBxHyQ=@protonmail.ch>
+ <8e2bdc10-3142-9e8d-ff05-70fa4d862dd5@schaufler-ca.com>
 MIME-Version: 1.0
-References: <20180821000444.7004-1-casey.schaufler@intel.com>
- <20180821000444.7004-4-casey.schaufler@intel.com>
- <CAG48ez1D-DPBP8ACA1W5=XZLNKUeVj7ZOGUG8uJ2nL1xOSR_9Q@mail.gmail.com>
- <99FC4B6EFCEFD44486C35F4C281DC673214402D3@ORSMSX107.amr.corp.intel.com>
-In-Reply-To: <99FC4B6EFCEFD44486C35F4C281DC673214402D3@ORSMSX107.amr.corp.intel.com>
-From: Jann Horn <jannh@google.com>
-Date: Wed, 22 Aug 2018 03:01:20 +0200
-Message-ID: <CAG48ez3bh5cFgZ5ZY63pszTV+KX+KC4utRCm7E8en+uF5w6vKw@mail.gmail.com>
-To: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
- kernel list <linux-kernel@vger.kernel.org>,
- linux-security-module <linux-security-module@vger.kernel.org>,
- selinux@tycho.nsa.gov, Dave Hansen <dave.hansen@intel.com>,
- deneen.t.dock@intel.com, kristen@linux.intel.com,
- Arjan van de Ven <arjan@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v3 3/5] LSM: Security module checking for
- side-channel dangers
+Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH v1 00/22] LSM: Full security module stacking
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Aug 22, 2018 at 1:44 AM Schaufler, Casey
-<casey.schaufler@intel.com> wrote:
->
-> > -----Original Message-----
-> > From: Jann Horn [mailto:jannh@google.com]
-> > Sent: Tuesday, August 21, 2018 10:24 AM
-> > To: Schaufler, Casey <casey.schaufler@intel.com>
-> > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
-> > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
-> > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
-> > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
-> > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
-> > Subject: Re: [PATCH v3 3/5] LSM: Security module checking for side-channel
-> > dangers
+On Tue, 14 Aug 2018, Casey Schaufler wrote:
+
+> On 8/14/2018 4:22 PM, Jordan Glover wrote:
+> > On August 14, 2018 8:28 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
 > >
-> > On Tue, Aug 21, 2018 at 2:05 AM Casey Schaufler
-> > <casey.schaufler@intel.com> wrote:
-> > >
-> > > The sidechannel LSM checks for cases where a side-channel
-> > > attack may be dangerous based on security attributes of tasks.
-> > > This includes:
-> > >         Effective UID of the tasks is different
-> > >         Capablity sets are different
-> > >         Tasks are in different namespaces
-> > > An option is also provided to assert that task are never
-> > > to be considered safe. This is high paranoia, and expensive
-> > > as well.
-> > >
-> > > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
-> > > ---
-> > [...]
-> > > diff --git a/security/sidechannel/Kconfig b/security/sidechannel/Kconfig
-> > > new file mode 100644
-> > > index 000000000000..af9396534128
-> > > --- /dev/null
-> > > +++ b/security/sidechannel/Kconfig
-> > [...]
-> > > +config SECURITY_SIDECHANNEL_CAPABILITIES
-> > > +       bool "Sidechannel check on capability sets"
-> > > +       depends on SECURITY_SIDECHANNEL
-> > > +       default n
-> > > +       help
-> > > +         Assume that tasks with different sets of privilege may be
-> > > +         subject to side-channel attacks. Potential interactions
-> > > +         where the attacker lacks capabilities the attacked has
-> > > +         are blocked.
-> > > +
-> > > +          If you are unsure how to answer this question, answer N.
-> > > +
-> > > +config SECURITY_SIDECHANNEL_NAMESPACES
-> > > +       bool "Sidechannel check on namespaces"
-> > > +       depends on SECURITY_SIDECHANNEL
-> > > +       depends on NAMESPACES
-> > > +       default n
-> > > +       help
-> > > +         Assume that tasks in different namespaces may be
-> > > +         subject to side-channel attacks. User, PID and cgroup
-> > > +         namespaces are checked.
-> > > +
-> > > +          If you are unsure how to answer this question, answer N.
-> > [...]
-> > > diff --git a/security/sidechannel/sidechannel.c
-> > b/security/sidechannel/sidechannel.c
-> > > new file mode 100644
-> > > index 000000000000..4da7d6dafdc5
-> > > --- /dev/null
-> > > +++ b/security/sidechannel/sidechannel.c
-> > [...]
-> > > +/*
-> > > + * safe_by_capability - Are task and current sidechannel safe?
-> > > + * @p: task to check on
-> > > + *
-> > > + * Returns 0 if the tasks are sidechannel safe, -EACCES otherwise.
-> > > + */
-> > > +#ifdef CONFIG_SECURITY_SIDECHANNEL_CAPABILITIES
-> > > +static int safe_by_capability(struct task_struct *p)
-> > > +{
-> > > +       const struct cred *ccred = current_real_cred();
-> > > +       const struct cred *pcred = rcu_dereference_protected(p->real_cred, 1);
-> > > +
-> > > +       /*
-> > > +        * Capabilities checks. Considered safe if:
-> > > +        *      current has all the capabilities p does
-> > > +        */
-> > > +       if (ccred != pcred &&
-> > > +           !cap_issubset(pcred->cap_effective, ccred->cap_effective))
-> > > +               return -EACCES;
-> > > +       return 0;
-> > > +}
-> >
-> > On its own (without safe_by_namespace()), this check makes no sense, I
-> > think. You're performing a test on the namespaced capability sets
-> > without looking at which user namespaces they are relative to. Maybe
-> > either introduce a configuration dependency or add an extra namespace
-> > check here?
->
-> If you don't have namespaces the check is correct. If you do, and use
-> safe_by_namespace() you're also correct. If you use namespaces and
-> care about side-channel attacks you should enable the namespace checks.
+> > On the other hand there is concern that those security modules might
+> > be abandoned if they have to wait until everything is finished :)
+> 
+> There is some truth to that. If we can get commitment from the developers
+> of those security module to push for getting upstream, a statement of
+> intent to support additional modules (e.g. Landlock, S.A.R.A.) from a
+> significant distribution (e.g. Fedora, Ubuntu, SuSE) and ACKs from the
+> maintainers of the existing modules we should be able to breeze right in.
+> 
 
-By "use namespaces", you mean "have CONFIG_USER_NS=y set in the kernel
-config", right?
-It doesn't matter much whether processes on your system are
-intentionally using namespaces; what matters is whether some random
-process can just use unshare(CLONE_NEWUSER) to increase its apparent
-capabilities and bypass the checks performed by this LSM.
-My expectation is that unshare(CLONE_NEWUSER) should not increase the
-caller's abilities. Your patch seems to violate that expectation.
+Sounds reasonable. Please focus on what's needed for Landlock and SARA.
 
-> I don't see real value in adding namespace checks in the capability checks
-> for the event where someone has said they don't want namespace checks.
 
-Capabilities are meaningless if you don't consider the namespaces
-relative to which they are effective. Anyone can get CAP_SYS_ADMIN or
-whatever other capabilities they want, by design - just not relative
-to objects they don't own. Look:
-
-$ grep ^Cap /proc/self/status
-CapInh: 0000000000000000
-CapPrm: 0000000000000000
-CapEff: 0000000000000000
-CapBnd: 0000003fffffffff
-CapAmb: 0000000000000000
-$ unshare -Ur grep ^Cap /proc/self/status
-CapInh: 0000000000000000
-CapPrm: 0000003fffffffff
-CapEff: 0000003fffffffff
-CapBnd: 0000003fffffffff
-CapAmb: 0000000000000000
-
-Ta-daa! Full capability set.
-
-> I got early feedback that configurability was considered important.
-> This is the correct behavior if you want namespace checks to be
-> separately configurable from capability checks. You could ask for
-> distinct configuration options for each kind of namespace, but, well, yuck.
->
-> > > +static int safe_by_namespace(struct task_struct *p)
-> > > +{
-> > > +       struct cgroup_namespace *ccgn = NULL;
-> > > +       struct cgroup_namespace *pcgn = NULL;
-> > > +       const struct cred *ccred;
-> > > +       const struct cred *pcred;
-> > > +
-> > > +       /*
-> > > +        * Namespace checks. Considered safe if:
-> > > +        *      cgroup namespace is the same
-> > > +        *      User namespace is the same
-> > > +        *      PID namespace is the same
-> > > +        */
-> > > +       if (current->nsproxy)
-> > > +               ccgn = current->nsproxy->cgroup_ns;
-> > > +       if (p->nsproxy)
-> > > +               pcgn = p->nsproxy->cgroup_ns;
-> > > +       if (ccgn != pcgn)
-> > > +               return -EACCES;
-> > > +
-> > > +       ccred = current_real_cred();
-> > > +       pcred = rcu_dereference_protected(p->real_cred, 1);
-> > > +
-> > > +       if (ccred->user_ns != pcred->user_ns)
-> > > +               return -EACCES;
-> > > +       if (task_active_pid_ns(current) != task_active_pid_ns(p))
-> > > +               return -EACCES;
-> > > +       return 0;
-> > > +}
+-- 
+James Morris
+<jmorris@namei.org>
