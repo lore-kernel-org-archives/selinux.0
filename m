@@ -1,271 +1,213 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7MH4aVv017619
- for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2018 13:04:36 -0400
-Received: by mail-oi0-f67.google.com with SMTP id m11-v6so4400316oic.2
- for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2018 10:04:13 -0700 (PDT)
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7MIJB5R030773
+ for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2018 14:19:13 -0400
+Received: from mail-oi0-f44.google.com (mail-oi0-f44.google.com
+ [209.85.218.44])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id 5DB9A561254
+ for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2018 20:18:59 +0200 (CEST)
+Received: by mail-oi0-f44.google.com with SMTP id q11-v6so4730244oic.12
+ for <selinux@tycho.nsa.gov>; Wed, 22 Aug 2018 11:18:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20180821000444.7004-1-casey.schaufler@intel.com>
- <20180821000444.7004-4-casey.schaufler@intel.com>
- <CAG48ez1D-DPBP8ACA1W5=XZLNKUeVj7ZOGUG8uJ2nL1xOSR_9Q@mail.gmail.com>
- <99FC4B6EFCEFD44486C35F4C281DC673214402D3@ORSMSX107.amr.corp.intel.com>
- <CAG48ez3bh5cFgZ5ZY63pszTV+KX+KC4utRCm7E8en+uF5w6vKw@mail.gmail.com>
- <99FC4B6EFCEFD44486C35F4C281DC67321440770@ORSMSX107.amr.corp.intel.com>
-In-Reply-To: <99FC4B6EFCEFD44486C35F4C281DC67321440770@ORSMSX107.amr.corp.intel.com>
-From: Jann Horn <jannh@google.com>
-Date: Wed, 22 Aug 2018 19:03:45 +0200
-Message-ID: <CAG48ez3OkpcrC34LJTWAvH4ZvREW7jDVkeMBZrLQe6cRSEBheg@mail.gmail.com>
-To: Casey Schaufler <casey.schaufler@intel.com>
-Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
- kernel list <linux-kernel@vger.kernel.org>,
- linux-security-module <linux-security-module@vger.kernel.org>,
- selinux@tycho.nsa.gov, Dave Hansen <dave.hansen@intel.com>,
- deneen.t.dock@intel.com, kristen@linux.intel.com,
- Arjan van de Ven <arjan@linux.intel.com>
+References: <CAJfZ7=m205+Xsx2D4nf4xMk1Y3WCZjm4+xUHFPsmdELZP_e5PA@mail.gmail.com>
+ <20180821131731.12104-1-vmojzis@redhat.com>
+In-Reply-To: <20180821131731.12104-1-vmojzis@redhat.com>
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Wed, 22 Aug 2018 20:18:46 +0200
+Message-ID: <CAJfZ7=mmuq=EBN+u4Jzamm2WWHw1=+cZaih9Nch1ui65BQbA9w@mail.gmail.com>
+To: Vit Mojzis <vmojzis@redhat.com>
+Cc: selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v3 3/5] LSM: Security module checking for
- side-channel dangers
+Subject: Re: [PATCH] libsemanage: reset umask before creating
+ directories
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Aug 22, 2018 at 6:39 PM Schaufler, Casey
-<casey.schaufler@intel.com> wrote:
+On Tue, Aug 21, 2018 at 3:18 PM Vit Mojzis <vmojzis@redhat.com> wrote:
 >
-> > -----Original Message-----
-> > From: Jann Horn [mailto:jannh@google.com]
-> > Sent: Tuesday, August 21, 2018 6:01 PM
-> > To: Schaufler, Casey <casey.schaufler@intel.com>
-> > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
-> > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
-> > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
-> > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
-> > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
-> > Subject: Re: [PATCH v3 3/5] LSM: Security module checking for side-channel
-> > dangers
-> >
-> > On Wed, Aug 22, 2018 at 1:44 AM Schaufler, Casey
-> > <casey.schaufler@intel.com> wrote:
-> > >
-> > > > -----Original Message-----
-> > > > From: Jann Horn [mailto:jannh@google.com]
-> > > > Sent: Tuesday, August 21, 2018 10:24 AM
-> > > > To: Schaufler, Casey <casey.schaufler@intel.com>
-> > > > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
-> > > > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
-> > > > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
-> > > > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
-> > > > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
-> > > > Subject: Re: [PATCH v3 3/5] LSM: Security module checking for side-channel
-> > > > dangers
-> > > >
-> > > > On Tue, Aug 21, 2018 at 2:05 AM Casey Schaufler
-> > > > <casey.schaufler@intel.com> wrote:
-> > > > >
-> > > > > The sidechannel LSM checks for cases where a side-channel
-> > > > > attack may be dangerous based on security attributes of tasks.
-> > > > > This includes:
-> > > > >         Effective UID of the tasks is different
-> > > > >         Capablity sets are different
-> > > > >         Tasks are in different namespaces
-> > > > > An option is also provided to assert that task are never
-> > > > > to be considered safe. This is high paranoia, and expensive
-> > > > > as well.
-> > > > >
-> > > > > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
-> > > > > ---
-> > > > [...]
-> > > > > diff --git a/security/sidechannel/Kconfig b/security/sidechannel/Kconfig
-> > > > > new file mode 100644
-> > > > > index 000000000000..af9396534128
-> > > > > --- /dev/null
-> > > > > +++ b/security/sidechannel/Kconfig
-> > > > [...]
-> > > > > +config SECURITY_SIDECHANNEL_CAPABILITIES
-> > > > > +       bool "Sidechannel check on capability sets"
-> > > > > +       depends on SECURITY_SIDECHANNEL
-> > > > > +       default n
-> > > > > +       help
-> > > > > +         Assume that tasks with different sets of privilege may be
-> > > > > +         subject to side-channel attacks. Potential interactions
-> > > > > +         where the attacker lacks capabilities the attacked has
-> > > > > +         are blocked.
-> > > > > +
-> > > > > +          If you are unsure how to answer this question, answer N.
-> > > > > +
-> > > > > +config SECURITY_SIDECHANNEL_NAMESPACES
-> > > > > +       bool "Sidechannel check on namespaces"
-> > > > > +       depends on SECURITY_SIDECHANNEL
-> > > > > +       depends on NAMESPACES
-> > > > > +       default n
-> > > > > +       help
-> > > > > +         Assume that tasks in different namespaces may be
-> > > > > +         subject to side-channel attacks. User, PID and cgroup
-> > > > > +         namespaces are checked.
-> > > > > +
-> > > > > +          If you are unsure how to answer this question, answer N.
-> > > > [...]
-> > > > > diff --git a/security/sidechannel/sidechannel.c
-> > > > b/security/sidechannel/sidechannel.c
-> > > > > new file mode 100644
-> > > > > index 000000000000..4da7d6dafdc5
-> > > > > --- /dev/null
-> > > > > +++ b/security/sidechannel/sidechannel.c
-> > > > [...]
-> > > > > +/*
-> > > > > + * safe_by_capability - Are task and current sidechannel safe?
-> > > > > + * @p: task to check on
-> > > > > + *
-> > > > > + * Returns 0 if the tasks are sidechannel safe, -EACCES otherwise.
-> > > > > + */
-> > > > > +#ifdef CONFIG_SECURITY_SIDECHANNEL_CAPABILITIES
-> > > > > +static int safe_by_capability(struct task_struct *p)
-> > > > > +{
-> > > > > +       const struct cred *ccred = current_real_cred();
-> > > > > +       const struct cred *pcred = rcu_dereference_protected(p->real_cred,
-> > 1);
-> > > > > +
-> > > > > +       /*
-> > > > > +        * Capabilities checks. Considered safe if:
-> > > > > +        *      current has all the capabilities p does
-> > > > > +        */
-> > > > > +       if (ccred != pcred &&
-> > > > > +           !cap_issubset(pcred->cap_effective, ccred->cap_effective))
-> > > > > +               return -EACCES;
-> > > > > +       return 0;
-> > > > > +}
-> > > >
-> > > > On its own (without safe_by_namespace()), this check makes no sense, I
-> > > > think. You're performing a test on the namespaced capability sets
-> > > > without looking at which user namespaces they are relative to. Maybe
-> > > > either introduce a configuration dependency or add an extra namespace
-> > > > check here?
-> > >
-> > > If you don't have namespaces the check is correct. If you do, and use
-> > > safe_by_namespace() you're also correct. If you use namespaces and
-> > > care about side-channel attacks you should enable the namespace checks.
-> >
-> > By "use namespaces", you mean "have CONFIG_USER_NS=y set in the kernel
-> > config", right?
+> Restrictive umask may cause creating directories with with unintended
+> access mode. Reset umask before creating directories to avoid this
+> issue.
 >
-> That's correct.
+> Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1186422
 >
-> > It doesn't matter much whether processes on your system are
-> > intentionally using namespaces;
->
-> Also correct.
->
-> > what matters is whether some random
-> > process can just use unshare(CLONE_NEWUSER) to increase its apparent
-> > capabilities and bypass the checks performed by this LSM.
->
-> Which puts it in a new user namespace, which gets caught by the
-> safe_by_namespace() check.
->
-> > My expectation is that unshare(CLONE_NEWUSER) should not increase the
-> > caller's abilities. Your patch seems to violate that expectation.
->
-> If you have CONFIG_USER_NS and not
-> CONFIG_SECURITY_SIDECHANNEL_NAMESPACES you do not increase the
-> caller's abilities from what you have without safesidechannel. If you have
-> CONFIG_SECURITY_SIDECHANNEL_NAMESPACES you have additional
-> restriction (assuming one considers setting the barrier a restriction) that
-> the tasks must be in the same namespace(s). As I said, if you care about
-> namespace implications you should configure the system accordingly.
->
-> > > I don't see real value in adding namespace checks in the capability checks
-> > > for the event where someone has said they don't want namespace checks.
-> >
-> > Capabilities are meaningless if you don't consider the namespaces
-> > relative to which they are effective.
->
-> Agreed. But if CONFIG_NAMESPACES is off you are always in the same
-> namespace and if it is on you should use the sidechannel namespace check.
->
-> > Anyone can get CAP_SYS_ADMIN or
-> > whatever other capabilities they want, by design - just not relative
-> > to objects they don't own. Look:
-> >
-> > $ grep ^Cap /proc/self/status
-> > CapInh: 0000000000000000
-> > CapPrm: 0000000000000000
-> > CapEff: 0000000000000000
-> > CapBnd: 0000003fffffffff
-> > CapAmb: 0000000000000000
-> > $ unshare -Ur grep ^Cap /proc/self/status
-> > CapInh: 0000000000000000
-> > CapPrm: 0000003fffffffff
-> > CapEff: 0000003fffffffff
-> > CapBnd: 0000003fffffffff
-> > CapAmb: 0000000000000000
-> >
-> > Ta-daa! Full capability set.
->
-> Yes, but in a different namespace. Hence the namespace check.
->
-> What I hear you saying is that you don't want the capability check
-> to be independent of the namespace check.
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 
-The capability check doesn't always require a namespace match, and I
-don't care about non-user namespaces here, but I would prefer it if
-A->B with A having some capabilities required A's user namespace to be
-ancestor-or-self of B's user namespace. But alternatively:
+Thanks, I merged this commit.
 
-> This conflicts with the
-> strong desire expressed to me when I started this that the configuration
-> should be flexible. I can beef up the description of the various options.
-> Would that address the issue?
+Nicolas
 
-It seems to me that it would make sense to express this as something
-like a Kconfig dependency. But I guess if you document that the
-combination of CONFIG_USER_NS=y,
-CONFIG_SECURITY_SIDECHANNEL_NAMESPACES=n and
-SECURITY_SIDECHANNEL_CAPABILITIES=y is nonsensical, that works too. I
-just don't see why you'd want to provide such a footgun?
-Configurability is nice, but if we know that one of the possible
-configurations doesn't make sense, it seems like a good idea to just
-not allow the system to be configured that way.
-
-You say that you were asked to make the configuration flexible. Did
-whoever told you that actually want the ability to compare raw
-capability sets on a system with CONFIG_USER_NS=y, and understand what
-semantics that has (and doesn't have)? Or was their intent more along
-the lines of "we want to flush if the new task has higher privileges,
-capability-wise, than the old task; but we don't explicitly care about
-namespaces"?
-
-> > > I got early feedback that configurability was considered important.
-> > > This is the correct behavior if you want namespace checks to be
-> > > separately configurable from capability checks. You could ask for
-> > > distinct configuration options for each kind of namespace, but, well, yuck.
-> > >
-> > > > > +static int safe_by_namespace(struct task_struct *p)
-> > > > > +{
-> > > > > +       struct cgroup_namespace *ccgn = NULL;
-> > > > > +       struct cgroup_namespace *pcgn = NULL;
-> > > > > +       const struct cred *ccred;
-> > > > > +       const struct cred *pcred;
-> > > > > +
-> > > > > +       /*
-> > > > > +        * Namespace checks. Considered safe if:
-> > > > > +        *      cgroup namespace is the same
-> > > > > +        *      User namespace is the same
-> > > > > +        *      PID namespace is the same
-> > > > > +        */
-> > > > > +       if (current->nsproxy)
-> > > > > +               ccgn = current->nsproxy->cgroup_ns;
-> > > > > +       if (p->nsproxy)
-> > > > > +               pcgn = p->nsproxy->cgroup_ns;
-> > > > > +       if (ccgn != pcgn)
-> > > > > +               return -EACCES;
-> > > > > +
-> > > > > +       ccred = current_real_cred();
-> > > > > +       pcred = rcu_dereference_protected(p->real_cred, 1);
-> > > > > +
-> > > > > +       if (ccred->user_ns != pcred->user_ns)
-> > > > > +               return -EACCES;
-> > > > > +       if (task_active_pid_ns(current) != task_active_pid_ns(p))
-> > > > > +               return -EACCES;
-> > > > > +       return 0;
-> > > > > +}
+> ---
+>  libsemanage/src/semanage_store.c | 31 +++++++++++++++++++++++++++++++
+>  1 file changed, 31 insertions(+)
+>
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+> index f1984c50..58dded6e 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -541,14 +541,18 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+>         struct stat sb;
+>         const char *path = semanage_files[SEMANAGE_ROOT];
+>         int fd;
+> +       mode_t mask;
+>
+>         if (stat(path, &sb) == -1) {
+>                 if (errno == ENOENT && create) {
+> +                       mask = umask(0077);
+>                         if (mkdir(path, S_IRWXU) == -1) {
+> +                               umask(mask);
+>                                 ERR(sh, "Could not create module store at %s.",
+>                                     path);
+>                                 return -2;
+>                         }
+> +                       umask(mask);
+>                 } else {
+>                         if (create)
+>                                 ERR(sh,
+> @@ -567,12 +571,15 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+>         path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL);
+>         if (stat(path, &sb) == -1) {
+>                 if (errno == ENOENT && create) {
+> +                       mask = umask(0077);
+>                         if (mkdir(path, S_IRWXU) == -1) {
+> +                               umask(mask);
+>                                 ERR(sh,
+>                                     "Could not create module store, active subdirectory at %s.",
+>                                     path);
+>                                 return -2;
+>                         }
+> +                       umask(mask);
+>                 } else {
+>                         ERR(sh,
+>                             "Could not read from module store, active subdirectory at %s.",
+> @@ -590,12 +597,15 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+>         path = semanage_path(SEMANAGE_ACTIVE, SEMANAGE_MODULES);
+>         if (stat(path, &sb) == -1) {
+>                 if (errno == ENOENT && create) {
+> +                       mask = umask(0077);
+>                         if (mkdir(path, S_IRWXU) == -1) {
+> +                               umask(mask);
+>                                 ERR(sh,
+>                                     "Could not create module store, active modules subdirectory at %s.",
+>                                     path);
+>                                 return -2;
+>                         }
+> +                       umask(mask);
+>                 } else {
+>                         ERR(sh,
+>                             "Could not read from module store, active modules subdirectory at %s.",
+> @@ -613,11 +623,14 @@ int semanage_create_store(semanage_handle_t * sh, int create)
+>         path = semanage_files[SEMANAGE_READ_LOCK];
+>         if (stat(path, &sb) == -1) {
+>                 if (errno == ENOENT && create) {
+> +                       mask = umask(0077);
+>                         if ((fd = creat(path, S_IRUSR | S_IWUSR)) == -1) {
+> +                               umask(mask);
+>                                 ERR(sh, "Could not create lock file at %s.",
+>                                     path);
+>                                 return -2;
+>                         }
+> +                       umask(mask);
+>                         close(fd);
+>                 } else {
+>                         ERR(sh, "Could not read lock file at %s.", path);
+> @@ -763,6 +776,7 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+>         struct stat sb;
+>         struct dirent **names = NULL;
+>         char path[PATH_MAX], path2[PATH_MAX];
+> +       mode_t mask;
+>
+>         if ((len = scandir(src, &names, semanage_filename_select, NULL)) == -1) {
+>                 fprintf(stderr, "Could not read the contents of %s: %s\n", src, strerror(errno));
+> @@ -770,10 +784,13 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+>         }
+>
+>         if (stat(dst, &sb) != 0) {
+> +               mask = umask(0077);
+>                 if (mkdir(dst, S_IRWXU) != 0) {
+> +                       umask(mask);
+>                         fprintf(stderr, "Could not create %s: %s\n", dst, strerror(errno));
+>                         goto cleanup;
+>                 }
+> +               umask(mask);
+>         }
+>
+>         for (i = 0; i < len; i++) {
+> @@ -785,14 +802,20 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+>                 }
+>                 snprintf(path2, sizeof(path2), "%s/%s", dst, names[i]->d_name);
+>                 if (S_ISDIR(sb.st_mode)) {
+> +                       mask = umask(0077);
+>                         if (mkdir(path2, 0700) == -1 ||
+>                             semanage_copy_dir_flags(path, path2, flag) == -1) {
+> +                               umask(mask);
+>                                 goto cleanup;
+>                         }
+> +                       umask(mask);
+>                 } else if (S_ISREG(sb.st_mode) && flag == 1) {
+> +                       mask = umask(0077);
+>                         if (semanage_copy_file(path, path2, sb.st_mode) < 0) {
+> +                               umask(mask);
+>                                 goto cleanup;
+>                         }
+> +                       umask(mask);
+>                 }
+>         }
+>         retval = 0;
+> @@ -872,16 +895,20 @@ int semanage_mkdir(semanage_handle_t *sh, const char *path)
+>  {
+>         int status = 0;
+>         struct stat sb;
+> +       mode_t mask;
+>
+>         /* check if directory already exists */
+>         if (stat(path, &sb) != 0) {
+>                 /* make the modules directory */
+> +               mask = umask(0077);
+>                 if (mkdir(path, S_IRWXU) != 0) {
+> +                       umask(mask);
+>                         ERR(sh, "Cannot make directory at %s", path);
+>                         status = -1;
+>                         goto cleanup;
+>
+>                 }
+> +               umask(mask);
+>         }
+>         else {
+>                 /* check that it really is a directory */
+> @@ -906,6 +933,7 @@ int semanage_make_sandbox(semanage_handle_t * sh)
+>         const char *sandbox = semanage_path(SEMANAGE_TMP, SEMANAGE_TOPLEVEL);
+>         struct stat buf;
+>         int errsv;
+> +       mode_t mask;
+>
+>         if (stat(sandbox, &buf) == -1) {
+>                 if (errno != ENOENT) {
+> @@ -922,12 +950,15 @@ int semanage_make_sandbox(semanage_handle_t * sh)
+>                 }
+>         }
+>
+> +       mask = umask(0077);
+>         if (mkdir(sandbox, S_IRWXU) == -1 ||
+>             semanage_copy_dir(semanage_path(SEMANAGE_ACTIVE, SEMANAGE_TOPLEVEL),
+>                               sandbox) == -1) {
+> +               umask(mask);
+>                 ERR(sh, "Could not copy files to sandbox %s.", sandbox);
+>                 goto cleanup;
+>         }
+> +       umask(mask);
+>         return 0;
+>
+>        cleanup:
+> --
+> 2.14.3
+>
+> _______________________________________________
+> Selinux mailing list
+> Selinux@tycho.nsa.gov
+> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
