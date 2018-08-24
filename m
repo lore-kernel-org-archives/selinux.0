@@ -1,65 +1,63 @@
-MIME-Version: 1.0
-References: <20180813194214.20929-1-hollis_blanchard@mentor.com>
- <CAPc65ax7Dz_niNOxypfds2hLCdiP=x8C2_KFWShVpBnWP62fFg@mail.gmail.com>
- <6a93e71c-a31a-d7e2-546c-e0e63d85c62d@mentor.com>
- <CAPc65azY7nrTRLARYfMMPAm7R+=rpmQby=wtbWaMZ=CfACOTBw@mail.gmail.com>
- <1b1bd436-f443-d75b-c747-e34831b89339@mentor.com>
-In-Reply-To: <1b1bd436-f443-d75b-c747-e34831b89339@mentor.com>
-From: Nicolas Iooss <nicolas.iooss@m4x.org>
-Date: Wed, 22 Aug 2018 22:57:22 +0200
-Message-ID: <CAJfZ7==p9QNJGtc60j4n02RznNjcyshmOTUUvFxTQ3VQim1=_A@mail.gmail.com>
-To: hollis_blanchard@mentor.com
-Cc: tomcherry@google.com, Stephen Smalley <sds@tycho.nsa.gov>,
- selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] Fix build break around __atomic_*() with GCC<4.7
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7OBFQcs006868
+ for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2018 07:15:26 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com
+ [10.11.54.4])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id 6EA9740216E8
+ for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2018 11:15:20 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.116])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 0ACBD2026D6D
+ for <selinux@tycho.nsa.gov>; Fri, 24 Aug 2018 11:15:19 +0000 (UTC)
+From: Vit Mojzis <vmojzis@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Fri, 24 Aug 2018 13:15:16 +0200
+Message-Id: <20180824111516.16407-1-vmojzis@redhat.com>
+Subject: [PATCH] libsemanage: Include user name in ROLE_REMOVE audit
+ events
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Aug 14, 2018 at 2:02 PM Hollis Blanchard
-<hollis_blanchard@mentor.com> wrote:
->
-> On 08/13/2018 02:18 PM, Tom Cherry wrote:
-> > On Mon, Aug 13, 2018 at 1:49 PM Hollis Blanchard
-> > <hollis_blanchard@mentor.com> wrote:
-> >> On 08/13/2018 01:45 PM, Tom Cherry wrote:
-> >>> On Mon, Aug 13, 2018 at 12:43 PM Hollis Blanchard
-> >>> <hollis_blanchard@mentor.com> wrote:
-> >>>> The __atomic_* GCC primitives were introduced in GCC 4.7, but Red Hat
-> >>>> Enterprise Linux 6.x (for example) provides GCC 4.4. Tweak the current code to
-> >>>> use the (most conservative) __sync_synchronize() primitive provided by those
-> >>>> older GCC versions.
-> >>>>
-> >>>> Fixes https://github.com/SELinuxProject/selinux/issues/97
-> >>>>
-> >>>> (Really, no __atomic or __sync operations are needed here at all, since POSIX
-> >>>> 4.12 "Memory Synchronization" says pthread_mutex_lock() and
-> >>>> pthread_mutex_unlock() "synchronize memory with respect to other threads"...)
-> >>> That section means that pthread_mutex_lock() and
-> >>> pthread_mutex_unlock() will perform an acquire / release operation
-> >>> respectively, so if you're guarding shared data with them, you don't
-> >>> need additional memory synchronization.
-> >>>
-> >>> In this case however, the fast path does not call pthread_mutex_lock()
-> >>> and thus there is no acquire operation.  pthread_mutex_unlock() will
-> >>> perform a release operation in the thread that actually compiled the
-> >>> regex (so technically, we don't actually need the __atomic_store_n),
-> >>> but we still need an acquire operation on the fast path, which is why
-> >>> we need the atomic.
-> >> You really don't. The fast path access will race whether it's "atomic"
-> >> or not. Luckily, it doesn't matter if you get false positives or false
-> >> negatives, because it will be checked for real under the mutex.
-> > It does matter if you get false positives.  False positives do not
-> > lock the mutex and return immediately that the regex has been
-> > compiled.  Without the acquire operation, it's possible that
-> > spec->regex_compiled is true, but the value of spec->regex hasn't been
-> > made visible to the processor executing this thread, which results in
-> > an error.
-> Well, since there are no objections to this patch, I am happy to have it
-> committed to fix the build problem. :-)
+Use "previous" user name when no new user is available in
+semanage_seuser_audit. Otherwise "id=0" is logged instead of
+"acct=user_name" ("id=0" is hard coded value).
 
-I have applied this patch. Thanks!
+Fixes: https://bugzilla.redhat.com/show_bug.cgi?id=1622045
+---
+ libsemanage/src/seusers_local.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-Nicolas
+diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_local.c
+index 413ebddd..5fbb09e4 100644
+--- a/libsemanage/src/seusers_local.c
++++ b/libsemanage/src/seusers_local.c
+@@ -71,17 +71,18 @@ static int semanage_seuser_audit(semanage_handle_t * handle,
+ 	const char *sep = "-";
+ 	int rc = -1;
+ 	strcpy(msg, "login");
++	if (previous) {
++		name = semanage_seuser_get_name(seuser);
++		psename = semanage_seuser_get_sename(previous);
++		pmls = semanage_seuser_get_mlsrange(previous);
++		proles = semanage_user_roles(handle, psename);
++	}
+ 	if (seuser) {
+ 		name = semanage_seuser_get_name(seuser);
+ 		sename = semanage_seuser_get_sename(seuser);
+ 		mls = semanage_seuser_get_mlsrange(seuser);
+ 		roles = semanage_user_roles(handle, sename);
+ 	}
+-	if (previous) {
+-		psename = semanage_seuser_get_sename(previous);
+-		pmls = semanage_seuser_get_mlsrange(previous);
+-		proles = semanage_user_roles(handle, psename);
+-	}
+ 	if (audit_type != AUDIT_ROLE_REMOVE) {
+ 		if (sename && (!psename || strcmp(psename, sename) != 0)) {
+ 			strcat(msg,sep);
+-- 
+2.14.3
