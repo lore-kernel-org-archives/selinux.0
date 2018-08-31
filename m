@@ -1,232 +1,119 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w7VFl6go004756
- for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2018 11:47:06 -0400
-Received: by mail-oi0-f65.google.com with SMTP id l202-v6so22431265oig.7
- for <selinux@tycho.nsa.gov>; Fri, 31 Aug 2018 08:47:02 -0700 (PDT)
+To: Paul Moore <paul@paul-moore.com>, mortonm@chromium.org
+Cc: linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov
+References: <20180828213217.67080-1-mortonm@chromium.org>
+ <CAHC9VhR3ArFfVfWeosYbUhofMq28-6Vbt9_4ujYjRBEG73UBaA@mail.gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <2845e4b5-9c23-034f-d660-df331b5576f2@tycho.nsa.gov>
+Date: Fri, 31 Aug 2018 13:11:41 -0400
 MIME-Version: 1.0
-References: <20180806211932.198488-1-jannh@google.com>
- <CAHC9VhR5S6jGsHVwrGXemGobB1O=tADHBHWZMRP5BuRMGqDrOQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhR5S6jGsHVwrGXemGobB1O=tADHBHWZMRP5BuRMGqDrOQ@mail.gmail.com>
-From: Jann Horn <jannh@google.com>
-Date: Fri, 31 Aug 2018 17:46:33 +0200
-Message-ID: <CAG48ez1VMp=NXWb2eSEZsnszs-g5NVUhCVLXrjnMcHZYBJus8w@mail.gmail.com>
-To: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>, Eric Paris <eparis@parisplace.org>,
- selinux@tycho.nsa.gov, James Morris <jmorris@namei.org>,
- "Serge E. Hallyn" <serge@hallyn.com>,
- linux-security-module <linux-security-module@vger.kernel.org>,
- kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux: refactor mls_context_to_sid() and make
- it stricter
+In-Reply-To: <CAHC9VhR3ArFfVfWeosYbUhofMq28-6Vbt9_4ujYjRBEG73UBaA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH] SELinux: allow other LSMs to use custom mount args
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Aug 9, 2018 at 3:56 AM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Mon, Aug 6, 2018 at 5:19 PM Jann Horn <jannh@google.com> wrote:
-> >
-> > The intended behavior change for this patch is to reject any MLS strings
-> > that contain (trailing) garbage if p->mls_enabled is true.
-> >
-> > As suggested by Paul Moore, change mls_context_to_sid() so that the two
-> > parts of the range are extracted before the rest of the parsing. Because
-> > now we don't have to scan for two different separators simultaneously
-> > everywhere, we can actually switch to strchr() everywhere instead of the
-> > open-coded loops that scan for two separators at once.
-> >
-> > mls_context_to_sid() used to signal how much of the input string was parsed
-> > by updating `*scontext`. However, there is actually no case in which
-> > mls_context_to_sid() only parses a subset of the input and still returns
-> > a success (other than the buggy case with a second '-' in which it
-> > incorrectly claims to have consumed the entire string). Turn `scontext`
-> > into a simple pointer argument and stop redundantly checking whether the
-> > entire input was consumed in string_to_context_struct(). This also lets us
-> > remove the `scontext_len` argument from `string_to_context_struct()`.
-[...]
-> > -       /* Extract low sensitivity. */
-> > -       scontextp = p = *scontext;
-> > -       while (*p && *p != ':' && *p != '-')
-> > -               p++;
-> > -
-> > -       delim = *p;
-> > -       if (delim != '\0')
-> > -               *p++ = '\0';
-> > +       /*
-> > +        * If we're dealing with a range, figure out where the two parts
-> > +        * of the range begin.
-> > +        */
-> > +       rangep[0] = scontext;
-> > +       rangep[1] = strchr(scontext, '-');
-> > +       if (rangep[1]) {
-> > +               rangep[1][0] = '\0';
-> > +               rangep[1]++;
-> > +       }
-> >
-> > +       /* For each part of the range: */
-> >         for (l = 0; l < 2; l++) {
-> > -               levdatum = hashtab_search(pol->p_levels.table, scontextp);
-> > -               if (!levdatum) {
-> > -                       rc = -EINVAL;
-> > -                       goto out;
-> > -               }
-> > +               /* Split sensitivity and category set. */
-> > +               sensitivity = rangep[l];
-> > +               if (sensitivity == NULL)
-> > +                       break;
-> > +               next_cat = strchr(sensitivity, ':');
-> > +               if (next_cat)
-> > +                       *(next_cat++) = '\0';
-> >
-> > +               /* Parse sensitivity. */
-> > +               levdatum = hashtab_search(pol->p_levels.table, sensitivity);
-> > +               if (!levdatum)
-> > +                       return -EINVAL;
-> >                 context->range.level[l].sens = levdatum->level->sens;
-> >
-> > -               if (delim == ':') {
-> > -                       /* Extract category set. */
-> > -                       while (1) {
-> > -                               scontextp = p;
-> > -                               while (*p && *p != ',' && *p != '-')
-> > -                                       p++;
-> > -                               delim = *p;
-> > -                               if (delim != '\0')
-> > -                                       *p++ = '\0';
-> > -
-> > -                               /* Separate into range if exists */
-> > -                               rngptr = strchr(scontextp, '.');
-> > -                               if (rngptr != NULL) {
-> > -                                       /* Remove '.' */
-> > -                                       *rngptr++ = '\0';
-> > -                               }
-> > +               /* Extract category set. */
-> > +               while (next_cat != NULL) {
-> > +                       cur_cat = next_cat;
-> > +                       next_cat = strchr(next_cat, ',');
-> > +                       if (next_cat != NULL)
-> > +                               *(next_cat++) = '\0';
-> > +
-> > +                       /* Separate into range if exists */
-> > +                       rngptr = strchr(cur_cat, '.');
-> > +                       if (rngptr != NULL) {
-> > +                               /* Remove '.' */
->
-> On the chance you need to respin this patch, you can probably get rid
-> of the above comment and the if-body braces; we don't have "Remove X"
-> comments in other similar places in this function.
+On 08/29/2018 12:58 AM, Paul Moore wrote:
+> On Tue, Aug 28, 2018 at 5:32 PM Micah Morton <mortonm@chromium.org> wrote:
+>> The security_sb_copy_data LSM hook allows LSMs to copy custom string
+>> name/value args passed to mount_fs() into a temporary buffer (called
+>> "secdata") that will be accessible to LSM code during the
+>> security_sb_kern_mount hook further down in mount_fs(). Currently,
+>> SELinux effectively prevents any other LSMs from copying custom mount
+>> args into the temporary buffer (and being able to access them during
+>> security_sb_kern_mount), as it will fail with -EINVAL and print
+>> "SELinux:  unknown mount option" to the kernel message buffer if args it
+>> doesn't recognize are present in the temporary buffer when
+>> selinux_sb_kern_mount is called. This change adds an arg to the list of
+>> those accepted by SELinux during security_sb_kern_mount. SELinux won't
+>> do anything with this arg besides allow the name/value pair to be passed
+>> along to any other LSM that is stacked after SELinux.
+>>
+>> Developed on v4.18.
+>>
+>> Signed-off-by: Micah Morton <mortonm@chromium.org>
+>> ---
+>>   security/selinux/hooks.c            |  7 ++++++-
+>>   security/selinux/include/security.h | 11 ++++++-----
+>>   2 files changed, 12 insertions(+), 6 deletions(-)
+> 
+> SELinux patches need to be sent to the SELinux mailing list (CC'd) for
+> proper review.
 
-I'll amend that.
+Please also show us the user of this facility; we need to see both sides 
+of the interface to fully assess it.  And that user has to be on a glide 
+path to mainline; we don't add features for out-of-tree code.
 
-> > +                               *rngptr++ = '\0';
-> > +                       }
-> >
-> > -                               catdatum = hashtab_search(pol->p_cats.table,
-> > -                                                         scontextp);
-> > -                               if (!catdatum) {
-> > -                                       rc = -EINVAL;
-> > -                                       goto out;
-> > -                               }
-> > +                       catdatum = hashtab_search(pol->p_cats.table, cur_cat);
-> > +                       if (!catdatum)
-> > +                               return -EINVAL;
-> >
-> > -                               rc = ebitmap_set_bit(&context->range.level[l].cat,
-> > -                                                    catdatum->value - 1, 1);
-> > -                               if (rc)
-> > -                                       goto out;
-> > -
-> > -                               /* If range, set all categories in range */
-> > -                               if (rngptr) {
-> > -                                       int i;
-> > -
-> > -                                       rngdatum = hashtab_search(pol->p_cats.table, rngptr);
-> > -                                       if (!rngdatum) {
-> > -                                               rc = -EINVAL;
-> > -                                               goto out;
-> > -                                       }
-> > -
-> > -                                       if (catdatum->value >= rngdatum->value) {
-> > -                                               rc = -EINVAL;
-> > -                                               goto out;
-> > -                                       }
-> > -
-> > -                                       for (i = catdatum->value; i < rngdatum->value; i++) {
-> > -                                               rc = ebitmap_set_bit(&context->range.level[l].cat, i, 1);
-> > -                                               if (rc)
-> > -                                                       goto out;
-> > -                                       }
-> > -                               }
-> > +                       rc = ebitmap_set_bit(&context->range.level[l].cat,
-> > +                                            catdatum->value - 1, 1);
-> > +                       if (rc)
-> > +                               return rc;
-> > +
-> > +                       /* If range, set all categories in range */
-> > +                       if (rngptr == NULL)
-> > +                               continue;
-> > +
-> > +                       rngdatum = hashtab_search(pol->p_cats.table, rngptr);
-> > +                       if (!rngdatum)
-> > +                               return -EINVAL;
-> > +
-> > +                       if (catdatum->value >= rngdatum->value)
-> > +                               return -EINVAL;
-> >
-> > -                               if (delim != ',')
-> > -                                       break;
-> > +                       for (i = catdatum->value; i < rngdatum->value; i++) {
-> > +                               rc = ebitmap_set_bit(&context->range.level[l].cat, i, 1);
-> > +                               if (rc)
-> > +                                       return rc;
-> >                         }
-> >                 }
-> > -               if (delim == '-') {
-> > -                       /* Extract high sensitivity. */
-> > -                       scontextp = p;
-> > -                       while (*p && *p != ':')
-> > -                               p++;
-> > -
-> > -                       delim = *p;
-> > -                       if (delim != '\0')
-> > -                               *p++ = '\0';
-> > -               } else
-> > -                       break;
-> >         }
-> >
-> > -       if (l == 0) {
-> > +       /* If we didn't see a '-', the range start is also the range end. */
-> > +       if (rangep[1] == NULL) {
-> >                 context->range.level[1].sens = context->range.level[0].sens;
-> >                 rc = ebitmap_cpy(&context->range.level[1].cat,
-> >                                  &context->range.level[0].cat);
-> >                 if (rc)
-> > -                       goto out;
-> > +                       return rc;
-> >         }
-> > -       *scontext = ++p;
-> > -       rc = 0;
-> > -out:
-> > -       return rc;
-> > +
-> > +       return 0;
->
-> In the case where we have a MLS policy loaded (pol->mls_enabled != 0)
-> and scontext is empty (scontext[0] = '\0'), we could end up returning
-> 0 couldn't we?  It seems like we might want a quick check for this
-> before we parse the low/high portions of the field into the rangep
-> array.
+WRT Casey's comments, I don't think that you necessarily have to deal 
+with arbitrary stacking for this patch since the stacking support is not 
+yet upstream, but it wouldn't hurt to consider whether you could solve 
+the problem more generally.
 
-I don't think so. In the first loop iteration, `sensitivity` will be
-an empty string, and so the hashtab_search() should return NULL,
-leading to -EINVAL. Am I missing something?
-
-> As an aside, I believe my other comments on this patch still stand.
-> It's a nice improvement but I think there are some other small things
-> that need to be addressed.
-
-Is there anything I need to fix apart from the overly verbose comment
-and the unnecessary curly braces?
+> 
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 2b5ee5fbd652..e70ccc701eb8 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -445,6 +445,7 @@ enum {
+>>          Opt_rootcontext = 4,
+>>          Opt_labelsupport = 5,
+>>          Opt_nextmntopt = 6,
+>> +       Opt_lsm_custom_arg = 7,
+>>   };
+>>
+>>   #define NUM_SEL_MNT_OPTS       (Opt_nextmntopt - 1)
+>> @@ -455,6 +456,7 @@ static const match_table_t tokens = {
+>>          {Opt_defcontext, DEFCONTEXT_STR "%s"},
+>>          {Opt_rootcontext, ROOTCONTEXT_STR "%s"},
+>>          {Opt_labelsupport, LABELSUPP_STR},
+>> +       {Opt_lsm_custom_arg, LSM_CUSTOM_ARG_STR "%s"},
+>>          {Opt_error, NULL},
+>>   };
+>>
+>> @@ -1156,6 +1158,8 @@ static int selinux_parse_opts_str(char *options,
+>>                          break;
+>>                  case Opt_labelsupport:
+>>                          break;
+>> +               case Opt_lsm_custom_arg:
+>> +                       break;
+>>                  default:
+>>                          rc = -EINVAL;
+>>                          printk(KERN_WARNING "SELinux:  unknown mount option\n");
+>> @@ -2758,7 +2762,8 @@ static inline int selinux_option(char *option, int len)
+>>                  match_prefix(FSCONTEXT_STR, sizeof(FSCONTEXT_STR)-1, option, len) ||
+>>                  match_prefix(DEFCONTEXT_STR, sizeof(DEFCONTEXT_STR)-1, option, len) ||
+>>                  match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len) ||
+>> -               match_prefix(LABELSUPP_STR, sizeof(LABELSUPP_STR)-1, option, len));
+>> +               match_prefix(LABELSUPP_STR, sizeof(LABELSUPP_STR)-1, option, len) ||
+>> +               match_prefix(LSM_CUSTOM_ARG_STR, sizeof(LSM_CUSTOM_ARG_STR)-1, option, len));
+>>   }
+>>
+>>   static inline void take_option(char **to, char *from, int *first, int len)
+>> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+>> index 23e762d529fa..0ead836a0625 100644
+>> --- a/security/selinux/include/security.h
+>> +++ b/security/selinux/include/security.h
+>> @@ -59,11 +59,12 @@
+>>   #define SE_SBPROC              0x0200
+>>   #define SE_SBGENFS             0x0400
+>>
+>> -#define CONTEXT_STR    "context="
+>> -#define FSCONTEXT_STR  "fscontext="
+>> -#define ROOTCONTEXT_STR        "rootcontext="
+>> -#define DEFCONTEXT_STR "defcontext="
+>> -#define LABELSUPP_STR "seclabel"
+>> +#define CONTEXT_STR         "context="
+>> +#define FSCONTEXT_STR       "fscontext="
+>> +#define ROOTCONTEXT_STR     "rootcontext="
+>> +#define DEFCONTEXT_STR      "defcontext="
+>> +#define LABELSUPP_STR       "seclabel"
+>> +#define LSM_CUSTOM_ARG_STR  "lsm_custom_arg="
+>>
+>>   struct netlbl_lsm_secattr;
+>>
+>> --
+>> 2.19.0.rc0.228.g281dcd1b4d0-goog
+>>
+> 
+> 
