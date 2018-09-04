@@ -1,34 +1,53 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w84IONHc025375
- for <selinux@tycho.nsa.gov>; Tue, 4 Sep 2018 14:24:23 -0400
-Received: by mail-vk0-f50.google.com with SMTP id m125-v6so1726112vka.0
- for <selinux@tycho.nsa.gov>; Tue, 04 Sep 2018 11:22:32 -0700 (PDT)
-Received: from [192.168.75.77] ([104.251.247.12])
- by smtp.gmail.com with ESMTPSA id i32-v6sm7343137uaa.30.2018.09.04.11.22.29
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Tue, 04 Sep 2018 11:22:29 -0700 (PDT)
-To: selinux@tycho.nsa.gov
-Reply-To: w.chimiak@ieee.org
-From: ProfIEEE <wch1m1@gmail.com>
-Message-ID: <c75d460d-834d-b8f0-3374-f779596901b5@gmail.com>
-Date: Tue, 4 Sep 2018 14:22:29 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Subject: Great Name
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: paul@paul-moore.com
+Cc: selinux@tycho.nsa.gov, dvyukov@google.com, longman@redhat.com,
+ Stephen Smalley <sds@tycho.nsa.gov>, stable@vger.kernel.org
+Date: Tue,  4 Sep 2018 16:51:36 -0400
+Message-Id: <20180904205136.27935-1-sds@tycho.nsa.gov>
+Subject: [PATCH] selinux: fix mounting of cgroup2 under older policies
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Dmitry,
-That is an awesome name.  My name is
-Ukrainian.  My Dad's name was Vladimir.
-I worked with you organization and Steve knows me.
+commit 901ef845fa2469c ("selinux: allow per-file labeling for cgroupfs")
+broke mounting of cgroup2 under older SELinux policies which lacked
+a genfscon rule for cgroup2.  This prevents mounting of cgroup2 even
+when SELinux is permissive.
 
-Keep up the great work.  I use Selinux and like
-it a lot.
+Change the handling when there is no genfscon rule in policy to
+just mark the inode unlabeled and not return an error to the caller.
+This permits mounting and access if allowed by policy, e.g. to
+unconfined domains.
+
+I also considered changing the behavior of security_genfs_sid() to
+never return -ENOENT, but the current behavior is relied upon by
+other callers to perform caller-specific handling.
+
+Fixes: 901ef845fa2469c ("selinux: allow per-file labeling for cgroupfs")
+CC: <stable@vger.kernel.org>
+Reported-by: Dmitry Vyukov <dvyukov@google.com>
+Reported-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/hooks.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f78318af8254..58fee382a3bb 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1508,6 +1508,11 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+ 		}
+ 		rc = security_genfs_sid(&selinux_state, sb->s_type->name,
+ 					path, tclass, sid);
++		if (rc == -ENOENT) {
++			/* No match in policy, mark as unlabeled. */
++			*sid = SECINITSID_UNLABELED;
++			rc = 0;
++		}
+ 	}
+ 	free_page((unsigned long)buffer);
+ 	return rc;
 -- 
-William Chimiak, Ph.D. ECE
-Senior Member IEEE
+2.14.4
