@@ -1,46 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w85HbhdX001962
- for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2018 13:37:45 -0400
-To: Dmitry Vyukov <dvyukov@google.com>, Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
- syzbot <syzbot+21016130b0580a9de3b5@syzkaller.appspotmail.com>,
- tyhicks@canonical.com, John Johansen <john.johansen@canonical.com>,
- James Morris <jmorris@namei.org>, LKML <linux-kernel@vger.kernel.org>,
- linux-security-module@vger.kernel.org, Serge Hallyn <serge@hallyn.com>,
- syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
- Jeffrey Vander Stoep <jeffv@google.com>,
- SELinux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
- Laurent Bigonville <bigon@debian.org>
-References: <000000000000c178e305749daba4@google.com>
- <CACT4Y+Z9wmuq=Pb-gxAJauQNi0uZGDUimWEL66UzWGSp_x2uQA@mail.gmail.com>
- <37aec45f-69ad-9705-21f1-64ee4ce4a772@tycho.nsa.gov>
- <CAHC9VhSeP=b1xxpCT8R-CYLEP3507ezwDwkq2Bsyekfa4otLGw@mail.gmail.com>
- <9537a6ff-daf4-d572-bf93-68230909b68e@tycho.nsa.gov>
- <4b37e892-4d79-aefb-92ab-7753b89b8963@tycho.nsa.gov>
- <CACT4Y+YOxTTYzEi3uCeLm3gquvSkJNZ+DhPVziEnbXGX6HVkVA@mail.gmail.com>
- <1ea19628-3bbe-2073-d623-824337c15ed6@tycho.nsa.gov>
- <CACT4Y+ai0do=8smTG0h0QXDnOrWh8PNwaTosJtqOEB_HG59eGg@mail.gmail.com>
- <b2b38348-f3a4-6498-c9b8-1090532f6a23@tycho.nsa.gov>
- <CACT4Y+bXaLe0FKyGPT=WqGitZPrawvpOXHS-UOVX0ZXTDV+JVQ@mail.gmail.com>
- <6c9112a2-33f3-0c29-c944-1d129a0026e7@tycho.nsa.gov>
- <CAHC9VhR6gG6_RkT1OEH4PArHpzUGkOjVCpKwAmad+TDfC15sgQ@mail.gmail.com>
- <CACT4Y+YaBpi95Puae3Bjn1opL+UsdUWns2PDaFU-EmamuMusag@mail.gmail.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <e2e02f43-abfe-171e-a5b7-3fb9086cc733@schaufler-ca.com>
-Date: Wed, 5 Sep 2018 10:37:27 -0700
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w85Jb9X1020959
+ for <selinux@tycho.nsa.gov>; Wed, 5 Sep 2018 15:37:11 -0400
+Received: from mail-oi0-f42.google.com (mail-oi0-f42.google.com
+ [209.85.218.42])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by ssl.polytechnique.org (Postfix) with ESMTPSA id A3ED75647F4
+ for <selinux@tycho.nsa.gov>; Wed,  5 Sep 2018 21:36:47 +0200 (CEST)
+Received: by mail-oi0-f42.google.com with SMTP id b15-v6so15875300oib.10
+ for <selinux@tycho.nsa.gov>; Wed, 05 Sep 2018 12:36:47 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CACT4Y+YaBpi95Puae3Bjn1opL+UsdUWns2PDaFU-EmamuMusag@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Subject: Re: WARNING in apparmor_secid_to_secctx
+From: Nicolas Iooss <nicolas.iooss@m4x.org>
+Date: Wed, 5 Sep 2018 21:36:35 +0200
+Message-ID: <CAJfZ7=niujB=XSC5D=y3fPrcL7rBBuLCsN_G=sy0N0bfDRYNJQ@mail.gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: "semanage user" and -s option
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 9/5/2018 4:08 AM, Dmitry Vyukov wrote:
-> Thanks! I've re-enabled selinux on syzbot:
-> https://github.com/google/syzkaller/commit/196410e4f5665d4d2bf6c818d06f1c8d03cfa8cc
-> Now we will have instances with apparmor and with selinux.
+Hello,
 
-Any chance we could get a Smack instance as well?
+While reviewing the last patch sent by Vit Mojzis, I stumbled upon
+something that does not feel right in "semanage user". Both "semanage
+user --help" and "man 8 semanage-user" state:
+
+usage: semanage user [-h] [-n] [-N] [-S STORE] [ --add ( -L LEVEL -R
+ROLES -r RANGE -s SEUSER selinux_name) | ...
+
+I am wondering what are the meaning of "-s SEUSER" and "selinux_name"
+there. If I try to use "-s" option, semanage complains:
+
+semanage: error: unrecognized arguments: -s
+
+Therefore it seems that the usage would rather be "... --add ( -L
+LEVEL -R ROLES -r RANGE SEUSER)". Looking at the code, it seems that
+parser_add_seuser() is not used in setupUserParser() [1], and
+everything works fine when using "semanage user" without -s option. Am
+I missing something obvious, or should I write a patch which fixes the
+documentation?
+
+Cheers,
+Nicolas
+
+[1] https://github.com/SELinuxProject/selinux/blob/libsemanage-2.8/python/semanage/semanage#L403
