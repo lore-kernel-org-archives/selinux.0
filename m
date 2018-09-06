@@ -1,88 +1,57 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8660J1X015781
- for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2018 02:00:19 -0400
-Received: by mail-pl1-f195.google.com with SMTP id b30-v6so2160556pla.0
- for <selinux@tycho.nsa.gov>; Wed, 05 Sep 2018 23:00:11 -0700 (PDT)
-Date: Thu, 6 Sep 2018 14:00:07 +0800
-From: Jason Zaman <jason@perfinion.com>
-To: Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc: selinux@tycho.nsa.gov
-Message-ID: <20180906060007.GA34188@baraddur.perfinion.com>
-References: <20180905214906.11016-1-nicolas.iooss@m4x.org>
+ by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w86B08W4025284
+ for <selinux@tycho.nsa.gov>; Thu, 6 Sep 2018 07:00:08 -0400
+Received: by mail-pg1-f193.google.com with SMTP id t84-v6so3201214pgb.5
+ for <selinux@tycho.nsa.gov>; Thu, 06 Sep 2018 03:59:54 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20180905214906.11016-1-nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 1/2] semanage: "semanage user" does not use -s,
- fix documentation
+In-Reply-To: <e2e02f43-abfe-171e-a5b7-3fb9086cc733@schaufler-ca.com>
+References: <000000000000c178e305749daba4@google.com>
+ <CACT4Y+Z9wmuq=Pb-gxAJauQNi0uZGDUimWEL66UzWGSp_x2uQA@mail.gmail.com>
+ <37aec45f-69ad-9705-21f1-64ee4ce4a772@tycho.nsa.gov>
+ <CAHC9VhSeP=b1xxpCT8R-CYLEP3507ezwDwkq2Bsyekfa4otLGw@mail.gmail.com>
+ <9537a6ff-daf4-d572-bf93-68230909b68e@tycho.nsa.gov>
+ <4b37e892-4d79-aefb-92ab-7753b89b8963@tycho.nsa.gov>
+ <CACT4Y+YOxTTYzEi3uCeLm3gquvSkJNZ+DhPVziEnbXGX6HVkVA@mail.gmail.com>
+ <1ea19628-3bbe-2073-d623-824337c15ed6@tycho.nsa.gov>
+ <CACT4Y+ai0do=8smTG0h0QXDnOrWh8PNwaTosJtqOEB_HG59eGg@mail.gmail.com>
+ <b2b38348-f3a4-6498-c9b8-1090532f6a23@tycho.nsa.gov>
+ <CACT4Y+bXaLe0FKyGPT=WqGitZPrawvpOXHS-UOVX0ZXTDV+JVQ@mail.gmail.com>
+ <6c9112a2-33f3-0c29-c944-1d129a0026e7@tycho.nsa.gov>
+ <CAHC9VhR6gG6_RkT1OEH4PArHpzUGkOjVCpKwAmad+TDfC15sgQ@mail.gmail.com>
+ <CACT4Y+YaBpi95Puae3Bjn1opL+UsdUWns2PDaFU-EmamuMusag@mail.gmail.com>
+ <e2e02f43-abfe-171e-a5b7-3fb9086cc733@schaufler-ca.com>
+From: Dmitry Vyukov <dvyukov@google.com>
+Date: Thu, 6 Sep 2018 12:59:32 +0200
+Message-ID: <CACT4Y+aaF8pLirqA+Yv4RjemDofEZymjPV6z5EEPQk3b7or10g@mail.gmail.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ syzbot <syzbot+21016130b0580a9de3b5@syzkaller.appspotmail.com>,
+ tyhicks@canonical.com, John Johansen <john.johansen@canonical.com>,
+ James Morris <jmorris@namei.org>, LKML <linux-kernel@vger.kernel.org>,
+ linux-security-module@vger.kernel.org, Serge Hallyn <serge@hallyn.com>,
+ syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+ Jeffrey Vander Stoep <jeffv@google.com>,
+ SELinux <selinux@tycho.nsa.gov>, Russell Coker <russell@coker.com.au>,
+ Laurent Bigonville <bigon@debian.org>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: WARNING in apparmor_secid_to_secctx
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Sep 05, 2018 at 11:49:05PM +0200, Nicolas Iooss wrote:
-> Both "semanage user --help" and "man 8 semanage-user" state that
-> "semanage user" accepts option -s, but this is incorrect: -s is not
-> needed to specify the SELinux user on the command line, contrary to
-> "semanage login" for example. Fix the documention.
-> 
-> While at it, remove many spaces from the helptext of option --roles. I
-> do not know where they came from, but they were reduced to a single
-> space when displayed anyway.
-> 
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+On Wed, Sep 5, 2018 at 7:37 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 9/5/2018 4:08 AM, Dmitry Vyukov wrote:
+>> Thanks! I've re-enabled selinux on syzbot:
+>> https://github.com/google/syzkaller/commit/196410e4f5665d4d2bf6c818d06f1c8d03cfa8cc
+>> Now we will have instances with apparmor and with selinux.
+>
+> Any chance we could get a Smack instance as well?
 
-Both looks good to me, go ahead and merge if there are no other comments
-:)
+Hi Casey,
 
-Acked-by: Jason Zaman <jason@perfinion.com>
-
-
-> ---
->  python/semanage/semanage        | 4 ++--
->  python/semanage/semanage-user.8 | 2 +-
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/python/semanage/semanage b/python/semanage/semanage
-> index 8d8a086094c9..e32d1e8ad387 100644
-> --- a/python/semanage/semanage
-> +++ b/python/semanage/semanage
-> @@ -53,7 +53,7 @@ usage_fcontext = "semanage fcontext [-h] [-n] [-N] [-S STORE] ["
->  usage_fcontext_dict = {' --add': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --delete': ('(', '-t TYPE', '-f FTYPE', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --modify': ('(', '-t TYPE', '-f FTYPE', '-r RANGE', '-s SEUSER', '|', '-e EQUAL', ')', 'FILE_SPEC',), ' --list': ('[-C]',), ' --extract': ('',), ' --deleteall': ('',)}
->  
->  usage_user = "semanage user [-h] [-n] [-N] [-S STORE] ["
-> -usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name'')'), ' --delete': ('selinux_name',), ' --modify': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'selinux_name', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
-> +usage_user_dict = {' --add': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', 'SEUSER', ')'), ' --delete': ('SEUSER',), ' --modify': ('(', '-L LEVEL', '-R ROLES', '-r RANGE', '-s SEUSER', 'SEUSER', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
->  
->  usage_port = "semanage port [-h] [-n] [-N] [-S STORE] ["
->  usage_port_dict = {' --add': ('-t TYPE', '-p PROTOCOL', '-r RANGE', '(', 'port_name', '|', 'port_range', ')'), ' --modify': ('-t TYPE', '-p PROTOCOL', '-r RANGE', '(', 'port_name', '|', 'port_range', ')'), ' --delete': ('-p PROTOCOL', '(', 'port_name', '|', 'port_range', ')'), ' --list': ('-C',), ' --extract': ('',), ' --deleteall': ('',)}
-> @@ -421,7 +421,7 @@ def setupUserParser(subparsers):
->      userParser.add_argument('-R', '--roles', default=[],
->                              action=CheckRole,
->                              help=_('''
-> -SELinux Roles.  You must enclose multiple roles within quotes,                  separate by spaces. Or specify -R multiple times.
-> +SELinux Roles.  You must enclose multiple roles within quotes, separate by spaces. Or specify -R multiple times.
->  '''))
->      userParser.add_argument('-P', '--prefix', default="user", help=argparse.SUPPRESS)
->      userParser.add_argument('selinux_name', nargs='?', default=None, help=_('selinux_name'))
-> diff --git a/python/semanage/semanage-user.8 b/python/semanage/semanage-user.8
-> index 30bc67052ed7..23fec698e042 100644
-> --- a/python/semanage/semanage-user.8
-> +++ b/python/semanage/semanage-user.8
-> @@ -2,7 +2,7 @@
->  .SH "NAME"
->  .B semanage\-user \- SELinux Policy Management SELinux User mapping tool
->  .SH "SYNOPSIS"
-> -.B  semanage user [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-L LEVEL \-R ROLES \-r RANGE \-s SEUSER selinux_name) | \-\-delete selinux_name | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-L LEVEL \-R ROLES \-r RANGE \-s SEUSER selinux_name ) ]
-> +.B  semanage user [\-h] [\-n] [\-N] [\-S STORE] [ \-\-add ( \-L LEVEL \-R ROLES \-r RANGE SEUSER) | \-\-delete SEUSER | \-\-deleteall  | \-\-extract  | \-\-list [\-C] | \-\-modify ( \-L LEVEL \-R ROLES \-r RANGE SEUSER ) ]
->  
->  .SH "DESCRIPTION"
->  semanage is used to configure certain elements of
-> -- 
-> 2.18.0
-> 
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
+Sure!
+Provided you want to fix bugs ;)
+I've setup an instance with smack enabled:
+https://github.com/google/syzkaller/commit/0bb7a7eb8e0958c6fbe2d69615b9fae4af88c8ee
