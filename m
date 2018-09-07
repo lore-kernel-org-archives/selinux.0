@@ -1,56 +1,100 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w88AA68G021580
- for <selinux@tycho.nsa.gov>; Sat, 8 Sep 2018 06:10:06 -0400
-Received: by mail-ua1-f45.google.com with SMTP id r15-v6so13837968uao.1
- for <selinux@tycho.nsa.gov>; Sat, 08 Sep 2018 03:09:58 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w87LO9f8006676
+ for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2018 17:24:09 -0400
+Received: by mail-it0-f72.google.com with SMTP id u126-v6so1086128itb.0
+ for <selinux@tycho.nsa.gov>; Fri, 07 Sep 2018 14:24:04 -0700 (PDT)
 MIME-Version: 1.0
-From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date: Sat, 8 Sep 2018 12:09:46 +0200
-Message-ID: <CAJ2a_DfYR=_brdtA-FWAfPU9rRW94E-xfusrN2dkdrWaRj9bfA@mail.gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: systemd unit improvements
+Date: Fri, 07 Sep 2018 14:24:03 -0700
+In-Reply-To: <000000000000038dab0575476b73@google.com>
+Message-ID: <0000000000006fa12a05754ea030@google.com>
+From: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>
+To: eparis@parisplace.org, linux-kernel@vger.kernel.org, paul@paul-moore.com,
+ penguin-kernel@I-love.SAKURA.ne.jp, peter.enderborg@sony.com,
+ sds@tycho.nsa.gov, selinux@tycho.nsa.gov, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+Subject: Re: WARNING: kmalloc bug in str_read
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello,
+syzbot has found a reproducer for the following crash on:
 
-in the past systemd was checking operation on systemd units, like
-enable, disable... , when using systemctl.
-This feature was removed three years ago [1] and nowadays only {
-reload start status stop } are checked.
-I am trying to re-enable these checks with a new approach [2].
+HEAD commit:    a49a9dcce802 Merge tag 'drm-fixes-2018-09-07' of git://ano..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=11981149400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=6c9564cd177daf0c
+dashboard link: https://syzkaller.appspot.com/bug?extid=ac488b9811036cea7ea0
+compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1717dfa9400000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13c1adea400000
 
-With this pull request I also would like to specify some permissions
-more precisely:
-    - method_kexec:                                 reboot -> kexec
-    - method_switch_root:                         reboot -> switchroot
-    - method_set_environment:                  reload -> environment
-    - method_unset_environment:              reload -> environment
-    - method_unset_and_set_environment: reload -> environment
-    - bus_unit_method_set_properties:       start -> setproperties
-    - bus_unit_method_ref:                        start -> ref
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com
 
-The new introduced checks are computed like:
-    source context: process context of the dbus client
-    target context:   either the file context of the installation path
-for the requested unit (like ssh -> /lib/systemd/system/ssh.service ->
-sshd_unit_t) if the file exists, or the process context of systemd
-(init_t)
-                            so when operating on edited units (like
-/etc/systemd/system/ssh.service) the access is still checked against
-the original unit context
-    class:               "service"
-    permission:       verb close to the action (like "enable", "preset"...)
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+random: sshd: uninitialized urandom read (32 bytes read)
+audit: type=1400 audit(1536355256.676:7): avc:  denied  { map } for   
+pid=4365 comm="syz-executor462" path="/root/syz-executor462675731"  
+dev="sda1" ino=16481 scontext=unconfined_u:system_r:insmod_t:s0-s0:c0.c1023  
+tcontext=unconfined_u:object_r:user_home_t:s0 tclass=file permissive=1
+WARNING: CPU: 0 PID: 4365 at mm/slab_common.c:1031 kmalloc_slab+0x56/0x70  
+mm/slab_common.c:1031
+Kernel panic - not syncing: panic_on_warn set ...
 
-Any comments are appreciated.
-
-Best regards,
-     Christian Göttsche
-
-
-[1]: https://github.com/systemd/systemd/commit/8faae625dc9b6322db452937f54176e56e65265a
-[2]: https://github.com/systemd/systemd/pull/10023
+CPU: 0 PID: 4365 Comm: syz-executor462 Not tainted 4.19.0-rc2+ #5
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1c9/0x2b4 lib/dump_stack.c:113
+  panic+0x238/0x4e7 kernel/panic.c:184
+  __warn.cold.8+0x163/0x1ba kernel/panic.c:536
+  report_bug+0x252/0x2d0 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:178 [inline]
+  do_error_trap+0x1fc/0x4d0 arch/x86/kernel/traps.c:296
+  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:316
+  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:993
+RIP: 0010:kmalloc_slab+0x56/0x70 mm/slab_common.c:1031
+Code: c5 40 db f2 87 5d c3 b8 10 00 00 00 48 85 ff 74 f4 83 ef 01 c1 ef 03  
+0f b6 87 60 da f2 87 eb d8 31 c0 81 e6 00 02 00 00 75 db <0f> 0b 5d c3 48  
+8b 04 c5 80 da f2 87 5d c3 66 90 66 2e 0f 1f 84 00
+RSP: 0018:ffff8801c2317298 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 000000000d7fffd6 RCX: ffffffff832e9d2e
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 000000000d7fffd7
+RBP: ffff8801c2317298 R08: ffff8801c197a700 R09: ffffed003b6046de
+R10: ffffed003b6046de R11: ffff8801db0236f3 R12: 00000000006000c0
+R13: ffff8801c2317938 R14: ffff8801c23173c0 R15: 00000000006000c0
+  __do_kmalloc mm/slab.c:3713 [inline]
+  __kmalloc+0x25/0x720 mm/slab.c:3727
+  kmalloc include/linux/slab.h:518 [inline]
+  str_read+0x48/0x160 security/selinux/ss/policydb.c:1104
+  common_read+0x37c/0x560 security/selinux/ss/policydb.c:1177
+  policydb_read+0xf09/0x5f90 security/selinux/ss/policydb.c:2407
+  security_load_policy+0x23b/0x1650 security/selinux/ss/services.c:2165
+  sel_write_load+0x247/0x460 security/selinux/selinuxfs.c:565
+  __vfs_write+0x117/0x9d0 fs/read_write.c:485
+  vfs_write+0x1fc/0x560 fs/read_write.c:549
+  ksys_write+0x101/0x260 fs/read_write.c:598
+  __do_sys_write fs/read_write.c:610 [inline]
+  __se_sys_write fs/read_write.c:607 [inline]
+  __x64_sys_write+0x73/0xb0 fs/read_write.c:607
+  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440049
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffd03e23ca8 EFLAGS: 00000213 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 0000000000440049
+RDX: 0000000000000163 RSI: 0000000020000380 RDI: 0000000000000003
+RBP: 00000000006ca018 R08: 0000000000000000 R09: 00000000004002c8
+R10: 0000000000000000 R11: 0000000000000213 R12: 00000000004018d0
+R13: 0000000000401960 R14: 0000000000000000 R15: 0000000000000000
+Dumping ftrace buffer:
+    (ftrace buffer empty)
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
