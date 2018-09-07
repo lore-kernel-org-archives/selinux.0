@@ -1,107 +1,46 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.infosec.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w87Ct1FD028004
- for <selinux@tycho.nsa.gov>; Fri, 7 Sep 2018 08:55:01 -0400
-Received: by mail-it0-f69.google.com with SMTP id m207-v6so21163106itg.5
- for <selinux@tycho.nsa.gov>; Fri, 07 Sep 2018 05:48:04 -0700 (PDT)
-MIME-Version: 1.0
-Date: Fri, 07 Sep 2018 05:48:02 -0700
-Message-ID: <000000000000038dab0575476b73@google.com>
-From: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>
-To: eparis@parisplace.org, linux-kernel@vger.kernel.org, paul@paul-moore.com,
- peter.enderborg@sony.com, sds@tycho.nsa.gov, selinux@tycho.nsa.gov,
+To: selinux@tycho.nsa.gov
+References: <000000000000038dab0575476b73@google.com>
+Cc: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>,
+ eparis@parisplace.org, linux-kernel@vger.kernel.org,
+ paul@paul-moore.com, peter.enderborg@sony.com, sds@tycho.nsa.gov,
  syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
-Subject: WARNING: kmalloc bug in str_read
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Message-ID: <f3bcebc6-47a7-518e-70f7-c7e167621841@I-love.SAKURA.ne.jp>
+Date: Sat, 8 Sep 2018 01:42:58 +0900
+MIME-Version: 1.0
+In-Reply-To: <000000000000038dab0575476b73@google.com>
+Content-Type: text/plain; charset=utf-8
+Subject: [PATCH] selinux: Add __GFP_NOWARN to allocation at
+ str_read()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello,
+syzbot is hitting warning at str_read() [1] because len parameter can
+become larger than KMALLOC_MAX_SIZE. We don't need to emit warning for
+this case.
 
-syzbot found the following crash on:
+[1] https://syzkaller.appspot.com/bug?id=7f2f5aad79ea8663c296a2eedb81978401a908f0
 
-HEAD commit:    ca16eb342ebe Merge tag 'for-linus-20180906' of git://git.k..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=14cad421400000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=6c9564cd177daf0c
-dashboard link: https://syzkaller.appspot.com/bug?extid=ac488b9811036cea7ea0
-compiler:       gcc (GCC) 8.0.1 20180413 (experimental)
-
-Unfortunately, I don't have any reproducer for this crash yet.
-
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com
-
-SELinux:  policydb version 983061 does not match my version range 15-31
-SELinux: ebitmap: truncated map
-Unknown ioctl 1075883590
-Unknown ioctl 1075883590
-WARNING: CPU: 1 PID: 7505 at mm/slab_common.c:1031 kmalloc_slab+0x56/0x70  
-mm/slab_common.c:1031
-Kernel panic - not syncing: panic_on_warn set ...
-
-CPU: 1 PID: 7505 Comm: syz-executor7 Not tainted 4.19.0-rc2+ #4
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x1c9/0x2b4 lib/dump_stack.c:113
-  panic+0x238/0x4e7 kernel/panic.c:184
-  __warn.cold.8+0x163/0x1ba kernel/panic.c:536
-  report_bug+0x252/0x2d0 lib/bug.c:186
-  fixup_bug arch/x86/kernel/traps.c:178 [inline]
-  do_error_trap+0x1fc/0x4d0 arch/x86/kernel/traps.c:296
-  do_invalid_op+0x1b/0x20 arch/x86/kernel/traps.c:316
-  invalid_op+0x14/0x20 arch/x86/entry/entry_64.S:993
-RIP: 0010:kmalloc_slab+0x56/0x70 mm/slab_common.c:1031
-Code: c5 40 db f2 87 5d c3 b8 10 00 00 00 48 85 ff 74 f4 83 ef 01 c1 ef 03  
-0f b6 87 60 da f2 87 eb d8 31 c0 81 e6 00 02 00 00 75 db <0f> 0b 5d c3 48  
-8b 04 c5 80 da f2 87 5d c3 66 90 66 2e 0f 1f 84 00
-RSP: 0018:ffff88018540f280 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 00000000299a7ba5 RCX: ffffc900024eb000
-RDX: 00000000000018a3 RSI: 0000000000000000 RDI: 00000000299a7ba6
-RBP: ffff88018540f280 R08: ffff88018958a080 R09: ffffed003b6246de
-R10: ffffed003b6246de R11: ffff8801db1236f3 R12: 00000000006000c0
-R13: ffff88018540f938 R14: ffff88018540f3c8 R15: 00000000006000c0
-  __do_kmalloc mm/slab.c:3713 [inline]
-  __kmalloc+0x25/0x720 mm/slab.c:3727
-  kmalloc include/linux/slab.h:518 [inline]
-  str_read+0x48/0x160 security/selinux/ss/policydb.c:1104
-  class_read+0x4a1/0xde0 security/selinux/ss/policydb.c:1345
-  policydb_read+0xf09/0x5f90 security/selinux/ss/policydb.c:2407
-  security_load_policy+0x23b/0x1650 security/selinux/ss/services.c:2165
-  sel_write_load+0x247/0x460 security/selinux/selinuxfs.c:565
-  __vfs_write+0x117/0x9d0 fs/read_write.c:485
-  vfs_write+0x1fc/0x560 fs/read_write.c:549
-  ksys_write+0x101/0x260 fs/read_write.c:598
-  __do_sys_write fs/read_write.c:610 [inline]
-  __se_sys_write fs/read_write.c:607 [inline]
-  __x64_sys_write+0x73/0xb0 fs/read_write.c:607
-  do_syscall_64+0x1b9/0x820 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x457099
-Code: fd b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
-48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
-ff 0f 83 cb b4 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fc5edd57c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-RAX: ffffffffffffffda RBX: 00007fc5edd586d4 RCX: 0000000000457099
-RDX: 0000000000000094 RSI: 0000000020000000 RDI: 0000000000000003
-RBP: 00000000009300a0 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00000000ffffffff
-R13: 00000000004d83b8 R14: 00000000004cae4e R15: 0000000000000000
-Dumping ftrace buffer:
-    (ftrace buffer empty)
-Kernel Offset: disabled
-Rebooting in 86400 seconds..
-
-
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reported-by: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>
 ---
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ security/selinux/ss/policydb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
-syzbot.
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index e9394e7..f4eadd3 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1101,7 +1101,7 @@ static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
+ 	if ((len == 0) || (len == (u32)-1))
+ 		return -EINVAL;
+ 
+-	str = kmalloc(len + 1, flags);
++	str = kmalloc(len + 1, flags | __GFP_NOWARN);
+ 	if (!str)
+ 		return -ENOMEM;
+ 
+-- 
+1.8.3.1
