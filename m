@@ -1,46 +1,56 @@
-To: selinux@tycho.nsa.gov
-References: <000000000000038dab0575476b73@google.com>
-Cc: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>,
- eparis@parisplace.org, linux-kernel@vger.kernel.org,
- paul@paul-moore.com, peter.enderborg@sony.com, sds@tycho.nsa.gov,
- syzkaller-bugs@googlegroups.com
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Message-ID: <f3bcebc6-47a7-518e-70f7-c7e167621841@I-love.SAKURA.ne.jp>
-Date: Sat, 8 Sep 2018 01:42:58 +0900
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w88AA68G021580
+ for <selinux@tycho.nsa.gov>; Sat, 8 Sep 2018 06:10:06 -0400
+Received: by mail-ua1-f45.google.com with SMTP id r15-v6so13837968uao.1
+ for <selinux@tycho.nsa.gov>; Sat, 08 Sep 2018 03:09:58 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <000000000000038dab0575476b73@google.com>
-Content-Type: text/plain; charset=utf-8
-Subject: [PATCH] selinux: Add __GFP_NOWARN to allocation at
- str_read()
+From: =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date: Sat, 8 Sep 2018 12:09:46 +0200
+Message-ID: <CAJ2a_DfYR=_brdtA-FWAfPU9rRW94E-xfusrN2dkdrWaRj9bfA@mail.gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: systemd unit improvements
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-syzbot is hitting warning at str_read() [1] because len parameter can
-become larger than KMALLOC_MAX_SIZE. We don't need to emit warning for
-this case.
+Hello,
 
-[1] https://syzkaller.appspot.com/bug?id=7f2f5aad79ea8663c296a2eedb81978401a908f0
+in the past systemd was checking operation on systemd units, like
+enable, disable... , when using systemctl.
+This feature was removed three years ago [1] and nowadays only {
+reload start status stop } are checked.
+I am trying to re-enable these checks with a new approach [2].
 
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Reported-by: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>
----
- security/selinux/ss/policydb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+With this pull request I also would like to specify some permissions
+more precisely:
+    - method_kexec:                                 reboot -> kexec
+    - method_switch_root:                         reboot -> switchroot
+    - method_set_environment:                  reload -> environment
+    - method_unset_environment:              reload -> environment
+    - method_unset_and_set_environment: reload -> environment
+    - bus_unit_method_set_properties:       start -> setproperties
+    - bus_unit_method_ref:                        start -> ref
 
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index e9394e7..f4eadd3 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -1101,7 +1101,7 @@ static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
- 	if ((len == 0) || (len == (u32)-1))
- 		return -EINVAL;
- 
--	str = kmalloc(len + 1, flags);
-+	str = kmalloc(len + 1, flags | __GFP_NOWARN);
- 	if (!str)
- 		return -ENOMEM;
- 
--- 
-1.8.3.1
+The new introduced checks are computed like:
+    source context: process context of the dbus client
+    target context:   either the file context of the installation path
+for the requested unit (like ssh -> /lib/systemd/system/ssh.service ->
+sshd_unit_t) if the file exists, or the process context of systemd
+(init_t)
+                            so when operating on edited units (like
+/etc/systemd/system/ssh.service) the access is still checked against
+the original unit context
+    class:               "service"
+    permission:       verb close to the action (like "enable", "preset"...)
+
+Any comments are appreciated.
+
+Best regards,
+     Christian Göttsche
+
+
+[1]: https://github.com/systemd/systemd/commit/8faae625dc9b6322db452937f54176e56e65265a
+[2]: https://github.com/systemd/systemd/pull/10023
