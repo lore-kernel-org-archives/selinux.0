@@ -1,120 +1,121 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w889oxr1016493
- for <selinux@tycho.nsa.gov>; Sat, 8 Sep 2018 05:51:01 -0400
-From: =?gb2312?B?wO4gzuS41Q==?= <liwugang@outlook.com>
-To: "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>
-Date: Sat, 8 Sep 2018 09:50:23 +0000
-Message-ID: <DM5PR05MB3401C01C936FFE66579A1928D4070@DM5PR05MB3401.namprd05.prod.outlook.com>
-Content-Type: multipart/mixed;
- boundary="_004_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8AHFeib011952
+ for <selinux@tycho.nsa.gov>; Mon, 10 Sep 2018 13:15:40 -0400
+Received: by mail-wm0-f51.google.com with SMTP id f21-v6so22333471wmc.5
+ for <selinux@tycho.nsa.gov>; Mon, 10 Sep 2018 10:13:44 -0700 (PDT)
 MIME-Version: 1.0
-Subject: Bug report
+From: Ted Toth <txtoth@gmail.com>
+Date: Mon, 10 Sep 2018 12:13:30 -0500
+Message-ID: <CAFPpqQEgS9mqEZcMCn=3AGYer_5WBQmQdqjsMC=OJqtgwp96cQ@mail.gmail.com>
+To: SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary="0000000000009b4ac90575877a60"
+Subject: MLS dominance check behavior on el7
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---_004_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_
-Content-Type: multipart/alternative;
-	boundary="_000_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_"
+--0000000000009b4ac90575877a60
+Content-Type: text/plain; charset="UTF-8"
 
---_000_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+We currently have code running on el6 that does a MLS dominance check by
+calling security_compute_av_raw with the security object class
+SECCLASS_CONTEXT with permission CONTEXT__CONTAINS as you can see in the
+python code below. When I run this code on el6 s1 dominates s0 however when
+I run the same code on el7 s1 does not dominate s0. On both systems the
+file read dominance check works as expected. Can anyone help me understand
+why the context contains check does not work the same on both systems?
 
-DQpIaSwgQUxMDQoNClRoZXJlIGlzIG9uZSBidWcgd2hpY2ggaGFzIG5vdCBjaGVja2luZyB0aGUg
-cmVzdWx0IHZhbHVlIG9mICBoYXNodGFiX3NlYXJjaCBpbiB0aGUgZnVuY3Rpb24gZGVmaW5lX2xl
-dmVsIG9mIHBvbGljeWRiX2RlZmluZS5jLiBJZiB0aGUgY2F0ZWdvcnkgaXMgbm90IGRlZmluZWQs
-IGEgbnVsbC1wb2ludGVyIGRlcmVmZXJlbmNlIHdpbGwgYmUgdGFrZW4gcGxhY2UuDQpUaGUgcGF0
-Y2ggaXMgYXR0YWNoZWQuDQoNCkJlc3QgUmVnYXJkcywNCsDuzuS41Q0KDQo=
+Ted
 
---_000_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_
-Content-Type: text/html; charset="gb2312"
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+import selinux
+
+SECCLASS_CONTEXT = selinux.string_to_security_class("context")
+CONTEXT__CONTAINS = selinux.string_to_av_perm(SECCLASS_CONTEXT, "contains")
+SECCLASS_FILE = selinux.string_to_security_class("file")
+FILE__READ = selinux.string_to_av_perm(SECCLASS_FILE, "read")
+
+raw_con1 = "user_u:user_r:user_t:s1"
+raw_con2 = "user_u:user_r:user_t:s0"
+
+avd = selinux.av_decision()
+selinux.avc_reset()
+try:
+    rc = selinux.security_compute_av_raw(raw_con1, raw_con2,
+SECCLASS_CONTEXT, CONTEXT__CONTAINS, avd)
+    if rc < 0:
+        print("selinux.security_compute_av_raw failed for %s %s" %
+(raw_con1, raw_con2))
+    if (avd.allowed & CONTEXT__CONTAINS) == CONTEXT__CONTAINS:
+        print("%s dominates %s" % (raw_con1, raw_con2))
+    else:
+        print("%s does not dominate %s" % (raw_con1, raw_con2))
+except OSError, ex:
+    print "exception calling selinux.security_compute_av_raw", ex
+
+avd = selinux.av_decision()
+selinux.avc_reset()
+try:
+    rc = selinux.security_compute_av_raw(raw_con1, raw_con2, SECCLASS_FILE,
+FILE__READ, avd)
+    if rc < 0:
+        print("selinux.security_compute_av_raw failed for %s %s" %
+(raw_con1, raw_con2))
+    if (avd.allowed & FILE__READ) == FILE__READ:
+        print("%s dominates %s" % (raw_con1, raw_con2))
+    else:
+        print("%s does not dominate %s" % (raw_con1, raw_con2))
+
+except OSError:
+    print "exception calling selinux.security_compute_av_raw", ex
+
+--0000000000009b4ac90575877a60
+Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-<html xmlns:o=3D"urn:schemas-microsoft-com:office:office" xmlns:w=3D"urn:sc=
-hemas-microsoft-com:office:word" xmlns:m=3D"http://schemas.microsoft.com/of=
-fice/2004/12/omml" xmlns=3D"http://www.w3.org/TR/REC-html40">
-<head>
-<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dgb2312">
-<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
-<style><!--
-/* Font Definitions */
-@font-face
-	{font-family:"Cambria Math";
-	panose-1:2 4 5 3 5 4 6 3 2 4;}
-@font-face
-	{font-family:DengXian;
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-@font-face
-	{font-family:Calibri;
-	panose-1:2 15 5 2 2 2 4 3 2 4;}
-@font-face
-	{font-family:"\@DengXian";
-	panose-1:2 1 6 0 3 1 1 1 1 1;}
-/* Style Definitions */
-p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{margin:0in;
-	margin-bottom:.0001pt;
-	font-size:11.0pt;
-	font-family:"Calibri",sans-serif;}
-.MsoChpDefault
-	{mso-style-type:export-only;
-	font-family:"Calibri",sans-serif;}
-@page WordSection1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;}
-div.WordSection1
-	{page:WordSection1;}
---></style>
-</head>
-<body lang=3D"EN-US">
-<div class=3D"WordSection1">
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
-<p class=3D"MsoNormal">Hi, ALL</p>
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
-<p class=3D"MsoNormal">There is one bug which has not checking the result v=
-alue of &nbsp;hashtab_search in the function define_level of policydb_defin=
-e.c. If the category is not defined, a null-pointer dereference will be tak=
-en place.
-</p>
-<p class=3D"MsoNormal">The patch is attached. </p>
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
-<p class=3D"MsoNormal">Best Regards,<o:p></o:p></p>
-<p class=3D"MsoNormal"><span lang=3D"ZH-CN" style=3D"font-family:DengXian">=
-=C0=EE=CE=E4=B8=D5</span><o:p></o:p></p>
-<p class=3D"MsoNormal"><o:p>&nbsp;</o:p></p>
-</div>
-</body>
-</html>
+<div dir=3D"ltr"><div dir=3D"ltr"><div>We currently have code running on el=
+6 that does a MLS dominance check by calling security_compute_av_raw with t=
+he security object class SECCLASS_CONTEXT with permission CONTEXT__CONTAINS=
+ as you can see in the python code below. When I run this code on el6 s1 do=
+minates s0 however when I run the same code on el7 s1 does not dominate s0.=
+ On both systems the file read dominance check works as expected. Can anyon=
+e help me understand why the context contains check does not work the same =
+on both systems?=C2=A0</div><div><br></div><div>Ted</div><div><br></div><di=
+v>-------------------------------------------------------------------------=
+---------------------------------------------------------------------------=
+-----------------------------------------------------</div><div><br></div><=
+div>import selinux</div><div><br></div><div>SECCLASS_CONTEXT =3D selinux.st=
+ring_to_security_class(&quot;context&quot;)</div><div>CONTEXT__CONTAINS =3D=
+ selinux.string_to_av_perm(SECCLASS_CONTEXT, &quot;contains&quot;)</div><di=
+v>SECCLASS_FILE =3D selinux.string_to_security_class(&quot;file&quot;)</div=
+><div>FILE__READ =3D selinux.string_to_av_perm(SECCLASS_FILE, &quot;read&qu=
+ot;)</div><div><br></div><div>raw_con1 =3D &quot;user_u:user_r:user_t:s1&qu=
+ot;</div><div>raw_con2 =3D &quot;user_u:user_r:user_t:s0&quot;</div><div><b=
+r></div><div>avd =3D selinux.av_decision()</div><div>selinux.avc_reset()</d=
+iv><div>try:</div><div>=C2=A0 =C2=A0 rc =3D selinux.security_compute_av_raw=
+(raw_con1, raw_con2, SECCLASS_CONTEXT, CONTEXT__CONTAINS, avd)</div><div>=
+=C2=A0 =C2=A0 if rc &lt; 0:</div><div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 print(&qu=
+ot;selinux.security_compute_av_raw failed for %s %s&quot; % (raw_con1, raw_=
+con2))</div><div>=C2=A0 =C2=A0 if (avd.allowed &amp; CONTEXT__CONTAINS) =3D=
+=3D CONTEXT__CONTAINS:</div><div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 print(&quot;%s=
+ dominates %s&quot; % (raw_con1, raw_con2))</div><div>=C2=A0 =C2=A0 else:</=
+div><div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 print(&quot;%s does not dominate %s&qu=
+ot; % (raw_con1, raw_con2))</div><div>except OSError, ex:</div><div>=C2=A0 =
+=C2=A0 print &quot;exception calling selinux.security_compute_av_raw&quot;,=
+ ex</div><div><br></div><div>avd =3D selinux.av_decision()</div><div>selinu=
+x.avc_reset()</div><div>try:</div><div>=C2=A0 =C2=A0 rc =3D selinux.securit=
+y_compute_av_raw(raw_con1, raw_con2, SECCLASS_FILE, FILE__READ, avd)</div><=
+div>=C2=A0 =C2=A0 if rc &lt; 0:</div><div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 print=
+(&quot;selinux.security_compute_av_raw failed for %s %s&quot; % (raw_con1, =
+raw_con2))</div><div>=C2=A0 =C2=A0 if (avd.allowed &amp; FILE__READ) =3D=3D=
+ FILE__READ:</div><div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 print(&quot;%s dominates=
+ %s&quot; % (raw_con1, raw_con2))</div><div>=C2=A0 =C2=A0 else:</div><div>=
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 print(&quot;%s does not dominate %s&quot; % (ra=
+w_con1, raw_con2))</div><div><br></div><div>except OSError:</div><div>=C2=
+=A0 =C2=A0 print &quot;exception calling selinux.security_compute_av_raw&qu=
+ot;, ex</div><div><br></div></div></div>
 
---_000_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_--
-
---_004_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_
-Content-Type: application/octet-stream;
-	name="0001-checkpolicy-check-the-result-value-of-hashtable_sear.patch"
-Content-Description: 0001-checkpolicy-check-the-result-value-of-hashtable_sear.patch
-Content-Disposition: attachment;
-	filename="0001-checkpolicy-check-the-result-value-of-hashtable_sear.patch";
-	size=835; creation-date="Sat, 08 Sep 2018 09:33:58 GMT";
-	modification-date="Sat, 08 Sep 2018 09:33:58 GMT"
-Content-Transfer-Encoding: base64
-
-RnJvbSAxZTc3ODEzNzgxN2JlZDEwOGNjN2M3YzQ4ODkzMDNhM2Y3NmNjZDI3IE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiBsaXd1Z2FuZyA8bGl3dWdhbmdAeGlhb21pLmNvbT4KRGF0ZTog
-U2F0LCA4IFNlcCAyMDE4IDE3OjE2OjQxICswODAwClN1YmplY3Q6IFtQQVRDSF0gY2hlY2twb2xp
-Y3k6IGNoZWNrIHRoZSByZXN1bHQgdmFsdWUgb2YgaGFzaHRhYmxlX3NlYXJjaAoKU2lnbmVkLW9m
-Zi1ieTogbGl3dWdhbmcgPGxpd3VnYW5nQHhpYW9taS5jb20+Ci0tLQogY2hlY2twb2xpY3kvcG9s
-aWN5X2RlZmluZS5jIHwgNSArKysrKwogMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9ucygrKQoK
-ZGlmZiAtLWdpdCBhL2NoZWNrcG9saWN5L3BvbGljeV9kZWZpbmUuYyBiL2NoZWNrcG9saWN5L3Bv
-bGljeV9kZWZpbmUuYwppbmRleCBkODc4OGE2Zi4uZWNlMTBlN2EgMTAwNjQ0Ci0tLSBhL2NoZWNr
-cG9saWN5L3BvbGljeV9kZWZpbmUuYworKysgYi9jaGVja3BvbGljeS9wb2xpY3lfZGVmaW5lLmMK
-QEAgLTExMDcsNiArMTEwNywxMSBAQCBpbnQgZGVmaW5lX2xldmVsKHZvaWQpCiAJCQkgICAgKGNh
-dF9kYXR1bV90ICopIGhhc2h0YWJfc2VhcmNoKHBvbGljeWRicC0+cF9jYXRzLgogCQkJCQkJCSAg
-IHRhYmxlLAogCQkJCQkJCSAgIChoYXNodGFiX2tleV90KSBpZCk7CisJCQlpZiAoIWNkYXR1bSkg
-eworCQkJCXl5ZXJyb3IyKCJ1bmtub3duIGNhdGVnb3J5ICVzIiwgaWQpOworCQkJCWZyZWUoaWQp
-OworCQkJCXJldHVybiAtMTsKKwkJCX0KIAkJCXJhbmdlX3N0YXJ0ID0gcmFuZ2VfZW5kID0gY2Rh
-dHVtLT5zLnZhbHVlIC0gMTsKIAkJfQogCi0tIAoyLjE4LjAKCg==
-
---_004_DM5PR05MB3401C01C936FFE66579A1928D4070DM5PR05MB3401namp_--
+--0000000000009b4ac90575877a60--
