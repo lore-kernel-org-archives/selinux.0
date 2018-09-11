@@ -1,18 +1,16 @@
-To: Joshua Brindle <joshua.brindle@crunchydata.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Ted X Toth <txtoth@gmail.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Ted Toth <txtoth@gmail.com>
+Cc: SELinux <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
+ Daniel J Walsh <dwalsh@redhat.com>
 References: <CAFPpqQEgS9mqEZcMCn=3AGYer_5WBQmQdqjsMC=OJqtgwp96cQ@mail.gmail.com>
  <41fbbd99-00ef-3953-1049-acf975ae6ffa@tycho.nsa.gov>
  <CAFPpqQHXmvCNLwkW3xmYX9PWFwwmfc7wD2kOz-KKEVip-BFLyA@mail.gmail.com>
  <CAFPpqQGyUWsXwmfAybHKWhuQ6jytaNn_ZO-BfeqxNTQZDb+uvg@mail.gmail.com>
  <4e7d4090-e271-b904-c5bb-24f69304625d@tycho.nsa.gov>
- <CAGB+Vh5H1bu5vuPgfrj+YgbGGWegjnc4iskpuuHW6xgdWP5c5Q@mail.gmail.com>
- <bb05c207-2c43-5af2-6ca0-c2b04cac0521@tycho.nsa.gov>
- <CAGB+Vh5MF+p4wLNONp5Vozv_d85BJ=nK8vqiHj1Aq=Y_2WkPrg@mail.gmail.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <0b940225-c244-ff2c-6c28-de5333cc6636@tycho.nsa.gov>
-Date: Tue, 11 Sep 2018 14:21:09 -0400
+Message-ID: <85bb9bec-2bda-34fa-1f7d-256470c4f38c@tycho.nsa.gov>
+Date: Tue, 11 Sep 2018 14:29:19 -0400
 MIME-Version: 1.0
-In-Reply-To: <CAGB+Vh5MF+p4wLNONp5Vozv_d85BJ=nK8vqiHj1Aq=Y_2WkPrg@mail.gmail.com>
+In-Reply-To: <4e7d4090-e271-b904-c5bb-24f69304625d@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Subject: Re: MLS dominance check behavior on el7
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
@@ -20,66 +18,183 @@ List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/11/2018 01:39 PM, Joshua Brindle wrote:
-> On Tue, Sep 11, 2018 at 1:33 PM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 09/11/2018 12:53 PM, Joshua Brindle wrote:
->>>
->>> On Tue, Sep 11, 2018 at 10:41 AM, Stephen Smalley <sds@tycho.nsa.gov>
->>> wrote:
->>>>
->>>> On 09/10/2018 06:30 PM, Ted Toth wrote:
->>>>>
->>>>>
->>>>> mcstrans mcscolor.c also uses the same logic I'd been using to check
->>>>> dominance so this too will no longer function as expected on el7. Do you
->>>>> any
->>>>> suggestions for doing a 'generic' (one not tied to a specific resource
->>>>> class) dominance check in lieu of context contains?
->>>>
->>>>
->>>>
->>>> You should probably define your own permission with its own constraint to
->>>> avoid depending on the base policy's particular constraint definitions.
->>>> Certainly for your own code.  For mcstrans, mcscolor probably ought to be
->>>> switched to using at least a separate permission in the context class if
->>>> not
->>>> its own class to avoid overloading the meaning with pam_selinux's usage
->>>> (or
->>>> vice versa, but likely harder to change pam_selinux at this point).
->>>>
->>>
->>> Isn't the actual question what the GLB of the 2 contexts is, rather
->>> than what permissions one has on the other? It seems like a hack to
->>> use permissions to figure out dominance.
->>>
->>> Would a libselinux interface to determine glb and lub of 2 contexts
->>> make sense? Or maybe add a default_range glb and lub option and then
->>> calculate it using relabel?
->>
->>
->> At least as used in mcstrans, it appears to be a way of matching which entry
->> from the colors configuration to use.  So it is just a "Can context C1 use
->> the colors specified for context C2?" question.  It just happens that the
->> way they are deciding that for the MLS part is through the dominance
->> relation.  And determining whether context C1 dominates context C2 is
->> something only the kernel security server or libsepol with the same policy
->> file loaded into it can answer, not libselinux or anything else.
->>
+On 09/11/2018 10:41 AM, Stephen Smalley wrote:
+> On 09/10/2018 06:30 PM, Ted Toth wrote:
+>> mcstrans mcscolor.c also uses the same logic I'd been using to check 
+>> dominance so this too will no longer function as expected on el7. Do 
+>> you any suggestions for doing a 'generic' (one not tied to a specific 
+>> resource class) dominance check in lieu of context contains?
 > 
-> I meant an libselinux as in a library interface to some file in
-> selinuxfs to calculate the glb.
+> You should probably define your own permission with its own constraint 
+> to avoid depending on the base policy's particular constraint 
+> definitions.  Certainly for your own code.  For mcstrans, mcscolor 
+> probably ought to be switched to using at least a separate permission in 
+> the context class if not its own class to avoid overloading the meaning 
+> with pam_selinux's usage (or vice versa, but likely harder to change 
+> pam_selinux at this point).
 > 
-> If it is 'permission to see a color' that makes sense, I was thinking
-> the source context and target context have a glb that maps to the
-> color to be shown.
+> It is possible to define an entirely new class, its permissions, and its 
+> mls constraints via a CIL module IIUC, without needing to change the 
+> base policy.
+> 
+> I don't think you can add a permission to an existing class via a CIL 
+> module currently, unfortunately, so you can't just extend the context 
+> class without modifying the base policy.  So it may be easier to define 
+> an entirely new class.
+> 
+> The class and permission ought to be specific to the usage.  For 
+> example, mcstrans could have its own class (mcstrans) with its own 
+> permissions (e.g. color_match or color_use or ...) that abstract away 
+> the logical check being performed.  Dominance checks performed for 
+> different reasons ought to use different permissions so that one can 
+> distinguish what TE pairs are allowed them.
+> 
+> Your code could likewise define and use its own class and permission.
+> 
+> Does that make sense?
 
-That doesn't seem to match the existing mcstrans logic or colors 
-configuration file.  So, sure he could rewrite mcstrans and its 
-configuration format, add a new libselinux interface, add a new kernel 
-interface, and implement a new kernel security server function, but he 
-just wanted to make something that was already working on rhel6 to work 
-on rhel7, and which only broke because a constraint changed out 
-underneath to address a concern with pam_selinux/login.  Easiest 
-approach is to define a new class/perm and define the old constraint for 
-it.  Requires adding a CIL module for the policy piece and then a couple 
-of lines changed in mcstrans and his own code and he is done.
+BTW, I noticed there is another permission ("translate") defined in the 
+context class and its constraint is ((h1 dom h2) or (t1 == 
+mlstranslate)).  I would have guessed that it was intended as a 
+front-end service check over what processes could request context 
+translations from mcstrans or what contexts they could translate, but I 
+don't see it being used in mcstrans anywhere.  Is this a legacy thing 
+from early setransd/mcstransd days?  There is a TODO comment in mcstrans 
+process_request() that suggests there was an intent to perform a 
+dominance check between the requester context and the specified context, 
+but that's not implemented.  Appears to be allowed in current policy for 
+all domains to the setrans_t domain itself.
+
+> 
+>>
+>> Ted
+>>
+>> On Mon, Sep 10, 2018 at 1:19 PM Ted Toth <txtoth@gmail.com 
+>> <mailto:txtoth@gmail.com>> wrote:
+>>
+>>     Understood, thanks.
+>>
+>>     On Mon, Sep 10, 2018 at 12:46 PM Stephen Smalley <sds@tycho.nsa.gov
+>>     <mailto:sds@tycho.nsa.gov>> wrote:
+>>
+>>         On 09/10/2018 01:13 PM, Ted Toth wrote:
+>>          > We currently have code running on el6 that does a MLS
+>>         dominance check by
+>>          > calling security_compute_av_raw with the security object class
+>>          > SECCLASS_CONTEXT with permission CONTEXT__CONTAINS as you can
+>>         see in the
+>>          > python code below. When I run this code on el6 s1 dominates
+>>         s0 however
+>>          > when I run the same code on el7 s1 does not dominate s0. On
+>>         both systems
+>>          > the file read dominance check works as expected. Can anyone
+>>         help me
+>>          > understand why the context contains check does not work the
+>>         same on both
+>>          > systems?
+>>
+>>         That would depend entirely on how the constraint is written in 
+>> the
+>>         policy.  I assume this is with the -mls policy on both?  seinfo
+>>         --constrain | grep -C1 context would show you the constraint 
+>> in the
+>>         kernel policy.
+>>
+>>         Looks like refpolicy defines it as:
+>>         mlsconstrain context contains
+>>                   (( h1 dom h2 ) and ( l1 domby l2));
+>>
+>>         The 2nd part of the constraint was introduced by:
+>>         commit 4c365f4a6a6f933dd13b0127e03f832c6a6cf8fc
+>>         Author: Harry Ciao <qingtao.cao@windriver.com
+>>         <mailto:qingtao.cao@windriver.com>>
+>>         Date:   Tue Feb 15 10:16:32 2011 +0800
+>>
+>>               l1 domby l2 for contains MLS constraint
+>>
+>>               As identified by Stephan Smalley, the current MLS
+>>         constraint for the
+>>               contains permission of the context class should consider
+>>         the current
+>>               level of a user along with the clearance level so that
+>>         mls_systemlow
+>>               is no longer considered contained in mls_systemhigh.
+>>
+>>               Signed-off-by: Harry Ciao <qingtao.cao@windriver.com
+>>         <mailto:qingtao.cao@windriver.com>>
+>>
+>>         This was to prevent a user from logging in at a level below their
+>>         authorized range, in the unusual scenario where the user's low
+>>         level was
+>>         not s0/systemlow.
+>>
+>>          >
+>>          > Ted
+>>          >
+>>          >
+>>         
+>> --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
+>>
+>>          >
+>>          > import selinux
+>>          >
+>>          > SECCLASS_CONTEXT = selinux.string_to_security_class("context")
+>>          > CONTEXT__CONTAINS =
+>>         selinux.string_to_av_perm(SECCLASS_CONTEXT, "contains")
+>>          > SECCLASS_FILE = selinux.string_to_security_class("file")
+>>          > FILE__READ = selinux.string_to_av_perm(SECCLASS_FILE, "read")
+>>          >
+>>          > raw_con1 = "user_u:user_r:user_t:s1"
+>>          > raw_con2 = "user_u:user_r:user_t:s0"
+>>          >
+>>          > avd = selinux.av_decision()
+>>          > selinux.avc_reset()
+>>          > try:
+>>          >      rc = selinux.security_compute_av_raw(raw_con1, raw_con2,
+>>          > SECCLASS_CONTEXT, CONTEXT__CONTAINS, avd)
+>>          >      if rc < 0:
+>>          >          print("selinux.security_compute_av_raw failed for %s
+>>         %s" %
+>>          > (raw_con1, raw_con2))
+>>          >      if (avd.allowed & CONTEXT__CONTAINS) == 
+>> CONTEXT__CONTAINS:
+>>          >          print("%s dominates %s" % (raw_con1, raw_con2))
+>>          >      else:
+>>          >          print("%s does not dominate %s" % (raw_con1, 
+>> raw_con2))
+>>          > except OSError, ex:
+>>          >      print "exception calling
+>>         selinux.security_compute_av_raw", ex
+>>          >
+>>          > avd = selinux.av_decision()
+>>          > selinux.avc_reset()
+>>          > try:
+>>          >      rc = selinux.security_compute_av_raw(raw_con1, raw_con2,
+>>          > SECCLASS_FILE, FILE__READ, avd)
+>>          >      if rc < 0:
+>>          >          print("selinux.security_compute_av_raw failed for %s
+>>         %s" %
+>>          > (raw_con1, raw_con2))
+>>          >      if (avd.allowed & FILE__READ) == FILE__READ:
+>>          >          print("%s dominates %s" % (raw_con1, raw_con2))
+>>          >      else:
+>>          >          print("%s does not dominate %s" % (raw_con1, 
+>> raw_con2))
+>>          >
+>>          > except OSError:
+>>          >      print "exception calling
+>>         selinux.security_compute_av_raw", ex
+>>          >
+>>          >
+>>          >
+>>          > _______________________________________________
+>>          > Selinux mailing list
+>>          > Selinux@tycho.nsa.gov <mailto:Selinux@tycho.nsa.gov>
+>>          > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov
+>>         <mailto:Selinux-leave@tycho.nsa.gov>.
+>>          > To get help, send an email containing "help" to
+>>         Selinux-request@tycho.nsa.gov
+>>         <mailto:Selinux-request@tycho.nsa.gov>.
+>>          >
+>>
+> 
