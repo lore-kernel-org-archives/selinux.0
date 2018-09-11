@@ -1,195 +1,49 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8BGhS4K023131
- for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2018 12:43:28 -0400
-To: LSM <linux-security-module@vger.kernel.org>,
- James Morris <jmorris@namei.org>, LKLM <linux-kernel@vger.kernel.org>,
- SE Linux <selinux@tycho.nsa.gov>, John Johansen
- <john.johansen@canonical.com>, Kees Cook <keescook@chromium.org>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- Alexey Dobriyan <adobriyan@gmail.com>
-Cc: "Schaufler, Casey" <casey.schaufler@intel.com>
-References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
-From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <1aa12afc-2e1e-2e89-d422-a471990e0367@schaufler-ca.com>
-Date: Tue, 11 Sep 2018 09:42:04 -0700
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8BGsspj025806
+ for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2018 12:54:54 -0400
+Received: by mail-oi0-f45.google.com with SMTP id t68-v6so48458476oie.12
+ for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2018 09:53:05 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8
-Subject: [PATCH 07/10] SELinux: Abstract use of inode security blob
+In-Reply-To: <4e7d4090-e271-b904-c5bb-24f69304625d@tycho.nsa.gov>
+References: <CAFPpqQEgS9mqEZcMCn=3AGYer_5WBQmQdqjsMC=OJqtgwp96cQ@mail.gmail.com>
+ <41fbbd99-00ef-3953-1049-acf975ae6ffa@tycho.nsa.gov>
+ <CAFPpqQHXmvCNLwkW3xmYX9PWFwwmfc7wD2kOz-KKEVip-BFLyA@mail.gmail.com>
+ <CAFPpqQGyUWsXwmfAybHKWhuQ6jytaNn_ZO-BfeqxNTQZDb+uvg@mail.gmail.com>
+ <4e7d4090-e271-b904-c5bb-24f69304625d@tycho.nsa.gov>
+From: Joshua Brindle <joshua.brindle@crunchydata.com>
+Date: Tue, 11 Sep 2018 12:53:02 -0400
+Message-ID: <CAGB+Vh5H1bu5vuPgfrj+YgbGGWegjnc4iskpuuHW6xgdWP5c5Q@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Ted Toth <txtoth@gmail.com>, SELinux <selinux@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: MLS dominance check behavior on el7
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Don't use the inode->i_security pointer directly.
-Provide a helper function that provides the security blob pointer.
+On Tue, Sep 11, 2018 at 10:41 AM, Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 09/10/2018 06:30 PM, Ted Toth wrote:
+>>
+>> mcstrans mcscolor.c also uses the same logic I'd been using to check
+>> dominance so this too will no longer function as expected on el7. Do you any
+>> suggestions for doing a 'generic' (one not tied to a specific resource
+>> class) dominance check in lieu of context contains?
+>
+>
+> You should probably define your own permission with its own constraint to
+> avoid depending on the base policy's particular constraint definitions.
+> Certainly for your own code.  For mcstrans, mcscolor probably ought to be
+> switched to using at least a separate permission in the context class if not
+> its own class to avoid overloading the meaning with pam_selinux's usage (or
+> vice versa, but likely harder to change pam_selinux at this point).
+>
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/selinux/hooks.c          | 26 +++++++++++++-------------
- security/selinux/include/objsec.h |  6 ++++++
- security/selinux/selinuxfs.c      |  4 ++--
- 3 files changed, 21 insertions(+), 15 deletions(-)
+Isn't the actual question what the GLB of the 2 contexts is, rather
+than what permissions one has on the other? It seems like a hack to
+use permissions to figure out dominance.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3468b4592036..2720fe3ebf5f 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -276,7 +276,7 @@ static int __inode_security_revalidate(struct inode *inode,
- 				       struct dentry *dentry,
- 				       bool may_sleep)
- {
--	struct inode_security_struct *isec = inode->i_security;
-+	struct inode_security_struct *isec = selinux_inode(inode);
- 
- 	might_sleep_if(may_sleep);
- 
-@@ -297,7 +297,7 @@ static int __inode_security_revalidate(struct inode *inode,
- 
- static struct inode_security_struct *inode_security_novalidate(struct inode *inode)
- {
--	return inode->i_security;
-+	return selinux_inode(inode);
- }
- 
- static struct inode_security_struct *inode_security_rcu(struct inode *inode, bool rcu)
-@@ -307,7 +307,7 @@ static struct inode_security_struct *inode_security_rcu(struct inode *inode, boo
- 	error = __inode_security_revalidate(inode, NULL, !rcu);
- 	if (error)
- 		return ERR_PTR(error);
--	return inode->i_security;
-+	return selinux_inode(inode);
- }
- 
- /*
-@@ -316,14 +316,14 @@ static struct inode_security_struct *inode_security_rcu(struct inode *inode, boo
- static struct inode_security_struct *inode_security(struct inode *inode)
- {
- 	__inode_security_revalidate(inode, NULL, true);
--	return inode->i_security;
-+	return selinux_inode(inode);
- }
- 
- static struct inode_security_struct *backing_inode_security_novalidate(struct dentry *dentry)
- {
- 	struct inode *inode = d_backing_inode(dentry);
- 
--	return inode->i_security;
-+	return selinux_inode(inode);
- }
- 
- /*
-@@ -334,7 +334,7 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
- 	struct inode *inode = d_backing_inode(dentry);
- 
- 	__inode_security_revalidate(inode, dentry, true);
--	return inode->i_security;
-+	return selinux_inode(inode);
- }
- 
- static void inode_free_rcu(struct rcu_head *head)
-@@ -347,7 +347,7 @@ static void inode_free_rcu(struct rcu_head *head)
- 
- static void inode_free_security(struct inode *inode)
- {
--	struct inode_security_struct *isec = inode->i_security;
-+	struct inode_security_struct *isec = selinux_inode(inode);
- 	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
- 
- 	/*
-@@ -1501,7 +1501,7 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
- static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
- {
- 	struct superblock_security_struct *sbsec = NULL;
--	struct inode_security_struct *isec = inode->i_security;
-+	struct inode_security_struct *isec = selinux_inode(inode);
- 	u32 task_sid, sid = 0;
- 	u16 sclass;
- 	struct dentry *dentry;
-@@ -1801,7 +1801,7 @@ static int inode_has_perm(const struct cred *cred,
- 		return 0;
- 
- 	sid = cred_sid(cred);
--	isec = inode->i_security;
-+	isec = selinux_inode(inode);
- 
- 	return avc_has_perm(&selinux_state,
- 			    sid, isec->sid, isec->sclass, perms, adp);
-@@ -3029,7 +3029,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 
- 	/* Possibly defer initialization to selinux_complete_init. */
- 	if (sbsec->flags & SE_SBINITIALIZED) {
--		struct inode_security_struct *isec = inode->i_security;
-+		struct inode_security_struct *isec = selinux_inode(inode);
- 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
- 		isec->sid = newsid;
- 		isec->initialized = LABEL_INITIALIZED;
-@@ -3129,7 +3129,7 @@ static noinline int audit_inode_permission(struct inode *inode,
- 					   unsigned flags)
- {
- 	struct common_audit_data ad;
--	struct inode_security_struct *isec = inode->i_security;
-+	struct inode_security_struct *isec = selinux_inode(inode);
- 	int rc;
- 
- 	ad.type = LSM_AUDIT_DATA_INODE;
-@@ -4150,7 +4150,7 @@ static int selinux_task_kill(struct task_struct *p, struct siginfo *info,
- static void selinux_task_to_inode(struct task_struct *p,
- 				  struct inode *inode)
- {
--	struct inode_security_struct *isec = inode->i_security;
-+	struct inode_security_struct *isec = selinux_inode(inode);
- 	u32 sid = task_sid(p);
- 
- 	spin_lock(&isec->lock);
-@@ -6529,7 +6529,7 @@ static void selinux_release_secctx(char *secdata, u32 seclen)
- 
- static void selinux_inode_invalidate_secctx(struct inode *inode)
- {
--	struct inode_security_struct *isec = inode->i_security;
-+	struct inode_security_struct *isec = selinux_inode(inode);
- 
- 	spin_lock(&isec->lock);
- 	isec->initialized = LABEL_INVALID;
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 2586fbc7e38c..3304a1ee58a4 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -172,4 +172,10 @@ static inline struct file_security_struct *selinux_file(const struct file *file)
- 	return file->f_security;
- }
- 
-+static inline struct inode_security_struct *selinux_inode(
-+						const struct inode *inode)
-+{
-+	return inode->i_security;
-+}
-+
- #endif /* _SELINUX_OBJSEC_H_ */
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index b5665bdc29fc..cc434e45eaae 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1379,7 +1379,7 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
- 			goto out;
- 		}
- 
--		isec = (struct inode_security_struct *)inode->i_security;
-+		isec = selinux_inode(inode);
- 		ret = security_genfs_sid(fsi->state, "selinuxfs", page,
- 					 SECCLASS_FILE, &sid);
- 		if (ret) {
-@@ -1954,7 +1954,7 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
- 	}
- 
- 	inode->i_ino = ++fsi->last_ino;
--	isec = (struct inode_security_struct *)inode->i_security;
-+	isec = selinux_inode(inode);
- 	isec->sid = SECINITSID_DEVNULL;
- 	isec->sclass = SECCLASS_CHR_FILE;
- 	isec->initialized = LABEL_INITIALIZED;
--- 
-2.17.1
+Would a libselinux interface to determine glb and lub of 2 contexts
+make sense? Or maybe add a default_range glb and lub option and then
+calculate it using relabel?
