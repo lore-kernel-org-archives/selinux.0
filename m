@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8BGgScv023093
- for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2018 12:42:32 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8BGgf16023113
+ for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2018 12:42:44 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, LKLM <linux-kernel@vger.kernel.org>,
  SE Linux <selinux@tycho.nsa.gov>, John Johansen
@@ -13,416 +13,547 @@ To: LSM <linux-security-module@vger.kernel.org>,
 Cc: "Schaufler, Casey" <casey.schaufler@intel.com>
 References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <03851eb1-46cd-9d31-9ad5-0b80a24f5288@schaufler-ca.com>
-Date: Tue, 11 Sep 2018 09:42:10 -0700
+Message-ID: <99cb1ae7-8881-eb9a-a8cb-a787abe454e1@schaufler-ca.com>
+Date: Tue, 11 Sep 2018 09:42:14 -0700
 MIME-Version: 1.0
 In-Reply-To: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH 09/10] LSM: Infrastructure management of the inode
- security
+Subject: [PATCH 10/10] LSM: Blob sharing support for S.A.R.A and
+ LandLock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Move management of the inode->i_security blob out
-of the individual security modules and into the security
-infrastructure. Instead of allocating the blobs from within
-the modules the modules tell the infrastructure how much
-space is required, and the space is allocated there.
+Two proposed security modules require the ability to
+share security blobs with existing "major" security modules.
+These modules, S.A.R.A and LandLock, provide significantly
+different services than SELinux, Smack or AppArmor. Using
+either in conjunction with the existing modules is quite
+reasonable. S.A.R.A requires access to the cred blob, while
+LandLock uses the cred, file and inode blobs.
+
+The use of the cred, file and inode blobs has been
+abstracted in preceding patches in the series. This
+patch teaches the affected security modules how to access
+the part of the blob set aside for their use in the case
+where blobs are shared. The configuration option
+CONFIG_SECURITY_STACKING identifies systems where the
+blobs may be shared.
+
+The mechanism for selecting which security modules are
+active has been changed to allow non-conflicting "major"
+security modules to be used together. At this time the
+TOMOYO module can safely be used with any of the others.
+The two new modules would be non-conflicting as well.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h         |  3 ++
- security/security.c               | 83 ++++++++++++++++++++++++++++++-
- security/selinux/hooks.c          | 32 +-----------
- security/selinux/include/objsec.h |  5 +-
- security/smack/smack_lsm.c        | 70 ++++----------------------
- 5 files changed, 98 insertions(+), 95 deletions(-)
+ Documentation/admin-guide/LSM/index.rst | 14 +++--
+ include/linux/lsm_hooks.h               |  2 +-
+ security/Kconfig                        | 81 +++++++++++++++++++++++++
+ security/apparmor/include/cred.h        |  8 +++
+ security/apparmor/include/file.h        |  9 ++-
+ security/apparmor/include/lib.h         |  4 ++
+ security/apparmor/lsm.c                 |  8 ++-
+ security/security.c                     | 30 ++++++++-
+ security/selinux/hooks.c                |  3 +-
+ security/selinux/include/objsec.h       | 18 +++++-
+ security/smack/smack.h                  | 19 +++++-
+ security/smack/smack_lsm.c              | 17 +++---
+ security/tomoyo/common.h                | 12 +++-
+ security/tomoyo/tomoyo.c                |  3 +-
+ 14 files changed, 200 insertions(+), 28 deletions(-)
 
+diff --git a/Documentation/admin-guide/LSM/index.rst b/Documentation/admin-guide/LSM/index.rst
+index 9842e21afd4a..d3d8af174042 100644
+--- a/Documentation/admin-guide/LSM/index.rst
++++ b/Documentation/admin-guide/LSM/index.rst
+@@ -17,10 +17,16 @@ MAC extensions, other extensions can be built using the LSM to provide
+ specific changes to system operation when these tweaks are not available
+ in the core functionality of Linux itself.
+ 
+-The Linux capabilities modules will always be included. This may be
+-followed by any number of "minor" modules and at most one "major" module.
+-For more details on capabilities, see ``capabilities(7)`` in the Linux
+-man-pages project.
++The Linux capabilities modules will always be included. For more details
++on capabilities, see ``capabilities(7)`` in the Linux man-pages project.
++
++Security modules that do not use the security data blobs maintained
++by the LSM infrastructure are considered "minor" modules. These may be
++included at compile time and stacked explicitly. Security modules that
++use the LSM maintained security blobs are considered "major" modules.
++These may only be stacked if the CONFIG_LSM_STACKED configuration
++option is used. If this is chosen all of the security modules selected
++will be used.
+ 
+ A list of the active security modules can be found by reading
+ ``/sys/kernel/security/lsm``. This is a comma separated list, and
 diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 167ffbd4d0c0..416b20c3795b 100644
+index 416b20c3795b..dddcced54fea 100644
 --- a/include/linux/lsm_hooks.h
 +++ b/include/linux/lsm_hooks.h
-@@ -2030,6 +2030,7 @@ struct security_hook_list {
- struct lsm_blob_sizes {
- 	int	lbs_cred;
- 	int	lbs_file;
-+	int	lbs_inode;
- };
+@@ -2079,7 +2079,7 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
+ #define __lsm_ro_after_init	__ro_after_init
+ #endif /* CONFIG_SECURITY_WRITABLE_HOOKS */
  
- /*
-@@ -2092,9 +2093,11 @@ static inline void loadpin_add_hooks(void) { };
- #endif
+-extern int __init security_module_enable(const char *module);
++extern bool __init security_module_enable(const char *lsm, const bool stacked);
+ extern void __init capability_add_hooks(void);
+ #ifdef CONFIG_SECURITY_YAMA
+ extern void __init yama_add_hooks(void);
+diff --git a/security/Kconfig b/security/Kconfig
+index 22f7664c4977..ed48025ae9e0 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -36,6 +36,28 @@ config SECURITY_WRITABLE_HOOKS
+ 	bool
+ 	default n
  
- extern int lsm_cred_alloc(struct cred *cred, gfp_t gfp);
-+extern int lsm_inode_alloc(struct inode *inode);
++config SECURITY_STACKING
++	bool "Security module stacking"
++	depends on SECURITY
++	help
++	  Allows multiple major security modules to be stacked.
++	  Modules are invoked in the order registered with a
++	  "bail on fail" policy, in which the infrastructure
++	  will stop processing once a denial is detected. Not
++	  all modules can be stacked. SELinux, Smack and AppArmor are
++	  known to be incompatible. User space components may
++	  have trouble identifying the security module providing
++	  data in some cases.
++
++	  If you select this option you will have to select which
++	  of the stackable modules you wish to be active. The
++	  "Default security module" will be ignored. The boot line
++	  "security=" option can be used to specify that one of
++	  the modules identifed for stacking should be used instead
++	  of the entire stack.
++
++	  If you are unsure how to answer this question, answer N.
++
+ config SECURITY_LSM_DEBUG
+ 	bool "Enable debugging of the LSM infrastructure"
+ 	depends on SECURITY
+@@ -250,6 +272,9 @@ source security/yama/Kconfig
  
- #ifdef CONFIG_SECURITY
- void lsm_early_cred(struct cred *cred);
-+void lsm_early_inode(struct inode *inode);
- #endif
+ source security/integrity/Kconfig
  
- #endif /* ! __LINUX_LSM_HOOKS_H */
++menu "Security Module Selection"
++	visible if !SECURITY_STACKING
++
+ choice
+ 	prompt "Default security module"
+ 	default DEFAULT_SECURITY_SELINUX if SECURITY_SELINUX
+@@ -289,3 +314,59 @@ config DEFAULT_SECURITY
+ 
+ endmenu
+ 
++menu "Security Module Stack"
++	visible if SECURITY_STACKING
++
++choice
++	prompt "Stacked 'extreme' security module"
++	default SECURITY_SELINUX_STACKED if SECURITY_SELINUX
++	default SECURITY_SMACK_STACKED if SECURITY_SMACK
++	default SECURITY_APPARMOR_STACKED if SECURITY_APPARMOR
++
++	help
++	  Enable an extreme security module. These modules cannot
++	  be used at the same time.
++
++	config SECURITY_SELINUX_STACKED
++		bool "SELinux" if SECURITY_SELINUX=y
++	help
++	  This option instructs the system to use the SELinux checks.
++	  At this time the Smack security module is incompatible with this
++	  module.
++	  At this time the AppArmor security module is incompatible with this
++	  module.
++
++	config SECURITY_SMACK_STACKED
++		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
++	help
++	  This option instructs the system to use the Smack checks.
++	  At this time the SELinux security module is incompatible with this
++	  module.
++	  At this time the AppArmor security module is incompatible with this
++	  module.
++
++	config SECURITY_APPARMOR_STACKED
++		bool "AppArmor" if SECURITY_APPARMOR=y
++	help
++	  This option instructs the system to use the AppArmor checks.
++	  At this time the SELinux security module is incompatible with this
++	  module.
++	  At this time the Smack security module is incompatible with this
++	  module.
++
++endchoice
++
++config SECURITY_TOMOYO_STACKED
++	bool "TOMOYO support is enabled by default"
++	depends on SECURITY_TOMOYO && SECURITY_STACKING
++	default n
++	help
++	  This option instructs the system to use the TOMOYO checks.
++	  If not selected the module will not be invoked.
++	  Stacked security modules may interact in unexpected ways.
++
++	  If you are unsure how to answer this question, answer N.
++
++endmenu
++
++endmenu
+diff --git a/security/apparmor/include/cred.h b/security/apparmor/include/cred.h
+index a90eae76d7c1..be7575adf6f0 100644
+--- a/security/apparmor/include/cred.h
++++ b/security/apparmor/include/cred.h
+@@ -25,7 +25,11 @@
+ 
+ static inline struct aa_label *cred_label(const struct cred *cred)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	struct aa_label **blob = cred->security + apparmor_blob_sizes.lbs_cred;
++#else
+ 	struct aa_label **blob = cred->security;
++#endif
+ 
+ 	AA_BUG(!blob);
+ 	return *blob;
+@@ -34,7 +38,11 @@ static inline struct aa_label *cred_label(const struct cred *cred)
+ static inline void set_cred_label(const struct cred *cred,
+ 				  struct aa_label *label)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	struct aa_label **blob = cred->security + apparmor_blob_sizes.lbs_cred;
++#else
+ 	struct aa_label **blob = cred->security;
++#endif
+ 
+ 	AA_BUG(!blob);
+ 	*blob = label;
+diff --git a/security/apparmor/include/file.h b/security/apparmor/include/file.h
+index 4c2c8ac8842f..aeb757471cc0 100644
+--- a/security/apparmor/include/file.h
++++ b/security/apparmor/include/file.h
+@@ -32,7 +32,14 @@ struct path;
+ 				 AA_MAY_CHMOD | AA_MAY_CHOWN | AA_MAY_LOCK | \
+ 				 AA_EXEC_MMAP | AA_MAY_LINK)
+ 
+-#define file_ctx(X) ((struct aa_file_ctx *)(X)->f_security)
++static inline struct aa_file_ctx *file_ctx(struct file *file)
++{
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + apparmor_blob_sizes.lbs_file;
++#else
++	return file->f_security;
++#endif
++}
+ 
+ /* struct aa_file_ctx - the AppArmor context the file was opened in
+  * @lock: lock to update the ctx
+diff --git a/security/apparmor/include/lib.h b/security/apparmor/include/lib.h
+index 6505e1ad9e23..bbe9b384d71d 100644
+--- a/security/apparmor/include/lib.h
++++ b/security/apparmor/include/lib.h
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/slab.h>
+ #include <linux/fs.h>
++#include <linux/lsm_hooks.h>
+ 
+ #include "match.h"
+ 
+@@ -55,6 +56,9 @@ const char *aa_splitn_fqname(const char *fqname, size_t n, const char **ns_name,
+ 			     size_t *ns_len);
+ void aa_info_message(const char *str);
+ 
++/* Security blob offsets */
++extern struct lsm_blob_sizes apparmor_blob_sizes;
++
+ /**
+  * aa_strneq - compare null terminated @str to a non null terminated substring
+  * @str: a null terminated string
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 15716b6ff860..36d8386170e8 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1553,7 +1553,9 @@ static int __init apparmor_init(void)
+ 	int error;
+ 
+ 	if (!finish) {
+-		if (apparmor_enabled && security_module_enable("apparmor"))
++		if (apparmor_enabled &&
++		    security_module_enable("apparmor",
++				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED)))
+ 			security_add_blobs(&apparmor_blob_sizes);
+ 		else
+ 			apparmor_enabled = false;
+@@ -1561,7 +1563,9 @@ static int __init apparmor_init(void)
+ 		return 0;
+ 	}
+ 
+-	if (!apparmor_enabled || !security_module_enable("apparmor")) {
++	if (!apparmor_enabled ||
++	    !security_module_enable("apparmor",
++				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED))) {
+ 		aa_info_message("AppArmor disabled by boot time parameter");
+ 		apparmor_enabled = false;
+ 		return 0;
 diff --git a/security/security.c b/security/security.c
-index 5430cae73cf6..2501cdcbebff 100644
+index 2501cdcbebff..06bed74d1ed0 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -41,6 +41,7 @@ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
+@@ -36,6 +36,7 @@
+ 
+ /* Maximum number of letters for an LSM name string */
+ #define SECURITY_NAME_MAX	10
++#define MODULE_STACK		"(stacking)"
+ 
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
  static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
+@@ -48,7 +49,11 @@ static struct lsm_blob_sizes blob_sizes;
  
- static struct kmem_cache *lsm_file_cache;
-+static struct kmem_cache *lsm_inode_cache;
+ /* Boot-time LSM user choice */
+ static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
++#ifdef CONFIG_SECURITY_STACKING
++	MODULE_STACK;
++#else
+ 	CONFIG_DEFAULT_SECURITY;
++#endif
  
- char *lsm_names;
- static struct lsm_blob_sizes blob_sizes;
-@@ -101,6 +102,10 @@ int __init security_init(void)
- 		lsm_file_cache = kmem_cache_create("lsm_file_cache",
- 						   blob_sizes.lbs_file, 0,
- 						   SLAB_PANIC, NULL);
-+	if (blob_sizes.lbs_inode)
-+		lsm_inode_cache = kmem_cache_create("lsm_inode_cache",
-+						    blob_sizes.lbs_inode, 0,
-+						    SLAB_PANIC, NULL);
- 	/*
- 	 * The second call to a module specific init function
- 	 * adds hooks to the hook lists and does any other early
-@@ -111,6 +116,7 @@ int __init security_init(void)
- #ifdef CONFIG_SECURITY_LSM_DEBUG
- 	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
- 	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
-+	pr_info("LSM: inode blob size       = %d\n", blob_sizes.lbs_inode);
- #endif
- 
- 	return 0;
-@@ -288,6 +294,13 @@ void __init security_add_blobs(struct lsm_blob_sizes *needed)
+ static void __init do_security_initcalls(void)
  {
- 	lsm_set_size(&needed->lbs_cred, &blob_sizes.lbs_cred);
- 	lsm_set_size(&needed->lbs_file, &blob_sizes.lbs_file);
+@@ -169,6 +174,7 @@ static int lsm_append(char *new, char **result)
+ /**
+  * security_module_enable - Load given security module on boot ?
+  * @module: the name of the module
++ * @stacked: indicates that the module wants to be stacked
+  *
+  * Each LSM must pass this method before registering its own operations
+  * to avoid security registration races. This method may also be used
+@@ -184,9 +190,29 @@ static int lsm_append(char *new, char **result)
+  *
+  * Otherwise, return false.
+  */
+-int __init security_module_enable(const char *module)
++bool __init security_module_enable(const char *lsm, const bool stacked)
+ {
+-	return !strcmp(module, chosen_lsm);
++#ifdef CONFIG_SECURITY_STACKING
 +	/*
-+	 * The inode blob gets an rcu_head in addition to
-+	 * what the modules might need.
++	 * Module defined on the command line security=XXXX
 +	 */
-+	if (needed->lbs_inode && blob_sizes.lbs_inode == 0)
-+		blob_sizes.lbs_inode = sizeof(struct rcu_head);
-+	lsm_set_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
++	if (strcmp(chosen_lsm, MODULE_STACK)) {
++		if (!strcmp(lsm, chosen_lsm)) {
++			pr_info("Command line sets the %s security module.\n",
++				lsm);
++			return true;
++		}
++		return false;
++	}
++	/*
++	 * Module configured as stacked.
++	 */
++	return stacked;
++#else
++	if (strcmp(lsm, chosen_lsm) == 0)
++		return true;
++	return false;
++#endif
  }
  
  /**
-@@ -311,6 +324,46 @@ int lsm_file_alloc(struct file *file)
- 	return 0;
- }
- 
-+/**
-+ * lsm_inode_alloc - allocate a composite inode blob
-+ * @inode: the inode that needs a blob
-+ *
-+ * Allocate the inode blob for all the modules
-+ *
-+ * Returns 0, or -ENOMEM if memory can't be allocated.
-+ */
-+int lsm_inode_alloc(struct inode *inode)
-+{
-+	if (!lsm_inode_cache) {
-+		inode->i_security = NULL;
-+		return 0;
-+	}
-+
-+	inode->i_security = kmem_cache_zalloc(lsm_inode_cache, GFP_NOFS);
-+	if (inode->i_security == NULL)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+/**
-+ * lsm_early_inode - during initialization allocate a composite inode blob
-+ * @inode: the inode that needs a blob
-+ *
-+ * Allocate the inode blob for all the modules if it's not already there
-+ */
-+void lsm_early_inode(struct inode *inode)
-+{
-+	int rc;
-+
-+	if (inode == NULL)
-+		panic("%s: NULL inode.\n", __func__);
-+	if (inode->i_security != NULL)
-+		return;
-+	rc = lsm_inode_alloc(inode);
-+	if (rc)
-+		panic("%s: Early inode alloc failed.\n", __func__);
-+}
-+
- /*
-  * Hook list operation macros.
-  *
-@@ -557,14 +610,40 @@ EXPORT_SYMBOL(security_sb_parse_opts_str);
- 
- int security_inode_alloc(struct inode *inode)
- {
--	inode->i_security = NULL;
--	return call_int_hook(inode_alloc_security, 0, inode);
-+	int rc = lsm_inode_alloc(inode);
-+
-+	if (unlikely(rc))
-+		return rc;
-+	rc = call_int_hook(inode_alloc_security, 0, inode);
-+	if (unlikely(rc))
-+		security_inode_free(inode);
-+	return rc;
-+}
-+
-+static void inode_free_by_rcu(struct rcu_head *head)
-+{
-+	/*
-+	 * The rcu head is at the start of the inode blob
-+	 */
-+	kmem_cache_free(lsm_inode_cache, head);
- }
- 
- void security_inode_free(struct inode *inode)
- {
- 	integrity_inode_free(inode);
- 	call_void_hook(inode_free_security, inode);
-+	/*
-+	 * The inode may still be referenced in a path walk and
-+	 * a call to security_inode_permission() can be made
-+	 * after inode_free_security() is called. Ideally, the VFS
-+	 * wouldn't do this, but fixing that is a much harder
-+	 * job. For now, simply free the i_security via RCU, and
-+	 * leave the current inode->i_security pointer intact.
-+	 * The inode will be freed after the RCU grace period too.
-+	 */
-+	if (inode->i_security)
-+		call_rcu((struct rcu_head *)inode->i_security,
-+				inode_free_by_rcu);
- }
- 
- int security_dentry_init_security(struct dentry *dentry, int mode,
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 2720fe3ebf5f..0b593030d9f2 100644
+index 0b593030d9f2..1de307286bcc 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -148,8 +148,6 @@ static int __init checkreqprot_setup(char *str)
- }
- __setup("checkreqprot=", checkreqprot_setup);
- 
--static struct kmem_cache *sel_inode_cache;
--
- /**
-  * selinux_secmark_enabled - Check to see if SECMARK is currently enabled
-  *
-@@ -245,13 +243,9 @@ static inline u32 task_sid(const struct task_struct *task)
- 
- static int inode_alloc_security(struct inode *inode)
+@@ -7055,7 +7055,8 @@ static __init int selinux_init(void)
  {
--	struct inode_security_struct *isec;
-+	struct inode_security_struct *isec = selinux_inode(inode);
- 	u32 sid = current_sid();
+ 	static int finish;
  
--	isec = kmem_cache_zalloc(sel_inode_cache, GFP_NOFS);
--	if (!isec)
--		return -ENOMEM;
--
- 	spin_lock_init(&isec->lock);
- 	INIT_LIST_HEAD(&isec->list);
- 	isec->inode = inode;
-@@ -259,7 +253,6 @@ static int inode_alloc_security(struct inode *inode)
- 	isec->sclass = SECCLASS_FILE;
- 	isec->task_sid = sid;
- 	isec->initialized = LABEL_INVALID;
--	inode->i_security = isec;
- 
- 	return 0;
- }
-@@ -337,14 +330,6 @@ static struct inode_security_struct *backing_inode_security(struct dentry *dentr
- 	return selinux_inode(inode);
- }
- 
--static void inode_free_rcu(struct rcu_head *head)
--{
--	struct inode_security_struct *isec;
--
--	isec = container_of(head, struct inode_security_struct, rcu);
--	kmem_cache_free(sel_inode_cache, isec);
--}
--
- static void inode_free_security(struct inode *inode)
- {
- 	struct inode_security_struct *isec = selinux_inode(inode);
-@@ -365,17 +350,6 @@ static void inode_free_security(struct inode *inode)
- 		list_del_init(&isec->list);
- 		spin_unlock(&sbsec->isec_lock);
+-	if (!security_module_enable("selinux")) {
++	if (!security_module_enable("selinux",
++				IS_ENABLED(CONFIG_SECURITY_SELINUX_STACKED))) {
+ 		selinux_enabled = 0;
+ 		return 0;
  	}
--
--	/*
--	 * The inode may still be referenced in a path walk and
--	 * a call to selinux_inode_permission() can be made
--	 * after inode_free_security() is called. Ideally, the VFS
--	 * wouldn't do this, but fixing that is a much harder
--	 * job. For now, simply free the i_security via RCU, and
--	 * leave the current inode->i_security pointer intact.
--	 * The inode will be freed after the RCU grace period too.
--	 */
--	call_rcu(&isec->rcu, inode_free_rcu);
- }
- 
- static int file_alloc_security(struct file *file)
-@@ -6840,6 +6814,7 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
- struct lsm_blob_sizes selinux_blob_sizes = {
- 	.lbs_cred = sizeof(struct task_security_struct),
- 	.lbs_file = sizeof(struct file_security_struct),
-+	.lbs_inode = sizeof(struct inode_security_struct),
- };
- 
- static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
-@@ -7109,9 +7084,6 @@ static __init int selinux_init(void)
- 
- 	default_noexec = !(VM_DATA_DEFAULT_FLAGS & VM_EXEC);
- 
--	sel_inode_cache = kmem_cache_create("selinux_inode_security",
--					    sizeof(struct inode_security_struct),
--					    0, SLAB_PANIC, NULL);
- 	avc_init();
- 
- 	avtab_cache_init();
 diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 3304a1ee58a4..7a3d18fa9b13 100644
+index 7a3d18fa9b13..24e14560a765 100644
 --- a/security/selinux/include/objsec.h
 +++ b/security/selinux/include/objsec.h
-@@ -59,10 +59,7 @@ enum label_initialized {
+@@ -161,18 +161,30 @@ struct bpf_security_struct {
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+ static inline struct task_security_struct *selinux_cred(const struct cred *cred)
+ {
+-	return cred->security;
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + selinux_blob_sizes.lbs_cred;
++#else
++	return cred->security;
++#endif
+ }
  
- struct inode_security_struct {
- 	struct inode *inode;	/* back pointer to inode object */
--	union {
--		struct list_head list;	/* list of inode_security_struct */
--		struct rcu_head rcu;	/* for freeing the inode_security_struct */
--	};
-+	struct list_head list;	/* list of inode_security_struct */
- 	u32 task_sid;		/* SID of creating task */
- 	u32 sid;		/* SID of this object */
- 	u16 sclass;		/* security class of this object */
+ static inline struct file_security_struct *selinux_file(const struct file *file)
+ {
+-	return file->f_security;
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + selinux_blob_sizes.lbs_file;
++#else
++	return file->f_security;
++#endif
+ }
+ 
+ static inline struct inode_security_struct *selinux_inode(
+ 						const struct inode *inode)
+ {
+-	return inode->i_security;
++#ifdef CONFIG_SECURITY_STACKING
++	return inode->i_security + selinux_blob_sizes.lbs_inode;
++#else
++	return inode->i_security;
++#endif
+ }
+ 
+ #endif /* _SELINUX_OBJSEC_H_ */
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index 5da5bd1b9b47..6513a71c5ca1 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -337,6 +337,7 @@ extern struct smack_known *smack_syslog_label;
+ extern struct smack_known *smack_unconfined;
+ #endif
+ extern int smack_ptrace_rule;
++extern struct lsm_blob_sizes smack_blob_sizes;
+ 
+ extern struct smack_known smack_known_floor;
+ extern struct smack_known smack_known_hat;
+@@ -359,17 +360,29 @@ extern struct hlist_head smack_known_hash[SMACK_HASH_SLOTS];
+ 
+ static inline struct task_smack *smack_cred(const struct cred *cred)
+ {
+-	return cred->security;
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + smack_blob_sizes.lbs_cred;
++#else
++	return cred->security;
++#endif
+ }
+ 
+ static inline struct smack_known **smack_file(const struct file *file)
+ {
+-	return file->f_security;
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + smack_blob_sizes.lbs_file;
++#else
++	return file->f_security;
++#endif
+ }
+ 
+ static inline struct inode_smack *smack_inode(const struct inode *inode)
+ {
+-	return inode->i_security;
++#ifdef CONFIG_SECURITY_STACKING
++	return inode->i_security + smack_blob_sizes.lbs_inode;
++#else
++	return inode->i_security;
++#endif
+ }
+ 
+ /*
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 364699ad55b9..6617abb51732 100644
+index 6617abb51732..be14540ce09c 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -288,24 +288,18 @@ static struct smack_known *smk_fetch(const char *name, struct inode *ip,
- }
- 
- /**
-- * new_inode_smack - allocate an inode security blob
-+ * init_inode_smack - initialize an inode security blob
-+ * @isp: the blob to initialize
-  * @skp: a pointer to the Smack label entry to use in the blob
-  *
-- * Returns the new blob or NULL if there's no memory available
-  */
--static struct inode_smack *new_inode_smack(struct smack_known *skp)
-+static void init_inode_smack(struct inode *inode, struct smack_known *skp)
+@@ -3493,18 +3493,16 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
  {
--	struct inode_smack *isp;
--
--	isp = kmem_cache_zalloc(smack_inode_cache, GFP_NOFS);
--	if (isp == NULL)
--		return NULL;
-+	struct inode_smack *isp = smack_inode(inode);
+ 	struct smack_known *skp = smk_of_task_struct(p);
+ 	char *cp;
+-	int slen;
  
- 	isp->smk_inode = skp;
- 	isp->smk_flags = 0;
- 	mutex_init(&isp->smk_lock);
--
--	return isp;
- }
+-	if (strcmp(name, "current") != 0)
++	if (strcmp(name, "current") == 0) {
++		cp = kstrdup(skp->smk_known, GFP_KERNEL);
++		if (cp == NULL)
++			return -ENOMEM;
++	} else
+ 		return -EINVAL;
  
- /**
-@@ -824,17 +818,13 @@ static int smack_set_mnt_opts(struct super_block *sb,
- 	/*
- 	 * Initialize the root inode.
- 	 */
--	isp = smack_inode(inode);
--	if (isp == NULL) {
--		isp = new_inode_smack(sp->smk_root);
--		if (isp == NULL)
--			return -ENOMEM;
--		inode->i_security = isp;
--	} else
--		isp->smk_inode = sp->smk_root;
-+	lsm_early_inode(inode);
-+	init_inode_smack(inode, sp->smk_root);
- 
--	if (transmute)
-+	if (transmute) {
-+		isp = smack_inode(inode);
- 		isp->smk_flags |= SMK_INODE_TRANSMUTE;
-+	}
- 
- 	return 0;
- }
-@@ -963,48 +953,10 @@ static int smack_inode_alloc_security(struct inode *inode)
- {
- 	struct smack_known *skp = smk_of_current();
- 
--	inode->i_security = new_inode_smack(skp);
--	if (inode->i_security == NULL)
+-	cp = kstrdup(skp->smk_known, GFP_KERNEL);
+-	if (cp == NULL)
 -		return -ENOMEM;
-+	init_inode_smack(inode, skp);
- 	return 0;
+-
+-	slen = strlen(cp);
+ 	*value = cp;
+-	return slen;
++	return strlen(cp);
  }
  
--/**
-- * smack_inode_free_rcu - Free inode_smack blob from cache
-- * @head: the rcu_head for getting inode_smack pointer
-- *
-- *  Call back function called from call_rcu() to free
-- *  the i_security blob pointer in inode
-- */
--static void smack_inode_free_rcu(struct rcu_head *head)
--{
--	struct inode_smack *issp;
--
--	issp = container_of(head, struct inode_smack, smk_rcu);
--	kmem_cache_free(smack_inode_cache, issp);
--}
--
--/**
-- * smack_inode_free_security - free an inode blob using call_rcu()
-- * @inode: the inode with a blob
-- *
-- * Clears the blob pointer in inode using RCU
-- */
--static void smack_inode_free_security(struct inode *inode)
--{
--	struct inode_smack *issp = smack_inode(inode);
--
--	/*
--	 * The inode may still be referenced in a path walk and
--	 * a call to smack_inode_permission() can be made
--	 * after smack_inode_free_security() is called.
--	 * To avoid race condition free the i_security via RCU
--	 * and leave the current inode->i_security pointer intact.
--	 * The inode will be freed after the RCU grace period too.
--	 */
--	call_rcu(&issp->smk_rcu, smack_inode_free_rcu);
--}
--
  /**
-  * smack_inode_init_security - copy out the smack from an inode
-  * @inode: the newly created inode
-@@ -4619,6 +4571,7 @@ static int smack_dentry_create_files_as(struct dentry *dentry, int mode,
- struct lsm_blob_sizes smack_blob_sizes = {
- 	.lbs_cred = sizeof(struct task_smack),
- 	.lbs_file = sizeof(struct smack_known *),
-+	.lbs_inode = sizeof(struct inode_smack),
- };
+@@ -4754,7 +4752,8 @@ static __init int smack_init(void)
+ 	struct cred *cred = (struct cred *) current->cred;
+ 	struct task_smack *tsp;
  
- static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
-@@ -4637,7 +4590,6 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(bprm_set_creds, smack_bprm_set_creds),
+-	if (!security_module_enable("smack"))
++	if (!security_module_enable("smack",
++				IS_ENABLED(CONFIG_SECURITY_SMACK_STACKED)))
+ 		return 0;
  
- 	LSM_HOOK_INIT(inode_alloc_security, smack_inode_alloc_security),
--	LSM_HOOK_INIT(inode_free_security, smack_inode_free_security),
- 	LSM_HOOK_INIT(inode_init_security, smack_inode_init_security),
- 	LSM_HOOK_INIT(inode_link, smack_inode_link),
- 	LSM_HOOK_INIT(inode_unlink, smack_inode_unlink),
+ 	if (!finish) {
+diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
+index 0110bebe86e2..f386f92c57c5 100644
+--- a/security/tomoyo/common.h
++++ b/security/tomoyo/common.h
+@@ -1087,6 +1087,7 @@ extern struct tomoyo_domain_info tomoyo_kernel_domain;
+ extern struct tomoyo_policy_namespace tomoyo_kernel_namespace;
+ extern unsigned int tomoyo_memory_quota[TOMOYO_MAX_MEMORY_STAT];
+ extern unsigned int tomoyo_memory_used[TOMOYO_MAX_MEMORY_STAT];
++extern struct lsm_blob_sizes tomoyo_blob_sizes;
+ 
+ /********** Inlined functions. **********/
+ 
+@@ -1206,7 +1207,11 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
+  */
+ static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + tomoyo_blob_sizes.lbs_cred;
++#else
+ 	return cred->security;
++#endif
+ }
+ 
+ /**
+@@ -1216,8 +1221,13 @@ static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
+  */
+ static inline struct tomoyo_domain_info *tomoyo_domain(void)
+ {
+-	struct tomoyo_domain_info **blob = tomoyo_cred(current_cred());
++	const struct cred *cred = current_cred();
++	struct tomoyo_domain_info **blob;
++
++	if (cred->security == NULL)
++		return NULL;
+ 
++	blob = tomoyo_cred(cred);
+ 	return *blob;
+ }
+ 
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index bb84e6ec3886..fa121ad8534a 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -564,7 +564,8 @@ static int __init tomoyo_init(void)
+ 	struct cred *cred = (struct cred *) current_cred();
+ 	struct tomoyo_domain_info **blob;
+ 
+-	if (!security_module_enable("tomoyo")) {
++	if (!security_module_enable("tomoyo",
++				IS_ENABLED(CONFIG_SECURITY_TOMOYO_STACKED))) {
+ 		tomoyo_enabled = false;
+ 		return 0;
+ 	}
 -- 
 2.17.1
