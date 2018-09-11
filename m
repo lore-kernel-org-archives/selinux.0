@@ -1,177 +1,90 @@
-To: Ted Toth <txtoth@gmail.com>
-Cc: SELinux <selinux@tycho.nsa.gov>, Paul Moore <paul@paul-moore.com>,
- Daniel J Walsh <dwalsh@redhat.com>
-References: <CAFPpqQEgS9mqEZcMCn=3AGYer_5WBQmQdqjsMC=OJqtgwp96cQ@mail.gmail.com>
- <41fbbd99-00ef-3953-1049-acf975ae6ffa@tycho.nsa.gov>
- <CAFPpqQHXmvCNLwkW3xmYX9PWFwwmfc7wD2kOz-KKEVip-BFLyA@mail.gmail.com>
- <CAFPpqQGyUWsXwmfAybHKWhuQ6jytaNn_ZO-BfeqxNTQZDb+uvg@mail.gmail.com>
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <4e7d4090-e271-b904-c5bb-24f69304625d@tycho.nsa.gov>
-Date: Tue, 11 Sep 2018 10:41:24 -0400
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8BGQi4U020359
+ for <selinux@tycho.nsa.gov>; Tue, 11 Sep 2018 12:26:45 -0400
+To: LSM <linux-security-module@vger.kernel.org>,
+ James Morris <jmorris@namei.org>, LKLM <linux-kernel@vger.kernel.org>,
+ SE Linux <selinux@tycho.nsa.gov>, John Johansen
+ <john.johansen@canonical.com>, Kees Cook <keescook@chromium.org>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>
+Message-ID: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
+Date: Tue, 11 Sep 2018 09:26:21 -0700
 MIME-Version: 1.0
-In-Reply-To: <CAFPpqQGyUWsXwmfAybHKWhuQ6jytaNn_ZO-BfeqxNTQZDb+uvg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Subject: Re: MLS dominance check behavior on el7
+Content-Type: text/plain; charset=utf-8
+Subject: [PATCH v2 00/10] LSM: Module stacking in support of S.A.R.A
+ and Landlock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/10/2018 06:30 PM, Ted Toth wrote:
-> mcstrans mcscolor.c also uses the same logic I'd been using to check 
-> dominance so this too will no longer function as expected on el7. Do you 
-> any suggestions for doing a 'generic' (one not tied to a specific 
-> resource class) dominance check in lieu of context contains?
+LSM: Module stacking in support of S.A.R.A and Landlock
 
-You should probably define your own permission with its own constraint 
-to avoid depending on the base policy's particular constraint 
-definitions.  Certainly for your own code.  For mcstrans, mcscolor 
-probably ought to be switched to using at least a separate permission in 
-the context class if not its own class to avoid overloading the meaning 
-with pam_selinux's usage (or vice versa, but likely harder to change 
-pam_selinux at this point).
+v2: Reduce the patchset to what is required to support
+    the proposed S.A.R.A. and LandLock security modules
 
-It is possible to define an entirely new class, its permissions, and its 
-mls constraints via a CIL module IIUC, without needing to change the 
-base policy.
+The S.A.R.A. security module is intended to be used
+in conjunction with other security modules. It requires
+state to be maintained for the credential, which
+in turn requires a mechanism for sharing the credential
+security blob. The module also requires mechanism for
+user space manipulation of the credential information,
+hence an additional subdirectory in /proc/.../attr.
 
-I don't think you can add a permission to an existing class via a CIL 
-module currently, unfortunately, so you can't just extend the context 
-class without modifying the base policy.  So it may be easier to define 
-an entirely new class.
+The LandLock security module provides user configurable
+policy in the secmark mechanism. It requires data in
+the credential, file and inode security blobs. For this
+to be used along side the existing "major" security
+modules mechanism for sharing these blobs is provided.
 
-The class and permission ought to be specific to the usage.  For 
-example, mcstrans could have its own class (mcstrans) with its own 
-permissions (e.g. color_match or color_use or ...) that abstract away 
-the logical check being performed.  Dominance checks performed for 
-different reasons ought to use different permissions so that one can 
-distinguish what TE pairs are allowed them.
+A side effect of providing sharing of the crendential
+security blob is that the TOMOYO module can be used at
+the same time as the other "major" modules.
 
-Your code could likewise define and use its own class and permission.
+The mechanism for configuring which security modules are
+enabled has to change when stacking in enabled. Any
+module that uses just the security blobs that are shared
+can be selected. Additionally, one other "major" module
+can be selected.
 
-Does that make sense?
+The security module stacking issues around networking and
+IPC are not addressed here as they are beyond what is
+required for TOMOYO, S.A.R.A and LandLock.
 
-> 
-> Ted
-> 
-> On Mon, Sep 10, 2018 at 1:19 PM Ted Toth <txtoth@gmail.com 
-> <mailto:txtoth@gmail.com>> wrote:
-> 
->     Understood, thanks.
-> 
->     On Mon, Sep 10, 2018 at 12:46 PM Stephen Smalley <sds@tycho.nsa.gov
->     <mailto:sds@tycho.nsa.gov>> wrote:
-> 
->         On 09/10/2018 01:13 PM, Ted Toth wrote:
->          > We currently have code running on el6 that does a MLS
->         dominance check by
->          > calling security_compute_av_raw with the security object class
->          > SECCLASS_CONTEXT with permission CONTEXT__CONTAINS as you can
->         see in the
->          > python code below. When I run this code on el6 s1 dominates
->         s0 however
->          > when I run the same code on el7 s1 does not dominate s0. On
->         both systems
->          > the file read dominance check works as expected. Can anyone
->         help me
->          > understand why the context contains check does not work the
->         same on both
->          > systems?
-> 
->         That would depend entirely on how the constraint is written in the
->         policy.  I assume this is with the -mls policy on both?  seinfo
->         --constrain | grep -C1 context would show you the constraint in the
->         kernel policy.
-> 
->         Looks like refpolicy defines it as:
->         mlsconstrain context contains
->                   (( h1 dom h2 ) and ( l1 domby l2));
-> 
->         The 2nd part of the constraint was introduced by:
->         commit 4c365f4a6a6f933dd13b0127e03f832c6a6cf8fc
->         Author: Harry Ciao <qingtao.cao@windriver.com
->         <mailto:qingtao.cao@windriver.com>>
->         Date:   Tue Feb 15 10:16:32 2011 +0800
-> 
->               l1 domby l2 for contains MLS constraint
-> 
->               As identified by Stephan Smalley, the current MLS
->         constraint for the
->               contains permission of the context class should consider
->         the current
->               level of a user along with the clearance level so that
->         mls_systemlow
->               is no longer considered contained in mls_systemhigh.
-> 
->               Signed-off-by: Harry Ciao <qingtao.cao@windriver.com
->         <mailto:qingtao.cao@windriver.com>>
-> 
->         This was to prevent a user from logging in at a level below their
->         authorized range, in the unusual scenario where the user's low
->         level was
->         not s0/systemlow.
-> 
->          >
->          > Ted
->          >
->          >
->         ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
->          >
->          > import selinux
->          >
->          > SECCLASS_CONTEXT = selinux.string_to_security_class("context")
->          > CONTEXT__CONTAINS =
->         selinux.string_to_av_perm(SECCLASS_CONTEXT, "contains")
->          > SECCLASS_FILE = selinux.string_to_security_class("file")
->          > FILE__READ = selinux.string_to_av_perm(SECCLASS_FILE, "read")
->          >
->          > raw_con1 = "user_u:user_r:user_t:s1"
->          > raw_con2 = "user_u:user_r:user_t:s0"
->          >
->          > avd = selinux.av_decision()
->          > selinux.avc_reset()
->          > try:
->          >      rc = selinux.security_compute_av_raw(raw_con1, raw_con2,
->          > SECCLASS_CONTEXT, CONTEXT__CONTAINS, avd)
->          >      if rc < 0:
->          >          print("selinux.security_compute_av_raw failed for %s
->         %s" %
->          > (raw_con1, raw_con2))
->          >      if (avd.allowed & CONTEXT__CONTAINS) == CONTEXT__CONTAINS:
->          >          print("%s dominates %s" % (raw_con1, raw_con2))
->          >      else:
->          >          print("%s does not dominate %s" % (raw_con1, raw_con2))
->          > except OSError, ex:
->          >      print "exception calling
->         selinux.security_compute_av_raw", ex
->          >
->          > avd = selinux.av_decision()
->          > selinux.avc_reset()
->          > try:
->          >      rc = selinux.security_compute_av_raw(raw_con1, raw_con2,
->          > SECCLASS_FILE, FILE__READ, avd)
->          >      if rc < 0:
->          >          print("selinux.security_compute_av_raw failed for %s
->         %s" %
->          > (raw_con1, raw_con2))
->          >      if (avd.allowed & FILE__READ) == FILE__READ:
->          >          print("%s dominates %s" % (raw_con1, raw_con2))
->          >      else:
->          >          print("%s does not dominate %s" % (raw_con1, raw_con2))
->          >
->          > except OSError:
->          >      print "exception calling
->         selinux.security_compute_av_raw", ex
->          >
->          >
->          >
->          > _______________________________________________
->          > Selinux mailing list
->          > Selinux@tycho.nsa.gov <mailto:Selinux@tycho.nsa.gov>
->          > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov
->         <mailto:Selinux-leave@tycho.nsa.gov>.
->          > To get help, send an email containing "help" to
->         Selinux-request@tycho.nsa.gov
->         <mailto:Selinux-request@tycho.nsa.gov>.
->          >
-> 
+git://github.com/cschaufler/lsm-stacking.git#stacking-4.19-rc2-saralock
+
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ Documentation/admin-guide/LSM/index.rst |  23 ++-
+ fs/proc/base.c                          |  64 ++++++-
+ fs/proc/internal.h                      |   1 +
+ include/linux/lsm_hooks.h               |  20 ++-
+ include/linux/security.h                |  15 +-
+ kernel/cred.c                           |  13 --
+ security/Kconfig                        |  92 ++++++++++
+ security/apparmor/domain.c              |   2 +-
+ security/apparmor/include/cred.h        |  24 ++-
+ security/apparmor/include/file.h        |   9 +-
+ security/apparmor/include/lib.h         |   4 +
+ security/apparmor/lsm.c                 |  53 ++++--
+ security/apparmor/task.c                |   6 +-
+ security/security.c                     | 293 ++++++++++++++++++++++++++++++--
+ security/selinux/hooks.c                | 215 ++++++++---------------
+ security/selinux/include/objsec.h       |  37 +++-
+ security/selinux/selinuxfs.c            |   5 +-
+ security/selinux/xfrm.c                 |   4 +-
+ security/smack/smack.h                  |  42 ++++-
+ security/smack/smack_access.c           |   4 +-
+ security/smack/smack_lsm.c              | 283 +++++++++++-------------------
+ security/smack/smackfs.c                |  18 +-
+ security/tomoyo/common.h                |  31 +++-
+ security/tomoyo/domain.c                |   4 +-
+ security/tomoyo/securityfs_if.c         |  15 +-
+ security/tomoyo/tomoyo.c                |  57 +++++--
+ 26 files changed, 899 insertions(+), 435 deletions(-)
