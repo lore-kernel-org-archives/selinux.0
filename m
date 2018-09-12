@@ -1,77 +1,116 @@
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>, Paul Moore
- <paul@paul-moore.com>
-CC: <selinux@tycho.nsa.gov>,
- <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>, Eric Paris
- <eparis@parisplace.org>, <linux-kernel@vger.kernel.org>, Stephen Smalley
- <sds@tycho.nsa.gov>, <syzkaller-bugs@googlegroups.com>, linux-mm
- <linux-mm@kvack.org>
-References: <000000000000038dab0575476b73@google.com>
- <f3bcebc6-47a7-518e-70f7-c7e167621841@I-love.SAKURA.ne.jp>
- <CAHC9VhT-Thu6KppC-MWzqkB7R1CaQA9DWXOQnG0b2uS9+rvzoA@mail.gmail.com>
- <ea29a8bf-95b2-91d2-043b-ed73c9023166@i-love.sakura.ne.jp>
-From: peter enderborg <peter.enderborg@sony.com>
-Message-ID: <9d685700-bc5c-9c2f-7795-56f488d2ea38@sony.com>
-Date: Thu, 13 Sep 2018 09:12:04 +0200
+Date: Thu, 13 Sep 2018 07:29:32 +1000 (AEST)
+From: James Morris <jmorris@namei.org>
+To: Casey Schaufler <casey@schaufler-ca.com>,
+ Salvatore Mesoraca <s.mesoraca16@gmail.com>, mic@digikod.net
+cc: LSM <linux-security-module@vger.kernel.org>,
+ LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
+ John Johansen <john.johansen@canonical.com>,
+ Kees Cook <keescook@chromium.org>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>
+In-Reply-To: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
+Message-ID: <alpine.LRH.2.21.1809130727310.19741@namei.org>
+References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <ea29a8bf-95b2-91d2-043b-ed73c9023166@i-love.sakura.ne.jp>
-Content-Type: text/plain; charset="utf-8"
-Subject: Re: [PATCH] selinux: Add __GFP_NOWARN to allocation at
- str_read()
+Content-Type: multipart/mixed;
+ boundary="1665246916-734686802-1536787774=:19741"
+Subject: Re: [PATCH v2 00/10] LSM: Module stacking in support of
+ S.A.R.A and Landlock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On 09/13/2018 08:26 AM, Tetsuo Handa wrote:
-> On 2018/09/13 12:02, Paul Moore wrote:
->> On Fri, Sep 7, 2018 at 12:43 PM Tetsuo Handa
->> <penguin-kernel@i-love.sakura.ne.jp> wrote:
->>> syzbot is hitting warning at str_read() [1] because len parameter can
->>> become larger than KMALLOC_MAX_SIZE. We don't need to emit warning for
->>> this case.
->>>
->>> [1] https://syzkaller.appspot.com/bug?id=7f2f5aad79ea8663c296a2eedb81978401a908f0
->>>
->>> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
->>> Reported-by: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>
->>> ---
->>>  security/selinux/ss/policydb.c | 2 +-
->>>  1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
->>> index e9394e7..f4eadd3 100644
->>> --- a/security/selinux/ss/policydb.c
->>> +++ b/security/selinux/ss/policydb.c
->>> @@ -1101,7 +1101,7 @@ static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
->>>         if ((len == 0) || (len == (u32)-1))
->>>                 return -EINVAL;
->>>
->>> -       str = kmalloc(len + 1, flags);
->>> +       str = kmalloc(len + 1, flags | __GFP_NOWARN);
->>>         if (!str)
->>>                 return -ENOMEM;
->> Thanks for the patch.
->>
->> My eyes are starting to glaze over a bit chasing down all of the
->> different kmalloc() code paths trying to ensure that this always does
->> the right thing based on size of the allocation and the different slab
->> allocators ... are we sure that this will always return NULL when (len
->> + 1) is greater than KMALLOC_MAX_SIZE for the different slab allocator
->> configurations?
->>
-> Yes, for (len + 1) cannot become 0 (which causes kmalloc() to return
-> ZERO_SIZE_PTR) due to (len == (u32)-1) check above.
->
-> The only concern would be whether you want allocation failure messages.
-> I assumed you don't need it because we are returning -ENOMEM to the caller.
->
-Would it not be better with
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-    char *str;
+--1665246916-734686802-1536787774=:19741
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-    if ((len == 0) || (len == (u32)-1) || (len >= KMALLOC_MAX_SIZE))
-        return -EINVAL;
+Adding the SARA and LandLock authors for review & comment.
 
-    str = kmalloc(len + 1, flags);
-    if (!str)
-        return -ENOMEM;
+Salvatore & Micka=C3=ABl: does this patchset meet your needs for merging =
+to=20
+mainline?
+
+
+
+On Tue, 11 Sep 2018, Casey Schaufler wrote:
+
+> LSM: Module stacking in support of S.A.R.A and Landlock
+>=20
+> v2: Reduce the patchset to what is required to support
+>     the proposed S.A.R.A. and LandLock security modules
+>=20
+> The S.A.R.A. security module is intended to be used
+> in conjunction with other security modules. It requires
+> state to be maintained for the credential, which
+> in turn requires a mechanism for sharing the credential
+> security blob. The module also requires mechanism for
+> user space manipulation of the credential information,
+> hence an additional subdirectory in /proc/.../attr.
+>=20
+> The LandLock security module provides user configurable
+> policy in the secmark mechanism. It requires data in
+> the credential, file and inode security blobs. For this
+> to be used along side the existing "major" security
+> modules mechanism for sharing these blobs is provided.
+>=20
+> A side effect of providing sharing of the crendential
+> security blob is that the TOMOYO module can be used at
+> the same time as the other "major" modules.
+>=20
+> The mechanism for configuring which security modules are
+> enabled has to change when stacking in enabled. Any
+> module that uses just the security blobs that are shared
+> can be selected. Additionally, one other "major" module
+> can be selected.
+>=20
+> The security module stacking issues around networking and
+> IPC are not addressed here as they are beyond what is
+> required for TOMOYO, S.A.R.A and LandLock.
+>=20
+> git://github.com/cschaufler/lsm-stacking.git#stacking-4.19-rc2-saralock
+>=20
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>  Documentation/admin-guide/LSM/index.rst |  23 ++-
+>  fs/proc/base.c                          |  64 ++++++-
+>  fs/proc/internal.h                      |   1 +
+>  include/linux/lsm_hooks.h               |  20 ++-
+>  include/linux/security.h                |  15 +-
+>  kernel/cred.c                           |  13 --
+>  security/Kconfig                        |  92 ++++++++++
+>  security/apparmor/domain.c              |   2 +-
+>  security/apparmor/include/cred.h        |  24 ++-
+>  security/apparmor/include/file.h        |   9 +-
+>  security/apparmor/include/lib.h         |   4 +
+>  security/apparmor/lsm.c                 |  53 ++++--
+>  security/apparmor/task.c                |   6 +-
+>  security/security.c                     | 293 ++++++++++++++++++++++++=
+++++++--
+>  security/selinux/hooks.c                | 215 ++++++++---------------
+>  security/selinux/include/objsec.h       |  37 +++-
+>  security/selinux/selinuxfs.c            |   5 +-
+>  security/selinux/xfrm.c                 |   4 +-
+>  security/smack/smack.h                  |  42 ++++-
+>  security/smack/smack_access.c           |   4 +-
+>  security/smack/smack_lsm.c              | 283 +++++++++++-------------=
+------
+>  security/smack/smackfs.c                |  18 +-
+>  security/tomoyo/common.h                |  31 +++-
+>  security/tomoyo/domain.c                |   4 +-
+>  security/tomoyo/securityfs_if.c         |  15 +-
+>  security/tomoyo/tomoyo.c                |  57 +++++--
+>  26 files changed, 899 insertions(+), 435 deletions(-)
+>=20
+
+--=20
+James Morris
+<jmorris@namei.org>
+
+--1665246916-734686802-1536787774=:19741--
