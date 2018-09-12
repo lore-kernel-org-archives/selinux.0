@@ -1,8 +1,4 @@
-Date: Wed, 12 Sep 2018 16:36:44 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Ted Toth <txtoth@gmail.com>, SELinux <selinux@tycho.nsa.gov>
-Message-ID: <20180912143644.GA10229@julius.enp8s0.d30>
+MIME-Version: 1.0
 References: <CAFPpqQHXmvCNLwkW3xmYX9PWFwwmfc7wD2kOz-KKEVip-BFLyA@mail.gmail.com>
  <CAFPpqQGyUWsXwmfAybHKWhuQ6jytaNn_ZO-BfeqxNTQZDb+uvg@mail.gmail.com>
  <4e7d4090-e271-b904-c5bb-24f69304625d@tycho.nsa.gov>
@@ -13,130 +9,249 @@ References: <CAFPpqQHXmvCNLwkW3xmYX9PWFwwmfc7wD2kOz-KKEVip-BFLyA@mail.gmail.com>
  <258b172b-01a2-3af5-35e0-6c8f9aade82b@tycho.nsa.gov>
  <CAFPpqQE1x7oS0R21Fm_tU=1XHRy46FEz=ii-QHS9YDE=KAE7Sg@mail.gmail.com>
  <5a423dc6-6667-772a-4715-64fd23fb8378@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
-In-Reply-To: <5a423dc6-6667-772a-4715-64fd23fb8378@tycho.nsa.gov>
+ <20180912143644.GA10229@julius.enp8s0.d30>
+In-Reply-To: <20180912143644.GA10229@julius.enp8s0.d30>
+From: Ted Toth <txtoth@gmail.com>
+Date: Wed, 12 Sep 2018 09:57:59 -0500
+Message-ID: <CAFPpqQEdXiduYNoRvS-LuF+TmwEow7Y+5te1dRxjjfCybSXQjQ@mail.gmail.com>
+To: Stephen Smalley <sds@tycho.nsa.gov>, SELinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/alternative; boundary="000000000000c282ca0575add143"
 Subject: Re: MLS dominance check behavior on el7
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+--000000000000c282ca0575add143
+Content-Type: text/plain; charset="UTF-8"
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+On Wed, Sep 12, 2018 at 9:36 AM Dominick Grift <dac.override@gmail.com>
+wrote:
+
+> On Wed, Sep 12, 2018 at 09:57:20AM -0400, Stephen Smalley wrote:
+> > On 09/12/2018 09:26 AM, Ted Toth wrote:
+> > >
+> > >
+> > > On Wed, Sep 12, 2018 at 8:04 AM Stephen Smalley <sds@tycho.nsa.gov
+> > > <mailto:sds@tycho.nsa.gov>> wrote:
+> > >
+> > >     On 09/11/2018 04:59 PM, Ted Toth wrote:
+> > >      > That's awesome and now it's got me thinking about other
+> > >      > classes/permissions that we could implement. Can cil macros can
+> be
+> > >      > referenced in .te/.if files?
+> > >
+> > >     Not sure I understand your question.  You can't directly embed cil
+> > >     statements in .te/.if files.  However, if you define a
+> class/permission
+> > >     in a .cil module, you can certainly specify a require on it and
+> use it
+> > >     from a conventional .te/.if module, ala:
+> > >     $ cat > usemcstrans.te <<EOF
+> > >     policy_module(usemcstrans, 1.0)
+> > >
+> > >     require {
+> > >              class mcstrans { color_use };
+> > >              attribute domain;
+> > >     }
+> > >
+> > >     allow domain self:mcstrans color_use;
+> > >     EOF
+> > >
+> > >     $ make -f /usr/share/selinux/devel/Makefile usemcstrans.pp
+> > >     $ sudo semodule -i usemcstrans.pp
+> > >
+> > >
+> > > If the cil contained:
+> > >
+> > > (macro use_color (type caller) (allow caller self mcstrans
+> (color_use)))
+> > >
+> > > then in x.te can I use the macro:
+> > >
+> > > type x_t;
+> > > use_color(x_t)
+> >
+> > Sorry, no.  The macros used in .te/.if files are just m4 definitions
+> handled
+> > at the preprocessing stage, not a feature of the module language.  The
+> CIL
+> > macros are directly supported by the CIL compiler, but they won't be
+> visible
+> > to the module compiler.  Also, you are missing several parentheses above
+> > (I'm not fond of the lisp-like syntax myself).  In a CIL module, I think
+> the
+> > correct syntax would be:
+> >
+> > (macro use_color ((type caller)) (allow caller self (mcstrans
+> (color_use))))
+> >
+> > (call use_color(x_t))
+> >
+> > Or you could define a m4 macro in an .if file and use that in a .te file.
+> > Or both.
+> >
+>
+> Ideally you would have all of your policy written in CIL or in a
+> high-level language that was designed to leverage CIL.
+>
+
+Unfortunately I/we don't live in an ideal world :( but thanks for the
+pointers.
+
+
+>
+> My DSSP2 policy is a CIL-only policy. In there I also leverage unordered
+> classes, Meaning that for example if you remove or disable the mcstrans
+> module then you automatically also remove or disable  the access vectors
+> that mcstrans manages.
+>
+> minimal:
+>
+> https://github.com/DefenSec/dssp2-minimal
+>
+> standard (my personal policy based on top of minimal):
+>
+> https://github.com/DefenSec/dssp2-standard/commits/master
+>
+> DSSP2 does not support enforcement of confidentiality though
+>
+> > _______________________________________________
+> > Selinux mailing list
+> > Selinux@tycho.nsa.gov
+> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
+> > To get help, send an email containing "help" to
+> Selinux-request@tycho.nsa.gov.
+>
+> --
+> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
+> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+> Dominick Grift
+>
+
+--000000000000c282ca0575add143
+Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 12, 2018 at 09:57:20AM -0400, Stephen Smalley wrote:
-> On 09/12/2018 09:26 AM, Ted Toth wrote:
-> >=20
-> >=20
-> > On Wed, Sep 12, 2018 at 8:04 AM Stephen Smalley <sds@tycho.nsa.gov
-> > <mailto:sds@tycho.nsa.gov>> wrote:
-> >=20
-> >     On 09/11/2018 04:59 PM, Ted Toth wrote:
-> >      > That's awesome and now it's got me thinking about other
-> >      > classes/permissions that we could implement. Can cil macros can =
-be
-> >      > referenced in .te/.if files?
-> >=20
-> >     Not sure I understand your question.=A0 You can't directly embed cil
-> >     statements in .te/.if files.=A0 However, if you define a class/perm=
-ission
-> >     in a .cil module, you can certainly specify a require on it and use=
- it
-> >     from a conventional .te/.if module, ala:
-> >     $ cat > usemcstrans.te <<EOF
-> >     policy_module(usemcstrans, 1.0)
-> >=20
-> >     require {
-> >      =A0 =A0 =A0 =A0 class mcstrans { color_use };
-> >      =A0 =A0 =A0 =A0 attribute domain;
-> >     }
-> >=20
-> >     allow domain self:mcstrans color_use;
-> >     EOF
-> >=20
-> >     $ make -f /usr/share/selinux/devel/Makefile usemcstrans.pp
-> >     $ sudo semodule -i usemcstrans.pp
-> >=20
-> >=20
-> > If the cil contained:
-> >=20
-> > (macro use_color (type caller) (allow caller self mcstrans (color_use)))
-> >=20
-> > then in x.te can I use the macro:
-> >=20
-> > type x_t;
-> > use_color(x_t)
->=20
-> Sorry, no.  The macros used in .te/.if files are just m4 definitions hand=
-led
-> at the preprocessing stage, not a feature of the module language.  The CIL
-> macros are directly supported by the CIL compiler, but they won't be visi=
-ble
-> to the module compiler.  Also, you are missing several parentheses above
-> (I'm not fond of the lisp-like syntax myself).  In a CIL module, I think =
-the
-> correct syntax would be:
->=20
-> (macro use_color ((type caller)) (allow caller self (mcstrans (color_use)=
-)))
->=20
-> (call use_color(x_t))
->=20
-> Or you could define a m4 macro in an .if file and use that in a .te file.
-> Or both.
->=20
-
+<div dir=3D"ltr"><br><br><div class=3D"gmail_quote"><div dir=3D"ltr">On Wed=
+, Sep 12, 2018 at 9:36 AM Dominick Grift &lt;<a href=3D"mailto:dac.override=
+@gmail.com">dac.override@gmail.com</a>&gt; wrote:<br></div><blockquote clas=
+s=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;pad=
+ding-left:1ex">On Wed, Sep 12, 2018 at 09:57:20AM -0400, Stephen Smalley wr=
+ote:<br>
+&gt; On 09/12/2018 09:26 AM, Ted Toth wrote:<br>
+&gt; &gt; <br>
+&gt; &gt; <br>
+&gt; &gt; On Wed, Sep 12, 2018 at 8:04 AM Stephen Smalley &lt;<a href=3D"ma=
+ilto:sds@tycho.nsa.gov" target=3D"_blank">sds@tycho.nsa.gov</a><br>
+&gt; &gt; &lt;mailto:<a href=3D"mailto:sds@tycho.nsa.gov" target=3D"_blank"=
+>sds@tycho.nsa.gov</a>&gt;&gt; wrote:<br>
+&gt; &gt; <br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0On 09/11/2018 04:59 PM, Ted Toth wrote:<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0 &gt; That&#39;s awesome and now it&#39;s got =
+me thinking about other<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0 &gt; classes/permissions that we could implem=
+ent. Can cil macros can be<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0 &gt; referenced in .te/.if files?<br>
+&gt; &gt; <br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0Not sure I understand your question.=C2=A0 You=
+ can&#39;t directly embed cil<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0statements in .te/.if files.=C2=A0 However, if=
+ you define a class/permission<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0in a .cil module, you can certainly specify a =
+require on it and use it<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0from a conventional .te/.if module, ala:<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0$ cat &gt; usemcstrans.te &lt;&lt;EOF<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0policy_module(usemcstrans, 1.0)<br>
+&gt; &gt; <br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0require {<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 class mcstrans { =
+color_use };<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 attribute domain;=
+<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0}<br>
+&gt; &gt; <br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0allow domain self:mcstrans color_use;<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0EOF<br>
+&gt; &gt; <br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0$ make -f /usr/share/selinux/devel/Makefile us=
+emcstrans.pp<br>
+&gt; &gt;=C2=A0 =C2=A0 =C2=A0$ sudo semodule -i usemcstrans.pp<br>
+&gt; &gt; <br>
+&gt; &gt; <br>
+&gt; &gt; If the cil contained:<br>
+&gt; &gt; <br>
+&gt; &gt; (macro use_color (type caller) (allow caller self mcstrans (color=
+_use)))<br>
+&gt; &gt; <br>
+&gt; &gt; then in x.te can I use the macro:<br>
+&gt; &gt; <br>
+&gt; &gt; type x_t;<br>
+&gt; &gt; use_color(x_t)<br>
+&gt; <br>
+&gt; Sorry, no.=C2=A0 The macros used in .te/.if files are just m4 definiti=
+ons handled<br>
+&gt; at the preprocessing stage, not a feature of the module language.=C2=
+=A0 The CIL<br>
+&gt; macros are directly supported by the CIL compiler, but they won&#39;t =
+be visible<br>
+&gt; to the module compiler.=C2=A0 Also, you are missing several parenthese=
+s above<br>
+&gt; (I&#39;m not fond of the lisp-like syntax myself).=C2=A0 In a CIL modu=
+le, I think the<br>
+&gt; correct syntax would be:<br>
+&gt; <br>
+&gt; (macro use_color ((type caller)) (allow caller self (mcstrans (color_u=
+se))))<br>
+&gt; <br>
+&gt; (call use_color(x_t))<br>
+&gt; <br>
+&gt; Or you could define a m4 macro in an .if file and use that in a .te fi=
+le.<br>
+&gt; Or both.<br>
+&gt; <br>
+<br>
 Ideally you would have all of your policy written in CIL or in a high-level=
- language that was designed to leverage CIL.
-
+ language that was designed to leverage CIL.<br></blockquote><div><br></div=
+><div>Unfortunately I/we don&#39;t live in an ideal world :( but thanks for=
+ the pointers.</div><div>=C2=A0<br></div><blockquote class=3D"gmail_quote" =
+style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<br>
 My DSSP2 policy is a CIL-only policy. In there I also leverage unordered cl=
 asses, Meaning that for example if you remove or disable the mcstrans modul=
-e then you automatically also remove or disable  the access vectors that mc=
-strans manages.
+e then you automatically also remove or disable=C2=A0 the access vectors th=
+at mcstrans manages.<br>
+<br>
+minimal:<br>
+<br>
+<a href=3D"https://github.com/DefenSec/dssp2-minimal" rel=3D"noreferrer" ta=
+rget=3D"_blank">https://github.com/DefenSec/dssp2-minimal</a><br>
+<br>
+standard (my personal policy based on top of minimal):<br>
+<br>
+<a href=3D"https://github.com/DefenSec/dssp2-standard/commits/master" rel=
+=3D"noreferrer" target=3D"_blank">https://github.com/DefenSec/dssp2-standar=
+d/commits/master</a><br>
+<br>
+DSSP2 does not support enforcement of confidentiality though<br>
+<br>
+&gt; _______________________________________________<br>
+&gt; Selinux mailing list<br>
+&gt; <a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tyc=
+ho.nsa.gov</a><br>
+&gt; To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.ns=
+a.gov" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
+&gt; To get help, send an email containing &quot;help&quot; to <a href=3D"m=
+ailto:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tych=
+o.nsa.gov</a>.<br>
+<br>
+-- <br>
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8=C2=A0 02D5 3B6C 5F1D 2C7B 6B02=
+<br>
+<a href=3D"https://sks-keyservers.net/pks/lookup?op=3Dget&amp;search=3D0x3B=
+6C5F1D2C7B6B02" rel=3D"noreferrer" target=3D"_blank">https://sks-keyservers=
+.net/pks/lookup?op=3Dget&amp;search=3D0x3B6C5F1D2C7B6B02</a><br>
+Dominick Grift<br>
+</blockquote></div></div>
 
-minimal:
-
-https://github.com/DefenSec/dssp2-minimal
-
-standard (my personal policy based on top of minimal):
-
-https://github.com/DefenSec/dssp2-standard/commits/master
-
-DSSP2 does not support enforcement of confidentiality though
-
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa=
-=2Egov.
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---J/dobhs11T7y2rNN
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAluZJHgACgkQJXSOVTf5
-R2nWbAv+Ny3BYjjbuMY7ksaXMmlEFE4sAR/P8F5li4Kse0iAndLSkWIbrMuncj7W
-Df7UjsVsyyGgW95w7MWLwQy9uvLhk5hKjy8uZhRIKWwUoGazY5cSrcV9iwsLPCn0
-nbef5naN/s3AycPqawKHmTAjCtldNoqPTpKnzAWwo/7Vj4syqvCYbnsNKQo3zyO1
-4mQGfaKkGtsEPZlIKt9fM7pVAbzIa3ynxtl9GEnafp0rPPjaPjEhR2vq8335lSqW
-6vXmFJQNWHHe2MOHn4RKHsFbAZLnNp+JODPO6ajH1UFVJyXLDQDctFvyRt398AqW
-ka2gYyAm7TOhmONYj7HVv0eJCOW/n2zyLvsWUgMT06J2Flw5CkNuzruyFZmNX39R
-pHcQntaU0/HpzzMF9doiKVu8JgIE2AiSumDL7Pav3qNVCrRRyv4QEqHZYm2qN+yG
-iIoY/A3+NhvPQRVrK0OSueoG6V4794t/bHI4/foCekjw80B6Ih6C+7q8Xsp52HAJ
-jyiAik10
-=Bwnp
------END PGP SIGNATURE-----
-
---J/dobhs11T7y2rNN--
+--000000000000c282ca0575add143--
