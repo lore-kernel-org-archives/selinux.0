@@ -1,142 +1,79 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8DJCvr7014181
- for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 15:12:58 -0400
-Received: by mail-lf1-f65.google.com with SMTP id z11-v6so5754662lff.9
- for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 12:12:48 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8DJNZpj014259
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 15:23:35 -0400
+Received: by mail-lj1-f194.google.com with SMTP id l15-v6so5568757lji.6
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 12:23:31 -0700 (PDT)
 MIME-Version: 1.0
-References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
- <99cb1ae7-8881-eb9a-a8cb-a787abe454e1@schaufler-ca.com>
- <CAGXu5jLONSfPHYYYTLSma-+arVHSQKaEWb9JxpOn6TNKtyLNhw@mail.gmail.com>
- <CAHC9VhQN0wq0zZS5BYU9jBomaWvCaJ_BqJjHF3AT7FG8Z0nLDQ@mail.gmail.com>
- <CAGXu5jJs6kmd6Tjgwqb2Zx7e-jNbHqfJ57poZuyz4Qj=AKVfmQ@mail.gmail.com>
-In-Reply-To: <CAGXu5jJs6kmd6Tjgwqb2Zx7e-jNbHqfJ57poZuyz4Qj=AKVfmQ@mail.gmail.com>
+References: <000000000000038dab0575476b73@google.com>
+ <f3bcebc6-47a7-518e-70f7-c7e167621841@I-love.SAKURA.ne.jp>
+ <CAHC9VhT-Thu6KppC-MWzqkB7R1CaQA9DWXOQnG0b2uS9+rvzoA@mail.gmail.com>
+ <ea29a8bf-95b2-91d2-043b-ed73c9023166@i-love.sakura.ne.jp>
+In-Reply-To: <ea29a8bf-95b2-91d2-043b-ed73c9023166@i-love.sakura.ne.jp>
 From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 13 Sep 2018 15:12:32 -0400
-Message-ID: <CAHC9VhQ20tBAMwOJ9mg0tBHYUoxjh0Szr3d62HuPw2SyT4XDLw@mail.gmail.com>
-To: keescook@chromium.org
-Cc: casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
- James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
- selinux@tycho.nsa.gov, john.johansen@canonical.com,
- penguin-kernel@i-love.sakura.ne.jp,
- Stephen Smalley <sds@tycho.nsa.gov>, linux-fsdevel@vger.kernel.org,
- adobriyan@gmail.com, casey.schaufler@intel.com
+Date: Thu, 13 Sep 2018 15:23:15 -0400
+Message-ID: <CAHC9VhR8My9_Dt=4OhUoHsN8MRViLaBmcfzbeJWmvnGn_AQmzw@mail.gmail.com>
+To: penguin-kernel@i-love.sakura.ne.jp
+Cc: selinux@tycho.nsa.gov,
+ syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com,
+ Eric Paris <eparis@parisplace.org>, linux-kernel@vger.kernel.org,
+ peter.enderborg@sony.com, Stephen Smalley <sds@tycho.nsa.gov>,
+ syzkaller-bugs@googlegroups.com, linux-mm@kvack.org
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 10/10] LSM: Blob sharing support for S.A.R.A and LandLock
+Subject: Re: [PATCH] selinux: Add __GFP_NOWARN to allocation at
+ str_read()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Sep 13, 2018 at 11:19 AM Kees Cook <keescook@chromium.org> wrote:
-> On Thu, Sep 13, 2018 at 6:16 AM, Paul Moore <paul@paul-moore.com> wrote:
-> > On Thu, Sep 13, 2018 at 12:19 AM Kees Cook <keescook@chromium.org> wrote:
-> >> On Tue, Sep 11, 2018 at 9:42 AM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> > Two proposed security modules require the ability to
-> >> > share security blobs with existing "major" security modules.
-> >> > These modules, S.A.R.A and LandLock, provide significantly
-> >> > different services than SELinux, Smack or AppArmor. Using
-> >> > either in conjunction with the existing modules is quite
-> >> > reasonable. S.A.R.A requires access to the cred blob, while
-> >> > LandLock uses the cred, file and inode blobs.
-> >> >
-> >> > The use of the cred, file and inode blobs has been
-> >> > abstracted in preceding patches in the series. This
-> >> > patch teaches the affected security modules how to access
-> >> > the part of the blob set aside for their use in the case
-> >> > where blobs are shared. The configuration option
-> >> > CONFIG_SECURITY_STACKING identifies systems where the
-> >> > blobs may be shared.
-> >> >
-> >> > The mechanism for selecting which security modules are
-> >> > active has been changed to allow non-conflicting "major"
-> >> > security modules to be used together. At this time the
-> >> > TOMOYO module can safely be used with any of the others.
-> >> > The two new modules would be non-conflicting as well.
-> >> >
-> >> > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> > ---
-> >> >  Documentation/admin-guide/LSM/index.rst | 14 +++--
-> >> >  include/linux/lsm_hooks.h               |  2 +-
-> >> >  security/Kconfig                        | 81 +++++++++++++++++++++++++
-> >> >  security/apparmor/include/cred.h        |  8 +++
-> >> >  security/apparmor/include/file.h        |  9 ++-
-> >> >  security/apparmor/include/lib.h         |  4 ++
-> >> >  security/apparmor/lsm.c                 |  8 ++-
-> >> >  security/security.c                     | 30 ++++++++-
-> >> >  security/selinux/hooks.c                |  3 +-
-> >> >  security/selinux/include/objsec.h       | 18 +++++-
-> >> >  security/smack/smack.h                  | 19 +++++-
-> >> >  security/smack/smack_lsm.c              | 17 +++---
-> >> >  security/tomoyo/common.h                | 12 +++-
-> >> >  security/tomoyo/tomoyo.c                |  3 +-
-> >> >  14 files changed, 200 insertions(+), 28 deletions(-)
-> >
-> > ...
-> >
-> >> > diff --git a/security/Kconfig b/security/Kconfig
-> >> > index 22f7664c4977..ed48025ae9e0 100644
-> >> > --- a/security/Kconfig
-> >> > +++ b/security/Kconfig
-> >> > @@ -36,6 +36,28 @@ config SECURITY_WRITABLE_HOOKS
-> >> >         bool
-> >> >         default n
-> >> >
-> >> > +config SECURITY_STACKING
-> >> > +       bool "Security module stacking"
-> >> > +       depends on SECURITY
-> >> > +       help
-> >> > +         Allows multiple major security modules to be stacked.
-> >> > +         Modules are invoked in the order registered with a
-> >> > +         "bail on fail" policy, in which the infrastructure
-> >> > +         will stop processing once a denial is detected. Not
-> >> > +         all modules can be stacked. SELinux, Smack and AppArmor are
-> >> > +         known to be incompatible. User space components may
-> >> > +         have trouble identifying the security module providing
-> >> > +         data in some cases.
-> >> > +
-> >> > +         If you select this option you will have to select which
-> >> > +         of the stackable modules you wish to be active. The
-> >> > +         "Default security module" will be ignored. The boot line
-> >> > +         "security=" option can be used to specify that one of
-> >> > +         the modules identifed for stacking should be used instead
-> >> > +         of the entire stack.
-> >> > +
-> >> > +         If you are unsure how to answer this question, answer N.
+On Thu, Sep 13, 2018 at 2:26 AM Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> On 2018/09/13 12:02, Paul Moore wrote:
+> > On Fri, Sep 7, 2018 at 12:43 PM Tetsuo Handa
+> > <penguin-kernel@i-love.sakura.ne.jp> wrote:
+> >> syzbot is hitting warning at str_read() [1] because len parameter can
+> >> become larger than KMALLOC_MAX_SIZE. We don't need to emit warning for
+> >> this case.
 > >>
-> >> I don't see a good reason to make this a config. Why shouldn't this
-> >> always be enabled?
+> >> [1] https://syzkaller.appspot.com/bug?id=7f2f5aad79ea8663c296a2eedb81978401a908f0
+> >>
+> >> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> >> Reported-by: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>
+> >> ---
+> >>  security/selinux/ss/policydb.c | 2 +-
+> >>  1 file changed, 1 insertion(+), 1 deletion(-)
+> >>
+> >> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> >> index e9394e7..f4eadd3 100644
+> >> --- a/security/selinux/ss/policydb.c
+> >> +++ b/security/selinux/ss/policydb.c
+> >> @@ -1101,7 +1101,7 @@ static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
+> >>         if ((len == 0) || (len == (u32)-1))
+> >>                 return -EINVAL;
+> >>
+> >> -       str = kmalloc(len + 1, flags);
+> >> +       str = kmalloc(len + 1, flags | __GFP_NOWARN);
+> >>         if (!str)
+> >>                 return -ENOMEM;
 > >
-> > I do.  From a user perspective it is sometimes difficult to determine
-> > the reason behind a failed operation; its is a DAC based denial, the
-> > LSM, or some other failure?  Stacking additional LSMs has the
-> > potential to make this worse.  The boot time configuration adds to the
-> > complexity.
+> > Thanks for the patch.
+> >
+> > My eyes are starting to glaze over a bit chasing down all of the
+> > different kmalloc() code paths trying to ensure that this always does
+> > the right thing based on size of the allocation and the different slab
+> > allocators ... are we sure that this will always return NULL when (len
+> > + 1) is greater than KMALLOC_MAX_SIZE for the different slab allocator
+> > configurations?
 >
-> Let me try to convince you otherwise. :) The reason I think there's no
-> need for this is because the only functional change here is how
-> _TOMOYO_ gets stacked. And in my proposal, we can convert TOMOYO to be
-> enabled/disabled like LoadPin. Given the configs I showed, stacking
-> TOMOYO with the other major LSMs becomes a config (and/or boottime)
-> option.
+> Yes, for (len + 1) cannot become 0 (which causes kmalloc() to return
+> ZERO_SIZE_PTR) due to (len == (u32)-1) check above.
 >
-> The changes for TOMOYO are still needed even _with_ SECURITY_STACKING,
-> and I argue that the other major LSMs remain the same. It's only
-> infrastructure that has changed. So, I think having SECURITY_STACKING
-> actually makes things more complex internally (all the ifdefs, weird
-> enable logic) and for distros ("what's this stacking option", etc?)
+> The only concern would be whether you want allocation failure messages.
+> I assumed you don't need it because we are returning -ENOMEM to the caller.
 
-None of the above deals with the user experience or support burden a
-distro would have by forcing stacking on.  If we make it an option the
-distros can choose for themselves; picking a kernel build config is
-not something new to distros, and I think Casey's text adequately
-explains CONFIG_SECURITY_STACKING in terms that would be sufficient.
-I currently have a neutral stance on stacking, making it mandatory
-pushes me more towards a "no".
-
-As far as the cpp ifdef's, and other conditionals are concerned, I
-remain unconvinced this is any worse than any other significant
-feature that is a build time option.
+I'm not to worried about the failure messages, returning -ENOMEM
+should be sufficient in this case.
 
 -- 
 paul moore
