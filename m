@@ -1,203 +1,120 @@
-Date: Thu, 13 Sep 2018 20:58:48 +0000
-To: Paul Moore <paul@paul-moore.com>
-From: Jordan Glover <Golden_Miller83@protonmail.ch>
-Cc: "keescook@chromium.org" <keescook@chromium.org>,
- "casey@schaufler-ca.com" <casey@schaufler-ca.com>,
- "linux-security-module@vger.kernel.org"
- <linux-security-module@vger.kernel.org>, James Morris <jmorris@namei.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "selinux@tycho.nsa.gov" <selinux@tycho.nsa.gov>,
- "john.johansen@canonical.com" <john.johansen@canonical.com>,
- "penguin-kernel@i-love.sakura.ne.jp" <penguin-kernel@i-love.sakura.ne.jp>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- "casey.schaufler@intel.com" <casey.schaufler@intel.com>
-Reply-To: Jordan Glover <Golden_Miller83@protonmail.ch>
-Message-ID: <tb3zfQ7fac9Oth8YArOo84SbMfqV1s0DjOmVy7op90J_o1XOaEjflZloOpj9PIiUQRhKJxhauXzJD3irkSSjOXK94qYlfQ1frIQiH1OTWPQ=@protonmail.ch>
-In-Reply-To: <CAHC9VhQ20tBAMwOJ9mg0tBHYUoxjh0Szr3d62HuPw2SyT4XDLw@mail.gmail.com>
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8DLeMJl003468
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 17:40:22 -0400
+Received: by mail-lj1-f196.google.com with SMTP id j19-v6so5843091ljc.7
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 14:39:30 -0700 (PDT)
+MIME-Version: 1.0
 References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
  <99cb1ae7-8881-eb9a-a8cb-a787abe454e1@schaufler-ca.com>
  <CAGXu5jLONSfPHYYYTLSma-+arVHSQKaEWb9JxpOn6TNKtyLNhw@mail.gmail.com>
  <CAHC9VhQN0wq0zZS5BYU9jBomaWvCaJ_BqJjHF3AT7FG8Z0nLDQ@mail.gmail.com>
  <CAGXu5jJs6kmd6Tjgwqb2Zx7e-jNbHqfJ57poZuyz4Qj=AKVfmQ@mail.gmail.com>
  <CAHC9VhQ20tBAMwOJ9mg0tBHYUoxjh0Szr3d62HuPw2SyT4XDLw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+ <CAGXu5jKec1JTsoqwKGThcJoamdL618AHu4jfFbqqQiauz1kjyg@mail.gmail.com>
+In-Reply-To: <CAGXu5jKec1JTsoqwKGThcJoamdL618AHu4jfFbqqQiauz1kjyg@mail.gmail.com>
+From: Paul Moore <paul@paul-moore.com>
+Date: Thu, 13 Sep 2018 17:38:15 -0400
+Message-ID: <CAHC9VhQwT4d3wC37cVrrX-hZq1L3e6=TEAse4m-YH9SiFnkieA@mail.gmail.com>
+To: keescook@chromium.org
+Cc: casey@schaufler-ca.com, linux-security-module@vger.kernel.org,
+ James Morris <jmorris@namei.org>, linux-kernel@vger.kernel.org,
+ selinux@tycho.nsa.gov, john.johansen@canonical.com,
+ penguin-kernel@i-love.sakura.ne.jp,
+ Stephen Smalley <sds@tycho.nsa.gov>, linux-fsdevel@vger.kernel.org,
+ adobriyan@gmail.com, casey.schaufler@intel.com
+Content-Type: text/plain; charset="UTF-8"
 Subject: Re: [PATCH 10/10] LSM: Blob sharing support for S.A.R.A and LandLock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thursday, September 13, 2018 9:12 PM, Paul Moore <paul@paul-moore.com> wrote:
-
-> On Thu, Sep 13, 2018 at 11:19 AM Kees Cook keescook@chromium.org wrote:
+On Thu, Sep 13, 2018 at 5:01 PM Kees Cook <keescook@chromium.org> wrote:
+> On Thu, Sep 13, 2018 at 12:12 PM, Paul Moore <paul@paul-moore.com> wrote:
+> > None of the above deals with the user experience or support burden a
+> > distro would have by forcing stacking on.  If we make it an option the
 >
-> > On Thu, Sep 13, 2018 at 6:16 AM, Paul Moore paul@paul-moore.com wrote:
-> >
-> > > On Thu, Sep 13, 2018 at 12:19 AM Kees Cook keescook@chromium.org wrote:
-> > >
-> > > > On Tue, Sep 11, 2018 at 9:42 AM, Casey Schaufler casey@schaufler-ca.com wrote:
-> > > >
-> > > > > Two proposed security modules require the ability to
-> > > > > share security blobs with existing "major" security modules.
-> > > > > These modules, S.A.R.A and LandLock, provide significantly
-> > > > > different services than SELinux, Smack or AppArmor. Using
-> > > > > either in conjunction with the existing modules is quite
-> > > > > reasonable. S.A.R.A requires access to the cred blob, while
-> > > > > LandLock uses the cred, file and inode blobs.
-> > > > > The use of the cred, file and inode blobs has been
-> > > > > abstracted in preceding patches in the series. This
-> > > > > patch teaches the affected security modules how to access
-> > > > > the part of the blob set aside for their use in the case
-> > > > > where blobs are shared. The configuration option
-> > > > > CONFIG_SECURITY_STACKING identifies systems where the
-> > > > > blobs may be shared.
-> > > > > The mechanism for selecting which security modules are
-> > > > > active has been changed to allow non-conflicting "major"
-> > > > > security modules to be used together. At this time the
-> > > > > TOMOYO module can safely be used with any of the others.
-> > > > > The two new modules would be non-conflicting as well.
-> > > > >
-> > > > > Signed-off-by: Casey Schaufler casey@schaufler-ca.com
-> > > > >
-> > > > > ------------------------------------------------------
-> > > > >
-> > > > > Documentation/admin-guide/LSM/index.rst | 14 +++--
-> > > > > include/linux/lsm_hooks.h | 2 +-
-> > > > > security/Kconfig | 81 +++++++++++++++++++++++++
-> > > > > security/apparmor/include/cred.h | 8 +++
-> > > > > security/apparmor/include/file.h | 9 ++-
-> > > > > security/apparmor/include/lib.h | 4 ++
-> > > > > security/apparmor/lsm.c | 8 ++-
-> > > > > security/security.c | 30 ++++++++-
-> > > > > security/selinux/hooks.c | 3 +-
-> > > > > security/selinux/include/objsec.h | 18 +++++-
-> > > > > security/smack/smack.h | 19 +++++-
-> > > > > security/smack/smack_lsm.c | 17 +++---
-> > > > > security/tomoyo/common.h | 12 +++-
-> > > > > security/tomoyo/tomoyo.c | 3 +-
-> > > > > 14 files changed, 200 insertions(+), 28 deletions(-)
-> > >
-> > > ...
-> > >
-> > > > > diff --git a/security/Kconfig b/security/Kconfig
-> > > > > index 22f7664c4977..ed48025ae9e0 100644
-> > > > > --- a/security/Kconfig
-> > > > > +++ b/security/Kconfig
-> > > > > @@ -36,6 +36,28 @@ config SECURITY_WRITABLE_HOOKS
-> > > > > bool
-> > > > > default n
-> > > > > +config SECURITY_STACKING
-> > > > >
-> > > > > -         bool "Security module stacking"
-> > > > >
-> > > > >
-> > > > > -         depends on SECURITY
-> > > > >
-> > > > >
-> > > > > -         help
-> > > > >
-> > > > >
-> > > > > -           Allows multiple major security modules to be stacked.
-> > > > >
-> > > > >
-> > > > > -           Modules are invoked in the order registered with a
-> > > > >
-> > > > >
-> > > > > -           "bail on fail" policy, in which the infrastructure
-> > > > >
-> > > > >
-> > > > > -           will stop processing once a denial is detected. Not
-> > > > >
-> > > > >
-> > > > > -           all modules can be stacked. SELinux, Smack and AppArmor are
-> > > > >
-> > > > >
-> > > > > -           known to be incompatible. User space components may
-> > > > >
-> > > > >
-> > > > > -           have trouble identifying the security module providing
-> > > > >
-> > > > >
-> > > > > -           data in some cases.
-> > > > >
-> > > > >
-> > > > > -
-> > > > > -           If you select this option you will have to select which
-> > > > >
-> > > > >
-> > > > > -           of the stackable modules you wish to be active. The
-> > > > >
-> > > > >
-> > > > > -           "Default security module" will be ignored. The boot line
-> > > > >
-> > > > >
-> > > > > -           "security=" option can be used to specify that one of
-> > > > >
-> > > > >
-> > > > > -           the modules identifed for stacking should be used instead
-> > > > >
-> > > > >
-> > > > > -           of the entire stack.
-> > > > >
-> > > > >
-> > > > > -
-> > > > > -           If you are unsure how to answer this question, answer N.
-> > > > >
-> > > > >
-> > > >
-> > > > I don't see a good reason to make this a config. Why shouldn't this
-> > > > always be enabled?
-> > >
-> > > I do. From a user perspective it is sometimes difficult to determine
-> > > the reason behind a failed operation; its is a DAC based denial, the
-> > > LSM, or some other failure? Stacking additional LSMs has the
-> > > potential to make this worse. The boot time configuration adds to the
-> > > complexity.
-> >
-> > Let me try to convince you otherwise. :) The reason I think there's no
-> > need for this is because the only functional change here is how
-> > TOMOYO gets stacked. And in my proposal, we can convert TOMOYO to be
-> > enabled/disabled like LoadPin. Given the configs I showed, stacking
-> > TOMOYO with the other major LSMs becomes a config (and/or boottime)
-> > option.
-> > The changes for TOMOYO are still needed even with SECURITY_STACKING,
-> > and I argue that the other major LSMs remain the same. It's only
-> > infrastructure that has changed. So, I think having SECURITY_STACKING
-> > actually makes things more complex internally (all the ifdefs, weird
-> > enable logic) and for distros ("what's this stacking option", etc?)
+> Just to make sure we're clear here: this series does not provide
+> "extreme" stacking: SELinux, AppArmor, and SMACK remain boot-exclusive
+> no matter what the CONFIGs.
 >
-> None of the above deals with the user experience or support burden a
-> distro would have by forcing stacking on. If we make it an option the
-> distros can choose for themselves; picking a kernel build config is
-> not something new to distros, and I think Casey's text adequately
-> explains CONFIG_SECURITY_STACKING in terms that would be sufficient.
-
-CONFIG_SECURITY_STACKING doesn't make any user visible changes on
-itself as it doesn't automatically enable any new LSM. The LSM
-specific configs are place where users/distros make decisions. If
-there is only one LSM enabled to run then there's nothing to stack.
-If someone choose to run two or more LSM in config/boot cmdline
-then we can assume having it stacked is what they wanted. As Kees
-pointed there is already CONFIG_SECURITY_DEFAULT_XXX. In both cases
-CONFIG_SECURITY_STACKING is redundant and only adds burden instead
-of removing it.
-
-> I currently have a neutral stance on stacking, making it mandatory
-> pushes me more towards a "no".
+> > distros can choose for themselves; picking a kernel build config is
+> > not something new to distros, and I think Casey's text adequately
+> > explains CONFIG_SECURITY_STACKING in terms that would be sufficient.
 >
-
-This implies that your real concern is something else than
-CONFIG_SECURITY_STACKING which only allows you to ignore the whole
-thing. Please reveal it. There are a lot of people waiting for LSM
-stacking which is several years late and it would be great to
-resolve potential issues earlier  rather later.
-
-> As far as the cpp ifdef's, and other conditionals are concerned, I
-> remain unconvinced this is any worse than any other significant
-> feature that is a build time option.
+> I absolutely want stacking to be configurable, but I want to point out
+> that there is no operational difference between
+> CONFIG_SECURITY_STACKING=n and CONFIG_SECURITY_STACKING=y in the code
+> here:
 >
-> paul moore
+> - all the new accessor and allocation code is exercised in both cases
+>
+> - with stacking enabled: selinux, apparmor, and smack have an offset
+> of 0 into blobs (and only one can be enabled at a time)
+>
+> - with stacking disabled: selinux, apparmor, and smack have an offset
+> of 0 into blobs (and only one can be enabled at a time)
+>
+> The only behavioral difference is TOMOYO:
+>
+> 1- with stacking disabled and TOMOYO as the only major LSM, it will
+> have a 0 offset into blobs (like above)
+>
+> 2- with stacking enabled and TOMOYO as the only major LSM, it will
+> have a 0 offset into blobs (like above)
+>
+> 3- with stacking disabled and another major LSM is enabled, TOMOYO
+> will be disabled (like always)
+>
+> 4- with stacking enabled and another major LSM is enabled, TOMOYO will
+> have a non-0 offset into blobs and will run after selinux or smack or
+> run before apparmor (based on link ordering defined by the Makefile).
 
-Jordan
+Case #3/#4 is what I'm getting at, and I would argue demonstrates an
+operational difference that is user visible/configurable.
+
+Unless something has changed and I missed it, you can currently build
+all of the LSMs into a single kernel image, and the admin/user can
+choose one at boot time.  CONFIG_SECURITY_STACKING=y enables the
+admin/user to stack LSMs (albeit with restrictions in the current
+iteration) and CONFIG_SECURITY_STACKING=n limits the admin/user to a
+single LSM (what we have now).  I understand that as of this moment we
+are talking only about TOMOYO and AppArmor/Smack/SELinux, but everyone
+knows that S.A.R.A/SARA and LandLock are going to follow shortly -
+that's the whole point of this latest spin, isn't it?
+
+> > I currently have a neutral stance on stacking, making it mandatory
+> > pushes me more towards a "no".
+>
+> This is why I'm trying to explain myself: the infrastructure proposed
+> here is always exercised, no matter the CONFIG. From that sense it is
+> "mandatory" no matter what the config is. There isn't a reality where
+> you could "turn off stacking", because it's not stacking until you
+> actually stack something, and that will be disabled by default as I've
+> proposed it.
+>
+> Let me put this another way: if we simply leave off patch 10, we can
+> take the other 9 patches (modulo feedback), and we only have to decide
+> how to expose "stacking"; all the infrastructure work for supporting
+> it is done.
+>
+> I'm arguing that "security=" is likely insufficient to describe what
+> we want, and instead we should focus on individual LSM enablement via
+> parameters ("tomoyo.enabled=1"). If _ordering_ becomes an issue, we
+> could either use parameter order, or use "security=" again maybe, but
+> for now, ordering is already defined by the Makefile (and
+> security/security.c).
+
+The infrastructure bits aren't really my concern; in fact I *like*
+that the infrastructure is always exercised, it makes
+testing/debugging easier.  I also like the ability to limit the
+user/admin to one LSM at boot time to make support easier; my goal is
+to allow a distro to build support for multiple LSMs without also
+requiring that distro to support *stacked* LSMs (see my earlier
+comments about the difficulty in determining the source of a failed
+operation).
+
+-- 
+paul moore
+www.paul-moore.com
