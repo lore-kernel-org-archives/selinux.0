@@ -1,109 +1,144 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8DJabvR016959
- for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 15:36:37 -0400
-Received: by mail-lf1-f65.google.com with SMTP id t140-v6so3452lff.4
- for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 12:36:32 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8DL3xQP030266
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 17:03:59 -0400
+Received: by mail-yw1-f67.google.com with SMTP id p206-v6so1769356ywg.12
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 14:01:54 -0700 (PDT)
+Received: from mail-yb1-f181.google.com (mail-yb1-f181.google.com.
+ [209.85.219.181])
+ by smtp.gmail.com with ESMTPSA id d10-v6sm4908928ywh.87.2018.09.13.14.01.49
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Thu, 13 Sep 2018 14:01:49 -0700 (PDT)
+Received: by mail-yb1-f181.google.com with SMTP id k5-v6so3877491ybo.10
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 14:01:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <000000000000038dab0575476b73@google.com>
- <f3bcebc6-47a7-518e-70f7-c7e167621841@I-love.SAKURA.ne.jp>
- <CAHC9VhT-Thu6KppC-MWzqkB7R1CaQA9DWXOQnG0b2uS9+rvzoA@mail.gmail.com>
- <ea29a8bf-95b2-91d2-043b-ed73c9023166@i-love.sakura.ne.jp>
- <9d685700-bc5c-9c2f-7795-56f488d2ea38@sony.com>
- <20180913111135.GA21006@dhcp22.suse.cz>
- <ec6547f4-6240-d901-b2d2-b5103a10493f@sony.com>
-In-Reply-To: <ec6547f4-6240-d901-b2d2-b5103a10493f@sony.com>
-From: Paul Moore <paul@paul-moore.com>
-Date: Thu, 13 Sep 2018 15:35:19 -0400
-Message-ID: <CAHC9VhT1MQ=oShEQyp+5hwLOYm1fGK_YjiW1T7tkyOPp5-ypnA@mail.gmail.com>
-To: penguin-kernel@i-love.sakura.ne.jp, peter.enderborg@sony.com
-Cc: mhocko@kernel.org, selinux@tycho.nsa.gov,
- syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com,
- Eric Paris <eparis@parisplace.org>, linux-kernel@vger.kernel.org,
- Stephen Smalley <sds@tycho.nsa.gov>, syzkaller-bugs@googlegroups.com,
- linux-mm@kvack.org
+In-Reply-To: <CAHC9VhQ20tBAMwOJ9mg0tBHYUoxjh0Szr3d62HuPw2SyT4XDLw@mail.gmail.com>
+References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
+ <99cb1ae7-8881-eb9a-a8cb-a787abe454e1@schaufler-ca.com>
+ <CAGXu5jLONSfPHYYYTLSma-+arVHSQKaEWb9JxpOn6TNKtyLNhw@mail.gmail.com>
+ <CAHC9VhQN0wq0zZS5BYU9jBomaWvCaJ_BqJjHF3AT7FG8Z0nLDQ@mail.gmail.com>
+ <CAGXu5jJs6kmd6Tjgwqb2Zx7e-jNbHqfJ57poZuyz4Qj=AKVfmQ@mail.gmail.com>
+ <CAHC9VhQ20tBAMwOJ9mg0tBHYUoxjh0Szr3d62HuPw2SyT4XDLw@mail.gmail.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Thu, 13 Sep 2018 14:01:48 -0700
+Message-ID: <CAGXu5jKec1JTsoqwKGThcJoamdL618AHu4jfFbqqQiauz1kjyg@mail.gmail.com>
+To: Paul Moore <paul@paul-moore.com>
+Cc: Casey Schaufler <casey@schaufler-ca.com>,
+ linux-security-module <linux-security-module@vger.kernel.org>,
+ James Morris <jmorris@namei.org>, LKML <linux-kernel@vger.kernel.org>,
+ SE Linux <selinux@tycho.nsa.gov>,
+ John Johansen <john.johansen@canonical.com>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH] selinux: Add __GFP_NOWARN to allocation at
- str_read()
+Subject: Re: [PATCH 10/10] LSM: Blob sharing support for S.A.R.A and LandLock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Thu, Sep 13, 2018 at 8:55 AM peter enderborg
-<peter.enderborg@sony.com> wrote:
-> On 09/13/2018 01:11 PM, Michal Hocko wrote:
-> > On Thu 13-09-18 09:12:04, peter enderborg wrote:
-> >> On 09/13/2018 08:26 AM, Tetsuo Handa wrote:
-> >>> On 2018/09/13 12:02, Paul Moore wrote:
-> >>>> On Fri, Sep 7, 2018 at 12:43 PM Tetsuo Handa
-> >>>> <penguin-kernel@i-love.sakura.ne.jp> wrote:
-> >>>>> syzbot is hitting warning at str_read() [1] because len parameter can
-> >>>>> become larger than KMALLOC_MAX_SIZE. We don't need to emit warning for
-> >>>>> this case.
-> >>>>>
-> >>>>> [1] https://syzkaller.appspot.com/bug?id=7f2f5aad79ea8663c296a2eedb81978401a908f0
-> >>>>>
-> >>>>> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-> >>>>> Reported-by: syzbot <syzbot+ac488b9811036cea7ea0@syzkaller.appspotmail.com>
-> >>>>> ---
-> >>>>>  security/selinux/ss/policydb.c | 2 +-
-> >>>>>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>>>>
-> >>>>> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> >>>>> index e9394e7..f4eadd3 100644
-> >>>>> --- a/security/selinux/ss/policydb.c
-> >>>>> +++ b/security/selinux/ss/policydb.c
-> >>>>> @@ -1101,7 +1101,7 @@ static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
-> >>>>>         if ((len == 0) || (len == (u32)-1))
-> >>>>>                 return -EINVAL;
-> >>>>>
-> >>>>> -       str = kmalloc(len + 1, flags);
-> >>>>> +       str = kmalloc(len + 1, flags | __GFP_NOWARN);
-> >>>>>         if (!str)
-> >>>>>                 return -ENOMEM;
-> >>>> Thanks for the patch.
-> >>>>
-> >>>> My eyes are starting to glaze over a bit chasing down all of the
-> >>>> different kmalloc() code paths trying to ensure that this always does
-> >>>> the right thing based on size of the allocation and the different slab
-> >>>> allocators ... are we sure that this will always return NULL when (len
-> >>>> + 1) is greater than KMALLOC_MAX_SIZE for the different slab allocator
-> >>>> configurations?
-> >>>>
-> >>> Yes, for (len + 1) cannot become 0 (which causes kmalloc() to return
-> >>> ZERO_SIZE_PTR) due to (len == (u32)-1) check above.
-> >>>
-> >>> The only concern would be whether you want allocation failure messages.
-> >>> I assumed you don't need it because we are returning -ENOMEM to the caller.
-> >>>
-> >> Would it not be better with
-> >>
-> >>     char *str;
-> >>
-> >>     if ((len == 0) || (len == (u32)-1) || (len >= KMALLOC_MAX_SIZE))
-> >>         return -EINVAL;
-> >>
-> >>     str = kmalloc(len + 1, flags);
-> >>     if (!str)
-> >>         return -ENOMEM;
-> > I strongly suspect that you want kvmalloc rather than kmalloc here. The
-> > larger the request the more likely is the allocation to fail.
-> >
-> > I am not familiar with the code but I assume this is a root only
-> > interface so we don't have to worry about nasty users scenario.
-> >
-> I don't think we get any big data there at all. Usually less than 32 bytes. However this data can be in fast path so a vmalloc is not an option.
->
-> And some of the calls are GFP_ATOMC.
+On Thu, Sep 13, 2018 at 12:12 PM, Paul Moore <paul@paul-moore.com> wrote:
+> None of the above deals with the user experience or support burden a
+> distro would have by forcing stacking on.  If we make it an option the
 
-Based on all the comments it looks like Tetsuo's original patch is
-probably the best fix right now.  I'm going to merge this into
-selinux/next.
+Just to make sure we're clear here: this series does not provide
+"extreme" stacking: SELinux, AppArmor, and SMACK remain boot-exclusive
+no matter what the CONFIGs.
 
-Tetsuo, thanks for the patch, and thanks to everyone else for the
-comments/review.
+> distros can choose for themselves; picking a kernel build config is
+> not something new to distros, and I think Casey's text adequately
+> explains CONFIG_SECURITY_STACKING in terms that would be sufficient.
+
+I absolutely want stacking to be configurable, but I want to point out
+that there is no operational difference between
+CONFIG_SECURITY_STACKING=n and CONFIG_SECURITY_STACKING=y in the code
+here:
+
+- all the new accessor and allocation code is exercised in both cases
+
+- with stacking enabled: selinux, apparmor, and smack have an offset
+of 0 into blobs (and only one can be enabled at a time)
+
+- with stacking disabled: selinux, apparmor, and smack have an offset
+of 0 into blobs (and only one can be enabled at a time)
+
+The only behavioral difference is TOMOYO:
+
+1- with stacking disabled and TOMOYO as the only major LSM, it will
+have a 0 offset into blobs (like above)
+
+2- with stacking enabled and TOMOYO as the only major LSM, it will
+have a 0 offset into blobs (like above)
+
+3- with stacking disabled and another major LSM is enabled, TOMOYO
+will be disabled (like always)
+
+4- with stacking enabled and another major LSM is enabled, TOMOYO will
+have a non-0 offset into blobs and will run after selinux or smack or
+run before apparmor (based on link ordering defined by the Makefile).
+
+Note that cases 1, 2, and 3 are identical in behavior to before this
+series. Only case 4 is different, which is why I'm saying that instead
+of creating a redundant and needlessly complex config, or reinventing
+the "enable" wheel, we should simply drop the no-op
+CONFIG_SECURITY_STACKING config and provide TOMOYO with an "enable"
+parameter (and CONFIG). And it should be _separate_ from the
+"security=" line.
+
+This will be the SAME outcome for distros: if they want stacking, they
+choose the "enable TOMOYO by default" CONFIG. If they don't want
+stacking, they don't.
+
+> I currently have a neutral stance on stacking, making it mandatory
+> pushes me more towards a "no".
+
+This is why I'm trying to explain myself: the infrastructure proposed
+here is always exercised, no matter the CONFIG. From that sense it is
+"mandatory" no matter what the config is. There isn't a reality where
+you could "turn off stacking", because it's not stacking until you
+actually stack something, and that will be disabled by default as I've
+proposed it.
+
+Let me put this another way: if we simply leave off patch 10, we can
+take the other 9 patches (modulo feedback), and we only have to decide
+how to expose "stacking"; all the infrastructure work for supporting
+it is done.
+
+I'm arguing that "security=" is likely insufficient to describe what
+we want, and instead we should focus on individual LSM enablement via
+parameters ("tomoyo.enabled=1"). If _ordering_ becomes an issue, we
+could either use parameter order, or use "security=" again maybe, but
+for now, ordering is already defined by the Makefile (and
+security/security.c).
+
+"Stacking" only exists if you try to enable one of [selinux, apparmor,
+or smack] AND tomoyo. CONFIG_SECURITY_STACKING is redundant: if you
+want to disable stacking, you just disable tomoyo if you have another
+LSM (which we can already enforce in the Kconfig).
+
+If you want something more explicit than per-LSM config, then a simple
+"security.lsm_stack=1/0" with a CONFIG for the default would be fine.
+I'm trying to argue against what appears to be needless complexity
+around CONFIG_SECURITY_STACK as it was proposed, since it doesn't
+provide a meaningful operational change, since exclusivity of major
+LSMs is already handled.
+
+> As far as the cpp ifdef's, and other conditionals are concerned, I
+> remain unconvinced this is any worse than any other significant
+> feature that is a build time option.
+
+That's fine. That's just a code style issue. What I'm trying to show
+is that by lifting the allocation logic up out of the LSMs, we've
+actually simplified the logic. The "stacking" part will only become a
+distro-choice once they knowingly enable TOMOYO or build in SARA
+and/or Landlock in the future.
+
+-Kees
 
 -- 
-paul moore
-www.paul-moore.com
+Kees Cook
+Pixel Security
