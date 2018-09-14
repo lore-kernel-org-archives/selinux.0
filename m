@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8DNw5LU021760
- for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 19:58:05 -0400
-Received: by mail-yw1-f67.google.com with SMTP id l9-v6so1930174ywc.11
- for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 16:57:59 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8E03RUw024319
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 20:03:27 -0400
+Received: by mail-yb1-f194.google.com with SMTP id y9-v6so65583ybh.0
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 17:03:19 -0700 (PDT)
 Received: from mail-yb1-f174.google.com (mail-yb1-f174.google.com.
  [209.85.219.174])
- by smtp.gmail.com with ESMTPSA id l69-v6sm1877654ywe.40.2018.09.13.16.57.56
+ by smtp.gmail.com with ESMTPSA id n187-v6sm7383770ywn.76.2018.09.13.17.03.14
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Thu, 13 Sep 2018 16:57:57 -0700 (PDT)
-Received: by mail-yb1-f174.google.com with SMTP id w184-v6so1639038ybe.11
- for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 16:57:56 -0700 (PDT)
+ Thu, 13 Sep 2018 17:03:15 -0700 (PDT)
+Received: by mail-yb1-f174.google.com with SMTP id j8-v6so4055906ybg.9
+ for <selinux@tycho.nsa.gov>; Thu, 13 Sep 2018 17:03:14 -0700 (PDT)
 MIME-Version: 1.0
 In-Reply-To: <d1d12866-d557-8c15-6506-a54b9d927952@schaufler-ca.com>
 References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
@@ -26,8 +26,8 @@ References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
  <CAGXu5j+j47FH5RF2vrJh95=YFX76oSBFo8O6GZqa0utcfE1AVA@mail.gmail.com>
  <d1d12866-d557-8c15-6506-a54b9d927952@schaufler-ca.com>
 From: Kees Cook <keescook@chromium.org>
-Date: Thu, 13 Sep 2018 16:57:54 -0700
-Message-ID: <CAGXu5jJG=wk6e_RU=KYDY48kOc=RmL3OB79T+rHqCyzaDSn=zg@mail.gmail.com>
+Date: Thu, 13 Sep 2018 17:03:12 -0700
+Message-ID: <CAGXu5jKpq3z5e+SE+oRsfatUB02cFb7SOwixueSJhXiDxrq31g@mail.gmail.com>
 To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: Paul Moore <paul@paul-moore.com>,
  linux-security-module <linux-security-module@vger.kernel.org>,
@@ -48,19 +48,15 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On Thu, Sep 13, 2018 at 4:51 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
 > On 9/13/2018 4:06 PM, Kees Cook wrote:
->> - what order should any stacking happen? Makefile? security=?
-> Makefile by default.
+>> If security= is
+>> specified, all other major LSMs are disabled (i.e. it is not possible
+>> to switch between SELinux/AppArmor/SMACK without also disabling
+>> TOMOYO).
+>
+> Correct.
 
-Okay, if ordering is by Makefile and everyone dislikes my
-$lsm.enabled=0/1 thing, then these mean the same thing:
-
-security=selinux,tomoyo
-security=tomoyo,selinux
-
-i.e. order of security= is _ignored_ in favor of the Makefile ordering.
-
-That seems dangerous to accept input that is "out of order", though,
-if we ever DO want to make order definable.
+If we assume patch 10 is the way forward, how could we go about fixing
+this specific problem?
 
 -Kees
 
