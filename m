@@ -1,52 +1,170 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8IDiIW7019005
- for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2018 09:44:18 -0400
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com
- [10.5.11.24])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mx1.redhat.com (Postfix) with ESMTPS id D3B03307D85F
- for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2018 13:44:09 +0000 (UTC)
-From: Petr Lautrbach <plautrba@redhat.com>
-To: selinux@tycho.nsa.gov
-Date: Tue, 18 Sep 2018 15:44:01 +0200
-Message-Id: <20180918134401.22956-1-plautrba@redhat.com>
+To: James Morris <jmorris@namei.org>, Casey Schaufler <casey@schaufler-ca.com>,
+ Salvatore Mesoraca <s.mesoraca16@gmail.com>
+Cc: LSM <linux-security-module@vger.kernel.org>,
+ LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
+ John Johansen <john.johansen@canonical.com>,
+ Kees Cook <keescook@chromium.org>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>
+References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
+ <alpine.LRH.2.21.1809130727310.19741@namei.org>
+From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+Message-ID: <d2ad1caf-4e81-f33d-f764-6f90f9d101c4@digikod.net>
+Date: Tue, 18 Sep 2018 09:44:47 +0200
 MIME-Version: 1.0
-Subject: [PATCH] python/sepolicy: search() for dontaudit rules as
- well
+In-Reply-To: <alpine.LRH.2.21.1809130727310.19741@namei.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+ protocol="application/pgp-signature";
+ boundary="6t2AHDVawcfDyXz43It5ZPOAYstQl28sP"
+Subject: Re: [PATCH v2 00/10] LSM: Module stacking in support of
+ S.A.R.A and Landlock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-dontaudit rules were accidentally dropped during rewrite to SETools 4 API=
- in
-97d5f6a2
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--6t2AHDVawcfDyXz43It5ZPOAYstQl28sP
+Content-Type: multipart/mixed; boundary="wlIgseE8uGy21t8rLeoSLitsACGY9OGDi";
+ protected-headers="v1"
+From: =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?= <mic@digikod.net>
+To: James Morris <jmorris@namei.org>, Casey Schaufler
+ <casey@schaufler-ca.com>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
+Cc: LSM <linux-security-module@vger.kernel.org>,
+ LKLM <linux-kernel@vger.kernel.org>, SE Linux <selinux@tycho.nsa.gov>,
+ John Johansen <john.johansen@canonical.com>,
+ Kees Cook <keescook@chromium.org>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>
+Message-ID: <d2ad1caf-4e81-f33d-f764-6f90f9d101c4@digikod.net>
+Subject: Re: [PATCH v2 00/10] LSM: Module stacking in support of S.A.R.A and
+ Landlock
+References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
+ <alpine.LRH.2.21.1809130727310.19741@namei.org>
+In-Reply-To: <alpine.LRH.2.21.1809130727310.19741@namei.org>
 
-Fixes:
->>> import sepolicy
->>> sepolicy.search(['dontaudit'])
-[]
+--wlIgseE8uGy21t8rLeoSLitsACGY9OGDi
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- python/sepolicy/sepolicy/__init__.py | 2 ++
- 1 file changed, 2 insertions(+)
 
-diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepol=
-icy/__init__.py
-index 89346aba..c1a60798 100644
---- a/python/sepolicy/sepolicy/__init__.py
-+++ b/python/sepolicy/sepolicy/__init__.py
-@@ -334,6 +334,8 @@ def search(types, seinfo=3DNone):
-         tertypes.append(NEVERALLOW)
-     if AUDITALLOW in types:
-         tertypes.append(AUDITALLOW)
-+    if DONTAUDIT in types:
-+        tertypes.append(DONTAUDIT)
-=20
-     if len(tertypes) > 0:
-         q =3D setools.TERuleQuery(_pol,
---=20
-2.19.0
+On 9/12/18 23:29, James Morris wrote:
+> Adding the SARA and LandLock authors for review & comment.
+>=20
+> Salvatore & Micka=C3=ABl: does this patchset meet your needs for mergin=
+g to=20
+> mainline?
+
+It almost does! For now, I need the task_struct, cred, inode and file
+security blobs. Only the task_struct one is missing.
+
+FYI, the capitalization of Landlock is not consistent in all commit
+messages. :)
+
+Thanks,
+ Micka=C3=ABl
+
+>=20
+>=20
+>=20
+> On Tue, 11 Sep 2018, Casey Schaufler wrote:
+>=20
+>> LSM: Module stacking in support of S.A.R.A and Landlock
+>>
+>> v2: Reduce the patchset to what is required to support
+>>     the proposed S.A.R.A. and LandLock security modules
+>>
+>> The S.A.R.A. security module is intended to be used
+>> in conjunction with other security modules. It requires
+>> state to be maintained for the credential, which
+>> in turn requires a mechanism for sharing the credential
+>> security blob. The module also requires mechanism for
+>> user space manipulation of the credential information,
+>> hence an additional subdirectory in /proc/.../attr.
+>>
+>> The LandLock security module provides user configurable
+>> policy in the secmark mechanism. It requires data in
+>> the credential, file and inode security blobs. For this
+>> to be used along side the existing "major" security
+>> modules mechanism for sharing these blobs is provided.
+>>
+>> A side effect of providing sharing of the crendential
+>> security blob is that the TOMOYO module can be used at
+>> the same time as the other "major" modules.
+>>
+>> The mechanism for configuring which security modules are
+>> enabled has to change when stacking in enabled. Any
+>> module that uses just the security blobs that are shared
+>> can be selected. Additionally, one other "major" module
+>> can be selected.
+>>
+>> The security module stacking issues around networking and
+>> IPC are not addressed here as they are beyond what is
+>> required for TOMOYO, S.A.R.A and LandLock.
+>>
+>> git://github.com/cschaufler/lsm-stacking.git#stacking-4.19-rc2-saraloc=
+k
+>>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>> ---
+>>  Documentation/admin-guide/LSM/index.rst |  23 ++-
+>>  fs/proc/base.c                          |  64 ++++++-
+>>  fs/proc/internal.h                      |   1 +
+>>  include/linux/lsm_hooks.h               |  20 ++-
+>>  include/linux/security.h                |  15 +-
+>>  kernel/cred.c                           |  13 --
+>>  security/Kconfig                        |  92 ++++++++++
+>>  security/apparmor/domain.c              |   2 +-
+>>  security/apparmor/include/cred.h        |  24 ++-
+>>  security/apparmor/include/file.h        |   9 +-
+>>  security/apparmor/include/lib.h         |   4 +
+>>  security/apparmor/lsm.c                 |  53 ++++--
+>>  security/apparmor/task.c                |   6 +-
+>>  security/security.c                     | 293 +++++++++++++++++++++++=
++++++++--
+>>  security/selinux/hooks.c                | 215 ++++++++---------------=
+
+>>  security/selinux/include/objsec.h       |  37 +++-
+>>  security/selinux/selinuxfs.c            |   5 +-
+>>  security/selinux/xfrm.c                 |   4 +-
+>>  security/smack/smack.h                  |  42 ++++-
+>>  security/smack/smack_access.c           |   4 +-
+>>  security/smack/smack_lsm.c              | 283 +++++++++++------------=
+-------
+>>  security/smack/smackfs.c                |  18 +-
+>>  security/tomoyo/common.h                |  31 +++-
+>>  security/tomoyo/domain.c                |   4 +-
+>>  security/tomoyo/securityfs_if.c         |  15 +-
+>>  security/tomoyo/tomoyo.c                |  57 +++++--
+>>  26 files changed, 899 insertions(+), 435 deletions(-)
+>>
+>=20
+
+
+--wlIgseE8uGy21t8rLeoSLitsACGY9OGDi--
+
+--6t2AHDVawcfDyXz43It5ZPOAYstQl28sP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEUysCyY8er9Axt7hqIt7+33O9apUFAlugrO8ACgkQIt7+33O9
+apUf5Af+JJNP6M6qsRzVbsUmXo2eiDaxhGn8mU5ndWw/x6DMHAOtG4D6ug7P59lb
+uXx9yG2T5+6haVYEtifoPEiVadVCOoC/y3Po93WUIbQSJhOvb9RYb1ILRR13TYrw
+q2MUMA39HiDhva4tkyxAJYBBOum9MFiRYjZudqJIneMnhDE2v7W5SoUlUiO75kYL
+yhnoDB0WbkdnNjbdAek8JtRbTqYWKH81+pXMXwNwBc3IP2/stVAW3AAz0P4YAjSE
+/Jj5EkrVAEy6A+sQOQm2kHmET0mFI2py5kSKMqYHZ8eWVG7FsSo3e9jqxyE+LRQl
+oy7gkpId6zo9HtFD6Ktuwry9YZf8Ag==
+=ILf6
+-----END PGP SIGNATURE-----
+
+--6t2AHDVawcfDyXz43It5ZPOAYstQl28sP--
