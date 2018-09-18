@@ -1,48 +1,52 @@
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8IDiIW7019005
+ for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2018 09:44:18 -0400
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.phx2.redhat.com
+ [10.5.11.24])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mx1.redhat.com (Postfix) with ESMTPS id D3B03307D85F
+ for <selinux@tycho.nsa.gov>; Tue, 18 Sep 2018 13:44:09 +0000 (UTC)
+From: Petr Lautrbach <plautrba@redhat.com>
+To: selinux@tycho.nsa.gov
+Date: Tue, 18 Sep 2018 15:44:01 +0200
+Message-Id: <20180918134401.22956-1-plautrba@redhat.com>
 MIME-Version: 1.0
-References: <cbf848ae-a1ac-c5ab-f23b-bc9217fceebe@schaufler-ca.com>
- <alpine.LRH.2.21.1809130727310.19741@namei.org>
- <CAJHCu1+Nja-XqfFKdxu2hDcUBzgvvjcf42yeGnUuVY3wsrZfSQ@mail.gmail.com>
- <3cd46663-e566-5ffc-32a4-00a90cd1346e@schaufler-ca.com>
-In-Reply-To: <3cd46663-e566-5ffc-32a4-00a90cd1346e@schaufler-ca.com>
-From: Salvatore Mesoraca <s.mesoraca16@gmail.com>
-Date: Sun, 16 Sep 2018 19:45:38 +0200
-Message-ID: <CAJHCu1Jgkax3Y5Do9Y6-kYbiNLBFoF-8U9TYyeE0H=EM7xp18w@mail.gmail.com>
-To: casey@schaufler-ca.com
-Cc: James Morris <jmorris@namei.org>, mic@digikod.net,
- linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org,
- selinux@tycho.nsa.gov, john.johansen@canonical.com,
- keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
- paul@paul-moore.com, sds@tycho.nsa.gov, linux-fsdevel@vger.kernel.org,
- adobriyan@gmail.com, casey.schaufler@intel.com
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v2 00/10] LSM: Module stacking in support of
- S.A.R.A and Landlock
+Subject: [PATCH] python/sepolicy: search() for dontaudit rules as
+ well
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> On 9/16/2018 9:54 AM, Salvatore Mesoraca wrote:
-> > On Wed, 12 Sep 2018, James Morris <jmorris@namei.org> wrote:
-> >> Adding the SARA and LandLock authors for review & comment.
-> >>
-> >> Salvatore & Mickaël: does this patchset meet your needs for merging to
-> >> mainline?
-> > Since the last time I submitted the patch to the ML, it grew a bit: now it needs
-> > inode's blob stacking (which is already included for Landlock) and
-> > kern_ipc_perm's
-> > blob stacking.
-> > The last one isn't implemented in this patchset, but it isn't
-> > absolutely necessary.
-> > I can merge a version of SARA that doesn't need it and than update it
-> > when possible.
-> > I can provide the same level of protection without using kern_ipc_perm
-> > blob, I'm using it
-> > just to minimize some potential side effects.
->
-> Adding kern_ipc_perm is easy. As it looks like there will need to be
-> a few revisions I will add it to the next set.
+dontaudit rules were accidentally dropped during rewrite to SETools 4 API=
+ in
+97d5f6a2
 
-Great! Thank you very much!
+Fixes:
+>>> import sepolicy
+>>> sepolicy.search(['dontaudit'])
+[]
+
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ python/sepolicy/sepolicy/__init__.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepol=
+icy/__init__.py
+index 89346aba..c1a60798 100644
+--- a/python/sepolicy/sepolicy/__init__.py
++++ b/python/sepolicy/sepolicy/__init__.py
+@@ -334,6 +334,8 @@ def search(types, seinfo=3DNone):
+         tertypes.append(NEVERALLOW)
+     if AUDITALLOW in types:
+         tertypes.append(AUDITALLOW)
++    if DONTAUDIT in types:
++        tertypes.append(DONTAUDIT)
+=20
+     if len(tertypes) > 0:
+         q =3D setools.TERuleQuery(_pol,
+--=20
+2.19.0
