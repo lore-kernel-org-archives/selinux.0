@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8K0KTBt020752
- for <selinux@tycho.nsa.gov>; Wed, 19 Sep 2018 20:20:29 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8K0Kcc4020759
+ for <selinux@tycho.nsa.gov>; Wed, 19 Sep 2018 20:20:39 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
  LKLM <linux-kernel@vger.kernel.org>,
@@ -14,168 +14,151 @@ To: LSM <linux-security-module@vger.kernel.org>,
  <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
 References: <748c61cb-b6fa-c36d-a7b3-2315ff6292af@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <bc0785c2-604b-2204-9103-ac9e70d18b8a@schaufler-ca.com>
-Date: Wed, 19 Sep 2018 17:20:21 -0700
+Message-ID: <2eb4065c-1bae-203c-dbe0-47980e009a2c@schaufler-ca.com>
+Date: Wed, 19 Sep 2018 17:20:28 -0700
 MIME-Version: 1.0
 In-Reply-To: <748c61cb-b6fa-c36d-a7b3-2315ff6292af@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v3 05/16] SELinux: Remove unused selinux_is_enabled
+Subject: [PATCH v3 06/16] AppArmor: Abstract use of cred security
+ blob
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-SELinux: Remove unused selinux_is_enabled
+AppArmor: Abstract use of cred security blob
 
-There are no longer users of selinux_is_enabled().
-Remove it. As selinux_is_enabled() is the only reason
-for include/linux/selinux.h remove that as well.
+Don't use the cred->security pointer directly.
+Provide a helper function that provides the security blob pointer.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/cred.h             |  1 -
- include/linux/selinux.h          | 35 --------------------------------
- security/selinux/Makefile        |  2 +-
- security/selinux/exports.c       | 23 ---------------------
- security/selinux/hooks.c         |  1 -
- security/selinux/include/audit.h |  3 ---
- security/selinux/ss/services.c   |  1 -
- 7 files changed, 1 insertion(+), 65 deletions(-)
- delete mode 100644 include/linux/selinux.h
- delete mode 100644 security/selinux/exports.c
+ security/apparmor/domain.c       |  2 +-
+ security/apparmor/include/cred.h | 16 +++++++++++++++-
+ security/apparmor/lsm.c          | 10 +++++-----
+ security/apparmor/task.c         |  6 +++---
+ 4 files changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/cred.h b/include/linux/cred.h
-index 7eed6101c791..2e715e202e6a 100644
---- a/include/linux/cred.h
-+++ b/include/linux/cred.h
-@@ -15,7 +15,6 @@
- #include <linux/capability.h>
- #include <linux/init.h>
- #include <linux/key.h>
--#include <linux/selinux.h>
- #include <linux/atomic.h>
- #include <linux/uidgid.h>
- #include <linux/sched.h>
-diff --git a/include/linux/selinux.h b/include/linux/selinux.h
-deleted file mode 100644
-index 44f459612690..000000000000
---- a/include/linux/selinux.h
-+++ /dev/null
-@@ -1,35 +0,0 @@
--/*
-- * SELinux services exported to the rest of the kernel.
-- *
-- * Author: James Morris <jmorris@redhat.com>
-- *
-- * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-- * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-- * Copyright (C) 2006 IBM Corporation, Timothy R. Chavez <tinytim@us.ibm.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2,
-- * as published by the Free Software Foundation.
-- */
--#ifndef _LINUX_SELINUX_H
--#define _LINUX_SELINUX_H
--
--struct selinux_audit_rule;
--struct audit_context;
--struct kern_ipc_perm;
--
--#ifdef CONFIG_SECURITY_SELINUX
--
--/**
-- * selinux_is_enabled - is SELinux enabled?
-- */
--bool selinux_is_enabled(void);
--#else
--
--static inline bool selinux_is_enabled(void)
--{
--	return false;
--}
--#endif	/* CONFIG_SECURITY_SELINUX */
--
--#endif /* _LINUX_SELINUX_H */
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index c7161f8792b2..ccf950409384 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -6,7 +6,7 @@
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
+diff --git a/security/apparmor/domain.c b/security/apparmor/domain.c
+index 08c88de0ffda..726910bba84b 100644
+--- a/security/apparmor/domain.c
++++ b/security/apparmor/domain.c
+@@ -975,7 +975,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
+ 	}
+ 	aa_put_label(cred_label(bprm->cred));
+ 	/* transfer reference, released when cred is freed */
+-	cred_label(bprm->cred) = new;
++	set_cred_label(bprm->cred, new);
  
- selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
--	     netnode.o netport.o ibpkey.o exports.o \
-+	     netnode.o netport.o ibpkey.o \
- 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
- 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
+ done:
+ 	aa_put_label(label);
+diff --git a/security/apparmor/include/cred.h b/security/apparmor/include/cred.h
+index e287b7d0d4be..a90eae76d7c1 100644
+--- a/security/apparmor/include/cred.h
++++ b/security/apparmor/include/cred.h
+@@ -23,8 +23,22 @@
+ #include "policy_ns.h"
+ #include "task.h"
  
-diff --git a/security/selinux/exports.c b/security/selinux/exports.c
-deleted file mode 100644
-index e75dd94e2d2b..000000000000
---- a/security/selinux/exports.c
-+++ /dev/null
-@@ -1,23 +0,0 @@
--/*
-- * SELinux services exported to the rest of the kernel.
-- *
-- * Author: James Morris <jmorris@redhat.com>
-- *
-- * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-- * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
-- * Copyright (C) 2006 IBM Corporation, Timothy R. Chavez <tinytim@us.ibm.com>
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2,
-- * as published by the Free Software Foundation.
-- */
--#include <linux/module.h>
--#include <linux/selinux.h>
--
--#include "security.h"
--
--bool selinux_is_enabled(void)
--{
--	return selinux_enabled;
--}
--EXPORT_SYMBOL_GPL(selinux_is_enabled);
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 80614ca25a2b..82b28ee878c4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -79,7 +79,6 @@
- #include <linux/personality.h>
- #include <linux/audit.h>
- #include <linux/string.h>
--#include <linux/selinux.h>
- #include <linux/mutex.h>
- #include <linux/posix-timers.h>
- #include <linux/syslog.h>
-diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
-index 1bdf973433cc..36e1d44c0209 100644
---- a/security/selinux/include/audit.h
-+++ b/security/selinux/include/audit.h
-@@ -1,9 +1,6 @@
+-#define cred_label(X) ((X)->security)
++static inline struct aa_label *cred_label(const struct cred *cred)
++{
++	struct aa_label **blob = cred->security;
++
++	AA_BUG(!blob);
++	return *blob;
++}
+ 
++static inline void set_cred_label(const struct cred *cred,
++				  struct aa_label *label)
++{
++	struct aa_label **blob = cred->security;
++
++	AA_BUG(!blob);
++	*blob = label;
++}
+ 
+ /**
+  * aa_cred_raw_label - obtain cred's label
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 8b8b70620bbe..4f51705c3c71 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -57,7 +57,7 @@ DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
+ static void apparmor_cred_free(struct cred *cred)
+ {
+ 	aa_put_label(cred_label(cred));
+-	cred_label(cred) = NULL;
++	set_cred_label(cred, NULL);
+ }
+ 
  /*
-  * SELinux support for the Audit LSM hooks
-  *
-- * Most of below header was moved from include/linux/selinux.h which
-- * is released under below copyrights:
-- *
-  * Author: James Morris <jmorris@redhat.com>
-  *
-  * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f3def298a90e..e2235f1a99aa 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -49,7 +49,6 @@
- #include <linux/sched.h>
- #include <linux/audit.h>
- #include <linux/mutex.h>
--#include <linux/selinux.h>
- #include <linux/flex_array.h>
- #include <linux/vmalloc.h>
- #include <net/netlabel.h>
+@@ -65,7 +65,7 @@ static void apparmor_cred_free(struct cred *cred)
+  */
+ static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+ {
+-	cred_label(cred) = NULL;
++	set_cred_label(cred, NULL);
+ 	return 0;
+ }
+ 
+@@ -75,7 +75,7 @@ static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+ static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
+ 				 gfp_t gfp)
+ {
+-	cred_label(new) = aa_get_newest_label(cred_label(old));
++	set_cred_label(new, aa_get_newest_label(cred_label(old)));
+ 	return 0;
+ }
+ 
+@@ -84,7 +84,7 @@ static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
+  */
+ static void apparmor_cred_transfer(struct cred *new, const struct cred *old)
+ {
+-	cred_label(new) = aa_get_newest_label(cred_label(old));
++	set_cred_label(new, aa_get_newest_label(cred_label(old)));
+ }
+ 
+ static void apparmor_task_free(struct task_struct *task)
+@@ -1455,7 +1455,7 @@ static int __init set_init_ctx(void)
+ 	if (!ctx)
+ 		return -ENOMEM;
+ 
+-	cred_label(cred) = aa_get_label(ns_unconfined(root_ns));
++	set_cred_label(cred, aa_get_label(ns_unconfined(root_ns)));
+ 	task_ctx(current) = ctx;
+ 
+ 	return 0;
+diff --git a/security/apparmor/task.c b/security/apparmor/task.c
+index c6b78a14da91..4551110f0496 100644
+--- a/security/apparmor/task.c
++++ b/security/apparmor/task.c
+@@ -81,7 +81,7 @@ int aa_replace_current_label(struct aa_label *label)
+ 	 */
+ 	aa_get_label(label);
+ 	aa_put_label(cred_label(new));
+-	cred_label(new) = label;
++	set_cred_label(new, label);
+ 
+ 	commit_creds(new);
+ 	return 0;
+@@ -138,7 +138,7 @@ int aa_set_current_hat(struct aa_label *label, u64 token)
+ 		return -EACCES;
+ 	}
+ 
+-	cred_label(new) = aa_get_newest_label(label);
++	set_cred_label(new, aa_get_newest_label(label));
+ 	/* clear exec on switching context */
+ 	aa_put_label(ctx->onexec);
+ 	ctx->onexec = NULL;
+@@ -172,7 +172,7 @@ int aa_restore_previous_label(u64 token)
+ 		return -ENOMEM;
+ 
+ 	aa_put_label(cred_label(new));
+-	cred_label(new) = aa_get_newest_label(ctx->previous);
++	set_cred_label(new, aa_get_newest_label(ctx->previous));
+ 	AA_BUG(!cred_label(new));
+ 	/* clear exec && prev information when restoring to previous context */
+ 	aa_clear_task_ctx_trans(ctx);
 -- 
 2.17.1
