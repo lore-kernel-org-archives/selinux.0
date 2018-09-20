@@ -1,50 +1,138 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8K8n58v027193
- for <selinux@tycho.nsa.gov>; Thu, 20 Sep 2018 04:49:06 -0400
-From: David Laight <David.Laight@aculab.com>
-To: "'Casey Schaufler'" <casey@schaufler-ca.com>, LSM
- <linux-security-module@vger.kernel.org>,
- James Morris <jmorris@namei.org>, "SE Linux" <selinux@tycho.nsa.gov>,
- LKLM <linux-kernel@vger.kernel.org>,
- "John Johansen" <john.johansen@canonical.com>, Kees Cook
- <keescook@chromium.org>, Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>, "Alexey
- Dobriyan" <adobriyan@gmail.com>, =?utf-8?B?TWlja2HDq2wgU2FsYcO8bg==?=
- <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
-Date: Thu, 20 Sep 2018 08:51:09 +0000
-Message-ID: <124ae3859e8141deb35ed8355370b4ed@AcuMS.aculab.com>
-References: <748c61cb-b6fa-c36d-a7b3-2315ff6292af@schaufler-ca.com>
- <14db9a22-9f31-88fb-dbc1-8bc4ade74bf6@schaufler-ca.com>
-In-Reply-To: <14db9a22-9f31-88fb-dbc1-8bc4ade74bf6@schaufler-ca.com>
+Date: Thu, 20 Sep 2018 10:50:48 +0200
+From: Florian Westphal <fw@strlen.de>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Christian =?iso-8859-15?Q?G=F6ttsche?= <cgzones@googlemail.com>,
+ pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de,
+ davem@davemloft.net, netfilter-devel@vger.kernel.org,
+ coreteam@netfilter.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, paul@paul-moore.com, sds@tycho.nsa.gov,
+ eparis@parisplace.org, jmorris@namei.org, serge@hallyn.com,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
+Message-ID: <20180920085048.tps2v4jkko7zjav4@breakpoint.cc>
+References: <20180919231402.4482-1-cgzones@googlemail.com>
+ <75b3fed9-e549-4ed0-c435-ec4795fc1e39@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Subject: RE: [PATCH v3 09/16] SELinux: Abstract use of file security
- blob
+Content-Type: text/plain; charset=iso-8859-15
+In-Reply-To: <75b3fed9-e549-4ed0-c435-ec4795fc1e39@schaufler-ca.com>
+Subject: Re: [PATCH] netfilter: nf_tables: add SECMARK support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Casey Schaufler
-> Sent: 20 September 2018 01:21
+Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 9/19/2018 4:14 PM, Christian Göttsche wrote:
+> > Add the ability to set the security context of packets within the nf_tables framework.
+> > Add a nft_object for holding security contexts in the kernel and manipulating packets on the wire.
+> > The contexts are kept as strings and are evaluated to security identifiers at runtime (packet arrival),
+> > so that the nft_objects do not need to be refreshed after security changes.
+> > The maximum security context length is set to 256.
+> >
+> > Based on v4.18.6
+> >
+> > Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 > 
-> SELinux: Abstract use of file security blob
-> 
-> Don't use the file->f_security pointer directly.
-> Provide a helper function that provides the security blob pointer.
-...
-> +static inline struct file_security_struct *selinux_file(const struct file *file)
-> +{
-> +	return file->f_security;
-> +}
-> +
+> I've only had a cursory look at your patch, but how is it
+> different from what's in xt_SECMARK.c ?
 
-Why?
+this change is supposed to make secmark labeling accessible from
+nftables.
 
-	David
+The advantage is that its now possible to use
+maps to assign secmarks from a single rule instead of using
+several rules:
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+nft add rule meta secmark set tcp dport map { 22 : tag-ssh, 80 :
+	tag-http }
+
+and so on.
+
+> > +	for (i = 0; i < ARRAY_SIZE(nft_basic_objects); i++) {
+> > +		err = nft_register_obj(nft_basic_objects[i]);
+> > +		if (err)
+> > +			goto err;
+> > +	}
+> >  
+> > -	for (i = 0; i < ARRAY_SIZE(nft_basic_types); i++) {
+> > -		err = nft_register_expr(nft_basic_types[i]);
+> > +	for (j = 0; j < ARRAY_SIZE(nft_basic_types); j++) {
+> > +		err = nft_register_expr(nft_basic_types[j]);
+> >  		if (err)
+> >  			goto err;
+> >  	}
+> > @@ -248,8 +260,12 @@ int __init nf_tables_core_module_init(void)
+> >  	return 0;
+> >  
+> >  err:
+> > +	while (j-- > 0)
+> > +		nft_unregister_expr(nft_basic_types[j]);
+> > +
+> >  	while (i-- > 0)
+> > -		nft_unregister_expr(nft_basic_types[i]);
+> > +		nft_unregister_obj(nft_basic_objects[i]);
+> > +
+> >  	return err;
+
+Do I read this right in that this is a error unroll bug fix?
+If so, could you please submit this as indepentent patch?
+
+Fixes should go into nf.git whereas feature goes to nf-next.git.
+
+> > +struct nft_secmark {
+> > +	char ctx[NFT_SECMARK_CTX_MAXLEN];
+> > +	int len;
+> > +};
+> > +
+> > +static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
+> > +	[NFTA_SECMARK_CTX]     = { .type = NLA_STRING, .len = NFT_SECMARK_CTX_MAXLEN },
+> > +};
+> > +
+> > +static void nft_secmark_obj_eval(struct nft_object *obj, struct nft_regs *regs, const struct nft_pktinfo *pkt)
+> > +{
+> > +	const struct nft_secmark *priv = nft_obj_data(obj);
+> > +	struct sk_buff *skb = pkt->skb;
+> > +	int err;
+> > +	u32 secid = 0;
+> > +
+> > +	/* skip if packet has already a secmark */
+> > +	if (skb->secmark)
+> > +		return;
+
+xt_SECMARK doesn't do this and will allow relabeling.
+What do the LSM experts think?
+
+> > +	err = security_secctx_to_secid(priv->ctx, priv->len, &secid);
+
+Could someone familiar with how LSMs work clarify if this has to be
+called per-packet?
+
+xt_SECMARK.c does this ctx -> secid mapping once, when the iptables rule
+gets added, whereas this patch does it once for each packet.
+
+Is the ctx -> secid mapping stable?
+
+If yes, the code above should be moved to the ->init() hook, otherwise
+we'll need to fix xt_SECMARK.c.
+
+> > +	if (err) {
+> > +		if (err == -EINVAL)
+> > +			pr_notice_ratelimited("invalid security context \'%s\'\n", priv->ctx);
+> > +		else
+> > +			pr_notice_ratelimited("unable to convert security context \'%s\': %d\n", priv->ctx, -err);
+> > +		return;
+> > +	}
+
+Please remove these printks(), they do not really help as user can't
+take any action anyway.
+
+> > +	err = security_secmark_relabel_packet(secid);
+
+Hmm, this function uses current() to check permissions of calling
+task, so this function canot be used in ->eval() path.
+
+Network stack causes random results of "current()", as network
+processing can "steal" cpu from some arbitrary task when
+softinterrupt kicks in.
+
+->init() is fine, as its in process context and current will be the task
+installing the nftables rule.
