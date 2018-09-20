@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8K0Kcc4020759
- for <selinux@tycho.nsa.gov>; Wed, 19 Sep 2018 20:20:39 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8K0Krhq020773
+ for <selinux@tycho.nsa.gov>; Wed, 19 Sep 2018 20:20:53 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
  LKLM <linux-kernel@vger.kernel.org>,
@@ -14,151 +14,257 @@ To: LSM <linux-security-module@vger.kernel.org>,
  <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
 References: <748c61cb-b6fa-c36d-a7b3-2315ff6292af@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <2eb4065c-1bae-203c-dbe0-47980e009a2c@schaufler-ca.com>
-Date: Wed, 19 Sep 2018 17:20:28 -0700
+Message-ID: <ea146829-594a-64a5-6e60-427d39aff4bc@schaufler-ca.com>
+Date: Wed, 19 Sep 2018 17:20:38 -0700
 MIME-Version: 1.0
 In-Reply-To: <748c61cb-b6fa-c36d-a7b3-2315ff6292af@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v3 06/16] AppArmor: Abstract use of cred security
- blob
+Subject: [PATCH v3 07/16] TOMOYO: Abstract use of cred security blob
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-AppArmor: Abstract use of cred security blob
+TOMOYO: Abstract use of cred security blob
 
 Don't use the cred->security pointer directly.
-Provide a helper function that provides the security blob pointer.
+Provide helper functions that provide the security blob pointer.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/apparmor/domain.c       |  2 +-
- security/apparmor/include/cred.h | 16 +++++++++++++++-
- security/apparmor/lsm.c          | 10 +++++-----
- security/apparmor/task.c         |  6 +++---
- 4 files changed, 24 insertions(+), 10 deletions(-)
+ security/tomoyo/common.h        | 21 ++++++++++++++++--
+ security/tomoyo/domain.c        |  4 +++-
+ security/tomoyo/securityfs_if.c | 15 +++++++++----
+ security/tomoyo/tomoyo.c        | 39 +++++++++++++++++++++++++--------
+ 4 files changed, 63 insertions(+), 16 deletions(-)
 
-diff --git a/security/apparmor/domain.c b/security/apparmor/domain.c
-index 08c88de0ffda..726910bba84b 100644
---- a/security/apparmor/domain.c
-+++ b/security/apparmor/domain.c
-@@ -975,7 +975,7 @@ int apparmor_bprm_set_creds(struct linux_binprm *bprm)
- 	}
- 	aa_put_label(cred_label(bprm->cred));
- 	/* transfer reference, released when cred is freed */
--	cred_label(bprm->cred) = new;
-+	set_cred_label(bprm->cred, new);
+diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
+index 539bcdd30bb8..c9d8c49e3210 100644
+--- a/security/tomoyo/common.h
++++ b/security/tomoyo/common.h
+@@ -29,6 +29,7 @@
+ #include <linux/in.h>
+ #include <linux/in6.h>
+ #include <linux/un.h>
++#include <linux/lsm_hooks.h>
+ #include <net/sock.h>
+ #include <net/af_unix.h>
+ #include <net/ip.h>
+@@ -1062,6 +1063,7 @@ void tomoyo_write_log2(struct tomoyo_request_info *r, int len, const char *fmt,
+ /********** External variable definitions. **********/
  
- done:
- 	aa_put_label(label);
-diff --git a/security/apparmor/include/cred.h b/security/apparmor/include/cred.h
-index e287b7d0d4be..a90eae76d7c1 100644
---- a/security/apparmor/include/cred.h
-+++ b/security/apparmor/include/cred.h
-@@ -23,8 +23,22 @@
- #include "policy_ns.h"
- #include "task.h"
+ extern bool tomoyo_policy_loaded;
++extern bool tomoyo_enabled;
+ extern const char * const tomoyo_condition_keyword
+ [TOMOYO_MAX_CONDITION_KEYWORD];
+ extern const char * const tomoyo_dif[TOMOYO_MAX_DOMAIN_INFO_FLAGS];
+@@ -1196,6 +1198,17 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
+ 		atomic_dec(&group->head.users);
+ }
  
--#define cred_label(X) ((X)->security)
-+static inline struct aa_label *cred_label(const struct cred *cred)
++/**
++ * tomoyo_cred - Get a pointer to the tomoyo cred security blob
++ * @cred - the relevant cred
++ *
++ * Returns pointer to the tomoyo cred blob.
++ */
++static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
 +{
-+	struct aa_label **blob = cred->security;
++	return (struct tomoyo_domain_info **)&cred->security;
++}
 +
-+	AA_BUG(!blob);
+ /**
+  * tomoyo_domain - Get "struct tomoyo_domain_info" for current thread.
+  *
+@@ -1203,7 +1216,9 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
+  */
+ static inline struct tomoyo_domain_info *tomoyo_domain(void)
+ {
+-	return current_cred()->security;
++	struct tomoyo_domain_info **blob = tomoyo_cred(current_cred());
++
 +	return *blob;
-+}
- 
-+static inline void set_cred_label(const struct cred *cred,
-+				  struct aa_label *label)
-+{
-+	struct aa_label **blob = cred->security;
-+
-+	AA_BUG(!blob);
-+	*blob = label;
-+}
+ }
  
  /**
-  * aa_cred_raw_label - obtain cred's label
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 8b8b70620bbe..4f51705c3c71 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -57,7 +57,7 @@ DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
- static void apparmor_cred_free(struct cred *cred)
+@@ -1216,7 +1231,9 @@ static inline struct tomoyo_domain_info *tomoyo_domain(void)
+ static inline struct tomoyo_domain_info *tomoyo_real_domain(struct task_struct
+ 							    *task)
  {
- 	aa_put_label(cred_label(cred));
--	cred_label(cred) = NULL;
-+	set_cred_label(cred, NULL);
+-	return task_cred_xxx(task, security);
++	struct tomoyo_domain_info **blob = tomoyo_cred(get_task_cred(task));
++
++	return *blob;
  }
  
- /*
-@@ -65,7 +65,7 @@ static void apparmor_cred_free(struct cred *cred)
+ /**
+diff --git a/security/tomoyo/domain.c b/security/tomoyo/domain.c
+index f6758dad981f..b7469fdbff01 100644
+--- a/security/tomoyo/domain.c
++++ b/security/tomoyo/domain.c
+@@ -678,6 +678,7 @@ static int tomoyo_environ(struct tomoyo_execve *ee)
   */
- static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+ int tomoyo_find_next_domain(struct linux_binprm *bprm)
  {
--	cred_label(cred) = NULL;
-+	set_cred_label(cred, NULL);
- 	return 0;
- }
- 
-@@ -75,7 +75,7 @@ static int apparmor_cred_alloc_blank(struct cred *cred, gfp_t gfp)
- static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
- 				 gfp_t gfp)
- {
--	cred_label(new) = aa_get_newest_label(cred_label(old));
-+	set_cred_label(new, aa_get_newest_label(cred_label(old)));
- 	return 0;
- }
- 
-@@ -84,7 +84,7 @@ static int apparmor_cred_prepare(struct cred *new, const struct cred *old,
++	struct tomoyo_domain_info **blob;
+ 	struct tomoyo_domain_info *old_domain = tomoyo_domain();
+ 	struct tomoyo_domain_info *domain = NULL;
+ 	const char *original_name = bprm->filename;
+@@ -843,7 +844,8 @@ int tomoyo_find_next_domain(struct linux_binprm *bprm)
+ 		domain = old_domain;
+ 	/* Update reference count on "struct tomoyo_domain_info". */
+ 	atomic_inc(&domain->users);
+-	bprm->cred->security = domain;
++	blob = tomoyo_cred(bprm->cred);
++	*blob = domain;
+ 	kfree(exename.name);
+ 	if (!retval) {
+ 		ee->r.domain = domain;
+diff --git a/security/tomoyo/securityfs_if.c b/security/tomoyo/securityfs_if.c
+index 1d3d7e7a1f05..768dff9608b1 100644
+--- a/security/tomoyo/securityfs_if.c
++++ b/security/tomoyo/securityfs_if.c
+@@ -71,9 +71,12 @@ static ssize_t tomoyo_write_self(struct file *file, const char __user *buf,
+ 				if (!cred) {
+ 					error = -ENOMEM;
+ 				} else {
+-					struct tomoyo_domain_info *old_domain =
+-						cred->security;
+-					cred->security = new_domain;
++					struct tomoyo_domain_info **blob;
++					struct tomoyo_domain_info *old_domain;
++
++					blob = tomoyo_cred(cred);
++					old_domain = *blob;
++					*blob = new_domain;
+ 					atomic_inc(&new_domain->users);
+ 					atomic_dec(&old_domain->users);
+ 					commit_creds(cred);
+@@ -234,10 +237,14 @@ static void __init tomoyo_create_entry(const char *name, const umode_t mode,
   */
- static void apparmor_cred_transfer(struct cred *new, const struct cred *old)
+ static int __init tomoyo_initerface_init(void)
  {
--	cred_label(new) = aa_get_newest_label(cred_label(old));
-+	set_cred_label(new, aa_get_newest_label(cred_label(old)));
++	struct tomoyo_domain_info *domain;
+ 	struct dentry *tomoyo_dir;
+ 
++	if (!tomoyo_enabled)
++		return 0;
++	domain = tomoyo_domain();
+ 	/* Don't create securityfs entries unless registered. */
+-	if (current_cred()->security != &tomoyo_kernel_domain)
++	if (domain != &tomoyo_kernel_domain)
+ 		return 0;
+ 
+ 	tomoyo_dir = securityfs_create_dir("tomoyo", NULL);
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index 9f932e2d6852..622ffa74a124 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -18,7 +18,9 @@
+  */
+ static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
+ {
+-	new->security = NULL;
++	struct tomoyo_domain_info **blob = tomoyo_cred(new);
++
++	*blob = NULL;
+ 	return 0;
  }
  
- static void apparmor_task_free(struct task_struct *task)
-@@ -1455,7 +1455,7 @@ static int __init set_init_ctx(void)
- 	if (!ctx)
- 		return -ENOMEM;
- 
--	cred_label(cred) = aa_get_label(ns_unconfined(root_ns));
-+	set_cred_label(cred, aa_get_label(ns_unconfined(root_ns)));
- 	task_ctx(current) = ctx;
- 
+@@ -34,8 +36,13 @@ static int tomoyo_cred_alloc_blank(struct cred *new, gfp_t gfp)
+ static int tomoyo_cred_prepare(struct cred *new, const struct cred *old,
+ 			       gfp_t gfp)
+ {
+-	struct tomoyo_domain_info *domain = old->security;
+-	new->security = domain;
++	struct tomoyo_domain_info **old_blob = tomoyo_cred(old);
++	struct tomoyo_domain_info **new_blob = tomoyo_cred(new);
++	struct tomoyo_domain_info *domain;
++
++	domain = *old_blob;
++	*new_blob = domain;
++
+ 	if (domain)
+ 		atomic_inc(&domain->users);
  	return 0;
-diff --git a/security/apparmor/task.c b/security/apparmor/task.c
-index c6b78a14da91..4551110f0496 100644
---- a/security/apparmor/task.c
-+++ b/security/apparmor/task.c
-@@ -81,7 +81,7 @@ int aa_replace_current_label(struct aa_label *label)
+@@ -59,7 +66,9 @@ static void tomoyo_cred_transfer(struct cred *new, const struct cred *old)
+  */
+ static void tomoyo_cred_free(struct cred *cred)
+ {
+-	struct tomoyo_domain_info *domain = cred->security;
++	struct tomoyo_domain_info **blob = tomoyo_cred(cred);
++	struct tomoyo_domain_info *domain = *blob;
++
+ 	if (domain)
+ 		atomic_dec(&domain->users);
+ }
+@@ -73,6 +82,9 @@ static void tomoyo_cred_free(struct cred *cred)
+  */
+ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
+ {
++	struct tomoyo_domain_info **blob;
++	struct tomoyo_domain_info *domain;
++
+ 	/*
+ 	 * Do only if this function is called for the first time of an execve
+ 	 * operation.
+@@ -93,13 +105,14 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
+ 	 * stored inside "bprm->cred->security" will be acquired later inside
+ 	 * tomoyo_find_next_domain().
  	 */
- 	aa_get_label(label);
- 	aa_put_label(cred_label(new));
--	cred_label(new) = label;
-+	set_cred_label(new, label);
- 
- 	commit_creds(new);
+-	atomic_dec(&((struct tomoyo_domain_info *)
+-		     bprm->cred->security)->users);
++	blob = tomoyo_cred(bprm->cred);
++	domain = *blob;
++	atomic_dec(&domain->users);
+ 	/*
+ 	 * Tell tomoyo_bprm_check_security() is called for the first time of an
+ 	 * execve operation.
+ 	 */
+-	bprm->cred->security = NULL;
++	*blob = NULL;
  	return 0;
-@@ -138,7 +138,7 @@ int aa_set_current_hat(struct aa_label *label, u64 token)
- 		return -EACCES;
- 	}
+ }
  
--	cred_label(new) = aa_get_newest_label(label);
-+	set_cred_label(new, aa_get_newest_label(label));
- 	/* clear exec on switching context */
- 	aa_put_label(ctx->onexec);
- 	ctx->onexec = NULL;
-@@ -172,7 +172,7 @@ int aa_restore_previous_label(u64 token)
- 		return -ENOMEM;
+@@ -112,8 +125,11 @@ static int tomoyo_bprm_set_creds(struct linux_binprm *bprm)
+  */
+ static int tomoyo_bprm_check_security(struct linux_binprm *bprm)
+ {
+-	struct tomoyo_domain_info *domain = bprm->cred->security;
++	struct tomoyo_domain_info **blob;
++	struct tomoyo_domain_info *domain;
  
- 	aa_put_label(cred_label(new));
--	cred_label(new) = aa_get_newest_label(ctx->previous);
-+	set_cred_label(new, aa_get_newest_label(ctx->previous));
- 	AA_BUG(!cred_label(new));
- 	/* clear exec && prev information when restoring to previous context */
- 	aa_clear_task_ctx_trans(ctx);
++	blob = tomoyo_cred(bprm->cred);
++	domain = *blob;
+ 	/*
+ 	 * Execute permission is checked against pathname passed to do_execve()
+ 	 * using current domain.
+@@ -531,6 +547,8 @@ static struct security_hook_list tomoyo_hooks[] __lsm_ro_after_init = {
+ /* Lock for GC. */
+ DEFINE_SRCU(tomoyo_ss);
+ 
++bool tomoyo_enabled;
++
+ /**
+  * tomoyo_init - Register TOMOYO Linux as a LSM module.
+  *
+@@ -539,13 +557,16 @@ DEFINE_SRCU(tomoyo_ss);
+ static int __init tomoyo_init(void)
+ {
+ 	struct cred *cred = (struct cred *) current_cred();
++	struct tomoyo_domain_info **blob;
+ 
+ 	if (!security_module_enable("tomoyo"))
+ 		return 0;
++
+ 	/* register ourselves with the security framework */
+ 	security_add_hooks(tomoyo_hooks, ARRAY_SIZE(tomoyo_hooks), "tomoyo");
+ 	printk(KERN_INFO "TOMOYO Linux initialized\n");
+-	cred->security = &tomoyo_kernel_domain;
++	blob = tomoyo_cred(cred);
++	*blob = &tomoyo_kernel_domain;
+ 	tomoyo_mm_init();
+ 	return 0;
+ }
 -- 
 2.17.1
