@@ -1,151 +1,208 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8LDJidf015572
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 09:19:45 -0400
-Received: by mail-wr1-f45.google.com with SMTP id k5-v6so12824845wre.10
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 06:19:21 -0700 (PDT)
+To: Taras Kondratiuk <takondra@cisco.com>, Eric Paris <eparis@parisplace.org>,
+ Paul Moore <paul@paul-moore.com>
+Cc: selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
+ xe-linux-external@cisco.com
+References: <20180919165248.53090-1-takondra@cisco.com>
+ <f283c1e7-19eb-2b99-3fef-a19e2bf99a2b@tycho.nsa.gov>
+ <153741130781.7326.1773144725860636439@takondra-t460s>
+ <9a944aea-f35e-5a49-841d-6bfca8f17b9d@tycho.nsa.gov>
+ <153748436388.5590.1406237328277739821@takondra-t460s>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
+Date: Fri, 21 Sep 2018 10:40:58 -0400
 MIME-Version: 1.0
-References: <CAFPpqQG3_aUEJW8fbz8sRtTPRcw2KUsQ+wtr3+-awjcws+PD0w@mail.gmail.com>
- <pjdfty3447g.fsf@redhat.com>
- <CAFPpqQFtafLC+jp29jmR4o1uH6rjYWAWtX+j9ZoM+0Z90K9Eiw@mail.gmail.com>
-In-Reply-To: <CAFPpqQFtafLC+jp29jmR4o1uH6rjYWAWtX+j9ZoM+0Z90K9Eiw@mail.gmail.com>
-From: Ted Toth <txtoth@gmail.com>
-Date: Fri, 21 Sep 2018 08:19:08 -0500
-Message-ID: <CAFPpqQGsx6RK+4FT6waNY7+t860X5r7Wb2ai=RkpyrEj095+yw@mail.gmail.com>
-To: "pla >> Petr Lautrbach" <plautrba@redhat.com>
-Cc: SELinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary="000000000000b781540576617c27"
-Subject: Re: file context not being set on el7
+In-Reply-To: <153748436388.5590.1406237328277739821@takondra-t460s>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [RFC PATCH] selinux: add a fallback to defcontext for native
+ labeling
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---000000000000b781540576617c27
-Content-Type: text/plain; charset="UTF-8"
+On 09/20/2018 06:59 PM, Taras Kondratiuk wrote:
+> Quoting Stephen Smalley (2018-09-20 07:49:12)
+>> On 09/19/2018 10:41 PM, Taras Kondratiuk wrote:
+>>> Quoting Stephen Smalley (2018-09-19 12:00:33)
+>>>> On 09/19/2018 12:52 PM, Taras Kondratiuk wrote:
+>>>>> When files on NFSv4 server are not properly labeled (label doesn't match
+>>>>> a policy on a client) they will end up with unlabeled_t type which is
+>>>>> too generic. We would like to be able to set a default context per
+>>>>> mount. 'defcontext' mount option looks like a nice solution, but it
+>>>>> doesn't seem to be fully implemented for native labeling. Default
+>>>>> context is stored, but is never used.
+>>>>>
+>>>>> The patch adds a fallback to a default context if a received context is
+>>>>> invalid. If the inode context is already initialized, then it is left
+>>>>> untouched to preserve a context set locally on a client.
+>>>>
+>>>> Can you explain the use case further?  Why are you exporting a
+>>>> filesystem with security labeling enabled to a client that doesn't
+>>>> understand all of the labels used within it?  Why wouldn't you just
+>>>> disable NFSv4 security labeling and/or use a regular context= mount to
+>>>> assign a single context to all files in the mount?
+>>>
+>>> Client and server are two embedded devices. They are part of a bigger
+>>> modular system and normally run the same SW version, so they understand
+>>> each others NFSv4 SELinux labels. But during migration from one SW
+>>> version to another a client and a server may run different versions for
+>>> some time.
+>>>
+>>> The immediate issue I'm trying to address is a migration between
+>>> releases with and without SELinux policy. A client (with policy) gets
+>>> initial SID labels from a server (without policy). Those labels are
+>>> considered invalid, so files remain unlabeled. This also causes lots of
+>>> errors from nfs_setsecurity() in dmesg.
+>>
+>> Why are you enabling SELinux on the server without loading a policy?
+>> Are you concerned about denials on the server? For that, you could
+>> always run it permissive until you are confident you have a working policy.
+>>
+>> Why are you enabling security_label in exports before you have a policy
+>> loaded?  It doesn't appear that will ever work, since nfsd asks the
+>> security module for the labels, not the local filesystem directly.
+>>
+>> I understand that this doesn't fully address your use case, but it seems
+>> like you could avoid this particular situation altogether just by
+>> loading a policy (at which point your server can return actual contexts)
+>> or by removing security_label from your exports (at which point your
+>> server won't try returning contexts and the client will just apply the
+>> default for nfs) until you get to the point of loading a policy.
+> 
+> It wasn't intentional configuration. Server is running v4.4.x kernel
+> that had security labels enabled by default for NFS 4.2. This was a bug:
+> https://bugzilla.redhat.com/show_bug.cgi?id=1406885
+> Commit that introduced security_label 32ddd944a056 ("nfsd: opt in to
+> labeled nfs per export") appeared in v4.11 only.
+> 
+> We hit this bug during migration to newer releases with SELinux, but the
+> older release is already in the field and we need to handle it.
 
-On Fri, Sep 21, 2018 at 7:21 AM Ted Toth <txtoth@gmail.com> wrote:
+Ok, I understand the kernel bug, but not why your servers are in a state 
+where SELinux is enabled but no policy is loaded.  That is not a 
+well-tested code path aside from early system initialization prior to 
+first policy load by systemd/init.  You would be better off either 
+disabling SELinux on the servers entirely (thereby automatically 
+disabling NFSv4.2 security labeling) or installing/loading a policy on 
+the servers (thereby enabling them to produce valid security labels for 
+the client at least to the extent that they agree on policy).  If you 
+are concerned about denials on the server, then you could always leave 
+the servers permissive initially and collect audit logs until you are 
+confident your policy is adequate.
 
->
-> On Fri, Sep 21, 2018 at 3:58 AM Petr Lautrbach <plautrba@redhat.com>
-> wrote:
->
 >>
->> Ted Toth <txtoth@gmail.com> writes:
+>>>
+>>>>
+>>>> To be clear, defcontext= doesn't work that way for local/FS_USE_XATTR
+>>>> filesystems. The context specified by it is only used for:
+>>>> 1) files that don't implement the xattr inode operations at all,
+>>>> 2) files that lack a security.selinux xattr,
+>>>> 3) the MLS portion of the context if it was missing (strictly as a
+>>>> legacy compatibility mechanism for RHEL4 which predated the enabling of
+>>>> the MLS field/logic).
+>>>>
+>>>> A file with a security.selinux xattr that is invalid under policy for
+>>>> any reason other than a missing MLS field will be handled as having the
+>>>> unlabeled context.
+>>>
+>>> inode_doinit_with_dentry() invokes security_context_to_sid_default()
+>>> that invokes security_context_to_sid_core() with 'force' flag. Won't
+>>> sidtab_context_to_sid() in this case allocate a new SID for the invalid
+>>> xattr context instead of leaving it unlabeled?
 >>
->> > I have something very much like the following in an fc file:
->> > /usr/lib64/python2\.(6|7)/site-packages/xyz/paste     --
->> > gen_context(system_u:object_r:jxyz_exec_t,s0)
->> >
->> > and I use the same file on el6 and el7. On el6 the file is
->> > labeled as
->> > specified in the python2.6 directory. However on el7 where the
->> > file gets
->> > installed into python2.7 the file is not labeled correctly. On
->> > el7
->> > `semanage fcontext -l | grep xyz` shows the file context
->> > expected but
->> > `matchpathcon /usr/lib64/python2.7/site-packages/xyz/paste` does
->> > not return
->> > the expected context and `restorecon -RFv
->> > /usr/lib64/python2.7/site-packages/xyz` has no affect. The type
->> > xyz_exec_t
->> > exists on both systems. It's probably something stupid I'm doing
->> > but I'm
->> > just not seeing it. Has anyone else experienced similar issues?
->> >
->>
->> There's equivalency rule /usr/lib64 -> /usr/lib on el7:
->>
->> # semanage fcontext -a -t tmp_t
->>   '/usr/lib64/python2\.(6|7)/site-packages/xyz/paste'
->>
->> ValueError: File spec
->> /usr/lib64/python2\.(6|7)/site-packages/xyz/paste conflicts with
->> equivalency rule '/usr/lib64 /usr/lib'; Try adding
->> '/usr/lib/python2\.(6|7)/site-packages/xyz/paste' instead
->>
->>
->> # semanage fcontext -a -t tmp_t
->>   '/usr/lib/python2\.(6|7)/site-packages/xyz/paste'
->>
->> # matchpathcon /usr/lib64/python2.7/site-packages/xyz/paste
->> /usr/lib64/python2.7/site-packages/xyz/paste
->> system_u:object_r:tmp_t:s0
->>
->>
->> Petr
->>
->
-> Thanks, where is this equivalency rule defined/documented?
->
+>> It will be treated as having the unlabeled context for access control
+>> purposes and that is what getxattr will return to userspace processes
+>> unless they have CAP_MAC_ADMIN and SELinux mac_admin permission, but
+>> internally SELinux will keep track of the original xattr context value
+>> and will later retry to map it upon a policy reload, switching over to
+>> using it for access control and getxattr if it becomes valid under a new
+>> policy.  That support was added to support scenarios where a package
+>> manager sets a file context before it has loaded the policy module that
+>> defines it, or scenarios where one is generating a filesystem image for
+>> another OS/release with different policy. That is likely something you
+>> need/want for NFS as well if you want the client to start using the
+>> context as soon as it becomes valid upon a policy update/reload and not
+>> have to wait for the inode to be evicted.
+> 
+> So now handling of invalid labels is different for xattrs (labels are
+> preserved) and native (labels are discarded). Maybe it is worth to align
+> this behavior. It should make introduction of defcontext for native
+> easier.
 
-/usr/lib(64)?/python... doesn't work either how can I make it backward
-compatible?
+Perhaps.  However, this handling of invalid labels is in conflict with 
+your suggested behavior for defcontext=.  If we set the inode sid to the 
+superblock def_sid on an invalid context, then we lose the association 
+to the original context value. The support for deferred mapping of 
+contexts requires allocating a new SID for the invalid context and 
+storing that SID in the inode, so that if the context later becomes 
+valid upon a policy update/reload, the inode SID will refer to the now 
+valid context.  To combine the two, we would need 
+security_context_to_sid_core() to save the def_sid in the context 
+structure for invalid contexts, and change sidtab_search_core() to use 
+that value instead of SECINITSID_UNLABELED for invalid SIDs.  Then the 
+inode would be treated as having the defcontext for access control and 
+getxattr() w/o CAP_MAC_ADMIN purposes, but a subsequent policy 
+update/reload that makes the context valid would automatically cause 
+subsequent accesses to the inode to start using the original context 
+value for access control and getxattr() purposes.  I think that's the 
+behavior you want.
 
---000000000000b781540576617c27
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+>>>> So this would be a divergence in semantics for defcontext= between
+>>>> local/FS_USE_XATTR and NFS/FS_USE_NATIVE filesystems.
+>>>
+>>> Yeah, I also didn't like this semantics mismatch. But from another point
+>>> defcontext allows to assign a context to files that would otherwise be
+>>> unlabeled. Something similar I'd like to achive for NFS.
+>>
+>> Yes, I can see the appeal of it.  I guess the question is whether we
+>> can/should do it via defcontext= or via some new option, and if we do it
+>> via defcontext=, can/should we change the semantics for local/xattr
+>> filesystems to match?  Wondering how widely defcontext= is actually used.
+> 
+> Is the current behavior of defcontext for xattrs intentional or it is a
+> side effect? Honestly it is a bit confusing. Without defcontext really
+> unlabeled files and files with invalid labels are treated as unlabeled.
+> Can a user without MAC_ADMIN even distinguish them? With defcontext only
+> really unlabeled files get default context, but invalid labels still
+> remain unlabeled.
 
-<div dir=3D"ltr"><br><br><div class=3D"gmail_quote"><div dir=3D"ltr">On Fri=
-, Sep 21, 2018 at 7:21 AM Ted Toth &lt;<a href=3D"mailto:txtoth@gmail.com">=
-txtoth@gmail.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" =
-style=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex"><di=
-v dir=3D"ltr"><br><div class=3D"gmail_quote"><div dir=3D"ltr">On Fri, Sep 2=
-1, 2018 at 3:58 AM Petr Lautrbach &lt;<a href=3D"mailto:plautrba@redhat.com=
-" target=3D"_blank">plautrba@redhat.com</a>&gt; wrote:<br></div><blockquote=
- class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #ccc soli=
-d;padding-left:1ex"><br>
-Ted Toth &lt;<a href=3D"mailto:txtoth@gmail.com" target=3D"_blank">txtoth@g=
-mail.com</a>&gt; writes:<br>
-<br>
-&gt; I have something very much like the following in an fc file:<br>
-&gt; /usr/lib64/python2\.(6|7)/site-packages/xyz/paste=C2=A0 =C2=A0 =C2=A0-=
--<br>
-&gt; gen_context(system_u:object_r:jxyz_exec_t,s0)<br>
-&gt;<br>
-&gt; and I use the same file on el6 and el7. On el6 the file is <br>
-&gt; labeled as<br>
-&gt; specified in the python2.6 directory. However on el7 where the <br>
-&gt; file gets<br>
-&gt; installed into python2.7 the file is not labeled correctly. On <br>
-&gt; el7<br>
-&gt; `semanage fcontext -l | grep xyz` shows the file context <br>
-&gt; expected but<br>
-&gt; `matchpathcon /usr/lib64/python2.7/site-packages/xyz/paste` does <br>
-&gt; not return<br>
-&gt; the expected context and `restorecon -RFv<br>
-&gt; /usr/lib64/python2.7/site-packages/xyz` has no affect. The type <br>
-&gt; xyz_exec_t<br>
-&gt; exists on both systems. It&#39;s probably something stupid I&#39;m doi=
-ng <br>
-&gt; but I&#39;m<br>
-&gt; just not seeing it. Has anyone else experienced similar issues?<br>
-&gt;<br>
-<br>
-There&#39;s equivalency rule /usr/lib64 -&gt; /usr/lib on el7:<br>
-<br>
-# semanage fcontext -a -t tmp_t <br>
-=C2=A0 &#39;/usr/lib64/python2\.(6|7)/site-packages/xyz/paste&#39;=C2=A0 =
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 <br>
-ValueError: File spec <br>
-/usr/lib64/python2\.(6|7)/site-packages/xyz/paste conflicts with <br>
-equivalency rule &#39;/usr/lib64 /usr/lib&#39;; Try adding <br>
-&#39;/usr/lib/python2\.(6|7)/site-packages/xyz/paste&#39; instead<br>
-<br>
-<br>
-# semanage fcontext -a -t tmp_t <br>
-=C2=A0 &#39;/usr/lib/python2\.(6|7)/site-packages/xyz/paste&#39; <br>
-<br>
-# matchpathcon /usr/lib64/python2.7/site-packages/xyz/paste<br>
-/usr/lib64/python2.7/site-packages/xyz/paste <br>
-system_u:object_r:tmp_t:s0<br>
-<br>
-<br>
-Petr<br></blockquote><div><br></div><div>Thanks, where is this equivalency =
-rule defined/documented?=C2=A0</div></div></div></blockquote><div><br></div=
-><div>/usr/lib(64)?/python... doesn&#39;t work either how can I make it bac=
-kward compatible?</div><div><br></div><div>=C2=A0</div></div></div>
+It was intentional at the time, but the history is somewhat convoluted. 
+The two cases are actually distinguished by different initial SIDs 
+(SECINITSID_FILE vs SECINITSID_UNLABELED) and used to have different 
+types in policy (file_t vs unlabeled_t), but this distinction has been 
+coalesced in modern policies (where file_t is an alias of unlabeled_t).
+IIRC, the original distinction was to support migration from non-SELinux 
+to SELinux since filesystems were initially unlabeled. defcontext= was 
+originally just a way of specifying per-mount alternatives to the global 
+policy definition of the context for SECINITSID_FILE.
 
---000000000000b781540576617c27--
+> 
+> IMO it would be more consistent if defcontext cover all "unlabeled"
+> groups. It seems unlikely to me that somebody who currently uses
+> defcontext can somehow rely on mapping invalid labels to unlabeled
+> instead of default context.
+
+Yes, and that seems more consistent with the current documentation in 
+the mount man page for defcontext=.
+
+I'd be inclined to change selinux_inode_notifysecctx() to call 
+security_context_to_sid_default() directly instead of using 
+selinux_inode_setsecurity() and change security_context_to_sid_core() 
+and sidtab_search_core() as suggested above to save and use the def_sid 
+instead of SECINITSID_UNLABELED always (initializing the context def_sid 
+to SECINITSID_UNLABELED as the default).  selinux_inode_setsecurity() we 
+should leave unchanged, or if we change it at all, it should be more 
+like the handling in selinux_inode_setxattr().  The notifysecctx hook is 
+invoked by the filesystem to notify the security module of the file's 
+existing security context, so in that case we always want the _default 
+behavior, whereas the setsecurity hook is invoked by the vfs or the 
+filesystem to set the security context of a file to a new value, so in 
+that case we would only use the _force interface if the caller had 
+CAP_MAC_ADMIN.
+
+Paul, what say you?  NB This would be a user-visible behavior change for 
+mounts specifying defcontext= on xattr filesystems; files with invalid 
+contexts will then show up with the defcontext value instead of the 
+unlabeled context.  If that's too risky, then we'd need a flag or 
+something to security_context_to_sid_default() to distinguish the 
+behaviors and only set it when called from selinux_inode_notifysecctx().
