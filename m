@@ -1,583 +1,488 @@
 From: David Howells <dhowells@redhat.com>
 To: viro@zeniv.linux.org.uk
-Cc: John Johansen <john.johansen@canonical.com>, Tejun Heo <tj@kernel.org>,
- "Eric W. Biederman" <ebiederm@redhat.com>, selinux@tycho.nsa.gov,
- Paul Moore <paul@paul-moore.com>, Li Zefan <lizefan@huawei.com>,
- linux-api@vger.kernel.org, apparmor@lists.ubuntu.com,
- Casey Schaufler <casey@schaufler-ca.com>, fenghua.yu@intel.com,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Eric Biggers <ebiggers@google.com>, linux-security-module@vger.kernel.org,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Johannes Weiner <hannes@cmpxchg.org>, Stephen Smalley <sds@tycho.nsa.gov>,
- tomoyo-dev-en@lists.sourceforge.jp, cgroups@vger.kernel.org,
+Cc: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org,
  torvalds@linux-foundation.org, dhowells@redhat.com,
  ebiederm@xmission.com, linux-fsdevel@vger.kernel.org,
  linux-kernel@vger.kernel.org, mszeredi@redhat.com
-Date: Fri, 21 Sep 2018 17:30:08 +0100
-Message-ID: <153754740781.17872.7869536526927736855.stgit@warthog.procyon.org.uk>
+Date: Fri, 21 Sep 2018 17:31:27 +0100
+Message-ID: <153754748795.17872.16927661345949556851.stgit@warthog.procyon.org.uk>
+In-Reply-To: <153754740781.17872.7869536526927736855.stgit@warthog.procyon.org.uk>
+References: <153754740781.17872.7869536526927736855.stgit@warthog.procyon.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Subject: [PATCH 00/34] VFS: Introduce filesystem context [ver #12]
+Subject: [PATCH 10/34] selinux: Implement the new mount API LSM hooks [ver #12]
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-
-Hi Al,
-
-Here are a set of patches to create a filesystem context prior to setting
-up a new mount, populating it with the parsed options/binary data, creating
-the superblock and then effecting the mount.  This is also used for remount
-since much of the parsing stuff is common in many filesystems.
-
-This allows namespaces and other information to be conveyed through the
-mount procedure.
-
-This also allows Miklós Szeredi's idea of doing:
-
-	fd = fsopen("nfs");
-	fsconfig(fd, FSCONFIG_SET_STRING, "option", "val", 0);
-	fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0);
-	mfd = fsmount(fd, MS_NODEV);
-	move_mount(mfd, "", AT_FDCWD, "/mnt", MOVE_MOUNT_F_EMPTY_PATH);
-
-that he presented at LSF-2017 to be implemented (see the relevant patches
-in the series).
-
-I didn't use netlink as that would make the core kernel depend on
-CONFIG_NET and CONFIG_NETLINK and would introduce network namespacing
-issues.
-
-I've implemented filesystem context handling for procfs, nfs, mqueue,
-cpuset, kernfs, sysfs, cgroup and afs filesystems.
-
-Unconverted filesystems are handled by a legacy filesystem wrapper.
-
-
-====================
-WHY DO WE WANT THIS?
-====================
-
-Firstly, there's a bunch of problems with the mount(2) syscall:
-
- (1) It's actually six or seven different interfaces rolled into one and
-     weird combinations of flags make it do different things beyond the
-     original specification of the syscall.
-
- (2) It produces a particularly large and diverse set of errors, which have
-     to be mapped back to a small error code.  Yes, there's dmesg - if you
-     have it configured - but you can't necessarily see that if you're
-     doing a mount inside of a container.
-
- (3) It copies a PAGE_SIZE block of data for each of the type, device name
-     and options.
-
- (4) The size of the buffers is PAGE_SIZE - and this is arch dependent.
-
- (5) You can't mount into another mount namespace.  I could, for example,
-     build a container without having to be in that container's namespace
-     if I can do it from outside.
-
- (6) It's not really geared for the specification of multiple sources, but
-     some filesystems really want that - overlayfs, for example.
-
-and some problems in the internal kernel api:
-
- (1) There's no defined way to supply namespace configuration for the
-     superblock - so, for instance, I can't say that I want to create a
-     superblock in a particular network namespace (on automount, say).
-
-     NFS hacks around this by creating multiple shadow file_system_types
-     with different ->mount() ops.
-
- (2) When calling mount internally, unless you have NFS-like hacks, you
-     have to generate or otherwise provide text config data which then gets
-     parsed, when some of the time you could bypass the parsing stage
-     entirely.
-
- (3) The amount of data in the data buffer is not known, but the data
-     buffer might be on a kernel stack somewhere, leading to the
-     possibility of tripping the stack underrun guard.
-
-and other issues too:
-
- (1) Superblock remount in some filesystems applies options on an as-parsed
-     basis, so if there's a parse failure, a partial alteration with no
-     rollback is effected.
-
- (2) Under some circumstances, the mount data may get copied multiple times
-     so that it can have multiple parsers applied to it or because it has
-     to be parsed multiple times - for instance, once to get the
-     preliminary info required to access the on-disk superblock and then
-     again to update the superblock record in the kernel.
-
-I want to be able to add support for a bunch of things:
-
- (1) UID, GID and Project ID mapping/translation.  I want to be able to
-     install a translation table of some sort on the superblock to
-     translate source identifiers (which may be foreign numeric UIDs/GIDs,
-     text names, GUIDs) into system identifiers.  This needs to be done
-     before the superblock is published[*].
-
-     Note that this may, for example, involve using the context and the
-     superblock held therein to issue an RPC to a server to look up
-     translations.
-
-     [*] By "published" I mean made available through mount so that other
-     	 userspace processes can access it by path.
-
-     Maybe specifying a translation range element with something like:
-
-	fsconfig(fd, fsconfig_translate_uid, "<srcuid> <nsuid> <count>", 0, 0);
-
-     The translation information also needs to propagate over an automount
-     in some circumstances.
-
- (2) Namespace configuration.  I want to be able to tell the superblock
-     creation process what namespaces should be applied when it created (in
-     particular the userns and netns) for containerisation purposes, e.g.:
-
-	fsconfig(fd, FSCONFIG_SET_NAMESPACE, "user", 0, userns_fd);
-	fsconfig(fd, FSCONFIG_SET_NAMESPACE, "net", 0, netns_fd);
-
- (3) Namespace propagation.  I want to have a properly defined mechanism
-     for propagating namespace configuration over automounts within the
-     kernel.  This will be particularly useful for network filesystems.
-
- (4) Pre-mount attribute query.  A chunk of the changes is actually the
-     fsinfo() syscall to query attributes of the filesystem beyond what's
-     available in statx() and statfs().  This will allow a created
-     superblock to be queried before it is published.
-
- (5) Upcall for configuration.  I would like to be able to query
-     configuration that's stored in userspace when an automount is made.
-     For instance, to look up network parameters for NFS or to find a cache
-     selector for fscache.
-
-     The internal fs_context could be passed to the upcall process or the
-     kernel could read a config file directly if named appropriately for the
-     superblock, perhaps:
-
-	[/etc/fscontext.d/afs/example.com/cell.cfg]
-	realm = EXAMPLE.COM
-	translation = uid,3000,4000,100
-	fscache = tag=fred
-
- (6) Event notifications.  I want to be able to install a watch on a
-     superblock before it is published to catch things like quota events
-     and EIO.
-
- (7) Large and binary parameters.  There might be at some point a need to
-     pass large/binary objects like Microsoft PACs around.  If I understand
-     PACs correctly, you can obtain these from the Kerberos server and then
-     pass them to the file server when you connect.
-
-     Having it possible to pass large or binary objects as individual
-     fsconfig calls make parsing these trivial.  OTOH, some or all of this
-     can potentially be handled with the use of the keyrings interface - as
-     the afs filesystem does for passing kerberos tokens around; it's just
-     that that seems overkill for a parameter you may only need once.
-
-
-===================
-SIGNIFICANT CHANGES
-===================
-
- ver #12:
-
- (*) Rebased on v4.19-rc3.
-
- (*) Added three new context purposes: mount for hidden root, reconfigure
-     for unmount, reconfigure for emergency remount.
-
- (*) Added a parameter for the new purpose into vfs_dup_fs_context().
-
- (*) Moved the reconfiguration hook from struct super_operations to struct
-     fs_context_operations so they can be handled through the legacy
-     wrapper.  mount -o remount now goes through that.
-
- (*) Changed the parameter description in the following ways:
-
-     - Nominated one master name for each parameter, held in a simple
-       string pointer array.  This makes it easy to simply look up a name
-       for that parameter for logging.
-
-     - Added a table of additional names for parameters.  The name chosen
-       can be used to influence the action of the parameter.
-
-     - Noted which parameter is the source specifier, if there is one.
-
- (*) Use correct user_ns for a new pidns superblock.
-
- (*) Fix mqueue to not crash on mounting.
-
- (*) Make VFS sample programs dependent on X86 to avoid errors in
-     autobuilders due to unset syscall IDs in other arches.
-
- (*) [Miklós] Fixed subtype handling.
-
- ver #11:
-
- (*) Fixed AppArmor.
-
- (*) Capitalised all the UAPI constants.
-
- (*) Explicitly numbered the FSCONFIG_* UAPI constants.
-
- (*) Removed all the places ANON_INODES is selected.
-
- (*) Fixed a bug whereby the context gets freed twice (which broke mounts of
-     procfs).
-
- (*) Split fsinfo() off into its own patch series.
-
- ver #10:
-
- (*) Renamed "option" to "parameter" in a number of places.
-
- (*) Replaced the use of write() to drive the configuration with an fsconfig()
-     syscall.  This also allows at-style paths and fds to be presented as typed
-     object.
-
- (*) Routed the key=value parameter concept all the way through from the
-     fsconfig() system call to the LSM and filesystem.
-
- (*) Added a parameter-description concept and helper functions to help
-     interpret a parameter and possibly convert the value.
-
- (*) Made it possible to query the parameter description using the fsinfo()
-     syscall.  Added a test-fs-query sample to dump the parameters used by a
-     filesystem.
-
- ver #9:
-
- (*) Dropped the fd cookie stuff and the FMODE_*/O_* split stuff.
-
- (*) Al added an open_tree() system call to allow a mount tree to be picked
-     referenced or cloned into an O_PATH-style fd.  This can then be used
-     with sys_move_mount().  Dropped the O_CLONE_MOUNT and O_NON_RECURSIVE
-     open() flags.
-
- (*) Brought error logging back in, though only in the fs_context and not
-     in the task_struct.
-
- (*) Separated MS_REMOUNT|MS_BIND handling from MS_REMOUNT handling.
-
- (*) Used anon_inodes for the fd returned by fsopen() and fspick().  This
-     requires making it unconditional.
-
- (*) Fixed lots of bugs.  Especial thanks to Al and Eric Biggers for
-     finding them and providing patches.
-
- (*) Wrote manual pages, which I'll post separately.
-
- ver #8:
-
- (*) Changed the way fsmount() mounts into the namespace according to some
-     of Al's ideas.
-
- (*) Put better typing on the fd cookie obtained from __fdget() & co..
-
- (*) Stored the fd cookie in struct nameidata rather than the dfd number.
-
- (*) Changed sys_fsmount() to return an O_PATH-style fd rather than
-     actually mounting into the mount namespace.
-
- (*) Separated internal FMODE_* handling from O_* handling to free up
-     certain O_* flag numbers.
-
- (*) Added two new open flags (O_CLONE_MOUNT and O_NON_RECURSIVE) for use
-     with open(O_PATH) to copy a mount or mount-subtree to an O_PATH fd.
-
- (*) Added a new syscall, sys_move_mount(), to move a mount from an
-     dfd+path source to a dfd+path destination.
-
- (*) Added a file->f_mode flag (FMODE_NEED_UNMOUNT) that indicates that the
-     vfsmount attached to file->f_path needs 'unmounting' if set.
-
- (*) Made sys_move_mount() clear FMODE_NEED_UNMOUNT if successful.
-
-	[!] This doesn't work quite right.
-
- (*) Added a new syscall, fsinfo(), to query information about a
-     filesystem.  The idea being that this will, in future, work with the
-     fd from fsopen() too and permit querying of the parameters and
-     metadata before fsmount() is called.
-
- ver #7:
-
- (*) Undo an incorrect MS_* -> SB_* conversion.
-
- (*) Pass the mount data buffer size to all the mount-related functions that
-     take the data pointer.  This fixes a problem where someone (say SELinux)
-     tries to copy the mount data, assuming it to be a page in size, and
-     overruns the buffer - thereby incurring an oops by hitting a guard page.
-
- (*) Made the AFS filesystem use them as an example.  This is a much easier to
-     deal with than with NFS or Ext4 as there are very few mount options.
-
- ver #6:
-
- (*) Dropped the supplementary error string facility for the moment.
-
- (*) Dropped the NFS patches for the moment.
-
- (*) Dropped the reserved file descriptor argument from fsopen() and
-     replaced it with three reserved pointers that must be NULL.
-
- ver #5:
-
- (*) Renamed sb_config -> fs_context and adjusted variable names.
-
- (*) Differentiated the flags in sb->s_flags (now named SB_*) from those
-     passed to mount(2) (named MS_*).
-
- (*) Renamed __vfs_new_fs_context() to vfs_new_fs_context() and made the
-     caller always provide a struct file_system_type pointer and the
-     parameters required.
-
- (*) Got rid of vfs_submount_fc() in favour of passing
-     FS_CONTEXT_FOR_SUBMOUNT to vfs_new_fs_context().  The purpose is now
-     used more.
-
- (*) Call ->validate() on the remount path.
-
- (*) Got rid of the inode locking in sys_fsmount().
-
- (*) Call security_sb_mountpoint() in the mount(2) path.
-
- ver #4:
-
- (*) Split the sb_config patch up somewhat.
-
- (*) Made the supplementary error string facility something attached to the
-     task_struct rather than the sb_config so that error messages can be
-     obtained from NFS doing a mount-root-and-pathwalk inside the
-     nfs_get_tree() operation.
-
-     Further, made this managed and read by prctl rather than through the
-     mount fd so that it's more generally available.
-
- ver #3:
-
- (*) Rebased on 4.12-rc1.
-
- (*) Split the NFS patch up somewhat.
-
- ver #2:
-
- (*) Removed the ->fill_super() from sb_config_operations and passed it in
-     directly to functions that want to call it.  NFS now calls
-     nfs_fill_super() directly rather than jumping through a pointer to it
-     since there's only the one option at the moment.
-
- (*) Removed ->mnt_ns and ->sb from sb_config and moved ->pid_ns into
-     proc_sb_config.
-
- (*) Renamed create_super -> get_tree.
-
- (*) Renamed struct mount_context to struct sb_config and amended various
-     variable names.
-
- (*) sys_fsmount() acquired AT_* flags and MS_* flags (for MNT_* flags)
-     arguments.
-
- ver #1:
-
- (*) Split the sb_config stuff out into its own header.
-
- (*) Support non-context aware filesystems through a special set of
-     sb_config operations.
-
- (*) Stored the created superblock and root dentry into the sb_config after
-     creation rather than directly into a vfsmount.  This allows some
-     arguments to be removed to various NFS functions.
-
- (*) Added an explicit superblock-creation step.  This allows a created
-     superblock to then be mounted multiple times.
-
- (*) Added a flag to say that the sb_config is degraded and cannot have
-     another go at having a superblock creation whilst getting rid of the
-     one that says it's already mounted.
-
-Possible further developments:
-
- (*) Implement sb reconfiguration (for now it returns ENOANO).
-
- (*) Implement mount context support in more filesystems, ext4 being next
-     on my list.
-
- (*) Move the walk-from-root stuff that nfs has to generic code so that you
-     can do something akin to:
-
-	mount /dev/sda1:/foo/bar /mnt
-
-     See nfs_follow_remote_path() and mount_subtree().  This is slightly
-     tricky in NFS as we have to prevent referral loops.
-
- (*) Work out how to get at the error message incurred by submounts
-     encountered during nfs_follow_remote_path().
-
-     Should the error message be moved to task_struct and made more
-     general, perhaps retrieved with a prctl() function?
-
- (*) Clean up/consolidate the security functions.  Possibly add a
-     validation hook to be called at the same time as the mount context
-     validate op.
-
-The patches can be found here also:
-
-	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git
-
-on branch:
-
-	mount-api
-
-David
+Implement the new mount API LSM hooks for SELinux.  At some point the old
+hooks will need to be removed.
+
+Question: Should the ->fs_context_parse_source() hook be implemented to
+check the labels on any source devices specified?
+
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Paul Moore <paul@paul-moore.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>
+cc: selinux@tycho.nsa.gov
+cc: linux-security-module@vger.kernel.org
 ---
-Al Viro (2):
-      vfs: syscall: Add open_tree(2) to reference or clone a mount
-      teach move_mount(2) to work with OPEN_TREE_CLONE
 
-David Howells (32):
-      vfs: syscall: Add move_mount(2) to move mounts around
-      vfs: Suppress MS_* flag defs within the kernel unless explicitly enabled
-      vfs: Introduce the basic header for the new mount API's filesystem context
-      vfs: Introduce logging functions
-      vfs: Add configuration parser helpers
-      vfs: Add LSM hooks for the new mount API
-      vfs: Put security flags into the fs_context struct
-      selinux: Implement the new mount API LSM hooks
-      smack: Implement filesystem context security hooks
-      apparmor: Implement security hooks for the new mount API
-      tomoyo: Implement security hooks for the new mount API
-      vfs: Separate changing mount flags full remount
-      vfs: Implement a filesystem superblock creation/configuration context
-      vfs: Remove unused code after filesystem context changes
-      procfs: Move proc_fill_super() to fs/proc/root.c
-      proc: Add fs_context support to procfs
-      ipc: Convert mqueue fs to fs_context
-      cpuset: Use fs_context
-      kernfs, sysfs, cgroup, intel_rdt: Support fs_context
-      hugetlbfs: Convert to fs_context
-      vfs: Remove kern_mount_data()
-      vfs: Provide documentation for new mount API
-      Make anon_inodes unconditional
-      vfs: syscall: Add fsopen() to prepare for superblock creation
-      vfs: Implement logging through fs_context
-      vfs: Add some logging to the core users of the fs_context log
-      vfs: syscall: Add fsconfig() for configuring and managing a context
-      vfs: syscall: Add fsmount() to create a mount for a superblock
-      vfs: syscall: Add fspick() to select a superblock for reconfiguration
-      afs: Add fs_context support
-      afs: Use fs_context to pass parameters over automount
-      vfs: Add a sample program for the new mount API
+ security/selinux/hooks.c            |  336 ++++++++++++++++++++++++++++++++---
+ security/selinux/include/security.h |   16 +-
+ 2 files changed, 319 insertions(+), 33 deletions(-)
 
-
- Documentation/filesystems/mount_api.txt  |  741 +++++++++++++++++++++++++
- arch/arc/kernel/setup.c                  |    1 
- arch/arm/kernel/atags_parse.c            |    1 
- arch/arm/kvm/Kconfig                     |    1 
- arch/arm64/kvm/Kconfig                   |    1 
- arch/mips/kvm/Kconfig                    |    1 
- arch/powerpc/kvm/Kconfig                 |    1 
- arch/s390/kvm/Kconfig                    |    1 
- arch/sh/kernel/setup.c                   |    1 
- arch/sparc/kernel/setup_32.c             |    1 
- arch/sparc/kernel/setup_64.c             |    1 
- arch/x86/Kconfig                         |    1 
- arch/x86/entry/syscalls/syscall_32.tbl   |    6 
- arch/x86/entry/syscalls/syscall_64.tbl   |    6 
- arch/x86/kernel/cpu/intel_rdt.h          |   15 +
- arch/x86/kernel/cpu/intel_rdt_rdtgroup.c |  183 ++++--
- arch/x86/kernel/setup.c                  |    1 
- arch/x86/kvm/Kconfig                     |    1 
- drivers/base/Kconfig                     |    1 
- drivers/base/devtmpfs.c                  |    1 
- drivers/char/tpm/Kconfig                 |    1 
- drivers/dma-buf/Kconfig                  |    1 
- drivers/gpio/Kconfig                     |    1 
- drivers/iio/Kconfig                      |    1 
- drivers/infiniband/Kconfig               |    1 
- drivers/vfio/Kconfig                     |    1 
- fs/Kconfig                               |    7 
- fs/Makefile                              |    5 
- fs/afs/internal.h                        |    9 
- fs/afs/mntpt.c                           |  148 +++--
- fs/afs/super.c                           |  470 +++++++++-------
- fs/afs/volume.c                          |    4 
- fs/f2fs/super.c                          |    2 
- fs/file_table.c                          |    9 
- fs/filesystems.c                         |    4 
- fs/fs_context.c                          |  769 ++++++++++++++++++++++++++
- fs/fs_parser.c                           |  555 +++++++++++++++++++
- fs/fsopen.c                              |  563 +++++++++++++++++++
- fs/hugetlbfs/inode.c                     |  391 ++++++++-----
- fs/internal.h                            |   19 +
- fs/kernfs/mount.c                        |   88 +--
- fs/libfs.c                               |   20 +
- fs/namei.c                               |    4 
- fs/namespace.c                           |  895 +++++++++++++++++++++++-------
- fs/notify/fanotify/Kconfig               |    1 
- fs/notify/inotify/Kconfig                |    1 
- fs/pnode.c                               |    1 
- fs/proc/inode.c                          |   50 --
- fs/proc/internal.h                       |    5 
- fs/proc/root.c                           |  256 ++++++---
- fs/super.c                               |  464 ++++++++++++----
- fs/sysfs/mount.c                         |   67 ++
- include/linux/cgroup.h                   |    3 
- include/linux/errno.h                    |    1 
- include/linux/fs.h                       |   23 +
- include/linux/fs_context.h               |  215 +++++++
- include/linux/fs_parser.h                |  119 ++++
- include/linux/kernfs.h                   |   41 +
- include/linux/lsm_hooks.h                |   79 ++-
- include/linux/module.h                   |    6 
- include/linux/mount.h                    |    5 
- include/linux/security.h                 |   65 ++
- include/linux/syscalls.h                 |    9 
- include/uapi/linux/fcntl.h               |    2 
- include/uapi/linux/fs.h                  |   82 +--
- include/uapi/linux/mount.h               |   75 +++
- init/Kconfig                             |   10 
- init/do_mounts.c                         |    1 
- init/do_mounts_initrd.c                  |    1 
- ipc/mqueue.c                             |  107 +++-
- ipc/namespace.c                          |    2 
- kernel/cgroup/cgroup-internal.h          |   50 +-
- kernel/cgroup/cgroup-v1.c                |  345 ++++++------
- kernel/cgroup/cgroup.c                   |  264 ++++++---
- kernel/cgroup/cpuset.c                   |   69 ++
- samples/Kconfig                          |   10 
- samples/Makefile                         |    2 
- samples/statx/Makefile                   |    7 
- samples/statx/test-statx.c               |  258 ---------
- samples/vfs/Makefile                     |   10 
- samples/vfs/test-fsmount.c               |  118 ++++
- samples/vfs/test-statx.c                 |  258 +++++++++
- security/apparmor/include/mount.h        |   11 
- security/apparmor/lsm.c                  |  108 ++++
- security/apparmor/mount.c                |   47 ++
- security/security.c                      |   56 ++
- security/selinux/hooks.c                 |  387 ++++++++++---
- security/selinux/include/security.h      |   16 -
- security/smack/smack.h                   |   21 -
- security/smack/smack_lsm.c               |  365 +++++++++++-
- security/tomoyo/common.h                 |    3 
- security/tomoyo/mount.c                  |   46 ++
- security/tomoyo/tomoyo.c                 |   15 +
- 93 files changed, 7191 insertions(+), 1900 deletions(-)
- create mode 100644 Documentation/filesystems/mount_api.txt
- create mode 100644 fs/fs_context.c
- create mode 100644 fs/fs_parser.c
- create mode 100644 fs/fsopen.c
- create mode 100644 include/linux/fs_context.h
- create mode 100644 include/linux/fs_parser.h
- create mode 100644 include/uapi/linux/mount.h
- delete mode 100644 samples/statx/Makefile
- delete mode 100644 samples/statx/test-statx.c
- create mode 100644 samples/vfs/Makefile
- create mode 100644 samples/vfs/test-fsmount.c
- create mode 100644 samples/vfs/test-statx.c
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9102a8fecb15..5f2af9dd44fa 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -48,6 +48,8 @@
+ #include <linux/fdtable.h>
+ #include <linux/namei.h>
+ #include <linux/mount.h>
++#include <linux/fs_context.h>
++#include <linux/fs_parser.h>
+ #include <linux/netfilter_ipv4.h>
+ #include <linux/netfilter_ipv6.h>
+ #include <linux/tty.h>
+@@ -439,24 +441,23 @@ static inline int inode_doinit(struct inode *inode)
+ }
+ 
+ enum {
+-	Opt_error = -1,
+-	Opt_context = 1,
++	Opt_context = 0,
++	Opt_defcontext = 1,
+ 	Opt_fscontext = 2,
+-	Opt_defcontext = 3,
+-	Opt_rootcontext = 4,
+-	Opt_labelsupport = 5,
+-	Opt_nextmntopt = 6,
++	Opt_rootcontext = 3,
++	Opt_seclabel = 4,
++	nr__selinux_params
+ };
+ 
+-#define NUM_SEL_MNT_OPTS	(Opt_nextmntopt - 1)
++#define NUM_SEL_MNT_OPTS	(nr__selinux_params - 1)
+ 
+ static const match_table_t tokens = {
+-	{Opt_context, CONTEXT_STR "%s"},
+-	{Opt_fscontext, FSCONTEXT_STR "%s"},
+-	{Opt_defcontext, DEFCONTEXT_STR "%s"},
+-	{Opt_rootcontext, ROOTCONTEXT_STR "%s"},
+-	{Opt_labelsupport, LABELSUPP_STR},
+-	{Opt_error, NULL},
++	{Opt_context, CONTEXT_STR "=%s"},
++	{Opt_fscontext, FSCONTEXT_STR "=%s"},
++	{Opt_defcontext, DEFCONTEXT_STR "=%s"},
++	{Opt_rootcontext, ROOTCONTEXT_STR "=%s"},
++	{Opt_seclabel, SECLABEL_STR},
++	{-1, NULL},
+ };
+ 
+ #define SEL_MOUNT_FAIL_MSG "SELinux:  duplicate or incompatible mount options\n"
+@@ -615,15 +616,11 @@ static int selinux_get_mnt_opts(const struct super_block *sb,
+ 	if (!selinux_state.initialized)
+ 		return -EINVAL;
+ 
+-	/* make sure we always check enough bits to cover the mask */
+-	BUILD_BUG_ON(SE_MNTMASK >= (1 << NUM_SEL_MNT_OPTS));
+-
+ 	tmp = sbsec->flags & SE_MNTMASK;
+ 	/* count the number of mount options for this sb */
+ 	for (i = 0; i < NUM_SEL_MNT_OPTS; i++) {
+-		if (tmp & 0x01)
++		if (tmp & (1 << i))
+ 			opts->num_mnt_opts++;
+-		tmp >>= 1;
+ 	}
+ 	/* Check if the Label support flag is set */
+ 	if (sbsec->flags & SBLABEL_MNT)
+@@ -1154,7 +1151,7 @@ static int selinux_parse_opts_str(char *options,
+ 				goto out_err;
+ 			}
+ 			break;
+-		case Opt_labelsupport:
++		case Opt_seclabel:
+ 			break;
+ 		default:
+ 			rc = -EINVAL;
+@@ -1259,7 +1256,7 @@ static void selinux_write_opts(struct seq_file *m,
+ 			break;
+ 		case SBLABEL_MNT:
+ 			seq_putc(m, ',');
+-			seq_puts(m, LABELSUPP_STR);
++			seq_puts(m, SECLABEL_STR);
+ 			continue;
+ 		default:
+ 			BUG();
+@@ -1268,6 +1265,7 @@ static void selinux_write_opts(struct seq_file *m,
+ 		/* we need a comma before each option */
+ 		seq_putc(m, ',');
+ 		seq_puts(m, prefix);
++		seq_putc(m, '=');
+ 		if (has_comma)
+ 			seq_putc(m, '\"');
+ 		seq_escape(m, opts->mnt_opts[i], "\"\n\\");
+@@ -2753,11 +2751,11 @@ static inline int match_prefix(char *prefix, int plen, char *option, int olen)
+ 
+ static inline int selinux_option(char *option, int len)
+ {
+-	return (match_prefix(CONTEXT_STR, sizeof(CONTEXT_STR)-1, option, len) ||
+-		match_prefix(FSCONTEXT_STR, sizeof(FSCONTEXT_STR)-1, option, len) ||
+-		match_prefix(DEFCONTEXT_STR, sizeof(DEFCONTEXT_STR)-1, option, len) ||
+-		match_prefix(ROOTCONTEXT_STR, sizeof(ROOTCONTEXT_STR)-1, option, len) ||
+-		match_prefix(LABELSUPP_STR, sizeof(LABELSUPP_STR)-1, option, len));
++	return (match_prefix(CONTEXT_STR"=", sizeof(CONTEXT_STR)-1, option, len) ||
++		match_prefix(FSCONTEXT_STR"=", sizeof(FSCONTEXT_STR)-1, option, len) ||
++		match_prefix(DEFCONTEXT_STR"=", sizeof(DEFCONTEXT_STR)-1, option, len) ||
++		match_prefix(ROOTCONTEXT_STR"=", sizeof(ROOTCONTEXT_STR)-1, option, len) ||
++		match_prefix(SECLABEL_STR"=", sizeof(SECLABEL_STR)-1, option, len));
+ }
+ 
+ static inline void take_option(char **to, char *from, int *first, int len)
+@@ -2972,6 +2970,284 @@ static int selinux_umount(struct vfsmount *mnt, int flags)
+ 				   FILESYSTEM__UNMOUNT, NULL);
+ }
+ 
++/* fsopen mount context operations */
++
++static int selinux_fs_context_alloc(struct fs_context *fc,
++				    struct dentry *reference)
++{
++	struct security_mnt_opts *opts;
++
++	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
++	if (!opts)
++		return -ENOMEM;
++
++	fc->security = opts;
++	return 0;
++}
++
++static int selinux_fs_context_dup(struct fs_context *fc,
++				  struct fs_context *src_fc)
++{
++	const struct security_mnt_opts *src = src_fc->security;
++	struct security_mnt_opts *opts;
++	int i, n;
++
++	opts = kzalloc(sizeof(*opts), GFP_KERNEL);
++	if (!opts)
++		return -ENOMEM;
++	fc->security = opts;
++
++	if (!src || !src->num_mnt_opts)
++		return 0;
++	n = opts->num_mnt_opts = src->num_mnt_opts;
++
++	if (src->mnt_opts) {
++		opts->mnt_opts = kcalloc(n, sizeof(char *), GFP_KERNEL);
++		if (!opts->mnt_opts)
++			return -ENOMEM;
++
++		for (i = 0; i < n; i++) {
++			if (src->mnt_opts[i]) {
++				opts->mnt_opts[i] = kstrdup(src->mnt_opts[i],
++							    GFP_KERNEL);
++				if (!opts->mnt_opts[i])
++					return -ENOMEM;
++			}
++		}
++	}
++
++	if (src->mnt_opts_flags) {
++		opts->mnt_opts_flags = kmemdup(src->mnt_opts_flags,
++					       n * sizeof(int), GFP_KERNEL);
++		if (!opts->mnt_opts_flags)
++			return -ENOMEM;
++	}
++
++	return 0;
++}
++
++static void selinux_fs_context_free(struct fs_context *fc)
++{
++	struct security_mnt_opts *opts = fc->security;
++
++	if (opts) {
++		security_free_mnt_opts(opts);
++		fc->security = NULL;
++	}
++}
++
++static const struct fs_parameter_spec selinux_param_specs[nr__selinux_params] = {
++	[Opt_context]		= { fs_param_is_string },
++	[Opt_defcontext]	= { fs_param_is_string },
++	[Opt_fscontext]		= { fs_param_is_string },
++	[Opt_rootcontext]	= { fs_param_is_string },
++	[Opt_seclabel]		= { fs_param_is_flag },
++};
++
++static const char *const selinux_param_keys[nr__selinux_params] = {
++	[Opt_context]		= CONTEXT_STR,
++	[Opt_defcontext]	= DEFCONTEXT_STR,
++	[Opt_fscontext]		= FSCONTEXT_STR,
++	[Opt_rootcontext]	= ROOTCONTEXT_STR,
++	[Opt_seclabel]		= SECLABEL_STR,
++};
++
++static const struct fs_parameter_description selinux_fs_parameters = {
++	.name		= "SELinux",
++	.nr_params	= nr__selinux_params,
++	.keys		= selinux_param_keys,
++	.specs		= selinux_param_specs,
++	.no_source	= true,
++};
++
++static int selinux_fs_context_parse_param(struct fs_context *fc,
++					  struct fs_parameter *param)
++{
++	struct security_mnt_opts *opts = fc->security;
++	struct fs_parse_result result;
++	unsigned int have;
++	char **oo;
++	int opt, ctx, i, *of;
++
++	opt = fs_parse(fc, &selinux_fs_parameters, param, &result);
++	if (opt < 0)
++		return opt;
++
++	have = 0;
++	for (i = 0; i < opts->num_mnt_opts; i++)
++		have |= 1 << opts->mnt_opts_flags[i];
++	if (have & (1 << opt))
++		return -EINVAL;
++
++	switch (opt) {
++	case Opt_context:
++		if (have & (1 << Opt_defcontext))
++			goto incompatible;
++		ctx = CONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_fscontext:
++		ctx = FSCONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_rootcontext:
++		ctx = ROOTCONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_defcontext:
++		if (have & (1 << Opt_context))
++			goto incompatible;
++		ctx = DEFCONTEXT_MNT;
++		goto copy_context_string;
++
++	case Opt_seclabel:
++		return 1;
++
++	default:
++		return -EINVAL;
++	}
++
++copy_context_string:
++	if (opts->num_mnt_opts > 3)
++		return -EINVAL;
++
++	of = krealloc(opts->mnt_opts_flags,
++		      (opts->num_mnt_opts + 1) * sizeof(int), GFP_KERNEL);
++	if (!of)
++		return -ENOMEM;
++	of[opts->num_mnt_opts] = 0;
++	opts->mnt_opts_flags = of;
++
++	oo = krealloc(opts->mnt_opts,
++		      (opts->num_mnt_opts + 1) * sizeof(char *), GFP_KERNEL);
++	if (!oo)
++		return -ENOMEM;
++	oo[opts->num_mnt_opts] = NULL;
++	opts->mnt_opts = oo;
++
++	opts->mnt_opts[opts->num_mnt_opts] = param->string;
++	opts->mnt_opts_flags[opts->num_mnt_opts] = ctx;
++	opts->num_mnt_opts++;
++	param->string = NULL;
++	return 1;
++
++incompatible:
++	return -EINVAL;
++}
++
++/*
++ * Validate the security parameters supplied for a reconfiguration/remount
++ * event.
++ */
++static int selinux_validate_for_sb_reconfigure(struct fs_context *fc)
++{
++	struct super_block *sb = fc->root->d_sb;
++	struct superblock_security_struct *sbsec = sb->s_security;
++	struct security_mnt_opts *opts = fc->security;
++	int rc, i, *flags;
++	char **mount_options;
++
++	if (!(sbsec->flags & SE_SBINITIALIZED))
++		return 0;
++
++	mount_options = opts->mnt_opts;
++	flags = opts->mnt_opts_flags;
++
++	for (i = 0; i < opts->num_mnt_opts; i++) {
++		u32 sid;
++
++		if (flags[i] == SBLABEL_MNT)
++			continue;
++
++		rc = security_context_str_to_sid(&selinux_state, mount_options[i],
++						 &sid, GFP_KERNEL);
++		if (rc) {
++			pr_warn("SELinux: security_context_str_to_sid"
++				"(%s) failed for (dev %s, type %s) errno=%d\n",
++				mount_options[i], sb->s_id, sb->s_type->name, rc);
++			goto inval;
++		}
++
++		switch (flags[i]) {
++		case FSCONTEXT_MNT:
++			if (bad_option(sbsec, FSCONTEXT_MNT, sbsec->sid, sid))
++				goto bad_option;
++			break;
++		case CONTEXT_MNT:
++			if (bad_option(sbsec, CONTEXT_MNT, sbsec->mntpoint_sid, sid))
++				goto bad_option;
++			break;
++		case ROOTCONTEXT_MNT: {
++			struct inode_security_struct *root_isec;
++			root_isec = backing_inode_security(sb->s_root);
++
++			if (bad_option(sbsec, ROOTCONTEXT_MNT, root_isec->sid, sid))
++				goto bad_option;
++			break;
++		}
++		case DEFCONTEXT_MNT:
++			if (bad_option(sbsec, DEFCONTEXT_MNT, sbsec->def_sid, sid))
++				goto bad_option;
++			break;
++		default:
++			goto inval;
++		}
++	}
++
++	rc = 0;
++out:
++	return rc;
++
++bad_option:
++	pr_warn("SELinux: unable to change security options "
++		"during remount (dev %s, type=%s)\n",
++		sb->s_id, sb->s_type->name);
++inval:
++	rc = -EINVAL;
++	goto out;
++}
++
++/*
++ * Validate the security context assembled from the option data supplied to
++ * mount.
++ */
++static int selinux_fs_context_validate(struct fs_context *fc)
++{
++	if (fc->purpose == FS_CONTEXT_FOR_RECONFIGURE)
++		return selinux_validate_for_sb_reconfigure(fc);
++	return 0;
++}
++
++/*
++ * Set the security context on a superblock.
++ */
++static int selinux_sb_get_tree(struct fs_context *fc)
++{
++	const struct cred *cred = current_cred();
++	struct common_audit_data ad;
++	int rc;
++
++	rc = selinux_set_mnt_opts(fc->root->d_sb, fc->security, 0, NULL);
++	if (rc)
++		return rc;
++
++	/* Allow all mounts performed by the kernel */
++	if (fc->purpose == FS_CONTEXT_FOR_KERNEL_MOUNT)
++		return 0;
++
++	ad.type = LSM_AUDIT_DATA_DENTRY;
++	ad.u.dentry = fc->root;
++	return superblock_has_perm(cred, fc->root->d_sb, FILESYSTEM__MOUNT, &ad);
++}
++
++static int selinux_sb_mountpoint(struct fs_context *fc, struct path *mountpoint,
++				 unsigned int mnt_flags)
++{
++	const struct cred *cred = current_cred();
++
++	return path_has_perm(cred, mountpoint, FILE__MOUNTON);
++}
++
+ /* inode security operations */
+ 
+ static int selinux_inode_alloc_security(struct inode *inode)
+@@ -6918,6 +7194,14 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(bprm_committing_creds, selinux_bprm_committing_creds),
+ 	LSM_HOOK_INIT(bprm_committed_creds, selinux_bprm_committed_creds),
+ 
++	LSM_HOOK_INIT(fs_context_alloc, selinux_fs_context_alloc),
++	LSM_HOOK_INIT(fs_context_dup, selinux_fs_context_dup),
++	LSM_HOOK_INIT(fs_context_free, selinux_fs_context_free),
++	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
++	LSM_HOOK_INIT(fs_context_validate, selinux_fs_context_validate),
++	LSM_HOOK_INIT(sb_get_tree, selinux_sb_get_tree),
++	LSM_HOOK_INIT(sb_mountpoint, selinux_sb_mountpoint),
++
+ 	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
+ 	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+ 	LSM_HOOK_INIT(sb_copy_data, selinux_sb_copy_data),
+@@ -7185,6 +7469,8 @@ static __init int selinux_init(void)
+ 	else
+ 		pr_debug("SELinux:  Starting in permissive mode\n");
+ 
++	fs_validate_description(&selinux_fs_parameters);
++
+ 	return 0;
+ }
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 23e762d529fa..7c100283b66f 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -50,20 +50,20 @@
+ /* Super block security struct flags for mount options */
+ /* BE CAREFUL, these need to be the low order bits for selinux_get_mnt_opts */
+ #define CONTEXT_MNT	0x01
+-#define FSCONTEXT_MNT	0x02
+-#define ROOTCONTEXT_MNT	0x04
+-#define DEFCONTEXT_MNT	0x08
++#define DEFCONTEXT_MNT	0x02
++#define FSCONTEXT_MNT	0x04
++#define ROOTCONTEXT_MNT	0x08
+ #define SBLABEL_MNT	0x10
+ /* Non-mount related flags */
+ #define SE_SBINITIALIZED	0x0100
+ #define SE_SBPROC		0x0200
+ #define SE_SBGENFS		0x0400
+ 
+-#define CONTEXT_STR	"context="
+-#define FSCONTEXT_STR	"fscontext="
+-#define ROOTCONTEXT_STR	"rootcontext="
+-#define DEFCONTEXT_STR	"defcontext="
+-#define LABELSUPP_STR "seclabel"
++#define CONTEXT_STR	"context"
++#define FSCONTEXT_STR	"fscontext"
++#define ROOTCONTEXT_STR	"rootcontext"
++#define DEFCONTEXT_STR	"defcontext"
++#define SECLABEL_STR	"seclabel"
+ 
+ struct netlbl_lsm_secattr;
+ 
