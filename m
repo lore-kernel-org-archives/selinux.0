@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M0HcfU009819
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 20:17:39 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M0I2xG009840
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 20:18:02 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
  LKLM <linux-kernel@vger.kernel.org>,
@@ -14,71 +14,166 @@ To: LSM <linux-security-module@vger.kernel.org>,
  <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
 References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <5360cd42-5827-58af-515c-6e1ded1d9154@schaufler-ca.com>
-Date: Fri, 21 Sep 2018 17:17:25 -0700
+Message-ID: <c7a864e4-1297-2973-9d4c-7c855a20a06d@schaufler-ca.com>
+Date: Fri, 21 Sep 2018 17:17:34 -0700
 MIME-Version: 1.0
 In-Reply-To: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v4 04/19] SELinux: Remove cred security blob
- poisoning
+Subject: [PATCH v4 05/19] SELinux: Remove unused selinux_is_enabled
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-The SELinux specific credential poisioning only makes sense
-if SELinux is managing the credentials. As the intent of this
-patch set is to move the blob management out of the modules
-and into the infrastructure, the SELinux specific code has
-to go. The poisioning could be introduced into the infrastructure
-at some later date.
+There are no longer users of selinux_is_enabled().
+Remove it. As selinux_is_enabled() is the only reason
+for include/linux/selinux.h remove that as well.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- kernel/cred.c            | 13 -------------
- security/selinux/hooks.c |  6 ------
- 2 files changed, 19 deletions(-)
+ include/linux/cred.h             |  1 -
+ include/linux/selinux.h          | 35 --------------------------------
+ security/selinux/Makefile        |  2 +-
+ security/selinux/exports.c       | 23 ---------------------
+ security/selinux/hooks.c         |  1 -
+ security/selinux/include/audit.h |  3 ---
+ security/selinux/ss/services.c   |  1 -
+ 7 files changed, 1 insertion(+), 65 deletions(-)
+ delete mode 100644 include/linux/selinux.h
+ delete mode 100644 security/selinux/exports.c
 
-diff --git a/kernel/cred.c b/kernel/cred.c
-index ecf03657e71c..fa2061ee4955 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -704,19 +704,6 @@ bool creds_are_invalid(const struct cred *cred)
- {
- 	if (cred->magic != CRED_MAGIC)
- 		return true;
+diff --git a/include/linux/cred.h b/include/linux/cred.h
+index 7eed6101c791..2e715e202e6a 100644
+--- a/include/linux/cred.h
++++ b/include/linux/cred.h
+@@ -15,7 +15,6 @@
+ #include <linux/capability.h>
+ #include <linux/init.h>
+ #include <linux/key.h>
+-#include <linux/selinux.h>
+ #include <linux/atomic.h>
+ #include <linux/uidgid.h>
+ #include <linux/sched.h>
+diff --git a/include/linux/selinux.h b/include/linux/selinux.h
+deleted file mode 100644
+index 44f459612690..000000000000
+--- a/include/linux/selinux.h
++++ /dev/null
+@@ -1,35 +0,0 @@
+-/*
+- * SELinux services exported to the rest of the kernel.
+- *
+- * Author: James Morris <jmorris@redhat.com>
+- *
+- * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
+- * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+- * Copyright (C) 2006 IBM Corporation, Timothy R. Chavez <tinytim@us.ibm.com>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2,
+- * as published by the Free Software Foundation.
+- */
+-#ifndef _LINUX_SELINUX_H
+-#define _LINUX_SELINUX_H
+-
+-struct selinux_audit_rule;
+-struct audit_context;
+-struct kern_ipc_perm;
+-
 -#ifdef CONFIG_SECURITY_SELINUX
--	/*
--	 * cred->security == NULL if security_cred_alloc_blank() or
--	 * security_prepare_creds() returned an error.
--	 */
--	if (selinux_is_enabled() && cred->security) {
--		if ((unsigned long) cred->security < PAGE_SIZE)
--			return true;
--		if ((*(u32 *)cred->security & 0xffffff00) ==
--		    (POISON_FREE << 24 | POISON_FREE << 16 | POISON_FREE << 8))
--			return true;
--	}
--#endif
- 	return false;
- }
- EXPORT_SYMBOL(creds_are_invalid);
+-
+-/**
+- * selinux_is_enabled - is SELinux enabled?
+- */
+-bool selinux_is_enabled(void);
+-#else
+-
+-static inline bool selinux_is_enabled(void)
+-{
+-	return false;
+-}
+-#endif	/* CONFIG_SECURITY_SELINUX */
+-
+-#endif /* _LINUX_SELINUX_H */
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index c7161f8792b2..ccf950409384 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -6,7 +6,7 @@
+ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
+ 
+ selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
+-	     netnode.o netport.o ibpkey.o exports.o \
++	     netnode.o netport.o ibpkey.o \
+ 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
+ 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
+ 
+diff --git a/security/selinux/exports.c b/security/selinux/exports.c
+deleted file mode 100644
+index e75dd94e2d2b..000000000000
+--- a/security/selinux/exports.c
++++ /dev/null
+@@ -1,23 +0,0 @@
+-/*
+- * SELinux services exported to the rest of the kernel.
+- *
+- * Author: James Morris <jmorris@redhat.com>
+- *
+- * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
+- * Copyright (C) 2006 Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
+- * Copyright (C) 2006 IBM Corporation, Timothy R. Chavez <tinytim@us.ibm.com>
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2,
+- * as published by the Free Software Foundation.
+- */
+-#include <linux/module.h>
+-#include <linux/selinux.h>
+-
+-#include "security.h"
+-
+-bool selinux_is_enabled(void)
+-{
+-	return selinux_enabled;
+-}
+-EXPORT_SYMBOL_GPL(selinux_is_enabled);
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 9d6cdd21acb6..80614ca25a2b 100644
+index 80614ca25a2b..82b28ee878c4 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3920,12 +3920,6 @@ static void selinux_cred_free(struct cred *cred)
- {
- 	struct task_security_struct *tsec = selinux_cred(cred);
- 
--	/*
--	 * cred->security == NULL if security_cred_alloc_blank() or
--	 * security_prepare_creds() returned an error.
--	 */
--	BUG_ON(cred->security && (unsigned long) cred->security < PAGE_SIZE);
--	cred->security = (void *) 0x7UL;
- 	kfree(tsec);
- }
- 
+@@ -79,7 +79,6 @@
+ #include <linux/personality.h>
+ #include <linux/audit.h>
+ #include <linux/string.h>
+-#include <linux/selinux.h>
+ #include <linux/mutex.h>
+ #include <linux/posix-timers.h>
+ #include <linux/syslog.h>
+diff --git a/security/selinux/include/audit.h b/security/selinux/include/audit.h
+index 1bdf973433cc..36e1d44c0209 100644
+--- a/security/selinux/include/audit.h
++++ b/security/selinux/include/audit.h
+@@ -1,9 +1,6 @@
+ /*
+  * SELinux support for the Audit LSM hooks
+  *
+- * Most of below header was moved from include/linux/selinux.h which
+- * is released under below copyrights:
+- *
+  * Author: James Morris <jmorris@redhat.com>
+  *
+  * Copyright (C) 2005 Red Hat, Inc., James Morris <jmorris@redhat.com>
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f3def298a90e..e2235f1a99aa 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -49,7 +49,6 @@
+ #include <linux/sched.h>
+ #include <linux/audit.h>
+ #include <linux/mutex.h>
+-#include <linux/selinux.h>
+ #include <linux/flex_array.h>
+ #include <linux/vmalloc.h>
+ #include <net/netlabel.h>
 -- 
 2.17.1
