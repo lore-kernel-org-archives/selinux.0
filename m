@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M0H9hP009796
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 20:17:10 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M0HQnE009805
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 20:17:28 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
  LKLM <linux-kernel@vger.kernel.org>,
@@ -14,267 +14,295 @@ To: LSM <linux-security-module@vger.kernel.org>,
  <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
 References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <5f2520f2-fddd-3af8-2142-e89ca402ea5b@schaufler-ca.com>
-Date: Fri, 21 Sep 2018 17:16:59 -0700
+Message-ID: <8b652ffb-5636-7aed-0715-f896a6a7cdf6@schaufler-ca.com>
+Date: Fri, 21 Sep 2018 17:17:16 -0700
 MIME-Version: 1.0
 In-Reply-To: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v4 01/19] procfs: add smack subdir to attrs
+Subject: [PATCH v4 03/19] SELinux: Abstract use of cred security blob
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Back in 2007 I made what turned out to be a rather serious
-mistake in the implementation of the Smack security module.
-The SELinux module used an interface in /proc to manipulate
-the security context on processes. Rather than use a similar
-interface, I used the same interface. The AppArmor team did
-likewise. Now /proc/.../attr/current will tell you the
-security "context" of the process, but it will be different
-depending on the security module you're using.
-
-This patch provides a subdirectory in /proc/.../attr for
-Smack. Smack user space can use the "current" file in
-this subdirectory and never have to worry about getting
-SELinux attributes by mistake. Programs that use the
-old interface will continue to work (or fail, as the case
-may be) as before.
-
-The proposed S.A.R.A security module is dependent on
-the mechanism to create its own attr subdirectory.
-
-The original implementation is by Kees Cook.
+Don't use the cred->security pointer directly.
+Provide a helper function that provides the security blob pointer.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- Documentation/admin-guide/LSM/index.rst | 13 +++--
- fs/proc/base.c                          | 64 +++++++++++++++++++++----
- fs/proc/internal.h                      |  1 +
- include/linux/security.h                | 15 ++++--
- security/security.c                     | 24 ++++++++--
- 5 files changed, 96 insertions(+), 21 deletions(-)
+ security/selinux/hooks.c          | 54 +++++++++++++++----------------
+ security/selinux/include/objsec.h |  5 +++
+ security/selinux/xfrm.c           |  4 +--
+ 3 files changed, 34 insertions(+), 29 deletions(-)
 
-diff --git a/Documentation/admin-guide/LSM/index.rst b/Documentation/admin-guide/LSM/index.rst
-index c980dfe9abf1..9842e21afd4a 100644
---- a/Documentation/admin-guide/LSM/index.rst
-+++ b/Documentation/admin-guide/LSM/index.rst
-@@ -17,9 +17,8 @@ MAC extensions, other extensions can be built using the LSM to provide
- specific changes to system operation when these tweaks are not available
- in the core functionality of Linux itself.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ad9a9b8e9979..9d6cdd21acb6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -228,7 +228,7 @@ static inline u32 cred_sid(const struct cred *cred)
+ {
+ 	const struct task_security_struct *tsec;
  
--Without a specific LSM built into the kernel, the default LSM will be the
--Linux capabilities system. Most LSMs choose to extend the capabilities
--system, building their checks on top of the defined capability hooks.
-+The Linux capabilities modules will always be included. This may be
-+followed by any number of "minor" modules and at most one "major" module.
- For more details on capabilities, see ``capabilities(7)`` in the Linux
- man-pages project.
+-	tsec = cred->security;
++	tsec = selinux_cred(cred);
+ 	return tsec->sid;
+ }
  
-@@ -30,6 +29,14 @@ order in which checks are made. The capability module will always
- be first, followed by any "minor" modules (e.g. Yama) and then
- the one "major" module (e.g. SELinux) if there is one configured.
+@@ -464,7 +464,7 @@ static int may_context_mount_sb_relabel(u32 sid,
+ 			struct superblock_security_struct *sbsec,
+ 			const struct cred *cred)
+ {
+-	const struct task_security_struct *tsec = cred->security;
++	const struct task_security_struct *tsec = selinux_cred(cred);
+ 	int rc;
  
-+Process attributes associated with "major" security modules should
-+be accessed and maintained using the special files in ``/proc/.../attr``.
-+A security module may maintain a module specific subdirectory there,
-+named after the module. ``/proc/.../attr/smack`` is provided by the Smack
-+security module and contains all its special files. The files directly
-+in ``/proc/.../attr`` remain as legacy interfaces for modules that provide
-+subdirectories.
-+
- .. toctree::
-    :maxdepth: 1
+ 	rc = avc_has_perm(&selinux_state,
+@@ -483,7 +483,7 @@ static int may_context_mount_inode_relabel(u32 sid,
+ 			struct superblock_security_struct *sbsec,
+ 			const struct cred *cred)
+ {
+-	const struct task_security_struct *tsec = cred->security;
++	const struct task_security_struct *tsec = selinux_cred(cred);
+ 	int rc;
+ 	rc = avc_has_perm(&selinux_state,
+ 			  tsec->sid, sbsec->sid, SECCLASS_FILESYSTEM,
+@@ -1949,7 +1949,7 @@ static int may_create(struct inode *dir,
+ 		      struct dentry *dentry,
+ 		      u16 tclass)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
+ 	struct inode_security_struct *dsec;
+ 	struct superblock_security_struct *sbsec;
+ 	u32 sid, newsid;
+@@ -1971,7 +1971,7 @@ static int may_create(struct inode *dir,
+ 	if (rc)
+ 		return rc;
  
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ccf86f16d9f0..bd2dd85310fe 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -140,9 +140,13 @@ struct pid_entry {
- #define REG(NAME, MODE, fops)				\
- 	NOD(NAME, (S_IFREG|(MODE)), NULL, &fops, {})
- #define ONE(NAME, MODE, show)				\
--	NOD(NAME, (S_IFREG|(MODE)), 			\
-+	NOD(NAME, (S_IFREG|(MODE)),			\
- 		NULL, &proc_single_file_operations,	\
- 		{ .proc_show = show } )
-+#define ATTR(LSM, NAME, MODE)				\
-+	NOD(NAME, (S_IFREG|(MODE)),			\
-+		NULL, &proc_pid_attr_operations,	\
-+		{ .lsm = LSM })
+-	rc = selinux_determine_inode_label(current_security(), dir,
++	rc = selinux_determine_inode_label(selinux_cred(current_cred()), dir,
+ 					   &dentry->d_name, tclass, &newsid);
+ 	if (rc)
+ 		return rc;
+@@ -2478,8 +2478,8 @@ static int selinux_bprm_set_creds(struct linux_binprm *bprm)
+ 	if (bprm->called_set_creds)
+ 		return 0;
  
- /*
-  * Count the number of hardlinks for the pid_entry table, excluding the .
-@@ -2503,7 +2507,7 @@ static ssize_t proc_pid_attr_read(struct file * file, char __user * buf,
- 	if (!task)
- 		return -ESRCH;
+-	old_tsec = current_security();
+-	new_tsec = bprm->cred->security;
++	old_tsec = selinux_cred(current_cred());
++	new_tsec = selinux_cred(bprm->cred);
+ 	isec = inode_security(inode);
  
--	length = security_getprocattr(task,
-+	length = security_getprocattr(task, PROC_I(inode)->op.lsm,
- 				      (char*)file->f_path.dentry->d_name.name,
- 				      &p);
- 	put_task_struct(task);
-@@ -2552,7 +2556,9 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
- 	if (rv < 0)
- 		goto out_free;
+ 	/* Default to the current task SID. */
+@@ -2643,7 +2643,7 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
+ 	struct rlimit *rlim, *initrlim;
+ 	int rc, i;
  
--	rv = security_setprocattr(file->f_path.dentry->d_name.name, page, count);
-+	rv = security_setprocattr(PROC_I(inode)->op.lsm,
-+				  file->f_path.dentry->d_name.name, page,
-+				  count);
- 	mutex_unlock(&current->signal->cred_guard_mutex);
- out_free:
- 	kfree(page);
-@@ -2566,13 +2572,53 @@ static const struct file_operations proc_pid_attr_operations = {
- 	.llseek		= generic_file_llseek,
- };
+-	new_tsec = bprm->cred->security;
++	new_tsec = selinux_cred(bprm->cred);
+ 	if (new_tsec->sid == new_tsec->osid)
+ 		return;
  
-+#define LSM_DIR_OPS(LSM) \
-+static int proc_##LSM##_attr_dir_iterate(struct file *filp, \
-+			     struct dir_context *ctx) \
-+{ \
-+	return proc_pident_readdir(filp, ctx, \
-+				   LSM##_attr_dir_stuff, \
-+				   ARRAY_SIZE(LSM##_attr_dir_stuff)); \
-+} \
-+\
-+static const struct file_operations proc_##LSM##_attr_dir_ops = { \
-+	.read		= generic_read_dir, \
-+	.iterate	= proc_##LSM##_attr_dir_iterate, \
-+	.llseek		= default_llseek, \
-+}; \
-+\
-+static struct dentry *proc_##LSM##_attr_dir_lookup(struct inode *dir, \
-+				struct dentry *dentry, unsigned int flags) \
-+{ \
-+	return proc_pident_lookup(dir, dentry, \
-+				  LSM##_attr_dir_stuff, \
-+				  ARRAY_SIZE(LSM##_attr_dir_stuff)); \
-+} \
-+\
-+static const struct inode_operations proc_##LSM##_attr_dir_inode_ops = { \
-+	.lookup		= proc_##LSM##_attr_dir_lookup, \
-+	.getattr	= pid_getattr, \
-+	.setattr	= proc_setattr, \
-+}
-+
-+#ifdef CONFIG_SECURITY_SMACK
-+static const struct pid_entry smack_attr_dir_stuff[] = {
-+	ATTR("smack", "current",	0666),
-+};
-+LSM_DIR_OPS(smack);
-+#endif
-+
- static const struct pid_entry attr_dir_stuff[] = {
--	REG("current",    S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("prev",       S_IRUGO,	   proc_pid_attr_operations),
--	REG("exec",       S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("fscreate",   S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("keycreate",  S_IRUGO|S_IWUGO, proc_pid_attr_operations),
--	REG("sockcreate", S_IRUGO|S_IWUGO, proc_pid_attr_operations),
-+	ATTR(NULL, "current",		0666),
-+	ATTR(NULL, "prev",		0444),
-+	ATTR(NULL, "exec",		0666),
-+	ATTR(NULL, "fscreate",		0666),
-+	ATTR(NULL, "keycreate",		0666),
-+	ATTR(NULL, "sockcreate",	0666),
-+#ifdef CONFIG_SECURITY_SMACK
-+	DIR("smack",			0555,
-+	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
-+#endif
- };
+@@ -2686,7 +2686,7 @@ static void selinux_bprm_committing_creds(struct linux_binprm *bprm)
+  */
+ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
+ 	struct itimerval itimer;
+ 	u32 osid, sid;
+ 	int rc, i;
+@@ -2989,7 +2989,7 @@ static int selinux_dentry_init_security(struct dentry *dentry, int mode,
+ 	u32 newsid;
+ 	int rc;
  
- static int proc_attr_dir_readdir(struct file *file, struct dir_context *ctx)
-diff --git a/fs/proc/internal.h b/fs/proc/internal.h
-index 5185d7f6a51e..d4f9989063d0 100644
---- a/fs/proc/internal.h
-+++ b/fs/proc/internal.h
-@@ -81,6 +81,7 @@ union proc_op {
- 	int (*proc_show)(struct seq_file *m,
- 		struct pid_namespace *ns, struct pid *pid,
- 		struct task_struct *task);
-+	const char *lsm;
- };
+-	rc = selinux_determine_inode_label(current_security(),
++	rc = selinux_determine_inode_label(selinux_cred(current_cred()),
+ 					   d_inode(dentry->d_parent), name,
+ 					   inode_mode_to_security_class(mode),
+ 					   &newsid);
+@@ -3009,14 +3009,14 @@ static int selinux_dentry_create_files_as(struct dentry *dentry, int mode,
+ 	int rc;
+ 	struct task_security_struct *tsec;
  
- struct proc_inode {
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 75f4156c84d7..418de5d20ffb 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -390,8 +390,10 @@ int security_sem_semctl(struct kern_ipc_perm *sma, int cmd);
- int security_sem_semop(struct kern_ipc_perm *sma, struct sembuf *sops,
- 			unsigned nsops, int alter);
- void security_d_instantiate(struct dentry *dentry, struct inode *inode);
--int security_getprocattr(struct task_struct *p, char *name, char **value);
--int security_setprocattr(const char *name, void *value, size_t size);
-+int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
-+			 char **value);
-+int security_setprocattr(const char *lsm, const char *name, void *value,
-+			 size_t size);
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_ismaclabel(const char *name);
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
-@@ -1139,15 +1141,18 @@ static inline int security_sem_semop(struct kern_ipc_perm *sma,
+-	rc = selinux_determine_inode_label(old->security,
++	rc = selinux_determine_inode_label(selinux_cred(old),
+ 					   d_inode(dentry->d_parent), name,
+ 					   inode_mode_to_security_class(mode),
+ 					   &newsid);
+ 	if (rc)
+ 		return rc;
+ 
+-	tsec = new->security;
++	tsec = selinux_cred(new);
+ 	tsec->create_sid = newsid;
  	return 0;
  }
- 
--static inline void security_d_instantiate(struct dentry *dentry, struct inode *inode)
-+static inline void security_d_instantiate(struct dentry *dentry,
-+					  struct inode *inode)
- { }
- 
--static inline int security_getprocattr(struct task_struct *p, char *name, char **value)
-+static inline int security_getprocattr(struct task_struct *p, const char *lsm,
-+				       char *name, char **value)
+@@ -3026,7 +3026,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 				       const char **name,
+ 				       void **value, size_t *len)
  {
- 	return -EINVAL;
- }
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
+ 	struct superblock_security_struct *sbsec;
+ 	u32 newsid, clen;
+ 	int rc;
+@@ -3036,7 +3036,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
  
--static inline int security_setprocattr(char *name, void *value, size_t size)
-+static inline int security_setprocattr(const char *lsm, char *name,
-+				       void *value, size_t size)
- {
- 	return -EINVAL;
- }
-diff --git a/security/security.c b/security/security.c
-index 736e78da1ab9..3dfe75d0d373 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1288,14 +1288,30 @@ void security_d_instantiate(struct dentry *dentry, struct inode *inode)
- }
- EXPORT_SYMBOL(security_d_instantiate);
+ 	newsid = tsec->create_sid;
  
--int security_getprocattr(struct task_struct *p, char *name, char **value)
-+int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
-+				char **value)
+-	rc = selinux_determine_inode_label(current_security(),
++	rc = selinux_determine_inode_label(selinux_cred(current_cred()),
+ 		dir, qstr,
+ 		inode_mode_to_security_class(inode->i_mode),
+ 		&newsid);
+@@ -3498,7 +3498,7 @@ static int selinux_inode_copy_up(struct dentry *src, struct cred **new)
+ 			return -ENOMEM;
+ 	}
+ 
+-	tsec = new_creds->security;
++	tsec = selinux_cred(new_creds);
+ 	/* Get label from overlay inode and set it in create_sid */
+ 	selinux_inode_getsecid(d_inode(src), &sid);
+ 	tsec->create_sid = sid;
+@@ -3918,7 +3918,7 @@ static int selinux_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+  */
+ static void selinux_cred_free(struct cred *cred)
  {
--	return call_int_hook(getprocattr, -EINVAL, p, name, value);
-+	struct security_hook_list *hp;
+-	struct task_security_struct *tsec = cred->security;
++	struct task_security_struct *tsec = selinux_cred(cred);
+ 
+ 	/*
+ 	 * cred->security == NULL if security_cred_alloc_blank() or
+@@ -3938,7 +3938,7 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
+ 	const struct task_security_struct *old_tsec;
+ 	struct task_security_struct *tsec;
+ 
+-	old_tsec = old->security;
++	old_tsec = selinux_cred(old);
+ 
+ 	tsec = kmemdup(old_tsec, sizeof(struct task_security_struct), gfp);
+ 	if (!tsec)
+@@ -3953,8 +3953,8 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
+  */
+ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+ {
+-	const struct task_security_struct *old_tsec = old->security;
+-	struct task_security_struct *tsec = new->security;
++	const struct task_security_struct *old_tsec = selinux_cred(old);
++	struct task_security_struct *tsec = selinux_cred(new);
+ 
+ 	*tsec = *old_tsec;
+ }
+@@ -3970,7 +3970,7 @@ static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
+  */
+ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ {
+-	struct task_security_struct *tsec = new->security;
++	struct task_security_struct *tsec = selinux_cred(new);
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+@@ -3995,7 +3995,7 @@ static int selinux_kernel_act_as(struct cred *new, u32 secid)
+ static int selinux_kernel_create_files_as(struct cred *new, struct inode *inode)
+ {
+ 	struct inode_security_struct *isec = inode_security(inode);
+-	struct task_security_struct *tsec = new->security;
++	struct task_security_struct *tsec = selinux_cred(new);
+ 	u32 sid = current_sid();
+ 	int ret;
+ 
+@@ -4544,7 +4544,7 @@ static int sock_has_perm(struct sock *sk, u32 perms)
+ static int selinux_socket_create(int family, int type,
+ 				 int protocol, int kern)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
+ 	u32 newsid;
+ 	u16 secclass;
+ 	int rc;
+@@ -4564,7 +4564,7 @@ static int selinux_socket_create(int family, int type,
+ static int selinux_socket_post_create(struct socket *sock, int family,
+ 				      int type, int protocol, int kern)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
+ 	struct inode_security_struct *isec = inode_security_novalidate(SOCK_INODE(sock));
+ 	struct sk_security_struct *sksec;
+ 	u16 sclass = socket_type_to_security_class(family, type, protocol);
+@@ -5442,7 +5442,7 @@ static int selinux_secmark_relabel_packet(u32 sid)
+ 	const struct task_security_struct *__tsec;
+ 	u32 tsid;
+ 
+-	__tsec = current_security();
++	__tsec = selinux_cred(current_cred());
+ 	tsid = __tsec->sid;
+ 
+ 	return avc_has_perm(&selinux_state,
+@@ -6379,7 +6379,7 @@ static int selinux_getprocattr(struct task_struct *p,
+ 	unsigned len;
+ 
+ 	rcu_read_lock();
+-	__tsec = __task_cred(p)->security;
++	__tsec = selinux_cred(__task_cred(p));
+ 
+ 	if (current != p) {
+ 		error = avc_has_perm(&selinux_state,
+@@ -6502,7 +6502,7 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+ 	   operation.  See selinux_bprm_set_creds for the execve
+ 	   checks and may_create for the file creation checks. The
+ 	   operation will then fail if the context is not permitted. */
+-	tsec = new->security;
++	tsec = selinux_cred(new);
+ 	if (!strcmp(name, "exec")) {
+ 		tsec->exec_sid = sid;
+ 	} else if (!strcmp(name, "fscreate")) {
+@@ -6631,7 +6631,7 @@ static int selinux_key_alloc(struct key *k, const struct cred *cred,
+ 	if (!ksec)
+ 		return -ENOMEM;
+ 
+-	tsec = cred->security;
++	tsec = selinux_cred(cred);
+ 	if (tsec->keycreate_sid)
+ 		ksec->sid = tsec->keycreate_sid;
+ 	else
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index cc5e26b0161b..734b6833bdff 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -158,4 +158,9 @@ struct bpf_security_struct {
+ 	u32 sid;  /*SID of bpf obj creater*/
+ };
+ 
++static inline struct task_security_struct *selinux_cred(const struct cred *cred)
++{
++	return cred->security;
++}
 +
-+	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
-+		if (lsm != NULL && strcmp(lsm, hp->lsm))
-+			continue;
-+		return hp->hook.getprocattr(p, name, value);
-+	}
-+	return -EINVAL;
- }
- 
--int security_setprocattr(const char *name, void *value, size_t size)
-+int security_setprocattr(const char *lsm, const char *name, void *value,
-+			 size_t size)
+ #endif /* _SELINUX_OBJSEC_H_ */
+diff --git a/security/selinux/xfrm.c b/security/selinux/xfrm.c
+index 91dc3783ed94..8ffe7e1053c4 100644
+--- a/security/selinux/xfrm.c
++++ b/security/selinux/xfrm.c
+@@ -79,7 +79,7 @@ static int selinux_xfrm_alloc_user(struct xfrm_sec_ctx **ctxp,
+ 				   gfp_t gfp)
  {
--	return call_int_hook(setprocattr, -EINVAL, name, value, size);
-+	struct security_hook_list *hp;
-+
-+	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
-+		if (lsm != NULL && strcmp(lsm, hp->lsm))
-+			continue;
-+		return hp->hook.setprocattr(name, value, size);
-+	}
-+	return -EINVAL;
- }
+ 	int rc;
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
+ 	struct xfrm_sec_ctx *ctx = NULL;
+ 	u32 str_len;
  
- int security_netlink_send(struct sock *sk, struct sk_buff *skb)
+@@ -138,7 +138,7 @@ static void selinux_xfrm_free(struct xfrm_sec_ctx *ctx)
+  */
+ static int selinux_xfrm_delete(struct xfrm_sec_ctx *ctx)
+ {
+-	const struct task_security_struct *tsec = current_security();
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
+ 
+ 	if (!ctx)
+ 		return 0;
 -- 
 2.17.1
