@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M2igbF032492
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 22:44:42 -0400
-Received: by mail-yb1-f196.google.com with SMTP id w7-v6so6250777ybm.7
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:44:39 -0700 (PDT)
-Received: from mail-yw1-f41.google.com (mail-yw1-f41.google.com.
- [209.85.161.41])
- by smtp.gmail.com with ESMTPSA id y2-v6sm11082436ywd.38.2018.09.21.19.44.35
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M2kChP032502
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 22:46:14 -0400
+Received: by mail-yb1-f194.google.com with SMTP id y12-v6so3030808ybj.11
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:46:11 -0700 (PDT)
+Received: from mail-yw1-f53.google.com (mail-yw1-f53.google.com.
+ [209.85.161.53])
+ by smtp.gmail.com with ESMTPSA id z125-v6sm11986203ywg.57.2018.09.21.19.46.05
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Fri, 21 Sep 2018 19:44:35 -0700 (PDT)
-Received: by mail-yw1-f41.google.com with SMTP id g3-v6so1341966ywb.6
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:44:35 -0700 (PDT)
+ Fri, 21 Sep 2018 19:46:06 -0700 (PDT)
+Received: by mail-yw1-f53.google.com with SMTP id m129-v6so197952ywc.1
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:46:05 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <03191752-22d3-4066-3d3a-8fbe209447e5@schaufler-ca.com>
+In-Reply-To: <e9eb2c69-5175-d033-cb38-1cc84cf55bfe@schaufler-ca.com>
 References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
- <03191752-22d3-4066-3d3a-8fbe209447e5@schaufler-ca.com>
+ <e9eb2c69-5175-d033-cb38-1cc84cf55bfe@schaufler-ca.com>
 From: Kees Cook <keescook@chromium.org>
-Date: Fri, 21 Sep 2018 19:44:34 -0700
-Message-ID: <CAGXu5jJMEwAtns_L79WF+CrpYnOBZxCvZi_xnHHVDMVB18_PNQ@mail.gmail.com>
+Date: Fri, 21 Sep 2018 19:46:04 -0700
+Message-ID: <CAGXu5jLpNvSSaJb=zPQfCq_wwBRnf3BXafZt9UHDdjK7JotbiA@mail.gmail.com>
 To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
@@ -31,8 +31,8 @@ Cc: LSM <linux-security-module@vger.kernel.org>,
  =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
  Salvatore Mesoraca <s.mesoraca16@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v4 02/19] Smack: Abstract use of cred security
- blob
+Subject: Re: [PATCH v4 06/19] AppArmor: Abstract use of cred
+ security blob
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
