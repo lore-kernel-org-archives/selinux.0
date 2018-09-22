@@ -1,24 +1,24 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M2hoaF032483
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 22:43:51 -0400
-Received: by mail-yb1-f193.google.com with SMTP id y12-v6so3029479ybj.11
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:43:46 -0700 (PDT)
-Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com.
- [209.85.219.172])
- by smtp.gmail.com with ESMTPSA id m16-v6sm6683168ywd.32.2018.09.21.19.43.42
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M2igbF032492
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 22:44:42 -0400
+Received: by mail-yb1-f196.google.com with SMTP id w7-v6so6250777ybm.7
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:44:39 -0700 (PDT)
+Received: from mail-yw1-f41.google.com (mail-yw1-f41.google.com.
+ [209.85.161.41])
+ by smtp.gmail.com with ESMTPSA id y2-v6sm11082436ywd.38.2018.09.21.19.44.35
  for <selinux@tycho.nsa.gov>
  (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Fri, 21 Sep 2018 19:43:43 -0700 (PDT)
-Received: by mail-yb1-f172.google.com with SMTP id y20-v6so6235538ybi.13
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:43:42 -0700 (PDT)
+ Fri, 21 Sep 2018 19:44:35 -0700 (PDT)
+Received: by mail-yw1-f41.google.com with SMTP id g3-v6so1341966ywb.6
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 19:44:35 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <c7a864e4-1297-2973-9d4c-7c855a20a06d@schaufler-ca.com>
+In-Reply-To: <03191752-22d3-4066-3d3a-8fbe209447e5@schaufler-ca.com>
 References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
- <c7a864e4-1297-2973-9d4c-7c855a20a06d@schaufler-ca.com>
+ <03191752-22d3-4066-3d3a-8fbe209447e5@schaufler-ca.com>
 From: Kees Cook <keescook@chromium.org>
-Date: Fri, 21 Sep 2018 19:43:41 -0700
-Message-ID: <CAGXu5jLaS++iur+Pwnjr8qMFgsAun9mV5O43OiKEy-bAF3gG9A@mail.gmail.com>
+Date: Fri, 21 Sep 2018 19:44:34 -0700
+Message-ID: <CAGXu5jJMEwAtns_L79WF+CrpYnOBZxCvZi_xnHHVDMVB18_PNQ@mail.gmail.com>
 To: Casey Schaufler <casey@schaufler-ca.com>
 Cc: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
@@ -31,17 +31,16 @@ Cc: LSM <linux-security-module@vger.kernel.org>,
  =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
  Salvatore Mesoraca <s.mesoraca16@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v4 05/19] SELinux: Remove unused
- selinux_is_enabled
+Subject: Re: [PATCH v4 02/19] Smack: Abstract use of cred security
+ blob
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 On Fri, Sep 21, 2018 at 5:17 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> There are no longer users of selinux_is_enabled().
-> Remove it. As selinux_is_enabled() is the only reason
-> for include/linux/selinux.h remove that as well.
+> Don't use the cred->security pointer directly.
+> Provide a helper function that provides the security blob pointer.
 >
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
