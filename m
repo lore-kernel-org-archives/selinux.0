@@ -1,7 +1,7 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M0KIll009952
- for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 20:20:19 -0400
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8M0KIlo009952
+ for <selinux@tycho.nsa.gov>; Fri, 21 Sep 2018 20:20:29 -0400
 To: LSM <linux-security-module@vger.kernel.org>,
  James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
  LKLM <linux-kernel@vger.kernel.org>,
@@ -14,514 +14,501 @@ To: LSM <linux-security-module@vger.kernel.org>,
  <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
 References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
 From: Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <4e4a7033-a86d-a30f-7420-acd765f90534@schaufler-ca.com>
-Date: Fri, 21 Sep 2018 17:20:03 -0700
+Message-ID: <4854da9b-b6a2-4fcf-50a7-182b8babaa9b@schaufler-ca.com>
+Date: Fri, 21 Sep 2018 17:20:12 -0700
 MIME-Version: 1.0
 In-Reply-To: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
-Subject: [PATCH v4 18/19] LSM: Infrastructure management of the ipc
- security blob
+Subject: [PATCH v4 19/19] LSM: Blob sharing support for S.A.R.A and LandLock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Move management of the kern_ipc_perm->security and
-msg_msg->security blobs out of the individual security
-modules and into the security infrastructure. Instead
-of allocating the blobs from within the modules the modules
-tell the infrastructure how much space is required, and
-the space is allocated there.
+Two proposed security modules require the ability to
+share security blobs with existing "major" security modules.
+These modules, S.A.R.A and LandLock, provide significantly
+different services than SELinux, Smack or AppArmor. Using
+either in conjunction with the existing modules is quite
+reasonable. S.A.R.A requires access to the cred, inode and
+task blobs, while LandLock uses the cred, file, inode and
+ipc blobs.
+
+The use of the cred, file, inode, ipc and task blobs has been
+abstracted in preceding patches in the series. This
+patch teaches the affected security modules how to access
+the part of the blob set aside for their use in the case
+where blobs are shared. The configuration option
+CONFIG_SECURITY_STACKING identifies systems where the
+blobs may be shared.
+
+The mechanism for selecting which security modules are
+active has been changed to allow non-conflicting "major"
+security modules to be used together. At this time the
+TOMOYO module can safely be used with any of the others.
+The two new modules would be non-conflicting as well.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h  |  2 +
- security/security.c        | 91 +++++++++++++++++++++++++++++++++--
- security/selinux/hooks.c   | 98 +++++---------------------------------
- security/smack/smack.h     |  4 +-
- security/smack/smack_lsm.c | 32 ++-----------
- 5 files changed, 108 insertions(+), 119 deletions(-)
+ Documentation/admin-guide/LSM/index.rst | 14 +++--
+ include/linux/lsm_hooks.h               |  2 +-
+ security/Kconfig                        | 81 +++++++++++++++++++++++++
+ security/apparmor/include/cred.h        |  8 +++
+ security/apparmor/include/file.h        |  9 ++-
+ security/apparmor/include/lib.h         |  4 ++
+ security/apparmor/lsm.c                 |  8 ++-
+ security/security.c                     | 30 ++++++++-
+ security/selinux/hooks.c                |  3 +-
+ security/selinux/include/objsec.h       | 12 ++++
+ security/smack/smack.h                  | 13 ++++
+ security/smack/smack_lsm.c              |  3 +-
+ security/tomoyo/common.h                |  5 ++
+ security/tomoyo/tomoyo.c                |  3 +-
+ 14 files changed, 182 insertions(+), 13 deletions(-)
 
+diff --git a/Documentation/admin-guide/LSM/index.rst b/Documentation/admin-guide/LSM/index.rst
+index 9842e21afd4a..d3d8af174042 100644
+--- a/Documentation/admin-guide/LSM/index.rst
++++ b/Documentation/admin-guide/LSM/index.rst
+@@ -17,10 +17,16 @@ MAC extensions, other extensions can be built using the LSM to provide
+ specific changes to system operation when these tweaks are not available
+ in the core functionality of Linux itself.
+ 
+-The Linux capabilities modules will always be included. This may be
+-followed by any number of "minor" modules and at most one "major" module.
+-For more details on capabilities, see ``capabilities(7)`` in the Linux
+-man-pages project.
++The Linux capabilities modules will always be included. For more details
++on capabilities, see ``capabilities(7)`` in the Linux man-pages project.
++
++Security modules that do not use the security data blobs maintained
++by the LSM infrastructure are considered "minor" modules. These may be
++included at compile time and stacked explicitly. Security modules that
++use the LSM maintained security blobs are considered "major" modules.
++These may only be stacked if the CONFIG_LSM_STACKED configuration
++option is used. If this is chosen all of the security modules selected
++will be used.
+ 
+ A list of the active security modules can be found by reading
+ ``/sys/kernel/security/lsm``. This is a comma separated list, and
 diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 6057c603b979..f6dbde28833a 100644
+index f6dbde28833a..7e8b32fdf576 100644
 --- a/include/linux/lsm_hooks.h
 +++ b/include/linux/lsm_hooks.h
-@@ -2031,6 +2031,8 @@ struct lsm_blob_sizes {
- 	int	lbs_cred;
- 	int	lbs_file;
- 	int	lbs_inode;
-+	int	lbs_ipc;
-+	int	lbs_msg_msg;
- 	int	lbs_task;
- };
+@@ -2082,7 +2082,7 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
+ #define __lsm_ro_after_init	__ro_after_init
+ #endif /* CONFIG_SECURITY_WRITABLE_HOOKS */
  
+-extern int __init security_module_enable(const char *module);
++extern bool __init security_module_enable(const char *lsm, const bool stacked);
+ extern void __init capability_add_hooks(void);
+ #ifdef CONFIG_SECURITY_YAMA
+ extern void __init yama_add_hooks(void);
+diff --git a/security/Kconfig b/security/Kconfig
+index 22f7664c4977..ed48025ae9e0 100644
+--- a/security/Kconfig
++++ b/security/Kconfig
+@@ -36,6 +36,28 @@ config SECURITY_WRITABLE_HOOKS
+ 	bool
+ 	default n
+ 
++config SECURITY_STACKING
++	bool "Security module stacking"
++	depends on SECURITY
++	help
++	  Allows multiple major security modules to be stacked.
++	  Modules are invoked in the order registered with a
++	  "bail on fail" policy, in which the infrastructure
++	  will stop processing once a denial is detected. Not
++	  all modules can be stacked. SELinux, Smack and AppArmor are
++	  known to be incompatible. User space components may
++	  have trouble identifying the security module providing
++	  data in some cases.
++
++	  If you select this option you will have to select which
++	  of the stackable modules you wish to be active. The
++	  "Default security module" will be ignored. The boot line
++	  "security=" option can be used to specify that one of
++	  the modules identifed for stacking should be used instead
++	  of the entire stack.
++
++	  If you are unsure how to answer this question, answer N.
++
+ config SECURITY_LSM_DEBUG
+ 	bool "Enable debugging of the LSM infrastructure"
+ 	depends on SECURITY
+@@ -250,6 +272,9 @@ source security/yama/Kconfig
+ 
+ source security/integrity/Kconfig
+ 
++menu "Security Module Selection"
++	visible if !SECURITY_STACKING
++
+ choice
+ 	prompt "Default security module"
+ 	default DEFAULT_SECURITY_SELINUX if SECURITY_SELINUX
+@@ -289,3 +314,59 @@ config DEFAULT_SECURITY
+ 
+ endmenu
+ 
++menu "Security Module Stack"
++	visible if SECURITY_STACKING
++
++choice
++	prompt "Stacked 'extreme' security module"
++	default SECURITY_SELINUX_STACKED if SECURITY_SELINUX
++	default SECURITY_SMACK_STACKED if SECURITY_SMACK
++	default SECURITY_APPARMOR_STACKED if SECURITY_APPARMOR
++
++	help
++	  Enable an extreme security module. These modules cannot
++	  be used at the same time.
++
++	config SECURITY_SELINUX_STACKED
++		bool "SELinux" if SECURITY_SELINUX=y
++	help
++	  This option instructs the system to use the SELinux checks.
++	  At this time the Smack security module is incompatible with this
++	  module.
++	  At this time the AppArmor security module is incompatible with this
++	  module.
++
++	config SECURITY_SMACK_STACKED
++		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
++	help
++	  This option instructs the system to use the Smack checks.
++	  At this time the SELinux security module is incompatible with this
++	  module.
++	  At this time the AppArmor security module is incompatible with this
++	  module.
++
++	config SECURITY_APPARMOR_STACKED
++		bool "AppArmor" if SECURITY_APPARMOR=y
++	help
++	  This option instructs the system to use the AppArmor checks.
++	  At this time the SELinux security module is incompatible with this
++	  module.
++	  At this time the Smack security module is incompatible with this
++	  module.
++
++endchoice
++
++config SECURITY_TOMOYO_STACKED
++	bool "TOMOYO support is enabled by default"
++	depends on SECURITY_TOMOYO && SECURITY_STACKING
++	default n
++	help
++	  This option instructs the system to use the TOMOYO checks.
++	  If not selected the module will not be invoked.
++	  Stacked security modules may interact in unexpected ways.
++
++	  If you are unsure how to answer this question, answer N.
++
++endmenu
++
++endmenu
+diff --git a/security/apparmor/include/cred.h b/security/apparmor/include/cred.h
+index a90eae76d7c1..be7575adf6f0 100644
+--- a/security/apparmor/include/cred.h
++++ b/security/apparmor/include/cred.h
+@@ -25,7 +25,11 @@
+ 
+ static inline struct aa_label *cred_label(const struct cred *cred)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	struct aa_label **blob = cred->security + apparmor_blob_sizes.lbs_cred;
++#else
+ 	struct aa_label **blob = cred->security;
++#endif
+ 
+ 	AA_BUG(!blob);
+ 	return *blob;
+@@ -34,7 +38,11 @@ static inline struct aa_label *cred_label(const struct cred *cred)
+ static inline void set_cred_label(const struct cred *cred,
+ 				  struct aa_label *label)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	struct aa_label **blob = cred->security + apparmor_blob_sizes.lbs_cred;
++#else
+ 	struct aa_label **blob = cred->security;
++#endif
+ 
+ 	AA_BUG(!blob);
+ 	*blob = label;
+diff --git a/security/apparmor/include/file.h b/security/apparmor/include/file.h
+index 4c2c8ac8842f..aeb757471cc0 100644
+--- a/security/apparmor/include/file.h
++++ b/security/apparmor/include/file.h
+@@ -32,7 +32,14 @@ struct path;
+ 				 AA_MAY_CHMOD | AA_MAY_CHOWN | AA_MAY_LOCK | \
+ 				 AA_EXEC_MMAP | AA_MAY_LINK)
+ 
+-#define file_ctx(X) ((struct aa_file_ctx *)(X)->f_security)
++static inline struct aa_file_ctx *file_ctx(struct file *file)
++{
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + apparmor_blob_sizes.lbs_file;
++#else
++	return file->f_security;
++#endif
++}
+ 
+ /* struct aa_file_ctx - the AppArmor context the file was opened in
+  * @lock: lock to update the ctx
+diff --git a/security/apparmor/include/lib.h b/security/apparmor/include/lib.h
+index 6505e1ad9e23..bbe9b384d71d 100644
+--- a/security/apparmor/include/lib.h
++++ b/security/apparmor/include/lib.h
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/slab.h>
+ #include <linux/fs.h>
++#include <linux/lsm_hooks.h>
+ 
+ #include "match.h"
+ 
+@@ -55,6 +56,9 @@ const char *aa_splitn_fqname(const char *fqname, size_t n, const char **ns_name,
+ 			     size_t *ns_len);
+ void aa_info_message(const char *str);
+ 
++/* Security blob offsets */
++extern struct lsm_blob_sizes apparmor_blob_sizes;
++
+ /**
+  * aa_strneq - compare null terminated @str to a non null terminated substring
+  * @str: a null terminated string
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index c97dc3dbb515..50da984fca54 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1544,7 +1544,9 @@ static int __init apparmor_init(void)
+ 	int error;
+ 
+ 	if (!finish) {
+-		if (apparmor_enabled && security_module_enable("apparmor"))
++		if (apparmor_enabled &&
++		    security_module_enable("apparmor",
++				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED)))
+ 			security_add_blobs(&apparmor_blob_sizes);
+ 		else
+ 			apparmor_enabled = false;
+@@ -1552,7 +1554,9 @@ static int __init apparmor_init(void)
+ 		return 0;
+ 	}
+ 
+-	if (!apparmor_enabled || !security_module_enable("apparmor")) {
++	if (!apparmor_enabled ||
++	    !security_module_enable("apparmor",
++				IS_ENABLED(CONFIG_SECURITY_APPARMOR_STACKED))) {
+ 		aa_info_message("AppArmor disabled by boot time parameter");
+ 		apparmor_enabled = false;
+ 		return 0;
 diff --git a/security/security.c b/security/security.c
-index 7e11de7eec21..a151d728aed2 100644
+index a151d728aed2..e7c8506041f1 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -28,6 +28,7 @@
- #include <linux/personality.h>
- #include <linux/backing-dev.h>
- #include <linux/string.h>
-+#include <linux/msg.h>
- #include <net/flow.h>
+@@ -37,6 +37,7 @@
  
- #include <trace/events/initcall.h>
-@@ -117,6 +118,8 @@ int __init security_init(void)
- 	pr_info("LSM: cred blob size       = %d\n", blob_sizes.lbs_cred);
- 	pr_info("LSM: file blob size       = %d\n", blob_sizes.lbs_file);
- 	pr_info("LSM: inode blob size      = %d\n", blob_sizes.lbs_inode);
-+	pr_info("LSM: ipc blob size        = %d\n", blob_sizes.lbs_ipc);
-+	pr_info("LSM: msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
- 	pr_info("LSM: task blob size       = %d\n", blob_sizes.lbs_task);
- #endif
+ /* Maximum number of letters for an LSM name string */
+ #define SECURITY_NAME_MAX	10
++#define MODULE_STACK		"(stacking)"
  
-@@ -302,6 +305,8 @@ void __init security_add_blobs(struct lsm_blob_sizes *needed)
- 	if (needed->lbs_inode && blob_sizes.lbs_inode == 0)
- 		blob_sizes.lbs_inode = sizeof(struct rcu_head);
- 	lsm_set_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
-+	lsm_set_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
-+	lsm_set_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
- 	lsm_set_size(&needed->lbs_task, &blob_sizes.lbs_task);
- }
+ struct security_hook_heads security_hook_heads __lsm_ro_after_init;
+ static ATOMIC_NOTIFIER_HEAD(lsm_notifier_chain);
+@@ -49,7 +50,11 @@ static struct lsm_blob_sizes blob_sizes;
  
-@@ -387,6 +392,48 @@ int lsm_task_alloc(struct task_struct *task)
- 	return 0;
- }
+ /* Boot-time LSM user choice */
+ static __initdata char chosen_lsm[SECURITY_NAME_MAX + 1] =
++#ifdef CONFIG_SECURITY_STACKING
++	MODULE_STACK;
++#else
+ 	CONFIG_DEFAULT_SECURITY;
++#endif
  
-+/**
-+ * lsm_ipc_alloc - allocate a composite ipc blob
-+ * @kip: the ipc that needs a blob
-+ *
-+ * Allocate the ipc blob for all the modules
-+ *
-+ * Returns 0, or -ENOMEM if memory can't be allocated.
-+ */
-+int lsm_ipc_alloc(struct kern_ipc_perm *kip)
-+{
-+	if (blob_sizes.lbs_ipc == 0) {
-+		kip->security = NULL;
-+		return 0;
-+	}
-+
-+	kip->security = kzalloc(blob_sizes.lbs_ipc, GFP_KERNEL);
-+	if (kip->security == NULL)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
-+/**
-+ * lsm_msg_msg_alloc - allocate a composite msg_msg blob
-+ * @mp: the msg_msg that needs a blob
-+ *
-+ * Allocate the ipc blob for all the modules
-+ *
-+ * Returns 0, or -ENOMEM if memory can't be allocated.
-+ */
-+int lsm_msg_msg_alloc(struct msg_msg *mp)
-+{
-+	if (blob_sizes.lbs_msg_msg == 0) {
-+		mp->security = NULL;
-+		return 0;
-+	}
-+
-+	mp->security = kzalloc(blob_sizes.lbs_msg_msg, GFP_KERNEL);
-+	if (mp->security == NULL)
-+		return -ENOMEM;
-+	return 0;
-+}
-+
+ static void __init do_security_initcalls(void)
+ {
+@@ -173,6 +178,7 @@ static int lsm_append(char *new, char **result)
  /**
-  * lsm_early_task - during initialization allocate a composite task blob
-  * @task: the task that needs a blob
-@@ -1468,22 +1515,40 @@ void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
- 
- int security_msg_msg_alloc(struct msg_msg *msg)
+  * security_module_enable - Load given security module on boot ?
+  * @module: the name of the module
++ * @stacked: indicates that the module wants to be stacked
+  *
+  * Each LSM must pass this method before registering its own operations
+  * to avoid security registration races. This method may also be used
+@@ -188,9 +194,29 @@ static int lsm_append(char *new, char **result)
+  *
+  * Otherwise, return false.
+  */
+-int __init security_module_enable(const char *module)
++bool __init security_module_enable(const char *lsm, const bool stacked)
  {
--	return call_int_hook(msg_msg_alloc_security, 0, msg);
-+	int rc = lsm_msg_msg_alloc(msg);
-+
-+	if (unlikely(rc))
-+		return rc;
-+	rc = call_int_hook(msg_msg_alloc_security, 0, msg);
-+	if (unlikely(rc))
-+		security_msg_msg_free(msg);
-+	return rc;
+-	return !strcmp(module, chosen_lsm);
++#ifdef CONFIG_SECURITY_STACKING
++	/*
++	 * Module defined on the command line security=XXXX
++	 */
++	if (strcmp(chosen_lsm, MODULE_STACK)) {
++		if (!strcmp(lsm, chosen_lsm)) {
++			pr_info("Command line sets the %s security module.\n",
++				lsm);
++			return true;
++		}
++		return false;
++	}
++	/*
++	 * Module configured as stacked.
++	 */
++	return stacked;
++#else
++	if (strcmp(lsm, chosen_lsm) == 0)
++		return true;
++	return false;
++#endif
  }
  
- void security_msg_msg_free(struct msg_msg *msg)
- {
- 	call_void_hook(msg_msg_free_security, msg);
-+	kfree(msg->security);
-+	msg->security = NULL;
- }
- 
- int security_msg_queue_alloc(struct kern_ipc_perm *msq)
- {
--	return call_int_hook(msg_queue_alloc_security, 0, msq);
-+	int rc = lsm_ipc_alloc(msq);
-+
-+	if (unlikely(rc))
-+		return rc;
-+	rc = call_int_hook(msg_queue_alloc_security, 0, msq);
-+	if (unlikely(rc))
-+		security_msg_queue_free(msq);
-+	return rc;
- }
- 
- void security_msg_queue_free(struct kern_ipc_perm *msq)
- {
- 	call_void_hook(msg_queue_free_security, msq);
-+	kfree(msq->security);
-+	msq->security = NULL;
- }
- 
- int security_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
-@@ -1510,12 +1575,21 @@ int security_msg_queue_msgrcv(struct kern_ipc_perm *msq, struct msg_msg *msg,
- 
- int security_shm_alloc(struct kern_ipc_perm *shp)
- {
--	return call_int_hook(shm_alloc_security, 0, shp);
-+	int rc = lsm_ipc_alloc(shp);
-+
-+	if (unlikely(rc))
-+		return rc;
-+	rc = call_int_hook(shm_alloc_security, 0, shp);
-+	if (unlikely(rc))
-+		security_shm_free(shp);
-+	return rc;
- }
- 
- void security_shm_free(struct kern_ipc_perm *shp)
- {
- 	call_void_hook(shm_free_security, shp);
-+	kfree(shp->security);
-+	shp->security = NULL;
- }
- 
- int security_shm_associate(struct kern_ipc_perm *shp, int shmflg)
-@@ -1535,12 +1609,21 @@ int security_shm_shmat(struct kern_ipc_perm *shp, char __user *shmaddr, int shmf
- 
- int security_sem_alloc(struct kern_ipc_perm *sma)
- {
--	return call_int_hook(sem_alloc_security, 0, sma);
-+	int rc = lsm_ipc_alloc(sma);
-+
-+	if (unlikely(rc))
-+		return rc;
-+	rc = call_int_hook(sem_alloc_security, 0, sma);
-+	if (unlikely(rc))
-+		security_sem_free(sma);
-+	return rc;
- }
- 
- void security_sem_free(struct kern_ipc_perm *sma)
- {
- 	call_void_hook(sem_free_security, sma);
-+	kfree(sma->security);
-+	sma->security = NULL;
- }
- 
- int security_sem_associate(struct kern_ipc_perm *sma, int semflg)
+ /**
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index e6cb5fce5437..3c53a3ba480e 100644
+index 3c53a3ba480e..44337d2349d9 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -5832,51 +5832,22 @@ static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
- 	return selinux_nlmsg_perm(sk, skb);
- }
- 
--static int ipc_alloc_security(struct kern_ipc_perm *perm,
--			      u16 sclass)
-+static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
+@@ -6981,7 +6981,8 @@ static __init int selinux_init(void)
  {
--	struct ipc_security_struct *isec;
--
--	isec = kzalloc(sizeof(struct ipc_security_struct), GFP_KERNEL);
--	if (!isec)
--		return -ENOMEM;
--
- 	isec->sclass = sclass;
- 	isec->sid = current_sid();
--	perm->security = isec;
--
--	return 0;
--}
--
--static void ipc_free_security(struct kern_ipc_perm *perm)
--{
--	struct ipc_security_struct *isec = perm->security;
--	perm->security = NULL;
--	kfree(isec);
- }
+ 	static int finish;
  
- static int msg_msg_alloc_security(struct msg_msg *msg)
+-	if (!security_module_enable("selinux")) {
++	if (!security_module_enable("selinux",
++				IS_ENABLED(CONFIG_SECURITY_SELINUX_STACKED))) {
+ 		selinux_enabled = 0;
+ 		return 0;
+ 	}
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 5bf9f280e9b2..ee4471213909 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -160,18 +160,30 @@ struct bpf_security_struct {
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+ static inline struct task_security_struct *selinux_cred(const struct cred *cred)
  {
- 	struct msg_security_struct *msec;
- 
--	msec = kzalloc(sizeof(struct msg_security_struct), GFP_KERNEL);
--	if (!msec)
--		return -ENOMEM;
--
-+	msec = selinux_msg_msg(msg);
- 	msec->sid = SECINITSID_UNLABELED;
--	msg->security = msec;
- 
- 	return 0;
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + selinux_blob_sizes.lbs_cred;
++#else
+ 	return cred->security;
++#endif
  }
  
--static void msg_msg_free_security(struct msg_msg *msg)
--{
--	struct msg_security_struct *msec = msg->security;
--
--	msg->security = NULL;
--	kfree(msec);
--}
--
- static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
- 			u32 perms)
+ static inline struct file_security_struct *selinux_file(const struct file *file)
  {
-@@ -5898,11 +5869,6 @@ static int selinux_msg_msg_alloc_security(struct msg_msg *msg)
- 	return msg_msg_alloc_security(msg);
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + selinux_blob_sizes.lbs_file;
++#else
+ 	return file->f_security;
++#endif
  }
  
--static void selinux_msg_msg_free_security(struct msg_msg *msg)
--{
--	msg_msg_free_security(msg);
--}
--
- /* message queue security operations */
- static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
+ static inline struct inode_security_struct *selinux_inode(
+ 						const struct inode *inode)
  {
-@@ -5911,11 +5877,8 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
- 	u32 sid = current_sid();
- 	int rc;
- 
--	rc = ipc_alloc_security(msq, SECCLASS_MSGQ);
--	if (rc)
--		return rc;
--
--	isec = msq->security;
-+	isec = selinux_ipc(msq);
-+	ipc_init_security(isec, SECCLASS_MSGQ);
- 
- 	ad.type = LSM_AUDIT_DATA_IPC;
- 	ad.u.ipc_id = msq->key;
-@@ -5923,16 +5886,7 @@ static int selinux_msg_queue_alloc_security(struct kern_ipc_perm *msq)
- 	rc = avc_has_perm(&selinux_state,
- 			  sid, isec->sid, SECCLASS_MSGQ,
- 			  MSGQ__CREATE, &ad);
--	if (rc) {
--		ipc_free_security(msq);
--		return rc;
--	}
--	return 0;
--}
--
--static void selinux_msg_queue_free_security(struct kern_ipc_perm *msq)
--{
--	ipc_free_security(msq);
-+	return rc;
++#ifdef CONFIG_SECURITY_STACKING
++	return inode->i_security + selinux_blob_sizes.lbs_inode;
++#else
+ 	return inode->i_security;
++#endif
  }
  
- static int selinux_msg_queue_associate(struct kern_ipc_perm *msq, int msqflg)
-@@ -6062,11 +6016,8 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
- 	u32 sid = current_sid();
- 	int rc;
- 
--	rc = ipc_alloc_security(shp, SECCLASS_SHM);
--	if (rc)
--		return rc;
--
--	isec = shp->security;
-+	isec = selinux_ipc(shp);
-+	ipc_init_security(isec, SECCLASS_SHM);
- 
- 	ad.type = LSM_AUDIT_DATA_IPC;
- 	ad.u.ipc_id = shp->key;
-@@ -6074,16 +6025,7 @@ static int selinux_shm_alloc_security(struct kern_ipc_perm *shp)
- 	rc = avc_has_perm(&selinux_state,
- 			  sid, isec->sid, SECCLASS_SHM,
- 			  SHM__CREATE, &ad);
--	if (rc) {
--		ipc_free_security(shp);
--		return rc;
--	}
--	return 0;
--}
--
--static void selinux_shm_free_security(struct kern_ipc_perm *shp)
--{
--	ipc_free_security(shp);
-+	return rc;
- }
- 
- static int selinux_shm_associate(struct kern_ipc_perm *shp, int shmflg)
-@@ -6159,11 +6101,8 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
- 	u32 sid = current_sid();
- 	int rc;
- 
--	rc = ipc_alloc_security(sma, SECCLASS_SEM);
--	if (rc)
--		return rc;
--
--	isec = sma->security;
-+	isec = selinux_ipc(sma);
-+	ipc_init_security(isec, SECCLASS_SEM);
- 
- 	ad.type = LSM_AUDIT_DATA_IPC;
- 	ad.u.ipc_id = sma->key;
-@@ -6171,16 +6110,7 @@ static int selinux_sem_alloc_security(struct kern_ipc_perm *sma)
- 	rc = avc_has_perm(&selinux_state,
- 			  sid, isec->sid, SECCLASS_SEM,
- 			  SEM__CREATE, &ad);
--	if (rc) {
--		ipc_free_security(sma);
--		return rc;
--	}
--	return 0;
--}
--
--static void selinux_sem_free_security(struct kern_ipc_perm *sma)
--{
--	ipc_free_security(sma);
-+	return rc;
- }
- 
- static int selinux_sem_associate(struct kern_ipc_perm *sma, int semflg)
-@@ -6813,6 +6743,8 @@ struct lsm_blob_sizes selinux_blob_sizes = {
- 	.lbs_cred = sizeof(struct task_security_struct),
- 	.lbs_file = sizeof(struct file_security_struct),
- 	.lbs_inode = sizeof(struct inode_security_struct),
-+	.lbs_ipc = sizeof(struct ipc_security_struct),
-+	.lbs_msg_msg = sizeof(struct msg_security_struct),
- };
- 
- static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
-@@ -6923,24 +6855,20 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ipc_getsecid, selinux_ipc_getsecid),
- 
- 	LSM_HOOK_INIT(msg_msg_alloc_security, selinux_msg_msg_alloc_security),
--	LSM_HOOK_INIT(msg_msg_free_security, selinux_msg_msg_free_security),
- 
- 	LSM_HOOK_INIT(msg_queue_alloc_security,
- 			selinux_msg_queue_alloc_security),
--	LSM_HOOK_INIT(msg_queue_free_security, selinux_msg_queue_free_security),
- 	LSM_HOOK_INIT(msg_queue_associate, selinux_msg_queue_associate),
- 	LSM_HOOK_INIT(msg_queue_msgctl, selinux_msg_queue_msgctl),
- 	LSM_HOOK_INIT(msg_queue_msgsnd, selinux_msg_queue_msgsnd),
- 	LSM_HOOK_INIT(msg_queue_msgrcv, selinux_msg_queue_msgrcv),
- 
- 	LSM_HOOK_INIT(shm_alloc_security, selinux_shm_alloc_security),
--	LSM_HOOK_INIT(shm_free_security, selinux_shm_free_security),
- 	LSM_HOOK_INIT(shm_associate, selinux_shm_associate),
- 	LSM_HOOK_INIT(shm_shmctl, selinux_shm_shmctl),
- 	LSM_HOOK_INIT(shm_shmat, selinux_shm_shmat),
- 
- 	LSM_HOOK_INIT(sem_alloc_security, selinux_sem_alloc_security),
--	LSM_HOOK_INIT(sem_free_security, selinux_sem_free_security),
- 	LSM_HOOK_INIT(sem_associate, selinux_sem_associate),
- 	LSM_HOOK_INIT(sem_semctl, selinux_sem_semctl),
- 	LSM_HOOK_INIT(sem_semop, selinux_sem_semop),
+ static inline struct msg_security_struct *selinux_msg_msg(
 diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 52cea142fcf6..dffa0ba8fd49 100644
+index dffa0ba8fd49..59d0bc994304 100644
 --- a/security/smack/smack.h
 +++ b/security/smack/smack.h
-@@ -374,12 +374,12 @@ static inline struct inode_smack *smack_inode(const struct inode *inode)
+@@ -337,6 +337,7 @@ extern struct smack_known *smack_syslog_label;
+ extern struct smack_known *smack_unconfined;
+ #endif
+ extern int smack_ptrace_rule;
++extern struct lsm_blob_sizes smack_blob_sizes;
+ 
+ extern struct smack_known smack_known_floor;
+ extern struct smack_known smack_known_hat;
+@@ -359,17 +360,29 @@ extern struct hlist_head smack_known_hash[SMACK_HASH_SLOTS];
+ 
+ static inline struct task_smack *smack_cred(const struct cred *cred)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + smack_blob_sizes.lbs_cred;
++#else
+ 	return cred->security;
++#endif
+ }
+ 
+ static inline struct smack_known **smack_file(const struct file *file)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return file->f_security + smack_blob_sizes.lbs_file;
++#else
+ 	return file->f_security;
++#endif
+ }
+ 
+ static inline struct inode_smack *smack_inode(const struct inode *inode)
+ {
++#ifdef CONFIG_SECURITY_STACKING
++	return inode->i_security + smack_blob_sizes.lbs_inode;
++#else
+ 	return inode->i_security;
++#endif
+ }
  
  static inline struct smack_known **smack_msg_msg(const struct msg_msg *msg)
- {
--	return (struct smack_known **)&msg->security;
-+	return msg->security;
- }
- 
- static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
- {
--	return (struct smack_known **)&ipc->security;
-+	return ipc->security;
- }
- 
- /*
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 4afc8899f83f..8f3b809d7c26 100644
+index 8f3b809d7c26..784300406b97 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -2880,23 +2880,12 @@ static int smack_flags_to_may(int flags)
+@@ -4734,7 +4734,8 @@ static __init int smack_init(void)
+ 	struct cred *cred = (struct cred *) current->cred;
+ 	struct task_smack *tsp;
+ 
+-	if (!security_module_enable("smack"))
++	if (!security_module_enable("smack",
++				IS_ENABLED(CONFIG_SECURITY_SMACK_STACKED)))
+ 		return 0;
+ 
+ 	if (!finish) {
+diff --git a/security/tomoyo/common.h b/security/tomoyo/common.h
+index 0110bebe86e2..c734f0b63100 100644
+--- a/security/tomoyo/common.h
++++ b/security/tomoyo/common.h
+@@ -1087,6 +1087,7 @@ extern struct tomoyo_domain_info tomoyo_kernel_domain;
+ extern struct tomoyo_policy_namespace tomoyo_kernel_namespace;
+ extern unsigned int tomoyo_memory_quota[TOMOYO_MAX_MEMORY_STAT];
+ extern unsigned int tomoyo_memory_used[TOMOYO_MAX_MEMORY_STAT];
++extern struct lsm_blob_sizes tomoyo_blob_sizes;
+ 
+ /********** Inlined functions. **********/
+ 
+@@ -1206,7 +1207,11 @@ static inline void tomoyo_put_group(struct tomoyo_group *group)
   */
- static int smack_msg_msg_alloc_security(struct msg_msg *msg)
+ static inline struct tomoyo_domain_info **tomoyo_cred(const struct cred *cred)
  {
--	struct smack_known *skp = smk_of_current();
-+	struct smack_known **blob = smack_msg_msg(msg);
- 
--	msg->security = skp;
-+	*blob = smk_of_current();
- 	return 0;
++#ifdef CONFIG_SECURITY_STACKING
++	return cred->security + tomoyo_blob_sizes.lbs_cred;
++#else
+ 	return cred->security;
++#endif
  }
  
--/**
-- * smack_msg_msg_free_security - Clear the security blob for msg_msg
-- * @msg: the object
-- *
-- * Clears the blob pointer
-- */
--static void smack_msg_msg_free_security(struct msg_msg *msg)
--{
--	msg->security = NULL;
--}
--
  /**
-  * smack_of_ipc - the smack pointer for the ipc
-  * @isp: the object
-@@ -2924,17 +2913,6 @@ static int smack_ipc_alloc_security(struct kern_ipc_perm *isp)
- 	return 0;
- }
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index bb84e6ec3886..fa121ad8534a 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -564,7 +564,8 @@ static int __init tomoyo_init(void)
+ 	struct cred *cred = (struct cred *) current_cred();
+ 	struct tomoyo_domain_info **blob;
  
--/**
-- * smack_ipc_free_security - Clear the security blob for ipc
-- * @isp: the object
-- *
-- * Clears the blob pointer
-- */
--static void smack_ipc_free_security(struct kern_ipc_perm *isp)
--{
--	isp->security = NULL;
--}
--
- /**
-  * smk_curacc_shm : check if current has access on shm
-  * @isp : the object
-@@ -4576,6 +4554,8 @@ struct lsm_blob_sizes smack_blob_sizes = {
- 	.lbs_cred = sizeof(struct task_smack),
- 	.lbs_file = sizeof(struct smack_known *),
- 	.lbs_inode = sizeof(struct inode_smack),
-+	.lbs_ipc = sizeof(struct smack_known *),
-+	.lbs_msg_msg = sizeof(struct smack_known *),
- };
- 
- static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
-@@ -4647,23 +4627,19 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(ipc_getsecid, smack_ipc_getsecid),
- 
- 	LSM_HOOK_INIT(msg_msg_alloc_security, smack_msg_msg_alloc_security),
--	LSM_HOOK_INIT(msg_msg_free_security, smack_msg_msg_free_security),
- 
- 	LSM_HOOK_INIT(msg_queue_alloc_security, smack_ipc_alloc_security),
--	LSM_HOOK_INIT(msg_queue_free_security, smack_ipc_free_security),
- 	LSM_HOOK_INIT(msg_queue_associate, smack_msg_queue_associate),
- 	LSM_HOOK_INIT(msg_queue_msgctl, smack_msg_queue_msgctl),
- 	LSM_HOOK_INIT(msg_queue_msgsnd, smack_msg_queue_msgsnd),
- 	LSM_HOOK_INIT(msg_queue_msgrcv, smack_msg_queue_msgrcv),
- 
- 	LSM_HOOK_INIT(shm_alloc_security, smack_ipc_alloc_security),
--	LSM_HOOK_INIT(shm_free_security, smack_ipc_free_security),
- 	LSM_HOOK_INIT(shm_associate, smack_shm_associate),
- 	LSM_HOOK_INIT(shm_shmctl, smack_shm_shmctl),
- 	LSM_HOOK_INIT(shm_shmat, smack_shm_shmat),
- 
- 	LSM_HOOK_INIT(sem_alloc_security, smack_ipc_alloc_security),
--	LSM_HOOK_INIT(sem_free_security, smack_ipc_free_security),
- 	LSM_HOOK_INIT(sem_associate, smack_sem_associate),
- 	LSM_HOOK_INIT(sem_semctl, smack_sem_semctl),
- 	LSM_HOOK_INIT(sem_semop, smack_sem_semop),
+-	if (!security_module_enable("tomoyo")) {
++	if (!security_module_enable("tomoyo",
++				IS_ENABLED(CONFIG_SECURITY_TOMOYO_STACKED))) {
+ 		tomoyo_enabled = false;
+ 		return 0;
+ 	}
 -- 
 2.17.1
