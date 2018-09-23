@@ -1,95 +1,67 @@
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de,
+Date: Sun, 23 Sep 2018 15:55:55 +0200
+From: Florian Westphal <fw@strlen.de>
+To: Christian =?iso-8859-15?Q?G=F6ttsche?= <cgzones@googlemail.com>
+Cc: pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de,
  davem@davemloft.net, netfilter-devel@vger.kernel.org,
  coreteam@netfilter.org, netdev@vger.kernel.org,
  linux-kernel@vger.kernel.org, paul@paul-moore.com, sds@tycho.nsa.gov,
  eparis@parisplace.org, jmorris@namei.org, serge@hallyn.com,
  selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Sun, 23 Sep 2018 11:16:11 +0200
-Message-Id: <20180923091611.19815-2-cgzones@googlemail.com>
-In-Reply-To: <20180923091611.19815-1-cgzones@googlemail.com>
+Message-ID: <20180923135555.7kwa3kyachwcfy24@breakpoint.cc>
 References: <20180923091611.19815-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Subject: [PATCH 2/2] netfilter: nf_tables: add requirements for
- connsecmark support
+Content-Type: text/plain; charset=iso-8859-15
+In-Reply-To: <20180923091611.19815-1-cgzones@googlemail.com>
+Subject: Re: [PATCH v2 1/2] netfilter: nf_tables: add SECMARK support
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add ability to set the connection tracking secmark value.
+Christian Göttsche <cgzones@googlemail.com> wrote:
+> Add the ability to set the security context of packets within the nf_tables framework.
+> Add a nft_object for holding security contexts in the kernel and manipulating packets on the wire.
+> 
+> Convert the security context strings at rule addition time to security identifiers.
+> This is the same behavior like in xt_SECMARK and offers better performance than computing it per packet.
+> 
+> Set the maximum security context length to 256.
 
-Add ability to set the meta secmark value.
+Looks good, one minor suggestion.
 
-Signed-off-by: Christian GÃ¶ttsche <cgzones@googlemail.com>
----
+> +#ifdef CONFIG_NETWORK_SECMARK
+> +
+> +struct nft_secmark {
+> +	char ctx[NFT_SECMARK_CTX_MAXLEN];
+> +	int len;
+> +	u32 secid;
+> +};
 
-Based on nf-next
-Tested with v4.18.8
+Can you change this to:
 
- net/netfilter/nft_ct.c   | 15 +++++++++++++++
- net/netfilter/nft_meta.c |  8 ++++++++
- 2 files changed, 23 insertions(+)
+struct nft_secmark {
+	u32 secid;
+	char *ctx;
+};
 
-diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index d74afa707..dcc451c20 100644
---- a/net/netfilter/nft_ct.c
-+++ b/net/netfilter/nft_ct.c
-@@ -298,6 +298,14 @@ static void nft_ct_set_eval(const struct nft_expr *expr,
- 		}
- 		break;
- #endif
-+#ifdef CONFIG_NF_CONNTRACK_SECMARK
-+	case NFT_CT_SECMARK:
-+		if (ct->secmark != value) {
-+			ct->secmark = value;
-+			nf_conntrack_event_cache(IPCT_SECMARK, ct);
-+		}
-+		break;
-+#endif
- #ifdef CONFIG_NF_CONNTRACK_LABELS
- 	case NFT_CT_LABELS:
- 		nf_connlabels_replace(ct,
-@@ -564,6 +572,13 @@ static int nft_ct_set_init(const struct nft_ctx *ctx,
- 			return -EINVAL;
- 		len = sizeof(u32);
- 		break;
-+#endif
-+#ifdef CONFIG_NF_CONNTRACK_SECMARK
-+	case NFT_CT_SECMARK:
-+		if (tb[NFTA_CT_DIRECTION])
-+			return -EINVAL;
-+		len = sizeof(u32);
-+		break;
- #endif
- 	default:
- 		return -EOPNOTSUPP;
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index ac5df9508..555fcd66b 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -284,6 +284,11 @@ static void nft_meta_set_eval(const struct nft_expr *expr,
- 
- 		skb->nf_trace = !!value8;
- 		break;
-+#ifdef CONFIG_NETWORK_SECMARK
-+	case NFT_META_SECMARK:
-+		skb->secmark = value;
-+		break;
-+#endif
- 	default:
- 		WARN_ON(1);
- 	}
-@@ -436,6 +441,9 @@ static int nft_meta_set_init(const struct nft_ctx *ctx,
- 	switch (priv->key) {
- 	case NFT_META_MARK:
- 	case NFT_META_PRIORITY:
-+#ifdef CONFIG_NETWORK_SECMARK
-+	case NFT_META_SECMARK:
-+#endif
- 		len = sizeof(u32);
- 		break;
- 	case NFT_META_NFTRACE:
--- 
-2.19.0
+?
+We don't need ctx in the packetpath, so better to keep
+the struct size small.
+
+> +	nla_strlcpy(priv->ctx, tb[NFTA_SECMARK_CTX], NFT_SECMARK_CTX_MAXLEN);
+
+You can change this to
+	priv->ctx = nla_strdup(tb[NFTA_SECMARK_CTX], GFP_KERNEL);
+	if (!priv->ctx)
+		return -ENOMEM;
+
+> +	err = nft_secmark_secconversion(priv);
+> +	if (err) {
+		kfree(priv->ctx);
+
+> +static void nft_secmark_obj_destroy(const struct nft_ctx *ctx, struct nft_object *obj)
+> +{
+	kfree(priv->ctx);
+
+But other than this i think this is ready to be applied,
+thanks a lot for making this happen.
