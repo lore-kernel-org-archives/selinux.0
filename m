@@ -1,106 +1,190 @@
-From: =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To: pablo@netfilter.org, kadlec@blackhole.kfki.hu, fw@strlen.de,
- davem@davemloft.net, netfilter-devel@vger.kernel.org,
- coreteam@netfilter.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, paul@paul-moore.com, sds@tycho.nsa.gov,
- eparis@parisplace.org, jmorris@namei.org, serge@hallyn.com,
- selinux@tycho.nsa.gov, linux-security-module@vger.kernel.org
-Date: Sun, 23 Sep 2018 20:26:16 +0200
-Message-Id: <20180923182616.11398-2-cgzones@googlemail.com>
-In-Reply-To: <20180923182616.11398-1-cgzones@googlemail.com>
-References: <20180923182616.11398-1-cgzones@googlemail.com>
+To: Kees Cook <keescook@chromium.org>, Casey Schaufler <casey@schaufler-ca.com>
+Cc: LSM <linux-security-module@vger.kernel.org>,
+ James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
+ LKLM <linux-kernel@vger.kernel.org>,
+ John Johansen <john.johansen@canonical.com>, Paul Moore
+ <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>, =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?=
+ <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
+References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
+ <CAGXu5jK=+FuL+JiSxcHy0i9Ppha=BQYdJW5zvbm1Redbo12wmw@mail.gmail.com>
+ <680e6e16-0890-8304-0e8e-6c58966813b5@schaufler-ca.com>
+ <CAGXu5j+7FpFDNuOowdHzJ5RXgfETQMv=Fe-EU1gWo+nWK+goZA@mail.gmail.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Message-ID: <39457e79-3816-824b-6b4d-89d21b03f9ce@i-love.sakura.ne.jp>
+Date: Mon, 24 Sep 2018 00:59:47 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Subject: [PATCH v3 2/2] netfilter: nf_tables: add requirements for
- connsecmark support
+In-Reply-To: <CAGXu5j+7FpFDNuOowdHzJ5RXgfETQMv=Fe-EU1gWo+nWK+goZA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH v4 00/19] LSM: Module stacking for SARA and
+ Landlock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Add ability to set the connection tracking secmark value.
+On 2018/09/23 11:43, Kees Cook wrote:
+>>> I'm excited about getting this landed!
+>>
+>> Soon. Real soon. I hope. I would very much like for
+>> someone from the SELinux camp to chime in, especially on
+>> the selinux_is_enabled() removal.
+> 
+> Agreed.
+> 
 
-Add ability to set the meta secmark value.
+This patchset from Casey lands before the patchset from Kees, doesn't it?
+OK, a few comments (if I didn't overlook something).
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
+  lsm_early_cred()/lsm_early_task() are called from only __init functions.
 
-v3: fix compile error when CONFIG_NF_CONNTRACK_MARK not defined
+  lsm_cred_alloc()/lsm_file_alloc() are called from only security/security.c .
 
-Based on nf-next
-Tested with v4.18.8
+  lsm_early_inode() should be avoided because it is not appropriate to
+  call panic() when lsm_early_inode() is called after __init phase.
 
- net/netfilter/nft_ct.c   | 17 ++++++++++++++++-
- net/netfilter/nft_meta.c |  8 ++++++++
- 2 files changed, 24 insertions(+), 1 deletion(-)
+  Since all free hooks are called when one of init hooks failed, each
+  free hook needs to check whether init hook was called. An example is
+  inode_free_security() in security/selinux/hooks.c (but not addressed in
+  this patch).
 
-diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
-index d74afa707..586627c36 100644
---- a/net/netfilter/nft_ct.c
-+++ b/net/netfilter/nft_ct.c
-@@ -279,7 +279,7 @@ static void nft_ct_set_eval(const struct nft_expr *expr,
- {
- 	const struct nft_ct *priv = nft_expr_priv(expr);
- 	struct sk_buff *skb = pkt->skb;
--#ifdef CONFIG_NF_CONNTRACK_MARK
-+#if defined(CONFIG_NF_CONNTRACK_MARK) || defined(CONFIG_NF_CONNTRACK_SECMARK)
- 	u32 value = regs->data[priv->sreg];
+  This patchset might fatally prevent LKM-based LSM modules, for LKM-based
+  LSMs cannot count on lsm_*_alloc() because size for lsm_*_alloc() cannot
+  be updated upon loading LKM-based LSMs. If security_file_free() is called
+  regardless of whether lsm_file_cache is defined, LKM-based LSMs can be
+  loaded using current behavior (apart from the fact that legitimate
+  interface for appending to security_hook_heads is currently missing).
+  How do you plan to handle LKM-based LSMs?
+
+ include/linux/lsm_hooks.h  |    6 ++----
+ security/security.c        |   31 ++++++-------------------------
+ security/smack/smack_lsm.c |    8 +++++++-
+ 3 files changed, 15 insertions(+), 30 deletions(-)
+
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 7e8b32f..8014614 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2095,13 +2095,11 @@ static inline void __init yama_add_hooks(void) { }
+ static inline void loadpin_add_hooks(void) { };
  #endif
- 	enum ip_conntrack_info ctinfo;
-@@ -298,6 +298,14 @@ static void nft_ct_set_eval(const struct nft_expr *expr,
- 		}
- 		break;
- #endif
-+#ifdef CONFIG_NF_CONNTRACK_SECMARK
-+	case NFT_CT_SECMARK:
-+		if (ct->secmark != value) {
-+			ct->secmark = value;
-+			nf_conntrack_event_cache(IPCT_SECMARK, ct);
-+		}
-+		break;
-+#endif
- #ifdef CONFIG_NF_CONNTRACK_LABELS
- 	case NFT_CT_LABELS:
- 		nf_connlabels_replace(ct,
-@@ -564,6 +572,13 @@ static int nft_ct_set_init(const struct nft_ctx *ctx,
- 			return -EINVAL;
- 		len = sizeof(u32);
- 		break;
-+#endif
-+#ifdef CONFIG_NF_CONNTRACK_SECMARK
-+	case NFT_CT_SECMARK:
-+		if (tb[NFTA_CT_DIRECTION])
-+			return -EINVAL;
-+		len = sizeof(u32);
-+		break;
- #endif
- 	default:
- 		return -EOPNOTSUPP;
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index c8ac0ef4b..a6715c816 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -284,6 +284,11 @@ static void nft_meta_set_eval(const struct nft_expr *expr,
  
- 		skb->nf_trace = !!value8;
- 		break;
-+#ifdef CONFIG_NETWORK_SECMARK
-+	case NFT_META_SECMARK:
-+		skb->secmark = value;
-+		break;
-+#endif
- 	default:
- 		WARN_ON(1);
- 	}
-@@ -436,6 +441,9 @@ static int nft_meta_set_init(const struct nft_ctx *ctx,
- 	switch (priv->key) {
- 	case NFT_META_MARK:
- 	case NFT_META_PRIORITY:
-+#ifdef CONFIG_NETWORK_SECMARK
-+	case NFT_META_SECMARK:
-+#endif
- 		len = sizeof(u32);
- 		break;
- 	case NFT_META_NFTRACE:
--- 
-2.19.0
+-extern int lsm_cred_alloc(struct cred *cred, gfp_t gfp);
+ extern int lsm_inode_alloc(struct inode *inode);
+ 
+ #ifdef CONFIG_SECURITY
+-void lsm_early_cred(struct cred *cred);
+-void lsm_early_inode(struct inode *inode);
+-void lsm_early_task(struct task_struct *task);
++void __init lsm_early_cred(struct cred *cred);
++void __init lsm_early_task(struct task_struct *task);
+ #endif
+ 
+ #endif /* ! __LINUX_LSM_HOOKS_H */
+diff --git a/security/security.c b/security/security.c
+index e7c85060..341e8df 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -267,7 +267,7 @@ int unregister_lsm_notifier(struct notifier_block *nb)
+  *
+  * Returns 0, or -ENOMEM if memory can't be allocated.
+  */
+-int lsm_cred_alloc(struct cred *cred, gfp_t gfp)
++static int lsm_cred_alloc(struct cred *cred, gfp_t gfp)
+ {
+ 	if (blob_sizes.lbs_cred == 0) {
+ 		cred->security = NULL;
+@@ -286,7 +286,7 @@ int lsm_cred_alloc(struct cred *cred, gfp_t gfp)
+  *
+  * Allocate the cred blob for all the modules if it's not already there
+  */
+-void lsm_early_cred(struct cred *cred)
++void __init lsm_early_cred(struct cred *cred)
+ {
+ 	int rc;
+ 
+@@ -344,7 +344,7 @@ void __init security_add_blobs(struct lsm_blob_sizes *needed)
+  *
+  * Returns 0, or -ENOMEM if memory can't be allocated.
+  */
+-int lsm_file_alloc(struct file *file)
++static int lsm_file_alloc(struct file *file)
+ {
+ 	if (!lsm_file_cache) {
+ 		file->f_security = NULL;
+@@ -379,25 +379,6 @@ int lsm_inode_alloc(struct inode *inode)
+ }
+ 
+ /**
+- * lsm_early_inode - during initialization allocate a composite inode blob
+- * @inode: the inode that needs a blob
+- *
+- * Allocate the inode blob for all the modules if it's not already there
+- */
+-void lsm_early_inode(struct inode *inode)
+-{
+-	int rc;
+-
+-	if (inode == NULL)
+-		panic("%s: NULL inode.\n", __func__);
+-	if (inode->i_security != NULL)
+-		return;
+-	rc = lsm_inode_alloc(inode);
+-	if (rc)
+-		panic("%s: Early inode alloc failed.\n", __func__);
+-}
+-
+-/**
+  * lsm_task_alloc - allocate a composite task blob
+  * @task: the task that needs a blob
+  *
+@@ -466,7 +447,7 @@ int lsm_msg_msg_alloc(struct msg_msg *mp)
+  *
+  * Allocate the task blob for all the modules if it's not already there
+  */
+-void lsm_early_task(struct task_struct *task)
++void __init lsm_early_task(struct task_struct *task)
+ {
+ 	int rc;
+ 
+@@ -1202,11 +1183,11 @@ void security_file_free(struct file *file)
+ {
+ 	void *blob;
+ 
++	call_void_hook(file_free_security, file);
++
+ 	if (!lsm_file_cache)
+ 		return;
+ 
+-	call_void_hook(file_free_security, file);
+-
+ 	blob = file->f_security;
+ 	file->f_security = NULL;
+ 	kmem_cache_free(lsm_file_cache, blob);
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 7843004..b0b4045 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -750,6 +750,13 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 	if (sp->smk_flags & SMK_SB_INITIALIZED)
+ 		return 0;
+ 
++	if (inode->i_security == NULL) {
++		int rc = lsm_inode_alloc(inode);
++
++		if (rc)
++			return rc;
++	}
++
+ 	if (!smack_privileged(CAP_MAC_ADMIN)) {
+ 		/*
+ 		 * Unprivileged mounts don't get to specify Smack values.
+@@ -818,7 +825,6 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 	/*
+ 	 * Initialize the root inode.
+ 	 */
+-	lsm_early_inode(inode);
+ 	init_inode_smack(inode, sp->smk_root);
+ 
+ 	if (transmute) {
