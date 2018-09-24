@@ -1,87 +1,103 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8P3mDh3004486
- for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 23:48:13 -0400
-Received: by mail-lf1-f67.google.com with SMTP id o21-v6so4820262lfe.0
- for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 20:48:09 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8OKY017006582
+ for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 16:34:00 -0400
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Kees Cook <keescook@chromium.org>
+Cc: LSM <linux-security-module@vger.kernel.org>,
+ James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
+ LKLM <linux-kernel@vger.kernel.org>,
+ John Johansen <john.johansen@canonical.com>, Paul Moore
+ <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>, =?UTF-8?Q?Micka=c3=abl_Sala=c3=bcn?=
+ <mic@digikod.net>, Salvatore Mesoraca <s.mesoraca16@gmail.com>
+References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
+ <CAGXu5jK=+FuL+JiSxcHy0i9Ppha=BQYdJW5zvbm1Redbo12wmw@mail.gmail.com>
+ <680e6e16-0890-8304-0e8e-6c58966813b5@schaufler-ca.com>
+ <CAGXu5j+7FpFDNuOowdHzJ5RXgfETQMv=Fe-EU1gWo+nWK+goZA@mail.gmail.com>
+ <39457e79-3816-824b-6b4d-89d21b03f9ce@i-love.sakura.ne.jp>
+ <b209d4b8-81a5-30aa-f4d1-9372bbb1b842@schaufler-ca.com>
+ <da179a76-691e-32f5-9391-c432a72fe37e@i-love.sakura.ne.jp>
+ <3350edec-c233-9428-73b0-58d582d1e3b9@schaufler-ca.com>
+ <eb1525f6-a3f8-4386-778f-8758c42326e5@i-love.sakura.ne.jp>
+From: Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <28e4ca6d-e86c-ee1f-ead8-f03d1ccd7d54@schaufler-ca.com>
+Date: Mon, 24 Sep 2018 13:33:51 -0700
 MIME-Version: 1.0
-References: <20180919165248.53090-1-takondra@cisco.com>
- <f283c1e7-19eb-2b99-3fef-a19e2bf99a2b@tycho.nsa.gov>
- <153741130781.7326.1773144725860636439@takondra-t460s>
- <9a944aea-f35e-5a49-841d-6bfca8f17b9d@tycho.nsa.gov>
- <153748436388.5590.1406237328277739821@takondra-t460s>
- <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
-In-Reply-To: <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
-From: Paul Moore <paul@paul-moore.com>
-Date: Mon, 24 Sep 2018 23:46:57 -0400
-Message-ID: <CAHC9VhRorkfqRTsssx_eGMy+fJQtoJew7f5i24UBkZ6tGJ5CUw@mail.gmail.com>
-To: Stephen Smalley <sds@tycho.nsa.gov>, takondra@cisco.com
-Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
- linux-kernel@vger.kernel.org, xe-linux-external@cisco.com
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [RFC PATCH] selinux: add a fallback to defcontext for
- native labeling
+In-Reply-To: <eb1525f6-a3f8-4386-778f-8758c42326e5@i-love.sakura.ne.jp>
+Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH v4 00/19] LSM: Module stacking for SARA and
+ Landlock
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Fri, Sep 21, 2018 at 10:39 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 09/20/2018 06:59 PM, Taras Kondratiuk wrote:
-> > Quoting Stephen Smalley (2018-09-20 07:49:12)
-> >> On 09/19/2018 10:41 PM, Taras Kondratiuk wrote:
-> >>> Quoting Stephen Smalley (2018-09-19 12:00:33)
-> >>>> On 09/19/2018 12:52 PM, Taras Kondratiuk wrote:
-
-...
-
-> > IMO it would be more consistent if defcontext cover all "unlabeled"
-> > groups. It seems unlikely to me that somebody who currently uses
-> > defcontext can somehow rely on mapping invalid labels to unlabeled
-> > instead of default context.
+On 9/24/2018 10:53 AM, Tetsuo Handa wrote:
+> On 2018/09/25 2:16, Casey Schaufler wrote:
+>>> Not all of LKM-based LSMs use security blobs. And some of LKM-based LSMs
+>>> might use security blobs for only a few objects. For example, AKARI uses
+>>> inode security blob for remembering whether source address/port of an
+>>> accept()ed socket was already checked, only during accept() operation and
+>>> first socket operation on the accept()ed socket. Thus, there is no need
+>>> to waste memory by assigning blobs for all inode objects.
+>> The first question is why use an inode blob? Shouldn't you
+>> be using a socket blob for this socket based information?
+> Indeed. AKARI can as well use security_sk_free() using address of
+> "struct sock" as a key.
 >
-> Yes, and that seems more consistent with the current documentation in
-> the mount man page for defcontext=.
->
-> I'd be inclined to change selinux_inode_notifysecctx() to call
-> security_context_to_sid_default() directly instead of using
-> selinux_inode_setsecurity() and change security_context_to_sid_core()
-> and sidtab_search_core() as suggested above to save and use the def_sid
-> instead of SECINITSID_UNLABELED always (initializing the context def_sid
-> to SECINITSID_UNLABELED as the default).  selinux_inode_setsecurity() we
-> should leave unchanged, or if we change it at all, it should be more
-> like the handling in selinux_inode_setxattr().  The notifysecctx hook is
-> invoked by the filesystem to notify the security module of the file's
-> existing security context, so in that case we always want the _default
-> behavior, whereas the setsecurity hook is invoked by the vfs or the
-> filesystem to set the security context of a file to a new value, so in
-> that case we would only use the _force interface if the caller had
-> CAP_MAC_ADMIN.
->
-> Paul, what say you?  NB This would be a user-visible behavior change for
-> mounts specifying defcontext= on xattr filesystems; files with invalid
-> contexts will then show up with the defcontext value instead of the
-> unlabeled context.  If that's too risky, then we'd need a flag or
-> something to security_context_to_sid_default() to distinguish the
-> behaviors and only set it when called from selinux_inode_notifysecctx().
+>> If you only want information part of the time you can declare
+>> a pointer sized blob and manage what hangs off that as you will.
+>> I personally think that the added complexity of conditional
+>> blob management is more pain than it's worth, but if you want
+>> a really big blob, but only on occasion, I could see doing it.
+> LKM based LSMs are too late for updating blob_sizes.* fields.
 
-Visible changes like this are always worrisome, even though I think it
-is safe to assume that the defcontext option is not widely used.  I'd
-feel much better if this change was opt-in.
+That is true with the code in this patch set. As I mentioned,
+changing the blob handling to include a header with real use
+information would be required.
 
-Which brings about it's own problems.  We have the policy capability
-functionality, but that is likely a poor fit for this as the policy
-capabilities are usually controlled by the Linux distribution while
-the mount options are set by the system's administrator when the
-filesystem is mounted.  We could add a toggle somewhere in selinuxfs,
-but I really dislike that idea, and would prefer to find a different
-solution if possible.  I'm not sure how much flak we would get for
-introducing a new mount option, but perhaps that is the best way to
-handle this: defcontext would continue to behave as it does now, but
-new option X would behave as mentioned in this thread.
+> Even if they could, they after all have to somehow check whether
+> corresponding init hook was called. That's checking for NULL.
 
-Thoughts?
+Right.
 
--- 
-paul moore
-www.paul-moore.com
+>>>>> @@ -1202,11 +1183,11 @@ void security_file_free(struct file *file)
+>>>>>  {
+>>>>>  	void *blob;
+>>>>>  
+>>>>> +	call_void_hook(file_free_security, file);
+>>>>> +
+>>>>>  	if (!lsm_file_cache)
+>>>>>  		return;
+>>>>>  
+>>>>> -	call_void_hook(file_free_security, file);
+>>>>> -
+>>>> Why does this make sense? If the lsm_file_cache isn't
+>>>> initialized you can't have allocated any file blobs,
+>>>> no module can have initialized a file blob, hence there
+>>>> can be nothing for the module to do.
+>>>>
+>>> For modules (not limited to LKM-based LSMs) which want to use
+>>> file blobs for only a few objects and avoid wasting memory by
+>>> allocating file blobs to all file objects.
+>>>
+>>> Infrastructure based blob management fits well for LSM modules
+>>> which want to assign blobs to all objects (like SELinux). But
+>>> forcing infrastructure based blob management can become a huge
+>>> waste of memory for LSM modules which want to assign blobs to
+>>> only a few objects. Unconditionally calling file_free_security
+>>> hook (as with other hooks) preserves a room for allowing the
+>>> latter type of LSM modules without using infrastructure based
+>>> blob management.
+>> There is a hypothetical issue here, but that would require abuse
+>> of the infrastructure. Having a file_free_security hook that doesn't
+>> free a security blob allocated by file_alloc_security may coincidentaly
+>> be useful, but that's not the intent of the hook.
+>>
+> The free hook might be used for freeing resources which were not allocated
+> by alloc hook. Yama is using task_free hook without task_alloc hook.
+> Someone might want to use file_free hook without file_alloc hook.
+
+OK, you're correct. Checking for an initialized kmem_cache isn't appropriate.
