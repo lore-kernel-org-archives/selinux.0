@@ -1,181 +1,156 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8OIx7pa025439
- for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 14:59:07 -0400
-Received: by mail-ot1-f49.google.com with SMTP id o13-v6so21079549otl.4
- for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 11:59:03 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8OLthsC017119
+ for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 17:55:43 -0400
+Received: by mail-lf1-f50.google.com with SMTP id t22-v6so8361569lfb.7
+ for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 14:55:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <20180924181052.130507-1-nnk@google.com>
- <20180924181052.130507-2-nnk@google.com>
-In-Reply-To: <20180924181052.130507-2-nnk@google.com>
-From: William Roberts <bill.c.roberts@gmail.com>
-Date: Mon, 24 Sep 2018 11:58:51 -0700
-Message-ID: <CAFftDdo560WbPNt_hMjFqovoh-aG55HnPghpZnzYyHHk1hZirQ@mail.gmail.com>
-To: Nick Kralevich <nnk@google.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-Content-Type: multipart/alternative; boundary="0000000000002a6bc70576a295a0"
-Subject: Re: [PATCH 2/2] secilc: better error handling
+From: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
+Date: Tue, 25 Sep 2018 06:55:10 +0900
+Message-ID: <CAPhFHN8TfDUC8CP=bMiKx0BVNNZuzKcCNPC6hVawMyjBAz1x3Q@mail.gmail.com>
+To: selinux <selinux@tycho.nsa.gov>
+Content-Type: multipart/mixed; boundary="000000000000cfc67b0576a50bb9"
+Subject: autorelabel loops in system executed 'semodule -d
+ unconfined'
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
---0000000000002a6bc70576a295a0
+--000000000000cfc67b0576a50bb9
 Content-Type: text/plain; charset="UTF-8"
 
-ack
+Hello, SELinux.
 
-On Mon, Sep 24, 2018 at 11:12 AM Nick Kralevich via Selinux <
-selinux@tycho.nsa.gov> wrote:
+I was playing with my F28 latest with 'semodle -d unconfined'.
+I executed this and relabeling starts even after finished relebeling
+and looks like going into the loop.
+# touch /.autorelabel
+# shtudown -r now
 
-> Fix a situation where the secilc command line tool could return success
-> even though the compilation failed.
->
->   $ secilc /dev/null -o /dev/null -f /dev/null
->   Failure reading file: /dev/null
->   $ echo $?
->   0
->
-> Signed-off-by: Nick Kralevich <nnk@google.com>
-> ---
->  secilc/secilc.c | 4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/secilc/secilc.c b/secilc/secilc.c
-> index e1347205..ad6862ba 100644
-> --- a/secilc/secilc.c
-> +++ b/secilc/secilc.c
-> @@ -257,6 +257,7 @@ int main(int argc, char *argv[])
->                 rc = stat(argv[i], &filedata);
->                 if (rc == -1) {
->                         fprintf(stderr, "Could not stat file: %s\n",
-> argv[i]);
-> +                       rc = SEPOL_ERR;
->                         goto exit;
->                 }
->                 file_size = filedata.st_size;
-> @@ -265,6 +266,7 @@ int main(int argc, char *argv[])
->                 rc = fread(buffer, file_size, 1, file);
->                 if (rc != 1) {
->                         fprintf(stderr, "Failure reading file: %s\n",
-> argv[i]);
-> +                       rc = SEPOL_ERR;
->                         goto exit;
->                 }
->                 fclose(file);
-> @@ -345,11 +347,13 @@ int main(int argc, char *argv[])
->
->         if (file_contexts == NULL) {
->                 fprintf(stderr, "Failed to open file_contexts file\n");
-> +               rc = SEPOL_ERR;
->                 goto exit;
->         }
->
->         if (fwrite(fc_buf, sizeof(char), fc_size, file_contexts) !=
-> fc_size) {
->                 fprintf(stderr, "Failed to write file_contexts file\n");
-> +               rc = SEPOL_ERR;
->                 goto exit;
->         }
->
-> --
-> 2.19.0.444.g18242da7ef-goog
->
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to
-> Selinux-request@tycho.nsa.gov.
->
+I have attached a picure.
 
---0000000000002a6bc70576a295a0
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Thanks.
 
-<div dir=3D"ltr">ack</div><br><div class=3D"gmail_quote"><div dir=3D"ltr">O=
-n Mon, Sep 24, 2018 at 11:12 AM Nick Kralevich via Selinux &lt;<a href=3D"m=
-ailto:selinux@tycho.nsa.gov">selinux@tycho.nsa.gov</a>&gt; wrote:<br></div>=
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex">Fix a situation where the secilc command lin=
-e tool could return success<br>
-even though the compilation failed.<br>
-<br>
-=C2=A0 $ secilc /dev/null -o /dev/null -f /dev/null<br>
-=C2=A0 Failure reading file: /dev/null<br>
-=C2=A0 $ echo $?<br>
-=C2=A0 0<br>
-<br>
-Signed-off-by: Nick Kralevich &lt;<a href=3D"mailto:nnk@google.com" target=
-=3D"_blank">nnk@google.com</a>&gt;<br>
----<br>
-=C2=A0secilc/secilc.c | 4 ++++<br>
-=C2=A01 file changed, 4 insertions(+)<br>
-<br>
-diff --git a/secilc/secilc.c b/secilc/secilc.c<br>
-index e1347205..ad6862ba 100644<br>
---- a/secilc/secilc.c<br>
-+++ b/secilc/secilc.c<br>
-@@ -257,6 +257,7 @@ int main(int argc, char *argv[])<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 rc =3D stat(argv[i]=
-, &amp;filedata);<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (rc =3D=3D -1) {=
-<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 fprintf(stderr, &quot;Could not stat file: %s\n&quot;, argv[i]);=
-<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0rc =3D SEPOL_ERR;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 goto exit;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 file_size =3D filed=
-ata.st_size;<br>
-@@ -265,6 +266,7 @@ int main(int argc, char *argv[])<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 rc =3D fread(buffer=
-, file_size, 1, file);<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (rc !=3D 1) {<br=
->
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 fprintf(stderr, &quot;Failure reading file: %s\n&quot;, argv[i])=
-;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0rc =3D SEPOL_ERR;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 goto exit;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 fclose(file);<br>
-@@ -345,11 +347,13 @@ int main(int argc, char *argv[])<br>
-<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (file_contexts =3D=3D NULL) {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 fprintf(stderr, &qu=
-ot;Failed to open file_contexts file\n&quot;);<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0rc =3D SEPOL_ERR;<b=
-r>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto exit;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
-<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (fwrite(fc_buf, sizeof(char), fc_size, file_=
-contexts) !=3D fc_size) {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 fprintf(stderr, &qu=
-ot;Failed to write file_contexts file\n&quot;);<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0rc =3D SEPOL_ERR;<b=
-r>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto exit;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
-<br>
--- <br>
-2.19.0.444.g18242da7ef-goog<br>
-<br>
-_______________________________________________<br>
-Selinux mailing list<br>
-<a href=3D"mailto:Selinux@tycho.nsa.gov" target=3D"_blank">Selinux@tycho.ns=
-a.gov</a><br>
-To unsubscribe, send email to <a href=3D"mailto:Selinux-leave@tycho.nsa.gov=
-" target=3D"_blank">Selinux-leave@tycho.nsa.gov</a>.<br>
-To get help, send an email containing &quot;help&quot; to <a href=3D"mailto=
-:Selinux-request@tycho.nsa.gov" target=3D"_blank">Selinux-request@tycho.nsa=
-.gov</a>.<br>
-</blockquote></div>
+--000000000000cfc67b0576a50bb9
+Content-Type: image/png;
+	name="SELinu_relabel_fails_after_deleting_unconfiled_module.png"
+Content-Disposition: attachment;
+	filename="SELinu_relabel_fails_after_deleting_unconfiled_module.png"
+Content-Transfer-Encoding: base64
+Content-ID: <f_jmgtxwvq0>
+X-Attachment-Id: f_jmgtxwvq0
 
---0000000000002a6bc70576a295a0--
+iVBORw0KGgoAAAANSUhEUgAAAx8AAACKCAYAAADL5/fIAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
+WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4gkYFTUyf+7/hQAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl
+YXRlZCB3aXRoIEdJTVBkLmUHAAAYI0lEQVR42u2dWW7suA5AO0Etou7Gsshaxu3FpHaR95UHw62B
+o0zb5wANdK7LGkhKImUNH+/398/z+ecfAAAAAACATD4RAQAAAAAAEHwAAAAAAADBBwDA3Xi9Xv+8
+Xq/D3gcAADg7j/3AuOXr6ytl8G6l3RqQe/n30pjl2WKbxvZ3rbRHz2flHz23lM+iH8n7Vv1E6C/L
+/qTy9divxH60ZbWk8Xq9UtrtlYIH5JNnf2fMW9N3ZY1/QJsCuBOfPYcsM/AYdcjbvFu/98wa7tMf
+lUHzfFZ+af22z1v5ROllVketfqL0l2V32zSz8ogaWDxpMKOOfCrY8Nny3vcP2ApcpU0BVOVRYeCP
++ILhafyz2ag7zFZFfh3IdP6idPH19WUqDwMJaGwVezmmH/PI/bdvyNAf9gAAsDD40MwotQaQ7b8x
+K1VPP5p3jtbfr1OhXdLm+XwuWdphlcv+vVH78QT9e91ZlhXu/21kd7Pftv4e5RXhoHonSqxL6Tzy
+t9h3xMSCVD/e8eCoyZmePfbKmLVst5J+ouzT0r9Y+4cV8tfYsrb/rtA+ALSU23C+oiGNBovtf633
+Ws+3ncD22e+/z55L86+qn179MvTnXTY1cgpnS8a8+zhGeXgd4tHSMs2yOElg6l12t693ZPla78/k
+s6KNRE4MWOQ/k62nzLP8Z/qJnkSJ1q3XPmf9R+SyVq9+tBNREfaZXf/s8mVN8kXbH0AlHpUKI13+
+tP07csPw3mHbp9973guYpM97s5DVlm1IZTdyPL36i3BOovcSeQOfM81Sjco4k+G+LVxx8MzWpVX+
+kmeWtO80s7rSXqO/TEXYV5Z9tpa5Hb0vL1P+2mV9K+UDcLvgw+LYRgYekCe7KP1lDUDWGb/VA3v1
+IOTu7WqlXWvkH2Hf9JnHy2Bl/hlByCjNrYO9oq6ZSy6zyrtSPgDZlFh2RYPCqdKUhc/NQBuBKv1D
+9DLKOwd3LClCPkDwccpB5IzO6dXKzMB7vM6PtqnqNh1Zvor2TpCeq8/Zvj+vPcz0d3b9bss/kmXV
+9rNS/hXlA+Dl4/3+/nk+/zSNOXIwna33HEX7o3Q0S3qkF8S10j76eYR+Ru979SMtm6YMWUf8Sk6y
+kpw4otGPRv+9/LV1jT7tSiq/nm309nz0bEwjH8mJMSP5eO1rxQZ2q/w18rPanzR/zYk+0v4pY2yy
+XoKrGWNWnrakueQ28/LaFePnrG/JKF9U+5C0z9XtAyA9+AAAAKgOX1cBaB9wXj4RAQAA4FgB0D4A
+VvBABAAAUN2Z2oJjBUD7gPPCsisAAAAAAFgCy64AAAAAAIDgAwAA4vAeEcoRvgAA4OWxH1i2ZKwb
+lByBOcs/4hjIVh6aY0r3v/OU31K+LP1E6HfVsaMZR/F605zVP6P8lnr28rceFRpZrsr2HaX/O67J
+jrB9qX1606/av1TWX9V6asrlta+r6PpoXWn9w0z/sVL79vpXlezzszfoZwYeI2OY3eLpmXXbpz8q
+g+b9qPKPypepl2z9RpJR/2wnuppDPWsD2vci5X/mW3z5IiB3KjJkFWGblfuXCv3GGesZVS5JOgQc
+6/3DVf7j0TqPKHsl+3wcbVgagViF75ntiOx0uQgIru44c8zjdZyTrK+Ys4tLce6A9sn4E60TJodq
+8VjdqCUGMLr91jNwVWhcR5VfegN1TweaG3Iltxf33tfcgBxV/5n9Sf+eOeCj8mv103pnb1uaTrv6
+1wav/WjkO/p7lJdG/5K+TXMDcrRzlT1RIrHlUZm8t3Br26c2fc2SD63+R/Y7s09p+4h0wiXjS2b/
+IJ0g8S5JsdqPVH9W+6jwPNs/zPa/PO07sv1a/Kts/0liny3KbThf2VG1lLP9z/O+xHmMbFzS9CzL
+Wmbv75fj7P/Wfhbd/nvr02pm/bezvVL5zOo/K79XP9vfH71sybs0a9Z+LPaTLV+J/ke2O0t/n0/2
+16VMx3AU1Mx0E7FPpJeHt85S25oFBJZlJZqAu9e/WttGNZ/B079HrKW3pCHpX0Z/e5clZT/P7pu2
++bV8t4j+zNO+ve03wr/K9J80/c+WR9VORBJ9WZYFjPLYK7SVvud9SfkzHItfh2Wbn3ZWwvO+NPLe
+O1aawGPm1EjLv/KQBRjbQJT9wLG2KgmYVuhKsqY8Om1pfxopa0v7uFpbuWr/nrl/ZTSGjsbPKP8g
+yncbBZ5W/3FV+87og6raZ5ngw2JYkYFH5vvS8mcaybZBWOvgeT/b+CX7crzlv6pzWDUA2XfeBG/X
+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
+XOAKjjPHPF7HOcn6ijm7uBTnDmifjD/o5No8VjdqyaAzuv3WM3BV6NRmS0yy6ia9gbqnA81nTcnt
+xb33NTcgR9V/Zn/Sv2cO+Kj8Wv203tm3DU2nXf1rg9d+NPId/T3KS6N/Sd+muQE52rnKXgonseVR
+mby3cGvbpzZ9zbJarf5H9juzT2n7iHT4JONLZv8gnSDxLkmx2o9Uf1b7qPA82z9cPf54bMvTfi3+
+Vbb/JLHPFuU2nK/sqFrK2f7XEvL22e+/z55XkqllWcvs/f0nzP3f2mV1239vfVrNrP92tlcqn1n9
+Z+X36mf7+6OXLXk/Z7faj9d+suUr0f/Idmfp7/PJ7l8yHcNRUDPTTcQ+kV4e3jpLbWsWEFiWlWgC
+7l7/am0bZxvfRv17xFp6SxqS/mX0t3dZUvbz7L6p53/1bN9yaIanfXvbb4R/lek/afqfLY+qnYgk
++rIsCxjlsVfob/q9gEj6/Gh+y7gtj3ZWwvO+NPLey1ITeMycGmn5Vx6yAGMbiLIfONZWJQHTCl1J
+1pRHpy3tTyNlbWkfV2srV+3fM/cpjMbQ0fgZ5R9E+W694L4ViGQs+fe074w+qKp9lgk+LIYVGXjc
+xanzLNfwftXJlLtkM2TFr1IEMvLOm+Dtmra1YjN6Zr1WlT+rrhXLD+ttWRK49vqI7PH1yHHviPZR
+zb/KKEuJZVfMDK8zCE8DOvNJRFco/1kcWGRL4AFA/3Ev/yFrfKVvuiZlLxm0dkJ0XnOZWPZ8aN+f
+6WGlnrz1rzKIXnmZxNXa+Zn6oTsO7owT6Bf5yMbn2fhZbXxtfam4mi1U8q+sfLzf3z/P55+msWSc
+eNGKljXHrM3KKN3YKylf9mkQkoY6SsPyaT2yfJoTabSnJYzWJ1s23UaeljTK33pakVQ/ls1qEvvJ
+tj+pbrynVUnsx6MfzQlkmr7LsnkvUv4rjxmX9Bta+7XYd+RpYqvat6RvHo2Jnv41Wv7a8Tuzf4+s
+X+b4VMl/iTztyusfanXnKZ+nfVv16/GvKtjnNPgA8A4CAEDbBNDa8J3tmjYNd+OBCICOEID2CHCk
+PWPfAPeBLx+QuqQDAOLbKO0TGF9o2wAEHwAAAAAAAAM+EQEAAAAAABB8AAAAAAAAwUcPyfnDEelz
+hjcAAAAAwM2Dj1ng4IXNWAAAAAAA5yT8qF2CAwAAAAAAGAYf0huEt8xuge6lLblddJSfltFNrtr6
+j24wnuU/Cta8+XOcIQAAAABU5+P9/v75+/ffrjPbC0CkAYnkmeS205YDrnGutelZ66/NW1v/Vpm5
+LRYAAAAAzsCj5SS3+HVyLTP/2gBBGrRUolf2r68vcVAg+bJDMAEAAAAAlwg+Zo6t9auDlDM71pYv
+IJ76E4QAAAAAwNlQnXa1nZnnqFsdLIMCAAAAAIKPgbPcCja2y4g8AYjkPpCrBDi9PRlH1J87UgAA
+AADgKD7e7++f5/NP+GlXrd/vf6M5rWm04doSAMzK3svfs+G8hea0K6lcJb/jCwwAAAAAHBZ8AAAA
+AAAAZPKJCAAAAAAAgOADAAAAAAAIPgAAAAAAAAg+AAAAAACA4AMA4Kx4j6rmqGsAALg7j/3AuCXj
+ONbZsb2S/K3H7LbYHttrfT4rm/T93jHEUfrRHNmr1Y9Ef9n1s+o/wn4l9dOW1ZLG6/XiGGXkE9JW
+VsvpqLw1Y0/W+Ae0KYDbBh+rOl5Jh/w7QyhxgqVY7xWRymVWtlH6kkEp4nJHSVCn1Y9EfyvrNwog
+s/KQBKrZaTCjjnwq2PDZ8t73D72xB+BsbQrgVMHH6oE/4guGxdmODLY89aswGxb5dSCzflFpWQcE
+HBLQ2Cr2ckw/5pF7ZgCCPQAALAw+NDPOo6VLVWcRMmfUz6CfMzqFoy9R0cuqtMvSPGlLl/5pg/59
+25Om33pH8iVq9tvW36O8IuzXO1FiXUrnkb/FviMmL6T68Y4HR03OzL7qjmw8Y1lrBf1E2aelf7H2
+Dyvkr7Flbf9doX0AaCm34XxFQ5qlNxpMtv9F5x+V/mr9bDvBUdkj6rcPGiKciG26EmfYI7NeHl6H
+eK+PXvuZ1VESmO7/1qS/1/3274jytd6fyWdFG4mcGLDIfyZbT5ln+c/0Ez2JEq1br33O+o9Z+t78
+NfqxTKR57TO7/tnly56kjMwfoAqPSoWRBgXbvyM3DM+c65YTFZm/ZM9LVf1YZvKOqF/vy9mKjlyz
+p6YqozJK9jxV/4JZLfCIkr/kmSXtO82srrTX6C9TEfaVZZ+tZW5HtJ9V8tcu61spH4DbBR8Wx3ZF
+4HEmx+TMTtWRDvSKzehXGzAk7fRurGwjGvlH2DfOzvEyWJl/RhAyO2xk/xW0Wv2O1P9q+QBkU2LZ
+FQ0Kp0pTFj43A20EqvQP0cso7xzcsaQI+QDBxykHkYzBB4dXJxMG3uNt6mibrd5mIstX0d7ps3L1
+uZfvft+b1x5m+ju7frflH8myavtZKf+K8gHw8vF+f/88n3+axhw5mM7We46i/VE6miVZnmVXltMw
+er+xpB+hn9H7Xv1I9ZJZP0u9W78Z3V1iLb/Gfnr5a+safdqVVH492+jt+ejZmEY+khNjRvLx2teK
+DexW+WvkZ7U/af6aE320/Wvk2GS9BFfTx688bUl6Gl30uBJVP499ryhfVPuQtM/V7QMgPfgAAACo
+Dl9XAWgfcF4+EQEAAOBYAdA+AFbwQAQAAFDdmdqCYwVA+4DzwrIrAAAAAABYAsuuAAAAAACA4AMA
+AAAAAK7Df/Z8ZBxFGYnlWMvZsZsr61n1ToC9zi0ym9mOxLYqb5aLqF91vPJnsyMAAACM+M+Xj8pO
+A5fq5BCl81k6Z3dIr14/AAAAgGw47eqkjv4sQMvKJ7v8OPDntk/0BwAAAOLgo/dloXdbqOf25+1v
+pLcVZzrYkttne/WXyGefhyb91ruZQcbK26GryCfrdnWtvC03lEuWzVluedeU70j9RbTPlTcwH/Ec
+AACgCv8/arc1QFudg1kw0XMIPPsNPM605N9n9ffWYfS+NO2s4Eujg6znK+WjsW3tc2ngJW2Pe4e6
+hWXfjkb+FfSnmcCwyveszwEAACrx0A5UM6dLylGDomRWv2K5YY1dHM3IviRBRi8oYb9UbPudfTlq
+6WV7WMb2/dlzb/oAAADlgg/v4Dtb4nEWx1NT/qsO7i1H5i6BRyX7bck+6ksOgUhO+x2luW1Xrd/O
+nnvTBwAAqMKt7vm4w0zw1gHxOlE4qQCxwcmobc2ee9MHAAC4dfDhdZI17++XOOz/BrhjkAl58t8+
+3/92HyDMnnvTBwAAqMR/Npz/Dl6jDa2Sk3IkSz0sG9qtJy5FbEiV1F+yyX5Uf+lpRZGBk/SSQe2J
+ZpHPs+UjsT9v/SR5S9rXSFez/7fWr7p9S08Ds8j3Cs8BAADKBR9wHljXjXzQHzoHAAA4I5+I4BzO
+GEsokA/6AwAAgLPDl48TOWhbmOFFPugP3QMAABB8AAAAAAAANGDZFQAAAAAAEHwAAAAAAADBBwAA
+AAAAAMEHAAAAAAAQfAAAAAAAAMEHAAAAAAAAwQcAAAAAABB8AAAAAAAAzPkffLI9/0mR7AcAAAAA
+SUVORK5CYII=
+--000000000000cfc67b0576a50bb9--
