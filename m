@@ -1,225 +1,143 @@
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-To: Eric Paris <eparis@parisplace.org>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>
-From: Taras Kondratiuk <takondra@cisco.com>
-In-Reply-To: <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
-Cc: selinux@tycho.nsa.gov, linux-kernel@vger.kernel.org,
- xe-linux-external@cisco.com
-References: <20180919165248.53090-1-takondra@cisco.com>
- <f283c1e7-19eb-2b99-3fef-a19e2bf99a2b@tycho.nsa.gov>
- <153741130781.7326.1773144725860636439@takondra-t460s>
- <9a944aea-f35e-5a49-841d-6bfca8f17b9d@tycho.nsa.gov>
- <153748436388.5590.1406237328277739821@takondra-t460s>
- <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
-Message-ID: <153782382932.4009.11167059420902765851@takondra-t460s>
-Date: Mon, 24 Sep 2018 14:17:09 -0700
-Subject: Re: [RFC PATCH] selinux: add a fallback to defcontext for
- native labeling
+Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
+ [144.51.242.250])
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8P0J8Ks005690
+ for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 20:19:09 -0400
+Received: by mail-pg1-f196.google.com with SMTP id b129-v6so10098202pga.13
+ for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 17:18:47 -0700 (PDT)
+From: Kees Cook <keescook@chromium.org>
+To: James Morris <jmorris@namei.org>
+Cc: Kees Cook <keescook@chromium.org>,
+ John Johansen <john.johansen@canonical.com>,
+ "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
+ Stephen Smalley <sds@tycho.nsa.gov>,
+ Casey Schaufler <casey@schaufler-ca.com>,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ Mimi Zohar <zohar@linux.vnet.ibm.com>,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+ "Schaufler, Casey" <casey.schaufler@intel.com>,
+ Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Mon, 24 Sep 2018 17:18:10 -0700
+Message-Id: <20180925001832.18322-8-keescook@chromium.org>
+In-Reply-To: <20180925001832.18322-1-keescook@chromium.org>
+References: <20180925001832.18322-1-keescook@chromium.org>
+Subject: [PATCH security-next v3 07/29] LSM: Convert
+ security_initcall() into DEFINE_LSM()
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Quoting Stephen Smalley (2018-09-21 07:40:58)
-> On 09/20/2018 06:59 PM, Taras Kondratiuk wrote:
-> > Quoting Stephen Smalley (2018-09-20 07:49:12)
-> >> On 09/19/2018 10:41 PM, Taras Kondratiuk wrote:
-> >>> Quoting Stephen Smalley (2018-09-19 12:00:33)
-> >>>> On 09/19/2018 12:52 PM, Taras Kondratiuk wrote:
-> >>>>> When files on NFSv4 server are not properly labeled (label doesn't match
-> >>>>> a policy on a client) they will end up with unlabeled_t type which is
-> >>>>> too generic. We would like to be able to set a default context per
-> >>>>> mount. 'defcontext' mount option looks like a nice solution, but it
-> >>>>> doesn't seem to be fully implemented for native labeling. Default
-> >>>>> context is stored, but is never used.
-> >>>>>
-> >>>>> The patch adds a fallback to a default context if a received context is
-> >>>>> invalid. If the inode context is already initialized, then it is left
-> >>>>> untouched to preserve a context set locally on a client.
-> >>>>
-> >>>> Can you explain the use case further?  Why are you exporting a
-> >>>> filesystem with security labeling enabled to a client that doesn't
-> >>>> understand all of the labels used within it?  Why wouldn't you just
-> >>>> disable NFSv4 security labeling and/or use a regular context= mount to
-> >>>> assign a single context to all files in the mount?
-> >>>
-> >>> Client and server are two embedded devices. They are part of a bigger
-> >>> modular system and normally run the same SW version, so they understand
-> >>> each others NFSv4 SELinux labels. But during migration from one SW
-> >>> version to another a client and a server may run different versions for
-> >>> some time.
-> >>>
-> >>> The immediate issue I'm trying to address is a migration between
-> >>> releases with and without SELinux policy. A client (with policy) gets
-> >>> initial SID labels from a server (without policy). Those labels are
-> >>> considered invalid, so files remain unlabeled. This also causes lots of
-> >>> errors from nfs_setsecurity() in dmesg.
-> >>
-> >> Why are you enabling SELinux on the server without loading a policy?
-> >> Are you concerned about denials on the server? For that, you could
-> >> always run it permissive until you are confident you have a working policy.
-> >>
-> >> Why are you enabling security_label in exports before you have a policy
-> >> loaded?  It doesn't appear that will ever work, since nfsd asks the
-> >> security module for the labels, not the local filesystem directly.
-> >>
-> >> I understand that this doesn't fully address your use case, but it seems
-> >> like you could avoid this particular situation altogether just by
-> >> loading a policy (at which point your server can return actual contexts)
-> >> or by removing security_label from your exports (at which point your
-> >> server won't try returning contexts and the client will just apply the
-> >> default for nfs) until you get to the point of loading a policy.
-> > 
-> > It wasn't intentional configuration. Server is running v4.4.x kernel
-> > that had security labels enabled by default for NFS 4.2. This was a bug:
-> > https://bugzilla.redhat.com/show_bug.cgi?id=1406885
-> > Commit that introduced security_label 32ddd944a056 ("nfsd: opt in to
-> > labeled nfs per export") appeared in v4.11 only.
-> > 
-> > We hit this bug during migration to newer releases with SELinux, but the
-> > older release is already in the field and we need to handle it.
-> 
-> Ok, I understand the kernel bug, but not why your servers are in a state 
-> where SELinux is enabled but no policy is loaded.  That is not a 
-> well-tested code path aside from early system initialization prior to 
-> first policy load by systemd/init.  You would be better off either 
-> disabling SELinux on the servers entirely (thereby automatically 
-> disabling NFSv4.2 security labeling) or installing/loading a policy on 
-> the servers (thereby enabling them to produce valid security labels for 
-> the client at least to the extent that they agree on policy).  If you 
-> are concerned about denials on the server, then you could always leave 
-> the servers permissive initially and collect audit logs until you are 
-> confident your policy is adequate.
+Instead of using argument-based initializers, switch to defining the
+contents of struct lsm_info on a per-LSM basis. This also drops
+the final use of the now inaccurate "initcall" naming.
 
-It wasn't intentional either. The same kernel configuration is used
-accross several products. We roll out SELinux for products one by one,
-so some products don't have SELinux policy and /etc/selinux/config yet
-while SELinux kernel config is enabled. In hindsight we should have
-explicitly disabled SELinux in /etc/selinux/config for those products.
+Cc: John Johansen <john.johansen@canonical.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: "Serge E. Hallyn" <serge@hallyn.com>
+Cc: Paul Moore <paul@paul-moore.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>
+Cc: Casey Schaufler <casey@schaufler-ca.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
+Cc: linux-security-module@vger.kernel.org
+Cc: selinux@tycho.nsa.gov
+Signed-off-by: Kees Cook <keescook@chromium.org>
+---
+ include/linux/lsm_hooks.h  | 6 ++++--
+ security/apparmor/lsm.c    | 4 +++-
+ security/integrity/iint.c  | 4 +++-
+ security/selinux/hooks.c   | 4 +++-
+ security/smack/smack_lsm.c | 4 +++-
+ security/tomoyo/tomoyo.c   | 4 +++-
+ 6 files changed, 19 insertions(+), 7 deletions(-)
 
-Since it is not a well-tested code I'm wondering shouldn't systemd/init
-be disabling SELinux if config file or policy is missing?
-
-> 
-> >>
-> >>>
-> >>>>
-> >>>> To be clear, defcontext= doesn't work that way for local/FS_USE_XATTR
-> >>>> filesystems. The context specified by it is only used for:
-> >>>> 1) files that don't implement the xattr inode operations at all,
-> >>>> 2) files that lack a security.selinux xattr,
-> >>>> 3) the MLS portion of the context if it was missing (strictly as a
-> >>>> legacy compatibility mechanism for RHEL4 which predated the enabling of
-> >>>> the MLS field/logic).
-> >>>>
-> >>>> A file with a security.selinux xattr that is invalid under policy for
-> >>>> any reason other than a missing MLS field will be handled as having the
-> >>>> unlabeled context.
-> >>>
-> >>> inode_doinit_with_dentry() invokes security_context_to_sid_default()
-> >>> that invokes security_context_to_sid_core() with 'force' flag. Won't
-> >>> sidtab_context_to_sid() in this case allocate a new SID for the invalid
-> >>> xattr context instead of leaving it unlabeled?
-> >>
-> >> It will be treated as having the unlabeled context for access control
-> >> purposes and that is what getxattr will return to userspace processes
-> >> unless they have CAP_MAC_ADMIN and SELinux mac_admin permission, but
-> >> internally SELinux will keep track of the original xattr context value
-> >> and will later retry to map it upon a policy reload, switching over to
-> >> using it for access control and getxattr if it becomes valid under a new
-> >> policy.  That support was added to support scenarios where a package
-> >> manager sets a file context before it has loaded the policy module that
-> >> defines it, or scenarios where one is generating a filesystem image for
-> >> another OS/release with different policy. That is likely something you
-> >> need/want for NFS as well if you want the client to start using the
-> >> context as soon as it becomes valid upon a policy update/reload and not
-> >> have to wait for the inode to be evicted.
-> > 
-> > So now handling of invalid labels is different for xattrs (labels are
-> > preserved) and native (labels are discarded). Maybe it is worth to align
-> > this behavior. It should make introduction of defcontext for native
-> > easier.
-> 
-> Perhaps.  However, this handling of invalid labels is in conflict with 
-> your suggested behavior for defcontext=.  If we set the inode sid to the 
-> superblock def_sid on an invalid context, then we lose the association 
-> to the original context value. The support for deferred mapping of 
-> contexts requires allocating a new SID for the invalid context and 
-> storing that SID in the inode, so that if the context later becomes 
-> valid upon a policy update/reload, the inode SID will refer to the now 
-> valid context.  To combine the two, we would need 
-> security_context_to_sid_core() to save the def_sid in the context 
-> structure for invalid contexts, and change sidtab_search_core() to use 
-> that value instead of SECINITSID_UNLABELED for invalid SIDs.  Then the 
-> inode would be treated as having the defcontext for access control and 
-> getxattr() w/o CAP_MAC_ADMIN purposes, but a subsequent policy 
-> update/reload that makes the context valid would automatically cause 
-> subsequent accesses to the inode to start using the original context 
-> value for access control and getxattr() purposes.  I think that's the 
-> behavior you want.
-
-Right, that's exactly it.
-
-> 
-> >>>> So this would be a divergence in semantics for defcontext= between
-> >>>> local/FS_USE_XATTR and NFS/FS_USE_NATIVE filesystems.
-> >>>
-> >>> Yeah, I also didn't like this semantics mismatch. But from another point
-> >>> defcontext allows to assign a context to files that would otherwise be
-> >>> unlabeled. Something similar I'd like to achive for NFS.
-> >>
-> >> Yes, I can see the appeal of it.  I guess the question is whether we
-> >> can/should do it via defcontext= or via some new option, and if we do it
-> >> via defcontext=, can/should we change the semantics for local/xattr
-> >> filesystems to match?  Wondering how widely defcontext= is actually used.
-> > 
-> > Is the current behavior of defcontext for xattrs intentional or it is a
-> > side effect? Honestly it is a bit confusing. Without defcontext really
-> > unlabeled files and files with invalid labels are treated as unlabeled.
-> > Can a user without MAC_ADMIN even distinguish them? With defcontext only
-> > really unlabeled files get default context, but invalid labels still
-> > remain unlabeled.
-> 
-> It was intentional at the time, but the history is somewhat convoluted. 
-> The two cases are actually distinguished by different initial SIDs 
-> (SECINITSID_FILE vs SECINITSID_UNLABELED) and used to have different 
-> types in policy (file_t vs unlabeled_t), but this distinction has been 
-> coalesced in modern policies (where file_t is an alias of unlabeled_t).
-> IIRC, the original distinction was to support migration from non-SELinux 
-> to SELinux since filesystems were initially unlabeled. defcontext= was 
-> originally just a way of specifying per-mount alternatives to the global 
-> policy definition of the context for SECINITSID_FILE.
-> 
-> > 
-> > IMO it would be more consistent if defcontext cover all "unlabeled"
-> > groups. It seems unlikely to me that somebody who currently uses
-> > defcontext can somehow rely on mapping invalid labels to unlabeled
-> > instead of default context.
-> 
-> Yes, and that seems more consistent with the current documentation in 
-> the mount man page for defcontext=.
-> 
-> I'd be inclined to change selinux_inode_notifysecctx() to call 
-> security_context_to_sid_default() directly instead of using 
-> selinux_inode_setsecurity() and change security_context_to_sid_core() 
-> and sidtab_search_core() as suggested above to save and use the def_sid 
-> instead of SECINITSID_UNLABELED always (initializing the context def_sid 
-> to SECINITSID_UNLABELED as the default).  selinux_inode_setsecurity() we 
-> should leave unchanged, or if we change it at all, it should be more 
-> like the handling in selinux_inode_setxattr().  The notifysecctx hook is 
-> invoked by the filesystem to notify the security module of the file's 
-> existing security context, so in that case we always want the _default 
-> behavior, whereas the setsecurity hook is invoked by the vfs or the 
-> filesystem to set the security context of a file to a new value, so in 
-> that case we would only use the _force interface if the caller had 
-> CAP_MAC_ADMIN.
-> 
-> Paul, what say you?  NB This would be a user-visible behavior change for 
-> mounts specifying defcontext= on xattr filesystems; files with invalid 
-> contexts will then show up with the defcontext value instead of the 
-> unlabeled context.  If that's too risky, then we'd need a flag or 
-> something to security_context_to_sid_default() to distinguish the 
-> behaviors and only set it when called from selinux_inode_notifysecctx().
-
-Paul, if you are OK with this approach, then I'll prepare a patch.
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index ad04761e5587..02ec717189f9 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2045,11 +2045,13 @@ struct lsm_info {
+ 
+ extern struct lsm_info __start_lsm_info[], __end_lsm_info[];
+ 
+-#define security_initcall(lsm)						\
++#define DEFINE_LSM(lsm)							\
+ 	static struct lsm_info __lsm_##lsm				\
+ 		__used __section(.lsm_info.init)			\
+ 		__aligned(sizeof(unsigned long))			\
+-		= { .init = lsm, }
++		= {							\
++
++#define END_LSM	  }
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_DISABLE
+ /*
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 8b8b70620bbe..7fa7b4464cf4 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1606,4 +1606,6 @@ static int __init apparmor_init(void)
+ 	return error;
+ }
+ 
+-security_initcall(apparmor_init);
++DEFINE_LSM(apparmor)
++	.init = apparmor_init,
++END_LSM;
+diff --git a/security/integrity/iint.c b/security/integrity/iint.c
+index 70d21b566955..20e60df929a3 100644
+--- a/security/integrity/iint.c
++++ b/security/integrity/iint.c
+@@ -175,7 +175,9 @@ static int __init integrity_iintcache_init(void)
+ 			      0, SLAB_PANIC, init_once);
+ 	return 0;
+ }
+-security_initcall(integrity_iintcache_init);
++DEFINE_LSM(integrity)
++	.init = integrity_iintcache_init,
++END_LSM;
+ 
+ 
+ /*
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ad9a9b8e9979..469a90806bc6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7202,7 +7202,9 @@ void selinux_complete_init(void)
+ 
+ /* SELinux requires early initialization in order to label
+    all processes and objects when they are created. */
+-security_initcall(selinux_init);
++DEFINE_LSM(selinux)
++	.init = selinux_init,
++END_LSM;
+ 
+ #if defined(CONFIG_NETFILTER)
+ 
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 340fc30ad85d..1e1ace718e75 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4882,4 +4882,6 @@ static __init int smack_init(void)
+  * Smack requires early initialization in order to label
+  * all processes and objects when they are created.
+  */
+-security_initcall(smack_init);
++DEFINE_LSM(smack)
++	.init = smack_init,
++END_LSM;
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index 9f932e2d6852..a280d4eab456 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -550,4 +550,6 @@ static int __init tomoyo_init(void)
+ 	return 0;
+ }
+ 
+-security_initcall(tomoyo_init);
++DEFINE_LSM(tomoyo)
++	.init = tomoyo_init,
++END_LSM;
+-- 
+2.17.1
