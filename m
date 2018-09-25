@@ -1,126 +1,122 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8PDqSGb024592
- for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2018 09:52:28 -0400
-Received: by mail-ed1-f66.google.com with SMTP id f4-v6so19412907edq.3
- for <selinux@tycho.nsa.gov>; Tue, 25 Sep 2018 06:46:22 -0700 (PDT)
-Date: Tue, 25 Sep 2018 15:46:17 +0200
-From: Dominick Grift <dac.override@gmail.com>
-To: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-Cc: selinux <selinux@tycho.nsa.gov>
-Message-ID: <20180925134617.GA27672@julius.enp8s0.d30>
-References: <CAPhFHN8TfDUC8CP=bMiKx0BVNNZuzKcCNPC6hVawMyjBAz1x3Q@mail.gmail.com>
- <CAPhFHN_tOXnaU7EGZ9o_ht4XGqqsAS-VmauH5o7Cb71KF3eN3w@mail.gmail.com>
+To: Taras Kondratiuk <takondra@cisco.com>, Paul Moore <paul@paul-moore.com>
+Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, xe-linux-external@cisco.com
+References: <20180919165248.53090-1-takondra@cisco.com>
+ <f283c1e7-19eb-2b99-3fef-a19e2bf99a2b@tycho.nsa.gov>
+ <153741130781.7326.1773144725860636439@takondra-t460s>
+ <9a944aea-f35e-5a49-841d-6bfca8f17b9d@tycho.nsa.gov>
+ <153748436388.5590.1406237328277739821@takondra-t460s>
+ <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
+ <CAHC9VhRorkfqRTsssx_eGMy+fJQtoJew7f5i24UBkZ6tGJ5CUw@mail.gmail.com>
+ <153785433233.5039.17960184426345262866@takondra-t460s>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <a23ad753-8fd4-e9c3-cdbf-391ee154794b@tycho.nsa.gov>
+Date: Tue, 25 Sep 2018 10:00:18 -0400
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature"; boundary="OXfL5xGRrasGEqWY"
-In-Reply-To: <CAPhFHN_tOXnaU7EGZ9o_ht4XGqqsAS-VmauH5o7Cb71KF3eN3w@mail.gmail.com>
-Subject: Re: autorelabel loops in system executed 'semodule -d
- unconfined'
+In-Reply-To: <153785433233.5039.17960184426345262866@takondra-t460s>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [RFC PATCH] selinux: add a fallback to defcontext for native
+ labeling
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
+On 09/25/2018 01:45 AM, Taras Kondratiuk wrote:
+> Quoting Paul Moore (2018-09-24 20:46:57)
+>> On Fri, Sep 21, 2018 at 10:39 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>> On 09/20/2018 06:59 PM, Taras Kondratiuk wrote:
+>>>> Quoting Stephen Smalley (2018-09-20 07:49:12)
+>>>>> On 09/19/2018 10:41 PM, Taras Kondratiuk wrote:
+>>>>>> Quoting Stephen Smalley (2018-09-19 12:00:33)
+>>>>>>> On 09/19/2018 12:52 PM, Taras Kondratiuk wrote:
+>>
+>> ...
+>>
+>>>> IMO it would be more consistent if defcontext cover all "unlabeled"
+>>>> groups. It seems unlikely to me that somebody who currently uses
+>>>> defcontext can somehow rely on mapping invalid labels to unlabeled
+>>>> instead of default context.
+>>>
+>>> Yes, and that seems more consistent with the current documentation in
+>>> the mount man page for defcontext=.
+>>>
+>>> I'd be inclined to change selinux_inode_notifysecctx() to call
+>>> security_context_to_sid_default() directly instead of using
+>>> selinux_inode_setsecurity() and change security_context_to_sid_core()
+>>> and sidtab_search_core() as suggested above to save and use the def_sid
+>>> instead of SECINITSID_UNLABELED always (initializing the context def_sid
+>>> to SECINITSID_UNLABELED as the default).  selinux_inode_setsecurity() we
+>>> should leave unchanged, or if we change it at all, it should be more
+>>> like the handling in selinux_inode_setxattr().  The notifysecctx hook is
+>>> invoked by the filesystem to notify the security module of the file's
+>>> existing security context, so in that case we always want the _default
+>>> behavior, whereas the setsecurity hook is invoked by the vfs or the
+>>> filesystem to set the security context of a file to a new value, so in
+>>> that case we would only use the _force interface if the caller had
+>>> CAP_MAC_ADMIN.
+>>>
+>>> Paul, what say you?  NB This would be a user-visible behavior change for
+>>> mounts specifying defcontext= on xattr filesystems; files with invalid
+>>> contexts will then show up with the defcontext value instead of the
+>>> unlabeled context.  If that's too risky, then we'd need a flag or
+>>> something to security_context_to_sid_default() to distinguish the
+>>> behaviors and only set it when called from selinux_inode_notifysecctx().
+>>
+>> Visible changes like this are always worrisome, even though I think it
+>> is safe to assume that the defcontext option is not widely used.  I'd
+>> feel much better if this change was opt-in.
+>>
+>> Which brings about it's own problems.  We have the policy capability
+>> functionality, but that is likely a poor fit for this as the policy
+>> capabilities are usually controlled by the Linux distribution while
+>> the mount options are set by the system's administrator when the
+>> filesystem is mounted.  We could add a toggle somewhere in selinuxfs,
+>> but I really dislike that idea, and would prefer to find a different
+>> solution if possible.  I'm not sure how much flak we would get for
+>> introducing a new mount option, but perhaps that is the best way to
+>> handle this: defcontext would continue to behave as it does now, but
+>> new option X would behave as mentioned in this thread.
+>>
+>> Thoughts?
+> 
+> The new option X will also mean "default context", so it will be pretty
+> hard to come up with a different but a sensible name. I'm afraid that
+> having two options with hardly distinguishable semantics will be very
+> confusing.
+> 
+> What about a kernel config option that modifies the behavior of
+> defcontext?
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+First, the existing documentation for defcontext= leaves open the door 
+to the proposed new behavior.  From mount(8):
+"You can set the default security context for  unlabeled  files  using 
+defcontext= option.  This overrides the value set for unlabeled files in 
+the policy and requires a filesystem that supports xattr labeling."
 
-On Tue, Sep 25, 2018 at 07:19:23AM +0900, Shintaro Fujiwara wrote:
-> Hi, SELinux.
->=20
-> I captured a picture saying this.
->=20
-> rm: cannot remove '/.autorelabel' : Permission denied
->=20
-> /.autorelabel could not be removed, so going into the loop, I guess.
->=20
-> How can I autorelabel properly even if I delete unconfined module?
+"Unlabeled files" could just mean files without any xattr, or it could 
+mean all files that either lack an xattr or have an invalid one under 
+the policy, since both sets of files are currently mapped to the 
+unlabeled context.
 
-This may or may not be a policy issue (see avc denials), but:
+Second, under what conditions would this situation break existing 
+userspace?  The admin would have had to mount an xattr filesystem with 
+defcontext= specified, and that filesystem would have to both contain 
+files without any xattrs and files with invalid ones (otherwise how they 
+are treated by the kernel is irrelevant), and the policy would need to 
+distinguish access to files without xattrs vs files with invalid ones. 
+Seems unlikely.
 
-Generally you want to do a full relabel in permissive mode.
+Third, the fact that policy maintainers remapped both SECINITSID_FILE 
+(the default value for defcontext) and SECINITSID_UNLABELED (used for 
+invalid contexts) to the unlabeled context (getting rid of file_t as a 
+separate type, aliased to unlabeled_t) long ago suggests that there is 
+no meaningful difference there.
 
->=20
-> Thanks.
-> 2018=E5=B9=B49=E6=9C=8825=E6=97=A5(=E7=81=AB) 6:55 Shintaro Fujiwara <shi=
-ntaro.fujiwara@gmail.com>:
-> >
-> > Hello, SELinux.
-> >
-> > I was playing with my F28 latest with 'semodle -d unconfined'.
-> > I executed this and relabeling starts even after finished relebeling
-> > and looks like going into the loop.
-> > # touch /.autorelabel
-> > # shtudown -r now
-> >
-> > I have attached a picure.
-> >
-> > Thanks.
->=20
->=20
->=20
-> --=20
-> Help analyzing sar file
-> https://github.com/intrajp/sar-analyzer
->=20
-> LFS Scripts will make Linux From Scratch easy
-> https://github.com/intrajp/LFS-scripts-systemd
->=20
-> SHIRASAGI-hardening Project
-> https://github.com/intrajp/shirasagi-hardening
->=20
-> Linux Distribution Project
-> http://sourceforge.net/projects/pinkrabbitlinux/
->=20
-> Introducing hardrock and heavymetal
-> http://heavymetalhardrock.no-ip.info/
->=20
-> Open Source Software to manage SELinux at ease
-> http://sourceforge.net/projects/segatex/
->=20
-> Help SELinux administration
-> https://github.com/intrajp/segatex-ng
->=20
-> network-magic ( Useful tool for network-administrators )
-> https://github.com/intrajp/network-magic
->=20
-> CMS=EF=BC=88with PHP & PostgreSQL=EF=BC=89
-> http://sourceforge.net/projects/webon/
-> https://github.com/intrajp/irforum_jp
-
-
-> _______________________________________________
-> Selinux mailing list
-> Selinux@tycho.nsa.gov
-> To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> To get help, send an email containing "help" to Selinux-request@tycho.nsa=
-=2Egov.
-
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---OXfL5xGRrasGEqWY
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAluqPCQACgkQJXSOVTf5
-R2nR6wv+OCdPg9P0eMr/CcFNyjirzwAQLVN3zeqns3pvfjj0uVBgXB8HGtntM5qF
-G8+L7YnPCF4j5KfS7+HnDOJxD3rxvGYRWrSUnctZxEbkGd9Es9YGZnROeK6feXdc
-tT3aJYgQD3KlgufqzRmQ+mU/u1CD1Qwe8cG2m4QUnly4DTRTvn+oF0bxAKRISjJa
-/TWQmHjiTw19HHuJnkz3B6zkdeLy/2kc4kXTCRcg0tOZwOhlT7HrFolf/NvrdoM8
-fI1MsqUNxzoR/nTx+4HGOPxrUP9EPimihQ0YuwX/am+b+1vH8m7YS7g+vIjieSqJ
-7DAyEwcf13UPcAQifuRroedNFoN4xNoqqyOzxUXvnVl9yNKtnpIJ1PbsOvpgVAMD
-5+IOfkOaaCcNBWjYv23N+WnhlfzGIi4ik0yjSnjdR0hGSP1TVNv3WF+CK7cYaOZY
-N/pfbYw2IyAyjq65ojgI/Cp5zkS7Ls3DIFk8xJGQ8ulP81HQGQ1/fAOsIm4mCHIJ
-wz7HR1xg
-=Tzp4
------END PGP SIGNATURE-----
-
---OXfL5xGRrasGEqWY--
+I'm inclined to just change the behavior for defcontext= unconditionally 
+and have it apply to both native and xattr labeling.  If that's a no-go, 
+then the simplest solution is to just leave defcontext= behavior 
+unchanged for xattr labeling and only implement the new semantics for 
+native labeling.  That's just a matter of adding a flag to 
+security_context_to_sid_default() and only setting it when calling from 
+selinux_inode_notifysecctx().
