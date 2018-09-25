@@ -1,143 +1,87 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8P0J8Ks005690
- for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 20:19:09 -0400
-Received: by mail-pg1-f196.google.com with SMTP id b129-v6so10098202pga.13
- for <selinux@tycho.nsa.gov>; Mon, 24 Sep 2018 17:18:47 -0700 (PDT)
-From: Kees Cook <keescook@chromium.org>
-To: James Morris <jmorris@namei.org>
-Cc: Kees Cook <keescook@chromium.org>,
- John Johansen <john.johansen@canonical.com>,
- "Serge E. Hallyn" <serge@hallyn.com>, Paul Moore <paul@paul-moore.com>,
- Stephen Smalley <sds@tycho.nsa.gov>,
- Casey Schaufler <casey@schaufler-ca.com>,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- Mimi Zohar <zohar@linux.vnet.ibm.com>,
- linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
- "Schaufler, Casey" <casey.schaufler@intel.com>,
- Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Mon, 24 Sep 2018 17:18:10 -0700
-Message-Id: <20180925001832.18322-8-keescook@chromium.org>
-In-Reply-To: <20180925001832.18322-1-keescook@chromium.org>
-References: <20180925001832.18322-1-keescook@chromium.org>
-Subject: [PATCH security-next v3 07/29] LSM: Convert
- security_initcall() into DEFINE_LSM()
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>
+From: Taras Kondratiuk <takondra@cisco.com>
+In-Reply-To: <CAHC9VhRorkfqRTsssx_eGMy+fJQtoJew7f5i24UBkZ6tGJ5CUw@mail.gmail.com>
+Cc: Eric Paris <eparis@parisplace.org>, selinux@tycho.nsa.gov,
+ linux-kernel@vger.kernel.org, xe-linux-external@cisco.com
+References: <20180919165248.53090-1-takondra@cisco.com>
+ <f283c1e7-19eb-2b99-3fef-a19e2bf99a2b@tycho.nsa.gov>
+ <153741130781.7326.1773144725860636439@takondra-t460s>
+ <9a944aea-f35e-5a49-841d-6bfca8f17b9d@tycho.nsa.gov>
+ <153748436388.5590.1406237328277739821@takondra-t460s>
+ <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
+ <CAHC9VhRorkfqRTsssx_eGMy+fJQtoJew7f5i24UBkZ6tGJ5CUw@mail.gmail.com>
+Message-ID: <153785433233.5039.17960184426345262866@takondra-t460s>
+Date: Mon, 24 Sep 2018 22:45:32 -0700
+Subject: Re: [RFC PATCH] selinux: add a fallback to defcontext for
+ native labeling
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Instead of using argument-based initializers, switch to defining the
-contents of struct lsm_info on a per-LSM basis. This also drops
-the final use of the now inaccurate "initcall" naming.
+Quoting Paul Moore (2018-09-24 20:46:57)
+> On Fri, Sep 21, 2018 at 10:39 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 09/20/2018 06:59 PM, Taras Kondratiuk wrote:
+> > > Quoting Stephen Smalley (2018-09-20 07:49:12)
+> > >> On 09/19/2018 10:41 PM, Taras Kondratiuk wrote:
+> > >>> Quoting Stephen Smalley (2018-09-19 12:00:33)
+> > >>>> On 09/19/2018 12:52 PM, Taras Kondratiuk wrote:
+> 
+> ...
+> 
+> > > IMO it would be more consistent if defcontext cover all "unlabeled"
+> > > groups. It seems unlikely to me that somebody who currently uses
+> > > defcontext can somehow rely on mapping invalid labels to unlabeled
+> > > instead of default context.
+> >
+> > Yes, and that seems more consistent with the current documentation in
+> > the mount man page for defcontext=.
+> >
+> > I'd be inclined to change selinux_inode_notifysecctx() to call
+> > security_context_to_sid_default() directly instead of using
+> > selinux_inode_setsecurity() and change security_context_to_sid_core()
+> > and sidtab_search_core() as suggested above to save and use the def_sid
+> > instead of SECINITSID_UNLABELED always (initializing the context def_sid
+> > to SECINITSID_UNLABELED as the default).  selinux_inode_setsecurity() we
+> > should leave unchanged, or if we change it at all, it should be more
+> > like the handling in selinux_inode_setxattr().  The notifysecctx hook is
+> > invoked by the filesystem to notify the security module of the file's
+> > existing security context, so in that case we always want the _default
+> > behavior, whereas the setsecurity hook is invoked by the vfs or the
+> > filesystem to set the security context of a file to a new value, so in
+> > that case we would only use the _force interface if the caller had
+> > CAP_MAC_ADMIN.
+> >
+> > Paul, what say you?  NB This would be a user-visible behavior change for
+> > mounts specifying defcontext= on xattr filesystems; files with invalid
+> > contexts will then show up with the defcontext value instead of the
+> > unlabeled context.  If that's too risky, then we'd need a flag or
+> > something to security_context_to_sid_default() to distinguish the
+> > behaviors and only set it when called from selinux_inode_notifysecctx().
+> 
+> Visible changes like this are always worrisome, even though I think it
+> is safe to assume that the defcontext option is not widely used.  I'd
+> feel much better if this change was opt-in.
+> 
+> Which brings about it's own problems.  We have the policy capability
+> functionality, but that is likely a poor fit for this as the policy
+> capabilities are usually controlled by the Linux distribution while
+> the mount options are set by the system's administrator when the
+> filesystem is mounted.  We could add a toggle somewhere in selinuxfs,
+> but I really dislike that idea, and would prefer to find a different
+> solution if possible.  I'm not sure how much flak we would get for
+> introducing a new mount option, but perhaps that is the best way to
+> handle this: defcontext would continue to behave as it does now, but
+> new option X would behave as mentioned in this thread.
+> 
+> Thoughts?
 
-Cc: John Johansen <john.johansen@canonical.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: "Serge E. Hallyn" <serge@hallyn.com>
-Cc: Paul Moore <paul@paul-moore.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Casey Schaufler <casey@schaufler-ca.com>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Mimi Zohar <zohar@linux.vnet.ibm.com>
-Cc: linux-security-module@vger.kernel.org
-Cc: selinux@tycho.nsa.gov
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- include/linux/lsm_hooks.h  | 6 ++++--
- security/apparmor/lsm.c    | 4 +++-
- security/integrity/iint.c  | 4 +++-
- security/selinux/hooks.c   | 4 +++-
- security/smack/smack_lsm.c | 4 +++-
- security/tomoyo/tomoyo.c   | 4 +++-
- 6 files changed, 19 insertions(+), 7 deletions(-)
+The new option X will also mean "default context", so it will be pretty
+hard to come up with a different but a sensible name. I'm afraid that
+having two options with hardly distinguishable semantics will be very
+confusing.
 
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index ad04761e5587..02ec717189f9 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -2045,11 +2045,13 @@ struct lsm_info {
- 
- extern struct lsm_info __start_lsm_info[], __end_lsm_info[];
- 
--#define security_initcall(lsm)						\
-+#define DEFINE_LSM(lsm)							\
- 	static struct lsm_info __lsm_##lsm				\
- 		__used __section(.lsm_info.init)			\
- 		__aligned(sizeof(unsigned long))			\
--		= { .init = lsm, }
-+		= {							\
-+
-+#define END_LSM	  }
- 
- #ifdef CONFIG_SECURITY_SELINUX_DISABLE
- /*
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 8b8b70620bbe..7fa7b4464cf4 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1606,4 +1606,6 @@ static int __init apparmor_init(void)
- 	return error;
- }
- 
--security_initcall(apparmor_init);
-+DEFINE_LSM(apparmor)
-+	.init = apparmor_init,
-+END_LSM;
-diff --git a/security/integrity/iint.c b/security/integrity/iint.c
-index 70d21b566955..20e60df929a3 100644
---- a/security/integrity/iint.c
-+++ b/security/integrity/iint.c
-@@ -175,7 +175,9 @@ static int __init integrity_iintcache_init(void)
- 			      0, SLAB_PANIC, init_once);
- 	return 0;
- }
--security_initcall(integrity_iintcache_init);
-+DEFINE_LSM(integrity)
-+	.init = integrity_iintcache_init,
-+END_LSM;
- 
- 
- /*
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index ad9a9b8e9979..469a90806bc6 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -7202,7 +7202,9 @@ void selinux_complete_init(void)
- 
- /* SELinux requires early initialization in order to label
-    all processes and objects when they are created. */
--security_initcall(selinux_init);
-+DEFINE_LSM(selinux)
-+	.init = selinux_init,
-+END_LSM;
- 
- #if defined(CONFIG_NETFILTER)
- 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 340fc30ad85d..1e1ace718e75 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -4882,4 +4882,6 @@ static __init int smack_init(void)
-  * Smack requires early initialization in order to label
-  * all processes and objects when they are created.
-  */
--security_initcall(smack_init);
-+DEFINE_LSM(smack)
-+	.init = smack_init,
-+END_LSM;
-diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
-index 9f932e2d6852..a280d4eab456 100644
---- a/security/tomoyo/tomoyo.c
-+++ b/security/tomoyo/tomoyo.c
-@@ -550,4 +550,6 @@ static int __init tomoyo_init(void)
- 	return 0;
- }
- 
--security_initcall(tomoyo_init);
-+DEFINE_LSM(tomoyo)
-+	.init = tomoyo_init,
-+END_LSM;
--- 
-2.17.1
+What about a kernel config option that modifies the behavior of
+defcontext?
