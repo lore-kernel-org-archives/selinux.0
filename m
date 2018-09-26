@@ -1,105 +1,113 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8QB6HZV012079
- for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2018 07:06:17 -0400
-Received: by mail-lj1-f180.google.com with SMTP id f8-v6so24808055ljk.1
- for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2018 04:05:44 -0700 (PDT)
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8QDtuvI004279
+ for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2018 09:56:01 -0400
+Date: Wed, 26 Sep 2018 13:55:33 +0000 (UTC)
+From: sajjad ahmed <sajjad_ahmed782@yahoo.com>
+To: selinux@tycho.nsa.gov
+Message-ID: <1622272321.2871056.1537970133583@mail.yahoo.com>
 MIME-Version: 1.0
-References: <CAPhFHN8TfDUC8CP=bMiKx0BVNNZuzKcCNPC6hVawMyjBAz1x3Q@mail.gmail.com>
- <CAPhFHN_tOXnaU7EGZ9o_ht4XGqqsAS-VmauH5o7Cb71KF3eN3w@mail.gmail.com>
- <20180925134617.GA27672@julius.enp8s0.d30>
-In-Reply-To: <20180925134617.GA27672@julius.enp8s0.d30>
-From: Shintaro Fujiwara <shintaro.fujiwara@gmail.com>
-Date: Wed, 26 Sep 2018 20:05:31 +0900
-Message-ID: <CAPhFHN9odTm8v2yRkC0osQNSO0STn5JYbGf=xupFSBT_HX-uvw@mail.gmail.com>
-To: selinux <selinux@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: autorelabel loops in system executed 'semodule -d
- unconfined'
+Content-Type: multipart/alternative;
+ boundary="----=_Part_2871055_1999334878.1537970133581"
+References: <1622272321.2871056.1537970133583.ref@mail.yahoo.com>
+Subject: setfiles rootfs labeling
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Hello, Dominick.
+------=_Part_2871055_1999334878.1537970133581
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-I could relabel the system in permissive mode.
+Hi all,
+I'm trying to use the setfiles utility (v 2.7) from policycoreutils to labe=
+l rootfs, it seems like setfiles exclude all the directories straight away =
+and labels nothing. I tried an older version (< 2.6) that works fine.=C2=A0=
+I'm using the yocto project to build packages and using native setfiles uti=
+lity to "label rootfs on the build=C2=A0system". Is it utility who is not d=
+oing what is supposed to?
+I'm using the following command to label rootfs,=C2=A0sudo=C2=A0setfiles=C2=
+=A0-v -r /tmp/sid/ /etc/selinux/refpolicy/contexts/files/file_contexts=C2=
+=A0/tmp/sid/
 
-Thank you.
 
-2018年9月25日(火) 22:46 Dominick Grift <dac.override@gmail.com>:
->
-> On Tue, Sep 25, 2018 at 07:19:23AM +0900, Shintaro Fujiwara wrote:
-> > Hi, SELinux.
-> >
-> > I captured a picture saying this.
-> >
-> > rm: cannot remove '/.autorelabel' : Permission denied
-> >
-> > /.autorelabel could not be removed, so going into the loop, I guess.
-> >
-> > How can I autorelabel properly even if I delete unconfined module?
->
-> This may or may not be a policy issue (see avc denials), but:
->
-> Generally you want to do a full relabel in permissive mode.
->
-> >
-> > Thanks.
-> > 2018年9月25日(火) 6:55 Shintaro Fujiwara <shintaro.fujiwara@gmail.com>:
-> > >
-> > > Hello, SELinux.
-> > >
-> > > I was playing with my F28 latest with 'semodle -d unconfined'.
-> > > I executed this and relabeling starts even after finished relebeling
-> > > and looks like going into the loop.
-> > > # touch /.autorelabel
-> > > # shtudown -r now
-> > >
-> > > I have attached a picure.
-> > >
-> > > Thanks.
-> >
-> >
-> >
-> > --
-> > Help analyzing sar file
-> > https://github.com/intrajp/sar-analyzer
-> >
-> > LFS Scripts will make Linux From Scratch easy
-> > https://github.com/intrajp/LFS-scripts-systemd
-> >
-> > SHIRASAGI-hardening Project
-> > https://github.com/intrajp/shirasagi-hardening
-> >
-> > Linux Distribution Project
-> > http://sourceforge.net/projects/pinkrabbitlinux/
-> >
-> > Introducing hardrock and heavymetal
-> > http://heavymetalhardrock.no-ip.info/
-> >
-> > Open Source Software to manage SELinux at ease
-> > http://sourceforge.net/projects/segatex/
-> >
-> > Help SELinux administration
-> > https://github.com/intrajp/segatex-ng
-> >
-> > network-magic ( Useful tool for network-administrators )
-> > https://github.com/intrajp/network-magic
-> >
-> > CMS（with PHP & PostgreSQL）
-> > http://sourceforge.net/projects/webon/
-> > https://github.com/intrajp/irforum_jp
->
->
-> > _______________________________________________
-> > Selinux mailing list
-> > Selinux@tycho.nsa.gov
-> > To unsubscribe, send email to Selinux-leave@tycho.nsa.gov.
-> > To get help, send an email containing "help" to Selinux-request@tycho.nsa.gov.
->
->
-> --
-> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8  02D5 3B6C 5F1D 2C7B 6B02
-> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-> Dominick Grift
+- Sajjad Ahmed
+------=_Part_2871055_1999334878.1537970133581
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+
+<html><head></head><body><div>Hi all,</div><div><br></div><div><span>I'm tr=
+ying to use the setfiles utility (v 2.7) from policycoreutils to label root=
+fs, it seems like setfiles exclude all the directories straight away and la=
+bels nothing. I tried an older version (&lt; 2.6) that works fine.&nbsp;</s=
+pan>I'm using the yocto project to build packages and using native setfiles=
+ utility to "label rootfs on the build&nbsp;system". Is it utility who is n=
+ot doing what is supposed to?</div><div><br></div><div><span>I'm using the =
+following command to label rootfs,&nbsp;</span></div><div><span><span><i><s=
+pan class=3D"ydp51b10852SpellingError ydp51b10852SCXO200010408" style=3D"ma=
+rgin: 0px; padding: 0px; border-bottom: 1px solid transparent; color: rgb(0=
+, 0, 0); font-family: Calibri, sans-serif; font-size: 14.6667px; background=
+-color: inherit;">sudo</span><span class=3D"ydp51b10852NormalTextRun ydp51b=
+10852SCXO200010408" style=3D"margin: 0px; padding: 0px; color: rgb(0, 0, 0)=
+; font-family: Calibri, sans-serif; font-size: 14.6667px; background-color:=
+ inherit;">&nbsp;</span><span class=3D"ydp51b10852SpellingError ydp51b10852=
+SCXO200010408" style=3D"margin: 0px; padding: 0px; border-bottom: 1px solid=
+ transparent; color: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-s=
+ize: 14.6667px; background-color: inherit;">setfiles</span><span class=3D"y=
+dp51b10852NormalTextRun ydp51b10852SCXO200010408" style=3D"margin: 0px; pad=
+ding: 0px; color: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-size=
+: 14.6667px; background-color: inherit;">&nbsp;-v -r /</span><span class=3D=
+"ydp51b10852SpellingError ydp51b10852SCXO200010408" style=3D"margin: 0px; p=
+adding: 0px; border-bottom: 1px solid transparent; color: rgb(0, 0, 0); fon=
+t-family: Calibri, sans-serif; font-size: 14.6667px; background-color: inhe=
+rit;">tmp</span><span class=3D"ydp51b10852NormalTextRun ydp51b10852SCXO2000=
+10408" style=3D"margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family=
+: Calibri, sans-serif; font-size: 14.6667px; background-color: inherit;">/<=
+/span><span class=3D"ydp51b10852SpellingError ydp51b10852SCXO200010408" sty=
+le=3D"margin: 0px; padding: 0px; border-bottom: 1px solid transparent; colo=
+r: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-size: 14.6667px; ba=
+ckground-color: inherit;">sid</span><span class=3D"ydp51b10852NormalTextRun=
+ ydp51b10852SCXO200010408" style=3D"margin: 0px; padding: 0px; color: rgb(0=
+, 0, 0); font-family: Calibri, sans-serif; font-size: 14.6667px; background=
+-color: inherit;">/ /etc/</span><span class=3D"ydp51b10852SpellingError ydp=
+51b10852SCXO200010408" style=3D"margin: 0px; padding: 0px; border-bottom: 1=
+px solid transparent; color: rgb(0, 0, 0); font-family: Calibri, sans-serif=
+; font-size: 14.6667px; background-color: inherit;">selinux</span><span cla=
+ss=3D"ydp51b10852NormalTextRun ydp51b10852SCXO200010408" style=3D"margin: 0=
+px; padding: 0px; color: rgb(0, 0, 0); font-family: Calibri, sans-serif; fo=
+nt-size: 14.6667px; background-color: inherit;">/</span><span class=3D"ydp5=
+1b10852SpellingError ydp51b10852SCXO200010408" style=3D"margin: 0px; paddin=
+g: 0px; border-bottom: 1px solid transparent; color: rgb(0, 0, 0); font-fam=
+ily: Calibri, sans-serif; font-size: 14.6667px; background-color: inherit;"=
+>refpolicy</span><span class=3D"ydp51b10852NormalTextRun ydp51b10852SCXO200=
+010408" style=3D"margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-famil=
+y: Calibri, sans-serif; font-size: 14.6667px; background-color: inherit;">/=
+contexts/files/</span><span class=3D"ydp51b10852SpellingError ydp51b10852SC=
+XO200010408" style=3D"margin: 0px; padding: 0px; border-bottom: 1px solid t=
+ransparent; color: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-siz=
+e: 14.6667px; background-color: inherit;">file_contexts</span><span class=
+=3D"ydp51b10852NormalTextRun ydp51b10852SCXO200010408" style=3D"margin: 0px=
+; padding: 0px; color: rgb(0, 0, 0); font-family: Calibri, sans-serif; font=
+-size: 14.6667px; background-color: inherit;">&nbsp;/</span><span class=3D"=
+ydp51b10852SpellingError ydp51b10852SCXO200010408" style=3D"margin: 0px; pa=
+dding: 0px; border-bottom: 1px solid transparent; color: rgb(0, 0, 0); font=
+-family: Calibri, sans-serif; font-size: 14.6667px; background-color: inher=
+it;">tmp</span><span class=3D"ydp51b10852NormalTextRun ydp51b10852SCXO20001=
+0408" style=3D"margin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family:=
+ Calibri, sans-serif; font-size: 14.6667px; background-color: inherit;">/</=
+span><span class=3D"ydp51b10852SpellingError ydp51b10852SCXO200010408" styl=
+e=3D"margin: 0px; padding: 0px; border-bottom: 1px solid transparent; color=
+: rgb(0, 0, 0); font-family: Calibri, sans-serif; font-size: 14.6667px; bac=
+kground-color: inherit;">sid</span><span class=3D"ydp51b10852NormalTextRun =
+ydp51b10852SCXO200010408" style=3D"margin: 0px; padding: 0px; color: rgb(0,=
+ 0, 0); font-family: Calibri, sans-serif; font-size: 14.6667px; background-=
+color: inherit;">/</span></i></span><br></span></div><div><span><span><i><s=
+pan class=3D"ydp51b10852NormalTextRun ydp51b10852SCXO200010408" style=3D"ma=
+rgin: 0px; padding: 0px; color: rgb(0, 0, 0); font-family: Calibri, sans-se=
+rif; font-size: 14.6667px; background-color: inherit;"><br></span></i></spa=
+n></span></div><div><br></div><div><font face=3D"Calibri, sans-serif"><span=
+ style=3D"font-size: 14.6667px;">- Sajjad Ahmed</span></font></div><div cla=
+ss=3D"ydp41634a67yahoo-style-wrap" style=3D"font-family:Helvetica Neue, Hel=
+vetica, Arial, sans-serif;font-size:13px;"></div></body></html>
+------=_Part_2871055_1999334878.1537970133581--
