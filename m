@@ -1,17 +1,17 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8QKdqcC031927
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8QKdqcF031927
  for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2018 16:39:53 -0400
 From: Casey Schaufler <casey.schaufler@intel.com>
 To: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
  casey.schaufler@intel.com, dave.hansen@intel.com,
  deneen.t.dock@intel.com, kristen@linux.intel.com, arjan@linux.intel.com
-Date: Wed, 26 Sep 2018 13:34:43 -0700
-Message-Id: <20180926203446.2004-3-casey.schaufler@intel.com>
+Date: Wed, 26 Sep 2018 13:34:45 -0700
+Message-Id: <20180926203446.2004-5-casey.schaufler@intel.com>
 In-Reply-To: <20180926203446.2004-1-casey.schaufler@intel.com>
 References: <20180926203446.2004-1-casey.schaufler@intel.com>
-Subject: [PATCH v5 2/5] Smack: Prepare for PTRACE_MODE_SCHED
+Subject: [PATCH v5 4/5] Capability: Complete PTRACE_MODE_SCHED
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
@@ -19,29 +19,41 @@ List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
 From: Casey Schaufler <casey@schaufler-ca.com>
 
-A ptrace access check with mode PTRACE_MODE_SCHED gets called
-from process switching code. This precludes the use of audit,
-as the locking is incompatible. Don't do audit in the PTRACE_MODE_SCHED
-case.
+Allow a complete ptrace access check with mode PTRACE_MODE_SCHED.
+Disable the inappropriate privilege check in the capability code
+that does incompatible locking.
 
 Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
 ---
- security/smack/smack_lsm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/ptrace.c      | 2 --
+ security/commoncap.c | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 340fc30ad85d..ffa95bcab599 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -422,7 +422,8 @@ static int smk_ptrace_rule_check(struct task_struct *tracer,
- 	struct task_smack *tsp;
- 	struct smack_known *tracer_known;
+diff --git a/kernel/ptrace.c b/kernel/ptrace.c
+index 99cfddde6a55..0b6a9df51c3b 100644
+--- a/kernel/ptrace.c
++++ b/kernel/ptrace.c
+@@ -331,8 +331,6 @@ static int __ptrace_may_access(struct task_struct *task, unsigned int mode)
+ 	     !ptrace_has_cap(mm->user_ns, mode)))
+ 	    return -EPERM;
  
--	if ((mode & PTRACE_MODE_NOAUDIT) == 0) {
-+	if ((mode & PTRACE_MODE_NOAUDIT) == 0 &&
-+	    (mode & PTRACE_MODE_SCHED) == 0) {
- 		smk_ad_init(&ad, func, LSM_AUDIT_DATA_TASK);
- 		smk_ad_setfield_u_tsk(&ad, tracer);
- 		saip = &ad;
+-	if (mode & PTRACE_MODE_SCHED)
+-		return 0;
+ 	return security_ptrace_access_check(task, mode);
+ }
+ 
+diff --git a/security/commoncap.c b/security/commoncap.c
+index 2e489d6a3ac8..e77457110d05 100644
+--- a/security/commoncap.c
++++ b/security/commoncap.c
+@@ -152,6 +152,8 @@ int cap_ptrace_access_check(struct task_struct *child, unsigned int mode)
+ 	if (cred->user_ns == child_cred->user_ns &&
+ 	    cap_issubset(child_cred->cap_permitted, *caller_caps))
+ 		goto out;
++	if (mode & PTRACE_MODE_SCHED)
++		goto out;
+ 	if (ns_capable(child_cred->user_ns, CAP_SYS_PTRACE))
+ 		goto out;
+ 	ret = -EPERM;
 -- 
 2.17.1
