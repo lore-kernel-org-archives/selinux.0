@@ -1,77 +1,71 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8QMwhtF019137
- for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2018 18:58:43 -0400
-Received: by mail-ot1-f66.google.com with SMTP id h26-v6so647237otl.9
- for <selinux@tycho.nsa.gov>; Wed, 26 Sep 2018 15:58:29 -0700 (PDT)
-MIME-Version: 1.0
+To: Casey Schaufler <casey.schaufler@intel.com>,
+ kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
+ dave.hansen@intel.com, deneen.t.dock@intel.com,
+ kristen@linux.intel.com, arjan@linux.intel.com,
+ Paul Moore <paul@paul-moore.com>
 References: <20180926203446.2004-1-casey.schaufler@intel.com>
- <20180926203446.2004-3-casey.schaufler@intel.com>
- <CAG48ez3_XJYCURiCurDeCousGguGUdPego30j5+UF8FebWxUtA@mail.gmail.com>
- <99FC4B6EFCEFD44486C35F4C281DC673214625EA@ORSMSX107.amr.corp.intel.com>
-In-Reply-To: <99FC4B6EFCEFD44486C35F4C281DC673214625EA@ORSMSX107.amr.corp.intel.com>
-From: Jann Horn <jannh@google.com>
-Date: Thu, 27 Sep 2018 00:58:00 +0200
-Message-ID: <CAG48ez1+9Bfadu4y4TzPYJfFpLk+N8w7GdCE+xwNCM5TfQ8W8Q@mail.gmail.com>
-To: Casey Schaufler <casey.schaufler@intel.com>, Jiri Kosina <jikos@kernel.org>
-Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
- kernel list <linux-kernel@vger.kernel.org>,
- linux-security-module <linux-security-module@vger.kernel.org>,
- selinux@tycho.nsa.gov, Dave Hansen <dave.hansen@intel.com>,
- deneen.t.dock@intel.com, kristen@linux.intel.com,
- Arjan van de Ven <arjan@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v5 2/5] Smack: Prepare for PTRACE_MODE_SCHED
+ <20180926203446.2004-4-casey.schaufler@intel.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <6e21f471-ff88-c57c-8892-e0bb626bea12@tycho.nsa.gov>
+Date: Thu, 27 Sep 2018 11:50:07 -0400
+MIME-Version: 1.0
+In-Reply-To: <20180926203446.2004-4-casey.schaufler@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: Re: [PATCH v5 3/5] SELinux: Prepare for PTRACE_MODE_SCHED
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-+Jiri
+On 09/26/2018 04:34 PM, Casey Schaufler wrote:
+> From: Casey Schaufler <casey@schaufler-ca.com>
+> 
+> A ptrace access check with mode PTRACE_MODE_SCHED gets called
+> from process switching code. This precludes the use of audit or avc,
+> as the locking is incompatible. The only available check that
+> can be made without using avc is a comparison of the secids.
+> This is not very satisfactory as it will indicate possible
+> vulnerabilies much too aggressively.
+Can you document (in the patch description and/or in the inline 
+documentation in lsm_hooks.h) what locks can be safely used when this 
+hook is called with PTRACE_MODE_SCHED?  rcu_read_lock() seemingly must 
+be safe since it is being called by task_sid() below. Are any other 
+locking primitives safe?
 
-On Thu, Sep 27, 2018 at 12:54 AM Schaufler, Casey
-<casey.schaufler@intel.com> wrote:
-> > -----Original Message-----
-> > From: Jann Horn [mailto:jannh@google.com]
-> > Sent: Wednesday, September 26, 2018 2:31 PM
-> > To: Schaufler, Casey <casey.schaufler@intel.com>
-> > Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>; kernel list
-> > <linux-kernel@vger.kernel.org>; linux-security-module <linux-security-
-> > module@vger.kernel.org>; selinux@tycho.nsa.gov; Hansen, Dave
-> > <dave.hansen@intel.com>; Dock, Deneen T <deneen.t.dock@intel.com>;
-> > kristen@linux.intel.com; Arjan van de Ven <arjan@linux.intel.com>
-> > Subject: Re: [PATCH v5 2/5] Smack: Prepare for PTRACE_MODE_SCHED
-> >
-> > On Wed, Sep 26, 2018 at 10:35 PM Casey Schaufler
-> > <casey.schaufler@intel.com> wrote:
-> > > A ptrace access check with mode PTRACE_MODE_SCHED gets called
-> > > from process switching code. This precludes the use of audit,
-> > > as the locking is incompatible. Don't do audit in the PTRACE_MODE_SCHED
-> > > case.
-> > >
-> > > Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
-> > > ---
-> > >  security/smack/smack_lsm.c | 3 ++-
-> > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> > > index 340fc30ad85d..ffa95bcab599 100644
-> > > --- a/security/smack/smack_lsm.c
-> > > +++ b/security/smack/smack_lsm.c
-> > > @@ -422,7 +422,8 @@ static int smk_ptrace_rule_check(struct task_struct
-> > *tracer,
-> > >         struct task_smack *tsp;
-> > >         struct smack_known *tracer_known;
-> > >
-> > > -       if ((mode & PTRACE_MODE_NOAUDIT) == 0) {
-> > > +       if ((mode & PTRACE_MODE_NOAUDIT) == 0 &&
-> > > +           (mode & PTRACE_MODE_SCHED) == 0) {
-> >
-> > If you ORed PTRACE_MODE_NOAUDIT into the flags when calling the
-> > security hook, you could drop this patch, right?
->
-> Yes. Since the PTRACE_MODE_NOAUDIT was in PTRACE_MODE_IBPB
-> in Jiri's previous patch set and not in PTRACE_MODE_SCHED in this one
-> I assumed that there was a good reason for it.
+Does the PTRACE_MODE_SCHED check have to occur while holding the 
+scheduler lock, or could it be performed before taking the lock?
 
-Jiri, was there a good reason for it, and if so, what was it?
+Can you cite the commit or patch posting (e.g. from lore or patchwork) 
+that defines PTRACE_MODE_SCHED and its usage as part of the patch 
+description for context?  Is this based on the v7 patchset, e.g.
+https://lore.kernel.org/lkml/nycvar.YFH.7.76.1809251437340.15880@cbobk.fhfr.pm/
+
+> 
+> Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
+> ---
+>   security/selinux/hooks.c | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index ad9a9b8e9979..160239791007 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2267,6 +2267,8 @@ static int selinux_ptrace_access_check(struct task_struct *child,
+>   	u32 sid = current_sid();
+>   	u32 csid = task_sid(child);
+>   
+> +	if (mode & PTRACE_MODE_SCHED)
+> +		return sid == csid ? 0 : -EACCES;
+IIUC, this logic is essentially the same as the uid-based check, 
+including the fact that even a "privileged" process is not given any 
+special handling since they always return false from ptrace_has_cap() 
+for PTRACE_MODE_SCHED. If they are ok with applying IBPB whenever uids 
+differ, then doing so whenever sids/contexts differ does not seem like 
+an onerous thing.
+
+
+>   	if (mode & PTRACE_MODE_READ)
+>   		return avc_has_perm(&selinux_state,
+>   				    sid, csid, SECCLASS_FILE, FILE__READ, NULL);
+> 
