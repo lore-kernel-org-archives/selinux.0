@@ -1,48 +1,52 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8RJHNLb000502
- for <selinux@tycho.nsa.gov>; Thu, 27 Sep 2018 15:17:23 -0400
-From: Casey Schaufler <casey.schaufler@intel.com>
-To: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8RLjP52021203
+ for <selinux@tycho.nsa.gov>; Thu, 27 Sep 2018 17:45:25 -0400
+Date: Fri, 28 Sep 2018 07:45:00 +1000 (AEST)
+From: James Morris <jmorris@namei.org>
+To: Casey Schaufler <casey.schaufler@intel.com>
+cc: kernel-hardening@lists.openwall.com, linux-kernel@vger.kernel.org,
  linux-security-module@vger.kernel.org, selinux@tycho.nsa.gov,
- casey.schaufler@intel.com, dave.hansen@intel.com,
- deneen.t.dock@intel.com, kristen@linux.intel.com, arjan@linux.intel.com
-Date: Thu, 27 Sep 2018 12:17:20 -0700
-Message-Id: <20180927191720.9480-1-casey.schaufler@intel.com>
-In-Reply-To: <20180824224117.3356-1-casey.schaufler@intel.com>
-References: <20180824224117.3356-1-casey.schaufler@intel.com>
-Subject: [PATCH 6/5] capability: Repair sidechannel test in ptrace
+ dave.hansen@intel.com, deneen.t.dock@intel.com,
+ kristen@linux.intel.com, arjan@linux.intel.com
+In-Reply-To: <20180926203446.2004-6-casey.schaufler@intel.com>
+Message-ID: <alpine.LRH.2.21.1809280744560.8410@namei.org>
+References: <20180926203446.2004-1-casey.schaufler@intel.com>
+ <20180926203446.2004-6-casey.schaufler@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH v5 5/5] sidechannel: Linux Security Module for sidechannel
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-From: Casey Schaufler <casey@schaufler-ca.com>
+On Wed, 26 Sep 2018, Casey Schaufler wrote:
 
-The PTRACE_MODE_SCHED check erroniously returns 0 in
-all cases. It should be returning -EPERM. This fixes
-the logic to correct that error.
+> +	/*
+> +	 * Namespace checks. Considered safe if:
+> +	 *	cgroup namespace is the same
+> +	 *	User namespace is the same
+> +	 *	PID namespace is the same
+> +	 */
+> +	if (current->nsproxy)
+> +		ccgn = current->nsproxy->cgroup_ns;
+> +	if (p->nsproxy)
+> +		pcgn = p->nsproxy->cgroup_ns;
+> +	if (ccgn != pcgn)
+> +		return -EACCES;
+> +	if (current->cred->user_ns != p->cred->user_ns)
+> +		return -EACCES;
+> +	if (task_active_pid_ns(current) != task_active_pid_ns(p))
+> +		return -EACCES;
+> +	return 0;
 
-Signed-off-by: Casey Schaufler <casey.schaufler@intel.com>
----
- security/commoncap.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+I really don't like the idea of hard-coding namespace security semantics 
+in an LSM.  Also, I'm not sure if these semantics make any sense.
 
-diff --git a/security/commoncap.c b/security/commoncap.c
-index e77457110d05..70a7e3d19c16 100644
---- a/security/commoncap.c
-+++ b/security/commoncap.c
-@@ -152,9 +152,8 @@ int cap_ptrace_access_check(struct task_struct *child, unsigned int mode)
- 	if (cred->user_ns == child_cred->user_ns &&
- 	    cap_issubset(child_cred->cap_permitted, *caller_caps))
- 		goto out;
--	if (mode & PTRACE_MODE_SCHED)
--		goto out;
--	if (ns_capable(child_cred->user_ns, CAP_SYS_PTRACE))
-+	if (!(mode & PTRACE_MODE_SCHED) &&
-+	    ns_capable(child_cred->user_ns, CAP_SYS_PTRACE))
- 		goto out;
- 	ret = -EPERM;
- out:
+It least make it user configurable.
+
+
 -- 
-2.17.1
+James Morris
+<jmorris@namei.org>
