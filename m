@@ -1,86 +1,62 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8SHfDbv030025
- for <selinux@tycho.nsa.gov>; Fri, 28 Sep 2018 13:41:13 -0400
-From: "Schaufler, Casey" <casey.schaufler@intel.com>
-To: James Morris <jmorris@namei.org>, Jann Horn <jannh@google.com>
-CC: Casey Schaufler <casey@schaufler-ca.com>, "kristen@linux.intel.com"
- <kristen@linux.intel.com>, Kernel Hardening
- <kernel-hardening@lists.openwall.com>, "Dock, Deneen T"
- <deneen.t.dock@intel.com>, kernel list <linux-kernel@vger.kernel.org>,
- "Hansen, Dave" <dave.hansen@intel.com>, linux-security-module
- <linux-security-module@vger.kernel.org>, "selinux@tycho.nsa.gov"
- <selinux@tycho.nsa.gov>, Arjan van de Ven <arjan@linux.intel.com>
-Date: Fri, 28 Sep 2018 17:40:52 +0000
-Message-ID: <99FC4B6EFCEFD44486C35F4C281DC6732146466E@ORSMSX107.amr.corp.intel.com>
-References: <20180926203446.2004-1-casey.schaufler@intel.com>
- <20180926203446.2004-6-casey.schaufler@intel.com>
- <alpine.LRH.2.21.1809280744560.8410@namei.org>
- <025d4742-5947-545e-f603-502a0c5ee03f@schaufler-ca.com>
- <alpine.LRH.2.21.1809280846280.8410@namei.org>
- <99FC4B6EFCEFD44486C35F4C281DC67321463CE3@ORSMSX107.amr.corp.intel.com>
- <alpine.LRH.2.21.1809280936290.13517@namei.org>
- <CAG48ez3Jnao-5z3O8s=RdoAx8=b68C_1pfKNKJSm+6R_HyU_fg@mail.gmail.com>
- <alpine.LRH.2.21.1809290233130.15725@namei.org>
-In-Reply-To: <alpine.LRH.2.21.1809290233130.15725@namei.org>
-Content-Type: text/plain; charset="us-ascii"
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w8TGJJUS026392
+ for <selinux@tycho.nsa.gov>; Sat, 29 Sep 2018 12:19:19 -0400
+Received: by mail-qt1-f178.google.com with SMTP id c56-v6so4989331qtd.11
+ for <selinux@tycho.nsa.gov>; Sat, 29 Sep 2018 09:19:15 -0700 (PDT)
+From: Chris PeBenito <pebenito@ieee.org>
+To: SELinux <selinux@tycho.nsa.gov>, refpolicy <refpolicy@oss.tresys.com>
+Message-ID: <1124dbc3-5e33-eb3a-e70d-388a72fe3a9f@ieee.org>
+Date: Sat, 29 Sep 2018 12:19:12 -0400
 MIME-Version: 1.0
-Subject: RE: [PATCH v5 5/5] sidechannel: Linux Security Module for sidechannel
+Content-Type: text/plain; charset=utf-8; format=flowed
+Subject: ANN: SETools 4.2.0-rc
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-> -----Original Message-----
-> From: James Morris [mailto:jmorris@namei.org]
-> Sent: Friday, September 28, 2018 9:33 AM
-> To: Jann Horn <jannh@google.com>
-> Cc: Schaufler, Casey <casey.schaufler@intel.com>; Casey Schaufler
-> <casey@schaufler-ca.com>; kristen@linux.intel.com; Kernel Hardening
-> <kernel-hardening@lists.openwall.com>; Dock, Deneen T
-> <deneen.t.dock@intel.com>; kernel list <linux-kernel@vger.kernel.org>;
-> Hansen, Dave <dave.hansen@intel.com>; linux-security-module <linux-security-
-> module@vger.kernel.org>; selinux@tycho.nsa.gov; Arjan van de Ven
-> <arjan@linux.intel.com>
-> Subject: Re: [PATCH v5 5/5] sidechannel: Linux Security Module for sidechannel
-> 
-> On Fri, 28 Sep 2018, Jann Horn wrote:
-> 
-> > > so with this hard-coded logic, you are saying this case is
-> > > 'safe' in a sidechannel context.
-> > >
-> > > Which hints at the deeper issue that containers are a userland
-> > > abstraction.  Protection of containers needs to be defined by userland
-> > > policy.
-> >
-> > Or just compare mount namespaces additionally/instead. I think that
-> > containers will always use those, because AFAIK nobody uses chroot()
-> > for containers, given that the kernel makes absolutely no security
-> > guarantees about chroot().
-> 
-> We can't define this in the kernel. It has no concept of containers.
-> 
-> People utilize some combination of namespaces and cgroups and call them
-> containers,
+An SETools 4.2.0 release candidate is now available:
 
-There is an amazing variety of things called containers out there.
-I cite them as a use case, not a requirement.
+https://github.com/SELinuxProject/setools/releases/tag/4.2.0-rc
 
-> but we can't make assumptions from the kernel on what any of
-> this means from a security point of view, and hard-code kernel policy
-> based on those assumptions.
+Changes since v4.2.0-beta:
 
-We can assume that namespaces are being used as a separation mechanism.
-That makes processes in different namespaces potentially vulnerable to
-side-channel attacks. That's true regardless of whether or not someone is
-using namespaces to implement containers. 
+* Fixed performance regressions.
 
-> This is violating the principal of separating mechanism and policy, and
-> also imposing semantics across the kernel/user boundary. The latter
-> creates an ABI which we can then never break.
+* Made further memory usage improvements.
 
-The effects of the sidechannel security module are not API visible.
-The potential impact is on performance. This implementation of
-PTRACE_MODE_SCHED does not change what happens, but may affect
-when it happens. It is intended to aid in optimizing the use of expensive
-anti-side-channel countermeasures.
+* Fixed build issues with clean target and runtime_library_dirs.
+
+* Revised package structure to make policyrep a module of the setools 
+package.
+
+* Symbol names are now available as the name attribute (e.g. 
+Boolean.name, Type.name, etc.)
+
+* Fixed some apol layouts to increase the size of text fields.
+
+* Move constraint expression to its own class.
+
+* Made Conditional.evaluate() more useful and added BaseTERule.enabled() 
+method to determine if a rule is enabled.
+
+
+Changes since v4.1.1:
+
+* Replaced the Python/SWIG/static-linked-libsepol policyrep module with 
+a Cython implementation. This will have performance and memory-usage 
+improvements and breaks the static linking to libsepol.
+
+* Significant memory usage reduction in sediff (approximately 60%, 
+depending on the policies).
+
+* Added support for SCTP portcons
+
+* Updated permission maps
+
+This release of SETools has changed dependencies since 4.1.1. See 
+README.md for more details.
+
+-- 
+Chris PeBenito
