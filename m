@@ -1,162 +1,93 @@
 Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
  [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w92BJ9BF012760
- for <selinux@tycho.nsa.gov>; Tue, 2 Oct 2018 07:19:10 -0400
-Received: by mail-wm1-f67.google.com with SMTP id b19-v6so1833174wme.3
- for <selinux@tycho.nsa.gov>; Tue, 02 Oct 2018 04:19:03 -0700 (PDT)
-From: Ondrej Mosnacek <omosnace@redhat.com>
-To: selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>
-Cc: linux-fsdevel@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
- stable@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
- Al Viro <viro@zeniv.linux.org.uk>
-Date: Tue,  2 Oct 2018 13:18:30 +0200
-Message-Id: <20181002111830.26342-1-omosnace@redhat.com>
-Subject: [PATCH] selinux: fix race when removing selinuxfs entries
+ by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w91KTXWA017000
+ for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2018 16:29:33 -0400
+Received: by mail-yb1-f194.google.com with SMTP id 184-v6so6220395ybg.1
+ for <selinux@tycho.nsa.gov>; Mon, 01 Oct 2018 13:29:29 -0700 (PDT)
+Received: from mail-yw1-f46.google.com (mail-yw1-f46.google.com.
+ [209.85.161.46])
+ by smtp.gmail.com with ESMTPSA id p128-v6sm6617630ywp.65.2018.10.01.13.29.26
+ for <selinux@tycho.nsa.gov>
+ (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+ Mon, 01 Oct 2018 13:29:27 -0700 (PDT)
+Received: by mail-yw1-f46.google.com with SMTP id s73-v6so6066667ywg.11
+ for <selinux@tycho.nsa.gov>; Mon, 01 Oct 2018 13:29:26 -0700 (PDT)
+MIME-Version: 1.0
+In-Reply-To: <44210861-2830-2321-911d-8783f5f0b172@schaufler-ca.com>
+References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
+ <44210861-2830-2321-911d-8783f5f0b172@schaufler-ca.com>
+From: Kees Cook <keescook@chromium.org>
+Date: Mon, 1 Oct 2018 13:29:25 -0700
+Message-ID: <CAGXu5jLrvuhGonjCxUxMXi+HeEb8yWina=31OCvEqOeBBu1pkw@mail.gmail.com>
+To: Casey Schaufler <casey@schaufler-ca.com>
+Cc: LSM <linux-security-module@vger.kernel.org>,
+ James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
+ LKLM <linux-kernel@vger.kernel.org>,
+ John Johansen <john.johansen@canonical.com>,
+ Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+ Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
+ "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+ Alexey Dobriyan <adobriyan@gmail.com>,
+ =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
+ Salvatore Mesoraca <s.mesoraca16@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH v4 20/19] LSM: Correct file blob free empty blob
+ check
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-Letting the following set of commands run long enough on a multi-core
-machine causes soft lockups in the kernel:
+On Wed, Sep 26, 2018 at 2:57 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
+> Instead of checking if the kmem_cache for file blobs
+> has been initialized check if the blob is NULL. This
+> allows non-blob using modules to do other kinds of
+> clean up in the security_file_free hooks.
+>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
-    (cd /sys/fs/selinux/; while true; do find >/dev/null 2>&1; done) &
-    (cd /sys/fs/selinux/; while true; do find >/dev/null 2>&1; done) &
-    (cd /sys/fs/selinux/; while true; do find >/dev/null 2>&1; done) &
-    while true; do load_policy; echo -n .; sleep 0.1; done
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-The problem is that sel_remove_entries() calls d_genocide() to remove
-the whole contents of certain subdirectories in /sys/fs/selinux/. This
-function is apparently only intended for removing filesystem entries
-that are no longer accessible to userspace, because it doesn't follow
-the rule that any code removing entries from a directory must hold the
-write lock on the directory's inode RW semaphore (formerly this was a
-mutex, see 9902af79c01a ("parallel lookups: actual switch to rwsem")).
+This looks like it should get folded into "LSM: Infrastructure
+management of the file security".
 
-In order to fix this, I had to open-code d_genocide() again, adding the
-necessary parent inode locking. I based the new implementation on
-d_walk() (fs/dcache.c), the original code from before ad52184b705c
-("selinuxfs: don't open-code d_genocide()"), and with a slight
-inspiration from debugfs_remove() (fs/debugfs/inode.c).
+-Kees
 
-The new code no longer triggers soft lockups with the above reproducer
-and it also gives no warnings when run with CONFIG_PROVE_LOCKING=y.
 
-Note that I am adding Fixes: on the commit that replaced the open-coded
-version with d_genocide(), but the bug is present also in the original
-code that dates back to pre-2.6 times... This patch obviously doesn't
-apply to this older code so pre-4.0 kernels will need a dedicated patch
-(just adding the parent inode locks should be sufficient there).
+> ---
+>  security/security.c | 9 ++++-----
+>  1 file changed, 4 insertions(+), 5 deletions(-)
+>
+> diff --git a/security/security.c b/security/security.c
+> index e7c8506041f1..76f7dc49b63c 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1202,14 +1202,13 @@ void security_file_free(struct file *file)
+>  {
+>         void *blob;
+>
+> -       if (!lsm_file_cache)
+> -               return;
+> -
+>         call_void_hook(file_free_security, file);
+>
+>         blob = file->f_security;
+> -       file->f_security = NULL;
+> -       kmem_cache_free(lsm_file_cache, blob);
+> +       if (blob) {
+> +               file->f_security = NULL;
+> +               kmem_cache_free(lsm_file_cache, blob);
+> +       }
+>  }
+>
+>  int security_file_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+> --
+> 2.17.1
+>
+>
 
-Link: https://github.com/SELinuxProject/selinux-kernel/issues/42
-Fixes: ad52184b705c ("selinuxfs: don't open-code d_genocide()")
-Cc: <stable@vger.kernel.org> # 4.0+
-Cc: Stephen Smalley <sds@tycho.nsa.gov>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/selinuxfs.c | 88 ++++++++++++++++++++++++++++++++++--
- 1 file changed, 85 insertions(+), 3 deletions(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index f3a5a138a096..4ac9b17e24d1 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1316,10 +1316,92 @@ static const struct file_operations sel_commit_bools_ops = {
- 	.llseek		= generic_file_llseek,
- };
- 
--static void sel_remove_entries(struct dentry *de)
-+/* removes all children of the given dentry (but not itself) */
-+static void sel_remove_entries(struct dentry *root)
- {
--	d_genocide(de);
--	shrink_dcache_parent(de);
-+	struct dentry *parent = root;
-+	struct dentry *child;
-+	struct list_head *next;
-+
-+	spin_lock(&parent->d_lock);
-+
-+repeat:
-+	next = parent->d_subdirs.next;
-+
-+	while (next != &parent->d_subdirs) {
-+		child = list_entry(next, struct dentry, d_child);
-+		next = next->next;
-+
-+		spin_lock_nested(&child->d_lock, DENTRY_D_LOCK_NESTED);
-+
-+		if (!list_empty(&child->d_subdirs)) {
-+			/* Current entry has children, we need to remove those
-+			 * first. We unlock the parent but keep the child locked
-+			 * (it will become the new parent). */
-+			spin_unlock(&parent->d_lock);
-+
-+			/* we need to re-lock the child (new parent) in a
-+			 * special way (see d_walk() in fs/dcache.c) */
-+			spin_release(&child->d_lock.dep_map, 1, _RET_IP_);
-+			parent = child;
-+			spin_acquire(&parent->d_lock.dep_map, 0, 1, _RET_IP_);
-+
-+			goto repeat;
-+		}
-+
-+resume:
-+		if (child->d_inode) {
-+			/* acquire a reference to the child */
-+			dget_dlock(child);
-+
-+			/* drop all locks (someof the callees will try to
-+			 * acquire them) */
-+			spin_unlock(&child->d_lock);
-+			spin_unlock(&parent->d_lock);
-+
-+			/* IMPORTANT: we need to hold the parent's inode lock
-+			 * because some functions (namely dcache_readdir) assume
-+			 * holding this lock means children won't be removed */
-+			inode_lock_nested(parent->d_inode, I_MUTEX_PARENT);
-+
-+			/* now unlink the child */
-+			if (d_is_dir(child))
-+				simple_rmdir(d_inode(parent), child);
-+			else
-+				simple_unlink(d_inode(parent), child);
-+			d_delete(child);
-+
-+			inode_unlock(parent->d_inode);
-+
-+			/* drop our extra reference */
-+			dput(child);
-+
-+			/* re-lock only the parent */
-+			spin_lock(&parent->d_lock);
-+		} else
-+			spin_unlock(&child->d_lock);
-+	}
-+
-+	if (parent != root) {
-+		/* we processed contents of a subdirectory, ascend and continue
-+		 * by removing the subdirectory itself (now empty) */
-+		child = parent;
-+		parent = child->d_parent;
-+
-+		/* we have to re-lock the child after locking the parent */
-+		spin_unlock(&child->d_lock);
-+		spin_lock(&parent->d_lock);
-+		spin_lock_nested(&child->d_lock, DENTRY_D_LOCK_NESTED);
-+
-+		/* set next to the next sibling */
-+		next = child->d_child.next;
-+		goto resume;
-+	}
-+
-+	spin_unlock(&root->d_lock);
-+
-+	/* try to clean up the stale entries */
-+	shrink_dcache_parent(root);
- }
- 
- #define BOOL_DIR_NAME "booleans"
+
 -- 
-2.17.1
+Kees Cook
+Pixel Security
