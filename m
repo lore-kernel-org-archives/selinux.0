@@ -1,95 +1,61 @@
-Date: Tue, 2 Oct 2018 16:58:10 +0100
-From: Al Viro <viro@ZenIV.linux.org.uk>
-To: Ondrej Mosnacek <omosnace@redhat.com>
-Cc: selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
- linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
- Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <20181002155810.GP32577@ZenIV.linux.org.uk>
-References: <20181002111830.26342-1-omosnace@redhat.com>
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-In-Reply-To: <20181002111830.26342-1-omosnace@redhat.com>
-Sender: Al Viro <viro@ftp.linux.org.uk>
-Subject: Re: [PATCH] selinux: fix race when removing selinuxfs
- entries
+To: Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>
+From: Taras Kondratiuk <takondra@cisco.com>
+In-Reply-To: <153790265614.6091.7582646556934797699@takondra-t460s>
+Cc: linux-kernel@vger.kernel.org, selinux@tycho.nsa.gov,
+ xe-linux-external@cisco.com
+References: <20180919165248.53090-1-takondra@cisco.com>
+ <9a944aea-f35e-5a49-841d-6bfca8f17b9d@tycho.nsa.gov>
+ <153748436388.5590.1406237328277739821@takondra-t460s>
+ <66ec16b0-a335-d9ef-deb3-ef391cdd66e0@tycho.nsa.gov>
+ <CAHC9VhRorkfqRTsssx_eGMy+fJQtoJew7f5i24UBkZ6tGJ5CUw@mail.gmail.com>
+ <153785433233.5039.17960184426345262866@takondra-t460s>
+ <a23ad753-8fd4-e9c3-cdbf-391ee154794b@tycho.nsa.gov>
+ <CAHC9VhRRArA7_ON5P2JfrKxExwzm5Wznj150pfgijBoR+JxYBA@mail.gmail.com>
+ <a185b384-5ef1-5e53-2cc1-066391424dcb@tycho.nsa.gov>
+ <153790265614.6091.7582646556934797699@takondra-t460s>
+Message-ID: <153850609939.4490.12129272851093190248@takondra-t460s>
+Date: Tue, 02 Oct 2018 11:48:19 -0700
+Subject: Re: [RFC PATCH] selinux: add a fallback to defcontext for
+ native labeling
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Tue, Oct 02, 2018 at 01:18:30PM +0200, Ondrej Mosnacek wrote:
+Quoting Stephen Smalley (2018-09-21 07:40:58)
+> If we set the inode sid to the superblock def_sid on an invalid
+> context, then we lose the association to the original context value.
+> The support for deferred mapping of contexts requires allocating a new
+> SID for the invalid context and storing that SID in the inode, so that
+> if the context later becomes valid upon a policy update/reload, the
+> inode SID will refer to the now valid context.
+> To combine the two, we would need security_context_to_sid_core() to
+> save the def_sid in the context structure for invalid contexts, and
+> change sidtab_search_core() to use that value instead of
+> SECINITSID_UNLABELED for invalid SIDs.  Then the inode would be
+> treated as having the defcontext for access control and getxattr() w/o
+> CAP_MAC_ADMIN purposes, but a subsequent policy update/reload that
+> makes the context valid would automatically cause subsequent accesses
+> to the inode to start using the original context value for access
+> control and getxattr() purposes.  I think that's the behavior you
+> want.
+> 
 
-No.  With the side of Hell, No.  The bug is real, but this is
-not the way to fix it.
+While implementing the change I've realized that storing default context
+for sidtab_search_core() in the context structure is not enough to
+achieve the desired behavior. The same invalid context may exist in two
+mounts with different 'defcontext', so default context can't be a
+property of a context structure.
 
-First of all, it's still broken - e.g. mount something on a
-subdirectory and watch what that thing will do to it.  And
-anyone who has permission to reload policy _will_ have one
-for mount.
+One way to address it is to propagate default context to sidtab_search() all
+the way from inode hooks. But that will be a bit intrusive. Something like
+avc_has_perm_default() will need to be added.
 
-And yes, debugfs_remove() suffers the same problem.  Frankly, the
-only wish debugfs_remove() implementation inspires is to shoot it
-before it breeds.  Which is the second problem with that approach -
-such stuff really shouldn't be duplicated in individual filesystems.  
+Other way is to check for context validity in inode hooks and provide a default
+context to avc_has_perm() if the inode's sid is invalid. But this may have
+performance implication since validity check will be done each time in fast
+path.
 
-Don't copy (let along open-code) d_walk() in there.  The guts of
-dcache tree handling are subtle enough (and had more than enough
-locking bugs over the years) to make spreading the dependencies
-on its details all over the tree an invitation for massive PITA
-down the road.
-
-I have beginnings of patch doing that for debugfs; the same thing
-should be usable for selinuxfs as well.  However, the main problem
-with selinuxfs wrt policy loading is different - what to do if
-sel_make_policy_nodes() fails halfway through?  And what to do
-with accesses to the unholy mix of old and new nodes we currently
-have left behind?
-
-Before security_load_policy() we don't know which nodes to create;
-after it we have nothing to fall back onto.  It looks like we
-need to split security_load_policy() into "load", "switch over" and
-"free old" parts, so that the whole thing would look like
-	load
-	create new directory trees, unconnected to the root so
-they couldn't be reached by lookups until we are done
-	switch over
-	move the new directory trees in place
-	kill the old trees (using that invalidate+genocide carefully
-combination)
-	free old data structures
-with failures upon the first two steps handled by killing whatever detached
-trees we'd created (if any) and freeing the new data structures.
-
-However, I'd really like to have the folks familiar with selinux guts to
-comment upon the feasibility of the above.  AFAICS, nobody has ever seriously
-looked at that code wrt graceful error handling, etc.[*], so I'm not happy
-with making inferences from what the existing code is doing.
-
-If you are interested in getting selinuxfs into sane shape, that would
-be a good place to start.  As for the kernel-side rm -rf (which is what
-debugfs_remove() et.al. are trying to be)...
-	* it absolutely needs to be in fs/*.c - either dcache or libfs.
-It's too closely tied to dcache guts to do otherwise.
-	* as the first step it needs to do d_invalidate(), to get rid of
-anything that might be mounted on it and to prevent new mounts from appearing.
-It's rather tempting to unhash everything in the victim tree at the same
-time, but that needs to be done with care - I'm still not entirely happy
-with the solution I've got in that area.  Alternative is to unhash them
-on the way out of subtree.  simple_unlink()/simple_rmdir() are wrong
-there - we don't want to bother with the parent's timestamps as we go,
-for one thing; that should be done only once to parent of the root of
-that subtree.  For another, we bloody well enforce the emptiness ourselves,
-so this simple_empty() is pointless (especially since we have no choice other
-than ignoring it anyway).
-
-BTW, another selinuxfs unpleasantness is, the things like sel_write_enforce()
-don't have any exclusion against themselves, let alone the policy reloads.
-And quite a few of them obviously expect that e.g. permission check is done
-against the same policy the operation will apply to, not the previous one.
-That one definitely needs selinux folks involved.
-
-[*] not too unreasonably so - anyone who gets to use _that_ as an attack
-vector has already won, so it's not a security problem pretty much by
-definition and running into heavy OOM at the time of policy reload is
-almost certainly going to end up with the userland parts of the entire
-thing not handling failures gracefully.
+Do you see any other options?
