@@ -1,82 +1,95 @@
-Received: from goalie.tycho.ncsc.mil (goalie.infosec.tycho.ncsc.mil
- [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w91LmGr6027625
- for <selinux@tycho.nsa.gov>; Mon, 1 Oct 2018 17:48:16 -0400
-Received: by mail-yw1-f66.google.com with SMTP id m129-v6so6202768ywc.1
- for <selinux@tycho.nsa.gov>; Mon, 01 Oct 2018 14:48:13 -0700 (PDT)
-Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com.
- [209.85.219.173])
- by smtp.gmail.com with ESMTPSA id e82-v6sm12295375ywa.60.2018.10.01.14.48.12
- for <selinux@tycho.nsa.gov>
- (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
- Mon, 01 Oct 2018 14:48:12 -0700 (PDT)
-Received: by mail-yb1-f173.google.com with SMTP id c4-v6so6296985ybl.6
- for <selinux@tycho.nsa.gov>; Mon, 01 Oct 2018 14:48:12 -0700 (PDT)
+Date: Tue, 2 Oct 2018 16:58:10 +0100
+From: Al Viro <viro@ZenIV.linux.org.uk>
+To: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: selinux@tycho.nsa.gov, Paul Moore <paul@paul-moore.com>,
+ linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
+ Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <20181002155810.GP32577@ZenIV.linux.org.uk>
+References: <20181002111830.26342-1-omosnace@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <8010a7d0-c6a0-b327-d5dd-6857d6d42561@schaufler-ca.com>
-References: <e9bfb2d5-d987-55ce-4011-9b32ff745d36@schaufler-ca.com>
- <8010a7d0-c6a0-b327-d5dd-6857d6d42561@schaufler-ca.com>
-From: Kees Cook <keescook@chromium.org>
-Date: Mon, 1 Oct 2018 14:48:10 -0700
-Message-ID: <CAGXu5j+XTMcqdPQK=E6KV3-oMCFA+UkiGsfHN2T6CCfAA7X9Qw@mail.gmail.com>
-To: Casey Schaufler <casey@schaufler-ca.com>
-Cc: LSM <linux-security-module@vger.kernel.org>,
- James Morris <jmorris@namei.org>, SE Linux <selinux@tycho.nsa.gov>,
- LKLM <linux-kernel@vger.kernel.org>,
- John Johansen <john.johansen@canonical.com>,
- Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
- Paul Moore <paul@paul-moore.com>, Stephen Smalley <sds@tycho.nsa.gov>,
- "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
- Alexey Dobriyan <adobriyan@gmail.com>,
- =?UTF-8?B?TWlja2HDq2wgU2FsYcO8bg==?= <mic@digikod.net>,
- Salvatore Mesoraca <s.mesoraca16@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH 21/19] LSM: Cleanup and fixes from Tetsuo Handa
+Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <20181002111830.26342-1-omosnace@redhat.com>
+Sender: Al Viro <viro@ftp.linux.org.uk>
+Subject: Re: [PATCH] selinux: fix race when removing selinuxfs
+ entries
 List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
  <selinux.tycho.nsa.gov>
 List-Post: <mailto:selinux@tycho.nsa.gov>
 List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
 
-On Wed, Sep 26, 2018 at 2:57 PM, Casey Schaufler <casey@schaufler-ca.com> wrote:
-> lsm_early_cred()/lsm_early_task() are called from only __init functions.
->
-> lsm_cred_alloc()/lsm_file_alloc() are called from only security/security.c .
->
-> lsm_early_inode() should be avoided because it is not appropriate to
-> call panic() when lsm_early_inode() is called after __init phase.
->
-> Since all free hooks are called when one of init hooks failed, each
-> free hook needs to check whether init hook was called.
->
-> The original changes are from Tetsuo Handa. I have made minor
-> changes in some places, but this is mostly his code.
->
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  include/linux/lsm_hooks.h         |  6 ++----
->  security/security.c               | 27 ++++-----------------------
->  security/selinux/hooks.c          |  5 ++++-
->  security/selinux/include/objsec.h |  2 ++
->  security/smack/smack_lsm.c        |  8 +++++++-
->  5 files changed, 19 insertions(+), 29 deletions(-)
+On Tue, Oct 02, 2018 at 01:18:30PM +0200, Ondrej Mosnacek wrote:
 
-I've split this across the various commits they touch:
+No.  With the side of Hell, No.  The bug is real, but this is
+not the way to fix it.
 
-Infrastructure management of the cred security blob
-LSM: Infrastructure management of the file security
-LSM: Infrastructure management of the inode security
-LSM: Infrastructure management of the task security
-LSM: Blob sharing support for S.A.R.A and LandLock
+First of all, it's still broken - e.g. mount something on a
+subdirectory and watch what that thing will do to it.  And
+anyone who has permission to reload policy _will_ have one
+for mount.
 
-Based on these changes, I've uploaded the "v4.1", or "Casey is on
-vacation", tree here:
-https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git/log/?h=lsm/blob-sharing-v4.1
+And yes, debugfs_remove() suffers the same problem.  Frankly, the
+only wish debugfs_remove() implementation inspires is to shoot it
+before it breeds.  Which is the second problem with that approach -
+such stuff really shouldn't be duplicated in individual filesystems.  
 
-I'm going to work on a merged series for the "arbitrary ordering" and
-"blob-sharing" trees next...
+Don't copy (let along open-code) d_walk() in there.  The guts of
+dcache tree handling are subtle enough (and had more than enough
+locking bugs over the years) to make spreading the dependencies
+on its details all over the tree an invitation for massive PITA
+down the road.
 
--Kees
+I have beginnings of patch doing that for debugfs; the same thing
+should be usable for selinuxfs as well.  However, the main problem
+with selinuxfs wrt policy loading is different - what to do if
+sel_make_policy_nodes() fails halfway through?  And what to do
+with accesses to the unholy mix of old and new nodes we currently
+have left behind?
 
--- 
-Kees Cook
-Pixel Security
+Before security_load_policy() we don't know which nodes to create;
+after it we have nothing to fall back onto.  It looks like we
+need to split security_load_policy() into "load", "switch over" and
+"free old" parts, so that the whole thing would look like
+	load
+	create new directory trees, unconnected to the root so
+they couldn't be reached by lookups until we are done
+	switch over
+	move the new directory trees in place
+	kill the old trees (using that invalidate+genocide carefully
+combination)
+	free old data structures
+with failures upon the first two steps handled by killing whatever detached
+trees we'd created (if any) and freeing the new data structures.
+
+However, I'd really like to have the folks familiar with selinux guts to
+comment upon the feasibility of the above.  AFAICS, nobody has ever seriously
+looked at that code wrt graceful error handling, etc.[*], so I'm not happy
+with making inferences from what the existing code is doing.
+
+If you are interested in getting selinuxfs into sane shape, that would
+be a good place to start.  As for the kernel-side rm -rf (which is what
+debugfs_remove() et.al. are trying to be)...
+	* it absolutely needs to be in fs/*.c - either dcache or libfs.
+It's too closely tied to dcache guts to do otherwise.
+	* as the first step it needs to do d_invalidate(), to get rid of
+anything that might be mounted on it and to prevent new mounts from appearing.
+It's rather tempting to unhash everything in the victim tree at the same
+time, but that needs to be done with care - I'm still not entirely happy
+with the solution I've got in that area.  Alternative is to unhash them
+on the way out of subtree.  simple_unlink()/simple_rmdir() are wrong
+there - we don't want to bother with the parent's timestamps as we go,
+for one thing; that should be done only once to parent of the root of
+that subtree.  For another, we bloody well enforce the emptiness ourselves,
+so this simple_empty() is pointless (especially since we have no choice other
+than ignoring it anyway).
+
+BTW, another selinuxfs unpleasantness is, the things like sel_write_enforce()
+don't have any exclusion against themselves, let alone the policy reloads.
+And quite a few of them obviously expect that e.g. permission check is done
+against the same policy the operation will apply to, not the previous one.
+That one definitely needs selinux folks involved.
+
+[*] not too unreasonably so - anyone who gets to use _that_ as an attack
+vector has already won, so it's not a security problem pretty much by
+definition and running into heavy OOM at the time of policy reload is
+almost certainly going to end up with the userland parts of the entire
+thing not handling failures gracefully.
