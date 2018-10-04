@@ -1,59 +1,74 @@
-Received: from goalie.tycho.ncsc.mil (goalie.tycho.ncsc.mil [144.51.242.250])
- by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w94BbQXe002971
- for <selinux@tycho.nsa.gov>; Thu, 4 Oct 2018 07:37:30 -0400
-Received: by mail-ot1-f65.google.com with SMTP id q50so4651208otd.0
- for <selinux@tycho.nsa.gov>; Thu, 04 Oct 2018 04:37:19 -0700 (PDT)
+Return-Path: <SRS0=YZSI=MQ=vger.kernel.org=selinux-owner@kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,TVD_SPACE_RATIO autolearn=ham autolearn_force=no
+	version=3.4.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20CA1C64EB8
+	for <selinux@archiver.kernel.org>; Thu,  4 Oct 2018 19:44:30 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
+	by mail.kernel.org (Postfix) with ESMTP id D32F52084D
+	for <selinux@archiver.kernel.org>; Thu,  4 Oct 2018 19:44:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D32F52084D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
+Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1727354AbeJECjN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Oct 2018 22:39:13 -0400
+Received: from uphb19pa12.eemsg.mail.mil ([214.24.26.86]:3871 "EHLO
+        usfb19pa15.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727506AbeJECjN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Oct 2018 22:39:13 -0400
+X-Greylist: delayed 576 seconds by postgrey-1.27 at vger.kernel.org; Thu, 04 Oct 2018 22:39:13 EDT
+X-EEMSG-check-008: 149729074|USFB19PA15_EEMSG_MP11.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by usfb19pa15.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Oct 2018 19:34:53 +0000
+X-IronPort-AV: E=Sophos;i="5.54,341,1534809600"; 
+   d="scan'208";a="19067105"
+IronPort-PHdr: =?us-ascii?q?9a23=3ATrGcSxSQTb+TJewnQMSjz5XoNNpsv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa69YxSN2/xhgRfzUJnB7Loc0qyK6/+mATRIyK3CmUhKSIZLWR?=
+ =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
+ =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfbF/IA+qoQnNq8IbnZZsJqEtxx?=
+ =?us-ascii?q?XTv3BGYf5WxWRmJVKSmxbz+MK994N9/ipTpvws6ddOXb31cKokQ7NYCi8mM3?=
+ =?us-ascii?q?0u683wqRbDVwqP6WACXWgQjxFFHhLK7BD+Xpf2ryv6qu9w0zSUMMHqUbw5Xy?=
+ =?us-ascii?q?mp4ahuSB/wlCcGNyMy/3rQisNtjKNQvRatqhxjz4LRZoyaOuB+fqfAdt0EQ2?=
+ =?us-ascii?q?RPUNtaWyhYDo+ic4cDCuwMNvtaoYbgvVsDtQWwCwmxCu3sxDFHiHD50rE13e?=
+ =?us-ascii?q?k6DQHL3hYtE84SvHnartj4MroZX+CvzKnPyDXOd+5Y2Svj54jQchAuv/eMVq?=
+ =?us-ascii?q?9tf8rU00YvEwfFgUuQqIf4OD6VzfkCs3OA4up8VeOgl24nqwZrrjip3ccjkJ?=
+ =?us-ascii?q?PFho0SylDa7Ch0xps+K96gSENjfNKpH5RduzuaOodrWM8uXW5ltDggxrEbv5?=
+ =?us-ascii?q?OwYTIEx449xxHFbvyKa42I4hX+W+mPOTp4n3dleK6nhxa17Eig1vXwVsmq31?=
+ =?us-ascii?q?ZOqSpIisXMuWoX1xzS98iHUeFx/luh2DmT1wDT7ftIIUYomqrAN5Et2Lswlp?=
+ =?us-ascii?q?sXsUjbHy/2nlv5jLOOe0k59eWl5P7rb7X7qpOGKYN5hR/yPr4zlsCnBOQ3KA?=
+ =?us-ascii?q?kOX2yV+eSm073j+FX0QK5Xgf0tiaTZrJDbKtgbpq6+GQNV1J0j5AylAzep19?=
+ =?us-ascii?q?QYg2ELLEhZdxKfk4jpJ1bOLejjDfihh1SskTFrx+3JP7D6HJXNIWbMkK37cb?=
+ =?us-ascii?q?Z+9UFc0gwzws5b555ODbEBOv3zCQfNs4nDAxs4NRGk6/joBc871Y4EX2+LRK?=
+ =?us-ascii?q?iDP/D8q1iNs9kzLvGMaYldgzP0L/wo9ra6lnMisUMMdqmum50MYTa3GeowcB?=
+ =?us-ascii?q?bRWmblntpUSTRChQE5VuG/0wWP?=
+X-IPAS-Result: =?us-ascii?q?A2D8AwC2arZb/wHyM5BbHAEBAQQBAQcEAQGBZYFcKoFlh?=
+ =?us-ascii?q?ByBRpJvTgEBAQEGgRCJE49YESAYAYQ2hDEhOBYBAwEBAQEBAQIBbCQEgjYMg?=
+ =?us-ascii?q?xcKFXYCJgJsCAEBgl4/gXUNpRCBLoRAN4UagQuGA4QeF3mBB4E5DIgqgjSCV?=
+ =?us-ascii?q?wKOWo59CZA6BheBPQEOhGKJPZc4IYFVKwgCGAghD4MokG8jgSsBAYxMAQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Oct 2018 19:34:52 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w94JYpqs007907
+        for <selinux@vger.kernel.org>; Thu, 4 Oct 2018 15:34:51 -0400
+To:     selinux@vger.kernel.org
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Testing, please disregard
+Message-ID: <70b9f419-4717-8573-a46e-f4d805a37e9d@tycho.nsa.gov>
+Date:   Thu, 4 Oct 2018 15:36:47 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-References: <20180926203446.2004-1-casey.schaufler@intel.com>
- <20180926203446.2004-3-casey.schaufler@intel.com>
- <CAG48ez3_XJYCURiCurDeCousGguGUdPego30j5+UF8FebWxUtA@mail.gmail.com>
- <99FC4B6EFCEFD44486C35F4C281DC673214625EA@ORSMSX107.amr.corp.intel.com>
- <CAG48ez1+9Bfadu4y4TzPYJfFpLk+N8w7GdCE+xwNCM5TfQ8W8Q@mail.gmail.com>
- <nycvar.YFH.7.76.1810040942110.14430@cbobk.fhfr.pm>
-In-Reply-To: <nycvar.YFH.7.76.1810040942110.14430@cbobk.fhfr.pm>
-From: Jann Horn <jannh@google.com>
-Date: Thu, 4 Oct 2018 13:36:50 +0200
-Message-ID: <CAG48ez1OiAvqqtLXpBjxz-=9X+YdtR9iF7fA_pXhu2GfBt5osw@mail.gmail.com>
-To: Jiri Kosina <jikos@kernel.org>, Casey Schaufler <casey.schaufler@intel.com>
-Cc: Kernel Hardening <kernel-hardening@lists.openwall.com>,
- kernel list <linux-kernel@vger.kernel.org>,
- linux-security-module <linux-security-module@vger.kernel.org>,
- selinux@tycho.nsa.gov, Dave Hansen <dave.hansen@intel.com>,
- deneen.t.dock@intel.com, kristen@linux.intel.com,
- Arjan van de Ven <arjan@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Subject: Re: [PATCH v5 2/5] Smack: Prepare for PTRACE_MODE_SCHED
-List-Id: "Security-Enhanced Linux \(SELinux\) mailing list"
- <selinux.tycho.nsa.gov>
-List-Post: <mailto:selinux@tycho.nsa.gov>
-List-Help: <mailto:selinux-request@tycho.nsa.gov?subject=help>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+Sender: selinux-owner@vger.kernel.org
+Precedence: bulk
+List-ID: <selinux.vger.kernel.org>
+X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 4, 2018 at 9:47 AM Jiri Kosina <jikos@kernel.org> wrote:
-> On Thu, 27 Sep 2018, Jann Horn wrote:
-> > > Yes. Since the PTRACE_MODE_NOAUDIT was in PTRACE_MODE_IBPB in Jiri's
-> > > previous patch set and not in PTRACE_MODE_SCHED in this one I assumed
-> > > that there was a good reason for it.
-> >
-> > Jiri, was there a good reason for it, and if so, what was it?
->
-> [ FWIW PTRACE_MODE_NOAUDIT being in PTRACE_MODE_IBPB goes back to original
->   Tim's pre-CRD patchset ]
->
-> Well, we can't really call out into audit from scheduler code, and the
-> previous versions of the patchsets didn't have PTRACE_MODE_SCHED, so it
-> had to be included in PTRACE_MODE_IBPB in order to make sure we're not
-> calling into audit from context switch code.
->
-> Or did I misunderstand the question?
 
-If I understand Casey correctly, he is saying that your patch
-(https://lore.kernel.org/lkml/nycvar.YFH.7.76.1809251437340.15880@cbobk.fhfr.pm/)
-doesn't include PTRACE_MODE_NOAUDIT for IBPB, but the previous v6 of
-your patch (https://lore.kernel.org/lkml/nycvar.YFH.7.76.1809121105330.15880@cbobk.fhfr.pm/)
-did include it, and therefore Casey thinks that there is a specific
-reason why you removed PTRACE_MODE_NOAUDIT, and therefore Casey is
-adding special-case logic for PTRACE_MODE_SCHED to Smack when simply
-using PTRACE_MODE_NOAUDIT would also work.
-
-I think that Casey should change ptrace_may_access_sched() to use
-"mode | PTRACE_MODE_SCHED | PTRACE_MODE_NOAUDIT".
