@@ -1,105 +1,89 @@
-Return-Path: <SRS0=wI+O=MV=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=0uKS=MW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C67BBC64EB8
-	for <selinux@archiver.kernel.org>; Tue,  9 Oct 2018 16:11:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A6B2C43441
+	for <selinux@archiver.kernel.org>; Wed, 10 Oct 2018 18:16:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 76E17213A2
-	for <selinux@archiver.kernel.org>; Tue,  9 Oct 2018 16:11:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="KennYxyZ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 76E17213A2
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=crunchydata.com
+	by mail.kernel.org (Postfix) with ESMTP id D948D2087A
+	for <selinux@archiver.kernel.org>; Wed, 10 Oct 2018 18:16:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D948D2087A
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726434AbeJIX3g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Oct 2018 19:29:36 -0400
-Received: from mail-qt1-f179.google.com ([209.85.160.179]:40113 "EHLO
-        mail-qt1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726393AbeJIX3g (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Oct 2018 19:29:36 -0400
-Received: by mail-qt1-f179.google.com with SMTP id b4-v6so2238022qtc.7
-        for <selinux@vger.kernel.org>; Tue, 09 Oct 2018 09:11:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KK3x43dyILjkle2Y6IFMFx3NvbiQEm58tzIRfc/+WB0=;
-        b=KennYxyZyWd3J8pxXbyXfpDvCtPuHhIrrVh3uLyrhqojzmXrT9wl3lgWyDYssxre0V
-         Kc7LSbYKMa5YcecA+iyDE+jqqMuksu6TF3qGNQwm/ZPhuPK1K9jcikQqCXr0Pju5XBlX
-         m2UIA4awfJPs5+KKZ8OLSJ7qmSwvYyPkV3lF+4dHn+x6VRSLLJsm5TtMtI7wOYeznwXP
-         Xf3r8ZWpKgQJ0AUlFelJYg+NPkcU3dd142jf+8CuzfrNjt5s7jEMv3u4lQuFZDFJD2pz
-         zyCm55nCcdqtkIJU0IZYksjXKD0qppn1YQRzxGMGEUkSTc1k6nHg7PEkFxfchmVD1ZyZ
-         PBqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=KK3x43dyILjkle2Y6IFMFx3NvbiQEm58tzIRfc/+WB0=;
-        b=WvzV4GLHMV7be9MwpiCXU8rTJGXdVUNbWFd5WYl6e8/tyI1nUnvQ6QMggHE4TL2YbM
-         iLc8kqvkvpfOktWWeioiG6x5m2CEUm0dAASkQUgjMtJbWpD0q3fobvQTT6dc8fCfYlxK
-         llH/19chyJd+O3EkoqgW3Widj0GWoAUbMLKRKTKJ/AtXdSF1jc+JwIzjUH1X6RbytvNJ
-         ch1u7Nomx9C6tOvjFjnoXJ58YhqFKiVHI70Gzii4/AjEe6siwG/0pogLznW9Ikr2aeV4
-         EpsRRgXpg2uZFIh6VUfSAOHfnmh9+qmjaAkWbjbJ9XYOtpMFEDVUI6FUhOQY9+lD6ran
-         ey5A==
-X-Gm-Message-State: ABuFfoh8VGU/O2AAjgfl45CDHr57lJF75Na0nDnDUvshjL556GAv27QA
-        Vrz+iEBO5/cScCiVJ26xlV8MqKFHzbM=
-X-Google-Smtp-Source: ACcGV61Nl5joo/eADruNGUQoEGtRshJYs/OWZCoJ4Tw3hVquuQSIl4Gb0ejvv03/w94pwvwHpg6nMA==
-X-Received: by 2002:a0c:a8c3:: with SMTP id h3-v6mr13155259qvc.217.1539101515987;
-        Tue, 09 Oct 2018 09:11:55 -0700 (PDT)
-Received: from mls-centos.localdomain (pool-68-134-6-138.bltmmd.fios.verizon.net. [68.134.6.138])
-        by smtp.gmail.com with ESMTPSA id j66-v6sm10272987qkf.1.2018.10.09.09.11.55
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Oct 2018 09:11:55 -0700 (PDT)
-From:   Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
-X-Google-Original-From: Yuli Khodorkovskiy <yuli@crunchydata.com>
-To:     selinux@vger.kernel.org
-Cc:     Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
-Subject: [PATCH v2] libsemanage: improve semanage_migrate_store import failure
-Date:   Tue,  9 Oct 2018 12:11:41 -0400
-Message-Id: <20181009161141.20323-1-yuli@crunchydata.com>
-X-Mailer: git-send-email 2.19.0
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726789AbeJKBjo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Oct 2018 21:39:44 -0400
+Received: from uphb19pa11.eemsg.mail.mil ([214.24.26.85]:32246 "EHLO
+        USFB19PA14.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726750AbeJKBjo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Oct 2018 21:39:44 -0400
+X-EEMSG-check-008: 88352464|USFB19PA14_EEMSG_MP10.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA14.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Oct 2018 18:16:17 +0000
+X-IronPort-AV: E=Sophos;i="5.54,365,1534809600"; 
+   d="scan'208";a="19260497"
+IronPort-PHdr: =?us-ascii?q?9a23=3AgAkuah/0JGwGv/9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B41uwcTK2v8tzYMVDF4r011RmVBdqds6oMotGVmpioYXYH75eFvSJKW713fD?=
+ =?us-ascii?q?hBt/8rmRc9CtWOE0zxIa2iRSU7GMNfSA0tpCnjYgBaF8nkelLdvGC54yIMFR?=
+ =?us-ascii?q?XjLwp1Ifn+FpLPg8it2O2+55/ebx9UiDahfLh/MAi4oQLNu8cMnIBsMLwxyh?=
+ =?us-ascii?q?zHontJf+RZ22ZlLk+Nkhj/+8m94odt/zxftPw9+cFAV776f7kjQrxDEDsmKW?=
+ =?us-ascii?q?E169b1uhTFUACC+2ETUmQSkhpPHgjF8BT3VYr/vyfmquZw3jSRMsPsTbAwRD?=
+ =?us-ascii?q?+s8aFlRhH1gysDLjI17n3bhsl2galGohyuugZ/zpbUbo+LKfRwcKDTc9QBSG?=
+ =?us-ascii?q?ZdQspcTTBND5mgY4cTCecKIOZWr5P6p1sLtRawGBWsC/33yj9ImHD227Ax3f?=
+ =?us-ascii?q?kkEQ7c2AwgG8wBsXTJp9jyL6cdTPu1wbLUzTTDc/xW2TD95JLOchA6u/6AR7?=
+ =?us-ascii?q?1wcc3PyUQ2EQ7Ok1aeqZT9Mj+I2ekAvHKX4up9We61lWIqpB99riKyysoql4?=
+ =?us-ascii?q?LHnJgaykre+iV82Is1INq4R1NlbtO8C5tQsj2aN5NxQsM/X2FkoCY6xaMCuZ?=
+ =?us-ascii?q?68ZCUK1I4oxwTea/yaaIiE+A7jVeaNLjd4g3JpYrS/iAqp8Ue80OH8U8i00F?=
+ =?us-ascii?q?JSoipElNnDqGwN2gTO5sWIRfZx5Ees1SuV2wzN5exIP1o4mbfDJ54k2LEwl5?=
+ =?us-ascii?q?4TsUrZHi/xnUX7lLSWeVg/+uWz9+TmYqnppp+bN4NujAH+Kb4hltawAeQ/LA?=
+ =?us-ascii?q?gCR3Kb9vik1L3/4U35R61HjuYonandsZDaI9kbp6GiDg9L3YYs9Qy/Ay2l0N?=
+ =?us-ascii?q?sGh3kHKkxKeBadg4juIVHOL6OwMfDqmFmokTF219jaL7bhBdPLNXGFn7D/Of?=
+ =?us-ascii?q?5m5kpdzhcj5c5Q6ogSCbwbJv/3HEjru4/2FBg8Zjeozv7nBdM17YYXXWaCE+?=
+ =?us-ascii?q?fNK6/JmUOZ7eIoZe+XbckavyireKtt3OLnkXJswQxVRqKux5ZCLSrgEw=3D?=
+ =?us-ascii?q?=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AEAwBGQb5b/wHyM5BlHAEBAQQBAQcEAQGBZYFVBSqBZ?=
+ =?us-ascii?q?SiYPk0BAQEBAQaKNI4TgWYgGAGEQIRSITgWAQMBAQEBAQECAWwogjYkg1QLP?=
+ =?us-ascii?q?4EAEoJiPykBgUsNpw2Ed4RkhxyEHxd5gQeDdoR5ARIBhXcCngYJkEYLF4FPh?=
+ =?us-ascii?q?GmJUgGJE45SIWRxKwgCGAghDzuCbJBxIzB7AQGJI4I+AQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Oct 2018 18:16:16 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w9AIGGbp003952;
+        Wed, 10 Oct 2018 14:16:16 -0400
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     selinux@tycho.nsa.gov, selinux@vger.kernel.org
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] README: Update the SELinux mailing list location
+Date:   Wed, 10 Oct 2018 14:17:54 -0400
+Message-Id: <20181010181754.19044-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.14.4
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
-
-The selinux/semanage python module import error in semanage_migrate_store
-was misleading. Before, it would report that the selinux/semanage modules
-were not installed even though they were on the system.
-
-Now the import failure is only reported if the modules are not installed.
-Otherwise, a stack trace is printed for all other errors in the selinux/semanage
-python modules.
-
-Signed-off-by: Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- libsemanage/utils/semanage_migrate_store | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ README | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-index 2e6cb278..b789d042 100755
---- a/libsemanage/utils/semanage_migrate_store
-+++ b/libsemanage/utils/semanage_migrate_store
-@@ -15,7 +15,7 @@ sepol = ctypes.cdll.LoadLibrary('libsepol.so.1')
- try:
- 	import selinux
- 	import semanage
--except:
-+except ImportError:
- 	print("You must install libselinux-python and libsemanage-python before running this tool", file=sys.stderr)
- 	exit(1)
+diff --git a/README b/README
+index 174551a1..1c009b01 100644
+--- a/README
++++ b/README
+@@ -1,5 +1,6 @@
+-Please submit all bug reports and patches to selinux@tycho.nsa.gov.
+-Subscribe via selinux-join@tycho.nsa.gov.
++Please submit all bug reports and patches to selinux@vger.kernel.org.
++Subscribe by sending "subscribe selinux" in the body of an email
++to majordomo@vger.kernel.org.
  
+ Build dependencies on Fedora:
+ yum install audit-libs-devel bison bzip2-devel dbus-devel dbus-glib-devel flex flex-devel flex-static glib2-devel libcap-devel libcap-ng-devel pam-devel pcre-devel python-devel setools-devel swig xmlto redhat-rpm-config
 -- 
-2.19.0
+2.14.4
 
