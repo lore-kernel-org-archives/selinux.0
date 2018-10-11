@@ -7,60 +7,61 @@ X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57963C677D7
-	for <selinux@archiver.kernel.org>; Thu, 11 Oct 2018 14:19:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97239C4161D
+	for <selinux@archiver.kernel.org>; Thu, 11 Oct 2018 14:28:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1E6B920841
-	for <selinux@archiver.kernel.org>; Thu, 11 Oct 2018 14:19:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4FA482075C
+	for <selinux@archiver.kernel.org>; Thu, 11 Oct 2018 14:28:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HRB/mYWh"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1E6B920841
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="alJZXJRd"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4FA482075C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727142AbeJKVrM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Oct 2018 17:47:12 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:40362 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726920AbeJKVrM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Oct 2018 17:47:12 -0400
-Received: by mail-oi1-f195.google.com with SMTP id j68-v6so7165889oib.7
-        for <selinux@vger.kernel.org>; Thu, 11 Oct 2018 07:19:48 -0700 (PDT)
+        id S1728654AbeJKVzy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Oct 2018 17:55:54 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:38312 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726537AbeJKVzx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Oct 2018 17:55:53 -0400
+Received: by mail-ot1-f67.google.com with SMTP id l1so9095674otj.5
+        for <selinux@vger.kernel.org>; Thu, 11 Oct 2018 07:28:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=6cxJv25Eol9vXGO/upnRfosUlvRsR2mLbPZc5VQQ1vY=;
-        b=HRB/mYWhMEbLByIYFQdtlqeBkpEOOwlZ+rnsg9T8uEdVI0nyjYZsTZr/zpgsjFnmWu
-         5o67ZMjYcSTX2bWuzdOCvOqJXDKpjXj++nu1MtzB8FdwOWXxLFp/r5MQV2d2xRYnj3fI
-         xV26Gnp3opDVIy+v88uCbUnWu2qKcRTRZ3eiiS0UQ8rKiBsVqLfCYo5pB8Sn4Gm5LFMY
-         uBGaQA8xNEWjI/ZTe1yVqDdoN6YMK1AaXG89qG/BLk4CZafuiW8hRtr7bKHvu+3PBpeP
-         Ky+5EPjKg/YU+YDYcTYbEY3iJ8SMpCTE3tHX58W4ue1skKI0gdy8vghCoEuv0w4Cd49k
-         pIEw==
+        bh=k/dMZBm53Afxx2e4zkEl/4wjiStFA2M//qXLBuBQ7WY=;
+        b=alJZXJRdTE8yXnG1fWUkF1GLEhlYa4rcEopUKs/3gYx+5M2I/PzbmY1GCDZhH8Gitz
+         FG+kcEV2PCrKL2FUvRaHWfmrs+1pi6C/a8cT7hO1rsxsjVzT7qNQzJD6LjkzmUjglTRm
+         CyoCt1BGNJPVkCsM7Azva5md1912OrP1gno36TSlP9KQD6AHFagCmTxfx3gwMVbuyrUy
+         y8QRqz4v5lbuVQce8lv9CUSf7IYm9TKIt9Jj02/uPWklH/1D4tnYAp/1quOGoEtLzKxD
+         LWChnvtebAAUaxAqIVKtqgMmMVubxjw3a48qlmO+hSSL+Li44aJcF+Jno2ZnvRKJ82c6
+         HVFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=6cxJv25Eol9vXGO/upnRfosUlvRsR2mLbPZc5VQQ1vY=;
-        b=d0ZhbMMngDSYRwaZlYDvyOHXEm49qjrUm8oGAsEEnxqqQAzXJ63Pz0BAQB9F6ibzys
-         ZpHu6GufU1UfQRfYHZWPx5+/4qxmb54I/ai6XFJMIfeiwgvmd1eb1QoBU7+6YgwBJ4WS
-         hokEg6x87TGp4/WEadsu8qJxcysT81y23prvCECB+yT6hJSsaELhkQvxMJC1ZmUOa3Bw
-         bhgjSItKZzPWDacib0LM7K7B+7M39+RekWA+mYKRteF4UQgRygCU3AMIqPhOUcrZgxKr
-         DjOnR9WEcnodrQWhjRAb/om0y7mPQiXIfi/P0/Iz8i2RAdju3DtUdwXVvyy3ezG/hWE/
-         kCfQ==
-X-Gm-Message-State: ABuFfohGQyJJESVyOafj5J9q4sPDHl6wfx88hJLEWEKE6v+JY8zZUUJJ
-        u4J/1lmVYz5J3olccjpauU+FwlRHJ9uK6myWDVI=
-X-Google-Smtp-Source: ACcGV60+kYpycVvQtM3DSnc2JyeBMtP92rLW2RGnM7VkyNqhvd3yprRT+HsGP9e+cJyMUr+gxVTDjpHxrHWp64AiMtY=
-X-Received: by 2002:aca:59c4:: with SMTP id n187-v6mr928890oib.279.1539267587359;
- Thu, 11 Oct 2018 07:19:47 -0700 (PDT)
+        bh=k/dMZBm53Afxx2e4zkEl/4wjiStFA2M//qXLBuBQ7WY=;
+        b=twGtc715G1G8pezLqhDw6LrqNpsEcnP4iIBLgtUe5H3ST718YNxexT047B1M86QzMn
+         wJl0tRR2WB3KMRfRjc+qCfdjC855gvFqyq0qF5CDnlW7Sbi1qtxpn7QJvFPAWoR4gaME
+         meONuJMA0328PLiSjIryGgqi+XOTugkUh0N75TBHwh1gXiHNjTO8xktei4OK8ip0uDTu
+         fRkBSjLTsiJyoorPBskSTaXx9717ZrLajzQnm0gHQNjzdH8YKli1aCRJ8e64JrKVy/RI
+         TQO7ejQIPTnAmbteB+itoGRrIb05WqSq91jWqigHZBSIdJC7sbuOLPyk5qhQD2h2Qy8q
+         NaQw==
+X-Gm-Message-State: ABuFfoi/GZoWNqoxSz0WHn4hlMU5AfZ3UwueBfgkCYjJ4iejUa/1xCvJ
+        /cQM/m3qoeRUrrrbdmD4kF6sz4dHdDJGAvnU7lM=
+X-Google-Smtp-Source: ACcGV611be1cw3F8UdLAaRn1QlL3EFiZiNo7cpuFZk0Y+oxf96d3aIMIuQRnMt1vXWzGK2nXFP5O8eECteCst0v2ixQ=
+X-Received: by 2002:a9d:2949:: with SMTP id d67mr1244344otb.74.1539268106634;
+ Thu, 11 Oct 2018 07:28:26 -0700 (PDT)
 MIME-Version: 1.0
-References: <20181011134333.16468-1-yuli@crunchydata.com> <20181011134333.16468-2-yuli@crunchydata.com>
-In-Reply-To: <20181011134333.16468-2-yuli@crunchydata.com>
+References: <20181011123543.14822-1-jwcart2@tycho.nsa.gov> <20181011123543.14822-3-jwcart2@tycho.nsa.gov>
+In-Reply-To: <20181011123543.14822-3-jwcart2@tycho.nsa.gov>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 11 Oct 2018 07:19:35 -0700
-Message-ID: <CAFftDdqagQZbbccJGQ+GB23kF9g_ZuiA3RN9psB7qykt+XhGjw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] libsemanage: improve semanage_migrate_store import failure
-To:     yuli.khodorkovskiy@crunchydata.com
+Date:   Thu, 11 Oct 2018 07:28:14 -0700
+Message-ID: <CAFftDdotygz0kKM=AV6+Tzat+KQ6bMQH2UEhKhth1VGr2Pwa6g@mail.gmail.com>
+Subject: Re: [PATCH 2/2] checkpolicy: Add option to sort ocontexts when
+ creating a binary policy
+To:     James Carter <jwcart2@tycho.nsa.gov>
 Cc:     selinux@vger.kernel.org, selinux <selinux@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -68,42 +69,91 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 11, 2018 at 6:45 AM Yuli Khodorkovskiy
-<yuli.khodorkovskiy@crunchydata.com> wrote:
+On Thu, Oct 11, 2018 at 5:37 AM James Carter <jwcart2@tycho.nsa.gov> wrote:
 >
-> From: Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
+> Add an option, specified by "-S" or "--sort", to sort the ocontexts
+> before writing out the binary policy.
 >
-> The selinux/semanage python module import error in semanage_migrate_store
-> was misleading. Before, it would report that the selinux/semanage modules
-> were not installed even though they were on the system.
+> Binary policies created by semanage and secilc are always sorted, so
+> this option allows checkpolicy to be consistent with those. It has
+> not been made the default to maintain backwards compatibility for
+> anyone who might be depending on the unsorted behavior of checkpolicy.
 >
-> Now the import failure is only reported if the modules are not installed.
-> Otherwise, a stack trace is printed for all other errors in the selinux/semanage
-> python modules.
->
-> Signed-off-by: Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 > ---
->  libsemanage/utils/semanage_migrate_store | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  checkpolicy/checkpolicy.c | 22 +++++++++++++++++-----
+>  1 file changed, 17 insertions(+), 5 deletions(-)
 >
-> diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-> index 2e6cb278..b789d042 100755
-> --- a/libsemanage/utils/semanage_migrate_store
-> +++ b/libsemanage/utils/semanage_migrate_store
-> @@ -15,7 +15,7 @@ sepol = ctypes.cdll.LoadLibrary('libsepol.so.1')
->  try:
->         import selinux
->         import semanage
-> -except:
-> +except ImportError:
->         print("You must install libselinux-python and libsemanage-python before running this tool", file=sys.stderr)
->         exit(1)
+> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+> index 12c4c405..14dc91a3 100644
+> --- a/checkpolicy/checkpolicy.c
+> +++ b/checkpolicy/checkpolicy.c
+> @@ -111,9 +111,9 @@ unsigned int policyvers = POLICYDB_VERSION_MAX;
+>  static __attribute__((__noreturn__)) void usage(const char *progname)
+>  {
+>         printf
+> -           ("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny,reject)] [-M]"
+> -            "[-c policyvers (%d-%d)] [-o output_file] [-t target_platform (selinux,xen)]"
+> -            "[input_file]\n",
+> +           ("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny,reject)] [-M] "
+> +            "[-c policyvers (%d-%d)] [-o output_file] [-S] "
+> +            "[-t target_platform (selinux,xen)] [input_file]\n",
+>              progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+>         exit(1);
+>  }
+> @@ -394,7 +394,7 @@ int main(int argc, char **argv)
+>         size_t scontext_len, pathlen;
+>         unsigned int i;
+>         unsigned int protocol, port;
+> -       unsigned int binary = 0, debug = 0, cil = 0, conf = 0;
+> +       unsigned int binary = 0, debug = 0, sort = 0, cil = 0, conf = 0;
+>         struct val_to_name v;
+>         int ret, ch, fd, target = SEPOL_TARGET_SELINUX;
+>         unsigned int nel, uret;
+> @@ -418,11 +418,12 @@ int main(int argc, char **argv)
+>                 {"mls", no_argument, NULL, 'M'},
+>                 {"cil", no_argument, NULL, 'C'},
+>                 {"conf",no_argument, NULL, 'F'},
+> +               {"sort", no_argument, NULL, 'S'},
+>                 {"help", no_argument, NULL, 'h'},
+>                 {NULL, 0, NULL, 0}
+>         };
 >
+> -       while ((ch = getopt_long(argc, argv, "o:t:dbU:MCFVc:h", long_options, NULL)) != -1) {
+> +       while ((ch = getopt_long(argc, argv, "o:t:dbU:MCFSVc:h", long_options, NULL)) != -1) {
+>                 switch (ch) {
+>                 case 'o':
+>                         outfile = optarg;
+> @@ -462,6 +463,9 @@ int main(int argc, char **argv)
+>                                 break;
+>                         }
+>                         usage(argv[0]);
+> +               case 'S':
+> +                       sort = 1;
+> +                       break;
+>                 case 'M':
+>                         mlspol = 1;
+>                         break;
+> @@ -637,6 +641,14 @@ int main(int argc, char **argv)
+>                                 policy_file_init(&pf);
+>                                 pf.type = PF_USE_STDIO;
+>                                 pf.fp = outfp;
+> +                               if (sort) {
+> +                                       ret = policydb_sort_ocontexts(&policydb);
+> +                                       if (ret) {
+> +                                               fprintf(stderr, "%s:  error sorting ocontexts\n",
+> +                                               argv[0]);
+> +                                               exit(1);
+> +                                       }
+> +                               }
+>                                 ret = policydb_write(&policydb, &pf);
+>                         } else {
+>                                 ret = sepol_kernel_policydb_to_conf(outfp, policydbp);
 > --
-> 2.19.0
+> 2.17.1
 >
 
-ack
+Ack.
 
 > _______________________________________________
 > Selinux mailing list
