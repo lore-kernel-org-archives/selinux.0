@@ -6,122 +6,163 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 318BDC070C3
-	for <selinux@archiver.kernel.org>; Tue, 16 Oct 2018 10:05:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15BC7C070C3
+	for <selinux@archiver.kernel.org>; Tue, 16 Oct 2018 10:05:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 05F8520881
-	for <selinux@archiver.kernel.org>; Tue, 16 Oct 2018 10:05:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 05F8520881
+	by mail.kernel.org (Postfix) with ESMTP id DCF802089E
+	for <selinux@archiver.kernel.org>; Tue, 16 Oct 2018 10:05:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DCF802089E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726961AbeJPRzc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 16 Oct 2018 13:55:32 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:57394 "EHLO mx1.redhat.com"
+        id S1726976AbeJPRzd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Oct 2018 13:55:33 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:44806 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726083AbeJPRzb (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 16 Oct 2018 13:55:31 -0400
+        id S1726083AbeJPRzd (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 16 Oct 2018 13:55:33 -0400
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 1CF0430820DC
-        for <selinux@vger.kernel.org>; Tue, 16 Oct 2018 10:05:51 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 24C67C04B95A
+        for <selinux@vger.kernel.org>; Tue, 16 Oct 2018 10:05:53 +0000 (UTC)
 Received: from localhost.localdomain.com (ovpn-204-163.brq.redhat.com [10.40.204.163])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7963C7A7A4
-        for <selinux@vger.kernel.org>; Tue, 16 Oct 2018 10:05:50 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8EC137A7A3
+        for <selinux@vger.kernel.org>; Tue, 16 Oct 2018 10:05:52 +0000 (UTC)
 From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 2/3] python/sepolicy: Stop rejecting aliases in sepolicy commands
-Date:   Tue, 16 Oct 2018 12:05:32 +0200
-Message-Id: <20181016100533.12249-3-vmojzis@redhat.com>
+Subject: [PATCH 3/3] python/semanage: Stop rejecting aliases in semanage commands
+Date:   Tue, 16 Oct 2018 12:05:33 +0200
+Message-Id: <20181016100533.12249-4-vmojzis@redhat.com>
 In-Reply-To: <20181016100533.12249-1-vmojzis@redhat.com>
 References: <20181016100533.12249-1-vmojzis@redhat.com>
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Tue, 16 Oct 2018 10:05:51 +0000 (UTC)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Tue, 16 Oct 2018 10:05:53 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Fix CheckDomain and CheckPortType classes to properly deal with aliases.
-
 Resolves:
-   https://bugzilla.redhat.com/show_bug.cgi?id=1600009
+
+\# semanage fcontext -a -t svirt_sandbox_file_t /pokus
+ValueError: Type svirt_sandbox_file_t is invalid, must be a file or device type
+\# semanage fcontext -d -t svirt_sandbox_file_t /pokus
+ValueError: File context for /pokus is not defined
+
+\# seinfo -tsvirt_sandbox_file_t -x
+   TypeName container_file_t
+   Aliases
+      svirt_sandbox_file_t
+      svirt_lxc_file_t
 
 Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- python/sepolicy/sepolicy.py          |  8 +++-----
- python/sepolicy/sepolicy/__init__.py | 10 +++++++++-
- 2 files changed, 12 insertions(+), 6 deletions(-)
+ python/semanage/seobject.py | 21 ++++++++++-----------
+ 1 file changed, 10 insertions(+), 11 deletions(-)
 
-diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
-index a000c1ad..01380fbe 100755
---- a/python/sepolicy/sepolicy.py
-+++ b/python/sepolicy/sepolicy.py
-@@ -60,8 +60,6 @@ class CheckPath(argparse.Action):
- class CheckType(argparse.Action):
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index c1467185..5d34cdbe 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -1081,7 +1081,7 @@ class portRecords(semanageRecords):
+         if type == "":
+             raise ValueError(_("Type is required"))
  
-     def __call__(self, parser, namespace, values, option_string=None):
--        domains = sepolicy.get_all_domains()
--
-         if isinstance(values, str):
-             setattr(namespace, self.dest, values)
-         else:
-@@ -103,7 +101,7 @@ class CheckDomain(argparse.Action):
-         domains = sepolicy.get_all_domains()
+-        if type not in self.valid_types:
++        if sepolicy.get_real_type_name(type) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a port type") % type)
  
-         if isinstance(values, str):
--            if values not in domains:
-+            if sepolicy.get_real_type_name(values) not in domains:
-                 raise ValueError("%s must be an SELinux process domain:\nValid domains: %s" % (values, ", ".join(domains)))
-             setattr(namespace, self.dest, values)
-         else:
-@@ -112,7 +110,7 @@ class CheckDomain(argparse.Action):
-                 newval = []
+         (k, proto_d, low, high) = self.__genkey(port, proto)
+@@ -1145,7 +1145,7 @@ class portRecords(semanageRecords):
+             else:
+                 raise ValueError(_("Requires setype"))
  
-             for v in values:
--                if v not in domains:
-+                if sepolicy.get_real_type_name(v) not in domains:
-                     raise ValueError("%s must be an SELinux process domain:\nValid domains: %s" % (v, ", ".join(domains)))
-                 newval.append(v)
-             setattr(namespace, self.dest, newval)
-@@ -167,7 +165,7 @@ class CheckPortType(argparse.Action):
-         if not newval:
-             newval = []
-         for v in values:
--            if v not in port_types:
-+            if sepolicy.get_real_type_name(v) not in port_types:
-                 raise ValueError("%s must be an SELinux port type:\nValid port types: %s" % (v, ", ".join(port_types)))
-             newval.append(v)
-         setattr(namespace, self.dest, values)
-diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
-index 8484b28c..0da3917b 100644
---- a/python/sepolicy/sepolicy/__init__.py
-+++ b/python/sepolicy/sepolicy/__init__.py
-@@ -447,6 +447,14 @@ def get_file_types(setype):
-     return mpaths
+-        if setype and setype not in self.valid_types:
++        if setype and sepolicy.get_real_type_name(setype) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a port type") % setype)
  
+         (k, proto_d, low, high) = self.__genkey(port, proto)
+@@ -1349,7 +1349,7 @@ class ibpkeyRecords(semanageRecords):
+         if type == "":
+             raise ValueError(_("Type is required"))
  
-+# determine if entered type is an alias
-+# and return corresponding type name
-+def get_real_type_name(name):
-+    try:
-+        return next(info(TYPE, name))["name"]
-+    except (RuntimeError, StopIteration):
-+        return None
-+
- def get_writable_files(setype):
-     file_types = get_all_file_types()
-     all_writes = []
-@@ -1061,7 +1069,7 @@ def gen_short_name(setype):
-         domainname = setype[:-2]
-     else:
-         domainname = setype
--    if domainname + "_t" not in all_domains:
-+    if get_real_type_name(domainname + "_t") not in all_domains:
-         raise ValueError("domain %s_t does not exist" % domainname)
-     if domainname[-1] == 'd':
-         short_name = domainname[:-1] + "_"
+-        if type not in self.valid_types:
++        if sepolicy.get_real_type_name(type) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a ibpkey type") % type)
+ 
+         (k, subnet_prefix, low, high) = self.__genkey(pkey, subnet_prefix)
+@@ -1411,7 +1411,7 @@ class ibpkeyRecords(semanageRecords):
+             else:
+                 raise ValueError(_("Requires setype"))
+ 
+-        if setype and setype not in self.valid_types:
++        if setype and sepolicy.get_real_type_name(setype) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a ibpkey type") % setype)
+ 
+         (k, subnet_prefix, low, high) = self.__genkey(pkey, subnet_prefix)
+@@ -1597,7 +1597,7 @@ class ibendportRecords(semanageRecords):
+         if type == "":
+             raise ValueError(_("Type is required"))
+ 
+-        if type not in self.valid_types:
++        if sepolicy.get_real_type_name(type) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be an ibendport type") % type)
+         (k, ibendport, port) = self.__genkey(ibendport, ibdev_name)
+ 
+@@ -1658,7 +1658,7 @@ class ibendportRecords(semanageRecords):
+             else:
+                 raise ValueError(_("Requires setype"))
+ 
+-        if setype and setype not in self.valid_types:
++        if setype and sepolicy.get_real_type_name(setype) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be an ibendport type") % setype)
+ 
+         (k, ibdev_name, port) = self.__genkey(ibendport, ibdev_name)
+@@ -1847,7 +1847,7 @@ class nodeRecords(semanageRecords):
+         if ctype == "":
+             raise ValueError(_("SELinux node type is required"))
+ 
+-        if ctype not in self.valid_types:
++        if sepolicy.get_real_type_name(ctype) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a node type") % ctype)
+ 
+         (rc, k) = semanage_node_key_create(self.sh, addr, mask, proto)
+@@ -1916,7 +1916,7 @@ class nodeRecords(semanageRecords):
+         if serange == "" and setype == "":
+             raise ValueError(_("Requires setype or serange"))
+ 
+-        if setype and setype not in self.valid_types:
++        if setype and sepolicy.get_real_type_name(setype) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a node type") % setype)
+ 
+         (rc, k) = semanage_node_key_create(self.sh, addr, mask, proto)
+@@ -2235,7 +2235,6 @@ class fcontextRecords(semanageRecords):
+     try:
+         valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "file_type"))[0]["types"])
+         valid_types += list(list(sepolicy.info(sepolicy.ATTRIBUTE, "device_node"))[0]["types"])
+-        valid_types.append("<<none>>")
+     except RuntimeError:
+         valid_types = []
+ 
+@@ -2363,7 +2362,7 @@ class fcontextRecords(semanageRecords):
+         if type == "":
+             raise ValueError(_("SELinux Type is required"))
+ 
+-        if type not in self.valid_types:
++        if type != "<<none>>" and sepolicy.get_real_type_name(type) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a file or device type") % type)
+ 
+         (rc, k) = semanage_fcontext_key_create(self.sh, target, file_types[ftype])
+@@ -2426,7 +2425,7 @@ class fcontextRecords(semanageRecords):
+     def __modify(self, target, setype, ftype, serange, seuser):
+         if serange == "" and setype == "" and seuser == "":
+             raise ValueError(_("Requires setype, serange or seuser"))
+-        if setype and setype not in self.valid_types:
++        if setype not in ["",  "<<none>>"] and sepolicy.get_real_type_name(setype) not in self.valid_types:
+             raise ValueError(_("Type %s is invalid, must be a file or device type") % setype)
+ 
+         self.validate(target)
 -- 
 2.17.1
 
