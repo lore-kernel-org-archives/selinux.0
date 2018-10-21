@@ -2,118 +2,71 @@ Return-Path: <SRS0=UzCa=NB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,HK_NAME_FM_MR_MRS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C7F9ECDE3D
-	for <selinux@archiver.kernel.org>; Sun, 21 Oct 2018 09:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 531E4ECDE44
+	for <selinux@archiver.kernel.org>; Sun, 21 Oct 2018 19:22:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EB7BF2083E
-	for <selinux@archiver.kernel.org>; Sun, 21 Oct 2018 09:20:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EB7BF2083E
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=m4x.org
+	by mail.kernel.org (Postfix) with ESMTP id E943420658
+	for <selinux@archiver.kernel.org>; Sun, 21 Oct 2018 19:22:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WRmS19Xg"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E943420658
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbeJUReG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 21 Oct 2018 13:34:06 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:49415 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726975AbeJUReF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 21 Oct 2018 13:34:05 -0400
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id D388C56128A
-        for <selinux@vger.kernel.org>; Sun, 21 Oct 2018 11:20:23 +0200 (CEST)
-Received: by mail-oi1-f181.google.com with SMTP id y81-v6so29929890oia.6
-        for <selinux@vger.kernel.org>; Sun, 21 Oct 2018 02:20:23 -0700 (PDT)
-X-Gm-Message-State: ABuFfogPHZpqQSMbtCecbpcEaxPX59uHnuuT/Ej0+UL/4c7sV3OQb0nm
-        AjaqWmXFYPiyZkKCXqq2YKT2s4u5xRhpEL+naiQ=
-X-Google-Smtp-Source: ACcGV61WmULTHvxPO3cn/cR/+2nyhEvnwP/Q+V2o04jXnPnAOVQhI5083CSKwb4EtNDMS/RwFy1Y1hr4FAlIlDTYjdo=
-X-Received: by 2002:aca:590b:: with SMTP id n11-v6mr20635818oib.232.1540113622816;
- Sun, 21 Oct 2018 02:20:22 -0700 (PDT)
+        id S1727988AbeJVDiN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 21 Oct 2018 23:38:13 -0400
+Received: from mail-lf1-f54.google.com ([209.85.167.54]:37381 "EHLO
+        mail-lf1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727945AbeJVDiN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 21 Oct 2018 23:38:13 -0400
+Received: by mail-lf1-f54.google.com with SMTP id a82-v6so28711613lfa.4
+        for <selinux@vger.kernel.org>; Sun, 21 Oct 2018 12:22:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=tmtjleuwHRZ+1FcGkGQb+pVGf3qJLeOgEsBSIWMOfXM=;
+        b=WRmS19XgUlsUQR+kRNXZaWNfx1UwwThiP7jX5ZCE9nLbnOfDtD8mjYVWPAdUhYyJMa
+         eR+za2twqIwJkde42VcQw3iS8OgiuqM7YmVxNPDjc3P5a24GcvCKFb0JwHHsW7s4Afh3
+         mzZ82bZQisUayOiCDUOaq9KlaBeoMim97tgpZLRhvoepwEmKVJneJadp2XKfy2wrtpHe
+         z5iEdhNiVLQC+7XRMVWAfsKDTiYVLPteyyp7BXHK2doQlrbfw7Co1gm21FifTB060ydp
+         uicy3YFvtIfVn4bZpChKZ16j1l5MXE4oThzKXRcpwigNjJ46jdgPhVr5XT7rxJI1tyIW
+         +rEg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=tmtjleuwHRZ+1FcGkGQb+pVGf3qJLeOgEsBSIWMOfXM=;
+        b=liLB7YEzwgIHgdkJ44WnW1VfJAYvqtelF8Zv9avp/VOM14HbeOEK0nFdvqnhH0JqwO
+         3pvqR50hGOxWTjgKT3TmBRqKGohpuqXaFw6/6a3vETqGq05QwTk03DvgmyKlnuBdVgXk
+         n7cRZdHPdjxToXd3QCC/Jn3ll6DV1oGnH1wJeuvEtGhc72zsH5W1ct5tCaZ8UeFR/aL2
+         Wx93kwcJQDSiS9elGjzwtfSqziUfIGJA8HtH4S0OG8ebcM84ykArYJmpWpc98uwsSoSi
+         1WyzHu5Vb+b9LmmENuUmO+WQE8BJFx49aC9WjDUF8f60SRl/eXwvTAY4g7r569kY5z9p
+         8JEQ==
+X-Gm-Message-State: ABuFfojr8MTuvqlJf4v8bmq58xax2ncx6+2ry6YQQwbG/2513X0xlynA
+        Uvmitg31asPIWmyzRu9mpPVWu4LTsK+bHptjqbzdmwCp
+X-Google-Smtp-Source: ACcGV618m8vjAECtxsni8QKn4AmC56CeUupPQsQZ+mCk8OXFhBzEiS76Ogs+h9SoQE92xUwydfL4tDEoG9Fg6NUS1Kg=
+X-Received: by 2002:a19:ec0a:: with SMTP id b10-v6mr8187922lfa.65.1540149771619;
+ Sun, 21 Oct 2018 12:22:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20181016100533.12249-1-vmojzis@redhat.com> <20181016100533.12249-3-vmojzis@redhat.com>
- <CAJfZ7=nTojoSkL8Eg84ZX429+tETXOVDJ7m0rC3R3dHqK93VSQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nTojoSkL8Eg84ZX429+tETXOVDJ7m0rC3R3dHqK93VSQ@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 21 Oct 2018 11:20:11 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nSsAKJ=MB6HiZ3mDE3kVa4Yx8imkVDsq-ngC-2O8Vfpg@mail.gmail.com>
-Message-ID: <CAJfZ7=nSsAKJ=MB6HiZ3mDE3kVa4Yx8imkVDsq-ngC-2O8Vfpg@mail.gmail.com>
-Subject: Re: [PATCH 2/3] python/sepolicy: Stop rejecting aliases in sepolicy commands
-To:     Vit Mojzis <vmojzis@redhat.com>
-Cc:     selinux@vger.kernel.org
+Received: by 2002:a2e:9dc4:0:0:0:0:0 with HTTP; Sun, 21 Oct 2018 12:22:51
+ -0700 (PDT)
+From:   Mr Stid <stidofficiel@gmail.com>
+Date:   Sun, 21 Oct 2018 21:22:51 +0200
+Message-ID: <CAFWMVF3+Agy_98zPCUEuNWAT=K9a9nx0SWKJFZRRn1VY1Jw9eA@mail.gmail.com>
+Subject: Fix snprintf truncated error
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Oct 21 11:20:24 2018 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Oct 21, 2018 at 11:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Tue, Oct 16, 2018 at 12:05 PM Vit Mojzis <vmojzis@redhat.com> wrote:
-> >
-> > Fix CheckDomain and CheckPortType classes to properly deal with aliases.
-> >
-> > Resolves:
-> >    https://bugzilla.redhat.com/show_bug.cgi?id=1600009
-> >
-> > Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> > ---
-> >  python/sepolicy/sepolicy.py          |  8 +++-----
-> >  python/sepolicy/sepolicy/__init__.py | 10 +++++++++-
-> >  2 files changed, 12 insertions(+), 6 deletions(-)
-> >
-> [...]
-> > diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
-> > index 8484b28c..0da3917b 100644
-> > --- a/python/sepolicy/sepolicy/__init__.py
-> > +++ b/python/sepolicy/sepolicy/__init__.py
-> > @@ -447,6 +447,14 @@ def get_file_types(setype):
-> >      return mpaths
-> >
-> >
-> > +# determine if entered type is an alias
-> > +# and return corresponding type name
-> > +def get_real_type_name(name):
-> > +    try:
-> > +        return next(info(TYPE, name))["name"]
-> > +    except (RuntimeError, StopIteration):
-> > +        return None
-> > +
->
-> When I first read the function comment, I did not understand whether
-> the returned value was a kind of SELinux type (like something which
-> would say "a file type", "a port type") or the SELinux type which is
-> aliased. It is the second interpretation which is implemented.
-> Moreover, this comment seems to be better in a function docstring. I
-> suggest changing this into the following:
->
-> def get_real_type_name(name):
->     """Return the real name of a type:
->
->     * If 'name' refers to a type, return the same name.
->     * If 'name' refers to a type alias, return the corresponding name.
->     * Otherwise return None.
->     """
->
-> What do you think of this suggestion?
->
-> Moreover, when is RuntimeError triggered, in the exception that are caught?
+Hi,
 
-Also, if name is empty, sepolicy.info(TYPE, name) returns all
-available types, so get_real_type_name("") returns the first type in
-the list of types defined in the policy. I saw that your patches use
-"if setype and sepolicy.get_real_type_name(setype) not in
-self.valid_types" in many places (which looks good). To increase the
-robustness of the Python code, I would also add a test in
-get_real_type_name as well, like:
-
-    if not name:
-        return None
-
-Nicolas
-
+You can see my pull request on :
+https://github.com/SELinuxProject/selinux/pull/106 for fix some
+snprintf errors.
