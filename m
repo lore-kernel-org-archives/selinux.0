@@ -6,114 +6,128 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3039C004D3
-	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 15:40:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C629BC004D3
+	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 15:43:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 07DEE2064C
-	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 15:40:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 07DEE2064C
+	by mail.kernel.org (Postfix) with ESMTP id EBFF5205F4
+	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 15:43:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EBFF5205F4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728249AbeJVX7Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Oct 2018 19:59:16 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:60864 "EHLO mx1.redhat.com"
+        id S1728583AbeJWACY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Oct 2018 20:02:24 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:54498 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbeJVX7Q (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 22 Oct 2018 19:59:16 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        id S1727590AbeJWACY (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 22 Oct 2018 20:02:24 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C6164C04D306
-        for <selinux@vger.kernel.org>; Mon, 22 Oct 2018 15:40:14 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id CA8A4C050DFB
+        for <selinux@vger.kernel.org>; Mon, 22 Oct 2018 15:43:21 +0000 (UTC)
 Received: from localhost.localdomain.com (ovpn-204-155.brq.redhat.com [10.40.204.155])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 38FB3798A5
-        for <selinux@vger.kernel.org>; Mon, 22 Oct 2018 15:40:14 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 34924105705D
+        for <selinux@vger.kernel.org>; Mon, 22 Oct 2018 15:43:20 +0000 (UTC)
 From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: Re: [PATCH 2/3] python/sepolicy: Stop rejecting aliases in sepolicy commands
-Date:   Mon, 22 Oct 2018 17:40:01 +0200
-Message-Id: <20181022154003.19309-1-vmojzis@redhat.com>
+Subject: [PATCH 2/3] python/sepolicy: Stop rejecting aliases in sepolicy commands
+Date:   Mon, 22 Oct 2018 17:43:12 +0200
+Message-Id: <20181022154313.19577-1-vmojzis@redhat.com>
 In-Reply-To: <CAJfZ7=nSsAKJ=MB6HiZ3mDE3kVa4Yx8imkVDsq-ngC-2O8Vfpg@mail.gmail.com>
 References: <CAJfZ7=nSsAKJ=MB6HiZ3mDE3kVa4Yx8imkVDsq-ngC-2O8Vfpg@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Mon, 22 Oct 2018 15:40:14 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Mon, 22 Oct 2018 15:43:21 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 21. 10. 18 11:20, Nicolas Iooss wrote:> On Sun, Oct 21, 2018 at 11:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->>
->> On Tue, Oct 16, 2018 at 12:05 PM Vit Mojzis <vmojzis@redhat.com> wrote:
->>>
->>> Fix CheckDomain and CheckPortType classes to properly deal with aliases.
->>>
->>> Resolves:
->>>     https://bugzilla.redhat.com/show_bug.cgi?id=1600009
->>>
->>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
->>> ---
->>>   python/sepolicy/sepolicy.py          |  8 +++-----
->>>   python/sepolicy/sepolicy/__init__.py | 10 +++++++++-
->>>   2 files changed, 12 insertions(+), 6 deletions(-)
->>>
->> [...]
->>> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
->>> index 8484b28c..0da3917b 100644
->>> --- a/python/sepolicy/sepolicy/__init__.py
->>> +++ b/python/sepolicy/sepolicy/__init__.py
->>> @@ -447,6 +447,14 @@ def get_file_types(setype):
->>>       return mpaths
->>>
->>>
->>> +# determine if entered type is an alias
->>> +# and return corresponding type name
->>> +def get_real_type_name(name):
->>> +    try:
->>> +        return next(info(TYPE, name))["name"]
->>> +    except (RuntimeError, StopIteration):
->>> +        return None
->>> +
->>
->> When I first read the function comment, I did not understand whether
->> the returned value was a kind of SELinux type (like something which
->> would say "a file type", "a port type") or the SELinux type which is
->> aliased. It is the second interpretation which is implemented.
->> Moreover, this comment seems to be better in a function docstring. I
->> suggest changing this into the following:
->>
->> def get_real_type_name(name):
->>      """Return the real name of a type:
->>
->>      * If 'name' refers to a type, return the same name.
->>      * If 'name' refers to a type alias, return the corresponding name.
->>      * Otherwise return None.
->>      """
->>
->> What do you think of this suggestion?
->>
->> Moreover, when is RuntimeError triggered, in the exception that are caught?
+Fix CheckDomain and CheckPortType classes to properly deal with aliases.
 
-Catching RuntimeError ensures compatibility with setools3, which
-triggers this exception instead of returning empty list.
+Resolves:
+   https://bugzilla.redhat.com/show_bug.cgi?id=1600009
 
-> 
-> Also, if name is empty, sepolicy.info(TYPE, name) returns all
-> available types, so get_real_type_name("") returns the first type in
-> the list of types defined in the policy. I saw that your patches use
-> "if setype and sepolicy.get_real_type_name(setype) not in
-> self.valid_types" in many places (which looks good). To increase the
-> robustness of the Python code, I would also add a test in
-> get_real_type_name as well, like:
-> 
->      if not name:
->          return None
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+---
+ python/sepolicy/sepolicy.py          |  8 +++-----
+ python/sepolicy/sepolicy/__init__.py | 16 +++++++++++++++-
+ 2 files changed, 18 insertions(+), 6 deletions(-)
 
-Good point, thank you.
-
-> 
-> Nicolas
-> 
-
+diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+index a000c1ad..01380fbe 100755
+--- a/python/sepolicy/sepolicy.py
++++ b/python/sepolicy/sepolicy.py
+@@ -60,8 +60,6 @@ class CheckPath(argparse.Action):
+ class CheckType(argparse.Action):
+ 
+     def __call__(self, parser, namespace, values, option_string=None):
+-        domains = sepolicy.get_all_domains()
+-
+         if isinstance(values, str):
+             setattr(namespace, self.dest, values)
+         else:
+@@ -103,7 +101,7 @@ class CheckDomain(argparse.Action):
+         domains = sepolicy.get_all_domains()
+ 
+         if isinstance(values, str):
+-            if values not in domains:
++            if sepolicy.get_real_type_name(values) not in domains:
+                 raise ValueError("%s must be an SELinux process domain:\nValid domains: %s" % (values, ", ".join(domains)))
+             setattr(namespace, self.dest, values)
+         else:
+@@ -112,7 +110,7 @@ class CheckDomain(argparse.Action):
+                 newval = []
+ 
+             for v in values:
+-                if v not in domains:
++                if sepolicy.get_real_type_name(v) not in domains:
+                     raise ValueError("%s must be an SELinux process domain:\nValid domains: %s" % (v, ", ".join(domains)))
+                 newval.append(v)
+             setattr(namespace, self.dest, newval)
+@@ -167,7 +165,7 @@ class CheckPortType(argparse.Action):
+         if not newval:
+             newval = []
+         for v in values:
+-            if v not in port_types:
++            if sepolicy.get_real_type_name(v) not in port_types:
+                 raise ValueError("%s must be an SELinux port type:\nValid port types: %s" % (v, ", ".join(port_types)))
+             newval.append(v)
+         setattr(namespace, self.dest, values)
+diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+index 8484b28c..9ea10835 100644
+--- a/python/sepolicy/sepolicy/__init__.py
++++ b/python/sepolicy/sepolicy/__init__.py
+@@ -446,6 +446,20 @@ def get_file_types(setype):
+             mpaths[f] = []
+     return mpaths
+ 
++def get_real_type_name(name):
++    """Return the real name of a type
++
++    * If 'name' refers to a type, return the same name.
++    * If 'name' refers to a type alias, return the corresponding type name.
++    * Otherwise return None.
++    """
++    if not name:
++        return None
++
++    try:
++        return next(info(TYPE, name))["name"]
++    except (RuntimeError, StopIteration):
++        return None
+ 
+ def get_writable_files(setype):
+     file_types = get_all_file_types()
+@@ -1061,7 +1075,7 @@ def gen_short_name(setype):
+         domainname = setype[:-2]
+     else:
+         domainname = setype
+-    if domainname + "_t" not in all_domains:
++    if get_real_type_name(domainname + "_t") not in all_domains:
+         raise ValueError("domain %s_t does not exist" % domainname)
+     if domainname[-1] == 'd':
+         short_name = domainname[:-1] + "_"
+-- 
+2.17.2
 
