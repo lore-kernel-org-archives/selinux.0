@@ -2,128 +2,118 @@ Return-Path: <SRS0=10e4=NC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 181A5C004D3
-	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 14:49:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3039C004D3
+	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 15:40:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 90DA720645
-	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 14:49:06 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GtPNZe9R"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 90DA720645
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTP id 07DEE2064C
+	for <selinux@archiver.kernel.org>; Mon, 22 Oct 2018 15:40:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 07DEE2064C
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728327AbeJVXH5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Oct 2018 19:07:57 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:39203 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728271AbeJVXH5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 22 Oct 2018 19:07:57 -0400
-Received: by mail-ot1-f68.google.com with SMTP id l58so40302296otd.6
-        for <selinux@vger.kernel.org>; Mon, 22 Oct 2018 07:49:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=77T/GCOOQnzPb8Ff6Zgd2rGAJL0AYjMwo+94Pufqp+M=;
-        b=GtPNZe9Rm63oJd5LPW9l7c1+0mV67VKLolD9BDfToR+qncyueXgYutMyY652laeMuf
-         e7nBLbigAcCOUensxZoFQtXXNdVr8/8U76q1D2oy0n5oCrbENmojb1FbI1hoCu3xhCKp
-         gLdQAPCrSFIQ6yX0FUo4WTWExUCybegQHTWE15tLMJNfCRVppNhQ74itk42PvMUfW14q
-         E2q+NMqV5FqM0NXmKyaDqm/5l3uScYYWIINpzUr3drVPFdM20F6j40Wr9mcX2GzaUXoj
-         N6IEu/jga7zOded7pvBQbZzmkbok0qwEapYrzGeCtpQBcJwnJCmnYwoFUG+AG1N1hHRk
-         T7pQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=77T/GCOOQnzPb8Ff6Zgd2rGAJL0AYjMwo+94Pufqp+M=;
-        b=VpV/fK360jqzyMe5grXQZRY8b3kgTNEqLxjYH0yspnHZmzRaxt8KFTw2TdXQlakUaa
-         PQ5WkyTUwESYeN3GSMamk/YRP9M6ag+PCPZENlnNqGKtbP6kVTyKVOLimhk494c9Zm0u
-         RuK4gWlbSczDJGSysMkU7w91Vgr74pcxXywh2jDxaUC+12NKJ8oB2UHvOY+dWzgbFzzi
-         T1rq3Z6Thuw+HnCcg9qanHKmTc6D+2yyq3CWbVgbyc3enMCiCtexUOtXqG1MB+uwSGri
-         HpGxZWT2J3Sg097Uw/EkpQzwXQ/7fikD+xAO8RvHh+/S+CC+JRiv2RkEdRyeRqQ+Z7We
-         aANw==
-X-Gm-Message-State: ABuFfohUQwcDZJvZg8Kj2zU89+nB9gg0nkUlNIBnYqI0GoBYlPULlkR5
-        Y86coFhJTJt4mkjSvTcPmr4uS4MM4SP3UyWfMdA=
-X-Google-Smtp-Source: ACcGV617l7bB87pgdTDNPd1OJjU0N82wXEBqoBUTVS07388mGuoLjrWzo6bwcoQp8uiaSoBaROzrEGT6UP+BssrJ860=
-X-Received: by 2002:a9d:7692:: with SMTP id j18mr11570078otl.217.1540219744714;
- Mon, 22 Oct 2018 07:49:04 -0700 (PDT)
-MIME-Version: 1.0
-References: <20181022081807.5018-1-omosnace@redhat.com>
-In-Reply-To: <20181022081807.5018-1-omosnace@redhat.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Mon, 22 Oct 2018 07:48:52 -0700
-Message-ID: <CAFftDdpav=0ggUZE_N9Jt2QTU0CNkyu9rNAfRB_d3=R9vEfApg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: add missing ibendport port validity check
-To:     omosnace@redhat.com
-Cc:     selinux@vger.kernel.org, selinux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, danielj@mellanox.com
-Content-Type: text/plain; charset="UTF-8"
+        id S1728249AbeJVX7Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Oct 2018 19:59:16 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60864 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727857AbeJVX7Q (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 22 Oct 2018 19:59:16 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id C6164C04D306
+        for <selinux@vger.kernel.org>; Mon, 22 Oct 2018 15:40:14 +0000 (UTC)
+Received: from localhost.localdomain.com (ovpn-204-155.brq.redhat.com [10.40.204.155])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 38FB3798A5
+        for <selinux@vger.kernel.org>; Mon, 22 Oct 2018 15:40:14 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: Re: [PATCH 2/3] python/sepolicy: Stop rejecting aliases in sepolicy commands
+Date:   Mon, 22 Oct 2018 17:40:01 +0200
+Message-Id: <20181022154003.19309-1-vmojzis@redhat.com>
+In-Reply-To: <CAJfZ7=nSsAKJ=MB6HiZ3mDE3kVa4Yx8imkVDsq-ngC-2O8Vfpg@mail.gmail.com>
+References: <CAJfZ7=nSsAKJ=MB6HiZ3mDE3kVa4Yx8imkVDsq-ngC-2O8Vfpg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Mon, 22 Oct 2018 15:40:14 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 22, 2018 at 1:18 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> The kernel checks if the port is in the range 1-255 when loading an
-> ibenportcon rule. Add the same check to libsepol.
->
-> Fixes: 118c0cd1038e ("libsepol: Add ibendport ocontext handling")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  libsepol/src/policydb.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
->
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index db6765ba..e2808b2d 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -2854,7 +2854,9 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
->                                         return -1;
->                                 break;
->                         }
-> -                       case OCON_IBENDPORT:
-> +                       case OCON_IBENDPORT: {
-> +                               uint32_t port;
-> +
->                                 rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
->                                 if (rc < 0)
->                                         return -1;
-> @@ -2862,6 +2864,10 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
->                                 if (len == 0 || len > IB_DEVICE_NAME_MAX - 1)
->                                         return -1;
->
-> +                               port = le32_to_cpu(buf[1]);
-> +                               if (port > 0xff || port == 0)
-> +                                       return -1;
+On 21. 10. 18 11:20, Nicolas Iooss wrote:> On Sun, Oct 21, 2018 at 11:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>>
+>> On Tue, Oct 16, 2018 at 12:05 PM Vit Mojzis <vmojzis@redhat.com> wrote:
+>>>
+>>> Fix CheckDomain and CheckPortType classes to properly deal with aliases.
+>>>
+>>> Resolves:
+>>>     https://bugzilla.redhat.com/show_bug.cgi?id=1600009
+>>>
+>>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+>>> ---
+>>>   python/sepolicy/sepolicy.py          |  8 +++-----
+>>>   python/sepolicy/sepolicy/__init__.py | 10 +++++++++-
+>>>   2 files changed, 12 insertions(+), 6 deletions(-)
+>>>
+>> [...]
+>>> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+>>> index 8484b28c..0da3917b 100644
+>>> --- a/python/sepolicy/sepolicy/__init__.py
+>>> +++ b/python/sepolicy/sepolicy/__init__.py
+>>> @@ -447,6 +447,14 @@ def get_file_types(setype):
+>>>       return mpaths
+>>>
+>>>
+>>> +# determine if entered type is an alias
+>>> +# and return corresponding type name
+>>> +def get_real_type_name(name):
+>>> +    try:
+>>> +        return next(info(TYPE, name))["name"]
+>>> +    except (RuntimeError, StopIteration):
+>>> +        return None
+>>> +
+>>
+>> When I first read the function comment, I did not understand whether
+>> the returned value was a kind of SELinux type (like something which
+>> would say "a file type", "a port type") or the SELinux type which is
+>> aliased. It is the second interpretation which is implemented.
+>> Moreover, this comment seems to be better in a function docstring. I
+>> suggest changing this into the following:
+>>
+>> def get_real_type_name(name):
+>>      """Return the real name of a type:
+>>
+>>      * If 'name' refers to a type, return the same name.
+>>      * If 'name' refers to a type alias, return the corresponding name.
+>>      * Otherwise return None.
+>>      """
+>>
+>> What do you think of this suggestion?
+>>
+>> Moreover, when is RuntimeError triggered, in the exception that are caught?
 
-You switched the other code to using UINT16_MAX, should probably use
-UINT8_MAX here.
+Catching RuntimeError ensures compatibility with setools3, which
+triggers this exception instead of returning empty list.
 
-> +
->                                 c->u.ibendport.dev_name = malloc(len + 1);
->                                 if (!c->u.ibendport.dev_name)
->                                         return -1;
-> @@ -2869,11 +2875,12 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
->                                 if (rc < 0)
->                                         return -1;
->                                 c->u.ibendport.dev_name[len] = 0;
-> -                               c->u.ibendport.port = le32_to_cpu(buf[1]);
-> +                               c->u.ibendport.port = port;
->                                 if (context_read_and_validate
->                                     (&c->context[0], p, fp))
->                                         return -1;
->                                 break;
-> +                       }
->                         case OCON_PORT:
->                                 rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
->                                 if (rc < 0)
-> --
-> 2.17.2
->
+> 
+> Also, if name is empty, sepolicy.info(TYPE, name) returns all
+> available types, so get_real_type_name("") returns the first type in
+> the list of types defined in the policy. I saw that your patches use
+> "if setype and sepolicy.get_real_type_name(setype) not in
+> self.valid_types" in many places (which looks good). To increase the
+> robustness of the Python code, I would also add a test in
+> get_real_type_name as well, like:
+> 
+>      if not name:
+>          return None
+
+Good point, thank you.
+
+> 
+> Nicolas
+> 
+
+
