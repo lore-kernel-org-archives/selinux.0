@@ -2,232 +2,89 @@ Return-Path: <SRS0=23Lp=ND=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32012C67863
-	for <selinux@archiver.kernel.org>; Tue, 23 Oct 2018 07:02:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB692C46475
+	for <selinux@archiver.kernel.org>; Tue, 23 Oct 2018 13:38:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0D42F20665
-	for <selinux@archiver.kernel.org>; Tue, 23 Oct 2018 07:02:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0D42F20665
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id AD9582075D
+	for <selinux@archiver.kernel.org>; Tue, 23 Oct 2018 13:38:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AD9582075D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726837AbeJWPY3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Oct 2018 11:24:29 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:51965 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727672AbeJWPY3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Oct 2018 11:24:29 -0400
-Received: by mail-wm1-f67.google.com with SMTP id 143-v6so527868wmf.1
-        for <selinux@vger.kernel.org>; Tue, 23 Oct 2018 00:02:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=mZCh60UgT2gf4v+KbRlbTfRN9f1EpyMMha6W8klXGRA=;
-        b=kPHBRtGQpnp6M2977EITimfByOB+gsKxPpSrDX6oorJ3DsWTvVPFDvlmXzFkyA7UDe
-         UnOPcNzgQMg6U0mqeuJfWCJscxYH5TMBB9JoMXm8/Hb5MRhQt+BbD4qC3bB/2I38YoKH
-         4CTIRZED5kp19TNErInt8VNSIoszrM2/C4Wde6hoKP62czmKCBvVT4r4VTIrP907akW2
-         eU1jQ7Z8IA9fuY2odwyxo7J5EaZ/I1vNR0Fu5vmqnYOP5UOOmGzwgQluxpM5hvKT0sHa
-         Y4rcOyxCWdrEbfsW0oyIxQqgbwmD647q/IjoapGcGVh9KjXT/Ggzti0j/K42pcyrpUw+
-         RU9A==
-X-Gm-Message-State: ABuFfohMuxKXrdaS6NG7ei58xh9iGbChkImhj+pEXq084zjbxZRfiWyH
-        UEQ+H0W8vJd4WBPlZuI9O2Z8jBrwOT5gvg==
-X-Google-Smtp-Source: ACcGV61/+hWLpz05Fv1Qki/XvqmNrcs8eveSLFzcoRRb7YkhRYAcxWUto4irJtwA3iH68m3qWqkGgg==
-X-Received: by 2002:a1c:d105:: with SMTP id i5-v6mr18250842wmg.69.1540278142396;
-        Tue, 23 Oct 2018 00:02:22 -0700 (PDT)
-Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id z4-v6sm704122wmz.14.2018.10.23.00.02.21
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 23 Oct 2018 00:02:21 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Daniel Jurgens <danielj@mellanox.com>,
-        Eli Cohen <eli@mellanox.com>, James Morris <jmorris@namei.org>,
-        Doug Ledford <dledford@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v6] selinux: policydb - fix byte order and alignment issues
-Date:   Tue, 23 Oct 2018 09:02:17 +0200
-Message-Id: <20181023070217.17015-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.17.2
+        id S1727678AbeJWWCX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Oct 2018 18:02:23 -0400
+Received: from ucol19pa09.eemsg.mail.mil ([214.24.24.82]:43855 "EHLO
+        ucol19pa09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726277AbeJWWCX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Oct 2018 18:02:23 -0400
+X-EEMSG-check-008: 783390403|UCOL19PA09_EEMSG_MP7.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.54,416,1534809600"; 
+   d="scan'208";a="783390403"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 23 Oct 2018 13:38:52 +0000
+X-IronPort-AV: E=Sophos;i="5.54,416,1534809600"; 
+   d="scan'208";a="19760004"
+IronPort-PHdr: =?us-ascii?q?9a23=3AeHw1URHXviT0Hd+ZnTqtTZ1GYnF86YWxBRYc79?=
+ =?us-ascii?q?8ds5kLTJ7zocWwAkXT6L1XgUPTWs2DsrQY07WQ6/iocFdDyK7JiGoFfp1IWk?=
+ =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
+ =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmDiwbaluIBmqsA7cqtQYjYx+J6gr1x?=
+ =?us-ascii?q?DHuGFIe+NYxWNpIVKcgRPx7dqu8ZBg7ipdpesv+9ZPXqvmcas4S6dYDCk9PG?=
+ =?us-ascii?q?Au+MLrrxjDQhCR6XYaT24bjwBHAwnB7BH9Q5fxri73vfdz1SWGIcH7S60/VC?=
+ =?us-ascii?q?+85Kl3VhDnlCYHNyY48G7JjMxwkLlbqw+lqxBm3oLYfJ2ZOP94c6zTZ9MaQX?=
+ =?us-ascii?q?dKUNhXWSJPH4iwa5IDA/QdMepdqYT2ulkAogakBQS0Ge3h1DFIiH/106M03e?=
+ =?us-ascii?q?suHgPJ0xAvEd8VrHTZrs/4OLsOXe27zqTFyyjIYfNM2Tf67YjFag0voe2SUr?=
+ =?us-ascii?q?Joccre108vHB7YgFWVs4PlOzeV2foNsmOG6OdgTv+gi3U8pgFtojmg2scsio?=
+ =?us-ascii?q?7TioIT0VDL7z91wIkyJd2mUUN2Z8OvHphItyyCKod7TcwvT3totSon0LEKp5?=
+ =?us-ascii?q?G2cDYQxJg6wRPUduaJfJKS4h35UeacOTJ4hHV4d72hnxuy6k2gyvHkVsmzzV?=
+ =?us-ascii?q?ZKsjJJktnSuXAJ0Bze8tSHReFn/kegxDaPzBrf6v1EIE8olarbLIQtwrgsmZ?=
+ =?us-ascii?q?oIrUvPBCr2mETyjKOOd0Uk/Pan6/j/b7n7qZKROJV4hwHjPqg0hMCyDvo0Ph?=
+ =?us-ascii?q?ITU2SD/OSzzrzj/Un3QLVQif02l7HUsIvHKsQAvaO5Hw9U3Zoj6xa4FTum1s?=
+ =?us-ascii?q?8YkmMdIFJKfxKHkZDlO0vSL/DgEfe/n1OsnS93x/HJIr3hBYnNLnjYnbfueL?=
+ =?us-ascii?q?Zy8U9cyA4pwd9D4JJUD6kLIOjvVU/pqNzYEhg5PhSvw+n5DNV914UeWX+AA6?=
+ =?us-ascii?q?KCLqPSvkGH5vg1L+mPeoAVojD9JOYh5/L0in85g1AdLuGV2s4rZXzwIvN6Iw?=
+ =?us-ascii?q?3NfWrwhcsBOWgPtws6CuftjQvGGQV+Q3e0QrJ0sio2DIOgEJfrWpGmgLvH2j?=
+ =?us-ascii?q?yyWJJReDYVJEqLFCLTa4icW/oKIBmXK8tlny1MAaOtUKc9xBqus0n80LMhIe?=
+ =?us-ascii?q?3KrH5L/an/3cR4srWA3So58iZ5WoHEiTmA?=
+X-IPAS-Result: =?us-ascii?q?A2CWAAAlJM9b/wHyM5BjGgEBAQEBAgEBAQEHAgEBAQGBZ?=
+ =?us-ascii?q?QKBWSqBZSiDdZQ1UgaBNYkIkAc4AYRAAoUqITkJDAEDAQEBAQEBAgFsKII2J?=
+ =?us-ascii?q?AGCYAEFIxU2CxALDgoCAiYCAlcGAQwGAgEBgl4/gXUNpi6BLoU7hGeBC4pXF?=
+ =?us-ascii?q?3mBB4E4gmuIAYJXAo8Oj0IJkG4GF4FDjm2YRiCBVSsIAhgIIQ87gmyQcyMwg?=
+ =?us-ascii?q?QUBAYwmAQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 23 Oct 2018 13:38:45 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w9NDcj1x026251;
+        Tue, 23 Oct 2018 09:38:45 -0400
+Subject: Re: cil mlsconstrain
+To:     Ted Toth <txtoth@gmail.com>, SELinux <selinux@tycho.nsa.gov>
+References: <CAFPpqQHvYnbX8YVU0rbZQE4T1EesyJt6BQb7nW=jrv5aWayBNg@mail.gmail.com>
+Cc:     selinux@vger.kernel.org
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <e52fa402-8d43-04a8-4f00-3550b7fbf89f@tycho.nsa.gov>
+Date:   Tue, 23 Oct 2018 09:40:23 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
+MIME-Version: 1.0
+In-Reply-To: <CAFPpqQHvYnbX8YVU0rbZQE4T1EesyJt6BQb7nW=jrv5aWayBNg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Do the LE conversions before doing the Infiniband-related range checks.
-The incorrect checks are otherwise causing a failure to load any policy
-with an ibendportcon rule on BE systems. This can be reproduced by
-running (on e.g. ppc64):
+On 10/23/2018 09:33 AM, Ted Toth wrote:
+> Is it possible to modify/replace an existing mlsconstrain? In playing 
+> around I created multiple instances of a mlsconstrain and variations of 
+> mlsconstrains but haven't figured out how to clean them up as I get 
+> "Error: Unknown keyword delete' when trying to delete my experiments.
 
-cat >my_module.cil <<EOF
-(type test_ibendport_t)
-(roletype object_r test_ibendport_t)
-(ibendportcon mlx4_0 1 (system_u object_r test_ibendport_t ((s0) (s0))))
-EOF
-semodule -i my_module.cil
+Possibly I misunderstand, but can't you just remove or replace the 
+module that defined it previously?
 
-Also, fix loading/storing the 64-bit subnet prefix for OCON_IBPKEY to
-use a correctly aligned buffer.
-
-Finally, do not use the 'nodebuf' (u32) buffer where 'buf' (__le32)
-should be used instead.
-
-Tested internally on a ppc64 machine with a RHEL 7 kernel with this
-patch applied.
-
-Cc: Daniel Jurgens <danielj@mellanox.com>
-Cc: Eli Cohen <eli@mellanox.com>
-Cc: James Morris <jmorris@namei.org>
-Cc: Doug Ledford <dledford@redhat.com>
-Cc: <stable@vger.kernel.org> # 4.13+
-Fixes: a806f7a1616f ("selinux: Create policydb version for Infiniband support")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/ss/policydb.c | 51 ++++++++++++++++++++++++----------
- 1 file changed, 36 insertions(+), 15 deletions(-)
-
-Changes in v6:
- - use U8_MAX as the limit for ibendport.port value to emphasize that it
-   is an 8-bit value 
-
-Changes in v5:
- - defer also assignment to 8-bit ibendport.port
-
-Changes in v4:
- - defer assignment to 16-bit struct fields to after the range check
-
-Changes in v3:
- - use separate buffer for the 64-bit subnet_prefix
- - add comments on the byte ordering of subnet_prefix
- - deduplicate the le32_to_cpu() calls from checks
-
-Changes in v2:
- - add reproducer to commit message
- - update e-mail address of James Morris
- - better Cc also the old SELinux ML
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index f4eadd3f7350..b63ef865ce1e 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -2108,6 +2108,7 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- {
- 	int i, j, rc;
- 	u32 nel, len;
-+	__be64 prefixbuf[1];
- 	__le32 buf[3];
- 	struct ocontext *l, *c;
- 	u32 nodebuf[8];
-@@ -2217,21 +2218,30 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 					goto out;
- 				break;
- 			}
--			case OCON_IBPKEY:
--				rc = next_entry(nodebuf, fp, sizeof(u32) * 4);
-+			case OCON_IBPKEY: {
-+				u32 pkey_lo, pkey_hi;
-+
-+				rc = next_entry(prefixbuf, fp, sizeof(u64));
-+				if (rc)
-+					goto out;
-+
-+				/* we need to have subnet_prefix in CPU order */
-+				c->u.ibpkey.subnet_prefix = be64_to_cpu(prefixbuf[0]);
-+
-+				rc = next_entry(buf, fp, sizeof(u32) * 2);
- 				if (rc)
- 					goto out;
- 
--				c->u.ibpkey.subnet_prefix = be64_to_cpu(*((__be64 *)nodebuf));
-+				pkey_lo = le32_to_cpu(buf[0]);
-+				pkey_hi = le32_to_cpu(buf[1]);
- 
--				if (nodebuf[2] > 0xffff ||
--				    nodebuf[3] > 0xffff) {
-+				if (pkey_lo > U16_MAX || pkey_hi > U16_MAX) {
- 					rc = -EINVAL;
- 					goto out;
- 				}
- 
--				c->u.ibpkey.low_pkey = le32_to_cpu(nodebuf[2]);
--				c->u.ibpkey.high_pkey = le32_to_cpu(nodebuf[3]);
-+				c->u.ibpkey.low_pkey  = pkey_lo;
-+				c->u.ibpkey.high_pkey = pkey_hi;
- 
- 				rc = context_read_and_validate(&c->context[0],
- 							       p,
-@@ -2239,7 +2249,10 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 				if (rc)
- 					goto out;
- 				break;
--			case OCON_IBENDPORT:
-+			}
-+			case OCON_IBENDPORT: {
-+				u32 port;
-+
- 				rc = next_entry(buf, fp, sizeof(u32) * 2);
- 				if (rc)
- 					goto out;
-@@ -2249,12 +2262,13 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 				if (rc)
- 					goto out;
- 
--				if (buf[1] > 0xff || buf[1] == 0) {
-+				port = le32_to_cpu(buf[1]);
-+				if (port > U8_MAX || port == 0) {
- 					rc = -EINVAL;
- 					goto out;
- 				}
- 
--				c->u.ibendport.port = le32_to_cpu(buf[1]);
-+				c->u.ibendport.port = port;
- 
- 				rc = context_read_and_validate(&c->context[0],
- 							       p,
-@@ -2262,7 +2276,8 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
- 				if (rc)
- 					goto out;
- 				break;
--			}
-+			} /* end case */
-+			} /* end switch */
- 		}
- 	}
- 	rc = 0;
-@@ -3105,6 +3120,7 @@ static int ocontext_write(struct policydb *p, struct policydb_compat_info *info,
- {
- 	unsigned int i, j, rc;
- 	size_t nel, len;
-+	__be64 prefixbuf[1];
- 	__le32 buf[3];
- 	u32 nodebuf[8];
- 	struct ocontext *c;
-@@ -3192,12 +3208,17 @@ static int ocontext_write(struct policydb *p, struct policydb_compat_info *info,
- 					return rc;
- 				break;
- 			case OCON_IBPKEY:
--				*((__be64 *)nodebuf) = cpu_to_be64(c->u.ibpkey.subnet_prefix);
-+				/* subnet_prefix is in CPU order */
-+				prefixbuf[0] = cpu_to_be64(c->u.ibpkey.subnet_prefix);
- 
--				nodebuf[2] = cpu_to_le32(c->u.ibpkey.low_pkey);
--				nodebuf[3] = cpu_to_le32(c->u.ibpkey.high_pkey);
-+				rc = put_entry(prefixbuf, sizeof(u64), 1, fp);
-+				if (rc)
-+					return rc;
-+
-+				buf[0] = cpu_to_le32(c->u.ibpkey.low_pkey);
-+				buf[1] = cpu_to_le32(c->u.ibpkey.high_pkey);
- 
--				rc = put_entry(nodebuf, sizeof(u32), 4, fp);
-+				rc = put_entry(buf, sizeof(u32), 2, fp);
- 				if (rc)
- 					return rc;
- 				rc = context_write(p, &c->context[0], fp);
--- 
-2.17.2
+BTW, selinux mailing list has moved to selinux@vger.kernel.org.
 
