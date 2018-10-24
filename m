@@ -2,120 +2,132 @@ Return-Path: <SRS0=klO3=NE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A23FEC004D3
-	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 15:35:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB212ECDE46
+	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 19:59:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5C1AF207DD
-	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 15:35:30 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="lwRSA2RP"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5C1AF207DD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=crunchydata.com
+	by mail.kernel.org (Postfix) with ESMTP id 7803520832
+	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 19:59:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7803520832
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726800AbeJYAED (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 24 Oct 2018 20:04:03 -0400
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:33701 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726449AbeJYAEC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 24 Oct 2018 20:04:02 -0400
-Received: by mail-qt1-f194.google.com with SMTP id p24-v6so100168qtq.0
-        for <selinux@vger.kernel.org>; Wed, 24 Oct 2018 08:35:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hn+NrB6POArWfl6a+kpQdOAeQ/Ph6IvnxbrhOxnvKfM=;
-        b=lwRSA2RPcB8FrWVFnO+Mw3DGoqcpFgIDwKPkcYRgQOq3IU/sEHKlfHFcgCvj75pP/x
-         nDWkUcKwyn293SprKBOl1CLqt1axtD7tMiBsAurOmnlTGclxrP1Q/sQK4IptPFosjas1
-         3kYgYTpi1v4dqlt3RWjXyv7yS68UXyLP6oP+ZqMLz8FWBPmYA1jnNt5dwHz8fOn0MluV
-         oJQsSy5XEZ2W/6YRo4UskGrXm94cCmRPf+YsdfZxK+raoHnJIRgwyPO4V+bTKlvFnjvf
-         F7qbvo3x2I+YCyIHF25//R7guTFX4cjoTotwdkfM0I2gloR/KwUx0Mo4RhNTYP7/iMAf
-         qjSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=hn+NrB6POArWfl6a+kpQdOAeQ/Ph6IvnxbrhOxnvKfM=;
-        b=fu03fxItujerk3Q8zs6arZthMC+fO4F01iAoN/Z+uBiiLOB5J+uJPuDfZYpPkDyt1g
-         FqKMmFUi7vzF6ooOFudPnxKROBkIFmRXAJd6KjS8lQqhzzoXsJoO43IDi5Sqk0tRxdts
-         nlguXRIofGMX0AG3nvuizn2gLl27bkHa8i0zj0k0XvsTNWMK1EzmBhqfYlsUu9LisFBz
-         6e/6yuO40h/i+++t0h6ZkFrDTsbbQwwxBRbVXFsIP9ApIlb+vHpzbYdY/yDjnoTj5rtW
-         O7Li8qyGKa/GuoYWe44AD20j+7IBjPV1IKaBcdeXfkH0UZDk6KSQQ3mKGAAWrNcil2KF
-         2p0Q==
-X-Gm-Message-State: AGRZ1gLmrcsvrM/9t3mWghpn3OzIGgbpYMXItGtghTO3/xoc0H1pvXoY
-        lKjJtZdyYva2USRmTqZXWkFP+xin2Ck=
-X-Google-Smtp-Source: AJdET5ds9lijevm9ahpxZKxLo7WDZaRvXVqaS1HTc6lwoqOy74dgJBBosPGzvBoB50V1qbLBn+frcg==
-X-Received: by 2002:ac8:1a41:: with SMTP id q1-v6mr2848550qtk.329.1540395328425;
-        Wed, 24 Oct 2018 08:35:28 -0700 (PDT)
-Received: from mls-centos.localdomain (pool-68-134-6-138.bltmmd.fios.verizon.net. [68.134.6.138])
-        by smtp.gmail.com with ESMTPSA id v54-v6sm6254652qtc.81.2018.10.24.08.35.27
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Oct 2018 08:35:27 -0700 (PDT)
-From:   Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
-X-Google-Original-From: Yuli Khodorkovskiy <yuli@crunchydata.com>
-To:     selinux@vger.kernel.org
+        id S1727036AbeJYE3W (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 Oct 2018 00:29:22 -0400
+Received: from upbd19pa11.eemsg.mail.mil ([214.24.27.86]:61904 "EHLO
+        upbd19pa11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726221AbeJYE3W (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 25 Oct 2018 00:29:22 -0400
+X-EEMSG-check-008: 166055922|UPBD19PA11_EEMSG_MP11.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by upbd19pa11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 Oct 2018 19:59:51 +0000
+X-IronPort-AV: E=Sophos;i="5.54,421,1534809600"; 
+   d="scan'208";a="19835993"
+IronPort-PHdr: =?us-ascii?q?9a23=3AzAy5BB0a1MInBXpnsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZsesWKv3xwZ3uMQTl6Ol3ixeRBMOHs60C07KempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffwdFiCChbb9uMR67sRjfus4KjIV4N60/0A?=
+ =?us-ascii?q?HJonxGe+RXwWNnO1eelAvi68mz4ZBu7T1et+ou+MBcX6r6eb84TaFDAzQ9L2?=
+ =?us-ascii?q?81/szrugLdQgaJ+3ART38ZkhtMAwjC8RH6QpL8uTb0u+ZhxCWXO9D9QKsqUj?=
+ =?us-ascii?q?q+8ahkVB7oiD8GNzEn9mHXltdwh79frB64uhBz35LYbISTOfVwZKPdec4RS3?=
+ =?us-ascii?q?RHUMhfSidNBpqwY5UTA+YEO+tTsovzqEYUrRamGAeiGu3vxD9LiHH406I13O?=
+ =?us-ascii?q?YuHh3J0gE7A9IDsm7ZoMnpOKocU+24yrTDwzXZb/NR3Dfw8JXGcgw/rvGUXb?=
+ =?us-ascii?q?J/b8zRwlQyGQPAlFqQrYjlMC2V1+8QtGWb9PdvVfm0hm47qwB+vjivxsA2ho?=
+ =?us-ascii?q?nPnYIa0ErI9Sp+wIYrPNC1TlNwb928EJZIqi2XOIR7TtkiTm11oio21LILtY?=
+ =?us-ascii?q?ChcCQXzpks2gTRZOadc4eS5xLuTOORITBli317YL+/nBOy8VS4yu37S8m0zE?=
+ =?us-ascii?q?5GripbndnIsXAAzwDT5dKdSvt840ehwiyD1xzT6+5YIUA0krDXK5g9zb4rip?=
+ =?us-ascii?q?Ufq0HDHi7ymEnuja+WcFsr+vSw5uj6bbjrqYWQOo9phg3kLKgjldKzDf4lPg?=
+ =?us-ascii?q?QWWmiU4+W81Lnt/U3jR7VKi+U7krLEv5DBPskbuq64DBNV0oYk8Rq/CSym38?=
+ =?us-ascii?q?4CkXkIK1JFZgqLj5L1NFHWPPD4EfC/jkyskTd2w/DGP6ftApbNLnjEjbjheq?=
+ =?us-ascii?q?x9601byAot1tBf5JNUC7EaLf3vQE/xqdrYAQM5Mw203unoEsl92ZkEVW2TBa?=
+ =?us-ascii?q?+ZNbvYsUWU6eI3P+mMeIgVtS7mK/c74/7ujHk5mUISfKSyw5sXZ263Hu58L0?=
+ =?us-ascii?q?Waf3XsmNEBHnkOvgYkS+zqklKCWyZJZ3muR6I8+i07CIW+AIfBQYCtm7yB3D?=
+ =?us-ascii?q?qhEZFMfW9GEFGMEXH1eIWARfgBcz6dItV8kjwCSbehS48g2gy0uw/m0bVrNP?=
+ =?us-ascii?q?bb+iodtcGr6N8g1vDXlFkR9Tt4CN6e1H+WTGBl1jcZWjs3mqN/pkB60FSEz7?=
+ =?us-ascii?q?N7gu1wHsZO4fhJQwszKZeaxOt/XZS6QQ/Ff9GUWH64Tdi8RzI8VNQ8x5kJeU?=
+ =?us-ascii?q?kuNc+li0X4wyeyA7IT34eODZgw/7OUi2P9PO5h2n3G0+8nlFBgTcxRYz71zp?=
+ =?us-ascii?q?Vj/hTeUtaa236SkLynIOFFhnbA?=
+X-IPAS-Result: =?us-ascii?q?A2BkAAAmztBb/wHyM5BkGgEBAQEBAgEBAQEHAgEBAQGBZ?=
+ =?us-ascii?q?YFbKoFlKIN1lC9MAQEBAQEBBoEQJYkIkAo4AYRAAoMLITgWAQMBAQEBAQECA?=
+ =?us-ascii?q?WwogjYkAYJgAQUjFUEQCxgCAiYCAlcGAQwGAgEBgl4/gXUNqgGBLoU7hG2BC?=
+ =?us-ascii?q?4pXF3mBB4ERJwyCX4gBglcCiHGGI49MCZByBheQNyyYJiGBVSsIAhgIIQ+DJ?=
+ =?us-ascii?q?5BzIzCBBQEBizsBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 24 Oct 2018 19:59:50 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w9OJxnCn030769;
+        Wed, 24 Oct 2018 15:59:50 -0400
+Subject: Re: [Non-DoD Source] [PATCH v2] mcstrans: remove unused
+ getpeercon_raw() call
+To:     Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>,
+        selinux@vger.kernel.org
 Cc:     Joshua Brindle <joshua.brindle@crunchydata.com>
-Subject: [PATCH v2] mcstrans: remove unused getpeercon_raw() call
-Date:   Wed, 24 Oct 2018 11:35:19 -0400
-Message-Id: <20181024153519.22187-1-yuli@crunchydata.com>
-X-Mailer: git-send-email 2.19.0
+References: <20181024153519.22187-1-yuli@crunchydata.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <8de5b2ab-d82a-58ba-7820-fd7af58b8b4d@tycho.nsa.gov>
+Date:   Wed, 24 Oct 2018 16:01:26 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20181024153519.22187-1-yuli@crunchydata.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There is a call to getpeercon_raw() in mcstransd, but nothing is done
-with the context. The purpose of process_request() is to translate a
-context and we would like that to succeed even if, for some reason,
-getpeercon_raw() fails.
+On 10/24/2018 11:35 AM, Yuli Khodorkovskiy wrote:
+> There is a call to getpeercon_raw() in mcstransd, but nothing is done
+> with the context. The purpose of process_request() is to translate a
+> context and we would like that to succeed even if, for some reason,
+> getpeercon_raw() fails.
+> 
+> Signed-off-by: Yuli Khodorkovskiy <yuli@crunchydata.com>
+> Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
 
-Signed-off-by: Yuli Khodorkovskiy <yuli@crunchydata.com>
-Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
----
- mcstrans/src/mcstransd.c | 10 ----------
- 1 file changed, 10 deletions(-)
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-v2:
-- Remove comment about MLS clearance check in peercon
-
-diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
-index d7fc5dea..85899493 100644
---- a/mcstrans/src/mcstransd.c
-+++ b/mcstrans/src/mcstransd.c
-@@ -142,17 +142,8 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
- {
- 	int32_t result;
- 	char *out = NULL;
--	char *peercon = NULL;
- 	int ret;
- 
--	ret = getpeercon_raw(fd, &peercon);
--	if (ret < 0)
--		return ret;
--
--	/* TODO: Check if MLS clearance (in peercon) dominates the MLS label
--	 * (in the request input).
--	 */
--  
- 	switch (function) {
- 	case SETRANS_INIT:
- 		result = 0;
-@@ -184,7 +175,6 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
- 	}
- 
- 	free(out);
--	freecon(peercon);
- 
- 	return ret;
- }
--- 
-2.19.0
+> ---
+>   mcstrans/src/mcstransd.c | 10 ----------
+>   1 file changed, 10 deletions(-)
+> 
+> v2:
+> - Remove comment about MLS clearance check in peercon
+> 
+> diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
+> index d7fc5dea..85899493 100644
+> --- a/mcstrans/src/mcstransd.c
+> +++ b/mcstrans/src/mcstransd.c
+> @@ -142,17 +142,8 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
+>   {
+>   	int32_t result;
+>   	char *out = NULL;
+> -	char *peercon = NULL;
+>   	int ret;
+>   
+> -	ret = getpeercon_raw(fd, &peercon);
+> -	if (ret < 0)
+> -		return ret;
+> -
+> -	/* TODO: Check if MLS clearance (in peercon) dominates the MLS label
+> -	 * (in the request input).
+> -	 */
+> -
+>   	switch (function) {
+>   	case SETRANS_INIT:
+>   		result = 0;
+> @@ -184,7 +175,6 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
+>   	}
+>   
+>   	free(out);
+> -	freecon(peercon);
+>   
+>   	return ret;
+>   }
+> 
 
