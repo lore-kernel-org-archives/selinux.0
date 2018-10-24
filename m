@@ -2,85 +2,113 @@ Return-Path: <SRS0=klO3=NE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60B06C67863
-	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 10:49:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7433C004D3
+	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 14:59:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1D046207DD
-	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 10:49:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F0AF2075D
+	for <selinux@archiver.kernel.org>; Wed, 24 Oct 2018 14:59:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="gBSaw3I7"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1D046207DD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="j5JSgd5j"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4F0AF2075D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=crunchydata.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727206AbeJXTQu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 24 Oct 2018 15:16:50 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:46003 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726428AbeJXTQu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 24 Oct 2018 15:16:50 -0400
-Received: by mail-lj1-f196.google.com with SMTP id j4-v6so4279763ljc.12
-        for <selinux@vger.kernel.org>; Wed, 24 Oct 2018 03:49:13 -0700 (PDT)
+        id S1726773AbeJXX14 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 24 Oct 2018 19:27:56 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:35215 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726521AbeJXX14 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 24 Oct 2018 19:27:56 -0400
+Received: by mail-qk1-f193.google.com with SMTP id v68-v6so3486369qka.2
+        for <selinux@vger.kernel.org>; Wed, 24 Oct 2018 07:59:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=NjhJy2C/nhCp5K5exIPr0+iG29RUhRQdf03e9ezu1fs=;
-        b=gBSaw3I7jd1fjqCzFEJsk8Mqy5gaVU9+uJD6jxVsIXdQcyE4Ihc5eV6NJTF4is7xjT
-         OjcSjwQLwU8Ieug4JML6Z5isEHZFFv2dKfbvPmJ599/Ob+7Gq10PuuKCm7R6+qBp0q+q
-         6ayotGuv7IVj35Te+FuIHehp/sTrE3WYPdnao=
+        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=m2+pcY+nDxEFg9ILtqH9T5G3TLJCVR6cKJhlamGHzUw=;
+        b=j5JSgd5jpjTqodqRTQJeCbJ4TwgVoky7uZhChgjKOwdXe8UK2AEDq5MkOMXPnTHOZd
+         a6WJ+A2DVtWV3nBtBaq1a3MrAcZjZ7zQJ7VHZLCoLxKsc1/OwDgHn7AGMbRgbyc0QE28
+         mnzWVpYPw9tz+hF0qhg7O7sZrEGa8j+elpBfoapxXIg6Dx3DLy6LAPpl6zOcAyqJxdim
+         sQtPQKrIgwxcdaCdCk6GI6dzENcesucMKrF19D6Y5ud9TScRcNZyIttoTP02NMcMcFod
+         INgz8abYC2D8tUXaq1sUdDwbDwO++4jAGiiZLMJERKhl6PoO2yFJVPtAljY/32rr8oVj
+         OU0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=NjhJy2C/nhCp5K5exIPr0+iG29RUhRQdf03e9ezu1fs=;
-        b=Ci111yfwB1otpGUK8+2P3hO+KkPjwF9RX3x5GWWoZxqgLhN1GR6pLnREXpKu6H7uR9
-         6jnOXBLRcUMhRH7UiCXAVxOG8I8N0mSVjOASwkN80kgkELOamQwulm16Rd6LMn/TG7td
-         EOhhYoZFPtXrz5zyiCeO58SNXxtIyO+n/DF0rib+lkAyLufj8Gwnoj0KmuDKiQJX/JCF
-         RbyIyycbJ0zp7ezknJH5z0cT8xiQABu1zntazq1S20gMVXCMt5hJeimK/gbkF//P6qrS
-         X84mhZtvfrA46xlQpxz4WQl8AOdDUaNQuXQmYNVxHK99awJRov0MnS1GUfG5iiBefEm0
-         jv4w==
-X-Gm-Message-State: AGRZ1gJx8Hhxup3l2CinwSLqHAK54+aaEBTbcppCgeuZpHIP0D3HtTTo
-        HYMWYM1fssDJjP5o6rArgPixROt2IBWaWwk2
-X-Google-Smtp-Source: AJdET5djR4UtosVmQY0z+tKKsI8yEj5fCJoeSgjAv/8JrucQwJA5j7X/DH6igAKYIfizZ1b3q4Ck8w==
-X-Received: by 2002:a2e:529d:: with SMTP id n29-v6mr1379773lje.54.1540378152202;
-        Wed, 24 Oct 2018 03:49:12 -0700 (PDT)
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com. [209.85.208.181])
-        by smtp.gmail.com with ESMTPSA id e21-v6sm645335lfc.48.2018.10.24.03.49.11
-        for <selinux@vger.kernel.org>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=m2+pcY+nDxEFg9ILtqH9T5G3TLJCVR6cKJhlamGHzUw=;
+        b=aAZgY5Oe9Olx/NYe2QUPuqs97TBPEnInFPfyNmR1ViXZ9BLYFFJitwi+kQXqM1BcL1
+         AD1ho77sWkcfdUMhOhFcG+iJ8Wn5hLtACXAmKLnGffOJtb0+N3e9qE5I5XChZb+0iO4O
+         GbQbv8RdwFlOJGgRpyqyErGU9woKJ4boAjq+4iYboA+J1K3zPWYzufiHRf2LiKMfFiqD
+         hPUTxU7KkyLY1Y6dGBaOdT024SGV82OCmK8/iCndtaOD8Af2464szxfAowfE9uZwzGmH
+         daaP11rlgGr6zF+sAHdD7rw5E3lRWQOl5MuBJnrzfhi6TS8SLzZJZczZ4vPHjk6qaJLv
+         jAAQ==
+X-Gm-Message-State: AGRZ1gKPj2TSobfhTXbA+HkiSrJVmSvealrufy9hDrRc+7H1i+SplCMQ
+        8bjqFUz19UzlSAkN7G+12sCt4gC2Tno=
+X-Google-Smtp-Source: AJdET5eKao9+vXnjmQWC9OhXsWhvEH0FnJ21SBee3i4xKHVKhmZ8OuzEmvEJPFmI0ZyQJqQr2BdMGA==
+X-Received: by 2002:aed:2601:: with SMTP id z1-v6mr2775071qtc.123.1540393168805;
+        Wed, 24 Oct 2018 07:59:28 -0700 (PDT)
+Received: from mls-centos.localdomain (pool-68-134-6-138.bltmmd.fios.verizon.net. [68.134.6.138])
+        by smtp.gmail.com with ESMTPSA id k188-v6sm1031410qkb.3.2018.10.24.07.59.27
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 24 Oct 2018 03:49:11 -0700 (PDT)
-Received: by mail-lj1-f181.google.com with SMTP id l25-v6so2490053lja.9
-        for <selinux@vger.kernel.org>; Wed, 24 Oct 2018 03:49:11 -0700 (PDT)
-X-Received: by 2002:a2e:9584:: with SMTP id w4-v6mr1423488ljh.118.1540378150673;
- Wed, 24 Oct 2018 03:49:10 -0700 (PDT)
+        Wed, 24 Oct 2018 07:59:28 -0700 (PDT)
+From:   Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
+X-Google-Original-From: Yuli Khodorkovskiy <yuli@crunchydata.com>
+To:     selinux@vger.kernel.org
+Cc:     Joshua Brindle <joshua.brindle@crunchydata.com>
+Subject: [PATCH] mcstrans: remove unused getpeercon_raw() call
+Date:   Wed, 24 Oct 2018 10:59:15 -0400
+Message-Id: <20181024145915.20172-1-yuli@crunchydata.com>
+X-Mailer: git-send-email 2.19.0
 MIME-Version: 1.0
-References: <CAHC9VhRHCOZL5WTwiyPQxknO2SAHCeDLuSJmkKWmYLYb4WFXng@mail.gmail.com>
-In-Reply-To: <CAHC9VhRHCOZL5WTwiyPQxknO2SAHCeDLuSJmkKWmYLYb4WFXng@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 24 Oct 2018 11:48:54 +0100
-X-Gmail-Original-Message-ID: <CAHk-=wjhfhKGWapO18bohQvkPtBB2ut1Rn+3x01CEtFzbPWKNQ@mail.gmail.com>
-Message-ID: <CAHk-=wjhfhKGWapO18bohQvkPtBB2ut1Rn+3x01CEtFzbPWKNQ@mail.gmail.com>
-Subject: Re: [GIT PULL] SELinux patches for v4.20
-To:     paul@paul-moore.com
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 23, 2018 at 1:55 AM Paul Moore <paul@paul-moore.com> wrote:
->
-> Three SELinux patches for v4.20, all fall under the bug-fix or
-> behave-better category, which is good.  All three have pretty good
-> descriptions too, which is even better.  Please merge this for v4.20.
+There is a call to getpeercon_raw() in mcstransd, but nothing is done
+with the context. The purpose of process_request() is to translate a
+context and we would like that to succeed even if, for some reason,
+getpeercon_raw() fails.
 
-Pulled,
+Signed-off-by: Yuli Khodorkovskiy <yuli@crunchydata.com>
+Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
+---
+ mcstrans/src/mcstransd.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-               Linus
+diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
+index d7fc5dea..abbdea7e 100644
+--- a/mcstrans/src/mcstransd.c
++++ b/mcstrans/src/mcstransd.c
+@@ -142,13 +142,8 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
+ {
+ 	int32_t result;
+ 	char *out = NULL;
+-	char *peercon = NULL;
+ 	int ret;
+ 
+-	ret = getpeercon_raw(fd, &peercon);
+-	if (ret < 0)
+-		return ret;
+-
+ 	/* TODO: Check if MLS clearance (in peercon) dominates the MLS label
+ 	 * (in the request input).
+ 	 */
+@@ -184,7 +179,6 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
+ 	}
+ 
+ 	free(out);
+-	freecon(peercon);
+ 
+ 	return ret;
+ }
+-- 
+2.19.0
+
