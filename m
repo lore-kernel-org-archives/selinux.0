@@ -1,135 +1,134 @@
-Return-Path: <SRS0=7H0L=NF=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=niUd=NG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71D2DC46475
-	for <selinux@archiver.kernel.org>; Thu, 25 Oct 2018 21:07:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80D81ECDE44
+	for <selinux@archiver.kernel.org>; Fri, 26 Oct 2018 13:54:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 177862054F
-	for <selinux@archiver.kernel.org>; Thu, 25 Oct 2018 21:07:20 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nffMmVoD"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 177862054F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTP id EF38520665
+	for <selinux@archiver.kernel.org>; Fri, 26 Oct 2018 13:54:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EF38520665
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726113AbeJZFlh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 26 Oct 2018 01:41:37 -0400
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:42210 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726056AbeJZFlh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 26 Oct 2018 01:41:37 -0400
-Received: by mail-oi1-f195.google.com with SMTP id h4-v6so5856488oih.9
-        for <selinux@vger.kernel.org>; Thu, 25 Oct 2018 14:07:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rxtPsT8DCyR5worKd8tBNDaRBeqqwhuyywFDOSMVHpY=;
-        b=nffMmVoDy7rd9dqOFhXaDXcbrhRuFhoWSddn9nwyvzJR6w84M9qCxUnyRtaQJUMj6o
-         4zvwWCzqHZmd/GohVvhaqXvgGmmmv0+4sKFuKzrgWTShqfNkjiSp0TAG3iLyEQAryV/n
-         oIp3EiGHJeaRB2eKjCIRDKm4f+K2D08enctanWm92as0ro5uyKBhYcrd2jKj6Fn9VlOv
-         ZRS3ksHOzdQC0HpGDWjT+/+bY5L28agtE63c09DKKi5+o62hvP1bCzVNHfVSsi96rRWr
-         KGapoljsNVIBMRSQwRT3sSqBsh0oIXc+0d4GRApwq8GX4lrUILD9DyEGJXoXMmmm8fWe
-         CNhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rxtPsT8DCyR5worKd8tBNDaRBeqqwhuyywFDOSMVHpY=;
-        b=NAVga4E0En/9JjxleRnTCx1Xvx2EIyJqBDbjGvtqtOxvrGxtxyG1AEokFr0beGr4D6
-         A6KHXbd+hPfn9D3t0xOEv6lYwc3iaya8T+tsdOCUijyj2TFjkddp5MjlUfMxi35a4Smx
-         UXhq6XXq5FfyEH1VAHtyLFU8tl7N8U+nz52ornnkjubA+W0UXhut1DGLUP6Gj+taBADp
-         luNs4J+efgLYayI0RYHkEUaJOBiB0PkqUjZRQh74WLS7seh4a8sr4076wwbnC91Q/VLd
-         7IYO4nWd13AByJffRomzSXxOn+V1XJwsLqpnxE+SjUFHbXy67kalXX09tmfuYkGcoaCl
-         lPNg==
-X-Gm-Message-State: AGRZ1gL6oWj56Mv23zZetcX6POtBXflWFhVyK82F9Kbp+BbHZkE1u2tx
-        lGnnZM66iIww1dMfOxsIi4DCKmIdxUFVxFW6Uog=
-X-Google-Smtp-Source: AJdET5fCw6QlltxP20UC87Pyf+ocp/fy1n1svS7KBvC6WuoNABldMKo4AarM73OJ4hZsMrh3dcBHPQ1ATkV61M2akvM=
-X-Received: by 2002:aca:4cd1:: with SMTP id z200-v6mr501333oia.318.1540501638271;
- Thu, 25 Oct 2018 14:07:18 -0700 (PDT)
+        id S1726149AbeJZWbm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Oct 2018 18:31:42 -0400
+Received: from ucol19pa11.eemsg.mail.mil ([214.24.24.84]:29856 "EHLO
+        UCOL19PA11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726014AbeJZWbm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 Oct 2018 18:31:42 -0400
+X-EEMSG-check-008: 606265738|UCOL19PA11_EEMSG_MP9.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.54,428,1534809600"; 
+   d="scan'208";a="606265738"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UCOL19PA11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 26 Oct 2018 13:54:30 +0000
+X-IronPort-AV: E=Sophos;i="5.54,428,1534809600"; 
+   d="scan'208";a="19915977"
+IronPort-PHdr: =?us-ascii?q?9a23=3AdWYgvR2Zi6ibp47TsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZsesWKv3xwZ3uMQTl6Ol3ixeRBMOHs60C07KempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffwdFiCChbb9uMR67sRjfus4KjIV4N60/0A?=
+ =?us-ascii?q?HJonxGe+RXwWNnO1eelAvi68mz4ZBu7T1et+ou+MBcX6r6eb84TaFDAzQ9L2?=
+ =?us-ascii?q?81/szrugLdQgaJ+3ART38ZkhtMAwjC8RH6QpL8uTb0u+ZhxCWXO9D9QKsqUj?=
+ =?us-ascii?q?q+8ahkVB7oiD8GNzEn9mHXltdwh79frB64uhBz35LYbISTOfVwZKPdec4RS3?=
+ =?us-ascii?q?RHUMhfSidNBpqwY5UTA+YEO+tTsovzqEYUrRamGAeiGu3vxD9LiHH406I13O?=
+ =?us-ascii?q?YuHh3J0gE7A9IDsm7ZoMnpOKocU+24yrTDwzXZb/NR3Dfw8JXGcgw/rvGUXb?=
+ =?us-ascii?q?J/b8zRwlQyGQPAlFqQrYjlMC2V1+8QtGWb9PdvVfm0hm47qwB+vjivxsA2ho?=
+ =?us-ascii?q?nPnYIa0ErI9Sp+wIYrPNC1TlNwb928EJZIqi2XOIR7TtkiTm11oio21LILtY?=
+ =?us-ascii?q?ChcCQXzpks2gTRZOadc4eS5xLuTOORITBli317YL+/nBOy8VS4yu37S8m0zE?=
+ =?us-ascii?q?5GripbndnIsXAAzwDT5dKdSvt840ehwiyD1xzT6+5YIUA0krDXK5g9zb4rip?=
+ =?us-ascii?q?Ufq0HDHi7ymEnuja+WcFsr+vSw5uj6bbjrqYWQOo9phg3kLKgjldKzDf4lPg?=
+ =?us-ascii?q?QWWmiU4+W81Lnt/U3jR7VKi+U7krLEv5DBPskbuq64DBNV0oYk8Rq/CSym38?=
+ =?us-ascii?q?4CkXkIK1JFZgqLj5L1NFHWPPD4EfC/jkyskTd2w/DGP6ftApbNLnjEjbjheq?=
+ =?us-ascii?q?x9601byAot1tBf5JNUC7EaLf3vQE/xqdrYAQM5Mw203unoEsl92ZkEVW2TBa?=
+ =?us-ascii?q?+ZNbvYsUWU6eI3P+mMeIgVtS7mK/c74/7ujHk5mUISfKSyw5sXZ263Hu58L0?=
+ =?us-ascii?q?Waf3XsmNEBHnkOvgYkS+zqklKCWyZJZ3muR6I8+i07CIW+AIfBQYCtm7yB3D?=
+ =?us-ascii?q?qhEZFMfW9GEFGMEXH1eIWARfgBcz6dItV8kjwCSbehS48g2gy0uw/m0bVrNP?=
+ =?us-ascii?q?bb+iodtcGr6N8g1vDXlFkR9Tt4CN6e1H+WTGBl1jcZWjs3mqN/pkB60FSEz7?=
+ =?us-ascii?q?N7gu1wHsZO4fhJQwszKZeaxOt/XZS6QQ/Ff9GUWH64Tdi8RzI8VNQ8x5kJeU?=
+ =?us-ascii?q?kuNc+li0X4wyeyA7IT34eODZgw/7OUi2P9PO5h2n3G0+8nlFBgTcxRYz71zp?=
+ =?us-ascii?q?Vj/hTeUtaa236SkLynIOFFhnbA?=
+X-IPAS-Result: =?us-ascii?q?A2BTAABnG9Nb/wHyM5BjGgEBAQEBAgEBAQEHAgEBAQGBZ?=
+ =?us-ascii?q?YFbKoFlKIN1lDBSBoE1iQuQDDgBhEACgxchOBYBAwEBAQEBAQIBbCiCNiQBg?=
+ =?us-ascii?q?mABBSMVQRALGAICJgICVwYBDAYCAQGCXj+BdQ2mH4EuhTuEYIELil0XeYEHg?=
+ =?us-ascii?q?REngmuIAoJXAoh4hiaPYQmQeQYYkEUsmEAhgVUrCAIYCCEPgyeQcyMwgQUBA?=
+ =?us-ascii?q?Yw9AQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 26 Oct 2018 13:54:29 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w9QDsRkH003235;
+        Fri, 26 Oct 2018 09:54:28 -0400
+Subject: Re: [PATCH v2] mcstrans: remove unused getpeercon_raw() call
+To:     Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>,
+        selinux@vger.kernel.org
+Cc:     Joshua Brindle <joshua.brindle@crunchydata.com>
+References: <20181024153519.22187-1-yuli@crunchydata.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <2e0e0990-f469-fef1-5f6e-4911edcf2bbd@tycho.nsa.gov>
+Date:   Fri, 26 Oct 2018 09:56:02 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-References: <20181023065757.16784-1-omosnace@redhat.com> <CAFftDdr9s72BPz+j1GhFXS_DWpo0ucehv=jHJkOcZc=yzwAhAg@mail.gmail.com>
-In-Reply-To: <CAFftDdr9s72BPz+j1GhFXS_DWpo0ucehv=jHJkOcZc=yzwAhAg@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 25 Oct 2018 14:07:05 -0700
-Message-ID: <CAFftDdqRwEabEoWfAamwx5eV_9WAVoDAjud0qkjwvS=BxT18FQ@mail.gmail.com>
-Subject: Re: [PATCH v2] libsepol: add missing ibendport port validity check
-To:     omosnace@redhat.com
-Cc:     selinux@vger.kernel.org, selinux <selinux@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>, danielj@mellanox.com
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20181024153519.22187-1-yuli@crunchydata.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 23, 2018 at 10:29 AM William Roberts
-<bill.c.roberts@gmail.com> wrote:
->
-> On Mon, Oct 22, 2018 at 11:58 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > The kernel checks if the port is in the range 1-255 when loading an
-> > ibenportcon rule. Add the same check to libsepol.
-> >
-> > Fixes: 118c0cd1038e ("libsepol: Add ibendport ocontext handling")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  libsepol/src/policydb.c | 11 +++++++++--
-> >  1 file changed, 9 insertions(+), 2 deletions(-)
-> >
-> > Changes in v2:
-> >  - use UINT8_MAX as the limit for ibendport.port value to emphasize that
-> >    it is an 8-bit value
-> >
-> > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> > index db6765ba..96176d80 100644
-> > --- a/libsepol/src/policydb.c
-> > +++ b/libsepol/src/policydb.c
-> > @@ -2854,7 +2854,9 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
-> >                                         return -1;
-> >                                 break;
-> >                         }
-> > -                       case OCON_IBENDPORT:
-> > +                       case OCON_IBENDPORT: {
-> > +                               uint32_t port;
-> > +
-> >                                 rc = next_entry(buf, fp, sizeof(uint32_t) * 2);
-> >                                 if (rc < 0)
-> >                                         return -1;
-> > @@ -2862,6 +2864,10 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
-> >                                 if (len == 0 || len > IB_DEVICE_NAME_MAX - 1)
-> >                                         return -1;
-> >
-> > +                               port = le32_to_cpu(buf[1]);
-> > +                               if (port > UINT8_MAX || port == 0)
-> > +                                       return -1;
-> > +
-> >                                 c->u.ibendport.dev_name = malloc(len + 1);
-> >                                 if (!c->u.ibendport.dev_name)
-> >                                         return -1;
-> > @@ -2869,11 +2875,12 @@ static int ocontext_read_selinux(struct policydb_compat_info *info,
-> >                                 if (rc < 0)
-> >                                         return -1;
-> >                                 c->u.ibendport.dev_name[len] = 0;
-> > -                               c->u.ibendport.port = le32_to_cpu(buf[1]);
-> > +                               c->u.ibendport.port = port;
-> >                                 if (context_read_and_validate
-> >                                     (&c->context[0], p, fp))
-> >                                         return -1;
-> >                                 break;
-> > +                       }
-> >                         case OCON_PORT:
-> >                                 rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
-> >                                 if (rc < 0)
-> > --
-> > 2.17.2
-> >
->
-> ack. I dropped it on top of https://github.com/SELinuxProject/selinux/pull/105
-merged: https://github.com/SELinuxProject/selinux/pull/105
+On 10/24/2018 11:35 AM, Yuli Khodorkovskiy wrote:
+> There is a call to getpeercon_raw() in mcstransd, but nothing is done
+> with the context. The purpose of process_request() is to translate a
+> context and we would like that to succeed even if, for some reason,
+> getpeercon_raw() fails.
+> 
+> Signed-off-by: Yuli Khodorkovskiy <yuli@crunchydata.com>
+> Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
+
+Thanks, applied.
+
+> ---
+>   mcstrans/src/mcstransd.c | 10 ----------
+>   1 file changed, 10 deletions(-)
+> 
+> v2:
+> - Remove comment about MLS clearance check in peercon
+> 
+> diff --git a/mcstrans/src/mcstransd.c b/mcstrans/src/mcstransd.c
+> index d7fc5dea..85899493 100644
+> --- a/mcstrans/src/mcstransd.c
+> +++ b/mcstrans/src/mcstransd.c
+> @@ -142,17 +142,8 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
+>   {
+>   	int32_t result;
+>   	char *out = NULL;
+> -	char *peercon = NULL;
+>   	int ret;
+>   
+> -	ret = getpeercon_raw(fd, &peercon);
+> -	if (ret < 0)
+> -		return ret;
+> -
+> -	/* TODO: Check if MLS clearance (in peercon) dominates the MLS label
+> -	 * (in the request input).
+> -	 */
+> -
+>   	switch (function) {
+>   	case SETRANS_INIT:
+>   		result = 0;
+> @@ -184,7 +175,6 @@ process_request(int fd, uint32_t function, char *data1, char *UNUSED(data2))
+>   	}
+>   
+>   	free(out);
+> -	freecon(peercon);
+>   
+>   	return ret;
+>   }
+> 
+
