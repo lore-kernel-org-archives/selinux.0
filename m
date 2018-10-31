@@ -2,305 +2,748 @@ Return-Path: <SRS0=k0zu=NL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54257C0044C
-	for <selinux@archiver.kernel.org>; Wed, 31 Oct 2018 19:38:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 832ADC0044C
+	for <selinux@archiver.kernel.org>; Wed, 31 Oct 2018 20:29:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D535C20664
-	for <selinux@archiver.kernel.org>; Wed, 31 Oct 2018 19:38:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FeZth37E"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D535C20664
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTP id 0C19B2080A
+	for <selinux@archiver.kernel.org>; Wed, 31 Oct 2018 20:29:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0C19B2080A
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727151AbeKAEh7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Nov 2018 00:37:59 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:36218 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725731AbeKAEh6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Nov 2018 00:37:58 -0400
-Received: by mail-lj1-f195.google.com with SMTP id s15-v6so15965623lji.3;
-        Wed, 31 Oct 2018 12:38:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=W8ulcxHo3chmo/prFXCr2FufRlaSLPsimF46Q/a+fh8=;
-        b=FeZth37Euj/gDYy5BK2s0iKjOjFIpfbKrd4pHfv/5hQoU4CkU8CC48ZaQRYXRS9Ac1
-         TmW+U8TdNRd1G9QuD+NdUQtb+Op3AzJBT8L9SBmylBQ4SvTHiHCAYGPw3zFI4xsAfPId
-         p+07IAilO6PLJfobO77jwAbn7u4z5LSvdCxrnkaWME5hB5Gs9sp1Ag9n2ipXuiLc61FL
-         Qk9AcEhG2KC76GpWlGx5vlrmare35v1N+gLLgPAPqz+NOqHWBseHgeLCRd7MkiLU/Doi
-         zV/iMQfo3hc76YSKYw25GOqPNi3q/TjQyXsD8ptAEmYxL8K8w2pIp3vPdlBk4K5FdWeV
-         B9Zw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=W8ulcxHo3chmo/prFXCr2FufRlaSLPsimF46Q/a+fh8=;
-        b=AcOj7OdKqtEidGAZtjsQIX5hjDYLEn5dx9vcpRvgfOY/XYxz6svMcEgnCYIC+VNsJb
-         X56YDSa59qVA7W+HT1wOlKygquRAZz6Akw4wiL9fd3rhE9eb8T/PaEHB2WUx3yTR0Eg1
-         F2h42eElmqGFwfvBYNUCsaYeaVfbKl8xEo/nvsuMTE+7R3MJwU0rlHGd/7mBDT2Hor5/
-         L5L/uKBnnVaiQ19hn8KM9nw3hwNYWMOu5n+unUuJFP4HHJGL+vq4Gx2+VyWSrRuGLV+1
-         OJdHfBUOeDcIMcemTru1PulfCkePcM2sAdda/a+zDxoEnTknRci/klJ1pio8koPoUWdi
-         Is7w==
-X-Gm-Message-State: AGRZ1gKrmMJhE0LHGBhMkwP4JmMRvyI5ONgu8euMK5jtoFtBE5BcwStp
-        T9+gCRh0cG8FaZpDFgOtdw1g4O1ERMQ=
-X-Google-Smtp-Source: AJdET5cT1VF6Pd6Gyro2VM7rtWyZV55i7ejdpc2Ptj1u3YRW7JiLu4Mny9mtNzir7rihPbG5+6hX6g==
-X-Received: by 2002:a2e:449c:: with SMTP id b28-v6mr2847487ljf.47.1541014705870;
-        Wed, 31 Oct 2018 12:38:25 -0700 (PDT)
-Received: from ?IPv6:2001:14bb:52:7be:f0bf:dd2d:f008:5213? (dmkd798g-7z2-yccwcp-4.rev.dnainternet.fi. [2001:14bb:52:7be:f0bf:dd2d:f008:5213])
-        by smtp.gmail.com with ESMTPSA id g2-v6sm1674927ljg.9.2018.10.31.12.38.23
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 31 Oct 2018 12:38:25 -0700 (PDT)
-Subject: Re: [PATCH 10/17] prmem: documentation
-From:   Igor Stoppa <igor.stoppa@gmail.com>
-To:     Andy Lutomirski <luto@amacapital.net>,
-        Matthew Wilcox <willy@infradead.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Tycho Andersen <tycho@tycho.ws>, Kees Cook <keescook@chromium.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Mimi Zohar <zohar@linux.vnet.ibm.com>,
-        Dave Chinner <david@fromorbit.com>,
-        James Morris <jmorris@namei.org>,
-        Michal Hocko <mhocko@kernel.org>,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        linux-integrity <linux-integrity@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Igor Stoppa <igor.stoppa@huawei.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Laura Abbott <labbott@redhat.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, selinux@vger.kernel.org
-References: <CAGXu5jKCs01jvtvpEFS7R8qCR-5iRqK11kJxLJY99NicGWc4aQ@mail.gmail.com>
- <20181028183126.GB744@hirez.programming.kicks-ass.net>
- <40cd77ce-f234-3213-f3cb-0c3137c5e201@gmail.com>
- <20181030152641.GE8177@hirez.programming.kicks-ass.net>
- <CAGXu5jJftJ+Hq+jrZGHX5CTDLWOog7kGsd_Ne=yMvrRs__skSg@mail.gmail.com>
- <0A7AFB50-9ADE-4E12-B541-EC7839223B65@amacapital.net>
- <20181030175814.GB10491@bombadil.infradead.org> <20181030182841.GE7343@cisco>
- <20181030192021.GC10491@bombadil.infradead.org>
- <9edbdf8b-b5fb-5a82-43b4-b639f5ec8484@gmail.com>
- <20181030213557.GE10491@bombadil.infradead.org>
- <CALCETrW1FcT88u0QY9k_PMOeZj0G8H6KNb5Bnreo-12NvmmCEQ@mail.gmail.com>
- <1d8e2d20-ba18-763e-03ff-d061e98d86ff@gmail.com>
-Message-ID: <9f91adeb-0517-3955-6602-49bf6a892593@gmail.com>
-Date:   Wed, 31 Oct 2018 21:38:21 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
+        id S1729837AbeKAF3E (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Nov 2018 01:29:04 -0400
+Received: from upbd19pa10.eemsg.mail.mil ([214.24.27.85]:20159 "EHLO
+        upbd19pa10.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725780AbeKAF3E (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Nov 2018 01:29:04 -0400
+X-EEMSG-check-008: 178048437|UPBD19PA10_EEMSG_MP10.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by upbd19pa10.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 31 Oct 2018 20:29:17 +0000
+X-IronPort-AV: E=Sophos;i="5.54,449,1534809600"; 
+   d="scan'208";a="20127573"
+IronPort-PHdr: =?us-ascii?q?9a23=3ArGpe9xKc5Qln7V5kX9mcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgXKvz4rarrMEGX3/hxlliBBdydt6obzbKO+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxlKiTanfb9+MAi9oBnMuMURnYZsMLs6xA?=
+ =?us-ascii?q?HTontPdeRWxGdoKkyWkh3h+Mq+/4Nt/jpJtf45+MFOTav1f6IjTbxFFzsmKH?=
+ =?us-ascii?q?w65NfqtRbYUwSC4GYXX3gMnRpJBwjF6wz6Xov0vyDnuOdxxDWWMMvrRr0vRz?=
+ =?us-ascii?q?+s87lkRwPpiCcfNj427mfXitBrjKlGpB6tvgFzz5LIbI2QMvdxcLndfdcHTm?=
+ =?us-ascii?q?RfWMhfWTFKDoelY4cSE+YNOOBVpJT/qVQTtxuzHRSiCv3hyjFIhXH406M13O?=
+ =?us-ascii?q?sjHg7a0wItBM4OvXbOodnpKKsfX+K4wa/VxjvDdfNW3jL95ZDVfBA9v/6MRb?=
+ =?us-ascii?q?JwftTXyUIyCg3Fi0+fqYjhPzyL1uUGrm+W7/F9WuK0kGMntwFwrSSvxscrkI?=
+ =?us-ascii?q?XJgJkVxUre+SV2x4Y1O8S1RUhmatCqF5tQsjuVN4pwQs46TGFouTo6yr0buZ?=
+ =?us-ascii?q?GgZiQF1JMnxxvZZveacIaI+gruWPueLDp3nn5oeK+ziwys/UWv1OHwTNS43V?=
+ =?us-ascii?q?BXpSRfiNbMrGoC1xnL58iCTfty41mu1C6U1wDW9uFEOUc0lbfHK5I5wr4/iJ?=
+ =?us-ascii?q?4TsUPbEy/qgkr2lq6Wdlg/+uSy9+TmYqnppp+bN4NujAHxLr8uldClDeQ9Mw?=
+ =?us-ascii?q?gOW3CX+eW61LL94U30WKhGg/I5n6XDsJ3WON4XqrC2DgNLyIov9g6zDzK839?=
+ =?us-ascii?q?QZmXkHIkhFeBWCj4XxIFHBPev4AOyjg1WsjDhrx/fGMqfnApXWNHfPirjhfb?=
+ =?us-ascii?q?Fj60JE0go80chf545ICrEGOP/zXUrxtNvDDh8/KQO73/joBc5n1owARG2PAr?=
+ =?us-ascii?q?WWML/IvVCU4eIvJvGGZJUJtzblN/gl+/nugGcimVADeamp3J0XaG23H/l9PU?=
+ =?us-ascii?q?WZbmTjgs0bHWcJoAU+Vurqh0OGUTJJYHayRa087CkhCI26FYfDWpytgLuZ0S?=
+ =?us-ascii?q?ejBJJWe2RGB0uUEXjyaoWEX+4AaCeVIs9miDwLS6KtRJMm1RGr50fGzO9AKO?=
+ =?us-ascii?q?bO9y9QkJX40tF+6u6bwRY38idyBs+Q+3uAQ2F9giUDQDpgmOhkrEh8zEqT+b?=
+ =?us-ascii?q?Z3juYeFtFJ4f5NFAAgOtqU9+VnD5jXXQXbc5/dUF+7Rv2+CCw1C9c2xMUDJU?=
+ =?us-ascii?q?16HoPxoArE2n+RH7INl7GNTKcx+6bY0mm5c91x0F7axaIhiB8gWcIJOmq40P?=
+ =?us-ascii?q?0svzPPDpLExh3K352hcr4RiWuUrT+O?=
+X-IPAS-Result: =?us-ascii?q?A2AIAABgD9pb/wHyM5BlGgEBAQEBAgEBAQEHAgEBAQGBU?=
+ =?us-ascii?q?gQBAQEBCwGBWipmfyiDdpQrTAEBAQEBB4E1iQ+OGIF6MAgBhEACgzciNQwNA?=
+ =?us-ascii?q?QMBAQEBAQECAWwcDII2JAGCYAEFGgkEEUEQCw4KAgImAgJXBgEMBgIBAReCR?=
+ =?us-ascii?q?z8BgXQND6hwezOFPIRlBYELil4XeYEHgREngmuBQQGBWQKBTYMYglcCiQIEh?=
+ =?us-ascii?q?i2PbAmGbIoYBhiBVIgVhmaJPYM/i3kBNoFVKwgCGAghDzuCbIImDAuDSIpRH?=
+ =?us-ascii?q?SMwgQUBAYhHgkwBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 31 Oct 2018 20:29:16 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id w9VKTFEt011590;
+        Wed, 31 Oct 2018 16:29:15 -0400
+Subject: Re: [PATCH 2/2] selinux: fix ENOMEM errors during policy reload
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>
+Cc:     selinux@tycho.nsa.gov
+References: <20181031122718.18735-1-omosnace@redhat.com>
+ <20181031122718.18735-3-omosnace@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <974d4ce4-6ddc-bc4b-ecf0-8b8e7a5d4083@tycho.nsa.gov>
+Date:   Wed, 31 Oct 2018 16:31:40 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-In-Reply-To: <1d8e2d20-ba18-763e-03ff-d061e98d86ff@gmail.com>
+In-Reply-To: <20181031122718.18735-3-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On 10/31/2018 08:27 AM, Ondrej Mosnacek wrote:
+> Before this patch, during a policy reload the sidtab would become frozen
+> and trying to map a new context to SID would be unable to add a new
+> entry to sidtab and fail with -ENOMEM.
+> 
+> Such failures are usually propagated into userspace, which has no way of
+> distignuishing them from actual allocation failures and thus doesn't
+> handle them gracefully. Such situation can be triggered e.g. by the
+> following reproducer:
+> 
+>      while true; do load_policy; echo -n .; sleep 0.1; done &
+>      for (( i = 0; i < 1024; i++ )); do
+>          runcon -l s0:c$i echo -n x || break
+>          # or:
+>          # chcon -l s0:c$i <some_file> || break
+>      done
+> 
+> This patchs overhauls the sidtab so it doesn't need to be frozen during
+> a policy reload, thus solving the above problem.
+> 
+> The new SID table entries now contain two slots for the context. One of
+> the slots is used for the lookup and the other one is used during policy
+> reload to store the new converted context. Which slot is used for what
+> is determined by a shared index that is toggled between 0 and 1 when the
+> conversion is completed, together with the switch to the new policy.
+> After the index is toggled, the contexts in the now unused slots are
+> destroyed. The solution also gracefully handles conversion of entries
+> that are added to sidtab while the conversion is in progress.
+> 
+> The downside of this solution is that the sidtab now takes up
+> approximately twice the space and half of it is used only during policy
+> reload. On the other hand, this means we do not need to deal with sidtab
+> growing while we are allocating a new one.
+> 
+> Reported-by: Orion Poplawski <orion@nwra.com>
+> Reported-by: Li Kun <hw.likun@huawei.com>
+> Link: https://github.com/SELinuxProject/selinux-kernel/issues/38
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>   security/selinux/ss/mls.c      |  16 ++---
+>   security/selinux/ss/mls.h      |   3 +-
+>   security/selinux/ss/services.c |  96 +++++++-------------------
+>   security/selinux/ss/sidtab.c   | 122 +++++++++++++++++++++------------
+>   security/selinux/ss/sidtab.h   |  23 ++++---
+>   5 files changed, 124 insertions(+), 136 deletions(-)
+> 
+> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+> index cd637ee3fb11..bc3f93732658 100644
+> --- a/security/selinux/ss/mls.c
+> +++ b/security/selinux/ss/mls.c
+> @@ -441,11 +441,11 @@ int mls_setup_user_range(struct policydb *p,
+>    */
+>   int mls_convert_context(struct policydb *oldp,
+>   			struct policydb *newp,
+> -			struct context *c)
+> +			struct context *oldc,
+> +			struct context *newc)
+>   {
+>   	struct level_datum *levdatum;
+>   	struct cat_datum *catdatum;
+> -	struct ebitmap bitmap;
+>   	struct ebitmap_node *node;
+>   	int l, i;
+>   
+> @@ -455,28 +455,26 @@ int mls_convert_context(struct policydb *oldp,
+>   	for (l = 0; l < 2; l++) {
+>   		levdatum = hashtab_search(newp->p_levels.table,
+>   					  sym_name(oldp, SYM_LEVELS,
+> -						   c->range.level[l].sens - 1));
+> +						   oldc->range.level[l].sens - 1));
+>   
+>   		if (!levdatum)
+>   			return -EINVAL;
+> -		c->range.level[l].sens = levdatum->level->sens;
+> +		newc->range.level[l].sens = levdatum->level->sens;
+>   
+> -		ebitmap_init(&bitmap);
+> -		ebitmap_for_each_positive_bit(&c->range.level[l].cat, node, i) {
+> +		ebitmap_for_each_positive_bit(&oldc->range.level[l].cat, node, i) {
+>   			int rc;
+>   
+>   			catdatum = hashtab_search(newp->p_cats.table,
+>   						  sym_name(oldp, SYM_CATS, i));
+>   			if (!catdatum)
+>   				return -EINVAL;
+> -			rc = ebitmap_set_bit(&bitmap, catdatum->value - 1, 1);
+> +			rc = ebitmap_set_bit(&newc->range.level[l].cat,
+> +					     catdatum->value - 1, 1);
+>   			if (rc)
+>   				return rc;
+>   
+>   			cond_resched();
+>   		}
+> -		ebitmap_destroy(&c->range.level[l].cat);
+> -		c->range.level[l].cat = bitmap;
+>   	}
+>   
+>   	return 0;
+> diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+> index 1eca02c8bc5f..00c11304f71a 100644
+> --- a/security/selinux/ss/mls.h
+> +++ b/security/selinux/ss/mls.h
+> @@ -46,7 +46,8 @@ int mls_range_set(struct context *context, struct mls_range *range);
+>   
+>   int mls_convert_context(struct policydb *oldp,
+>   			struct policydb *newp,
+> -			struct context *context);
+> +			struct context *oldc,
+> +			struct context *newc);
+>   
+>   int mls_compute_sid(struct policydb *p,
+>   		    struct context *scontext,
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 550a00004139..292a2ccbe56f 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1899,12 +1899,6 @@ int security_change_sid(struct selinux_state *state,
+>   				    out_sid, false);
+>   }
+>   
+> -/* Clone the SID into the new SID table. */
+> -static int clone_sid(u32 sid, struct context *context, void *arg)
+> -{
+> -	return sidtab_insert((struct sidtab *)arg, sid, context);
+> -}
+> -
+>   static inline int convert_context_handle_invalid_context(
+>   	struct selinux_state *state,
+>   	struct context *context)
+> @@ -1937,12 +1931,10 @@ struct convert_context_args {
+>    * in the policy `p->newp'.  Verify that the
+>    * context is valid under the new policy.
+>    */
+> -static int convert_context(u32 key, struct context *c, void *p)
+> +static int convert_context(struct context *oldc, struct context *newc, void *p)
+>   {
+>   	struct convert_context_args *args;
+> -	struct context oldc;
+>   	struct ocontext *oc;
+> -	struct mls_range *range;
+>   	struct role_datum *role;
+>   	struct type_datum *typdatum;
+>   	struct user_datum *usrdatum;
+> @@ -1952,23 +1944,18 @@ static int convert_context(u32 key, struct context *c, void *p)
+>   
+>   	args = p;
+>   
+> -	if (c->str) {
+> -		struct context ctx;
+> -
+> +	if (oldc->str) {
+>   		rc = -ENOMEM;
+> -		s = kstrdup(c->str, GFP_KERNEL);
+> +		s = kstrdup(oldc->str, GFP_KERNEL);
+>   		if (!s)
+>   			goto out;
+>   
+>   		rc = string_to_context_struct(args->newp, NULL, s,
+> -					      &ctx, SECSID_NULL);
+> +					      newc, SECSID_NULL);
+>   		kfree(s);
+>   		if (!rc) {
+>   			pr_info("SELinux:  Context %s became valid (mapped).\n",
+> -			       c->str);
+> -			/* Replace string with mapped representation. */
+> -			kfree(c->str);
+> -			memcpy(c, &ctx, sizeof(*c));
+> +				oldc->str);
+>   			goto out;
+>   		} else if (rc == -EINVAL) {
+>   			/* Retain string representation for later mapping. */
+> @@ -1977,51 +1964,42 @@ static int convert_context(u32 key, struct context *c, void *p)
+>   		} else {
+>   			/* Other error condition, e.g. ENOMEM. */
+>   			pr_err("SELinux:   Unable to map context %s, rc = %d.\n",
+> -			       c->str, -rc);
+> +			       oldc->str, -rc);
+>   			goto out;
+>   		}
+>   	}
+>   
+> -	rc = context_cpy(&oldc, c);
+> -	if (rc)
+> -		goto out;
+> +	context_init(newc);
+>   
+>   	/* Convert the user. */
+>   	rc = -EINVAL;
+>   	usrdatum = hashtab_search(args->newp->p_users.table,
+> -				  sym_name(args->oldp, SYM_USERS, c->user - 1));
+> +				  sym_name(args->oldp, SYM_USERS, oldc->user - 1));
+>   	if (!usrdatum)
+>   		goto bad;
+> -	c->user = usrdatum->value;
+> +	newc->user = usrdatum->value;
+>   
+>   	/* Convert the role. */
+>   	rc = -EINVAL;
+>   	role = hashtab_search(args->newp->p_roles.table,
+> -			      sym_name(args->oldp, SYM_ROLES, c->role - 1));
+> +			      sym_name(args->oldp, SYM_ROLES, oldc->role - 1));
+>   	if (!role)
+>   		goto bad;
+> -	c->role = role->value;
+> +	newc->role = role->value;
+>   
+>   	/* Convert the type. */
+>   	rc = -EINVAL;
+>   	typdatum = hashtab_search(args->newp->p_types.table,
+> -				  sym_name(args->oldp, SYM_TYPES, c->type - 1));
+> +				  sym_name(args->oldp, SYM_TYPES, oldc->type - 1));
+>   	if (!typdatum)
+>   		goto bad;
+> -	c->type = typdatum->value;
+> +	newc->type = typdatum->value;
+>   
+>   	/* Convert the MLS fields if dealing with MLS policies */
+>   	if (args->oldp->mls_enabled && args->newp->mls_enabled) {
+> -		rc = mls_convert_context(args->oldp, args->newp, c);
+> +		rc = mls_convert_context(args->oldp, args->newp, oldc, newc);
+>   		if (rc)
+>   			goto bad;
+> -	} else if (args->oldp->mls_enabled && !args->newp->mls_enabled) {
+> -		/*
+> -		 * Switching between MLS and non-MLS policy:
+> -		 * free any storage used by the MLS fields in the
+> -		 * context for all existing entries in the sidtab.
+> -		 */
+> -		mls_context_destroy(c);
+>   	} else if (!args->oldp->mls_enabled && args->newp->mls_enabled) {
+>   		/*
+>   		 * Switching between non-MLS and MLS policy:
+> @@ -2039,36 +2017,31 @@ static int convert_context(u32 key, struct context *c, void *p)
+>   				" the initial SIDs list\n");
+>   			goto bad;
+>   		}
+> -		range = &oc->context[0].range;
+> -		rc = mls_range_set(c, range);
+> +		rc = mls_range_set(newc, &oc->context[0].range);
+>   		if (rc)
+>   			goto bad;
+>   	}
+>   
+>   	/* Check the validity of the new context. */
+> -	if (!policydb_context_isvalid(args->newp, c)) {
+> -		rc = convert_context_handle_invalid_context(args->state,
+> -							    &oldc);
+> +	if (!policydb_context_isvalid(args->newp, newc)) {
+> +		rc = convert_context_handle_invalid_context(args->state, oldc);
+>   		if (rc)
+>   			goto bad;
+>   	}
+>   
+> -	context_destroy(&oldc);
+> -
+>   	rc = 0;
+>   out:
+>   	return rc;
+>   bad:
+>   	/* Map old representation to string and save it. */
+> -	rc = context_struct_to_string(args->oldp, &oldc, &s, &len);
+> +	rc = context_struct_to_string(args->oldp, oldc, &s, &len);
+>   	if (rc)
+>   		return rc;
+> -	context_destroy(&oldc);
+> -	context_destroy(c);
+> -	c->str = s;
+> -	c->len = len;
+> +	context_destroy(newc);
+> +	newc->str = s;
+> +	newc->len = len;
+>   	pr_info("SELinux:  Context %s became invalid (unmapped).\n",
+> -	       c->str);
+> +		newc->str);
+>   	rc = 0;
+>   	goto out;
+>   }
+> @@ -2113,7 +2086,6 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   	struct sidtab *sidtab;
+>   	struct isidtab *newisidtab = NULL;
+>   	struct policydb *oldpolicydb, *newpolicydb;
+> -	struct sidtab oldsidtab, newsidtab;
+>   	struct selinux_mapping *oldmapping;
+>   	struct selinux_map newmap;
+>   	struct convert_context_args args;
+> @@ -2187,12 +2159,6 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   	if (rc)
+>   		goto out;
+>   
+> -	rc = sidtab_init(&newsidtab);
+> -	if (rc) {
+> -		policydb_destroy(newpolicydb);
+> -		goto out;
+> -	}
+> -
+>   	newpolicydb->len = len;
+>   	/* If switching between different policy types, log MLS status */
+>   	if (policydb->mls_enabled && !newpolicydb->mls_enabled)
+> @@ -2203,7 +2169,6 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   	rc = policydb_load_isids(newpolicydb, newisidtab);
+>   	if (rc) {
+>   		pr_err("SELinux:  unable to load the initial SIDs\n");
+> -		sidtab_destroy(&newsidtab);
+>   		policydb_destroy(newpolicydb);
+>   		goto out;
+>   	}
+> @@ -2218,21 +2183,14 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   		goto err;
+>   	}
+>   
+> -	/* Clone the SID table. */
+> -	sidtab_shutdown(sidtab);
+> -
+> -	rc = sidtab_map(sidtab, clone_sid, &newsidtab);
+> -	if (rc)
+> -		goto err;
+> -
+>   	/*
+>   	 * Convert the internal representations of contexts
+> -	 * in the new SID table.
+> +	 * in the SID table.
+>   	 */
+>   	args.state = state;
+>   	args.oldp = policydb;
+>   	args.newp = newpolicydb;
+> -	rc = sidtab_map(&newsidtab, convert_context, &args);
+> +	rc = sidtab_convert_start(sidtab, convert_context, &args);
+>   	if (rc) {
+>   		pr_err("SELinux:  unable to convert the internal"
+>   			" representation of contexts in the new SID"
+> @@ -2242,19 +2200,18 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   
+>   	/* Save the old policydb and SID table to free later. */
+>   	memcpy(oldpolicydb, policydb, sizeof(*policydb));
+> -	sidtab_set(&oldsidtab, sidtab);
+>   
+>   	/* Install the new policydb and SID table. */
+>   	write_lock_irq(&state->ss->policy_rwlock);
+>   
+>   	memcpy(policydb, newpolicydb, sizeof(*policydb));
+> -	sidtab_set(sidtab, &newsidtab);
+>   
+>   	isidtab_destroy(state->ss->isidtab);
+>   	kfree(state->ss->isidtab);
+>   	state->ss->isidtab = newisidtab;
+>   	newisidtab = NULL;
+>   
+> +	sidtab_convert_finish(sidtab);
+>   	security_load_policycaps(state);
+>   	oldmapping = state->ss->map.mapping;
+>   	state->ss->map.mapping = newmap.mapping;
+> @@ -2264,8 +2221,8 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   	write_unlock_irq(&state->ss->policy_rwlock);
+>   
+>   	/* Free the old policydb and SID table. */
+> +	sidtab_convert_cleanup(sidtab);
+>   	policydb_destroy(oldpolicydb);
+> -	sidtab_destroy(&oldsidtab);
+>   	kfree(oldmapping);
+>   
+>   	avc_ss_reset(state->avc, seqno);
+> @@ -2279,7 +2236,6 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   
+>   err:
+>   	kfree(newmap.mapping);
+> -	sidtab_destroy(&newsidtab);
+>   	policydb_destroy(newpolicydb);
+>   	isidtab_destroy(newisidtab);
+>   
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index 98710657a596..ac4781a191d9 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -24,16 +24,17 @@ int sidtab_init(struct sidtab *s)
+>   		return -ENOMEM;
+>   	for (i = 0; i < SIDTAB_SIZE; i++)
+>   		s->htable[i] = NULL;
+> +	s->context_index = 0;
+>   	s->nel = 0;
+>   	s->next_sid = SECINITSID_NUM + 1;
+> -	s->shutdown = 0;
+>   	spin_lock_init(&s->lock);
+>   	return 0;
+>   }
+>   
+> -int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+> +static int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+>   {
+> -	int hvalue;
+> +	unsigned int index = s->context_index;
+> +	int hvalue, rc;
+>   	struct sidtab_node *prev, *cur, *newnode;
+>   
+>   	if (!s)
+> @@ -55,11 +56,23 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+>   		return -ENOMEM;
+>   
+>   	newnode->sid = sid;
+> -	if (context_cpy(&newnode->context, context)) {
+> +	if (context_cpy(&newnode->context[index], context)) {
+>   		kfree(newnode);
+>   		return -ENOMEM;
+>   	}
+>   
+> +	newnode->new_set = 0;
+> +	if (s->convert) {
+> +		rc = s->convert(&newnode->context[index],
+> +				&newnode->context[!index], s->convert_args);
+> +		if (rc) {
+> +			context_destroy(&newnode->context[index]);
+> +			kfree(newnode);
+> +			return rc;
+> +		}
+> +		newnode->new_set = 1;
+> +	}
+> +
+>   	if (prev) {
+>   		newnode->next = prev->next;
+>   		wmb();
+> @@ -92,34 +105,74 @@ struct context *sidtab_lookup(struct sidtab *s, u32 sid)
+>   	if (!cur || sid != cur->sid)
+>   		return NULL;
+>   
+> -	return &cur->context;
+> +	return &cur->context[s->context_index];
+>   }
+>   
+> -int sidtab_map(struct sidtab *s,
+> -	       int (*apply) (u32 sid,
+> -			     struct context *context,
+> -			     void *args),
+> -	       void *args)
+> +int sidtab_convert_start(struct sidtab *s, sidtab_convert_t convert, void *args)
+>   {
+> -	int i, rc = 0;
+> +	unsigned long flags;
+> +	int i, rc;
+>   	struct sidtab_node *cur;
+>   
+> -	if (!s)
+> -		goto out;
+> +	spin_lock_irqsave(&s->lock, flags);
+> +	s->convert = convert;
+> +	s->convert_args = args;
+> +	spin_unlock_irqrestore(&s->lock, flags);
+>   
+>   	for (i = 0; i < SIDTAB_SIZE; i++) {
+>   		cur = s->htable[i];
+>   		while (cur) {
+> -			rc = apply(cur->sid, &cur->context, args);
+> -			if (rc)
+> -				goto out;
+> +			if (!cur->new_set) {
+> +				rc = convert(&cur->context[s->context_index],
+> +					     &cur->context[!s->context_index],
+> +					     args);
+> +				if (rc)
+> +					goto err;
+> +
+> +				cur->new_set = 1;
+> +			}
+>   			cur = cur->next;
+>   		}
+>   	}
+> -out:
+> +
+> +	return 0;
+> +err:
+> +	/* cleanup on conversion failure */
+> +	spin_lock_irqsave(&s->lock, flags);
+> +	s->convert = NULL;
+> +	s->convert_args = NULL;
+> +	spin_unlock_irqrestore(&s->lock, flags);
+> +
+> +	sidtab_convert_cleanup(s);
+> +
+>   	return rc;
+>   }
+>   
+> +/* must be called with policy write lock (thus no need to lock the spinlock here) */
+> +void sidtab_convert_finish(struct sidtab *s)
+> +{
+> +	s->context_index = !s->context_index;
+> +	s->convert = NULL;
+> +	s->convert_args = NULL;
+> +}
 
+I'm not sure it is a great idea to skip the sidtab spinlock here even 
+though it isn't strictly needed as you say.  It is an obvious 
+inconsistency in the handling of ->context_index and ->convert, and the 
+sidtab spinlock was previously being taken under the policy write lock 
+by sidtab_set() so it isn't a new locking hierarchy. We'd like to 
+replace the policy rwlock with RCU at some point; there is a very old 
+patch that tried to do that once before, which eliminated the policy 
+write lock altogether (policy switch became a single pointer update), 
+but no one has yet taken that back up.
 
-On 31/10/2018 11:08, Igor Stoppa wrote:
-> Adding SELinux folks and the SELinux ml
-> 
-> I think it's better if they participate in this discussion.
-> 
-> On 31/10/2018 06:41, Andy Lutomirski wrote:
->> On Tue, Oct 30, 2018 at 2:36 PM Matthew Wilcox <willy@infradead.org> 
->> wrote:
->>>
->>> On Tue, Oct 30, 2018 at 10:43:14PM +0200, Igor Stoppa wrote:
->>>> On 30/10/2018 21:20, Matthew Wilcox wrote:
->>>>>>> So the API might look something like this:
->>>>>>>
->>>>>>>          void *p = rare_alloc(...);      /* writable pointer */
->>>>>>>          p->a = x;
->>>>>>>          q = rare_protect(p);            /* read-only pointer */
->>>>
->>>> With pools and memory allocated from vmap_areas, I was able to say
->>>>
->>>> protect(pool)
->>>>
->>>> and that would do a swipe on all the pages currently in use.
->>>> In the SELinux policyDB, for example, one doesn't really want to
->>>> individually protect each allocation.
->>>>
->>>> The loading phase happens usually at boot, when the system can be 
->>>> assumed to
->>>> be sane (one might even preload a bare-bone set of rules from 
->>>> initramfs and
->>>> then replace it later on, with the full blown set).
->>>>
->>>> There is no need to process each of these tens of thousands 
->>>> allocations and
->>>> initialization as write-rare.
->>>>
->>>> Would it be possible to do the same here?
->>>
->>> What Andy is proposing effectively puts all rare allocations into
->>> one pool.  Although I suppose it could be generalised to multiple pools
->>> ... one mm_struct per pool.  Andy, what do you think to doing that?
->>
->> Hmm.  Let's see.
->>
->> To clarify some of this thread, I think that the fact that rare_write
->> uses an mm_struct and alias mappings under the hood should be
->> completely invisible to users of the API. 
-> 
-> I agree.
-> 
->> No one should ever be
->> handed a writable pointer to rare_write memory (except perhaps during
->> bootup or when initializing a large complex data structure that will
->> be rare_write but isn't yet, e.g. the policy db).
-> 
-> The policy db doesn't need to be write rare.
-> Actually, it really shouldn't be write rare.
-> 
-> Maybe it's just a matter of wording, but effectively the policyDB can be 
-> trated with this sequence:
-> 
-> 1) allocate various data structures in writable form
-> 
-> 2) initialize them
-> 
-> 3) go back to 1 as needed
-> 
-> 4) lock down everything that has been allocated, as Read-Only
-> The reason why I stress ReadOnly is that differentiating what is really 
-> ReadOnly from what is WriteRare provides an extra edge against attacks, 
-> because attempts to alter ReadOnly data through a WriteRare API could be 
-> detected
-> 
-> 5) read any part of the policyDB during regular operations
-> 
-> 6) in case of update, create a temporary new version, using steps 1..3
-> 
-> 7) if update successful, use the new one and destroy the old one
-> 
-> 8) if the update failed, destroy the new one
-> 
-> The destruction at points 7 and 8 is not so much a write operation, as 
-> it is a release of the memory.
-> 
-> So, we might have a bit different interpretation of what write-rare 
-> means wrt destroying the memory and its content.
-> 
-> To clarify: I've been using write-rare to indicate primarily small 
-> operations that one would otherwise achieve with "=", memcpy or memset 
-> or more complex variants, like atomic ops, rcu pointer assignment, etc.
-> 
-> Tearing down an entire set of allocations like the policyDB doesn't fit 
-> very well with that model.
-> 
-> The only part which _needs_ to be write rare, in the policyDB, is the 
-> set of pointers which are used to access all the dynamically allocated 
-> data set.
-> 
-> These pointers must be updated when a new policyDB is allocated.
-> 
->> For example, there could easily be architectures where having a
->> writable alias is problematic.  On such architectures, an entirely
->> different mechanism might work better.  And, if a tool like KNOX ever
->> becomes a *part* of the Linux kernel (hint hint!)
-> 
-> Something related, albeit not identical is going on here [1]
-> Eventually, it could be expanded to deal also with write rare.
-> 
->> If you have multiple pools and one mm_struct per pool, you'll need a
->> way to find the mm_struct from a given allocation. 
-> 
-> Indeed. In my patchset, based on vmas, I do the following:
-> * a private field from the page struct points to the vma using that page
-> * inside the vma there is alist_head used only during deletion
->    - one pointer is used to chain vmas fro mthe same pool
->    - one pointer points to the pool struct
-> * the pool struct has the property to use for all the associated 
-> allocations: is it write-rare, read-only, does it auto protect, etc.
-> 
->> Regardless of how
->> the mm_structs are set up, changing rare_write memory to normal memory
->> or vice versa will require a global TLB flush (all ASIDs and global
->> pages) on all CPUs, so having extra mm_structs doesn't seem to buy
->> much.
-> 
-> 1) it supports differnt levels of protection:
->    temporarily unprotected vs read-only vs write-rare
-> 
-> 2) the change of write permission should be possible only toward more 
-> restrictive rules (writable -> write-rare -> read-only) and only to the 
-> point that was specified while creating the pool, to avoid DOS attacks, 
-> where a write-rare is flipped into read-only and further updates fail
-> (ex: prevent IMA from registering modifications to a file, by not 
-> letting it store new information - I'm not 100% sure this would work, 
-> but it gives the idea, I think)
-> 
-> 3) being able to track all the allocations related to a pool would allow 
-> to perform mass operations, like reducing the writabilty or destroying 
-> all the allocations.
-> 
->> (It's just possible that changing rare_write back to normal might be
->> able to avoid the flush if the spurious faults can be handled
->> reliably.)
-> 
-> I do not see the need for such a case of degrading the write permissions 
-> of an allocation, unless it refers to the release of a pool of 
-> allocations (see updating the SELinux policy DB)
+More generally, it would likely be good to document the locking 
+dependencies/assumptions being made throughout for s->context_index and 
+->convert.  IIUC, sidtab_insert is safe because of its callers holding 
+the policy read lock and the sidtab spinlock.  sidtab_lookup is safe 
+because of its callers holding the policy read lock. 
+sidtab_convert_start takes the sidtab spinlock for setting ->convert but 
+accesses ->context_index without holding the policy read lock; this 
+appears to be safe only due to sel_write_load preventing interleaving 
+security_load_policy calls via fsi->mutex. sidtab_convert_cleanup 
+likewise appears to rely on this.
 
-A few more thoughts about pools. Not sure if they are all correct.
-Note: I stick to "pool", instead of mm_struct, because what I'll say is 
-mostly independent from the implementation.
+> +
+> +void sidtab_convert_cleanup(struct sidtab *s)
+> +{
+> +	struct sidtab_node *cur;
+> +	int i;
+> +
+> +	for (i = 0; i < SIDTAB_SIZE; i++) {
+> +		cur = s->htable[i];
+> +		while (cur) {
+> +			if (cur->new_set) {
+> +				cur->new_set = 0;
+> +				context_destroy(&cur->context[!s->context_index]);
+> +			}
+> +			cur = cur->next;
+> +		}
+> +	}
+> +}
+> +
+>   static void sidtab_update_cache(struct sidtab *s, struct sidtab_node *n, int loc)
+>   {
+>   	BUG_ON(loc >= SIDTAB_CACHE_LEN);
+> @@ -132,7 +185,7 @@ static void sidtab_update_cache(struct sidtab *s, struct sidtab_node *n, int loc
+>   }
+>   
+>   static inline u32 sidtab_search_context(struct sidtab *s,
+> -						  struct context *context)
+> +					struct context *context)
+>   {
+>   	int i;
+>   	struct sidtab_node *cur;
+> @@ -140,7 +193,7 @@ static inline u32 sidtab_search_context(struct sidtab *s,
+>   	for (i = 0; i < SIDTAB_SIZE; i++) {
+>   		cur = s->htable[i];
+>   		while (cur) {
+> -			if (context_cmp(&cur->context, context)) {
+> +			if (context_cmp(&cur->context[s->context_index], context)) {
+>   				sidtab_update_cache(s, cur, SIDTAB_CACHE_LEN - 1);
+>   				return cur->sid;
+>   			}
+> @@ -159,7 +212,7 @@ static inline u32 sidtab_search_cache(struct sidtab *s, struct context *context)
+>   		node = s->cache[i];
+>   		if (unlikely(!node))
+>   			return 0;
+> -		if (context_cmp(&node->context, context)) {
+> +		if (context_cmp(&node->context[s->context_index], context)) {
+>   			sidtab_update_cache(s, node, i);
+>   			return node->sid;
+>   		}
+> @@ -187,7 +240,7 @@ int sidtab_context_to_sid(struct sidtab *s,
+>   		if (sid)
+>   			goto unlock_out;
+>   		/* No SID exists for the context.  Allocate a new one. */
+> -		if (s->next_sid == UINT_MAX || s->shutdown) {
+> +		if (s->next_sid == UINT_MAX) {
+>   			ret = -ENOMEM;
+>   			goto unlock_out;
+>   		}
+> @@ -249,7 +302,9 @@ void sidtab_destroy(struct sidtab *s)
+>   		while (cur) {
+>   			temp = cur;
+>   			cur = cur->next;
+> -			context_destroy(&temp->context);
+> +			context_destroy(&temp->context[s->context_index]);
+> +			if (temp->new_set)
+> +				context_destroy(&temp->context[!s->context_index]);
+>   			kfree(temp);
+>   		}
+>   		s->htable[i] = NULL;
+> @@ -260,26 +315,3 @@ void sidtab_destroy(struct sidtab *s)
+>   	s->next_sid = 1;
+>   }
+>   
+> -void sidtab_set(struct sidtab *dst, struct sidtab *src)
+> -{
+> -	unsigned long flags;
+> -	int i;
+> -
+> -	spin_lock_irqsave(&src->lock, flags);
+> -	dst->htable = src->htable;
+> -	dst->nel = src->nel;
+> -	dst->next_sid = src->next_sid;
+> -	dst->shutdown = 0;
+> -	for (i = 0; i < SIDTAB_CACHE_LEN; i++)
+> -		dst->cache[i] = NULL;
+> -	spin_unlock_irqrestore(&src->lock, flags);
+> -}
+> -
+> -void sidtab_shutdown(struct sidtab *s)
+> -{
+> -	unsigned long flags;
+> -
+> -	spin_lock_irqsave(&s->lock, flags);
+> -	s->shutdown = 1;
+> -	spin_unlock_irqrestore(&s->lock, flags);
+> -}
+> diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+> index 2eadd09a1100..85ed33238dbb 100644
+> --- a/security/selinux/ss/sidtab.h
+> +++ b/security/selinux/ss/sidtab.h
+> @@ -11,8 +11,9 @@
+>   #include "context.h"
+>   
+>   struct sidtab_node {
+> -	u32 sid;		/* security identifier */
+> -	struct context context;	/* security context structure */
+> +	u32 sid;			/* security identifier */
+> +	int new_set;			/* is context for new policy set? */
+> +	struct context context[2];	/* security context structures */
+>   	struct sidtab_node *next;
+>   };
+>   
+> @@ -22,25 +23,27 @@ struct sidtab_node {
+>   
+>   #define SIDTAB_SIZE SIDTAB_HASH_BUCKETS
+>   
+> +typedef int (*sidtab_convert_t)(struct context *oldc, struct context *newc,
+> +				void *args);
+> +
+>   struct sidtab {
+>   	struct sidtab_node **htable;
+> +	unsigned int context_index;
+>   	unsigned int nel;	/* number of elements */
+>   	unsigned int next_sid;	/* next SID to allocate */
+> -	unsigned char shutdown;
+> +	sidtab_convert_t convert;
+> +	void *convert_args;
+>   #define SIDTAB_CACHE_LEN	3
+>   	struct sidtab_node *cache[SIDTAB_CACHE_LEN];
+>   	spinlock_t lock;
+>   };
+>   
+>   int sidtab_init(struct sidtab *s);
+> -int sidtab_insert(struct sidtab *s, u32 sid, struct context *context);
+>   struct context *sidtab_lookup(struct sidtab *s, u32 sid);
+>   
+> -int sidtab_map(struct sidtab *s,
+> -	       int (*apply) (u32 sid,
+> -			     struct context *context,
+> -			     void *args),
+> -	       void *args);
+> +int sidtab_convert_start(struct sidtab *s, sidtab_convert_t convert, void *args);
+> +void sidtab_convert_finish(struct sidtab *s);
+> +void sidtab_convert_cleanup(struct sidtab *s);
+>   
+>   int sidtab_context_to_sid(struct sidtab *s,
+>   			  struct context *context,
+> @@ -48,8 +51,6 @@ int sidtab_context_to_sid(struct sidtab *s,
+>   
+>   void sidtab_hash_eval(struct sidtab *h, char *tag);
+>   void sidtab_destroy(struct sidtab *s);
+> -void sidtab_set(struct sidtab *dst, struct sidtab *src);
+> -void sidtab_shutdown(struct sidtab *s);
+>   
+>   #endif	/* _SS_SIDTAB_H_ */
+>   
+> 
 
-- As Peter Zijlstra wrote earlier, protecting a target moves the focus 
-of the attack to something else. In this case, probably, the "something 
-else" would be the metadata of the pool(s).
-
-- The amount of pools needed should be known at compilation time, so the 
-metadata used for pools could be statically allocated and any change to 
-it could be treated as write-rare.
-
-- only certain fields of a pool structure would be writable, even as 
-write-rare, after the pool is initialized.
-In case the pool is a mm_struct or a superset (containing also 
-additional properties, like the type of writability: RO or WR), the field
-
-struct vm_area_struct *mmap;
-
-is an example of what could be protected. It should be alterable only 
-when creating/destroying the pool and making the first initialization.
-
-- to speed up and also improve the validation of the target of a 
-write-rare operation, it would be really desirable if the target had 
-some intrinsic property which clearly differentiates it from 
-non-write-rare memory. Its address, for example. The amount of write 
-rare data needed by a full kernel should not exceed a few tens of 
-megabytes. On a 64 bit system it shouldn't be so bad to reserve an 
-address range maybe one order of magnitude lager than that.
-It could even become a parameter for the creation of a pool.
-SELinux, for example, should fit within 10-20MB. Or it could be a 
-command line parameter.
-
-- even if an hypervisor was present, it would be preferable to use it 
-exclusively as extra protection, which triggers an exception only when 
-something abnormal happens. The hypervisor should not become aware of 
-the actual meaning of kernel (meta)data. Ideally, it would be mostly 
-used for trapping unexpected writes to pages which are not supposed to 
-be modified.
-
-- one more reason for using pools is that, if each pool was also acting 
-as memory cache for its users, attacks relying on use-after-free would 
-not have access to possible vulnerability, because the memory and 
-addresses associated with a pool would stay with it.
-
---
-igor
