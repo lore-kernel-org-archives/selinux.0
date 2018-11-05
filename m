@@ -2,105 +2,84 @@ Return-Path: <SRS0=riLa=NQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04E5DC0044C
-	for <selinux@archiver.kernel.org>; Mon,  5 Nov 2018 20:56:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3413AC0044C
+	for <selinux@archiver.kernel.org>; Mon,  5 Nov 2018 20:57:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B4BFF20827
-	for <selinux@archiver.kernel.org>; Mon,  5 Nov 2018 20:56:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B4BFF20827
+	by mail.kernel.org (Postfix) with ESMTP id F1CCD20827
+	for <selinux@archiver.kernel.org>; Mon,  5 Nov 2018 20:57:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F1CCD20827
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=m4x.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727329AbeKFGRe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Nov 2018 01:17:34 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:52731 "EHLO
+        id S1726902AbeKFGTP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Nov 2018 01:19:15 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:42460 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726902AbeKFGRe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Nov 2018 01:17:34 -0500
-Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com [209.85.210.51])
+        with ESMTP id S1726578AbeKFGTP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Nov 2018 01:19:15 -0500
+Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr [89.156.252.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 11E24561250
-        for <selinux@vger.kernel.org>; Mon,  5 Nov 2018 21:55:59 +0100 (CET)
-Received: by mail-ot1-f51.google.com with SMTP id m15so9376506otl.7
-        for <selinux@vger.kernel.org>; Mon, 05 Nov 2018 12:55:58 -0800 (PST)
-X-Gm-Message-State: AGRZ1gJp+vaOiP5wNrFu2gT/Rq268rPr7YBp70F/mRYekJuxy+cvYXk9
-        8SxtzuhQeXnB8MPXVzAzF3RtYZRfL2I29hZFRaI=
-X-Google-Smtp-Source: AJdET5cRwb6ejD36d7fr3L7Hb9xhiLf3GGm5SkIIleYP6uoSlVv/meGD8xQXC/8DTaUH8ryJdAqQpipyHiMu5m7KUMo=
-X-Received: by 2002:a9d:6108:: with SMTP id i8mr15103081otj.278.1541451358023;
- Mon, 05 Nov 2018 12:55:58 -0800 (PST)
-MIME-Version: 1.0
-References: <20181105143838.5198-1-sds@tycho.nsa.gov>
-In-Reply-To: <20181105143838.5198-1-sds@tycho.nsa.gov>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 18CCA56125C
+        for <selinux@vger.kernel.org>; Mon,  5 Nov 2018 21:57:41 +0100 (CET)
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 5 Nov 2018 21:55:46 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=keH-Kxs0nE7AvM1POCX=CSsGWU7H2WYqYDWBwdjsWcUQ@mail.gmail.com>
-Message-ID: <CAJfZ7=keH-Kxs0nE7AvM1POCX=CSsGWU7H2WYqYDWBwdjsWcUQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: ibpkeys.c: fix printf format string specifiers
- for subnet_prefix
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Nov  5 21:55:59 2018 +0100 (CET))
+To:     selinux@vger.kernel.org
+Subject: [PATCH 1/1] libselinux: selinux_restorecon: fix printf format string specifier for uint64_t
+Date:   Mon,  5 Nov 2018 21:57:10 +0100
+Message-Id: <20181105205710.15548-1-nicolas.iooss@m4x.org>
+X-Mailer: git-send-email 2.19.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Nov  5 21:57:41 2018 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 5, 2018 at 3:36 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> Use PRIx64 to print the subnet_prefix (which is a uint64_t) instead
-> of lx.
->
-> Fixes https://github.com/SELinuxProject/selinux/issues/108
->
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  libsepol/src/ibpkeys.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
->
-> diff --git a/libsepol/src/ibpkeys.c b/libsepol/src/ibpkeys.c
-> index 682bf5db..68a9bdfe 100644
-> --- a/libsepol/src/ibpkeys.c
-> +++ b/libsepol/src/ibpkeys.c
-> @@ -1,5 +1,6 @@
->  #include <netinet/in.h>
->  #include <stdlib.h>
-> +#include <inttypes.h>
->
->  #include "debug.h"
->  #include "context.h"
-> @@ -176,7 +177,7 @@ int sepol_ibpkey_query(sepol_handle_t *handle,
->         return STATUS_SUCCESS;
->
->  err:
-> -       ERR(handle, "could not query ibpkey subnet prefix: %#lx range %u - %u exists",
-> +       ERR(handle, "could not query ibpkey subnet prefix: %#" PRIx64 " range %u - %u exists",
->             subnet_prefix, low, high);
->         return STATUS_ERR;
->  }
-> @@ -203,7 +204,7 @@ int sepol_ibpkey_modify(sepol_handle_t *handle,
->         return STATUS_SUCCESS;
->
->  err:
-> -       ERR(handle, "could not load ibpkey subnet prefix: %#lx range %u - %u exists",
-> +       ERR(handle, "could not load ibpkey subnet prefix: %#" PRIx64 " range %u - %u exists",
->             subnet_prefix, low, high);
->         if (ibpkey) {
->                 context_destroy(&ibpkey->context[0]);
-> --
-> 2.19.1
->
+fc_count is defined as uint64_t, which needs to be printed with PRIu64
+(it is "llu" on x86 and "lu" on x86-64). Otherwise, building with
+'CC="gcc -m32"' fails with:
 
-This looks good to me, and while testing some things, I found a
-similar issue in libselinux/src/selinux_restorecon.c. Patch
-incoming...
+    selinux_restorecon.c: In function ‘restorecon_sb’:
+    selinux_restorecon.c:633:26: error: format ‘%lu’ expects argument of
+    type ‘long unsigned int’, but argument 3 has type ‘uint64_t’ {aka
+    ‘long long unsigned int’} [-Werror=format=]
+         fprintf(stdout, "\r%luk", fc_count / STAR_COUNT);
+                            ~~^
+                            %llu
 
-Cheers,
-Nicolas
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libselinux/src/selinux_restorecon.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 41f2225081e0..3df2d382d50b 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -15,6 +15,7 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <fts.h>
++#include <inttypes.h>
+ #include <limits.h>
+ #include <stdint.h>
+ #include <sys/types.h>
+@@ -630,7 +631,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
+ 					     fc_count / efile_count) : 100;
+ 				fprintf(stdout, "\r%-.1f%%", (double)pc);
+ 			} else {
+-				fprintf(stdout, "\r%luk", fc_count / STAR_COUNT);
++				fprintf(stdout, "\r%" PRIu64 "k", fc_count / STAR_COUNT);
+ 			}
+ 			fflush(stdout);
+ 		}
+-- 
+2.19.1
 
