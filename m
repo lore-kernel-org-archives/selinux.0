@@ -6,119 +6,121 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53B80C32789
-	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 16:11:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 343F1C32789
+	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 16:19:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1BD452081D
-	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 16:11:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1BD452081D
+	by mail.kernel.org (Postfix) with ESMTP id 05FDC2081D
+	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 16:19:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 05FDC2081D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389184AbeKGBhf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Nov 2018 20:37:35 -0500
-Received: from ucol19pa12.eemsg.mail.mil ([214.24.24.85]:34833 "EHLO
-        ucol19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389007AbeKGBhf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Nov 2018 20:37:35 -0500
-X-EEMSG-check-008: 653604588|UCOL19PA12_EEMSG_MP10.csd.disa.mil
+        id S2389173AbeKGBpw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Nov 2018 20:45:52 -0500
+Received: from upbd19pa08.eemsg.mail.mil ([214.24.27.83]:64314 "EHLO
+        upbd19pa08.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387685AbeKGBpw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Nov 2018 20:45:52 -0500
+X-EEMSG-check-008: 178858975|UPBD19PA08_EEMSG_MP8.csd.disa.mil
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by upbd19pa08.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Nov 2018 16:19:52 +0000
 X-IronPort-AV: E=Sophos;i="5.54,472,1534809600"; 
-   d="scan'208";a="653604588"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by ucol19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Nov 2018 16:11:40 +0000
-X-IronPort-AV: E=Sophos;i="5.54,472,1534809600"; 
-   d="scan'208";a="20330276"
-IronPort-PHdr: =?us-ascii?q?9a23=3ApjcsvBZMusYg5TCU7FSffIj/LSx+4OfEezUN45?=
- =?us-ascii?q?9isYplN5qZr8S7bnLW6fgltlLVR4KTs6sC17KJ9fi4EUU7or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCa/bL9oMBm6sRjau9ULj4dlNqs/0A?=
- =?us-ascii?q?bCrGFSe+RRy2NoJFaTkAj568yt4pNt8Dletuw4+cJYXqr0Y6o3TbpDDDQ7KG?=
- =?us-ascii?q?81/9HktQPCTQSU+HQRVHgdnwdSDAjE6BH6WYrxsjf/u+Fg1iSWIdH6QLYpUj?=
- =?us-ascii?q?m58axlVAHnhzsGNz4h8WHYlMpwjL5AoBm8oxBz2pPYbJ2JOPZ7eK7Sc8kaRW?=
- =?us-ascii?q?5cVchPUSJPDJ63Y48WA+YfIepUqo/wrEYMoxSjHwmhHP7hxCFGhnH23qM03e?=
- =?us-ascii?q?ouHg7E0wM8ENwDq2jUodbvOasOTey4wqvFwDPeZP1Wwzf9743Ifwg8r/GQQ7?=
- =?us-ascii?q?1wacrRxlcpFwjYk1uQrJbqPzeR1usTs2mQ8u1tVfmyhG48sAxxvjiuydssio?=
- =?us-ascii?q?nOnI4VzEvE+j9jzIY6It24Vld2bNi5G5VTryGXL5Z6T8wtTm1yuCs216cKtY?=
- =?us-ascii?q?C0cSQU0pgr2hjSYOGdfYeS+BLsTuORLC99hHJiZb2wmQ6/8VOlyu3gTsm010?=
- =?us-ascii?q?tKrjZdntnMqH8N0xvT59CbSvRn5Eeh2CuP1xvJ5uFYIUE7iarbK5k7zr42ip?=
- =?us-ascii?q?UTqljMEjXzmEX3iK+abkQk+u625OT7erjqu5CROoBuhgz+L6gigNKzDOsmPg?=
- =?us-ascii?q?QUQmSX4eG826fi/U39TrVKlPo2kqzBvZDBOMsbvbW0AxNV04k/6xa/CC2q0N?=
- =?us-ascii?q?IDnXYdNl5FdxWHj5bxN1HUPP/4Feu/g0irkDpzwfDGP6HuApLJLnfZi7ftZ7?=
- =?us-ascii?q?d960lbyAoo1tBS/JdUB74OIf7pXU/xrtPYBAcjMwOo2+bnFMl91oQGVGKUHK?=
- =?us-ascii?q?CZNKLSsVmV5uMgOOSMeoAVtyjnK/Q/5P7hk2U5mVkDcqmtx5cXb2q4Hvs1a3?=
- =?us-ascii?q?meNFztidAFGHxCnw05V/ei3FuDWjlXbm30XqU7/SoTDd62S4DZSdbpyKeM2C?=
- =?us-ascii?q?a9A41+eG9LEBaPHG3ueoHCXO0DOwyIJco0qSAJTbisTcca0BiqsALrg+58Iv?=
- =?us-ascii?q?H85jwTtZWl0sN8oeLUi0dhpnRPE82B3jTVHClPlWQSSmpzhfonrA=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DlAQA5vOFb/wHyM5BkHAEBAQQBAQcEAQGBVAQBAQsBg?=
- =?us-ascii?q?VopgTUzJ4N2lDBMAQEBAQEBBoE1iRGJKIZxOAGEQAKDWCI3Cg0BAwEBAQEBA?=
- =?us-ascii?q?QIBbCiCNiQBgmABBSMPAQVRCxgCAiYCAlcGAQwGAgEBgl4/gXUNqDqBLoU8h?=
- =?us-ascii?q?HaBC4ptF3mBB4E4gmuER4M7glcCj26PSQmRDAYYkGQsmHgigVUrCAIYCCEPg?=
- =?us-ascii?q?yeCUI4oIQMwgQUBAYofgk0BAQ?=
+   d="scan'208";a="17594646"
+IronPort-PHdr: =?us-ascii?q?9a23=3A4Fco7hPcvciQlzVq68Yl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0I/3yrarrMEGX3/hxlliBBdydt6obzbKO+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxlKiTanfb9+MAi9oBnMuMURnYZsMLs6xA?=
+ =?us-ascii?q?HTontPdeRWxGdoKkyWkh3h+Mq+/4Nt/jpJtf45+MFOTav1f6IjTbxFFzsmKH?=
+ =?us-ascii?q?w65NfqtRbYUwSC4GYXX3gMnRpJBwjF6wz6Xov0vyDnuOdxxDWWMMvrRr0vRz?=
+ =?us-ascii?q?+s87lkRwPpiCcfNj427mfXitBrjKlGpB6tvgFzz5LIbI2QMvdxcLndfdcHTm?=
+ =?us-ascii?q?RfWMhfWTFKDoelY4cRE+YNOOBVpJT/qVQTtxuzHRSiCv3hyjFIhXH406M13O?=
+ =?us-ascii?q?sjHg7a0wItBM4OvXbOodnpKKsfX+K4wa/VxjvDdfNW3jL95ZDVfBA9v/6MRb?=
+ =?us-ascii?q?JwftTXyUIyCg3Fi0+fqYjhPzyL1uUGrm+W7/F9WuK0kGMntwFwrSSvxscrkI?=
+ =?us-ascii?q?XJgJkVxUre+SV2x4Y1O8S1RUhmatCnCJtdrzyWOoR5T884Q2xkpTw2xqMJtJ?=
+ =?us-ascii?q?KlZiQG1ZIqzAPFZfOdaYiH+BfjWf6UITd/mX1qZqqyhw238Ui80u38UdS00E?=
+ =?us-ascii?q?pSoipFjNbMsncN2gTP6sedUPt9/1qh2S2V2wDP6uBLPUA0la3BJ54n3rEwjY?=
+ =?us-ascii?q?YcvV7GHi/3nEX6lK6WdkM69ei08+nrf7rrq5CGO4J0lw3yKLoil8OhDegiLw?=
+ =?us-ascii?q?QCR22b9v691L3n8035WrJKjvgun6nCrZ/aPt8WprK5AgBJ0oYj7AyzDzG90N?=
+ =?us-ascii?q?sCh3UHI1VFeAyfg4jzJ17OOOz4Deu4g1m0ljdrxuzJPrrlAprXNXjPirbhfb?=
+ =?us-ascii?q?F6605H0wo+1tVf6p1bC70bJ/LzQEDxvsTCDhAlKwy03/rnCNJl24MFR22PBq?=
+ =?us-ascii?q?6ZMKXPsV6H/e8vPeaMa5EPuDrnKPgq+eTujXknll8ZZ6Wp2oEXaH/rVshhdm?=
+ =?us-ascii?q?OYan3oi8xJMGANpRF2GOrrg1qGWCUVZnG1RLkU420rToW8AtGHDpughL2HwT?=
+ =?us-ascii?q?eTAJJbfCZFB0qKHHOucJ+LH78uYSefOYdKmyYYWKLpH40+3hi0qFXS16tsLu?=
+ =?us-ascii?q?2S/DYR853kyo4myffUkEQJ6TFsD8mbm1qIRmVwk3JAEyQ6x4hjsEd9zRGFyq?=
+ =?us-ascii?q?E+jPtGQ48Ar8hVWxs3YMaPh9dxDMr/D0eYJI+E?=
+X-IPAS-Result: =?us-ascii?q?A2DVBwBnvuFb/wHyM5BkHAEBAQQBAQcEAQGBZYFbKYE1M?=
+ =?us-ascii?q?yeDdpQwTAEBAQEBAQaBNYkRkBk4AYRAAoNYIjgWAQMBAQEBAQECAWwogjYkA?=
+ =?us-ascii?q?YJgAQUjBBFRCxgCAiYCAlcGAQwGAgEBgl4/gXUNqDJ7M4U8hHaBC4ptF3mBB?=
+ =?us-ascii?q?4E4gmuIAoJXAo87M49JCYoThnkGGIFWiCKGbJklIYFVKwgCGAghD4MnkHghA?=
+ =?us-ascii?q?zCBBQEBjGwBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Nov 2018 16:11:39 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 06 Nov 2018 16:19:51 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wA6GBcho009498;
-        Tue, 6 Nov 2018 11:11:38 -0500
-Subject: Re: [PATCH 1/1] libselinux: selinux_restorecon: fix printf format
- string specifier for uint64_t
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
-References: <20181105205710.15548-1-nicolas.iooss@m4x.org>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wA6GJp0q009549;
+        Tue, 6 Nov 2018 11:19:51 -0500
+Subject: Re: [PATCH 1/1] libsepol: mark permissive types when loading a binary
+ policy
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org,
+        James Carter <jwcart2@tycho.nsa.gov>
+References: <20181105210001.31499-1-nicolas.iooss@m4x.org>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <cd516a2d-1d18-ea4b-ec7b-4180dde81806@tycho.nsa.gov>
-Date:   Tue, 6 Nov 2018 11:13:59 -0500
+Message-ID: <e5aece95-c1b5-073c-8add-510ee908df57@tycho.nsa.gov>
+Date:   Tue, 6 Nov 2018 11:22:12 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.2.1
 MIME-Version: 1.0
-In-Reply-To: <20181105205710.15548-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20181105210001.31499-1-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/5/18 3:57 PM, Nicolas Iooss wrote:
-> fc_count is defined as uint64_t, which needs to be printed with PRIu64
-> (it is "llu" on x86 and "lu" on x86-64). Otherwise, building with
-> 'CC="gcc -m32"' fails with:
+On 11/5/18 4:00 PM, Nicolas Iooss wrote:
+> When using checkpolicy to read a binary policy, permissive types are not
+> written in the output file. In order to reproduce this issue, a test
+> policy can be written from minimal.cil with the following commands:
 > 
->      selinux_restorecon.c: In function ‘restorecon_sb’:
->      selinux_restorecon.c:633:26: error: format ‘%lu’ expects argument of
->      type ‘long unsigned int’, but argument 3 has type ‘uint64_t’ {aka
->      ‘long long unsigned int’} [-Werror=format=]
->           fprintf(stdout, "\r%luk", fc_count / STAR_COUNT);
->                              ~~^
->                              %llu
+>      $ cd secilc/test/
+>      $ cp minimum.cil my_policy.cil
+>      $ echo '(typepermissive TYPE)' >> my_policy.cil
+>      $ secilc my_policy.cil
+>      $ checkpolicy -bC -o /dev/stdout policy.31
+> 
+>      # There is no "(typepermissive TYPE)" in checkpolicy output.
+> 
+> This is because TYPE_FLAGS_PERMISSIVE is added to typdatum->flags only
+> when loading a module, which uses the permissive flag in the type
+> properties. A kernel policy defines permissive types in a dedicated
+> bitmap, which gets loaded as p->permissive_map before the types are
+> loaded. Use this bitmap to mark permissive types in the loaded policy.
 > 
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Or we could directly use the permissive_map in 
+kernel_to_cil/kernel_to_conf?  Regardless,
 
 Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   libselinux/src/selinux_restorecon.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
+>   libsepol/src/policydb.c | 3 +++
+>   1 file changed, 3 insertions(+)
 > 
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-> index 41f2225081e0..3df2d382d50b 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -15,6 +15,7 @@
->   #include <errno.h>
->   #include <fcntl.h>
->   #include <fts.h>
-> +#include <inttypes.h>
->   #include <limits.h>
->   #include <stdint.h>
->   #include <sys/types.h>
-> @@ -630,7 +631,7 @@ static int restorecon_sb(const char *pathname, const struct stat *sb,
->   					     fc_count / efile_count) : 100;
->   				fprintf(stdout, "\r%-.1f%%", (double)pc);
->   			} else {
-> -				fprintf(stdout, "\r%luk", fc_count / STAR_COUNT);
-> +				fprintf(stdout, "\r%" PRIu64 "k", fc_count / STAR_COUNT);
->   			}
->   			fflush(stdout);
->   		}
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index 96176d805d59..f2beaf041fc7 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -2469,6 +2469,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct policy_file *fp)
+>   		if (properties & TYPEDATUM_PROPERTY_PERMISSIVE
+>   		    && p->policy_type != POLICY_KERN)
+>   			typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
+> +		if (p->policy_type == POLICY_KERN
+> +		    && ebitmap_get_bit(&p->permissive_map, typdatum->s.value))
+> +			typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
+>   
+>   		typdatum->bounds = le32_to_cpu(buf[++pos]);
+>   	} else {
 > 
 
