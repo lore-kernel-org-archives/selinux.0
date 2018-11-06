@@ -2,153 +2,138 @@ Return-Path: <SRS0=i/ur=NR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D565C32789
-	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 19:18:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 451E2C46464
+	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 19:19:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 41ABD20827
-	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 19:18:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 41ABD20827
+	by mail.kernel.org (Postfix) with ESMTP id 17A7C20827
+	for <selinux@archiver.kernel.org>; Tue,  6 Nov 2018 19:19:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 17A7C20827
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388240AbeKGEos (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 6 Nov 2018 23:44:48 -0500
-Received: from ucol19pa11.eemsg.mail.mil ([214.24.24.84]:7515 "EHLO
-        UCOL19PA11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388320AbeKGEos (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 6 Nov 2018 23:44:48 -0500
-X-EEMSG-check-008: 610624588|UCOL19PA11_EEMSG_MP9.csd.disa.mil
+        id S2387862AbeKGEqB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 6 Nov 2018 23:46:01 -0500
+Received: from ucol19pa12.eemsg.mail.mil ([214.24.24.85]:26637 "EHLO
+        ucol19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387804AbeKGEqB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 6 Nov 2018 23:46:01 -0500
+X-EEMSG-check-008: 653706668|UCOL19PA12_EEMSG_MP10.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.54,472,1534809600"; 
-   d="scan'208";a="610624588"
+   d="scan'208";a="653706668"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UCOL19PA11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Nov 2018 19:18:03 +0000
+  by ucol19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Nov 2018 19:19:13 +0000
 X-IronPort-AV: E=Sophos;i="5.54,472,1534809600"; 
-   d="scan'208";a="20344244"
-IronPort-PHdr: =?us-ascii?q?9a23=3AGQ1b8xDBc2pDsmaBtiD8UyQJP3N1i/DPJgcQr6?=
- =?us-ascii?q?AfoPdwSPv8osbcNUDSrc9gkEXOFd2Cra4c1KyO6+jJYi8p2d65qncMcZhBBV?=
- =?us-ascii?q?cuqP49uEgeOvODElDxN/XwbiY3T4xoXV5h+GynYwAOQJ6tL1LdrWev4jEMBx?=
- =?us-ascii?q?7xKRR6JvjvGo7Vks+7y/2+94fcbglUhjexe69+IAmrpgjNq8cahpdvJLwswR?=
- =?us-ascii?q?XTuHtIfOpWxWJsJV2Nmhv3+9m98p1+/SlOovwt78FPX7n0cKQ+VrxYES8pM3?=
- =?us-ascii?q?sp683xtBnMVhWA630BWWgLiBVIAgzF7BbnXpfttybxq+Rw1DWGMcDwULs7Vy?=
- =?us-ascii?q?6i76N2QxH2jikJOSMy/GXOhsBtkK5XpRSsrAF9zYHJeoGYLPpwcL3Ac90URm?=
- =?us-ascii?q?RPWcleWSNaD4+gbIYCFfYNMPxEo4XhoVYFsBuwBROrBOPq0jJGm2P20rMi0+?=
- =?us-ascii?q?QhDw7G2hErEc8LsHvOqNX1MLkdUOCox6TP1jXMcuhW1Czh6InIbh8hofaMUa?=
- =?us-ascii?q?h2ccrK00YjDQzFjlKOqYH8OT6ey+oDs2+e7+V6VOKvjXYqqw5wojizxscsl5?=
- =?us-ascii?q?LGipgJxVDD8CV0xps+K96gSENjfNKpH5RduzuaOodrWM8uXW5ltDggxrEbv5?=
- =?us-ascii?q?OwYTIEx449xxHFbvyKa42I4hX+W+mPOTp4n3dleK6nhxa17Eig1vXwVsmq31?=
- =?us-ascii?q?ZOqSpIisXMuWoX1xzS98iHUeFx/luh2DmT1wDT7ftIIUYomqrAN5Et2Lswlp?=
- =?us-ascii?q?sXsUjbHy/2nlv5jLOOe0k59eWl5P7rb7X7qpOGKYN5hR/yPr4zlsCnBOQ3KA?=
- =?us-ascii?q?kOX2yV+eSm073j+FX0QK5Xgf0tiaTZrJDbKtgbpq6+GQNV1J0j5AylAzep19?=
- =?us-ascii?q?QYg2ELLEhZdxKfk4jpJ1bOLejjDfihh1SskTFrx+3JP7D6HJXNIWbMkK37cb?=
- =?us-ascii?q?Z+9UFc0gwzws5b555ODbEBOv3zCQfNs4nDAxs4NRGk6/joBc871Y4EX2+LRK?=
- =?us-ascii?q?iDP/D8q1iNs9kzLvGMaYldgzP0L/wo9ra6lnMisUMMdqmum50MYTa3GeowcB?=
- =?us-ascii?q?bRWmblntpUSTRChQE5VuG/zQTaXA=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2B6AACv5+Fb/wHyM5BkHAEBAQQBAQcEAQGBUQcBAQsBg?=
- =?us-ascii?q?VopZk8zJ4wOjBhMAQEBAQEBBopGjh+BeiAQCAGDekaDWiI0DQ0BAwEBAQEBA?=
- =?us-ascii?q?QIBbBwMgjYkgw4LAUaBUYJiPwGBdA0PqiIzhC0BgQ6EZQWHUIQoF3mBB4ERh?=
- =?us-ascii?q?GaBRwKBKoEEhQ4CiQeGZ49JCYZvihgLGJBjAY0MjAI4gVUrCAIYCCEPgyeCJ?=
- =?us-ascii?q?xeDSopwIQMwgQUBAYofgk0BAQ?=
+   d="scan'208";a="20344303"
+IronPort-PHdr: =?us-ascii?q?9a23=3Aw2qAoBzH2L63tVbXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd2usSIJqq85mqBkHD//Il1AaPAd2Eraocw8Pt8InYEVQa5piAtH1QOLdtbD?=
+ =?us-ascii?q?Qizfssogo7HcSeAlf6JvO5JwYzHcBFSUM3tyrjaRsdF8nxfUDdrWOv5jAOBB?=
+ =?us-ascii?q?r/KRB1JuPoEYLOksi7ze+/94HRbglSmDaxfa55IQmrownWqsQYm5ZpJLwryh?=
+ =?us-ascii?q?vOrHtIeuBWyn1tKFmOgRvy5dq+8YB6/ShItP0v68BPUaPhf6QlVrNYFygpM3?=
+ =?us-ascii?q?o05MLwqxbOSxaE62YGXWUXlhpIBBXF7A3/U5zsvCb2qvZx1S+HNsDtU7s6RS?=
+ =?us-ascii?q?qt4LtqSB/wiScIKTg58H3MisdtiK5XuQ+tqwBjz4LRZoyaOuB+fqfAdt0EQ2?=
+ =?us-ascii?q?RPUNtaWyhYDo+ic4cDCuwMNvtaoYbgvVsDtQawCxeiBO3vyTFGiHH50qI43O?=
+ =?us-ascii?q?s9Hg/LxxAgEtEUvXjIsNn4OqUfXOaox6fI1zXDaPZW1C//6InGbh8uu+uMXa?=
+ =?us-ascii?q?5ufcHMzkQvFQ3EgUmKpoz/IzOZyP8As3Sb7uV8VeKvjHQrqwdqoje13MsshY?=
+ =?us-ascii?q?7JhpwMx13C6C53w541KMWlREN0btOoCptduzyAO4doTc4uXXtktDs8x7Ybo5?=
+ =?us-ascii?q?C0ZjIKx44ixxPHbvyHdJWH7Qz7WeaKJDd4mGpleLWihxau6USgyvPzVs2z0F?=
+ =?us-ascii?q?tSsipKiMPMtnEQ1xzI8MSHVvt88Vuh2TaIzQzT7P1LIVsomqbBLp4hw7owmo?=
+ =?us-ascii?q?ISsUTFACD2hF37gLKZe0gr4OSl6/nrbq/4qpKTKYN4kBzyPrwrmsOlAOQ4Ng?=
+ =?us-ascii?q?YOX3Kc+eS5zLDj/0P4T6lQgf0sjqnVrovXJdgbp6GlAw9V1Zwv6xCkDzi8yt?=
+ =?us-ascii?q?gYkn4HLExddBKdk4fpI03OIOz/DfqnhVSskStkx/fCPrL7GZXBNHnDkLDmfb?=
+ =?us-ascii?q?Zm8E5R0w8zwN9Q5p5ODbEBOv3zUFfrtNPEFh85LxC0w+H/BdVmyIweXWOPAq?=
+ =?us-ascii?q?mEMKLdqlKI+O0vLPeWZIMPuzbyNeIl5/jwgn89g1MderOp3ZREIEy/S896Ll?=
+ =?us-ascii?q?2ZbHykudIIFWMHr0JqV+DxoEGTWj5UIXCpVuQz4S9tTMqADIzEQom2yJ2G2z?=
+ =?us-ascii?q?ygVslQZ2tBDlmXV3bvcJ6fc/JQeGSVOMA31nQfWLygTZIx/Q+huRW8yLd9KO?=
+ =?us-ascii?q?fQvCoCusHNzt9wsu/Mnhgo6WY8W8aC2GiXUztcgnIDRzhw2rt250N61AHQgu?=
+ =?us-ascii?q?BDn/VEGIkLtLtyWQAgOMuZlrYiBg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2B/AACv5+Fb/wHyM5BkGgEBAQEBAgEBAQEHAgEBAQGBZ?=
+ =?us-ascii?q?YFbKWlMMxQTg3aUMIFoJZkqOAGEQAKDWCI4FgEDAQEBAQEBAgFsKII2JAGCX?=
+ =?us-ascii?q?wEBAQECASMECwEFRgsJAgkFCgICJgICVwYBDAYCAQGCXj8pAYFQCI1nm097M?=
+ =?us-ascii?q?4U8hGqBC4ptgVdAgTgMgl+IAoJXAoEqAY5Dj0kGA4oThnkGGIFWh3wmhmyZJ?=
+ =?us-ascii?q?SGBVSsKQYFogU6QeCEDMIEFAQGMbAEB?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Nov 2018 19:18:03 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wA6JI3AB004116;
-        Tue, 6 Nov 2018 14:18:03 -0500
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     selinux@vger.kernel.org
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] libsemanage: set selinux policy root to match semanage root or storename
-Date:   Tue,  6 Nov 2018 14:20:21 -0500
-Message-Id: <20181106192021.17556-1-sds@tycho.nsa.gov>
-X-Mailer: git-send-email 2.19.1
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Nov 2018 19:19:10 +0000
+Received: from [192.168.25.4] (moss-lions [192.168.25.4])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wA6JJAvB004122;
+        Tue, 6 Nov 2018 14:19:10 -0500
+Subject: Re: [PATCH 1/1] libsepol: mark permissive types when loading a binary
+ policy
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
+References: <20181105210001.31499-1-nicolas.iooss@m4x.org>
+ <e5aece95-c1b5-073c-8add-510ee908df57@tycho.nsa.gov>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <ac49729e-3125-9e0d-36d3-a839ce552339@tycho.nsa.gov>
+Date:   Tue, 6 Nov 2018 14:19:43 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
+In-Reply-To: <e5aece95-c1b5-073c-8add-510ee908df57@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-As reported in #109, semodule -p /path/to/policyroot -s minimum -n -B
-tries to use /etc/selinux/targeted/booleans.subs_dist.  This is because
-it invokes the libselinux selinux_boolean_sub() interface, which uses
-the active/installed policy files rather than the libsemanage ones.
+On 11/6/18 11:22 AM, Stephen Smalley wrote:
+> On 11/5/18 4:00 PM, Nicolas Iooss wrote:
+>> When using checkpolicy to read a binary policy, permissive types are not
+>> written in the output file. In order to reproduce this issue, a test
+>> policy can be written from minimal.cil with the following commands:
+>>
+>>      $ cd secilc/test/
+>>      $ cp minimum.cil my_policy.cil
+>>      $ echo '(typepermissive TYPE)' >> my_policy.cil
+>>      $ secilc my_policy.cil
+>>      $ checkpolicy -bC -o /dev/stdout policy.31
+>>
+>>      # There is no "(typepermissive TYPE)" in checkpolicy output.
+>>
+>> This is because TYPE_FLAGS_PERMISSIVE is added to typdatum->flags only
+>> when loading a module, which uses the permissive flag in the type
+>> properties. A kernel policy defines permissive types in a dedicated
+>> bitmap, which gets loaded as p->permissive_map before the types are
+>> loaded. Use this bitmap to mark permissive types in the loaded policy.
+>>
+>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> 
+> Or we could directly use the permissive_map in kernel_to_cil/kernel_to_conf?  
 
-To fix, we need to set the selinux policy root when either the semanage
-root or the semanage storename is set.  When setting the semanage root,
-we need to prepend the semanage root to the selinux policy root.  When
-setting the semanage storename, we need to replace the last component
-of the selinux policy root with the new storename.
+I think that this is the more natural way to do it.
+Jim
 
-Test:
-strace semodule -p ~/policy-root -s minimum -n -B
+> Regardless,
+> 
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> 
+>> ---
+>>   libsepol/src/policydb.c | 3 +++
+>>   1 file changed, 3 insertions(+)
+>>
+>> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+>> index 96176d805d59..f2beaf041fc7 100644
+>> --- a/libsepol/src/policydb.c
+>> +++ b/libsepol/src/policydb.c
+>> @@ -2469,6 +2469,9 @@ static int type_read(policydb_t * p, hashtab_t h, struct 
+>> policy_file *fp)
+>>           if (properties & TYPEDATUM_PROPERTY_PERMISSIVE
+>>               && p->policy_type != POLICY_KERN)
+>>               typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
+>> +        if (p->policy_type == POLICY_KERN
+>> +            && ebitmap_get_bit(&p->permissive_map, typdatum->s.value))
+>> +            typdatum->flags |= TYPE_FLAGS_PERMISSIVE;
+>>           typdatum->bounds = le32_to_cpu(buf[++pos]);
+>>       } else {
+>>
+> 
 
-Before:
-openat(AT_FDCWD, "/etc/selinux/targeted/booleans.subs_dist", O_RDONLY|O_CLOEXEC) = 5
 
-After:
-openat(AT_FDCWD, "/home/sds/policy-root/etc/selinux/minimum/booleans.subs_dist", O_RDONLY|O_CLOEXEC) = 5
-
-Fixes https://github.com/SELinuxProject/selinux/issues/109
-
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- libsemanage/src/handle.c | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
-
-diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
-index a6567bd4..c163e553 100644
---- a/libsemanage/src/handle.c
-+++ b/libsemanage/src/handle.c
-@@ -43,8 +43,21 @@ static char *private_semanage_root = NULL;
- 
- int semanage_set_root(const char *root)
- {
-+	char *new_selinux_root = NULL;
-+
-+	asprintf(&new_selinux_root, "%s%s", root, selinux_policy_root());
-+	if (!new_selinux_root)
-+		return -1;
-+	if (selinux_set_policy_root(new_selinux_root) < 0) {
-+		free(new_selinux_root);
-+		return -1;
-+	}
-+	free(new_selinux_root);
-+
- 	free(private_semanage_root);
- 	private_semanage_root = strdup(root);
-+	if (!private_semanage_root)
-+		return -1;
- 	return 0;
- }
- 
-@@ -273,9 +286,23 @@ int semanage_is_connected(semanage_handle_t * sh)
- void semanage_select_store(semanage_handle_t * sh, char *storename,
- 			   enum semanage_connect_type storetype)
- {
--
- 	assert(sh != NULL);
- 
-+	char *root = strdup(selinux_policy_root());
-+	assert(root);
-+	char *end = strrchr(root, '/');
-+	assert(end);
-+	end++;
-+	*end = '\0';
-+
-+	char *newroot = NULL;
-+	asprintf(&newroot, "%s%s", root, storename);
-+	assert(newroot);
-+	free(root);
-+	int rc = selinux_set_policy_root(newroot);
-+	assert(rc == 0);
-+	free(newroot);
-+
- 	/* This just sets the storename to what the user requests, no 
- 	   verification of existance will be done until connect */
- 	free(sh->conf->store_path);
 -- 
-2.19.1
-
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
