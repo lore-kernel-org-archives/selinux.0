@@ -2,123 +2,206 @@ Return-Path: <SRS0=0L3W=NU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98BC0C43441
-	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 08:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 094C4C43441
+	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 14:20:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5FF6C20827
-	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 08:53:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5FF6C20827
+	by mail.kernel.org (Postfix) with ESMTP id C458C2081C
+	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 14:20:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C458C2081C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727634AbeKISc7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Nov 2018 13:32:59 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:59102 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727603AbeKISc7 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 9 Nov 2018 13:32:59 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5228B8B107;
-        Fri,  9 Nov 2018 08:53:24 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-204-194.brq.redhat.com [10.40.204.194])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9F97319936;
-        Fri,  9 Nov 2018 08:53:23 +0000 (UTC)
-Subject: Re: [PATCH] python: replace aliases with corresponding type names
-References: <CAJfZ7==UCR-a=mfLY1TRad++g+nbpZ6QMxFz5N6JV5_W6QomDQ@mail.gmail.com>
- <20181030152629.7438-1-vmojzis@redhat.com>
- <20181030152629.7438-2-vmojzis@redhat.com>
- <CAJfZ7==a_f6sJhHRwec1MkU70uOXZ0CLEqy7qK-53titStTWUQ@mail.gmail.com>
-To:     nicolas.iooss@m4x.org
-Cc:     selinux@vger.kernel.org
-From:   Vit Mojzis <vmojzis@redhat.com>
-Message-ID: <38deb58a-f063-58ff-6178-9e8d4c7ab946@redhat.com>
-Date:   Fri, 9 Nov 2018 09:53:21 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
-MIME-Version: 1.0
-In-Reply-To: <CAJfZ7==a_f6sJhHRwec1MkU70uOXZ0CLEqy7qK-53titStTWUQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Fri, 09 Nov 2018 08:53:24 +0000 (UTC)
+        id S1727781AbeKJAAt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Nov 2018 19:00:49 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:38174 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727735AbeKJAAt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Nov 2018 19:00:49 -0500
+Received: by mail-wm1-f65.google.com with SMTP id f2-v6so2086120wme.3
+        for <selinux@vger.kernel.org>; Fri, 09 Nov 2018 06:20:01 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=s/4X6HYI/eolH9/GPG8rYlYB3LPsz5gRJjco5WIbidU=;
+        b=dlSfiVZeLoFGn5ZdaMMrZAAbtma610KYTaOzXVNtgPXARqYL0LE2D8eP+/OhXsruOi
+         N/QZ33zdhsn6B3yGee5foKYSHvaRdEPVaDFGLFxMnS59kcLemQ30r4r+Im/Ry6DkMuuc
+         TM3vZa0Y003pda8sSHsldfUgFleNAFeCoBjxGGWJB8sJ6Vogpo/Z+NWM2H6K98z1aAhQ
+         io5hrCN5Vg7jN9K5O7UioENE0u0oU7jz/hyMiZVabNBRJN54WIBjpad2Svn5TvBAwU1J
+         vhO57diwOl7megG1eUSWuTQ0MxEA0YmBUTFBdzDOlAahO98Fd47MMS6Sl+vcKwKptMYr
+         wVHA==
+X-Gm-Message-State: AGRZ1gLOR0z309gMYALU38leBuRknaWDYhlny0DtKN2nFfb8/3IZLcXY
+        /NziqC+9hhrvbVAJvkve6tTWzpkrtgM=
+X-Google-Smtp-Source: AJdET5dHwe+V7fL6ue2to42BGDY2rlZqUEub8UAuRUeyinAuVYoCFwUBxTbuvZxwYxdB6xFn8xOKtw==
+X-Received: by 2002:a1c:aacf:: with SMTP id t198-v6mr5126625wme.108.1541773199931;
+        Fri, 09 Nov 2018 06:19:59 -0800 (PST)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id b5-v6sm4255996wrs.34.2018.11.09.06.19.58
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 09 Nov 2018 06:19:59 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Subject: [PATCH] selinux: simplify mls_context_to_sid()
+Date:   Fri,  9 Nov 2018 15:19:43 +0100
+Message-Id: <20181109141943.5348-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.17.2
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+This function has only two callers, but only one of them actually needs
+the special logic at the beginning. Factoring this logic out into
+string_to_context_struct() allows us to drop the arguments 'oldc', 's',
+and 'def_sid'.
 
-On 05. 11. 18 21:51, Nicolas Iooss wrote:
-> On Tue, Oct 30, 2018 at 4:27 PM Vit Mojzis <vmojzis@redhat.com> wrote:
->> Aliases are not used in the selinux database. When user enters a type
->> alias as a parameter it should be converted to the corresponding type
->> in order to be processed correctly further in the userspace logic.
->>
->> Fixes e.g.:
->>
->> \#sepolicy transition -s phpfpm_t
->> /* where phpfpm_t is a type alias of httpd_t */
->>
->> Traceback (most recent call last):
->>    File "/usr/bin/sepolicy", line 691, in <module>
->>      args.func(args)
->>    File "/usr/bin/sepolicy", line 458, in transition
->>      mytrans = setrans(args.source, args.target)
->>    File "/usr/lib/python3.6/site-packages/sepolicy/transition.py", line 48, in __init__
->>      self._process(self.source)
->>    File "/usr/lib/python3.6/site-packages/sepolicy/transition.py", line 54, in _process
->>      trans = _get_trans(source)
->>    File "/usr/lib/python3.6/site-packages/sepolicy/transition.py", line 36, in _get_trans
->>      src_list = [src] + list(filter(lambda x: x['name'] == src, sepolicy.get_all_types_info()))[0]['attributes']
->> IndexError: list index out of range
->> ---
->>   python/semanage/seobject.py          | 43 ++++++++++++++++++++--------
->>   python/sepolicy/sepolicy.py          | 11 ++++---
->>   python/sepolicy/sepolicy/__init__.py | 14 ++++-----
->>   3 files changed, 45 insertions(+), 23 deletions(-)
->>
-> [...]
->> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
->> index b18683e4..7db43957 100644
->> --- a/python/sepolicy/sepolicy/__init__.py
->> +++ b/python/sepolicy/sepolicy/__init__.py
->> @@ -172,7 +172,7 @@ def info(setype, name=None):
->>           results = list(q.results())
->>
->>           if name and len(results) < 1:
->> -            # type not found, try alias
->> +            #type not found, try alias
->>               q.name = None
->>               q.alias = name
->>               results = list(q.results())
-> Hi, your patch looks good to me, but the comments you are using do not
-> follow PEP-8 (https://www.python.org/dev/peps/pep-0008/#block-comments)
-> and raise warnings in some linters that I am using. For example,
-> flake8 reports:
->
-> python/sepolicy/sepolicy/__init__.py:172:13: E265 block comment should
-> start with '# '
-> python/sepolicy/sepolicy/__init__.py:1072:9: E265 block comment should
-> start with '# '
->
-> I would like to apply the patch with the spaces added between "#" and
-> the comment line. Does it suits you?
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/ss/mls.c      | 44 ++++------------------------------
+ security/selinux/ss/mls.h      |  5 +---
+ security/selinux/ss/services.c | 32 ++++++++++++++++++++++---
+ 3 files changed, 35 insertions(+), 46 deletions(-)
 
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 2fe459df3c85..587f51657137 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -223,20 +223,12 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
+  * This function modifies the string in place, inserting
+  * NULL characters to terminate the MLS fields.
+  *
+- * If a def_sid is provided and no MLS field is present,
+- * copy the MLS field of the associated default context.
+- * Used for upgraded to MLS systems where objects may lack
+- * MLS fields.
+- *
+  * Policy read-lock must be held for sidtab lookup.
+  *
+  */
+ int mls_context_to_sid(struct policydb *pol,
+-		       char oldc,
+ 		       char *scontext,
+-		       struct context *context,
+-		       struct sidtab *s,
+-		       u32 def_sid)
++		       struct context *context)
+ {
+ 	char *sensitivity, *cur_cat, *next_cat, *rngptr;
+ 	struct level_datum *levdatum;
+@@ -244,29 +236,6 @@ int mls_context_to_sid(struct policydb *pol,
+ 	int l, rc, i;
+ 	char *rangep[2];
+ 
+-	if (!pol->mls_enabled) {
+-		if ((def_sid != SECSID_NULL && oldc) || (*scontext) == '\0')
+-			return 0;
+-		return -EINVAL;
+-	}
+-
+-	/*
+-	 * No MLS component to the security context, try and map to
+-	 * default if provided.
+-	 */
+-	if (!oldc) {
+-		struct context *defcon;
+-
+-		if (def_sid == SECSID_NULL)
+-			return -EINVAL;
+-
+-		defcon = sidtab_search(s, def_sid);
+-		if (!defcon)
+-			return -EINVAL;
+-
+-		return mls_context_cpy(context, defcon);
+-	}
+-
+ 	/*
+ 	 * If we're dealing with a range, figure out where the two parts
+ 	 * of the range begin.
+@@ -364,14 +333,11 @@ int mls_from_string(struct policydb *p, char *str, struct context *context,
+ 		return -EINVAL;
+ 
+ 	tmpstr = kstrdup(str, gfp_mask);
+-	if (!tmpstr) {
+-		rc = -ENOMEM;
+-	} else {
+-		rc = mls_context_to_sid(p, ':', tmpstr, context,
+-					NULL, SECSID_NULL);
+-		kfree(tmpstr);
+-	}
++	if (!tmpstr)
++		return -ENOMEM;
+ 
++	rc = mls_context_to_sid(p, tmpstr, context);
++	kfree(tmpstr);
+ 	return rc;
+ }
+ 
+diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
+index 67093647576d..e2498f78e100 100644
+--- a/security/selinux/ss/mls.h
++++ b/security/selinux/ss/mls.h
+@@ -33,11 +33,8 @@ int mls_range_isvalid(struct policydb *p, struct mls_range *r);
+ int mls_level_isvalid(struct policydb *p, struct mls_level *l);
+ 
+ int mls_context_to_sid(struct policydb *p,
+-		       char oldc,
+ 		       char *scontext,
+-		       struct context *context,
+-		       struct sidtab *s,
+-		       u32 def_sid);
++		       struct context *context);
+ 
+ int mls_from_string(struct policydb *p, char *str, struct context *context,
+ 		    gfp_t gfp_mask);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 12e414394530..ccad4334f99d 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1425,9 +1425,35 @@ static int string_to_context_struct(struct policydb *pol,
+ 
+ 	ctx->type = typdatum->value;
+ 
+-	rc = mls_context_to_sid(pol, oldc, p, ctx, sidtabp, def_sid);
+-	if (rc)
+-		goto out;
++	if (!pol->mls_enabled) {
++		rc = -EINVAL;
++		if ((def_sid == SECSID_NULL || !oldc) && (*p) != '\0')
++			goto out;
++	} else if (!oldc) {
++		/*
++		 * If a def_sid is provided and no MLS field is present,
++		 * copy the MLS field of the associated default context.
++		 * Used for upgrading to MLS systems where objects may lack
++		 * MLS fields.
++		 */
++		struct context *defcon;
++
++		rc = -EINVAL;
++		if (def_sid == SECSID_NULL)
++			goto out;
++
++		defcon = sidtab_search(sidtabp, def_sid);
++		if (!defcon)
++			goto out;
++
++		rc = mls_context_cpy(ctx, defcon);
++		if (rc)
++			goto out;
++	} else {
++		rc = mls_context_to_sid(pol, p, ctx);
++		if (rc)
++			goto out;
++	}
+ 
+ 	/* Check the validity of the new context. */
+ 	rc = -EINVAL;
+-- 
+2.17.2
 
-Sure, whatever needs fixing.
-
-Thank you :)
-
-
-> Otherwise, I will submit a patch
-> to fix the comments after applying this patch.
->
-> Thanks,
-> Nicolas
->
