@@ -1,168 +1,124 @@
-Return-Path: <SRS0=8Fqr=NT=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=0L3W=NU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAE93ECDE47
-	for <selinux@archiver.kernel.org>; Thu,  8 Nov 2018 14:18:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98BC0C43441
+	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 08:53:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A27EB20827
-	for <selinux@archiver.kernel.org>; Thu,  8 Nov 2018 14:18:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A27EB20827
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
+	by mail.kernel.org (Postfix) with ESMTP id 5FF6C20827
+	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 08:53:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5FF6C20827
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726860AbeKHXyU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Nov 2018 18:54:20 -0500
-Received: from ucol19pa09.eemsg.mail.mil ([214.24.24.82]:53122 "EHLO
-        ucol19pa09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726469AbeKHXyU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Nov 2018 18:54:20 -0500
-X-EEMSG-check-008: 790445474|UCOL19PA09_EEMSG_MP7.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.54,478,1534809600"; 
-   d="scan'208";a="790445474"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by ucol19pa09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 08 Nov 2018 14:18:36 +0000
-X-IronPort-AV: E=Sophos;i="5.54,478,1534809600"; 
-   d="scan'208";a="17672973"
-IronPort-PHdr: =?us-ascii?q?9a23=3AiH0fYxHOKGU9/XKPSqFCop1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7ypMSwAkXT6L1XgUPTWs2DsrQY07WQ6/iocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmDiwbaluIBmqsA7cqtQYjYx+J6gr1x?=
- =?us-ascii?q?DHuGFIe+NYxWNpIVKcgRPx7dqu8ZBg7ipdpesv+9ZPXqvmcas4S6dYDCk9PG?=
- =?us-ascii?q?Au+MLrrxjDQhCR6XYaT24bjwBHAwnB7BH9Q5fxri73vfdz1SWGIcH7S60/VC?=
- =?us-ascii?q?+85Kl3VhDnlCYHNyY48G7JjMxwkLlbqw+lqxBm3oLYfJ2ZOP94c6zTZ9MaQX?=
- =?us-ascii?q?dKUNhXWSJPH4iwa5IDAusEMetesoLzpUYBrQGmCAexGu3vxD9GiHz406I03O?=
- =?us-ascii?q?suEx3J0gM7EtISsnnZtsn5OLscXO23yqTD0DXNb+lR2Tf48IXGbwwhru+UXb?=
- =?us-ascii?q?Jwb8XRz1QkGR7AjlqKrYzlOy2a1+QQuGWc9OpvSPmvhnU7qwBxvjevxsAshp?=
- =?us-ascii?q?PPhoIO0F/I7yp5wIErJdChTkNwfNCqEJxVty6ANot2RNsvQ25puCYmyr0GpI?=
- =?us-ascii?q?W0cDIWx5Qgwh7Tc+CHc5KS7RL9VeaROi50i25keL6lgBay60egxvX5Vsau1l?=
- =?us-ascii?q?ZHrDBJkt7WtnAC0RHY98uJSuNl80u81juC2Brf5+FZLUwui6bWJIAtzqQtmp?=
- =?us-ascii?q?cVrE/NBDX5mF/sg6+Tbkgk/++o5Pn5bbj+vZ+cMpN0ihn5MqQzhsyzGeQ4PR?=
- =?us-ascii?q?YKX2ic4em8yKfs/Vf4QLVXlf06iLXZsZDGKsQboa61GQlV3Zo46xmjFTum1d?=
- =?us-ascii?q?UYnX0fIFJEfhKIkZTpNknTLP33AvqzmVShnCpxy/zYMbDtHI/BImXbnLfkZ7?=
- =?us-ascii?q?l96kpcyAQpzdBY4pJZEqoBL+/oWkLqqNzZDgM2Mwyzw+r9DtV9zZkRVXiAAq?=
- =?us-ascii?q?+eLqPeqUWI6f43I+mQeI8Vvy7wK/4k5/Hyin85nUUSfbKz0ZsWb3C4Ge9mI1?=
- =?us-ascii?q?6CbHrpjdoAHn0Gvg0kTOzlkFeCSyJcZ26uX6Ig4TE2EJmmApnHRoCshryBwS?=
- =?us-ascii?q?i6E4ZIZmBJFF+MC23kd4aaVPcWbiKdPMthniYDVbi7RI9ynS2p4Sn7wL1jJ/?=
- =?us-ascii?q?Gc2yofromrgN507OrXnAp09DtzFN+11j2dCWZukTVbaSUx2fVEvUFlylqFmZ?=
- =?us-ascii?q?N9ivhcGM0bs+hFSS8mJJXcyKp8ENm0VQXfKITaAG26S8mrVGliBuk6xMUDNg?=
- =?us-ascii?q?MkQ4uv?=
-X-IPAS-Result: =?us-ascii?q?A2CRAAA/ReRb/wHyM5BjHAEBAQQBAQcEAQGBVAQBAQsBg?=
- =?us-ascii?q?VopZk8zJ4N4lBJNAQQGgQgtiRKQGjAIAYN6RgKDFiI3Cg0BAwEBAQEBAQIBb?=
- =?us-ascii?q?BwMgjYkAYJgAQUjFQ8yEAsYAgImAgJXBg0GAgEBgl4/AYF0DQ+nPIEugyqBA?=
- =?us-ascii?q?wGBDoRvgQuKbhd5gQeBESeCa4FUgUcCAYEpgzuCVwKJBwaGODNOjwIJhnKKH?=
- =?us-ascii?q?gYYgiOOSY0gjCkigVUrCAIYCCEPgycJCgyCMYM4hRSFXCEDMAGBBAEBihmCT?=
- =?us-ascii?q?QEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 08 Nov 2018 14:18:36 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wA8EIa11011850;
-        Thu, 8 Nov 2018 09:18:36 -0500
-Subject: Re: [PATCH] libsemanage: set selinux policy root to match semanage
- root or storename
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+        id S1727634AbeKISc7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Nov 2018 13:32:59 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:59102 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727603AbeKISc7 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 9 Nov 2018 13:32:59 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 5228B8B107;
+        Fri,  9 Nov 2018 08:53:24 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-204-194.brq.redhat.com [10.40.204.194])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9F97319936;
+        Fri,  9 Nov 2018 08:53:23 +0000 (UTC)
+Subject: Re: [PATCH] python: replace aliases with corresponding type names
+References: <CAJfZ7==UCR-a=mfLY1TRad++g+nbpZ6QMxFz5N6JV5_W6QomDQ@mail.gmail.com>
+ <20181030152629.7438-1-vmojzis@redhat.com>
+ <20181030152629.7438-2-vmojzis@redhat.com>
+ <CAJfZ7==a_f6sJhHRwec1MkU70uOXZ0CLEqy7qK-53titStTWUQ@mail.gmail.com>
+To:     nicolas.iooss@m4x.org
 Cc:     selinux@vger.kernel.org
-References: <20181106192021.17556-1-sds@tycho.nsa.gov>
- <CAJfZ7=kYppH2JjSkpcgX1FXnaRtHB7c561hkgRZ0XOym_T7_Ww@mail.gmail.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a29de7d8-7efb-f8ce-1c29-01dd4c43bb73@tycho.nsa.gov>
-Date:   Thu, 8 Nov 2018 09:20:55 -0500
+From:   Vit Mojzis <vmojzis@redhat.com>
+Message-ID: <38deb58a-f063-58ff-6178-9e8d4c7ab946@redhat.com>
+Date:   Fri, 9 Nov 2018 09:53:21 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.2.1
 MIME-Version: 1.0
-In-Reply-To: <CAJfZ7=kYppH2JjSkpcgX1FXnaRtHB7c561hkgRZ0XOym_T7_Ww@mail.gmail.com>
+In-Reply-To: <CAJfZ7==a_f6sJhHRwec1MkU70uOXZ0CLEqy7qK-53titStTWUQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Fri, 09 Nov 2018 08:53:24 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/7/18 3:45 PM, Nicolas Iooss wrote:
-> On Tue, Nov 6, 2018 at 8:18 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+On 05. 11. 18 21:51, Nicolas Iooss wrote:
+> On Tue, Oct 30, 2018 at 4:27 PM Vit Mojzis <vmojzis@redhat.com> wrote:
+>> Aliases are not used in the selinux database. When user enters a type
+>> alias as a parameter it should be converted to the corresponding type
+>> in order to be processed correctly further in the userspace logic.
 >>
->> As reported in #109, semodule -p /path/to/policyroot -s minimum -n -B
->> tries to use /etc/selinux/targeted/booleans.subs_dist.  This is because
->> it invokes the libselinux selinux_boolean_sub() interface, which uses
->> the active/installed policy files rather than the libsemanage ones.
+>> Fixes e.g.:
 >>
->> To fix, we need to set the selinux policy root when either the semanage
->> root or the semanage storename is set.  When setting the semanage root,
->> we need to prepend the semanage root to the selinux policy root.  When
->> setting the semanage storename, we need to replace the last component
->> of the selinux policy root with the new storename.
+>> \#sepolicy transition -s phpfpm_t
+>> /* where phpfpm_t is a type alias of httpd_t */
 >>
->> Test:
->> strace semodule -p ~/policy-root -s minimum -n -B
->>
->> Before:
->> openat(AT_FDCWD, "/etc/selinux/targeted/booleans.subs_dist", O_RDONLY|O_CLOEXEC) = 5
->>
->> After:
->> openat(AT_FDCWD, "/home/sds/policy-root/etc/selinux/minimum/booleans.subs_dist", O_RDONLY|O_CLOEXEC) = 5
->>
->> Fixes https://github.com/SELinuxProject/selinux/issues/109
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> Traceback (most recent call last):
+>>    File "/usr/bin/sepolicy", line 691, in <module>
+>>      args.func(args)
+>>    File "/usr/bin/sepolicy", line 458, in transition
+>>      mytrans = setrans(args.source, args.target)
+>>    File "/usr/lib/python3.6/site-packages/sepolicy/transition.py", line 48, in __init__
+>>      self._process(self.source)
+>>    File "/usr/lib/python3.6/site-packages/sepolicy/transition.py", line 54, in _process
+>>      trans = _get_trans(source)
+>>    File "/usr/lib/python3.6/site-packages/sepolicy/transition.py", line 36, in _get_trans
+>>      src_list = [src] + list(filter(lambda x: x['name'] == src, sepolicy.get_all_types_info()))[0]['attributes']
+>> IndexError: list index out of range
 >> ---
->>   libsemanage/src/handle.c | 29 ++++++++++++++++++++++++++++-
->>   1 file changed, 28 insertions(+), 1 deletion(-)
+>>   python/semanage/seobject.py          | 43 ++++++++++++++++++++--------
+>>   python/sepolicy/sepolicy.py          | 11 ++++---
+>>   python/sepolicy/sepolicy/__init__.py | 14 ++++-----
+>>   3 files changed, 45 insertions(+), 23 deletions(-)
 >>
->> diff --git a/libsemanage/src/handle.c b/libsemanage/src/handle.c
->> index a6567bd4..c163e553 100644
->> --- a/libsemanage/src/handle.c
->> +++ b/libsemanage/src/handle.c
->> @@ -43,8 +43,21 @@ static char *private_semanage_root = NULL;
->>
->>   int semanage_set_root(const char *root)
->>   {
->> +       char *new_selinux_root = NULL;
->> +
->> +       asprintf(&new_selinux_root, "%s%s", root, selinux_policy_root());
->> +       if (!new_selinux_root)
->> +               return -1;
-> 
-> https://travis-ci.org/SELinuxProject/selinux/builds/451528669 failed
-> because the return value of asprintf needs to be checked instead of
-> new_selinux_root. http://man7.org/linux/man-pages/man3/asprintf.3.html
-> states:
-> 
->      If memory allocation wasn't possible, or some other error occurs,
-> these functions will return -1, and the contents of strp are
-> undefined.
-> 
 > [...]
-> 
->> +
->> +       char *newroot = NULL;
->> +       asprintf(&newroot, "%s%s", root, storename);
->> +       assert(newroot);
-> 
-> Same here.
+>> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
+>> index b18683e4..7db43957 100644
+>> --- a/python/sepolicy/sepolicy/__init__.py
+>> +++ b/python/sepolicy/sepolicy/__init__.py
+>> @@ -172,7 +172,7 @@ def info(setype, name=None):
+>>           results = list(q.results())
+>>
+>>           if name and len(results) < 1:
+>> -            # type not found, try alias
+>> +            #type not found, try alias
+>>               q.name = None
+>>               q.alias = name
+>>               results = list(q.results())
+> Hi, your patch looks good to me, but the comments you are using do not
+> follow PEP-8 (https://www.python.org/dev/peps/pep-0008/#block-comments)
+> and raise warnings in some linters that I am using. For example,
+> flake8 reports:
+>
+> python/sepolicy/sepolicy/__init__.py:172:13: E265 block comment should
+> start with '# '
+> python/sepolicy/sepolicy/__init__.py:1072:9: E265 block comment should
+> start with '# '
+>
+> I would like to apply the patch with the spaces added between "#" and
+> the comment line. Does it suits you?
 
-Unfortunately there are more fundamental problems with the patch as 
-well, e.g.
 
-1) Mutating selinux_policy_root breaks the test of whether we are 
-installing to the active store in semanage_install_final_tmp(), which 
-will cause policy reloads to be triggered when performing an operation 
-on a different store, a different root, or both.
+Sure, whatever needs fixing.
 
-2) semanage_select_store() is supposed to only modify the per-handle 
-state.  Changing selinux policy root is global state and would affect 
-any other handles.
+Thank you :)
 
-3) Multiple semanage_set_root() calls would yield the wrong result.
 
-4) An allocation failure for private_semanage_root would leave the 
-policy root modified.
-
-Not sure of the best approach here.  Could possibly just modify the 
-policy root around the selinux_boolean_sub() call and leave the rest 
-unchanged...
+> Otherwise, I will submit a patch
+> to fix the comments after applying this patch.
+>
+> Thanks,
+> Nicolas
+>
