@@ -2,221 +2,132 @@ Return-Path: <SRS0=0L3W=NU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 611A4C43441
-	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 15:43:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68961C43441
+	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 15:48:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2B3F420855
-	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 15:43:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2B3F420855
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id 2BAF720825
+	for <selinux@archiver.kernel.org>; Fri,  9 Nov 2018 15:48:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2BAF720825
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728404AbeKJBYp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Nov 2018 20:24:45 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:38941 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727802AbeKJBYp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Nov 2018 20:24:45 -0500
-Received: by mail-wr1-f67.google.com with SMTP id b13so2343676wrx.6
-        for <selinux@vger.kernel.org>; Fri, 09 Nov 2018 07:43:37 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=hdajTUYZsV+N0P6koXKHomrq/kTNz6dtzi/LO6+JfcU=;
-        b=bqI46s8XyoIR/BR8WjVHUhIMlJNZjq8wIQhnIo+fYxZAkPxnL/S/eDSzbSc1cwy1AB
-         dBBpb///G6fdBTpF7wLQlY7wFDjjHHoL1sX/xgmbQnDfn1VBHdLP30yb3en8S6iXwnZQ
-         sYAIjfsCNUeHQlMFFnv/BDMgDma7zNGwUWWWcytTMcFIcjtdnyueRy/eWgfGq+kMA2SB
-         AOygjKq15As4IBv7O0SP4fMV4RKNqyuYorN30UMu/hl3icsgg3Lj6xSFi9G51SYrGyL/
-         iXklXJ/iSxdQERcfjVHRgp3Kgs9PTwLgTkjOytmvtUiRbzZm0rhquamn5x6iLz5VPgPO
-         Xg5A==
-X-Gm-Message-State: AGRZ1gJCScOuj+Bhg2dPFmLV/O6Hf+c8jH26hsCKjuuhM/64r8ZQrANb
-        M5Zct5rZ+SDKKxk7QYiVKA6eEddJvgA=
-X-Google-Smtp-Source: AJdET5eeCzphGxecq87kE7Lt85pMoAZndQUlITlv0vxo8g/B9hOV3t2YrR3DSVDLrmi0h2etYkXNGg==
-X-Received: by 2002:a05:6000:110b:: with SMTP id z11mr8360694wrw.136.1541778216329;
-        Fri, 09 Nov 2018 07:43:36 -0800 (PST)
-Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id j18-v6sm3230389wmf.39.2018.11.09.07.43.35
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 09 Nov 2018 07:43:35 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@tycho.nsa.gov,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v2] selinux: simplify mls_context_to_sid()
-Date:   Fri,  9 Nov 2018 16:43:23 +0100
-Message-Id: <20181109154323.21122-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.17.2
+        id S1727845AbeKJB3Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Nov 2018 20:29:16 -0500
+Received: from ucol19pa12.eemsg.mail.mil ([214.24.24.85]:57933 "EHLO
+        ucol19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727784AbeKJB3Q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Nov 2018 20:29:16 -0500
+X-EEMSG-check-008: 655092576|UCOL19PA12_EEMSG_MP10.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.54,483,1534809600"; 
+   d="scan'208";a="655092576"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by ucol19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Nov 2018 15:47:59 +0000
+X-IronPort-AV: E=Sophos;i="5.54,483,1534809600"; 
+   d="scan'208";a="17721242"
+IronPort-PHdr: =?us-ascii?q?9a23=3Al2PGpRIv3iDj1G1hdNmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgeL/7xwZ3uMQTl6Ol3ixeRBMOHs60C07KempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffwdFiCChbb9uMR67sRjfus4KjIV4N60/0A?=
+ =?us-ascii?q?HJonxGe+RXwWNnO1eelAvi68mz4ZBu7T1et+ou+MBcX6r6eb84TaFDAzQ9L2?=
+ =?us-ascii?q?81/szrugLdQgaJ+3ART38ZkhtMAwjC8RH6QpL8uTb0u+ZhxCWXO9D9QKsqUj?=
+ =?us-ascii?q?q+8ahkVB7oiD8GNzEn9mHXltdwh79frB64uhBz35LYbISTOfVwZKPdec4RS3?=
+ =?us-ascii?q?RHUMhfSidNBpqwY5UTA+YEO+tTsovzqEYUrRamGAeiGu3vxD9LiHH406I13O?=
+ =?us-ascii?q?YuHh3J0gE7A9IDsm7ZoMnpOKocU+24yrTDwzXZb/NR3Dfw8IrIcx49rv6WR7?=
+ =?us-ascii?q?JwbdTdwlQoGgPHgFSftZbqPymJ1ugTqGWb8+phWv6vi24gsQ1xpCOvyd02ho?=
+ =?us-ascii?q?nGgYIV1EnJ+CNky4g2Pd21UFN3bNGrHZdKtyyWKpF6Tt0tTm12oio217sLso?=
+ =?us-ascii?q?OhcicQ0pQo3RvfZuSCc4iP/x3sSv6cISx9hHJ5YLK/gAuy8VS4xu38SMa01F?=
+ =?us-ascii?q?FKozJZktbWrHAN1gHT6tOdRvth/kauxTaP1wfJ5uFCPU80jrbUJ4Qkwr4xkp?=
+ =?us-ascii?q?ofqUXDHinol0XqlKKaa0op9+ey5+nnf7nqvIGQOoBqhg3kL6gigsm/Dv45Mg?=
+ =?us-ascii?q?gKUWib4+O81Lj78E37TrRFkuc5krPFsJzEPskbuq64DBNV0oYk8Rq/CSym38?=
+ =?us-ascii?q?4CkXkIK1JFZgqLj5L1NFHWPPD4EfC/jkyqkDdq2//GObnhDY/WLnTZkbfher?=
+ =?us-ascii?q?F961VHyAcoyNBS6J1VBqsGIPLpVU/7rMbYAQMhMwyo3+bnD81w1pgAVmKLA6?=
+ =?us-ascii?q?+ZNr7SsFCT6+IxLOmDepUVtCz+K/c7/f7ui2E2mVsHcamux5sXZyPwIvMzBU?=
+ =?us-ascii?q?SSZn7lmZ8gFmARpUJqSu3hj1mLSnhSYHGpRIo5uiF9D5ipW9TtXIeo1b6e1y?=
+ =?us-ascii?q?6hAsceMmJZAVmWDS3Aa5SPW/BKbjmbZMBmjGpXBvCaV4Y92ET250fBwL19I7?=
+ =?us-ascii?q?+Ro3dAuA=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2B/AAAPq+Vb/wHyM5BkGgEBAQEBAgEBAQEHAgEBAQGBZ?=
+ =?us-ascii?q?YFbKWl/J4N4lBKCDZksOAGEQAKDJCI4FgEDAQEBAQEBAgFsKII2JAGCXwEBA?=
+ =?us-ascii?q?QECASMEEUEFCwsJDwICJgICVwYNBgIBAYJeP4F6CKdWezOFPoRjgQuKcYFXQ?=
+ =?us-ascii?q?IE4gmuIAoJXAoEqAY4aM49UBgOKGYZ6BhiBV4UBgnwmhnSZSyGBVSsKQYFog?=
+ =?us-ascii?q?U6CUI4oIQMwgQUBAYwKAQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 09 Nov 2018 15:47:59 +0000
+Received: from [192.168.25.4] (moss-lions [192.168.25.4])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wA9FlwKR003507;
+        Fri, 9 Nov 2018 10:47:58 -0500
+Subject: Re: [Non-DoD Source] Re: [PATCH 1/1] libsepol: mark permissive types
+ when loading a binary policy
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
+References: <20181105210001.31499-1-nicolas.iooss@m4x.org>
+ <e5aece95-c1b5-073c-8add-510ee908df57@tycho.nsa.gov>
+ <ac49729e-3125-9e0d-36d3-a839ce552339@tycho.nsa.gov>
+ <CAJfZ7=mjowLxSb70MACUN+-8kq_nMDGxsk0WO56pb3R0+P3+2A@mail.gmail.com>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <780246d0-18f8-7bd4-b44c-38f7b1c4a53d@tycho.nsa.gov>
+Date:   Fri, 9 Nov 2018 10:48:32 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
+MIME-Version: 1.0
+In-Reply-To: <CAJfZ7=mjowLxSb70MACUN+-8kq_nMDGxsk0WO56pb3R0+P3+2A@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This function has only two callers, but only one of them actually needs
-the special logic at the beginning. Factoring this logic out into
-string_to_context_struct() allows us to drop the arguments 'oldc', 's',
-and 'def_sid'.
+On 11/7/18 3:39 PM, Nicolas Iooss wrote:
+> On Tue, Nov 6, 2018 at 8:19 PM jwcart2 <jwcart2@tycho.nsa.gov> wrote:
+>>
+>> On 11/6/18 11:22 AM, Stephen Smalley wrote:
+>>> On 11/5/18 4:00 PM, Nicolas Iooss wrote:
+>>>> When using checkpolicy to read a binary policy, permissive types are not
+>>>> written in the output file. In order to reproduce this issue, a test
+>>>> policy can be written from minimal.cil with the following commands:
+>>>>
+>>>>       $ cd secilc/test/
+>>>>       $ cp minimum.cil my_policy.cil
+>>>>       $ echo '(typepermissive TYPE)' >> my_policy.cil
+>>>>       $ secilc my_policy.cil
+>>>>       $ checkpolicy -bC -o /dev/stdout policy.31
+>>>>
+>>>>       # There is no "(typepermissive TYPE)" in checkpolicy output.
+>>>>
+>>>> This is because TYPE_FLAGS_PERMISSIVE is added to typdatum->flags only
+>>>> when loading a module, which uses the permissive flag in the type
+>>>> properties. A kernel policy defines permissive types in a dedicated
+>>>> bitmap, which gets loaded as p->permissive_map before the types are
+>>>> loaded. Use this bitmap to mark permissive types in the loaded policy.
+>>>>
+>>>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>>>
+>>> Or we could directly use the permissive_map in kernel_to_cil/kernel_to_conf?
+>>
+>> I think that this is the more natural way to do it.
+>> Jim
+> 
+> I agree. Please drop my patch and keep yours.
+> 
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
 
-Changes in v2:
- - also drop unneeded #include's from mls.c
+Merged my patch.
+Thanks,
+Jim
 
- security/selinux/ss/mls.c      | 47 ++++------------------------------
- security/selinux/ss/mls.h      |  5 +---
- security/selinux/ss/services.c | 32 ++++++++++++++++++++---
- 3 files changed, 35 insertions(+), 49 deletions(-)
+> Thanks,
+> Nicolas
+> 
+> 
 
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index 2fe459df3c85..f1377f278b5d 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -24,10 +24,7 @@
- #include <linux/string.h>
- #include <linux/errno.h>
- #include <net/netlabel.h>
--#include "sidtab.h"
- #include "mls.h"
--#include "policydb.h"
--#include "services.h"
- 
- /*
-  * Return the length in bytes for the MLS fields of the
-@@ -223,20 +220,12 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
-  * This function modifies the string in place, inserting
-  * NULL characters to terminate the MLS fields.
-  *
-- * If a def_sid is provided and no MLS field is present,
-- * copy the MLS field of the associated default context.
-- * Used for upgraded to MLS systems where objects may lack
-- * MLS fields.
-- *
-  * Policy read-lock must be held for sidtab lookup.
-  *
-  */
- int mls_context_to_sid(struct policydb *pol,
--		       char oldc,
- 		       char *scontext,
--		       struct context *context,
--		       struct sidtab *s,
--		       u32 def_sid)
-+		       struct context *context)
- {
- 	char *sensitivity, *cur_cat, *next_cat, *rngptr;
- 	struct level_datum *levdatum;
-@@ -244,29 +233,6 @@ int mls_context_to_sid(struct policydb *pol,
- 	int l, rc, i;
- 	char *rangep[2];
- 
--	if (!pol->mls_enabled) {
--		if ((def_sid != SECSID_NULL && oldc) || (*scontext) == '\0')
--			return 0;
--		return -EINVAL;
--	}
--
--	/*
--	 * No MLS component to the security context, try and map to
--	 * default if provided.
--	 */
--	if (!oldc) {
--		struct context *defcon;
--
--		if (def_sid == SECSID_NULL)
--			return -EINVAL;
--
--		defcon = sidtab_search(s, def_sid);
--		if (!defcon)
--			return -EINVAL;
--
--		return mls_context_cpy(context, defcon);
--	}
--
- 	/*
- 	 * If we're dealing with a range, figure out where the two parts
- 	 * of the range begin.
-@@ -364,14 +330,11 @@ int mls_from_string(struct policydb *p, char *str, struct context *context,
- 		return -EINVAL;
- 
- 	tmpstr = kstrdup(str, gfp_mask);
--	if (!tmpstr) {
--		rc = -ENOMEM;
--	} else {
--		rc = mls_context_to_sid(p, ':', tmpstr, context,
--					NULL, SECSID_NULL);
--		kfree(tmpstr);
--	}
-+	if (!tmpstr)
-+		return -ENOMEM;
- 
-+	rc = mls_context_to_sid(p, tmpstr, context);
-+	kfree(tmpstr);
- 	return rc;
- }
- 
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 67093647576d..e2498f78e100 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -33,11 +33,8 @@ int mls_range_isvalid(struct policydb *p, struct mls_range *r);
- int mls_level_isvalid(struct policydb *p, struct mls_level *l);
- 
- int mls_context_to_sid(struct policydb *p,
--		       char oldc,
- 		       char *scontext,
--		       struct context *context,
--		       struct sidtab *s,
--		       u32 def_sid);
-+		       struct context *context);
- 
- int mls_from_string(struct policydb *p, char *str, struct context *context,
- 		    gfp_t gfp_mask);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 12e414394530..ccad4334f99d 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1425,9 +1425,35 @@ static int string_to_context_struct(struct policydb *pol,
- 
- 	ctx->type = typdatum->value;
- 
--	rc = mls_context_to_sid(pol, oldc, p, ctx, sidtabp, def_sid);
--	if (rc)
--		goto out;
-+	if (!pol->mls_enabled) {
-+		rc = -EINVAL;
-+		if ((def_sid == SECSID_NULL || !oldc) && (*p) != '\0')
-+			goto out;
-+	} else if (!oldc) {
-+		/*
-+		 * If a def_sid is provided and no MLS field is present,
-+		 * copy the MLS field of the associated default context.
-+		 * Used for upgrading to MLS systems where objects may lack
-+		 * MLS fields.
-+		 */
-+		struct context *defcon;
-+
-+		rc = -EINVAL;
-+		if (def_sid == SECSID_NULL)
-+			goto out;
-+
-+		defcon = sidtab_search(sidtabp, def_sid);
-+		if (!defcon)
-+			goto out;
-+
-+		rc = mls_context_cpy(ctx, defcon);
-+		if (rc)
-+			goto out;
-+	} else {
-+		rc = mls_context_to_sid(pol, p, ctx);
-+		if (rc)
-+			goto out;
-+	}
- 
- 	/* Check the validity of the new context. */
- 	rc = -EINVAL;
+
 -- 
-2.17.2
-
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
