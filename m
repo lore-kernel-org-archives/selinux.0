@@ -1,248 +1,97 @@
-Return-Path: <SRS0=1+jG=NW=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Zaf8=NX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F89BC43441
-	for <selinux@archiver.kernel.org>; Sun, 11 Nov 2018 20:50:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93362C43441
+	for <selinux@archiver.kernel.org>; Mon, 12 Nov 2018 10:10:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4EBD420869
-	for <selinux@archiver.kernel.org>; Sun, 11 Nov 2018 20:50:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4EBD420869
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=m4x.org
+	by mail.kernel.org (Postfix) with ESMTP id 55F16216FD
+	for <selinux@archiver.kernel.org>; Mon, 12 Nov 2018 10:10:06 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XCgF1/Yb"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 55F16216FD
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726521AbeKLGk1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 12 Nov 2018 01:40:27 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:51290 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726748AbeKLGk1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 12 Nov 2018 01:40:27 -0500
-Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr [89.156.252.9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id AB4A8561244
-        for <selinux@vger.kernel.org>; Sun, 11 Nov 2018 21:50:48 +0100 (CET)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 1/1] gui: remove html_util.py
-Date:   Sun, 11 Nov 2018 21:50:24 +0100
-Message-Id: <20181111205024.14386-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.19.1
+        id S1726385AbeKLUCg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 12 Nov 2018 15:02:36 -0500
+Received: from mail-qk1-f173.google.com ([209.85.222.173]:45996 "EHLO
+        mail-qk1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725873AbeKLUCg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 12 Nov 2018 15:02:36 -0500
+Received: by mail-qk1-f173.google.com with SMTP id d135so12257078qkc.12
+        for <selinux@vger.kernel.org>; Mon, 12 Nov 2018 02:10:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=85HXbkZeCFKD7vbKF6/hZd7hbEPI4//fOAdC/+qWuEQ=;
+        b=XCgF1/Yb0YJLwIYGQPJKKwlO0DqTR5pBiPTy3FLvYJg3irwGKYHW1qRUjieeFhdUH2
+         w3nstA/obrR7tOJ7CxwMF7J44qKtW8TGm7HPRkiTVICophPz3waxh1DFkM+bzcKSznSh
+         Jm4evRH5w4utcYIUB+Da9fGnyYg4nnLyrlIhMIvmZRx1PfvgTSGF8ulOUepNmOaZVLA6
+         HN9bwSd/cVZsyRsxIzutZwZ9WNlqYiLdb8ouymlvYOYbFqlZ5fR3xEZ1n+o+xeSufoTk
+         oNTnmO46X1SebOjIXZBqIPgNP69T+22fL9mPSj9acLiTWZcxD+rMrxp5QFdQVkg9NIvb
+         7Gag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=85HXbkZeCFKD7vbKF6/hZd7hbEPI4//fOAdC/+qWuEQ=;
+        b=PXCx3Kwc7wCT1dlwnWUsf9nEuFQzSC8lp48r33KgBGGjj1gY2c4I/zgi43Y7Za9lz0
+         BP5Ug0lpo06aVk+DG/tqQzIRARGLP21wT3/gU7xuNR7T7obWXyVyh/tElaClOXqt8zsw
+         TY0GDMm1lrNUaJLdB86UiynnrjOOvPjjlGyk5l5Y6bOCHT71v3e/iFTaUF2pXpp3Yq87
+         Tp3N4GtK8V7Hnl+UZKjbAVOWfvA0AHCu0+8ZDIpHHHKtAcBLt/jthiOkMl6ZzwYMcidZ
+         cyPh+g6rgUApB4J0JxL627QsGErvEI2tb4RzkNqo4dvAhqwRvIFQcq6GrOnZBbVlMuJL
+         uZlQ==
+X-Gm-Message-State: AGRZ1gIhiCnO5+wL7V2LmoTlg4sL15E0QU0EBJ1jUpQViR9B4Co+aWcj
+        DuJ+mDTY2yBq3sOr3aVp9rF3XHm/Kgq5y5AhENz4KvZpPT9ZNQ==
+X-Google-Smtp-Source: AJdET5digor+9d7UdU2JIOrFPN8JAYytIQsyvy+QAsQD2rhu1e4xiS/iQUox4vtij4wZZEW3fueuyr8iPhM9rKOY0G0=
+X-Received: by 2002:ac8:35eb:: with SMTP id l40mr260579qtb.165.1542017404301;
+ Mon, 12 Nov 2018 02:10:04 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Nov 11 21:50:48 2018 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+References: <CACikiw1uNCYKzo9vjG=AZHpARWv-nzkCX=D-aWBssM7vYZrQdQ@mail.gmail.com>
+In-Reply-To: <CACikiw1uNCYKzo9vjG=AZHpARWv-nzkCX=D-aWBssM7vYZrQdQ@mail.gmail.com>
+From:   Ravi Kumar <nxp.ravi@gmail.com>
+Date:   Mon, 12 Nov 2018 15:39:52 +0530
+Message-ID: <CACikiw1_L0Tb5h=MhhZ=8Byu8XcBq+r0DKH8i6kUo+rJi0wq+w@mail.gmail.com>
+Subject: Re:
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This file is not used anywhere.
+<<Sorry re-sending in plan text >>
+Hi team ,
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- gui/Makefile     |   1 -
- gui/html_util.py | 175 -----------------------------------------------
- 2 files changed, 176 deletions(-)
- delete mode 100644 gui/html_util.py
+On android- with latest kernels 4.14  we are seeing some denials which
+seem to be very much genuine to be address . Where kernel is trying to
+kill its own  created process ( might be for maintenance) .
+These are seen in long Stress testing .  But  I dont see any one
+adding such rule in general so the question is  do we see any risk
+which made us not to add such rules ?
 
-diff --git a/gui/Makefile b/gui/Makefile
-index a72e58cee9b4..d42348b5f7fe 100644
---- a/gui/Makefile
-+++ b/gui/Makefile
-@@ -9,7 +9,6 @@ TARGETS= \
- booleansPage.py \
- domainsPage.py \
- fcontextPage.py \
--html_util.py \
- loginsPage.py \
- modulesPage.py \
- polgen.ui \
-diff --git a/gui/html_util.py b/gui/html_util.py
-deleted file mode 100644
-index 420f6b967114..000000000000
---- a/gui/html_util.py
-+++ /dev/null
-@@ -1,175 +0,0 @@
--# Authors: John Dennis <jdennis@redhat.com>
--#
--# Copyright (C) 2007 Red Hat, Inc.
--#
--# This program is free software; you can redistribute it and/or modify
--# it under the terms of the GNU General Public License as published by
--# the Free Software Foundation; either version 2 of the License, or
--# (at your option) any later version.
--#
--# This program is distributed in the hope that it will be useful,
--# but WITHOUT ANY WARRANTY; without even the implied warranty of
--# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--# GNU General Public License for more details.
--#
--# You should have received a copy of the GNU General Public License
--# along with this program; if not, write to the Free Software
--# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
--#
--
--
--__all__ = [
--    'escape_html',
--    'unescape_html',
--    'html_to_text',
--
--    'html_document',
--]
--
--import htmllib
--import formatter as Formatter
--import string
--from types import *
--try:
--    from io import StringIO
--except ImportError:
--    from StringIO import StringIO
--
--#------------------------------------------------------------------------------
--
--
--class TextWriter(Formatter.DumbWriter):
--
--    def __init__(self, file=None, maxcol=80, indent_width=4):
--        Formatter.DumbWriter.__init__(self, file, maxcol)
--        self.indent_level = 0
--        self.indent_width = indent_width
--        self._set_indent()
--
--    def _set_indent(self):
--        self.indent_col = self.indent_level * self.indent_width
--        self.indent = ' ' * self.indent_col
--
--    def new_margin(self, margin, level):
--        self.indent_level = level
--        self._set_indent()
--
--    def send_label_data(self, data):
--        data = data + ' '
--        if len(data) > self.indent_col:
--            self.send_literal_data(data)
--        else:
--            offset = self.indent_col - len(data)
--            self.send_literal_data(' ' * offset + data)
--
--    def send_flowing_data(self, data):
--        if not data:
--            return
--        atbreak = self.atbreak or data[0] in string.whitespace
--        col = self.col
--        maxcol = self.maxcol
--        write = self.file.write
--        col = self.col
--        if col == 0:
--            write(self.indent)
--            col = self.indent_col
--        for word in data.split():
--            if atbreak:
--                if col + len(word) >= maxcol:
--                    write('\n' + self.indent)
--                    col = self.indent_col
--                else:
--                    write(' ')
--                    col = col + 1
--            write(word)
--            col = col + len(word)
--            atbreak = 1
--        self.col = col
--        self.atbreak = data[-1] in string.whitespace
--
--
--class HTMLParserAnchor(htmllib.HTMLParser):
--
--    def __init__(self, formatter, verbose=0):
--        htmllib.HTMLParser.__init__(self, formatter, verbose)
--
--    def anchor_bgn(self, href, name, type):
--        self.anchor = href
--
--    def anchor_end(self):
--        if self.anchor:
--            self.handle_data(' (%s) ' % self.anchor)
--            self.anchor = None
--
--#------------------------------------------------------------------------------
--
--
--def escape_html(s):
--    if s is None:
--        return None
--    s = s.replace("&", "&amp;")  # Must be done first!
--    s = s.replace("<", "&lt;")
--    s = s.replace(">", "&gt;")
--    s = s.replace("'", "&apos;")
--    s = s.replace('"', "&quot;")
--    return s
--
--
--def unescape_html(s):
--    if s is None:
--        return None
--    if '&' not in s:
--        return s
--    s = s.replace("&lt;", "<")
--    s = s.replace("&gt;", ">")
--    s = s.replace("&apos;", "'")
--    s = s.replace("&quot;", '"')
--    s = s.replace("&amp;", "&")  # Must be last
--    return s
--
--
--def html_to_text(html, maxcol=80):
--    try:
--        buffer = StringIO()
--        formatter = Formatter.AbstractFormatter(TextWriter(buffer, maxcol))
--        parser = HTMLParserAnchor(formatter)
--        parser.feed(html)
--        parser.close()
--        text = buffer.getvalue()
--        buffer.close()
--        return text
--    except Exception as e:
--        log_program.error('cannot convert html to text: %s' % e)
--        return None
--
--
--def html_document(*body_components):
--    '''Wrap the body components in a HTML document structure with a valid header.
--    Accepts a variable number of arguments of which can be:
--    * string
--    * a sequences of strings (tuple or list).
--    * a callable object taking no parameters and returning a string or sequence of strings.
--    '''
--    head = '<html>\n  <head>\n    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n  </head>\n  <body>\n'
--    tail = '\n  </body>\n</html>'
--
--    doc = head
--
--    for body_component in body_components:
--        if type(body_component) is StringTypes:
--            doc += body_component
--        elif type(body_component) in [TupleType, ListType]:
--            for item in body_component:
--                doc += item
--        elif callable(body_component):
--            result = body_component()
--            if type(result) in [TupleType, ListType]:
--                for item in result:
--                    doc += item
--            else:
--                doc += result
--        else:
--            doc += body_component
--
--    doc += tail
--    return doc
--- 
-2.19.1
+1.   avc: denied { kill } for pid=2432 comm="irq/66-90b6300."
+capability=5 scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0
+tclass=capability permissive=0
+2.   avc: denied { kill } for pid=69 comm="rcuop/6" capability=5
+scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability
+permissive=0
+3.   avc: denied { kill } for pid=0 comm="swapper/1" capability=5
+scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability
+permissive=0
+4.   avc: denied { kill } for pid=4185 comm="kworker/0:4" capability=5
+scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability
+permissive=0
 
+This is self capability any one in kernel context  should be able to
+do such operations  I guess.
+
+
+Regards,
+Ravi
