@@ -2,246 +2,119 @@ Return-Path: <SRS0=smjq=NY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC9A1C43441
-	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:17:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89506C43441
+	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:29:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 770AB20869
-	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:17:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 770AB20869
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
+	by mail.kernel.org (Postfix) with ESMTP id 4CCB7223AE
+	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:29:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4CCB7223AE
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=gmx.us
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726291AbeKNHRP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Nov 2018 02:17:15 -0500
-Received: from uhil19pa11.eemsg.mail.mil ([214.24.21.84]:58598 "EHLO
-        uhil19pa11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725748AbeKNHRP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Nov 2018 02:17:15 -0500
-X-EEMSG-check-008: 356812534|UHIL19PA11_EEMSG_MP9.csd.disa.mil
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by uhil19pa11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Nov 2018 21:17:03 +0000
-X-IronPort-AV: E=Sophos;i="5.56,229,1539648000"; 
-   d="scan'208";a="20578350"
-IronPort-PHdr: =?us-ascii?q?9a23=3ApXMtDRPuOr/pvhitD44l6mtUPXoX/o7sNwtQ0K?=
- =?us-ascii?q?IMzox0I/r+rarrMEGX3/hxlliBBdydt6obzbKO+4nbGkU4qa6bt34DdJEeHz?=
- =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
- =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxlKiTanfb9+MAi9oBnMuMURnYZsMLs6xA?=
- =?us-ascii?q?HTontPdeRWxGdoKkyWkh3h+Mq+/4Nt/jpJtf45+MFOTav1f6IjTbxFFzsmKH?=
- =?us-ascii?q?w65NfqtRbYUwSC4GYXX3gMnRpJBwjF6wz6Xov0vyDnuOdxxDWWMMvrRr0vRz?=
- =?us-ascii?q?+s87lkRwPpiCcfNj427mfXitBrjKlGpB6tvgFzz5LIbI2QMvdxcLndfdcHTm?=
- =?us-ascii?q?RfWMhfWTFKDoelY4cRE+YNOOBVpJT/qVQTtxuzHRSiCv3hyjFIhXH406M13O?=
- =?us-ascii?q?sjHg7a0wItBM4OvXbOodnpKKsfX+K4wa/VxjvDdfNW3jL95ZDVfBA9v/6MRb?=
- =?us-ascii?q?JwftTXyUIyCg3Fi0+fqYjhPzyL1uUGrm+W7/F9WuK0kGMntwFwrSSvxscrkI?=
- =?us-ascii?q?XJgJkVxUre+SV2x4Y1O8S1RUhmatCnCJtdrzyWOoR5T884Q2xkpTw2xqMJtJ?=
- =?us-ascii?q?KlZiQG1ZIqzAPFZfOdaYiH+BfjWf6UITd/mX1qZqqyhw238Ui80u38UdS00E?=
- =?us-ascii?q?pSoipFjNbMsncN2gTP6sedUPt9/1qh2S2V2wDP6uBLPUA0la3BJ54n3rEwjY?=
- =?us-ascii?q?YcvV7GHi/3nEX6lK6WdkM69ei08+nrf7rrq5CGO4J0lw3yKLoil8OhDegiLw?=
- =?us-ascii?q?QCR22b9v691L3n8035WrJKjvgun6nCrZ/aPt8WprK5AgBJ0oYj7AyzDzG90N?=
- =?us-ascii?q?sCh3UHI1VFeAyfg4jzJ17OOOz4Deu4g1m0lzdrwvfGPqbnAprXMnfMjqzsfa?=
- =?us-ascii?q?xj5EFByAo818xf64hIBbEGJfL5QlXxu8DADh8lLwy0xP7qCM5j2YMaWGKPBL?=
- =?us-ascii?q?KZMazJvF+W6eIgPfOMaJUWuDnjMfgl4eDhjXsjlV8aZ6mp0oMdaGqkEfR+P0?=
- =?us-ascii?q?WZfX3sj88ZEWgQowo+SPfniEWYXj5OY3a+Rqc85jY8CIK8E4jPXJyigLuE3H?=
- =?us-ascii?q?TzIpoDQWZKEF2OWVLvbIONUPoPIHaVJ8h6lDUPWJC7RoMh3A3ovwj/nf4vNe?=
- =?us-ascii?q?fQ+ysFpbr929Vvoe7ejxc/8XpzFcvZm1mEUmU8u2QPXTJ+iLh2vEhV0l6e1e?=
- =?us-ascii?q?19hPtCGJpY4PYfASkgMpuJ9PB3E9D/XEr6e96NTFu3CoG9DSoZUsM6w9hIZV?=
- =?us-ascii?q?10XdqlkEaQjGKRH7YJmunTV9QP+aXG0i20fpwlxg=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CFAAA1Putb/wHyM5BjGwEBAQEDAQEBBwMBAQGBVAMBA?=
- =?us-ascii?q?QELAYFaKYE1MyeDeJQVTQEBAQEBBoEQJYkVkBo4AYRAAoM8IjcKDQEDAQEBA?=
- =?us-ascii?q?QEBAgFsKII2JAGCYAEFIwQRQRALDgoCAiYCAlcGAQwGAgEBFoJIP4F1Dah5f?=
- =?us-ascii?q?DOFQIRkgQuKdxd4gQeBEScMgl+IAoJXAokUhjQzj1sJkRwGGJBzmVYigVUrC?=
- =?us-ascii?q?AIYCCEPgyeCJxeOOiEDMIEFAQGNGgEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Nov 2018 21:17:02 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wADLGxvU018544;
-        Tue, 13 Nov 2018 16:16:59 -0500
-Subject: Re: [RFC PATCH 1/3] selinux: refactor sidtab conversion
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-Cc:     selinux@tycho.nsa.gov
-References: <20181113135255.26045-1-omosnace@redhat.com>
- <20181113135255.26045-2-omosnace@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <d461e212-2227-bd83-ca57-3b8d97bd23b6@tycho.nsa.gov>
-Date:   Tue, 13 Nov 2018 16:19:14 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
-MIME-Version: 1.0
-In-Reply-To: <20181113135255.26045-2-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1725892AbeKNH33 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Nov 2018 02:29:29 -0500
+Received: from mout.gmx.net ([212.227.17.22]:48599 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725783AbeKNH33 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 14 Nov 2018 02:29:29 -0500
+Received: from dhcp-41-57.bos.redhat.com ([66.187.233.206]) by mail.gmx.com
+ (mrgmx102 [212.227.17.174]) with ESMTPSA (Nemesis) id
+ 0LejNC-1fhdVK2XgU-00qU01; Tue, 13 Nov 2018 22:28:21 +0100
+Message-ID: <1542144497.12945.29.camel@gmx.us>
+Subject: Kernel panic - not syncing: corrupted stack end detected inside
+ scheduler
+From:   Qian Cai <cai@gmx.us>
+To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>
+Date:   Tue, 13 Nov 2018 16:28:17 -0500
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.22.6 (3.22.6-10.el7) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:Sj/yB5StTIMkJhIF4dZ4w9Bx//1tjf/1hFIo1F/yRWnOd3x4+fY
+ vvh18ppDgCPC8qvDOULIEHA9c9FzD+4/PwPH2EajrZRbx0aO5xtsUb2RMi1xT6dg0lliPaF
+ AXwqRW8KiIWockf1HbVAZx3I0Y+EDRtccZbYKe6FhiUUTIAHmbuqVX8eL0WL0rMSx/NGGgU
+ c2OjkdN29NREKLWTSRm+w==
+X-UI-Out-Filterresults: notjunk:1;V01:K0:SLyvZSDQH3o=:VVA4UyyzVKHtac5KDytcNz
+ CrhH8FTKV8k5TnUULV+GPxzGu/ZqlZ7n5gNe7kuq2TzIolStXzaPpkxPfgdP6i3nC+/od5b6F
+ NTiDm+dWIVVQOtY0kpayFySgFaPAsOBd1eSB1b5MViSlwO6AbvAYsVvkPC6mTpKOkspX3m1Dh
+ 5L1emgG3O5jEkSlu/lvikQ1vEguVcrw+TOR2N6Bsz92Y/mjNvdbfOD2h1X2EF5HzZ2EBaKqJk
+ H4pPrpzQqk3cmN4p6HLUyxsRaT27g7j6KVsqcxYTworpplGQk/Ocm+RYMg7xgvI2zC5X8Vf4s
+ 99yxkeTRM85z5EHghqDot1ISxgzVA29m3/BbcCQy2lx8jpxwgdUPGJCY72bXigMoVekOinGqL
+ 1Q7gHL02o4VQQwxn9rgQZjL6lyPfVxdbRduVnjKp785KYLLI4Nvf05x4+AdUvqZ1SJ6viNN6N
+ AcUTxyuTwUf/9DwCnZZ+Mc0+zDgZU/s6xvGB+C6218+u9x7zH2XOb64OoWcq7/2YcPasOBp9b
+ qpCJL+oh0cQdussw8lxCLLhLivqHx3WJLSukVw+coSn3Z4tNzc6lNA1QgHC1jOUpa2bZ3wuhl
+ GkK+rEd6gYk/BZjcrln9WqInUFyJRTmR5QhUASONvrg8D7ymOypHIqTiWu+ubujA2Wjdjn95c
+ K4UV8/QM2HLGGm3KPaDSVmAV8cg7o1Loj60LKeLaFixVV0PQ0//CgqHDaz3K+5rdSupGGJtin
+ 2FE9I0reYJr6i0CbsI2eVCvFhiutS/HOF/oHl49G10z3clzY5u0a9+aLJ835cZYlQxoq184jw
+ yzIVzXVoBzSrI2XXToA4vjgZIiJ40rZJJLlB1j/+srnpI8GZz2FR+tLXwK1uMRZJLnr+IbK1u
+ Gn9NEEN1RBesIICeanYoex0qrkEdAwGkeYqZlUBBNUE00QUlJ2w6Dnu9YSZad/
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/13/18 8:52 AM, Ondrej Mosnacek wrote:
-> This is a purely cosmetic change that encapsulates the three-step sidtab
-> conversion logic (shutdown -> clone -> map) into a single function
-> defined in sidtab.c (as opposed to services.c).
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Running a runc testsuite [1] on an aarch64 server with the latest mainline (rc2)
+triggered this,
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+[1] https://fedorapeople.org/cgit/caiqian/public_git/runctst.git/tree/runctst.py
 
-> ---
->   security/selinux/ss/services.c | 22 +--------------
->   security/selinux/ss/sidtab.c   | 50 ++++++++++++++++++++++++----------
->   security/selinux/ss/sidtab.h   | 11 ++++----
->   3 files changed, 42 insertions(+), 41 deletions(-)
-> 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 12e414394530..7337db24a6a8 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1880,19 +1880,6 @@ int security_change_sid(struct selinux_state *state,
->   				    out_sid, false);
->   }
->   
-> -/* Clone the SID into the new SID table. */
-> -static int clone_sid(u32 sid,
-> -		     struct context *context,
-> -		     void *arg)
-> -{
-> -	struct sidtab *s = arg;
-> -
-> -	if (sid > SECINITSID_NUM)
-> -		return sidtab_insert(s, sid, context);
-> -	else
-> -		return 0;
-> -}
-> -
->   static inline int convert_context_handle_invalid_context(
->   	struct selinux_state *state,
->   	struct context *context)
-> @@ -2186,13 +2173,6 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
->   		goto err;
->   	}
->   
-> -	/* Clone the SID table. */
-> -	sidtab_shutdown(sidtab);
-> -
-> -	rc = sidtab_map(sidtab, clone_sid, &newsidtab);
-> -	if (rc)
-> -		goto err;
-> -
->   	/*
->   	 * Convert the internal representations of contexts
->   	 * in the new SID table.
-> @@ -2200,7 +2180,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
->   	args.state = state;
->   	args.oldp = policydb;
->   	args.newp = newpolicydb;
-> -	rc = sidtab_map(&newsidtab, convert_context, &args);
-> +	rc = sidtab_convert(sidtab, &newsidtab, convert_context, &args);
->   	if (rc) {
->   		pr_err("SELinux:  unable to convert the internal"
->   			" representation of contexts in the new SID"
-> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> index fd75a12fa8fc..e66a2ab3d1c2 100644
-> --- a/security/selinux/ss/sidtab.c
-> +++ b/security/selinux/ss/sidtab.c
-> @@ -116,11 +116,11 @@ struct context *sidtab_search_force(struct sidtab *s, u32 sid)
->   	return sidtab_search_core(s, sid, 1);
->   }
->   
-> -int sidtab_map(struct sidtab *s,
-> -	       int (*apply) (u32 sid,
-> -			     struct context *context,
-> -			     void *args),
-> -	       void *args)
-> +static int sidtab_map(struct sidtab *s,
-> +		      int (*apply) (u32 sid,
-> +				    struct context *context,
-> +				    void *args),
-> +		      void *args)
->   {
->   	int i, rc = 0;
->   	struct sidtab_node *cur;
-> @@ -141,6 +141,37 @@ out:
->   	return rc;
->   }
->   
-> +/* Clone the SID into the new SID table. */
-> +static int clone_sid(u32 sid, struct context *context, void *arg)
-> +{
-> +	struct sidtab *s = arg;
-> +
-> +	if (sid > SECINITSID_NUM)
-> +		return sidtab_insert(s, sid, context);
-> +	else
-> +		return 0;
-> +}
-> +
-> +int sidtab_convert(struct sidtab *s, struct sidtab *news,
-> +		   int (*convert) (u32 sid,
-> +				   struct context *context,
-> +				   void *args),
-> +		   void *args)
-> +{
-> +	unsigned long flags;
-> +	int rc;
-> +
-> +	spin_lock_irqsave(&s->lock, flags);
-> +	s->shutdown = 1;
-> +	spin_unlock_irqrestore(&s->lock, flags);
-> +
-> +	rc = sidtab_map(s, clone_sid, news);
-> +	if (rc)
-> +		return rc;
-> +
-> +	return sidtab_map(news, convert, args);
-> +}
-> +
->   static void sidtab_update_cache(struct sidtab *s, struct sidtab_node *n, int loc)
->   {
->   	BUG_ON(loc >= SIDTAB_CACHE_LEN);
-> @@ -295,12 +326,3 @@ void sidtab_set(struct sidtab *dst, struct sidtab *src)
->   		dst->cache[i] = NULL;
->   	spin_unlock_irqrestore(&src->lock, flags);
->   }
-> -
-> -void sidtab_shutdown(struct sidtab *s)
-> -{
-> -	unsigned long flags;
-> -
-> -	spin_lock_irqsave(&s->lock, flags);
-> -	s->shutdown = 1;
-> -	spin_unlock_irqrestore(&s->lock, flags);
-> -}
-> diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-> index a1a1d2617b6f..26c74fe7afc0 100644
-> --- a/security/selinux/ss/sidtab.h
-> +++ b/security/selinux/ss/sidtab.h
-> @@ -37,11 +37,11 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context);
->   struct context *sidtab_search(struct sidtab *s, u32 sid);
->   struct context *sidtab_search_force(struct sidtab *s, u32 sid);
->   
-> -int sidtab_map(struct sidtab *s,
-> -	       int (*apply) (u32 sid,
-> -			     struct context *context,
-> -			     void *args),
-> -	       void *args);
-> +int sidtab_convert(struct sidtab *s, struct sidtab *news,
-> +		   int (*apply) (u32 sid,
-> +				 struct context *context,
-> +				 void *args),
-> +		   void *args);
->   
->   int sidtab_context_to_sid(struct sidtab *s,
->   			  struct context *context,
-> @@ -50,7 +50,6 @@ int sidtab_context_to_sid(struct sidtab *s,
->   void sidtab_hash_eval(struct sidtab *h, char *tag);
->   void sidtab_destroy(struct sidtab *s);
->   void sidtab_set(struct sidtab *dst, struct sidtab *src);
-> -void sidtab_shutdown(struct sidtab *s);
->   
->   #endif	/* _SS_SIDTAB_H_ */
->   
-> 
+=============
 
+# python runctst.py
+...
+- start: runc ocf poststart
+load container root: container "root" does not exist
+container_linux.go:364: running poststart hook 0 caused "error running hook:
+exit status 1, stdout: , stderr: "
+- error: unexpected zero-size output.
+- start: runc ocf mount dev
+- pass: runc ocf mount dev
+- start: runc ocf network
+- pass: runc ocf network
+- start: runc ocf args systemd
+- error: unexpected dbus output is USER        PID %CPU %MEM    VSZ   RSS
+TTY      STAT START   TIME COMMAND
+root          1 68.6  0.0   8832  7424 ?        Rs   19:29   0:03 /usr/sbin/init
+root         18 24.0  0.0  14848  8704 ?        Ss   19:29   0:00
+/usr/lib/systemd/systemd-journald
+root         22  0.0  0.0   9728  6592 ?        Rs   19:29   0:00 ps aux
+
+==============
+
+[ 2231.649459] Kernel panic - not syncing: corrupted stack end detected inside
+scheduler
+[ 2231.657307] CPU: 185 PID: 11718 Comm: dbus-daemon Kdump: loaded Tainted:
+G        W         4.20.0-rc2+ #4
+[ 2231.666961] Hardware name: HPE Apollo 70             /C01_APACHE_MB         ,
+BIOS L50_5.13_1.0.6 07/10/2018
+[ 2231.676788] Call trace:
+[ 2231.679273]  dump_backtrace+0x0/0x2c8
+[ 2231.682950]  show_stack+0x24/0x30
+[ 2231.686273]  dump_stack+0x118/0x19c
+[ 2231.689765]  panic+0x1b8/0x31c
+[ 2231.692822]  schedule+0x0/0x240
+[ 2231.695963]  preempt_schedule_common+0x3c/0x78
+[ 2231.700406]  _cond_resched+0xfc/0x108
+[ 2231.704077]  kmem_cache_alloc+0x2e0/0x3f8
+[ 2231.708102]  selinux_inode_alloc_security+0xc4/0x1b0
+[ 2231.713080]  security_inode_alloc+0x44/0x70
+[ 2231.717267]  inode_init_always+0x270/0x4b8
+[ 2231.721364]  alloc_inode+0x50/0xd0
+[ 2231.724768]  new_inode_pseudo+0x84/0x120
+[ 2231.728691]  sock_alloc+0x30/0x108
+[ 2231.732093]  __sock_create+0x154/0x560
+[ 2231.735843]  __sys_socket+0xc8/0x178
+[ 2231.739429]  __arm64_sys_socket+0x4c/0x60
+[ 2231.743460]  el0_svc_handler+0xd4/0x198
+[ 2231.747295]  el0_svc+0x8/0xc
+[ 2231.750777] SMP: stopping secondary CPUs
+[ 2231.757333] Starting crashdump kernel...
+[ 2231.761260] Bye!
