@@ -6,71 +6,72 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A598C43441
-	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:10:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC9A1C43441
+	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:17:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 807B92084C
-	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:10:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 807B92084C
+	by mail.kernel.org (Postfix) with ESMTP id 770AB20869
+	for <selinux@archiver.kernel.org>; Tue, 13 Nov 2018 21:17:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 770AB20869
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726295AbeKNHKb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Nov 2018 02:10:31 -0500
-Received: from uphb19pa12.eemsg.mail.mil ([214.24.26.86]:24666 "EHLO
-        usfb19pa15.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725748AbeKNHKb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Nov 2018 02:10:31 -0500
-X-EEMSG-check-008: 159589522|USFB19PA15_EEMSG_MP11.csd.disa.mil
+        id S1726291AbeKNHRP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Nov 2018 02:17:15 -0500
+Received: from uhil19pa11.eemsg.mail.mil ([214.24.21.84]:58598 "EHLO
+        uhil19pa11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725748AbeKNHRP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 14 Nov 2018 02:17:15 -0500
+X-EEMSG-check-008: 356812534|UHIL19PA11_EEMSG_MP9.csd.disa.mil
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by usfb19pa15.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Nov 2018 21:10:29 +0000
+  by uhil19pa11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Nov 2018 21:17:03 +0000
 X-IronPort-AV: E=Sophos;i="5.56,229,1539648000"; 
-   d="scan'208";a="20577991"
-IronPort-PHdr: =?us-ascii?q?9a23=3AZT5TmxEKlDFMKvdITjBhT51GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7yocmwAkXT6L1XgUPTWs2DsrQY07WQ6/iocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmDiwbaluIBmqsA7cqtQYjYx+J6gr1x?=
- =?us-ascii?q?DHuGFIe+NYxWNpIVKcgRPx7dqu8ZBg7ipdpesv+9ZPXqvmcas4S6dYDCk9PG?=
- =?us-ascii?q?Au+MLrrxjDQhCR6XYaT24bjwBHAwnB7BH9Q5fxri73vfdz1SWGIcH7S60/VC?=
- =?us-ascii?q?+85Kl3VhDnlCYHNyY48G7JjMxwkLlbqw+lqxBm3oLYfJ2ZOP94c6zTZ9MaQX?=
- =?us-ascii?q?dKUNhXWSJPH4iwa5IDA/QdMepdqYT2ulkAogakBQS0Ge3h1DFIiH/106M03e?=
- =?us-ascii?q?suHgPJ0xAvEd8VrHTZrs/4OLsOXe27zqTFyyjIYfNM2Tf67YjFag0voe2SUr?=
- =?us-ascii?q?Joccre108vHB7YgFWVs4PlOzeV2foNsmOG6OdgTv+gi3U8pgFtojmg2scsio?=
- =?us-ascii?q?7TioIT0VDL7z91wIkyJd2mUUN2Z8OvHphItyyCKod7TcwvT3totSon0LEKp5?=
- =?us-ascii?q?G2cDYQxJg6wRPUduaJfJKS4h35UeacOTJ4hHV4d72hnxuy6k2gyvHkVsmzzV?=
- =?us-ascii?q?ZKsjJJktnSuXAJ0Bze8tSHReFn/kegxDaPzBrf6v1EIE8olarbLIQtwrgsmZ?=
- =?us-ascii?q?oIrUvPBCr2mETyjKOOd0Uk/Pan6/j/b7n7qZKROJV4hwHjPqg0hMCyDvo0Ph?=
- =?us-ascii?q?ITU2SD/OSzzrzj/Un3QLVQif02l7HUsIvHKsQAvaO5Hw9U3Zoj6xa4FTum1s?=
- =?us-ascii?q?8YkmMdIFJKfxKHkZDlO0vSL/DgEfe/n1OsnS9sx/DDOb3hGZPNIWLfn7j/Zr?=
- =?us-ascii?q?t98VBTxxczzd9F+5JYEK0OIPX2WkXprtzXEgc5MxCow+bgENh9zZ0RWWaOAq?=
- =?us-ascii?q?+fLaPTvkSF5vwgI+aSfo8ZojX9JOY/5/7ok3A5nUURfa6z3ZsYcHq4BOhpI1?=
- =?us-ascii?q?2FYXrwhdcMCX8KsRAjTOzuk1CCSSRcZ2u2X64l4zE7D4WmDZ3dSYy3nLOB2y?=
- =?us-ascii?q?K7TdVqYTVhDFyWHHWgUoKfXf4HZSHadshklScCXLOsY5Us2RGnqEnxzL8xaq?=
- =?us-ascii?q?LP9ykZs4/z/MZ66veVlhwo8zFwScOH3CXFd2hpmistQDgs0egruUVgzn+b2L?=
- =?us-ascii?q?V8xvlfEsZeofhOV1FpG4TbyrlBF93qWg/HNuyMQVKiT8TuVSo9Vfot0tQOZA?=
- =?us-ascii?q?B7ANzkgRfdiXn5S4QJnqCGUcRnupnX2GL8coMkkS7L?=
-X-IPAS-Result: =?us-ascii?q?A2AtAADLPOtb/wHyM5BjGwEBAQEDAQEBBwMBAQGBUgUBA?=
- =?us-ascii?q?QELAYFaKYE1MyeDeJQVTQEBAQEBBoE1iRWJKYR3gXo4AYRAAoM8IjUMDQEDA?=
- =?us-ascii?q?QEBAQEBAgFsKII2JAGCYAEFIwQRQRALDgoCAiYCAlcGAQwGAgEBgl4/gXUNq?=
- =?us-ascii?q?HV8M4VAhGSBC4p3F3iBB4ERJ4JrhHGDEYJXAokUhjQzj1sJkRwGGIFYiCaGd?=
- =?us-ascii?q?SyZFgI0gVUrCAIYCCEPgyeCJBqOOiEDMIEFAQGKT4JLAQE?=
+   d="scan'208";a="20578350"
+IronPort-PHdr: =?us-ascii?q?9a23=3ApXMtDRPuOr/pvhitD44l6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0I/r+rarrMEGX3/hxlliBBdydt6obzbKO+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxlKiTanfb9+MAi9oBnMuMURnYZsMLs6xA?=
+ =?us-ascii?q?HTontPdeRWxGdoKkyWkh3h+Mq+/4Nt/jpJtf45+MFOTav1f6IjTbxFFzsmKH?=
+ =?us-ascii?q?w65NfqtRbYUwSC4GYXX3gMnRpJBwjF6wz6Xov0vyDnuOdxxDWWMMvrRr0vRz?=
+ =?us-ascii?q?+s87lkRwPpiCcfNj427mfXitBrjKlGpB6tvgFzz5LIbI2QMvdxcLndfdcHTm?=
+ =?us-ascii?q?RfWMhfWTFKDoelY4cRE+YNOOBVpJT/qVQTtxuzHRSiCv3hyjFIhXH406M13O?=
+ =?us-ascii?q?sjHg7a0wItBM4OvXbOodnpKKsfX+K4wa/VxjvDdfNW3jL95ZDVfBA9v/6MRb?=
+ =?us-ascii?q?JwftTXyUIyCg3Fi0+fqYjhPzyL1uUGrm+W7/F9WuK0kGMntwFwrSSvxscrkI?=
+ =?us-ascii?q?XJgJkVxUre+SV2x4Y1O8S1RUhmatCnCJtdrzyWOoR5T884Q2xkpTw2xqMJtJ?=
+ =?us-ascii?q?KlZiQG1ZIqzAPFZfOdaYiH+BfjWf6UITd/mX1qZqqyhw238Ui80u38UdS00E?=
+ =?us-ascii?q?pSoipFjNbMsncN2gTP6sedUPt9/1qh2S2V2wDP6uBLPUA0la3BJ54n3rEwjY?=
+ =?us-ascii?q?YcvV7GHi/3nEX6lK6WdkM69ei08+nrf7rrq5CGO4J0lw3yKLoil8OhDegiLw?=
+ =?us-ascii?q?QCR22b9v691L3n8035WrJKjvgun6nCrZ/aPt8WprK5AgBJ0oYj7AyzDzG90N?=
+ =?us-ascii?q?sCh3UHI1VFeAyfg4jzJ17OOOz4Deu4g1m0lzdrwvfGPqbnAprXMnfMjqzsfa?=
+ =?us-ascii?q?xj5EFByAo818xf64hIBbEGJfL5QlXxu8DADh8lLwy0xP7qCM5j2YMaWGKPBL?=
+ =?us-ascii?q?KZMazJvF+W6eIgPfOMaJUWuDnjMfgl4eDhjXsjlV8aZ6mp0oMdaGqkEfR+P0?=
+ =?us-ascii?q?WZfX3sj88ZEWgQowo+SPfniEWYXj5OY3a+Rqc85jY8CIK8E4jPXJyigLuE3H?=
+ =?us-ascii?q?TzIpoDQWZKEF2OWVLvbIONUPoPIHaVJ8h6lDUPWJC7RoMh3A3ovwj/nf4vNe?=
+ =?us-ascii?q?fQ+ysFpbr929Vvoe7ejxc/8XpzFcvZm1mEUmU8u2QPXTJ+iLh2vEhV0l6e1e?=
+ =?us-ascii?q?19hPtCGJpY4PYfASkgMpuJ9PB3E9D/XEr6e96NTFu3CoG9DSoZUsM6w9hIZV?=
+ =?us-ascii?q?10XdqlkEaQjGKRH7YJmunTV9QP+aXG0i20fpwlxg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CFAAA1Putb/wHyM5BjGwEBAQEDAQEBBwMBAQGBVAMBA?=
+ =?us-ascii?q?QELAYFaKYE1MyeDeJQVTQEBAQEBBoEQJYkVkBo4AYRAAoM8IjcKDQEDAQEBA?=
+ =?us-ascii?q?QEBAgFsKII2JAGCYAEFIwQRQRALDgoCAiYCAlcGAQwGAgEBFoJIP4F1Dah5f?=
+ =?us-ascii?q?DOFQIRkgQuKdxd4gQeBEScMgl+IAoJXAokUhjQzj1sJkRwGGJBzmVYigVUrC?=
+ =?us-ascii?q?AIYCCEPgyeCJxeOOiEDMIEFAQGNGgEB?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Nov 2018 21:10:28 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Nov 2018 21:17:02 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wADLARtK018429;
-        Tue, 13 Nov 2018 16:10:27 -0500
-Subject: Re: [PATCH v3] selinux: simplify mls_context_to_sid()
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wADLGxvU018544;
+        Tue, 13 Nov 2018 16:16:59 -0500
+Subject: Re: [RFC PATCH 1/3] selinux: refactor sidtab conversion
 To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>
 Cc:     selinux@tycho.nsa.gov
-References: <20181112114426.20887-1-omosnace@redhat.com>
+References: <20181113135255.26045-1-omosnace@redhat.com>
+ <20181113135255.26045-2-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6eab4acd-a802-efba-db19-9593419025e2@tycho.nsa.gov>
-Date:   Tue, 13 Nov 2018 16:12:42 -0500
+Message-ID: <d461e212-2227-bd83-ca57-3b8d97bd23b6@tycho.nsa.gov>
+Date:   Tue, 13 Nov 2018 16:19:14 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.2.1
 MIME-Version: 1.0
-In-Reply-To: <20181112114426.20887-1-omosnace@redhat.com>
+In-Reply-To: <20181113135255.26045-2-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -79,179 +80,168 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/12/18 6:44 AM, Ondrej Mosnacek wrote:
-> This function has only two callers, but only one of them actually needs
-> the special logic at the beginning. Factoring this logic out into
-> string_to_context_struct() allows us to drop the arguments 'oldc', 's',
-> and 'def_sid'.
+On 11/13/18 8:52 AM, Ondrej Mosnacek wrote:
+> This is a purely cosmetic change that encapsulates the three-step sidtab
+> conversion logic (shutdown -> clone -> map) into a single function
+> defined in sidtab.c (as opposed to services.c).
 > 
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
 > ---
+>   security/selinux/ss/services.c | 22 +--------------
+>   security/selinux/ss/sidtab.c   | 50 ++++++++++++++++++++++++----------
+>   security/selinux/ss/sidtab.h   | 11 ++++----
+>   3 files changed, 42 insertions(+), 41 deletions(-)
 > 
-> Changes in v3:
->   - correct the comment about policy read lock
-> 
-> Changes in v2:
->   - also drop unneeded #include's from mls.c
-> 
->   security/selinux/ss/mls.c      | 49 +++++-----------------------------
->   security/selinux/ss/mls.h      |  5 +---
->   security/selinux/ss/services.c | 32 +++++++++++++++++++---
->   3 files changed, 36 insertions(+), 50 deletions(-)
-> 
-> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-> index 2fe459df3c85..d1da928a7e77 100644
-> --- a/security/selinux/ss/mls.c
-> +++ b/security/selinux/ss/mls.c
-> @@ -24,10 +24,7 @@
->   #include <linux/string.h>
->   #include <linux/errno.h>
->   #include <net/netlabel.h>
-> -#include "sidtab.h"
->   #include "mls.h"
-> -#include "policydb.h"
-> -#include "services.h"
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 12e414394530..7337db24a6a8 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -1880,19 +1880,6 @@ int security_change_sid(struct selinux_state *state,
+>   				    out_sid, false);
+>   }
 >   
->   /*
->    * Return the length in bytes for the MLS fields of the
-> @@ -223,20 +220,12 @@ int mls_context_isvalid(struct policydb *p, struct context *c)
->    * This function modifies the string in place, inserting
->    * NULL characters to terminate the MLS fields.
->    *
-> - * If a def_sid is provided and no MLS field is present,
-> - * copy the MLS field of the associated default context.
-> - * Used for upgraded to MLS systems where objects may lack
-> - * MLS fields.
-> - *
-> - * Policy read-lock must be held for sidtab lookup.
-> + * Policy read-lock must be held for policy data lookup.
->    *
->    */
->   int mls_context_to_sid(struct policydb *pol,
-> -		       char oldc,
->   		       char *scontext,
-> -		       struct context *context,
-> -		       struct sidtab *s,
-> -		       u32 def_sid)
-> +		       struct context *context)
->   {
->   	char *sensitivity, *cur_cat, *next_cat, *rngptr;
->   	struct level_datum *levdatum;
-> @@ -244,29 +233,6 @@ int mls_context_to_sid(struct policydb *pol,
->   	int l, rc, i;
->   	char *rangep[2];
+> -/* Clone the SID into the new SID table. */
+> -static int clone_sid(u32 sid,
+> -		     struct context *context,
+> -		     void *arg)
+> -{
+> -	struct sidtab *s = arg;
+> -
+> -	if (sid > SECINITSID_NUM)
+> -		return sidtab_insert(s, sid, context);
+> -	else
+> -		return 0;
+> -}
+> -
+>   static inline int convert_context_handle_invalid_context(
+>   	struct selinux_state *state,
+>   	struct context *context)
+> @@ -2186,13 +2173,6 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   		goto err;
+>   	}
 >   
-> -	if (!pol->mls_enabled) {
-> -		if ((def_sid != SECSID_NULL && oldc) || (*scontext) == '\0')
-> -			return 0;
-> -		return -EINVAL;
-> -	}
+> -	/* Clone the SID table. */
+> -	sidtab_shutdown(sidtab);
 > -
-> -	/*
-> -	 * No MLS component to the security context, try and map to
-> -	 * default if provided.
-> -	 */
-> -	if (!oldc) {
-> -		struct context *defcon;
-> -
-> -		if (def_sid == SECSID_NULL)
-> -			return -EINVAL;
-> -
-> -		defcon = sidtab_search(s, def_sid);
-> -		if (!defcon)
-> -			return -EINVAL;
-> -
-> -		return mls_context_cpy(context, defcon);
-> -	}
+> -	rc = sidtab_map(sidtab, clone_sid, &newsidtab);
+> -	if (rc)
+> -		goto err;
 > -
 >   	/*
->   	 * If we're dealing with a range, figure out where the two parts
->   	 * of the range begin.
-> @@ -364,14 +330,11 @@ int mls_from_string(struct policydb *p, char *str, struct context *context,
->   		return -EINVAL;
+>   	 * Convert the internal representations of contexts
+>   	 * in the new SID table.
+> @@ -2200,7 +2180,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   	args.state = state;
+>   	args.oldp = policydb;
+>   	args.newp = newpolicydb;
+> -	rc = sidtab_map(&newsidtab, convert_context, &args);
+> +	rc = sidtab_convert(sidtab, &newsidtab, convert_context, &args);
+>   	if (rc) {
+>   		pr_err("SELinux:  unable to convert the internal"
+>   			" representation of contexts in the new SID"
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index fd75a12fa8fc..e66a2ab3d1c2 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -116,11 +116,11 @@ struct context *sidtab_search_force(struct sidtab *s, u32 sid)
+>   	return sidtab_search_core(s, sid, 1);
+>   }
 >   
->   	tmpstr = kstrdup(str, gfp_mask);
-> -	if (!tmpstr) {
-> -		rc = -ENOMEM;
-> -	} else {
-> -		rc = mls_context_to_sid(p, ':', tmpstr, context,
-> -					NULL, SECSID_NULL);
-> -		kfree(tmpstr);
-> -	}
-> +	if (!tmpstr)
-> +		return -ENOMEM;
->   
-> +	rc = mls_context_to_sid(p, tmpstr, context);
-> +	kfree(tmpstr);
+> -int sidtab_map(struct sidtab *s,
+> -	       int (*apply) (u32 sid,
+> -			     struct context *context,
+> -			     void *args),
+> -	       void *args)
+> +static int sidtab_map(struct sidtab *s,
+> +		      int (*apply) (u32 sid,
+> +				    struct context *context,
+> +				    void *args),
+> +		      void *args)
+>   {
+>   	int i, rc = 0;
+>   	struct sidtab_node *cur;
+> @@ -141,6 +141,37 @@ out:
 >   	return rc;
 >   }
 >   
-> diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-> index 67093647576d..e2498f78e100 100644
-> --- a/security/selinux/ss/mls.h
-> +++ b/security/selinux/ss/mls.h
-> @@ -33,11 +33,8 @@ int mls_range_isvalid(struct policydb *p, struct mls_range *r);
->   int mls_level_isvalid(struct policydb *p, struct mls_level *l);
->   
->   int mls_context_to_sid(struct policydb *p,
-> -		       char oldc,
->   		       char *scontext,
-> -		       struct context *context,
-> -		       struct sidtab *s,
-> -		       u32 def_sid);
-> +		       struct context *context);
->   
->   int mls_from_string(struct policydb *p, char *str, struct context *context,
->   		    gfp_t gfp_mask);
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 12e414394530..ccad4334f99d 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -1425,9 +1425,35 @@ static int string_to_context_struct(struct policydb *pol,
->   
->   	ctx->type = typdatum->value;
->   
-> -	rc = mls_context_to_sid(pol, oldc, p, ctx, sidtabp, def_sid);
-> -	if (rc)
-> -		goto out;
-> +	if (!pol->mls_enabled) {
-> +		rc = -EINVAL;
-> +		if ((def_sid == SECSID_NULL || !oldc) && (*p) != '\0')
-> +			goto out;
-
-I don't think this is your bug, but unless I'm mistaken, p could be OOB 
-and be dereferenced here.  Seems to have been introduced by 
-95ffe194204ae3cef88d0b59be209204bbe9b3be.  Likely not caught in testing 
-since both Linux distributions and Android enable MLS to use the 
-category sets for isolation.
-
-> +	} else if (!oldc) {
-> +		/*
-> +		 * If a def_sid is provided and no MLS field is present,
-> +		 * copy the MLS field of the associated default context.
-> +		 * Used for upgrading to MLS systems where objects may lack
-> +		 * MLS fields.
-> +		 */
-> +		struct context *defcon;
+> +/* Clone the SID into the new SID table. */
+> +static int clone_sid(u32 sid, struct context *context, void *arg)
+> +{
+> +	struct sidtab *s = arg;
 > +
-> +		rc = -EINVAL;
-> +		if (def_sid == SECSID_NULL)
-> +			goto out;
+> +	if (sid > SECINITSID_NUM)
+> +		return sidtab_insert(s, sid, context);
+> +	else
+> +		return 0;
+> +}
 > +
-> +		defcon = sidtab_search(sidtabp, def_sid);
-> +		if (!defcon)
-> +			goto out;
+> +int sidtab_convert(struct sidtab *s, struct sidtab *news,
+> +		   int (*convert) (u32 sid,
+> +				   struct context *context,
+> +				   void *args),
+> +		   void *args)
+> +{
+> +	unsigned long flags;
+> +	int rc;
 > +
-> +		rc = mls_context_cpy(ctx, defcon);
-> +		if (rc)
-> +			goto out;
-> +	} else {
-> +		rc = mls_context_to_sid(pol, p, ctx);
-> +		if (rc)
-> +			goto out;
-> +	}
+> +	spin_lock_irqsave(&s->lock, flags);
+> +	s->shutdown = 1;
+> +	spin_unlock_irqrestore(&s->lock, flags);
+> +
+> +	rc = sidtab_map(s, clone_sid, news);
+> +	if (rc)
+> +		return rc;
+> +
+> +	return sidtab_map(news, convert, args);
+> +}
+> +
+>   static void sidtab_update_cache(struct sidtab *s, struct sidtab_node *n, int loc)
+>   {
+>   	BUG_ON(loc >= SIDTAB_CACHE_LEN);
+> @@ -295,12 +326,3 @@ void sidtab_set(struct sidtab *dst, struct sidtab *src)
+>   		dst->cache[i] = NULL;
+>   	spin_unlock_irqrestore(&src->lock, flags);
+>   }
+> -
+> -void sidtab_shutdown(struct sidtab *s)
+> -{
+> -	unsigned long flags;
+> -
+> -	spin_lock_irqsave(&s->lock, flags);
+> -	s->shutdown = 1;
+> -	spin_unlock_irqrestore(&s->lock, flags);
+> -}
+> diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+> index a1a1d2617b6f..26c74fe7afc0 100644
+> --- a/security/selinux/ss/sidtab.h
+> +++ b/security/selinux/ss/sidtab.h
+> @@ -37,11 +37,11 @@ int sidtab_insert(struct sidtab *s, u32 sid, struct context *context);
+>   struct context *sidtab_search(struct sidtab *s, u32 sid);
+>   struct context *sidtab_search_force(struct sidtab *s, u32 sid);
 >   
->   	/* Check the validity of the new context. */
->   	rc = -EINVAL;
+> -int sidtab_map(struct sidtab *s,
+> -	       int (*apply) (u32 sid,
+> -			     struct context *context,
+> -			     void *args),
+> -	       void *args);
+> +int sidtab_convert(struct sidtab *s, struct sidtab *news,
+> +		   int (*apply) (u32 sid,
+> +				 struct context *context,
+> +				 void *args),
+> +		   void *args);
+>   
+>   int sidtab_context_to_sid(struct sidtab *s,
+>   			  struct context *context,
+> @@ -50,7 +50,6 @@ int sidtab_context_to_sid(struct sidtab *s,
+>   void sidtab_hash_eval(struct sidtab *h, char *tag);
+>   void sidtab_destroy(struct sidtab *s);
+>   void sidtab_set(struct sidtab *dst, struct sidtab *src);
+> -void sidtab_shutdown(struct sidtab *s);
+>   
+>   #endif	/* _SS_SIDTAB_H_ */
+>   
 > 
 
