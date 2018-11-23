@@ -1,4 +1,4 @@
-Return-Path: <SRS0=qDqc=OB=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=L/GO=OC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -7,93 +7,107 @@ X-Spam-Status: No, score=-12.0 required=3.0
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FF32C43441
-	for <selinux@archiver.kernel.org>; Thu, 22 Nov 2018 09:47:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D57C0C43441
+	for <selinux@archiver.kernel.org>; Fri, 23 Nov 2018 21:08:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3CDA220820
-	for <selinux@archiver.kernel.org>; Thu, 22 Nov 2018 09:47:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3CDA220820
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id 89D5620664
+	for <selinux@archiver.kernel.org>; Fri, 23 Nov 2018 21:08:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 89D5620664
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=m4x.org
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393557AbeKVUZt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 22 Nov 2018 15:25:49 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:54854 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389990AbeKVUZt (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 22 Nov 2018 15:25:49 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726683AbeKXHyo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 24 Nov 2018 02:54:44 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:43062 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726668AbeKXHyo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 24 Nov 2018 02:54:44 -0500
+Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 58E753082AFC;
-        Thu, 22 Nov 2018 09:47:06 +0000 (UTC)
-Received: from workstation (ovpn-204-50.brq.redhat.com [10.40.204.50])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E680470132;
-        Thu, 22 Nov 2018 09:47:04 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Tom Gundersen <teg@jklm.no>, David Herrmann <dh.herrmann@gmail.com>
-Subject: Re: [PATCH] dbus: remove deprecated at_console statement
-References: <20181116122559.30868-1-plautrba@redhat.com>
-        <pjd1s7esfrv.fsf@redhat.com>
-Date:   Thu, 22 Nov 2018 10:47:03 +0100
-In-Reply-To: <pjd1s7esfrv.fsf@redhat.com> (Petr Lautrbach's message of "Wed,
-        21 Nov 2018 14:48:20 +0100")
-Message-ID: <pjdefbdqwa0.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 99B7A56495F
+        for <selinux@vger.kernel.org>; Fri, 23 Nov 2018 22:08:47 +0100 (CET)
+Received: by mail-ot1-f45.google.com with SMTP id f18so10061613otl.11
+        for <selinux@vger.kernel.org>; Fri, 23 Nov 2018 13:08:47 -0800 (PST)
+X-Gm-Message-State: AA+aEWYuMnd79W6l2TdoV/NHC7Hc1OyV19sNDxy+/1vb5SaK1XeQQe5Q
+        YQeIIJIB03Ham4mecuDpXAIx5t1x/PezmtetMbI=
+X-Google-Smtp-Source: AFSGD/U0djqLpsJar6Cbjc2ELqGZ8iyx4pRmyxqGmRn0f5doxRwfV8grq72N1F1IvPDNQi+kPiXXMHkhxyWK8qSfnc8=
+X-Received: by 2002:a9d:3e4a:: with SMTP id h10mr10428091otg.74.1543007326599;
+ Fri, 23 Nov 2018 13:08:46 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Thu, 22 Nov 2018 09:47:06 +0000 (UTC)
+References: <20181105143838.5198-1-sds@tycho.nsa.gov> <CAJfZ7=keH-Kxs0nE7AvM1POCX=CSsGWU7H2WYqYDWBwdjsWcUQ@mail.gmail.com>
+In-Reply-To: <CAJfZ7=keH-Kxs0nE7AvM1POCX=CSsGWU7H2WYqYDWBwdjsWcUQ@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Fri, 23 Nov 2018 22:08:35 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mcvpmn5PBYMpt2Uk+WYZ0QrLokpXT6h88Hoq-8AWsKGw@mail.gmail.com>
+Message-ID: <CAJfZ7=mcvpmn5PBYMpt2Uk+WYZ0QrLokpXT6h88Hoq-8AWsKGw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: ibpkeys.c: fix printf format string specifiers
+ for subnet_prefix
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Nov 23 22:08:48 2018 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Petr Lautrbach <plautrba@redhat.com> writes:
-
->> From: Tom Gundersen <teg@jklm.no>
->>
->> As described in [0], this likely did not have the intended effect, so
->> simply remove it. The change in behavior is that up until this patch
->> it would be possible for any non-system user to potentially gain access
->> to selinux' dbus interface. Now this is extended to also allow any
->> system user.
->>
->> As the comment indicates, PolicyKit is used to enforce access, so this
->> should be perfectly harmless.
->>
->> [0]: <https://www.spinics.net/lists/linux-bluetooth/msg75267.html>
->>
->> Signed-off-by: Tom Gundersen <teg@jklm.no>
->> CC: David Herrmann <dh.herrmann@gmail.com>
+On Mon, Nov 5, 2018 at 9:55 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 >
-> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+> On Mon, Nov 5, 2018 at 3:36 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >
+> > Use PRIx64 to print the subnet_prefix (which is a uint64_t) instead
+> > of lx.
+> >
+> > Fixes https://github.com/SELinuxProject/selinux/issues/108
+> >
+> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >  libsepol/src/ibpkeys.c | 5 +++--
+> >  1 file changed, 3 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libsepol/src/ibpkeys.c b/libsepol/src/ibpkeys.c
+> > index 682bf5db..68a9bdfe 100644
+> > --- a/libsepol/src/ibpkeys.c
+> > +++ b/libsepol/src/ibpkeys.c
+> > @@ -1,5 +1,6 @@
+> >  #include <netinet/in.h>
+> >  #include <stdlib.h>
+> > +#include <inttypes.h>
+> >
+> >  #include "debug.h"
+> >  #include "context.h"
+> > @@ -176,7 +177,7 @@ int sepol_ibpkey_query(sepol_handle_t *handle,
+> >         return STATUS_SUCCESS;
+> >
+> >  err:
+> > -       ERR(handle, "could not query ibpkey subnet prefix: %#lx range %u - %u exists",
+> > +       ERR(handle, "could not query ibpkey subnet prefix: %#" PRIx64 " range %u - %u exists",
+> >             subnet_prefix, low, high);
+> >         return STATUS_ERR;
+> >  }
+> > @@ -203,7 +204,7 @@ int sepol_ibpkey_modify(sepol_handle_t *handle,
+> >         return STATUS_SUCCESS;
+> >
+> >  err:
+> > -       ERR(handle, "could not load ibpkey subnet prefix: %#lx range %u - %u exists",
+> > +       ERR(handle, "could not load ibpkey subnet prefix: %#" PRIx64 " range %u - %u exists",
+> >             subnet_prefix, low, high);
+> >         if (ibpkey) {
+> >                 context_destroy(&ibpkey->context[0]);
+> > --
+> > 2.19.1
+> >
+>
+> This looks good to me, and while testing some things, I found a
+> similar issue in libselinux/src/selinux_restorecon.c. Patch
+> incoming...
+>
+> Cheers,
+> Nicolas
 
-Merged. Thanks!
+Merged.
 
->> ---
->>
->> This patch is from PR 113 - https://github.com/SELinuxProject/selinux/pull/113
->>
->>  dbus/org.selinux.conf | 6 +-----
->>  1 file changed, 1 insertion(+), 5 deletions(-)
->>
->> diff --git a/dbus/org.selinux.conf b/dbus/org.selinux.conf
->> index a3509781..1ae079d2 100644
->> --- a/dbus/org.selinux.conf
->> +++ b/dbus/org.selinux.conf
->> @@ -12,12 +12,8 @@
->>  
->>    <!-- Allow anyone to invoke methods on the interfaces,
->>         authorization is performed by PolicyKit -->
->> -  <policy at_console="true">
->> -    <allow send_destination="org.selinux"/>
->> -  </policy>
->>    <policy context="default">
->> -    <allow send_destination="org.selinux"
->> -	   send_interface="org.freedesktop.DBus.Introspectable"/>
->> +    <allow send_destination="org.selinux"/>
->>    </policy>
->>  
->>  </busconfig>
+Nicolas
+
