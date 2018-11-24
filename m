@@ -1,113 +1,105 @@
-Return-Path: <SRS0=L/GO=OC=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=cKeS=OD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D57C0C43441
-	for <selinux@archiver.kernel.org>; Fri, 23 Nov 2018 21:08:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90406C43441
+	for <selinux@archiver.kernel.org>; Sat, 24 Nov 2018 09:11:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 89D5620664
-	for <selinux@archiver.kernel.org>; Fri, 23 Nov 2018 21:08:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 89D5620664
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=m4x.org
+	by mail.kernel.org (Postfix) with ESMTP id 4CE1C20865
+	for <selinux@archiver.kernel.org>; Sat, 24 Nov 2018 09:11:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BJu3molL"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4CE1C20865
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726683AbeKXHyo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 24 Nov 2018 02:54:44 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:43062 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726668AbeKXHyo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 24 Nov 2018 02:54:44 -0500
-Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 99B7A56495F
-        for <selinux@vger.kernel.org>; Fri, 23 Nov 2018 22:08:47 +0100 (CET)
-Received: by mail-ot1-f45.google.com with SMTP id f18so10061613otl.11
-        for <selinux@vger.kernel.org>; Fri, 23 Nov 2018 13:08:47 -0800 (PST)
-X-Gm-Message-State: AA+aEWYuMnd79W6l2TdoV/NHC7Hc1OyV19sNDxy+/1vb5SaK1XeQQe5Q
-        YQeIIJIB03Ham4mecuDpXAIx5t1x/PezmtetMbI=
-X-Google-Smtp-Source: AFSGD/U0djqLpsJar6Cbjc2ELqGZ8iyx4pRmyxqGmRn0f5doxRwfV8grq72N1F1IvPDNQi+kPiXXMHkhxyWK8qSfnc8=
-X-Received: by 2002:a9d:3e4a:: with SMTP id h10mr10428091otg.74.1543007326599;
- Fri, 23 Nov 2018 13:08:46 -0800 (PST)
-MIME-Version: 1.0
-References: <20181105143838.5198-1-sds@tycho.nsa.gov> <CAJfZ7=keH-Kxs0nE7AvM1POCX=CSsGWU7H2WYqYDWBwdjsWcUQ@mail.gmail.com>
-In-Reply-To: <CAJfZ7=keH-Kxs0nE7AvM1POCX=CSsGWU7H2WYqYDWBwdjsWcUQ@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Fri, 23 Nov 2018 22:08:35 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=mcvpmn5PBYMpt2Uk+WYZ0QrLokpXT6h88Hoq-8AWsKGw@mail.gmail.com>
-Message-ID: <CAJfZ7=mcvpmn5PBYMpt2Uk+WYZ0QrLokpXT6h88Hoq-8AWsKGw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: ibpkeys.c: fix printf format string specifiers
- for subnet_prefix
-To:     Stephen Smalley <sds@tycho.nsa.gov>
+        id S1725852AbeKXT7d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 24 Nov 2018 14:59:33 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:39798 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725745AbeKXT7d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 24 Nov 2018 14:59:33 -0500
+Received: by mail-wr1-f68.google.com with SMTP id t27so6308740wra.6
+        for <selinux@vger.kernel.org>; Sat, 24 Nov 2018 01:11:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=php17Hs4JRcbx3zxFiXoJ55wSs7I9qOx6pZjPIGaQSE=;
+        b=BJu3molLt1YUvdT2SPTJeg8cYP0hqWqU/Iy3asJ688Ys/0BufGuaWTt3Z/cStOU8oZ
+         gkk0E0OW9QNorV/Fyw8WCajaa6kDC3yfaPtlV3+GdyKVFmdoJ8KFOFrDYVYUbPZB8Fup
+         /Z23BgXBa2MPOws1+B2ToyG+WAUUXr7QmQmVGovtgrkqhjbYw8aiX0UjJbAz6K9DvDq+
+         OeJDD7g7hcsj17SMGEyMPAbQ/JqUG9bTnd2yawc5txTEOgsJ5oXt+clLmfcuAS7BZoZr
+         1JMdfIdeKPtJm9x+xoXa2ofdjUnRSMFBinykIOqJVtS4fIPI3ma6PlxNkaFaEdAq+uUc
+         vH7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=php17Hs4JRcbx3zxFiXoJ55wSs7I9qOx6pZjPIGaQSE=;
+        b=WxlEGigJMC8lWlzDfzNrtF9J2a8C5hdBOh+kGXiM3RJjCU1tgovGBGgfvzoHplu5As
+         mUq+3Gv9vsgBieXSS9D9KaKag4+2bugaz++NEGrMdmvj0RGNOX4vSOIXZE5Z9VL5udLX
+         fiITdMShTWejfLxeJv0m0SXA0lSNi317raSmExqnzQx/ByBw113bgdzGpXW4xQx0Cw3H
+         840SQNB9HAL7x26F5pHnjGe3s/cJFRSYa+i6WdYq7gisTM+o4JdjQTPjbu30BP20bYys
+         JNjy9vFahMEDToVmBnOH6vuWW8xCImxKFTE69QI/5yHpUJP96nZnHB2bbStVG79Smgxh
+         FapA==
+X-Gm-Message-State: AA+aEWYUKnA4RCtopL893E9ZIzmmOYZhbFEw+xaR4aBfE268U7v2Pfwd
+        bDwW+PI8KKhuwdHQSMigdZOnrcw=
+X-Google-Smtp-Source: AFSGD/WRAvD9M5/lWfd9d6/S+jcnko4O9zpLlrm2MqZaUEOQF1SI24aJOnGYYNccaxcOFKFTrVM8Dw==
+X-Received: by 2002:adf:9484:: with SMTP id 4mr15611271wrr.98.1543050694972;
+        Sat, 24 Nov 2018 01:11:34 -0800 (PST)
+Received: from avx2 (nat-minsk-pool-46-53-201-92.telecom.by. [46.53.201.92])
+        by smtp.gmail.com with ESMTPSA id r3-v6sm11578159wmd.25.2018.11.24.01.11.34
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 24 Nov 2018 01:11:34 -0800 (PST)
+Date:   Sat, 24 Nov 2018 12:11:32 +0300
+From:   Alexey Dobriyan <adobriyan@gmail.com>
+To:     paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org
 Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Nov 23 22:08:48 2018 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Subject: [PATCH] selinux: make "selinux_policycap_names[]" const char *
+Message-ID: <20181124091132.GB10969@avx2>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 5, 2018 at 9:55 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Mon, Nov 5, 2018 at 3:36 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >
-> > Use PRIx64 to print the subnet_prefix (which is a uint64_t) instead
-> > of lx.
-> >
-> > Fixes https://github.com/SELinuxProject/selinux/issues/108
-> >
-> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > ---
-> >  libsepol/src/ibpkeys.c | 5 +++--
-> >  1 file changed, 3 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/libsepol/src/ibpkeys.c b/libsepol/src/ibpkeys.c
-> > index 682bf5db..68a9bdfe 100644
-> > --- a/libsepol/src/ibpkeys.c
-> > +++ b/libsepol/src/ibpkeys.c
-> > @@ -1,5 +1,6 @@
-> >  #include <netinet/in.h>
-> >  #include <stdlib.h>
-> > +#include <inttypes.h>
-> >
-> >  #include "debug.h"
-> >  #include "context.h"
-> > @@ -176,7 +177,7 @@ int sepol_ibpkey_query(sepol_handle_t *handle,
-> >         return STATUS_SUCCESS;
-> >
-> >  err:
-> > -       ERR(handle, "could not query ibpkey subnet prefix: %#lx range %u - %u exists",
-> > +       ERR(handle, "could not query ibpkey subnet prefix: %#" PRIx64 " range %u - %u exists",
-> >             subnet_prefix, low, high);
-> >         return STATUS_ERR;
-> >  }
-> > @@ -203,7 +204,7 @@ int sepol_ibpkey_modify(sepol_handle_t *handle,
-> >         return STATUS_SUCCESS;
-> >
-> >  err:
-> > -       ERR(handle, "could not load ibpkey subnet prefix: %#lx range %u - %u exists",
-> > +       ERR(handle, "could not load ibpkey subnet prefix: %#" PRIx64 " range %u - %u exists",
-> >             subnet_prefix, low, high);
-> >         if (ibpkey) {
-> >                 context_destroy(&ibpkey->context[0]);
-> > --
-> > 2.19.1
-> >
->
-> This looks good to me, and while testing some things, I found a
-> similar issue in libselinux/src/selinux_restorecon.c. Patch
-> incoming...
->
-> Cheers,
-> Nicolas
+Those strings aren't written.
 
-Merged.
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-Nicolas
+ security/selinux/include/security.h |    2 +-
+ security/selinux/ss/services.c      |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -81,7 +81,7 @@ enum {
+ };
+ #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+ 
+-extern char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
++extern const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
+ 
+ /*
+  * type_datum properties
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -71,7 +71,7 @@
+ #include "audit.h"
+ 
+ /* Policy capability names */
+-char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
++const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+ 	"network_peer_controls",
+ 	"open_perms",
+ 	"extended_socket_class",
