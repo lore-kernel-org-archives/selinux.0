@@ -2,55 +2,57 @@ Return-Path: <SRS0=Cb3q=OG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53872C43441
-	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 10:38:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8928C43441
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 10:38:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 232F320873
-	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 10:38:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 232F320873
+	by mail.kernel.org (Postfix) with ESMTP id 7B2A720873
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 10:38:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7B2A720873
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728923AbeK0VgK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Nov 2018 16:36:10 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:43919 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726469AbeK0VgK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Nov 2018 16:36:10 -0500
-Received: by mail-wr1-f68.google.com with SMTP id r10so22103234wrs.10
-        for <selinux@vger.kernel.org>; Tue, 27 Nov 2018 02:38:41 -0800 (PST)
+        id S1729101AbeK0VgP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Nov 2018 16:36:15 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:39276 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729087AbeK0VgO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Nov 2018 16:36:14 -0500
+Received: by mail-wm1-f65.google.com with SMTP id n133so4849189wmd.4
+        for <selinux@vger.kernel.org>; Tue, 27 Nov 2018 02:38:45 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=p/3wOQa7ywukxZKNWtxtpKXIiMO9Q7Wl8m20sxv7KNs=;
-        b=pjttig/vfRyz/Q6tAt0gYKooSoWbkPg1xkzO9vA1swLUBlBe6XUtwKrPIm5/0QglWd
-         5wIpd8MXws1WxtY1ubivtEiRnIY7njz5cPDmetsQZY4C2IPu/tjHdqk6H4XGRQzaDS36
-         MB581oOnWnk/ETrmb6aIVquoWI2Lu7d8Iz39oBqYiSqNacAPyi8Z/jojF9rH1d9CDMYG
-         htb28Q0ZP15zB8nAHpAO5h+5jFZ1gD+/UfBO3ryWHwXIjtaUOk4I/SWlsV4VNqyLSvkh
-         zLeHUHZFAB+zDwiLkdobcSZYyyoqnT1pUw9MPZwLY/b8DOhuKzekkhKJXEetlADfxoj7
-         M5Bw==
-X-Gm-Message-State: AA+aEWY+FG0T76ITAeMujhpWbtkqbUEaj+p45IFeG02eU+dcwB4OXbLC
-        nuu/iIM9bP0O9wgH9K5XtehgXNPWxHzvjA==
-X-Google-Smtp-Source: AFSGD/UfT8cmlFQKKWI1dUA9QQiZofwl7ALYU04QZxVUQwOEccPlVv5G0f80KIs1f2DtmgC7RsMcyg==
-X-Received: by 2002:adf:8421:: with SMTP id 30mr27781424wrf.153.1543315120168;
-        Tue, 27 Nov 2018 02:38:40 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tePjToLTHPCznfZYLRxgWA+LKX/QS3Z56Rsbv8ckzYY=;
+        b=JGHykSrKacG0v5DYeLwIll5i8fuE9HjkWZvVpGKgn8EaiJ7qElbIg1hZSk1W311XET
+         8AwNoRKL1WdnNfT5+/CQH73HiHywmkxQsXKYxV5uuqRvr+jwUxt5RGfpQ6yTxpgUPGK1
+         sYkRDo/Y3wnxx0DUZ8KxOEblmD21MgoCtlxgZ36s0wUKGH9hBmd4SI1SMecN9mARGBcm
+         4Sb4c8FbHCIFQf7tjdN38K2P2Cvp/JxiYDZJozZakurebKYXsbscDCSJ66UpN7cKVPq+
+         WQRQTAAsme9cKENnmOwFBUbMqphLpzGB7+AY4lp25AFvGanrGl/dLTMrgkxjPH46HiCn
+         QK8w==
+X-Gm-Message-State: AA+aEWY4wMCBqErWD/FPiWUzCSUtIzbKFLsLM34+vOpyZGe4IeraI4R+
+        iBja6gmlU1UVU0ktjsZvmc4p8jMr2BFV5Q==
+X-Google-Smtp-Source: AFSGD/WXveTVL8ClAhnGDU/BaAoNc+6DGCdmW5lf8jjhWEUQsOaPv3CbKE/mn+EjPUjbjvmAH6s8Ag==
+X-Received: by 2002:a1c:2d5:: with SMTP id 204mr24560764wmc.115.1543315124244;
+        Tue, 27 Nov 2018 02:38:44 -0800 (PST)
 Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id f18sm2870765wrs.92.2018.11.27.02.38.38
+        by smtp.gmail.com with ESMTPSA id f18sm2870765wrs.92.2018.11.27.02.38.42
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 27 Nov 2018 02:38:38 -0800 (PST)
+        Tue, 27 Nov 2018 02:38:42 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [RFC PATCH v2 0/4] Fix ENOMEM errors during policy reload
-Date:   Tue, 27 Nov 2018 11:36:01 +0100
-Message-Id: <20181127103605.32765-1-omosnace@redhat.com>
+Subject: [RFC PATCH v2 2/4] [squash] do not store entry for SECSID_NULL
+Date:   Tue, 27 Nov 2018 11:36:03 +0100
+Message-Id: <20181127103605.32765-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.19.1
+In-Reply-To: <20181127103605.32765-1-omosnace@redhat.com>
+References: <20181127103605.32765-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -58,56 +60,120 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patchset is a second iteration of this patchset:
-https://lore.kernel.org/selinux/20181113135255.26045-1-omosnace@redhat.com/T/
+This patch is kept separate only for review. Eventually it will be
+folded into the previous patch.
 
-The patches that have "[squash]" in the subject are posted separately for ease
-of review but will be folded into the previous patch in the final posting.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/ss/policydb.c |  2 +-
+ security/selinux/ss/sidtab.c   | 25 ++++++++++++++++---------
+ security/selinux/ss/sidtab.h   |  3 ++-
+ 3 files changed, 19 insertions(+), 11 deletions(-)
 
-Changes in v2:
-- dropped the first patch since it is already merged in -next
-- fixed initial SID table to not reserve an entry for SECSID_NULL
-- added back an equivalent of the reverse lookup cache
-- fixed checkpatch.pl errors and some warnings
-
-Notes on the reverse lookup cache:
-I updated the sidtab insertion measurements [1] with data for the new patchset
-(the difference being the cache addition) and I also measured the base code
-with the reverse lookup cache removed [3] for comparison. Note that in this
-case (adding a new context) the cache will never give a hit so this only
-measures the overhead of traversing the whole cache. It seems that both cache
-implementations have similar overhead, the new one being a bit slower (but it
-has one entry more so it is expected).
-
-I don't have any data on how the cache helps during regular reverse lookups,
-since I couldn't come up with any good way to measure that.
-
-Testing:
-A Fedora 29 kernel with this patchset applied passes selinux-testsuite
-and fixes GH issue #38 [2]. Additionaly, I decided to eat my own dog food and I
-have now been running this kernel on my F29 work machine for several days. So
-far everything runs smoothly and I haven't noticed any functional or
-performance issues.
-
-[1] https://docs.google.com/spreadsheets/d/e/2PACX-1vRUArNJR6kckm2SEs4dRZlijNVdCTmsNuWRGe7X3fC01YkBHpxXHnmcssxEiMF3Z7ivtXN2L5MC0ry-/pubhtml
-[2] https://github.com/SELinuxProject/selinux-kernel/issues/38
-[3] https://gitlab.com/omos/linux-public/commit/2c1ebcb8fbdcc6400734ba8d1c3015bd446e6fa5
-
-Ondrej Mosnacek (4):
-  selinux: use separate table for initial SID lookup
-  [squash] do not store entry for SECSID_NULL
-  selinux: overhaul sidtab to fix bug and improve performance
-  [squash] add back reverse lookup cache to sidtab
-
- security/selinux/ss/mls.c      |  23 +-
- security/selinux/ss/mls.h      |   3 +-
- security/selinux/ss/policydb.c |  10 +-
- security/selinux/ss/services.c | 170 +++++----
- security/selinux/ss/services.h |   2 +-
- security/selinux/ss/sidtab.c   | 616 +++++++++++++++++++++------------
- security/selinux/ss/sidtab.h   |  95 +++--
- 7 files changed, 560 insertions(+), 359 deletions(-)
-
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 59359fa0bd74..a50d625e7946 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -912,7 +912,7 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+ 			sidtab_destroy(s);
+ 			goto out;
+ 		}
+-		if (c->sid[0] > SECINITSID_NUM) {
++		if (c->sid[0] == SECSID_NULL || c->sid[0] > SECINITSID_NUM) {
+ 			pr_err("SELinux:  Initial SID %s out of range.\n",
+ 				c->u.name);
+ 			sidtab_destroy(s);
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index fd8115b211a6..e157d8240cf1 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -23,7 +23,7 @@ int sidtab_init(struct sidtab *s)
+ 	if (!s->htable)
+ 		return -ENOMEM;
+ 
+-	for (i = 0; i <= SECINITSID_NUM; i++)
++	for (i = 0; i < SECINITSID_NUM; i++)
+ 		s->isids[i].set = 0;
+ 
+ 	for (i = 0; i < SIDTAB_SIZE; i++)
+@@ -86,8 +86,15 @@ static int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
+ 
+ int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
+ {
+-	struct sidtab_isid_entry *entry = &s->isids[sid];
+-	int rc = context_cpy(&entry->context, context);
++	struct sidtab_isid_entry *entry;
++	int rc;
++
++	if (sid == 0 || sid > SECINITSID_NUM)
++		return -EINVAL;
++
++	entry = &s->isids[sid - 1];
++
++	rc = context_cpy(&entry->context, context);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -116,19 +123,19 @@ static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
+ 	struct context *context;
+ 	struct sidtab_isid_entry *entry;
+ 
+-	if (!s)
++	if (!s || sid == 0)
+ 		return NULL;
+ 
+ 	if (sid > SECINITSID_NUM) {
+ 		context = sidtab_lookup(s, sid - (SECINITSID_NUM + 1));
+ 	} else {
+-		entry = &s->isids[sid];
++		entry = &s->isids[sid - 1];
+ 		context = entry->set ? &entry->context : NULL;
+ 	}
+ 	if (context && (!context->len || force))
+ 		return context;
+ 
+-	entry = &s->isids[SECINITSID_UNLABELED];
++	entry = &s->isids[SECINITSID_UNLABELED - 1];
+ 	return entry->set ? &entry->context : NULL;
+ }
+ 
+@@ -283,11 +290,11 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context, u32 *sid)
+ 	int rc;
+ 	u32 i;
+ 
+-	for (i = 0; i <= SECINITSID_NUM; i++) {
++	for (i = 0; i < SECINITSID_NUM; i++) {
+ 		struct sidtab_isid_entry *entry = &s->isids[i];
+ 
+ 		if (entry->set && context_cmp(context, &entry->context)) {
+-			*sid = i;
++			*sid = i + 1;
+ 			return 0;
+ 		}
+ 	}
+@@ -334,7 +341,7 @@ void sidtab_destroy(struct sidtab *s)
+ 	if (!s)
+ 		return;
+ 
+-	for (i = 0; i <= SECINITSID_NUM; i++)
++	for (i = 0; i < SECINITSID_NUM; i++)
+ 		if (s->isids[i].set)
+ 			context_destroy(&s->isids[i].context);
+ 
+diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+index dc0a80bc8894..e657ae6bf996 100644
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -36,7 +36,8 @@ struct sidtab {
+ 	struct sidtab_node *cache[SIDTAB_CACHE_LEN];
+ 	spinlock_t lock;
+ 
+-	struct sidtab_isid_entry isids[SECINITSID_NUM + 1];
++	/* index == SID - 1 (no entry for SECSID_NULL) */
++	struct sidtab_isid_entry isids[SECINITSID_NUM];
+ };
+ 
+ int sidtab_init(struct sidtab *s);
 -- 
 2.19.1
 
