@@ -6,58 +6,62 @@ X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71E6CC43441
-	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 19:55:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 955D2C43441
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 19:58:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3963A20663
-	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 19:55:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B01F20663
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 19:58:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="LRI2gEwB"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3963A20663
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="YBasQV6X"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5B01F20663
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=szeredi.hu
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726273AbeK1GyL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Nov 2018 01:54:11 -0500
-Received: from mail-it1-f193.google.com ([209.85.166.193]:35977 "EHLO
-        mail-it1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726110AbeK1GyL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Nov 2018 01:54:11 -0500
-Received: by mail-it1-f193.google.com with SMTP id c9so498406itj.1
-        for <selinux@vger.kernel.org>; Tue, 27 Nov 2018 11:55:11 -0800 (PST)
+        id S1726403AbeK1G5S (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Nov 2018 01:57:18 -0500
+Received: from mail-io1-f66.google.com ([209.85.166.66]:35164 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726299AbeK1G5S (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Nov 2018 01:57:18 -0500
+Received: by mail-io1-f66.google.com with SMTP id u19so18016509ioc.2
+        for <selinux@vger.kernel.org>; Tue, 27 Nov 2018 11:58:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=szeredi.hu; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=0oIAC8F8kBg9jIilXePaO8JdfRRo7IpVuEvD0Pwhc1A=;
-        b=LRI2gEwBC1D4XgKRNdOsvuLeoNSD1qVop5PF+b7CV/6uPJQlOeHHnqpukjiICp6t3F
-         iNCWHRLqpDha4dQyL4lvfJiKRjsyX7p5P4PrZyJM6Q5hVbxfMbbr6nfARPBa4uiJeDzq
-         7qTGGmgEQjZ+KcczICT13gSw0TwDzGJzEK/GY=
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=FJpLmJ+NhtzfsWcoykkUmJgTZwUROJ/Eo8H3btKrpBI=;
+        b=YBasQV6XrLeAZaFzrkcyLvrZWluXnOFXF+N9BEpIkU+Am5l5LcqQJTNZAGNUrT9krJ
+         YO5TgJJ/bD8daXbtFmT4CoElQU+cqpLP1mMEFTTl2thQzDgKoWFlNJu98/nTPjf3m3hh
+         k47FfXmyrDpfnzcDhGHKfdQje/tPwfCR6Fptw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=0oIAC8F8kBg9jIilXePaO8JdfRRo7IpVuEvD0Pwhc1A=;
-        b=fvIEyNYJxn2nxlVQtMNCY/2wXaWhDVvqn/PdhguaEqxH47M3IfFJWB2qtRgqCK1PI1
-         rK/E/c/ysZbXhqSo1Arn+TKCRjDM7+AFAYnGk/z4kmgM14oqYQyo2vfg6hHgGJns9aG0
-         XLPzISp/1O60QbUSdbPNKqfRb/4RG84hLaUftjkiPCeBRJmcy8rr0YPEDh5qEQLW9x1y
-         Vh54+dH+hfR8Um6riqY7NavZ64lERSLb0zHTv19A/Pn8mncgc3ANHALrxdkhfWgM5604
-         Y47+jm7eEsW5cqxtNJF1nPZPxMcqUHEx/SKfxnDdNruBo0ZsunX5eclU1+53JRlzla3A
-         DRZQ==
-X-Gm-Message-State: AA+aEWZcmMGg3DGIuXsas1tfIjvR3nZrCorG9i0dvROx9GGfahYVUKRh
-        SjhJJSG344gqrAEM0qgi1jpfmW9CUp2T+ii8HPEa3w==
-X-Google-Smtp-Source: AFSGD/WVe4SzrWPqCaC8vwbZS8ZTH3/mBylqQXLM876noXjH+dSY3yh+IaRb+1AqadKat+wbh5ASv2YDZq1SJhL3Jq0=
-X-Received: by 2002:a24:e38f:: with SMTP id d137mr246508ith.69.1543348511547;
- Tue, 27 Nov 2018 11:55:11 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=FJpLmJ+NhtzfsWcoykkUmJgTZwUROJ/Eo8H3btKrpBI=;
+        b=n4qjxQisMVaVybH/hFv4r0jTkmwdXc8uGVps84ze0TuXXQw4rl/9ocw3Vm7W3wt5D0
+         /31oDwpDzu3konxKGp8ECbKaEszqz3Gvc/rVZjTj3JYQwwUiJxBq+hYqrDizpe2avR4X
+         BFkF6/eTT6/bDxM5VhC3/qWtnEJWACCvvhDzOv+XvKzVbuZiwZrIau1/gSZALpMf8z5/
+         eBMgSsmWj5SrsN9ve2gUlwtt07ATw7fixjzXl1ucgIRbrmmarrCalQTwxXQWbS1gosYS
+         tv0VX4KauGvBz6k89X52PPfYEHT8xAl0piXUJO0n906uOhRyyzBoTozBWk/sw3inD6ks
+         RrHQ==
+X-Gm-Message-State: AA+aEWY138vp5SIuvjpYEpEqP583ujzL39uC1IQYyOFCaxsJ9VpM/prx
+        s0iCe/hVXw3LPnMQUiiZra8BLr8Ape9fCZDdO1WZag==
+X-Google-Smtp-Source: AFSGD/XlTDUo2b9NdzFa2APW3FzL3mdN2WjLmv15jDHIJLSQFjnzEx1a1aVnAbf6WLFJqlf5y2OAE+n08+R6nBSuROI=
+X-Received: by 2002:a6b:fe13:: with SMTP id x19mr24900548ioh.294.1543348698205;
+ Tue, 27 Nov 2018 11:58:18 -0800 (PST)
 MIME-Version: 1.0
+References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
+In-Reply-To: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
 From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Tue, 27 Nov 2018 20:55:00 +0100
-Message-ID: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
-Subject: overlayfs access checks on underlying layers
+Date:   Tue, 27 Nov 2018 20:58:06 +0100
+Message-ID: <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
+Subject: Re: overlayfs access checks on underlying layers
 To:     Stephen Smalley <sds@tycho.nsa.gov>,
         Vivek Goyal <vgoyal@redhat.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <pmoore@redhat.com>,
         "J. Bruce Fields" <bfields@fieldses.org>,
-        Mark Salyzyn <salyzyn@android.com>
+        Mark Salyzyn <salyzyn@android.com>,
+        Paul Moore <paul@paul-moore.com>
 Cc:     linux-kernel@vger.kernel.org,
         overlayfs <linux-unionfs@vger.kernel.org>,
         linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org
@@ -66,6 +70,8 @@ Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
+
+[resending with fixed email address for Paul Moore]
 
 Moving discussion from github[1] to here.
 
