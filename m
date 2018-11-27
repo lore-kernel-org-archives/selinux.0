@@ -2,105 +2,99 @@ Return-Path: <SRS0=Cb3q=OG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A85EC43441
-	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 21:05:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C214FC43441
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 22:35:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 586A52086B
-	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 21:05:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 586A52086B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id 87D1620851
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 22:35:40 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="iv1pzmTn"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 87D1620851
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726728AbeK1IEx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Nov 2018 03:04:53 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:42082 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726273AbeK1IEx (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 28 Nov 2018 03:04:53 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 566F4308A94F;
-        Tue, 27 Nov 2018 21:05:43 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.18.25.234])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1A5AC5DD73;
-        Tue, 27 Nov 2018 21:05:43 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 948752208FC; Tue, 27 Nov 2018 16:05:42 -0500 (EST)
-Date:   Tue, 27 Nov 2018 16:05:42 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: overlayfs access checks on underlying layers
-Message-ID: <20181127210542.GA2599@redhat.com>
-References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
- <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
+        id S1726327AbeK1JfC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Nov 2018 04:35:02 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:45849 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726286AbeK1JfC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Nov 2018 04:35:02 -0500
+Received: by mail-lj1-f195.google.com with SMTP id s5-v6so21565920ljd.12
+        for <selinux@vger.kernel.org>; Tue, 27 Nov 2018 14:35:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MYElIBC7JVC+ENusYYMmJzVLokJxia3vkvra85QC8Cs=;
+        b=iv1pzmTnI7tn36NoLkVKN+cJRTMoQALQmuyYrXTjz9qNy2KiCesFxcnMo3wtvtHaTO
+         7tGDzu4H+XL46YONt/HUCSs4SKzPsXoHIFzKRTA+UCkjR1fRaaPcdECURSK5Dt+EOZEG
+         QPRHWwyhh6Y32R52KdqAp77yGw4HEDp1iFibn5q7Cu+Rwg0Obkp5RJ+5pUNx5YQ2ekOG
+         DyUfURcS4MVNyEELWeSLnmY+mdW4EWJlALlmcCs9bAiJPYKh2btZxJE97qK0dNXwjly/
+         csHdgS019mv9oTKbHQvG1xT6nZ8yw1kU61IK1ZWF80V6y+XS2rZ3x4EqFya5AYQFAA6y
+         wVPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MYElIBC7JVC+ENusYYMmJzVLokJxia3vkvra85QC8Cs=;
+        b=csUGj2Nr7be4FWbjXP3XcquqoW/GBBCToHBTmWjugAauPirFQAn6jlihGSUN4UIJVV
+         Q93FuLkGzUf5RZSjfe5qivPd9+nNNGBbSXryGikHTtlAKGJJj+qY5Q9A/CTJZecdb91w
+         PXkC5I6iT5Rw2TiYxw5Yc69SqaGUtXOVp7yDGBSaFTrlbhyS6Z0kHUTASdMTUdPJaoJR
+         tmLoVYHE9zuZsOysREXgJ2aZ7vE5NyDpewjzNa6V6b2sjHD3cyrU0ypnGaURWmatXQIO
+         ZdIZUjRFTi6tdYqYOEHnl6bDQTKvPHtM7rIQUV1Zsi511b+M2aLddDK//fyNRnvxjwfM
+         KtHA==
+X-Gm-Message-State: AGRZ1gKU6MBffVKYKoLeLNm60OwOfBUUpq87aseI20WX3oZ92wpiz9va
+        zCnIZVUdrB3yFJgSPsxNx50ADSoR5KkLMnGOhf6Z
+X-Google-Smtp-Source: AFSGD/WCdEdJyZc7jcZNBOMlOGQXTkSHUk9Q5agD3SlfdI3AibM7rVbkTKSEtoagebiNndwiN1bkluJ4gYxXj7duNdY=
+X-Received: by 2002:a2e:8605:: with SMTP id a5-v6mr20993500lji.145.1543358137564;
+ Tue, 27 Nov 2018 14:35:37 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
-User-Agent: Mutt/1.9.1 (2017-09-22)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Tue, 27 Nov 2018 21:05:43 +0000 (UTC)
+References: <20181127201312.29827-1-sds@tycho.nsa.gov>
+In-Reply-To: <20181127201312.29827-1-sds@tycho.nsa.gov>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 27 Nov 2018 17:35:26 -0500
+Message-ID: <CAHC9VhTK6PW1jBtvp_v+uLa_-5+9yr6zi+=tq4JGR65FboT+ng@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: enable multiport netfilter match for
+ sctp tests
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 27, 2018 at 08:58:06PM +0100, Miklos Szeredi wrote:
-> [resending with fixed email address for Paul Moore]
-> 
-> Moving discussion from github[1] to here.
-> 
-> To summarize: commit 007ea44892e6 ("ovl: relax permission checking on
-> underlying layers") was added in 4.20-rc1 to make overlayfs access
-> checks on underlying "real" filesystems more consistent.  The
-> discussion leading up to this commit can be found at [2].  The commit
-> broke some selinux-testsuite cases, possibly indicating a security
-> hole opened by this commit.
-> 
-> The model this patch tries to follow is that if "cp --preserve=all"
-> was allowed to the mounter from underlying layer to the overlay layer,
-> then operation is allowed.  That means even if mounter's creds doesn't
-> provide permission to for example execute underying file X, if
-> mounter's creds provide sufficient permission to perform "cp
-> --preserve=all X Y"  and original creds allow execute on Y, then the
-> operation is allowed.  This provides consistency in the face of
-> copy-ups.  Consistency is only provided in sane setups, where mounter
-> has sufficient privileges to access both the lower and upper layers.
+On Tue, Nov 27, 2018 at 3:11 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> This is used by tests/sctp/iptables-load
+>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  defconfig | 1 +
+>  1 file changed, 1 insertion(+)
 
-[cc daniel walsh]
+Merged, thanks Stephen.
 
-I think current selinux testsuite tests are written keeping these
-rules in mind.
+> diff --git a/defconfig b/defconfig
+> index c48d3cc..ff0704f 100644
+> --- a/defconfig
+> +++ b/defconfig
+> @@ -21,6 +21,7 @@ CONFIG_NETWORK_SECMARK=y
+>  CONFIG_NF_CONNTRACK_SECMARK=y
+>  CONFIG_NETFILTER_XT_TARGET_CONNSECMARK=m
+>  CONFIG_NETFILTER_XT_TARGET_SECMARK=m
+> +CONFIG_NETFILTER_XT_MATCH_MULTIPORT=m # used for testing sctp
+>
+>  # Filesystem security labeling support.
+>  # Only need to enable the ones for the filesystems on which you are testing.
+> --
+> 2.19.1
 
-1. Check overlay inode creds in the context of task and underlying
-   inode creds (lower/upper), in the context of mounter.
-
-2. For a lower inode, if said file is being copied up, then only
-   check MAY_READ on lower. This is equivalent to mounter creating
-   a copy of file and providing caller access to it (context mount).
-
-For the case of special devices, we do not copy up these. So should
-we continue to do check on lower inode in the context of mounter
-(instead of not doing any check on lower at all).
-
-For being able to execute a file, should we atleast check MAY_READ
-on lower.
-
-I am not sure why did we have to drop current checks on special file
-and execute. I will read through the thread you pointed out.
-
-Thanks
-Vivek
+-- 
+paul moore
+www.paul-moore.com
