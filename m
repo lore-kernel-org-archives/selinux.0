@@ -1,111 +1,104 @@
-Return-Path: <SRS0=z32U=OF=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Cb3q=OG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFE49C43441
-	for <selinux@archiver.kernel.org>; Mon, 26 Nov 2018 23:28:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFC03C43441
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 08:53:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A914B208E4
-	for <selinux@archiver.kernel.org>; Mon, 26 Nov 2018 23:28:59 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="kVcTGGjH"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A914B208E4
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=paul-moore.com
+	by mail.kernel.org (Postfix) with ESMTP id 9548C208E4
+	for <selinux@archiver.kernel.org>; Tue, 27 Nov 2018 08:53:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9548C208E4
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727244AbeK0KYp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Nov 2018 05:24:45 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:34651 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726888AbeK0KYp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Nov 2018 05:24:45 -0500
-Received: by mail-lf1-f67.google.com with SMTP id p6so14978452lfc.1
-        for <selinux@vger.kernel.org>; Mon, 26 Nov 2018 15:28:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=e2S9nYqf22R6AJiB2SOXky+nRR1nvSALB5w92eIwDtk=;
-        b=kVcTGGjHxUB+bGRfiBAu4cZ4/YoNKVg6C2iE2DJJ7jdr451IwaWNqNZB3gnKq64dMz
-         SMbwiA+vMippmkcPpFqCbe5s6JiImY8hY18pYymGQj/Tjb+y7Bt0IpVXxWwxgVRdSnNY
-         eSj3bu/oij520Gz+K+LeY7+X6zpex43b9hDI3ntSrULCDk5cxBcm78qt7McgnFHbjzzM
-         9Pkuqu1VCVpTcZgr5DIuJRSqujRn+hLuzq1llkg9CPllrRM77G2iymucrsbWVfMRgGrG
-         gPvOhuI1Sl0cxxc9CwzgFJVdCdCOGaXoqUu+eDLVUUcfM8Y5BV2L/OWGITNDkVutBV7k
-         DaUQ==
+        id S1729779AbeK0Tuz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Nov 2018 14:50:55 -0500
+Received: from mail-oi1-f174.google.com ([209.85.167.174]:39286 "EHLO
+        mail-oi1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729733AbeK0Tuz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Nov 2018 14:50:55 -0500
+Received: by mail-oi1-f174.google.com with SMTP id i6so6976811oia.6
+        for <selinux@vger.kernel.org>; Tue, 27 Nov 2018 00:53:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=e2S9nYqf22R6AJiB2SOXky+nRR1nvSALB5w92eIwDtk=;
-        b=fR48TtOcgzwtK8+AMFaVLXpuTtb4U6AGflSIkl9j6K8R+c4n1ZGfN6+f5Rm6icFseb
-         G05vKkVutR0FbQAlRMHgCcJEsHuY1pTqVp/9vq5WaXZ29Wu6Yibsw7vkJYelicqaMA9M
-         AvQuUdGzE+Nsts0hddnNzBR9GbuERx5x7QnNOEF2L5B/AW33h0v1UrQT9Xc3CmjWS6qJ
-         EpX5SXNjfAvZXFIFlFTtPzrqclObXV7+SORVBj75BiJydyP/CwQXBZaT5Ldk2ETpQ/+X
-         m3UUjBGpEb8z47adgBfMBlRdylqQAmO1JY3u1Z+FkRCIA7L+7vFjG7JnKLpi8nauHr3h
-         2aQA==
-X-Gm-Message-State: AGRZ1gJ2gWdk2SyJgwRfSpPvN8qUzUtKdpCY6w/qrCs4OIdtQCtFFb1s
-        j8E0KXZJRDZzcHBdaMpnRUDfDMu7aYC9mhKDwMBK2Ig=
-X-Google-Smtp-Source: AJdET5fwUNKJuJA4qtTu+ShfvbDYJR3mu4wDvY5Md7f0PFzF032AGR8gOpfgUN5+NRcrAND4tNKpp0Snsb0DCqpFJps=
-X-Received: by 2002:a19:8fce:: with SMTP id s75mr16617917lfk.151.1543274936725;
- Mon, 26 Nov 2018 15:28:56 -0800 (PST)
+        bh=HxInqpUY0tzTENRt7OklcR13FU/hUxoCdecuPFE5K9I=;
+        b=tRkx3KH09nO4V2CAldr9aEP6RD3q3w05H+b8g6JuPE8+JR8CEMk64ci+N6Q8DbAwnb
+         x36mqdf+M1qYuZxbqRzaKx7SQJs2sio99jlmpDvvmQ8mv0smXX4F3evlKUv3oqP/GphZ
+         mPk9F/6VivSsniDRlHe6ILhCXC9ZIbH1y7hq6PNFUYnjW1r1iaSPIFFJo3ZHEL4RqAd6
+         CPN3EymhqmFcqxceWWw0PNACt5ixVdzIoHCrAYALqmz/txEL7Y+0fF5sj/lc2xEKTW3A
+         7sNLtN6cVorliGx0XxIALxZMH2fBCHQREgKBe7FpoZOOu/wXpQp96ZBVeryZNneSJXxQ
+         W+yA==
+X-Gm-Message-State: AGRZ1gL0/otNHV/eL9a7V2zetYTxGfwpFBMOx86lXDtcCyjo3u0etVdM
+        iQPHNBrC7MkIqvqGm7PkvaZhu0YVJ9Ztb5WcKeMHaQ==
+X-Google-Smtp-Source: AJdET5darKZhyZ35FybUFkCiBgNYl0Dq+wRJNqNA3nod7GDZeJmP4MnP8R9eck5Fay+y1tsv1bMmm5C5XvEf77jSgAg=
+X-Received: by 2002:a54:4d01:: with SMTP id v1mr16608642oix.246.1543308824219;
+ Tue, 27 Nov 2018 00:53:44 -0800 (PST)
 MIME-Version: 1.0
-References: <20181124091132.GB10969@avx2>
-In-Reply-To: <20181124091132.GB10969@avx2>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 26 Nov 2018 18:28:45 -0500
-Message-ID: <CAHC9VhTyq4RbGZXJE2kmS+G-kKiqX7bywKbVnA8a-kAp-9YJ+g@mail.gmail.com>
-Subject: Re: [PATCH] selinux: make "selinux_policycap_names[]" const char *
-To:     adobriyan@gmail.com
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+References: <20181127115246.00967523@canb.auug.org.au>
+In-Reply-To: <20181127115246.00967523@canb.auug.org.au>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 27 Nov 2018 09:53:32 +0100
+Message-ID: <CAFqZXNs6XTOx2-EQ5P9bK3vPsPby7rzryHPqzqsVD9XsbsG20w@mail.gmail.com>
+Subject: Re: linux-next: manual merge of the selinux tree with the vfs tree
+To:     Stephen Rothwell <sfr@canb.auug.org.au>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, linux-next@vger.kernel.org,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        David Howells <dhowells@redhat.com>, selinux@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Nov 24, 2018 at 4:11 AM Alexey Dobriyan <adobriyan@gmail.com> wrote:
+On Tue, Nov 27, 2018 at 1:52 AM Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> Hi Paul,
 >
-> Those strings aren't written.
+> Today's linux-next merge of the selinux tree got a conflict in:
 >
-> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
-> ---
+>   security/selinux/hooks.c
 >
->  security/selinux/include/security.h |    2 +-
->  security/selinux/ss/services.c      |    2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
+> between commit:
+>
+>   0472421f47a9 ("vfs: Remove unused code after filesystem context changes")
+>
+> from the vfs tree and commit:
+>
+>   2cbdcb882f97 ("selinux: always allow mounting submounts")
+>
+> from the selinux tree.
+>
+> I fixed it up (the former removed the function updated by the latter -
+> I am not sure if there are further changes necessary) and can carry the
+> fix as necessary. This is now fixed as far as linux-next is concerned,
+> but any non trivial conflicts should be mentioned to your upstream
+> maintainer when your tree is submitted for merging.  You may also want
+> to consider cooperating with the maintainer of the conflicting tree to
+> minimise any particularly complex conflicts.
 
-Merged into selinux/next, thanks.
+Hm... seems that there was some massive overhaul in the VFS code right
+at the wrong moment... There are new hooks for mounting now and the
+code that our commit changes is now here:
 
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -81,7 +81,7 @@ enum {
->  };
->  #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
->
-> -extern char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
-> +extern const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
->
->  /*
->   * type_datum properties
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -71,7 +71,7 @@
->  #include "audit.h"
->
->  /* Policy capability names */
-> -char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
-> +const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
->         "network_peer_controls",
->         "open_perms",
->         "extended_socket_class",
+https://git.kernel.org/pub/scm/linux/kernel/git/viro/vfs.git/tree/security/selinux/hooks.c?h=for-next#n3131
 
+It seems that the logic is still the same, just now our patch (or the
+VFS one) needs to be updated to change the above line as such
+(untested pseudo-patch):
 
+- if (fc->purpose == FS_CONTEXT_FOR_KERNEL_MOUNT)
++ if (fc->purpose == (FS_CONTEXT_FOR_KERNEL_MOUNT|FS_CONTEXT_FOR_SUBMOUNT))
+
+Thanks for the heads up, Stephen!
 
 -- 
-paul moore
-www.paul-moore.com
+Ondrej Mosnacek <omosnace at redhat dot com>
+Associate Software Engineer, Security Technologies
+Red Hat, Inc.
