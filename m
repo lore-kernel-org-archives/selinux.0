@@ -2,210 +2,157 @@ Return-Path: <SRS0=Np7y=OH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 689A1C43441
-	for <selinux@archiver.kernel.org>; Wed, 28 Nov 2018 12:07:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44A19C04EB8
+	for <selinux@archiver.kernel.org>; Wed, 28 Nov 2018 15:42:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2E1A2208E7
-	for <selinux@archiver.kernel.org>; Wed, 28 Nov 2018 12:07:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2E1A2208E7
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id 14D3F2146D
+	for <selinux@archiver.kernel.org>; Wed, 28 Nov 2018 15:42:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 14D3F2146D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=xmission.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727690AbeK1XJS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 28 Nov 2018 18:09:18 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:37599 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727673AbeK1XJS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 28 Nov 2018 18:09:18 -0500
-Received: by mail-ot1-f68.google.com with SMTP id 40so23276074oth.4
-        for <selinux@vger.kernel.org>; Wed, 28 Nov 2018 04:07:52 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YTFcWl6AAyn9DMCYKmfo0+wTpSc+KjFiO7YIajvsJZc=;
-        b=L6H4ZNWMqDT5s3KFk+JvQg/EoRWuvqc+pnjaVp4+gllorlJRYQYL5S2FMCl8sArwGk
-         sLekvW6yGSJiJ5kG+aJwUf3bKrLQU7Hn+IVs5CGrHxK21VeR78ELeMFNxxiFORLbS/MW
-         csm/YRgzEzuwcChgF78quiKZL5936iVnq4DIfSrkjauYinlen4x1TNE62MVdDkKfWd3j
-         ifBJl8PPsouClJhzsl2AhWffYhtOP2vYfb1adM3HUyxqDNtkoVyTuHo7ddDmJf7FI9OW
-         xxz+EqG7anhN4Uc1EzvUiBdSohwmcM0oCtSYkcuFRgPDCEDAN5NCf1Fv6jIGpsnqPeEJ
-         5rUA==
-X-Gm-Message-State: AA+aEWYBtPnfuvkVudhp2us4Ut+KsgARNvh9NfdcQYj2e+DSap1gw2hu
-        yZ7KG9HEiAe81cZKXJHs7QezcRYBVgTJx7ObASwxouBpdhM=
-X-Google-Smtp-Source: AFSGD/Xq0+lBLwgt63QQP0xrPje2hUVfCH614RIqTUFoWlAVpVJf4QgVC7IcB33oMwA/6DEs00DzsgrymywVsn/BQGo=
-X-Received: by 2002:a9d:32c7:: with SMTP id u65mr19753831otb.236.1543406871724;
- Wed, 28 Nov 2018 04:07:51 -0800 (PST)
+        id S1728624AbeK2Cof (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 28 Nov 2018 21:44:35 -0500
+Received: from out01.mta.xmission.com ([166.70.13.231]:45345 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727789AbeK2Coe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 28 Nov 2018 21:44:34 -0500
+Received: from in02.mta.xmission.com ([166.70.13.52])
+        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1gS1yt-0003lu-Ds; Wed, 28 Nov 2018 08:42:27 -0700
+Received: from 67-3-154-154.omah.qwest.net ([67.3.154.154] helo=x220.xmission.com)
+        by in02.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1gS1xb-0002el-U5; Wed, 28 Nov 2018 08:42:27 -0700
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     omosnace@redhat.com, selinux@vger.kernel.org,
+        trond.myklebust@primarydata.com, seth.forshee@canonical.com,
+        linux-fsdevel@vger.kernel.org,
+        <linux-security-module@vger.kernel.org>
+References: <20181116131202.26513-1-omosnace@redhat.com>
+        <CAHC9VhTn9qz77PQ3mboaCsNzK9D8hjYFg9z5sCWr8Yb7W2Pqxg@mail.gmail.com>
+        <CAFqZXNsAHnV5RzwtONF0hJRy31qb4c=sajvaEkmEjjky4duEBA@mail.gmail.com>
+        <CAFqZXNvSdKYr998v3hEhZu4pRwuQs8Q7qRWPhOAtLAc9__Bs6w@mail.gmail.com>
+        <CAHC9VhTvuPvnkfgQhT4+AM3iEz4_p85QgShM_oXmpVtLKuq10Q@mail.gmail.com>
+Date:   Wed, 28 Nov 2018 09:40:56 -0600
+In-Reply-To: <CAHC9VhTvuPvnkfgQhT4+AM3iEz4_p85QgShM_oXmpVtLKuq10Q@mail.gmail.com>
+        (Paul Moore's message of "Mon, 26 Nov 2018 18:25:30 -0500")
+Message-ID: <87r2f5fbw7.fsf@xmission.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
-References: <20181127103605.32765-1-omosnace@redhat.com> <20181127103605.32765-3-omosnace@redhat.com>
- <1bd2a5dd-d8cb-1081-76ca-5f4f3de6111f@tycho.nsa.gov> <CAFqZXNt-9OOM1D+RdGL-cfchuZe8z7ixY1f6XSbYhUXvbGM8HQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNt-9OOM1D+RdGL-cfchuZe8z7ixY1f6XSbYhUXvbGM8HQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 28 Nov 2018 13:07:40 +0100
-Message-ID: <CAFqZXNtXRr01=OLsdjG6iWY1ZPpLTLAWpv9A1gcGaKcT1GB0Dg@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 2/4] [squash] do not store entry for SECSID_NULL
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-XM-SPF: eid=1gS1xb-0002el-U5;;;mid=<87r2f5fbw7.fsf@xmission.com>;;;hst=in02.mta.xmission.com;;;ip=67.3.154.154;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX19u0AHwr6AtWU9IeRWydkHOSSekSKb3kcQ=
+X-SA-Exim-Connect-IP: 67.3.154.154
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+Subject: Re: [PATCH] selinux: always allow mounting submounts
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in02.mta.xmission.com)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Nov 27, 2018 at 8:45 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Tue, Nov 27, 2018 at 5:58 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 11/27/18 5:36 AM, Ondrej Mosnacek wrote:
-> > > This patch is kept separate only for review. Eventually it will be
-> > > folded into the previous patch.
-> >
-> > This one triggers a lot of warnings (security_compute_av: unrecognized
-> > SID 0, security_sid_to_context_core: unrecognized SID 0) and some
-> > failures during selinux-testsuite inet_socket tests.  While the policy
-> > doesn't provide an entry for SECSID_NULL, the sidtab search logic was
-> > remapping it to the unlabeled context and that was apparently being
-> > relied upon by the labeled networking code IIUC.
->
-> You're right, I made a mistake in the sidtab_search_core() function -
-> it shouldn't just return NULL when sid == 0, but instead skip to the
-> default-to-unlabeled fallback. This will be easy to fix.
->
-> Thanks for testing!
->
-> I wonder why I didn't get any inet_socket failures when running the
-> testsuite myself... I will have to look at it closer tomorrow.
+Paul Moore <paul@paul-moore.com> writes:
 
-Hmm... I must have been accidentally testing a wrong kernel build. I
-am now able to reproduce both the failures and the hang.
-
-I am now building a new kernel with this and the convert_context issues fixed.
-
+> On Wed, Nov 21, 2018 at 10:38 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>> On Wed, Nov 21, 2018 at 1:41 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>> > On Tue, Nov 20, 2018 at 11:09 PM Paul Moore <paul@paul-moore.com> wrote:
+>> > > On Fri, Nov 16, 2018 at 8:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>> > > > If a superblock has the MS_SUBMOUNT flag set, we should always allow
+>> > > > mounting it. These mounts are done automatically by the kernel either as
+>> > > > part of mounting some parent mount (e.g. debugfs always mounts tracefs
+>> > > > under "tracing" for compatibility) or they are mounted automatically as
+>> > > > needed on subdirectory accesses (e.g. NFS crossmnt mounts). Since such
+>> > > > automounts are either an implicit consequence of the parent mount (which
+>> > > > is already checked) or they can happen during regular accesses (where it
+>> > > > doesn't make sense to check against the current task's context), the
+>> > > > mount permission check should be skipped for them.
+>> > > >
+>> > > > Without this patch, attempts to access contents of an automounted
+>> > > > directory can cause unexpected SELinux denials.
+>> > > >
+>> > > > In the current kernel tree, the MS_SUBMOUNT flag is set only via
+>> > > > vfs_submount(), which is called only from the following places:
+>> > > >  - AFS, when automounting special "symlinks" referencing other cells
+>> > > >  - CIFS, when automounting "referrals"
+>> > > >  - NFS, when automounting subtrees
+>> > > >  - debugfs, when automounting tracefs
+>> > > >
+>> > > > In all cases the submounts are meant to be transparent to the user and
+>> > > > it makes sense that if mounting the master is allowed, then so should be
+>> > > > the automounts. Note that CAP_SYS_ADMIN capability checking is already
+>> > > > skipped for (SB_KERNMOUNT|SB_SUBMOUNT) in:
+>> > > >  - sget_userns() in fs/super.c:
+>> > > >         if (!(flags & (SB_KERNMOUNT|SB_SUBMOUNT)) &&
+>> > > >             !(type->fs_flags & FS_USERNS_MOUNT) &&
+>> > > >             !capable(CAP_SYS_ADMIN))
+>> > > >                 return ERR_PTR(-EPERM);
+>> > > >  - sget() in fs/super.c:
+>> > > >         /* Ensure the requestor has permissions over the target filesystem */
+>> > > >         if (!(flags & (SB_KERNMOUNT|SB_SUBMOUNT)) && !ns_capable(user_ns, CAP_SYS_ADMIN))
+>> > > >                 return ERR_PTR(-EPERM);
+>> > > >
+>> > > > Verified internally on patched RHEL 7.6 with a reproducer using
+>> > > > NFS+httpd and selinux-tesuite.
+>> > >
+>> > > I think this all sounds reasonable, but please verify this with an
+>> > > upstream kernel.  Upstream our focus is on the upstream kernel
+>> > > (surprise!), downstream RHEL is your responsibility, not ours :)
+>> >
+>> > I tested on RHEL because that's what I can do most conveniently. I
+>> > don't have a very good workflow/environment for complex testing on
+>> > upstream right now. I don't expect the results to be any different on
+>> > the upstream kernel, but I understand your concern. I have been
+>> > thinking about some patch testing automation using Fedora Rawhide (I
+>> > hope that's close enough to upstream at least :), so I guess it's time
+>> > to get scriptin'...
+>>
+>> I have now tested it on Fedora Rawhide with a scratch kernel with this
+>> patch applied [1] (x86_64 only). I ran the whole selinux-testsuite
+>> with the submount test [2] and everything passed (except for the known
+>> overlay failures and skipped binder test) ...
 >
-> >
-> >
-> > >
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
-> > >   security/selinux/ss/policydb.c |  2 +-
-> > >   security/selinux/ss/sidtab.c   | 25 ++++++++++++++++---------
-> > >   security/selinux/ss/sidtab.h   |  3 ++-
-> > >   3 files changed, 19 insertions(+), 11 deletions(-)
-> > >
-> > > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> > > index 59359fa0bd74..a50d625e7946 100644
-> > > --- a/security/selinux/ss/policydb.c
-> > > +++ b/security/selinux/ss/policydb.c
-> > > @@ -912,7 +912,7 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
-> > >                       sidtab_destroy(s);
-> > >                       goto out;
-> > >               }
-> > > -             if (c->sid[0] > SECINITSID_NUM) {
-> > > +             if (c->sid[0] == SECSID_NULL || c->sid[0] > SECINITSID_NUM) {
-> > >                       pr_err("SELinux:  Initial SID %s out of range.\n",
-> > >                               c->u.name);
-> > >                       sidtab_destroy(s);
-> > > diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> > > index fd8115b211a6..e157d8240cf1 100644
-> > > --- a/security/selinux/ss/sidtab.c
-> > > +++ b/security/selinux/ss/sidtab.c
-> > > @@ -23,7 +23,7 @@ int sidtab_init(struct sidtab *s)
-> > >       if (!s->htable)
-> > >               return -ENOMEM;
-> > >
-> > > -     for (i = 0; i <= SECINITSID_NUM; i++)
-> > > +     for (i = 0; i < SECINITSID_NUM; i++)
-> > >               s->isids[i].set = 0;
-> > >
-> > >       for (i = 0; i < SIDTAB_SIZE; i++)
-> > > @@ -86,8 +86,15 @@ static int sidtab_insert(struct sidtab *s, u32 sid, struct context *context)
-> > >
-> > >   int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
-> > >   {
-> > > -     struct sidtab_isid_entry *entry = &s->isids[sid];
-> > > -     int rc = context_cpy(&entry->context, context);
-> > > +     struct sidtab_isid_entry *entry;
-> > > +     int rc;
-> > > +
-> > > +     if (sid == 0 || sid > SECINITSID_NUM)
-> > > +             return -EINVAL;
-> > > +
-> > > +     entry = &s->isids[sid - 1];
-> > > +
-> > > +     rc = context_cpy(&entry->context, context);
-> > >       if (rc)
-> > >               return rc;
-> > >
-> > > @@ -116,19 +123,19 @@ static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
-> > >       struct context *context;
-> > >       struct sidtab_isid_entry *entry;
-> > >
-> > > -     if (!s)
-> > > +     if (!s || sid == 0)
-> > >               return NULL;
-> > >
-> > >       if (sid > SECINITSID_NUM) {
-> > >               context = sidtab_lookup(s, sid - (SECINITSID_NUM + 1));
-> > >       } else {
-> > > -             entry = &s->isids[sid];
-> > > +             entry = &s->isids[sid - 1];
-> > >               context = entry->set ? &entry->context : NULL;
-> > >       }
-> > >       if (context && (!context->len || force))
-> > >               return context;
-> > >
-> > > -     entry = &s->isids[SECINITSID_UNLABELED];
-> > > +     entry = &s->isids[SECINITSID_UNLABELED - 1];
-> > >       return entry->set ? &entry->context : NULL;
-> > >   }
-> > >
-> > > @@ -283,11 +290,11 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context, u32 *sid)
-> > >       int rc;
-> > >       u32 i;
-> > >
-> > > -     for (i = 0; i <= SECINITSID_NUM; i++) {
-> > > +     for (i = 0; i < SECINITSID_NUM; i++) {
-> > >               struct sidtab_isid_entry *entry = &s->isids[i];
-> > >
-> > >               if (entry->set && context_cmp(context, &entry->context)) {
-> > > -                     *sid = i;
-> > > +                     *sid = i + 1;
-> > >                       return 0;
-> > >               }
-> > >       }
-> > > @@ -334,7 +341,7 @@ void sidtab_destroy(struct sidtab *s)
-> > >       if (!s)
-> > >               return;
-> > >
-> > > -     for (i = 0; i <= SECINITSID_NUM; i++)
-> > > +     for (i = 0; i < SECINITSID_NUM; i++)
-> > >               if (s->isids[i].set)
-> > >                       context_destroy(&s->isids[i].context);
-> > >
-> > > diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-> > > index dc0a80bc8894..e657ae6bf996 100644
-> > > --- a/security/selinux/ss/sidtab.h
-> > > +++ b/security/selinux/ss/sidtab.h
-> > > @@ -36,7 +36,8 @@ struct sidtab {
-> > >       struct sidtab_node *cache[SIDTAB_CACHE_LEN];
-> > >       spinlock_t lock;
-> > >
-> > > -     struct sidtab_isid_entry isids[SECINITSID_NUM + 1];
-> > > +     /* index == SID - 1 (no entry for SECSID_NULL) */
-> > > +     struct sidtab_isid_entry isids[SECINITSID_NUM];
-> > >   };
-> > >
-> > >   int sidtab_init(struct sidtab *s);
-> > >
-> >
->
-> --
-> Ondrej Mosnacek <omosnace at redhat dot com>
-> Associate Software Engineer, Security Technologies
-> Red Hat, Inc.
+> Merged into selinux/next, thanks.
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Associate Software Engineer, Security Technologies
-Red Hat, Inc.
+
+A few late comments on this.
+
+The change mentioned in fixes did not remove a SB_KERNMOUNT so I don't
+see how it is a fix for that.  That change just added SB_SUBMOUNT so you
+can test for and detect this situation.  Are you seeing something that I
+am not in that change?
+
+I expect what we need for the long term is to move sb_kern_mount except
+for the security mount option bits into do_new_mount so security modules
+don't have to perform funny checks because the security hook is in the
+wrong place.
+
+Further as far as I can tell from reading the code every filesystem that
+performs submounts except for nfs is broken.  As no one else calls
+security_sb_clone_mnt_opts.  Instead the normal mnt_opts hooks are
+called with no security mount options.
+
+Which leads me to point that smack doesn't even implement
+sb_clone_mnt_opts so I expect smack gets the security mount options
+wrong.
+
+Is it common to specify the security mount options on filesystems?
+I see the code.  I see what needs to be done to keep them working.
+(Commas in options names ick).  I don't understand how they are used and
+how common they are.
+
+I care because the vfs is in the middle of some work to clean up this
+side of mounting and at the very least I am review changes and spotting
+bugs.  Understanding how the security mount options work from the
+perspective of someone who actually uses them would be a real help.
+
+Eric
