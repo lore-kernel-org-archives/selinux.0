@@ -2,200 +2,155 @@ Return-Path: <SRS0=qOBY=OI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72632C43610
-	for <selinux@archiver.kernel.org>; Thu, 29 Nov 2018 12:56:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE83CC43441
+	for <selinux@archiver.kernel.org>; Thu, 29 Nov 2018 13:49:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 435AF2081C
-	for <selinux@archiver.kernel.org>; Thu, 29 Nov 2018 12:56:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 435AF2081C
+	by mail.kernel.org (Postfix) with ESMTP id A495D20868
+	for <selinux@archiver.kernel.org>; Thu, 29 Nov 2018 13:49:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A495D20868
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727402AbeK3ACM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 29 Nov 2018 19:02:12 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:37170 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727517AbeK3ACM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 29 Nov 2018 19:02:12 -0500
-Received: by mail-wr1-f68.google.com with SMTP id j10so1799025wru.4
-        for <selinux@vger.kernel.org>; Thu, 29 Nov 2018 04:56:54 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=sopvDa/Bk4tGYiYIToG5RYWZoik5IFjinSwwEGGz4Ck=;
-        b=RhQ0zKUCP1PX1A1tIeg5ezt8YabolrJCzTuiGGVm+Sb1QZ8ZxHPZCQfvoqC0ETkkZA
-         FLs8yKJiBNQkO9eyoODyDJWWggTOJC+KvJi8zwoezrQGh1lyPCkbmx6VNqau/yCwdUI1
-         M7hFjLBccFtl7B9OLwcYFu6L3VABCIpqfa2FJzkSryWluP8/gFuYZmG8Hv/Ezh6N4bYs
-         pOSi7kWxl4WpybE5HkRiVgVyYRjmK0BnE6P+RCwajdRmHDSzt1l6Xy/EI9d5/KNvbsC7
-         lmKJi/MzKgF5ZIb/frG/bvJyVd3tbqw7G1lrDXDU902Ui7GQscc88qYvuUFimatX46LM
-         3Vgg==
-X-Gm-Message-State: AA+aEWZa7536mIjlGduzotyHgLVt/Q9OLCm1ZoLya6bvb98KBmfEGsnD
-        QoUCudVAap1mYZg/Z5xO+zOe7TQ6sWI=
-X-Google-Smtp-Source: AFSGD/UnP/SLnOsC9P1rktdw3HZGL9EtOsm5G90GFQjRcVjnIy4LcDfOZX+VOB7SkrAduSZBW+DiLw==
-X-Received: by 2002:a5d:56d2:: with SMTP id m18mr1439808wrw.113.1543496213466;
-        Thu, 29 Nov 2018 04:56:53 -0800 (PST)
-Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id 125sm2344952wml.35.2018.11.29.04.56.52
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 29 Nov 2018 04:56:52 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+        id S1728007AbeK3AzM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 29 Nov 2018 19:55:12 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:51286 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726736AbeK3AzM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 29 Nov 2018 19:55:12 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 913BA89AC4;
+        Thu, 29 Nov 2018 13:49:46 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-122-167.rdu2.redhat.com [10.10.122.167])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 990FB4388;
+        Thu, 29 Nov 2018 13:49:45 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id CDE7C2208FC; Thu, 29 Nov 2018 08:49:43 -0500 (EST)
+Date:   Thu, 29 Nov 2018 08:49:43 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Miklos Szeredi <miklos@szeredi.hu>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [RFC PATCH v3 9/9] [squash] add back reverse lookup cache to sidtab
-Date:   Thu, 29 Nov 2018 13:54:02 +0100
-Message-Id: <20181129125402.5900-10-omosnace@redhat.com>
-X-Mailer: git-send-email 2.19.2
-In-Reply-To: <20181129125402.5900-1-omosnace@redhat.com>
-References: <20181129125402.5900-1-omosnace@redhat.com>
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: overlayfs access checks on underlying layers
+Message-ID: <20181129134943.GA16762@redhat.com>
+References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
+ <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
+ <20181127210542.GA2599@redhat.com>
+ <CAJfpegtQGM2z9TOt3DWwd39fC60cQknsC4vNnj7YimVEubRzUg@mail.gmail.com>
+ <20181128170302.GA12405@redhat.com>
+ <377b7d4f-eb1d-c281-5c67-8ab6de77c881@tycho.nsa.gov>
+ <CAJfpegtNhcWD0VWy6LPtoDtQBfPu4x5iFsB053UMCidj6oMsuw@mail.gmail.com>
+ <26bce3be-49c2-cdd8-af03-1a78d0f268ae@tycho.nsa.gov>
+ <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
+User-Agent: Mutt/1.9.1 (2017-09-22)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Thu, 29 Nov 2018 13:49:46 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch adds a simple cache for reverse lookup to the new sidtab
-implementation. The cache works in a very similar way as the old
-implementation's cache. The only difference is that instead of storing
-pointers to the hash table nodes it stores just the indices of the
-'cached' entries.
+On Thu, Nov 29, 2018 at 12:04:20PM +0100, Miklos Szeredi wrote:
+> On Wed, Nov 28, 2018 at 10:43 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >
+> > On 11/28/18 3:24 PM, Miklos Szeredi wrote:
+> > > On Wed, Nov 28, 2018 at 8:32 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> [...]
+> 
+> > >> Does the breaking commit (007ea44892e6) fix a real bug affecting users?
+> > >>    If not, I'd recommend just reverting it.
+> > >
+> > > That is certainly an option, but...  this is all about context=
+> > > mounts, right?  Which allows mounter to override MAC checks under the
+> > > new mount?  On any mount, not just overlay, right?  So why is overlay
+> > > special?
+> >
+> > With other filesystems, the files are only accessible under the context
+> > specified by the mounter (and you can't mount it twice with differing
+> > context mount options). With overlay, the file is simultaneously
+> > accessible under both the context specified by the mounter via the
+> > overlay and under its lower/upper context via the lower/upper dir.
+> >
+> > Generally we only use context mounts on other filesystems when they have
+> > no label information at all (no security.selinux xattrs) or when they
+> > are completely untrusted to provide that information; the context
+> > specified by the mounter is the only basis for access control.  With
+> > overlay, we are frequently dealing with labeled lower and upper
+> > directories in a filesystem we trust.
+> >
+> > It seems like overlay has a goal of preventing the mounter from
+> > escalating its access through an overlay mount.
+> 
+> Overlayfs main purpose is to bypass limited access to a read-only
+> filesystem by copying up on a write access.  So bypassing access is
+> built into the system, but it's done in a way that in the end it
+> doesn't permit mounter to do more than it could otherwise do.  Or at
+> least that's the intent, as you say.
+> 
+> To generalize that, we could say:  trigger a copy-up if access to
+> lower layer object is denied.  That would extend the scope of the
+> trigger from write access on file/dir to read/write on special files
+> and execute on regular files, all of which could theoretically be
+> denied on the lower object, yet allowed on the upper object without
+> violating the above rule.
 
-The new cache ensures that the indices are loaded/stored atomically, but
-it still has the drawback that concurrent cache updates may mess up the
-contents of the cache. Such situation however only reduces its
-effectivity, not the correctness of lookups.
+Apart from copy-up, one intent of mounter checks was also to make sure
+mounter did not allow access to objects in lower/upper which mounter
+itself did not have access to.
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/ss/sidtab.c | 49 ++++++++++++++++++++++++++++++++++--
- security/selinux/ss/sidtab.h |  5 ++++
- 2 files changed, 52 insertions(+), 2 deletions(-)
+So a mounter which can not open upper/foo.txt should not be able to create
+a context overlay mount and allow opening upper/foo.txt to a user. IIUC,
+that's one of the purposes of second level of check in mounter context and
+if it makes sense, then it should extend to special file and exectuable
+too?
 
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index ddea154774bb..48ed97ea2c44 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -23,6 +23,9 @@ int sidtab_init(struct sidtab *s)
- 
- 	memset(s->roots, 0, sizeof(s->roots));
- 
-+	for (i = 0; i < SIDTAB_RCACHE_SIZE; i++)
-+		atomic_set(&s->rcache[i], -1);
-+
- 	for (i = 0; i < SECINITSID_NUM; i++)
- 		s->isids[i].set = 0;
- 
-@@ -204,6 +207,40 @@ static int sidtab_find_context(union sidtab_entry_inner entry,
- 	return -ENOENT;
- }
- 
-+static void sidtab_rcache_update(struct sidtab *s, u32 index, u32 pos)
-+{
-+	while (pos > 0) {
-+		atomic_set(&s->rcache[pos], atomic_read(&s->rcache[pos - 1]));
-+		--pos;
-+	}
-+	atomic_set(&s->rcache[0], (int)index);
-+}
-+
-+static void sidtab_rcache_push(struct sidtab *s, u32 index)
-+{
-+	sidtab_rcache_update(s, index, SIDTAB_RCACHE_SIZE - 1);
-+}
-+
-+static int sidtab_rcache_search(struct sidtab *s, struct context *context,
-+				u32 *index)
-+{
-+	u32 i;
-+
-+	for (i = 0; i < SIDTAB_RCACHE_SIZE; i++) {
-+		int v = atomic_read(&s->rcache[i]);
-+
-+		if (v < 0)
-+			continue;
-+
-+		if (context_cmp(sidtab_do_lookup(s, (u32)v, 0), context)) {
-+			sidtab_rcache_update(s, (u32)v, i);
-+			*index = (u32)v;
-+			return 0;
-+		}
-+	}
-+	return -ENOENT;
-+}
-+
- static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
- 				 u32 *index)
- {
-@@ -214,6 +251,10 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
- 	struct context *dst, *dst_convert;
- 	int rc;
- 
-+	rc = sidtab_rcache_search(s, context, index);
-+	if (rc == 0)
-+		return 0;
-+
- 	level = sidtab_level_from_count(count);
- 
- 	/* read entries after reading count */
-@@ -222,8 +263,10 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
- 	pos = 0;
- 	rc = sidtab_find_context(s->roots[level], &pos, count, level,
- 				 context, index);
--	if (rc == 0)
-+	if (rc == 0) {
-+		sidtab_rcache_push(s, *index);
- 		return 0;
-+	}
- 
- 	/* lock-free search failed: lock, re-search, and insert if not found */
- 	spin_lock_irqsave(&s->lock, flags);
-@@ -235,8 +278,9 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
- 	/* if count has changed before we acquired the lock, then catch up */
- 	while (count < count_locked) {
- 		if (context_cmp(sidtab_do_lookup(s, count, 0), context)) {
--			rc = 0;
-+			sidtab_rcache_push(s, count);
- 			*index = count;
-+			rc = 0;
- 			goto out_unlock;
- 		}
- 		++count;
-@@ -278,6 +322,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
- 		pr_info("SELinux:  Context %s is not valid (left unmapped).\n",
- 			context->str);
- 
-+	sidtab_rcache_push(s, count);
- 	*index = count;
- 
- 	/* write entries before writing new count */
-diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-index 4c46a48f8d7e..f214eafabdd2 100644
---- a/security/selinux/ss/sidtab.h
-+++ b/security/selinux/ss/sidtab.h
-@@ -66,12 +66,17 @@ struct sidtab_convert_params {
- 	struct sidtab *target;
- };
- 
-+#define SIDTAB_RCACHE_SIZE 4
-+
- struct sidtab {
- 	union sidtab_entry_inner roots[SIDTAB_MAX_LEVEL + 1];
- 	atomic_t count;
- 	struct sidtab_convert_params *convert;
- 	spinlock_t lock;
- 
-+	/* reverse lookup cache */
-+	atomic_t rcache[SIDTAB_RCACHE_SIZE];
-+
- 	/* index == SID - 1 (no entry for SECSID_NULL) */
- 	struct sidtab_isid_entry isids[SECINITSID_NUM];
- };
--- 
-2.19.2
+> 
+> > > I'd just like to see proper justification for why we should be doing
+> > > those checks on underlying layer that simply don't belong there, IMO.
+> > >   I'm sure you know better than I that it's not just about real bugs
+> > > affecting users, it's about having a clear, well defined model to base
+> > > the design on.   And by reverting the breaking commit, I don't see us
+> > > getting closer to that.
+> >
+> > It seems like the NFS folks raised a number of concerns with the overlay
+> > approach beyond just these two checks,
+> 
+> The concerns that NFS folks had was that overlayfs does not enforce
+> permission checks (with creds of task) on underlying objects,
+> resulting in possibly elevated access compared to directly accessing
+> the NFS mount.    But I think there's no way to reconcile server
+> permission checks with overlayfs, so we are left with the current
+> model of only verifying the permission on the server against the
+> mounter's creds.
+> 
+> > and Android has their
+> > override_creds=off use case.  Maybe the overlay model needs a more
+> > significant rethinking than just these two cases.
+> 
+> Yes, it would be good if that override_creds=off use case was
+> discussed.  AFAICS it trades less privilege in the mounter for more
+> privilege in the task accessing the overlay.  If, or how, that is a
+> good model for anything other than Android is not clear to me.
 
+So will override_creds=off solve the NFS issue also where all access will
+happen with the creds of task now? Though it will stil require more
+priviliges in task for other operations in overlay to succeed.
+
+Thanks
+Vivek
