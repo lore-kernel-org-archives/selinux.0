@@ -2,66 +2,111 @@ Return-Path: <SRS0=81+4=OJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF625C04EB8
-	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 15:23:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0EBCC64EB4
+	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 15:24:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8E84320868
-	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 15:23:49 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tzEDYV8h"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8E84320868
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTP id 8F1A020868
+	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 15:24:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F1A020868
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726648AbeLACd3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Nov 2018 21:33:29 -0500
-Received: from mail-ot1-f50.google.com ([209.85.210.50]:39430 "EHLO
-        mail-ot1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726624AbeLACd2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Nov 2018 21:33:28 -0500
-Received: by mail-ot1-f50.google.com with SMTP id n8so1549391otl.6
-        for <selinux@vger.kernel.org>; Fri, 30 Nov 2018 07:23:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=dDHWqZkkccnJe+G/DIyKREdd/snyXIh8V6jtI88vniM=;
-        b=tzEDYV8hVaaYgxUln2AtUp8m7XRk9KCi6zMOJSu44vuhxsIcSGJj5G7mWEV3uWQ/vh
-         ZK0edINjh2JhTkFceEPe90Zr9yNV6etMBRyI28zEAAyBJl9fsmXmIPRdzwJD2hsTgMqL
-         NvkoxTi5kKOM8J9+26ySnYJT8nbAETzg6WG/b6nhD1CVE8nV5BeJ6knNEmcLHArAewXx
-         qPlNZbXqfjtAi8q88w8ErIhdlyU62xXWVjSq/Cs0HgF450HxVy4y1k11mLqyQI0D23U5
-         dh259+nOig1dadNttUGDDqHnM4vDdPC294loXpgDM0ZBCbOxCrTPfhv4l5YHzuC4SUt7
-         I7IA==
+        id S1726644AbeLACd6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Nov 2018 21:33:58 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:38746 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726127AbeLACd6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 30 Nov 2018 21:33:58 -0500
+Received: by mail-wm1-f65.google.com with SMTP id k198so6118660wmd.3
+        for <selinux@vger.kernel.org>; Fri, 30 Nov 2018 07:24:16 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=dDHWqZkkccnJe+G/DIyKREdd/snyXIh8V6jtI88vniM=;
-        b=dQaQCfx9ODsg7wscmcWufR4qQNHj/gyYylGW8pK4huMDamQ+mrPDIzj8A+BSk4NUkE
-         +wJ4StZl7uuh2+J8X0/J6aBko3lDTyplTPFWAfUGBNKj4+1EoTVLjnc/sx3jYFkNvKNS
-         mKhghYhkN7HRgj5NCQWKDiKm7+l9FEPA3S2UqRqnnecDYyt/iYZpjKQkk686uXJeZJpp
-         pmcgl+TXfgJxil7uJwGVHlLHO1FWK2OpwosgmFlVaAxJaDaSvzqUzDSXjV/1GPqUT5Ix
-         DupDBkMDAKZuPBMQUYzmUXuE2GBAavsQYzkpL2XvHriJFysidyi85pm+TKqnJ0y/QCpr
-         LQmw==
-X-Gm-Message-State: AA+aEWbQT/VOHGm7yDyI6cpiZLV1VRm7nj3s36KCYXUxD4hc5oBNAmQd
-        FrDlFo5knlpcA0+Rn437mS5bZvaYzpgY7k1rgOhOxw==
-X-Google-Smtp-Source: AFSGD/VuTlKz7SzZ0JmM96D8Yhv1HUQO0PXBBARsRN+7bA8ZpUo7poNYGNaz59r1RgS2R/L12cF6uzLVHtwO8DpWAMo=
-X-Received: by 2002:a9d:3e4a:: with SMTP id h10mr4058552otg.74.1543591428009;
- Fri, 30 Nov 2018 07:23:48 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uHfU066Kn+bEKJw/9Cbf56hAM6FUS/KPfVMFuuzky9o=;
+        b=EIJRxzE8H5ia23IUwB7b2O705R2888ISefDRv0OYjJVuMkIT6nfKuz6m9BJiOtAiFE
+         3OZBOTVNvV+zT9KGTDT/2MDVISoGK1deWNoo6wBkMcD3kAwwWtrUPM0O5Jse4zZa/5eh
+         3Zsaa5HdlWa9nNHpYwM0lhiltvKHWBUYGB+xFJpWqvJ92PWOyfaUIRCxj6YfiPCpJx1l
+         hsOBzBu4AoAOJMZNpZcPGGGOEvX41EiCxHWuuE6JwU0SC60BTfWRyCwMA8tDkvzgSX0x
+         YRXPkKrCe0JdYwkHFChIoL2NDRvhSdgDxEZGED42DiJqRRoSpRoNMyGsU+AteyTEd/jw
+         bU4Q==
+X-Gm-Message-State: AA+aEWZMrESjoVYLa174PiqKlE3UCEoCQJhR+IXh1nnj0NretRa6PYON
+        2TBylCDjfsaunldPgg+0LsWbF5LIVk9sQg==
+X-Google-Smtp-Source: AFSGD/UNdLLqplkTDbsh8K8KnydzUOa/fj3ThwgGImotxMx2VKmparbj71x7fNZ8whmrYAm9okgjyw==
+X-Received: by 2002:a1c:9cce:: with SMTP id f197mr5934865wme.135.1543591455271;
+        Fri, 30 Nov 2018 07:24:15 -0800 (PST)
+Received: from localhost.localdomain (adsl-dyn176.78-99-75.t-com.sk. [78.99.75.176])
+        by smtp.gmail.com with ESMTPSA id l2sm10102085wma.33.2018.11.30.07.24.14
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 30 Nov 2018 07:24:14 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Subject: [RFC PATCH v4 0/2] Fix ENOMEM errors during policy reload
+Date:   Fri, 30 Nov 2018 16:24:06 +0100
+Message-Id: <20181130152408.24513-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.19.2
 MIME-Version: 1.0
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 30 Nov 2018 07:23:35 -0800
-Message-ID: <CAFftDdrK7mWf6j8TAB2f9XgvJU7a+7ssV6K_prZQk2m12Gv6rA@mail.gmail.com>
-Subject: Kernel Ueventd KConfig
-To:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I long time ago we had a discussion about disabling a KConfig when you
-see denials like:
+Previous versions of this patchset:
+https://lore.kernel.org/selinux/20181129125402.5900-1-omosnace@redhat.com/T/
+https://lore.kernel.org/selinux/20181127103605.32765-1-omosnace@redhat.com/T/
+https://lore.kernel.org/selinux/20181113135255.26045-1-omosnace@redhat.com/T/
+
+Changes in v4:
+- folded in all incremental patches
+- changed the reverse lookup cache size back to the original 3 as I realized
+  that I don't really have a compelling reason to change it (I just like
+  sizes to be powers of two...)
+
+Changes in v3:
+(new changes are only in the "[fixup]" patches)
+- fixed handling of SECSID_NULL (it is now remapped to unlabeled as before)
+    * verified using selinux-testsuite
+- cosmetic tweak: add sidtab_lookup_initial() helper to make
+  sidtab_search_core() a bit more readable
+- fixed converting of unmapped contexts
+    * verified using the reproducer from Stephen Smalley
+- cosmetic tweak: drop the 'out' goto label in convert_context()
+- fixed SIDTAB_LEAF_ENTRIES to use SIDTAB_NODE_ALLOC_SIZE instead of using
+  PAGE_SIZE directly
+
+Changes in v2:
+- dropped the first patch since it is already merged in -next
+- fixed initial SID table to not reserve an entry for SECSID_NULL
+- added back an equivalent of the reverse lookup cache
+- fixed checkpatch.pl errors and some warnings
+
+Testing:
+An x86_64 Fedora 29 kernel with this patchset applied passes selinux-testsuite
+and the reproducer from GH issue #38 [1]. I also made sure that the two bugs
+discovered in previous version are now fixed.
+
+[1] https://github.com/SELinuxProject/selinux-kernel/issues/38
+
+Ondrej Mosnacek (2):
+  selinux: use separate table for initial SID lookup
+  selinux: overhaul sidtab to fix bug and improve performance
+
+ security/selinux/ss/mls.c      |  23 +-
+ security/selinux/ss/mls.h      |   3 +-
+ security/selinux/ss/policydb.c |  10 +-
+ security/selinux/ss/services.c | 200 +++++------
+ security/selinux/ss/services.h |   2 +-
+ security/selinux/ss/sidtab.c   | 616 +++++++++++++++++++++------------
+ security/selinux/ss/sidtab.h   |  95 +++--
+ 7 files changed, 574 insertions(+), 375 deletions(-)
+
+-- 
+2.19.2
+
