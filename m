@@ -2,98 +2,105 @@ Return-Path: <SRS0=81+4=OJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 376EFC04EB8
-	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 16:04:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C2C3C04EB8
+	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 17:54:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 02F532146F
-	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 16:04:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 02F532146F
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
+	by mail.kernel.org (Postfix) with ESMTP id 003602145D
+	for <selinux@archiver.kernel.org>; Fri, 30 Nov 2018 17:54:53 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ZQtwbqgI"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 003602145D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbeLADOS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Nov 2018 22:14:18 -0500
-Received: from uhil19pa12.eemsg.mail.mil ([214.24.21.85]:29018 "EHLO
-        uhil19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726595AbeLADOS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Nov 2018 22:14:18 -0500
-X-EEMSG-check-008: 361683326|UHIL19PA12_EEMSG_MP10.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by uhil19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 30 Nov 2018 16:04:29 +0000
-X-IronPort-AV: E=Sophos;i="5.56,299,1539648000"; 
-   d="scan'208";a="18308156"
-IronPort-PHdr: =?us-ascii?q?9a23=3A6381QRWQ9x7e07kxtsXY8N2KMEHV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYbRCFt8tkgFKBZ4jH8fUM07OQ7/iwHzRYqb+681k6OKRWUB?=
- =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
- =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba9xIRmssQndqtQdjJd/JKo21h?=
- =?us-ascii?q?bHuGZDdf5MxWNvK1KTnhL86dm18ZV+7SleuO8v+tBZX6nicKs2UbJXDDI9M2?=
- =?us-ascii?q?Ao/8LrrgXMTRGO5nQHTGoblAdDDhXf4xH7WpfxtTb6tvZ41SKHM8D6Uaw4VD?=
- =?us-ascii?q?K/5KpwVhTmlDkIOCI48GHPi8x/kqRboA66pxdix4LYeZyZOOZicq/Ye94VS3?=
- =?us-ascii?q?BBXsJMXCJfBI2yYZYEA+4YMepFs4Xxol0Dpga8CwaxHuPi0iJGiGH43aM60O?=
- =?us-ascii?q?ovHw/J0wMiEN0Sv3rZt8n1OaUIXOyp0KXFwzfOYvVL0jn98ojIdRUhrOmRU7?=
- =?us-ascii?q?Jsb8XR0UkvGB3Djl6NtILlOima1uAJs2eF7+trSOWii3U6pAFquTWv2scthZ?=
- =?us-ascii?q?XJhoIS0FzE8z55z5wvKd23T057f8epHZ1NvC+UMIt2R9ktQ2BuuCsiz70Jo5?=
- =?us-ascii?q?+7fCwTxJs93R7Qd/yHc4mW4h39TuqePTB4hHdjdbmihBiy6VCtxvDzW8S7yl?=
- =?us-ascii?q?pHrjdJnsPSun0CyRDf8NWLR/1g9Um7wzmPzRrc6uRcLEAxkqrUNoAuz6Yrlp?=
- =?us-ascii?q?oWrUTDBij2mFjqjKOOdkUr5Oyo6+P/b7X6vJCcLY50ihzlMqg0hsy+Afg3Mg?=
- =?us-ascii?q?gJX2SB/+SzyKbj8lHjTLVPj/02lrHVsJHcJcsFuq60GxJZ34ks5hqlDzqqzc?=
- =?us-ascii?q?4UkWcIIV5bYh6LkpDlO1TUL/D5Cfe/jU6skDBux/3eJb3uH47NI2PfkLbhYb?=
- =?us-ascii?q?l960lcxBA1zdBE/Z1YEL4BIPXtWkPprtzXEgc5MxCow+bgENhyzYIeWWaLAq?=
- =?us-ascii?q?ODLKzeq0WI5uU0LOaSfo8VpC39JuMq5/7rl3A5mFsdcbO10psQbXCyBu5mLF?=
- =?us-ascii?q?mBYXrwntcBFn8HvhEgQ+zuiV2CVyNTZnmpUqIi6TE0FpimAZ3ARo+zmryB2j?=
- =?us-ascii?q?m0HplMamBBEFCMHiSgS4LRZPYIbCObJ4dblTYJT6S6A9sr1BWq8gS80b1tI/?=
- =?us-ascii?q?DI4QUXsJvi0J5+4OiF0Vkp+Dh1CdmN+3+CQnsynW4SQTIymqdlrh9T0FCGhJ?=
- =?us-ascii?q?NkjuRYGNob3PZAVgM3JNaI1OBhI8zjUQLGONGSQRCpRcvwUmJ5dc4439JbOx?=
- =?us-ascii?q?U1IN6llB2WmnPzW7I=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AvAAC4XgFc/wHyM5BjGwEBAQEDAQEBBwMBAQGBVAMBA?=
- =?us-ascii?q?QELAYFaKWaBAieDeZQhTAYGgQgtiREOkCMwCAGEQAKDNCI3Bg0BAwEBAQEBA?=
- =?us-ascii?q?QIBbBwMgjYkAYJiAQUjFVELDgoCAiYCAiE2BgEMBgIBAYJePwGBaQMIDQ+mI?=
- =?us-ascii?q?YEvhUCCRA2CFwWBC4sPF3iBB4E4gmuCV0cDgUABAYMiglcCj3A2j2EuCY4Kg?=
- =?us-ascii?q?ycGGIFMj1OIe4Vvi08igVUrCAIYCCEPO4JshgiKcSEDMAEBAYECAQGLC4I+A?=
- =?us-ascii?q?QE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 30 Nov 2018 16:04:28 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wAUG4SKE030591;
-        Fri, 30 Nov 2018 11:04:28 -0500
-Subject: Re: Kernel Ueventd KConfig
-To:     William Roberts <bill.c.roberts@gmail.com>, selinux@vger.kernel.org
-References: <CAFftDdrK7mWf6j8TAB2f9XgvJU7a+7ssV6K_prZQk2m12Gv6rA@mail.gmail.com>
- <CAFftDdpmenVrbDp6f2tizjChmoOQYM=B22ydi6veRcuFDuucYg@mail.gmail.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <42e8cf66-7a65-f304-85b2-8ea7c2dee0e9@tycho.nsa.gov>
-Date:   Fri, 30 Nov 2018 11:06:52 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.1
+        id S1725867AbeLAFE4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 1 Dec 2018 00:04:56 -0500
+Received: from sonic303-27.consmr.mail.ne1.yahoo.com ([66.163.188.153]:45132
+        "EHLO sonic303-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725842AbeLAFE4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 1 Dec 2018 00:04:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1543600489; bh=EKFIxx1OGurdZ64qxIbo8nmWMLjhHV1ussafrqpr+bk=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=ZQtwbqgIReoZayWrycZ/T5wMwom5NAlTIs8nqYrawd6TBtIiIzhhxWYI0OlqvgXn6mGArkKh2vqRmnSLAdvNXbeyiOVnL/vjOK0vRDyFqzKj2q5liX4PFLPvg419d3lt1Ba8cXwQx+IGfnBKFDys8urHd+7v7mVL3kJCaQSjnow80FoVaJVJ52NI+cBcYqO7np/vETJIyLJMBqtfptyY++v0gvSsxvHCQRJTpxiKsr+vQaAy8VDTVX1fiZTakbG9eF97evtp8rbgpHZe+DPCidoZAfNWdExDSivBD5b2qpdCYH4Qqmz2f8CU3M9n08ch0aDabvibKJJEvc3nTNQyaQ==
+X-YMail-OSG: oW..KG4VM1lb2Xs.9pj_y9vhXJEFyZXAr7eqcOVvy1YDuDPkTOCTokqkIf45_yi
+ gA7ygWgmRnd8Y3B1j719fTCVT2UMNGVbqLfXB00.NcE8z1m1NOzAS7cJjXDZckG8JMj0w7MXKr1O
+ D8Oe3QXBVRi3aT_gPCNas9.h0tjBUUfGCws8jdTkncXm2bgCvAsNihA6q.J.qx0TiY135rDL4tk8
+ reURnzzu9LQuB78sfaBk26nj5AhqfsHn3PDbS6NDwUbgDngaAjOgL6clOMNyp68uj9vcMTyNnSU1
+ e33g1Dnh6bgH.yQU9ems2wo2Q2vmA3SWBXgpz7R5Dsp5BfMiKyguIhr6tDoOICVbSc5surBaeHzV
+ OAkiE2HverHq15QZEtu5bw36efGTFUInnqK34wk.h1a251ZPshsjXNbFqY.VnNW6h_eiO06gglwj
+ nVmqvB5HvO2m6C9nYcTq9gaqjj8VNoJYOJ9vvj.MO37Xqw4HoD9HhM6bYVXuiwL9AVW5aukmznNl
+ T5ZU13OQ7OfecOPrK7DCvKLvrjzwjsNSunzGLOP80yST3M3VupP7y0a4vW4dy6PfNUgJ2VcV1mjI
+ ZQavlo_oQErlXddD.W3JJsf6uZ8jF05bOUhKnPzQvFSrhtwgSWFdpAVPJpSsWM2fZHIKkTSVJbWk
+ 5XOs3kloQfAfOZVNy3Ue1N2TV8QFJD5GeX8ngX3sHf4m9Bf_5V_DYewEViVdfbZRP.NHxAHtUlNH
+ qI.u5n4ukccDRAKQSDmvG35Gl751LqNKlif3Gq4jY7GI7irBEVg2NqdZviDSiv_Jew5hgvopQ8Dn
+ INKJ6xQ4DDTBhq6cU1r1NO7WQtWkfx7BzI1rkZkebu2XY7B.fmtKuQsMjR7tYkxpmbEjpkOKBFiM
+ QGrHiLtbpit69BOqdtDYtlHImdXnQ5ehWvEfyZMGBuI.J_lqlbbDcKXJPzGLXtY15z1Cb__uX66c
+ 0VQXlyC60z0cPSJH4qCf8CKnfOcUrGymg8xRKsErj7OgCHPeSrJuVX5m1GNgQo6oQfFiX4le.m.J
+ E7DcNYIAsfPDAFtlsi78NwSJZKOw.K6ktk1kp1wm1UUeGuZf65Y6w6Ssnt3i2o2qFmobodSQrTy8
+ k3ZMhdr7cJw--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Fri, 30 Nov 2018 17:54:49 +0000
+Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.105]) ([67.169.65.224])
+          by smtp411.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d73f81e15452fc626b5336cf6327e178;
+          Fri, 30 Nov 2018 17:54:48 +0000 (UTC)
+Subject: Re: Security modules and sending signals within the same process
+To:     Florian Weimer <fweimer@redhat.com>, apparmor@lists.ubuntu.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-api@vger.kernel.org
+Cc:     "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>
+References: <87lg5asilo.fsf@oldenburg.str.redhat.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <2c3e813c-f56a-3354-1299-30b0646f40e1@schaufler-ca.com>
+Date:   Fri, 30 Nov 2018 09:54:44 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.9.1
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdpmenVrbDp6f2tizjChmoOQYM=B22ydi6veRcuFDuucYg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <87lg5asilo.fsf@oldenburg.str.redhat.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/30/18 10:24 AM, William Roberts wrote:
-> On Fri, Nov 30, 2018 at 7:23 AM William Roberts
-> <bill.c.roberts@gmail.com> wrote:
->>
->> I long time ago we had a discussion about disabling a KConfig when you
->> see denials like:
-> 
-> (tab + enter == send)
-> 
-> allow kernel chr_file create.
-> 
-> I can't find anything on it, and there's some certain KConfig setting
-> to turn off, does anyone recall?
+On 11/30/2018 7:14 AM, Florian Weimer wrote:
+> Is it guaranteed that tasks in the same thread group can always send
+> signals to each other, irrespective of their respective credentials
+> structs?
 
-CONFIG_DEVTMPFS, see 
-https://www.mail-archive.com/seandroid-list@tycho.nsa.gov/msg02389.html 
-and https://www.mail-archive.com/seandroid-list@tycho.nsa.gov/msg02393.html.
+No. An LSM may chose to disallow this based on just about any
+criteria it desires.
 
+> It's not clear to me whether this is always possible based on the
+> security_task_kill implementations I've examined.
+
+SELinux, Smack and AppArmor make their decisions based on
+the task_struct credential, so if it's possible to change
+the LSM attributes at the task granularity, it's possible
+to have a process that can't always talk to itself.
+
+> I want to support per-thread setresuid/setresgid,
+
+That's pretty dangerous in its own right. Effectively
+the process containing the threads has multiple UIDs.
+That complicates the DAC model significantly.
+
+> but we also use
+> signals for inter-thread communication.
+
+It's unfortunate that no one has seriously proposed
+mode bits on processes for signal delivery. The UID
+matching policy is inconvenient in a lot of cases.
+Hmmm...
+
+> This is mainly for thread
+> cancellation; the setxgid stuff isn't needed for threads with private
+> credentials.  I wonder if I need to disable cancellation for threads
+> with such credentials.
+>
+> Thanks,
+> Florian
+>
 
