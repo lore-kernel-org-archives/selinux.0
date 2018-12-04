@@ -2,246 +2,148 @@ Return-Path: <SRS0=WX8y=ON=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C590BC04EB8
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 20:06:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AEDEC04EB8
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 20:39:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 779C5206B7
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 20:06:27 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qbIjvBHt"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 779C5206B7
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTP id D2D9D2081C
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 20:39:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D2D9D2081C
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725866AbeLDUG1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Dec 2018 15:06:27 -0500
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:43328 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725855AbeLDUG0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 15:06:26 -0500
-Received: by mail-qt1-f196.google.com with SMTP id i7so19593912qtj.10
-        for <selinux@vger.kernel.org>; Tue, 04 Dec 2018 12:06:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=X6YrLWtZ6KbwY7t5HfeEurmNQfB9T6K3i1SdfEjCask=;
-        b=qbIjvBHtqOwM/J97iCMpmeGGon6Zbsm3oRGk1jOF3nhb0zRoYDCr+wEwqY6wwIfh3W
-         RgnDJ6FIc3yg8LPGlQBKgK/It2uLL+ZrYI48HKOO9r/L1FLDbK1CzcmF5x+h9SVBAG4B
-         pKgMwBQYA6aMDXCCWv98HxpZiO39egZA9QUFMi+PPJSvcYmLAjivFRLiBUIRrggCmt5A
-         ADmoFWDdksNDqwlFcTKvrLnGUcJk2Wtk15nY0X1T9tDlryKHj1iS7S1Uwc35XkjnjCS7
-         TTb7oIWephaP2/7XRq7SaCZSx4SH/t0xnGD9eYr4ImTYwfDsXWj4WCUW50DPDmnEcrCG
-         +K7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=X6YrLWtZ6KbwY7t5HfeEurmNQfB9T6K3i1SdfEjCask=;
-        b=dcTbDa/fflUVddBgfraOf7lxTdz9FCNR4D3NNvNUCXdaiFzOFkICqq2ESb+uBwpG4g
-         lLIURG5PtnxKKw2szhNMeBVEVvB/FACJzLmqc06+pUQCgW/KDbPqfSFaNW9KwzLwwmyu
-         YaJXJt8MZvBDvKxSFnWfzT1U6Z48pcyKr1BIvNcUfCj1r6Pyf/Br+HDNLkxX/XGnPkm9
-         o4yjVdBU1YTmehe4b3yOt2NfeX+rpEvSA5zeOaTdqnRbZQtCQcI6tO483FMC83RKRfir
-         P53Vy1XWuADUQraa3H0cxEUeVuyA/pJ+A60xbBFhadk8SEW/3oLSZLomDcyh/pc9Eg0g
-         apuQ==
-X-Gm-Message-State: AA+aEWYQ/O3BDS7C6LoIUu5VxODFXKU2msfWMRLqN6yDnIhXRUJxZT4f
-        RuYVnszTRVQG2Hbhv0tWsDA1fOquaWH8LNSgiQAqRGNU
-X-Google-Smtp-Source: AFSGD/Wf9bFrHBUpBWAbbeNG2a3u6fKVt8Hlwk2CQY6qh/oQHU08gCqA6MMvCtXy05LA42eC6RHtA8QHb0aGqNBklsU=
-X-Received: by 2002:a0c:f805:: with SMTP id r5mr21433415qvn.130.1543953985439;
- Tue, 04 Dec 2018 12:06:25 -0800 (PST)
+        id S1726408AbeLDUjf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Dec 2018 15:39:35 -0500
+Received: from ucol19pa09.eemsg.mail.mil ([214.24.24.82]:37732 "EHLO
+        ucol19pa09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726268AbeLDUjf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 15:39:35 -0500
+X-EEMSG-check-008: 799673733|UCOL19PA09_EEMSG_MP7.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.56,315,1539648000"; 
+   d="scan'208";a="799673733"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by ucol19pa09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Dec 2018 20:39:33 +0000
+X-IronPort-AV: E=Sophos;i="5.56,315,1539648000"; 
+   d="scan'208";a="18422573"
+IronPort-PHdr: =?us-ascii?q?9a23=3AY6nnPhEynm8EK1/QyYPrnp1GYnF86YWxBRYc79?=
+ =?us-ascii?q?8ds5kLTJ7zo8mwAkXT6L1XgUPTWs2DsrQY07qQ6/iocFdDyK7JiGoFfp1IWk?=
+ =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
+ =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmDmwbaluIBmqsA7cqtQYjYx+J6gr1x?=
+ =?us-ascii?q?DHuGFIe+NYxWNpIVKcgRPx7dqu8ZBg7ipdpesv+9ZPXqvmcas4S6dYDCk9PG?=
+ =?us-ascii?q?Au+MLrrxjDQhCR6XYaT24bjwBHAwnB7BH9Q5fxri73vfdz1SWGIcH7S60/Vj?=
+ =?us-ascii?q?q476dvVRTmliEJOTAk+23Tk8B8kr5XrBenqhdiwYDbfZuVOeJ+cK3DYN0US2?=
+ =?us-ascii?q?lPUMFeWCJOGY6wc4gCAvAdMetCs4Xxu10Dpga+Cwm2A+PvzydFiGLq3aIky+?=
+ =?us-ascii?q?QhER/J3Ao9FNwTtXTbttH1NKMMXuG10aLFyi7DYO5N2Trm9IjJcgwuofGLXb?=
+ =?us-ascii?q?5qd8rR0lMgGxnKjlWXt4zoJjWY3fkOvWiD9+dsSO2ihmE9pwxxvzSj3Nkgh4?=
+ =?us-ascii?q?bXio4P11zJ8zhyzpwvKt2iUkF7ZMapEJ5Xty6HKYR7WtgiQ2R0uCYizb0GpI?=
+ =?us-ascii?q?K7cDAKyJs5wx7fbOSKc5SS7RL5VeaRPCx4iGh5eLO/mxmy8U+gxvf6Vsaoy1?=
+ =?us-ascii?q?ZFsjBJktzNtnAJzxDT686HReVh/kq5xDqC2A/e5vtELEwpj6bXNZEszqAqmp?=
+ =?us-ascii?q?YOqUjDGzX5mETyjK+YbEUk/e2o5vz8Yrr7vZ+RLJN0iwHiPaQuncyzG+I4Mh?=
+ =?us-ascii?q?MUUGSB9uS806Pj8VXjQLpWlv02jrXZsJfCKMsAo665ABNV0pst6ha+ETim1s?=
+ =?us-ascii?q?8VnXYCLF1feRKHi5LlNE3JIPD9Ff2/mUijkC93x/DaOb3sGo3NIWLekLflZr?=
+ =?us-ascii?q?t981RTyBc3zdxG4pJUDbYBIOjtVUPrqNPYCRo5ORSuw+n7ENV9yp8eWWWXD6?=
+ =?us-ascii?q?+CLqzStV6I5uQyI+iDf4IVpjn9JOY/5/L0jn82h0Udfa+30psTcny4Ge5mI0?=
+ =?us-ascii?q?rKKUbr18wMFWYMoxoWUuPnkhuBXCRVanL0WLgztR8hD4fzNpvOXoCghvS62S?=
+ =?us-ascii?q?6/GpBHLjRdBkukDWbjd4LCXewFLi2VPJkywXQ/SbG9Rtp5hlmVvwjgxu8idL?=
+ =?us-ascii?q?LZ?=
+X-IPAS-Result: =?us-ascii?q?A2BeAACO5AZc/wHyM5BkHQEBBQEHBQGBUQgBCwGBWimBN?=
+ =?us-ascii?q?TMnjBKMDlIGikYOjiqBeiAYAYRAgwwiNAkNAQMBAQEBAQECAWwogjYkgxALA?=
+ =?us-ascii?q?UaBAk+CYj+BagMIDaYRM4VAgkcNghyHb4QvF3iBB4ERhWmCd4UOAokND4cTU?=
+ =?us-ascii?q?I8cLgmOE4MjCxiBW4g2hxQBigmEcYtDOIFVKwgCGAghD4MngicXjjshAzCBB?=
+ =?us-ascii?q?QEBimEBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 04 Dec 2018 20:39:33 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB4KdWgi006307;
+        Tue, 4 Dec 2018 15:39:32 -0500
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     selinux@vger.kernel.org
+Cc:     paul@paul-moore.com, bmktuwien@gmail.com,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [RFC][PATCH] selinux: avoid silent denials in permissive mode under RCU walk
+Date:   Tue,  4 Dec 2018 15:42:09 -0500
+Message-Id: <20181204204209.21542-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.19.2
 MIME-Version: 1.0
-References: <CAFSQBhHFcRxUivx+wYRLyD4Z=6sZ4-3VsgtjRiG=+9crtOyTXA@mail.gmail.com>
- <01635e21-f143-d940-ceb1-b95079ddf23b@tycho.nsa.gov> <67ce07aa-d88a-5e1d-fa7d-66491ced1714@tycho.nsa.gov>
- <CAFSQBhHMG9cgda3KAo1y6pNWinkKvRAuwTNn6+d3j43Dphozew@mail.gmail.com>
- <b9924ce3-9039-94d3-71b4-709fdd218d94@tycho.nsa.gov> <CAFSQBhEXDy5RRXYqNM1Wn8naadrjS2MHO4qf5V=6U2a-AZzg8w@mail.gmail.com>
- <6b2bfc1a-0318-c049-e6e3-aa993d6282ee@tycho.nsa.gov> <CAFSQBhHDWSRQOHkQ28afbECzTqXpR_FFV9jo+Q7HKsAydgh5Zg@mail.gmail.com>
- <6370dbe2-616b-1854-8f6b-52692a426c7a@tycho.nsa.gov>
-In-Reply-To: <6370dbe2-616b-1854-8f6b-52692a426c7a@tycho.nsa.gov>
-From:   BMK <bmktuwien@gmail.com>
-Date:   Tue, 4 Dec 2018 21:06:14 +0100
-Message-ID: <CAFSQBhFhmkt2jk035nR-9S5djf_RspK-VO=4FhyBJOtr6hmTTA@mail.gmail.com>
-Subject: Re: SELinux logging problem
-To:     sds@tycho.nsa.gov
-Cc:     selinux@vger.kernel.org, paul@paul-moore.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 4, 2018 at 9:02 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On 12/4/18 2:56 PM, BMK wrote:
-> > On Tue, Dec 4, 2018 at 8:40 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >>
-> >> On 12/4/18 2:01 PM, BMK wrote:
-> >>> On Tue, Dec 4, 2018 at 7:37 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >>>>
-> >>>> On 12/4/18 1:00 PM, BMK wrote:
-> >>>>> On Tue, Dec 4, 2018 at 5:50 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >>>>>>
-> >>>>>> On 12/4/18 11:38 AM, Stephen Smalley wrote:
-> >>>>>>> On 12/4/18 11:03 AM, BMK wrote:
-> >>>>>>>> Hello,
-> >>>>>>>>
-> >>>>>>>> I am currently struggling with a strange SELinux problem,
-> >>>>>>>> for which I am not able to find an answer by reading the documentation
-> >>>>>>>> and researching online.
-> >>>>>>>>
-> >>>>>>>> The problem is, that some AVC denial log entries seem to get lost in
-> >>>>>>>> permissive mode,
-> >>>>>>>> in other words, they are not logged...
-> >>>>>>>> I've already deactivated all dont audit rules and I know for sure that
-> >>>>>>>> the denial actually occurs, because I can trace it via strace...
-> >>>>>>>> Although I can't see a corresponding entry in the audit.log.
-> >>>>>>>> By the way, in enforcing mode I can see suddenly the missing denial
-> >>>>>>>> entry...
-> >>>>>>>> If the permissive mode lacks/drops some denials which we can only see
-> >>>>>>>> in enforcing mode,
-> >>>>>>>> then this would be truly terrible for the policy writers...
-> >>>>>>>> Otherwise I am out of ideas, what other things could cause the loss of
-> >>>>>>>> SELinux denials...
-> >>>>>>>>
-> >>>>>>>> I hope you can point me to right direction with this matter and
-> >>>>>>>> I thank you in advance for your help.
-> >>>>>>>
-> >>>>>>> Permissive mode only logs the first instance of a denial by design to
-> >>>>>>> avoid flooding the logs with repeated instances of the same denial.  So
-> >>>>>>> if you triggered the denial a while ago and repeat the operation, you
-> >>>>>>> might not see the denial again.  To be precise, in permissive mode, upon
-> >>>>>>> the first denial of a permission, the permission is audited and then
-> >>>>>>> added to the AVC entry so that subsequent denials using that cache entry
-> >>>>>>> won't keep producing a denial. You can flush the cache to force denials
-> >>>>>>> to re-appear by reloading policy (load_policy) or by switching back and
-> >>>>>>> forth between permissive and enforcing mode (setenforce 1 && setenforce 0).
-> >>>>>>
-> >>>>>> NB Any semodule operation will also trigger a policy reload (unless you
-> >>>>>> specify -n or are acting on a policy other than the active one), so
-> >>>>>> semodule -DB would also have flushed the cache for you when it removed
-> >>>>>> all dontaudit rules.
-> >>>>>>
-> >>>>>>>
-> >>>>>>> If that doesn't explain the behavior you are seeing, then we can't
-> >>>>>>> really help without more information about the problem, e.g. the denial
-> >>>>>>> message you say is visible in enforcing mode but not permissive mode,
-> >>>>>>> your kernel version, possibly the strace output, a reproducer if you
-> >>>>>>> have one, what distro / policy you are using, etc.
-> >>>>>>>
-> >>>>>>> There are cases where the audit system could drop records due to OOM
-> >>>>>>> conditions, its ratelimit, or its backlog limit.  In those cases, you
-> >>>>>>> should have a audit: message logged indicating that messages were lost.
-> >>>>>>>      Check your dmesg or journalctl logs for such messages from the audit
-> >>>>>>> system.  Those are audit system issues rather than SELinux.  You can
-> >>>>>>> configure the limits via auditctl and/or the audit configuration.  But
-> >>>>>>> generally those only apply when the audit system is under heavy load
-> >>>>>>> from many denials (or many other audit messages) and you should see at
-> >>>>>>> least some of them.
-> >>>>>>
-> >>>>>
-> >>>>> Thank you for your quick reply!
-> >>>>>
-> >>>>> Let me give you a little bit more details about my setup.
-> >>>>> I am working on debian 9.4 release with kernel version 4.9.0-6-amd64.
-> >>>>> I have my own custom policy based on the refpolicy version
-> >>>>> RELEASE 2 20161023. (it is pretty old but I have to work with that
-> >>>>> specific version).
-> >>>>> I am currently building a monolithic policy with dontaudit rules disabled.
-> >>>>>
-> >>>>> Now here are the steps to reproduce the logging problem I described above.
-> >>>>> Let say, I have a test domain foo_t, which is defined roughly as follows:
-> >>>>>
-> >>>>> type foo_t;
-> >>>>> domain_type(foo_t)
-> >>>>> corecmd_exec_bin(foo_t)
-> >>>>>
-> >>>>> Then I login as unconfined_u user and run the following command:
-> >>>>>
-> >>>>> runcon -u system_u -r object_r -t foo_t -l s0 mkdir foobar
-> >>>>
-> >>>> object_r is only for objects (e.g. files) not for processes, so you
-> >>>> should never pass it to runcon.  system_r would make sense for a daemon,
-> >>>> or unconfined_r for a user program launched by an unconfined_u user.
-> >>>>
-> >>>
-> >>> Thank you for the tip, but I think it doesn't make difference for my
-> >>> actual problem.
-> >>>
-> >>>>>
-> >>>>> Note that unconfined_t and foo_t actually need little bit more rules to execute
-> >>>>> the runcon command above, but they are irrelevant for my case...
-> >>>>>
-> >>>>> The mkdir binary is selinux aware by which I mean that it loads
-> >>>>> the libselinux.so shared library.
-> >>>>> The libselinux library executes upon loading the following syscall:
-> >>>>> (see https://github.com/SELinuxProject/selinux/blob/master/libselinux/src/init.c#L156)
-> >>>>>
-> >>>>> access(SELINUXCONFIG, F_OK)
-> >>>>>
-> >>>>> This call would need a search dir permission for selinux_config_t and since
-> >>>>> the domain foo_t doesn't have the permission I was expecting a denial log entry.
-> >>>>> But the AVC denial never shows up in the logs in permissive mode.
-> >>>>> I also tried to empty the logging cache by executing
-> >>>>> setenforce 1 && setenforce 0, which didn't help.
-> >>>>> However in enforcing mode the denial is logged as expected.
-> >>>>>
-> >>>>> Hope this helps to clarify my question a bit further...
-> >>>>
-> >>>> Hmm...this access would be covered by a dontaudit rule normally since
-> >>>> many programs that link with libselinux don't actually need to access
-> >>>> /etc/selinux/config.  And in your example above mkdir will work just
-> >>>> fine without ever using /etc/selinux/config, so it truly isn't needed.
-> >>>> Thus, silencing the denial is the right thing to do.
-> >>>>
-> >>>
-> >>> Yes, I am aware that mkdir still works but I chose it simply as an easily
-> >>> reproducible example where a search permission denial gets dropped
-> >>> in permissive mode...
-> >>>
-> >>>> I suspect that you aren't actually stripping dontaudit rules, or you
-> >>>> aren't loading the policy you built but instead are loading the one that
-> >>>> still has the dontaudit rules in place.
-> >>>>
-> >>>> sesearch will show you whether there is a dontaudit rule, e.g. sesearch
-> >>>> --dontaudit -s foo_t -t selinux_config_t.
-> >>>>
-> >>> Yes, I double checked it and then I even deleted the corresponding
-> >>> dontaudit rules
-> >>> manually from the refpolicy but unfortunately it didn't help.
-> >>> And as I said, the denial *shows up* in enforcing mode, so I think
-> >>> dontaudit rule isn't here
-> >>> the problem...
-> >>>
-> >>> As next step, I could try this out on other distros...
-> >>
-> >> Oh, I think I understand the cause.  The pathname resolution code was
-> >> split into two cases, a non-blocking rcu walk and a potentially blocking
-> >> ref walk.  In the rcu walk case, we cannot block, so slow_avc_audit()
-> >> bails out with ECHILD and the caller falls back to a refwalk where we
-> >> can safely block.  But we've already updated the cache entry with the
-> >> permission in the permissive case, so on the retry we don't audit it at
-> >> all.  That's a bug.  Interesting that no one has noticed it until now...
-> >>
-> >> To resolve, we need to propagate MAY_NOT_BLOCK down through
-> >> avc_has_perm_noaudit() -> avc_denied() and skip the avc_update_node()
-> >> call if it is set.  Then we'll never modify the cache entry under RCU
-> >> walk and see the denial on the ref walk.  I think.
-> >>
-> >
-> > Ah, I see...
-> > Yeah, if it is a bug, then interesting, that no one noticed it until now...
-> > Do you think there is any workaround I could try
-> > to solve my problem?
-> > Can i somehow disable the caching in permissive mode?
->
-> No, I think your only options are to test in enforcing mode or patch
-> your kernel.  It only affects the checks performed under RCU walk,
-> namely reading symlinks and searching directories during pathname
-> resolution; all other permission checks operate normally.
->
+commit 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
+results in no audit messages at all if in permissive mode because the
+cache is updated during the rcu walk and thus no denial occurs on
+the subsequent ref walk.  Fix this by not updating the cache when
+performing a non-blocking permission check.  This only affects search
+and symlink read checks during rcu walk.
 
-If you could send me a basic draft of a kernel patch to show me where to begin,
-I would really appreciate it...
+Fixes: 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
+Reported-by: BMK <bmktuwien@gmail.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ security/selinux/avc.c         | 9 ++++++---
+ security/selinux/hooks.c       | 4 +++-
+ security/selinux/include/avc.h | 1 +
+ 3 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 635e5c1e3e48..f0e7bc0dc442 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -1021,8 +1021,10 @@ static noinline int avc_denied(struct selinux_state *state,
+ 	    !(avd->flags & AVD_FLAGS_PERMISSIVE))
+ 		return -EACCES;
+ 
+-	avc_update_node(state->avc, AVC_CALLBACK_GRANT, requested, driver,
+-			xperm, ssid, tsid, tclass, avd->seqno, NULL, flags);
++	if (!(flags & AVC_NONBLOCKING))
++		avc_update_node(state->avc, AVC_CALLBACK_GRANT, requested,
++				driver, xperm, ssid, tsid, tclass, avd->seqno,
++				NULL, flags);
+ 	return 0;
+ }
+ 
+@@ -1199,7 +1201,8 @@ int avc_has_perm_flags(struct selinux_state *state,
+ 	struct av_decision avd;
+ 	int rc, rc2;
+ 
+-	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested, 0,
++	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
++				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
+ 				  &avd);
+ 
+ 	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7ce012d9ec51..9b05f84808d9 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3196,7 +3196,9 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ 		return PTR_ERR(isec);
+ 
+ 	rc = avc_has_perm_noaudit(&selinux_state,
+-				  sid, isec->sid, isec->sclass, perms, 0, &avd);
++				  sid, isec->sid, isec->sclass, perms,
++				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
++				  &avd);
+ 	audited = avc_audit_required(perms, &avd, rc,
+ 				     from_access ? FILE__AUDIT_ACCESS : 0,
+ 				     &denied);
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index ef899bcfd2cb..74ea50977c20 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -142,6 +142,7 @@ static inline int avc_audit(struct selinux_state *state,
+ 
+ #define AVC_STRICT 1 /* Ignore permissive mode. */
+ #define AVC_EXTENDED_PERMS 2	/* update extended permissions */
++#define AVC_NONBLOCKING    4	/* non blocking */
+ int avc_has_perm_noaudit(struct selinux_state *state,
+ 			 u32 ssid, u32 tsid,
+ 			 u16 tclass, u32 requested,
+-- 
+2.19.2
+
