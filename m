@@ -3,161 +3,134 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91C11C04EB8
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:46:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B60A9C04EB8
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:49:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5738A2082B
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:46:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5738A2082B
+	by mail.kernel.org (Postfix) with ESMTP id 7B37C206B7
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:49:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7B37C206B7
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727200AbeLDQqj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Dec 2018 11:46:39 -0500
-Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:41651 "EHLO
-        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726420AbeLDQqj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 11:46:39 -0500
-X-EEMSG-check-008: 655380697|UCOL19PA13_EEMSG_MP11.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.39,1,1493683200"; 
-   d="scan'208";a="655380697"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Dec 2018 16:46:36 +0000
+        id S1726461AbeLDQt5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Dec 2018 11:49:57 -0500
+Received: from ucol19pa14.eemsg.mail.mil ([214.24.24.87]:26545 "EHLO
+        ucol19pa14.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726152AbeLDQt4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 11:49:56 -0500
+X-EEMSG-check-008: 650880510|UCOL19PA14_EEMSG_MP12.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.56,314,1539648000"; 
-   d="scan'208";a="21316479"
-IronPort-PHdr: =?us-ascii?q?9a23=3Ar0k1fB27eqxW9T2KsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesVIvzxwZ3uMQTl6Ol3ixeRBMOHs6IC07KempujcFRI2YyGvnEGfc4EfD?=
- =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
- =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffwZFiCChbb9uMR67sRjfus4KjIV4N60/0A?=
- =?us-ascii?q?HJonxGe+RXwWNnO1eelAvi68mz4ZBu7T1et+ou+MBcX6r6eb84TaFDAzQ9L2?=
- =?us-ascii?q?81/szrugLdQgaJ+3ART38ZkhtMAwjC8RH6QpL8uTb0u+ZhxCWXO9D9QKsqUj?=
- =?us-ascii?q?q+8ahkVB7oiD8GNzEn9mHXltdwh79frB64uhBz35LYbISTOfVwZKPdec4RS3?=
- =?us-ascii?q?RHUMhfSidNBpqwY5UTA+YEO+tTsovzqEYUrRamGAeiGu3vxD9LiHH406I13O?=
- =?us-ascii?q?YuHh3J0gE7A9IDsm7ZoMnpOKocU+24yrTDwzXZb/NR3Dfw8JXGcgw/rvGUXb?=
- =?us-ascii?q?J/b8zRwlQyGQPAlFqQrYjlMC2V1+8QtGWb9PdvVfm0hm47qwB+vjivxsA2ho?=
- =?us-ascii?q?nPnYIa0ErI9Sp+wIYrPNC1TlNwb928EJZIqi2XOIR7TtkiTm11oio21LILtY?=
- =?us-ascii?q?ChcCQXzpks2gTRZOadc4eS5xLuTOORITBli317YL+/nBOy8VS4yu37S8m0zE?=
- =?us-ascii?q?5GripbndnIsXAAzwDT5dKdSvt840ehwiyD1xzT6+5YIUA0krDXK5g9zb4rip?=
- =?us-ascii?q?Ufq0HDHi7ymEnuja+WcFsr+vSw5uj6bbjrqYWQOo9phg3kLKgjldKzDf4lPg?=
- =?us-ascii?q?QWWmiU4+W81Lnt/U3jR7VKi+U7krLEv5DBPskbuq64DBNV0oYk8Rq/CSym38?=
- =?us-ascii?q?4CkXkIK1JFZgqLj5L1NFHWPPD4EfC/jkyykDdkwPDHPqfuApHWI3jZjrjuYL?=
- =?us-ascii?q?Z95FRAyAYp0d9f4JdUAKkbIP3vQk/xqMDYDhghPgyxwubnC9F91oQFWW+UGa?=
- =?us-ascii?q?+YMb3dsUWW6e0yIumAfo8VuCvlIfg/+/HulWM5mUMafaSx2psXbXe4Hu9gI0?=
- =?us-ascii?q?qDfXXjnMwMEX0UsQUjTOzlkkGCXSRPaHa1WqI2/is7B56+DYffWoCth6SM0z?=
- =?us-ascii?q?y1Hp1XeG9GDk2DEWzzeoWKWvcDdiaSLdJ6kjMaTritUYgh1QuhtAXi0bpoMv?=
- =?us-ascii?q?LU+jEEtZLkzNV1/PfclRUy9D11D8Wd1XqAQHtynmwVXT8226F/rlFnxlif1q?=
- =?us-ascii?q?h4huRSFcZP6PNRTgc6KZncwvRiC9/oRwLBesyESE68TdW7BTE9V9cxw9gJY0?=
- =?us-ascii?q?ZnBdqulAzM3y2vA7UNjbyEGIQ08r7A33j2P8t9z3fG1K88j1gpW8dPNnOphr?=
- =?us-ascii?q?R59wfNA47EiFuZl6m0eqQGxiLN93mMzXCIvE5GVA58S6LFXWoQZkHOt9T2+l?=
- =?us-ascii?q?vCT6OyCbQgKgZBzc+CKq1XatzmlFlGWfHjONXZY2K3lWewHg2Fxq2DbIX0YW?=
- =?us-ascii?q?URxibdB1YekwAV43mGMRIyBiC7o2LRFDZuD07gY1vw8elir3O2Vks0zwCMb0?=
- =?us-ascii?q?182Lu54xAVheeBRPwNwLILpiMhpi5qHFaywd3WEcCMpwl/c6VGZ9My/lNH2X?=
- =?us-ascii?q?jetwxnMZyqN7piiUIGcwRro0Pu0A16Cp5ensgurXMqyhdyKK2D3VNfeDOXw4?=
- =?us-ascii?q?rwNqfUKmbs5hCvbbDZ2lXE3NaR4KcP5+wyq0//swGxCkoi73Jn3sFI3HqS/J?=
- =?us-ascii?q?rKCBESUZLqX0Yt6Rd1urHabTMh54/OyXJsNqy04Xf+3IcXBfUoyV6PeMZWNO?=
- =?us-ascii?q?vQCgD1AsQeL9KjJOwjhx6iaRdSb85I86thBN+rb/uL3uaQOe9kmD+3xTBc7J?=
- =?us-ascii?q?tVzlOH9y06TPXBmZkC3afLjUO8Sz7ggQL54YjMkodeaGRXRzDnxA=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2A5AADQrgZc/wHyM5BkGwEBAQEDAQEBBwMBAQGBVAMBA?=
- =?us-ascii?q?QELAYFaKYFoJ4N5lHQBAQEBAQEGgQgtiR+QJDgBhEACgwoiNwYNAQMBAQEBA?=
- =?us-ascii?q?QECAWwogjYkAYJiAQUjFTQKAxALDgoCAiYCAlcGDQYCAQEXgkc/gXUNpRqBL?=
- =?us-ascii?q?4VAhHCBC4sTF3iBB4E4gmuIBYJXAokcggSEWDdQj0oJkTsGGIFbiDaHFZpTI?=
- =?us-ascii?q?oFVKwgCGAghD4MngicXjjshAzCBBQEBimIBAQ?=
+   d="scan'208";a="650880510"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by ucol19pa14.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Dec 2018 16:49:55 +0000
+X-IronPort-AV: E=Sophos;i="5.56,314,1539648000"; 
+   d="scan'208";a="18408247"
+IronPort-PHdr: =?us-ascii?q?9a23=3AS0lrURyRI6Ebw3DXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd2+8SIJqq85mqBkHD//Il1AaPAd2Lraocw8Pt8InYEVQa5piAtH1QOLdtbD?=
+ =?us-ascii?q?Qizfssogo7HcSeAlf6JvO5JwYzHcBFSUM3tyrjaRsdF8nxfUDdrWOv5jAOBB?=
+ =?us-ascii?q?r/KRB1JuPoEYLOksi7ze+/94HQbglSmDaxfa55IQmrownWqsQYm5ZpJLwryh?=
+ =?us-ascii?q?vOrHtIeuBWyn1tKFmOgRvy5dq+8YB6/ShItP0v68BPUaPhf6QlVrNYFygpM3?=
+ =?us-ascii?q?o05MLwqxbOSxaE62YGXWUXlhpIBBXF7A3/U5zsvCb2qvZx1S+HNsL4V7A0XS?=
+ =?us-ascii?q?mp4bltRhHmlSwLMyc1/H/LhsB1iq9QvRCvqAFlw4PMfY+bNORwfq3ec90US2?=
+ =?us-ascii?q?VOUcReWDBODI6nc4sCDPAMMfpEo4TzpVYDqwa1Cwm2BOPozz9FnmL43bEk3O?=
+ =?us-ascii?q?Q5EQHJwgogFM8TvnTRttr1MKMSXv61zaLVyjjDdO5Z2Szm5YjUchEuvfGMXb?=
+ =?us-ascii?q?VqfcrX0kkgDRnJjlqXqYz7Jj6Y0PkGvWac7+plT+2vimgnphl1ojioyccgkJ?=
+ =?us-ascii?q?LGh4ITx1vZ9it52J44KcC3RUN0e9KpEIZcuzuEO4Z5XM8uWXxktSAnwbMco5?=
+ =?us-ascii?q?G7ZjIFyJE/yh7abPyIbpaH7wr4VOaUPTd4nHVleK+jhxqq8Uiv1On8Vs6s3V?=
+ =?us-ascii?q?ZWtCVFiNjMtm0W1xDJ9siGSudy/kem2TqV0QDc9vpELlwumareKp4hxqY8lp?=
+ =?us-ascii?q?sVsUvdAi/7gFj6gaCZe0k++uWk9v7rbqvpq5OCLYN4lxnyMqE0lcy+BeQ4PB?=
+ =?us-ascii?q?IOX2+e+emkz73s4Fb5Ta5Wjvw2jqbZsJfaKd4dpq6iGQBZyIkj6xGhDzu+yt?=
+ =?us-ascii?q?QXgWEHLE5ZeBKAl4XmIFTOIPPkDfeijVWskSlkx/bdM73uB5XCNHnDkLP7cb?=
+ =?us-ascii?q?lh7E5czRI5zcpD6JJMFrEBPPXzV1fqtNPGCh85Mgq0w/voCdhmyIMeVnyAAr?=
+ =?us-ascii?q?WDPKPRr1CI/OQvLPeIZIMPvzb9MfcltLbSiioTvHxVKaOs3ocKd3G1GNxpJk?=
+ =?us-ascii?q?yYZTznhdJXVS8Rsw4/SvH6oEONXCQVZHuoWa84oDYhB9GIF4DGE7uxjaSB0S?=
+ =?us-ascii?q?HzJZhfYmRLGxjYCnvzX5mVUPcLLiSJK4lulSJSBuvpcJMoyRz77Fyy8LFgNO?=
+ =?us-ascii?q?eBv3dAuA=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DPAACWrwZc/wHyM5BkHAEBAQQBAQcEAQGBVAQBAQsBg?=
+ =?us-ascii?q?VopgWiEIJR0AQEBAQEBBoEILYkfjj6BZjgBhEACgwoiNwYNAQMBAQEBAQECA?=
+ =?us-ascii?q?WwogjYkgmIBAQEBAgEjDwEFUQsYAgImAgJXBgEMCAEBgl4/gXUFCKUVgS+Be?=
+ =?us-ascii?q?Ig4gQuLExd4gQeBOIJrhFsOgxyCVwKJDYcikBoJiBWJJgYYkSaJBo0chDEig?=
+ =?us-ascii?q?VUrCAIYCCEPgyiQeCEDgTUBAYgWgkwBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Dec 2018 16:46:35 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 04 Dec 2018 16:49:54 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB4GkZGd005098;
-        Tue, 4 Dec 2018 11:46:35 -0500
-Subject: Re: overlayfs access checks on underlying layers
-To:     Vivek Goyal <vgoyal@redhat.com>
-Cc:     Miklos Szeredi <miklos@szeredi.hu>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        Daniel J Walsh <dwalsh@redhat.com>
-References: <CAJfpegv6y56k1-Tewu-Pu3x1W75LL6qYB6Hb6=n+2BJoNfEigA@mail.gmail.com>
- <c993dba4-5129-7f04-2724-a82a1f1cafa3@tycho.nsa.gov>
- <f84bbe0b-f4c1-50e0-8c84-a6589154b3ae@tycho.nsa.gov>
- <CAJfpegtBDTMbmKd6eDxRmtSJjGN6CnpGK_QPNSsxjkOoeu=1pQ@mail.gmail.com>
- <4c20a261-5ce1-f0a2-8d40-c6032a023216@tycho.nsa.gov>
- <20181204151549.GA21509@redhat.com> <20181204152248.GB21509@redhat.com>
- <CAJfpegtFVvq286HAorGLg6ywMsfs51KqaQwFkcuV7Dtu8TLaLg@mail.gmail.com>
- <20181204154243.GA16818@redhat.com>
- <665ec6f3-f16d-681f-30d5-eface14c9808@tycho.nsa.gov>
- <20181204161747.GC16818@redhat.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB4GnssJ005119;
+        Tue, 4 Dec 2018 11:49:54 -0500
+Subject: Re: SELinux logging problem
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <e8841bf0-d6b8-0e7d-6a35-055a06441d30@tycho.nsa.gov>
-Date:   Tue, 4 Dec 2018 11:49:16 -0500
+To:     BMK <bmktuwien@gmail.com>, selinux@vger.kernel.org
+References: <CAFSQBhHFcRxUivx+wYRLyD4Z=6sZ4-3VsgtjRiG=+9crtOyTXA@mail.gmail.com>
+ <01635e21-f143-d940-ceb1-b95079ddf23b@tycho.nsa.gov>
+Message-ID: <67ce07aa-d88a-5e1d-fa7d-66491ced1714@tycho.nsa.gov>
+Date:   Tue, 4 Dec 2018 11:52:36 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.3.1
 MIME-Version: 1.0
-In-Reply-To: <20181204161747.GC16818@redhat.com>
+In-Reply-To: <01635e21-f143-d940-ceb1-b95079ddf23b@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/4/18 11:17 AM, Vivek Goyal wrote:
-> On Tue, Dec 04, 2018 at 11:05:46AM -0500, Stephen Smalley wrote:
->> On 12/4/18 10:42 AM, Vivek Goyal wrote:
->>> On Tue, Dec 04, 2018 at 04:31:09PM +0100, Miklos Szeredi wrote:
->>>> On Tue, Dec 4, 2018 at 4:22 PM Vivek Goyal <vgoyal@redhat.com> wrote:
->>>>
->>>>> Having said that, this still create little anomaly when mknod to client
->>>>> is not allowed on context label. So a device file, which is on lower
->>>>> and client can not open it for read/write on host, it can now be opened
->>>>> for read/write because mounter will allow access. So why it is different
->>>>> that regular copy up. Well, in regular copy up, we created a copy of
->>>>> the original object and allowed writing to that object (cp --preserve=all)
->>>>> model. But in case of device file, writes will go to same original
->>>>> object. (And not a separate copy).
->>>>
->>>> That's true.
->>>>
->>>> In that sense copy up of special file should result in upper having
->>>> the same label as of lower, right?
->>>
->>> I guess that might be reasonable (if this behavior is a concern). So even
->>> after copy up, client will not be able to read/write a device if it was
->>> not allowed on lower.
->>>
->>> Stephen, what do you think about retaining label of lower for device
->>> files during copy up. What about socket/fifo.
+On 12/4/18 11:38 AM, Stephen Smalley wrote:
+> On 12/4/18 11:03 AM, BMK wrote:
+>> Hello,
 >>
->> We don't check client task access to the upper inode label, only to the
->> overlay, right?  So the client is still free to access the device through
->> the overlay even if we preserve the lower inode label on the upper inode?
->> What do we gain?
+>> I am currently struggling with a strange SELinux problem,
+>> for which I am not able to find an answer by reading the documentation
+>> and researching online.
+>>
+>> The problem is, that some AVC denial log entries seem to get lost in
+>> permissive mode,
+>> in other words, they are not logged...
+>> I've already deactivated all dont audit rules and I know for sure that
+>> the denial actually occurs, because I can trace it via strace...
+>> Although I can't see a corresponding entry in the audit.log.
+>> By the way, in enforcing mode I can see suddenly the missing denial 
+>> entry...
+>> If the permissive mode lacks/drops some denials which we can only see
+>> in enforcing mode,
+>> then this would be truly terrible for the policy writers...
+>> Otherwise I am out of ideas, what other things could cause the loss of
+>> SELinux denials...
+>>
+>> I hope you can point me to right direction with this matter and
+>> I thank you in advance for your help.
 > 
-> That's only with latest code and Miklos said he will revert it for 4.20.
+> Permissive mode only logs the first instance of a denial by design to 
+> avoid flooding the logs with repeated instances of the same denial.  So 
+> if you triggered the denial a while ago and repeat the operation, you 
+> might not see the denial again.  To be precise, in permissive mode, upon 
+> the first denial of a permission, the permission is audited and then 
+> added to the AVC entry so that subsequent denials using that cache entry 
+> won't keep producing a denial. You can flush the cache to force denials 
+> to re-appear by reloading policy (load_policy) or by switching back and 
+> forth between permissive and enforcing mode (setenforce 1 && setenforce 0).
+
+NB Any semodule operation will also trigger a policy reload (unless you 
+specify -n or are acting on a policy other than the active one), so 
+semodule -DB would also have flushed the cache for you when it removed 
+all dontaudit rules.
+
 > 
-> IOW, I am assuming that we will continue to check access to a file
-> on upper in the context of mounter. Otherwise, client will be able to access
-> files on upper/ which even mounter can't access.
-
-I was assuming we're talking about the proposed solution, where we check 
-client access to the overlay (unchanged), mounter access to lower 
-(unchanged), copy-up if denied (new), mounter access to upper (new in 
-the sense that previously we didn't copy-up on denials).
-
-In that situation, propagating the lower inode label to the upper inode 
-only impacts the mounter checks, and in that case makes copy-up 
-pointless - if it wasn't allowed to lower it won't be allowed to upper. 
-  If it is allowed, then client task is free to access the device 
-regardless as long as it has permissions to the overlay inode.  So I 
-don't see what we gain by propagating the lower inode label to the upper 
-inode in the context mount case, and it creates an inconsistency between 
-special files and regular ones.
-
-Did I miss something?
-
-
+> If that doesn't explain the behavior you are seeing, then we can't 
+> really help without more information about the problem, e.g. the denial 
+> message you say is visible in enforcing mode but not permissive mode, 
+> your kernel version, possibly the strace output, a reproducer if you 
+> have one, what distro / policy you are using, etc.
+> 
+> There are cases where the audit system could drop records due to OOM 
+> conditions, its ratelimit, or its backlog limit.  In those cases, you 
+> should have a audit: message logged indicating that messages were lost. 
+>   Check your dmesg or journalctl logs for such messages from the audit 
+> system.  Those are audit system issues rather than SELinux.  You can 
+> configure the limits via auditctl and/or the audit configuration.  But 
+> generally those only apply when the audit system is under heavy load 
+> from many denials (or many other audit messages) and you should see at 
+> least some of them.
 
