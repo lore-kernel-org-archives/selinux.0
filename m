@@ -2,65 +2,162 @@ Return-Path: <SRS0=WX8y=ON=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25717C04EB8
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:45:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91C11C04EB8
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:46:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E7B9B206B7
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:44:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E7B9B206B7
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id 5738A2082B
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 16:46:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5738A2082B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726367AbeLDQo7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Dec 2018 11:44:59 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:18140 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726152AbeLDQo7 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 4 Dec 2018 11:44:59 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 3F49430016EF
-        for <selinux@vger.kernel.org>; Tue,  4 Dec 2018 16:44:59 +0000 (UTC)
-Received: from localhost.localdomain.com (ovpn-204-239.brq.redhat.com [10.40.204.239])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 91C081054FC9
-        for <selinux@vger.kernel.org>; Tue,  4 Dec 2018 16:44:58 +0000 (UTC)
-From:   Vit Mojzis <vmojzis@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] python/semanage: Start exporting "ibendport" and "ibpkey" entries
-Date:   Tue,  4 Dec 2018 17:44:55 +0100
-Message-Id: <20181204164455.13353-1-vmojzis@redhat.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Tue, 04 Dec 2018 16:44:59 +0000 (UTC)
+        id S1727200AbeLDQqj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Dec 2018 11:46:39 -0500
+Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:41651 "EHLO
+        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726420AbeLDQqj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 11:46:39 -0500
+X-EEMSG-check-008: 655380697|UCOL19PA13_EEMSG_MP11.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.39,1,1493683200"; 
+   d="scan'208";a="655380697"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Dec 2018 16:46:36 +0000
+X-IronPort-AV: E=Sophos;i="5.56,314,1539648000"; 
+   d="scan'208";a="21316479"
+IronPort-PHdr: =?us-ascii?q?9a23=3Ar0k1fB27eqxW9T2KsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZsesVIvzxwZ3uMQTl6Ol3ixeRBMOHs6IC07KempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffwZFiCChbb9uMR67sRjfus4KjIV4N60/0A?=
+ =?us-ascii?q?HJonxGe+RXwWNnO1eelAvi68mz4ZBu7T1et+ou+MBcX6r6eb84TaFDAzQ9L2?=
+ =?us-ascii?q?81/szrugLdQgaJ+3ART38ZkhtMAwjC8RH6QpL8uTb0u+ZhxCWXO9D9QKsqUj?=
+ =?us-ascii?q?q+8ahkVB7oiD8GNzEn9mHXltdwh79frB64uhBz35LYbISTOfVwZKPdec4RS3?=
+ =?us-ascii?q?RHUMhfSidNBpqwY5UTA+YEO+tTsovzqEYUrRamGAeiGu3vxD9LiHH406I13O?=
+ =?us-ascii?q?YuHh3J0gE7A9IDsm7ZoMnpOKocU+24yrTDwzXZb/NR3Dfw8JXGcgw/rvGUXb?=
+ =?us-ascii?q?J/b8zRwlQyGQPAlFqQrYjlMC2V1+8QtGWb9PdvVfm0hm47qwB+vjivxsA2ho?=
+ =?us-ascii?q?nPnYIa0ErI9Sp+wIYrPNC1TlNwb928EJZIqi2XOIR7TtkiTm11oio21LILtY?=
+ =?us-ascii?q?ChcCQXzpks2gTRZOadc4eS5xLuTOORITBli317YL+/nBOy8VS4yu37S8m0zE?=
+ =?us-ascii?q?5GripbndnIsXAAzwDT5dKdSvt840ehwiyD1xzT6+5YIUA0krDXK5g9zb4rip?=
+ =?us-ascii?q?Ufq0HDHi7ymEnuja+WcFsr+vSw5uj6bbjrqYWQOo9phg3kLKgjldKzDf4lPg?=
+ =?us-ascii?q?QWWmiU4+W81Lnt/U3jR7VKi+U7krLEv5DBPskbuq64DBNV0oYk8Rq/CSym38?=
+ =?us-ascii?q?4CkXkIK1JFZgqLj5L1NFHWPPD4EfC/jkyykDdkwPDHPqfuApHWI3jZjrjuYL?=
+ =?us-ascii?q?Z95FRAyAYp0d9f4JdUAKkbIP3vQk/xqMDYDhghPgyxwubnC9F91oQFWW+UGa?=
+ =?us-ascii?q?+YMb3dsUWW6e0yIumAfo8VuCvlIfg/+/HulWM5mUMafaSx2psXbXe4Hu9gI0?=
+ =?us-ascii?q?qDfXXjnMwMEX0UsQUjTOzlkkGCXSRPaHa1WqI2/is7B56+DYffWoCth6SM0z?=
+ =?us-ascii?q?y1Hp1XeG9GDk2DEWzzeoWKWvcDdiaSLdJ6kjMaTritUYgh1QuhtAXi0bpoMv?=
+ =?us-ascii?q?LU+jEEtZLkzNV1/PfclRUy9D11D8Wd1XqAQHtynmwVXT8226F/rlFnxlif1q?=
+ =?us-ascii?q?h4huRSFcZP6PNRTgc6KZncwvRiC9/oRwLBesyESE68TdW7BTE9V9cxw9gJY0?=
+ =?us-ascii?q?ZnBdqulAzM3y2vA7UNjbyEGIQ08r7A33j2P8t9z3fG1K88j1gpW8dPNnOphr?=
+ =?us-ascii?q?R59wfNA47EiFuZl6m0eqQGxiLN93mMzXCIvE5GVA58S6LFXWoQZkHOt9T2+l?=
+ =?us-ascii?q?vCT6OyCbQgKgZBzc+CKq1XatzmlFlGWfHjONXZY2K3lWewHg2Fxq2DbIX0YW?=
+ =?us-ascii?q?URxibdB1YekwAV43mGMRIyBiC7o2LRFDZuD07gY1vw8elir3O2Vks0zwCMb0?=
+ =?us-ascii?q?182Lu54xAVheeBRPwNwLILpiMhpi5qHFaywd3WEcCMpwl/c6VGZ9My/lNH2X?=
+ =?us-ascii?q?jetwxnMZyqN7piiUIGcwRro0Pu0A16Cp5ensgurXMqyhdyKK2D3VNfeDOXw4?=
+ =?us-ascii?q?rwNqfUKmbs5hCvbbDZ2lXE3NaR4KcP5+wyq0//swGxCkoi73Jn3sFI3HqS/J?=
+ =?us-ascii?q?rKCBESUZLqX0Yt6Rd1urHabTMh54/OyXJsNqy04Xf+3IcXBfUoyV6PeMZWNO?=
+ =?us-ascii?q?vQCgD1AsQeL9KjJOwjhx6iaRdSb85I86thBN+rb/uL3uaQOe9kmD+3xTBc7J?=
+ =?us-ascii?q?tVzlOH9y06TPXBmZkC3afLjUO8Sz7ggQL54YjMkodeaGRXRzDnxA=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2A5AADQrgZc/wHyM5BkGwEBAQEDAQEBBwMBAQGBVAMBA?=
+ =?us-ascii?q?QELAYFaKYFoJ4N5lHQBAQEBAQEGgQgtiR+QJDgBhEACgwoiNwYNAQMBAQEBA?=
+ =?us-ascii?q?QECAWwogjYkAYJiAQUjFTQKAxALDgoCAiYCAlcGDQYCAQEXgkc/gXUNpRqBL?=
+ =?us-ascii?q?4VAhHCBC4sTF3iBB4E4gmuIBYJXAokcggSEWDdQj0oJkTsGGIFbiDaHFZpTI?=
+ =?us-ascii?q?oFVKwgCGAghD4MngicXjjshAzCBBQEBimIBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Dec 2018 16:46:35 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB4GkZGd005098;
+        Tue, 4 Dec 2018 11:46:35 -0500
+Subject: Re: overlayfs access checks on underlying layers
+To:     Vivek Goyal <vgoyal@redhat.com>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
+        Daniel J Walsh <dwalsh@redhat.com>
+References: <CAJfpegv6y56k1-Tewu-Pu3x1W75LL6qYB6Hb6=n+2BJoNfEigA@mail.gmail.com>
+ <c993dba4-5129-7f04-2724-a82a1f1cafa3@tycho.nsa.gov>
+ <f84bbe0b-f4c1-50e0-8c84-a6589154b3ae@tycho.nsa.gov>
+ <CAJfpegtBDTMbmKd6eDxRmtSJjGN6CnpGK_QPNSsxjkOoeu=1pQ@mail.gmail.com>
+ <4c20a261-5ce1-f0a2-8d40-c6032a023216@tycho.nsa.gov>
+ <20181204151549.GA21509@redhat.com> <20181204152248.GB21509@redhat.com>
+ <CAJfpegtFVvq286HAorGLg6ywMsfs51KqaQwFkcuV7Dtu8TLaLg@mail.gmail.com>
+ <20181204154243.GA16818@redhat.com>
+ <665ec6f3-f16d-681f-30d5-eface14c9808@tycho.nsa.gov>
+ <20181204161747.GC16818@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <e8841bf0-d6b8-0e7d-6a35-055a06441d30@tycho.nsa.gov>
+Date:   Tue, 4 Dec 2018 11:49:16 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.1
+MIME-Version: 1.0
+In-Reply-To: <20181204161747.GC16818@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Include "ibendport" and "ibpkey" entries in "semanage export".
+On 12/4/18 11:17 AM, Vivek Goyal wrote:
+> On Tue, Dec 04, 2018 at 11:05:46AM -0500, Stephen Smalley wrote:
+>> On 12/4/18 10:42 AM, Vivek Goyal wrote:
+>>> On Tue, Dec 04, 2018 at 04:31:09PM +0100, Miklos Szeredi wrote:
+>>>> On Tue, Dec 4, 2018 at 4:22 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+>>>>
+>>>>> Having said that, this still create little anomaly when mknod to client
+>>>>> is not allowed on context label. So a device file, which is on lower
+>>>>> and client can not open it for read/write on host, it can now be opened
+>>>>> for read/write because mounter will allow access. So why it is different
+>>>>> that regular copy up. Well, in regular copy up, we created a copy of
+>>>>> the original object and allowed writing to that object (cp --preserve=all)
+>>>>> model. But in case of device file, writes will go to same original
+>>>>> object. (And not a separate copy).
+>>>>
+>>>> That's true.
+>>>>
+>>>> In that sense copy up of special file should result in upper having
+>>>> the same label as of lower, right?
+>>>
+>>> I guess that might be reasonable (if this behavior is a concern). So even
+>>> after copy up, client will not be able to read/write a device if it was
+>>> not allowed on lower.
+>>>
+>>> Stephen, what do you think about retaining label of lower for device
+>>> files during copy up. What about socket/fifo.
+>>
+>> We don't check client task access to the upper inode label, only to the
+>> overlay, right?  So the client is still free to access the device through
+>> the overlay even if we preserve the lower inode label on the upper inode?
+>> What do we gain?
+> 
+> That's only with latest code and Miklos said he will revert it for 4.20.
+> 
+> IOW, I am assuming that we will continue to check access to a file
+> on upper in the context of mounter. Otherwise, client will be able to access
+> files on upper/ which even mounter can't access.
 
-Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
----
- python/semanage/semanage | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I was assuming we're talking about the proposed solution, where we check 
+client access to the overlay (unchanged), mounter access to lower 
+(unchanged), copy-up if denied (new), mounter access to upper (new in 
+the sense that previously we didn't copy-up on denials).
 
-diff --git a/python/semanage/semanage b/python/semanage/semanage
-index f4be9750..a192fac8 100644
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -776,7 +776,7 @@ def setupDontauditParser(subparsers):
- 
- 
- def handleExport(args):
--    manageditems = ["boolean", "login", "interface", "user", "port", "node", "fcontext", "module"]
-+    manageditems = ["boolean", "login", "interface", "user", "port", "node", "fcontext", "module", "ibendport", "ibpkey"]
-     for i in manageditems:
-         print("%s -D" % i)
-     for i in manageditems:
--- 
-2.17.2
+In that situation, propagating the lower inode label to the upper inode 
+only impacts the mounter checks, and in that case makes copy-up 
+pointless - if it wasn't allowed to lower it won't be allowed to upper. 
+  If it is allowed, then client task is free to access the device 
+regardless as long as it has permissions to the overlay inode.  So I 
+don't see what we gain by propagating the lower inode label to the upper 
+inode in the context mount case, and it creates an inconsistency between 
+special files and regular ones.
+
+Did I miss something?
+
+
 
