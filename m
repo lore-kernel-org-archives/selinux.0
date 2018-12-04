@@ -2,158 +2,154 @@ Return-Path: <SRS0=WX8y=ON=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFEA4C04EBF
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 21:28:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D850C04EB8
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 23:01:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6882F20850
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 21:28:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6882F20850
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
+	by mail.kernel.org (Postfix) with ESMTP id DBEBB2082B
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 23:01:38 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="tPyZvKrJ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DBEBB2082B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=paul-moore.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725886AbeLDV2R (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Dec 2018 16:28:17 -0500
-Received: from ucol19pa12.eemsg.mail.mil ([214.24.24.85]:59618 "EHLO
-        ucol19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725899AbeLDV2Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 16:28:16 -0500
-X-EEMSG-check-008: 663810922|UCOL19PA12_EEMSG_MP10.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.56,315,1539648000"; 
-   d="scan'208";a="663810922"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by ucol19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Dec 2018 21:28:12 +0000
-X-IronPort-AV: E=Sophos;i="5.56,315,1539648000"; 
-   d="scan'208";a="21334227"
-IronPort-PHdr: =?us-ascii?q?9a23=3A+VCsOhX0QO0GRhbBveaA3zyRQ+rV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYbBGGt8tkgFKBZ4jH8fUM07OQ7/iwHzRYqb+681k6OKRWUB?=
- =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
- =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba9xIRmssQndqtQdjJd/JKo21h?=
- =?us-ascii?q?bHuGZDdf5MxWNvK1KTnhL86dm18ZV+7SleuO8v+tBZX6nicKs2UbJXDDI9M2?=
- =?us-ascii?q?Ao/8LrrgXMTRGO5nQHTGoblAdDDhXf4xH7WpfxtTb6tvZ41SKHM8D6Uaw4VD?=
- =?us-ascii?q?K/5KhlUh/ojDoMOSA//m/Zl8d8iLtXrAy9qxB6xYPffYObO+dkfq7FYN0UW2?=
- =?us-ascii?q?RBUMZSWSJPDIyzYIkAAPYOM+tDs4nwpUEDoQeiCQSiBu7izCJDiH/s3a091u?=
- =?us-ascii?q?QsCRzI3BA+ENIWsHTbstP1P7oPX+Cw1qbIyTHDYO1W2Dzg74XIaQ0uoeqXUL?=
- =?us-ascii?q?Jsccve1UkvFwTfglWWsozqJSmZ1usKs2iF9udtU/+khW0/qwxpvzSiycghhp?=
- =?us-ascii?q?PJi44I0FzI6yp0zJgvKdGlTkNwfMSqH4FKty6AMot7WsYiQ2Z1tykk0rAGop?=
- =?us-ascii?q?u7fDQSyJQg2h7fd+SLc4iW7RLnU+acOSt4i2h/eLK+mhay6lKsyvH8V8ao0F?=
- =?us-ascii?q?ZKqTBJkt/QuXAWyxPf8M2HSvp5/ku52DaP0R7c6v1cLEwpmqfWJIQtz74tmp?=
- =?us-ascii?q?YJr0jOETH6lF/rgKOOc0Ur4Omo6+DpYrX8oZ+cMpd5ihrjPaQ1gcG/HeQ5PR?=
- =?us-ascii?q?QOX2ic4+i80qbj8lfjTLVFif02jLHVsIrGKsQDuq65HwhV35446xmhCzem0d?=
- =?us-ascii?q?IYnWQILV9eZhKHgJbmO0vULPD7E/i/mVKsnylvx/zcOb3hGJrNJGDZkLj9Zb?=
- =?us-ascii?q?Z991JcyA0rwNBH/Z1UF7UBLenrWkDrqdzYCgY1Mwmzw+bgEtVyyJkSVn6IAq?=
- =?us-ascii?q?+cKKnSq0OH5vozI+mQY48YoC3yK/0m5/7ykH84l14dcrev3ZYMZ3C4G+5pI0?=
- =?us-ascii?q?SdYXb2ntgBFmIK7UICS7nxhVmDVyNDT2i9Urh65TwhDo+iS4DZSdODmruEiR?=
- =?us-ascii?q?ynE4VWa2YOMVWFFXPlZs3QQPsXQD6DKc9m1DofXP6uTJF3hkLmjxPz17cydr?=
- =?us-ascii?q?mcwSYfr5+2kYIt6g=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CYAADT8AZc/wHyM5BkHAEBAQQBAQcEAQGBUwUBAQsBg?=
- =?us-ascii?q?VopgTUzJ4N5lCdSBoEILYkRDo4qgXo4AYRAAoMKIjYHDQEDAQEBAQEBAgFsK?=
- =?us-ascii?q?II2JIJiAQEBAQIBIwQRQRALGAICJgICITYTBgIBAYJeP4FqAwgFCKUxfDOFQ?=
- =?us-ascii?q?IJJDYIcgQuLExd4gQeBESeCa4JXhS6CVwKJDQ+GXDdQjxwuCY4TgygGGIFbi?=
- =?us-ascii?q?DaHFYoJhHGLSgIvgVUrCAIYCCEPgyeCJxcSjikhAzCBBQEBimEBAQ?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Dec 2018 21:28:11 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB4LSBnq011479;
-        Tue, 4 Dec 2018 16:28:11 -0500
-Subject: Re: [RFC][PATCH] selinux: avoid silent denials in permissive mode
- under RCU walk
-To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, bmktuwien@gmail.com
-References: <20181204204209.21542-1-sds@tycho.nsa.gov>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <5472c4a0-43ea-ad7a-957f-a6cbc063c756@tycho.nsa.gov>
-Date:   Tue, 4 Dec 2018 16:30:52 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.1
+        id S1725925AbeLDXBi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Dec 2018 18:01:38 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:43426 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725895AbeLDXBi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 18:01:38 -0500
+Received: by mail-lf1-f66.google.com with SMTP id u18so13266970lff.10
+        for <selinux@vger.kernel.org>; Tue, 04 Dec 2018 15:01:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=9pqwNdRgbD0YNftmxTG03Her/0n6EEg1OROlT724qfI=;
+        b=tPyZvKrJRKb0hpo80t1vqOzXvSLbZaHYGAisq/BJCXYIgqRA/z5OJvjy2bsQ2VF8IW
+         Y2gpwAZYRDs3/s96sWPqjfvJnzkLGlebxrdHCdPIH90AfotDM0o0UTRA9wczHGlSxmBz
+         9lm6Vvizmaxx5h7ifhxFvUzURZ0s0+UL/RTPLWgHqK8LRN9OZBDmhV0Z1p5tF+s6HqA2
+         79OKAlxYjHvKTI/+b0Q2l2/b3E2LCQXCP7TqBrZvmRVUD2U0V0R7YKotYdfKecvF6/IM
+         oJKlnZnuqW+Bs7wISMBtHMSmyWRX7z+Kn6NaSa41k+dtQJTH1tHXmMazM2UAv6bCylK0
+         16uw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9pqwNdRgbD0YNftmxTG03Her/0n6EEg1OROlT724qfI=;
+        b=I7tN4xi+41/X7XMTU4zFvnmppUiOz3ICYqFxGDaN5Nq6Uyhrw0bx5Wtryt2HUXkCRp
+         GUWdGRbuKmnet1Dz0596Am4VV61s+0DAw6vnctne7Gq3JMaTnFiDIepGfiybvygPwX9i
+         k3giZNSKvgFJFFv3Vt87MVfVX7h0+QO/UKoE6QtIZIH70G2DthYQI6ukTRLXYXCfq0qv
+         qpf7gENq74Wz5JTljxxQmpSgkA9/BGhEGiIBhv7LUtNFwXHcRFyXHCWROF2jnIt2eYK7
+         xw2hfjbKraymOi/zyi7nlso0VRymX/NsREZ5ipmNtZsOgvHjHM4JNhGnR8yIp5K6wLgU
+         Z8aw==
+X-Gm-Message-State: AA+aEWZFjgUn2beneLHaxgwGU5NIPQDUMAy51cExmglRH8afZsYNru++
+        7d+yO9hhjOievMiBjk/q39DIe7RPHKXXJd0JnHGi
+X-Google-Smtp-Source: AFSGD/WAD9IxfMZ0jmMfQ8fYLMxD0C5qY7pGiCNtjtT159dczwPZf0U9A948uK4WTI40SM+dLbojwtFq+PBF+oEzB1E=
+X-Received: by 2002:a19:5402:: with SMTP id i2mr12476889lfb.128.1543964494659;
+ Tue, 04 Dec 2018 15:01:34 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20181204204209.21542-1-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
+ <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
+ <20181127210542.GA2599@redhat.com> <CAJfpegtQGM2z9TOt3DWwd39fC60cQknsC4vNnj7YimVEubRzUg@mail.gmail.com>
+ <20181128170302.GA12405@redhat.com> <377b7d4f-eb1d-c281-5c67-8ab6de77c881@tycho.nsa.gov>
+ <CAJfpegtNhcWD0VWy6LPtoDtQBfPu4x5iFsB053UMCidj6oMsuw@mail.gmail.com>
+ <26bce3be-49c2-cdd8-af03-1a78d0f268ae@tycho.nsa.gov> <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
+ <6b125e8e-413f-f8e6-c7ae-50f7235c8960@tycho.nsa.gov> <CAJfpegv6y56k1-Tewu-Pu3x1W75LL6qYB6Hb6=n+2BJoNfEigA@mail.gmail.com>
+ <f3a911a7-47eb-9922-a4be-25a834250e92@redhat.com> <CAHC9VhRcQdLRZoYi9g-MZzG8xPaNyFFX1nPppo7D93BTFQ6BZg@mail.gmail.com>
+ <5b52869e-b979-dcf6-becf-a97b8ed33909@tycho.nsa.gov>
+In-Reply-To: <5b52869e-b979-dcf6-becf-a97b8ed33909@tycho.nsa.gov>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 4 Dec 2018 18:01:23 -0500
+Message-ID: <CAHC9VhSh7NxLdiaJV+SFF64wnw8i2vm2hs3XpeyACGF=FHAH_Q@mail.gmail.com>
+Subject: Re: overlayfs access checks on underlying layers
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Dan Walsh <dwalsh@redhat.com>, miklos@szeredi.hu,
+        vgoyal@redhat.com, omosnace@redhat.com, bfields@fieldses.org,
+        salyzyn@android.com, linux-kernel@vger.kernel.org,
+        linux-unionfs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/4/18 3:42 PM, Stephen Smalley wrote:
-> commit 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
-> results in no audit messages at all if in permissive mode because the
-> cache is updated during the rcu walk and thus no denial occurs on
-> the subsequent ref walk.  Fix this by not updating the cache when
-> performing a non-blocking permission check.  This only affects search
-> and symlink read checks during rcu walk.
+On Tue, Dec 4, 2018 at 9:40 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 12/3/18 6:27 PM, Paul Moore wrote:
+> > On Thu, Nov 29, 2018 at 5:22 PM Daniel Walsh <dwalsh@redhat.com> wrote:
+> >> On 11/29/18 2:47 PM, Miklos Szeredi wrote:
+> >>> On Thu, Nov 29, 2018 at 5:14 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >>>
+> >>>> Possibly I misunderstood you, but I don't think we want to copy-up on
+> >>>> permission denial, as that would still allow the mounter to read/write
+> >>>> special files or execute regular files to which it would normally be
+> >>>> denied access, because the copy would inherit the context specified by
+> >>>> the mounter in the context mount case.  It still represents an
+> >>>> escalation of privilege for the mounter.  In contrast, the copy-up on
+> >>>> write behavior does not allow the mounter to do anything it could not do
+> >>>> already (i.e. read from the lower, write to the upper).
+> >>> Let's get this straight:  when file is copied up, it inherits label
+> >>> from context=, not from label of lower file?
+> >>
+> >> Yes, in the case of context mount, it will get the context mount directory.
+> >>
+> >> In the case of not context mount, it should maintain the label of  the
+> >> lower.
+> >>
+> >>> Next question: permission to change metadata is tied to permission to
+> >>> open?  Is it possible that open is denied, but metadata can be
+> >>> changed?
+> >>
+> >> Yes, SElinux handles open differently then setattr.  Although I am not
+> >> sure if any tools handle this.
+> >>
+> >>> DAC model allows this: metadata change is tied to ownership, not mode
+> >>> bits.   And different capability flag.
+> >>>
+> >>> If the same is true for MAC, then the pre-v4.20-rc1 is already
+> >>> susceptible to the privilege escalation you describe, right?
+> >>
+> >> After talking to Vivek, I am not sure their is a privilege escallation.
+> >
+> > More on this below, but this thread doesn't have me convinced, and we
+> > are at -rc5 right now.  We need to come to some decision on this soon
+> > because we are running out of time before v4.20 is released with this
+> > code.
+> >
+> >> For device nodes, the mounter has to have the ability to create the
+> >> devicenode with the context mount, if he can do this, then he can do it
+> >> with or without Overlay.  This might lead to users making mistakes on
+> >> security, but the model is sound. And I think this stands even in the
+> >> case of the lower is mounted NODEV and the upper is not.  If the mounter
+> >> can create a device on the upper with a particular label, then he does
+> >> not need the lower.
+> >
+> > The problem I have when looking at the current code is that permission
+> > is given, regardless of what is requested, for any special_file() on
+> > an overlayfs mount.
+> >
+> > It also looks like the mounter's creds are used when checking
+> > permissions regardless of the file has been copied up or not; I would
+> > expect that the mounter's permissions would only used when checking
+> > permissions against the lower inode, no?
+>
+> No, that's never been the model as far as I know.  mounter's permissions
+> are checked to the underlying inode, whether upper or lower.  client's
+> permissions are only checked to the overlay inode.  upper and lower are
+> logically backing store - upper for writes and lower for reads from
+> unmodified files.  Now, in theory, upper should always be labeled the
+> same as overlay, so client check against overlay should already imply
+> client access to upper, unless someone has manually relabeled upper
+> outside of the overlay.
 
-Probably should drop "under RCU walk" from the subject line since the 
-denials remain silent during the rcu walk itself but are then audited 
-properly upon falling back to the ref walk when a denial occurs.
+Okay, thanks for the clarification on the model.  This seems a little
+odd at first, but I'm trying to convince myself that it makes sense.
 
-> 
-> Fixes: 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
-> Reported-by: BMK <bmktuwien@gmail.com>
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->   security/selinux/avc.c         | 9 ++++++---
->   security/selinux/hooks.c       | 4 +++-
->   security/selinux/include/avc.h | 1 +
->   3 files changed, 10 insertions(+), 4 deletions(-)
-> 
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 635e5c1e3e48..f0e7bc0dc442 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -1021,8 +1021,10 @@ static noinline int avc_denied(struct selinux_state *state,
->   	    !(avd->flags & AVD_FLAGS_PERMISSIVE))
->   		return -EACCES;
->   
-> -	avc_update_node(state->avc, AVC_CALLBACK_GRANT, requested, driver,
-> -			xperm, ssid, tsid, tclass, avd->seqno, NULL, flags);
-> +	if (!(flags & AVC_NONBLOCKING))
-> +		avc_update_node(state->avc, AVC_CALLBACK_GRANT, requested,
-> +				driver, xperm, ssid, tsid, tclass, avd->seqno,
-> +				NULL, flags);
->   	return 0;
->   }
->   
-> @@ -1199,7 +1201,8 @@ int avc_has_perm_flags(struct selinux_state *state,
->   	struct av_decision avd;
->   	int rc, rc2;
->   
-> -	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested, 0,
-> +	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
-> +				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
->   				  &avd);
->   
->   	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7ce012d9ec51..9b05f84808d9 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3196,7 +3196,9 @@ static int selinux_inode_permission(struct inode *inode, int mask)
->   		return PTR_ERR(isec);
->   
->   	rc = avc_has_perm_noaudit(&selinux_state,
-> -				  sid, isec->sid, isec->sclass, perms, 0, &avd);
-> +				  sid, isec->sid, isec->sclass, perms,
-> +				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
-> +				  &avd);
->   	audited = avc_audit_required(perms, &avd, rc,
->   				     from_access ? FILE__AUDIT_ACCESS : 0,
->   				     &denied);
-> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-> index ef899bcfd2cb..74ea50977c20 100644
-> --- a/security/selinux/include/avc.h
-> +++ b/security/selinux/include/avc.h
-> @@ -142,6 +142,7 @@ static inline int avc_audit(struct selinux_state *state,
->   
->   #define AVC_STRICT 1 /* Ignore permissive mode. */
->   #define AVC_EXTENDED_PERMS 2	/* update extended permissions */
-> +#define AVC_NONBLOCKING    4	/* non blocking */
->   int avc_has_perm_noaudit(struct selinux_state *state,
->   			 u32 ssid, u32 tsid,
->   			 u16 tclass, u32 requested,
-> 
-
+-- 
+paul moore
+www.paul-moore.com
