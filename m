@@ -2,68 +2,75 @@ Return-Path: <SRS0=WX8y=ON=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D9FFC04EBF
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 13:32:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AD35C04EBF
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 14:28:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EDF702081C
-	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 13:32:26 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=szeredi.hu header.i=@szeredi.hu header.b="cHHQbr3M"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EDF702081C
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=szeredi.hu
+	by mail.kernel.org (Postfix) with ESMTP id EB724206B7
+	for <selinux@archiver.kernel.org>; Tue,  4 Dec 2018 14:28:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EB724206B7
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726042AbeLDNcZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Dec 2018 08:32:25 -0500
-Received: from mail-it1-f195.google.com ([209.85.166.195]:34587 "EHLO
-        mail-it1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726293AbeLDNcY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 08:32:24 -0500
-Received: by mail-it1-f195.google.com with SMTP id x124so11348593itd.1
-        for <selinux@vger.kernel.org>; Tue, 04 Dec 2018 05:32:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=szeredi.hu; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fZ52Zx/KCfQfQv21h5YNtPxuM09B4zF9M/ZuuyDoMrQ=;
-        b=cHHQbr3Mmns6BUJ03hUGsrgk7GRKkG6Von1EliWGWTqBXlvfyOwXM2TcedI0YUsskS
-         VYUTvu8sUJVjnuQE+Du3QnulF9lmjI2VyV0KDbSOYQaKbVcTpnqVOBtuRplOI2vnOVbV
-         PpoS92cfzrjV9LV7xqw+b4q+n/ckrkmGHzeiQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fZ52Zx/KCfQfQv21h5YNtPxuM09B4zF9M/ZuuyDoMrQ=;
-        b=PvQRpm7GHqx8wWUnY3ECKyOWnQxHz0Req5RyUJ38sL1UMtY51R3aTFUewLpGq9tORS
-         1xo74m+pUkPutKQ+aUUn8PdAB7/P/RtiLtOrr81VE+u+FSmK5yYsUFqi2lDpGeAxGOr0
-         pc2KO/GEIHNfxik4tEksOtWjpScR3Ge57wJRjWapRqn5WD7s3561nHM6CrI155cPqeRq
-         L0TvK+rDyoi54tkD5GZ2zzO0Ep3HYWzhJcwEPXW3WQv8ll3/F5fLbLTY+TZJle+kqsPQ
-         8nfD/lNyT9AL59FFasKwvNlWfQzlxD7rMjk5oU5eDr7zQmaoRD59XKf+LjJdvbAg0SOg
-         yRpw==
-X-Gm-Message-State: AA+aEWbLXDRU+Ex1ZFki6As+HlmDnv4yGIC24MkcTnS9bAGxIfE5qRbS
-        bagr/hymzdurJbpi67PUSyd+CN/5G/jmyZPXE0YIkQ==
-X-Google-Smtp-Source: AFSGD/Vyz5Dob3rk694nj8Nf4wxqhzJyVj9FoqYO8dzY5j6+Lmt5e1Uo8L66POWXo7oeEbsL7fvP6hftsIBYa8syTGg=
-X-Received: by 2002:a24:710:: with SMTP id f16mr10278314itf.121.1543930342005;
- Tue, 04 Dec 2018 05:32:22 -0800 (PST)
-MIME-Version: 1.0
-References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
- <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
- <20181127210542.GA2599@redhat.com> <CAJfpegtQGM2z9TOt3DWwd39fC60cQknsC4vNnj7YimVEubRzUg@mail.gmail.com>
- <20181128170302.GA12405@redhat.com> <377b7d4f-eb1d-c281-5c67-8ab6de77c881@tycho.nsa.gov>
- <CAJfpegtNhcWD0VWy6LPtoDtQBfPu4x5iFsB053UMCidj6oMsuw@mail.gmail.com>
- <26bce3be-49c2-cdd8-af03-1a78d0f268ae@tycho.nsa.gov> <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
- <6b125e8e-413f-f8e6-c7ae-50f7235c8960@tycho.nsa.gov> <CAJfpegv6y56k1-Tewu-Pu3x1W75LL6qYB6Hb6=n+2BJoNfEigA@mail.gmail.com>
- <c993dba4-5129-7f04-2724-a82a1f1cafa3@tycho.nsa.gov> <f84bbe0b-f4c1-50e0-8c84-a6589154b3ae@tycho.nsa.gov>
-In-Reply-To: <f84bbe0b-f4c1-50e0-8c84-a6589154b3ae@tycho.nsa.gov>
-From:   Miklos Szeredi <miklos@szeredi.hu>
-Date:   Tue, 4 Dec 2018 14:32:09 +0100
-Message-ID: <CAJfpegtBDTMbmKd6eDxRmtSJjGN6CnpGK_QPNSsxjkOoeu=1pQ@mail.gmail.com>
+        id S1726476AbeLDO2Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Dec 2018 09:28:25 -0500
+Received: from upbd19pa08.eemsg.mail.mil ([214.24.27.83]:38459 "EHLO
+        upbd19pa08.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725956AbeLDO2Y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Dec 2018 09:28:24 -0500
+X-EEMSG-check-008: 184375118|UPBD19PA08_EEMSG_MP8.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by upbd19pa08.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Dec 2018 14:28:17 +0000
+X-IronPort-AV: E=Sophos;i="5.56,314,1539648000"; 
+   d="scan'208";a="21305698"
+IronPort-PHdr: =?us-ascii?q?9a23=3AO7ghphQRILi0yBhP93GdfM46ntpsv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa67ZxyEt8tkgFKBZ4jH8fUM07OQ7/iwHzRYqb+681k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba9xIRmssQndqtQdjJd/JKo21h?=
+ =?us-ascii?q?bHuGZDdf5MxWNvK1KTnhL86dm18ZV+7SleuO8v+tBZX6nicKs2UbJXDDI9M2?=
+ =?us-ascii?q?Ao/8LrrgXMTRGO5nQHTGoblAdDDhXf4xH7WpfxtTb6tvZ41SKHM8D6Uaw4VD?=
+ =?us-ascii?q?K/5KpwVhTmlDkIOCI48GHPi8x/kqRboA66pxdix4LYeZyZOOZicq/Ye94VS3?=
+ =?us-ascii?q?BBXsJMXCJfBI2yYZYEA+4YMepGs4Xxol0Dpga8CwaxHuPi0iJGiGH43aM60O?=
+ =?us-ascii?q?ovHw/J0wMiEN0Sv3rZt8n1OaUIXOyp0KXFwzfOYvVL0jn98ojIdRUhrOmRU7?=
+ =?us-ascii?q?Jsb8XR0UkvGB3Djl6NtILlOima1uAJs2eF7+trSOWii3U6pAFquTWv2scthZ?=
+ =?us-ascii?q?XJhoIS0FzE8z55z5wvKd23T057f8epHZ1NvC+ZL4t7Wt4uTm5ntSogyrAKpI?=
+ =?us-ascii?q?S3cDYFxZg53RLTdvqKeJWS7B35TuaeOzJ4iWpgeLK4mhm971Ctyvb5VsmoyF?=
+ =?us-ascii?q?ZKqTdFksXUunANyRPT7s+HR+Nh/ki7wzaP1h3T6vpeLUAolavUN54hwrkqmp?=
+ =?us-ascii?q?oVrUvDBTP5lF/zjK+XckUo4umo6+L5bbX6vpKQKoB5hw7kPqkuh8CzG/o0Pw?=
+ =?us-ascii?q?cQU2SB5OiwzLjj8lf4QLVOgP02iK7ZsJXCKMQAu6G5GBRY0poj6hmjDzem18?=
+ =?us-ascii?q?4UnX8cLF1fYh6HgI/pO0/WLPDiEfi/m0iskCtsx/3eO73hA5bNLnzEkLf6Zr?=
+ =?us-ascii?q?t98E9dxxQpzd9B+p1UC6sNIPLuWkXprtzXEgc5MxCow+bgENh9yIweWWWPA6?=
+ =?us-ascii?q?CDNKPfqkWI6fwyLOmMfoAVpCzxJOQi5/7rlXU5g0MSfbG13ZsLb3C1BvNmI0?=
+ =?us-ascii?q?CeYXr3hNcOC3sFsRQlQezwllKNTD5TaGyuX64m+j47D4emB5/ZRo+xmLyBwD?=
+ =?us-ascii?q?u7HppOa29dBFCMEGnnd4GZVPcXcy+SLM5hnSIAVbe8UI8uywquuBX9y7p9Ie?=
+ =?us-ascii?q?re4jcYuo771Nhp++3Tkgk/9SduAMSZ02CMTmF1nmUTSjAs2qBwvFZ9ylCC0a?=
+ =?us-ascii?q?dlmfBXCdtT5/ZRWAcgKZHc1/B6C8z1Wg/ZZteGUkumQtG9DDEpVN0x3tsOb1?=
+ =?us-ascii?q?94G9WliRDDxTSlD6UJmLyMAZw+6rjc0GTpJ8Zh13bG07Esj10nQstJKG2nib?=
+ =?us-ascii?q?dz9wvNCI7TlUWWiaKqeL8C3C7C6miD13CCvEJGXw5qV6XKQ3QfalHRrdTj6U?=
+ =?us-ascii?q?PIV6WuBqg/Mgtd1c6CLbNHatnojVVAWffiN83SY3+3m2exAhaIwL2MbJHxdm?=
+ =?us-ascii?q?UD0yXSFlIEnxoQ/XmYLwg+ADmuo2bEADxpD1LvbFvm8fNip3OjUk800waKYl?=
+ =?us-ascii?q?Vl17q0/B4VmPOdR+od3rIfpSgutSt0E0i539/NFdqAqBRufL9GbdM+/lhHz2?=
+ =?us-ascii?q?TZuBJ5PpC6KKBinFEeeRxtv0zyzxV3FplAkc8yoXMx0gVyLaOY0FVcdzKXxp?=
+ =?us-ascii?q?3wJLLXJXfo/By1aK7ZxEve0NCI9acL8vg4rE/jvA6xHEo473pny8VV02eb5p?=
+ =?us-ascii?q?jSEQUTX4j+UkIs9xh6vLzaeDcy6J7U1XJ2Lam4qCPN29UsBLht9hH1WtZcNK?=
+ =?us-ascii?q?SfXDTgHtcXC8nmfOkrmFyudTofLu1I+aI1ecO7Iaiowqmuad18kSqmgGIP24?=
+ =?us-ascii?q?V01kaB5mIoUeLT94oUyPGfmA2cXnHzi0n34ZO/opxNeTxHRjn38iPjHoMEI/?=
+ =?us-ascii?q?QoJYs=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BVAADrjQZc/wHyM5BjHAEBAQQBAQcEAQGBUwUBAQsBg?=
+ =?us-ascii?q?VopgWgng3mUcwEBAQEBAQaBCC2JH44qgXo4AYRAAoNPIjYHDQEDAQEBAQEBA?=
+ =?us-ascii?q?gFsKII2JAGCYgEFIwQRNAoDEAsYAgImAgJXBg0GAgEBgl4/gXUNpGR8M4VAh?=
+ =?us-ascii?q?HOBC4sTF3iBB4E4gmuEO4NKglcCiRyCBIRYN1CPSgmROwYYgVuINocVmkQJK?=
+ =?us-ascii?q?IFVKwgCGAghD4MnkHkhAzCBBQEBiCSCPgEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Dec 2018 14:28:15 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB4ESCqH019152;
+        Tue, 4 Dec 2018 09:28:12 -0500
 Subject: Re: overlayfs access checks on underlying layers
-To:     Stephen Smalley <sds@tycho.nsa.gov>
+To:     Miklos Szeredi <miklos@szeredi.hu>
 Cc:     Vivek Goyal <vgoyal@redhat.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
         "J. Bruce Fields" <bfields@fieldses.org>,
@@ -72,97 +79,134 @@ Cc:     Vivek Goyal <vgoyal@redhat.com>,
         overlayfs <linux-unionfs@vger.kernel.org>,
         linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
         Daniel J Walsh <dwalsh@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
+ <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
+ <20181127210542.GA2599@redhat.com>
+ <CAJfpegtQGM2z9TOt3DWwd39fC60cQknsC4vNnj7YimVEubRzUg@mail.gmail.com>
+ <20181128170302.GA12405@redhat.com>
+ <377b7d4f-eb1d-c281-5c67-8ab6de77c881@tycho.nsa.gov>
+ <CAJfpegtNhcWD0VWy6LPtoDtQBfPu4x5iFsB053UMCidj6oMsuw@mail.gmail.com>
+ <26bce3be-49c2-cdd8-af03-1a78d0f268ae@tycho.nsa.gov>
+ <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
+ <6b125e8e-413f-f8e6-c7ae-50f7235c8960@tycho.nsa.gov>
+ <CAJfpegv6y56k1-Tewu-Pu3x1W75LL6qYB6Hb6=n+2BJoNfEigA@mail.gmail.com>
+ <c993dba4-5129-7f04-2724-a82a1f1cafa3@tycho.nsa.gov>
+ <f84bbe0b-f4c1-50e0-8c84-a6589154b3ae@tycho.nsa.gov>
+ <CAJfpegtBDTMbmKd6eDxRmtSJjGN6CnpGK_QPNSsxjkOoeu=1pQ@mail.gmail.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <4c20a261-5ce1-f0a2-8d40-c6032a023216@tycho.nsa.gov>
+Date:   Tue, 4 Dec 2018 09:30:53 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.1
+MIME-Version: 1.0
+In-Reply-To: <CAJfpegtBDTMbmKd6eDxRmtSJjGN6CnpGK_QPNSsxjkOoeu=1pQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 29, 2018 at 10:16 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On 11/29/18 4:03 PM, Stephen Smalley wrote:
-> > On 11/29/18 2:47 PM, Miklos Szeredi wrote:
-> >> On Thu, Nov 29, 2018 at 5:14 PM Stephen Smalley <sds@tycho.nsa.gov>
-> >> wrote:
-> >>
-> >>> Possibly I misunderstood you, but I don't think we want to copy-up on
-> >>> permission denial, as that would still allow the mounter to read/write
-> >>> special files or execute regular files to which it would normally be
-> >>> denied access, because the copy would inherit the context specified by
-> >>> the mounter in the context mount case.  It still represents an
-> >>> escalation of privilege for the mounter.  In contrast, the copy-up on
-> >>> write behavior does not allow the mounter to do anything it could not do
-> >>> already (i.e. read from the lower, write to the upper).
-> >>
-> >> Let's get this straight:  when file is copied up, it inherits label
-> >> from context=, not from label of lower file?
-> >
-> > That's correct.  The overlay inodes are all assigned the label from the
-> > context= mount option, and so are any upper inodes created through the
-> > overlay.  At least that's my understanding of how it is supposed to
-> > work.  The original use case was for containers with the lower dir
-> > labeled with a context that is read-only to the container context and
-> > using a context that is writable by the container context for the
-> > context= mount.
-> >
-> >> Next question: permission to change metadata is tied to permission to
-> >> open?  Is it possible that open is denied, but metadata can be
-> >> changed?
-> >
-> > There is no metadata change occurring here. The overlay, upper, and
-> > lower inodes all keep their labels intact for their lifetime (both
-> > overlay and upper always have the context= label; upper has whatever its
->                                                    ^^lower^^
->
-> > original label was), unless explicitly relabeled by some process.  And
-> > when viewed through the overlay, the file always has the label specified
-> > via context=, even before the copy-up.
+On 12/4/18 8:32 AM, Miklos Szeredi wrote:
+> On Thu, Nov 29, 2018 at 10:16 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>
+>> On 11/29/18 4:03 PM, Stephen Smalley wrote:
+>>> On 11/29/18 2:47 PM, Miklos Szeredi wrote:
+>>>> On Thu, Nov 29, 2018 at 5:14 PM Stephen Smalley <sds@tycho.nsa.gov>
+>>>> wrote:
+>>>>
+>>>>> Possibly I misunderstood you, but I don't think we want to copy-up on
+>>>>> permission denial, as that would still allow the mounter to read/write
+>>>>> special files or execute regular files to which it would normally be
+>>>>> denied access, because the copy would inherit the context specified by
+>>>>> the mounter in the context mount case.  It still represents an
+>>>>> escalation of privilege for the mounter.  In contrast, the copy-up on
+>>>>> write behavior does not allow the mounter to do anything it could not do
+>>>>> already (i.e. read from the lower, write to the upper).
+>>>>
+>>>> Let's get this straight:  when file is copied up, it inherits label
+>>>> from context=, not from label of lower file?
+>>>
+>>> That's correct.  The overlay inodes are all assigned the label from the
+>>> context= mount option, and so are any upper inodes created through the
+>>> overlay.  At least that's my understanding of how it is supposed to
+>>> work.  The original use case was for containers with the lower dir
+>>> labeled with a context that is read-only to the container context and
+>>> using a context that is writable by the container context for the
+>>> context= mount.
+>>>
+>>>> Next question: permission to change metadata is tied to permission to
+>>>> open?  Is it possible that open is denied, but metadata can be
+>>>> changed?
+>>>
+>>> There is no metadata change occurring here. The overlay, upper, and
+>>> lower inodes all keep their labels intact for their lifetime (both
+>>> overlay and upper always have the context= label; upper has whatever its
+>>                                                     ^^lower^^
+>>
+>>> original label was), unless explicitly relabeled by some process.  And
+>>> when viewed through the overlay, the file always has the label specified
+>>> via context=, even before the copy-up.
+> 
+> Okay.
+> 
+>>>
+>>>> DAC model allows this: metadata change is tied to ownership, not mode
+>>>> bits.   And different capability flag.
+>>>>
+>>>> If the same is true for MAC, then the pre-v4.20-rc1 is already
+>>>> susceptible to the privilege escalation you describe, right?
+>>>
+>>> Actually, I guess there wouldn't be a privilege escalation if you
+>>> checked the mounter's ability to create the new file upon copy-up, and
+>>> checked the mounter's access to the upper inode label upon the
+>>> subsequent read, write, or execute access.  Then we'd typically block
+>>> the ability to create the device file and we'd block the ability to
+>>> execute files with the label from context=.
+>>>
+>>> But copy-up of special files seems undesirable for other reasons (e.g.
+>>> requiring mounters to be allowed to create device nodes just to permit
+>>> client's to read/write them, possible implications for nodev/noexec,
+>>> implications for socket and fifo files).
+> 
+> I think you missed my point: opening a device file or executing an
+> executable wouldn't normally require copy-up.   If
+> 
+>   -  permission is granted on overlay to task, and
+>   -  permission is granted on lower layer to mounter,
+> 
+> then copy-up wouldn't be performed.
+> 
+> My proposed sequence would be
+> 
+> a) check task's creds against overlay inode, fail -> return fail, otherwise:
+> b) check mounter's creds against lower inode, success -> return
+> success, otherwise:
+> c) copy up inode, fail -> return fail, otherwise
+> d) check mounter's creds against upper inode, return result.
+> 
+> So, unlike write access to regular files, write access to special
+> files don't necessarily result in copy-up.
+> 
+> You say this is an escalation of privilege, but I don't get it how.
+> As DWalsh points out downthread, if mounter cannot create device
+> files, then the copy-up will simply fail.  If mounter can create
+> device files, then this is not an escalation of privilege for the
+> mounter.
 
-Okay.
+Yes, in that case there isn't an escalation of privilege for the mounter 
+(I acknowledged that above).  I'm still not sure copy-up of special 
+files is a good idea though:
 
-> >
-> >> DAC model allows this: metadata change is tied to ownership, not mode
-> >> bits.   And different capability flag.
-> >>
-> >> If the same is true for MAC, then the pre-v4.20-rc1 is already
-> >> susceptible to the privilege escalation you describe, right?
-> >
-> > Actually, I guess there wouldn't be a privilege escalation if you
-> > checked the mounter's ability to create the new file upon copy-up, and
-> > checked the mounter's access to the upper inode label upon the
-> > subsequent read, write, or execute access.  Then we'd typically block
-> > the ability to create the device file and we'd block the ability to
-> > execute files with the label from context=.
-> >
-> > But copy-up of special files seems undesirable for other reasons (e.g.
-> > requiring mounters to be allowed to create device nodes just to permit
-> > client's to read/write them, possible implications for nodev/noexec,
-> > implications for socket and fifo files).
+- In the case of device files, there is the potential for mischief by 
+the client task in misusing the mounter's privileges to gain access to 
+otherwise unusable device node (nodev lower vs upper?),
 
-I think you missed my point: opening a device file or executing an
-executable wouldn't normally require copy-up.   If
+- In the case of sockets or fifos, what useful result do you get from a 
+copy-up? Accessing the copy isn't going to yield the same result as 
+accessing the original.
 
- -  permission is granted on overlay to task, and
- -  permission is granted on lower layer to mounter,
-
-then copy-up wouldn't be performed.
-
-My proposed sequence would be
-
-a) check task's creds against overlay inode, fail -> return fail, otherwise:
-b) check mounter's creds against lower inode, success -> return
-success, otherwise:
-c) copy up inode, fail -> return fail, otherwise
-d) check mounter's creds against upper inode, return result.
-
-So, unlike write access to regular files, write access to special
-files don't necessarily result in copy-up.
-
-You say this is an escalation of privilege, but I don't get it how.
-As DWalsh points out downthread, if mounter cannot create device
-files, then the copy-up will simply fail.  If mounter can create
-device files, then this is not an escalation of privilege for the
-mounter.
-
-Thanks,
-Miklos
+For executables, this copy-up behavior might trigger a lot of undesired 
+copies of non-executable files from the lower dir into the upper, even 
+if we ultimately end up denying the execute.
