@@ -2,131 +2,138 @@ Return-Path: <SRS0=kQjT=OO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4902BC04EBF
-	for <selinux@archiver.kernel.org>; Wed,  5 Dec 2018 10:11:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8216EC04EBF
+	for <selinux@archiver.kernel.org>; Wed,  5 Dec 2018 13:43:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1733F214E0
-	for <selinux@archiver.kernel.org>; Wed,  5 Dec 2018 10:11:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1733F214E0
+	by mail.kernel.org (Postfix) with ESMTP id 4EAB52081C
+	for <selinux@archiver.kernel.org>; Wed,  5 Dec 2018 13:43:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4EAB52081C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727309AbeLEKLB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Dec 2018 05:11:01 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:42376 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728147AbeLEJiJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Dec 2018 04:38:09 -0500
-Received: by mail-ot1-f68.google.com with SMTP id v23so18008704otk.9
-        for <selinux@vger.kernel.org>; Wed, 05 Dec 2018 01:38:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SMSq+9IexiUAXwjqwSKEoQCdcR2ED4AOzXA2Wi0hNPU=;
-        b=f8NjXiDzlPkMMBbv9q/kyAjfaUIJ424zHWPJf2Rf8jEk5nIDFMba5aMRSIxMtuWpIC
-         0okzH4ZULfsiGBuN2BH0GMPQz6f+QlHL5WdtfgYg2T8c6+KC0JR6KMpA+ANIgpd6ok+M
-         iQzgX0ewau731SKkWbU6TYYuobKXXgzucIsUOqAMg/FuEgtB5aCJ7qTmh8vfuDcC0yqs
-         YIUzOscXEho3+Dzh0z43iNckcF6kCBtFhQWxACJTEtc1MVSUPk22UtHiG6QFEdUaYwgE
-         AJuyO9bxaj3o8kkQqM1/cyUAEfI1+s5uUeLWpIJ16t68Rgn5sSs5PnkaUVPv48IX+KJJ
-         zMeg==
-X-Gm-Message-State: AA+aEWbVVDdOkVMrwZ+WNd6VQlY6hEO+/jI5SI+2i5VJzRjmQ3nZZnWx
-        5nI49ZGIjrfuQrgCywtHpW1+l/tUj2mtH6918N3T3w==
-X-Google-Smtp-Source: AFSGD/USzg0FgcmYZnrB3CswE5DFfWi+BssbmwDC9OZHf1iuj2KlhKCVrmFnSONuWfXv0W9RJ+ggeB0EPz0NQjl7pl8=
-X-Received: by 2002:a9d:60cf:: with SMTP id b15mr14342785otk.144.1544002688115;
- Wed, 05 Dec 2018 01:38:08 -0800 (PST)
+        id S1727084AbeLENnT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Dec 2018 08:43:19 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:44754 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727025AbeLENnT (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 5 Dec 2018 08:43:19 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9CDBC307DAA2;
+        Wed,  5 Dec 2018 13:43:18 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.18.25.234])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1F24919741;
+        Wed,  5 Dec 2018 13:43:18 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id A24FB2208FC; Wed,  5 Dec 2018 08:43:17 -0500 (EST)
+Date:   Wed, 5 Dec 2018 08:43:17 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: overlayfs access checks on underlying layers
+Message-ID: <20181205134317.GA11337@redhat.com>
+References: <f84bbe0b-f4c1-50e0-8c84-a6589154b3ae@tycho.nsa.gov>
+ <CAJfpegtBDTMbmKd6eDxRmtSJjGN6CnpGK_QPNSsxjkOoeu=1pQ@mail.gmail.com>
+ <4c20a261-5ce1-f0a2-8d40-c6032a023216@tycho.nsa.gov>
+ <20181204151549.GA21509@redhat.com>
+ <20181204152248.GB21509@redhat.com>
+ <CAJfpegtFVvq286HAorGLg6ywMsfs51KqaQwFkcuV7Dtu8TLaLg@mail.gmail.com>
+ <20181204154243.GA16818@redhat.com>
+ <665ec6f3-f16d-681f-30d5-eface14c9808@tycho.nsa.gov>
+ <20181204161747.GC16818@redhat.com>
+ <e8841bf0-d6b8-0e7d-6a35-055a06441d30@tycho.nsa.gov>
 MIME-Version: 1.0
-References: <20181127115246.00967523@canb.auug.org.au> <CAFqZXNs6XTOx2-EQ5P9bK3vPsPby7rzryHPqzqsVD9XsbsG20w@mail.gmail.com>
- <20181127225013.133adc7d@canb.auug.org.au> <CAHC9VhSFSxBc+-O=GQMkiyiQz3S+_ZreicLhsoAuvR-oq2mi6g@mail.gmail.com>
- <CAFqZXNuZCof=7CtyMq8JDyAgRmONYRZhhqr6bFVy9-F70-Uwrw@mail.gmail.com>
- <CAFqZXNu_=MxcX5jvX4y=5nrCqi7_btOGVccbH1NZ=xm3TGvaYQ@mail.gmail.com>
- <CAFqZXNv642dfT0PpB0M7sO5J90cAM7Luv0A8nX7JtEXqw=yu1w@mail.gmail.com>
- <CAFqZXNuv_mF8Yt50J3giZjxzZX_WwCOePZeEtmR-G_m+vRyPrQ@mail.gmail.com> <20181203215639.GV2217@ZenIV.linux.org.uk>
-In-Reply-To: <20181203215639.GV2217@ZenIV.linux.org.uk>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 5 Dec 2018 10:37:56 +0100
-Message-ID: <CAFqZXNvSOzyhnTUxF2mP4BTFMVQ8H1uh-Yyn2fH2K=4yRDX-tQ@mail.gmail.com>
-Subject: Re: linux-next: manual merge of the selinux tree with the vfs tree
-To:     Al Viro <viro@zeniv.linux.org.uk>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        linux-next@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        David Howells <dhowells@redhat.com>, selinux@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e8841bf0-d6b8-0e7d-6a35-055a06441d30@tycho.nsa.gov>
+User-Agent: Mutt/1.9.1 (2017-09-22)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Wed, 05 Dec 2018 13:43:19 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 3, 2018 at 10:56 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
-> On Mon, Dec 03, 2018 at 11:12:59AM +0100, Ondrej Mosnacek wrote:
->
-> > I think I figured out what's the problem. NFS still creates the
-> > submount via the old vfs_submount() call, which calls
-> > vfs_kern_mount(), which creates an fs_context with
-> > FS_CONTEXT_FOR_USER_MOUNT because FS_CONTEXT_FOR_SUBMOUNT needs the
-> > mountpoint dentry reference and there is currently no way to pass that
-> > to vfs_kern_mount(). This is further complicated by the fact that
-> > vfs_submount() accepts only a const reference to the mountpoint, while
-> > vfs_new_fs_context() expects a non-const one...
-> >
-> > I think all users of the old vfs_submount call should be converted to
-> > the new API before the VFS changes are merged into mainline, otherwise
-> > they will break the SELinux submount fix. We could work around it in
-> > the SELinux hook by checking the fc->sb_flags[_mask] for SB_SUBMOUNT,
-> > but I guess that would be a hack.
->
-> Could you take a look at vfs.git#Q28?  There's still a massive reshuffling
-> going on, so there will be more branches; this one is the latest at the
-> moment.
+On Tue, Dec 04, 2018 at 11:49:16AM -0500, Stephen Smalley wrote:
+> On 12/4/18 11:17 AM, Vivek Goyal wrote:
+> > On Tue, Dec 04, 2018 at 11:05:46AM -0500, Stephen Smalley wrote:
+> > > On 12/4/18 10:42 AM, Vivek Goyal wrote:
+> > > > On Tue, Dec 04, 2018 at 04:31:09PM +0100, Miklos Szeredi wrote:
+> > > > > On Tue, Dec 4, 2018 at 4:22 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > > > > 
+> > > > > > Having said that, this still create little anomaly when mknod to client
+> > > > > > is not allowed on context label. So a device file, which is on lower
+> > > > > > and client can not open it for read/write on host, it can now be opened
+> > > > > > for read/write because mounter will allow access. So why it is different
+> > > > > > that regular copy up. Well, in regular copy up, we created a copy of
+> > > > > > the original object and allowed writing to that object (cp --preserve=all)
+> > > > > > model. But in case of device file, writes will go to same original
+> > > > > > object. (And not a separate copy).
+> > > > > 
+> > > > > That's true.
+> > > > > 
+> > > > > In that sense copy up of special file should result in upper having
+> > > > > the same label as of lower, right?
+> > > > 
+> > > > I guess that might be reasonable (if this behavior is a concern). So even
+> > > > after copy up, client will not be able to read/write a device if it was
+> > > > not allowed on lower.
+> > > > 
+> > > > Stephen, what do you think about retaining label of lower for device
+> > > > files during copy up. What about socket/fifo.
+> > > 
+> > > We don't check client task access to the upper inode label, only to the
+> > > overlay, right?  So the client is still free to access the device through
+> > > the overlay even if we preserve the lower inode label on the upper inode?
+> > > What do we gain?
+> > 
+> > That's only with latest code and Miklos said he will revert it for 4.20.
+> > 
+> > IOW, I am assuming that we will continue to check access to a file
+> > on upper in the context of mounter. Otherwise, client will be able to access
+> > files on upper/ which even mounter can't access.
+> 
+> I was assuming we're talking about the proposed solution, where we check
+> client access to the overlay (unchanged), mounter access to lower
+> (unchanged), copy-up if denied (new), mounter access to upper (new in the
+> sense that previously we didn't copy-up on denials).
+> 
+> In that situation, propagating the lower inode label to the upper inode only
+> impacts the mounter checks, and in that case makes copy-up pointless - if it
+> wasn't allowed to lower it won't be allowed to upper.  If it is allowed,
+> then client task is free to access the device regardless as long as it has
+> permissions to the overlay inode.  So I don't see what we gain by
+> propagating the lower inode label to the upper inode in the context mount
+> case, and it creates an inconsistency between special files and regular
+> ones.
 
-I just tested the Q28 branch rebased onto a recent Fedora rawhide
-kernel (4.20.0-0.rc5.git0.1) and that code seems to be working fine.
-The submount test failed with Q28 and succeeds with Q28+fix, as
-expected. Also, the overlay tests failures are gone now (except for
-the 4 known failures from GH issue #43, since I had to rebase onto
-4.20-rcX).
+If we agree on retaining lower label of lower device file on copy up, then
+I am assuming we will change rule c) to copy up only non device files.
+(because if you don't have access on lower, you will not have access
+even after copy up).
 
-This is the commit that I used as the SELinux submount fix:
-https://gitlab.com/omos/linux-public/commit/47922f9c70a83008388b836c285f94c40da1af2b
+There are other paths where copy up happnes. Like link or when file 
+metadata (ownership, permissions, timestmap) changes. In those cases,
+if we retain the lower label over copy up, it probably will help.
 
-Kernel builds:
-Unfixed Q28:  https://copr.fedorainfracloud.org/coprs/omos/kernel-testing/build/833311/
-Fixed Q28:  https://copr.fedorainfracloud.org/coprs/omos/kernel-testing/build/833312/
+IOW, just by creating a link to a device, one will not get access to
+a device on upper which could not be accessed on lower.
 
-Selinux-testsuite reports:
-=== Q28 ===
-Test Summary Report
--------------------
-overlay/test              (Wstat: 1024 Tests: 119 Failed: 4)
-  Failed tests:  81, 83, 107, 112
-  Non-zero exit status: 4
-submount/test             (Wstat: 256 Tests: 2 Failed: 1)
-  Failed test:  2
-  Non-zero exit status: 1
-Files=54, Tests=615, 117 wallclock secs ( 0.20 usr  0.04 sys +  1.64
-cusr  1.29 csys =  3.17 CPU)
-Result: FAIL
-Failed 2/54 test programs. 5/615 subtests failed.
+Device files are special anyway. In regular files we are creating a 
+copy and user writes to copy. But that's not the case with device
+files. So I guess these will have to be treated differently.
 
-=== Q28 + FIX ===
-Test Summary Report
--------------------
-overlay/test              (Wstat: 1024 Tests: 119 Failed: 4)
-  Failed tests:  81, 83, 107, 112
-  Non-zero exit status: 4
-Files=54, Tests=615, 117 wallclock secs ( 0.22 usr  0.05 sys +  1.54
-cusr  1.37 csys =  3.18 CPU)
-Result: FAIL
-Failed 1/54 test programs. 4/615 subtests failed.
-
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Associate Software Engineer, Security Technologies
-Red Hat, Inc.
+Thanks
+Vivek
