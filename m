@@ -2,225 +2,180 @@ Return-Path: <SRS0=Nhvc=OQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64D87C07E85
-	for <selinux@archiver.kernel.org>; Fri,  7 Dec 2018 14:40:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0CA5C07E85
+	for <selinux@archiver.kernel.org>; Fri,  7 Dec 2018 16:20:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BB62E20837
-	for <selinux@archiver.kernel.org>; Fri,  7 Dec 2018 14:39:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BB62E20837
+	by mail.kernel.org (Postfix) with ESMTP id D17DD2054F
+	for <selinux@archiver.kernel.org>; Fri,  7 Dec 2018 16:20:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D17DD2054F
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=tycho.nsa.gov
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726034AbeLGOj4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Dec 2018 09:39:56 -0500
-Received: from upbd19pa12.eemsg.mail.mil ([214.24.27.87]:59926 "EHLO
-        upbd19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725998AbeLGOj4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Dec 2018 09:39:56 -0500
-X-EEMSG-check-008: 174530065|UPBD19PA12_EEMSG_MP12.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by upbd19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 07 Dec 2018 14:39:52 +0000
+        id S1726077AbeLGQUu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 Dec 2018 11:20:50 -0500
+Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:57681 "EHLO
+        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726056AbeLGQUu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Dec 2018 11:20:50 -0500
+X-EEMSG-check-008: 656454024|UCOL19PA13_EEMSG_MP11.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.39,1,1493683200"; 
+   d="scan'208";a="656454024"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 07 Dec 2018 16:20:49 +0000
 X-IronPort-AV: E=Sophos;i="5.56,326,1539648000"; 
-   d="scan'208";a="18510151"
-IronPort-PHdr: =?us-ascii?q?9a23=3AOppy6RU72H51SZ3J1+6qSEVpOSPV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYZRSOuKdThVPEFb/W9+hDw7KP9fy4CSpYud6oizMrSNR0TR?=
- =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
- =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9uLxi6txndutULioZ+N6g9zQ?=
- =?us-ascii?q?fErGFVcOpM32NoIlyTnxf45siu+ZNo7jpdtfE8+cNeSKv2Z6s3Q6BWAzQgKG?=
- =?us-ascii?q?A1+dbktQLfQguV53sTSXsZnxxVCAXY9h76X5Pxsizntuph3SSRIMP7QawoVT?=
- =?us-ascii?q?mk8qxmUwHjhjsZODEl8WHXks1wg7xdoBK9vBx03orYbJiIOPZiYq/ReNUXSm?=
- =?us-ascii?q?RbXsZVSidPHIWyYYUSBOYFJOpUsZXxq14IoBCjBwejGfnvxydViHH2w6M63e?=
- =?us-ascii?q?cvHw/I0wMvHd0BrHvaoc7pNKoRS+250LXEwDvBYv5QxDzz6JLIchckofyUQL?=
- =?us-ascii?q?xwbdTeyVEvFwzbiFWbtJHrPzaP2eQJt2iU8ephXv+ohm48tg5xuSOixtssi4?=
- =?us-ascii?q?bVhoIVzUrI9SNiwIkvP9G4R0l7YcC9HZZWqiqUNJN2T9s/T2xntys20L0LtY?=
- =?us-ascii?q?OhcCQUx5kr2QTTZ+GBfoOV+BzsTvyRLi19hH99fbK/gAu9/la4x+3nU8m0zE?=
- =?us-ascii?q?5Kri1YktnQrnwN1wLc6syASvZl4keuwyyP1wHO6uFfO0w0iaraJIIhwr43jJ?=
- =?us-ascii?q?YTt1jMHjTql0nsia+Wd0Ek9vCp6+ThfLrmuoeRO5J7hwzxKKgjmtGzDf4mPg?=
- =?us-ascii?q?UBQWSX4/mw2KXm/ULjQbVKivM2krPesJDfPckbvbO2AxRO34Y/6xewEzem0N?=
- =?us-ascii?q?MCkXkBN1JKYgiLj4fuO1HQOPz4F+uwg0ywkDd3wPDLJqXhDY/QLnjHi7rhZa?=
- =?us-ascii?q?xy61NYyAYqyNBf4JVUCqsfL/7pRkDxs9nYBAcjMwOo2+bnFMl91oQGVGKUHK?=
- =?us-ascii?q?CZNKLSsVmV5uMgOOSMeoAVtyjnK/Q/5P7hk2U5mVkDcqmtx5cXb2q4Hvt+KU?=
- =?us-ascii?q?WDfXXsmssBEXsNvgcmV+PqjV6CUSJOZ3e8XqIz+Dc7BZmpDYfGXI+tgbiB0D?=
- =?us-ascii?q?2nEZ1RY2BMEkqMHmvwd4WYR/cMbzqfLdF5kjMeT7ihSpQh2Aq2tADg0bpnL/?=
- =?us-ascii?q?HU+jUctZ35yNd6+ffflRYo9Tx7F86dyX2CT3lonmMUQD87xL5/oU1nyleEyq?=
- =?us-ascii?q?V5guJXFdpS5/NXSAs6MZ/cz+pnC9H9QA7Bec2JSFm8TtW7AjE7VsgxzMMWY0?=
- =?us-ascii?q?ZhB9WiiQjO3y6rA78TiryKC4U48qzH33fsOcl91WjJ1K06glk4TctAK3emir?=
- =?us-ascii?q?R89wfNHY7JlVuWl6KweaQbxi7N+zTL8W3bhEhFVEZVVqLfUDhLfkLLqfzh71?=
- =?us-ascii?q?7GCrqpDq4qdABGzJjRBLFNb4jSkVheRPrlcO/bama1lnb4UQ2E3ZuQfYHqfC?=
- =?us-ascii?q?MbxyybB08axVNAtU2aPBQzU3/y61nVCyZjQBe2ORvh?=
-X-IPAS-Result: =?us-ascii?q?A2BdAAAOhQpc/wHyM5BjHAEBAQQBAQcEAQGBUgYBAQsBg?=
- =?us-ascii?q?VopgWgng3qUKVIGgQgIJYkSDo4vgXo4AYRAAoMbIjUIDQEDAQEBAQEBAgFsK?=
- =?us-ascii?q?II2JAGCYgEFIwQLAQVBEAkCGAICJgICITYGDQYCAQGCXj+BagMIDYlOm1B8M?=
- =?us-ascii?q?4gDDYIcgQuLFBd4gQeBEScMgl+CV4UuglcCiRMPhxVQjzIuCY4cgykGGIFci?=
- =?us-ascii?q?D2HH4oVhHqLVAMzgVUrCAIYCCEPgyeCJxcSjikhAzCBBQEBikABAQ?=
+   d="scan'208";a="21443156"
+IronPort-PHdr: =?us-ascii?q?9a23=3AeK16Rh1Q3ZvhxuZhsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseISL/ad9pjvdHbS+e9qxAeQG9mDu7Qc06L/iOPJYSQ4+5GPsXQPItRndi?=
+ =?us-ascii?q?QuroEopTEmG9OPEkbhLfTnPGQQFcVGU0J5rTngaRAGUMnxaEfPrXKs8DUcBg?=
+ =?us-ascii?q?vwNRZvJuTyB4Xek9m72/q99pHPYAhEniaxba9vJxiqsAvdsdUbj5F/Iagr0B?=
+ =?us-ascii?q?vJpXVIe+VSxWx2IF+Yggjx6MSt8pN96ipco/0u+dJOXqX8ZKQ4UKdXDC86PG?=
+ =?us-ascii?q?Av5c3krgfMQA2S7XYBSGoWkx5IAw/Y7BHmW5r6ryX3uvZh1CScIMb5Q6o0WT?=
+ =?us-ascii?q?C/5Kl1ThHmhjoMOzog/G3JlsB8iaRWqw+jqRNi2Y7ZeIGbOuRjcK3Tft0UQm?=
+ =?us-ascii?q?VOUMlKWiBdAY6xdZcDAvAdMepEqYT2ulsArQG5BQmpHO7h1yNIiWHu3a06ze?=
+ =?us-ascii?q?shFxzN0hElH90UtHTUqMv6NacPWu2y16nH0C7DYuhK2Tb99IfIchchreuKXb?=
+ =?us-ascii?q?Jra8Xd00YvFwTbjliJr4HuIjCb1vwVvmSG4OdtWvijhm46pw1rvDSiydkghp?=
+ =?us-ascii?q?PUio8T11vK7z92wJwvKt29UEN7ZNmkH4ZOuCyCLIt2R98iQ3lvuCYn1r0KoZ?=
+ =?us-ascii?q?67czYOyJQg3xPfd+aIc5KJ4hL+T+adOyt4hXJ5d7K/gBa+606gxfHnVsaoyl?=
+ =?us-ascii?q?pKqytFkt3UunAM0Rzc9NSHR+Ng8kqu1juDzQDe5vxeLUwqmqfXNYQtzqMomp?=
+ =?us-ascii?q?oWq0vDHyv2mEvsjK+Rc0Up4vOo5Pn8Yrj9up+dN5N7igH5Mqg0nMy/Gv43Ph?=
+ =?us-ascii?q?IBX2ic5+SwzKfj8lHhQLVWkv02lbHUv4vfJcQYuq65HgFU0oc95Ba5FDqm39?=
+ =?us-ascii?q?EYkmMGLFJBYh6Ik4/pO1TWKvDiEfi/m0iskCtsx/3eJr3uGIjNLnzYnbf5Z7?=
+ =?us-ascii?q?l99kpcxBM2zdBY4JJUEK8OLOjvVU/2sdzSFgU5PBCsw+b7FNV90ZsTWXmRDa?=
+ =?us-ascii?q?+dMaPSt0KI5+00LumSa48apiz9J+Im5/Hwl385n0ESfa2z0ZsQcnC4EacuH0?=
+ =?us-ascii?q?LMenfog9EcAU8UsQckCu/nkluPVXhUfXnhcbg742QAFI++DYrFDruoibiF0T?=
+ =?us-ascii?q?bzSoZafUhaG1uMFjHubIzCVPASPnHBavR9myAJAODyA7Qq0guj4Uqgk7c=3D?=
+X-IPAS-Result: =?us-ascii?q?A2A3AAD6nApc/wHyM5BjHQEBBQEHBQGBUQgBCwGBWimBN?=
+ =?us-ascii?q?TMnjBOMEU0BAQEBAQaCMYgWDo4vgXogGAGEQIMdIjQJDQEDAQEBAQEBAgFsK?=
+ =?us-ascii?q?II2JIMQCwFGgQJPglYMP4FqAwgNplczhUCCQw2CHIdzRYNqF3iBB4ERgl2DD?=
+ =?us-ascii?q?IgFAokTD4cVUI8yLgmOHIMkCxiBXIg9hx+KFYR6i1I4gVUrCAIYCCEPgyeCJ?=
+ =?us-ascii?q?xcSjikhAzCBBQEBimUBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 07 Dec 2018 14:39:51 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 07 Dec 2018 16:20:48 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB7Ednae021889;
-        Fri, 7 Dec 2018 09:39:49 -0500
-Subject: Re: [RFC][PATCH] selinux: avoid silent denials in permissive mode
- under RCU walk
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wB7GKmjc002344;
+        Fri, 7 Dec 2018 11:20:48 -0500
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org, bmktuwien@gmail.com,
-        Eric Paris <eparis@parisplace.org>,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        linuxfs <linux-fsdevel@vger.kernel.org>
-References: <20181204204209.21542-1-sds@tycho.nsa.gov>
- <CAHC9VhTB8ZpHt3fUL4_SY2qaYZUg4au7eLLOBgnpmT-72hmCaw@mail.gmail.com>
- <d6084640-eb4a-76d4-102b-6c71c927f236@tycho.nsa.gov>
-Message-ID: <fb3cb728-afbf-c8c8-1190-60e2efd87719@tycho.nsa.gov>
-Date:   Fri, 7 Dec 2018 09:42:28 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.1
+To:     selinux@vger.kernel.org
+Cc:     paul@paul-moore.com, bmktuwien@gmail.com,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [RFC PATCH v2 1/2] selinux: avoid silent denials in permissive mode under RCU walk
+Date:   Fri,  7 Dec 2018 11:23:21 -0500
+Message-Id: <20181207162322.20486-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.19.2
 MIME-Version: 1.0
-In-Reply-To: <d6084640-eb4a-76d4-102b-6c71c927f236@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/7/18 8:06 AM, Stephen Smalley wrote:
-> On 12/6/18 6:57 PM, Paul Moore wrote:
->> On Tue, Dec 4, 2018 at 3:39 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>> commit 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
->>> results in no audit messages at all if in permissive mode because the
->>> cache is updated during the rcu walk and thus no denial occurs on
->>> the subsequent ref walk.  Fix this by not updating the cache when
->>> performing a non-blocking permission check.  This only affects search
->>> and symlink read checks during rcu walk.
->>>
->>> Fixes: 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
->>> Reported-by: BMK <bmktuwien@gmail.com>
->>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>> ---
->>>   security/selinux/avc.c         | 9 ++++++---
->>>   security/selinux/hooks.c       | 4 +++-
->>>   security/selinux/include/avc.h | 1 +
->>>   3 files changed, 10 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
->>> index 635e5c1e3e48..f0e7bc0dc442 100644
->>> --- a/security/selinux/avc.c
->>> +++ b/security/selinux/avc.c
->>> @@ -1021,8 +1021,10 @@ static noinline int avc_denied(struct 
->>> selinux_state *state,
->>>              !(avd->flags & AVD_FLAGS_PERMISSIVE))
->>>                  return -EACCES;
->>>
->>> -       avc_update_node(state->avc, AVC_CALLBACK_GRANT, requested, 
->>> driver,
->>> -                       xperm, ssid, tsid, tclass, avd->seqno, NULL, 
->>> flags);
->>> +       if (!(flags & AVC_NONBLOCKING))
->>> +               avc_update_node(state->avc, AVC_CALLBACK_GRANT, 
->>> requested,
->>> +                               driver, xperm, ssid, tsid, tclass, 
->>> avd->seqno,
->>> +                               NULL, flags);
->>
->> I realize the issue here is specific to the VFS code paths, but if we
->> are going to introduce a general AVC flag to tell the AVC code not to
->> block, it seems like we should honor it everywhere.  I would suggest
->> moving the check into avc_update_node() itself (it's static, so
->> hopefully any perf impact will be negligible).
-> 
-> Ok, I'll do that.  Just to clarify though, avc_update_node() does not 
-> block, nor does any of avc_has_perm_noaudit().  The reason we have to 
-> skip avc_update_node() in the non-blocking aka rcu-walk code path is not 
-> because it would block but because it would grant the denied permissions 
-> in the AVC entry and then avc_audit() would subsequently bail with 
-> -ECHILD since it would block on calling the audit system, and when we 
-> retry on the ref-walk code path, the cache entry will already contain 
-> the permissions and nothing will be denied or audited.  So it is a tad 
-> confusing.  I'll add a comment as well.
+commit 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
+results in no audit messages at all if in permissive mode because the
+cache is updated during the rcu walk and thus no denial occurs on
+the subsequent ref walk.  Fix this by not updating the cache when
+performing a non-blocking permission check.  This only affects search
+and symlink read checks during rcu walk.
 
-Hmm...looking again, I'm confused by the current logic in slow_avc_audit():
+Fixes: 0dc1ba24f7fff6 ("SELINUX: Make selinux cache VFS RCU walks safe")
+Reported-by: BMK <bmktuwien@gmail.com>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+v2 moves the test of AVC_NONBLOCKING inside of avc_update_node(),
+adds a comment explaining the rationale, and updates some kerneldoc
+comments. I still have some doubts however about the naming
+(AVC_NONBLOCKING) since this isn't really about blocking AFAICT.
 
-	/*
-	 * When in a RCU walk do the audit on the RCU retry.  This is because
-	 * the collection of the dname in an inode audit message is not RCU
-	 * safe.  Note this may drop some audits when the situation changes
-	 * during retry. However this is logically just as if the operation
-	 * happened a little later.
-	 */
-	if ((a->type == LSM_AUDIT_DATA_INODE) &&
-	    (flags & MAY_NOT_BLOCK))
-		return -ECHILD;
+ security/selinux/avc.c         | 23 +++++++++++++++++++++--
+ security/selinux/hooks.c       |  4 +++-
+ security/selinux/include/avc.h |  1 +
+ 3 files changed, 25 insertions(+), 3 deletions(-)
 
-Since we only do this in the LSM_AUDIT_DATA_INODE case, it isn't clear 
-to me why we are passing down MAY_NOT_BLOCK from 
-selinux_inode_follow_link(), which always sets type to 
-LSM_AUDIT_DATA_DENTRY. If we truly don't need special handling of 
-MAY_NOT_BLOCK within the AVC except for LSM_AUDIT_DATA_INODE, then we 
-don't need to pass it down from selinux_inode_follow_link() and 
-therefore don't need avc_has_perm_flags() at all since that is the only 
-user.  Can we dispense with that?  Or is the logic in slow_avc_audit() 
-wrong and we ought to be bailing on MAY_NOT_BLOCK for more than just 
-LSM_AUDIT_DATA_INODE?  Passing MAY_NOT_BLOCK down to the AVC also seems 
-like a misnomer, since it shouldn't be making blocking calls anyway.
-
-> 
->>
->>>          return 0;
->>>   }
->>>
->>> @@ -1199,7 +1201,8 @@ int avc_has_perm_flags(struct selinux_state 
->>> *state,
->>>          struct av_decision avd;
->>>          int rc, rc2;
->>>
->>> -       rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, 
->>> requested, 0,
->>> +       rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
->>> +                                 (flags & MAY_NOT_BLOCK) ? 
->>> AVC_NONBLOCKING : 0,
->>>                                    &avd);
->>>
->>>          rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
->>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>> index 7ce012d9ec51..9b05f84808d9 100644
->>> --- a/security/selinux/hooks.c
->>> +++ b/security/selinux/hooks.c
->>> @@ -3196,7 +3196,9 @@ static int selinux_inode_permission(struct 
->>> inode *inode, int mask)
->>>                  return PTR_ERR(isec);
->>>
->>>          rc = avc_has_perm_noaudit(&selinux_state,
->>> -                                 sid, isec->sid, isec->sclass, 
->>> perms, 0, &avd);
->>> +                                 sid, isec->sid, isec->sclass, perms,
->>> +                                 (flags & MAY_NOT_BLOCK) ? 
->>> AVC_NONBLOCKING : 0,
->>> +                                 &avd);
->>>          audited = avc_audit_required(perms, &avd, rc,
->>>                                       from_access ? 
->>> FILE__AUDIT_ACCESS : 0,
->>>                                       &denied);
->>> diff --git a/security/selinux/include/avc.h 
->>> b/security/selinux/include/avc.h
->>> index ef899bcfd2cb..74ea50977c20 100644
->>> --- a/security/selinux/include/avc.h
->>> +++ b/security/selinux/include/avc.h
->>> @@ -142,6 +142,7 @@ static inline int avc_audit(struct selinux_state 
->>> *state,
->>>
->>>   #define AVC_STRICT 1 /* Ignore permissive mode. */
->>>   #define AVC_EXTENDED_PERMS 2   /* update extended permissions */
->>> +#define AVC_NONBLOCKING    4   /* non blocking */
->>>   int avc_has_perm_noaudit(struct selinux_state *state,
->>>                           u32 ssid, u32 tsid,
->>>                           u16 tclass, u32 requested,
->>> -- 
->>> 2.19.2
->>>
->>
-> 
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 635e5c1e3e48..5de18a6d5c3f 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -838,6 +838,7 @@ int __init avc_add_callback(int (*callback)(u32 event), u32 events)
+  * @ssid,@tsid,@tclass : identifier of an AVC entry
+  * @seqno : sequence number when decision was made
+  * @xpd: extended_perms_decision to be added to the node
++ * @flags: the AVC_* flags, e.g. AVC_NONBLOCKING, AVC_EXTENDED_PERMS, or 0.
+  *
+  * if a valid AVC entry doesn't exist,this function returns -ENOENT.
+  * if kmalloc() called internal returns NULL, this function returns -ENOMEM.
+@@ -856,6 +857,23 @@ static int avc_update_node(struct selinux_avc *avc,
+ 	struct hlist_head *head;
+ 	spinlock_t *lock;
+ 
++	/*
++	 * If we are in a non-blocking code path, e.g. VFS RCU walk,
++	 * then we must not add permissions to a cache entry
++	 * because we cannot safely audit the denial.  Otherwise,
++	 * during the subsequent blocking retry (e.g. VFS ref walk), we
++	 * will find the permissions already granted in the cache entry
++	 * and won't audit anything at all, leading to silent denials in
++	 * permissive mode that only appear when in enforcing mode.
++	 *
++	 * See the corresponding handling in slow_avc_audit(), and the
++	 * logic in selinux_inode_follow_link and selinux_inode_permission
++	 * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
++	 * AVC_NONBLOCKING for avc_has_perm_noaudit().
++	 */
++	if (flags & AVC_NONBLOCKING)
++		return 0;
++
+ 	node = avc_alloc_node(avc);
+ 	if (!node) {
+ 		rc = -ENOMEM;
+@@ -1115,7 +1133,7 @@ int avc_has_extended_perms(struct selinux_state *state,
+  * @tsid: target security identifier
+  * @tclass: target security class
+  * @requested: requested permissions, interpreted based on @tclass
+- * @flags:  AVC_STRICT or 0
++ * @flags:  AVC_STRICT, AVC_NONBLOCKING, or 0
+  * @avd: access vector decisions
+  *
+  * Check the AVC to determine whether the @requested permissions are granted
+@@ -1199,7 +1217,8 @@ int avc_has_perm_flags(struct selinux_state *state,
+ 	struct av_decision avd;
+ 	int rc, rc2;
+ 
+-	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested, 0,
++	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
++				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
+ 				  &avd);
+ 
+ 	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7ce012d9ec51..9b05f84808d9 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3196,7 +3196,9 @@ static int selinux_inode_permission(struct inode *inode, int mask)
+ 		return PTR_ERR(isec);
+ 
+ 	rc = avc_has_perm_noaudit(&selinux_state,
+-				  sid, isec->sid, isec->sclass, perms, 0, &avd);
++				  sid, isec->sid, isec->sclass, perms,
++				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
++				  &avd);
+ 	audited = avc_audit_required(perms, &avd, rc,
+ 				     from_access ? FILE__AUDIT_ACCESS : 0,
+ 				     &denied);
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index ef899bcfd2cb..74ea50977c20 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -142,6 +142,7 @@ static inline int avc_audit(struct selinux_state *state,
+ 
+ #define AVC_STRICT 1 /* Ignore permissive mode. */
+ #define AVC_EXTENDED_PERMS 2	/* update extended permissions */
++#define AVC_NONBLOCKING    4	/* non blocking */
+ int avc_has_perm_noaudit(struct selinux_state *state,
+ 			 u32 ssid, u32 tsid,
+ 			 u16 tclass, u32 requested,
+-- 
+2.19.2
 
