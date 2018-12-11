@@ -7,44 +7,44 @@ X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F38D7C6783C
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CC34C6783B
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AF71C20851
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C9C8620672
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="UdCnmtlo"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AF71C20851
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="NUplNcUt"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9C8620672
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726484AbeLKWrH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Dec 2018 17:47:07 -0500
-Received: from sonic311-28.consmr.mail.ne1.yahoo.com ([66.163.188.209]:41724
-        "EHLO sonic311-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726480AbeLKWnq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568226; bh=q22d4rrFaTt8aTp3VyIyxlI3Zk8optLiXa/YsJkyyVs=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=UdCnmtloPcX8tXBg5edoWRewlFJuiF6cXekf+tqYVoHlcf9JlnKoIO2wgbNDzCLPNnL/2Dz/PGbSWo9p9WGbQTQpA7wqeKiS4zfMnSKbp1CgHbJaAEGwv8PLItBKAEwccfiy8KEO48s/45HyzTWkZ5AEPMVh04ygtSmBmcMfnWowxxmopR3758MwAlfbdlTw6q+MrZV26wfyimB9GGyr67MOvRw5Q2b4Ar36SLqnFR+Cd6v6FUiF8+/+sx77FGXqCIK30DE3iempl8V/4YOm5a3QPoZfR7Kch5+zlbMsqya6hV0jFoJUwbmsTcvA4h2pdc9dRm+HWc0mTynsIpAlag==
-X-YMail-OSG: gCVeihAVM1n78BNwXMoioU3.Kr.V6KBEh5DaRdY3AAX.RaXMznKplXYRzTsP11U
- tjcmCrfy2N99z97UNc3vJp7wwRSHD1QTXw.zO5HhxVzNBfUTcaJGgwq96YImf_vfkWlzr3z1TnwW
- Hq2JST.RbPOlCOV17bCXxCREZOe1GJ3lrtp5F9mjKJnaST7tiICUzo8hudomEmCotbMivf4Qpj_S
- S0gILHDqG.PL2R7HZKoj9J6w7Z1RIFpLyLWiUgrlnWdZuet8Cd5DqrKrSgDu8Z60ryUIVs_fTAiF
- Eimwn6853SOMxIZ7mC6qHCm_NzBfxuR99SMvPfZcyKDQTgS8Tj0fttLse4M722cqT8sN61KTPWHP
- 5NcmlpNK4T5YWzP0vB.vU7eAT3u0kdRfGEoP4mBMr3vbSY1gfEWDXad418bJIcxLFnPKYcrJjp0X
- 3k5..u3oQDunOeSFqbT6SHernSzxMXRdq8mHE7lC4.c6ftKPJg2az1Qy979_weNdjubwnhew4P2w
- loq4ej5mZPTDRfwblGogAOo.jixSXYHVR4EYaqiNFwFX3mR31F0CWw02ul3FwD3b_0PwYFwGDOGC
- 40KlCDXJTSFudb7EVABIborII2.eaq2PXlttpq7hfKb0Akp6.KvfjnA7jJetCp9wR2CUiFV3iwv6
- YRIZCRcjz2FxGXjEAgFyzZ0sCEsxOcIn_FNOvygXn4o7uVVYcwYC5O9XJHuI9jcNfDke7hZefvKI
- io69ozetEdmAJA2t3U.pDAwtP6fW7SYD_YjGUblz.PNZ..YDkqdnbJ2c.y9TaPvVa5XGxVp4QR5I
- 6y8oEn2ilZ6SfBvQjE2sD0GI5evFELn9vHpHzqYwuXB.mmJFCB3B4J.BE8MgC.X.RuBiuKvqi44J
- ixZgpe5ko.FuDcQUekBo4C.tES3Uo.stX0ngC9znB.yNNWq6VAQfT9vhDNnm..kod7HxrKwBDhuR
- L8BIzz6IGaKVBe2PgUQDVs0dg.3mFU_.RTF9emXqPoQjd8AM0RxKsdqeFOwh1o9vlJp_LE9PAXpY
- Y1YesLJgcmXyu186i3NiOpHvacWc_3k8OQYX.Mhu4qB2YuprbAC75z76NJs8uWd11QtCkEyUR8gu
- 5MsefPYkZmB9uH9_KS9tlMXyvAPC2uE8yKw8aWsLRAm0-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:46 +0000
+        id S1726471AbeLKWnn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Dec 2018 17:43:43 -0500
+Received: from sonic308-17.consmr.mail.ne1.yahoo.com ([66.163.187.40]:39343
+        "EHLO sonic308-17.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726442AbeLKWnn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568221; bh=aA9ToBwx7EdAqaJKoH0MpMTFJSSXKnw022+5umTtX5A=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=NUplNcUt0iSDUQJ+zLEcBS2pij4wOKa5CT/OcVcpXOQYrANDY4cICSenmAYYJeXUuqzHVWu2lfCKTNCyevCm/CEp2ipPCAdYCVZfir/Sh/w8oyu86KdYXqXz1qmcVvGh0Bh2IpcW4aLjnl40ocgfAS1TrJ5wEw/w44r+N8VADtHgWkUsPriJS4MZVMs66LAL6v9FyMie/a4RwthINZS2zWEM5alrwVQq763CyraB5RNYcXEvROlyMUQ3Lyfj1NQLZn39/LDcLt2T1U2dltPxI+tiErqDYBP3g1TD72BvBcxXTT1ElHPpkR3ld3ggmDtctGjrLx9vOzjBrL7clBRhrQ==
+X-YMail-OSG: X3ciU5kVM1mNKklmhmnKECfTg1deBrlrXd.Wk8h2mnXCVK5_0F_mvmiI5wDIRMQ
+ 5XtC72LqWVYM8h39ZVpyxa7XYSmDn0whh5iXBxL.CFZPXTz9O0KSsKiESsH87HoAmoNpeizW.3px
+ J_YnmVGRHidOf2Iknt8SqxjxsgdBVoVCYySvwXGHnlKekFutkBE3AAL7ecyHx1pwVfE1P4EcVfFX
+ qvs.WhKG14ej3pTB0F0gija_WoLL_b_T66GFv1XwZ3GTH6SkdpCtmo9QRZG_kmAgl1HO9UA4v6as
+ fh6efRu6pUt0RsqLroYT8ft7E7OFVXWZULakq3E8lC0fbOEtm2__xmhdhwvLyedHf5ylhXcdWuYx
+ 1_dQLz0sH_UV4Iw4h8S9yoxE8I1M6a2uc6eZ5_mTwntctVa8yra80mu3ivDr7g5TKySdKwGDtdKv
+ Ko4SMOT2mpKM8TqXwRsERj4MPmHftg45v9l2r1RKFBjhAM3eQxvUYI.p.sz4Wa0tou2PKbmNOlsF
+ m0hdbb4Cshw6buCHaYQB1ESvmv81hYX3po.H0LbjjJmbFpneil7YB07xELL3mWmrJORLo8VHH0tB
+ WtYPUXtDaLVCuiNNptwtjqjFA2nsaylfVbv_CmZkSTfK9y1Mz4812_IdjYS_iKic0mwNTyQXBP7r
+ uC4sdPlwIfM1Mvzlr6bOcUPLzfxKn2vflGKQ7Ffhar3bote7qvArQU_gOsz4CWudqXBeAWWeeEE1
+ gMJlCekWIlkd1leY9mlK6mzYYzUNTNrQM.idOKsKyXrW2Wpwk8Ndu6t5ZfZIWaLJlAXydQhDUq4n
+ QocCpbzw_5BZ4hD8wiyWuo8GidcNhOUzxYAMzPpXpRFkEPSdUmXtnyWl0l5PLhHqs9fLUjQQMwpx
+ bitgHrqZWH21OulpgkP8lOzeCGUfmZJSY3NTQb_nAkO3A2xN7jb8EWhA437G3o6xsrmfeHp3e3YV
+ m6oVDodAztKTqdLLGOVAOe.nVrp9GX1T6NF9.LU2Ekh.sGyIW9m6AyrRTdwhhlyQ85YfvkFK.BW_
+ OjMidZCEYG9.VHlt.NrgBSM42Y3Fzadpk3QuNWs6D.P27jiB9DiP4WvKoJeWb4_7Ic0yMWh6aSkc
+ u.ghBEvYTq7Mzmtpb3gHmEjFw6DKIfIcKYmogA.zVcoU-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:41 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp408.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d92a2db682ecd2e464273bda9352fd0e;
-          Tue, 11 Dec 2018 22:43:42 +0000 (UTC)
+          Tue, 11 Dec 2018 22:43:38 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org
@@ -53,9 +53,9 @@ Cc:     john.johansen@canonical.com, keescook@chromium.org,
         linux-fsdevel@vger.kernel.org, sds@tycho.nsa.gov,
         adobriyan@gmail.com, mic@digikod.net, s.mesoraca16@gmail.com,
         casey@schaufler-ca.com
-Subject: [PATCH v5 17/38] Yama: Initialize as ordered LSM
-Date:   Tue, 11 Dec 2018 14:42:53 -0800
-Message-Id: <20181211224314.22412-18-casey@schaufler-ca.com>
+Subject: [PATCH v5 14/38] LSM: Add all exclusive LSMs to ordered initialization
+Date:   Tue, 11 Dec 2018 14:42:50 -0800
+Message-Id: <20181211224314.22412-15-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20181211224314.22412-1-casey@schaufler-ca.com>
 References: <20181211224314.22412-1-casey@schaufler-ca.com>
@@ -64,80 +64,102 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
-
-This converts Yama from being a direct "minor" LSM into an ordered LSM.
+This removes CONFIG_DEFAULT_SECURITY in favor of the explicit ordering
+offered by CONFIG_LSM and adds all the exclusive LSMs to the ordered
+LSM initialization. The old meaning of CONFIG_DEFAULT_SECURITY is now
+captured by which exclusive LSM is listed first in the LSM order. All
+LSMs not added to the ordered list are explicitly disabled.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h | 5 -----
- security/Kconfig          | 2 +-
- security/security.c       | 1 -
- security/yama/yama_lsm.c  | 8 +++++++-
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ security/security.c | 45 ++++++++++++++++++++-------------------------
+ 1 file changed, 20 insertions(+), 25 deletions(-)
 
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index b565c0c10269..6cfbd7d78a89 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -2087,10 +2087,5 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
- #endif /* CONFIG_SECURITY_WRITABLE_HOOKS */
- 
- extern void __init capability_add_hooks(void);
--#ifdef CONFIG_SECURITY_YAMA
--extern void __init yama_add_hooks(void);
--#else
--static inline void __init yama_add_hooks(void) { }
--#endif
- 
- #endif /* ! __LINUX_LSM_HOOKS_H */
-diff --git a/security/Kconfig b/security/Kconfig
-index 566d54215cbe..94a71e022b79 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -241,7 +241,7 @@ source security/integrity/Kconfig
- 
- config LSM
- 	string "Ordered list of enabled LSMs"
--	default "loadpin,integrity,selinux,smack,tomoyo,apparmor"
-+	default "yama,loadpin,integrity,selinux,smack,tomoyo,apparmor"
- 	help
- 	  A comma-separated list of LSMs, in initialization order.
- 	  Any LSMs left off this list will be ignored. This can be
 diff --git a/security/security.c b/security/security.c
-index 0c092d62cc47..0c3c66dbf51c 100644
+index 0009ef6c83fa..df71b54c1ba4 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -274,7 +274,6 @@ int __init security_init(void)
- 	 * Load minor LSMs, with the capability module always first.
- 	 */
- 	capability_add_hooks();
--	yama_add_hooks();
+@@ -169,8 +169,6 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+ 	char *sep, *name, *next;
  
+ 	/* Process "security=", if given. */
+-	if (!chosen_major_lsm)
+-		chosen_major_lsm = CONFIG_DEFAULT_SECURITY;
+ 	if (chosen_major_lsm) {
+ 		struct lsm_info *major;
+ 
+@@ -198,8 +196,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+ 		bool found = false;
+ 
+ 		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
+-			if ((lsm->flags & LSM_FLAG_LEGACY_MAJOR) == 0 &&
+-			    strcmp(lsm->name, name) == 0) {
++			if (strcmp(lsm->name, name) == 0) {
+ 				append_ordered_lsm(lsm, origin);
+ 				found = true;
+ 			}
+@@ -208,6 +205,25 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+ 		if (!found)
+ 			init_debug("%s ignored: %s\n", origin, name);
+ 	}
++
++	/* Process "security=", if given. */
++	if (chosen_major_lsm) {
++		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
++			if (exists_ordered_lsm(lsm))
++				continue;
++			if (strcmp(lsm->name, chosen_major_lsm) == 0)
++				append_ordered_lsm(lsm, "security=");
++		}
++	}
++
++	/* Disable all LSMs not in the ordered list. */
++	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
++		if (exists_ordered_lsm(lsm))
++			continue;
++		set_enabled(lsm, false);
++		init_debug("%s disabled: %s\n", origin, lsm->name);
++	}
++
+ 	kfree(sep);
+ }
+ 
+@@ -229,22 +245,6 @@ static void __init ordered_lsm_init(void)
+ 	kfree(ordered_lsms);
+ }
+ 
+-static void __init major_lsm_init(void)
+-{
+-	struct lsm_info *lsm;
+-
+-	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
+-		if ((lsm->flags & LSM_FLAG_LEGACY_MAJOR) == 0)
+-			continue;
+-
+-		/* Enable this LSM, if it is not already set. */
+-		if (!lsm->enabled)
+-			lsm->enabled = &lsm_enabled_true;
+-
+-		maybe_initialize_lsm(lsm);
+-	}
+-}
+-
+ /**
+  * security_init - initializes the security framework
+  *
+@@ -271,11 +271,6 @@ int __init security_init(void)
  	/* Load LSMs in specified order. */
  	ordered_lsm_init();
-diff --git a/security/yama/yama_lsm.c b/security/yama/yama_lsm.c
-index ffda91a4a1aa..eb1da1303d2e 100644
---- a/security/yama/yama_lsm.c
-+++ b/security/yama/yama_lsm.c
-@@ -477,9 +477,15 @@ static void __init yama_init_sysctl(void)
- static inline void yama_init_sysctl(void) { }
- #endif /* CONFIG_SYSCTL */
  
--void __init yama_add_hooks(void)
-+static int __init yama_init(void)
- {
- 	pr_info("Yama: becoming mindful.\n");
- 	security_add_hooks(yama_hooks, ARRAY_SIZE(yama_hooks), "yama");
- 	yama_init_sysctl();
-+	return 0;
+-	/*
+-	 * Load all the remaining security modules.
+-	 */
+-	major_lsm_init();
+-
+ 	return 0;
  }
-+
-+DEFINE_LSM(yama) = {
-+	.name = "yama",
-+	.init = yama_init,
-+};
+ 
 -- 
 2.14.5
 
