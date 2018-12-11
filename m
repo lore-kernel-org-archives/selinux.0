@@ -4,47 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CC34C6783B
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71A75C6783B
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C9C8620672
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3632820672
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="NUplNcUt"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9C8620672
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="talstdGD"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3632820672
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726471AbeLKWnn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Dec 2018 17:43:43 -0500
-Received: from sonic308-17.consmr.mail.ne1.yahoo.com ([66.163.187.40]:39343
-        "EHLO sonic308-17.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726442AbeLKWnn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568221; bh=aA9ToBwx7EdAqaJKoH0MpMTFJSSXKnw022+5umTtX5A=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=NUplNcUt0iSDUQJ+zLEcBS2pij4wOKa5CT/OcVcpXOQYrANDY4cICSenmAYYJeXUuqzHVWu2lfCKTNCyevCm/CEp2ipPCAdYCVZfir/Sh/w8oyu86KdYXqXz1qmcVvGh0Bh2IpcW4aLjnl40ocgfAS1TrJ5wEw/w44r+N8VADtHgWkUsPriJS4MZVMs66LAL6v9FyMie/a4RwthINZS2zWEM5alrwVQq763CyraB5RNYcXEvROlyMUQ3Lyfj1NQLZn39/LDcLt2T1U2dltPxI+tiErqDYBP3g1TD72BvBcxXTT1ElHPpkR3ld3ggmDtctGjrLx9vOzjBrL7clBRhrQ==
-X-YMail-OSG: X3ciU5kVM1mNKklmhmnKECfTg1deBrlrXd.Wk8h2mnXCVK5_0F_mvmiI5wDIRMQ
- 5XtC72LqWVYM8h39ZVpyxa7XYSmDn0whh5iXBxL.CFZPXTz9O0KSsKiESsH87HoAmoNpeizW.3px
- J_YnmVGRHidOf2Iknt8SqxjxsgdBVoVCYySvwXGHnlKekFutkBE3AAL7ecyHx1pwVfE1P4EcVfFX
- qvs.WhKG14ej3pTB0F0gija_WoLL_b_T66GFv1XwZ3GTH6SkdpCtmo9QRZG_kmAgl1HO9UA4v6as
- fh6efRu6pUt0RsqLroYT8ft7E7OFVXWZULakq3E8lC0fbOEtm2__xmhdhwvLyedHf5ylhXcdWuYx
- 1_dQLz0sH_UV4Iw4h8S9yoxE8I1M6a2uc6eZ5_mTwntctVa8yra80mu3ivDr7g5TKySdKwGDtdKv
- Ko4SMOT2mpKM8TqXwRsERj4MPmHftg45v9l2r1RKFBjhAM3eQxvUYI.p.sz4Wa0tou2PKbmNOlsF
- m0hdbb4Cshw6buCHaYQB1ESvmv81hYX3po.H0LbjjJmbFpneil7YB07xELL3mWmrJORLo8VHH0tB
- WtYPUXtDaLVCuiNNptwtjqjFA2nsaylfVbv_CmZkSTfK9y1Mz4812_IdjYS_iKic0mwNTyQXBP7r
- uC4sdPlwIfM1Mvzlr6bOcUPLzfxKn2vflGKQ7Ffhar3bote7qvArQU_gOsz4CWudqXBeAWWeeEE1
- gMJlCekWIlkd1leY9mlK6mzYYzUNTNrQM.idOKsKyXrW2Wpwk8Ndu6t5ZfZIWaLJlAXydQhDUq4n
- QocCpbzw_5BZ4hD8wiyWuo8GidcNhOUzxYAMzPpXpRFkEPSdUmXtnyWl0l5PLhHqs9fLUjQQMwpx
- bitgHrqZWH21OulpgkP8lOzeCGUfmZJSY3NTQb_nAkO3A2xN7jb8EWhA437G3o6xsrmfeHp3e3YV
- m6oVDodAztKTqdLLGOVAOe.nVrp9GX1T6NF9.LU2Ekh.sGyIW9m6AyrRTdwhhlyQ85YfvkFK.BW_
- OjMidZCEYG9.VHlt.NrgBSM42Y3Fzadpk3QuNWs6D.P27jiB9DiP4WvKoJeWb4_7Ic0yMWh6aSkc
- u.ghBEvYTq7Mzmtpb3gHmEjFw6DKIfIcKYmogA.zVcoU-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:41 +0000
+        id S1726459AbeLKWnm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Dec 2018 17:43:42 -0500
+Received: from sonic311-28.consmr.mail.ne1.yahoo.com ([66.163.188.209]:40507
+        "EHLO sonic311-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726438AbeLKWnm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568221; bh=nX5WCNeB8OL6sK73++PHBplL0xdzgmOCeH2n6KH/tEc=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=talstdGDTIzNpdb/6kj6dvbvBT0bG7yEUVMolB6O4CCsrysysN/ZzZsEb3jjPi2SZQ+kqzwD9p3GHtPA3CjeNaNcyYld8HLa6OT78MOkxXsgOUnQ2YqMKVfzd3jYNB7CWVitYre51QBzptQhL2JYbYBDdw+6OykmZT1gIRIiI/LlOtM73Yw76G27AACkT88wbybGOEdPL2kZy3NsRrfxeEajiattGQ3l4OiAGt+cwHfgHl++MSNDP8yGMXu3Wr+MsJBzMw/DLq8EFvDL8X2KtBDvbb5I0UGkwUUYF3E0j3G+9/XxB0Yb/4CVylz5ryU3qWQ2wlyIEFS+1sjf9y01tw==
+X-YMail-OSG: X34MAtYVM1mw0hTnuj1CSbNj3v1TQk54TZVx2uZeIF8zUAhPREgzLiqfTIjkFKh
+ qq4AxUjhBdJCs24G3za8pbm6aTQMPYuI6rW3_NpeHyA9vdZbwUP81sQgPjgZyl.ln_jBwNVc6WLZ
+ 3Ehh85vVYqsBF27WBw6LBtZlB8yerjmbFHx0r7b4q7_ORX2HZpcyb.kn0LN3uZ0fKu8UmpnTOWN6
+ gtazAmI_lA.sMOTprwzUVpLf5sKFZD0lBVH5IcDFKDF4PgNzOV1BNa_kXV4uQvpQELpr_9viCgSz
+ d9SZsZSftCJ1IzCAyxs8MtsWKX8bfpHvbnwcdj_pe_4LUzNwdzcl7QqdpgO2tyznBpmBKo85niSr
+ gwlA2mFKEHjdpo8BAX3XtKIL8U91LRe.cFc1bW7U8O7za6no9Svr1CwJ0myStp4K97tmYVtIGHrl
+ nPYWxLDg.F8b2jlK.UHn9.DlIfh3g4w3T0gKmcXSh610IrB2YizCJSRvT1D6FwOyyLPCoDU2E4kG
+ PfXYgXMnVOa_9i27dMA_HeZk8qcWdtGZpLGs1yiyAkkAC5Z4cPrtpK0oErBmYiACupBUq_GQi8eI
+ Wstu6klGItMvc2NQWmveXGwCUU_iWyzUbk3cP30hU7EH5wXUIErb.GCC4eUcIE0_KWfdJQlmRs_n
+ M4UNW3ujiZvlzlPePd8jvKDMtn1U2hoH7AVCDQVXijyRQfVs8VusvyllWd4z3jFzw09DZxXCm.1K
+ nON8j559audz6c7.gpnCL00ZKsMhAl8ezfEQipkwd2SydhdXcYDh.K5M9NMYWBGvJ7R0HyPbBPB5
+ fIiYM9N5IOVGgmK8YUibS5LD0eicPCQJA2XJERbrgJBkwBouq5MZD1Yu1whSWaMd2hdduWcxirZR
+ 5N72rqa8er8PDtOk59_bAOJiub2UIZNcr5WRyD2Aw58YgnZxzdi8b0E8YIGMeF78mBHePlhFjjkZ
+ rFLfJeiYNZu9IdEyzHeiz9oYgy2YNkwsyy9t5vVoZ_Bd.KzqWjh_MotpHKC2PH0jvfxS.bW95z1K
+ .mYMnQZVWVWFHqKeESsoYffPLSV_EU6DlY_xhhl2g.RMCTLz7VeDPQhlmEdXmmIq_S.roAZyUJ9z
+ bnCpayFcksTJ9d7LIEV0NBYEH5SxWuUBpewBwTsP26rM-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:41 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp408.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d92a2db682ecd2e464273bda9352fd0e;
-          Tue, 11 Dec 2018 22:43:38 +0000 (UTC)
+          Tue, 11 Dec 2018 22:43:37 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org
@@ -53,9 +53,9 @@ Cc:     john.johansen@canonical.com, keescook@chromium.org,
         linux-fsdevel@vger.kernel.org, sds@tycho.nsa.gov,
         adobriyan@gmail.com, mic@digikod.net, s.mesoraca16@gmail.com,
         casey@schaufler-ca.com
-Subject: [PATCH v5 14/38] LSM: Add all exclusive LSMs to ordered initialization
-Date:   Tue, 11 Dec 2018 14:42:50 -0800
-Message-Id: <20181211224314.22412-15-casey@schaufler-ca.com>
+Subject: [PATCH v5 13/38] selinux: Remove SECURITY_SELINUX_BOOTPARAM_VALUE
+Date:   Tue, 11 Dec 2018 14:42:49 -0800
+Message-Id: <20181211224314.22412-14-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20181211224314.22412-1-casey@schaufler-ca.com>
 References: <20181211224314.22412-1-casey@schaufler-ca.com>
@@ -64,102 +64,71 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This removes CONFIG_DEFAULT_SECURITY in favor of the explicit ordering
-offered by CONFIG_LSM and adds all the exclusive LSMs to the ordered
-LSM initialization. The old meaning of CONFIG_DEFAULT_SECURITY is now
-captured by which exclusive LSM is listed first in the LSM order. All
-LSMs not added to the ordered list are explicitly disabled.
+From: Kees Cook <keescook@chromium.org>
+
+In preparation for removing CONFIG_DEFAULT_SECURITY, this removes the
+soon-to-be redundant SECURITY_SELINUX_BOOTPARAM_VALUE. Since explicit
+ordering via CONFIG_LSM or "lsm=" will define whether an LSM is enabled or
+not, this CONFIG will become effectively ignored, so remove it. However,
+in order to stay backward-compatible with "security=selinux", the enable
+variable defaults to true.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/security.c | 45 ++++++++++++++++++++-------------------------
- 1 file changed, 20 insertions(+), 25 deletions(-)
+ security/selinux/Kconfig | 15 ---------------
+ security/selinux/hooks.c |  5 +----
+ 2 files changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/security/security.c b/security/security.c
-index 0009ef6c83fa..df71b54c1ba4 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -169,8 +169,6 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
- 	char *sep, *name, *next;
+diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+index 8af7a690eb40..55f032f1fc2d 100644
+--- a/security/selinux/Kconfig
++++ b/security/selinux/Kconfig
+@@ -22,21 +22,6 @@ config SECURITY_SELINUX_BOOTPARAM
  
- 	/* Process "security=", if given. */
--	if (!chosen_major_lsm)
--		chosen_major_lsm = CONFIG_DEFAULT_SECURITY;
- 	if (chosen_major_lsm) {
- 		struct lsm_info *major;
+ 	  If you are unsure how to answer this question, answer N.
  
-@@ -198,8 +196,7 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
- 		bool found = false;
+-config SECURITY_SELINUX_BOOTPARAM_VALUE
+-	int "NSA SELinux boot parameter default value"
+-	depends on SECURITY_SELINUX_BOOTPARAM
+-	range 0 1
+-	default 1
+-	help
+-	  This option sets the default value for the kernel parameter
+-	  'selinux', which allows SELinux to be disabled at boot.  If this
+-	  option is set to 0 (zero), the SELinux kernel parameter will
+-	  default to 0, disabling SELinux at bootup.  If this option is
+-	  set to 1 (one), the SELinux kernel parameter will default to 1,
+-	  enabling SELinux at bootup.
+-
+-	  If you are unsure how to answer this question, answer 1.
+-
+ config SECURITY_SELINUX_DISABLE
+ 	bool "NSA SELinux runtime disable"
+ 	depends on SECURITY_SELINUX
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3687599d9d16..edd5b8dd3e56 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -120,9 +120,8 @@ __setup("enforcing=", enforcing_setup);
+ #define selinux_enforcing_boot 1
+ #endif
  
- 		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
--			if ((lsm->flags & LSM_FLAG_LEGACY_MAJOR) == 0 &&
--			    strcmp(lsm->name, name) == 0) {
-+			if (strcmp(lsm->name, name) == 0) {
- 				append_ordered_lsm(lsm, origin);
- 				found = true;
- 			}
-@@ -208,6 +205,25 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
- 		if (!found)
- 			init_debug("%s ignored: %s\n", origin, name);
- 	}
-+
-+	/* Process "security=", if given. */
-+	if (chosen_major_lsm) {
-+		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
-+			if (exists_ordered_lsm(lsm))
-+				continue;
-+			if (strcmp(lsm->name, chosen_major_lsm) == 0)
-+				append_ordered_lsm(lsm, "security=");
-+		}
-+	}
-+
-+	/* Disable all LSMs not in the ordered list. */
-+	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
-+		if (exists_ordered_lsm(lsm))
-+			continue;
-+		set_enabled(lsm, false);
-+		init_debug("%s disabled: %s\n", origin, lsm->name);
-+	}
-+
- 	kfree(sep);
++int selinux_enabled __lsm_ro_after_init = 1;
+ #ifdef CONFIG_SECURITY_SELINUX_BOOTPARAM
+-int selinux_enabled = CONFIG_SECURITY_SELINUX_BOOTPARAM_VALUE;
+-
+ static int __init selinux_enabled_setup(char *str)
+ {
+ 	unsigned long enabled;
+@@ -131,8 +130,6 @@ static int __init selinux_enabled_setup(char *str)
+ 	return 1;
  }
+ __setup("selinux=", selinux_enabled_setup);
+-#else
+-int selinux_enabled = 1;
+ #endif
  
-@@ -229,22 +245,6 @@ static void __init ordered_lsm_init(void)
- 	kfree(ordered_lsms);
- }
- 
--static void __init major_lsm_init(void)
--{
--	struct lsm_info *lsm;
--
--	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
--		if ((lsm->flags & LSM_FLAG_LEGACY_MAJOR) == 0)
--			continue;
--
--		/* Enable this LSM, if it is not already set. */
--		if (!lsm->enabled)
--			lsm->enabled = &lsm_enabled_true;
--
--		maybe_initialize_lsm(lsm);
--	}
--}
--
- /**
-  * security_init - initializes the security framework
-  *
-@@ -271,11 +271,6 @@ int __init security_init(void)
- 	/* Load LSMs in specified order. */
- 	ordered_lsm_init();
- 
--	/*
--	 * Load all the remaining security modules.
--	 */
--	major_lsm_init();
--
- 	return 0;
- }
- 
+ static unsigned int selinux_checkreqprot_boot =
 -- 
 2.14.5
 
