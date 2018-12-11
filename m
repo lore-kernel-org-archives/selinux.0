@@ -4,47 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 621A2C67839
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42F67C67869
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 277E820672
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0657A20672
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="glhjHjo9"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 277E820672
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="nhvf5EmY"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0657A20672
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726455AbeLKWnm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Dec 2018 17:43:42 -0500
-Received: from sonic316-27.consmr.mail.ne1.yahoo.com ([66.163.187.153]:43583
-        "EHLO sonic316-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726427AbeLKWnl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568220; bh=4hwChtAwttRCpgqq8AqfChSxmv0QZcRu2QJKKXrAwIA=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=glhjHjo976eP0Oexs/4TJVl02MqDYbeDweS4LVwn1YOF8UHetfazBcD5vQROhnoK0Y5yx7cWbxNvYKCTbJ+YlCCLw+ISzX0sVcQKwe0Jtdny44d0uIVPDkCnSHK11GZoVFzQEaQtDwQt9XQ+RHo/Ul2r0oADd9+naq3KoZofXfbL/MR6aGXpYl1FpImsOUitlqdZv2sXdeyc66dwQzKV+4k2Ecv64KxZqhrXhQCjXXZ5z07r/89r+s+gsl5ksb4Z2WOkIw4p8QjCioRd0jwbzGAU+CMCB931X7AqlIsoU2W4M6p2tSrLC4uBEwzNgPsp4rVB1Q2LnSXFUiPv9pbMyg==
-X-YMail-OSG: 8M.vqnsVM1mwZqd3mYAwTrAjXYNin4XtXIKd3C_vJ0lAYkLY1sqcRB.fb_G3hS6
- o530P5Dxuwb9DE2n4510CKvwF5Si_PDK2tl5S1B5inC95pNgLn3KJ7kXqUq.uc8AIohUDfcDiO7y
- yePVKY4mAI_C20uBdcwy5OYFntzRMG2Rj10gXBQ1NFhsKMKodluB7jDyM5u5Ao4668B6K4hVr0FS
- ygQe41N3XNImftxLYBCxB5faIbWqH6UFtgQTvMe4e26w9F9X0uNLRpXBn4OXXbPHLI4tEkJt.ZV6
- _B5n.umm8rcxfUIicxO.Ru56oZdgdYT1b5KMAJ230ZA5Qj0pAX4uMLZSwzAO..hHmqPtfgovAB9p
- wyL2FEOXxP0HDeFDFo8VvAak2orqrGlaHJ9p6ZuVJBUINf1BHQVCY_Dpe81qY52zKIou98nvub6s
- .fxIxsNB4BEnSE4A7tkCo.sSkt_YitYW7v3rsOc3PYGqSGeOOCJ2kt4pxGJKD_eIV4Ft70yRZLpY
- VjjnjttC.F3yOduRggI4qEMbFOTkiTxsj1oGDzLhx1rnzB.BfkY3SO1OGkbVi8cYxeUTy1Lk1Pp2
- _3_vSfZRXYXs6oSMasDQSdvKK8Gm4BSoKWiAT1OOjvgGRCU3kbpwAuvNIYPJbJ8oyV78q1TZSkvn
- Iz7iaSh5sxXwTub8n_MBOQll_KV21uqRw9RscJU5h9gimLcW1IP_A4MaD5CNUaUdaBejROXMH9XX
- uWY2S8iQcCIewwRE92ceCqS.FOG1_UukQYXfoD.digiZXJ1e3yOXbS1Br4DrQBOKzzJi6JfBrEAs
- LPcrCNnQpgrheI61_yM24z6tTuGGCCym.XaPw_3pMie36Kl.DRC8J3xMPKtf8ru4po5_bV5pooFo
- iV15UDNOcIVzGt8mzhDybnA2ue7Cpink_qYWPlILh3gL9pGoHEYQi.m7kMpZxUmprr9lJWg6wlET
- ceJg_V1SOzcl4wLypcWEM1bLDJY.0Nv5IOFOfCTN0_WDqnQNOdfoUQai5ChaZwGlQlTxe_do2AgW
- n1_6aKybczalc4XIPGP0dEnFngmuzIJHiYT4f6TCWGYnZKtrBFmePOp5KvsG0L1UnPU0s4t7FyFl
- z9BU2UEsmIZFRErdMiR1UWNhRIyYtZ.6Ch4SuNA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:40 +0000
+        id S1726445AbeLKWrT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Dec 2018 17:47:19 -0500
+Received: from sonic308-17.consmr.mail.ne1.yahoo.com ([66.163.187.40]:34942
+        "EHLO sonic308-17.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726450AbeLKWnm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568221; bh=/Zci3rWg5UF8hGpyuPO01UM8s4zhurIZ4pddwS3UViI=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=nhvf5EmYIL3UlXtPuDhR1+E1BSXAQXf1B2WxxNSXxu+GN40c3TSSZ27vwD+DW7HEc9cidax5TzFJ7lWZFq6r2qzvQ4D1DGOa7cb/OG7xPK7NCUh+YGIR5UUkBQWriujFHhxuCbU5863HQZUtJ/u8ksDtjKHg1lp1WL2RgEGB5sgratKE9aCNQoctxQilpJHtTbqLbKiRgbI4QfyHfpYh5YxBWVGP66UgZ5mu4gS10JYi/UBnjVHQxKKc4fYEKGcXkP9+kctpQFyxa4EUEiAxRLBFx+v8Hd1JCTdSpMzWHbG9tCcjoJt6BDRF0keyU4oVCNHmaEYs7Fe4dmdRHBhEDg==
+X-YMail-OSG: rmA4qi8VM1lSiBJWHF0PN_ageUgbCmh5AKJfd9aGVlPOJDa0Xia_0gu2vmXg..d
+ pgj.qxOe8U3oOk0aOa3JcFxUJxy5tbcmZmtZ8WPijn6f2eRt1OhK6TymKxRPWhu3uklmOO5VE1A3
+ YPxuGmekb3bQtvWj9WvRSp8l.rf.ADECeTMBUPswPN18G1CPDNGotaCPYoEwJ9NH_9LCflNmRP8z
+ EIQJU0F5mwtUPWXZyxKZOZuX_M3XWVirA.G.NDbvAx1R7tE9KqrvYaOWF2ezLiDE2H6s7JYCEYVB
+ A52Yy.QxV9Ihc1RB3tUO7TM3q1dTHjzC4ldKLa46pcLCUjCDjSv7K8a0iMAmzUymkAffp9asyLY0
+ aQUiqWhQVBAhxhrDY8ReXI6DpkPe7QRcyshyL.2Pd6SrnIuDMsZ6pGHklggfoSGbWBTONJc6KHEe
+ vC0mJnDNbx20PaClXxEPQv9CxDCQ8h.MCflJV0c.2TvB0veu3PMX8HyHzpLu6G0Z.coCvnLuNtAP
+ fJYEFoyBpFpgBYhYJVXIQCqnyF_yCmmWgisNGlUjnmm9bh.mWT0wE1SlJOigsmiRCHhywhQUVq4a
+ WDrHiABuQDtixnn.zA9I6KOGSevpkhokubQ.vT7uuKTT2yAe0hIS9cMyghjmUqZ2LIwIsuFSbSML
+ II6kNJcuUGFUOiHBXFoWXMko28_Uk8FyPHbVXzl8mobxQhAhaDJ1IMT2ge4pGPjyiQjyGyU0o8OD
+ i8nZnH8BujqCWCWJWno7D6dRT8qen5JZ6k62w0Cot5FgvholovB1y_u6skPI4_0FGKK7sIHF05nf
+ bt6.A1FyVmw.XFgpL2fmTtXbvFsIGFPijjWkG7yYWuliFLTvhx5eX40JlxhxJdPrHO5M6f0ADWN0
+ ye4NgMzPk8DnFSFPA87kYEZj09vPDxqR2uVR0bzkdqquR6B1gv0SaFMA6onhqmcrBOngrr6R15tv
+ Q3ApSXp2lVjDwVikTXN6Qpo_pRwzMiVpUrybe98EAJtUVIhIRtT7WV5S7T6AWq9qUVz_hlkE.w_Q
+ 2EE_YfdEWEau1Rgw9sdluWwgQ8sobsEujdUwa_x7jsJ6mPWhyXI_D0NE0hZdyIA1bq1OU3owqg5d
+ s0S_yQSFbQ7LksXq5APHrz6qeOdSJZ8YhRI4TRwmit.E-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:41 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp408.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d92a2db682ecd2e464273bda9352fd0e;
-          Tue, 11 Dec 2018 22:43:36 +0000 (UTC)
+          Tue, 11 Dec 2018 22:43:39 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org
@@ -53,9 +53,9 @@ Cc:     john.johansen@canonical.com, keescook@chromium.org,
         linux-fsdevel@vger.kernel.org, sds@tycho.nsa.gov,
         adobriyan@gmail.com, mic@digikod.net, s.mesoraca16@gmail.com,
         casey@schaufler-ca.com
-Subject: [PATCH v5 12/38] apparmor: Remove SECURITY_APPARMOR_BOOTPARAM_VALUE
-Date:   Tue, 11 Dec 2018 14:42:48 -0800
-Message-Id: <20181211224314.22412-13-casey@schaufler-ca.com>
+Subject: [PATCH v5 15/38] LSM: Split LSM preparation from initialization
+Date:   Tue, 11 Dec 2018 14:42:51 -0800
+Message-Id: <20181211224314.22412-16-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20181211224314.22412-1-casey@schaufler-ca.com>
 References: <20181211224314.22412-1-casey@schaufler-ca.com>
@@ -66,59 +66,67 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-In preparation for removing CONFIG_DEFAULT_SECURITY, this removes the
-soon-to-be redundant SECURITY_APPARMOR_BOOTPARAM_VALUE. Since explicit
-ordering via CONFIG_LSM or "lsm=" will define whether an LSM is enabled or
-not, this CONFIG will become effectively ignored, so remove it. However,
-in order to stay backward-compatible with "security=apparmor", the enable
-variable defaults to true.
+Since we already have to do a pass through the LSMs to figure out if
+exclusive LSMs should be disabled after the first one is seen as enabled,
+this splits the logic up a bit more cleanly. Now we do a full "prepare"
+pass through the LSMs (which also allows for later use by the blob-sharing
+code), before starting the LSM initialization pass.
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- security/apparmor/Kconfig | 16 ----------------
- security/apparmor/lsm.c   |  2 +-
- 2 files changed, 1 insertion(+), 17 deletions(-)
+ security/security.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/security/apparmor/Kconfig b/security/apparmor/Kconfig
-index b6b68a7750ce..3de21f46c82a 100644
---- a/security/apparmor/Kconfig
-+++ b/security/apparmor/Kconfig
-@@ -14,22 +14,6 @@ config SECURITY_APPARMOR
+diff --git a/security/security.c b/security/security.c
+index df71b54c1ba4..3fac0ff39944 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -139,22 +139,28 @@ static bool __init lsm_allowed(struct lsm_info *lsm)
+ 	return true;
+ }
  
- 	  If you are unsure how to answer this question, answer N.
+-/* Check if LSM should be initialized. */
+-static void __init maybe_initialize_lsm(struct lsm_info *lsm)
++/* Prepare LSM for initialization. */
++static void __init prepare_lsm(struct lsm_info *lsm)
+ {
+ 	int enabled = lsm_allowed(lsm);
  
--config SECURITY_APPARMOR_BOOTPARAM_VALUE
--	int "AppArmor boot parameter default value"
--	depends on SECURITY_APPARMOR
--	range 0 1
--	default 1
--	help
--	  This option sets the default value for the kernel parameter
--	  'apparmor', which allows AppArmor to be enabled or disabled
--          at boot.  If this option is set to 0 (zero), the AppArmor
--	  kernel parameter will default to 0, disabling AppArmor at
--	  boot.  If this option is set to 1 (one), the AppArmor
--	  kernel parameter will default to 1, enabling AppArmor at
--	  boot.
+ 	/* Record enablement (to handle any following exclusive LSMs). */
+ 	set_enabled(lsm, enabled);
+ 
+-	/* If selected, initialize the LSM. */
++	/* If enabled, do pre-initialization work. */
+ 	if (enabled) {
+-		int ret;
 -
--	  If you are unsure how to answer this question, answer 1.
--
- config SECURITY_APPARMOR_HASH
- 	bool "Enable introspection of sha1 hashes for loaded profiles"
- 	depends on SECURITY_APPARMOR
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 37dafab649b1..e8b40008d58c 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1332,7 +1332,7 @@ bool aa_g_paranoid_load = true;
- module_param_named(paranoid_load, aa_g_paranoid_load, aabool, S_IRUGO);
+ 		if ((lsm->flags & LSM_FLAG_EXCLUSIVE) && !exclusive) {
+ 			exclusive = lsm;
+ 			init_debug("exclusive chosen: %s\n", lsm->name);
+ 		}
++	}
++}
++
++/* Initialize a given LSM, if it is enabled. */
++static void __init initialize_lsm(struct lsm_info *lsm)
++{
++	if (is_enabled(lsm)) {
++		int ret;
  
- /* Boot time disable flag */
--static int apparmor_enabled = CONFIG_SECURITY_APPARMOR_BOOTPARAM_VALUE;
-+static int apparmor_enabled __lsm_ro_after_init = 1;
- module_param_named(enabled, apparmor_enabled, int, 0444);
+ 		init_debug("initializing %s\n", lsm->name);
+ 		ret = lsm->init();
+@@ -240,7 +246,10 @@ static void __init ordered_lsm_init(void)
+ 		ordered_lsm_parse(builtin_lsm_order, "builtin");
  
- static int __init apparmor_enabled_setup(char *str)
+ 	for (lsm = ordered_lsms; *lsm; lsm++)
+-		maybe_initialize_lsm(*lsm);
++		prepare_lsm(*lsm);
++
++	for (lsm = ordered_lsms; *lsm; lsm++)
++		initialize_lsm(*lsm);
+ 
+ 	kfree(ordered_lsms);
+ }
 -- 
 2.14.5
 
