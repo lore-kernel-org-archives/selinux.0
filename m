@@ -2,163 +2,146 @@ Return-Path: <SRS0=YYAz=OU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46957C6783B
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 21:48:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10350C6783B
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:43:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 09C772086D
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 21:48:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 09C772086D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTP id C7FCB20672
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:43:27 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="WCL6SN0e"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C7FCB20672
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726158AbeLKVsX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Dec 2018 16:48:23 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:40204 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726146AbeLKVsX (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 11 Dec 2018 16:48:23 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5AAE858E3F;
-        Tue, 11 Dec 2018 21:48:22 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.18.25.234])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B73F019C7D;
-        Tue, 11 Dec 2018 21:48:21 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
-        id 427C52208FC; Tue, 11 Dec 2018 16:48:21 -0500 (EST)
-Date:   Tue, 11 Dec 2018 16:48:21 -0500
-From:   Vivek Goyal <vgoyal@redhat.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Miklos Szeredi <miklos@szeredi.hu>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Mark Salyzyn <salyzyn@android.com>,
-        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        Daniel J Walsh <dwalsh@redhat.com>
-Subject: Re: overlayfs access checks on underlying layers
-Message-ID: <20181211214821.GD17242@redhat.com>
-References: <4c20a261-5ce1-f0a2-8d40-c6032a023216@tycho.nsa.gov>
- <20181204151549.GA21509@redhat.com>
- <20181204152248.GB21509@redhat.com>
- <CAJfpegtFVvq286HAorGLg6ywMsfs51KqaQwFkcuV7Dtu8TLaLg@mail.gmail.com>
- <20181204154243.GA16818@redhat.com>
- <665ec6f3-f16d-681f-30d5-eface14c9808@tycho.nsa.gov>
- <20181204161747.GC16818@redhat.com>
- <e8841bf0-d6b8-0e7d-6a35-055a06441d30@tycho.nsa.gov>
- <20181205134317.GA11337@redhat.com>
- <8eb7f677-fd71-c31b-bfed-29fb7187d132@tycho.nsa.gov>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8eb7f677-fd71-c31b-bfed-29fb7187d132@tycho.nsa.gov>
-User-Agent: Mutt/1.9.1 (2017-09-22)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Tue, 11 Dec 2018 21:48:23 +0000 (UTC)
+        id S1726183AbeLKWn1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Dec 2018 17:43:27 -0500
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com ([66.163.187.153]:39397
+        "EHLO sonic316-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726208AbeLKWn0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:26 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568205; bh=WT5A35EHIXDk4c6XxSfr7BOxdAICWJo3sRrzhtAFt40=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=WCL6SN0ed/rykvI+CC53zp6lYNEw7acT6UsZ8wv/Ai6R3qB8719/I8rlvAfNtOjTSBz10UGkFVDOjNbPg33brC+4E1PDXTyRf2tGvXSGARbXlwGUKy85KmejGDy0SlrpOUaQChg011yxoDjEr+OFY8jouqOUyS0WIXrBrwV8C8moCA9+9CNM9HsV54z46B0e4E5FCBntc9gXru+il8TRi1XvAxpyhntjej/4pNsmm6OvuKgGb8MW3k8b81moA6bujNtPKLKg1YZOq5u2wRt+eeHbgJOtiPtdi3v5R9PGAwrMUnGtJcPWpUee1Vi73cfUlca4WDc1MNXMmJO5iazFNQ==
+X-YMail-OSG: 6zt4hPoVM1ljIDxM4Z0xkdmtw0fRx4cgUSfmtnnCOBvLBqd8tXdlRE0nNzMYQFY
+ NwMz_kR5Wxb4PHnepdXiplWkXPJEVld_Bwl3.2D0Dhpwj2WjRQPrmspCvdsnVzlfyCte94wSTXsY
+ 61jlgF9Hi6UACMxQNgafHgrzWYqKNSnqTUw8Ke2Itj6jGEtMbnRmC7yiHAjmcvfs8fgW3a2Jpef8
+ E1VPusijMjbWa.tm3FOLLAr.xURE6D_rgMcwEBHRedrfV8RGKzfTlRBbjouWNr9lQWCwQAkA9Uwh
+ rdZBB5VeFDVfIh2zkH37VCyobWsn_ke3JwvWyUq_T9JKfSTEIxFa2AlgUI4hUPYnAVP.Xc_Q9dEu
+ 0JpQVV82eI8FA93IGsnkoX9Zzn_7FfuK6S8nXHy9VxM525vjxBQUqqepmNTgE2di7AMNWyGvbRVL
+ 8eBOhhM0937U2DWIFUMNNThNPVI4Vi0W4PrWrfIsYSThGWEeLaAd7NfZXdmqirFyOFjrcArAvjJg
+ SlA48QaC2qQIh4cff9tqd6jsxnUhBFai0vf1BiN8zlEk8zlQq1voyow79xgA5wjUm02POl.NasVV
+ 9aHtRJgIaLTkLGRbGQWUIFRqb2luywe5YrCqmalqeetBl1k674chB.RcTaDH53xWNy1kC5q958JB
+ fiEOsLLORvqO.5ztFCE5fQ2mbJ7ckjhbMOadxISAXQmjv76tCdqXrbdRO6Voqy3KOwjHWv2jDsHZ
+ HKkpQPJJwveqUq63n.FfHtn1qSFZNLLaMSl.UIG0WMGC73T.BrLYtr3oUR9op0EdC1fnxZmGZtt9
+ 1wUFjhZSM01s0L8wNTI9238bmOLKUpBStovPqQ4.xLqMI5qrZoT3SnHJ7qe9mvdT5ybnRbIoJkt_
+ 3NFjeFx1mjBcsoPlbUn4hwrtUNPax7jhJr2CpWioiF3WuygaypjNyjlt8ssclnnU9fJEiTuRhHXj
+ 9PvrMG3Yg3i31PjmtU2xXQJYnF41MljDMsjlNqWU0JcE1uewYjxvEeHXYEmCUf.z1S3J5Nd57rsT
+ cY4YZa..Bop_aZH6SRb7nOFXmW1rTTkcQS9DfVd..SaKrr_DObc3JRCT17Vb4P6f953mBcwPEpW8
+ RyISazgIf5OTkpg6pTbh7O9ChWofSfOpnNlr3YvID
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:25 +0000
+Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
+          by smtp422.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID db48327a3d58729724c38eee90dbab73;
+          Tue, 11 Dec 2018 22:43:25 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+Cc:     john.johansen@canonical.com, keescook@chromium.org,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        linux-fsdevel@vger.kernel.org, sds@tycho.nsa.gov,
+        adobriyan@gmail.com, mic@digikod.net, s.mesoraca16@gmail.com,
+        casey@schaufler-ca.com
+Subject: [PATCH v5 01/38] LSM: Introduce LSM_FLAG_LEGACY_MAJOR
+Date:   Tue, 11 Dec 2018 14:42:37 -0800
+Message-Id: <20181211224314.22412-2-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.17.0
+In-Reply-To: <20181211224314.22412-1-casey@schaufler-ca.com>
+References: <20181211224314.22412-1-casey@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Dec 06, 2018 at 03:26:26PM -0500, Stephen Smalley wrote:
-> On 12/5/18 8:43 AM, Vivek Goyal wrote:
-> > On Tue, Dec 04, 2018 at 11:49:16AM -0500, Stephen Smalley wrote:
-> > > On 12/4/18 11:17 AM, Vivek Goyal wrote:
-> > > > On Tue, Dec 04, 2018 at 11:05:46AM -0500, Stephen Smalley wrote:
-> > > > > On 12/4/18 10:42 AM, Vivek Goyal wrote:
-> > > > > > On Tue, Dec 04, 2018 at 04:31:09PM +0100, Miklos Szeredi wrote:
-> > > > > > > On Tue, Dec 4, 2018 at 4:22 PM Vivek Goyal <vgoyal@redhat.com> wrote:
-> > > > > > > 
-> > > > > > > > Having said that, this still create little anomaly when mknod to client
-> > > > > > > > is not allowed on context label. So a device file, which is on lower
-> > > > > > > > and client can not open it for read/write on host, it can now be opened
-> > > > > > > > for read/write because mounter will allow access. So why it is different
-> > > > > > > > that regular copy up. Well, in regular copy up, we created a copy of
-> > > > > > > > the original object and allowed writing to that object (cp --preserve=all)
-> > > > > > > > model. But in case of device file, writes will go to same original
-> > > > > > > > object. (And not a separate copy).
-> > > > > > > 
-> > > > > > > That's true.
-> > > > > > > 
-> > > > > > > In that sense copy up of special file should result in upper having
-> > > > > > > the same label as of lower, right?
-> > > > > > 
-> > > > > > I guess that might be reasonable (if this behavior is a concern). So even
-> > > > > > after copy up, client will not be able to read/write a device if it was
-> > > > > > not allowed on lower.
-> > > > > > 
-> > > > > > Stephen, what do you think about retaining label of lower for device
-> > > > > > files during copy up. What about socket/fifo.
-> > > > > 
-> > > > > We don't check client task access to the upper inode label, only to the
-> > > > > overlay, right?  So the client is still free to access the device through
-> > > > > the overlay even if we preserve the lower inode label on the upper inode?
-> > > > > What do we gain?
-> > > > 
-> > > > That's only with latest code and Miklos said he will revert it for 4.20.
-> > > > 
-> > > > IOW, I am assuming that we will continue to check access to a file
-> > > > on upper in the context of mounter. Otherwise, client will be able to access
-> > > > files on upper/ which even mounter can't access.
-> > > 
-> > > I was assuming we're talking about the proposed solution, where we check
-> > > client access to the overlay (unchanged), mounter access to lower
-> > > (unchanged), copy-up if denied (new), mounter access to upper (new in the
-> > > sense that previously we didn't copy-up on denials).
-> > > 
-> > > In that situation, propagating the lower inode label to the upper inode only
-> > > impacts the mounter checks, and in that case makes copy-up pointless - if it
-> > > wasn't allowed to lower it won't be allowed to upper.  If it is allowed,
-> > > then client task is free to access the device regardless as long as it has
-> > > permissions to the overlay inode.  So I don't see what we gain by
-> > > propagating the lower inode label to the upper inode in the context mount
-> > > case, and it creates an inconsistency between special files and regular
-> > > ones.
-> > 
-> > If we agree on retaining lower label of lower device file on copy up, then
-> > I am assuming we will change rule c) to copy up only non device files.
-> > (because if you don't have access on lower, you will not have access
-> > even after copy up).
-> > 
-> > There are other paths where copy up happnes. Like link or when file
-> > metadata (ownership, permissions, timestmap) changes. In those cases,
-> > if we retain the lower label over copy up, it probably will help.
-> > 
-> > IOW, just by creating a link to a device, one will not get access to
-> > a device on upper which could not be accessed on lower.
-> > 
-> > Device files are special anyway. In regular files we are creating a
-> > copy and user writes to copy. But that's not the case with device
-> > files. So I guess these will have to be treated differently.
-> 
-> I don't understand what you are suggesting.  In the case of a context mount,
-> the context specified by the mounter must be assigned to the upper inode for
-> any files that are copied up.  Otherwise, changes to file data or metadata
-> made through the overlay will be visible under two different security
-> contexts simultaneously: the context of the overlay inode (i.e. the one
-> specified by the mounter) and the context of the upper inode (in your
-> suggestion, the context from the lower inode). This allows a violation of
-> MAC policy where one can leak data through an overlay to an unauthorized
-> context.
+From: Kees Cook <keescook@chromium.org>
 
-Hi Stephen,
+This adds a flag for the current "major" LSMs to distinguish them when
+we have a universal method for ordering all LSMs. It's called "legacy"
+since the distinction of "major" will go away in the blob-sharing world.
 
-Sorry, I don't understand this point of leaking data through overlay. Even
-if we retain lower label on copy up (for device file), to open that file
-process should have access on overlay context label and then mounter needs
-to have access on upper inode (lower label). This is not different from
-opening a file on lower. Just that metadata of this file on upper might
-be different.
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
+Reviewed-by: John Johansen <john.johansen@canonical.com>
+---
+ include/linux/lsm_hooks.h  | 3 +++
+ security/apparmor/lsm.c    | 1 +
+ security/selinux/hooks.c   | 1 +
+ security/smack/smack_lsm.c | 1 +
+ security/tomoyo/tomoyo.c   | 1 +
+ 5 files changed, 7 insertions(+)
 
-Can you elaborate a bit more on how this is leaking data through overlay
-mount. If it is, then why accessing file on lower is not equivalent of
-leaking of data. 
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index aaeb7fa24dc4..63c0e102de20 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2039,8 +2039,11 @@ extern char *lsm_names;
+ extern void security_add_hooks(struct security_hook_list *hooks, int count,
+ 				char *lsm);
+ 
++#define LSM_FLAG_LEGACY_MAJOR	BIT(0)
++
+ struct lsm_info {
+ 	const char *name;	/* Required. */
++	unsigned long flags;	/* Optional: flags describing LSM */
+ 	int (*init)(void);	/* Required. */
+ };
+ 
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 42446a216f3b..2edd35ca5044 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1728,5 +1728,6 @@ static int __init apparmor_init(void)
+ 
+ DEFINE_LSM(apparmor) = {
+ 	.name = "apparmor",
++	.flags = LSM_FLAG_LEGACY_MAJOR,
+ 	.init = apparmor_init,
+ };
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7ce683259357..56c6f1849c80 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7209,6 +7209,7 @@ void selinux_complete_init(void)
+    all processes and objects when they are created. */
+ DEFINE_LSM(selinux) = {
+ 	.name = "selinux",
++	.flags = LSM_FLAG_LEGACY_MAJOR,
+ 	.init = selinux_init,
+ };
+ 
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 81fb4c1631e9..3639e55b1f4b 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4891,5 +4891,6 @@ static __init int smack_init(void)
+  */
+ DEFINE_LSM(smack) = {
+ 	.name = "smack",
++	.flags = LSM_FLAG_LEGACY_MAJOR,
+ 	.init = smack_init,
+ };
+diff --git a/security/tomoyo/tomoyo.c b/security/tomoyo/tomoyo.c
+index 1b5b5097efd7..09f7af130d3a 100644
+--- a/security/tomoyo/tomoyo.c
++++ b/security/tomoyo/tomoyo.c
+@@ -552,5 +552,6 @@ static int __init tomoyo_init(void)
+ 
+ DEFINE_LSM(tomoyo) = {
+ 	.name = "tomoyo",
++	.flags = LSM_FLAG_LEGACY_MAJOR,
+ 	.init = tomoyo_init,
+ };
+-- 
+2.14.5
 
-Thanks
-Vivek
