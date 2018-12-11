@@ -2,95 +2,163 @@ Return-Path: <SRS0=YYAz=OU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 589A3C07E85
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 16:12:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46957C6783B
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 21:48:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 20ED92087F
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 16:12:34 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="ujScWShj"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 20ED92087F
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=paul-moore.com
+	by mail.kernel.org (Postfix) with ESMTP id 09C772086D
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 21:48:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 09C772086D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729549AbeLKQM1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Dec 2018 11:12:27 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:33401 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729281AbeLKPub (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 10:50:31 -0500
-Received: by mail-lf1-f65.google.com with SMTP id i26so11171169lfc.0
-        for <selinux@vger.kernel.org>; Tue, 11 Dec 2018 07:50:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=oHL+Nvba+SSuygE2OtgDLRI+oC72JVSQXLOITh5VVeE=;
-        b=ujScWShju2x6Yskrl0iuCFDmNoOXB7z+3ZXkESfRR5vlrDVk0F9B+m7UwpGBeF2FCp
-         ie1ooEeVx6uzWV4tuAii2mKFVgikkOcqz9bzDZqhNDVZ/wL1Q/eNBnAagGt1rIrG7YvE
-         dTNPgBOPNhH/Hc0aoI7Io7UbvZwyHsnczuwYh9Fa1JLiiWdW0oldLuUyI8N8qw+UZzb8
-         nGa5jFinJkQOcgDuXFI8UigkpSphFoTTyCH9AIDKuehBZBrBITwhopHMBYwyWQV0k7EU
-         /ZiU0NggvtjzzajSk6m+bqTZLCprODHO8uuMoKERdpdR+nEFBvOGlYGsdYX5hIOBy0+V
-         d/Dw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=oHL+Nvba+SSuygE2OtgDLRI+oC72JVSQXLOITh5VVeE=;
-        b=jtpuz2TuvyzZ45X0zLukrjKmN4iCgQJbY4W6yIF3QB7MmrkUEmOq1YIfLJOL+UTp5K
-         LUyUrFxijBQpxs5e+snop2svBq9X41h01waUYfQr58nZyB5AW5HQ6/PpJsH4+b1cqQQr
-         GK7eQcEQu380yRB9hJRdeG2ODG7XNjDGefHGmVpWERmkfOqsoJThww0M2KLJ5T0/74pP
-         WKCm7tEUuL6AUPpqKdJeAbl3/jMwoMe92Ggovq6brptlsPWbT5zHj8HfBJan6mMzWM4X
-         MWNLt+QWxUY/t2BrzjbBo6Ua4q/3sXew1BDlVcNTtOKi8JXaXuywM9e0rZDcmLl12EMT
-         UMCg==
-X-Gm-Message-State: AA+aEWb5iPsQdtceSxTkhnvZ+4Pwy8sfbU4mvSQ54aBKc12ViEZh0ErE
-        RBATOzVrhAKxqyBYiHPH+ICKI4qUFnJG7/0mEJGf
-X-Google-Smtp-Source: AFSGD/XW4RWzDk6ae8Iq3SiINLsYv69jlFEnUrTfX/F4I85Kn5Kc/9/5a/iUYIXxVu6AUjE2kNnUc1ql07EsGFa1Qns=
-X-Received: by 2002:a19:e601:: with SMTP id d1mr10042516lfh.71.1544543429117;
- Tue, 11 Dec 2018 07:50:29 -0800 (PST)
-MIME-Version: 1.0
-References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
- <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
- <20181127210542.GA2599@redhat.com> <CAJfpegtQGM2z9TOt3DWwd39fC60cQknsC4vNnj7YimVEubRzUg@mail.gmail.com>
- <20181128170302.GA12405@redhat.com> <377b7d4f-eb1d-c281-5c67-8ab6de77c881@tycho.nsa.gov>
- <CAJfpegtNhcWD0VWy6LPtoDtQBfPu4x5iFsB053UMCidj6oMsuw@mail.gmail.com>
- <26bce3be-49c2-cdd8-af03-1a78d0f268ae@tycho.nsa.gov> <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
- <6b125e8e-413f-f8e6-c7ae-50f7235c8960@tycho.nsa.gov> <CAJfpegv6y56k1-Tewu-Pu3x1W75LL6qYB6Hb6=n+2BJoNfEigA@mail.gmail.com>
- <c993dba4-5129-7f04-2724-a82a1f1cafa3@tycho.nsa.gov> <f84bbe0b-f4c1-50e0-8c84-a6589154b3ae@tycho.nsa.gov>
- <CAJfpegtBDTMbmKd6eDxRmtSJjGN6CnpGK_QPNSsxjkOoeu=1pQ@mail.gmail.com>
- <4c20a261-5ce1-f0a2-8d40-c6032a023216@tycho.nsa.gov> <CAJfpegujwNpWL5Eujrb+=EQF8OMOkO03yq8ZZSkfhFfwQvhGKQ@mail.gmail.com>
- <6feb656e-b1e3-5839-ce5f-669ae5a55b7f@tycho.nsa.gov> <CAJfpeguJoEOEjQs4ZpJQaJXF-xCnevUApzNobwmqNX27KQ4vHQ@mail.gmail.com>
-In-Reply-To: <CAJfpeguJoEOEjQs4ZpJQaJXF-xCnevUApzNobwmqNX27KQ4vHQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 11 Dec 2018 10:50:17 -0500
-Message-ID: <CAHC9VhSV4a949kvh8Tq1acXzRddW915naWiaG-yqVS1_JyqgEQ@mail.gmail.com>
-Subject: Re: overlayfs access checks on underlying layers
-To:     miklos@szeredi.hu
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, vgoyal@redhat.com,
-        omosnace@redhat.com, bfields@fieldses.org, salyzyn@android.com,
-        linux-kernel@vger.kernel.org, linux-unionfs@vger.kernel.org,
+        id S1726158AbeLKVsX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Dec 2018 16:48:23 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:40204 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726146AbeLKVsX (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 11 Dec 2018 16:48:23 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 5AAE858E3F;
+        Tue, 11 Dec 2018 21:48:22 +0000 (UTC)
+Received: from horse.redhat.com (unknown [10.18.25.234])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id B73F019C7D;
+        Tue, 11 Dec 2018 21:48:21 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+        id 427C52208FC; Tue, 11 Dec 2018 16:48:21 -0500 (EST)
+Date:   Tue, 11 Dec 2018 16:48:21 -0500
+From:   Vivek Goyal <vgoyal@redhat.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        "J. Bruce Fields" <bfields@fieldses.org>,
+        Mark Salyzyn <salyzyn@android.com>,
+        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
+        overlayfs <linux-unionfs@vger.kernel.org>,
         linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        Dan Walsh <dwalsh@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+        Daniel J Walsh <dwalsh@redhat.com>
+Subject: Re: overlayfs access checks on underlying layers
+Message-ID: <20181211214821.GD17242@redhat.com>
+References: <4c20a261-5ce1-f0a2-8d40-c6032a023216@tycho.nsa.gov>
+ <20181204151549.GA21509@redhat.com>
+ <20181204152248.GB21509@redhat.com>
+ <CAJfpegtFVvq286HAorGLg6ywMsfs51KqaQwFkcuV7Dtu8TLaLg@mail.gmail.com>
+ <20181204154243.GA16818@redhat.com>
+ <665ec6f3-f16d-681f-30d5-eface14c9808@tycho.nsa.gov>
+ <20181204161747.GC16818@redhat.com>
+ <e8841bf0-d6b8-0e7d-6a35-055a06441d30@tycho.nsa.gov>
+ <20181205134317.GA11337@redhat.com>
+ <8eb7f677-fd71-c31b-bfed-29fb7187d132@tycho.nsa.gov>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8eb7f677-fd71-c31b-bfed-29fb7187d132@tycho.nsa.gov>
+User-Agent: Mutt/1.9.1 (2017-09-22)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Tue, 11 Dec 2018 21:48:23 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 4, 2018 at 10:39 AM Miklos Szeredi <miklos@szeredi.hu> wrote:
-> On Tue, Dec 4, 2018 at 4:32 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> > Ok, I concede the point.  Not sure what that means though for v4.20.
->
-> I have the revert queued up for v4.20 as that's the safest.
+On Thu, Dec 06, 2018 at 03:26:26PM -0500, Stephen Smalley wrote:
+> On 12/5/18 8:43 AM, Vivek Goyal wrote:
+> > On Tue, Dec 04, 2018 at 11:49:16AM -0500, Stephen Smalley wrote:
+> > > On 12/4/18 11:17 AM, Vivek Goyal wrote:
+> > > > On Tue, Dec 04, 2018 at 11:05:46AM -0500, Stephen Smalley wrote:
+> > > > > On 12/4/18 10:42 AM, Vivek Goyal wrote:
+> > > > > > On Tue, Dec 04, 2018 at 04:31:09PM +0100, Miklos Szeredi wrote:
+> > > > > > > On Tue, Dec 4, 2018 at 4:22 PM Vivek Goyal <vgoyal@redhat.com> wrote:
+> > > > > > > 
+> > > > > > > > Having said that, this still create little anomaly when mknod to client
+> > > > > > > > is not allowed on context label. So a device file, which is on lower
+> > > > > > > > and client can not open it for read/write on host, it can now be opened
+> > > > > > > > for read/write because mounter will allow access. So why it is different
+> > > > > > > > that regular copy up. Well, in regular copy up, we created a copy of
+> > > > > > > > the original object and allowed writing to that object (cp --preserve=all)
+> > > > > > > > model. But in case of device file, writes will go to same original
+> > > > > > > > object. (And not a separate copy).
+> > > > > > > 
+> > > > > > > That's true.
+> > > > > > > 
+> > > > > > > In that sense copy up of special file should result in upper having
+> > > > > > > the same label as of lower, right?
+> > > > > > 
+> > > > > > I guess that might be reasonable (if this behavior is a concern). So even
+> > > > > > after copy up, client will not be able to read/write a device if it was
+> > > > > > not allowed on lower.
+> > > > > > 
+> > > > > > Stephen, what do you think about retaining label of lower for device
+> > > > > > files during copy up. What about socket/fifo.
+> > > > > 
+> > > > > We don't check client task access to the upper inode label, only to the
+> > > > > overlay, right?  So the client is still free to access the device through
+> > > > > the overlay even if we preserve the lower inode label on the upper inode?
+> > > > > What do we gain?
+> > > > 
+> > > > That's only with latest code and Miklos said he will revert it for 4.20.
+> > > > 
+> > > > IOW, I am assuming that we will continue to check access to a file
+> > > > on upper in the context of mounter. Otherwise, client will be able to access
+> > > > files on upper/ which even mounter can't access.
+> > > 
+> > > I was assuming we're talking about the proposed solution, where we check
+> > > client access to the overlay (unchanged), mounter access to lower
+> > > (unchanged), copy-up if denied (new), mounter access to upper (new in the
+> > > sense that previously we didn't copy-up on denials).
+> > > 
+> > > In that situation, propagating the lower inode label to the upper inode only
+> > > impacts the mounter checks, and in that case makes copy-up pointless - if it
+> > > wasn't allowed to lower it won't be allowed to upper.  If it is allowed,
+> > > then client task is free to access the device regardless as long as it has
+> > > permissions to the overlay inode.  So I don't see what we gain by
+> > > propagating the lower inode label to the upper inode in the context mount
+> > > case, and it creates an inconsistency between special files and regular
+> > > ones.
+> > 
+> > If we agree on retaining lower label of lower device file on copy up, then
+> > I am assuming we will change rule c) to copy up only non device files.
+> > (because if you don't have access on lower, you will not have access
+> > even after copy up).
+> > 
+> > There are other paths where copy up happnes. Like link or when file
+> > metadata (ownership, permissions, timestmap) changes. In those cases,
+> > if we retain the lower label over copy up, it probably will help.
+> > 
+> > IOW, just by creating a link to a device, one will not get access to
+> > a device on upper which could not be accessed on lower.
+> > 
+> > Device files are special anyway. In regular files we are creating a
+> > copy and user writes to copy. But that's not the case with device
+> > files. So I guess these will have to be treated differently.
+> 
+> I don't understand what you are suggesting.  In the case of a context mount,
+> the context specified by the mounter must be assigned to the upper inode for
+> any files that are copied up.  Otherwise, changes to file data or metadata
+> made through the overlay will be visible under two different security
+> contexts simultaneously: the context of the overlay inode (i.e. the one
+> specified by the mounter) and the context of the upper inode (in your
+> suggestion, the context from the lower inode). This allows a violation of
+> MAC policy where one can leak data through an overlay to an unauthorized
+> context.
 
-Miklos, when do you plan on sending the revert to Linus?  I just
-tested v4.20-rc6 and the problem persists.
+Hi Stephen,
 
--- 
-paul moore
-www.paul-moore.com
+Sorry, I don't understand this point of leaking data through overlay. Even
+if we retain lower label on copy up (for device file), to open that file
+process should have access on overlay context label and then mounter needs
+to have access on upper inode (lower label). This is not different from
+opening a file on lower. Just that metadata of this file on upper might
+be different.
+
+Can you elaborate a bit more on how this is leaking data through overlay
+mount. If it is, then why accessing file on lower is not equivalent of
+leaking of data. 
+
+Thanks
+Vivek
