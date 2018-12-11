@@ -7,44 +7,44 @@ X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB8A5C67839
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:46:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55B7CC6783B
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 97F7320672
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:46:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A36420672
+	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:47:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="aeL+4OhS"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 97F7320672
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ca81np26"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1A36420672
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726324AbeLKWqm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Dec 2018 17:46:42 -0500
-Received: from sonic311-28.consmr.mail.ne1.yahoo.com ([66.163.188.209]:37918
+        id S1726397AbeLKWqn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Dec 2018 17:46:43 -0500
+Received: from sonic311-28.consmr.mail.ne1.yahoo.com ([66.163.188.209]:36661
         "EHLO sonic311-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726488AbeLKWnr (ORCPT
+        by vger.kernel.org with ESMTP id S1726483AbeLKWnr (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568226; bh=7Xaws2W0yIQV8FjcW558fLYKeVIf6r+5nGjJUAMugHA=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=aeL+4OhSWYlAUrOFeHGFo8K4h6Tp1gpcLynecbQY2x06kMRjsofmO3n7KIxUAPqncHuJg8eOXX6hHt/VTRPSskbyCK+anoAk+Bcvo3rwDwtPCjR1gI8Q0Aluf/5k1pLDzPO1+w4HrON7W9gDbL73T11uIkpYTIxfDhSQ8PcJSm1Ij6z2NUxsGCZaGZbHMqhPwQ/vWSM9vdPe4PlnN4aWiIyYw8y+kYrDRJg5wiea4yxw4M5Uiysh7lu+0VxStaHZsly8pCLCndQiQsVLYwCREq6ae0EQKem4Ul2dVvT8Im8wV0I0cIjxWOSL7+s+7IeI3Wxi1mS9Bifna9kE709hFA==
-X-YMail-OSG: j.KV8C8VM1nKyDRJymu5Ts81qxBtU83lSf0k6UZV1utFT0W7Hi8c6PpkxoCRUoq
- VEMgfpW5mm0nWCcVV_p7gYk4m_v7LtfbOV6fy14peAGWdlA45gLc30jYiHoqloyMGmJzKN6RxAho
- P791hHkhvuIoilH5sgDmT9Dp.j8t5FVil4I1E2s4vxMFBbaYYBX1Q8OCGedLjlR1xdHbf.sCBWvP
- DSo01g2u7eJZuv.OnNcmHBvJ9eVqp409ADIW4Bmv3pL1Y5uk5edWCx1TW85sd6GTQw4tFKn4XNr6
- 8_TIq_4CMpswA687cULJxsE38CdXvnVGxqaSaRr.Lr5RMnFEunNk2T5KL27KsZqHOp9d9k88ydBl
- Rd8vc0d_zA7dAftrv78xEAnxenn15oct531jA7B4vfjVEWbric0d6elDfJqJsmZ.89mK66A9bpie
- o2uljL7W2q8MYVFu_Pj9g3sJgoYrAtarv7ELUOArNw0VIjZ2lYUNNHjleEljafFlgNwFw8dnL1jU
- N9y.479BhMxqyRqy7x.D0bRlWd2cnK5vMdw83vigDIKCL2sA89120PbawdokjlHq3_.Lw05mTDTq
- X5Hqwnc8ffAVXt2SxFCIZkzW3YFL2mNa3CeWz0Q.VyNJsB6E7oC3V4DfzLt6Lg_RPx5it5F64kv.
- 5hD_uThNNsZFGOxi2wLADS3hG3867xD1vn2k.vkDi83V.tHjc3BJWLifcvszjQZqxN2LR0b64eQ0
- 7N7DBu9NtEZ8SaA3CNvGu7mBDfesnE88lOkusULvrAn.9fNCkeCkfdZXmZzeiTM9dY8om.Jm.lLj
- aaRb95nvWAuxDrMCok5nDhZ4NKqxeu0NiyQqEmREQTETpRn8XiXLQhOg1l2HP9xZk6GAkQGjtfue
- QIWJ.xULe7xlUzynLkJW3OkO18RFBMNIBbf2cHGjDIUudG.KFEk2ib4WMJ.2sQDAQ7vIxzgZSVYp
- _pmL62uI7Tnfps3T1f7nKa6FVMSrwOR.W1w2IdTCgahb2vr5wmwYG7Xafa0Fbeomaph6it.GVJR1
- IlaOFrTJH11Ee_wp70JcrqNEScxqDvikDJMebHe_Ilxjkd4e1JJE06c.VLwJHdXs6MRprkMm9r9D
- kfdwSAr9_n2LtE85np.4dG7sCzlosp1QhyoAxcA--
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568226; bh=lZbzrpRCsPhiLDi7Sk9eC9O4yptogW1Y1bVM3UqJEJs=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=ca81np26tvddk0Krp08PBRF1GH2C5LXC/OSOGPw19g6jbppfrfNds4EG/jUKidbVEAv4IQEKH/6uNulHWZf9HCzgt5T6+S0xAr/dwaUYwmO4pyapelezzdgGhgeLlofXTUJVX9AZvgTtzwYCX3p6rOZzAB5BJFe+/nW0RreZqJJDYbn6i8qoAfhWLHqnigtCy7PHWeLDf7DAeOshtvtMuYiMKzMkHFBMsRRdO1F1PFPYs+e5RES9kq3oZU20xNemxp4iiab5NWcPfcwPBI9/PHYLzzKgezPwDRhIPzgB+4LOUgnAvhjenPF8qiW42hd2N2xJDZbIRdKG3YDJq3mKZw==
+X-YMail-OSG: hCAtuysVM1k.EwwbBKA5aGH6hLMq9xoQkIt7RprT9pxazKn_QUQEjb7HZidLeJR
+ 7BRVQ3ErvE502e0rbiZgdVRQW0b0lD9aWf_c.zggRgMbAuKmyqw9FAJm8_rpkkNEPZ6Nqi9NbeFq
+ Pk9iUJjQJIbT3wXwjDLMscZ1K4LegFFUetOwUiO4qDSnm2_rZPhLda4cxPTx_IB3nw4D_2T0vwgL
+ egM6rNdxGFxfY.uahUnteXe7s7.vssYrT5vc8eaVHDK2HY4BuKxmvYOXaS7pMNPgPe6HkcrZuS4y
+ caieuvWw83waNTV6WtZTxiy9o35kfEKexMSpGh_k1uSeFjwtKkv_3NKiQ8wo9QLX4OjlXwISOsQ8
+ u9UtmBZ7Kjmw.VZhE_qOUKu79hOhzY1mohUkXbxTYxQy6Xt6dG4IlcfbY_vecHnQOlyEHa9.xyKp
+ Yakx3ppDWjbRJmIVTAKbDZB3dDoJXN07zA70CzlEZ4xozcSdcc4m.BpFe33FMSn4r8gDs.S14KvP
+ xv0mVr5r96Qv1rSNrvdW9DkU_XN6k4wVC8KbWUtyHP2XAhI0Gln3cuwEwdHjZJNeBrVjyKKqQWiT
+ VDZFNdqHjy_BAjYaODehqsjfWfmJx0.tC6Gf_fpgQ33z7FfBcW4SH710.IY8ih91ZfhkKlhKxOd_
+ z9tpFZaHahRHiUkqZ78MCSRVTAVBTyJ6IsG5x9NshF_rIbWT__bk5SVi81mCCmfMM__yxuRwT0UY
+ oT0m0pcXi5r_JXW2fCFN8LItnCtj.3jwJ6vYsWkGBOGHwoVp75RpkzBoIJL.70PZ_EFRN9CeEPq8
+ jRcrjPfsAZ5__FUmCJN6rvYOkgjwYa_RFNcVXh2jC.aHmWjoL778alC49gvOfYkCev8Im..QgyUD
+ .1pQRAA_EAK4Vh8Kpum1JrorkI0dkFeBLVikULJNEUSc.k3jmLQnQxWogRDv9YCKtzjqrl4tNq07
+ u7lsP6ldH_VQrzfOlxRdSyUmjpT6Q.3lt7uaJtwG7tLwZWi1bDeLxpQpuHKRpjG6kjjVEwcsWQtk
+ n_sFGxJRxG66sUFGWqiV.hN73VEUz9lPM8nvE8_h1vd2Q_wt4CsU5IELBYSQYiTgbHVINP_W1BC1
+ aR1VqS_gOvI3uatPnY_kFNS4r_3Edu.L1p7zddQ--
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:46 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp408.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d92a2db682ecd2e464273bda9352fd0e;
-          Tue, 11 Dec 2018 22:43:41 +0000 (UTC)
+          Tue, 11 Dec 2018 22:43:43 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org
@@ -53,9 +53,9 @@ Cc:     john.johansen@canonical.com, keescook@chromium.org,
         linux-fsdevel@vger.kernel.org, sds@tycho.nsa.gov,
         adobriyan@gmail.com, mic@digikod.net, s.mesoraca16@gmail.com,
         casey@schaufler-ca.com
-Subject: [PATCH v5 16/38] LoadPin: Initialize as ordered LSM
-Date:   Tue, 11 Dec 2018 14:42:52 -0800
-Message-Id: <20181211224314.22412-17-casey@schaufler-ca.com>
+Subject: [PATCH v5 18/38] LSM: Introduce enum lsm_order
+Date:   Tue, 11 Dec 2018 14:42:54 -0800
+Message-Id: <20181211224314.22412-19-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20181211224314.22412-1-casey@schaufler-ca.com>
 References: <20181211224314.22412-1-casey@schaufler-ca.com>
@@ -66,121 +66,64 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-This converts LoadPin from being a direct "minor" LSM into an ordered LSM.
+In preparation for distinguishing the "capability" LSM from other LSMs, it
+must be ordered first. This introduces LSM_ORDER_MUTABLE for the general
+LSMs and LSM_ORDER_FIRST for capability. In the future LSM_ORDER_LAST
+for could be added for anything that must run last (e.g. Landlock may
+use this).
 
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h  |  5 -----
- security/Kconfig           | 39 +--------------------------------------
- security/loadpin/loadpin.c |  8 +++++++-
- security/security.c        |  1 -
- 4 files changed, 8 insertions(+), 45 deletions(-)
+ include/linux/lsm_hooks.h | 6 ++++++
+ security/security.c       | 9 ++++++++-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 7d04a0c32011..b565c0c10269 100644
+index 6cfbd7d78a89..83858e3df9e5 100644
 --- a/include/linux/lsm_hooks.h
 +++ b/include/linux/lsm_hooks.h
-@@ -2092,10 +2092,5 @@ extern void __init yama_add_hooks(void);
- #else
- static inline void __init yama_add_hooks(void) { }
- #endif
--#ifdef CONFIG_SECURITY_LOADPIN
--void __init loadpin_add_hooks(void);
--#else
--static inline void loadpin_add_hooks(void) { };
--#endif
+@@ -2042,8 +2042,14 @@ extern void security_add_hooks(struct security_hook_list *hooks, int count,
+ #define LSM_FLAG_LEGACY_MAJOR	BIT(0)
+ #define LSM_FLAG_EXCLUSIVE	BIT(1)
  
- #endif /* ! __LINUX_LSM_HOOKS_H */
-diff --git a/security/Kconfig b/security/Kconfig
-index 41aa0be6142f..566d54215cbe 100644
---- a/security/Kconfig
-+++ b/security/Kconfig
-@@ -239,46 +239,9 @@ source security/yama/Kconfig
- 
- source security/integrity/Kconfig
- 
--choice
--	prompt "Default security module"
--	default DEFAULT_SECURITY_SELINUX if SECURITY_SELINUX
--	default DEFAULT_SECURITY_SMACK if SECURITY_SMACK
--	default DEFAULT_SECURITY_TOMOYO if SECURITY_TOMOYO
--	default DEFAULT_SECURITY_APPARMOR if SECURITY_APPARMOR
--	default DEFAULT_SECURITY_DAC
--
--	help
--	  Select the security module that will be used by default if the
--	  kernel parameter security= is not specified.
--
--	config DEFAULT_SECURITY_SELINUX
--		bool "SELinux" if SECURITY_SELINUX=y
--
--	config DEFAULT_SECURITY_SMACK
--		bool "Simplified Mandatory Access Control" if SECURITY_SMACK=y
--
--	config DEFAULT_SECURITY_TOMOYO
--		bool "TOMOYO" if SECURITY_TOMOYO=y
--
--	config DEFAULT_SECURITY_APPARMOR
--		bool "AppArmor" if SECURITY_APPARMOR=y
--
--	config DEFAULT_SECURITY_DAC
--		bool "Unix Discretionary Access Controls"
--
--endchoice
--
--config DEFAULT_SECURITY
--	string
--	default "selinux" if DEFAULT_SECURITY_SELINUX
--	default "smack" if DEFAULT_SECURITY_SMACK
--	default "tomoyo" if DEFAULT_SECURITY_TOMOYO
--	default "apparmor" if DEFAULT_SECURITY_APPARMOR
--	default "" if DEFAULT_SECURITY_DAC
--
- config LSM
- 	string "Ordered list of enabled LSMs"
--	default "integrity"
-+	default "loadpin,integrity,selinux,smack,tomoyo,apparmor"
- 	help
- 	  A comma-separated list of LSMs, in initialization order.
- 	  Any LSMs left off this list will be ignored. This can be
-diff --git a/security/loadpin/loadpin.c b/security/loadpin/loadpin.c
-index 48f39631b370..055fb0a64169 100644
---- a/security/loadpin/loadpin.c
-+++ b/security/loadpin/loadpin.c
-@@ -187,13 +187,19 @@ static struct security_hook_list loadpin_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(kernel_load_data, loadpin_load_data),
- };
- 
--void __init loadpin_add_hooks(void)
-+static int __init loadpin_init(void)
- {
- 	pr_info("ready to pin (currently %senforcing)\n",
- 		enforce ? "" : "not ");
- 	security_add_hooks(loadpin_hooks, ARRAY_SIZE(loadpin_hooks), "loadpin");
-+	return 0;
- }
- 
-+DEFINE_LSM(loadpin) = {
-+	.name = "loadpin",
-+	.init = loadpin_init,
++enum lsm_order {
++	LSM_ORDER_FIRST = -1,	/* This is only for capabilities. */
++	LSM_ORDER_MUTABLE = 0,
 +};
 +
- /* Should not be mutable after boot, so not listed in sysfs (perm == 0). */
- module_param(enforce, int, 0);
- MODULE_PARM_DESC(enforce, "Enforce module/firmware pinning");
+ struct lsm_info {
+ 	const char *name;	/* Required. */
++	enum lsm_order order;	/* Optional: default is LSM_ORDER_MUTABLE */
+ 	unsigned long flags;	/* Optional: flags describing LSM */
+ 	int *enabled;		/* Optional: controlled by CONFIG_LSM */
+ 	int (*init)(void);	/* Required. */
 diff --git a/security/security.c b/security/security.c
-index 3fac0ff39944..0c092d62cc47 100644
+index 0c3c66dbf51c..701507174f40 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -275,7 +275,6 @@ int __init security_init(void)
- 	 */
- 	capability_add_hooks();
- 	yama_add_hooks();
--	loadpin_add_hooks();
+@@ -174,6 +174,12 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+ 	struct lsm_info *lsm;
+ 	char *sep, *name, *next;
  
- 	/* Load LSMs in specified order. */
- 	ordered_lsm_init();
++	/* LSM_ORDER_FIRST is always first. */
++	for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
++		if (lsm->order == LSM_ORDER_FIRST)
++			append_ordered_lsm(lsm, "first");
++	}
++
+ 	/* Process "security=", if given. */
+ 	if (chosen_major_lsm) {
+ 		struct lsm_info *major;
+@@ -202,7 +208,8 @@ static void __init ordered_lsm_parse(const char *order, const char *origin)
+ 		bool found = false;
+ 
+ 		for (lsm = __start_lsm_info; lsm < __end_lsm_info; lsm++) {
+-			if (strcmp(lsm->name, name) == 0) {
++			if (lsm->order == LSM_ORDER_MUTABLE &&
++			    strcmp(lsm->name, name) == 0) {
+ 				append_ordered_lsm(lsm, origin);
+ 				found = true;
+ 			}
 -- 
 2.14.5
 
