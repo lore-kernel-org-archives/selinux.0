@@ -1,154 +1,115 @@
-Return-Path: <SRS0=YYAz=OU=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=wb4z=OV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.9 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD32BC6783B
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:48:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BE96C04EB8
+	for <selinux@archiver.kernel.org>; Wed, 12 Dec 2018 09:38:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9833A20851
-	for <selinux@archiver.kernel.org>; Tue, 11 Dec 2018 22:48:27 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Xaal2R0u"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9833A20851
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=schaufler-ca.com
+	by mail.kernel.org (Postfix) with ESMTP id E79732084E
+	for <selinux@archiver.kernel.org>; Wed, 12 Dec 2018 09:38:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E79732084E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726236AbeLKWsV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Dec 2018 17:48:21 -0500
-Received: from sonic311-28.consmr.mail.ne1.yahoo.com ([66.163.188.209]:40209
-        "EHLO sonic311-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726245AbeLKWn1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Dec 2018 17:43:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1544568205; bh=VJZNFIuLL4H2JkAHwCSyDFPs69oaOEs8ePiJG4WExE4=; h=From:To:Cc:Subject:Date:From:Subject; b=Xaal2R0ughXtbJZx1b1eJx5aR1BSC1h0bKrw7BRGvZ/lUiuS2/moeY2sqjofnF66odkWeQuGHTbWMG+pKz4TNBVI/B9V+lMDWTdwy0pFu0XnqW/33JRlray9+BwDdHwAhKjHTW1kVDGChTEarueVylmHbdvNao930Q9HOzafyeS4R5WgwQs69u44av7rqPSt6ZRMvWnhR4Wghr8X/88zxyv81ElRRzql1tzCWpIYUY50rR31M4kZNm2m93OlnI6G3x+K9s9dnb2zFggw/tKA4O5VMNpOOW36ZJCeUs0Awe/ROJseFozY0iJrLeTKBBmO2B0fl7hhePZHrNydCX+QrQ==
-X-YMail-OSG: V0vh_m8VM1mUXJ.Ew9RkxkEd8BrAhag.7dsT.Wd7w0vgTaddLU.rNtCq1oMaseK
- Q5W4s7aCqALcG3uvrpOL6UZ.XnJljZKaKSgE1hQWkPWun1SIDoiOVHQvC.MVsc8Mgs7xX8dlzMuj
- yTe8XVgDsC.uJ_B2q7MeTFtpwNKGL6sp1IsQr67rOkWyseB9S8GrnT0u61AF47XDcqQgekEelxxc
- 38C1zw62vgeI3FWQDMWh0uw4wIs5eVLIVNd4np83X2ZG3ZTyPsHcgb0W383oL5NVikJikFBeeSjc
- KYLGmkD24SFYNp857_13ib7Tvdj2NTL4XeTBPUUNEE491muKkJ.ShzQdkeHkn16tJyePWO6PBOI6
- FHEJC7CaVjZ61SPCooT.AaQmY1ZTrqpND5DI7Y9dZACKOMQP7wPMKiuwnvbeVWTe.N2JV_ORWuuk
- aWPc4YwIYFEBz4mnXKl3m50mJo9_xI3TTdY6WAULKtVt_kp26xVAinVsVlQ6eMFZt4djQOp5uFfj
- sNwkADjgHA5xAnVwa9R.fWhcMTBe7Hc1BXNFlRZdYSB4uDny.CTxi5gv9l2S5jDg60B7YzQ9Dh6X
- a.6S2tJY5LuNhXDU.JurbSupgqKgl3jyqxBE_ZffNvTMd7WlW0HclInBUd02KUnT9NUu7gzG70oP
- lFyG8qYGSBXVK63yBpDG336W0DS8LKWI8ahUDS0SMzttZpQn1.mO9fakDY506IM8mixGwciC2SjR
- H0XbVHlSQYqtLgfxuHL92z9q9wpq64_UiPqJrBOLikbDvDNFWoNiU89uAU5Mi8P.MQUx566SSAQ8
- jecM02FYgYWfMsxJLT3U33r4Q5jrjBOTLzJkOEF7D_EmyCqdZ5Ig8aME8g5dNfbirrmxLXBahHR8
- RvhZQ0_GPvtc35Kmc0rMljLlzCywiJyj.Orv21SwjPvM4VwketNVQeFNii7JbGwVMfsv2gX3oQNw
- ZBW2e9HXu6iCLy_pwyXz5ShoywKV9TJgTdeEgmy._aeMApmAIF76oOUyHzvobvob8WS2ez1yLXLD
- dENGDL5GeZhFXnuBY7Y5svWd2kBU9AewZ6veLk19okQyxwsQiS7yhsdJu.RiePDj8Wrlp94nn5xi
- pBBd9eDolxwplZ4f0sW4zph3t_kxipSQJV8aAPOsRbOZdi2z1ExqnMHru.g--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Dec 2018 22:43:25 +0000
-Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp422.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID db48327a3d58729724c38eee90dbab73;
-          Tue, 11 Dec 2018 22:43:24 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
-Cc:     john.johansen@canonical.com, keescook@chromium.org,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        linux-fsdevel@vger.kernel.org, sds@tycho.nsa.gov,
-        adobriyan@gmail.com, mic@digikod.net, s.mesoraca16@gmail.com,
-        casey@schaufler-ca.com
-Subject: [PATCH v5 00/38] LSM: Module stacking for SARA and Landlock
-Date:   Tue, 11 Dec 2018 14:42:36 -0800
-Message-Id: <20181211224314.22412-1-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.17.0
+        id S1726643AbeLLJiz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Dec 2018 04:38:55 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:53166 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726525AbeLLJiz (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 12 Dec 2018 04:38:55 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 11E7FC052504;
+        Wed, 12 Dec 2018 09:38:55 +0000 (UTC)
+Received: from workstation (unknown [10.43.12.23])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5873E194AB;
+        Wed, 12 Dec 2018 09:38:54 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 2/2] python/chcat: fix removing categories on users with Fedora default setup
+References: <20181209142323.21149-1-nicolas.iooss@m4x.org>
+        <20181209142323.21149-2-nicolas.iooss@m4x.org> <pjd8t0we697.fsf@redhat.com>
+Date:   Wed, 12 Dec 2018 10:38:52 +0100
+In-Reply-To: <pjd8t0we697.fsf@redhat.com> (Petr Lautrbach's message of "Tue,
+        11 Dec 2018 10:56:36 +0100")
+Message-ID: <pjdy38vccer.fsf@redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Wed, 12 Dec 2018 09:38:55 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This is a re-send using git-send-email instead of
-the (flawwed) manual process.
+Petr Lautrbach <plautrba@redhat.com> writes:
 
-v5: Include Kees Cook's rework of the lsm command
-    line interface.
-v4: Finer granularity in the patches and other
-    cleanups suggested by Kees Cook.
-    Removed dead code created by the removal of SELinux
-    credential blob poisoning.
-v3: Add ipc blob for SARA and task blob for Landlock.
-    Removing the SELinux cred blob pointer poisoning
-    results selinux_is_enabled() being unused, so it and
-    all it's overhead has been removed.
-    Broke up the cred infrastructure patch.
-v2: Reduce the patchset to what is required to support
-    the proposed SARA and LandLock security modules
+> Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+>
+>> Using Vagrant with fedora/28-cloud-base image, SELinux logins are
+>> configured this way:
+>>
+>>     # semanage login -l
+>>     Login Name           SELinux User         MLS/MCS Range        Service
+>>
+>>     __default__          unconfined_u         s0-s0:c0.c1023       *
+>>     root                 unconfined_u         s0-s0:c0.c1023       *
+>>     vagrant              unconfined_u         s0-s0:c0.c1023       *
+>>
+>> Using "chcat -l +c42 vagrant" successfully adds the category to user
+>> vagrant, but "chcat -l -- -c42 vagrant" fails to remove it.
+>> semanage login -l returns:
+>>
+>>     vagrant              unconfined_u         s0-s0:c0.c1023,c42   *
+>>
+>> This issue is caused by expandCats(), which refuses to return a list of
+>> more than 25 categories. This causes chcat_user_remove() to work with
+>> cats=['c0.c1023,c42'] instead of cats=['c0.c102','c42'], which leads to
+>> it not been able to remove 'c42' from the list.
+>>
+>> Fix this issue by splitting the list of categories before calling
+>> expandCats().
+>>
+>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
-The SARA security module is intended to be used
-in conjunction with other security modules. It requires
-state to be maintained for the credential, which
-in turn requires a mechanism for sharing the credential
-security blob. It also uses the ipc security blob. The
-module also requires mechanism for user space manipulation
-of the credential information, hence an additional
-subdirectory in /proc/.../attr.
+All 3 chcat patches merged. Thanks!
 
-The LandLock security module provides user configurable
-policy in the secmark mechanism. It requires data in
-the credential, file, inode and task security blobs. For
-this to be used along side the existing "major" security
-modules mechanism for sharing these blobs are provided.
 
-A side effect of providing sharing of the crendential
-security blob is that the TOMOYO module can be used at
-the same time as the other "major" modules.
-
-The mechanism for configuring which security modules are
-enabled has to change when stacking in enabled. Any
-module that uses just the security blobs that are shared
-can be selected. Additionally, one other "major" module
-can be selected.
-
-The security module stacking issues around networking and
-IPC are not addressed here as they are beyond what is
-required for TOMOYO, SARA and LandLock.
-
-git://github.com/cschaufler/lsm-stacking.git#blob-4.20-rc2
-
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- Documentation/admin-guide/LSM/index.rst         |  13 +-
- Documentation/admin-guide/kernel-parameters.txt |   4 +
- fs/proc/base.c                                  |  64 ++-
- fs/proc/internal.h                              |   1 +
- include/linux/cred.h                            |   1 -
- include/linux/lsm_hooks.h                       |  40 +-
- include/linux/security.h                        |  15 +-
- include/linux/selinux.h                         |  35 --
- kernel/cred.c                                   |  13 -
- security/Kconfig                                |  41 +-
- security/apparmor/Kconfig                       |  16 -
- security/apparmor/domain.c                      |   2 +-
- security/apparmor/include/cred.h                |  16 +-
- security/apparmor/include/file.h                |   5 +-
- security/apparmor/include/lib.h                 |   4 +
- security/apparmor/include/task.h                |  18 +-
- security/apparmor/lsm.c                         |  65 ++-
- security/apparmor/task.c                        |   6 +-
- security/commoncap.c                            |   9 +-
- security/loadpin/loadpin.c                      |   8 +-
- security/security.c                             | 635 +++++++++++++++++++++---
- security/selinux/Kconfig                        |  15 -
- security/selinux/Makefile                       |   2 +-
- security/selinux/exports.c                      |  23 -
- security/selinux/hooks.c                        | 345 ++++---------
- security/selinux/include/audit.h                |   3 -
- security/selinux/include/objsec.h               |  38 +-
- security/selinux/selinuxfs.c                    |   4 +-
- security/selinux/ss/services.c                  |   1 -
- security/selinux/xfrm.c                         |   4 +-
- security/smack/smack.h                          |  44 +-
- security/smack/smack_access.c                   |   4 +-
- security/smack/smack_lsm.c                      | 316 ++++--------
- security/smack/smackfs.c                        |  18 +-
- security/tomoyo/common.h                        |  22 +-
- security/tomoyo/domain.c                        |   4 +-
- security/tomoyo/securityfs_if.c                 |  15 +-
- security/tomoyo/tomoyo.c                        |  49 +-
- security/yama/yama_lsm.c                        |   8 +-
- 39 files changed, 1133 insertions(+), 793 deletions(-)
+>
+>> ---
+>>  python/chcat/chcat | 6 ++----
+>>  1 file changed, 2 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/python/chcat/chcat b/python/chcat/chcat
+>> index 73f757258807..5bef0073b7a4 100755
+>> --- a/python/chcat/chcat
+>> +++ b/python/chcat/chcat
+>> @@ -82,8 +82,7 @@ def chcat_user_add(newcat, users):
+>>          if len(serange) > 1:
+>>              top = serange[1].split(":")
+>>              if len(top) > 1:
+>> -                cats.append(top[1])
+>> -                cats = expandCats(cats)
+>> +                cats = expandCats(top[1].split(','))
+>>  
+>>          for i in newcat[1:]:
+>>              if i not in cats:
+>> @@ -163,8 +162,7 @@ def chcat_user_remove(newcat, users):
+>>          if len(serange) > 1:
+>>              top = serange[1].split(":")
+>>              if len(top) > 1:
+>> -                cats.append(top[1])
+>> -                cats = expandCats(cats)
+>> +                cats = expandCats(top[1].split(','))
+>>  
+>>          for i in newcat[1:]:
+>>              if i in cats:
