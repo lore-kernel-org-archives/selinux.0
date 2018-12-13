@@ -3,55 +3,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C957C67872
-	for <selinux@archiver.kernel.org>; Thu, 13 Dec 2018 14:19:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B799EC67839
+	for <selinux@archiver.kernel.org>; Thu, 13 Dec 2018 14:19:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6D18B2087F
-	for <selinux@archiver.kernel.org>; Thu, 13 Dec 2018 14:19:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6D18B2087F
+	by mail.kernel.org (Postfix) with ESMTP id 856072086D
+	for <selinux@archiver.kernel.org>; Thu, 13 Dec 2018 14:19:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 856072086D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728672AbeLMOTX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Dec 2018 09:19:23 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:46970 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727757AbeLMOTW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Dec 2018 09:19:22 -0500
-Received: by mail-wr1-f66.google.com with SMTP id l9so2160349wrt.13
-        for <selinux@vger.kernel.org>; Thu, 13 Dec 2018 06:19:21 -0800 (PST)
+        id S1727757AbeLMOTY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Dec 2018 09:19:24 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:37293 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728138AbeLMOTY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Dec 2018 09:19:24 -0500
+Received: by mail-wr1-f68.google.com with SMTP id s12so1756173wrt.4
+        for <selinux@vger.kernel.org>; Thu, 13 Dec 2018 06:19:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=H1ygaanma6hkjUu5scxzI8hxTVXGMIJQ0/s38b0k2JA=;
-        b=pGLG9OjfU8JtNyyfjPboymYUF5eNPVzxSAvYIhX9NQQnFjcDjsbaEIXEo1AGfTvKvh
-         PrzjXIB1J+d89/51MVNMwICTsVOIyxGRGZaoohoguKEdqrODwSDeWRYce6L3p0SGXGqT
-         /5HMh+h4xwWpaNdObQmLZ/4EPN4gBIcQaX79eK+zfYxOydIYU4FHcJtXHrMm5fD+p1un
-         btTJWNdmV+j7UdlftLJB5utkwW6dTR008ZtxCCPR9sbc9g3nf70wfgvenz1ozdgZZzHC
-         IQM7OKk/kppNopikMD3xsOukWGvi+Lr9bbVUECxAnPAKXEzghr3NLojuw+5YbXKVYWUB
-         MspQ==
-X-Gm-Message-State: AA+aEWZTqoHtWm/bRDKEAymmYpVDf/OV2dv4353HPYMJzKsHuB2JILAs
-        dCkki+5hqL3WMOgTGZJBdMivtLCM+IM=
-X-Google-Smtp-Source: AFSGD/WKoF6gtYkcvTsV0XwlPjYht+Lv4cUMwtvahB7qAFicK9eWhxOmhuO5NISS2GK5mo5iIviffg==
-X-Received: by 2002:adf:eb45:: with SMTP id u5mr20102634wrn.102.1544710760882;
-        Thu, 13 Dec 2018 06:19:20 -0800 (PST)
+        bh=YFhekL8QmWsTx5uZ6jKbGnq66XQoz3PD4UcdxRJoFy8=;
+        b=JR4SeQtJnvXZQmHtQwo0SQjwRlsGBIiA0AR/sOOxAoCUtUZ/mV035GhgEe00jLWRYS
+         kWcjxqfhc+b114Xff7AamVfBtoBKIkXibije+7CKzKMn6AkKM66KZL6EH05wjihiMdwT
+         IxwQcPOGlVfxvH+iZNaDdlj7Nu1SxcGM8XLsvoOLAhFDhoDq1NZaVkuMgc1ijAX4IC7U
+         O75nescARB7hQ3bDTkD8Gnid2OrBvcbFPI9bzSqL9U6hbKnk81N4U2m/9nAndk7hKgs0
+         bcAH5jEry0Wc6WwM+g3qMh3jMCZGfLvj0IxClsfo5VWIqEwBIa2MOjVamMIq/XtBaDHS
+         fANA==
+X-Gm-Message-State: AA+aEWaGvgmErd256EA079Lwp4PsNppKVGPUOum3j/yTnF9xH34wGh40
+        cRwDXbGF8r6JLerBB5Auy2WBt9pva6A=
+X-Google-Smtp-Source: AFSGD/WQ1FEuiPE4dYF2GeN+QD7Dd1iyuSBmzuarTNFkaA/XEqX7bwjSwX6+xaeWgkFLApnwapL03w==
+X-Received: by 2002:a5d:66c1:: with SMTP id k1mr20640084wrw.132.1544710761932;
+        Thu, 13 Dec 2018 06:19:21 -0800 (PST)
 Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id e16sm2544750wrn.72.2018.12.13.06.19.19
+        by smtp.gmail.com with ESMTPSA id e16sm2544750wrn.72.2018.12.13.06.19.20
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 13 Dec 2018 06:19:19 -0800 (PST)
+        Thu, 13 Dec 2018 06:19:21 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         cgroups@vger.kernel.org, Tejun Heo <tj@kernel.org>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>, Li Zefan <lizefan@huawei.com>,
         Johannes Weiner <hannes@cmpxchg.org>,
         Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [RFC PATCH 2/3] selinux: never allow relabeling on context mounts
-Date:   Thu, 13 Dec 2018 15:17:38 +0100
-Message-Id: <20181213141739.8534-3-omosnace@redhat.com>
+Subject: [RFC PATCH 3/3] selinux: do not override context on context mounts
+Date:   Thu, 13 Dec 2018 15:17:39 +0100
+Message-Id: <20181213141739.8534-4-omosnace@redhat.com>
 X-Mailer: git-send-email 2.19.2
 In-Reply-To: <20181213141739.8534-1-omosnace@redhat.com>
 References: <20181213141739.8534-1-omosnace@redhat.com>
@@ -62,77 +62,75 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In the SECURITY_FS_USE_MNTPOINT case we never want to allow relabeling
-files/directories, so we should never set the SBLABEL_MNT flag in this
-case. The 'special handling' in selinux_is_sblabel_mnt() is only
-intended for SECURITY_FS_USE_GENFS.
+Ignore all selinux_inode_notifysecctx() calls on mounts with the
+SECURITY_FS_USE_MNTPOINT behavior.
 
-While there, make the logic in selinux_is_sblabel_mnt() more explicit
-and add a BUILD_BUG_ON() to make sure that introducing a new
-SECURITY_FS_USE_* forces a review of the logic.
+This fixes behavior of kernfs-based filesystems when mounted with the
+'context=' option. Before this patch, if a node's context had been
+explicitly set to a non-default value and later the filesystem has been
+remounted with the 'context=' option, then this node would show up as
+having a different context.
 
-Note that checkpatch.pl produces some false positives here, likely
-having problems recognizing the monstrous return statement...
+Steps to reproduce:
+    # mount -t cgroup2 cgroup2 /sys/fs/cgroup/unified
+    # chcon unconfined_u:object_r:user_home_t:s0 /sys/fs/cgroup/unified/cgroup.stat
+    # ls -lZ /sys/fs/cgroup/unified
+    total 0
+    -r--r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.controllers
+    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.max.depth
+    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.max.descendants
+    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.procs
+    -r--r--r--. 1 root root unconfined_u:object_r:user_home_t:s0 0 Dec 13 10:41 cgroup.stat
+    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.subtree_control
+    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.threads
+    # umount /sys/fs/cgroup/unified
+    # mount -o context=system_u:object_r:tmpfs_t:s0 -t cgroup2 cgroup2 /sys/fs/cgroup/unified
 
-Fixes: d5f3a5f6e7e7 ("selinux: add security in-core xattr support for pstore and debugfs")
+Result before:
+    # ls -lZ /sys/fs/cgroup/unified
+    total 0
+    -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.controllers
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.max.depth
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.max.descendants
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.procs
+    -r--r--r--. 1 root root unconfined_u:object_r:user_home_t:s0 0 Dec 13 10:41 cgroup.stat
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.subtree_control
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.threads
+
+Result after:
+    # ls -lZ /sys/fs/cgroup/unified
+    total 0
+    -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.controllers
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.max.depth
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.max.descendants
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.procs
+    -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.stat
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.subtree_control
+    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.threads
+
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- security/selinux/hooks.c | 41 ++++++++++++++++++++++++++++------------
- 1 file changed, 29 insertions(+), 12 deletions(-)
+ security/selinux/hooks.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7ce012d9ec51..d6d29ec54eab 100644
+index d6d29ec54eab..0ca5ed30afe1 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -501,19 +501,36 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+@@ -6620,6 +6620,13 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
+  */
+ static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
  {
- 	struct superblock_security_struct *sbsec = sb->s_security;
- 
--	return sbsec->behavior == SECURITY_FS_USE_XATTR ||
--		sbsec->behavior == SECURITY_FS_USE_TRANS ||
--		sbsec->behavior == SECURITY_FS_USE_TASK ||
--		sbsec->behavior == SECURITY_FS_USE_NATIVE ||
-+	/*
-+	 * IMPORTANT: Double-check logic in this function when adding a new
-+	 * SECURITY_FS_USE_* definition!
-+	 */
-+	BUILD_BUG_ON(SECURITY_FS_USE_MAX != 7);
++	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
 +
-+	switch (sbsec->behavior) {
-+	case SECURITY_FS_USE_XATTR:
-+	case SECURITY_FS_USE_TRANS:
-+	case SECURITY_FS_USE_TASK:
-+	case SECURITY_FS_USE_NATIVE:
-+		return 1;
-+
-+	case SECURITY_FS_USE_GENFS:
- 		/* Special handling. Genfs but also in-core setxattr handler */
--		!strcmp(sb->s_type->name, "sysfs") ||
--		!strcmp(sb->s_type->name, "pstore") ||
--		!strcmp(sb->s_type->name, "debugfs") ||
--		!strcmp(sb->s_type->name, "tracefs") ||
--		!strcmp(sb->s_type->name, "rootfs") ||
--		(selinux_policycap_cgroupseclabel() &&
--		 (!strcmp(sb->s_type->name, "cgroup") ||
--		  !strcmp(sb->s_type->name, "cgroup2")));
-+		return	!strcmp(sb->s_type->name, "sysfs") ||
-+			!strcmp(sb->s_type->name, "pstore") ||
-+			!strcmp(sb->s_type->name, "debugfs") ||
-+			!strcmp(sb->s_type->name, "tracefs") ||
-+			!strcmp(sb->s_type->name, "rootfs") ||
-+			(selinux_policycap_cgroupseclabel() &&
-+			 (!strcmp(sb->s_type->name, "cgroup") ||
-+			  !strcmp(sb->s_type->name, "cgroup2")));
-+
-+	/* Never allow relabeling on context mounts */
-+	case SECURITY_FS_USE_MNTPOINT:
-+	case SECURITY_FS_USE_NONE:
-+	default:
++	/* Do not change context in SECURITY_FS_USE_MNTPOINT case */
++	if ((sbsec->flags & SE_SBINITIALIZED) &&
++	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT))
 +		return 0;
-+	}
++
+ 	return selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX, ctx, ctxlen, 0);
  }
  
- static int sb_finish_set_opts(struct super_block *sb)
 -- 
 2.19.2
 
