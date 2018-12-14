@@ -1,116 +1,147 @@
-Return-Path: <SRS0=DV1m=OW=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=bqQ6=OX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13D98C65BAE
-	for <selinux@archiver.kernel.org>; Thu, 13 Dec 2018 21:33:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EA6AC67839
+	for <selinux@archiver.kernel.org>; Fri, 14 Dec 2018 13:40:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CBA2620811
-	for <selinux@archiver.kernel.org>; Thu, 13 Dec 2018 21:33:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3143920643
+	for <selinux@archiver.kernel.org>; Fri, 14 Dec 2018 13:40:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VVhs/KJK"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CBA2620811
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
-Authentication-Results: mail.kernel.org; spf=none smtp.mailfrom=selinux-owner@vger.kernel.org
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="WpRkkfz8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726448AbeLMVdN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Dec 2018 16:33:13 -0500
-Received: from mail-pl1-f171.google.com ([209.85.214.171]:46898 "EHLO
-        mail-pl1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726435AbeLMVdN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Dec 2018 16:33:13 -0500
-Received: by mail-pl1-f171.google.com with SMTP id t13so1638943ply.13
-        for <selinux@vger.kernel.org>; Thu, 13 Dec 2018 13:33:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Zza9sUikUYHCW0U7Ka4rHaeUSrnuAtwfRxTc9liQ6NU=;
-        b=VVhs/KJK+qz3Jejmlvc1GpubSyklhRIIuGI0b38bkEyritovIU/bFcFFm3jqQmyU8Z
-         wG5CcRn/tO2w7TJmXzGwMv8juDg3g64Za5tXUw7Y3UthM1bFBN8vuN4Lc1IeIquXlSfY
-         6fUQUW853loG+X4QALJDaQq18DM+WnpKMnIOqFr4R/le4HMcccbLWY2GgJ4WUAdmhmmR
-         eHt3WspOLn4vPGbPb7ZIWVu7WxouekM92Pi6oFFczyh+jfWnGdQIZGJ+dchplzDBCiUX
-         TfYcQmpJwh7OWe7EcGyTJA21abqgyfSPjxugXGWlyATU4+KAS5JIouIyHfCam1r6WWMJ
-         I+Rg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=Zza9sUikUYHCW0U7Ka4rHaeUSrnuAtwfRxTc9liQ6NU=;
-        b=il8uIaY4yjGIlwWqBODVqan5z+ezZERlyFD5ojJWaOtyBNMDuM4Cvfiv4E2yqvhwF4
-         OgNGUz+/dG3Vcv3+D03MCImNmhtO1XMb79Xy9NYtJiSj4GlM19NiiZOe+DrkEuwG+6+d
-         gFRDa7HNYqaNiGcc0uAkMZzGRn4vCgleHed8vZXbY41qDWzzOyMgNL8xfskHhGLoB3UL
-         vcpW4vdSBleR5iq0LNRlsQMzXkFWYuCQohBaf7tyd8T2EAyYej5Mb9PbSkXwSN4mWfKy
-         rGuvdwJSrrqE2EWHCKZ1w+BF3o+f4kMbiYIuQjyJpFfPT+8ZfilKSYW9U0gMkn5cRRa+
-         7HZA==
-X-Gm-Message-State: AA+aEWYzcNUU0mxB7TMmujAXwXjDXpSSeYTeJFHLJNwZ3X1LSR7X6W49
-        DuUTdLDWzUpv5AQzxYF7FNPbzAM/
-X-Google-Smtp-Source: AFSGD/VM+jvg8G+r8zNqMwpcP1z/YvfCUS2DKzHAuTDSLQ3awAG4VTMFR4NSHJcMihpqmCbLKFflZA==
-X-Received: by 2002:a17:902:4a0c:: with SMTP id w12mr462164pld.8.1544736792300;
-        Thu, 13 Dec 2018 13:33:12 -0800 (PST)
-Received: from wcrobert-MOBL1.amr.corp.intel.com ([134.134.139.82])
-        by smtp.gmail.com with ESMTPSA id m20sm3999794pgb.56.2018.12.13.13.33.11
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Thu, 13 Dec 2018 13:33:11 -0800 (PST)
-From:   bill.c.roberts@gmail.com
-X-Google-Original-From: william.c.roberts@intel.com
-To:     selinux@vger.kernel.org
-Cc:     sds@tycho.nsa.gov, William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH 2/2] Makefile: add -Wstrict-overflow=5 to CFLAGS
-Date:   Thu, 13 Dec 2018 13:32:41 -0800
-Message-Id: <1544736761-7920-2-git-send-email-william.c.roberts@intel.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1544736761-7920-1-git-send-email-william.c.roberts@intel.com>
+        id S1728415AbeLNNkx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Dec 2018 08:40:53 -0500
+Received: from ucol19pa14.eemsg.mail.mil ([214.24.24.87]:10273 "EHLO
+        ucol19pa14.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726554AbeLNNkx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Dec 2018 08:40:53 -0500
+X-EEMSG-check-008: 654253094|UCOL19PA14_EEMSG_MP12.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.56,353,1539648000"; 
+   d="scan'208";a="654253094"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by ucol19pa14.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 Dec 2018 13:40:50 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1544794850; x=1576330850;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=ZgyLkE1ncNvzup+Nve16P75++R8pe+zCOhMowOx4rz4=;
+  b=WpRkkfz8Cc5IWssPHo1ZQwZddRk9HjOSQheE7ANjdgxALc+nnLcTgCGR
+   dTTBDKYQ2rgOnzl2BR7CQJvdwBYuDaNqis9NZ8sNADFy0jZE7kPgmdvjv
+   6l1QjAw4X5YguAJbpekadZSU/gWtDFK8wfVItDCK9QeMlsgUT6LE0f0O0
+   DcNhpOuqdCNDRQbAIEx8zc1h6aGvKhnteJRoKfGURBAPVXuOCImryG/Xx
+   wKKbmq5j6QsFmm+3WBOgmN3xiVU0GXC7G9U3hsKE9UAiUW4suNy1jt+O8
+   c51EG0YsZcvKQ0T3d2nmKAz5mdYBMgtINsQ2+sbOyFaHjGjORr3Z0QhgO
+   g==;
+X-IronPort-AV: E=Sophos;i="5.56,353,1539648000"; 
+   d="scan'208";a="18714632"
+IronPort-PHdr: =?us-ascii?q?9a23=3AMZqT6BRc+r4XiW6M1NuMLnkomNpsv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa6zYBCN2/xhgRfzUJnB7Loc0qyK6/CmATRIyK3CmUhKSIZLWR?=
+ =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
+ =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfbB/IA+qoQnNq8IbnZZsJqEtxx?=
+ =?us-ascii?q?XTv3BGYf5WxWRmJVKSmxbz+MK994N9/ipTpvws6ddOXb31cKokQ7NYCi8mM3?=
+ =?us-ascii?q?0u683wqRbDVwqP6WACXWgQjxFFHhLK7BD+Xpf2ryv6qu9w0zSUMMHqUbw5Xy?=
+ =?us-ascii?q?mp4rx1QxH0ligIKz858HnWisNuiqJbvAmhrAF7z4LNfY2ZKOZycqbbcNwUX2?=
+ =?us-ascii?q?pBWttaWTJHDI2ycoADC/MNMfhEo4X4oVYFsBmwChS2BO731zFGmHH206053e?=
+ =?us-ascii?q?ovHw7J0w4vEM4BvnnPsNX4Nr0fXfypwKTGzzjOae5d1zfn6IjPdxAsueyCXa?=
+ =?us-ascii?q?5ufsrJyUkgCQXFhUiNp4zgJTyV0uANvHab7uF9Uu+vkHMoqxpqrzizxsYjlo?=
+ =?us-ascii?q?nJhoUPxlDC7iV22pw5JdK/SE5leNOpFoZbuSKCN4ZuX88vTG5ltDw6x7Ebo5?=
+ =?us-ascii?q?K3YicHxIo9yxLCbfGMbpKG7Qj5VOmLJDd1nHdleLWiiBms6UWg0ej8VtWs0F?=
+ =?us-ascii?q?ZNsypFjsHAtnAT2BzX7ciKUud98V272TaOygDT8ftIIVw0lKXHK54hxaQ8lp?=
+ =?us-ascii?q?wPvkTYAiD6gkD2jK6Sdkk8++io7froYqn+q5OBOIJ5hRvyP6QzlsClH+g1PR?=
+ =?us-ascii?q?YCU3KG9eik0b3s50z5QLFEjv0slanZtYjXJd8Gqa6iGAJVzoYi5Aq/Dzehyt?=
+ =?us-ascii?q?gYm2IHI0hfdBKIiIjpJUnCIOrkAvenn1SsjDBryujdMb3gBpXNKmLPn6v7cb?=
+ =?us-ascii?q?Zn7E5T0xQ8zcpD55JPEbwBL/fzVVXwtNzcFBM2Lwu0w+P/AtVnyoweQX6PAr?=
+ =?us-ascii?q?OeMK7Kql+H+OYvI+iKZI8ItzfwMOYl5/Hwgn8jg1Mdfrem3YERaH+mGvRqOU?=
+ =?us-ascii?q?KZYWDjgt0ZC2cFohI+TPD2iF2FSTNSaXeyX6Y45jE6Eo2mCJ3PSZy3jLyb2y?=
+ =?us-ascii?q?e0BYNZZnpaClCXCnrodoOEW+sSZyKWOMNujjsEVb3yA7MmgBuvsAu8wPx9Ke?=
+ =?us-ascii?q?DZ4DEDnZ3m3dlxoebUkFV67jFwDsKAw0mTQGxu2GAFXTk72OZ4u0Mu5E2E1P?=
+ =?us-ascii?q?1Dn/FAFdFVr8hMWwM+OI+Um/d2EPjuSwnBeZGPU1/gTdK4V2JiBuktysMDNh?=
+ =?us-ascii?q?4uU+6piQrOim/zWecY?=
+X-IPAS-Result: =?us-ascii?q?A2ARAAB/sRNc/wHyM5BkGwEBAQEDAQEBBwMBAQGBUgUBA?=
+ =?us-ascii?q?QELAYFaKYFoJ4N8lFwBAQEBAQEGgQgtiRQOjjWBejgBhEACgwUiNQgNAQMBA?=
+ =?us-ascii?q?QEBAQECAWwogjYkAYJhAQEBAQIBIxVBEAsVAwICJgICITYHDAYCAQGCXj+Ba?=
+ =?us-ascii?q?QMIBQild4EvhUCCRQ2CHIELizMXeIEHgTiCa4JXhTCCNSICiR6GdTeQHy8Jj?=
+ =?us-ascii?q?iqDKgYYkVIsiQ+GCItmAjSBVisIAhgIIQ+DJ5B5IQMwAYEEAQGNNwEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 14 Dec 2018 13:40:50 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id wBEDekPq021138;
+        Fri, 14 Dec 2018 08:40:46 -0500
+Subject: Re: [PATCH 1/2] Makefile: fix _FORTIFY_SOURCE redefined build error
+To:     bill.c.roberts@gmail.com, selinux@vger.kernel.org
+Cc:     William Roberts <william.c.roberts@intel.com>,
+        James Carter <jwcart2@tycho.nsa.gov>
 References: <1544736761-7920-1-git-send-email-william.c.roberts@intel.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <a31ecb59-e330-08c8-95d3-8c9fe5a4022d@tycho.nsa.gov>
+Date:   Fri, 14 Dec 2018 08:43:18 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.1
+MIME-Version: 1.0
+In-Reply-To: <1544736761-7920-1-git-send-email-william.c.roberts@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: William Roberts <william.c.roberts@intel.com>
+On 12/13/18 4:32 PM, bill.c.roberts@gmail.com wrote:
+> From: William Roberts <william.c.roberts@intel.com>
+> 
+> Certain builds of gcc enable _FORTIFY_SOURCE which results in the error:
+> <command-line>:0:0: warning: "_FORTIFY_SOURCE" redefined
+> <command-line>:0:0: note: this is the location of the previous definition
+> 
+> Correct this by undefining it first and redefining it. Also, the previous
+> command line option was using -Wp which passing the value *AS IS* to the
+> pre-processor rather than to the compiler driver. The C pre-processor has
+> an undocumented interface subject to change per man 1 gcc. Just use the
+> -D option as is.
 
-Build with strict overflow checking enabled. If the compiler optimizes
-code that could be removed due to undefined signed overflow, then the
-compiler will issue a warning.
+See commit ca07a2ad46be141dad90d885dd33a2ac31c6559a ("libselinux: avoid 
+redefining _FORTIFY_SOURCE") for why we don't specify a value for 
+_FORTIFY_SOURCE here.  Not sure about the -Wp,-D vs -D rationale.
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libselinux/src/Makefile   | 3 ++-
- libselinux/utils/Makefile | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
-
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index ee55bd0dbff7..a283ac9d90c2 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -64,7 +64,8 @@ ifeq ($(COMPILER), gcc)
- EXTRA_CFLAGS = -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand \
- 	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-attribute=const \
- 	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init \
--	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1
-+	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 \
-+        -Wstrict-overflow=5
- else
- EXTRA_CFLAGS = -Wunused-command-line-argument
- endif
-diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index 64ab877015c6..c2f59ea947cc 100644
---- a/libselinux/utils/Makefile
-+++ b/libselinux/utils/Makefile
-@@ -33,7 +33,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
-           -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 \
-           -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
-           -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
--          -Werror -Wno-aggregate-return -Wno-redundant-decls \
-+          -Werror -Wno-aggregate-return -Wno-redundant-decls -Wstrict-overflow=5 \
-           $(EXTRA_CFLAGS)
- 
- LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro
--- 
-2.7.4
+> 
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>   libselinux/src/Makefile   | 2 +-
+>   libselinux/utils/Makefile | 2 +-
+>   2 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 977b5c8cfcca..ee55bd0dbff7 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -64,7 +64,7 @@ ifeq ($(COMPILER), gcc)
+>   EXTRA_CFLAGS = -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand \
+>   	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-attribute=const \
+>   	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init \
+> -	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -Wp,-D_FORTIFY_SOURCE
+> +	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1
+>   else
+>   EXTRA_CFLAGS = -Wunused-command-line-argument
+>   endif
+> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+> index d06ffd66893b..64ab877015c6 100644
+> --- a/libselinux/utils/Makefile
+> +++ b/libselinux/utils/Makefile
+> @@ -30,7 +30,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+>             -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
+>             -Woverflow -Wpointer-to-int-cast -Wpragmas \
+>             -Wno-missing-field-initializers -Wno-sign-compare \
+> -          -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -Wp,-D_FORTIFY_SOURCE \
+> +          -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=1 \
+>             -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
+>             -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
+>             -Werror -Wno-aggregate-return -Wno-redundant-decls \
+> 
 
