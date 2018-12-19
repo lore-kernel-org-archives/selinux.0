@@ -3,72 +3,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FFFCC43387
-	for <selinux@archiver.kernel.org>; Wed, 19 Dec 2018 11:45:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3B97C43387
+	for <selinux@archiver.kernel.org>; Wed, 19 Dec 2018 12:32:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 697DE217D7
-	for <selinux@archiver.kernel.org>; Wed, 19 Dec 2018 11:45:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 750D42133F
+	for <selinux@archiver.kernel.org>; Wed, 19 Dec 2018 12:32:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727494AbeLSLpH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Dec 2018 06:45:07 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:44526 "EHLO mx1.redhat.com"
+        id S1727960AbeLSMcq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Dec 2018 07:32:46 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:35964 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726774AbeLSLpH (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 19 Dec 2018 06:45:07 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        id S1728281AbeLSMcq (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 19 Dec 2018 07:32:46 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id EB5DA753F1
-        for <selinux@vger.kernel.org>; Wed, 19 Dec 2018 11:45:06 +0000 (UTC)
-Received: from workstation.brq.redhat.com (unknown [10.43.12.238])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C4C7D5DE8B;
-        Wed, 19 Dec 2018 11:45:03 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 2EC571E2F0;
+        Wed, 19 Dec 2018 12:32:46 +0000 (UTC)
+Received: from workstation (unknown [10.43.12.238])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 711C817197;
+        Wed, 19 Dec 2018 12:32:44 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] mcstrans: Fix check in raw_color()
-Date:   Wed, 19 Dec 2018 12:45:00 +0100
-Message-Id: <20181219114500.22113-1-plautrba@redhat.com>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 1/1] python/sepolgen: always indent with 4 spaces
+References: <20181215181724.31808-1-nicolas.iooss@m4x.org>
+Date:   Wed, 19 Dec 2018 13:32:43 +0100
+In-Reply-To: <20181215181724.31808-1-nicolas.iooss@m4x.org> (Nicolas Iooss's
+        message of "Sat, 15 Dec 2018 19:17:24 +0100")
+Message-ID: <pjdsgytu26s.fsf@redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Wed, 19 Dec 2018 11:45:07 +0000 (UTC)
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Wed, 19 Dec 2018 12:32:46 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-raw_color() uses color_str as an output argument which is assigned to a new
-allocated memory. Therefore it should fail when color_str is null; or
-when *color_str is not null in order to avoid a memory leak.
+Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 
-Fixes:
->>> selinux.selinux_raw_context_to_color('system_u:system_r:inetd_t:s0')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-OSError: [Errno 0] Error
+> p_attribute_role_def() used tabs.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- mcstrans/src/mcscolor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mcstrans/src/mcscolor.c b/mcstrans/src/mcscolor.c
-index cc6174bb..6ea1aa97 100644
---- a/mcstrans/src/mcscolor.c
-+++ b/mcstrans/src/mcscolor.c
-@@ -292,7 +292,7 @@ int raw_color(const security_context_t raw, char **color_str) {
- 	size_t result_size = (N_COLOR * CHARS_PER_COLOR) + 1;
- 	int rc = -1;
- 
--	if (!color_str || !*color_str) {
-+	if (!color_str || *color_str) {
- 		return -1;
- 	}
- 
--- 
-2.20.0
+Merged. Thanks!
 
+> ---
+>  python/sepolgen/src/sepolgen/refparser.py | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/src/sepolgen/refparser.py
+> index 97e2342c4693..9fb931828278 100644
+> --- a/python/sepolgen/src/sepolgen/refparser.py
+> +++ b/python/sepolgen/src/sepolgen/refparser.py
+> @@ -757,9 +757,9 @@ def p_attribute_def(p):
+>      p[0] = a
+>  
+>  def p_attribute_role_def(p):
+> -	'attribute_role_def : ATTRIBUTE_ROLE IDENTIFIER SEMI'
+> -	a = refpolicy.Attribute_Role(p[2])
+> -	p[0] = a
+> +    'attribute_role_def : ATTRIBUTE_ROLE IDENTIFIER SEMI'
+> +    a = refpolicy.Attribute_Role(p[2])
+> +    p[0] = a
+>  
+>  def p_typealias_def(p):
+>      'typealias_def : TYPEALIAS IDENTIFIER ALIAS names SEMI'
