@@ -1,188 +1,141 @@
-Return-Path: <SRS0=+qLe=O6=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=rzOp=PB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72DE2C43387
-	for <selinux@archiver.kernel.org>; Fri, 21 Dec 2018 22:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1268C64E75
+	for <selinux@archiver.kernel.org>; Mon, 24 Dec 2018 17:02:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2A7C221920
-	for <selinux@archiver.kernel.org>; Fri, 21 Dec 2018 22:59:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76E6E21850
+	for <selinux@archiver.kernel.org>; Mon, 24 Dec 2018 17:02:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="G4Idl8qh"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xWZp5GTa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732605AbeLUW7V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Dec 2018 17:59:21 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:35506 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732413AbeLUW7V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 Dec 2018 17:59:21 -0500
-Received: by mail-lj1-f194.google.com with SMTP id x85-v6so6102777ljb.2
-        for <selinux@vger.kernel.org>; Fri, 21 Dec 2018 14:59:19 -0800 (PST)
+        id S1725648AbeLXRCj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Dec 2018 12:02:39 -0500
+Received: from mail-lf1-f48.google.com ([209.85.167.48]:40837 "EHLO
+        mail-lf1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725803AbeLXRCj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Dec 2018 12:02:39 -0500
+Received: by mail-lf1-f48.google.com with SMTP id v5so8487212lfe.7
+        for <selinux@vger.kernel.org>; Mon, 24 Dec 2018 09:02:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=whrN79uoa5KtUaYUXcKPhf+KyURiOD65NjT0RIp03Hg=;
-        b=G4Idl8qhP5/OglWiCj/FDKteRGVgPZ8MiE8CE7NlDhNi8624Joe3dLzo7J7gJ9ZcH7
-         cIb6rSou7AJpikvr5ho8gvodK1B6t/+HP+rhfljQMbTfsconLITaRW0vB00WaAqjDAT9
-         T0IWVh+uMGciva+HAcYvWH+y/GRzoLnGYlB+X2Fip+LAgQHCHweZOMgFZaQ85l1NsuqK
-         gqv22Oe2SHrmzUBoit74PWo/3HKvT/r6uN1112xyWqJBWmK3dXFpyqjbMQWDru5WC+Il
-         fGljrHnALEj+aH0S00urPL902E8Ck1YMrUnT1XmPtjlwrHyvcsct9+T9fAxQ4x5SDux1
-         ibvw==
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=G8FzPBtb4yXXXaWuLZ7xMf+SnfKeOS2EHYk5qzdzX3I=;
+        b=xWZp5GTa95rq+nOQF+eA7nPDXNA4UPYNmSAkOLEuzWedAZVloHdPJnZh3/Xvd1nMZm
+         ikUQcUGrKSBz1PW979NnpJ1ekC9QMfT7litK+VD5jM3q2suaV7CwHVYL/u1MU/yEEI1P
+         Bti5Ybz56ZPqrTpDZNzhhBSp83pp9Ywrw66jZjhvQyeGuShDE2ON46qL09Z45bWAO28F
+         QyvOA5sNVfH86RSn8TiMmsInd+IOliPdbE+klMh4uiwRdfi2f4u0f/8i13sX9LxuVn2g
+         4u4FKH0HF/9n7KnxBNI5P1QCnoec5fgRkMpzWey4Uhb25aeQ6wtOl0+6zSMo2VM7SkJe
+         RGxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=whrN79uoa5KtUaYUXcKPhf+KyURiOD65NjT0RIp03Hg=;
-        b=K6tAoA1AnRq2cqdidqPxusAo7ap2U91SjWAtSKDPZ2sD62sceGbQTZiKDe8vgFeePo
-         MNeEVmDTmLX4WZCdsLx9WY2W8ajZH1fBSHGTeUyenMMi8omxPOPBFFBefgoLAwlN0jPC
-         oDOQl2n7JBot9aIH4OSZPbiu4fAPaJEwwm/JCBGkCdq2UMaxW9vHCg3Ch8YSfhNVOdNW
-         2h5mkVjFgXszOeQeWsax5PMsFVdogYaULe1SvXZrgmmynzJzEQ7uC+ECTagcXqhxF7im
-         UCpHz9LSqZjFkxM1tpTVM9X2M+CywQJLPcjtsYuO3+ESTtuh0EKbWYHChuN2oeS/7dEh
-         E0YQ==
-X-Gm-Message-State: AJcUukeoX3XPohQwSO/bum/1wW+K4dA48AfBmNpD2X+7CiQMAKs+g6Nr
-        jlmWrpGERLzzj+TsaPp4Hoe5NMNrfrRltg/BBwm78NQbJA==
-X-Google-Smtp-Source: ALg8bN67kwWk/cUSqNqIJ6eX+zA5T4w2w9QCuMPhr6kQhmGnS31ZRCu+dR2UZOUAux8XYtrIa9zJke8yW3olB7PL4J8=
-X-Received: by 2002:a2e:834a:: with SMTP id l10-v6mr2658509ljh.42.1545433158344;
- Fri, 21 Dec 2018 14:59:18 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=G8FzPBtb4yXXXaWuLZ7xMf+SnfKeOS2EHYk5qzdzX3I=;
+        b=DZ/kCmADGbH3b0Q9Ca1jwHQIKhGnNb6QdS1A8CZP37nke5bwyXL9IS89D/xqcxzoJk
+         cMPq1JKneOg49cmoIqTSeu9iFzFRqn/YEut0+mlwE0m6sLa9N1rJ/tpBlckn3Y68OCwR
+         iey5YWS15oOXAemapVzLagXERXGK8rDSyIa9tC7utxEM07BIODF/G2TYI/02jBpRsSSm
+         ZqckLQ5aNfJs4wa2bjGNow9vC+AmFd9vRvbQuY+rkyHA/X5O2X3TGP6eNzmNh+YKTp+U
+         qDZXT5GBmSXo14RmMBwtUV/QOLE7HlQ6JLIv7Bv2k23ePw5FXC7CwNlnnptxABmNT5xO
+         Rf8g==
+X-Gm-Message-State: AA+aEWZy/r4bTxF2ePHp/gpoAkDcHpCJor65veWKG833m13U/5ta767H
+        CnQuSmAJzHbQB1LeLFlCqUdVyq7/2Mi5bnpF0h1C
+X-Google-Smtp-Source: AFSGD/VZjAGXZHyU0vNP+GgPDWr6fG1hlHaIPKvY97oYzXoeD7cPl4GdtsQLsPEV3HjeXOXsgJ02pMKv5NyM19aRZMs=
+X-Received: by 2002:a19:40cc:: with SMTP id n195mr6794802lfa.40.1545670956833;
+ Mon, 24 Dec 2018 09:02:36 -0800 (PST)
 MIME-Version: 1.0
-References: <20181221201853.24015-1-omosnace@redhat.com> <20181221201853.24015-3-omosnace@redhat.com>
- <b9fbfb5c-fc8f-fe02-13b1-998a00b1a7f5@tycho.nsa.gov> <CAFqZXNsWVRZKEj5K_WMO7kPbigXDOkG8T6GYyYHq5oi3kR8U7Q@mail.gmail.com>
-In-Reply-To: <CAFqZXNsWVRZKEj5K_WMO7kPbigXDOkG8T6GYyYHq5oi3kR8U7Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 21 Dec 2018 17:59:07 -0500
-Message-ID: <CAHC9VhSQV73yvGeQmyLNYnt-S0LZvnHW15NkpKA05uGuowKxSg@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] selinux: do not override context on context mounts
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
+Date:   Mon, 24 Dec 2018 12:02:25 -0500
+Message-ID: <CAHC9VhSzkyh3Nj+25YX1y_gs9-Y+TEedo7hi-Qk7hd+qMERvyQ@mail.gmail.com>
+Subject: [GIT PULL] SELinux patches v4.21
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 21, 2018 at 4:49 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Fri, Dec 21, 2018 at 9:45 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 12/21/18 3:18 PM, Ondrej Mosnacek wrote:
-> > > Ignore all selinux_inode_notifysecctx() calls on mounts with SBLABEL_MNT
-> > > flag unset. This is achived by returning -EOPNOTSUPP for this case in
-> > > selinux_inode_setsecurtity() (because that function should not be called
-> > > in such case anyway) and translating this error to 0 in
-> > > selinux_inode_notifysecctx().
-> > >
-> > > This fixes behavior of kernfs-based filesystems when mounted with the
-> > > 'context=' option. Before this patch, if a node's context had been
-> > > explicitly set to a non-default value and later the filesystem has been
-> > > remounted with the 'context=' option, then this node would show up as
-> > > having the manually-set context and not the mount-specified one.
-> > >
-> > > Steps to reproduce:
-> > >      # mount -t cgroup2 cgroup2 /sys/fs/cgroup/unified
-> > >      # chcon unconfined_u:object_r:user_home_t:s0 /sys/fs/cgroup/unified/cgroup.stat
-> > >      # ls -lZ /sys/fs/cgroup/unified
-> > >      total 0
-> > >      -r--r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.controllers
-> > >      -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.max.depth
-> > >      -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.max.descendants
-> > >      -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.procs
-> > >      -r--r--r--. 1 root root unconfined_u:object_r:user_home_t:s0 0 Dec 13 10:41 cgroup.stat
-> > >      -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.subtree_control
-> > >      -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.threads
-> > >      # umount /sys/fs/cgroup/unified
-> > >      # mount -o context=system_u:object_r:tmpfs_t:s0 -t cgroup2 cgroup2 /sys/fs/cgroup/unified
-> > >
-> > > Result before:
-> > >      # ls -lZ /sys/fs/cgroup/unified
-> > >      total 0
-> > >      -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.controllers
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.max.depth
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.max.descendants
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.procs
-> > >      -r--r--r--. 1 root root unconfined_u:object_r:user_home_t:s0 0 Dec 13 10:41 cgroup.stat
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.subtree_control
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.threads
-> > >
-> > > Result after:
-> > >      # ls -lZ /sys/fs/cgroup/unified
-> > >      total 0
-> > >      -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.controllers
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.max.depth
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.max.descendants
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.procs
-> > >      -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.stat
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.subtree_control
-> > >      -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.threads
-> > >
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> >
-> > The patch looks good to me but I am a little puzzled by the cgroup2
-> > behavior here.  I would have expected that unmounting would have killed
-> > the superblock and thus discarded the previously set label.  I guess
-> > something else is keeping it alive?
->
-> It is because the context set via setxattr is stored inside the kernfs
-> node and the kernfs tree is preserved across mounts/unmounts. It
-> actually behaves sort of like a normal filesystem backed by a block
-> device, just the "device" is represented by an in-memory kernfs tree
-> which is discarded at poweroff.
+Hi Linus,
 
-That makes sense.
+I already used my best holiday pull request lines in the audit pull
+request, so this one is going to be a bit more boring, sorry about
+that.  To make up for this, we do have a birthday of sorts to
+celebrate: SELinux turns 18 years old this December.  Perhaps not the
+most exciting thing in the world for most people, but I think it's
+safe to say that anyone reading this email doesn't exactly fall into
+the "most people" category.
 
-I'll take a closer look at these once we're past the upcoming merge
-window, but they look okay after a quick glance.
+Back to business and the pull request itself.  Ondrej has five patches
+in this pull request and I lump them into three categories: one patch
+to always allow submounts (using similar logic to elsewhere in the
+kernel), one to fix some issues with the SELinux policydb, and the
+others to cleanup and improve the SELinux sidtab.  The other patches
+from Alexey and Petr and trivial fixes that are adequately described
+in their respective subject lines.  This is generally a pretty
+standard set of patches, but there is one potential merge conflict
+with the mount rework in the vfs tree.  If needed, the fixup is pretty
+small and documented in the linux-next post below; if you have any
+questions about the merge let us know.
 
-> > Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
->
-> Thanks!
->
-> >
-> > > ---
-> > >   security/selinux/hooks.c | 9 ++++++++-
-> > >   1 file changed, 8 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index b4759bebeddc..fcf4af1e5157 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -3477,12 +3477,16 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
-> > >                                    const void *value, size_t size, int flags)
-> > >   {
-> > >       struct inode_security_struct *isec = inode_security_novalidate(inode);
-> > > +     struct superblock_security_struct *sbsec = inode->i_sb->s_security;
-> > >       u32 newsid;
-> > >       int rc;
-> > >
-> > >       if (strcmp(name, XATTR_SELINUX_SUFFIX))
-> > >               return -EOPNOTSUPP;
-> > >
-> > > +     if (!(sbsec->flags & SBLABEL_MNT))
-> > > +             return -EOPNOTSUPP;
-> > > +
-> > >       if (!value || !size)
-> > >               return -EACCES;
-> > >
-> > > @@ -6625,7 +6629,10 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
-> > >    */
-> > >   static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
-> > >   {
-> > > -     return selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX, ctx, ctxlen, 0);
-> > > +     int rc = selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX,
-> > > +                                        ctx, ctxlen, 0);
-> > > +     /* Do not return error when suppressing label (SBLABEL_MNT not set). */
-> > > +     return rc == -EOPNOTSUPP ? 0 : rc;
-> > >   }
-> > >
-> > >   /*
-> > >
->
-> --
-> Ondrej Mosnacek <omosnace at redhat dot com>
-> Associate Software Engineer, Security Technologies
-> Red Hat, Inc.
+* https://lore.kernel.org/lkml/20181218144858.58d8d1f8@canb.auug.org.au
+
+With this last pull request of the year, I want to thank everyone who
+has contributed patches, testing, and reviews to the SELinux project
+this year, and the past 18 years.  Like any good open source effort,
+SELinux is only as good as the community which supports it, and I'm
+very happy that we have the community we do - thank you all!
+
+-Paul
+--
+The following changes since commit 651022382c7f8da46cb4872a545ee1da6d097d2a:
+
+ Linux 4.20-rc1 (2018-11-04 15:37:52 -0800)
+
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20181224
+
+for you to fetch changes up to ee1a84fdfeedfd7362e9a8a8f15fedc3482ade2d:
+
+ selinux: overhaul sidtab to fix bug and improve performance
+   (2018-12-05 16:12:32 -0500)
+
+----------------------------------------------------------------
+selinux/stable-4.21 PR 20181224
+
+----------------------------------------------------------------
+Alexey Dobriyan (1):
+     selinux: make "selinux_policycap_names[]" const char *
+
+Ondrej Mosnacek (5):
+     selinux: policydb - fix byte order and alignment issues
+     selinux: refactor sidtab conversion
+     selinux: always allow mounting submounts
+     selinux: use separate table for initial SID lookup
+     selinux: overhaul sidtab to fix bug and improve performance
+
+Petr Vorel (1):
+     Documentation: Update SELinux reference policy URL
+
+Documentation/admin-guide/LSM/SELinux.rst |   2 +-
+security/selinux/hooks.c                  |   2 +-
+security/selinux/include/security.h       |   2 +-
+security/selinux/ss/mls.c                 |  24 +-
+security/selinux/ss/mls.h                 |   3 +-
+security/selinux/ss/policydb.c            |  61 +++-
+security/selinux/ss/services.c            | 222 +++++------
+security/selinux/ss/services.h            |   2 +-
+security/selinux/ss/sidtab.c              | 609 ++++++++++++++++++---------
+security/selinux/ss/sidtab.h              |  96 +++--
+10 files changed, 626 insertions(+), 397 deletions(-)
 
 -- 
 paul moore
