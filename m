@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA715C43387
-	for <selinux@archiver.kernel.org>; Wed, 26 Dec 2018 14:54:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24572C43387
+	for <selinux@archiver.kernel.org>; Wed, 26 Dec 2018 14:54:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 78B81214C6
-	for <selinux@archiver.kernel.org>; Wed, 26 Dec 2018 14:54:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E81D821720
+	for <selinux@archiver.kernel.org>; Wed, 26 Dec 2018 14:54:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n0tn7AFw"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J6+Db4X+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727202AbeLZOym (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Dec 2018 09:54:42 -0500
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:46619 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727156AbeLZOym (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Dec 2018 09:54:42 -0500
-Received: by mail-pg1-f196.google.com with SMTP id w7so7635623pgp.13
-        for <selinux@vger.kernel.org>; Wed, 26 Dec 2018 06:54:41 -0800 (PST)
+        id S1727234AbeLZOyn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Dec 2018 09:54:43 -0500
+Received: from mail-pl1-f177.google.com ([209.85.214.177]:37353 "EHLO
+        mail-pl1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727156AbeLZOyn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Dec 2018 09:54:43 -0500
+Received: by mail-pl1-f177.google.com with SMTP id b5so7631461plr.4
+        for <selinux@vger.kernel.org>; Wed, 26 Dec 2018 06:54:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=rsWmmcHo9Fq+rgmwGo0dVrXm+j/6Vle5tFvSFkQruyg=;
-        b=n0tn7AFw0X0FAorGaRo7feztouqQNHZt3PuDEF09T4uxSlGAVfwnTDqkK3euNoa23Q
-         8mK07TflP50f8U2aGdRqgMhRYd3kCBMDi2B67BQzCOHJ+7l9MU77/psVwLGkm24FMu/n
-         36teEFk4YYEv0iUHSzZdQBdeKyPWfZEeZByGK5yNUTl5UsLyTeGZAQWbt1DEeOHcGKtQ
-         cnw5Lq0UYhLMYHESwqepw33GLxLutCUou3nw3thro/XArqekPD1v657eyPUO8g5U85S/
-         csWjziXP5lFbCe9TuwqtOTPD6Y3Uqj/rEX6JKOV17ck4zmc2Hyld152ZumZOec3IBiw/
-         QF1A==
+        bh=CRT+gmnzz8170KIqVT+admga/R3uP0x76KWDbSknrQw=;
+        b=J6+Db4X+l6URRNx3+Cr34O0zpvfsj1M0VTbcwVS3zX5lrlXeg07DB9GdF6J5TFp9aE
+         fWRwLm/Mw73CNeeE7q3LPgIrh+tl2Ny4Cq2DyG0SCLRnPo2w6Gf3EcUE45m2JY+iw740
+         PBhtccW1tUPAM+gmGzFQcD2L2JBcfRqvYhNdWjn+V5gOcQix/Wmp/dYa0yGKgTYskxM6
+         Tf97//+/tR4M0px2tEag1CSbbBQv74jfH9YNNVNmSxHJqmxEBn9jJIIZ1DKUFfGC1KcI
+         yjYWEzL+nzFEM45sEuGVHTc+pVRxgNVSkW8ELaCqUt0YLlcdFR2fbjNZLq4ZE8Z2kza2
+         TJ0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=rsWmmcHo9Fq+rgmwGo0dVrXm+j/6Vle5tFvSFkQruyg=;
-        b=rl5L+QTK0ePWowC6YjL+kEr3kysfTwsTj8bC5OdIQSqDyI6RFrZqMcs18UnHzXbKDt
-         iIsBTRkf5ZR3OOkj4RVG38V6JrnQsZVsQm8fykyx1OA9vIMciWvHkAOyko+94mgO2eqL
-         OEYxpWbeYhGSwOL5TEbdkXGZTgrOu7NSPefCRvz/XwViccChGFjzM7i3fm1Xjgh4FZCn
-         5Ph+WRKsgO/eC6nodgqAhEHdHjqsctMSV1/wMhThsLJY6lir4FoNrdaM/xJMVXR2d9Dx
-         rkHApMETSBGFQotgTILPUAa3ihO2eSFyQp8OXEb2CPB+JKYeHlj9G9OvVMgF74/SN4RL
-         eqOg==
-X-Gm-Message-State: AA+aEWYXd0e3RFR9DpzI9EAJ2S7+9J+u0FIdRCIbHN2WBVJIgzrGLRBn
-        TZuq1XHYiWX/p7le2jbuNeT0jzUM
-X-Google-Smtp-Source: AFSGD/X9RFMDlHy5sFtmQy4ZX++ieGnMDpRldG5hGsTXMS6XyYjpMo4dbosPDGc4QhzVaYv8OGiP5g==
-X-Received: by 2002:a62:b24a:: with SMTP id x71mr20900648pfe.148.1545836080716;
-        Wed, 26 Dec 2018 06:54:40 -0800 (PST)
+        bh=CRT+gmnzz8170KIqVT+admga/R3uP0x76KWDbSknrQw=;
+        b=SYWf92+PqMXkB4vynqrhDB/PtzGD02bYvM+8uYEw9Lv3dgeP1FdGtDXWOPTrPAr4Jw
+         Clt20AjgrbCNjgKBKa7M0o3YlQiCy4MmNFJMxoK33f+au0zB8fPJcDSGMB5vdDFZaag6
+         8SINl4K3806OAXLY+w16o1Ka6DMM7wWmxG1/HoVtH60uEXhr6K6JydXI2Wm9ldFQY+Yu
+         1nC5t0HLb+cMrTo+B+vNbigufydu9tuNuYJXhadDj7Xkvyc7572nEzR0L3jYuOEZXxjz
+         SBodK27c0lbHk/fRSymOuztbcxBMnqcfjDqmU8Ti3ZP+nG/9VplwVkmqPMXNQssjQ9mv
+         MPxQ==
+X-Gm-Message-State: AJcUukcaV2PkpsUPEWhzpsKNa8aLWK9dVlJtP0gVaZmBFVVDbb3r853z
+        bBKAvweaaJa1Iwgr5QwRcV1P7IJq
+X-Google-Smtp-Source: ALg8bN51LveVM60xBjKxMhLM3gERhm5cmpVVbKra5m9fiF259Zqdom6JGDiMZvHdW4E8eZVM8foTtQ==
+X-Received: by 2002:a17:902:a50a:: with SMTP id s10mr19153429plq.278.1545836082268;
+        Wed, 26 Dec 2018 06:54:42 -0800 (PST)
 Received: from wcrobert-MOBL1.amr.corp.intel.com (jfdmzpr05-ext.jf.intel.com. [134.134.139.74])
-        by smtp.gmail.com with ESMTPSA id 125sm45110583pfg.39.2018.12.26.06.54.39
+        by smtp.gmail.com with ESMTPSA id 125sm45110583pfg.39.2018.12.26.06.54.40
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
-        Wed, 26 Dec 2018 06:54:40 -0800 (PST)
+        Wed, 26 Dec 2018 06:54:41 -0800 (PST)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     selinux@vger.kernel.org
 Cc:     sds@tycho.nsa.gov, William Roberts <william.c.roberts@intel.com>
-Subject: [V2 PATCH 2/3] build: set _FORTIFY_SOURCE=2 in libselinux
-Date:   Wed, 26 Dec 2018 06:54:27 -0800
-Message-Id: <1545836068-7824-2-git-send-email-william.c.roberts@intel.com>
+Subject: [V2 PATCH 3/3] Makefile: add -Wstrict-overflow=5 to CFLAGS
+Date:   Wed, 26 Dec 2018 06:54:28 -0800
+Message-Id: <1545836068-7824-3-git-send-email-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1545836068-7824-1-git-send-email-william.c.roberts@intel.com>
 References: <1545836068-7824-1-git-send-email-william.c.roberts@intel.com>
@@ -71,41 +71,43 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: William Roberts <william.c.roberts@intel.com>
 
-Use -D_FO0RTIFY_SOURCE=2 when building libselinux and it's util library.
-Note that this can be overridden by setting CFLAGS during the build.
+Build with strict overflow checking enabled. If the compiler optimizes
+code that could be removed due to undefined signed overflow, then the
+compiler will issue a warning.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/src/Makefile   | 2 +-
+ libselinux/src/Makefile   | 3 ++-
  libselinux/utils/Makefile | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 6263d11393e6..1a9223c0027d 100644
+index 1a9223c0027d..8891086e4af6 100644
 --- a/libselinux/src/Makefile
 +++ b/libselinux/src/Makefile
-@@ -64,7 +64,7 @@ ifeq ($(COMPILER), gcc)
+@@ -64,7 +64,8 @@ ifeq ($(COMPILER), gcc)
  EXTRA_CFLAGS = -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand \
  	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-attribute=const \
  	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init \
--	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE
-+	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
+-	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
++	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
++	-Wstrict-overflow=5
  else
  EXTRA_CFLAGS = -Wunused-command-line-argument
  endif
 diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index 890ff36f3bbc..e7a75121f049 100644
+index e7a75121f049..361506384d08 100644
 --- a/libselinux/utils/Makefile
 +++ b/libselinux/utils/Makefile
-@@ -30,7 +30,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
-           -Wformat-extra-args -Wformat-zero-length -Wformat=2 -Wmultichar \
-           -Woverflow -Wpointer-to-int-cast -Wpragmas \
-           -Wno-missing-field-initializers -Wno-sign-compare \
--          -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE \
-+          -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
+@@ -33,7 +33,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+           -Wno-format-nonliteral -Wframe-larger-than=$(MAX_STACK_SIZE) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
            -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions \
            -fasynchronous-unwind-tables -fdiagnostics-show-option -funit-at-a-time \
-           -Werror -Wno-aggregate-return -Wno-redundant-decls \
+-          -Werror -Wno-aggregate-return -Wno-redundant-decls \
++          -Werror -Wno-aggregate-return -Wno-redundant-decls -Wstrict-overflow=5 \
+           $(EXTRA_CFLAGS)
+ 
+ LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro
 -- 
 2.7.4
 
