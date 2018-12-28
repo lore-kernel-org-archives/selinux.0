@@ -2,95 +2,95 @@ Return-Path: <SRS0=b3nl=PF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D17E3C43387
-	for <selinux@archiver.kernel.org>; Fri, 28 Dec 2018 15:14:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08E4AC43387
+	for <selinux@archiver.kernel.org>; Fri, 28 Dec 2018 18:32:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9A8D32146F
-	for <selinux@archiver.kernel.org>; Fri, 28 Dec 2018 15:14:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB65520866
+	for <selinux@archiver.kernel.org>; Fri, 28 Dec 2018 18:32:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1546021930;
+	bh=wETxS8yv5oz2j+Av9PXHzqyaT65DaOn8yQ5ajhQvc8Q=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=pE7MAu7/rX8g/KFSWRMclStWvk4ijQ3zOtymDdUhEhxZtAb0qRRUYp4e1afVcuCsy
+	 TnPkMr7FTdrfOgcFGgWrog7FaA5CnQQqZTMbFys4onfYrZYlafyf7WwMxW3McSOrpq
+	 fRg0pYzlp586L1E8Bkqhg59F8XmhKu0DhCu4HqgA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731417AbeL1POF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Dec 2018 10:14:05 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:43620 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726957AbeL1POF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Dec 2018 10:14:05 -0500
-Received: by mail-oi1-f195.google.com with SMTP id u18so17499208oie.10
-        for <selinux@vger.kernel.org>; Fri, 28 Dec 2018 07:14:04 -0800 (PST)
+        id S1730101AbeL1ScK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Dec 2018 13:32:10 -0500
+Received: from mail-yw1-f68.google.com ([209.85.161.68]:40148 "EHLO
+        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727380AbeL1ScK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Dec 2018 13:32:10 -0500
+Received: by mail-yw1-f68.google.com with SMTP id g194so7309385ywe.7;
+        Fri, 28 Dec 2018 10:32:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=Zhibui6nYCIUyqevpVgofPw4n2CDQK0crqL94X3txcg=;
+        b=Yc6ErdU96fjt9k1CPxxDiMsXxUT4+CAgmsojGiZyztp4Ixiok51gWlJkIeYtnQ1H78
+         EMsMBL34t7V23yq5kuooH6YR0HdRIBwGinZl7KnJEC8fyYx4ijkK4P3XTHXn1TalvIm6
+         Ta9ylH7hNYTaFT+L9mc1ispWOsk/kKzmRbpE5p+RINE2rQFfv0l2fuuZQRm4wf7fXK+v
+         sdhHDyl+/p/XVdUgJLJL771AfBlkTDbBFYGOp2IuDp7ulB9oYZdx2acIXHzhoMFP4Wn0
+         N/zn0NFiXAgAIs1jhSym5HraxZZElaJ7Dpw2InU5shxCrltuWLKRb6fdTB5VWou9B035
+         u6zg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ltPj4YhW7DEBnjmPZP4DoyqURAmAy0Wzh1TFSF4f/yI=;
-        b=ulSzc0/yaHwLfohY2jviM+LhD4dgp/q+jI2fg7ZuTOLIG5Oh3cZF71AqRJ1bk8y+gB
-         Hx7des2v49ZqAoBfk7JMBGoaUp1kkiNxkhE6CmOChyzi0Xi6v6fd2XZ+o65zOcaEZwoE
-         2yF/AKHN8SanMT2bUoOjgXbk7Z3foQndRm2glLOwy2t/z/oiTp3HN2S34vvf3rB8xhSq
-         TzsnBG/21PeLbl2Ni4brqSneYcO1DlSxLUMuy+N8me6mCOOPaMV3VejXq+CGgNtso+FD
-         ZReqp/9DgwnHvuoHDhnd98J/O0QLOpcJrUnuXI/p0Tp0idqSE7VTzNGUna1Myvk56aeC
-         5bnQ==
-X-Gm-Message-State: AA+aEWZ4kO1DC6J8Ec9Uws7SbxNPCLWX6IN35NvxxSneVWOE/lEgFnX5
-        aNvLqmBwOg7NA2JcYMPdC0ZmKL7T5xVRtoSRSHbHFA==
-X-Google-Smtp-Source: AFSGD/XTNFlPFN6sYndJR4lOXmzoX9O3SC0V6ksN22CK6A3Ww49y5Wla6GndgMyjf8HTMT/iK33qCeF2+1K3mR2NyoU=
-X-Received: by 2002:a54:440d:: with SMTP id k13mr19040947oiw.263.1546010044287;
- Fri, 28 Dec 2018 07:14:04 -0800 (PST)
-MIME-Version: 1.0
-References: <20181213141739.8534-1-omosnace@redhat.com> <20181213141739.8534-2-omosnace@redhat.com>
- <20181213160309.GT2509588@devbig004.ftw2.facebook.com>
-In-Reply-To: <20181213160309.GT2509588@devbig004.ftw2.facebook.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 28 Dec 2018 16:14:01 +0100
-Message-ID: <CAFqZXNs+Zi0-6Syj9Uy4TajOQkukngafyUp_VW+VStzgorVYOw@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/3] cgroup: fix parsing empty mount option string
-To:     Tejun Heo <tj@kernel.org>
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Zhibui6nYCIUyqevpVgofPw4n2CDQK0crqL94X3txcg=;
+        b=IN09I2P2HRP4qTMFpkyCIhz8dcYwkEjghUmd9TqeaYAoZburzPLAavmUoqkTvvLsjY
+         axgHaAThppxD2T7qyvXmd0t1BT4ToElkexebL+Kl5kMzRiSTopkZl8YShvyflvh9HkE0
+         /cAW9VeOYRVGVkbIErPURFwPyYrobUme1U6bXXhQE5XZ6YfuTKbv2Sj9Db0Bo56Wg9i7
+         VZ4u/i/Y3aiXek0EuPvLaT5PZlX8REVm6lDlaQA+VnFImA6m02jKXsh0ya1X/HU0oyYS
+         58F1SnPm+DeHao7G5PD3UpxmsS4Fm+ihHI3E//RDYWVdot/fy//WYArxGuPdJSX0uGeW
+         J1aQ==
+X-Gm-Message-State: AA+aEWbYoKQAKRvL71m4xEWV6bdBWvxFiCNo7vmUmNrl10qj7KJAQEUB
+        q8m1tpjDt2QFenPFRiyi3oI=
+X-Google-Smtp-Source: AFSGD/Vbk3IKc6Z6bDMgBy7hGvzFo0jcy06FYJJhLAmWKj75ny/Fg21UUUdG8Fz+k4L1KvFmEo3B+Q==
+X-Received: by 2002:a81:a6d7:: with SMTP id d206mr28933728ywh.484.1546021928235;
+        Fri, 28 Dec 2018 10:32:08 -0800 (PST)
+Received: from localhost ([2620:10d:c091:180::1:4800])
+        by smtp.gmail.com with ESMTPSA id f10sm25258547ywb.26.2018.12.28.10.32.06
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 28 Dec 2018 10:32:07 -0800 (PST)
+Date:   Fri, 28 Dec 2018 10:32:04 -0800
+From:   Tejun Heo <tj@kernel.org>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
         cgroups@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
         Li Zefan <lizefan@huawei.com>,
         Johannes Weiner <hannes@cmpxchg.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [RFC PATCH 1/3] cgroup: fix parsing empty mount option string
+Message-ID: <20181228183204.GM2509588@devbig004.ftw2.facebook.com>
+References: <20181213141739.8534-1-omosnace@redhat.com>
+ <20181213141739.8534-2-omosnace@redhat.com>
+ <20181213160309.GT2509588@devbig004.ftw2.facebook.com>
+ <CAFqZXNs+Zi0-6Syj9Uy4TajOQkukngafyUp_VW+VStzgorVYOw@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFqZXNs+Zi0-6Syj9Uy4TajOQkukngafyUp_VW+VStzgorVYOw@mail.gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Tejun,
+On Fri, Dec 28, 2018 at 04:14:01PM +0100, Ondrej Mosnacek wrote:
+> > Applied to cgroup/for-4.21.
+> 
+> I still can't see the patch in your for-4.21 branch [1] (and it
+> doesn't seem to be included in your 4.21-rc1 pull request either [2]).
+> Did you perhaps forget to apply it?
 
-On Thu, Dec 13, 2018 at 5:03 PM Tejun Heo <tj@kernel.org> wrote:
->
-> Hello,
->
-> On Thu, Dec 13, 2018 at 03:17:37PM +0100, Ondrej Mosnacek wrote:
-> > This fixes the case where all mount options specified are consumed by an
-> > LSM and all that's left is an empty string. In this case cgroupfs should
-> > accept the string and not fail.
-> >
-> > How to reproduce (with SELinux enabled):
-> >
-> >     # umount /sys/fs/cgroup/unified
-> >     # mount -o context=system_u:object_r:cgroup_t:s0 -t cgroup2 cgroup2 /sys/fs/cgroup/unified
-> >     mount: /sys/fs/cgroup/unified: wrong fs type, bad option, bad superblock on cgroup2, missing codepage or helper program, or other error.
-> >     # dmesg | tail -n 1
-> >     [   31.575952] cgroup: cgroup2: unknown option ""
-> >
-> > Fixes: 67e9c74b8a87 ("cgroup: replace __DEVEL__sane_behavior with cgroup2 fs type")
-> > [NOTE: should apply on top of commit 5136f6365ce3 ("cgroup: implement "nsdelegate" mount option"), older versions need manual rebase]
-> > Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
-> Applied to cgroup/for-4.21.
+Indeed.  I'll amend the pull request.
 
-I still can't see the patch in your for-4.21 branch [1] (and it
-doesn't seem to be included in your 4.21-rc1 pull request either [2]).
-Did you perhaps forget to apply it?
+Thanks.
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/tj/cgroup.git/log/?h=for-4.21
-[2] https://lore.kernel.org/lkml/20181228021605.GI2509588@devbig004.ftw2.facebook.com/
-
-Cheers,
-
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Associate Software Engineer, Security Technologies
-Red Hat, Inc.
+-- 
+tejun
