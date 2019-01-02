@@ -2,161 +2,122 @@ Return-Path: <SRS0=NpCz=PK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5506CC43387
-	for <selinux@archiver.kernel.org>; Wed,  2 Jan 2019 13:14:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 663B4C43387
+	for <selinux@archiver.kernel.org>; Wed,  2 Jan 2019 13:56:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1F6D2218CD
-	for <selinux@archiver.kernel.org>; Wed,  2 Jan 2019 13:14:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DD84218DE
+	for <selinux@archiver.kernel.org>; Wed,  2 Jan 2019 13:56:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=bigon.be header.i=@bigon.be header.b="kredz2Gt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729900AbfABNOI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Jan 2019 08:14:08 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:36068 "EHLO mx1.redhat.com"
+        id S1727887AbfABN4M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Jan 2019 08:56:12 -0500
+Received: from ithil.bigon.be ([163.172.57.153]:36222 "EHLO ithil.bigon.be"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726939AbfABNOI (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 2 Jan 2019 08:14:08 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727827AbfABN4M (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 2 Jan 2019 08:56:12 -0500
+X-Greylist: delayed 441 seconds by postgrey-1.27 at vger.kernel.org; Wed, 02 Jan 2019 08:56:11 EST
+Received: from localhost (localhost [IPv6:::1])
+        by ithil.bigon.be (Postfix) with ESMTP id 7DB3820DD6
+        for <selinux@vger.kernel.org>; Wed,  2 Jan 2019 14:48:49 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bigon.be; h=
+        content-transfer-encoding:mime-version:x-mailer:message-id:date
+        :date:subject:subject:from:from:received:received:received; s=
+        key2; t=1546436929; x=1548251330; bh=YWv+SbuHMR2kdz/xgbisjiCjkw8
+        2RduAGlFhZwMCOxY=; b=kredz2Gtap3jNXt4m4N927In4ApzTscFaa15L9s6o5L
+        W2x0ufaVyahFpZkyJCCSbEsyQ1bqOUjJFDtUKi5GkJ29m/ktf5XnG98a/7TuNGi1
+        3kOpI31NxoCDnDC1vMgaE5H+rNe4QCtr7NiXF/qNxcMQqZjfwKYLx2+1VlskX9xg
+        =
+Received: from ithil.bigon.be ([IPv6:::1])
+        by localhost (ithil.bigon.be [IPv6:::1]) (amavisd-new, port 10026)
+        with ESMTP id 4czIACipv1Ld for <selinux@vger.kernel.org>;
+        Wed,  2 Jan 2019 14:48:49 +0100 (CET)
+Received: from valinor.bigon.be (d54c71dba.static.telenet.be [84.199.29.186])
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E632B637EE;
-        Wed,  2 Jan 2019 13:14:07 +0000 (UTC)
-Received: from workstation (unknown [10.43.12.130])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3DC955D757;
-        Wed,  2 Jan 2019 13:14:06 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
+        (Authenticated sender: bigon@bigon.be)
+        by ithil.bigon.be (Postfix) with ESMTPSA
+        for <selinux@vger.kernel.org>; Wed,  2 Jan 2019 14:48:49 +0100 (CET)
+Received: from bigon (uid 1000)
+        (envelope-from bigon@bigon.be)
+        id 5fca5
+        by valinor.bigon.be (DragonFly Mail Agent v0.11);
+        Wed, 02 Jan 2019 14:46:39 +0100
+From:   Laurent Bigonville <bigon@debian.org>
 To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 1/4] python/semanage: move valid_types initialisations to class constructors
-References: <20181220151420.30878-1-plautrba@redhat.com>
-        <20181220151420.30878-2-plautrba@redhat.com>
-        <CAJfZ7=nuM-z=P8n-V+C7GT+mWWYv59rGre-kxky2-mpRw-2Rmg@mail.gmail.com>
-Date:   Wed, 02 Jan 2019 14:14:05 +0100
-In-Reply-To: <CAJfZ7=nuM-z=P8n-V+C7GT+mWWYv59rGre-kxky2-mpRw-2Rmg@mail.gmail.com>
-        (Nicolas Iooss's message of "Thu, 20 Dec 2018 23:34:53 +0100")
-Message-ID: <pjd8t03urqa.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+Subject: [PATCH] libsemanage: Always set errno to 0 before calling getpwent()
+Date:   Wed,  2 Jan 2019 14:46:39 +0100
+Message-Id: <20190102134639.30515-1-bigon@debian.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Wed, 02 Jan 2019 13:14:08 +0000 (UTC)
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+From: Laurent Bigonville <bigon@bigon.be>
 
-> On Thu, Dec 20, 2018 at 4:14 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Based on idea from Nicolas Iooss <nicolas.iooss@m4x.org>
->>
->> Fixes:
->> $ sudo semanage
->> Traceback (most recent call last):
->>   File "/usr/sbin/semanage", line 28, in <module>
->>     import seobject
->>   File "/usr/lib/python3.7/site-packages/seobject.py", line 1045, in <module>
->>     class portRecords(semanageRecords):
->>   File "/usr/lib/python3.7/site-packages/seobject.py", line 1047, in portRecords
->>     valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "port_type"))[0]["types"])
->>   File "/usr/lib/python3.7/site-packages/sepolicy/__init__.py", line 203, in <genexpr>
->>     return ({
->>   File "/usr/lib64/python3.7/site-packages/setools/typeattrquery.py", line 65, in results
->>     for attr in self.policy.typeattributes():
->> AttributeError: 'NoneType' object has no attribute 'typeattributes'
->>
->> https://github.com/SELinuxProject/selinux/issues/81
->>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->
-> Why are classes ibpkeyRecords and ibendportRecords not covered by the
-> changes from this patch?
+The manpage explicitly states that:
 
-Because I missed that out. I'll send another set with ibendportRecords and
-ibpkeyRecords covered.
+  The  getpwent()  function  returns a pointer to a passwd structure, or
+  NULL if there are no more entries or an error occurred.  If an error
+  occurs, errno is set appropriately.  If one wants to check errno after
+  the call, it should be set to zero before the call.
 
-Thanks!
+Without this, genhomedircon can wrongly return the following:
+  libsemanage.get_home_dirs: Error while fetching users.  Returning list so far.
 
+https://github.com/SELinuxProject/selinux/issues/121
 
->
-> Nicolas
->
->> ---
->>  python/semanage/seobject.py | 33 ++++++++++++++++++++-------------
->>  1 file changed, 20 insertions(+), 13 deletions(-)
->>
->> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
->> index efec0a55..2b43b65c 100644
->> --- a/python/semanage/seobject.py
->> +++ b/python/semanage/seobject.py
->> @@ -1043,13 +1043,15 @@ class seluserRecords(semanageRecords):
->>
->>
->>  class portRecords(semanageRecords):
->> -    try:
->> -        valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "port_type"))[0]["types"])
->> -    except RuntimeError:
->> -        valid_types = []
->> +
->> +    valid_types = []
->>
->>      def __init__(self, args = None):
->>          semanageRecords.__init__(self, args)
->> +        try:
->> +            self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "port_type"))[0]["types"])
->> +        except RuntimeError:
->> +            pass
->>
->>      def __genkey(self, port, proto):
->>          if proto == "tcp":
->> @@ -1823,14 +1825,16 @@ class ibendportRecords(semanageRecords):
->>              print(rec)
->>
->>  class nodeRecords(semanageRecords):
->> -    try:
->> -        valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "node_type"))[0]["types"])
->> -    except RuntimeError:
->> -        valid_types = []
->> +
->> +    valid_types = []
->>
->>      def __init__(self, args = None):
->>          semanageRecords.__init__(self, args)
->>          self.protocol = ["ipv4", "ipv6"]
->> +        try:
->> +            self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "node_type"))[0]["types"])
->> +        except RuntimeError:
->> +            pass
->>
->>      def validate(self, addr, mask, protocol):
->>          newaddr = addr
->> @@ -2264,14 +2268,17 @@ class interfaceRecords(semanageRecords):
->>
->>
->>  class fcontextRecords(semanageRecords):
->> -    try:
->> -        valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "file_type"))[0]["types"])
->> -        valid_types += list(list(sepolicy.info(sepolicy.ATTRIBUTE, "device_node"))[0]["types"])
->> -    except RuntimeError:
->> -        valid_types = []
->> +
->> +    valid_types = []
->>
->>      def __init__(self, args = None):
->>          semanageRecords.__init__(self, args)
->> +        try:
->> +            self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "file_type"))[0]["types"])
->> +            self.valid_types += list(list(sepolicy.info(sepolicy.ATTRIBUTE, "device_node"))[0]["types"])
->> +        except RuntimeError:
->> +            pass
->> +
->>          self.equiv = {}
->>          self.equiv_dist = {}
->>          self.equal_ind = False
->> --
->> 2.20.1
->>
+Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+---
+ libsemanage/src/genhomedircon.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+index 3e61b510..591941fb 100644
+--- a/libsemanage/src/genhomedircon.c
++++ b/libsemanage/src/genhomedircon.c
+@@ -361,7 +361,11 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+ 
+ 	errno = 0;
+ 	setpwent();
+-	while ((pwbuf = getpwent()) != NULL) {
++	while (1) {
++		errno = 0;
++		pwbuf = getpwent();
++		if (pwbuf == NULL)
++			break;
+ 		if (pwbuf->pw_uid < minuid || pwbuf->pw_uid > maxuid)
+ 			continue;
+ 		if (!semanage_list_find(shells, pwbuf->pw_shell))
+@@ -403,7 +407,6 @@ static semanage_list_t *get_home_dirs(genhomedircon_settings_t * s)
+ 		}
+ 		free(path);
+ 		path = NULL;
+-		errno = 0;
+ 	}
+ 
+ 	if (errno) {
+@@ -1101,7 +1104,11 @@ static int get_group_users(genhomedircon_settings_t * s,
+ 	}
+ 
+ 	setpwent();
+-	while ((pw = getpwent()) != NULL) {
++	while (1) {
++		errno = 0;
++		pw = getpwent();
++		if (pw == NULL)
++			break;
+ 		// skip users who also have this group as their
+ 		// primary group
+ 		if (lfind(pw->pw_name, group->gr_mem, &nmembers,
+-- 
+2.20.1
+
