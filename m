@@ -2,573 +2,166 @@ Return-Path: <SRS0=zFQt=PM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45F26C43387
-	for <selinux@archiver.kernel.org>; Fri,  4 Jan 2019 12:28:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2F76C43387
+	for <selinux@archiver.kernel.org>; Fri,  4 Jan 2019 15:09:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F3AC42070C
-	for <selinux@archiver.kernel.org>; Fri,  4 Jan 2019 12:28:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 496DB2087F
+	for <selinux@archiver.kernel.org>; Fri,  4 Jan 2019 15:09:32 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="kBhviom1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727262AbfADM2f (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 4 Jan 2019 07:28:35 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:33856 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727256AbfADM2f (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 4 Jan 2019 07:28:35 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 6D7A1C057F33;
-        Fri,  4 Jan 2019 12:28:33 +0000 (UTC)
-Received: from workstation (unknown [10.40.205.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A0C1C1001F3C;
-        Fri,  4 Jan 2019 12:28:31 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 3/3] semanage_migrate_store: switch to space indentation
-References: <20181219221320.8594-1-nicolas.iooss@m4x.org>
-        <20181219221320.8594-3-nicolas.iooss@m4x.org>
-Date:   Fri, 04 Jan 2019 13:28:27 +0100
-In-Reply-To: <20181219221320.8594-3-nicolas.iooss@m4x.org> (Nicolas Iooss's
-        message of "Wed, 19 Dec 2018 23:13:20 +0100")
-Message-ID: <pjdtviotxn8.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Fri, 04 Jan 2019 12:28:33 +0000 (UTC)
+        id S1726285AbfADPJb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 4 Jan 2019 10:09:31 -0500
+Received: from ucol19pa10.eemsg.mail.mil ([214.24.24.83]:18464 "EHLO
+        UCOL19PA10.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726117AbfADPJb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 4 Jan 2019 10:09:31 -0500
+X-EEMSG-check-017: 630616703|UCOL19PA10_EEMSG_MP8.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.56,439,1539648000"; 
+   d="scan'208";a="630616703"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UCOL19PA10.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Jan 2019 15:09:29 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1546614569; x=1578150569;
+  h=message-id:subject:from:to:date:in-reply-to:references:
+   mime-version:content-transfer-encoding;
+  bh=r/X2Pk84Rl0wJfwydMZPKrxD+4G2oPKorWAgEw+S16g=;
+  b=kBhviom1VJYhz0Do9relQKIQgQ7xm1ZYYBoo0f+LcLL0cj3aIgdzwjoT
+   WH9HtwtS7odFujifY0cW47MwtNsvwaN/U5beMu2bvIDZk4MF4JoTjIBI2
+   8YLikQMTHipK7QtdBGbzTPehLsQjsRVYtk1bs+AXDDWm+8ktEkRCBitkt
+   yScFv9mJZYcbhgJ9j867fs00GN9sJEvBGjt9T4Qk+HwWNqEP6nJdf0zVc
+   W7fCPBWRpgcNytxgQwvOZKxU6vNUJaiGzI4uJs0ymfJRCdC8n9Ax/vFwg
+   woxJdTB8J3gAO/3WMtNk1EjHmXARqCL/aeAECM55F8kGyHO/0RM2Ap+2t
+   w==;
+X-IronPort-AV: E=Sophos;i="5.56,439,1539648000"; 
+   d="scan'208";a="19217157"
+IronPort-PHdr: =?us-ascii?q?9a23=3ACjp0bRCwhmz4oqTZ0bBRUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSPX7rsbcNUDSrc9gkEXOFd2Cra4c26yO6+jJYi8p2d65qncMcZhBBV?=
+ =?us-ascii?q?cuqP49uEgeOvODElDxN/XwbiY3T4xoXV5h+GynYwAOQJ6tL1LdrWev4jEMBx?=
+ =?us-ascii?q?7xKRR6JvjvGo7Vks+7y/2+94fcbglUhzexe69+IAmrpgjNq8cahpdvJLwswR?=
+ =?us-ascii?q?XTuHtIfOpWxWJsJV2Nmhv3+9m98p1+/SlOovwt78FPX7n0cKQ+VrxYES8pM3?=
+ =?us-ascii?q?sp683xtBnMVhWA630BWWgLiBVIAgzF7BbnXpfttybxq+Rw1DWGMcDwULs5Qi?=
+ =?us-ascii?q?qp4bt1RxD0iScHLz85/3/Risxsl6JQvRatqwViz4LIfI2ZMfxzca3HfdMeWG?=
+ =?us-ascii?q?FPQMBfWSJcCY+4docDEvYNMeNeooLgpVUBsAG+CBGvCu3yyjFGmHH40q800+?=
+ =?us-ascii?q?s9Hw7J0wMuEskSsHnXttj5KLseXPq3waTO0D7Nb+lW2TD46IXQbx4hve+DXa?=
+ =?us-ascii?q?pwccXPz0kkCh7LjlCKpozhOzOayOQMuHWc4up7SO2vkHUqqx1xozezxscsjZ?=
+ =?us-ascii?q?PFhoQOyl/e7yl5z4E1JcOhRUN9fNWqHpxQtySAOIt3RMMvW25ouCcmyr0GpJ?=
+ =?us-ascii?q?60ZzIGx4ggxx7abfGMbouG4gr7WeqMLjp1i2hpdbKiixqo70StxfPwWtOp3F?=
+ =?us-ascii?q?tMsyFLiMPDtmoX2BzW8sWHT/x98Vq/1juXzADT7/1EIVgzlarGN54t2r4wmY?=
+ =?us-ascii?q?QXsUTEBiL2hF/5jLWXdkU54eik8fjnY7X6qZ+cMI94kAf+Pbg1msOjG+g4Nw?=
+ =?us-ascii?q?kOX2yD9eS90r3s41H5Ta1XgvA5naTVqpDXKdkBqqKnDAJZzJwv5wunAzejyt?=
+ =?us-ascii?q?sYnH0HLFxfeBKAiojkI0rOL+3jDfqkn1StkCtkx/DBPrH7BJXNNWLMnK3ufb?=
+ =?us-ascii?q?Z69U5Q0BAzwsxH55JIFrEBJ+r+WlTvu9zcDx85NRG0wun8BdVj2YMRR3iPDr?=
+ =?us-ascii?q?WaMKzMq1+I4PwgI+2WaI8Sojb9JOAv5+Tygn8hhV8dYa6p0IMMZ3C5EfRmJE?=
+ =?us-ascii?q?OZbGHxjdgfCmgKvxAxTOrwhF2FSz5TaCX6Y6VpwjgmEo+gEc/pR4+qhqKA2C?=
+ =?us-ascii?q?O2VslcZ29BDHiAHH3pfoPCXO0DPmbaOcJlkzoZRZC/RII7kxKjrgn3z/xgNO?=
+ =?us-ascii?q?WH1DcfsMfYyNVt5+DV3So3/DhwAtXVh3qBVEloj2gIQHkwx6k5rktjnATQmZ?=
+ =?us-ascii?q?NkiuBVQIQAr8hCVR03YNuFlrR3?=
+X-IPAS-Result: =?us-ascii?q?A2AhAADUdi9c/wHyM5BjGwEBAQEDAQEBBwMBAQGBUwQBA?=
+ =?us-ascii?q?QELAYFaKWZPMyeDf5QBTAEBAQEBAQaBNXyILI4/gXswCAGDekYCggAiNgcNA?=
+ =?us-ascii?q?QMBAQEBAQECAWwcDII6KQGCZgEBAQEDIwQLAVYLDgcDAgImAgJXBgESgmNAg?=
+ =?us-ascii?q?XQND6ZYfDOELQGBFIRgBYELizQXeIEHgRGCXQcugVSBSgKEaYJXApBmkHEJh?=
+ =?us-ascii?q?xOKWRiRaolghQONHwcqgVYrCAIYCCEPO4JshgiKcSEDMIEFAQGJYgEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 04 Jan 2019 15:09:10 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x04F99Qd001442;
+        Fri, 4 Jan 2019 10:09:09 -0500
+Message-ID: <91136ae0462be76415705cb8a014d2a49e59aa85.camel@tycho.nsa.gov>
+Subject: Re: [PATCH] libsemanage: Always set errno to 0 before calling
+ getpwent()
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     Laurent Bigonville <bigon@debian.org>, selinux@vger.kernel.org
+Date:   Fri, 04 Jan 2019 10:11:22 -0500
+In-Reply-To: <e2da0c12-9e7d-089f-d45a-fba523e6e04f@debian.org>
+References: <20190102134639.30515-1-bigon@debian.org>
+         <e2da0c12-9e7d-089f-d45a-fba523e6e04f@debian.org>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.2 (3.30.2-2.fc29) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+On Wed, 2019-01-02 at 15:30 +0100, Laurent Bigonville wrote:
+> Le 2/01/19 à 14:46, Laurent Bigonville a écrit :
+> > From: Laurent Bigonville <bigon@bigon.be>
+> > 
+> > The manpage explicitly states that:
+> > 
+> >    The  getpwent()  function  returns a pointer to a passwd
+> > structure, or
+> >    NULL if there are no more entries or an error occurred.  If an
+> > error
+> >    occurs, errno is set appropriately.  If one wants to check errno
+> > after
+> >    the call, it should be set to zero before the call.
+> > 
+> > Without this, genhomedircon can wrongly return the following:
+> >    libsemanage.get_home_dirs: Error while fetching
+> > users.  Returning list so far.
+> > 
+> > https://github.com/SELinuxProject/selinux/issues/121
+> > 
+> > Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+> > ---
+> >   libsemanage/src/genhomedircon.c | 13 ++++++++++---
+> >   1 file changed, 10 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/libsemanage/src/genhomedircon.c
+> > b/libsemanage/src/genhomedircon.c
+> > index 3e61b510..591941fb 100644
+> > --- a/libsemanage/src/genhomedircon.c
+> > +++ b/libsemanage/src/genhomedircon.c
+> > @@ -361,7 +361,11 @@ static semanage_list_t
+> > *get_home_dirs(genhomedircon_settings_t * s)
+> >   
+> >   	errno = 0;
+> >   	setpwent();
+> > -	while ((pwbuf = getpwent()) != NULL) {
+> > +	while (1) {
+> > +		errno = 0;
+> > +		pwbuf = getpwent();
+> > +		if (pwbuf == NULL)
+> > +			break;
+> >   		if (pwbuf->pw_uid < minuid || pwbuf->pw_uid > maxuid)
+> >   			continue;
+> >   		if (!semanage_list_find(shells, pwbuf->pw_shell))
+> > @@ -403,7 +407,6 @@ static semanage_list_t
+> > *get_home_dirs(genhomedircon_settings_t * s)
+> >   		}
+> >   		free(path);
+> >   		path = NULL;
+> > -		errno = 0;
+> 
+> Actually I'm wondering if this shouldn't stay there
 
-> The script used both tabs and space to indent the code, using a tab
-> length of 8 (in calls to parser.add_option(...)). Make the code more
-> readable by using spaces for indentation everywhere.
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Why?
 
-All 3 merged. Thanks!
+> 
+> >   	}
+> >   
+> >   	if (errno) {
+> > @@ -1101,7 +1104,11 @@ static int
+> > get_group_users(genhomedircon_settings_t * s,
+> >   	}
+> >   
+> >   	setpwent();
+> > -	while ((pw = getpwent()) != NULL) {
+> > +	while (1) {
+> > +		errno = 0;
+> > +		pw = getpwent();
+> > +		if (pw == NULL)
+> > +			break;
+> >   		// skip users who also have this group as their
+> >   		// primary group
+> >   		if (lfind(pw->pw_name, group->gr_mem, &nmembers,
 
-
-> ---
->  libsemanage/utils/semanage_migrate_store | 438 +++++++++++------------
->  1 file changed, 219 insertions(+), 219 deletions(-)
->
-> diff --git a/libsemanage/utils/semanage_migrate_store b/libsemanage/utils/semanage_migrate_store
-> index 360f143e9fca..018b1a3e62c2 100755
-> --- a/libsemanage/utils/semanage_migrate_store
-> +++ b/libsemanage/utils/semanage_migrate_store
-> @@ -10,287 +10,287 @@ from optparse import OptionParser
->  
->  
->  try:
-> -	import selinux
-> -	import semanage
-> +    import selinux
-> +    import semanage
->  except ImportError:
-> -	print("You must install libselinux-python and libsemanage-python before running this tool", file=sys.stderr)
-> -	exit(1)
-> +    print("You must install libselinux-python and libsemanage-python before running this tool", file=sys.stderr)
-> +    exit(1)
->  
->  
->  def copy_file(src, dst):
-> -	if DEBUG:
-> -		print("copying %s to %s" % (src, dst))
-> -	try:
-> -		shutil.copy(src, dst)
-> -	except OSError as the_err:
-> -		(err, strerr) = the_err.args
-> -		print("Could not copy %s to %s, %s" % (src, dst, strerr), file=sys.stderr)
-> -		exit(1)
-> +    if DEBUG:
-> +        print("copying %s to %s" % (src, dst))
-> +    try:
-> +        shutil.copy(src, dst)
-> +    except OSError as the_err:
-> +        (err, strerr) = the_err.args
-> +        print("Could not copy %s to %s, %s" % (src, dst, strerr), file=sys.stderr)
-> +        exit(1)
->  
->  
->  def create_dir(dst, mode):
-> -	if DEBUG:
-> -		print("Making directory %s" % dst)
-> -	try:
-> -		os.makedirs(dst, mode)
-> -	except OSError as the_err:
-> -		(err, stderr) = the_err.args
-> -		if err == errno.EEXIST:
-> -			pass
-> -		else:
-> -			print("Error creating %s" % dst, file=sys.stderr)
-> -			exit(1)
-> +    if DEBUG:
-> +        print("Making directory %s" % dst)
-> +    try:
-> +        os.makedirs(dst, mode)
-> +    except OSError as the_err:
-> +        (err, stderr) = the_err.args
-> +        if err == errno.EEXIST:
-> +            pass
-> +        else:
-> +            print("Error creating %s" % dst, file=sys.stderr)
-> +            exit(1)
->  
->  
->  def create_file(dst):
-> -	if DEBUG:
-> -		print("Making file %s" % dst)
-> -	try:
-> -		open(dst, 'a').close()
-> -	except OSError as the_err:
-> -		(err, stderr) = the_err.args
-> -		print("Error creating %s" % dst, file=sys.stderr)
-> -		exit(1)
-> +    if DEBUG:
-> +        print("Making file %s" % dst)
-> +    try:
-> +        open(dst, 'a').close()
-> +    except OSError as the_err:
-> +        (err, stderr) = the_err.args
-> +        print("Error creating %s" % dst, file=sys.stderr)
-> +        exit(1)
->  
->  
->  def copy_module(store, name, base):
-> -	if DEBUG:
-> -		print("Install module %s" % name)
-> -	(file, ext) = os.path.splitext(name)
-> -	if ext != ".pp":
-> -		# Stray non-pp file in modules directory, skip
-> -		print("warning: %s has invalid extension, skipping" % name, file=sys.stderr)
-> -		return
-> -	try:
-> -		if base:
-> -			root = oldstore_path(store)
-> -		else:
-> -			root = oldmodules_path(store)
-> +    if DEBUG:
-> +        print("Install module %s" % name)
-> +    (file, ext) = os.path.splitext(name)
-> +    if ext != ".pp":
-> +        # Stray non-pp file in modules directory, skip
-> +        print("warning: %s has invalid extension, skipping" % name, file=sys.stderr)
-> +        return
-> +    try:
-> +        if base:
-> +            root = oldstore_path(store)
-> +        else:
-> +            root = oldmodules_path(store)
->  
-> -		bottomdir = bottomdir_path(store)
-> +        bottomdir = bottomdir_path(store)
->  
-> -		os.mkdir("%s/%s" % (bottomdir, file))
-> +        os.mkdir("%s/%s" % (bottomdir, file))
->  
-> -		copy_file(os.path.join(root, name), "%s/%s/hll" % (bottomdir, file))
-> +        copy_file(os.path.join(root, name), "%s/%s/hll" % (bottomdir, file))
->  
-> -		# This is the ext file that will eventually be used to choose a compiler
-> -		efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0o600)
-> -		efile.write("pp")
-> -		efile.close()
-> +        # This is the ext file that will eventually be used to choose a compiler
-> +        efile = open("%s/%s/lang_ext" % (bottomdir, file), "w+", 0o600)
-> +        efile.write("pp")
-> +        efile.close()
->  
-> -	except (IOError, OSError):
-> -		print("Error installing module %s" % name, file=sys.stderr)
-> -		exit(1)
-> +    except (IOError, OSError):
-> +        print("Error installing module %s" % name, file=sys.stderr)
-> +        exit(1)
->  
->  
->  def disable_module(file, name, disabledmodules):
-> -	if DEBUG:
-> -		print("Disabling %s" % name)
-> -	(disabledname, disabledext) = os.path.splitext(file)
-> -	create_file("%s/%s" % (disabledmodules, disabledname))
-> +    if DEBUG:
-> +        print("Disabling %s" % name)
-> +    (disabledname, disabledext) = os.path.splitext(file)
-> +    create_file("%s/%s" % (disabledmodules, disabledname))
->  
->  
->  def migrate_store(store):
-> -	oldstore = oldstore_path(store)
-> -	oldmodules = oldmodules_path(store)
-> -	disabledmodules = disabledmodules_path(store)
-> -	newstore = newstore_path(store)
-> -	newmodules = newmodules_path(store)
-> -	bottomdir = bottomdir_path(store)
-> -
-> -	print("Migrating from %s to %s" % (oldstore, newstore))
-> -
-> -	# Build up new directory structure
-> -	create_dir("%s/%s" % (newroot_path(), store), 0o755)
-> -	create_dir(newstore, 0o700)
-> -	create_dir(newmodules, 0o700)
-> -	create_dir(bottomdir, 0o700)
-> -	create_dir(disabledmodules, 0o700)
-> -
-> -	# Special case for base since it was in a different location
-> -	copy_module(store, "base.pp", 1)
-> -
-> -	# Dir structure built, start copying files
-> -	for root, dirs, files in os.walk(oldstore):
-> -		if root == oldstore:
-> -			# This is the top level directory, need to move
-> -			for name in files:
-> -				# Check to see if it is in TOPPATHS and copy if so
-> -				if name in TOPPATHS:
-> -					if name == "seusers":
-> -						newname = "seusers.local"
-> -					else:
-> -						newname = name
-> -					copy_file(os.path.join(root, name), os.path.join(newstore, newname))
-> -
-> -		elif root == oldmodules:
-> -			# This should be the modules directory
-> -			for name in files:
-> -				(file, ext) = os.path.splitext(name)
-> -				if name == "base.pp":
-> -					print("Error installing module %s, name conflicts with base" % name, file=sys.stderr)
-> -					exit(1)
-> -				elif ext == ".disabled":
-> -					disable_module(file, name, disabledmodules)
-> -				else:
-> -					copy_module(store, name, 0)
-> +    oldstore = oldstore_path(store)
-> +    oldmodules = oldmodules_path(store)
-> +    disabledmodules = disabledmodules_path(store)
-> +    newstore = newstore_path(store)
-> +    newmodules = newmodules_path(store)
-> +    bottomdir = bottomdir_path(store)
-> +
-> +    print("Migrating from %s to %s" % (oldstore, newstore))
-> +
-> +    # Build up new directory structure
-> +    create_dir("%s/%s" % (newroot_path(), store), 0o755)
-> +    create_dir(newstore, 0o700)
-> +    create_dir(newmodules, 0o700)
-> +    create_dir(bottomdir, 0o700)
-> +    create_dir(disabledmodules, 0o700)
-> +
-> +    # Special case for base since it was in a different location
-> +    copy_module(store, "base.pp", 1)
-> +
-> +    # Dir structure built, start copying files
-> +    for root, dirs, files in os.walk(oldstore):
-> +        if root == oldstore:
-> +            # This is the top level directory, need to move
-> +            for name in files:
-> +                # Check to see if it is in TOPPATHS and copy if so
-> +                if name in TOPPATHS:
-> +                    if name == "seusers":
-> +                        newname = "seusers.local"
-> +                    else:
-> +                        newname = name
-> +                    copy_file(os.path.join(root, name), os.path.join(newstore, newname))
-> +
-> +        elif root == oldmodules:
-> +            # This should be the modules directory
-> +            for name in files:
-> +                (file, ext) = os.path.splitext(name)
-> +                if name == "base.pp":
-> +                    print("Error installing module %s, name conflicts with base" % name, file=sys.stderr)
-> +                    exit(1)
-> +                elif ext == ".disabled":
-> +                    disable_module(file, name, disabledmodules)
-> +                else:
-> +                    copy_module(store, name, 0)
->  
->  
->  def rebuild_policy():
-> -	# Ok, the modules are loaded, lets try to rebuild the policy
-> -	print("Attempting to rebuild policy from %s" % newroot_path())
-> +    # Ok, the modules are loaded, lets try to rebuild the policy
-> +    print("Attempting to rebuild policy from %s" % newroot_path())
->  
-> -	curstore = selinux.selinux_getpolicytype()[1]
-> +    curstore = selinux.selinux_getpolicytype()[1]
->  
-> -	handle = semanage.semanage_handle_create()
-> -	if not handle:
-> -		print("Could not create semanage handle", file=sys.stderr)
-> -		exit(1)
-> +    handle = semanage.semanage_handle_create()
-> +    if not handle:
-> +        print("Could not create semanage handle", file=sys.stderr)
-> +        exit(1)
->  
-> -	semanage.semanage_select_store(handle, curstore, semanage.SEMANAGE_CON_DIRECT)
-> +    semanage.semanage_select_store(handle, curstore, semanage.SEMANAGE_CON_DIRECT)
->  
-> -	if not semanage.semanage_is_managed(handle):
-> -		semanage.semanage_handle_destroy(handle)
-> -		print("SELinux policy is not managed or store cannot be accessed.", file=sys.stderr)
-> -		exit(1)
-> +    if not semanage.semanage_is_managed(handle):
-> +        semanage.semanage_handle_destroy(handle)
-> +        print("SELinux policy is not managed or store cannot be accessed.", file=sys.stderr)
-> +        exit(1)
->  
-> -	rc = semanage.semanage_access_check(handle)
-> -	if rc < semanage.SEMANAGE_CAN_WRITE:
-> -		semanage.semanage_handle_destroy(handle)
-> -		print("Cannot write to policy store.", file=sys.stderr)
-> -		exit(1)
-> +    rc = semanage.semanage_access_check(handle)
-> +    if rc < semanage.SEMANAGE_CAN_WRITE:
-> +        semanage.semanage_handle_destroy(handle)
-> +        print("Cannot write to policy store.", file=sys.stderr)
-> +        exit(1)
->  
-> -	rc = semanage.semanage_connect(handle)
-> -	if rc < 0:
-> -		semanage.semanage_handle_destroy(handle)
-> -		print("Could not establish semanage connection", file=sys.stderr)
-> -		exit(1)
-> +    rc = semanage.semanage_connect(handle)
-> +    if rc < 0:
-> +        semanage.semanage_handle_destroy(handle)
-> +        print("Could not establish semanage connection", file=sys.stderr)
-> +        exit(1)
->  
-> -	semanage.semanage_set_rebuild(handle, 1)
-> +    semanage.semanage_set_rebuild(handle, 1)
->  
-> -	rc = semanage.semanage_begin_transaction(handle)
-> -	if rc < 0:
-> -		semanage.semanage_handle_destroy(handle)
-> -		print("Could not begin transaction", file=sys.stderr)
-> -		exit(1)
-> +    rc = semanage.semanage_begin_transaction(handle)
-> +    if rc < 0:
-> +        semanage.semanage_handle_destroy(handle)
-> +        print("Could not begin transaction", file=sys.stderr)
-> +        exit(1)
->  
-> -	rc = semanage.semanage_commit(handle)
-> -	if rc < 0:
-> -		print("Could not commit transaction", file=sys.stderr)
-> +    rc = semanage.semanage_commit(handle)
-> +    if rc < 0:
-> +        print("Could not commit transaction", file=sys.stderr)
->  
-> -	semanage.semanage_handle_destroy(handle)
-> +    semanage.semanage_handle_destroy(handle)
->  
->  
->  def oldroot_path():
-> -	return "%s/etc/selinux" % ROOT
-> +    return "%s/etc/selinux" % ROOT
->  
->  
->  def oldstore_path(store):
-> -	return "%s/%s/modules/active" % (oldroot_path(), store)
-> +    return "%s/%s/modules/active" % (oldroot_path(), store)
->  
->  
->  def oldmodules_path(store):
-> -	return "%s/modules" % oldstore_path(store)
-> +    return "%s/modules" % oldstore_path(store)
->  
->  
->  def disabledmodules_path(store):
-> -	return "%s/disabled" % newmodules_path(store)
-> +    return "%s/disabled" % newmodules_path(store)
->  
->  
->  def newroot_path():
-> -	return "%s%s" % (ROOT, PATH)
-> +    return "%s%s" % (ROOT, PATH)
->  
->  
->  def newstore_path(store):
-> -	return "%s/%s/active" % (newroot_path(), store)
-> +    return "%s/%s/active" % (newroot_path(), store)
->  
->  
->  def newmodules_path(store):
-> -	return "%s/modules" % newstore_path(store)
-> +    return "%s/modules" % newstore_path(store)
->  
->  
->  def bottomdir_path(store):
-> -	return "%s/%s" % (newmodules_path(store), PRIORITY)
-> +    return "%s/%s" % (newmodules_path(store), PRIORITY)
->  
->  
->  if __name__ == "__main__":
->  
-> -	parser = OptionParser()
-> -	parser.add_option("-p", "--priority", dest="priority", default="100",
-> -			  help="Set priority of modules in new store (default: 100)")
-> -	parser.add_option("-s", "--store", dest="store", default=None,
-> -			  help="Store to read from and write to")
-> -	parser.add_option("-d", "--debug", dest="debug", action="store_true", default=False,
-> -			  help="Output debug information")
-> -	parser.add_option("-c", "--clean", dest="clean", action="store_true", default=False,
-> -			  help="Clean old modules directory after migrate (default: no)")
-> -	parser.add_option("-n", "--norebuild", dest="norebuild", action="store_true", default=False,
-> -			  help="Disable rebuilding policy after migration (default: no)")
-> -	parser.add_option("-P", "--path", dest="path",
-> -			  help="Set path for the policy store (default: /var/lib/selinux)")
-> -	parser.add_option("-r", "--root", dest="root",
-> -			  help="Set an alternative root for the migration (default: /)")
-> -
-> -	(options, args) = parser.parse_args()
-> -
-> -	DEBUG = options.debug
-> -	PRIORITY = options.priority
-> -	TYPE = options.store
-> -	CLEAN = options.clean
-> -	NOREBUILD = options.norebuild
-> -	PATH = options.path
-> -	if PATH is None:
-> -		PATH = "/var/lib/selinux"
-> -
-> -	ROOT = options.root
-> -	if ROOT is None:
-> -		ROOT = ""
-> -
-> -	# List of paths that go in the active 'root'
-> -	TOPPATHS = [
-> -		"commit_num",
-> -		"ports.local",
-> -		"interfaces.local",
-> -		"nodes.local",
-> -		"booleans.local",
-> -		"file_contexts.local",
-> -		"seusers",
-> -		"users.local",
-> -		"users_extra",
-> -		"users_extra.local",
-> -		"disable_dontaudit",
-> -		"preserve_tunables",
-> -		"policy.kern",
-> -		"file_contexts",
-> -		"homedir_template",
-> -		"pkeys.local",
-> -		"ibendports.local"]
-> -
-> -	create_dir(newroot_path(), 0o755)
-> -
-> -	stores = None
-> -	if TYPE is not None:
-> -		stores = [TYPE]
-> -	else:
-> -		stores = os.listdir(oldroot_path())
-> -
-> -	# find stores in oldroot and migrate them to newroot if necessary
-> -	for store in stores:
-> -		if not os.path.isdir(oldmodules_path(store)):
-> -			# already migrated or not an selinux store
-> -			continue
-> -
-> -		if os.path.isdir(newstore_path(store)):
-> -			# store has already been migrated, but old modules dir still exits
-> -			print("warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store, file=sys.stderr)
-> -			continue
-> -
-> -		migrate_store(store)
-> -
-> -		if CLEAN is True:
-> -			def remove_error(function, path, execinfo):
-> -				print("warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store), file=sys.stderr)
-> -			shutil.rmtree(oldmodules_path(store), onerror=remove_error)
-> -
-> -	if NOREBUILD is False:
-> -		rebuild_policy()
-> +    parser = OptionParser()
-> +    parser.add_option("-p", "--priority", dest="priority", default="100",
-> +                      help="Set priority of modules in new store (default: 100)")
-> +    parser.add_option("-s", "--store", dest="store", default=None,
-> +                      help="Store to read from and write to")
-> +    parser.add_option("-d", "--debug", dest="debug", action="store_true", default=False,
-> +                      help="Output debug information")
-> +    parser.add_option("-c", "--clean", dest="clean", action="store_true", default=False,
-> +                      help="Clean old modules directory after migrate (default: no)")
-> +    parser.add_option("-n", "--norebuild", dest="norebuild", action="store_true", default=False,
-> +                      help="Disable rebuilding policy after migration (default: no)")
-> +    parser.add_option("-P", "--path", dest="path",
-> +                      help="Set path for the policy store (default: /var/lib/selinux)")
-> +    parser.add_option("-r", "--root", dest="root",
-> +                      help="Set an alternative root for the migration (default: /)")
-> +
-> +    (options, args) = parser.parse_args()
-> +
-> +    DEBUG = options.debug
-> +    PRIORITY = options.priority
-> +    TYPE = options.store
-> +    CLEAN = options.clean
-> +    NOREBUILD = options.norebuild
-> +    PATH = options.path
-> +    if PATH is None:
-> +        PATH = "/var/lib/selinux"
-> +
-> +    ROOT = options.root
-> +    if ROOT is None:
-> +        ROOT = ""
-> +
-> +    # List of paths that go in the active 'root'
-> +    TOPPATHS = [
-> +        "commit_num",
-> +        "ports.local",
-> +        "interfaces.local",
-> +        "nodes.local",
-> +        "booleans.local",
-> +        "file_contexts.local",
-> +        "seusers",
-> +        "users.local",
-> +        "users_extra",
-> +        "users_extra.local",
-> +        "disable_dontaudit",
-> +        "preserve_tunables",
-> +        "policy.kern",
-> +        "file_contexts",
-> +        "homedir_template",
-> +        "pkeys.local",
-> +        "ibendports.local"]
-> +
-> +    create_dir(newroot_path(), 0o755)
-> +
-> +    stores = None
-> +    if TYPE is not None:
-> +        stores = [TYPE]
-> +    else:
-> +        stores = os.listdir(oldroot_path())
-> +
-> +    # find stores in oldroot and migrate them to newroot if necessary
-> +    for store in stores:
-> +        if not os.path.isdir(oldmodules_path(store)):
-> +            # already migrated or not an selinux store
-> +            continue
-> +
-> +        if os.path.isdir(newstore_path(store)):
-> +            # store has already been migrated, but old modules dir still exits
-> +            print("warning: Policy type %s has already been migrated, but modules still exist in the old store. Skipping store." % store, file=sys.stderr)
-> +            continue
-> +
-> +        migrate_store(store)
-> +
-> +        if CLEAN is True:
-> +            def remove_error(function, path, execinfo):
-> +                print("warning: Unable to remove old store modules directory %s. Cleaning failed." % oldmodules_path(store), file=sys.stderr)
-> +            shutil.rmtree(oldmodules_path(store), onerror=remove_error)
-> +
-> +    if NOREBUILD is False:
-> +        rebuild_policy()
