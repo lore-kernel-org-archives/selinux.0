@@ -4,50 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50336C43613
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 19:47:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6305C43612
+	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 19:54:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1FD4E206BB
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 19:47:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86C1220827
+	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 19:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1546976856;
-	bh=0hoNIVo64XE+aPHkFrmc8ZvPslS6uqudaR38VNGcItc=;
+	s=default; t=1546977292;
+	bh=fA6b5H6rWIdz0Kis2llTIdCZbguoF05a2MAZDrjAVOw=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=tU2bdmgA9po52hHa8njLBqF6QDk1ZtYTHwCPLI22hlujx3HraWHc1Ox11ncsu/lpj
-	 g/5wPzqT87jLk49q/EsBEwB8S0RM9+G0pMjNHupuUSTvyPS+PR2MZWIUVYoUTKpL/O
-	 wYiFD4IafqU46UQpH7tqxk9pjE+Bhj9cxtVaCg8c=
+	b=TPVvr66dxeIi0+u+1KI4Fpd81OMIH/ypUEgubVFIgmG5KhfuAaCWs3hd5+r0h9GbF
+	 lbRZI2RhFBfqFGbHXsTKkxJkYzgU+SnWG7ohPpnYCR0KoSR53fuTF7pqSSb1Xfgg+g
+	 HxYYHmuWK12hYvdiyDNCD31ddgzxuGLAUS3trqHI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731657AbfAHTrX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Jan 2019 14:47:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41470 "EHLO mail.kernel.org"
+        id S1730988AbfAHTyp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Jan 2019 14:54:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730394AbfAHTcq (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 8 Jan 2019 14:32:46 -0500
+        id S1730775AbfAHTa2 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 8 Jan 2019 14:30:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 556342070B;
-        Tue,  8 Jan 2019 19:32:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A62252176F;
+        Tue,  8 Jan 2019 19:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1546975966;
-        bh=0hoNIVo64XE+aPHkFrmc8ZvPslS6uqudaR38VNGcItc=;
+        s=default; t=1546975827;
+        bh=fA6b5H6rWIdz0Kis2llTIdCZbguoF05a2MAZDrjAVOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJNhuyijpTm5+BevSnmib68DewAw1Gu636yUFSZg+BWDtCOSn4jUHExa/+LlXpA8v
-         7zDqY1bSjsTKHf07qK0Y1Pv+Cuno+onFSm8WSNG7fZxiTjhKkYWYggniCBqn/+dro/
-         5CLTvXNKLLJHKdp0n9KeQg7TmsUymwUV5Uy1nCew=
+        b=oCtBcCkdBkMriSq8RZhbdpC8xhDRw1Dr08SVXwhdhzqL4ISpUA5sh2AUQcYtVKsHX
+         RG++YjoJkZoCYr9Pm284Xg6OksTFxOl6dIPHFJOMmKvoE+NO89pKqZ71FGrWLhmf26
+         oqU68WQVe4GmBn5x5/GDc3yDXgyx3JRxzpuNo+6c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
         Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 12/53] selinux: always allow mounting submounts
-Date:   Tue,  8 Jan 2019 14:31:40 -0500
-Message-Id: <20190108193222.123316-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 25/97] selinux: always allow mounting submounts
+Date:   Tue,  8 Jan 2019 14:28:34 -0500
+Message-Id: <20190108192949.122407-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190108193222.123316-1-sashal@kernel.org>
-References: <20190108193222.123316-1-sashal@kernel.org>
+In-Reply-To: <20190108192949.122407-1-sashal@kernel.org>
+References: <20190108192949.122407-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -106,10 +107,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index f5d304736852..d6b9ed34ceae 100644
+index fe251c6f09f1..3c3878f0d2fa 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2820,7 +2820,7 @@ static int selinux_sb_kern_mount(struct super_block *sb, int flags, void *data)
+@@ -2934,7 +2934,7 @@ static int selinux_sb_kern_mount(struct super_block *sb, int flags, void *data)
  		return rc;
  
  	/* Allow all mounts performed by the kernel */
