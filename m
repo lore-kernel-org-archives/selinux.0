@@ -2,45 +2,45 @@ Return-Path: <SRS0=c9VK=PQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-12.0 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F606C43387
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 11:04:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 453A4C43387
+	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 13:11:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1901D206B7
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 11:04:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1357220850
+	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 13:11:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727435AbfAHLEf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Jan 2019 06:04:35 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:34656 "EHLO mx1.redhat.com"
+        id S1727484AbfAHNLT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Jan 2019 08:11:19 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:39612 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727107AbfAHLEf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 8 Jan 2019 06:04:35 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        id S1726129AbfAHNLT (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 8 Jan 2019 08:11:19 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5749AD4E56;
-        Tue,  8 Jan 2019 11:04:35 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 18C339B32A;
+        Tue,  8 Jan 2019 13:11:19 +0000 (UTC)
 Received: from workstation (unknown [10.43.12.130])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A3D2419744;
-        Tue,  8 Jan 2019 11:04:34 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5F8D31057073;
+        Tue,  8 Jan 2019 13:11:18 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 5/5] python: run all the tests with "make test"
-References: <20190105193759.3333-1-nicolas.iooss@m4x.org>
-        <20190105193759.3333-6-nicolas.iooss@m4x.org>
-Date:   Tue, 08 Jan 2019 12:04:33 +0100
-In-Reply-To: <20190105193759.3333-6-nicolas.iooss@m4x.org> (Nicolas Iooss's
-        message of "Sat, 5 Jan 2019 20:37:59 +0100")
-Message-ID: <pjdk1jfo1fi.fsf@redhat.com>
+Subject: Re: [PATCH 1/1] scripts/run-flake8: run on Python scripts not ending with .py
+References: <20190105155953.19583-1-nicolas.iooss@m4x.org>
+Date:   Tue, 08 Jan 2019 14:11:16 +0100
+In-Reply-To: <20190105155953.19583-1-nicolas.iooss@m4x.org> (Nicolas Iooss's
+        message of "Sat, 5 Jan 2019 16:59:53 +0100")
+Message-ID: <pjdef9nnvkb.fsf@redhat.com>
 User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Tue, 08 Jan 2019 11:04:35 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Tue, 08 Jan 2019 13:11:19 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -48,36 +48,40 @@ X-Mailing-List: selinux@vger.kernel.org
 
 Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 
+> When running flake8 on a directory, it does not analyze files without an
+> extension, like semanage_migrate_store, mlscolor-test, etc. Use grep to
+> find files with a Python shebang and build a list which is then given to
+> flake8.
+>
+> This commit is possible now that some clean-up patches have been
+> applied, such as commit 69c56bd2f6e9 ("python/chcat: improve the code
+> readability") and b7227aaec1da ("mcstrans: fix Python linter warnings on
+> test scripts") and 3cb974d2d2a7 ("semanage_migrate_store: fix many
+> Python linter warnings").
+>
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-All 5 merged. Thanks!
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+https://github.com/SELinuxProject/selinux/pull/128
 
 > ---
->  python/Makefile       | 4 +---
->  python/chcat/Makefile | 2 ++
->  2 files changed, 3 insertions(+), 3 deletions(-)
+>  scripts/run-flake8 | 5 +++++
+>  1 file changed, 5 insertions(+)
 >
-> diff --git a/python/Makefile b/python/Makefile
-> index 80bc124b6233..9b66d52fbd4d 100644
-> --- a/python/Makefile
-> +++ b/python/Makefile
-> @@ -1,8 +1,6 @@
->  SUBDIRS = sepolicy audit2allow semanage sepolgen chcat
->  
-> -all install relabel clean indent:
-> +all install relabel clean indent test:
->  	@for subdir in $(SUBDIRS); do \
->  		(cd $$subdir && $(MAKE) $@) || exit 1; \
->  	done
-> -
-> -test:
-> diff --git a/python/chcat/Makefile b/python/chcat/Makefile
-> index 290b9a6ec7dc..79620f60ca27 100644
-> --- a/python/chcat/Makefile
-> +++ b/python/chcat/Makefile
-> @@ -17,3 +17,5 @@ clean:
->  indent:
->  
->  relabel:
+> diff --git a/scripts/run-flake8 b/scripts/run-flake8
+> index 6ad029fa6852..24b1202fde99 100755
+> --- a/scripts/run-flake8
+> +++ b/scripts/run-flake8
+> @@ -4,6 +4,11 @@
+>  # Run on the base directory if no argument has been given
+>  if [ $# -eq 0 ] ; then
+>      cd "$(dirname -- "$0")/.." || exit $?
 > +
-> +test:
+> +    # Run on both files ending with .py and Python files without extension
+> +    # shellcheck disable=SC2046
+> +    set -- $( (find . -name '*.py' ; grep --exclude-dir=.git -l -e '^#!\s*/usr/bin/python' -e '^#!/usr/bin/env python' -r .) | sort -u )
+> +    echo "Analyzing $# Python scripts"
+>  fi
+>  
+>  # Assign each ignore warning on a line, in order to ease testing enabling the warning again
