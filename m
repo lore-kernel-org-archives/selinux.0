@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6305C43612
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 19:54:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05723C43612
+	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 20:08:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 86C1220827
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 19:54:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD48920660
+	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 20:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1546977292;
-	bh=fA6b5H6rWIdz0Kis2llTIdCZbguoF05a2MAZDrjAVOw=;
+	s=default; t=1546978115;
+	bh=exOdumN0C2PF8JoA5PMFCzQtuoOBYUn3QSmwFjSgcwg=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=TPVvr66dxeIi0+u+1KI4Fpd81OMIH/ypUEgubVFIgmG5KhfuAaCWs3hd5+r0h9GbF
-	 lbRZI2RhFBfqFGbHXsTKkxJkYzgU+SnWG7ohPpnYCR0KoSR53fuTF7pqSSb1Xfgg+g
-	 HxYYHmuWK12hYvdiyDNCD31ddgzxuGLAUS3trqHI=
+	b=bGimVlD4xWRUUCFIe9kp0EOncKqla1l54gL2Jwa6FGiBgoMoNhHY6ArlfJuegr+FH
+	 9gToZZNoPF+GWUU+vu9COTXtANVhqKPr4ZDkL9SNlD1EPXAqgqzAuw3aRDQXgPYa0n
+	 +vH+x1UgRUJ+SWQ6bHybgOI9PpvKN9Tuf+QAraLg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730988AbfAHTyp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Jan 2019 14:54:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38232 "EHLO mail.kernel.org"
+        id S1729986AbfAHUIV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 8 Jan 2019 15:08:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730775AbfAHTa2 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 8 Jan 2019 14:30:28 -0500
+        id S1729685AbfAHT12 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 8 Jan 2019 14:27:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A62252176F;
-        Tue,  8 Jan 2019 19:30:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11C5B2087F;
+        Tue,  8 Jan 2019 19:27:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1546975827;
-        bh=fA6b5H6rWIdz0Kis2llTIdCZbguoF05a2MAZDrjAVOw=;
+        s=default; t=1546975647;
+        bh=exOdumN0C2PF8JoA5PMFCzQtuoOBYUn3QSmwFjSgcwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oCtBcCkdBkMriSq8RZhbdpC8xhDRw1Dr08SVXwhdhzqL4ISpUA5sh2AUQcYtVKsHX
-         RG++YjoJkZoCYr9Pm284Xg6OksTFxOl6dIPHFJOMmKvoE+NO89pKqZ71FGrWLhmf26
-         oqU68WQVe4GmBn5x5/GDc3yDXgyx3JRxzpuNo+6c=
+        b=JgVwdqXCSVtcxMEGJ58y6vKI2d32ZBXsZsRkaBZc+cqZQoLB0lH2e+kdRVZEC4IMg
+         VZxK09GVx+HEIIRJKPAG+LBS7nx6mKeihPALThBf/u+L1X8avmpFTZfBp4xJHv4awg
+         6G6nfypsqcdO5OAATv/XC1OOVHNp3u+uj7mhsH4c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
         Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 25/97] selinux: always allow mounting submounts
-Date:   Tue,  8 Jan 2019 14:28:34 -0500
-Message-Id: <20190108192949.122407-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.20 032/117] selinux: always allow mounting submounts
+Date:   Tue,  8 Jan 2019 14:25:00 -0500
+Message-Id: <20190108192628.121270-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190108192949.122407-1-sashal@kernel.org>
-References: <20190108192949.122407-1-sashal@kernel.org>
+In-Reply-To: <20190108192628.121270-1-sashal@kernel.org>
+References: <20190108192628.121270-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -107,7 +107,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index fe251c6f09f1..3c3878f0d2fa 100644
+index a67459eb62d5..0f27db6d94a9 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
 @@ -2934,7 +2934,7 @@ static int selinux_sb_kern_mount(struct super_block *sb, int flags, void *data)
