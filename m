@@ -2,178 +2,144 @@ Return-Path: <SRS0=7twf=PR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FC82C43387
-	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 14:38:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 103B5C43387
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 15:41:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2D9A82070B
-	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 14:38:27 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Qt34vwzT"
+	by mail.kernel.org (Postfix) with ESMTP id D73F1206BA
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 15:41:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731544AbfAIOiW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Jan 2019 09:38:22 -0500
-Received: from upbd19pa11.eemsg.mail.mil ([214.24.27.86]:41059 "EHLO
-        upbd19pa11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731554AbfAIOiW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jan 2019 09:38:22 -0500
-X-EEMSG-check-017: 180939164|UPBD19PA11_EEMSG_MP11.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by upbd19pa11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Jan 2019 14:38:15 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1547044696; x=1578580696;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=oQ6Vwtdz2+GonlnHnG4d6WkJgHa0ZqYYMrsayRcQEh8=;
-  b=Qt34vwzTJPISZb+6KZOSbvHHMfQ0fMmOpeVx16GiMPKQYCeWcoxQfnzI
-   KcahA4//yemb1uSWGLyquZlq4/+meK+yQ/L+sHmeBJ2YXPJkYdcvrSWjp
-   1MPnD+C6ymBOol+xu0DhIcwYDpne/M3mrRFG6jDeqQAZ758jJjpxeWAU6
-   lBhApt62UoHMPtENro0k0cqc2MQpNBdk3jEjSAl52HeC5Fj0WNgcGgkiQ
-   aZt833rfezJs7d5zJDjVtetF4Jfa8eFdgi1cAz8lGqrwnEUWW/p1hyzfC
-   LKxffiu9cSv8kQa57/+t11cj+LxTkpQqtNMG8ffM0aoZBMxIwpYmS95p3
-   A==;
-X-IronPort-AV: E=Sophos;i="5.56,457,1539648000"; 
-   d="scan'208";a="19357637"
-IronPort-PHdr: =?us-ascii?q?9a23=3ARrXZEhfUBftmUS7lrakjuSfmlGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxc25ZBWN2/xhgRfzUJnB7Loc0qyK6/CmATRIyK3CmUhKSIZLWR?=
- =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
- =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfbB/IA+qoQnNq8IbnZZsJqEtxx?=
- =?us-ascii?q?XTv3BGYf5WxWRmJVKSmxbz+MK994N9/ipTpvws6ddOXb31cKokQ7NYCi8mM3?=
- =?us-ascii?q?0u683wqRbDVwqP6WACXWgQjxFFHhLK7BD+Xpf2ryv6qu9w0zSUMMHqUbw5Xy?=
- =?us-ascii?q?mp4rx1QxH0ligIKz858HnWisNuiqJbvAmhrAF7z4LNfY2ZKOZycqbbcNwUX2?=
- =?us-ascii?q?pBWttaWTJHDI2ycoADC/MNMfhEo4X4oVYFsBmwChS2BO731zFGmHH206053e?=
- =?us-ascii?q?ovHw7J0w4vEM4BvnnPsNX4Nr0fXfypwKTGzzjOae5d1zfn6IjPdxAsueyCXa?=
- =?us-ascii?q?5ufsrJyUkgCQXFhUiNp4zgJTyV0uANvHab7uF9Uu+vkHMoqxpqrzizxsYjlo?=
- =?us-ascii?q?nJhoUPxlDC7iV22pw5JdK/SE5leNOpFoZbuSKCN4ZuX88vTG5ltDw6x7Ebo5?=
- =?us-ascii?q?K3YicHxIo9yxLCbfGMbpKG7Qj5VOmLJDd1nHdleLWiiBms6UWg0ej8VtWs0F?=
- =?us-ascii?q?ZNsypFjsHAtnAT2BzX7ciKUud98V272TaOygDT8ftIIVw0lKXHK54hxaQ8lp?=
- =?us-ascii?q?wPvkTYAiD6gkD2jK6Sdkk8++io7froYqn+q5OBOIJ5hRvyP6QzlsClH+g1PR?=
- =?us-ascii?q?YCU3KG9eik0b3s50z5QLFEjv0slanZtYjXJd8Gqa6iGAJVzoYi5Aq/Dzehyt?=
- =?us-ascii?q?gYm2IHI0hfdBKIiIjpJUnCIOrkAvenn1SsjDBryujBPr3kBZXNNX7Dn639cr?=
- =?us-ascii?q?lj8ENc0hQ8ws1f551OFrENOu78Wkj0tNbAFB82LxS0w/r7CNV6zo4eQnyAAq?=
- =?us-ascii?q?uYMKPUrF+J6fkiI/eDZIALojbxMfsl6OD0jX8/h1AdebOl3ZwNaHC3Bv5mOV?=
- =?us-ascii?q?mWYWLwgtcdFmcHphI+Q/b3iF2GSjNTf2y9X7845j0iDYKmCoDDRpqzj7CbwC?=
- =?us-ascii?q?i7GZhWbHhcCl+QCXfoa5mEW/AUZSKWI89hlCEEVLe4R486yx6hqBL6y6BmLu?=
- =?us-ascii?q?rI+iwUrJfj1N9o6O3OkRE96yd5D9qS026TVWF4hGAISCEs3KB5v0N9zk2P0a?=
- =?us-ascii?q?9ig/xXDdZT/e9GUh8mNZ7AyOx3E9/yWhjfcdeGS1amQs6rATUwTtI33t8PbE?=
- =?us-ascii?q?h9G9K/jhDFwiWlGaMVl72MBJwy6K7c2GLxJ8llwXbcyKYhl0UmQtdINWC+mq?=
- =?us-ascii?q?5/9RPeB43XnEWDkaala6Ac0DTK9GeZwmqEpFtYXxJoUaXZQXAfYVPbrdD45k?=
- =?us-ascii?q?PEUr+vBq0rMgVaycGfNKRKdMPmjVFdSff9N9TRfXixl32zBRmW3LOMapTle2?=
- =?us-ascii?q?EH0CXaEkgEnBgZ/WyaOggmGiehv2XeASRyGlLgeUPs9vR+qGugTkIv0QGKYF?=
- =?us-ascii?q?Nu16Cv9h4Wm/OcUfUT0awAuCs7rDV0Blm9jJrqDI+noQZ7cacURNQm5l5M2G?=
- =?us-ascii?q?GR4wt4OYemJqtvrkQTfwR+owXl0BAhTs1bnMwrqm465BR9JLje015bcT6cm5?=
- =?us-ascii?q?fqNfmfEmDv+FiKbKnM1xmKyN+L/o8X4ek87lDkuxukUEEl9iM0/cNS1i6n+p?=
- =?us-ascii?q?jSDAcUGan0W0Iz+gky86rWeQEh9ojU0jtqKqDyvTjcjYF6TNA5wwqtKo8MeJ?=
- =?us-ascii?q?iPExX/RohDXZCj?=
-X-IPAS-Result: =?us-ascii?q?A2BuAACsBjZc/wHyM5BjGwEBAQEDAQEBBwMBAQGBVAMBA?=
- =?us-ascii?q?QELAYFaKYFoJ4QAlARMAQEBAQEBBoEILYksiUOGfjgBhEACgh8iNwYNAQMBA?=
- =?us-ascii?q?QEBAQECAWwogjopAYJnAQUjBBFBEAsOCgICJgICVwYBDAYCAQGCXz+BdQ2qe?=
- =?us-ascii?q?XwzhUGEdoELizQXeIEHgTiCa4gKglcCj3BJN5B8CZF3BhiRdy2JP5JDIoFWK?=
- =?us-ascii?q?wgCGAghD4MngicXjjwhAzCBBQEBii0BAQ?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 09 Jan 2019 14:38:14 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x09EcE9V003707;
-        Wed, 9 Jan 2019 09:38:14 -0500
-Subject: Re: [PATCH 2/3] selinux: Implement the object_init_security hook
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-Cc:     linux-security-module@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
-        cgroups@vger.kernel.org
-References: <20190109091028.24485-1-omosnace@redhat.com>
- <20190109091028.24485-3-omosnace@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <f14d46d2-26f3-2c62-963d-7736a82a78b4@tycho.nsa.gov>
-Date:   Wed, 9 Jan 2019 09:40:22 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S1732382AbfAIPlE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 10:41:04 -0500
+Received: from mail-io1-f70.google.com ([209.85.166.70]:43063 "EHLO
+        mail-io1-f70.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731556AbfAIPlE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jan 2019 10:41:04 -0500
+Received: by mail-io1-f70.google.com with SMTP id k4so6793624ioc.10
+        for <selinux@vger.kernel.org>; Wed, 09 Jan 2019 07:41:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=0FAwe0lDjP8h9AUhvn2Qnn3m5Wlr+FezM1aTRHNNe88=;
+        b=p8kcVaVFYw237EAcMTohp73Nhy0UNQfdHdTr5nbBartIhxmNWPzHlK12QZjRxmInJy
+         9E+JqL5j6ebByZNh4Jl6+t7/rH30MzjhZo/eVKiK5L4UNNoCfXbc12+XSQH7+sXlVt0+
+         E7NDYeBCQFiyEePzHY36gx4EbTEuA6qXt/iG7MIzLCnTmhtgrmtmh5cBEWsGM9MQJR1T
+         B0O+1MUu9nuAgAiiiCU6RUXYC7JodUX7Zn76mhrhrTcDGqic88364OP4D8o/YqwPEjMW
+         TvrTzExX3qYXxYBlztw78jZxXQUnIxGX2QiMf2m6L7/amqwwpSlNF/E7iJnols3YJp2T
+         6kIQ==
+X-Gm-Message-State: AJcUukf/s4RD7DJkXoGykRNvCy3MKNMc72DI9s4b7rrPkBo5mP8hS2cm
+        qEwBmtFyjQvAePfYCXxpxehPHT3eM9OShnnyrlqkUZWaHh16
+X-Google-Smtp-Source: ALg8bN6wttTQvAK7SGRrEO04wL0ZUFXcEtMz0dwBEbNSTWgdaU7MzxOU7cYqe+wn6Numv8a7g4Mn8Lqi8GWTqwIkf5G5RRVAoT5S
 MIME-Version: 1.0
-In-Reply-To: <20190109091028.24485-3-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a5d:8619:: with SMTP id f25mr1000594iol.31.1547048463274;
+ Wed, 09 Jan 2019 07:41:03 -0800 (PST)
+Date:   Wed, 09 Jan 2019 07:41:03 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000001a9aa0057f084a81@google.com>
+Subject: general protection fault in ebitmap_destroy
+From:   syzbot <syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com>
+To:     eparis@parisplace.org, linux-kernel@vger.kernel.org,
+        paul@paul-moore.com, peter.enderborg@sony.com, sds@tycho.nsa.gov,
+        selinux@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/9/19 4:10 AM, Ondrej Mosnacek wrote:
-> The hook applies the same logic as selinux_determine_inode_label(), with
-> the exception of the super_block handling, which will be enforced on the
-> actual inodes by other hooks.
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Hello,
 
-Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+syzbot found the following crash on:
 
-> ---
->   security/selinux/hooks.c | 41 ++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 41 insertions(+)
-> 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 7ce012d9ec51..29c038513504 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -3526,6 +3526,45 @@ static int selinux_inode_copy_up_xattr(const char *name)
->   	return -EOPNOTSUPP;
->   }
->   
-> +/* file-like object operations */
-> +
-> +/* Used e.g. for kernfs_node for newly created nodes */
-> +static int selinux_object_init_security(void *parent_ctx, u32 parent_ctxlen,
-> +					const struct qstr *qstr, u16 mode,
-> +					void **ctx, u32 *ctxlen)
-> +{
-> +	const struct task_security_struct *tsec = current_security();
-> +	u32 parent_sid, newsid, clen;
-> +	int rc;
-> +	char *context;
-> +
-> +	rc = security_context_to_sid(&selinux_state, parent_ctx, parent_ctxlen,
-> +				     &parent_sid, GFP_KERNEL);
-> +	if (rc)
-> +		return rc;
-> +
-> +	if (tsec->create_sid) {
-> +		newsid = tsec->create_sid;
-> +	} else {
-> +		u16 secclass = inode_mode_to_security_class(mode);
-> +
-> +		rc = security_transition_sid(&selinux_state, tsec->sid,
-> +					     parent_sid, secclass, qstr,
-> +					     &newsid);
-> +		if (rc)
-> +			return rc;
-> +	}
-> +
-> +	rc = security_sid_to_context_force(&selinux_state, newsid,
-> +					   &context, &clen);
-> +	if (rc)
-> +		return rc;
-> +
-> +	*ctx = context;
-> +	*ctxlen = clen;
-> +	return 0;
-> +}
-> +
->   /* file security operations */
->   
->   static int selinux_revalidate_file_permission(struct file *file, int mask)
-> @@ -6965,6 +7004,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->   	LSM_HOOK_INIT(inode_copy_up, selinux_inode_copy_up),
->   	LSM_HOOK_INIT(inode_copy_up_xattr, selinux_inode_copy_up_xattr),
->   
-> +	LSM_HOOK_INIT(object_init_security, selinux_object_init_security),
-> +
->   	LSM_HOOK_INIT(file_permission, selinux_file_permission),
->   	LSM_HOOK_INIT(file_alloc_security, selinux_file_alloc_security),
->   	LSM_HOOK_INIT(file_free_security, selinux_file_free_security),
-> 
+HEAD commit:    a88cc8da0279 Merge branch 'akpm' (patches from Andrew)
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=1722da4f400000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=edf1c3031097c304
+dashboard link: https://syzkaller.appspot.com/bug?extid=6664500f0f18f07a5c0e
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12d43580c00000
 
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com
+
+SELinux: failed to load policy
+sel_write_load: 238 callbacks suppressed
+SELinux: failed to load policy
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] PREEMPT SMP KASAN
+CPU: 0 PID: 9316 Comm: syz-executor2 Not tainted 5.0.0-rc1+ #16
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+RIP: 0010:ebitmap_destroy+0x32/0xf0 security/selinux/ss/ebitmap.c:334
+Code: 49 89 fd 41 54 53 e8 9d e6 36 fe 4d 85 ed 0f 84 99 00 00 00 e8 8f e6  
+36 fe 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f  
+85 98 00 00 00 49 be 00 00 00 00 00 fc ff df 4d 8b
+RSP: 0018:ffff88808967f5c0 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff88808967f6a8 RCX: dffffc0000000000
+RDX: 0000000000000001 RSI: ffffffff834b1081 RDI: 0000000000000008
+RBP: ffff88808967f5e0 R08: ffff8880972a8140 R09: ffffed1015cc5b90
+R10: ffffed1015cc5b8f R11: ffff8880ae62dc7b R12: ffff888099d993c0
+R13: 0000000000000008 R14: ffff888099d993c0 R15: ffff88808967f648
+FS:  00007f70cd9e5700(0000) GS:ffff8880ae600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000015e7938 CR3: 0000000096c4a000 CR4: 00000000001406f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+  sens_destroy+0x49/0xa0 security/selinux/ss/policydb.c:735
+  sens_read+0x25d/0x460 security/selinux/ss/policydb.c:1636
+  policydb_read+0xed9/0x60d0 security/selinux/ss/policydb.c:2430
+  security_load_policy+0x423/0x1830 security/selinux/ss/services.c:2129
+  sel_write_load+0x25a/0x470 security/selinux/selinuxfs.c:565
+  __vfs_write+0x116/0xb40 fs/read_write.c:485
+  vfs_write+0x20c/0x580 fs/read_write.c:549
+  ksys_write+0x105/0x260 fs/read_write.c:598
+  __do_sys_write fs/read_write.c:610 [inline]
+  __se_sys_write fs/read_write.c:607 [inline]
+  __x64_sys_write+0x73/0xb0 fs/read_write.c:607
+  do_syscall_64+0x1a3/0x800 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x457ec9
+Code: 6d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 3b b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007f70cd9e4c78 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457ec9
+RDX: 000000000000005c RSI: 0000000020000000 RDI: 0000000000000003
+RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f70cd9e56d4
+R13: 00000000004c720f R14: 00000000004dc9a0 R15: 00000000ffffffff
+Modules linked in:
+---[ end trace 78ea480790940b53 ]---
+RIP: 0010:ebitmap_destroy+0x32/0xf0 security/selinux/ss/ebitmap.c:334
+Code: 49 89 fd 41 54 53 e8 9d e6 36 fe 4d 85 ed 0f 84 99 00 00 00 e8 8f e6  
+36 fe 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02 00 0f  
+85 98 00 00 00 49 be 00 00 00 00 00 fc ff df 4d 8b
+RSP: 0018:ffff88808967f5c0 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff88808967f6a8 RCX: dffffc0000000000
+RDX: 0000000000000001 RSI: ffffffff834b1081 RDI: 0000000000000008
+RBP: ffff88808967f5e0 R08: ffff8880972a8140 R09: ffffed1015cc5b90
+R10: ffffed1015cc5b8f R11: ffff8880ae62dc7b R12: ffff888099d993c0
+R13: 0000000000000008 R14: ffff888099d993c0 R15: ffff88808967f648
+FS:  00007f70cd9e5700(0000) GS:ffff8880ae700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000000000073c000 CR3: 0000000096c4a000 CR4: 00000000001406e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+
+---
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate with  
+syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches
