@@ -1,124 +1,129 @@
-Return-Path: <SRS0=c9VK=PQ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=7twf=PR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05723C43612
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 20:08:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F367C43387
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 08:40:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CD48920660
-	for <selinux@archiver.kernel.org>; Tue,  8 Jan 2019 20:08:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1546978115;
-	bh=exOdumN0C2PF8JoA5PMFCzQtuoOBYUn3QSmwFjSgcwg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=bGimVlD4xWRUUCFIe9kp0EOncKqla1l54gL2Jwa6FGiBgoMoNhHY6ArlfJuegr+FH
-	 9gToZZNoPF+GWUU+vu9COTXtANVhqKPr4ZDkL9SNlD1EPXAqgqzAuw3aRDQXgPYa0n
-	 +vH+x1UgRUJ+SWQ6bHybgOI9PpvKN9Tuf+QAraLg=
+	by mail.kernel.org (Postfix) with ESMTP id 2E77320821
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 08:40:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="hLEsvWQO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729986AbfAHUIV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 8 Jan 2019 15:08:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33686 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729685AbfAHT12 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 8 Jan 2019 14:27:28 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11C5B2087F;
-        Tue,  8 Jan 2019 19:27:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1546975647;
-        bh=exOdumN0C2PF8JoA5PMFCzQtuoOBYUn3QSmwFjSgcwg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JgVwdqXCSVtcxMEGJ58y6vKI2d32ZBXsZsRkaBZc+cqZQoLB0lH2e+kdRVZEC4IMg
-         VZxK09GVx+HEIIRJKPAG+LBS7nx6mKeihPALThBf/u+L1X8avmpFTZfBp4xJHv4awg
-         6G6nfypsqcdO5OAATv/XC1OOVHNp3u+uj7mhsH4c=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.20 032/117] selinux: always allow mounting submounts
-Date:   Tue,  8 Jan 2019 14:25:00 -0500
-Message-Id: <20190108192628.121270-32-sashal@kernel.org>
-X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190108192628.121270-1-sashal@kernel.org>
-References: <20190108192628.121270-1-sashal@kernel.org>
+        id S1729956AbfAIIjq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 03:39:46 -0500
+Received: from hqemgate14.nvidia.com ([216.228.121.143]:1532 "EHLO
+        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729702AbfAIIjp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jan 2019 03:39:45 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5c35b3440001>; Wed, 09 Jan 2019 00:39:32 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Wed, 09 Jan 2019 00:39:44 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Wed, 09 Jan 2019 00:39:44 -0800
+Received: from HQMAIL108.nvidia.com (172.18.146.13) by HQMAIL103.nvidia.com
+ (172.20.187.11) with Microsoft SMTP Server (TLS) id 15.0.1395.4; Wed, 9 Jan
+ 2019 08:39:44 +0000
+Received: from hqnvemgw02.nvidia.com (172.16.227.111) by HQMAIL108.nvidia.com
+ (172.18.146.13) with Microsoft SMTP Server (TLS) id 15.0.1395.4 via Frontend
+ Transport; Wed, 9 Jan 2019 08:39:44 +0000
+Received: from prpatel.nvidia.com (Not Verified[10.24.229.63]) by hqnvemgw02.nvidia.com with Trustwave SEG (v7,5,8,10121)
+        id <B5c35b34c0006>; Wed, 09 Jan 2019 00:39:44 -0800
+From:   Prateek Patel <prpatel@nvidia.com>
+To:     <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
+        <eparis@parisplace.org>, <linux-kernel@vger.kernel.org>,
+        <catalin.marinas@arm.com>, <selinux@vger.kernel.org>
+CC:     <linux-tegra@vger.kernel.org>, <talho@nvidia.com>,
+        <swarren@nvidia.com>, <prpatel@nvidia.com>, <linux-mm@kvack.org>,
+        <snikam@nvidia.com>, <vdumpa@nvidia.com>,
+        Sri Krishna chowdary <schowdary@nvidia.com>
+Subject: [PATCH] selinux: avc: mark avc node as not a leak
+Date:   Wed, 9 Jan 2019 14:09:22 +0530
+Message-ID: <1547023162-6381-1-git-send-email-prpatel@nvidia.com>
+X-Mailer: git-send-email 2.7.4
+X-NVConfidentiality: public
 MIME-Version: 1.0
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1547023172; bh=d8nk7slwlRpiZg/raOdY1xeZB8HZ56EW4GxJN3oaLI4=;
+        h=X-PGP-Universal:From:To:CC:Subject:Date:Message-ID:X-Mailer:
+         X-NVConfidentiality:MIME-Version:Content-Type;
+        b=hLEsvWQOHdvqppyoGhavWWiwtZHwSrIOoTQRuR78d2ScVatIwkp8OmLC69zts+iBf
+         rsYu5zBXuve4SBmFveLWtpGwKsN55oKASYwIZl5Sc03RASnWufgc1HAJ6fcLTCXyWS
+         k4jxYJkeBhaN2237bCl4Nj/Hq1rNbnsjWVJjOkRfrDUamBVpv2ydK51cEuhLo7IOKI
+         1PlqVrim5zVM/NoBOy3IirQw2x4hE/+Vy+Jxax+zSGEYfC2QUybzY7jqzFGBvvJIHF
+         5QhqomtxUsdzzeQOK5ssYb7M725bS95iCtix76TycWyH0bjc8zb/9ztsLv6nWJvpzM
+         UTuAJev+smbpg==
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Sri Krishna chowdary <schowdary@nvidia.com>
 
-[ Upstream commit 2cbdcb882f97a45f7475c67ac6257bbc16277dfe ]
+kmemleak detects allocated objects as leaks if not accessed for
+default scan time. The memory allocated using avc_alloc_node
+is freed using rcu mechanism when nodes are reclaimed or on
+avc_flush. So, there is no real leak here and kmemleak_scan
+detects it as a leak which is false positive. Hence, mark it as
+kmemleak_not_leak.
 
-If a superblock has the MS_SUBMOUNT flag set, we should always allow
-mounting it. These mounts are done automatically by the kernel either as
-part of mounting some parent mount (e.g. debugfs always mounts tracefs
-under "tracing" for compatibility) or they are mounted automatically as
-needed on subdirectory accesses (e.g. NFS crossmnt mounts). Since such
-automounts are either an implicit consequence of the parent mount (which
-is already checked) or they can happen during regular accesses (where it
-doesn't make sense to check against the current task's context), the
-mount permission check should be skipped for them.
+Following is the log for avc_alloc_node detected as leak:
+unreferenced object 0xffffffc0dd1a0e60 (size 64):
+  comm "InputDispatcher", pid 648, jiffies 4294944629 (age 698.180s)
+  hex dump (first 32 bytes):
+    ed 00 00 00 ed 00 00 00 17 00 00 00 3f fe 41 00  ............?.A.
+    00 00 00 00 ff ff ff ff 01 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffc000192390>] __save_stack_trace+0x24/0x34
+    [<ffffffc000192dcc>] create_object+0x13c/0x290
+    [<ffffffc000b926f0>] kmemleak_alloc+0x80/0xbc
+    [<ffffffc00018e018>] kmem_cache_alloc+0x128/0x1f8
+    [<ffffffc000313d40>] avc_alloc_node+0x2c/0x1e8
+    [<ffffffc000313f34>] avc_insert+0x38/0x13c
+    [<ffffffc000314084>] avc_compute_av+0x4c/0x60
+    [<ffffffc00031461c>] avc_has_perm_flags+0x90/0x188
+    [<ffffffc000319430>] sock_has_perm+0x84/0x98
+    [<ffffffc0003194e4>] selinux_socket_sendmsg+0x1c/0x28
+    [<ffffffc000312f58>] security_socket_sendmsg+0x14/0x20
+    [<ffffffc0009c60c4>] sock_sendmsg+0x70/0xc8
+    [<ffffffc0009c8884>] SyS_sendto+0x140/0x1ec
+    [<ffffffc0000853c0>] el0_svc_naked+0x34/0x38
+    [<ffffffffffffffff>] 0xffffffffffffffff
 
-Without this patch, attempts to access contents of an automounted
-directory can cause unexpected SELinux denials.
-
-In the current kernel tree, the MS_SUBMOUNT flag is set only via
-vfs_submount(), which is called only from the following places:
- - AFS, when automounting special "symlinks" referencing other cells
- - CIFS, when automounting "referrals"
- - NFS, when automounting subtrees
- - debugfs, when automounting tracefs
-
-In all cases the submounts are meant to be transparent to the user and
-it makes sense that if mounting the master is allowed, then so should be
-the automounts. Note that CAP_SYS_ADMIN capability checking is already
-skipped for (SB_KERNMOUNT|SB_SUBMOUNT) in:
- - sget_userns() in fs/super.c:
-	if (!(flags & (SB_KERNMOUNT|SB_SUBMOUNT)) &&
-	    !(type->fs_flags & FS_USERNS_MOUNT) &&
-	    !capable(CAP_SYS_ADMIN))
-		return ERR_PTR(-EPERM);
- - sget() in fs/super.c:
-        /* Ensure the requestor has permissions over the target filesystem */
-        if (!(flags & (SB_KERNMOUNT|SB_SUBMOUNT)) && !ns_capable(user_ns, CAP_SYS_ADMIN))
-                return ERR_PTR(-EPERM);
-
-Verified internally on patched RHEL 7.6 with a reproducer using
-NFS+httpd and selinux-tesuite.
-
-Fixes: 93faccbbfa95 ("fs: Better permission checking for submounts")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sri Krishna chowdary <schowdary@nvidia.com>
+Signed-off-by: Prateek <prpatel@nvidia.com>
 ---
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/avc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index a67459eb62d5..0f27db6d94a9 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2934,7 +2934,7 @@ static int selinux_sb_kern_mount(struct super_block *sb, int flags, void *data)
- 		return rc;
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 635e5c1..ecfd0cd 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -30,6 +30,7 @@
+ #include <linux/audit.h>
+ #include <linux/ipv6.h>
+ #include <net/ipv6.h>
++#include <linux/kmemleak.h>
+ #include "avc.h"
+ #include "avc_ss.h"
+ #include "classmap.h"
+@@ -573,6 +574,7 @@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)
+ 	if (!node)
+ 		goto out;
  
- 	/* Allow all mounts performed by the kernel */
--	if (flags & MS_KERNMOUNT)
-+	if (flags & (MS_KERNMOUNT | MS_SUBMOUNT))
- 		return 0;
++	kmemleak_not_leak(node);
+ 	INIT_HLIST_NODE(&node->list);
+ 	avc_cache_stats_incr(allocations);
  
- 	ad.type = LSM_AUDIT_DATA_DENTRY;
 -- 
-2.19.1
+2.7.4
 
