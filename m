@@ -2,254 +2,254 @@ Return-Path: <SRS0=7twf=PR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E82C8C43444
-	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:29:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9EBDC43387
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:29:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C143B2054F
-	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:29:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 882BF2054F
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:29:11 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Q9FlzlIv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726255AbfAIQ27 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Jan 2019 11:28:59 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:46564 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbfAIQ2z (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jan 2019 11:28:55 -0500
-Received: by mail-wr1-f65.google.com with SMTP id l9so8262755wrt.13
-        for <selinux@vger.kernel.org>; Wed, 09 Jan 2019 08:28:54 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=fRDDqmr3Vwt5yZVlqcMbm6I6d7BK2hVZRky0qELkXvU=;
-        b=Y63zFbQr9S6KotSVGbNY5pkXa7hsnvWh39gFgjm3xxElxDu+s1F53IjoI5TzSrH0sy
-         FnBy9WN31YkZUPSDdEpYafzfTxLs8ugJnMT/Hd/GasS722V98gdY+AKs7HqaBiX/IzIR
-         TPfu5GxHcOfdi8SjGHhXotruHE2G2ANafXfvVlPwkr6tDdRzVLTCqMSqglb0/14AP9rI
-         w6gGNxnsN5PQ14NFYcFPpFYYBVLna5yLJy3cTgeSAKpbQsDhYLQvfvgLc8iYoFXZ1XSG
-         h9PVOg88Fi6XBGLO2hvQ+M7BYOIxlGSB2IxjEIZ1Jl3qO1tX0BW4R+HXgygreOJuMRt7
-         Un4A==
-X-Gm-Message-State: AJcUukfgrQaohu8BAsf61aj5TMhfUSP4PzsIHGJSwso3oNqg+GInr/eE
-        WFy93GIwQ7J3QTQhC4o3Rz3CQs2Zdfk=
-X-Google-Smtp-Source: ALg8bN5socWIWRP3eTHOqxhvYBqZihCXAong9TjQcm79TqyuN8r/u/HPX4Pe0aCXwlxJxBQTR1tqhw==
-X-Received: by 2002:adf:f009:: with SMTP id j9mr5565083wro.170.1547051333255;
-        Wed, 09 Jan 2019 08:28:53 -0800 (PST)
-Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id a17sm13661438wma.15.2019.01.09.08.28.52
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 09 Jan 2019 08:28:52 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
-        cgroups@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v2 3/3] kernfs: Initialize security of newly created nodes
-Date:   Wed,  9 Jan 2019 17:28:30 +0100
-Message-Id: <20190109162830.8309-4-omosnace@redhat.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190109162830.8309-1-omosnace@redhat.com>
-References: <20190109162830.8309-1-omosnace@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1726230AbfAIQ3L (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 11:29:11 -0500
+Received: from ucol19pa12.eemsg.mail.mil ([214.24.24.85]:64727 "EHLO
+        ucol19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725681AbfAIQ3K (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jan 2019 11:29:10 -0500
+X-EEMSG-check-017: 674413338|UCOL19PA12_EEMSG_MP10.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.56,458,1539648000"; 
+   d="scan'208";a="674413338"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by ucol19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Jan 2019 16:11:34 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1547050294; x=1578586294;
+  h=message-id:subject:from:to:date:in-reply-to:references:
+   mime-version:content-transfer-encoding;
+  bh=+Y87eDJDdDKa9JdueEOyGYgKec6crt52CbQliuMT/3s=;
+  b=Q9FlzlIvWlh+IhbKNicDY9VjYWBUdwRFUhbY3cDaviOPV/4bWvCSA+ou
+   ufibiF3Utxdi1zb2CcpqM1gMKxwCWUC7Tp8JoGP76CcPjnnWhyGAY2ppU
+   JRB/ClMAlM+kiiMXPdrwmqJfzLFSree3YEAaoOF/iQ1j4wIb+NUr26wUG
+   wAJ5Uklmlbmg/9Zi/y16fXJvisEwt+4sIw+CjRdZP783VDKja9Xal1v3C
+   n9dtwRLE/cUOAIDfSoN46hqt0UkRrUh8EtphWwoeQPmKSC66Rnwxyc5Q7
+   Qcvxza/otqLhW+vKOXvzmpV+b2vDAdoN5052//v4fQH4TIheIgz60qK3Y
+   w==;
+X-IronPort-AV: E=Sophos;i="5.56,458,1539648000"; 
+   d="scan'208";a="19364106"
+IronPort-PHdr: =?us-ascii?q?9a23=3AJm8x6BaMzApNPU6vXh8BiLz/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZpsm7bB7h7PlgxGXEQZ/co6odzbaO4+a4ASQp2tWoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTahYr5+Ngm6oRnMvcQKnIVuLbo8xA?=
+ =?us-ascii?q?HUqXVSYeRWwm1oJVOXnxni48q74YBu/SdNtf8/7sBMSar1cbg2QrxeFzQmLn?=
+ =?us-ascii?q?s65Nb3uhnZTAuA/WUTX2MLmRdVGQfF7RX6XpDssivms+d2xSeXMdHqQb0yRD?=
+ =?us-ascii?q?+t6LplSALziCcfKTE27H3XhMJ3jKJeuh2hphp/yJPQbIyaMPdye6XQct0ARW?=
+ =?us-ascii?q?pFQ81fSSpPDI2hZIcLFuYMPONUoo/6qFUAohayGQmhCPrzxjJKn3P4w7M10/?=
+ =?us-ascii?q?48Gg3C0gEsA84CvHHSod7oNqkdTPq1wbHLwzveb/1Yxznz54rGch89r/6DUr?=
+ =?us-ascii?q?1+fNHNyUQtDQ7JkkmcpJbnMj6Ty+8Ds3Kb7+1lVe+3lmAntx9+oiCvxsgyjI?=
+ =?us-ascii?q?nCm58bylXe+iV9xIY6O925Q1N8bN6/DZRQrDqXN5d2Q8w+Q2Fovzw2yrsduZ?=
+ =?us-ascii?q?GhZiQKx5MnxwDGZvGBboOG7BXjVOOLLjd5gnJoYL2/hxG18US6xe38UtG430?=
+ =?us-ascii?q?xSripdidnMrncN1wDJ5sebTft9+0Gs0iuM2QDL8uxIPE85mKXBJ5Mh37I8jI?=
+ =?us-ascii?q?QfvEvdEiPshUn7irKdeF8+9eiy8evnZ63rppqbN4BplA7zKr8umsmjAeQgNQ?=
+ =?us-ascii?q?gOQnSb9fy81LL9+U35R61HjuEsnanDsZDaON8bqrSlAw5Vzokj6xG/Ay2g0N?=
+ =?us-ascii?q?sEhnkIMEhJeBeGj4jtI13OIfb4Aumjg1m0jTtmyP/LMqfhD5nQNHTPjrjsca?=
+ =?us-ascii?q?hn50JB0AYzyMpQ55NQCrEPOvLzXUrxucTDDhAkKAy52PrnCdVh2YMeXmKDGK?=
+ =?us-ascii?q?mZMLjIvlOS6eIvJPeMaJcPuDnhM/gl++LujXghlF8Gfaio3JgXZ2q8HvRiPU?=
+ =?us-ascii?q?qZe2PgjcwcEWcFpQozV+PqiFqFUT5cY3a9Qa085is8CIK7FYfDXZqhj6CG3C?=
+ =?us-ascii?q?e+BpdWfHxJCkiQEXf0cIWJQ+wMZzyWIs9glDwESLegRpQ/1RGhqgD60aBrLu?=
+ =?us-ascii?q?nK9S0Cs5Lsytx16/fUlREo+jx+F96d3H2VT2FogmMIQCc73Lhhrkxh1FiDy7?=
+ =?us-ascii?q?J0jOJeFdNO+fxJSBw1NZnGz+x1EN3yQQXBftGJSVq8XtqmBjQxRMorw9ASe0?=
+ =?us-ascii?q?Z9B8mijhfb0iqyGbAViriLCYcs8q3GwnjxI99xy3PB1KkmlVkpXNFDOnGhhq?=
+ =?us-ascii?q?567wLTHZLGk12Fl6a2cqQRxCrN9GaFzWqTs0BUSQ1wXrvfXXAZeETWqc/05l?=
+ =?us-ascii?q?3NT7CwE7QrKAhBxtCYKqtMdNLpiU9KRPD5ONTRe2ixgXu/BQ6UxrOQa4rnY3?=
+ =?us-ascii?q?sS3D3HB0gekgAT5m2LNRAkCSe7omLeFyRuFVb1bEzw7+ZysnS7TlU7zwuSdU?=
+ =?us-ascii?q?1uy6K1+gIJhfybU/4TxbIFuSY6pDVzAFax2NPbBtuBqgdufKhQfc8x4Flb2W?=
+ =?us-ascii?q?LXqgBwPZKgI7xgi1EEcwl4o1/i2AtsB4VbkckrrXAqwxB2KaKczlxBbSmU0o?=
+ =?us-ascii?q?roOr3PMWny5Beva7LT2l7E0daW/r0D5+g/q1Xm70mVER854mdt1MUdh2CN9J?=
+ =?us-ascii?q?/NEElMD8ytDx5v+UB0/uHUOnY0uoiM2FV3ILu3uzvG1shvDfM90Q6nY9JWMa?=
+ =?us-ascii?q?fCHwj3RYlSCtCnMu0xs0CgdBMfJORb/6NyONmpM7OC2ai2LKNjkSiggGBv/o?=
+ =?us-ascii?q?9wyASP+jB6R+qO2IwKh7mA1xaDfy/1kVPkt8fwg40CbjYXWiKnxDTpHshcYK?=
+ =?us-ascii?q?F/Z4wME2iGOMqx15N1gJupE2VV8F+lGkMuxsCkY1yRYkb70AkW0l4Y5TS8iD?=
+ =?us-ascii?q?m7xjhwnitspLeQxwTBxOPtcBcIIGlWXHIkhlDpcqauiNVPZ1SldwgkklOe4E?=
+ =?us-ascii?q?/+w6VK7PBkI3L7XVZDfy+wKXprFKS3qOzRMIZ09Jo0vHAOA6yHaleAR+um/0?=
+ =?us-ascii?q?AX?=
+X-IPAS-Result: =?us-ascii?q?A2DTEQC+HDZc/wHyM5BjEwEBBgEBAQEDAQEBBwMBAQGBZ?=
+ =?us-ascii?q?YFbKWaBAieEAJRQAQEBAQEBBoE1iSyPagNUMAgBhEACgh8iOBIBAwEBAQEBA?=
+ =?us-ascii?q?QIBbAMZDIJGAQQBAQEBAwMDAQEMAYJjAQEBAQMjBGILEQMBAgECAiYCAk8IB?=
+ =?us-ascii?q?gESgmNAgXQND6s5fDOFQoRvBYELizQXeIEHgRGDEoMeAgIYgRCDQIJXAolCC?=
+ =?us-ascii?q?IYmSTdTkCkJhxmKZBiBZIUkBYpqLYk/hQqNOiE1gSErCAIYCCEPgycfgggXg?=
+ =?us-ascii?q?0uBaIkJIQMwARcBAWsBAYcCgk0BAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 09 Jan 2019 16:11:33 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x09GBWbk004451;
+        Wed, 9 Jan 2019 11:11:32 -0500
+Message-ID: <d54c804a5d2dfd560108912094db9967db5a795b.camel@tycho.nsa.gov>
+Subject: Re: general protection fault in ebitmap_destroy
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     syzbot <syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com>,
+        eparis@parisplace.org, linux-kernel@vger.kernel.org,
+        paul@paul-moore.com, peter.enderborg@sony.com,
+        selinux@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Date:   Wed, 09 Jan 2019 11:13:40 -0500
+In-Reply-To: <0000000000001a9aa0057f084a81@google.com>
+References: <0000000000001a9aa0057f084a81@google.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.30.3 (3.30.3-1.fc29) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use the new security_object_init_security() hook to allow LSMs to
-possibly assign a non-default security context to newly created nodes
-based on the context of their parent node.
+On Wed, 2019-01-09 at 07:41 -0800, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following crash on:
+> 
+> HEAD commit:    a88cc8da0279 Merge branch 'akpm' (patches from
+> Andrew)
+> git tree:       upstream
+> console output: 
+> https://syzkaller.appspot.com/x/log.txt?x=1722da4f400000
+> kernel config:  
+> https://syzkaller.appspot.com/x/.config?x=edf1c3031097c304
+> dashboard link: 
+> https://syzkaller.appspot.com/bug?extid=6664500f0f18f07a5c0e
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> syz repro:      
+> https://syzkaller.appspot.com/x/repro.syz?x=12d43580c00000
+> 
+> IMPORTANT: if you fix the bug, please add the following tag to the
+> commit:
+> Reported-by: syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com
+> 
+> SELinux: failed to load policy
+> sel_write_load: 238 callbacks suppressed
+> SELinux: failed to load policy
+> kasan: CONFIG_KASAN_INLINE enabled
+> kasan: GPF could be caused by NULL-ptr deref or user memory access
+> general protection fault: 0000 [#1] PREEMPT SMP KASAN
+> CPU: 0 PID: 9316 Comm: syz-executor2 Not tainted 5.0.0-rc1+ #16
+> Hardware name: Google Google Compute Engine/Google Compute Engine,
+> BIOS  
+> Google 01/01/2011
+> RIP: 0010:ebitmap_destroy+0x32/0xf0 security/selinux/ss/ebitmap.c:334
+> Code: 49 89 fd 41 54 53 e8 9d e6 36 fe 4d 85 ed 0f 84 99 00 00 00 e8
+> 8f e6  
+> 36 fe 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02
+> 00 0f  
+> 85 98 00 00 00 49 be 00 00 00 00 00 fc ff df 4d 8b
+> RSP: 0018:ffff88808967f5c0 EFLAGS: 00010202
+> RAX: dffffc0000000000 RBX: ffff88808967f6a8 RCX: dffffc0000000000
+> RDX: 0000000000000001 RSI: ffffffff834b1081 RDI: 0000000000000008
+> RBP: ffff88808967f5e0 R08: ffff8880972a8140 R09: ffffed1015cc5b90
+> R10: ffffed1015cc5b8f R11: ffff8880ae62dc7b R12: ffff888099d993c0
+> R13: 0000000000000008 R14: ffff888099d993c0 R15: ffff88808967f648
+> FS:  00007f70cd9e5700(0000) GS:ffff8880ae600000(0000)
+> knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 00000000015e7938 CR3: 0000000096c4a000 CR4: 00000000001406f0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> Call Trace:
+>   sens_destroy+0x49/0xa0 security/selinux/ss/policydb.c:735
+>   sens_read+0x25d/0x460 security/selinux/ss/policydb.c:1636
+>   policydb_read+0xed9/0x60d0 security/selinux/ss/policydb.c:2430
+>   security_load_policy+0x423/0x1830
+> security/selinux/ss/services.c:2129
+>   sel_write_load+0x25a/0x470 security/selinux/selinuxfs.c:565
+>   __vfs_write+0x116/0xb40 fs/read_write.c:485
+>   vfs_write+0x20c/0x580 fs/read_write.c:549
+>   ksys_write+0x105/0x260 fs/read_write.c:598
+>   __do_sys_write fs/read_write.c:610 [inline]
+>   __se_sys_write fs/read_write.c:607 [inline]
+>   __x64_sys_write+0x73/0xb0 fs/read_write.c:607
+>   do_syscall_64+0x1a3/0x800 arch/x86/entry/common.c:290
+>   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> RIP: 0033:0x457ec9
+> Code: 6d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48
+> 89 f7  
+> 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
+> f0 ff  
+> ff 0f 83 3b b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+> RSP: 002b:00007f70cd9e4c78 EFLAGS: 00000246 ORIG_RAX:
+> 0000000000000001
+> RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457ec9
+> RDX: 000000000000005c RSI: 0000000020000000 RDI: 0000000000000003
+> RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
+> R10: 0000000000000000 R11: 0000000000000246 R12: 00007f70cd9e56d4
+> R13: 00000000004c720f R14: 00000000004dc9a0 R15: 00000000ffffffff
+> Modules linked in:
+> ---[ end trace 78ea480790940b53 ]---
+> RIP: 0010:ebitmap_destroy+0x32/0xf0 security/selinux/ss/ebitmap.c:334
+> Code: 49 89 fd 41 54 53 e8 9d e6 36 fe 4d 85 ed 0f 84 99 00 00 00 e8
+> 8f e6  
+> 36 fe 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02
+> 00 0f  
+> 85 98 00 00 00 49 be 00 00 00 00 00 fc ff df 4d 8b
+> RSP: 0018:ffff88808967f5c0 EFLAGS: 00010202
+> RAX: dffffc0000000000 RBX: ffff88808967f6a8 RCX: dffffc0000000000
+> RDX: 0000000000000001 RSI: ffffffff834b1081 RDI: 0000000000000008
+> RBP: ffff88808967f5e0 R08: ffff8880972a8140 R09: ffffed1015cc5b90
+> R10: ffffed1015cc5b8f R11: ffff8880ae62dc7b R12: ffff888099d993c0
+> R13: 0000000000000008 R14: ffff888099d993c0 R15: ffff88808967f648
+> FS:  00007f70cd9e5700(0000) GS:ffff8880ae700000(0000)
+> knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> CR2: 000000000073c000 CR3: 0000000096c4a000 CR4: 00000000001406e0
+> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-This fixes an issue with cgroupfs under SELinux, where newly created
-cgroup subdirectories would not inherit its parent's context if it had
-been set explicitly to a non-default value (other than the genfs context
-specified by the policy). This can be reproduced as follows:
+Possible fix below
 
-    # mkdir /sys/fs/cgroup/unified/test
-    # chcon -R system_u:object_r:cgroup_t:s0:c123 /sys/fs/cgroup/unified/test
-    # ls -lZ /sys/fs/cgroup/unified
-    total 0
-    -r--r--r--.  1 root root system_u:object_r:cgroup_t:s0      0 Jan  8 05:00 cgroup.controllers
-    -rw-r--r--.  1 root root system_u:object_r:cgroup_t:s0      0 Jan  8 05:00 cgroup.max.depth
-    -rw-r--r--.  1 root root system_u:object_r:cgroup_t:s0      0 Jan  8 05:00 cgroup.max.descendants
-    -rw-r--r--.  1 root root system_u:object_r:cgroup_t:s0      0 Jan  8 05:00 cgroup.procs
-    -r--r--r--.  1 root root system_u:object_r:cgroup_t:s0      0 Jan  8 05:00 cgroup.stat
-    -rw-r--r--.  1 root root system_u:object_r:cgroup_t:s0      0 Jan  8 05:00 cgroup.subtree_control
-    -rw-r--r--.  1 root root system_u:object_r:cgroup_t:s0      0 Jan  8 05:00 cgroup.threads
-    drwxr-xr-x.  2 root root system_u:object_r:cgroup_t:s0      0 Jan  8 04:54 init.scope
-    drwxr-xr-x. 25 root root system_u:object_r:cgroup_t:s0      0 Jan  8 04:54 system.slice
-    drwxr-xr-x.  2 root root system_u:object_r:cgroup_t:s0:c123 0 Jan  8 04:59 test
-    drwxr-xr-x.  3 root root system_u:object_r:cgroup_t:s0      0 Jan  8 04:55 user.slice
-    # mkdir /sys/fs/cgroup/unified/test/subdir
+From cc9324299f32db326447a28a836c462fc16bc945 Mon Sep 17 00:00:00 2001
+From: Stephen Smalley <sds@tycho.nsa.gov>
+Date: Wed, 9 Jan 2019 10:55:10 -0500
+Subject: [PATCH] selinux: fix GPF on invalid policy
 
-Actual result:
+levdatum->level can be NULL if we encounter an error while loading
+the policy during sens_read prior to initializing it.  Make sure
+sens_destroy handles that case correctly.
 
-    # ls -ldZ /sys/fs/cgroup/unified/test/subdir
-    drwxr-xr-x. 2 root root system_u:object_r:cgroup_t:s0 0 Jan  8 05:10 /sys/fs/cgroup/unified/test/subdir
-
-Expected result:
-
-    # ls -ldZ /sys/fs/cgroup/unified/test/subdir
-    drwxr-xr-x. 2 root root unconfined_u:object_r:cgroup_t:s0:c123 0 Jan  8 05:10 /sys/fs/cgroup/unified/test/subdir
-
-Link: https://github.com/SELinuxProject/selinux-kernel/issues/39
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+Reported-by: syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- fs/kernfs/dir.c             | 49 ++++++++++++++++++++++++++++++++++---
- fs/kernfs/inode.c           |  9 +++----
- fs/kernfs/kernfs-internal.h |  4 +++
- 3 files changed, 54 insertions(+), 8 deletions(-)
+ security/selinux/ss/policydb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
-index 4ca0b5c18192..8a678a934f65 100644
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -15,6 +15,7 @@
- #include <linux/slab.h>
- #include <linux/security.h>
- #include <linux/hash.h>
-+#include <linux/stringhash.h>
- 
- #include "kernfs-internal.h"
- 
-@@ -617,7 +618,43 @@ struct kernfs_node *kernfs_node_from_dentry(struct dentry *dentry)
- 	return NULL;
- }
- 
--static struct kernfs_node *__kernfs_new_node(struct kernfs_root *root,
-+static int kernfs_node_init_security(struct kernfs_node *parent,
-+				     struct kernfs_node *kn, umode_t mode)
-+{
-+	struct kernfs_iattrs *attrs;
-+	struct qstr q;
-+	void *ctx;
-+	u32 ctxlen;
-+	int ret;
-+
-+	/* If parent has no explicit context set, leave child unset as well */
-+	if (!parent->iattr)
-+		return 0;
-+	if (!parent->iattr->ia_secdata || !parent->iattr->ia_secdata_len)
-+		return 0;
-+
-+	q.name = kn->name;
-+	q.hash_len = hashlen_string(parent, kn->name);
-+
-+	ret = security_object_init_security(parent->iattr->ia_secdata,
-+					    parent->iattr->ia_secdata_len,
-+					    &q, (u16)mode, &ctx, &ctxlen);
-+	if (ret)
-+		return ret;
-+
-+	attrs = kernfs_iattrs(kn);
-+	if (!attrs) {
-+		security_release_secctx(ctx, ctxlen);
-+		return -ENOMEM;
-+	}
-+
-+	kernfs_node_setsecdata(attrs, &ctx, &ctxlen);
-+	/* The inode is fresh, so the returned ctx is always NULL. */
-+	return 0;
-+}
-+
-+static struct kernfs_node *__kernfs_new_node(struct kernfs_node *parent,
-+					     struct kernfs_root *root,
- 					     const char *name, umode_t mode,
- 					     kuid_t uid, kgid_t gid,
- 					     unsigned flags)
-@@ -674,6 +711,12 @@ static struct kernfs_node *__kernfs_new_node(struct kernfs_root *root,
- 			goto err_out3;
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index a50d625e7946..c1c31e33657a 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -732,7 +732,8 @@ static int sens_destroy(void *key, void *datum, void *p)
+ 	kfree(key);
+ 	if (datum) {
+ 		levdatum = datum;
+-		ebitmap_destroy(&levdatum->level->cat);
++		if (levdatum->level)
++			ebitmap_destroy(&levdatum->level->cat);
+ 		kfree(levdatum->level);
  	}
- 
-+	if (parent) {
-+		ret = kernfs_node_init_security(parent, kn, mode);
-+		if (ret)
-+			goto err_out3;
-+	}
-+
- 	return kn;
- 
-  err_out3:
-@@ -692,7 +735,7 @@ struct kernfs_node *kernfs_new_node(struct kernfs_node *parent,
- {
- 	struct kernfs_node *kn;
- 
--	kn = __kernfs_new_node(kernfs_root(parent),
-+	kn = __kernfs_new_node(parent, kernfs_root(parent),
- 			       name, mode, uid, gid, flags);
- 	if (kn) {
- 		kernfs_get(parent);
-@@ -962,7 +1005,7 @@ struct kernfs_root *kernfs_create_root(struct kernfs_syscall_ops *scops,
- 	INIT_LIST_HEAD(&root->supers);
- 	root->next_generation = 1;
- 
--	kn = __kernfs_new_node(root, "", S_IFDIR | S_IRUGO | S_IXUGO,
-+	kn = __kernfs_new_node(NULL, root, "", S_IFDIR | S_IRUGO | S_IXUGO,
- 			       GLOBAL_ROOT_UID, GLOBAL_ROOT_GID,
- 			       KERNFS_DIR);
- 	if (!kn) {
-diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
-index 80cebcd94c90..e6db8d23437b 100644
---- a/fs/kernfs/inode.c
-+++ b/fs/kernfs/inode.c
-@@ -31,7 +31,7 @@ static const struct inode_operations kernfs_iops = {
- 	.listxattr	= kernfs_iop_listxattr,
- };
- 
--static struct kernfs_iattrs *kernfs_iattrs(struct kernfs_node *kn)
-+struct kernfs_iattrs *kernfs_iattrs(struct kernfs_node *kn)
- {
- 	static DEFINE_MUTEX(iattr_mutex);
- 	struct kernfs_iattrs *ret;
-@@ -135,8 +135,8 @@ out:
- 	return error;
- }
- 
--static int kernfs_node_setsecdata(struct kernfs_iattrs *attrs, void **secdata,
--				  u32 *secdata_len)
-+void kernfs_node_setsecdata(struct kernfs_iattrs *attrs, void **secdata,
-+			    u32 *secdata_len)
- {
- 	void *old_secdata;
- 	size_t old_secdata_len;
-@@ -149,7 +149,6 @@ static int kernfs_node_setsecdata(struct kernfs_iattrs *attrs, void **secdata,
- 
- 	*secdata = old_secdata;
- 	*secdata_len = old_secdata_len;
--	return 0;
- }
- 
- ssize_t kernfs_iop_listxattr(struct dentry *dentry, char *buf, size_t size)
-@@ -365,7 +364,7 @@ static int kernfs_security_xattr_set(const struct xattr_handler *handler,
- 		return error;
- 
- 	mutex_lock(&kernfs_mutex);
--	error = kernfs_node_setsecdata(attrs, &secdata, &secdata_len);
-+	kernfs_node_setsecdata(attrs, &secdata, &secdata_len);
- 	mutex_unlock(&kernfs_mutex);
- 
- 	if (secdata)
-diff --git a/fs/kernfs/kernfs-internal.h b/fs/kernfs/kernfs-internal.h
-index 3d83b114bb08..f6fb2df24c30 100644
---- a/fs/kernfs/kernfs-internal.h
-+++ b/fs/kernfs/kernfs-internal.h
-@@ -92,6 +92,10 @@ int kernfs_iop_getattr(const struct path *path, struct kstat *stat,
- ssize_t kernfs_iop_listxattr(struct dentry *dentry, char *buf, size_t size);
- int __kernfs_setattr(struct kernfs_node *kn, const struct iattr *iattr);
- 
-+struct kernfs_iattrs *kernfs_iattrs(struct kernfs_node *kn);
-+void kernfs_node_setsecdata(struct kernfs_iattrs *attrs, void **secdata,
-+			    u32 *secdata_len);
-+
- /*
-  * dir.c
-  */
+ 	kfree(datum);
 -- 
 2.20.1
+
+> 
+> 
+> ---
+> This bug is generated by a bot. It may contain errors.
+> See https://goo.gl/tpsmEJ for more information about syzbot.
+> syzbot engineers can be reached at syzkaller@googlegroups.com.
+> 
+> syzbot will keep track of this bug report. See:
+> https://goo.gl/tpsmEJ#bug-status-tracking for how to communicate
+> with  
+> syzbot.
+> syzbot can test patches for this bug, for details see:
+> https://goo.gl/tpsmEJ#testing-patches
 
