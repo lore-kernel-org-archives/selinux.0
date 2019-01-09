@@ -2,44 +2,44 @@ Return-Path: <SRS0=7twf=PR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15138C43612
-	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:28:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05BA8C43172
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:28:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E16AC20859
-	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:28:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D3E7F2054F
+	for <selinux@archiver.kernel.org>; Wed,  9 Jan 2019 16:28:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725804AbfAIQ2v (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Jan 2019 11:28:51 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:33090 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725730AbfAIQ2v (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jan 2019 11:28:51 -0500
-Received: by mail-wm1-f66.google.com with SMTP id r24so11312291wmh.0
-        for <selinux@vger.kernel.org>; Wed, 09 Jan 2019 08:28:49 -0800 (PST)
+        id S1725535AbfAIQ2y (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Jan 2019 11:28:54 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:35704 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726087AbfAIQ2x (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Jan 2019 11:28:53 -0500
+Received: by mail-wr1-f68.google.com with SMTP id 96so8320992wrb.2
+        for <selinux@vger.kernel.org>; Wed, 09 Jan 2019 08:28:51 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=giAxpfX1M5oQmNhDaCVG6qmEbsz8B5legjDJlm19H0Q=;
-        b=Igfc9Wqot+YO7hS965mQeZj1QSLcaWCz0CFET6Di/UmxYk2Z30Kw5kdQRHAJU16fbg
-         PqwnZZPJLEwTX4tcLwOtSM5IhU0GomfkMGbdyK1U+LH0qyuZCVnrbWM4slFr6E1DTqHI
-         HxxSjkiwbjQr3gJGPpK7H9uELkhSONQzIvrM0foAidykqHk4Mxfg9BgJWrfkjmnkJHIt
-         tUx0kZCp3O6pbI83CeR3M2H3neH/ef0Vkux58LYls0TJ6Ws7qyEwcqnkFSV2HG6lKqj1
-         XPPzjW9YMkKabq5ggvWRHQxmsgAhRoi6mJILPmr9ztZQs9B8UBeCOQfhhMgIcwVR31gt
-         81qA==
-X-Gm-Message-State: AJcUukfdtIJUEjkLEYKDChV2auBE/t7RodUqc7Pi58nJaAhgy7UT9Wie
-        Z0Ulrmq18EjMjW/FI9SGB71VOms/9Ng=
-X-Google-Smtp-Source: ALg8bN53myEGO3Qi56vlRPfbLr/7Hp7hsPipSCbrMd9OfRiN0z2f4tSVTCxDVHe0rzXfsHf8sScGaA==
-X-Received: by 2002:a1c:6489:: with SMTP id y131mr6219158wmb.34.1547051328581;
-        Wed, 09 Jan 2019 08:28:48 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=gSGo71MvUVspkie9GwhrspwHi6UUZoiqR33nTq1pDDE=;
+        b=nG1YnU6XX633DpQqj8NIjf1VIZGCyny54F4Iltg3XAuy/bzOPEs/4vJtosX8LOLNae
+         usMhYUC+OF7KKVHCkSEqCkJUQP7LQ8vFvgYt8hBtlquAs1igzEXUCBgN27cu+NtiiRKq
+         B0lVyDkBC4M11TgszXifAkcFF33Nt/IE9iv9eMPFfZ49bifkhY2ZsE0uGovtU4YMD1uu
+         1YtexLbOt6Ik1vXfJqF8v+OICuDtoI9uAMGjxtRyfOv1nFCu9CMjcwfksAbkEdFJosQv
+         EOwROhYOfHH1TV9YTXu0esyYKOsRdSpULTWoFCOtCq6JMEnlWNkAIEbJXhmDgCdp57Mi
+         ruDg==
+X-Gm-Message-State: AJcUukf+aFX+5v9d0ZxaM8hVWk556krN6D2EGbfdAG/0zUSqCvQk8DwD
+        5UjNGKNHd281D6f8r2fOudvdBzshKZM=
+X-Google-Smtp-Source: ALg8bN5z+Kc3uvEW27PAqliKYup8u1mgW4Sjhrer+xcoqph97R9SKccYCJH5gQ3HhVRTwpPoULgpgA==
+X-Received: by 2002:adf:e488:: with SMTP id i8mr5908936wrm.10.1547051330463;
+        Wed, 09 Jan 2019 08:28:50 -0800 (PST)
 Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id a17sm13661438wma.15.2019.01.09.08.28.47
+        by smtp.gmail.com with ESMTPSA id a17sm13661438wma.15.2019.01.09.08.28.48
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 09 Jan 2019 08:28:47 -0800 (PST)
+        Wed, 09 Jan 2019 08:28:49 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
@@ -47,10 +47,12 @@ Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
         cgroups@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v2 0/3] Allow initializing the kernfs node's secctx based on its parent
-Date:   Wed,  9 Jan 2019 17:28:27 +0100
-Message-Id: <20190109162830.8309-1-omosnace@redhat.com>
+Subject: [PATCH v2 1/3] LSM: Add new hook for generic node initialization
+Date:   Wed,  9 Jan 2019 17:28:28 +0100
+Message-Id: <20190109162830.8309-2-omosnace@redhat.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190109162830.8309-1-omosnace@redhat.com>
+References: <20190109162830.8309-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -58,74 +60,132 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Changes in v2:
-- add docstring for the new hook in union security_list_options
-- initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
-  implemented
-v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
+This patch introduces a new security hook that is intended for
+initializing the security data for newly created pseudo filesystem
+objects (such as kernfs nodes) that provide a way of storing a
+non-default security context, but need to operate independently from
+mounts.
 
-This series adds a new security hook that allows to initialize the security
-context of kernfs properly, taking into account the parent context. Kernfs
-nodes require special handling here, since they are not bound to specific
-inodes/superblocks, but instead represent the backing tree structure that
-is used to build the VFS tree when the kernfs tree is mounted.
+The main motivation is to allow kernfs nodes to inherit the context of
+the parent under SELinux, similar to the behavior of
+security_inode_init_security(). Other LSMs may implement their own logic
+for handling the creation of new nodes.
 
-The kernfs nodes initially do not store any security context and rely on
-the LSM to assign some default context to inodes created over them. Kernfs
-inodes, however, allow setting an explicit context via the *setxattr(2)
-syscalls, in which case the context is stored inside the kernfs node's
-metadata.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ include/linux/lsm_hooks.h | 30 ++++++++++++++++++++++++++++++
+ include/linux/security.h  | 14 ++++++++++++++
+ security/security.c       | 10 ++++++++++
+ 3 files changed, 54 insertions(+)
 
-SELinux (and possibly other LSMs) initialize the context of newly created
-FS objects based on the parent object's context (usually the child inherits
-the parent's context, unless the policy dictates otherwise). This is done
-by hooking the creation of the new inode corresponding to the newly created
-file/directory via security_inode_init_security() (most filesystems always
-create a fresh inode when a new FS object is created). However, kernfs nodes
-can be created "behind the scenes" while the filesystem is not mounted
-anywhere and thus no inodes exist.
-
-Therefore, to allow maintaining similar behavior for kernfs nodes, a new LSM
-hook is needed, which would allow initializing the kernfs node's security
-context based on the context stored in the parent's node (if any).
-
-The main motivation for this change is that the userspace users of cgroupfs
-(which is built on kernfs) expect the usual security context inheritance
-to work under SELinux (see [1] and [2]). This functionality is required for
-better confinement of containers under SELinux.
-
-The first patch adds the new LSM hook; the second patch implements the hook
-in SELinux; and the third patch modifies kernfs to use the new hook to
-initialize the security context of kernfs nodes whenever its parent node
-has a non-default context set.
-
-Note: the patches are based on current selinux/next [3], but they seem to
-apply cleanly on top of v5.0-rc1 as well.
-
-Testing:
-- passed SELinux testsuite on Fedora 29 (x86_64) when applied on top of
-  current Rawhide kernel (5.0.0-0.rc1.git0.1) [4]
-- passed the reproducer from the last patch
-
-[1] https://github.com/SELinuxProject/selinux-kernel/issues/39
-[2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
-[3] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/log/?h=selinux-pr-20181224
-[4] https://copr.fedorainfracloud.org/coprs/omos/kernel-testing/build/842855/
-
-Ondrej Mosnacek (3):
-  LSM: Add new hook for generic node initialization
-  selinux: Implement the object_init_security hook
-  kernfs: Initialize security of newly created nodes
-
- fs/kernfs/dir.c             | 49 ++++++++++++++++++++++++++++++++++---
- fs/kernfs/inode.c           |  9 +++----
- fs/kernfs/kernfs-internal.h |  4 +++
- include/linux/lsm_hooks.h   | 30 +++++++++++++++++++++++
- include/linux/security.h    | 14 +++++++++++
- security/security.c         | 10 ++++++++
- security/selinux/hooks.c    | 41 +++++++++++++++++++++++++++++++
- 7 files changed, 149 insertions(+), 8 deletions(-)
-
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index aaeb7fa24dc4..3a2399d7721f 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -429,6 +429,31 @@
+  *	to abort the copy up. Note that the caller is responsible for reading
+  *	and writing the xattrs as this hook is merely a filter.
+  *
++ * Security hooks for special file-like objects
++ *
++ * @object_init_security:
++ *	Obtain the security context for a newly created filesystem object
++ *	based on the security context of the parent node.  The purpose is
++ *	similar to @inode_init_security, but this hook is intended for
++ *	non-inode objects that need to behave like a directory tree (e.g.
++ *	kernfs nodes).  In this case it is assumed that the LSM assigns some
++ *	default context to the node by default and the object internally stores
++ *	a copy of the security context if (and only if) it has been set to a
++ *	non-default value explicitly (e.g. via *setxattr(2)).
++ *
++ *	@parent_ctx contains the security context of the parent directory
++ *	(must not be NULL -- if the parent has no explicit context set,
++ *	the child should also keep the default context and the hook should
++ *	not be called).
++ *	@parent_ctxlen contains the length of @parent_ctx data.
++ *	@qstr contains the last path component of the new object.
++ *	@mode contanis the file mode of the object.
++ *	@ctx is a pointer in which to place the allocated security context.
++ *	@ctxlen points to the place to put the length of @ctx.
++ *
++ *	Returns 0 if @ctx and @ctxlen have been successfully set or
++ *	-ENOMEM on memory allocation failure.
++ *
+  * Security hooks for file operations
+  *
+  * @file_permission:
+@@ -1556,6 +1581,10 @@ union security_list_options {
+ 	int (*inode_copy_up)(struct dentry *src, struct cred **new);
+ 	int (*inode_copy_up_xattr)(const char *name);
+ 
++	int (*object_init_security)(void *parent_ctx, u32 parent_ctxlen,
++				    const struct qstr *qstr, u16 mode,
++				    void **ctx, u32 *ctxlen);
++
+ 	int (*file_permission)(struct file *file, int mask);
+ 	int (*file_alloc_security)(struct file *file);
+ 	void (*file_free_security)(struct file *file);
+@@ -1855,6 +1884,7 @@ struct security_hook_heads {
+ 	struct hlist_head inode_getsecid;
+ 	struct hlist_head inode_copy_up;
+ 	struct hlist_head inode_copy_up_xattr;
++	struct hlist_head object_init_security;
+ 	struct hlist_head file_permission;
+ 	struct hlist_head file_alloc_security;
+ 	struct hlist_head file_free_security;
+diff --git a/include/linux/security.h b/include/linux/security.h
+index d170a5b031f3..1e7971d10fe6 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -315,6 +315,9 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
+ void security_inode_getsecid(struct inode *inode, u32 *secid);
+ int security_inode_copy_up(struct dentry *src, struct cred **new);
+ int security_inode_copy_up_xattr(const char *name);
++int security_object_init_security(void *parent_ctx, u32 parent_ctxlen,
++				  const struct qstr *qstr, u16 mode,
++				  void **ctx, u32 *ctxlen);
+ int security_file_permission(struct file *file, int mask);
+ int security_file_alloc(struct file *file);
+ void security_file_free(struct file *file);
+@@ -815,6 +818,17 @@ static inline int security_inode_copy_up_xattr(const char *name)
+ 	return -EOPNOTSUPP;
+ }
+ 
++static inline int security_object_init_security(void *parent_ctx,
++						u32 parent_ctxlen,
++						const struct qstr *qstr,
++						u16 mode, void **ctx,
++						u32 *ctxlen)
++{
++	*ctx = NULL;
++	*ctxlen = 0;
++	return 0;
++}
++
+ static inline int security_file_permission(struct file *file, int mask)
+ {
+ 	return 0;
+diff --git a/security/security.c b/security/security.c
+index 04d173eb93f6..a010bfbe3fc6 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -879,6 +879,16 @@ int security_inode_copy_up_xattr(const char *name)
+ }
+ EXPORT_SYMBOL(security_inode_copy_up_xattr);
+ 
++int security_object_init_security(void *parent_ctx, u32 parent_ctxlen,
++				  const struct qstr *qstr, u16 mode,
++				  void **ctx, u32 *ctxlen)
++{
++	*ctx = NULL;
++	*ctxlen = 0;
++	return call_int_hook(object_init_security, 0, parent_ctx, parent_ctxlen,
++			     qstr, mode, ctx, ctxlen);
++}
++
+ int security_file_permission(struct file *file, int mask)
+ {
+ 	int ret;
 -- 
 2.20.1
 
