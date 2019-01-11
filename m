@@ -4,216 +4,166 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A084CC43387
-	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 01:27:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E92BC43444
+	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 01:37:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5D49020879
-	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 01:27:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F904214C6
+	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 01:37:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="fRWA1Gch"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="PN6SnlDZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729149AbfAKB1N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Jan 2019 20:27:13 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:43735 "EHLO
+        id S1729356AbfAKBh1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Jan 2019 20:37:27 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:46776 "EHLO
         mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727846AbfAKB1N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Jan 2019 20:27:13 -0500
-Received: by mail-lf1-f67.google.com with SMTP id u18so9655222lff.10
-        for <selinux@vger.kernel.org>; Thu, 10 Jan 2019 17:27:11 -0800 (PST)
+        with ESMTP id S1728880AbfAKBh1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Jan 2019 20:37:27 -0500
+Received: by mail-lf1-f67.google.com with SMTP id y14so9665762lfg.13
+        for <selinux@vger.kernel.org>; Thu, 10 Jan 2019 17:37:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=YNQYs7ALyOMWiFiNiwUSyAnayUvPH25Nlsm5tjQ2dc4=;
-        b=fRWA1GchJJKSjm8TY3AvQcU+BJQ0bROBfUeUsvWPDvln/quMDlsxY33WIwUqwjYrDx
-         cRdiNlVyzBsSpL0P3WKgKFVdpnJQ7h4lh56CfUFbjsB+KYzYf4A5k3m8o76ZvGSsXIbM
-         trvNo/JH3yVaFSxcWfjyANVmHkm6OJH31MpNo+hg411ZUUKmo6worncJT4N9wYQfgKF5
-         LtR/cFs/LsQhBPBKeHbx9JYUCX1f2FssiZ7MROuc7IlkR5M3AJ7PvAlvjrT0I/HlGCEG
-         6h0UB8jIpdVq2jPHn5yitGGy8Zq/w3Z0IIwtgy1H45MBXYznd7tHR/IjWJMKpWlXiprk
-         T0jw==
+        bh=TAJZgrcw3XACm1Rfy+PvFtt6jlYwdA3ls/yx2LhjlHM=;
+        b=PN6SnlDZw6Gj/O9O0sqtw5nc4CQcf119SLPX4nNkPK0V6JnI66m+rot0qV+97/MLUL
+         u9Lui+qRFWrZbQyxYV2CctoeRN4IETiM1zZ3acHEUwRJx6Ecr0hBiD4z1FwrJFsGKq8Z
+         bP3tCgPUuMjDYPn8SdRVi6HuktRdw2u0U0SYcoH3LsJ4omTl1lp3CHSxzkR26XT/M4FG
+         u7dfZ0kOuKLoIepFubdJkeKWIJ6o1ANPAHMAIODkeoteIZziFSpjzsa6edzrf5MsRgKG
+         jxzKOzLsgbS1dsZK58nwn160Q11t7rizcULmvEo3wMteRi4EZ1g9m1AgPMJNEdQx28Jp
+         3jqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=YNQYs7ALyOMWiFiNiwUSyAnayUvPH25Nlsm5tjQ2dc4=;
-        b=eL9MFL+tGoLtbGRK8PWNsgiBH+2F6TvoGloMxMW7hIFqplHiNewOixbZwsAXMO9a8q
-         kdxguQDVMdCacQPOsDrG2z2CdddOkvh6458jq7iHbePOB77Gwu6md+rYfm5LGsKtPcxw
-         RPIfrSXlgcflHD36RiCugn8SdQm7R8K8GU+OSPfXqcj/BtRA5is57HRxN9YQy4maVBwC
-         sor+puJGwPgwqygyFr4ETIfqGvCulddg1B6CjXbkdRwZCS2/h3ZY3BA80ixx6UL2an41
-         45mfcQaNCjg/VOsFqUvVBafZ2Nu2kmMlv24H2L+r1BXUCrxVKm8XcjiYFg8pAIxQboTT
-         EROg==
-X-Gm-Message-State: AJcUuketIqfzlzxJokB4NYey/6tkcIi6igEWmJ/wKV9iRl9aWsGc4u/o
-        r3OJJ5cuzcMacjYcF+RjKKqV2uXlwbkghw9ZU2qz
-X-Google-Smtp-Source: ALg8bN54VbCuOepKE7cI6I3VadlRvwXKQa8wsaoUIWkLpH2Zp1zkM4jqB7OY/o0plMZd0YnpgzHww5CyOrh7mhDsdZ4=
-X-Received: by 2002:a19:8fce:: with SMTP id s75mr6810260lfk.151.1547170030257;
- Thu, 10 Jan 2019 17:27:10 -0800 (PST)
+        bh=TAJZgrcw3XACm1Rfy+PvFtt6jlYwdA3ls/yx2LhjlHM=;
+        b=Iz3nug9MWzE3S3PZbpCQkMq02eJFIJXVbA2CK+uL4rRFAaGImBis3YrqWdlclpXBqB
+         /h6kLuqX92kuQx5TfYcHNUfCqE+qB4gz1mJald91RpRjB2VSlAMDzuSQIwVsbpOwp8iZ
+         faBUjmeJPc/y+tN6flAKzeQdW79Dd1Zg80rgjikdSX/1WjdRISxv6PFV7H6M1BDPVZdk
+         efySuwqr7nXgE9OcuINnAoPjL9q0WD3NHBBO0ojeWirK5JWO8o6U/Sbwcf/WvqpLx8JQ
+         v54eAHG8d7lnE7kl9RuYj0JexoO3VxTySBtLm6OZdxrnDUYeiuUAdlmAutUR2/EcTDiD
+         ZPdw==
+X-Gm-Message-State: AJcUukd7BT9UzNAESqKLbh1OGoVeYugan/uPgFK6/5VQzzaOomd2sQQT
+        OVOSq/WmZ9EJ9N9zOQydnePE0iAsoE0JvPdCNFtV
+X-Google-Smtp-Source: ALg8bN43Sx2TqfY/2aO9CjeCgMqoG9nVfwSOuHPIKQKmNFqVPvGtm75/Mff/M6zyfNzolItRVvfuIqEuJzYINQNsx30=
+X-Received: by 2002:a19:8fce:: with SMTP id s75mr6820819lfk.151.1547170644176;
+ Thu, 10 Jan 2019 17:37:24 -0800 (PST)
 MIME-Version: 1.0
-References: <0000000000001a9aa0057f084a81@google.com> <d54c804a5d2dfd560108912094db9967db5a795b.camel@tycho.nsa.gov>
-In-Reply-To: <d54c804a5d2dfd560108912094db9967db5a795b.camel@tycho.nsa.gov>
+References: <20181212151056.2938-1-sds@tycho.nsa.gov> <20181212151056.2938-2-sds@tycho.nsa.gov>
+In-Reply-To: <20181212151056.2938-2-sds@tycho.nsa.gov>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 10 Jan 2019 20:26:58 -0500
-Message-ID: <CAHC9VhTbCFoRZ-u7Z8ymQhjGmuAnwk=1_sL9bpr=mMp1hhE4XQ@mail.gmail.com>
-Subject: Re: general protection fault in ebitmap_destroy
+Date:   Thu, 10 Jan 2019 20:37:12 -0500
+Message-ID: <CAHC9VhRAxqNA5rFreuBN-oi7k5SiCU19wzZ60RO9XUEe4=qfJA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] selinux: stop passing MAY_NOT_BLOCK to the AVC upon follow_link
 To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     syzbot <syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        linux-kernel@vger.kernel.org, peter.enderborg@sony.com,
-        selinux@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Cc:     selinux@vger.kernel.org, bmktuwien@gmail.com,
+        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 9, 2019 at 11:11 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On Wed, 2019-01-09 at 07:41 -0800, syzbot wrote:
-> > Hello,
-> >
-> > syzbot found the following crash on:
-> >
-> > HEAD commit:    a88cc8da0279 Merge branch 'akpm' (patches from
-> > Andrew)
-> > git tree:       upstream
-> > console output:
-> > https://syzkaller.appspot.com/x/log.txt?x=1722da4f400000
-> > kernel config:
-> > https://syzkaller.appspot.com/x/.config?x=edf1c3031097c304
-> > dashboard link:
-> > https://syzkaller.appspot.com/bug?extid=6664500f0f18f07a5c0e
-> > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> > syz repro:
-> > https://syzkaller.appspot.com/x/repro.syz?x=12d43580c00000
-> >
-> > IMPORTANT: if you fix the bug, please add the following tag to the
-> > commit:
-> > Reported-by: syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com
-> >
-> > SELinux: failed to load policy
-> > sel_write_load: 238 callbacks suppressed
-> > SELinux: failed to load policy
-> > kasan: CONFIG_KASAN_INLINE enabled
-> > kasan: GPF could be caused by NULL-ptr deref or user memory access
-> > general protection fault: 0000 [#1] PREEMPT SMP KASAN
-> > CPU: 0 PID: 9316 Comm: syz-executor2 Not tainted 5.0.0-rc1+ #16
-> > Hardware name: Google Google Compute Engine/Google Compute Engine,
-> > BIOS
-> > Google 01/01/2011
-> > RIP: 0010:ebitmap_destroy+0x32/0xf0 security/selinux/ss/ebitmap.c:334
-> > Code: 49 89 fd 41 54 53 e8 9d e6 36 fe 4d 85 ed 0f 84 99 00 00 00 e8
-> > 8f e6
-> > 36 fe 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02
-> > 00 0f
-> > 85 98 00 00 00 49 be 00 00 00 00 00 fc ff df 4d 8b
-> > RSP: 0018:ffff88808967f5c0 EFLAGS: 00010202
-> > RAX: dffffc0000000000 RBX: ffff88808967f6a8 RCX: dffffc0000000000
-> > RDX: 0000000000000001 RSI: ffffffff834b1081 RDI: 0000000000000008
-> > RBP: ffff88808967f5e0 R08: ffff8880972a8140 R09: ffffed1015cc5b90
-> > R10: ffffed1015cc5b8f R11: ffff8880ae62dc7b R12: ffff888099d993c0
-> > R13: 0000000000000008 R14: ffff888099d993c0 R15: ffff88808967f648
-> > FS:  00007f70cd9e5700(0000) GS:ffff8880ae600000(0000)
-> > knlGS:0000000000000000
-> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > CR2: 00000000015e7938 CR3: 0000000096c4a000 CR4: 00000000001406f0
-> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > Call Trace:
-> >   sens_destroy+0x49/0xa0 security/selinux/ss/policydb.c:735
-> >   sens_read+0x25d/0x460 security/selinux/ss/policydb.c:1636
-> >   policydb_read+0xed9/0x60d0 security/selinux/ss/policydb.c:2430
-> >   security_load_policy+0x423/0x1830
-> > security/selinux/ss/services.c:2129
-> >   sel_write_load+0x25a/0x470 security/selinux/selinuxfs.c:565
-> >   __vfs_write+0x116/0xb40 fs/read_write.c:485
-> >   vfs_write+0x20c/0x580 fs/read_write.c:549
-> >   ksys_write+0x105/0x260 fs/read_write.c:598
-> >   __do_sys_write fs/read_write.c:610 [inline]
-> >   __se_sys_write fs/read_write.c:607 [inline]
-> >   __x64_sys_write+0x73/0xb0 fs/read_write.c:607
-> >   do_syscall_64+0x1a3/0x800 arch/x86/entry/common.c:290
-> >   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> > RIP: 0033:0x457ec9
-> > Code: 6d b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48
-> > 89 f7
-> > 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01
-> > f0 ff
-> > ff 0f 83 3b b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
-> > RSP: 002b:00007f70cd9e4c78 EFLAGS: 00000246 ORIG_RAX:
-> > 0000000000000001
-> > RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000457ec9
-> > RDX: 000000000000005c RSI: 0000000020000000 RDI: 0000000000000003
-> > RBP: 000000000073bf00 R08: 0000000000000000 R09: 0000000000000000
-> > R10: 0000000000000000 R11: 0000000000000246 R12: 00007f70cd9e56d4
-> > R13: 00000000004c720f R14: 00000000004dc9a0 R15: 00000000ffffffff
-> > Modules linked in:
-> > ---[ end trace 78ea480790940b53 ]---
-> > RIP: 0010:ebitmap_destroy+0x32/0xf0 security/selinux/ss/ebitmap.c:334
-> > Code: 49 89 fd 41 54 53 e8 9d e6 36 fe 4d 85 ed 0f 84 99 00 00 00 e8
-> > 8f e6
-> > 36 fe 4c 89 ea 48 b8 00 00 00 00 00 fc ff df 48 c1 ea 03 <80> 3c 02
-> > 00 0f
-> > 85 98 00 00 00 49 be 00 00 00 00 00 fc ff df 4d 8b
-> > RSP: 0018:ffff88808967f5c0 EFLAGS: 00010202
-> > RAX: dffffc0000000000 RBX: ffff88808967f6a8 RCX: dffffc0000000000
-> > RDX: 0000000000000001 RSI: ffffffff834b1081 RDI: 0000000000000008
-> > RBP: ffff88808967f5e0 R08: ffff8880972a8140 R09: ffffed1015cc5b90
-> > R10: ffffed1015cc5b8f R11: ffff8880ae62dc7b R12: ffff888099d993c0
-> > R13: 0000000000000008 R14: ffff888099d993c0 R15: ffff88808967f648
-> > FS:  00007f70cd9e5700(0000) GS:ffff8880ae700000(0000)
-> > knlGS:0000000000000000
-> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > CR2: 000000000073c000 CR3: 0000000096c4a000 CR4: 00000000001406e0
-> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+On Wed, Dec 12, 2018 at 10:08 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> commit bda0be7ad9948 ("security: make inode_follow_link RCU-walk aware")
+> switched selinux_inode_follow_link() to use avc_has_perm_flags() and
+> pass down the MAY_NOT_BLOCK flag if called during RCU walk.  However,
+> the only test of MAY_NOT_BLOCK occurs during slow_avc_audit()
+> and only if passing an inode as audit data (LSM_AUDIT_DATA_INODE).  Since
+> selinux_inode_follow_link() passes a dentry directly, passing MAY_NOT_BLOCK
+> here serves no purpose.  Switch selinux_inode_follow_link() to use
+> avc_has_perm() and drop avc_has_perm_flags() since there are no other
+> users.
 >
-> Possible fix below
->
-> From cc9324299f32db326447a28a836c462fc16bc945 Mon Sep 17 00:00:00 2001
-> From: Stephen Smalley <sds@tycho.nsa.gov>
-> Date: Wed, 9 Jan 2019 10:55:10 -0500
-> Subject: [PATCH] selinux: fix GPF on invalid policy
->
-> levdatum->level can be NULL if we encounter an error while loading
-> the policy during sens_read prior to initializing it.  Make sure
-> sens_destroy handles that case correctly.
->
-> Reported-by: syzbot+6664500f0f18f07a5c0e@syzkaller.appspotmail.com
 > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  security/selinux/ss/policydb.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  security/selinux/avc.c         | 24 ++----------------------
+>  security/selinux/hooks.c       |  5 ++---
+>  security/selinux/include/avc.h |  5 -----
+>  3 files changed, 4 insertions(+), 30 deletions(-)
+
+I just merged both 1/2 and 2/2 into selinux/next, thanks Stephen.
+
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 5de18a6d5c3f..9b63d8ee1687 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -867,9 +867,8 @@ static int avc_update_node(struct selinux_avc *avc,
+>          * permissive mode that only appear when in enforcing mode.
+>          *
+>          * See the corresponding handling in slow_avc_audit(), and the
+> -        * logic in selinux_inode_follow_link and selinux_inode_permission
+> -        * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
+> -        * AVC_NONBLOCKING for avc_has_perm_noaudit().
+> +        * logic in selinux_inode_permission for the MAY_NOT_BLOCK flag,
+> +        * which is transliterated into AVC_NONBLOCKING.
+>          */
+>         if (flags & AVC_NONBLOCKING)
+>                 return 0;
+> @@ -1209,25 +1208,6 @@ int avc_has_perm(struct selinux_state *state, u32 ssid, u32 tsid, u16 tclass,
+>         return rc;
+>  }
 >
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index a50d625e7946..c1c31e33657a 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -732,7 +732,8 @@ static int sens_destroy(void *key, void *datum, void *p)
->         kfree(key);
->         if (datum) {
->                 levdatum = datum;
-> -               ebitmap_destroy(&levdatum->level->cat);
-> +               if (levdatum->level)
-> +                       ebitmap_destroy(&levdatum->level->cat);
->                 kfree(levdatum->level);
->         }
->         kfree(datum);
+> -int avc_has_perm_flags(struct selinux_state *state,
+> -                      u32 ssid, u32 tsid, u16 tclass, u32 requested,
+> -                      struct common_audit_data *auditdata,
+> -                      int flags)
+> -{
+> -       struct av_decision avd;
+> -       int rc, rc2;
+> -
+> -       rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
+> -                                 (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
+> -                                 &avd);
+> -
+> -       rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
+> -                       auditdata, flags);
+> -       if (rc2)
+> -               return rc2;
+> -       return rc;
+> -}
+> -
+>  u32 avc_policy_seqno(struct selinux_state *state)
+>  {
+>         return state->avc->avc_cache.latest_notif;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 9b05f84808d9..f012d2eb159e 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3139,9 +3139,8 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
+>         if (IS_ERR(isec))
+>                 return PTR_ERR(isec);
+>
+> -       return avc_has_perm_flags(&selinux_state,
+> -                                 sid, isec->sid, isec->sclass, FILE__READ, &ad,
+> -                                 rcu ? MAY_NOT_BLOCK : 0);
+> +       return avc_has_perm(&selinux_state,
+> +                           sid, isec->sid, isec->sclass, FILE__READ, &ad);
+>  }
+>
+>  static noinline int audit_inode_permission(struct inode *inode,
+> diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+> index 74ea50977c20..7be0e1e90e8b 100644
+> --- a/security/selinux/include/avc.h
+> +++ b/security/selinux/include/avc.h
+> @@ -153,11 +153,6 @@ int avc_has_perm(struct selinux_state *state,
+>                  u32 ssid, u32 tsid,
+>                  u16 tclass, u32 requested,
+>                  struct common_audit_data *auditdata);
+> -int avc_has_perm_flags(struct selinux_state *state,
+> -                      u32 ssid, u32 tsid,
+> -                      u16 tclass, u32 requested,
+> -                      struct common_audit_data *auditdata,
+> -                      int flags);
+>
+>  int avc_has_extended_perms(struct selinux_state *state,
+>                            u32 ssid, u32 tsid, u16 tclass, u32 requested,
 > --
-> 2.20.1
+> 2.19.2
+>
 
-...
-
-> > syzbot can test patches for this bug, for details see:
-> > https://goo.gl/tpsmEJ#testing-patches
-
-I'm not sure if this particular bug is one that syzbot can reproduce
-(I recall a different message when it had a reproducer), but it would
-be nice to get some syzbot test verification if possible when posting
-(see the link above for the magic).
-
-Regardless, this looks like a good fix to me; I'm going to merge it
-into the stable-5.0 tree and assuming all goes well I'll probably send
-it up to Linus early next week.
 
 -- 
 paul moore
