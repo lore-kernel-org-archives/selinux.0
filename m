@@ -2,199 +2,175 @@ Return-Path: <SRS0=yrd7=PT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84284C43387
-	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 15:59:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55515C43444
+	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 18:22:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3EA3C20675
-	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 15:59:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3170821848
+	for <selinux@archiver.kernel.org>; Fri, 11 Jan 2019 18:22:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Zm+EXNd2"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="MlKkmLwW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732994AbfAKP7l (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Jan 2019 10:59:41 -0500
-Received: from uphb19pa11.eemsg.mail.mil ([214.24.26.85]:28079 "EHLO
-        USFB19PA14.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729359AbfAKP7l (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Jan 2019 10:59:41 -0500
-X-EEMSG-check-017: 110815649|USFB19PA14_EEMSG_MP10.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA14.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 11 Jan 2019 15:59:39 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1547222379; x=1578758379;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=DML1NxfOpuITXFddmteygNx2pJeODe/ZJPRQ8dywCNo=;
-  b=Zm+EXNd2ZFFqNTQ3+klBz357vz9LwmkgSF13l/WBZ15GOv/QnEoApF5m
-   eRnshI3ZuF/Yd3GkW9kXDQgXmEPohmXnnopG07Zm7k0EHd4pJeCf8u6AP
-   hurVKMcSf3dbiwDTePoWYx3LA5irZJL3DDIKi7GmuMn/vsl/Ob+21aHWA
-   o3v7j4ubOW3wzXVi0XBedZ89rQWvuO8VCqPux1Nmht7zeLwvWtVSv4J6z
-   +0DBYu9RRZ7Mo7VpZWQPol8OeosHAPjPgOoH8Bv4f6OJEYOD/efwtzimW
-   QDwQbEH3vYf4yeE7CfhR43F38cK6Uxxh/cJ0cApd+mwHgTtCdMm7eh9Fd
-   A==;
-X-IronPort-AV: E=Sophos;i="5.56,466,1539648000"; 
-   d="scan'208";a="19450391"
-IronPort-PHdr: =?us-ascii?q?9a23=3A0FPUQB1d+Ra8AB+3smDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseMTIvad9pjvdHbS+e9qxAeQG9mDu7Qc06L/iOPJYSQ4+5GPsXQPItRndi?=
- =?us-ascii?q?QuroEopTEmG9OPEkbhLfTnPGQQFcVGU0J5rTngaRAGUMnxaEfPrXKs8DUcBg?=
- =?us-ascii?q?vwNRZvJuTyB4Xek9m72/q99pHPYAhEniaxba9vJxiqsAvdsdUbj5F/Iagr0B?=
- =?us-ascii?q?vJpXVIe+VSxWx2IF+Yggjx6MSt8pN96ipco/0u+dJOXqX8ZKQ4UKdXDC86PG?=
- =?us-ascii?q?Av5c3krgfMQA2S7XYBSGoWkx5IAw/Y7BHmW5r6ryX3uvZh1CScIMb7Vq4/Vy?=
- =?us-ascii?q?i84Kh3SR/okCYHOCA/8GHLkcx7kaZXrAu8qxBj34LYZYeYO/1jcKPAZtMaXX?=
- =?us-ascii?q?ROUdpNVyJPBYO8apEAD+sHPe1Fq4XwqF8DoR64CAaiHuPvziJDiGHw06M0zu?=
- =?us-ascii?q?8tFRjK0Q0lE98IrX/arsj6NL0KXO6o0qfIwzXNYfBY1zjz54fHcAwur/6XUL?=
- =?us-ascii?q?Jscsfc01UjGx/Lg1iSr4HuIjOb1v4Ks2ie9+duSP6vhHA/qwFxvDevwNonhJ?=
- =?us-ascii?q?TMho0PzlDE8Tt2wYYoLtC/U050fMWkHYBMtyCaK4R2QsQiT3tuuCYh0LIKo5?=
- =?us-ascii?q?G7fC8UyJk+wRPUdvKJc4+N4h35VeaRJy91hH1keLKjhxay7FOvxvf9VsmzyF?=
- =?us-ascii?q?pKoDRKncTLtnAXzRPT8taISvxl/kelxzmDzQfT6vtLIU0yiKHVKIYhz6Ytmp?=
- =?us-ascii?q?ccvknPBC/7lFjsgKOIeUgo5PKk5/nhb777vJGTLZV0hRv7Mqk2n8y/Bvk3PR?=
- =?us-ascii?q?YWUmiA/OS8yKXj/UrkQLVWlvE2krfWsJTdJckDuq62GRVV0oc+6xakFTumzN?=
- =?us-ascii?q?QZkmUHLFJCYh6HiZTmO0rSL/ziCPe/glCsnC9qx/DAILLhHo3AImXMnbruZ7?=
- =?us-ascii?q?pw61NQxBAtwd1Q+Z5YEKwNLOr2WkDrtdzYChE5Mxazw+biENh9zZ4RWXmUD6?=
- =?us-ascii?q?+FMKLdrV+I5uU1L+mKf48aoizxK/ci5/7wlXM5g0MSfbG13ZsLb3C1BuxmI0?=
- =?us-ascii?q?GDbnrxntcBC3wFsRAlQezwllKNTD5TaGyuX64m+j47D4emB5/ZRo+xmLyBwD?=
- =?us-ascii?q?u7HppOa2BdFF+MFXbod4OZW/YDcy+SPMBhnSIeVbS7SI8uywuutAnkxLpjNO?=
- =?us-ascii?q?bU/TcYtZ2wnORystXeiQt60TVpE96X2mqNBzVsmmoVWyU81YhlrEB9w0vF2q?=
- =?us-ascii?q?991a92D9tWsshVXx86OJiU9OlzD9T/S0qVZduSYEq3SdWhRzcqR5Q+xMFYMB?=
- =?us-ascii?q?U1IMmrkh2Wh3niOLQSjbHeQcFr/w=3D=3D?=
-X-IPAS-Result: A2C2AQDwvDhc/wHyM5A
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 11 Jan 2019 15:59:38 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x0BFxbFS015827;
-        Fri, 11 Jan 2019 10:59:37 -0500
-Subject: Re: RFC: introduce new library versions for added symbols
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SELinux <selinux@vger.kernel.org>
-References: <pjdmuo8fl9s.fsf@redhat.com>
- <391a8f7b-b8b0-32a4-29ff-f85eccec0712@tycho.nsa.gov>
- <pjdlg3rfkkq.fsf@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <353f9889-d43c-9a14-4605-5ba1eac22284@tycho.nsa.gov>
-Date:   Fri, 11 Jan 2019 11:01:44 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S1730454AbfAKSWZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Jan 2019 13:22:25 -0500
+Received: from sonic306-9.consmr.mail.bf2.yahoo.com ([74.6.132.48]:46581 "EHLO
+        sonic306-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725446AbfAKSWY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 11 Jan 2019 13:22:24 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1547230942; bh=ACMUVvoRld9YnObV4eh1UYBaQTnEJs0idg5fDfUEKvA=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=MlKkmLwW1OjO/Q+K1uPJnH/UM6YmVus+s2qnQ4mvnmTQIzAE0lNRripJUxJd3sWaKnRHcHTGVXccRFTn/Vm/ns6jDhz5PKhezswj4V6GH0cYHk5Xg3lKpuoPXl3klIBzh6BkGSkcTkkxYT06ITrKDJocwdegsZX9J7yGKgcPcv49rk1oBVV/S1wnXfonpf/cS8HXmJDyg/uDQAJlTwsOI/S6J/W8V4554oRmfT+63mkDCRFOHDAt5MdqPvyXVJkuZdRzHTU2nI/EJzAXN5ViIC5loar+WWKc6LHuHjjXBLB9vSs8dbpQd9X00JCcWdCH5XK+Obu3qz0H5pCRdmM4MA==
+X-YMail-OSG: kfvN71YVM1lqHnvrutGU1I_hEe7j1BCnBseFRwW3GuJqnUkPX3Y67yrFBYVjGk7
+ IHDLV_vOpcDsu5jDgu5SHl6X1xxt8hSbfPK.PF9CVIQwZz5LpjXdKgsH9EllCSTv7cw_JJ4ig2g.
+ RJFF0o2pE8g3mgCoQprP6mGAr49NgmutspDdbgyIoeX96Go8hsrqSR07BrVw1UdC1eW1sySO0YTv
+ cIlDmvqEkV2KGB1DbC9GBQd5kaCu4I2W0J5rPAD7KxLJeHbN5zBBEOohM.EP1jEPgd8WSVI0GHNo
+ NvP_3hrLk5Jilm97Yp8iBj93M5UV3fndny64kcxN8jeS46f9q4qfd87nhhTISPL4CfdUWJgdZtYk
+ dCnLh_gQFBh3MzdTXd21iNtmKzILIN5KSeMK4VYdyyrMfu5qFfUa0bw.UaIPStw1yOswEOiNxDJH
+ hxpNQQ4C.Sc7Oy8p6ENU_BeJV2K8YolcvhFZvlqHBCocSVNg4YVRjrEdG6SAh_.oy_ok71nqv.HF
+ XktfyC5.1pcDz7d5t2LUS_SmpSV_hO8awbEWjfn3WRfjQQfODDUjiZChzCl2E6UTb8btfdID3Qqk
+ Lvh2rN3nhdiLLqRyU5Io8ovT373OtRkhmzl9rBO5R8JsqT3GU9mc.sumHD3P1ln0gtG0pjZYXTgS
+ qNZjOLofiYbkd0xKfbEZEWa7n8tkglQLNKskNpCEoHdgx7hIjv8DtQD8ACjv8LA91UhA4rJI8KE9
+ HRnMmZKk8txXkESmxez_MamH1ByDlmr3jYEHRwQE9lCJC1mbQ1OnY9fUQ6uChG2H93JjxXQ.FzKM
+ ck5zSwYbI0Da6DxQhAOBHW2aiiF4key0qXiHJeKUoJeA6_WEhk.SJH21j74Rn7lPC5G96fQxzW8c
+ _sSowxuxLqKRhn0HSuZ3VwupVuplnxEWQMEVkitUJvZzMtRw.YGAru98H_T2MHUs6jMSCZdHU_dI
+ CRfA3FFINA2Fyt8iYO7Y0Ivw_Zoyp3GIeYISqh3Yx4t13bhANtcVHEccsdnnjRRWM1ifjYrxq0HP
+ ALT9qWZXkUcPRD.OEtMW4hYOg9REOC.w6DlLyUZvfxpWKzaze.jlR18JQ4oivSCZ2AKtz0NZSwsS
+ V6yYLb30bafCseloQniHLiHu_XwA3iZsYiC2vpasuKXIoAmRiNssB_m9L7F1p0nuEy5VXL9wce_B
+ 34lsDu7s8TCkuKT9d9aAc.EH784K6
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Fri, 11 Jan 2019 18:22:22 +0000
+Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.102]) ([67.169.65.224])
+          by smtp416.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID dc8dcd6cd8ac76cfb4dab5dea6e2931d;
+          Fri, 11 Jan 2019 18:22:21 +0000 (UTC)
+Subject: Re: [PATCH v2 0/3] Allow initializing the kernfs node's secctx based
+ on its parent
+To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
+Cc:     linux-security-module@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+References: <20190109162830.8309-1-omosnace@redhat.com>
+ <fbdcf8ef-1587-18f2-3293-452d62305ab3@schaufler-ca.com>
+ <f7312dd2-ea86-51ab-652d-2df39faf52c7@tycho.nsa.gov>
+ <ef22910a-4922-5f66-b7c5-7a7c1dbad8e6@schaufler-ca.com>
+ <93d310a7-0bce-dccd-8136-c659a460e084@tycho.nsa.gov>
+ <1062e181-16fa-66b8-a48c-786edcb9deb7@schaufler-ca.com>
+ <2612c523-084a-7652-58ca-9e062b80138e@tycho.nsa.gov>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <38636851-62e1-5cb8-ec1b-3fcd66c13dba@schaufler-ca.com>
+Date:   Fri, 11 Jan 2019 10:22:18 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.3
 MIME-Version: 1.0
-In-Reply-To: <pjdlg3rfkkq.fsf@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <2612c523-084a-7652-58ca-9e062b80138e@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/11/19 7:24 AM, Petr Lautrbach wrote:
-> 
-> Stephen Smalley <sds@tycho.nsa.gov> writes:
-> 
->> On 1/10/19 12:57 PM, Petr Lautrbach wrote:
->>> I used abi-compliance-checker [1] and compared the latest sources 
->>> with 2.8
->>> release [2].
->>> It looks like there's one symbol added to audit2why.so.
+On 1/10/2019 11:37 AM, Stephen Smalley wrote:
+> On 1/10/19 12:54 PM, Casey Schaufler wrote:
 >>
->> audit2why.so needs a .map file or equivalent; it shouldn't be 
->> exporting all of
->> the libsepol.a symbols.  We don't guarantee ABI or API compatibility for
->> anything not in libsepol.map.
+>> Resending after email configuration repair.
 >>
-> 
-> I'll prepare a patch for that.
+>> On 1/10/2019 6:15 AM, Stephen Smalley wrote:
+>>> On 1/9/19 5:03 PM, Casey Schaufler wrote:
+>>>> On 1/9/2019 12:37 PM, Stephen Smalley wrote:
+>>>>> On 1/9/19 12:19 PM, Casey Schaufler wrote:
+>>>>>> On 1/9/2019 8:28 AM, Ondrej Mosnacek wrote:
+>>>>>>> Changes in v2:
+>>>>>>> - add docstring for the new hook in union security_list_options
+>>>>>>> - initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
+>>>>>>>      implemented
+>>>>>>> v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
+>>>>>>>
+>>>>>>> This series adds a new security hook that allows to initialize the security
+>>>>>>> context of kernfs properly, taking into account the parent context. Kernfs
+>>>>>>> nodes require special handling here, since they are not bound to specific
+>>>>>>> inodes/superblocks, but instead represent the backing tree structure that
+>>>>>>> is used to build the VFS tree when the kernfs tree is mounted.
+>>>>>>>
+>>>>>>> The kernfs nodes initially do not store any security context and rely on
+>>>>>>> the LSM to assign some default context to inodes created over them.
+>>>>>>
+>>>>>> This seems like a bug in kernfs. Why doesn't kernfs adhere to the usual
+>>>>>> and expected filesystem behavior?
+>>>>>
+>>>>> sysfs / kernfs didn't support xattrs at all when we first added support for setting security contexts to it, so originally all sysfs / kernfs inodes had a single security context, and we only required separate storage for the inodes that were explicitly labeled by userspace.
+>>>>>
+>>>>> Later kernfs grew support for trusted.* xattrs using simple_xattrs but the existing security.* support was left mostly unchanged.
+>>>>
+>>>> OK, so as I said, this seems like a bug in kernfs.
+>>>>
+>>>>>
+>>>>>>
+>>>>>>> Kernfs
+>>>>>>> inodes, however, allow setting an explicit context via the *setxattr(2)
+>>>>>>> syscalls, in which case the context is stored inside the kernfs node's
+>>>>>>> metadata.
+>>>>>>>
+>>>>>>> SELinux (and possibly other LSMs) initialize the context of newly created
+>>>>>>> FS objects based on the parent object's context (usually the child inherits
+>>>>>>> the parent's context, unless the policy dictates otherwise).
+>>>>>>
+>>>>>> An LSM might use information about the parent other than the "context".
+>>>>>> Smack, for example, uses an attribute SMACK64TRANSMUTE from the parent
+>>>>>> to determine whether the Smack label of the new object should be taken
+>>>>>> from the parent or the process. Passing the "context" of the parent is
+>>>>>> insufficient for Smack.
+>>>>>
+>>>>> IIUC, this would involve switching the handling of security.* xattrs in kernfs over to use simple_xattrs too (so that we can store multiple such attributes), and then pass the entire simple_xattrs list or at least anything with a security.* prefix when initializing a new node or refreshing an existing inode.  Then the security module could extract any security.* attributes of interest for use in determining the label of new inodes and in refreshing the label of an inode.
+>>>>
+>>>> Right. But I'll point out that there is nothing to prevent an
+>>>> LSM from using inode information outside of the xattrs (e.g. uids)
+>>>> to determine the security state it wants to give a new object.
+>>>
+>>> If that's a real concern, the hook could pass the ia_iattr structure in addition to the simple_xattrs list and the security module could use any inode attributes it likes in making the decision.  Effectively it would be passing the entire kernfs_iattrs structure, but probably not directly since that definition is presently private to kernfs.
+>>
+>> Yes, it's a real concern. And no, just passing all of the kernfs internal data
+>> out in j-random formats does not pass muster. Al Viro was commenting the other
+>> day on how bad the LSM infrastructure interfaces are. The original proposal here
+>> is already big, cluttered and inadequate. Adding more to it to make up for its
+>> shortcomings should be sending up red flags
+> I don't quite see how the original patch set or hook can be called big and cluttered.  Switching the handling of security xattrs in kernfs to use simple_xattrs (a natural and seemingly straightforward cleanup) and passing the entire simple_xattrs list to the hook interface would allow you to support SMACK64TRANSMUTE, which was the one actual inadequacy you identified.  You claim that someone might need/want the parent uid/gid too, but there are no in-tree security modules that do so nor any submitted AFAIK, and if that situation arises, all we need to do to support it is to add the iattrs.  Obviously they can all be wrapped up in some larger structure if desired. At that point the security modules would have access to all of the inode attributes supported by kernfs.
 
-Does audit2why.so actually need to export any symbols other than 
-PyInit_audit2why()?  It only gets used for audit2why.
+We already have a structure to wrap all this in. It's an inode.
 
-> 
->>>
->>> Then I tried the same thing with 2.7 [3] and 2.6 [4] and noticed that
->>> there were added new symbols even to LIBSEMANAGE_1.0 while since 2.3
->>> there's already LIBSEMANAGE_1.1.
->>> It's a bug which breaks automatic dependency checking. So I propose
->>> to fix symbol version mappings in order to be in relation with the
->>> release where they was introduced, e.g. for libsemanage:
->>>
->>> diff --git a/libsemanage/src/libsemanage.map 
->>> b/libsemanage/src/libsemanage.map
->>> index 02036696..45e90215 100644
->>> --- a/libsemanage/src/libsemanage.map
->>> +++ b/libsemanage/src/libsemanage.map
->>> @@ -18,8 +18,6 @@ LIBSEMANAGE_1.0 {
->>>   semanage_root;
->>>   semanage_user_*; semanage_bool_*; semanage_seuser_*;
->>>   semanage_iface_*; semanage_port_*; semanage_context_*;
->>> - semanage_ibpkey_*;
->>> - semanage_ibendport_*;
->>>   semanage_node_*;
->>>   semanage_fcontext_*; semanage_access_check;
->>> semanage_set_create_store;
->>>   semanage_is_connected; semanage_get_disable_dontaudit; 
->>> semanage_set_disable_dontaudit;
->>> @@ -63,3 +61,19 @@ LIBSEMANAGE_1.1 {
->>>   semanage_module_remove_key;
->>>   semanage_set_store_root;
->>> } LIBSEMANAGE_1.0;
->>> +
->>> +LIBSEMANAGE_2.5 {
->>> + global:
->>> + semanage_module_extract;
->>> +} LIBSEMANAGE_1.1;
->>> +
->>> +LIBSEMANAGE_2.7 {
->>> + global:
->>> + semanage_ibpkey_*;
->>> + semanage_ibendport_*;
->>> +} LIBSEMANAGE_2.5;
->>> +
->>> +LIBSEMANAGE_2.8 {
->>> + global:
->>> + semanage_fcontext_list_homedirs;
->>> +} LIBSEMANAGE_2.7;
->>>
->>>
->>> If this is acceptable, I would prepare a patch with symbol versions
->>> starting with 2.5 as LIBSEMANAGE_1.1 was introduced in 2.4.
+But, as you point out, there are no in tree LSMs that use
+anything beyond the xattrs. So the change you're suggesting
+is arguably sufficient, and considerably easier.
+
+>
+>> I've been wallowing in the LSM infrastructure for the past seven years.
+>> Interfaces like this one, that propagate the idiosyncrasies of both
+>> the caller (kernfs) and one potential callee (SELinux) are much too
+>> common. I understand that there is a problem that needs a solution.
+>> This isn't it.
+> The solution sketched above should be capable of supporting the needs of any current security modules and of being easily extended for others if the need arises.
+
+It, like security_inode_init(), is going to be
+challenging to get right in the stacking environment.
+But, that's my problem.
+
+>
 >>
->> Will this break compatibility for binaries built against earlier
->> versions?
-> 
-> I was under impression that is should be enough to list symbols in
-> different versions but it looks like a symbol is assigned only to
-> one/the latest version.
-> 
-> # semodule -B
-> semodule: relocation error: /lib64/libsemanage.so.1: symbol 
-> sepol_ibendport_modify version LIBSEPOL_1.0 not defined in file 
-> libsepol.so.1 with link time reference
-> 
-> I'm still investigating this but given that there's only one reported
-> change between the latest and 2.8 and it  should be covered by audit2why
-> map file, it probably doesn't make sense to do this change retroactively 
-> now.
-> 
-> Just for the future we need to keep in mind that new symbols needs new 
-> versions
-> in .map files.
-> 
-> 
-> 
 >>
+>>>> I suggest that the better solution would be for kernfs to
+>>>> use inodes like a real filesystem. Every special case like this
+>>>> results in special cases like this special hook. It's hard
+>>>> enough to keep track of the general case in the Linux kernel.
 >>>
->>> [1] http://lvc.github.io/abi-compliance-checker/
->>> [2]
->>> https://plautrba.fedorapeople.org/selinux/compat_reports/2.8_to_2.9-rc0/compat_report.html 
->>>
->>> [3]
->>> https://plautrba.fedorapeople.org/selinux/compat_reports/2.7_to_2.9-rc0/compat_report.html 
->>>
->>> [4]
->>> https://plautrba.fedorapeople.org/selinux/compat_reports/2.6_to_2.9-rc0/compat_report.html 
->>>
->>>
->>> Petr
-> 
+>>> Feel free to propose an implementation if you like, but doing a complete rewrite of kernfs internals seems a bit out of scope.
+>>
+>> If this issue points out a serious problem with the kernfs implementation
+>> then I would expect that addressing the problem at its source would be in
+>> everyone's best interest. Did anyone even look at the possibility? If I
+>> said that I would do that, how long would you be willing to wait for it?
+>
+> I don't know that it points to a serious problem with kernfs.  But I'll let you convince the kernfs maintainers of that. Meanwhile, we have a proposed solution that solves the problem for all in-tree security modules.  I see no reason to hold that up. Don't over-design.
+
+I think the patch presented was hasty. It clearly didn't
+account for any LSM but SELinux. I understand why. Adding an
+LSM interface needs to account for the entire security sub-system.
 
