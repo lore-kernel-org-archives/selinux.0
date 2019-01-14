@@ -2,70 +2,160 @@ Return-Path: <SRS0=3kls=PW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7218DC43387
-	for <selinux@archiver.kernel.org>; Mon, 14 Jan 2019 09:29:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0181C43387
+	for <selinux@archiver.kernel.org>; Mon, 14 Jan 2019 11:31:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3A4E32086D
-	for <selinux@archiver.kernel.org>; Mon, 14 Jan 2019 09:29:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7147205F4
+	for <selinux@archiver.kernel.org>; Mon, 14 Jan 2019 11:31:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726450AbfANJ3V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Jan 2019 04:29:21 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:35848 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726092AbfANJ3U (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Jan 2019 04:29:20 -0500
-Received: by mail-ot1-f68.google.com with SMTP id k98so18718807otk.3
-        for <selinux@vger.kernel.org>; Mon, 14 Jan 2019 01:29:20 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/4ok1fnsEgHKhslzCrI4jsUzL5SmWxSmZofuP1ZRF64=;
-        b=eb5BbvAykGApcDSdZw9SCWOkbUd8T5TM3qp6srvgCKH3GRClVDPSmn6GXpjTyVR/ST
-         TuXLJ999VsCQXt+ZsnI4sfb9VgizExF03TB3vnbDC6Rj2SiEK1ALTlKG34hgdvtRagge
-         JiUQDo8dOMVB2nfhvLJ2P/901c+voEL58XlB5JYqVID1m45aurVQz9W6AElBYVl6H1UJ
-         /MEvrYCItysDMlh5RaTwUoQJQjVUTutXCwCD5O5fbEPfFaYU464lmQQb8z+cJ9UgHC//
-         xw5aPBjs18wcjc8gLz3LKihFkkxV7sXKLSGm6XQExJbSQcPUJSf37gGhX6yMDKE0ZpmC
-         RYAA==
-X-Gm-Message-State: AJcUukfT97DdgvYGXk6MTga+OcAKSuHW6spyjXSSP9Th9j5WpRKvKN5n
-        bFLweS+oFTsGsqhCcWlqhcJW24qL9ot4LEbxhkvvvbWbJgI=
-X-Google-Smtp-Source: ALg8bN6mB87VsjEumq21zCgn14Sa46c+kPZWpFoAuy0m7XsEYJK4est6SqPerzhYLrpl7Xw+zzaeYXvCJgEJGsji+4U=
-X-Received: by 2002:a9d:27e3:: with SMTP id c90mr15539878otb.21.1547458160358;
- Mon, 14 Jan 2019 01:29:20 -0800 (PST)
+        id S1726542AbfANLbf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Jan 2019 06:31:35 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:52262 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726470AbfANLbf (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 14 Jan 2019 06:31:35 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DEB44637EE;
+        Mon, 14 Jan 2019 11:31:34 +0000 (UTC)
+Received: from workstation (ovpn-204-251.brq.redhat.com [10.40.204.251])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id E57915DEA9;
+        Mon, 14 Jan 2019 11:31:33 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org, jwcart2@tycho.nsa.gov
+Subject: Re: [PATCH v2] setsebool: support use of -P on SELinux-disabled hosts
+References: <20190110162624.29309-1-sds@tycho.nsa.gov>
+Date:   Mon, 14 Jan 2019 12:31:31 +0100
+In-Reply-To: <20190110162624.29309-1-sds@tycho.nsa.gov> (Stephen Smalley's
+        message of "Thu, 10 Jan 2019 11:26:24 -0500")
+Message-ID: <pjda7k3fpbg.fsf@redhat.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-References: <20190109091028.24485-1-omosnace@redhat.com> <20190111205053.GV2509588@devbig004.ftw2.facebook.com>
- <CAFqZXNu-bHGmUi80UiyW3djcbedycC+0KUyiQuv9-8b+WmrYuA@mail.gmail.com>
-In-Reply-To: <CAFqZXNu-bHGmUi80UiyW3djcbedycC+0KUyiQuv9-8b+WmrYuA@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 14 Jan 2019 10:29:09 +0100
-Message-ID: <CAFqZXNsxVpxXHQ4qOZQpnpck24O5ofskLgU-B0ahbDK8MgxGCA@mail.gmail.com>
-Subject: Re: [PATCH 0/3] Allow initializing the kernfs node's secctx based on
- its parent
-To:     Daniel Walsh <dwalsh@redhat.com>
-Cc:     selinux@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Mon, 14 Jan 2019 11:31:34 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 14, 2019 at 10:14 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> [...]
-> [3] https://lore.kernel.org/selinux/CAFqZXNsxfjwDaCWDrqxP736y_3Jm-r=twaHtkkTDtMuym774Jw@mail.gmail.com/T/
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-Actually, this thread belongs to v1 of the patch series, which is archived here:
-https://lore.kernel.org/selinux/CAFqZXNu-bHGmUi80UiyW3djcbedycC+0KUyiQuv9-8b+WmrYuA@mail.gmail.com/T/
+> As reported in #123, setsebool immediately exits with an error if
+> SELinux is disabled, preventing its use for setting boolean persistent
+> values.  In contrast, semanage boolean -m works on SELinux-disabled
+> hosts.  Change setsebool so that it can be used with the -P option
+> (persistent changes) even if SELinux is disabled.  In the SELinux-disabled
+> case, skip setting of active boolean values, but set the persistent value
+> in the policy store.  Policy reload is automatically disabled by libsemanage
+> when SELinux is disabled, so we only need to call semanage_set_reload()
+> if -N was used.
+>
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Associate Software Engineer, Security Technologies
-Red Hat, Inc.
+So right now, `setsebool -N` and `semanage boolean -N` have the same effect that
+`load_policy` is not run, but the value of the boolean is changed when
+SELinux is enabled so it affects the system. Would it make sense to use
+-N to just change values in the store and do not change the value in the
+running kernel? E.g.
+
+--- a/policycoreutils/setsebool/setsebool.c
++++ b/policycoreutils/setsebool/setsebool.c
+@@ -187,11 +187,14 @@ static int semanage_set_boolean_list(size_t boolcnt,
+                                                  boolean) < 0)
+                        goto err;
+ 
+-               if (enabled && semanage_bool_set_active(handle, bool_key, boolean) < 0) {
+-                       fprintf(stderr, "Failed to change boolean %s: %m\n",
+-                               boollist[j].name);
+-                       goto err;
+-               }
++               if (no_reload)
++                       semanage_set_reload(handle, 0);
++               else
++                       if (enabled && semanage_bool_set_active(handle, bool_key, boolean) < 0) {
++                               fprintf(stderr, "Failed to change boolean %s: %m\n",
++                                                               boollist[j].name);
++                               goto err;
++                       }
+
+
+A similar patch would need to be applied to seobject.py as well in this case.
+
+
+
+> Fixes: https://github.com/SELinuxProject/selinux/issues/123
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+> v2 changes setsebool to only call semanage_set_reload() if -N was specified;
+> otherwise we can use the libsemanage defaults just as we do in semodule
+> and semanage.
+>  policycoreutils/setsebool/setsebool.c | 15 ++++++---------
+>  1 file changed, 6 insertions(+), 9 deletions(-)
+>
+> diff --git a/policycoreutils/setsebool/setsebool.c b/policycoreutils/setsebool/setsebool.c
+> index 53d3566c..a5157efc 100644
+> --- a/policycoreutils/setsebool/setsebool.c
+> +++ b/policycoreutils/setsebool/setsebool.c
+> @@ -18,7 +18,7 @@
+>  #include <errno.h>
+>  
+>  int permanent = 0;
+> -int reload = 1;
+> +int no_reload = 0;
+>  int verbose = 0;
+>  
+>  int setbool(char **list, size_t start, size_t end);
+> @@ -38,11 +38,6 @@ int main(int argc, char **argv)
+>  	if (argc < 2)
+>  		usage();
+>  
+> -	if (is_selinux_enabled() <= 0) {
+> -		fputs("setsebool:  SELinux is disabled.\n", stderr);
+> -		return 1;
+> -	}
+> -
+>  	while (1) {
+>  		clflag = getopt(argc, argv, "PNV");
+>  		if (clflag == -1)
+> @@ -53,7 +48,7 @@ int main(int argc, char **argv)
+>  			permanent = 1;
+>  			break;
+>  		case 'N':
+> -			reload = 0;
+> +			no_reload = 1;
+>  			break;
+>  		case 'V':
+>  			verbose = 1;
+> @@ -130,6 +125,7 @@ static int semanage_set_boolean_list(size_t boolcnt,
+>  	semanage_bool_key_t *bool_key = NULL;
+>  	int managed;
+>  	int result;
+> +	int enabled = is_selinux_enabled();
+>  
+>  	handle = semanage_handle_create();
+>  	if (handle == NULL) {
+> @@ -191,7 +187,7 @@ static int semanage_set_boolean_list(size_t boolcnt,
+>  						  boolean) < 0)
+>  			goto err;
+>  
+> -		if (semanage_bool_set_active(handle, bool_key, boolean) < 0) {
+> +		if (enabled && semanage_bool_set_active(handle, bool_key, boolean) < 0) {
+>  			fprintf(stderr, "Failed to change boolean %s: %m\n",
+>  				boollist[j].name);
+>  			goto err;
+> @@ -202,7 +198,8 @@ static int semanage_set_boolean_list(size_t boolcnt,
+>  		boolean = NULL;
+>  	}
+>  
+> -	semanage_set_reload(handle, reload);
+> +	if (no_reload)
+> +		semanage_set_reload(handle, 0);
+>  	if (semanage_commit(handle) < 0)
+>  		goto err;
