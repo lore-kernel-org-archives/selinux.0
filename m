@@ -5,29 +5,29 @@ X-Spam-Level:
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8756EC43387
-	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 18:13:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF0C8C43387
+	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 18:28:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5D8D420651
-	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 18:13:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA7F520866
+	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 18:28:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728382AbfAPSNF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 16 Jan 2019 13:13:05 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:49052 "EHLO
+        id S1728726AbfAPS2V (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 16 Jan 2019 13:28:21 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:49254 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725882AbfAPSNE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 16 Jan 2019 13:13:04 -0500
+        with ESMTP id S1728658AbfAPS2V (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 16 Jan 2019 13:28:21 -0500
 Received: from static-50-53-47-167.bvtn.or.frontiernet.net ([50.53.47.167] helo=[192.168.192.153])
         by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_128_CBC_SHA1:16)
         (Exim 4.76)
         (envelope-from <john.johansen@canonical.com>)
-        id 1gjpgV-0008O8-5f; Wed, 16 Jan 2019 18:13:03 +0000
+        id 1gjpvH-0000ez-H5; Wed, 16 Jan 2019 18:28:19 +0000
 Subject: Re: Bug Report: bug if selinux_msg_queue_msgsnd & and
  selinux_msg_queue_msgrcv
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
+To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>
 References: <41e46a6c-a42f-a01e-60ce-c1afef70c303@canonical.com>
- <CAHC9VhQdUAKWbn=_5b9sjmoh9rGj5gZp3DtwLyscDTAtOMxn2A@mail.gmail.com>
+ <81d7ef24-ddf9-8a54-fa63-0370b4584957@tycho.nsa.gov>
 From:   John Johansen <john.johansen@canonical.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
@@ -73,52 +73,55 @@ Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  qJciYE8TGHkZw1hOku+4OoM2GB5nEDlj+2TF/jLQ+EipX9PkPJYvxfRlC6dK8PKKfX9KdfmA
  IcgHfnV1jSn+8yH2djBPtKiqW0J69aIsyx7iV/03paPCjJh7Xq9vAzydN5U/UA==
 Organization: Canonical
-Message-ID: <5d3560b6-9caa-6d70-220e-9785c4f8f70b@canonical.com>
-Date:   Wed, 16 Jan 2019 10:13:00 -0800
+Message-ID: <19bf9f96-0d21-cc26-f86d-844e7654bcb1@canonical.com>
+Date:   Wed, 16 Jan 2019 10:28:17 -0800
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.2.1
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQdUAKWbn=_5b9sjmoh9rGj5gZp3DtwLyscDTAtOMxn2A@mail.gmail.com>
+In-Reply-To: <81d7ef24-ddf9-8a54-fa63-0370b4584957@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/16/19 6:45 AM, Paul Moore wrote:
-> On Wed, Jan 16, 2019 at 5:14 AM John Johansen
-> <john.johansen@canonical.com> wrote:
->>
+On 1/16/19 6:47 AM, Stephen Smalley wrote:
+> On 1/16/19 5:14 AM, John Johansen wrote:
 >> kernel: 5.0-rc2
 >>
 >> d8c6e85432944 ("msg/security: Pass kern_ipc_perm not msg_queue into the msg_queue security hooks")
 >>
 >> appears to have introduced a bug into selinux_msg_queue_msgsnd and selinux_msg_queue_msgrcv
 >>
+>>
 >> specifically the portion of the patch that does
 >>
->> -       isec = msq->q_perm.security;
->> +       isec = msq->security;
+>> -       isec = msq->q_perm.security;
+>> +       isec = msq->security;
 >>
 >> which leaves the code
->>         isec = msq->security;
->>         msec = msg->security;
+>>     isec = msq->security;
+>>     msec = msg->security;
 >>
->> however isec and msec are different size structures. specifically isec is an ipc_security_struct and msec is a msg_security_struct ...
+>> however isec and msec are different size structures. specifically isec is an ipc_security_struct and msec is a msg_security_struct. Which are defined as
+>>
+>> struct msg_security_struct {
+>>     u32 sid;    /* SID of message */
+>> };
+>>
+>> struct ipc_security_struct {
+>>     u16 sclass;    /* security class of this object */
+>>     u32 sid;    /* SID of IPC resource */
+>> };
+>>
+>> where the msg->security field is allocated as an ipc_security_struct. Access the msec->sid would thus appear to overlay the isec->sclass.
 > 
-> I suspect there may be some mistaken identity regarding "msq" (with a
-> lower-case "Q") and "msg" (with a lower-case "G").
+> The only thing that changed in that commit was directly passing &msgq->q_perm to the hook instead of passing msgq to the hook and then dereferencing msq->q_perm to reach the ipc security blob.
 > 
-> Looking quickly at selinux_msg_queue_msgsnd() and
-> selinux_msg_queue_msgrcv() it would appear that in both cases the
-> kern_ipc_perm->security pointer is assigned to an ipc_security_struct
-> pointer and the msg_msg->security struct is assigned a
-> msg_security_struct pointer.  This appears to be correct, or is there
-> something I'm missing in your report?
+> msg is a different object from msq with its own security blob (msg is an individual message; msq is the message queue).  isec and msec point to two different security blobs with different structures.
 > 
+> I don't see a problem offhand.
 
-ha, that is indeed it. I looked at this multiple times and didn't pickup
-the q vs g. Thanks sorry for the bad report, guess I should have gone to
-bed sarlier :)
+yep, sorry combination of bad fonts, and being 3am. sorry for the bad report
