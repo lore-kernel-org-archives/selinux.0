@@ -2,126 +2,106 @@ Return-Path: <SRS0=uPJ/=PY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF0C8C43387
-	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 18:28:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 549C2C43387
+	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 20:30:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CA7F520866
-	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 18:28:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27E6D206C2
+	for <selinux@archiver.kernel.org>; Wed, 16 Jan 2019 20:30:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728726AbfAPS2V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 16 Jan 2019 13:28:21 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:49254 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728658AbfAPS2V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 16 Jan 2019 13:28:21 -0500
-Received: from static-50-53-47-167.bvtn.or.frontiernet.net ([50.53.47.167] helo=[192.168.192.153])
-        by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_128_CBC_SHA1:16)
-        (Exim 4.76)
-        (envelope-from <john.johansen@canonical.com>)
-        id 1gjpvH-0000ez-H5; Wed, 16 Jan 2019 18:28:19 +0000
-Subject: Re: Bug Report: bug if selinux_msg_queue_msgsnd & and
- selinux_msg_queue_msgrcv
-To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-References: <41e46a6c-a42f-a01e-60ce-c1afef70c303@canonical.com>
- <81d7ef24-ddf9-8a54-fa63-0370b4584957@tycho.nsa.gov>
-From:   John Johansen <john.johansen@canonical.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Canonical
-Message-ID: <19bf9f96-0d21-cc26-f86d-844e7654bcb1@canonical.com>
-Date:   Wed, 16 Jan 2019 10:28:17 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.2.1
+        id S1732433AbfAPUa4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 16 Jan 2019 15:30:56 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:58806 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732364AbfAPUa4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 16 Jan 2019 15:30:56 -0500
+Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id D134656476F
+        for <selinux@vger.kernel.org>; Wed, 16 Jan 2019 21:30:52 +0100 (CET)
+Received: by mail-ot1-f50.google.com with SMTP id u16so8983174otk.8
+        for <selinux@vger.kernel.org>; Wed, 16 Jan 2019 12:30:52 -0800 (PST)
+X-Gm-Message-State: AJcUukcylCi0cxc2MO6DFfBqd5jCw/hlQCh7Qas9gP2fqfU3JiEbnFBE
+        ui0/3kczlbPFtRu9hn03tHvJq8PR+XqZ5qvRM4c=
+X-Google-Smtp-Source: ALg8bN702LbMswvNGnDajmUYmOCy5k0qiK9DWuGZbrbifvSxRPMgUO0UWP5vxvafxGh2SPU3mGFrrgQROwvu6cm84RQ=
+X-Received: by 2002:a9d:2f66:: with SMTP id h93mr6990386otb.165.1547670651812;
+ Wed, 16 Jan 2019 12:30:51 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <81d7ef24-ddf9-8a54-fa63-0370b4584957@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+References: <20190113174425.27403-1-nicolas.iooss@m4x.org> <pjdfttvfx5n.fsf@redhat.com>
+In-Reply-To: <pjdfttvfx5n.fsf@redhat.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Wed, 16 Jan 2019 21:30:40 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7===wx+QAXKCFLZ7Wg_E3ubR8pgRi5e3xoMA3+CSTq+PAQ@mail.gmail.com>
+Message-ID: <CAJfZ7===wx+QAXKCFLZ7Wg_E3ubR8pgRi5e3xoMA3+CSTq+PAQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] python/sepolicy: initialize mislabeled_files in __init__()
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Jan 16 21:30:53 2019 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/16/19 6:47 AM, Stephen Smalley wrote:
-> On 1/16/19 5:14 AM, John Johansen wrote:
->> kernel: 5.0-rc2
->>
->> d8c6e85432944 ("msg/security: Pass kern_ipc_perm not msg_queue into the msg_queue security hooks")
->>
->> appears to have introduced a bug into selinux_msg_queue_msgsnd and selinux_msg_queue_msgrcv
->>
->>
->> specifically the portion of the patch that does
->>
->> -       isec = msq->q_perm.security;
->> +       isec = msq->security;
->>
->> which leaves the code
->>     isec = msq->security;
->>     msec = msg->security;
->>
->> however isec and msec are different size structures. specifically isec is an ipc_security_struct and msec is a msg_security_struct. Which are defined as
->>
->> struct msg_security_struct {
->>     u32 sid;    /* SID of message */
->> };
->>
->> struct ipc_security_struct {
->>     u16 sclass;    /* security class of this object */
->>     u32 sid;    /* SID of IPC resource */
->> };
->>
->> where the msg->security field is allocated as an ipc_security_struct. Access the msec->sid would thus appear to overlay the isec->sclass.
-> 
-> The only thing that changed in that commit was directly passing &msgq->q_perm to the hook instead of passing msgq to the hook and then dereferencing msq->q_perm to reach the ipc security blob.
-> 
-> msg is a different object from msq with its own security blob (msg is an individual message; msq is the message queue).  isec and msec point to two different security blobs with different structures.
-> 
-> I don't see a problem offhand.
+On Mon, Jan 14, 2019 at 9:42 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+>
+> > Using "sepolicy gui" sometimes leads to an exception when entering the
+> > Files tab:
+> >
+> >     Traceback (most recent call last):
+> >       File "python/sepolicy/sepolicy/gui.py", line 1345, in tab_change
+> >         self.show_mislabeled_files_only.set_visible(self.mislabeled_files)
+> >     AttributeError: 'SELinuxGui' object has no attribute 'mislabeled_files'
+> >
+> > Indeed, when application_selected() calls show_applications_page(), this
+> > function calls tab_change(), which can use mislabeled_files in this
+> > line:
+> >
+> >     self.show_mislabeled_files_only.set_visible(self.mislabeled_files)
+> >
+> > Make sure that mislabeled_files is initialized by defining it in
+> > __init__(), in order to fix this error. Its value will be properly set
+> > later, by calling several initializers, which is why the original
+> > assignment to False is kept in:
+> >
+> >     self.mislabeled_files = False
+> >     self.executable_files_initialize(app)
+> >     self.network_initialize(app)
+> >     self.writable_files_initialize(app)
+> >     self.transitions_into_initialize(app)
+> >     self.transitions_from_initialize(app)
+> >     self.application_files_initialize(app)
+> >     self.transitions_files_initialize(app)
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
-yep, sorry combination of bad fonts, and being 3am. sorry for the bad report
+Thanks, merged.
+
+Nicolas
+
+> > ---
+> >  python/sepolicy/sepolicy/gui.py | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
+> > index 9d413652f2ed..fde233ad98b1 100644
+> > --- a/python/sepolicy/sepolicy/gui.py
+> > +++ b/python/sepolicy/sepolicy/gui.py
+> > @@ -149,6 +149,7 @@ class SELinuxGui():
+> >          self.clear_entry = True
+> >          self.files_add = False
+> >          self.network_add = False
+> > +        self.mislabeled_files = False
+> >
+> >          self.all_domains = []
+> >          self.installed_list = []
+
