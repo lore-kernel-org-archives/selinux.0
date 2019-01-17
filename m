@@ -2,211 +2,297 @@ Return-Path: <SRS0=ZoZM=PZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9B07C43387
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 14:31:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D46B0C43387
+	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 15:10:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 97FD220859
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 14:31:25 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="U9tttZgF"
+	by mail.kernel.org (Postfix) with ESMTP id 98C66205C9
+	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 15:10:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727165AbfAQObZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Jan 2019 09:31:25 -0500
-Received: from upbd19pa11.eemsg.mail.mil ([214.24.27.86]:57753 "EHLO
-        upbd19pa11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725878AbfAQObZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Jan 2019 09:31:25 -0500
-X-EEMSG-check-017: 182824303|UPBD19PA11_EEMSG_MP11.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by upbd19pa11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 17 Jan 2019 14:31:20 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1547735480; x=1579271480;
-  h=subject:from:to:references:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=dUukYABOyMHZamInxRETT/pe3RnhjfD9wKtWWyOYDS0=;
-  b=U9tttZgF1N1tFi0EhG1+mNHIqjx2zcp4OGhS4MP7PtYKzYHSuZSN8wvx
-   6cDxdD83hdp8yp59DFX5iMPDuXBmY7mtCslHAqV13kyVHEzMHv9iMP4gy
-   KTtM1ivnA/0VunlwDhnzq7YbQqYi5LTtqu9jp1OOJoYUcLja515EKJwLt
-   +ke/ufykKMzhEScqTFH6gm+hJUyo4OYN66TIAaISwld51URz/aEEfavES
-   ODM0v4PzaEC+esNF9jE3kIujRpjvDXx9Paxv4ddxfUgBtoMZhPE7fNedu
-   Ms3I3l4KwxcE7kGP/kVKZev6GG6PTcb41Y2lUnZkrFxkQc3rh/BQNVULZ
-   A==;
-X-IronPort-AV: E=Sophos;i="5.56,489,1539648000"; 
-   d="scan'208";a="19618045"
-IronPort-PHdr: =?us-ascii?q?9a23=3AopGmuBV8PFplJhLG6JiWQWB/u3/V8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYbRCFt8tkgFKBZ4jH8fUM07OQ7/iwHzRYqb+681k6OKRWUB?=
- =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
- =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba9xIRmssQndqtQdjJd/JKo21h?=
- =?us-ascii?q?bHuGZDdf5MxWNvK1KTnhL86dm18ZV+7SleuO8v+tBZX6nicKs2UbJXDDI9M2?=
- =?us-ascii?q?Ao/8LrrgXMTRGO5nQHTGoblAdDDhXf4xH7WpfxtTb6tvZ41SKHM8D6Uaw4VD?=
- =?us-ascii?q?K/5KpwVhTmlDkIOCI48GHPi8x/kqRboA66pxdix4LYeZyZOOZicq/Ye94VS3?=
- =?us-ascii?q?BBXsJMXCJfBI2yYZYEA+4YMepFs4Xxol0Dpga8CwaxHuPi0iJGiH/o06000O?=
- =?us-ascii?q?ovHw/J0wMiEN0Sv3rZt8n1OaQIXOyp0KXFwzfOYvVL0jn98ojIdRUhrOmRU7?=
- =?us-ascii?q?Jsb8XR0UkvGB3Djl6NtILlOima1uAJs2eF7+trSOWii3U6pAFquTWv2scthZ?=
- =?us-ascii?q?XJhoIS0FzE8z55z5wvKd23T057f8epHZ1NvC+UMIt2R9ktQ2BuuCsiyrAJo4?=
- =?us-ascii?q?O7czULyJQ72RLeZfyHcoiS7hL4U+adOTh4hHN5eLK/mha96lKsxfH7Vsmx1l?=
- =?us-ascii?q?tBsylLksHUu3wQ2BHe5dKLR/tg8ku7xzqC2B7f5vtZLU0yiKHVMYQuwqQqmZ?=
- =?us-ascii?q?oWqUnDGyj2l1jog6KObUUk//So6/zgYrX7up+QL490hR/6MqQpgsG/Hf43Mh?=
- =?us-ascii?q?IPX2iG4uSwzqHj/E3lT7VKif06iK/Zv4zBJcsHvKK5Bg5V0oI75xa+CTepzs?=
- =?us-ascii?q?gYkGEaIF9Kdx+LlYjkN0zULPzmAvqznU6gnCpzy/DDJLLhA5HNLnbZkLfmeL?=
- =?us-ascii?q?Zw81Vcxxcozd1E+5JVCq0OIPL0WkPrstzYFQU2Pxa7w+bgFtVxzpkeVn6XAq?=
- =?us-ascii?q?+FLKPStkeF5vorI+aWeY8VpCz9JOM/6PP1l382h0ISfamz0psLcny3AvNmI0?=
- =?us-ascii?q?CBa3r2ntgBCXsKvhY5TOHyk12NTzpTZ3e0X6Ih6TA2E5ymDYjdSYC3mrCB3z?=
- =?us-ascii?q?m0HodQZm9YDlCAC3Dod5+LW6REVCXHGsJ9iHQgXKW9UYUo3hHm4Bf+wqd7NO?=
- =?us-ascii?q?Dd0jcVuZLqyJ5+4OiF0Vkp+Dh1CdmN+3+CQnsynW4SQTIymqdlrh9T0FCGhJ?=
- =?us-ascii?q?NkjuRYGNob3PZAVgM3JNaI1OBhI8zjUQLGONGSQRCpRcvwUmJ5dc4439JbOx?=
- =?us-ascii?q?U1IN6llB2WmnPzW7I=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BGAACikEBc/wHyM5BjHAEBAQQBAQcEAQGBUwUBAQsBg?=
- =?us-ascii?q?VopZk8zJ4QBk3xMAQEBAQEBBoE1iTCOToF7MAgBhEACglYiNgcNAQMBAQEBA?=
- =?us-ascii?q?QECAWwcDII6KQGCZwEFIw8BBVEJAg4KAgImAgJXBgEMBgIBAYJfPwGBdA0Pj?=
- =?us-ascii?q?y+bYYEvhC4BhgSBC4s0F3iBB4E4gjY1gx4CgSqDQIJXAolWhy5UkDgJhyKKa?=
- =?us-ascii?q?wYYgjKPWYoAhRiNQgExgVYrCAIYCCEPgycJhgCGcYQAIQMwgQUBAYdfgk0BA?=
- =?us-ascii?q?Q?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 17 Jan 2019 14:31:19 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x0HEVJMT017432;
-        Thu, 17 Jan 2019 09:31:19 -0500
-Subject: Re: [PATCH] libselinux/audit2why.so: Filter out non-python related
- symbols
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
-References: <353f9889-d43c-9a14-4605-5ba1eac22284@tycho.nsa.gov>
- <20190115133629.21263-1-plautrba@redhat.com>
- <e6e56640-b2f6-abca-5c1b-4f192b6c8d7e@tycho.nsa.gov>
-Message-ID: <cdb56541-46e1-9d6c-ae89-a947b5cc4310@tycho.nsa.gov>
-Date:   Thu, 17 Jan 2019 09:33:20 -0500
+        id S1726916AbfAQPKh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Jan 2019 10:10:37 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:44774 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727846AbfAQPKh (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 17 Jan 2019 10:10:37 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 5AE428AE7A;
+        Thu, 17 Jan 2019 15:10:35 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.18.25.177])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A17F260BF6;
+        Thu, 17 Jan 2019 15:10:34 +0000 (UTC)
+Reply-To: dwalsh@redhat.com
+Subject: Re: [PATCH v2] setsebool: support use of -P on SELinux-disabled hosts
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org, jwcart2@tycho.nsa.gov
+References: <20190110162624.29309-1-sds@tycho.nsa.gov>
+ <pjda7k3fpbg.fsf@redhat.com>
+ <e3bd22ec-4d3b-99a8-2910-e4b5db8333dc@tycho.nsa.gov>
+ <pjdzhs1evrn.fsf@redhat.com>
+ <6bbfbf92-f3a0-f197-46b2-acd64566f9e8@tycho.nsa.gov>
+ <b89294c7-bf19-00b2-49c6-bdd2bafcc89d@redhat.com>
+ <1952bc15-fc2b-fbee-2e9b-365c922ce8a7@tycho.nsa.gov>
+From:   Daniel Walsh <dwalsh@redhat.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=dwalsh@redhat.com; prefer-encrypt=mutual; keydata=
+ mQENBFsaqOEBCADBSnZCZpi262vX8m7iL/OdHKP9G9dhS28FR60cjd8nMPqHDNhQJBjLMZra
+ 66L2cCIEhc4HEItail7KU1BckrMc4laFaxL8tLoVTKHZwb74n2OcAJ4FtgzkNNlB1XJvSwC/
+ 909uwt7cpDqwXpJvyP3t17iuklB1OY0EEjTDt9aU4+0QjHzV18L4Cpd9iQ4ksu+EHT+pjlBk
+ DdQB+hKoAjxPl11Eh6pZfrAcrNWpYBBk0A3XE9Jb6ghbmHWltNgVOsCa9GcswJHUEeFiOup6
+ J5DTv6Xzwt0t6QB8nIs+wDJH+VxqAXcrxscnAhViIfGGS2AtxzjnVOz/J+UZPaauIGXTABEB
+ AAG0LERhbmllbCBKIFdhbHNoIChGb3IgR2l0KSA8ZHdhbHNoQHJlZGhhdC5jb20+iQE4BBMB
+ AgAiBQJbGqjhAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRCi35Adq+LAKHuJB/98
+ nZB5RmNjMWua4Ms8q5a1R9XWlDAb3mrST6JeL+uV/M0fa18e2Aw4/hi/WZHjAjoypLmcuaRx
+ GeCbC8iYdpfRDUG79Y956Qq+Vs8c6VfNDMY1mvtfb00eeTaYoOCu0Aa9LDeR9iLKh2g0RI+N
+ Zr3EU45RxZdacIs1v6mU8pGpyUq/FvuTGK9GzR9d1YeVCuSpQKN4ckHNZHJUXyk0vOZft1oO
+ nSgLqM9EDWA+yz1JLmRYwbNsim7IvfVOav5mCgnKzHcL2mLv8qCnMFZjoQV8aGny/W739Z3a
+ YJo1CdOg6zSu5SOvmq9idYrBRkwEtyLXss2oceTVBs0MxqQ/9mLPuQENBFsaqOEBCADDl2hl
+ bUpqJGgwt2eQvs0Z0DCx/7nn0hlLfEn4WAv2HqP25AjIRXUX31Mzu68C4QnsvNtY4zN+FGRC
+ EfUpYsjiL7vBYlRePhIohyMYU4RLp5eXFQKahHO/9Xlhe8mwueQNwYxNBPfMQ65U2AuqxpcS
+ scx4s5w208mhqHoKz6IB2LuKeflhYfH5Y1FNAtVGHfhg22xlcAdupPPcxGuS4fBEW6PD/SDf
+ Y4HT5iUHsyksQKjM0IFalqZ7YuLfXBl07OD2zU7WI9c3W0dwkvwIRjt3aD4iAah544uOLff+
+ BzfxWghXeo80S2a1WCL0S/2qR0NVct/ExaDWboYr/bKpTa/1ABEBAAGJAR8EGAECAAkFAlsa
+ qOECGwwACgkQot+QHaviwCi2hgf/XRvrt+VBmp1ZFxQAR9E6S7AtRT8KSytjFiqEC7TpOx3r
+ 2OZ4gZ3ZiW4TMW8hS7aYRgF1uYpLzl7BbrCfCHfAWEcXZ+uG8vayg8G/mLAcNlLY+JE76ATs
+ 53ziEY9R2Vb/wLMFd2nNBdqfwGcRH9N9VOej9vP76nCP01ZolY8Nms2hE383/+1Quxp5EedU
+ BN5W5l7x9riBJyqCA63hr4u8wNsTuQgrDyhm/U1IvYeLtMopgotjnIR3KiTKOElbppLeXW3w
+ EO/sQTPk+vQ4vcsJYY9Dnf1NlvHE4klj60GHjtjitsBEHzdE7s+J9FOxPmt8l+gMogGumKpN
+ Y4lO0pfTyg==
+Organization: Red Hat
+Message-ID: <1298897a-8cbd-6b62-12d4-964898ecdbf9@redhat.com>
+Date:   Thu, 17 Jan 2019 10:10:33 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.4.0
 MIME-Version: 1.0
-In-Reply-To: <e6e56640-b2f6-abca-5c1b-4f192b6c8d7e@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <1952bc15-fc2b-fbee-2e9b-365c922ce8a7@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Thu, 17 Jan 2019 15:10:35 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/17/19 9:18 AM, Stephen Smalley wrote:
-> On 1/15/19 8:36 AM, Petr Lautrbach wrote:
->> audit2why.so used to export libsepol.a symbols. We only need Python 
->> related
->> symbols:
+On 1/17/19 9:00 AM, Stephen Smalley wrote:
+> On 1/15/19 1:46 PM, Daniel Walsh wrote:
+>> On 1/15/19 1:03 PM, Stephen Smalley wrote:
+>>> On 1/15/19 11:22 AM, Petr Lautrbach wrote:
+>>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
+>>>>
+>>>>> On 1/14/19 6:31 AM, Petr Lautrbach wrote:
+>>>>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
+>>>>>>
+>>>>>>> As reported in #123, setsebool immediately exits with an error if
+>>>>>>> SELinux is disabled, preventing its use for setting boolean
+>>>>>>> persistent
+>>>>>>> values.  In contrast, semanage boolean -m works on SELinux-disabled
+>>>>>>> hosts.  Change setsebool so that it can be used with the -P option
+>>>>>>> (persistent changes) even if SELinux is disabled.  In the
+>>>>>>> SELinux-disabled
+>>>>>>> case, skip setting of active boolean values, but set the
+>>>>>>> persistent value
+>>>>>>> in the policy store.  Policy reload is automatically disabled by
+>>>>>>> libsemanage
+>>>>>>> when SELinux is disabled, so we only need to call
+>>>>>>> semanage_set_reload()
+>>>>>>> if -N was used.
+>>>>>>>
+>>>>>>
+>>>>>> So right now, `setsebool -N` and `semanage boolean -N` have the
+>>>>>> same effect that
+>>>>>> `load_policy` is not run, but the value of the boolean is changed
+>>>>>> when
+>>>>>> SELinux is enabled so it affects the system. Would it make sense to
+>>>>>> use
+>>>>>> -N to just change values in the store and do not change the value
+>>>>>> in the
+>>>>>> running kernel? E.g.
+>>>>>>
+>>>>>> --- a/policycoreutils/setsebool/setsebool.c
+>>>>>> +++ b/policycoreutils/setsebool/setsebool.c
+>>>>>> @@ -187,11 +187,14 @@ static int semanage_set_boolean_list(size_t
+>>>>>> boolcnt,
+>>>>>>                                                      boolean) < 0)
+>>>>>>                            goto err;
+>>>>>>     -               if (enabled && semanage_bool_set_active(handle,
+>>>>>> bool_key,
+>>>>>> boolean) < 0) {
+>>>>>> -                       fprintf(stderr, "Failed to change boolean
+>>>>>> %s: %m\n",
+>>>>>> -                               boollist[j].name);
+>>>>>> -                       goto err;
+>>>>>> -               }
+>>>>>> +               if (no_reload)
+>>>>>> +                       semanage_set_reload(handle, 0);
+>>>>>> +               else
+>>>>>> +                       if (enabled &&
+>>>>>> semanage_bool_set_active(handle, bool_key, boolean) < 0) {
+>>>>>> +                               fprintf(stderr, "Failed to change
+>>>>>> boolean %s: %m\n",
+>>>>>> +
+>>>>>> boollist[j].name);
+>>>>>> +                               goto err;
+>>>>>> +                       }
+>>>>>>
+>>>>>>
+>>>>>> A similar patch would need to be applied to seobject.py as well in
+>>>>>> this case.
+>>>>>
+>>>>> That makes sense to me logically (in fact, I don't really understand
+>>>>> why
+>>>>> setsebool w/o -P would ever trigger a reload), but I guess the
+>>>>> concern is
+>>>>> whether any existing users rely on the current behavior, e.g. the
+>>>>> %post
+>>>>> scriptlet in container-selinux that led to this issue.
+>>>>
+>>>> container-selinux.spec:
+>>>> ==========================================================================
+>>>>
+>>>>
+>>>> # Install all modules in a single transaction
+>>>> if [ $1 -eq 1 ]; then
+>>>>       %{_sbindir}/setsebool -P -N virt_use_nfs=1
+>>>> virt_sandbox_use_all_caps=1
+>>>> fi
+>>>> ...
+>>>> if %{_sbindir}/selinuxenabled ; then
+>>>>       %{_sbindir}/load_policy
+>>>>       %relabel_files
+>>>>       if [ $1 -eq 1 ]; then
+>>>>      restorecon -R %{_sharedstatedir}/docker &> /dev/null || :
+>>>>      restorecon -R %{_sharedstatedir}/containers &> /dev/null || :
+>>>>       fi
+>>>> fi
+>>>> ==========================================================================
+>>>>
+>>>>
+>>>>
+>>>> It would definitely break this scriptlet on SELinux enabled systems as
+>>>> load_policy preserves booleans.
+>>>>
+>>>> So the question is if it's preferred current behavior with it's side
+>>>> effects or if it's worth to try to fix it and properly announce the
+>>>> change in release notes.
+>>>>
+>>>> I take that it's not nice to change/break things but to me it
+>>>> looks like -N generally considered as option which is used to avoid
+>>>> changes in the running kernel.
+>>>
+>>> As documented in the man page, -N just means that "the policy on disk
+>>> is not reloaded into the kernel.".  So from a compatibility and a
+>>> documentation POV, I doubt we can just change this behavior now.
+>>> Looking back at the original commit that added -N to setsebool
+>>> (413b4933ee7203286050c2daf6f9714673cd3a5a) , it says " Fix setsebool
+>>> to use -N to not reload policy into the kernel optional on permanant
+>>> changes." which suggests that the intent was to only affect persistent
+>>> boolean changes IIUC.  But cc'ing Dan for clarification.
+>> Yes that was the intention. The goal was to work on disabled systems.
+>
+> Hmm...I don't quite understand that since libsemanage automatically
+> disables policy reload if SELinux is disabled and since setsebool
+> didn't work on SELinux-disabled systems prior to my patch (this
+> thread).  I don't really understand the point of -N for setsebool.
+>
+> In any event, my impression is that changing the semantics of -N to
+> also suppress setting of active booleans would break the
+> container-selinux.spec usage of setsebool and thus we probably
+> shouldn't change it.
+>
+> Any reason to not go ahead and merge my patch enabling use of
+> setsebool -P on SELinux-disabled hosts?
+>
+Nope, I think you can merge it.
+>>>
+>>>>
+>>>>
+>>>>>
+>>>>>>
+>>>>>>
+>>>>>>
+>>>>>>> Fixes: https://github.com/SELinuxProject/selinux/issues/123
+>>>>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>>>>>> ---
+>>>>>>> v2 changes setsebool to only call semanage_set_reload() if -N was
+>>>>>>> specified;
+>>>>>>> otherwise we can use the libsemanage defaults just as we do in
+>>>>>>> semodule
+>>>>>>> and semanage.
+>>>>>>>     policycoreutils/setsebool/setsebool.c | 15 ++++++---------
+>>>>>>>     1 file changed, 6 insertions(+), 9 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/policycoreutils/setsebool/setsebool.c
+>>>>>>> b/policycoreutils/setsebool/setsebool.c
+>>>>>>> index 53d3566c..a5157efc 100644
+>>>>>>> --- a/policycoreutils/setsebool/setsebool.c
+>>>>>>> +++ b/policycoreutils/setsebool/setsebool.c
+>>>>>>> @@ -18,7 +18,7 @@
+>>>>>>>     #include <errno.h>
+>>>>>>>       int permanent = 0;
+>>>>>>> -int reload = 1;
+>>>>>>> +int no_reload = 0;
+>>>>>>>     int verbose = 0;
+>>>>>>>       int setbool(char **list, size_t start, size_t end);
+>>>>>>> @@ -38,11 +38,6 @@ int main(int argc, char **argv)
+>>>>>>>         if (argc < 2)
+>>>>>>>             usage();
+>>>>>>>     -    if (is_selinux_enabled() <= 0) {
+>>>>>>> -        fputs("setsebool:  SELinux is disabled.\n", stderr);
+>>>>>>> -        return 1;
+>>>>>>> -    }
+>>>>>>> -
+>>>>>>>         while (1) {
+>>>>>>>             clflag = getopt(argc, argv, "PNV");
+>>>>>>>             if (clflag == -1)
+>>>>>>> @@ -53,7 +48,7 @@ int main(int argc, char **argv)
+>>>>>>>                 permanent = 1;
+>>>>>>>                 break;
+>>>>>>>             case 'N':
+>>>>>>> -            reload = 0;
+>>>>>>> +            no_reload = 1;
+>>>>>>>                 break;
+>>>>>>>             case 'V':
+>>>>>>>                 verbose = 1;
+>>>>>>> @@ -130,6 +125,7 @@ static int semanage_set_boolean_list(size_t
+>>>>>>> boolcnt,
+>>>>>>>         semanage_bool_key_t *bool_key = NULL;
+>>>>>>>         int managed;
+>>>>>>>         int result;
+>>>>>>> +    int enabled = is_selinux_enabled();
+>>>>>>>           handle = semanage_handle_create();
+>>>>>>>         if (handle == NULL) {
+>>>>>>> @@ -191,7 +187,7 @@ static int semanage_set_boolean_list(size_t
+>>>>>>> boolcnt,
+>>>>>>>                               boolean) < 0)
+>>>>>>>                 goto err;
+>>>>>>>     -        if (semanage_bool_set_active(handle, bool_key,
+>>>>>>> boolean) < 0) {
+>>>>>>> +        if (enabled && semanage_bool_set_active(handle, bool_key,
+>>>>>>> boolean) < 0) {
+>>>>>>>                 fprintf(stderr, "Failed to change boolean %s:
+>>>>>>> %m\n",
+>>>>>>>                     boollist[j].name);
+>>>>>>>                 goto err;
+>>>>>>> @@ -202,7 +198,8 @@ static int semanage_set_boolean_list(size_t
+>>>>>>> boolcnt,
+>>>>>>>             boolean = NULL;
+>>>>>>>         }
+>>>>>>>     -    semanage_set_reload(handle, reload);
+>>>>>>> +    if (no_reload)
+>>>>>>> +        semanage_set_reload(handle, 0);
+>>>>>>>         if (semanage_commit(handle) < 0)
+>>>>>>>             goto err;
+>>>
 >>
->> - initaudit2why for python 2
->> - PyInit_audit2why for python3
 >>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> 
-> I submitted a pull request to trigger Travis CI of this change here:
-> https://github.com/SELinuxProject/selinux/pull/130
-
-Hmm...broke the build when using PYVER=pypy3.5.
-
-python-3.5audit2why.lo: In function `PyInit_audit2why':
-audit2why.c:(.text+0xe): undefined reference to `PyPyModule_Create2'
-audit2why.c:(.text+0x30): undefined reference to `PyPyModule_AddIntConstant'
-audit2why.c:(.text+0x46): undefined reference to `PyPyModule_AddIntConstant'
-audit2why.c:(.text+0x5c): undefined reference to `PyPyModule_AddIntConstant'
-audit2why.c:(.text+0x72): undefined reference to `PyPyModule_AddIntConstant'
-audit2why.c:(.text+0x88): undefined reference to `PyPyModule_AddIntConstant'
-python-3.5audit2why.lo:audit2why.c:(.text+0x9e): more undefined 
-references to `PyPyModule_AddIntConstant' follow
-python-3.5audit2why.lo: In function `init':
-audit2why.c:(.text+0x170): undefined reference to `PyPyExc_RuntimeError'
-audit2why.c:(.text+0x17f): undefined reference to `PyPyErr_SetString'
-audit2why.c:(.text+0x1a1): undefined reference to `PyPyArg_ParseTuple'
-audit2why.c:(.text+0x2c0): undefined reference to `PyPyExc_RuntimeError'
-audit2why.c:(.text+0x2cf): undefined reference to `PyPyExc_MemoryError'
-audit2why.c:(.text+0x2de): undefined reference to `PyPyErr_SetString'
-audit2why.c:(.text+0x329): undefined reference to `PyPyExc_ValueError'
-audit2why.c:(.text+0x367): undefined reference to `PyPyExc_ValueError'
-audit2why.c:(.text+0x372): undefined reference to `PyPyErr_SetString'
-audit2why.c:(.text+0x387): undefined reference to `PyPy_BuildValue'
-audit2why.c:(.text+0x3e6): undefined reference to `PyPyExc_ValueError'
-audit2why.c:(.text+0x49a): undefined reference to `PyPyExc_RuntimeError'
-audit2why.c:(.text+0x4b0): undefined reference to `PyPyExc_MemoryError'
-audit2why.c:(.text+0x4c6): undefined reference to `PyPyExc_RuntimeError'
-audit2why.c:(.text+0x4d5): undefined reference to `PyPyErr_SetString'
-python-3.5audit2why.lo: In function `analyze':
-audit2why.c:(.text+0x51d): undefined reference to `PyPyList_Type'
-audit2why.c:(.text+0x53d): undefined reference to `PyPyArg_ParseTuple'
-audit2why.c:(.text+0x553): undefined reference to `PyPyList_Size'
-audit2why.c:(.text+0x5f9): undefined reference to `PyPyList_GetItem'
-audit2why.c:(.text+0x601): undefined reference to `PyPyUnicode_AsUTF8'
-audit2why.c:(.text+0x63f): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0x657): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0x66f): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0x687): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0x6f5): undefined reference to `_PyPy_NoneStruct'
-python-3.5audit2why.lo:audit2why.c:(.text+0x70a): more undefined 
-references to `_PyPy_NoneStruct' follow
-python-3.5audit2why.lo: In function `analyze':
-audit2why.c:(.text+0x728): undefined reference to `PyPy_BuildValue'
-audit2why.c:(.text+0x90b): undefined reference to `PyPyExc_RuntimeError'
-audit2why.c:(.text+0x91a): undefined reference to `PyPyErr_SetString'
-audit2why.c:(.text+0x93c): undefined reference to `PyPy_BuildValue'
-audit2why.c:(.text+0x955): undefined reference to `PyPyExc_MemoryError'
-audit2why.c:(.text+0x964): undefined reference to `PyPyErr_SetString'
-audit2why.c:(.text+0x981): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0x9a0): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0x9b8): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0x9f3): undefined reference to `PyPyExc_RuntimeError'
-audit2why.c:(.text+0x9fe): undefined reference to `PyPyErr_SetString'
-audit2why.c:(.text+0xa3f): undefined reference to `PyPyExc_RuntimeError'
-audit2why.c:(.text+0xa4f): undefined reference to `PyPyErr_SetString'
-audit2why.c:(.text+0xb18): undefined reference to `_PyPy_NoneStruct'
-audit2why.c:(.text+0xb2e): undefined reference to `PyPyList_New'
-audit2why.c:(.text+0xb56): undefined reference to `PyPy_BuildValue'
-audit2why.c:(.text+0xb68): undefined reference to `PyPyList_SetItem'
-python-3.5audit2why.lo: In function `finish':
-audit2why.c:(.text+0xbb3): undefined reference to `PyPyArg_ParseTuple'
-audit2why.c:(.text+0xc7d): undefined reference to `_PyPy_NoneStruct'
-clang-7: error: linker command failed with exit code 1 (use -v to see 
-invocation)
-Makefile:168: recipe for target 'python-3.5audit2why.so' failed
-
-> 
->> ---
->>   libselinux/src/Makefile      | 2 +-
->>   libselinux/src/audit2why.map | 6 ++++++
->>   2 files changed, 7 insertions(+), 1 deletion(-)
->>   create mode 100644 libselinux/src/audit2why.map
->>
->> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->> index 8891086e..92e30738 100644
->> --- a/libselinux/src/Makefile
->> +++ b/libselinux/src/Makefile
->> @@ -165,7 +165,7 @@ $(AUDIT2WHYLOBJ): audit2why.c
->>       $(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED 
->> -c -o $@ $<
->>   $(AUDIT2WHYSO): $(AUDIT2WHYLOBJ) $(LIBSEPOLA)
->> -    $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux 
->> $(LDLIBS_LIBSEPOLA) $(PYLIBS)
->> +    $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux 
->> $(LDLIBS_LIBSEPOLA) $(PYLIBS) 
->> -Wl,-soname,audit2why.so,--version-script=audit2why.map,-z,defs
->>   %.o:  %.c policy.h
->>       $(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
->> diff --git a/libselinux/src/audit2why.map b/libselinux/src/audit2why.map
->> new file mode 100644
->> index 00000000..65989a8d
->> --- /dev/null
->> +++ b/libselinux/src/audit2why.map
->> @@ -0,0 +1,6 @@
->> +AUDIT2WHY_2.9 {
->> +  global:
->> +    initaudit2why;
->> +    PyInit_audit2why;
->> +  local: *;
->> +};
->>
-> 
+>
 
