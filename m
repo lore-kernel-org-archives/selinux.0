@@ -2,297 +2,113 @@ Return-Path: <SRS0=ZoZM=PZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D46B0C43387
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 15:10:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8955C43387
+	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 16:15:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 98C66205C9
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 15:10:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9AE020855
+	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 16:15:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1547741726;
+	bh=HIfnWvjJx1XbbbnFAkh/KOSTB2ZU7DTZKtdKA1Ftftg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=gXOHZ66BtRjWGNkN1uT/6AnoUC8RDX3bf7cDmNbgomWu0LhW6Ehlfvbx+cs/eWwKE
+	 ZP0DRiH7bPFRewLEJ1KEetF1tJQphKMC9BkOBqsALHYcwfliAxVq3bZwqQp5B3bQtG
+	 Zj5ScJ/Y6c0IziRLfQVOZ1r4Ahi0YsfGwdFvEKKY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726916AbfAQPKh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Jan 2019 10:10:37 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:44774 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727846AbfAQPKh (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 17 Jan 2019 10:10:37 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5AE428AE7A;
-        Thu, 17 Jan 2019 15:10:35 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.18.25.177])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A17F260BF6;
-        Thu, 17 Jan 2019 15:10:34 +0000 (UTC)
-Reply-To: dwalsh@redhat.com
-Subject: Re: [PATCH v2] setsebool: support use of -P on SELinux-disabled hosts
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org, jwcart2@tycho.nsa.gov
-References: <20190110162624.29309-1-sds@tycho.nsa.gov>
- <pjda7k3fpbg.fsf@redhat.com>
- <e3bd22ec-4d3b-99a8-2910-e4b5db8333dc@tycho.nsa.gov>
- <pjdzhs1evrn.fsf@redhat.com>
- <6bbfbf92-f3a0-f197-46b2-acd64566f9e8@tycho.nsa.gov>
- <b89294c7-bf19-00b2-49c6-bdd2bafcc89d@redhat.com>
- <1952bc15-fc2b-fbee-2e9b-365c922ce8a7@tycho.nsa.gov>
-From:   Daniel Walsh <dwalsh@redhat.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=dwalsh@redhat.com; prefer-encrypt=mutual; keydata=
- mQENBFsaqOEBCADBSnZCZpi262vX8m7iL/OdHKP9G9dhS28FR60cjd8nMPqHDNhQJBjLMZra
- 66L2cCIEhc4HEItail7KU1BckrMc4laFaxL8tLoVTKHZwb74n2OcAJ4FtgzkNNlB1XJvSwC/
- 909uwt7cpDqwXpJvyP3t17iuklB1OY0EEjTDt9aU4+0QjHzV18L4Cpd9iQ4ksu+EHT+pjlBk
- DdQB+hKoAjxPl11Eh6pZfrAcrNWpYBBk0A3XE9Jb6ghbmHWltNgVOsCa9GcswJHUEeFiOup6
- J5DTv6Xzwt0t6QB8nIs+wDJH+VxqAXcrxscnAhViIfGGS2AtxzjnVOz/J+UZPaauIGXTABEB
- AAG0LERhbmllbCBKIFdhbHNoIChGb3IgR2l0KSA8ZHdhbHNoQHJlZGhhdC5jb20+iQE4BBMB
- AgAiBQJbGqjhAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRCi35Adq+LAKHuJB/98
- nZB5RmNjMWua4Ms8q5a1R9XWlDAb3mrST6JeL+uV/M0fa18e2Aw4/hi/WZHjAjoypLmcuaRx
- GeCbC8iYdpfRDUG79Y956Qq+Vs8c6VfNDMY1mvtfb00eeTaYoOCu0Aa9LDeR9iLKh2g0RI+N
- Zr3EU45RxZdacIs1v6mU8pGpyUq/FvuTGK9GzR9d1YeVCuSpQKN4ckHNZHJUXyk0vOZft1oO
- nSgLqM9EDWA+yz1JLmRYwbNsim7IvfVOav5mCgnKzHcL2mLv8qCnMFZjoQV8aGny/W739Z3a
- YJo1CdOg6zSu5SOvmq9idYrBRkwEtyLXss2oceTVBs0MxqQ/9mLPuQENBFsaqOEBCADDl2hl
- bUpqJGgwt2eQvs0Z0DCx/7nn0hlLfEn4WAv2HqP25AjIRXUX31Mzu68C4QnsvNtY4zN+FGRC
- EfUpYsjiL7vBYlRePhIohyMYU4RLp5eXFQKahHO/9Xlhe8mwueQNwYxNBPfMQ65U2AuqxpcS
- scx4s5w208mhqHoKz6IB2LuKeflhYfH5Y1FNAtVGHfhg22xlcAdupPPcxGuS4fBEW6PD/SDf
- Y4HT5iUHsyksQKjM0IFalqZ7YuLfXBl07OD2zU7WI9c3W0dwkvwIRjt3aD4iAah544uOLff+
- BzfxWghXeo80S2a1WCL0S/2qR0NVct/ExaDWboYr/bKpTa/1ABEBAAGJAR8EGAECAAkFAlsa
- qOECGwwACgkQot+QHaviwCi2hgf/XRvrt+VBmp1ZFxQAR9E6S7AtRT8KSytjFiqEC7TpOx3r
- 2OZ4gZ3ZiW4TMW8hS7aYRgF1uYpLzl7BbrCfCHfAWEcXZ+uG8vayg8G/mLAcNlLY+JE76ATs
- 53ziEY9R2Vb/wLMFd2nNBdqfwGcRH9N9VOej9vP76nCP01ZolY8Nms2hE383/+1Quxp5EedU
- BN5W5l7x9riBJyqCA63hr4u8wNsTuQgrDyhm/U1IvYeLtMopgotjnIR3KiTKOElbppLeXW3w
- EO/sQTPk+vQ4vcsJYY9Dnf1NlvHE4klj60GHjtjitsBEHzdE7s+J9FOxPmt8l+gMogGumKpN
- Y4lO0pfTyg==
-Organization: Red Hat
-Message-ID: <1298897a-8cbd-6b62-12d4-964898ecdbf9@redhat.com>
-Date:   Thu, 17 Jan 2019 10:10:33 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S1728720AbfAQQP0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Jan 2019 11:15:26 -0500
+Received: from mail-yb1-f194.google.com ([209.85.219.194]:35935 "EHLO
+        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728587AbfAQQPZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Jan 2019 11:15:25 -0500
+Received: by mail-yb1-f194.google.com with SMTP id a190so3211301ybg.3;
+        Thu, 17 Jan 2019 08:15:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=RqL0AEOOBDO3n45l+z2WTVuBS8xl6jVyCQzl3EMFoow=;
+        b=Fl6LDEEB5XmogMl5LiLRgs7JXcWSvByTi+ef8+DHWWpuEuT8tAxmDuZjeWI9x5heiv
+         Ttt2knqPOu2ave85iu/FkuXl7tqo8CaLU4gN55gVBD2s/lbjRabQlD00eLVnKe27jzeG
+         EB+wqmRqNC3Va/8x0nE/f68YWpGPOWKhPREXipgCdGTZ+fFE1d8O12Jk2GYqAMIghlAk
+         H3htO3NSCuKvvuEmuQdGY+PvaTylQRkOkTaf21mTDJdNHDy2sooNS0PSSxrsOgopZ3JP
+         BvEvsNSXYRNYcEQ+vGRkqtk73NmgeRHIQwHmLv8L4NZiMIu8PheWjjhpg1XPDPc1W6Zs
+         DJIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=RqL0AEOOBDO3n45l+z2WTVuBS8xl6jVyCQzl3EMFoow=;
+        b=Oi2NVb5jgtTYI/MjwnY/ahI24OxjQYz/BCUGTOLQz4ekj2MqFEHEbrZbWlg4zxN76G
+         mqNWcISkRHWdLhKAaZKGNvkg9Rui6DWwKeYEkAWhqjZez3ZJ7QZsJVWcN2bbNJLIAeT6
+         zx4XgCWxcfbEmg9d9Hj5PYplwR/sipUbzM8gumVG0M6tx99LMh8StpIJbLvKMPmICYy2
+         alLykSXif9mdog8dxQNwEG1BfnqM0sJtpUOuFDY6l4217Jg/hn3wppkeRkLetC9Nah/Q
+         dquncFSKvS17/4yVGMrvEy25k24AbhyljjXOMIFllSzAb254HVkdGHUZuLyKSUt+wBjP
+         aSkg==
+X-Gm-Message-State: AJcUukfJejBeE2fMO2zlQIuHLIZejtuyj81zawFr4xUl+OBj05b+Zhat
+        cy6Y4YM2d3zdxJY+wit7ZFQ=
+X-Google-Smtp-Source: ALg8bN62O9M6awgXozA782ttAFtFs74TJPWdsLOuQE4ktvb74Vv0ftusuvTmD04VzYOPsqD4BXvyCg==
+X-Received: by 2002:a25:424b:: with SMTP id p72mr2483857yba.19.1547741724232;
+        Thu, 17 Jan 2019 08:15:24 -0800 (PST)
+Received: from localhost ([2620:10d:c091:200::7:106a])
+        by smtp.gmail.com with ESMTPSA id f203sm873514ywf.105.2019.01.17.08.15.23
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 17 Jan 2019 08:15:23 -0800 (PST)
+Date:   Thu, 17 Jan 2019 08:15:21 -0800
+From:   Tejun Heo <tj@kernel.org>
+To:     Daniel Walsh <dwalsh@redhat.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+Subject: Re: [PATCH 0/3] Allow initializing the kernfs node's secctx based on
+ its parent
+Message-ID: <20190117161521.GA50184@devbig004.ftw2.facebook.com>
+References: <20190109091028.24485-1-omosnace@redhat.com>
+ <20190111205053.GV2509588@devbig004.ftw2.facebook.com>
+ <CAFqZXNu-bHGmUi80UiyW3djcbedycC+0KUyiQuv9-8b+WmrYuA@mail.gmail.com>
+ <CAFqZXNsxVpxXHQ4qOZQpnpck24O5ofskLgU-B0ahbDK8MgxGCA@mail.gmail.com>
+ <64977013-e2a5-809d-7a3f-bffbda9276aa@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <1952bc15-fc2b-fbee-2e9b-365c922ce8a7@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Thu, 17 Jan 2019 15:10:35 +0000 (UTC)
+In-Reply-To: <64977013-e2a5-809d-7a3f-bffbda9276aa@redhat.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/17/19 9:00 AM, Stephen Smalley wrote:
-> On 1/15/19 1:46 PM, Daniel Walsh wrote:
->> On 1/15/19 1:03 PM, Stephen Smalley wrote:
->>> On 1/15/19 11:22 AM, Petr Lautrbach wrote:
->>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
->>>>
->>>>> On 1/14/19 6:31 AM, Petr Lautrbach wrote:
->>>>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
->>>>>>
->>>>>>> As reported in #123, setsebool immediately exits with an error if
->>>>>>> SELinux is disabled, preventing its use for setting boolean
->>>>>>> persistent
->>>>>>> values.  In contrast, semanage boolean -m works on SELinux-disabled
->>>>>>> hosts.  Change setsebool so that it can be used with the -P option
->>>>>>> (persistent changes) even if SELinux is disabled.  In the
->>>>>>> SELinux-disabled
->>>>>>> case, skip setting of active boolean values, but set the
->>>>>>> persistent value
->>>>>>> in the policy store.  Policy reload is automatically disabled by
->>>>>>> libsemanage
->>>>>>> when SELinux is disabled, so we only need to call
->>>>>>> semanage_set_reload()
->>>>>>> if -N was used.
->>>>>>>
->>>>>>
->>>>>> So right now, `setsebool -N` and `semanage boolean -N` have the
->>>>>> same effect that
->>>>>> `load_policy` is not run, but the value of the boolean is changed
->>>>>> when
->>>>>> SELinux is enabled so it affects the system. Would it make sense to
->>>>>> use
->>>>>> -N to just change values in the store and do not change the value
->>>>>> in the
->>>>>> running kernel? E.g.
->>>>>>
->>>>>> --- a/policycoreutils/setsebool/setsebool.c
->>>>>> +++ b/policycoreutils/setsebool/setsebool.c
->>>>>> @@ -187,11 +187,14 @@ static int semanage_set_boolean_list(size_t
->>>>>> boolcnt,
->>>>>>                                                      boolean) < 0)
->>>>>>                            goto err;
->>>>>>     -               if (enabled && semanage_bool_set_active(handle,
->>>>>> bool_key,
->>>>>> boolean) < 0) {
->>>>>> -                       fprintf(stderr, "Failed to change boolean
->>>>>> %s: %m\n",
->>>>>> -                               boollist[j].name);
->>>>>> -                       goto err;
->>>>>> -               }
->>>>>> +               if (no_reload)
->>>>>> +                       semanage_set_reload(handle, 0);
->>>>>> +               else
->>>>>> +                       if (enabled &&
->>>>>> semanage_bool_set_active(handle, bool_key, boolean) < 0) {
->>>>>> +                               fprintf(stderr, "Failed to change
->>>>>> boolean %s: %m\n",
->>>>>> +
->>>>>> boollist[j].name);
->>>>>> +                               goto err;
->>>>>> +                       }
->>>>>>
->>>>>>
->>>>>> A similar patch would need to be applied to seobject.py as well in
->>>>>> this case.
->>>>>
->>>>> That makes sense to me logically (in fact, I don't really understand
->>>>> why
->>>>> setsebool w/o -P would ever trigger a reload), but I guess the
->>>>> concern is
->>>>> whether any existing users rely on the current behavior, e.g. the
->>>>> %post
->>>>> scriptlet in container-selinux that led to this issue.
->>>>
->>>> container-selinux.spec:
->>>> ==========================================================================
->>>>
->>>>
->>>> # Install all modules in a single transaction
->>>> if [ $1 -eq 1 ]; then
->>>>       %{_sbindir}/setsebool -P -N virt_use_nfs=1
->>>> virt_sandbox_use_all_caps=1
->>>> fi
->>>> ...
->>>> if %{_sbindir}/selinuxenabled ; then
->>>>       %{_sbindir}/load_policy
->>>>       %relabel_files
->>>>       if [ $1 -eq 1 ]; then
->>>>      restorecon -R %{_sharedstatedir}/docker &> /dev/null || :
->>>>      restorecon -R %{_sharedstatedir}/containers &> /dev/null || :
->>>>       fi
->>>> fi
->>>> ==========================================================================
->>>>
->>>>
->>>>
->>>> It would definitely break this scriptlet on SELinux enabled systems as
->>>> load_policy preserves booleans.
->>>>
->>>> So the question is if it's preferred current behavior with it's side
->>>> effects or if it's worth to try to fix it and properly announce the
->>>> change in release notes.
->>>>
->>>> I take that it's not nice to change/break things but to me it
->>>> looks like -N generally considered as option which is used to avoid
->>>> changes in the running kernel.
->>>
->>> As documented in the man page, -N just means that "the policy on disk
->>> is not reloaded into the kernel.".  So from a compatibility and a
->>> documentation POV, I doubt we can just change this behavior now.
->>> Looking back at the original commit that added -N to setsebool
->>> (413b4933ee7203286050c2daf6f9714673cd3a5a) , it says " Fix setsebool
->>> to use -N to not reload policy into the kernel optional on permanant
->>> changes." which suggests that the intent was to only affect persistent
->>> boolean changes IIUC.  But cc'ing Dan for clarification.
->> Yes that was the intention. The goal was to work on disabled systems.
->
-> Hmm...I don't quite understand that since libsemanage automatically
-> disables policy reload if SELinux is disabled and since setsebool
-> didn't work on SELinux-disabled systems prior to my patch (this
-> thread).  I don't really understand the point of -N for setsebool.
->
-> In any event, my impression is that changing the semantics of -N to
-> also suppress setting of active booleans would break the
-> container-selinux.spec usage of setsebool and thus we probably
-> shouldn't change it.
->
-> Any reason to not go ahead and merge my patch enabling use of
-> setsebool -P on SELinux-disabled hosts?
->
-Nope, I think you can merge it.
->>>
->>>>
->>>>
->>>>>
->>>>>>
->>>>>>
->>>>>>
->>>>>>> Fixes: https://github.com/SELinuxProject/selinux/issues/123
->>>>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>>>>>> ---
->>>>>>> v2 changes setsebool to only call semanage_set_reload() if -N was
->>>>>>> specified;
->>>>>>> otherwise we can use the libsemanage defaults just as we do in
->>>>>>> semodule
->>>>>>> and semanage.
->>>>>>>     policycoreutils/setsebool/setsebool.c | 15 ++++++---------
->>>>>>>     1 file changed, 6 insertions(+), 9 deletions(-)
->>>>>>>
->>>>>>> diff --git a/policycoreutils/setsebool/setsebool.c
->>>>>>> b/policycoreutils/setsebool/setsebool.c
->>>>>>> index 53d3566c..a5157efc 100644
->>>>>>> --- a/policycoreutils/setsebool/setsebool.c
->>>>>>> +++ b/policycoreutils/setsebool/setsebool.c
->>>>>>> @@ -18,7 +18,7 @@
->>>>>>>     #include <errno.h>
->>>>>>>       int permanent = 0;
->>>>>>> -int reload = 1;
->>>>>>> +int no_reload = 0;
->>>>>>>     int verbose = 0;
->>>>>>>       int setbool(char **list, size_t start, size_t end);
->>>>>>> @@ -38,11 +38,6 @@ int main(int argc, char **argv)
->>>>>>>         if (argc < 2)
->>>>>>>             usage();
->>>>>>>     -    if (is_selinux_enabled() <= 0) {
->>>>>>> -        fputs("setsebool:  SELinux is disabled.\n", stderr);
->>>>>>> -        return 1;
->>>>>>> -    }
->>>>>>> -
->>>>>>>         while (1) {
->>>>>>>             clflag = getopt(argc, argv, "PNV");
->>>>>>>             if (clflag == -1)
->>>>>>> @@ -53,7 +48,7 @@ int main(int argc, char **argv)
->>>>>>>                 permanent = 1;
->>>>>>>                 break;
->>>>>>>             case 'N':
->>>>>>> -            reload = 0;
->>>>>>> +            no_reload = 1;
->>>>>>>                 break;
->>>>>>>             case 'V':
->>>>>>>                 verbose = 1;
->>>>>>> @@ -130,6 +125,7 @@ static int semanage_set_boolean_list(size_t
->>>>>>> boolcnt,
->>>>>>>         semanage_bool_key_t *bool_key = NULL;
->>>>>>>         int managed;
->>>>>>>         int result;
->>>>>>> +    int enabled = is_selinux_enabled();
->>>>>>>           handle = semanage_handle_create();
->>>>>>>         if (handle == NULL) {
->>>>>>> @@ -191,7 +187,7 @@ static int semanage_set_boolean_list(size_t
->>>>>>> boolcnt,
->>>>>>>                               boolean) < 0)
->>>>>>>                 goto err;
->>>>>>>     -        if (semanage_bool_set_active(handle, bool_key,
->>>>>>> boolean) < 0) {
->>>>>>> +        if (enabled && semanage_bool_set_active(handle, bool_key,
->>>>>>> boolean) < 0) {
->>>>>>>                 fprintf(stderr, "Failed to change boolean %s:
->>>>>>> %m\n",
->>>>>>>                     boollist[j].name);
->>>>>>>                 goto err;
->>>>>>> @@ -202,7 +198,8 @@ static int semanage_set_boolean_list(size_t
->>>>>>> boolcnt,
->>>>>>>             boolean = NULL;
->>>>>>>         }
->>>>>>>     -    semanage_set_reload(handle, reload);
->>>>>>> +    if (no_reload)
->>>>>>> +        semanage_set_reload(handle, 0);
->>>>>>>         if (semanage_commit(handle) < 0)
->>>>>>>             goto err;
->>>
->>
->>
->
+Hello,
 
+On Thu, Jan 17, 2019 at 10:01:23AM -0500, Daniel Walsh wrote:
+> The above comment is correct.� We want to be able to run a container
+> where we hand it control over a limited subdir of the cgroups hierachy.�
+> We can currently do this and label the content correctly, but when
+> subdirs of the directory get created by processes inside the container
+> they do not get the correct label.� For example we add a label like
+> system_u:object_r:container_file_t:s0 to a directory but when the
+> process inside of the container creates a fd within this directory the
+> kernel says the label is the default label for cgroups
+> system_u:object_r:cgroup_t:s0.� This forces us to write looser policy
+> that from an SELinux point of view allows a process within the container
+> to write anywhere on the cgroup file system, rather then just the
+> designated directories.
+
+Can you please go into a bit more details on why the existing
+cgroup delegation model isn't enough?
+
+Thanks.
+
+-- 
+tejun
