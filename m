@@ -5,32 +5,33 @@ X-Spam-Level:
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DCBDC43387
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 20:30:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0528C43387
+	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 20:35:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 31A8820855
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 20:30:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A53892063F
+	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 20:35:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729365AbfAQUam (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Jan 2019 15:30:42 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:47546 "EHLO mx1.redhat.com"
+        id S1729550AbfAQUfn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Jan 2019 15:35:43 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:56264 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729299AbfAQUam (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 17 Jan 2019 15:30:42 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        id S1729140AbfAQUfm (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 17 Jan 2019 15:35:42 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 2D0398AE79;
-        Thu, 17 Jan 2019 20:30:41 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id A998788E62;
+        Thu, 17 Jan 2019 20:35:42 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.18.25.177])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BC4005883D;
-        Thu, 17 Jan 2019 20:30:39 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7132119741;
+        Thu, 17 Jan 2019 20:35:41 +0000 (UTC)
 Reply-To: dwalsh@redhat.com
 Subject: Re: [PATCH 0/3] Allow initializing the kernfs node's secctx based on
  its parent
-To:     Stephen Smalley <sds@tycho.nsa.gov>, Tejun Heo <tj@kernel.org>
+To:     Tejun Heo <tj@kernel.org>
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
         Linux Security Module list 
         <linux-security-module@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -41,7 +42,6 @@ References: <20190109091028.24485-1-omosnace@redhat.com>
  <CAFqZXNsxVpxXHQ4qOZQpnpck24O5ofskLgU-B0ahbDK8MgxGCA@mail.gmail.com>
  <64977013-e2a5-809d-7a3f-bffbda9276aa@redhat.com>
  <20190117161521.GA50184@devbig004.ftw2.facebook.com>
- <46abb960-f047-c2eb-96a8-72114cc44c86@tycho.nsa.gov>
 From:   Daniel Walsh <dwalsh@redhat.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=dwalsh@redhat.com; prefer-encrypt=mutual; keydata=
@@ -69,58 +69,57 @@ Autocrypt: addr=dwalsh@redhat.com; prefer-encrypt=mutual; keydata=
  EO/sQTPk+vQ4vcsJYY9Dnf1NlvHE4klj60GHjtjitsBEHzdE7s+J9FOxPmt8l+gMogGumKpN
  Y4lO0pfTyg==
 Organization: Red Hat
-Message-ID: <2ad98c79-c51b-d8a0-01cc-8e8c7ca8fb53@redhat.com>
-Date:   Thu, 17 Jan 2019 15:30:39 -0500
+Message-ID: <765eed63-faf7-3a47-871b-6372bf642d90@redhat.com>
+Date:   Thu, 17 Jan 2019 15:35:41 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.4.0
 MIME-Version: 1.0
-In-Reply-To: <46abb960-f047-c2eb-96a8-72114cc44c86@tycho.nsa.gov>
+In-Reply-To: <20190117161521.GA50184@devbig004.ftw2.facebook.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Thu, 17 Jan 2019 20:30:42 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Thu, 17 Jan 2019 20:35:42 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/17/19 11:39 AM, Stephen Smalley wrote:
-> On 1/17/19 11:15 AM, Tejun Heo wrote:
->> Hello,
->>
->> On Thu, Jan 17, 2019 at 10:01:23AM -0500, Daniel Walsh wrote:
->>> The above comment is correct.  We want to be able to run a container
->>> where we hand it control over a limited subdir of the cgroups hierachy.
->>> We can currently do this and label the content correctly, but when
->>> subdirs of the directory get created by processes inside the container
->>> they do not get the correct label.  For example we add a label like
->>> system_u:object_r:container_file_t:s0 to a directory but when the
->>> process inside of the container creates a fd within this directory the
->>> kernel says the label is the default label for cgroups
->>> system_u:object_r:cgroup_t:s0.  This forces us to write looser policy
->>> that from an SELinux point of view allows a process within the
->>> container
->>> to write anywhere on the cgroup file system, rather then just the
->>> designated directories.
->>
->> Can you please go into a bit more details on why the existing
->> cgroup delegation model isn't enough?
+On 1/17/19 11:15 AM, Tejun Heo wrote:
+> Hello,
 >
-> I would hazard a guess that it is because the existing cgroup
-> delegation model is based on user IDs and discretionary access control
-> (DAC), whereas they are using per-container SELinux security contexts
-> and mandatory access control (MAC) to enforce the separation of
-> containers irrespective of UID and DAC.  Optimally both would be
-> supported by cgroup, as DAC and MAC have different properties and use
-> cases.
+> On Thu, Jan 17, 2019 at 10:01:23AM -0500, Daniel Walsh wrote:
+>> The above comment is correct.  We want to be able to run a container
+>> where we hand it control over a limited subdir of the cgroups hierachy. 
+>> We can currently do this and label the content correctly, but when
+>> subdirs of the directory get created by processes inside the container
+>> they do not get the correct label.  For example we add a label like
+>> system_u:object_r:container_file_t:s0 to a directory but when the
+>> process inside of the container creates a fd within this directory the
+>> kernel says the label is the default label for cgroups
+>> system_u:object_r:cgroup_t:s0.  This forces us to write looser policy
+>> that from an SELinux point of view allows a process within the container
+>> to write anywhere on the cgroup file system, rather then just the
+>> designated directories.
+> Can you please go into a bit more details on why the existing
+> cgroup delegation model isn't enough?
+>
+> Thanks.
+>
+If I label a container container_t:s0:c1,c2 by policy it can only write
+to container_file_t:s0:c1,c2.  So the container engine sets up files and
+directories within the cgroup hierarchy with labels of
+container_file_t:s0:c1,c2.  When the container writes to one of these
+directories, the kernel says the file is labeled cgroup_t:s0, and is
+denied by policy.  In most/all other file systems that support labeling,
+the content of a directory gets the same label as the containing
+directory.  So from an SELinux point of view, I would have expected the
+kernel to label the new file as container_file_t:s0:c1,c2 and everything
+would work securely.  But cgroups does not work correctly so we need to
+add a rule that says container_t:s0:c1,c2 can write files labeles
+cgroup_t:s0 which means it can write anywhere on /sys/fs/cgroup.
 
-As Steven said, existing model is DAC.  We have the situation where we
-have a "root" process running within a container that is not using User
-Namespace.  I want to control that that root process can not write to
-anywhere within the cgroup hierarchy based on SELinux controls.   This
-is security in depth.  If other mechanisms prevent the process from
-writing to other places in cgroups that is great, but I want it also
-secured from a MAC Point of view.
-
+This is from a MAC Point of view.   I don't care  if other security
+measure might control this, I want to have security in depth and have
+MAC Control it.
 
