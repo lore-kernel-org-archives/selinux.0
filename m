@@ -1,125 +1,169 @@
-Return-Path: <SRS0=ZoZM=PZ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=8zWZ=P2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0528C43387
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 20:35:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF4E9C43387
+	for <selinux@archiver.kernel.org>; Fri, 18 Jan 2019 10:06:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A53892063F
-	for <selinux@archiver.kernel.org>; Thu, 17 Jan 2019 20:35:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C58C920855
+	for <selinux@archiver.kernel.org>; Fri, 18 Jan 2019 10:06:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729550AbfAQUfn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Jan 2019 15:35:43 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:56264 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729140AbfAQUfm (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 17 Jan 2019 15:35:42 -0500
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A998788E62;
-        Thu, 17 Jan 2019 20:35:42 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.18.25.177])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7132119741;
-        Thu, 17 Jan 2019 20:35:41 +0000 (UTC)
-Reply-To: dwalsh@redhat.com
-Subject: Re: [PATCH 0/3] Allow initializing the kernfs node's secctx based on
- its parent
-To:     Tejun Heo <tj@kernel.org>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
-References: <20190109091028.24485-1-omosnace@redhat.com>
- <20190111205053.GV2509588@devbig004.ftw2.facebook.com>
- <CAFqZXNu-bHGmUi80UiyW3djcbedycC+0KUyiQuv9-8b+WmrYuA@mail.gmail.com>
- <CAFqZXNsxVpxXHQ4qOZQpnpck24O5ofskLgU-B0ahbDK8MgxGCA@mail.gmail.com>
- <64977013-e2a5-809d-7a3f-bffbda9276aa@redhat.com>
- <20190117161521.GA50184@devbig004.ftw2.facebook.com>
-From:   Daniel Walsh <dwalsh@redhat.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=dwalsh@redhat.com; prefer-encrypt=mutual; keydata=
- mQENBFsaqOEBCADBSnZCZpi262vX8m7iL/OdHKP9G9dhS28FR60cjd8nMPqHDNhQJBjLMZra
- 66L2cCIEhc4HEItail7KU1BckrMc4laFaxL8tLoVTKHZwb74n2OcAJ4FtgzkNNlB1XJvSwC/
- 909uwt7cpDqwXpJvyP3t17iuklB1OY0EEjTDt9aU4+0QjHzV18L4Cpd9iQ4ksu+EHT+pjlBk
- DdQB+hKoAjxPl11Eh6pZfrAcrNWpYBBk0A3XE9Jb6ghbmHWltNgVOsCa9GcswJHUEeFiOup6
- J5DTv6Xzwt0t6QB8nIs+wDJH+VxqAXcrxscnAhViIfGGS2AtxzjnVOz/J+UZPaauIGXTABEB
- AAG0LERhbmllbCBKIFdhbHNoIChGb3IgR2l0KSA8ZHdhbHNoQHJlZGhhdC5jb20+iQE4BBMB
- AgAiBQJbGqjhAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRCi35Adq+LAKHuJB/98
- nZB5RmNjMWua4Ms8q5a1R9XWlDAb3mrST6JeL+uV/M0fa18e2Aw4/hi/WZHjAjoypLmcuaRx
- GeCbC8iYdpfRDUG79Y956Qq+Vs8c6VfNDMY1mvtfb00eeTaYoOCu0Aa9LDeR9iLKh2g0RI+N
- Zr3EU45RxZdacIs1v6mU8pGpyUq/FvuTGK9GzR9d1YeVCuSpQKN4ckHNZHJUXyk0vOZft1oO
- nSgLqM9EDWA+yz1JLmRYwbNsim7IvfVOav5mCgnKzHcL2mLv8qCnMFZjoQV8aGny/W739Z3a
- YJo1CdOg6zSu5SOvmq9idYrBRkwEtyLXss2oceTVBs0MxqQ/9mLPuQENBFsaqOEBCADDl2hl
- bUpqJGgwt2eQvs0Z0DCx/7nn0hlLfEn4WAv2HqP25AjIRXUX31Mzu68C4QnsvNtY4zN+FGRC
- EfUpYsjiL7vBYlRePhIohyMYU4RLp5eXFQKahHO/9Xlhe8mwueQNwYxNBPfMQ65U2AuqxpcS
- scx4s5w208mhqHoKz6IB2LuKeflhYfH5Y1FNAtVGHfhg22xlcAdupPPcxGuS4fBEW6PD/SDf
- Y4HT5iUHsyksQKjM0IFalqZ7YuLfXBl07OD2zU7WI9c3W0dwkvwIRjt3aD4iAah544uOLff+
- BzfxWghXeo80S2a1WCL0S/2qR0NVct/ExaDWboYr/bKpTa/1ABEBAAGJAR8EGAECAAkFAlsa
- qOECGwwACgkQot+QHaviwCi2hgf/XRvrt+VBmp1ZFxQAR9E6S7AtRT8KSytjFiqEC7TpOx3r
- 2OZ4gZ3ZiW4TMW8hS7aYRgF1uYpLzl7BbrCfCHfAWEcXZ+uG8vayg8G/mLAcNlLY+JE76ATs
- 53ziEY9R2Vb/wLMFd2nNBdqfwGcRH9N9VOej9vP76nCP01ZolY8Nms2hE383/+1Quxp5EedU
- BN5W5l7x9riBJyqCA63hr4u8wNsTuQgrDyhm/U1IvYeLtMopgotjnIR3KiTKOElbppLeXW3w
- EO/sQTPk+vQ4vcsJYY9Dnf1NlvHE4klj60GHjtjitsBEHzdE7s+J9FOxPmt8l+gMogGumKpN
- Y4lO0pfTyg==
-Organization: Red Hat
-Message-ID: <765eed63-faf7-3a47-871b-6372bf642d90@redhat.com>
-Date:   Thu, 17 Jan 2019 15:35:41 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S1726922AbfARKGJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Jan 2019 05:06:09 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:43316 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726204AbfARKGJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Jan 2019 05:06:09 -0500
+Received: by mail-wr1-f68.google.com with SMTP id r10so14256795wrs.10
+        for <selinux@vger.kernel.org>; Fri, 18 Jan 2019 02:06:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=X8hGEIFuim3oUqZ1U1zJcxU9heWtt3gj/Zx6V8CRlBE=;
+        b=iqWGp0LN+iNOxuGmOO5bKaClae9ViQ3x0UktKQz3vBjspjY86Y6JOVOrh5UYC/uWYa
+         nITrgdLGt8JL/1dpqtseBCp8+sJLUo1Nwx89XC1Y7dgm42oqc88QJ4oIelYhPt7/W+SC
+         ervu8ylVelhpl7y46j4DcCuLxl6RQLlrCXzL2ru4SX4HqrHDLBY5CkjMPhLCpRX27y0+
+         Xu4ZTNLMt0f0OZKsOnd8CXTa6mrUY+vDad9HY6mK14vT1MqO/bkqHvtNBama3gqbDSj2
+         iRk9oSnSVoy2jB1IV7WtsoC0k6KWWY/TUNBAJo45foaFVho4OTUGRAYUs60sjOYz11Nz
+         gHZw==
+X-Gm-Message-State: AJcUukcp1w459anF3WnkPeXw8bdwF2T80my02zNgkDv6MPVFFmArQjK0
+        KelKzcP0dUzsyjvAm71tJqKhpUzfXlM=
+X-Google-Smtp-Source: ALg8bN7FooR9dq91QYgZS60e9CZwFp74B25vyYKBCjhLSrD4ir+LmC1cVaYr66lcxGG66Gor9CVV+A==
+X-Received: by 2002:adf:83e7:: with SMTP id 94mr15918165wre.278.1547805966964;
+        Fri, 18 Jan 2019 02:06:06 -0800 (PST)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id v6sm44750601wrd.88.2019.01.18.02.06.05
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 18 Jan 2019 02:06:06 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>, linux-audit@redhat.com,
+        Steve Grubb <sgrubb@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Daniel Walsh <dwalsh@redhat.com>
+Subject: [RFC PATCH] selinux: log invalid contexts in AVCs
+Date:   Fri, 18 Jan 2019 11:04:29 +0100
+Message-Id: <20190118100429.11703-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <20190117161521.GA50184@devbig004.ftw2.facebook.com>
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Thu, 17 Jan 2019 20:35:42 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/17/19 11:15 AM, Tejun Heo wrote:
-> Hello,
->
-> On Thu, Jan 17, 2019 at 10:01:23AM -0500, Daniel Walsh wrote:
->> The above comment is correct.  We want to be able to run a container
->> where we hand it control over a limited subdir of the cgroups hierachy. 
->> We can currently do this and label the content correctly, but when
->> subdirs of the directory get created by processes inside the container
->> they do not get the correct label.  For example we add a label like
->> system_u:object_r:container_file_t:s0 to a directory but when the
->> process inside of the container creates a fd within this directory the
->> kernel says the label is the default label for cgroups
->> system_u:object_r:cgroup_t:s0.  This forces us to write looser policy
->> that from an SELinux point of view allows a process within the container
->> to write anywhere on the cgroup file system, rather then just the
->> designated directories.
-> Can you please go into a bit more details on why the existing
-> cgroup delegation model isn't enough?
->
-> Thanks.
->
-If I label a container container_t:s0:c1,c2 by policy it can only write
-to container_file_t:s0:c1,c2.  So the container engine sets up files and
-directories within the cgroup hierarchy with labels of
-container_file_t:s0:c1,c2.  When the container writes to one of these
-directories, the kernel says the file is labeled cgroup_t:s0, and is
-denied by policy.  In most/all other file systems that support labeling,
-the content of a directory gets the same label as the containing
-directory.  So from an SELinux point of view, I would have expected the
-kernel to label the new file as container_file_t:s0:c1,c2 and everything
-would work securely.  But cgroups does not work correctly so we need to
-add a rule that says container_t:s0:c1,c2 can write files labeles
-cgroup_t:s0 which means it can write anywhere on /sys/fs/cgroup.
+In case a file has an invalid context set, in an AVC record generated
+upon access to such file, the target context is always reported as
+unlabeled. This patch adds new optional fields to the AVC record (slcon
+and tlcon) that report the actual context string if it differs from the
+one reported in scontext/tcontext. This is useful for diagnosing SELinux
+denials.
 
-This is from a MAC Point of view.   I don't care  if other security
-measure might control this, I want to have security in depth and have
-MAC Control it.
+To trigger an AVC that illustrates this situation:
+
+    # setenforce 0
+    # touch /tmp/testfile
+    # setfattr -n security.selinux -v system_u:object_r:banana_t:s0 /tmp/testfile
+    # runcon system_u:system_r:sshd_t:s0 cat /tmp/testfile
+
+AVC before:
+
+type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tclass=file permissive=1
+
+AVC after:
+
+type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tlcon=system_u:object_r:banana_t:s0 tclass=file permissive=1
+
+Cc: Daniel Walsh <dwalsh@redhat.com>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=1135683
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/avc.c | 49 +++++++++++++++++++++++++-----------------
+ 1 file changed, 29 insertions(+), 20 deletions(-)
+
+I'm not entirely sure about the record format here, so I'm Cc'ing
+linux-audit and Steve for feedback. I went for optional fields to
+minimize the size of the record, but maybe a different format is
+preferred. If so, let me know and I'll do a respin.
+
+Also, I accept suggestions for better field names than "slcon"/"tlcon"
+("lcon" is meant as an acronym for "literal context", but I'm not sure
+if that's a good name...).
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 9b63d8ee1687..4a181ed56e37 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -165,6 +165,32 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+ 	audit_log_format(ab, " }");
+ }
+ 
++static void avc_dump_sid(struct audit_buffer *ab, struct selinux_state *state,
++			 u32 sid, char type)
++{
++	int rc;
++	char *context, *lcontext;
++	u32 context_len, lcontext_len;
++
++	rc = security_sid_to_context(state, sid, &context, &context_len);
++	if (rc) {
++		audit_log_format(ab, "%csid=%d ", type, sid);
++		return;
++	}
++
++	audit_log_format(ab, "%ccontext=%s ", type, context);
++
++	/* in case of invalid context report also the actual context string */
++	rc = security_sid_to_context_force(state, sid, &lcontext,
++					   &lcontext_len);
++	if (!rc) {
++		if (strcmp(context, lcontext))
++			audit_log_format(ab, "%clcon=%s ", type, lcontext);
++		kfree(lcontext);
++	}
++	kfree(context);
++}
++
+ /**
+  * avc_dump_query - Display a SID pair and a class in human-readable form.
+  * @ssid: source security identifier
+@@ -174,28 +200,11 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+ static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
+ 			   u32 ssid, u32 tsid, u16 tclass)
+ {
+-	int rc;
+-	char *scontext;
+-	u32 scontext_len;
+-
+-	rc = security_sid_to_context(state, ssid, &scontext, &scontext_len);
+-	if (rc)
+-		audit_log_format(ab, "ssid=%d", ssid);
+-	else {
+-		audit_log_format(ab, "scontext=%s", scontext);
+-		kfree(scontext);
+-	}
+-
+-	rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
+-	if (rc)
+-		audit_log_format(ab, " tsid=%d", tsid);
+-	else {
+-		audit_log_format(ab, " tcontext=%s", scontext);
+-		kfree(scontext);
+-	}
++	avc_dump_sid(ab, state, ssid, 's');
++	avc_dump_sid(ab, state, tsid, 't');
+ 
+ 	BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
+-	audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
++	audit_log_format(ab, "tclass=%s", secclass_map[tclass-1].name);
+ }
+ 
+ /**
+-- 
+2.20.1
 
