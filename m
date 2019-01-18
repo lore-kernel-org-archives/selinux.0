@@ -7,316 +7,132 @@ X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 409DBC43387
-	for <selinux@archiver.kernel.org>; Fri, 18 Jan 2019 16:11:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87392C43387
+	for <selinux@archiver.kernel.org>; Fri, 18 Jan 2019 16:14:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F02B020850
-	for <selinux@archiver.kernel.org>; Fri, 18 Jan 2019 16:11:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5986E20850
+	for <selinux@archiver.kernel.org>; Fri, 18 Jan 2019 16:14:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="gXXlRlvP"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="rDiccX/6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727343AbfARQLy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Jan 2019 11:11:54 -0500
-Received: from upbd19pa12.eemsg.mail.mil ([214.24.27.87]:1551 "EHLO
-        upbd19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727241AbfARQLy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Jan 2019 11:11:54 -0500
-X-EEMSG-check-017: 182692212|UPBD19PA12_EEMSG_MP12.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by upbd19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Jan 2019 16:11:45 +0000
+        id S1727467AbfARQOT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Jan 2019 11:14:19 -0500
+Received: from ucol19pa14.eemsg.mail.mil ([214.24.24.87]:61018 "EHLO
+        ucol19pa14.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727357AbfARQOS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Jan 2019 11:14:18 -0500
+X-EEMSG-check-017: 664927341|UCOL19PA14_EEMSG_MP12.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.56,491,1539648000"; 
+   d="scan'208";a="664927341"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa14.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Jan 2019 16:14:08 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1547827905; x=1579363905;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=ObsVYSxZ2G4Wwr2f5vneXwGB8tVgNppEfAfHJleQHNc=;
-  b=gXXlRlvPehwFEW6wgUy1VWBi419yywxbnoRNmykSOmg1xfBFf71l4EN5
-   Tn9g2ZNgVjay4GjBSprRD6WWeiKox3TcCxmiC061aoBd5BlGKtEVzZgAY
-   oy1I0Id1ZSVgs0ZyFkQqmiTyK5DbPpIib1S1/MwG/PD0K06GI2oxmzB1+
-   gsTjOrH6kLtAW/+7/pNNH8u8gLVA6Hq6+A/WlpK2q9ZVD+888dSgbquam
-   R6ftDFqZnPx4RHN/YEZpJvd4VYDFLBFi//PpxJZxavGep9N/VhQa/k6FS
-   79gcfpps+xXbyZ7Ryuzmo8mWDOvMrH850ivwcFEqAeiApewGWinYWgZZy
-   Q==;
+  s=tycho.nsa.gov; t=1547828048; x=1579364048;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=bUcI9dfpK1lpI9exmacIk2EZq+9xNP8QAGT4iQX0dK4=;
+  b=rDiccX/67XqdZFAs9nC7iMh8OCS4PeCfinV1+JnbmtxESXG2IHxT3RWP
+   a9tCwFdgl2R/B19RXUXZsD4RYnStR5wz9lhiwcBddIXaZRpFqbEa7GSLz
+   QgtckdjSCEC8GViwwwU5BPeJuRaCEA9dJrRR0gsjq7+nLGvCAqM1XhfBa
+   yLtCA1EbqLCvL6ajLYWR8w1Ze02FfYq9+vPHN54nWuSv5EW+B7EDAo14t
+   548SS7tVSTEaKzHQiLEcRUppBwjMoz34zPD2tx5cOpVtK0Gf7EJp8TEGk
+   /5UMp8PpiJ36bDiWT7CXwVXYyFQHLZFmgCEW9FKOy2lAi9X3+H3R6UGpy
+   A==;
 X-IronPort-AV: E=Sophos;i="5.56,491,1539648000"; 
-   d="scan'208";a="19666736"
-IronPort-PHdr: =?us-ascii?q?9a23=3APWjG4R/bAkWRJf9uRHKM819IXTAuvvDOBiVQ1K?=
- =?us-ascii?q?B21uIcTK2v8tzYMVDF4r011RmVBdWds6oMotGVmpioYXYH75eFvSJKW713fD?=
- =?us-ascii?q?hBt/8rmRc9CtWOE0zxIa2iRSU7GMNfSA0tpCnjYgBaF8nkelLdvGC54yIMFR?=
- =?us-ascii?q?XjLwp1Ifn+FpLPg8it2O2+557ebx9UiDahfLh/MAi4oQLNu8cMnIBsMLwxyh?=
- =?us-ascii?q?zHontJf+RZ22ZlLk+Nkhj/+8m94odt/zxftPw9+cFAV776f7kjQrxDEDsmKW?=
- =?us-ascii?q?E169b1uhTFUACC+2ETUmQSkhpPHgjF8BT3VYr/vyfmquZw3jSRMNboRr4oRz?=
- =?us-ascii?q?ut86ZrSAfpiCgZMT457HrXgdF0gK5CvR6tuwBzz4vSbY6bLvp+er7Wc80cS2?=
- =?us-ascii?q?RPQ81dUzVNDp6gY4cKCecKIORWoJTnp1YWsBWwGwesCuPsxDFGiHD50q813P?=
- =?us-ascii?q?guHwzdwAwtHMgDvGjIoNj7NqofV/2+wqnSzTXEavNbwSrz6JTWfRA5ofGDQ7?=
- =?us-ascii?q?RwetfMx0kqDQzFilGQppLlPjiI0ekNqHWU7/F7WOKzi28otwFxoj+1yscqkY?=
- =?us-ascii?q?nGnJgZyl/D9SVn2Ys4I8CzRkB8Yd6hCpRQtieaOpN5QsMjX2FouDs6xaYctZ?=
- =?us-ascii?q?GneygKzZIqzAPcZfyfa4WE/x3uWemLLTp4mX5pYqyzihms/US61+HxUNS/3k?=
- =?us-ascii?q?xQoSpfiNbMs2gA1xnU6seaVPRw5lyh2TOT1wDL7eFEPFw0mbLbK5E/xr4wkY?=
- =?us-ascii?q?IesVjZES/smUX2kbSWel84+umo9+vnYrLmqoWaN4BokQHxLr4imsm+AeQ8Kg?=
- =?us-ascii?q?QOXm6b9vqg1LD74EH0T7pHguc2n6XEqpzWO8sWqrCjDwNIyooj7gywDzai0N?=
- =?us-ascii?q?QWh3kHK1dFdQqcj4f0IFHDO+z4DPejjFSslzdn3fbGPqb7DZnXIXjDl6nhca?=
- =?us-ascii?q?5n60FA0Aoz0cxf55VMB74cLvP8QEvxtMfYDhIiKQy73fvoCNVn2YMCQ26AHq?=
- =?us-ascii?q?iZMKbKu1+S+u0vO/WMZJMSuDvlM/gl4+ThjWIlmV8HZqamx4AaaGqmEft7I0?=
- =?us-ascii?q?WWe2bsjs0dHmcNuwo0VPbqh0GaUT5Pe3ayWLox5iolB4KiDIfDQJ2tgbOa0S?=
- =?us-ascii?q?elEZ1ZeHpGBkqPEXj2bYWEXekDaCaILs9miDwEWuvpd4h02Q6nsBT646BqIu?=
- =?us-ascii?q?rd5msTspennOB4+/ebsRgv6SZ+Bs+dmzWVS2hpgnkCThcs0ax/qFA7wVCGh/?=
- =?us-ascii?q?tWmftdQOdP6utJXwFyDpvVy+h3GpimQQ7aVsuYQ1ahBNO9CHc+ScxnkIxGWF?=
- =?us-ascii?q?p0B9j31kOL5CGtGbJA0uXSXJE=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BNAAA0+kFc/wHyM5BkHAEBAQQBAQcEAQGBUwUBAQsBg?=
- =?us-ascii?q?VopZoECJ4QBlANPAQEBBoEICCWJM45OgXswCAGDPztGAoJcIjYHDQEDAQEBA?=
- =?us-ascii?q?QEBAgFsHAyCOikBgmcBBSMPAQVBEAkCGAICJgICVwYBDAYCAQGCUww/AYF0D?=
- =?us-ascii?q?Q+PbpthgS+ELgGBFIR3gQuLNhd4gQeBEScMgl+DHgKBYYMJglcCiUEaBoYpg?=
- =?us-ascii?q?QJWkD4JhySKcQYYgjSPYIoEhRyNSg0kgVYrCAIYCCEPO4JsCYYAhWWFDCEDM?=
- =?us-ascii?q?IEFAQGJDQEB?=
+   d="scan'208";a="22842874"
+IronPort-PHdr: =?us-ascii?q?9a23=3AoCWNnBFvM/5QJfz1JmeTM51GYnF86YWxBRYc79?=
+ =?us-ascii?q?8ds5kLTJ7ypsWwAkXT6L1XgUPTWs2DsrQY07qQ6/iocFdDyK7JiGoFfp1IWk?=
+ =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
+ =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmDmwbaluIBmqsA7cqtQYjYx+J6gr1x?=
+ =?us-ascii?q?DHuGFIe+NYxWNpIVKcgRPx7dqu8ZBg7ipdpesv+9ZPXqvmcas4S6dYDCk9PG?=
+ =?us-ascii?q?Au+MLrrxjDQhCR6XYaT24bjwBHAwnB7BH9Q5fxri73vfdz1SWGIcH7S60/VC?=
+ =?us-ascii?q?+85Kl3VhDnlCYHNyY48G7JjMxwkLlbqw+lqxBm3oLYfJ2ZOP94c6zTZ9MaQX?=
+ =?us-ascii?q?dKUNhXWSJPH4iwa5IDA/cdMepdqYT2ulkAogakBQS0Ge3h1DFIiH/106M03e?=
+ =?us-ascii?q?suHgPJ0xAvEd8VrHTZrs/4OLsOXe27zqTFyyjIYfNM2Tf67YjFag0voe2SUr?=
+ =?us-ascii?q?Joccre108vHB7YgFWVs4PlOzeV2foNsmOG6OdgTv+gi3U8pgFtojmg2scsio?=
+ =?us-ascii?q?7TioIT0VDL7z91wIkyJd2mUUN2Z8OvHpVXtyGfLYR2Q8UiTnlnuCY71r0GuY?=
+ =?us-ascii?q?O7czMQxJs7wB7fbvqKeJWL7BL7TOudPDh1iX1/dL+/mhq+61asx+LiWsWuzV?=
+ =?us-ascii?q?pHqDdOnMPWuXAXzRPT79CKSv56/ki8xzmCzxvT6uRYIUAskqrbNoIhzqYwlp?=
+ =?us-ascii?q?UNtUTDGTf7mFnsg6+Md0Uk5/Oo5/77YrTmupCcN4h0hhv4MqsygcywHf40Mg?=
+ =?us-ascii?q?0PX2if4ei81bvj8lPlQLhSk/E7nabUvIraKMgGvKK1HQBY3pg55xqiFzum1c?=
+ =?us-ascii?q?4XnXgDLFJLYhKHiI3pNknVIP/lFveymEiskTd3yPDGOb3tGJPNLmPZn7v7cr?=
+ =?us-ascii?q?Z97FBcxBIpzd9D/5JUFq0BIPXrV0/3tdzXEhg5MwiuzOb8Etl914QeWWWUAq?=
+ =?us-ascii?q?+CK67StFCF5+01L+mLfo8Vty73K+I56P72kX85hVgdcLGy3ZQJbHC4H/JmI1?=
+ =?us-ascii?q?iWYHf3nNcBHnkFvhAkQOzpllKCSzhTaGi2X64m4TE7Eo2mXs//QdWLgbeG2C?=
+ =?us-ascii?q?6gVrxRYXtdQgSKEHzvc4yfHfYLbzmJCso9gnoDT7f3D8c62BWvshLq46RoI/?=
+ =?us-ascii?q?CS+SACs5/nkt9v6L79jxY3oAdoAtyd3mfFdGR9mmcFVndix6xkiVBswVeEl6?=
+ =?us-ascii?q?5jirpXEsIFtKABaRszKZOJl78yMNv1QA+UO47QEFs=3D?=
+X-IPAS-Result: =?us-ascii?q?A2C8AwCk+kFc/wHyM5BkHAEBAQQBAQcEAQGBZYFbKWaBA?=
+ =?us-ascii?q?ieEAZQDTwEBAQaBCAgliTOJRocDMAgBhEACglwiOBIBAwEBAQEBAQIBbBwMg?=
+ =?us-ascii?q?jopAYJnAQUjFVELGAICJgICVwYBDAYCAQGCXz8BgXQND6tXgS+ELgGBFIRyB?=
+ =?us-ascii?q?YELizYXeIEHgTgMgl+DHgKBKoNAglcCkFM5kRQJhySKcQYYgWaIZodILYlXh?=
+ =?us-ascii?q?RyNWiGBVisIAhgIIQ+DJ4JRgziKcSEDMIEFAQGGQIJNAQE?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 18 Jan 2019 16:11:44 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 18 Jan 2019 16:14:07 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x0IGBh9b006411;
-        Fri, 18 Jan 2019 11:11:43 -0500
-Subject: Re: [PATCH v2] setsebool: support use of -P on SELinux-disabled hosts
-To:     dwalsh@redhat.com, Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org, jwcart2@tycho.nsa.gov
-References: <20190110162624.29309-1-sds@tycho.nsa.gov>
- <pjda7k3fpbg.fsf@redhat.com>
- <e3bd22ec-4d3b-99a8-2910-e4b5db8333dc@tycho.nsa.gov>
- <pjdzhs1evrn.fsf@redhat.com>
- <6bbfbf92-f3a0-f197-46b2-acd64566f9e8@tycho.nsa.gov>
- <b89294c7-bf19-00b2-49c6-bdd2bafcc89d@redhat.com>
- <1952bc15-fc2b-fbee-2e9b-365c922ce8a7@tycho.nsa.gov>
- <1298897a-8cbd-6b62-12d4-964898ecdbf9@redhat.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x0IGE4El006488;
+        Fri, 18 Jan 2019 11:14:04 -0500
+Subject: Re: [PATCH 1/1] libselinux: do not dereference symlink with statfs in
+ selinux_restorecon
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
+References: <20190116205710.30659-1-nicolas.iooss@m4x.org>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <93cd8b7f-1196-12ef-10be-783703d9611e@tycho.nsa.gov>
-Date:   Fri, 18 Jan 2019 11:13:43 -0500
+Message-ID: <a72edea4-6285-2260-b3bf-f7d08f53767d@tycho.nsa.gov>
+Date:   Fri, 18 Jan 2019 11:16:05 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.4.0
 MIME-Version: 1.0
-In-Reply-To: <1298897a-8cbd-6b62-12d4-964898ecdbf9@redhat.com>
+In-Reply-To: <20190116205710.30659-1-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/17/19 10:10 AM, Daniel Walsh wrote:
-> On 1/17/19 9:00 AM, Stephen Smalley wrote:
->> On 1/15/19 1:46 PM, Daniel Walsh wrote:
->>> On 1/15/19 1:03 PM, Stephen Smalley wrote:
->>>> On 1/15/19 11:22 AM, Petr Lautrbach wrote:
->>>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
->>>>>
->>>>>> On 1/14/19 6:31 AM, Petr Lautrbach wrote:
->>>>>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
->>>>>>>
->>>>>>>> As reported in #123, setsebool immediately exits with an error if
->>>>>>>> SELinux is disabled, preventing its use for setting boolean
->>>>>>>> persistent
->>>>>>>> values.  In contrast, semanage boolean -m works on SELinux-disabled
->>>>>>>> hosts.  Change setsebool so that it can be used with the -P option
->>>>>>>> (persistent changes) even if SELinux is disabled.  In the
->>>>>>>> SELinux-disabled
->>>>>>>> case, skip setting of active boolean values, but set the
->>>>>>>> persistent value
->>>>>>>> in the policy store.  Policy reload is automatically disabled by
->>>>>>>> libsemanage
->>>>>>>> when SELinux is disabled, so we only need to call
->>>>>>>> semanage_set_reload()
->>>>>>>> if -N was used.
->>>>>>>>
->>>>>>>
->>>>>>> So right now, `setsebool -N` and `semanage boolean -N` have the
->>>>>>> same effect that
->>>>>>> `load_policy` is not run, but the value of the boolean is changed
->>>>>>> when
->>>>>>> SELinux is enabled so it affects the system. Would it make sense to
->>>>>>> use
->>>>>>> -N to just change values in the store and do not change the value
->>>>>>> in the
->>>>>>> running kernel? E.g.
->>>>>>>
->>>>>>> --- a/policycoreutils/setsebool/setsebool.c
->>>>>>> +++ b/policycoreutils/setsebool/setsebool.c
->>>>>>> @@ -187,11 +187,14 @@ static int semanage_set_boolean_list(size_t
->>>>>>> boolcnt,
->>>>>>>                                                       boolean) < 0)
->>>>>>>                             goto err;
->>>>>>>      -               if (enabled && semanage_bool_set_active(handle,
->>>>>>> bool_key,
->>>>>>> boolean) < 0) {
->>>>>>> -                       fprintf(stderr, "Failed to change boolean
->>>>>>> %s: %m\n",
->>>>>>> -                               boollist[j].name);
->>>>>>> -                       goto err;
->>>>>>> -               }
->>>>>>> +               if (no_reload)
->>>>>>> +                       semanage_set_reload(handle, 0);
->>>>>>> +               else
->>>>>>> +                       if (enabled &&
->>>>>>> semanage_bool_set_active(handle, bool_key, boolean) < 0) {
->>>>>>> +                               fprintf(stderr, "Failed to change
->>>>>>> boolean %s: %m\n",
->>>>>>> +
->>>>>>> boollist[j].name);
->>>>>>> +                               goto err;
->>>>>>> +                       }
->>>>>>>
->>>>>>>
->>>>>>> A similar patch would need to be applied to seobject.py as well in
->>>>>>> this case.
->>>>>>
->>>>>> That makes sense to me logically (in fact, I don't really understand
->>>>>> why
->>>>>> setsebool w/o -P would ever trigger a reload), but I guess the
->>>>>> concern is
->>>>>> whether any existing users rely on the current behavior, e.g. the
->>>>>> %post
->>>>>> scriptlet in container-selinux that led to this issue.
->>>>>
->>>>> container-selinux.spec:
->>>>> ==========================================================================
->>>>>
->>>>>
->>>>> # Install all modules in a single transaction
->>>>> if [ $1 -eq 1 ]; then
->>>>>        %{_sbindir}/setsebool -P -N virt_use_nfs=1
->>>>> virt_sandbox_use_all_caps=1
->>>>> fi
->>>>> ...
->>>>> if %{_sbindir}/selinuxenabled ; then
->>>>>        %{_sbindir}/load_policy
->>>>>        %relabel_files
->>>>>        if [ $1 -eq 1 ]; then
->>>>>       restorecon -R %{_sharedstatedir}/docker &> /dev/null || :
->>>>>       restorecon -R %{_sharedstatedir}/containers &> /dev/null || :
->>>>>        fi
->>>>> fi
->>>>> ==========================================================================
->>>>>
->>>>>
->>>>>
->>>>> It would definitely break this scriptlet on SELinux enabled systems as
->>>>> load_policy preserves booleans.
->>>>>
->>>>> So the question is if it's preferred current behavior with it's side
->>>>> effects or if it's worth to try to fix it and properly announce the
->>>>> change in release notes.
->>>>>
->>>>> I take that it's not nice to change/break things but to me it
->>>>> looks like -N generally considered as option which is used to avoid
->>>>> changes in the running kernel.
->>>>
->>>> As documented in the man page, -N just means that "the policy on disk
->>>> is not reloaded into the kernel.".  So from a compatibility and a
->>>> documentation POV, I doubt we can just change this behavior now.
->>>> Looking back at the original commit that added -N to setsebool
->>>> (413b4933ee7203286050c2daf6f9714673cd3a5a) , it says " Fix setsebool
->>>> to use -N to not reload policy into the kernel optional on permanant
->>>> changes." which suggests that the intent was to only affect persistent
->>>> boolean changes IIUC.  But cc'ing Dan for clarification.
->>> Yes that was the intention. The goal was to work on disabled systems.
->>
->> Hmm...I don't quite understand that since libsemanage automatically
->> disables policy reload if SELinux is disabled and since setsebool
->> didn't work on SELinux-disabled systems prior to my patch (this
->> thread).  I don't really understand the point of -N for setsebool.
->>
->> In any event, my impression is that changing the semantics of -N to
->> also suppress setting of active booleans would break the
->> container-selinux.spec usage of setsebool and thus we probably
->> shouldn't change it.
->>
->> Any reason to not go ahead and merge my patch enabling use of
->> setsebool -P on SELinux-disabled hosts?
->>
-> Nope, I think you can merge it.
-
-FYI, I merged this via
-https://github.com/SELinuxProject/selinux/pull/129
-
->>>>
->>>>>
->>>>>
->>>>>>
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>>> Fixes: https://github.com/SELinuxProject/selinux/issues/123
->>>>>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>>>>>>> ---
->>>>>>>> v2 changes setsebool to only call semanage_set_reload() if -N was
->>>>>>>> specified;
->>>>>>>> otherwise we can use the libsemanage defaults just as we do in
->>>>>>>> semodule
->>>>>>>> and semanage.
->>>>>>>>      policycoreutils/setsebool/setsebool.c | 15 ++++++---------
->>>>>>>>      1 file changed, 6 insertions(+), 9 deletions(-)
->>>>>>>>
->>>>>>>> diff --git a/policycoreutils/setsebool/setsebool.c
->>>>>>>> b/policycoreutils/setsebool/setsebool.c
->>>>>>>> index 53d3566c..a5157efc 100644
->>>>>>>> --- a/policycoreutils/setsebool/setsebool.c
->>>>>>>> +++ b/policycoreutils/setsebool/setsebool.c
->>>>>>>> @@ -18,7 +18,7 @@
->>>>>>>>      #include <errno.h>
->>>>>>>>        int permanent = 0;
->>>>>>>> -int reload = 1;
->>>>>>>> +int no_reload = 0;
->>>>>>>>      int verbose = 0;
->>>>>>>>        int setbool(char **list, size_t start, size_t end);
->>>>>>>> @@ -38,11 +38,6 @@ int main(int argc, char **argv)
->>>>>>>>          if (argc < 2)
->>>>>>>>              usage();
->>>>>>>>      -    if (is_selinux_enabled() <= 0) {
->>>>>>>> -        fputs("setsebool:  SELinux is disabled.\n", stderr);
->>>>>>>> -        return 1;
->>>>>>>> -    }
->>>>>>>> -
->>>>>>>>          while (1) {
->>>>>>>>              clflag = getopt(argc, argv, "PNV");
->>>>>>>>              if (clflag == -1)
->>>>>>>> @@ -53,7 +48,7 @@ int main(int argc, char **argv)
->>>>>>>>                  permanent = 1;
->>>>>>>>                  break;
->>>>>>>>              case 'N':
->>>>>>>> -            reload = 0;
->>>>>>>> +            no_reload = 1;
->>>>>>>>                  break;
->>>>>>>>              case 'V':
->>>>>>>>                  verbose = 1;
->>>>>>>> @@ -130,6 +125,7 @@ static int semanage_set_boolean_list(size_t
->>>>>>>> boolcnt,
->>>>>>>>          semanage_bool_key_t *bool_key = NULL;
->>>>>>>>          int managed;
->>>>>>>>          int result;
->>>>>>>> +    int enabled = is_selinux_enabled();
->>>>>>>>            handle = semanage_handle_create();
->>>>>>>>          if (handle == NULL) {
->>>>>>>> @@ -191,7 +187,7 @@ static int semanage_set_boolean_list(size_t
->>>>>>>> boolcnt,
->>>>>>>>                                boolean) < 0)
->>>>>>>>                  goto err;
->>>>>>>>      -        if (semanage_bool_set_active(handle, bool_key,
->>>>>>>> boolean) < 0) {
->>>>>>>> +        if (enabled && semanage_bool_set_active(handle, bool_key,
->>>>>>>> boolean) < 0) {
->>>>>>>>                  fprintf(stderr, "Failed to change boolean %s:
->>>>>>>> %m\n",
->>>>>>>>                      boollist[j].name);
->>>>>>>>                  goto err;
->>>>>>>> @@ -202,7 +198,8 @@ static int semanage_set_boolean_list(size_t
->>>>>>>> boolcnt,
->>>>>>>>              boolean = NULL;
->>>>>>>>          }
->>>>>>>>      -    semanage_set_reload(handle, reload);
->>>>>>>> +    if (no_reload)
->>>>>>>> +        semanage_set_reload(handle, 0);
->>>>>>>>          if (semanage_commit(handle) < 0)
->>>>>>>>              goto err;
->>>>
->>>
->>>
->>
+On 1/16/19 3:57 PM, Nicolas Iooss wrote:
+> When selinux_restorecon() is used to relabel symlinks, it performs the
+> following syscalls (as seen by running strace on restorecond):
 > 
+>      lstat("/root/symlink", {st_mode=S_IFLNK|0777, st_size=6, ...}) = 0
+>      statfs("/root/symlink", 0x7ffd6bb4d090) = -1 ENOENT (No such file or directory)
+>      lstat("/root/symlink", {st_mode=S_IFLNK|0777, st_size=6, ...}) = 0
+>      lgetxattr("/root/symlink", "security.selinux", "sysadm_u:object_r:user_home_t", 255) = 30
+> 
+> The second one triggers a SELinux check for lnk_file:read, as statfs()
+> dereferences symbolic links. This call to statfs() is only used to find
+> out whether "restoreconlast" xattr can be ignored, which is always the
+> case for non-directory files (the first syscall, lstat(), is actually
+> used to perform this check).
+> 
+> Skip the call to statfs() when setrestoreconlast is already false.
+> 
+> This silences an AVC denial that would otherwise be reported to
+> audit.log (cf. https://github.com/SELinuxProject/refpolicy/pull/22).
+> 
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Thanks, merged via
+https://github.com/SELinuxProject/selinux/pull/131
+
+> ---
+>   libselinux/src/selinux_restorecon.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+> index 3df2d382d50b..42a48f5a1b0b 100644
+> --- a/libselinux/src/selinux_restorecon.c
+> +++ b/libselinux/src/selinux_restorecon.c
+> @@ -881,7 +881,7 @@ int selinux_restorecon(const char *pathname_orig,
+>   		setrestoreconlast = false;
+>   
+>   	/* Ignore restoreconlast on in-memory filesystems */
+> -	if (statfs(pathname, &sfsb) == 0) {
+> +	if (setrestoreconlast && statfs(pathname, &sfsb) == 0) {
+>   		if (sfsb.f_type == RAMFS_MAGIC || sfsb.f_type == TMPFS_MAGIC)
+>   			setrestoreconlast = false;
+>   	}
 > 
 
