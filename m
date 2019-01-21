@@ -2,114 +2,210 @@ Return-Path: <SRS0=obw9=P5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59932C282DB
-	for <selinux@archiver.kernel.org>; Mon, 21 Jan 2019 08:13:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09B1DC282DB
+	for <selinux@archiver.kernel.org>; Mon, 21 Jan 2019 08:36:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2A5EF20855
-	for <selinux@archiver.kernel.org>; Mon, 21 Jan 2019 08:13:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b="Mm5sVplq"
+	by mail.kernel.org (Postfix) with ESMTP id CF35920823
+	for <selinux@archiver.kernel.org>; Mon, 21 Jan 2019 08:36:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729070AbfAUINZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jan 2019 03:13:25 -0500
-Received: from ozlabs.org ([203.11.71.1]:40027 "EHLO ozlabs.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728019AbfAUINY (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 21 Jan 2019 03:13:24 -0500
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ozlabs.org (Postfix) with ESMTPSA id 43jQcm3mR1z9sLt;
-        Mon, 21 Jan 2019 07:04:24 +1100 (AEDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=canb.auug.org.au;
-        s=201702; t=1548014669;
-        bh=rogkvXGD99hY+rXlxFdtdopS7+HCncZyA0BAl2f47WI=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Mm5sVplq5OdPbX5FnhbKbXmpWdwUmExAce8nXOu/xGHnZwl7lgtO4Ndfk7p/0bojC
-         oXRgASIE4vel+b+O/F9otEGWl7Mim0lfdmFlBzG6VyP4fyvEGpeCcRGOTWlxOZ3D8o
-         dTMFt6PjkJOTpDZIY8LZU46Q5HgDP4qzrplyiyhy8tOtSpw7rqIJSt6fJ3kanZQrJ3
-         nrn7NCDeKyqkqOXaurw7y2Onybv9OaCM01MGGhOylWhzL6NauDmK9DpqNm2LSfcPtJ
-         KHSHSbjbBL6wTWcN0iOo75jL1yzTDqTJ/2mMu/6X8asj6+Bsm9hgQzNr+wmKA0pekq
-         qZewpxo0oOfDg==
-Date:   Mon, 21 Jan 2019 07:04:09 +1100
-From:   Stephen Rothwell <sfr@canb.auug.org.au>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        peter enderborg <peter.enderborg@sony.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        selinux@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH -next] selinux: Fix error return code in policydb_read()
-Message-ID: <20190121070410.1c90552f@canb.auug.org.au>
-In-Reply-To: <20190119112148.375edf4c@canb.auug.org.au>
-References: <1547821427-157169-1-git-send-email-weiyongjun1@huawei.com>
-        <CAHC9VhSbtqhiMQdNJ_6yeX5+ggwVNyGYXe-E=bMj2V2z2MmAsA@mail.gmail.com>
-        <20190119112148.375edf4c@canb.auug.org.au>
+        id S1729033AbfAUIgz convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Jan 2019 03:36:55 -0500
+Received: from mail-oi1-f193.google.com ([209.85.167.193]:34564 "EHLO
+        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728554AbfAUIgz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jan 2019 03:36:55 -0500
+Received: by mail-oi1-f193.google.com with SMTP id r62so13937966oie.1
+        for <selinux@vger.kernel.org>; Mon, 21 Jan 2019 00:36:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Hw+oq+bUIvNBMNHnH2T0h8ERSR7Fbhe37/3h9MYbuMM=;
+        b=k5zNaWKK9zNr0u+j6SqTfUdeRoMv2VM12xUEa97L/oyuWhZfi/JfulGNAYyL5kEKVb
+         +uJxa7mkI17XMswWqWwIl2HS67bZd26Nfe44xH+zN/F4ymg4ixVL2MgVfOYyOXHgDoLz
+         pqFMHKpW1UYzvRtpaZnUy+knqqS3qd6ddbtY5yN3awqkVCoF2R47Ik4U31FRU0ueOqs/
+         pnjQVbS5OOXsCqpfprE3ivwX1v14siEX6RZSMBLMgq5OjmOwVUXE280hyueYLnCcQlpd
+         hlER3gUs+VURcPML/CVjb4ZWh4JsAPiEglU5c1QitWKtMLQZgA7jbJqx0bxjOt/ni3J/
+         3qrw==
+X-Gm-Message-State: AJcUukc51F+BZ/ki68xMD5DqdjFKMgj5MKmuXMfutN8T2YAoZi40vgjN
+        9mq6hIusv5POldlfOFNEXV4aZovFpybSGo2AAP96FR8NW0Tpzw==
+X-Google-Smtp-Source: ALg8bN7VgYmC/kXCxeNdbTYNXhDArkIr0D856w9NnVgQwYhGt17gj4HbiRlZzBJ5rf7UTVJ7MRctzGZRuhiD17v+hYQ=
+X-Received: by 2002:aca:2403:: with SMTP id n3mr5151231oic.328.1548059813970;
+ Mon, 21 Jan 2019 00:36:53 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
- boundary="Sig_/eiBn__9W+5j3iIteUcllmTy"; protocol="application/pgp-signature"
+References: <20190118100429.11703-1-omosnace@redhat.com> <20190119132301.bwlokbs6vth7erkw@madcap2.tricolour.ca>
+In-Reply-To: <20190119132301.bwlokbs6vth7erkw@madcap2.tricolour.ca>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 21 Jan 2019 09:36:43 +0100
+Message-ID: <CAFqZXNuj1GrU5wXOQv1R4SRSW9FZx3gV=4Z75eeh0ajNCvN4Rw@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: log invalid contexts in AVCs
+To:     Richard Guy Briggs <rgb@redhat.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Linux-Audit Mailing List <linux-audit@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Steve Grubb <sgrubb@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---Sig_/eiBn__9W+5j3iIteUcllmTy
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
-
-Hi all,
-
-On Sat, 19 Jan 2019 11:21:48 +1100 Stephen Rothwell <sfr@canb.auug.org.au> =
-wrote:
->
-> On Fri, 18 Jan 2019 16:28:07 -0500 Paul Moore <paul@paul-moore.com> wrote:
+On Sat, Jan 19, 2019 at 2:23 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+> On 2019-01-18 11:04, Ondrej Mosnacek wrote:
+> > In case a file has an invalid context set, in an AVC record generated
+> > upon access to such file, the target context is always reported as
+> > unlabeled. This patch adds new optional fields to the AVC record (slcon
+> > and tlcon) that report the actual context string if it differs from the
+> > one reported in scontext/tcontext. This is useful for diagnosing SELinux
+> > denials.
 > >
-> > On Fri, Jan 18, 2019 at 9:18 AM Wei Yongjun <weiyongjun1@huawei.com> wr=
-ote: =20
-> > >
-> > > Fix to return a negative error code -ENOMEM from the error handling
-> > > case instead of 0, as done elsewhere in this function.
-> > >
-> > > Fixes: 31696241e96e ("selinux: convert to kvmalloc")   =20
-> >=20
-> > Unfortunately this commit isn't to be found in any of the SELinux
-> > branches, or Linus' master branch; based on the subject line I'm
-> > guessing the original patch is in a -next branch somewhere.  Please
-> > find whoever pushed this patch to linux-next and have them apply the
-> > fix. =20
->=20
-> Yeah, Kent has a series doing conversions that is in Andrew Morton's
-> mmotm patch series.
+> > To trigger an AVC that illustrates this situation:
+> >
+> >     # setenforce 0
+> >     # touch /tmp/testfile
+> >     # setfattr -n security.selinux -v system_u:object_r:banana_t:s0 /tmp/testfile
+> >     # runcon system_u:system_r:sshd_t:s0 cat /tmp/testfile
+> >
+> > AVC before:
+> >
+> > type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tclass=file permissive=1
+> >
+> > AVC after:
+> >
+> > type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tlcon=system_u:object_r:banana_t:s0 tclass=file permissive=1
+> >
+> > Cc: Daniel Walsh <dwalsh@redhat.com>
+> > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1135683
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  security/selinux/avc.c | 49 +++++++++++++++++++++++++-----------------
+> >  1 file changed, 29 insertions(+), 20 deletions(-)
+> >
+> > I'm not entirely sure about the record format here, so I'm Cc'ing
+> > linux-audit and Steve for feedback. I went for optional fields to
+> > minimize the size of the record, but maybe a different format is
+> > preferred. If so, let me know and I'll do a respin.
+>
+> My understanding is that optional fields can be a problem (but not if
+> it is a non-searchable field?).
 
-I have added that patch to the akpm-current tree in linux-next from today.
+Yes, I hope Steve will eventually chime in and clarify what are the
+exact boundaries I can operate within for this particular record and
+fields. I could for example move the new fields at the end of the
+record or make them always there, but set to "?" or "" if the value
+would be the same as in the other fields, but I'm not sure if that is
+necessary or sufficient for audit-userspace tools.
 
---=20
-Cheers,
-Stephen Rothwell
+> There is an existing "invalid_context"
+> field whose position may help indicate which one it refers to, but this
+> sounds pretty weak.
+>
+> Alternatively the best I could suggest would be a new auxiliary record.
 
---Sig_/eiBn__9W+5j3iIteUcllmTy
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
+Hm, "invalid_context" seems to be part of the SELINUX_ERR record,
+which is already use for a similar purpose (to report that an invalid
+context has been encountered) in compute_sid_handle_invalid_context().
+Perhaps I could reuse it here, but "error" sounds a bit strong...
+Maybe we need a SELINUX_WARN or SELINUX_INFO...
 
------BEGIN PGP SIGNATURE-----
+>
+> > Also, I accept suggestions for better field names than "slcon"/"tlcon"
+> > ("lcon" is meant as an acronym for "literal context", but I'm not sure
+> > if that's a good name...).
+> >
+> > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> > index 9b63d8ee1687..4a181ed56e37 100644
+> > --- a/security/selinux/avc.c
+> > +++ b/security/selinux/avc.c
+> > @@ -165,6 +165,32 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+> >       audit_log_format(ab, " }");
+> >  }
+> >
+> > +static void avc_dump_sid(struct audit_buffer *ab, struct selinux_state *state,
+> > +                      u32 sid, char type)
+> > +{
+> > +     int rc;
+> > +     char *context, *lcontext;
+> > +     u32 context_len, lcontext_len;
+> > +
+> > +     rc = security_sid_to_context(state, sid, &context, &context_len);
+> > +     if (rc) {
+> > +             audit_log_format(ab, "%csid=%d ", type, sid);
+> > +             return;
+> > +     }
+> > +
+> > +     audit_log_format(ab, "%ccontext=%s ", type, context);
+> > +
+> > +     /* in case of invalid context report also the actual context string */
+> > +     rc = security_sid_to_context_force(state, sid, &lcontext,
+> > +                                        &lcontext_len);
+> > +     if (!rc) {
+> > +             if (strcmp(context, lcontext))
+> > +                     audit_log_format(ab, "%clcon=%s ", type, lcontext);
+> > +             kfree(lcontext);
+> > +     }
+> > +     kfree(context);
+> > +}
+> > +
+> >  /**
+> >   * avc_dump_query - Display a SID pair and a class in human-readable form.
+> >   * @ssid: source security identifier
+> > @@ -174,28 +200,11 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+> >  static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
+> >                          u32 ssid, u32 tsid, u16 tclass)
+> >  {
+> > -     int rc;
+> > -     char *scontext;
+> > -     u32 scontext_len;
+> > -
+> > -     rc = security_sid_to_context(state, ssid, &scontext, &scontext_len);
+> > -     if (rc)
+> > -             audit_log_format(ab, "ssid=%d", ssid);
+> > -     else {
+> > -             audit_log_format(ab, "scontext=%s", scontext);
+> > -             kfree(scontext);
+> > -     }
+> > -
+> > -     rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
+> > -     if (rc)
+> > -             audit_log_format(ab, " tsid=%d", tsid);
+> > -     else {
+> > -             audit_log_format(ab, " tcontext=%s", scontext);
+> > -             kfree(scontext);
+> > -     }
+> > +     avc_dump_sid(ab, state, ssid, 's');
+> > +     avc_dump_sid(ab, state, tsid, 't');
+> >
+> >       BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
+> > -     audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
+> > +     audit_log_format(ab, "tclass=%s", secclass_map[tclass-1].name);
+> >  }
+> >
+> >  /**
+> > --
+> > 2.20.1
+> >
+> > --
+> > Linux-audit mailing list
+> > Linux-audit@redhat.com
+> > https://www.redhat.com/mailman/listinfo/linux-audit
+>
+> - RGB
+>
+> --
+> Richard Guy Briggs <rgb@redhat.com>
+> Sr. S/W Engineer, Kernel Security, Base Operating Systems
+> Remote, Ottawa, Red Hat Canada
+> IRC: rgb, SunRaycer
+> Voice: +1.647.777.2635, Internal: (81) 32635
 
-iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAlxE1DoACgkQAVBC80lX
-0GzXVAgAmOkvxTlVZZNL/cxrZq/LeYTgmjkLtt0L23Xkjoqw4oh+7jZx4Kpj4WwV
-wr16k6rczB50NXNoWp8piajaSTtN1ClRCxIBaDwwc678GHDImxg8mN9bWUv6862L
-Q9FLPKzEH7D6GKrdaK3Jya3bUc7wsQ85i0M5mngm86ftI4r5EMHvbJHoI3UnI981
-XBwIdqJ20txvUgqwss3FzZzCrcQGl/xdj61C5O3ovreAPIZJKj3lM2fBFzmJPHD0
-YiweP9ESPNP7Qdb4tYX90kQVdzLAqny4DY1zfFa03V1MsSB1lLa8soCCzrBNN2pn
-olqsUZZSpV80EzFAJvnviQ8Uc/ETrA==
-=yqDz
------END PGP SIGNATURE-----
-
---Sig_/eiBn__9W+5j3iIteUcllmTy--
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Associate Software Engineer, Security Technologies
+Red Hat, Inc.
