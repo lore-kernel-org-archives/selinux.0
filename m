@@ -1,243 +1,147 @@
-Return-Path: <SRS0=obw9=P5=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=5TXQ=P6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12356C31680
-	for <selinux@archiver.kernel.org>; Mon, 21 Jan 2019 17:11:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B52AC282C3
+	for <selinux@archiver.kernel.org>; Tue, 22 Jan 2019 08:49:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A549420663
-	for <selinux@archiver.kernel.org>; Mon, 21 Jan 2019 17:11:40 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="q2hAlmK9"
+	by mail.kernel.org (Postfix) with ESMTP id 01CA22084C
+	for <selinux@archiver.kernel.org>; Tue, 22 Jan 2019 08:49:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725879AbfAURLk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Jan 2019 12:11:40 -0500
-Received: from forward500o.mail.yandex.net ([37.140.190.195]:33249 "EHLO
-        forward500o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726231AbfAURLk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Jan 2019 12:11:40 -0500
-Received: from mxback8g.mail.yandex.net (mxback8g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:169])
-        by forward500o.mail.yandex.net (Yandex) with ESMTP id 53F7C60036;
-        Mon, 21 Jan 2019 20:11:35 +0300 (MSK)
-Received: from localhost (localhost [::1])
-        by mxback8g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id fdsebIQP4l-BYDqm5w2;
-        Mon, 21 Jan 2019 20:11:34 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail; t=1548090694;
-        bh=UYhGtozQFbxutrw+doH2PLUVGmWT+mQByCe6RAEcuPY=;
-        h=From:To:Cc:In-Reply-To:References:Subject:Date:Message-Id;
-        b=q2hAlmK9i0L89jUbJWEdx5ygkpHX0JPrpFo6vr0dB7E4oOZQHSRQDkbCe6I0sw3fe
-         9vBEbe1/Z8zg1idFdDuIKMGTuAZFKRXsxYaTASfFfblvT0BW4T4XGe9daIlWSm+ih4
-         t1bmT0x+2iNYcPja0knp4eGs7Z+XbIRrEMxc3syk=
-Authentication-Results: mxback8g.mail.yandex.net; dkim=pass header.i=@yandex.ru
-Received: by sas1-adb97d30497b.qloud-c.yandex.net with HTTP;
-        Mon, 21 Jan 2019 20:11:34 +0300
-From:   Nazarov Sergey <s-nazarov@yandex.ru>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
-References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
-         <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
-         <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com> <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
-Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
+        id S1727158AbfAVItM convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Tue, 22 Jan 2019 03:49:12 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:41237 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727036AbfAVItM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 22 Jan 2019 03:49:12 -0500
+Received: by mail-oi1-f195.google.com with SMTP id j21so16744635oii.8
+        for <selinux@vger.kernel.org>; Tue, 22 Jan 2019 00:49:11 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=7s7qNyiJXTKmSzwi/lTvEMRuzR/r3j0DmiFM0tXsm8o=;
+        b=It9GBjAJKIxdyddq4cZWV0v0Edm1da65otMrdmbZ/Eu5QgOzBcY3tfi71fls74FpQy
+         Riu7Q8Xv+IubJckpYeGUAr89ythRepqQ5GmQr/8N9aHUCuJ2Kf2gXnd7+PzDm+EJDle1
+         Bkq12zFCB/ezwSMlGEX9MrZqZDYfiXXwkN2sgKfBO6F8pVoeKb4W4DRh67Er6YGUVyVR
+         ieQk7F43k0qtuTOAgn7Siwhj25hFUpnJJLoK/ovRMD+E7EFdCbXki/uDyG1unhtOI3fQ
+         CazADHhoXces59iCT2qNkEV48rLrthwOKaPUiwJS6cy/nLTbWuL/68HiakTI36BuO+e+
+         AXQw==
+X-Gm-Message-State: AJcUukcltXxPVlxzNcPMGCYwA2Ur5yHONhoHXTXSks3oVj42bPXkZ7sL
+        DWy806SrXY/ce+HvAcW94rCX2VkufkZWTssIZAgAgg==
+X-Google-Smtp-Source: ALg8bN7wavOuxerF8r0MAjQurGa3dMgMIsxFq65tEauqm6OUco17Bd/w/2mz4WM7dXmbVYGP18upJZBLJ2XtWXtQ53I=
+X-Received: by 2002:aca:3b43:: with SMTP id i64mr7945440oia.156.1548146951424;
+ Tue, 22 Jan 2019 00:49:11 -0800 (PST)
 MIME-Version: 1.0
-X-Mailer: Yamail [ http://yandex.ru ] 5.0
-Date:   Mon, 21 Jan 2019 20:11:34 +0300
-Message-Id: <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+References: <20190109162830.8309-1-omosnace@redhat.com> <fbdcf8ef-1587-18f2-3293-452d62305ab3@schaufler-ca.com>
+ <f7312dd2-ea86-51ab-652d-2df39faf52c7@tycho.nsa.gov> <ef22910a-4922-5f66-b7c5-7a7c1dbad8e6@schaufler-ca.com>
+ <93d310a7-0bce-dccd-8136-c659a460e084@tycho.nsa.gov> <1062e181-16fa-66b8-a48c-786edcb9deb7@schaufler-ca.com>
+ <CAFqZXNsxfjwDaCWDrqxP736y_3Jm-r=twaHtkkTDtMuym774Jw@mail.gmail.com>
+In-Reply-To: <CAFqZXNsxfjwDaCWDrqxP736y_3Jm-r=twaHtkkTDtMuym774Jw@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 22 Jan 2019 09:49:01 +0100
+Message-ID: <CAFqZXNsm2+79gMTqhxoZuPgibxfhSjJXu8742o7Ho7Yrf=2QCw@mail.gmail.com>
+Subject: Re: [PATCH v2 0/3] Allow initializing the kernfs node's secctx based
+ on its parent
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org, Casey Schaufler <casey@schaufler-ca.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-18.01.2019, 20:17, "Paul Moore" <paul@paul-moore.com>:
-> Yes, this is extra overhead, but it is in an error path so I'm not
-> overly concerned about the performance impact on the given connection.
+On Mon, Jan 14, 2019 at 10:01 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Thu, Jan 10, 2019 at 6:55 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> > Resending after email configuration repair.
+> >
+> > On 1/10/2019 6:15 AM, Stephen Smalley wrote:
+> > > On 1/9/19 5:03 PM, Casey Schaufler wrote:
+> > >> On 1/9/2019 12:37 PM, Stephen Smalley wrote:
+> > >>> On 1/9/19 12:19 PM, Casey Schaufler wrote:
+> > >>>> On 1/9/2019 8:28 AM, Ondrej Mosnacek wrote:
+> > >>>>> Changes in v2:
+> > >>>>> - add docstring for the new hook in union security_list_options
+> > >>>>> - initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
+> > >>>>>     implemented
+> > >>>>> v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
+> > >>>>>
+> > >>>>> This series adds a new security hook that allows to initialize the security
+> > >>>>> context of kernfs properly, taking into account the parent context. Kernfs
+> > >>>>> nodes require special handling here, since they are not bound to specific
+> > >>>>> inodes/superblocks, but instead represent the backing tree structure that
+> > >>>>> is used to build the VFS tree when the kernfs tree is mounted.
+> > >>>>>
+> > >>>>> The kernfs nodes initially do not store any security context and rely on
+> > >>>>> the LSM to assign some default context to inodes created over them.
+> > >>>>
+> > >>>> This seems like a bug in kernfs. Why doesn't kernfs adhere to the usual
+> > >>>> and expected filesystem behavior?
+> > >>>
+> > >>> sysfs / kernfs didn't support xattrs at all when we first added support for setting security contexts to it, so originally all sysfs / kernfs inodes had a single security context, and we only required separate storage for the inodes that were explicitly labeled by userspace.
+> > >>>
+> > >>> Later kernfs grew support for trusted.* xattrs using simple_xattrs but the existing security.* support was left mostly unchanged.
+> > >>
+> > >> OK, so as I said, this seems like a bug in kernfs.
+> > >>
+> > >>>
+> > >>>>
+> > >>>>> Kernfs
+> > >>>>> inodes, however, allow setting an explicit context via the *setxattr(2)
+> > >>>>> syscalls, in which case the context is stored inside the kernfs node's
+> > >>>>> metadata.
+> > >>>>>
+> > >>>>> SELinux (and possibly other LSMs) initialize the context of newly created
+> > >>>>> FS objects based on the parent object's context (usually the child inherits
+> > >>>>> the parent's context, unless the policy dictates otherwise).
+> > >>>>
+> > >>>> An LSM might use information about the parent other than the "context".
+> > >>>> Smack, for example, uses an attribute SMACK64TRANSMUTE from the parent
+> > >>>> to determine whether the Smack label of the new object should be taken
+> > >>>> from the parent or the process. Passing the "context" of the parent is
+> > >>>> insufficient for Smack.
+> > >>>
+> > >>> IIUC, this would involve switching the handling of security.* xattrs in kernfs over to use simple_xattrs too (so that we can store multiple such attributes), and then pass the entire simple_xattrs list or at least anything with a security.* prefix when initializing a new node or refreshing an existing inode.  Then the security module could extract any security.* attributes of interest for use in determining the label of new inodes and in refreshing the label of an inode.
 >
-> I will admit that it isn't an ideal solution from a LSM/NetLabel
-> perspective, but historically the netdev folks have not been overly
-> receptive to changes which negatively impact the core network stack
-> regardless of how important it may be for the LSMs. If we could
-> modify icmp_send() so that it works regardless of the caller's
-> location in the stack, that would be great, I'm just not sure it would
-> be deemed acceptable. I suggested the approach I did because I think
-> that has the best chance of getting merged.
->
-> Regardless, I would encourage you to put together a patch and post it
-> for review, I think that's the best way to get a response. If you
-> aren't able, or aren't comfortable, submitting a patch please let me
-> know.
-> --
-> paul moore
-> www.paul-moore.com
+> I actually had a patch to do just that at one point because I thought
+> for a while that it would be required to call
+> security_inode_init_security() (which I had tried to somehow force
+> into the kernfs node creation at some point), but then I realized it
+> is not actually needed (although would make thing a bit nicer) and put
+> it away... I will try to dig it out and reuse here.
 
-May be something like that?
+Okay, now that I tried to do this with full xattr support I ran into a
+problem. Along with converting kernfs to use simple_xattrs for
+security attributes, I removed the call to
+security_inode_notifysecctx() from kernfs_refresh_inode(), as it no
+longer makes sense (kernfs doesn't know which attribute contains the
+context; the LSM should now be able to pull it out via
+vfs_getxattr()). However, SELinux now doesn't set the right security
+context in the selinux_d_instantiate() hook, because the policy tells
+it to use genfs, not xattr.
 
-[PATCH 1/2] Add IP options parameter to icmp_send
----
- include/net/icmp.h    |    9 ++++++++-
- net/ipv4/icmp.c       |    7 ++++---
- 2 files changed, 12 insertions(+), 4 deletions(-)
+So... I'm not sure how to fix this. Setting fs_use_xattr for cgroupfs
+in the policy won't work, because then all nodes will be unlabeled_t
+by default. Maybe we could patch the genfs case in
+inode_doinit_with_dentry() to try fetching the xattr first? I'm not
+very confident about touching that part of the code, so I would
+welcome some advice here.
 
-diff --git a/include/net/icmp.h b/include/net/icmp.h
-index 6ac3a5b..e0f709d 100644
---- a/include/net/icmp.h
-+++ b/include/net/icmp.h
-@@ -22,6 +22,7 @@
- 
- #include <net/inet_sock.h>
- #include <net/snmp.h>
-+#include <net/ip.h>
- 
- struct icmp_err {
-   int		errno;
-@@ -39,7 +40,13 @@ struct icmp_err {
- struct sk_buff;
- struct net;
- 
--void icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info);
-+void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
-+		 const struct ip_options *opt);
-+static inline void icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info)
-+{
-+	__icmp_send(skb_in, type, code, info, &IPCB(skb_in)->opt);
-+}
-+
- int icmp_rcv(struct sk_buff *skb);
- int icmp_err(struct sk_buff *skb, u32 info);
- int icmp_init(void);
-diff --git a/net/ipv4/icmp.c b/net/ipv4/icmp.c
-index 065997f..3f24414 100644
---- a/net/ipv4/icmp.c
-+++ b/net/ipv4/icmp.c
-@@ -570,7 +570,8 @@ static void icmp_reply(struct icmp_bxm *icmp_param, struct sk_buff *skb)
-  *			MUST reply to only the first fragment.
-  */
- 
--void icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info)
-+void __icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info,
-+		 const struct ip_options *opt)
- {
- 	struct iphdr *iph;
- 	int room;
-@@ -691,7 +692,7 @@ void icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info)
- 					  iph->tos;
- 	mark = IP4_REPLY_MARK(net, skb_in->mark);
- 
--	if (ip_options_echo(net, &icmp_param.replyopts.opt.opt, skb_in))
-+	if (__ip_options_echo(net, &icmp_param.replyopts.opt.opt, skb_in, opt))
- 		goto out_unlock;
- 
- 
-@@ -742,7 +743,7 @@ void icmp_send(struct sk_buff *skb_in, int type, int code, __be32 info)
- 	local_bh_enable();
- out:;
- }
--EXPORT_SYMBOL(icmp_send);
-+EXPORT_SYMBOL(__icmp_send);
- 
- 
- static void icmp_socket_deliver(struct sk_buff *skb, u32 info)
+This is the code I have so far, in case it helps:
+https://gitlab.com/omos/linux-public/compare/selinux-next...selinux-fix-cgroupfs-v8
 
----
-[PATCH 2/2] Extract IP options in cipso_v4_error
----
- include/net/ip.h      |    2 ++
- net/ipv4/cipso_ipv4.c |   11 +++++++++--
- net/ipv4/ip_options.c |   22 +++++++++++++++++-----
- 3 files changed, 28 insertions(+), 7 deletions(-)
+Thanks,
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index 8866bfc..f0e8d06 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -667,6 +667,8 @@ static inline int ip_options_echo(struct net *net, struct ip_options *dopt,
- }
- 
- void ip_options_fragment(struct sk_buff *skb);
-+int __ip_options_compile(struct net *net, struct ip_options *opt,
-+			 struct sk_buff *skb, __be32 *info);
- int ip_options_compile(struct net *net, struct ip_options *opt,
- 		       struct sk_buff *skb);
- int ip_options_get(struct net *net, struct ip_options_rcu **optp,
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index 777fa3b..86599e9 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -1735,13 +1735,20 @@ int cipso_v4_validate(const struct sk_buff *skb, unsigned char **option)
-  */
- void cipso_v4_error(struct sk_buff *skb, int error, u32 gateway)
- {
-+	unsigned char optbuf[sizeof(struct ip_options) + 40];
-+	struct ip_options *opt = (struct ip_options *)optbuf;
-+
- 	if (ip_hdr(skb)->protocol == IPPROTO_ICMP || error != -EACCES)
- 		return;
- 
-+	opt->optlen = ip_hdr(skb)->ihl*4 - sizeof(struct iphdr);
-+	if (__ip_options_compile(dev_net(skb->dev), opt, skb, NULL))
-+		return;
-+
- 	if (gateway)
--		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0);
-+		__icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0, opt);
- 	else
--		icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0);
-+		__icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0, opt);
- }
- 
- /**
-diff --git a/net/ipv4/ip_options.c b/net/ipv4/ip_options.c
-index ed194d4..32a3504 100644
---- a/net/ipv4/ip_options.c
-+++ b/net/ipv4/ip_options.c
-@@ -251,8 +251,9 @@ static void spec_dst_fill(__be32 *spec_dst, struct sk_buff *skb)
-  * If opt == NULL, then skb->data should point to IP header.
-  */
- 
--int ip_options_compile(struct net *net,
--		       struct ip_options *opt, struct sk_buff *skb)
-+int __ip_options_compile(struct net *net,
-+			 struct ip_options *opt, struct sk_buff *skb,
-+			 __be32 *info)
- {
- 	__be32 spec_dst = htonl(INADDR_ANY);
- 	unsigned char *pp_ptr = NULL;
-@@ -468,11 +469,22 @@ int ip_options_compile(struct net *net,
- 		return 0;
- 
- error:
--	if (skb) {
--		icmp_send(skb, ICMP_PARAMETERPROB, 0, htonl((pp_ptr-iph)<<24));
--	}
-+	if (info)
-+		*info = htonl((pp_ptr-iph)<<24);
- 	return -EINVAL;
- }
-+
-+int ip_options_compile(struct net *net,
-+		       struct ip_options *opt, struct sk_buff *skb)
-+{
-+	int ret;
-+	__be32 info;
-+
-+	ret = __ip_options_compile(net, opt, skb, &info);
-+	if (ret != 0 && skb)
-+		icmp_send(skb, ICMP_PARAMETERPROB, 0, info);
-+	return ret;
-+}
- EXPORT_SYMBOL(ip_options_compile);
- 
- /*
-
----
-
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Associate Software Engineer, Security Technologies
+Red Hat, Inc.
