@@ -6,106 +6,89 @@ X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
 	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A360C282C3
-	for <selinux@archiver.kernel.org>; Tue, 22 Jan 2019 17:40:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50BB8C282C3
+	for <selinux@archiver.kernel.org>; Tue, 22 Jan 2019 17:48:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 086E221019
-	for <selinux@archiver.kernel.org>; Tue, 22 Jan 2019 17:40:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 233B7217D6
+	for <selinux@archiver.kernel.org>; Tue, 22 Jan 2019 17:48:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="QpxaKQSq"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="iIt5NhBO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725958AbfAVRkE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 22 Jan 2019 12:40:04 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:35818 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725962AbfAVRkE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 22 Jan 2019 12:40:04 -0500
-Received: by mail-lj1-f193.google.com with SMTP id x85-v6so21437504ljb.2
-        for <selinux@vger.kernel.org>; Tue, 22 Jan 2019 09:40:03 -0800 (PST)
+        id S1726134AbfAVRsR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 22 Jan 2019 12:48:17 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:46335 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726112AbfAVRsR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 22 Jan 2019 12:48:17 -0500
+Received: by mail-lj1-f194.google.com with SMTP id v15-v6so21361293ljh.13
+        for <selinux@vger.kernel.org>; Tue, 22 Jan 2019 09:48:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=X2NhWL7AenJ+FQPbVnLmNMbTigvwRnka8Wtd5bfnLBs=;
-        b=QpxaKQSqoAA9qBcQivSfljeztA9qt7LRNGfKdymFvdMy6uv/cjzthty8Ee5GuSbZ3v
-         TUuWAJDK4J1ecXJTmT3wzkOBsVRYMTQthEGREiMMoYyzOlowPsTV7irMZTYGkcH2Wyiw
-         s8O3qbnaDkhFhzlAKxZU8MBfIM1SmOiq1Z+Em9tyuDap3/U0GP1Epb5C+EIm7f9fysQr
-         Z86Rw/g4dQ98wQPq5oGrQuMd6tMEx/smDkjaKg5WKPsOJL8bX0wOdPT1CRNgUbEUWGLr
-         4QQOMh8yDBZ/T+3UdbXcNoM7s++W0SIMPFOJiMeLoMDmdVS30XDwtCXrzln3ZgrlS+1Y
-         PHBw==
+        bh=Om+BcGGu6G0+DC4UgEJBrr4yO4tKSm87s11wNparSPw=;
+        b=iIt5NhBOZA7jcYRX7ScJ9kYXUpH7qePUQ340fDriJS6dPo6ja1H6EdidggTjQP8bY8
+         lfQ5M6gLqYE0wy4hjYWUq/sgfLTAnX9yha+sSDvVQdBIQlAmsvdaPnEIt0Snadz7pOIs
+         5eCVGpF+6QvfWNDHK32vHK1c01aewJvFSbmmoFsCKh2t3mJooHeT3mXZ9rGqxFJH9XL7
+         uEnrTzEZ+8aUPx5S+38zjoOr04uISMW7d/25N7SfWnAqz3S0VXsSMvQUD2kbMpB+CtZe
+         eqp3pT9ruNk7tn7+nJdd7eMXvcyQuruItl/MD7PdUCleumso/Ru1T2l0ekavgvPkBb/b
+         8GWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=X2NhWL7AenJ+FQPbVnLmNMbTigvwRnka8Wtd5bfnLBs=;
-        b=OQajQJp1skNXGAK6TbUWKCrQt77gkA2FWsHAZ1/uUypNI8GT0aHpoGVW2cYRBhKo3X
-         pooIXg/pC/xZ82YYH4FEkI3OvI2up7tqoo/3m1wagDJKfAE9qU1umcWd4Dv6n0SpQ8qF
-         sp7FcfJnZ1b+qkqo+G3ualvQwmWcGgSxIaYG6W8rSAHpIPnZbst3V0nMozELmC9fXSM7
-         dxPp7+woT35J5bvQ2TwwPxwqIht8gcFbGNDDDcDqiFbSC5g+N2Fx4VH6a8qxh8F2rgIo
-         1iI8FpfOFGBUVLr9OECxK1eFjhWUDG8aWGmPmzeiiMXX0mtLYDj+dyZ1Fd7qyM6G5VnB
-         NcZw==
-X-Gm-Message-State: AJcUukefbLxLmVyf2h0qhnzvRalKiscn9buIIJu4Tms68zWrg3R8c2xS
-        2A6jQNmRwmvd5p2EKEMnJ+Nx8JTLklU8m/RZbxVM
-X-Google-Smtp-Source: ALg8bN7R76bWFvapHD/upKysy2kuEAoHH1JSR6p7SKD8ECW8W0t+AV4PVa4mC8n8X8E7wdMlMf/LhwrENbVuT+OMpKY=
-X-Received: by 2002:a2e:3803:: with SMTP id f3-v6mr6609655lja.169.1548178802090;
- Tue, 22 Jan 2019 09:40:02 -0800 (PST)
+        bh=Om+BcGGu6G0+DC4UgEJBrr4yO4tKSm87s11wNparSPw=;
+        b=bpTVNWzHe5Hjf6XTcP0/7L/xQ7VOHDLj2YrbJUbO48INrXs39QS6YKd7sJVI5bp4OT
+         u8tt38S44+cTKAZJaqsNrjGyeW5qk4sn+IGySkNIwcEybkSMOf7KSlRU6rTBRvMS57ee
+         5+/VK6JaTToXINa/jB15YBu+6JQjjKDM7rpFkzYu0P4I9K12NMl/iHG/5Rkk7T4U/eU6
+         6MSy48h22pcvPn680JKexpSztfTyh404Uc3FKzIS2wDMKuUy+F3ym8uRAPwuIhMhbwUb
+         VoB4uzyazAIxA8K2TAsq5Y70PTkSyXr1W8weOsq+KS13q/4psRQR9pAisi421xZCf08w
+         8NBA==
+X-Gm-Message-State: AJcUukc+g7xVHo1Q4omyMPLVHa+412O1x2X5tMzBw1tbE5nW5IF8+u8p
+        eYhbqKpdBV3FT1Z19hLPTc3bAiDmX/5lHrlI+UbCPJM=
+X-Google-Smtp-Source: ALg8bN5Xrz/h54QKR62wZVgIV9+SHcp5N74SsEoWM9SiRJFfJQKXta5FlovAIKcIdkjlmBrXXPBCFuBYc6ws6AurnCU=
+X-Received: by 2002:a2e:9d17:: with SMTP id t23-v6mr20827284lji.57.1548179295275;
+ Tue, 22 Jan 2019 09:48:15 -0800 (PST)
 MIME-Version: 1.0
-References: <1547821427-157169-1-git-send-email-weiyongjun1@huawei.com>
- <CAHC9VhSbtqhiMQdNJ_6yeX5+ggwVNyGYXe-E=bMj2V2z2MmAsA@mail.gmail.com>
- <20190119112148.375edf4c@canb.auug.org.au> <20190121070410.1c90552f@canb.auug.org.au>
-In-Reply-To: <20190121070410.1c90552f@canb.auug.org.au>
+References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
+ <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
+ <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
+ <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
+ <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
+ <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net>
+In-Reply-To: <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 22 Jan 2019 12:39:50 -0500
-Message-ID: <CAHC9VhQTv=b_sLOdTQ9v1Z=0=Uf2JG74ZEw4yof-GsKuu9-s0Q@mail.gmail.com>
-Subject: Re: [PATCH -next] selinux: Fix error return code in policydb_read()
-To:     Stephen Rothwell <sfr@canb.auug.org.au>
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        peter enderborg <peter.enderborg@sony.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        selinux@vger.kernel.org, kernel-janitors@vger.kernel.org
+Date:   Tue, 22 Jan 2019 12:48:04 -0500
+Message-ID: <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
+Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
+To:     Nazarov Sergey <s-nazarov@yandex.ru>
+Cc:     "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Jan 20, 2019 at 3:04 PM Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> Hi all,
->
-> On Sat, 19 Jan 2019 11:21:48 +1100 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+On Tue, Jan 22, 2019 at 12:35 PM Nazarov Sergey <s-nazarov@yandex.ru> wrote:
+> 22.01.2019, 19:49, "Paul Moore" <paul@paul-moore.com>:
 > >
-> > On Fri, 18 Jan 2019 16:28:07 -0500 Paul Moore <paul@paul-moore.com> wrote:
-> > >
-> > > On Fri, Jan 18, 2019 at 9:18 AM Wei Yongjun <weiyongjun1@huawei.com> wrote:
-> > > >
-> > > > Fix to return a negative error code -ENOMEM from the error handling
-> > > > case instead of 0, as done elsewhere in this function.
-> > > >
-> > > > Fixes: 31696241e96e ("selinux: convert to kvmalloc")
-> > >
-> > > Unfortunately this commit isn't to be found in any of the SELinux
-> > > branches, or Linus' master branch; based on the subject line I'm
-> > > guessing the original patch is in a -next branch somewhere.  Please
-> > > find whoever pushed this patch to linux-next and have them apply the
-> > > fix.
-> >
-> > Yeah, Kent has a series doing conversions that is in Andrew Morton's
-> > mmotm patch series.
+> > Granted I'm looking at this rather quickly, so I may be missing
+> > something, but why the changes to ip_options_compile()? Couldn't you
+> > simply set opt->data manually (set the ptr) in cipso_v4_error() before
+> > calling ip_options_compile() and arrive at the same result without
+> > having to modify ip_options_compile()? I suppose there is the rtable
+> > value to worry about, but ip_options_echo() should take care of that,
+> > yes? No?
 >
-> I have added that patch to the akpm-current tree in linux-next from today.
+> ip_options_compile calls icmp_send, if someting wrong. So, we'll go back
+> to trying to fix. ip_options_compile changes needed to avoid this.
 
-Thanks Stephen.
-
-Wei Yongjun, have you talked with Kent and/or Andrew about getting
-your fix added to their tree?  It's good that Stephen picked it up,
-but it needs to get added to the original set of patches so the fix
-makes it's way into Linus' tree at the same time as the original
-patches.
+Yes, exactly.  If you don't pass the skb it shouldn't attempt to call
+icmp_send() in case of error.
 
 -- 
 paul moore
