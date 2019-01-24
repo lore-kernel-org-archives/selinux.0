@@ -2,182 +2,113 @@ Return-Path: <SRS0=cSl0=QA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED2ADC282C3
-	for <selinux@archiver.kernel.org>; Thu, 24 Jan 2019 11:09:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBC93C282C3
+	for <selinux@archiver.kernel.org>; Thu, 24 Jan 2019 14:46:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BD1C320811
-	for <selinux@archiver.kernel.org>; Thu, 24 Jan 2019 11:09:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B644218A2
+	for <selinux@archiver.kernel.org>; Thu, 24 Jan 2019 14:46:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="HAUO4T4Y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727462AbfAXLJx convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Jan 2019 06:09:53 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:55280 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726053AbfAXLJx (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 24 Jan 2019 06:09:53 -0500
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 46302432D4;
-        Thu, 24 Jan 2019 11:09:52 +0000 (UTC)
-Received: from workstation (unknown [10.43.12.93])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 66245608C5;
-        Thu, 24 Jan 2019 11:09:51 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH] libselinux/audit2why.so: Filter out non-python related symbols
-References: <353f9889-d43c-9a14-4605-5ba1eac22284@tycho.nsa.gov>
-        <20190115133629.21263-1-plautrba@redhat.com>
-        <e6e56640-b2f6-abca-5c1b-4f192b6c8d7e@tycho.nsa.gov>
-        <cdb56541-46e1-9d6c-ae89-a947b5cc4310@tycho.nsa.gov>
-        <pjdmunudx6a.fsf@redhat.com>
-Date:   Thu, 24 Jan 2019 12:09:49 +0100
-In-Reply-To: <pjdmunudx6a.fsf@redhat.com> (Petr Lautrbach's message of "Mon,
-        21 Jan 2019 13:15:09 +0100")
-Message-ID: <pjdtvhytipu.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1728243AbfAXOqI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Jan 2019 09:46:08 -0500
+Received: from forward500o.mail.yandex.net ([37.140.190.195]:50280 "EHLO
+        forward500o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728164AbfAXOqI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Jan 2019 09:46:08 -0500
+Received: from mxback2g.mail.yandex.net (mxback2g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:163])
+        by forward500o.mail.yandex.net (Yandex) with ESMTP id 3463A6030D;
+        Thu, 24 Jan 2019 17:46:04 +0300 (MSK)
+Received: from localhost (localhost [::1])
+        by mxback2g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id mevHjtWUfI-k39KnQiB;
+        Thu, 24 Jan 2019 17:46:03 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail; t=1548341163;
+        bh=n+9VbUolva67vVoc3RWHlRtYSx0t/rHf/LwF4KxSnyk=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:Message-Id;
+        b=HAUO4T4YbK8WSb8+MaI+5QuD8NUu0vtNsAFQHiJtNv2a+asKmnuOkJKvgWa5mDf2+
+         T4zvkivhBGZj692TG6JdJ56O9I/g6t0cIi0VLbbYqiWVhxXIUXZbymQ6k+LvHUf6Qt
+         /kBY4D4lH6cRBEKrVW8UHvLXQMf7RpZNf1iOlav8=
+Authentication-Results: mxback2g.mail.yandex.net; dkim=pass header.i=@yandex.ru
+Received: by sas2-7b909973f402.qloud-c.yandex.net with HTTP;
+        Thu, 24 Jan 2019 17:46:03 +0300
+From:   Nazarov Sergey <s-nazarov@yandex.ru>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
+References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
+         <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
+         <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
+         <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
+         <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
+         <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net> <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
+Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Thu, 24 Jan 2019 11:09:52 +0000 (UTC)
+X-Mailer: Yamail [ http://yandex.ru ] 5.0
+Date:   Thu, 24 Jan 2019 17:46:03 +0300
+Message-Id: <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Petr Lautrbach <plautrba@redhat.com> writes:
-
-> Stephen Smalley <sds@tycho.nsa.gov> writes:
+22.01.2019, 20:48, "Paul Moore" <paul@paul-moore.com>:
 >
->> On 1/17/19 9:18 AM, Stephen Smalley wrote:
->>> On 1/15/19 8:36 AM, Petr Lautrbach wrote:
->>>> audit2why.so used to export libsepol.a symbols. We only need Python related
->>>> symbols:
->>>>
->>>> - initaudit2why for python 2
->>>> - PyInit_audit2why for python3
->>>>
->>>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->>>
->>> I submitted a pull request to trigger Travis CI of this change here:
->>> https://github.com/SELinuxProject/selinux/pull/130
->>
->> Hmm...broke the build when using PYVER=pypy3.5.
+> Yes, exactly. If you don't pass the skb it shouldn't attempt to call
+> icmp_send() in case of error.
 >
-> This is fixed by the latest patches sent by Nicolas:
->
-> https://github.com/bachradsusi/SELinuxProject-selinux/commits/audit2why.so-with-travis-fixes
-> https://travis-ci.org/bachradsusi/SELinuxProject-selinux/builds/482366289
+> --
+> paul moore
+> www.paul-moore.com
 
-Given that this all Travis CI tests passed and it's acked, I've merged
-the patch.
+You are right, sorry. We can do that without ip_options_compile modification.
+Simplified patch 2:
+---
+ net/ipv4/cipso_ipv4.c |   18 ++++++++++++++++--
+ 1 files changed, 16 insertions(+), 2 deletions(-)
 
-The last CI run based on the merged patch is https://travis-ci.org/SELinuxProject/selinux/builds/483832670
+diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+index 777fa3b..a4ed0a4 100644
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -1735,13 +1735,27 @@ int cipso_v4_validate(const struct sk_buff *skb, unsigned char **option)
+  */
+ void cipso_v4_error(struct sk_buff *skb, int error, u32 gateway)
+ {
++       unsigned char optbuf[sizeof(struct ip_options) + 40];
++       struct ip_options *opt = (struct ip_options *)optbuf;
++
+        if (ip_hdr(skb)->protocol == IPPROTO_ICMP || error != -EACCES)
+                return;
+ 
++       /* 
++        * We might be called above the IP layer,
++        * so we can not use icmp_send and IPCB here.
++        */
++
++       memset(opt, 0, sizeof(struct ip_options));
++       opt->optlen = ip_hdr(skb)->ihl*4 - sizeof(struct iphdr);
++       memcpy(opt->__data, (unsigned char *)&(ip_hdr(skb)[1]), opt->optlen);
++       if (ip_options_compile(dev_net(skb->dev), opt, NULL))
++               return;
++
+        if (gateway)
+-               icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0);
++               __icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0, opt);
+        else
+-               icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0);
++               __icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0, opt);
+ }
+ 
+ /**
 
->
->> python-3.5audit2why.lo: In function `PyInit_audit2why':
->> audit2why.c:(.text+0xe): undefined reference to `PyPyModule_Create2'
->> audit2why.c:(.text+0x30): undefined reference to `PyPyModule_AddIntConstant'
->> audit2why.c:(.text+0x46): undefined reference to `PyPyModule_AddIntConstant'
->> audit2why.c:(.text+0x5c): undefined reference to `PyPyModule_AddIntConstant'
->> audit2why.c:(.text+0x72): undefined reference to `PyPyModule_AddIntConstant'
->> audit2why.c:(.text+0x88): undefined reference to `PyPyModule_AddIntConstant'
->> python-3.5audit2why.lo:audit2why.c:(.text+0x9e): more undefined references to
->> `PyPyModule_AddIntConstant' follow
->> python-3.5audit2why.lo: In function `init':
->> audit2why.c:(.text+0x170): undefined reference to `PyPyExc_RuntimeError'
->> audit2why.c:(.text+0x17f): undefined reference to `PyPyErr_SetString'
->> audit2why.c:(.text+0x1a1): undefined reference to `PyPyArg_ParseTuple'
->> audit2why.c:(.text+0x2c0): undefined reference to `PyPyExc_RuntimeError'
->> audit2why.c:(.text+0x2cf): undefined reference to `PyPyExc_MemoryError'
->> audit2why.c:(.text+0x2de): undefined reference to `PyPyErr_SetString'
->> audit2why.c:(.text+0x329): undefined reference to `PyPyExc_ValueError'
->> audit2why.c:(.text+0x367): undefined reference to `PyPyExc_ValueError'
->> audit2why.c:(.text+0x372): undefined reference to `PyPyErr_SetString'
->> audit2why.c:(.text+0x387): undefined reference to `PyPy_BuildValue'
->> audit2why.c:(.text+0x3e6): undefined reference to `PyPyExc_ValueError'
->> audit2why.c:(.text+0x49a): undefined reference to `PyPyExc_RuntimeError'
->> audit2why.c:(.text+0x4b0): undefined reference to `PyPyExc_MemoryError'
->> audit2why.c:(.text+0x4c6): undefined reference to `PyPyExc_RuntimeError'
->> audit2why.c:(.text+0x4d5): undefined reference to `PyPyErr_SetString'
->> python-3.5audit2why.lo: In function `analyze':
->> audit2why.c:(.text+0x51d): undefined reference to `PyPyList_Type'
->> audit2why.c:(.text+0x53d): undefined reference to `PyPyArg_ParseTuple'
->> audit2why.c:(.text+0x553): undefined reference to `PyPyList_Size'
->> audit2why.c:(.text+0x5f9): undefined reference to `PyPyList_GetItem'
->> audit2why.c:(.text+0x601): undefined reference to `PyPyUnicode_AsUTF8'
->> audit2why.c:(.text+0x63f): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0x657): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0x66f): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0x687): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0x6f5): undefined reference to `_PyPy_NoneStruct'
->> python-3.5audit2why.lo:audit2why.c:(.text+0x70a): more undefined references to
->> `_PyPy_NoneStruct' follow
->> python-3.5audit2why.lo: In function `analyze':
->> audit2why.c:(.text+0x728): undefined reference to `PyPy_BuildValue'
->> audit2why.c:(.text+0x90b): undefined reference to `PyPyExc_RuntimeError'
->> audit2why.c:(.text+0x91a): undefined reference to `PyPyErr_SetString'
->> audit2why.c:(.text+0x93c): undefined reference to `PyPy_BuildValue'
->> audit2why.c:(.text+0x955): undefined reference to `PyPyExc_MemoryError'
->> audit2why.c:(.text+0x964): undefined reference to `PyPyErr_SetString'
->> audit2why.c:(.text+0x981): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0x9a0): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0x9b8): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0x9f3): undefined reference to `PyPyExc_RuntimeError'
->> audit2why.c:(.text+0x9fe): undefined reference to `PyPyErr_SetString'
->> audit2why.c:(.text+0xa3f): undefined reference to `PyPyExc_RuntimeError'
->> audit2why.c:(.text+0xa4f): undefined reference to `PyPyErr_SetString'
->> audit2why.c:(.text+0xb18): undefined reference to `_PyPy_NoneStruct'
->> audit2why.c:(.text+0xb2e): undefined reference to `PyPyList_New'
->> audit2why.c:(.text+0xb56): undefined reference to `PyPy_BuildValue'
->> audit2why.c:(.text+0xb68): undefined reference to `PyPyList_SetItem'
->> python-3.5audit2why.lo: In function `finish':
->> audit2why.c:(.text+0xbb3): undefined reference to `PyPyArg_ParseTuple'
->> audit2why.c:(.text+0xc7d): undefined reference to `_PyPy_NoneStruct'
->> clang-7: error: linker command failed with exit code 1 (use -v to see
->> invocation)
->> Makefile:168: recipe for target 'python-3.5audit2why.so' failed
->>
->>>
->>>> ---
->>>>   libselinux/src/Makefile      | 2 +-
->>>>   libselinux/src/audit2why.map | 6 ++++++
->>>>   2 files changed, 7 insertions(+), 1 deletion(-)
->>>>   create mode 100644 libselinux/src/audit2why.map
->>>>
->>>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
->>>> index 8891086e..92e30738 100644
->>>> --- a/libselinux/src/Makefile
->>>> +++ b/libselinux/src/Makefile
->>>> @@ -165,7 +165,7 @@ $(AUDIT2WHYLOBJ): audit2why.c
->>>>       $(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED -c -o $@
->>>> $<
->>>>   $(AUDIT2WHYSO): $(AUDIT2WHYLOBJ) $(LIBSEPOLA)
->>>> -    $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux
->>>> $(LDLIBS_LIBSEPOLA) $(PYLIBS)
->>>> +    $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux
->>>> $(LDLIBS_LIBSEPOLA) $(PYLIBS)
->>>> -Wl,-soname,audit2why.so,--version-script=audit2why.map,-z,defs
->>>>   %.o:  %.c policy.h
->>>>       $(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
->>>> diff --git a/libselinux/src/audit2why.map b/libselinux/src/audit2why.map
->>>> new file mode 100644
->>>> index 00000000..65989a8d
->>>> --- /dev/null
->>>> +++ b/libselinux/src/audit2why.map
->>>> @@ -0,0 +1,6 @@
->>>> +AUDIT2WHY_2.9 {
->>>> +  global:
->>>> +    initaudit2why;
->>>> +    PyInit_audit2why;
->>>> +  local: *;
->>>> +};
->>>>
->>>
