@@ -2,106 +2,137 @@ Return-Path: <SRS0=5KO5=QB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E054C282C0
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 16:15:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C390AC282C0
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 16:46:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ED9AB20844
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 16:15:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 706EE218CD
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 16:46:01 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="p+9RrB0o"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726265AbfAYQPd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 25 Jan 2019 11:15:33 -0500
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:38467 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726108AbfAYQPd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 11:15:33 -0500
-Received: by mail-oi1-f194.google.com with SMTP id a77so8049541oii.5
-        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 08:15:32 -0800 (PST)
+        id S1726863AbfAYQqB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Jan 2019 11:46:01 -0500
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:34305 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726347AbfAYQqA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 11:46:00 -0500
+Received: by mail-lf1-f68.google.com with SMTP id p6so7425617lfc.1
+        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 08:45:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=TUBTBhsoEod0r+sPpZj9kpX0Q0Wrx8sRS3fdt8CKxGc=;
+        b=p+9RrB0oR52i0OvEXY0QyExAG2XuSqMRCUQn0rrKiHD0PgL5CQUxzQeOzGBFEPqmQz
+         82mE4gdKo4r5rgZ6FTfDwa/9o7vVm1PKfKTBOGaZHPL4cCpyGkYQCnjiednC2NmhE/5J
+         7t/kKLHbMLtxh3RJW3OLZYnbshFYUFqtRpZW/qtbmoYTHaQpLX1DWLNhJeBZhqKqfzKO
+         WtHZZJP0sbvFQsjOM3CmpCpHCBewbxek0lDWgwgoNNJonaPMvvtfG6DW9RzWXbyyauqM
+         9LSiNjQXaMmO/IpiWlFgTaUhrZyOA0SKUu8ZUmEozEncw0PXwN2EBEXZwd5xtXVtrhop
+         7I7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=eTYFnfXapl85KudwV4wO9qpsGluhrWfAMUMXFPKHR7k=;
-        b=NYWU83hBRPW8xQ5YsF3itfeQ1UvNfLJrfhuBDXXYXg4ZIAD+2gRAwC3/uIvEcuLo/d
-         88IrH0N8Za72rI88lemvkLCoYrRBtOXL5XmPvDgJWi6Cg2B8bU3BOkYpKWsFTQzwbF9M
-         wkHO5ONJzM1SI0k8Ev06/AyvMYF5oy9hWQOL475UsvbuHgRb1Tc2aR8BX9eOK59bMtb2
-         +2PHsdFjMtnZgsOeH4RojP4uLmebHzpIBRVHNaQeuRAayR8RLp2d2B37elEQGKiatghG
-         hrDoBLLXLRqBJPGS5zKv60+fiI7qEIXe2J3mFwg/QIgrafSrAQtj5fGkVlISjlNnQ9Wc
-         n27Q==
-X-Gm-Message-State: AJcUukcKGB8RbreOiVHL3FMiRf6i8JJvVnD37xN/JZxMiSaE3ag18LF6
-        1CbW+j/VcqnPJQ8BJRUEQhetH0ASxR46RoANE3r8bcDY
-X-Google-Smtp-Source: ALg8bN7YsLJLP5ysQDbOLwkgrGyCKMvpIcTcTAR2KKdNX8u6pYIpdofRr0lxnwS/7HLxNslJOKJJkI6m/3LoKA8nDWc=
-X-Received: by 2002:aca:293:: with SMTP id 141mr1713446oic.28.1548431732030;
- Fri, 25 Jan 2019 07:55:32 -0800 (PST)
+        bh=TUBTBhsoEod0r+sPpZj9kpX0Q0Wrx8sRS3fdt8CKxGc=;
+        b=OOaDz9ZjKNw5Wx3lXSnEYxgi4Y8kODL1vx2PQzTbNoJgyGUBHjpQcDEcgW/K4rYW1V
+         r4gYK7NtAXSml6i6UQXu4lMkpZSTuypHxAuRbXfFfsX4yGFHXCZ3aWmLpVLtM7C1wG3l
+         LF/c/v3mirhwn3Ihw6eWhaNHNJVasGHkdd4G9iyn1gx76dOkl7zGjeLhKF9KP+CiKst+
+         AMyOuZ9L6yro2CpDBdoo4U7jf8LdLX3iOwMouE5BCT4uyMOaz7yGHBK6hz6Dc2mqlpYu
+         v6Rc4oulX+bxvGznpF9fqSnOsumTObpJ48MDBhnw8lt4hf4GivkbWBcumIJQmIHfcTpk
+         Uzww==
+X-Gm-Message-State: AJcUukdIQJAPb4erwz31W23UqwjBw5f/QvkktTJi8ywoSN6yx2Pvm5ND
+        kKjXCqduxTno/vtYFHINiu9mkZ9GsFkxpOuxkdApzwQ=
+X-Google-Smtp-Source: ALg8bN4+Y+aYnJRDyelJmS00jvlxMtDpkz6K2smhwQKLYoaVxlnHEaIJXnd/Xm6FwgezbiPCD/gswdxduAYWTcxlemU=
+X-Received: by 2002:a19:4287:: with SMTP id p129mr9428851lfa.135.1548434758604;
+ Fri, 25 Jan 2019 08:45:58 -0800 (PST)
 MIME-Version: 1.0
-References: <20190125100651.21753-1-omosnace@redhat.com> <20190125100651.21753-4-omosnace@redhat.com>
- <0e0ce852-12ab-4855-7794-c1744160e78e@tycho.nsa.gov>
-In-Reply-To: <0e0ce852-12ab-4855-7794-c1744160e78e@tycho.nsa.gov>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 25 Jan 2019 16:55:21 +0100
-Message-ID: <CAFqZXNtuue8dQGigBR0SkiXbeohVxHhh5vdJxX7f=2p6C072gA@mail.gmail.com>
-Subject: Re: [PATCH v3 3/4] selinux: remove some useless BUG_ONs
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Linux-Audit Mailing List <linux-audit@redhat.com>
+References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
+ <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
+ <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
+ <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
+ <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
+ <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net> <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
+ <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net>
+In-Reply-To: <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 25 Jan 2019 11:45:47 -0500
+Message-ID: <CAHC9VhQD=itT7jE22bo0UF24gE56y1z29fZec-7y1Zumz38FfQ@mail.gmail.com>
+Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
+To:     Nazarov Sergey <s-nazarov@yandex.ru>
+Cc:     "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 25, 2019 at 2:49 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 1/25/19 5:06 AM, Ondrej Mosnacek wrote:
-> > These BUG_ONs do not really protect from any catastrophic situation so
-> > there is no need to have them there.
+On Thu, Jan 24, 2019 at 9:46 AM Nazarov Sergey <s-nazarov@yandex.ru> wrote:
+> 22.01.2019, 20:48, "Paul Moore" <paul@paul-moore.com>:
+> >
+> > Yes, exactly. If you don't pass the skb it shouldn't attempt to call
+> > icmp_send() in case of error.
+> >
+> > --
+> > paul moore
+> > www.paul-moore.com
 >
-> They are to catch bugs in callers that pass requested==0.  That is
-> always indicative of a bug in the caller (e.g. failed to correctly
-> compute the permissions).  Otherwise, we will silently allow such calls
-> and not notice them.
+> You are right, sorry. We can do that without ip_options_compile modification.
+> Simplified patch 2:
+> ---
+>  net/ipv4/cipso_ipv4.c |   18 ++++++++++++++++--
+>  1 files changed, 16 insertions(+), 2 deletions(-)
 >
-> At the least, they should be WARN_ONs.
+> diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+> index 777fa3b..a4ed0a4 100644
+> --- a/net/ipv4/cipso_ipv4.c
+> +++ b/net/ipv4/cipso_ipv4.c
+> @@ -1735,13 +1735,27 @@ int cipso_v4_validate(const struct sk_buff *skb, unsigned char **option)
+>   */
+>  void cipso_v4_error(struct sk_buff *skb, int error, u32 gateway)
+>  {
+> +       unsigned char optbuf[sizeof(struct ip_options) + 40];
+> +       struct ip_options *opt = (struct ip_options *)optbuf;
+> +
+>         if (ip_hdr(skb)->protocol == IPPROTO_ICMP || error != -EACCES)
+>                 return;
+>
+> +       /*
+> +        * We might be called above the IP layer,
+> +        * so we can not use icmp_send and IPCB here.
+> +        */
+> +
+> +       memset(opt, 0, sizeof(struct ip_options));
+> +       opt->optlen = ip_hdr(skb)->ihl*4 - sizeof(struct iphdr);
 
-OK, seems that switching to WARN_ON() will be a better choice.
+Hmm, I think the above calculation should take into account the actual
+length of the IP options, and not just the max size (calculate it
+based on iphdr->ihl).
 
-Paul, you can apply the series without this patch and I will post a
-corrected patch separately (if that's OK with you).
+Beyond that fix, I think it's time to put together a proper patchset
+and post it to the lists for formal review/merging.
 
->
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >   security/selinux/avc.c | 3 ---
-> >   1 file changed, 3 deletions(-)
-> >
-> > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> > index 5ebad47391c9..478fa4213c25 100644
-> > --- a/security/selinux/avc.c
-> > +++ b/security/selinux/avc.c
-> > @@ -1044,7 +1044,6 @@ int avc_has_extended_perms(struct selinux_state *state,
-> >       int rc = 0, rc2;
-> >
-> >       xp_node = &local_xp_node;
-> > -     BUG_ON(!requested);
-> >
-> >       rcu_read_lock();
-> >
-> > @@ -1134,8 +1133,6 @@ inline int avc_has_perm_noaudit(struct selinux_state *state,
-> >       int rc = 0;
-> >       u32 denied;
-> >
-> > -     BUG_ON(!requested);
-> > -
-> >       rcu_read_lock();
-> >
-> >       node = avc_lookup(state->avc, ssid, tsid, tclass);
-> >
->
+Thanks for your work on this.
+
+> +       memcpy(opt->__data, (unsigned char *)&(ip_hdr(skb)[1]), opt->optlen);
+> +       if (ip_options_compile(dev_net(skb->dev), opt, NULL))
+> +               return;
+> +
+>         if (gateway)
+> -               icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0);
+> +               __icmp_send(skb, ICMP_DEST_UNREACH, ICMP_NET_ANO, 0, opt);
+>         else
+> -               icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0);
+> +               __icmp_send(skb, ICMP_DEST_UNREACH, ICMP_HOST_ANO, 0, opt);
+>  }
 
 -- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Associate Software Engineer, Security Technologies
-Red Hat, Inc.
+paul moore
+www.paul-moore.com
