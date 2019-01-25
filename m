@@ -3,126 +3,115 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6B21C282C0
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 17:31:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0B0C282C0
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 21:59:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F18A218A6
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 17:31:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9432021855
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 21:59:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Ko/de9Vk"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="p6BTchqr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728445AbfAYRbh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 25 Jan 2019 12:31:37 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:46057 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726252AbfAYRbg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 12:31:36 -0500
-Received: by mail-lf1-f65.google.com with SMTP id b20so7476827lfa.12
-        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 09:31:35 -0800 (PST)
+        id S1726589AbfAYV7w (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Jan 2019 16:59:52 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:40546 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726329AbfAYV7w (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 16:59:52 -0500
+Received: by mail-lj1-f194.google.com with SMTP id n18-v6so9596427lji.7
+        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 13:59:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=JWrSqEQNe8Ic+N76MQI6giQIry2RoAz0U8QDQ12Qyrs=;
-        b=Ko/de9Vk0UaOe4SFdiQQ15uiNyS2Ivleh/5AC9E1Hd+cFBSiuOvdtWigSXk7wl8Jjl
-         /cWyu+tVzkkTBHs77N2vIcrEUAa8X+tpOmb3x1zUdnXF0tU2lSUWgUwqlADlxFdyMAUy
-         msh4Esxr2mf0ioTfYTk5HceAPYBJNgvqakHa9vfEj90sE6uDvEfEH0O43nojVcCXqumh
-         o2R3bphayLMECrX1hr/uKS1Q0um2mH5I6VING/GnwVPcvMSO/lXorxDhGLYLXjqWuPwH
-         ln0agLiqJWOpHqHCC+vqDbUYxEZ4CQJOpu0FfrkWoI+LkYIl7DeV06YcNTJVC8wysoZW
-         /jXA==
+         :cc;
+        bh=f/B7FYdvgA+4dwG8U92oX1OJ+1iRHNpW6/b5sSyTcVo=;
+        b=p6BTchqrxGXR7dCD9A6GZVdJraS0iOLPwdOhUnVeR+FIdJJ9Ax9jm2BVPDJ9/6Bh3G
+         uJUIfr8EqYST5Ppl92b/hdo6j3aR0gZ9i+mFsv8QcAKfZgo6gOYVQJAwpNdC8lz4YKjx
+         QZNcsxQ/+wlScoTbRZfxA0NMbgNYS9Zbkxi07VMpPY+Uabmlwp5m0xkVYjGQwt2P+clD
+         C/ExISWLUyNqeuN14+tAsnkK29aAPeXiocwmKzti4DhwCn3kZqGFy95sUWxuwx7xpovH
+         CWwA2eNPjodLUyXpQ5PSLon/noFc2Bezlq2c5s1zdZb2K5Ca4wikl8D/nDgmbqDekoDg
+         5Odg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=JWrSqEQNe8Ic+N76MQI6giQIry2RoAz0U8QDQ12Qyrs=;
-        b=uKq3zi5K2E/qYxTEbTb3DsAi1uxp3fwJiSKySfOM8c35OMZYHxlePXh5JcRpNMOymq
-         7cAPRd9ua0ySsPzxgiYB7NaqSffD1TD5UNaQB20pOyK+lpTf5PcTv1kAD/HaLXMjID8z
-         z6bSidpjhgHVxFUttiBBBCb9A4U4r1T/ElpxOy4l/NvrVvPg92ib1kTvvCiTNlxtkgn7
-         Mg3XLiNXMHcNmsful3cG+D5Zq4AQrITHtVM4jFHnY/pQeLGnFFk0f7HHkp2i0h238co2
-         //vu/OTm0XHWhJG4wyAdxssRSpLlreKojk08TdQzeMYaOXKrzfhO2vdnFcV2RxQ2xwEA
-         FfvA==
-X-Gm-Message-State: AJcUukelM4XRcNbUrmRLEqMVFIc103Eqd7POLneH/uN04EeBAy2HTol7
-        /GlD+huKhu2jLc5Xn5HCtIGvVld5seaSQiCQYP4T
-X-Google-Smtp-Source: ALg8bN4BQkyw44eXxjch7Gs8In4y/ehCycBFP695ZiP0icKcrICVX9aQuo8UdGeISDmv8NhcFWstNsYhFRM65eWzc1M=
-X-Received: by 2002:a19:db54:: with SMTP id s81mr9755618lfg.102.1548437493124;
- Fri, 25 Jan 2019 09:31:33 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=f/B7FYdvgA+4dwG8U92oX1OJ+1iRHNpW6/b5sSyTcVo=;
+        b=KLDvzAc6FQo4XZVbaWnrQYQ/yrrfaXId5Imq2ceklK6tVudTMix6KCOK+XwfK4O0UE
+         acUWEWxeVU2LioXxLQF5CqVh9Feov+AbewD7kRyhLea8sp18KayLdcP7xlAKoNzohi0s
+         jWw4op/vp9/lLV8B7Yt4GQTyblxQEyAc1Vx6m+2pLyGn4oZps4F9EZqDPin9BCJjPzKO
+         nasqMeufGPMdbwiIJZWwc0+WafldAkY9Z2g2fQg+u8Sws8Qthxv8dyzIeprd/9ZPxs7d
+         cH0JebEtw3flvB9URpsTMz6PHDgW8h2PY62rJINs+TeWKn9zjYzPT2KomKcdHi2dRwEl
+         Ex/w==
+X-Gm-Message-State: AJcUukc5km5/FDGvXTJLlX05eFzH8hqmZZXuwOObYJw+erZ9JdH/PUqi
+        8x1J0YN2Xg8u0F+OywKtNPNkoZuVgp4qJVBYDac0
+X-Google-Smtp-Source: ALg8bN5+RMG+T5t9XtNbrAptTzPuOrXYtikRe23map2lOgDjiNblSU+9ZEZiKrES8lOVAxGxd+AS7bPHIeBq+zzGE/0=
+X-Received: by 2002:a2e:9c87:: with SMTP id x7-v6mr9718361lji.196.1548453589735;
+ Fri, 25 Jan 2019 13:59:49 -0800 (PST)
 MIME-Version: 1.0
-References: <20190121153605.26847-1-omosnace@redhat.com> <CAHC9VhRDSMeojFEFz+8rshiP4TmtoGuEuOK0AwZecyJ0SWN3Ug@mail.gmail.com>
- <CAFqZXNtkUC88X9sfr4Kaq=QDN-H9G=xHKEntyE2mfvC5S0aVXQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNtkUC88X9sfr4Kaq=QDN-H9G=xHKEntyE2mfvC5S0aVXQ@mail.gmail.com>
+References: <1547821427-157169-1-git-send-email-weiyongjun1@huawei.com>
+ <CAHC9VhSbtqhiMQdNJ_6yeX5+ggwVNyGYXe-E=bMj2V2z2MmAsA@mail.gmail.com>
+ <20190119112148.375edf4c@canb.auug.org.au> <20190121070410.1c90552f@canb.auug.org.au>
+ <CAHC9VhQTv=b_sLOdTQ9v1Z=0=Uf2JG74ZEw4yof-GsKuu9-s0Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhQTv=b_sLOdTQ9v1Z=0=Uf2JG74ZEw4yof-GsKuu9-s0Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 25 Jan 2019 12:31:21 -0500
-Message-ID: <CAHC9VhT-4mujhEJz3XcmOJBGc7dhOcoxkkoJ_ZU=+TgKSxv2Aw@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: log invalid contexts in AVCs
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux-Audit Mailing List <linux-audit@redhat.com>,
-        Daniel Walsh <dwalsh@redhat.com>
+Date:   Fri, 25 Jan 2019 16:59:38 -0500
+Message-ID: <CAHC9VhQoZDBLrxawkk-K75hizBNKF6gLw1fcnZ7F5wbV6PJn7Q@mail.gmail.com>
+Subject: Re: [PATCH -next] selinux: Fix error return code in policydb_read()
+To:     Wei Yongjun <weiyongjun1@huawei.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        peter enderborg <peter.enderborg@sony.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        selinux@vger.kernel.org, kernel-janitors@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 25, 2019 at 4:53 AM Ondrej Mosnacek <omosnace@redhat.com> wrote=
-:
-> On Tue, Jan 22, 2019 at 8:42 PM Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Jan 21, 2019 at 10:36 AM Ondrej Mosnacek <omosnace@redhat.com> =
-wrote:
-> > > In case a file has an invalid context set, in an AVC record generated
-> > > upon access to such file, the target context is always reported as
-> > > unlabeled. This patch adds new optional fields to the AVC record
-> > > (srawcon and trawcon) that report the actual context string if it
-> > > differs from the one reported in scontext/tcontext. This is useful fo=
-r
-> > > diagnosing SELinux denials involving invalid contexts.
-> > >
-> > > To trigger an AVC that illustrates this situation:
-> > >
-> > >     # setenforce 0
-> > >     # touch /tmp/testfile
-> > >     # setfattr -n security.selinux -v system_u:object_r:banana_t:s0 /=
-tmp/testfile
-> > >     # runcon system_u:system_r:sshd_t:s0 cat /tmp/testfile
-> > >
-> > > AVC before:
-> > >
-> > > type=3DAVC msg=3Daudit(1547801083.248:11): avc:  denied  { open } for=
-  pid=3D1149 comm=3D"cat" path=3D"/tmp/testfile" dev=3D"tmpfs" ino=3D6608 s=
-context=3Dsystem_u:system_r:sshd_t:s0 tcontext=3Dsystem_u:object_r:unlabele=
-d_t:s15:c0.c1023 tclass=3Dfile permissive=3D1
-> > >
-> > > AVC after:
-> > >
-> > > type=3DAVC msg=3Daudit(1547801083.248:11): avc:  denied  { open } for=
-  pid=3D1149 comm=3D"cat" path=3D"/tmp/testfile" dev=3D"tmpfs" ino=3D6608 s=
-context=3Dsystem_u:system_r:sshd_t:s0 tcontext=3Dsystem_u:object_r:unlabele=
-d_t:s15:c0.c1023 trawcon=3Dsystem_u:object_r:banana_t:s0 tclass=3Dfile perm=
-issive=3D1
-> >
-> > I would like us to add new fields at the end of existing records; the
-> > recent audit config changes are a bit of a special case as discussed
-> > previously.
+On Tue, Jan 22, 2019 at 12:39 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> Okay, I happened to find a way to do this a little differently (taking
-> a suggestion from Stephen about avoiding the need to do strcmp()) so
-> now it is actually easy to move them at the end. But I didn't expect
-> to get a more liberal reply from Steve (who is usually more strict
-> about this) than you :)
+> On Sun, Jan 20, 2019 at 3:04 PM Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> > Hi all,
+> >
+> > On Sat, 19 Jan 2019 11:21:48 +1100 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
+> > >
+> > > On Fri, 18 Jan 2019 16:28:07 -0500 Paul Moore <paul@paul-moore.com> wrote:
+> > > >
+> > > > On Fri, Jan 18, 2019 at 9:18 AM Wei Yongjun <weiyongjun1@huawei.com> wrote:
+> > > > >
+> > > > > Fix to return a negative error code -ENOMEM from the error handling
+> > > > > case instead of 0, as done elsewhere in this function.
+> > > > >
+> > > > > Fixes: 31696241e96e ("selinux: convert to kvmalloc")
+> > > >
+> > > > Unfortunately this commit isn't to be found in any of the SELinux
+> > > > branches, or Linus' master branch; based on the subject line I'm
+> > > > guessing the original patch is in a -next branch somewhere.  Please
+> > > > find whoever pushed this patch to linux-next and have them apply the
+> > > > fix.
+> > >
+> > > Yeah, Kent has a series doing conversions that is in Andrew Morton's
+> > > mmotm patch series.
+> >
+> > I have added that patch to the akpm-current tree in linux-next from today.
+>
+> Thanks Stephen.
+>
+> Wei Yongjun, have you talked with Kent and/or Andrew about getting
+> your fix added to their tree?  It's good that Stephen picked it up,
+> but it needs to get added to the original set of patches so the fix
+> makes it's way into Linus' tree at the same time as the original
+> patches.
 
-Yeah, the audit record format is a delicate subject with lots of
-disagreement between Steve and I.  I think you've seen some of that
-since you've been involved in audit, but it goes back years.
+Wei Yongjun, any progress on this?
 
-The general rule that I've been sticking to is that new fields get
-added to the end of the record.  There are exceptions, e.g. the config
-records, but those exceptions are typically only given in the case of
-a record format that is so irregular it really doesn't matter.
-
---=20
+-- 
 paul moore
 www.paul-moore.com
