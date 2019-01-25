@@ -1,194 +1,193 @@
-Return-Path: <SRS0=cSl0=QA=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=5KO5=QB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CD45C282C3
-	for <selinux@archiver.kernel.org>; Thu, 24 Jan 2019 21:57:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 650D0C282C0
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 09:53:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1CA1D218D2
-	for <selinux@archiver.kernel.org>; Thu, 24 Jan 2019 21:57:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=nvidia.com header.i=@nvidia.com header.b="R4gv/Kq8"
+	by mail.kernel.org (Postfix) with ESMTP id 360092084A
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 09:53:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727720AbfAXV5L (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 24 Jan 2019 16:57:11 -0500
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:5586 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727488AbfAXV5K (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 24 Jan 2019 16:57:10 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5c4a34a30001>; Thu, 24 Jan 2019 13:56:51 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Thu, 24 Jan 2019 13:57:09 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Thu, 24 Jan 2019 13:57:09 -0800
-Received: from [10.24.242.22] (172.20.13.39) by HQMAIL101.nvidia.com
- (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1395.4; Thu, 24 Jan
- 2019 21:57:05 +0000
-Subject: Re: [PATCH] selinux: avc: mark avc node as not a leak
-To:     Catalin Marinas <catalin.marinas@arm.com>
-CC:     <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
-        <eparis@parisplace.org>, <linux-kernel@vger.kernel.org>,
-        <selinux@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-        <talho@nvidia.com>, <swarren@nvidia.com>, <linux-mm@kvack.org>,
-        <snikam@nvidia.com>, <vdumpa@nvidia.com>
-References: <1547023162-6381-1-git-send-email-prpatel@nvidia.com>
- <20190109113126.nzpmb7xx4xqtn37w@mbp>
-From:   Prateek Patel <prpatel@nvidia.com>
-Message-ID: <75b75170-9316-9f7a-13a6-5f2b92b35bb2@nvidia.com>
-Date:   Fri, 25 Jan 2019 03:26:54 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S1728223AbfAYJxV convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Jan 2019 04:53:21 -0500
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:40245 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727975AbfAYJxU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 04:53:20 -0500
+Received: by mail-ot1-f66.google.com with SMTP id s5so7980026oth.7
+        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 01:53:20 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=zS7FT2HHTg3L2qh2Deo3X0MjjcJKMMUy91+zVce4ons=;
+        b=JWBkuWmea9SVr2uzchD761BSYAjETaXnkH6VhZ2DK4gd2RFal3i2Ri2MyxieWLQD6B
+         YJnhktLK9OVQHgkYWsLqe7CLaPpRGnOswNui3X+bzS9MRocqU536CRxlMS5E4Vcv3tz9
+         DEdWBo1uIVrMt9p9D9kepulfBGX2V+DoQFVsYRqngyvvf/PQ8lc4RIbFzCvNF2WdOoqk
+         yGxaUiDzHaAgU8LRcMOHXY6rKsjoKCyxsCGxYMfEcN7AKSb1uMoJthM+IWlV8+qHUox2
+         EuechkW7tV/SZz7VfHmdCQiXLfa0HUgzXl/1vKfM55tsbrfDjkHY5ppC+uFNUvBKgtYG
+         TLfw==
+X-Gm-Message-State: AJcUukcfIpJuof4V3B1mabcTptWj8r4eF6ZZmMpxh7r+22KQKqo6ZFtC
+        D5OPOANiytLctUEFbqVpM57gH2oSVwmx/eKlBUJHr+M9
+X-Google-Smtp-Source: ALg8bN7HhemlhpfU1zQ60i4yFEunJTG3PaZ9aFY9T/uAkRFO2tByHmCc7A5y8P87pal0IuVyFXp/y8JdqmaS9H9+tq0=
+X-Received: by 2002:a9d:3d0:: with SMTP id f74mr7054585otf.52.1548409999579;
+ Fri, 25 Jan 2019 01:53:19 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20190109113126.nzpmb7xx4xqtn37w@mbp>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL103.nvidia.com (172.20.187.11) To
- HQMAIL101.nvidia.com (172.20.187.10)
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-GB
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1548367011; bh=naFzZHExRS53DU+o6GCwc37LudjoqgRPZlmh7umATB0=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Transfer-Encoding:
-         Content-Language;
-        b=R4gv/Kq8AThjTn+PBmNgX+U8dQa8APWv0UvDO+vJtLVyTmMMq0E+LVHFgeFlAXamb
-         zkcgxBEAdBNj9mns/tooYz6dUpNdyQuzB6tS2MGbgE5TBZlzjTtrpNCGvpfsAo0oRb
-         +HBcLRpCVdy7cdO+sTM6uFygZXAT/yUgbWFFKEBBDdAoLHyJ1c6zZeAWFnByooTXLd
-         QigZNy9igY9oZ1USBWq6Xpvv/jY7O49rLkQWN8V1t1n6vqUMxr89Jjk8PIaEtoopof
-         EmVKwuY9VfomNsHqIL4gVSHgkoZHLKM07hDJYyM1hEwDxE8W962yAedyx/7seLlnHM
-         uBeyNfdm9e3xg==
+References: <20190121153605.26847-1-omosnace@redhat.com> <CAHC9VhRDSMeojFEFz+8rshiP4TmtoGuEuOK0AwZecyJ0SWN3Ug@mail.gmail.com>
+In-Reply-To: <CAHC9VhRDSMeojFEFz+8rshiP4TmtoGuEuOK0AwZecyJ0SWN3Ug@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 25 Jan 2019 10:53:08 +0100
+Message-ID: <CAFqZXNtkUC88X9sfr4Kaq=QDN-H9G=xHKEntyE2mfvC5S0aVXQ@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: log invalid contexts in AVCs
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux-Audit Mailing List <linux-audit@redhat.com>,
+        Daniel Walsh <dwalsh@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
-On 1/9/2019 5:01 PM, Catalin Marinas wrote:
-> Hi Prateek,
+On Tue, Jan 22, 2019 at 8:42 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Jan 21, 2019 at 10:36 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > In case a file has an invalid context set, in an AVC record generated
+> > upon access to such file, the target context is always reported as
+> > unlabeled. This patch adds new optional fields to the AVC record
+> > (srawcon and trawcon) that report the actual context string if it
+> > differs from the one reported in scontext/tcontext. This is useful for
+> > diagnosing SELinux denials involving invalid contexts.
+> >
+> > To trigger an AVC that illustrates this situation:
+> >
+> >     # setenforce 0
+> >     # touch /tmp/testfile
+> >     # setfattr -n security.selinux -v system_u:object_r:banana_t:s0 /tmp/testfile
+> >     # runcon system_u:system_r:sshd_t:s0 cat /tmp/testfile
+> >
+> > AVC before:
+> >
+> > type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tclass=file permissive=1
+> >
+> > AVC after:
+> >
+> > type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 trawcon=system_u:object_r:banana_t:s0 tclass=file permissive=1
 >
-> On Wed, Jan 09, 2019 at 02:09:22PM +0530, Prateek Patel wrote:
->> From: Sri Krishna chowdary <schowdary@nvidia.com>
->>
->> kmemleak detects allocated objects as leaks if not accessed for
->> default scan time. The memory allocated using avc_alloc_node
->> is freed using rcu mechanism when nodes are reclaimed or on
->> avc_flush. So, there is no real leak here and kmemleak_scan
->> detects it as a leak which is false positive. Hence, mark it as
->> kmemleak_not_leak.
-> In theory, kmemleak should detect the node->rhead in the lists used by
-> call_rcu() and not report it as a leak. Which RCU options do you have
-> enabled (just to check whether kmemleak tracks the RCU internal lists)?
+> I would like us to add new fields at the end of existing records; the
+> recent audit config changes are a bit of a special case as discussed
+> previously.
+
+Okay, I happened to find a way to do this a little differently (taking
+a suggestion from Stephen about avoiding the need to do strcmp()) so
+now it is actually easy to move them at the end. But I didn't expect
+to get a more liberal reply from Steve (who is usually more strict
+about this) than you :)
+
 >
-> Also, does this leak eventually disappear without your patch? Does
+> Also, under what cases would we ever see a srawcon field?  This is
+> only going to happen if we have a running process whose domain is
+> removed during a policy reload, correct?  I'm find with including this
+> for the sake of completeness, but I would mention this in the patch
+> description for the next revision.
+
+I tried to find a similar reproducer as for trawcon, but it doesn't
+seem to be possible to do that without reloading the policy. I will
+just add a note.
+
 >
->    echo dump=3D0xffffffc0dd1a0e60 > /sys/kernel/debug/kmemleak
+> > Cc: Daniel Walsh <dwalsh@redhat.com>
+> > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1135683
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >
+> > v2: Rename fields to "(s|t)rawcon".
+> >
+> >  security/selinux/avc.c | 49 +++++++++++++++++++++++++-----------------
+> >  1 file changed, 29 insertions(+), 20 deletions(-)
+> >
+> > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> > index 9b63d8ee1687..df5490db575b 100644
+> > --- a/security/selinux/avc.c
+> > +++ b/security/selinux/avc.c
+> > @@ -165,6 +165,32 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+> >         audit_log_format(ab, " }");
+> >  }
+> >
+> > +static void avc_dump_sid(struct audit_buffer *ab, struct selinux_state *state,
+> > +                        u32 sid, char type)
+> > +{
+> > +       int rc;
+> > +       char *context, *rcontext;
+> > +       u32 context_len, rcontext_len;
+> > +
+> > +       rc = security_sid_to_context(state, sid, &context, &context_len);
+> > +       if (rc) {
+> > +               audit_log_format(ab, "%csid=%d ", type, sid);
+> > +               return;
+> > +       }
+> > +
+> > +       audit_log_format(ab, "%ccontext=%s ", type, context);
+> > +
+> > +       /* in case of invalid context report also the actual context string */
+> > +       rc = security_sid_to_context_force(state, sid, &rcontext,
+> > +                                          &rcontext_len);
+> > +       if (!rc) {
+> > +               if (strcmp(context, rcontext))
+> > +                       audit_log_format(ab, "%crawcon=%s ", type, rcontext);
+> > +               kfree(rcontext);
+> > +       }
+> > +       kfree(context);
+> > +}
+> > +
+> >  /**
+> >   * avc_dump_query - Display a SID pair and a class in human-readable form.
+> >   * @ssid: source security identifier
+> > @@ -174,28 +200,11 @@ static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+> >  static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
+> >                            u32 ssid, u32 tsid, u16 tclass)
+> >  {
+> > -       int rc;
+> > -       char *scontext;
+> > -       u32 scontext_len;
+> > -
+> > -       rc = security_sid_to_context(state, ssid, &scontext, &scontext_len);
+> > -       if (rc)
+> > -               audit_log_format(ab, "ssid=%d", ssid);
+> > -       else {
+> > -               audit_log_format(ab, "scontext=%s", scontext);
+> > -               kfree(scontext);
+> > -       }
+> > -
+> > -       rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
+> > -       if (rc)
+> > -               audit_log_format(ab, " tsid=%d", tsid);
+> > -       else {
+> > -               audit_log_format(ab, " tcontext=%s", scontext);
+> > -               kfree(scontext);
+> > -       }
+> > +       avc_dump_sid(ab, state, ssid, 's');
+> > +       avc_dump_sid(ab, state, tsid, 't');
+> >
+> >         BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
+> > -       audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
+> > +       audit_log_format(ab, "tclass=%s", secclass_map[tclass-1].name);
+> >  }
+> >
+> >  /**
+> > --
+> > 2.20.1
 >
-> still display this object?
->
-> Thanks.
-Hi Catalin,
-It was intermittently showing leak and didn't repro on multiple runs. To=20
-repo, I decreased the
-minimum object age for reporting, I found triggering the second scan=20
-just after first is not showing
-any leak. Also, without my patch, on echo dump, obj is not displaying.
-Is increasing minimum object age for reporting a good idea to handle=20
-such type of issues to
-avoid false-positives?
+> --
+> paul moore
+> www.paul-moore.com
 
-Following is the log:
-
-t186_int:/ # echo scan > /sys/kernel/debug/kmemleak
-t186_int:/ # cat /sys/kernel/debug/kmemleak
-
-unreferenced object 0xffffffc1e06424c8 (size 72):
- =C2=A0 comm "netd", pid 4891, jiffies 4294906431 (age 23.120s)
- =C2=A0 hex dump (first 32 bytes):
- =C2=A0=C2=A0=C2=A0 97 01 00 00 1b 00 00 00 0b 00 00 00 57 06 04 00 .......=
-.....W...
- =C2=A0=C2=A0=C2=A0 00 00 00 00 ff ff ff ff 01 00 00 00 00 00 00 00 .......=
-.........
- =C2=A0 backtrace:
- =C2=A0=C2=A0=C2=A0 [<ffffff8008275214>] kmem_cache_alloc+0x1ac/0x2c0
- =C2=A0=C2=A0=C2=A0 [<ffffff80084dcf90>] avc_alloc_node+0x28/0x240
- =C2=A0=C2=A0=C2=A0 [<ffffff80084dd404>] avc_compute_av+0xa4/0x1d0
- =C2=A0=C2=A0=C2=A0 [<ffffff80084de1b8>] avc_has_perm+0xf8/0x1b8
- =C2=A0=C2=A0=C2=A0 [<ffffff80084e37f8>] file_has_perm+0xb8/0xe8
- =C2=A0=C2=A0=C2=A0 [<ffffff80084e3d64>] match_file+0x44/0x98
- =C2=A0=C2=A0=C2=A0 [<ffffff80082cc9d4>] iterate_fd+0x84/0xd0
- =C2=A0=C2=A0=C2=A0 [<ffffff80084e2b3c>] selinux_bprm_committing_creds+0xec=
-/0x230
- =C2=A0=C2=A0=C2=A0 [<ffffff80084d842c>] security_bprm_committing_creds+0x4=
-4/0x60
- =C2=A0=C2=A0=C2=A0 [<ffffff80082ad020>] install_exec_creds+0x20/0x70
- =C2=A0=C2=A0=C2=A0 [<ffffff800831b9a4>] load_elf_binary+0x31c/0xd10
- =C2=A0=C2=A0=C2=A0 [<ffffff80082ae530>] search_binary_handler+0x98/0x288
- =C2=A0=C2=A0=C2=A0 [<ffffff80082af078>] do_execveat_common.isra.14+0x550/0=
-x6d0
- =C2=A0=C2=A0=C2=A0 [<ffffff80082af4ac>] SyS_execve+0x4c/0x60
- =C2=A0=C2=A0=C2=A0 [<ffffff80080839c0>] el0_svc_naked+0x34/0x38
- =C2=A0=C2=A0=C2=A0 [<ffffffffffffffff>] 0xffffffffffffffff
-unreferenced object 0xffffffc1ab3c61b0 (size 72):
- =C2=A0 comm "crash_dump64", pid 5058, jiffies 4294907834 (age 17.508s)
- =C2=A0 hex dump (first 32 bytes):
- =C2=A0=C2=A0=C2=A0 2f 02 00 00 6b 00 00 00 07 00 00 00 53 04 04 00 /...k..=
-.....S...
- =C2=A0=C2=A0=C2=A0 00 00 00 00 ff ff fd ff 01 00 00 00 00 00 00 00 .......=
-.........
- =C2=A0 backtrace:
- =C2=A0=C2=A0=C2=A0 [<ffffff8008275214>] kmem_cache_alloc+0x1ac/0x2c0
- =C2=A0=C2=A0=C2=A0 [<ffffff80084dcf90>] avc_alloc_node+0x28/0x240
- =C2=A0=C2=A0=C2=A0 [<ffffff80084dd404>] avc_compute_av+0xa4/0x1d0
- =C2=A0=C2=A0=C2=A0 [<ffffff80084de084>] avc_has_perm_noaudit+0xe4/0x120
- =C2=A0=C2=A0=C2=A0 [<ffffff80084e1264>] selinux_inode_permission+0xc4/0x1c=
-8
- =C2=A0=C2=A0=C2=A0 [<ffffff80084d8fe8>] security_inode_permission+0x60/0x8=
-8
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b2cf4>] __inode_permission2+0x54/0x120
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b2e30>] inode_permission2+0x38/0x80
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b4b58>] may_open+0x70/0x128
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b6fd4>] do_last+0x234/0xee8
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b7d30>] path_openat+0xa8/0x310
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b9390>] do_filp_open+0x88/0x108
- =C2=A0=C2=A0=C2=A0 [<ffffff80082a1fec>] do_sys_open+0x1a4/0x290
- =C2=A0=C2=A0=C2=A0 [<ffffff80082a215c>] SyS_openat+0x3c/0x50
- =C2=A0=C2=A0=C2=A0 [<ffffff80080839c0>] el0_svc_naked+0x34/0x38
- =C2=A0=C2=A0=C2=A0 [<ffffffffffffffff>] 0xffffffffffffffff
-unreferenced object 0xffffffc1d3bcf678 (size 72):
- =C2=A0 comm "mediaserver", pid 5156, jiffies 4294909577 (age 10.536s)
- =C2=A0 hex dump (first 32 bytes):
- =C2=A0=C2=A0=C2=A0 0b 02 00 00 e2 01 00 00 07 00 00 00 53 04 04 00 .......=
-.....S...
- =C2=A0=C2=A0=C2=A0 00 00 00 00 f7 ff ff ff 01 00 00 00 00 00 00 00 .......=
-.........
- =C2=A0 backtrace:
- =C2=A0=C2=A0=C2=A0 [<ffffff8008275214>] kmem_cache_alloc+0x1ac/0x2c0
- =C2=A0=C2=A0=C2=A0 [<ffffff80084dcf90>] avc_alloc_node+0x28/0x240
- =C2=A0=C2=A0=C2=A0 [<ffffff80084dd404>] avc_compute_av+0xa4/0x1d0
- =C2=A0=C2=A0=C2=A0 [<ffffff80084de084>] avc_has_perm_noaudit+0xe4/0x120
- =C2=A0=C2=A0=C2=A0 [<ffffff80084e1264>] selinux_inode_permission+0xc4/0x1c=
-8
- =C2=A0=C2=A0=C2=A0 [<ffffff80084d8fe8>] security_inode_permission+0x60/0x8=
-8
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b2cf4>] __inode_permission2+0x54/0x120
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b2e30>] inode_permission2+0x38/0x80
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b4b58>] may_open+0x70/0x128
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b6fd4>] do_last+0x234/0xee8
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b7d30>] path_openat+0xa8/0x310
- =C2=A0=C2=A0=C2=A0 [<ffffff80082b9390>] do_filp_open+0x88/0x108
- =C2=A0=C2=A0=C2=A0 [<ffffff80082a1fec>] do_sys_open+0x1a4/0x290
- =C2=A0=C2=A0=C2=A0 [<ffffff80082a21f4>] compat_SyS_openat+0x3c/0x50
- =C2=A0=C2=A0=C2=A0 [<ffffff80080839c0>] el0_svc_naked+0x34/0x38
- =C2=A0=C2=A0=C2=A0 [<ffffffffffffffff>] 0xffffffffffffffff
-t186_int:/ # echo dump=3D0xffffffc1d3bcf678 > /sys/kernel/debug/kmemleak
-kmemleak: Unknown object at 0xffffffc1d3bcf678
-
-Thanks,
-
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Associate Software Engineer, Security Technologies
+Red Hat, Inc.
