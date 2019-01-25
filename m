@@ -2,115 +2,251 @@ Return-Path: <SRS0=5KO5=QB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0B0C282C0
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 21:59:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEC76C282C0
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 22:11:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9432021855
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 21:59:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A54F421855
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 22:11:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="p6BTchqr"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="ANIM0mvG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726589AbfAYV7w (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 25 Jan 2019 16:59:52 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:40546 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726329AbfAYV7w (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 16:59:52 -0500
-Received: by mail-lj1-f194.google.com with SMTP id n18-v6so9596427lji.7
-        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 13:59:50 -0800 (PST)
+        id S1729354AbfAYWLQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Jan 2019 17:11:16 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:45710 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726179AbfAYWLQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 17:11:16 -0500
+Received: by mail-lj1-f193.google.com with SMTP id s5-v6so9593657ljd.12
+        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 14:11:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=f/B7FYdvgA+4dwG8U92oX1OJ+1iRHNpW6/b5sSyTcVo=;
-        b=p6BTchqrxGXR7dCD9A6GZVdJraS0iOLPwdOhUnVeR+FIdJJ9Ax9jm2BVPDJ9/6Bh3G
-         uJUIfr8EqYST5Ppl92b/hdo6j3aR0gZ9i+mFsv8QcAKfZgo6gOYVQJAwpNdC8lz4YKjx
-         QZNcsxQ/+wlScoTbRZfxA0NMbgNYS9Zbkxi07VMpPY+Uabmlwp5m0xkVYjGQwt2P+clD
-         C/ExISWLUyNqeuN14+tAsnkK29aAPeXiocwmKzti4DhwCn3kZqGFy95sUWxuwx7xpovH
-         CWwA2eNPjodLUyXpQ5PSLon/noFc2Bezlq2c5s1zdZb2K5Ca4wikl8D/nDgmbqDekoDg
-         5Odg==
+        bh=p5x6h1zaPniNuVXgsMwmQDRXh57R3QY9N3mqsdEX+94=;
+        b=ANIM0mvGD6ork/jCZIf0ouRhq3eB+cQUqPYsI0y+3+Cy+ltBTnf5c8Xo53y2p6E8UD
+         8l8F5DB/k57tq7KQ/zwUhGnoxnPacndg7o6A2AqLRLjUnykeI61M9uBaa+w1qeWF8XRk
+         gjour7aKbaZL072ibpsRwJpQcDzcQGhrOz/uBINg138yth/de2fhHsXeg8IDN4Z2AF/n
+         csXQFTwf9gaZfvrMEboaFblHTKZUtz7xMjJlPZk7waIf2St5UUSYKLoBuTlN4jNlprA2
+         UI3WRyN1fLO2a8+SrbFK1hXF1SQl5yQiDy4M+WOyH9oryBdP6EJrFTP0FOWLSuAiAJ+m
+         p6nw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=f/B7FYdvgA+4dwG8U92oX1OJ+1iRHNpW6/b5sSyTcVo=;
-        b=KLDvzAc6FQo4XZVbaWnrQYQ/yrrfaXId5Imq2ceklK6tVudTMix6KCOK+XwfK4O0UE
-         acUWEWxeVU2LioXxLQF5CqVh9Feov+AbewD7kRyhLea8sp18KayLdcP7xlAKoNzohi0s
-         jWw4op/vp9/lLV8B7Yt4GQTyblxQEyAc1Vx6m+2pLyGn4oZps4F9EZqDPin9BCJjPzKO
-         nasqMeufGPMdbwiIJZWwc0+WafldAkY9Z2g2fQg+u8Sws8Qthxv8dyzIeprd/9ZPxs7d
-         cH0JebEtw3flvB9URpsTMz6PHDgW8h2PY62rJINs+TeWKn9zjYzPT2KomKcdHi2dRwEl
-         Ex/w==
-X-Gm-Message-State: AJcUukc5km5/FDGvXTJLlX05eFzH8hqmZZXuwOObYJw+erZ9JdH/PUqi
-        8x1J0YN2Xg8u0F+OywKtNPNkoZuVgp4qJVBYDac0
-X-Google-Smtp-Source: ALg8bN5+RMG+T5t9XtNbrAptTzPuOrXYtikRe23map2lOgDjiNblSU+9ZEZiKrES8lOVAxGxd+AS7bPHIeBq+zzGE/0=
-X-Received: by 2002:a2e:9c87:: with SMTP id x7-v6mr9718361lji.196.1548453589735;
- Fri, 25 Jan 2019 13:59:49 -0800 (PST)
+        bh=p5x6h1zaPniNuVXgsMwmQDRXh57R3QY9N3mqsdEX+94=;
+        b=KpK3Y/2rfqPoUlOeHezsQQ6ktzH4Htu08Ct+FuDw6eiwIN/HFVSM5/cP5MYuaoRyh2
+         fysY76KSFIw77norTO7FqafDLSb+LlI2yYjm2rnbv5dqwGDWYpZcWGCIiAdlIlqiTCFO
+         0XGp0cqORYJQWUG/cFtJ+tvZLztk3UpE0IiPP7ByJjlrxnW5BrUgXtoIhdeDMNKL1aQQ
+         8AKzuQHquD9v117Fh1N5GgT/Ws0qG1Kj1ckSU4ZyihqUL13r1I+/K5PRPy/LAFFStefM
+         e91u2yrMRpedJkfHc0fq70ZXrKrf6588fxxDbBFiwlemh4EsA8QgWlTwb2wgzcZ5relW
+         1Snw==
+X-Gm-Message-State: AJcUukf3pD7DNk87ooD1j+jEq/9x4A7kXXxAl3pLW8a7Zm14rYV6QJvI
+        2D7mdDHCmrSdyttl1Wk1pC7LLVnXFfQ45h1ReY3Q
+X-Google-Smtp-Source: ALg8bN61hKNLCQLAbTelBz2u+Vh8RjcNtA2uXaZlPuzMJk/gXfrfvfEGK7xztLwuS8K5DKxRDy4j4SxSh+nWx6dFMoc=
+X-Received: by 2002:a2e:9cd2:: with SMTP id g18-v6mr10281073ljj.161.1548454273152;
+ Fri, 25 Jan 2019 14:11:13 -0800 (PST)
 MIME-Version: 1.0
-References: <1547821427-157169-1-git-send-email-weiyongjun1@huawei.com>
- <CAHC9VhSbtqhiMQdNJ_6yeX5+ggwVNyGYXe-E=bMj2V2z2MmAsA@mail.gmail.com>
- <20190119112148.375edf4c@canb.auug.org.au> <20190121070410.1c90552f@canb.auug.org.au>
- <CAHC9VhQTv=b_sLOdTQ9v1Z=0=Uf2JG74ZEw4yof-GsKuu9-s0Q@mail.gmail.com>
-In-Reply-To: <CAHC9VhQTv=b_sLOdTQ9v1Z=0=Uf2JG74ZEw4yof-GsKuu9-s0Q@mail.gmail.com>
+References: <20190125100651.21753-1-omosnace@redhat.com> <20190125100651.21753-2-omosnace@redhat.com>
+In-Reply-To: <20190125100651.21753-2-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 25 Jan 2019 16:59:38 -0500
-Message-ID: <CAHC9VhQoZDBLrxawkk-K75hizBNKF6gLw1fcnZ7F5wbV6PJn7Q@mail.gmail.com>
-Subject: Re: [PATCH -next] selinux: Fix error return code in policydb_read()
-To:     Wei Yongjun <weiyongjun1@huawei.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        peter enderborg <peter.enderborg@sony.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        selinux@vger.kernel.org, kernel-janitors@vger.kernel.org
+Date:   Fri, 25 Jan 2019 17:11:01 -0500
+Message-ID: <CAHC9VhQv8zPiNMzZ4d7cTP8La-Ncbj-Bp5nhMLo4V2EmAwcYpw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/4] selinux: inline some AVC functions used only once
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-audit@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 22, 2019 at 12:39 PM Paul Moore <paul@paul-moore.com> wrote:
+On Fri, Jan 25, 2019 at 5:07 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> On Sun, Jan 20, 2019 at 3:04 PM Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> > Hi all,
-> >
-> > On Sat, 19 Jan 2019 11:21:48 +1100 Stephen Rothwell <sfr@canb.auug.org.au> wrote:
-> > >
-> > > On Fri, 18 Jan 2019 16:28:07 -0500 Paul Moore <paul@paul-moore.com> wrote:
-> > > >
-> > > > On Fri, Jan 18, 2019 at 9:18 AM Wei Yongjun <weiyongjun1@huawei.com> wrote:
-> > > > >
-> > > > > Fix to return a negative error code -ENOMEM from the error handling
-> > > > > case instead of 0, as done elsewhere in this function.
-> > > > >
-> > > > > Fixes: 31696241e96e ("selinux: convert to kvmalloc")
-> > > >
-> > > > Unfortunately this commit isn't to be found in any of the SELinux
-> > > > branches, or Linus' master branch; based on the subject line I'm
-> > > > guessing the original patch is in a -next branch somewhere.  Please
-> > > > find whoever pushed this patch to linux-next and have them apply the
-> > > > fix.
-> > >
-> > > Yeah, Kent has a series doing conversions that is in Andrew Morton's
-> > > mmotm patch series.
-> >
-> > I have added that patch to the akpm-current tree in linux-next from today.
+> avc_dump_av() and avc_dump_query() are each used only in one place. Get
+> rid of them and open code their contents in the call sites.
 >
-> Thanks Stephen.
->
-> Wei Yongjun, have you talked with Kent and/or Andrew about getting
-> your fix added to their tree?  It's good that Stephen picked it up,
-> but it needs to get added to the original set of patches so the fix
-> makes it's way into Linus' tree at the same time as the original
-> patches.
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  security/selinux/avc.c | 140 +++++++++++++++++------------------------
+>  1 file changed, 58 insertions(+), 82 deletions(-)
 
-Wei Yongjun, any progress on this?
+Merged, thanks.
+
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 9b63d8ee1687..502162eeb3a0 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -129,75 +129,6 @@ static inline int avc_hash(u32 ssid, u32 tsid, u16 tclass)
+>         return (ssid ^ (tsid<<2) ^ (tclass<<4)) & (AVC_CACHE_SLOTS - 1);
+>  }
+>
+> -/**
+> - * avc_dump_av - Display an access vector in human-readable form.
+> - * @tclass: target security class
+> - * @av: access vector
+> - */
+> -static void avc_dump_av(struct audit_buffer *ab, u16 tclass, u32 av)
+> -{
+> -       const char **perms;
+> -       int i, perm;
+> -
+> -       if (av == 0) {
+> -               audit_log_format(ab, " null");
+> -               return;
+> -       }
+> -
+> -       BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
+> -       perms = secclass_map[tclass-1].perms;
+> -
+> -       audit_log_format(ab, " {");
+> -       i = 0;
+> -       perm = 1;
+> -       while (i < (sizeof(av) * 8)) {
+> -               if ((perm & av) && perms[i]) {
+> -                       audit_log_format(ab, " %s", perms[i]);
+> -                       av &= ~perm;
+> -               }
+> -               i++;
+> -               perm <<= 1;
+> -       }
+> -
+> -       if (av)
+> -               audit_log_format(ab, " 0x%x", av);
+> -
+> -       audit_log_format(ab, " }");
+> -}
+> -
+> -/**
+> - * avc_dump_query - Display a SID pair and a class in human-readable form.
+> - * @ssid: source security identifier
+> - * @tsid: target security identifier
+> - * @tclass: target security class
+> - */
+> -static void avc_dump_query(struct audit_buffer *ab, struct selinux_state *state,
+> -                          u32 ssid, u32 tsid, u16 tclass)
+> -{
+> -       int rc;
+> -       char *scontext;
+> -       u32 scontext_len;
+> -
+> -       rc = security_sid_to_context(state, ssid, &scontext, &scontext_len);
+> -       if (rc)
+> -               audit_log_format(ab, "ssid=%d", ssid);
+> -       else {
+> -               audit_log_format(ab, "scontext=%s", scontext);
+> -               kfree(scontext);
+> -       }
+> -
+> -       rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
+> -       if (rc)
+> -               audit_log_format(ab, " tsid=%d", tsid);
+> -       else {
+> -               audit_log_format(ab, " tcontext=%s", scontext);
+> -               kfree(scontext);
+> -       }
+> -
+> -       BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
+> -       audit_log_format(ab, " tclass=%s", secclass_map[tclass-1].name);
+> -}
+> -
+>  /**
+>   * avc_init - Initialize the AVC.
+>   *
+> @@ -735,11 +666,37 @@ out:
+>  static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
+>  {
+>         struct common_audit_data *ad = a;
+> -       audit_log_format(ab, "avc:  %s ",
+> -                        ad->selinux_audit_data->denied ? "denied" : "granted");
+> -       avc_dump_av(ab, ad->selinux_audit_data->tclass,
+> -                       ad->selinux_audit_data->audited);
+> -       audit_log_format(ab, " for ");
+> +       struct selinux_audit_data *sad = ad->selinux_audit_data;
+> +       u32 av = sad->audited;
+> +       const char **perms;
+> +       int i, perm;
+> +
+> +       audit_log_format(ab, "avc:  %s ", sad->denied ? "denied" : "granted");
+> +
+> +       if (av == 0) {
+> +               audit_log_string(ab, " null");
+> +               return;
+> +       }
+> +
+> +       BUG_ON(!sad->tclass || sad->tclass >= ARRAY_SIZE(secclass_map));
+> +       perms = secclass_map[sad->tclass-1].perms;
+> +
+> +       audit_log_string(ab, " {");
+> +       i = 0;
+> +       perm = 1;
+> +       while (i < (sizeof(av) * 8)) {
+> +               if ((perm & av) && perms[i]) {
+> +                       audit_log_format(ab, " %s", perms[i]);
+> +                       av &= ~perm;
+> +               }
+> +               i++;
+> +               perm <<= 1;
+> +       }
+> +
+> +       if (av)
+> +               audit_log_format(ab, " 0x%x", av);
+> +
+> +       audit_log_string(ab, " } for ");
+>  }
+>
+>  /**
+> @@ -751,15 +708,34 @@ static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
+>  static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
+>  {
+>         struct common_audit_data *ad = a;
+> -       audit_log_format(ab, " ");
+> -       avc_dump_query(ab, ad->selinux_audit_data->state,
+> -                      ad->selinux_audit_data->ssid,
+> -                      ad->selinux_audit_data->tsid,
+> -                      ad->selinux_audit_data->tclass);
+> -       if (ad->selinux_audit_data->denied) {
+> -               audit_log_format(ab, " permissive=%u",
+> -                                ad->selinux_audit_data->result ? 0 : 1);
+> +       struct selinux_audit_data *sad = ad->selinux_audit_data;
+> +       char *scontext;
+> +       u32 scontext_len;
+> +       int rc;
+> +
+> +       rc = security_sid_to_context(sad->state, sad->ssid, &scontext,
+> +                                    &scontext_len);
+> +       if (rc)
+> +               audit_log_format(ab, " ssid=%d", sad->ssid);
+> +       else {
+> +               audit_log_format(ab, " scontext=%s", scontext);
+> +               kfree(scontext);
+>         }
+> +
+> +       rc = security_sid_to_context(sad->state, sad->tsid, &scontext,
+> +                                    &scontext_len);
+> +       if (rc)
+> +               audit_log_format(ab, " tsid=%d", sad->tsid);
+> +       else {
+> +               audit_log_format(ab, " tcontext=%s", scontext);
+> +               kfree(scontext);
+> +       }
+> +
+> +       BUG_ON(!sad->tclass || sad->tclass >= ARRAY_SIZE(secclass_map));
+> +       audit_log_format(ab, " tclass=%s", secclass_map[sad->tclass-1].name);
+> +
+> +       if (sad->denied)
+> +               audit_log_format(ab, " permissive=%u", sad->result ? 0 : 1);
+>  }
+>
+>  /* This is the slow part of avc audit with big stack footprint */
+> --
+> 2.20.1
+>
+
 
 -- 
 paul moore
