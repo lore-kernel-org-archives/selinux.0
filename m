@@ -2,205 +2,302 @@ Return-Path: <SRS0=5KO5=QB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9716EC282C0
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 10:07:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 799F8C282C0
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 11:12:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 65B18218A2
-	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 10:07:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B30D218A6
+	for <selinux@archiver.kernel.org>; Fri, 25 Jan 2019 11:12:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727959AbfAYKHz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 25 Jan 2019 05:07:55 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:44800 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727996AbfAYKHy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 25 Jan 2019 05:07:54 -0500
-Received: by mail-wr1-f68.google.com with SMTP id z5so9598882wrt.11
-        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 02:07:52 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ahfiFzkzW3c7iFI8v5bmrruVllmd62YbhhBJcLq3gVA=;
-        b=S03cCsPqLwqnY/ggAIUOAaWWLRCXbpfCwTRUckYJhmAFzdPETbuxhitpan8jmFMUy0
-         /OkeJPkG82TqzbUbVuVFrclx8zoBrpXf0g4e/6hK88X0/3bcNk7NEJo388XuUGF/uxNr
-         JznL89nF0S9LB31uqW9Y82Hzq47UNcQc4N+Fqw1XDbWoQGYYIP9i++HTyONXnC+Lg02F
-         rqvVhsJwcpBXXw/psnSn05f/PS4DCbOO7QipoPHVc5Pc5PKK6GShDjz9jqtR0sflnswy
-         5BjRoeGesmGdnLp4zDyf+EzEYWkSOD4Je3oSXN0WeNenxZ6LAZVogCEXK7MpwhUtA8Fq
-         2tjQ==
-X-Gm-Message-State: AJcUukdLhaBu6BiCKNOiXAHtJtPwUQIN20vVS9wrDtFSzjSwYwpuWWwn
-        eGw9xy/5RuBdlsT9WsIdIo24nRyZYIM=
-X-Google-Smtp-Source: ALg8bN4Tu3rqCq7YWEDiC6MFZj5P7QXxKt7GzkmkPPJYpEwhBl9MGtkwECvbS37dvh78tEmbX/qMzA==
-X-Received: by 2002:adf:90e5:: with SMTP id i92mr10317943wri.210.1548410871877;
-        Fri, 25 Jan 2019 02:07:51 -0800 (PST)
-Received: from p600.fit.wifi.vutbr.cz ([147.229.117.36])
-        by smtp.gmail.com with ESMTPSA id v6sm89155089wro.57.2019.01.25.02.07.50
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 25 Jan 2019 02:07:50 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, linux-audit@redhat.com,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Daniel Walsh <dwalsh@redhat.com>
-Subject: [PATCH v3 4/4] selinux: log invalid contexts in AVCs
-Date:   Fri, 25 Jan 2019 11:06:51 +0100
-Message-Id: <20190125100651.21753-5-omosnace@redhat.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190125100651.21753-1-omosnace@redhat.com>
-References: <20190125100651.21753-1-omosnace@redhat.com>
+        id S1726317AbfAYLMN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 25 Jan 2019 06:12:13 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:29203 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726049AbfAYLMM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 25 Jan 2019 06:12:12 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 27534A24FA
+        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 11:12:12 +0000 (UTC)
+Received: from workstation (unknown [10.43.12.93])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6C9F34DE
+        for <selinux@vger.kernel.org>; Fri, 25 Jan 2019 11:12:11 +0000 (UTC)
+User-agent: mu4e 1.0; emacs 26.1
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     "selinux\@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: ANN: SELinux userspace 2.9-rc1 release candidate
+Date:   Fri, 25 Jan 2019 12:12:09 +0100
+Message-ID: <pjdmunpt2ie.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; format=flowed
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Fri, 25 Jan 2019 11:12:12 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In case a file has an invalid context set, in an AVC record generated
-upon access to such file, the target context is always reported as
-unlabeled. This patch adds new optional fields to the AVC record
-(srawcon and trawcon) that report the actual context string if it
-differs from the one reported in scontext/tcontext. This is useful for
-diagnosing SELinux denials involving invalid contexts.
 
-To trigger an AVC that illustrates this situation:
+A 2.9-rc1 release candidate for the SELinux userspace is now 
+available at:
 
-    # setenforce 0
-    # touch /tmp/testfile
-    # setfattr -n security.selinux -v system_u:object_r:banana_t:s0 /tmp/testfile
-    # runcon system_u:system_r:sshd_t:s0 cat /tmp/testfile
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-AVC before:
+Please give it a test and let us know if there are any issues.
 
-type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tclass=file permissive=1
+If there are specific changes that you think should be called out 
+in
+release notes for packagers and users in the final release 
+announcement, let us know.
 
-AVC after:
+Thanks to all the contributors to this release candidate!
 
-type=AVC msg=audit(1547801083.248:11): avc:  denied  { open } for  pid=1149 comm="cat" path="/tmp/testfile" dev="tmpfs" ino=6608 scontext=system_u:system_r:sshd_t:s0 tcontext=system_u:object_r:unlabeled_t:s15:c0.c1023 tclass=file permissive=1 trawcon=system_u:object_r:banana_t:s0
+User-visible changes:
 
-Note that it is also possible to encounter this situation with the
-'scontext' field - e.g. when a new policy is loaded while a process is
-running, whose context is not valid in the new policy.
+* Spelling errors were fixed in libselinux man pages
 
-Cc: Daniel Walsh <dwalsh@redhat.com>
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=1135683
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/avc.c              | 15 ++++++++++++
- security/selinux/include/security.h |  3 +++
- security/selinux/ss/services.c      | 37 +++++++++++++++++++++++++----
- 3 files changed, 50 insertions(+), 5 deletions(-)
+* audit2allow supports xperms now. There are new '-x'/'--xperms' 
+  options which
+turn on generating of extended permisssion AV rules.
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 478fa4213c25..047de65589bd 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -734,6 +734,21 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
- 
- 	if (sad->denied)
- 		audit_log_format(ab, " permissive=%u", sad->result ? 0 : 1);
-+
-+	/* in case of invalid context report also the actual context string */
-+	rc = security_sid_to_context_inval(sad->state, sad->ssid, &scontext,
-+					   &scontext_len);
-+	if (!rc && scontext) {
-+		audit_log_format(ab, " srawcon=%s", scontext);
-+		kfree(scontext);
-+	}
-+
-+	rc = security_sid_to_context_inval(sad->state, sad->tsid, &scontext,
-+					   &scontext_len);
-+	if (!rc && scontext) {
-+		audit_log_format(ab, " trawcon=%s", scontext);
-+		kfree(scontext);
-+	}
- }
- 
- /* This is the slow part of avc audit with big stack footprint */
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index ba8eedf42b90..f68fb25b5702 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -255,6 +255,9 @@ int security_sid_to_context(struct selinux_state *state, u32 sid,
- int security_sid_to_context_force(struct selinux_state *state,
- 				  u32 sid, char **scontext, u32 *scontext_len);
- 
-+int security_sid_to_context_inval(struct selinux_state *state,
-+				  u32 sid, char **scontext, u32 *scontext_len);
-+
- int security_context_to_sid(struct selinux_state *state,
- 			    const char *scontext, u32 scontext_len,
- 			    u32 *out_sid, gfp_t gfp);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index dd44126c8d14..9be05c3e99dc 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1281,7 +1281,8 @@ const char *security_get_initial_sid_context(u32 sid)
- 
- static int security_sid_to_context_core(struct selinux_state *state,
- 					u32 sid, char **scontext,
--					u32 *scontext_len, int force)
-+					u32 *scontext_len, int force,
-+					int only_invalid)
- {
- 	struct policydb *policydb;
- 	struct sidtab *sidtab;
-@@ -1326,8 +1327,14 @@ static int security_sid_to_context_core(struct selinux_state *state,
- 		rc = -EINVAL;
- 		goto out_unlock;
- 	}
--	rc = context_struct_to_string(policydb, context, scontext,
--				      scontext_len);
-+	if (only_invalid && !context->len) {
-+		scontext = NULL;
-+		scontext_len = 0;
-+		rc = 0;
-+	} else {
-+		rc = context_struct_to_string(policydb, context, scontext,
-+					      scontext_len);
-+	}
- out_unlock:
- 	read_unlock(&state->ss->policy_rwlock);
- out:
-@@ -1349,14 +1356,34 @@ int security_sid_to_context(struct selinux_state *state,
- 			    u32 sid, char **scontext, u32 *scontext_len)
- {
- 	return security_sid_to_context_core(state, sid, scontext,
--					    scontext_len, 0);
-+					    scontext_len, 0, 0);
- }
- 
- int security_sid_to_context_force(struct selinux_state *state, u32 sid,
- 				  char **scontext, u32 *scontext_len)
- {
- 	return security_sid_to_context_core(state, sid, scontext,
--					    scontext_len, 1);
-+					    scontext_len, 1, 0);
-+}
-+
-+/**
-+ * security_sid_to_context_inval - Obtain a context for a given SID if it
-+ *                                 is invalid.
-+ * @sid: security identifier, SID
-+ * @scontext: security context
-+ * @scontext_len: length in bytes
-+ *
-+ * Write the string representation of the context associated with @sid
-+ * into a dynamically allocated string of the correct size, but only if the
-+ * context is invalid in the current policy.  Set @scontext to point to
-+ * this string (or NULL if the context is valid) and set @scontext_len to
-+ * the length of the string (or 0 if the context is valid).
-+ */
-+int security_sid_to_context_inval(struct selinux_state *state, u32 sid,
-+				  char **scontext, u32 *scontext_len)
-+{
-+	return security_sid_to_context_core(state, sid, scontext,
-+					    scontext_len, 1, 1);
- }
- 
- /*
--- 
-2.20.1
+* semanage login is fixed in order not to log two audit events 
+  which one of them
+was correct.
+
+* libsemanage resets umask before creating directories so that 
+  file permissions
+should not change after a change is committed. 
+
+* Correct user name is used in ROLE_REMOVE audit events
+
+* The noise produced by checkpolicy command line tool is reduced 
+  now.
+
+* A new option '-S' or '--sort' is added to checkpolicy to sort 
+  the ocontexts
+before writing out the binary policy.
+
+* sepolicy and semanage accept aliases now.
+
+* Deprecated at_console statement was removed from dbus 
+  configuration.
+
+* semanage export output includes ibpkey and ibendport now.
+
+* audit2why can be run as non-root user now.
+
+Packaging-relevant changes:
+
+* Usage of DESTDIR in restorecond is consistent with other 
+  directories now
+
+Issues fixed:
+
+* https://github.com/SELinuxProject/selinux/issues/81
+* https://github.com/SELinuxProject/selinux/issues/97
+* https://github.com/SELinuxProject/selinux/issues/108
+* https://github.com/SELinuxProject/selinux/issues/109
+* https://github.com/SELinuxProject/selinux/issues/119
+* https://github.com/SELinuxProject/selinux/issues/121
+* https://github.com/SELinuxProject/selinux/issues/123
+
+
+
+A shortlog of changes since the 2.8 release is below.
+
+Hollis Blanchard (1):
+      Fix build break around __atomic_*() with GCC<4.7
+
+James Carter (7):
+      libsepol: Create policydb_sort_ocontexts()
+      checkpolicy: Add option to sort ocontexts when creating a 
+      binary policy
+      libsepol: Rename kernel_to_common.c stack functions
+      libsepol: Eliminate initial sid string definitions in 
+      module_to_cil.c
+      libsepol: Check that initial sid indexes are within the 
+      valid range
+      libsepol: Add two new Xen initial SIDs
+      libsepol: mark permissive types when loading a binary policy
+
+Jan Zarsky (3):
+      python/sepolgen: print all AV rules correctly
+      python/sepolgen: fix access vector initialization
+      python: add xperms support to audit2allow
+
+Laurent Bigonville (7):
+      policycoreutils: Fix typo in newrole.1 manpage
+      secilc: Make the clean target call the clean target of docs/
+      libselinux: Fix spelling errors in manpages
+      libselinux: Fix line wrapping in selabel_file.5
+      libselinux: fix the whatis line for the 
+      selinux_boolean_sub.3 manpage
+      restorecond: Fix consistancy of DESTDIR usage
+      libsemanage: Always set errno to 0 before calling getpwent()
+
+Mr Stid (1):
+      Fix snprintf truncated error
+
+Nick Kralevich via Selinux (3):
+      checkpolicy: remove extraneous policy build noise
+      whitespace and spelling cleanup
+      secilc: better error handling
+
+Nicolas Iooss (70):
+      libsepol: cil: silence clang analyzer false positive
+      libsepol: do not leak memory if list_prepend fails
+      libsepol: remove some dead assignments
+      libsepol: do not call malloc with 0 byte
+      libsepol: remove unused variable
+      checkpolicy: destroy the class datum if it fails to 
+      initialize
+      libsepol: destroy the copied va_list
+      python/sepolgen: fix typo in PathChoooser name
+      policycoreutils/secon: fix typo in comment
+      policycoreutils/secon: free scon_trans before returning
+      policycoreutils/hll/pp: remove unused variable
+      libsepol/tests: read_binary_policy() does not use f.handle
+      libsepol/tests: fix use of unitialized variable
+      libsepol/cil: use a colon instead of a semicolon to report 
+      rc
+      scripts: add a helper script to run clang's static analyzer
+      restorecond: close the PID file if writing to it failed
+      Travis-CI: use new location of refpolicy repository
+      mcstrans: fix memory leaks reported by clang's static 
+      analyzer
+      python/semanage: fix Python syntax of catching several 
+      exceptions
+      libselinux: fix flake8 warnings in SWIG-generated code
+      python/sepolgen: do not import twice the modules
+      python/sepolgen: return NotImplemented instead of raising it
+      python/sepolicy: drop unused CheckPolicyType
+      python/sepolicy: use lowercase variable name
+      python/sepolgen: fix refpolicy parsing of "permissive"
+      python/sepolgen: silence linter warning about has_key
+      python/sepolgen: remove buggy code
+      python/sepolgen: use self when accessing members in 
+      FilesystemUse
+      python/sepolicy: fix "procotol" misspelling
+      python/sepolicy: use variables which exist in the gui.py
+      python/sepolicy: do not import sepolicy.generate.DAEMON 
+      twice
+      python/sepolicy: do not import types
+      python/sepolicy: add missing % in network tab help text
+      Travis-CI: run flake8 on Python code
+      libsemanage: reindent pywrap-test.py with spaces
+      libsemanage: make pywrap-test.py compatible with Python 3
+      libselinux: add a const to suppress a build warning with 
+      Python 3.7
+      Travis-CI: upgrade to Ubuntu 16.04 LTS Xenial Xerus
+      python: remove semicolon from end of lines
+      libsemanage: use previous seuser when getting the previous 
+      name
+      semanage: "semanage user" does not use -s, fix documentation
+      semanage: add a missing space in ibendport help
+      libselinux: selinux_restorecon: fix printf format string 
+      specifier for uint64_t
+      gui: remove html_util.py
+      python/chcat: improve the code readability
+      python/chcat: fix removing categories on users with Fedora 
+      default setup
+      python/semanage: do not show "None" levels when using a 
+      non-MLS policy
+      mcstrans: convert test scripts to Python 3
+      mcstrans: fix Python linter warnings on test scripts
+      python/sepolgen: always indent with 4 spaces
+      semanage_migrate_store: fix many Python linter warnings
+      semanage_migrate_store: remove unused loading of libsepol.so
+      semanage_migrate_store: switch to space indentation
+      python/sepolgen: upgrade ply to release 3.11
+      python/sepolgen: close /etc/selinux/sepolgen.conf after 
+      parsing it
+      python/audit2allow/sepolgen-ifgen: add missing \n to error 
+      message
+      python/audit2allow/sepolgen-ifgen: show errors on stderr
+      python/audit2allow: allow using audit2why as non-root user
+      python/semanage: explain why sepolicy is imported in a 
+      function
+      Travis-CI: download refpolicy and install headers
+      python/audit2allow: make the tests useful again
+      python/audit2allow: use local sepolgen-ifgen-attr-helper for 
+      tests
+      python/sepolgen: refpolicy installs its Makefile in 
+      include/Makefile
+      python: run all the tests with "make test"
+      scripts/run-flake8: run on Python scripts not ending with 
+      .py
+      python/sepolicy: initialize mislabeled_files in __init__()
+      libselinux: do not dereference symlink with statfs in 
+      selinux_restorecon
+      Travis-CI: upgrade PyPy to 6.0
+      Travis-CI: add Ruby 2.6 to the test matrix
+      scripts: introduce env_use_destdir.sh helper
+
+Ondrej Mosnacek (3):
+      restorecond: Do not ignore the -f option
+      libsepol: fix endianity in ibpkey range checks
+      libsepol: add missing ibendport port validity check
+
+Petr Lautrbach (9):
+      python/sepolicy: search() also for dontaudit rules
+      mcstrans: Fix check in raw_color()
+      python/semanage: move valid_types initialisations to class 
+      constructors
+      python/semanage: import sepolicy only when it's needed
+      python/sepolicy: Add sepolicy.load_store_policy(store)
+      python/semanage: Load a store policy and set the store 
+      SELinux policy root
+      python/sepolicy: Make policy files sorting more robust
+      libselinux/audit2why.so: Filter out non-python related 
+      symbols
+      Update VERSIONs to 2.9-rc1 for release.
+
+Stephen Smalley (5):
+      README: Update the SELinux mailing list location
+      libselinux: fix overly strict validation of 
+      file_contexts.bin
+      libsepol: ibpkeys.c: fix printf format string specifiers for 
+      subnet_prefix
+      libsemanage: set selinux policy root around calls to 
+      selinux_boolean_sub
+      setsebool: support use of -P on SELinux-disabled hosts
+
+Tom Gundersen (1):
+      dbus: remove deprecated at_console statement
+
+Vit Mojzis (13):
+      python/semanage: Stop logging loginRecords changes
+      python/semanage: Fix logger class definition
+      python/semanage: Replace bare except with specific one
+      libsemanage: reset umask before creating directories
+      libsemanage: Include user name in ROLE_REMOVE audit events
+      python/sepolicy: Update to work with setools-4.2.0
+      python/sepolicy: Fix "info" to search aliases as well
+      python/sepolicy: Stop rejecting aliases in sepolicy commands
+      python/semanage: Stop rejecting aliases in semanage commands
+      python: replace aliases with corresponding type names
+      python/semanage: Include MCS/MLS range when exporting local 
+      customizations
+      python/semanage: Start exporting "ibendport" and "ibpkey" 
+      entries
+      python/chcat: use check_call instead of getstatusoutput
+
+William Roberts (3):
+      Makefile: fix _FORTIFY_SOURCE redefined build error
+      build: set _FORTIFY_SOURCE=2 in libselinux
+      Makefile: add -Wstrict-overflow=5 to CFLAGS
+
+Yuli Khodorkovskiy (2):
+      libsemanage: improve semanage_migrate_store import failure
+      mcstrans: remove unused getpeercon_raw() call
+
+Yuri Chornoivan (1):
+      Fix minor typos
+
+liwugang (1):
+      checkpolicy: check the result value of hashtable_search
 
