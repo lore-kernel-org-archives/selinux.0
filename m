@@ -2,116 +2,131 @@ Return-Path: <SRS0=nwiU=QE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B025C282C8
-	for <selinux@archiver.kernel.org>; Mon, 28 Jan 2019 16:57:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEF1AC282C8
+	for <selinux@archiver.kernel.org>; Mon, 28 Jan 2019 17:20:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 25E4B20844
-	for <selinux@archiver.kernel.org>; Mon, 28 Jan 2019 16:57:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D77220989
+	for <selinux@archiver.kernel.org>; Mon, 28 Jan 2019 17:20:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=Mellanox.com header.i=@Mellanox.com header.b="EfrG7HJT"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Kvp+gDYS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387923AbfA1Q5h (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Jan 2019 11:57:37 -0500
-Received: from mail-eopbgr30068.outbound.protection.outlook.com ([40.107.3.68]:34400
-        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728354AbfA1Q5g (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 28 Jan 2019 11:57:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0fpIkGwQ+uJKC0DaTEk0RDV+EgBvxgP+Q/gcDMiePAY=;
- b=EfrG7HJTnb4Cc4rKXZyRiB9S9Bz7facAKD46RRDA3HdzeOvqkFuvcRtzOwUNHj1SKaitBHQivz9T75Ci7fwambifuF15pVQIwRjm3p4f2IURsuR9EegVmWwYnXTcURif0TQZ2xCGpBdgXpoVJG2KRqspIawOjzBpVTqmJbebBh0=
-Received: from AM0PR05MB5730.eurprd05.prod.outlook.com (20.178.115.152) by
- AM0PR05MB5219.eurprd05.prod.outlook.com (20.178.18.32) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1558.21; Mon, 28 Jan 2019 16:57:32 +0000
-Received: from AM0PR05MB5730.eurprd05.prod.outlook.com
- ([fe80::bdda:d0fc:7329:7322]) by AM0PR05MB5730.eurprd05.prod.outlook.com
- ([fe80::bdda:d0fc:7329:7322%3]) with mapi id 15.20.1558.021; Mon, 28 Jan 2019
- 16:57:32 +0000
-From:   Daniel Jurgens <danielj@mellanox.com>
-To:     Paul Moore <paul@paul-moore.com>, Leon Romanovsky <leon@kernel.org>
-CC:     Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        RDMA mailing list <linux-rdma@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "ddutile@redhat.com" <ddutile@redhat.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: Re: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM
- notifications
-Thread-Topic: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM
- notifications
-Thread-Index: AQHUthfGxQVMKr96QE+ydPBjEj2aBqXE4zsAgAAFqYA=
-Date:   Mon, 28 Jan 2019 16:57:32 +0000
-Message-ID: <b558e86b-dc56-d17a-30c0-0b640f0bf6cc@mellanox.com>
-References: <20190127081023.21124-1-leon@kernel.org>
- <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
-In-Reply-To: <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: CO2PR04CA0122.namprd04.prod.outlook.com
- (2603:10b6:104:7::24) To AM0PR05MB5730.eurprd05.prod.outlook.com
- (2603:10a6:208:11d::24)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=danielj@mellanox.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [208.176.44.194]
-x-ms-publictraffictype: Email
-x-microsoft-exchange-diagnostics: 1;AM0PR05MB5219;6:JvXRAc9qjUb9YLh8LmY7HKNiQPiImQU8bSxZcdk4M5cpLm+4yjo1catfBoxA9kET1u5ZG8c6ZZwOgSdblOtSvYFDoEomVELkzS0qEATYzV0UTvuggHPYhj5OAFpS7jSO/VHt5H3ehJOilbhK1edeR0TuzGq/QQNxy4qujqeH9naEVzehnZnMKv2qW8kqY2CodHoa1Mmuuw9a/4pivQ4D0XoaUrvtb6Rk9ySMU7mLBSr/uGEOo+SevJCOiJJpwSkQznzCLSt0kijKE1w8ObRF38ljWUjnFZhZxL83fZTXhFQ115oEvunohScqcfKN0kqkXCZVj5wzRivNVVsgBlRv5sAVSxDlbBNbvbRNPURmorL4iX+dVWObg9IjHqFbanUP4/sBlxdMkweVbvVgVMvXEZfzlqLvr/SycO7ufOncj0HFEXphpMLx3EF6xb1uXVWlxXi8VyuM14dd73z5M8gGWw==;5:g1QXxhdl3YzYNk82+NQSwCrsUOIsQX39/C1vMwE1GV4edv9GIIRySwiE96QJhG0Oh3eVxXzBkCb7MNEXbufkFuAtDhXH1s4UTa8ybq/wTJxqLjOOY2cpVAxCWexEZcTO5mnhSQQTroOnHTvgwvJU/covFq4qkbgwhiV+q537hbKh+KPMHcXeA49GeEXZJrz/hE7byS93vghMPDqSzO3buw==;7:LsJZ6BKKq9Yzeqe3tXwd8UXHihvJx2KXKKLuRhQNMytSPcvzmgpNS5Pr1tZBW3paYAr/S6qwzcYKBN4LW6uQxcVx1S4z1TAQu8EAu8B8AhYa7+sj58k3/f1TnqqsE3HgZ95rT1EnOCsnkF71lEE6GQ==
-x-ms-office365-filtering-correlation-id: 2ca8c246-7513-436c-7f14-08d68541b1bc
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(4618075)(2017052603328)(7153060)(7193020);SRVR:AM0PR05MB5219;
-x-ms-traffictypediagnostic: AM0PR05MB5219:
-x-microsoft-antispam-prvs: <AM0PR05MB52198741372A7C5BF2F234D0C4960@AM0PR05MB5219.eurprd05.prod.outlook.com>
-x-forefront-prvs: 0931CB1479
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(376002)(39860400002)(396003)(366004)(346002)(189003)(199004)(186003)(478600001)(107886003)(15650500001)(102836004)(6512007)(31686004)(8676002)(6506007)(386003)(53546011)(81156014)(6436002)(26005)(106356001)(316002)(14444005)(86362001)(256004)(4326008)(6246003)(8936002)(36756003)(97736004)(105586002)(53936002)(54906003)(110136005)(31696002)(25786009)(99286004)(2906002)(52116002)(14454004)(66066001)(71200400001)(6116002)(7736002)(3846002)(71190400001)(81166006)(229853002)(476003)(6486002)(2616005)(305945005)(76176011)(446003)(68736007)(11346002)(486006);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR05MB5219;H:AM0PR05MB5730.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: mellanox.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: 2dJO5FGFhf8ZLmTWTQzAESmsmAta5o5SQg/13SZjyKKMrheDwK31oyRclSU/ViquT9JEUtSiBOEEpqY8sGgn5XD9HRoNx2TS8Q5NI4UTTndOzFAziXu4sdfmcouT5sLacHAs1RU2zlR8/TQouFehrikqMhaQM+lpzI/+GJcc2zBgO+ccImdFx7BFydEZcZVvTxfQJck3cmFPXk+XlLWUu8Iz4jBhCTS0iKD8eWFYs/xrKdc2x7AM5Da+ubFMo6957/wQr3Y0hGgNR7EgbSf4VyxUkjOaG/DjHP/5OUdMKcohv2sG2xD+5rYdSUyrFpV+Rw+VRqTJ/lS1J/UHXx0CzPZ8MSTdqv1JQPC8zQvO95Ysc8xgeznbgexnYOTrErb+hfTPb4SGhLMyzbLdEtzCJqBYddrykYD+5Ks1F1HN6QM=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <971F04A3596A2C41941419A833EE334D@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1731206AbfA1QE3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 28 Jan 2019 11:04:29 -0500
+Received: from upbd19pa09.eemsg.mail.mil ([214.24.27.84]:48250 "EHLO
+        UPBD19PA09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731181AbfA1QE3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 28 Jan 2019 11:04:29 -0500
+X-EEMSG-check-017: 165584465|UPBD19PA09_EEMSG_MP9.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPBD19PA09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 28 Jan 2019 16:03:56 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1548691436; x=1580227436;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=cQ3crCy21US8T6DKsJo9yi4FBXpA309H0JKD6ESXKWA=;
+  b=Kvp+gDYShPFEx7BA+97g0mRv90123zln8tsOeVanG4HhTwzliqPoluab
+   pKXeO3BTKwMSrC//XZQt8JFDCX9DFYd55Ef7PQW6ZXK65N5DSV645293I
+   bK+THhSF3O0EwaxMs5+seBZxupeAAcr5KRbOlScqTwwwNL43Z0ijCv1eF
+   63ktwLX9JcJNSKU37SpSjRnZ3UEmIJS41QkIvsUOMY8AaJiIr4s4DWlUY
+   tTiXmMV0c8ZIkVFLBNgUhUfrb26LU2b3guDxs1sJlbjDRsiwIfuDbC1jP
+   6iT1+XFsz5wZKhEaXConnq1igv0vP16B/kz+riWaYM0AMPWyqGtQ67wHX
+   A==;
+X-IronPort-AV: E=Sophos;i="5.56,534,1539648000"; 
+   d="scan'208";a="23155742"
+IronPort-PHdr: =?us-ascii?q?9a23=3AaIESihPKZadx0JTY66Il6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0I/r+rarrMEGX3/hxlliBBdydt6oUzbKO+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxlLiTanfb9+MAi9oBnMuMURnYZsMLs6xA?=
+ =?us-ascii?q?HTontPdeRWxGdoKkyWkh3h+Mq+/4Nt/jpJtf45+MFOTav1f6IjTbxFFzsmKH?=
+ =?us-ascii?q?w65NfqtRbYUwSC4GYXX3gMnRpJBwjF6wz6Xov0vyDnuOdxxDWWMMvrRr0vRz?=
+ =?us-ascii?q?+s87lkRwPpiCcfNj427mfXitBrjKlGpB6tvgFzz5LIbI2QMvdxcLndfdcHTm?=
+ =?us-ascii?q?RfWMhfWTFKDoelY4cRE+YNOOBVpJT/qVQTtxuzHRSiCv3hyjFIhXH406M13O?=
+ =?us-ascii?q?sjHg7a0wItBM4OvXbOodnpKKsfX+K4wa/VxjvDdfNW3jL95ZDVfBA9v/6MRb?=
+ =?us-ascii?q?JwftTXyUIyCg3Fi0+fqYjhPzyL1uUGrm+W7/F9WuK0kGMntwFwrSSvxscrkI?=
+ =?us-ascii?q?XJgJkVxUre+SV2x4Y1O8S1RUhmatCnCJtdrzyWOoR5T884Q2xkpTw2xqMJtJ?=
+ =?us-ascii?q?KlZiQG1ZIqzAPFZfOdaYiH+BfjWf6UITd/mX1qZqqyhw238Ui80u38UdS00E?=
+ =?us-ascii?q?pSoipFjNbMsncN2gTP6sedUPt9/1qh2S2V2wDP6uBLPUA0la3BJ54n3rEwjY?=
+ =?us-ascii?q?YcvV7GHi/3nEX6lK6WdkM69ei08+nrf7rrq5CGO4J0lw3yKLoil8OhDegiLw?=
+ =?us-ascii?q?QCR22b9v691L3n8035WrJKjvgun6nCrZ/aPt8WprK5AgBJ0oYj7AyzDzG90N?=
+ =?us-ascii?q?sCh3UHI1VFeAyfg4jzJ17OOOz4Deu4g1m0lzdrwvfGPqbnAprXMnfMjqzsfa?=
+ =?us-ascii?q?xj5EFByAo818xf64hIBbEGJfL5QlXxu8DADh8lLwy0xP7qCM5j2YMaWGKPBL?=
+ =?us-ascii?q?KZMazJvF+W6eIgPfOMaJUWuDnjMfgl4eDhjXsjlV8aZ6mp0oMdaGqkEfR+P0?=
+ =?us-ascii?q?WZfX3sj88ZEWgQowo+SPfniEWYXj5OY3a+Rqc85jY8CIK8E4jPXJyigLuE3H?=
+ =?us-ascii?q?TzIpoDQWZKEF2OWVLvbIONUPoPIHaVJ8h6lDUPWJC7RoMh3A3ovwj/nf4vNe?=
+ =?us-ascii?q?fQ+ysFpbr929Vvoe7ejxc/8XpzFcvZm1mEUmU8u2QPXTJ+iLh2vEhV0l6e1e?=
+ =?us-ascii?q?19hPtCGJpY4PYfASkgMpuJ9PB3E9D/XEr6e96NTFu3CoG9DSoZUsM6w9hIZV?=
+ =?us-ascii?q?10XdqlkEaQjGKRH7YJmunTV9QP+aXG0i20fpwlxg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DaAgCDJ09c/wHyM5BlHAEBAQQBAQcEAQGBZYFbKYE4M?=
+ =?us-ascii?q?ieEApRZAQEBAQEBBoEILYk1kE44AYRAAoMfIjgSAQMBAQEBAQECAWwogjopA?=
+ =?us-ascii?q?YJnAQUjFVELDgoCAiYCAlcGAQwGAgEBgl8/gXUNqluBL4VDhF6BC4s2F3iBB?=
+ =?us-ascii?q?4E4gmuICoJXAolZEoZ4OVaQVQmSKAYYkiwtiWiTFCGBVisIAhgIIQ+DJ5B6I?=
+ =?us-ascii?q?QMwgQUBAY44AQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 28 Jan 2019 16:03:51 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x0SG3gFA026407;
+        Mon, 28 Jan 2019 11:03:47 -0500
+Subject: Re: [PATCH v2] selinux: replace BUG_ONs with WARN_ONs in avc.c
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>
+References: <20190128154333.31279-1-omosnace@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <84f36c6a-f267-95eb-fd66-81592ecf1875@tycho.nsa.gov>
+Date:   Mon, 28 Jan 2019 11:06:38 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-X-OriginatorOrg: Mellanox.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2ca8c246-7513-436c-7f14-08d68541b1bc
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Jan 2019 16:57:29.9798
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR05MB5219
+In-Reply-To: <20190128154333.31279-1-omosnace@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-DQpPbiAxLzI4LzIwMTkgMTA6MzcgQU0sIFBhdWwgTW9vcmUgd3JvdGU6DQo+IE9uIFN1biwgSmFu
-IDI3LCAyMDE5IGF0IDM6MTAgQU0gTGVvbiBSb21hbm92c2t5IDxsZW9uQGtlcm5lbC5vcmc+IHdy
-b3RlOg0KPj4gRnJvbTogRGFuaWVsIEp1cmdlbnMgPGRhbmllbGpAbWVsbGFub3guY29tPg0KPj4N
-Cj4+IC0tLQ0KPj4gIGRyaXZlcnMvaW5maW5pYmFuZC9jb3JlL3NlY3VyaXR5LmMgfCAzNCArKysr
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4+ICBpbmNsdWRlL3JkbWEvaWJfbWFkLmggICAg
-ICAgICAgICAgIHwgIDMgLS0tDQo+PiAgMiBmaWxlcyBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyks
-IDMzIGRlbGV0aW9ucygtKQ0KPiBQZXJoYXBzIHByZWRpY3RhYmx5LCBJJ20gbm90IHZlcnkgZXhj
-aXRlZCBhYm91dCB0aGlzIGNoYW5nZS4gIEhhdmUgeW91DQo+IGxvb2tlZCBjbG9zZXIgaW50byB0
-aGUgc2xvd2Rvd24gdG8gc2VlIHdoZXJlIHRoZSBjeWNsZXMgYXJlIGJlaW5nDQo+IHNwZW50PyAg
-SSdtIHdvbmRlcmluZyBpZiB0aGUgaXNzdWUgaXMgdGhhdCBhIGxhcmdlIG51bWJlciBvZiBub3Rp
-ZmllcnMNCj4gYXJlIGJlaW5nIHJlZ2lzdGVyZWQgd2l0aCB0aGUgc2FtZSBwcmlvcml0eSBjYXVz
-aW5nIHRoZSB3aGlsZSBsb29wIGluDQo+IG5vdGlmaWVyX2NoYWluX3JlZ2lzdGVyKCkgdG8gdGFr
-ZSBhIHNpZ25pZmljYW50IGFtb3VudCBvZiB0aW1lLg0KDQpUaGF0J3Mgd2hhdCdzIGhhcHBlbmlu
-ZywgZWFjaCBNQUQgYWdlbnQgaXMgcmVnaXN0ZXJpbmcgaXQncyBvd24gbm90aWZpZXIuIFRoZSBi
-dWcgcmVwb3J0ZXIgd2FzIGNyZWF0aW5nIGh1bmRyZWRzIG9yIHRob3VzYW5kcyBvZsKgIHNob3J0
-IGxpdmVkIE1BRCBhZ2VudHMuIFdpdGggSVJRcyBkaXNhYmxlZCB0b28gbG9uZyBpdCByZXN1bHRl
-ZCBpbiB0aW1lb3V0cy4NCg0KV2hlbiBJIGluaXRpYWxseSBhZGRlZCB0aGUgbm90aWZpZXIgbWVj
-aGFuaXNtIEkgdGhvdWdodCBpdCB3YXMgeW91IHRoYXQgc2FpZCBpdCB3YXNuJ3QgcmVhbGx5IG5l
-ZWRlZCwgc2luY2UgYWNjZXNzIHdhc24ndCBnZW5lcmFsbHkgcmV2b2tlZCBpbiB0aGVzZSB0eXBl
-cyBvZiBzY2VuYXJpb3MuIEdpdmVuIHRoYXQgSSBkaWRuJ3QgdGhpbmsgdGhpcyB3b3VsZCBiZSBl
-c3BlY2lhbGx5IGNvbnRyb3ZlcnNpYWwuIEl0IHdhcyBuaWNlIHRvIGhhdmUsIHVuZm9ydHVuYXRl
-bHkgaXQgY2F1c2VzIHByb2JsZW1zIGV2ZW4gZm9yIHVzZXJzIHRoYXQgZG9uJ3QgZW5hYmxlIFNF
-TGludXguDQoNCg==
+On 1/28/19 10:43 AM, Ondrej Mosnacek wrote:
+> These checks are only guarding against programming errors that could
+> silently grant too many permissions. These cases are better handled with
+> WARN_ON(), since it doesn't really help much to crash the machine in
+> this case.
+> 
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>   security/selinux/avc.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 3a27418b20d7..33863298a9b5 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -1059,7 +1059,8 @@ int avc_has_extended_perms(struct selinux_state *state,
+>   	int rc = 0, rc2;
+>   
+>   	xp_node = &local_xp_node;
+> -	BUG_ON(!requested);
+> +	if (WARN_ON(!requested))
+> +		return -EACCES;
+>   
+>   	rcu_read_lock();
+>   
+> @@ -1149,7 +1150,8 @@ inline int avc_has_perm_noaudit(struct selinux_state *state,
+>   	int rc = 0;
+>   	u32 denied;
+>   
+> -	BUG_ON(!requested);
+> +	if (WARN_ON(!requested))
+> +		return -EACCES;
+>   
+>   	rcu_read_lock();
+>   
+> 
+
