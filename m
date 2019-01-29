@@ -3,102 +3,94 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16764C169C4
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 21:13:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 441EDC169C4
+	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 22:50:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D245C20881
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 21:13:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F31B2147A
+	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 22:50:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="z9pd8hch"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xsSs3vvC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727488AbfA2VNa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 29 Jan 2019 16:13:30 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:37550 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729176AbfA2VNa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 29 Jan 2019 16:13:30 -0500
-Received: by mail-lf1-f65.google.com with SMTP id y11so15758745lfj.4
-        for <selinux@vger.kernel.org>; Tue, 29 Jan 2019 13:13:28 -0800 (PST)
+        id S1729724AbfA2Wul (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 29 Jan 2019 17:50:41 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:46160 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727358AbfA2Wul (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 29 Jan 2019 17:50:41 -0500
+Received: by mail-lf1-f67.google.com with SMTP id f5so15887437lfc.13
+        for <selinux@vger.kernel.org>; Tue, 29 Jan 2019 14:50:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Zm2eR3EvN6npJPVBQTdZCcj7uGulVU2H8WsoZIL9Qg8=;
-        b=z9pd8hch2MZy8FBeTCl2inneqN5p42+rI2gQEBk4TqBIYOPND6rAzAnkoRO7sUx1+B
-         G/vXAppqaf+BvvvgXLnpHCYzxbGwOslavJ/49R6fb46tZcPAogMqnZlDCUfrozovI/7q
-         YKxc46t4FeA/CS2lRze0NTqc6eU6M4T/EJmIcN7JaYTB/IPTBiYtl2hhlOXU+1bJccAC
-         zgqw6BXJaRMsI3pM9QTzp2euMTRmltwfkCsnU6X7vik1wGbYGCDFcLQYWnxQLFBQqUCn
-         GMPez/DxWCq19H4LiPPUwz+XwDPAyoPDrh4o4hsmkJ/NgEe1irpxIA0QZMMpc7U0gt6n
-         isLQ==
+         :cc;
+        bh=TpWSgYa/7S+pAvDxPuCopoALvuYMy8zjg8u27/xsx1M=;
+        b=xsSs3vvChsC2yu6PfblgwyJ1noPUWoNG3YVh5euxNMtc4pwfzqkttwVAA3HYmo5Bcq
+         MosjzZiw/is4HgjUZzu3Cn+H/rQjJRG4a8eXTaCaEvm8VA210hfW0n+zTJCgTaHg5sYP
+         0nI8krLLv5PyfEEScn1hX3IYho7AH/o2NXXJIAuOvtdDzqpygbcmxj5kKt0Fzx1Xf6Jy
+         xl/Avs87WyMYZPm94TCfaUlNxc+hjkne8JHvCBM/yPgKt+GvxqYf9CXCUZ7LSMAqQQXz
+         EqG48og9/+UUHobkwGff6+a1aj3egEt8lQSjqK8ympBeRes5FLk6q+N3qytxQdhnLhiG
+         DmCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Zm2eR3EvN6npJPVBQTdZCcj7uGulVU2H8WsoZIL9Qg8=;
-        b=cvaCupC/XJU8M0vYMSGvBlkJwYNtkyIj9GZquxHebRj4s14BAxaXPqbw2zlGmJb7nt
-         k1HeF4P18GYQ+CI9mmlhxYY8Rx90Xt8TEhYF++WXOXLKhiYRtV+1hwVLU5yo2OsSplot
-         VSq5JV20hgQHAl5gPDfPgUWCxVbsvO8ZmLRsk8Bf/dXj6bphLKSieOBxmhDKdVGgTVF7
-         zf5+EdlWJ2un8eVSG/ZEcYCnd2I3gfcUtKpiNSmhlYGZK7ctVC7OrvwQjDTyK+PL0aZZ
-         yr6xYTI02LKntVPKuDKyd0mHhVqPGiGEUk0oDMxhsYWnEhuy7pkHKfHNXNxz7y+5JYfb
-         +9xA==
-X-Gm-Message-State: AJcUukeLk5bLPxNOs+H/fHjmQ0Auop2xmBuK/NIAn6lP8e/aLnAys4Wb
-        ekNaqEj52O/OltfwFv9PUrpFMn5JWCW6G3CMC98c
-X-Google-Smtp-Source: ALg8bN4Zy0/4UpzWLszAtYGmNdodabzmiMl88wKbt97rhcKoEsyl5RbrDwSjjal0lDkAxcgMXvk/MXL5VBQXU37TifM=
-X-Received: by 2002:a19:db54:: with SMTP id s81mr22574612lfg.102.1548796407648;
- Tue, 29 Jan 2019 13:13:27 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=TpWSgYa/7S+pAvDxPuCopoALvuYMy8zjg8u27/xsx1M=;
+        b=FSnS7Z63ttoeh+CvIS2NViVbrlH/glG9/tNWyACxl/iUs6z222nLwPX4nNQOEpMNd7
+         mwMgmsXC7CYfX0Jrrs+iRZITpXGnPP4yGwyLEeSSmTmQg98hMQ48QT4zbEm/yjpmAim/
+         5x7qkVZTTNG+YFzP80Rl8c2AjZxdhJnZdIfe6BZVou5JBQ+hhBptrBog3u0DtSDyEKvj
+         /uFjBVtScJYKpmO0ZWn/cKPeDn+GLOdMcGBq8lbiI+lEnmA5SXr6aQ7aUeTLtVuo1kwv
+         CFWVTjeSsOZaF+VLwwdenY/JdJh3b7uyfe+fj0cqft1a3OuRYvorLFvgCYvb1oE6r5Dw
+         seUg==
+X-Gm-Message-State: AJcUukcFIFdUBp68Zmyjiyr1W/6xVzCelz/NpdYXH3wMpAcii3Hdyeq0
+        1UNZaUNjkqPm99jNL7rGrnrp5NYDPuCzJ0p7m1Gw
+X-Google-Smtp-Source: ALg8bN70QtPPJ4mq98azyk9Y1ANoH1tccdLC+UJ0hYdkUOKJsPqBNljN9qqIhFT5c2FVvshkKsrgS2SmVFg8AIcmmQI=
+X-Received: by 2002:a19:c995:: with SMTP id z143mr21167506lff.79.1548801755558;
+ Tue, 29 Jan 2019 14:42:35 -0800 (PST)
 MIME-Version: 1.0
-References: <20190127081023.21124-1-leon@kernel.org> <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
- <b558e86b-dc56-d17a-30c0-0b640f0bf6cc@mellanox.com> <CAHC9VhQTq_UTFkBOSb0fWbde6tsb_uiNi8EHdCovKzB8KkD6XA@mail.gmail.com>
- <40feb71f-d24c-f592-58d0-fc5814307c6c@redhat.com> <CAHC9VhSzNjVFq-aiUrS2og0sMUwNB+aBwtk7ZWj9dss12xfVOQ@mail.gmail.com>
- <1859ec04-d3d2-bffe-16ca-2ae602e5bbff@mellanox.com> <325d56d9-24d9-a850-57a7-47f12baa593c@mellanox.com>
- <CAHC9VhRWHzrR84ueJHzmBgyQviL-36-ezvDb0u-xRfQmBsBO2g@mail.gmail.com> <3cf233f6-4ca7-1667-7d09-0d2b6879046d@mellanox.com>
-In-Reply-To: <3cf233f6-4ca7-1667-7d09-0d2b6879046d@mellanox.com>
+References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
+ <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
+ <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
+ <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
+ <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
+ <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net> <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
+ <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net> <CAHC9VhQD=itT7jE22bo0UF24gE56y1z29fZec-7y1Zumz38FfQ@mail.gmail.com>
+ <1125571548681054@iva5-0acfc31d2b43.qloud-c.yandex.net> <CAHC9VhRC8BC9Ocs9FYVrwnWutWD4Dow_MjwpvowxmJd=NtVN5g@mail.gmail.com>
+ <3499451548746609@myt4-929fb874f3f2.qloud-c.yandex.net>
+In-Reply-To: <3499451548746609@myt4-929fb874f3f2.qloud-c.yandex.net>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 29 Jan 2019 16:13:16 -0500
-Message-ID: <CAHC9VhQWG7z0dV4=bULLGdU3SXjQH-da9vkyZo6a+Wy5Bw29_A@mail.gmail.com>
-Subject: Re: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM notifications
-To:     Daniel Jurgens <danielj@mellanox.com>
-Cc:     Don Dutile <ddutile@redhat.com>, Leon Romanovsky <leon@kernel.org>,
-        Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        RDMA mailing list <linux-rdma@vger.kernel.org>,
+Date:   Tue, 29 Jan 2019 17:42:24 -0500
+Message-ID: <CAHC9VhRXc=UAfNidPjYsG561_kc_j2CkD6Db=Kb=Gjyhk3ko6Q@mail.gmail.com>
+Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
+To:     Nazarov Sergey <s-nazarov@yandex.ru>
+Cc:     "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Leon Romanovsky <leonro@mellanox.com>
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 29, 2019 at 3:58 PM Daniel Jurgens <danielj@mellanox.com> wrote=
-:
-> On 1/29/2019 2:51 PM, Paul Moore wrote:
-> >
-> > Okay, so let's attempt the change above where we just do the access
-> > check directly.  Although I'm a little concerned that without a
-> > reproducer we might not end up fixing the problem we're trying to fix.
-> > Is anyone in touch with the person who originally reported the
-> > problem?  It would be great if we could get that person to verify the
-> > change ...
+On Tue, Jan 29, 2019 at 2:23 AM Nazarov Sergey <s-nazarov@yandex.ru> wrote:
+> 29.01.2019, 01:18, "Paul Moore" <paul@paul-moore.com>:
+> > If we don't pass a skb into ip_options_compile(), meaning both "skb"
+> > and "rt" will be NULL, then I don't believe the option data will
+> > change. Am I missing something?
 >
-> I decided to go with maintaining a list in IB core. The notifier call is =
-done under rcu_read_lock vs spin_lock_irq for register/unregister, so we sh=
-ouldn't have any problems in that case. So only registering once basically =
-achieves the same thing as taking it all out. I'm testing it now. I'll send=
- it for internal review today assuming it checks out. Hopefully Leon can ge=
-t it posted tomorrow, I know Don has some schedule pressure here.
+> I mean, in cipso_v4_error we copy option data from skb before ip_options_compile call:
+> +       memcpy(opt->__data, (unsigned char *)&(ip_hdr(skb)[1]), opt->optlen);
+> But skb IP header data could be already changed by first call of ip_options_compile
+> when packet received.
 
-Okay sounds good.  We're still at -rc4 so as long as we can get
-something posted this week, or early next, I see no reason why it
-can't make the upcoming merge window.
+There are several cases where the stack ends up calling icmp_send()
+after the skb has been through ip_options_compile(), that should be
+okay.
 
-I'm guessing Don's schedule pressure is more a RH deadline, and not an
-upstream constraint.
-
---=20
+-- 
 paul moore
 www.paul-moore.com
