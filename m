@@ -2,129 +2,78 @@ Return-Path: <SRS0=7tXC=QF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFEEDC282CD
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 02:57:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A54EC169C4
+	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 07:23:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B26192177E
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 02:57:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5D5612147A
+	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 07:23:35 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="Mj7zZe+l"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727111AbfA2C5n (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 28 Jan 2019 21:57:43 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:49986 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727065AbfA2C5n (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 28 Jan 2019 21:57:43 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 8DEC958E4B;
-        Tue, 29 Jan 2019 02:57:42 +0000 (UTC)
-Received: from [10.3.116.171] (ovpn-116-171.phx2.redhat.com [10.3.116.171])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 327BE104810C;
-        Tue, 29 Jan 2019 02:57:41 +0000 (UTC)
-Subject: Re: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM
- notifications
-To:     Paul Moore <paul@paul-moore.com>,
-        Daniel Jurgens <danielj@mellanox.com>
-Cc:     Leon Romanovsky <leon@kernel.org>,
-        Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        RDMA mailing list <linux-rdma@vger.kernel.org>,
+        id S1725773AbfA2HXf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 29 Jan 2019 02:23:35 -0500
+Received: from forward501o.mail.yandex.net ([37.140.190.203]:34708 "EHLO
+        forward501o.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725554AbfA2HXe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 29 Jan 2019 02:23:34 -0500
+Received: from mxback15o.mail.yandex.net (mxback15o.mail.yandex.net [IPv6:2a02:6b8:0:1a2d::66])
+        by forward501o.mail.yandex.net (Yandex) with ESMTP id 66B3C1E803CE;
+        Tue, 29 Jan 2019 10:23:31 +0300 (MSK)
+Received: from localhost (localhost [::1])
+        by mxback15o.mail.yandex.net (nwsmtp/Yandex) with ESMTP id MvDyFWlBz6-NTkOq2SE;
+        Tue, 29 Jan 2019 10:23:30 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail; t=1548746610;
+        bh=WtQ7gdzi44CTthlHJ9m5L0x76EU4jNUXdRdghWsgNb8=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:Message-Id;
+        b=Mj7zZe+lR4uaDgordXu7FXtUMkXFdDic7h2wMz7Mtn1N6DqBIXYBPRt+EYCeMrpxW
+         GpO+7z5cR2neXwfAXVx4iLnt9+3ngaAvQ859Kdhpta9NGwBb6NFAEZzFYAE2F9DEqP
+         VY7faodkaVv7EfIsRKu06lkGXTj8EOc7yljNKwXA=
+Authentication-Results: mxback15o.mail.yandex.net; dkim=pass header.i=@yandex.ru
+Received: by myt4-929fb874f3f2.qloud-c.yandex.net with HTTP;
+        Tue, 29 Jan 2019 10:23:29 +0300
+From:   Nazarov Sergey <s-nazarov@yandex.ru>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Leon Romanovsky <leonro@mellanox.com>
-References: <20190127081023.21124-1-leon@kernel.org>
- <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
- <b558e86b-dc56-d17a-30c0-0b640f0bf6cc@mellanox.com>
- <CAHC9VhQTq_UTFkBOSb0fWbde6tsb_uiNi8EHdCovKzB8KkD6XA@mail.gmail.com>
-From:   Don Dutile <ddutile@redhat.com>
-Message-ID: <40feb71f-d24c-f592-58d0-fc5814307c6c@redhat.com>
-Date:   Mon, 28 Jan 2019 21:57:40 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
- Thunderbird/52.6.0
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAHC9VhRC8BC9Ocs9FYVrwnWutWD4Dow_MjwpvowxmJd=NtVN5g@mail.gmail.com>
+References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
+         <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
+         <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
+         <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
+         <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
+         <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net> <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
+         <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net> <CAHC9VhQD=itT7jE22bo0UF24gE56y1z29fZec-7y1Zumz38FfQ@mail.gmail.com>
+        <1125571548681054@iva5-0acfc31d2b43.qloud-c.yandex.net> <CAHC9VhRC8BC9Ocs9FYVrwnWutWD4Dow_MjwpvowxmJd=NtVN5g@mail.gmail.com>
+Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQTq_UTFkBOSb0fWbde6tsb_uiNi8EHdCovKzB8KkD6XA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+X-Mailer: Yamail [ http://yandex.ru ] 5.0
+Date:   Tue, 29 Jan 2019 10:23:29 +0300
+Message-Id: <3499451548746609@myt4-929fb874f3f2.qloud-c.yandex.net>
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Tue, 29 Jan 2019 02:57:42 +0000 (UTC)
+Content-Type: text/plain
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 01/28/2019 06:03 PM, Paul Moore wrote:
-> On Mon, Jan 28, 2019 at 11:57 AM Daniel Jurgens <danielj@mellanox.com> wrote:
->> On 1/28/2019 10:37 AM, Paul Moore wrote:
->>> On Sun, Jan 27, 2019 at 3:10 AM Leon Romanovsky <leon@kernel.org> wrote:
->>>> From: Daniel Jurgens <danielj@mellanox.com>
->>>>
->>>> ---
->>>>   drivers/infiniband/core/security.c | 34 ++++--------------------------
->>>>   include/rdma/ib_mad.h              |  3 ---
->>>>   2 files changed, 4 insertions(+), 33 deletions(-)
->>> Perhaps predictably, I'm not very excited about this change.  Have you
->>> looked closer into the slowdown to see where the cycles are being
->>> spent?  I'm wondering if the issue is that a large number of notifiers
->>> are being registered with the same priority causing the while loop in
->>> notifier_chain_register() to take a significant amount of time.
->>
->> That's what's happening, each MAD agent is registering it's own notifier. The bug reporter was creating hundreds or thousands of  short lived MAD agents. With IRQs disabled too long it resulted in timeouts.
->>
->> When I initially added the notifier mechanism I thought it was you that said it wasn't really needed, since access wasn't generally revoked in these types of scenarios. Given that I didn't think this would be especially controversial. It was nice to have, unfortunately it causes problems even for users that don't enable SELinux.
-> 
-> Revoking permission is difficult, and in some cases likely impossible,
-> but that doesn't mean we shouldn't try to make it possible when we
-> can.  I'd like to see if we can sort this out before we give up and
-> rip it out.
-> 
-Agree that it'd be nice to see it work, but since few (no other?) subsys registered
-with selinux/security is doing this, can we 'release' the IB mad agents from this
-'imprisonment' and figure out a general solution that resolves this issue, and
-then it can be implemented not only for ib mad packet access, but for other
-subsys using selinux/security, and wanting the same revocation support.
+29.01.2019, 01:18, "Paul Moore" <paul@paul-moore.com>:
+> If we don't pass a skb into ip_options_compile(), meaning both "skb"
+> and "rt" will be NULL, then I don't believe the option data will
+> change. Am I missing something?
+>
+> --
+> paul moore
+> www.paul-moore.com
 
-> We might be able to modify notifier_chain_register() such that if the
-> notifier being registered has the same priority as the current node it
-> is inserted before the current node.  It looks like all of the IB
-> notifiers have the same priority so that should speed up registration
-> significantly in this case, unfortunately that doesn't help
-> unregistering.  I think we would need to move to convert
-> notifier_block to use list_head if we want to handle removal in a
-> timely manner.
-> 
-> However, there is also a concern that delivering notifications to
-> hundreds of thousands of registered notifiers is going to be
-> problematic.  None of the above is going to fix that.
-> 
-sooo....
-
-> I'm trying to quickly understand the MAD agent lifecycle, and it looks
-> like you have your own register/unregister routines, with locking, so
-> is it reasonable to assume that it would be possible to iterate over
-> the MAD agents in the IB code?  I wonder if it would be possible to
-> group MAD agents (per-port grouping, does that make sense?) such that
-> several agents would share a single LSM notifier registration?
-> 
-one can have numerous MAD agents.  it isn't just one.
-Think: you can have any number of apps scanning the fabric for various stats
-        to draw node/graph pics, gather per-port packet counts, gather bw numbers,
-        etc.  For IB, scanning the fabric involves 'mad pkts'.
-        In addition to scanning, one could do 'less then nice things' to switches,
-        not just read stats but set parameters... like routing table entries.
-        and thus, the security level addition.
-       One is highly unlikely to grant access to an app to do mad pkt generation/use,
-       then change your mind (semi-?)randomly to enable/disable it.... generally always enabled,
-       or always disabled.
-
-Let's take this case as a catalyst to resolve a previously unknown perf issue,
-and not hold it up to a higher functional requirement then other apps that want to be secured.
-
-thanks...
-
--dd
-
+I mean, in cipso_v4_error we copy option data from skb before ip_options_compile call:
++       memcpy(opt->__data, (unsigned char *)&(ip_hdr(skb)[1]), opt->optlen);
+But skb IP header data could be already changed by first call of ip_options_compile
+when packet received.
