@@ -2,203 +2,173 @@ Return-Path: <SRS0=7tXC=QF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
 	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A79EC169C4
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 17:30:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1D0DC169C4
+	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 17:48:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1D74B21473
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 17:30:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 69251214DA
+	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 17:48:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="0Gy1wjgd"
+	dkim=pass (1024-bit key) header.d=Mellanox.com header.i=@Mellanox.com header.b="AX4wqsOR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727610AbfA2Ran (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 29 Jan 2019 12:30:43 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:43440 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727492AbfA2Ran (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 29 Jan 2019 12:30:43 -0500
-Received: by mail-lj1-f193.google.com with SMTP id q2-v6so18217755lji.10
-        for <selinux@vger.kernel.org>; Tue, 29 Jan 2019 09:30:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FUUxPXYWa4oxD0y3apD/Tetop9KnCHNkej8MTTiK/qg=;
-        b=0Gy1wjgd9fhSDJbvIisPcXrbBC8eBCAIUsvo/vPsJjqAACQiR2adfuulMlrxkCs/Ch
-         bUr6MIej+wAUlFmvQ1HdcwR9LNLEQOc2OyJ7Ix7/YgNwO+O+7pkCpnVhXFfQ2/VYzUHD
-         ni18qljCt7T5mDaHa0p/WpVNchq3c2bT/nBjG146whVniFhj+5SHw1mj7W18MJPs599l
-         bb1q28ZZhnOpBfR6zAboXynhM4EYvHkhBNOxcG4+myc7CCtIrm0bZ7NzW7+ZdqfpqvXR
-         mV87lfkx1ttzS/Rw8h7jl0sCljWk9F1w0fhTY8ZXnhz01+5IzyI2V7iA638zlnM6f/dT
-         LyFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FUUxPXYWa4oxD0y3apD/Tetop9KnCHNkej8MTTiK/qg=;
-        b=aFl2Tgklay1qt0ElCZn4VtGWWzHDElWZzBanYB9lZi5yOQue5jcBaZblYy1puoOveD
-         fnr/sYDbUn3j2Ybj88KK8WjFxkPvu5zsHT/8JJV4y2rF/p2tFNK9sTW3X1osyAIseN13
-         WvyD6fg4x9RK/IuZgqbO9MXHL1UFvpHUyh8/ikTM0fabtavcaq/navymp5UJ/uSTIa9a
-         HH7+y0iQZ4FRTqx5WQGx/GCKf1UAwve1iLEK3lhdjwH+LYEJQJ2egkvjjQsbaPWfPsm4
-         +u7yLR781fH5oLjoFjujs7yqhwwtDyiWMDfnYVpWLJBImpZUg5k1GWoUWYZ12sxJfmY7
-         yRXQ==
-X-Gm-Message-State: AHQUAubOsd4yIg1HM1BxfuL2uGaW05IDeaR5A7C2XgZZbuUw933EtmTK
-        CeHqUT1o1PX4O+2dEJMQZYsrzvwj39l7YIldUy5u
-X-Google-Smtp-Source: AHgI3IbnY29C3Avu7XEaGbK68TPTdOlKvycfv5uWjH0MsfsWMlo75eHH+V5iDzj8yXcRfG2TyhO43eoMHpRP4Sxop3M=
-X-Received: by 2002:a2e:8546:: with SMTP id u6-v6mr7204453ljj.95.1548783040375;
- Tue, 29 Jan 2019 09:30:40 -0800 (PST)
-MIME-Version: 1.0
-References: <20190127081023.21124-1-leon@kernel.org> <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
- <b558e86b-dc56-d17a-30c0-0b640f0bf6cc@mellanox.com> <CAHC9VhQTq_UTFkBOSb0fWbde6tsb_uiNi8EHdCovKzB8KkD6XA@mail.gmail.com>
- <40feb71f-d24c-f592-58d0-fc5814307c6c@redhat.com>
-In-Reply-To: <40feb71f-d24c-f592-58d0-fc5814307c6c@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 29 Jan 2019 12:30:27 -0500
-Message-ID: <CAHC9VhSzNjVFq-aiUrS2og0sMUwNB+aBwtk7ZWj9dss12xfVOQ@mail.gmail.com>
-Subject: Re: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM notifications
-To:     Don Dutile <ddutile@redhat.com>
-Cc:     Daniel Jurgens <danielj@mellanox.com>,
-        Leon Romanovsky <leon@kernel.org>,
+        id S1729222AbfA2RsU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 29 Jan 2019 12:48:20 -0500
+Received: from mail-eopbgr10073.outbound.protection.outlook.com ([40.107.1.73]:39753
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727492AbfA2RsU (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 29 Jan 2019 12:48:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=sP4kWoeO0sFUq1/yDdBRtToebykb5BpV1CqtN6ep/Mc=;
+ b=AX4wqsOR0kwkHTLY2EQ+yhPdn+AymjuMzCp0tL9I35O9g6NblL25Eyb1pXUSteaAwzXH8gblPB3gySsyvnNeGUA92k6JAdl39VNvmq/rFbiEARMFouGZfIzJFfAGczpFwkQzu+Iv+y18dhM9ByL2fXVqVOsMXJcc6ZHzqb3uEj0=
+Received: from AM0PR05MB5730.eurprd05.prod.outlook.com (20.178.115.152) by
+ AM0PR05MB6529.eurprd05.prod.outlook.com (20.179.35.143) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1580.16; Tue, 29 Jan 2019 17:48:13 +0000
+Received: from AM0PR05MB5730.eurprd05.prod.outlook.com
+ ([fe80::bdda:d0fc:7329:7322]) by AM0PR05MB5730.eurprd05.prod.outlook.com
+ ([fe80::bdda:d0fc:7329:7322%3]) with mapi id 15.20.1558.023; Tue, 29 Jan 2019
+ 17:48:13 +0000
+From:   Daniel Jurgens <danielj@mellanox.com>
+To:     Paul Moore <paul@paul-moore.com>, Don Dutile <ddutile@redhat.com>
+CC:     Leon Romanovsky <leon@kernel.org>,
         Doug Ledford <dledford@redhat.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         RDMA mailing list <linux-rdma@vger.kernel.org>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
         Leon Romanovsky <leonro@mellanox.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM
+ notifications
+Thread-Topic: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM
+ notifications
+Thread-Index: AQHUthfGxQVMKr96QE+ydPBjEj2aBqXE4zsAgAAFqYCAAGZZAIAAQV4AgADz24CAAATvgA==
+Date:   Tue, 29 Jan 2019 17:48:12 +0000
+Message-ID: <1859ec04-d3d2-bffe-16ca-2ae602e5bbff@mellanox.com>
+References: <20190127081023.21124-1-leon@kernel.org>
+ <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
+ <b558e86b-dc56-d17a-30c0-0b640f0bf6cc@mellanox.com>
+ <CAHC9VhQTq_UTFkBOSb0fWbde6tsb_uiNi8EHdCovKzB8KkD6XA@mail.gmail.com>
+ <40feb71f-d24c-f592-58d0-fc5814307c6c@redhat.com>
+ <CAHC9VhSzNjVFq-aiUrS2og0sMUwNB+aBwtk7ZWj9dss12xfVOQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhSzNjVFq-aiUrS2og0sMUwNB+aBwtk7ZWj9dss12xfVOQ@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BN3PR03CA0087.namprd03.prod.outlook.com
+ (2a01:111:e400:7a4d::47) To AM0PR05MB5730.eurprd05.prod.outlook.com
+ (2603:10a6:208:11d::24)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=danielj@mellanox.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [208.176.44.194]
+x-ms-publictraffictype: Email
+x-microsoft-exchange-diagnostics: 1;AM0PR05MB6529;6:wcqJSU0BuxI++JdK9mz9NSt3acPPwNssnH90/nnOM19MRA0Wc40fysFD/uG27WXTNA1Y+Nu/69t36+B3ZZKYXDsEDZhb1k09k7084APc4BGnegB/qF7f3PIiYGs5l8CUvIMU4jG3BBGPcU1gyPeZe0x0fBqem5MAwh0guIxLgVfzVSgLULz1cKXFUPc/Xri+4pQWKl0klVfpZYJBDIQwCow6TxtzI4ReNkhOwogF2INdIv3xpP0zcz8ee9W7v+l6CyJdmEuwnHuLs7spOw4CgMlHHYPRb45lg9FleuvFUn9pehNOynoxu68r33CXMfQNJ4/8mHv7UQS5hrgELIDogZdbYdO9KV+Yj73TVvAVNJCSIN/bE5CbSVsSKvrobvkHHl1sLvILTOrziRwi90Gj+/Ft5axebyuGGZFjWTYW9s+qZK/eRexR2cg2XLD4lIvOnAYYK7FuMfU2Clmnz+dmjg==;5:6dfYOCPBTu2+x+1JyusvH3HZY5mXE9xHchoDLH3936JgROzJIPXG6ff7cIywyzJXDkytGY88ACmg5TcYLOpSFKflGj3ZsmEbhxldJzXfzXsfd7YtHYPJpV2pJvh2E6tNra1AHJWKiARErlTa+nVKo8Pj6vCNBvTvB1sGzsq+t6alKQ/l7x2kSMRK1dTqdDKseT4u4xYx7YPjJexjVfh/Rw==;7:vyP0PMcAsrkx7tO86Ovx7+RIKHdPUj6Wr5sbnYRwZPH/s279GWiXzvlDBvWgW5XoE4jiTQShcO1zdLaexEd50gq/inUvPXb7NO6bSJraq72zyL4d+tT0aYK5ZHBpexPG1YJduw0c41YnOWahqXzh4w==
+x-ms-office365-filtering-correlation-id: e8f41a58-9736-4597-bba0-08d68611f05f
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600110)(711020)(4605077)(4618075)(2017052603328)(7153060)(7193020);SRVR:AM0PR05MB6529;
+x-ms-traffictypediagnostic: AM0PR05MB6529:
+x-microsoft-antispam-prvs: <AM0PR05MB652927496A4AF28EB949DDE9C4970@AM0PR05MB6529.eurprd05.prod.outlook.com>
+x-forefront-prvs: 093290AD39
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(376002)(346002)(396003)(39860400002)(366004)(54094003)(52314003)(51444003)(189003)(199004)(53936002)(3846002)(6246003)(31696002)(36756003)(53546011)(52116002)(76176011)(6486002)(102836004)(14444005)(316002)(110136005)(54906003)(15650500001)(86362001)(256004)(386003)(486006)(446003)(11346002)(93886005)(478600001)(6436002)(6512007)(31686004)(106356001)(4326008)(229853002)(107886003)(105586002)(81166006)(8936002)(66066001)(25786009)(2906002)(2616005)(14454004)(97736004)(6506007)(305945005)(7736002)(476003)(26005)(8676002)(68736007)(71200400001)(81156014)(71190400001)(6116002)(186003)(99286004);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR05MB6529;H:AM0PR05MB5730.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: mellanox.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: S7SmDzZ6LH4aLtSeLy2k1SPIPz45bNrLWHA/vjnsGtIuyDSodMs20GEsZi10NC+OhztBJwalNInJ3VIZskMarUnBtA79kbPnV29yygzn61k1i6CYji2IsV/1+H7ZJLESnSmZQZFFMwO8S9SnZZjZ1/cpXWXCGAEVbWwjnX/CfaR+VWKjYZRMZzalZetTp3HKOO0HE/mVTr2Y6JXCzX65DBUjY/gGQQmFKD0+t3UxD23EuPd5M0+7UHbOj2tEUNHdFOPqkEExXaJEFf7iHqJFG60btZnDd4dx7FkUkyrwbBYYNuKcChxRhqfL4hcQ1RKGg869UiqCo8abFwPLzVZD0ViKYtfcHK7yCdiRwoqfUjFMRrzdqM6c4mTXlOxrXa1sUukc5d8U/keJi/v9PD3mEpm35P0UrXf6ROEwu6GAZTM=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <6AD8C9A92A6C3948B5AF502D458115DF@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: e8f41a58-9736-4597-bba0-08d68611f05f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 29 Jan 2019 17:48:11.1856
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR05MB6529
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 28, 2019 at 9:57 PM Don Dutile <ddutile@redhat.com> wrote:
-> On 01/28/2019 06:03 PM, Paul Moore wrote:
-> > On Mon, Jan 28, 2019 at 11:57 AM Daniel Jurgens <danielj@mellanox.com> =
-wrote:
-> >> On 1/28/2019 10:37 AM, Paul Moore wrote:
-> >>> On Sun, Jan 27, 2019 at 3:10 AM Leon Romanovsky <leon@kernel.org> wro=
-te:
-> >>>> From: Daniel Jurgens <danielj@mellanox.com>
-> >>>>
-> >>>> ---
-> >>>>   drivers/infiniband/core/security.c | 34 ++++----------------------=
-----
-> >>>>   include/rdma/ib_mad.h              |  3 ---
-> >>>>   2 files changed, 4 insertions(+), 33 deletions(-)
-> >>> Perhaps predictably, I'm not very excited about this change.  Have yo=
-u
-> >>> looked closer into the slowdown to see where the cycles are being
-> >>> spent?  I'm wondering if the issue is that a large number of notifier=
-s
-> >>> are being registered with the same priority causing the while loop in
-> >>> notifier_chain_register() to take a significant amount of time.
-> >>
-> >> That's what's happening, each MAD agent is registering it's own notifi=
-er. The bug reporter was creating hundreds or thousands of  short lived MAD=
- agents. With IRQs disabled too long it resulted in timeouts.
-> >>
-> >> When I initially added the notifier mechanism I thought it was you tha=
-t said it wasn't really needed, since access wasn't generally revoked in th=
-ese types of scenarios. Given that I didn't think this would be especially =
-controversial. It was nice to have, unfortunately it causes problems even f=
-or users that don't enable SELinux.
-> >
-> > Revoking permission is difficult, and in some cases likely impossible,
-> > but that doesn't mean we shouldn't try to make it possible when we
-> > can.  I'd like to see if we can sort this out before we give up and
-> > rip it out.
->
-> Agree that it'd be nice to see it work, but since few (no other?) subsys =
-registered
-> with selinux/security is doing this, can we 'release' the IB mad agents f=
-rom this
-> 'imprisonment' and figure out a general solution that resolves this issue=
-, and
-> then it can be implemented not only for ib mad packet access, but for oth=
-er
-> subsys using selinux/security, and wanting the same revocation support.
-
-If you scroll up, ever so slightly to my last reply (it's just a few
-lines, I'll wait), you'll see where I said "I'd like to see if we can
-sort this out before we give up and rip it out."
-
-I don't recall at the moment why the notifier approach was taken with
-the IB hooks back when Daniel wrote the code, and I'm definitely not
-sure what other subsystems you are using for your comparisons here,
-but I can tell you that I am beyond sick and tired of hearing people
-immediately jump to "rip out this security code" because of some
-performance glitch.  I care about performance too, okay?  We've got a
-bunch of clever people here, let's spend some time and see if we can
-improve what we've got before we make some knee jerk reaction and just
-rip out the access controls.
-
-> > I'm trying to quickly understand the MAD agent lifecycle, and it looks
-> > like you have your own register/unregister routines, with locking, so
-> > is it reasonable to assume that it would be possible to iterate over
-> > the MAD agents in the IB code?  I wonder if it would be possible to
-> > group MAD agents (per-port grouping, does that make sense?) such that
-> > several agents would share a single LSM notifier registration?
-> >
-> one can have numerous MAD agents.  it isn't just one.
-
-Clearly.  Daniel already mentioned hundreds of thousands of MAD agents.
-
-> Think: you can have any number of apps scanning the fabric for various st=
-ats
->         to draw node/graph pics, gather per-port packet counts, gather bw=
- numbers,
->         etc.  For IB, scanning the fabric involves 'mad pkts'.
->         In addition to scanning, one could do 'less then nice things' to =
-switches,
->         not just read stats but set parameters... like routing table entr=
-ies.
->         and thus, the security level addition.
->        One is highly unlikely to grant access to an app to do mad pkt gen=
-eration/use,
->        then change your mind (semi-?)randomly to enable/disable it.... ge=
-nerally always enabled,
->        or always disabled.
->
-> Let's take this case as a catalyst to resolve a previously unknown perf i=
-ssue,
-> and not hold it up to a higher functional requirement then other apps tha=
-t want to be secured.
-
-See my comment above.  I don't even know what you are talking about
-regarding "higher functional arguments", what other subsystems?
-Seriously Don, language like this causes an extreme allergic reaction.
-
-Anyway, let's move on to something a bit more constructive, shall we?
-
-From what I've gathered from this thread the issue stems from the
-ib_mad_agent_security_setup() where we register the
-ib_mad_agent_security_change() callback with the LSM notification
-mechanism.  Looking at the ib_mad_agent_security_change() function,
-all it seems to do is perform a LSM permission check
-(security_ib_endport_manage_subnet()) and store the result in
-ib_mad_agent->smp_allowed; quickly grep'ing through the code, the only
-place where I see that value used is in ib_mad_enforce_security().
-
-Looking at ib_mad_enforce_security(), it seems to have access to the
-necessary MAD agent information, via ib_mad_agent_private->agent, to
-perform the LSM permission check directly in this function.  Could we
-not get rid of the MAD agent LSM notification callback and simply do
-the LSM access check directly in ib_mad_enforce_security()?  What am I
-missing?
-
-I do see that the SELinux implementation of the
-security_ib_endport_manage_subnet() LSM hook doesn't seem to cache the
-IB endport labels.  If that proves to be a performance issue we can
-create a cache for that (like we do for the pkeys and a few other
-objects).
-
-I barely understand IB, so it is very possible there is a fundamental
-flaw in the logic above, but let's try to work together and figure
-something out.  The above may not be it, but I'm not ready to throw in
-the towel.
-
---=20
-paul moore
-www.paul-moore.com
+DQpPbiAxLzI5LzIwMTkgMTE6MzAgQU0sIFBhdWwgTW9vcmUgd3JvdGU6DQo+IE9uIE1vbiwgSmFu
+IDI4LCAyMDE5IGF0IDk6NTcgUE0gRG9uIER1dGlsZSA8ZGR1dGlsZUByZWRoYXQuY29tPiB3cm90
+ZToNCj4+IE9uIDAxLzI4LzIwMTkgMDY6MDMgUE0sIFBhdWwgTW9vcmUgd3JvdGU6DQo+Pj4gT24g
+TW9uLCBKYW4gMjgsIDIwMTkgYXQgMTE6NTcgQU0gRGFuaWVsIEp1cmdlbnMgPGRhbmllbGpAbWVs
+bGFub3guY29tPiB3cm90ZToNCj4+Pj4gT24gMS8yOC8yMDE5IDEwOjM3IEFNLCBQYXVsIE1vb3Jl
+IHdyb3RlOg0KPj4+Pj4gT24gU3VuLCBKYW4gMjcsIDIwMTkgYXQgMzoxMCBBTSBMZW9uIFJvbWFu
+b3Zza3kgPGxlb25Aa2VybmVsLm9yZz4gd3JvdGU6DQo+Pj4+Pj4gRnJvbTogRGFuaWVsIEp1cmdl
+bnMgPGRhbmllbGpAbWVsbGFub3guY29tPg0KPj4+Pj4+DQo+Pj4+Pj4gLS0tDQo+Pj4+Pj4gICBk
+cml2ZXJzL2luZmluaWJhbmQvY29yZS9zZWN1cml0eS5jIHwgMzQgKysrKy0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tDQo+Pj4+Pj4gICBpbmNsdWRlL3JkbWEvaWJfbWFkLmggICAgICAgICAgICAg
+IHwgIDMgLS0tDQo+Pj4+Pj4gICAyIGZpbGVzIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMzMg
+ZGVsZXRpb25zKC0pDQo+Pj4+Pg0KPj4+IEknbSB0cnlpbmcgdG8gcXVpY2tseSB1bmRlcnN0YW5k
+IHRoZSBNQUQgYWdlbnQgbGlmZWN5Y2xlLCBhbmQgaXQgbG9va3MNCj4+PiBsaWtlIHlvdSBoYXZl
+IHlvdXIgb3duIHJlZ2lzdGVyL3VucmVnaXN0ZXIgcm91dGluZXMsIHdpdGggbG9ja2luZywgc28N
+Cj4+PiBpcyBpdCByZWFzb25hYmxlIHRvIGFzc3VtZSB0aGF0IGl0IHdvdWxkIGJlIHBvc3NpYmxl
+IHRvIGl0ZXJhdGUgb3Zlcg0KPj4+IHRoZSBNQUQgYWdlbnRzIGluIHRoZSBJQiBjb2RlPyAgSSB3
+b25kZXIgaWYgaXQgd291bGQgYmUgcG9zc2libGUgdG8NCj4+PiBncm91cCBNQUQgYWdlbnRzIChw
+ZXItcG9ydCBncm91cGluZywgZG9lcyB0aGF0IG1ha2Ugc2Vuc2U/KSBzdWNoIHRoYXQNCj4+PiBz
+ZXZlcmFsIGFnZW50cyB3b3VsZCBzaGFyZSBhIHNpbmdsZSBMU00gbm90aWZpZXIgcmVnaXN0cmF0
+aW9uPw0KPj4+DQo+PiBvbmUgY2FuIGhhdmUgbnVtZXJvdXMgTUFEIGFnZW50cy4gIGl0IGlzbid0
+IGp1c3Qgb25lLg0KPiBDbGVhcmx5LiAgRGFuaWVsIGFscmVhZHkgbWVudGlvbmVkIGh1bmRyZWRz
+IG9mIHRob3VzYW5kcyBvZiBNQUQgYWdlbnRzLg0KSnVzdCB0byBiZSBjbGVhciwgaXQgd2FzIGh1
+bmRyZWRzIHRvIHRob3VzYW5kcywgbm90IGh1bmRyZWRzIG9mIHRob3VzYW5kcy4NCj4NCj4+IFRo
+aW5rOiB5b3UgY2FuIGhhdmUgYW55IG51bWJlciBvZiBhcHBzIHNjYW5uaW5nIHRoZSBmYWJyaWMg
+Zm9yIHZhcmlvdXMgc3RhdHMNCj4+ICAgICAgICAgdG8gZHJhdyBub2RlL2dyYXBoIHBpY3MsIGdh
+dGhlciBwZXItcG9ydCBwYWNrZXQgY291bnRzLCBnYXRoZXIgYncgbnVtYmVycywNCj4+ICAgICAg
+ICAgZXRjLiAgRm9yIElCLCBzY2FubmluZyB0aGUgZmFicmljIGludm9sdmVzICdtYWQgcGt0cycu
+DQo+PiAgICAgICAgIEluIGFkZGl0aW9uIHRvIHNjYW5uaW5nLCBvbmUgY291bGQgZG8gJ2xlc3Mg
+dGhlbiBuaWNlIHRoaW5ncycgdG8gc3dpdGNoZXMsDQo+PiAgICAgICAgIG5vdCBqdXN0IHJlYWQg
+c3RhdHMgYnV0IHNldCBwYXJhbWV0ZXJzLi4uIGxpa2Ugcm91dGluZyB0YWJsZSBlbnRyaWVzLg0K
+Pj4gICAgICAgICBhbmQgdGh1cywgdGhlIHNlY3VyaXR5IGxldmVsIGFkZGl0aW9uLg0KPj4gICAg
+ICAgIE9uZSBpcyBoaWdobHkgdW5saWtlbHkgdG8gZ3JhbnQgYWNjZXNzIHRvIGFuIGFwcCB0byBk
+byBtYWQgcGt0IGdlbmVyYXRpb24vdXNlLA0KPj4gICAgICAgIHRoZW4gY2hhbmdlIHlvdXIgbWlu
+ZCAoc2VtaS0/KXJhbmRvbWx5IHRvIGVuYWJsZS9kaXNhYmxlIGl0Li4uLiBnZW5lcmFsbHkgYWx3
+YXlzIGVuYWJsZWQsDQo+PiAgICAgICAgb3IgYWx3YXlzIGRpc2FibGVkLg0KPj4NCj4+IExldCdz
+IHRha2UgdGhpcyBjYXNlIGFzIGEgY2F0YWx5c3QgdG8gcmVzb2x2ZSBhIHByZXZpb3VzbHkgdW5r
+bm93biBwZXJmIGlzc3VlLA0KPj4gYW5kIG5vdCBob2xkIGl0IHVwIHRvIGEgaGlnaGVyIGZ1bmN0
+aW9uYWwgcmVxdWlyZW1lbnQgdGhlbiBvdGhlciBhcHBzIHRoYXQgd2FudCB0byBiZSBzZWN1cmVk
+Lg0KPiBTZWUgbXkgY29tbWVudCBhYm92ZS4gIEkgZG9uJ3QgZXZlbiBrbm93IHdoYXQgeW91IGFy
+ZSB0YWxraW5nIGFib3V0DQo+IHJlZ2FyZGluZyAiaGlnaGVyIGZ1bmN0aW9uYWwgYXJndW1lbnRz
+Iiwgd2hhdCBvdGhlciBzdWJzeXN0ZW1zPw0KPiBTZXJpb3VzbHkgRG9uLCBsYW5ndWFnZSBsaWtl
+IHRoaXMgY2F1c2VzIGFuIGV4dHJlbWUgYWxsZXJnaWMgcmVhY3Rpb24uDQo+DQo+IEFueXdheSwg
+bGV0J3MgbW92ZSBvbiB0byBzb21ldGhpbmcgYSBiaXQgbW9yZSBjb25zdHJ1Y3RpdmUsIHNoYWxs
+IHdlPw0KPg0KPiBGcm9tIHdoYXQgSSd2ZSBnYXRoZXJlZCBmcm9tIHRoaXMgdGhyZWFkIHRoZSBp
+c3N1ZSBzdGVtcyBmcm9tIHRoZQ0KPiBpYl9tYWRfYWdlbnRfc2VjdXJpdHlfc2V0dXAoKSB3aGVy
+ZSB3ZSByZWdpc3RlciB0aGUNCj4gaWJfbWFkX2FnZW50X3NlY3VyaXR5X2NoYW5nZSgpIGNhbGxi
+YWNrIHdpdGggdGhlIExTTSBub3RpZmljYXRpb24NCj4gbWVjaGFuaXNtLiAgTG9va2luZyBhdCB0
+aGUgaWJfbWFkX2FnZW50X3NlY3VyaXR5X2NoYW5nZSgpIGZ1bmN0aW9uLA0KPiBhbGwgaXQgc2Vl
+bXMgdG8gZG8gaXMgcGVyZm9ybSBhIExTTSBwZXJtaXNzaW9uIGNoZWNrDQo+IChzZWN1cml0eV9p
+Yl9lbmRwb3J0X21hbmFnZV9zdWJuZXQoKSkgYW5kIHN0b3JlIHRoZSByZXN1bHQgaW4NCj4gaWJf
+bWFkX2FnZW50LT5zbXBfYWxsb3dlZDsgcXVpY2tseSBncmVwJ2luZyB0aHJvdWdoIHRoZSBjb2Rl
+LCB0aGUgb25seQ0KPiBwbGFjZSB3aGVyZSBJIHNlZSB0aGF0IHZhbHVlIHVzZWQgaXMgaW4gaWJf
+bWFkX2VuZm9yY2Vfc2VjdXJpdHkoKS4NCj4NCj4gTG9va2luZyBhdCBpYl9tYWRfZW5mb3JjZV9z
+ZWN1cml0eSgpLCBpdCBzZWVtcyB0byBoYXZlIGFjY2VzcyB0byB0aGUNCj4gbmVjZXNzYXJ5IE1B
+RCBhZ2VudCBpbmZvcm1hdGlvbiwgdmlhIGliX21hZF9hZ2VudF9wcml2YXRlLT5hZ2VudCwgdG8N
+Cj4gcGVyZm9ybSB0aGUgTFNNIHBlcm1pc3Npb24gY2hlY2sgZGlyZWN0bHkgaW4gdGhpcyBmdW5j
+dGlvbi4gIENvdWxkIHdlDQo+IG5vdCBnZXQgcmlkIG9mIHRoZSBNQUQgYWdlbnQgTFNNIG5vdGlm
+aWNhdGlvbiBjYWxsYmFjayBhbmQgc2ltcGx5IGRvDQo+IHRoZSBMU00gYWNjZXNzIGNoZWNrIGRp
+cmVjdGx5IGluIGliX21hZF9lbmZvcmNlX3NlY3VyaXR5KCk/ICBXaGF0IGFtIEkNCj4gbWlzc2lu
+Zz8NCj4NCj4gSSBkbyBzZWUgdGhhdCB0aGUgU0VMaW51eCBpbXBsZW1lbnRhdGlvbiBvZiB0aGUN
+Cj4gc2VjdXJpdHlfaWJfZW5kcG9ydF9tYW5hZ2Vfc3VibmV0KCkgTFNNIGhvb2sgZG9lc24ndCBz
+ZWVtIHRvIGNhY2hlIHRoZQ0KPiBJQiBlbmRwb3J0IGxhYmVscy4gIElmIHRoYXQgcHJvdmVzIHRv
+IGJlIGEgcGVyZm9ybWFuY2UgaXNzdWUgd2UgY2FuDQo+IGNyZWF0ZSBhIGNhY2hlIGZvciB0aGF0
+IChsaWtlIHdlIGRvIGZvciB0aGUgcGtleXMgYW5kIGEgZmV3IG90aGVyDQo+IG9iamVjdHMpLg0K
+Pg0KPiBJIGJhcmVseSB1bmRlcnN0YW5kIElCLCBzbyBpdCBpcyB2ZXJ5IHBvc3NpYmxlIHRoZXJl
+IGlzIGEgZnVuZGFtZW50YWwNCj4gZmxhdyBpbiB0aGUgbG9naWMgYWJvdmUsIGJ1dCBsZXQncyB0
+cnkgdG8gd29yayB0b2dldGhlciBhbmQgZmlndXJlDQo+IHNvbWV0aGluZyBvdXQuICBUaGUgYWJv
+dmUgbWF5IG5vdCBiZSBpdCwgYnV0IEknbSBub3QgcmVhZHkgdG8gdGhyb3cgaW4NCj4gdGhlIHRv
+d2VsLg0KSSB0aGluayB0aGF0J3MgYSByZWFzb25hYmxlIGlkZWEsIGFsc28gaG9sZGluZyBhZ2Vu
+dHMgbGlzdHMgaW4gdGhlIElCIGxheWVyIGFuZCBvbmx5IHJlZ2lzdGVyaW5nIGZvciBvbmUgbm90
+aWZpZXIgY291bGQgd29yayBhcyB3ZWxsIChpdCdzIGFscmVhZHkgcmVnaXN0ZXJlZCBmb3IgdGhl
+IFBLZXlzKS4gSmFzb24gaGFkIHN1Z2dlc3RlZCB0aGF0IGludGVybmFsbHksIGJ1dCB0aGUgcHJv
+YmxlbSBpcyBJIHdhc24ndCByZWFsbHkgYWJsZSB0byByZXByb2R1Y2UgdGhlIHJlcG9ydGVkIGlz
+c3VlLCBzbyB3ZSdyZSBraW5kIG9mIGZseWluZyBibGluZCBlaXRoZXIgd2F5IGluIHRlcm1zIG9m
+IGtub3dpbmcgaWYgZWl0aGVyIGFwcHJvYWNoIGFkZHJlc3NlcyB0aGUgcGVyZiBwcm9ibGVtLg0K
