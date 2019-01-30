@@ -1,96 +1,151 @@
-Return-Path: <SRS0=7tXC=QF=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=UzQU=QG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 441EDC169C4
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 22:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98321C4151A
+	for <selinux@archiver.kernel.org>; Wed, 30 Jan 2019 11:43:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0F31B2147A
-	for <selinux@archiver.kernel.org>; Tue, 29 Jan 2019 22:50:42 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xsSs3vvC"
+	by mail.kernel.org (Postfix) with ESMTP id 74FF121852
+	for <selinux@archiver.kernel.org>; Wed, 30 Jan 2019 11:43:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729724AbfA2Wul (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 29 Jan 2019 17:50:41 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:46160 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727358AbfA2Wul (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 29 Jan 2019 17:50:41 -0500
-Received: by mail-lf1-f67.google.com with SMTP id f5so15887437lfc.13
-        for <selinux@vger.kernel.org>; Tue, 29 Jan 2019 14:50:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TpWSgYa/7S+pAvDxPuCopoALvuYMy8zjg8u27/xsx1M=;
-        b=xsSs3vvChsC2yu6PfblgwyJ1noPUWoNG3YVh5euxNMtc4pwfzqkttwVAA3HYmo5Bcq
-         MosjzZiw/is4HgjUZzu3Cn+H/rQjJRG4a8eXTaCaEvm8VA210hfW0n+zTJCgTaHg5sYP
-         0nI8krLLv5PyfEEScn1hX3IYho7AH/o2NXXJIAuOvtdDzqpygbcmxj5kKt0Fzx1Xf6Jy
-         xl/Avs87WyMYZPm94TCfaUlNxc+hjkne8JHvCBM/yPgKt+GvxqYf9CXCUZ7LSMAqQQXz
-         EqG48og9/+UUHobkwGff6+a1aj3egEt8lQSjqK8ympBeRes5FLk6q+N3qytxQdhnLhiG
-         DmCw==
+        id S1728480AbfA3LnN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Jan 2019 06:43:13 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:39319 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727838AbfA3LnN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jan 2019 06:43:13 -0500
+Received: by mail-wm1-f66.google.com with SMTP id y8so21195439wmi.4
+        for <selinux@vger.kernel.org>; Wed, 30 Jan 2019 03:43:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TpWSgYa/7S+pAvDxPuCopoALvuYMy8zjg8u27/xsx1M=;
-        b=FSnS7Z63ttoeh+CvIS2NViVbrlH/glG9/tNWyACxl/iUs6z222nLwPX4nNQOEpMNd7
-         mwMgmsXC7CYfX0Jrrs+iRZITpXGnPP4yGwyLEeSSmTmQg98hMQ48QT4zbEm/yjpmAim/
-         5x7qkVZTTNG+YFzP80Rl8c2AjZxdhJnZdIfe6BZVou5JBQ+hhBptrBog3u0DtSDyEKvj
-         /uFjBVtScJYKpmO0ZWn/cKPeDn+GLOdMcGBq8lbiI+lEnmA5SXr6aQ7aUeTLtVuo1kwv
-         CFWVTjeSsOZaF+VLwwdenY/JdJh3b7uyfe+fj0cqft1a3OuRYvorLFvgCYvb1oE6r5Dw
-         seUg==
-X-Gm-Message-State: AJcUukcFIFdUBp68Zmyjiyr1W/6xVzCelz/NpdYXH3wMpAcii3Hdyeq0
-        1UNZaUNjkqPm99jNL7rGrnrp5NYDPuCzJ0p7m1Gw
-X-Google-Smtp-Source: ALg8bN70QtPPJ4mq98azyk9Y1ANoH1tccdLC+UJ0hYdkUOKJsPqBNljN9qqIhFT5c2FVvshkKsrgS2SmVFg8AIcmmQI=
-X-Received: by 2002:a19:c995:: with SMTP id z143mr21167506lff.79.1548801755558;
- Tue, 29 Jan 2019 14:42:35 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jwDuyysWF7WswoICi8glaEm2O2B3vEOCM3RDhdeg3V0=;
+        b=nEevTiZ3/RFSPlwNr604zBkiXWJxNgJNHtEI9hIOLi56xbABegO5iQt+0tbAzyhORn
+         RYg1nfuUePr8nFIXG5s52wjbwPBGaWfcmr6I7M2/dQC9AeX7aq0wJEkwQyL+1YfJPfY8
+         o9AB+Xe8Dklnaa+qDcrTSaruoWI3j7ejiQPT7f04jtGB8vvBe9/EI2jMFDox7JahGr3b
+         O+gmzR5cvvNMdli+u2PHysmIwyfMLd0+2iVBXooBO+Hha1TGdsF2oQ8GgThBsxRKi5BF
+         GlAlJbwupqTPPFHVVx73Dd4CWskDjFAmzq5WMpbjnNbSVytemQicvU+2YebFo1GACOdV
+         XHgQ==
+X-Gm-Message-State: AJcUukc3wLCOqWzC2u0CibsB30NPAzdzGeuYIGu7DEvnOwkQVKf4309b
+        ZLQzGN3mMt0DsY46vzdsWs3uRamoJlU=
+X-Google-Smtp-Source: ALg8bN7Xu8fysP92vgMM927sTNjYkcymrqErLuLWqV4VMuRS8Qe87XcmKEM/Ky39pOWZOK+o55gkHg==
+X-Received: by 2002:a1c:c70f:: with SMTP id x15mr24927944wmf.130.1548848590687;
+        Wed, 30 Jan 2019 03:43:10 -0800 (PST)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id n124sm2417691wmd.15.2019.01.30.03.43.09
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 30 Jan 2019 03:43:09 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
+        cgroups@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
+Subject: [PATCH v3 0/5] Allow initializing the kernfs node's secctx based on its parent
+Date:   Wed, 30 Jan 2019 12:41:45 +0100
+Message-Id: <20190130114150.27807-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
- <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
- <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
- <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
- <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
- <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net> <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
- <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net> <CAHC9VhQD=itT7jE22bo0UF24gE56y1z29fZec-7y1Zumz38FfQ@mail.gmail.com>
- <1125571548681054@iva5-0acfc31d2b43.qloud-c.yandex.net> <CAHC9VhRC8BC9Ocs9FYVrwnWutWD4Dow_MjwpvowxmJd=NtVN5g@mail.gmail.com>
- <3499451548746609@myt4-929fb874f3f2.qloud-c.yandex.net>
-In-Reply-To: <3499451548746609@myt4-929fb874f3f2.qloud-c.yandex.net>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 29 Jan 2019 17:42:24 -0500
-Message-ID: <CAHC9VhRXc=UAfNidPjYsG561_kc_j2CkD6Db=Kb=Gjyhk3ko6Q@mail.gmail.com>
-Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
-To:     Nazarov Sergey <s-nazarov@yandex.ru>
-Cc:     "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 29, 2019 at 2:23 AM Nazarov Sergey <s-nazarov@yandex.ru> wrote:
-> 29.01.2019, 01:18, "Paul Moore" <paul@paul-moore.com>:
-> > If we don't pass a skb into ip_options_compile(), meaning both "skb"
-> > and "rt" will be NULL, then I don't believe the option data will
-> > change. Am I missing something?
->
-> I mean, in cipso_v4_error we copy option data from skb before ip_options_compile call:
-> +       memcpy(opt->__data, (unsigned char *)&(ip_hdr(skb)[1]), opt->optlen);
-> But skb IP header data could be already changed by first call of ip_options_compile
-> when packet received.
+Changes in v3:
+- rename the hook to "kernfs_init_security"
+- change the hook interface to simply pass pointers to struct iattr and
+  struct simple_xattrs of both the new node and its parent
+- add full security xattr support to kernfs (and fixup SELinux behavior
+  to handle it properly)
 
-There are several cases where the stack ends up calling icmp_send()
-after the skb has been through ip_options_compile(), that should be
-okay.
+v2: https://lore.kernel.org/selinux/20190109162830.8309-1-omosnace@redhat.com/T/
+Changes in v2:
+- add docstring for the new hook in union security_list_options
+- initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
+  implemented
+
+v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
+
+TL;DR:
+This series adds a new security hook that allows to initialize the security
+context of kernfs properly, taking into account the parent context (and
+possibly other attributes). Kernfs nodes require special handling here, since
+they are not bound to specific inodes/superblocks, but instead represent the
+backing tree structure that is used to build the VFS tree when the kernfs
+tree is mounted.
+
+The kernfs nodes initially do not store any security context and rely on
+the LSM to assign some default context to inodes created over them. Kernfs
+inodes, however, allow setting an explicit context via the *setxattr(2)
+syscalls, in which case the context is stored inside the kernfs node's
+internal structure.
+
+SELinux (and possibly other LSMs) initialize the context of newly created
+FS objects based on the parent object's context (usually the child inherits
+the parent's context, unless the policy dictates otherwise). This is done
+by hooking the creation of the new inode corresponding to the newly created
+file/directory via security_inode_init_security() (most filesystems always
+create a fresh inode when a new FS object is created). However, kernfs nodes
+can be created "behind the scenes" while the filesystem is not mounted
+anywhere and thus no inodes can exist for them yet.
+
+Therefore, to allow maintaining similar behavior for kernfs nodes, a new
+LSM hook is needed, which will allow initializing the kernfs node's
+security context based on its own attributes and those of the parent's
+node.
+
+The main motivation for this change is that the userspace users of cgroupfs
+(which is built on kernfs) expect the usual security context inheritance
+to work under SELinux (see [1] and [2]). This functionality is required for
+better confinement of containers under SELinux.
+
+Patch 1/5 changes SELinux to fetch security context from extended
+attributes on kernfs filesystems, falling back to genfs-defined context
+if that fails. Without this patch the 2/5 would be a regression for
+SELinux (due to the removal of ...notifysecctx() call.
+
+Patch 2/5 implements full security xattr support in kernfs using
+simple_xattrs; patch 3/5 adds the new LSM hook; patch 4/5 implements the
+new hook in SELinux; and patch 5/5 modifies kernfs to call the new hook
+on new node creation.
+
+Testing:
+- passed the reproducer from the commit message of the last patch
+- passed SELinux testsuite on Fedora 29 (x86_64) when applied on top of
+  current Rawhide kernel (5.0.0-0.rc4.git1.1) [3]
+  - including the new proposed selinux-testsuite subtest [4] (adapted
+    from the reproducer)
+
+[1] https://github.com/SELinuxProject/selinux-kernel/issues/39
+[2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
+[3] https://copr.fedorainfracloud.org/coprs/omos/kernel-testing/build/851570/
+[4] https://github.com/SELinuxProject/selinux-testsuite/pull/48
+
+Ondrej Mosnacek (5):
+  selinux: try security xattr after genfs for kernfs filesystems
+  kernfs: use simple_xattrs for security attributes
+  LSM: add new hook for kernfs node initialization
+  selinux: implement the kernfs_init_security hook
+  kernfs: initialize security of newly created nodes
+
+ fs/kernfs/dir.c                     |  42 +++++-
+ fs/kernfs/inode.c                   | 102 ++++++-------
+ fs/kernfs/kernfs-internal.h         |   6 +-
+ include/linux/lsm_hooks.h           |  20 +++
+ include/linux/security.h            |  13 ++
+ security/security.c                 |   9 ++
+ security/selinux/hooks.c            | 220 +++++++++++++++++++---------
+ security/selinux/include/security.h |   1 +
+ 8 files changed, 272 insertions(+), 141 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+2.20.1
+
