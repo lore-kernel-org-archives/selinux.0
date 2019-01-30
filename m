@@ -2,84 +2,104 @@ Return-Path: <SRS0=UzQU=QG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3CAFEC282D7
-	for <selinux@archiver.kernel.org>; Wed, 30 Jan 2019 13:33:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BF47C282DA
+	for <selinux@archiver.kernel.org>; Wed, 30 Jan 2019 17:09:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0DD9120989
-	for <selinux@archiver.kernel.org>; Wed, 30 Jan 2019 13:33:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17FE0218A3
+	for <selinux@archiver.kernel.org>; Wed, 30 Jan 2019 17:09:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1548868158;
+	bh=rRDlg5lormqPFVbKv7aiL3qSgD7IxXF/tI+zS6Gp8TQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=zxZ1QCEy+2EG5NAC/F0C8FZVwrCrZEyVrys3amgl5AOT5usyx+a2PHPAGoAzhW1kg
+	 wnZUC8wHsGgCSeQ3QJHH0PkSbf0dInxSrKSjmZLi6aBwEN0Z4GSTD0PBL9XK5EA+eV
+	 DrG02vgcWdurt509jmZGyOdgRu82V5/nPXisA/0o=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726151AbfA3NdD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 30 Jan 2019 08:33:03 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:45208 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725768AbfA3NdD (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 30 Jan 2019 08:33:03 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 9905A58E40
-        for <selinux@vger.kernel.org>; Wed, 30 Jan 2019 13:33:03 +0000 (UTC)
-Received: from firefly.usersys.redhat.com (unknown [10.43.21.205])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0EE025C21E
-        for <selinux@vger.kernel.org>; Wed, 30 Jan 2019 13:33:02 +0000 (UTC)
-From:   Viktor Ashirov <vashirov@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] python/restorecon: add force option
-Date:   Wed, 30 Jan 2019 14:33:00 +0100
-Message-Id: <20190130133300.3415-1-vashirov@redhat.com>
+        id S1732400AbfA3RJQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Jan 2019 12:09:16 -0500
+Received: from mail-yb1-f193.google.com ([209.85.219.193]:41356 "EHLO
+        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732390AbfA3RJQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Jan 2019 12:09:16 -0500
+Received: by mail-yb1-f193.google.com with SMTP id n6so99748ybg.8;
+        Wed, 30 Jan 2019 09:09:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=fV5393vsqnrEoYDVfVdAQON49yYFXCXoPJiHHf0IuH8=;
+        b=YAIEi+6Mb6MG0CaXAD/XUMi1GuURGS8V8ipb6gKrZTpqmKpwjo5XeWu1klTa9Zi1HA
+         iCZlbQUjvSR7qi6q/Q7yA/EUnSd1SCzwkj/l2thn1hS5OiAvujvu65pvm4+L5t0xgUFm
+         WvHwE2XBNe4mw8tLyh92ha6bPLmkBiVHSeDa+0KNA/kuz2PT/F34prikKMqa+YHwoWZw
+         W54o1N0DVLIklFwZ8zpDyqZql4K2JWfdhwOo5VFIVlHbpnMZgQQBDWh29+AapLerT4Po
+         p1Z4duSCHOrK++6Sf+JDgCagvYId8e0ghTVwNF5eu9DILEkPVRHTPQEjG2sElgHS63nu
+         mgxw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=fV5393vsqnrEoYDVfVdAQON49yYFXCXoPJiHHf0IuH8=;
+        b=l1xXUTNcuvHHYqGXs+3Np3sRnkKnDu2x7USajSBTkLzAl9F5ohiTg8xpDwjI6XrIOa
+         uVkhXViTAVIlDjOEpDaDef3dDzsgY/ydJED37BJgrzlExJwMFW89vyIQ4d0Ulc/7IegT
+         CoOq3JRMdzMqyQSaLvOVMnSHNvCyaCARWNDtJfDdMS4JBjtdtGykWXMMxFcqTx3buHRG
+         OmYX+2dgs8jGVfvT/EaJISH8H2IXKGHjxI+F9sS9VI6n7x4n7wx2DboIBYSxF51DPOyJ
+         KZ27Zbxb7kT7TlWaEefSsgh+Y+lrwUZcPSb9GFS4eHzfePoCrXGa8zKy8hc+DT9WC/Pp
+         wbYA==
+X-Gm-Message-State: AJcUukddyjeoaZNKEarHirBCZK40GRHfPmDPZj/sOMIO21I8AZ4J4sDe
+        kYmC06zbObOd62v5YU3al6VAdZV1
+X-Google-Smtp-Source: ALg8bN7ZBJnrE+R1Q6VmuPLROFUV/Vj8frLhuFV0RbNYRAbv12gxaGqSkTQBg2N48ifYIA+E1ivIDw==
+X-Received: by 2002:a25:aa73:: with SMTP id s106mr29976014ybi.519.1548868154595;
+        Wed, 30 Jan 2019 09:09:14 -0800 (PST)
+Received: from localhost ([2620:10d:c091:200::7:e55d])
+        by smtp.gmail.com with ESMTPSA id z74sm804287ywz.51.2019.01.30.09.09.12
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 30 Jan 2019 09:09:13 -0800 (PST)
+Date:   Wed, 30 Jan 2019 09:09:11 -0800
+From:   Tejun Heo <tj@kernel.org>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+Subject: Re: [PATCH v3 5/5] kernfs: initialize security of newly created nodes
+Message-ID: <20190130170911.GZ50184@devbig004.ftw2.facebook.com>
+References: <20190130114150.27807-1-omosnace@redhat.com>
+ <20190130114150.27807-6-omosnace@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Wed, 30 Jan 2019 13:33:03 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190130114150.27807-6-omosnace@redhat.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This adds 'force' keyword argument to selinux.restorecon() function
-using SELINUX_RESTORECON_SET_SPECFILE_CTX flag.
+Hello,
 
-Signed-off-by: Viktor Ashirov <vashirov@redhat.com>
----
- libselinux/src/selinuxswig_python.i | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+On Wed, Jan 30, 2019 at 12:41:50PM +0100, Ondrej Mosnacek wrote:
+> @@ -673,6 +698,12 @@ static struct kernfs_node *__kernfs_new_node(struct kernfs_root *root,
+>  			goto err_out3;
+>  	}
+>  
+> +	if (parent) {
+> +		ret = kernfs_node_init_security(parent, kn);
+> +		if (ret)
+> +			goto err_out3;
+> +	}
 
-diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
-index 2af7c7e0..4c73bf92 100644
---- a/libselinux/src/selinuxswig_python.i
-+++ b/libselinux/src/selinuxswig_python.i
-@@ -20,7 +20,7 @@ DISABLED = -1
- PERMISSIVE = 0
- ENFORCING = 1
- 
--def restorecon(path, recursive=False, verbose=False):
-+def restorecon(path, recursive=False, verbose=False, force=False):
-     """ Restore SELinux context on a given path
- 
-     Arguments:
-@@ -29,6 +29,9 @@ def restorecon(path, recursive=False, verbose=False):
-     Keyword arguments:
-     recursive -- Change files and directories file labels recursively (default False)
-     verbose -- Show changes in file labels (default False)
-+    force -- Force reset of context to match file_context for customizable files,
-+    and the default file context, changing the user, role, range portion  as well
-+    as the type (default False)
-     """
- 
-     restorecon_flags = SELINUX_RESTORECON_IGNORE_DIGEST | SELINUX_RESTORECON_REALPATH
-@@ -36,6 +39,8 @@ def restorecon(path, recursive=False, verbose=False):
-         restorecon_flags |= SELINUX_RESTORECON_RECURSE
-     if verbose:
-         restorecon_flags |= SELINUX_RESTORECON_VERBOSE
-+    if force:
-+        restorecon_flags |= SELINUX_RESTORECON_SET_SPECFILE_CTX
-     selinux_restorecon(os.path.expanduser(path), restorecon_flags)
- 
- def chcon(path, context, recursive=False):
+So, doing this unconditionally isn't a good idea.  kernfs doesn't use
+the usual dentry/inode because there are machines with 6, even 7 digit
+number of kernfs nodes and some of them even failed to boot due to
+memory shortage.  Please don't blow it up by default.
+
+Thanks.
+
 -- 
-2.20.1
-
+tejun
