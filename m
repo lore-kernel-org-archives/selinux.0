@@ -6,38 +6,38 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7817C169C4
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19A1BC169C4
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 86542218D3
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD979218D3
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732829AbfAaNWi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Jan 2019 08:22:38 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:39692 "EHLO mx1.redhat.com"
+        id S2387416AbfAaNWj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Jan 2019 08:22:39 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:39746 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733042AbfAaNWi (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 31 Jan 2019 08:22:38 -0500
+        id S1733302AbfAaNWj (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 31 Jan 2019 08:22:39 -0500
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 758FEB0813
-        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 13:22:37 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 73B989D51C
+        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 13:22:39 +0000 (UTC)
 Received: from workstation.redhat.com (unknown [10.40.205.62])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id AF29260BF7;
-        Thu, 31 Jan 2019 13:22:36 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AB9AB60BF7;
+        Thu, 31 Jan 2019 13:22:38 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH 2/3] libselinux: Fix RESOURCE_LEAK defects reported by coverity scan
-Date:   Thu, 31 Jan 2019 14:22:25 +0100
-Message-Id: <20190131132226.19030-2-plautrba@redhat.com>
+Subject: [PATCH 3/3] libsemanage: Fix USE_AFTER_FREE defects reported by coverity scan
+Date:   Thu, 31 Jan 2019 14:22:26 +0100
+Message-Id: <20190131132226.19030-3-plautrba@redhat.com>
 In-Reply-To: <20190131132226.19030-1-plautrba@redhat.com>
 References: <20190131132226.19030-1-plautrba@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Thu, 31 Jan 2019 13:22:37 +0000 (UTC)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Thu, 31 Jan 2019 13:22:39 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -45,164 +45,62 @@ X-Mailing-List: selinux@vger.kernel.org
 
 Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 ---
- libselinux/src/checkAccess.c        |  4 +++-
- libselinux/src/label_db.c           |  3 +++
- libselinux/src/label_file.c         |  4 +++-
- libselinux/src/load_policy.c        |  4 +++-
- libselinux/src/selinux_config.c     | 17 +++++++++--------
- libselinux/src/selinux_restorecon.c | 12 ++++++++++--
- 6 files changed, 31 insertions(+), 13 deletions(-)
+ libsemanage/src/direct_api.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
-diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
-index 8de57477..16bfcfb6 100644
---- a/libselinux/src/checkAccess.c
-+++ b/libselinux/src/checkAccess.c
-@@ -89,8 +89,10 @@ int selinux_check_passwd_access(access_vector_t requested)
- 		int retval;
+diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+index c58961be..8e4d116d 100644
+--- a/libsemanage/src/direct_api.c
++++ b/libsemanage/src/direct_api.c
+@@ -1028,7 +1028,7 @@ static int semanage_direct_write_langext(semanage_handle_t *sh,
  
- 		passwd_class = string_to_security_class("passwd");
--		if (passwd_class == 0)
-+		if (passwd_class == 0) {
-+			freecon(user_context);
- 			return 0;
-+		}
+ 	fp = NULL;
  
- 		retval = security_compute_av_raw(user_context,
- 						     user_context,
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index c46d0a1d..fa481e04 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -283,10 +283,12 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
- 	}
- 	if (fstat(fileno(filp), &sb) < 0) {
- 		free(catalog);
-+    fclose(filp);
- 		return NULL;
- 	}
- 	if (!S_ISREG(sb.st_mode)) {
- 		free(catalog);
-+    fclose(filp);
- 		errno = EINVAL;
- 		return NULL;
- 	}
-@@ -340,6 +342,7 @@ out_error:
- 		free(spec->lr.ctx_trans);
- 	}
- 	free(catalog);
-+	fclose(filp);
+-	ret = 0;
++	return 0;
  
- 	return NULL;
+ cleanup:
+ 	if (fp != NULL) fclose(fp);
+@@ -2177,7 +2177,6 @@ cleanup:
+ 	semanage_module_info_destroy(sh, modinfo);
+ 	free(modinfo);
+ 
+-	if (fp != NULL) fclose(fp);
+ 	return status;
  }
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index dbf51a93..b81fd552 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -317,8 +317,10 @@ end_arch_check:
- 			goto out;
- 		}
- 		rc = next_entry(str_buf, mmap_area, entry_len);
--		if (rc < 0)
-+		if (rc < 0) {
-+			free(str_buf);
- 			goto out;
-+		}
  
- 		if (str_buf[entry_len - 1] != '\0') {
- 			free(str_buf);
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index e9f1264a..20052beb 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -262,8 +262,10 @@ checkbool:
- 			rc = security_get_boolean_names(&names, &len);
- 			if (!rc) {
- 				values = malloc(sizeof(int) * len);
--				if (!values)
-+				if (!values) {
-+					free(names);
- 					goto unmap;
-+				}
- 				for (i = 0; i < len; i++)
- 					values[i] =
- 						security_get_boolean_active(names[i]);
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index 292728f3..b06cb63b 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -177,8 +177,7 @@ static void init_selinux_config(void)
+@@ -2342,16 +2341,6 @@ static int semanage_direct_get_module_info(semanage_handle_t *sh,
+ 	free(tmp);
+ 	tmp = NULL;
  
- 			if (!strncasecmp(buf_p, SELINUXTYPETAG,
- 					 sizeof(SELINUXTYPETAG) - 1)) {
--				selinux_policytype = type =
--				    strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
-+				type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
- 				if (!type)
- 					return;
- 				end = type + strlen(type) - 1;
-@@ -187,6 +186,11 @@ static void init_selinux_config(void)
- 					*end = 0;
- 					end--;
- 				}
-+				if (setpolicytype(type) != 0) {
-+					free(type);
-+					return;
-+				}
-+				free(type);
- 				continue;
- 			} else if (!strncmp(buf_p, SETLOCALDEFS,
- 					    sizeof(SETLOCALDEFS) - 1)) {
-@@ -212,13 +216,10 @@ static void init_selinux_config(void)
- 		fclose(fp);
+-	if (fclose(fp) != 0) {
+-		ERR(sh,
+-		    "Unable to close %s module lang ext file.",
+-		    (*modinfo)->name);
+-		status = -1;
+-		goto cleanup;
+-	}
+-
+-	fp = NULL;
+-
+ 	/* lookup enabled/disabled status */
+ 	ret = semanage_module_get_path(sh,
+ 				       *modinfo,
+@@ -2395,7 +2384,13 @@ cleanup:
+ 		free(modinfos);
  	}
  
--	if (!type) {
--		selinux_policytype = type = strdup(SELINUXDEFAULT);
--		if (!type)
--			return;
--	}
-+	if (!selinux_policytype && setpolicytype(SELINUXDEFAULT) != 0)
-+		return;
- 
--	if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, type) == -1)
-+	if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, selinux_policytype) == -1)
- 		return;
- 
- 	for (i = 0; i < NEL; i++)
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 42a48f5a..955732e5 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -351,12 +351,19 @@ static int add_xattr_entry(const char *directory, bool delete_nonmatch,
- 	new_entry->next = NULL;
- 
- 	new_entry->directory = strdup(directory);
--	if (!new_entry->directory)
-+	if (!new_entry->directory) {
-+		free(new_entry);
-+		free(sha1_buf);
- 		goto oom;
+-	if (fp != NULL) fclose(fp);
++	if (fp != NULL && fclose(fp) != 0) {
++		ERR(sh,
++		    "Unable to close %s module lang ext file.",
++		    (*modinfo)->name);
++		status = -1;
 +	}
++
+ 	return status;
+ }
  
- 	new_entry->digest = strdup(sha1_buf);
--	if (!new_entry->digest)
-+	if (!new_entry->digest) {
-+		free(new_entry->directory);
-+		free(new_entry);
-+		free(sha1_buf);
- 		goto oom;
-+	}
- 
- 	new_entry->result = digest_result;
- 
-@@ -850,6 +857,7 @@ int selinux_restorecon(const char *pathname_orig,
- 
- 	if (lstat(pathname, &sb) < 0) {
- 		if (flags.ignore_noent && errno == ENOENT) {
-+			free(xattr_value);
- 			free(pathdnamer);
- 			free(pathname);
- 			return 0;
 -- 
 2.20.1
 
