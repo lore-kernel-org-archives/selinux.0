@@ -2,79 +2,254 @@ Return-Path: <SRS0=JPc9=QH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 238E3C169C4
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:20:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8172C169C4
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E5F67218D3
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:20:47 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="nkhZBbo5"
+	by mail.kernel.org (Postfix) with ESMTP id 89BAB218DA
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726153AbfAaNUp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Jan 2019 08:20:45 -0500
-Received: from forward501j.mail.yandex.net ([5.45.198.251]:42383 "EHLO
-        forward501j.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727108AbfAaNUo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Jan 2019 08:20:44 -0500
-Received: from mxback21g.mail.yandex.net (mxback21g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:321])
-        by forward501j.mail.yandex.net (Yandex) with ESMTP id E72A133802DB;
-        Thu, 31 Jan 2019 16:20:41 +0300 (MSK)
-Received: from localhost (localhost [::1])
-        by mxback21g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id 0rvd3jPRdh-KeJCFVc3;
-        Thu, 31 Jan 2019 16:20:41 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail; t=1548940841;
-        bh=oB/E2AJU2WzP09fte2H+pLpD91cHyn8nHoMf2IS81yI=;
-        h=From:To:Cc:In-Reply-To:References:Subject:Date:Message-Id;
-        b=nkhZBbo5LrkWeb9JqSou9p0ipcsIwnXhh7bzF5U+m5pThSUo0jgW0lRtvum689sRu
-         4GDqVVH49eYmRS96lte/q+sHrzJCSfnm6Sao37hz/xJl/D1/xMW9c6nNjxUYM4BWkz
-         x3/k04ppJN2D72IyFgOEHDMy2FdFKm9xyx7crmM4=
-Authentication-Results: mxback21g.mail.yandex.net; dkim=pass header.i=@yandex.ru
-Received: by iva8-8d7a47df0521.qloud-c.yandex.net with HTTP;
-        Thu, 31 Jan 2019 16:20:40 +0300
-From:   Nazarov Sergey <s-nazarov@yandex.ru>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-In-Reply-To: <CAHC9VhQcrnXmjcVw_ppwM-fGcwhJq9SafTnZKjgpQpxK0ie+Jw@mail.gmail.com>
-References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
-         <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
-         <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
-         <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
-         <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
-         <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net> <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
-         <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net> <CAHC9VhQD=itT7jE22bo0UF24gE56y1z29fZec-7y1Zumz38FfQ@mail.gmail.com>
-        <1125571548681054@iva5-0acfc31d2b43.qloud-c.yandex.net> <CAHC9VhRC8BC9Ocs9FYVrwnWutWD4Dow_MjwpvowxmJd=NtVN5g@mail.gmail.com>
-         <3499451548746609@myt4-929fb874f3f2.qloud-c.yandex.net> <CAHC9VhRXc=UAfNidPjYsG561_kc_j2CkD6Db=Kb=Gjyhk3ko6Q@mail.gmail.com>
-         <3191601548853902@myt6-23299ba78d64.qloud-c.yandex.net> <CAHC9VhQcrnXmjcVw_ppwM-fGcwhJq9SafTnZKjgpQpxK0ie+Jw@mail.gmail.com>
-Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
+        id S1732978AbfAaNWf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Jan 2019 08:22:35 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:56720 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732829AbfAaNWf (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 31 Jan 2019 08:22:35 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id C0AA037E79
+        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 13:22:34 +0000 (UTC)
+Received: from workstation.redhat.com (unknown [10.40.205.62])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 05A4460BF7;
+        Thu, 31 Jan 2019 13:22:33 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH 1/3] libsepol: Fix RESOURCE_LEAK defects reported by coverity scan
+Date:   Thu, 31 Jan 2019 14:22:24 +0100
+Message-Id: <20190131132226.19030-1-plautrba@redhat.com>
 MIME-Version: 1.0
-X-Mailer: Yamail [ http://yandex.ru ] 5.0
-Date:   Thu, 31 Jan 2019 16:20:40 +0300
-Message-Id: <11242361548940840@iva8-8d7a47df0521.qloud-c.yandex.net>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Thu, 31 Jan 2019 13:22:34 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-31.01.2019, 05:10, "Paul Moore" <paul@paul-moore.com>:
-> This isn't how the rest of the stack works, look at
-> ip_local_deliver_finish() for one example. Perhaps the behavior you
-> are proposing is correct, but please show me where in the various RFC
-> specs it is defined so that I can better understand why it should work
-> this way.
-> --
-> paul moore
-> www.paul-moore.com
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libsepol/cil/src/cil_binary.c      | 12 ++++++++++++
+ libsepol/cil/src/cil_resolve_ast.c | 10 ++++++++++
+ libsepol/cil/src/cil_symtab.c      |  1 +
+ libsepol/src/expand.c              |  3 +++
+ libsepol/src/kernel_to_cil.c       |  2 ++
+ libsepol/src/kernel_to_conf.c      |  2 ++
+ 6 files changed, 30 insertions(+)
 
-Sorry, I was inattentive. ip_options_compile modifies srr option data, only if
-skb is NULL. My last message could be ignored.
+diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+index 0cc6eeb1..a645c95d 100644
+--- a/libsepol/cil/src/cil_binary.c
++++ b/libsepol/cil/src/cil_binary.c
+@@ -912,6 +912,8 @@ int cil_sensalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alias)
+ 	key = cil_strdup(cil_alias->datum.fqn);
+ 	rc = symtab_insert(pdb, SYM_LEVELS, key, sepol_alias, SCOPE_DECL, 0, NULL);
+ 	if (rc != SEPOL_OK) {
++		if (rc == 1)
++			free(sepol_alias);
+ 		goto exit;
+ 	}
+ 
+@@ -1763,11 +1765,13 @@ int __cil_avrulex_ioctl_to_hashtable(hashtab_t h, uint16_t kind, uint32_t src, u
+ 		hashtab_xperms = cil_malloc(sizeof(*hashtab_xperms));
+ 		rc = ebitmap_cpy(hashtab_xperms, xperms);
+ 		if (rc != SEPOL_OK) {
++			free(hashtab_xperms);
+ 			free(avtab_key);
+ 			goto exit;
+ 		}
+ 		rc = hashtab_insert(h, (hashtab_key_t)avtab_key, hashtab_xperms);
+ 		if (rc != SEPOL_OK) {
++			free(hashtab_xperms);
+ 			free(avtab_key);
+ 			goto exit;
+ 		}
+@@ -2157,6 +2161,7 @@ static int __cil_cond_expr_to_sepol_expr_helper(policydb_t *pdb, struct cil_list
+ 			op->expr_type = COND_NEQ;
+ 			break;
+ 		default:
++			free(op);
+ 			goto exit;
+ 		}
+ 
+@@ -2283,6 +2288,7 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+ 
+ 	cond_expr_destroy(tmp_cond->expr);
+ 	free(tmp_cond);
++	tmp_cond = NULL;
+ 
+ 	for (cb_node = node->cl_head; cb_node != NULL; cb_node = cb_node->next) {
+ 		if (cb_node->flavor == CIL_CONDBLOCK) {
+@@ -2327,6 +2333,11 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+ 	return SEPOL_OK;
+ 
+ exit:
++	if (tmp_cond) {
++		if (tmp_cond->expr)
++			cond_expr_destroy(tmp_cond->expr);
++		free(tmp_cond);
++	}
+ 	return rc;
+ }
+ 
+@@ -4797,6 +4808,7 @@ static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t clas
+ 	return cp_list;
+ 
+ exit:
++	free(cp);
+ 	cil_log(CIL_ERR,"Failed to create CIL class-permissions from sepol values\n");
+ 	return NULL;
+ }
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index fb9d9174..91187ed7 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -1522,6 +1522,7 @@ int cil_resolve_sidorder(struct cil_tree_node *current, void *extra_args)
+ 		rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_SIDS, extra_args, &datum);
+ 		if (rc != SEPOL_OK) {
+ 			cil_log(CIL_ERR, "Failed to resolve sid %s in sidorder\n", (char *)curr->data);
++			free(new);
+ 			goto exit;
+ 		}
+ 		cil_list_append(new, CIL_SID, datum);
+@@ -1591,6 +1592,8 @@ int cil_resolve_catorder(struct cil_tree_node *current, void *extra_args)
+ 	return SEPOL_OK;
+ 
+ exit:
++	if (new)
++		free(new);
+ 	return rc;
+ }
+ 
+@@ -1624,6 +1627,7 @@ int cil_resolve_sensitivityorder(struct cil_tree_node *current, void *extra_args
+ 	return SEPOL_OK;
+ 
+ exit:
++	free(new);
+ 	return rc;
+ }
+ 
+@@ -2853,6 +2857,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 					rc = cil_fill_cats(pc, &catset->cats);
+ 					if (rc != SEPOL_OK) {
+ 						cil_destroy_catset(catset);
++						cil_destroy_args(new_arg);
+ 						goto exit;
+ 					}
+ 					cil_tree_node_init(&cat_node);
+@@ -2877,6 +2882,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 					if (rc != SEPOL_OK) {
+ 						cil_log(CIL_ERR, "Failed to create anonymous level, rc: %d\n", rc);
+ 						cil_destroy_level(level);
++						cil_destroy_args(new_arg);
+ 						goto exit;
+ 					}
+ 					cil_tree_node_init(&lvl_node);
+@@ -2901,6 +2907,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 					if (rc != SEPOL_OK) {
+ 						cil_log(CIL_ERR, "Failed to create anonymous levelrange, rc: %d\n", rc);
+ 						cil_destroy_levelrange(range);
++						cil_destroy_args(new_arg);
+ 						goto exit;
+ 					}
+ 					cil_tree_node_init(&range_node);
+@@ -2925,6 +2932,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 					if (rc != SEPOL_OK) {
+ 						cil_log(CIL_ERR, "Failed to create anonymous ip address, rc: %d\n", rc);
+ 						cil_destroy_ipaddr(ipaddr);
++						cil_destroy_args(new_arg);
+ 						goto exit;
+ 					}
+ 					cil_tree_node_init(&addr_node);
+@@ -2955,6 +2963,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 					if (rc != SEPOL_OK) {
+ 						cil_log(CIL_ERR, "Failed to create anonymous classpermission\n");
+ 						cil_destroy_classpermission(cp);
++						cil_destroy_args(new_arg);
+ 						goto exit;
+ 					}
+ 					cil_tree_node_init(&cp_node);
+@@ -2970,6 +2979,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
+ 			default:
+ 				cil_log(CIL_ERR, "Unexpected flavor: %d\n", 
+ 						(((struct cil_param*)item->data)->flavor));
++				cil_destroy_args(new_arg);
+ 				rc = SEPOL_ERR;
+ 				goto exit;
+ 			}
+diff --git a/libsepol/cil/src/cil_symtab.c b/libsepol/cil/src/cil_symtab.c
+index 3769979b..2970b863 100644
+--- a/libsepol/cil/src/cil_symtab.c
++++ b/libsepol/cil/src/cil_symtab.c
+@@ -185,6 +185,7 @@ int cil_complex_symtab_insert(struct cil_complex_symtab *symtab,
+ 			ckey->key2 == curr->ckey->key2 &&
+ 			ckey->key3 == curr->ckey->key3 &&
+ 			ckey->key4 == curr->ckey->key4) {
++			free(node);
+ 			return SEPOL_EEXIST;
+ 		}
+ 
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 6f1b235e..125a6809 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -1451,6 +1451,7 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
+ 				new_trans->name = strdup(cur_rule->name);
+ 				if (!new_trans->name) {
+ 					ERR(state->handle, "Out of memory!");
++					free(new_trans);
+ 					return -1;
+ 				}
+ 				new_trans->stype = i + 1;
+@@ -1460,6 +1461,8 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
+ 				otype = calloc(1, sizeof(*otype));
+ 				if (!otype) {
+ 					ERR(state->handle, "Out of memory!");
++					free(new_trans->name);
++					free(new_trans);
+ 					return -1;
+ 				}
+ 				otype->otype = mapped_otype;
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index 63e4d489..ec82f597 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -2031,6 +2031,8 @@ static int write_cond_av_list_to_cil(FILE *out, struct policydb *pdb, cond_av_li
+ 	return 0;
+ 
+ exit:
++	strs_free_all(strs);
++	strs_destroy(&strs);
+ 	return rc;
+ }
+ 
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index 215d940c..afadca6b 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -1999,6 +1999,8 @@ static int write_cond_av_list_to_conf(FILE *out, struct policydb *pdb, cond_av_l
+ 	return 0;
+ 
+ exit:
++	strs_free_all(strs);
++	strs_destroy(&strs);
+ 	return rc;
+ }
+ 
+-- 
+2.20.1
+
