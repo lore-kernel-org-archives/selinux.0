@@ -6,36 +6,38 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8172C169C4
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7817C169C4
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 89BAB218DA
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86542218D3
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:22:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732978AbfAaNWf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Jan 2019 08:22:35 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:56720 "EHLO mx1.redhat.com"
+        id S1732829AbfAaNWi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Jan 2019 08:22:38 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:39692 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732829AbfAaNWf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 31 Jan 2019 08:22:35 -0500
+        id S1733042AbfAaNWi (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 31 Jan 2019 08:22:38 -0500
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C0AA037E79
-        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 13:22:34 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 758FEB0813
+        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 13:22:37 +0000 (UTC)
 Received: from workstation.redhat.com (unknown [10.40.205.62])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 05A4460BF7;
-        Thu, 31 Jan 2019 13:22:33 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AF29260BF7;
+        Thu, 31 Jan 2019 13:22:36 +0000 (UTC)
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH 1/3] libsepol: Fix RESOURCE_LEAK defects reported by coverity scan
-Date:   Thu, 31 Jan 2019 14:22:24 +0100
-Message-Id: <20190131132226.19030-1-plautrba@redhat.com>
+Subject: [PATCH 2/3] libselinux: Fix RESOURCE_LEAK defects reported by coverity scan
+Date:   Thu, 31 Jan 2019 14:22:25 +0100
+Message-Id: <20190131132226.19030-2-plautrba@redhat.com>
+In-Reply-To: <20190131132226.19030-1-plautrba@redhat.com>
+References: <20190131132226.19030-1-plautrba@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Thu, 31 Jan 2019 13:22:34 +0000 (UTC)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Thu, 31 Jan 2019 13:22:37 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -43,213 +45,164 @@ X-Mailing-List: selinux@vger.kernel.org
 
 Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 ---
- libsepol/cil/src/cil_binary.c      | 12 ++++++++++++
- libsepol/cil/src/cil_resolve_ast.c | 10 ++++++++++
- libsepol/cil/src/cil_symtab.c      |  1 +
- libsepol/src/expand.c              |  3 +++
- libsepol/src/kernel_to_cil.c       |  2 ++
- libsepol/src/kernel_to_conf.c      |  2 ++
- 6 files changed, 30 insertions(+)
+ libselinux/src/checkAccess.c        |  4 +++-
+ libselinux/src/label_db.c           |  3 +++
+ libselinux/src/label_file.c         |  4 +++-
+ libselinux/src/load_policy.c        |  4 +++-
+ libselinux/src/selinux_config.c     | 17 +++++++++--------
+ libselinux/src/selinux_restorecon.c | 12 ++++++++++--
+ 6 files changed, 31 insertions(+), 13 deletions(-)
 
-diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-index 0cc6eeb1..a645c95d 100644
---- a/libsepol/cil/src/cil_binary.c
-+++ b/libsepol/cil/src/cil_binary.c
-@@ -912,6 +912,8 @@ int cil_sensalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alias)
- 	key = cil_strdup(cil_alias->datum.fqn);
- 	rc = symtab_insert(pdb, SYM_LEVELS, key, sepol_alias, SCOPE_DECL, 0, NULL);
- 	if (rc != SEPOL_OK) {
-+		if (rc == 1)
-+			free(sepol_alias);
- 		goto exit;
+diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+index 8de57477..16bfcfb6 100644
+--- a/libselinux/src/checkAccess.c
++++ b/libselinux/src/checkAccess.c
+@@ -89,8 +89,10 @@ int selinux_check_passwd_access(access_vector_t requested)
+ 		int retval;
+ 
+ 		passwd_class = string_to_security_class("passwd");
+-		if (passwd_class == 0)
++		if (passwd_class == 0) {
++			freecon(user_context);
+ 			return 0;
++		}
+ 
+ 		retval = security_compute_av_raw(user_context,
+ 						     user_context,
+diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
+index c46d0a1d..fa481e04 100644
+--- a/libselinux/src/label_db.c
++++ b/libselinux/src/label_db.c
+@@ -283,10 +283,12 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
  	}
+ 	if (fstat(fileno(filp), &sb) < 0) {
+ 		free(catalog);
++    fclose(filp);
+ 		return NULL;
+ 	}
+ 	if (!S_ISREG(sb.st_mode)) {
+ 		free(catalog);
++    fclose(filp);
+ 		errno = EINVAL;
+ 		return NULL;
+ 	}
+@@ -340,6 +342,7 @@ out_error:
+ 		free(spec->lr.ctx_trans);
+ 	}
+ 	free(catalog);
++	fclose(filp);
  
-@@ -1763,11 +1765,13 @@ int __cil_avrulex_ioctl_to_hashtable(hashtab_t h, uint16_t kind, uint32_t src, u
- 		hashtab_xperms = cil_malloc(sizeof(*hashtab_xperms));
- 		rc = ebitmap_cpy(hashtab_xperms, xperms);
- 		if (rc != SEPOL_OK) {
-+			free(hashtab_xperms);
- 			free(avtab_key);
- 			goto exit;
- 		}
- 		rc = hashtab_insert(h, (hashtab_key_t)avtab_key, hashtab_xperms);
- 		if (rc != SEPOL_OK) {
-+			free(hashtab_xperms);
- 			free(avtab_key);
- 			goto exit;
- 		}
-@@ -2157,6 +2161,7 @@ static int __cil_cond_expr_to_sepol_expr_helper(policydb_t *pdb, struct cil_list
- 			op->expr_type = COND_NEQ;
- 			break;
- 		default:
-+			free(op);
- 			goto exit;
- 		}
- 
-@@ -2283,6 +2288,7 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
- 
- 	cond_expr_destroy(tmp_cond->expr);
- 	free(tmp_cond);
-+	tmp_cond = NULL;
- 
- 	for (cb_node = node->cl_head; cb_node != NULL; cb_node = cb_node->next) {
- 		if (cb_node->flavor == CIL_CONDBLOCK) {
-@@ -2327,6 +2333,11 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
- 	return SEPOL_OK;
- 
- exit:
-+	if (tmp_cond) {
-+		if (tmp_cond->expr)
-+			cond_expr_destroy(tmp_cond->expr);
-+		free(tmp_cond);
-+	}
- 	return rc;
- }
- 
-@@ -4797,6 +4808,7 @@ static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t clas
- 	return cp_list;
- 
- exit:
-+	free(cp);
- 	cil_log(CIL_ERR,"Failed to create CIL class-permissions from sepol values\n");
  	return NULL;
  }
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index fb9d9174..91187ed7 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -1522,6 +1522,7 @@ int cil_resolve_sidorder(struct cil_tree_node *current, void *extra_args)
- 		rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_SIDS, extra_args, &datum);
- 		if (rc != SEPOL_OK) {
- 			cil_log(CIL_ERR, "Failed to resolve sid %s in sidorder\n", (char *)curr->data);
-+			free(new);
- 			goto exit;
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index dbf51a93..b81fd552 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -317,8 +317,10 @@ end_arch_check:
+ 			goto out;
  		}
- 		cil_list_append(new, CIL_SID, datum);
-@@ -1591,6 +1592,8 @@ int cil_resolve_catorder(struct cil_tree_node *current, void *extra_args)
- 	return SEPOL_OK;
+ 		rc = next_entry(str_buf, mmap_area, entry_len);
+-		if (rc < 0)
++		if (rc < 0) {
++			free(str_buf);
+ 			goto out;
++		}
  
- exit:
-+	if (new)
-+		free(new);
- 	return rc;
- }
+ 		if (str_buf[entry_len - 1] != '\0') {
+ 			free(str_buf);
+diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+index e9f1264a..20052beb 100644
+--- a/libselinux/src/load_policy.c
++++ b/libselinux/src/load_policy.c
+@@ -262,8 +262,10 @@ checkbool:
+ 			rc = security_get_boolean_names(&names, &len);
+ 			if (!rc) {
+ 				values = malloc(sizeof(int) * len);
+-				if (!values)
++				if (!values) {
++					free(names);
+ 					goto unmap;
++				}
+ 				for (i = 0; i < len; i++)
+ 					values[i] =
+ 						security_get_boolean_active(names[i]);
+diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+index 292728f3..b06cb63b 100644
+--- a/libselinux/src/selinux_config.c
++++ b/libselinux/src/selinux_config.c
+@@ -177,8 +177,7 @@ static void init_selinux_config(void)
  
-@@ -1624,6 +1627,7 @@ int cil_resolve_sensitivityorder(struct cil_tree_node *current, void *extra_args
- 	return SEPOL_OK;
- 
- exit:
-+	free(new);
- 	return rc;
- }
- 
-@@ -2853,6 +2857,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					rc = cil_fill_cats(pc, &catset->cats);
- 					if (rc != SEPOL_OK) {
- 						cil_destroy_catset(catset);
-+						cil_destroy_args(new_arg);
- 						goto exit;
- 					}
- 					cil_tree_node_init(&cat_node);
-@@ -2877,6 +2882,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					if (rc != SEPOL_OK) {
- 						cil_log(CIL_ERR, "Failed to create anonymous level, rc: %d\n", rc);
- 						cil_destroy_level(level);
-+						cil_destroy_args(new_arg);
- 						goto exit;
- 					}
- 					cil_tree_node_init(&lvl_node);
-@@ -2901,6 +2907,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					if (rc != SEPOL_OK) {
- 						cil_log(CIL_ERR, "Failed to create anonymous levelrange, rc: %d\n", rc);
- 						cil_destroy_levelrange(range);
-+						cil_destroy_args(new_arg);
- 						goto exit;
- 					}
- 					cil_tree_node_init(&range_node);
-@@ -2925,6 +2932,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					if (rc != SEPOL_OK) {
- 						cil_log(CIL_ERR, "Failed to create anonymous ip address, rc: %d\n", rc);
- 						cil_destroy_ipaddr(ipaddr);
-+						cil_destroy_args(new_arg);
- 						goto exit;
- 					}
- 					cil_tree_node_init(&addr_node);
-@@ -2955,6 +2963,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 					if (rc != SEPOL_OK) {
- 						cil_log(CIL_ERR, "Failed to create anonymous classpermission\n");
- 						cil_destroy_classpermission(cp);
-+						cil_destroy_args(new_arg);
- 						goto exit;
- 					}
- 					cil_tree_node_init(&cp_node);
-@@ -2970,6 +2979,7 @@ int cil_resolve_call1(struct cil_tree_node *current, void *extra_args)
- 			default:
- 				cil_log(CIL_ERR, "Unexpected flavor: %d\n", 
- 						(((struct cil_param*)item->data)->flavor));
-+				cil_destroy_args(new_arg);
- 				rc = SEPOL_ERR;
- 				goto exit;
- 			}
-diff --git a/libsepol/cil/src/cil_symtab.c b/libsepol/cil/src/cil_symtab.c
-index 3769979b..2970b863 100644
---- a/libsepol/cil/src/cil_symtab.c
-+++ b/libsepol/cil/src/cil_symtab.c
-@@ -185,6 +185,7 @@ int cil_complex_symtab_insert(struct cil_complex_symtab *symtab,
- 			ckey->key2 == curr->ckey->key2 &&
- 			ckey->key3 == curr->ckey->key3 &&
- 			ckey->key4 == curr->ckey->key4) {
-+			free(node);
- 			return SEPOL_EEXIST;
- 		}
- 
-diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-index 6f1b235e..125a6809 100644
---- a/libsepol/src/expand.c
-+++ b/libsepol/src/expand.c
-@@ -1451,6 +1451,7 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
- 				new_trans->name = strdup(cur_rule->name);
- 				if (!new_trans->name) {
- 					ERR(state->handle, "Out of memory!");
-+					free(new_trans);
- 					return -1;
+ 			if (!strncasecmp(buf_p, SELINUXTYPETAG,
+ 					 sizeof(SELINUXTYPETAG) - 1)) {
+-				selinux_policytype = type =
+-				    strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
++				type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
+ 				if (!type)
+ 					return;
+ 				end = type + strlen(type) - 1;
+@@ -187,6 +186,11 @@ static void init_selinux_config(void)
+ 					*end = 0;
+ 					end--;
  				}
- 				new_trans->stype = i + 1;
-@@ -1460,6 +1461,8 @@ static int expand_filename_trans(expand_state_t *state, filename_trans_rule_t *r
- 				otype = calloc(1, sizeof(*otype));
- 				if (!otype) {
- 					ERR(state->handle, "Out of memory!");
-+					free(new_trans->name);
-+					free(new_trans);
- 					return -1;
- 				}
- 				otype->otype = mapped_otype;
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index 63e4d489..ec82f597 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -2031,6 +2031,8 @@ static int write_cond_av_list_to_cil(FILE *out, struct policydb *pdb, cond_av_li
- 	return 0;
++				if (setpolicytype(type) != 0) {
++					free(type);
++					return;
++				}
++				free(type);
+ 				continue;
+ 			} else if (!strncmp(buf_p, SETLOCALDEFS,
+ 					    sizeof(SETLOCALDEFS) - 1)) {
+@@ -212,13 +216,10 @@ static void init_selinux_config(void)
+ 		fclose(fp);
+ 	}
  
- exit:
-+	strs_free_all(strs);
-+	strs_destroy(&strs);
- 	return rc;
- }
+-	if (!type) {
+-		selinux_policytype = type = strdup(SELINUXDEFAULT);
+-		if (!type)
+-			return;
+-	}
++	if (!selinux_policytype && setpolicytype(SELINUXDEFAULT) != 0)
++		return;
  
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index 215d940c..afadca6b 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -1999,6 +1999,8 @@ static int write_cond_av_list_to_conf(FILE *out, struct policydb *pdb, cond_av_l
- 	return 0;
+-	if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, type) == -1)
++	if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, selinux_policytype) == -1)
+ 		return;
  
- exit:
-+	strs_free_all(strs);
-+	strs_destroy(&strs);
- 	return rc;
- }
+ 	for (i = 0; i < NEL; i++)
+diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
+index 42a48f5a..955732e5 100644
+--- a/libselinux/src/selinux_restorecon.c
++++ b/libselinux/src/selinux_restorecon.c
+@@ -351,12 +351,19 @@ static int add_xattr_entry(const char *directory, bool delete_nonmatch,
+ 	new_entry->next = NULL;
  
+ 	new_entry->directory = strdup(directory);
+-	if (!new_entry->directory)
++	if (!new_entry->directory) {
++		free(new_entry);
++		free(sha1_buf);
+ 		goto oom;
++	}
+ 
+ 	new_entry->digest = strdup(sha1_buf);
+-	if (!new_entry->digest)
++	if (!new_entry->digest) {
++		free(new_entry->directory);
++		free(new_entry);
++		free(sha1_buf);
+ 		goto oom;
++	}
+ 
+ 	new_entry->result = digest_result;
+ 
+@@ -850,6 +857,7 @@ int selinux_restorecon(const char *pathname_orig,
+ 
+ 	if (lstat(pathname, &sb) < 0) {
+ 		if (flags.ignore_noent && errno == ENOENT) {
++			free(xattr_value);
+ 			free(pathdnamer);
+ 			free(pathname);
+ 			return 0;
 -- 
 2.20.1
 
