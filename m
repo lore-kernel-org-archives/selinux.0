@@ -6,43 +6,43 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDBD6C169C4
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 21:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C8B1C282DA
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 21:33:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF83020869
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 21:17:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0727E21872
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 21:33:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726183AbfAaVRO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Jan 2019 16:17:14 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:59345 "EHLO
+        id S1727537AbfAaVdi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Jan 2019 16:33:38 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:47714 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725730AbfAaVRO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Jan 2019 16:17:14 -0500
-Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
+        with ESMTP id S1726792AbfAaVdh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Jan 2019 16:33:37 -0500
+Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 6B6515646C8
-        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 22:17:12 +0100 (CET)
-Received: by mail-ot1-f53.google.com with SMTP id u16so4143585otk.8
-        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 13:17:12 -0800 (PST)
-X-Gm-Message-State: AJcUukfmsWroFBe3Km8ihWOa/NJol+LNZmvTx7H/hst89Vr7tuW8hiBg
-        bL4CDm1RdHy3+vPQHZS1qaYGN1WHhnhzlgKIHns=
-X-Google-Smtp-Source: ALg8bN42kskdRtsDMUHjotQ8R8FXZXOZ8whL/cEcxUjuSOg8792xDcUQv8e6jXy+2k3iILnbG+ypzXgLzMYyHJAvXAU=
-X-Received: by 2002:a9d:3e4a:: with SMTP id h10mr28355379otg.74.1548969431307;
- Thu, 31 Jan 2019 13:17:11 -0800 (PST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 3FCBC5647E0
+        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 22:33:35 +0100 (CET)
+Received: by mail-ot1-f49.google.com with SMTP id s5so4190785oth.7
+        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 13:33:35 -0800 (PST)
+X-Gm-Message-State: AJcUukfr4v7yfh2VRFomd9Baopb5QvOW23IPI0SZFhGtvGPHGCAcCcgR
+        vBm/nYFqAplRE1pkTtr9sXLPXdgLBROOIUH37Lk=
+X-Google-Smtp-Source: ALg8bN4N//yT64ZtnZ9bPNW8ju1nIBiHR4/960BrwVE+J0t4lk7PA70eD6g4F+3sYALmXkmxypC9I4yQKO0Cmt6nXKQ=
+X-Received: by 2002:a9d:3e4a:: with SMTP id h10mr28395721otg.74.1548970414256;
+ Thu, 31 Jan 2019 13:33:34 -0800 (PST)
 MIME-Version: 1.0
 References: <20190131132226.19030-1-plautrba@redhat.com>
 In-Reply-To: <20190131132226.19030-1-plautrba@redhat.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Thu, 31 Jan 2019 22:17:00 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=mK=okzh1S8_1h6_TPRMTXEUQyHUccTf-Uai=Az8SDRQg@mail.gmail.com>
-Message-ID: <CAJfZ7=mK=okzh1S8_1h6_TPRMTXEUQyHUccTf-Uai=Az8SDRQg@mail.gmail.com>
+Date:   Thu, 31 Jan 2019 22:33:23 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=m4RUe3AONg-2f81H1i34tdiy5jEnQJ9x1DHb8n_U=1bw@mail.gmail.com>
+Message-ID: <CAJfZ7=m4RUe3AONg-2f81H1i34tdiy5jEnQJ9x1DHb8n_U=1bw@mail.gmail.com>
 Subject: Re: [PATCH 1/3] libsepol: Fix RESOURCE_LEAK defects reported by
  coverity scan
 To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Jan 31 22:17:12 2019 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Jan 31 22:33:35 2019 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -65,24 +65,59 @@ On Thu, Jan 31, 2019 at 2:22 PM Petr Lautrbach <plautrba@redhat.com> wrote:
 > index 0cc6eeb1..a645c95d 100644
 > --- a/libsepol/cil/src/cil_binary.c
 > +++ b/libsepol/cil/src/cil_binary.c
-> @@ -912,6 +912,8 @@ int cil_sensalias_to_policydb(policydb_t *pdb, struct cil_alias *cil_alias)
->         key = cil_strdup(cil_alias->datum.fqn);
->         rc = symtab_insert(pdb, SYM_LEVELS, key, sepol_alias, SCOPE_DECL, 0, NULL);
->         if (rc != SEPOL_OK) {
-> +               if (rc == 1)
-> +                       free(sepol_alias);
->                 goto exit;
->         }
+...
+> @@ -4797,6 +4808,7 @@ static struct cil_list *cil_classperms_from_sepol(policydb_t *pdb, uint16_t clas
+>         return cp_list;
+>
+>  exit:
+> +       free(cp);
+>         cil_log(CIL_ERR,"Failed to create CIL class-permissions from sepol values\n");
+>         return NULL;
+>  }
 
-There is something weird here. The exit label starts with
-"level_datum_destroy(sepol_alias);". This is not a serious issue
-because level_datum_destroy() does not do anything, but after this
-patch, cil_sensalias_to_policydb()'s code seems to use sepol_alias
-after freeing it.
+Before free(cp), should cp->perms be destroyed with a call to
+cil_list_destroy(&cp->perms, CIL_FALSE)?
 
-Should the call to level_datum_destroy(sepol_alias) be removed, or
-moved before free(sepol_alias)?
+> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> index fb9d9174..91187ed7 100644
+> --- a/libsepol/cil/src/cil_resolve_ast.c
+> +++ b/libsepol/cil/src/cil_resolve_ast.c
+> @@ -1522,6 +1522,7 @@ int cil_resolve_sidorder(struct cil_tree_node *current, void *extra_args)
+>                 rc = cil_resolve_name(current, (char *)curr->data, CIL_SYM_SIDS, extra_args, &datum);
+>                 if (rc != SEPOL_OK) {
+>                         cil_log(CIL_ERR, "Failed to resolve sid %s in sidorder\n", (char *)curr->data);
+> +                       free(new);
+>                         goto exit;
+>                 }
+>                 cil_list_append(new, CIL_SID, datum);
 
-Thanks,
+Here, free(new) will not free the items that were already appended.
+Would cil_list_destroy(&new, CIL_FALSE) work? (I have not tested it)
+
+> @@ -1591,6 +1592,8 @@ int cil_resolve_catorder(struct cil_tree_node *current, void *extra_args)
+>         return SEPOL_OK;
+>
+>  exit:
+> +       if (new)
+> +               free(new);
+>         return rc;
+>  }
+
+Same comment
+
+> @@ -1624,6 +1627,7 @@ int cil_resolve_sensitivityorder(struct cil_tree_node *current, void *extra_args
+>         return SEPOL_OK;
+>
+>  exit:
+> +       free(new);
+>         return rc;
+>  }
+
+Why is there a "if(new)" in the previous chunk and not here? As
+cil_list_init() fails hard when the memory allocation failed, new can
+never be NULL so the previous if(new) is not needed.
+
+All the other changes in this patch looked good to me.
+
 Nicolas
 
