@@ -2,121 +2,79 @@ Return-Path: <SRS0=JPc9=QH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28E9DC282D9
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 10:21:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 238E3C169C4
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:20:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 04423218AF
-	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 10:21:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5F67218D3
+	for <selinux@archiver.kernel.org>; Thu, 31 Jan 2019 13:20:47 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=yandex.ru header.i=@yandex.ru header.b="nkhZBbo5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731749AbfAaKVJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Jan 2019 05:21:09 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:44979 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730172AbfAaKVJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Jan 2019 05:21:09 -0500
-Received: by mail-oi1-f195.google.com with SMTP id m6so2237889oig.11
-        for <selinux@vger.kernel.org>; Thu, 31 Jan 2019 02:21:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=m0SuNou7yDS+3D1wYaKFTHEBe7Ne+CO8BHGdPi4i8lg=;
-        b=VKFSRVQbCGMKWAZeyZvw3d6EL/u8A+UEgyStU/e/KfnXSirEgKRZhh8VEPHCOrnmvZ
-         OjD6KlpFPYCTpcLbSmJ6HVfavd9DTtoJp2t2198eT5iPvrbmvldEcnyuxkLikuUJP8J2
-         vgPaYPdcEBcH7+l6PazoQ3H+Ad1qgRcxDVsOqITa/ez7bGQZtggAObxD47y/nR1awjKu
-         Ke1JoWKw47TqQa3rmtNYU4bGJJubMQCLR7ZFSZZtyBDaUOq25NKTD7hPpZ1gVcvU2qvn
-         V34ABua1hKnzEhnxw2OesSU7Fej7suS2LARQloLgp6mwvFuWuL+BvJ3GLqMG/i2aGlxi
-         5Saw==
-X-Gm-Message-State: AHQUAuZM+8muAUQnigdnI5o+EvYtFLre1zRm+J0kMl9wGB5+JspLMrKY
-        NEYiFxqCP1uGjmgMLOGXOPreHspGDf/v5Lnc+wvqbQ==
-X-Google-Smtp-Source: AHgI3IbC5A8FjeSM6t+zqElCrlOi/AmHx+JTKGjcCe/AGqytjqX+Jci3QX3z+Let7pLVO/WyG1NRGykj83KC1lYAL4g=
-X-Received: by 2002:aca:2403:: with SMTP id n3mr2857487oic.328.1548930068092;
- Thu, 31 Jan 2019 02:21:08 -0800 (PST)
-MIME-Version: 1.0
-References: <20190130114150.27807-1-omosnace@redhat.com> <20190130114150.27807-6-omosnace@redhat.com>
- <20190130170911.GZ50184@devbig004.ftw2.facebook.com>
-In-Reply-To: <20190130170911.GZ50184@devbig004.ftw2.facebook.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 31 Jan 2019 11:20:57 +0100
-Message-ID: <CAFqZXNt0jNg2-bNbtsCX2=7bcb_GaxCnHfSyck=GksXBTkWJ-g@mail.gmail.com>
-Subject: Re: [PATCH v3 5/5] kernfs: initialize security of newly created nodes
-To:     Tejun Heo <tj@kernel.org>
-Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
+        id S1726153AbfAaNUp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Jan 2019 08:20:45 -0500
+Received: from forward501j.mail.yandex.net ([5.45.198.251]:42383 "EHLO
+        forward501j.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727108AbfAaNUo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Jan 2019 08:20:44 -0500
+Received: from mxback21g.mail.yandex.net (mxback21g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:321])
+        by forward501j.mail.yandex.net (Yandex) with ESMTP id E72A133802DB;
+        Thu, 31 Jan 2019 16:20:41 +0300 (MSK)
+Received: from localhost (localhost [::1])
+        by mxback21g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id 0rvd3jPRdh-KeJCFVc3;
+        Thu, 31 Jan 2019 16:20:41 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex.ru; s=mail; t=1548940841;
+        bh=oB/E2AJU2WzP09fte2H+pLpD91cHyn8nHoMf2IS81yI=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:Message-Id;
+        b=nkhZBbo5LrkWeb9JqSou9p0ipcsIwnXhh7bzF5U+m5pThSUo0jgW0lRtvum689sRu
+         4GDqVVH49eYmRS96lte/q+sHrzJCSfnm6Sao37hz/xJl/D1/xMW9c6nNjxUYM4BWkz
+         x3/k04ppJN2D72IyFgOEHDMy2FdFKm9xyx7crmM4=
+Authentication-Results: mxback21g.mail.yandex.net; dkim=pass header.i=@yandex.ru
+Received: by iva8-8d7a47df0521.qloud-c.yandex.net with HTTP;
+        Thu, 31 Jan 2019 16:20:40 +0300
+From:   Nazarov Sergey <s-nazarov@yandex.ru>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     "linux-security-module@vger.kernel.org" 
         <linux-security-module@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+In-Reply-To: <CAHC9VhQcrnXmjcVw_ppwM-fGcwhJq9SafTnZKjgpQpxK0ie+Jw@mail.gmail.com>
+References: <16659801547571984@sas1-890ba5c2334a.qloud-c.yandex.net>
+         <1378e106-1826-2ab4-a3b1-88b57cee8497@schaufler-ca.com> <CAHC9VhTNnEpOito2b6ARFseCXcSw+kSE0erKhikd6FfwwBYppA@mail.gmail.com>
+         <CAHC9VhTEUzjd=Wk1y0Jjq8y0-xUf-8nVY727KRBD3z6APuQKfw@mail.gmail.com>
+         <10416711547829281@sas1-fed4e4c8a570.qloud-c.yandex.net> <CAHC9VhS-veQHhyhVBv0kRr0MZc6ZSh9WWO-9K2tOyQxFba43eA@mail.gmail.com>
+         <42957681548090694@sas1-adb97d30497b.qloud-c.yandex.net> <CAHC9VhT58UT4oN9uXq3eew-OeZi_Yos+s4b21XCoSB3CTMeZNg@mail.gmail.com>
+         <4824091548178512@sas1-ea1d14049a51.qloud-c.yandex.net> <CAHC9VhRhEvcU804qMfZik7qwohuCDfcbvJMHRT+DxMPvvMDEGQ@mail.gmail.com>
+         <11471341548341163@sas2-7b909973f402.qloud-c.yandex.net> <CAHC9VhQD=itT7jE22bo0UF24gE56y1z29fZec-7y1Zumz38FfQ@mail.gmail.com>
+        <1125571548681054@iva5-0acfc31d2b43.qloud-c.yandex.net> <CAHC9VhRC8BC9Ocs9FYVrwnWutWD4Dow_MjwpvowxmJd=NtVN5g@mail.gmail.com>
+         <3499451548746609@myt4-929fb874f3f2.qloud-c.yandex.net> <CAHC9VhRXc=UAfNidPjYsG561_kc_j2CkD6Db=Kb=Gjyhk3ko6Q@mail.gmail.com>
+         <3191601548853902@myt6-23299ba78d64.qloud-c.yandex.net> <CAHC9VhQcrnXmjcVw_ppwM-fGcwhJq9SafTnZKjgpQpxK0ie+Jw@mail.gmail.com>
+Subject: Re: Kernel memory corruption in CIPSO labeled TCP packets processing.
+MIME-Version: 1.0
+X-Mailer: Yamail [ http://yandex.ru ] 5.0
+Date:   Thu, 31 Jan 2019 16:20:40 +0300
+Message-Id: <11242361548940840@iva8-8d7a47df0521.qloud-c.yandex.net>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Tejun,
+31.01.2019, 05:10, "Paul Moore" <paul@paul-moore.com>:
+> This isn't how the rest of the stack works, look at
+> ip_local_deliver_finish() for one example. Perhaps the behavior you
+> are proposing is correct, but please show me where in the various RFC
+> specs it is defined so that I can better understand why it should work
+> this way.
+> --
+> paul moore
+> www.paul-moore.com
 
-On Wed, Jan 30, 2019 at 6:09 PM Tejun Heo <tj@kernel.org> wrote:
->
-> Hello,
->
-> On Wed, Jan 30, 2019 at 12:41:50PM +0100, Ondrej Mosnacek wrote:
-> > @@ -673,6 +698,12 @@ static struct kernfs_node *__kernfs_new_node(struct kernfs_root *root,
-> >                       goto err_out3;
-> >       }
-> >
-> > +     if (parent) {
-> > +             ret = kernfs_node_init_security(parent, kn);
-> > +             if (ret)
-> > +                     goto err_out3;
-> > +     }
->
-> So, doing this unconditionally isn't a good idea.  kernfs doesn't use
-> the usual dentry/inode because there are machines with 6, even 7 digit
-> number of kernfs nodes and some of them even failed to boot due to
-> memory shortage.  Please don't blow it up by default.
-
-Hm, I see... basically the only thing that gets allocated in
-kernfs_node_init_security() by default (at least under SELinux/ no
-LSM) is the kernfs_iattrs structures, so I assume you are pointing at
-that. I think this can be easily fixed, if we again use the assumption
-that whenever the parent node has only default attributes
-(parent->iattrs == NULL), then the child node should also have just
-default attributes (and so we don't need to call kernfs_iattrs() on it
-nor call the security hook). Something along these lines:
-
-[...]
-+static int kernfs_node_init_security(struct kernfs_node *parent,
-+                                    struct kernfs_node *kn)
-+{
-+       struct kernfs_iattrs *attrs, *pattrs;
-+       struct qstr q;
-+
-+       pattrs = parent->iattrs;
-+       if (!pattrs)
-+               return 0;
-+
-+       attrs = kernfs_iattrs(kn);
-+       if (!attrs)
-+               return -ENOMEM;
-+
-+       q.name = kn->name;
-+       q.hash_len = hashlen_string(parent, kn->name);
-[...]
-
-Technically this might make some LSMs unhappy, if they want to set
-some non-default context even if parent is all default, but this is
-already impossible now and in this case I think we have no better
-choice than sacrificing a bit of flexibility for memory efficiency,
-which is apparently critical here.
-
-Tejun, Casey, would the above modification be fine with you?
-
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Associate Software Engineer, Security Technologies
-Red Hat, Inc.
+Sorry, I was inattentive. ip_options_compile modifies srr option data, only if
+skb is NULL. My last message could be ignored.
