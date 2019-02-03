@@ -2,132 +2,128 @@ Return-Path: <SRS0=Ce+3=QK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92B6EC169C4
-	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 11:02:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 774D6C169C4
+	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 22:24:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5C2B220855
-	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 11:02:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E3BF2177E
+	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 22:24:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727474AbfBCLCx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 3 Feb 2019 06:02:53 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:49346 "EHLO
+        id S1727154AbfBCWYE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 3 Feb 2019 17:24:04 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:35837 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726765AbfBCLCx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 3 Feb 2019 06:02:53 -0500
-Received: from localhost.localdomain (32.206.133.77.rev.sfr.net [77.133.206.32])
+        with ESMTP id S1726673AbfBCWYE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 3 Feb 2019 17:24:04 -0500
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id E6D9C564752
-        for <selinux@vger.kernel.org>; Sun,  3 Feb 2019 12:02:49 +0100 (CET)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 1/1] libsepol: do not use uninitialized value for low_value
-Date:   Sun,  3 Feb 2019 12:01:52 +0100
-Message-Id: <20190203110152.15064-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.20.1
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 5D86F5646F8
+        for <selinux@vger.kernel.org>; Sun,  3 Feb 2019 23:24:01 +0100 (CET)
+Received: by mail-ot1-f42.google.com with SMTP id e12so10632366otl.5
+        for <selinux@vger.kernel.org>; Sun, 03 Feb 2019 14:24:01 -0800 (PST)
+X-Gm-Message-State: AJcUukfseEBwzRZ1GbqPgLhTf1rKrUYlDPP+potvJp2cxH+Nn9RHYCgL
+        S6msyuUUd65z99Ym6so4qEi5PLNC8oWlQo8yW04=
+X-Google-Smtp-Source: ALg8bN742XVrAFYPcBFNPJuciSRfAlPk4KKBNijV24A11Iy8FEJdNMRjM0ws0ZZmWyXDL2vYu5YcHc/sguY1Pjemnos=
+X-Received: by 2002:a9d:2f66:: with SMTP id h93mr37141026otb.165.1549232640177;
+ Sun, 03 Feb 2019 14:24:00 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Feb  3 12:02:50 2019 +0100 (CET))
+References: <20190131134812.20440-1-plautrba@redhat.com>
+In-Reply-To: <20190131134812.20440-1-plautrba@redhat.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sun, 3 Feb 2019 23:23:48 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=nW+1DnK1T0-0eDuzP48L26B2yMUA44VWfsnxMVEd_k4Q@mail.gmail.com>
+Message-ID: <CAJfZ7=nW+1DnK1T0-0eDuzP48L26B2yMUA44VWfsnxMVEd_k4Q@mail.gmail.com>
+Subject: Re: [PATCH] scripts/release: Update links to use release assets
+ instead of wiki links
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Feb  3 23:24:01 2019 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-clang's static analyzer reports a warning when low_bit is used without
-having been initialized in statements such as:
+On Thu, Jan 31, 2019 at 2:48 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> - new release files are created in release/$RELEASE_TAG
+> - download links refers to new release assets
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-    low_value = low_bit << 8;
+I have created packages for 2.9-rc1 for Arch Linux without any
+trouble, using the information from the GitHub release page and the
+generated wiki page
+(https://github.com/SELinuxProject/selinux/wiki/Releases).
 
-The warning is: "Result of operation is garbage or undefined".
-
-This is caused by low_bit being only initialized when in_range is true.
-This issue is not critical because low_value is only used in an
-"if (in_range)" block. Silence this warning by moving low_value's
-assignment inside this block.
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- libsepol/src/kernel_to_cil.c | 4 ++--
- libsepol/src/module_to_cil.c | 4 ++--
- libsepol/src/util.c          | 4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index 63e4d4899758..cd3554e8dfd9 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -1614,8 +1614,8 @@ static char *xperms_to_str(avtab_extended_perms_t *xperms)
- 
- 		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
- 			value = xperms->driver<<8 | bit;
--			low_value = xperms->driver<<8 | low_bit;
- 			if (in_range) {
-+				low_value = xperms->driver<<8 | low_bit;
- 				len = snprintf(p, remaining, " (range 0x%hx 0x%hx)", low_value, value);
- 				in_range = 0;
- 			} else {
-@@ -1623,8 +1623,8 @@ static char *xperms_to_str(avtab_extended_perms_t *xperms)
- 			}
- 		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
- 			value = bit << 8;
--			low_value = low_bit << 8;
- 			if (in_range) {
-+				low_value = low_bit << 8;
- 				len = snprintf(p, remaining, " (range 0x%hx 0x%hx)", low_value, (uint16_t) (value|0xff));
- 				in_range = 0;
- 			} else {
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 4cb44e0ee657..f04589edaeff 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -655,8 +655,8 @@ static int xperms_to_cil(const av_extended_perms_t *xperms)
- 
- 		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
- 			value = xperms->driver<<8 | bit;
--			low_value = xperms->driver<<8 | low_bit;
- 			if (in_range) {
-+				low_value = xperms->driver<<8 | low_bit;
- 				cil_printf("(range 0x%hx 0x%hx)", low_value, value);
- 				in_range = 0;
- 			} else {
-@@ -664,8 +664,8 @@ static int xperms_to_cil(const av_extended_perms_t *xperms)
- 			}
- 		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
- 			value = bit << 8;
--			low_value = low_bit << 8;
- 			if (in_range) {
-+				low_value = low_bit << 8;
- 				cil_printf("(range 0x%hx 0x%hx)", low_value, (uint16_t) (value|0xff));
- 				in_range = 0;
- 			} else {
-diff --git a/libsepol/src/util.c b/libsepol/src/util.c
-index b00251c69aa5..a4008882b94b 100644
---- a/libsepol/src/util.c
-+++ b/libsepol/src/util.c
-@@ -159,16 +159,16 @@ char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms)
- 
- 		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
- 			value = xperms->driver<<8 | bit;
--			low_value = xperms->driver<<8 | low_bit;
- 			if (in_range) {
-+				low_value = xperms->driver<<8 | low_bit;
- 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, value);
- 			} else {
- 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx ", value);
- 			}
- 		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
- 			value = bit << 8;
--			low_value = low_bit << 8;
- 			if (in_range) {
-+				low_value = low_bit << 8;
- 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, (uint16_t) (value|0xff));
- 			} else {
- 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", value, (uint16_t) (value|0xff));
--- 
-2.20.1
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  scripts/release | 24 ++++++++++++++++++++----
+>  1 file changed, 20 insertions(+), 4 deletions(-)
+>
+> diff --git a/scripts/release b/scripts/release
+> index ad10d557..07813749 100755
+> --- a/scripts/release
+> +++ b/scripts/release
+> @@ -7,11 +7,12 @@ if [ \! -d $WIKIDIR ]; then
+>      git clone git@github.com:SELinuxProject/selinux.wiki.git $WIKIDIR
+>  fi
+>
+> -DEST=$WIKIDIR/files/releases/$(date '+%Y%m%d')
+> +RELEASE_TAG=$(date '+%Y%m%d')
+> +DEST=releases/$RELEASE_TAG
+>  DIRS="libsepol libselinux libsemanage checkpolicy secilc policycoreutils mcstrans restorecond semodule-utils"
+>  DIRS_NEED_PREFIX="dbus gui python sandbox"
+>
+> -git tag -a $(date '+%Y%m%d') -m "Release $(date '+%Y%m%d')"
+> +git tag -a $RELEASE_TAG -m "Release $RELEASE_TAG"
+>
+>  rm -rf $DEST
+>  mkdir -p $DEST
+> @@ -44,19 +45,34 @@ echo ""
+>
+>  echo "## Release $(date '+%Y-%m-%d')"
+>
+> +echo ""
+> +
+> +echo "[Release Notes](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/RELEASE-$RELEASE_TAG.txt)"
+> +echo ""
+> +echo "[full log](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/log-$RELEASE_TAG.txt)"
+> +echo ""
+> +echo "[short log](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/shortlog-$RELEASE_TAG.txt)"
+> +echo ""
+> +
+>  for i in *.tar.gz; do
+>
+> -       echo -n "[$i](https://raw.githubusercontent.com/wiki/SELinuxProject/selinux/files/releases/$(date '+%Y%m%d')/$i) "
+> +       echo -n "[$i](https://github.com/SELinuxProject/selinux/releases/download/$RELEASE_TAG/$i) "
+>         sha256sum $i | cut -d " " -f 1
+>         echo ""
+>  done
+>
+>  echo "And then run:"
+>  echo "  cd $WIKIDIR"
+> -echo "  git commit  -m \"Release $(date '+%Y%m%d')\" -a -s"
+> +echo "  git commit  -m \"Release $RELEASE_TAG\" -a -s"
+>  echo "  git push"
+>
+>  echo ""
+>  echo "Push the release and its tags to git via:"
+>  echo "  git push"
+>  echo "  git push --tags"
+> +
+> +echo ""
+> +echo "Create a new release from the latest tag on https://github.com/SELinuxProject/selinux/tags"
+> +
+> +echo ""
+> +echo "Add files from releases/$RELEASE_TAG as assets to the new github release"
+> --
+> 2.20.1
+>
 
