@@ -2,98 +2,132 @@ Return-Path: <SRS0=Ce+3=QK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 487B2C169C4
-	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 10:08:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92B6EC169C4
+	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 11:02:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 15ADC21773
-	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 10:08:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C2B220855
+	for <selinux@archiver.kernel.org>; Sun,  3 Feb 2019 11:02:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726754AbfBCKIa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 3 Feb 2019 05:08:30 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:55667 "EHLO
+        id S1727474AbfBCLCx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 3 Feb 2019 06:02:53 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:49346 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726623AbfBCKIa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 3 Feb 2019 05:08:30 -0500
-Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
+        with ESMTP id S1726765AbfBCLCx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 3 Feb 2019 06:02:53 -0500
+Received: from localhost.localdomain (32.206.133.77.rev.sfr.net [77.133.206.32])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 2B56C564795
-        for <selinux@vger.kernel.org>; Sun,  3 Feb 2019 11:08:26 +0100 (CET)
-Received: by mail-ot1-f53.google.com with SMTP id a11so9766005otr.10
-        for <selinux@vger.kernel.org>; Sun, 03 Feb 2019 02:08:26 -0800 (PST)
-X-Gm-Message-State: AJcUukdHnmM0QfLFaKIvxa5jc2yJ5wtU8v/mIJuMa3nzP5JdigJkoqo9
-        VTPcuR9o3Bgt1YpwrhgfT4zDLYbYmrpP5351gZE=
-X-Google-Smtp-Source: ALg8bN622IqIiBEJftEz4el2FrJudAHungnoaKW0hsyTHs5fT2stCX6rJ5M0HjB1ay5lf8+MeLhtQO81bbTlBMQjRa0=
-X-Received: by 2002:a9d:6c44:: with SMTP id g4mr32034700otq.368.1549188504956;
- Sun, 03 Feb 2019 02:08:24 -0800 (PST)
-MIME-Version: 1.0
-References: <20190130133300.3415-1-vashirov@redhat.com>
-In-Reply-To: <20190130133300.3415-1-vashirov@redhat.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id E6D9C564752
+        for <selinux@vger.kernel.org>; Sun,  3 Feb 2019 12:02:49 +0100 (CET)
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 3 Feb 2019 11:08:13 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==AqfrjxZ_7yBt6d_2VsiOQtBPOUgwinmXvfWx6k_2ZMQ@mail.gmail.com>
-Message-ID: <CAJfZ7==AqfrjxZ_7yBt6d_2VsiOQtBPOUgwinmXvfWx6k_2ZMQ@mail.gmail.com>
-Subject: Re: [PATCH] python/restorecon: add force option
-To:     Viktor Ashirov <vashirov@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Feb  3 11:08:26 2019 +0100 (CET))
+To:     selinux@vger.kernel.org
+Subject: [PATCH 1/1] libsepol: do not use uninitialized value for low_value
+Date:   Sun,  3 Feb 2019 12:01:52 +0100
+Message-Id: <20190203110152.15064-1-nicolas.iooss@m4x.org>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Feb  3 12:02:50 2019 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 30, 2019 at 2:33 PM Viktor Ashirov <vashirov@redhat.com> wrote:
->
-> This adds 'force' keyword argument to selinux.restorecon() function
-> using SELINUX_RESTORECON_SET_SPECFILE_CTX flag.
->
-> Signed-off-by: Viktor Ashirov <vashirov@redhat.com>
+clang's static analyzer reports a warning when low_bit is used without
+having been initialized in statements such as:
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+    low_value = low_bit << 8;
 
-> ---
->  libselinux/src/selinuxswig_python.i | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/libselinux/src/selinuxswig_python.i b/libselinux/src/selinuxswig_python.i
-> index 2af7c7e0..4c73bf92 100644
-> --- a/libselinux/src/selinuxswig_python.i
-> +++ b/libselinux/src/selinuxswig_python.i
-> @@ -20,7 +20,7 @@ DISABLED = -1
->  PERMISSIVE = 0
->  ENFORCING = 1
->
-> -def restorecon(path, recursive=False, verbose=False):
-> +def restorecon(path, recursive=False, verbose=False, force=False):
->      """ Restore SELinux context on a given path
->
->      Arguments:
-> @@ -29,6 +29,9 @@ def restorecon(path, recursive=False, verbose=False):
->      Keyword arguments:
->      recursive -- Change files and directories file labels recursively (default False)
->      verbose -- Show changes in file labels (default False)
-> +    force -- Force reset of context to match file_context for customizable files,
-> +    and the default file context, changing the user, role, range portion  as well
-> +    as the type (default False)
->      """
->
->      restorecon_flags = SELINUX_RESTORECON_IGNORE_DIGEST | SELINUX_RESTORECON_REALPATH
-> @@ -36,6 +39,8 @@ def restorecon(path, recursive=False, verbose=False):
->          restorecon_flags |= SELINUX_RESTORECON_RECURSE
->      if verbose:
->          restorecon_flags |= SELINUX_RESTORECON_VERBOSE
-> +    if force:
-> +        restorecon_flags |= SELINUX_RESTORECON_SET_SPECFILE_CTX
->      selinux_restorecon(os.path.expanduser(path), restorecon_flags)
->
->  def chcon(path, context, recursive=False):
-> --
-> 2.20.1
->
+The warning is: "Result of operation is garbage or undefined".
+
+This is caused by low_bit being only initialized when in_range is true.
+This issue is not critical because low_value is only used in an
+"if (in_range)" block. Silence this warning by moving low_value's
+assignment inside this block.
+
+Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+---
+ libsepol/src/kernel_to_cil.c | 4 ++--
+ libsepol/src/module_to_cil.c | 4 ++--
+ libsepol/src/util.c          | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index 63e4d4899758..cd3554e8dfd9 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -1614,8 +1614,8 @@ static char *xperms_to_str(avtab_extended_perms_t *xperms)
+ 
+ 		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
+ 			value = xperms->driver<<8 | bit;
+-			low_value = xperms->driver<<8 | low_bit;
+ 			if (in_range) {
++				low_value = xperms->driver<<8 | low_bit;
+ 				len = snprintf(p, remaining, " (range 0x%hx 0x%hx)", low_value, value);
+ 				in_range = 0;
+ 			} else {
+@@ -1623,8 +1623,8 @@ static char *xperms_to_str(avtab_extended_perms_t *xperms)
+ 			}
+ 		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
+ 			value = bit << 8;
+-			low_value = low_bit << 8;
+ 			if (in_range) {
++				low_value = low_bit << 8;
+ 				len = snprintf(p, remaining, " (range 0x%hx 0x%hx)", low_value, (uint16_t) (value|0xff));
+ 				in_range = 0;
+ 			} else {
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index 4cb44e0ee657..f04589edaeff 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -655,8 +655,8 @@ static int xperms_to_cil(const av_extended_perms_t *xperms)
+ 
+ 		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
+ 			value = xperms->driver<<8 | bit;
+-			low_value = xperms->driver<<8 | low_bit;
+ 			if (in_range) {
++				low_value = xperms->driver<<8 | low_bit;
+ 				cil_printf("(range 0x%hx 0x%hx)", low_value, value);
+ 				in_range = 0;
+ 			} else {
+@@ -664,8 +664,8 @@ static int xperms_to_cil(const av_extended_perms_t *xperms)
+ 			}
+ 		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
+ 			value = bit << 8;
+-			low_value = low_bit << 8;
+ 			if (in_range) {
++				low_value = low_bit << 8;
+ 				cil_printf("(range 0x%hx 0x%hx)", low_value, (uint16_t) (value|0xff));
+ 				in_range = 0;
+ 			} else {
+diff --git a/libsepol/src/util.c b/libsepol/src/util.c
+index b00251c69aa5..a4008882b94b 100644
+--- a/libsepol/src/util.c
++++ b/libsepol/src/util.c
+@@ -159,16 +159,16 @@ char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms)
+ 
+ 		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
+ 			value = xperms->driver<<8 | bit;
+-			low_value = xperms->driver<<8 | low_bit;
+ 			if (in_range) {
++				low_value = xperms->driver<<8 | low_bit;
+ 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, value);
+ 			} else {
+ 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx ", value);
+ 			}
+ 		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
+ 			value = bit << 8;
+-			low_value = low_bit << 8;
+ 			if (in_range) {
++				low_value = low_bit << 8;
+ 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, (uint16_t) (value|0xff));
+ 			} else {
+ 				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", value, (uint16_t) (value|0xff));
+-- 
+2.20.1
 
