@@ -6,32 +6,32 @@ X-Spam-Status: No, score=-7.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9959C282CB
-	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 09:52:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E352C282CB
+	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 10:19:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9289A2073D
-	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 09:52:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B15E32083B
+	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 10:19:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727346AbfBEJwj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Feb 2019 04:52:39 -0500
-Received: from mga05.intel.com ([192.55.52.43]:52943 "EHLO mga05.intel.com"
+        id S1727300AbfBEKTj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Feb 2019 05:19:39 -0500
+Received: from mga11.intel.com ([192.55.52.93]:35935 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726484AbfBEJwi (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 5 Feb 2019 04:52:38 -0500
+        id S1727039AbfBEKTj (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 5 Feb 2019 05:19:39 -0500
 X-Amp-Result: UNKNOWN
 X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Feb 2019 01:52:37 -0800
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Feb 2019 02:19:38 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.56,563,1539673200"; 
-   d="gz'50?scan'50,208,50";a="316428049"
+   d="gz'50?scan'50,208,50";a="141685374"
 Received: from lkp-server01.sh.intel.com (HELO lkp-server01) ([10.239.97.150])
-  by fmsmga006.fm.intel.com with ESMTP; 05 Feb 2019 01:52:35 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 05 Feb 2019 02:19:35 -0800
 Received: from kbuild by lkp-server01 with local (Exim 4.89)
         (envelope-from <lkp@intel.com>)
-        id 1gqxP9-0003Qp-5z; Tue, 05 Feb 2019 17:52:35 +0800
-Date:   Tue, 5 Feb 2019 17:51:58 +0800
+        id 1gqxpH-0009Zb-Q6; Tue, 05 Feb 2019 18:19:35 +0800
+Date:   Tue, 5 Feb 2019 18:18:49 +0800
 From:   kbuild test robot <lkp@intel.com>
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     kbuild-all@01.org, selinux@vger.kernel.org,
@@ -42,13 +42,13 @@ Cc:     kbuild-all@01.org, selinux@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
         cgroups@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
-Subject: Re: [PATCH v4 3/5] LSM: add new hook for kernfs node initialization
-Message-ID: <201902051753.YakI70it%fengguang.wu@intel.com>
-References: <20190205085915.5183-4-omosnace@redhat.com>
+Subject: Re: [PATCH v4 5/5] kernfs: initialize security of newly created nodes
+Message-ID: <201902051839.UEtxHkSy%fengguang.wu@intel.com>
+References: <20190205085915.5183-6-omosnace@redhat.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="h31gzZEtNLTqOjlF"
+Content-Type: multipart/mixed; boundary="YZ5djTAD1cGYuMQK"
 Content-Disposition: inline
-In-Reply-To: <20190205085915.5183-4-omosnace@redhat.com>
+In-Reply-To: <20190205085915.5183-6-omosnace@redhat.com>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -56,16 +56,16 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
---h31gzZEtNLTqOjlF
+--YZ5djTAD1cGYuMQK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
 Hi Ondrej,
 
-Thank you for the patch! Yet something to improve:
+Thank you for the patch! Perhaps something to improve:
 
-[auto build test ERROR on driver-core/driver-core-testing]
-[also build test ERROR on v5.0-rc4 next-20190205]
+[auto build test WARNING on driver-core/driver-core-testing]
+[also build test WARNING on v5.0-rc4 next-20190205]
 [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
 
 url:    https://github.com/0day-ci/linux/commits/Ondrej-Mosnacek/Allow-initializing-the-kernfs-node-s-secctx-based-on-its-parent/20190205-171434
@@ -75,39 +75,44 @@ reproduce:
         # save the attached .config to linux build tree
         make ARCH=x86_64 
 
-All errors (new ones prefixed by >>):
+All warnings (new ones prefixed by >>):
 
-   In file included from fs/file_table.c:15:
->> include/linux/security.h:796:1: error: expected identifier or '(' before '{' token
+   In file included from fs/kernfs/dir.c:16:
+   include/linux/security.h:796:1: error: expected identifier or '(' before '{' token
     {
     ^
-   In file included from fs/file_table.c:15:
-   include/linux/security.h:792:19: warning: 'security_kernfs_init_security' declared 'static' but never defined [-Wunused-function]
+>> include/linux/security.h:792:19: warning: 'security_kernfs_init_security' used but never defined
     static inline int security_kernfs_init_security(
                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-vim +796 include/linux/security.h
+vim +/security_kernfs_init_security +792 include/linux/security.h
 
-   791	
-   792	static inline int security_kernfs_init_security(
-   793			const struct qstr *qstr, const struct iattr *dir_iattr,
-   794			struct simple_xattrs *dir_secattr, const struct iattr *iattr,
-   795			struct simple_xattrs *secattr);
- > 796	{
-   797		return 0;
-   798	}
-   799	
+d8ad8b49 Vivek Goyal     2016-07-13  791  
+42221e5e Ondrej Mosnacek 2019-02-05 @792  static inline int security_kernfs_init_security(
+42221e5e Ondrej Mosnacek 2019-02-05  793  		const struct qstr *qstr, const struct iattr *dir_iattr,
+42221e5e Ondrej Mosnacek 2019-02-05  794  		struct simple_xattrs *dir_secattr, const struct iattr *iattr,
+42221e5e Ondrej Mosnacek 2019-02-05  795  		struct simple_xattrs *secattr);
+42221e5e Ondrej Mosnacek 2019-02-05 @796  {
+42221e5e Ondrej Mosnacek 2019-02-05  797  	return 0;
+42221e5e Ondrej Mosnacek 2019-02-05  798  }
+42221e5e Ondrej Mosnacek 2019-02-05  799  
+
+:::::: The code at line 792 was first introduced by commit
+:::::: 42221e5e86c5c3352de02eeb388cef953cdde4a0 LSM: add new hook for kernfs node initialization
+
+:::::: TO: Ondrej Mosnacek <omosnace@redhat.com>
+:::::: CC: 0day robot <lkp@intel.com>
 
 ---
 0-DAY kernel test infrastructure                Open Source Technology Center
 https://lists.01.org/pipermail/kbuild-all                   Intel Corporation
 
---h31gzZEtNLTqOjlF
+--YZ5djTAD1cGYuMQK
 Content-Type: application/gzip
 Content-Disposition: attachment; filename=".config.gz"
 Content-Transfer-Encoding: base64
 
-H4sICB1bWVwAAy5jb25maWcAjFxbcxs3sn7Pr2A5L0lt2ZFkRevdU3rAzGBIhHMLgKEovaBk
+H4sICOFeWVwAAy5jb25maWcAjFxbcxs3sn7Pr2A5L0lt2ZFkRevdU3rAzGBIhHMLgKEovaBk
 ifaqYkleitrY//50A3MBMD1MtrZ2TXTj3pevGz368YcfF+z18Px4e3i4u/3y5fvi8+5pt789
 7O4Xnx6+7P5vkdWLqtYLngn9DpiLh6fXb798+3BhLs4Xv747eXfydn93tljv9k+7L4v0+enT
 w+dX6P/w/PTDjz/Af3+ExsevMNT+34vPd3dvPyx+ynYfH26fFh/enUHv0/Of3b+AN62rXCxN
@@ -633,4 +638,4 @@ Whc8rpMO5yWPJVF66uCoMj1CxIQQfL6ikULWN0+DtbIa7aCD6U2c+jwo0ORLRxvavAxcBa7E
 GHAlrPMclxNYUmnBGIdKZ7H16DydO+FFThucr6baWXWwfMkKmhFiXbHFV/d1D7rrPIF0jZOU
 5zcsRbjq5Mns/wEcqbM1Y7YBAA==
 
---h31gzZEtNLTqOjlF--
+--YZ5djTAD1cGYuMQK--
