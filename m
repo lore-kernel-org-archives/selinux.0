@@ -2,196 +2,107 @@ Return-Path: <SRS0=HD60=QM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8067C282CB
-	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 11:06:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4B01C282CB
+	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 11:10:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AF6712083B
-	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 11:06:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AACA620821
+	for <selinux@archiver.kernel.org>; Tue,  5 Feb 2019 11:10:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727735AbfBELG5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Feb 2019 06:06:57 -0500
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:52304 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727613AbfBELGw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Feb 2019 06:06:52 -0500
-Received: by mail-wm1-f65.google.com with SMTP id m1so3138987wml.2
-        for <selinux@vger.kernel.org>; Tue, 05 Feb 2019 03:06:50 -0800 (PST)
+        id S1726922AbfBELKp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Feb 2019 06:10:45 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:39170 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725934AbfBELKp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Feb 2019 06:10:45 -0500
+Received: by mail-ot1-f68.google.com with SMTP id n8so4988471otl.6
+        for <selinux@vger.kernel.org>; Tue, 05 Feb 2019 03:10:44 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=nXKwAbEZfoxXrwUQ8rLT22YtPLuVavDsba7+2hRLZ3I=;
-        b=udSgMmtiJLF9BapOU3YO1uJJ9VGxHVBLEsHadLTnf8qchP3uw2G/smh98pG1ffBYkZ
-         y8ZRP2MrZ+bKtz8Vr1LB7ALv+/7eOVhUz1aRghKArBlCNtJmW3klc1krBbLm6BUsonDD
-         /0P9FUeOUNSwWrKd62GhMI5u87lez1Jt4Pz17c71VZj8DaObl8/kkQ6iv0aC1FG5uQRG
-         AiAn66vFVGgcL0L92/miZk9VYL0t1wIT0bTj4fIoR9T2lj0eWmleCzW4jc4lMYWkyA0E
-         sbWG90vM/dGsgbWaZwYU/J8Em2EHsOdW/W5lqygWud4/PqNiGOdeIMrt78cqMdTLtiXb
-         PfOA==
-X-Gm-Message-State: AHQUAuZV72bz+yAXT7tHl/Ok42dcPElTaDZP7E9/kSKzXvaX/HI2ID7E
-        w0+Dk01ONBt68KaJT9GeNtV6NwQ83zc=
-X-Google-Smtp-Source: AHgI3IaAYUGEenLV/qz0PhHBKBRLpJTMK4BSilxFhZkBoiEzpKmgqEAXm7i1G+PsfAPW1vyjGNl8kA==
-X-Received: by 2002:a1c:488b:: with SMTP id v133mr3419464wma.31.1549364809489;
-        Tue, 05 Feb 2019 03:06:49 -0800 (PST)
-Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id x186sm26067070wmg.41.2019.02.05.03.06.48
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 05 Feb 2019 03:06:48 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BHiz5BnB40t7CyxMYJeN0f/lG9oKrCAQiaNvrLJ9gig=;
+        b=UrOYAAO5rje05pJ5geO0ivSYwgCBKea9nDNdfl4iVFhpeBZucZ0Nyj+6EOm5E/SMun
+         HpdIstLW5imv93yA1la66YTRJDDd+KrFPk1HtxgP5psQoKm7Yrrp34HDc6pmV+Yi271n
+         VetNAGQ1kC6IH4Fje83r8Ng/gIJ8dHjWXoqZV9vHPQ/t8NgC9ZqxXp2rQIC6rqQHaUII
+         B5E0Wt/LoNmjQ8ChGh0548N9p41etwXrDda6taOsEXaf8Phk2SksqBrRXG74uy71ZaZ0
+         PXIbTiPKBeHoJeUEs9mZL+UhoBtLj+8Pqgm9z8VgbOWh9HYvj/9axh53P8zX0m2fiKxZ
+         BSOQ==
+X-Gm-Message-State: AHQUAuaeGNgw/mKmWYEDFYnKhyJPf4+/i4DP2G83jVeOjmP0rc2vy65e
+        2b3kM9bUfWoVDmY3/BaWl6dObcs+GxOf/ksxbG3OCRH+
+X-Google-Smtp-Source: AHgI3IbDNmS2WRlsaXoMdKMTLDPOdNIafFPgpe/Iv60QoyMyrkXTanXaKY0w7L80ChJuRmdqikj5jCe3bSZUIhw7vA4=
+X-Received: by 2002:aca:2403:: with SMTP id n3mr2265420oic.328.1549365044485;
+ Tue, 05 Feb 2019 03:10:44 -0800 (PST)
+MIME-Version: 1.0
+References: <20190205085915.5183-4-omosnace@redhat.com> <201902051753.YakI70it%fengguang.wu@intel.com>
+In-Reply-To: <201902051753.YakI70it%fengguang.wu@intel.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-security-module@vger.kernel.org,
+Date:   Tue, 5 Feb 2019 12:10:33 +0100
+Message-ID: <CAFqZXNveDL23r8Q3sQ_FM_bK6R157z0x=BjxQ4vS8rT+bW45PQ@mail.gmail.com>
+Subject: Re: [PATCH v4 3/5] LSM: add new hook for kernfs node initialization
+To:     kbuild test robot <lkp@intel.com>
+Cc:     kbuild-all@01.org, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
         Casey Schaufler <casey@schaufler-ca.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
-        cgroups@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v5 3/5] LSM: add new hook for kernfs node initialization
-Date:   Tue,  5 Feb 2019 12:06:36 +0100
-Message-Id: <20190205110638.30782-4-omosnace@redhat.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190205110638.30782-1-omosnace@redhat.com>
-References: <20190205110638.30782-1-omosnace@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        cgroups@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch introduces a new security hook that is intended for
-initializing the security data for newly created kernfs nodes, which
-provide a way of storing a non-default security context, but need to
-operate independently from mounts (and therefore may not have an
-associated inode at the moment of creation).
+On Tue, Feb 5, 2019 at 10:52 AM kbuild test robot <lkp@intel.com> wrote:
+>
+> Hi Ondrej,
+>
+> Thank you for the patch! Yet something to improve:
+>
+> [auto build test ERROR on driver-core/driver-core-testing]
+> [also build test ERROR on v5.0-rc4 next-20190205]
+> [if your patch is applied to the wrong git tree, please drop us a note to help improve the system]
+>
+> url:    https://github.com/0day-ci/linux/commits/Ondrej-Mosnacek/Allow-initializing-the-kernfs-node-s-secctx-based-on-its-parent/20190205-171434
+> config: x86_64-randconfig-x013-201905 (attached as .config)
+> compiler: gcc-8 (Debian 8.2.0-14) 8.2.0
+> reproduce:
+>         # save the attached .config to linux build tree
+>         make ARCH=x86_64
+>
+> All errors (new ones prefixed by >>):
+>
+>    In file included from fs/file_table.c:15:
+> >> include/linux/security.h:796:1: error: expected identifier or '(' before '{' token
+>     {
+>     ^
+>    In file included from fs/file_table.c:15:
+>    include/linux/security.h:792:19: warning: 'security_kernfs_init_security' declared 'static' but never defined [-Wunused-function]
+>     static inline int security_kernfs_init_security(
+>                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>
+> vim +796 include/linux/security.h
+>
+>    791
+>    792  static inline int security_kernfs_init_security(
+>    793                  const struct qstr *qstr, const struct iattr *dir_iattr,
+>    794                  struct simple_xattrs *dir_secattr, const struct iattr *iattr,
+>    795                  struct simple_xattrs *secattr);
+>  > 796  {
+>    797          return 0;
+>    798  }
+>    799
 
-The main motivation is to allow kernfs nodes to inherit the context of
-the parent under SELinux, similar to the behavior of
-security_inode_init_security(). Other LSMs may implement their own logic
-for handling the creation of new nodes.
+*facepalm*... Fixed in v5.
 
-The interface of the new hook provides the following to the LSM:
- * a qstr containing the name of the new node
- * inode attributes of the parent node (directory)
- * initial inode attributes (struct iattr + simple_xattrs) of the new
-   node
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- include/linux/lsm_hooks.h | 22 ++++++++++++++++++++++
- include/linux/security.h  | 14 ++++++++++++++
- security/security.c       | 10 ++++++++++
- 3 files changed, 46 insertions(+)
-
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 9a0bdf91e646..558bbc0ff125 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -429,6 +429,21 @@
-  *	to abort the copy up. Note that the caller is responsible for reading
-  *	and writing the xattrs as this hook is merely a filter.
-  *
-+ * Security hooks for kernfs node operations
-+ *
-+ * @kernfs_init_security
-+ *	Initialize the security context of a newlycreated kernfs node based
-+ *	on its own and its parent's attributes. The security context (or other
-+ *	LSM metadata) should be stored in @secattr as extended attributes.
-+ *	The hook MAY NOT add/modify attributes in @dir_secattr; it should be
-+ *	treated as a read-only list of attributes.
-+ *
-+ *	@qstr contains the last path component of the new node.
-+ *	@dir_iattr contains the inode attributes of the parent node.
-+ *	@dir_secattr is the list of security xattrs of the parent node.
-+ *	@iattr contains the inode attributes of the new node.
-+ *	@secattr is the list of security xattrs of the new node.
-+ *
-  * Security hooks for file operations
-  *
-  * @file_permission:
-@@ -1558,6 +1573,12 @@ union security_list_options {
- 	int (*inode_copy_up)(struct dentry *src, struct cred **new);
- 	int (*inode_copy_up_xattr)(const char *name);
- 
-+	int (*kernfs_init_security)(const struct qstr *qstr,
-+				    const struct iattr *dir_iattr,
-+				    struct simple_xattrs *dir_secattr,
-+				    const struct iattr *iattr,
-+				    struct simple_xattrs *secattr);
-+
- 	int (*file_permission)(struct file *file, int mask);
- 	int (*file_alloc_security)(struct file *file);
- 	void (*file_free_security)(struct file *file);
-@@ -1858,6 +1879,7 @@ struct security_hook_heads {
- 	struct hlist_head inode_getsecid;
- 	struct hlist_head inode_copy_up;
- 	struct hlist_head inode_copy_up_xattr;
-+	struct hlist_head kernfs_init_security;
- 	struct hlist_head file_permission;
- 	struct hlist_head file_alloc_security;
- 	struct hlist_head file_free_security;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index dbfb5a66babb..581944d1e61e 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -51,6 +51,7 @@ struct fown_struct;
- struct file_operations;
- struct msg_msg;
- struct xattr;
-+struct simple_xattrs;
- struct xfrm_sec_ctx;
- struct mm_struct;
- 
-@@ -291,6 +292,11 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
- void security_inode_getsecid(struct inode *inode, u32 *secid);
- int security_inode_copy_up(struct dentry *src, struct cred **new);
- int security_inode_copy_up_xattr(const char *name);
-+int security_kernfs_init_security(const struct qstr *qstr,
-+				  const struct iattr *dir_iattr,
-+				  struct simple_xattrs *dir_secattr,
-+				  const struct iattr *iattr,
-+				  struct simple_xattrs *secattr);
- int security_file_permission(struct file *file, int mask);
- int security_file_alloc(struct file *file);
- void security_file_free(struct file *file);
-@@ -783,6 +789,14 @@ static inline int security_inode_copy_up(struct dentry *src, struct cred **new)
- 	return 0;
- }
- 
-+static inline int security_kernfs_init_security(
-+		const struct qstr *qstr, const struct iattr *dir_iattr,
-+		struct simple_xattrs *dir_secattr, const struct iattr *iattr,
-+		struct simple_xattrs *secattr)
-+{
-+	return 0;
-+}
-+
- static inline int security_inode_copy_up_xattr(const char *name)
- {
- 	return -EOPNOTSUPP;
-diff --git a/security/security.c b/security/security.c
-index f1b8d2587639..836e0822874a 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -892,6 +892,16 @@ int security_inode_copy_up_xattr(const char *name)
- }
- EXPORT_SYMBOL(security_inode_copy_up_xattr);
- 
-+int security_kernfs_init_security(const struct qstr *qstr,
-+				  const struct iattr *dir_iattr,
-+				  struct simple_xattrs *dir_secattr,
-+				  const struct iattr *iattr,
-+				  struct simple_xattrs *secattr)
-+{
-+	return call_int_hook(kernfs_init_security, 0, qstr, dir_iattr,
-+			     dir_secattr, iattr, secattr);
-+}
-+
- int security_file_permission(struct file *file, int mask)
- {
- 	int ret;
 -- 
-2.20.1
-
+Ondrej Mosnacek <omosnace at redhat dot com>
+Associate Software Engineer, Security Technologies
+Red Hat, Inc.
