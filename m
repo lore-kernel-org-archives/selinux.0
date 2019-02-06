@@ -3,218 +3,120 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F648C169C4
-	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 20:33:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39088C282CC
+	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 20:46:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4FE4F218B0
-	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 20:33:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07348217F9
+	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 20:46:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726205AbfBFUd4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Feb 2019 15:33:56 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:53470 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726022AbfBFUd4 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 6 Feb 2019 15:33:56 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726650AbfBFUqX convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Wed, 6 Feb 2019 15:46:23 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:41862 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726522AbfBFUqX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Feb 2019 15:46:23 -0500
+Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E9069C01DDFE
-        for <selinux@vger.kernel.org>; Wed,  6 Feb 2019 20:33:55 +0000 (UTC)
-Received: from workstation.redhat.com (ovpn-204-32.brq.redhat.com [10.40.204.32])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1118D6155B;
-        Wed,  6 Feb 2019 20:33:54 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH v2] libselinux: Fix RESOURCE_LEAK defects reported by coverity scan
-Date:   Wed,  6 Feb 2019 21:33:50 +0100
-Message-Id: <20190206203350.27930-1-plautrba@redhat.com>
-In-Reply-To: <CAJfZ7=mO29pHKvNH7r6WWabyNth=nJboYU1rP4DpW5E41Q_YQQ@mail.gmail.com>
-References: <CAJfZ7=mO29pHKvNH7r6WWabyNth=nJboYU1rP4DpW5E41Q_YQQ@mail.gmail.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 4C4895611E6
+        for <selinux@vger.kernel.org>; Wed,  6 Feb 2019 21:46:19 +0100 (CET)
+Received: by mail-ot1-f45.google.com with SMTP id a11so14358221otr.10
+        for <selinux@vger.kernel.org>; Wed, 06 Feb 2019 12:46:19 -0800 (PST)
+X-Gm-Message-State: AHQUAuYmkh72Vsc7oKzgEvxDNJS5QIzs/GifJkOxWtPQkWL0urB5bwRR
+        WInzYui4wvOIapx7vjLToedpJqBmoL73G2qxOqI=
+X-Google-Smtp-Source: AHgI3IZEZqbv4mcUEr4xx/BQrJ1iqGZDXG7ewR2bB9A+xD/nkrqUc3ZNUW1DJNWF6oRuuQWHM5j/7dDc5r7pY2Ebgcs=
+X-Received: by 2002:a9d:70d5:: with SMTP id w21mr6169625otj.301.1549485978307;
+ Wed, 06 Feb 2019 12:46:18 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Wed, 06 Feb 2019 20:33:55 +0000 (UTC)
+References: <20190131194208.3855-1-plautrba@redhat.com>
+In-Reply-To: <20190131194208.3855-1-plautrba@redhat.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Wed, 6 Feb 2019 21:46:07 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=kYgvh3QeXBzWbMcjMuSKt1VaGkaxj=xiJ_0PFsihhPMQ@mail.gmail.com>
+Message-ID: <CAJfZ7=kYgvh3QeXBzWbMcjMuSKt1VaGkaxj=xiJ_0PFsihhPMQ@mail.gmail.com>
+Subject: Re: [PATCH] dbus: Fix name of polkit function
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org, Dan Walsh <dwalsh@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Feb  6 21:46:19 2019 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Fixes:
+On Thu, Jan 31, 2019 at 8:42 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> From: Dan Walsh <dwalsh@redhat.com>
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-libselinux/src/checkAccess.c:93: leaked_storage: Variable "user_context" going out of scope leaks the storage it points to.
-libselinux/src/label_db.c:286: leaked_storage: Variable "filp" going out of scope leaks the storage it points to.
-libselinux/src/label_db.c:291: leaked_storage: Variable "filp" going out of scope leaks the storage it points to.
-libselinux/src/label_file.c:405: leaked_storage: Variable "str_buf" going out of scope leaks the storage it points to.
-libselinux/src/load_policy.c:266: leaked_storage: Variable "names" going out of scope leaks the storage it points to.
-libselinux/src/selinux_config.c:183: leaked_storage: Variable "end" going out of scope leaks the storage it points to.
-libselinux/src/selinux_config.c:184: overwrite_var: Overwriting "end" in "end = type + strlen(type) - 1" leaks the storage that "end" points to.
-libselinux/src/selinux_restorecon.c:376: leaked_storage: Variable "new_entry" going out of scope leaks the storage it points to.
-libselinux/src/selinux_restorecon.c:855: leaked_storage: Variable "xattr_value" going out of scope leaks the storage it points to.
+Hi,
+As I am unfamiliar with D-Bus code, I try to understand what is the
+nature of this change (is-it a bugfix, an improvement, something
+else?). Here are the facts:
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libselinux/src/checkAccess.c        |  4 +++-
- libselinux/src/label_db.c           |  3 +++
- libselinux/src/label_file.c         |  4 +++-
- libselinux/src/load_policy.c        |  4 +++-
- libselinux/src/selinux_config.c     | 17 +++++++++--------
- libselinux/src/selinux_restorecon.c | 12 ++++++++++--
- 6 files changed, 31 insertions(+), 13 deletions(-)
+- Currently, dbus/selinux_server.py uses «
+@slip.dbus.polkit.require_auth("org.selinux.change_default_mode") »
+for function « change_default_mode ».
+- "org.selinux.change_default_mode" does not exist, and I do not know
+whether that means that some kind of default policykit policy gets
+applied.
+- "org.selinux.change_policy_type" is defined in
+dbus/org.selinux.policy, without any user.
+- The commit that introduced dbus/selinux_server.py (commit
+e6a1298e5421 ("These are massive changes involved in building new
+GUI.")) added a function named « change_default_mode », without any
+specific policykit access checking.
+- Commit e8718ef51463 ("Make sure we do the polkit check on all dbus
+interfaces.") added «
+@slip.dbus.polkit.require_auth("org.selinux.change_default_mode") » in
+policycoreutils/sepolicy/selinux_server.py.
 
-diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
-index 8de57477..16bfcfb6 100644
---- a/libselinux/src/checkAccess.c
-+++ b/libselinux/src/checkAccess.c
-@@ -89,8 +89,10 @@ int selinux_check_passwd_access(access_vector_t requested)
- 		int retval;
- 
- 		passwd_class = string_to_security_class("passwd");
--		if (passwd_class == 0)
-+		if (passwd_class == 0) {
-+			freecon(user_context);
- 			return 0;
-+		}
- 
- 		retval = security_compute_av_raw(user_context,
- 						     user_context,
-diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-index c46d0a1d..fba96c92 100644
---- a/libselinux/src/label_db.c
-+++ b/libselinux/src/label_db.c
-@@ -283,10 +283,12 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
- 	}
- 	if (fstat(fileno(filp), &sb) < 0) {
- 		free(catalog);
-+		fclose(filp);
- 		return NULL;
- 	}
- 	if (!S_ISREG(sb.st_mode)) {
- 		free(catalog);
-+		fclose(filp);
- 		errno = EINVAL;
- 		return NULL;
- 	}
-@@ -340,6 +342,7 @@ out_error:
- 		free(spec->lr.ctx_trans);
- 	}
- 	free(catalog);
-+	fclose(filp);
- 
- 	return NULL;
- }
-diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-index dbf51a93..b81fd552 100644
---- a/libselinux/src/label_file.c
-+++ b/libselinux/src/label_file.c
-@@ -317,8 +317,10 @@ end_arch_check:
- 			goto out;
- 		}
- 		rc = next_entry(str_buf, mmap_area, entry_len);
--		if (rc < 0)
-+		if (rc < 0) {
-+			free(str_buf);
- 			goto out;
-+		}
- 
- 		if (str_buf[entry_len - 1] != '\0') {
- 			free(str_buf);
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index e9f1264a..20052beb 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -262,8 +262,10 @@ checkbool:
- 			rc = security_get_boolean_names(&names, &len);
- 			if (!rc) {
- 				values = malloc(sizeof(int) * len);
--				if (!values)
-+				if (!values) {
-+					free(names);
- 					goto unmap;
-+				}
- 				for (i = 0; i < len; i++)
- 					values[i] =
- 						security_get_boolean_active(names[i]);
-diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-index 292728f3..b06cb63b 100644
---- a/libselinux/src/selinux_config.c
-+++ b/libselinux/src/selinux_config.c
-@@ -177,8 +177,7 @@ static void init_selinux_config(void)
- 
- 			if (!strncasecmp(buf_p, SELINUXTYPETAG,
- 					 sizeof(SELINUXTYPETAG) - 1)) {
--				selinux_policytype = type =
--				    strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
-+				type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
- 				if (!type)
- 					return;
- 				end = type + strlen(type) - 1;
-@@ -187,6 +186,11 @@ static void init_selinux_config(void)
- 					*end = 0;
- 					end--;
- 				}
-+				if (setpolicytype(type) != 0) {
-+					free(type);
-+					return;
-+				}
-+				free(type);
- 				continue;
- 			} else if (!strncmp(buf_p, SETLOCALDEFS,
- 					    sizeof(SETLOCALDEFS) - 1)) {
-@@ -212,13 +216,10 @@ static void init_selinux_config(void)
- 		fclose(fp);
- 	}
- 
--	if (!type) {
--		selinux_policytype = type = strdup(SELINUXDEFAULT);
--		if (!type)
--			return;
--	}
-+	if (!selinux_policytype && setpolicytype(SELINUXDEFAULT) != 0)
-+		return;
- 
--	if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, type) == -1)
-+	if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, selinux_policytype) == -1)
- 		return;
- 
- 	for (i = 0; i < NEL; i++)
-diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-index 0f0fd6ca..924d9538 100644
---- a/libselinux/src/selinux_restorecon.c
-+++ b/libselinux/src/selinux_restorecon.c
-@@ -351,12 +351,19 @@ static int add_xattr_entry(const char *directory, bool delete_nonmatch,
- 	new_entry->next = NULL;
- 
- 	new_entry->directory = strdup(directory);
--	if (!new_entry->directory)
-+	if (!new_entry->directory) {
-+		free(new_entry);
-+		free(sha1_buf);
- 		goto oom;
-+	}
- 
- 	new_entry->digest = strdup(sha1_buf);
--	if (!new_entry->digest)
-+	if (!new_entry->digest) {
-+		free(new_entry->directory);
-+		free(new_entry);
-+		free(sha1_buf);
- 		goto oom;
-+	}
- 
- 	new_entry->result = digest_result;
- 
-@@ -850,6 +857,7 @@ int selinux_restorecon(const char *pathname_orig,
- 
- 	if (lstat(pathname, &sb) < 0) {
- 		if (flags.ignore_noent && errno == ENOENT) {
-+			free(xattr_value);
- 			free(pathdnamer);
- 			free(pathname);
- 			return 0;
--- 
-2.20.1
+If I understand correctly, this last commit is buggy and should have
+added "org.selinux.change_default_mode" to
+policycoreutils/sepolicy/org.selinux.policy. Therefore this new patch
+fixes a bug and removes an unused policykit action. Is this right? If
+yes, I suggest adding this to the commit description:
+
+    Add missing action org.selinux.change_default_mode for
+change_default_mode() and remove unused action
+org.selinux.change_policy_type.
+
+    Fixes: e8718ef51463 ("Make sure we do the polkit check on all dbus
+interfaces.")
+
+Would this be acceptable?
+
+Thanks,
+Nicolas
+
+> ---
+>  dbus/org.selinux.policy | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/dbus/org.selinux.policy b/dbus/org.selinux.policy
+> index 01266102..9772127b 100644
+> --- a/dbus/org.selinux.policy
+> +++ b/dbus/org.selinux.policy
+> @@ -70,9 +70,9 @@
+>           <allow_active>auth_admin_keep</allow_active>
+>          </defaults>
+>      </action>
+> -    <action id="org.selinux.change_policy_type">
+> -        <description>SELinux write access</description>
+> -        <message>System policy prevents change_policy_type access to SELinux</message>
+> +    <action id="org.selinux.change_default_mode">
+> +        <description>Change SELinux default enforcing mode</description>
+> +        <message>System policy prevents change_default_policy access to SELinux</message>
+>          <defaults>
+>            <allow_any>no</allow_any>
+>            <allow_inactive>no</allow_inactive>
+> --
+> 2.20.1
+>
 
