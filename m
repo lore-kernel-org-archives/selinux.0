@@ -2,145 +2,140 @@ Return-Path: <SRS0=09KC=QN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81D86C169C4
-	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 08:12:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DADBBC169C4
+	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 14:05:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4BCBF218A1
-	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 08:12:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A05E320844
+	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 14:05:48 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Q97ypGWQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726515AbfBFIMq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Feb 2019 03:12:46 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:39166 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725897AbfBFIMq (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 6 Feb 2019 03:12:46 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5E5AE81DFE;
-        Wed,  6 Feb 2019 08:12:46 +0000 (UTC)
-Received: from workstation (unknown [10.43.12.40])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7CB586152F;
-        Wed,  6 Feb 2019 08:12:45 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        jwcart2 <jwcart2@tycho.nsa.gov>
-Subject: Re: [Non-DoD Source] [PATCH 1/1] libsepol: do not use uninitialized value for low_value
-References: <20190203110152.15064-1-nicolas.iooss@m4x.org>
-        <0e0c3fc1-e6db-d59f-5f8c-5cc1b58705d1@tycho.nsa.gov>
-Date:   Wed, 06 Feb 2019 09:12:44 +0100
-In-Reply-To: <0e0c3fc1-e6db-d59f-5f8c-5cc1b58705d1@tycho.nsa.gov> (jwcart2's
-        message of "Mon, 4 Feb 2019 11:54:09 -0500")
-Message-ID: <pjdimxxz66b.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1727868AbfBFOFs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Feb 2019 09:05:48 -0500
+Received: from ucol19pa12.eemsg.mail.mil ([214.24.24.85]:48565 "EHLO
+        ucol19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727929AbfBFOFs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Feb 2019 09:05:48 -0500
+X-EEMSG-check-017: 682996658|UCOL19PA12_EEMSG_MP10.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.58,340,1544486400"; 
+   d="scan'208";a="682996658"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2019 14:05:05 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1549461905; x=1580997905;
+  h=subject:to:references:from:cc:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=hQEK9itWzIS/bYz5IWZOrdcQ8dy5xCJ21Gvq+zy2E6s=;
+  b=Q97ypGWQADwUSVbJzymHsjbYwFxfCbdfQyZB1cccqtCvX0IQsc5SHnI3
+   SOZF0IwWRIfSNYD3pMvXQyDJRhYN6LmLci8g9I4/vi2hEuemIHEFvjdFv
+   fyIFYV9aaHpv81lSRoOBy1SPfnjw8KnxSsZL/zISfPpllclrqxgdTIYsP
+   xmK/ExKnZgMpQYDLrK/GE7Yra1z9ydnRvrXahUQPuN33tbgPJohss0gEC
+   Lf9PtwrnOLp9srB3wDvLEHfTTOu3XN9s3jCkhxitLUgJQhaTR3kJDzyCR
+   dK+GaIEG6z1bNf/lVTtTC2w7e7jNj6WZZGnMJuqqkma7jyCvTiWu3sc6c
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.58,340,1544486400"; 
+   d="scan'208";a="23564244"
+IronPort-PHdr: =?us-ascii?q?9a23=3AyCMtJxKhOs97KHRTP9mcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgfL/nxwZ3uMQTl6Ol3ixeRBMOHs6IC07KempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffwZFiCChbb9uMR67sRjfus4KjIV4N60/0A?=
+ =?us-ascii?q?HJonxGe+RXwWNnO1eelAvi68mz4ZBu7T1et+ou+MBcX6r6eb84TaFDAzQ9L2?=
+ =?us-ascii?q?81/szrugLdQgaJ+3ART38ZkhtMAwjC8RH6QpL8uTb0u+ZhxCWXO9D9QKsqUj?=
+ =?us-ascii?q?q+8ahkVB7oiD8GNzEn9mHXltdwh79frB64uhBz35LYbISTOfVwZKPdec4RS3?=
+ =?us-ascii?q?RHUMhfSidNBpqwY5UTA+YEO+tTsovzqEYUrRamGAeiGu3vxD9LiHH406I13O?=
+ =?us-ascii?q?YuHh3J0gE7A9IDsm7ZoMnpOKocU+24yrTDwzXZb/NR3Dfw8JXGcgw/rvGUXb?=
+ =?us-ascii?q?J/b8zRwlQyGQPAlFqQrYjlMC2V1+8QtGWb9PdvVfm0hm47qwB+vjivxsA2ho?=
+ =?us-ascii?q?nPnYIa0ErI9Sp+wIYrPNC1TlNwb928EJZIqi2XOIR7TtkiTm11oio21LILtY?=
+ =?us-ascii?q?ChcCQXzpks2gTRZOadc4eS5xLuTOORITBli317YL+/nBOy8VS4yu37S8m0zE?=
+ =?us-ascii?q?5GripbndnIsXAAzwDT5dKdSvt840ehwiyD1xzT6+5YIUA0krDXK5g9zb4rip?=
+ =?us-ascii?q?Ufq0HDHi7ymEnuja+WcFsr+vSw5uj6bbjrqYWQOo9phg3kLKgjldKzDf4lPg?=
+ =?us-ascii?q?QWWmiU4+W81Lnt/U3jR7VKi+U7krLEv5DBPskbuq64DBNV0oYk8Rq/CSym38?=
+ =?us-ascii?q?4CkXkIK1JFZgqLj5L1NFHWPPD4EfC/jkyikTdqw/DGOrzhDY/ILnXYnrbhfq?=
+ =?us-ascii?q?hy60hayAoyy9Bf6I5UCrYHIP7pRkDxs9nYBAcjMwOo2+bnFMl91oQGVGKUHK?=
+ =?us-ascii?q?CZNKLSsVmV5uMgOOSMeoAVtyjnK/Q/5P7hk2U5mVkDcqmtx5cXb2q4Hvt+KU?=
+ =?us-ascii?q?WDfXXsmssBEXsNvgcmVOzlkkCCUTpIanaqRa08+zU7BJujDYfEQYCtmqKO0D?=
+ =?us-ascii?q?2nEZ1RY2AVQmyLRD3XdoGAWv4JIAvUauxslDoFU7e9TIlp9DCP/keu1LtjKu?=
+ =?us-ascii?q?vd/wUHtp/l0tlz6PHUk1c58jkiS4yG3mWMSXxktn0HSiVw361lp0F5jFCZ3v?=
+ =?us-ascii?q?tWmftdQOdP6utJXwFyDpvVy+h3GpimQQ7aVsuYQ1ahBNO9CHc+ScxnkIxGWF?=
+ =?us-ascii?q?p0B9j31kOL5CGtGbJA0uXRXJE=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DhAwC46Fpc/wHyM5BlHAEBAQQBAQcEAQGBZYFbKWdQA?=
+ =?us-ascii?q?TInhAOUUQEBAQEBAQaBCC2JNZBVKBABhEACgxoiOBIBAwEBAQEBAQIBbBwMg?=
+ =?us-ascii?q?jopAYJmAQEBAQIBIxVBEAsYAgImAgJXBgEMBgIBAYJfPwGBdAUIrH6BL4VEh?=
+ =?us-ascii?q?HiBC4s4F3iBB4ERJ4JrhEqDQIJXApEAOpFOCYc3iwYGGYI+kBCKLJNLIYFWK?=
+ =?us-ascii?q?wgCGAghD4MnCYtDhS8hAzCBBQEBiyaCTQEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Feb 2019 14:04:58 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x16E4vaY024450;
+        Wed, 6 Feb 2019 09:04:58 -0500
+Subject: Re: [PATCH] selinux: Fix classmap for BPF
+To:     "William A. Kennington III" <william@wkennington.com>,
+        selinux@vger.kernel.org
+References: <20190206041747.11377-1-william@wkennington.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Paul Moore <paul@paul-moore.com>
+Message-ID: <cebc12f0-5fb0-218c-331a-a785e2eece70@tycho.nsa.gov>
+Date:   Wed, 6 Feb 2019 09:04:57 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Wed, 06 Feb 2019 08:12:46 +0000 (UTC)
+In-Reply-To: <20190206041747.11377-1-william@wkennington.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-jwcart2 <jwcart2@tycho.nsa.gov> writes:
+On 2/5/19 11:17 PM, William A. Kennington III wrote:
+> Entries in the secclass_map are expexted to be null terminated. The BPF
+> entry was added without the NULL terminating and incosistent formatting.
+> This patch cleans that up.
 
-> On 2/3/19 6:01 AM, Nicolas Iooss wrote:
->> clang's static analyzer reports a warning when low_bit is used without
->> having been initialized in statements such as:
->>
->>      low_value = low_bit << 8;
->>
->> The warning is: "Result of operation is garbage or undefined".
->>
->> This is caused by low_bit being only initialized when in_range is true.
->> This issue is not critical because low_value is only used in an
->> "if (in_range)" block. Silence this warning by moving low_value's
->> assignment inside this block.
->>
->> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
-> Acked-by: James Carter <jwcart2@tycho.nsa.gov>
+Thanks.  A few minor nits:
 
-Merged.
+A couple of spelling errors above (expected, inconsistent).  Also, per 
+Documentation/process/submitting-patches.rst, rather than say "This 
+patch cleans that up", say "Clean that up" or similar.
 
->
->> ---
->>   libsepol/src/kernel_to_cil.c | 4 ++--
->>   libsepol/src/module_to_cil.c | 4 ++--
->>   libsepol/src/util.c          | 4 ++--
->>   3 files changed, 6 insertions(+), 6 deletions(-)
->>
->> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
->> index 63e4d4899758..cd3554e8dfd9 100644
->> --- a/libsepol/src/kernel_to_cil.c
->> +++ b/libsepol/src/kernel_to_cil.c
->> @@ -1614,8 +1614,8 @@ static char *xperms_to_str(avtab_extended_perms_t *xperms)
->>     		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
->>   			value = xperms->driver<<8 | bit;
->> -			low_value = xperms->driver<<8 | low_bit;
->>   			if (in_range) {
->> +				low_value = xperms->driver<<8 | low_bit;
->>   				len = snprintf(p, remaining, " (range 0x%hx 0x%hx)", low_value, value);
->>   				in_range = 0;
->>   			} else {
->> @@ -1623,8 +1623,8 @@ static char *xperms_to_str(avtab_extended_perms_t *xperms)
->>   			}
->>   		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
->>   			value = bit << 8;
->> -			low_value = low_bit << 8;
->>   			if (in_range) {
->> +				low_value = low_bit << 8;
->>   				len = snprintf(p, remaining, " (range 0x%hx 0x%hx)", low_value, (uint16_t) (value|0xff));
->>   				in_range = 0;
->>   			} else {
->> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
->> index 4cb44e0ee657..f04589edaeff 100644
->> --- a/libsepol/src/module_to_cil.c
->> +++ b/libsepol/src/module_to_cil.c
->> @@ -655,8 +655,8 @@ static int xperms_to_cil(const av_extended_perms_t *xperms)
->>     		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
->>   			value = xperms->driver<<8 | bit;
->> -			low_value = xperms->driver<<8 | low_bit;
->>   			if (in_range) {
->> +				low_value = xperms->driver<<8 | low_bit;
->>   				cil_printf("(range 0x%hx 0x%hx)", low_value, value);
->>   				in_range = 0;
->>   			} else {
->> @@ -664,8 +664,8 @@ static int xperms_to_cil(const av_extended_perms_t *xperms)
->>   			}
->>   		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
->>   			value = bit << 8;
->> -			low_value = low_bit << 8;
->>   			if (in_range) {
->> +				low_value = low_bit << 8;
->>   				cil_printf("(range 0x%hx 0x%hx)", low_value, (uint16_t) (value|0xff));
->>   				in_range = 0;
->>   			} else {
->> diff --git a/libsepol/src/util.c b/libsepol/src/util.c
->> index b00251c69aa5..a4008882b94b 100644
->> --- a/libsepol/src/util.c
->> +++ b/libsepol/src/util.c
->> @@ -159,16 +159,16 @@ char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms)
->>     		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
->>   			value = xperms->driver<<8 | bit;
->> -			low_value = xperms->driver<<8 | low_bit;
->>   			if (in_range) {
->> +				low_value = xperms->driver<<8 | low_bit;
->>   				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, value);
->>   			} else {
->>   				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx ", value);
->>   			}
->>   		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
->>   			value = bit << 8;
->> -			low_value = low_bit << 8;
->>   			if (in_range) {
->> +				low_value = low_bit << 8;
->>   				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, (uint16_t) (value|0xff));
->>   			} else {
->>   				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", value, (uint16_t) (value|0xff));
->>
+Can add a:
+Fixes:  ec27c3568a34c7f ("selinux: bpf: Add selinux check for eBPF 
+syscall operations")
+
+> 
+> Signed-off-by: William A. Kennington III <william@wkennington.com>
+> ---
+>   security/selinux/include/classmap.h | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index bd5fe0d3204a..7ff68a5e4c58 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -239,7 +239,7 @@ struct security_class_mapping secclass_map[] = {
+>   	{ "infiniband_endport",
+>   	  { "manage_subnet", NULL } },
+>   	{ "bpf",
+> -	  {"map_create", "map_read", "map_write", "prog_load", "prog_run"} },
+> +	  { "map_create", "map_read", "map_write", "prog_load", "prog_run", NULL } },
+
+Should likely break the line to make checkpatch.pl happy:
+
+$ ./scripts/checkpatch.pl -g HEAD
+WARNING: line over 80 characters
+#24: FILE: security/selinux/include/classmap.h:242:
++	  { "map_create", "map_read", "map_write", "prog_load", "prog_run", 
+NULL } },
+
+
+>   	{ "xdp_socket",
+>   	  { COMMON_SOCK_PERMS, NULL } },
+>   	{ NULL }
+> 
+
