@@ -6,72 +6,117 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A68FC282C2
-	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 09:18:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B981CC282C2
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 10:25:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DA8622080F
-	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 09:18:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 91308218FE
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 10:25:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726715AbfBGJSv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Feb 2019 04:18:51 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:34814 "EHLO mx1.redhat.com"
+        id S1726655AbfBGKZu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Feb 2019 05:25:50 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:38382 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726691AbfBGJSv (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 7 Feb 2019 04:18:51 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        id S1726642AbfBGKZu (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 7 Feb 2019 05:25:50 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 44D693DE0E
-        for <selinux@vger.kernel.org>; Thu,  7 Feb 2019 09:18:51 +0000 (UTC)
-Received: from workstation.brq.redhat.com (unknown [10.43.12.40])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 62E5971CBA;
-        Thu,  7 Feb 2019 09:18:50 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
+        by mx1.redhat.com (Postfix) with ESMTPS id 1DC81C0C0572
+        for <selinux@vger.kernel.org>; Thu,  7 Feb 2019 10:25:50 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.184])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 910DD17B5F
+        for <selinux@vger.kernel.org>; Thu,  7 Feb 2019 10:25:49 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Dan Walsh <dwalsh@redhat.com>, Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH v2] dbus: Fix name of polkit function
-Date:   Thu,  7 Feb 2019 10:18:44 +0100
-Message-Id: <20190207091844.11336-1-plautrba@redhat.com>
-In-Reply-To: <pjdmun8x8v1.fsf@redhat.com>
-References: <pjdmun8x8v1.fsf@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Thu, 07 Feb 2019 09:18:51 +0000 (UTC)
+Subject: [PATCH] checkpolicy: Update manpage
+Date:   Thu,  7 Feb 2019 11:25:45 +0100
+Message-Id: <20190207102545.28580-1-vmojzis@redhat.com>
+In-Reply-To: <CAJfZ7=nLOTU-o5Q9TBmgKqumk=BHC2qHz=6393S=6MY24Jxwxg@mail.gmail.com>
+References: <CAJfZ7=nLOTU-o5Q9TBmgKqumk=BHC2qHz=6393S=6MY24Jxwxg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Thu, 07 Feb 2019 10:25:50 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Dan Walsh <dwalsh@redhat.com>
+- Add description of -S option
+- Sort the option descriptions based on the synopsis
+- Add missing options to synopsis
 
-Add missing action org.selinux.change_default_mode for change_default_mode() and
-remove unused action org.selinux.change_policy_type.
-
-Fixes: e8718ef51463 ("Make sure we do the polkit check on all dbus interfaces.")
-
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- dbus/org.selinux.policy | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ checkpolicy/checkpolicy.8 | 19 +++++++++++--------
+ checkpolicy/checkpolicy.c |  2 +-
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/dbus/org.selinux.policy b/dbus/org.selinux.policy
-index 01266102..9772127b 100644
---- a/dbus/org.selinux.policy
-+++ b/dbus/org.selinux.policy
-@@ -70,9 +70,9 @@
- 	  <allow_active>auth_admin_keep</allow_active>
-         </defaults>
-     </action>
--    <action id="org.selinux.change_policy_type">
--        <description>SELinux write access</description>
--        <message>System policy prevents change_policy_type access to SELinux</message>
-+    <action id="org.selinux.change_default_mode">
-+        <description>Change SELinux default enforcing mode</description>
-+        <message>System policy prevents change_default_policy access to SELinux</message>
-         <defaults>
-           <allow_any>no</allow_any>
-           <allow_inactive>no</allow_inactive>
+diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
+index 1c8805d5..8f7dad41 100644
+--- a/checkpolicy/checkpolicy.8
++++ b/checkpolicy/checkpolicy.8
+@@ -3,7 +3,7 @@
+ checkpolicy \- SELinux policy compiler
+ .SH SYNOPSIS
+ .B checkpolicy
+-.I "[\-b[F]] [\-C] [\-d] [\-M] [\-c policyvers] [\-o output_file] [input_file]"
++.I "[\-b[F]] [\-C] [\-d] [\-U handle_unknown (allow,deny,reject)] [\-M] [\-c policyvers] [\-o output_file] [\-S] [\-t target_platform (selinux,xen)] [\-V] [input_file]"
+ .br
+ .SH "DESCRIPTION"
+ This manual page describes the
+@@ -21,30 +21,33 @@ policy.conf or policy, depending on whether the \-b flag is specified.
+ .B \-b,\-\-binary
+ Read an existing binary policy file rather than a source policy.conf file.
+ .TP
++.B \-F,\-\-conf
++Write policy.conf file rather than binary policy file. Can only be used with binary policy file.
++.TP
+ .B \-C,\-\-cil
+ Write CIL policy file rather than binary policy file.
+ .TP
+ .B \-d,\-\-debug
+ Enter debug mode after loading the policy.
+ .TP
+-.B \-F,\-\-conf
+-Write policy.conf file rather than binary policy file. Can only be used with binary policy file.
++.B \-U,\-\-handle-unknown <action>
++Specify how the kernel should handle unknown classes or permissions (deny, allow or reject).
+ .TP
+ .B \-M,\-\-mls
+ Enable the MLS policy when checking and compiling the policy.
+ .TP
++.B \-c policyvers
++Specify the policy version, defaults to the latest.
++.TP
+ .B \-o,\-\-output filename
+ Write a binary policy file to the specified filename.
+ .TP
+-.B \-c policyvers
+-Specify the policy version, defaults to the latest.
++.B \-S,\-\-sort
++Sort ocontexts before writing out the binary policy. This option makes output of checkpolicy consistent with binary policies created by semanage and secilc.
+ .TP
+ .B \-t,\-\-target
+ Specify the target platform (selinux or xen).
+ .TP
+-.B \-U,\-\-handle-unknown <action>
+-Specify how the kernel should handle unknown classes or permissions (deny, allow or reject).
+-.TP
+ .B \-V,\-\-version
+ Show version information.
+ .TP
+diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+index 14dc91a3..e0a00f7c 100644
+--- a/checkpolicy/checkpolicy.c
++++ b/checkpolicy/checkpolicy.c
+@@ -113,7 +113,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
+ 	printf
+ 	    ("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny,reject)] [-M] "
+ 	     "[-c policyvers (%d-%d)] [-o output_file] [-S] "
+-	     "[-t target_platform (selinux,xen)] [input_file]\n",
++	     "[-t target_platform (selinux,xen)] [-V] [input_file]\n",
+ 	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
+ 	exit(1);
+ }
 -- 
-2.20.1
+2.17.2
 
