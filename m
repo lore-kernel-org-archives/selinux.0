@@ -2,142 +2,214 @@ Return-Path: <SRS0=93oN=QO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12D05C282C2
-	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 17:52:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 315A4C282C2
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 18:17:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D52812083B
-	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 17:52:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EAC892086C
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 18:17:19 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="WDUJ9czR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726576AbfBGRwf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Feb 2019 12:52:35 -0500
-Received: from mga03.intel.com ([134.134.136.65]:34082 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726171AbfBGRwf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 7 Feb 2019 12:52:35 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Feb 2019 09:52:34 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.58,345,1544515200"; 
-   d="scan'208";a="273284097"
-Received: from orsmsx109.amr.corp.intel.com ([10.22.240.7])
-  by orsmga004.jf.intel.com with ESMTP; 07 Feb 2019 09:52:33 -0800
-Received: from orsmsx113.amr.corp.intel.com (10.22.240.9) by
- ORSMSX109.amr.corp.intel.com (10.22.240.7) with Microsoft SMTP Server (TLS)
- id 14.3.408.0; Thu, 7 Feb 2019 09:52:34 -0800
-Received: from orsmsx101.amr.corp.intel.com ([169.254.8.140]) by
- ORSMSX113.amr.corp.intel.com ([169.254.9.240]) with mapi id 14.03.0415.000;
- Thu, 7 Feb 2019 09:52:34 -0800
-From:   "Roberts, William C" <william.c.roberts@intel.com>
-To:     Petr Lautrbach <plautrba@redhat.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>
-CC:     Ondrej Mosnacek <omosnace@redhat.com>
-Subject: RE: gcc 9.0.0 build issues
-Thread-Topic: gcc 9.0.0 build issues
-Thread-Index: AQHUvuJhk/X56/euxEuWv2uHzMSJg6XUnZyw
-Date:   Thu, 7 Feb 2019 17:52:32 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC5649CDF45F@ORSMSX101.amr.corp.intel.com>
+        id S1726758AbfBGSRT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Feb 2019 13:17:19 -0500
+Received: from uphb19pa11.eemsg.mail.mil ([214.24.26.85]:32015 "EHLO
+        USFB19PA14.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726319AbfBGSRT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Feb 2019 13:17:19 -0500
+X-EEMSG-check-017: 118155984|USFB19PA14_EEMSG_MP10.csd.disa.mil
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA14.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 07 Feb 2019 18:17:15 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1549563436; x=1581099436;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=wGd/gUQW1M+/KeF6Pd12zzOz97phL0yIfDoQ38KyHRA=;
+  b=WDUJ9czRw0tkjZ0zgsTsJirSjnHMvqHJKyL9KazY5xjDat7xZEyT6rHO
+   9EcjBau94p9RCS95xJVgy1Y79U2A8z0wIVenPtZ8W2gmhuWfbawp14VNS
+   ZsoFVHyaXvPCX3eIJXfQW3FnN5yMU5K6SuncaZ/KGwpxxWVvIrpbUrtKY
+   Gz9WTDZk5k3Tq2m+uPEWzxTZdEgkFJJPzpbo1Tz0XfzuvNask1lEW0sH+
+   to/8zlfBXUo4ZWsaKvpw53xA/z0kVqy86vVZNrfcdRshn3W2BXSinVlX7
+   Fl8xw6m1dxB+5th4uZYFAscLf3EbD+ZAe5K7oWnwZxSaJQB4Xhe9/nbF0
+   w==;
+X-IronPort-AV: E=Sophos;i="5.58,345,1544486400"; 
+   d="scan'208";a="20315782"
+IronPort-PHdr: =?us-ascii?q?9a23=3AF2o0YBN5Xs3254x9NvEl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0K/zzp8bcNUDSrc9gkEXOFd2Cra4c26yO6+jJYi8p2d65qncMcZhBBV?=
+ =?us-ascii?q?cuqP49uEgeOvODElDxN/XwbiY3T4xoXV5h+GynYwAOQJ6tL1LdrWev4jEMBx?=
+ =?us-ascii?q?7xKRR6JvjvGo7Vks+7y/2+94fcbglUhzexe69+IAmrpgjNq8cahpdvJLwswR?=
+ =?us-ascii?q?XTuHtIfOpWxWJsJV2Nmhv3+9m98p1+/SlOovwt78FPX7n0cKQ+VrxYES8pM3?=
+ =?us-ascii?q?sp683xtBnMVhWA630BWWgLiBVIAgzF7BbnXpfttybxq+Rw1DWGMcDwULs5Qi?=
+ =?us-ascii?q?qp4bt1RxD0iScHLz85/3/Risxsl6JQvRatqwViz4LIfI2ZMfxzca3HfdMeWG?=
+ =?us-ascii?q?FPQMBfWSJcCY+4docDEfYNMeNeooLgpVUBsAG+CBGxCu3xxD9Ghnz406M03O?=
+ =?us-ascii?q?suEw7JwAMuEskSsHnXttj5KLseXO63waTO0D7Nb+lW2TD46IXQbx4hve+DXa?=
+ =?us-ascii?q?pwccXPz0kkCh7LjlCKpozhOzOayOQMuHWc4up7SO2vkHUqqx1xozezxscsjZ?=
+ =?us-ascii?q?PFhoQOyl/e7yl5z4E1JcOhRUN9fNWqE4NQujmHO4Z5Tc4uWWFltDsgxrEYtp?=
+ =?us-ascii?q?O3YjIGxIkhyhXCcfKIaZKI7QjmVOuJJDd4g29qd6ynihap9Eig1vX8Vs6p0F?=
+ =?us-ascii?q?ZWtiZFksfDtnQK1xHL9siIUOF9/ka82TaUzQzT9uFFLlw0larcMZIhxKI/lo?=
+ =?us-ascii?q?EPvkjZGy/2mUH2gLeXdkUi5Oeo9/zqbqjpq5KTLYN5ihzyPr4wlsGwH+g0KB?=
+ =?us-ascii?q?UCU3Ce+eum1b3j+UP5QK9Njv0ziqTZq43VJd8Aq66lAw5azoYj6xGlAzegy9?=
+ =?us-ascii?q?QXh2MLLF1CeBKZl4TpIU3BIOjkDfejhFShiDlqx/HCPr3lA5XCNH3DnK39cr?=
+ =?us-ascii?q?pn8U5czxE8ws5F55JIEbEMO/PzWknttNPGCh81KRC7w+HiCN9lzIMRRXqPAr?=
+ =?us-ascii?q?OFMKPVqVKI/uYvLPORZI8JojbyMOIq6uX0jXAnhFAdfbOm3YcNZH+kGfRmJl?=
+ =?us-ascii?q?2TYWDwjdcZDWcKog0+QfTxiFKcVT5TZnCyX78z5zwgFoKmApnMRpq3jLyCwi?=
+ =?us-ascii?q?i7BJtWaX5CClyWFnfobYqEUe8WaC2OOs9hjiAEVb+5Ro8m0BGusxT6y7x9Ie?=
+ =?us-ascii?q?XI5CIVrojj28Zo6O3Tjx4y6SZ4ANia02GIHClImTZCfTg80bpjugg19VaH1a?=
+ =?us-ascii?q?lxhrRzX5QH+PJNVgYzMNjXifZ9Ad3oRhnpf9GVRVLgSdKjV3V5dt8t2Zcqal?=
+ =?us-ascii?q?thAd+rhRCLizKuCqIJjbaCLIY5/qLVwz76IMMrjz6Mz6Qljl87UuNROmC8wK?=
+ =?us-ascii?q?1y7Q7eA8jOiUrT3/KxeKAd2jPd3HmMwHDIv0xCVgN0F6LfUiZMSFHRqIHC+k?=
+ =?us-ascii?q?7aT7KoQY8iOw9FxN/KfrBGcfX1nF5GQ7HlI92YbGWvzTTjTS2Uz6+BOdK5M1?=
+ =?us-ascii?q?4W2z/QXQ1dyVge?=
+X-IPAS-Result: =?us-ascii?q?A2BgAADKdFxc/wHyM5BkGwEBAQEDAQEBBwMBAQGBVAMBA?=
+ =?us-ascii?q?QELAYFaKYE4MieEA5QJUgaBCC2JNpBWOAGEQAKDKCI3Bg0BAwEBAQEBAQIBb?=
+ =?us-ascii?q?CiCOikBgmYBAQEBAyMPAQVBDAQLEQQBAQECAiMDAgJGCQgGAQwGAgEBgmE/g?=
+ =?us-ascii?q?XUNrSSBL4VEhGmBC4s4F3iBB4E4gmuICoJXApE7kVUJkj8GGZJVii2TUiKBV?=
+ =?us-ascii?q?isIAhgIIQ+DJ5B7IQMwAYEEAQGNcwEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 07 Feb 2019 18:17:14 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x17IH1dk006422;
+        Thu, 7 Feb 2019 13:17:03 -0500
+Subject: Re: gcc 9.0.0 build issues
+To:     "Roberts, William C" <william.c.roberts@intel.com>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>
 References: <pjdtvhns3pq.fsf@redhat.com>
  <CAFqZXNt8Df0KX9qVmsGtxZroy6s1SFBt1Qmi5Psuv6z0+kTB7Q@mail.gmail.com>
  <pjdlg2rydoj.fsf@redhat.com>
-In-Reply-To: <pjdlg2rydoj.fsf@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.0.400.15
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.140]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <476DC76E7D1DF2438D32BFADF679FC5649CDF45F@ORSMSX101.amr.corp.intel.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
+Date:   Thu, 7 Feb 2019 13:17:01 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.4.0
 MIME-Version: 1.0
+In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5649CDF45F@ORSMSX101.amr.corp.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogUGV0ciBMYXV0cmJhY2gg
-W21haWx0bzpwbGF1dHJiYUByZWRoYXQuY29tXQ0KPiBTZW50OiBUaHVyc2RheSwgRmVicnVhcnkg
-NywgMjAxOSA0OjQwIEFNDQo+IFRvOiBzZWxpbnV4QHZnZXIua2VybmVsLm9yZw0KPiBDYzogUGV0
-ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+OyBSb2JlcnRzLCBXaWxsaWFtIEMNCj4g
-PHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT47IE9uZHJlaiBNb3NuYWNlayA8b21vc25hY2VA
-cmVkaGF0LmNvbT4NCj4gU3ViamVjdDogUmU6IGdjYyA5LjAuMCBidWlsZCBpc3N1ZXMNCj4gDQo+
-IA0KPiBPbmRyZWogTW9zbmFjZWsgPG9tb3NuYWNlQHJlZGhhdC5jb20+IHdyaXRlczoNCj4gDQo+
-ID4gT24gRnJpLCBGZWIgMSwgMjAxOSBhdCA4OjM2IFBNIFBldHIgTGF1dHJiYWNoIDxwbGF1dHJi
-YUByZWRoYXQuY29tPg0KPiA+IHdyb3RlOg0KPiA+PiBnY2MtOS4wLjAtMC4zLmZjMzAueDg2XzY0
-IGZyb20gRmVkb3JhIFJhd2hpZGU6DQo+ID4+DQo+ID4+IGdjYyB2ZXJzaW9uIDkuMC4wIDIwMTkw
-MTE5IChSZWQgSGF0IDkuMC4wLTAuMykgKEdDQykNCj4gPj4NCj4gLi4uDQo+ID4+IFdoZW4gbGli
-c2VsaW51eCBpcyBidWlsdCBzZXBhcmF0ZWx5LCBvdGhlciBDRkxBR1MgaXMgdXNlZDoNCj4gPj4N
-Cj4gPj4gJCBjZCBsaWJzZWxpbnV4DQo+ID4+DQo+ID4+ICQgbWFrZSBERVNURElSPX4vb2JqIGlu
-c3RhbGwgaW5zdGFsbC1weXdyYXAgLi4uDQo+ID4+DQo+ID4+IG1ha2VbMV06IEVudGVyaW5nIGRp
-cmVjdG9yeQ0KPiA+PiAnL2hvbWUvYnVpbGQvU0VMaW51eFByb2plY3Qtc2VsaW51eC9saWJzZWxp
-bnV4L3NyYycNCj4gPj4NCj4gPj4gY2MgLU8gLVdhbGwgLVcgLVd1bmRlZiAtV2Zvcm1hdC15Mmsg
-LVdmb3JtYXQtc2VjdXJpdHkgLVdpbml0LXNlbGYNCj4gPj4gLVdtaXNzaW5nLWluY2x1ZGUtZGly
-cyAtV3VudXNlZCAtV3Vua25vd24tcHJhZ21hcyAtV3N0cmljdC1hbGlhc2luZw0KPiA+PiAtV3No
-YWRvdyAtV3BvaW50ZXItYXJpdGggLVdiYWQtZnVuY3Rpb24tY2FzdCAtV2Nhc3QtYWxpZ24NCj4g
-Pj4gLVd3cml0ZS1zdHJpbmdzIC1XYWdncmVnYXRlLXJldHVybiAtV3N0cmljdC1wcm90b3R5cGVz
-DQo+ID4+IC1Xb2xkLXN0eWxlLWRlZmluaXRpb24gLVdtaXNzaW5nLXByb3RvdHlwZXMgLVdtaXNz
-aW5nLWRlY2xhcmF0aW9ucw0KPiA+PiAtV21pc3Npbmctbm9yZXR1cm4gLVdtaXNzaW5nLWZvcm1h
-dC1hdHRyaWJ1dGUgLVdyZWR1bmRhbnQtZGVjbHMNCj4gPj4gLVduZXN0ZWQtZXh0ZXJucyAtV2lu
-bGluZSAtV2ludmFsaWQtcGNoIC1Xdm9sYXRpbGUtcmVnaXN0ZXItdmFyDQo+ID4+IC1XZGlzYWJs
-ZWQtb3B0aW1pemF0aW9uIC1XYnVpbHRpbi1tYWNyby1yZWRlZmluZWQgLVdhdHRyaWJ1dGVzDQo+
-ID4+IC1XbXVsdGljaGFyIC1XZGVwcmVjYXRlZC1kZWNsYXJhdGlvbnMgLVdkaXYtYnktemVybw0K
-PiA+PiAtV2RvdWJsZS1wcm9tb3Rpb24gLVdlbmRpZi1sYWJlbHMgLVdleHRyYSAtV2Zvcm1hdC1l
-eHRyYS1hcmdzDQo+ID4+IC1XZm9ybWF0LXplcm8tbGVuZ3RoIC1XZm9ybWF0PTIgLVdtdWx0aWNo
-YXIgLVdvdmVyZmxvdw0KPiA+PiAtV3BvaW50ZXItdG8taW50LWNhc3QgLVdwcmFnbWFzIC1Xbm8t
-bWlzc2luZy1maWVsZC1pbml0aWFsaXplcnMNCj4gPj4gLVduby1zaWduLWNvbXBhcmUgLVduby1m
-b3JtYXQtbm9ubGl0ZXJhbA0KPiA+PiAtV2ZyYW1lLWxhcmdlci10aGFuPTMyNzY4DQo+ID4+IC1m
-c3RhY2stcHJvdGVjdG9yLWFsbCAtLXBhcmFtPXNzcC1idWZmZXItc2l6ZT00IC1mZXhjZXB0aW9u
-cw0KPiA+PiAtZmFzeW5jaHJvbm91cy11bndpbmQtdGFibGVzIC1mZGlhZ25vc3RpY3Mtc2hvdy1v
-cHRpb24NCj4gPj4gLWZ1bml0LWF0LWEtdGltZSAtV2Vycm9yIC1Xbm8tYWdncmVnYXRlLXJldHVy
-biAtV25vLXJlZHVuZGFudC1kZWNscw0KPiA+PiAtZmlwYS1wdXJlLWNvbnN0IC1XbG9naWNhbC1v
-cCAtV3BhY2tlZC1iaXRmaWVsZC1jb21wYXQgLVdzeW5jLW5hbmQNCj4gPj4gLVdjb3ZlcmFnZS1t
-aXNtYXRjaCAtV2NwcCAtV2Zvcm1hdC1jb250YWlucy1udWwgLVdub3JtYWxpemVkPW5mYw0KPiA+
-PiAtV3N1Z2dlc3QtYXR0cmlidXRlPWNvbnN0IC1Xc3VnZ2VzdC1hdHRyaWJ1dGU9bm9yZXR1cm4N
-Cj4gPj4gLVdzdWdnZXN0LWF0dHJpYnV0ZT1wdXJlIC1XdHJhbXBvbGluZXMgLVdqdW1wLW1pc3Nl
-cy1pbml0DQo+ID4+IC1Xbm8tc3VnZ2VzdC1hdHRyaWJ1dGU9cHVyZSAtV25vLXN1Z2dlc3QtYXR0
-cmlidXRlPWNvbnN0DQo+ID4+IC1VX0ZPUlRJRllfU09VUkNFDQo+ID4+IC1EX0ZPUlRJRllfU09V
-UkNFPTINCj4gPj4gLVdzdHJpY3Qtb3ZlcmZsb3c9NSAtSS4uL2luY2x1ZGUgLURfR05VX1NPVVJD
-RQ0KPiA+PiAtRE5PX0FORFJPSURfQkFDS0VORCAgIC1jIC1vIGJvb2xlYW5zLm8gYm9vbGVhbnMu
-Yw0KPiA+PiBib29sZWFucy5jOiBJbiBmdW5jdGlvbiDigJhzZWN1cml0eV9nZXRfYm9vbGVhbl9u
-YW1lc+KAmToNCj4gPj4gYm9vbGVhbnMuYzozOTo1OiBlcnJvcjogYXNzdW1pbmcgc2lnbmVkIG92
-ZXJmbG93IGRvZXMgbm90IG9jY3VyIHdoZW4NCj4gPj4gY2hhbmdpbmcgWCArLSBDMSBjbXAgQzIg
-dG8gWCBjbXAgQzIgLSsgQzEgWy1XZXJyb3I9c3RyaWN0LW92ZXJmbG93XQ0KPiA+PiAgICAzOSB8
-IGludCBzZWN1cml0eV9nZXRfYm9vbGVhbl9uYW1lcyhjaGFyICoqKm5hbWVzLCBpbnQgKmxlbikN
-Cj4gPj4gICAgICAgfCAgICAgXn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn4NCj4gPj4gY2MxOiBh
-bGwgd2FybmluZ3MgYmVpbmcgdHJlYXRlZCBhcyBlcnJvcnMNCj4gPg0KPiA+IFRoaXMgb25lIGlz
-IHJlYWxseSB3ZWlyZC4uLiBQZXJoYXBzIGEgYnVnIGluIEdDQz8gQXQgdGhlIHZlcnkgbGVhc3QN
-Cj4gPiB0aGUgd2FybmluZyBtZXNzYWdlIGFuZCBzb3VyY2UgY29kZSBsb2NhdGlvbiBhcmUgc3Vw
-ZXIgY29uZnVzaW5nLA0KPiA+IHdoaWNoIGlzIGEgYnVnIG9uIGl0cyBvd24uLi4NCj4gDQo+IEl0
-J3MgZGV0ZWN0ZWQgb25seSB3aXRoIC1Xc3RyaWN0LW92ZXJmbG93PTMgYW5kIGhpZ2hlci4gTWFr
-ZWZpbGUgaW4gbGlic2VsaW51eCB1c2VzDQo+IGxldmVsIDUgd2hpY2ggd2FzIGFkZGVkIGJ5IGNv
-bW1pdA0KPiA5ZmU0MzAzNDUgKCJNYWtlZmlsZTogYWRkIC1Xc3RyaWN0LW92ZXJmbG93PTUgdG8g
-Q0ZMQUdTKQ0KPiANCj4gVGhlIHByb2JsZW0gY29kZSBpcyBvbiBsaW5lcyA4NCBhbmQgODUgaW4N
-Cj4gbGlic2VsaW51eC9zcmMvYm9vbGVhbnMuYzoNCj4gDQo+IDg0Oglmb3IgKC0taTsgaSA+PSAw
-OyAtLWkpDQo+IDg1OiAgICBmcmVlKG5baV0pOw0KPiANCj4gDQo+IEl0IGNvdWxkIGJlIHN1cHBy
-ZXNzZWQgYnkgc29tZXRoaW5nIGxpa2UgdGhpczoNCj4gDQo+IC0tLSBhL2xpYnNlbGludXgvc3Jj
-L2Jvb2xlYW5zLmMNCj4gKysrIGIvbGlic2VsaW51eC9zcmMvYm9vbGVhbnMuYw0KPiBAQCAtMzks
-NyArMzksNyBAQCBzdGF0aWMgaW50IGZpbGVuYW1lX3NlbGVjdChjb25zdCBzdHJ1Y3QgZGlyZW50
-DQo+ICpkKQ0KPiAgaW50IHNlY3VyaXR5X2dldF9ib29sZWFuX25hbWVzKGNoYXIgKioqbmFtZXMs
-IGludCAqbGVuKSAgew0KPiAgICAgICAgIGNoYXIgcGF0aFtQQVRIX01BWF07DQo+IC0gICAgICAg
-aW50IGksIHJjOw0KPiArICAgICAgIGludCBpLCBqLCByYzsNCj4gICAgICAgICBzdHJ1Y3QgZGly
-ZW50ICoqbmFtZWxpc3Q7DQo+ICAgICAgICAgY2hhciAqKm47DQo+IA0KPiBAQCAtODEsOCArODEs
-OCBAQCBpbnQgc2VjdXJpdHlfZ2V0X2Jvb2xlYW5fbmFtZXMoY2hhciAqKipuYW1lcywgaW50ICps
-ZW4pDQo+ICAgICAgICAgZnJlZShuYW1lbGlzdCk7DQo+ICAgICAgICAgcmV0dXJuIHJjOw0KPiAg
-ICAgICAgYmFkX2ZyZWVuOg0KPiAtICAgICAgIGZvciAoLS1pOyBpID49IDA7IC0taSkNCj4gLSAg
-ICAgICAgICAgICAgIGZyZWUobltpXSk7DQo+ICsgICAgICAgZm9yIChqID0gMDsgaiA8IGk7IGor
-KykNCj4gKyAgICAgICAgICAgICAgIGZyZWUobltqXSk7DQo+ICAgICAgICAgZnJlZShuKTsNCj4g
-ICAgICAgIGJhZDoNCj4gICAgICAgICBnb3RvIG91dDsNCj4gDQo+IA0KPiBXaWxsaWFtLCB3aGF0
-IHdvdWxkIHlvdSBjb25zaWRlciB0byBiZSB0aGUgcmlnaHQgZml4IGluIHRoaXMgY2FzZT8NCg0K
-VGhlIHByZXZpb3VzIGNvZGUgbG9va3MgY29ycmVjdCBJTU8sIEkgY2FuJ3Qgc2VlIGFuIGFjdHVh
-bCBwcm9ibGVtLiBMb29rcyBsaWtlDQpHQ0MgY29tcGxhaW5pbmcgaW5jb3JyZWN0bHkgb3Igd2Vy
-ZSBtaXNzaW5nIHNvbWV0aGluZy4gSW4gdGhlIGNhc2Ugb2YgZ2NjDQpJbmNvcnJlY3RseSBjb21w
-bGFpbmluZyBJIHVzdWFsbHkgdGFrZSBhIGNvdXJzZSBvZiBhY3Rpb24gdG8gd29yayBhcm91bmQg
-aXQsIGJ1dA0KSW0gbm90IHN1cmUgaG93IG90aGVyIG1haW50YWluZXJzIGZlZWwgYWJvdXQgdGhh
-dCBAc2RzIGFueXRoaW5nPw0KDQoNCg==
+On 2/7/19 12:52 PM, Roberts, William C wrote:
+> 
+> 
+>> -----Original Message-----
+>> From: Petr Lautrbach [mailto:plautrba@redhat.com]
+>> Sent: Thursday, February 7, 2019 4:40 AM
+>> To: selinux@vger.kernel.org
+>> Cc: Petr Lautrbach <plautrba@redhat.com>; Roberts, William C
+>> <william.c.roberts@intel.com>; Ondrej Mosnacek <omosnace@redhat.com>
+>> Subject: Re: gcc 9.0.0 build issues
+>>
+>>
+>> Ondrej Mosnacek <omosnace@redhat.com> writes:
+>>
+>>> On Fri, Feb 1, 2019 at 8:36 PM Petr Lautrbach <plautrba@redhat.com>
+>>> wrote:
+>>>> gcc-9.0.0-0.3.fc30.x86_64 from Fedora Rawhide:
+>>>>
+>>>> gcc version 9.0.0 20190119 (Red Hat 9.0.0-0.3) (GCC)
+>>>>
+>> ...
+>>>> When libselinux is built separately, other CFLAGS is used:
+>>>>
+>>>> $ cd libselinux
+>>>>
+>>>> $ make DESTDIR=~/obj install install-pywrap ...
+>>>>
+>>>> make[1]: Entering directory
+>>>> '/home/build/SELinuxProject-selinux/libselinux/src'
+>>>>
+>>>> cc -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self
+>>>> -Wmissing-include-dirs -Wunused -Wunknown-pragmas -Wstrict-aliasing
+>>>> -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align
+>>>> -Wwrite-strings -Waggregate-return -Wstrict-prototypes
+>>>> -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations
+>>>> -Wmissing-noreturn -Wmissing-format-attribute -Wredundant-decls
+>>>> -Wnested-externs -Winline -Winvalid-pch -Wvolatile-register-var
+>>>> -Wdisabled-optimization -Wbuiltin-macro-redefined -Wattributes
+>>>> -Wmultichar -Wdeprecated-declarations -Wdiv-by-zero
+>>>> -Wdouble-promotion -Wendif-labels -Wextra -Wformat-extra-args
+>>>> -Wformat-zero-length -Wformat=2 -Wmultichar -Woverflow
+>>>> -Wpointer-to-int-cast -Wpragmas -Wno-missing-field-initializers
+>>>> -Wno-sign-compare -Wno-format-nonliteral
+>>>> -Wframe-larger-than=32768
+>>>> -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions
+>>>> -fasynchronous-unwind-tables -fdiagnostics-show-option
+>>>> -funit-at-a-time -Werror -Wno-aggregate-return -Wno-redundant-decls
+>>>> -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand
+>>>> -Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc
+>>>> -Wsuggest-attribute=const -Wsuggest-attribute=noreturn
+>>>> -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init
+>>>> -Wno-suggest-attribute=pure -Wno-suggest-attribute=const
+>>>> -U_FORTIFY_SOURCE
+>>>> -D_FORTIFY_SOURCE=2
+>>>> -Wstrict-overflow=5 -I../include -D_GNU_SOURCE
+>>>> -DNO_ANDROID_BACKEND   -c -o booleans.o booleans.c
+>>>> booleans.c: In function ‘security_get_boolean_names’:
+>>>> booleans.c:39:5: error: assuming signed overflow does not occur when
+>>>> changing X +- C1 cmp C2 to X cmp C2 -+ C1 [-Werror=strict-overflow]
+>>>>     39 | int security_get_boolean_names(char ***names, int *len)
+>>>>        |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+>>>> cc1: all warnings being treated as errors
+>>>
+>>> This one is really weird... Perhaps a bug in GCC? At the very least
+>>> the warning message and source code location are super confusing,
+>>> which is a bug on its own...
+>>
+>> It's detected only with -Wstrict-overflow=3 and higher. Makefile in libselinux uses
+>> level 5 which was added by commit
+>> 9fe430345 ("Makefile: add -Wstrict-overflow=5 to CFLAGS)
+>>
+>> The problem code is on lines 84 and 85 in
+>> libselinux/src/booleans.c:
+>>
+>> 84:	for (--i; i >= 0; --i)
+>> 85:    free(n[i]);
+>>
+>>
+>> It could be suppressed by something like this:
+>>
+>> --- a/libselinux/src/booleans.c
+>> +++ b/libselinux/src/booleans.c
+>> @@ -39,7 +39,7 @@ static int filename_select(const struct dirent
+>> *d)
+>>   int security_get_boolean_names(char ***names, int *len)  {
+>>          char path[PATH_MAX];
+>> -       int i, rc;
+>> +       int i, j, rc;
+>>          struct dirent **namelist;
+>>          char **n;
+>>
+>> @@ -81,8 +81,8 @@ int security_get_boolean_names(char ***names, int *len)
+>>          free(namelist);
+>>          return rc;
+>>         bad_freen:
+>> -       for (--i; i >= 0; --i)
+>> -               free(n[i]);
+>> +       for (j = 0; j < i; j++)
+>> +               free(n[j]);
+>>          free(n);
+>>         bad:
+>>          goto out;
+>>
+>>
+>> William, what would you consider to be the right fix in this case?
+> 
+> The previous code looks correct IMO, I can't see an actual problem. Looks like
+> GCC complaining incorrectly or were missing something. In the case of gcc
+> Incorrectly complaining I usually take a course of action to work around it, but
+> Im not sure how other maintainers feel about that @sds anything?
+
+AFAICS, the code is correct as is.  Not a fan of rewriting code to 
+appease overly zealous compilers...
+
+
