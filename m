@@ -1,233 +1,148 @@
-Return-Path: <SRS0=09KC=QN=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=93oN=QO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.2 required=3.0 tests=CHARSET_FARAWAY_HEADER,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D080C169C4
-	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 22:40:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E99DC169C4
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 02:31:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 36DAB218D9
-	for <selinux@archiver.kernel.org>; Wed,  6 Feb 2019 22:40:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 138A0218D3
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 02:31:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725928AbfBFWkX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Feb 2019 17:40:23 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:43811 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725959AbfBFWkX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Feb 2019 17:40:23 -0500
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 94AAA5605E3
-        for <selinux@vger.kernel.org>; Wed,  6 Feb 2019 23:40:18 +0100 (CET)
-Received: by mail-ot1-f54.google.com with SMTP id v23so14932604otk.9
-        for <selinux@vger.kernel.org>; Wed, 06 Feb 2019 14:40:18 -0800 (PST)
-X-Gm-Message-State: AHQUAualurICz1V4JNRlfWSe38WvoxaGy0Mu9TyaVutE99lGD19HreEc
-        JtSKpi6UIAurQaBrGTZ4z0kDYHmV1ejD6KUXsw0=
-X-Google-Smtp-Source: AHgI3Ib1bMybWneatohv9IJ6YesdREkKep7VbinmyvVgRL34bTR+1JTY1Wxc5Bw8mKE3ma3rNkqZjIU9vkfGILpNSZc=
-X-Received: by 2002:a9d:3e4a:: with SMTP id h10mr7380828otg.74.1549492817566;
- Wed, 06 Feb 2019 14:40:17 -0800 (PST)
+        id S1726655AbfBGCb3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Feb 2019 21:31:29 -0500
+Received: from www262.sakura.ne.jp ([202.181.97.72]:61161 "EHLO
+        www262.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726245AbfBGCb3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Feb 2019 21:31:29 -0500
+Received: from fsav402.sakura.ne.jp (fsav402.sakura.ne.jp [133.242.250.101])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id x172UUxi002092;
+        Thu, 7 Feb 2019 11:30:30 +0900 (JST)
+        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav402.sakura.ne.jp (F-Secure/fsigk_smtp/530/fsav402.sakura.ne.jp);
+ Thu, 07 Feb 2019 11:30:30 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/530/fsav402.sakura.ne.jp)
+Received: from www262.sakura.ne.jp (localhost [127.0.0.1])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id x172UUOe002088;
+        Thu, 7 Feb 2019 11:30:30 +0900 (JST)
+        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
+Received: (from i-love@localhost)
+        by www262.sakura.ne.jp (8.15.2/8.15.2/Submit) id x172UUG6002087;
+        Thu, 7 Feb 2019 11:30:30 +0900 (JST)
+        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
+Message-Id: <201902070230.x172UUG6002087@www262.sakura.ne.jp>
+X-Authentication-Warning: www262.sakura.ne.jp: i-love set sender to penguin-kernel@i-love.sakura.ne.jp using -f
+Subject: Re: [PATCH] LSM: Allow syzbot to ignore =?ISO-2022-JP?B?c2VjdXJpdHk9IHBh?=
+ =?ISO-2022-JP?B?cmFtZXRlci4=?=
+From:   Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Dmitry Vyukov <dvyukov@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        syzbot <syzbot+21016130b0580a9de3b5@syzkaller.appspotmail.com>,
+        tyhicks@canonical.com, John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-security-module@vger.kernel.org,
+        Serge Hallyn <serge@hallyn.com>,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        SELinux <selinux@vger.kernel.org>,
+        Russell Coker <russell@coker.com.au>,
+        Laurent Bigonville <bigon@debian.org>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Andrew Morton <akpm@linux-foundation.org>
 MIME-Version: 1.0
-References: <CAJfZ7=mO29pHKvNH7r6WWabyNth=nJboYU1rP4DpW5E41Q_YQQ@mail.gmail.com>
- <20190206203350.27930-1-plautrba@redhat.com>
-In-Reply-To: <20190206203350.27930-1-plautrba@redhat.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Wed, 6 Feb 2019 23:40:06 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=nyFnqP2+bWXjK8zQkwD7T0BvmzH+zQFzoo4wW=97D4Wg@mail.gmail.com>
-Message-ID: <CAJfZ7=nyFnqP2+bWXjK8zQkwD7T0BvmzH+zQFzoo4wW=97D4Wg@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: Fix RESOURCE_LEAK defects reported by
- coverity scan
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Wed Feb  6 23:40:19 2019 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Date:   Thu, 07 Feb 2019 11:30:30 +0900
+References: <8f48e1d0-c109-f8a9-ea94-9659b16cae49@i-love.sakura.ne.jp> <0d23d1a5-d4af-debf-6b5f-aaaf698daaa8@schaufler-ca.com>
+In-Reply-To: <0d23d1a5-d4af-debf-6b5f-aaaf698daaa8@schaufler-ca.com>
+Content-Type: text/plain; charset="ISO-2022-JP"
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Feb 6, 2019 at 9:33 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> Fixes:
->
-> libselinux/src/checkAccess.c:93: leaked_storage: Variable "user_context" going out of scope leaks the storage it points to.
-> libselinux/src/label_db.c:286: leaked_storage: Variable "filp" going out of scope leaks the storage it points to.
-> libselinux/src/label_db.c:291: leaked_storage: Variable "filp" going out of scope leaks the storage it points to.
-> libselinux/src/label_file.c:405: leaked_storage: Variable "str_buf" going out of scope leaks the storage it points to.
-> libselinux/src/load_policy.c:266: leaked_storage: Variable "names" going out of scope leaks the storage it points to.
-> libselinux/src/selinux_config.c:183: leaked_storage: Variable "end" going out of scope leaks the storage it points to.
-> libselinux/src/selinux_config.c:184: overwrite_var: Overwriting "end" in "end = type + strlen(type) - 1" leaks the storage that "end" points to.
-> libselinux/src/selinux_restorecon.c:376: leaked_storage: Variable "new_entry" going out of scope leaks the storage it points to.
-> libselinux/src/selinux_restorecon.c:855: leaked_storage: Variable "xattr_value" going out of scope leaks the storage it points to.
->
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+Casey Schaufler wrote:
+> On 2/6/2019 2:23 AM, Tetsuo Handa wrote:
+> > But as I update the documentation ( https://tomoyo.osdn.jp/2.6/chapter-3.html.en#3.6 ),
+> > I came to think that we should ignore security= parameter when lsm= parameter is specified.
+> >
+> > Currently, it is possible to enable TOMOYO and only one of SELinux/Smack/AppArmor. Therefore,
+> > it is possible to disable only TOMOYO by specifying security=selinux when we want to enable
+> > only SELinux, by specifying security=smack when we want to enable only Smack, by specifying
+> > security=apparmor when we want to enable only AppArmor. That is, we can use security= parameter
+> > in order to specify the other LSM module which should not be disabled.
+> >
+> > But when it becomes possible to enable TOMOYO and more than one of SELinux/Smack/AppArmor,
+> > we will no longer be able to selectively disable one LSM module using security= parameter, for
+> > security= parameter is intended for specifying only one LSM module which should be enabled.
+> > That is, we will need to use lsm= parameter in order to selectively disable LSM modules.
+> 
+> Yes. That is correct. The existing behavior of security= is maintained.
 
-Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+But the existing behavior of CONFIG_DEFAULT_SECURITY is not maintained.
+This might cause a problem like
 
-> ---
->  libselinux/src/checkAccess.c        |  4 +++-
->  libselinux/src/label_db.c           |  3 +++
->  libselinux/src/label_file.c         |  4 +++-
->  libselinux/src/load_policy.c        |  4 +++-
->  libselinux/src/selinux_config.c     | 17 +++++++++--------
->  libselinux/src/selinux_restorecon.c | 12 ++++++++++--
->  6 files changed, 31 insertions(+), 13 deletions(-)
->
-> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
-> index 8de57477..16bfcfb6 100644
-> --- a/libselinux/src/checkAccess.c
-> +++ b/libselinux/src/checkAccess.c
-> @@ -89,8 +89,10 @@ int selinux_check_passwd_access(access_vector_t requested)
->                 int retval;
->
->                 passwd_class = string_to_security_class("passwd");
-> -               if (passwd_class == 0)
-> +               if (passwd_class == 0) {
-> +                       freecon(user_context);
->                         return 0;
-> +               }
->
->                 retval = security_compute_av_raw(user_context,
->                                                      user_context,
-> diff --git a/libselinux/src/label_db.c b/libselinux/src/label_db.c
-> index c46d0a1d..fba96c92 100644
-> --- a/libselinux/src/label_db.c
-> +++ b/libselinux/src/label_db.c
-> @@ -283,10 +283,12 @@ db_init(const struct selinux_opt *opts, unsigned nopts,
->         }
->         if (fstat(fileno(filp), &sb) < 0) {
->                 free(catalog);
-> +               fclose(filp);
->                 return NULL;
->         }
->         if (!S_ISREG(sb.st_mode)) {
->                 free(catalog);
-> +               fclose(filp);
->                 errno = EINVAL;
->                 return NULL;
->         }
-> @@ -340,6 +342,7 @@ out_error:
->                 free(spec->lr.ctx_trans);
->         }
->         free(catalog);
-> +       fclose(filp);
->
->         return NULL;
->  }
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index dbf51a93..b81fd552 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -317,8 +317,10 @@ end_arch_check:
->                         goto out;
->                 }
->                 rc = next_entry(str_buf, mmap_area, entry_len);
-> -               if (rc < 0)
-> +               if (rc < 0) {
-> +                       free(str_buf);
->                         goto out;
-> +               }
->
->                 if (str_buf[entry_len - 1] != '\0') {
->                         free(str_buf);
-> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-> index e9f1264a..20052beb 100644
-> --- a/libselinux/src/load_policy.c
-> +++ b/libselinux/src/load_policy.c
-> @@ -262,8 +262,10 @@ checkbool:
->                         rc = security_get_boolean_names(&names, &len);
->                         if (!rc) {
->                                 values = malloc(sizeof(int) * len);
-> -                               if (!values)
-> +                               if (!values) {
-> +                                       free(names);
->                                         goto unmap;
-> +                               }
->                                 for (i = 0; i < len; i++)
->                                         values[i] =
->                                                 security_get_boolean_active(names[i]);
-> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
-> index 292728f3..b06cb63b 100644
-> --- a/libselinux/src/selinux_config.c
-> +++ b/libselinux/src/selinux_config.c
-> @@ -177,8 +177,7 @@ static void init_selinux_config(void)
->
->                         if (!strncasecmp(buf_p, SELINUXTYPETAG,
->                                          sizeof(SELINUXTYPETAG) - 1)) {
-> -                               selinux_policytype = type =
-> -                                   strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
-> +                               type = strdup(buf_p + sizeof(SELINUXTYPETAG) - 1);
->                                 if (!type)
->                                         return;
->                                 end = type + strlen(type) - 1;
-> @@ -187,6 +186,11 @@ static void init_selinux_config(void)
->                                         *end = 0;
->                                         end--;
->                                 }
-> +                               if (setpolicytype(type) != 0) {
-> +                                       free(type);
-> +                                       return;
-> +                               }
-> +                               free(type);
->                                 continue;
->                         } else if (!strncmp(buf_p, SETLOCALDEFS,
->                                             sizeof(SETLOCALDEFS) - 1)) {
-> @@ -212,13 +216,10 @@ static void init_selinux_config(void)
->                 fclose(fp);
->         }
->
-> -       if (!type) {
-> -               selinux_policytype = type = strdup(SELINUXDEFAULT);
-> -               if (!type)
-> -                       return;
-> -       }
-> +       if (!selinux_policytype && setpolicytype(SELINUXDEFAULT) != 0)
-> +               return;
->
-> -       if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, type) == -1)
-> +       if (asprintf(&selinux_policyroot, "%s%s", SELINUXDIR, selinux_policytype) == -1)
->                 return;
->
->         for (i = 0; i < NEL; i++)
-> diff --git a/libselinux/src/selinux_restorecon.c b/libselinux/src/selinux_restorecon.c
-> index 0f0fd6ca..924d9538 100644
-> --- a/libselinux/src/selinux_restorecon.c
-> +++ b/libselinux/src/selinux_restorecon.c
-> @@ -351,12 +351,19 @@ static int add_xattr_entry(const char *directory, bool delete_nonmatch,
->         new_entry->next = NULL;
->
->         new_entry->directory = strdup(directory);
-> -       if (!new_entry->directory)
-> +       if (!new_entry->directory) {
-> +               free(new_entry);
-> +               free(sha1_buf);
->                 goto oom;
-> +       }
->
->         new_entry->digest = strdup(sha1_buf);
-> -       if (!new_entry->digest)
-> +       if (!new_entry->digest) {
-> +               free(new_entry->directory);
-> +               free(new_entry);
-> +               free(sha1_buf);
->                 goto oom;
-> +       }
->
->         new_entry->result = digest_result;
->
-> @@ -850,6 +857,7 @@ int selinux_restorecon(const char *pathname_orig,
->
->         if (lstat(pathname, &sb) < 0) {
->                 if (flags.ignore_noent && errno == ENOENT) {
-> +                       free(xattr_value);
->                         free(pathdnamer);
->                         free(pathname);
->                         return 0;
-> --
-> 2.20.1
->
+  commit e5a3b95f581da62e2054ef79d3be2d383e9ed664
+  Author: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+  Date:   Sat Feb 14 11:46:56 2009 +0900
 
+      TOMOYO: Don't create securityfs entries unless registered.
+
+      TOMOYO should not create /sys/kernel/security/tomoyo/ interface unless
+      TOMOYO is registered.
+
+for Ubuntu users because Ubuntu kernels are built with
+
+  CONFIG_SECURITY_SELINUX=y
+  CONFIG_SECURITY_SMACK=y
+  CONFIG_SECURITY_TOMOYO=y
+  CONFIG_SECURITY_APPARMOR=y
+  CONFIG_SECURITY_YAMA=y
+  CONFIG_DEFAULT_SECURITY="apparmor"
+
+. Due to CONFIG_DEFAULT_SECURITY="apparmor", majority of Ubuntu users are enabling
+only AppArmor without explicitly specifying "security=apparmor".
+
+Currently default CONFIG_LSM setting is
+
+  "yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor"
+
+but Ubuntu kernels would have to be built with non-default CONFIG_LSM setting like
+
+  "yama,loadpin,safesetid,integrity,apparmor,selinux,smack,tomoyo"
+
+in order to make sure that AppArmor is by default chosen for the LSM_FLAG_EXCLUSIVE module.
+
+Now that TOMOYO becomes a !LSM_FLAG_EXCLUSIVE module, not specifying "security=apparmor" will
+automatically enable TOMOYO. And majority of Ubuntu users will unexpectedly encounter TOMOYO
+messages. But removing "tomoyo" from CONFIG_LSM setting in order to save majority of Ubuntu
+users from unexpectedly encountering TOMOYO messages also has a problem; Ubuntu users who want
+to enable only TOMOYO from LSM_FLAG_LEGACY_MAJOR modules can specify "security=tomoyo", but
+Ubuntu users who want to enable TOMOYO and one of SELinux,Smack,AppArmor (including syzbot)
+will have to explicitly specify "lsm=" because "security=" can't allow enabling multiple
+LSM_FLAG_LEGACY_MAJOR modules.
+
+> The new behavior of lsm= is provided to allow general handling of a list
+> of security modules. It uses the same form of data as CONFIG_LSM.
+> 
+> > Then, I think that it is straightforward (and easier to manage) to ignore security= parameter
+> > when lsm= parameter is specified.
+> 
+> That reduces flexibility somewhat. If I am debugging security modules
+> I may want to use lsm= to specify the order while using security= to
+> identify a specific exclusive module. I could do that using lsm= by
+> itself, but habits die hard.
+
+"lsm=" can be used for identifying a specific exclusive module, and Ubuntu kernels would
+have to use CONFIG_LSM (or "lsm=") for identifying the default exclusive module (in order
+to allow enabling both TOMOYO and one of SELinux,Smack,AppArmor at the same time).
+
+Since "security=" can't be used for selectively enable/disable more than one of
+SELinux,Smack,TOMOYO,AppArmor, I think that recommending users to migrate to "lsm=" is the
+better direction. And ignoring "security=" when "lsm=" is specified is easier to understand.
