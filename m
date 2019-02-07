@@ -2,214 +2,158 @@ Return-Path: <SRS0=93oN=QO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 315A4C282C2
-	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 18:17:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AE51C282C2
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 18:18:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EAC892086C
-	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 18:17:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="WDUJ9czR"
+	by mail.kernel.org (Postfix) with ESMTP id 4A60D2086C
+	for <selinux@archiver.kernel.org>; Thu,  7 Feb 2019 18:18:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726758AbfBGSRT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Feb 2019 13:17:19 -0500
-Received: from uphb19pa11.eemsg.mail.mil ([214.24.26.85]:32015 "EHLO
-        USFB19PA14.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726319AbfBGSRT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 Feb 2019 13:17:19 -0500
-X-EEMSG-check-017: 118155984|USFB19PA14_EEMSG_MP10.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA14.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 07 Feb 2019 18:17:15 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1549563436; x=1581099436;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=wGd/gUQW1M+/KeF6Pd12zzOz97phL0yIfDoQ38KyHRA=;
-  b=WDUJ9czRw0tkjZ0zgsTsJirSjnHMvqHJKyL9KazY5xjDat7xZEyT6rHO
-   9EcjBau94p9RCS95xJVgy1Y79U2A8z0wIVenPtZ8W2gmhuWfbawp14VNS
-   ZsoFVHyaXvPCX3eIJXfQW3FnN5yMU5K6SuncaZ/KGwpxxWVvIrpbUrtKY
-   Gz9WTDZk5k3Tq2m+uPEWzxTZdEgkFJJPzpbo1Tz0XfzuvNask1lEW0sH+
-   to/8zlfBXUo4ZWsaKvpw53xA/z0kVqy86vVZNrfcdRshn3W2BXSinVlX7
-   Fl8xw6m1dxB+5th4uZYFAscLf3EbD+ZAe5K7oWnwZxSaJQB4Xhe9/nbF0
-   w==;
-X-IronPort-AV: E=Sophos;i="5.58,345,1544486400"; 
-   d="scan'208";a="20315782"
-IronPort-PHdr: =?us-ascii?q?9a23=3AF2o0YBN5Xs3254x9NvEl6mtUPXoX/o7sNwtQ0K?=
- =?us-ascii?q?IMzox0K/zzp8bcNUDSrc9gkEXOFd2Cra4c26yO6+jJYi8p2d65qncMcZhBBV?=
- =?us-ascii?q?cuqP49uEgeOvODElDxN/XwbiY3T4xoXV5h+GynYwAOQJ6tL1LdrWev4jEMBx?=
- =?us-ascii?q?7xKRR6JvjvGo7Vks+7y/2+94fcbglUhzexe69+IAmrpgjNq8cahpdvJLwswR?=
- =?us-ascii?q?XTuHtIfOpWxWJsJV2Nmhv3+9m98p1+/SlOovwt78FPX7n0cKQ+VrxYES8pM3?=
- =?us-ascii?q?sp683xtBnMVhWA630BWWgLiBVIAgzF7BbnXpfttybxq+Rw1DWGMcDwULs5Qi?=
- =?us-ascii?q?qp4bt1RxD0iScHLz85/3/Risxsl6JQvRatqwViz4LIfI2ZMfxzca3HfdMeWG?=
- =?us-ascii?q?FPQMBfWSJcCY+4docDEfYNMeNeooLgpVUBsAG+CBGxCu3xxD9Ghnz406M03O?=
- =?us-ascii?q?suEw7JwAMuEskSsHnXttj5KLseXO63waTO0D7Nb+lW2TD46IXQbx4hve+DXa?=
- =?us-ascii?q?pwccXPz0kkCh7LjlCKpozhOzOayOQMuHWc4up7SO2vkHUqqx1xozezxscsjZ?=
- =?us-ascii?q?PFhoQOyl/e7yl5z4E1JcOhRUN9fNWqE4NQujmHO4Z5Tc4uWWFltDsgxrEYtp?=
- =?us-ascii?q?O3YjIGxIkhyhXCcfKIaZKI7QjmVOuJJDd4g29qd6ynihap9Eig1vX8Vs6p0F?=
- =?us-ascii?q?ZWtiZFksfDtnQK1xHL9siIUOF9/ka82TaUzQzT9uFFLlw0larcMZIhxKI/lo?=
- =?us-ascii?q?EPvkjZGy/2mUH2gLeXdkUi5Oeo9/zqbqjpq5KTLYN5ihzyPr4wlsGwH+g0KB?=
- =?us-ascii?q?UCU3Ce+eum1b3j+UP5QK9Njv0ziqTZq43VJd8Aq66lAw5azoYj6xGlAzegy9?=
- =?us-ascii?q?QXh2MLLF1CeBKZl4TpIU3BIOjkDfejhFShiDlqx/HCPr3lA5XCNH3DnK39cr?=
- =?us-ascii?q?pn8U5czxE8ws5F55JIEbEMO/PzWknttNPGCh81KRC7w+HiCN9lzIMRRXqPAr?=
- =?us-ascii?q?OFMKPVqVKI/uYvLPORZI8JojbyMOIq6uX0jXAnhFAdfbOm3YcNZH+kGfRmJl?=
- =?us-ascii?q?2TYWDwjdcZDWcKog0+QfTxiFKcVT5TZnCyX78z5zwgFoKmApnMRpq3jLyCwi?=
- =?us-ascii?q?i7BJtWaX5CClyWFnfobYqEUe8WaC2OOs9hjiAEVb+5Ro8m0BGusxT6y7x9Ie?=
- =?us-ascii?q?XI5CIVrojj28Zo6O3Tjx4y6SZ4ANia02GIHClImTZCfTg80bpjugg19VaH1a?=
- =?us-ascii?q?lxhrRzX5QH+PJNVgYzMNjXifZ9Ad3oRhnpf9GVRVLgSdKjV3V5dt8t2Zcqal?=
- =?us-ascii?q?thAd+rhRCLizKuCqIJjbaCLIY5/qLVwz76IMMrjz6Mz6Qljl87UuNROmC8wK?=
- =?us-ascii?q?1y7Q7eA8jOiUrT3/KxeKAd2jPd3HmMwHDIv0xCVgN0F6LfUiZMSFHRqIHC+k?=
- =?us-ascii?q?7aT7KoQY8iOw9FxN/KfrBGcfX1nF5GQ7HlI92YbGWvzTTjTS2Uz6+BOdK5M1?=
- =?us-ascii?q?4W2z/QXQ1dyVge?=
-X-IPAS-Result: =?us-ascii?q?A2BgAADKdFxc/wHyM5BkGwEBAQEDAQEBBwMBAQGBVAMBA?=
- =?us-ascii?q?QELAYFaKYE4MieEA5QJUgaBCC2JNpBWOAGEQAKDKCI3Bg0BAwEBAQEBAQIBb?=
- =?us-ascii?q?CiCOikBgmYBAQEBAyMPAQVBDAQLEQQBAQECAiMDAgJGCQgGAQwGAgEBgmE/g?=
- =?us-ascii?q?XUNrSSBL4VEhGmBC4s4F3iBB4E4gmuICoJXApE7kVUJkj8GGZJVii2TUiKBV?=
- =?us-ascii?q?isIAhgIIQ+DJ5B7IQMwAYEEAQGNcwEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 07 Feb 2019 18:17:14 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x17IH1dk006422;
-        Thu, 7 Feb 2019 13:17:03 -0500
-Subject: Re: gcc 9.0.0 build issues
-To:     "Roberts, William C" <william.c.roberts@intel.com>,
+        id S1727078AbfBGSS4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Feb 2019 13:18:56 -0500
+Received: from mga09.intel.com ([134.134.136.24]:1228 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726791AbfBGSSz (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 7 Feb 2019 13:18:55 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Feb 2019 10:18:55 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.58,345,1544515200"; 
+   d="scan'208";a="124734874"
+Received: from orsmsx103.amr.corp.intel.com ([10.22.225.130])
+  by orsmga003.jf.intel.com with ESMTP; 07 Feb 2019 10:18:55 -0800
+Received: from orsmsx101.amr.corp.intel.com ([169.254.8.140]) by
+ ORSMSX103.amr.corp.intel.com ([169.254.5.210]) with mapi id 14.03.0415.000;
+ Thu, 7 Feb 2019 10:18:55 -0800
+From:   "Roberts, William C" <william.c.roberts@intel.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
         Petr Lautrbach <plautrba@redhat.com>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>
+CC:     Ondrej Mosnacek <omosnace@redhat.com>
+Subject: RE: gcc 9.0.0 build issues
+Thread-Topic: gcc 9.0.0 build issues
+Thread-Index: AQHUvuJhk/X56/euxEuWv2uHzMSJg6XUnZywgACNX4D//3ovwA==
+Date:   Thu, 7 Feb 2019 18:18:53 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC5649CDF4F5@ORSMSX101.amr.corp.intel.com>
 References: <pjdtvhns3pq.fsf@redhat.com>
  <CAFqZXNt8Df0KX9qVmsGtxZroy6s1SFBt1Qmi5Psuv6z0+kTB7Q@mail.gmail.com>
  <pjdlg2rydoj.fsf@redhat.com>
  <476DC76E7D1DF2438D32BFADF679FC5649CDF45F@ORSMSX101.amr.corp.intel.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
-Date:   Thu, 7 Feb 2019 13:17:01 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
-MIME-Version: 1.0
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5649CDF45F@ORSMSX101.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+ <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
+In-Reply-To: <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.400.15
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.140]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/7/19 12:52 PM, Roberts, William C wrote:
-> 
-> 
->> -----Original Message-----
->> From: Petr Lautrbach [mailto:plautrba@redhat.com]
->> Sent: Thursday, February 7, 2019 4:40 AM
->> To: selinux@vger.kernel.org
->> Cc: Petr Lautrbach <plautrba@redhat.com>; Roberts, William C
->> <william.c.roberts@intel.com>; Ondrej Mosnacek <omosnace@redhat.com>
->> Subject: Re: gcc 9.0.0 build issues
->>
->>
->> Ondrej Mosnacek <omosnace@redhat.com> writes:
->>
->>> On Fri, Feb 1, 2019 at 8:36 PM Petr Lautrbach <plautrba@redhat.com>
->>> wrote:
->>>> gcc-9.0.0-0.3.fc30.x86_64 from Fedora Rawhide:
->>>>
->>>> gcc version 9.0.0 20190119 (Red Hat 9.0.0-0.3) (GCC)
->>>>
->> ...
->>>> When libselinux is built separately, other CFLAGS is used:
->>>>
->>>> $ cd libselinux
->>>>
->>>> $ make DESTDIR=~/obj install install-pywrap ...
->>>>
->>>> make[1]: Entering directory
->>>> '/home/build/SELinuxProject-selinux/libselinux/src'
->>>>
->>>> cc -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self
->>>> -Wmissing-include-dirs -Wunused -Wunknown-pragmas -Wstrict-aliasing
->>>> -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-align
->>>> -Wwrite-strings -Waggregate-return -Wstrict-prototypes
->>>> -Wold-style-definition -Wmissing-prototypes -Wmissing-declarations
->>>> -Wmissing-noreturn -Wmissing-format-attribute -Wredundant-decls
->>>> -Wnested-externs -Winline -Winvalid-pch -Wvolatile-register-var
->>>> -Wdisabled-optimization -Wbuiltin-macro-redefined -Wattributes
->>>> -Wmultichar -Wdeprecated-declarations -Wdiv-by-zero
->>>> -Wdouble-promotion -Wendif-labels -Wextra -Wformat-extra-args
->>>> -Wformat-zero-length -Wformat=2 -Wmultichar -Woverflow
->>>> -Wpointer-to-int-cast -Wpragmas -Wno-missing-field-initializers
->>>> -Wno-sign-compare -Wno-format-nonliteral
->>>> -Wframe-larger-than=32768
->>>> -fstack-protector-all --param=ssp-buffer-size=4 -fexceptions
->>>> -fasynchronous-unwind-tables -fdiagnostics-show-option
->>>> -funit-at-a-time -Werror -Wno-aggregate-return -Wno-redundant-decls
->>>> -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -Wsync-nand
->>>> -Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc
->>>> -Wsuggest-attribute=const -Wsuggest-attribute=noreturn
->>>> -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init
->>>> -Wno-suggest-attribute=pure -Wno-suggest-attribute=const
->>>> -U_FORTIFY_SOURCE
->>>> -D_FORTIFY_SOURCE=2
->>>> -Wstrict-overflow=5 -I../include -D_GNU_SOURCE
->>>> -DNO_ANDROID_BACKEND   -c -o booleans.o booleans.c
->>>> booleans.c: In function ‘security_get_boolean_names’:
->>>> booleans.c:39:5: error: assuming signed overflow does not occur when
->>>> changing X +- C1 cmp C2 to X cmp C2 -+ C1 [-Werror=strict-overflow]
->>>>     39 | int security_get_boolean_names(char ***names, int *len)
->>>>        |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
->>>> cc1: all warnings being treated as errors
->>>
->>> This one is really weird... Perhaps a bug in GCC? At the very least
->>> the warning message and source code location are super confusing,
->>> which is a bug on its own...
->>
->> It's detected only with -Wstrict-overflow=3 and higher. Makefile in libselinux uses
->> level 5 which was added by commit
->> 9fe430345 ("Makefile: add -Wstrict-overflow=5 to CFLAGS)
->>
->> The problem code is on lines 84 and 85 in
->> libselinux/src/booleans.c:
->>
->> 84:	for (--i; i >= 0; --i)
->> 85:    free(n[i]);
->>
->>
->> It could be suppressed by something like this:
->>
->> --- a/libselinux/src/booleans.c
->> +++ b/libselinux/src/booleans.c
->> @@ -39,7 +39,7 @@ static int filename_select(const struct dirent
->> *d)
->>   int security_get_boolean_names(char ***names, int *len)  {
->>          char path[PATH_MAX];
->> -       int i, rc;
->> +       int i, j, rc;
->>          struct dirent **namelist;
->>          char **n;
->>
->> @@ -81,8 +81,8 @@ int security_get_boolean_names(char ***names, int *len)
->>          free(namelist);
->>          return rc;
->>         bad_freen:
->> -       for (--i; i >= 0; --i)
->> -               free(n[i]);
->> +       for (j = 0; j < i; j++)
->> +               free(n[j]);
->>          free(n);
->>         bad:
->>          goto out;
->>
->>
->> William, what would you consider to be the right fix in this case?
-> 
-> The previous code looks correct IMO, I can't see an actual problem. Looks like
-> GCC complaining incorrectly or were missing something. In the case of gcc
-> Incorrectly complaining I usually take a course of action to work around it, but
-> Im not sure how other maintainers feel about that @sds anything?
-
-AFAICS, the code is correct as is.  Not a fan of rewriting code to 
-appease overly zealous compilers...
-
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU3RlcGhlbiBTbWFsbGV5
+IFttYWlsdG86c2RzQHR5Y2hvLm5zYS5nb3ZdDQo+IFNlbnQ6IFRodXJzZGF5LCBGZWJydWFyeSA3
+LCAyMDE5IDEwOjE3IEFNDQo+IFRvOiBSb2JlcnRzLCBXaWxsaWFtIEMgPHdpbGxpYW0uYy5yb2Jl
+cnRzQGludGVsLmNvbT47IFBldHIgTGF1dHJiYWNoDQo+IDxwbGF1dHJiYUByZWRoYXQuY29tPjsg
+c2VsaW51eEB2Z2VyLmtlcm5lbC5vcmcNCj4gQ2M6IE9uZHJlaiBNb3NuYWNlayA8b21vc25hY2VA
+cmVkaGF0LmNvbT4NCj4gU3ViamVjdDogUmU6IGdjYyA5LjAuMCBidWlsZCBpc3N1ZXMNCj4gDQo+
+IE9uIDIvNy8xOSAxMjo1MiBQTSwgUm9iZXJ0cywgV2lsbGlhbSBDIHdyb3RlOg0KPiA+DQo+ID4N
+Cj4gPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPj4gRnJvbTogUGV0ciBMYXV0cmJh
+Y2ggW21haWx0bzpwbGF1dHJiYUByZWRoYXQuY29tXQ0KPiA+PiBTZW50OiBUaHVyc2RheSwgRmVi
+cnVhcnkgNywgMjAxOSA0OjQwIEFNDQo+ID4+IFRvOiBzZWxpbnV4QHZnZXIua2VybmVsLm9yZw0K
+PiA+PiBDYzogUGV0ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+OyBSb2JlcnRzLCBX
+aWxsaWFtIEMNCj4gPj4gPHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT47IE9uZHJlaiBNb3Nu
+YWNlayA8b21vc25hY2VAcmVkaGF0LmNvbT4NCj4gPj4gU3ViamVjdDogUmU6IGdjYyA5LjAuMCBi
+dWlsZCBpc3N1ZXMNCj4gPj4NCj4gPj4NCj4gPj4gT25kcmVqIE1vc25hY2VrIDxvbW9zbmFjZUBy
+ZWRoYXQuY29tPiB3cml0ZXM6DQo+ID4+DQo+ID4+PiBPbiBGcmksIEZlYiAxLCAyMDE5IGF0IDg6
+MzYgUE0gUGV0ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+DQo+ID4+PiB3cm90ZToN
+Cj4gPj4+PiBnY2MtOS4wLjAtMC4zLmZjMzAueDg2XzY0IGZyb20gRmVkb3JhIFJhd2hpZGU6DQo+
+ID4+Pj4NCj4gPj4+PiBnY2MgdmVyc2lvbiA5LjAuMCAyMDE5MDExOSAoUmVkIEhhdCA5LjAuMC0w
+LjMpIChHQ0MpDQo+ID4+Pj4NCj4gPj4gLi4uDQo+ID4+Pj4gV2hlbiBsaWJzZWxpbnV4IGlzIGJ1
+aWx0IHNlcGFyYXRlbHksIG90aGVyIENGTEFHUyBpcyB1c2VkOg0KPiA+Pj4+DQo+ID4+Pj4gJCBj
+ZCBsaWJzZWxpbnV4DQo+ID4+Pj4NCj4gPj4+PiAkIG1ha2UgREVTVERJUj1+L29iaiBpbnN0YWxs
+IGluc3RhbGwtcHl3cmFwIC4uLg0KPiA+Pj4+DQo+ID4+Pj4gbWFrZVsxXTogRW50ZXJpbmcgZGly
+ZWN0b3J5DQo+ID4+Pj4gJy9ob21lL2J1aWxkL1NFTGludXhQcm9qZWN0LXNlbGludXgvbGlic2Vs
+aW51eC9zcmMnDQo+ID4+Pj4NCj4gPj4+PiBjYyAtTyAtV2FsbCAtVyAtV3VuZGVmIC1XZm9ybWF0
+LXkyayAtV2Zvcm1hdC1zZWN1cml0eSAtV2luaXQtc2VsZg0KPiA+Pj4+IC1XbWlzc2luZy1pbmNs
+dWRlLWRpcnMgLVd1bnVzZWQgLVd1bmtub3duLXByYWdtYXMgLVdzdHJpY3QtYWxpYXNpbmcNCj4g
+Pj4+PiAtV3NoYWRvdyAtV3BvaW50ZXItYXJpdGggLVdiYWQtZnVuY3Rpb24tY2FzdCAtV2Nhc3Qt
+YWxpZ24NCj4gPj4+PiAtV3dyaXRlLXN0cmluZ3MgLVdhZ2dyZWdhdGUtcmV0dXJuIC1Xc3RyaWN0
+LXByb3RvdHlwZXMNCj4gPj4+PiAtV29sZC1zdHlsZS1kZWZpbml0aW9uIC1XbWlzc2luZy1wcm90
+b3R5cGVzIC1XbWlzc2luZy1kZWNsYXJhdGlvbnMNCj4gPj4+PiAtV21pc3Npbmctbm9yZXR1cm4g
+LVdtaXNzaW5nLWZvcm1hdC1hdHRyaWJ1dGUgLVdyZWR1bmRhbnQtZGVjbHMNCj4gPj4+PiAtV25l
+c3RlZC1leHRlcm5zIC1XaW5saW5lIC1XaW52YWxpZC1wY2ggLVd2b2xhdGlsZS1yZWdpc3Rlci12
+YXINCj4gPj4+PiAtV2Rpc2FibGVkLW9wdGltaXphdGlvbiAtV2J1aWx0aW4tbWFjcm8tcmVkZWZp
+bmVkIC1XYXR0cmlidXRlcw0KPiA+Pj4+IC1XbXVsdGljaGFyIC1XZGVwcmVjYXRlZC1kZWNsYXJh
+dGlvbnMgLVdkaXYtYnktemVybw0KPiA+Pj4+IC1XZG91YmxlLXByb21vdGlvbiAtV2VuZGlmLWxh
+YmVscyAtV2V4dHJhIC1XZm9ybWF0LWV4dHJhLWFyZ3MNCj4gPj4+PiAtV2Zvcm1hdC16ZXJvLWxl
+bmd0aCAtV2Zvcm1hdD0yIC1XbXVsdGljaGFyIC1Xb3ZlcmZsb3cNCj4gPj4+PiAtV3BvaW50ZXIt
+dG8taW50LWNhc3QgLVdwcmFnbWFzIC1Xbm8tbWlzc2luZy1maWVsZC1pbml0aWFsaXplcnMNCj4g
+Pj4+PiAtV25vLXNpZ24tY29tcGFyZSAtV25vLWZvcm1hdC1ub25saXRlcmFsDQo+ID4+Pj4gLVdm
+cmFtZS1sYXJnZXItdGhhbj0zMjc2OA0KPiA+Pj4+IC1mc3RhY2stcHJvdGVjdG9yLWFsbCAtLXBh
+cmFtPXNzcC1idWZmZXItc2l6ZT00IC1mZXhjZXB0aW9ucw0KPiA+Pj4+IC1mYXN5bmNocm9ub3Vz
+LXVud2luZC10YWJsZXMgLWZkaWFnbm9zdGljcy1zaG93LW9wdGlvbg0KPiA+Pj4+IC1mdW5pdC1h
+dC1hLXRpbWUgLVdlcnJvciAtV25vLWFnZ3JlZ2F0ZS1yZXR1cm4gLVduby1yZWR1bmRhbnQtZGVj
+bHMNCj4gPj4+PiAtZmlwYS1wdXJlLWNvbnN0IC1XbG9naWNhbC1vcCAtV3BhY2tlZC1iaXRmaWVs
+ZC1jb21wYXQgLVdzeW5jLW5hbmQNCj4gPj4+PiAtV2NvdmVyYWdlLW1pc21hdGNoIC1XY3BwIC1X
+Zm9ybWF0LWNvbnRhaW5zLW51bCAtV25vcm1hbGl6ZWQ9bmZjDQo+ID4+Pj4gLVdzdWdnZXN0LWF0
+dHJpYnV0ZT1jb25zdCAtV3N1Z2dlc3QtYXR0cmlidXRlPW5vcmV0dXJuDQo+ID4+Pj4gLVdzdWdn
+ZXN0LWF0dHJpYnV0ZT1wdXJlIC1XdHJhbXBvbGluZXMgLVdqdW1wLW1pc3Nlcy1pbml0DQo+ID4+
+Pj4gLVduby1zdWdnZXN0LWF0dHJpYnV0ZT1wdXJlIC1Xbm8tc3VnZ2VzdC1hdHRyaWJ1dGU9Y29u
+c3QNCj4gPj4+PiAtVV9GT1JUSUZZX1NPVVJDRQ0KPiA+Pj4+IC1EX0ZPUlRJRllfU09VUkNFPTIN
+Cj4gPj4+PiAtV3N0cmljdC1vdmVyZmxvdz01IC1JLi4vaW5jbHVkZSAtRF9HTlVfU09VUkNFDQo+
+ID4+Pj4gLUROT19BTkRST0lEX0JBQ0tFTkQgICAtYyAtbyBib29sZWFucy5vIGJvb2xlYW5zLmMN
+Cj4gPj4+PiBib29sZWFucy5jOiBJbiBmdW5jdGlvbiDigJhzZWN1cml0eV9nZXRfYm9vbGVhbl9u
+YW1lc+KAmToNCj4gPj4+PiBib29sZWFucy5jOjM5OjU6IGVycm9yOiBhc3N1bWluZyBzaWduZWQg
+b3ZlcmZsb3cgZG9lcyBub3Qgb2NjdXINCj4gPj4+PiB3aGVuIGNoYW5naW5nIFggKy0gQzEgY21w
+IEMyIHRvIFggY21wIEMyIC0rIEMxIFstV2Vycm9yPXN0cmljdC1vdmVyZmxvd10NCj4gPj4+PiAg
+ICAgMzkgfCBpbnQgc2VjdXJpdHlfZ2V0X2Jvb2xlYW5fbmFtZXMoY2hhciAqKipuYW1lcywgaW50
+ICpsZW4pDQo+ID4+Pj4gICAgICAgIHwgICAgIF5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+DQo+
+ID4+Pj4gY2MxOiBhbGwgd2FybmluZ3MgYmVpbmcgdHJlYXRlZCBhcyBlcnJvcnMNCj4gPj4+DQo+
+ID4+PiBUaGlzIG9uZSBpcyByZWFsbHkgd2VpcmQuLi4gUGVyaGFwcyBhIGJ1ZyBpbiBHQ0M/IEF0
+IHRoZSB2ZXJ5IGxlYXN0DQo+ID4+PiB0aGUgd2FybmluZyBtZXNzYWdlIGFuZCBzb3VyY2UgY29k
+ZSBsb2NhdGlvbiBhcmUgc3VwZXIgY29uZnVzaW5nLA0KPiA+Pj4gd2hpY2ggaXMgYSBidWcgb24g
+aXRzIG93bi4uLg0KPiA+Pg0KPiA+PiBJdCdzIGRldGVjdGVkIG9ubHkgd2l0aCAtV3N0cmljdC1v
+dmVyZmxvdz0zIGFuZCBoaWdoZXIuIE1ha2VmaWxlIGluDQo+ID4+IGxpYnNlbGludXggdXNlcyBs
+ZXZlbCA1IHdoaWNoIHdhcyBhZGRlZCBieSBjb21taXQNCj4gPj4gOWZlNDMwMzQ1ICgiTWFrZWZp
+bGU6IGFkZCAtV3N0cmljdC1vdmVyZmxvdz01IHRvIENGTEFHUykNCj4gPj4NCj4gPj4gVGhlIHBy
+b2JsZW0gY29kZSBpcyBvbiBsaW5lcyA4NCBhbmQgODUgaW4NCj4gPj4gbGlic2VsaW51eC9zcmMv
+Ym9vbGVhbnMuYzoNCj4gPj4NCj4gPj4gODQ6CWZvciAoLS1pOyBpID49IDA7IC0taSkNCj4gPj4g
+ODU6ICAgIGZyZWUobltpXSk7DQo+ID4+DQo+ID4+DQo+ID4+IEl0IGNvdWxkIGJlIHN1cHByZXNz
+ZWQgYnkgc29tZXRoaW5nIGxpa2UgdGhpczoNCj4gPj4NCj4gPj4gLS0tIGEvbGlic2VsaW51eC9z
+cmMvYm9vbGVhbnMuYw0KPiA+PiArKysgYi9saWJzZWxpbnV4L3NyYy9ib29sZWFucy5jDQo+ID4+
+IEBAIC0zOSw3ICszOSw3IEBAIHN0YXRpYyBpbnQgZmlsZW5hbWVfc2VsZWN0KGNvbnN0IHN0cnVj
+dCBkaXJlbnQNCj4gPj4gKmQpDQo+ID4+ICAgaW50IHNlY3VyaXR5X2dldF9ib29sZWFuX25hbWVz
+KGNoYXIgKioqbmFtZXMsIGludCAqbGVuKSAgew0KPiA+PiAgICAgICAgICBjaGFyIHBhdGhbUEFU
+SF9NQVhdOw0KPiA+PiAtICAgICAgIGludCBpLCByYzsNCj4gPj4gKyAgICAgICBpbnQgaSwgaiwg
+cmM7DQo+ID4+ICAgICAgICAgIHN0cnVjdCBkaXJlbnQgKipuYW1lbGlzdDsNCj4gPj4gICAgICAg
+ICAgY2hhciAqKm47DQo+ID4+DQo+ID4+IEBAIC04MSw4ICs4MSw4IEBAIGludCBzZWN1cml0eV9n
+ZXRfYm9vbGVhbl9uYW1lcyhjaGFyICoqKm5hbWVzLCBpbnQNCj4gKmxlbikNCj4gPj4gICAgICAg
+ICAgZnJlZShuYW1lbGlzdCk7DQo+ID4+ICAgICAgICAgIHJldHVybiByYzsNCj4gPj4gICAgICAg
+ICBiYWRfZnJlZW46DQo+ID4+IC0gICAgICAgZm9yICgtLWk7IGkgPj0gMDsgLS1pKQ0KPiA+PiAt
+ICAgICAgICAgICAgICAgZnJlZShuW2ldKTsNCj4gPj4gKyAgICAgICBmb3IgKGogPSAwOyBqIDwg
+aTsgaisrKQ0KPiA+PiArICAgICAgICAgICAgICAgZnJlZShuW2pdKTsNCj4gPj4gICAgICAgICAg
+ZnJlZShuKTsNCj4gPj4gICAgICAgICBiYWQ6DQo+ID4+ICAgICAgICAgIGdvdG8gb3V0Ow0KPiA+
+Pg0KPiA+Pg0KPiA+PiBXaWxsaWFtLCB3aGF0IHdvdWxkIHlvdSBjb25zaWRlciB0byBiZSB0aGUg
+cmlnaHQgZml4IGluIHRoaXMgY2FzZT8NCj4gPg0KPiA+IFRoZSBwcmV2aW91cyBjb2RlIGxvb2tz
+IGNvcnJlY3QgSU1PLCBJIGNhbid0IHNlZSBhbiBhY3R1YWwgcHJvYmxlbS4NCj4gPiBMb29rcyBs
+aWtlIEdDQyBjb21wbGFpbmluZyBpbmNvcnJlY3RseSBvciB3ZXJlIG1pc3Npbmcgc29tZXRoaW5n
+LiBJbg0KPiA+IHRoZSBjYXNlIG9mIGdjYyBJbmNvcnJlY3RseSBjb21wbGFpbmluZyBJIHVzdWFs
+bHkgdGFrZSBhIGNvdXJzZSBvZg0KPiA+IGFjdGlvbiB0byB3b3JrIGFyb3VuZCBpdCwgYnV0IElt
+IG5vdCBzdXJlIGhvdyBvdGhlciBtYWludGFpbmVycyBmZWVsIGFib3V0IHRoYXQNCj4gQHNkcyBh
+bnl0aGluZz8NCj4gDQo+IEFGQUlDUywgdGhlIGNvZGUgaXMgY29ycmVjdCBhcyBpcy4gIE5vdCBh
+IGZhbiBvZiByZXdyaXRpbmcgY29kZSB0byBhcHBlYXNlIG92ZXJseQ0KPiB6ZWFsb3VzIGNvbXBp
+bGVycy4uLg0KPiANCkkgZ3Vlc3Mgd2hvbWV2ZXIgaXMgYnVpbGRpbmcgY2FuIG92ZXJyaWRlIENG
+TEFHUyBhbmQgZHJvcCB0aGUgdmFsdWUgZG93bi4gV2Ugc2hvdWxkDQpQcm9iYWJseSBmaWxlIGEg
+YnVnIHdpdGggZ2NjPw0KDQo=
