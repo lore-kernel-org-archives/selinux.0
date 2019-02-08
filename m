@@ -3,165 +3,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3653C169C4
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 19:40:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B83B1C169C4
+	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 19:58:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A02292083B
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 19:40:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D4BA217D8
+	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 19:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbfBHTkj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Feb 2019 14:40:39 -0500
-Received: from mga02.intel.com ([134.134.136.20]:5155 "EHLO mga02.intel.com"
+        id S1727144AbfBHT6Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Feb 2019 14:58:16 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:49626 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726351AbfBHTki (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 8 Feb 2019 14:40:38 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Feb 2019 11:40:36 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.58,348,1544515200"; 
-   d="scan'208";a="125023686"
-Received: from orsmsx101.amr.corp.intel.com ([10.22.225.128])
-  by orsmga003.jf.intel.com with ESMTP; 08 Feb 2019 11:40:36 -0800
-Received: from orsmsx163.amr.corp.intel.com (10.22.240.88) by
- ORSMSX101.amr.corp.intel.com (10.22.225.128) with Microsoft SMTP Server (TLS)
- id 14.3.408.0; Fri, 8 Feb 2019 11:40:36 -0800
-Received: from orsmsx101.amr.corp.intel.com ([169.254.8.11]) by
- ORSMSX163.amr.corp.intel.com ([169.254.9.182]) with mapi id 14.03.0415.000;
- Fri, 8 Feb 2019 11:40:35 -0800
-From:   "Roberts, William C" <william.c.roberts@intel.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-CC:     Ondrej Mosnacek <omosnace@redhat.com>
-Subject: RE: gcc 9.0.0 build issues
-Thread-Topic: gcc 9.0.0 build issues
-Thread-Index: AQHUvuJhk/X56/euxEuWv2uHzMSJg6XUnZywgACNX4CAASE8MA==
-Date:   Fri, 8 Feb 2019 19:40:35 +0000
-Message-ID: <476DC76E7D1DF2438D32BFADF679FC5649CE8B71@ORSMSX101.amr.corp.intel.com>
-References: <pjdtvhns3pq.fsf@redhat.com>
- <CAFqZXNt8Df0KX9qVmsGtxZroy6s1SFBt1Qmi5Psuv6z0+kTB7Q@mail.gmail.com>
- <pjdlg2rydoj.fsf@redhat.com>
- <476DC76E7D1DF2438D32BFADF679FC5649CDF45F@ORSMSX101.amr.corp.intel.com>
- <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
-In-Reply-To: <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.0.400.15
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.140]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726860AbfBHT6Q (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 8 Feb 2019 14:58:16 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 1A80DE6A7C;
+        Fri,  8 Feb 2019 19:58:15 +0000 (UTC)
+Received: from [10.18.17.89] (dhcp-17-89.bos.redhat.com [10.18.17.89])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F333762662;
+        Fri,  8 Feb 2019 19:58:13 +0000 (UTC)
+Subject: Re: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM
+ notifications
+To:     Paul Moore <paul@paul-moore.com>,
+        Daniel Jurgens <danielj@mellanox.com>
+Cc:     Leon Romanovsky <leon@kernel.org>,
+        Doug Ledford <dledford@redhat.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        RDMA mailing list <linux-rdma@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Leon Romanovsky <leonro@mellanox.com>
+References: <20190127081023.21124-1-leon@kernel.org>
+ <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
+ <b558e86b-dc56-d17a-30c0-0b640f0bf6cc@mellanox.com>
+ <CAHC9VhQTq_UTFkBOSb0fWbde6tsb_uiNi8EHdCovKzB8KkD6XA@mail.gmail.com>
+ <40feb71f-d24c-f592-58d0-fc5814307c6c@redhat.com>
+ <CAHC9VhSzNjVFq-aiUrS2og0sMUwNB+aBwtk7ZWj9dss12xfVOQ@mail.gmail.com>
+ <1859ec04-d3d2-bffe-16ca-2ae602e5bbff@mellanox.com>
+ <325d56d9-24d9-a850-57a7-47f12baa593c@mellanox.com>
+ <CAHC9VhRWHzrR84ueJHzmBgyQviL-36-ezvDb0u-xRfQmBsBO2g@mail.gmail.com>
+ <3cf233f6-4ca7-1667-7d09-0d2b6879046d@mellanox.com>
+ <CAHC9VhQWG7z0dV4=bULLGdU3SXjQH-da9vkyZo6a+Wy5Bw29_A@mail.gmail.com>
+ <CAHC9VhQc-_iYUid1PYnRA8_cJG+Ji5zkoz80Pg++C-wY_GKrvw@mail.gmail.com>
+ <3c92c876-8ef7-aff9-59ab-966ee95978e6@mellanox.com>
+ <CAHC9VhQoEZY3s=SjQQe+OR8A9bPN_v8u5fHxmtd=iN==iYkH3Q@mail.gmail.com>
+From:   Don Dutile <ddutile@redhat.com>
+Message-ID: <12c95863-83bc-2ce8-a2c4-72199af7ed0a@redhat.com>
+Date:   Fri, 8 Feb 2019 14:58:13 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.6.0
 MIME-Version: 1.0
+In-Reply-To: <CAHC9VhQoEZY3s=SjQQe+OR8A9bPN_v8u5fHxmtd=iN==iYkH3Q@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Fri, 08 Feb 2019 19:58:15 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU3RlcGhlbiBTbWFsbGV5
-IFttYWlsdG86c2RzQHR5Y2hvLm5zYS5nb3ZdDQo+IFNlbnQ6IFRodXJzZGF5LCBGZWJydWFyeSA3
-LCAyMDE5IDEwOjE3IEFNDQo+IFRvOiBSb2JlcnRzLCBXaWxsaWFtIEMgPHdpbGxpYW0uYy5yb2Jl
-cnRzQGludGVsLmNvbT47IFBldHIgTGF1dHJiYWNoDQo+IDxwbGF1dHJiYUByZWRoYXQuY29tPjsg
-c2VsaW51eEB2Z2VyLmtlcm5lbC5vcmcNCj4gQ2M6IE9uZHJlaiBNb3NuYWNlayA8b21vc25hY2VA
-cmVkaGF0LmNvbT4NCj4gU3ViamVjdDogUmU6IGdjYyA5LjAuMCBidWlsZCBpc3N1ZXMNCj4gDQo+
-IE9uIDIvNy8xOSAxMjo1MiBQTSwgUm9iZXJ0cywgV2lsbGlhbSBDIHdyb3RlOg0KPiA+DQo+ID4N
-Cj4gPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPj4gRnJvbTogUGV0ciBMYXV0cmJh
-Y2ggW21haWx0bzpwbGF1dHJiYUByZWRoYXQuY29tXQ0KPiA+PiBTZW50OiBUaHVyc2RheSwgRmVi
-cnVhcnkgNywgMjAxOSA0OjQwIEFNDQo+ID4+IFRvOiBzZWxpbnV4QHZnZXIua2VybmVsLm9yZw0K
-PiA+PiBDYzogUGV0ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+OyBSb2JlcnRzLCBX
-aWxsaWFtIEMNCj4gPj4gPHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT47IE9uZHJlaiBNb3Nu
-YWNlayA8b21vc25hY2VAcmVkaGF0LmNvbT4NCj4gPj4gU3ViamVjdDogUmU6IGdjYyA5LjAuMCBi
-dWlsZCBpc3N1ZXMNCj4gPj4NCj4gPj4NCj4gPj4gT25kcmVqIE1vc25hY2VrIDxvbW9zbmFjZUBy
-ZWRoYXQuY29tPiB3cml0ZXM6DQo+ID4+DQo+ID4+PiBPbiBGcmksIEZlYiAxLCAyMDE5IGF0IDg6
-MzYgUE0gUGV0ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+DQo+ID4+PiB3cm90ZToN
-Cj4gPj4+PiBnY2MtOS4wLjAtMC4zLmZjMzAueDg2XzY0IGZyb20gRmVkb3JhIFJhd2hpZGU6DQo+
-ID4+Pj4NCj4gPj4+PiBnY2MgdmVyc2lvbiA5LjAuMCAyMDE5MDExOSAoUmVkIEhhdCA5LjAuMC0w
-LjMpIChHQ0MpDQo+ID4+Pj4NCj4gPj4gLi4uDQo+ID4+Pj4gV2hlbiBsaWJzZWxpbnV4IGlzIGJ1
-aWx0IHNlcGFyYXRlbHksIG90aGVyIENGTEFHUyBpcyB1c2VkOg0KPiA+Pj4+DQo+ID4+Pj4gJCBj
-ZCBsaWJzZWxpbnV4DQo+ID4+Pj4NCj4gPj4+PiAkIG1ha2UgREVTVERJUj1+L29iaiBpbnN0YWxs
-IGluc3RhbGwtcHl3cmFwIC4uLg0KPiA+Pj4+DQo+ID4+Pj4gbWFrZVsxXTogRW50ZXJpbmcgZGly
-ZWN0b3J5DQo+ID4+Pj4gJy9ob21lL2J1aWxkL1NFTGludXhQcm9qZWN0LXNlbGludXgvbGlic2Vs
-aW51eC9zcmMnDQo+ID4+Pj4NCj4gPj4+PiBjYyAtTyAtV2FsbCAtVyAtV3VuZGVmIC1XZm9ybWF0
-LXkyayAtV2Zvcm1hdC1zZWN1cml0eSAtV2luaXQtc2VsZg0KPiA+Pj4+IC1XbWlzc2luZy1pbmNs
-dWRlLWRpcnMgLVd1bnVzZWQgLVd1bmtub3duLXByYWdtYXMgLVdzdHJpY3QtYWxpYXNpbmcNCj4g
-Pj4+PiAtV3NoYWRvdyAtV3BvaW50ZXItYXJpdGggLVdiYWQtZnVuY3Rpb24tY2FzdCAtV2Nhc3Qt
-YWxpZ24NCj4gPj4+PiAtV3dyaXRlLXN0cmluZ3MgLVdhZ2dyZWdhdGUtcmV0dXJuIC1Xc3RyaWN0
-LXByb3RvdHlwZXMNCj4gPj4+PiAtV29sZC1zdHlsZS1kZWZpbml0aW9uIC1XbWlzc2luZy1wcm90
-b3R5cGVzIC1XbWlzc2luZy1kZWNsYXJhdGlvbnMNCj4gPj4+PiAtV21pc3Npbmctbm9yZXR1cm4g
-LVdtaXNzaW5nLWZvcm1hdC1hdHRyaWJ1dGUgLVdyZWR1bmRhbnQtZGVjbHMNCj4gPj4+PiAtV25l
-c3RlZC1leHRlcm5zIC1XaW5saW5lIC1XaW52YWxpZC1wY2ggLVd2b2xhdGlsZS1yZWdpc3Rlci12
-YXINCj4gPj4+PiAtV2Rpc2FibGVkLW9wdGltaXphdGlvbiAtV2J1aWx0aW4tbWFjcm8tcmVkZWZp
-bmVkIC1XYXR0cmlidXRlcw0KPiA+Pj4+IC1XbXVsdGljaGFyIC1XZGVwcmVjYXRlZC1kZWNsYXJh
-dGlvbnMgLVdkaXYtYnktemVybw0KPiA+Pj4+IC1XZG91YmxlLXByb21vdGlvbiAtV2VuZGlmLWxh
-YmVscyAtV2V4dHJhIC1XZm9ybWF0LWV4dHJhLWFyZ3MNCj4gPj4+PiAtV2Zvcm1hdC16ZXJvLWxl
-bmd0aCAtV2Zvcm1hdD0yIC1XbXVsdGljaGFyIC1Xb3ZlcmZsb3cNCj4gPj4+PiAtV3BvaW50ZXIt
-dG8taW50LWNhc3QgLVdwcmFnbWFzIC1Xbm8tbWlzc2luZy1maWVsZC1pbml0aWFsaXplcnMNCj4g
-Pj4+PiAtV25vLXNpZ24tY29tcGFyZSAtV25vLWZvcm1hdC1ub25saXRlcmFsDQo+ID4+Pj4gLVdm
-cmFtZS1sYXJnZXItdGhhbj0zMjc2OA0KPiA+Pj4+IC1mc3RhY2stcHJvdGVjdG9yLWFsbCAtLXBh
-cmFtPXNzcC1idWZmZXItc2l6ZT00IC1mZXhjZXB0aW9ucw0KPiA+Pj4+IC1mYXN5bmNocm9ub3Vz
-LXVud2luZC10YWJsZXMgLWZkaWFnbm9zdGljcy1zaG93LW9wdGlvbg0KPiA+Pj4+IC1mdW5pdC1h
-dC1hLXRpbWUgLVdlcnJvciAtV25vLWFnZ3JlZ2F0ZS1yZXR1cm4gLVduby1yZWR1bmRhbnQtZGVj
-bHMNCj4gPj4+PiAtZmlwYS1wdXJlLWNvbnN0IC1XbG9naWNhbC1vcCAtV3BhY2tlZC1iaXRmaWVs
-ZC1jb21wYXQgLVdzeW5jLW5hbmQNCj4gPj4+PiAtV2NvdmVyYWdlLW1pc21hdGNoIC1XY3BwIC1X
-Zm9ybWF0LWNvbnRhaW5zLW51bCAtV25vcm1hbGl6ZWQ9bmZjDQo+ID4+Pj4gLVdzdWdnZXN0LWF0
-dHJpYnV0ZT1jb25zdCAtV3N1Z2dlc3QtYXR0cmlidXRlPW5vcmV0dXJuDQo+ID4+Pj4gLVdzdWdn
-ZXN0LWF0dHJpYnV0ZT1wdXJlIC1XdHJhbXBvbGluZXMgLVdqdW1wLW1pc3Nlcy1pbml0DQo+ID4+
-Pj4gLVduby1zdWdnZXN0LWF0dHJpYnV0ZT1wdXJlIC1Xbm8tc3VnZ2VzdC1hdHRyaWJ1dGU9Y29u
-c3QNCj4gPj4+PiAtVV9GT1JUSUZZX1NPVVJDRQ0KPiA+Pj4+IC1EX0ZPUlRJRllfU09VUkNFPTIN
-Cj4gPj4+PiAtV3N0cmljdC1vdmVyZmxvdz01IC1JLi4vaW5jbHVkZSAtRF9HTlVfU09VUkNFDQo+
-ID4+Pj4gLUROT19BTkRST0lEX0JBQ0tFTkQgICAtYyAtbyBib29sZWFucy5vIGJvb2xlYW5zLmMN
-Cj4gPj4+PiBib29sZWFucy5jOiBJbiBmdW5jdGlvbiDigJhzZWN1cml0eV9nZXRfYm9vbGVhbl9u
-YW1lc+KAmToNCj4gPj4+PiBib29sZWFucy5jOjM5OjU6IGVycm9yOiBhc3N1bWluZyBzaWduZWQg
-b3ZlcmZsb3cgZG9lcyBub3Qgb2NjdXINCj4gPj4+PiB3aGVuIGNoYW5naW5nIFggKy0gQzEgY21w
-IEMyIHRvIFggY21wIEMyIC0rIEMxIFstV2Vycm9yPXN0cmljdC1vdmVyZmxvd10NCj4gPj4+PiAg
-ICAgMzkgfCBpbnQgc2VjdXJpdHlfZ2V0X2Jvb2xlYW5fbmFtZXMoY2hhciAqKipuYW1lcywgaW50
-ICpsZW4pDQo+ID4+Pj4gICAgICAgIHwgICAgIF5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+DQo+
-ID4+Pj4gY2MxOiBhbGwgd2FybmluZ3MgYmVpbmcgdHJlYXRlZCBhcyBlcnJvcnMNCj4gPj4+DQo+
-ID4+PiBUaGlzIG9uZSBpcyByZWFsbHkgd2VpcmQuLi4gUGVyaGFwcyBhIGJ1ZyBpbiBHQ0M/IEF0
-IHRoZSB2ZXJ5IGxlYXN0DQo+ID4+PiB0aGUgd2FybmluZyBtZXNzYWdlIGFuZCBzb3VyY2UgY29k
-ZSBsb2NhdGlvbiBhcmUgc3VwZXIgY29uZnVzaW5nLA0KPiA+Pj4gd2hpY2ggaXMgYSBidWcgb24g
-aXRzIG93bi4uLg0KPiA+Pg0KPiA+PiBJdCdzIGRldGVjdGVkIG9ubHkgd2l0aCAtV3N0cmljdC1v
-dmVyZmxvdz0zIGFuZCBoaWdoZXIuIE1ha2VmaWxlIGluDQo+ID4+IGxpYnNlbGludXggdXNlcyBs
-ZXZlbCA1IHdoaWNoIHdhcyBhZGRlZCBieSBjb21taXQNCj4gPj4gOWZlNDMwMzQ1ICgiTWFrZWZp
-bGU6IGFkZCAtV3N0cmljdC1vdmVyZmxvdz01IHRvIENGTEFHUykNCj4gPj4NCj4gPj4gVGhlIHBy
-b2JsZW0gY29kZSBpcyBvbiBsaW5lcyA4NCBhbmQgODUgaW4NCj4gPj4gbGlic2VsaW51eC9zcmMv
-Ym9vbGVhbnMuYzoNCj4gPj4NCj4gPj4gODQ6CWZvciAoLS1pOyBpID49IDA7IC0taSkNCj4gPj4g
-ODU6ICAgIGZyZWUobltpXSk7DQo+ID4+DQo+ID4+DQo+ID4+IEl0IGNvdWxkIGJlIHN1cHByZXNz
-ZWQgYnkgc29tZXRoaW5nIGxpa2UgdGhpczoNCj4gPj4NCj4gPj4gLS0tIGEvbGlic2VsaW51eC9z
-cmMvYm9vbGVhbnMuYw0KPiA+PiArKysgYi9saWJzZWxpbnV4L3NyYy9ib29sZWFucy5jDQo+ID4+
-IEBAIC0zOSw3ICszOSw3IEBAIHN0YXRpYyBpbnQgZmlsZW5hbWVfc2VsZWN0KGNvbnN0IHN0cnVj
-dCBkaXJlbnQNCj4gPj4gKmQpDQo+ID4+ICAgaW50IHNlY3VyaXR5X2dldF9ib29sZWFuX25hbWVz
-KGNoYXIgKioqbmFtZXMsIGludCAqbGVuKSAgew0KPiA+PiAgICAgICAgICBjaGFyIHBhdGhbUEFU
-SF9NQVhdOw0KPiA+PiAtICAgICAgIGludCBpLCByYzsNCj4gPj4gKyAgICAgICBpbnQgaSwgaiwg
-cmM7DQo+ID4+ICAgICAgICAgIHN0cnVjdCBkaXJlbnQgKipuYW1lbGlzdDsNCj4gPj4gICAgICAg
-ICAgY2hhciAqKm47DQo+ID4+DQo+ID4+IEBAIC04MSw4ICs4MSw4IEBAIGludCBzZWN1cml0eV9n
-ZXRfYm9vbGVhbl9uYW1lcyhjaGFyICoqKm5hbWVzLCBpbnQNCj4gKmxlbikNCj4gPj4gICAgICAg
-ICAgZnJlZShuYW1lbGlzdCk7DQo+ID4+ICAgICAgICAgIHJldHVybiByYzsNCj4gPj4gICAgICAg
-ICBiYWRfZnJlZW46DQo+ID4+IC0gICAgICAgZm9yICgtLWk7IGkgPj0gMDsgLS1pKQ0KPiA+PiAt
-ICAgICAgICAgICAgICAgZnJlZShuW2ldKTsNCj4gPj4gKyAgICAgICBmb3IgKGogPSAwOyBqIDwg
-aTsgaisrKQ0KPiA+PiArICAgICAgICAgICAgICAgZnJlZShuW2pdKTsNCj4gPj4gICAgICAgICAg
-ZnJlZShuKTsNCj4gPj4gICAgICAgICBiYWQ6DQo+ID4+ICAgICAgICAgIGdvdG8gb3V0Ow0KPiA+
-Pg0KPiA+Pg0KPiA+PiBXaWxsaWFtLCB3aGF0IHdvdWxkIHlvdSBjb25zaWRlciB0byBiZSB0aGUg
-cmlnaHQgZml4IGluIHRoaXMgY2FzZT8NCj4gPg0KPiA+IFRoZSBwcmV2aW91cyBjb2RlIGxvb2tz
-IGNvcnJlY3QgSU1PLCBJIGNhbid0IHNlZSBhbiBhY3R1YWwgcHJvYmxlbS4NCj4gPiBMb29rcyBs
-aWtlIEdDQyBjb21wbGFpbmluZyBpbmNvcnJlY3RseSBvciB3ZXJlIG1pc3Npbmcgc29tZXRoaW5n
-LiBJbg0KPiA+IHRoZSBjYXNlIG9mIGdjYyBJbmNvcnJlY3RseSBjb21wbGFpbmluZyBJIHVzdWFs
-bHkgdGFrZSBhIGNvdXJzZSBvZg0KPiA+IGFjdGlvbiB0byB3b3JrIGFyb3VuZCBpdCwgYnV0IElt
-IG5vdCBzdXJlIGhvdyBvdGhlciBtYWludGFpbmVycyBmZWVsIGFib3V0IHRoYXQNCj4gQHNkcyBh
-bnl0aGluZz8NCj4gDQo+IEFGQUlDUywgdGhlIGNvZGUgaXMgY29ycmVjdCBhcyBpcy4gIE5vdCBh
-IGZhbiBvZiByZXdyaXRpbmcgY29kZSB0byBhcHBlYXNlIG92ZXJseQ0KPiB6ZWFsb3VzIGNvbXBp
-bGVycy4uLg0KPiANCg0KU28gSSBsb29rZWQgYXQgZmlsaW5nIGEgYnVnIHdpdGggR0NDLCBhbmQg
-b25lIHRoaW5nIHRoYXQgaGVscHMgaXQgZ2V0IGxvb2tlZCBhdCBpcyBzYW1wbGUgY29kZQ0KdG8g
-dHJpZ2dlciB0aGUgcHJvYmxlbS4gSSdtIG5vdCBldmVuIHNlZWluZyBhIEdDQyA5IHJlbGVhc2Us
-IHNvIEkgYW0gYXNzdW1pbmcgaXQncyBpbiBhIGRldg0KbW9kZT8gDQoNClNpbmNlIHlvdSBoYXZl
-IGl0IHJ1bm5pbmcgY291bGQgeW91IHNlZSBpZiB5b3UgY2FuIHJlLXByb2R1Y2UgdGhlIGVycm9y
-IGluIGEgc25pcHBldCBhbmQgZmlsZSB0aGUgYnVnPw0KDQpJIHdvdWxkIGFsc28gZGlmZiB0aGUg
-b2JqZWN0IGZpbGUgd2l0aCAtZnJ3YXB2IHRvIHNlZSBpZiBpdCBpcyBwcm9kdWNpbmcgZGlmZmVy
-ZW50IGNvZGUgZm9yIHRoYXQgbG9vcC4NCg0KQmlsbA0K
+On 02/01/2019 11:09 AM, Paul Moore wrote:
+> On Fri, Feb 1, 2019 at 9:16 AM Daniel Jurgens <danielj@mellanox.com> wrote:
+>> On 2/1/2019 7:57 AM, Paul Moore wrote:
+>>> On Tue, Jan 29, 2019 at 4:13 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>> On Tue, Jan 29, 2019 at 3:58 PM Daniel Jurgens <danielj@mellanox.com> wrote:
+>>>>> On 1/29/2019 2:51 PM, Paul Moore wrote:
+>>>>>> Okay, so let's attempt the change above where we just do the access
+>>>>>> check directly.  Although I'm a little concerned that without a
+>>>>>> reproducer we might not end up fixing the problem we're trying to fix.
+>>>>>> Is anyone in touch with the person who originally reported the
+>>>>>> problem?  It would be great if we could get that person to verify the
+>>>>>> change ...
+>>>>> I decided to go with maintaining a list in IB core. The notifier call is done under rcu_read_lock vs spin_lock_irq for register/unregister, so we shouldn't have any problems in that case. So only registering once basically achieves the same thing as taking it all out. I'm testing it now. I'll send it for internal review today assuming it checks out. Hopefully Leon can get it posted tomorrow, I know Don has some schedule pressure here.
+>>>> Okay sounds good.  We're still at -rc4 so as long as we can get
+>>>> something posted this week, or early next, I see no reason why it
+>>>> can't make the upcoming merge window.
+>>>>
+>>>> I'm guessing Don's schedule pressure is more a RH deadline, and not an
+>>>> upstream constraint.
+>>> I just wanted to check in and see how this was progressing?  I didn't
+>>> see anything in my inbox, but perhaps I missed it ...
+>> It's passed internal review. Leon should send it soon (Sunday at the soonest, IL has Friday-Saturday weekends), he may be waiting for a regression run to finish.
+> 
+> Great, thanks for the update.
+> 
+update? we're approaching the 2nd Sunday after 2/1/2019, when this email was sent ...
+
