@@ -2,118 +2,101 @@ Return-Path: <SRS0=wfIc=QP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87E43C169C4
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 22:29:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 305BAC169C4
+	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 23:50:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5F3222075C
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 22:29:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E53A2218DA
+	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 23:50:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="WC0vPa+3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727175AbfBHW3q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Feb 2019 17:29:46 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:38018 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726788AbfBHW3q (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 8 Feb 2019 17:29:46 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 22C0A8830F;
-        Fri,  8 Feb 2019 22:29:46 +0000 (UTC)
-Received: from [10.18.17.89] (dhcp-17-89.bos.redhat.com [10.18.17.89])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 143271019633;
-        Fri,  8 Feb 2019 22:29:44 +0000 (UTC)
-Subject: Re: [PATCH rdma-next] IB/core: Don't register MAD agents for LSM
- notifications
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Daniel Jurgens <danielj@mellanox.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Doug Ledford <dledford@redhat.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        id S1726211AbfBHXuC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Feb 2019 18:50:02 -0500
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:34180 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726222AbfBHXuC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Feb 2019 18:50:02 -0500
+Received: by mail-pg1-f195.google.com with SMTP id d9so2262827pgl.1
+        for <selinux@vger.kernel.org>; Fri, 08 Feb 2019 15:50:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=YHWqyblAo3CO+v/mPCcoaCeAr1CzMmx2d2e4oQUg/KQ=;
+        b=WC0vPa+3Dri7UkxabNTcJQaOf5mGtxMJbAMagDVjnf7vtLJcx9MLBi6h2nlTS/ZTjz
+         ZLqKeGO39qt3f0qfgiMP1YkM3f17uH87or1WYhqw5p39o4oHZVh1Y1U5Fj/VWcGcDNjQ
+         35724xpri7Hq+PqJy5+Pv5+VR30bqLzCf8TDpSyNdIDniZOqj8DWZJ/73mvrx0GPjLjd
+         kO1hfkJBDJjg1X9itJIq1fHHrjnf4NKQJ/1KdeQWPTSd2RslkDMyiRhi/Z3S3SYLBA7+
+         DeZssR9KCq9aTY6CYvAUyWB84diT0xQ6yT8yQjcsG5jCgZWyDhZfQbucJWimNMGAvWUW
+         lIkg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=YHWqyblAo3CO+v/mPCcoaCeAr1CzMmx2d2e4oQUg/KQ=;
+        b=H1dBykJ2kzErGpVWCK2+LLZHpWx9z6Asp1F+im/2xAGU6aFJXeHC8e69uX+OEvp5y3
+         aU/uNRhtEbelXmOxeaanRXmMvV5tZnIw0ryWe/I83GucT2KZFrnwZt7PYiHUpB/YjihQ
+         W18wnGxdORh5ZJujwCQ6sx+mZ02xEYqEa3ckuo7nSxkDjat1Rp2+3bbLo6U3wzs/sIGZ
+         GQTLLgphretn3B7DuzdJYzjtFVypCxNzH/9NZfvH/cWvnQWXOVOFr12g88nJzHyin1jC
+         Nm0D6sPRtunqR3MXq2q5r99jX3VGf3WvGu5txaO5T8DikYT/imiEKg3cyUPIPXY6+1b1
+         5LPg==
+X-Gm-Message-State: AHQUAuawYEPA3/dwxJAvIyViXUie98vvfC51RCHTTjFI7NUaRvXCknZV
+        nnYiS6uVGkHy4UwmuTeV/Xrd/Q==
+X-Google-Smtp-Source: AHgI3IY7/JSIPC6U9I+umqFX7/xRceqk3v2dKB47GQmQbCZ3uXe14yV8i8yf6PTzaa+IDUPUBOAzxw==
+X-Received: by 2002:a63:d810:: with SMTP id b16mr17766883pgh.220.1549669801471;
+        Fri, 08 Feb 2019 15:50:01 -0800 (PST)
+Received: from ziepe.ca (S010614cc2056d97f.ed.shawcable.net. [174.3.196.123])
+        by smtp.gmail.com with ESMTPSA id m3sm5646043pfi.102.2019.02.08.15.50.00
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 08 Feb 2019 15:50:00 -0800 (PST)
+Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1gsFuB-0001wS-So; Fri, 08 Feb 2019 16:49:59 -0700
+Date:   Fri, 8 Feb 2019 16:49:59 -0700
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     Doug Ledford <dledford@redhat.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
         RDMA mailing list <linux-rdma@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Leon Romanovsky <leonro@mellanox.com>
-References: <20190127081023.21124-1-leon@kernel.org>
- <CAHC9VhQccU9sD7Zb+6d9sPK=fq593R1-UOhVfwgiK-6usrkbQw@mail.gmail.com>
- <b558e86b-dc56-d17a-30c0-0b640f0bf6cc@mellanox.com>
- <CAHC9VhQTq_UTFkBOSb0fWbde6tsb_uiNi8EHdCovKzB8KkD6XA@mail.gmail.com>
- <40feb71f-d24c-f592-58d0-fc5814307c6c@redhat.com>
- <CAHC9VhSzNjVFq-aiUrS2og0sMUwNB+aBwtk7ZWj9dss12xfVOQ@mail.gmail.com>
- <1859ec04-d3d2-bffe-16ca-2ae602e5bbff@mellanox.com>
- <325d56d9-24d9-a850-57a7-47f12baa593c@mellanox.com>
- <CAHC9VhRWHzrR84ueJHzmBgyQviL-36-ezvDb0u-xRfQmBsBO2g@mail.gmail.com>
- <3cf233f6-4ca7-1667-7d09-0d2b6879046d@mellanox.com>
- <CAHC9VhQWG7z0dV4=bULLGdU3SXjQH-da9vkyZo6a+Wy5Bw29_A@mail.gmail.com>
- <CAHC9VhQc-_iYUid1PYnRA8_cJG+Ji5zkoz80Pg++C-wY_GKrvw@mail.gmail.com>
- <3c92c876-8ef7-aff9-59ab-966ee95978e6@mellanox.com>
- <CAHC9VhQoEZY3s=SjQQe+OR8A9bPN_v8u5fHxmtd=iN==iYkH3Q@mail.gmail.com>
- <12c95863-83bc-2ce8-a2c4-72199af7ed0a@redhat.com>
- <CAHC9VhSgC+x_dsV0_-YRdACm7otRVBsqwn2g6+aYOOo7OaMoEA@mail.gmail.com>
-From:   Don Dutile <ddutile@redhat.com>
-Message-ID: <0980e59f-dce1-c73d-f3d2-90080ddf56b2@redhat.com>
-Date:   Fri, 8 Feb 2019 17:29:44 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
- Thunderbird/52.6.0
+        Daniel Jurgens <danielj@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>, selinux@vger.kernel.org,
+        paul@paul-moore.com, ddutile@redhat.com
+Subject: Re: [PATCH rdma-rc v1 0/4] IB selinux related fixes
+Message-ID: <20190208234959.GA7442@ziepe.ca>
+References: <20190202090945.4106-1-leon@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSgC+x_dsV0_-YRdACm7otRVBsqwn2g6+aYOOo7OaMoEA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Fri, 08 Feb 2019 22:29:46 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190202090945.4106-1-leon@kernel.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 02/08/2019 03:04 PM, Paul Moore wrote:
-> On Fri, Feb 8, 2019 at 2:58 PM Don Dutile <ddutile@redhat.com> wrote:
->> On 02/01/2019 11:09 AM, Paul Moore wrote:
->>> On Fri, Feb 1, 2019 at 9:16 AM Daniel Jurgens <danielj@mellanox.com> wrote:
->>>> On 2/1/2019 7:57 AM, Paul Moore wrote:
->>>>> On Tue, Jan 29, 2019 at 4:13 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>>> On Tue, Jan 29, 2019 at 3:58 PM Daniel Jurgens <danielj@mellanox.com> wrote:
->>>>>>> On 1/29/2019 2:51 PM, Paul Moore wrote:
->>>>>>>> Okay, so let's attempt the change above where we just do the access
->>>>>>>> check directly.  Although I'm a little concerned that without a
->>>>>>>> reproducer we might not end up fixing the problem we're trying to fix.
->>>>>>>> Is anyone in touch with the person who originally reported the
->>>>>>>> problem?  It would be great if we could get that person to verify the
->>>>>>>> change ...
->>>>>>> I decided to go with maintaining a list in IB core. The notifier call is done under rcu_read_lock vs spin_lock_irq for register/unregister, so we shouldn't have any problems in that case. So only registering once basically achieves the same thing as taking it all out. I'm testing it now. I'll send it for internal review today assuming it checks out. Hopefully Leon can get it posted tomorrow, I know Don has some schedule pressure here.
->>>>>> Okay sounds good.  We're still at -rc4 so as long as we can get
->>>>>> something posted this week, or early next, I see no reason why it
->>>>>> can't make the upcoming merge window.
->>>>>>
->>>>>> I'm guessing Don's schedule pressure is more a RH deadline, and not an
->>>>>> upstream constraint.
->>>>> I just wanted to check in and see how this was progressing?  I didn't
->>>>> see anything in my inbox, but perhaps I missed it ...
->>>> It's passed internal review. Leon should send it soon (Sunday at the soonest, IL has Friday-Saturday weekends), he may be waiting for a regression run to finish.
->>>
->>> Great, thanks for the update.
->>
->> update? we're approaching the 2nd Sunday after 2/1/2019, when this email was sent ...
+On Sat, Feb 02, 2019 at 11:09:41AM +0200, Leon Romanovsky wrote:
+> From: Leon Romanovsky <leonro@mellanox.com>
 > 
-> Leon sent out an updated patchset on February 2nd, and I sent a
-> reply/ack for the SELinux relevant patch a few days later on the 6th.
-> Archive link below, but it looks like you were CC'd ... ?
+> Hi,
 > 
-> * https://lore.kernel.org/selinux/20190202090945.4106-1-leon@kernel.org
+> This is second version of previously sent patch "IB/core: Don't register
+> MAD agents for LSM notifications", due to the fact that we found extra
+> things to fix during the review, I grouped that patch together with
+> other fixes in that area.
 > 
-Thanks for ptr.  I was looking for a posting from Daniel; forgot Leon was doing it.
-I should have search for email from you! ;-)
+> Thanks
+> 
+> Daniel Jurgens (4):
+>   IB/core: Unregister notifier before freeing MAD security
+>   IB/core: Fix potential memory leak while creating MAD agents
+>   IB/core: Eliminate a hole in MAD agent struct
+>   IB/core: Don't register each MAD agent for LSM notifier
 
-Finally found it... lost in a several-thousand email stampede here. :-p
-I thought I had seen something... and I viewed it while dealing with a massive head cold...
-lousy meds! :-p
+Applied to for-next
 
-I guess the maintainers haven't pulled it into an rc branch yet, though,
-since a pull/merge doesn't show it up in (rdma-linux's) for-rc or for-next
-(or any other jgg or dl-for-* branch I dug around in).
-/me needs c-p-able commit-id(s), so it's the '2nd Sunday' for me...
-
-
+Thanks,
+Jason
