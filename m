@@ -2,136 +2,166 @@ Return-Path: <SRS0=wfIc=QP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BF33C169C4
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 16:46:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3653C169C4
+	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 19:40:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E771B2080F
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 16:46:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A02292083B
+	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 19:40:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726869AbfBHQqS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Feb 2019 11:46:18 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:49328 "EHLO mx1.redhat.com"
+        id S1726983AbfBHTkj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Feb 2019 14:40:39 -0500
+Received: from mga02.intel.com ([134.134.136.20]:5155 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726679AbfBHQqS (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 8 Feb 2019 11:46:18 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 741C36EB93;
-        Fri,  8 Feb 2019 16:46:17 +0000 (UTC)
-Received: from localhost (unknown [10.43.12.40])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id AA6121077D1C;
-        Fri,  8 Feb 2019 16:46:16 +0000 (UTC)
-References: <20190206194529.24952-1-plautrba@redhat.com> <CAJfZ7=nBvZHQ6Uq4GXK=0mxf1iBt8TQEVCkOZd4mNoW4OV7NSg@mail.gmail.com>
-User-agent: mu4e 1.0; emacs 26.1
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH] libsemanage: genhomedircon - improve handling large groups
-In-reply-to: <CAJfZ7=nBvZHQ6Uq4GXK=0mxf1iBt8TQEVCkOZd4mNoW4OV7NSg@mail.gmail.com>
-Date:   Fri, 08 Feb 2019 17:46:15 +0100
-Message-ID: <pjdimxuxm7c.fsf@redhat.com>
+        id S1726351AbfBHTki (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 8 Feb 2019 14:40:38 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 08 Feb 2019 11:40:36 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.58,348,1544515200"; 
+   d="scan'208";a="125023686"
+Received: from orsmsx101.amr.corp.intel.com ([10.22.225.128])
+  by orsmga003.jf.intel.com with ESMTP; 08 Feb 2019 11:40:36 -0800
+Received: from orsmsx163.amr.corp.intel.com (10.22.240.88) by
+ ORSMSX101.amr.corp.intel.com (10.22.225.128) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Fri, 8 Feb 2019 11:40:36 -0800
+Received: from orsmsx101.amr.corp.intel.com ([169.254.8.11]) by
+ ORSMSX163.amr.corp.intel.com ([169.254.9.182]) with mapi id 14.03.0415.000;
+ Fri, 8 Feb 2019 11:40:35 -0800
+From:   "Roberts, William C" <william.c.roberts@intel.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+CC:     Ondrej Mosnacek <omosnace@redhat.com>
+Subject: RE: gcc 9.0.0 build issues
+Thread-Topic: gcc 9.0.0 build issues
+Thread-Index: AQHUvuJhk/X56/euxEuWv2uHzMSJg6XUnZywgACNX4CAASE8MA==
+Date:   Fri, 8 Feb 2019 19:40:35 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC5649CE8B71@ORSMSX101.amr.corp.intel.com>
+References: <pjdtvhns3pq.fsf@redhat.com>
+ <CAFqZXNt8Df0KX9qVmsGtxZroy6s1SFBt1Qmi5Psuv6z0+kTB7Q@mail.gmail.com>
+ <pjdlg2rydoj.fsf@redhat.com>
+ <476DC76E7D1DF2438D32BFADF679FC5649CDF45F@ORSMSX101.amr.corp.intel.com>
+ <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
+In-Reply-To: <3a9f2281-aad4-58fd-ab8e-cb99a8da0fae@tycho.nsa.gov>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.400.15
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.140]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Fri, 08 Feb 2019 16:46:17 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
-
-> On Wed, Feb 6, 2019 at 8:45 PM Petr Lautrbach 
-> <plautrba@redhat.com> wrote:
->>
->> getgrnam_r() uses a preallocated buffer to store a structure 
->> containing
->> the broken-out fields of the record in the group database. The 
->> size of
->> this buffer is usually sysconf(_SC_GETGR_R_SIZE_MAX) == 1024 
->> and it is
->> not enough for groups with a large number of users.  In these 
->> cases,
->> getgrnam_r() returns -1 and sets errno to ERANGE and the caller 
->> can
->> retry with a larger buffer.
->>
->> Fixes:
->> $ semanage login -a -s user_u -r s0-s0:c1.c2 '%largegroup'
->> libsemanage.semanage_direct_commit: semanage_genhomedircon 
->> returned error code -1. (Numerical result out of range).
->> OSError: Numerical result out of range
->>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->> ---
->>  libsemanage/src/genhomedircon.c | 16 +++++++++++++---
->>  1 file changed, 13 insertions(+), 3 deletions(-)
->>
->> diff --git a/libsemanage/src/genhomedircon.c 
->> b/libsemanage/src/genhomedircon.c
->> index 591941fb..ac376671 100644
->> --- a/libsemanage/src/genhomedircon.c
->> +++ b/libsemanage/src/genhomedircon.c
->> @@ -1077,10 +1077,20 @@ static int 
->> get_group_users(genhomedircon_settings_t * s,
->>
->>         const char *grname = selogin + 1;
->>
->> -       if (getgrnam_r(grname, &grstorage, grbuf,
->> -                       (size_t) grbuflen, &group) != 0) {
->> -               goto cleanup;
->> +       errno = 0;
->> +       while (
->> +               (retval = getgrnam_r(grname, &grstorage, grbuf, 
->> (size_t) grbuflen, &group)) != 0 &&
->> +               errno == ERANGE
->> +       ) {
->> +               char *new_grbuf;
->> +               grbuflen *= 2;
->> +               new_grbuf = realloc(grbuf, grbuflen);
->> +               if (new_grbuf == NULL)
->> +                       goto cleanup;
->> +               grbuf = new_grbuf;
->>         }
->
-> Hello,
-> When reading this for loop, I am concerned about the case where 
-> the
-> member list exceeds 2Go on a system with a 32-bit CPU (where
-> sizeof(long) = 4). Even if it seems very unlikely, if this ever
-> happens, the loop will become infinite. Would you agree with 
-> adding
-> "&& grbuflen > 0" to the condition of the while statement?
-
-Makes sense, I'll add it. Thanks.
-
-> Anyway, if you do not agree, this patch looks good to me.
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
-> Thanks,
-> Nicolas
->
->> +       if (retval == -1)
->> +               goto cleanup;
-
-According to the man page this check is not correct. - "In case of
-error, an error number is returned, and NULL is stored in 
-*result."
-
-I'll fix it as well.
-
-
->>         if (group == NULL) {
->>                 ERR(s->h_semanage, "Can't find group named 
->>                 %s\n", grname);
->> --
->> 2.20.1
->>
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogU3RlcGhlbiBTbWFsbGV5
+IFttYWlsdG86c2RzQHR5Y2hvLm5zYS5nb3ZdDQo+IFNlbnQ6IFRodXJzZGF5LCBGZWJydWFyeSA3
+LCAyMDE5IDEwOjE3IEFNDQo+IFRvOiBSb2JlcnRzLCBXaWxsaWFtIEMgPHdpbGxpYW0uYy5yb2Jl
+cnRzQGludGVsLmNvbT47IFBldHIgTGF1dHJiYWNoDQo+IDxwbGF1dHJiYUByZWRoYXQuY29tPjsg
+c2VsaW51eEB2Z2VyLmtlcm5lbC5vcmcNCj4gQ2M6IE9uZHJlaiBNb3NuYWNlayA8b21vc25hY2VA
+cmVkaGF0LmNvbT4NCj4gU3ViamVjdDogUmU6IGdjYyA5LjAuMCBidWlsZCBpc3N1ZXMNCj4gDQo+
+IE9uIDIvNy8xOSAxMjo1MiBQTSwgUm9iZXJ0cywgV2lsbGlhbSBDIHdyb3RlOg0KPiA+DQo+ID4N
+Cj4gPj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gPj4gRnJvbTogUGV0ciBMYXV0cmJh
+Y2ggW21haWx0bzpwbGF1dHJiYUByZWRoYXQuY29tXQ0KPiA+PiBTZW50OiBUaHVyc2RheSwgRmVi
+cnVhcnkgNywgMjAxOSA0OjQwIEFNDQo+ID4+IFRvOiBzZWxpbnV4QHZnZXIua2VybmVsLm9yZw0K
+PiA+PiBDYzogUGV0ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+OyBSb2JlcnRzLCBX
+aWxsaWFtIEMNCj4gPj4gPHdpbGxpYW0uYy5yb2JlcnRzQGludGVsLmNvbT47IE9uZHJlaiBNb3Nu
+YWNlayA8b21vc25hY2VAcmVkaGF0LmNvbT4NCj4gPj4gU3ViamVjdDogUmU6IGdjYyA5LjAuMCBi
+dWlsZCBpc3N1ZXMNCj4gPj4NCj4gPj4NCj4gPj4gT25kcmVqIE1vc25hY2VrIDxvbW9zbmFjZUBy
+ZWRoYXQuY29tPiB3cml0ZXM6DQo+ID4+DQo+ID4+PiBPbiBGcmksIEZlYiAxLCAyMDE5IGF0IDg6
+MzYgUE0gUGV0ciBMYXV0cmJhY2ggPHBsYXV0cmJhQHJlZGhhdC5jb20+DQo+ID4+PiB3cm90ZToN
+Cj4gPj4+PiBnY2MtOS4wLjAtMC4zLmZjMzAueDg2XzY0IGZyb20gRmVkb3JhIFJhd2hpZGU6DQo+
+ID4+Pj4NCj4gPj4+PiBnY2MgdmVyc2lvbiA5LjAuMCAyMDE5MDExOSAoUmVkIEhhdCA5LjAuMC0w
+LjMpIChHQ0MpDQo+ID4+Pj4NCj4gPj4gLi4uDQo+ID4+Pj4gV2hlbiBsaWJzZWxpbnV4IGlzIGJ1
+aWx0IHNlcGFyYXRlbHksIG90aGVyIENGTEFHUyBpcyB1c2VkOg0KPiA+Pj4+DQo+ID4+Pj4gJCBj
+ZCBsaWJzZWxpbnV4DQo+ID4+Pj4NCj4gPj4+PiAkIG1ha2UgREVTVERJUj1+L29iaiBpbnN0YWxs
+IGluc3RhbGwtcHl3cmFwIC4uLg0KPiA+Pj4+DQo+ID4+Pj4gbWFrZVsxXTogRW50ZXJpbmcgZGly
+ZWN0b3J5DQo+ID4+Pj4gJy9ob21lL2J1aWxkL1NFTGludXhQcm9qZWN0LXNlbGludXgvbGlic2Vs
+aW51eC9zcmMnDQo+ID4+Pj4NCj4gPj4+PiBjYyAtTyAtV2FsbCAtVyAtV3VuZGVmIC1XZm9ybWF0
+LXkyayAtV2Zvcm1hdC1zZWN1cml0eSAtV2luaXQtc2VsZg0KPiA+Pj4+IC1XbWlzc2luZy1pbmNs
+dWRlLWRpcnMgLVd1bnVzZWQgLVd1bmtub3duLXByYWdtYXMgLVdzdHJpY3QtYWxpYXNpbmcNCj4g
+Pj4+PiAtV3NoYWRvdyAtV3BvaW50ZXItYXJpdGggLVdiYWQtZnVuY3Rpb24tY2FzdCAtV2Nhc3Qt
+YWxpZ24NCj4gPj4+PiAtV3dyaXRlLXN0cmluZ3MgLVdhZ2dyZWdhdGUtcmV0dXJuIC1Xc3RyaWN0
+LXByb3RvdHlwZXMNCj4gPj4+PiAtV29sZC1zdHlsZS1kZWZpbml0aW9uIC1XbWlzc2luZy1wcm90
+b3R5cGVzIC1XbWlzc2luZy1kZWNsYXJhdGlvbnMNCj4gPj4+PiAtV21pc3Npbmctbm9yZXR1cm4g
+LVdtaXNzaW5nLWZvcm1hdC1hdHRyaWJ1dGUgLVdyZWR1bmRhbnQtZGVjbHMNCj4gPj4+PiAtV25l
+c3RlZC1leHRlcm5zIC1XaW5saW5lIC1XaW52YWxpZC1wY2ggLVd2b2xhdGlsZS1yZWdpc3Rlci12
+YXINCj4gPj4+PiAtV2Rpc2FibGVkLW9wdGltaXphdGlvbiAtV2J1aWx0aW4tbWFjcm8tcmVkZWZp
+bmVkIC1XYXR0cmlidXRlcw0KPiA+Pj4+IC1XbXVsdGljaGFyIC1XZGVwcmVjYXRlZC1kZWNsYXJh
+dGlvbnMgLVdkaXYtYnktemVybw0KPiA+Pj4+IC1XZG91YmxlLXByb21vdGlvbiAtV2VuZGlmLWxh
+YmVscyAtV2V4dHJhIC1XZm9ybWF0LWV4dHJhLWFyZ3MNCj4gPj4+PiAtV2Zvcm1hdC16ZXJvLWxl
+bmd0aCAtV2Zvcm1hdD0yIC1XbXVsdGljaGFyIC1Xb3ZlcmZsb3cNCj4gPj4+PiAtV3BvaW50ZXIt
+dG8taW50LWNhc3QgLVdwcmFnbWFzIC1Xbm8tbWlzc2luZy1maWVsZC1pbml0aWFsaXplcnMNCj4g
+Pj4+PiAtV25vLXNpZ24tY29tcGFyZSAtV25vLWZvcm1hdC1ub25saXRlcmFsDQo+ID4+Pj4gLVdm
+cmFtZS1sYXJnZXItdGhhbj0zMjc2OA0KPiA+Pj4+IC1mc3RhY2stcHJvdGVjdG9yLWFsbCAtLXBh
+cmFtPXNzcC1idWZmZXItc2l6ZT00IC1mZXhjZXB0aW9ucw0KPiA+Pj4+IC1mYXN5bmNocm9ub3Vz
+LXVud2luZC10YWJsZXMgLWZkaWFnbm9zdGljcy1zaG93LW9wdGlvbg0KPiA+Pj4+IC1mdW5pdC1h
+dC1hLXRpbWUgLVdlcnJvciAtV25vLWFnZ3JlZ2F0ZS1yZXR1cm4gLVduby1yZWR1bmRhbnQtZGVj
+bHMNCj4gPj4+PiAtZmlwYS1wdXJlLWNvbnN0IC1XbG9naWNhbC1vcCAtV3BhY2tlZC1iaXRmaWVs
+ZC1jb21wYXQgLVdzeW5jLW5hbmQNCj4gPj4+PiAtV2NvdmVyYWdlLW1pc21hdGNoIC1XY3BwIC1X
+Zm9ybWF0LWNvbnRhaW5zLW51bCAtV25vcm1hbGl6ZWQ9bmZjDQo+ID4+Pj4gLVdzdWdnZXN0LWF0
+dHJpYnV0ZT1jb25zdCAtV3N1Z2dlc3QtYXR0cmlidXRlPW5vcmV0dXJuDQo+ID4+Pj4gLVdzdWdn
+ZXN0LWF0dHJpYnV0ZT1wdXJlIC1XdHJhbXBvbGluZXMgLVdqdW1wLW1pc3Nlcy1pbml0DQo+ID4+
+Pj4gLVduby1zdWdnZXN0LWF0dHJpYnV0ZT1wdXJlIC1Xbm8tc3VnZ2VzdC1hdHRyaWJ1dGU9Y29u
+c3QNCj4gPj4+PiAtVV9GT1JUSUZZX1NPVVJDRQ0KPiA+Pj4+IC1EX0ZPUlRJRllfU09VUkNFPTIN
+Cj4gPj4+PiAtV3N0cmljdC1vdmVyZmxvdz01IC1JLi4vaW5jbHVkZSAtRF9HTlVfU09VUkNFDQo+
+ID4+Pj4gLUROT19BTkRST0lEX0JBQ0tFTkQgICAtYyAtbyBib29sZWFucy5vIGJvb2xlYW5zLmMN
+Cj4gPj4+PiBib29sZWFucy5jOiBJbiBmdW5jdGlvbiDigJhzZWN1cml0eV9nZXRfYm9vbGVhbl9u
+YW1lc+KAmToNCj4gPj4+PiBib29sZWFucy5jOjM5OjU6IGVycm9yOiBhc3N1bWluZyBzaWduZWQg
+b3ZlcmZsb3cgZG9lcyBub3Qgb2NjdXINCj4gPj4+PiB3aGVuIGNoYW5naW5nIFggKy0gQzEgY21w
+IEMyIHRvIFggY21wIEMyIC0rIEMxIFstV2Vycm9yPXN0cmljdC1vdmVyZmxvd10NCj4gPj4+PiAg
+ICAgMzkgfCBpbnQgc2VjdXJpdHlfZ2V0X2Jvb2xlYW5fbmFtZXMoY2hhciAqKipuYW1lcywgaW50
+ICpsZW4pDQo+ID4+Pj4gICAgICAgIHwgICAgIF5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+fn5+DQo+
+ID4+Pj4gY2MxOiBhbGwgd2FybmluZ3MgYmVpbmcgdHJlYXRlZCBhcyBlcnJvcnMNCj4gPj4+DQo+
+ID4+PiBUaGlzIG9uZSBpcyByZWFsbHkgd2VpcmQuLi4gUGVyaGFwcyBhIGJ1ZyBpbiBHQ0M/IEF0
+IHRoZSB2ZXJ5IGxlYXN0DQo+ID4+PiB0aGUgd2FybmluZyBtZXNzYWdlIGFuZCBzb3VyY2UgY29k
+ZSBsb2NhdGlvbiBhcmUgc3VwZXIgY29uZnVzaW5nLA0KPiA+Pj4gd2hpY2ggaXMgYSBidWcgb24g
+aXRzIG93bi4uLg0KPiA+Pg0KPiA+PiBJdCdzIGRldGVjdGVkIG9ubHkgd2l0aCAtV3N0cmljdC1v
+dmVyZmxvdz0zIGFuZCBoaWdoZXIuIE1ha2VmaWxlIGluDQo+ID4+IGxpYnNlbGludXggdXNlcyBs
+ZXZlbCA1IHdoaWNoIHdhcyBhZGRlZCBieSBjb21taXQNCj4gPj4gOWZlNDMwMzQ1ICgiTWFrZWZp
+bGU6IGFkZCAtV3N0cmljdC1vdmVyZmxvdz01IHRvIENGTEFHUykNCj4gPj4NCj4gPj4gVGhlIHBy
+b2JsZW0gY29kZSBpcyBvbiBsaW5lcyA4NCBhbmQgODUgaW4NCj4gPj4gbGlic2VsaW51eC9zcmMv
+Ym9vbGVhbnMuYzoNCj4gPj4NCj4gPj4gODQ6CWZvciAoLS1pOyBpID49IDA7IC0taSkNCj4gPj4g
+ODU6ICAgIGZyZWUobltpXSk7DQo+ID4+DQo+ID4+DQo+ID4+IEl0IGNvdWxkIGJlIHN1cHByZXNz
+ZWQgYnkgc29tZXRoaW5nIGxpa2UgdGhpczoNCj4gPj4NCj4gPj4gLS0tIGEvbGlic2VsaW51eC9z
+cmMvYm9vbGVhbnMuYw0KPiA+PiArKysgYi9saWJzZWxpbnV4L3NyYy9ib29sZWFucy5jDQo+ID4+
+IEBAIC0zOSw3ICszOSw3IEBAIHN0YXRpYyBpbnQgZmlsZW5hbWVfc2VsZWN0KGNvbnN0IHN0cnVj
+dCBkaXJlbnQNCj4gPj4gKmQpDQo+ID4+ICAgaW50IHNlY3VyaXR5X2dldF9ib29sZWFuX25hbWVz
+KGNoYXIgKioqbmFtZXMsIGludCAqbGVuKSAgew0KPiA+PiAgICAgICAgICBjaGFyIHBhdGhbUEFU
+SF9NQVhdOw0KPiA+PiAtICAgICAgIGludCBpLCByYzsNCj4gPj4gKyAgICAgICBpbnQgaSwgaiwg
+cmM7DQo+ID4+ICAgICAgICAgIHN0cnVjdCBkaXJlbnQgKipuYW1lbGlzdDsNCj4gPj4gICAgICAg
+ICAgY2hhciAqKm47DQo+ID4+DQo+ID4+IEBAIC04MSw4ICs4MSw4IEBAIGludCBzZWN1cml0eV9n
+ZXRfYm9vbGVhbl9uYW1lcyhjaGFyICoqKm5hbWVzLCBpbnQNCj4gKmxlbikNCj4gPj4gICAgICAg
+ICAgZnJlZShuYW1lbGlzdCk7DQo+ID4+ICAgICAgICAgIHJldHVybiByYzsNCj4gPj4gICAgICAg
+ICBiYWRfZnJlZW46DQo+ID4+IC0gICAgICAgZm9yICgtLWk7IGkgPj0gMDsgLS1pKQ0KPiA+PiAt
+ICAgICAgICAgICAgICAgZnJlZShuW2ldKTsNCj4gPj4gKyAgICAgICBmb3IgKGogPSAwOyBqIDwg
+aTsgaisrKQ0KPiA+PiArICAgICAgICAgICAgICAgZnJlZShuW2pdKTsNCj4gPj4gICAgICAgICAg
+ZnJlZShuKTsNCj4gPj4gICAgICAgICBiYWQ6DQo+ID4+ICAgICAgICAgIGdvdG8gb3V0Ow0KPiA+
+Pg0KPiA+Pg0KPiA+PiBXaWxsaWFtLCB3aGF0IHdvdWxkIHlvdSBjb25zaWRlciB0byBiZSB0aGUg
+cmlnaHQgZml4IGluIHRoaXMgY2FzZT8NCj4gPg0KPiA+IFRoZSBwcmV2aW91cyBjb2RlIGxvb2tz
+IGNvcnJlY3QgSU1PLCBJIGNhbid0IHNlZSBhbiBhY3R1YWwgcHJvYmxlbS4NCj4gPiBMb29rcyBs
+aWtlIEdDQyBjb21wbGFpbmluZyBpbmNvcnJlY3RseSBvciB3ZXJlIG1pc3Npbmcgc29tZXRoaW5n
+LiBJbg0KPiA+IHRoZSBjYXNlIG9mIGdjYyBJbmNvcnJlY3RseSBjb21wbGFpbmluZyBJIHVzdWFs
+bHkgdGFrZSBhIGNvdXJzZSBvZg0KPiA+IGFjdGlvbiB0byB3b3JrIGFyb3VuZCBpdCwgYnV0IElt
+IG5vdCBzdXJlIGhvdyBvdGhlciBtYWludGFpbmVycyBmZWVsIGFib3V0IHRoYXQNCj4gQHNkcyBh
+bnl0aGluZz8NCj4gDQo+IEFGQUlDUywgdGhlIGNvZGUgaXMgY29ycmVjdCBhcyBpcy4gIE5vdCBh
+IGZhbiBvZiByZXdyaXRpbmcgY29kZSB0byBhcHBlYXNlIG92ZXJseQ0KPiB6ZWFsb3VzIGNvbXBp
+bGVycy4uLg0KPiANCg0KU28gSSBsb29rZWQgYXQgZmlsaW5nIGEgYnVnIHdpdGggR0NDLCBhbmQg
+b25lIHRoaW5nIHRoYXQgaGVscHMgaXQgZ2V0IGxvb2tlZCBhdCBpcyBzYW1wbGUgY29kZQ0KdG8g
+dHJpZ2dlciB0aGUgcHJvYmxlbS4gSSdtIG5vdCBldmVuIHNlZWluZyBhIEdDQyA5IHJlbGVhc2Us
+IHNvIEkgYW0gYXNzdW1pbmcgaXQncyBpbiBhIGRldg0KbW9kZT8gDQoNClNpbmNlIHlvdSBoYXZl
+IGl0IHJ1bm5pbmcgY291bGQgeW91IHNlZSBpZiB5b3UgY2FuIHJlLXByb2R1Y2UgdGhlIGVycm9y
+IGluIGEgc25pcHBldCBhbmQgZmlsZSB0aGUgYnVnPw0KDQpJIHdvdWxkIGFsc28gZGlmZiB0aGUg
+b2JqZWN0IGZpbGUgd2l0aCAtZnJ3YXB2IHRvIHNlZSBpZiBpdCBpcyBwcm9kdWNpbmcgZGlmZmVy
+ZW50IGNvZGUgZm9yIHRoYXQgbG9vcC4NCg0KQmlsbA0K
