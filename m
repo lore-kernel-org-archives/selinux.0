@@ -1,102 +1,102 @@
-Return-Path: <SRS0=wfIc=QP=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=ywSy=QQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 305BAC169C4
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 23:50:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC479C169C4
+	for <selinux@archiver.kernel.org>; Sat,  9 Feb 2019 00:28:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E53A2218DA
-	for <selinux@archiver.kernel.org>; Fri,  8 Feb 2019 23:50:02 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ziepe.ca header.i=@ziepe.ca header.b="WC0vPa+3"
+	by mail.kernel.org (Postfix) with ESMTP id 91B0920821
+	for <selinux@archiver.kernel.org>; Sat,  9 Feb 2019 00:28:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726211AbfBHXuC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Feb 2019 18:50:02 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:34180 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726222AbfBHXuC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Feb 2019 18:50:02 -0500
-Received: by mail-pg1-f195.google.com with SMTP id d9so2262827pgl.1
-        for <selinux@vger.kernel.org>; Fri, 08 Feb 2019 15:50:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=YHWqyblAo3CO+v/mPCcoaCeAr1CzMmx2d2e4oQUg/KQ=;
-        b=WC0vPa+3Dri7UkxabNTcJQaOf5mGtxMJbAMagDVjnf7vtLJcx9MLBi6h2nlTS/ZTjz
-         ZLqKeGO39qt3f0qfgiMP1YkM3f17uH87or1WYhqw5p39o4oHZVh1Y1U5Fj/VWcGcDNjQ
-         35724xpri7Hq+PqJy5+Pv5+VR30bqLzCf8TDpSyNdIDniZOqj8DWZJ/73mvrx0GPjLjd
-         kO1hfkJBDJjg1X9itJIq1fHHrjnf4NKQJ/1KdeQWPTSd2RslkDMyiRhi/Z3S3SYLBA7+
-         DeZssR9KCq9aTY6CYvAUyWB84diT0xQ6yT8yQjcsG5jCgZWyDhZfQbucJWimNMGAvWUW
-         lIkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=YHWqyblAo3CO+v/mPCcoaCeAr1CzMmx2d2e4oQUg/KQ=;
-        b=H1dBykJ2kzErGpVWCK2+LLZHpWx9z6Asp1F+im/2xAGU6aFJXeHC8e69uX+OEvp5y3
-         aU/uNRhtEbelXmOxeaanRXmMvV5tZnIw0ryWe/I83GucT2KZFrnwZt7PYiHUpB/YjihQ
-         W18wnGxdORh5ZJujwCQ6sx+mZ02xEYqEa3ckuo7nSxkDjat1Rp2+3bbLo6U3wzs/sIGZ
-         GQTLLgphretn3B7DuzdJYzjtFVypCxNzH/9NZfvH/cWvnQWXOVOFr12g88nJzHyin1jC
-         Nm0D6sPRtunqR3MXq2q5r99jX3VGf3WvGu5txaO5T8DikYT/imiEKg3cyUPIPXY6+1b1
-         5LPg==
-X-Gm-Message-State: AHQUAuawYEPA3/dwxJAvIyViXUie98vvfC51RCHTTjFI7NUaRvXCknZV
-        nnYiS6uVGkHy4UwmuTeV/Xrd/Q==
-X-Google-Smtp-Source: AHgI3IY7/JSIPC6U9I+umqFX7/xRceqk3v2dKB47GQmQbCZ3uXe14yV8i8yf6PTzaa+IDUPUBOAzxw==
-X-Received: by 2002:a63:d810:: with SMTP id b16mr17766883pgh.220.1549669801471;
-        Fri, 08 Feb 2019 15:50:01 -0800 (PST)
-Received: from ziepe.ca (S010614cc2056d97f.ed.shawcable.net. [174.3.196.123])
-        by smtp.gmail.com with ESMTPSA id m3sm5646043pfi.102.2019.02.08.15.50.00
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 08 Feb 2019 15:50:00 -0800 (PST)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1gsFuB-0001wS-So; Fri, 08 Feb 2019 16:49:59 -0700
-Date:   Fri, 8 Feb 2019 16:49:59 -0700
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     Doug Ledford <dledford@redhat.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        RDMA mailing list <linux-rdma@vger.kernel.org>,
-        Daniel Jurgens <danielj@mellanox.com>,
-        Parav Pandit <parav@mellanox.com>, selinux@vger.kernel.org,
-        paul@paul-moore.com, ddutile@redhat.com
-Subject: Re: [PATCH rdma-rc v1 0/4] IB selinux related fixes
-Message-ID: <20190208234959.GA7442@ziepe.ca>
-References: <20190202090945.4106-1-leon@kernel.org>
+        id S1726700AbfBIA2W (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Feb 2019 19:28:22 -0500
+Received: from www262.sakura.ne.jp ([202.181.97.72]:27096 "EHLO
+        www262.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726655AbfBIA2V (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Feb 2019 19:28:21 -0500
+Received: from fsav405.sakura.ne.jp (fsav405.sakura.ne.jp [133.242.250.104])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id x190SIOO019237;
+        Sat, 9 Feb 2019 09:28:18 +0900 (JST)
+        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav405.sakura.ne.jp (F-Secure/fsigk_smtp/530/fsav405.sakura.ne.jp);
+ Sat, 09 Feb 2019 09:28:18 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/530/fsav405.sakura.ne.jp)
+Received: from [192.168.1.8] (softbank126126163036.bbtec.net [126.126.163.36])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id x190SEkZ019199
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NO);
+        Sat, 9 Feb 2019 09:28:18 +0900 (JST)
+        (envelope-from penguin-kernel@i-love.sakura.ne.jp)
+Subject: Re: [PATCH] LSM: Allow syzbot to ignore security= parameter.
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Kees Cook <keescook@chromium.org>
+Cc:     Dmitry Vyukov <dvyukov@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        syzbot <syzbot+21016130b0580a9de3b5@syzkaller.appspotmail.com>,
+        tyhicks@canonical.com, John Johansen <john.johansen@canonical.com>,
+        James Morris <jmorris@namei.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-security-module@vger.kernel.org,
+        Serge Hallyn <serge@hallyn.com>,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        SELinux <selinux@vger.kernel.org>,
+        Russell Coker <russell@coker.com.au>,
+        Laurent Bigonville <bigon@debian.org>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+References: <8f48e1d0-c109-f8a9-ea94-9659b16cae49@i-love.sakura.ne.jp>
+ <0d23d1a5-d4af-debf-6b5f-aaaf698daaa8@schaufler-ca.com>
+ <201902070230.x172UUG6002087@www262.sakura.ne.jp>
+ <6def6199-0235-7c37-974c-baf731725606@schaufler-ca.com>
+ <54c0ae39-f35c-bdcd-a217-8e62ef14e41b@i-love.sakura.ne.jp>
+ <54f15845-f256-f503-98ce-64a1b88a5f9f@schaufler-ca.com>
+From:   Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Message-ID: <3a775445-c161-f104-ebf6-5fa1c9e9dac8@i-love.sakura.ne.jp>
+Date:   Sat, 9 Feb 2019 09:28:14 +0900
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190202090945.4106-1-leon@kernel.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <54f15845-f256-f503-98ce-64a1b88a5f9f@schaufler-ca.com>
+Content-Type: text/plain; charset=iso-2022-jp
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Feb 02, 2019 at 11:09:41AM +0200, Leon Romanovsky wrote:
-> From: Leon Romanovsky <leonro@mellanox.com>
+On 2019/02/09 1:23, Casey Schaufler wrote:
+> On 2/8/2019 2:52 AM, Tetsuo Handa wrote:
+>> To help administrators easily understand what LSM modules are possibly enabled by default (which
+>> have to be fetched from e.g. /boot/config-`uname -r`)
 > 
-> Hi,
+> $ cat /sys/kernel/security/lsm
 > 
-> This is second version of previously sent patch "IB/core: Don't register
-> MAD agents for LSM notifications", due to the fact that we found extra
-> things to fix during the review, I grouped that patch together with
-> other fixes in that area.
-> 
-> Thanks
-> 
-> Daniel Jurgens (4):
->   IB/core: Unregister notifier before freeing MAD security
->   IB/core: Fix potential memory leak while creating MAD agents
->   IB/core: Eliminate a hole in MAD agent struct
->   IB/core: Don't register each MAD agent for LSM notifier
 
-Applied to for-next
+/sys/kernel/security/lsm is list of "actually" enabled modules, isn't it?
+What I want is "possibly" enabled modules. Ubuntu would chose from either
 
-Thanks,
-Jason
+  (a) explicitly add security=apparmor to kernel command line
+
+or
+
+  (b) explicitly remove tomoyo from CONFIG_LSM at kernel config
+
+in order not to enable TOMOYO for those who want to enable only one of 
+SELinux/Smack/AppArmor. And for those who want to enable TOMOYO, I think
+that (b) (in other words, add
+
+  lsm="modules listed in CONFIG_LSM" + ",tomoyo"
+
+) will retain compatibility when it becomes possible to enable more than
+one of SELinux/Smack/AppArmor at the same time.
+
+If we can know "possibly" enabled modules from dmesg, users don't need to
+look at e.g. /boot/config-`uname -r`. It is not essential, but it's handy.
+
