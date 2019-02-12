@@ -6,95 +6,102 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76CF5C282C4
-	for <selinux@archiver.kernel.org>; Tue, 12 Feb 2019 21:01:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1C5EC282C4
+	for <selinux@archiver.kernel.org>; Tue, 12 Feb 2019 21:02:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4E342222C0
-	for <selinux@archiver.kernel.org>; Tue, 12 Feb 2019 21:01:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7292222C0
+	for <selinux@archiver.kernel.org>; Tue, 12 Feb 2019 21:02:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727190AbfBLVBl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Feb 2019 16:01:41 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:53335 "EHLO
+        id S1727816AbfBLVCe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Feb 2019 16:02:34 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:50954 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726788AbfBLVBl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 Feb 2019 16:01:41 -0500
-Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
+        with ESMTP id S1726788AbfBLVCe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 Feb 2019 16:02:34 -0500
+Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 99B2E5646AF
-        for <selinux@vger.kernel.org>; Tue, 12 Feb 2019 22:01:37 +0100 (CET)
-Received: by mail-ot1-f48.google.com with SMTP id i20so248443otl.0
-        for <selinux@vger.kernel.org>; Tue, 12 Feb 2019 13:01:37 -0800 (PST)
-X-Gm-Message-State: AHQUAuYd2McyRJsLwgR6bZfVV8bA6bfotwjLhHU3CL1m7pm/igkbrURn
-        ybjwy/78w8BkyjsbfoMajB6zsaK9XqQwT8hiWCk=
-X-Google-Smtp-Source: AHgI3IYnOwFaMnjh7t0vCHd5gxbxA/3No+6+nhcTwzajjlfJDCnshk1rwBpep3zEvNeppvEfKHxbV3sngsEMW1PjqtM=
-X-Received: by 2002:a9d:4b90:: with SMTP id k16mr6065776otf.165.1550005296595;
- Tue, 12 Feb 2019 13:01:36 -0800 (PST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 326AF5646D5
+        for <selinux@vger.kernel.org>; Tue, 12 Feb 2019 22:02:30 +0100 (CET)
+Received: by mail-ot1-f46.google.com with SMTP id i20so253271otl.0
+        for <selinux@vger.kernel.org>; Tue, 12 Feb 2019 13:02:30 -0800 (PST)
+X-Gm-Message-State: AHQUAuZAXDCuv+f1Wh/OBZjiqnFUCUphtQN9AkZaYxjy9n2tCxxg19G0
+        BENTuDGWRucrY6hk1cqv8LqSiAWwv7TxsQUcYQ8=
+X-Google-Smtp-Source: AHgI3IYYYf7/5wRBM5s4Iy6jzJjUiQ4xQ6dIYoh7/2ukmLC/cPlI+vjplkbWq2O0ExXGAXoJMOOgdWVrtzMNq69a4yY=
+X-Received: by 2002:a9d:6206:: with SMTP id g6mr5808580otj.338.1550005349298;
+ Tue, 12 Feb 2019 13:02:29 -0800 (PST)
 MIME-Version: 1.0
-References: <20190206210752.11828-1-nicolas.iooss@m4x.org> <d1643ffa-0e04-552f-9903-fa1f111029df@tycho.nsa.gov>
-In-Reply-To: <d1643ffa-0e04-552f-9903-fa1f111029df@tycho.nsa.gov>
+References: <pjdimxuxm7c.fsf@redhat.com> <20190212152046.13875-1-plautrba@redhat.com>
+In-Reply-To: <20190212152046.13875-1-plautrba@redhat.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 12 Feb 2019 22:01:24 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==NtXZBnb1MvdG4Hn97Lhaf3h1tMr=EGXAbD+rXS-9b_A@mail.gmail.com>
-Message-ID: <CAJfZ7==NtXZBnb1MvdG4Hn97Lhaf3h1tMr=EGXAbD+rXS-9b_A@mail.gmail.com>
-Subject: Re: [Non-DoD Source] [PATCH 1/1] libsepol/cil: silence static
- analyser's use-after-free warning
-To:     jwcart2 <jwcart2@tycho.nsa.gov>
+Date:   Tue, 12 Feb 2019 22:02:18 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=kFKx6cz1Tj1impdii4iDKfKtC_LffBTW3Rfg1fEJkHzA@mail.gmail.com>
+Message-ID: <CAJfZ7=kFKx6cz1Tj1impdii4iDKfKtC_LffBTW3Rfg1fEJkHzA@mail.gmail.com>
+Subject: Re: [PATCH v2] libsemanage: genhomedircon - improve handling large groups
+To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Feb 12 22:01:38 2019 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Feb 12 22:02:30 2019 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Feb 11, 2019 at 8:06 PM jwcart2 <jwcart2@tycho.nsa.gov> wrote:
+On Tue, Feb 12, 2019 at 4:20 PM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
-> On 2/6/19 4:07 PM, Nicolas Iooss wrote:
-> > clang's static analyze reports a use-after-free in
-> > __cil_expr_to_string(), when __cil_expr_to_string_helper() does not
-> > modify its third parameter (variable s1 here) in this loop:
-> >
-> >      for (curr = curr->next; curr; curr = curr->next) {
-> >          __cil_expr_to_string_helper(curr, flavor, &s1);
-> >          cil_asprintf(&c2, "%s %s", c1, s1);
-> >          free(c1);
-> >          free(s1);
-> >          c1 = c2;
-> >      }
-> >
-> > Silence this warning by making sure s1 is always NULL at the beginning
-> > of every iteration of the loop.
-> >
-> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> getgrnam_r() uses a preallocated buffer to store a structure containing
+> the broken-out fields of the record in the group database. The size of
+> this buffer is usually sysconf(_SC_GETGR_R_SIZE_MAX) == 1024 and it is
+> not enough for groups with a large number of users.  In these cases,
+> getgrnam_r() returns -1 and sets errno to ERANGE and the caller can
+> retry with a larger buffer.
 >
-> Acked-by: James Carter <jwcart2@tycho.nsa.gov>
+> Fixes:
+> $ semanage login -a -s user_u -r s0-s0:c1.c2 '%largegroup'
+> libsemanage.semanage_direct_commit: semanage_genhomedircon returned error code -1. (Numerical result out of range).
+> OSError: Numerical result out of range
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-Merged.
-
-Nicolas
-
-> > ---
-> >   libsepol/cil/src/cil_binary.c | 1 +
-> >   1 file changed, 1 insertion(+)
-> >
-> > diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> > index a10c3763bea4..e2eb3ebe8ff3 100644
-> > --- a/libsepol/cil/src/cil_binary.c
-> > +++ b/libsepol/cil/src/cil_binary.c
-> > @@ -2075,6 +2075,7 @@ static void __cil_expr_to_string(struct cil_list *expr, enum cil_flavor flavor,
-> >               char *c2 = NULL;
-> >               __cil_expr_to_string_helper(curr, flavor, &c1);
-> >               for (curr = curr->next; curr; curr = curr->next) {
-> > +                     s1 = NULL;
-> >                       __cil_expr_to_string_helper(curr, flavor, &s1);
-> >                       cil_asprintf(&c2, "%s %s", c1, s1);
-> >                       free(c1);
-> >
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsemanage/src/genhomedircon.c | 20 +++++++++++++++++---
+>  1 file changed, 17 insertions(+), 3 deletions(-)
 >
+> diff --git a/libsemanage/src/genhomedircon.c b/libsemanage/src/genhomedircon.c
+> index 591941fb..e5f8d371 100644
+> --- a/libsemanage/src/genhomedircon.c
+> +++ b/libsemanage/src/genhomedircon.c
+> @@ -1077,10 +1077,24 @@ static int get_group_users(genhomedircon_settings_t * s,
 >
+>         const char *grname = selogin + 1;
+>
+> -       if (getgrnam_r(grname, &grstorage, grbuf,
+> -                       (size_t) grbuflen, &group) != 0) {
+> -               goto cleanup;
+> +       errno = 0;
+> +       while (
+> +               (retval = getgrnam_r(grname, &grstorage, grbuf, (size_t) grbuflen, &group)) != 0 &&
+> +               errno == ERANGE
+> +       ) {
+> +               char *new_grbuf;
+> +               grbuflen *= 2;
+> +               if (grbuflen < 0)
+> +                       /* the member list could exceed 2Gb on a system with a 32-bit CPU (where
+> +                        * sizeof(long) = 4) - if this ever happened, the loop would become infinite. */
+> +                       goto cleanup;
+> +               new_grbuf = realloc(grbuf, grbuflen);
+> +               if (new_grbuf == NULL)
+> +                       goto cleanup;
+> +               grbuf = new_grbuf;
+>         }
+> +       if (retval != 0)
+> +               goto cleanup;
+>
+>         if (group == NULL) {
+>                 ERR(s->h_semanage, "Can't find group named %s\n", grname);
 > --
-> James Carter <jwcart2@tycho.nsa.gov>
-> National Security Agency
+> 2.20.1
+>
 
