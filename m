@@ -1,80 +1,165 @@
-Return-Path: <SRS0=q6rH=QU=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=aI9x=QV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29E97C4360F
-	for <selinux@archiver.kernel.org>; Wed, 13 Feb 2019 21:35:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F29FC43381
+	for <selinux@archiver.kernel.org>; Thu, 14 Feb 2019 09:50:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EC78420842
-	for <selinux@archiver.kernel.org>; Wed, 13 Feb 2019 21:35:25 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="kBU+Jd0Y"
+	by mail.kernel.org (Postfix) with ESMTP id 093C9222A4
+	for <selinux@archiver.kernel.org>; Thu, 14 Feb 2019 09:50:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729545AbfBMVfZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Feb 2019 16:35:25 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:42998 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731324AbfBMVfZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Feb 2019 16:35:25 -0500
-Received: by mail-lf1-f67.google.com with SMTP id l10so2934370lfh.9
-        for <selinux@vger.kernel.org>; Wed, 13 Feb 2019 13:35:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=2+7cAkZjb0EpLI0oNagTM30oUolGQDJ6mTqrPIDH5AA=;
-        b=kBU+Jd0Y4H3rTfxmYQ6KNEEfSckWdvcajkmWU+GQGPe/70f9p0V2Ph612CupKwtCkW
-         fwFn4c/z1ZLhQyiuahgdeD1XcwVlP8dsWDnGCVv/vfyJrja8yujsemivgc+XtU3AVgZM
-         fyMWwC8t4Ci2F0pUze9Rrv9h6HZK+ASmaPUhSfbrHpAzLUym9IcJGKgHoLQnENyNDu2Z
-         ACE1iulLuQ8r/bB5kKis7SHZI4I6qG2rXWOTM8+xeT4f85BDAfNo0I2a9WuqJ4Yt6+WX
-         TcVoYiZLkVRuzunMBip1c2R6LukrMObFt3UqmWZjFR5CW5+KKCtzdeZNEL5HeRZ6Udjs
-         ML0A==
+        id S2406215AbfBNJu3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Feb 2019 04:50:29 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:39184 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2403813AbfBNJu1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Feb 2019 04:50:27 -0500
+Received: by mail-wr1-f65.google.com with SMTP id l5so4631030wrw.6
+        for <selinux@vger.kernel.org>; Thu, 14 Feb 2019 01:50:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=2+7cAkZjb0EpLI0oNagTM30oUolGQDJ6mTqrPIDH5AA=;
-        b=E9SDmFUFqbWmVm8muL8grMhi/tQca413qx843fXqTkixb/fh/MaF1G6nDcwLU9RV7S
-         mW8/GD/Zd1PYIfVW7eF8g7gfwzPMOjL17hhTVOlH+Qs0aSbFpRu8dRUmjSKG+de93hqZ
-         7iWBrd925xKzqZ2m1Q4bRbo2O7ui68720vo2uWF4c0mvmHePBM2nglP8qOI4XFRzMie2
-         2n8/AtmS0bxXFusV7KzlqpVT15VREpP6SpJ2mjDEF8/Un/a9lIHEBKSXM0L1ysoIdwrX
-         erlwf7HWLVdJNHTkZRHZxBzTWpQp6/sV3YIcmnGG238hwEBTj7QqRDqVYYv5C26CP6sZ
-         mnmw==
-X-Gm-Message-State: AHQUAuYacp9FPYSXw7V7sfWHCvAE/CutNJfAQd6ci0gcq/C1jdvm+NhY
-        08M1uVyTdTmLNWYRAXedNgNh4aeq6NirvnkUnjXepisyLA==
-X-Google-Smtp-Source: AHgI3IYkF83kGyoCoAqt+UOg5hHJAmPvLx0AJ1FeNoTimmvIwIR2zFOCO+1g2VeLTMydy8mYTMwCpApDpB8+e6z1J6Q=
-X-Received: by 2002:a19:384c:: with SMTP id d12mr130348lfj.105.1550093722741;
- Wed, 13 Feb 2019 13:35:22 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=skdWrxA3koLGpIYt5n9FhAmN9/+o28C/3rSBAZ5onrU=;
+        b=O6nIjqD8g0QgFIX4Dzo9yKRGluNMdWj0AH9gcwDj0t+QR+I9zcUFJL1j1E5RxB2Vs6
+         Rs2rWqLTQF23A53FgCMkgOKG6KYPcNsxY8t6xdtBTQ5qW5CdQlrl1dajN9WzxKDKSVe7
+         IZNRlHZDzVzb2lhCDqwSfcHp9kUNWh7FdEP+eCLedqNNhfsfBfKpxbzJW5AHCfldNItB
+         wfiKvUaL1HqcL16Bm5lcwQXqgi44OcEYtRBEDwOEIJyTGr6A8UCX3lXz964kp0XycIRr
+         t0u7s0eG1hQnxlHqFhi60nvnfUpfutjPG3YkdM4Y1xy/trjrCCYsKJWoEGRdqC2surn9
+         AuOw==
+X-Gm-Message-State: AHQUAuYKEI0tezSEYU/AsHYz7yV/iUCIAnvek6eOcUkvtSo+Cqm5m6nx
+        Xly6V2Tq32NbzcvqsauWH+JTgKLZhjM=
+X-Google-Smtp-Source: AHgI3IZLx3XlevFowQKNiLOkJQU9GABzd55tdf9nURLAxnr69dF3cp0IJRej9MJbWZT/whZJO6FvWA==
+X-Received: by 2002:adf:de83:: with SMTP id w3mr2012510wrl.56.1550137824984;
+        Thu, 14 Feb 2019 01:50:24 -0800 (PST)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id g11sm969439wmk.26.2019.02.14.01.50.23
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 14 Feb 2019 01:50:24 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
+        cgroups@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
+Subject: [PATCH v6 0/5] Allow initializing the kernfs node's secctx based on its parent
+Date:   Thu, 14 Feb 2019 10:50:10 +0100
+Message-Id: <20190214095015.16032-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 13 Feb 2019 16:35:11 -0500
-Message-ID: <CAHC9VhTuYi+W0RukEV4WNrP5X_AFeouaWMsdbgxSL1v04mouWw@mail.gmail.com>
-Subject: IB pkey policy problem found via the selinux-testsuite
-To:     selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Cc:     Lukas Vrabec <lvrabec@redhat.com>, danielj@mellanox.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello all,
+Changes in v6:
+- remove copy-pasted duplicate macro definition
 
-On a fully up-to-date Rawhide system you need the following line added
-to the policy/test_ibpkey.te file to get a clean run of the
-selinux-testsuite:
+v5: https://lore.kernel.org/selinux/20190205110638.30782-1-omosnace@redhat.com/T/
+Changes in v5:
+- fix misplaced semicolon detected by 0day robot
 
-  allow test_ibpkey_access_t self:capability { ipc_lock };
+v4: https://lore.kernel.org/selinux/20190205085915.5183-1-omosnace@redhat.com/T/
+Changes in v4:
+- reorder and rename hook arguments
+- avoid allocating kernfs_iattrs unless needed
 
-The breakage doesn't appear to be due to a kernel change (previously
-working kernels now fail), or a Fedora Rawhide policy change (nothing
-relevant changed since the last clean run), but I did notice that my
-libibverbs package was updated just prior to the breakage.  I haven't
-had the time to dig into the library code, but I expect that to be the
-source of the problem.
+v3: https://lore.kernel.org/selinux/20190130114150.27807-1-omosnace@redhat.com/T/
+Changes in v3:
+- rename the hook to "kernfs_init_security"
+- change the hook interface to simply pass pointers to struct iattr and
+  struct simple_xattrs of both the new node and its parent
+- add full security xattr support to kernfs (and fixup SELinux behavior
+  to handle it properly)
+
+v2: https://lore.kernel.org/selinux/20190109162830.8309-1-omosnace@redhat.com/T/
+Changes in v2:
+- add docstring for the new hook in union security_list_options
+- initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
+  implemented
+
+v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
+
+TL;DR:
+This series adds a new security hook that allows to initialize the security
+context of kernfs properly, taking into account the parent context (and
+possibly other attributes). Kernfs nodes require special handling here, since
+they are not bound to specific inodes/superblocks, but instead represent the
+backing tree structure that is used to build the VFS tree when the kernfs
+tree is mounted.
+
+The kernfs nodes initially do not store any security context and rely on
+the LSM to assign some default context to inodes created over them. Kernfs
+inodes, however, allow setting an explicit context via the *setxattr(2)
+syscalls, in which case the context is stored inside the kernfs node's
+internal structure.
+
+SELinux (and possibly other LSMs) initialize the context of newly created
+FS objects based on the parent object's context (usually the child inherits
+the parent's context, unless the policy dictates otherwise). This is done
+by hooking the creation of the new inode corresponding to the newly created
+file/directory via security_inode_init_security() (most filesystems always
+create a fresh inode when a new FS object is created). However, kernfs nodes
+can be created "behind the scenes" while the filesystem is not mounted
+anywhere and thus no inodes can exist for them yet.
+
+Therefore, to allow maintaining similar behavior for kernfs nodes, a new
+LSM hook is needed, which will allow initializing the kernfs node's
+security context based on its own attributes and those of the parent's
+node.
+
+The main motivation for this change is that the userspace users of cgroupfs
+(which is built on kernfs) expect the usual security context inheritance
+to work under SELinux (see [1] and [2]). This functionality is required for
+better confinement of containers under SELinux.
+
+Patch 1/5 changes SELinux to fetch security context from extended
+attributes on kernfs filesystems, falling back to genfs-defined context
+if that fails. Without this patch the 2/5 would be a regression for
+SELinux (due to the removal of ...notifysecctx() call.
+
+Patch 2/5 implements full security xattr support in kernfs using
+simple_xattrs; patch 3/5 adds the new LSM hook; patch 4/5 implements the
+new hook in SELinux; and patch 5/5 modifies kernfs to call the new hook
+on new node creation.
+
+Testing:
+- passed the reproducer from the commit message of the last patch
+- passed SELinux testsuite on Fedora 29 (x86_64) when applied on top of
+  current Rawhide kernel (5.0.0-0.rc5.git0.1) [3]
+  - including the new proposed selinux-testsuite subtest [4] (adapted
+    from the reproducer)
+
+[1] https://github.com/SELinuxProject/selinux-kernel/issues/39
+[2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
+[3] https://copr.fedorainfracloud.org/coprs/omos/kernel-testing/build/854148/
+[4] https://github.com/SELinuxProject/selinux-testsuite/pull/48
+
+Ondrej Mosnacek (5):
+  selinux: try security xattr after genfs for kernfs filesystems
+  kernfs: use simple_xattrs for security attributes
+  LSM: add new hook for kernfs node initialization
+  selinux: implement the kernfs_init_security hook
+  kernfs: initialize security of newly created nodes
+
+ fs/kernfs/dir.c                     |  64 +++++++-
+ fs/kernfs/inode.c                   | 125 +++++++---------
+ fs/kernfs/kernfs-internal.h         |   7 +-
+ include/linux/lsm_hooks.h           |  22 +++
+ include/linux/security.h            |  14 ++
+ include/linux/xattr.h               |  15 ++
+ security/security.c                 |  10 ++
+ security/selinux/hooks.c            | 222 +++++++++++++++++++---------
+ security/selinux/include/security.h |   1 +
+ 9 files changed, 328 insertions(+), 152 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+2.20.1
+
