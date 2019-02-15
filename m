@@ -2,77 +2,325 @@ Return-Path: <SRS0=IGSF=QW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66EF9C43381
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:45:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCF54C43381
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:48:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 361732190C
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:45:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F3A3222D7
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:48:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387480AbfBOPpz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Feb 2019 10:45:55 -0500
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:46460 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728594AbfBOPpz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 10:45:55 -0500
-Received: by mail-ot1-f65.google.com with SMTP id w25so17121031otm.13
-        for <selinux@vger.kernel.org>; Fri, 15 Feb 2019 07:45:55 -0800 (PST)
+        id S1727661AbfBOPsf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Feb 2019 10:48:35 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:33778 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727555AbfBOPsf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 10:48:35 -0500
+Received: by mail-ot1-f67.google.com with SMTP id i20so17278961otl.0
+        for <selinux@vger.kernel.org>; Fri, 15 Feb 2019 07:48:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=/OiCgqlERhhojQuaFlWk/LlZgoAbDJtdNlcO0vs8HkM=;
-        b=mSkE0E7mHCLb/UTjEWuwvC+fwcnkZ2Z3GI6l2tO2cFa1BIfWC0PrhNsUpdnYz76Swp
-         aSaCU5HWx+fTjGzEDpCKYPAJvyaAYt1G7kn/BzYI5Tyn5KL/bGuEZDROvS82LHJyNTU1
-         K+gUp5GaPSb3LootPAW/5D6iZ+v3HAmsgUyudKRcA/JEgKk9kEGPcr0qzpjirIkCdOoO
-         D3fEsAs9J/YAcdY5+s/CZtj+77TdST89zjZTloR914GbRNcf1qY9ifaooyH/9EkRgiKN
-         T0AsxIG01r1/pXRaQI4N7P1aEJdpp+09tgNooNbKobJeczVk0gxeREWKIuZ+19U0kEaF
-         jKfQ==
-X-Gm-Message-State: AHQUAubZVZLyvE8KlBz08X6rTDQv6IudnsooG+4fAgAu/bw8w/vJnswQ
-        +BLVPh2L2k5gUTjOLEUqzlIo/rDbFLMLC6r1RB9VBg==
-X-Google-Smtp-Source: AHgI3IZbTXM8UMmJZmoaY8bD89J2iU4YE3o8lshMkXFG+2DNiHqslsMAj8CiiHgaFw2Iz9v22GMpkz4nhKWpLK7KSjo=
-X-Received: by 2002:a54:4f8f:: with SMTP id g15mr1009244oiy.166.1550245554986;
- Fri, 15 Feb 2019 07:45:54 -0800 (PST)
+        bh=30F8EZMpwc9tt3oKM8FpfVRq8JjZVdJ13oLkYj6Ye1Y=;
+        b=jw2Kuu6YT0xz8lST4WCVJHxue2AauRJnCMrkdwK0aSb0A7/OelfFaiqRrGZCcSNvZ0
+         ohpI/Jknjy28UK5yQDi9R9KwGnlKOAfnMx8y4Tnq6IWsq9UQ2oyZXGurzdI9jzKB4Qed
+         PVAYtAss7WJfKVQQcKc8zElhQuhNvcXV5h4R9B9jTQ/JHu01zL9OMOQGkRyemPl0KQbP
+         0LgTP3zfEzLddINADfhdjIqSpty9+8YWWQ8ssrOaF6fUYEZx9kFo/p6OjIC4D1g1bSbF
+         lDVJ3gG3lwGlorOr+J3bXRvTQog1NwOXXxV9ZvvgraSMvtd0kbp8mMoXjjbjiwsrDaTd
+         1Qcw==
+X-Gm-Message-State: AHQUAubKHWAECeF0mweXXanS/mQvY0MOZfqsUYRFQXSGjBiwN9/Bilj5
+        AOSTsrMkV5G1ulRKEUsMl4rjZ99qAnzTEn/ujHbE4w==
+X-Google-Smtp-Source: AHgI3IYPYaHBn9tx8KZipT8KvAbPQNUYPMpp0nvSxMiq48a2jPl1e8vrs1KxYaRmimymaY1GrG78Zwar83XqwY6vtAU=
+X-Received: by 2002:a9d:72c6:: with SMTP id d6mr6129886otk.78.1550245714299;
+ Fri, 15 Feb 2019 07:48:34 -0800 (PST)
 MIME-Version: 1.0
-References: <20190214095015.16032-1-omosnace@redhat.com> <20190214095015.16032-6-omosnace@redhat.com>
- <20190214154854.GO50184@devbig004.ftw2.facebook.com>
-In-Reply-To: <20190214154854.GO50184@devbig004.ftw2.facebook.com>
+References: <20190214095015.16032-1-omosnace@redhat.com> <20190214095015.16032-2-omosnace@redhat.com>
+ <8569202a-1a46-2a4d-3943-01b9bc918524@tycho.nsa.gov>
+In-Reply-To: <8569202a-1a46-2a4d-3943-01b9bc918524@tycho.nsa.gov>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 15 Feb 2019 16:45:44 +0100
-Message-ID: <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
-Subject: Re: [PATCH v6 5/5] kernfs: initialize security of newly created nodes
-To:     Tejun Heo <tj@kernel.org>
+Date:   Fri, 15 Feb 2019 16:48:23 +0100
+Message-ID: <CAFqZXNtim3sy0H15MAdtZL4Zrw+B7BbCNmRs8g2SFMLn1_ySPw@mail.gmail.com>
+Subject: Re: [PATCH v6 1/5] selinux: try security xattr after genfs for kernfs filesystems
+To:     Stephen Smalley <sds@tycho.nsa.gov>
 Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
         Linux Security Module list 
         <linux-security-module@vger.kernel.org>,
         Casey Schaufler <casey@schaufler-ca.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+        Tejun Heo <tj@kernel.org>, linux-fsdevel@vger.kernel.org,
+        cgroups@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 14, 2019 at 4:49 PM Tejun Heo <tj@kernel.org> wrote:
-> On Thu, Feb 14, 2019 at 10:50:15AM +0100, Ondrej Mosnacek wrote:
-> > +static int kernfs_node_init_security(struct kernfs_node *parent,
-> > +                                  struct kernfs_node *kn)
+On Thu, Feb 14, 2019 at 9:49 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 2/14/19 4:50 AM, Ondrej Mosnacek wrote:
+> > Since kernfs supports the security xattr handlers, we can simply use
+> > these to determine the inode's context, dropping the need to update it
+> > from kernfs explicitly using a security_inode_notifysecctx() call.
+> >
+> > We achieve this by setting a new sbsec flag SE_SBGENFS_XATTR to all
+> > mounts that are known to use kernfs under the hood and then fetching the
+> > xattrs after determining the fallback genfs sid in
+> > inode_doinit_with_dentry() when this flag is set.
+> >
+> > This will allow implementing full security xattr support in kernfs and
+> > removing the ...notifysecctx() call in a subsequent patch.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >   security/selinux/hooks.c            | 160 +++++++++++++++-------------
+> >   security/selinux/include/security.h |   1 +
+> >   2 files changed, 88 insertions(+), 73 deletions(-)
+> >
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 81e012c66d95..7dea5b1a89a3 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -793,11 +793,13 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+> >
+> >       if (!strcmp(sb->s_type->name, "debugfs") ||
+> >           !strcmp(sb->s_type->name, "tracefs") ||
+> > -         !strcmp(sb->s_type->name, "sysfs") ||
+> > -         !strcmp(sb->s_type->name, "pstore") ||
+> > +         !strcmp(sb->s_type->name, "pstore"))
+> > +             sbsec->flags |= SE_SBGENFS;
+> > +
+> > +     if (!strcmp(sb->s_type->name, "sysfs") ||
+> >           !strcmp(sb->s_type->name, "cgroup") ||
+> >           !strcmp(sb->s_type->name, "cgroup2"))
+> > -             sbsec->flags |= SE_SBGENFS;
+> > +             sbsec->flags |= SE_SBGENFS | SE_SBGENFS_XATTR;
+> >
+> >       if (!sbsec->behavior) {
+> >               /*
+> > @@ -1392,6 +1394,71 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+> >       return rc;
+> >   }
+> >
+> > +static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
+> > +                               u32 def_sid, u32 *sid)
+> > +{
+> > +#define INITCONTEXTLEN 255
+> > +     char *context = NULL;
+> > +     unsigned int len = 0;
 >
-> Can we skip the whole thing if security is not enabled?
+> No need to initialize here since no uses or gotos prior to first assignment?
 
-Do you mean just skipping the whole part when CONFIG_SECURITY=n? That
-is easy to do and I can add it in the next respin (although the
-compiler should be able to optimize most of it out in that case).
+Yes, fixed locally.
 
-If you mean dynamically checking if calling the hook would actually do
-anything (i.e. if any LSM actually registered that particular hook),
-then that should also be possible (just check if
-security_hook_heads.kernfs_init_security is a non-empty list), but I'm
-not sure if that wouldn't be too hacky...
+>
+> > +     int rc;
+> > +
+> > +     *sid = def_sid;
+> > +
+> > +     if (!(inode->i_opflags & IOP_XATTR))
+> > +             return 0;
+>
+> Is this a change in behavior from before the patch?  Would we have
+> previously called __vfs_getxattr -> xattr_resolve_name and returned
+> either -EIO (is_bad_inode) or -EOPNOTSUPP to the caller?  Perhaps it is
+> fine to return 0 with the default SID here, but wanted to check.
+
+In the 'case SECURITY_FS_USE_XATTR' block (where this code was
+originally), there is the same check actually duplicated at the
+beginning (it is not visible in the diff context), for that code path
+this check is a no-op. Since moving the check into the function would
+possibly change the behavior there, I chose to duplicate the check
+inside the new function (and in the new call site we want to leave the
+default (genfs sid) and return 0).
+
+I realized now that checking for IOP_XATTR along with SE_SBGENFS_XATTR
+and removing the check from inode_doinit_use_xattr() actually makes
+more sense. Will do that in the next respin.
+
+>
+> > +
+> > +     len = INITCONTEXTLEN;
+> > +     context = kmalloc(len + 1, GFP_NOFS);
+> > +     if (!context)
+> > +             return -ENOMEM;
+> > +
+> > +     context[len] = '\0';
+> > +     rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+> > +     if (rc == -ERANGE) {
+> > +             kfree(context);
+> > +
+> > +             /* Need a larger buffer.  Query for the right size. */
+> > +             rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
+> > +             if (rc < 0)
+> > +                     return rc;
+> > +
+> > +             len = rc;
+> > +             context = kmalloc(len + 1, GFP_NOFS);
+> > +             if (!context)
+> > +                     return -ENOMEM;
+> > +
+> > +             context[len] = '\0';
+> > +             rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX,
+> > +                                 context, len);
+> > +     }
+> > +     if (rc < 0) {
+> > +             kfree(context);
+> > +             if (rc != -ENODATA) {
+> > +                     pr_warn("SELinux: %s:  getxattr returned %d for dev=%s ino=%ld\n",
+> > +                             __func__, -rc, inode->i_sb->s_id, inode->i_ino);
+> > +                     return rc;
+> > +             }
+> > +             return 0;
+> > +     }
+> > +
+> > +     rc = security_context_to_sid_default(&selinux_state, context, rc, sid,
+> > +                                          def_sid, GFP_NOFS);
+> > +     if (rc) {
+> > +             char *dev = inode->i_sb->s_id;
+> > +             unsigned long ino = inode->i_ino;
+> > +
+> > +             if (rc == -EINVAL) {
+> > +                     pr_notice_ratelimited("SELinux: inode=%lu on dev=%s was found to have an invalid context=%s.  This indicates you may need to relabel the inode or the filesystem in question.\n",
+> > +                                           ino, dev, context);
+> > +             } else {
+> > +                     pr_warn("SELinux: %s:  context_to_sid(%s) returned %d for dev=%s ino=%ld\n",
+> > +                             __func__, context, -rc, dev, ino);
+> > +             }
+> > +     }
+> > +     kfree(context);
+> > +     return 0;
+> > +}
+> > +
+> >   /* The inode's security attributes must be initialized before first use. */
+> >   static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
+> >   {
+> > @@ -1400,9 +1467,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+> >       u32 task_sid, sid = 0;
+> >       u16 sclass;
+> >       struct dentry *dentry;
+> > -#define INITCONTEXTLEN 255
+> > -     char *context = NULL;
+> > -     unsigned len = 0;
+> >       int rc = 0;
+> >
+> >       if (isec->initialized == LABEL_INITIALIZED)
+> > @@ -1470,72 +1534,11 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+> >                       goto out;
+> >               }
+> >
+> > -             len = INITCONTEXTLEN;
+> > -             context = kmalloc(len+1, GFP_NOFS);
+> > -             if (!context) {
+> > -                     rc = -ENOMEM;
+> > -                     dput(dentry);
+> > -                     goto out;
+> > -             }
+> > -             context[len] = '\0';
+> > -             rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+> > -             if (rc == -ERANGE) {
+> > -                     kfree(context);
+> > -
+> > -                     /* Need a larger buffer.  Query for the right size. */
+> > -                     rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
+> > -                     if (rc < 0) {
+> > -                             dput(dentry);
+> > -                             goto out;
+> > -                     }
+> > -                     len = rc;
+> > -                     context = kmalloc(len+1, GFP_NOFS);
+> > -                     if (!context) {
+> > -                             rc = -ENOMEM;
+> > -                             dput(dentry);
+> > -                             goto out;
+> > -                     }
+> > -                     context[len] = '\0';
+> > -                     rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+> > -             }
+> > +             rc = inode_doinit_use_xattr(inode, dentry, sbsec->def_sid,
+> > +                                         &sid);
+> >               dput(dentry);
+> > -             if (rc < 0) {
+> > -                     if (rc != -ENODATA) {
+> > -                             pr_warn("SELinux: %s:  getxattr returned "
+> > -                                    "%d for dev=%s ino=%ld\n", __func__,
+> > -                                    -rc, inode->i_sb->s_id, inode->i_ino);
+> > -                             kfree(context);
+> > -                             goto out;
+> > -                     }
+> > -                     /* Map ENODATA to the default file SID */
+> > -                     sid = sbsec->def_sid;
+> > -                     rc = 0;
+> > -             } else {
+> > -                     rc = security_context_to_sid_default(&selinux_state,
+> > -                                                          context, rc, &sid,
+> > -                                                          sbsec->def_sid,
+> > -                                                          GFP_NOFS);
+> > -                     if (rc) {
+> > -                             char *dev = inode->i_sb->s_id;
+> > -                             unsigned long ino = inode->i_ino;
+> > -
+> > -                             if (rc == -EINVAL) {
+> > -                                     if (printk_ratelimit())
+> > -                                             pr_notice("SELinux: inode=%lu on dev=%s was found to have an invalid "
+> > -                                                     "context=%s.  This indicates you may need to relabel the inode or the "
+> > -                                                     "filesystem in question.\n", ino, dev, context);
+> > -                             } else {
+> > -                                     pr_warn("SELinux: %s:  context_to_sid(%s) "
+> > -                                            "returned %d for dev=%s ino=%ld\n",
+> > -                                            __func__, context, -rc, dev, ino);
+> > -                             }
+> > -                             kfree(context);
+> > -                             /* Leave with the unlabeled SID */
+> > -                             rc = 0;
+> > -                             break;
+> > -                     }
+> > -             }
+> > -             kfree(context);
+> > +             if (rc)
+> > +                     goto out;
+> >               break;
+> >       case SECURITY_FS_USE_TASK:
+> >               sid = task_sid;
+> > @@ -1586,9 +1589,20 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+> >                               goto out;
+> >                       rc = selinux_genfs_get_sid(dentry, sclass,
+> >                                                  sbsec->flags, &sid);
+> > -                     dput(dentry);
+> > -                     if (rc)
+> > +                     if (rc) {
+> > +                             dput(dentry);
+> >                               goto out;
+> > +                     }
+> > +
+> > +                     if (sbsec->flags & SE_SBGENFS_XATTR) {
+> > +                             rc = inode_doinit_use_xattr(inode, dentry,
+> > +                                                         sid, &sid);
+> > +                             if (rc) {
+> > +                                     dput(dentry);
+> > +                                     goto out;
+> > +                             }
+> > +                     }
+> > +                     dput(dentry);
+> >               }
+> >               break;
+> >       }
+> > diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+> > index f68fb25b5702..6e5928f951da 100644
+> > --- a/security/selinux/include/security.h
+> > +++ b/security/selinux/include/security.h
+> > @@ -58,6 +58,7 @@
+> >   #define SE_SBINITIALIZED    0x0100
+> >   #define SE_SBPROC           0x0200
+> >   #define SE_SBGENFS          0x0400
+> > +#define SE_SBGENFS_XATTR     0x0800
+> >
+> >   #define CONTEXT_STR "context="
+> >   #define FSCONTEXT_STR       "fscontext="
+> >
+>
+
 
 --
 Ondrej Mosnacek <omosnace at redhat dot com>
