@@ -2,256 +2,299 @@ Return-Path: <SRS0=IGSF=QW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74F7AC43381
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:28:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AF7BC43381
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:43:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 432652192D
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:28:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2D292192D
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:43:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="bciBElYY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731209AbfBOO2H convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Feb 2019 09:28:07 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:56794 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726237AbfBOO2G (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 15 Feb 2019 09:28:06 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id ECF981219DB;
-        Fri, 15 Feb 2019 14:28:05 +0000 (UTC)
-Received: from workstation (unknown [10.40.205.53])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 091DD5D9CA;
-        Fri, 15 Feb 2019 14:28:04 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 1/2] python/semanage module: Fix handling of -a/-e/-d/-r options
-References: <20190206194325.24875-1-plautrba@redhat.com>
-        <CAJfZ7=mdSxSVTNBNbuD0SWp_yMC6O0Gsf12Wh2b3JM0abx3VEQ@mail.gmail.com>
-Date:   Fri, 15 Feb 2019 15:28:03 +0100
-In-Reply-To: <CAJfZ7=mdSxSVTNBNbuD0SWp_yMC6O0Gsf12Wh2b3JM0abx3VEQ@mail.gmail.com>
-        (Nicolas Iooss's message of "Thu, 7 Feb 2019 22:46:14 +0100")
-Message-ID: <pjdtvh5m8i4.fsf@redhat.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1726237AbfBOOnl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Feb 2019 09:43:41 -0500
+Received: from uphb19pa13.eemsg.mail.mil ([214.24.26.87]:43832 "EHLO
+        usfb19pa16.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725939AbfBOOnl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 09:43:41 -0500
+X-EEMSG-check-017: 166909616|USFB19PA16_EEMSG_MP12.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by usfb19pa16.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Feb 2019 14:43:37 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1550241817; x=1581777817;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=KkoOfEg+8kwsZbm+fnb+IMg/2yPYFr5BJlKGQclQORk=;
+  b=bciBElYY4mXJm+/mFSj9E39S4xBKegFfAoft8fGunqMxz9b13UWkOSxz
+   drlJ28p0P7gm8+f8hoIm8wAuQbSs9QWeJVcZaG+7fo4OIW6yppqAEeQKL
+   zSR/TurleLnF4p965ldFBHoIcE+ysO7jbJ3erDErApAaT7+LZ2Ovqnk9F
+   KZvfxyXMC8bFhbHw+oSL0QNQ45nHFMEzQK4Vqm4XwSScg8RRwAMsehzo8
+   pwKG2TzJ9svd23jxkiuz3kwaoiTyqGcatPUH+0pzYulYVsBnsPZDKMSNf
+   MFvWfaPo3EgXHI81eJEwAocSZyBtZUV0fHV9Et8ifd3IGaU1c1ahe9wli
+   w==;
+X-IronPort-AV: E=Sophos;i="5.58,372,1544486400"; 
+   d="scan'208";a="23978634"
+IronPort-PHdr: =?us-ascii?q?9a23=3ASoaxZBbeRnJn+PfdDci7ESj/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZoMS9bnLW6fgltlLVR4KTs6sC17KG9fi4EUU7or+5+EgYd5JNUx?=
+ =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
+ =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCa+bL9oMBm6sRjau9ULj4dlNqs/0A?=
+ =?us-ascii?q?bCrGFSe+RRy2NoJFaTkAj568yt4pNt8Dletuw4+cJYXqr0Y6o3TbpDDDQ7KG?=
+ =?us-ascii?q?81/9HktQPCTQSU+HQRVHgdnwdSDAjE6BH6WYrxsjf/u+Fg1iSWIdH6QLYpUj?=
+ =?us-ascii?q?us9adrTALjhjkBOTA37WrbjtV8gLxHrB6koRF03ozab5yPNPdmfq3TY84US2?=
+ =?us-ascii?q?RCUMhWWCNPDZixY5cMAucbIepVtZXxq0cIoBCjBQesHuTvyjpQi3Hrwa01zf?=
+ =?us-ascii?q?whEQHY0wwmAtkArXHUo8/xNKcWT++0zLTDwDLYb/xLwjfw85TIcxA9rvGMWr?=
+ =?us-ascii?q?J8a8zRyVI1GA/fgVWQrpLlMiqT2+8QsGab9/JtWf+ghmMosQ18oiWjyt0yho?=
+ =?us-ascii?q?TGmI4Z0E3I+CNky4gvP9K4UlR0Ydu8HZtVsCGVKpV5T9s5Q2FtpCY60roGuY?=
+ =?us-ascii?q?OnfCQSyJQo2Rrfa/uffoiU+B3jTueRISpjhH5/ZLK+hwq98UinyuHmUMm7zE?=
+ =?us-ascii?q?1KoTZfntnJt3AN0wTf6smBSvRj4keswSuD2g/c5+1eIU04iLDXJ4Auz7IujJ?=
+ =?us-ascii?q?YfrFzPHirsl0X3iK+WeF8k+u+t6+n/ebXpu4ScOpRoigD+Lqsumsu/Df4+Mg?=
+ =?us-ascii?q?gVRWeX4+u81Lr9/UHhWrVFkuU2krXFsJDdPckbvbC2AwtU0oYl9ha+ACyr0M?=
+ =?us-ascii?q?oXnXYZNlJJYhGHgJbzO1HIPv/4Ce2zg1O2kDdk3/rGJKHuAo3RLnjfl7fsZa?=
+ =?us-ascii?q?595FRByAo31t1f/4hbCqwFIP7qX0/xs9vYDgUnPACu3+nnD9B9hcsiXjeXC7?=
+ =?us-ascii?q?KdGLvbrFvN4+UoOeTKb4gQ6xjnLP1w3OLjlX80nxcmeKCt2ZYGICSjEu9OP1?=
+ =?us-ascii?q?SSYX2qhMwIV2gNoFxtH6TRlFSeXGsLND6JVKUm62R+Utqr?=
+X-IPAS-Result: =?us-ascii?q?A2AwAAAkz2Zc/wHyM5BkHAEBAQQBAQcEAQGBUQcBAQsBg?=
+ =?us-ascii?q?VkpgWonjCCLZEwBAQEBAQEGim6OXoF7IBgBhECDbCI0CQ0BAwEBAQEBAQIBb?=
+ =?us-ascii?q?CiCOimDFQsBRoFRgmM9gWYNrFQzhUSEbIgDhEEXeIEHjwQCkEOBBpFxCYsrh?=
+ =?us-ascii?q?x8MGZJ6niU4gVYrCAIYCCEPO4JsgigXjjwhAzCBBQEBjGYrgiABAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Feb 2019 14:43:36 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x1FEhZCo004806;
+        Fri, 15 Feb 2019 09:43:35 -0500
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     paul@paul-moore.com
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH v2] scripts/selinux: add basic mls support to mdp
+Date:   Fri, 15 Feb 2019 09:43:33 -0500
+Message-Id: <20190215144333.24426-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Fri, 15 Feb 2019 14:28:06 +0000 (UTC)
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+Add basic MLS policy support to mdp.  Declares
+two sensitivities and two categories, defines
+mls constraints for all permissions requiring
+dominance (ala MCS), assigns the system-high
+level to initial SID contexts and the default user
+level, and assigns system-low level to filesystems.
 
-> On Wed, Feb 6, 2019 at 8:43 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> Previous code traceback-ed when one of the mentioned option was used without
->> any argument as this state was not handled by the argument parser.
->>
->> action='store' stores arguments as a list while the original
->> action='store_const' used str therefore the particular interfaces in
->> moduleRecords are changed to be compatible with both.
->>
->> Fixes:
->> ^_^ semanage module -a
->> Traceback (most recent call last):
->>   File "/usr/sbin/semanage", line 963, in <module>
->>     do_parser()
->>   File "/usr/sbin/semanage", line 942, in do_parser
->>     args.func(args)
->>   File "/usr/sbin/semanage", line 608, in handleModule
->>     OBJECT.add(args.module_name, args.priority)
->>   File "/usr/lib/python3.7/site-packages/seobject.py", line 402, in add
->>     if not os.path.exists(file):
->>   File "/usr/lib64/python3.7/genericpath.py", line 19, in exists
->>     os.stat(path)
->> TypeError: stat: path should be string, bytes, os.PathLike or integer, not NoneType
->>
->> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
->
-> Nice bug :) Nevertheless "if type(module) == str" troubles me because
-> I except a function to only accept one kind of arguments (either a
-> list of strings or a string, but not both).
+Also reworks the fs_use and genfscon rules to only
+generate rules for filesystems that are configured
+in the kernel.  In some cases this depends on a specific
+config option for security xattrs, in other cases security
+xattrs are unconditionally supported by a given filesystem
+if the filesystem is enabled, and in some cases the filesystem
+is always enabled in the kernel.  Dropped obsolete pseudo
+filesystems.
 
-The idea was to have backward compatible code. Originally, semanage used
-to send a string, while the new code sends a list. I didn't want to
-break 3rd party and I wanted to avoid converting of the list from
-action_enable to string and the converting it back to list in
-moduleRecords.set_enabled()
+NB The list of fs_use_* and genfscon rules emitted by mdp
+is very incomplete compared to refpolicy or Android sepolicy.
+We should probably expand it.
 
+Usage:
+scripts/selinux/mdp/mdp -m policy.conf file_contexts
+checkpolicy -M -o policy policy.conf
 
-> Moreover this is
-> Python3-only code and semanage's shebang does not specify a Python
-> version (the Python2-equivalent code would have been "if
-> isinstance(module, basestring)").
+Then install the resulting policy and file_contexts as usual.
 
-Works for me:
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+v2 adds a second sensitivity, changes the constraints to require
+dominance rather than equality for all permissions (ala MCS), changes
+the default level and initial SID contexts to use the highest level,
+macro-izes the fs_use and genfscon statement generation, and makes them
+conditional on the relevant kernel configuration option if any.  Still
+only tested that the resulting policy compiles and the file_contexts
+file passes setfiles -c policy file_contexts validation, not actual
+loading into a kernel or running it.
+ scripts/selinux/mdp/mdp.c | 137 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 109 insertions(+), 28 deletions(-)
 
-> python2
-Python 2.7.15 (default, Feb  2 2019, 16:04:51) 
-[GCC 9.0.1 20190129 (Red Hat 9.0.1-0.2)] on linux2
-Type "help", "copyright", "credits" or "license" for more information.
->>> type("name")
-<type 'str'>
->>> type(["name"])
-<type 'list'>
->>> type("name") == str
-True
->>> type(["name"]) == str
-False
+diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
+index 073fe7537f6c..3dc47601e2ec 100644
+--- a/scripts/selinux/mdp/mdp.c
++++ b/scripts/selinux/mdp/mdp.c
+@@ -33,6 +33,7 @@
+ #include <unistd.h>
+ #include <string.h>
+ #include <sys/socket.h>
++#include <linux/kconfig.h>
+ 
+ static void usage(char *name)
+ {
+@@ -95,10 +96,31 @@ int main(int argc, char *argv[])
+ 	}
+ 	fprintf(fout, "\n");
+ 
+-	/* NOW PRINT OUT MLS STUFF */
++	/* print out mls declarations and constraints */
+ 	if (mls) {
+-		printf("MLS not yet implemented\n");
+-		exit(1);
++		fprintf(fout, "sensitivity s0;\n");
++		fprintf(fout, "sensitivity s1;\n");
++		fprintf(fout, "dominance { s0 s1 }\n");
++		fprintf(fout, "category c0;\n");
++		fprintf(fout, "category c1;\n");
++		fprintf(fout, "level s0:c0.c1;\n");
++		fprintf(fout, "level s1:c0.c1;\n");
++#define SYSTEMLOW "s0"
++#define SYSTEMHIGH "s1:c0.c1"
++		for (i = 0; secclass_map[i].name; i++) {
++			struct security_class_mapping *map = &secclass_map[i];
++
++			fprintf(fout, "mlsconstrain %s {\n", map->name);
++			for (j = 0; map->perms[j]; j++)
++				fprintf(fout, "\t%s\n", map->perms[j]);
++			/*
++			 * This requires all subjects and objects to be
++			 * single-level (l2 eq h2), and that the subject
++			 * level dominate the object level (h1 dom h2)
++			 * in order to have any permissions to it.
++			 */
++			fprintf(fout, "} (l2 eq h2 and h1 dom h2);\n\n");
++		}
+ 	}
+ 
+ 	/* types, roles, and allows */
+@@ -108,34 +130,87 @@ int main(int argc, char *argv[])
+ 	for (i = 0; secclass_map[i].name; i++)
+ 		fprintf(fout, "allow base_t base_t:%s *;\n",
+ 			secclass_map[i].name);
+-	fprintf(fout, "user user_u roles { base_r };\n");
+-	fprintf(fout, "\n");
++	fprintf(fout, "user user_u roles { base_r }");
++	if (mls)
++		fprintf(fout, " level %s range %s - %s", SYSTEMHIGH,
++			SYSTEMLOW, SYSTEMHIGH);
++	fprintf(fout, ";\n");
++
++#define USERROLETYPE "user_u:base_r:base_t"
+ 
+ 	/* default sids */
+ 	for (i = 1; i < initial_sid_to_string_len; i++)
+-		fprintf(fout, "sid %s user_u:base_r:base_t\n", initial_sid_to_string[i]);
++		fprintf(fout, "sid %s " USERROLETYPE "%s\n",
++			initial_sid_to_string[i], mls ? ":" SYSTEMHIGH : "");
+ 	fprintf(fout, "\n");
+ 
+-	fprintf(fout, "fs_use_xattr ext2 user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_xattr ext3 user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_xattr ext4 user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_xattr jfs user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_xattr xfs user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_xattr reiserfs user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_xattr jffs2 user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_xattr gfs2 user_u:base_r:base_t;\n");
+-
+-	fprintf(fout, "fs_use_task eventpollfs user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_task pipefs user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_task sockfs user_u:base_r:base_t;\n");
+-
+-	fprintf(fout, "fs_use_trans mqueue user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_trans devpts user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_trans hugetlbfs user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_trans tmpfs user_u:base_r:base_t;\n");
+-	fprintf(fout, "fs_use_trans shm user_u:base_r:base_t;\n");
+-
+-	fprintf(fout, "genfscon proc / user_u:base_r:base_t\n");
++#define FS_USE(behavior, fstype)			    \
++	fprintf(fout, "fs_use_%s %s " USERROLETYPE "%s;\n", \
++		behavior, fstype, mls ? ":" SYSTEMLOW : "")
++
++	/*
++	 * Filesystems whose inode labels can be fetched via getxattr.
++	 */
++#ifdef CONFIG_EXT2_FS_SECURITY
++	FS_USE("xattr", "ext2");
++#endif
++#ifdef CONFIG_EXT3_FS_SECURITY
++	FS_USE("xattr", "ext3");
++#endif
++#ifdef CONFIG_EXT4_FS_SECURITY
++	FS_USE("xattr", "ext4");
++#endif
++#ifdef CONFIG_JFS_SECURITY
++	FS_USE("xattr", "jfs");
++#endif
++#ifdef CONFIG_REISERFS_FS_SECURITY
++	FS_USE("xattr", "reiserfs");
++#endif
++#ifdef CONFIG_JFFS2_FS_SECURITY
++	FS_USE("xattr", "jffs2");
++#endif
++#ifdef CONFIG_XFS_FS
++	FS_USE("xattr", "xfs");
++#endif
++#ifdef CONFIG_GFS2_FS
++	FS_USE("xattr", "gfs2");
++#endif
++
++	/*
++	 * Filesystems whose inodes are labeled from allocating task.
++	 */
++	FS_USE("task", "pipefs");
++	FS_USE("task", "sockfs");
++#ifdef CONFIG_POSIX_MQUEUE
++	FS_USE("task", "mqueue");
++#endif
++
++	/*
++	 * Filesystems whose inode labels are computed from both
++	 * the allocating task and the superblock label.
++	 */
++#ifdef CONFIG_UNIX98_PTYS
++	FS_USE("trans", "devpts");
++#endif
++#ifdef CONFIG_HUGETLBFS
++	FS_USE("trans", "hugetlbfs");
++#endif
++#ifdef CONFIG_TMPFS
++	FS_USE("trans", "tmpfs");
++#endif
++
++
++#define GENFSCON(fstype, prefix)			     \
++	fprintf(fout, "genfscon %s %s " USERROLETYPE "%s\n", \
++		fstype, prefix, mls ? ":" SYSTEMLOW : "")
++
++	/*
++	 * Filesystems whose inodes are labeled from path prefix match
++	 * relative to the filesystem root.  Depending on the filesystem,
++	 * only a single label for all inodes may be supported.
++	 */
++	GENFSCON("proc", "/");
++	GENFSCON("selinuxfs", "/");
+ 
+ 	fclose(fout);
+ 
+@@ -144,8 +219,14 @@ int main(int argc, char *argv[])
+ 		printf("Wrote policy, but cannot open %s for writing\n", ctxout);
+ 		usage(argv[0]);
+ 	}
+-	fprintf(fout, "/ user_u:base_r:base_t\n");
+-	fprintf(fout, "/.* user_u:base_r:base_t\n");
++	fprintf(fout, "/ " USERROLETYPE "");
++	if (mls)
++		fprintf(fout, ":s0");
++	fprintf(fout, "\n");
++	fprintf(fout, "/.* " USERROLETYPE "");
++	if (mls)
++		fprintf(fout, ":s0");
++	fprintf(fout, "\n");
+ 	fclose(fout);
+ 
+ 	return 0;
+-- 
+2.20.1
 
-
-https://docs.python.org/2/library/functions.html#type
-
-
->
-> I would prefer if the new code looked like this (that I have not tested):
->
->     def set_enabled(self, modules, enable):
->         for item_modules in modules:
->             for m in item_modules.split():
->                 # ...
-
-Or just convert action_enable to string before it's sent to
-moduleRecords.set_enabled():
-
---- a/python/semanage/semanage
-+++ b/python/semanage/semanage
-@@ -612,9 +612,9 @@ def handleModule(args):
-     if args.action_add:
-         OBJECT.add(args.action_add, args.priority)
-     if args.action_enable:
--        OBJECT.set_enabled(args.action_enable, True)
-+        OBJECT.set_enabled(args.action_enable.join(" "), True)
-     if args.action_disable:
--        OBJECT.set_enabled(args.action_disable, False)
-+        OBJECT.set_enabled(args.action_disable.join(" "), False)
-     if args.action_remove:
-         OBJECT.delete(args.action_remove, args.priority)
-
-
-
-> Moreover the "file = file[0]" in moduleRecords.add() looks strange
-> without a context, which is in handleModule(). I would prefer if this
-> operation occurred in semanage, where it is clear that args.action_add
-> always has a single item (because « action='store', nargs=1 »):
->
->     if args.action_add:
->         OBJECT.add(args.action_add[0], args.priority)
-
-Good idea.
-
->
-> Nicolas
->
-> PS: As setools is now Python3-only and seobject.py requires it, it
-> seems to be a good time to update the shebang to "#!/usr/bin/python3
-> -Es".
-
-seobject.py is just a module which is not supposed to be entry point.
-The shebang does not make sense here and should be removed.
-
-But I'd change at least semanage and chcat as they both directly imports
-seobject.
-
-Or rather change the whole project to python3 by default.
-
-
-
->
->> ---
->>  python/semanage/semanage    | 25 ++++++++++++-------------
->>  python/semanage/seobject.py | 10 ++++++++--
->>  2 files changed, 20 insertions(+), 15 deletions(-)
->>
->> diff --git a/python/semanage/semanage b/python/semanage/semanage
->> index 6afeac14..9b737fa8 100644
->> --- a/python/semanage/semanage
->> +++ b/python/semanage/semanage
->> @@ -609,14 +609,14 @@ def setupInterfaceParser(subparsers):
->>
->>  def handleModule(args):
->>      OBJECT = seobject.moduleRecords(args)
->> -    if args.action == "add":
->> -        OBJECT.add(args.module_name, args.priority)
->> -    if args.action == "enable":
->> -        OBJECT.set_enabled(args.module_name, True)
->> -    if args.action == "disable":
->> -        OBJECT.set_enabled(args.module_name, False)
->> -    if args.action == "remove":
->> -        OBJECT.delete(args.module_name, args.priority)
->> +    if args.action_add:
->> +        OBJECT.add(args.action_add, args.priority)
->> +    if args.action_enable:
->> +        OBJECT.set_enabled(args.action_enable, True)
->> +    if args.action_disable:
->> +        OBJECT.set_enabled(args.action_disable, False)
->> +    if args.action_remove:
->> +        OBJECT.delete(args.action_remove, args.priority)
->>      if args.action == "deleteall":
->>          OBJECT.deleteall()
->>      if args.action == "list":
->> @@ -635,14 +635,13 @@ def setupModuleParser(subparsers):
->>      parser_add_priority(moduleParser, "module")
->>
->>      mgroup = moduleParser.add_mutually_exclusive_group(required=True)
->> -    parser_add_add(mgroup, "module")
->>      parser_add_list(mgroup, "module")
->>      parser_add_extract(mgroup, "module")
->>      parser_add_deleteall(mgroup, "module")
->> -    mgroup.add_argument('-r', '--remove', dest='action', action='store_const', const='remove', help=_("Remove a module"))
->> -    mgroup.add_argument('-d', '--disable', dest='action', action='store_const', const='disable', help=_("Disable a module"))
->> -    mgroup.add_argument('-e', '--enable', dest='action', action='store_const', const='enable', help=_("Enable a module"))
->> -    moduleParser.add_argument('module_name', nargs='?', default=None, help=_('Name of the module to act on'))
->> +    mgroup.add_argument('-a', '--add', dest='action_add', action='store', nargs=1, metavar='module_name', help=_("Add a module"))
->> +    mgroup.add_argument('-r', '--remove', dest='action_remove', action='store', nargs='+', metavar='module_name', help=_("Remove a module"))
->> +    mgroup.add_argument('-d', '--disable', dest='action_disable', action='store', nargs='+', metavar='module_name', help=_("Disable a module"))
->> +    mgroup.add_argument('-e', '--enable', dest='action_enable', action='store', nargs='+', metavar='module_name', help=_("Enable a module"))
->>      moduleParser.set_defaults(func=handleModule)
->>
->>
->> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
->> index 556d3ba5..cd2d3457 100644
->> --- a/python/semanage/seobject.py
->> +++ b/python/semanage/seobject.py
->> @@ -401,6 +401,8 @@ class moduleRecords(semanageRecords):
->>              print("%-25s %-9s %-5s %s" % (t[0], t[2], t[3], disabled))
->>
->>      def add(self, file, priority):
->> +        if type(file) == list:
->> +            file = file[0]
->>          if not os.path.exists(file):
->>              raise ValueError(_("Module does not exist: %s ") % file)
->>
->> @@ -413,7 +415,9 @@ class moduleRecords(semanageRecords):
->>              self.commit()
->>
->>      def set_enabled(self, module, enable):
->> -        for m in module.split():
->> +        if type(module) == str:
->> +            module = module.split()
->> +        for m in module:
->>              rc, key = semanage_module_key_create(self.sh)
->>              if rc < 0:
->>                  raise ValueError(_("Could not create module key"))
->> @@ -435,7 +439,9 @@ class moduleRecords(semanageRecords):
->>          if rc < 0:
->>              raise ValueError(_("Invalid priority %d (needs to be between 1 and 999)") % priority)
->>
->> -        for m in module.split():
->> +        if type(module) == str:
->> +            module = module.split()
->> +        for m in module:
->>              rc = semanage_module_remove(self.sh, m)
->>              if rc < 0 and rc != -2:
->>                  raise ValueError(_("Could not remove module %s (remove failed)") % m)
->> --
->> 2.20.1
->>
