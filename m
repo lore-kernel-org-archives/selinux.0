@@ -2,365 +2,79 @@ Return-Path: <SRS0=IGSF=QW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEBADC43381
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:41:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66EF9C43381
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:45:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 719682192D
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:41:13 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="R0FZraX2"
+	by mail.kernel.org (Postfix) with ESMTP id 361732190C
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:45:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726045AbfBOPlM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Feb 2019 10:41:12 -0500
-Received: from uphb19pa10.eemsg.mail.mil ([214.24.26.84]:63567 "EHLO
-        USFB19PA13.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726008AbfBOPlM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 10:41:12 -0500
-X-EEMSG-check-017: 234651098|USFB19PA13_EEMSG_MP9.csd.disa.mil
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Feb 2019 15:41:09 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1550245270; x=1581781270;
-  h=subject:from:to:cc:references:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=nKVv3stBpUXTqaB+4YhBYBoac86pE9Jn4weAH2j+eSE=;
-  b=R0FZraX2ChlA0uL1/hg1zllZfZbeQtYhFe7wzwt95o44fBJI510Y30Nk
-   sqQgTuOx106GqaCOCwstdwrkxTUaCja8PiKUbcCRXDK920ZdcsCU7a8D6
-   1yvS/Fwvm4InZEmMieudCASAcJ52X1udCBwce/1XykgkwMM3jUqGqmvTt
-   ABvI3l9OKabyRX0nNuOlZdp6yzirR6ajwdRxlCEAdxop23lzdbJ0w2Xkf
-   smtyb2iL1Vy/50Dr7ksxZQ/v1i947U/scrrPJjFBMmJKiycdNSGw0mO4P
-   N+C0svvZof0/z7NAjZGd2YluQpO+TdkTO4odZIfncG8N6Jbf3NqpISSWu
-   A==;
-X-IronPort-AV: E=Sophos;i="5.58,373,1544486400"; 
-   d="scan'208";a="23982533"
-IronPort-PHdr: =?us-ascii?q?9a23=3AiQWuGB1HoDZi5I+rsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseISLfad9pjvdHbS+e9qxAeQG9mDu7Qc06L/iOPJYSQ4+5GPsXQPItRndi?=
- =?us-ascii?q?QuroEopTEmG9OPEkbhLfTnPGQQFcVGU0J5rTngaRAGUMnxaEfPrXKs8DUcBg?=
- =?us-ascii?q?vwNRZvJuTyB4Xek9m72/q99pHPYAhEniaxba9vJxiqsAvdsdUbj5F/Iagr0B?=
- =?us-ascii?q?vJpXVIe+VSxWx2IF+Yggjx6MSt8pN96ipco/0u+dJOXqX8ZKQ4UKdXDC86PG?=
- =?us-ascii?q?Av5c3krgfMQA2S7XYBSGoWkx5IAw/Y7BHmW5r6ryX3uvZh1CScIMb7Vq4/Vy?=
- =?us-ascii?q?i84Kh3SR/okCYHOCA/8GHLkcx7kaZXrAu8qxBj34LYZYeYO/RkfqPZYNgUW2?=
- =?us-ascii?q?xPUMhMXCBFG4+wcZcDA+8HMO1FrYfyukEOoAOjCwesGu3vxDxGiHH40qI10e?=
- =?us-ascii?q?suDQ7I0Rc8H98NqnnYsMn5OakQXO2z0aLGzS/Db/RT2Trl9YbIbg4uoemMXb?=
- =?us-ascii?q?1ud8ra1FQhFwbfgVWUrYzqITOU3fkKvmiA8uVgTvmii3Inqg5tojivwd0gio?=
- =?us-ascii?q?/Sho0P0FzE+iJ5wJgsKNC+VUV1YsakHYNNuyyVOIZ6WMMvT3xytCokxbAKp4?=
- =?us-ascii?q?S3cDUMxZ863RDQceaHfJKN4h/7UeaRJip3i2x9dbKkghay7VCgyurhVsmoyF?=
- =?us-ascii?q?pKrjRKkt3Ltn0Vyxzc8NKHSvpg/ke6wzqPywDS5f1EIUAzj6bbLYIuwqUsmZ?=
- =?us-ascii?q?YJtETDHyv2lF33jK+QaEok5vCl5/nob7jpvJORN5J4hhvgPqkhhMCzG/k0Ph?=
- =?us-ascii?q?ALX2eB+OS80LPj/Vf+QLVPlvA2ibTWsIvBKMQHpq+2Hw9V0oE55xa5FDepys?=
- =?us-ascii?q?4UnXYALFJbYB6HlZTmO0nSIPDkCveym0ysny12x/DCJbDhGo/CLmXHkLv4eL?=
- =?us-ascii?q?Z97ElcyBAtwtxF+51UDbQBKurpWkDtrNzYEgM5Mwuszub8Ftp90oIeWWSSAq?=
- =?us-ascii?q?6WK67Sr1CI6fw1I+WWZ48apiz9K/476P7ql3M5nkUdfab6lacQPUixA/AuBk?=
- =?us-ascii?q?Kee3ek1s8IDGMipgMjSKnvj1qYXHhYYHPkDIwm4TRuM56rFYfOQMiWhbWF2C?=
- =?us-ascii?q?qqVslNantuFkGHEXCucZ6NHfgLdnTBcYdajjUYWO35GMca3ha0uVq/kuA/Iw?=
- =?us-ascii?q?=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BIAAAv3WZc/wHyM5BkGwEBAQEDAQEBBwMBAQGBUwQBA?=
- =?us-ascii?q?QELAYFZKWeBAyeEBpN9TAEBAQEBAQaBCC2JOY5egXssDAGEQAKDaiI2Bw0BA?=
- =?us-ascii?q?wEBAQEBAQIBbCiCOikBgmcBBSMECwEFPAUQCQIYAgImAgJXBg0GAgEBgl89A?=
- =?us-ascii?q?YFlDZANm2F8M4otgQuLKg8XeIEHgREngmuICoJXApBDgQaRcQmHPINvhyUGG?=
- =?us-ascii?q?ZJ6mRCFHAEwgVYrCAIYCCEPO4JsCYIfF448IQMwgQUBAY8xAQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Feb 2019 15:40:50 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x1FFeoto024485;
-        Fri, 15 Feb 2019 10:40:50 -0500
-Subject: Re: [PATCH v3] scripts/selinux: add basic mls support to mdp
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-References: <20190215145045.31945-1-sds@tycho.nsa.gov>
- <CAHC9VhS+F-QBU-oJpXw1aAP1=TpekD1GEYB8y-QqEib1mzbwMA@mail.gmail.com>
- <5c95e956-6d38-78dd-75e2-df2c37bd998a@tycho.nsa.gov>
- <3f279367-2c4f-5b26-e31b-58eb037b687b@tycho.nsa.gov>
- <5da1e226-1c75-a732-7d92-89a9dfd4c857@tycho.nsa.gov>
-Message-ID: <0e556b37-90fa-7f3a-f60f-fa77acce6f5b@tycho.nsa.gov>
-Date:   Fri, 15 Feb 2019 10:40:50 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+        id S2387480AbfBOPpz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Feb 2019 10:45:55 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:46460 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728594AbfBOPpz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 10:45:55 -0500
+Received: by mail-ot1-f65.google.com with SMTP id w25so17121031otm.13
+        for <selinux@vger.kernel.org>; Fri, 15 Feb 2019 07:45:55 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/OiCgqlERhhojQuaFlWk/LlZgoAbDJtdNlcO0vs8HkM=;
+        b=mSkE0E7mHCLb/UTjEWuwvC+fwcnkZ2Z3GI6l2tO2cFa1BIfWC0PrhNsUpdnYz76Swp
+         aSaCU5HWx+fTjGzEDpCKYPAJvyaAYt1G7kn/BzYI5Tyn5KL/bGuEZDROvS82LHJyNTU1
+         K+gUp5GaPSb3LootPAW/5D6iZ+v3HAmsgUyudKRcA/JEgKk9kEGPcr0qzpjirIkCdOoO
+         D3fEsAs9J/YAcdY5+s/CZtj+77TdST89zjZTloR914GbRNcf1qY9ifaooyH/9EkRgiKN
+         T0AsxIG01r1/pXRaQI4N7P1aEJdpp+09tgNooNbKobJeczVk0gxeREWKIuZ+19U0kEaF
+         jKfQ==
+X-Gm-Message-State: AHQUAubZVZLyvE8KlBz08X6rTDQv6IudnsooG+4fAgAu/bw8w/vJnswQ
+        +BLVPh2L2k5gUTjOLEUqzlIo/rDbFLMLC6r1RB9VBg==
+X-Google-Smtp-Source: AHgI3IZbTXM8UMmJZmoaY8bD89J2iU4YE3o8lshMkXFG+2DNiHqslsMAj8CiiHgaFw2Iz9v22GMpkz4nhKWpLK7KSjo=
+X-Received: by 2002:a54:4f8f:: with SMTP id g15mr1009244oiy.166.1550245554986;
+ Fri, 15 Feb 2019 07:45:54 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <5da1e226-1c75-a732-7d92-89a9dfd4c857@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20190214095015.16032-1-omosnace@redhat.com> <20190214095015.16032-6-omosnace@redhat.com>
+ <20190214154854.GO50184@devbig004.ftw2.facebook.com>
+In-Reply-To: <20190214154854.GO50184@devbig004.ftw2.facebook.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 15 Feb 2019 16:45:44 +0100
+Message-ID: <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
+Subject: Re: [PATCH v6 5/5] kernfs: initialize security of newly created nodes
+To:     Tejun Heo <tj@kernel.org>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/15/19 10:25 AM, Stephen Smalley wrote:
-> On 2/15/19 10:05 AM, Stephen Smalley wrote:
->> On 2/15/19 10:03 AM, Stephen Smalley wrote:
->>> On 2/15/19 10:00 AM, Paul Moore wrote:
->>>> On Fri, Feb 15, 2019 at 9:51 AM Stephen Smalley <sds@tycho.nsa.gov> 
->>>> wrote:
->>>>> Add basic MLS policy support to mdp.  Declares
->>>>> two sensitivities and two categories, defines
->>>>> mls constraints for all permissions requiring
->>>>> dominance (ala MCS), assigns the system-high
->>>>> level to initial SID contexts and the default user
->>>>> level, and assigns system-low level to filesystems.
->>>>>
->>>>> Also reworks the fs_use and genfscon rules to only
->>>>> generate rules for filesystems that are configured
->>>>> in the kernel.  In some cases this depends on a specific
->>>>> config option for security xattrs, in other cases security
->>>>> xattrs are unconditionally supported by a given filesystem
->>>>> if the filesystem is enabled, and in some cases the filesystem
->>>>> is always enabled in the kernel.  Dropped obsolete pseudo
->>>>> filesystems.
->>>>>
->>>>> NB The list of fs_use_* and genfscon rules emitted by mdp
->>>>> is very incomplete compared to refpolicy or Android sepolicy.
->>>>> We should probably expand it.
->>>>>
->>>>> Usage:
->>>>> scripts/selinux/mdp/mdp -m policy.conf file_contexts
->>>>> checkpolicy -M -o policy policy.conf
->>>>>
->>>>> Then install the resulting policy and file_contexts as usual.
->>>>>
->>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>>>> ---
->>>>> v3 fixes up the file contexts generation code to also use SYSTEMLOW 
->>>>> and
->>>>> collapse down to a single fprintf call per line.
->>>>>   scripts/selinux/mdp/mdp.c | 131 
->>>>> ++++++++++++++++++++++++++++++--------
->>>>>   1 file changed, 103 insertions(+), 28 deletions(-)
->>>>
->>>> This is great Stephen, thanks for working on this - and rather quickly
->>>> too!  For those who don't follow the GitHub issues, I just opened an
->>>> issue yesterday mentioning it would be nice to add MLS support to the
->>>> mdp tool.
->>>>
->>>> Are you planning to keep playing with this?  I'm asking not because I
->>>> think it needs more work to be worthwhile, but rather I don't want to
->>>> merge something that you want to continue working on.  If you are
->>>> happy with this latest patch I think it is okay to merge this into
->>>> selinux/next, even at this late stage, simply because it is not part
->>>> of a built kernel, but rather a developer's tool.
->>>
->>> No, I think I'm done for now unless you find a problem with it. 
->>> Absent some compelling use case for mdp it is hard to justify 
->>> spending any more time on it.
->>
->> Note however that the instructions in 
->> Documentation/admin-guide/LSM/SELinux.rst just say to run 
->> scripts/selinux/install_policy.sh and since that doesn't pass -m to 
->> mdp or -M to checkpolicy, no one will use this support unless they do 
->> it all by hand.
-> 
-> FWIW, a Fedora system wouldn't come up cleanly with this policy.  Partly 
-> appears to be due to systemd having embedded security contexts specific 
-> to Fedora/refpolicy into its own configurations and partly due to MLS 
-> denials.  I don't even know if it would work before this change though...
+On Thu, Feb 14, 2019 at 4:49 PM Tejun Heo <tj@kernel.org> wrote:
+> On Thu, Feb 14, 2019 at 10:50:15AM +0100, Ondrej Mosnacek wrote:
+> > +static int kernfs_node_init_security(struct kernfs_node *parent,
+> > +                                  struct kernfs_node *kn)
+>
+> Can we skip the whole thing if security is not enabled?
 
-Couldn't seem to get a mdp-generated policy to boot on Fedora even in 
-permissive, before or after this change.  I assume it has to do with 
-leaking of contexts outside of the policy and/or missing config files 
-from the dummy policy (e.g. /etc/selinux/targeted/contexts/ has 
-systemd_contexts and other userspace config files that don't exist in 
-the mdp policy).  More evidence of the irrelevance of mdp...
+Do you mean just skipping the whole part when CONFIG_SECURITY=n? That
+is easy to do and I can add it in the next respin (although the
+compiler should be able to optimize most of it out in that case).
 
-> 
->>
->>>
->>>>
->>>>> diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
->>>>> index 073fe7537f6c..4223e2fea441 100644
->>>>> --- a/scripts/selinux/mdp/mdp.c
->>>>> +++ b/scripts/selinux/mdp/mdp.c
->>>>> @@ -33,6 +33,7 @@
->>>>>   #include <unistd.h>
->>>>>   #include <string.h>
->>>>>   #include <sys/socket.h>
->>>>> +#include <linux/kconfig.h>
->>>>>
->>>>>   static void usage(char *name)
->>>>>   {
->>>>> @@ -95,10 +96,31 @@ int main(int argc, char *argv[])
->>>>>          }
->>>>>          fprintf(fout, "\n");
->>>>>
->>>>> -       /* NOW PRINT OUT MLS STUFF */
->>>>> +       /* print out mls declarations and constraints */
->>>>>          if (mls) {
->>>>> -               printf("MLS not yet implemented\n");
->>>>> -               exit(1);
->>>>> +               fprintf(fout, "sensitivity s0;\n");
->>>>> +               fprintf(fout, "sensitivity s1;\n");
->>>>> +               fprintf(fout, "dominance { s0 s1 }\n");
->>>>> +               fprintf(fout, "category c0;\n");
->>>>> +               fprintf(fout, "category c1;\n");
->>>>> +               fprintf(fout, "level s0:c0.c1;\n");
->>>>> +               fprintf(fout, "level s1:c0.c1;\n");
->>>>> +#define SYSTEMLOW "s0"
->>>>> +#define SYSTEMHIGH "s1:c0.c1"
->>>>> +               for (i = 0; secclass_map[i].name; i++) {
->>>>> +                       struct security_class_mapping *map = 
->>>>> &secclass_map[i];
->>>>> +
->>>>> +                       fprintf(fout, "mlsconstrain %s {\n", 
->>>>> map->name);
->>>>> +                       for (j = 0; map->perms[j]; j++)
->>>>> +                               fprintf(fout, "\t%s\n", 
->>>>> map->perms[j]);
->>>>> +                       /*
->>>>> +                        * This requires all subjects and objects 
->>>>> to be
->>>>> +                        * single-level (l2 eq h2), and that the 
->>>>> subject
->>>>> +                        * level dominate the object level (h1 dom h2)
->>>>> +                        * in order to have any permissions to it.
->>>>> +                        */
->>>>> +                       fprintf(fout, "} (l2 eq h2 and h1 dom 
->>>>> h2);\n\n");
->>>>> +               }
->>>>>          }
->>>>>
->>>>>          /* types, roles, and allows */
->>>>> @@ -108,34 +130,87 @@ int main(int argc, char *argv[])
->>>>>          for (i = 0; secclass_map[i].name; i++)
->>>>>                  fprintf(fout, "allow base_t base_t:%s *;\n",
->>>>>                          secclass_map[i].name);
->>>>> -       fprintf(fout, "user user_u roles { base_r };\n");
->>>>> -       fprintf(fout, "\n");
->>>>> +       fprintf(fout, "user user_u roles { base_r }");
->>>>> +       if (mls)
->>>>> +               fprintf(fout, " level %s range %s - %s", SYSTEMHIGH,
->>>>> +                       SYSTEMLOW, SYSTEMHIGH);
->>>>> +       fprintf(fout, ";\n");
->>>>> +
->>>>> +#define USERROLETYPE "user_u:base_r:base_t"
->>>>>
->>>>>          /* default sids */
->>>>>          for (i = 1; i < initial_sid_to_string_len; i++)
->>>>> -               fprintf(fout, "sid %s user_u:base_r:base_t\n", 
->>>>> initial_sid_to_string[i]);
->>>>> +               fprintf(fout, "sid %s " USERROLETYPE "%s\n",
->>>>> +                       initial_sid_to_string[i], mls ? ":" 
->>>>> SYSTEMHIGH : "");
->>>>>          fprintf(fout, "\n");
->>>>>
->>>>> -       fprintf(fout, "fs_use_xattr ext2 user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_xattr ext3 user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_xattr ext4 user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_xattr jfs user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_xattr xfs user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_xattr reiserfs 
->>>>> user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_xattr jffs2 user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_xattr gfs2 user_u:base_r:base_t;\n");
->>>>> -
->>>>> -       fprintf(fout, "fs_use_task eventpollfs 
->>>>> user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_task pipefs user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_task sockfs user_u:base_r:base_t;\n");
->>>>> -
->>>>> -       fprintf(fout, "fs_use_trans mqueue user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_trans devpts user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_trans hugetlbfs 
->>>>> user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_trans tmpfs user_u:base_r:base_t;\n");
->>>>> -       fprintf(fout, "fs_use_trans shm user_u:base_r:base_t;\n");
->>>>> -
->>>>> -       fprintf(fout, "genfscon proc / user_u:base_r:base_t\n");
->>>>> +#define FS_USE(behavior, fstype)                           \
->>>>> +       fprintf(fout, "fs_use_%s %s " USERROLETYPE "%s;\n", \
->>>>> +               behavior, fstype, mls ? ":" SYSTEMLOW : "")
->>>>> +
->>>>> +       /*
->>>>> +        * Filesystems whose inode labels can be fetched via getxattr.
->>>>> +        */
->>>>> +#ifdef CONFIG_EXT2_FS_SECURITY
->>>>> +       FS_USE("xattr", "ext2");
->>>>> +#endif
->>>>> +#ifdef CONFIG_EXT3_FS_SECURITY
->>>>> +       FS_USE("xattr", "ext3");
->>>>> +#endif
->>>>> +#ifdef CONFIG_EXT4_FS_SECURITY
->>>>> +       FS_USE("xattr", "ext4");
->>>>> +#endif
->>>>> +#ifdef CONFIG_JFS_SECURITY
->>>>> +       FS_USE("xattr", "jfs");
->>>>> +#endif
->>>>> +#ifdef CONFIG_REISERFS_FS_SECURITY
->>>>> +       FS_USE("xattr", "reiserfs");
->>>>> +#endif
->>>>> +#ifdef CONFIG_JFFS2_FS_SECURITY
->>>>> +       FS_USE("xattr", "jffs2");
->>>>> +#endif
->>>>> +#ifdef CONFIG_XFS_FS
->>>>> +       FS_USE("xattr", "xfs");
->>>>> +#endif
->>>>> +#ifdef CONFIG_GFS2_FS
->>>>> +       FS_USE("xattr", "gfs2");
->>>>> +#endif
->>>>> +
->>>>> +       /*
->>>>> +        * Filesystems whose inodes are labeled from allocating task.
->>>>> +        */
->>>>> +       FS_USE("task", "pipefs");
->>>>> +       FS_USE("task", "sockfs");
->>>>> +#ifdef CONFIG_POSIX_MQUEUE
->>>>> +       FS_USE("task", "mqueue");
->>>>> +#endif
->>>>> +
->>>>> +       /*
->>>>> +        * Filesystems whose inode labels are computed from both
->>>>> +        * the allocating task and the superblock label.
->>>>> +        */
->>>>> +#ifdef CONFIG_UNIX98_PTYS
->>>>> +       FS_USE("trans", "devpts");
->>>>> +#endif
->>>>> +#ifdef CONFIG_HUGETLBFS
->>>>> +       FS_USE("trans", "hugetlbfs");
->>>>> +#endif
->>>>> +#ifdef CONFIG_TMPFS
->>>>> +       FS_USE("trans", "tmpfs");
->>>>> +#endif
->>>>> +
->>>>> +
->>>>> +#define GENFSCON(fstype, prefix)                            \
->>>>> +       fprintf(fout, "genfscon %s %s " USERROLETYPE "%s\n", \
->>>>> +               fstype, prefix, mls ? ":" SYSTEMLOW : "")
->>>>> +
->>>>> +       /*
->>>>> +        * Filesystems whose inodes are labeled from path prefix match
->>>>> +        * relative to the filesystem root.  Depending on the 
->>>>> filesystem,
->>>>> +        * only a single label for all inodes may be supported.
->>>>> +        */
->>>>> +       GENFSCON("proc", "/");
->>>>> +       GENFSCON("selinuxfs", "/");
->>>>>
->>>>>          fclose(fout);
->>>>>
->>>>> @@ -144,8 +219,8 @@ int main(int argc, char *argv[])
->>>>>                  printf("Wrote policy, but cannot open %s for 
->>>>> writing\n", ctxout);
->>>>>                  usage(argv[0]);
->>>>>          }
->>>>> -       fprintf(fout, "/ user_u:base_r:base_t\n");
->>>>> -       fprintf(fout, "/.* user_u:base_r:base_t\n");
->>>>> +       fprintf(fout, "/ " USERROLETYPE "%s\n", mls ? ":" SYSTEMLOW 
->>>>> : "");
->>>>> +       fprintf(fout, "/.* " USERROLETYPE "%s\n", mls ? ":" 
->>>>> SYSTEMLOW : "");
->>>>>          fclose(fout);
->>>>>
->>>>>          return 0;
->>>>> -- 
->>>>> 2.20.1
->>>>>
->>>>
->>>>
->>>
->>
-> 
+If you mean dynamically checking if calling the hook would actually do
+anything (i.e. if any LSM actually registered that particular hook),
+then that should also be possible (just check if
+security_hook_heads.kernfs_init_security is a non-empty list), but I'm
+not sure if that wouldn't be too hacky...
 
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Associate Software Engineer, Security Technologies
+Red Hat, Inc.
