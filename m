@@ -3,101 +3,80 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable autolearn_force=no
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B8D8C43381
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 17:39:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DB67C43381
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 18:45:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 14843218FF
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 17:39:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8E1821929
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 18:45:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbfBORjf convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Feb 2019 12:39:35 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:57708 "EHLO mx1.redhat.com"
+        id S1728182AbfBOSpI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Feb 2019 13:45:08 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:55678 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725939AbfBORje (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 15 Feb 2019 12:39:34 -0500
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        id S1727319AbfBOSpI (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 15 Feb 2019 13:45:08 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 6BEE1C0D8047;
-        Fri, 15 Feb 2019 17:39:33 +0000 (UTC)
-Received: from warthog.procyon.org.uk (ovpn-121-129.rdu2.redhat.com [10.10.121.129])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id AF9895C3FD;
-        Fri, 15 Feb 2019 17:39:20 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <758871dc-15b7-ed5c-a119-a40037309507@tycho.nsa.gov>
-References: <758871dc-15b7-ed5c-a119-a40037309507@tycho.nsa.gov> <155024683432.21651.14153938339749694146.stgit@warthog.procyon.org.uk> <155024709026.21651.7275876165845045967.stgit@warthog.procyon.org.uk>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     dhowells@redhat.com, keyrings@vger.kernel.org,
-        trond.myklebust@hammerspace.com, sfrench@samba.org,
-        linux-security-module@vger.kernel.org, linux-nfs@vger.kernel.org,
-        linux-cifs@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        rgb@redhat.com, linux-kernel@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        SELinux <selinux@vger.kernel.org>
-Subject: Re: [RFC PATCH 22/27] KEYS: Replace uid/gid/perm permissions checking with an ACL
+        by mx1.redhat.com (Postfix) with ESMTPS id CF850C1F97
+        for <selinux@vger.kernel.org>; Fri, 15 Feb 2019 18:45:07 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-112-19.rdu2.redhat.com [10.10.112.19])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6D8F15D705
+        for <selinux@vger.kernel.org>; Fri, 15 Feb 2019 18:45:07 +0000 (UTC)
+From:   Daniel Walsh <dwalsh@redhat.com>
+Subject: For those not following the container world SELinux just proved it
+ merits
+Reply-To: dwalsh@redhat.com
+To:     selinux@vger.kernel.org
+Openpgp: preference=signencrypt
+Autocrypt: addr=dwalsh@redhat.com; prefer-encrypt=mutual; keydata=
+ mQENBFsaqOEBCADBSnZCZpi262vX8m7iL/OdHKP9G9dhS28FR60cjd8nMPqHDNhQJBjLMZra
+ 66L2cCIEhc4HEItail7KU1BckrMc4laFaxL8tLoVTKHZwb74n2OcAJ4FtgzkNNlB1XJvSwC/
+ 909uwt7cpDqwXpJvyP3t17iuklB1OY0EEjTDt9aU4+0QjHzV18L4Cpd9iQ4ksu+EHT+pjlBk
+ DdQB+hKoAjxPl11Eh6pZfrAcrNWpYBBk0A3XE9Jb6ghbmHWltNgVOsCa9GcswJHUEeFiOup6
+ J5DTv6Xzwt0t6QB8nIs+wDJH+VxqAXcrxscnAhViIfGGS2AtxzjnVOz/J+UZPaauIGXTABEB
+ AAG0LERhbmllbCBKIFdhbHNoIChGb3IgR2l0KSA8ZHdhbHNoQHJlZGhhdC5jb20+iQE4BBMB
+ AgAiBQJbGqjhAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRCi35Adq+LAKHuJB/98
+ nZB5RmNjMWua4Ms8q5a1R9XWlDAb3mrST6JeL+uV/M0fa18e2Aw4/hi/WZHjAjoypLmcuaRx
+ GeCbC8iYdpfRDUG79Y956Qq+Vs8c6VfNDMY1mvtfb00eeTaYoOCu0Aa9LDeR9iLKh2g0RI+N
+ Zr3EU45RxZdacIs1v6mU8pGpyUq/FvuTGK9GzR9d1YeVCuSpQKN4ckHNZHJUXyk0vOZft1oO
+ nSgLqM9EDWA+yz1JLmRYwbNsim7IvfVOav5mCgnKzHcL2mLv8qCnMFZjoQV8aGny/W739Z3a
+ YJo1CdOg6zSu5SOvmq9idYrBRkwEtyLXss2oceTVBs0MxqQ/9mLPuQENBFsaqOEBCADDl2hl
+ bUpqJGgwt2eQvs0Z0DCx/7nn0hlLfEn4WAv2HqP25AjIRXUX31Mzu68C4QnsvNtY4zN+FGRC
+ EfUpYsjiL7vBYlRePhIohyMYU4RLp5eXFQKahHO/9Xlhe8mwueQNwYxNBPfMQ65U2AuqxpcS
+ scx4s5w208mhqHoKz6IB2LuKeflhYfH5Y1FNAtVGHfhg22xlcAdupPPcxGuS4fBEW6PD/SDf
+ Y4HT5iUHsyksQKjM0IFalqZ7YuLfXBl07OD2zU7WI9c3W0dwkvwIRjt3aD4iAah544uOLff+
+ BzfxWghXeo80S2a1WCL0S/2qR0NVct/ExaDWboYr/bKpTa/1ABEBAAGJAR8EGAECAAkFAlsa
+ qOECGwwACgkQot+QHaviwCi2hgf/XRvrt+VBmp1ZFxQAR9E6S7AtRT8KSytjFiqEC7TpOx3r
+ 2OZ4gZ3ZiW4TMW8hS7aYRgF1uYpLzl7BbrCfCHfAWEcXZ+uG8vayg8G/mLAcNlLY+JE76ATs
+ 53ziEY9R2Vb/wLMFd2nNBdqfwGcRH9N9VOej9vP76nCP01ZolY8Nms2hE383/+1Quxp5EedU
+ BN5W5l7x9riBJyqCA63hr4u8wNsTuQgrDyhm/U1IvYeLtMopgotjnIR3KiTKOElbppLeXW3w
+ EO/sQTPk+vQ4vcsJYY9Dnf1NlvHE4klj60GHjtjitsBEHzdE7s+J9FOxPmt8l+gMogGumKpN
+ Y4lO0pfTyg==
+Organization: Red Hat
+Message-ID: <7ba95528-a7ab-1b51-734f-e15c1f45c3a9@redhat.com>
+Date:   Fri, 15 Feb 2019 13:45:06 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.2.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <32622.1550252354.1@warthog.procyon.org.uk>
-Content-Transfer-Encoding: 8BIT
-Date:   Fri, 15 Feb 2019 17:39:14 +0000
-Message-ID: <32623.1550252354@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Fri, 15 Feb 2019 17:39:34 +0000 (UTC)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Fri, 15 Feb 2019 18:45:07 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Smalley <sds@tycho.nsa.gov> wrote:
+Protecting against a major CVE against all containers that we not
+running with SELinux
 
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -6560,6 +6560,7 @@ static int selinux_key_permission(key_ref_t key_ref,
-> >   {
-> >   	struct key *key;
-> >   	struct key_security_struct *ksec;
-> > +	unsigned oldstyle_perm;
-> >   	u32 sid;
-> >     	/* if no specific permissions are requested, we skip the
-> > @@ -6568,13 +6569,26 @@ static int selinux_key_permission(key_ref_t key_ref,
-> >   	if (perm == 0)
-> >   		return 0;
-> >   +	oldstyle_perm = perm & (KEY_NEED_VIEW | KEY_NEED_READ | KEY_NEED_WRITE
-> > |
-> > +				KEY_NEED_SEARCH | KEY_NEED_LINK);
-> > +	if (perm & KEY_NEED_SETSEC)
-> > +		oldstyle_perm |= OLD_KEY_NEED_SETATTR;
-> > +	if (perm & KEY_NEED_INVAL)
-> > +		oldstyle_perm |= KEY_NEED_SEARCH;
-> > +	if (perm & KEY_NEED_REVOKE && !(perm & OLD_KEY_NEED_SETATTR))
-> > +		oldstyle_perm |= KEY_NEED_WRITE;
-> > +	if (perm & KEY_NEED_JOIN)
-> > +		oldstyle_perm |= KEY_NEED_SEARCH;
-> > +	if (perm & KEY_NEED_CLEAR)
-> > +		oldstyle_perm |= KEY_NEED_WRITE;
-> > +
-> >   	sid = cred_sid(cred);
-> >     	key = key_ref_to_ptr(key_ref);
-> >   	ksec = key->security;
-> >     	return avc_has_perm(&selinux_state,
-> > -			    sid, ksec->sid, SECCLASS_KEY, perm, NULL);
-> > +			    sid, ksec->sid, SECCLASS_KEY, oldstyle_perm, NULL);
-> 
-> This might be ok temporarily for compatibility but we'll want to ultimately
-> define the new permissions in SELinux and switch over to using them if a new
-> policy capability bit is set to indicate that the policy supports them.  We
-> should probably decouple the SELinux permission bits from the KEY_NEED_*
-> values and explicitly map them all at the same time.
 
-Sounds reasonable.  I should probably detach the first two ACL patches from
-the set and push them separately.
+https://blog.openshift.com/openshift-protects-against-nasty-container-exploit/
 
-David
+
+
