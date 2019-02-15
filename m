@@ -4,42 +4,41 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AF7BC43381
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:43:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9952C43381
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:51:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B2D292192D
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:43:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A07E2192D
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 14:51:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="bciBElYY"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="jlclyFdE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726237AbfBOOnl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Feb 2019 09:43:41 -0500
-Received: from uphb19pa13.eemsg.mail.mil ([214.24.26.87]:43832 "EHLO
-        usfb19pa16.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725939AbfBOOnl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 09:43:41 -0500
-X-EEMSG-check-017: 166909616|USFB19PA16_EEMSG_MP12.csd.disa.mil
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by usfb19pa16.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Feb 2019 14:43:37 +0000
+        id S1729074AbfBOOvL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Feb 2019 09:51:11 -0500
+Received: from upbd19pa09.eemsg.mail.mil ([214.24.27.84]:22525 "EHLO
+        UPBD19PA09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726139AbfBOOvL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 09:51:11 -0500
+X-EEMSG-check-017: 170598026|UPBD19PA09_EEMSG_MP9.csd.disa.mil
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPBD19PA09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Feb 2019 14:50:51 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1550241817; x=1581777817;
+  s=tycho.nsa.gov; t=1550242251; x=1581778251;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
-  bh=KkoOfEg+8kwsZbm+fnb+IMg/2yPYFr5BJlKGQclQORk=;
-  b=bciBElYY4mXJm+/mFSj9E39S4xBKegFfAoft8fGunqMxz9b13UWkOSxz
-   drlJ28p0P7gm8+f8hoIm8wAuQbSs9QWeJVcZaG+7fo4OIW6yppqAEeQKL
-   zSR/TurleLnF4p965ldFBHoIcE+ysO7jbJ3erDErApAaT7+LZ2Ovqnk9F
-   KZvfxyXMC8bFhbHw+oSL0QNQ45nHFMEzQK4Vqm4XwSScg8RRwAMsehzo8
-   pwKG2TzJ9svd23jxkiuz3kwaoiTyqGcatPUH+0pzYulYVsBnsPZDKMSNf
-   MFvWfaPo3EgXHI81eJEwAocSZyBtZUV0fHV9Et8ifd3IGaU1c1ahe9wli
+  bh=sEiJaTpfz8Urh1JK5ukgDhAZGZCNTrFAWX3I5ETgAVE=;
+  b=jlclyFdE9hH/HSkNZjsayC9KOd5c9B9ytg5JjaLp+MaiffUI0ypD7BCw
+   exY1USFJBZKtQ6oFCC04dZgztqqh5w0ksJe439DJKstGh2R4LAr6DdW4P
+   UA4AgztJ/XBX8b1PYKIsFHWMKa11MDSdX5PGvuqzWV5mKZNYXK4f3tdFX
+   eHO+9zFBZYMQ26HykDFwwKATz+WzbY62I2Di8Z0xo4ngh519CdJNjb/yv
+   3/n8x0gyI7fSPJquWe60RtRePBXdHhRLxO9k3OUeVp+AYoMoCKVSCJ8TF
+   HA9b/Dhd7l69N3kcUqs5ZFQJZBxykODlMXvfKi3PPXvuWP70dyFQRADwx
    w==;
 X-IronPort-AV: E=Sophos;i="5.58,372,1544486400"; 
-   d="scan'208";a="23978634"
-IronPort-PHdr: =?us-ascii?q?9a23=3ASoaxZBbeRnJn+PfdDci7ESj/LSx+4OfEezUN45?=
+   d="scan'208";a="20595617"
+IronPort-PHdr: =?us-ascii?q?9a23=3A+xhouhYZPmIGutxw5nyMay7/LSx+4OfEezUN45?=
  =?us-ascii?q?9isYplN5qZoMS9bnLW6fgltlLVR4KTs6sC17KG9fi4EUU7or+5+EgYd5JNUx?=
  =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
  =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCa+bL9oMBm6sRjau9ULj4dlNqs/0A?=
@@ -58,21 +57,21 @@ IronPort-PHdr: =?us-ascii?q?9a23=3ASoaxZBbeRnJn+PfdDci7ESj/LSx+4OfEezUN45?=
  =?us-ascii?q?595FRByAo31t1f/4hbCqwFIP7qX0/xs9vYDgUnPACu3+nnD9B9hcsiXjeXC7?=
  =?us-ascii?q?KdGLvbrFvN4+UoOeTKb4gQ6xjnLP1w3OLjlX80nxcmeKCt2ZYGICSjEu9OP1?=
  =?us-ascii?q?SSYX2qhMwIV2gNoFxtH6TRlFSeXGsLND6JVKUm62R+Utqr?=
-X-IPAS-Result: =?us-ascii?q?A2AwAAAkz2Zc/wHyM5BkHAEBAQQBAQcEAQGBUQcBAQsBg?=
+X-IPAS-Result: =?us-ascii?q?A2AwAAB+0WZc/wHyM5BkHAEBAQQBAQcEAQGBUQcBAQsBg?=
  =?us-ascii?q?VkpgWonjCCLZEwBAQEBAQEGim6OXoF7IBgBhECDbCI0CQ0BAwEBAQEBAQIBb?=
- =?us-ascii?q?CiCOimDFQsBRoFRgmM9gWYNrFQzhUSEbIgDhEEXeIEHjwQCkEOBBpFxCYsrh?=
- =?us-ascii?q?x8MGZJ6niU4gVYrCAIYCCEPO4JsgigXjjwhAzCBBQEBjGYrgiABAQ?=
+ =?us-ascii?q?CiCOimDFQsBRoFRgmM9gWYNrFEzhUSEa4gDhEEXeIEHjwQCkEOBBpFxCYsrh?=
+ =?us-ascii?q?x8MGZJ6niU4gVYrCAIYCCEPO4JsgigXjjwhAzCBBQEBjzEBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Feb 2019 14:43:36 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 15 Feb 2019 14:50:47 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x1FEhZCo004806;
-        Fri, 15 Feb 2019 09:43:35 -0500
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x1FEokCe004834;
+        Fri, 15 Feb 2019 09:50:46 -0500
 From:   Stephen Smalley <sds@tycho.nsa.gov>
 To:     paul@paul-moore.com
 Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v2] scripts/selinux: add basic mls support to mdp
-Date:   Fri, 15 Feb 2019 09:43:33 -0500
-Message-Id: <20190215144333.24426-1-sds@tycho.nsa.gov>
+Subject: [PATCH v3] scripts/selinux: add basic mls support to mdp
+Date:   Fri, 15 Feb 2019 09:50:45 -0500
+Message-Id: <20190215145045.31945-1-sds@tycho.nsa.gov>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -109,19 +108,13 @@ Then install the resulting policy and file_contexts as usual.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
-v2 adds a second sensitivity, changes the constraints to require
-dominance rather than equality for all permissions (ala MCS), changes
-the default level and initial SID contexts to use the highest level,
-macro-izes the fs_use and genfscon statement generation, and makes them
-conditional on the relevant kernel configuration option if any.  Still
-only tested that the resulting policy compiles and the file_contexts
-file passes setfiles -c policy file_contexts validation, not actual
-loading into a kernel or running it.
- scripts/selinux/mdp/mdp.c | 137 ++++++++++++++++++++++++++++++--------
- 1 file changed, 109 insertions(+), 28 deletions(-)
+v3 fixes up the file contexts generation code to also use SYSTEMLOW and
+collapse down to a single fprintf call per line.
+ scripts/selinux/mdp/mdp.c | 131 ++++++++++++++++++++++++++++++--------
+ 1 file changed, 103 insertions(+), 28 deletions(-)
 
 diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
-index 073fe7537f6c..3dc47601e2ec 100644
+index 073fe7537f6c..4223e2fea441 100644
 --- a/scripts/selinux/mdp/mdp.c
 +++ b/scripts/selinux/mdp/mdp.c
 @@ -33,6 +33,7 @@
@@ -278,20 +271,14 @@ index 073fe7537f6c..3dc47601e2ec 100644
  
  	fclose(fout);
  
-@@ -144,8 +219,14 @@ int main(int argc, char *argv[])
+@@ -144,8 +219,8 @@ int main(int argc, char *argv[])
  		printf("Wrote policy, but cannot open %s for writing\n", ctxout);
  		usage(argv[0]);
  	}
 -	fprintf(fout, "/ user_u:base_r:base_t\n");
 -	fprintf(fout, "/.* user_u:base_r:base_t\n");
-+	fprintf(fout, "/ " USERROLETYPE "");
-+	if (mls)
-+		fprintf(fout, ":s0");
-+	fprintf(fout, "\n");
-+	fprintf(fout, "/.* " USERROLETYPE "");
-+	if (mls)
-+		fprintf(fout, ":s0");
-+	fprintf(fout, "\n");
++	fprintf(fout, "/ " USERROLETYPE "%s\n", mls ? ":" SYSTEMLOW : "");
++	fprintf(fout, "/.* " USERROLETYPE "%s\n", mls ? ":" SYSTEMLOW : "");
  	fclose(fout);
  
  	return 0;
