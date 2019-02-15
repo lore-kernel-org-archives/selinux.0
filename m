@@ -2,106 +2,78 @@ Return-Path: <SRS0=IGSF=QW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2281C43381
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:50:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EECB3C43381
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 16:00:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9E7D52192D
-	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 15:50:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1550245820;
-	bh=CAIig8PUERhXRJGQpDBjlmgQ3YeLE3VkY0ViUwAkvQg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=sVqpBtbRSk9prqQ9Pdo0EQtXbTHj7TIXm4h9v0G6S1k+qaIFSn8N0xNTTd1D9odkP
-	 KX6aO4P3Kh9xCXxT42aM2QEnWW1I05Uu0uMO55FJ5j/qHS6u3VYZ1gtDhcvK5U5Sj6
-	 1W1+do8GKmXuW54HKmECe9JzJH56UmpQwqVURfWk=
+	by mail.kernel.org (Postfix) with ESMTP id C80FC21927
+	for <selinux@archiver.kernel.org>; Fri, 15 Feb 2019 16:00:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726214AbfBOPuU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Feb 2019 10:50:20 -0500
-Received: from mail-yb1-f194.google.com ([209.85.219.194]:46528 "EHLO
-        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726155AbfBOPuU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Feb 2019 10:50:20 -0500
-Received: by mail-yb1-f194.google.com with SMTP id 7so3930649ybp.13;
-        Fri, 15 Feb 2019 07:50:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=VgrhECn1nXRRLs8srQZV/Qr9SLLlA2Knfhd8ON2h60I=;
-        b=Bh9lhmpPOsVnYHm4IQAatpZd0ssJLtDYUc8rRQhd3y5UwFJkq02vuvd/seO6xaVZhR
-         UK1ZwDMcu/DpCq/w/K7Y7AHGRQC9ITGiZI/gfkf2TNEshD5faLSEFZRl44TOezdqdeGk
-         Z7ZRjyh8FvI45vktKtHdLUGxkEcB90NLyGZRZgWL9UK5ED6JqtNFsScEADbDA/vnwdN/
-         QCO9mSyDiN+slTC+P96bqnGpI6adJTOpq8mxDFR9TH/taOJXeRs1FsF7tEM1H0+CuD8l
-         PTV7TpkI6Dtyq7D08gp1cgGgIWYxhnlLYMyP3SXc5srXt55lq51WzRWg5UG7zpzxGpNk
-         E0pA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=VgrhECn1nXRRLs8srQZV/Qr9SLLlA2Knfhd8ON2h60I=;
-        b=L/qraJZX+7HwDxLa1BlMYTv9F0nD9HkuZFc8QGw+REv7AESac0mwME6rHn47nCGdGu
-         UTFTKVFb3uc29i7FsWDePbsjQELkbyCKid1JcGh80Zs2nkSrQMqe3RnmaR3UIs+H4IkM
-         0piFsLo7CerDuc1U18iv+3EYsq9Q+88nxnJt253CjtPhJ6zp0y4881J0BGJ0oaF6BtBq
-         IEQT0v06SZnjYE9YGt2LuQFdXu4Wcql39AFUj/oPkVLi4uR5bdRyqc3yLXQGjRckUWW1
-         XdDs/qiDobHteaKziSTAwHxm1HLDaAhP6ernDS0TCPc81VQkXZcIiLPv4Ew0owJJTfJR
-         m3bg==
-X-Gm-Message-State: AHQUAuYt3MLUPJfSFL9LBJFbnLfvsQQIQOseSgQ+RlNxomiwzrlouu4M
-        ugu+e3K6k6IobMYHFGGsflw=
-X-Google-Smtp-Source: AHgI3Iacfx/iSfYxUWD8XotxSL2fO/RF3Gkj1xaH5nOlulElLJjQjUDsS1AVqXYb32CGJIbY6IQSSQ==
-X-Received: by 2002:a5b:348:: with SMTP id q8mr8227739ybp.479.1550245818326;
-        Fri, 15 Feb 2019 07:50:18 -0800 (PST)
-Received: from localhost ([2620:10d:c091:200::5:2c70])
-        by smtp.gmail.com with ESMTPSA id b65sm2164873ywb.29.2019.02.15.07.50.17
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 15 Feb 2019 07:50:17 -0800 (PST)
-Date:   Fri, 15 Feb 2019 07:50:14 -0800
-From:   Tejun Heo <tj@kernel.org>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
-Subject: Re: [PATCH v6 5/5] kernfs: initialize security of newly created nodes
-Message-ID: <20190215155014.GP50184@devbig004.ftw2.facebook.com>
-References: <20190214095015.16032-1-omosnace@redhat.com>
- <20190214095015.16032-6-omosnace@redhat.com>
- <20190214154854.GO50184@devbig004.ftw2.facebook.com>
- <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
+        id S2391023AbfBOQAd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Feb 2019 11:00:33 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:33002 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390625AbfBOQAd (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 15 Feb 2019 11:00:33 -0500
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id E94BF13982C
+        for <selinux@vger.kernel.org>; Fri, 15 Feb 2019 16:00:32 +0000 (UTC)
+Received: from workstation.redhat.com (unknown [10.40.205.53])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 194595C3FD;
+        Fri, 15 Feb 2019 16:00:31 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH v2 1/3] python/semanage: Drop python shebang from seobject.py
+Date:   Fri, 15 Feb 2019 17:00:23 +0100
+Message-Id: <20190215160025.9810-1-plautrba@redhat.com>
+In-Reply-To: <pjdtvh5m8i4.fsf@redhat.com>
+References: <pjdtvh5m8i4.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Fri, 15 Feb 2019 16:00:33 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 15, 2019 at 04:45:44PM +0100, Ondrej Mosnacek wrote:
-> On Thu, Feb 14, 2019 at 4:49 PM Tejun Heo <tj@kernel.org> wrote:
-> > On Thu, Feb 14, 2019 at 10:50:15AM +0100, Ondrej Mosnacek wrote:
-> > > +static int kernfs_node_init_security(struct kernfs_node *parent,
-> > > +                                  struct kernfs_node *kn)
-> >
-> > Can we skip the whole thing if security is not enabled?
-> 
-> Do you mean just skipping the whole part when CONFIG_SECURITY=n? That
-> is easy to do and I can add it in the next respin (although the
-> compiler should be able to optimize most of it out in that case).
+seobject.py is not supposed to be used as entrypoint therefore the shebang is
+unnecessary. It also doesn't need execute bits.
 
-So the goal is allowing folks who don't use this to not pay.  It'd be
-better the evaulation can be as late as possible but obviously there's
-a point where that'd be too complicated.  Maybe "ever enabled in this
-boot" is a good and simple enough at the same time?
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ python/semanage/Makefile    | 2 +-
+ python/semanage/seobject.py | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-Thanks.
-
+diff --git a/python/semanage/Makefile b/python/semanage/Makefile
+index 2e262ef8..37065268 100644
+--- a/python/semanage/Makefile
++++ b/python/semanage/Makefile
+@@ -27,7 +27,7 @@ install: all
+ 		fi ; \
+ 	done
+ 	test -d $(DESTDIR)/$(PACKAGEDIR) || install -m 755 -d $(DESTDIR)/$(PACKAGEDIR)
+-	install -m 755 seobject.py $(DESTDIR)/$(PACKAGEDIR)
++	install -m 644 seobject.py $(DESTDIR)/$(PACKAGEDIR)
+ 	-mkdir -p $(DESTDIR)$(BASHCOMPLETIONDIR)
+ 	install -m 644 $(BASHCOMPLETIONS) $(DESTDIR)$(BASHCOMPLETIONDIR)/semanage
+ 
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index b31a90c1..13fdf531 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -1,4 +1,3 @@
+-#! /usr/bin/python -Es
+ # Copyright (C) 2005-2013 Red Hat
+ # see file 'COPYING' for use and warranty information
+ #
 -- 
-tejun
+2.20.1
+
