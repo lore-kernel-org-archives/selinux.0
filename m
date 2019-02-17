@@ -2,189 +2,133 @@ Return-Path: <SRS0=M2Pn=QY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45802C43381
-	for <selinux@archiver.kernel.org>; Sun, 17 Feb 2019 20:41:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79F04C43381
+	for <selinux@archiver.kernel.org>; Sun, 17 Feb 2019 20:43:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1C20E2173C
-	for <selinux@archiver.kernel.org>; Sun, 17 Feb 2019 20:41:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4FCE92184A
+	for <selinux@archiver.kernel.org>; Sun, 17 Feb 2019 20:43:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726124AbfBQUlt convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Sun, 17 Feb 2019 15:41:49 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:57356 "EHLO
+        id S1726015AbfBQUnH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 17 Feb 2019 15:43:07 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:45108 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725916AbfBQUlt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 17 Feb 2019 15:41:49 -0500
-Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
+        with ESMTP id S1725916AbfBQUnG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 17 Feb 2019 15:43:06 -0500
+Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id D1B075605F7
-        for <selinux@vger.kernel.org>; Sun, 17 Feb 2019 21:41:44 +0100 (CET)
-Received: by mail-ot1-f53.google.com with SMTP id z19so25084079otm.2
-        for <selinux@vger.kernel.org>; Sun, 17 Feb 2019 12:41:44 -0800 (PST)
-X-Gm-Message-State: AHQUAua+Z2HZIfv1mJmBgsEYAOO9NMxPcwq9O4DkWnC8BsY99yqt9C2W
-        ZEl8Ov9HIYBj+ysmxE1iCOtn6hd2MSwlN7HtRVY=
-X-Google-Smtp-Source: AHgI3IYtOgTWU84Bm9ebHVeV4y3VB9ZlxpMybN8PY/tdwPOeaSe+32x6YRKYOrt7clH6W1Xc8yYlsdv9i3BPBY/IqTE=
-X-Received: by 2002:a05:6830:193:: with SMTP id q19mr6393000ota.278.1550436103638;
- Sun, 17 Feb 2019 12:41:43 -0800 (PST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id EC22B560692
+        for <selinux@vger.kernel.org>; Sun, 17 Feb 2019 21:43:03 +0100 (CET)
+Received: by mail-ot1-f46.google.com with SMTP id n71so24982699ota.10
+        for <selinux@vger.kernel.org>; Sun, 17 Feb 2019 12:43:03 -0800 (PST)
+X-Gm-Message-State: AHQUAuYsHBBUlo0TGQzPdrSgXDro0pcaYYESXAkeCMMeZoIzKlFWP4F0
+        WjujGHNRmM0MGBl7cbipphJVcYDOA4wZSpoz+do=
+X-Google-Smtp-Source: AHgI3IYvGXI09gXQ6bCqVN8gCSKekEiZEjVZUu6Ni88YxF9yup3AtcZXs9eD3uotI6BUBwowSymHe88IsKJ6avSpPHc=
+X-Received: by 2002:aca:cd93:: with SMTP id d141mr12431762oig.163.1550436182940;
+ Sun, 17 Feb 2019 12:43:02 -0800 (PST)
 MIME-Version: 1.0
-References: <20190206194325.24875-1-plautrba@redhat.com> <CAJfZ7=mdSxSVTNBNbuD0SWp_yMC6O0Gsf12Wh2b3JM0abx3VEQ@mail.gmail.com>
- <pjdtvh5m8i4.fsf@redhat.com>
-In-Reply-To: <pjdtvh5m8i4.fsf@redhat.com>
+References: <pjdtvh5m8i4.fsf@redhat.com> <20190215160025.9810-1-plautrba@redhat.com>
+ <20190215160025.9810-3-plautrba@redhat.com>
+In-Reply-To: <20190215160025.9810-3-plautrba@redhat.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 17 Feb 2019 21:41:32 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7=kMA6fKDq=cWD1Tjz5wZLd9gvqnN5FTKh=mMiPZLG70Qg@mail.gmail.com>
-Message-ID: <CAJfZ7=kMA6fKDq=cWD1Tjz5wZLd9gvqnN5FTKh=mMiPZLG70Qg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] python/semanage module: Fix handling of -a/-e/-d/-r options
+Date:   Sun, 17 Feb 2019 21:42:52 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=nsFTKC4upjKETSDC0bgmYCvQZg5tTte_KcTH8Kxe5ucA@mail.gmail.com>
+Message-ID: <CAJfZ7=nsFTKC4upjKETSDC0bgmYCvQZg5tTte_KcTH8Kxe5ucA@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] python/semanage module: Fix handling of
+ -a/-e/-d/-r options
 To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Feb 17 21:41:45 2019 +0100 (CET))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Feb 17 21:43:04 2019 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 15, 2019 at 3:28 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Fri, Feb 15, 2019 at 5:00 PM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
-> Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+> Previous code traceback-ed when one of the mentioned option was used without
+> any argument as this state was not handled by the argument parser.
 >
-> > On Wed, Feb 6, 2019 at 8:43 PM Petr Lautrbach <plautrba@redhat.com> wrote:
-> >>
-> >> Previous code traceback-ed when one of the mentioned option was used without
-> >> any argument as this state was not handled by the argument parser.
-> >>
-> >> action='store' stores arguments as a list while the original
-> >> action='store_const' used str therefore the particular interfaces in
-> >> moduleRecords are changed to be compatible with both.
-> >>
-> >> Fixes:
-> >> ^_^ semanage module -a
-> >> Traceback (most recent call last):
-> >>   File "/usr/sbin/semanage", line 963, in <module>
-> >>     do_parser()
-> >>   File "/usr/sbin/semanage", line 942, in do_parser
-> >>     args.func(args)
-> >>   File "/usr/sbin/semanage", line 608, in handleModule
-> >>     OBJECT.add(args.module_name, args.priority)
-> >>   File "/usr/lib/python3.7/site-packages/seobject.py", line 402, in add
-> >>     if not os.path.exists(file):
-> >>   File "/usr/lib64/python3.7/genericpath.py", line 19, in exists
-> >>     os.stat(path)
-> >> TypeError: stat: path should be string, bytes, os.PathLike or integer, not NoneType
-> >>
-> >> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> >
-> > Nice bug :) Nevertheless "if type(module) == str" troubles me because
-> > I except a function to only accept one kind of arguments (either a
-> > list of strings or a string, but not both).
+> action='store' stores arguments as a list while the original
+> action='store_const' used str therefore it's needed to convert list to str
+> before it's sent to moduleRecords class.
 >
-> The idea was to have backward compatible code. Originally, semanage used
-> to send a string, while the new code sends a list. I didn't want to
-> break 3rd party and I wanted to avoid converting of the list from
-> action_enable to string and the converting it back to list in
-> moduleRecords.set_enabled()
+> Fixes:
+> ^_^ semanage module -a
+> Traceback (most recent call last):
+>   File "/usr/sbin/semanage", line 963, in <module>
+>     do_parser()
+>   File "/usr/sbin/semanage", line 942, in do_parser
+>     args.func(args)
+>   File "/usr/sbin/semanage", line 608, in handleModule
+>     OBJECT.add(args.module_name, args.priority)
+>   File "/usr/lib/python3.7/site-packages/seobject.py", line 402, in add
+>     if not os.path.exists(file):
+>   File "/usr/lib64/python3.7/genericpath.py", line 19, in exists
+>     os.stat(path)
+> TypeError: stat: path should be string, bytes, os.PathLike or integer, not NoneType
 >
->
-> > Moreover this is
-> > Python3-only code and semanage's shebang does not specify a Python
-> > version (the Python2-equivalent code would have been "if
-> > isinstance(module, basestring)").
->
-> Works for me:
->
-> > python2
-> Python 2.7.15 (default, Feb  2 2019, 16:04:51)
-> [GCC 9.0.1 20190129 (Red Hat 9.0.1-0.2)] on linux2
-> Type "help", "copyright", "credits" or "license" for more information.
-> >>> type("name")
-> <type 'str'>
-> >>> type(["name"])
-> <type 'list'>
-> >>> type("name") == str
-> True
-> >>> type(["name"]) == str
-> False
->
->
-> https://docs.python.org/2/library/functions.html#type
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-I had unicode strings in mind:
+For the three patches: Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-python2
->>> type(u'abc')
-<type 'unicode'>
->>> type(u'abc') == str
-False
->>> isinstance(u'abc', basestring)
-True
-
-Nevertheless, it seems that argparse does not introduce unicode
-strings when UTF-8 characters are provided as command-line parameters,
-so your code worked.
-
-> >
-> > I would prefer if the new code looked like this (that I have not tested):
-> >
-> >     def set_enabled(self, modules, enable):
-> >         for item_modules in modules:
-> >             for m in item_modules.split():
-> >                 # ...
+> ---
+>  python/semanage/semanage | 25 ++++++++++++-------------
+>  1 file changed, 12 insertions(+), 13 deletions(-)
 >
-> Or just convert action_enable to string before it's sent to
-> moduleRecords.set_enabled():
->
+> diff --git a/python/semanage/semanage b/python/semanage/semanage
+> index 18191c13..d6d68248 100644
 > --- a/python/semanage/semanage
 > +++ b/python/semanage/semanage
-> @@ -612,9 +612,9 @@ def handleModule(args):
->      if args.action_add:
->          OBJECT.add(args.action_add, args.priority)
->      if args.action_enable:
-> -        OBJECT.set_enabled(args.action_enable, True)
-> +        OBJECT.set_enabled(args.action_enable.join(" "), True)
->      if args.action_disable:
-> -        OBJECT.set_enabled(args.action_disable, False)
-> +        OBJECT.set_enabled(args.action_disable.join(" "), False)
->      if args.action_remove:
->          OBJECT.delete(args.action_remove, args.priority)
-
-Indeed. I like it better, thanks!
-
-> > Moreover the "file = file[0]" in moduleRecords.add() looks strange
-> > without a context, which is in handleModule(). I would prefer if this
-> > operation occurred in semanage, where it is clear that args.action_add
-> > always has a single item (because « action='store', nargs=1 »):
-> >
-> >     if args.action_add:
-> >         OBJECT.add(args.action_add[0], args.priority)
+> @@ -609,14 +609,14 @@ def setupInterfaceParser(subparsers):
 >
-> Good idea.
+>  def handleModule(args):
+>      OBJECT = seobject.moduleRecords(args)
+> -    if args.action == "add":
+> -        OBJECT.add(args.module_name, args.priority)
+> -    if args.action == "enable":
+> -        OBJECT.set_enabled(args.module_name, True)
+> -    if args.action == "disable":
+> -        OBJECT.set_enabled(args.module_name, False)
+> -    if args.action == "remove":
+> -        OBJECT.delete(args.module_name, args.priority)
+> +    if args.action_add:
+> +        OBJECT.add(args.action_add[0], args.priority)
+> +    if args.action_enable:
+> +        OBJECT.set_enabled(" ".join(args.action_enable), True)
+> +    if args.action_disable:
+> +        OBJECT.set_enabled(" ".join(args.action_disable), False)
+> +    if args.action_remove:
+> +        OBJECT.delete(" ".join(args.action_remove), args.priority)
+>      if args.action == "deleteall":
+>          OBJECT.deleteall()
+>      if args.action == "list":
+> @@ -635,14 +635,13 @@ def setupModuleParser(subparsers):
+>      parser_add_priority(moduleParser, "module")
 >
-> >
-> > Nicolas
-> >
-> > PS: As setools is now Python3-only and seobject.py requires it, it
-> > seems to be a good time to update the shebang to "#!/usr/bin/python3
-> > -Es".
+>      mgroup = moduleParser.add_mutually_exclusive_group(required=True)
+> -    parser_add_add(mgroup, "module")
+>      parser_add_list(mgroup, "module")
+>      parser_add_extract(mgroup, "module")
+>      parser_add_deleteall(mgroup, "module")
+> -    mgroup.add_argument('-r', '--remove', dest='action', action='store_const', const='remove', help=_("Remove a module"))
+> -    mgroup.add_argument('-d', '--disable', dest='action', action='store_const', const='disable', help=_("Disable a module"))
+> -    mgroup.add_argument('-e', '--enable', dest='action', action='store_const', const='enable', help=_("Enable a module"))
+> -    moduleParser.add_argument('module_name', nargs='?', default=None, help=_('Name of the module to act on'))
+> +    mgroup.add_argument('-a', '--add', dest='action_add', action='store', nargs=1, metavar='module_name', help=_("Add a module"))
+> +    mgroup.add_argument('-r', '--remove', dest='action_remove', action='store', nargs='+', metavar='module_name', help=_("Remove a module"))
+> +    mgroup.add_argument('-d', '--disable', dest='action_disable', action='store', nargs='+', metavar='module_name', help=_("Disable a module"))
+> +    mgroup.add_argument('-e', '--enable', dest='action_enable', action='store', nargs='+', metavar='module_name', help=_("Enable a module"))
+>      moduleParser.set_defaults(func=handleModule)
 >
-> seobject.py is just a module which is not supposed to be entry point.
-> The shebang does not make sense here and should be removed.
 >
-> But I'd change at least semanage and chcat as they both directly imports
-> seobject.
+> --
+> 2.20.1
 >
-> Or rather change the whole project to python3 by default.
-
-I agree with changing all the shebangs in the project to python3 (as
-python/sepolicy/sepolicy/__init__.py also imports setools, there are
-more tools that are broken with a Python3-only setools and a Python2
-"python" binary).
-
-Nicolas
 
