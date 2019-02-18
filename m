@@ -2,180 +2,158 @@ Return-Path: <SRS0=DZpq=QZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_SBL,
+	URIBL_SBL_A autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88A6DC43381
-	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 13:01:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2104FC10F01
+	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 13:01:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 490CC217F5
+	by mail.kernel.org (Postfix) with ESMTP id EC759217F5
 	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 13:01:38 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=perfinion-com.20150623.gappssmtp.com header.i=@perfinion-com.20150623.gappssmtp.com header.b="hQNHTI9t"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729536AbfBRNBi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1726302AbfBRNBi (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Mon, 18 Feb 2019 08:01:38 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:36806 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726302AbfBRNBh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Feb 2019 08:01:37 -0500
-Received: by mail-pg1-f193.google.com with SMTP id r124so8442614pgr.3
-        for <selinux@vger.kernel.org>; Mon, 18 Feb 2019 05:01:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=perfinion-com.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=RRXycP5aTQKBpzEw9V9ABdbf5znLht8zdPoj0XZMhlE=;
-        b=hQNHTI9txmeShYx+nl0BwAMx3mzXfOIqLsXoWGk68ZXKt6KOaoJ0X8L+wm3vgtFKUA
-         9oPKhzLXoVnBWUKEFWWhs/8+XY4FfnpA68Mfd0FYAc63f5EP1NT/tCeVu/C40GS0sP2B
-         CyXDVgTR00Sie5vz60iVnYuDLzfPo06I/AOrduVMrDmaZ9rfgeErFRTC7Q7yDgVCPROK
-         MljR/E5MDxEbAC1GSbWqYN+jPYUWb2/9leRNfTDppMDz4HoaEfM7qVn2Tcg5h4rfJGUZ
-         u7Vu1BqoKrcIOtiPr1Wg94wn1XStSMO91uwN58TNkJjdvm8ev22z1Gebza9Xjf79os2z
-         fQQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=RRXycP5aTQKBpzEw9V9ABdbf5znLht8zdPoj0XZMhlE=;
-        b=GA0IxCEi5DV1dE7SBKW/ierqIOSC7XxNODF4Tw8ApmCReaQ/HWp1g0o+4VZDv/41+T
-         wyYTl0C6vrqCMYVM2zYAvQ7m24MmmjHQmGGjd81NsAlEGJa+F8eA+XwmJyotR3MfRdlc
-         dzEoIWyGJNN2x4vKmPsgY8mL5JnS6sW3Tj5lVeZQ1Cz4XSwm9qKOxQUkSPBMe7Lym86E
-         wYorniNZL/cjHOLZoj1maj1/6D3Lce/21zvU6S54q0sT9ECyw42owSbuprIkHtbSFchs
-         RttmF1L2GnlY/hxp9nMJ06h9gWUqDS4HsPLWuyaSqwCDnPbwIStlzrnNgN3Y9mRRMKLm
-         TuZg==
-X-Gm-Message-State: AHQUAuZZVbjcgxXsUrYyE7R6+bJj4OOKaYt8rM1glQ2+05SP21JogLHF
-        dz03JiUQnh7qMmVIsyWpQlGUxLqDkRw=
-X-Google-Smtp-Source: AHgI3Iaqo9J51ewAyemXJ89QnFB16D/zwOk8CQje2B3YhJvJNtfZKDHrT3/KAQGRCNUUkLRmfMtqpQ==
-X-Received: by 2002:a63:5b1f:: with SMTP id p31mr18617857pgb.56.1550494896655;
-        Mon, 18 Feb 2019 05:01:36 -0800 (PST)
-Received: from localhost ([2406:3003:2002:40c2:7952:f8f0:5b6c:6fa3])
-        by smtp.gmail.com with ESMTPSA id 10sm25848691pfq.146.2019.02.18.05.01.35
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 18 Feb 2019 05:01:35 -0800 (PST)
-Date:   Mon, 18 Feb 2019 21:01:34 +0800
-From:   Jason Zaman <jason@perfinion.com>
+Received: from mx1.redhat.com ([209.132.183.28]:58920 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729166AbfBRNBi (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 18 Feb 2019 08:01:38 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id D99FF2976C;
+        Mon, 18 Feb 2019 13:01:37 +0000 (UTC)
+Received: from workstation (ovpn-204-80.brq.redhat.com [10.40.204.80])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1F7D5104811D;
+        Mon, 18 Feb 2019 13:01:36 +0000 (UTC)
+References: <20190217213650.25974-1-nicolas.iooss@m4x.org> <20190217213650.25974-2-nicolas.iooss@m4x.org>
+User-agent: mu4e 1.0; emacs 26.1
+From:   Petr Lautrbach <plautrba@redhat.com>
 To:     Nicolas Iooss <nicolas.iooss@m4x.org>
 Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH 1/2] python/sepolicy: drop python shebang from the module
-Message-ID: <20190218130134.GA48250@baraddur.perfinion.com>
-References: <20190217213650.25974-1-nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 2/2] python: always use python3 in the shebang of programs using setools
+In-reply-to: <20190217213650.25974-2-nicolas.iooss@m4x.org>
+Date:   Mon, 18 Feb 2019 14:01:35 +0100
+Message-ID: <pjdpnrpmes0.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190217213650.25974-1-nicolas.iooss@m4x.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; format=flowed
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Mon, 18 Feb 2019 13:01:37 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Feb 17, 2019 at 10:36:49PM +0100, Nicolas Iooss wrote:
-> The files in sepolicy's module directory are not supposed to used as
-> executable files. The shebang line is therefore not needed.
-> 
+
+Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+
+> setools 4.2.0 dropped support for Python 2. On systems where
+> /usr/bin/python is Python 2, several tools are now broken 
+> because of
+> this. Update the shebang of these tools to /usr/bin/python3.
+>
+> For future reference, as semanage/seobject.py, sepolicy and 
+> sepolgen
+> import setools, every program that uses one of these modules 
+> need to be
+> run with Python 3. The following programs do not use any of 
+> these
+> modules so their shebangs have not been modified:
+>
+>     dbus/selinux_server.py
+>     libsemanage/utils/semanage_migrate_store
+>     mcstrans/share/util/mlscolor-test
+>     mcstrans/share/util/mlstrans-test
+>     sandbox/start
+>
 > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-For both these patches:
-Acked-by: Jason Zaman <jason@perfinion.com>
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
 > ---
->  python/sepolicy/sepolicy/__init__.py    | 2 --
->  python/sepolicy/sepolicy/booleans.py    | 1 -
->  python/sepolicy/sepolicy/communicate.py | 1 -
->  python/sepolicy/sepolicy/generate.py    | 2 --
->  python/sepolicy/sepolicy/gui.py         | 2 --
->  python/sepolicy/sepolicy/interface.py   | 2 --
->  python/sepolicy/sepolicy/manpage.py     | 1 -
->  python/sepolicy/sepolicy/network.py     | 1 -
->  python/sepolicy/sepolicy/transition.py  | 1 -
->  9 files changed, 13 deletions(-)
-> 
-> diff --git a/python/sepolicy/sepolicy/__init__.py b/python/sepolicy/sepolicy/__init__.py
-> index 6f7294726be4..6aed31bddf1e 100644
-> --- a/python/sepolicy/sepolicy/__init__.py
-> +++ b/python/sepolicy/sepolicy/__init__.py
-> @@ -1,5 +1,3 @@
-> -#!/usr/bin/python
-> -
->  # Author: Dan Walsh <dwalsh@redhat.com>
->  # Author: Ryan Hallisey <rhallise@redhat.com>
->  # Author: Jason Zaman <perfinion@gentoo.org>
-> diff --git a/python/sepolicy/sepolicy/booleans.py b/python/sepolicy/sepolicy/booleans.py
-> index cf5f1ffc6469..ad07ab045d3e 100644
-> --- a/python/sepolicy/sepolicy/booleans.py
-> +++ b/python/sepolicy/sepolicy/booleans.py
-> @@ -1,4 +1,3 @@
-> -#! /usr/bin/python -Es
->  # Copyright (C) 2012 Red Hat
->  # see file 'COPYING' for use and warranty information
->  #
-> diff --git a/python/sepolicy/sepolicy/communicate.py b/python/sepolicy/sepolicy/communicate.py
-> index 299316e0bf27..374002204f84 100755
-> --- a/python/sepolicy/sepolicy/communicate.py
-> +++ b/python/sepolicy/sepolicy/communicate.py
-> @@ -1,4 +1,3 @@
-> -#! /usr/bin/python -Es
->  # Copyright (C) 2012 Red Hat
->  # see file 'COPYING' for use and warranty information
->  #
-> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
-> index 5a2195b8033f..019e7836c597 100644
-> --- a/python/sepolicy/sepolicy/generate.py
-> +++ b/python/sepolicy/sepolicy/generate.py
-> @@ -1,5 +1,3 @@
+>  gui/polgengui.py                  | 2 +-
+>  gui/system-config-selinux.py      | 2 +-
+>  python/audit2allow/audit2allow    | 2 +-
+>  python/audit2allow/sepolgen-ifgen | 2 +-
+>  python/chcat/chcat                | 2 +-
+>  python/sepolicy/sepolicy.py       | 2 +-
+>  sandbox/sandbox                   | 2 +-
+>  7 files changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/gui/polgengui.py b/gui/polgengui.py
+> index 1601dbef0e8d..b1cc99372434 100644
+> --- a/gui/polgengui.py
+> +++ b/gui/polgengui.py
+> @@ -1,4 +1,4 @@
 > -#!/usr/bin/python -Es
-> -#
->  # Copyright (C) 2007-2012 Red Hat
->  # see file 'COPYING' for use and warranty information
+> +#!/usr/bin/python3 -Es
 >  #
-> diff --git a/python/sepolicy/sepolicy/gui.py b/python/sepolicy/sepolicy/gui.py
-> index d4bf3b48e629..00fd7a11dab8 100644
-> --- a/python/sepolicy/sepolicy/gui.py
-> +++ b/python/sepolicy/sepolicy/gui.py
-> @@ -1,5 +1,3 @@
+>  # polgengui.py - GUI for SELinux Config tool in 
+>  system-config-selinux
+>  #
+> diff --git a/gui/system-config-selinux.py 
+> b/gui/system-config-selinux.py
+> index ce7c74b1333c..c42301b626fc 100644
+> --- a/gui/system-config-selinux.py
+> +++ b/gui/system-config-selinux.py
+> @@ -1,4 +1,4 @@
 > -#!/usr/bin/python -Es
-> -#
->  # Copyright (C) 2013 Red Hat
->  # see file 'COPYING' for use and warranty information
+> +#!/usr/bin/python3 -Es
 >  #
-> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
-> index 27c37bb8e1f8..583091ae18aa 100644
-> --- a/python/sepolicy/sepolicy/interface.py
-> +++ b/python/sepolicy/sepolicy/interface.py
-> @@ -1,5 +1,3 @@
-> -#!/usr/bin/python -Es
-> -#
->  # Copyright (C) 2012 Red Hat
->  # see file 'COPYING' for use and warranty information
+>  # system-config-selinux.py - GUI for SELinux Config tool in 
+>  system-config-selinux
 >  #
-> diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepolicy/manpage.py
-> index af18b6ffc12f..1d367962365a 100755
-> --- a/python/sepolicy/sepolicy/manpage.py
-> +++ b/python/sepolicy/sepolicy/manpage.py
-> @@ -1,4 +1,3 @@
+> diff --git a/python/audit2allow/audit2allow 
+> b/python/audit2allow/audit2allow
+> index 18fe0a531d02..09b06f664bc4 100644
+> --- a/python/audit2allow/audit2allow
+> +++ b/python/audit2allow/audit2allow
+> @@ -1,4 +1,4 @@
 > -#! /usr/bin/python -Es
->  # Copyright (C) 2012-2013 Red Hat
+> +#!/usr/bin/python3 -Es
+>  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>  # Authors: Dan Walsh <dwalsh@redhat.com>
+>  #
+> diff --git a/python/audit2allow/sepolgen-ifgen 
+> b/python/audit2allow/sepolgen-ifgen
+> index c482f227193f..be2d093be597 100644
+> --- a/python/audit2allow/sepolgen-ifgen
+> +++ b/python/audit2allow/sepolgen-ifgen
+> @@ -1,4 +1,4 @@
+> -#! /usr/bin/python -Es
+> +#!/usr/bin/python3 -Es
+>  #
+>  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>  #
+> diff --git a/python/chcat/chcat b/python/chcat/chcat
+> index 5bef0073b7a4..ba398684376d 100755
+> --- a/python/chcat/chcat
+> +++ b/python/chcat/chcat
+> @@ -1,4 +1,4 @@
+> -#! /usr/bin/python -Es
+> +#!/usr/bin/python3 -Es
+>  # Copyright (C) 2005 Red Hat
+>  # see file 'COPYING' for use and warranty information
+>  #
+> diff --git a/python/sepolicy/sepolicy.py 
+> b/python/sepolicy/sepolicy.py
+> index 8cc7e8cc5c1c..1934cd8620b0 100755
+> --- a/python/sepolicy/sepolicy.py
+> +++ b/python/sepolicy/sepolicy.py
+> @@ -1,4 +1,4 @@
+> -#! /usr/bin/python -Es
+> +#!/usr/bin/python3 -Es
+>  # Copyright (C) 2012 Red Hat
 >  # AUTHOR: Dan Walsh <dwalsh@redhat.com>
->  # AUTHOR: Miroslav Grepl <mgrepl@redhat.com>
-> diff --git a/python/sepolicy/sepolicy/network.py b/python/sepolicy/sepolicy/network.py
-> index 115f6b8778d5..34267d929b0d 100755
-> --- a/python/sepolicy/sepolicy/network.py
-> +++ b/python/sepolicy/sepolicy/network.py
-> @@ -1,4 +1,3 @@
-> -#! /usr/bin/python -Es
->  # Copyright (C) 2012 Red Hat
 >  # see file 'COPYING' for use and warranty information
->  #
-> diff --git a/python/sepolicy/sepolicy/transition.py b/python/sepolicy/sepolicy/transition.py
-> index 7dea80597dc1..6414a765d0fa 100755
-> --- a/python/sepolicy/sepolicy/transition.py
-> +++ b/python/sepolicy/sepolicy/transition.py
-> @@ -1,4 +1,3 @@
+> diff --git a/sandbox/sandbox b/sandbox/sandbox
+> index c07a1d812a13..1dec07acdcb8 100644
+> --- a/sandbox/sandbox
+> +++ b/sandbox/sandbox
+> @@ -1,4 +1,4 @@
 > -#! /usr/bin/python -Es
->  # Copyright (C) 2011 Red Hat
->  # see file 'COPYING' for use and warranty information
->  #
-> -- 
-> 2.20.1
-> 
+> +#!/usr/bin/python3 -Es
+>  # Authors: Dan Walsh <dwalsh@redhat.com>
+>  # Authors: Thomas Liu <tliu@fedoraproject.org>
+>  # Authors: Josh Cogliati
+
