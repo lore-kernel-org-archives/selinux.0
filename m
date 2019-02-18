@@ -1,141 +1,93 @@
-Return-Path: <SRS0=M2Pn=QY=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=DZpq=QZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_SBL,
-	URIBL_SBL_A,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79ADCC43381
-	for <selinux@archiver.kernel.org>; Sun, 17 Feb 2019 21:37:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D350C43381
+	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 02:46:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 52D8921855
-	for <selinux@archiver.kernel.org>; Sun, 17 Feb 2019 21:37:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDA002184A
+	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 02:46:11 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="sfIDCqcd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726304AbfBQVhP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 17 Feb 2019 16:37:15 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:41560 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726124AbfBQVhO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 17 Feb 2019 16:37:14 -0500
-Received: from localhost.localdomain (89-156-252-9.rev.numericable.fr [89.156.252.9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 81D4D564714
-        for <selinux@vger.kernel.org>; Sun, 17 Feb 2019 22:37:12 +0100 (CET)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-To:     selinux@vger.kernel.org
-Subject: [PATCH 2/2] python: always use python3 in the shebang of programs using setools
-Date:   Sun, 17 Feb 2019 22:36:50 +0100
-Message-Id: <20190217213650.25974-2-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190217213650.25974-1-nicolas.iooss@m4x.org>
-References: <20190217213650.25974-1-nicolas.iooss@m4x.org>
+        id S1728138AbfBRCqL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 17 Feb 2019 21:46:11 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:40342 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727739AbfBRCqL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 17 Feb 2019 21:46:11 -0500
+Received: by mail-lj1-f195.google.com with SMTP id w6so8211938ljd.7
+        for <selinux@vger.kernel.org>; Sun, 17 Feb 2019 18:46:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/DFwKuZhp2tGU3us6NJa0n5ClRLptAu1w9i5MbORi1M=;
+        b=sfIDCqcdOgxM6O9aAAqtZFjFWOJI+8fFxB3Ka8z80V1UdQ5bGCGBHkv9UTNkNe0Mzt
+         eFIzlvt8RtfWMyaRAEQNkTiOHRNTPMHKzyqVFoJgVA0ye3IphqmE8Xsfk0oW9NL1rVaH
+         wdNU4u8WJ2evLyJyCwIttFzdNk3IkHqh/QhoT/cvlBVAn9Whii+J+O2eAPrOGskSOUwj
+         xypDlv6Zwb9An+ZX3vYRWt+Na6JEQISntD/qhKddagBhWpXUX7NDt//1u33B6/nDYto7
+         Ws8+XC14CCTqaAL4e4K5fUv5R6Uq6+WqcSqTWAk+d0UTZanFIoabr7QmNT/bophUiMnV
+         RpMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/DFwKuZhp2tGU3us6NJa0n5ClRLptAu1w9i5MbORi1M=;
+        b=EGFZdcD8NneutAnHbY1Lc7L8tPWvFSHdAkKHId4ug6JSw6G2SCo3MRAaAnGnCYwf+3
+         XdZWbZR8SSpUF9rhkPFYG2SYS0ogd9NeVJsbjzMrQYRZC2hKMVw827uxEHzyGTd47RDT
+         F5okINIj/+G4dPwuVjoyY+LWfPacyW9Oa/YXwCPLcvycoAYEZELNul2KRuZYqCWBqyUL
+         CtY+4eOrnxn4zFQ+f8zetTH/KYIJQKSZlqTHeGCafeC8T2zk1Tnx3H8swkxpX1u2S9Ce
+         Gd1BWQ5aQf79MA4L6Sxx8Pe/fS8dz7hFXhyXnrnpg59NRaHCx9FsztQYXBnaDUL5lftj
+         wtYg==
+X-Gm-Message-State: AHQUAuYN3+gpCCfPKYTccwhJssvtJvG+qDzCXe3D7W3eUbdBqbstgmE3
+        8rD7Djp7QHS/JoeziLxUjV64jyutkBedfP/pSM6P4D8=
+X-Google-Smtp-Source: AHgI3IYLzrhZQodvsXcPvyhPGwNyP3HL+2e5zzLCWSy5/pcGAcvohlbqnDcpE0X+wSIBYk8Tz2XUeDvnKfJivuGH/uQ=
+X-Received: by 2002:a2e:968c:: with SMTP id q12mr2450505lji.95.1550457968559;
+ Sun, 17 Feb 2019 18:46:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Feb 17 22:37:12 2019 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+References: <20190212182318.GA16669@beast> <5260689d-9016-bdf4-6070-13d2c88ac8a8@schaufler-ca.com>
+ <4ed50852-abfb-773b-01e4-b4ac83e32ed3@I-love.SAKURA.ne.jp>
+In-Reply-To: <4ed50852-abfb-773b-01e4-b4ac83e32ed3@I-love.SAKURA.ne.jp>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sun, 17 Feb 2019 21:45:57 -0500
+Message-ID: <CAHC9VhSy8iVUtN1Wt+cy-2RmJQhy34=0zKrUj+RQNEvNuD7y0w@mail.gmail.com>
+Subject: Re: [PATCH v2] LSM: Ignore "security=" when "lsm=" is specified
+To:     Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc:     SELinux <selinux@vger.kernel.org>, kernel-team@lists.ubuntu.com,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Kees Cook <keescook@chromium.org>,
+        James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-setools 4.2.0 dropped support for Python 2. On systems where
-/usr/bin/python is Python 2, several tools are now broken because of
-this. Update the shebang of these tools to /usr/bin/python3.
+On Sun, Feb 17, 2019 at 12:17 AM Tetsuo Handa
+<penguin-kernel@i-love.sakura.ne.jp> wrote:
+> On 2019/02/14 1:05, Casey Schaufler wrote:
+> > On 2/12/2019 10:23 AM, Kees Cook wrote:
+> >> To avoid potential confusion, explicitly ignore "security=" when "lsm=" is
+> >> used on the command line, and report that it is happening.
+> >>
+> >> Suggested-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+> >> Signed-off-by: Kees Cook <keescook@chromium.org>
+> >
+> > Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+>
+> The manual for TOMOYO was updated to follow this change.
+> SELinux folks and AppArmor folks, can we apply this change?
 
-For future reference, as semanage/seobject.py, sepolicy and sepolgen
-import setools, every program that uses one of these modules need to be
-run with Python 3. The following programs do not use any of these
-modules so their shebangs have not been modified:
+My main concern is that "selinux={0|1}" continues to work as it has
+for years.  It doesn't look like this affects that, but I can't say
+I've dug into these changes very far.
 
-    dbus/selinux_server.py
-    libsemanage/utils/semanage_migrate_store
-    mcstrans/share/util/mlscolor-test
-    mcstrans/share/util/mlstrans-test
-    sandbox/start
-
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
- gui/polgengui.py                  | 2 +-
- gui/system-config-selinux.py      | 2 +-
- python/audit2allow/audit2allow    | 2 +-
- python/audit2allow/sepolgen-ifgen | 2 +-
- python/chcat/chcat                | 2 +-
- python/sepolicy/sepolicy.py       | 2 +-
- sandbox/sandbox                   | 2 +-
- 7 files changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/gui/polgengui.py b/gui/polgengui.py
-index 1601dbef0e8d..b1cc99372434 100644
---- a/gui/polgengui.py
-+++ b/gui/polgengui.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python -Es
-+#!/usr/bin/python3 -Es
- #
- # polgengui.py - GUI for SELinux Config tool in system-config-selinux
- #
-diff --git a/gui/system-config-selinux.py b/gui/system-config-selinux.py
-index ce7c74b1333c..c42301b626fc 100644
---- a/gui/system-config-selinux.py
-+++ b/gui/system-config-selinux.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python -Es
-+#!/usr/bin/python3 -Es
- #
- # system-config-selinux.py - GUI for SELinux Config tool in system-config-selinux
- #
-diff --git a/python/audit2allow/audit2allow b/python/audit2allow/audit2allow
-index 18fe0a531d02..09b06f664bc4 100644
---- a/python/audit2allow/audit2allow
-+++ b/python/audit2allow/audit2allow
-@@ -1,4 +1,4 @@
--#! /usr/bin/python -Es
-+#!/usr/bin/python3 -Es
- # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
- # Authors: Dan Walsh <dwalsh@redhat.com>
- #
-diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepolgen-ifgen
-index c482f227193f..be2d093be597 100644
---- a/python/audit2allow/sepolgen-ifgen
-+++ b/python/audit2allow/sepolgen-ifgen
-@@ -1,4 +1,4 @@
--#! /usr/bin/python -Es
-+#!/usr/bin/python3 -Es
- #
- # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
- #
-diff --git a/python/chcat/chcat b/python/chcat/chcat
-index 5bef0073b7a4..ba398684376d 100755
---- a/python/chcat/chcat
-+++ b/python/chcat/chcat
-@@ -1,4 +1,4 @@
--#! /usr/bin/python -Es
-+#!/usr/bin/python3 -Es
- # Copyright (C) 2005 Red Hat
- # see file 'COPYING' for use and warranty information
- #
-diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
-index 8cc7e8cc5c1c..1934cd8620b0 100755
---- a/python/sepolicy/sepolicy.py
-+++ b/python/sepolicy/sepolicy.py
-@@ -1,4 +1,4 @@
--#! /usr/bin/python -Es
-+#!/usr/bin/python3 -Es
- # Copyright (C) 2012 Red Hat
- # AUTHOR: Dan Walsh <dwalsh@redhat.com>
- # see file 'COPYING' for use and warranty information
-diff --git a/sandbox/sandbox b/sandbox/sandbox
-index c07a1d812a13..1dec07acdcb8 100644
---- a/sandbox/sandbox
-+++ b/sandbox/sandbox
-@@ -1,4 +1,4 @@
--#! /usr/bin/python -Es
-+#!/usr/bin/python3 -Es
- # Authors: Dan Walsh <dwalsh@redhat.com>
- # Authors: Thomas Liu <tliu@fedoraproject.org>
- # Authors: Josh Cogliati
 -- 
-2.20.1
-
+paul moore
+www.paul-moore.com
