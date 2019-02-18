@@ -2,158 +2,108 @@ Return-Path: <SRS0=DZpq=QZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_SBL,
-	URIBL_SBL_A autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.7 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2104FC10F01
-	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 13:01:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81FD1C00319
+	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 21:02:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EC759217F5
-	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 13:01:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4E95821872
+	for <selinux@archiver.kernel.org>; Mon, 18 Feb 2019 21:02:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1550523744;
+	bh=VNmClyfzxuXRVuqk2NWqj2E+R20XXrYbCsV9fVGVtPA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=st5CGq0XgBsoGnAfZ2PxzWjkBiAWG/fGzHEJaWSE9UglKERpSqEF6oFBlbSV5B1je
+	 FK/KpcnRLYqxm79oUpsqhQJdgiXo5U6HPR0fAMzCZAQ7Sxj6qv8kbrAmxggrGJxDQT
+	 BMECI9S67XpOslkmZkXHpXi5IYQiPhe7HojPYtDI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726302AbfBRNBi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Feb 2019 08:01:38 -0500
-Received: from mx1.redhat.com ([209.132.183.28]:58920 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729166AbfBRNBi (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 18 Feb 2019 08:01:38 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id D99FF2976C;
-        Mon, 18 Feb 2019 13:01:37 +0000 (UTC)
-Received: from workstation (ovpn-204-80.brq.redhat.com [10.40.204.80])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1F7D5104811D;
-        Mon, 18 Feb 2019 13:01:36 +0000 (UTC)
-References: <20190217213650.25974-1-nicolas.iooss@m4x.org> <20190217213650.25974-2-nicolas.iooss@m4x.org>
-User-agent: mu4e 1.0; emacs 26.1
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH 2/2] python: always use python3 in the shebang of programs using setools
-In-reply-to: <20190217213650.25974-2-nicolas.iooss@m4x.org>
-Date:   Mon, 18 Feb 2019 14:01:35 +0100
-Message-ID: <pjdpnrpmes0.fsf@redhat.com>
+        id S1730001AbfBRVCW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Feb 2019 16:02:22 -0500
+Received: from mail-yb1-f193.google.com ([209.85.219.193]:38461 "EHLO
+        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729997AbfBRVCW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Feb 2019 16:02:22 -0500
+Received: by mail-yb1-f193.google.com with SMTP id f196so2430781yba.5;
+        Mon, 18 Feb 2019 13:02:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=mT6WOBgUOWpg3a/IZnk91lzR1wfES7mgilIFWYqcftE=;
+        b=Pn0c3YFhpdnAnixNJG0zf8JL95VtoAKHXssMwmUmo2+w9R+jQWYqrmcxLsfyuIbbsl
+         d+/ldMSN45dEAXJaWC9uDW/41nZZXoXecyBhB5sGAu7+jmwWLfp1nD2S6kJ+etsmYvFO
+         OdCbZD6PmqwLj42e/zFlum/g9C7yia16CZvAeAaHrCMOsAS4PKt7qIYkCf46i+6ziqIJ
+         TZmxwpf9LOX2SL2CaekflUqMBTRHibq7KlSmzFDLhrb59QF5NJ4fZcbEfvAtlkwfR8dk
+         7GwBoCeheQz1RlmGfOEMs3NgucGSmlquYlusoGge6FF3DU+iIqwIEtSkRNwvnJLTK52j
+         Bufw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=mT6WOBgUOWpg3a/IZnk91lzR1wfES7mgilIFWYqcftE=;
+        b=qGEfq8P8vYyPYqRs7uKTue34gt7POc8vWuYN+SpWiFov6BobHh75dnWepns8FRzJkU
+         RpvoVHV/YYzu+HWiAJNbbeJ5EOzzb0Hn/rFCowz190umCnIU5B6M7KyqGLNS70GQ7aC3
+         JJc9Cv9uibN9Aw706VnhDuKGwgKtr9vjRQHgDJRwEZbNdkCY8GsE4Her5LjS9WdVTowG
+         f9xw7y8+p+oV+ZW25eg1FXKE6g5FsYO6z9fvGz8tWRGjpKjKwwE+53fXsrdZIvOSSAfd
+         oyLgIhRWWVQ8+sJiGkRO9K6ip1IecRLjxjoN8aOpTmUCbclu73j3Dn8qYhs/vHlTU4+n
+         zarA==
+X-Gm-Message-State: AHQUAua7udHgdOM+mJttUoOUuzmC9AVz5AwxVkkRMiqDI+W1miTDOAVV
+        SfMotz2xXRj1K16U9teENFM=
+X-Google-Smtp-Source: AHgI3IbauSa8BsXGLvbMsLV/ibWET/S/Xk3yQP/wZTqf1PJHaHpcgB45vHlIQbugHY0/JC2vlDFN1g==
+X-Received: by 2002:a25:6908:: with SMTP id e8mr21350697ybc.324.1550523741341;
+        Mon, 18 Feb 2019 13:02:21 -0800 (PST)
+Received: from localhost ([2620:10d:c091:200::5:2c70])
+        by smtp.gmail.com with ESMTPSA id s126sm5387720ywc.11.2019.02.18.13.02.18
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 Feb 2019 13:02:19 -0800 (PST)
+Date:   Mon, 18 Feb 2019 13:02:15 -0800
+From:   Tejun Heo <tj@kernel.org>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+Subject: Re: [PATCH v6 5/5] kernfs: initialize security of newly created nodes
+Message-ID: <20190218210215.GS50184@devbig004.ftw2.facebook.com>
+References: <20190214095015.16032-1-omosnace@redhat.com>
+ <20190214095015.16032-6-omosnace@redhat.com>
+ <20190214154854.GO50184@devbig004.ftw2.facebook.com>
+ <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
+ <20190215155014.GP50184@devbig004.ftw2.facebook.com>
+ <CAFqZXNvVb75K9ZemVObcBB+rntL38_VfY5P6jyAbuwjymt6MQQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Mon, 18 Feb 2019 13:01:37 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFqZXNvVb75K9ZemVObcBB+rntL38_VfY5P6jyAbuwjymt6MQQ@mail.gmail.com>
+User-Agent: Mutt/1.5.21 (2010-09-15)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Hello,
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+On Mon, Feb 18, 2019 at 11:03:58AM +0100, Ondrej Mosnacek wrote:
+> I don't think there is a way currently to check whether some LSM has
+> been enabled at boot or not. I suppose we could add such function for
+> this kind of heuristics, but I'm not sure how it would interplay with
+> the plans to allow multiple LSM to be enabled simultaneously...
+> Perhaps it would be better/easier to just add a
+> security_kernfs_needs_init() function, which would simply check if the
+> list of registered kernfs_init_security hooks is empty.
+> 
+> I propose something like the patch below (the whitespace is mangled -
+> intended just for visual review). I plan to fold it into the next
+> respin if there are no objections to this approach.
 
-> setools 4.2.0 dropped support for Python 2. On systems where
-> /usr/bin/python is Python 2, several tools are now broken 
-> because of
-> this. Update the shebang of these tools to /usr/bin/python3.
->
-> For future reference, as semanage/seobject.py, sepolicy and 
-> sepolgen
-> import setools, every program that uses one of these modules 
-> need to be
-> run with Python 3. The following programs do not use any of 
-> these
-> modules so their shebangs have not been modified:
->
->     dbus/selinux_server.py
->     libsemanage/utils/semanage_migrate_store
->     mcstrans/share/util/mlscolor-test
->     mcstrans/share/util/mlstrans-test
->     sandbox/start
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+Sounds good to me.
 
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
+Thanks.
 
-> ---
->  gui/polgengui.py                  | 2 +-
->  gui/system-config-selinux.py      | 2 +-
->  python/audit2allow/audit2allow    | 2 +-
->  python/audit2allow/sepolgen-ifgen | 2 +-
->  python/chcat/chcat                | 2 +-
->  python/sepolicy/sepolicy.py       | 2 +-
->  sandbox/sandbox                   | 2 +-
->  7 files changed, 7 insertions(+), 7 deletions(-)
->
-> diff --git a/gui/polgengui.py b/gui/polgengui.py
-> index 1601dbef0e8d..b1cc99372434 100644
-> --- a/gui/polgengui.py
-> +++ b/gui/polgengui.py
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python -Es
-> +#!/usr/bin/python3 -Es
->  #
->  # polgengui.py - GUI for SELinux Config tool in 
->  system-config-selinux
->  #
-> diff --git a/gui/system-config-selinux.py 
-> b/gui/system-config-selinux.py
-> index ce7c74b1333c..c42301b626fc 100644
-> --- a/gui/system-config-selinux.py
-> +++ b/gui/system-config-selinux.py
-> @@ -1,4 +1,4 @@
-> -#!/usr/bin/python -Es
-> +#!/usr/bin/python3 -Es
->  #
->  # system-config-selinux.py - GUI for SELinux Config tool in 
->  system-config-selinux
->  #
-> diff --git a/python/audit2allow/audit2allow 
-> b/python/audit2allow/audit2allow
-> index 18fe0a531d02..09b06f664bc4 100644
-> --- a/python/audit2allow/audit2allow
-> +++ b/python/audit2allow/audit2allow
-> @@ -1,4 +1,4 @@
-> -#! /usr/bin/python -Es
-> +#!/usr/bin/python3 -Es
->  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
->  # Authors: Dan Walsh <dwalsh@redhat.com>
->  #
-> diff --git a/python/audit2allow/sepolgen-ifgen 
-> b/python/audit2allow/sepolgen-ifgen
-> index c482f227193f..be2d093be597 100644
-> --- a/python/audit2allow/sepolgen-ifgen
-> +++ b/python/audit2allow/sepolgen-ifgen
-> @@ -1,4 +1,4 @@
-> -#! /usr/bin/python -Es
-> +#!/usr/bin/python3 -Es
->  #
->  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
->  #
-> diff --git a/python/chcat/chcat b/python/chcat/chcat
-> index 5bef0073b7a4..ba398684376d 100755
-> --- a/python/chcat/chcat
-> +++ b/python/chcat/chcat
-> @@ -1,4 +1,4 @@
-> -#! /usr/bin/python -Es
-> +#!/usr/bin/python3 -Es
->  # Copyright (C) 2005 Red Hat
->  # see file 'COPYING' for use and warranty information
->  #
-> diff --git a/python/sepolicy/sepolicy.py 
-> b/python/sepolicy/sepolicy.py
-> index 8cc7e8cc5c1c..1934cd8620b0 100755
-> --- a/python/sepolicy/sepolicy.py
-> +++ b/python/sepolicy/sepolicy.py
-> @@ -1,4 +1,4 @@
-> -#! /usr/bin/python -Es
-> +#!/usr/bin/python3 -Es
->  # Copyright (C) 2012 Red Hat
->  # AUTHOR: Dan Walsh <dwalsh@redhat.com>
->  # see file 'COPYING' for use and warranty information
-> diff --git a/sandbox/sandbox b/sandbox/sandbox
-> index c07a1d812a13..1dec07acdcb8 100644
-> --- a/sandbox/sandbox
-> +++ b/sandbox/sandbox
-> @@ -1,4 +1,4 @@
-> -#! /usr/bin/python -Es
-> +#!/usr/bin/python3 -Es
->  # Authors: Dan Walsh <dwalsh@redhat.com>
->  # Authors: Thomas Liu <tliu@fedoraproject.org>
->  # Authors: Josh Cogliati
-
+-- 
+tejun
