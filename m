@@ -2,218 +2,139 @@ Return-Path: <SRS0=HWKQ=Q2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9CADC10F00
-	for <selinux@archiver.kernel.org>; Tue, 19 Feb 2019 16:43:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF5FFC43381
+	for <selinux@archiver.kernel.org>; Tue, 19 Feb 2019 22:08:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9E8B82183E
-	for <selinux@archiver.kernel.org>; Tue, 19 Feb 2019 16:43:13 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="UT+MX4te"
+	by mail.kernel.org (Postfix) with ESMTP id C28442147A
+	for <selinux@archiver.kernel.org>; Tue, 19 Feb 2019 22:08:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729175AbfBSQnM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Feb 2019 11:43:12 -0500
-Received: from sonic301-10.consmr.mail.bf2.yahoo.com ([74.6.129.49]:43383 "EHLO
-        sonic301-10.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729166AbfBSQnM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Feb 2019 11:43:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1550594589; bh=faF+SgY2ts13KTY0TUvjfwhdQBH2YNYnPIrBcDX183w=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=UT+MX4teKE7qsdI8VCSHNzFKV7KrYP+I8HatmFqu6DEdlz9Em07iR9V/HChHQiIB4zLF62tQiGtJ1jiXlpjb1eMVchUXYGmP7xQd6bdu/yXl9fv5PQ/DEOvXBiDfvaewF8FhLpcoFkiATTMxYRnjbIaeKQExbz7xARz2HnZIJAY5hXj8oCGv/O/wXyqCz1MALNNbkqwX8yDkM9ulwKZcXQF4Sbry5jJxUGb3lEgxDFf1TfC5VmTtew31lotw2p++S+2rqeMBJ0oBvTgE4T8+wQzuhnWTVOED1/oH06+cLAp5YqQWaNeUAqqXbbaafQFlXi19M4o8IA7bLFkUpjxs0g==
-X-YMail-OSG: iOXjRWkVM1mtyfzJPPuvHaofq.P07b8yVikAvhTPQsM3UxmhP5QH.UxmWWOjMW5
- BGPIhVGgiT6ObuTfM5nXOPJo5rNpENPpuODB5z8RSpRmcxxNtppYEe3MRP1tS7AVI.c17x2Xa6fp
- xCpQT8hmaT5_ZsbWDWsLvVBYNEHiBfMFOsA0taalW1yAv545rDXyKGouuwWiNlkLfq5QmXpTZBR0
- 8iMrEQPcHwgw9I.G6DzSM9w27xruGdr8Ut2eJncxPmcEivZHNh80n3XSEhqgTMjddbKoWIfue6PR
- ClHIKsddjPoQdP5e536PV6hiXUx3v96cItVvteAFJf0nBxV2qB5BySxAazdmpAEgDGHxlTZOzEqa
- kZeGkh873NC8MNFaxeCpbkEP9Cg2C2dNCijHZ9Yq8NteCDSDgqlFNQWFGl8ZxFRKuLB4Q7ZuHemy
- J1A5I2.eXz9sxdN4tNUpoLht5TauOzZ1YjI9bwBCBtOLw11RpMeNTLZuG6uaOT_xogkdGK9f6u3d
- 04YWmPyryjaWh00yA5GbZCMPBl81PkJlB9gQfXo3IR__z1ybJBDeOXBTuWK7lfpBhooxqp5zx1h1
- 329RAKWgll9ZLKqNY.9wdorR9OEEFXR8555DkC1eLj4hqRryqXraOOhQqKpDszVVYTnMRmbg_WvK
- bvljVYq0WhjOzp7z6.KgJp7YVvEncZitxntw1izmn52JcIL4JyAfwbahJoSHzn7l5ZsA9z_6NeKN
- kP9XWtHlMT.wpQWaeTGlE.bkS0hbJdcOEM6XzgEri9ihFjqUMuGYCTMMHHBuoAKH_scbvJJyezS6
- rM9R26p_6lAHkpp6gsksum26DnR0c.juN7RcDZM99Bhwvk4WVbQqSQyFjBSdu7Q8_r8UpfLqa45R
- udlPJ9ZfnVwt5Il_KtVyD2wAnBBHP_SZvdSy7UTSGT.Bb.Sxe2uOi7w6PCRwzYakQqelkx3BZbYZ
- c8G1CXYUojrkNwV4l3EgVf8guoiIJDiEtoO9nVSfEokJ67elZJcf1wVK.2cfm7vz5b1IVzeKzUUb
- QI2amilrmvUcob11ULgG63AnZUewcQxltvNX6FytbaFbvDcetCFjwvKnVlpeK1Q7UgQ_saCF2xfl
- Qnb_g5DezoPJV
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.bf2.yahoo.com with HTTP; Tue, 19 Feb 2019 16:43:09 +0000
-Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([67.169.65.224])
-          by smtp428.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID a7d4e8ec5dfdede091c8ca18e504c7d6;
-          Tue, 19 Feb 2019 16:43:06 +0000 (UTC)
-Subject: Re: [PATCH v6 5/5] kernfs: initialize security of newly created nodes
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Tejun Heo <tj@kernel.org>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>, casey@schaufler-ca.com
-References: <20190214095015.16032-1-omosnace@redhat.com>
- <20190214095015.16032-6-omosnace@redhat.com>
- <20190214154854.GO50184@devbig004.ftw2.facebook.com>
- <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
- <20190215155014.GP50184@devbig004.ftw2.facebook.com>
- <CAFqZXNvVb75K9ZemVObcBB+rntL38_VfY5P6jyAbuwjymt6MQQ@mail.gmail.com>
- <8c1ddde8-c7aa-7dca-3a0f-2d425c6879b4@schaufler-ca.com>
- <CAFqZXNtJFrtAqnu=CmoSPnPM312DKF73ALkLeekMk8Me5ojntw@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <0942b8c9-79a3-47a9-a28d-276d322fd9e1@schaufler-ca.com>
-Date:   Tue, 19 Feb 2019 08:43:05 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.1
+        id S1727657AbfBSWIB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Feb 2019 17:08:01 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:37691 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725994AbfBSWIB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Feb 2019 17:08:01 -0500
+Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 87F26561266
+        for <selinux@vger.kernel.org>; Tue, 19 Feb 2019 23:07:56 +0100 (CET)
+Received: by mail-ot1-f48.google.com with SMTP id b3so37033360otp.4
+        for <selinux@vger.kernel.org>; Tue, 19 Feb 2019 14:07:56 -0800 (PST)
+X-Gm-Message-State: AHQUAuaebBoF1xqOqRTIMtEjEv37IbfdONxO9J+NlTmt6lsurzrqhPKE
+        VsqKwgYCf/5AixDsLH49MVehL1iU6d8/kW0c18k=
+X-Google-Smtp-Source: AHgI3IYZlsCOlTAnkmSL0+9tEZ/m/FsaDm6gg7zhWXogOhg66xxoXNBkpqP0kFoZYIJeY8MWLEBM38MNk4xmXXO/J30=
+X-Received: by 2002:a9d:65c2:: with SMTP id z2mr2751977oth.301.1550614075368;
+ Tue, 19 Feb 2019 14:07:55 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAFqZXNtJFrtAqnu=CmoSPnPM312DKF73ALkLeekMk8Me5ojntw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+References: <pjdtvh5m8i4.fsf@redhat.com> <20190215160025.9810-1-plautrba@redhat.com>
+ <20190215160025.9810-3-plautrba@redhat.com> <CAJfZ7=nsFTKC4upjKETSDC0bgmYCvQZg5tTte_KcTH8Kxe5ucA@mail.gmail.com>
+In-Reply-To: <CAJfZ7=nsFTKC4upjKETSDC0bgmYCvQZg5tTte_KcTH8Kxe5ucA@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 19 Feb 2019 23:07:44 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==jGextEUUi=T7zGu6Zt4JcxKJE=K54+N2QMYGjeoXBXQ@mail.gmail.com>
+Message-ID: <CAJfZ7==jGextEUUi=T7zGu6Zt4JcxKJE=K54+N2QMYGjeoXBXQ@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] python/semanage module: Fix handling of
+ -a/-e/-d/-r options
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Feb 19 23:07:57 2019 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/19/2019 6:10 AM, Ondrej Mosnacek wrote:
-> On Tue, Feb 19, 2019 at 1:28 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 2/18/2019 2:03 AM, Ondrej Mosnacek wrote:
->>> On Fri, Feb 15, 2019 at 4:50 PM Tejun Heo <tj@kernel.org> wrote:
->>>> On Fri, Feb 15, 2019 at 04:45:44PM +0100, Ondrej Mosnacek wrote:
->>>>> On Thu, Feb 14, 2019 at 4:49 PM Tejun Heo <tj@kernel.org> wrote:
->>>>>> On Thu, Feb 14, 2019 at 10:50:15AM +0100, Ondrej Mosnacek wrote:
->>>>>>> +static int kernfs_node_init_security(struct kernfs_node *parent,
->>>>>>> +                                  struct kernfs_node *kn)
->>>>>> Can we skip the whole thing if security is not enabled?
->>>>> Do you mean just skipping the whole part when CONFIG_SECURITY=n? That
->>>>> is easy to do and I can add it in the next respin (although the
->>>>> compiler should be able to optimize most of it out in that case).
->>>> So the goal is allowing folks who don't use this to not pay.  It'd be
->>>> better the evaulation can be as late as possible but obviously there's
->>>> a point where that'd be too complicated.  Maybe "ever enabled in this
->>>> boot" is a good and simple enough at the same time?
->>> I don't think there is a way currently to check whether some LSM has
->>> been enabled at boot or not. I suppose we could add such function for
->>> this kind of heuristics, but I'm not sure how it would interplay with
->>> the plans to allow multiple LSM to be enabled simultaneously...
->>> Perhaps it would be better/easier to just add a
->>> security_kernfs_needs_init() function, which would simply check if the
->>> list of registered kernfs_init_security hooks is empty.
->>>
->>> I propose something like the patch below (the whitespace is mangled -
->>> intended just for visual review). I plan to fold it into the next
->>> respin if there are no objections to this approach.
->>>
->>> diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
->>> index 735a6d382d9d..5b99205da919 100644
->>> --- a/fs/kernfs/dir.c
->>> +++ b/fs/kernfs/dir.c
->>> @@ -625,6 +625,9 @@ static int kernfs_node_init_security(struct
->>> kernfs_node *parent,
->>>           struct qstr q;
->>>           int ret;
->>>
->>> +       if (!security_kernfs_needs_init() || !parent)
->>> +               return 0;
->>> +
->>>           if (!parent->iattr) {
->>>                   kernfs_iattr_init(&iattr_parent, parent);
->>>                   simple_xattrs_init(&xattr_parent);
->>> @@ -720,11 +723,9 @@ static struct kernfs_node
->>> *__kernfs_new_node(struct kernfs_root *root,
->>>                           goto err_out3;
->>>           }
->>>
->>> -       if (parent) {
->>> -               ret = kernfs_node_init_security(parent, kn);
->>> -               if (ret)
->>> -                       goto err_out3;
->>> -       }
->>> +       ret = kernfs_node_init_security(parent, kn);
->>> +       if (ret)
->>> +               goto err_out3;
->>>
->>>           return kn;
->>>
->>> diff --git a/include/linux/security.h b/include/linux/security.h
->>> index 581944d1e61e..49a083dbc464 100644
->>> --- a/include/linux/security.h
->>> +++ b/include/linux/security.h
->>> @@ -292,6 +292,7 @@ int security_inode_listsecurity(struct inode
->>> *inode, char *buffer, size_t buffer
->>>    void security_inode_getsecid(struct inode *inode, u32 *secid);
->>>    int security_inode_copy_up(struct dentry *src, struct cred **new);
->>>    int security_inode_copy_up_xattr(const char *name);
->>> +int security_kernfs_needs_init(void);
->>>    int security_kernfs_init_security(const struct qstr *qstr,
->>>                                     const struct iattr *dir_iattr,
->>>                                     struct simple_xattrs *dir_secattr,
->>> @@ -789,6 +790,11 @@ static inline int security_inode_copy_up(struct
->>> dentry *src, struct cred **new)
->>>           return 0;
->>>    }
->>>
->>> +static inline int security_kernfs_needs_init(void)
->>> +{
->>> +       return 0;
->>> +}
->>> +
->>>    static inline int security_kernfs_init_security(
->>>                   const struct qstr *qstr, const struct iattr *dir_iattr,
->>>                   struct simple_xattrs *dir_secattr, const struct iattr *iattr,
->>> diff --git a/security/security.c b/security/security.c
->>> index 836e0822874a..3c8b9b5baabc 100644
->>> --- a/security/security.c
->>> +++ b/security/security.c
->>> @@ -892,6 +892,11 @@ int security_inode_copy_up_xattr(const char *name)
->>>    }
->>>    EXPORT_SYMBOL(security_inode_copy_up_xattr);
->>>
->>> +int security_kernfs_needs_init(void)
->>> +{
->>> +       return !hlist_empty(&security_hook_heads.kernfs_init_security);
->>> +}
->>> +
->> Yuck. That's an awful lot of infrastructure just to track
->> that state. May I suggest that instead you have the
->> security_kernfs_init_security() hook return -EOPNOTSUPP
->> in the no-LSM case (2nd argument to call_in_hook). You could
->> then have a state flag in kernfs that you can set to indicate
->> you don't need to call security_kernfs_init_security() again.
-> Well, maintaining a global variable sounds even more yucky to me...
+On Sun, Feb 17, 2019 at 9:42 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Fri, Feb 15, 2019 at 5:00 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+> >
+> > Previous code traceback-ed when one of the mentioned option was used without
+> > any argument as this state was not handled by the argument parser.
+> >
+> > action='store' stores arguments as a list while the original
+> > action='store_const' used str therefore it's needed to convert list to str
+> > before it's sent to moduleRecords class.
+> >
+> > Fixes:
+> > ^_^ semanage module -a
+> > Traceback (most recent call last):
+> >   File "/usr/sbin/semanage", line 963, in <module>
+> >     do_parser()
+> >   File "/usr/sbin/semanage", line 942, in do_parser
+> >     args.func(args)
+> >   File "/usr/sbin/semanage", line 608, in handleModule
+> >     OBJECT.add(args.module_name, args.priority)
+> >   File "/usr/lib/python3.7/site-packages/seobject.py", line 402, in add
+> >     if not os.path.exists(file):
+> >   File "/usr/lib64/python3.7/genericpath.py", line 19, in exists
+> >     os.stat(path)
+> > TypeError: stat: path should be string, bytes, os.PathLike or integer, not NoneType
+> >
+> > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>
+> For the three patches: Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-The state you're maintaining is kernfs state, not LSM
-infrastructure state. The state should be maintained in
-kernfs, not in the LSM infrastructure.
+Merged. Thanks!
 
-> And I don't understand why you'd consider a simple one-line function
-> to be "an awful lot of infrastructure" :)
+Nicolas
 
-That is because you haven't been working with the LSM
-infrastructure very long. If you'll recall, I have already
-objected to kernfs specific LSM hooks. Now, when you find
-that your approach for using a hook has issues, you want
-to add another function that does nothing but tell you
-that there's nothing to do. You can get that by calling
-the security_kernfs_init_security() hook. The LSM infrastructure
-is set up to be as painless as possible when you don't
-want to use it.
-
->   But at the end of the day it
-> is up to the maintainers - Greg/Tejun and James/Serge (who I forgot to
-> Cc on these patches, sorry)
-
-Yes, James and Serge are the maintainers for the
-security sub-system, but I have done the transition
-from hook vector to hook lists and am currently doing
-the transition from module to infrastructure blob management.
-I know it better, and have more invested in it, than anyone
-else just now.
-
->   - what works better for them.
-
-Kernfs is an important component of the kernel. So is
-the security infrastructure. I would hope you don't want
-to turn this into a contest to see which maintainer has
-the biggest clout.
+> > ---
+> >  python/semanage/semanage | 25 ++++++++++++-------------
+> >  1 file changed, 12 insertions(+), 13 deletions(-)
+> >
+> > diff --git a/python/semanage/semanage b/python/semanage/semanage
+> > index 18191c13..d6d68248 100644
+> > --- a/python/semanage/semanage
+> > +++ b/python/semanage/semanage
+> > @@ -609,14 +609,14 @@ def setupInterfaceParser(subparsers):
+> >
+> >  def handleModule(args):
+> >      OBJECT = seobject.moduleRecords(args)
+> > -    if args.action == "add":
+> > -        OBJECT.add(args.module_name, args.priority)
+> > -    if args.action == "enable":
+> > -        OBJECT.set_enabled(args.module_name, True)
+> > -    if args.action == "disable":
+> > -        OBJECT.set_enabled(args.module_name, False)
+> > -    if args.action == "remove":
+> > -        OBJECT.delete(args.module_name, args.priority)
+> > +    if args.action_add:
+> > +        OBJECT.add(args.action_add[0], args.priority)
+> > +    if args.action_enable:
+> > +        OBJECT.set_enabled(" ".join(args.action_enable), True)
+> > +    if args.action_disable:
+> > +        OBJECT.set_enabled(" ".join(args.action_disable), False)
+> > +    if args.action_remove:
+> > +        OBJECT.delete(" ".join(args.action_remove), args.priority)
+> >      if args.action == "deleteall":
+> >          OBJECT.deleteall()
+> >      if args.action == "list":
+> > @@ -635,14 +635,13 @@ def setupModuleParser(subparsers):
+> >      parser_add_priority(moduleParser, "module")
+> >
+> >      mgroup = moduleParser.add_mutually_exclusive_group(required=True)
+> > -    parser_add_add(mgroup, "module")
+> >      parser_add_list(mgroup, "module")
+> >      parser_add_extract(mgroup, "module")
+> >      parser_add_deleteall(mgroup, "module")
+> > -    mgroup.add_argument('-r', '--remove', dest='action', action='store_const', const='remove', help=_("Remove a module"))
+> > -    mgroup.add_argument('-d', '--disable', dest='action', action='store_const', const='disable', help=_("Disable a module"))
+> > -    mgroup.add_argument('-e', '--enable', dest='action', action='store_const', const='enable', help=_("Enable a module"))
+> > -    moduleParser.add_argument('module_name', nargs='?', default=None, help=_('Name of the module to act on'))
+> > +    mgroup.add_argument('-a', '--add', dest='action_add', action='store', nargs=1, metavar='module_name', help=_("Add a module"))
+> > +    mgroup.add_argument('-r', '--remove', dest='action_remove', action='store', nargs='+', metavar='module_name', help=_("Remove a module"))
+> > +    mgroup.add_argument('-d', '--disable', dest='action_disable', action='store', nargs='+', metavar='module_name', help=_("Disable a module"))
+> > +    mgroup.add_argument('-e', '--enable', dest='action_enable', action='store', nargs='+', metavar='module_name', help=_("Enable a module"))
+> >      moduleParser.set_defaults(func=handleModule)
+> >
+> >
+> > --
+> > 2.20.1
+> >
 
