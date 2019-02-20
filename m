@@ -3,37 +3,37 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FFB7C43381
-	for <selinux@archiver.kernel.org>; Wed, 20 Feb 2019 15:19:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 437CEC43381
+	for <selinux@archiver.kernel.org>; Wed, 20 Feb 2019 15:34:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DDBDA2086A
-	for <selinux@archiver.kernel.org>; Wed, 20 Feb 2019 15:19:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1CBCC2084F
+	for <selinux@archiver.kernel.org>; Wed, 20 Feb 2019 15:34:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727355AbfBTPT6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Feb 2019 10:19:58 -0500
-Received: from dgrift.xs4all.space ([80.100.19.56]:50168 "EHLO
+        id S1725881AbfBTPea (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Feb 2019 10:34:30 -0500
+Received: from dgrift.xs4all.space ([80.100.19.56]:50200 "EHLO
         agnus.defensec.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725804AbfBTPT5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Feb 2019 10:19:57 -0500
+        with ESMTP id S1725836AbfBTPea (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Feb 2019 10:34:30 -0500
 Received: from localhost (localhost [127.0.0.1])
-        by agnus.defensec.nl (Postfix) with ESMTP id E5B422E0566;
-        Wed, 20 Feb 2019 16:19:55 +0100 (CET)
+        by agnus.defensec.nl (Postfix) with ESMTP id 5059E2E0566;
+        Wed, 20 Feb 2019 16:34:28 +0100 (CET)
 X-Virus-Scanned: amavisd-new at defensec.nl
 Received: from agnus.defensec.nl ([127.0.0.1])
         by localhost (agnus.defensec.nl [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id 92LaTu5l7XZu; Wed, 20 Feb 2019 16:19:55 +0100 (CET)
+        with LMTP id T4LFwzmr_yjw; Wed, 20 Feb 2019 16:34:27 +0100 (CET)
 Received: from localhost.localdomain (myguest.lan [IPv6:2001:985:d55d::146])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 3BF702E0165;
-        Wed, 20 Feb 2019 16:19:55 +0100 (CET)
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 857E02E0165;
+        Wed, 20 Feb 2019 16:34:27 +0100 (CET)
 From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     selinux@vger.kernel.org
 Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [PATCH v2] scripts/selinux: modernize mdp
-Date:   Wed, 20 Feb 2019 16:19:31 +0100
-Message-Id: <20190220151931.1687-1-dominick.grift@defensec.nl>
+Subject: [PATCH v3] scripts/selinux: modernize mdp
+Date:   Wed, 20 Feb 2019 16:34:08 +0100
+Message-Id: <20190220153408.1857-1-dominick.grift@defensec.nl>
 X-Mailer: git-send-email 2.21.0.rc1
 In-Reply-To: <20190220123354.1589-1-dominick.grift@defensec.nl>
 References: <20190220123354.1589-1-dominick.grift@defensec.nl>
@@ -55,6 +55,8 @@ Fix existing file test for setfiles.
 Add a file test for checkpolicy similar to the test for setfiles for consistency.
 Execute setfiles with -F to ensure that customizables are relabeled as well in scenarios where filesystems are labeled but where SELinux is disabled.
 
+V3: Fixes file test that was introduced in V2.
+
 Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 ---
  scripts/selinux/install_policy.sh | 21 ++++++++++++++++-----
@@ -62,7 +64,7 @@ Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
  2 files changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/scripts/selinux/install_policy.sh b/scripts/selinux/install_policy.sh
-index 0b86c47baf7d..c993178e6ee7 100755
+index 0b86c47baf7d..e32f333f14cc 100755
 --- a/scripts/selinux/install_policy.sh
 +++ b/scripts/selinux/install_policy.sh
 @@ -6,7 +6,7 @@ if [ `id -u` -ne 0 ]; then
@@ -80,7 +82,7 @@ index 0b86c47baf7d..c993178e6ee7 100755
  CP=`which checkpolicy`
 +if [ $? -eq 1 ]; then
 +	if [ -f /usr/checkpolicy ]; then
-+		SF="/usr/checkpolicy"
++		CP="/usr/checkpolicy"
 +	else
 +		echo "no selinux tools installed: checkpolicy"
 +		exit 1
