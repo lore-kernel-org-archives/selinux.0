@@ -1,140 +1,164 @@
-Return-Path: <SRS0=HWKQ=Q2=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=OyWE=Q3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	URIBL_SBL,URIBL_SBL_A autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF5FFC43381
-	for <selinux@archiver.kernel.org>; Tue, 19 Feb 2019 22:08:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D69ECC43381
+	for <selinux@archiver.kernel.org>; Wed, 20 Feb 2019 10:07:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C28442147A
-	for <selinux@archiver.kernel.org>; Tue, 19 Feb 2019 22:08:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AF84B20C01
+	for <selinux@archiver.kernel.org>; Wed, 20 Feb 2019 10:07:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727657AbfBSWIB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Feb 2019 17:08:01 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:37691 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725994AbfBSWIB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Feb 2019 17:08:01 -0500
-Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1726000AbfBTKHV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Feb 2019 05:07:21 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:40116 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725885AbfBTKHV (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 20 Feb 2019 05:07:21 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 87F26561266
-        for <selinux@vger.kernel.org>; Tue, 19 Feb 2019 23:07:56 +0100 (CET)
-Received: by mail-ot1-f48.google.com with SMTP id b3so37033360otp.4
-        for <selinux@vger.kernel.org>; Tue, 19 Feb 2019 14:07:56 -0800 (PST)
-X-Gm-Message-State: AHQUAuaebBoF1xqOqRTIMtEjEv37IbfdONxO9J+NlTmt6lsurzrqhPKE
-        VsqKwgYCf/5AixDsLH49MVehL1iU6d8/kW0c18k=
-X-Google-Smtp-Source: AHgI3IYZlsCOlTAnkmSL0+9tEZ/m/FsaDm6gg7zhWXogOhg66xxoXNBkpqP0kFoZYIJeY8MWLEBM38MNk4xmXXO/J30=
-X-Received: by 2002:a9d:65c2:: with SMTP id z2mr2751977oth.301.1550614075368;
- Tue, 19 Feb 2019 14:07:55 -0800 (PST)
+        by mx1.redhat.com (Postfix) with ESMTPS id 6E90581F0E;
+        Wed, 20 Feb 2019 10:07:20 +0000 (UTC)
+Received: from workstation (unknown [10.43.12.40])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6389819C5A;
+        Wed, 20 Feb 2019 10:07:19 +0000 (UTC)
+References: <20190217213650.25974-1-nicolas.iooss@m4x.org> <20190217213650.25974-2-nicolas.iooss@m4x.org> <pjdpnrpmes0.fsf@redhat.com>
+User-agent: mu4e 1.0; emacs 26.1
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+Subject: Re: [PATCH 2/2] python: always use python3 in the shebang of programs using setools
+In-reply-to: <pjdpnrpmes0.fsf@redhat.com>
+Date:   Wed, 20 Feb 2019 11:07:17 +0100
+Message-ID: <pjdftsin57u.fsf@redhat.com>
 MIME-Version: 1.0
-References: <pjdtvh5m8i4.fsf@redhat.com> <20190215160025.9810-1-plautrba@redhat.com>
- <20190215160025.9810-3-plautrba@redhat.com> <CAJfZ7=nsFTKC4upjKETSDC0bgmYCvQZg5tTte_KcTH8Kxe5ucA@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nsFTKC4upjKETSDC0bgmYCvQZg5tTte_KcTH8Kxe5ucA@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 19 Feb 2019 23:07:44 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==jGextEUUi=T7zGu6Zt4JcxKJE=K54+N2QMYGjeoXBXQ@mail.gmail.com>
-Message-ID: <CAJfZ7==jGextEUUi=T7zGu6Zt4JcxKJE=K54+N2QMYGjeoXBXQ@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] python/semanage module: Fix handling of
- -a/-e/-d/-r options
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Feb 19 23:07:57 2019 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; format=flowed
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Wed, 20 Feb 2019 10:07:20 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Feb 17, 2019 at 9:42 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+
+Petr Lautrbach <plautrba@redhat.com> writes:
+
+> Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 >
-> On Fri, Feb 15, 2019 at 5:00 PM Petr Lautrbach <plautrba@redhat.com> wrote:
-> >
-> > Previous code traceback-ed when one of the mentioned option was used without
-> > any argument as this state was not handled by the argument parser.
-> >
-> > action='store' stores arguments as a list while the original
-> > action='store_const' used str therefore it's needed to convert list to str
-> > before it's sent to moduleRecords class.
-> >
-> > Fixes:
-> > ^_^ semanage module -a
-> > Traceback (most recent call last):
-> >   File "/usr/sbin/semanage", line 963, in <module>
-> >     do_parser()
-> >   File "/usr/sbin/semanage", line 942, in do_parser
-> >     args.func(args)
-> >   File "/usr/sbin/semanage", line 608, in handleModule
-> >     OBJECT.add(args.module_name, args.priority)
-> >   File "/usr/lib/python3.7/site-packages/seobject.py", line 402, in add
-> >     if not os.path.exists(file):
-> >   File "/usr/lib64/python3.7/genericpath.py", line 19, in exists
-> >     os.stat(path)
-> > TypeError: stat: path should be string, bytes, os.PathLike or integer, not NoneType
-> >
-> > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> setools 4.2.0 dropped support for Python 2. On systems where
+>> /usr/bin/python is Python 2, several tools are now broken 
+>> because of
+>> this. Update the shebang of these tools to /usr/bin/python3.
+>>
+>> For future reference, as semanage/seobject.py, sepolicy and 
+>> sepolgen
+>> import setools, every program that uses one of these modules 
+>> need to be
+>> run with Python 3. The following programs do not use any of 
+>> these
+>> modules so their shebangs have not been modified:
+>>
+>>     dbus/selinux_server.py
+>>     libsemanage/utils/semanage_migrate_store
+>>     mcstrans/share/util/mlscolor-test
+>>     mcstrans/share/util/mlstrans-test
+>>     sandbox/start
+>>
+>> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
-> For the three patches: Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
-Merged. Thanks!
+Both patches are merged already.
 
-Nicolas
-
-> > ---
-> >  python/semanage/semanage | 25 ++++++++++++-------------
-> >  1 file changed, 12 insertions(+), 13 deletions(-)
-> >
-> > diff --git a/python/semanage/semanage b/python/semanage/semanage
-> > index 18191c13..d6d68248 100644
-> > --- a/python/semanage/semanage
-> > +++ b/python/semanage/semanage
-> > @@ -609,14 +609,14 @@ def setupInterfaceParser(subparsers):
-> >
-> >  def handleModule(args):
-> >      OBJECT = seobject.moduleRecords(args)
-> > -    if args.action == "add":
-> > -        OBJECT.add(args.module_name, args.priority)
-> > -    if args.action == "enable":
-> > -        OBJECT.set_enabled(args.module_name, True)
-> > -    if args.action == "disable":
-> > -        OBJECT.set_enabled(args.module_name, False)
-> > -    if args.action == "remove":
-> > -        OBJECT.delete(args.module_name, args.priority)
-> > +    if args.action_add:
-> > +        OBJECT.add(args.action_add[0], args.priority)
-> > +    if args.action_enable:
-> > +        OBJECT.set_enabled(" ".join(args.action_enable), True)
-> > +    if args.action_disable:
-> > +        OBJECT.set_enabled(" ".join(args.action_disable), False)
-> > +    if args.action_remove:
-> > +        OBJECT.delete(" ".join(args.action_remove), args.priority)
-> >      if args.action == "deleteall":
-> >          OBJECT.deleteall()
-> >      if args.action == "list":
-> > @@ -635,14 +635,13 @@ def setupModuleParser(subparsers):
-> >      parser_add_priority(moduleParser, "module")
-> >
-> >      mgroup = moduleParser.add_mutually_exclusive_group(required=True)
-> > -    parser_add_add(mgroup, "module")
-> >      parser_add_list(mgroup, "module")
-> >      parser_add_extract(mgroup, "module")
-> >      parser_add_deleteall(mgroup, "module")
-> > -    mgroup.add_argument('-r', '--remove', dest='action', action='store_const', const='remove', help=_("Remove a module"))
-> > -    mgroup.add_argument('-d', '--disable', dest='action', action='store_const', const='disable', help=_("Disable a module"))
-> > -    mgroup.add_argument('-e', '--enable', dest='action', action='store_const', const='enable', help=_("Enable a module"))
-> > -    moduleParser.add_argument('module_name', nargs='?', default=None, help=_('Name of the module to act on'))
-> > +    mgroup.add_argument('-a', '--add', dest='action_add', action='store', nargs=1, metavar='module_name', help=_("Add a module"))
-> > +    mgroup.add_argument('-r', '--remove', dest='action_remove', action='store', nargs='+', metavar='module_name', help=_("Remove a module"))
-> > +    mgroup.add_argument('-d', '--disable', dest='action_disable', action='store', nargs='+', metavar='module_name', help=_("Disable a module"))
-> > +    mgroup.add_argument('-e', '--enable', dest='action_enable', action='store', nargs='+', metavar='module_name', help=_("Enable a module"))
-> >      moduleParser.set_defaults(func=handleModule)
-> >
-> >
-> > --
-> > 2.20.1
-> >
+>> ---
+>>  gui/polgengui.py                  | 2 +-
+>>  gui/system-config-selinux.py      | 2 +-
+>>  python/audit2allow/audit2allow    | 2 +-
+>>  python/audit2allow/sepolgen-ifgen | 2 +-
+>>  python/chcat/chcat                | 2 +-
+>>  python/sepolicy/sepolicy.py       | 2 +-
+>>  sandbox/sandbox                   | 2 +-
+>>  7 files changed, 7 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/gui/polgengui.py b/gui/polgengui.py
+>> index 1601dbef0e8d..b1cc99372434 100644
+>> --- a/gui/polgengui.py
+>> +++ b/gui/polgengui.py
+>> @@ -1,4 +1,4 @@
+>> -#!/usr/bin/python -Es
+>> +#!/usr/bin/python3 -Es
+>>  #
+>>  # polgengui.py - GUI for SELinux Config tool in 
+>>  system-config-selinux
+>>  #
+>> diff --git a/gui/system-config-selinux.py 
+>> b/gui/system-config-selinux.py
+>> index ce7c74b1333c..c42301b626fc 100644
+>> --- a/gui/system-config-selinux.py
+>> +++ b/gui/system-config-selinux.py
+>> @@ -1,4 +1,4 @@
+>> -#!/usr/bin/python -Es
+>> +#!/usr/bin/python3 -Es
+>>  #
+>>  # system-config-selinux.py - GUI for SELinux Config tool in
+>> system-config-selinux
+>>  #
+>> diff --git a/python/audit2allow/audit2allow 
+>> b/python/audit2allow/audit2allow
+>> index 18fe0a531d02..09b06f664bc4 100644
+>> --- a/python/audit2allow/audit2allow
+>> +++ b/python/audit2allow/audit2allow
+>> @@ -1,4 +1,4 @@
+>> -#! /usr/bin/python -Es
+>> +#!/usr/bin/python3 -Es
+>>  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>>  # Authors: Dan Walsh <dwalsh@redhat.com>
+>>  #
+>> diff --git a/python/audit2allow/sepolgen-ifgen
+>> b/python/audit2allow/sepolgen-ifgen
+>> index c482f227193f..be2d093be597 100644
+>> --- a/python/audit2allow/sepolgen-ifgen
+>> +++ b/python/audit2allow/sepolgen-ifgen
+>> @@ -1,4 +1,4 @@
+>> -#! /usr/bin/python -Es
+>> +#!/usr/bin/python3 -Es
+>>  #
+>>  # Authors: Karl MacMillan <kmacmillan@mentalrootkit.com>
+>>  #
+>> diff --git a/python/chcat/chcat b/python/chcat/chcat
+>> index 5bef0073b7a4..ba398684376d 100755
+>> --- a/python/chcat/chcat
+>> +++ b/python/chcat/chcat
+>> @@ -1,4 +1,4 @@
+>> -#! /usr/bin/python -Es
+>> +#!/usr/bin/python3 -Es
+>>  # Copyright (C) 2005 Red Hat
+>>  # see file 'COPYING' for use and warranty information
+>>  #
+>> diff --git a/python/sepolicy/sepolicy.py 
+>> b/python/sepolicy/sepolicy.py
+>> index 8cc7e8cc5c1c..1934cd8620b0 100755
+>> --- a/python/sepolicy/sepolicy.py
+>> +++ b/python/sepolicy/sepolicy.py
+>> @@ -1,4 +1,4 @@
+>> -#! /usr/bin/python -Es
+>> +#!/usr/bin/python3 -Es
+>>  # Copyright (C) 2012 Red Hat
+>>  # AUTHOR: Dan Walsh <dwalsh@redhat.com>
+>>  # see file 'COPYING' for use and warranty information
+>> diff --git a/sandbox/sandbox b/sandbox/sandbox
+>> index c07a1d812a13..1dec07acdcb8 100644
+>> --- a/sandbox/sandbox
+>> +++ b/sandbox/sandbox
+>> @@ -1,4 +1,4 @@
+>> -#! /usr/bin/python -Es
+>> +#!/usr/bin/python3 -Es
+>>  # Authors: Dan Walsh <dwalsh@redhat.com>
+>>  # Authors: Thomas Liu <tliu@fedoraproject.org>
+>>  # Authors: Josh Cogliati
 
