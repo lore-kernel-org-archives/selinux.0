@@ -2,52 +2,47 @@ Return-Path: <SRS0=eFyr=Q4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB377C43381
-	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 09:13:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1AEDC43381
+	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 16:52:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AB06420842
-	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 09:13:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 743412083E
+	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 16:52:39 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="IlMSoOkO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbfBUJNS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Feb 2019 04:13:18 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:44964 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725385AbfBUJNR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 21 Feb 2019 04:13:17 -0500
-Received: by mail-ot1-f68.google.com with SMTP id g1so44216433otj.11
-        for <selinux@vger.kernel.org>; Thu, 21 Feb 2019 01:13:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=h3ygXgusGprlOje1eIZw+/zSDZwG6MCNNmPXhh5Pcv8=;
-        b=aaeWuHoZSdODs8N6ubCIPbFVAS/WXn+5wHz7uzQ5fFoY1LOKF8dVltsRPhF/EWl6s5
-         4rW+WikCsj4AZydf/qICnUuLBEmWbb23IU85Nnn3sZ+ahi5RAMGBg45XToN2xc7gfdv6
-         NaeDtB20XgUJNOsi1S4QBkpofDwLDA+Qo30gbYsS8SW2nrk0BZ2c+D51mispxx4fI7+9
-         Mast7eYsZY8CsApiPqf4YSw2NK0mK6AIkBIPAC4qQVUztAssEgTemS9Eu4R7kmbXazv+
-         7EZ/d1P+LRMFs2iPwvbLbAL85aLSUqIyAK0942ddtN5wv7pEOXX/QxG7GeI36wwyWcJJ
-         Tvzw==
-X-Gm-Message-State: AHQUAuZkBe1PA216vtbtzfyby2TYCMaLE9Mil0d/u+75Ww5YD4LeVNiZ
-        VTzKELc2qV+3uQyyAsLnIlSaKjYjqi71wTlTL/7xzDwa
-X-Google-Smtp-Source: AHgI3Ib8OF41OM583C0JPLbrWBJ8mV4x/lZEFAGVWkrQwRXQlauX1gSGWkdv1lXsrtUtjxac54jfPF4WyU5nGqpwDRY=
-X-Received: by 2002:a9d:27e3:: with SMTP id c90mr23110603otb.21.1550740396630;
- Thu, 21 Feb 2019 01:13:16 -0800 (PST)
-MIME-Version: 1.0
-References: <20190214095015.16032-1-omosnace@redhat.com> <20190214095015.16032-6-omosnace@redhat.com>
- <20190214154854.GO50184@devbig004.ftw2.facebook.com> <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
- <20190215155014.GP50184@devbig004.ftw2.facebook.com> <CAFqZXNvVb75K9ZemVObcBB+rntL38_VfY5P6jyAbuwjymt6MQQ@mail.gmail.com>
- <8c1ddde8-c7aa-7dca-3a0f-2d425c6879b4@schaufler-ca.com> <CAFqZXNtJFrtAqnu=CmoSPnPM312DKF73ALkLeekMk8Me5ojntw@mail.gmail.com>
- <0942b8c9-79a3-47a9-a28d-276d322fd9e1@schaufler-ca.com>
-In-Reply-To: <0942b8c9-79a3-47a9-a28d-276d322fd9e1@schaufler-ca.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 21 Feb 2019 10:13:05 +0100
-Message-ID: <CAFqZXNvWyBQ5g6nwD4AiePxEDXGP2DY31S0RWttqcRSa90SakA@mail.gmail.com>
+        id S1726232AbfBUQwi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Feb 2019 11:52:38 -0500
+Received: from sonic315-14.consmr.mail.gq1.yahoo.com ([98.137.65.38]:35898
+        "EHLO sonic315-14.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726155AbfBUQwi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 Feb 2019 11:52:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1550767957; bh=bmadhQQC7bqlXt50DQRo82QBsvRuMgLNFCg6SUydqC4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=IlMSoOkOjUK+yPVQ0ZMWz63w8vBrFaOzJ69QVLcXnABkqVlZmhz7VqNVlDqGNZr1zgfSGSjr1tgF0EXs3xc51rh0bCmV3+rlo8QpF38ulqneDwRJLL/uhy6Az82y1NkgmjvhnlUbdx0m9i7TbSHER5O6piL7xTYZ+WS3oo7aYYCFl9kFOvWWfFrau72j6LgV6eVTzpo7ZgdW/nr/I/pwXLbMWkCqdKgXwaGPe35yKBHVdKPY1DPSxMyosjV4QifTrjvO8Fj8i3HX9ut6ml8x9FqMqJ6nJ2b7lHRcxmKqzv5JrclLdUPjM+qsivA1WxDv7Hrmc/dputQpFRKUbS5Utg==
+X-YMail-OSG: wjKwoRQVM1llJLMsIX5iiGMWW8_mC.TDwjjm2pCJ.0mYSeVwVcBQunjptSfuH73
+ _Jv.HnP73r._jO5Xb3GDlSlGKrw2JRIlC9D5d4ZutmmVi8S602czlH1smVXn8__yRKRo3hxc7qYt
+ mdMSVwKZYc6ER1vBuXriGIJ9FeL30.Rh8MnNr7yL7Ofl_Vu2z4n9AP1JRAqsNuGhfM5mV603h7lM
+ UWP6hfUHlkp4kekC6DVqCwvMy53HeKCFqOCSg9vD2o8aPs8GVvrex7lXMzjBgeK5ynKk2G0kbH4D
+ Lk5sFAT6N9FpGiTx8ZpCf1wgM7sQPnP13Ksdbq55r_mNcqIad.L3.v8Q.yF8ooo4htYx9y41tque
+ nALHOxsuJ2Ww_9iuytg5vJlI_HXIEtEOI234NDeiEMZzisNd4ZNZGwobAhnx8ZLDOBVR9B.ry8SW
+ 8IsAVIRTngia2kAVBgmrGJcS_jgoNMpjtDs_rj2fYzz7B40k4qNUfWnpgjlltYEI39d9xHS8Ca8U
+ 68pNlN5XfoZ9Esn7mWVTKzQpLTvF1bN7svH7RbeHXCxaJAuy8PbNFg7Mfv7lMbSF5EriWXAPxcVJ
+ i8aQ3MiZlhYtGwOYk1nLGAUsXPlr0t7B8czSyxLe0S4qjFZMFt5fAIRDW_6czgsO1cMKmIjBzQiH
+ nsWOOc7UU6mQDlHqlmglrJFtEfjuiRqv9EG4_XlgEq4k3al.j7FT1VXYc7mtUDMoN.LUHm9DnGPp
+ pLDIOMgrJaJEW3uOMv3cIjnJwYFXYxYy.5JhI9.T_BTYnlscKNX3seNUvIV3r9xZXxsk__DWGY_W
+ UCkMjWZIt1IQ.z414frmIz4N8rKQezaDQ6IsN.AvqxtPyFp1pLArpfx4Wzc2LVmRMsluv9vbH.Wy
+ PDMvOumnL4QRh1hpjcsqJjzz7U_cfbi9Hr3YChyOrzI0m2jYNGmN7fdW13GU4bDeObXU_6EFzAzw
+ XfxUxxNxAPD2EqdgqWa5_nLq3M3ecoUCLhYL2XmpJ68UZDGUXb1yaueWIHX5b7MlzIMe9VcgPvkQ
+ b27ZDUjbOvvRQYlDQWTdmegl9bh63OrwMAQrrN90FlR9Nc1Z.8Wfz_yugZtVpR4F4Yb8WTjxEzc.
+ g_ruySKVrPXg43Kk.o9vjQw--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.gq1.yahoo.com with HTTP; Thu, 21 Feb 2019 16:52:37 +0000
+Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([67.169.65.224])
+          by smtp420.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 53967e73d2f51e432241f3b0340d2690;
+          Thu, 21 Feb 2019 16:52:34 +0000 (UTC)
 Subject: Re: [PATCH v6 5/5] kernfs: initialize security of newly created nodes
-To:     Casey Schaufler <casey@schaufler-ca.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     Tejun Heo <tj@kernel.org>, selinux@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
@@ -56,178 +51,74 @@ Cc:     Tejun Heo <tj@kernel.org>, selinux@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org,
         James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>
-Content-Type: text/plain; charset="UTF-8"
+        "Serge E. Hallyn" <serge@hallyn.com>, casey@schaufler-ca.com
+References: <20190214095015.16032-1-omosnace@redhat.com>
+ <20190214095015.16032-6-omosnace@redhat.com>
+ <20190214154854.GO50184@devbig004.ftw2.facebook.com>
+ <CAFqZXNuOg9ex_WqCCKYzPQSeqbGmo-KP4Yh9TB4bbMZziG314A@mail.gmail.com>
+ <20190215155014.GP50184@devbig004.ftw2.facebook.com>
+ <CAFqZXNvVb75K9ZemVObcBB+rntL38_VfY5P6jyAbuwjymt6MQQ@mail.gmail.com>
+ <8c1ddde8-c7aa-7dca-3a0f-2d425c6879b4@schaufler-ca.com>
+ <CAFqZXNtJFrtAqnu=CmoSPnPM312DKF73ALkLeekMk8Me5ojntw@mail.gmail.com>
+ <0942b8c9-79a3-47a9-a28d-276d322fd9e1@schaufler-ca.com>
+ <CAFqZXNvWyBQ5g6nwD4AiePxEDXGP2DY31S0RWttqcRSa90SakA@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <2de9569d-2368-1dc9-f757-0a7a0a116c16@schaufler-ca.com>
+Date:   Thu, 21 Feb 2019 08:52:33 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.1
+MIME-Version: 1.0
+In-Reply-To: <CAFqZXNvWyBQ5g6nwD4AiePxEDXGP2DY31S0RWttqcRSa90SakA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 19, 2019 at 5:43 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 2/19/2019 6:10 AM, Ondrej Mosnacek wrote:
-> > On Tue, Feb 19, 2019 at 1:28 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 2/18/2019 2:03 AM, Ondrej Mosnacek wrote:
-> >>> On Fri, Feb 15, 2019 at 4:50 PM Tejun Heo <tj@kernel.org> wrote:
-> >>>> On Fri, Feb 15, 2019 at 04:45:44PM +0100, Ondrej Mosnacek wrote:
-> >>>>> On Thu, Feb 14, 2019 at 4:49 PM Tejun Heo <tj@kernel.org> wrote:
-> >>>>>> On Thu, Feb 14, 2019 at 10:50:15AM +0100, Ondrej Mosnacek wrote:
-> >>>>>>> +static int kernfs_node_init_security(struct kernfs_node *parent,
-> >>>>>>> +                                  struct kernfs_node *kn)
-> >>>>>> Can we skip the whole thing if security is not enabled?
-> >>>>> Do you mean just skipping the whole part when CONFIG_SECURITY=n? That
-> >>>>> is easy to do and I can add it in the next respin (although the
-> >>>>> compiler should be able to optimize most of it out in that case).
-> >>>> So the goal is allowing folks who don't use this to not pay.  It'd be
-> >>>> better the evaulation can be as late as possible but obviously there's
-> >>>> a point where that'd be too complicated.  Maybe "ever enabled in this
-> >>>> boot" is a good and simple enough at the same time?
-> >>> I don't think there is a way currently to check whether some LSM has
-> >>> been enabled at boot or not. I suppose we could add such function for
-> >>> this kind of heuristics, but I'm not sure how it would interplay with
-> >>> the plans to allow multiple LSM to be enabled simultaneously...
-> >>> Perhaps it would be better/easier to just add a
-> >>> security_kernfs_needs_init() function, which would simply check if the
-> >>> list of registered kernfs_init_security hooks is empty.
-> >>>
-> >>> I propose something like the patch below (the whitespace is mangled -
-> >>> intended just for visual review). I plan to fold it into the next
-> >>> respin if there are no objections to this approach.
-> >>>
-> >>> diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
-> >>> index 735a6d382d9d..5b99205da919 100644
-> >>> --- a/fs/kernfs/dir.c
-> >>> +++ b/fs/kernfs/dir.c
-> >>> @@ -625,6 +625,9 @@ static int kernfs_node_init_security(struct
-> >>> kernfs_node *parent,
-> >>>           struct qstr q;
-> >>>           int ret;
-> >>>
-> >>> +       if (!security_kernfs_needs_init() || !parent)
-> >>> +               return 0;
-> >>> +
-> >>>           if (!parent->iattr) {
-> >>>                   kernfs_iattr_init(&iattr_parent, parent);
-> >>>                   simple_xattrs_init(&xattr_parent);
-> >>> @@ -720,11 +723,9 @@ static struct kernfs_node
-> >>> *__kernfs_new_node(struct kernfs_root *root,
-> >>>                           goto err_out3;
-> >>>           }
-> >>>
-> >>> -       if (parent) {
-> >>> -               ret = kernfs_node_init_security(parent, kn);
-> >>> -               if (ret)
-> >>> -                       goto err_out3;
-> >>> -       }
-> >>> +       ret = kernfs_node_init_security(parent, kn);
-> >>> +       if (ret)
-> >>> +               goto err_out3;
-> >>>
-> >>>           return kn;
-> >>>
-> >>> diff --git a/include/linux/security.h b/include/linux/security.h
-> >>> index 581944d1e61e..49a083dbc464 100644
-> >>> --- a/include/linux/security.h
-> >>> +++ b/include/linux/security.h
-> >>> @@ -292,6 +292,7 @@ int security_inode_listsecurity(struct inode
-> >>> *inode, char *buffer, size_t buffer
-> >>>    void security_inode_getsecid(struct inode *inode, u32 *secid);
-> >>>    int security_inode_copy_up(struct dentry *src, struct cred **new);
-> >>>    int security_inode_copy_up_xattr(const char *name);
-> >>> +int security_kernfs_needs_init(void);
-> >>>    int security_kernfs_init_security(const struct qstr *qstr,
-> >>>                                     const struct iattr *dir_iattr,
-> >>>                                     struct simple_xattrs *dir_secattr,
-> >>> @@ -789,6 +790,11 @@ static inline int security_inode_copy_up(struct
-> >>> dentry *src, struct cred **new)
-> >>>           return 0;
-> >>>    }
-> >>>
-> >>> +static inline int security_kernfs_needs_init(void)
-> >>> +{
-> >>> +       return 0;
-> >>> +}
-> >>> +
-> >>>    static inline int security_kernfs_init_security(
-> >>>                   const struct qstr *qstr, const struct iattr *dir_iattr,
-> >>>                   struct simple_xattrs *dir_secattr, const struct iattr *iattr,
-> >>> diff --git a/security/security.c b/security/security.c
-> >>> index 836e0822874a..3c8b9b5baabc 100644
-> >>> --- a/security/security.c
-> >>> +++ b/security/security.c
-> >>> @@ -892,6 +892,11 @@ int security_inode_copy_up_xattr(const char *name)
-> >>>    }
-> >>>    EXPORT_SYMBOL(security_inode_copy_up_xattr);
-> >>>
-> >>> +int security_kernfs_needs_init(void)
-> >>> +{
-> >>> +       return !hlist_empty(&security_hook_heads.kernfs_init_security);
-> >>> +}
-> >>> +
-> >> Yuck. That's an awful lot of infrastructure just to track
-> >> that state. May I suggest that instead you have the
-> >> security_kernfs_init_security() hook return -EOPNOTSUPP
-> >> in the no-LSM case (2nd argument to call_in_hook). You could
-> >> then have a state flag in kernfs that you can set to indicate
-> >> you don't need to call security_kernfs_init_security() again.
-> > Well, maintaining a global variable sounds even more yucky to me...
->
-> The state you're maintaining is kernfs state, not LSM
-> infrastructure state. The state should be maintained in
-> kernfs, not in the LSM infrastructure.
+On 2/21/2019 1:13 AM, Ondrej Mosnacek wrote:
+> On Tue, Feb 19, 2019 at 5:43 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> .....
+>> The state you're maintaining is kernfs state, not LSM
+>> infrastructure state. The state should be maintained in
+>> kernfs, not in the LSM infrastructure.
+> But I'm not maintaining any state. I'm merely trying to answer the
+> query "Is there anything that will handle this hook? Do I need to
+> prepare stuff for it?", which is obviously a query about the LSM
+> state. Granted, ideally we wouldn't need to do any preparatory work at
+> all, but that would require exposing more of the kernfs internals
+> (which brings its own issues, but maybe I'll need to look into that
+> approach more...).
 
-But I'm not maintaining any state. I'm merely trying to answer the
-query "Is there anything that will handle this hook? Do I need to
-prepare stuff for it?", which is obviously a query about the LSM
-state. Granted, ideally we wouldn't need to do any preparatory work at
-all, but that would require exposing more of the kernfs internals
-(which brings its own issues, but maybe I'll need to look into that
-approach more...).
+It sounds like you're bumping up against the limitations
+of the finely honed optimized implementation of kernfs. :(
+If it where still the pre-android era, when using an LSM
+was rare, the check for an LSM might have made sense. Today,
+with the vast majority of systems using LSMs*, optimizing for
+the no LSM case is nonsensical.
 
->
-> > And I don't understand why you'd consider a simple one-line function
-> > to be "an awful lot of infrastructure" :)
->
-> That is because you haven't been working with the LSM
-> infrastructure very long. If you'll recall, I have already
-> objected to kernfs specific LSM hooks. Now, when you find
-> that your approach for using a hook has issues, you want
-> to add another function that does nothing but tell you
-> that there's nothing to do. You can get that by calling
-> the security_kernfs_init_security() hook. The LSM infrastructure
-> is set up to be as painless as possible when you don't
-> want to use it.
->
-> >   But at the end of the day it
-> > is up to the maintainers - Greg/Tejun and James/Serge (who I forgot to
-> > Cc on these patches, sorry)
->
-> Yes, James and Serge are the maintainers for the
-> security sub-system, but I have done the transition
-> from hook vector to hook lists and am currently doing
-> the transition from module to infrastructure blob management.
-> I know it better, and have more invested in it, than anyone
-> else just now.
+---
+* Android, Tizen, Fedora/RHEL, Ubuntu
 
-Fair enough.
-
->
-> >   - what works better for them.
->
+> ...
 > Kernfs is an important component of the kernel. So is
 > the security infrastructure. I would hope you don't want
 > to turn this into a contest to see which maintainer has
 > the biggest clout.
+> Oh, no, you misunderstood my intention. I just got a feeling that this
+> thread was turning into a discussion about perceived code ugliness
+> (and about which subsystem that ugliness ends up in), which is
+> naturally a very subjective topic, so I wanted to know what is the
+> opinion of the people that have the final decision about whether the
+> code should get in or not. Anyway, I'll try to find a more elegant
+> variant of the solution once again, hopefully I manage to get to
+> something less controversial.
 
-Oh, no, you misunderstood my intention. I just got a feeling that this
-thread was turning into a discussion about perceived code ugliness
-(and about which subsystem that ugliness ends up in), which is
-naturally a very subjective topic, so I wanted to know what is the
-opinion of the people that have the final decision about whether the
-code should get in or not. Anyway, I'll try to find a more elegant
-variant of the solution once again, hopefully I manage to get to
-something less controversial.
+Thank you. I believe (which, of course, doesn't make it true)
+that when a component goes outside the general system architecture
+the way that kernfs does *even for performance reasons* that it is
+responsible for the edge cases it encounters. I know that I've had
+to do a good bit of that in Smack.
+  
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Associate Software Engineer, Security Technologies
-Red Hat, Inc.
