@@ -3,37 +3,37 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 781FDC43381
-	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 20:32:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC74FC43381
+	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 20:46:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 370752081B
-	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 20:32:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 91B6B206C0
+	for <selinux@archiver.kernel.org>; Thu, 21 Feb 2019 20:46:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725891AbfBUUcX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Feb 2019 15:32:23 -0500
-Received: from dgrift.xs4all.space ([80.100.19.56]:51034 "EHLO
+        id S1726181AbfBUUqs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Feb 2019 15:46:48 -0500
+Received: from dgrift.xs4all.space ([80.100.19.56]:51058 "EHLO
         agnus.defensec.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725866AbfBUUcX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 21 Feb 2019 15:32:23 -0500
+        with ESMTP id S1725866AbfBUUqs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 Feb 2019 15:46:48 -0500
 Received: from localhost (localhost [127.0.0.1])
-        by agnus.defensec.nl (Postfix) with ESMTP id 6F1B92E0566;
-        Thu, 21 Feb 2019 21:32:20 +0100 (CET)
+        by agnus.defensec.nl (Postfix) with ESMTP id A94D92E0566;
+        Thu, 21 Feb 2019 21:46:44 +0100 (CET)
 X-Virus-Scanned: amavisd-new at defensec.nl
 Received: from agnus.defensec.nl ([127.0.0.1])
         by localhost (agnus.defensec.nl [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id 70qxbcQCghPN; Thu, 21 Feb 2019 21:32:19 +0100 (CET)
+        with LMTP id 0AXT4TwuWQcC; Thu, 21 Feb 2019 21:46:43 +0100 (CET)
 Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 239B62E0165;
-        Thu, 21 Feb 2019 21:32:19 +0100 (CET)
-Date:   Thu, 21 Feb 2019 21:32:18 +0100
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 5592D2E0165;
+        Thu, 21 Feb 2019 21:46:43 +0100 (CET)
+Date:   Thu, 21 Feb 2019 21:46:42 +0100
 From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     Stephen Smalley <sds@tycho.nsa.gov>
 Cc:     paul@paul-moore.com, selinux@vger.kernel.org
 Subject: Re: [PATCH] scripts/selinux: modernize mdp
-Message-ID: <20190221203217.GC28703@brutus.lan>
+Message-ID: <20190221204641.GD28703@brutus.lan>
 References: <20190221184213.31303-1-sds@tycho.nsa.gov>
  <20190221201142.GB28703@brutus.lan>
  <e1a257e6-fed3-9614-e243-1c8825cdf56a@tycho.nsa.gov>
@@ -165,21 +165,20 @@ On Thu, Feb 21, 2019 at 03:22:46PM -0500, Stephen Smalley wrote:
 > Ah, thanks - good catch.  I couldn't really tell because I'm fighting with a
 > broken dbus-daemon (F29) and X, so my ability to test is limited.  I'll fix
 > in the next version along with a few other items I've noticed.
-
-Yes I am fighting with a broken setfiles so I make do as well
-
-Also note the comment about `echo "-F" > /.autorelabel` below
-
-But i see you're playing it safe by adding SELINUXTYPE=permissive and triggering an extra autorelabel on boot.
-
-Anyhow i tested it to the best of my ability and I can confirm that it works for me if you:
-
-echo "__default__:user_u:s0-s0" > /etc/selinux/dummy/seusers
-echo "base_r:base_t:s0" > /etc/selinux/dummy/contexts/failsafe_context
-echo "-F" > /.autorelabel
-
-
 > 
+
+Regarding X: one workaround is as i do in dssp2-minimal:
+
+cat > /etc/X11/xorg.conf.d/99-selinux.conf <<EOF
+Section "Module"
+SubSection "extmod"
+Option "SELinux mode disabled"
+EndSubSection
+EndSection
+EOF
+
+But that has its limitations as well since Xwayland segfaults then when you quit xserver (bug in Xwayland but works with plain X)
+
 > > 
 > > > +
 > > >   cp file_contexts /etc/selinux/dummy/contexts/files
