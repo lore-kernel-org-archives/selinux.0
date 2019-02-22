@@ -2,518 +2,467 @@ Return-Path: <SRS0=VtfE=Q5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 032D1C43381
-	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 20:17:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E86EBC43381
+	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 20:26:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AED7520700
-	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 20:17:46 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="NTy76CWH"
+	by mail.kernel.org (Postfix) with ESMTP id AC2EE206BA
+	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 20:26:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725937AbfBVURq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Feb 2019 15:17:46 -0500
-Received: from uhil19pa13.eemsg.mail.mil ([214.24.21.86]:47899 "EHLO
-        uhil19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725902AbfBVURp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Feb 2019 15:17:45 -0500
-X-EEMSG-check-017: 375179689|UHIL19PA13_EEMSG_MP11.csd.disa.mil
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by uhil19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 22 Feb 2019 20:17:42 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1550866662; x=1582402662;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=FtQHwiDgWIEbidfjkHZFCYFcDzyy23Kp4I55oBwbhD4=;
-  b=NTy76CWHo1gkM33aaTgnA4YBudoY2Wjawn2/9Nah7KmjO2hQxhTni/Sw
-   GIXyrKsRA55FmKPa0WTSi1A/bDoAxd4sd3O0Jf6jlRBJ2b6aaPx8wSKqt
-   Yxgnc7rN7qM60QmiUGWptbg8Oto/Xv1LyP6O28q7baLlE+nY5MldZfC4h
-   ztnljDHnI3glmvf7JfabO+R65ul0qZ7IhvA8GSQ+CG9kKfIcCl1y0GjiY
-   rWhhqIE1q5CekhMX2xOoo8hyLxItCpwsoYHMqbzS55q3J8b+VVJ9PIZLS
-   UaIchgfMzK40KlDNxa8YR4HRcCi95bfxQGOmp7Tjxypi8YFlb/f3tbuCQ
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.58,401,1544486400"; 
-   d="scan'208";a="24240497"
-IronPort-PHdr: =?us-ascii?q?9a23=3ArOrMKB32LsnnwvHusmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseMRIvad9pjvdHbS+e9qxAeQG9mDu7Qc06L/iOPJYSQ4+5GPsXQPItRndi?=
- =?us-ascii?q?QuroEopTEmG9OPEkbhLfTnPGQQFcVGU0J5rTngaRAGUMnxaEfPrXKs8DUcBg?=
- =?us-ascii?q?vwNRZvJuTyB4Xek9m72/q99pHPYAhEniaxba9vJxiqsAvdsdUbj5F/Iagr0B?=
- =?us-ascii?q?vJpXVIe+VSxWx2IF+Yggjx6MSt8pN96ipco/0u+dJOXqX8ZKQ4UKdXDC86PG?=
- =?us-ascii?q?Av5c3krgfMQA2S7XYBSGoWkx5IAw/Y7BHmW5r6ryX3uvZh1CScIMb7Vq4/Vy?=
- =?us-ascii?q?i84Kh3SR/okCYHOCA/8GHLkcx7kaZXrAu8qxBj34LYZYeYO/RkfqPZYNgUW2?=
- =?us-ascii?q?xPUMhMXCBFG4+wcZcDA+8HMO1FrYfyukEOoAOjCweyCuPhyjxGiHH40qI10e?=
- =?us-ascii?q?suDQ7I0Rc8H98MqnnYsMn5OakQXO2z0aLGzS/Db/RT2Trl9YbIbg4uoemMXb?=
- =?us-ascii?q?1ud8ra1FQhFwbfgVWUrYzqITOU3fkKvmiA8uVgTvmii3Inqg5tojivwd0gio?=
- =?us-ascii?q?/Sho0P0FzE+iJ5wJgsKNC+VUV1b9mkEJ5KuCGbMYt7WtgtTHtruCogz70Gp4?=
- =?us-ascii?q?a3fDANyJQjxh7Qd/yGf5KU7R35SOacJypzinF9eL+nmhq//ketxvf8W8Wpyl?=
- =?us-ascii?q?pGsCVInsfWunwQ0RHY99KJReFn/ki73DaCzwXT6uZZLk8qjafbMJshwqIolp?=
- =?us-ascii?q?oUrETDAjf6mEXog6+ScUUp4vSo5P79YrXnu5+cLJV4ih3+M6symsy/Bv40Mg?=
- =?us-ascii?q?4SUGiA5euwzrjj/Uz9QLlSj/02lLfWsIzCKMgGqaO0DBVZ34Y+5xqlETur38?=
- =?us-ascii?q?oUkWMaIF5dfRKIlYnpO1XAIPDiCve/hkyhkCx2yPDdJbDhHpXMIWTDkLfmZ7?=
- =?us-ascii?q?p97VVcxxApwdBQ4JJUFKkNIOjvVU/pqNzYEhg5PhSpzObgDdV914UeWWOTDa?=
- =?us-ascii?q?+aKq/SvkWI5uMhI+mQf4IapSjyK/Y76P7oln82h0MScbOv3ZsTcHq4BOhpI1?=
- =?us-ascii?q?2FYXrwhdcMCX8KsRAjTOzuk1CCSSRcZ2u2X64l4zE7D4WmDZ3dSYy3nLOB2y?=
- =?us-ascii?q?K7FIVMZm9aElCMDWvod4KcVvcXdi2SJs5hkjoZVbmuUIIhyx6uuxHgy7Z9Le?=
- =?us-ascii?q?rb5DcYtZT929hx/eHTkgsy9TMnR/iahk2KSmByn2gLDxAs3a5j6RhxzVKC16?=
- =?us-ascii?q?lzgLpXD91d+9tFXwk3M4XRxKp8D4ahdBjGe4KyVFu+QtigSQo0R9Y1zs5GN1?=
- =?us-ascii?q?1xAP2+nxvD2GysGLZTmLuVUs9nupnA1mT8cp4ug03N07Ms2hx/GJNC?=
-X-IPAS-Result: =?us-ascii?q?A2AKAACxV3Bc/wHyM5BkGwEBAQEDAQEBBwMBAQGBUQYBA?=
- =?us-ascii?q?QELAYFUBSpnUAEyJ4QHiBqMJgEBAQEBAQaBECWJO45jgXssDAGBKgGDFQKDf?=
- =?us-ascii?q?iI0CQ0BAwEBAQEBAQIBbCiCOikBgmcBBSMEEUEQCxgCAhIBEwICVwYNBgIBA?=
- =?us-ascii?q?YJTDD0BgWUNq2l8M4VEhGyBC4s9F3iBB4ERJwyCX4VJAoJAglcCigAGhklLO?=
- =?us-ascii?q?1qRKgmHPoNvgyWECAYZgXGFW4tDi16NVoUWOIFWKwgCGAghDzuCbAmCHxeOP?=
- =?us-ascii?q?CEDMIEFAQGMOQ0XB4IgAQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 22 Feb 2019 20:17:37 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x1MKHa2C004193;
-        Fri, 22 Feb 2019 15:17:36 -0500
-Subject: Re: [PATCH v6] scripts/selinux: modernize mdp
-To:     Dominick Grift <dominick.grift@defensec.nl>
+        id S1727365AbfBVU0Y (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Feb 2019 15:26:24 -0500
+Received: from dgrift.xs4all.space ([80.100.19.56]:51894 "EHLO
+        agnus.defensec.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727224AbfBVU0Y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Feb 2019 15:26:24 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by agnus.defensec.nl (Postfix) with ESMTP id 066052E047C;
+        Fri, 22 Feb 2019 21:26:21 +0100 (CET)
+X-Virus-Scanned: amavisd-new at defensec.nl
+Received: from agnus.defensec.nl ([127.0.0.1])
+        by localhost (agnus.defensec.nl [127.0.0.1]) (amavisd-new, port 10024)
+        with LMTP id hgBDXy19Cfi6; Fri, 22 Feb 2019 21:26:18 +0100 (CET)
+Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 98D132E0165;
+        Fri, 22 Feb 2019 21:26:18 +0100 (CET)
+Date:   Fri, 22 Feb 2019 21:26:17 +0100
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     Stephen Smalley <sds@tycho.nsa.gov>
 Cc:     paul@paul-moore.com, selinux@vger.kernel.org
+Subject: Re: [PATCH v6] scripts/selinux: modernize mdp
+Message-ID: <20190222202617.GA16944@brutus.lan>
 References: <20190221213147.1590-1-sds@tycho.nsa.gov>
  <20190222085518.GA28321@brutus.lan>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a127c2fc-9a1e-3169-fe0a-1f07f896fc06@tycho.nsa.gov>
-Date:   Fri, 22 Feb 2019 15:17:10 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.4.0
+ <a127c2fc-9a1e-3169-fe0a-1f07f896fc06@tycho.nsa.gov>
 MIME-Version: 1.0
-In-Reply-To: <20190222085518.GA28321@brutus.lan>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a127c2fc-9a1e-3169-fe0a-1f07f896fc06@tycho.nsa.gov>
+User-Agent: Every email client sucks, this one just sucks less.
+X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/22/19 3:55 AM, Dominick Grift wrote:
-> On Thu, Feb 21, 2019 at 04:31:47PM -0500, Stephen Smalley wrote:
->> Derived in part from a patch by Dominick Grift.
->>
->> The MDP example no longer works on modern systems.  Fix it.
->> While we are at it, add MLS support and enable it.
->>
->> NB This still does not work on systems using dbus-daemon instead of
->> dbus-broker because dbus-daemon does not yet gracefully handle unknown
->> classes/permissions.  This appears to be a deficiency in libselinux's
->> selinux_set_mapping() interface and underlying implementation,
->> which was never fully updated to deal with unknown classes/permissions
->> unlike the kernel.  The same problem also occurs with XSELinux.
->> Programs that instead use selinux_check_access() like dbus-broker
->> should not have this problem.
->>
->> Changes to mdp:
->> Add support for devtmpfs, required by modern Linux distributions.
->> Add MLS support, with sample sensitivities, categories, and constraints.
->> Generate fs_use and genfscon rules based on kernel configuration.
->> Update list of filesystem types for fs_use and genfscon rules.
->> Use object_r for object contexts.
->>
->> Changes to install_policy.sh:
->> Bail immediately on any errors.
->> Provide more helpful error messages when unable to find userspace tools.
->> Refuse to run if SELinux is already enabled.
->> Unconditionally move aside /etc/selinux/config and create a new one.
->> Build policy with -U allow so that userspace object managers do not break.
->> Build policy with MLS enabled by default.
->> Create seusers, failsafe_context, and default_contexts for use by
->> pam_selinux / libselinux.
->> Create x_contexts for the SELinux X extension.
->> Create virtual_domain_context and virtual_image_context for libvirtd.
->> Set to permissive mode rather than enforcing to permit initial autorelabel.
->> Update the list of filesystem types to be relabeled.
->> Write -F to /.autorelabel to cause a forced autorelabel on reboot.
->> Drop broken attempt to relabel the /dev mountpoint directory.
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> ---
->> v6 fixes the seusers and failsafe_contexts to include :s0
->> as per Dominick's comments. It also adds a default_contexts
->> configuration for good measure, although this might not be
->> necessary. It creates a minimal working x_contexts configuration
->> to appease XSELinux, although XSELinux still has problems due
->> to the lack of the userspace class/perms definitions. It
->> creates empty virtual_*_context files to make libvirtd happy.
->> It writes -F to /.autorelabel as per Dominick's comments to
->> trigger a forced relabel. It also fixes mdp to correctly generate
->> fs_use rules for ext3 and ext2 when using ext4 as the driver.
->> These days ext4 is always used to handle ext3 mounts and it can
->> also be used for ext2.  This version is called v6 to distinguish it from
->> Dominick's earlier patch sequence, which went up to v4, and then
->> my previous coalesced patch is logically v5.
->>
->>   scripts/selinux/install_policy.sh |  92 ++++++++++-------
->>   scripts/selinux/mdp/mdp.c         | 165 +++++++++++++++++++++++++-----
->>   2 files changed, 194 insertions(+), 63 deletions(-)
+On Fri, Feb 22, 2019 at 03:17:10PM -0500, Stephen Smalley wrote:
+> On 2/22/19 3:55 AM, Dominick Grift wrote:
+> > On Thu, Feb 21, 2019 at 04:31:47PM -0500, Stephen Smalley wrote:
+> > > Derived in part from a patch by Dominick Grift.
+> > > 
+> > > The MDP example no longer works on modern systems.  Fix it.
+> > > While we are at it, add MLS support and enable it.
+> > > 
+> > > NB This still does not work on systems using dbus-daemon instead of
+> > > dbus-broker because dbus-daemon does not yet gracefully handle unknown
+> > > classes/permissions.  This appears to be a deficiency in libselinux's
+> > > selinux_set_mapping() interface and underlying implementation,
+> > > which was never fully updated to deal with unknown classes/permissions
+> > > unlike the kernel.  The same problem also occurs with XSELinux.
+> > > Programs that instead use selinux_check_access() like dbus-broker
+> > > should not have this problem.
+> > > 
+> > > Changes to mdp:
+> > > Add support for devtmpfs, required by modern Linux distributions.
+> > > Add MLS support, with sample sensitivities, categories, and constraints.
+> > > Generate fs_use and genfscon rules based on kernel configuration.
+> > > Update list of filesystem types for fs_use and genfscon rules.
+> > > Use object_r for object contexts.
+> > > 
+> > > Changes to install_policy.sh:
+> > > Bail immediately on any errors.
+> > > Provide more helpful error messages when unable to find userspace tools.
+> > > Refuse to run if SELinux is already enabled.
+> > > Unconditionally move aside /etc/selinux/config and create a new one.
+> > > Build policy with -U allow so that userspace object managers do not break.
+> > > Build policy with MLS enabled by default.
+> > > Create seusers, failsafe_context, and default_contexts for use by
+> > > pam_selinux / libselinux.
+> > > Create x_contexts for the SELinux X extension.
+> > > Create virtual_domain_context and virtual_image_context for libvirtd.
+> > > Set to permissive mode rather than enforcing to permit initial autorelabel.
+> > > Update the list of filesystem types to be relabeled.
+> > > Write -F to /.autorelabel to cause a forced autorelabel on reboot.
+> > > Drop broken attempt to relabel the /dev mountpoint directory.
+> > > 
+> > > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > > ---
+> > > v6 fixes the seusers and failsafe_contexts to include :s0
+> > > as per Dominick's comments. It also adds a default_contexts
+> > > configuration for good measure, although this might not be
+> > > necessary. It creates a minimal working x_contexts configuration
+> > > to appease XSELinux, although XSELinux still has problems due
+> > > to the lack of the userspace class/perms definitions. It
+> > > creates empty virtual_*_context files to make libvirtd happy.
+> > > It writes -F to /.autorelabel as per Dominick's comments to
+> > > trigger a forced relabel. It also fixes mdp to correctly generate
+> > > fs_use rules for ext3 and ext2 when using ext4 as the driver.
+> > > These days ext4 is always used to handle ext3 mounts and it can
+> > > also be used for ext2.  This version is called v6 to distinguish it from
+> > > Dominick's earlier patch sequence, which went up to v4, and then
+> > > my previous coalesced patch is logically v5.
+> > > 
+> > >   scripts/selinux/install_policy.sh |  92 ++++++++++-------
+> > >   scripts/selinux/mdp/mdp.c         | 165 +++++++++++++++++++++++++-----
+> > >   2 files changed, 194 insertions(+), 63 deletions(-)
+> > 
+> > Acked-by: Dominick Grift <dominick.grift@defensec.nl>
+> > 
+> > I was pretty sure that seusers entries need both current as well as clearance (s0-s0 instead of just s0) but just s0 works in this scenario atleast
+> > I did not test the X and virt_contexts aspects.
 > 
-> Acked-by: Dominick Grift <dominick.grift@defensec.nl>
+> Hmm...so even with the fix for libselinux selinux_set_mapping (which
+> addresses the dbus-daemon issue), I can't login under the dummy policy if
+> the system is set to enforcing.  I get the following from pam_selinux:
 > 
-> I was pretty sure that seusers entries need both current as well as clearance (s0-s0 instead of just s0) but just s0 works in this scenario atleast
-> I did not test the X and virt_contexts aspects.
+> sshd[2015]: pam_selinux(sshd:session): Failed to translate security class
+> context. Invalid argument
+> sshd[2015]: pam_selinux(sshd:session): Security context
+> user_u:base_r:base_t:s0 is not allowed for user_u:base_r:base_t:s0
+> sshd[2015]: pam_selinux(sshd:session): Unable to get valid context for sds
+> 
+> Looking at the pam_selinux code, it performs a userspace permission check on
+> the context class, contains permission, in order to validate that the MLS
+> level is authorized for the Linux user. The normal context validation is not
+> sufficient for this purpose since the SELinux user in the security context
+> to which the Linux username is mapped may be authorized for a wider range
+> than the Linux user. pam_selinux directly calls string_to_security_class(),
+> string_to_av_perm(), and security_compute_av() instead of using
+> selinux_check_access(), so it doesn't honor allow_unknown presently.  Is
+> this fixed in rawhide?
 
-Hmm...so even with the fix for libselinux selinux_set_mapping (which 
-addresses the dbus-daemon issue), I can't login under the dummy policy 
-if the system is set to enforcing.  I get the following from pam_selinux:
+No I do not believe that this is fixed in rawhide, but might be able to work around that by removing the the env_params option from the pam_selinux call in /etc/pam.d/sshd.
 
-sshd[2015]: pam_selinux(sshd:session): Failed to translate security 
-class context. Invalid argument
-sshd[2015]: pam_selinux(sshd:session): Security context 
-user_u:base_r:base_t:s0 is not allowed for user_u:base_r:base_t:s0
-sshd[2015]: pam_selinux(sshd:session): Unable to get valid context for sds
-
-Looking at the pam_selinux code, it performs a userspace permission 
-check on the context class, contains permission, in order to validate 
-that the MLS level is authorized for the Linux user. The normal context 
-validation is not sufficient for this purpose since the SELinux user in 
-the security context to which the Linux username is mapped may be 
-authorized for a wider range than the Linux user. pam_selinux directly 
-calls string_to_security_class(), string_to_av_perm(), and 
-security_compute_av() instead of using selinux_check_access(), so it 
-doesn't honor allow_unknown presently.  Is this fixed in rawhide?
+I know, not ideal.
 
 > 
->>
->> diff --git a/scripts/selinux/install_policy.sh b/scripts/selinux/install_policy.sh
->> index 0b86c47baf7d..2dccf141241d 100755
->> --- a/scripts/selinux/install_policy.sh
->> +++ b/scripts/selinux/install_policy.sh
->> @@ -1,30 +1,61 @@
->>   #!/bin/sh
->>   # SPDX-License-Identifier: GPL-2.0
->> +set -e
->>   if [ `id -u` -ne 0 ]; then
->>   	echo "$0: must be root to install the selinux policy"
->>   	exit 1
->>   fi
->> +
->>   SF=`which setfiles`
->>   if [ $? -eq 1 ]; then
->> -	if [ -f /sbin/setfiles ]; then
->> -		SF="/usr/setfiles"
->> -	else
->> -		echo "no selinux tools installed: setfiles"
->> -		exit 1
->> -	fi
->> +	echo "Could not find setfiles"
->> +	echo "Do you have policycoreutils installed?"
->> +	exit 1
->>   fi
->>   
->> -cd mdp
->> -
->>   CP=`which checkpolicy`
->> +if [ $? -eq 1 ]; then
->> +	echo "Could not find checkpolicy"
->> +	echo "Do you have checkpolicy installed?"
->> +	exit 1
->> +fi
->>   VERS=`$CP -V | awk '{print $1}'`
->>   
->> -./mdp policy.conf file_contexts
->> -$CP -o policy.$VERS policy.conf
->> +ENABLED=`which selinuxenabled`
->> +if [ $? -eq 1 ]; then
->> +	echo "Could not find selinuxenabled"
->> +	echo "Do you have libselinux-utils installed?"
->> +	exit 1
->> +fi
->> +
->> +if selinuxenabled; then
->> +    echo "SELinux is already enabled"
->> +    echo "This prevents safely relabeling all files."
->> +    echo "Boot with selinux=0 on the kernel command-line or"
->> +    echo "SELINUX=disabled in /etc/selinux/config."
->> +    exit 1
->> +fi
->> +
->> +cd mdp
->> +./mdp -m policy.conf file_contexts
->> +$CP -U allow -M -o policy.$VERS policy.conf
->>   
->>   mkdir -p /etc/selinux/dummy/policy
->>   mkdir -p /etc/selinux/dummy/contexts/files
->>   
->> +echo "__default__:user_u:s0" > /etc/selinux/dummy/seusers
->> +echo "base_r:base_t:s0" > /etc/selinux/dummy/contexts/failsafe_context
->> +echo "base_r:base_t:s0 base_r:base_t:s0" > /etc/selinux/dummy/default_contexts
->> +cat > /etc/selinux/dummy/contexts/x_contexts <<EOF
->> +client * user_u:base_r:base_t:s0
->> +property * user_u:object_r:base_t:s0
->> +extension * user_u:object_r:base_t:s0
->> +selection * user_u:object_r:base_t:s0
->> +event * user_u:object_r:base_t:s0
->> +EOF
->> +touch /etc/selinux/dummy/contexts/virtual_domain_context
->> +touch /etc/selinux/dummy/contexts/virtual_image_context
->> +
->>   cp file_contexts /etc/selinux/dummy/contexts/files
->>   cp dbus_contexts /etc/selinux/dummy/contexts
->>   cp policy.$VERS /etc/selinux/dummy/policy
->> @@ -33,37 +64,22 @@ FC_FILE=/etc/selinux/dummy/contexts/files/file_contexts
->>   if [ ! -d /etc/selinux ]; then
->>   	mkdir -p /etc/selinux
->>   fi
->> -if [ ! -f /etc/selinux/config ]; then
->> -	cat > /etc/selinux/config << EOF
->> -SELINUX=enforcing
->> +if [ -f /etc/selinux/config ]; then
->> +    echo "/etc/selinux/config exists, moving to /etc/selinux/config.bak."
->> +    mv /etc/selinux/config /etc/selinux/config.bak
->> +fi
->> +echo "Creating new /etc/selinux/config for dummy policy."
->> +cat > /etc/selinux/config << EOF
->> +SELINUX=permissive
->>   SELINUXTYPE=dummy
->>   EOF
->> -else
->> -	TYPE=`cat /etc/selinux/config | grep "^SELINUXTYPE" | tail -1 | awk -F= '{ print $2 '}`
->> -	if [ "eq$TYPE" != "eqdummy" ]; then
->> -		selinuxenabled
->> -		if [ $? -eq 0 ]; then
->> -			echo "SELinux already enabled with a non-dummy policy."
->> -			echo "Exiting.  Please install policy by hand if that"
->> -			echo "is what you REALLY want."
->> -			exit 1
->> -		fi
->> -		mv /etc/selinux/config /etc/selinux/config.mdpbak
->> -		grep -v "^SELINUXTYPE" /etc/selinux/config.mdpbak >> /etc/selinux/config
->> -		echo "SELINUXTYPE=dummy" >> /etc/selinux/config
->> -	fi
->> -fi
->>   
->>   cd /etc/selinux/dummy/contexts/files
->> -$SF file_contexts /
->> +$SF -F file_contexts /
->>   
->> -mounts=`cat /proc/$$/mounts | egrep "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
->> -$SF file_contexts $mounts
->> +mounts=`cat /proc/$$/mounts | \
->> +	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
->> +	awk '{ print $2 '}`
->> +$SF -F file_contexts $mounts
->>   
->> -
->> -dodev=`cat /proc/$$/mounts | grep "/dev "`
->> -if [ "eq$dodev" != "eq" ]; then
->> -	mount --move /dev /mnt
->> -	$SF file_contexts /dev
->> -	mount --move /mnt /dev
->> -fi
->> +echo "-F" > /.autorelabel
->> diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
->> index 073fe7537f6c..edaba8e51651 100644
->> --- a/scripts/selinux/mdp/mdp.c
->> +++ b/scripts/selinux/mdp/mdp.c
->> @@ -33,6 +33,7 @@
->>   #include <unistd.h>
->>   #include <string.h>
->>   #include <sys/socket.h>
->> +#include <linux/kconfig.h>
->>   
->>   static void usage(char *name)
->>   {
->> @@ -95,10 +96,31 @@ int main(int argc, char *argv[])
->>   	}
->>   	fprintf(fout, "\n");
->>   
->> -	/* NOW PRINT OUT MLS STUFF */
->> +	/* print out mls declarations and constraints */
->>   	if (mls) {
->> -		printf("MLS not yet implemented\n");
->> -		exit(1);
->> +		fprintf(fout, "sensitivity s0;\n");
->> +		fprintf(fout, "sensitivity s1;\n");
->> +		fprintf(fout, "dominance { s0 s1 }\n");
->> +		fprintf(fout, "category c0;\n");
->> +		fprintf(fout, "category c1;\n");
->> +		fprintf(fout, "level s0:c0.c1;\n");
->> +		fprintf(fout, "level s1:c0.c1;\n");
->> +#define SYSTEMLOW "s0"
->> +#define SYSTEMHIGH "s1:c0.c1"
->> +		for (i = 0; secclass_map[i].name; i++) {
->> +			struct security_class_mapping *map = &secclass_map[i];
->> +
->> +			fprintf(fout, "mlsconstrain %s {\n", map->name);
->> +			for (j = 0; map->perms[j]; j++)
->> +				fprintf(fout, "\t%s\n", map->perms[j]);
->> +			/*
->> +			 * This requires all subjects and objects to be
->> +			 * single-level (l2 eq h2), and that the subject
->> +			 * level dominate the object level (h1 dom h2)
->> +			 * in order to have any permissions to it.
->> +			 */
->> +			fprintf(fout, "} (l2 eq h2 and h1 dom h2);\n\n");
->> +		}
->>   	}
->>   
->>   	/* types, roles, and allows */
->> @@ -108,34 +130,127 @@ int main(int argc, char *argv[])
->>   	for (i = 0; secclass_map[i].name; i++)
->>   		fprintf(fout, "allow base_t base_t:%s *;\n",
->>   			secclass_map[i].name);
->> -	fprintf(fout, "user user_u roles { base_r };\n");
->> -	fprintf(fout, "\n");
->> +	fprintf(fout, "user user_u roles { base_r }");
->> +	if (mls)
->> +		fprintf(fout, " level %s range %s - %s", SYSTEMLOW,
->> +			SYSTEMLOW, SYSTEMHIGH);
->> +	fprintf(fout, ";\n");
->> +
->> +#define SUBJUSERROLETYPE "user_u:base_r:base_t"
->> +#define OBJUSERROLETYPE "user_u:object_r:base_t"
->>   
->>   	/* default sids */
->>   	for (i = 1; i < initial_sid_to_string_len; i++)
->> -		fprintf(fout, "sid %s user_u:base_r:base_t\n", initial_sid_to_string[i]);
->> +		fprintf(fout, "sid %s " SUBJUSERROLETYPE "%s\n",
->> +			initial_sid_to_string[i], mls ? ":" SYSTEMLOW : "");
->>   	fprintf(fout, "\n");
->>   
->> -	fprintf(fout, "fs_use_xattr ext2 user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_xattr ext3 user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_xattr ext4 user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_xattr jfs user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_xattr xfs user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_xattr reiserfs user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_xattr jffs2 user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_xattr gfs2 user_u:base_r:base_t;\n");
->> +#define FS_USE(behavior, fstype)			    \
->> +	fprintf(fout, "fs_use_%s %s " OBJUSERROLETYPE "%s;\n", \
->> +		behavior, fstype, mls ? ":" SYSTEMLOW : "")
->> +
->> +	/*
->> +	 * Filesystems whose inode labels can be fetched via getxattr.
->> +	 */
->> +#ifdef CONFIG_EXT2_FS_SECURITY
->> +	FS_USE("xattr", "ext2");
->> +#endif
->> +#ifdef CONFIG_EXT4_FS_SECURITY
->> +#ifdef CONFIG_EXT4_USE_FOR_EXT2
->> +	FS_USE("xattr", "ext2");
->> +#endif
->> +	FS_USE("xattr", "ext3");
->> +	FS_USE("xattr", "ext4");
->> +#endif
->> +#ifdef CONFIG_JFS_SECURITY
->> +	FS_USE("xattr", "jfs");
->> +#endif
->> +#ifdef CONFIG_REISERFS_FS_SECURITY
->> +	FS_USE("xattr", "reiserfs");
->> +#endif
->> +#ifdef CONFIG_JFFS2_FS_SECURITY
->> +	FS_USE("xattr", "jffs2");
->> +#endif
->> +#ifdef CONFIG_XFS_FS
->> +	FS_USE("xattr", "xfs");
->> +#endif
->> +#ifdef CONFIG_GFS2_FS
->> +	FS_USE("xattr", "gfs2");
->> +#endif
->> +#ifdef CONFIG_BTRFS_FS
->> +	FS_USE("xattr", "btrfs");
->> +#endif
->> +#ifdef CONFIG_F2FS_FS_SECURITY
->> +	FS_USE("xattr", "f2fs");
->> +#endif
->> +#ifdef CONFIG_OCFS2_FS
->> +	FS_USE("xattr", "ocsfs2");
->> +#endif
->> +#ifdef CONFIG_OVERLAY_FS
->> +	FS_USE("xattr", "overlay");
->> +#endif
->> +#ifdef CONFIG_SQUASHFS_XATTR
->> +	FS_USE("xattr", "squashfs");
->> +#endif
->> +
->> +	/*
->> +	 * Filesystems whose inodes are labeled from allocating task.
->> +	 */
->> +	FS_USE("task", "pipefs");
->> +	FS_USE("task", "sockfs");
->>   
->> -	fprintf(fout, "fs_use_task eventpollfs user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_task pipefs user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_task sockfs user_u:base_r:base_t;\n");
->> +	/*
->> +	 * Filesystems whose inode labels are computed from both
->> +	 * the allocating task and the superblock label.
->> +	 */
->> +#ifdef CONFIG_UNIX98_PTYS
->> +	FS_USE("trans", "devpts");
->> +#endif
->> +#ifdef CONFIG_HUGETLBFS
->> +	FS_USE("trans", "hugetlbfs");
->> +#endif
->> +#ifdef CONFIG_TMPFS
->> +	FS_USE("trans", "tmpfs");
->> +#endif
->> +#ifdef CONFIG_DEVTMPFS
->> +	FS_USE("trans", "devtmpfs");
->> +#endif
->> +#ifdef CONFIG_POSIX_MQUEUE
->> +	FS_USE("trans", "mqueue");
->> +#endif
->>   
->> -	fprintf(fout, "fs_use_trans mqueue user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_trans devpts user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_trans hugetlbfs user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_trans tmpfs user_u:base_r:base_t;\n");
->> -	fprintf(fout, "fs_use_trans shm user_u:base_r:base_t;\n");
->> +#define GENFSCON(fstype, prefix)			     \
->> +	fprintf(fout, "genfscon %s %s " OBJUSERROLETYPE "%s\n", \
->> +		fstype, prefix, mls ? ":" SYSTEMLOW : "")
->>   
->> -	fprintf(fout, "genfscon proc / user_u:base_r:base_t\n");
->> +	/*
->> +	 * Filesystems whose inodes are labeled from path prefix match
->> +	 * relative to the filesystem root.  Depending on the filesystem,
->> +	 * only a single label for all inodes may be supported.  Here
->> +	 * we list the filesystem types for which per-file labeling is
->> +	 * supported using genfscon; any other filesystem type can also
->> +	 * be added by only with a single entry for all of its inodes.
->> +	 */
->> +#ifdef CONFIG_PROC_FS
->> +	GENFSCON("proc", "/");
->> +#endif
->> +#ifdef CONFIG_SECURITY_SELINUX
->> +	GENFSCON("selinuxfs", "/");
->> +#endif
->> +#ifdef CONFIG_SYSFS
->> +	GENFSCON("sysfs", "/");
->> +#endif
->> +#ifdef CONFIG_DEBUG_FS
->> +	GENFSCON("debugfs", "/");
->> +#endif
->> +#ifdef CONFIG_TRACING
->> +	GENFSCON("tracefs", "/");
->> +#endif
->> +#ifdef CONFIG_PSTORE
->> +	GENFSCON("pstore", "/");
->> +#endif
->> +	GENFSCON("cgroup", "/");
->> +	GENFSCON("cgroup2", "/");
->>   
->>   	fclose(fout);
->>   
->> @@ -144,8 +259,8 @@ int main(int argc, char *argv[])
->>   		printf("Wrote policy, but cannot open %s for writing\n", ctxout);
->>   		usage(argv[0]);
->>   	}
->> -	fprintf(fout, "/ user_u:base_r:base_t\n");
->> -	fprintf(fout, "/.* user_u:base_r:base_t\n");
->> +	fprintf(fout, "/ " OBJUSERROLETYPE "%s\n", mls ? ":" SYSTEMLOW : "");
->> +	fprintf(fout, "/.* " OBJUSERROLETYPE "%s\n", mls ? ":" SYSTEMLOW : "");
->>   	fclose(fout);
->>   
->>   	return 0;
->> -- 
->> 2.20.1
->>
+> > 
+> > > 
+> > > diff --git a/scripts/selinux/install_policy.sh b/scripts/selinux/install_policy.sh
+> > > index 0b86c47baf7d..2dccf141241d 100755
+> > > --- a/scripts/selinux/install_policy.sh
+> > > +++ b/scripts/selinux/install_policy.sh
+> > > @@ -1,30 +1,61 @@
+> > >   #!/bin/sh
+> > >   # SPDX-License-Identifier: GPL-2.0
+> > > +set -e
+> > >   if [ `id -u` -ne 0 ]; then
+> > >   	echo "$0: must be root to install the selinux policy"
+> > >   	exit 1
+> > >   fi
+> > > +
+> > >   SF=`which setfiles`
+> > >   if [ $? -eq 1 ]; then
+> > > -	if [ -f /sbin/setfiles ]; then
+> > > -		SF="/usr/setfiles"
+> > > -	else
+> > > -		echo "no selinux tools installed: setfiles"
+> > > -		exit 1
+> > > -	fi
+> > > +	echo "Could not find setfiles"
+> > > +	echo "Do you have policycoreutils installed?"
+> > > +	exit 1
+> > >   fi
+> > > -cd mdp
+> > > -
+> > >   CP=`which checkpolicy`
+> > > +if [ $? -eq 1 ]; then
+> > > +	echo "Could not find checkpolicy"
+> > > +	echo "Do you have checkpolicy installed?"
+> > > +	exit 1
+> > > +fi
+> > >   VERS=`$CP -V | awk '{print $1}'`
+> > > -./mdp policy.conf file_contexts
+> > > -$CP -o policy.$VERS policy.conf
+> > > +ENABLED=`which selinuxenabled`
+> > > +if [ $? -eq 1 ]; then
+> > > +	echo "Could not find selinuxenabled"
+> > > +	echo "Do you have libselinux-utils installed?"
+> > > +	exit 1
+> > > +fi
+> > > +
+> > > +if selinuxenabled; then
+> > > +    echo "SELinux is already enabled"
+> > > +    echo "This prevents safely relabeling all files."
+> > > +    echo "Boot with selinux=0 on the kernel command-line or"
+> > > +    echo "SELINUX=disabled in /etc/selinux/config."
+> > > +    exit 1
+> > > +fi
+> > > +
+> > > +cd mdp
+> > > +./mdp -m policy.conf file_contexts
+> > > +$CP -U allow -M -o policy.$VERS policy.conf
+> > >   mkdir -p /etc/selinux/dummy/policy
+> > >   mkdir -p /etc/selinux/dummy/contexts/files
+> > > +echo "__default__:user_u:s0" > /etc/selinux/dummy/seusers
+> > > +echo "base_r:base_t:s0" > /etc/selinux/dummy/contexts/failsafe_context
+> > > +echo "base_r:base_t:s0 base_r:base_t:s0" > /etc/selinux/dummy/default_contexts
+> > > +cat > /etc/selinux/dummy/contexts/x_contexts <<EOF
+> > > +client * user_u:base_r:base_t:s0
+> > > +property * user_u:object_r:base_t:s0
+> > > +extension * user_u:object_r:base_t:s0
+> > > +selection * user_u:object_r:base_t:s0
+> > > +event * user_u:object_r:base_t:s0
+> > > +EOF
+> > > +touch /etc/selinux/dummy/contexts/virtual_domain_context
+> > > +touch /etc/selinux/dummy/contexts/virtual_image_context
+> > > +
+> > >   cp file_contexts /etc/selinux/dummy/contexts/files
+> > >   cp dbus_contexts /etc/selinux/dummy/contexts
+> > >   cp policy.$VERS /etc/selinux/dummy/policy
+> > > @@ -33,37 +64,22 @@ FC_FILE=/etc/selinux/dummy/contexts/files/file_contexts
+> > >   if [ ! -d /etc/selinux ]; then
+> > >   	mkdir -p /etc/selinux
+> > >   fi
+> > > -if [ ! -f /etc/selinux/config ]; then
+> > > -	cat > /etc/selinux/config << EOF
+> > > -SELINUX=enforcing
+> > > +if [ -f /etc/selinux/config ]; then
+> > > +    echo "/etc/selinux/config exists, moving to /etc/selinux/config.bak."
+> > > +    mv /etc/selinux/config /etc/selinux/config.bak
+> > > +fi
+> > > +echo "Creating new /etc/selinux/config for dummy policy."
+> > > +cat > /etc/selinux/config << EOF
+> > > +SELINUX=permissive
+> > >   SELINUXTYPE=dummy
+> > >   EOF
+> > > -else
+> > > -	TYPE=`cat /etc/selinux/config | grep "^SELINUXTYPE" | tail -1 | awk -F= '{ print $2 '}`
+> > > -	if [ "eq$TYPE" != "eqdummy" ]; then
+> > > -		selinuxenabled
+> > > -		if [ $? -eq 0 ]; then
+> > > -			echo "SELinux already enabled with a non-dummy policy."
+> > > -			echo "Exiting.  Please install policy by hand if that"
+> > > -			echo "is what you REALLY want."
+> > > -			exit 1
+> > > -		fi
+> > > -		mv /etc/selinux/config /etc/selinux/config.mdpbak
+> > > -		grep -v "^SELINUXTYPE" /etc/selinux/config.mdpbak >> /etc/selinux/config
+> > > -		echo "SELINUXTYPE=dummy" >> /etc/selinux/config
+> > > -	fi
+> > > -fi
+> > >   cd /etc/selinux/dummy/contexts/files
+> > > -$SF file_contexts /
+> > > +$SF -F file_contexts /
+> > > -mounts=`cat /proc/$$/mounts | egrep "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2" | awk '{ print $2 '}`
+> > > -$SF file_contexts $mounts
+> > > +mounts=`cat /proc/$$/mounts | \
+> > > +	egrep "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
+> > > +	awk '{ print $2 '}`
+> > > +$SF -F file_contexts $mounts
+> > > -
+> > > -dodev=`cat /proc/$$/mounts | grep "/dev "`
+> > > -if [ "eq$dodev" != "eq" ]; then
+> > > -	mount --move /dev /mnt
+> > > -	$SF file_contexts /dev
+> > > -	mount --move /mnt /dev
+> > > -fi
+> > > +echo "-F" > /.autorelabel
+> > > diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
+> > > index 073fe7537f6c..edaba8e51651 100644
+> > > --- a/scripts/selinux/mdp/mdp.c
+> > > +++ b/scripts/selinux/mdp/mdp.c
+> > > @@ -33,6 +33,7 @@
+> > >   #include <unistd.h>
+> > >   #include <string.h>
+> > >   #include <sys/socket.h>
+> > > +#include <linux/kconfig.h>
+> > >   static void usage(char *name)
+> > >   {
+> > > @@ -95,10 +96,31 @@ int main(int argc, char *argv[])
+> > >   	}
+> > >   	fprintf(fout, "\n");
+> > > -	/* NOW PRINT OUT MLS STUFF */
+> > > +	/* print out mls declarations and constraints */
+> > >   	if (mls) {
+> > > -		printf("MLS not yet implemented\n");
+> > > -		exit(1);
+> > > +		fprintf(fout, "sensitivity s0;\n");
+> > > +		fprintf(fout, "sensitivity s1;\n");
+> > > +		fprintf(fout, "dominance { s0 s1 }\n");
+> > > +		fprintf(fout, "category c0;\n");
+> > > +		fprintf(fout, "category c1;\n");
+> > > +		fprintf(fout, "level s0:c0.c1;\n");
+> > > +		fprintf(fout, "level s1:c0.c1;\n");
+> > > +#define SYSTEMLOW "s0"
+> > > +#define SYSTEMHIGH "s1:c0.c1"
+> > > +		for (i = 0; secclass_map[i].name; i++) {
+> > > +			struct security_class_mapping *map = &secclass_map[i];
+> > > +
+> > > +			fprintf(fout, "mlsconstrain %s {\n", map->name);
+> > > +			for (j = 0; map->perms[j]; j++)
+> > > +				fprintf(fout, "\t%s\n", map->perms[j]);
+> > > +			/*
+> > > +			 * This requires all subjects and objects to be
+> > > +			 * single-level (l2 eq h2), and that the subject
+> > > +			 * level dominate the object level (h1 dom h2)
+> > > +			 * in order to have any permissions to it.
+> > > +			 */
+> > > +			fprintf(fout, "} (l2 eq h2 and h1 dom h2);\n\n");
+> > > +		}
+> > >   	}
+> > >   	/* types, roles, and allows */
+> > > @@ -108,34 +130,127 @@ int main(int argc, char *argv[])
+> > >   	for (i = 0; secclass_map[i].name; i++)
+> > >   		fprintf(fout, "allow base_t base_t:%s *;\n",
+> > >   			secclass_map[i].name);
+> > > -	fprintf(fout, "user user_u roles { base_r };\n");
+> > > -	fprintf(fout, "\n");
+> > > +	fprintf(fout, "user user_u roles { base_r }");
+> > > +	if (mls)
+> > > +		fprintf(fout, " level %s range %s - %s", SYSTEMLOW,
+> > > +			SYSTEMLOW, SYSTEMHIGH);
+> > > +	fprintf(fout, ";\n");
+> > > +
+> > > +#define SUBJUSERROLETYPE "user_u:base_r:base_t"
+> > > +#define OBJUSERROLETYPE "user_u:object_r:base_t"
+> > >   	/* default sids */
+> > >   	for (i = 1; i < initial_sid_to_string_len; i++)
+> > > -		fprintf(fout, "sid %s user_u:base_r:base_t\n", initial_sid_to_string[i]);
+> > > +		fprintf(fout, "sid %s " SUBJUSERROLETYPE "%s\n",
+> > > +			initial_sid_to_string[i], mls ? ":" SYSTEMLOW : "");
+> > >   	fprintf(fout, "\n");
+> > > -	fprintf(fout, "fs_use_xattr ext2 user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_xattr ext3 user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_xattr ext4 user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_xattr jfs user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_xattr xfs user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_xattr reiserfs user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_xattr jffs2 user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_xattr gfs2 user_u:base_r:base_t;\n");
+> > > +#define FS_USE(behavior, fstype)			    \
+> > > +	fprintf(fout, "fs_use_%s %s " OBJUSERROLETYPE "%s;\n", \
+> > > +		behavior, fstype, mls ? ":" SYSTEMLOW : "")
+> > > +
+> > > +	/*
+> > > +	 * Filesystems whose inode labels can be fetched via getxattr.
+> > > +	 */
+> > > +#ifdef CONFIG_EXT2_FS_SECURITY
+> > > +	FS_USE("xattr", "ext2");
+> > > +#endif
+> > > +#ifdef CONFIG_EXT4_FS_SECURITY
+> > > +#ifdef CONFIG_EXT4_USE_FOR_EXT2
+> > > +	FS_USE("xattr", "ext2");
+> > > +#endif
+> > > +	FS_USE("xattr", "ext3");
+> > > +	FS_USE("xattr", "ext4");
+> > > +#endif
+> > > +#ifdef CONFIG_JFS_SECURITY
+> > > +	FS_USE("xattr", "jfs");
+> > > +#endif
+> > > +#ifdef CONFIG_REISERFS_FS_SECURITY
+> > > +	FS_USE("xattr", "reiserfs");
+> > > +#endif
+> > > +#ifdef CONFIG_JFFS2_FS_SECURITY
+> > > +	FS_USE("xattr", "jffs2");
+> > > +#endif
+> > > +#ifdef CONFIG_XFS_FS
+> > > +	FS_USE("xattr", "xfs");
+> > > +#endif
+> > > +#ifdef CONFIG_GFS2_FS
+> > > +	FS_USE("xattr", "gfs2");
+> > > +#endif
+> > > +#ifdef CONFIG_BTRFS_FS
+> > > +	FS_USE("xattr", "btrfs");
+> > > +#endif
+> > > +#ifdef CONFIG_F2FS_FS_SECURITY
+> > > +	FS_USE("xattr", "f2fs");
+> > > +#endif
+> > > +#ifdef CONFIG_OCFS2_FS
+> > > +	FS_USE("xattr", "ocsfs2");
+> > > +#endif
+> > > +#ifdef CONFIG_OVERLAY_FS
+> > > +	FS_USE("xattr", "overlay");
+> > > +#endif
+> > > +#ifdef CONFIG_SQUASHFS_XATTR
+> > > +	FS_USE("xattr", "squashfs");
+> > > +#endif
+> > > +
+> > > +	/*
+> > > +	 * Filesystems whose inodes are labeled from allocating task.
+> > > +	 */
+> > > +	FS_USE("task", "pipefs");
+> > > +	FS_USE("task", "sockfs");
+> > > -	fprintf(fout, "fs_use_task eventpollfs user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_task pipefs user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_task sockfs user_u:base_r:base_t;\n");
+> > > +	/*
+> > > +	 * Filesystems whose inode labels are computed from both
+> > > +	 * the allocating task and the superblock label.
+> > > +	 */
+> > > +#ifdef CONFIG_UNIX98_PTYS
+> > > +	FS_USE("trans", "devpts");
+> > > +#endif
+> > > +#ifdef CONFIG_HUGETLBFS
+> > > +	FS_USE("trans", "hugetlbfs");
+> > > +#endif
+> > > +#ifdef CONFIG_TMPFS
+> > > +	FS_USE("trans", "tmpfs");
+> > > +#endif
+> > > +#ifdef CONFIG_DEVTMPFS
+> > > +	FS_USE("trans", "devtmpfs");
+> > > +#endif
+> > > +#ifdef CONFIG_POSIX_MQUEUE
+> > > +	FS_USE("trans", "mqueue");
+> > > +#endif
+> > > -	fprintf(fout, "fs_use_trans mqueue user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_trans devpts user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_trans hugetlbfs user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_trans tmpfs user_u:base_r:base_t;\n");
+> > > -	fprintf(fout, "fs_use_trans shm user_u:base_r:base_t;\n");
+> > > +#define GENFSCON(fstype, prefix)			     \
+> > > +	fprintf(fout, "genfscon %s %s " OBJUSERROLETYPE "%s\n", \
+> > > +		fstype, prefix, mls ? ":" SYSTEMLOW : "")
+> > > -	fprintf(fout, "genfscon proc / user_u:base_r:base_t\n");
+> > > +	/*
+> > > +	 * Filesystems whose inodes are labeled from path prefix match
+> > > +	 * relative to the filesystem root.  Depending on the filesystem,
+> > > +	 * only a single label for all inodes may be supported.  Here
+> > > +	 * we list the filesystem types for which per-file labeling is
+> > > +	 * supported using genfscon; any other filesystem type can also
+> > > +	 * be added by only with a single entry for all of its inodes.
+> > > +	 */
+> > > +#ifdef CONFIG_PROC_FS
+> > > +	GENFSCON("proc", "/");
+> > > +#endif
+> > > +#ifdef CONFIG_SECURITY_SELINUX
+> > > +	GENFSCON("selinuxfs", "/");
+> > > +#endif
+> > > +#ifdef CONFIG_SYSFS
+> > > +	GENFSCON("sysfs", "/");
+> > > +#endif
+> > > +#ifdef CONFIG_DEBUG_FS
+> > > +	GENFSCON("debugfs", "/");
+> > > +#endif
+> > > +#ifdef CONFIG_TRACING
+> > > +	GENFSCON("tracefs", "/");
+> > > +#endif
+> > > +#ifdef CONFIG_PSTORE
+> > > +	GENFSCON("pstore", "/");
+> > > +#endif
+> > > +	GENFSCON("cgroup", "/");
+> > > +	GENFSCON("cgroup2", "/");
+> > >   	fclose(fout);
+> > > @@ -144,8 +259,8 @@ int main(int argc, char *argv[])
+> > >   		printf("Wrote policy, but cannot open %s for writing\n", ctxout);
+> > >   		usage(argv[0]);
+> > >   	}
+> > > -	fprintf(fout, "/ user_u:base_r:base_t\n");
+> > > -	fprintf(fout, "/.* user_u:base_r:base_t\n");
+> > > +	fprintf(fout, "/ " OBJUSERROLETYPE "%s\n", mls ? ":" SYSTEMLOW : "");
+> > > +	fprintf(fout, "/.* " OBJUSERROLETYPE "%s\n", mls ? ":" SYSTEMLOW : "");
+> > >   	fclose(fout);
+> > >   	return 0;
+> > > -- 
+> > > 2.20.1
+> > > 
+> > 
 > 
 
+-- 
+Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+Dominick Grift
