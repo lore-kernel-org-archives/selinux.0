@@ -2,44 +2,44 @@ Return-Path: <SRS0=VtfE=Q5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4BD7C4360F
-	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82E52C10F00
+	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7ECD82086C
-	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 524122086A
+	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726505AbfBVO5u (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Feb 2019 09:57:50 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:55958 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726356AbfBVO5u (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Feb 2019 09:57:50 -0500
-Received: by mail-wm1-f67.google.com with SMTP id q187so2232421wme.5
-        for <selinux@vger.kernel.org>; Fri, 22 Feb 2019 06:57:48 -0800 (PST)
+        id S1726560AbfBVO5v (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Feb 2019 09:57:51 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:52163 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726458AbfBVO5v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Feb 2019 09:57:51 -0500
+Received: by mail-wm1-f65.google.com with SMTP id n19so2230995wmi.1
+        for <selinux@vger.kernel.org>; Fri, 22 Feb 2019 06:57:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=yo4EQtVDRF+pddHZo6tp5yiQ23TLrBEFCS+IQNlTiS4=;
-        b=ANQV19G9i7bkUztMk/R/5C867G+VZIBrZwdQkj8TwTPIFLSYdTojWSXsMP6Zl9JFxL
-         ZgThCvtA+oPIsrONHgYLH+HpOpdiqvppypMeXvseonlzBTDoqsokFvGTTZ9yAuGJJknf
-         mHIgoYa3qWSr4lKAuS771LFeJe9xnItHDLunt5IOl5BChIA87LXElrtJMYkGMFv5X8uK
-         EM/OJdzJIsRY4eeMhadfRbxYDCaJQMciNRF5yZpowltqKBKb9L6jWXulrlr0oK6wTf0B
-         ip3PKs/u+EoAZygtpl101p8m+XpeMa5q8plZDpyfmpnoiPDw1Jt6XMBbfsDPWGCEBEfB
-         aBFw==
-X-Gm-Message-State: AHQUAuYLdA9cCAkcJq+j5fzR3OMmPANonwo2fzNdcNAIB9dmiL/rXF5r
-        KIQgHThlyxRtdApoRHaov7xD2qqz3IPaAQ==
-X-Google-Smtp-Source: AHgI3IZcfzuHxs8gi5WFbUu8zLL0TOcyyycYezFnncqlihWzrlvv/CSRakRv7ejWp9c2M8seWYYbGQ==
-X-Received: by 2002:a7b:c14f:: with SMTP id z15mr2846155wmi.3.1550847467818;
-        Fri, 22 Feb 2019 06:57:47 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=i8YHv0/qIqj+KRVAYbor72UyNmxKrCXiH7RYPyw72kU=;
+        b=IGEz6HycfNFVUmTqDyrmRXuyg+x/iXzA07KDSeH16D63JYDcD6b1NIyscZ9jV7vG78
+         LrApc6b1IiT4JOCXXhJmh00SRZN/xByo/qzl//mU+ogUdv0ORNsQPZTdgfTU38oOz0nH
+         daCk+4tN7v2pUnPG52hEBMj3i7AZqa5S6UAgVRALGVLKxUPipVH9VfAifCXQWsMFn0n2
+         ef/LI5XqVf8KXaoVVs5QhX5mfBJkxhGcifig2/XhshHE47FNJz2tIsWxswnvZD74r+Ii
+         GCC1G7mvwC3kF6H1DSYKoQ+q7KCzCiW6qzUOgcD9dLvDReE6skScW4ZO5uSU1e6mJAjg
+         Ffjg==
+X-Gm-Message-State: AHQUAuYrZ5CGa0KF+vNRX8QYmEk9wpbCf4ZJKIs3asdiJWgtopPCDTiL
+        IHUqQdtNnQkrKiQKY0ITwTc3Aal+XL+e2A==
+X-Google-Smtp-Source: AHgI3IbGcwdiZdgENhG4RF7d9RUODRKCbnSygvPNXZ+Qqgv2HwmGICokA+II73AJzD51MlMyRRP8oQ==
+X-Received: by 2002:a1c:6c12:: with SMTP id h18mr2556656wmc.131.1550847468932;
+        Fri, 22 Feb 2019 06:57:48 -0800 (PST)
 Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id 203sm1503912wme.30.2019.02.22.06.57.46
+        by smtp.gmail.com with ESMTPSA id 203sm1503912wme.30.2019.02.22.06.57.47
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 22 Feb 2019 06:57:47 -0800 (PST)
+        Fri, 22 Feb 2019 06:57:48 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
@@ -50,10 +50,12 @@ Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         James Morris <jmorris@namei.org>,
         linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org,
         Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v7 0/7] Allow initializing the kernfs node's secctx based on its parent
-Date:   Fri, 22 Feb 2019 15:57:11 +0100
-Message-Id: <20190222145718.5740-1-omosnace@redhat.com>
+Subject: [PATCH v7 1/7] kernfs: clean up struct kernfs_iattrs
+Date:   Fri, 22 Feb 2019 15:57:12 +0100
+Message-Id: <20190222145718.5740-2-omosnace@redhat.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190222145718.5740-1-omosnace@redhat.com>
+References: <20190222145718.5740-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -61,133 +63,181 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-TL;DR:
-This series adds a new security hook that allows to initialize the security
-context of kernfs properly, taking into account the parent context (and
-possibly other attributes). Kernfs nodes require special handling here, since
-they are not bound to specific inodes/superblocks, but instead represent the
-backing tree structure that is used to build the VFS tree when the kernfs
-tree is mounted.
+Right now, kernfs_iattrs embeds the whole struct iattr, even though it
+doesn't really use half of its fields... This both leads to wasting
+space and makes the code look awkward. Let's just list the few fields
+we need directly in struct kernfs_iattrs.
 
-Changes in v7:
-- simplify the new security hook's interface
-  - rather than trying to extract kernfs data into common structures, just
-    pass the kernfs nodes themselves and add helper functions to
-    <linux/kernfs.h> for accessing their security xattrs
-  - in case other LSMs need more kernfs node attributes than the file mode
-    (uid/gid/...), they can simply add new helpers to <linux/kernfs.h> as
-    needed
-- refactor "kernfs: use simple_xattrs for security attributes" to keep using
-  a single common simple_xattrs structure
-  - turns out having two separate simple_xattrs wouldn't work right (see
-    the definition of simple_xattr_list() in fs/xattr.c)
-- drop unnecessary initializations from inode_doinit_use_xattr()
-- move the IOP_XATTR check out of inode_doinit_use_xattr()
-- add two kernfs cleanup patches
-  - these could be applied independently, but the rest of the patches depend on
-    them, so I'd rather they stay bundled with the rest to avoid cross-tree
-    conflicts
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ fs/kernfs/dir.c             | 10 ++++----
+ fs/kernfs/inode.c           | 47 ++++++++++++++++---------------------
+ fs/kernfs/kernfs-internal.h |  6 ++++-
+ fs/kernfs/symlink.c         |  4 ++--
+ 4 files changed, 31 insertions(+), 36 deletions(-)
 
-v6: https://lore.kernel.org/selinux/20190214095015.16032-1-omosnace@redhat.com/T/
-Changes in v6:
-- remove copy-pasted duplicate macro definition
-
-v5: https://lore.kernel.org/selinux/20190205110638.30782-1-omosnace@redhat.com/T/
-Changes in v5:
-- fix misplaced semicolon detected by 0day robot
-
-v4: https://lore.kernel.org/selinux/20190205085915.5183-1-omosnace@redhat.com/T/
-Changes in v4:
-- reorder and rename hook arguments
-- avoid allocating kernfs_iattrs unless needed
-
-v3: https://lore.kernel.org/selinux/20190130114150.27807-1-omosnace@redhat.com/T/
-Changes in v3:
-- rename the hook to "kernfs_init_security"
-- change the hook interface to simply pass pointers to struct iattr and
-  struct simple_xattrs of both the new node and its parent
-- add full security xattr support to kernfs (and fixup SELinux behavior
-  to handle it properly)
-
-v2: https://lore.kernel.org/selinux/20190109162830.8309-1-omosnace@redhat.com/T/
-Changes in v2:
-- add docstring for the new hook in union security_list_options
-- initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
-  implemented
-
-v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
-
-The kernfs nodes initially do not store any security context and rely on
-the LSM to assign some default context to inodes created over them. Kernfs
-inodes, however, allow setting an explicit context via the *setxattr(2)
-syscalls, in which case the context is stored inside the kernfs node's
-internal structure.
-
-SELinux (and possibly other LSMs) initialize the context of newly created
-FS objects based on the parent object's context (usually the child inherits
-the parent's context, unless the policy dictates otherwise). This is done
-by hooking the creation of the new inode corresponding to the newly created
-file/directory via security_inode_init_security() (most filesystems always
-create a fresh inode when a new FS object is created). However, kernfs nodes
-can be created "behind the scenes" while the filesystem is not mounted
-anywhere and thus no inodes can exist for them yet.
-
-Therefore, to allow maintaining similar behavior for kernfs nodes, a new
-LSM hook is needed, which will allow initializing the kernfs node's
-security context based on its own attributes and those of the parent's
-node.
-
-The main motivation for this change is that the userspace users of cgroupfs
-(which is built on kernfs) expect the usual security context inheritance
-to work under SELinux (see [1] and [2]). This functionality is required for
-better confinement of containers under SELinux.
-
-Patch 1/7 simplifies the kernfs_iattrs structure and patch 2/7 optimizes
-kernfs to not allocate kernfs_iattrs when getting the value of an xattr.
-
-Patch 3/7 changes SELinux to fetch security context from extended
-attributes on kernfs filesystems, falling back to genfs-defined context
-if that fails. Without this patch the 4/7 would be a regression for
-SELinux (due to the removal of ...notifysecctx() call.
-
-Patch 4/7 implements full security xattr support in kernfs using
-simple_xattrs; patch 5/7 adds the new LSM hook; patch 6/7 implements the
-new hook in SELinux; and patch 7/7 modifies kernfs to call the new hook
-on new node creation.
-
-Testing:
-- passed the reproducer from the commit message of the last patch
-- passed SELinux testsuite on Fedora Rawhide (x86_64) when applied on top
-  of current Rawhide kernel (5.0.0-0.rc7.git2.1) [3]
-  - including the new proposed selinux-testsuite subtest [4] (adapted
-    from the reproducer)
-
-[1] https://github.com/SELinuxProject/selinux-kernel/issues/39
-[2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
-[3] https://koji.fedoraproject.org/koji/taskinfo?taskID=32963825
-[4] https://github.com/SELinuxProject/selinux-testsuite/pull/48
-
-Ondrej Mosnacek (7):
-  kernfs: clean up struct kernfs_iattrs
-  kernfs: do not alloc iattrs in kernfs_xattr_get
-  selinux: try security xattr after genfs for kernfs filesystems
-  kernfs: use simple_xattrs for security attributes
-  LSM: add new hook for kernfs node initialization
-  selinux: implement the kernfs_init_security hook
-  kernfs: initialize security of newly created nodes
-
- fs/kernfs/dir.c                     |  28 ++--
- fs/kernfs/inode.c                   | 166 +++++++++------------
- fs/kernfs/kernfs-internal.h         |   8 +-
- fs/kernfs/symlink.c                 |   4 +-
- include/linux/kernfs.h              |  15 ++
- include/linux/lsm_hooks.h           |  13 ++
- include/linux/security.h            |   9 ++
- security/security.c                 |   6 +
- security/selinux/hooks.c            | 223 +++++++++++++++++++---------
- security/selinux/include/security.h |   1 +
- 10 files changed, 290 insertions(+), 183 deletions(-)
-
+diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
+index 4ca0b5c18192..e3e00d9be70d 100644
+--- a/fs/kernfs/dir.c
++++ b/fs/kernfs/dir.c
+@@ -795,9 +795,8 @@ int kernfs_add_one(struct kernfs_node *kn)
+ 	/* Update timestamps on the parent */
+ 	ps_iattr = parent->iattr;
+ 	if (ps_iattr) {
+-		struct iattr *ps_iattrs = &ps_iattr->ia_iattr;
+-		ktime_get_real_ts64(&ps_iattrs->ia_ctime);
+-		ps_iattrs->ia_mtime = ps_iattrs->ia_ctime;
++		ktime_get_real_ts64(&ps_iattr->ia_ctime);
++		ps_iattr->ia_mtime = ps_iattr->ia_ctime;
+ 	}
+ 
+ 	mutex_unlock(&kernfs_mutex);
+@@ -1329,9 +1328,8 @@ static void __kernfs_remove(struct kernfs_node *kn)
+ 
+ 			/* update timestamps on the parent */
+ 			if (ps_iattr) {
+-				ktime_get_real_ts64(&ps_iattr->ia_iattr.ia_ctime);
+-				ps_iattr->ia_iattr.ia_mtime =
+-					ps_iattr->ia_iattr.ia_ctime;
++				ktime_get_real_ts64(&ps_iattr->ia_ctime);
++				ps_iattr->ia_mtime = ps_iattr->ia_ctime;
+ 			}
+ 
+ 			kernfs_put(pos);
+diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
+index 80cebcd94c90..ffd1ef962728 100644
+--- a/fs/kernfs/inode.c
++++ b/fs/kernfs/inode.c
+@@ -35,7 +35,6 @@ static struct kernfs_iattrs *kernfs_iattrs(struct kernfs_node *kn)
+ {
+ 	static DEFINE_MUTEX(iattr_mutex);
+ 	struct kernfs_iattrs *ret;
+-	struct iattr *iattrs;
+ 
+ 	mutex_lock(&iattr_mutex);
+ 
+@@ -45,16 +44,14 @@ static struct kernfs_iattrs *kernfs_iattrs(struct kernfs_node *kn)
+ 	kn->iattr = kzalloc(sizeof(struct kernfs_iattrs), GFP_KERNEL);
+ 	if (!kn->iattr)
+ 		goto out_unlock;
+-	iattrs = &kn->iattr->ia_iattr;
+ 
+ 	/* assign default attributes */
+-	iattrs->ia_mode = kn->mode;
+-	iattrs->ia_uid = GLOBAL_ROOT_UID;
+-	iattrs->ia_gid = GLOBAL_ROOT_GID;
++	kn->iattr->ia_uid = GLOBAL_ROOT_UID;
++	kn->iattr->ia_gid = GLOBAL_ROOT_GID;
+ 
+-	ktime_get_real_ts64(&iattrs->ia_atime);
+-	iattrs->ia_mtime = iattrs->ia_atime;
+-	iattrs->ia_ctime = iattrs->ia_atime;
++	ktime_get_real_ts64(&kn->iattr->ia_atime);
++	kn->iattr->ia_mtime = kn->iattr->ia_atime;
++	kn->iattr->ia_ctime = kn->iattr->ia_atime;
+ 
+ 	simple_xattrs_init(&kn->iattr->xattrs);
+ out_unlock:
+@@ -66,29 +63,24 @@ out_unlock:
+ int __kernfs_setattr(struct kernfs_node *kn, const struct iattr *iattr)
+ {
+ 	struct kernfs_iattrs *attrs;
+-	struct iattr *iattrs;
+ 	unsigned int ia_valid = iattr->ia_valid;
+ 
+ 	attrs = kernfs_iattrs(kn);
+ 	if (!attrs)
+ 		return -ENOMEM;
+ 
+-	iattrs = &attrs->ia_iattr;
+-
+ 	if (ia_valid & ATTR_UID)
+-		iattrs->ia_uid = iattr->ia_uid;
++		attrs->ia_uid = iattr->ia_uid;
+ 	if (ia_valid & ATTR_GID)
+-		iattrs->ia_gid = iattr->ia_gid;
++		attrs->ia_gid = iattr->ia_gid;
+ 	if (ia_valid & ATTR_ATIME)
+-		iattrs->ia_atime = iattr->ia_atime;
++		attrs->ia_atime = iattr->ia_atime;
+ 	if (ia_valid & ATTR_MTIME)
+-		iattrs->ia_mtime = iattr->ia_mtime;
++		attrs->ia_mtime = iattr->ia_mtime;
+ 	if (ia_valid & ATTR_CTIME)
+-		iattrs->ia_ctime = iattr->ia_ctime;
+-	if (ia_valid & ATTR_MODE) {
+-		umode_t mode = iattr->ia_mode;
+-		iattrs->ia_mode = kn->mode = mode;
+-	}
++		attrs->ia_ctime = iattr->ia_ctime;
++	if (ia_valid & ATTR_MODE)
++		kn->mode = iattr->ia_mode;
+ 	return 0;
+ }
+ 
+@@ -171,14 +163,15 @@ static inline void set_default_inode_attr(struct inode *inode, umode_t mode)
+ 		inode->i_ctime = current_time(inode);
+ }
+ 
+-static inline void set_inode_attr(struct inode *inode, struct iattr *iattr)
++static inline void set_inode_attr(struct inode *inode,
++				  struct kernfs_iattrs *attrs)
+ {
+ 	struct super_block *sb = inode->i_sb;
+-	inode->i_uid = iattr->ia_uid;
+-	inode->i_gid = iattr->ia_gid;
+-	inode->i_atime = timespec64_trunc(iattr->ia_atime, sb->s_time_gran);
+-	inode->i_mtime = timespec64_trunc(iattr->ia_mtime, sb->s_time_gran);
+-	inode->i_ctime = timespec64_trunc(iattr->ia_ctime, sb->s_time_gran);
++	inode->i_uid = attrs->ia_uid;
++	inode->i_gid = attrs->ia_gid;
++	inode->i_atime = timespec64_trunc(attrs->ia_atime, sb->s_time_gran);
++	inode->i_mtime = timespec64_trunc(attrs->ia_mtime, sb->s_time_gran);
++	inode->i_ctime = timespec64_trunc(attrs->ia_ctime, sb->s_time_gran);
+ }
+ 
+ static void kernfs_refresh_inode(struct kernfs_node *kn, struct inode *inode)
+@@ -191,7 +184,7 @@ static void kernfs_refresh_inode(struct kernfs_node *kn, struct inode *inode)
+ 		 * kernfs_node has non-default attributes get them from
+ 		 * persistent copy in kernfs_node.
+ 		 */
+-		set_inode_attr(inode, &attrs->ia_iattr);
++		set_inode_attr(inode, attrs);
+ 		security_inode_notifysecctx(inode, attrs->ia_secdata,
+ 					    attrs->ia_secdata_len);
+ 	}
+diff --git a/fs/kernfs/kernfs-internal.h b/fs/kernfs/kernfs-internal.h
+index 3d83b114bb08..388c1193c4fa 100644
+--- a/fs/kernfs/kernfs-internal.h
++++ b/fs/kernfs/kernfs-internal.h
+@@ -19,7 +19,11 @@
+ #include <linux/kernfs.h>
+ 
+ struct kernfs_iattrs {
+-	struct iattr		ia_iattr;
++	kuid_t			ia_uid;
++	kgid_t			ia_gid;
++	struct timespec64	ia_atime;
++	struct timespec64	ia_mtime;
++	struct timespec64	ia_ctime;
+ 	void			*ia_secdata;
+ 	u32			ia_secdata_len;
+ 
+diff --git a/fs/kernfs/symlink.c b/fs/kernfs/symlink.c
+index 162f43b80c84..eb46c3a16e2f 100644
+--- a/fs/kernfs/symlink.c
++++ b/fs/kernfs/symlink.c
+@@ -33,8 +33,8 @@ struct kernfs_node *kernfs_create_link(struct kernfs_node *parent,
+ 	kgid_t gid = GLOBAL_ROOT_GID;
+ 
+ 	if (target->iattr) {
+-		uid = target->iattr->ia_iattr.ia_uid;
+-		gid = target->iattr->ia_iattr.ia_gid;
++		uid = target->iattr->ia_uid;
++		gid = target->iattr->ia_gid;
+ 	}
+ 
+ 	kn = kernfs_new_node(parent, name, S_IFLNK|S_IRWXUGO, uid, gid,
 -- 
 2.20.1
 
