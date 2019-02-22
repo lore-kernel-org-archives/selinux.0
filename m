@@ -4,42 +4,42 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00CF1C43381
-	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE2D5C10F00
+	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CEC852086A
-	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95F322086A
+	for <selinux@archiver.kernel.org>; Fri, 22 Feb 2019 14:57:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726627AbfBVO5x (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Feb 2019 09:57:53 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:34887 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726220AbfBVO5w (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Feb 2019 09:57:52 -0500
-Received: by mail-wr1-f68.google.com with SMTP id t18so2710977wrx.2
-        for <selinux@vger.kernel.org>; Fri, 22 Feb 2019 06:57:51 -0800 (PST)
+        id S1726587AbfBVO55 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Feb 2019 09:57:57 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:55963 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726599AbfBVO5z (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Feb 2019 09:57:55 -0500
+Received: by mail-wm1-f67.google.com with SMTP id q187so2232640wme.5
+        for <selinux@vger.kernel.org>; Fri, 22 Feb 2019 06:57:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7n/70NaWl0BIWsrw4Nf9QtXYHdDHEAFx5YuB2+JlALg=;
-        b=KjPSx+laEFgspb7pEC4/Ny0x5TZqVlaMy78+tC7Ws1rVeVqYyHc84CwWx51uWxXC95
-         Ri6u43Gv0bjKbgfqK6mJI5HD52iS+fPuEM/AYaP7u5sC9U6TgStV1Mr7Yk2BgTjVcEqL
-         XT7vhKQ86mbd0d8Z2Lq/76XwQ4E6wZ26/Xr50WlVYUyBD8resc9U5pSe7fhWCAR+wDDN
-         Kk9fm5R+bEVw42r6JCXi2p5nn+JtXJeHL+/0x/NAy9Pe1pLpSrxwNc09NntzQ43knDoT
-         eAgd756JuSvfMX/xnexGR9pFSct8a7x+F1q+OTa/tmBR91gotxUEWrdzNGAP+4GqI/+n
-         X4Jg==
-X-Gm-Message-State: AHQUAubZF+n4ziJEW3NrqT+Pbh7Eb9yUNoT+BXtnYQxb08x7HTR6mlfO
-        gjTxsJgwK9gwxkip33vJRzH63GHrbLvvxg==
-X-Google-Smtp-Source: AHgI3IbmtHK+lnP7Dljpl1l5VaePLL7sxhmizTelgs7gUNpQQvXAR4jRwoQad6d+gSsubj1f7mv2rA==
-X-Received: by 2002:adf:ff81:: with SMTP id j1mr3324885wrr.261.1550847470086;
-        Fri, 22 Feb 2019 06:57:50 -0800 (PST)
+        bh=c6ozjLnTH4GYJKoNy9kSNyyz4TJc2lzZH0D3kC2Ee84=;
+        b=JlzN/yD8ArXAXNbHdgBf/8jhk5UBNFC435VcdE573JInaNi3mzbhddWSmqmZC43rra
+         v0gMdaJbnDt6soP+5ykhRaAw9x/EUcJ4Ri14hoXytET6oFurKcuwWeDQHPWSAS+//dcf
+         cL3kvYXBT2GyuByiAXMQIEIPKCuaZ8CYCQRMCtvcI7QRBivEG2kEj6/Qh5k/15cmD69P
+         gPDyhfPxLcu23hj0mx3p43W288ayQ00sTTy6lWri1toENpduy7hwmPEtutXwJ1+7q0aP
+         YXP5AfxJEoaFnuc8IZxJ9LUOO5redf3zyCKmUpfdBMXxRHhhWvHGCLiSoxo0QI5g9l51
+         2b0A==
+X-Gm-Message-State: AHQUAuZvbALW5Dk8ELAyXLTAHRJ8ajFmInaJNdKb0nCPvuenxujEkvhQ
+        SNscoS/ec5wy/nunXO98vvnzT/k8WEOhxQ==
+X-Google-Smtp-Source: AHgI3Ib2iLnJ+4n+rF6qsjB1ZXZ8cW/d58A9t9K9tFh7iN16V4P7LZXBvy+zB/fONTxX0qwCR9En1w==
+X-Received: by 2002:a7b:c5cc:: with SMTP id n12mr2744333wmk.149.1550847471835;
+        Fri, 22 Feb 2019 06:57:51 -0800 (PST)
 Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id 203sm1503912wme.30.2019.02.22.06.57.48
+        by smtp.gmail.com with ESMTPSA id 203sm1503912wme.30.2019.02.22.06.57.50
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 22 Feb 2019 06:57:49 -0800 (PST)
+        Fri, 22 Feb 2019 06:57:50 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
@@ -50,9 +50,9 @@ Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         James Morris <jmorris@namei.org>,
         linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org,
         Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH v7 2/7] kernfs: do not alloc iattrs in kernfs_xattr_get
-Date:   Fri, 22 Feb 2019 15:57:13 +0100
-Message-Id: <20190222145718.5740-3-omosnace@redhat.com>
+Subject: [PATCH v7 3/7] selinux: try security xattr after genfs for kernfs filesystems
+Date:   Fri, 22 Feb 2019 15:57:14 +0100
+Message-Id: <20190222145718.5740-4-omosnace@redhat.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190222145718.5740-1-omosnace@redhat.com>
 References: <20190222145718.5740-1-omosnace@redhat.com>
@@ -63,64 +63,236 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This is a read-only operation, so we can simply return -ENODATA if
-kn->iattr is NULL.
+Since kernfs supports the security xattr handlers, we can simply use
+these to determine the inode's context, dropping the need to update it
+from kernfs explicitly using a security_inode_notifysecctx() call.
+
+We achieve this by setting a new sbsec flag SE_SBGENFS_XATTR to all
+mounts that are known to use kernfs under the hood and then fetching the
+xattrs after determining the fallback genfs sid in
+inode_doinit_with_dentry() when this flag is set.
+
+This will allow implementing full security xattr support in kernfs and
+removing the ...notifysecctx() call in a subsequent patch.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- fs/kernfs/inode.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
+ security/selinux/hooks.c            | 157 +++++++++++++++-------------
+ security/selinux/include/security.h |   1 +
+ 2 files changed, 85 insertions(+), 73 deletions(-)
 
-diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
-index ffd1ef962728..7a7985961bbf 100644
---- a/fs/kernfs/inode.c
-+++ b/fs/kernfs/inode.c
-@@ -31,14 +31,14 @@ static const struct inode_operations kernfs_iops = {
- 	.listxattr	= kernfs_iop_listxattr,
- };
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 81e012c66d95..0f62757b6634 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -793,11 +793,13 @@ static int selinux_set_mnt_opts(struct super_block *sb,
  
--static struct kernfs_iattrs *kernfs_iattrs(struct kernfs_node *kn)
-+static struct kernfs_iattrs *__kernfs_iattrs(struct kernfs_node *kn, int alloc)
- {
- 	static DEFINE_MUTEX(iattr_mutex);
- 	struct kernfs_iattrs *ret;
+ 	if (!strcmp(sb->s_type->name, "debugfs") ||
+ 	    !strcmp(sb->s_type->name, "tracefs") ||
+-	    !strcmp(sb->s_type->name, "sysfs") ||
+-	    !strcmp(sb->s_type->name, "pstore") ||
++	    !strcmp(sb->s_type->name, "pstore"))
++		sbsec->flags |= SE_SBGENFS;
++
++	if (!strcmp(sb->s_type->name, "sysfs") ||
+ 	    !strcmp(sb->s_type->name, "cgroup") ||
+ 	    !strcmp(sb->s_type->name, "cgroup2"))
+-		sbsec->flags |= SE_SBGENFS;
++		sbsec->flags |= SE_SBGENFS | SE_SBGENFS_XATTR;
  
- 	mutex_lock(&iattr_mutex);
- 
--	if (kn->iattr)
-+	if (kn->iattr || !alloc)
- 		goto out_unlock;
- 
- 	kn->iattr = kzalloc(sizeof(struct kernfs_iattrs), GFP_KERNEL);
-@@ -60,6 +60,16 @@ out_unlock:
- 	return ret;
+ 	if (!sbsec->behavior) {
+ 		/*
+@@ -1392,6 +1394,67 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+ 	return rc;
  }
  
-+static struct kernfs_iattrs *kernfs_iattrs(struct kernfs_node *kn)
++static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
++				  u32 def_sid, u32 *sid)
 +{
-+	return __kernfs_iattrs(kn, 1);
++#define INITCONTEXTLEN 255
++	char *context;
++	unsigned int len;
++	int rc;
++
++	len = INITCONTEXTLEN;
++	context = kmalloc(len + 1, GFP_NOFS);
++	if (!context)
++		return -ENOMEM;
++
++	context[len] = '\0';
++	rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
++	if (rc == -ERANGE) {
++		kfree(context);
++
++		/* Need a larger buffer.  Query for the right size. */
++		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
++		if (rc < 0)
++			return rc;
++
++		len = rc;
++		context = kmalloc(len + 1, GFP_NOFS);
++		if (!context)
++			return -ENOMEM;
++
++		context[len] = '\0';
++		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX,
++				    context, len);
++	}
++	if (rc < 0) {
++		kfree(context);
++		if (rc != -ENODATA) {
++			pr_warn("SELinux: %s:  getxattr returned %d for dev=%s ino=%ld\n",
++				__func__, -rc, inode->i_sb->s_id, inode->i_ino);
++			return rc;
++		}
++		*sid = def_sid;
++		return 0;
++	}
++
++	rc = security_context_to_sid_default(&selinux_state, context, rc, sid,
++					     def_sid, GFP_NOFS);
++	if (rc) {
++		char *dev = inode->i_sb->s_id;
++		unsigned long ino = inode->i_ino;
++
++		if (rc == -EINVAL) {
++			pr_notice_ratelimited("SELinux: inode=%lu on dev=%s was found to have an invalid context=%s.  This indicates you may need to relabel the inode or the filesystem in question.\n",
++					      ino, dev, context);
++		} else {
++			pr_warn("SELinux: %s:  context_to_sid(%s) returned %d for dev=%s ino=%ld\n",
++				__func__, context, -rc, dev, ino);
++		}
++	}
++	kfree(context);
++	return 0;
 +}
 +
-+static struct kernfs_iattrs *kernfs_iattrs_noalloc(struct kernfs_node *kn)
-+{
-+	return __kernfs_iattrs(kn, 0);
-+}
-+
- int __kernfs_setattr(struct kernfs_node *kn, const struct iattr *iattr)
+ /* The inode's security attributes must be initialized before first use. */
+ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry)
  {
- 	struct kernfs_iattrs *attrs;
-@@ -306,9 +316,9 @@ static int kernfs_xattr_get(const struct xattr_handler *handler,
- 	struct kernfs_node *kn = inode->i_private;
- 	struct kernfs_iattrs *attrs;
+@@ -1400,9 +1463,6 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	u32 task_sid, sid = 0;
+ 	u16 sclass;
+ 	struct dentry *dentry;
+-#define INITCONTEXTLEN 255
+-	char *context = NULL;
+-	unsigned len = 0;
+ 	int rc = 0;
  
--	attrs = kernfs_iattrs(kn);
-+	attrs = kernfs_iattrs_noalloc(kn);
- 	if (!attrs)
--		return -ENOMEM;
-+		return -ENODATA;
+ 	if (isec->initialized == LABEL_INITIALIZED)
+@@ -1470,72 +1530,11 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 			goto out;
+ 		}
  
- 	return simple_xattr_get(&attrs->xattrs, name, value, size);
- }
+-		len = INITCONTEXTLEN;
+-		context = kmalloc(len+1, GFP_NOFS);
+-		if (!context) {
+-			rc = -ENOMEM;
+-			dput(dentry);
+-			goto out;
+-		}
+-		context[len] = '\0';
+-		rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+-		if (rc == -ERANGE) {
+-			kfree(context);
+-
+-			/* Need a larger buffer.  Query for the right size. */
+-			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, NULL, 0);
+-			if (rc < 0) {
+-				dput(dentry);
+-				goto out;
+-			}
+-			len = rc;
+-			context = kmalloc(len+1, GFP_NOFS);
+-			if (!context) {
+-				rc = -ENOMEM;
+-				dput(dentry);
+-				goto out;
+-			}
+-			context[len] = '\0';
+-			rc = __vfs_getxattr(dentry, inode, XATTR_NAME_SELINUX, context, len);
+-		}
++		rc = inode_doinit_use_xattr(inode, dentry, sbsec->def_sid,
++					    &sid);
+ 		dput(dentry);
+-		if (rc < 0) {
+-			if (rc != -ENODATA) {
+-				pr_warn("SELinux: %s:  getxattr returned "
+-				       "%d for dev=%s ino=%ld\n", __func__,
+-				       -rc, inode->i_sb->s_id, inode->i_ino);
+-				kfree(context);
+-				goto out;
+-			}
+-			/* Map ENODATA to the default file SID */
+-			sid = sbsec->def_sid;
+-			rc = 0;
+-		} else {
+-			rc = security_context_to_sid_default(&selinux_state,
+-							     context, rc, &sid,
+-							     sbsec->def_sid,
+-							     GFP_NOFS);
+-			if (rc) {
+-				char *dev = inode->i_sb->s_id;
+-				unsigned long ino = inode->i_ino;
+-
+-				if (rc == -EINVAL) {
+-					if (printk_ratelimit())
+-						pr_notice("SELinux: inode=%lu on dev=%s was found to have an invalid "
+-							"context=%s.  This indicates you may need to relabel the inode or the "
+-							"filesystem in question.\n", ino, dev, context);
+-				} else {
+-					pr_warn("SELinux: %s:  context_to_sid(%s) "
+-					       "returned %d for dev=%s ino=%ld\n",
+-					       __func__, context, -rc, dev, ino);
+-				}
+-				kfree(context);
+-				/* Leave with the unlabeled SID */
+-				rc = 0;
+-				break;
+-			}
+-		}
+-		kfree(context);
++		if (rc)
++			goto out;
+ 		break;
+ 	case SECURITY_FS_USE_TASK:
+ 		sid = task_sid;
+@@ -1586,9 +1585,21 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 				goto out;
+ 			rc = selinux_genfs_get_sid(dentry, sclass,
+ 						   sbsec->flags, &sid);
+-			dput(dentry);
+-			if (rc)
++			if (rc) {
++				dput(dentry);
+ 				goto out;
++			}
++
++			if ((sbsec->flags & SE_SBGENFS_XATTR) &&
++			    (inode->i_opflags & IOP_XATTR)) {
++				rc = inode_doinit_use_xattr(inode, dentry,
++							    sid, &sid);
++				if (rc) {
++					dput(dentry);
++					goto out;
++				}
++			}
++			dput(dentry);
+ 		}
+ 		break;
+ 	}
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index f68fb25b5702..6e5928f951da 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -58,6 +58,7 @@
+ #define SE_SBINITIALIZED	0x0100
+ #define SE_SBPROC		0x0200
+ #define SE_SBGENFS		0x0400
++#define SE_SBGENFS_XATTR	0x0800
+ 
+ #define CONTEXT_STR	"context="
+ #define FSCONTEXT_STR	"fscontext="
 -- 
 2.20.1
 
