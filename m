@@ -2,242 +2,586 @@ Return-Path: <SRS0=jEy8=RA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81E3AC43381
-	for <selinux@archiver.kernel.org>; Mon, 25 Feb 2019 07:35:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEA78C43381
+	for <selinux@archiver.kernel.org>; Mon, 25 Feb 2019 15:23:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 40E8F2084D
-	for <selinux@archiver.kernel.org>; Mon, 25 Feb 2019 07:35:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9987220C01
+	for <selinux@archiver.kernel.org>; Mon, 25 Feb 2019 15:23:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726377AbfBYHfc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Feb 2019 02:35:32 -0500
-Received: from dgrift.xs4all.space ([80.100.19.56]:51602 "EHLO
-        agnus.defensec.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726275AbfBYHfc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Feb 2019 02:35:32 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by agnus.defensec.nl (Postfix) with ESMTP id 1C2492E0FA1;
-        Mon, 25 Feb 2019 08:35:29 +0100 (CET)
-X-Virus-Scanned: amavisd-new at defensec.nl
-Received: from agnus.defensec.nl ([127.0.0.1])
-        by localhost (agnus.defensec.nl [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id qtMt6iwBnqfI; Mon, 25 Feb 2019 08:35:26 +0100 (CET)
-Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 900392E0FA0;
-        Mon, 25 Feb 2019 08:35:26 +0100 (CET)
-Date:   Mon, 25 Feb 2019 08:35:25 +0100
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     selinux@vger.kernel.org
-Subject: Re: Bash 5 change in behavior and SELinux
-Message-ID: <20190225073525.GC9609@brutus.lan>
-References: <20190224165919.GA4310@brutus.lan>
- <20190224173944.GA18551@brutus.lan>
- <CAJfZ7=njaGvMdSJdpfzK238=BS_u7i+DE61mLic1OezEC20ngQ@mail.gmail.com>
- <20190224183708.GA3000@brutus.lan>
- <CAJfZ7==ZFWSGH1FhrmWo=HzG6KCxCdGSS2XpyF9GnuKPKxw_JA@mail.gmail.com>
+        id S1727515AbfBYPXr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 Feb 2019 10:23:47 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:36244 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727467AbfBYPXr (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 25 Feb 2019 10:23:47 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id CF7AD301899B;
+        Mon, 25 Feb 2019 15:23:45 +0000 (UTC)
+Received: from workstation (unknown [10.43.12.84])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id A6B7960857;
+        Mon, 25 Feb 2019 15:23:43 +0000 (UTC)
+References: <20190221213147.1590-1-sds@tycho.nsa.gov> <20190222085518.GA28321@brutus.lan> <a127c2fc-9a1e-3169-fe0a-1f07f896fc06@tycho.nsa.gov> <20190222202617.GA16944@brutus.lan> <9b6e1392-0492-cd4c-c5b3-e17125f55da9@tycho.nsa.gov> <819a099c-8d9d-5e07-7f3a-c7863254ce92@tycho.nsa.gov>
+User-agent: mu4e 1.0; emacs 26.1
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>, paul@paul-moore.com,
+        Petr Lautrbach <plautrba@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH v6] scripts/selinux: modernize mdp
+In-reply-to: <819a099c-8d9d-5e07-7f3a-c7863254ce92@tycho.nsa.gov>
+Date:   Mon, 25 Feb 2019 16:23:42 +0100
+Message-ID: <pjdwolnlwn5.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJfZ7==ZFWSGH1FhrmWo=HzG6KCxCdGSS2XpyF9GnuKPKxw_JA@mail.gmail.com>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+Content-Type: text/plain; format=flowed
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Mon, 25 Feb 2019 15:23:46 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Feb 24, 2019 at 09:32:13PM +0100, Nicolas Iooss wrote:
-> On Sun, Feb 24, 2019 at 7:37 PM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
-> >
-> > On Sun, Feb 24, 2019 at 07:17:33PM +0100, Nicolas Iooss wrote:
-> > > On Sun, Feb 24, 2019 at 6:39 PM Dominick Grift
-> > > <dominick.grift@defensec.nl> wrote:
-> > > >
-> > > > On Sun, Feb 24, 2019 at 05:59:19PM +0100, Dominick Grift wrote:
-> > > > > Recently Bash-5 appeared in the Fedora repositories and i instantly noticed an inpleasant change (for the record: this did not happen before):
-> > > >
-> > > > I suppose this is just a "feature" or a "bug" in Bash-5 and that i will just have to deal with it. Just seems a bit unnecessary access to me.
-> > > >
-> > > > >
-> > > > > [kcinimod@brutus ~]$ touch mytest1.test
-> > > > > [kcinimod@brutus ~]$ rm ~/*.test
-> > > > > rm: cannot remove '/home/kcinimod/*.test': No such file or directory
-> > > > > [kcinimod@brutus ~]$ rm ~/mytest1.test
-> > > > > [kcinimod@brutus ~]$ echo $?
-> > > > > 0
-> > > > >
-> > > > > After running `semodule -DB` the following AVC denials surfaced:
-> > > > >
-> > > > > avc:  denied  { read } for  pid=2178 comm="bash" name="/" dev="dm-3" ino=2 scontext=wheel.id:wheel.role:wheel.subj:s0 tcontext=sys.id:sys.role:files.home.file:s0 tclass=dir permissive=1
-> > > > > avc:  denied  { read } for  pid=2178 comm="bash" name="/" dev="dm-1" ino=2 scontext=wheel.id:wheel.role:wheel.subj:s0 tcontext=sys.id:sys.role:fs.rootfs.fs:s0 tclass=dir permissive=1
-> > >
-> > > [For other readers: these are the labels of /home and /, the parent
-> > > directories of /home/kcinimod/]
-> > >
-> > > > > So I took to #bash and they told me:
-> > > > >
-> > > > > 17:43 <_abc_> grift: that is exactly what you see on android and is
-> > > > >               a direct result of the missing x bit equivalent in
-> > > > >               the selinux policy
-> > > > >
-> > > > > 17:44 <_abc_> grift: rephrased: globbing the * requires the x bit
-> > > > >               set
-> > > > > 17:44 <_abc_> (it's equivalent in selinux policy)
-> > > > >
-> > > > > So why does this show up as a "read"? Its allowed to "search" "/" and "/home", but since Bash 5 this no longer is enough.
-> > > > >
-> > > > > Scripts break everywhere because of this
-> > >
-> > > What is the syscall associated with the avc entries? This would help
-> > > finding in bash's source what triggered this behavior.
-> > > I tried to reproduce your commands in Arch Linux (bash package
-> > > 5.0.0-1) or Fedora 30 (bash package 5.0.2-1.fc30 for x86_64) by using
-> > > strace on bash and watching the syscalls, but nothing stood out: I see
-> > > an "openat(AT_FDCWD, "/home/kcinimod/",
-> > > O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3" followed by calls to
-> > > "getdents64(3, ...)", which are like expected. This could be due to
-> > > several things:
-> >
-> > type=SYSCALL msg=audit(02/24/2019 19:33:13.924:18121) : arch=x86_64 syscall=openat success=yes exit=3 a0=0xffffff9c a1=0x561168c81e40 a2=O_RDONLY|O_NONBLOCK|O_DIRECTORY|O_CLOEXEC a3=0x0 items=1 ppid=2270 pid=27900 auid=kcinimod uid=kcinimod gid=kcinimod euid=kcinimod suid=kcinimod fsuid=
-> >
-> > >
-> > > * The bash version you are using is not 5.0.2-1.fc30. Which one are you using?
-> >
-> > it is 5.0.2-1, downgrading to 4.4.23-7 fixes it
-> >
-> > > * It might come from a kernel bug (which would open the parent
-> > > directories with read access). That would be really strange, but only
-> > > to be sure: is bash 4 working fine when you downgrade bash package
-> > > while keeping the same kernel?
-> >
-> > Yes 4 is fine
-> >
-> > > * Or it might come from a bash dependency (like readline).
-> >
-> > Does not look like it: just downgrading "bash" fixes it
-> 
-> I managed to reproduce the issue. Here are the steps I followed:
-> * Download a Fedora 30 (Rawhide) live CD from
-> https://dl.fedoraproject.org/pub/fedora/linux/development/rawhide/Workstation/x86_64/iso/
-> and boot it in a QEMU virtual machine.
-> * Audit accesses to listing / from the live user: echo '(auditallow
-> unconfined_t root_t (dir (read)))' > auditallow_custom.cil && semodule
-> -i auditallow_custom.cil
-> * Executing "rm ~/*.test" leads to the following log: type=AVC
-> msg=audit(1551039100.144:488): avc:  granted  { read } for  pid=5225
-> comm="bash" name="/" dev="dm-0" ino=2
-> scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-> tcontext=system_u:object_r:root_t:s0 tclass=dir
-> * Executing "rm ./*.test" or anything else without the tilde does NOT
-> produce the AVC.
-> * Here is a gdb session with an interesting backtrace (once debug
-> symbols are installed using "sudo dnf debuginfo-install bash glibc"):
-> 
-> $ gdb -q --args bash -c 'rm ~/*.test'
-> (gdb) catch syscall openat
-> Catchpoint 1 (syscall 'openat' [257])
-> (gdb) commands
-> Type commands for breakpoint(s) 1, one per line.
-> End with a line saying just "end".
-> >p (char*)$rsi
-> >end
-> (gdb) r
-> Starting program: /usr/bin/bash -c rm\ \~/\*.test
-> 
-> [... enter "c" quite some times...]
-> 
-> Catchpoint 1 (call to syscall openat), __GI___open64_nocancel
-> (file=file@entry=0x55555568bb50 "/", oflag=oflag@entry=591872) at
-> ../sysdeps/unix/sysv/linux/open64_nocancel.c:45
-> 45   return INLINE_SYSCALL_CALL (openat, AT_FDCWD, file, oflag |
-> EXTRA_OPEN_FLAGS,
-> $17 = 0x55555568bb50 "/"
-> (gdb) bt
-> #0  __GI___open64_nocancel (file=file@entry=0x55555568bb50 "/",
-> oflag=oflag@entry=591872) at
-> ../sysdeps/unix/sysv/linux/open64_nocancel.c:45
-> #1  0x00007ffff7e7d0b9 in __opendir (name=name@entry=0x55555568bb50
-> "/") at ../sysdeps/posix/opendir.c:92
-> #2  0x00005555555fe699 in glob_vector (pat=pat@entry=0x5555556a1b81
-> "\\h\\o\\m\\e", dir=dir@entry=0x55555568bb50 "/", flags=flags@entry=0)
-> at glob.c:717
-> #3  0x00005555555ff53e in glob_filename (pathname=<optimized out>,
-> flags=0) at glob.c:1385
-> #4  0x00005555555ff442 in glob_filename (pathname=<optimized out>,
-> flags=0) at glob.c:1178
-> #5  0x00005555555ff442 in glob_filename
-> (pathname=pathname@entry=0x55555569cc40
-> "/\\h\\o\\m\\e/\\l\\i\\v\\e\\u\\s\\e\\r/*.test", flags=0) at
-> glob.c:1178
-> #6  0x00005555555cc953 in shell_glob_filename (pathname=<optimized
-> out>) at pathexp.c:434
-> #7  0x00005555555c77de in glob_expand_word_list (eflags=<optimized
-> out>, tlist=0x5555556a0450) at subst.c:11035
-> #8  expand_word_list_internal (list=<optimized out>,
-> eflags=eflags@entry=31) at subst.c:11472
-> #9  0x00005555555c7a0e in expand_words (list=<optimized out>) at subst.c:10984
-> #10 0x000055555559bda5 in execute_simple_command
-> (fds_to_close=0xffffffff, async=0, pipe_out=-1, pipe_in=-1,
-> simple_command=<optimized out>) at execute_cmd.c:4317
-> #11 execute_command_internal (command=<optimized out>,
-> asynchronous=asynchronous@entry=0, pipe_in=pipe_in@entry=-1,
-> pipe_out=pipe_out@entry=-1,
-> fds_to_close=fds_to_close@entry=0x5555556a27c0) at execute_cmd.c:854
-> #12 0x00005555555eb877 in parse_and_execute (string=<optimized out>,
-> from_file=0x55555563208d "-c", flags=4) at evalstring.c:436
-> #13 0x0000555555584adb in run_one_command (command=<optimized out>) at
-> /usr/include/bits/string_fortified.h:90
-> #14 0x0000555555583711 in main (argc=3, argv=0x7fffffffd9a8,
-> env=0x7fffffffd9c8) at shell.c:745
-> (gdb)
-> 
-> Here is what happens, as far I as understand:
-> * bash runs execute_simple_command(), which expands the command arguments.
-> * It expands the ~ in expand_word_internal()
-> (https://git.savannah.gnu.org/cgit/bash.git/tree/subst.c?h=bash-5.0#n9959)
-> * glob_expand_word_list() calls
-> shell_glob_filename(pathname="\001/\001h\001o\001m\001e\001/\001l\001i\001v\001e\001u\001s\001e\001r/*.test")
-> (frame #6 in the debug backtrace)
-> * shell_glob_filename() starts by calling quote_string_for_globbing()
-> (https://git.savannah.gnu.org/cgit/bash.git/tree/pathexp.c?h=bash-5.0#n385).
-> This function replaces CTLESC (=\001) with backslashes and returns
-> "/\\h\\o\\m\\e/\\l\\i\\v\\e\\u\\s\\e\\r/*.test".
-> * shell_glob_filename() calls
-> glob_filename(pathname="/\\h\\o\\m\\e/\\l\\i\\v\\e\\u\\s\\e\\r/*.test",
-> flags=0) (frame #5)
-> * This function calls itself with the directory,
-> glob_filename(pathname="/\\h\\o\\m\\e/\\l\\i\\v\\e\\u\\s\\e\\r",
-> flags=0) (frame #4)
-> * This function calls itself with the directory,
-> glob_filename(pathname="/\\h\\o\\m\\e", flags=0) (frame #3)
-> * This function calls glob_vector(pat="\\h\\o\\m\\e", dir="/",
-> flags=0) (frame #2), implemented in
-> https://git.savannah.gnu.org/cgit/bash.git/tree/lib/glob/glob.c?h=bash-5.0#n577
-> * This function checks whether pat is a pattern, by calling
-> glob_pattern_p(pat). As variable pat contains backslashes, the answer
-> is yes (cf. https://git.savannah.gnu.org/cgit/bash.git/tree/lib/glob/glob_loop.c?h=bash-5.0#n56).
-> * glob_vector opens / in order to expand the pattern
-> (https://git.savannah.gnu.org/cgit/bash.git/tree/lib/glob/glob.c?h=bash-5.0#n709).
-> * The kernel asks SELinux whether it can list the content of /.
-> 
-> In my humble opinion, bash could be fixed in order not to escape
-> letters in paths when expanding ~. Could you please forward this
-> analysis to bash's developers in order to ask them whether they
-> consider this as a bug?
 
-Thanks. Turns out that this bug was already reported, and that there is a fix in the development branch.
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-> 
-> Cheers,
-> Nicolas
-> 
+> On 2/22/19 3:44 PM, Stephen Smalley wrote:
+>> On 2/22/19 3:26 PM, Dominick Grift wrote:
+>>> On Fri, Feb 22, 2019 at 03:17:10PM -0500, Stephen Smalley 
+>>> wrote:
+>>>> On 2/22/19 3:55 AM, Dominick Grift wrote:
+>>>>> On Thu, Feb 21, 2019 at 04:31:47PM -0500, Stephen Smalley 
+>>>>> wrote:
+>>>>>> Derived in part from a patch by Dominick Grift.
+>>>>>>
+>>>>>> The MDP example no longer works on modern systems. Fix it.
+>>>>>> While we are at it, add MLS support and enable it.
+>>>>>>
+>>>>>> NB This still does not work on systems using dbus-daemon 
+>>>>>> instead of
+>>>>>> dbus-broker because dbus-daemon does not yet gracefully 
+>>>>>> handle unknown
+>>>>>> classes/permissions. This appears to be a deficiency in 
+>>>>>> libselinux's
+>>>>>> selinux_set_mapping() interface and underlying 
+>>>>>> implementation,
+>>>>>> which was never fully updated to deal with unknown 
+>>>>>> classes/permissions
+>>>>>> unlike the kernel. The same problem also occurs with 
+>>>>>> XSELinux.
+>>>>>> Programs that instead use selinux_check_access() like 
+>>>>>> dbus-broker
+>>>>>> should not have this problem.
+>>>>>>
+>>>>>> Changes to mdp:
+>>>>>> Add support for devtmpfs, required by modern Linux 
+>>>>>> distributions.
+>>>>>> Add MLS support, with sample sensitivities, categories, and 
+>>>>>> constraints.
+>>>>>> Generate fs_use and genfscon rules based on kernel 
+>>>>>> configuration.
+>>>>>> Update list of filesystem types for fs_use and genfscon 
+>>>>>> rules.
+>>>>>> Use object_r for object contexts.
+>>>>>>
+>>>>>> Changes to install_policy.sh:
+>>>>>> Bail immediately on any errors.
+>>>>>> Provide more helpful error messages when unable to find 
+>>>>>> userspace tools.
+>>>>>> Refuse to run if SELinux is already enabled.
+>>>>>> Unconditionally move aside /etc/selinux/config and create a 
+>>>>>> new one.
+>>>>>> Build policy with -U allow so that userspace object 
+>>>>>> managers do not break.
+>>>>>> Build policy with MLS enabled by default.
+>>>>>> Create seusers, failsafe_context, and default_contexts for 
+>>>>>> use by
+>>>>>> pam_selinux / libselinux.
+>>>>>> Create x_contexts for the SELinux X extension.
+>>>>>> Create virtual_domain_context and virtual_image_context for 
+>>>>>> libvirtd.
+>>>>>> Set to permissive mode rather than enforcing to permit 
+>>>>>> initial
+>>>>>> autorelabel.
+>>>>>> Update the list of filesystem types to be relabeled.
+>>>>>> Write -F to /.autorelabel to cause a forced autorelabel on 
+>>>>>> reboot.
+>>>>>> Drop broken attempt to relabel the /dev mountpoint 
+>>>>>> directory.
+>>>>>>
+>>>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>>>>> ---
+>>>>>> v6 fixes the seusers and failsafe_contexts to include :s0
+>>>>>> as per Dominick's comments. It also adds a default_contexts
+>>>>>> configuration for good measure, although this might not be
+>>>>>> necessary. It creates a minimal working x_contexts 
+>>>>>> configuration
+>>>>>> to appease XSELinux, although XSELinux still has problems 
+>>>>>> due
+>>>>>> to the lack of the userspace class/perms definitions. It
+>>>>>> creates empty virtual_*_context files to make libvirtd 
+>>>>>> happy.
+>>>>>> It writes -F to /.autorelabel as per Dominick's comments to
+>>>>>> trigger a forced relabel. It also fixes mdp to correctly 
+>>>>>> generate
+>>>>>> fs_use rules for ext3 and ext2 when using ext4 as the 
+>>>>>> driver.
+>>>>>> These days ext4 is always used to handle ext3 mounts and it 
+>>>>>> can
+>>>>>> also be used for ext2. This version is called v6 to 
+>>>>>> distinguish it from
+>>>>>> Dominick's earlier patch sequence, which went up to v4, and 
+>>>>>> then
+>>>>>> my previous coalesced patch is logically v5.
+>>>>>>
+>>>>>>  scripts/selinux/install_policy.sh | 92 ++++++++++-------
+>>>>>>  scripts/selinux/mdp/mdp.c | 165 
+>>>>>>  +++++++++++++++++++++++++-----
+>>>>>>  2 files changed, 194 insertions(+), 63 deletions(-)
+>>>>>
+>>>>> Acked-by: Dominick Grift <dominick.grift@defensec.nl>
+>>>>>
+>>>>> I was pretty sure that seusers entries need both current as 
+>>>>> well as
+>>>>> clearance (s0-s0 instead of just s0) but just s0 works in 
+>>>>> this scenario
+>>>>> atleast
+>>>>> I did not test the X and virt_contexts aspects.
+>>>>
+>>>> Hmm...so even with the fix for libselinux selinux_set_mapping 
+>>>> (which
+>>>> addresses the dbus-daemon issue), I can't login under the 
+>>>> dummy policy if
+>>>> the system is set to enforcing. I get the following from 
+>>>> pam_selinux:
+>>>>
+>>>> sshd[2015]: pam_selinux(sshd:session): Failed to translate 
+>>>> security class
+>>>> context. Invalid argument
+>>>> sshd[2015]: pam_selinux(sshd:session): Security context
+>>>> user_u:base_r:base_t:s0 is not allowed for 
+>>>> user_u:base_r:base_t:s0
+>>>> sshd[2015]: pam_selinux(sshd:session): Unable to get valid 
+>>>> context for sds
+>>>>
+>>>> Looking at the pam_selinux code, it performs a userspace 
+>>>> permission check on
+>>>> the context class, contains permission, in order to validate 
+>>>> that the MLS
+>>>> level is authorized for the Linux user. The normal context 
+>>>> validation is not
+>>>> sufficient for this purpose since the SELinux user in the 
+>>>> security context
+>>>> to which the Linux username is mapped may be authorized for a 
+>>>> wider range
+>>>> than the Linux user. pam_selinux directly calls 
+>>>> string_to_security_class(),
+>>>> string_to_av_perm(), and security_compute_av() instead of 
+>>>> using
+>>>> selinux_check_access(), so it doesn't honor allow_unknown 
+>>>> presently. Is
+>>>> this fixed in rawhide?
+>>>
+>>> No I do not believe that this is fixed in rawhide, but might 
+>>> be able to work
+>>> around that by removing the the env_params option from the 
+>>> pam_selinux call
+>>> in /etc/pam.d/sshd.
+>>>
+>>> I know, not ideal.
+>>
+>> (cc Petr)
+>>
+>> Any chance we could get pam_selinux to use 
+>> selinux_check_access() instead, or,
+>> if not, to check security_deny_unknown() and handle failures of
+>> string_to_security_class()/string_to_av_perm() accordingly?
+>
+> The latter might be preferable to avoid the overhead of creating 
+> an AVC just for
+> a single permission check.  Should be just a matter of adding 
+> calls to
+> security_deny_unknown() in the error handling paths for both 
+> string_*() mapping
+> functions and returning success instead of failure if it returns 
+> 0.
 
--- 
-Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-Dominick Grift
+I talked to pam_selinux maintainer and he's ready to improve the 
+code.
+We agreed that I'll file a bug and it'll be discussed there:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1680961
+
+>>
+>>>
+>>>>
+>>>>>
+>>>>>>
+>>>>>> diff --git a/scripts/selinux/install_policy.sh
+>>>>>> b/scripts/selinux/install_policy.sh
+>>>>>> index 0b86c47baf7d..2dccf141241d 100755
+>>>>>> --- a/scripts/selinux/install_policy.sh
+>>>>>> +++ b/scripts/selinux/install_policy.sh
+>>>>>> @@ -1,30 +1,61 @@
+>>>>>>  #!/bin/sh
+>>>>>>  # SPDX-License-Identifier: GPL-2.0
+>>>>>> +set -e
+>>>>>>  if [ `id -u` -ne 0 ]; then
+>>>>>>  echo "$0: must be root to install the selinux policy"
+>>>>>>  exit 1
+>>>>>>  fi
+>>>>>> +
+>>>>>>  SF=`which setfiles`
+>>>>>>  if [ $? -eq 1 ]; then
+>>>>>> - if [ -f /sbin/setfiles ]; then
+>>>>>> - SF="/usr/setfiles"
+>>>>>> - else
+>>>>>> - echo "no selinux tools installed: setfiles"
+>>>>>> - exit 1
+>>>>>> - fi
+>>>>>> + echo "Could not find setfiles"
+>>>>>> + echo "Do you have policycoreutils installed?"
+>>>>>> + exit 1
+>>>>>>  fi
+>>>>>> -cd mdp
+>>>>>> -
+>>>>>>  CP=`which checkpolicy`
+>>>>>> +if [ $? -eq 1 ]; then
+>>>>>> + echo "Could not find checkpolicy"
+>>>>>> + echo "Do you have checkpolicy installed?"
+>>>>>> + exit 1
+>>>>>> +fi
+>>>>>>  VERS=`$CP -V | awk '{print $1}'`
+>>>>>> -./mdp policy.conf file_contexts
+>>>>>> -$CP -o policy.$VERS policy.conf
+>>>>>> +ENABLED=`which selinuxenabled`
+>>>>>> +if [ $? -eq 1 ]; then
+>>>>>> + echo "Could not find selinuxenabled"
+>>>>>> + echo "Do you have libselinux-utils installed?"
+>>>>>> + exit 1
+>>>>>> +fi
+>>>>>> +
+>>>>>> +if selinuxenabled; then
+>>>>>> + echo "SELinux is already enabled"
+>>>>>> + echo "This prevents safely relabeling all files."
+>>>>>> + echo "Boot with selinux=0 on the kernel command-line or"
+>>>>>> + echo "SELINUX=disabled in /etc/selinux/config."
+>>>>>> + exit 1
+>>>>>> +fi
+>>>>>> +
+>>>>>> +cd mdp
+>>>>>> +./mdp -m policy.conf file_contexts
+>>>>>> +$CP -U allow -M -o policy.$VERS policy.conf
+>>>>>>  mkdir -p /etc/selinux/dummy/policy
+>>>>>>  mkdir -p /etc/selinux/dummy/contexts/files
+>>>>>> +echo "__default__:user_u:s0" > /etc/selinux/dummy/seusers
+>>>>>> +echo "base_r:base_t:s0" > 
+>>>>>> /etc/selinux/dummy/contexts/failsafe_context
+>>>>>> +echo "base_r:base_t:s0 base_r:base_t:s0" >
+>>>>>> /etc/selinux/dummy/default_contexts
+>>>>>> +cat > /etc/selinux/dummy/contexts/x_contexts <<EOF
+>>>>>> +client * user_u:base_r:base_t:s0
+>>>>>> +property * user_u:object_r:base_t:s0
+>>>>>> +extension * user_u:object_r:base_t:s0
+>>>>>> +selection * user_u:object_r:base_t:s0
+>>>>>> +event * user_u:object_r:base_t:s0
+>>>>>> +EOF
+>>>>>> +touch /etc/selinux/dummy/contexts/virtual_domain_context
+>>>>>> +touch /etc/selinux/dummy/contexts/virtual_image_context
+>>>>>> +
+>>>>>>  cp file_contexts /etc/selinux/dummy/contexts/files
+>>>>>>  cp dbus_contexts /etc/selinux/dummy/contexts
+>>>>>>  cp policy.$VERS /etc/selinux/dummy/policy
+>>>>>> @@ -33,37 +64,22 @@
+>>>>>> FC_FILE=/etc/selinux/dummy/contexts/files/file_contexts
+>>>>>>  if [ ! -d /etc/selinux ]; then
+>>>>>>  mkdir -p /etc/selinux
+>>>>>>  fi
+>>>>>> -if [ ! -f /etc/selinux/config ]; then
+>>>>>> - cat > /etc/selinux/config << EOF
+>>>>>> -SELINUX=enforcing
+>>>>>> +if [ -f /etc/selinux/config ]; then
+>>>>>> + echo "/etc/selinux/config exists, moving to 
+>>>>>> /etc/selinux/config.bak."
+>>>>>> + mv /etc/selinux/config /etc/selinux/config.bak
+>>>>>> +fi
+>>>>>> +echo "Creating new /etc/selinux/config for dummy policy."
+>>>>>> +cat > /etc/selinux/config << EOF
+>>>>>> +SELINUX=permissive
+>>>>>>  SELINUXTYPE=dummy
+>>>>>>  EOF
+>>>>>> -else
+>>>>>> - TYPE=`cat /etc/selinux/config | grep "^SELINUXTYPE" | 
+>>>>>> tail -1 
+>>>>>> | awk -F= '{ print $2 '}`
+>>>>>> - if [ "eq$TYPE" != "eqdummy" ]; then
+>>>>>> - selinuxenabled
+>>>>>> - if [ $? -eq 0 ]; then
+>>>>>> - echo "SELinux already enabled with a non-dummy policy."
+>>>>>> - echo "Exiting. Please install policy by hand if that"
+>>>>>> - echo "is what you REALLY want."
+>>>>>> - exit 1
+>>>>>> - fi
+>>>>>> - mv /etc/selinux/config /etc/selinux/config.mdpbak
+>>>>>> - grep -v "^SELINUXTYPE" /etc/selinux/config.mdpbak >>
+>>>>>> /etc/selinux/config
+>>>>>> - echo "SELINUXTYPE=dummy" >> /etc/selinux/config
+>>>>>> - fi
+>>>>>> -fi
+>>>>>>  cd /etc/selinux/dummy/contexts/files
+>>>>>> -$SF file_contexts /
+>>>>>> +$SF -F file_contexts /
+>>>>>> -mounts=`cat /proc/$$/mounts | egrep 
+>>>>>> "ext2|ext3|xfs|jfs|ext4|ext4dev|gfs2"
+>>>>>> | awk '{ print $2 '}`
+>>>>>> -$SF file_contexts $mounts
+>>>>>> +mounts=`cat /proc/$$/mounts | \
+>>>>>> + egrep 
+>>>>>> "ext[234]|jfs|xfs|reiserfs|jffs2|gfs2|btrfs|f2fs|ocfs2" | \
+>>>>>> + awk '{ print $2 '}`
+>>>>>> +$SF -F file_contexts $mounts
+>>>>>> -
+>>>>>> -dodev=`cat /proc/$$/mounts | grep "/dev "`
+>>>>>> -if [ "eq$dodev" != "eq" ]; then
+>>>>>> - mount --move /dev /mnt
+>>>>>> - $SF file_contexts /dev
+>>>>>> - mount --move /mnt /dev
+>>>>>> -fi
+>>>>>> +echo "-F" > /.autorelabel
+>>>>>> diff --git a/scripts/selinux/mdp/mdp.c 
+>>>>>> b/scripts/selinux/mdp/mdp.c
+>>>>>> index 073fe7537f6c..edaba8e51651 100644
+>>>>>> --- a/scripts/selinux/mdp/mdp.c
+>>>>>> +++ b/scripts/selinux/mdp/mdp.c
+>>>>>> @@ -33,6 +33,7 @@
+>>>>>>  #include <unistd.h>
+>>>>>>  #include <string.h>
+>>>>>>  #include <sys/socket.h>
+>>>>>> +#include <linux/kconfig.h>
+>>>>>>  static void usage(char *name)
+>>>>>>  {
+>>>>>> @@ -95,10 +96,31 @@ int main(int argc, char *argv[])
+>>>>>>  }
+>>>>>>  fprintf(fout, "\n");
+>>>>>> - /* NOW PRINT OUT MLS STUFF */
+>>>>>> + /* print out mls declarations and constraints */
+>>>>>>  if (mls) {
+>>>>>> - printf("MLS not yet implemented\n");
+>>>>>> - exit(1);
+>>>>>> + fprintf(fout, "sensitivity s0;\n");
+>>>>>> + fprintf(fout, "sensitivity s1;\n");
+>>>>>> + fprintf(fout, "dominance { s0 s1 }\n");
+>>>>>> + fprintf(fout, "category c0;\n");
+>>>>>> + fprintf(fout, "category c1;\n");
+>>>>>> + fprintf(fout, "level s0:c0.c1;\n");
+>>>>>> + fprintf(fout, "level s1:c0.c1;\n");
+>>>>>> +#define SYSTEMLOW "s0"
+>>>>>> +#define SYSTEMHIGH "s1:c0.c1"
+>>>>>> + for (i = 0; secclass_map[i].name; i++) {
+>>>>>> + struct security_class_mapping *map = &secclass_map[i];
+>>>>>> +
+>>>>>> + fprintf(fout, "mlsconstrain %s {\n", map->name);
+>>>>>> + for (j = 0; map->perms[j]; j++)
+>>>>>> + fprintf(fout, "\t%s\n", map->perms[j]);
+>>>>>> + /*
+>>>>>> + * This requires all subjects and objects to be
+>>>>>> + * single-level (l2 eq h2), and that the subject
+>>>>>> + * level dominate the object level (h1 dom h2)
+>>>>>> + * in order to have any permissions to it.
+>>>>>> + */
+>>>>>> + fprintf(fout, "} (l2 eq h2 and h1 dom h2);\n\n");
+>>>>>> + }
+>>>>>>  }
+>>>>>>  /* types, roles, and allows */
+>>>>>> @@ -108,34 +130,127 @@ int main(int argc, char *argv[])
+>>>>>>  for (i = 0; secclass_map[i].name; i++)
+>>>>>>  fprintf(fout, "allow base_t base_t:%s *;\n",
+>>>>>>  secclass_map[i].name);
+>>>>>> - fprintf(fout, "user user_u roles { base_r };\n");
+>>>>>> - fprintf(fout, "\n");
+>>>>>> + fprintf(fout, "user user_u roles { base_r }");
+>>>>>> + if (mls)
+>>>>>> + fprintf(fout, " level %s range %s - %s", SYSTEMLOW,
+>>>>>> + SYSTEMLOW, SYSTEMHIGH);
+>>>>>> + fprintf(fout, ";\n");
+>>>>>> +
+>>>>>> +#define SUBJUSERROLETYPE "user_u:base_r:base_t"
+>>>>>> +#define OBJUSERROLETYPE "user_u:object_r:base_t"
+>>>>>>  /* default sids */
+>>>>>>  for (i = 1; i < initial_sid_to_string_len; i++)
+>>>>>> - fprintf(fout, "sid %s user_u:base_r:base_t\n",
+>>>>>> initial_sid_to_string[i]);
+>>>>>> + fprintf(fout, "sid %s " SUBJUSERROLETYPE "%s\n",
+>>>>>> + initial_sid_to_string[i], mls ? ":" SYSTEMLOW : "");
+>>>>>>  fprintf(fout, "\n");
+>>>>>> - fprintf(fout, "fs_use_xattr ext2 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_xattr ext3 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_xattr ext4 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_xattr jfs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_xattr xfs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_xattr reiserfs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_xattr jffs2 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_xattr gfs2 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> +#define FS_USE(behavior, fstype) \
+>>>>>> + fprintf(fout, "fs_use_%s %s " OBJUSERROLETYPE "%s;\n", \
+>>>>>> + behavior, fstype, mls ? ":" SYSTEMLOW : "")
+>>>>>> +
+>>>>>> + /*
+>>>>>> + * Filesystems whose inode labels can be fetched via 
+>>>>>> getxattr.
+>>>>>> + */
+>>>>>> +#ifdef CONFIG_EXT2_FS_SECURITY
+>>>>>> + FS_USE("xattr", "ext2");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_EXT4_FS_SECURITY
+>>>>>> +#ifdef CONFIG_EXT4_USE_FOR_EXT2
+>>>>>> + FS_USE("xattr", "ext2");
+>>>>>> +#endif
+>>>>>> + FS_USE("xattr", "ext3");
+>>>>>> + FS_USE("xattr", "ext4");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_JFS_SECURITY
+>>>>>> + FS_USE("xattr", "jfs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_REISERFS_FS_SECURITY
+>>>>>> + FS_USE("xattr", "reiserfs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_JFFS2_FS_SECURITY
+>>>>>> + FS_USE("xattr", "jffs2");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_XFS_FS
+>>>>>> + FS_USE("xattr", "xfs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_GFS2_FS
+>>>>>> + FS_USE("xattr", "gfs2");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_BTRFS_FS
+>>>>>> + FS_USE("xattr", "btrfs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_F2FS_FS_SECURITY
+>>>>>> + FS_USE("xattr", "f2fs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_OCFS2_FS
+>>>>>> + FS_USE("xattr", "ocsfs2");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_OVERLAY_FS
+>>>>>> + FS_USE("xattr", "overlay");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_SQUASHFS_XATTR
+>>>>>> + FS_USE("xattr", "squashfs");
+>>>>>> +#endif
+>>>>>> +
+>>>>>> + /*
+>>>>>> + * Filesystems whose inodes are labeled from allocating 
+>>>>>> task.
+>>>>>> + */
+>>>>>> + FS_USE("task", "pipefs");
+>>>>>> + FS_USE("task", "sockfs");
+>>>>>> - fprintf(fout, "fs_use_task eventpollfs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_task pipefs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_task sockfs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> + /*
+>>>>>> + * Filesystems whose inode labels are computed from both
+>>>>>> + * the allocating task and the superblock label.
+>>>>>> + */
+>>>>>> +#ifdef CONFIG_UNIX98_PTYS
+>>>>>> + FS_USE("trans", "devpts");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_HUGETLBFS
+>>>>>> + FS_USE("trans", "hugetlbfs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_TMPFS
+>>>>>> + FS_USE("trans", "tmpfs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_DEVTMPFS
+>>>>>> + FS_USE("trans", "devtmpfs");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_POSIX_MQUEUE
+>>>>>> + FS_USE("trans", "mqueue");
+>>>>>> +#endif
+>>>>>> - fprintf(fout, "fs_use_trans mqueue 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_trans devpts 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_trans hugetlbfs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_trans tmpfs 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> - fprintf(fout, "fs_use_trans shm 
+>>>>>> user_u:base_r:base_t;\n");
+>>>>>> +#define GENFSCON(fstype, prefix) \
+>>>>>> + fprintf(fout, "genfscon %s %s " OBJUSERROLETYPE "%s\n", \
+>>>>>> + fstype, prefix, mls ? ":" SYSTEMLOW : "")
+>>>>>> - fprintf(fout, "genfscon proc / user_u:base_r:base_t\n");
+>>>>>> + /*
+>>>>>> + * Filesystems whose inodes are labeled from path prefix 
+>>>>>> match
+>>>>>> + * relative to the filesystem root. Depending on the 
+>>>>>> filesystem,
+>>>>>> + * only a single label for all inodes may be supported. 
+>>>>>> Here
+>>>>>> + * we list the filesystem types for which per-file 
+>>>>>> labeling is
+>>>>>> + * supported using genfscon; any other filesystem type can 
+>>>>>> also
+>>>>>> + * be added by only with a single entry for all of its 
+>>>>>> inodes.
+>>>>>> + */
+>>>>>> +#ifdef CONFIG_PROC_FS
+>>>>>> + GENFSCON("proc", "/");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_SECURITY_SELINUX
+>>>>>> + GENFSCON("selinuxfs", "/");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_SYSFS
+>>>>>> + GENFSCON("sysfs", "/");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_DEBUG_FS
+>>>>>> + GENFSCON("debugfs", "/");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_TRACING
+>>>>>> + GENFSCON("tracefs", "/");
+>>>>>> +#endif
+>>>>>> +#ifdef CONFIG_PSTORE
+>>>>>> + GENFSCON("pstore", "/");
+>>>>>> +#endif
+>>>>>> + GENFSCON("cgroup", "/");
+>>>>>> + GENFSCON("cgroup2", "/");
+>>>>>>  fclose(fout);
+>>>>>> @@ -144,8 +259,8 @@ int main(int argc, char *argv[])
+>>>>>>  printf("Wrote policy, but cannot open %s for writing\n",
+>>>>>> ctxout);
+>>>>>>  usage(argv[0]);
+>>>>>>  }
+>>>>>> - fprintf(fout, "/ user_u:base_r:base_t\n");
+>>>>>> - fprintf(fout, "/.* user_u:base_r:base_t\n");
+>>>>>> + fprintf(fout, "/ " OBJUSERROLETYPE "%s\n", mls ? ":" 
+>>>>>> SYSTEMLOW : "");
+>>>>>> + fprintf(fout, "/.* " OBJUSERROLETYPE "%s\n", mls ? ":" 
+>>>>>> SYSTEMLOW :
+>>>>>> "");
+>>>>>>  fclose(fout);
+>>>>>>  return 0;
+>>>>>> -- 
+>>>>>> 2.20.1
+>>>>>>
+>>>>>
+>>>>
+>>>
+>>
+
