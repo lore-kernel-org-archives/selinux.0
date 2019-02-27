@@ -6,79 +6,84 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AEFAC43381
-	for <selinux@archiver.kernel.org>; Wed, 27 Feb 2019 13:11:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E710C43381
+	for <selinux@archiver.kernel.org>; Wed, 27 Feb 2019 13:33:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 24ACC20C01
-	for <selinux@archiver.kernel.org>; Wed, 27 Feb 2019 13:11:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C410C2133D
+	for <selinux@archiver.kernel.org>; Wed, 27 Feb 2019 13:33:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="HwcpNLk6"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="InCFBLlk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729951AbfB0NLl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Feb 2019 08:11:41 -0500
-Received: from uphb19pa13.eemsg.mail.mil ([214.24.26.87]:5860 "EHLO
-        usfb19pa16.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729740AbfB0NLl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Feb 2019 08:11:41 -0500
-X-EEMSG-check-017: 170147910|USFB19PA16_EEMSG_MP12.csd.disa.mil
+        id S1726419AbfB0NdJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Feb 2019 08:33:09 -0500
+Received: from uhil19pa13.eemsg.mail.mil ([214.24.21.86]:48467 "EHLO
+        uhil19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726122AbfB0NdJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Feb 2019 08:33:09 -0500
+X-EEMSG-check-017: 376578552|UHIL19PA13_EEMSG_MP11.csd.disa.mil
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by usfb19pa16.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Feb 2019 13:11:38 +0000
+  by uhil19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Feb 2019 13:33:05 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1551273099; x=1582809099;
+  s=tycho.nsa.gov; t=1551274385; x=1582810385;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=UTNwVUyKgM9RSj4An4q+CUGZO6NY1bRdAKn/nrkK6Eo=;
-  b=HwcpNLk68aIwMGgMqD25t7LGmf4iZRkGy+Ie92JdBYol9y6U2cJDL0E8
-   AxxYaKiliaRsluTleLDqrnw3TVyBq8g7scfFHe/i1XL47I93z82Dp//lp
-   FG+ViUcxtp09Xaj/3CFWV88Y47xUgUzm+WRnsKEo+iywLpt+dhjHxULY4
-   Dt3n2zhWHsAwCLDQs2wsmWZlsiPA9PmCu0iJG98Aujww87hYDvCuDKGSB
-   1ZP/b9CH7uW2ZrbkQgFQ0x1B4DrYmBItJsXSYC6D4F3Ttg2ekoU08S1Av
-   RFFGvJd2ZA54oijIFaIiX8xt6ZL7k3G061IG8+O6iemgkKYbxcOGnVoYs
+  bh=haxI42Py1gITHIrv0LrKHXkmceS0cB/WdvPcL6HqWj0=;
+  b=InCFBLlkI/psEXnWUOP9GUrbo2yX1EAC2HtvFugsFXjkMsU9XrQLjW8q
+   hijgXSePHhBNu7cCAwtx/CdVtN7uWOBMVSy2z4Pl6G8zpgrb+QTcmzfXB
+   V8WQMe6WjZ8lVPcOGhQfEjnjn2XZ3wOeZdkRj0gr/1JebpbrQkrQkwQLB
+   Ll/Eqgm6mZ4IqKYAL5mvvgj+Qrfh0ll6fOPTCjlUl7dXoYZ/mNpCQqqUr
+   sgfoWTolQDB9TBujWh+FMrxq5Nv9dRvf5Z64vzTMfi6C7UR0bbTFIdhBe
+   CWg/02mV6xqjZbYuM7zRBks1ypVMxHgycx1qeSI9irAWOjIRw8lJJvZAe
    Q==;
 X-IronPort-AV: E=Sophos;i="5.58,419,1544486400"; 
-   d="scan'208";a="24384705"
-IronPort-PHdr: =?us-ascii?q?9a23=3AIoK6CxEDk0GwENimfoewJ51GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7zoc2wAkXT6L1XgUPTWs2DsrQY07qQ6/iocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmDmwbaluIBmqsA7cqtQYjYx+J6gr1x?=
- =?us-ascii?q?DHuGFIe+NYxWNpIVKcgRPx7dqu8ZBg7ipdpesv+9ZPXqvmcas4S6dYDCk9PG?=
- =?us-ascii?q?Au+MLrrxjDQhCR6XYaT24bjwBHAwnB7BH9Q5fxri73vfdz1SWGIcH7S60/VC?=
- =?us-ascii?q?+85Kl3VhDnlCYHNyY48G7JjMxwkLlbqw+lqxBm3oLYfJ2ZOP94c6zTZ9MaQX?=
- =?us-ascii?q?dKUNhXWSJPH4iwa5IDA/QdMepdqYT2ulkAogakBQS0Ge3h1DFIiH/106M03e?=
- =?us-ascii?q?suHgPJ0xAvEd8VrHTZrs/4OLsOXe27zqTFyyjIYfNM2Tf67YjFag0voe2SUr?=
- =?us-ascii?q?Joccre108vHB7YgFWVs4PlOzeV2foNsmOG6OdgTv+gi3U8pgFtojmg2scsio?=
- =?us-ascii?q?7TioIT0VDL7z91wIkyJd2mUUN2Z8OvHphItyyCKod7TcwvT3totSon0LEKp5?=
- =?us-ascii?q?G2cDYQxJg6wRPUduaJfJKS4h35UeacOTJ4hHV4d72hnxuy6k2gyvHkVsmzzV?=
- =?us-ascii?q?ZKsjJJktnSuXAJ0Bze8tSHReFn/kegxDaPzBrf6v1EIE8olarbLIQtwrgsmZ?=
- =?us-ascii?q?oIrUvPBCr2mETyjKOOd0Uk/Pan6/j/b7n7qZKROJV4hwHjPqg0hMCyDvo0Ph?=
- =?us-ascii?q?ITU2SD/OSzzrzj/Un3QLVQif02l7HUsIvHKsQAvaO5Hw9U3Zoj6xa4FTum1s?=
- =?us-ascii?q?8YkmMdIFJKfxKHkZDlO0vSL/DgEfe/n1OsnS93x/HJIr3hBYnNLnjYnbfueL?=
- =?us-ascii?q?Zy8U9cyA4pwd9D4JJUD6kLIOjvVU/pqNzYEhg5PhSvw+n5DNV914UeWX+AA6?=
- =?us-ascii?q?KCLqPSvkGH5vg1L+mPeoAVojD9JOYh5/L0in85g1AdLuGV2s4rZXzwIvN6Iw?=
- =?us-ascii?q?3NfWrwhcsBOWgPtws6CuftjQvGGSVeY3e0QrIU+D42EsSlAJ3FS4Trh6aOjw?=
- =?us-ascii?q?mhGZgDXXxLElCBFz/TcoyAX/odIHaJLtRJji0PVb/nTZQokx6pqlmpmPJcMu?=
- =?us-ascii?q?PI93hA5trY399v6riWzEtq+A=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DOAAAVjHZc/wHyM5BkHAEBAQQBAQcEAQGBVAQBAQsBg?=
- =?us-ascii?q?VkqgWqEL5N2TAEBAQEBAQaBECWJPIlThww4AYRAAoQMIjcGDQEDAQEBAQEBA?=
- =?us-ascii?q?gFsKII6KQGCZwEFIxVRCw4KAgImAgJXBgEMCAEBgl89gWYNqxyBL4VEhGuBC?=
- =?us-ascii?q?4s9F3iBB4ERJwyCX4gLglcCkSM7kgwJkmQGGZMcLYowlBsigVYrCAIYCCEPg?=
- =?us-ascii?q?yiQeiEDgTUBAZFEAQE?=
+   d="scan'208";a="24385976"
+IronPort-PHdr: =?us-ascii?q?9a23=3AoYdbFBJtpcKPQhLYktmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgfIvXxwZ3uMQTl6Ol3ixeRBMOHs6IC07KempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffwZFiCChbb9uMR67sRjfus4KjIV4N60/0A?=
+ =?us-ascii?q?HJonxGe+RXwWNnO1eelAvi68mz4ZBu7T1et+ou+MBcX6r6eb84TaFDAzQ9L2?=
+ =?us-ascii?q?81/szrugLdQgaJ+3ART38ZkhtMAwjC8RH6QpL8uTb0u+ZhxCWXO9D9QKsqUj?=
+ =?us-ascii?q?q+8ahkVB7oiD8GNzEn9mHXltdwh79frB64uhBz35LYbISTOfVwZKPdec4RS3?=
+ =?us-ascii?q?RHUMhfSidNBpqwY5YTA+YEO+tTsovzqEYUrRamGAeiGu3vxD9LiHH406I13O?=
+ =?us-ascii?q?YuHh3J0gE7A9IDsm7ZoMnpOKocU+24yrTDwzXZb/NR3Dfw8JXGcgw/rvGUXb?=
+ =?us-ascii?q?J/b8zRwlQyGQPAlFqQrYjlMC2V1+8QtGWb9PdvVfm0hm47qwB+vjivxsA2ho?=
+ =?us-ascii?q?nPnYIa0ErI9Sp+wIYrPNC1TlNwb9CjEJtVrS6aNo12T9s5Q252vCY6y7sGuY?=
+ =?us-ascii?q?O0fSgS0pQnwBzfZOKbfIiU+B7jU/yRITh+iXl4e7y/nw6//VWvx+DzTMW50E?=
+ =?us-ascii?q?tGojBbntTDqHwBzQHf586aQfVn5EihwyyA1wXL5+FBJkA7iLTUJoY6wr41ip?=
+ =?us-ascii?q?oTqUPDHjLqmEnujK+ZaEEk+u+w5uT7eLrmvJ6cN5Jvig3kLqQvmtCwAeQ/Mg?=
+ =?us-ascii?q?QUWWiU5f+826H58U38QbVKiuU6kqjfsJ/EOcQWvrO1DgBa34o56xuzEi2q3M?=
+ =?us-ascii?q?oXkHUZNl5JZQqLj43zNFHPJPD4A+2/g1OpkDpz3PDJI6bhD47RLnnDjLjhfb?=
+ =?us-ascii?q?F951RayAoo199T/Z1UCrYfIP7rQE/+qMTYDgMlMwyz2+vnEMty2ZgAVmKJA6?=
+ =?us-ascii?q?+ZLKTSvESJ5u0xPeaDepUZuDHnK/gq//Tul2M2mUcBfam12psacHK4HvN4LE?=
+ =?us-ascii?q?iCZ3rjmNMBEWMQsgUiS+zqjUWIUSRPaHaqQ6I8+jY7BZq9DYjdQoCtgbqB3D?=
+ =?us-ascii?q?q0H5BNeGBGBU6DEW3ye4WHRfgMciSSLdFlkjAeUrihUYAhhlmSs1rRy6BmNa?=
+ =?us-ascii?q?Ls9wcVs5P/05Ah/+DZmBcz6TtcDsmQ3ieKVW4i2isqQDJ++ql7pQQpyFCO+a?=
+ =?us-ascii?q?5xh/geHttWsbcBSQo+NJjB38RkBN3oHAHMZNGETBChWNr1Lys2S4cK39IWY0?=
+ =?us-ascii?q?t7U+6nhxTH0jviV6QZjJSXFZc09eTaxHG3KMFjnSWVnJI9hkUrF5McfVatgb?=
+ =?us-ascii?q?Ryok2KXtbE?=
+X-IPAS-Result: =?us-ascii?q?A2BGAADXkHZc/wHyM5BkHAEBAQQBAQcEAQGBUgYBAQsBg?=
+ =?us-ascii?q?VkqZ4EDhC+TdkwBAQEBAQEGgRAlfIhAjmSBezAIAYRAAoQMIjUIDQEDAQEBA?=
+ =?us-ascii?q?QEBAgFsHAyCOikBgmcBBSMVUQsYAgImAgJXBgEMCAEBgl89AYFlDQ+rIYEvh?=
+ =?us-ascii?q?USEa4ELiz0XeIEHgREnDIIqNYMShHmCVwKRIzuSDAmHQosiBhmCS5BRil2FV?=
+ =?us-ascii?q?o4xAjSBVisIAhgIIQ+DKAiCHxeIX4VdIQOBNQEBjnkrgiABAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 27 Feb 2019 13:11:37 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 27 Feb 2019 13:33:04 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x1RDBbLu014223;
-        Wed, 27 Feb 2019 08:11:37 -0500
-Subject: Re: RHEL auth_role using logging_send_audit_msgs
-To:     Ted Toth <txtoth@gmail.com>, selinux@vger.kernel.org
-References: <CAFPpqQEHRb5pW7HGx7-yZgBbneA3US_nb4HqRAG5uSkYbxg+Jw@mail.gmail.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x1RDX1s9020883;
+        Wed, 27 Feb 2019 08:33:04 -0500
+Subject: Re: neverallow rules
+To:     Chris PeBenito <pebenito@ieee.org>, Joe Nall <joe@nall.com>,
+        selinux@vger.kernel.org
+References: <10D60D97-3E05-4F8C-86B5-8A56FCEFB3B1@nall.com>
+ <6d65bb0be6bd5ccbdb1f99a646679e21955d6159.camel@ieee.org>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c2fe520a-b054-b964-2495-8e06b19f32c9@tycho.nsa.gov>
-Date:   Wed, 27 Feb 2019 08:07:49 -0500
+Message-ID: <f1d65c8e-4490-5df0-7ba5-b589e3d85713@tycho.nsa.gov>
+Date:   Wed, 27 Feb 2019 08:29:13 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.4.0
 MIME-Version: 1.0
-In-Reply-To: <CAFPpqQEHRb5pW7HGx7-yZgBbneA3US_nb4HqRAG5uSkYbxg+Jw@mail.gmail.com>
+In-Reply-To: <6d65bb0be6bd5ccbdb1f99a646679e21955d6159.camel@ieee.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -87,17 +92,56 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/26/19 5:20 PM, Ted Toth wrote:
-> The RHEL version of the auth_role macro which we are getting through
-> our use of userdom_unpriv_user_template uses logging_send_audit_msgs
-> which give a type the audit_write capability and allow rules for a
-> number of netlink_audit_socket operations. It seem counterintuitive to
-> give an unprivileged user type audit write related policy.The
-> ref-policy version of auth_role does not use logging_send_audit_msgs.
-> We're considering patching our policy but I wanted to see what others
-> though about giving unprivileged user types this policy?
+On 2/26/19 10:38 PM, Chris PeBenito wrote:
+> On Tue, 2019-02-26 at 19:29 -0600, Joe Nall wrote:
+>> Looking at neverallow rules, the semanage.conf file says
+>> "# expand-check check neverallow rules when executing all semanage
+>> commands.
+>>   # Large penalty in time if you turn this on. "
+>>
+>> If I don't set expand-check=1, are the neverallow rules actually
+>> enforced?
+> 
+> Nope.
+> 
+>> If so, when?
+>>
+>> An semodule -i of a policy module with neverallow rules that are
+>> violated by the existing binary policy succeeds without complaint
+>> unless expand-check=1 in RHEL 7.6. This is not what I expected.
+>>
+>> The time taken by a trivial module installation goes from ~.3 seconds
+>> to ~14 seconds, so the time hit for expand-check is pretty serious.
+> 
+> The reason for adding the expand-check option is because the neverallow
+> checking is so expensive.
+> 
+>> We are trying to establish some policy invariants to protect against
+>> unexpected/unnoticed RHEL upstream policy changes, some of which have
+>> bitten us recently. Any suggestions are welcome.
+> 
+> One alternative would be to use the setools API to code up some policy
+> searches in Python, then process the results to find things you
+> do/don't want in your policy.
 
-I agree that it doesn't seem like a good idea.  Should probably file a 
-bugzilla for redhat.
+The approach taken in Fedora/RHEL is to run make validate as part of the 
+selinux-policy.spec recipe, which uses the validate target in the 
+refpolicy Makefile, which manually runs semodule_link and 
+semodule_expand to manually link and expand the modules and performs 
+full checking.  Then the cost is only paid at policy build time and is 
+only applied for the neverallow rules and allow rules in the Fedora/RHEL 
+policy, not for third party modules.  If you are rebuilding the RHEL 
+policy from source, you could add your neverallows to it there and the 
+make validate should catch the violations.
 
+In Android, neverallow checking is done both at policy build time and as 
+part of device certification.  The latter is done using a 
+sepolicy-analyze tool we originally contributed; it can take a separate 
+neverallow rule configuration in source form and an already compiled 
+kernel binary policy and check them against each other.  That's useful 
+for cases where you don't have policy sources.
 
+You can have libsemanage apply your own checker against policy as part 
+of module transactions by specifying a [verify kernel] stanza in 
+semanage.conf, see:
+http://selinuxproject.org/page/PolicyValidate
