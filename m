@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCEB9C10F0B
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:19:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE217C4360F
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:19:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 972EC2184A
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:19:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72D882133D
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:19:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="JYJ7Z7V1"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="lGOx6UNZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729374AbfB1WTw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:19:52 -0500
-Received: from sonic315-15.consmr.mail.gq1.yahoo.com ([98.137.65.39]:36291
-        "EHLO sonic315-15.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729454AbfB1WTw (ORCPT
+        id S1729454AbfB1WTy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Feb 2019 17:19:54 -0500
+Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:37532
+        "EHLO sonic309-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729362AbfB1WTw (ORCPT
         <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:19:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392390; bh=Vf8z+tQ8BdtbqssMgRY2k0oVtlJaIcpxVGAAVq5mSac=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=JYJ7Z7V1pJlonLcXDtHfYvBg0RqNc2yYgAWXRJVLMeFOEB5kCW7VCbmIN3Kd/QyARTsP5+n8d5YVR8sTKJ1oAkOORmQ1i1m9G8jZtJFrJ9e1VcYLA0+tWs8RKF4VPy9oq7+Sso6T+5/+JHg/9T0EJtOJqVN+jtz8OpousGZn2CQQbuYKZH00JwPCiLsGDPc0u+qTjSQhM6n9mP4zh4o8BEzjN3e6/brIxyTG4mRzshlQ9gC/rYIrx3NEakepiYFSfQ321EKrWAznXGEM9d92dhxVFg5n41ltPohKzSvpa/fxGERsYPtT9dmQzr9ZQ/7oMx0AvT1RkttXqmm7GqwJHQ==
-X-YMail-OSG: icmtPHMVM1kS_HTfLG2odJqDNqEf0CL3QxvKV9wMikyUpdwzXuyhCdOof0zYgWY
- sLgpf3.qD..eejOJMNfw.781ORIUfx4EbAInfg3FZiosLAvq0oMXrClmJ0J6ooSsECUCzVqDZycp
- f23koQQkutCtVDwJzJhx7QPjLI46pPkc3Ihqx5c9Y20LZ9cbC_1H8bEp4Igm5_7L2wBRqY2fdZw_
- _Sda_nvsDkudew6Asm7mChADCyn4j3MPOSvyGzioRw2okqelrhcqODVhtsNn3P4r5aIO5G8O2Zk3
- iL49fRaEXyziDLV4_HH.ZvfwP8U9LAvSxFOHnLVI.NRvAv.4lIKGOR6qskKUcjjlgSuzygASHIF5
- QoHTKl8gVZRGASMPBAmXoFnvTNnhteuUGDP_RQUHYuNSEDzNjoOo8jyrqdwFjyG4z9hF3SVjKVTQ
- OVIvVYRcrmEF5suKp94m0PJENmwqmfXNJDSSg8enCTWrts3xyidOW.mgLKgQqopwzfTp_RAB96yj
- fHQ7VVN5GutOqFYWCfPGPSfRE_J.8evyD2qSL9lpa_H4u2H3NCeic37BPLPKqZtQLsnW5CWWrdjy
- fxHESffYPqec1FJ5_I15VcFz3lpAeOgBXE0.X8PQDCoG7icsZOzxtfp0ouAnaP.En_rvJRIFESft
- sjmdwCuLBHdASNysn2eh3aUsJW8M8jChxTSvfpZy.gEAaGjGd2FBcu6RuoMyDnoQUcdFlvjV.kKY
- AObuXRiXDM_OKkCcKuoKo3KR2tKPfn8Dob.80VVZmCPUMzNNNg1dYn40hTEVXdpro6DY2Uz129WG
- 6m.7yJIIs8A6_AtsB98aM1KbsJrH4IWllzB41oNW2iq0UpdNSFB5J8Fwx5csNQMBdTa8YCpnCYpe
- 1._TIsD4Rd3QLLYrnrRvo.MkL3jQCO1SjomWRfAzFmNXEzfseuV33CzC5tuoogz4SBngld7eVK0W
- XtwPzQsRMR_4CB10CuST7RIlb8INFBcB0lDS6bUZIfX.7NV5ZI0KxUPMiIbg8UagmiVmwHoU53eR
- uRJwQu90eIx4YkweIgQk_hHGwJrl8.YJ9mOwHK6d5qTH_tqI3EyHQD0G0aWwMbpOOH1rTNUZkQb8
- rhOVPAT3qaqnjJa.KuNYvXOl8HoYe7lnxtjR1j8DU_9Az5wMfB7I-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:19:50 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392390; bh=wDH2jWq/5InVuEensvl7qeoLag9X/nJnC3tKz8KwL2Q=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=lGOx6UNZVB8VI8tQqNqzxlzJguwCeEzU8kWDlYRMdjB7AkTSy/OFv58Y85p+2i9MuJ8r2cKgrnZo3eBz+WvdQClZIHB6kts+YbBLIrWGS85I867WXftzYcVFDG4TOqQgBQ+wqKbIrW6iJBl1lKGwI1IvqFIB24t0mVzyekrWgsvjB1NiCCK+5Gk/M/PO34Btl434lHsNWBD2AZmeQD9tLhBvN6PLRuxLZpP6djmUYeFMygLTSu0jU8aw/CuiFX0myEro/p5+heGUMW5E9dZqi1LBlSGp4nZFoMu4F7TFBoK/mo4XSXgSXH9bUspC///O0SMt5zjqjJVxNBGy0/EwxQ==
+X-YMail-OSG: mE.q.MQVM1ntIQf_vIxqd92ca3bzczhxbS4aBBs8Vfj5kS0QHj09EJojU6e28rF
+ Ebu77oeH0gdpGWzULUIIPVlyAxNCbSFA7MMh9UK2iS2ZkGD6rp7OoCkAdyCunlNJs5g46Edgm2UD
+ 7Q516koT8wMTGa0n2TZ8C3aItYpsra_zN8ixjUK2Y4WK1JlEYmS1pwtEexA64OGCddSCx11rS5JD
+ I63mvVRfwargfYCyU1o.YzKwR81uDDK4xmzOhAcvUFRCViTrNd88TcEXhito6XnGB7EySPDI0yzM
+ sYVn9w17YMDbZp4JNbcrHSGhLrQf8jVUykK6WSaA.8pB4LD4YD1SfbQv3k8d5ufYRYih8c9EyERX
+ jMMqOQP3rOBpgcMLZoPlc6XvdrYZBUlYws3B5RYRXTD04eVrgPhW65KuyYidUjvI4VX9qI.XoWsA
+ T8fnauPSVxd37CAxQEa50KEEVzU4JdPReYnkg6QGRNm7I.wrd.9ynTjw542bcrMCwF3AsCuONxPQ
+ Pb5OEwgdSIvQiayvJwh2r.jVgDpi2k9Z.MZG4GQH7GrEsLY..53jI525eQWTG23U2rL03biLLqzU
+ .7CtaAcSLA9uyHtLsgMLpfrn2QvXUsujSqXsCRvaHQ5OVQcaw5MLiU7diJ7FfmIg7nBsxftdP.iE
+ cP2UGrKruUAQxpm9VZ3vhzcHt4KzuJfWuWUuqiGSjSTnM9LKJ0tVLV4VlDfsreoaTgr.VWyuzLeO
+ A.OrZJnU8yqH.D1AUyhzix7ZUu0WOb._kAcXIkqWRxeSnEgnOsTyAjvtagF42WEntz41uwKaV4Xg
+ D7g_U6nXC7If.8U5rAo0ccm82xriKV0E4HQUDSar7Ms5bD.jHe6xLkgbBTt5FYZsObn0c3usoAuo
+ QuQSKG0dOXbZLClnhfPBNAj9sxxI45o65lJq27ViZupenMcsc5numCZx6d33SWOWDYucaLtWiTgr
+ .P4laoyaXb1uw5t7nWwM6Z85iZuviO2O0bzx7_Cgsny3r7dPY6e40jcIkdMwfod5ytgAMhO2wH3S
+ ZNE_NklpAb7L3kb.hxbr.R_C0TdiVfCLPPQeqCPxtbxqWn44CySAtKWRnOaF9YCWpswWjVXJOGSi
+ AXwt_1i0.lXmA.87DHWk6DVtbX6sXSRigkd8Jklbfu.E-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:19:50 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp403.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID eca90f2e660dab57d5d3726b0a8f0373;
-          Thu, 28 Feb 2019 22:19:46 +0000 (UTC)
+          Thu, 28 Feb 2019 22:19:48 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 07/97] SCAFFOLD: Move security.h out of route.h
-Date:   Thu, 28 Feb 2019 14:18:03 -0800
-Message-Id: <20190228221933.2551-8-casey@schaufler-ca.com>
+Subject: [PATCH 09/97] LSM: Use lsm_export in the ipc_getsecid and task_getsecid hooks
+Date:   Thu, 28 Feb 2019 14:18:05 -0800
+Message-Id: <20190228221933.2551-10-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228221933.2551-1-casey@schaufler-ca.com>
 References: <20190228221933.2551-1-casey@schaufler-ca.com>
@@ -58,176 +58,187 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Move staic inlines out of route.h so that route.h doesn't need security.h.
-This makes Casey's life easier as lots less recompiles after a change
-to security.h. DO NOT TAKE THIS PATCH!
+Convert the cred_getsecid and task_getsecid hooks to use the
+lsm_export structure instead of a u32 secid. There is some
+scaffolding involved that will be removed when
+security_ipc_getsecid() and security_task_getsecid() are
+updated.
 
-Signed-off-by: Casey Schaufler <caey@schaufler-ca.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/net/route.h | 55 ++++++----------------------------------
- net/ipv4/route.c    | 61 +++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 68 insertions(+), 48 deletions(-)
+ include/linux/lsm_hooks.h  |  8 ++++----
+ security/apparmor/lsm.c    | 12 ++++++++++--
+ security/security.c        | 12 ++++++++----
+ security/selinux/hooks.c   | 10 ++++++----
+ security/smack/smack_lsm.c |  8 ++++----
+ 5 files changed, 32 insertions(+), 18 deletions(-)
 
-diff --git a/include/net/route.h b/include/net/route.h
-index 9883dc82f723..de599f20ea5b 100644
---- a/include/net/route.h
-+++ b/include/net/route.h
-@@ -35,7 +35,7 @@
- #include <linux/route.h>
- #include <linux/ip.h>
- #include <linux/cache.h>
--#include <linux/security.h>
-+//CBS #include <linux/security.h>
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 2e8516447bfd..f798a947bf8d 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -622,7 +622,7 @@
+  *	Return 0 if permission is granted.
+  * @task_getsecid:
+  *	Retrieve the security identifier of the process @p.
+- *	@p contains the task_struct for the process and place is into @secid.
++ *	@p contains the task_struct for the process and place is into @l.
+  *	In case of failure, @secid will be set to zero.
+  *
+  * @task_setnice:
+@@ -1080,7 +1080,7 @@
+  * @ipc_getsecid:
+  *	Get the secid associated with the ipc object.
+  *	@ipcp contains the kernel IPC permission structure.
+- *	@secid contains a pointer to the location where result will be saved.
++ *	@l contains a pointer to the location where result will be saved.
+  *	In case of failure, @secid will be set to zero.
+  *
+  * Security hooks for individual messages held in System V IPC message queues
+@@ -1600,7 +1600,7 @@ union security_list_options {
+ 	int (*task_setpgid)(struct task_struct *p, pid_t pgid);
+ 	int (*task_getpgid)(struct task_struct *p);
+ 	int (*task_getsid)(struct task_struct *p);
+-	void (*task_getsecid)(struct task_struct *p, u32 *secid);
++	void (*task_getsecid)(struct task_struct *p, struct lsm_export *l);
+ 	int (*task_setnice)(struct task_struct *p, int nice);
+ 	int (*task_setioprio)(struct task_struct *p, int ioprio);
+ 	int (*task_getioprio)(struct task_struct *p);
+@@ -1618,7 +1618,7 @@ union security_list_options {
+ 	void (*task_to_inode)(struct task_struct *p, struct inode *inode);
  
- /* IPv4 datagram length is stored into 16bit field (tot_len) */
- #define IP_MAX_MTU	0xFFFFU
-@@ -146,20 +146,11 @@ static inline struct rtable *ip_route_output(struct net *net, __be32 daddr,
- 	return ip_route_output_key(net, &fl4);
+ 	int (*ipc_permission)(struct kern_ipc_perm *ipcp, short flag);
+-	void (*ipc_getsecid)(struct kern_ipc_perm *ipcp, u32 *secid);
++	void (*ipc_getsecid)(struct kern_ipc_perm *ipcp, struct lsm_export *l);
+ 
+ 	int (*msg_msg_alloc_security)(struct msg_msg *msg);
+ 	void (*msg_msg_free_security)(struct msg_msg *msg);
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index b77571ddbed3..377fa4ed1518 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -49,6 +49,14 @@ int apparmor_initialized;
+ 
+ DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
+ 
++/*
++ * Set the AppArmor secid in an lsm_export structure
++ */
++static inline void apparmor_export_secid(struct lsm_export *l, u32 secid)
++{
++	l->apparmor = secid;
++	l->flags |= LSM_EXPORT_APPARMOR;
++}
+ 
+ /*
+  * LSM hook functions
+@@ -710,10 +718,10 @@ static void apparmor_bprm_committed_creds(struct linux_binprm *bprm)
+ 	return;
  }
  
--static inline struct rtable *ip_route_output_ports(struct net *net, struct flowi4 *fl4,
-+struct rtable *ip_route_output_ports(struct net *net, struct flowi4 *fl4,
- 						   struct sock *sk,
- 						   __be32 daddr, __be32 saddr,
- 						   __be16 dport, __be16 sport,
--						   __u8 proto, __u8 tos, int oif)
--{
--	flowi4_init_output(fl4, oif, sk ? sk->sk_mark : 0, tos,
--			   RT_SCOPE_UNIVERSE, proto,
--			   sk ? inet_sk_flowi_flags(sk) : 0,
--			   daddr, saddr, dport, sport, sock_net_uid(net, sk));
--	if (sk)
--		security_sk_classify_flow(sk, flowi4_to_flowi(fl4));
--	return ip_route_output_flow(net, fl4, sk);
--}
-+						   __u8 proto, __u8 tos, int oif);
- 
- static inline struct rtable *ip_route_output_gre(struct net *net, struct flowi4 *fl4,
- 						 __be32 daddr, __be32 saddr,
-@@ -286,47 +277,15 @@ static inline void ip_route_connect_init(struct flowi4 *fl4, __be32 dst, __be32
- 			   sk->sk_uid);
+-static void apparmor_task_getsecid(struct task_struct *p, u32 *secid)
++static void apparmor_task_getsecid(struct task_struct *p, struct lsm_export *l)
+ {
+ 	struct aa_label *label = aa_get_task_label(p);
+-	*secid = label->secid;
++	apparmor_export_secid(l, label->secid);
+ 	aa_put_label(label);
  }
  
--static inline struct rtable *ip_route_connect(struct flowi4 *fl4,
-+struct rtable *ip_route_connect(struct flowi4 *fl4,
- 					      __be32 dst, __be32 src, u32 tos,
- 					      int oif, u8 protocol,
- 					      __be16 sport, __be16 dport,
--					      struct sock *sk)
--{
--	struct net *net = sock_net(sk);
--	struct rtable *rt;
--
--	ip_route_connect_init(fl4, dst, src, tos, oif, protocol,
--			      sport, dport, sk);
--
--	if (!dst || !src) {
--		rt = __ip_route_output_key(net, fl4);
--		if (IS_ERR(rt))
--			return rt;
--		ip_rt_put(rt);
--		flowi4_update_output(fl4, oif, tos, fl4->daddr, fl4->saddr);
--	}
--	security_sk_classify_flow(sk, flowi4_to_flowi(fl4));
--	return ip_route_output_flow(net, fl4, sk);
--}
--
--static inline struct rtable *ip_route_newports(struct flowi4 *fl4, struct rtable *rt,
-+					      struct sock *sk);
-+struct rtable *ip_route_newports(struct flowi4 *fl4, struct rtable *rt,
- 					       __be16 orig_sport, __be16 orig_dport,
- 					       __be16 sport, __be16 dport,
--					       struct sock *sk)
--{
--	if (sport != orig_sport || dport != orig_dport) {
--		fl4->fl4_dport = dport;
--		fl4->fl4_sport = sport;
--		ip_rt_put(rt);
--		flowi4_update_output(fl4, sk->sk_bound_dev_if,
--				     RT_CONN_FLAGS(sk), fl4->daddr,
--				     fl4->saddr);
--		security_sk_classify_flow(sk, flowi4_to_flowi(fl4));
--		return ip_route_output_flow(sock_net(sk), fl4, sk);
--	}
--	return rt;
--}
--
-+					       struct sock *sk);
- static inline int inet_iif(const struct sk_buff *skb)
- {
- 	struct rtable *rt = skb_rtable(skb);
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index ce92f73cf104..1160f4ba5073 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -199,6 +199,67 @@ EXPORT_SYMBOL(ip_tos2prio);
- static DEFINE_PER_CPU(struct rt_cache_stat, rt_cache_stat);
- #define RT_CACHE_STAT_INC(field) raw_cpu_inc(rt_cache_stat.field)
+diff --git a/security/security.c b/security/security.c
+index 9c10d9aae83f..f6ee25ebfa3c 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1708,8 +1708,10 @@ int security_task_getsid(struct task_struct *p)
  
-+/*CBS*/
-+struct rtable *ip_route_output_ports(struct net *net, struct flowi4 *fl4,
-+						   struct sock *sk,
-+						   __be32 daddr, __be32 saddr,
-+						   __be16 dport, __be16 sport,
-+						   __u8 proto, __u8 tos, int oif)
-+{
-+	flowi4_init_output(fl4, oif, sk ? sk->sk_mark : 0, tos,
-+			   RT_SCOPE_UNIVERSE, proto,
-+			   sk ? inet_sk_flowi_flags(sk) : 0,
-+			   daddr, saddr, dport, sport, sock_net_uid(net, sk));
-+	if (sk)
-+		security_sk_classify_flow(sk, flowi4_to_flowi(fl4));
-+	return ip_route_output_flow(net, fl4, sk);
-+}
-+EXPORT_SYMBOL(ip_route_output_ports);
-+
-+struct rtable *ip_route_connect(struct flowi4 *fl4,
-+					      __be32 dst, __be32 src, u32 tos,
-+					      int oif, u8 protocol,
-+					      __be16 sport, __be16 dport,
-+					      struct sock *sk)
-+{
-+	struct net *net = sock_net(sk);
-+	struct rtable *rt;
-+
-+	ip_route_connect_init(fl4, dst, src, tos, oif, protocol,
-+			      sport, dport, sk);
-+
-+	if (!dst || !src) {
-+		rt = __ip_route_output_key(net, fl4);
-+		if (IS_ERR(rt))
-+			return rt;
-+		ip_rt_put(rt);
-+		flowi4_update_output(fl4, oif, tos, fl4->daddr, fl4->saddr);
-+	}
-+	security_sk_classify_flow(sk, flowi4_to_flowi(fl4));
-+	return ip_route_output_flow(net, fl4, sk);
-+}
-+EXPORT_SYMBOL(ip_route_connect);
-+
-+struct rtable *ip_route_newports(struct flowi4 *fl4, struct rtable *rt,
-+					       __be16 orig_sport, __be16 orig_dport,
-+					       __be16 sport, __be16 dport,
-+					       struct sock *sk)
-+{
-+	if (sport != orig_sport || dport != orig_dport) {
-+		fl4->fl4_dport = dport;
-+		fl4->fl4_sport = sport;
-+		ip_rt_put(rt);
-+		flowi4_update_output(fl4, sk->sk_bound_dev_if,
-+				     RT_CONN_FLAGS(sk), fl4->daddr,
-+				     fl4->saddr);
-+		security_sk_classify_flow(sk, flowi4_to_flowi(fl4));
-+		return ip_route_output_flow(sock_net(sk), fl4, sk);
-+	}
-+	return rt;
-+}
-+EXPORT_SYMBOL(ip_route_newports);
-+/*CBS*/
-+
- #ifdef CONFIG_PROC_FS
- static void *rt_cache_seq_start(struct seq_file *seq, loff_t *pos)
+ void security_task_getsecid(struct task_struct *p, u32 *secid)
  {
+-	*secid = 0;
+-	call_void_hook(task_getsecid, p, secid);
++	struct lsm_export data = { .flags = LSM_EXPORT_NONE };
++
++	call_void_hook(task_getsecid, p, &data);
++	lsm_export_secid(&data, secid);
+ }
+ EXPORT_SYMBOL(security_task_getsecid);
+ 
+@@ -1791,8 +1793,10 @@ int security_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
+ 
+ void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
+ {
+-	*secid = 0;
+-	call_void_hook(ipc_getsecid, ipcp, secid);
++	struct lsm_export data = { .flags = LSM_EXPORT_NONE };
++
++	call_void_hook(ipc_getsecid, ipcp, &data);
++	lsm_export_secid(&data, secid);
+ }
+ 
+ int security_msg_msg_alloc(struct msg_msg *msg)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index d9179b75acb7..104b2315d36d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3807,9 +3807,9 @@ static int selinux_task_getsid(struct task_struct *p)
+ 			    PROCESS__GETSESSION, NULL);
+ }
+ 
+-static void selinux_task_getsecid(struct task_struct *p, u32 *secid)
++static void selinux_task_getsecid(struct task_struct *p, struct lsm_export *l)
+ {
+-	*secid = task_sid(p);
++	selinux_export_secid(l, task_sid(p));
+ }
+ 
+ static int selinux_task_setnice(struct task_struct *p, int nice)
+@@ -5987,10 +5987,12 @@ static int selinux_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
+ 	return ipc_has_perm(ipcp, av);
+ }
+ 
+-static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
++static void selinux_ipc_getsecid(struct kern_ipc_perm *ipcp,
++				 struct lsm_export *l)
+ {
+ 	struct ipc_security_struct *isec = selinux_ipc(ipcp);
+-	*secid = isec->sid;
++
++	selinux_export_secid(l, isec->sid);
+ }
+ 
+ static void selinux_d_instantiate(struct dentry *dentry, struct inode *inode)
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index e3639d6f1b62..d5ff34a5803b 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -2000,11 +2000,11 @@ static int smack_task_getsid(struct task_struct *p)
+  *
+  * Sets the secid to contain a u32 version of the smack label.
+  */
+-static void smack_task_getsecid(struct task_struct *p, u32 *secid)
++static void smack_task_getsecid(struct task_struct *p, struct lsm_export *l)
+ {
+ 	struct smack_known *skp = smk_of_task_struct(p);
+ 
+-	*secid = skp->smk_secid;
++	smack_export_secid(l, skp->smk_secid);
+ }
+ 
+ /**
+@@ -3144,12 +3144,12 @@ static int smack_ipc_permission(struct kern_ipc_perm *ipp, short flag)
+  * @ipp: the object permissions
+  * @secid: where result will be saved
+  */
+-static void smack_ipc_getsecid(struct kern_ipc_perm *ipp, u32 *secid)
++static void smack_ipc_getsecid(struct kern_ipc_perm *ipp, struct lsm_export *l)
+ {
+ 	struct smack_known **blob = smack_ipc(ipp);
+ 	struct smack_known *iskp = *blob;
+ 
+-	*secid = iskp->smk_secid;
++	smack_export_secid(l, iskp->smk_secid);
+ }
+ 
+ /**
 -- 
 2.17.0
 
