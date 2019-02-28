@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00BBAC10F06
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88153C10F0F
 	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF0B820851
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 53AE22184A
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="rJoexait"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="arY0dk9e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729849AbfB1WUM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:20:12 -0500
-Received: from sonic302-28.consmr.mail.gq1.yahoo.com ([98.137.68.154]:44237
-        "EHLO sonic302-28.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729920AbfB1WUG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:20:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392406; bh=RkkT8VCXXloma0Fq/QmxeKgnWLosnAsoKiC6R1t6xs0=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=rJoexait/gFkMkP6lsEGLJWa6eeNVahGo3xUcEfA6c9cTqiyqdwuxbmndrfGDyDwjt2GMYPd2r7mD2kkEIg28auhIBGvIBZY6fNJgPIwF3R4QbN4OkH7ZefcuK9nqJaYVKpLqQv0YElQW6MXooHX4K4iGTKZYXLpepRjJOQDjNya4RLgbn1lqlQG4rRAh94RA7Jo6p9aM93hY3SfWYsFw3AOlzPKX+grMqWRtB/oZ1qpbXjWR8D9ZG7cGyOSGiF/aIh2wONUrbUnFVtFMhPuxahlcbRivj33ufIFpTBcurB2AQZU+kjLGqLRKRN7JBjl+qyWmYc0KMlOScQ5lvi5gg==
-X-YMail-OSG: jEm.EwcVM1nxwz7G39ySxyN_SP5CWoVCLNzNh7fbTZrdG7LbgIbUTh5ZYqab6zG
- _.jLw1SMXYYnVoT984yuD3XwYWfqCWp5D1.SNXK90ZUsvqQMoxVyeiydpgsI2FvmMbq7_IKiNGDH
- CS6veEx.nfpQTFiFtEYowM.q45vbwXfcItgVkSBWlePMZ4ck3wP0Y1lXMbeVLL1QResHTCC6a.na
- GkJA0l4_I0.3u88KNMGt0uH4MpdGetIZb.CuVfrdUIfgYqbqRK0LKrniMV.u_4J4rlMcPkIOdxSy
- _hS3aNY9z9DinXhTEOf1mNl8_Vz9AuhadWKrPYTMuPcUj9_UQN_dCvvqespRQq6eJwle4QckY.Ic
- 6aDFE0VGTi_VmLfguLy_izKekJGgFPV1dYXiBz.kkf0sAj4Hx5M6_wv7Uk8U1Ei1fny1qw6Or0_y
- ks5OEiPRVlFBPDAC4F2hV.KtwCohTuMIhR19USe6vpY2PNf3_SIafYaSXYUQZmJnWfuSxspplQbD
- QcS1.F8zNXH1pk4VJy239Nm90lw_l86It1PkF1AHqyxqUBK8PetbmM5m38CnqcjIOtgkMOv7_TfR
- 41M2xhFx7_NKFzTk1ozOyZVENBTJAVciyGrXOJh4h_abjCiz4zaeicgUt4y4jZL8P12Qy3ViDGVf
- lUKElSWBZcZBLuiCi18GFT2_QdT9ypDL.J4XQeSxvZx.kpnxIoGk6.9JZovbSP9fmljt06adbBoC
- jgBW7AtboDANT8qXeTnOtfVdreYXeHL77NAHKYxsUFen.0iH3Cbv1OKN5D6JyEOEPFK32kqOl.rN
- mg0mBf5wj27_hgGHnyTbxJI8SDuEhx3kaSpM902y5KlELy8S78iyLPQ5y953.bPjffdhAWB3ET.J
- dux0BwmCq8bTjRndeUHEy8z_kTxbzGPlAWGFeRdEElFO7sIfOs.au2CnEH9.tHXTmTnVK50HHfhr
- KVvsAWW643_OzsYPneDxXCvwa__NZbaxs2q6nWxEFwDTDOOqRRQ_gpseQcImuZjLuJzmrQMHqKMQ
- s2yT_7bkHAvWg.bt3ft_xCfG4yBzL_g1XjW6VLiFIw1QbuRp6fuhew8c0D37ozz5.B6_7iP7dGuV
- YZciNRm3lXQg4WeTmiThDBIq8IntpvhD4Ez2yDXFfBtBrF3g-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:20:06 +0000
+        id S1729920AbfB1WUO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Feb 2019 17:20:14 -0500
+Received: from sonic315-15.consmr.mail.gq1.yahoo.com ([98.137.65.39]:42349
+        "EHLO sonic315-15.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730126AbfB1WUM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:20:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392411; bh=jPKwi0Xu4DayYN/NA2jFvINUoFK9sSYkBTVu8ePKagU=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=arY0dk9e2RzdapoV2uQhGcvlEN2h9TH0B9/S2iBBIommPNWh/JbTjFj58OjsZUGzH+XZYMhUsb0bcZ7Rj5/BlEv6B37R1sSHHwEg4v2VhpzxDoiGCGIgZ0gPoi/wz+0zfjNSL9CcaAag7ywysxPZMbpRtznCACIddBG+3m131JB9zp015oc1Tdndg4g2ZcjkS8F9dbDIYD+qgePmd1I/VJtLvXszLXjMw20ImlgiDxlLnO7a4NgALB+8iEcvSPY3C4QAxyBv3Lli+MWZ24xhRr3opWjgIPlqV2Al88f9YkX0roMLyghxpQspS85bqn8pXBbfYV0DgpoufIqrVekp3A==
+X-YMail-OSG: Zp7qou4VM1klA2D62xK6a9J_Ks5CEoKMv._rWCPTG0qW0MVIF_JBR7uEm63_hki
+ 8uMtd1SoX5P1FN0rJo4vgcUQ26M1ttWTcaV5viSQKaWkXlHbeUDfJygn0HTcMgCPx1j31HejPO.Y
+ PweiIPdTN_X7xnsWVF75kbOX264WbfuFtr4f7hd4qPQfbhi0CR1MBM8GuFI8vYWlCBarTOfaJEdn
+ ft8YLNMt4PPjTpuVopr8BObEOefwg7ez.LsZezc7YgNu7_qgIYg5UD20AyQLAVHPSoxGyubMsI8g
+ bX_1Z0aRaJZg8PYDwf07UyX56ZqQm2ic75.rVJVryRT8lIs8.WvQyLxZhY7gCnxD7fOTZ8NU3_Nt
+ A_L2P_NdMqgVNaM2JY4sTh.1MSgSBS2MhWg77k1lxb6BcFJF6WFVAg4oafPlyy4lCvIKWG_bkCO5
+ 3tTHfTcBSMDjg.ojbgYqe8FOUq98HEn4g7e9jo7XMBheBA5FVSsV95bWcOwt8XqdPq0UGQLb_Zhs
+ OjcjH3sqXOQz9i2V6S3XPJmLKnQv7EXU5gAkft9FKY0w6H8S5nZlUJbTMqskOD1nvOqLvG8pbbgP
+ SS_eQ7CvMjCItKnbpq2byBvjPq1_3tLi9ZoDdAvHVm4MGUXudAAg1EpJ0u0CMYUl8JMFF4yMZbSY
+ yoKGkCHu2z7yXZc5kQtb5H0KOWoAPvBiOFxNVjgB5jiwTtsDlbjiAYLaUOSqrw0B78_nO_u7YcyG
+ 8KIptMSKavvIFHe6XxGZEdLVjsj4GL4MwCZ_zIOATCoyEghFQ59lJrOdEG31jb3qLquaaWiy.wh6
+ qL03lIsvadYBeRxE5Pbmfpo5Em4tOSMLg_ZdWy8xsS7mOTTtFQC.n_R6RJV9G.NN_CzIbkE6UC8j
+ UGW4J.4_W9MWuRFlhltx7cqJum.eO_94RYhBfRezs5Gnx6FdnKP6XUtgDgb8sI7e6RBSiC4U0Dcj
+ PeWbkKAa2bEuKzBE5osrXB3VaLVm119IcwT2baNjtIxMg.F4vs7xbV57jhncyNtXJ0hK0E9hiDsb
+ H3I4DNvmsuc.giCmPM8MC8l1xCTMDpQ2iUMgn3wUrlK12tJGcIaYlpPpwsLTK3c4JkcBLfl2A9aL
+ bf2FZjnmAsBQeyNdsCqPojAI75hTWwCkFdNmJtfZNX.QEFls-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:20:11 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp409.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID e8fded081226753664bb344863181a7a;
-          Thu, 28 Feb 2019 22:20:02 +0000 (UTC)
+          by smtp430.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID e588ca5e0935b1286f019b02cb065c6f;
+          Thu, 28 Feb 2019 22:20:10 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 30/97] Audit: Convert target_sid to an lsm_export structure
-Date:   Thu, 28 Feb 2019 14:18:26 -0800
-Message-Id: <20190228221933.2551-31-casey@schaufler-ca.com>
+Subject: [PATCH 44/97] LSM: Use lsm_context in secid_to_secctx hooks
+Date:   Thu, 28 Feb 2019 14:18:40 -0800
+Message-Id: <20190228221933.2551-45-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228221933.2551-1-casey@schaufler-ca.com>
 References: <20190228221933.2551-1-casey@schaufler-ca.com>
@@ -58,151 +58,166 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Convert target_sid to be an lsm_export structure
-instead of a u32 secid. Clean out the associated
-scaffolding. Change the name to target_lsm to be
-descriptive.
+Convert SELinux, Smack and AppArmor to use the lsm_context structure
+instead of a context/secid pair. There is some scaffolding involved
+that will be removed when the related data is updated.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- kernel/audit.h   |  3 ++-
- kernel/auditsc.c | 30 ++++++++++++------------------
- 2 files changed, 14 insertions(+), 19 deletions(-)
+ include/linux/lsm_hooks.h         |  6 ++----
+ security/apparmor/include/secid.h |  2 +-
+ security/apparmor/secid.c         | 11 +++++------
+ security/security.c               | 12 ++++++++++--
+ security/selinux/hooks.c          |  5 ++---
+ security/smack/smack_lsm.c        |  8 +++-----
+ 6 files changed, 23 insertions(+), 21 deletions(-)
 
-diff --git a/kernel/audit.h b/kernel/audit.h
-index 06c732e0f301..63883a773aa2 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -22,6 +22,7 @@
- #include <linux/fs.h>
- #include <linux/audit.h>
- #include <linux/skbuff.h>
-+#include <linux/security.h>
- #include <uapi/linux/mqueue.h>
- #include <linux/tty.h>
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index cbfc2a9b5f27..97b258488e4d 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1307,9 +1307,8 @@
+  *	length and the next call which actually allocates and returns the
+  *	secdata.
+  *	@l points to the security information.
+- *	@secdata contains the pointer that stores the converted security
++ *	@cp contains the pointer that stores the converted security
+  *	context.
+- *	@seclen pointer which contains the length of the data
+  * @secctx_to_secid:
+  *	Convert security context to exported lsm data.
+  *	@l contains the pointer to the generated security data.
+@@ -1654,8 +1653,7 @@ union security_list_options {
+ 	int (*getprocattr)(struct task_struct *p, char *name, char **value);
+ 	int (*setprocattr)(const char *name, void *value, size_t size);
+ 	int (*ismaclabel)(const char *name);
+-	int (*secid_to_secctx)(struct lsm_export *l, char **secdata,
+-				u32 *seclen);
++	int (*secid_to_secctx)(struct lsm_export *l, struct lsm_context *cp);
+ 	int (*secctx_to_secid)(const char *secdata, u32 seclen,
+ 				struct lsm_export *l);
+ 	void (*release_secctx)(char *secdata, u32 seclen);
+diff --git a/security/apparmor/include/secid.h b/security/apparmor/include/secid.h
+index 5381eff03d4f..964d3dc92635 100644
+--- a/security/apparmor/include/secid.h
++++ b/security/apparmor/include/secid.h
+@@ -26,7 +26,7 @@ struct aa_label;
+ #define AA_SECID_WILDCARD 1
  
-@@ -146,7 +147,7 @@ struct audit_context {
- 	kuid_t		    target_auid;
- 	kuid_t		    target_uid;
- 	unsigned int	    target_sessionid;
--	u32		    target_sid;
-+	struct lsm_export   target_lsm;
- 	char		    target_comm[TASK_COMM_LEN];
- 
- 	struct audit_tree_refs *trees, *first_trees;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index c57c2e346c6d..2ee74d18c90c 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -112,7 +112,7 @@ struct audit_aux_data_pids {
- 	kuid_t			target_auid[AUDIT_AUX_PIDS];
- 	kuid_t			target_uid[AUDIT_AUX_PIDS];
- 	unsigned int		target_sessionid[AUDIT_AUX_PIDS];
--	u32			target_sid[AUDIT_AUX_PIDS];
-+	struct lsm_export	target_lsm[AUDIT_AUX_PIDS];
- 	char 			target_comm[AUDIT_AUX_PIDS][TASK_COMM_LEN];
- 	int			pid_count;
- };
-@@ -934,14 +934,14 @@ static inline void audit_free_context(struct audit_context *context)
+ struct aa_label *aa_secid_to_label(struct lsm_export *l);
+-int apparmor_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen);
++int apparmor_secid_to_secctx(struct lsm_export *l, struct lsm_context *cp);
+ int apparmor_secctx_to_secid(const char *secdata, u32 seclen,
+ 			     struct lsm_export *l);
+ void apparmor_release_secctx(char *secdata, u32 seclen);
+diff --git a/security/apparmor/secid.c b/security/apparmor/secid.c
+index 69d98a89db75..4e11434605d6 100644
+--- a/security/apparmor/secid.c
++++ b/security/apparmor/secid.c
+@@ -81,7 +81,7 @@ static inline void aa_export_secid(struct lsm_export *l, u32 secid)
+ 	l->apparmor = secid;
  }
  
- static int audit_log_pid_context(struct audit_context *context, pid_t pid,
--				 kuid_t auid, kuid_t uid, unsigned int sessionid,
--				 u32 sid, char *comm)
-+				 kuid_t auid, kuid_t uid,
-+				 unsigned int sessionid,
-+				 struct lsm_export *l, char *comm)
+-int apparmor_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen)
++int apparmor_secid_to_secctx(struct lsm_export *l, struct lsm_context *cp)
  {
- 	struct audit_buffer *ab;
- 	char *ctx = NULL;
- 	u32 len;
- 	int rc = 0;
--	struct lsm_export le;
+ 	/* TODO: cache secctx and ref count so we don't have to recreate */
+ 	struct aa_label *label;
+@@ -89,13 +89,12 @@ int apparmor_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen)
  
- 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_OBJ_PID);
- 	if (!ab)
-@@ -950,9 +950,8 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 	audit_log_format(ab, "opid=%d oauid=%d ouid=%d oses=%d", pid,
- 			 from_kuid(&init_user_ns, auid),
- 			 from_kuid(&init_user_ns, uid), sessionid);
--	if (sid) {
--		lsm_export_to_all(&le, sid);
--		if (security_secid_to_secctx(&le, &ctx, &len)) {
-+	if (lsm_export_any(l)) {
-+		if (security_secid_to_secctx(l, &ctx, &len)) {
- 			audit_log_format(ab, " obj=(none)");
- 			rc = 1;
- 		} else {
-@@ -1401,7 +1400,7 @@ static void audit_log_exit(void)
- 						  axs->target_auid[i],
- 						  axs->target_uid[i],
- 						  axs->target_sessionid[i],
--						  axs->target_sid[i],
-+						  &axs->target_lsm[i],
- 						  axs->target_comm[i]))
- 				call_panic = 1;
- 	}
-@@ -1410,7 +1409,7 @@ static void audit_log_exit(void)
- 	    audit_log_pid_context(context, context->target_pid,
- 				  context->target_auid, context->target_uid,
- 				  context->target_sessionid,
--				  context->target_sid, context->target_comm))
-+				  &context->target_lsm, context->target_comm))
- 			call_panic = 1;
+ 	label = aa_secid_to_label(l);
  
- 	if (context->pwd.dentry && context->pwd.mnt) {
-@@ -1587,7 +1586,7 @@ void __audit_syscall_exit(int success, long return_code)
- 	context->aux = NULL;
- 	context->aux_pids = NULL;
- 	context->target_pid = 0;
--	context->target_sid = 0;
-+	lsm_export_init(&context->target_lsm);
- 	context->sockaddr_len = 0;
- 	context->type = 0;
- 	context->fds[0] = -1;
-@@ -2260,14 +2259,12 @@ int __audit_sockaddr(int len, void *a)
- void __audit_ptrace(struct task_struct *t)
+-	AA_BUG(!seclen);
+-
+ 	if (!label)
+ 		return -EINVAL;
+ 
+-	if (secdata)
+-		len = aa_label_asxprint(secdata, root_ns, label,
++	/* scaffolding check - Casey */
++	if (cp)
++		len = aa_label_asxprint(&cp->context, root_ns, label,
+ 					FLAG_SHOW_MODE | FLAG_VIEW_SUBNS |
+ 					FLAG_HIDDEN_UNCONFINED | FLAG_ABS_ROOT,
+ 					GFP_ATOMIC);
+@@ -106,7 +105,7 @@ int apparmor_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen)
+ 	if (len < 0)
+ 		return -ENOMEM;
+ 
+-	*seclen = len;
++	cp->len = len;
+ 
+ 	return 0;
+ }
+diff --git a/security/security.c b/security/security.c
+index c81010db34bf..9b25f0113b4f 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1975,8 +1975,16 @@ EXPORT_SYMBOL(security_ismaclabel);
+ 
+ int security_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen)
  {
- 	struct audit_context *context = audit_context();
--	struct lsm_export le;
+-	return call_one_int_hook(secid_to_secctx, -EOPNOTSUPP, l, secdata,
+-				 seclen);
++	struct lsm_context lc = { .context = NULL, .len = 0, };
++	int rc;
++
++	rc = call_one_int_hook(secid_to_secctx, -EOPNOTSUPP, l, &lc);
++	if (secdata)
++		*secdata = lc.context;
++	else
++		security_release_secctx(lc.context, lc.len);
++	*seclen = lc.len;
++	return rc;
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
  
- 	context->target_pid = task_tgid_nr(t);
- 	context->target_auid = audit_get_loginuid(t);
- 	context->target_uid = task_uid(t);
- 	context->target_sessionid = audit_get_sessionid(t);
--	security_task_getsecid(t, &le);
--	lsm_export_secid(&le, &context->target_sid);
-+	security_task_getsecid(t, &context->target_lsm);
- 	memcpy(context->target_comm, t->comm, TASK_COMM_LEN);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9879dd828e1c..4d679697cdad 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6194,14 +6194,13 @@ static int selinux_ismaclabel(const char *name)
+ 	return (strcmp(name, XATTR_SELINUX_SUFFIX) == 0);
  }
  
-@@ -2284,7 +2281,6 @@ int audit_signal_info(int sig, struct task_struct *t)
- 	struct audit_aux_data_pids *axp;
- 	struct audit_context *ctx = audit_context();
- 	kuid_t uid = current_uid(), auid, t_uid = task_uid(t);
--	struct lsm_export le;
+-static int selinux_secid_to_secctx(struct lsm_export *l, char **secdata,
+-				   u32 *seclen)
++static int selinux_secid_to_secctx(struct lsm_export *l, struct lsm_context *cp)
+ {
+ 	u32 secid;
  
- 	if (auditd_test_task(t) &&
- 	    (sig == SIGTERM || sig == SIGHUP ||
-@@ -2308,8 +2304,7 @@ int audit_signal_info(int sig, struct task_struct *t)
- 		ctx->target_auid = audit_get_loginuid(t);
- 		ctx->target_uid = t_uid;
- 		ctx->target_sessionid = audit_get_sessionid(t);
--		security_task_getsecid(t, &le);
--		lsm_export_secid(&le, &ctx->target_sid);
-+		security_task_getsecid(t, &ctx->target_lsm);
- 		memcpy(ctx->target_comm, t->comm, TASK_COMM_LEN);
- 		return 0;
- 	}
-@@ -2330,8 +2325,7 @@ int audit_signal_info(int sig, struct task_struct *t)
- 	axp->target_auid[axp->pid_count] = audit_get_loginuid(t);
- 	axp->target_uid[axp->pid_count] = t_uid;
- 	axp->target_sessionid[axp->pid_count] = audit_get_sessionid(t);
--	security_task_getsecid(t, &le);
--	lsm_export_secid(&le, &axp->target_sid[axp->pid_count]);
-+	security_task_getsecid(t, &axp->target_lsm[axp->pid_count]);
- 	memcpy(axp->target_comm[axp->pid_count], t->comm, TASK_COMM_LEN);
- 	axp->pid_count++;
+ 	selinux_import_secid(l, &secid);
+ 	return security_sid_to_context(&selinux_state, secid,
+-				       secdata, seclen);
++				       &cp->context, &cp->len);
+ }
+ 
+ static int selinux_secctx_to_secid(const char *secdata, u32 seclen,
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 2695bd373752..015a2342aad5 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4349,8 +4349,7 @@ static int smack_ismaclabel(const char *name)
+  *
+  * Exists for networking code.
+  */
+-static int smack_secid_to_secctx(struct lsm_export *l, char **secdata,
+-				 u32 *seclen)
++static int smack_secid_to_secctx(struct lsm_export *l, struct lsm_context *cp)
+ {
+ 	struct smack_known *skp;
+ 	u32 secid;
+@@ -4358,9 +4357,8 @@ static int smack_secid_to_secctx(struct lsm_export *l, char **secdata,
+ 	smack_import_secid(l, &secid);
+ 	skp = smack_from_secid(secid);
+ 
+-	if (secdata)
+-		*secdata = skp->smk_known;
+-	*seclen = strlen(skp->smk_known);
++	cp->context = skp->smk_known;
++	cp->len = strlen(skp->smk_known);
+ 	return 0;
+ }
  
 -- 
 2.17.0
