@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1846C4360F
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14F6FC10F09
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6D9D0218AE
+	by mail.kernel.org (Postfix) with ESMTP id D3569206DD
 	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="cNUW0tGk"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="UexpzEGV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728775AbfB1WoV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1728893AbfB1WoV (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Thu, 28 Feb 2019 17:44:21 -0500
-Received: from sonic301-10.consmr.mail.bf2.yahoo.com ([74.6.129.49]:43504 "EHLO
+Received: from sonic301-10.consmr.mail.bf2.yahoo.com ([74.6.129.49]:41600 "EHLO
         sonic301-10.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728946AbfB1WoU (ORCPT
+        by vger.kernel.org with ESMTP id S1728881AbfB1WoU (ORCPT
         <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:44:20 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551393858; bh=q6uoWrAShVrIzUTRZ/xFtGhPWu+7m7/p+agiDK8IfOs=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=cNUW0tGkIopZ2dGhEWsVDhs+wm5ei7NYgaeaBXyVHsn2565YdmKqrTx5oZfsdBSpQciezA2SwJCVsaOj2PlpVirjw5gVjKIr/G48abhUNasKHJeKNtq99F4CtIDleLnwrJhJfieJow2R/WaJguAGBWVSSw/uoLfmwY2OepWvR00k4qoS4W3YqQb6fE/N+2o7slqCKzEqNbHcbXvFkrJiqSYgBNbEF+VTyx1y9PurcteAIbte6NqAEvDKV65DYTUnT59YsuaKkqPFUNpGec95msHpUMNlYgBia2jo4uHC1NddUHR9U+OI769zwOjqoN3/em9vgPrMZ1LIyTQ64Fa+ow==
-X-YMail-OSG: QCWsTtUVM1nDT5rOHpJtMnRxa1dhZYm9mmtloCJL3DxK5Il7UY.3NQXq5KjXFub
- RtRFDnceqmnAb0PLQglRDtfJrM70Id3sMkdjvQV5z77SzsC4yjqpSkV72DATKnrvAEgSSHctff9A
- TBLrhmJc9CdmdJc8AQU3MM81fUskWovBsMgLgkqPjT0OZ.SQg9jUpRX6UQcXzkcKchz6Szd9Bh_f
- 1fXGH5KpN.80DcpFY6S2JfeEwZ98VajDViLw8YVfwa.yH7wxYeB7CFnZ.s8bBgv7BHSTrOVoMSd4
- MEylMyYmwfTVRCN8e.e7Dtzqh09n2ixhCEDWws0VQM4gWgCGi2eHJjXONLhcVGU2P01Pk4yuygTf
- VyGdMMl8RtR987Xzs_8Wb1gZHHmumULwGyKnhW8.RrpcKmhgpuSpuLmhaSYtQ._RaKH.I04Vgj60
- Ej2pzVgXEomNu39aqFrC7XwJO2ascZJLTizwm1zYUxO8HzjfHQQu245yK2doFzBU19VqWcZKSXAy
- t2TzJSo.AiALd2nYKYKStwo1McFBDmX67BOIPbM2uQbL86C3vf99Dr5miKEy47Lr815fBKPMWAAX
- 976WjJAyexuRO60ksVVlQSdIVj_.EUWTiogvlLIuZrFzPcqgS7cj8NLYwcD0Pw0Yyoai.w7abtl5
- oxyz2zMtMefQv9IiPmIEE2of5r6xb4KonwxS0tP7YsSid0yDGJlPxYldwbiQ_zOWGRsDVirZXo6h
- pxLmE9PIBxr5hGmnuTk_jq5rygM0OqYoXkTJdncD730ki36iWEXzDPEt9cjvUE1xci8iGEc96o6g
- dVAgYGsd2gt38831ou_Zf9PhtzhfHdSX_K4xK2cuceQFVeXkBZCcRazP4SMBcfDhO3j31Ydg.Sf2
- 56gfwry2KNll6HjxOjC.uSVnAp2zEz2yesMF2rKnSP3jEAOC0jLJdbbNwfoNcpEZuZk9h8rG1adn
- pzwa83438n4AxY70VCgteCD92QpPqTpUikjyM8mzjAnbcpyiRvxOxJbSGbuZ7HsZwiXL_r2Y.c_n
- f4U4Z.36kzQ3DuqdQzUx00uvbKIjUzrx9UuUoe1uC0HJvJLlF.oHVhphobbdkWka5DFVbxHKaNk2
- FlVRMVH9CI26kCBt9joNPa_JAu9xS8kTU2bpSnwFCLmRODFNTnrgpBtTc
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551393858; bh=/hckqGWaPxP0IFAvTcxg8keP+3zAVRCdGN1rW1SVv0Y=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=UexpzEGVcfYDJEqpBcLfcaVDj3gqUeC61Zdnhg7nLq0KY51wS8wlvqiwvsz2u2bC9c93jKxd0ZXxViSqJ0SvhUe9aw/KqHRHW7i2PpOY52JPGKmEIbJJbX9axwB/27UnkJswhDJa3KFcmFPOmZfl0bD2SBN/Dr7dIWuKlfLBR8ZCmX77gBJu/bMf52tlHdFGJw3sBTIU+m9j3FIryALnRCg/2mQxepDI4JUdFyBgXzf37zyKRFHkVozt7TQkGzPLyn9ansx8NbUrHYlfrFNFG0+biw63+Rv+AjMK/3BwW7MR2sjNUCjDQdg51PUEiCYTNpLzDGHQclTQJMS3O7fhDA==
+X-YMail-OSG: yrc1LbsVM1k_hBnRZOipsrHLBPot31hGlJj4Y3oHJDTJ_heWLnM3oT0e5mQZHN3
+ mmrK25HpIGjyHKkJK4T6vIS8U8QooxjIeiL_j_Py19NDSk9gW2eHCeyxiGeWmouRbbmGV.AR0ztU
+ HZ9knRJlCl4hQIvPU9QO4QLMknXLoRZ4_ytHsMB3pUA19xmphI.SywT45PLnbHdbzvxPmh6bWzla
+ pAAR1GkL5lJwIEW213rYjfQGJrJJX6RVsq_SkQG46Fzl.fv.K3ZPxEDNg_iGas3Hn3GNxXg7Uzx5
+ UbQzoB6M4Qk9FfY20ZFQN1oNeDRc4jnWaBlw0K5REGs8qqohx44S6ZEdf2Kb4dg9uP5vJ8nbljKH
+ jSdV_IJKH0dgmQ8Pid3sUvtRpGCx9lUMvR.PpRhkjUlmNlDm4NEx2P11M2oW_VlX09Ay4wxtsRJK
+ kwNj_RZIkDhrLlyaNZ9p7.I4_s77KL2WDQ_U1pjQaWWPebum8Ybx4nUUMZiPt3gTn6aNrZmY3x0w
+ r2JofOj7ZUd_XGgN3tExVfRmcA9oG6TlTpsA2.3guxjoAB3Lmi2KFFkRg8d0jcjRsB6PLsKv6ynZ
+ hoG2bNKCByiiKN7yCsEiypFBJWkk48i0FhWey21vD6od0VT.3w6XmMxgOaDaP1NwZPlsyKFn6a.9
+ 1Kab11by4Rh3IxTx6VS6eSigDPjoeaMz09YpsqPpy_UbQ84b0VbXuj9JMFTXJRhOnTH8DckAf0Oc
+ cPBkB9FEPVrOHhKUv3ownt2i1bN2IuFoMiDk77WF6B1WhnNn9WmPRLJfb9J5AXbrkaLxQE1VwSXX
+ xoLXW6VA64uPU48f2AyTg2NucyRHhho8G1MxG9oYalxl1byqtiJthr4.olggPdr9zUOPPgdeuXHB
+ CxHyzt.T3aZp6SB9DXZZDQl5jCGY.0TGLVnOIhT96eu1Sw2eCHbYF1.JwdloBF9tp0F.PXTY3S2C
+ kcTkpMhirG1lQNzVx9A5MkcGGl541CmPGCzl9ZgYbwg218x7.iEondeQPeturCvJiSNLODHIBu78
+ uW_pTcOmgc14fwdJgxy1uSm.Q.csSe2Ju__sGJqHNr_UUnatBeWykh.iSMKjc0qq4sEkBx_ASBRi
+ nmdSEONu4TlVoDdHh1EYy0bYPOwA0b4H9EPa.qDSHwFQM3DLQ_FSTF7s-
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.bf2.yahoo.com with HTTP; Thu, 28 Feb 2019 22:44:18 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp428.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 731ec5e129ec3fdeedd3a533970a7e62;
-          Thu, 28 Feb 2019 22:44:15 +0000 (UTC)
+          by smtp415.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 46c3ca42412e81058eafbaa96f791691;
+          Thu, 28 Feb 2019 22:44:17 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 79/97] LSM: Fix for security_init_inode_security
-Date:   Thu, 28 Feb 2019 14:43:38 -0800
-Message-Id: <20190228224356.2608-10-casey@schaufler-ca.com>
+Subject: [PATCH 80/97] Smack: Advertise the secid to netlabel
+Date:   Thu, 28 Feb 2019 14:43:39 -0800
+Message-Id: <20190228224356.2608-11-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228224356.2608-1-casey@schaufler-ca.com>
 References: <20190228224356.2608-1-casey@schaufler-ca.com>
@@ -58,76 +58,52 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The code assumes you can call evm_init_inode_security more
-than once for an inode, but that won't work because security.evm
-is a single value attribute. This does not make EVM work properly,
-but does allow the security modules to initialize their attribures.
+Add the secid to the attributes shared with netlabel.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/security.c | 35 +++++++++++++++++++++++++----------
- 1 file changed, 25 insertions(+), 10 deletions(-)
+ security/smack/smack_access.c | 8 ++++++--
+ security/smack/smackfs.c      | 8 ++++++--
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/security/security.c b/security/security.c
-index 780c914df9fb..c4265ceb6dd0 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1104,11 +1104,24 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
- 	if (unlikely(IS_PRIVATE(inode)))
- 		return 0;
- 
--	if (!initxattrs)
--		return call_int_hook(inode_init_security, -EOPNOTSUPP, inode,
--				     dir, qstr, NULL, NULL, NULL);
-+	if (!initxattrs) {
-+		rc = -EOPNOTSUPP;
-+		hlist_for_each_entry(p,
-+				     &security_hook_heads.inode_init_security,
-+				     list) {
-+			rc = p->hook.inode_init_security(inode, dir, qstr,
-+							 NULL, NULL, NULL);
-+			if (rc == -EOPNOTSUPP) {
-+				rc = 0;
-+				continue;
-+			}
-+			if (rc)
-+				break;
-+		}
-+		return rc;
-+	}
- 
--	repo = kzalloc((LSM_COUNT * 2) * sizeof(*repo), GFP_NOFS);
-+	repo = kzalloc((LSM_COUNT + 1) * sizeof(*repo), GFP_NOFS);
- 	if (repo == NULL)
- 		return -ENOMEM;
- 
-@@ -1119,18 +1132,20 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
- 		rc = p->hook.inode_init_security(inode, dir, qstr,
- 						 &repo[i].name, &repo[i].value,
- 						 &repo[i].value_len);
-+		if (rc == -EOPNOTSUPP)
-+			continue;
- 		if (rc)
- 			goto out;
- 
--		rc = evm_inode_init_security(inode, &repo[i], &repo[i + 1]);
--		if (rc)
--			goto out;
--
--		i += 2;
-+		i++;
- 	}
-+	rc = evm_inode_init_security(inode, &repo[i], &repo[i + 1]);
-+	if (rc)
-+		goto out;
-+
- 	rc = initxattrs(inode, repo, fs_data);
- out:
--	for (i-- ; i >= 0; i--)
-+	for (i++ ; i >= 0; i--)
- 		kfree(repo[i].value);
- 	kfree(repo);
- 	return (rc == -EOPNOTSUPP) ? 0 : rc;
+diff --git a/security/smack/smack_access.c b/security/smack/smack_access.c
+index fe2ce3a65822..0764bb85daee 100644
+--- a/security/smack/smack_access.c
++++ b/security/smack/smack_access.c
+@@ -549,8 +549,12 @@ struct smack_known *smk_import_entry(const char *string, int len)
+ 	skp->smk_known = smack;
+ 	skp->smk_secid = smack_next_secid++;
+ 	skp->smk_netlabel.domain = skp->smk_known;
+-	skp->smk_netlabel.flags =
+-		NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL;
++	lsm_export_init(&skp->smk_netlabel.attr.le);
++	skp->smk_netlabel.attr.le.flags = LSM_EXPORT_SMACK;
++	skp->smk_netlabel.attr.le.smack = skp->smk_secid;
++	skp->smk_netlabel.flags = NETLBL_SECATTR_DOMAIN |
++				  NETLBL_SECATTR_MLS_LVL |
++				  NETLBL_SECATTR_SECID;
+ 	/*
+ 	 * If direct labeling works use it.
+ 	 * Otherwise use mapped labeling.
+diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
+index 28c567465f6c..abaa5325c32f 100644
+--- a/security/smack/smackfs.c
++++ b/security/smack/smackfs.c
+@@ -2953,8 +2953,12 @@ static struct vfsmount *smackfs_mount;
+ static int __init smk_preset_netlabel(struct smack_known *skp)
+ {
+ 	skp->smk_netlabel.domain = skp->smk_known;
+-	skp->smk_netlabel.flags =
+-		NETLBL_SECATTR_DOMAIN | NETLBL_SECATTR_MLS_LVL;
++	lsm_export_init(&skp->smk_netlabel.attr.le);
++	skp->smk_netlabel.attr.le.flags = LSM_EXPORT_SMACK;
++	skp->smk_netlabel.attr.le.smack = skp->smk_secid;
++	skp->smk_netlabel.flags = NETLBL_SECATTR_DOMAIN |
++				  NETLBL_SECATTR_MLS_LVL |
++				  NETLBL_SECATTR_SECID;
+ 	return smk_netlbl_mls(smack_cipso_direct, skp->smk_known,
+ 				&skp->smk_netlabel, strlen(skp->smk_known));
+ }
 -- 
 2.17.0
 
