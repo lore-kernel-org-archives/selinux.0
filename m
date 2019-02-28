@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF085C10F06
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F23D6C43381
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B33AA206DD
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BED64206DD
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="eWIHgKqM"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="tLbxfkwk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728041AbfB1WoL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:44:11 -0500
-Received: from sonic302-10.consmr.mail.bf2.yahoo.com ([74.6.135.49]:42233 "EHLO
-        sonic302-10.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727908AbfB1WoL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:44:11 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551393849; bh=4BfO/VPF2tKOCjMpfXoHzygB4AwQ3ldLj2gvJyvC7C4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=eWIHgKqMWKww88vUScNJaLVE8gcGF7fduP8yu4WH7aohJt5tzxRqhkedPmo1R0v7tnjG1ORAiiL2kKWzv1GBo4LHWG0B6ZAACSDjV+o9XqYO+G0+FeoJ0qRErKMrmvMPbK4+KOPHkH6cESZfPQ8NoG8t8/RQwDu98u1fZ6vELRJI5EKgZGLmQ6asQ5PgilGeg2j/JKn9pDa5F4uOw5znvy7+iUgs+oR5LKyIRNDfVEHx8zQ20m0YGO6WU00SCagZEhp3ZIG7QJXM/siRR1Jcs7fqW/WfGsp5uFVVyFrw16deiH7B5wTann3s/3OYJ2L2ynPTYy8HY3xRXmJURsCX+Q==
-X-YMail-OSG: Vl9nKA4VM1kOCtrmz_.6Lu8MVEoeQlWkkEtqYFyeGhbxiqC791EG4yyu6juDLaw
- 3CQlfXp.gqoLyA31xT9uoN9vdahmgr06PODoI4k3jZ9z0TNhhlFqzG7bx5SiZpu7nnvFBh96lUB6
- eTdkHWOhR7cDWVIJJ3L7yu5MhyoOaR6FhnGRzyMhSXcJScHwxJZHGUNU1Nd3EjnJH7g9A_wTRLJt
- 2cCyvV6DLahx5TaB07AQtw6yGZ7ru4U5sTFSg_omZxZL6BoacT2BbLi9ivmMX.FDHZjl.GV2.qQh
- K_Y_aR_mw50jISxbXUhfBkN355enhuPagHm1Cl6B0d8UjtgkjNg3oVqsMFAWc9T0LVSCEtaHquzm
- NSvrsBxjtLHbD.joGtDFzhyOYveaTfjLKyGkSt37KVH0oODzgMZdjLTb4u7VgtyjTAozKDGiStov
- DK2g6hwE3eWLIb9LxiRRqCKvFhESkMcmylxRylMKDUvqNlIaJAn4XP4btjb9AeynCidKv_VLAh1D
- xPNn8_TvgJCayJcwL6KPKXCditcdqS7Eh9YdYOw0me5z5I7QoZTair_RKboL1Qx4.CQ3svoJCNUr
- HQLDQvT1VrKijeM_62e4A6kdlJh.QYfj.rDIB7kUDL3bnGeK4EOBjl01oPsg.NMhMSBPp1rg913e
- 3I9stXR_o_5sOaXjTBPbwgZVyKkaSserfOfTTZkbLYas9t74ZfAdZWrTDRtqvTi9ySqzJNyGHKXO
- WRF.tbtqUuequauiQqBZKWWVQgShydU4uj070pkP55J4wqvDW_oLfXIIr4i3HiFBdhIK.BE_k91k
- M5IFSt1qjNcrdDTDF.x1ij3ObrKnoS9cAMvKoU7o9dGgV6xEX6jrIxVu8yC.cV6weBnjuf7Yn_z8
- ycJYvU_0Bw8E.iyGkXSBGligpiRR4tZ_OquTo25m2dFWm799qS4Xax_HPpAUd1MFMRBsw9qV1_gz
- R5I2g2k19jrJFEb4JBqnQosm15YqzyWKZM4FxOwnUJ0C4lzZa2I.vEzVkP3jmvcpm3zZb1TdCVnM
- PKFeoPouHuNkg7mTtO0_dXnK_YXQzabXs.k2awaDQzGQF5ru96OKmmVANaS2U1PE48vOmcJEOuPu
- VqxJVMU6G3EFjA2uf6PBzxYhdtppmlolTNFp3K0.sUnQQ.w_.x2y92ubM
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.bf2.yahoo.com with HTTP; Thu, 28 Feb 2019 22:44:09 +0000
+        id S1728819AbfB1WoP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Feb 2019 17:44:15 -0500
+Received: from sonic307-10.consmr.mail.bf2.yahoo.com ([74.6.134.49]:35644 "EHLO
+        sonic307-10.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727988AbfB1WoP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:44:15 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551393853; bh=zCU06QfSnWUvOOQIGdDJQHUV0K+IFLQD3JU4exaaZTU=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=tLbxfkwk2AtEcjygfcW+cDEPW6rsafDwz4kcKZlJZcjWo+7Le/5+mP6IytF+uHqPRyH9YuhkwJDfGqr8xHEKOFEgkjdGyL5ByEn5meewq/0EtFiy537rX5GAIWGH5miEN+AdH+ti/53V1Xy/yVSVdlaMoU8qElv8JBVlENrGn6zXzHE3lyqiI509H9wPwF3EdIEIVVi+auMDECH/LxakT6Svk0BZ9kf+xtFTpJWSAzipkRvHdIcHx4nKzVHhYI9oKp/1Q7PnWedy3gKcTjRutwUdSxruKRKOrvJM954SB7mTu3fHcBG9Qf5hUEv+Hu2kwlX1rb1RDppcBnMtXj0kOA==
+X-YMail-OSG: 159ctkEVM1m4ULjRGYenhBlV1dKq5NLmo6jZqkudgpMZyVhq18J5KCnQTgWtVnL
+ dDQ5dYie0uep73iaRa1uRPPDz7lIMt7qRvmS1FNQbonM6_6FBC4BTh1nY3N.5osPuDaC9udnPZPj
+ n2j0gODITVdRnz2vBPDqr7I_WgFAyix9kvQuxhwvlPfilEp1twpXOeTY_9OPHYalHuCCRRg6R3b9
+ O5ZPQK7PoeJwdt0H64.7Xq4BTCQmt92ZnVZE5c8nYLm6jRQVPxuELNcodPx3SfFDJBB40zizHOoM
+ y_173FMNZbBgExjNFRgJmFH8DDQEhPGeYIaWcFD4F_FT27m8JpttknzKhUrZdCXbJtcpbW7WN.5L
+ Iodm8DH_GtF4Wt.2dQIj001J1WMn4_DwDkKCdhgQ..Xe8KWVBMsoaKgr3XAutPz3Yhs3df8g.sZc
+ Fyza.yymkwo0vCfLCV.9Dup0n.LAHlFkKhRcfCfVaNFFMBPjU1CoHnJnS8OcCFDet_7dzGr0nkSW
+ irKg.4Yy8e1lFLhC07bHbfV.bnXPQSDH9FIbaTpkNjQiSFbr1wDa9igRSrVnXoAGE_Np4iX8dpiJ
+ I420DcztfgB7XMraHWst.DnZfQ.g4XO9srgU9_fOyWPrpZd7CZKYl55vze4TBBtnF3P3sfE1Syoy
+ nt281jfsNmCnZnN3Q2nsZm2DG43og9BvENHhSHwZC1FOwFwS47DCFlTzn4rswJnG7ngnfvfUHg75
+ ivDNytZypcSTQfIGcZ8Vr62xutWT0a4pT.ZfWlS7IkyOxzWxzY1AyNJQgwVHCA0wWh0RtYX0ewkt
+ Bp1pQjoSMyWNc9MSS33PS.tgwQLdo5nxxTghSLO.WK32QAIsDG8csK3FQOV_pX7sFTj0KjdLpUib
+ 1VEwmmBIuzn9o27n3WFFBmi8gK.GfgUutHhRxX_Zl8hEzbJvwwLj3LfFtos5IqcZmMeEGxcswB47
+ qZo5ynI1lMYsxdqzLRMBq4Ks.JOjo.CnDxsAD5ojB1Tg5AR6IBVY0_kY9O5ynfCJgIWY17zN068P
+ vG3JJfxZroUaUpJ9umjXfNsTa0oSSSNWacNTgyAzdN63mJF7mGMhxLr0JyrGGMuJEoiWLzAJ_ymm
+ 9fcJ7lKQH85hkEsf9.EyKjsfO5ViZGCJSR.dYH5RE0f72TXAMZrxGBEk-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.bf2.yahoo.com with HTTP; Thu, 28 Feb 2019 22:44:13 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp428.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 731ec5e129ec3fdeedd3a533970a7e62;
-          Thu, 28 Feb 2019 22:44:07 +0000 (UTC)
+          Thu, 28 Feb 2019 22:44:12 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 73/97] LSM: refactor security_setprocattr
-Date:   Thu, 28 Feb 2019 14:43:32 -0800
-Message-Id: <20190228224356.2608-4-casey@schaufler-ca.com>
+Subject: [PATCH 77/97] LSM: Correct handling of ENOSYS in inode_setxattr
+Date:   Thu, 28 Feb 2019 14:43:36 -0800
+Message-Id: <20190228224356.2608-8-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228224356.2608-1-casey@schaufler-ca.com>
 References: <20190228224356.2608-1-casey@schaufler-ca.com>
@@ -58,169 +58,111 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Break the common code for setting the lsm_one hooks into
-helper function.
+The usual "bail on fail" behavior of LSM hooks doesn't
+work for security_inode_setxattr(). Modules are allowed
+to return -ENOSYS if the attribute specifed isn't one
+they manage. Fix the code to accomodate this unusal case.
+This requires changes to the hooks in SELinux and Smack.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/security.c | 120 ++++++++++++++++----------------------------
- 1 file changed, 43 insertions(+), 77 deletions(-)
+ security/security.c        | 28 ++++++++++++++--------------
+ security/selinux/hooks.c   |  7 ++-----
+ security/smack/smack_lsm.c | 10 +++++-----
+ 3 files changed, 21 insertions(+), 24 deletions(-)
 
 diff --git a/security/security.c b/security/security.c
-index fc446af4c3bf..66bc1a580d48 100644
+index bb0eea873a7e..105b5ee22bcf 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -2016,12 +2016,31 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
- 	return -EINVAL;
+@@ -1343,24 +1343,24 @@ int security_inode_getattr(const struct path *path)
+ int security_inode_setxattr(struct dentry *dentry, const char *name,
+ 			    const void *value, size_t size, int flags)
+ {
+-	int ret;
++	struct security_hook_list *hp;
++	int rc = -ENOSYS;
+ 
+ 	if (unlikely(IS_PRIVATE(d_backing_inode(dentry))))
+ 		return 0;
+-	/*
+-	 * SELinux and Smack integrate the cap call,
+-	 * so assume that all LSMs supplying this call do so.
+-	 */
+-	ret = call_int_hook(inode_setxattr, 1, dentry, name, value, size,
+-				flags);
+ 
+-	if (ret == 1)
+-		ret = cap_inode_setxattr(dentry, name, value, size, flags);
+-	if (ret)
+-		return ret;
+-	ret = ima_inode_setxattr(dentry, name, value, size);
+-	if (ret)
+-		return ret;
++	hlist_for_each_entry(hp, &security_hook_heads.inode_setxattr, list) {
++		rc = hp->hook.inode_setxattr(dentry, name, value, size, flags);
++		if (rc != -ENOSYS)
++			break;
++	}
++	if (rc == -ENOSYS)
++		rc = cap_inode_setxattr(dentry, name, value, size, flags);
++	if (rc)
++		return rc;
++	rc = ima_inode_setxattr(dentry, name, value, size);
++	if (rc)
++		return rc;
+ 	return evm_inode_setxattr(dentry, name, value, size);
  }
  
-+/*
-+ * The use of the secid_to_secctx memeber of the union is
-+ * arbitrary. Any member would work.
-+ */
-+static bool lsm_add_one(union security_list_options *hook,
-+			struct hlist_head *head, char *lsm, size_t size,
-+			bool was)
-+{
-+	struct security_hook_list *hp;
-+
-+	hlist_for_each_entry(hp, head, list) {
-+		if (size >= strlen(hp->lsm) && !strncmp(lsm, hp->lsm, size)) {
-+			hook->secid_to_secctx = hp->hook.secid_to_secctx;
-+			return true;
-+		}
-+	}
-+	hook->secid_to_secctx = NULL;
-+	return was;
-+}
-+
- int security_setprocattr(const char *lsm, const char *name, void *value,
- 			 size_t size)
- {
- 	struct security_hook_list *hp;
- 	struct lsm_one_hooks *loh = current_cred()->security;
--	bool found = false;
- 	char *s;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f58c96e2b6c1..501aed18f100 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2998,13 +2998,10 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 	int rc = 0;
  
- 	/*
-@@ -2032,80 +2051,31 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
- 		*s = '\0';
- 
- 	if (!strcmp(name, "display")) {
--		union security_list_options secid_to_secctx;
--		union security_list_options secctx_to_secid;
--		union security_list_options socket_getpeersec_stream;
--		union security_list_options secmark_relabel_packet;
--		union security_list_options secmark_refcount_inc;
--		union security_list_options secmark_refcount_dec;
-+		struct lsm_one_hooks o;
-+		bool found = false;
- 
- 		if (size == 0 || size >= 100)
- 			return -EINVAL;
- 
--		secid_to_secctx.secid_to_secctx = NULL;
--		hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx,
--				     list) {
--			if (size >= strlen(hp->lsm) &&
--			    !strncmp(value, hp->lsm, size)) {
--				secid_to_secctx = hp->hook;
--				found = true;
--				break;
--			}
--		}
--		secctx_to_secid.secctx_to_secid = NULL;
--		hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid,
--				     list) {
--			if (size >= strlen(hp->lsm) &&
--			    !strncmp(value, hp->lsm, size)) {
--				secctx_to_secid = hp->hook;
--				found = true;
--				break;
--			}
--		}
--		socket_getpeersec_stream.socket_getpeersec_stream = NULL;
--		hlist_for_each_entry(hp,
--				&security_hook_heads.socket_getpeersec_stream,
--				     list) {
--			if (size >= strlen(hp->lsm) &&
--			    !strncmp(value, hp->lsm, size)) {
--				socket_getpeersec_stream = hp->hook;
--				found = true;
--				break;
--			}
--		}
--		secmark_relabel_packet.secmark_relabel_packet = NULL;
--		hlist_for_each_entry(hp,
--				&security_hook_heads.secmark_relabel_packet,
--				     list) {
--			if (size >= strlen(hp->lsm) &&
--			    !strncmp(value, hp->lsm, size)) {
--				secmark_relabel_packet = hp->hook;
--				found = true;
--				break;
--			}
--		}
--		secmark_refcount_inc.secmark_refcount_inc = NULL;
--		hlist_for_each_entry(hp,
--				&security_hook_heads.secmark_refcount_inc,
--				     list) {
--			if (size >= strlen(hp->lsm) &&
--			    !strncmp(value, hp->lsm, size)) {
--				secmark_refcount_inc = hp->hook;
--				found = true;
--				break;
--			}
--		}
--		secmark_refcount_dec.secmark_refcount_dec = NULL;
--		hlist_for_each_entry(hp,
--				&security_hook_heads.secmark_refcount_dec,
--				     list) {
--			if (size >= strlen(hp->lsm) &&
--			    !strncmp(value, hp->lsm, size)) {
--				secmark_refcount_dec = hp->hook;
--				found = true;
--				break;
--			}
--		}
-+		found = lsm_add_one(&o.secid_to_secctx,
-+				    &security_hook_heads.secid_to_secctx,
-+				    value, size, found);
-+		found = lsm_add_one(&o.secctx_to_secid,
-+				    &security_hook_heads.secctx_to_secid,
-+				    value, size, found);
-+		found = lsm_add_one(&o.socket_getpeersec_stream,
-+				 &security_hook_heads.socket_getpeersec_stream,
-+				    value, size, found);
-+		found = lsm_add_one(&o.secmark_relabel_packet,
-+				    &security_hook_heads.secmark_relabel_packet,
-+				    value, size, found);
-+		found = lsm_add_one(&o.secmark_refcount_inc,
-+				    &security_hook_heads.secmark_refcount_inc,
-+				    value, size, found);
-+		found = lsm_add_one(&o.secmark_refcount_dec,
-+				    &security_hook_heads.secmark_refcount_dec,
-+				    value, size, found);
-+
- 		if (!found)
- 			return -EINVAL;
- 
-@@ -2120,13 +2090,9 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
- 
- 		if (loh->lsm)
- 			kfree(loh->lsm);
-+
-+		*loh = o;
- 		loh->lsm = s;
--		loh->secid_to_secctx = secid_to_secctx;
--		loh->secctx_to_secid = secctx_to_secid;
--		loh->socket_getpeersec_stream = socket_getpeersec_stream;
--		loh->secmark_relabel_packet = secmark_relabel_packet;
--		loh->secmark_refcount_inc = secmark_refcount_inc;
--		loh->secmark_refcount_dec = secmark_refcount_dec;
- 
- 		return size;
+ 	if (strcmp(name, XATTR_NAME_SELINUX)) {
+-		rc = cap_inode_setxattr(dentry, name, value, size, flags);
+-		if (rc)
+-			return rc;
+-
+ 		/* Not an attribute we recognize, so just check the
+ 		   ordinary setattr permission. */
+-		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
++		rc = dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
++		return rc ? rc : -ENOSYS;
  	}
+ 
+ 	sbsec = selinux_superblock(inode->i_sb);
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index c45e2dc3f959..c84c71a31b80 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -1194,7 +1194,7 @@ static int smack_inode_setxattr(struct dentry *dentry, const char *name,
+ 		    strncmp(value, TRANS_TRUE, TRANS_TRUE_SIZE) != 0)
+ 			rc = -EINVAL;
+ 	} else
+-		rc = cap_inode_setxattr(dentry, name, value, size, flags);
++		rc = -ENOSYS;
+ 
+ 	if (check_priv && !smack_privileged(CAP_MAC_ADMIN))
+ 		rc = -EPERM;
+@@ -1208,11 +1208,11 @@ static int smack_inode_setxattr(struct dentry *dentry, const char *name,
+ 			rc = -EINVAL;
+ 	}
+ 
+-	smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_DENTRY);
+-	smk_ad_setfield_u_fs_path_dentry(&ad, dentry);
+-
+ 	if (rc == 0) {
+-		rc = smk_curacc(smk_of_inode(d_backing_inode(dentry)), MAY_WRITE, &ad);
++		smk_ad_init(&ad, __func__, LSM_AUDIT_DATA_DENTRY);
++		smk_ad_setfield_u_fs_path_dentry(&ad, dentry);
++		rc = smk_curacc(smk_of_inode(d_backing_inode(dentry)),
++				MAY_WRITE, &ad);
+ 		rc = smk_bu_inode(d_backing_inode(dentry), MAY_WRITE, rc);
+ 	}
+ 
 -- 
 2.17.0
 
