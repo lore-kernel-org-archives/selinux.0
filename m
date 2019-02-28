@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61472C4360F
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7537BC10F00
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2DC56218AE
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 37460206DD
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:44:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="mDSJUdZ9"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="NYYtVxv7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727468AbfB1WoP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:44:15 -0500
-Received: from sonic301-10.consmr.mail.bf2.yahoo.com ([74.6.129.49]:33553 "EHLO
-        sonic301-10.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728425AbfB1WoP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:44:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551393853; bh=T99UAwbzwl6vRkj82D5u068WAkhWTn74lvNVXW7yVTU=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=mDSJUdZ9n2cb7X7U6kzHli4Ym1LUZVYsQiiAjr9UReddt7a4I0GsyeoWiIFtqJM/+bBQLNZOjkJS9s7NYIGSw+lF2p4wrhzZg7iDDOffwhE3KK1lL96XRJrhvMvpmRkcvBquoPAMqtbajRTRiookECS0MWsYGVp1v7CHFnLfUqwrqXyEoUgINYq3uH4xfqQDFHzPEfrUibp8jvsTprfPFnKRcva9W9tPfK91d1w4qINY+m/9k5p7SwFZnYC8xKLrmdtdYDRclbNCgrkby6R3vXR9heD83d6WuK6iwrxE13YBaDRLyT+5W6iRn6AYPv8OA+n+DoBywvgS+nG7MKtWmQ==
-X-YMail-OSG: 5utznpUVM1kTy8ES9SgFhj.Kqs3r0bJ3pHa1hgCx5pdZ7sq3rxquDjZV7glVvlk
- 1Kpwx4dKU81ApclMVOTK6.nbKQ3u13Dz9TzE.cGRJpjxtTI63FEz2CFR0hRkBszVcwSDz30C9uc9
- aDdam2y4iXT2TfIJjEIathoGDV3B70H3TxQEs4csqVhhBYceYR3slKumzaGv1wTlKGouV_dP3v2u
- HPff8IinorQQkhLgeKRbC_PILj_CyJ1LbzR0PUKjLdoZuoEyPSG79JVrZjSZZxLIEi8C.wm0oSnY
- wt1YNnq2n9KKqxlGY0Q4NeF2xTgqFOOhx571pxlZWZwJ24hkWqYExnEOUAhwUJb2kaHTIKLasATm
- MxQizyJY5mzCG3SDioez4fDkpWjILnict6.MSVSRGmkrkuFgl41jwqKo0B7ZKVjcPJ8NfaA2iHn9
- CYoxUZ2gL9t2S6_gEqC0ZFZhhR6eaVDGvN3PTQby9WVzfGgug7qh5AfVsOi8_5oaE11X8FQETvsB
- 5ZJ9QUjRpiV546fxEryi5wn3IcybcUq4M33Z0btmSsWC4LD9DXsrIRv8ssntOYYVLyxNMDhJg0Aj
- 9KAbyh2IU0VMFut_hjgZmfuTp1aWntAP2UM0HyxJGDzxN59lWlSJBRJrN2uYyVuSCsxs2HEJtgHW
- fU2DD5A2nwLnQY8QzdBcX4yIx299iA.Eo9cSpb9_lcvS5X0I6tN7jIzlgyFPftYa33K9kIYgPuWB
- wIoh03MFM5N.Mmj_5YMlxEQs3RGti0kinqgPGSi4nz3rhP29XglzxhwQu2XFFQyZkPNQnRQFQ8lS
- C7Qmyf.OlzxpgOQebIAypxntx6m5Cmw577_ga2Vbdz3NqZX72l3pGcunKDmmEp5D4WMwhTv853i3
- _X8M7AAv8uXFoliLaK3qD62dy84MPVzI0iI0qOFBWUA1Y.6Y62u.wLVfg8PVMaElp7oQUjZSDYGM
- MDnax_03X8H0iUclijO7xs.mtzhTqcN0A0SKe504flOib6HmU_Un9TutUEhBvCFUyBXtBSf5EQQt
- Qf877GwsaAorRxh8UG2L96WAWTM6RNTAoCDB3dvC1pnMTMAs6Bl2bfwD6f6DoAY4QaFffvrEc1Kx
- yybRnj_.Kn9JzoNolEL.Gpy.Jw6dtVA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.bf2.yahoo.com with HTTP; Thu, 28 Feb 2019 22:44:13 +0000
+        id S1728903AbfB1WoV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Feb 2019 17:44:21 -0500
+Received: from sonic307-10.consmr.mail.bf2.yahoo.com ([74.6.134.49]:41840 "EHLO
+        sonic307-10.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728480AbfB1WoU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:44:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551393858; bh=X8dakGkeNpqur+BQP5PaaGQJmiw+2TNbyOx7dWZIpL4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=NYYtVxv79sDcel9zo0Bk2HC78EdMN+YvUWqLZ5JEvShdxy5z1K22lWUV1B2CAX5qJYHTxLfAUmpiTxq+tMXPWuI2UdP1YZ0HtZ79GO8XVqkMxCz9ru1MXzXmB1F/2rGuc8dcIGQzdnIIo4X1jh5ZlnkM1qG379f7qFMPMzTGXdA2DMirEPzmf0Gvt8o6v6WGyuNwBwf8IoID3FwG4eerg4GezH0QM5jJDg/WQEngW/C1cT0pa6aGOBz86CqHmcU82H/isMiYJPwEYr96U8mzz0X7OsZRaDivGyVoSCLMIctmFfHxSdhalBh/5hHH8oaIGTZ0C/rjXzGlYs+BVAQ/LQ==
+X-YMail-OSG: QZHTLLYVM1nMZwrUtlLmodjlC4s29QGc2F2PaehC2pIHN47I6__nD9Y3TFhLqSy
+ W6u7Ynm1QqtgM652byczGbx1X_UdvaqU4_yoFD4h.Hi_VaWvDPohcrOrvYxHG7l47FFcDYURphfj
+ Vb0aql.jaMqnhCuqFSkgyThv8xcSjvXJxJAcIOFY9.LlEhGyjMiw4LIEc47zvNALoxE6FHAnbWBw
+ kmakiKjnhoqXyeHOWzF.1qTVwzNTKVByXPXLtJoh.emUO4..ccwiHBD7IOnF0TWvkWuDS1BcHPL2
+ 4OfoyHfzqYESRVZjZ6LPIIOdz_4c8F85U9O5pswdMfqOdD5R6pwqjN4uPhfOJmq_YdetmTIWc.r7
+ OWOVeCw3l2uXHr9bhKclZcDjJhZHQ9PJZ6Uv5.5iof6_E0zFlR5S.STAoHK1.1fB7W.9s7tqdRDN
+ gCgLjor4eAocnOrCiByANk5oVwLOyCPAmDZffP4aslutjysL.COQOzJJYnl.6eX72QSvLx7ZIafR
+ 5xUL6MGW4VHSvEvoUKvMFf3YP0yTLHW9ZURvRrFFq0ulPdp0h8Xdifjxa_s5eI534zGEH7olT_M_
+ .ZezB0beQihCSR5IJ4EorRcQrjTA6n3lUd8Ms3KKb8dovGdLweqKWjJo3WyaXVyjfbkXsi87SGD1
+ BmbHErpAOExAax4.xwwg8L7qAN2IOvk3deWjzcIcPmoxLx.oS9YcsMp4NKySVTZx.I25blsaI44D
+ 2IjhO6014amx6Ji7fVTbgaigV2UEqmlsKKyjtdBQHABqnKB0YzTjAI9SdnerX0Z858H.I2Lhx6co
+ l_htjMoxODJyzh8jrwppSXQKpZj6gUTyAKQFfmSlfxNRxi07yW.RTbU2KhO2N4YAJZzAeCbJZN1r
+ oMec8JO0Wdl2h4AcLKZH8qlDxTD3qklA_C90rZhF69rD5vAQjqO_yQHdnmAflhfl.z11q1PtXN2H
+ I0gbcKxoMoSE_E3nVTom3klPhivZkJNB1SNykiqNQNwVEFQcO_RIYhB5vIQb3MkNaiUxyrEVJQ4X
+ ZYas7WBBTdddhEVBw7j9KMb.35YYT_xAAMNIt2LjcFK678NON0gJafVKle_XOSxd_eDAgTTsYVBk
+ _Z7Hzz8nJdB9JZnsAJHYnAJmG5NwqJT1z6ySEzexpMFEkNzzWPAOcFCUn
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.bf2.yahoo.com with HTTP; Thu, 28 Feb 2019 22:44:18 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp428.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 731ec5e129ec3fdeedd3a533970a7e62;
-          Thu, 28 Feb 2019 22:44:08 +0000 (UTC)
+          Thu, 28 Feb 2019 22:44:13 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 74/97] Smack: Detect if secmarks can be safely used
-Date:   Thu, 28 Feb 2019 14:43:33 -0800
-Message-Id: <20190228224356.2608-5-casey@schaufler-ca.com>
+Subject: [PATCH 78/97] LSM: Infrastructure security blobs for mount options
+Date:   Thu, 28 Feb 2019 14:43:37 -0800
+Message-Id: <20190228224356.2608-9-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228224356.2608-1-casey@schaufler-ca.com>
 References: <20190228224356.2608-1-casey@schaufler-ca.com>
@@ -58,193 +58,262 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Utilize the security_secmark_refcount_in() hooks to determine
-if Smack can safely assume that IP secmarks are not being used
-by another LSM. Only use secmarks if they can be determined to
-belong to Smack.
-
-[cschaufler@localhost lsm-stacking]$ head -30 ../from-lap-190128/0073*
-From 796ddbf9da8e0e8180805591badf182d2578ed5a Mon Sep 17 00:00:00 2001
-From: Casey Schaufler <casey@schaufler-ca.com>
-Date: Thu, 3 Jan 2019 15:56:59 -0800
-Subject: [PATCH 73/79] Smack: Detect if secmarks can be safely used
-
-Utilize the security_secmark_refcount_in() hooks to determine
-if Smack can safely assume that IP secmarks are not being used
-by another LSM. Only use secmarks if they can be determined to
-belong to Smack.
+Manage LSM data for mount options in the infrastructure
+rather than in the individual modules.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/smack/smack.h           | 15 +++++++++++++++
- security/smack/smack_lsm.c       | 16 +++++-----------
- security/smack/smack_netfilter.c | 25 +++++++++++++++++++++++--
- 3 files changed, 43 insertions(+), 13 deletions(-)
+ include/linux/lsm_hooks.h  |  5 +++++
+ security/security.c        | 18 ++++++++++++++++++
+ security/selinux/hooks.c   | 31 ++++++++++++++++++-------------
+ security/smack/smack_lsm.c | 19 +++++++++++++------
+ 4 files changed, 54 insertions(+), 19 deletions(-)
 
-diff --git a/security/smack/smack.h b/security/smack/smack.h
-index f623d059421d..147afb9233b4 100644
---- a/security/smack/smack.h
-+++ b/security/smack/smack.h
-@@ -553,4 +553,19 @@ static inline void smk_ad_setfield_u_net_sk(struct smk_audit_info *a,
- }
- #endif
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 4020e13f0669..58e5465fdd79 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2046,6 +2046,7 @@ struct lsm_blob_sizes {
+ 	int	lbs_key;
+ 	int	lbs_msg_msg;
+ 	int	lbs_task;
++	int	lbs_mnt_opts;
+ };
  
-+#ifdef CONFIG_SECURITY_SMACK_NETFILTER
-+extern bool smack_use_secmark;
-+void smack_secmark_refcount_inc(void);
-+
-+static inline bool smk_use_secmark(void)
-+{
-+	return smack_use_secmark;
-+}
-+#else
-+static inline bool smk_use_secmark(void)
-+{
-+	return false;
-+}
+ /*
+@@ -2119,4 +2120,8 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
+ 
+ extern int lsm_inode_alloc(struct inode *inode);
+ 
++#ifdef CONFIG_SECURITY
++void *lsm_mnt_opts_alloc(void);
 +#endif
 +
- #endif  /* _SECURITY_SMACK_H */
+ #endif /* ! __LINUX_LSM_HOOKS_H */
+diff --git a/security/security.c b/security/security.c
+index 105b5ee22bcf..780c914df9fb 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -194,6 +194,7 @@ static void __init lsm_set_blob_sizes(struct lsm_blob_sizes *needed)
+ #ifdef CONFIG_KEYS
+ 	lsm_set_blob_size(&needed->lbs_key, &blob_sizes.lbs_key);
+ #endif
++	lsm_set_blob_size(&needed->lbs_mnt_opts, &blob_sizes.lbs_mnt_opts);
+ 	lsm_set_blob_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
+ 	lsm_set_blob_size(&needed->lbs_sock, &blob_sizes.lbs_sock);
+ 	lsm_set_blob_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
+@@ -328,6 +329,7 @@ static void __init ordered_lsm_init(void)
+ #ifdef CONFIG_KEYS
+ 	init_debug("key blob size        = %d\n", blob_sizes.lbs_key);
+ #endif /* CONFIG_KEYS */
++	init_debug("mnt_opts blob size   = %d\n", blob_sizes.lbs_mnt_opts);
+ 	init_debug("msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
+ 	init_debug("sock blob size       = %d\n", blob_sizes.lbs_sock);
+ 	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
+@@ -738,6 +740,21 @@ int lsm_superblock_alloc(struct super_block *sb)
+ 	return 0;
+ }
+ 
++/**
++ * lsm_mnt_opts_alloc - allocate a composite mnt_opts blob
++ *
++ * Allocate the mount options blob
++ *
++ * Returns the blob, or NULL if memory can't be allocated.
++ */
++void *lsm_mnt_opts_alloc(void)
++{
++	if (blob_sizes.lbs_mnt_opts == 0)
++		return NULL;
++
++	return kzalloc(blob_sizes.lbs_mnt_opts, GFP_KERNEL);
++}
++
+ /*
+  * Hook list operation macros.
+  *
+@@ -941,6 +958,7 @@ void security_free_mnt_opts(void **mnt_opts)
+ 	if (!*mnt_opts)
+ 		return;
+ 	call_void_hook(sb_free_mnt_opts, *mnt_opts);
++	kfree(*mnt_opts);
+ 	*mnt_opts = NULL;
+ }
+ EXPORT_SYMBOL(security_free_mnt_opts);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 501aed18f100..e149be6226d6 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -381,14 +381,20 @@ struct selinux_mnt_opts {
+ 	const char *fscontext, *context, *rootcontext, *defcontext;
+ };
+ 
++static void *selinux_mnt_opts(void *mnt_opts)
++{
++	if (mnt_opts)
++		return mnt_opts + selinux_blob_sizes.lbs_mnt_opts;
++	return NULL;
++}
++
+ static void selinux_free_mnt_opts(void *mnt_opts)
+ {
+-	struct selinux_mnt_opts *opts = mnt_opts;
++	struct selinux_mnt_opts *opts = selinux_mnt_opts(mnt_opts);
+ 	kfree(opts->fscontext);
+ 	kfree(opts->context);
+ 	kfree(opts->rootcontext);
+ 	kfree(opts->defcontext);
+-	kfree(opts);
+ }
+ 
+ static inline int inode_doinit(struct inode *inode)
+@@ -614,7 +620,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 	const struct cred *cred = current_cred();
+ 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	struct dentry *root = sbsec->sb->s_root;
+-	struct selinux_mnt_opts *opts = mnt_opts;
++	struct selinux_mnt_opts *opts = selinux_mnt_opts(mnt_opts);
+ 	struct inode_security_struct *root_isec;
+ 	u32 fscontext_sid = 0, context_sid = 0, rootcontext_sid = 0;
+ 	u32 defcontext_sid = 0;
+@@ -629,7 +635,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 			   server is ready to handle calls. */
+ 			goto out;
+ 		}
+-		rc = -EINVAL;
++		/* Don't set any SELinux options. Allow any other LSM
++		   that's on the stack to do so. */
+ 		pr_warn("SELinux: Unable to set superblock options "
+ 			"before the security server is initialized\n");
+ 		goto out;
+@@ -953,16 +960,17 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 
+ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ {
+-	struct selinux_mnt_opts *opts = *mnt_opts;
++	struct selinux_mnt_opts *opts = selinux_mnt_opts(*mnt_opts);
+ 
+ 	if (token == Opt_seclabel)	/* eaten and completely ignored */
+ 		return 0;
+ 
+ 	if (!opts) {
+-		opts = kzalloc(sizeof(struct selinux_mnt_opts), GFP_KERNEL);
++		opts = lsm_mnt_opts_alloc();
+ 		if (!opts)
+ 			return -ENOMEM;
+ 		*mnt_opts = opts;
++		opts = selinux_mnt_opts(opts);
+ 	}
+ 	if (!s)
+ 		return -ENOMEM;
+@@ -1015,10 +1023,8 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
+ 	rc = selinux_add_opt(token, val, mnt_opts);
+ 	if (unlikely(rc)) {
+ 		kfree(val);
+-		if (*mnt_opts) {
++		if (*mnt_opts)
+ 			selinux_free_mnt_opts(*mnt_opts);
+-			*mnt_opts = NULL;
+-		}
+ 	}
+ 	return rc;
+ }
+@@ -2583,10 +2589,8 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ 			rc = selinux_add_opt(token, arg, mnt_opts);
+ 			if (unlikely(rc)) {
+ 				kfree(arg);
+-				if (*mnt_opts) {
++				if (*mnt_opts)
+ 					selinux_free_mnt_opts(*mnt_opts);
+-					*mnt_opts = NULL;
+-				}
+ 				return rc;
+ 			}
+ 		} else {
+@@ -2609,7 +2613,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ 
+ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
+ {
+-	struct selinux_mnt_opts *opts = mnt_opts;
++	struct selinux_mnt_opts *opts = selinux_mnt_opts(mnt_opts);
+ 	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	u32 sid;
+ 	int rc;
+@@ -6532,6 +6536,7 @@ struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
+ #ifdef CONFIG_KEYS
+ 	.lbs_key = sizeof(struct key_security_struct),
+ #endif /* CONFIG_KEYS */
++	.lbs_mnt_opts = sizeof(struct selinux_mnt_opts),
+ 	.lbs_msg_msg = sizeof(struct msg_security_struct),
+ 	.lbs_sock = sizeof(struct sk_security_struct),
+ 	.lbs_superblock = sizeof(struct superblock_security_struct),
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 7b8ad16c09e0..c45e2dc3f959 100644
+index c84c71a31b80..f1e0f1378666 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -3742,7 +3742,7 @@ static int smk_skb_to_addr_ipv6(struct sk_buff *skb, struct sockaddr_in6 *sip)
-  */
- static struct smack_known *smack_from_skb(struct sk_buff *skb)
- {
--	if (skb == NULL || skb->secmark == 0)
-+	if (skb == NULL || skb->secmark == 0 || !smk_use_secmark())
- 		return NULL;
+@@ -573,26 +573,33 @@ struct smack_mnt_opts {
+ 	const char *fsdefault, *fsfloor, *fshat, *fsroot, *fstransmute;
+ };
  
- 	return smack_from_secid(skb->secmark);
-@@ -3776,7 +3776,6 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 
- 	switch (family) {
- 	case PF_INET:
--#ifdef CONFIG_SECURITY_SMACK_NETFILTER
- 		/*
- 		 * If there is a secmark use it rather than the CIPSO label.
- 		 * If there is no secmark fall back to CIPSO.
-@@ -3785,7 +3784,6 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		skp = smack_from_skb(skb);
- 		if (skp)
- 			goto access_check;
--#endif /* CONFIG_SECURITY_SMACK_NETFILTER */
- 		/*
- 		 * Translate what netlabel gave us.
- 		 */
-@@ -3799,9 +3797,8 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 
- 		netlbl_secattr_destroy(&secattr);
- 
--#ifdef CONFIG_SECURITY_SMACK_NETFILTER
- access_check:
--#endif
-+
- #ifdef CONFIG_AUDIT
- 		smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
- 		ad.a.u.net->family = family;
-@@ -3928,13 +3925,11 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
- 		s = ssp->smk_out->smk_secid;
- 		break;
- 	case PF_INET:
--#ifdef CONFIG_SECURITY_SMACK_NETFILTER
- 		skp = smack_from_skb(skb);
- 		if (skp) {
- 			s = skp->smk_secid;
- 			break;
- 		}
--#endif
- 		/*
- 		 * Translate what netlabel gave us.
- 		 */
-@@ -4024,7 +4019,6 @@ static int smack_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	}
- #endif /* CONFIG_IPV6 */
- 
--#ifdef CONFIG_SECURITY_SMACK_NETFILTER
- 	/*
- 	 * If there is a secmark use it rather than the CIPSO label.
- 	 * If there is no secmark fall back to CIPSO.
-@@ -4033,7 +4027,6 @@ static int smack_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	skp = smack_from_skb(skb);
- 	if (skp)
- 		goto access_check;
--#endif /* CONFIG_SECURITY_SMACK_NETFILTER */
- 
- 	netlbl_secattr_init(&secattr);
- 	rc = netlbl_skbuff_getattr(skb, family, &secattr);
-@@ -4043,9 +4036,7 @@ static int smack_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 		skp = &smack_known_huh;
- 	netlbl_secattr_destroy(&secattr);
- 
--#ifdef CONFIG_SECURITY_SMACK_NETFILTER
- access_check:
--#endif
- 
- #ifdef CONFIG_AUDIT
- 	smk_ad_init_net(&ad, __func__, LSM_AUDIT_DATA_NET, &net);
-@@ -4620,6 +4611,9 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(sk_alloc_security, smack_sk_alloc_security),
- #ifdef SMACK_IPV6_PORT_LABELING
- 	LSM_HOOK_INIT(sk_free_security, smack_sk_free_security),
-+#endif
-+#ifdef CONFIG_SECURITY_SMACK_NETFILTER
-+	LSM_HOOK_INIT(secmark_refcount_inc, smack_secmark_refcount_inc),
- #endif
- 	LSM_HOOK_INIT(sock_graft, smack_sock_graft),
- 	LSM_HOOK_INIT(inet_conn_request, smack_inet_conn_request),
-diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
-index 701a1cc1bdcc..ea45b173f8ca 100644
---- a/security/smack/smack_netfilter.c
-+++ b/security/smack/smack_netfilter.c
-@@ -21,6 +21,15 @@
- #include <net/net_namespace.h>
- #include "smack.h"
- 
-+bool smack_use_secmark;
-+static bool smack_checked_secmark;
-+
-+void smack_secmark_refcount_inc(void)
++static void *smack_mnt_opts(void *opts)
 +{
-+        smack_use_secmark = true;
-+	pr_info("Smack: Using network secmarks.\n");
++	if (opts)
++		return opts + smack_blob_sizes.lbs_mnt_opts;
++	return NULL;
 +}
 +
- #if IS_ENABLED(CONFIG_IPV6)
+ static void smack_free_mnt_opts(void *mnt_opts)
+ {
+-	struct smack_mnt_opts *opts = mnt_opts;
++	struct smack_mnt_opts *opts = smack_mnt_opts(mnt_opts);
+ 	kfree(opts->fsdefault);
+ 	kfree(opts->fsfloor);
+ 	kfree(opts->fshat);
+ 	kfree(opts->fsroot);
+ 	kfree(opts->fstransmute);
+-	kfree(opts);
+ }
  
- static unsigned int smack_ipv6_output(void *priv,
-@@ -31,7 +40,13 @@ static unsigned int smack_ipv6_output(void *priv,
- 	struct socket_smack *ssp;
+ static int smack_add_opt(int token, const char *s, void **mnt_opts)
+ {
+-	struct smack_mnt_opts *opts = *mnt_opts;
++	struct smack_mnt_opts *opts = smack_mnt_opts(*mnt_opts);
+ 
+ 	if (!opts) {
+-		opts = kzalloc(sizeof(struct smack_mnt_opts), GFP_KERNEL);
++		opts = lsm_mnt_opts_alloc();
+ 		if (!opts)
+ 			return -ENOMEM;
+ 		*mnt_opts = opts;
++		opts = smack_mnt_opts(opts);
+ 	}
+ 	if (!s)
+ 		return -ENOMEM;
+@@ -654,7 +661,6 @@ static int smack_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ 				kfree(arg);
+ 				if (*mnt_opts)
+ 					smack_free_mnt_opts(*mnt_opts);
+-				*mnt_opts = NULL;
+ 				return rc;
+ 			}
+ 		} else {
+@@ -697,7 +703,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ 	struct superblock_smack *sp = smack_superblock(sb);
+ 	struct inode_smack *isp;
  	struct smack_known *skp;
+-	struct smack_mnt_opts *opts = mnt_opts;
++	struct smack_mnt_opts *opts = smack_mnt_opts(mnt_opts);
+ 	bool transmute = false;
  
--	if (sk && smack_sock(sk)) {
-+	if (!smack_checked_secmark) {
-+		security_secmark_refcount_inc();
-+		security_secmark_refcount_dec();
-+		smack_checked_secmark = true;
-+	}
-+
-+	if (smack_use_secmark && sk && smack_sock(sk)) {
- 		ssp = smack_sock(sk);
- 		skp = ssp->smk_out;
- 		skb->secmark = skp->smk_secid;
-@@ -49,7 +64,13 @@ static unsigned int smack_ipv4_output(void *priv,
- 	struct socket_smack *ssp;
- 	struct smack_known *skp;
- 
--	if (sk && smack_sock(sk)) {
-+	if (!smack_checked_secmark) {
-+		security_secmark_refcount_inc();
-+		security_secmark_refcount_dec();
-+		smack_checked_secmark = true;
-+	}
-+
-+	if (smack_use_secmark && sk && smack_sock(sk)) {
- 		ssp = smack_sock(sk);
- 		skp = ssp->smk_out;
- 		skb->secmark = skp->smk_secid;
+ 	if (sp->smk_flags & SMK_SB_INITIALIZED)
+@@ -4501,6 +4507,7 @@ struct lsm_blob_sizes smack_blob_sizes __lsm_ro_after_init = {
+ #ifdef CONFIG_KEYS
+ 	.lbs_key = sizeof(struct smack_known *),
+ #endif /* CONFIG_KEYS */
++	.lbs_mnt_opts = sizeof(struct smack_mnt_opts),
+ 	.lbs_msg_msg = sizeof(struct smack_known *),
+ 	.lbs_sock = sizeof(struct socket_smack),
+ 	.lbs_superblock = sizeof(struct superblock_smack),
 -- 
 2.17.0
 
