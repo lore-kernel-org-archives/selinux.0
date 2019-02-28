@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CAA9C10F00
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0E81C10F0A
 	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6AC9C20851
+	by mail.kernel.org (Postfix) with ESMTP id 9715C2184A
 	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="aiy9EhC6"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="KI6gA2Z0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731967AbfB1WUe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:20:34 -0500
-Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:46564
+        id S1732195AbfB1WUd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Feb 2019 17:20:33 -0500
+Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:43330
         "EHLO sonic309-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732266AbfB1WUc (ORCPT
+        by vger.kernel.org with ESMTP id S1732199AbfB1WUc (ORCPT
         <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:20:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392430; bh=EAfxIxB1ZvUzLgH0PH4QuaL8hGRSOCB+7KrFozqHypw=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=aiy9EhC64PVjnA/yvwvLHORvgNxP8Ad+yPy3mJ8fxbr/JdvWH+Dy9mxB2FgXhg2XGzN0olduGsSkiiJbj41FGhBM3SMeV650DZ1qDk1PQHx5dP5FeL2Aub9wkdgycCaUuWz5DG5G5xxH+rBwHrXeAonmhC8O/bqkQ2D+MjCeq4xLfgdNRXSdOyycjM4ch1KCozXiiXgI5dZ5GY9Ot/r+YMsEC0is86amFOu9qxi9Po+glxfMqVFhrlwxHWW/b+44eHjNiUTuNExmdyUuMsIP0ilJbIzbCTSk4KhCgW2kKweYOHyH38finWejjrD190TfZXiHseB5abLIIHzzNOcCHg==
-X-YMail-OSG: sFe2TPUVM1m8vic1V9bjXZ.sBSCRF.Besdk7AQqWp53nfPhzvCkkUJLuS7HbbYh
- vDeWwm1kvrvuK98zEUJ.97khEYez2Pc_ZYZzwMMS1jC.aXczy.dn5R9.vZ9edTlksC2DUSkIKx6b
- yo7U3LYPx5y2VeycTgUj8FAuRloY9Gfad3wKji3wxUgm9j_mDZWoH6dwLp6aEQYh7arL7RUu2HE.
- nvrq.AW6X.ZjD.jSsOFkLTIXrXgQfYqe9YrMIGFmvuraOSelQ0lHlyMWvvmJVXtjOo36RdXS_DXe
- jn0w7W21LJA79Eajzwhrp9u6_Hlm5k5j3bvpjyxDrhWzSA.PVtg5ffdNE5TRc454rZ3b3KQWVfYy
- uASE8JslFsLsml6AoKGalLFx5YzS8IxaCLAQgXHqhY.3DGPdkjzvSjwmWy77ttc24aCXI5mMGMNP
- 4S6JcjWiFVjk.TKK8QZDNZm1sTIDIrWDOKjD4SnBC4jdVrjflf1AuSP3BivA.OPPkXXnnD9AUAnS
- mJnUYD_34moqsWs_iUkCTzy1h7BUQZq25USgqJYpkk.Hfe5CphM99j39FShuoCKTvgOlzjpP_7gs
- aOExTqsV_.487SptbNQhTi0J9ZE_Pq44CEzFnivz_kOWR2u.IfcWxl2ZpvQydGTsLfiU0XYYUl61
- MHbmcOlMzs.QwVwaSiXKQws1BCwDX3VPry6GQVX.TrAW4W275GyrBzBinMZJ2._RGGlA28evb_7l
- Mt5AhJC1MqrVnDK0pgcMdX0MgZq7hZ5uAvB04JKt0PUupeLfO6Wv1olZJibXWiwx.R0q3OFQittR
- ._v5ZGR553181rizHKwTCtqV9huPjmSTyDlMTZ7OEm.N_US0RtMsgyUwnV3m9B0KGVw0SlKw7C2L
- RpXnVCseN42WT4qgCXa1bn0BbYL4hcgT274S2EM.esnEKnVeQACvlZTS61eV75uGGiSTxWRPRqWT
- 5XpRo.OpaK7ivH2cIUAGwxzKSQ8brFiqvCCMjLQafvw3QQHT4g0oJfKcEEIvbjivLAsub0zUmH7s
- bvrKBLqRfMWQ5Ftf4d7yFMpqgujOCMoYHFgVytNnhsF6Wpwwqx.167jU88bB_OWl__MsZ5bVgY93
- fG1M.nU40F3_9PYJ.2LJZHy10Pyjer3GQvqjFIhsYiG1EtTk-
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392430; bh=KFOiqmYPHUmlyvGrhA826bf8EqEN7bZYPDEB3JWKNcY=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=KI6gA2Z02+q0XLsgNxalO73ZEAKfU+H0kLPBe84KFQ/tcfiz7gevQFybth4U04ecq+hR37LQFBVhphCMZQok6Dj3iMZs5d1gcWh2fLDSEdR8+3TJFrtUI+tlpu+VQ2bXyzDlQ3B1gckqPwsQofIB7TySFm+DKuSd/TiLX1Xco93TF/WzDEoAkOtpz92nKDEYzvtHZ6p/y4GpG10htvS/ReOsmLo4aTNapV0dm6qI4uKjFPoALahQKShwbta6HXHdztnVCnaULLARsJzfF9fTxugMVqCzgaG/gdnMo3Gy4OcS4R5W6zM0KGaIWyLPt/YPdnfUl9afGeKRFtODTEReyA==
+X-YMail-OSG: bh3kiuQVM1lt6BUXbcDg0JX6sjeAZIqQZYXSc6C4iomDpz5kKendjP1TWFhhJ3Y
+ 3o8J.qTzuG.nhFfwCyBBp5V.WLrHWwM1UuvF4YgQ7.pt7Dti5tJTUVaLv69FMVAzUMNbSbbPgiih
+ 88jXe217oLzgZOkkeG_G_vtKNZIdUk1GA5JHfgzf5e_CNOUvKbZqazthiV6IAsom4wvwZ8mo.LbY
+ AXVb.iFeJ6NsF.i6fLK8b4wntAz8IfqozbaGpUUFfdN78U7RZBU.XlwYEKz_JhdMsPueja3MQGdK
+ JdmfXdrX5qP0p3NW515V2kD2LPuJNUlXyKTqTYa5bAHGcS84rj67doQMUbs5jo8mRNMDw6SwWRN2
+ mRg_nbOrJVSTMtrD5PfWPzqvGXbrBjm_beLBvrcudmBbCA1BPXjgDyE_amtBKLh2AjnUmpp0qbD0
+ XHOBoFtwYQpjQ9p3JS2NdJlx0avVMxd3_AbIM915mVrbJz6q3tJ33ELwrEqljkdsfY2IiCzD6znZ
+ OyUxKW4Fg_8zAGEgY_utCfrYyLYSWPZ4mTOiVAFMKX03750moZ.UzifTHOG1TMqu4KSeKAWbLo4j
+ G4SZSeNZJl3DJ1tRav9rIwJ7ZA5U8cMAtCM.xGsfeLS9k_RtR6tdVUSE3RWuxZxT4gjxg6KSrv6p
+ y7px2UfdW7jGcI0ZWNE6n3nYnfXYQG9yAyUrtDVF8mzEpmw4MrcoenSHZ0KwYOJEmdy0Wcaosi44
+ u8DG0WDaLPV79jz_UV68GyM5ClH_UUtjDXxMEj7PNE668M8DuFs_gdC0z8wPjd0XoAVaeOzSR3ul
+ quI1tNhFWfVY8nQm4NVzURq57C5Jj7PHPc6pmhBi902rfAEUvepNIKhCmcPOggDVS8NbPl33Zn5f
+ yJlfB5bxY26xPpejRTmH8MaNyja9u3WVRtRooeEc8CBJ2OeGsWVPu17rwSRovpGzQsM5RP71LPaP
+ 5N4eFeFRY7QvgpFfJ46jF.kVzV316cgmCiwfSpRjfbOfX5m6WidNNuItBDhY8NNejARY3HjSQFKT
+ tLbp.ateQ7wLFgY94tLgTW9sg8rH8CNjZPfKzkROaRK2jJg7HyHlpI03.diVyv_UO2CovGJdzkVX
+ ug0W1z9l9QvJf73HCO.8JRw91sgPZkjcWnkKGWOIjb93.13dKUiKsHMATLFg-
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:20:30 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp421.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d90148b291d74b44c78573c559ceeae0;
-          Thu, 28 Feb 2019 22:20:26 +0000 (UTC)
+          by smtp404.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 4ed72522ccf44343c47df9c8f8a3f798;
+          Thu, 28 Feb 2019 22:20:28 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 69/97] Smack: Consolidate secmark conversions
-Date:   Thu, 28 Feb 2019 14:19:05 -0800
-Message-Id: <20190228221933.2551-70-casey@schaufler-ca.com>
+Subject: [PATCH 70/97] netfilter: Remove unnecessary NULL check in lsm_context
+Date:   Thu, 28 Feb 2019 14:19:06 -0800
+Message-Id: <20190228221933.2551-71-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228221933.2551-1-casey@schaufler-ca.com>
 References: <20190228221933.2551-1-casey@schaufler-ca.com>
@@ -58,103 +58,28 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add a helper function smack_from_skb() that does all the checks
-required and maps a valid secmark to a smack_known structure.
-Replace the direct use of the secmark in surrounding code.
+There is a redundant NULL check when releasing a security context.
+Remove it.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/smack/smack_lsm.c | 39 ++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+ net/netfilter/nfnetlink_queue.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index d3ec5f49ef44..7b8ad16c09e0 100644
---- a/security/smack/smack_lsm.c
-+++ b/security/smack/smack_lsm.c
-@@ -3734,6 +3734,20 @@ static int smk_skb_to_addr_ipv6(struct sk_buff *skb, struct sockaddr_in6 *sip)
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index 7a095b9d0a10..83bb44d70582 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -638,8 +638,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	kfree_skb(skb);
+ 	net_err_ratelimited("nf_queue: error creating packet message\n");
+ nlmsg_failure:
+-	if (lc.context)
+-		security_release_secctx(&lc);
++	security_release_secctx(&lc);
+ 	return NULL;
  }
- #endif /* CONFIG_IPV6 */
  
-+/**
-+ * smack_from_skb - Smack data from the secmark in an skb
-+ * @skb: packet
-+ *
-+ * Returns smack_known of the secmark or NULL if that won't work.
-+ */
-+static struct smack_known *smack_from_skb(struct sk_buff *skb)
-+{
-+	if (skb == NULL || skb->secmark == 0)
-+		return NULL;
-+
-+	return smack_from_secid(skb->secmark);
-+}
-+
- /**
-  * smack_socket_sock_rcv_skb - Smack packet delivery access check
-  * @sk: socket
-@@ -3768,10 +3782,9 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		 * If there is no secmark fall back to CIPSO.
- 		 * The secmark is assumed to reflect policy better.
- 		 */
--		if (skb && skb->secmark != 0) {
--			skp = smack_from_secid(skb->secmark);
-+		skp = smack_from_skb(skb);
-+		if (skp)
- 			goto access_check;
--		}
- #endif /* CONFIG_SECURITY_SMACK_NETFILTER */
- 		/*
- 		 * Translate what netlabel gave us.
-@@ -3814,9 +3827,8 @@ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
- 		    proto != IPPROTO_TCP && proto != IPPROTO_DCCP)
- 			break;
- #ifdef SMACK_IPV6_SECMARK_LABELING
--		if (skb && skb->secmark != 0)
--			skp = smack_from_secid(skb->secmark);
--		else
-+		skp = smack_from_skb(skb);
-+		if (skp == NULL)
- 			skp = smack_ipv6host_label(&sadd);
- 		if (skp == NULL)
- 			skp = smack_net_ambient;
-@@ -3917,9 +3929,11 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
- 		break;
- 	case PF_INET:
- #ifdef CONFIG_SECURITY_SMACK_NETFILTER
--		s = skb->secmark;
--		if (s != 0)
-+		skp = smack_from_skb(skb);
-+		if (skp) {
-+			s = skp->smk_secid;
- 			break;
-+		}
- #endif
- 		/*
- 		 * Translate what netlabel gave us.
-@@ -3936,7 +3950,9 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
- 		break;
- 	case PF_INET6:
- #ifdef SMACK_IPV6_SECMARK_LABELING
--		s = skb->secmark;
-+		skp = smack_from_skb(skb);
-+		if (skp)
-+			s = skp->smk_secid;
- #endif
- 		break;
- 	}
-@@ -4014,10 +4030,9 @@ static int smack_inet_conn_request(struct sock *sk, struct sk_buff *skb,
- 	 * If there is no secmark fall back to CIPSO.
- 	 * The secmark is assumed to reflect policy better.
- 	 */
--	if (skb && skb->secmark != 0) {
--		skp = smack_from_secid(skb->secmark);
-+	skp = smack_from_skb(skb);
-+	if (skp)
- 		goto access_check;
--	}
- #endif /* CONFIG_SECURITY_SMACK_NETFILTER */
- 
- 	netlbl_secattr_init(&secattr);
 -- 
 2.17.0
 
