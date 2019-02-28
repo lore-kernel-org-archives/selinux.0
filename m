@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E543C43381
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4963C10F06
 	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 340E820851
+	by mail.kernel.org (Postfix) with ESMTP id 912CE20851
 	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="YnRPj/38"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="mh8RaDtE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729833AbfB1WUl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:20:41 -0500
-Received: from sonic315-15.consmr.mail.gq1.yahoo.com ([98.137.65.39]:45649
-        "EHLO sonic315-15.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729671AbfB1WUB (ORCPT
+        id S1729931AbfB1WUk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Feb 2019 17:20:40 -0500
+Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:33029
+        "EHLO sonic309-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729663AbfB1WUB (ORCPT
         <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:20:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392401; bh=CO4B9SsgBMm8T7hrH5GKIgw3RD7XFjAFy3qVi26z7EQ=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=YnRPj/38PS34ReKF3eeFN95CJdywR54+AayfbtpvpEdwISBS20g/tOa7R7bLBgHQITKyl7RhM4idiWx4MoB5V1h0GEZrUGcVoV6yYwd5pO+DgOxHYOUH3mKUdrsLlDKwLErCJEKduHaub4WM3tNLKIdYgFrV5MDmm88qapAdxxcRGlzOYNCx05GdFtkmOggrAXwT0Z35hWQRRwzjrWSHFIu4iyuXPthCMJcLhSJAxdyAH1eHUtPDqnAFRc4iCH7LLGqVniEJOLV35X1MNw283NjgZixtPMujySiAHA+Dq3aXcMya7cpi6U0fHfQlEjUV60G1HlKv/Rem2pXIpjXicw==
-X-YMail-OSG: vKhv93AVM1meDG1I9t.7dazypzIWDQNRlj9jHhr3BmkDSV9rRTsJHwos_MkaZf3
- OMA_B5aayvYG6JIhtLm60x_SAoAwjomSq8vdvp8lz4_gDJgqBGwgbKFbl1fBk0mWt.tlETHbdRZX
- XX66oLWCSJeaBJ1yzb_5Ur0SgXdItrqqyaS4Knijv7OYV1QHbNAEOY2kM.mV0Y0NCv84OUsB2jCg
- nODVDh6O3wQ6U2IqU0RfSc5JXAXEHjy71yT5Hq1c_pzrUZtAw6pwnnazV.4HlzSaAsU7DP961QNa
- GdyVXShhLXRmkg4BYwJuxO8qnpyOJby_R_fJIArdhy2bEByf.LyOj7B8lawTHnqrHBXOmK95W_UV
- hN1BlOEuE79J5F3tOrLsl5pen4m1wTiT5qE1GIAnaqbZWrKKHBkWUvtWINLxMR0VKpRSLSNUFciZ
- BIt3umvwzjQbgwGPaoeTv8IvWGWKfQI.WK5aAg7l5DhK7hDo98N.UbiJA5JUjULrvJXs8dyeqjMv
- rnSvx.y8mr._atM46Ip5oOsv7nCVf7D9Zy4r.R4LKJyHcetwVpRLtClN3lCjbxQpwuFzYMnzYz4v
- d64nCLiAluhm71SBzPfhUvkbSI139tOhOrZ4VPKchzTybevaWf47jgJpbSU3cmqt5CPX6BtMeHKi
- wxpEVJnnfbZcWeIjntphTN1nkVDdVVmUvlihfdHKqyEVAgWdz7pX.0mJ9EWQ2_qVYd_4QnXZRiOD
- iAbTXZAtqydnr5gDgdTrR7OvbpJa8Vl9HekCSM7UYvEiTWvf3_ysCvM.vD4q6SCMCVkxp4I1iYRD
- oYcS4jPrve05AuUXfW_dWT.aZ4IiHc337aQmG7COKh7n.sEbEAnJrjgZOJXCoPNdQHRMmzdflGcK
- Tf0kguq4mlvPiq08qawKTGXH2eNbDFq3MMYdmqh5HjzcSk2wPurpbqRL9k9axCxv8GlLowFre9SU
- D1HZRagShmJDvEOEYMbA53JOKZWly2BwL.yFnpdRXVExERICP5hGGkpaWwwH46a.d83VrLGdoqqc
- bnU5euDtadLlv2vt1c16R_y6hvkCDcA6hAoB5QaOlOtp991UC91P5meH7wHyQygNIqKsJ4HQ5iy_
- 3xBnmryHBgpJ7G6V0sbZ4be.wEOrZJNTCF_q06R02GgMLRXmr
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:20:01 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392400; bh=UQjfh0v16AxJWcccZZiZEJMDUSepDFazKRU1XVl6thk=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=mh8RaDtEIK6adxBCjINF6fsh0f6WDhdJs288T6f3JsUkmUSNUJUTyRAK6QfuZuWyord+0IJnm/msv3lbkjo+KsM7iia2lvo6e5z84G94IXT1Jn96I7ZKjYWtlda7lTj04eZ+XbSetDthwiDNONepa7++Fie3CNxiXTKD+WEDw3XGiwSK3RJljDvxFKwnB/WuhrPkThRqNu/TSw355gAzp170NQCXCqSuMXhsjEHAroiHneG+lN7jDHOxi0/HlsGwmxZwqiS4jGdpVT6A6NNd37/9vfBiw6EXFDgUJak30ktY4FhT2RRVRVqJFYHz1KRJC+mS7TVx//qd+U624Sq4yQ==
+X-YMail-OSG: LlSbQ_EVM1nhKYIZOdbAZdv7qN5DoxDdlD5BDkoQ6b6kJ9Pqmlvk3n59k0vGb4c
+ l0Tlf17Ppw6ZBQga70oljqEw6x9tv6WDwfwGrq6xWUUMgMoUUOF5McK9hN1EdkRG_RXD5z58YXyq
+ pT_v2UtZJmV2CwiiXBeDbtJHGpZE9PiE0Rwxgv15ER7bKTwRIU0Xg6CSmP9Dk56Wot80e6tBr0kw
+ WtgD.6RdXHZnDTtNM6QpZ3bUBZ_PQ18JllqTLUW7l5jeTc2Ey62slzC2U9Ny_K9jdUNdEqMMxHE7
+ O7uZaECGsbCWyedVrTGaDdnmvuJo2DBUVf_BC_TZosbS9ka9eKGdVS_Aj6wM1fSZymI.pqGOuuBw
+ 4Pm1QdDyFvJxxvvyBCDikgp71ZTy54krZE7.7QW7WJ50MoJ9Tcn0C.kKjHD9Zt1a6Mt.7NtN_85p
+ HAdu1zSQXRuoUWEIwS49gcnIX5bmleJAw8ZMf1kcUOVaCFLGkZH4ix8ssVvB3LtQMmJg4OyCHgVA
+ Z7ITUGuWQTCTRnkkM4OXIlyVSDlFYJNBE9oMVY7XmMo2MvViOVy0XfGxMQij_1We1hd5HRgj2PFf
+ bs7VD8fZnMC6BkkPrHzl0I_Ar1yuW.8gq3Ds6XclG6YMDJHjstMGv4uXk278Sn24d_v_8jHVM5wi
+ HI9wwrxJtaGKZT9x.FmKm611q6BA_jqzcx2r4wnMogOd53Nwl_3Grsd4tXauEHX9ERTY3QyFdXiX
+ 185Jc1TL999EpyggLcuMgiMdjceWKfMYu625grZjpDSc9eVGE6vTnMrLuvp7hOY4qCCuCbEkM4qs
+ _6mxCk_aRNXAhxIUG5XBF4hMVa2Mg.9qAG4B79bb0ICfEM8AEcVLEme3l3XgaTVGUCzUvL42CwcY
+ .qT2t0ilVnNwhV3b4Cw7EexjA62kfwsnAoQVnh6Ur1NZ_YqDkLXvYOmc4ph.TrO8sM1SkkxVMSoK
+ bXychDixdLj7k89CDehC2zaAGNCjmxPO7tYl0mGfR5JDzCSdRx1lwhUcTZPzRw98lWicvD7sfb3z
+ 7cyp0QQJZTlt0PsCa1i.I0EXwK1pBg2sEZoFSZqWeEi4IdYpSsFydeKqfvTo5KneuSR4W1oPHb5a
+ fKxpzT84iUtc64lZvEh7HidyrpS.mAPuTJxqSC6lIyyCA2Rs-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:20:00 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp406.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 5c7d685bea94a92cc9d12c4cc22f1f0e;
-          Thu, 28 Feb 2019 22:20:00 +0000 (UTC)
+          Thu, 28 Feb 2019 22:19:58 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 28/97] LSM: REVERT Use lsm_export in the sk_getsecid hooks
-Date:   Thu, 28 Feb 2019 14:18:24 -0800
-Message-Id: <20190228221933.2551-29-casey@schaufler-ca.com>
+Subject: [PATCH 25/97] LSM: FIXUP - security_secid_to_secctx
+Date:   Thu, 28 Feb 2019 14:18:21 -0800
+Message-Id: <20190228221933.2551-26-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228221933.2551-1-casey@schaufler-ca.com>
 References: <20190228221933.2551-1-casey@schaufler-ca.com>
@@ -58,66 +58,37 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-REVERT sk_getsecid use of lsm_export
+Fix in netlabel for security_secid_to_secctx
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/lsm_hooks.h | 2 +-
- security/security.c       | 5 +----
- security/selinux/hooks.c  | 6 +++---
- 3 files changed, 5 insertions(+), 8 deletions(-)
+ net/netlabel/netlabel_user.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 97ef535dafd0..cbfc2a9b5f27 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1699,7 +1699,7 @@ union security_list_options {
- 	int (*sk_alloc_security)(struct sock *sk, int family, gfp_t priority);
- 	void (*sk_free_security)(struct sock *sk);
- 	void (*sk_clone_security)(const struct sock *sk, struct sock *newsk);
--	void (*sk_getsecid)(struct sock *sk, struct lsm_export *l);
-+	void (*sk_getsecid)(struct sock *sk, u32 *secid);
- 	void (*sock_graft)(struct sock *sk, struct socket *parent);
- 	int (*inet_conn_request)(struct sock *sk, struct sk_buff *skb,
- 					struct request_sock *req);
-diff --git a/security/security.c b/security/security.c
-index 06461712c881..e52b500adb27 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2116,10 +2116,7 @@ EXPORT_SYMBOL(security_sk_clone);
+diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user.c
+index 4676f5bb16ae..0266879efef1 100644
+--- a/net/netlabel/netlabel_user.c
++++ b/net/netlabel/netlabel_user.c
+@@ -100,6 +100,7 @@ struct audit_buffer *netlbl_audit_start_common(int type,
+ 	struct audit_buffer *audit_buf;
+ 	char *secctx;
+ 	u32 secctx_len;
++	struct lsm_export le;
  
- void security_sk_classify_flow(struct sock *sk, struct flowi *fl)
- {
--	struct lsm_export data = { .flags = LSM_EXPORT_NONE };
--
--	call_void_hook(sk_getsecid, sk, &data);
--	lsm_export_secid(&data, &fl->flowi_secid);
-+	call_void_hook(sk_getsecid, sk, &fl->flowi_secid);
- }
- EXPORT_SYMBOL(security_sk_classify_flow);
+ 	if (audit_enabled == AUDIT_OFF)
+ 		return NULL;
+@@ -112,8 +113,10 @@ struct audit_buffer *netlbl_audit_start_common(int type,
+ 			 from_kuid(&init_user_ns, audit_info->loginuid),
+ 			 audit_info->sessionid);
  
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 744fa6141ae1..9879dd828e1c 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4889,14 +4889,14 @@ static void selinux_sk_clone_security(const struct sock *sk, struct sock *newsk)
- 	selinux_netlbl_sk_security_reset(newsksec);
- }
- 
--static void selinux_sk_getsecid(struct sock *sk, struct lsm_export *l)
-+static void selinux_sk_getsecid(struct sock *sk, u32 *secid)
- {
- 	if (!sk)
--		selinux_export_secid(l, SECINITSID_ANY_SOCKET);
-+		*secid = SECINITSID_ANY_SOCKET;
- 	else {
- 		struct sk_security_struct *sksec = selinux_sock(sk);
- 
--		selinux_export_secid(l, sksec->sid);
-+		*secid = sksec->sid;
- 	}
- }
- 
++	if (audit_info->secid != 0)
++		lsm_export_to_all(&le, audit_info->secid);
+ 	if (audit_info->secid != 0 &&
+-	    security_secid_to_secctx(audit_info->secid,
++	    security_secid_to_secctx(&le,
+ 				     &secctx,
+ 				     &secctx_len) == 0) {
+ 		audit_log_format(audit_buf, " subj=%s", secctx);
 -- 
 2.17.0
 
