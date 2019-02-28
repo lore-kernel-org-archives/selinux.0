@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08F1DC10F0E
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B13DBC10F06
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C801C2184A
-	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E6932184A
+	for <selinux@archiver.kernel.org>; Thu, 28 Feb 2019 22:20:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="B8PqHWsG"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LXxrxrYP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731796AbfB1WUW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 Feb 2019 17:20:22 -0500
-Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:34778
-        "EHLO sonic309-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731443AbfB1WUV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:20:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392420; bh=fYhale5NrsEnocMiGoPfT1RN69Aoyq8H4hNdPv6qQ04=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=B8PqHWsG0Ctp6m0qG+bApIJ2Erbo+faFqZJN3Zp0kiGkvfXpKZYCIaEjzfv3U3kWOT0u7gSFXMgJYE4L05n1UXggZNAOBpuTPUOpGTG8ukPtHF3bqE8RTrirJgxUoC4Mb/43SsI5fKn99W8L439eyM1QwAglgvU5TBZIMMQoOwKNBz6y/rCGZY02GVqC+5EfBD66wIxbBV/HS+994MecbmXumi+rr3Yra2qqHa5pKmoM8XNcSdN5clayV+6SRI9m1lCKOdg5VfQgLHs+4TzRwGf/tHgOhpULpAWUuBzeKLOQp6NMSbJxIiqlcxHoeK439nuVNF4Z3gdJ2mX9kifO6Q==
-X-YMail-OSG: jNX_CiYVM1nL5RE55G6rWl5hzu7zlg8J44Q6RAux.gc37PpO3VgiLtiCSMf_AGi
- KdJ34t2TYapsVNJ36OwkpkzUCmm8HMOAjvfrxsYgYEr_WmQKOVjJy0cd0Nl8rCAS03zVO2_XWgnB
- R36WZjtpL_y..TTCs1hBzfkHdCf5pfkcpXd0seCl3M.sWMOK4r_QhRy.wJ2x.LGif6GUXy9i_Co4
- WmKqi9nca0_C2pjR4mSyTmGYtF6OL3ub3fuxOa2grzng2mJ.EJu.kb_sIoI.vYIJYBWkk7925ga1
- hdKIMnbwpvX1B2KU3EH38fFeGCyCGwmD.O5lka__LWJNbYQ6Ynfm6MITuBglUhuL2P1s6pFDlYjo
- 4EG2AyBw9nwY.GAtb4QFTVTAtQe9U1.5G_nRnESiInMlQMfs42g5NX2EdXT.A35l7QJVFKV.oPfz
- _ni2rs2e4oqXI6OThSxFrbX4v1.2YHHD1ngMjlP9AJ53kNBZAbn4cduiEq8UTrH9MMWatDqNuH39
- mgo0wLmpWhDLjoBYYXRLNMK.hs9NPrrR5sx6gx_m_yuOmeDJm4zJiq7Hq2fbK5Xp39QLESpWf8wR
- rygP_yHfWBJTtIqsVi37rsSnUzfvxzohLEBOTyoGUTI6x7KdA4yq1myUiKmM6zDPugbqaNjYW2lq
- uH3OBg6iX04hFF2Y05ZoksPhKgXXZ2dSm2T5izAW2_reKSW.IPTnLjJwCX2Xq2eL2ofNfkux2SfS
- fHrlsSd5pie7esj4cKh7lXa2wLK32yMOvuZi24_.xBy29J1Uz.z5z8WlMcZ3z3JXOVZ1FQPl6AI2
- M_FSqh.iI8gHESRbHqRnW_yPywW3Y0ol_.JQYGgmUt5dmYOv50s.thHbO5GCw3QQvm9QrUDdkZia
- rDco5gIWvWNZFd_X4zvrXyHuMpJ4vjexuHZA1RFTZ2AiBdEKLUySkvhCn9NTojApYdD4xQ4jwqSm
- ONCZcNHP8Ra4ImxDmW.C9xcraG1NqysW3Qdkg.Rcv6K1DNzLiT6PBpjir21z7tC2IYqOC3WzqH2x
- y0DSdlDn7rEJtdDqC4usD_0K11d0Eq_bMTsMpTLQykRVB0BoKAlFvssYlsFTjgnm1AjX3KW7.Cr5
- .q0M.5EQz9LrHV9lmVAVyjTUdAb9mIUcRg9MjhBHurXsLNz2d
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:20:20 +0000
+        id S1730046AbfB1WUZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Feb 2019 17:20:25 -0500
+Received: from sonic302-28.consmr.mail.gq1.yahoo.com ([98.137.68.154]:42593
+        "EHLO sonic302-28.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730134AbfB1WUM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Feb 2019 17:20:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551392411; bh=Jp6S20INV/cmAGY4JKdDGeb42w/4k/VHg81J41LNPYw=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=LXxrxrYPKGmqqZK9iC3o0gumnvZFhZKvW6CeepeGEqgpUsIpvfhFO3phofWX3C6WCBK9S8970hDszZKhKyaRoJdPE2s2p3z+GwYTUQ59oW8QfpCP/aLpCCbnZNv84ni+GyZJHCmnrdlmzmulRDcAKfZWzaNWLZqhbJIKDiAKJ01nDeW2abKg4uzJJXap7fvS3+MmyGtfpG4AQP8UdfBulXCRnjAkCVey9Po2R4FWFUrLKCbvKzVUmYzP+Lhu0q5UL7ny0pgD2hZ6D13Vbzk06PX3nLVMKPKRqiqVyD8ZrnpPV1X/AKfF855zbLejZi9g7Z3Lcf7lKnavOBtg02pgrg==
+X-YMail-OSG: rXd8kR0VM1nD3.EZWopDqJS3LG7xgg5OingQRzb5H4V6mb6MqfFrxgVw5vKJlNb
+ cYmbFtrlESToxCRgogXiitMtHeshnG7KUA6FJIDDjzKaccrqxUhiwuJQG3LAecgu3qcdpCrCaZoN
+ GQ52CfG4PdISl4WL2ChHv_ihpVljSW1oH_Sdp70Ecw9gGqvh4J2bdX2OiWOSnjMLXSkCME8xf3oJ
+ 0dYY7jRoVgeo6rBMFTkSw9g0a8f2ArtUiGYooZLD7SzUWH0Mhrg_TK0yHnO64zhs.Xx__k4IEuwM
+ T.zuZturp6zYD813DfC9eS3xrjMTWAJt2UG62GU5VIY2HjurYRlVhRTJ2cTnJul1xqQwqozx3syO
+ H.XUDb2ZIzg0IJOoNO87a2bjcPpcbT_MijJPy47VCSK4txivYciygnpgq5yJoZs6JbHZOqiULT_c
+ K0tFkx24SMa7lZgqbnnBYdAyEr2qZYB4G8dd7GMRZXadUtHHkYQXybqV4y0gkOILGa06GL5WYewt
+ hF7NDAuidJU5uCxz5badyMsGAvknM3IfUpSiPc3qQGFrMPhGIcEZ.JlF74f3nfGjEsSkFifs2TDK
+ fHbywTV5GRcSu8DrLH3aup0L7QgAT_q7_paN3tftXZXsL5jT3rGJ08naiEJZzH69TZuZlimMebho
+ IuLv_zti5zHtgAxna1l3xAlD3lA_yHZZoOVcZ.caVy.spb5aCWpRRSGx0Xr35px_QFsYRriJCEPc
+ vzWurFtdvjt2coDS9DEfd.ywhObg6c7T5mmRSatWAmTIRGcWedc8Qb97cewt5L91j8__rqz66DqG
+ tDmFoUrKtQSu8utRtP9jgPZAs6wpEMaycRdRxNtK0SipC4x._mXzYwaoP.KKZdyplccOSKFk6hKI
+ juzcdIkEdEzvlJsvNTnpXGC3i.7t3bMMM2oaJRUzfL.BYqpMIul7Ha_OFPpyu3h28n7HSFR7hAxW
+ wsPaqAqMljSO6CnlyqsQ5D_bietD0a6_af_eaO8FC2zxBCRlYLxYaXD.JSnVUSCJQ39s07OIcWgH
+ UKdeaFibZG1Bb7cyBua2ed54QqVg.hF0x8pKGmVvgjKnhZI8a0guaSebNj0deQlJVIiBV.vk.6yP
+ 1HdU0k7D6i7ZYBew9uSHDlfZFZKR0HI_mC0y8yaZvBKYmCk4-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.gq1.yahoo.com with HTTP; Thu, 28 Feb 2019 22:20:11 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp423.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 51882fbcdd41d0138ebd23ca73a62b12;
-          Thu, 28 Feb 2019 22:20:20 +0000 (UTC)
+          by smtp430.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID e588ca5e0935b1286f019b02cb065c6f;
+          Thu, 28 Feb 2019 22:20:08 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-Subject: [PATCH 59/97] LSM: Use lsm_context in security_inode_setsecctx
-Date:   Thu, 28 Feb 2019 14:18:55 -0800
-Message-Id: <20190228221933.2551-60-casey@schaufler-ca.com>
+Subject: [PATCH 41/97] AppArmor: Remove unnecessary hook stub
+Date:   Thu, 28 Feb 2019 14:18:37 -0800
+Message-Id: <20190228221933.2551-42-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190228221933.2551-1-casey@schaufler-ca.com>
 References: <20190228221933.2551-1-casey@schaufler-ca.com>
@@ -58,111 +58,45 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Casey Schaufler <cschaufler@schaufler-ca.com>
-
-Convert security_inode_setsecctx to use the lsm_context structure
-instead of a context/secid pair. There is some scaffolding involved
-that will be removed when the related data is updated.
+Remove the getpeersec_dgram hook stub. It's unnecessary
+and disrupts stacking.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- fs/nfsd/nfs4proc.c       | 8 ++++++--
- fs/nfsd/vfs.c            | 7 ++++++-
- include/linux/security.h | 5 +++--
- security/security.c      | 8 ++------
- 4 files changed, 17 insertions(+), 11 deletions(-)
+ security/apparmor/lsm.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 0cfd257ffdaf..5b4ea2a317ed 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -54,12 +54,16 @@
- static inline void
- nfsd4_security_inode_setsecctx(struct svc_fh *resfh, struct xdr_netobj *label, u32 *bmval)
- {
-+	struct lsm_context lc;
- 	struct inode *inode = d_inode(resfh->fh_dentry);
- 	int status;
- 
- 	inode_lock(inode);
--	status = security_inode_setsecctx(resfh->fh_dentry,
--		label->data, label->len);
-+
-+	lsm_context_init(&lc);
-+	lc.context = label->data;
-+	lc.len = label->len;
-+	status = security_inode_setsecctx(resfh->fh_dentry, &lc);
- 	inode_unlock(inode);
- 
- 	if (status)
-diff --git a/fs/nfsd/vfs.c b/fs/nfsd/vfs.c
-index 9824e32b2f23..d9e408c3d0a2 100644
---- a/fs/nfsd/vfs.c
-+++ b/fs/nfsd/vfs.c
-@@ -531,6 +531,7 @@ __be32 nfsd4_set_nfs4_label(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 	__be32 error;
- 	int host_error;
- 	struct dentry *dentry;
-+	struct lsm_context lc;
- 
- 	error = fh_verify(rqstp, fhp, 0 /* S_IFREG */, NFSD_MAY_SATTR);
- 	if (error)
-@@ -539,7 +540,11 @@ __be32 nfsd4_set_nfs4_label(struct svc_rqst *rqstp, struct svc_fh *fhp,
- 	dentry = fhp->fh_dentry;
- 
- 	inode_lock(d_inode(dentry));
--	host_error = security_inode_setsecctx(dentry, label->data, label->len);
-+
-+	lsm_context_init(&lc);
-+	lc.context = label->data;
-+	lc.len = label->len;
-+	host_error = security_inode_setsecctx(dentry, &lc);
- 	inode_unlock(d_inode(dentry));
- 	return nfserrno(host_error);
- }
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 749acb6a28a6..cb5e685f60eb 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -436,7 +436,7 @@ void security_release_secctx(struct lsm_context *cp);
- 
- void security_inode_invalidate_secctx(struct inode *inode);
- int security_inode_notifysecctx(struct inode *inode, struct lsm_context *cp);
--int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
-+int security_inode_setsecctx(struct dentry *dentry, struct lsm_context *cp);
- int security_inode_getsecctx(struct inode *inode, struct lsm_context *cp);
- #else /* CONFIG_SECURITY */
- 
-@@ -1223,7 +1223,8 @@ static inline int security_inode_notifysecctx(struct inode *inode,
- {
- 	return -EOPNOTSUPP;
- }
--static inline int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-+static inline int security_inode_setsecctx(struct dentry *dentry,
-+					   struct lsm_context *cp)
- {
- 	return -EOPNOTSUPP;
- }
-diff --git a/security/security.c b/security/security.c
-index 42c5467ccedc..b45136a8fd81 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2007,13 +2007,9 @@ int security_inode_notifysecctx(struct inode *inode, struct lsm_context *cp)
- }
- EXPORT_SYMBOL(security_inode_notifysecctx);
- 
--int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
-+int security_inode_setsecctx(struct dentry *dentry, struct lsm_context *cp)
- {
--	struct lsm_context lc;
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 0f8e671df5fe..8c854f95d814 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1094,15 +1094,9 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
+  * @secid: pointer to where to put the secid of the packet
+  *
+  * Sets the netlabel socket state on sk from parent
++ *
++ * The TODO stub interfered with stacking and was removed - Casey
+  */
+-static int apparmor_socket_getpeersec_dgram(struct socket *sock,
+-					    struct sk_buff *skb,
+-					    struct lsm_export *l)
 -
--	lc.context = ctx;
--	lc.len = ctxlen;
--	return call_int_hook(inode_setsecctx, 0, dentry, &lc);
-+	return call_int_hook(inode_setsecctx, 0, dentry, cp);
- }
- EXPORT_SYMBOL(security_inode_setsecctx);
+-{
+-	/* TODO: requires secid support */
+-	return -ENOPROTOOPT;
+-}
  
+ /**
+  * apparmor_sock_graft - Initialize newly created socket
+@@ -1202,8 +1196,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+ #endif
+ 	LSM_HOOK_INIT(socket_getpeersec_stream,
+ 		      apparmor_socket_getpeersec_stream),
+-	LSM_HOOK_INIT(socket_getpeersec_dgram,
+-		      apparmor_socket_getpeersec_dgram),
+ 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
+ #ifdef CONFIG_NETWORK_SECMARK
+ 	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
 -- 
 2.17.0
 
