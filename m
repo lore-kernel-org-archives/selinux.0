@@ -2,134 +2,156 @@ Return-Path: <SRS0=k4Wl=RH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D2C1C43381
-	for <selinux@archiver.kernel.org>; Mon,  4 Mar 2019 17:56:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C158EC43381
+	for <selinux@archiver.kernel.org>; Mon,  4 Mar 2019 18:30:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ED6F0206DD
-	for <selinux@archiver.kernel.org>; Mon,  4 Mar 2019 17:56:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E62F2070B
+	for <selinux@archiver.kernel.org>; Mon,  4 Mar 2019 18:30:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="QXW8gE66"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="bSt0iHqK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727508AbfCDR4v (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Mar 2019 12:56:51 -0500
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com ([66.163.187.152]:41077
-        "EHLO sonic316-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727506AbfCDR4v (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Mar 2019 12:56:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551722209; bh=GC069wVlaL0TLFD227ZH92fWAUBkMXO4kaPfz/TDKoA=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=QXW8gE66dmMl1rt9zIM53upJKN7DUDLMsP+7982OQSYZNEJl1367SZR4UH7tUoW+DQaFHwuekES/w+M2FJCrvYgOSAd3bYVjuMjL3j0GdX2HV+x7AwFhoyMT2tcyrNvHErFaSU3C5Tu2JxeTHgKETbB9SUWICPgKpaT5oMoF4xivkqzC7SNR1l86TS1sNw3uFEqGR5p2t7cTAPm41H35BvkUS2lsb5TWxtmiKeAcIhMAgzeMNHjOEC7rqZnuJtpICU2rAnita2a5PtM6heuBhLIcSxTLHwj/4cXd/jf/A9WVj7u9xdteCxtoenOewrklargYxVtqcGwnUMm5qpghcg==
-X-YMail-OSG: AMBDSy0VM1mRDl1r7Q3cCvDCHwVIzHs9HolytX6yVh5mbGzM4MxT8bgAVRJqVoH
- vV9lEiJ0N6zEC.NnbrA7UDX85c5CKXgcauoC7D7nbYFIMooYxIhp9ogamZQp0jxOhcj_QFn4gWBJ
- yF5JD847JRD8sLtARKLqz..gw.I6yLU62j2VbiJDOYgC1SXaVSeiD6MghgcfOCOqFWHPjcxJn5Pg
- lvOgqgpnf.MQyFcAnX8kFnCo2AByZXkX6Ti8UOVJDvK2GTpK6ellW6HHu2qNwXEjKqqxQGofzEYA
- 0t7V9buL3za.c5kkK9hwdlvyyABpIJpF_YQyG9K7OUKyniIbQC9G5Sod.QcyYlBZRySbRT1.5xyX
- 8bFpk2v9mzrNJ0pzbdPjPOTPoct18b5ZiljzEF3wnlRgqPM7xTY0veep2zL2NX._SgtXj6InA7LR
- aGPLzaG0_GQ2.76CikwE8fvDQidfducay20FVFULMp998cVK5x5_3gmJmLdm9lnplOra9vdYqmMF
- RVAS5_eSQiz_MommxWhjV7Mh0NbuIb2oZmb4_CkBNuszmVW_DLNmpC1SDjU00qu0QhoH2pB5xMV4
- rZa7FePgn55.WbJn9A8Isww4yA.9Wcr7cHyOwCv_A54FanwGdYTayjzvB5ynk8G79M9LpnbVXdM8
- 7cF4lbwKevoRrB9_bKN2L0oalPP5_jn9ghjXUAhlDa23fIg34DyV_6CglZLO2K_1JP4V5D9C0NEb
- 2gu3gvfLkLN2Vlbv7CiCztfKPniNDCRyNcgO21mkADRNPq_JKJVF7h7BgJ8GHCnA8VXW29TUJ3dx
- PliWV5KaS4BcNaQx_RbK4CzOO6BGl8hdebXQ_ubCb9sDAraIi7BqyX3R8.6K8WZgOYxDOx_.MYkJ
- Qn3OQGcmeKeHZ6RJZexFtI56.dUANGA_Mu77.nJj4MV0iccJ9mkWqX3UkE5yAVvOqgTL6Dm0f_ec
- CVXnoSQAeD8OI7d0APBrtvQ4dduWbjlWCVaqM4BAeop2Z8HupZ4GmqG9wBvjSg46bJF4Xa8C6qgy
- ijF5WZX6D6N2y75sH3k6ujADvdm9b6RryvoU1xHKNSfayltZAZ7gxFrzBbtw_FCar
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Mon, 4 Mar 2019 17:56:49 +0000
-Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([67.169.65.224])
-          by smtp424.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID bed51b671e44fa380576cbee08ed0a10;
-          Mon, 04 Mar 2019 17:56:48 +0000 (UTC)
-Subject: Re: overlayfs access checks on underlying layers
-To:     Mark Salyzyn <salyzyn@android.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Paul Moore <paul@paul-moore.com>, linux-kernel@vger.kernel.org,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-fsdevel@vger.kernel.org, selinux@vger.kernel.org,
-        Daniel J Walsh <dwalsh@redhat.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>
-References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
- <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
- <20181127210542.GA2599@redhat.com>
- <CAJfpegtQGM2z9TOt3DWwd39fC60cQknsC4vNnj7YimVEubRzUg@mail.gmail.com>
- <20181128170302.GA12405@redhat.com>
- <377b7d4f-eb1d-c281-5c67-8ab6de77c881@tycho.nsa.gov>
- <CAJfpegtNhcWD0VWy6LPtoDtQBfPu4x5iFsB053UMCidj6oMsuw@mail.gmail.com>
- <26bce3be-49c2-cdd8-af03-1a78d0f268ae@tycho.nsa.gov>
- <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
- <20181129134943.GA16762@redhat.com>
- <fe78aaed-5fb1-3c51-1330-39de46ae39c5@android.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <6e31bc53-0a27-63d1-2d07-a403dfe36ce1@schaufler-ca.com>
-Date:   Mon, 4 Mar 2019 09:56:48 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.2
+        id S1727231AbfCDSa4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 Mar 2019 13:30:56 -0500
+Received: from uhil19pa13.eemsg.mail.mil ([214.24.21.86]:61531 "EHLO
+        uhil19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726063AbfCDSaz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 Mar 2019 13:30:55 -0500
+X-EEMSG-check-017: 378388734|UHIL19PA13_EEMSG_MP11.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by uhil19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Mar 2019 18:30:45 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1551724245; x=1583260245;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=sLVHxhSiSs89Yqcr7dpK9hb1zk/M7caP66KpGUUDE+o=;
+  b=bSt0iHqKadthkHhtoeCSp6c+zGbHNtHBit0xKVeqkdroVvlLQu9FfxCM
+   SWWmtQN37QueikyXBXMoZ3gZDAs9dpeuMckWj2pp9rhWOtMVPIhUwH0YW
+   xii9OsP1s+/zcTxZhh+N8UdFPj67qeyXuGX5rTbQ8RZ5PueR6lryG6WxL
+   tW20Wa6xtmdApqRAfYKr2Qavvwnr+E6NJVkoC7tNefN/x32nQmOCAr8QR
+   EFjLYoPqndgTsjDjkb7FDT0Wj3l6YFsRItyT8WGYNf90mgI/SdrT6wfN/
+   pQLVzbR9crF/exMxAMdx3ZH3nfvFl/CkBoc+o1X7bTfpF9Ap579L+vh1M
+   w==;
+X-IronPort-AV: E=Sophos;i="5.58,440,1544486400"; 
+   d="scan'208";a="24585936"
+IronPort-PHdr: =?us-ascii?q?9a23=3AGpfWgRf1jq8cPBETMi4rtdFVlGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxcS9Yh7h7PlgxGXEQZ/co6odzbaP6+a4ACQp2tWoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagfb9+Ngm6oRjMvcQKnIVuLbo8xA?=
+ =?us-ascii?q?HUqXVSYeRWwm1oJVOXnxni48q74YBu/SdNtf8/7sBMSar1cbg2QrxeFzQmLn?=
+ =?us-ascii?q?s65Nb3uhnZTAuA/WUTX2MLmRdVGQfF7RX6XpDssivms+d2xSeXMdHqQb0yRD?=
+ =?us-ascii?q?+v9LlgRgP2hygbNj456GDXhdJ2jKJHuxKquhhzz5fJbI2JKPZye6XQct0ARW?=
+ =?us-ascii?q?pFQ81fSSpPDI2hZIcLFuYNI+JVo4z7qlATrxWxGBOsCfvyxDFWiH/43a403e?=
+ =?us-ascii?q?ovHg7J3gMvA90AvW/IrNj3LqoeTfy5wafKwDjFcvhY2S396I/Nch05vP+MQa?=
+ =?us-ascii?q?x/cdLRyUYxEQPOk0ieqYn/MDOR0uQCrWia5PdnWOK0lmEnsBp8oiSvx8gwio?=
+ =?us-ascii?q?nJgZgZylbf9Spj2oo1Ktq4SFBibNOiDZBetDmaOpNrTs4tTGxkoiY3xqActZ?=
+ =?us-ascii?q?KlcyUG1o4rywPZZveaaYaH+AjjW/yUITpggXJlf6+wiAiq/Ei7z+38StG00F?=
+ =?us-ascii?q?FXripZitXMtm4C1xjU6sWfVvty5F2h2TeS1wDI8O1EPUA1mrbbK54m2LIwkI?=
+ =?us-ascii?q?YcsV/fESPsnUX2jauWel0l+uiu9evnfq3rqoKTOoJ7kA3zMrkiltahDek3LA?=
+ =?us-ascii?q?QCRXWX9fy51LL5/E35RLtKjucxkqncqJ3aPtkUprWiDg9J0ocs9xa/DzC83N?=
+ =?us-ascii?q?QehnkINkhJeB2Aj4j3I13OOuz3De+jg1Swlzdm3+jGPrn7DZXQMnjDiqzucq?=
+ =?us-ascii?q?xm5k5G1gU80NBf6IhICr0bPP3zXUrxvsTCDhAlKwy03/rnCNJl24MFR22PBq?=
+ =?us-ascii?q?6ZMKXPsV6H/e8vPeaMa5EPuDrnKPgq+eTujXknll8ZZ6Wp2oEXaH/rVshhdn?=
+ =?us-ascii?q?2UfWCkpt4cDX0AtwE+BLjyjFSfTSRZbl6oUq487y19A4WjW8OLXY2pgbqczA?=
+ =?us-ascii?q?+lEZBMIGNLEFaBFTHvbYrXde0LbXepPsJ5kjECHYOkQosl2ADm4BT20JJ7P+?=
+ =?us-ascii?q?HU/Wserpul299rsb6A3Sou/CB5WpzOm1qGSHt5yyZRHW47?=
+X-IPAS-Result: =?us-ascii?q?A2CtAABjbn1c/wHyM5BkHQEBBQEHBQGBUgcBCwGBZSqBO?=
+ =?us-ascii?q?DMnhAiTZUwBAQEBAQEGgQgtfIhAiVOFEoF7OAGEQAKEJSI1CA0BAQMBAQECA?=
+ =?us-ascii?q?QMCAWwogjopAYJnAQUjFVELDgoCAiYCAlcGAQwGAgEBgl8/gWkNqSaBL4VEh?=
+ =?us-ascii?q?GaBCyQBiycXeIEHgREngjY1hEqDQYJXAol+O4YrTDtckT0Jkm4GGZMiLYo3l?=
+ =?us-ascii?q?BMDM4FWKwgCGAghD4MnghYXjjwhAzCBBQEBjUGCTQEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Mar 2019 18:30:35 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x24IUZf1019686;
+        Mon, 4 Mar 2019 13:30:35 -0500
+Subject: Re: [PATCH] libselinux: Add security_reject_unknown(3) man page
+To:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
+References: <20190304163735.29563-1-plautrba@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <1a98677c-7e70-b965-04fb-7ac01fa6c5d6@tycho.nsa.gov>
+Date:   Mon, 4 Mar 2019 13:23:02 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.1
 MIME-Version: 1.0
-In-Reply-To: <fe78aaed-5fb1-3c51-1330-39de46ae39c5@android.com>
+In-Reply-To: <20190304163735.29563-1-plautrba@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 3/4/2019 9:01 AM, Mark Salyzyn wrote:
+On 3/4/19 11:37 AM, Petr Lautrbach wrote:
+> Commit c19395d7 added a new interface security_reject_unknown() which needs to
+> be documented.
+> 
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> ---
+>   libselinux/man/man3/security_getenforce.3     | 9 ++++++++-
+>   libselinux/man/man3/security_reject_unknown.3 | 1 +
+>   2 files changed, 9 insertions(+), 1 deletion(-)
+>   create mode 100644 libselinux/man/man3/security_reject_unknown.3
+> 
+> diff --git a/libselinux/man/man3/security_getenforce.3 b/libselinux/man/man3/security_getenforce.3
+> index 29cf3de7..8d72afb6 100644
+> --- a/libselinux/man/man3/security_getenforce.3
+> +++ b/libselinux/man/man3/security_getenforce.3
+> @@ -1,6 +1,7 @@
+>   .TH "security_getenforce" "3" "1 January 2004" "russell@coker.com.au" "SELinux API documentation"
+>   .SH "NAME"
+> -security_getenforce, security_setenforce, security_deny_unknown, security_get_checkreqprot\- get or set the enforcing state of SELinux
+> +security_getenforce, security_setenforce, security_deny_unknown, security_reject_unknown,
+> +security_get_checkreqprot\- get or set the enforcing state of SELinux
+>   .
+>   .SH "SYNOPSIS"
+>   .B #include <selinux/selinux.h>
+> @@ -11,6 +12,8 @@ security_getenforce, security_setenforce, security_deny_unknown, security_get_ch
+>   .sp
+>   .B int security_deny_unknown(void);
+>   .sp
+> +.B int security_reject_unknown(void);
+> +.sp
+>   .B int security_get_checkreqprot(void);
+>   .
+>   .SH "DESCRIPTION"
+> @@ -27,6 +30,10 @@ returned.
+>   returns 0 if SELinux treats policy queries on undefined object classes or
+>   permissions as being allowed, 1 if such queries are denied, and \-1 on error.
+>   
+> +.BR security_reject_unknown ()
+> +returns 0 if SELinux allows to load a policy which doesn't define all object
+> +classes and permissions, 1 if loading such policy is rejected, and \-1 on error.
 
-Adding linux-security-module to the CC. Please keep the general
-LSM community in to loop.
+s/all object classes and permissions/all kernel object classes and 
+permissions/
 
+A policy can still be loaded if it is missing userspace object classes 
+and permissions regardless of security_reject_unknown(), although the 
+object manager may later encounter a failure upon selinux_set_mapping(), 
+which internally calls security_reject_unknown() to decide how to 
+proceed, or direct attempts to lookup the class or permission via 
+string_to_security_class() or string_to_av_perm().
 
-> On 11/29/2018 05:49 AM, Vivek Goyal wrote:
->> So will override_creds=off solve the NFS issue also where all access 
->> will
->> happen with the creds of task now? Though it will stil require more
->> priviliges in task for other operations in overlay to succeed.
->
-> NFS problems seems to have ended the discussion, too many 
-> stakeholders? too many outstanding questions?
->
-> Do we accept the limitations of the override_creds patch as is, and 
-> then have the folks more familiar with the NFS scenario(s) build on it?
->
-> [TL;DR]
->
-> After looking at all this discussion, it feels like a larger audited 
-> rewrite of the security model is in order and override_creds=off may 
-> be a disservice (although expediently deals with Android's needs) to a 
-> correct general solution. I admit I have little idea where to go from 
-> here for a general solution.
->
-> As far as I see it, the model of creator && caller credentials is a 
-> problem for any non-overlapping (MAC) privilege models. This patch 
-> allows one to drop any creator privilege escalation, re-introducing 
-> the "caller" to the lower layers.
->
-> As such I would expect a better model is to _always_ check the caller 
-> credentials again in the lower layers, and only check the creator 
-> credentials, some without caller credentials, for some special cases? 
-> Change an && to an || for some of the checks? What are those special 
-> cases? I must admit _none_ of those special cases need attention in 
-> the Android usage models though making it difficult for me to do the 
-> fight thing for the associated stakeholders.
->
-> The lower privileged application access to the directory cache 
-> inherited by other callers troubles me (not for Android, but in 
-> general) and feels troublesome (flush out the directory cache? how to 
-> tag the privileges associated with the current instance of the 
-> directory cache?). Some operations (eg: delete a file for incoming, 
-> create mknod in upperdir) are special cases requiring the checking of 
-> caller credentaisl to function (not a problem for Android as the 
-> caller that deletes a file just so happens to have the necessary 
-> privileges).
->
-> Also, mount namespaces (in upper, lower, etc), how will they affect 
-> this all, is there a need for more attention to this as well?
->
-> -- Mark
->
+I don't know of anyone building policies with handle_unknown == reject 
+so it is unlikely that anyone is testing this case.  deny is the 
+default.  allow is set in Fedora/RHEL.  Android uses deny.
+
+> +
+>   .BR security_get_checkreqprot ()
+>   can be used to determine whether SELinux is configured to check the
+>   protection requested by the application or the actual protection that will
+> diff --git a/libselinux/man/man3/security_reject_unknown.3 b/libselinux/man/man3/security_reject_unknown.3
+> new file mode 100644
+> index 00000000..d59e5c2c
+> --- /dev/null
+> +++ b/libselinux/man/man3/security_reject_unknown.3
+> @@ -0,0 +1 @@
+> +.so man3/security_getenforce.3
+> 
+
