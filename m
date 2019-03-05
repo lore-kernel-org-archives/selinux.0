@@ -1,179 +1,149 @@
-Return-Path: <SRS0=k4Wl=RH=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=RVlB=RI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11C5EC43381
-	for <selinux@archiver.kernel.org>; Mon,  4 Mar 2019 19:21:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B787C43381
+	for <selinux@archiver.kernel.org>; Tue,  5 Mar 2019 09:12:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CAACF2070B
-	for <selinux@archiver.kernel.org>; Mon,  4 Mar 2019 19:21:37 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZbLZHzKY"
+	by mail.kernel.org (Postfix) with ESMTP id 4337C2082C
+	for <selinux@archiver.kernel.org>; Tue,  5 Mar 2019 09:12:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726104AbfCDTVh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Mar 2019 14:21:37 -0500
-Received: from mail-yw1-f67.google.com ([209.85.161.67]:36207 "EHLO
-        mail-yw1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726038AbfCDTVh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Mar 2019 14:21:37 -0500
-Received: by mail-yw1-f67.google.com with SMTP id 189so4973349ywi.3;
-        Mon, 04 Mar 2019 11:21:35 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=extC+jTr5pWK30PAUD6QYJw7226CRGsx/QKZa5MaJeM=;
-        b=ZbLZHzKYX45wtzGXIGNwVS39YLY+czb5wG7npSP47iuXpBZrbjR+/NmDLdTmip20vk
-         vpdOzxmvKgG3zzDVd/qyL+t1PAH+K9NuV3Gz3f/AgrRpW2WNSGE+IShwZFH5yIms2n5w
-         8F7pmXs6CHOLmMOc1d6TO/o2rAC1XEe/+V2pdRqCP4xBcoBGtvoKUIbTBU1+fXv5kymm
-         qDMpxGhsOzP6Jhnsbul1ihGspghltC2ugzrAyijTGYdvIxYspe9iw+arFuKByrTgOYYP
-         X/FgsJzDnSHgygkGuz1EnVXEyug3dWbpQxT0Q1i6ZG2SecaEPwSDmpNAmiz/k7ckA8s4
-         i64w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=extC+jTr5pWK30PAUD6QYJw7226CRGsx/QKZa5MaJeM=;
-        b=PymrH/+e86DAUuW6cImxQ3FVB/7aaUNx6xJBY+7FXiUoHWDt7nteTGG7tc1iA0X/E7
-         +3ZUjWE8T4eFR80bCQ5zvk2QquySGcp8ONfovOidiP4o022gOw5L+o2DWotR1dO0mO9o
-         Y3A7+EIS/e+lwwBZYmNe33LumXimAvxukVFmXBObwA2v0WvTC5erLnk1LkDudsFYXXoo
-         oJKgX0y/Ktzx9BBVSl04lEIg9vTh9tB5UOdybDYGVhyaUwwfr0X9vPnXum9DEkFv7z28
-         lPMhNtyJ5+y6DBbW4EpH+d+IVmjOeC4QNZL/9+8+1Fvag4JNpxDxDd2roeaNub7sFTBH
-         2iWw==
-X-Gm-Message-State: APjAAAVWou0wMnHLNY1gYszddq+IajSiDum1CSXXZczC4IEj/GNaIEpH
-        m5RPlcpuFvSB3s1vVor3uGZ2XsB+LhlT4v3qN/Or/R+7
-X-Google-Smtp-Source: APXvYqxKb6Tlif6noVtQofVZhNymQQDgv3+IWkSwyZg/qcSo3mjxa+Od1FbteUKDC/HxNvLmuRzUMHF50aX7yVM6Vt8=
-X-Received: by 2002:a81:1b4b:: with SMTP id b72mr15066728ywb.211.1551727295288;
- Mon, 04 Mar 2019 11:21:35 -0800 (PST)
-MIME-Version: 1.0
-References: <CAJfpegs9JjkXguemL4qSiBvRP6Dnut-D+nJo-oLFXkfCL1Egvw@mail.gmail.com>
- <CAJfpegvfqx+0D32n1h2X7oj5d1mZWiLTcSSGpBnD+ba7AKzPyA@mail.gmail.com>
- <20181127210542.GA2599@redhat.com> <CAJfpegtQGM2z9TOt3DWwd39fC60cQknsC4vNnj7YimVEubRzUg@mail.gmail.com>
- <20181128170302.GA12405@redhat.com> <377b7d4f-eb1d-c281-5c67-8ab6de77c881@tycho.nsa.gov>
- <CAJfpegtNhcWD0VWy6LPtoDtQBfPu4x5iFsB053UMCidj6oMsuw@mail.gmail.com>
- <26bce3be-49c2-cdd8-af03-1a78d0f268ae@tycho.nsa.gov> <CAJfpeguL9xOh9Eq8LOP=ddJ4YD6nbp2UY6e2AYDVoHeCLuVhZA@mail.gmail.com>
- <20181129134943.GA16762@redhat.com> <fe78aaed-5fb1-3c51-1330-39de46ae39c5@android.com>
- <ae2682f2-4a15-39e6-eb49-b9c0e72f10e4@tycho.nsa.gov>
-In-Reply-To: <ae2682f2-4a15-39e6-eb49-b9c0e72f10e4@tycho.nsa.gov>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Mon, 4 Mar 2019 21:21:23 +0200
-Message-ID: <CAOQ4uxg34ZjHxXSfCgLmbcUh_JZptYyY9j74ZFX3esRn7OSLVw@mail.gmail.com>
-Subject: Re: overlayfs access checks on underlying layers
-To:     Mark Salyzyn <salyzyn@android.com>
-Cc:     Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        "J. Bruce Fields" <bfields@fieldses.org>,
-        Paul Moore <paul@paul-moore.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        selinux@vger.kernel.org, Daniel J Walsh <dwalsh@redhat.com>,
-        LSM <linux-security-module@vger.kernel.org>,
+        id S1726956AbfCEJMM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Mar 2019 04:12:12 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:50518 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726946AbfCEJMM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 5 Mar 2019 04:12:12 -0500
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 45FA04E908;
+        Tue,  5 Mar 2019 09:12:12 +0000 (UTC)
+Received: from localhost (unknown [10.43.12.40])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id BE56526FCD;
+        Tue,  5 Mar 2019 09:12:11 +0000 (UTC)
+References: <20190304163735.29563-1-plautrba@redhat.com> <1a98677c-7e70-b965-04fb-7ac01fa6c5d6@tycho.nsa.gov>
+User-agent: mu4e 1.0; emacs 26.1
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
         Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] libselinux: Add security_reject_unknown(3) man page
+In-reply-to: <1a98677c-7e70-b965-04fb-7ac01fa6c5d6@tycho.nsa.gov>
+Date:   Tue, 05 Mar 2019 10:12:10 +0100
+Message-ID: <pjdzhq9n0r9.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; format=flowed
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Tue, 05 Mar 2019 09:12:12 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 4, 2019 at 8:53 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+
+Stephen Smalley <sds@tycho.nsa.gov> writes:
+
+> On 3/4/19 11:37 AM, Petr Lautrbach wrote:
+>> Commit c19395d7 added a new interface security_reject_unknown() 
+>> which needs to
+>> be documented.
+>>
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> ---
+>>   libselinux/man/man3/security_getenforce.3     | 9 ++++++++-
+>>   libselinux/man/man3/security_reject_unknown.3 | 1 +
+>>   2 files changed, 9 insertions(+), 1 deletion(-)
+>>   create mode 100644 
+>>   libselinux/man/man3/security_reject_unknown.3
+>>
+>> diff --git a/libselinux/man/man3/security_getenforce.3 
+>> b/libselinux/man/man3/security_getenforce.3
+>> index 29cf3de7..8d72afb6 100644
+>> --- a/libselinux/man/man3/security_getenforce.3
+>> +++ b/libselinux/man/man3/security_getenforce.3
+>> @@ -1,6 +1,7 @@
+>>   .TH "security_getenforce" "3" "1 January 2004" 
+>>   "russell@coker.com.au" "SELinux API documentation"
+>>   .SH "NAME"
+>> -security_getenforce, security_setenforce, 
+>> security_deny_unknown, security_get_checkreqprot\- get or set 
+>> the enforcing state of SELinux
+>> +security_getenforce, security_setenforce, 
+>> security_deny_unknown, security_reject_unknown,
+>> +security_get_checkreqprot\- get or set the enforcing state of 
+>> SELinux
+>>   .
+>>   .SH "SYNOPSIS"
+>>   .B #include <selinux/selinux.h>
+>> @@ -11,6 +12,8 @@ security_getenforce, security_setenforce, 
+>> security_deny_unknown, security_get_ch
+>>   .sp
+>>   .B int security_deny_unknown(void);
+>>   .sp
+>> +.B int security_reject_unknown(void);
+>> +.sp
+>>   .B int security_get_checkreqprot(void);
+>>   .
+>>   .SH "DESCRIPTION"
+>> @@ -27,6 +30,10 @@ returned.
+>>   returns 0 if SELinux treats policy queries on undefined 
+>>   object classes or
+>>   permissions as being allowed, 1 if such queries are denied, 
+>>   and \-1 on error.
+>>   +.BR security_reject_unknown ()
+>> +returns 0 if SELinux allows to load a policy which doesn't 
+>> define all object
+>> +classes and permissions, 1 if loading such policy is rejected, 
+>> and \-1 on error.
 >
-> On 3/4/19 12:01 PM, Mark Salyzyn wrote:
-> > On 11/29/2018 05:49 AM, Vivek Goyal wrote:
-> >> So will override_creds=off solve the NFS issue also where all access will
-> >> happen with the creds of task now? Though it will stil require more
-> >> priviliges in task for other operations in overlay to succeed.
-> >
-> > NFS problems seems to have ended the discussion, too many stakeholders?
-> > too many outstanding questions?
-> >
-> > Do we accept the limitations of the override_creds patch as is, and then
-> > have the folks more familiar with the NFS scenario(s) build on it?
-> >
-> > [TL;DR]
-> >
-> > After looking at all this discussion, it feels like a larger audited
-> > rewrite of the security model is in order and override_creds=off may be
-> > a disservice (although expediently deals with Android's needs) to a
-> > correct general solution. I admit I have little idea where to go from
-> > here for a general solution.
-> >
-> > As far as I see it, the model of creator && caller credentials is a
-> > problem for any non-overlapping (MAC) privilege models. This patch
-> > allows one to drop any creator privilege escalation, re-introducing the
-> > "caller" to the lower layers.
-> >
-> > As such I would expect a better model is to _always_ check the caller
-> > credentials again in the lower layers, and only check the creator
-> > credentials, some without caller credentials, for some special cases?
-> > Change an && to an || for some of the checks? What are those special
-> > cases? I must admit _none_ of those special cases need attention in the
-> > Android usage models though making it difficult for me to do the fight
-> > thing for the associated stakeholders.
+> s/all object classes and permissions/all kernel object classes 
+> and permissions/
 >
-> As I recall, there were multiple problems with using current process'
-> creds for the operations on the lower/upper/work directories:
->
-> - Some overlayfs operations on the lower/upper/work directories required
-> privilege (capabilities) that the current process might lack, e.g. to
-> set ownership and the like on upper or work files, to set special xattrs
-> used internally by overlayfs for whiteouts or similar purposes, to act
-> on files within the work dir which was inaccessible to the current
-> process to prevent accessing files in an incomplete state, etc.
-> Originally that was handled by temporarily elevating the effective
-> capabilities around the privileged operation in the overlayfs code but
-> that didn't help with the SELinux or other LSM capability checking that
-> was triggered upon the capable calls.  Without some change there you'd
-> have to allow all client process domains all of the relevant
-> capabilities in policy, greatly increasing their privileges.
->
-> - The original logic was checking access to the lower dir/files in the
-> context of the current process when performing some operation that
-> modifies the file content or metadata, thereby triggering a SELinux/LSM
-> write or similar check, even though the actual data or metadata
-> modification occurs to the copied-up file instead and does not affect
-> the lower dir/files.  That was preventing making the lower dir/file
-> labels read-only to the client processes in the policy, which was
-> desired for the container use case.
->
-> You'd need to solve those problems in some way.
->
+> A policy can still be loaded if it is missing userspace object 
+> classes and
+> permissions regardless of security_reject_unknown(), although 
+> the object manager
+> may later encounter a failure upon selinux_set_mapping(), which 
+> internally calls
+> security_reject_unknown() to decide how to proceed, or direct 
+> attempts to lookup
+> the class or permission via string_to_security_class() or 
+> string_to_av_perm().
 
-This is entire discussion in avoiding the elephant in the room -
-Tampering with underlying layers.
-We only talk about functionality and enforcement of legit overlayfs
-operation, but what about an adversary that writes/changes files on
-underlying layers? For example, permission to write new files can
-be elevated to effectively modifying or deleting files.
+I'll update the text.
 
-To me the logic in "mounter credentials" is not only functional.
-Whoever has access to underlying layer can really cause a lot of
-damage to users accessing the overlay mount, so in a way, this
-power needs to be translated to some sort of elevated credentials.
+> I don't know of anyone building policies with handle_unknown == 
+> reject so it is
+> unlikely that anyone is testing this case.  deny is the default. 
+> allow is set
+> in Fedora/RHEL.  Android uses deny.
 
-The the current model seems solid in that respect - access to
-underlying layer can be restricted to the "mounter" who effectively
-crafts an entirely new set of files.
+We're considering to use handle_unknown = reject for nightly 
+builds
+to detect whether there's a new kernel class or permission defined 
+in
+kernel which is not covered by policy.
 
-Another way to think about this - consider a user space overlayfs
-implementation, for example:
-https://github.com/containers/fuse-overlayfs
 
-In what way should the requirements to overlayfs security model
-differ from the model already imposed on a user space implementation?
 
-I do understand the Android use case for override_creds=off, but
-to me, this is a functional configuration that says "turn off overlay
-specific security considerations... I know what I am doing".
-I am not saying that the Android adb debug use case is insecure.
-I am just not seeing how a && or || model for mounter and caller
-credential add up to a coherent story (yet...).
+>> +
+>>   .BR security_get_checkreqprot ()
+>>   can be used to determine whether SELinux is configured to 
+>>   check the
+>>   protection requested by the application or the actual 
+>>   protection that will
+>> diff --git a/libselinux/man/man3/security_reject_unknown.3 
+>> b/libselinux/man/man3/security_reject_unknown.3
+>> new file mode 100644
+>> index 00000000..d59e5c2c
+>> --- /dev/null
+>> +++ b/libselinux/man/man3/security_reject_unknown.3
+>> @@ -0,0 +1 @@
+>> +.so man3/security_getenforce.3
+>>
 
-Thanks,
-Amir.
