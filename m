@@ -2,214 +2,214 @@ Return-Path: <SRS0=Zlcp=RJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23820C4360F
-	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 16:20:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C052C43381
+	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 16:49:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EA1A7206DD
-	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 16:20:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 503EF20663
+	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 16:49:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="QwPXtqZX"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="cykOEkQh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726900AbfCFQUo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Mar 2019 11:20:44 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:36435 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726544AbfCFQUo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Mar 2019 11:20:44 -0500
-Received: by mail-lf1-f68.google.com with SMTP id x206so9379847lff.3
-        for <selinux@vger.kernel.org>; Wed, 06 Mar 2019 08:20:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pjz51UU6GXQYL+16XKU/iiGTsNEYSn0tEhxGlYS0vdE=;
-        b=QwPXtqZXvCp9vswSrO4WW1Ty6hS97gqr/JXonLffEsta4mW0YmYrJcx7nNifVDbclu
-         UZzBbIryPUYyPMSv8a617ZOo6uj0bBGhznSR+rYJxFL/w2j1IciZOuaPxG2c6LvU2YZM
-         ty9AfQ6XRscNlwSRQi0eyEqwwlAKqiIj5tu95wMoSMD+uiKf/d/uPPqd5/GPmj/jfxJM
-         SBiaDur4hC98cYgQYWYLd8ehOIkkqTErVKw3TRD5T/N1AFroiAmi0TDntfCRj0e1NLZ3
-         RqSH+JJeajOKuoAAIMHvOrLg7KJGfld2Z9wtJCBUOc86fhsV/u+piQbANjqwdtNriMBt
-         xawA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pjz51UU6GXQYL+16XKU/iiGTsNEYSn0tEhxGlYS0vdE=;
-        b=s89ElXjW4ddfUWp1LbJk3BE6h2IKE9ZOk5MWOdpf6RzRYTEujrIfgvJFomoZZ/EwD7
-         PO1mZgwwysMCSwUWNAtNuKWVjMleJiHHiJ1TcF/L53IFfdQKxiPxtMt7ZN+oF4wIJnGK
-         oeyU+GadMCF/hFjjQ+Mu/uFNotwcpbbHLG9hGoALFLobTXAW11qAiPlryfUTq6tlj6RS
-         SIb7/qWaIH+WSY1oXfN7hFcQqqNF/rmlCE69IqVkofl/7kjEq4YXVF00Rg97H/MjsEoM
-         deKxnyeQaIQw+zoYXUhd87PcvubTTHTnLlibmC2WuOc7kGyHW1ESpcuQ1knnV0kKmnxv
-         izyQ==
-X-Gm-Message-State: APjAAAVbLths75PZhl9yqe7+X8IgcUzMp8T92PZsQfsg6RcBFPH79ElV
-        A+NUuqnjLYtD2/PPWMCpHaahCtisN7fy/ZKZR+2f
-X-Google-Smtp-Source: APXvYqxo1of1MchxnVzRpTaZj7cG9minfK+eA7RA0YF97+o5lPUADLNPFHqKXcz3ksOnjtgNDIZwlE12Vv7WJc7+bo0=
-X-Received: by 2002:a19:7512:: with SMTP id y18mr4255061lfe.105.1551889240785;
- Wed, 06 Mar 2019 08:20:40 -0800 (PST)
+        id S1729160AbfCFQt2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Mar 2019 11:49:28 -0500
+Received: from uphb19pa09.eemsg.mail.mil ([214.24.26.83]:45159 "EHLO
+        USFB19PA12.eemsg.mail.mil" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726286AbfCFQt1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Mar 2019 11:49:27 -0500
+X-EEMSG-check-017: 259919566|USFB19PA12_EEMSG_MP8.csd.disa.mil
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Mar 2019 16:49:25 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1551890966; x=1583426966;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=u8x0qRX0tPASReU6+eEhFBH+ZHnul4f3qF3BFGW9vaE=;
+  b=cykOEkQhCgFu7+gp3gpuqJf36rk8nNu80Pz48aLCG6mjPCWy8fNDv9+4
+   qDkzVJC763iw5pE83unMviJ6jw/qbir1rM/livEqjjYuh3xeSvDrBrXlU
+   iApdpGmb/2lgQL3SDAmWknTN7YN3wG7A1KAVpETLKC+6dVt4pP0an5jG7
+   /12p+YvEEStH06UgBQ2slJRyhPE4Cpw3Y8/vb7gxdS5CjB3ipQD4bCUrp
+   OKa9D5Na1AeGpAaVCmkaDvrWHZhEXw9XBmLr+3/6Il5FjO9qjj29yWrkE
+   Fd/iyULJUZqegjSJvoH+pdrcPRDEMy8g5eG+IhwHvap1CsEyhbiszjBXJ
+   g==;
+X-IronPort-AV: E=Sophos;i="5.58,448,1544486400"; 
+   d="scan'208";a="21194540"
+IronPort-PHdr: =?us-ascii?q?9a23=3ARt1EexcSDdiMkrx8Fi8fjJTJlGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxc27ZhGN2/xhgRfzUJnB7Loc0qyK6vimATVIyK3CmUhKSIZLWR?=
+ =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
+ =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfK9+IA+qoQnMq8IbnZZsJqEtxx?=
+ =?us-ascii?q?XTv3BGYf5WxWRmJVKSmxbz+MK994N9/ipTpvws6ddOXb31cKokQ7NYCi8mM3?=
+ =?us-ascii?q?0u683wqRbDVwqP6WACXWgQjxFFHhLK7BD+Xpf2ryv6qu9w0zSUMMHqUbw5Xy?=
+ =?us-ascii?q?mp4rx1QxH0ligIKz858HnWisNuiqJbvAmhrAF7z4LNfY2ZKOZycqbbcNwUX2?=
+ =?us-ascii?q?pBWttaWTJHDI2ycoADC/MNMfhcooX4oVYFsBmwChS2BO731zFGmHH206053e?=
+ =?us-ascii?q?ovHw7J0w4vEM4BvnnPsNX4Nr0fXfypwKTGzzjOae5d1zfn6IjPdxAsueyCXa?=
+ =?us-ascii?q?5ufsrJyUkgCQXFhUiNp4zgJTyV0uANvHab7uF9Uu+vkHMoqxpqrzizxsYjlo?=
+ =?us-ascii?q?nJhoUPxlDC7iV22pw5JdK/SE5leNOpFoZbuS+dN4tzWMwiQmdotT41yr0HpZ?=
+ =?us-ascii?q?67fDUKx489yxHDbPyHdo6F6Q/gWuaJOTp0mX1odb2lixuy7ESs0PPwW8aq3F?=
+ =?us-ascii?q?pQsyZIlMTHuGoX2BzJ8MeHT+Nw/kKm2TmSyQ/e8vpEIUUolarDLJ4h36Iwmo?=
+ =?us-ascii?q?ITsUvdGi/2n137jLOMeUU+++io9v/nbq/6pp6cK4B0igb+Pr4omsOjGuQ3Lh?=
+ =?us-ascii?q?ICX22a+eS4zLHj/Ev5T6tWjvAuj6XUv5/XKd4bq6KkGQNZzIku5wilAzu7yN?=
+ =?us-ascii?q?gYmGMILFNBeBKJlYjpPFTOLejjDfiimFShiytrxvDaMb3hBZXBNH7DkKz7cr?=
+ =?us-ascii?q?pn5E5czxQzwchF551IErEBPO7zWkjpudPDAB85MhK7w+L6B9VmzY4eV2OPDb?=
+ =?us-ascii?q?GdMKzPql+H+PkvL/OLZI8Ptzb3M+Il6OL2jX8lhV8derGk3YMNZ3ClGvRrOF?=
+ =?us-ascii?q?2ZbmDxgtcFCGsKuw0+TOvwiFKcSzJce3GyX6ck7DEhFI2mFZvDRpyqgLGZwi?=
+ =?us-ascii?q?i7BodZZnpHClCXCnrob5+LW+0NaCKJOs9hliYLWqS/RIM70hGurgD6waJ9Lu?=
+ =?us-ascii?q?XI4i0YqY7j1N9t6u3Iix4y8T10D8KA02CCVGx0gGwISCEs3Kxlokxy1E2D0a?=
+ =?us-ascii?q?5mjPxcD9BT4OlJUggiP57G0+N6E8zyWh7GftqRU1amR8+pADExTt0vzd4DeF?=
+ =?us-ascii?q?x9FMu/gRDDxSWqH6UZmKCMBJwx6qjcxWT+J95hy3ba06ksl10mQspJNW27ia?=
+ =?us-ascii?q?9z7g7TB4DSk0iCiaaqeroT3DTX+GeA02WOpkdYXxB0UanfWnAffETW/pzF4R?=
+ =?us-ascii?q?aIbfnmI646OQYJ58+PLqdRIJW9h1tHSfPvI/zQYm+1l3y9HlCP3LzaP6TwfG?=
+ =?us-ascii?q?BI5znQEEgJlUgo+H+CMQUvTnO6r3n2EC1lFVWpZVjlt+Z5tiXoHQcP0wiWYh?=
+ =?us-ascii?q?g5hPKO8RkPiKnZEqlC0w=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AlAAA4+X9c/wHyM5BkGwEBAQEDAQEBBwMBAQGBUwQBA?=
+ =?us-ascii?q?QELAYFlKmiBAyeECJQxAQEBAQEBBoEILXyIQIlVhRKBezAIAYRAAoQxIjYHD?=
+ =?us-ascii?q?QEBAwEBAQIBAwIBbBwMgjopAYJmAQEBAQIBIwQRQRALFQMCAiYCAlcGDQYCA?=
+ =?us-ascii?q?QGCXz8BgWgFCA+rEXwzhUSEYAWBCyQBiygXeIEHgREngjY1gx4CgSohgyCCV?=
+ =?us-ascii?q?wKRNTuSHwmHSYsxBhmTLy2QIY5HDiOBVisIAhgIIQ+DJ4JAgziKcSEDMIEFA?=
+ =?us-ascii?q?QGKQIJNAQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 06 Mar 2019 16:49:23 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x26GlXbS005469;
+        Wed, 6 Mar 2019 11:47:33 -0500
+Subject: Re: [PATCH] security/selinux: fix SECURITY_LSM_NATIVE_LABELS on
+ reused superblock
+To:     "J. Bruce Fields" <bfields@fieldses.org>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Scott Mayhew <smayhew@redhat.com>, linux-nfs@vger.kernel.org
+References: <20190305211758.GA27437@fieldses.org>
+ <ea347670-ea52-3ab6-a786-aeebff40dd0e@tycho.nsa.gov>
+ <20190306153435.GF2426@fieldses.org>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <0d7ff441-fcfe-b68f-cdf9-44a923165a2c@tycho.nsa.gov>
+Date:   Wed, 6 Mar 2019 11:49:36 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.1
 MIME-Version: 1.0
-References: <20190222145718.5740-1-omosnace@redhat.com> <CAFqZXNs28QAxHA3=vECuG17TQ-be0ywS=r9S48q_KNBYpzgJLg@mail.gmail.com>
-In-Reply-To: <CAFqZXNs28QAxHA3=vECuG17TQ-be0ywS=r9S48q_KNBYpzgJLg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 6 Mar 2019 11:20:29 -0500
-Message-ID: <CAHC9VhShXZasD8d3nF4PwaL38gkq3hKDbvRivHX5_oHeBROFKQ@mail.gmail.com>
-Subject: Re: [PATCH v7 0/7] Allow initializing the kernfs node's secctx based
- on its parent
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Morris <jmorris@namei.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190306153435.GF2426@fieldses.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 6, 2019 at 10:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Fri, Feb 22, 2019 at 3:57 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > TL;DR:
-> > This series adds a new security hook that allows to initialize the security
-> > context of kernfs properly, taking into account the parent context (and
-> > possibly other attributes). Kernfs nodes require special handling here, since
-> > they are not bound to specific inodes/superblocks, but instead represent the
-> > backing tree structure that is used to build the VFS tree when the kernfs
-> > tree is mounted.
-> >
-> > Changes in v7:
-> > - simplify the new security hook's interface
-> >   - rather than trying to extract kernfs data into common structures, just
-> >     pass the kernfs nodes themselves and add helper functions to
-> >     <linux/kernfs.h> for accessing their security xattrs
-> >   - in case other LSMs need more kernfs node attributes than the file mode
-> >     (uid/gid/...), they can simply add new helpers to <linux/kernfs.h> as
-> >     needed
-> > - refactor "kernfs: use simple_xattrs for security attributes" to keep using
-> >   a single common simple_xattrs structure
-> >   - turns out having two separate simple_xattrs wouldn't work right (see
-> >     the definition of simple_xattr_list() in fs/xattr.c)
-> > - drop unnecessary initializations from inode_doinit_use_xattr()
-> > - move the IOP_XATTR check out of inode_doinit_use_xattr()
-> > - add two kernfs cleanup patches
-> >   - these could be applied independently, but the rest of the patches depend on
-> >     them, so I'd rather they stay bundled with the rest to avoid cross-tree
-> >     conflicts
-> >
-> > v6: https://lore.kernel.org/selinux/20190214095015.16032-1-omosnace@redhat.com/T/
-> > Changes in v6:
-> > - remove copy-pasted duplicate macro definition
-> >
-> > v5: https://lore.kernel.org/selinux/20190205110638.30782-1-omosnace@redhat.com/T/
-> > Changes in v5:
-> > - fix misplaced semicolon detected by 0day robot
-> >
-> > v4: https://lore.kernel.org/selinux/20190205085915.5183-1-omosnace@redhat.com/T/
-> > Changes in v4:
-> > - reorder and rename hook arguments
-> > - avoid allocating kernfs_iattrs unless needed
-> >
-> > v3: https://lore.kernel.org/selinux/20190130114150.27807-1-omosnace@redhat.com/T/
-> > Changes in v3:
-> > - rename the hook to "kernfs_init_security"
-> > - change the hook interface to simply pass pointers to struct iattr and
-> >   struct simple_xattrs of both the new node and its parent
-> > - add full security xattr support to kernfs (and fixup SELinux behavior
-> >   to handle it properly)
-> >
-> > v2: https://lore.kernel.org/selinux/20190109162830.8309-1-omosnace@redhat.com/T/
-> > Changes in v2:
-> > - add docstring for the new hook in union security_list_options
-> > - initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
-> >   implemented
-> >
-> > v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
-> >
-> > The kernfs nodes initially do not store any security context and rely on
-> > the LSM to assign some default context to inodes created over them. Kernfs
-> > inodes, however, allow setting an explicit context via the *setxattr(2)
-> > syscalls, in which case the context is stored inside the kernfs node's
-> > internal structure.
-> >
-> > SELinux (and possibly other LSMs) initialize the context of newly created
-> > FS objects based on the parent object's context (usually the child inherits
-> > the parent's context, unless the policy dictates otherwise). This is done
-> > by hooking the creation of the new inode corresponding to the newly created
-> > file/directory via security_inode_init_security() (most filesystems always
-> > create a fresh inode when a new FS object is created). However, kernfs nodes
-> > can be created "behind the scenes" while the filesystem is not mounted
-> > anywhere and thus no inodes can exist for them yet.
-> >
-> > Therefore, to allow maintaining similar behavior for kernfs nodes, a new
-> > LSM hook is needed, which will allow initializing the kernfs node's
-> > security context based on its own attributes and those of the parent's
-> > node.
-> >
-> > The main motivation for this change is that the userspace users of cgroupfs
-> > (which is built on kernfs) expect the usual security context inheritance
-> > to work under SELinux (see [1] and [2]). This functionality is required for
-> > better confinement of containers under SELinux.
-> >
-> > Patch 1/7 simplifies the kernfs_iattrs structure and patch 2/7 optimizes
-> > kernfs to not allocate kernfs_iattrs when getting the value of an xattr.
-> >
-> > Patch 3/7 changes SELinux to fetch security context from extended
-> > attributes on kernfs filesystems, falling back to genfs-defined context
-> > if that fails. Without this patch the 4/7 would be a regression for
-> > SELinux (due to the removal of ...notifysecctx() call.
-> >
-> > Patch 4/7 implements full security xattr support in kernfs using
-> > simple_xattrs; patch 5/7 adds the new LSM hook; patch 6/7 implements the
-> > new hook in SELinux; and patch 7/7 modifies kernfs to call the new hook
-> > on new node creation.
-> >
-> > Testing:
-> > - passed the reproducer from the commit message of the last patch
-> > - passed SELinux testsuite on Fedora Rawhide (x86_64) when applied on top
-> >   of current Rawhide kernel (5.0.0-0.rc7.git2.1) [3]
-> >   - including the new proposed selinux-testsuite subtest [4] (adapted
-> >     from the reproducer)
-> >
-> > [1] https://github.com/SELinuxProject/selinux-kernel/issues/39
-> > [2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
-> > [3] https://koji.fedoraproject.org/koji/taskinfo?taskID=32963825
-> > [4] https://github.com/SELinuxProject/selinux-testsuite/pull/48
-> >
-> > Ondrej Mosnacek (7):
-> >   kernfs: clean up struct kernfs_iattrs
-> >   kernfs: do not alloc iattrs in kernfs_xattr_get
-> >   selinux: try security xattr after genfs for kernfs filesystems
-> >   kernfs: use simple_xattrs for security attributes
-> >   LSM: add new hook for kernfs node initialization
-> >   selinux: implement the kernfs_init_security hook
-> >   kernfs: initialize security of newly created nodes
-> >
-> >  fs/kernfs/dir.c                     |  28 ++--
-> >  fs/kernfs/inode.c                   | 166 +++++++++------------
-> >  fs/kernfs/kernfs-internal.h         |   8 +-
-> >  fs/kernfs/symlink.c                 |   4 +-
-> >  include/linux/kernfs.h              |  15 ++
-> >  include/linux/lsm_hooks.h           |  13 ++
-> >  include/linux/security.h            |   9 ++
-> >  security/security.c                 |   6 +
-> >  security/selinux/hooks.c            | 223 +++++++++++++++++++---------
-> >  security/selinux/include/security.h |   1 +
-> >  10 files changed, 290 insertions(+), 183 deletions(-)
-> >
-> > --
-> > 2.20.1
->
-> Ping about this series... Casey, are you OK with this new version?
+On 3/6/19 10:34 AM, J. Bruce Fields wrote:
+> On Wed, Mar 06, 2019 at 09:34:43AM -0500, Stephen Smalley wrote:
+>> On 3/5/19 4:17 PM, J. Bruce Fields wrote:
+>>> From: "J. Bruce Fields" <bfields@redhat.com>
+>>>
+>>> In the case when we're reusing a superblock, selinux_sb_clone_mnt_opts()
+>>> fails to set set_kern_flags, with the result that
+>>> nfs_clone_sb_security() incorrectly clears NFS_CAP_SECURITY_LABEL.
+>>>
+>>> The result is that if you mount the same NFS filesystem twice, NFS
+>>> security labels are turned off, even if they would work fine if you
+>>> mounted the filesystem only once.
+>>>
+>>> ("fixes" may be not exactly the right tag, it may be more like
+>>> "fixed-other-cases-but-missed-this-one".)
+>>>
+>>> Cc: Scott Mayhew <smayhew@redhat.com>
+>>> Cc: stable@vger.kernel.org
+>>> Fixes: 0b4d3452b8b4 "security/selinux: allow security_sb_clone_mnt_opts..."
+>>> Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+>>
+>> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>
+>> Do you have some tests you are using for the selinux nfs support?
+> 
+> No.  I'll ask around.  Trond or Anna, do either of you do any selinux
+> testing?
+> 
+>> I have an open issue on the selinux-testsuite with an example script
+>> for running the regular selinux tests on a NFS mount but it can't
+>> fully succeed as noted there,
+>> https://github.com/SELinuxProject/selinux-testsuite/issues/32
+> 
+> So if I just clone
+> https://github.com/SELinuxProject/selinux-testsuite.git and filter out
+> those known failures, would that be a good starting point?
 
-We've got two weeks, well one and a half weeks, to decide as the
-earliest I would merge this would be after the merge window closes :)
+Yes, although you might want to remove the inet_socket and sctp tests 
+from tests/Makefile before running it over NFS; it looks like there are 
+some interactions between NFS and labeled networking (netlabel and 
+ipsec/xfrm) that require further test policy changes to permit.
 
--- 
-paul moore
-www.paul-moore.com
+> 
+>> I've also have another script to test context= mount handling for
+>> nfs since that should take precedence over native labels; it looks
+>>   like that might be broken again:
+> 
+> Thanks for the report, I'll take a look.  That's before or after
+> applying this patch?  Assuming the former, do you have an idea how
+> recent a regression it is?
+
+Now I'm having difficulty reproducing it entirely.  I thought on stock 
+Fedora 29 (4.20.x) I was seeing the actual underlying security labels 
+leaking through on files within the NFS mount despite using a context= 
+mount, while correctly seeing the context mount values with your patch, 
+but now I can't seem to repro.  It was this bug that originally 
+motivated Scott's commit that you are further fixing IIUC,
+https://github.com/SELinuxProject/selinux-kernel/issues/35
+
+> 
+> --b.
+> 
+>> #!/bin/sh
+>> cat > /etc/exports <<EOF
+>> /home localhost(rw,no_root_squash,security_label)
+>> EOF
+>> exportfs -a
+>> systemctl start nfs-server
+>> mkdir -p /mnt/home
+>> mount -t nfs -o vers=4.0,context=system_u:object_r:etc_t:s0
+>> localhost:/home /mnt/home
+>> echo "Under NFSv4.0:"
+>> ls -Za /mnt/home
+>> touch /mnt/home/foo
+>> ls -Z /mnt/home/foo
+>> ls -Z /home/foo
+>> rm /mnt/home/foo
+>> umount /mnt/home
+>> mount -t nfs -o vers=4.2,context=system_u:object_r:etc_t:s0
+>> localhost:/home /mnt/home
+>> echo "Under NFSv4.2:"
+>> ls -Za /mnt/home
+>> touch /mnt/home/foo
+>> ls -Z /mnt/home/foo
+>> ls -Z /home/foo
+>> rm /home/foo
+>> umount /mnt/home
+>> rmdir /mnt/home
+>> rm /etc/exports
+>> exportfs -ua
+>> systemctl stop nfs-server
+>>
+>>> ---
+>>>   security/selinux/hooks.c | 5 ++++-
+>>>   1 file changed, 4 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>>> index f0e36c3492ba..5e9304567233 100644
+>>> --- a/security/selinux/hooks.c
+>>> +++ b/security/selinux/hooks.c
+>>> @@ -959,8 +959,11 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+>>>   	BUG_ON(!(oldsbsec->flags & SE_SBINITIALIZED));
+>>>   	/* if fs is reusing a sb, make sure that the contexts match */
+>>> -	if (newsbsec->flags & SE_SBINITIALIZED)
+>>> +	if (newsbsec->flags & SE_SBINITIALIZED) {
+>>> +		if ((kern_flags & SECURITY_LSM_NATIVE_LABELS) && !set_context)
+>>> +			*set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
+>>>   		return selinux_cmp_sb_context(oldsb, newsb);
+>>> +	}
+>>>   	mutex_lock(&newsbsec->lock);
+>>>
+
