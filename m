@@ -1,116 +1,216 @@
-Return-Path: <SRS0=RVlB=RI=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Zlcp=RJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS autolearn=unavailable
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3421C4360F
-	for <selinux@archiver.kernel.org>; Tue,  5 Mar 2019 22:17:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDCF7C43381
+	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 12:56:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B216A20675
-	for <selinux@archiver.kernel.org>; Tue,  5 Mar 2019 22:17:45 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="jnz0IGkD"
+	by mail.kernel.org (Postfix) with ESMTP id B78D220652
+	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 12:56:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728222AbfCEWRo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 Mar 2019 17:17:44 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:40702 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726367AbfCEWRn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 Mar 2019 17:17:43 -0500
-Received: by mail-lf1-f66.google.com with SMTP id a8so7375873lfi.7
-        for <selinux@vger.kernel.org>; Tue, 05 Mar 2019 14:17:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=gycZSpHeEzm9Bb+y6ZInD4EPay3X1lr+WOAbT2jGc3w=;
-        b=jnz0IGkDAH3EbUDaoZRjIOIEFDuv5NkUhJiEvdccT9ZFXoGek84jVvPWz62nB56xzt
-         u7jWaFQPXkmeXoHX3aJIwIoOl3odyEtLJ7AOWwB/Qe7xgOX/e9csreQ1Ix9r5lgjVlV+
-         nELWXUq0Fb/BnX925sGYRn2GzV082ZO5evwAZFpw0pA9m8VusSmeW+TIlClYT3qZUV8/
-         2PHujH5ycFO4yAihsmEmumLXVtdtq23UAGVLJXnzt0VRMO6llxqMPiBNT+SW76QFLaZR
-         3YaoNBpMTvSN+lGWpW2AHN28OOqBqmS//AM4tYP8YnRRVdpo9/wDjrpO8GdKvmstBJup
-         5Zhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=gycZSpHeEzm9Bb+y6ZInD4EPay3X1lr+WOAbT2jGc3w=;
-        b=c4R8jOOqdaxDPnmG5Ka7CidB/AfqW3Enu7GgwdliREARN/6RjZD+LejSMnPEswcPoG
-         wn0wKLyjeukTKDzgWF29M9kgolFeGVcNpJTbzrwCH6SW8Kn8+rWCCiX0Xd8i/Bvpi0tq
-         S/kiTaBcwmYEQ/NzVW1+0BP8IyXeKnOVm9cpQgt/vuDfvPrDUYC1DfJVqXUp4PEDtmlA
-         oQeJu4PMOeg9IG3KO3jCBNF7n29KsYEJXQI73K++bXyq7JmOKOM2pTyWyQgTGmdJHFXh
-         kVGMaV6WeMi6MS6se727o9PeX2aYudHqguhGYSvvGcDtJzvkdgaNDQavRRTlHhcyVtVs
-         Y46w==
-X-Gm-Message-State: APjAAAVLlJ1IOlaWRU5pTzHertWyBzmYAKxAqRACISQyN64uz57pyKKb
-        YsyU+XiMY5JPkQkILRhlsoC/VwL9DfC69l/INYbEWrTWIA==
-X-Google-Smtp-Source: APXvYqz+rQBVNGS/1z9Vj6Y6ApudFtOTIYLDjwQEImtklgp7JGieOFj+YbzWRUPkHSuW+sDikWUng7YJe8jq6KrE5Ek=
-X-Received: by 2002:ac2:55b2:: with SMTP id y18mr2020169lfg.72.1551824261666;
- Tue, 05 Mar 2019 14:17:41 -0800 (PST)
+        id S1728717AbfCFM4r (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Mar 2019 07:56:47 -0500
+Received: from mx1.redhat.com ([209.132.183.28]:48090 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728376AbfCFM4r (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 6 Mar 2019 07:56:47 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9C2B33092645;
+        Wed,  6 Mar 2019 12:56:46 +0000 (UTC)
+Received: from workstation (unknown [10.43.12.40])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 416B160C1B;
+        Wed,  6 Mar 2019 12:56:44 +0000 (UTC)
+References: <pjdzhq9n0r9.fsf@redhat.com> <20190305093509.12760-1-plautrba@redhat.com> <bb4979d7-5e8c-7186-f8b6-e2d59057eee9@tycho.nsa.gov>
+User-agent: mu4e 1.0; emacs 26.1
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH v2] libselinux: Add security_reject_unknown(3) man page
+In-reply-to: <bb4979d7-5e8c-7186-f8b6-e2d59057eee9@tycho.nsa.gov>
+Date:   Wed, 06 Mar 2019 13:56:42 +0100
+Message-ID: <pjdy35sma9h.fsf@redhat.com>
 MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 5 Mar 2019 17:17:30 -0500
-Message-ID: <CAHC9VhRbDONFkYe5J2KtFSRdKcz5Z3vdJFuiZCi_EQiJHFaNtA@mail.gmail.com>
-Subject: [GIT PULL] SELinux patches for v5.1
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; format=flowed
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Wed, 06 Mar 2019 12:56:46 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
 
-Nine SELinux patches for v5.1, all bug fixes.  As far as I'm
-concerned, nothing really jumps out as risky or special to me, but
-each commit has a decent description so you can judge for yourself.
-As usual, everything passes the selinux-testsuite; please merge for
-v5.1.
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-Thanks,
--Paul
+> On 3/5/19 4:35 AM, Petr Lautrbach wrote:
+>> Commit c19395d7 added a new interface security_reject_unknown() 
+>> which needs to
+>> be documented.
+>
+> For the kernel, checkpatch.pl requires that one specify at least 
+> 12 characters
+> of the sha1 followed by the one line summary log message quoted 
+> within
+> parentheses, ala:
+> commit c19395d72295 ("libselinux: selinux_set_mapping: fix 
+> handling of unknown
+> classes/perms")
+>
+> selinux userspace obviously isn't bound by the kernel 
+> checkpatch.pl requirements
+> but this is probably a good practice to follow so that reviewers 
+> don't
+> necessarily have to look up the commit hash to have some idea as 
+> to what the
+> commit was and so that there is less risk of ambiguity.
 
---
-The following changes since commit bfeffd155283772bbe78c6a05dec7c0128ee500c:
+This makes sense. I'll try to do better next time.
 
- Linux 5.0-rc1 (2019-01-06 17:08:20 -0800)
+>>
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> ---
+>>   libselinux/man/man3/security_getenforce.3     | 15 
+>>   ++++++++++++++-
+>>   libselinux/man/man3/security_reject_unknown.3 |  1 +
+>>   2 files changed, 15 insertions(+), 1 deletion(-)
+>>   create mode 100644 
+>>   libselinux/man/man3/security_reject_unknown.3
+>>
+>> diff --git a/libselinux/man/man3/security_getenforce.3 
+>> b/libselinux/man/man3/security_getenforce.3
+>> index 29cf3de7..7b0a069f 100644
+>> --- a/libselinux/man/man3/security_getenforce.3
+>> +++ b/libselinux/man/man3/security_getenforce.3
+>> @@ -1,6 +1,7 @@
+>>   .TH "security_getenforce" "3" "1 January 2004" 
+>>   "russell@coker.com.au" "SELinux API documentation"
+>>   .SH "NAME"
+>> -security_getenforce, security_setenforce, 
+>> security_deny_unknown, security_get_checkreqprot\- get or set 
+>> the enforcing state of SELinux
+>> +security_getenforce, security_setenforce, 
+>> security_deny_unknown, security_reject_unknown,
+>> +security_get_checkreqprot \- get or set the enforcing state of 
+>> SELinux
+>>   .
+>>   .SH "SYNOPSIS"
+>>   .B #include <selinux/selinux.h>
+>> @@ -11,6 +12,8 @@ security_getenforce, security_setenforce, 
+>> security_deny_unknown, security_get_ch
+>>   .sp
+>>   .B int security_deny_unknown(void);
+>>   .sp
+>> +.B int security_reject_unknown(void);
+>> +.sp
+>>   .B int security_get_checkreqprot(void);
+>>   .
+>>   .SH "DESCRIPTION"
+>> @@ -27,6 +30,16 @@ returned.
+>>   returns 0 if SELinux treats policy queries on undefined 
+>>   object classes or
+>>   permissions as being allowed, 1 if such queries are denied, 
+>>   and \-1 on error.
+>>   +.BR security_reject_unknown ()
+>> +returns 1 if SELinux rejects loading a policy which doesn't 
+>> define all kernel
+>> +object classes and permissions. In this state SELinux treats 
+>> policy queries on
+>> +undefined object classes or permissions as being denied.
+>
+> I'm not sure if the last part is quite correct.  If 
+> handle_unknown=reject and
+> the policy doesn't define all kernel classes/permissions, then 
+> the policy load
+> fails, which leaves the system without a policy at all (or with 
+> its previously
+> loaded policy if one was already loaded successfully). If the 
+> system is
+> enforcing and this is the initial policy load, then init should 
+> halt the system
+> due to the failed load.  Since no policy was ever loaded,
+> security_reject_unknown() is still going to return 0 in that 
+> case, but
+> security_deny_unknown() should be 1.
+>
+> If handle_unknown=reject and the policy defines all kernel 
+> classes/permissions
+> but omits some userspace classes/permissions, then the policy 
+> load succeeds and
+> the behavior of the userspace object managers will vary 
+> depending on what
+> interfaces they use and how they handle error conditions. If 
+> they use
+> selinux_set_mapping() to map all of the classes/permissions up 
+> front prior to
+> using security_compute_av() or avc_has_perm(), then 
+> selinux_set_mapping() will
+> return an error and the object manager likely treats this as a 
+> fatal error
+> during startup (e.g. dbus-daemon appears to exit in this case; 
+> XSELinux in
+> contrast appears to just disable itself).  If they instead use
+> selinux_check_access(), then it will return an error and the 
+> object manager
+> likely treats this like any other permission denial (but errno 
+> will differ:
+> EINVAL vs EACCES, so they could distinguish if they wanted). If 
+> they directly
+> call string_to_security_class() and string_to_av_perm() prior to 
+> calling
+> security_compute_av() or avc_has_perm(), then the string_*() 
+> functions will
+> return an error on the undefined class/perm and the object 
+> manager likely treats
+> that like any other permission denial.
 
-are available in the Git repository at:
+There's also an inaccuracy that security_reject_unknown() is
+related only to the current loaded policy. Even when a policy is
+incomplete it could be still loaded if it's built using
+handle-unknown=allow:
 
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20190305
+# checkpolicy -U reject -M -o /etc/selinux/dummy/policy/policy.31 
+  policy.conf.complete 
+# load_policy 
+# cat /sys/fs/selinux/reject_unknown 
+1
+#checkpolicy -U reject -M -o /etc/selinux/dummy/policy/policy.31 
+ policy.conf
+# load_policy 
+SELinux:  Could not load policy file 
+/etc/selinux/dummy/policy/policy.31:  Invalid argument
+load_policy:  Can't load policy:  Invalid argument
+# checkpolicy -U allow -M -o /etc/selinux/dummy/policy/policy.31 
+  policy.conf
+# load_policy 
+# cat /sys/fs/selinux/reject_unknown 
+0
 
-for you to fetch changes up to 45189a1998e00f6375ebd49d1e18161acddd73de:
 
- selinux: fix avc audit messages (2019-02-05 12:34:33 -0500)
+>> +
+>> +It returns 0 if SELinux allows to load such policy and policy 
+>> queries are
+>> +treated according to
+>> +.BR security_deny_unknown(),
+>> +\-1 is returned on error.
+>> +
+>>   .BR security_get_checkreqprot ()
+>>   can be used to determine whether SELinux is configured to 
+>>   check the
+>>   protection requested by the application or the actual 
+>>   protection that will
+>> diff --git a/libselinux/man/man3/security_reject_unknown.3 
+>> b/libselinux/man/man3/security_reject_unknown.3
+>> new file mode 100644
+>> index 00000000..d59e5c2c
+>> --- /dev/null
+>> +++ b/libselinux/man/man3/security_reject_unknown.3
+>> @@ -0,0 +1 @@
+>> +.so man3/security_getenforce.3
+>>
 
-----------------------------------------------------------------
-selinux/stable-5.1 PR 20190305
-
-----------------------------------------------------------------
-Ondrej Mosnacek (6):
-     selinux: never allow relabeling on context mounts
-     selinux: do not override context on context mounts
-     selinux: inline some AVC functions used only once
-     selinux: replace some BUG_ON()s with a WARN_ON()
-     selinux: log invalid contexts in AVCs
-     selinux: replace BUG_ONs with WARN_ONs in avc.c
-
-Stephen Smalley (3):
-     selinux: avoid silent denials in permissive mode under RCU walk
-     selinux: stop passing MAY_NOT_BLOCK to the AVC upon follow_link
-     selinux: fix avc audit messages
-
-security/selinux/avc.c              | 199 +++++++++++++++++-------------------
-security/selinux/hooks.c            |  58 ++++++++---
-security/selinux/include/avc.h      |   6 +-
-security/selinux/include/security.h |   3 +
-security/selinux/ss/services.c      |  37 ++++++-
-5 files changed, 176 insertions(+), 127 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
