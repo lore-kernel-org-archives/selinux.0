@@ -1,210 +1,132 @@
-Return-Path: <SRS0=Zlcp=RJ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Plie=RK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56644C4360F
-	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 18:04:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8885C43381
+	for <selinux@archiver.kernel.org>; Thu,  7 Mar 2019 02:44:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 21BFC20652
-	for <selinux@archiver.kernel.org>; Wed,  6 Mar 2019 18:04:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="t7GUHGGi"
+	by mail.kernel.org (Postfix) with ESMTP id 8D1B42064A
+	for <selinux@archiver.kernel.org>; Thu,  7 Mar 2019 02:44:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727485AbfCFSEb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Mar 2019 13:04:31 -0500
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com ([66.163.187.152]:40215
-        "EHLO sonic316-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728015AbfCFSEb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Mar 2019 13:04:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1551895468; bh=csf78HO1KxYYJ2kr1KJ7HVhplHaItVMFVWMMz9e1rCU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=t7GUHGGikTE9thWzd2QEN0SKuHacornis4E/5viSI1YGSHNgBC25HLoPUPKVGsxrgAHNMGTufq1zw0TT+LzsiQqMgxoDZI4UtEzDxL3NN1707N7qS1K0YwKvbOTPWBkj1kFpTix3he0RWEC5IKb8tAv5e8E7V0Xp4TiFJPeqbsNDbZybor6a94T9iJ0DIOZydVoIJLh8f8hr4RXh5cLuH7svGHZ4X0Pw0rVXF4T/DAciideMHYDN/rdZ0TfgtqRcdYA9OYLf3Frz/JnrgL6KKGKrZSq8y68Gyo7jfaNVugh65Nr9CwXGl2LYiv+3E7qY4raMsFV2DLewm+G/e2U0pA==
-X-YMail-OSG: YNI65H4VM1m7O_667vExtDT2NnBCMYo5_7aX7FQ0pGYvFZtUXqoKotwYwLj2q6X
- 8KK5xeBPOe0EBxlHsIBE7Gix9iqaEayuyjBfuJRpqRRonl.2v56OemRIXslDXSUqYeW3DwHCJ9Nl
- WQJhBN3FsKVjAynm_ox7d.DTASxQ5ftPsmMnMnlV7eWuyngZOt3PgKWMRWoRmWWwC9s8NvzMOQTi
- QWhBGfNKgiT02VgcBpt8byt3R8svQOGKxUwq13J_9.EhO6NtcF_yRHU4cA5OaDNGe6SqYq85SDCo
- SKMDjbGeAYTNvMohAlsIofQVGRqMbbEz7f.4GA4vgLSYucMwKsHVlMXEcpb07msu7Sex8HJ_ERxD
- bRTIFkuITdrzf3t9aVsezeC22OLomiv7DIOkw4Xz9X8Hi3AoKK6.oQCO0Gzt9tHYdbKuBKi1rcAt
- h.o.0I2qxAJf1qTwxw07zbyWZTutq_AsTFr2wqjHTkYaQr5_r.A5iOX94kVrWzsKzkvS2aGg5Q13
- ls_9CxtzNuFejq0eYi6Qli0ZsAEyTJpMh.laHDZs4rr2xusTSjcxLKAs6eLF1VCUTUnptPL1W8VE
- PRhMHaHrJb4ncGdvZPuhfg0xdwa6dzls3FuwK.Y1.HFWQqz84DvCEm34JOLNMrq6k4IEwTh1yLHB
- rmaGW3Avo_yZB05gfwCwk7G.3PyPSfOPYVsFmPOP86fQGAWkaRE6Y8ZOa_wYsqTREpH4VizApoVU
- _ncr.NXEt8bvFdUZ58e5JuX6wk4CegW4GdYtdb7pantU80z5K2seexSNNlxRfIH9GU47gs6hzIql
- 6TTlTmxaQy43tZRpVLRWcx4kn4cFMppNyIf4CfQTrcG.9y3wUPhIehns2KF5IITvJfwD3GEFoxRO
- vykLYp90RMNVrrRtuAK5wJgemRM16Shzn0XB70EB6Baf8U.TLW75SWqoxZ7HsUJ_yd8A8QsL7dYS
- SjtZ2To7uyjOgIYMxm9R8Hu7R012KTpnAyScyeQDL7LIytV9k54hEGaPa_llcTUN6bA2NS1cAoBl
- pvG2H3FM5Z8OBZb1G0AWDEFa8Cavy3gM2sGlQ1k74R.PtluYUZTudDmYCR4xAqEKpsDFWMYqCBRL
- 41Dz2Rz2qnTE-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Wed, 6 Mar 2019 18:04:28 +0000
-Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([67.169.65.224])
-          by smtp418.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID b10016b4b51151b092ee4cc05b51e59e;
-          Wed, 06 Mar 2019 18:04:27 +0000 (UTC)
-Subject: Re: [PATCH v7 0/7] Allow initializing the kernfs node's secctx based
- on its parent
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Morris <jmorris@namei.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
-References: <20190222145718.5740-1-omosnace@redhat.com>
- <CAFqZXNs28QAxHA3=vECuG17TQ-be0ywS=r9S48q_KNBYpzgJLg@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <7f92ac61-c72b-ab31-c757-c2ac1bcf7b08@schaufler-ca.com>
-Date:   Wed, 6 Mar 2019 10:04:24 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.2
+        id S1726869AbfCGCos (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Mar 2019 21:44:48 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:5214 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726715AbfCGCos (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 6 Mar 2019 21:44:48 -0500
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 13F13704BF0505E5836D;
+        Thu,  7 Mar 2019 10:44:45 +0800 (CST)
+Received: from localhost.localdomain.localdomain (10.175.113.25) by
+ DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
+ 14.3.408.0; Thu, 7 Mar 2019 10:44:41 +0800
+From:   Mao Wenan <maowenan@huawei.com>
+To:     <davem@davemloft.net>, <netdev@vger.kernel.org>,
+        <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
+        <eparis@parisplace.org>, <selinux@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH net] net: selinux: fix memory leak in selinux_netlbl_socket_post_create()
+Date:   Thu, 7 Mar 2019 10:57:31 +0800
+Message-ID: <20190307025731.49369-1-maowenan@huawei.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <CAFqZXNs28QAxHA3=vECuG17TQ-be0ywS=r9S48q_KNBYpzgJLg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.113.25]
+X-CFilter-Loop: Reflected
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 3/6/2019 7:54 AM, Ondrej Mosnacek wrote:
-> On Fri, Feb 22, 2019 at 3:57 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->> TL;DR:
->> This series adds a new security hook that allows to initialize the security
->> context of kernfs properly, taking into account the parent context (and
->> possibly other attributes). Kernfs nodes require special handling here, since
->> they are not bound to specific inodes/superblocks, but instead represent the
->> backing tree structure that is used to build the VFS tree when the kernfs
->> tree is mounted.
->>
->> Changes in v7:
->> - simplify the new security hook's interface
->>    - rather than trying to extract kernfs data into common structures, just
->>      pass the kernfs nodes themselves and add helper functions to
->>      <linux/kernfs.h> for accessing their security xattrs
->>    - in case other LSMs need more kernfs node attributes than the file mode
->>      (uid/gid/...), they can simply add new helpers to <linux/kernfs.h> as
->>      needed
->> - refactor "kernfs: use simple_xattrs for security attributes" to keep using
->>    a single common simple_xattrs structure
->>    - turns out having two separate simple_xattrs wouldn't work right (see
->>      the definition of simple_xattr_list() in fs/xattr.c)
->> - drop unnecessary initializations from inode_doinit_use_xattr()
->> - move the IOP_XATTR check out of inode_doinit_use_xattr()
->> - add two kernfs cleanup patches
->>    - these could be applied independently, but the rest of the patches depend on
->>      them, so I'd rather they stay bundled with the rest to avoid cross-tree
->>      conflicts
->>
->> v6: https://lore.kernel.org/selinux/20190214095015.16032-1-omosnace@redhat.com/T/
->> Changes in v6:
->> - remove copy-pasted duplicate macro definition
->>
->> v5: https://lore.kernel.org/selinux/20190205110638.30782-1-omosnace@redhat.com/T/
->> Changes in v5:
->> - fix misplaced semicolon detected by 0day robot
->>
->> v4: https://lore.kernel.org/selinux/20190205085915.5183-1-omosnace@redhat.com/T/
->> Changes in v4:
->> - reorder and rename hook arguments
->> - avoid allocating kernfs_iattrs unless needed
->>
->> v3: https://lore.kernel.org/selinux/20190130114150.27807-1-omosnace@redhat.com/T/
->> Changes in v3:
->> - rename the hook to "kernfs_init_security"
->> - change the hook interface to simply pass pointers to struct iattr and
->>    struct simple_xattrs of both the new node and its parent
->> - add full security xattr support to kernfs (and fixup SELinux behavior
->>    to handle it properly)
->>
->> v2: https://lore.kernel.org/selinux/20190109162830.8309-1-omosnace@redhat.com/T/
->> Changes in v2:
->> - add docstring for the new hook in union security_list_options
->> - initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
->>    implemented
->>
->> v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
->>
->> The kernfs nodes initially do not store any security context and rely on
->> the LSM to assign some default context to inodes created over them. Kernfs
->> inodes, however, allow setting an explicit context via the *setxattr(2)
->> syscalls, in which case the context is stored inside the kernfs node's
->> internal structure.
->>
->> SELinux (and possibly other LSMs) initialize the context of newly created
->> FS objects based on the parent object's context (usually the child inherits
->> the parent's context, unless the policy dictates otherwise). This is done
->> by hooking the creation of the new inode corresponding to the newly created
->> file/directory via security_inode_init_security() (most filesystems always
->> create a fresh inode when a new FS object is created). However, kernfs nodes
->> can be created "behind the scenes" while the filesystem is not mounted
->> anywhere and thus no inodes can exist for them yet.
->>
->> Therefore, to allow maintaining similar behavior for kernfs nodes, a new
->> LSM hook is needed, which will allow initializing the kernfs node's
->> security context based on its own attributes and those of the parent's
->> node.
->>
->> The main motivation for this change is that the userspace users of cgroupfs
->> (which is built on kernfs) expect the usual security context inheritance
->> to work under SELinux (see [1] and [2]). This functionality is required for
->> better confinement of containers under SELinux.
->>
->> Patch 1/7 simplifies the kernfs_iattrs structure and patch 2/7 optimizes
->> kernfs to not allocate kernfs_iattrs when getting the value of an xattr.
->>
->> Patch 3/7 changes SELinux to fetch security context from extended
->> attributes on kernfs filesystems, falling back to genfs-defined context
->> if that fails. Without this patch the 4/7 would be a regression for
->> SELinux (due to the removal of ...notifysecctx() call.
->>
->> Patch 4/7 implements full security xattr support in kernfs using
->> simple_xattrs; patch 5/7 adds the new LSM hook; patch 6/7 implements the
->> new hook in SELinux; and patch 7/7 modifies kernfs to call the new hook
->> on new node creation.
->>
->> Testing:
->> - passed the reproducer from the commit message of the last patch
->> - passed SELinux testsuite on Fedora Rawhide (x86_64) when applied on top
->>    of current Rawhide kernel (5.0.0-0.rc7.git2.1) [3]
->>    - including the new proposed selinux-testsuite subtest [4] (adapted
->>      from the reproducer)
->>
->> [1] https://github.com/SELinuxProject/selinux-kernel/issues/39
->> [2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
->> [3] https://koji.fedoraproject.org/koji/taskinfo?taskID=32963825
->> [4] https://github.com/SELinuxProject/selinux-testsuite/pull/48
->>
->> Ondrej Mosnacek (7):
->>    kernfs: clean up struct kernfs_iattrs
->>    kernfs: do not alloc iattrs in kernfs_xattr_get
->>    selinux: try security xattr after genfs for kernfs filesystems
->>    kernfs: use simple_xattrs for security attributes
->>    LSM: add new hook for kernfs node initialization
->>    selinux: implement the kernfs_init_security hook
->>    kernfs: initialize security of newly created nodes
->>
->>   fs/kernfs/dir.c                     |  28 ++--
->>   fs/kernfs/inode.c                   | 166 +++++++++------------
->>   fs/kernfs/kernfs-internal.h         |   8 +-
->>   fs/kernfs/symlink.c                 |   4 +-
->>   include/linux/kernfs.h              |  15 ++
->>   include/linux/lsm_hooks.h           |  13 ++
->>   include/linux/security.h            |   9 ++
->>   security/security.c                 |   6 +
->>   security/selinux/hooks.c            | 223 +++++++++++++++++++---------
->>   security/selinux/include/security.h |   1 +
->>   10 files changed, 290 insertions(+), 183 deletions(-)
->>
->> --
->> 2.20.1
-> Ping about this series... Casey, are you OK with this new version?
+If netlbl_sock_setattr() is failed, it directly returns rc and forgets
+to free secattr.
 
-I'm still not wildly enthusiastic about it, but I can't
-offer a better solution right now. You can add my
+BUG: memory leak
+unreferenced object 0xffff8883c3ea4200 (size 2664):
+  comm "syz-executor.2", pid 8813, jiffies 4297264419 (age 156.090s)
+  hex dump (first 32 bytes):
+    7f 00 00 01 7f 00 00 01 eb 7f ed 71 4e 24 00 00  ...........qN$..
+    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
+  backtrace:
+    [<000000004c0228da>] sk_alloc+0x3d/0xc00 net/core/sock.c:1523
+    [<00000000535a3da2>] inet_create+0x339/0xe10 net/ipv4/af_inet.c:321
+    [<000000009aec3cfe>] __sock_create+0x3fa/0x790 net/socket.c:1275
+    [<000000004274b384>] sock_create net/socket.c:1315 [inline]
+    [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
+    [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
+    [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
+    [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
+    [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
+    [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    [<00000000f737e62f>] 0xffffffffffffffff
 
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+BUG: memory leak
+unreferenced object 0xffff8883de23d570 (size 32):
+  comm "syz-executor.2", pid 8813, jiffies 4297264419 (age 156.090s)
+  hex dump (first 32 bytes):
+    02 00 00 00 00 00 00 00 60 a9 40 ce 83 88 ff ff  ........`.@.....
+    01 00 00 00 03 00 00 00 10 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000035ba8b75>] security_sk_alloc+0x5e/0xb0 security/security.c:1473
+    [<00000000302cc426>] sk_prot_alloc+0x8e/0x290 net/core/sock.c:1472
+    [<000000004c0228da>] sk_alloc+0x3d/0xc00 net/core/sock.c:1523
+    [<00000000535a3da2>] inet_create+0x339/0xe10 net/ipv4/af_inet.c:321
+    [<000000009aec3cfe>] __sock_create+0x3fa/0x790 net/socket.c:1275
+    [<000000004274b384>] sock_create net/socket.c:1315 [inline]
+    [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
+    [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
+    [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
+    [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
+    [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
+    [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    [<00000000f737e62f>] 0xffffffffffffffff
+
+BUG: memory leak
+unreferenced object 0xffff8883ce40a960 (size 64):
+  comm "syz-executor.2", pid 8813, jiffies 4297264420 (age 156.089s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000029add401>] selinux_netlbl_socket_post_create+0x68/0x130 security/selinux/netlabel.c:416
+    [<000000005368a19c>] selinux_socket_post_create+0x31a/0x7f0 security/selinux/hooks.c:4597
+    [<00000000bd4730e2>] security_socket_post_create+0x70/0xc0 security/security.c:1385
+    [<00000000671052a4>] __sock_create+0x5a6/0x790 net/socket.c:1291
+    [<000000004274b384>] sock_create net/socket.c:1315 [inline]
+    [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
+    [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
+    [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
+    [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
+    [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
+    [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
+    [<00000000f737e62f>] 0xffffffffffffffff
+
+Fixes: 389fb800ac8b("netlabel: Label incoming TCP connections correctly in SELinux")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Mao Wenan <maowenan@huawei.com>
+---
+ security/selinux/netlabel.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 186e727b737b..f3da05338580 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -426,6 +426,9 @@ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
+ 		rc = 0;
+ 		break;
+ 	}
++	if (rc != 0) {
++		netlbl_secattr_free(secattr);
++	}
+ 
+ 	return rc;
+ }
+-- 
+2.20.1
 
