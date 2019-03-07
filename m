@@ -2,131 +2,76 @@ Return-Path: <SRS0=Plie=RK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8885C43381
-	for <selinux@archiver.kernel.org>; Thu,  7 Mar 2019 02:44:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EB91C43381
+	for <selinux@archiver.kernel.org>; Thu,  7 Mar 2019 09:01:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8D1B42064A
-	for <selinux@archiver.kernel.org>; Thu,  7 Mar 2019 02:44:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0682D20675
+	for <selinux@archiver.kernel.org>; Thu,  7 Mar 2019 09:01:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726869AbfCGCos (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Mar 2019 21:44:48 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:5214 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726715AbfCGCos (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 6 Mar 2019 21:44:48 -0500
-Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id 13F13704BF0505E5836D;
-        Thu,  7 Mar 2019 10:44:45 +0800 (CST)
-Received: from localhost.localdomain.localdomain (10.175.113.25) by
- DGGEMS403-HUB.china.huawei.com (10.3.19.203) with Microsoft SMTP Server id
- 14.3.408.0; Thu, 7 Mar 2019 10:44:41 +0800
-From:   Mao Wenan <maowenan@huawei.com>
-To:     <davem@davemloft.net>, <netdev@vger.kernel.org>,
-        <paul@paul-moore.com>, <sds@tycho.nsa.gov>,
-        <eparis@parisplace.org>, <selinux@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: [PATCH net] net: selinux: fix memory leak in selinux_netlbl_socket_post_create()
-Date:   Thu, 7 Mar 2019 10:57:31 +0800
-Message-ID: <20190307025731.49369-1-maowenan@huawei.com>
-X-Mailer: git-send-email 2.20.1
+        id S1726111AbfCGJBH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Mar 2019 04:01:07 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:36476 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725747AbfCGJBH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Mar 2019 04:01:07 -0500
+Received: by mail-oi1-f195.google.com with SMTP id t206so12300187oib.3
+        for <selinux@vger.kernel.org>; Thu, 07 Mar 2019 01:01:06 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ElYvV2fvCkLBraBf/ssGt1m5M7ChBwo7N0gPQyqJnBo=;
+        b=Enxru+aJNoTFJ5XesT7Ja2OemRIEkHia70FJmL/PUi4oWDX+hTbXzfYuL+/FhYGX+a
+         igMoOkF3JIT80x0JgOmnzFx6mYzJmWzpn82o6OCgGPBv/BsJmH7IempnljEg/J6tFKdT
+         ZqZsplVZLlAzPUeQkpA0lmClisZ3WLRIpqmkduQCPlAedqq196SMZjAbCd//GgFATElh
+         eKkNkhIpg4mhqW0CvFF8ozu6jf+3hCPYOzITPqk3XRx3NJyOD6/PvX7xRhfFOv75C+BS
+         k74FfZg7qPGn/fm7IhrVwyy3FoU8Wcob6yh4sO9tNLHWwyFC4E99oIg9M8ZSzH64NDdE
+         R+9g==
+X-Gm-Message-State: APjAAAUop+jN8g3jx8sVr2uMKT8pQnAxDHpW5EDfFpYgE+p72/hkW9+O
+        igCGmLq/02exJsbh+7V3wocen2XX5CgKk1SwPY6mmA==
+X-Google-Smtp-Source: APXvYqw3uOHyjzfvwCSHqr+uoJAyjHPkJ7W2ZevYHUvRTAm6uUKO4wRRnTOXVnyvO3tpQqOhTdQXpBba9CpvZnmr174=
+X-Received: by 2002:aca:3746:: with SMTP id e67mr4471451oia.103.1551949266422;
+ Thu, 07 Mar 2019 01:01:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.113.25]
-X-CFilter-Loop: Reflected
+References: <20190222145718.5740-1-omosnace@redhat.com> <CAFqZXNs28QAxHA3=vECuG17TQ-be0ywS=r9S48q_KNBYpzgJLg@mail.gmail.com>
+ <CAHC9VhShXZasD8d3nF4PwaL38gkq3hKDbvRivHX5_oHeBROFKQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhShXZasD8d3nF4PwaL38gkq3hKDbvRivHX5_oHeBROFKQ@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 7 Mar 2019 10:00:55 +0100
+Message-ID: <CAFqZXNs8s6K9nK80+6FE9UOktWLy5PdbJ864zZ3rCXE9K71LuQ@mail.gmail.com>
+Subject: Re: [PATCH v7 0/7] Allow initializing the kernfs node's secctx based
+ on its parent
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        James Morris <jmorris@namei.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-If netlbl_sock_setattr() is failed, it directly returns rc and forgets
-to free secattr.
+On Wed, Mar 6, 2019 at 5:20 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Mar 6, 2019 at 10:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > On Fri, Feb 22, 2019 at 3:57 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > [...]
+> >
+> > Ping about this series... Casey, are you OK with this new version?
+>
+> We've got two weeks, well one and a half weeks, to decide as the
+> earliest I would merge this would be after the merge window closes :)
 
-BUG: memory leak
-unreferenced object 0xffff8883c3ea4200 (size 2664):
-  comm "syz-executor.2", pid 8813, jiffies 4297264419 (age 156.090s)
-  hex dump (first 32 bytes):
-    7f 00 00 01 7f 00 00 01 eb 7f ed 71 4e 24 00 00  ...........qN$..
-    02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
-  backtrace:
-    [<000000004c0228da>] sk_alloc+0x3d/0xc00 net/core/sock.c:1523
-    [<00000000535a3da2>] inet_create+0x339/0xe10 net/ipv4/af_inet.c:321
-    [<000000009aec3cfe>] __sock_create+0x3fa/0x790 net/socket.c:1275
-    [<000000004274b384>] sock_create net/socket.c:1315 [inline]
-    [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
-    [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
-    [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
-    [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
-    [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
-    [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
-    [<00000000f737e62f>] 0xffffffffffffffff
+Sure, I just wanted to know early if there would be any more changes needed.
 
-BUG: memory leak
-unreferenced object 0xffff8883de23d570 (size 32):
-  comm "syz-executor.2", pid 8813, jiffies 4297264419 (age 156.090s)
-  hex dump (first 32 bytes):
-    02 00 00 00 00 00 00 00 60 a9 40 ce 83 88 ff ff  ........`.@.....
-    01 00 00 00 03 00 00 00 10 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000035ba8b75>] security_sk_alloc+0x5e/0xb0 security/security.c:1473
-    [<00000000302cc426>] sk_prot_alloc+0x8e/0x290 net/core/sock.c:1472
-    [<000000004c0228da>] sk_alloc+0x3d/0xc00 net/core/sock.c:1523
-    [<00000000535a3da2>] inet_create+0x339/0xe10 net/ipv4/af_inet.c:321
-    [<000000009aec3cfe>] __sock_create+0x3fa/0x790 net/socket.c:1275
-    [<000000004274b384>] sock_create net/socket.c:1315 [inline]
-    [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
-    [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
-    [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
-    [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
-    [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
-    [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
-    [<00000000f737e62f>] 0xffffffffffffffff
-
-BUG: memory leak
-unreferenced object 0xffff8883ce40a960 (size 64):
-  comm "syz-executor.2", pid 8813, jiffies 4297264420 (age 156.089s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<0000000029add401>] selinux_netlbl_socket_post_create+0x68/0x130 security/selinux/netlabel.c:416
-    [<000000005368a19c>] selinux_socket_post_create+0x31a/0x7f0 security/selinux/hooks.c:4597
-    [<00000000bd4730e2>] security_socket_post_create+0x70/0xc0 security/security.c:1385
-    [<00000000671052a4>] __sock_create+0x5a6/0x790 net/socket.c:1291
-    [<000000004274b384>] sock_create net/socket.c:1315 [inline]
-    [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
-    [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
-    [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
-    [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
-    [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
-    [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
-    [<00000000f737e62f>] 0xffffffffffffffff
-
-Fixes: 389fb800ac8b("netlabel: Label incoming TCP connections correctly in SELinux")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Mao Wenan <maowenan@huawei.com>
----
- security/selinux/netlabel.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 186e727b737b..f3da05338580 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -426,6 +426,9 @@ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
- 		rc = 0;
- 		break;
- 	}
-+	if (rc != 0) {
-+		netlbl_secattr_free(secattr);
-+	}
- 
- 	return rc;
- }
--- 
-2.20.1
-
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Associate Software Engineer, Security Technologies
+Red Hat, Inc.
