@@ -2,179 +2,111 @@ Return-Path: <SRS0=fbu5=RL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 346CAC43381
-	for <selinux@archiver.kernel.org>; Fri,  8 Mar 2019 13:40:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8E03C10F09
+	for <selinux@archiver.kernel.org>; Fri,  8 Mar 2019 16:07:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 05A8A2087C
-	for <selinux@archiver.kernel.org>; Fri,  8 Mar 2019 13:40:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78D4B20868
+	for <selinux@archiver.kernel.org>; Fri,  8 Mar 2019 16:07:46 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h80Ua8pb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726677AbfCHNkS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Mar 2019 08:40:18 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:5221 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726432AbfCHNkS (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 8 Mar 2019 08:40:18 -0500
-Received: from DGGEMS411-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 71A838F4F8CE8A35F37B;
-        Fri,  8 Mar 2019 21:40:13 +0800 (CST)
-Received: from [127.0.0.1] (10.177.96.96) by DGGEMS411-HUB.china.huawei.com
- (10.3.19.211) with Microsoft SMTP Server id 14.3.408.0; Fri, 8 Mar 2019
- 21:40:09 +0800
-Subject: Re: [PATCH net] net: selinux: fix memory leak in
- selinux_netlbl_socket_post_create()
-To:     Paul Moore <paul@paul-moore.com>
-References: <20190307025731.49369-1-maowenan@huawei.com>
- <CAHC9VhRBFwTbkE1YbQkRfxia5XZaWBK_D4WG4nNgMgF=wKf_fw@mail.gmail.com>
- <a3c0277d-7314-d95a-e704-be654a162efa@huawei.com>
- <CAHC9VhSVmBfsgGVoLd9b1HoZxECHu_Uj8mSi+UUE_CzgB=Y-tg@mail.gmail.com>
-CC:     <davem@davemloft.net>, <netdev@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, <selinux@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-From:   maowenan <maowenan@huawei.com>
-Message-ID: <164a7612-6f84-4977-5671-5168a8299752@huawei.com>
-Date:   Fri, 8 Mar 2019 21:39:56 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101
- Thunderbird/45.2.0
-MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSVmBfsgGVoLd9b1HoZxECHu_Uj8mSi+UUE_CzgB=Y-tg@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.177.96.96]
-X-CFilter-Loop: Reflected
+        id S1726491AbfCHQHo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Mar 2019 11:07:44 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:40418 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726496AbfCHQHo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Mar 2019 11:07:44 -0500
+Received: by mail-pf1-f196.google.com with SMTP id h1so14474319pfo.7;
+        Fri, 08 Mar 2019 08:07:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=XB2pbo+rYUPVkhxEnnF/KwFaBKK+JA+5Hj3ANc6sk/s=;
+        b=h80Ua8pbXnpSZfOwrgWxUeg6Uoj2Tjfatlon/RYiwruuuWZpFCe9XcPHU2GbuHjz0Z
+         E3dJsxNoUj6kplC1MhuUVpZkl6oTotIUzRF+da/u9EUYQ1MyAMdbrPev88Y5hg4zxy2o
+         FZv+dOEvFo40pw2ytIDME5jJZq10W6mvMceActK8sor5K9Gtaucon6McX/gEmKcIWnw6
+         pbVFQJ/McNRbWprGu0m4rAQ1VwksPjQ4dAgD5/nRGQmtVdrqJCSYmCJxg8/mKEgCtxM3
+         d2udP7bwe+2KNAx2DG7h5e7ixQsfs0cpzOlLLVpt9gig4+wBRqGMBpgs7Vr6mdB5FX48
+         Wsog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=XB2pbo+rYUPVkhxEnnF/KwFaBKK+JA+5Hj3ANc6sk/s=;
+        b=ehXaIanT5y0gTXNQ4jKyq9efumiO1Up2Zaf25kOULix0KTRTXva2bXjtEwlO4TZZ8q
+         0UBEShDWbWqP9Js51Wd49ZD6zpBchBDV9+QDsY5pFai4zNbAZNow2BQPH8kFbHyKCNbU
+         5rGNuzbz60gN5ct4ffbf+NRBiz5+7q5uOBx5tv/yIXBQPT5m6z6SpuIPNLoMF8LcZBWd
+         auWAYTOQF3y2PlIEQnBSp23a+2NcnAuSapVlh6C8Y/ZPpOrOV4GRS79Vjg1qOvanxsmD
+         qvZfj0bIAjiD36fQxRigdKszHudM7tVMk5h6dcyPJNkk1ChsxdW4mXVfQoz3RKHUSR/V
+         h/lA==
+X-Gm-Message-State: APjAAAVawd5zVzU0RADJTVSirVvmNcTds6yrxfShjhBDGPi4DzyFW2Kd
+        fswj494HJI3c34nzgHSO+MzXMmr9
+X-Google-Smtp-Source: APXvYqxEEm+Ai/mutAj5RKt5QLOq0Syu8blKGDXaDIocBGh8Sp5UhuHlooYzHTotvjs57SZl3Wm+0A==
+X-Received: by 2002:a17:902:ba84:: with SMTP id k4mr19799834pls.103.1552061262619;
+        Fri, 08 Mar 2019 08:07:42 -0800 (PST)
+Received: from localhost ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id s6sm12802588pgm.90.2019.03.08.08.07.41
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 08 Mar 2019 08:07:42 -0800 (PST)
+From:   Xin Long <lucien.xin@gmail.com>
+To:     selinux@vger.kernel.org, network dev <netdev@vger.kernel.org>,
+        linux-sctp@vger.kernel.org
+Cc:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Neil Horman <nhorman@tuxdriver.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH net] selinux: add the missing walk_size + len check in selinux_sctp_bind_connect
+Date:   Sat,  9 Mar 2019 00:07:34 +0800
+Message-Id: <1e5accb3a4a5575ada1dbdfc6e5d9e4358131f83.1552061254.git.lucien.xin@gmail.com>
+X-Mailer: git-send-email 2.1.0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+As does in __sctp_connect(), when checking addrs in a while loop, after
+get the addr len according to sa_family, it's necessary to do the check
+walk_size + af->sockaddr_len > addrs_size to make sure it won't access
+an out-of-bounds addr.
 
+The same thing is needed in selinux_sctp_bind_connect(), otherwise an
+out-of-bounds issue can be triggered:
 
-On 2019/3/8 21:20, Paul Moore wrote:
-> On Fri, Mar 8, 2019 at 1:31 AM maowenan <maowenan@huawei.com> wrote:
->> On 2019/3/8 4:36, Paul Moore wrote:
->>> On Wed, Mar 6, 2019 at 9:44 PM Mao Wenan <maowenan@huawei.com> wrote:
->>>>
->>>> If netlbl_sock_setattr() is failed, it directly returns rc and forgets
->>>> to free secattr.
->>>>
->>>> BUG: memory leak
->>>> unreferenced object 0xffff8883c3ea4200 (size 2664):
->>>>   comm "syz-executor.2", pid 8813, jiffies 4297264419 (age 156.090s)
->>>>   hex dump (first 32 bytes):
->>>>     7f 00 00 01 7f 00 00 01 eb 7f ed 71 4e 24 00 00  ...........qN$..
->>>>     02 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
->>>>   backtrace:
->>>>     [<000000004c0228da>] sk_alloc+0x3d/0xc00 net/core/sock.c:1523
->>>>     [<00000000535a3da2>] inet_create+0x339/0xe10 net/ipv4/af_inet.c:321
->>>>     [<000000009aec3cfe>] __sock_create+0x3fa/0x790 net/socket.c:1275
->>>>     [<000000004274b384>] sock_create net/socket.c:1315 [inline]
->>>>     [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
->>>>     [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
->>>>     [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
->>>>     [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
->>>>     [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
->>>>     [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
->>>>     [<00000000f737e62f>] 0xffffffffffffffff
->>>>
->>>> BUG: memory leak
->>>> unreferenced object 0xffff8883de23d570 (size 32):
->>>>   comm "syz-executor.2", pid 8813, jiffies 4297264419 (age 156.090s)
->>>>   hex dump (first 32 bytes):
->>>>     02 00 00 00 00 00 00 00 60 a9 40 ce 83 88 ff ff  ........`.@.....
->>>>     01 00 00 00 03 00 00 00 10 00 00 00 00 00 00 00  ................
->>>>   backtrace:
->>>>     [<0000000035ba8b75>] security_sk_alloc+0x5e/0xb0 security/security.c:1473
->>>>     [<00000000302cc426>] sk_prot_alloc+0x8e/0x290 net/core/sock.c:1472
->>>>     [<000000004c0228da>] sk_alloc+0x3d/0xc00 net/core/sock.c:1523
->>>>     [<00000000535a3da2>] inet_create+0x339/0xe10 net/ipv4/af_inet.c:321
->>>>     [<000000009aec3cfe>] __sock_create+0x3fa/0x790 net/socket.c:1275
->>>>     [<000000004274b384>] sock_create net/socket.c:1315 [inline]
->>>>     [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
->>>>     [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
->>>>     [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
->>>>     [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
->>>>     [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
->>>>     [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
->>>>     [<00000000f737e62f>] 0xffffffffffffffff
->>>>
->>>> BUG: memory leak
->>>> unreferenced object 0xffff8883ce40a960 (size 64):
->>>>   comm "syz-executor.2", pid 8813, jiffies 4297264420 (age 156.089s)
->>>>   hex dump (first 32 bytes):
->>>>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
->>>>     00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
->>>>   backtrace:
->>>>     [<0000000029add401>] selinux_netlbl_socket_post_create+0x68/0x130 security/selinux/netlabel.c:416
->>>>     [<000000005368a19c>] selinux_socket_post_create+0x31a/0x7f0 security/selinux/hooks.c:4597
->>>>     [<00000000bd4730e2>] security_socket_post_create+0x70/0xc0 security/security.c:1385
->>>>     [<00000000671052a4>] __sock_create+0x5a6/0x790 net/socket.c:1291
->>>>     [<000000004274b384>] sock_create net/socket.c:1315 [inline]
->>>>     [<000000004274b384>] __sys_socket+0xe7/0x1d0 net/socket.c:1345
->>>>     [<00000000b3fdc826>] __do_sys_socket net/socket.c:1354 [inline]
->>>>     [<00000000b3fdc826>] __se_sys_socket net/socket.c:1352 [inline]
->>>>     [<00000000b3fdc826>] __x64_sys_socket+0x74/0xb0 net/socket.c:1352
->>>>     [<000000004ae3186e>] do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:290
->>>>     [<00000000bc0d2230>] entry_SYSCALL_64_after_hwframe+0x49/0xbe
->>>>     [<00000000f737e62f>] 0xffffffffffffffff
->>>>
->>>> Fixes: 389fb800ac8b("netlabel: Label incoming TCP connections correctly in SELinux")
->>>> Reported-by: Hulk Robot <hulkci@huawei.com>
->>>> Signed-off-by: Mao Wenan <maowenan@huawei.com>
->>>> ---
->>>>  security/selinux/netlabel.c | 3 +++
->>>>  1 file changed, 3 insertions(+)
->>>>
->>>> diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
->>>> index 186e727b737b..f3da05338580 100644
->>>> --- a/security/selinux/netlabel.c
->>>> +++ b/security/selinux/netlabel.c
->>>> @@ -426,6 +426,9 @@ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
->>>>                 rc = 0;
->>>>                 break;
->>>>         }
->>>> +       if (rc != 0) {
->>>> +               netlbl_secattr_free(secattr);
->>>> +       }
->>>
->>> This is likely going to cause a problem as the
->>> sock->sk_security->nlbl_secattr still has a reference to the secattr
->>> pointer you are releasing here.  Assuming things are working correctly
->>> elsewhere, I believe freeing secattr here will result in a double free
->>> when the network stacks cleans up after the failed socket creation
->>> (via the sock_release() call in the error handling code).
->> Do you mean here?
->>         err = security_socket_post_create(sock, family, type, protocol, kern);
->>         if (err)
->>                 goto out_sock_release;
->>         ...
->>
->>         out_sock_release:
->>                 sock_release(sock);
->>                 return err;
->> yes, the call trace may like below:
->>         sock_release->__sock_release->inet_release->tcp_close->sock_put->sk_free->__sk_free->sk_destruct->
->>         __sk_destruct->sk_prot_free->security_sk_free->selinux_sk_free_security->selinux_netlbl_sk_security_free->
->>         netlbl_secattr_free
->>
->> so, it is no need to free in selinux_netlbl_socket_post_create().
->> Please correct me if this is incorrect.
-> 
-> I haven't followed the entirely call stack lately, but that looks right.
-> 
->>> It looks like you may have found this via a test tool (syzbot?), do
->>> you have a reproducer you can share?
->>
->> The issue has been found by syzkaller, but unfortunately it is no reproducer, it is
->> only some backtrace.
-> 
-> If you are able to reproduce this please let us know, it may be a sign
-> that something is wrong with the LSM hooks.
-> 
-sure, I try to reproduce it and keep running test the whole night.
-> Thanks.
-> 
+  [14548.772313] BUG: KASAN: slab-out-of-bounds in selinux_sctp_bind_connect+0x1aa/0x1f0
+  [14548.927083] Call Trace:
+  [14548.938072]  dump_stack+0x9a/0xe9
+  [14548.953015]  print_address_description+0x65/0x22e
+  [14548.996524]  kasan_report.cold.6+0x92/0x1a6
+  [14549.015335]  selinux_sctp_bind_connect+0x1aa/0x1f0
+  [14549.036947]  security_sctp_bind_connect+0x58/0x90
+  [14549.058142]  __sctp_setsockopt_connectx+0x5a/0x150 [sctp]
+  [14549.081650]  sctp_setsockopt.part.24+0x1322/0x3ce0 [sctp]
+
+Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+Reported-by: Chunyu Hu <chuhu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+---
+ security/selinux/hooks.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index f0e36c3..dac9bdb 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -5120,6 +5120,9 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
+ 			return -EINVAL;
+ 		}
+ 
++		if (walk_size + len > addrlen)
++			return -EINVAL;
++
+ 		err = -EINVAL;
+ 		switch (optname) {
+ 		/* Bind checks */
+-- 
+2.1.0
 
