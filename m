@@ -2,129 +2,310 @@ Return-Path: <SRS0=naTH=RO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A68ADC43381
-	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:15:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F4B9C43381
+	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 22:24:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 77A6C2147C
-	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:15:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC1A42087F
+	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 22:24:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="OhleqeEa"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Z4WFn+YJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727641AbfCKUPn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Mar 2019 16:15:43 -0400
-Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:18632 "EHLO
-        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726675AbfCKUPm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Mar 2019 16:15:42 -0400
-X-EEMSG-check-017: 686007183|UCOL19PA13_EEMSG_MP11.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.39,1,1493683200"; 
-   d="scan'208";a="686007183"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 11 Mar 2019 20:15:41 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1552335342; x=1583871342;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=3wSOEeFGoLEUKCq6ZfkFba1XO0Qff2DOpBmMsf6qMvc=;
-  b=OhleqeEaLuYO9EmWDV6njTjJv1alTSikaLL5nc3yfXLrtJTTVbFEiiyN
-   3jk3IJdISteGygVYI00qjVcjG2CDKU11C60ghgZxZJyVwj5GcgydG33hX
-   8y37DUAN2ouZLKPhogUh7O4fcQkx/KetkSkJ96l2GmOz+zyEqmxFSXhl/
-   LLGIqDfBOkW6wHulgTeJbiWhwWuAgfx3NsTnxCpKmGjwlM1cDkdGTodY2
-   3718UE+Jb/ioCiJLYsOcaIOXQp/hrRCwHG0D95eD7mrqARY9F2l2iwaB7
-   5aPDFyX/DrC/IkhWPa88ZVEoG07sT7mA6/PHptNKZP8yIINtDwV9hugAa
-   w==;
-X-IronPort-AV: E=Sophos;i="5.58,468,1544486400"; 
-   d="scan'208";a="24903218"
-IronPort-PHdr: =?us-ascii?q?9a23=3AkqXukR0pXxZBtD6gsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseMUL/ad9pjvdHbS+e9qxAeQG9mCs7Qc0qL/iOPJYSQ4+5GPsXQPItRndi?=
- =?us-ascii?q?QuroEopTEmG9OPEkbhLfTnPGQQFcVGU0J5rTngaRAGUMnxaEfPrXKs8DUcBg?=
- =?us-ascii?q?vwNRZvJuTyB4Xek9m72/q99pHOfwlEniaxba5vJxiqsAvdsdUbj5F/Iagr0B?=
- =?us-ascii?q?vJpXVIe+VSxWx2IF+Yggjx6MSt8pN96ipco/0u+dJOXqX8ZKQ4UKdXDC86PG?=
- =?us-ascii?q?Av5c3krgfMQA2S7XYBSGoWkx5IAw/Y7BHmW5r6ryX3uvZh1CScIMb5Q6o0WT?=
- =?us-ascii?q?C/5Kl1ThHmhjoMOzog/G3JjsF8iaRWqw+jqRNi2Y7ZeJybOuRwfq3dft0US2?=
- =?us-ascii?q?ROUclTWCNdDY2xdJcPAugbMOpEs4XwqVkDoB2jDgesHuPvzTpIi2fr060mze?=
- =?us-ascii?q?shCQHG0xImH9kTrXrUqc/6NKMWUe+rzKjD0DLOb+hL1jfm84XIbhAgru2MXb?=
- =?us-ascii?q?J3a8bRz1IvGBnfglWfrozlISqY2+IQuGaV6OpgUPigi28hqwxpoTig2N0sio?=
- =?us-ascii?q?/XiYIR0FzE8j95wIktKd23T057ZtGkEJ9OuCGBMIt2X9kiTH12tyog1rIGvp?=
- =?us-ascii?q?u7cDANyJUmwx7QceeIc5OS7hLkTuaRLjF1j29mdrKnnxu+7Eetx+LmWsS0zV?=
- =?us-ascii?q?pGtDRJn9bSunwXyhDe7NWMROFn8Ue7wzmP0hje6uRDIU8pi6XWM4Uhwrsslp?=
- =?us-ascii?q?oLtkTDAzP2lF32jKCIckUk/fCl6/j9bbX8p5+cKpR0hhviMqUuhsO/AeM4Ph?=
- =?us-ascii?q?IIX2eH4uSzyKfv/Uj4QLVOlvE2k6/Zv47GJckDu6K0DABY3pwj5hqiFTuqzt?=
- =?us-ascii?q?sVkWcdIF5YYB6HipLmO1DKIPD2F/e/hFGsnS9wx//bJb3sGYnNL3jfn7fher?=
- =?us-ascii?q?Zx8UhcyBEpwtxF6JJUDa8BLOrpWkDtrNzYEgM5MwuszufoFdV90J8RWWKVDa?=
- =?us-ascii?q?+fP6PfqlCI5uUoI+mDYI8apizxJOQi5/7rlXU5g0MSfbG13ZsLb3C1Bu9mLF?=
- =?us-ascii?q?udYXrthNcBDGgLsxEgTOzlllKCSyRfZ3WsUKIm4DE0FoamAZ3ERoC3j7zSlB?=
- =?us-ascii?q?u8S6FXb2ZEC13EIWqgI5WZXfwMYSSdCsBmlTMAWP6qTIp3kVm1uQv7zad3Bv?=
- =?us-ascii?q?Tb9zdetp/50tVxoerJmkIc7ztxWv+B3nmNQmc8pWYBQzs7zegrukBm4kuS2q?=
- =?us-ascii?q?h/xfpDHJpc4O0fAVRyDoLV0+EvU4O6YQnGZNrcDQz3Tw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AiBQDhwIZc/wHyM5BkFgYBAQEEAQEHBAEBgWWBZipog?=
- =?us-ascii?q?QMnhAqTTkwBAQEBAQEGgQgtiT+Oe4FnMgYBg3pGAoQ6IjgSAQEDAQEBBgEDA?=
- =?us-ascii?q?gFsHAyCOimCaAEFIxVRCxgCAiYCAlcGAQwIAQGCXz8BgWgND7BfgS+EMAELA?=
- =?us-ascii?q?QdBQIRyBYELJIstF3iBB4E4gjYHLoMeAQMCgSoBEgGDKYJXA5E8kmUJh1GLN?=
- =?us-ascii?q?QYZgXmRQYp4gRKEU45oIWVxKwgCGAghD4MnghUYg0uFFIVbIwMwAQ13AQGMe?=
- =?us-ascii?q?4I+AQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 11 Mar 2019 20:15:41 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x2BKFfrq006262;
-        Mon, 11 Mar 2019 16:15:41 -0400
-Subject: Re: Patch to the context lookup change
-To:     Tianjie Xu <xunchang@google.com>, selinux@vger.kernel.org
-References: <CADBPxw7XyZdQsipF80cpcYu0h1XvJBhe5_MwndqqSBf5GCuFbQ@mail.gmail.com>
- <CADBPxw6URXXxgsJUqpwGBQ+_oPffOAvfP0j2Rn0Vknk36wPrWA@mail.gmail.com>
- <CADBPxw5JFk625NBXauy+iLBU9fe5vQ8zSt83WONV4c-ViUd9DA@mail.gmail.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <697013d2-5f0c-e212-d15b-b4b6551034d0@tycho.nsa.gov>
-Date:   Mon, 11 Mar 2019 16:12:19 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.5.1
-MIME-Version: 1.0
-In-Reply-To: <CADBPxw5JFk625NBXauy+iLBU9fe5vQ8zSt83WONV4c-ViUd9DA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1725826AbfCKWYt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Mar 2019 18:24:49 -0400
+Received: from mail-qt1-f202.google.com ([209.85.160.202]:42143 "EHLO
+        mail-qt1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfCKWYt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Mar 2019 18:24:49 -0400
+Received: by mail-qt1-f202.google.com with SMTP id o56so512916qto.9
+        for <selinux@vger.kernel.org>; Mon, 11 Mar 2019 15:24:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=1kWeYJOaJl3coIvguAQh7gyj3vhMSWM02b6ArA001q0=;
+        b=Z4WFn+YJzy9C3H5sv95CZrXOwNpHPxJMJfQdXfCJpKZJHdgEajM++n1PqWpngChg4W
+         ESZT9s2+oKjIi7rQoITWOd5AURrSkADwyQ4kDfkUacLBbMrPHfxhD4DR/uu9mMksUpC1
+         b2HRisiuPj9P7/Hz+tJb4Hv+8SOUHf5tpIaq/gSAEAespLt7AXxp32BDbG+TrwX1OeNs
+         Yku+dcDamr5FCKkOIk/L3rJlBCImkOH9In3SygaLX8z9yNaujGMmeu34CbAQ2buVzIVg
+         LTocM4KRgFd0hEr+twZyR4z+DYOyJh6lTn4mEBTsCwTlvUWuuRkin2q/HRLm0GS0K2H2
+         B/dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=1kWeYJOaJl3coIvguAQh7gyj3vhMSWM02b6ArA001q0=;
+        b=LOTBwW65DwbD0Y+cdKLjz57VV1PonK076HdPkcsgaUzWtaYZoHGID3qrPaa99Mr8rK
+         NntZxFXY9WjjblLiq7OJNsShK2XBCZgSeTcogfrgFlaJSqzOCg5KwNViJziYKel7vW8S
+         j3JoQqnWpJbP7FXGHkO12pxPH8g0cxKbL+3YJgcIbax+fJsF6ueuhuNxPl0QCZvnjZWp
+         hInJJ9rZgJdOAaSaCAiQucElilhZSWqAtwXZcKkOcWkprHM0A9uugX9aTmg+bKXpcX9m
+         3oHemwvYnOMvtAQEP8rMz6p2qwJ/xRLTw2AJ5CGL/jXpNzic97RR0HkWPvEFqt/aAnaK
+         0QPw==
+X-Gm-Message-State: APjAAAU147mJ97ThTB74N5GjGV3QctfyK81170q881UjdPm23VvfrzJ/
+        7uSFgWrc3OzGdVB6ED+kpp4IH8MWqe2pBM+Bmd5h94zWvbgaPYLwbtvIRAeAA0vwoNXEP4gORpq
+        4uT+hAZzKLY0V6r5SJWBeVGLFD0ilexWrmAyw8rU1DSibE4drFurb3D7OuOxO4HJnXuwG
+X-Google-Smtp-Source: APXvYqwGSJ70kOthrXqUyoowwZn36kJC7K10hBLNKZbwwM7BZHo+YLYNaX8iHWAuVRz3FYWN5Y9d/M+zZ4axnQ==
+X-Received: by 2002:aed:380a:: with SMTP id j10mr20342967qte.10.1552343087746;
+ Mon, 11 Mar 2019 15:24:47 -0700 (PDT)
+Date:   Mon, 11 Mar 2019 15:24:42 -0700
+Message-Id: <20190311222442.49824-1-xunchang@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.21.0.360.g471c308f928-goog
+Subject: [PATCH] Restorecon: factor out a lookup helper for context matches
+From:   xunchang <xunchang@google.com>
+To:     selinux@vger.kernel.org
+Cc:     xunchang <xunchang@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 3/11/19 3:36 PM, Tianjie Xu wrote:
-> Hi there,
-> I recently made a change in android's selinux repo. The change
-> implements a new lookup helper function for context matches, and it
-> aims to skip unnecessary restorecon if the corresponding context
-> doesn't change.
-> 
-> Quote from the commit message. "We used to hash the file_context and
-> skip the restorecon on the top level directory if the hash doesn't
-> change. But the file_context might change after an OTA update; and
-> some users experienced long restorecon time as they have lots of files
-> under directories like /data/media. This CL tries to hash all the
-> partial match entries in the file_context for each directory; and
-> skips the restorecon if that digest stays the same, regardless of the
-> changes to the other parts of file_context."
-> CL in: https://android-review.googlesource.com/c/platform/external/selinux/+/918713
-> 
-> I haven't done the work in upstream code to fully implement this
-> change. But this CL merges and compiles. It factors out a lookup
-> helper function and returns an array of matched pointers instead of a
-> single one. The old loopup_common function is then modified to take
-> the first element in the array. I wonder if it's possible to merge in
-> this change to the lookup functions first? It will make the upstream &
-> android repo more consistent and also save some work for future
-> merges.
+We used to hash the file_context and skip the restorecon on the top
+level directory if the hash doesn't change. But the file_context might
+change after an update; and some users experienced long restorecon
+time as they have lots of files under directories like /data/media.
+Therefore, we try to skip unnecessary restores if the file context
+relates to the given directory doesn't change.
 
-Just like Linux kernel submitting patches [1][2], we want patches to be 
-inline in the message for easier review and inline commenting.  Best way 
-to do it is to use git send-email after first using git commit --amend 
-to work some of the rationale above into the commit message.  See also:
+This CL is the first step that factors out a lookup helper function
+and returns an array of matched pointers instead of a single one.
+The old loopup_common function is then modified to take the first
+element in the array.
 
-[1] 
-https://www.kernel.org/doc/html/latest/process/submitting-patches.html#submittingpatches
+This change has already been submitted in android selinux branch. And
+porting it upstream will make these two branches more consistent and
+save some work for the future merges.
 
-[2] https://www.ozlabs.org/~akpm/stuff/tpp.txt
+Signed-off-by: Tianjie Xu <xunchang@google.com>
+---
+ libselinux/include/selinux/label.h |   4 ++
+ libselinux/src/label.c             |   9 +++
+ libselinux/src/label_file.c        | 111 +++++++++++++++++++++++------
+ libselinux/src/label_internal.h    |   2 +
+ 4 files changed, 106 insertions(+), 20 deletions(-)
+
+diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
+index 277287ed..e537aa11 100644
+--- a/libselinux/include/selinux/label.h
++++ b/libselinux/include/selinux/label.h
+@@ -7,6 +7,7 @@
+ #define _SELABEL_H_
+ 
+ #include <stdbool.h>
++#include <stdint.h>
+ #include <sys/types.h>
+ #include <selinux/selinux.h>
+ 
+@@ -105,6 +106,9 @@ int selabel_lookup_raw(struct selabel_handle *handle, char **con,
+ 
+ bool selabel_partial_match(struct selabel_handle *handle, const char *key);
+ 
++bool selabel_hash_all_partial_matches(struct selabel_handle *rec,
++                                      const char *key, uint8_t* digest);
++
+ int selabel_lookup_best_match(struct selabel_handle *rec, char **con,
+ 			      const char *key, const char **aliases, int type);
+ int selabel_lookup_best_match_raw(struct selabel_handle *rec, char **con,
+diff --git a/libselinux/src/label.c b/libselinux/src/label.c
+index 8d586bda..1d16f685 100644
+--- a/libselinux/src/label.c
++++ b/libselinux/src/label.c
+@@ -274,6 +274,15 @@ bool selabel_partial_match(struct selabel_handle *rec, const char *key)
+ 	return rec->func_partial_match(rec, key);
+ }
+ 
++bool selabel_hash_all_partial_matches(struct selabel_handle *rec,
++                                      const char *key, uint8_t *digest) {
++	if (!rec->func_hash_all_partial_matches) {
++		return false;
++	}
++
++	return rec->func_hash_all_partial_matches(rec, key, digest);
++}
++
+ int selabel_lookup_best_match(struct selabel_handle *rec, char **con,
+ 			      const char *key, const char **aliases, int type)
+ {
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index b81fd552..90cbd666 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -843,22 +843,38 @@ static void closef(struct selabel_handle *rec)
+ 	free(data);
+ }
+ 
+-static struct spec *lookup_common(struct selabel_handle *rec,
+-					     const char *key,
+-					     int type,
+-					     bool partial)
++// Finds all the matches of |key| in the given context. Returns the result in
++// the allocated array and updates the match count. If match_count is NULL,
++// stops early once the 1st match is found.
++static const struct spec **lookup_all(struct selabel_handle *rec,
++                                      const char *key,
++                                      int type,
++                                      bool partial,
++                                      size_t *match_count)
+ {
+ 	struct saved_data *data = (struct saved_data *)rec->data;
+ 	struct spec *spec_arr = data->spec_arr;
+ 	int i, rc, file_stem;
+ 	mode_t mode = (mode_t)type;
+ 	const char *buf;
+-	struct spec *ret = NULL;
+ 	char *clean_key = NULL;
+ 	const char *prev_slash, *next_slash;
+ 	unsigned int sofar = 0;
+ 	char *sub = NULL;
+ 
++	const struct spec **result = NULL;
++	if (match_count) {
++		*match_count = 0;
++		result = calloc(data->nspec, sizeof(struct spec*));
++	} else {
++		result = calloc(1, sizeof(struct spec*));
++	}
++	if (!result) {
++		selinux_log(SELINUX_ERROR, "Failed to allocate %zu bytes of data\n",
++			    data->nspec * sizeof(struct spec*));
++		goto finish;
++	}
++
+ 	if (!data->nspec) {
+ 		errno = ENOENT;
+ 		goto finish;
+@@ -899,18 +915,33 @@ static struct spec *lookup_common(struct selabel_handle *rec,
+ 		 * specified or if the mode matches the file mode then we do
+ 		 * a regex check        */
+ 		if ((spec->stem_id == -1 || spec->stem_id == file_stem) &&
+-		    (!mode || !spec->mode || mode == spec->mode)) {
++				(!mode || !spec->mode || mode == spec->mode)) {
+ 			if (compile_regex(data, spec, NULL) < 0)
+ 				goto finish;
+ 			if (spec->stem_id == -1)
+ 				rc = regex_match(spec->regex, key, partial);
+ 			else
+ 				rc = regex_match(spec->regex, buf, partial);
+-			if (rc == REGEX_MATCH) {
+-				spec->matches++;
+-				break;
+-			} else if (partial && rc == REGEX_MATCH_PARTIAL)
++
++			if (rc == REGEX_MATCH || (partial && rc == REGEX_MATCH_PARTIAL)) {
++				if (rc == REGEX_MATCH) {
++					spec->matches++;
++				}
++
++				if (strcmp(spec_arr[i].lr.ctx_raw, "<<none>>") == 0) {
++					errno = ENOENT;
++					goto finish;
++				}
++
++				if (match_count) {
++					result[*match_count] = spec;
++					*match_count += 1;
++					// Continue to find all the matches.
++					continue;
++				}
++				result[0] = spec;
+ 				break;
++			}
+ 
+ 			if (rc == REGEX_NO_MATCH)
+ 				continue;
+@@ -921,19 +952,58 @@ static struct spec *lookup_common(struct selabel_handle *rec,
+ 		}
+ 	}
+ 
+-	if (i < 0 || strcmp(spec_arr[i].lr.ctx_raw, "<<none>>") == 0) {
+-		/* No matching specification. */
+-		errno = ENOENT;
+-		goto finish;
+-	}
+-
+-	errno = 0;
+-	ret = &spec_arr[i];
+-
+ finish:
+ 	free(clean_key);
+ 	free(sub);
+-	return ret;
++	if (result && !result[0]) {
++		free(result);
++		result = NULL;
++	}
++	return result;
++}
++
++static struct spec *lookup_common(struct selabel_handle *rec,
++                                  const char *key,
++                                  int type,
++                                  bool partial) {
++	const struct spec **matches = lookup_all(rec, key, type, partial, NULL);
++	if (!matches) {
++		return NULL;
++	}
++	struct spec *result = (struct spec*)matches[0];
++	free(matches);
++	return result;
++}
++
++static bool hash_all_partial_matches(struct selabel_handle *rec, const char *key, uint8_t *digest)
++{
++	assert(digest);
++
++	size_t total_matches;
++	const struct spec **matches = lookup_all(rec, key, 0, true, &total_matches);
++	if (!matches) {
++		return false;
++	}
++
++	Sha1Context context;
++	Sha1Initialise(&context);
++	size_t i;
++	for (i = 0; i < total_matches; i++) {
++		char* regex_str = matches[i]->regex_str;
++		mode_t mode = matches[i]->mode;
++		char* ctx_raw = matches[i]->lr.ctx_raw;
++
++		Sha1Update(&context, regex_str, strlen(regex_str) + 1);
++		Sha1Update(&context, &mode, sizeof(mode_t));
++		Sha1Update(&context, ctx_raw, strlen(ctx_raw) + 1);
++	}
++
++	SHA1_HASH sha1_hash;
++	Sha1Finalise(&context, &sha1_hash);
++	memcpy(digest, sha1_hash.bytes, SHA1_HASH_SIZE);
++
++	free(matches);
++	return true;
+ }
+ 
+ static struct selabel_lookup_rec *lookup(struct selabel_handle *rec,
+@@ -1133,6 +1203,7 @@ int selabel_file_init(struct selabel_handle *rec,
+ 	rec->func_stats = &stats;
+ 	rec->func_lookup = &lookup;
+ 	rec->func_partial_match = &partial_match;
++	rec->func_hash_all_partial_matches = &hash_all_partial_matches;
+ 	rec->func_lookup_best_match = &lookup_best_match;
+ 	rec->func_cmp = &cmp;
+ 
+diff --git a/libselinux/src/label_internal.h b/libselinux/src/label_internal.h
+index 0e020557..1fa5ade6 100644
+--- a/libselinux/src/label_internal.h
++++ b/libselinux/src/label_internal.h
+@@ -87,6 +87,8 @@ struct selabel_handle {
+ 	void (*func_close) (struct selabel_handle *h);
+ 	void (*func_stats) (struct selabel_handle *h);
+ 	bool (*func_partial_match) (struct selabel_handle *h, const char *key);
++	bool (*func_hash_all_partial_matches) (struct selabel_handle *h,
++	                                       const char *key, uint8_t *digest);
+ 	struct selabel_lookup_rec *(*func_lookup_best_match)
+ 						    (struct selabel_handle *h,
+ 						    const char *key,
+-- 
+2.21.0.360.g471c308f928-goog
+
