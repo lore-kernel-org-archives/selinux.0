@@ -2,221 +2,118 @@ Return-Path: <SRS0=naTH=RO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 968B9C43381
-	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 19:36:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F43BC4360F
+	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:11:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B0222147C
-	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 19:36:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 471612064A
+	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:11:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QqGQCBGU"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Q6EdJ1Ik"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727147AbfCKTgk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Mar 2019 15:36:40 -0400
-Received: from mail-io1-f44.google.com ([209.85.166.44]:42295 "EHLO
-        mail-io1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726977AbfCKTgj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Mar 2019 15:36:39 -0400
-Received: by mail-io1-f44.google.com with SMTP id c4so5145915ioh.9
-        for <selinux@vger.kernel.org>; Mon, 11 Mar 2019 12:36:39 -0700 (PDT)
+        id S1727828AbfCKULq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Mar 2019 16:11:46 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:47064 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728592AbfCKULq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Mar 2019 16:11:46 -0400
+Received: by mail-lf1-f65.google.com with SMTP id g12so237800lfb.13
+        for <selinux@vger.kernel.org>; Mon, 11 Mar 2019 13:11:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=li6dnxMgfdQ5LVH7Z08cm62Cl2JMr308AMvvOZNMyqs=;
-        b=QqGQCBGUEmroq1DBKLDOonmMBZN9401Kp34+7yAWo61K0CWOg6Jco3fbCtqciW0SWU
-         xIrDA4lXImUkyoHhFpwsWHBfOkpPobi3BqszSiFKtq9BQO+v+EE//2ANdvNLVRXXAVaq
-         Bo6A3XPd7mNcSSRrq0QGdbEfsrCawtDNMK44jbpP3JJUjhlkR3sxaxcBi3Bu6fnWAJs1
-         5HmOo4PKsOpxDWqSAVZSi2KvPs8FCKBFokxy3nNHaGvuDGHSLteLZgcBlGl4gDOSHKzP
-         FRjdo/f39c1JAMwjfgziTqxPhosLo41PHwIr1tOGQg1TquAWKTQLGj10fG6xpCDe5Orv
-         yvnw==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=f+vAI56/QPfquitg2TdtKRPja4MIyPOwjcpVSxrxyvQ=;
+        b=Q6EdJ1Ikjyrf+T4Jra7B6IdBYcH2OZ8LBH/SpKRCsU8BgxD/lkvuKBAf04ra7Chrbo
+         mbZoepSa592GMe3+IBkfr9EIuSB2+Nn7hbd8imsB0CkWSYXTnF4Ql1taCRaM3i/4QRji
+         KB+bUOQcp4Y6XEC9DvWXWLshbEjV/cFZBtEwMQUtbQgbJSqLPWmpYK3W8gwBlpf2UKCt
+         ShQReYONc7bTcjPbS4ROySD5PPboIxu/2JElwsZc6I73OkcPQWMnoFIxqLN/3wc6OujJ
+         6SPJBc9V2+qa2SHFUFpU0jEi/+M233WM9oQj2tP9TZNusUGQouq0KTHyQFE798Ln6LBW
+         UNaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=li6dnxMgfdQ5LVH7Z08cm62Cl2JMr308AMvvOZNMyqs=;
-        b=hg4vdzPdotdDFKToouL7SJIQCIpmvem0dgDMEQwxSvJ7TpbQuTW7UtrFAhpkvIrI4+
-         5KZjYEO0uN0Wzd74B7Xyb+yOMXVfZrP2hUk3K79/GclG15sDRqLChh/BtwGnCRm01DBi
-         4Pl0VHHzb+BCwvCuBZguO6o46BEWqgjzXxzW3i75LMXkoYVklCMTYC0ndCkFM7w4qXUA
-         W17vht2oZtOvQXe9YcrmCf7pJy4bXHq6iTMcXaQblEUpJ6EAe2+y4yS0P+lE0VjdoGWw
-         u/4Hee1bAoUfPmZ3KAxKt7NnYG74ZPctP7UPyDNXek+Itb6sIHbAhIRkaqgbMsbdwglm
-         y+MQ==
-X-Gm-Message-State: APjAAAVoT8fv1Sv/6Y60uttbI4UFsF+w4rBHReA6Hm8PwpOge+8vkd/P
-        387tehx1BL7PYtZviAITsUiBYpHWR6aJYChCvb26FtL6HReNZg==
-X-Google-Smtp-Source: APXvYqz18/3XxW+EISAoqvm6SpZ2ALnXI7h5V4mPL4PUdWGU3Q5Cq2sx+3Wb5E+kkSwEfcsvD4gq5Gy965yNCZV+JcM=
-X-Received: by 2002:a6b:7202:: with SMTP id n2mr4371676ioc.82.1552332998237;
- Mon, 11 Mar 2019 12:36:38 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=f+vAI56/QPfquitg2TdtKRPja4MIyPOwjcpVSxrxyvQ=;
+        b=Pn/EJ4rINj2NPa3Hr6X9g0W7R2yNbiI+bMXIjYBLoP+9NbI5ikqRhYZ/O4gPPnozKg
+         mUORlU9DVfB0Ufdmww3MURrcnNXGNyWq3kZVqsKRiBkaMgsKaalXDtGdUInw2jFbqOF/
+         pJdUQf3y4WPAAemMG/A/ULSmGUUxkiXYH0U9m8pg6p3A5z0mmtaJsDYi8TLfzmdBqkF4
+         wqSpx1CLOGNX95LJ5OaaznksbKBu9vuELRE+3rSQ/f0I6xuyjH+JSOmr5QA5o/wcmtNO
+         aMuEONdIFJ4qSPdOdzMktaaT3ezwBi2jKTtABr3csn/QkFLJ4gWkZLqOX1AT4KiP84+V
+         3nVw==
+X-Gm-Message-State: APjAAAX/ySjGDczLqwQzMOX9Wivee/9jaxAtGNnE6bx2eF4fGt6wWpdC
+        x7JhQKrrpIWxcbGAZc2ljZgx5Z6bmNRXj8xt7HxB
+X-Google-Smtp-Source: APXvYqzqYIm0l2bN2/5Re+cp3xH10SO+09wTW6HHs0bm6AnXPacTyJvm69mAqdCW4poRhVxBG2RSn3kbvH6AS+L29eU=
+X-Received: by 2002:a19:7613:: with SMTP id c19mr4974766lff.105.1552335103880;
+ Mon, 11 Mar 2019 13:11:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <CADBPxw7XyZdQsipF80cpcYu0h1XvJBhe5_MwndqqSBf5GCuFbQ@mail.gmail.com>
- <CADBPxw6URXXxgsJUqpwGBQ+_oPffOAvfP0j2Rn0Vknk36wPrWA@mail.gmail.com>
-In-Reply-To: <CADBPxw6URXXxgsJUqpwGBQ+_oPffOAvfP0j2Rn0Vknk36wPrWA@mail.gmail.com>
-From:   Tianjie Xu <xunchang@google.com>
-Date:   Mon, 11 Mar 2019 12:36:26 -0700
-Message-ID: <CADBPxw5JFk625NBXauy+iLBU9fe5vQ8zSt83WONV4c-ViUd9DA@mail.gmail.com>
-Subject: Re: Patch to the context lookup change
-To:     selinux@vger.kernel.org
-Content-Type: multipart/mixed; boundary="000000000000ef57d70583d6b008"
+References: <1e5accb3a4a5575ada1dbdfc6e5d9e4358131f83.1552061254.git.lucien.xin@gmail.com>
+ <20190308170838.GF13515@localhost.localdomain> <CAHC9VhSdkFORw88rusQ6Kzr3zFX9HB_GNkrbB2LViqOb1ozUzg@mail.gmail.com>
+In-Reply-To: <CAHC9VhSdkFORw88rusQ6Kzr3zFX9HB_GNkrbB2LViqOb1ozUzg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 11 Mar 2019 16:11:32 -0400
+Message-ID: <CAHC9VhSy0X1Pz+C8UqpiU32obSMZoBASzoP543qbLLWGSxYEOA@mail.gmail.com>
+Subject: Re: [PATCH net] selinux: add the missing walk_size + len check in selinux_sctp_bind_connect
+To:     Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>
+Cc:     selinux@vger.kernel.org, network dev <netdev@vger.kernel.org>,
+        linux-sctp@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---000000000000ef57d70583d6b008
-Content-Type: text/plain; charset="UTF-8"
+On Fri, Mar 8, 2019 at 9:47 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Fri, Mar 8, 2019 at 12:08 PM Marcelo Ricardo Leitner
+> <marcelo.leitner@gmail.com> wrote:
+> > On Sat, Mar 09, 2019 at 12:07:34AM +0800, Xin Long wrote:
+> > > As does in __sctp_connect(), when checking addrs in a while loop, after
+> > > get the addr len according to sa_family, it's necessary to do the check
+> > > walk_size + af->sockaddr_len > addrs_size to make sure it won't access
+> > > an out-of-bounds addr.
+> > >
+> > > The same thing is needed in selinux_sctp_bind_connect(), otherwise an
+> > > out-of-bounds issue can be triggered:
+> > >
+> > >   [14548.772313] BUG: KASAN: slab-out-of-bounds in selinux_sctp_bind_connect+0x1aa/0x1f0
+> > >   [14548.927083] Call Trace:
+> > >   [14548.938072]  dump_stack+0x9a/0xe9
+> > >   [14548.953015]  print_address_description+0x65/0x22e
+> > >   [14548.996524]  kasan_report.cold.6+0x92/0x1a6
+> > >   [14549.015335]  selinux_sctp_bind_connect+0x1aa/0x1f0
+> > >   [14549.036947]  security_sctp_bind_connect+0x58/0x90
+> > >   [14549.058142]  __sctp_setsockopt_connectx+0x5a/0x150 [sctp]
+> > >   [14549.081650]  sctp_setsockopt.part.24+0x1322/0x3ce0 [sctp]
+> > >
+> > > Fixes: d452930fd3b9 ("selinux: Add SCTP support")
+> > > Reported-by: Chunyu Hu <chuhu@redhat.com>
+> > > Signed-off-by: Xin Long <lucien.xin@gmail.com>
+> >
+> > Reviewed-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+>
+> Thanks, this patch looks good to me.
+>
+> > Paul, how can we get this into -stable trees? SELinux process may be
+> > different from -net trees.
+>
+> For patches that warrant inclusion in -stable, I merge them into the
+> current selinux/stable-X.Y and send it up to Linus once it passes some
+> basic sanity tests.  Since we're still only half-way through the merge
+> window, and this is an obvious bug fix, I think this qualifies as
+> -stable material.
+>
+> I'm traveling at the moment with not-so-great connectivity, but I'll
+> get this merged and verified early next week.
 
-Hi there,
-I recently made a change in android's selinux repo. The change
-implements a new lookup helper function for context matches, and it
-aims to skip unnecessary restorecon if the corresponding context
-doesn't change.
+FYI, I just merged this into selinux/stable-5.1.  Assuming it tests
+okay (and I can't imagine it would cause a regression), I'll send it
+to Linus tomorrow.
 
-Quote from the commit message. "We used to hash the file_context and
-skip the restorecon on the top level directory if the hash doesn't
-change. But the file_context might change after an OTA update; and
-some users experienced long restorecon time as they have lots of files
-under directories like /data/media. This CL tries to hash all the
-partial match entries in the file_context for each directory; and
-skips the restorecon if that digest stays the same, regardless of the
-changes to the other parts of file_context."
-CL in: https://android-review.googlesource.com/c/platform/external/selinux/+/918713
-
-I haven't done the work in upstream code to fully implement this
-change. But this CL merges and compiles. It factors out a lookup
-helper function and returns an array of matched pointers instead of a
-single one. The old loopup_common function is then modified to take
-the first element in the array. I wonder if it's possible to merge in
-this change to the lookup functions first? It will make the upstream &
-android repo more consistent and also save some work for future
-merges.
-
---000000000000ef57d70583d6b008
-Content-Type: application/x-patch; name="f69947c.diff"
-Content-Disposition: attachment; filename="f69947c.diff"
-Content-Transfer-Encoding: base64
-Content-ID: <f_jt4qixms0>
-X-Attachment-Id: f_jt4qixms0
-
-RnJvbSBmNjk5NDdjZmZhYmVmY2RhNmI5MjIxMjc3MWJiNjg4MjY3OGEwZTgxIE1vbiBTZXAgMTcg
-MDA6MDA6MDAgMjAwMQpGcm9tOiB4dW5jaGFuZyA8eHVuY2hhbmdAZ29vZ2xlLmNvbT4KRGF0ZTog
-TW9uLCAwNCBNYXIgMjAxOSAyMjoxMjo0MiAtMDgwMApTdWJqZWN0OiBbUEFUQ0hdIFJlc3RvcmVj
-b246IGZhY3RvciBvdXQgYSBsb29rdXAgaGVscGVyIGZvciBjb250ZXh0IG1hdGNoZXMKClRoaXMg
-aXMgcGFydCBvZiB0aGUgZWZmb3J0IHRvIHNhdmUgZGlnZXN0IGZvciBzdWJkaXJlY3Rvcmllcy4K
-U3BsaXQgb3V0IHRoZSBub24tYW5kcm9pZCBwYXJ0IHRvIG1ha2UgdGhlIG1lcmdlIHRvIHVwc3Ry
-ZWFtCmJyYW5jaCBlYXNpZXIuCgpCdWc6IDYyMzAyOTU0ClRlc3Q6IGJ1aWxkIGFuZHJvaWQsIGNv
-bXBpbGUgdGhlIHVwc3RyZWFtIGJyYW5jaApDaGFuZ2UtSWQ6IEk0ZGY5NGVkMzgxZjI2MzU2YzUz
-OWQ2MDRmMzFhNjVkYWFiYWZjMWRhCi0tLQoKZGlmZiAtLWdpdCBhL2xpYnNlbGludXgvaW5jbHVk
-ZS9zZWxpbnV4L2xhYmVsLmggYi9saWJzZWxpbnV4L2luY2x1ZGUvc2VsaW51eC9sYWJlbC5oCmlu
-ZGV4IDI3NzI4N2UuLmU1MzdhYTEgMTAwNjQ0Ci0tLSBhL2xpYnNlbGludXgvaW5jbHVkZS9zZWxp
-bnV4L2xhYmVsLmgKKysrIGIvbGlic2VsaW51eC9pbmNsdWRlL3NlbGludXgvbGFiZWwuaApAQCAt
-Nyw2ICs3LDcgQEAKICNkZWZpbmUgX1NFTEFCRUxfSF8KIAogI2luY2x1ZGUgPHN0ZGJvb2wuaD4K
-KyNpbmNsdWRlIDxzdGRpbnQuaD4KICNpbmNsdWRlIDxzeXMvdHlwZXMuaD4KICNpbmNsdWRlIDxz
-ZWxpbnV4L3NlbGludXguaD4KIApAQCAtMTA1LDYgKzEwNiw5IEBACiAKIGJvb2wgc2VsYWJlbF9w
-YXJ0aWFsX21hdGNoKHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqaGFuZGxlLCBjb25zdCBjaGFyICpr
-ZXkpOwogCitib29sIHNlbGFiZWxfaGFzaF9hbGxfcGFydGlhbF9tYXRjaGVzKHN0cnVjdCBzZWxh
-YmVsX2hhbmRsZSAqcmVjLAorICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBj
-b25zdCBjaGFyICprZXksIHVpbnQ4X3QqIGRpZ2VzdCk7CisKIGludCBzZWxhYmVsX2xvb2t1cF9i
-ZXN0X21hdGNoKHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqcmVjLCBjaGFyICoqY29uLAogCQkJICAg
-ICAgY29uc3QgY2hhciAqa2V5LCBjb25zdCBjaGFyICoqYWxpYXNlcywgaW50IHR5cGUpOwogaW50
-IHNlbGFiZWxfbG9va3VwX2Jlc3RfbWF0Y2hfcmF3KHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqcmVj
-LCBjaGFyICoqY29uLApkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMvbGFiZWwuYyBiL2xpYnNl
-bGludXgvc3JjL2xhYmVsLmMKaW5kZXggY2U3ODZjZC4uZTIzMmViMSAxMDA2NDQKLS0tIGEvbGli
-c2VsaW51eC9zcmMvbGFiZWwuYworKysgYi9saWJzZWxpbnV4L3NyYy9sYWJlbC5jCkBAIC0yODIs
-NiArMjgyLDE1IEBACiAJcmV0dXJuIHJlYy0+ZnVuY19wYXJ0aWFsX21hdGNoKHJlYywga2V5KTsK
-IH0KIAorYm9vbCBzZWxhYmVsX2hhc2hfYWxsX3BhcnRpYWxfbWF0Y2hlcyhzdHJ1Y3Qgc2VsYWJl
-bF9oYW5kbGUgKnJlYywKKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgY29u
-c3QgY2hhciAqa2V5LCB1aW50OF90ICpkaWdlc3QpIHsKKwlpZiAoIXJlYy0+ZnVuY19oYXNoX2Fs
-bF9wYXJ0aWFsX21hdGNoZXMpIHsKKwkJcmV0dXJuIGZhbHNlOworCX0KKworCXJldHVybiByZWMt
-PmZ1bmNfaGFzaF9hbGxfcGFydGlhbF9tYXRjaGVzKHJlYywga2V5LCBkaWdlc3QpOworfQorCiBp
-bnQgc2VsYWJlbF9sb29rdXBfYmVzdF9tYXRjaChzdHJ1Y3Qgc2VsYWJlbF9oYW5kbGUgKnJlYywg
-Y2hhciAqKmNvbiwKIAkJCSAgICAgIGNvbnN0IGNoYXIgKmtleSwgY29uc3QgY2hhciAqKmFsaWFz
-ZXMsIGludCB0eXBlKQogewpkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMvbGFiZWxfZmlsZS5j
-IGIvbGlic2VsaW51eC9zcmMvbGFiZWxfZmlsZS5jCmluZGV4IDZiNjRkNjYuLmZlNDNjNGEgMTAw
-NjQ0Ci0tLSBhL2xpYnNlbGludXgvc3JjL2xhYmVsX2ZpbGUuYworKysgYi9saWJzZWxpbnV4L3Ny
-Yy9sYWJlbF9maWxlLmMKQEAgLTg5MywyMiArODkzLDM3IEBACiAJZnJlZShkYXRhKTsKIH0KIAot
-c3RhdGljIHN0cnVjdCBzcGVjICpsb29rdXBfY29tbW9uKHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAq
-cmVjLAotCQkJCQkgICAgIGNvbnN0IGNoYXIgKmtleSwKLQkJCQkJICAgICBpbnQgdHlwZSwKLQkJ
-CQkJICAgICBib29sIHBhcnRpYWwpCisvLyBGaW5kcyBhbGwgdGhlIG1hdGNoZXMgb2YgfGtleXwg
-aW4gdGhlIGdpdmVuIGNvbnRleHQuIFJldHVybnMgdGhlIHJlc3VsdCBpbgorLy8gdGhlIGFsbG9j
-YXRlZCBhcnJheSBhbmQgdXBkYXRlcyB0aGUgbWF0Y2ggY291bnQuIElmIG1hdGNoX2NvdW50IGlz
-IE5VTEwsCisvLyBzdG9wcyBlYXJseSBvbmNlIHRoZSAxc3QgbWF0Y2ggaXMgZm91bmQuCitzdGF0
-aWMgY29uc3Qgc3RydWN0IHNwZWMgKipsb29rdXBfYWxsKHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAq
-cmVjLAorCQkJCSAgICAgIGNvbnN0IGNoYXIgKmtleSwKKwkJCQkgICAgICBpbnQgdHlwZSwKKwkJ
-CQkgICAgICBib29sIHBhcnRpYWwsCisJCQkJICAgICAgc2l6ZV90ICptYXRjaF9jb3VudCkKIHsK
-IAlzdHJ1Y3Qgc2F2ZWRfZGF0YSAqZGF0YSA9IChzdHJ1Y3Qgc2F2ZWRfZGF0YSAqKXJlYy0+ZGF0
-YTsKIAlzdHJ1Y3Qgc3BlYyAqc3BlY19hcnIgPSBkYXRhLT5zcGVjX2FycjsKIAlpbnQgaSwgcmMs
-IGZpbGVfc3RlbTsKIAltb2RlX3QgbW9kZSA9IChtb2RlX3QpdHlwZTsKIAljb25zdCBjaGFyICpi
-dWY7Ci0Jc3RydWN0IHNwZWMgKnJldCA9IE5VTEw7CiAJY2hhciAqY2xlYW5fa2V5ID0gTlVMTDsK
-IAljb25zdCBjaGFyICpwcmV2X3NsYXNoLCAqbmV4dF9zbGFzaDsKIAl1bnNpZ25lZCBpbnQgc29m
-YXIgPSAwOwogCWNoYXIgKnN1YiA9IE5VTEw7CiAKKwljb25zdCBzdHJ1Y3Qgc3BlYyAqKnJlc3Vs
-dCA9IE5VTEw7CisJaWYgKG1hdGNoX2NvdW50KSB7CisJCSptYXRjaF9jb3VudCA9IDA7CisJCXJl
-c3VsdCA9IGNhbGxvYyhkYXRhLT5uc3BlYywgc2l6ZW9mKHN0cnVjdCBzcGVjKikpOworCX0gZWxz
-ZSB7CisJCXJlc3VsdCA9IGNhbGxvYygxLCBzaXplb2Yoc3RydWN0IHNwZWMqKSk7CisJfQorCWlm
-ICghcmVzdWx0KSB7CisJCXNlbGludXhfbG9nKFNFTElOVVhfRVJST1IsICIlczogT3V0IG9mIG1l
-bW9yeVxuIiwgX19mdW5jX18pOworCQlnb3RvIGZpbmlzaDsKKwl9CisKIAlpZiAoIWRhdGEtPm5z
-cGVjKSB7CiAJCWVycm5vID0gRU5PRU5UOwogCQlnb3RvIGZpbmlzaDsKQEAgLTk0OSwxOCArOTY0
-LDMzIEBACiAJCSAqIHNwZWNpZmllZCBvciBpZiB0aGUgbW9kZSBtYXRjaGVzIHRoZSBmaWxlIG1v
-ZGUgdGhlbiB3ZSBkbwogCQkgKiBhIHJlZ2V4IGNoZWNrICAgICAgICAqLwogCQlpZiAoKHNwZWMt
-PnN0ZW1faWQgPT0gLTEgfHwgc3BlYy0+c3RlbV9pZCA9PSBmaWxlX3N0ZW0pICYmCi0JCSAgICAo
-IW1vZGUgfHwgIXNwZWMtPm1vZGUgfHwgbW9kZSA9PSBzcGVjLT5tb2RlKSkgeworCQkJCSghbW9k
-ZSB8fCAhc3BlYy0+bW9kZSB8fCBtb2RlID09IHNwZWMtPm1vZGUpKSB7CiAJCQlpZiAoY29tcGls
-ZV9yZWdleChkYXRhLCBzcGVjLCBOVUxMKSA8IDApCiAJCQkJZ290byBmaW5pc2g7CiAJCQlpZiAo
-c3BlYy0+c3RlbV9pZCA9PSAtMSkKIAkJCQlyYyA9IHJlZ2V4X21hdGNoKHNwZWMtPnJlZ2V4LCBr
-ZXksIHBhcnRpYWwpOwogCQkJZWxzZQogCQkJCXJjID0gcmVnZXhfbWF0Y2goc3BlYy0+cmVnZXgs
-IGJ1ZiwgcGFydGlhbCk7Ci0JCQlpZiAocmMgPT0gUkVHRVhfTUFUQ0gpIHsKLQkJCQlzcGVjLT5t
-YXRjaGVzKys7CisKKwkJCWlmIChyYyA9PSBSRUdFWF9NQVRDSCB8fCAocGFydGlhbCAmJiByYyA9
-PSBSRUdFWF9NQVRDSF9QQVJUSUFMKSkgeworCQkJCWlmIChyYyA9PSBSRUdFWF9NQVRDSCkgewor
-CQkJCQlzcGVjLT5tYXRjaGVzKys7CisJCQkJfQorCisJCQkJaWYgKHN0cmNtcChzcGVjX2Fycltp
-XS5sci5jdHhfcmF3LCAiPDxub25lPj4iKSA9PSAwKSB7CisJCQkJCWVycm5vID0gRU5PRU5UOwor
-CQkJCQlnb3RvIGZpbmlzaDsKKwkJCQl9CisKKwkJCQlpZiAobWF0Y2hfY291bnQpIHsKKwkJCQkJ
-cmVzdWx0WyptYXRjaF9jb3VudF0gPSBzcGVjOworCQkJCQkqbWF0Y2hfY291bnQgKz0gMTsKKwkJ
-CQkJLy8gQ29udGludWUgdG8gZmluZCBhbGwgdGhlIG1hdGNoZXMuCisJCQkJCWNvbnRpbnVlOwor
-CQkJCX0KKwkJCQlyZXN1bHRbMF0gPSBzcGVjOwogCQkJCWJyZWFrOwotCQkJfSBlbHNlIGlmIChw
-YXJ0aWFsICYmIHJjID09IFJFR0VYX01BVENIX1BBUlRJQUwpCi0JCQkJYnJlYWs7CisJCQl9CiAK
-IAkJCWlmIChyYyA9PSBSRUdFWF9OT19NQVRDSCkKIAkJCQljb250aW51ZTsKQEAgLTk3MSwxOSAr
-MTAwMSw1OCBAQAogCQl9CiAJfQogCi0JaWYgKGkgPCAwIHx8IHN0cmNtcChzcGVjX2FycltpXS5s
-ci5jdHhfcmF3LCAiPDxub25lPj4iKSA9PSAwKSB7Ci0JCS8qIE5vIG1hdGNoaW5nIHNwZWNpZmlj
-YXRpb24uICovCi0JCWVycm5vID0gRU5PRU5UOwotCQlnb3RvIGZpbmlzaDsKLQl9Ci0KLQllcnJu
-byA9IDA7Ci0JcmV0ID0gJnNwZWNfYXJyW2ldOwotCiBmaW5pc2g6CiAJZnJlZShjbGVhbl9rZXkp
-OwogCWZyZWUoc3ViKTsKLQlyZXR1cm4gcmV0OworCWlmIChyZXN1bHQgJiYgIXJlc3VsdFswXSkg
-eworCQlmcmVlKHJlc3VsdCk7CisJCXJlc3VsdCA9IE5VTEw7CisJfQorCXJldHVybiByZXN1bHQ7
-Cit9CisKK3N0YXRpYyBzdHJ1Y3Qgc3BlYyAqbG9va3VwX2NvbW1vbihzdHJ1Y3Qgc2VsYWJlbF9o
-YW5kbGUgKnJlYywKKwkJCQkgIGNvbnN0IGNoYXIgKmtleSwKKwkJCQkgIGludCB0eXBlLAorCQkJ
-CSAgYm9vbCBwYXJ0aWFsKSB7CisJY29uc3Qgc3RydWN0IHNwZWMgKiptYXRjaGVzID0gbG9va3Vw
-X2FsbChyZWMsIGtleSwgdHlwZSwgcGFydGlhbCwgTlVMTCk7CisJaWYgKCFtYXRjaGVzKSB7CisJ
-CXJldHVybiBOVUxMOworCX0KKwlzdHJ1Y3Qgc3BlYyAqcmVzdWx0ID0gKHN0cnVjdCBzcGVjKilt
-YXRjaGVzWzBdOworCWZyZWUobWF0Y2hlcyk7CisJcmV0dXJuIHJlc3VsdDsKK30KKworc3RhdGlj
-IGJvb2wgaGFzaF9hbGxfcGFydGlhbF9tYXRjaGVzKHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqcmVj
-LCBjb25zdCBjaGFyICprZXksIHVpbnQ4X3QgKmRpZ2VzdCkKK3sKKwlhc3NlcnQoZGlnZXN0KTsK
-KworCXNpemVfdCB0b3RhbF9tYXRjaGVzOworCWNvbnN0IHN0cnVjdCBzcGVjICoqbWF0Y2hlcyA9
-IGxvb2t1cF9hbGwocmVjLCBrZXksIDAsIHRydWUsICZ0b3RhbF9tYXRjaGVzKTsKKwlpZiAoIW1h
-dGNoZXMpIHsKKwkJcmV0dXJuIGZhbHNlOworCX0KKworCVNoYTFDb250ZXh0IGNvbnRleHQ7CisJ
-U2hhMUluaXRpYWxpc2UoJmNvbnRleHQpOworCXNpemVfdCBpOworCWZvciAoaSA9IDA7IGkgPCB0
-b3RhbF9tYXRjaGVzOyBpKyspIHsKKwkJY2hhciogcmVnZXhfc3RyID0gbWF0Y2hlc1tpXS0+cmVn
-ZXhfc3RyOworCQl1aW50MzJfdCBtb2RlID0gbWF0Y2hlc1tpXS0+bW9kZTsKKwkJY2hhciogY3R4
-X3JhdyA9IG1hdGNoZXNbaV0tPmxyLmN0eF9yYXc7CisKKwkJU2hhMVVwZGF0ZSgmY29udGV4dCwg
-cmVnZXhfc3RyLCBzdHJsZW4ocmVnZXhfc3RyKSArIDEpOworCQlTaGExVXBkYXRlKCZjb250ZXh0
-LCAmbW9kZSwgc2l6ZW9mKHVpbnQzMl90KSk7CisJCVNoYTFVcGRhdGUoJmNvbnRleHQsIGN0eF9y
-YXcsIHN0cmxlbihjdHhfcmF3KSArIDEpOworCX0KKworCVNIQTFfSEFTSCBzaGExX2hhc2g7CisJ
-U2hhMUZpbmFsaXNlKCZjb250ZXh0LCAmc2hhMV9oYXNoKTsKKwltZW1jcHkoZGlnZXN0LCBzaGEx
-X2hhc2guYnl0ZXMsIFNIQTFfSEFTSF9TSVpFKTsKKworCWZyZWUobWF0Y2hlcyk7CisJcmV0dXJu
-IHRydWU7CiB9CiAKIHN0YXRpYyBzdHJ1Y3Qgc2VsYWJlbF9sb29rdXBfcmVjICpsb29rdXAoc3Ry
-dWN0IHNlbGFiZWxfaGFuZGxlICpyZWMsCkBAIC0xMTgzLDYgKzEyNTIsNyBAQAogCXJlYy0+ZnVu
-Y19zdGF0cyA9ICZzdGF0czsKIAlyZWMtPmZ1bmNfbG9va3VwID0gJmxvb2t1cDsKIAlyZWMtPmZ1
-bmNfcGFydGlhbF9tYXRjaCA9ICZwYXJ0aWFsX21hdGNoOworCXJlYy0+ZnVuY19oYXNoX2FsbF9w
-YXJ0aWFsX21hdGNoZXMgPSAmaGFzaF9hbGxfcGFydGlhbF9tYXRjaGVzOwogCXJlYy0+ZnVuY19s
-b29rdXBfYmVzdF9tYXRjaCA9ICZsb29rdXBfYmVzdF9tYXRjaDsKIAlyZWMtPmZ1bmNfY21wID0g
-JmNtcDsKIApkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMvbGFiZWxfaW50ZXJuYWwuaCBiL2xp
-YnNlbGludXgvc3JjL2xhYmVsX2ludGVybmFsLmgKaW5kZXggYTA1YTEwYS4uOGFkZDcxYSAxMDA2
-NDQKLS0tIGEvbGlic2VsaW51eC9zcmMvbGFiZWxfaW50ZXJuYWwuaAorKysgYi9saWJzZWxpbnV4
-L3NyYy9sYWJlbF9pbnRlcm5hbC5oCkBAIC04Nyw2ICs4Nyw4IEBACiAJdm9pZCAoKmZ1bmNfY2xv
-c2UpIChzdHJ1Y3Qgc2VsYWJlbF9oYW5kbGUgKmgpOwogCXZvaWQgKCpmdW5jX3N0YXRzKSAoc3Ry
-dWN0IHNlbGFiZWxfaGFuZGxlICpoKTsKIAlib29sICgqZnVuY19wYXJ0aWFsX21hdGNoKSAoc3Ry
-dWN0IHNlbGFiZWxfaGFuZGxlICpoLCBjb25zdCBjaGFyICprZXkpOworCWJvb2wgKCpmdW5jX2hh
-c2hfYWxsX3BhcnRpYWxfbWF0Y2hlcykgKHN0cnVjdCBzZWxhYmVsX2hhbmRsZSAqaCwKKwkgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBjb25zdCBjaGFyICprZXksIHVpbnQ4
-X3QgKmRpZ2VzdCk7CiAJc3RydWN0IHNlbGFiZWxfbG9va3VwX3JlYyAqKCpmdW5jX2xvb2t1cF9i
-ZXN0X21hdGNoKQogCQkJCQkJICAgIChzdHJ1Y3Qgc2VsYWJlbF9oYW5kbGUgKmgsCiAJCQkJCQkg
-ICAgY29uc3QgY2hhciAqa2V5LAo=
---000000000000ef57d70583d6b008--
+-- 
+paul moore
+www.paul-moore.com
