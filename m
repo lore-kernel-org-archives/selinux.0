@@ -2,117 +2,129 @@ Return-Path: <SRS0=naTH=RO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA0DFC43381
-	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:13:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A68ADC43381
+	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:15:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BBFBD214AF
-	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:13:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 77A6C2147C
+	for <selinux@archiver.kernel.org>; Mon, 11 Mar 2019 20:15:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="NQLMFobl"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="OhleqeEa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728046AbfCKUNE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 Mar 2019 16:13:04 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:35589 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728345AbfCKUM4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 Mar 2019 16:12:56 -0400
-Received: by mail-lf1-f68.google.com with SMTP id h6so293412lfc.2
-        for <selinux@vger.kernel.org>; Mon, 11 Mar 2019 13:12:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fQGfIgvy8nOUmE5+eg5l/WOLCDb3JWDpoVq3m2E0Nuk=;
-        b=NQLMFobl3qAmEwF6+C4bWJc17wgAzJOKScuIRcM0KoW6MNqRZ0Y6VrdlrsKgZeh2Hm
-         ovUvxSkSMsXEd8d+dsvYSExSPzhQwjiWHX25tUZtbpPdudDyFf5VNUVGBNyeY06GxArw
-         bztDn5cnQNMnILYwDVXSDbfzvAHHHtyO7KZyy0z2Io+kPYVL0rtzJbGtOdx24UPAv0rf
-         ciw95BNmWb9FxzJqAJOeHxAe3gD1y+refngESYosbx3H6F0lNKGjB6Id7+McfwS2grhF
-         /BsSX1MhVKWSNibvD/HDt5yj5l0TKAIWy3Yrce0erke2AqIpqMYQrPJfCkvhetktp0dI
-         7nyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fQGfIgvy8nOUmE5+eg5l/WOLCDb3JWDpoVq3m2E0Nuk=;
-        b=Ul97CMrWyhYvJQfaz4Mxprpid17MIpHPkMT0B/EXMoJvlDPfzjbcZVlNOuoyM/hn9m
-         MHfzc5nfzPOOAEb0dIBtt9tCG3BgdQc7tOMum4/XX+cWsVbLEvGCoSd9WZ7kMD4A7Roh
-         OQebw979XPIPA+ymcgVVAY8OnS2Xnv6lBGzYymH7K6GqPB3GuBLJq7EWACR9BMyo+ZTo
-         MAJWJ68G1+FOwsXATtj2RZdnMBeijXZ1zIP5pmE7TddcRNRe1nvwPPz113G0IiRTJyp4
-         yGQSdD/tcvQzPUiJDyAqyeIYOKCHC9a5rrJWfgH3Xbl1LXC6SrlYvz1KsXzKWGuH4l2R
-         mtgw==
-X-Gm-Message-State: APjAAAVwvFguxUW7MWbCxG1224iMSPp0lx9qtuQFCQqD7x5v5RVuI2GJ
-        +XZQM/hmqCMo9awK+j3lr4KGyiXk4k0OnYB7EvBZ
-X-Google-Smtp-Source: APXvYqwybGrl9N5+LJVTbppOiRQf5zAaxdTppXHES+IikU/UmrmffKhpj53HJ3gDRCCfUeIY9b9oE8CjeHzPqfqHliI=
-X-Received: by 2002:a19:2891:: with SMTP id o139mr19215795lfo.135.1552335173575;
- Mon, 11 Mar 2019 13:12:53 -0700 (PDT)
+        id S1727641AbfCKUPn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 Mar 2019 16:15:43 -0400
+Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:18632 "EHLO
+        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726675AbfCKUPm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 Mar 2019 16:15:42 -0400
+X-EEMSG-check-017: 686007183|UCOL19PA13_EEMSG_MP11.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.39,1,1493683200"; 
+   d="scan'208";a="686007183"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 11 Mar 2019 20:15:41 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1552335342; x=1583871342;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=3wSOEeFGoLEUKCq6ZfkFba1XO0Qff2DOpBmMsf6qMvc=;
+  b=OhleqeEaLuYO9EmWDV6njTjJv1alTSikaLL5nc3yfXLrtJTTVbFEiiyN
+   3jk3IJdISteGygVYI00qjVcjG2CDKU11C60ghgZxZJyVwj5GcgydG33hX
+   8y37DUAN2ouZLKPhogUh7O4fcQkx/KetkSkJ96l2GmOz+zyEqmxFSXhl/
+   LLGIqDfBOkW6wHulgTeJbiWhwWuAgfx3NsTnxCpKmGjwlM1cDkdGTodY2
+   3718UE+Jb/ioCiJLYsOcaIOXQp/hrRCwHG0D95eD7mrqARY9F2l2iwaB7
+   5aPDFyX/DrC/IkhWPa88ZVEoG07sT7mA6/PHptNKZP8yIINtDwV9hugAa
+   w==;
+X-IronPort-AV: E=Sophos;i="5.58,468,1544486400"; 
+   d="scan'208";a="24903218"
+IronPort-PHdr: =?us-ascii?q?9a23=3AkqXukR0pXxZBtD6gsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseMUL/ad9pjvdHbS+e9qxAeQG9mCs7Qc0qL/iOPJYSQ4+5GPsXQPItRndi?=
+ =?us-ascii?q?QuroEopTEmG9OPEkbhLfTnPGQQFcVGU0J5rTngaRAGUMnxaEfPrXKs8DUcBg?=
+ =?us-ascii?q?vwNRZvJuTyB4Xek9m72/q99pHOfwlEniaxba5vJxiqsAvdsdUbj5F/Iagr0B?=
+ =?us-ascii?q?vJpXVIe+VSxWx2IF+Yggjx6MSt8pN96ipco/0u+dJOXqX8ZKQ4UKdXDC86PG?=
+ =?us-ascii?q?Av5c3krgfMQA2S7XYBSGoWkx5IAw/Y7BHmW5r6ryX3uvZh1CScIMb5Q6o0WT?=
+ =?us-ascii?q?C/5Kl1ThHmhjoMOzog/G3JjsF8iaRWqw+jqRNi2Y7ZeJybOuRwfq3dft0US2?=
+ =?us-ascii?q?ROUclTWCNdDY2xdJcPAugbMOpEs4XwqVkDoB2jDgesHuPvzTpIi2fr060mze?=
+ =?us-ascii?q?shCQHG0xImH9kTrXrUqc/6NKMWUe+rzKjD0DLOb+hL1jfm84XIbhAgru2MXb?=
+ =?us-ascii?q?J3a8bRz1IvGBnfglWfrozlISqY2+IQuGaV6OpgUPigi28hqwxpoTig2N0sio?=
+ =?us-ascii?q?/XiYIR0FzE8j95wIktKd23T057ZtGkEJ9OuCGBMIt2X9kiTH12tyog1rIGvp?=
+ =?us-ascii?q?u7cDANyJUmwx7QceeIc5OS7hLkTuaRLjF1j29mdrKnnxu+7Eetx+LmWsS0zV?=
+ =?us-ascii?q?pGtDRJn9bSunwXyhDe7NWMROFn8Ue7wzmP0hje6uRDIU8pi6XWM4Uhwrsslp?=
+ =?us-ascii?q?oLtkTDAzP2lF32jKCIckUk/fCl6/j9bbX8p5+cKpR0hhviMqUuhsO/AeM4Ph?=
+ =?us-ascii?q?IIX2eH4uSzyKfv/Uj4QLVOlvE2k6/Zv47GJckDu6K0DABY3pwj5hqiFTuqzt?=
+ =?us-ascii?q?sVkWcdIF5YYB6HipLmO1DKIPD2F/e/hFGsnS9wx//bJb3sGYnNL3jfn7fher?=
+ =?us-ascii?q?Zx8UhcyBEpwtxF6JJUDa8BLOrpWkDtrNzYEgM5MwuszufoFdV90J8RWWKVDa?=
+ =?us-ascii?q?+fP6PfqlCI5uUoI+mDYI8apizxJOQi5/7rlXU5g0MSfbG13ZsLb3C1Bu9mLF?=
+ =?us-ascii?q?udYXrthNcBDGgLsxEgTOzlllKCSyRfZ3WsUKIm4DE0FoamAZ3ERoC3j7zSlB?=
+ =?us-ascii?q?u8S6FXb2ZEC13EIWqgI5WZXfwMYSSdCsBmlTMAWP6qTIp3kVm1uQv7zad3Bv?=
+ =?us-ascii?q?Tb9zdetp/50tVxoerJmkIc7ztxWv+B3nmNQmc8pWYBQzs7zegrukBm4kuS2q?=
+ =?us-ascii?q?h/xfpDHJpc4O0fAVRyDoLV0+EvU4O6YQnGZNrcDQz3Tw=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AiBQDhwIZc/wHyM5BkFgYBAQEEAQEHBAEBgWWBZipog?=
+ =?us-ascii?q?QMnhAqTTkwBAQEBAQEGgQgtiT+Oe4FnMgYBg3pGAoQ6IjgSAQEDAQEBBgEDA?=
+ =?us-ascii?q?gFsHAyCOimCaAEFIxVRCxgCAiYCAlcGAQwIAQGCXz8BgWgND7BfgS+EMAELA?=
+ =?us-ascii?q?QdBQIRyBYELJIstF3iBB4E4gjYHLoMeAQMCgSoBEgGDKYJXA5E8kmUJh1GLN?=
+ =?us-ascii?q?QYZgXmRQYp4gRKEU45oIWVxKwgCGAghD4MnghUYg0uFFIVbIwMwAQ13AQGMe?=
+ =?us-ascii?q?4I+AQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 11 Mar 2019 20:15:41 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x2BKFfrq006262;
+        Mon, 11 Mar 2019 16:15:41 -0400
+Subject: Re: Patch to the context lookup change
+To:     Tianjie Xu <xunchang@google.com>, selinux@vger.kernel.org
+References: <CADBPxw7XyZdQsipF80cpcYu0h1XvJBhe5_MwndqqSBf5GCuFbQ@mail.gmail.com>
+ <CADBPxw6URXXxgsJUqpwGBQ+_oPffOAvfP0j2Rn0Vknk36wPrWA@mail.gmail.com>
+ <CADBPxw5JFk625NBXauy+iLBU9fe5vQ8zSt83WONV4c-ViUd9DA@mail.gmail.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <697013d2-5f0c-e212-d15b-b4b6551034d0@tycho.nsa.gov>
+Date:   Mon, 11 Mar 2019 16:12:19 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.5.1
 MIME-Version: 1.0
-References: <20190305211758.GA27437@fieldses.org>
-In-Reply-To: <20190305211758.GA27437@fieldses.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 11 Mar 2019 16:12:42 -0400
-Message-ID: <CAHC9VhSg4WWw9EdTYoOAZcd=TCaPQd2yyRqxcpX9Z+gKGriQhg@mail.gmail.com>
-Subject: Re: [PATCH] security/selinux: fix SECURITY_LSM_NATIVE_LABELS on
- reused superblock
-To:     "J. Bruce Fields" <bfields@fieldses.org>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Scott Mayhew <smayhew@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CADBPxw5JFk625NBXauy+iLBU9fe5vQ8zSt83WONV4c-ViUd9DA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 5, 2019 at 4:18 PM J. Bruce Fields <bfields@fieldses.org> wrote:
-> From: "J. Bruce Fields" <bfields@redhat.com>
->
-> In the case when we're reusing a superblock, selinux_sb_clone_mnt_opts()
-> fails to set set_kern_flags, with the result that
-> nfs_clone_sb_security() incorrectly clears NFS_CAP_SECURITY_LABEL.
->
-> The result is that if you mount the same NFS filesystem twice, NFS
-> security labels are turned off, even if they would work fine if you
-> mounted the filesystem only once.
->
-> ("fixes" may be not exactly the right tag, it may be more like
-> "fixed-other-cases-but-missed-this-one".)
->
-> Cc: Scott Mayhew <smayhew@redhat.com>
-> Cc: stable@vger.kernel.org
-> Fixes: 0b4d3452b8b4 "security/selinux: allow security_sb_clone_mnt_opts..."
-> Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-> ---
->  security/selinux/hooks.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+On 3/11/19 3:36 PM, Tianjie Xu wrote:
+> Hi there,
+> I recently made a change in android's selinux repo. The change
+> implements a new lookup helper function for context matches, and it
+> aims to skip unnecessary restorecon if the corresponding context
+> doesn't change.
+> 
+> Quote from the commit message. "We used to hash the file_context and
+> skip the restorecon on the top level directory if the hash doesn't
+> change. But the file_context might change after an OTA update; and
+> some users experienced long restorecon time as they have lots of files
+> under directories like /data/media. This CL tries to hash all the
+> partial match entries in the file_context for each directory; and
+> skips the restorecon if that digest stays the same, regardless of the
+> changes to the other parts of file_context."
+> CL in: https://android-review.googlesource.com/c/platform/external/selinux/+/918713
+> 
+> I haven't done the work in upstream code to fully implement this
+> change. But this CL merges and compiles. It factors out a lookup
+> helper function and returns an array of matched pointers instead of a
+> single one. The old loopup_common function is then modified to take
+> the first element in the array. I wonder if it's possible to merge in
+> this change to the lookup functions first? It will make the upstream &
+> android repo more consistent and also save some work for future
+> merges.
 
-Thanks for the fix.  I just merged this into selinux/stable-5.1 and
-I'll send this up to Linus tomorrow.
+Just like Linux kernel submitting patches [1][2], we want patches to be 
+inline in the message for easier review and inline commenting.  Best way 
+to do it is to use git send-email after first using git commit --amend 
+to work some of the rationale above into the commit message.  See also:
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index f0e36c3492ba..5e9304567233 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -959,8 +959,11 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
->         BUG_ON(!(oldsbsec->flags & SE_SBINITIALIZED));
->
->         /* if fs is reusing a sb, make sure that the contexts match */
-> -       if (newsbsec->flags & SE_SBINITIALIZED)
-> +       if (newsbsec->flags & SE_SBINITIALIZED) {
-> +               if ((kern_flags & SECURITY_LSM_NATIVE_LABELS) && !set_context)
-> +                       *set_kern_flags |= SECURITY_LSM_NATIVE_LABELS;
->                 return selinux_cmp_sb_context(oldsb, newsb);
-> +       }
->
->         mutex_lock(&newsbsec->lock);
->
-> --
-> 2.20.1
+[1] 
+https://www.kernel.org/doc/html/latest/process/submitting-patches.html#submittingpatches
 
--- 
-paul moore
-www.paul-moore.com
+[2] https://www.ozlabs.org/~akpm/stuff/tpp.txt
