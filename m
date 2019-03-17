@@ -2,117 +2,95 @@ Return-Path: <SRS0=VGN0=RU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7261AC4360F
-	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 13:47:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C625BC43381
+	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 19:11:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 43BAD21019
-	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 13:47:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D09320896
+	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 19:11:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726556AbfCQNr1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 17 Mar 2019 09:47:27 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:40913 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726735AbfCQNr0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 17 Mar 2019 09:47:26 -0400
-Received: by mail-wm1-f66.google.com with SMTP id u10so7596741wmj.5
-        for <selinux@vger.kernel.org>; Sun, 17 Mar 2019 06:47:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=R8wLuZVbRgRDLrB9NjHoNttBS7CXMpzCE02UZmbtXvk=;
-        b=es2vfu5X9cp5prF/yqUu06dJXYr6gaJSpbdaQplJh8sP3OPL7n64x+k6V9KB3CFIIp
-         M5WmfIeeFPwa6zjOVhMZtkOtX9n2Yc1dgAj1H/BnzuTMwaL3fhGVR9KNKxpLkvmVuuYb
-         gN8uUO4xnYfZ17JPVD7hIqEFbsv06zSXPloZqw5IRPVtVnhmTZW5C1+6Xq8/tNlb+rps
-         9h6c16rlkCmgbNmUYXthK07xZdv3sXCxnFq9qk6dKmWcJA2Jwr+x5q2BNDKP+zPPj88X
-         AcQP25I4SQ4lVtHZj0UT7J7LQDOBrp7Dg+6ffClmI1sLSVEQ26j/WxaIl3l5O4pMjhia
-         qA+Q==
-X-Gm-Message-State: APjAAAUIMjeHtqboCXvwNabnGID8CHlIV7b68/dRhTQWZ2fuLxk6Fkgb
-        w4dg9zhfSvqwtuJt/G7ZZD9ed1Dwx50=
-X-Google-Smtp-Source: APXvYqxoCNUDvVFN9R+9ALdK8WLtRdxFUnWVWWqVLIviDgZjzV8ZtxPVr0BFns5rc615fbK0eby+LA==
-X-Received: by 2002:a1c:f014:: with SMTP id a20mr7824469wmb.122.1552830444185;
-        Sun, 17 Mar 2019 06:47:24 -0700 (PDT)
-Received: from localhost.localdomain (bband-dyn196.178-41-14.t-com.sk. [178.41.14.196])
-        by smtp.gmail.com with ESMTPSA id 132sm13224790wmd.30.2019.03.17.06.47.11
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 17 Mar 2019 06:47:23 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        syzbot+a57b2aff60832666fc28@syzkaller.appspotmail.com
-Subject: [PATCH] selinux: fix NULL dereference in policydb_destroy()
-Date:   Sun, 17 Mar 2019 14:46:53 +0100
-Message-Id: <20190317134653.26824-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.20.1
+        id S1726728AbfCQTLy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 17 Mar 2019 15:11:54 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:47611 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726702AbfCQTLx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 17 Mar 2019 15:11:53 -0400
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 9523A5605F8
+        for <selinux@vger.kernel.org>; Sun, 17 Mar 2019 20:11:49 +0100 (CET)
+Received: by mail-ot1-f42.google.com with SMTP id g1so12577546otj.11
+        for <selinux@vger.kernel.org>; Sun, 17 Mar 2019 12:11:49 -0700 (PDT)
+X-Gm-Message-State: APjAAAUCdKIHQ4znA2MejaSMdG+xfjoN21fH19PjNyx2izRgOQXH3gio
+        K77yOemcyQnjSY6/0a6pvVPPgj89+BjZGd18bwE=
+X-Google-Smtp-Source: APXvYqxh9+QYlfq14eOEfn4QolqkB8pgvWJlGhM0Io06ftYwgStqSDeheiu1Yp7Iu3qxyXu94av/PQm9k9eiWkvtClk=
+X-Received: by 2002:a9d:62c8:: with SMTP id z8mr4482448otk.144.1552849908556;
+ Sun, 17 Mar 2019 12:11:48 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <pjdimx5l481.fsf@redhat.com> <20190305163856.395-1-plautrba@redhat.com>
+In-Reply-To: <20190305163856.395-1-plautrba@redhat.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sun, 17 Mar 2019 20:11:37 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mqTZy7-kZq2OvEDDCAqrpdMDU97y+=wK656fVzj6dwQA@mail.gmail.com>
+Message-ID: <CAJfZ7=mqTZy7-kZq2OvEDDCAqrpdMDU97y+=wK656fVzj6dwQA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] gui: Install polgengui.py to /usr/bin/selinux-polgengui
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar 17 20:11:50 2019 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The conversion to kvmalloc() forgot to account for the possibility that
-p->type_attr_map_array might be null in policydb_destroy().
+On Tue, Mar 5, 2019 at 5:39 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> polgengui.py is a standalone gui tool which should be in /usr/bin with other
+> tools.
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-Fix this by destroying its contents only if it is not NULL.
+Thanks, I applied this patch.
 
-Also make sure ebitmap_init() is called on all entries before
-policydb_destroy() can be called. Right now this is a no-op, because
-both kvcalloc() and ebitmap_init() just zero out the whole struct, but
-let's rather not rely on a specific implementation.
+Nicolas
 
-Reported-by: syzbot+a57b2aff60832666fc28@syzkaller.appspotmail.com
-Fixes: acdf52d97f82 ("selinux: convert to kvmalloc")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/ss/policydb.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-NOTE: This applies directly on top of current Linus' tree, since the
-problematic commit is not present in the selinux/stable-5.1 branch.
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 6b576e588725..daecdfb15a9c 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -828,9 +828,11 @@ void policydb_destroy(struct policydb *p)
- 	hashtab_map(p->range_tr, range_tr_destroy, NULL);
- 	hashtab_destroy(p->range_tr);
- 
--	for (i = 0; i < p->p_types.nprim; i++)
--		ebitmap_destroy(&p->type_attr_map_array[i]);
--	kvfree(p->type_attr_map_array);
-+	if (p->type_attr_map_array) {
-+		for (i = 0; i < p->p_types.nprim; i++)
-+			ebitmap_destroy(&p->type_attr_map_array[i]);
-+		kvfree(p->type_attr_map_array);
-+	}
- 
- 	ebitmap_destroy(&p->filename_trans_ttypes);
- 	ebitmap_destroy(&p->policycaps);
-@@ -2496,10 +2498,13 @@ int policydb_read(struct policydb *p, void *fp)
- 	if (!p->type_attr_map_array)
- 		goto bad;
- 
-+	/* just in case ebitmap_init() becomes more than just a memset(0): */
-+	for (i = 0; i < p->p_types.nprim; i++)
-+		ebitmap_init(&p->type_attr_map_array[i]);
-+
- 	for (i = 0; i < p->p_types.nprim; i++) {
- 		struct ebitmap *e = &p->type_attr_map_array[i];
- 
--		ebitmap_init(e);
- 		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
- 			rc = ebitmap_read(e, fp);
- 			if (rc)
--- 
-2.20.1
+> ---
+>  gui/Makefile       | 2 +-
+>  gui/modulesPage.py | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/gui/Makefile b/gui/Makefile
+> index c2f982de..b2375fbf 100644
+> --- a/gui/Makefile
+> +++ b/gui/Makefile
+> @@ -31,7 +31,7 @@ install: all
+>         -mkdir -p $(DESTDIR)$(DATADIR)/polkit-1/actions/
+>         install -m 755 system-config-selinux.py $(DESTDIR)$(SHAREDIR)
+>         install -m 755 system-config-selinux $(DESTDIR)$(BINDIR)
+> -       install -m 755 polgengui.py $(DESTDIR)$(SHAREDIR)
+> +       install -m 755 polgengui.py $(DESTDIR)$(BINDIR)/selinux-polgengui
+>         install -m 644 $(TARGETS) $(DESTDIR)$(SHAREDIR)
+>         install -m 644 system-config-selinux.8 $(DESTDIR)$(MANDIR)/man8
+>         install -m 644 selinux-polgengui.8 $(DESTDIR)$(MANDIR)/man8
+> diff --git a/gui/modulesPage.py b/gui/modulesPage.py
+> index 34c5d9e3..cb856b2d 100644
+> --- a/gui/modulesPage.py
+> +++ b/gui/modulesPage.py
+> @@ -118,7 +118,7 @@ class modulesPage(semanagePage):
+>
+>      def new_module(self, args):
+>          try:
+> -            Popen(["/usr/share/system-config-selinux/polgengui.py"])
+> +            Popen(["selinux-polgengui"])
+>          except ValueError as e:
+>              self.error(e.args[0])
+>
+> --
+> 2.20.1
+>
 
