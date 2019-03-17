@@ -2,101 +2,117 @@ Return-Path: <SRS0=VGN0=RU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EF52C43381
-	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 13:35:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7261AC4360F
+	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 13:47:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EDCDA20896
-	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 13:35:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43BAD21019
+	for <selinux@archiver.kernel.org>; Sun, 17 Mar 2019 13:47:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbfCQNfY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 17 Mar 2019 09:35:24 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:47319 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726735AbfCQNfY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 17 Mar 2019 09:35:24 -0400
-Received: from mail-oi1-f169.google.com (mail-oi1-f169.google.com [209.85.167.169])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id AD4C15646CA
-        for <selinux@vger.kernel.org>; Sun, 17 Mar 2019 14:35:20 +0100 (CET)
-Received: by mail-oi1-f169.google.com with SMTP id a15so10945539oid.5
-        for <selinux@vger.kernel.org>; Sun, 17 Mar 2019 06:35:20 -0700 (PDT)
-X-Gm-Message-State: APjAAAXHd6wfeDSWZRMOFOPgNSMTMxbhFr6mMHlT0+lFfdnz3HSlBGX7
-        THhAFkWlviUR+m4HMxZJymBT4aCvAlJgCa3cngE=
-X-Google-Smtp-Source: APXvYqwUjvKyRbLFAIer1l35tfXzt2BGdMaG4+8vcwJtSpbfkDs18Me8nBE8u0VSP4qK+m4yWFUHZFcEb8oilLaOE68=
-X-Received: by 2002:aca:cf07:: with SMTP id f7mr7211931oig.39.1552829719676;
- Sun, 17 Mar 2019 06:35:19 -0700 (PDT)
+        id S1726556AbfCQNr1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 17 Mar 2019 09:47:27 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:40913 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726735AbfCQNr0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 17 Mar 2019 09:47:26 -0400
+Received: by mail-wm1-f66.google.com with SMTP id u10so7596741wmj.5
+        for <selinux@vger.kernel.org>; Sun, 17 Mar 2019 06:47:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=R8wLuZVbRgRDLrB9NjHoNttBS7CXMpzCE02UZmbtXvk=;
+        b=es2vfu5X9cp5prF/yqUu06dJXYr6gaJSpbdaQplJh8sP3OPL7n64x+k6V9KB3CFIIp
+         M5WmfIeeFPwa6zjOVhMZtkOtX9n2Yc1dgAj1H/BnzuTMwaL3fhGVR9KNKxpLkvmVuuYb
+         gN8uUO4xnYfZ17JPVD7hIqEFbsv06zSXPloZqw5IRPVtVnhmTZW5C1+6Xq8/tNlb+rps
+         9h6c16rlkCmgbNmUYXthK07xZdv3sXCxnFq9qk6dKmWcJA2Jwr+x5q2BNDKP+zPPj88X
+         AcQP25I4SQ4lVtHZj0UT7J7LQDOBrp7Dg+6ffClmI1sLSVEQ26j/WxaIl3l5O4pMjhia
+         qA+Q==
+X-Gm-Message-State: APjAAAUIMjeHtqboCXvwNabnGID8CHlIV7b68/dRhTQWZ2fuLxk6Fkgb
+        w4dg9zhfSvqwtuJt/G7ZZD9ed1Dwx50=
+X-Google-Smtp-Source: APXvYqxoCNUDvVFN9R+9ALdK8WLtRdxFUnWVWWqVLIviDgZjzV8ZtxPVr0BFns5rc615fbK0eby+LA==
+X-Received: by 2002:a1c:f014:: with SMTP id a20mr7824469wmb.122.1552830444185;
+        Sun, 17 Mar 2019 06:47:24 -0700 (PDT)
+Received: from localhost.localdomain (bband-dyn196.178-41-14.t-com.sk. [178.41.14.196])
+        by smtp.gmail.com with ESMTPSA id 132sm13224790wmd.30.2019.03.17.06.47.11
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Sun, 17 Mar 2019 06:47:23 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        syzbot+a57b2aff60832666fc28@syzkaller.appspotmail.com
+Subject: [PATCH] selinux: fix NULL dereference in policydb_destroy()
+Date:   Sun, 17 Mar 2019 14:46:53 +0100
+Message-Id: <20190317134653.26824-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-References: <pjdimx5l481.fsf@redhat.com> <20190305163856.395-1-plautrba@redhat.com>
- <20190305163856.395-2-plautrba@redhat.com>
-In-Reply-To: <20190305163856.395-2-plautrba@redhat.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 17 Mar 2019 14:35:08 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==GdCtQGKNw_+Uvrhbx0=dqYfwKYMj0o-fLhUOWD+n--w@mail.gmail.com>
-Message-ID: <CAJfZ7==GdCtQGKNw_+Uvrhbx0=dqYfwKYMj0o-fLhUOWD+n--w@mail.gmail.com>
-Subject: Re: [PATCH 2/2] gui: Install .desktop files to /usr/share/applications
- by default
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar 17 14:35:21 2019 +0100 (CET))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 5, 2019 at 5:39 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> /usr/share/applications is a standard directory for .desktop files.
-> Installation path can be changed using DESKTOPDIR variable in installation
-> phase, e.g.
->
-> make DESKTOPDIR=/usr/local/share/applications install
->
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+The conversion to kvmalloc() forgot to account for the possibility that
+p->type_attr_map_array might be null in policydb_destroy().
 
-Thanks for your patch and sorry for the delay (I have been on holidays
-the last two weeks). I agree with moving .desktop files to
-/usr/share/applications/ by default and your patch looks good, but it
-does not create the directory if it does not exist (Travis-CI fails
-with "install: target
-'/home/travis/build/fishilico/selinux/installdir/usr/share/applications'
-is not a directory"). Could you please add "-mkdir -p
-$(DESTDIR)$(DESKTOPDIR)" next to the other mkdir commands?
+Fix this by destroying its contents only if it is not NULL.
 
-Nicolas
+Also make sure ebitmap_init() is called on all entries before
+policydb_destroy() can be called. Right now this is a no-op, because
+both kvcalloc() and ebitmap_init() just zero out the whole struct, but
+let's rather not rely on a specific implementation.
 
-> ---
->  gui/Makefile | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/gui/Makefile b/gui/Makefile
-> index b2375fbf..5e64c3a1 100644
-> --- a/gui/Makefile
-> +++ b/gui/Makefile
-> @@ -5,6 +5,7 @@ BINDIR ?= $(PREFIX)/bin
->  SHAREDIR ?= $(PREFIX)/share/system-config-selinux
->  DATADIR ?= $(PREFIX)/share
->  MANDIR ?= $(PREFIX)/share/man
-> +DESKTOPDIR ?= $(PREFIX)/share/applications
->
->  TARGETS= \
->  booleansPage.py \
-> @@ -44,7 +45,7 @@ install: all
->         install -m 644 system-config-selinux.png $(DESTDIR)$(DATADIR)/pixmaps
->         install -m 644 system-config-selinux.png $(DESTDIR)$(DATADIR)/icons/hicolor/24x24/apps
->         install -m 644 system-config-selinux.png $(DESTDIR)$(DATADIR)/system-config-selinux
-> -       install -m 644 *.desktop $(DESTDIR)$(DATADIR)/system-config-selinux
-> +       install -m 644 *.desktop $(DESTDIR)$(DESKTOPDIR)
->         -mkdir -p $(DESTDIR)$(DATADIR)/pixmaps
->         install -m 644 sepolicy_256.png $(DESTDIR)$(DATADIR)/pixmaps/sepolicy.png
->         for i in 16 22 32 48 256; do \
-> --
-> 2.20.1
->
+Reported-by: syzbot+a57b2aff60832666fc28@syzkaller.appspotmail.com
+Fixes: acdf52d97f82 ("selinux: convert to kvmalloc")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/ss/policydb.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+NOTE: This applies directly on top of current Linus' tree, since the
+problematic commit is not present in the selinux/stable-5.1 branch.
+
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 6b576e588725..daecdfb15a9c 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -828,9 +828,11 @@ void policydb_destroy(struct policydb *p)
+ 	hashtab_map(p->range_tr, range_tr_destroy, NULL);
+ 	hashtab_destroy(p->range_tr);
+ 
+-	for (i = 0; i < p->p_types.nprim; i++)
+-		ebitmap_destroy(&p->type_attr_map_array[i]);
+-	kvfree(p->type_attr_map_array);
++	if (p->type_attr_map_array) {
++		for (i = 0; i < p->p_types.nprim; i++)
++			ebitmap_destroy(&p->type_attr_map_array[i]);
++		kvfree(p->type_attr_map_array);
++	}
+ 
+ 	ebitmap_destroy(&p->filename_trans_ttypes);
+ 	ebitmap_destroy(&p->policycaps);
+@@ -2496,10 +2498,13 @@ int policydb_read(struct policydb *p, void *fp)
+ 	if (!p->type_attr_map_array)
+ 		goto bad;
+ 
++	/* just in case ebitmap_init() becomes more than just a memset(0): */
++	for (i = 0; i < p->p_types.nprim; i++)
++		ebitmap_init(&p->type_attr_map_array[i]);
++
+ 	for (i = 0; i < p->p_types.nprim; i++) {
+ 		struct ebitmap *e = &p->type_attr_map_array[i];
+ 
+-		ebitmap_init(e);
+ 		if (p->policyvers >= POLICYDB_VERSION_AVTAB) {
+ 			rc = ebitmap_read(e, fp);
+ 			if (rc)
+-- 
+2.20.1
 
