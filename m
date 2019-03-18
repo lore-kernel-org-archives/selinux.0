@@ -2,126 +2,154 @@ Return-Path: <SRS0=cHrg=RV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D2B0C43381
-	for <selinux@archiver.kernel.org>; Mon, 18 Mar 2019 22:42:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1B96C43381
+	for <selinux@archiver.kernel.org>; Mon, 18 Mar 2019 22:51:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E61D32085A
-	for <selinux@archiver.kernel.org>; Mon, 18 Mar 2019 22:42:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 71D872085A
+	for <selinux@archiver.kernel.org>; Mon, 18 Mar 2019 22:51:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="R7+AE6aS"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mhCP1pFP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726891AbfCRWmd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Mar 2019 18:42:33 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:39957 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726835AbfCRWmd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Mar 2019 18:42:33 -0400
-Received: by mail-lf1-f68.google.com with SMTP id u68so12932385lff.7
-        for <selinux@vger.kernel.org>; Mon, 18 Mar 2019 15:42:31 -0700 (PDT)
+        id S1727008AbfCRWvF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Mar 2019 18:51:05 -0400
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:39795 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726933AbfCRWvE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Mar 2019 18:51:04 -0400
+Received: by mail-qk1-f194.google.com with SMTP id c189so10735237qke.6
+        for <selinux@vger.kernel.org>; Mon, 18 Mar 2019 15:51:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=XS/0dB1sN6ROCSW5fKxVSxCunCAPVkkW/sbiPeDoi5M=;
-        b=R7+AE6aSA8h/12G661abqRG/u6U/OhjK5XZZ+8hkMpJ4y34uWbXRbgR8S4q6Up+pKk
-         vGqjwD9htIDLQKLnCYT/c5M1R7tcfSWoq9lmt3Kmo2RNXpKKxvKGKyOT5BB1h2eJk+fO
-         7gEwnZQtSx+/OBChebVGbd6pdqC3DfOkKdwiB/ifiEn97B54o923vDMIkHtSmuwWzdCD
-         Vg85Vi/ke5EahEx86vfDvYrpyxIOIL8NLfcGBXc+1Su+WmjU/yBQT1+y4xHoZMAb/zFi
-         AmyyS3OMu1lBtTxWwPuJmZQJOAZNm3p7cepXlIwhIdU0iNrCGg0fz6u0lOjd7jPmP581
-         wINg==
+        bh=foh6mnPMr/V+OPH2jMaSqj1ZdJB/SMoDCJwT+6IMWis=;
+        b=mhCP1pFPHmn/65f6DHgNBeUWYV/NV8MHFu76+aHheesFPmC4dwBl2u9Nyxmc04IAPd
+         2Grg5TSDI5U5FqT8wNirwpoQYP9iZ3ZFxy0Isn1/hvuYM5p0CZ5askmdqfEPX+6bfCCy
+         JKp3aEMzfMPCcuS5rsdilcAaFB+QFVo906ITmb8WeXpb7EYEargaiLOYwUypG4KfGTlx
+         hwR93Oty3M+pyhIbB6jUXHlKPrc8Mx8GLCY3KDsspvt77lMU4ZJd/q5/GmXUtTdYYlng
+         M0Isg54NCrgmPp82Qga38kiu3kN0H2vbm6MApLN1eMpyDUYtOQTvSkPKvCYMDyr60tSx
+         IQLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XS/0dB1sN6ROCSW5fKxVSxCunCAPVkkW/sbiPeDoi5M=;
-        b=jzuGMLf8dsNVEbQb2Tn2rzUqeeXuDgaA/v2jfBk3AvoxO7si9qhY1PGGcl6vwh4Gyv
-         ZPzEyaebqItttI/iDQXBCtc248n/WM0NxxKkEIPZrnVEnZ/ppQtgh20JWBssY9lelU5V
-         XwCGSX8zXJPQNE9Ajbr2L5xfEpmZOX7Wxmwd2HOGChgNsCSpMVkAAh+B997oPmDWFelX
-         P1CAz8qP/8gZ7tMw8LKkRuuV82AY2zsntDnapFCBQ4lfBuVfqOTzQnb+gW0Y+kgQhc+B
-         wqRftz/3YTX8kGcwjKWNdq1qwHESuaVSdfQ4S4xwI5F36RfmN4ECu+Ir8MashYogbKxW
-         eqIw==
-X-Gm-Message-State: APjAAAUIgPv8jmIBazU4UnMVq9IECZkbQ9xfTTyuHst3LRuxbT6NMgU2
-        rleO41IIm1D7ol/Ujf1uI5EtDYxWw+WT9Ul2hehnooM=
-X-Google-Smtp-Source: APXvYqx8rfq+XFFSfbDV4bglsSN0E262nX2hiWn0tXi5JSnDP5E8IF9udGVNViJFXzre45w4VG/lwJ6MuhdlizTpmEo=
-X-Received: by 2002:ac2:42da:: with SMTP id n26mr10007777lfl.91.1552948950900;
- Mon, 18 Mar 2019 15:42:30 -0700 (PDT)
+        bh=foh6mnPMr/V+OPH2jMaSqj1ZdJB/SMoDCJwT+6IMWis=;
+        b=g+gMHogY6+SMuanwtL3RvjJ5RRrMilfWT2IkmN9Ln50yCji0OsTC4ylAV4Vbu68COz
+         T3Ra6d46RSkcl1OoT0jpFw2cXvxZx7FQdrRn8ERye7bvIb/uTH6mGUJsLgkIHGK0PtjY
+         jy4bymsmd1eZDSxFL5AReAsJMms6lPbg9KVTtcIxMFUv60I9O/Ax/h/7lg5Kl/NHSq/i
+         DlxoU31kWECOumn+21Q0AnZOS91eaOOHpdRlHCsNu5LnUZhnUGn2LW6A7Gw1p2RjKnDu
+         A6GGZvCKPNa7H7AyRlHmovuHyMlPaswDLiwGC54SGeorUfOLJNi7pW4dZvDhy1arvBXd
+         YfUQ==
+X-Gm-Message-State: APjAAAXB2DdCaIJodG2pjUhtQX1VSp+o/897+tMuq61iQo2+nCSFXifZ
+        tbTbB/uyCwaiHnqRBBT7hfllyW1F9o88bneuvlQ8YA==
+X-Google-Smtp-Source: APXvYqw7sU3FWD1cQm6AvK2C5y8rubbTQnsXGpUDZ6BebGTaSTeFnpAFje66JwUS83URX882phBlsAR670B4XddrA+g=
+X-Received: by 2002:a37:5dc7:: with SMTP id r190mr14815462qkb.170.1552949463016;
+ Mon, 18 Mar 2019 15:51:03 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190221213147.1590-1-sds@tycho.nsa.gov> <20190222085518.GA28321@brutus.lan>
- <2ad07cfb-33a6-d9cc-f442-560905b4d646@tycho.nsa.gov> <87o9746ix7.fsf@gmail.com>
- <bd077bbb-0499-4c7f-3f12-c1cf626ccb16@tycho.nsa.gov>
-In-Reply-To: <bd077bbb-0499-4c7f-3f12-c1cf626ccb16@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 18 Mar 2019 18:42:19 -0400
-Message-ID: <CAHC9VhRixFCQJqQF+KUYHdfF7-bmZXvZfHeezyzxxYVs=PG9Ow@mail.gmail.com>
-Subject: Re: [PATCH v6] scripts/selinux: modernize mdp
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Dominick Grift <dac.override@gmail.com>
-Cc:     Dominick Grift <dominick.grift@defensec.nl>,
-        selinux@vger.kernel.org
+References: <CAHC9VhS1vRJuxxdzVsvkBVVVzt-3g9Q3qHSeeVPB9=JH+nNXbg@mail.gmail.com>
+In-Reply-To: <CAHC9VhS1vRJuxxdzVsvkBVVVzt-3g9Q3qHSeeVPB9=JH+nNXbg@mail.gmail.com>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Mon, 18 Mar 2019 15:50:51 -0700
+Message-ID: <CAHRSSEwoR2-=pTRw1crXTXt-uOHe52UPof3hLcbZoVPDV5N4yw@mail.gmail.com>
+Subject: Re: v5.1-rc1 binder_alloc_do_buffer_copy() BUG_ON triggered by selinux-testsuite
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Todd Kjos <tkjos@android.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        selinux@vger.kernel.org,
+        "open list:ANDROID DRIVERS" <devel@driverdev.osuosl.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 22, 2019 at 9:51 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 2/22/19 8:40 AM, Dominick Grift wrote:
-> > Stephen Smalley <sds@tycho.nsa.gov> writes:
-> >
-> >> On 2/22/19 3:55 AM, Dominick Grift wrote:
-> >>> On Thu, Feb 21, 2019 at 04:31:47PM -0500, Stephen Smalley wrote:
-> >>>> Derived in part from a patch by Dominick Grift.
-> >>>>
-> >>>> The MDP example no longer works on modern systems.  Fix it.
-> >>>> While we are at it, add MLS support and enable it.
-> >>>>
-> >>>> NB This still does not work on systems using dbus-daemon instead of
-> >>>> dbus-broker because dbus-daemon does not yet gracefully handle unknown
-> >>>> classes/permissions.  This appears to be a deficiency in libselinux's
-> >>>> selinux_set_mapping() interface and underlying implementation,
-> >>>> which was never fully updated to deal with unknown classes/permissions
-> >>>> unlike the kernel.  The same problem also occurs with XSELinux.
-> >>>> Programs that instead use selinux_check_access() like dbus-broker
-> >>>> should not have this problem.
-> >>>>
-> >>>> Changes to mdp:
-> >>>> Add support for devtmpfs, required by modern Linux distributions.
-> >>>> Add MLS support, with sample sensitivities, categories, and constraints.
-> >>>> Generate fs_use and genfscon rules based on kernel configuration.
-> >>>> Update list of filesystem types for fs_use and genfscon rules.
-> >>>> Use object_r for object contexts.
-> >>>>
-> >>>> Changes to install_policy.sh:
-> >>>> Bail immediately on any errors.
-> >>>> Provide more helpful error messages when unable to find userspace tools.
-> >>>> Refuse to run if SELinux is already enabled.
-> >>>> Unconditionally move aside /etc/selinux/config and create a new one.
-> >>>> Build policy with -U allow so that userspace object managers do not break.
-> >>>> Build policy with MLS enabled by default.
-> >>>> Create seusers, failsafe_context, and default_contexts for use by
-> >>>> pam_selinux / libselinux.
-> >>>> Create x_contexts for the SELinux X extension.
-> >>>> Create virtual_domain_context and virtual_image_context for libvirtd.
-> >>>> Set to permissive mode rather than enforcing to permit initial autorelabel.
-> >>>> Update the list of filesystem types to be relabeled.
-> >>>> Write -F to /.autorelabel to cause a forced autorelabel on reboot.
-> >>>> Drop broken attempt to relabel the /dev mountpoint directory.
-> >>>>
-> >>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> >>>> ---
+On Mon, Mar 18, 2019 at 2:31 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> Hello all.
+>
+> When running the selinux-testsuite (link below) against v5.1-rc1 I hit
+> the BUG_ON() at the top of binder_alloc_do_buffer_copy() (trace
+> below).  I'm hoping this is a known issue with a fix already in the
+> works?
 
-...
 
-> Ok, in that case I'm going to consider the v6 patch the final one unless
-> Paul has comments.
+Sadly, this is the first report of this, so no fix in flight. I'll try
+to get a fix up in the next few days.
 
-No major comments from me, both you and Dominick really ran with this
-and I appreciate the effort.  Merged into selinux/next, thanks guys.
+-Todd
 
--- 
-paul moore
-www.paul-moore.com
+>
+>
+> * https://github.com/SELinuxProject/selinux-testsuite
+>
+> [  823.232432] ------------[ cut here ]------------
+> [  823.234746] kernel BUG at drivers/android/binder_alloc.c:1141!
+> [  823.237447] invalid opcode: 0000 [#1] SMP PTI
+> [  823.239421] CPU: 1 PID: 3644 Comm: test_binder Not tainted
+> 5.1.0-0.rc1.git0.1.2.secnext.fc31.x86_64 #1
+> [  823.243538] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+> [  823.246079] RIP: 0010:binder_alloc_do_buffer_copy+0x34/0x210
+> [  823.248613] Code: 0a 41 55 49 89 fb 41 54 41 89 f4 48 8d 77 38 48
+> 8b 42 58 55 53 48 39 f1 0f 84 17 01 00 00 48 8b 49 58 48 29 c1 49 39
+> c9 76 02 <0f> 0b 4c 29 c9 49 39 ca 77 f6 41 f6 c2 03 75 f0 0f b6 4a 28
+> f6 c1
+> [  823.256404] RSP: 0018:ffffb04e41093b68 EFLAGS: 00010202
+> [  823.258513] RAX: 00007fb600c52000 RBX: a0d48e24a0213e28 RCX: 0000000000000020
+> [  823.261375] RDX: ffff9c09b058a9c0 RSI: ffff9c09189165b0 RDI: ffff9c0918916578
+> [  823.264225] RBP: ffff9c09b058a9c0 R08: ffffb04e41093c80 R09: 0000000000000028
+> [  823.267044] R10: a0d48e24a0213e28 R11: ffff9c0918916578 R12: 0000000000000000
+> [  823.269758] R13: ffff9c09b67c9660 R14: ffff9c09b116fb40 R15: ffffffff8acd4d08
+> [  823.272482] FS:  00007fbeb3438800(0000) GS:ffff9c09b7a80000(0000)
+> knlGS:0000000000000000
+> [  823.275595] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [  823.277676] CR2: 000055b102d31cc9 CR3: 0000000234648000 CR4: 00000000001406e0
+> [  823.280347] Call Trace:
+> [  823.281287]  binder_get_object+0x60/0xf0
+> [  823.282728]  binder_transaction+0xc2e/0x2370
+> [  823.284268]  ? __check_object_size+0x41/0x15d
+> [  823.285849]  ? binder_thread_read+0x9e2/0x1460
+> [  823.287342]  ? binder_update_ref_for_handle+0x83/0x1a0
+> [  823.289066]  binder_thread_write+0x2ae/0xfc0
+> [  823.290513]  ? finish_wait+0x80/0x80
+> [  823.291729]  binder_ioctl+0x659/0x836
+> [  823.292980]  do_vfs_ioctl+0x40a/0x670
+> [  823.294234]  ksys_ioctl+0x5e/0x90
+> [  823.295364]  __x64_sys_ioctl+0x16/0x20
+> [  823.296609]  do_syscall_64+0x5b/0x150
+> [  823.297796]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> [  823.299423] RIP: 0033:0x7fbeb35e782b
+> [  823.300580] Code: 0f 1e fa 48 8b 05 5d 96 0c 00 64 c7 00 26 00 00
+> 00 48 c7 c0 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00
+> 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 2d 96 0c 00 f7 d8 64 89
+> 01 48
+> [  823.306473] RSP: 002b:00007ffdfae2f198 EFLAGS: 00000287 ORIG_RAX:
+> 0000000000000010
+> [  823.308868] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fbeb35e782b
+> [  823.311029] RDX: 00007ffdfae2f1b0 RSI: 00000000c0306201 RDI: 0000000000000003
+> [  823.313206] RBP: 00007ffdfae30210 R08: 00000000010fa330 R09: 0000000000000000
+> [  823.315379] R10: 0000000000400644 R11: 0000000000000287 R12: 0000000000401190
+> [  823.317459] R13: 00007ffdfae304c0 R14: 0000000000000000 R15: 0000000000000000
+> [  823.319510] Modules linked in: crypto_user nfnetlink xt_multiport
+> bluetooth ecdh_generic rfkill sctp overlay ip6table_security
+> xt_CONNSECMARK xt_SECMARK xt_state xt_conntrack nf_conntrack
+> nf_defrag_ipv6 nf_defrag_ipv4 libcrc32c iptable_security ah6
+> xfrm6_mode_transport ah4 xfrm4_mode_transport ip6table_mangle
+> ip6table_filter ip6_tables iptable_mangle xt_mark xt_AUDIT ib_isert
+> iscsi_target_mod ib_srpt target_core_mod ib_srp scsi_transport_srp
+> rpcrdma rdma_ucm ib_iser ib_umad ib_ipoib rdma_cm iw_cm libiscsi
+> scsi_transport_iscsi ib_cm mlx5_ib ib_uverbs ib_core sunrpc
+> crct10dif_pclmul crc32_pclmul ghash_clmulni_intel joydev
+> virtio_balloon i2c_piix4 drm_kms_helper virtio_net net_failover
+> failover ttm drm mlx5_core crc32c_intel virtio_blk ata_generic
+> virtio_console mlxfw serio_raw pata_acpi qemu_fw_cfg [last unloaded:
+> arp_tables]
+> [  823.339786] ---[ end trace 6f761f654b297775 ]---
+>
+> --
+> paul moore
+> www.paul-moore.com
