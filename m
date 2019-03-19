@@ -3,82 +3,121 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55536C43381
-	for <selinux@archiver.kernel.org>; Tue, 19 Mar 2019 17:05:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FA03C43381
+	for <selinux@archiver.kernel.org>; Tue, 19 Mar 2019 19:33:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0F8562083D
-	for <selinux@archiver.kernel.org>; Tue, 19 Mar 2019 17:05:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D74720854
+	for <selinux@archiver.kernel.org>; Tue, 19 Mar 2019 19:33:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="YDzYjuuq"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="DvyNqMyr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727081AbfCSRFt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 Mar 2019 13:05:49 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:33821 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726579AbfCSRFt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 Mar 2019 13:05:49 -0400
-Received: by mail-lj1-f193.google.com with SMTP id j89so6619725ljb.1
-        for <selinux@vger.kernel.org>; Tue, 19 Mar 2019 10:05:48 -0700 (PDT)
+        id S1726753AbfCSTdV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 Mar 2019 15:33:21 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:43878 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726612AbfCSTdV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 Mar 2019 15:33:21 -0400
+Received: by mail-lf1-f66.google.com with SMTP id g7so24235lfh.10
+        for <selinux@vger.kernel.org>; Tue, 19 Mar 2019 12:33:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=kVAhgOH/b8OoKObejxKtxgtIQmUcAuTnKW+x5SJ8eiA=;
-        b=YDzYjuuqpI0zME31F3xL8sg+ZHxYaznlJoSQqhye+r2RYcR7wZQJpmHvJ+rzdvEHO8
-         DBWZ/DDobWX/S2CUbNdxRIG4MI4ATxBi2iOftjXcvE88dAUwRzeDJooYYTVHFFSHT7t5
-         B4zZBGELNwrnBakfTqCKwvgezNohPxElqxOLTU2PsasicNUtx/rkoXqzKymqBV4Vbr1M
-         MgSjWRfK3V122lJZhfgiWmQh0O1iabCqzGIii8DTnbvHqxu1bJR5hAU/hhdrsPu14dIG
-         zd6qolhQueBzw1vANHVK8ggjB2BH4FdoW8MsNl46y/2lnjS4YVZWyn0VKo0lCZ8DlvPf
-         VJNg==
+        bh=T3rfPEOEl2AeWC21b4kyxtolJV3yp9JcfpDZ2abDEDQ=;
+        b=DvyNqMyr/r8T/Dv6Br5llT3cqXJY/ZrU1Y7tGwTENLxrfbsI8DICYNRmC7lH8Ui0MR
+         s8w32iOwZsW0sReRYas+Z7n5scuCm1wU3m3F49hs0j7lveYYnBoq76bs7SRo6r2nujEu
+         kKeCvwKQ+xtIVTGZ54lQS1PIR2Xvqe+1SaI+/HxmAAI1ew9lMZZLQVdpeINsgxsvV9CE
+         O1QqwFVY+td6v9Sv+5PYPC0euiXtGhstIuPRqTJPgdDbWiBr8S7wjGm47LXovNTZn5wb
+         YcHz5s722AR0dXbZcIT9GJUst2bcZaSjpCrp6eJAz0U2EIipz1gXapHZVPB8vQgRNQeg
+         /C/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=kVAhgOH/b8OoKObejxKtxgtIQmUcAuTnKW+x5SJ8eiA=;
-        b=aHe/nsoHd32pW3+sykC8eo54+MlHTohmMXfxzj8I2s3d+nCbi24WQaI/jtNVlFxQFG
-         BBSP94Wv5M3BnLg3N8dczWg+sXgXYz4A8qUw0ggJlVCwobEFIoVf91hwYM3w99J32soc
-         rea6zR/KTVDIVyHDeKf/CIlPJDc909P+4Kcus+RhVktaa3u9+6G8eMoLbWanDTnn60QF
-         sNGQEj7a3uZ5cThwBJ6ZRU3kWexuHZ84FE6JfvXxCQ+bvIjFFMUBXWyL0qBfNJ/8ZIsz
-         ObLsAMJVFf9/d4ZVhGn9+O0YGBgYIAIJTbdFJZQJ3wXY94pIRh8jpvbBqyX4JeH4MY+k
-         Ow7Q==
-X-Gm-Message-State: APjAAAULrze3JXOwrhx514v7FuJLd5TXP/I7r99QKAoPn2Fa/POcDG0F
-        mw/V8/V9dISfbvyIAKKZrc06sDTt+deqIPFUZexipeE=
-X-Google-Smtp-Source: APXvYqxwYSyoBeaRI0dlN+A6HgPWRuhPHLy5Ixr0mPq19CcfXB2ez4SIC1jLDPr399oSvvnT0ltgLKyoUnHLltIFs+s=
-X-Received: by 2002:a2e:2419:: with SMTP id k25mr14312030ljk.38.1553015147411;
- Tue, 19 Mar 2019 10:05:47 -0700 (PDT)
+        bh=T3rfPEOEl2AeWC21b4kyxtolJV3yp9JcfpDZ2abDEDQ=;
+        b=HUdbBFzVJDcdyug166ilqwDLRDy+r+BuPi/394T7zg9ZmcQVJnR4EKy/wb6l9Tn9gN
+         DRCL+EurTI9q/xIrHhNXZRHWXKLj034N9uYsKqhg78KVjc80TqmSI4Dol4SiKWB7qC4d
+         9hPNj/+rzFo3Nb7MMESiG3YVSH6+15kVHAfIZvPPqEt0WSK/zYOrHjQ1Nyh4BzMk2FLV
+         rOahrmHtYJQp65CMsYHsjHEtdIsJ3/0X5KAZB4dRzdadl4+Si/I1OSbpEkD7awpjfvZt
+         f0rPM+WZu5cah8yF1IMB1dNcEiNPcOVzQSBafB75lJTCycKMm5BBoYw58+GZoNs1NbA9
+         2qMA==
+X-Gm-Message-State: APjAAAXFY/MVGS+kPZViyaCPPTSWnWOlgKokyr1FVhHATo/jyHG7G+6l
+        CVfF8tY1D2C+jKH4n8CUEFhI2TMWXQFQFdFFYPIk
+X-Google-Smtp-Source: APXvYqwL3irO/cGxK85ggzTvpqzJbTZ4AKYgOO8FdWmCqqi2DgAjL4qWEadLY1sNumLX1OMgRk2YVyy82sO9P2aHOxc=
+X-Received: by 2002:ac2:42da:: with SMTP id n26mr12487768lfl.91.1553023997439;
+ Tue, 19 Mar 2019 12:33:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190319132106.21127-1-sds@tycho.nsa.gov>
-In-Reply-To: <20190319132106.21127-1-sds@tycho.nsa.gov>
+References: <CAHC9VhS1vRJuxxdzVsvkBVVVzt-3g9Q3qHSeeVPB9=JH+nNXbg@mail.gmail.com>
+ <CAHRSSEwoR2-=pTRw1crXTXt-uOHe52UPof3hLcbZoVPDV5N4yw@mail.gmail.com>
+ <CAHC9VhSwoCEDd8BgQ6_D8TRuVXJFNTavkAjyjFEAneVxBAwJ2Q@mail.gmail.com> <CAHRSSEzWFQi4PO3qBLziAVcsqe3O_u4LK9hJHa0Pyq3UZLW=BQ@mail.gmail.com>
+In-Reply-To: <CAHRSSEzWFQi4PO3qBLziAVcsqe3O_u4LK9hJHa0Pyq3UZLW=BQ@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 19 Mar 2019 13:05:35 -0400
-Message-ID: <CAHC9VhT+0d1Us9iU3HyZPuQFPKd4h417yJbzVawkm8a8Kk0UEg@mail.gmail.com>
-Subject: Re: [PATCH] scripts/selinux: fix build
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org, sfr@canb.auug.org.au
+Date:   Tue, 19 Mar 2019 15:33:05 -0400
+Message-ID: <CAHC9VhRcrNBRxkLxd5-biRJRqhby5hEOWHkv8hrsU87QOjpXGA@mail.gmail.com>
+Subject: Re: v5.1-rc1 binder_alloc_do_buffer_copy() BUG_ON triggered by selinux-testsuite
+To:     Todd Kjos <tkjos@google.com>
+Cc:     Todd Kjos <tkjos@android.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        selinux@vger.kernel.org,
+        "open list:ANDROID DRIVERS" <devel@driverdev.osuosl.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 19, 2019 at 9:21 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> We need to add the object tree include directory to the include path
-> for building mdp in order to pick up generated/autoconf.h. Otherwise,
-> make O=/path/to/objtree breaks.
+On Tue, Mar 19, 2019 at 12:51 PM Todd Kjos <tkjos@google.com> wrote:
+> Paul,
 >
-> Fixes: e37c1877ba5b ("scripts/selinux: modernize mdp")
-> Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  scripts/selinux/mdp/Makefile | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> I think this patch will fix it... can you run the selinux-testsuite
+> with the patch to verify? (the conditional assumed that size_t can go
+> negative)
 
-I wouldn't have thought this would be necessary, but evidently it is,
-and thankfully we aren't the only ones doing this.  Merged to
-selinux/next, thanks Stephen.
+Building a test kernel now, I'll report back as soon as it is finished.
+
+Thanks.
+
+> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> index 9a7c431469b3..bb9a661ffecc 100644
+> --- a/drivers/android/binder.c
+> +++ b/drivers/android/binder.c
+> @@ -2240,7 +2240,8 @@ static size_t binder_get_object(struct binder_proc *proc,
+>         size_t object_size = 0;
+>
+>         read_size = min_t(size_t, sizeof(*object), buffer->data_size - offset);
+> -       if (read_size < sizeof(*hdr) || !IS_ALIGNED(offset, sizeof(u32)))
+> +       if (offset > buffer->data_size || read_size < sizeof(*hdr) ||
+> +                       !IS_ALIGNED(offset, sizeof(u32)))
+>                 return 0;
+>         binder_alloc_copy_from_buffer(&proc->alloc, object, buffer,
+>                                       offset, read_size);
+>
+> On Mon, Mar 18, 2019 at 4:02 PM Paul Moore <paul@paul-moore.com> wrote:
+> >
+> > On Mon, Mar 18, 2019 at 6:51 PM Todd Kjos <tkjos@google.com> wrote:
+> > > On Mon, Mar 18, 2019 at 2:31 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > Hello all.
+> > > >
+> > > > When running the selinux-testsuite (link below) against v5.1-rc1 I hit
+> > > > the BUG_ON() at the top of binder_alloc_do_buffer_copy() (trace
+> > > > below).  I'm hoping this is a known issue with a fix already in the
+> > > > works?
+> > >
+> > >
+> > > Sadly, this is the first report of this, so no fix in flight. I'll try
+> > > to get a fix up in the next few days.
+> >
+> > No problem, thanks for letting me know.  If you need some testing
+> > help, let me know.
+> >
+> > --
+> > paul moore
+> > www.paul-moore.com
+
+
 
 -- 
 paul moore
