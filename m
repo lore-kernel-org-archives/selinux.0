@@ -2,53 +2,53 @@ Return-Path: <SRS0=9nrh=RX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DC6FC43381
-	for <selinux@archiver.kernel.org>; Wed, 20 Mar 2019 20:06:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41384C43381
+	for <selinux@archiver.kernel.org>; Wed, 20 Mar 2019 22:25:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 294D521841
-	for <selinux@archiver.kernel.org>; Wed, 20 Mar 2019 20:06:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 045CB2184E
+	for <selinux@archiver.kernel.org>; Wed, 20 Mar 2019 22:25:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="E7KmbmgZ"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="hbMZiXce"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbfCTUGj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Mar 2019 16:06:39 -0400
-Received: from mail-qt1-f172.google.com ([209.85.160.172]:33397 "EHLO
-        mail-qt1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726239AbfCTUGj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Mar 2019 16:06:39 -0400
-Received: by mail-qt1-f172.google.com with SMTP id k14so4148137qtb.0
-        for <selinux@vger.kernel.org>; Wed, 20 Mar 2019 13:06:39 -0700 (PDT)
+        id S1727493AbfCTWZ3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Mar 2019 18:25:29 -0400
+Received: from mail-lj1-f177.google.com ([209.85.208.177]:41449 "EHLO
+        mail-lj1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727383AbfCTWZ3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Mar 2019 18:25:29 -0400
+Received: by mail-lj1-f177.google.com with SMTP id k8so3677281lja.8
+        for <selinux@vger.kernel.org>; Wed, 20 Mar 2019 15:25:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=IrIchpgziU4ph6HQdxTpvlay9bbG4HnIVEF0CiiSHn8=;
-        b=E7KmbmgZizcVXe/yten7tvdH8R+nk5Mx3CJeyOdMRHxCQThI3b+zHNX6l7H76n0+KY
-         SvfxOqt8XTCGqFRnfVbf5/8azL4syq5BcuxWYOl8LWsKl9PfaS64Ivc6YHdJbetsacFD
-         jG7oMHSMIkLZl5sNNoM5roZhzFxt4mv8w4Q8pCKBctc+7XFw+bHssqMxfljcCnePWeyq
-         2ICPW9kM+qi/NrJsYUfOCKVKWahfvg1FUtikTefCj6m8IlJQpbNbF4jRQHZLKFL0HafT
-         wZf1wK1U50ns+t0OsXUh8RMX8x2WwHgoez0DtFYXZYrsRbeJBkivB0hcvtujgzfAuK6c
-         7TIA==
+        bh=Y3D/gxCylL0D/pMWub4a16BHPTDgam0bl7ss2Yn5bu8=;
+        b=hbMZiXce0QWUM12YBQ+gyog3+KQbNPWCGedzjIdZ3zkAVBzC15sBQzKKHYXsqn5HyD
+         vaiBCipMgv7SVWUp4PWiP2zpdJ2emNpflE7JMuMQTuW3Y+spepmVhU+eLD5paMDkA2c5
+         kpbRcFxx04vEYd9iYOBEbH0189JNXhtX5MBY7hw0qoW6znDdbTMqfJwfIHGp8Cx2UTyA
+         9x8MoXJvRi54WHCVHLw68fQuY0r++J7VoZ3RsWu8OvDMbDfTISxi5ZKLSfhehgy39mOz
+         vZ2ztwWwRM53uYetos5xpOEvDv0j7DPYfCgWRGRutbQeoktkj4lClfmPrWei5keQPsOp
+         kwcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=IrIchpgziU4ph6HQdxTpvlay9bbG4HnIVEF0CiiSHn8=;
-        b=jy8f14M6Fd+z2z5t56XXPLLTs+AtWujx/y2ImC/pmEcb/iPeQoCZ0eVmePW5yxrCic
-         gz2neUGcC5BQIA424+cCP9oArzx0alcvDlubpgf/3ojt+Dq2dChzrzZh3ucnYk6Tgdd8
-         g8Cwu2d4MJKtaOz7iToPmW0XLwI8y6idLFbZaO9NnZWt7/ynCTa12A9GsIYNymGNMxOY
-         vsDBFWsZMIepyQn7Qp/JOM287/9ZbSy/qMIxByv18y2Eqo1R+mvcMdKRRh7dF1cEqHi3
-         vIRx1b/0R+6p1djKjtzANZqAJvhKccWQsovrdr1Pwo/vCrr3Bnc59Ovsjuw4L5AHgjsw
-         WWpg==
-X-Gm-Message-State: APjAAAVnvrh3MTriC6G07CkoRAoyjZyDbori/2gzO7Ug2gekQSCdBS7V
-        PUjASzIrYfzenCB0XIeC9L8ICTMiWdGRv9+AzQ2PhA==
-X-Google-Smtp-Source: APXvYqyOts7ebTZe8WhgOabgugqMVu9+yd7f33ZXVsLST77MN2XnOzYTVI+3qMQJuo80VvFRomtJqk4cdAQb7MQj/lg=
-X-Received: by 2002:a0c:c691:: with SMTP id d17mr8139347qvj.124.1553112398324;
- Wed, 20 Mar 2019 13:06:38 -0700 (PDT)
+        bh=Y3D/gxCylL0D/pMWub4a16BHPTDgam0bl7ss2Yn5bu8=;
+        b=Sw5CANShCQ2VlJ1wQbUnYPXuBnY2hCzqO8InvlmUvvJbtNMDQBrLWxDs6I9IUQwDhD
+         VsPHLHfxKhuB3/FkmWr93od5EcC1I+XlHH7uQO8JB/4XS/bdkCbMNZSihb6GQTmkZm4W
+         ylWPD5+h+iIOhGwY3JNN5CoFRuDGP7e+PHUJEd+DbjuHjjjr77QA4lo5Ycl9CWNbYinA
+         Qmlx/6NkP5yyXXTuK1U1emzpKfsAVdUPiHpELaMxHjy38J6uKuIYhswiNK4ihcKCNRNY
+         Y0aKuWg1wZVWrJGtADrz65brLXiteugzSTTLniezHg6Et3iNAq6cXO/V1bGg26FQVscL
+         O9cA==
+X-Gm-Message-State: APjAAAVym5ssXqEjP4l4bdMhcMzb5Z68fOHyqgV0ULpXAibMosITP5Hq
+        Ao4qr9JnRGRdg47dSOHL661quqN88SYaBs2eszLL7xA=
+X-Google-Smtp-Source: APXvYqy3xB5BW6NK9bJYhBX8r9qeW8A4tjZ45BrTRsIAcMgS6s50pce3K/pbbEQHhtUcNbeJf1RgzrXO7/ocGIjcLcA=
+X-Received: by 2002:a2e:42cf:: with SMTP id h76mr225748ljf.95.1553120727212;
+ Wed, 20 Mar 2019 15:25:27 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAHC9VhS1vRJuxxdzVsvkBVVVzt-3g9Q3qHSeeVPB9=JH+nNXbg@mail.gmail.com>
  <CAHRSSEwoR2-=pTRw1crXTXt-uOHe52UPof3hLcbZoVPDV5N4yw@mail.gmail.com>
@@ -60,14 +60,13 @@ References: <CAHC9VhS1vRJuxxdzVsvkBVVVzt-3g9Q3qHSeeVPB9=JH+nNXbg@mail.gmail.com>
  <CAHC9VhT_OWOU97C2NeDq8TWQzsu74V7maLWSXPhBFUKwrTvtCA@mail.gmail.com>
  <CAHRSSEwM+XXxzxabmiPBEt=t80Jes16yjJhHhsOtGy4meYu2mw@mail.gmail.com>
  <CAHRSSEyKaV5a6C5fBV8NDm02Cxu2DfVsA7YbbEE8CDkn68KtzA@mail.gmail.com>
- <CAHC9VhTDNspsA7ht=hkTbQZVmGKJWLoDEF-46kxFKvdMwA4hKw@mail.gmail.com>
- <CAHRSSEwm8F1tKbsG6Tyjbwidg0Nwk-oFHt8hYox9gB0TARNgcg@mail.gmail.com> <CAHRSSEz7GTS3NyHDf5r9qKM6NrCcnxh=U3tEyY+6JqS9=RH1QQ@mail.gmail.com>
-In-Reply-To: <CAHRSSEz7GTS3NyHDf5r9qKM6NrCcnxh=U3tEyY+6JqS9=RH1QQ@mail.gmail.com>
-From:   Todd Kjos <tkjos@google.com>
-Date:   Wed, 20 Mar 2019 13:06:27 -0700
-Message-ID: <CAHRSSEwP-g9nzgVds3ND-wmUwvpYmyPBsHpCb-aSLVZfuW25cw@mail.gmail.com>
+ <CAHC9VhTDNspsA7ht=hkTbQZVmGKJWLoDEF-46kxFKvdMwA4hKw@mail.gmail.com> <CAHRSSEwm8F1tKbsG6Tyjbwidg0Nwk-oFHt8hYox9gB0TARNgcg@mail.gmail.com>
+In-Reply-To: <CAHRSSEwm8F1tKbsG6Tyjbwidg0Nwk-oFHt8hYox9gB0TARNgcg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 20 Mar 2019 18:25:15 -0400
+Message-ID: <CAHC9VhToThRNL1rVLABgwfixXSeL-mss_nUZBNxZn0EuHLDRsQ@mail.gmail.com>
 Subject: Re: v5.1-rc1 binder_alloc_do_buffer_copy() BUG_ON triggered by selinux-testsuite
-To:     Paul Moore <paul@paul-moore.com>
+To:     Todd Kjos <tkjos@google.com>
 Cc:     Todd Kjos <tkjos@android.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         selinux@vger.kernel.org,
@@ -78,53 +77,17 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 20, 2019 at 12:50 PM Todd Kjos <tkjos@google.com> wrote:
->
-> Paul,
->
-> Looking at main() in test_binder.c...
->
-> int main(int argc, char **argv)
-> {
->
-> [...]
->
->   // Line 493
->   struct binder_write_read bwr;
->   struct flat_binder_object obj;
->   struct {
->     uint32_t cmd;
->     struct binder_transaction_data txn;
->   } __attribute__((packed)) writebuf;
->   unsigned int readbuf[32];
->
-> [...]
->   // Line 630
->   writebuf.txn.data.ptr.buffer = (uintptr_t)&obj;
->   writebuf.txn.data.ptr.offsets = (uintptr_t)&obj +   // [A]
->                                                  sizeof(struct
-> flat_binder_object);
->
->   bwr.write_buffer = (uintptr_t)&writebuf;
->   bwr.write_size = sizeof(writebuf);
->
-> It looks like bwr.txn.data.ptr.offsets points off the end of obj (see
-> [A] above), which means the binder driver will read compiler-dependent
-> stack data as the offset for the object. If it happens to be 0, then
-> the test will work (read the object from offset 0). If it's not 0,
-> then most likely offset > data_size (which is what found that BUG_ON
-> case). With my patch applied, this will just cause an error to be
-> returned (what you are seeing now).
->
-> Same thing when you test with v5.0 -- if the offset happens to be 0,
-> then the test will succeed. If not, then the test will fail because
-> the transaction fails in an unexpected way.
+On Wed, Mar 20, 2019 at 11:54 AM Todd Kjos <tkjos@google.com> wrote:
+> So, then it sounds like the test is not running properly ...
 
-Same issue at line 296 of test_binder.c when setting up the
-transaction in request_manager_fd().
+Yes, the test is almost surely broken to some extent, although the
+kernel hitting the BUG_ON() was clearly a bug too :)
 
->
-> -Todd
->
->
-[...]
+> Can I add a "Tested-by: Paul Moore <paul@paul-moore.com>" on my patch
+> submission to fix the BUG_ON (the exact patch you tested) ?
+
+Yep.  Thanks for your help on fixing that.
+
+-- 
+paul moore
+www.paul-moore.com
