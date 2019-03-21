@@ -4,98 +4,219 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF460C10F00
-	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 20:24:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 440CAC10F00
+	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 21:22:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B431A218D3
-	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 20:24:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1089721917
+	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 21:22:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="vGu32U4+"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="VBVOmuKC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728460AbfCUUYw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Mar 2019 16:24:52 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:43606 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728670AbfCUUYv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 21 Mar 2019 16:24:51 -0400
-Received: by mail-lj1-f196.google.com with SMTP id f18so119327lja.10
-        for <selinux@vger.kernel.org>; Thu, 21 Mar 2019 13:24:49 -0700 (PDT)
+        id S1726230AbfCUVWI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Mar 2019 17:22:08 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:45864 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727182AbfCUVWI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 Mar 2019 17:22:08 -0400
+Received: by mail-lf1-f67.google.com with SMTP id 5so5604442lft.12
+        for <selinux@vger.kernel.org>; Thu, 21 Mar 2019 14:22:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=TNzM3XWUz1naTP1okPm3zLKSwjAvV+ifsml+0S7xDQ0=;
-        b=vGu32U4+vrTRVKxy7SluS68N8lMfkS41qsx3JA/LG91ffOyN7yEh25bcBbk7srLOhk
-         IzM2A09SOIrjUS2JGW6Z/GHqwdlIpTSvIg5KrlEq7IcuCqlhL576movVLE9VSlsZYpXH
-         +4DyqTSx/5e/+VsOGWZRchXH2jgsf/nYcrt+cdilF73kvI0YQpR6tNRTfWrnXlmZFH66
-         9twaMfNUtUMzD864K6qG7Ci7TOFnPZZHa/f+MICqQlz9Aw2orrPn+EGd426bjDjYi6I5
-         XQVI1iH8P471yVg7sax3Q515DvEGZcOXYjXQk2m+nCJIneYpq1eFfPAhYaLYl/ThTPnO
-         oGtQ==
+        bh=VXTW7xiF7jfuHASO46bGPPt7slodyWdnPxodH/XzwiQ=;
+        b=VBVOmuKCAta9pG6sWt8Z7+Bbov0gtEQgRiR8tbB+d6PynFgYaH7/hq9JlDHq+E9Cln
+         w3UF2vGEEs49Nl8VL/MAc0M0XtGauBon+z3R6/qGOZrTjVbLAdtpwYbOr/p0XHQVsWCG
+         A/mZMPDeMp7ZQlrSfyJybWeidq7+iPMOivU5Ya/E1xfZbcXjedjatHC7PtbfOzaJ3oNm
+         lGzQ92PA+kqs+RPNy39dGc+Jq73ZgAe5/bKYL7bzU6Sv6AskhnEZJh0FgpNYazvRTv7C
+         IxCBCYI2hSVPGUweCNJBdRoBjUxOjwWM1wiGqO9NZwheexp/xUmgUsLwN6urKBq6Y3Ep
+         nJig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=TNzM3XWUz1naTP1okPm3zLKSwjAvV+ifsml+0S7xDQ0=;
-        b=PUbEuW9dNFHhHy4Gx7d2dGI299ZfngKDmkA57sr9VN96sTAf0ciZ51LneK3BbJ7r0J
-         jQOEfbnL56xm769ofZTSdrYUiW9KIn5ERMplhqesoFR605IR5ky5n1/u7Qv2P8wxMA/s
-         qbMsCGXqcA9yzTPHXyp+Kn5LdVMEh110kqM2ANXtpWt/8+EpNfCK5oacryzBYHOMu5pT
-         /TAuyD5n8gXRoTeHdVgyirdXiBeLf1M4ceiwOGBpoYNTR1pqi6p601gd85mOEqVzOKxA
-         SURQc8tDKKjKT6UoH/3ZbTK3TYNx/OKPq/oSPoz6znRehIfti/xHYQ41j7veretgyK6M
-         eLxw==
-X-Gm-Message-State: APjAAAXSRJdN4vR8s0PNdvzOtgGvflf494zBR6rdOpHQU0yWay3Qofzo
-        LqZ1wbr/7H98q4G72XJ5IcFfsHS6LbzGmmxaKbLT
-X-Google-Smtp-Source: APXvYqwIMCiRIKkKO+onv37MWUQtSadv4qnfez77gdclR4ZvWGSBdWeXHrOMI4jDa8ychcvkRoH5TLyQ+cAWqWtvIAo=
-X-Received: by 2002:a2e:904b:: with SMTP id n11mr3108375ljg.57.1553199888827;
- Thu, 21 Mar 2019 13:24:48 -0700 (PDT)
+        bh=VXTW7xiF7jfuHASO46bGPPt7slodyWdnPxodH/XzwiQ=;
+        b=ZnEOmiOzoZWV+lnUOkvCwfi/wa9Jh1IhzhoGXJPHxhNZ+936DRfDKReDfCLstgr5m6
+         p7EXENbzz6Yu5qD/gH+bymFMNQ8kmELXv8KbB/NUR0eE74h1JwnF1se+8CVTd0Nhbnrg
+         f6Z0ZFLMFwYjem7FRP8nGSQFb/Rp+mp1CZ4jcm53NFQneAKbx7lVTNCZ/yy0FB+cqZdU
+         Mv9qdvO0qxy9h6HR780qiCob14rkxgnzG+tn/GEzkbowrSzWFuZ/eiDPnJyYu/U4h3aR
+         cpGXT2m+vyCkfjYdcCjkQpGKMwRtLvuvvh4dDkIC4oBkm0KiddTFQIJC+KCQ+EgnCiCa
+         dhbA==
+X-Gm-Message-State: APjAAAWkqOJZ0Hbe2rfdQfRRe0a4OCM7R6grfwX8lzvZ5HRbJI3np71+
+        L8ClYamkxjI1+UCZppQZ1cq0dqRfDRsUUeZrfbet
+X-Google-Smtp-Source: APXvYqwhFx1LnKlV0/tWtuSM+FBgEbvu20QYD1IEgHFjyCVUY/dMbin9A6RaRBL3mXgveg7nYgZmD/mqruaIk7rR/qI=
+X-Received: by 2002:a19:ee11:: with SMTP id g17mr3097730lfb.117.1553203320525;
+ Thu, 21 Mar 2019 14:22:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhS1vRJuxxdzVsvkBVVVzt-3g9Q3qHSeeVPB9=JH+nNXbg@mail.gmail.com>
- <CAHRSSEwoR2-=pTRw1crXTXt-uOHe52UPof3hLcbZoVPDV5N4yw@mail.gmail.com>
- <CAHC9VhSwoCEDd8BgQ6_D8TRuVXJFNTavkAjyjFEAneVxBAwJ2Q@mail.gmail.com>
- <CAHRSSEzWFQi4PO3qBLziAVcsqe3O_u4LK9hJHa0Pyq3UZLW=BQ@mail.gmail.com>
- <CAHC9VhRcrNBRxkLxd5-biRJRqhby5hEOWHkv8hrsU87QOjpXGA@mail.gmail.com>
- <CAHC9VhTzj7gNj6jJ13pquP5im+kqG--qfYn2O0=xB=n5sB7s3w@mail.gmail.com>
- <CAHRSSEzt_d=8r34PJuyu5u6DWm461XXGhEVYignfktvj8pWSgg@mail.gmail.com>
- <CAHC9VhT_OWOU97C2NeDq8TWQzsu74V7maLWSXPhBFUKwrTvtCA@mail.gmail.com>
- <CAHRSSEwM+XXxzxabmiPBEt=t80Jes16yjJhHhsOtGy4meYu2mw@mail.gmail.com>
- <CAHRSSEyKaV5a6C5fBV8NDm02Cxu2DfVsA7YbbEE8CDkn68KtzA@mail.gmail.com>
- <CAHC9VhTDNspsA7ht=hkTbQZVmGKJWLoDEF-46kxFKvdMwA4hKw@mail.gmail.com>
- <CAHRSSEwm8F1tKbsG6Tyjbwidg0Nwk-oFHt8hYox9gB0TARNgcg@mail.gmail.com>
- <CAHRSSEz7GTS3NyHDf5r9qKM6NrCcnxh=U3tEyY+6JqS9=RH1QQ@mail.gmail.com>
- <CAHC9VhT406VM76XPqcBPN9-R1h_WTDnbdvwQk=X_bHC_Gvq=qQ@mail.gmail.com>
- <CAHRSSExzUeqBsu-wpGe_Y199mXOKm_oZpdmDby5s3hq528r4dA@mail.gmail.com>
- <CAFqZXNv6N9YWOr13=+PfjUWa1QJ=GBJUbkBtxbqif1VgOUpNKA@mail.gmail.com> <CAHRSSEzktyn5uWdGobUKdkWLn8cwyQCbSo7C2vvn92EQvKciqw@mail.gmail.com>
-In-Reply-To: <CAHRSSEzktyn5uWdGobUKdkWLn8cwyQCbSo7C2vvn92EQvKciqw@mail.gmail.com>
+References: <20190222145718.5740-1-omosnace@redhat.com> <CAHC9VhT3pEAwYyHcv7KY4xAHJQKu4PN-NPxAkpcnuGCSwVHLtQ@mail.gmail.com>
+ <CAFqZXNtjbYUcfWODC0Ygbbxa87VhVoHaMbpvFtKaNdp3HV-JvA@mail.gmail.com>
+In-Reply-To: <CAFqZXNtjbYUcfWODC0Ygbbxa87VhVoHaMbpvFtKaNdp3HV-JvA@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 21 Mar 2019 16:24:37 -0400
-Message-ID: <CAHC9VhSeKg-1btsr7K3faAfXUS8hZP2BYRhTa7nRsHvyqkuRFQ@mail.gmail.com>
-Subject: Re: v5.1-rc1 binder_alloc_do_buffer_copy() BUG_ON triggered by selinux-testsuite
-To:     Todd Kjos <tkjos@google.com>, Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Todd Kjos <tkjos@android.com>,
+Date:   Thu, 21 Mar 2019 17:21:49 -0400
+Message-ID: <CAHC9VhSp9mU5KTpO-uCgm9PZ1HPd7EaVp9Njbn5h_dEi=O-5cw@mail.gmail.com>
+Subject: Re: [PATCH v7 0/7] Allow initializing the kernfs node's secctx based
+ on its parent
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        selinux@vger.kernel.org,
-        "open list:ANDROID DRIVERS" <devel@driverdev.osuosl.org>
+        James Morris <jmorris@namei.org>,
+        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 21, 2019 at 11:48 AM Todd Kjos <tkjos@google.com> wrote:
-> On Thu, Mar 21, 2019 at 2:50 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > On Thu, Mar 21, 2019 at 12:26 AM Todd Kjos <tkjos@google.com> wrote:
-> > > I can send you a patch tomorrow (I won't be able to test it though).
-> >
-> > So, I was a bit quicker than you and I think I managed to fix the test myself :)
-> >
-> > See:
-> > https://github.com/SELinuxProject/selinux-testsuite/pull/50/commits/b559c3f54eae6130cb9e79c295b0f94db26e09e4
+On Thu, Mar 21, 2019 at 4:56 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Looks good. Thanks!
+> On Thu, Mar 21, 2019 at 3:14 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Fri, Feb 22, 2019 at 9:57 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > TL;DR:
+> > > This series adds a new security hook that allows to initialize the security
+> > > context of kernfs properly, taking into account the parent context (and
+> > > possibly other attributes). Kernfs nodes require special handling here, since
+> > > they are not bound to specific inodes/superblocks, but instead represent the
+> > > backing tree structure that is used to build the VFS tree when the kernfs
+> > > tree is mounted.
+> > >
+> > > Changes in v7:
+> > > - simplify the new security hook's interface
+> > >   - rather than trying to extract kernfs data into common structures, just
+> > >     pass the kernfs nodes themselves and add helper functions to
+> > >     <linux/kernfs.h> for accessing their security xattrs
+> > >   - in case other LSMs need more kernfs node attributes than the file mode
+> > >     (uid/gid/...), they can simply add new helpers to <linux/kernfs.h> as
+> > >     needed
+> > > - refactor "kernfs: use simple_xattrs for security attributes" to keep using
+> > >   a single common simple_xattrs structure
+> > >   - turns out having two separate simple_xattrs wouldn't work right (see
+> > >     the definition of simple_xattr_list() in fs/xattr.c)
+> > > - drop unnecessary initializations from inode_doinit_use_xattr()
+> > > - move the IOP_XATTR check out of inode_doinit_use_xattr()
+> > > - add two kernfs cleanup patches
+> > >   - these could be applied independently, but the rest of the patches depend on
+> > >     them, so I'd rather they stay bundled with the rest to avoid cross-tree
+> > >     conflicts
+> > >
+> > > v6: https://lore.kernel.org/selinux/20190214095015.16032-1-omosnace@redhat.com/T/
+> > > Changes in v6:
+> > > - remove copy-pasted duplicate macro definition
+> > >
+> > > v5: https://lore.kernel.org/selinux/20190205110638.30782-1-omosnace@redhat.com/T/
+> > > Changes in v5:
+> > > - fix misplaced semicolon detected by 0day robot
+> > >
+> > > v4: https://lore.kernel.org/selinux/20190205085915.5183-1-omosnace@redhat.com/T/
+> > > Changes in v4:
+> > > - reorder and rename hook arguments
+> > > - avoid allocating kernfs_iattrs unless needed
+> > >
+> > > v3: https://lore.kernel.org/selinux/20190130114150.27807-1-omosnace@redhat.com/T/
+> > > Changes in v3:
+> > > - rename the hook to "kernfs_init_security"
+> > > - change the hook interface to simply pass pointers to struct iattr and
+> > >   struct simple_xattrs of both the new node and its parent
+> > > - add full security xattr support to kernfs (and fixup SELinux behavior
+> > >   to handle it properly)
+> > >
+> > > v2: https://lore.kernel.org/selinux/20190109162830.8309-1-omosnace@redhat.com/T/
+> > > Changes in v2:
+> > > - add docstring for the new hook in union security_list_options
+> > > - initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
+> > >   implemented
+> > >
+> > > v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
+> > >
+> > > The kernfs nodes initially do not store any security context and rely on
+> > > the LSM to assign some default context to inodes created over them. Kernfs
+> > > inodes, however, allow setting an explicit context via the *setxattr(2)
+> > > syscalls, in which case the context is stored inside the kernfs node's
+> > > internal structure.
+> > >
+> > > SELinux (and possibly other LSMs) initialize the context of newly created
+> > > FS objects based on the parent object's context (usually the child inherits
+> > > the parent's context, unless the policy dictates otherwise). This is done
+> > > by hooking the creation of the new inode corresponding to the newly created
+> > > file/directory via security_inode_init_security() (most filesystems always
+> > > create a fresh inode when a new FS object is created). However, kernfs nodes
+> > > can be created "behind the scenes" while the filesystem is not mounted
+> > > anywhere and thus no inodes can exist for them yet.
+> > >
+> > > Therefore, to allow maintaining similar behavior for kernfs nodes, a new
+> > > LSM hook is needed, which will allow initializing the kernfs node's
+> > > security context based on its own attributes and those of the parent's
+> > > node.
+> > >
+> > > The main motivation for this change is that the userspace users of cgroupfs
+> > > (which is built on kernfs) expect the usual security context inheritance
+> > > to work under SELinux (see [1] and [2]). This functionality is required for
+> > > better confinement of containers under SELinux.
+> > >
+> > > Patch 1/7 simplifies the kernfs_iattrs structure and patch 2/7 optimizes
+> > > kernfs to not allocate kernfs_iattrs when getting the value of an xattr.
+> > >
+> > > Patch 3/7 changes SELinux to fetch security context from extended
+> > > attributes on kernfs filesystems, falling back to genfs-defined context
+> > > if that fails. Without this patch the 4/7 would be a regression for
+> > > SELinux (due to the removal of ...notifysecctx() call.
+> > >
+> > > Patch 4/7 implements full security xattr support in kernfs using
+> > > simple_xattrs; patch 5/7 adds the new LSM hook; patch 6/7 implements the
+> > > new hook in SELinux; and patch 7/7 modifies kernfs to call the new hook
+> > > on new node creation.
+> > >
+> > > Testing:
+> > > - passed the reproducer from the commit message of the last patch
+> > > - passed SELinux testsuite on Fedora Rawhide (x86_64) when applied on top
+> > >   of current Rawhide kernel (5.0.0-0.rc7.git2.1) [3]
+> > >   - including the new proposed selinux-testsuite subtest [4] (adapted
+> > >     from the reproducer)
+> > >
+> > > [1] https://github.com/SELinuxProject/selinux-kernel/issues/39
+> > > [2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
+> > > [3] https://koji.fedoraproject.org/koji/taskinfo?taskID=32963825
+> > > [4] https://github.com/SELinuxProject/selinux-testsuite/pull/48
+> > >
+> > > Ondrej Mosnacek (7):
+> > >   kernfs: clean up struct kernfs_iattrs
+> > >   kernfs: do not alloc iattrs in kernfs_xattr_get
+> > >   selinux: try security xattr after genfs for kernfs filesystems
+> > >   kernfs: use simple_xattrs for security attributes
+> > >   LSM: add new hook for kernfs node initialization
+> > >   selinux: implement the kernfs_init_security hook
+> > >   kernfs: initialize security of newly created nodes
+> > >
+> > >  fs/kernfs/dir.c                     |  28 ++--
+> > >  fs/kernfs/inode.c                   | 166 +++++++++------------
+> > >  fs/kernfs/kernfs-internal.h         |   8 +-
+> > >  fs/kernfs/symlink.c                 |   4 +-
+> > >  include/linux/kernfs.h              |  15 ++
+> > >  include/linux/lsm_hooks.h           |  13 ++
+> > >  include/linux/security.h            |   9 ++
+> > >  security/security.c                 |   6 +
+> > >  security/selinux/hooks.c            | 223 +++++++++++++++++++---------
+> > >  security/selinux/include/security.h |   1 +
+> > >  10 files changed, 290 insertions(+), 183 deletions(-)
+> >
+> > I just merged this patchset into selinux/next, thanks everyone.
+> >
+> > Ondrej, every patch in the patchset except for one required some
+> > amount of merge fixups, please take a look and make sure everything in
+> > the selinux/next branch still looks right to you.
+>
+> Looks good to me, thanks!  I checked by rebasing the original branch
+> on v5.1-rc1 myself and then comparing my result with selinux/next.
+> The only difference was one extra empty line on my side, but that
+> doesn't bother me :)
 
-I'm getting clean runs on my test system now too - thanks everyone!
+Thanks for double-checking.
 
 -- 
 paul moore
