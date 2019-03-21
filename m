@@ -2,163 +2,96 @@ Return-Path: <SRS0=MVxc=RY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1599DC43381
-	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 11:41:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC68FC43381
+	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 12:06:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E13F0218D8
-	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 11:41:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A7C0B218A5
+	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 12:06:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727887AbfCULlH convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Mar 2019 07:41:07 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:40926 "EHLO mx1.redhat.com"
+        id S1727868AbfCUMGd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Mar 2019 08:06:33 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57536 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727823AbfCULlH (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 21 Mar 2019 07:41:07 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        id S1726551AbfCUMGd (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 21 Mar 2019 08:06:33 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C6AF3308125E;
-        Thu, 21 Mar 2019 11:41:06 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0710330BC643;
+        Thu, 21 Mar 2019 12:06:33 +0000 (UTC)
 Received: from localhost (ovpn-204-57.brq.redhat.com [10.40.204.57])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 267581974C;
-        Thu, 21 Mar 2019 11:41:05 +0000 (UTC)
-References: <20190318210913.2392-1-nicolas.iooss@m4x.org>
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8E24F60857;
+        Thu, 21 Mar 2019 12:06:32 +0000 (UTC)
+References: <20190321100439.7130-1-bigon@debian.org>
 User-agent: mu4e 1.0; emacs 26.1
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        Laurent Bigonville <bigon@debian.org>
-Subject: Re: [PATCH 1/1] restorecond: use /run instead of /var/run
-In-reply-to: <20190318210913.2392-1-nicolas.iooss@m4x.org>
-Date:   Thu, 21 Mar 2019 12:40:59 +0100
-Message-ID: <pjdlg18ihf8.fsf@redhat.com>
+Cc:     Laurent Bigonville <bigon@debian.org>
+Subject: Re: [PATCH] restorecond: Do not link against libpcre
+In-reply-to: <20190321100439.7130-1-bigon@debian.org>
+Date:   Thu, 21 Mar 2019 13:06:30 +0100
+Message-ID: <pjdk1gsig8p.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8BIT
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Thu, 21 Mar 2019 11:41:07 +0000 (UTC)
+Content-Type: text/plain; format=flowed
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Thu, 21 Mar 2019 12:06:33 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+Laurent Bigonville <bigon@debian.org> writes:
 
-> On most distributions, /var/run is a symbolic link to /run so 
-> using
-> /var/run or /run lead to the same result. Nevertheless systemd 
-> started
-> to warn about using /var/run in a service file, logging entries 
-> such as:
+> From: Laurent Bigonville <bigon@bigon.be>
 >
->     /usr/lib/systemd/system/restorecond.service:8: PIDFile= 
->     references
->     path below legacy directory /var/run/, updating
->     /var/run/restorecond.pid → /run/restorecond.pid; please 
->     update the
->     unit file accordingly.
+> For some reasons, restorecond was explicitly linking against 
+> libpcre but
+> the code is not using any of its symbols
 >
-> Switch to /run in order to follow this advice.
+> Closes: https://github.com/SELinuxProject/selinux/issues/137
 >
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+
+It looks likes it was accidentally added by commit
+50f0910cf05bdc1d10710c7c3fb748a178473387 ("libselinux: add support 
+for pcre2")
+
 
 Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
-Laurent, is it acceptable for Debian?
-
 
 > ---
->  restorecond/restorecond.c       | 4 ++--
->  restorecond/restorecond.conf    | 2 +-
->  restorecond/restorecond.init    | 2 +-
->  restorecond/restorecond.service | 2 +-
->  restorecond/utmpwatcher.c       | 2 +-
->  5 files changed, 6 insertions(+), 6 deletions(-)
+>  restorecond/Makefile | 12 +-----------
+>  1 file changed, 1 insertion(+), 11 deletions(-)
 >
-> diff --git a/restorecond/restorecond.c 
-> b/restorecond/restorecond.c
-> index 7b984b298f79..d5f70fc2e2c1 100644
-> --- a/restorecond/restorecond.c
-> +++ b/restorecond/restorecond.c
-> @@ -84,7 +84,7 @@ static void done(void) {
->  	selabel_close(r_opts.hnd);
->  }
+> diff --git a/restorecond/Makefile b/restorecond/Makefile
+> index b81f8c82..12452cd2 100644
+> --- a/restorecond/Makefile
+> +++ b/restorecond/Makefile
+> @@ -19,17 +19,7 @@ DBUSLIB = $(shell $(PKG_CONFIG) --libs 
+> dbus-glib-1)
+>  CFLAGS ?= -g -Werror -Wall -W
+>  override CFLAGS += $(DBUSFLAGS)
 >  
-> -static const char *pidfile = "/var/run/restorecond.pid";
-> +static const char *pidfile = "/run/restorecond.pid";
+> -USE_PCRE2 ?= n
+> -ifeq ($(USE_PCRE2),y)
+> -	PCRE_CFLAGS := -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8 
+> $(shell $(PKG_CONFIG) --cflags libpcre2-8)
+> -	PCRE_LDLIBS := $(shell $(PKG_CONFIG) --libs libpcre2-8)
+> -else
+> -	PCRE_CFLAGS := $(shell $(PKG_CONFIG) --cflags libpcre)
+> -	PCRE_LDLIBS := $(shell $(PKG_CONFIG) --libs libpcre)
+> -endif
+> -export PCRE_CFLAGS PCRE_LDLIBS
+> -
+> -override LDLIBS += -lselinux $(PCRE_LDLIBS) $(DBUSLIB)
+> +override LDLIBS += -lselinux $(DBUSLIB)
 >  
->  static int write_pid_file(void)
->  {
-> @@ -217,7 +217,7 @@ int main(int argc, char **argv)
->  	write_pid_file();
->  
->  	while (watch(master_fd, watch_file) == 0) {
-> -	};
-> +	}
->  
->  	watch_list_free(master_fd);
->  	close(master_fd);
-> diff --git a/restorecond/restorecond.conf 
-> b/restorecond/restorecond.conf
-> index c64e74758d2f..1a61ece384d7 100644
-> --- a/restorecond/restorecond.conf
-> +++ b/restorecond/restorecond.conf
-> @@ -2,7 +2,7 @@
->  /etc/resolv.conf
->  /etc/samba/secrets.tdb
->  /etc/updatedb.conf
-> -/var/run/utmp
-> +/run/utmp
->  /var/log/wtmp
->  /root/*
->  /root/.ssh/*
-> diff --git a/restorecond/restorecond.init 
-> b/restorecond/restorecond.init
-> index 775c52b0ce7c..c1cbb247fa91 100644
-> --- a/restorecond/restorecond.init
-> +++ b/restorecond/restorecond.init
-> @@ -9,7 +9,7 @@
->  #
->  # processname: /usr/sbin/restorecond
->  # config: /etc/selinux/restorecond.conf 
-> -# pidfile: /var/run/restorecond.pid
-> +# pidfile: /run/restorecond.pid
->  #
->  # Return values according to LSB for all commands but status:
->  # 0 - success
-> diff --git a/restorecond/restorecond.service 
-> b/restorecond/restorecond.service
-> index 0511a1c740ac..6bce99d39735 100644
-> --- a/restorecond/restorecond.service
-> +++ b/restorecond/restorecond.service
-> @@ -6,7 +6,7 @@ ConditionSecurity=selinux
->  [Service]
->  Type=forking
->  ExecStart=/usr/sbin/restorecond
-> -PIDFile=/var/run/restorecond.pid
-> +PIDFile=/run/restorecond.pid
->  
->  [Install]
->  WantedBy=multi-user.target
-> diff --git a/restorecond/utmpwatcher.c 
-> b/restorecond/utmpwatcher.c
-> index 62ad2e98aff3..8660520370de 100644
-> --- a/restorecond/utmpwatcher.c
-> +++ b/restorecond/utmpwatcher.c
-> @@ -49,7 +49,7 @@ unsigned int utmpwatcher_handle(int 
-> inotify_fd, int wd)
->  {
->  	int changed = 0;
->  	struct utmp u;
-> -	const char *utmp_path = "/var/run/utmp";
-> +	const char *utmp_path = "/run/utmp";
->  	struct stringsList *prev_utmp_ptr = utmp_ptr;
->  	if (wd != utmp_wd)
->  		return -1;
+>  all: restorecond
 
