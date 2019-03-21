@@ -2,222 +2,88 @@ Return-Path: <SRS0=MVxc=RY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 440CAC10F00
-	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 21:22:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEE1BC43381
+	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 21:45:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1089721917
-	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 21:22:09 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="VBVOmuKC"
+	by mail.kernel.org (Postfix) with ESMTP id 8B8CB21917
+	for <selinux@archiver.kernel.org>; Thu, 21 Mar 2019 21:45:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726230AbfCUVWI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Mar 2019 17:22:08 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:45864 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727182AbfCUVWI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 21 Mar 2019 17:22:08 -0400
-Received: by mail-lf1-f67.google.com with SMTP id 5so5604442lft.12
-        for <selinux@vger.kernel.org>; Thu, 21 Mar 2019 14:22:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VXTW7xiF7jfuHASO46bGPPt7slodyWdnPxodH/XzwiQ=;
-        b=VBVOmuKCAta9pG6sWt8Z7+Bbov0gtEQgRiR8tbB+d6PynFgYaH7/hq9JlDHq+E9Cln
-         w3UF2vGEEs49Nl8VL/MAc0M0XtGauBon+z3R6/qGOZrTjVbLAdtpwYbOr/p0XHQVsWCG
-         A/mZMPDeMp7ZQlrSfyJybWeidq7+iPMOivU5Ya/E1xfZbcXjedjatHC7PtbfOzaJ3oNm
-         lGzQ92PA+kqs+RPNy39dGc+Jq73ZgAe5/bKYL7bzU6Sv6AskhnEZJh0FgpNYazvRTv7C
-         IxCBCYI2hSVPGUweCNJBdRoBjUxOjwWM1wiGqO9NZwheexp/xUmgUsLwN6urKBq6Y3Ep
-         nJig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VXTW7xiF7jfuHASO46bGPPt7slodyWdnPxodH/XzwiQ=;
-        b=ZnEOmiOzoZWV+lnUOkvCwfi/wa9Jh1IhzhoGXJPHxhNZ+936DRfDKReDfCLstgr5m6
-         p7EXENbzz6Yu5qD/gH+bymFMNQ8kmELXv8KbB/NUR0eE74h1JwnF1se+8CVTd0Nhbnrg
-         f6Z0ZFLMFwYjem7FRP8nGSQFb/Rp+mp1CZ4jcm53NFQneAKbx7lVTNCZ/yy0FB+cqZdU
-         Mv9qdvO0qxy9h6HR780qiCob14rkxgnzG+tn/GEzkbowrSzWFuZ/eiDPnJyYu/U4h3aR
-         cpGXT2m+vyCkfjYdcCjkQpGKMwRtLvuvvh4dDkIC4oBkm0KiddTFQIJC+KCQ+EgnCiCa
-         dhbA==
-X-Gm-Message-State: APjAAAWkqOJZ0Hbe2rfdQfRRe0a4OCM7R6grfwX8lzvZ5HRbJI3np71+
-        L8ClYamkxjI1+UCZppQZ1cq0dqRfDRsUUeZrfbet
-X-Google-Smtp-Source: APXvYqwhFx1LnKlV0/tWtuSM+FBgEbvu20QYD1IEgHFjyCVUY/dMbin9A6RaRBL3mXgveg7nYgZmD/mqruaIk7rR/qI=
-X-Received: by 2002:a19:ee11:: with SMTP id g17mr3097730lfb.117.1553203320525;
- Thu, 21 Mar 2019 14:22:00 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190222145718.5740-1-omosnace@redhat.com> <CAHC9VhT3pEAwYyHcv7KY4xAHJQKu4PN-NPxAkpcnuGCSwVHLtQ@mail.gmail.com>
- <CAFqZXNtjbYUcfWODC0Ygbbxa87VhVoHaMbpvFtKaNdp3HV-JvA@mail.gmail.com>
-In-Reply-To: <CAFqZXNtjbYUcfWODC0Ygbbxa87VhVoHaMbpvFtKaNdp3HV-JvA@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 21 Mar 2019 17:21:49 -0400
-Message-ID: <CAHC9VhSp9mU5KTpO-uCgm9PZ1HPd7EaVp9Njbn5h_dEi=O-5cw@mail.gmail.com>
-Subject: Re: [PATCH v7 0/7] Allow initializing the kernfs node's secctx based
- on its parent
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        James Morris <jmorris@namei.org>,
-        linux-fsdevel@vger.kernel.org, cgroups@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1726727AbfCUVph (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Mar 2019 17:45:37 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:50664 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725962AbfCUVph (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 21 Mar 2019 17:45:37 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DA86A59443;
+        Thu, 21 Mar 2019 21:45:35 +0000 (UTC)
+Received: from llong.com (dhcp-17-47.bos.redhat.com [10.18.17.47])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 845765C8BD;
+        Thu, 21 Mar 2019 21:45:27 +0000 (UTC)
+From:   Waiman Long <longman@redhat.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Waiman Long <longman@redhat.com>
+Subject: [PATCH 0/4] Signal: Fix hard lockup problem in flush_sigqueue()
+Date:   Thu, 21 Mar 2019 17:45:08 -0400
+Message-Id: <20190321214512.11524-1-longman@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Thu, 21 Mar 2019 21:45:36 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 21, 2019 at 4:56 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Thu, Mar 21, 2019 at 3:14 AM Paul Moore <paul@paul-moore.com> wrote:
-> > On Fri, Feb 22, 2019 at 9:57 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > TL;DR:
-> > > This series adds a new security hook that allows to initialize the security
-> > > context of kernfs properly, taking into account the parent context (and
-> > > possibly other attributes). Kernfs nodes require special handling here, since
-> > > they are not bound to specific inodes/superblocks, but instead represent the
-> > > backing tree structure that is used to build the VFS tree when the kernfs
-> > > tree is mounted.
-> > >
-> > > Changes in v7:
-> > > - simplify the new security hook's interface
-> > >   - rather than trying to extract kernfs data into common structures, just
-> > >     pass the kernfs nodes themselves and add helper functions to
-> > >     <linux/kernfs.h> for accessing their security xattrs
-> > >   - in case other LSMs need more kernfs node attributes than the file mode
-> > >     (uid/gid/...), they can simply add new helpers to <linux/kernfs.h> as
-> > >     needed
-> > > - refactor "kernfs: use simple_xattrs for security attributes" to keep using
-> > >   a single common simple_xattrs structure
-> > >   - turns out having two separate simple_xattrs wouldn't work right (see
-> > >     the definition of simple_xattr_list() in fs/xattr.c)
-> > > - drop unnecessary initializations from inode_doinit_use_xattr()
-> > > - move the IOP_XATTR check out of inode_doinit_use_xattr()
-> > > - add two kernfs cleanup patches
-> > >   - these could be applied independently, but the rest of the patches depend on
-> > >     them, so I'd rather they stay bundled with the rest to avoid cross-tree
-> > >     conflicts
-> > >
-> > > v6: https://lore.kernel.org/selinux/20190214095015.16032-1-omosnace@redhat.com/T/
-> > > Changes in v6:
-> > > - remove copy-pasted duplicate macro definition
-> > >
-> > > v5: https://lore.kernel.org/selinux/20190205110638.30782-1-omosnace@redhat.com/T/
-> > > Changes in v5:
-> > > - fix misplaced semicolon detected by 0day robot
-> > >
-> > > v4: https://lore.kernel.org/selinux/20190205085915.5183-1-omosnace@redhat.com/T/
-> > > Changes in v4:
-> > > - reorder and rename hook arguments
-> > > - avoid allocating kernfs_iattrs unless needed
-> > >
-> > > v3: https://lore.kernel.org/selinux/20190130114150.27807-1-omosnace@redhat.com/T/
-> > > Changes in v3:
-> > > - rename the hook to "kernfs_init_security"
-> > > - change the hook interface to simply pass pointers to struct iattr and
-> > >   struct simple_xattrs of both the new node and its parent
-> > > - add full security xattr support to kernfs (and fixup SELinux behavior
-> > >   to handle it properly)
-> > >
-> > > v2: https://lore.kernel.org/selinux/20190109162830.8309-1-omosnace@redhat.com/T/
-> > > Changes in v2:
-> > > - add docstring for the new hook in union security_list_options
-> > > - initialize *ctx to NULL and *ctxlen to 0 in case the hook is not
-> > >   implemented
-> > >
-> > > v1: https://lore.kernel.org/selinux/20190109091028.24485-1-omosnace@redhat.com/T/
-> > >
-> > > The kernfs nodes initially do not store any security context and rely on
-> > > the LSM to assign some default context to inodes created over them. Kernfs
-> > > inodes, however, allow setting an explicit context via the *setxattr(2)
-> > > syscalls, in which case the context is stored inside the kernfs node's
-> > > internal structure.
-> > >
-> > > SELinux (and possibly other LSMs) initialize the context of newly created
-> > > FS objects based on the parent object's context (usually the child inherits
-> > > the parent's context, unless the policy dictates otherwise). This is done
-> > > by hooking the creation of the new inode corresponding to the newly created
-> > > file/directory via security_inode_init_security() (most filesystems always
-> > > create a fresh inode when a new FS object is created). However, kernfs nodes
-> > > can be created "behind the scenes" while the filesystem is not mounted
-> > > anywhere and thus no inodes can exist for them yet.
-> > >
-> > > Therefore, to allow maintaining similar behavior for kernfs nodes, a new
-> > > LSM hook is needed, which will allow initializing the kernfs node's
-> > > security context based on its own attributes and those of the parent's
-> > > node.
-> > >
-> > > The main motivation for this change is that the userspace users of cgroupfs
-> > > (which is built on kernfs) expect the usual security context inheritance
-> > > to work under SELinux (see [1] and [2]). This functionality is required for
-> > > better confinement of containers under SELinux.
-> > >
-> > > Patch 1/7 simplifies the kernfs_iattrs structure and patch 2/7 optimizes
-> > > kernfs to not allocate kernfs_iattrs when getting the value of an xattr.
-> > >
-> > > Patch 3/7 changes SELinux to fetch security context from extended
-> > > attributes on kernfs filesystems, falling back to genfs-defined context
-> > > if that fails. Without this patch the 4/7 would be a regression for
-> > > SELinux (due to the removal of ...notifysecctx() call.
-> > >
-> > > Patch 4/7 implements full security xattr support in kernfs using
-> > > simple_xattrs; patch 5/7 adds the new LSM hook; patch 6/7 implements the
-> > > new hook in SELinux; and patch 7/7 modifies kernfs to call the new hook
-> > > on new node creation.
-> > >
-> > > Testing:
-> > > - passed the reproducer from the commit message of the last patch
-> > > - passed SELinux testsuite on Fedora Rawhide (x86_64) when applied on top
-> > >   of current Rawhide kernel (5.0.0-0.rc7.git2.1) [3]
-> > >   - including the new proposed selinux-testsuite subtest [4] (adapted
-> > >     from the reproducer)
-> > >
-> > > [1] https://github.com/SELinuxProject/selinux-kernel/issues/39
-> > > [2] https://bugzilla.redhat.com/show_bug.cgi?id=1553803
-> > > [3] https://koji.fedoraproject.org/koji/taskinfo?taskID=32963825
-> > > [4] https://github.com/SELinuxProject/selinux-testsuite/pull/48
-> > >
-> > > Ondrej Mosnacek (7):
-> > >   kernfs: clean up struct kernfs_iattrs
-> > >   kernfs: do not alloc iattrs in kernfs_xattr_get
-> > >   selinux: try security xattr after genfs for kernfs filesystems
-> > >   kernfs: use simple_xattrs for security attributes
-> > >   LSM: add new hook for kernfs node initialization
-> > >   selinux: implement the kernfs_init_security hook
-> > >   kernfs: initialize security of newly created nodes
-> > >
-> > >  fs/kernfs/dir.c                     |  28 ++--
-> > >  fs/kernfs/inode.c                   | 166 +++++++++------------
-> > >  fs/kernfs/kernfs-internal.h         |   8 +-
-> > >  fs/kernfs/symlink.c                 |   4 +-
-> > >  include/linux/kernfs.h              |  15 ++
-> > >  include/linux/lsm_hooks.h           |  13 ++
-> > >  include/linux/security.h            |   9 ++
-> > >  security/security.c                 |   6 +
-> > >  security/selinux/hooks.c            | 223 +++++++++++++++++++---------
-> > >  security/selinux/include/security.h |   1 +
-> > >  10 files changed, 290 insertions(+), 183 deletions(-)
-> >
-> > I just merged this patchset into selinux/next, thanks everyone.
-> >
-> > Ondrej, every patch in the patchset except for one required some
-> > amount of merge fixups, please take a look and make sure everything in
-> > the selinux/next branch still looks right to you.
->
-> Looks good to me, thanks!  I checked by rebasing the original branch
-> on v5.1-rc1 myself and then comparing my result with selinux/next.
-> The only difference was one extra empty line on my side, but that
-> doesn't bother me :)
+It was found that if a process has accumulated sufficient number of
+pending signals, the exiting of that process may cause its parent to
+have hard lockup when running on a debug kernel with a slow memory
+freeing path (like with KASAN enabled).
 
-Thanks for double-checking.
+  release_task() => flush_sigqueue()
+
+The lockup condition can be reproduced on a large system with a lot of
+memory and relatively slow CPUs running LTP's sigqueue_9-1 test on a
+debug kernel.
+
+This patchset tries to mitigate this problem by introducing a new kernel
+memory freeing queue mechanism modelled after the wake_q mechanism for
+waking up tasks. Then flush_sigqueue() and release_task() are modified
+to use the freeing queue mechanism to defer the actual memory object
+freeing until after releasing the tasklist_lock and with irq re-enabled.
+
+With the patchset applied, the hard lockup problem was no longer
+reproducible on the debug kernel.
+
+Waiman Long (4):
+  mm: Implement kmem objects freeing queue
+  signal: Make flush_sigqueue() use free_q to release memory
+  signal: Add free_uid_to_q()
+  mm: Do periodic rescheduling when freeing objects in kmem_free_up_q()
+
+ include/linux/sched/user.h |  3 +++
+ include/linux/signal.h     |  4 ++-
+ include/linux/slab.h       | 28 +++++++++++++++++++++
+ kernel/exit.c              | 12 ++++++---
+ kernel/signal.c            | 29 +++++++++++++---------
+ kernel/user.c              | 17 ++++++++++---
+ mm/slab_common.c           | 50 ++++++++++++++++++++++++++++++++++++++
+ security/selinux/hooks.c   |  8 ++++--
+ 8 files changed, 128 insertions(+), 23 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+2.18.1
+
