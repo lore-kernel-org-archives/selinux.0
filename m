@@ -2,77 +2,73 @@ Return-Path: <SRS0=WWIK=RZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EF1CC43381
-	for <selinux@archiver.kernel.org>; Fri, 22 Mar 2019 12:56:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3B6FC43381
+	for <selinux@archiver.kernel.org>; Fri, 22 Mar 2019 14:04:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6820121873
-	for <selinux@archiver.kernel.org>; Fri, 22 Mar 2019 12:56:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BC08A218A5
+	for <selinux@archiver.kernel.org>; Fri, 22 Mar 2019 14:04:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732334AbfCVM4H (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Mar 2019 08:56:07 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:48956 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732465AbfCVLtZ (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 22 Mar 2019 07:49:25 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 758D8A12A7;
-        Fri, 22 Mar 2019 11:49:25 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.32])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 2DD3417160;
-        Fri, 22 Mar 2019 11:49:20 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Fri, 22 Mar 2019 12:49:23 +0100 (CET)
-Date:   Fri, 22 Mar 2019 12:49:17 +0100
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Waiman Long <longman@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>
-Subject: Re: [PATCH 0/4] Signal: Fix hard lockup problem in flush_sigqueue()
-Message-ID: <20190322114917.GC28876@redhat.com>
-References: <20190321214512.11524-1-longman@redhat.com>
- <20190322101535.GA10344@bombadil.infradead.org>
+        id S1727972AbfCVOEX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Mar 2019 10:04:23 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:36818 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727487AbfCVOEX (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 22 Mar 2019 10:04:23 -0400
+Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 93AB923E581FDAC0502D;
+        Fri, 22 Mar 2019 22:04:18 +0800 (CST)
+Received: from localhost (10.177.31.96) by DGGEMS407-HUB.china.huawei.com
+ (10.3.19.207) with Microsoft SMTP Server id 14.3.408.0; Fri, 22 Mar 2019
+ 22:04:09 +0800
+From:   Yue Haibing <yuehaibing@huawei.com>
+To:     <paul@paul-moore.com>, <sds@tycho.nsa.gov>, <eparis@parisplace.org>
+CC:     <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>,
+        YueHaibing <yuehaibing@huawei.com>
+Subject: [PATCH -next] selinux: Make selinux_kernfs_init_security static
+Date:   Fri, 22 Mar 2019 22:04:00 +0800
+Message-ID: <20190322140400.18892-1-yuehaibing@huawei.com>
+X-Mailer: git-send-email 2.10.2.windows.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190322101535.GA10344@bombadil.infradead.org>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Fri, 22 Mar 2019 11:49:25 +0000 (UTC)
+Content-Type: text/plain
+X-Originating-IP: [10.177.31.96]
+X-CFilter-Loop: Reflected
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 03/22, Matthew Wilcox wrote:
->
-> On Thu, Mar 21, 2019 at 05:45:08PM -0400, Waiman Long wrote:
-> > It was found that if a process has accumulated sufficient number of
-> > pending signals, the exiting of that process may cause its parent to
-> > have hard lockup when running on a debug kernel with a slow memory
-> > freeing path (like with KASAN enabled).
->
-> I appreciate these are "reliable" signals, but why do we accumulate so
-> many signals to a task which will never receive them?  Can we detect at
-> signal delivery time that the task is going to die and avoid queueing
-> them in the first place?
+From: YueHaibing <yuehaibing@huawei.com>
 
-A task can block the signal and accumulate up to RLIMIT_SIGPENDING signals,
-then it can exit.
+Fix sparse warning:
 
-Oleg.
+security/selinux/hooks.c:3389:5: warning:
+ symbol 'selinux_kernfs_init_security' was not declared. Should it be static?
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+---
+ security/selinux/hooks.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ab4b049..b6e6152 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3386,8 +3386,8 @@ static int selinux_inode_copy_up_xattr(const char *name)
+ 
+ /* kernfs node operations */
+ 
+-int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+-				 struct kernfs_node *kn)
++static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
++					struct kernfs_node *kn)
+ {
+ 	const struct task_security_struct *tsec = current_security();
+ 	u32 parent_sid, newsid, clen;
+-- 
+2.7.0
+
 
