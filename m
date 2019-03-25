@@ -2,126 +2,100 @@ Return-Path: <SRS0=9nT4=R4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA22CC43381
-	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 12:41:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F239C43381
+	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 14:08:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C208B2085A
-	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 12:41:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4815F2085A
+	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 14:08:15 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="EuUGZ/iw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730989AbfCYMlS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Mar 2019 08:41:18 -0400
-Received: from mout.kundenserver.de ([212.227.126.134]:55033 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730858AbfCYMlS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Mar 2019 08:41:18 -0400
-Received: from wuerfel.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue011 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1N1x2P-1gxUuA43GT-012Ijd; Mon, 25 Mar 2019 13:40:52 +0100
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] [v2] selinux: avoid uninitialized variable warning
-Date:   Mon, 25 Mar 2019 13:40:45 +0100
-Message-Id: <20190325124050.1285877-1-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
+        id S1726059AbfCYOIP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 Mar 2019 10:08:15 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:44213 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725788AbfCYOIO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Mar 2019 10:08:14 -0400
+Received: by mail-lj1-f195.google.com with SMTP id h16so3469190ljg.11
+        for <selinux@vger.kernel.org>; Mon, 25 Mar 2019 07:08:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WLlCCs0P0FKSIqhUMo6zNydQHHiiClp2yAxqD9+auHM=;
+        b=EuUGZ/iwKOufgSpnrJceU2MrjE7lXWEhLaUlBXWeujXkMyDvgNq2L7cB5CF5RgOonO
+         tbFn/XAM4kAls41AiItslw9IeohOjwTv0D4kz6CbdI64CbuW6p6ptWvX9+cTdoI15Stm
+         cD6BtlVKNzaitn42vqgoyNUiGg0/LDEdlDAylOn2EHEiH091OOZEFLy0s5QqHfpPH88I
+         YuY/Xh9SZAiYxnb0k+Hc+CtZt0OUskp06/qVooTRkO9kcvXdXIv3c9dGM4Vx/C0Lg2F5
+         Yw01S+ANZSXTYAFUmflYqCKTx1O9yEaFRmW5IOJBJpG+jjht3QGK3hHTMMpJIlKGCTKs
+         PwZw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WLlCCs0P0FKSIqhUMo6zNydQHHiiClp2yAxqD9+auHM=;
+        b=ogAwVLs2L0UP+zoyewTDuE6B0qm/qKs50oTwWiTvskGeVYjTr9jfm3cVexvyn6tXJ1
+         +pWg/4BfbaPwBJWHWyZZ0l8nQqfoucBDBCqifKjM3wqd0q6sZkeSvgwgn3IuD0fQlXwd
+         dMCgKwapJQydwV347PNHzXqjZa2EUcuIJGmm5WlohxsiKJT3iP7c5DXepI7DLR1CFIQW
+         Fr7X2rQdlHJufyV4iJ49xhkjHIkA/mErV69ZltEaUhEVpih+9k96cJkV4/X7BRUw/CQK
+         UAiYuR2HKynOf0XGwQ/fiziTPpvrL+EjTEM3MwcyQ3XGukh8vdDIT22be3OYE6kUh9y2
+         FUhw==
+X-Gm-Message-State: APjAAAXAh+vpCxQ8032KX8Wf4MbUfv4vigMYybkAoJ/224UXV3eMcMFG
+        K6XueJiGUYfiNaWJ26q2AxzVG+5nyps2aJGYEhl9
+X-Google-Smtp-Source: APXvYqzl0+CZ3K0oe5NfRXMHIeW+sP/ORzT9caFtvFlbkjCB3/N7jCWFoW6Ui42pErw+6LHbWbIgIad+cMeX7wUp2aA=
+X-Received: by 2002:a2e:500d:: with SMTP id e13mr13395071ljb.169.1553522892292;
+ Mon, 25 Mar 2019 07:08:12 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:9d/9dFgDs3t5g2S63jy6hB9rb1mMw//XjPFUuJMgOZtS2X9jGru
- iHn4ZHXT6INzgI9AE6VWLRVgCnpeKGxNyYwvmagYfOVaIeUy575LKola77DX+SDR47USV89
- Bsoll2kbjbrf0/JfGOCAmPR1lIwSQKLtJJ+OUAIUazqKJAnHcGb8JdzhQhhJkO5oom1KQwo
- nlptQoluEqZKd2PaKMGTw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:GBkGklooK8Y=:B9rIAgfjV2Ai+K/CsjDT4v
- 7asOU5LWS1XlLLUu70poQ8dlA9FgjDZO1uoAEIHlLJVzjkqoQ+KOmbvt2pk3wnVJFMKu8aR+W
- cvNf8PRyQN6oN/l6XR4Az+RuLYz5yAKJEd0xi05hI5V3tYbReJNJVAoJ0Ij5KZxLyBTwDeH70
- 5aOZu3fYNj08NsaBM4T3M4s3NbbuVyL5a2aaOTvwNc6XP0CZkmh7IbCPc0DdAjqaJEIMy36j2
- AwIkx8WnjEhCmfPnUiYvstkGGov4IAO0fSs90S0T4adCkGGLog21XHoCsXuQZZiVZDY0V+Cym
- zcGJ8c5L/3VfO5sZH13dSitBTjFHoE0vUaVgzNeYH/mVRFIZlud9pHfHaGluadoWbd6eT0s8g
- gyifq/daM984dSruwQgn/ppJftYTbLMZu7W/P4XK21XFt8KBYxappB9PuW1M7o09HmDIXwXOa
- RD/4Zt57SrzEv29LtbPZ03WsZdW5PKAZQeQLdIzaaMJsEIrMzAPYYa3ETVukaqDidhk7nuH5E
- jcae9riKvQw2M2gEWi/5KkzwEDWpVsEwUWcN7/waPdEoXATKLk+ar8raYsfhsSuJnd9pat1/f
- veAKJ7WPuu/uKDFtEplvCKMMic0nQl3fMps0hKojpKc0Z672tgfNCu7T9CVGzV8oGmzDqHje2
- TNHXRIchyNAtQ39AUNrI04slDwSJpfWpShU5FiHE7jsElIbCUBkngmvuky8lv0mZBv3wDvcxu
- YD6pTh9/jhlcBtdXY0djTUE9BAGSCz7rf+x5BQ==
+References: <201903211834.Qtb0LJ32%lkp@intel.com> <20190325080535.19475-1-omosnace@redhat.com>
+In-Reply-To: <20190325080535.19475-1-omosnace@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 25 Mar 2019 10:08:01 -0400
+Message-ID: <CAHC9VhR0bSK2GXZZ1jCw=zzjKhGgxtueHLc7aUbHq_+MWFevuQ@mail.gmail.com>
+Subject: Re: [PATCH] LSM: lsm_hooks.h - fix missing colon in docstring
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-security-module@vger.kernel.org, kbuild-all@01.org,
+        kbuild test robot <lkp@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-clang correctly points out a code path that would lead
-to an uninitialized variable use:
+On Mon, Mar 25, 2019 at 4:05 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> Apparently without it it is incorrect syntax and causes a warning about
+> undocumented struct field.
+>
+> Fixes: b230d5aba2d1 ("LSM: add new hook for kernfs node initialization")
+> Reported-by: kbuild test robot <lkp@intel.com>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  include/linux/lsm_hooks.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-security/selinux/netlabel.c:310:6: error: variable 'addr' is used uninitialized whenever 'if' condition is false
-      [-Werror,-Wsometimes-uninitialized]
-        if (ip_hdr(skb)->version == 4) {
-            ^~~~~~~~~~~~~~~~~~~~~~~~~
-security/selinux/netlabel.c:322:40: note: uninitialized use occurs here
-        rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
-                                              ^~~~
-security/selinux/netlabel.c:310:2: note: remove the 'if' if its condition is always true
-        if (ip_hdr(skb)->version == 4) {
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-security/selinux/netlabel.c:291:23: note: initialize the variable 'addr' to silence this warning
-        struct sockaddr *addr;
-                             ^
-                              = NULL
+If it makes you feel any better, I didn't realize the colon was that
+important either.  Thanks for the fix, merged into selinux/next.
 
-This is probably harmless since we should not see ipv6 packets
-of CONFIG_IPV6 is disabled, but it's better to rearrange the code
-so this cannot happen.
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 0dd5bda719e6..b987dc282d63 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -447,7 +447,7 @@
+>   *
+>   * Security hooks for kernfs node operations
+>   *
+> - * @kernfs_init_security
+> + * @kernfs_init_security:
+>   *     Initialize the security context of a newly created kernfs node based
+>   *     on its own and its parent's attributes.
+>   *
+> --
+> 2.20.1
 
-Link: https://lore.kernel.org/patchwork/patch/1053663/
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
-v2: revise after discussing with Paul Moore
----
- security/selinux/netlabel.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
-
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 186e727b737b..fb4351733450 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -288,11 +288,8 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
- 	int rc;
- 	struct netlbl_lsm_secattr secattr;
- 	struct sk_security_struct *sksec = ep->base.sk->sk_security;
--	struct sockaddr *addr;
- 	struct sockaddr_in addr4;
--#if IS_ENABLED(CONFIG_IPV6)
- 	struct sockaddr_in6 addr6;
--#endif
- 
- 	if (ep->base.sk->sk_family != PF_INET &&
- 				ep->base.sk->sk_family != PF_INET6)
-@@ -310,16 +307,15 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
- 	if (ip_hdr(skb)->version == 4) {
- 		addr4.sin_family = AF_INET;
- 		addr4.sin_addr.s_addr = ip_hdr(skb)->saddr;
--		addr = (struct sockaddr *)&addr4;
--#if IS_ENABLED(CONFIG_IPV6)
--	} else {
-+		rc = netlbl_conn_setattr(ep->base.sk, (void*)&addr4, &secattr);
-+	} else if (IS_ENABLED(CONFIG_IPV6)) {
- 		addr6.sin6_family = AF_INET6;
- 		addr6.sin6_addr = ipv6_hdr(skb)->saddr;
--		addr = (struct sockaddr *)&addr6;
--#endif
-+		rc = netlbl_conn_setattr(ep->base.sk, (void*)&addr6, &secattr);
-+	} else {
-+		rc = -EAFNOSUPPORT;
- 	}
- 
--	rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
- 	if (rc == 0)
- 		sksec->nlbl_state = NLBL_LABELED;
- 
 -- 
-2.20.0
-
+paul moore
+www.paul-moore.com
