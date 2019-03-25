@@ -3,92 +3,125 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC36C43381
-	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 08:11:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA22CC43381
+	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 12:41:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EB4E320830
-	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 08:11:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C208B2085A
+	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 12:41:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729917AbfCYILT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Mar 2019 04:11:19 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:39569 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729871AbfCYILT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Mar 2019 04:11:19 -0400
-Received: by mail-wr1-f68.google.com with SMTP id j9so8921693wrn.6
-        for <selinux@vger.kernel.org>; Mon, 25 Mar 2019 01:11:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=fa4our0YlcrZvFO7MO5kkGlsUjFYadC11RfQjikggsc=;
-        b=IdilX9nI/RxKAIwE8NtMAy0zt31jVL65iAFO8m8K5CUr0ZmfdLiF6BFsbT+K4+NTdG
-         6BH79vwTliK+JQQJdE8OCuLtq1IWdcxblYCXEdlWBqK0lC/tZ3Gd4m54g9l92rLSYCDy
-         OkTzR2bGgOX1uWZI5JGlEfXgah0MOovmojRKHRtPHg/AyqilfcFd6/E8kJo1yfS012fZ
-         4Wk69lXCH+koqOWZB5DC2haeH8Jtr44B/NqrC/D4Xx6N9lAWiqytk6R8GcaM5+UmzpB5
-         Q+5po7ym/TKzblLwCbY+WDDKXTL5sr3Y5dizbd1LhX2MLn1fFsN4IanK2JgHv8wDzfzu
-         Gqkg==
-X-Gm-Message-State: APjAAAWXkwVe9Bj2SPHNvGxnXn310Iy0JvKEwq+KIu4qGgvSqD+zbMNt
-        c+VRP81b1U2Soq0pCfLP/PtGpZ5yJafiCw==
-X-Google-Smtp-Source: APXvYqxknji71n63jyhOBiQr5i5CnghinobkP4OtV2j7KBZrUYyWRTQTWCbxNl95yXgApu8Qb1Mpeg==
-X-Received: by 2002:a5d:494c:: with SMTP id r12mr4057018wrs.250.1553501477575;
-        Mon, 25 Mar 2019 01:11:17 -0700 (PDT)
-Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id q17sm12317119wrw.70.2019.03.25.01.11.16
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 25 Mar 2019 01:11:16 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Hariprasad Kelam <hariprasad.kelam@gmail.com>
-Subject: [PATCH] selinux: remove useless assignments
-Date:   Mon, 25 Mar 2019 09:11:15 +0100
-Message-Id: <20190325081115.19874-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.20.1
+        id S1730989AbfCYMlS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 Mar 2019 08:41:18 -0400
+Received: from mout.kundenserver.de ([212.227.126.134]:55033 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730858AbfCYMlS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Mar 2019 08:41:18 -0400
+Received: from wuerfel.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue011 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1N1x2P-1gxUuA43GT-012Ijd; Mon, 25 Mar 2019 13:40:52 +0100
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] [v2] selinux: avoid uninitialized variable warning
+Date:   Mon, 25 Mar 2019 13:40:45 +0100
+Message-Id: <20190325124050.1285877-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:9d/9dFgDs3t5g2S63jy6hB9rb1mMw//XjPFUuJMgOZtS2X9jGru
+ iHn4ZHXT6INzgI9AE6VWLRVgCnpeKGxNyYwvmagYfOVaIeUy575LKola77DX+SDR47USV89
+ Bsoll2kbjbrf0/JfGOCAmPR1lIwSQKLtJJ+OUAIUazqKJAnHcGb8JdzhQhhJkO5oom1KQwo
+ nlptQoluEqZKd2PaKMGTw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:GBkGklooK8Y=:B9rIAgfjV2Ai+K/CsjDT4v
+ 7asOU5LWS1XlLLUu70poQ8dlA9FgjDZO1uoAEIHlLJVzjkqoQ+KOmbvt2pk3wnVJFMKu8aR+W
+ cvNf8PRyQN6oN/l6XR4Az+RuLYz5yAKJEd0xi05hI5V3tYbReJNJVAoJ0Ij5KZxLyBTwDeH70
+ 5aOZu3fYNj08NsaBM4T3M4s3NbbuVyL5a2aaOTvwNc6XP0CZkmh7IbCPc0DdAjqaJEIMy36j2
+ AwIkx8WnjEhCmfPnUiYvstkGGov4IAO0fSs90S0T4adCkGGLog21XHoCsXuQZZiVZDY0V+Cym
+ zcGJ8c5L/3VfO5sZH13dSitBTjFHoE0vUaVgzNeYH/mVRFIZlud9pHfHaGluadoWbd6eT0s8g
+ gyifq/daM984dSruwQgn/ppJftYTbLMZu7W/P4XK21XFt8KBYxappB9PuW1M7o09HmDIXwXOa
+ RD/4Zt57SrzEv29LtbPZ03WsZdW5PKAZQeQLdIzaaMJsEIrMzAPYYa3ETVukaqDidhk7nuH5E
+ jcae9riKvQw2M2gEWi/5KkzwEDWpVsEwUWcN7/waPdEoXATKLk+ar8raYsfhsSuJnd9pat1/f
+ veAKJ7WPuu/uKDFtEplvCKMMic0nQl3fMps0hKojpKc0Z672tgfNCu7T9CVGzV8oGmzDqHje2
+ TNHXRIchyNAtQ39AUNrI04slDwSJpfWpShU5FiHE7jsElIbCUBkngmvuky8lv0mZBv3wDvcxu
+ YD6pTh9/jhlcBtdXY0djTUE9BAGSCz7rf+x5BQ==
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The code incorrectly assigned directly to the variables instead of the
-values they point to. Since the values are already set to NULL/0 at the
-beginning of the function, we can simply remove these useless
-assignments.
+clang correctly points out a code path that would lead
+to an uninitialized variable use:
 
-Reported-by: Hariprasad Kelam <hariprasad.kelam@gmail.com>
-Fixes: fede148324c3 ("selinux: log invalid contexts in AVCs")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+security/selinux/netlabel.c:310:6: error: variable 'addr' is used uninitialized whenever 'if' condition is false
+      [-Werror,-Wsometimes-uninitialized]
+        if (ip_hdr(skb)->version == 4) {
+            ^~~~~~~~~~~~~~~~~~~~~~~~~
+security/selinux/netlabel.c:322:40: note: uninitialized use occurs here
+        rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
+                                              ^~~~
+security/selinux/netlabel.c:310:2: note: remove the 'if' if its condition is always true
+        if (ip_hdr(skb)->version == 4) {
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+security/selinux/netlabel.c:291:23: note: initialize the variable 'addr' to silence this warning
+        struct sockaddr *addr;
+                             ^
+                              = NULL
+
+This is probably harmless since we should not see ipv6 packets
+of CONFIG_IPV6 is disabled, but it's better to rearrange the code
+so this cannot happen.
+
+Link: https://lore.kernel.org/patchwork/patch/1053663/
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- security/selinux/ss/services.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+v2: revise after discussing with Paul Moore
+---
+ security/selinux/netlabel.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index ec62918521b1..b18a8d7c1b5e 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1318,14 +1318,11 @@ static int security_sid_to_context_core(struct selinux_state *state,
- 		rc = -EINVAL;
- 		goto out_unlock;
- 	}
--	if (only_invalid && !context->len) {
--		scontext = NULL;
--		scontext_len = 0;
--		rc = 0;
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 186e727b737b..fb4351733450 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -288,11 +288,8 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
+ 	int rc;
+ 	struct netlbl_lsm_secattr secattr;
+ 	struct sk_security_struct *sksec = ep->base.sk->sk_security;
+-	struct sockaddr *addr;
+ 	struct sockaddr_in addr4;
+-#if IS_ENABLED(CONFIG_IPV6)
+ 	struct sockaddr_in6 addr6;
+-#endif
+ 
+ 	if (ep->base.sk->sk_family != PF_INET &&
+ 				ep->base.sk->sk_family != PF_INET6)
+@@ -310,16 +307,15 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
+ 	if (ip_hdr(skb)->version == 4) {
+ 		addr4.sin_family = AF_INET;
+ 		addr4.sin_addr.s_addr = ip_hdr(skb)->saddr;
+-		addr = (struct sockaddr *)&addr4;
+-#if IS_ENABLED(CONFIG_IPV6)
 -	} else {
-+	if (only_invalid && !context->len)
-+		rc = 0; /* *scontext/*scontext_len are already set to NULL/0 */
-+	else
- 		rc = context_struct_to_string(policydb, context, scontext,
- 					      scontext_len);
--	}
- out_unlock:
- 	read_unlock(&state->ss->policy_rwlock);
- out:
++		rc = netlbl_conn_setattr(ep->base.sk, (void*)&addr4, &secattr);
++	} else if (IS_ENABLED(CONFIG_IPV6)) {
+ 		addr6.sin6_family = AF_INET6;
+ 		addr6.sin6_addr = ipv6_hdr(skb)->saddr;
+-		addr = (struct sockaddr *)&addr6;
+-#endif
++		rc = netlbl_conn_setattr(ep->base.sk, (void*)&addr6, &secattr);
++	} else {
++		rc = -EAFNOSUPPORT;
+ 	}
+ 
+-	rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
+ 	if (rc == 0)
+ 		sksec->nlbl_state = NLBL_LABELED;
+ 
 -- 
-2.20.1
+2.20.0
 
