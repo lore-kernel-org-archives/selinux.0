@@ -2,90 +2,146 @@ Return-Path: <SRS0=N/SO=R5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73BD8C4360F
-	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 12:34:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BC7BC43381
+	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 13:30:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 48F6720823
-	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 12:34:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3FFBD2075D
+	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 13:30:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727617AbfCZMeG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Mar 2019 08:34:06 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:44319 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726258AbfCZMeG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Mar 2019 08:34:06 -0400
-Received: by mail-ot1-f67.google.com with SMTP id d24so11216749otl.11
-        for <selinux@vger.kernel.org>; Tue, 26 Mar 2019 05:34:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Zo2kZaFXun4ur6wY2xnBnTG4h6yFnWUo8V5pDttjlIw=;
-        b=r+gx5d2iEGKGm0Y/fnW05Ae9bnUTQpGOOaqaNC5DrViYVScHXmguQOa92mNO029j6V
-         NY+PqThvr7/9+IO08srvxOtF2wtG8yZy6gf1Tq/wZotzyey4NzKpIgomQ98wMLa+YwKb
-         EtsuEOigZFHL+bP9gIO6AV0zx/WIXoyfa1SMLzURfHAAYsyVn1waOiD3LEYPluZ/HQ5r
-         N4VFU4acDbx58rG9bgNeFF7xFZd+U9oatQLy4gX2w7Sj7kkyZqcaVwirWyJMEDYk9Wz5
-         LFzoYLSbXllJl4VrO7SkQQWhPkYQDnS/FptGCtcHDy3p/k0Svnt3Fz9x/NubdGjjUinV
-         00UQ==
-X-Gm-Message-State: APjAAAXEjkyA/kMmezrHIr5soZB5VqJ2Xo9Jbo4FQWs6xPJzQ0l1YPHb
-        uX/IUpfgL6OcUB59MjMfz/VtjC+vVqpths3g+9uoWA==
-X-Google-Smtp-Source: APXvYqytfmlPhKCfMz5dYKWqmfUc1uqr2mjGXWqJapB4AVtVXi26qRHFf/1V9w6QwMWNG2nNvLlJ2DqtXJHRC4y4Bh4=
-X-Received: by 2002:a9d:3289:: with SMTP id u9mr11992007otb.52.1553603645845;
- Tue, 26 Mar 2019 05:34:05 -0700 (PDT)
+        id S1726171AbfCZNaP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Mar 2019 09:30:15 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:59924 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726140AbfCZNaP (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 26 Mar 2019 09:30:15 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 0CD7383F4C;
+        Tue, 26 Mar 2019 13:30:04 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.68])
+        by smtp.corp.redhat.com (Postfix) with SMTP id 68DF53843;
+        Tue, 26 Mar 2019 13:29:57 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Tue, 26 Mar 2019 14:30:02 +0100 (CET)
+Date:   Tue, 26 Mar 2019 14:29:55 +0100
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Christopher Lameter <cl@linux.com>
+Cc:     Waiman Long <longman@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: Re: [PATCH 2/4] signal: Make flush_sigqueue() use free_q to release
+ memory
+Message-ID: <20190326132955.GA16837@redhat.com>
+References: <20190321214512.11524-1-longman@redhat.com>
+ <20190321214512.11524-3-longman@redhat.com>
+ <20190322015208.GD19508@bombadil.infradead.org>
+ <20190322111642.GA28876@redhat.com>
+ <d9e02cc4-3162-57b0-7924-9642aecb8f49@redhat.com>
+ <01000169a686689d-bc18fecd-95e1-4b3e-8cd5-dad1b1c570cc-000000@email.amazonses.com>
 MIME-Version: 1.0
-References: <20190325145032.GB21359@shao2-debian> <CAHC9VhQt6RMdOsVNAXHnPzTrVRpnfaq4PULzBCmMPg7SgdTpfw@mail.gmail.com>
- <CAFqZXNuJMJTjGL5qGoemy4O--Y3kGGwGb2TfwJ5xxFAz03uPqg@mail.gmail.com>
-In-Reply-To: <CAFqZXNuJMJTjGL5qGoemy4O--Y3kGGwGb2TfwJ5xxFAz03uPqg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 26 Mar 2019 13:33:54 +0100
-Message-ID: <CAFqZXNtazgAzoFDMiQWOdaVNcpAH3PEEXwwJ8D+njGoEX4+DvA@mail.gmail.com>
-Subject: Re: [kernfs] e19dfdc83b: BUG:KASAN:global-out-of-bounds_in_s
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        LKML <linux-kernel@vger.kernel.org>, selinux@vger.kernel.org,
-        lkp@01.org, kernel test robot <rong.a.chen@intel.com>,
-        Tejun Heo <tj@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <01000169a686689d-bc18fecd-95e1-4b3e-8cd5-dad1b1c570cc-000000@email.amazonses.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Tue, 26 Mar 2019 13:30:15 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 25, 2019 at 6:06 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Mon, Mar 25, 2019 at 4:17 PM Paul Moore <paul@paul-moore.com> wrote:
-> > Ondrej, please look into this.
-> >
-> > You've looked at this code more recently than I have, but it looks
-> > like there might be an issue with __kernfs_iattrs() returning a
-> > pointer to a kernfs_iattrs object without taking a kernfs reference
-> > (kernfs_get(kn)).  Although I would be a little surprised if this was
-> > the problem as I think it would cause a number of issues beyond just
-> > this one ... ?
->
-> I think this is actually because of how xattr_full_name() reconstructs
-> the full name from the xattr suffix. It assumes that the suffix was
-> obtained from the full name by just taking a pointer inside it, but in
-> kernfs_security_xattr_get/set() I pass the suffix directly... I'm
-> surprised that this didn't fail spectacularly earlier during testing.
-> Maybe the newer GCC does some clever merging of the string constants,
-> so that XATTR_SELINUX_SUFFIX actually ends up as a substring of
-> XATTR_NAME_SELINUX? (That would be one hell of a "lucky" coincidence
-> :)
->
-> I'll post a patch that converts kernfs_security_xattr_get/set() to
-> take the full name and hopefully that will fix the problem. I'll see
-> if I can run the reproducer locally tomorrow...
+Sorry, I am sick and can't work, hopefully I'll return tomorrow.
 
-I managed to reproduce the KASAN warning in my kernel testing
-environment by simply enabling CONFIG_KASAN and running the cgroupfs
-issue reproducer from the original patchset. With the patch I posted I
-no longer get the warning, so I believe it really fixes the problem.
+On 03/22, Christopher Lameter wrote:
+>
+> On Fri, 22 Mar 2019, Waiman Long wrote:
+>
+> > I am looking forward to it.
+>
+> There is also alrady rcu being used in these paths. kfree_rcu() would not
+> be enough? It is an estalished mechanism that is mature and well
+> understood.
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+But why do we want to increase the number of rcu callbacks in flight?
+
+For the moment, lets discuss the exiting tasks only. The only reason why
+flush_sigqueue(&tsk->pending) needs spin_lock_irq() is the race with
+release_posix_timer()->sigqueue_free() from another thread which can remove
+a SIGQUEUE_PREALLOC'ed sigqueue from list. With the simple patch below
+flush_sigqueue() can be called lockless with irqs enabled.
+
+However, this change is not enough, we need to do something similar with
+do_sigaction()->flush_sigqueue_mask(), and this is less simple.
+
+So I won't really argue with kfree_rcu() but I am not sure this is the best
+option.
+
+Oleg.
+
+
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -85,6 +85,17 @@ static void __unhash_process(struct task_struct *p, bool group_dead)
+ 	list_del_rcu(&p->thread_node);
+ }
+ 
++// Rename me and move into signal.c
++void remove_prealloced(struct sigpending *queue)
++{
++	struct sigqueue *q, *t;
++
++	list_for_each_entry_safe(q, t, &queue->list, list) {
++		if (q->flags & SIGQUEUE_PREALLOC)
++			list_del_init(&q->list);
++	}
++}
++
+ /*
+  * This function expects the tasklist_lock write-locked.
+  */
+@@ -160,16 +171,15 @@ static void __exit_signal(struct task_struct *tsk)
+ 	 * Do this under ->siglock, we can race with another thread
+ 	 * doing sigqueue_free() if we have SIGQUEUE_PREALLOC signals.
+ 	 */
+-	flush_sigqueue(&tsk->pending);
++	if (!group_dead)
++		remove_prealloced(&tsk->pending);
+ 	tsk->sighand = NULL;
+ 	spin_unlock(&sighand->siglock);
+ 
+ 	__cleanup_sighand(sighand);
+ 	clear_tsk_thread_flag(tsk, TIF_SIGPENDING);
+-	if (group_dead) {
+-		flush_sigqueue(&sig->shared_pending);
++	if (group_dead)
+ 		tty_kref_put(tty);
+-	}
+ }
+ 
+ static void delayed_put_task_struct(struct rcu_head *rhp)
+@@ -221,6 +231,11 @@ void release_task(struct task_struct *p)
+ 	write_unlock_irq(&tasklist_lock);
+ 	cgroup_release(p);
+ 	release_thread(p);
++
++	flush_sigqueue(&p->pending);
++	if (thread_group_leader(p))
++		flush_sigqueue(&p->signal->shared_pending);
++
+ 	call_rcu(&p->rcu, delayed_put_task_struct);
+ 
+ 	p = leader;
+
