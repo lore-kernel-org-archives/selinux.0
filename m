@@ -6,118 +6,169 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16D70C43381
-	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 21:22:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0196CC43381
+	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 21:22:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E29CF206C0
-	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 21:22:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB1AA206C0
+	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 21:22:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727145AbfCZVWV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 Mar 2019 17:22:21 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:60689 "EHLO
+        id S1731940AbfCZVWn convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Mar 2019 17:22:43 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:36477 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726811AbfCZVWV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 Mar 2019 17:22:21 -0400
-Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
+        with ESMTP id S1726207AbfCZVWn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Mar 2019 17:22:43 -0400
+Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 0794856125E
-        for <selinux@vger.kernel.org>; Tue, 26 Mar 2019 22:22:17 +0100 (CET)
-Received: by mail-ot1-f45.google.com with SMTP id f10so12913762otb.6
-        for <selinux@vger.kernel.org>; Tue, 26 Mar 2019 14:22:16 -0700 (PDT)
-X-Gm-Message-State: APjAAAUEJpCha9zeCn9kesHPba2as/KqAEm+Pf/SyS3UWox7BWiuHXG+
-        mkx7h07CWzUbCha0b4P0kjGIvfUn9P0C4UIG2Ss=
-X-Google-Smtp-Source: APXvYqxJ8s+g/8dvDFZyOy15HTtMdyCiwu69e95v+0eDsP8J+s9LqmrxGta57c3sS8AuzL5GgJ5mDj80AeJ5SGoL0/4=
-X-Received: by 2002:a9d:62c8:: with SMTP id z8mr23481686otk.144.1553635336081;
- Tue, 26 Mar 2019 14:22:16 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 1771156125B
+        for <selinux@vger.kernel.org>; Tue, 26 Mar 2019 22:22:40 +0100 (CET)
+Received: by mail-oi1-f181.google.com with SMTP id v84so11190624oif.4
+        for <selinux@vger.kernel.org>; Tue, 26 Mar 2019 14:22:40 -0700 (PDT)
+X-Gm-Message-State: APjAAAVfXzNYWhJR5lS2Jw25sZh/76lvd1FLhpsciJT8iguGVQT++kJL
+        dVvRIBoVckzooynHCJlsvDJNogK1JZhN3CTA/GI=
+X-Google-Smtp-Source: APXvYqzUSfuiS3TiNmMfJ5REeou7FTVt0NG4bfAGpLoEl3Zy7voMCpN4ekPUG48eueT38UUMZ16+gb3Zsc5Tx1j0keo=
+X-Received: by 2002:aca:ed88:: with SMTP id l130mr16290422oih.70.1553635359058;
+ Tue, 26 Mar 2019 14:22:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAJfZ7==GdCtQGKNw_+Uvrhbx0=dqYfwKYMj0o-fLhUOWD+n--w@mail.gmail.com>
- <20190318133925.3387-1-plautrba@redhat.com> <pjd8sxc5hlz.fsf@redhat.com> <CAJfZ7=nuBaSieJ4T0ygVmvVEV0hMeR_1+YLAooM5Jk3NR26now@mail.gmail.com>
-In-Reply-To: <CAJfZ7=nuBaSieJ4T0ygVmvVEV0hMeR_1+YLAooM5Jk3NR26now@mail.gmail.com>
+References: <20190318210913.2392-1-nicolas.iooss@m4x.org> <pjdlg18ihf8.fsf@redhat.com>
+ <088c5caa-859b-1989-0270-4269baad7478@debian.org>
+In-Reply-To: <088c5caa-859b-1989-0270-4269baad7478@debian.org>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 26 Mar 2019 22:22:04 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==Jf1x0vs9RFLJ+rk=8FKRuQuQ5nAXXm=GHz7+y0CSOfg@mail.gmail.com>
-Message-ID: <CAJfZ7==Jf1x0vs9RFLJ+rk=8FKRuQuQ5nAXXm=GHz7+y0CSOfg@mail.gmail.com>
-Subject: Re: [PATCH v2] gui: Install .desktop files to /usr/share/applications
- by default
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org
+Date:   Tue, 26 Mar 2019 22:22:27 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mPNRWp5mCtNrUDVrv3NUR-jJyGgU3T_aXDvX53gB4ENw@mail.gmail.com>
+Message-ID: <CAJfZ7=mPNRWp5mCtNrUDVrv3NUR-jJyGgU3T_aXDvX53gB4ENw@mail.gmail.com>
+Subject: Re: [PATCH 1/1] restorecond: use /run instead of /var/run
+To:     Laurent Bigonville <bigon@debian.org>,
+        Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Mar 26 22:22:17 2019 +0100 (CET))
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Mar 26 22:22:40 2019 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 18, 2019 at 10:39 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Thu, Mar 21, 2019 at 2:31 PM Laurent Bigonville <bigon@debian.org> wrote:
 >
-> On Mon, Mar 18, 2019 at 4:26 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+> Le 21/03/19 à 12:40, Petr Lautrbach a écrit :
 > >
-> > Petr Lautrbach <plautrba@redhat.com> writes:
+> > Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 > >
-> > > /usr/share/applications is a standard directory for .desktop
-> > > files.
-> > > Installation path can be changed using DESKTOPDIR variable in
-> > > installation
-> > > phase, e.g.
-> > >
-> > > make DESKTOPDIR=/usr/local/share/applications install
-> > >
-> > > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> >> On most distributions, /var/run is a symbolic link to /run so using
+> >> /var/run or /run lead to the same result. Nevertheless systemd started
+> >> to warn about using /var/run in a service file, logging entries such as:
+> >>
+> >>     /usr/lib/systemd/system/restorecond.service:8: PIDFile= references
+> >>     path below legacy directory /var/run/, updating
+> >>     /var/run/restorecond.pid → /run/restorecond.pid; please update the
+> >>     unit file accordingly.
+> >>
+> >> Switch to /run in order to follow this advice.
+> >>
+> >> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 > >
-> > Travis CI passed
-> > https://travis-ci.org/bachradsusi/SELinuxProject-selinux/builds/507842594
+> > Acked-by: Petr Lautrbach <plautrba@redhat.com>
+> >
+> > Laurent, is it acceptable for Debian?
 >
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Yes it's OK for debian as well.
 >
-> Thanks!
-> Nicolas
+> /run is a symlink to /var/run here too, see point 8 at
+> https://www.debian.org/doc/debian-policy/ch-opersys.html#file-system-hierarchy
 
+Thanks for checking this!
 Merged.
 
 Nicolas
 
->
-> > > ---
-> > >  gui/Makefile | 4 +++-
-> > >  1 file changed, 3 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/gui/Makefile b/gui/Makefile
-> > > index b2375fbf..ca965c94 100644
-> > > --- a/gui/Makefile
-> > > +++ b/gui/Makefile
-> > > @@ -5,6 +5,7 @@ BINDIR ?= $(PREFIX)/bin
-> > >  SHAREDIR ?= $(PREFIX)/share/system-config-selinux
-> > >  DATADIR ?= $(PREFIX)/share
-> > >  MANDIR ?= $(PREFIX)/share/man
-> > > +DESKTOPDIR ?= $(PREFIX)/share/applications
-> > >
-> > >  TARGETS= \
-> > >  booleansPage.py \
-> > > @@ -29,6 +30,7 @@ install: all
-> > >       -mkdir -p $(DESTDIR)$(DATADIR)/pixmaps
-> > >       -mkdir -p $(DESTDIR)$(DATADIR)/icons/hicolor/24x24/apps
-> > >       -mkdir -p $(DESTDIR)$(DATADIR)/polkit-1/actions/
-> > > +     -mkdir -p $(DESTDIR)$(DESKTOPDIR)
-> > >       install -m 755 system-config-selinux.py
-> > >  $(DESTDIR)$(SHAREDIR)
-> > >       install -m 755 system-config-selinux $(DESTDIR)$(BINDIR)
-> > >       install -m 755 polgengui.py
-> > >  $(DESTDIR)$(BINDIR)/selinux-polgengui
-> > > @@ -44,7 +46,7 @@ install: all
-> > >       install -m 644 system-config-selinux.png
-> > >  $(DESTDIR)$(DATADIR)/pixmaps
-> > >       install -m 644 system-config-selinux.png
-> > >  $(DESTDIR)$(DATADIR)/icons/hicolor/24x24/apps
-> > >       install -m 644 system-config-selinux.png
-> > >  $(DESTDIR)$(DATADIR)/system-config-selinux
-> > > -     install -m 644 *.desktop
-> > > $(DESTDIR)$(DATADIR)/system-config-selinux
-> > > +     install -m 644 *.desktop $(DESTDIR)$(DESKTOPDIR)
-> > >       -mkdir -p $(DESTDIR)$(DATADIR)/pixmaps
-> > >       install -m 644 sepolicy_256.png
-> > >  $(DESTDIR)$(DATADIR)/pixmaps/sepolicy.png
-> > >       for i in 16 22 32 48 256; do \
+> >
+> >
+> >> ---
+> >>  restorecond/restorecond.c       | 4 ++--
+> >>  restorecond/restorecond.conf    | 2 +-
+> >>  restorecond/restorecond.init    | 2 +-
+> >>  restorecond/restorecond.service | 2 +-
+> >>  restorecond/utmpwatcher.c       | 2 +-
+> >>  5 files changed, 6 insertions(+), 6 deletions(-)
+> >>
+> >> diff --git a/restorecond/restorecond.c b/restorecond/restorecond.c
+> >> index 7b984b298f79..d5f70fc2e2c1 100644
+> >> --- a/restorecond/restorecond.c
+> >> +++ b/restorecond/restorecond.c
+> >> @@ -84,7 +84,7 @@ static void done(void) {
+> >>      selabel_close(r_opts.hnd);
+> >>  }
+> >>
+> >> -static const char *pidfile = "/var/run/restorecond.pid";
+> >> +static const char *pidfile = "/run/restorecond.pid";
+> >>
+> >>  static int write_pid_file(void)
+> >>  {
+> >> @@ -217,7 +217,7 @@ int main(int argc, char **argv)
+> >>      write_pid_file();
+> >>
+> >>      while (watch(master_fd, watch_file) == 0) {
+> >> -    };
+> >> +    }
+> >>
+> >>      watch_list_free(master_fd);
+> >>      close(master_fd);
+> >> diff --git a/restorecond/restorecond.conf b/restorecond/restorecond.conf
+> >> index c64e74758d2f..1a61ece384d7 100644
+> >> --- a/restorecond/restorecond.conf
+> >> +++ b/restorecond/restorecond.conf
+> >> @@ -2,7 +2,7 @@
+> >>  /etc/resolv.conf
+> >>  /etc/samba/secrets.tdb
+> >>  /etc/updatedb.conf
+> >> -/var/run/utmp
+> >> +/run/utmp
+> >>  /var/log/wtmp
+> >>  /root/*
+> >>  /root/.ssh/*
+> >> diff --git a/restorecond/restorecond.init b/restorecond/restorecond.init
+> >> index 775c52b0ce7c..c1cbb247fa91 100644
+> >> --- a/restorecond/restorecond.init
+> >> +++ b/restorecond/restorecond.init
+> >> @@ -9,7 +9,7 @@
+> >>  #
+> >>  # processname: /usr/sbin/restorecond
+> >>  # config: /etc/selinux/restorecond.conf -# pidfile:
+> >> /var/run/restorecond.pid
+> >> +# pidfile: /run/restorecond.pid
+> >>  #
+> >>  # Return values according to LSB for all commands but status:
+> >>  # 0 - success
+> >> diff --git a/restorecond/restorecond.service
+> >> b/restorecond/restorecond.service
+> >> index 0511a1c740ac..6bce99d39735 100644
+> >> --- a/restorecond/restorecond.service
+> >> +++ b/restorecond/restorecond.service
+> >> @@ -6,7 +6,7 @@ ConditionSecurity=selinux
+> >>  [Service]
+> >>  Type=forking
+> >>  ExecStart=/usr/sbin/restorecond
+> >> -PIDFile=/var/run/restorecond.pid
+> >> +PIDFile=/run/restorecond.pid
+> >>
+> >>  [Install]
+> >>  WantedBy=multi-user.target
+> >> diff --git a/restorecond/utmpwatcher.c b/restorecond/utmpwatcher.c
+> >> index 62ad2e98aff3..8660520370de 100644
+> >> --- a/restorecond/utmpwatcher.c
+> >> +++ b/restorecond/utmpwatcher.c
+> >> @@ -49,7 +49,7 @@ unsigned int utmpwatcher_handle(int inotify_fd, int
+> >> wd)
+> >>  {
+> >>      int changed = 0;
+> >>      struct utmp u;
+> >> -    const char *utmp_path = "/var/run/utmp";
+> >> +    const char *utmp_path = "/run/utmp";
+> >>      struct stringsList *prev_utmp_ptr = utmp_ptr;
+> >>      if (wd != utmp_wd)
+> >>          return -1;
 > >
 
