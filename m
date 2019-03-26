@@ -1,101 +1,239 @@
-Return-Path: <SRS0=9nT4=R4=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=N/SO=R5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4FFCC43381
-	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 23:53:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC76C43381
+	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 08:17:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9371D206DF
-	for <selinux@archiver.kernel.org>; Mon, 25 Mar 2019 23:53:01 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="qq4Ew6ML"
+	by mail.kernel.org (Postfix) with ESMTP id B6C1F20830
+	for <selinux@archiver.kernel.org>; Tue, 26 Mar 2019 08:17:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726350AbfCYXxB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Mar 2019 19:53:01 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:34775 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbfCYXxB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Mar 2019 19:53:01 -0400
-Received: by mail-lf1-f68.google.com with SMTP id y18so7388830lfe.1
-        for <selinux@vger.kernel.org>; Mon, 25 Mar 2019 16:52:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2C3/YZIfjxsEf3cvSlX5xrvH6OIQ/5KnYDdX9pq9P+A=;
-        b=qq4Ew6MLnLW6H7k0yTZDHnW1OrwRWkLdpvqq104AtAjL9c0ZOKjv4nSxN72oWlTV8t
-         R0Yp4reZoRsrSQa1yJ3/WM6+/rj8eCs7sYtKU39UMwXW9+JWeGV16KkUkNaawGJ23iUz
-         qVBizpbS4M/vCm5bFA5kSfZC9pknB5v5acC7Hv2ULoNkzIHPZf1MwCsDwDgJ/49Ddke/
-         zs3rIqPb6I+JiWKtJqd/sDsujkDf4hpFiInsIHWXMaYeYJ7Ff73KYvuwuqTtQm6iU0Nb
-         emcVBZya+xoUvhKKVD6bsri8LAKuSK6CMlsDvxU+d6Rgi2kT7Vwx7xzXuOctgEW/e1Q0
-         Wqzw==
+        id S1726279AbfCZIRg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 Mar 2019 04:17:36 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:40871 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726042AbfCZIRg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 Mar 2019 04:17:36 -0400
+Received: by mail-wm1-f68.google.com with SMTP id z24so8541824wmi.5
+        for <selinux@vger.kernel.org>; Tue, 26 Mar 2019 01:17:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2C3/YZIfjxsEf3cvSlX5xrvH6OIQ/5KnYDdX9pq9P+A=;
-        b=bRVS+inErEBC0eXV5WLKISVdTs69q4bV4Yaio5CEwJElqJYHnKI7SRXLiXfjfK3rns
-         a+lc6nxFbJmqNJQKsIIsJkXebFPpG8O63PdyXISH6g++Y+AEgntENsm9LnogsJegePZU
-         sYSSRf4thbfy+Nbn4aqC/q8nDm7Knq82o8YeUDz0GkLwulJBPiCx53CuIdYGkYBzY/qU
-         DmSR7mkf9H/9NFR19CASSyBJ9fcFzUDuZlYBZoJ1eP2GzrLL0M6BuCO5DRMrbakmdb8p
-         5aciJ0riP3/nTnw6Q/Qb/jIx/wvKzS9CxICPlR2okeube9r0A2EQ0jwK6uq53I8NlZkA
-         d0nw==
-X-Gm-Message-State: APjAAAXgNmdq+1pPiLV2lZNgYeLhxXW4ATUKh3Ay5GzECznDawykJsQL
-        9Gaus/hohSqRDM23thyBqBET/AKlRULEe6x27945
-X-Google-Smtp-Source: APXvYqynV8Ikurxi0oXyGibRiIrcukoR9Apwtj52nEez1ls3Ks4l8GRQ1gLcWvQ0Py7zhdEsAeiq5if4vmpBkXsdyaM=
-X-Received: by 2002:ac2:5921:: with SMTP id v1mr1130268lfi.135.1553557978700;
- Mon, 25 Mar 2019 16:52:58 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=TEdeOkA8NKRTivfDbRyXl/WpVSx26hNaFfT21NQoBfI=;
+        b=sT6FPepWpeT6fH/IQ9BkCTqhSTa181Im7rmgT+ku0mzEVK+Mr919eesE0GvOwBiweI
+         2vzZgMD/5ionsyhl3dvZZ+qcjt4GrEnqEVoqd8cHCbuDsHTXkjaGoEweWHoDY5PtmGDJ
+         zqGEVo4z21zd8rU71x2Vq2WqVuEnBlIOD8SPpe/b48zkwJts4IiSV1EZzwLzD0OZhvUq
+         IKOsVfzaDcWpGAz1Q3DFMj8ERkKhhjANrm0KuXfleW/cy1uGed0sQFKGWc4E+S4sxGE/
+         ROAlUcfCthkBa0xwGJXcKKOPNUUj114FPXudeOtaDZEXtTnJVZvu89k5gNPOjQG9ATec
+         S/0Q==
+X-Gm-Message-State: APjAAAW7DxEpD995QHoqtyDDItQ0Hq4qX7J6ho9iFw1GbdIcBeiZURWq
+        wS1Bw++fTulpHWtgoHlYMh3LKN/9IeY=
+X-Google-Smtp-Source: APXvYqyl5+RYQ8mwB1vNWMaJkRWCcVoCjZqZCtqs7F09hKdXIv9WFIG11La2wFkWvC4p9VoavIuNBg==
+X-Received: by 2002:a1c:e910:: with SMTP id q16mr15084119wmc.30.1553588252926;
+        Tue, 26 Mar 2019 01:17:32 -0700 (PDT)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id r6sm1290754wrt.38.2019.03.26.01.17.31
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 26 Mar 2019 01:17:32 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Tejun Heo <tj@kernel.org>, lkp@01.org,
+        kernel test robot <rong.a.chen@intel.com>
+Subject: [PATCH] kernfs: fix xattr name handling in LSM helpers
+Date:   Tue, 26 Mar 2019 09:17:29 +0100
+Message-Id: <20190326081729.21406-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190325145032.GB21359@shao2-debian>
+References: <20190325145032.GB21359@shao2-debian>
 MIME-Version: 1.0
-References: <20190325232125.1781-1-casey@schaufler-ca.com>
-In-Reply-To: <20190325232125.1781-1-casey@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 25 Mar 2019 19:52:47 -0400
-Message-ID: <CAHC9VhRJUxnEyFvJQ3PR+aQTnGt=GZ+EZ-oBQihEE9WgQ9n5EA@mail.gmail.com>
-Subject: Re: [PATCH] Bad file pattern in 'SELINUX SECURITY MODULE'
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     joe@perches.com, linux-kernel@vger.kernel.org,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        keescook@chromium.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 25, 2019 at 7:21 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> The include/linux/selinux.h file has been removed.
-> Remove the entry from the MAINTAINERS file.
->
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  MAINTAINERS | 1 -
->  1 file changed, 1 deletion(-)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 3e5a5d263f29..1039c34dff3c 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -13947,7 +13947,6 @@ W:      https://selinuxproject.org
->  W:     https://github.com/SELinuxProject
->  T:     git git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
->  S:     Supported
-> -F:     include/linux/selinux*
+The implementation of kernfs_security_xattr_*() helpers reuses the
+kernfs_node_xattr_*() functions, which take the suffix of the xattr name
+and extract full xattr name from it using xattr_full_name(). However,
+this function relies on the fact that the suffix passed to xattr
+handlers from VFS is always constructed from the full name by just
+incerementing the pointer. This doesn't necessarily hold for the callers
+of kernfs_security_xattr_*(), so their usage will easily lead to
+out-of-bounds access.
 
-This is fine with me, but if we're updating this file, we should
-probably add the following:
+Fix this by converting the helpers to take the full xattr name instead
+of just the suffix and moving the reconstruction to the xattr handlers.
+We now need to check if the prefix is correct in the helpers, but it
+saves us the difficulty of reconstructing the full name from just the
+plain suffix.
 
-F: include/uapi/linux/selinux_netlink.h
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Fixes: b230d5aba2d1 ("LSM: add new hook for kernfs node initialization")
+Fixes: ec882da5cda9 ("selinux: implement the kernfs_init_security hook")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ fs/kernfs/inode.c        | 38 ++++++++++++++++++--------------------
+ include/linux/kernfs.h   |  8 ++++----
+ security/selinux/hooks.c |  6 +++---
+ 3 files changed, 25 insertions(+), 27 deletions(-)
 
->  F:     security/selinux/
->  F:     scripts/selinux/
->  F:     Documentation/admin-guide/LSM/SELinux.rst
-
+diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
+index 673ef598d97d..1daa8aa9ec96 100644
+--- a/fs/kernfs/inode.c
++++ b/fs/kernfs/inode.c
+@@ -288,28 +288,20 @@ int kernfs_iop_permission(struct inode *inode, int mask)
+ 	return generic_permission(inode, mask);
+ }
+ 
+-static int kernfs_node_xattr_get(const struct xattr_handler *handler,
+-				 struct kernfs_node *kn, const char *suffix,
++static int kernfs_node_xattr_get(struct kernfs_node *kn, const char *name,
+ 				 void *value, size_t size)
+ {
+-	const char *name = xattr_full_name(handler, suffix);
+-	struct kernfs_iattrs *attrs;
+-
+-	attrs = kernfs_iattrs_noalloc(kn);
++	struct kernfs_iattrs *attrs = kernfs_iattrs_noalloc(kn);
+ 	if (!attrs)
+ 		return -ENODATA;
+ 
+ 	return simple_xattr_get(&attrs->xattrs, name, value, size);
+ }
+ 
+-static int kernfs_node_xattr_set(const struct xattr_handler *handler,
+-				 struct kernfs_node *kn, const char *suffix,
++static int kernfs_node_xattr_set(struct kernfs_node *kn, const char *name,
+ 				 const void *value, size_t size, int flags)
+ {
+-	const char *name = xattr_full_name(handler, suffix);
+-	struct kernfs_iattrs *attrs;
+-
+-	attrs = kernfs_iattrs(kn);
++	struct kernfs_iattrs *attrs = kernfs_iattrs(kn);
+ 	if (!attrs)
+ 		return -ENOMEM;
+ 
+@@ -320,9 +312,10 @@ static int kernfs_xattr_get(const struct xattr_handler *handler,
+ 			    struct dentry *unused, struct inode *inode,
+ 			    const char *suffix, void *value, size_t size)
+ {
++	const char *name = xattr_full_name(handler, suffix);
+ 	struct kernfs_node *kn = inode->i_private;
+ 
+-	return kernfs_node_xattr_get(handler, kn, suffix, value, size);
++	return kernfs_node_xattr_get(kn, name, value, size);
+ }
+ 
+ static int kernfs_xattr_set(const struct xattr_handler *handler,
+@@ -330,9 +323,10 @@ static int kernfs_xattr_set(const struct xattr_handler *handler,
+ 			    const char *suffix, const void *value,
+ 			    size_t size, int flags)
+ {
++	const char *name = xattr_full_name(handler, suffix);
+ 	struct kernfs_node *kn = inode->i_private;
+ 
+-	return kernfs_node_xattr_set(handler, kn, suffix, value, size, flags);
++	return kernfs_node_xattr_set(kn, name, value, size, flags);
+ }
+ 
+ static const struct xattr_handler kernfs_trusted_xattr_handler = {
+@@ -353,16 +347,20 @@ const struct xattr_handler *kernfs_xattr_handlers[] = {
+ 	NULL
+ };
+ 
+-int kernfs_security_xattr_get(struct kernfs_node *kn, const char *suffix,
++int kernfs_security_xattr_get(struct kernfs_node *kn, const char *name,
+ 			      void *value, size_t size)
+ {
+-	return kernfs_node_xattr_get(&kernfs_security_xattr_handler,
+-				     kn, suffix, value, size);
++	if (WARN_ON_ONCE(!strstarts(name, XATTR_SECURITY_PREFIX)))
++		return -EINVAL;
++
++	return kernfs_node_xattr_get(kn, name, value, size);
+ }
+ 
+-int kernfs_security_xattr_set(struct kernfs_node *kn, const char *suffix,
++int kernfs_security_xattr_set(struct kernfs_node *kn, const char *name,
+ 			      void *value, size_t size, int flags)
+ {
+-	return kernfs_node_xattr_set(&kernfs_security_xattr_handler,
+-				     kn, suffix, value, size, flags);
++	if (WARN_ON_ONCE(!strstarts(name, XATTR_SECURITY_PREFIX)))
++		return -EINVAL;
++
++	return kernfs_node_xattr_set(kn, name, value, size, flags);
+ }
+diff --git a/include/linux/kernfs.h b/include/linux/kernfs.h
+index 39eea07c2900..196a98cf39ed 100644
+--- a/include/linux/kernfs.h
++++ b/include/linux/kernfs.h
+@@ -371,9 +371,9 @@ __poll_t kernfs_generic_poll(struct kernfs_open_file *of,
+ 			     struct poll_table_struct *pt);
+ void kernfs_notify(struct kernfs_node *kn);
+ 
+-int kernfs_security_xattr_get(struct kernfs_node *kn, const char *suffix,
++int kernfs_security_xattr_get(struct kernfs_node *kn, const char *name,
+ 			      void *value, size_t size);
+-int kernfs_security_xattr_set(struct kernfs_node *kn, const char *suffix,
++int kernfs_security_xattr_set(struct kernfs_node *kn, const char *name,
+ 			      void *value, size_t size, int flags);
+ 
+ const void *kernfs_super_ns(struct super_block *sb);
+@@ -479,12 +479,12 @@ static inline int kernfs_setattr(struct kernfs_node *kn,
+ static inline void kernfs_notify(struct kernfs_node *kn) { }
+ 
+ static inline int kernfs_security_xattr_get(struct kernfs_node *kn,
+-					    const char *suffix, void *value,
++					    const char *name, void *value,
+ 					    size_t size)
+ { return -ENOSYS; }
+ 
+ static inline int kernfs_security_xattr_set(struct kernfs_node *kn,
+-					    const char *suffix, void *value,
++					    const char *name, void *value,
+ 					    size_t size, int flags)
+ { return -ENOSYS; }
+ 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index ab4b049daf17..716ae37d4834 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3394,7 +3394,7 @@ int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+ 	int rc;
+ 	char *context;
+ 
+-	rc = kernfs_security_xattr_get(kn_dir, XATTR_SELINUX_SUFFIX, NULL, 0);
++	rc = kernfs_security_xattr_get(kn_dir, XATTR_NAME_SELINUX, NULL, 0);
+ 	if (rc == -ENODATA)
+ 		return 0;
+ 	else if (rc < 0)
+@@ -3405,7 +3405,7 @@ int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+ 	if (!context)
+ 		return -ENOMEM;
+ 
+-	rc = kernfs_security_xattr_get(kn_dir, XATTR_SELINUX_SUFFIX, context,
++	rc = kernfs_security_xattr_get(kn_dir, XATTR_NAME_SELINUX, context,
+ 				       clen);
+ 	if (rc < 0) {
+ 		kfree(context);
+@@ -3439,7 +3439,7 @@ int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+ 	if (rc)
+ 		return rc;
+ 
+-	rc = kernfs_security_xattr_set(kn, XATTR_SELINUX_SUFFIX, context, clen,
++	rc = kernfs_security_xattr_set(kn, XATTR_NAME_SELINUX, context, clen,
+ 				       XATTR_CREATE);
+ 	kfree(context);
+ 	return rc;
 -- 
-paul moore
-www.paul-moore.com
+2.20.1
+
