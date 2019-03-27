@@ -2,142 +2,99 @@ Return-Path: <SRS0=p2GP=R6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC573C43381
-	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 07:56:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57DCDC4360F
+	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 15:21:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 925DB20811
-	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 07:56:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 255F221738
+	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 15:21:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tahdc1jv"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="YhX0YU+x";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="O3Wob0MK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726149AbfC0H46 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Mar 2019 03:56:58 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:45786 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725763AbfC0H46 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Mar 2019 03:56:58 -0400
-Received: by mail-ed1-f68.google.com with SMTP id m16so13093684edd.12
-        for <selinux@vger.kernel.org>; Wed, 27 Mar 2019 00:56:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:references:date:in-reply-to:message-id
-         :user-agent:mime-version:content-transfer-encoding;
-        bh=SXoPNWzh7Fq4sWIUlCWQLu0e9O8CBenmIkv07aNNtLY=;
-        b=Tahdc1jvcX6fz+dNUu/ZKT7RfKRipA3BQiS9CD/HhTsqqvElyMSQfvgZcaHeYiuXkf
-         QRECoE7PrWGmga/1xZSepxo0xgHr1G79/pQuXnJwE/tq+PcAWumvw7wJsFpY1kyNs4/c
-         xb708XHxqpE+CmoyP13oDehHYvrt/0VhQNa66FdZbwAusSQja6t4/TTMQAPMZPOVX4T+
-         4Wv1vzuALirxiFPlNLobbqF6wh0nCVkQpEl7Z67p0sVmM8YBWCJm+EhwmZateV/YGJUE
-         meRr/EWSjL627T/bw/04OGlIWmX1cnkhQD0tW7SP9ZK1u8qNYUeikI27bQxqkmfmDo9Y
-         /tkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:references:date:in-reply-to
-         :message-id:user-agent:mime-version:content-transfer-encoding;
-        bh=SXoPNWzh7Fq4sWIUlCWQLu0e9O8CBenmIkv07aNNtLY=;
-        b=CFcmtcWTBntE1eTSZoqGDx2DA+Izbawb2ZiENTe3MBjVdX+un0FEyk6lo2En/t1iXD
-         P//y/7lMv6O72kKqc3aGScgJQ5CDqtNkwXX9ydzjzsB0AY/Gj0zL5y2z/1qpPoG3dvFE
-         lq2pT5Tr4RnuuFcWJwE6zDGPqF2qqfNOsyplPouXK3KnCvebeESDS8IklguVsQFzryLc
-         BeMkIfo+qfKNrHmLgEQk3n+3cC+Xkihg/riqVYcMbv6w1Uxv7qS1vsDgfxTSmP1af6di
-         1RHJODI+DU1x1FMM7ToxH7dsRf7fqRywUSufpUp3GWxvDEBiwxSzlcMcd4rEfJP1GD3S
-         ZacA==
-X-Gm-Message-State: APjAAAWFhHFNez0GEtLhyNpnUP65D/AP0mBgCd7wSx4X2xk/RwASDuy0
-        qOUJbRroeGZSTU8cnsFbRI4QzDsq
-X-Google-Smtp-Source: APXvYqxX1jsslMsi2E/tvMLnQmII8oknbNiQgFGtymlraWX1iDOykNFSO7RRruEAlIYvXxsMhhyEGw==
-X-Received: by 2002:a50:b3bc:: with SMTP id s57mr14839973edd.206.1553673416430;
-        Wed, 27 Mar 2019 00:56:56 -0700 (PDT)
-Received: from brutus (brutus.defensec.nl. [2001:985:d55d::438])
-        by smtp.gmail.com with ESMTPSA id x20sm6405407eda.40.2019.03.27.00.56.54
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 27 Mar 2019 00:56:55 -0700 (PDT)
-From:   Dominick Grift <dac.override@gmail.com>
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org,
-        Laurent Bigonville <bigon@debian.org>
-Subject: Re: [PATCH 1/1] restorecond: use /run instead of /var/run
-References: <20190318210913.2392-1-nicolas.iooss@m4x.org>
-        <pjdlg18ihf8.fsf@redhat.com> <877ecspgz0.fsf@gmail.com>
-        <CAJfZ7=kN1CUYGiePHoE_HYw9NVRWErTKuWyet35_EMEiChMqgQ@mail.gmail.com>
-Date:   Wed, 27 Mar 2019 08:56:54 +0100
-In-Reply-To: <CAJfZ7=kN1CUYGiePHoE_HYw9NVRWErTKuWyet35_EMEiChMqgQ@mail.gmail.com>
-        (Nicolas Iooss's message of "Tue, 26 Mar 2019 22:33:53 +0100")
-Message-ID: <87k1gkn41l.fsf@gmail.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1729235AbfC0PTR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Mar 2019 11:19:17 -0400
+Received: from smtp.codeaurora.org ([198.145.29.96]:49884 "EHLO
+        smtp.codeaurora.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726803AbfC0PTQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Mar 2019 11:19:16 -0400
+Received: by smtp.codeaurora.org (Postfix, from userid 1000)
+        id 4646F60A44; Wed, 27 Mar 2019 15:19:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1553699955;
+        bh=51JRxIV5V99TBmU+8ktK+YaBInWdIjpfPvN6rtmpuZs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=YhX0YU+x1SA/NVCBBzl02/Hd7Ia1OF8EXtDOZjq81oa1wD2JQfcXfd6fWe68Itoad
+         Kj9C4XCCOyar7UanLkrDjlPM4jqiffdcr6rUVV2zxWORpmA+w0ID/L1mbXyjzu3syl
+         i3KAkTAQCgvIgCrLZexLggVc8adtNYZxSIEISloI=
+Received: from [10.204.79.83] (blr-c-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: mojha@smtp.codeaurora.org)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 3CF14609EF;
+        Wed, 27 Mar 2019 15:19:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=codeaurora.org;
+        s=default; t=1553699953;
+        bh=51JRxIV5V99TBmU+8ktK+YaBInWdIjpfPvN6rtmpuZs=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=O3Wob0MKpJPqJXa78K44JN/rZUi+IATolzQGGgCCOuf7UMU2yJo+3hTtx2fTAOZ/K
+         w6koamr8Gu55pEl0sVdpA1dK6Hjevg3Dnxx4qtpGo5SkUDFSun0ZOtvPWeYNGW101j
+         tSjwzbMTcc2O2mQ6ZCxhWZR7b/BLWfDpaAyRWenw=
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 3CF14609EF
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: pdx-caf-mail.web.codeaurora.org; spf=none smtp.mailfrom=mojha@codeaurora.org
+Subject: Re: [PATCH -next] selinux: Make selinux_kernfs_init_security static
+To:     Yue Haibing <yuehaibing@huawei.com>, paul@paul-moore.com,
+        sds@tycho.nsa.gov, eparis@parisplace.org
+Cc:     linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+References: <20190322140400.18892-1-yuehaibing@huawei.com>
+From:   Mukesh Ojha <mojha@codeaurora.org>
+Message-ID: <26670bec-f2cb-30b4-d275-83828a009a45@codeaurora.org>
+Date:   Wed, 27 Mar 2019 20:49:07 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190322140400.18892-1-yuehaibing@huawei.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 
-> On Thu, Mar 21, 2019 at 1:08 PM Dominick Grift <dac.override@gmail.com> w=
-rote:
->>
->> Petr Lautrbach <plautrba@redhat.com> writes:
->>
->> > Nicolas Iooss <nicolas.iooss@m4x.org> writes:
->> >
->> >> On most distributions, /var/run is a symbolic link to /run so using
->> >> /var/run or /run lead to the same result. Nevertheless systemd
->> >> started
->> >> to warn about using /var/run in a service file, logging entries such
->> >> as:
->> >>
->> >>     /usr/lib/systemd/system/restorecond.service:8: PIDFile=3D
->> >> references
->> >>     path below legacy directory /var/run/, updating
->> >>     /var/run/restorecond.pid =E2=86=92 /run/restorecond.pid; please
->> >> update the
->> >>     unit file accordingly.
->> >>
->> >> Switch to /run in order to follow this advice.
->> >>
->> >> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->>
->> There are other occurances of "/var/run" tree-wide. Some more important
->> than others: cd selinux; grep -r "/var/run" .
+On 3/22/2019 7:34 PM, Yue Haibing wrote:
+> From: YueHaibing <yuehaibing@huawei.com>
 >
-> Are all distribution using /run instead of /var/run with a symlink
-> from /var/run to /run? For me, it is all right to move a PID file,
-> which is only shared between the service and the service manager, but
-> moving files such as the Unix socket /var/run/setrans/.setrans-unix
-> could cause issues on systems where /var/run and /run are different
-> directories.
+> Fix sparse warning:
+>
+> security/selinux/hooks.c:3389:5: warning:
+>   symbol 'selinux_kernfs_init_security' was not declared. Should it be static?
+>
+> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
 
-FHS still mentions /var/run, so i suppose from that perspective it
-should be supported. but using /var/run can slow down boot time plus
-lets say mcstrans would be socket activated, then we would need a fc spec
-for /var/run or else systemd would create the socket with a wrong label
-and then you get into a chicken and egg situation and we will still be
-using /var/run in the next decade.
-
+-Mukesh
+> ---
+>   security/selinux/hooks.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
 >
-> Also, policycoreutils/scripts/fixfiles currently contains:
->
-> find /var/run \( -context "*:${UNLABELED}*" -o -context
-> "*:${UNDEFINED}*" \) -exec chcon --no-dereference --reference /var/run
-> {} \;
->
-> This command does not do anything useful when /var/run is a symlink
-> (either a slash needs to be added to the path, in order to use
-> /var/run, or /run needs to be specified too). Right now I do not have
-> much time to investigate how several distributions configure their
-> /run and /var/run directories (I am writing a research paper related
-> to Dell's iDRAC system, which appears to be using SELinux since its
-> version 9). If nobody else does this, I plan doing this work in April.
->
-> Thanks,
-> Nicolas
->
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index ab4b049..b6e6152 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -3386,8 +3386,8 @@ static int selinux_inode_copy_up_xattr(const char *name)
+>   
+>   /* kernfs node operations */
+>   
+> -int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+> -				 struct kernfs_node *kn)
+> +static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+> +					struct kernfs_node *kn)
+>   {
+>   	const struct task_security_struct *tsec = current_security();
+>   	u32 parent_sid, newsid, clen;
