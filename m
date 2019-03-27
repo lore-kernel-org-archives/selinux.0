@@ -2,155 +2,127 @@ Return-Path: <SRS0=p2GP=R6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B31C43381
-	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 18:57:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55A39C10F00
+	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 23:45:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A239B205C9
-	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 18:57:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1553713039;
-	bh=VLQpD9ysda82NUPP+yjejj87N86EGwt15W1DvXz3CAY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=KKIgS562bIerAlQ5zxTso4S8IBRcpU2dgGtBvBjfuHEQNQvwlpkzL5uFQLXi0Lhv/
-	 6hYhWdlINTeHtMH80+mezx1WsdPRYIBqUEN8TMqxWcvx1JeozNrQYRBUJLGpfGm8LR
-	 hOupdMiQ+15uqiz32t+sUrLkwvnW2+WglyF5aOZQ=
+	by mail.kernel.org (Postfix) with ESMTP id 2FA5620651
+	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 23:45:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389957AbfC0SQG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Mar 2019 14:16:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59930 "EHLO mail.kernel.org"
+        id S1733153AbfC0Xpa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Mar 2019 19:45:30 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:47570 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389943AbfC0SQF (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 27 Mar 2019 14:16:05 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1731431AbfC0Xpa (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 27 Mar 2019 19:45:30 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 980FC2082F;
-        Wed, 27 Mar 2019 18:16:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1553710564;
-        bh=VLQpD9ysda82NUPP+yjejj87N86EGwt15W1DvXz3CAY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIEvRUst5iXQ1SfTp5/Wr7llClBNkAIt2YG2UAZism5V7uqyNIjdsLU19cY+Ygazr
-         VXL6hSjOl/jyQPLNM06rgEVtHoNuWpbuj2PBsp11udfIv36YnE+WepKskx8zN+Le4f
-         ciGxIbG+yOByfowosvl/AjQQVBP/OkiXzjtoXXdw=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 179/192] selinux: do not override context on context mounts
-Date:   Wed, 27 Mar 2019 14:10:11 -0400
-Message-Id: <20190327181025.13507-179-sashal@kernel.org>
-X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190327181025.13507-1-sashal@kernel.org>
-References: <20190327181025.13507-1-sashal@kernel.org>
+        by mx1.redhat.com (Postfix) with ESMTPS id 5AB383001764;
+        Wed, 27 Mar 2019 23:45:29 +0000 (UTC)
+Received: from warthog.procyon.org.uk (ovpn-121-98.rdu2.redhat.com [10.10.121.98])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 93D405C640;
+        Wed, 27 Mar 2019 23:45:27 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+ Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+ Kingdom.
+ Registered in England and Wales under Company Registration No. 3798903
+Subject: [RFC PATCH 39/68] vfs: Convert selinuxfs to use the new mount API
+From:   David Howells <dhowells@redhat.com>
+To:     viro@zeniv.linux.org.uk
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        dhowells@redhat.com
+Date:   Wed, 27 Mar 2019 23:45:26 +0000
+Message-ID: <155373032676.7602.1297894864547368404.stgit@warthog.procyon.org.uk>
+In-Reply-To: <155372999953.7602.13784796495137723805.stgit@warthog.procyon.org.uk>
+References: <155372999953.7602.13784796495137723805.stgit@warthog.procyon.org.uk>
+User-Agent: StGit/unknown-version
 MIME-Version: 1.0
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Wed, 27 Mar 2019 23:45:29 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+Convert the selinuxfs filesystem to the new internal mount API as the old
+one will be obsoleted and removed.  This allows greater flexibility in
+communication of mount parameters between userspace, the VFS and the
+filesystem.
 
-[ Upstream commit 53e0c2aa9a59a48e3798ef193d573ade85aa80f5 ]
+See Documentation/filesystems/mount_api.txt for more information.
 
-Ignore all selinux_inode_notifysecctx() calls on mounts with SBLABEL_MNT
-flag unset. This is achived by returning -EOPNOTSUPP for this case in
-selinux_inode_setsecurtity() (because that function should not be called
-in such case anyway) and translating this error to 0 in
-selinux_inode_notifysecctx().
-
-This fixes behavior of kernfs-based filesystems when mounted with the
-'context=' option. Before this patch, if a node's context had been
-explicitly set to a non-default value and later the filesystem has been
-remounted with the 'context=' option, then this node would show up as
-having the manually-set context and not the mount-specified one.
-
-Steps to reproduce:
-    # mount -t cgroup2 cgroup2 /sys/fs/cgroup/unified
-    # chcon unconfined_u:object_r:user_home_t:s0 /sys/fs/cgroup/unified/cgroup.stat
-    # ls -lZ /sys/fs/cgroup/unified
-    total 0
-    -r--r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.controllers
-    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.max.depth
-    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.max.descendants
-    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.procs
-    -r--r--r--. 1 root root unconfined_u:object_r:user_home_t:s0 0 Dec 13 10:41 cgroup.stat
-    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.subtree_control
-    -rw-r--r--. 1 root root system_u:object_r:cgroup_t:s0        0 Dec 13 10:41 cgroup.threads
-    # umount /sys/fs/cgroup/unified
-    # mount -o context=system_u:object_r:tmpfs_t:s0 -t cgroup2 cgroup2 /sys/fs/cgroup/unified
-
-Result before:
-    # ls -lZ /sys/fs/cgroup/unified
-    total 0
-    -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.controllers
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.max.depth
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.max.descendants
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.procs
-    -r--r--r--. 1 root root unconfined_u:object_r:user_home_t:s0 0 Dec 13 10:41 cgroup.stat
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.subtree_control
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0         0 Dec 13 10:41 cgroup.threads
-
-Result after:
-    # ls -lZ /sys/fs/cgroup/unified
-    total 0
-    -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.controllers
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.max.depth
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.max.descendants
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.procs
-    -r--r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.stat
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.subtree_control
-    -rw-r--r--. 1 root root system_u:object_r:tmpfs_t:s0 0 Dec 13 10:41 cgroup.threads
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: David Howells <dhowells@redhat.com>
+cc: Paul Moore <paul@paul-moore.com>
+cc: Stephen Smalley <sds@tycho.nsa.gov>
+cc: Eric Paris <eparis@parisplace.org>
+cc: selinux@vger.kernel.org
+cc: linux-security-module@vger.kernel.org
 ---
- security/selinux/hooks.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 6ea3d3aa1a1e..4337b6d9369e 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3458,12 +3458,16 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
- 				     const void *value, size_t size, int flags)
+ security/selinux/selinuxfs.c |   20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 145ee62f205a..ccfe86dfa784 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -19,6 +19,7 @@
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <linux/fs.h>
++#include <linux/fs_context.h>
+ #include <linux/mount.h>
+ #include <linux/mutex.h>
+ #include <linux/init.h>
+@@ -1893,7 +1894,7 @@ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
+ 
+ #define NULL_FILE_NAME "null"
+ 
+-static int sel_fill_super(struct super_block *sb, void *data, int silent)
++static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
  {
- 	struct inode_security_struct *isec = inode_security_novalidate(inode);
-+	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
- 	u32 newsid;
- 	int rc;
- 
- 	if (strcmp(name, XATTR_SELINUX_SUFFIX))
- 		return -EOPNOTSUPP;
- 
-+	if (!(sbsec->flags & SBLABEL_MNT))
-+		return -EOPNOTSUPP;
-+
- 	if (!value || !size)
- 		return -EACCES;
- 
-@@ -6612,7 +6616,10 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
-  */
- static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
- {
--	return selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX, ctx, ctxlen, 0);
-+	int rc = selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX,
-+					   ctx, ctxlen, 0);
-+	/* Do not return error when suppressing label (SBLABEL_MNT not set). */
-+	return rc == -EOPNOTSUPP ? 0 : rc;
+ 	struct selinux_fs_info *fsi;
+ 	int ret;
+@@ -2009,10 +2010,19 @@ static int sel_fill_super(struct super_block *sb, void *data, int silent)
+ 	return ret;
  }
  
- /*
--- 
-2.19.1
+-static struct dentry *sel_mount(struct file_system_type *fs_type,
+-		      int flags, const char *dev_name, void *data)
++static int sel_get_tree(struct fs_context *fc)
+ {
+-	return mount_single(fs_type, flags, data, sel_fill_super);
++	return vfs_get_super(fc, vfs_get_single_super, sel_fill_super);
++}
++
++static const struct fs_context_operations sel_context_ops = {
++	.get_tree	= sel_get_tree,
++};
++
++static int sel_init_fs_context(struct fs_context *fc)
++{
++	fc->ops = &sel_context_ops;
++	return 0;
+ }
+ 
+ static void sel_kill_sb(struct super_block *sb)
+@@ -2023,7 +2033,7 @@ static void sel_kill_sb(struct super_block *sb)
+ 
+ static struct file_system_type sel_fs_type = {
+ 	.name		= "selinuxfs",
+-	.mount		= sel_mount,
++	.init_fs_context = sel_init_fs_context,
+ 	.kill_sb	= sel_kill_sb,
+ };
+ 
 
