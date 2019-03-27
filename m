@@ -4,50 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0A45C43381
-	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 18:09:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C73F8C43381
+	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 18:39:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 809C6217F5
-	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 18:09:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 914282070B
+	for <selinux@archiver.kernel.org>; Wed, 27 Mar 2019 18:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1553710195;
-	bh=dhB+nJjCKHYyE1/ZbW72elKblZJ8Gnr4w/43IGlIqCs=;
+	s=default; t=1553711967;
+	bh=W5jwNCUE7tgEoma8OtSQScrrXgLVw00wfHnvYMXbogs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=zHt6E4a5jj7w2PSGe/j/PaY5f7jJ6W45rSseR5tFHYw3NTb5NsxHHFLaXnHl4rPyJ
-	 jCnTzuhmvW7ptnY3yg+XRfzF9i+j348J1LQR4NS0HH9hymUMe6olOm0eCbFUhc6bAk
-	 zQaqdv54BVyKgvu9H+1EpkLMkv7uu67o6d8WzmMY=
+	b=bLhFo/1gd+/RzTfSfOyf9H19zKPEQ9lA5044W7fhXheaW5Wv5TDCv985wAMybHDIB
+	 OKV0oFMRhNkNhyZoLW1BCOFR4CQ+CCSlLgvW6NJkH96ozhDSfTVMjMcdmWR6GqEMAU
+	 SxET3ltJhGhxnGYfnZuRHM3JhEq+EKBrveODc/0k=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388667AbfC0SJz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Mar 2019 14:09:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51840 "EHLO mail.kernel.org"
+        id S2391435AbfC0SXO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Mar 2019 14:23:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388058AbfC0SJy (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 27 Mar 2019 14:09:54 -0400
+        id S2388836AbfC0SXO (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 27 Mar 2019 14:23:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73712217F5;
-        Wed, 27 Mar 2019 18:09:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0FFA2184C;
+        Wed, 27 Mar 2019 18:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1553710193;
-        bh=dhB+nJjCKHYyE1/ZbW72elKblZJ8Gnr4w/43IGlIqCs=;
+        s=default; t=1553710993;
+        bh=W5jwNCUE7tgEoma8OtSQScrrXgLVw00wfHnvYMXbogs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zzsP0nyCapuqndupcxJCP9p+djYXjpe5KGQQJ4dgXnBNxffZvKmarM0Ak9st5UmpF
-         VkVhkpb/CWJyUmXOK4o/T5zk83OpJYpCbRck08hRbQlzuH6xFjDX2hljry1UfaO7Jc
-         YD/rYlvIx83pm7a0FoSpmoRxbjr4bRiVBjbg1YFY=
+        b=r4LL4ONYhMCQpYln8KNQn95iHADordt7S9mRuLoHxP0hSljt8sT7hjwdTACo7D3cG
+         ZpAgV5KjTRAR+Fk5Y16oM7Dhr+swzdiQJ6/Ja+2oCjVp7PWr3BxiOYCyOB4ljbNR+2
+         AUAw1Wnme5U6QSiPSQhl894OduRXKGeFze+8fwNw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
         Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 244/262] selinux: do not override context on context mounts
-Date:   Wed, 27 Mar 2019 14:01:39 -0400
-Message-Id: <20190327180158.10245-244-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 82/87] selinux: do not override context on context mounts
+Date:   Wed, 27 Mar 2019 14:20:35 -0400
+Message-Id: <20190327182040.17444-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.19.1
-In-Reply-To: <20190327180158.10245-1-sashal@kernel.org>
-References: <20190327180158.10245-1-sashal@kernel.org>
+In-Reply-To: <20190327182040.17444-1-sashal@kernel.org>
+References: <20190327182040.17444-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -118,10 +119,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index cf20dd36a30f..07b11b5aaf1f 100644
+index d293b546a2aa..9bd6f97ccd21 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -3244,12 +3244,16 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+@@ -3265,12 +3265,16 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
  				     const void *value, size_t size, int flags)
  {
  	struct inode_security_struct *isec = inode_security_novalidate(inode);
@@ -138,7 +139,7 @@ index cf20dd36a30f..07b11b5aaf1f 100644
  	if (!value || !size)
  		return -EACCES;
  
-@@ -6398,7 +6402,10 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
+@@ -5984,7 +5988,10 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
   */
  static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
  {
