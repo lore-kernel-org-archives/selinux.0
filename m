@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED99AC4360F
-	for <selinux@archiver.kernel.org>; Fri,  5 Apr 2019 00:32:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07FAFC4360F
+	for <selinux@archiver.kernel.org>; Fri,  5 Apr 2019 14:09:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A6325217D4
-	for <selinux@archiver.kernel.org>; Fri,  5 Apr 2019 00:32:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ADDB7218AE
+	for <selinux@archiver.kernel.org>; Fri,  5 Apr 2019 14:08:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="dW+DdisZ"
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="OAXhJ+Xb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730303AbfDEAcr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Apr 2019 20:32:47 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:33391 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727053AbfDEAcr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Apr 2019 20:32:47 -0400
-Received: by mail-qt1-f195.google.com with SMTP id k14so5573837qtb.0
-        for <selinux@vger.kernel.org>; Thu, 04 Apr 2019 17:32:45 -0700 (PDT)
+        id S1728743AbfDEOI7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 Apr 2019 10:08:59 -0400
+Received: from mail-qk1-f193.google.com ([209.85.222.193]:45321 "EHLO
+        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727212AbfDEOI7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 Apr 2019 10:08:59 -0400
+Received: by mail-qk1-f193.google.com with SMTP id z76so3846809qkb.12
+        for <selinux@vger.kernel.org>; Fri, 05 Apr 2019 07:08:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=TBUv0xo52UgMQ0Qk761ocEUqlnjsbrtXW2shXfovCYQ=;
-        b=dW+DdisZWiq0q0a0wIZ1v/8L0Oyov7ZDL+SS0cWKq+AtFV42+5vpp5sGgVWYIuUmaN
-         hh7d0ewe9JxQ6qOK1vjaWAdV5JqX4YJ3gXgbyQ2FSyVrnFzHETw47sr1doW2MumzTtwq
-         SCts8Gnc4xl5dTJ00Tq8cA7kWTvvez5lVC7WFi9KgMkXEM9v+ZSp46yJEIYHtqnbFIrl
-         fVkFTNT9vSBUa2M9i6wIQSIzAxXyVscvhp001CUD9dS03gVvoia6861YVJd9bcqUtsDn
-         /VYGvwFVb5E5FvAEoqg9PV93a94c/om9UMUuZVIb37AVFjFdIlXRz/CHN/dKj6o6idnA
-         7i7Q==
+        bh=4Hn82htNunmg1aiEcKkE63x5r+11BNrKaGsJHc7ZLH0=;
+        b=OAXhJ+XbgCO7h/E9S1nPRzFSAWb1JRZujZb+V3sDY4QF1EXzDXe33srjPyqSD+Qtb/
+         n3ZhqcfwTiFmfQ6ujNwYYijanpJZkZgBcJpukoF8pd5K2glTNfdj5FzXjBCs7siBdqKw
+         j7678RlkcYsu2k0+dXIVWka76i72nIAnH7uUUJmR41arMAJvIb65AuNOpdL3s5EV4vLz
+         fcLBJUZcyWnw9P+dS7jhljlPty6+wuJpIHS7nuoIx/qfs4YKY+YhlFC/Xl3K/waG1xQI
+         ky04fB//IeO7l5DW31Hs22Ot4jgiLUJ5ccLZOMR2gfg1KQqVmY73GN6tROx0HruKS31C
+         0aUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=TBUv0xo52UgMQ0Qk761ocEUqlnjsbrtXW2shXfovCYQ=;
-        b=l6dkrGEpvGRsIzFnI4TZBfPIxHI8xOit0H/dDvPAnsY6gcsn2QgF8BzwWaScg2FWZr
-         K1PzL0MTENpghUhwxsTz+k9n73I+ISSrQmfoMY8z5UwDgO9Qxk7rjSaR5SYUD82naNeH
-         DnIOEpl751vo9GRIGOGlf7Sj9JE+fyLrjAvx30M1x7AAVxBBDWlL6rbeRvc49rkpQNM+
-         N0M6enmlyzI4IRpj8S8OD/WX8XxCb7VW21YoL0pRK5JFpoCTUFCbrXTOwjKDjCbv044f
-         x+xxcEynAIrBMN6+oF2NdfFtho/BSluOiXoCLQKRUmy1ewdE3j0spKsoSAiA5SFgcOdt
-         IJDA==
-X-Gm-Message-State: APjAAAVQPg5TbkzFJxbXM9N2awWJo8lHSqIU+gw/rJc06sDlXRsALRxD
-        jpBqsoBKgQF3RUYoqpaQ2aUD9SxsQuw=
-X-Google-Smtp-Source: APXvYqye5Kzkrt45bL1w1pLjCrUnQvQy9O6As76pTHzHYrcxHXQzBOuCTaO186V57L+hKmB5g/VJmQ==
-X-Received: by 2002:ac8:1876:: with SMTP id n51mr8251818qtk.234.1554424365139;
-        Thu, 04 Apr 2019 17:32:45 -0700 (PDT)
+        bh=4Hn82htNunmg1aiEcKkE63x5r+11BNrKaGsJHc7ZLH0=;
+        b=rWNhdXZM4SHFU1zK/ycycCUaB/gMePhW9V/br5e0W000/LhZ8otgxsD3ElcrRi/WId
+         Y4EMBwg5+FezPBPO7eTJ+mna+2Fln8uYIdwI8xDzdBqyG9XCG8PD7hwVw6WemgIDMtjn
+         F01YT2OrVekMYfetXSKnpzVosm6wRpsOxU4UI28ruHxI/QnhSlmMIJPqWoALONjIfoCc
+         zwsSLLReJ4wyRw+QcoUW63lfwhsVd7Ihh5ybkK/3YFEFVUq5U27p+bldRJdkUqHIYBZw
+         incRxWrDkUnE6TzPX9/MpZxVx0uVEwQiSC7rL1C7uQTx2nm17aZdo4HxFfuVRCiPBbg9
+         X5HQ==
+X-Gm-Message-State: APjAAAVVzUy2Koe/DuRbzQ36EjJo9XHBxKx9xcSBM9xDkyY/y036Uvxp
+        /FI7b2bXm9/ku3sHnujpPg4hacivlSs=
+X-Google-Smtp-Source: APXvYqzmayPfAOTHWE71bMse2IG5vo3+i96ad7ckx1xvRHNit8/idc1cM4ONIeJJpiu88IVZ/agQIg==
+X-Received: by 2002:a37:a34a:: with SMTP id m71mr10400876qke.323.1554473336965;
+        Fri, 05 Apr 2019 07:08:56 -0700 (PDT)
 Received: from localhost.localdomain (pool-71-121-242-40.bltmmd.fios.verizon.net. [71.121.242.40])
-        by smtp.gmail.com with ESMTPSA id t34sm15964800qth.36.2019.04.04.17.32.44
+        by smtp.gmail.com with ESMTPSA id g15sm14838124qta.31.2019.04.05.07.08.55
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 04 Apr 2019 17:32:44 -0700 (PDT)
+        Fri, 05 Apr 2019 07:08:55 -0700 (PDT)
 From:   Joshua Brindle <joshua.brindle@crunchydata.com>
 To:     selinux@vger.kernel.org
 Cc:     Joshua Brindle <joshua.brindle@crunchydata.com>
-Subject: [PATCH] Add security_validatetrans support
-Date:   Thu,  4 Apr 2019 17:32:33 -0700
-Message-Id: <20190405003233.29183-1-joshua.brindle@crunchydata.com>
+Subject: [PATCH v3] Add security_validatetrans support
+Date:   Fri,  5 Apr 2019 07:08:50 -0700
+Message-Id: <20190405140850.3873-1-joshua.brindle@crunchydata.com>
 X-Mailer: git-send-email 2.17.2
-In-Reply-To: <CAGB+Vh5n3_+MvL_8XAvAV+L8cX_gO26yEp3ZJyzhhLURwXqV7A@mail.gmail.com>
-References: <CAGB+Vh5n3_+MvL_8XAvAV+L8cX_gO26yEp3ZJyzhhLURwXqV7A@mail.gmail.com>
+In-Reply-To: <20190405003233.29183-1-joshua.brindle@crunchydata.com>
+References: <20190405003233.29183-1-joshua.brindle@crunchydata.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -203,7 +203,7 @@ index 70b5025d..acd59c7c 100644
      hidden_proto(freecon)
 diff --git a/libselinux/src/validatetrans.c b/libselinux/src/validatetrans.c
 new file mode 100644
-index 00000000..1bb5df2d
+index 00000000..e080e166
 --- /dev/null
 +++ b/libselinux/src/validatetrans.c
 @@ -0,0 +1,98 @@
@@ -264,8 +264,8 @@ index 00000000..1bb5df2d
 +		// The kernel returns the bytes written on success, not 0 as noted in the commit message
 +		ret = 0;
 +	}
-+	free(buf);
 +out:
++	free(buf);
 +	close(fd);
 +	return ret;
 +}
@@ -316,7 +316,7 @@ index 5cd01025..aba18a3c 100644
 +validatetrans
 diff --git a/libselinux/utils/validatetrans.c b/libselinux/utils/validatetrans.c
 new file mode 100644
-index 00000000..fa8541f6
+index 00000000..1db33e66
 --- /dev/null
 +++ b/libselinux/utils/validatetrans.c
 @@ -0,0 +1,30 @@
@@ -348,7 +348,7 @@ index 00000000..fa8541f6
 +	ret = security_validatetrans(argv[1], argv[2], tclass, argv[4]);
 +	printf("security_validatetrans returned %d errno: %s\n", ret, strerror(errno));
 +
-+	return(ret);
++	return ret;
 +}
 -- 
 2.17.2
