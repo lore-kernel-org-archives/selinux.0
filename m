@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC56FC10F0E
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFB63C282DE
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 725212084B
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FE722084B
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="NLfUfyIu"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="N9bP+mtB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726780AbfDIUAM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Apr 2019 16:00:12 -0400
-Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:38820
-        "EHLO sonic317-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726753AbfDIUAL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 16:00:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554840007; bh=7li7tkNnxiLkHtu/0oyIewmS2h9OYS5xrTRq2nlRU0I=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=NLfUfyIuAY2orbxRPnI7Ait6551fMKsvyl0vEmLi3AzV/QQ5NsbtfN4iFKeSY2UAqP8SNzBI/gipx9W/Rb4PuPt1B4IevvKlVVe5jSt4qMZi6HyuQfOjgdoyNnftqC28L9ejElUxG/uoyePWVv8ph3MiIlm/1so3OnKgaKs5xOOLAjmM1lFBYdoUKJn7njSbjtpBC+mUBjRRyA/ofJf7tuURFcXViXjwrwuAevR0+kDKPRIk3UAnPaNo/AT1E/6xriOCdmK8eK0G+fyunwbzwMb0YP715V3Nj45QTq11jhFn9VvdeHdKWz163ikFE1nKbwRMfQKlZebg505bmYou5A==
-X-YMail-OSG: jpp2b5wVM1nmTwdgi9ud8inKTLtrbcnq8j3zQjzj.EWwSZHW1IPOlcWnvBWmMJ2
- 6MU5lPNdJnvSJC40jCxbPmdId5Pu2iFKuEbW7svf.WErGHsCUd3v5zfGRdG0CwqyhpbFuFZq6h5H
- dNbA1SIRk.Vxsz2vT48r_oO_07o75se054SLk5Icj7NpmA5L0vNMwOYmaL9GErKklL_hu_G1cvDZ
- BN09.zAN.pkcB9WfHhYqOOVJINa_kxybXx9aisEYCSMhJLkj96qqjU55tS9Lk77yP_D4.rHRzup5
- vZHAEeJ2NckvmYz4fPsUeVukPlPyeHquLFadQEC2Nx.nF4aHKAvVNyr5mUsTiAr8LUKSOULRAgoC
- Uz7C_hUNn54waRZJpPJmGBUktWHq3IZBH8yMlHKgZDQxXipcYUaWo5fpTz2skQruhhwYKKmOyB32
- ysf0nJCB49qkCj1wHlJXsgctxkA5HrCE1mQqVR6xeCozBi2FvL0.Q1P6tLSEKxnVjzcZnpHzVgCY
- i5GZ5h0h8SLLZL4VOaZZh.pm2SSqDefhdQj7Z88kqfa_YEJIGq0l98EmvvSlJbfpBo9ghBVH_ECE
- w0phWc5x6xbqiHaK55hwTijSBWopFpYJhs2Y47ZCKXITZMghmarT157_EAPr16GRz.4K969RGN5B
- ELPIyHN6zN0.YyIWapT_NUw3LkvRDw4EGEyGISIYq_RJmamPnsRk1OrP.PIzWQph6RSEDbKCfW5n
- KBUwCkztbaUTvrqVjjbrW5.pdkY0I3XyrZdFkvhrGms5Y34tG3HGoxIxfuOHGcmGN1i_R.pWjEsb
- bpjN2a39tBYifR27eJ1IZ9CbFl0XJhynLOilfvcbLCs14imMW5y3kYtYjSEu7tpKkfu74MpUZsUQ
- t4DlIF8fRoZHo8M_9ItdDZR_FVApzHWPFvseqan4UwRXL2Ec.PJwt.f5.YZEsKLptGH18wPb9jay
- mQ1YzE9.OpU9OM0hlKMBHyp60hyX9EPNjstpheuLlP.9IqboP1vhUkyk958oqmlWnpg5t7fGF6Vd
- F1JzGhMkHQ9S75GLtkiE8kw792U8pwPhbhxtssYB97KUIg2Jtd7cWznXRAgVAqmt1AP.NrGt4Lpq
- Vwl16npniiROPvX6rAobEyIBUAldANkD0RPdA9UPssvZE9fGUtdWf_up_lA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Apr 2019 20:00:07 +0000
+        id S1726827AbfDIUAS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Apr 2019 16:00:18 -0400
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:43736
+        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726814AbfDIUAR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 16:00:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554840015; bh=rnYFo5ZRZDk+OWS44zRZyocobFLx6h6kqTHu/9Enlaw=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=N9bP+mtBxLmmUZRez8Ai1vW13xwo2mJ2XOMMs4YW2W8qfBeX1NNn2hTGwHiqNDJl4Q6kKXrv6SxtWmP5Hd1GFR2lDgFnxeY00ldndwGYZRzje3Syx6MwBy3rbGGuMJQCL64O9ofiWLcDZXobsndgjM22n+reg9EOE+hcrwf8j9PcqsxtjeSoBYvDHJWez79gGNoyeEXQ19kc3qJuPQaUZ416DF509qenwgVL6V0KGeu5uNNBFxdWWPxLa3cfrfah0UK0UvLqr2SBovIiewDlkL3/Rq1NnpF/BaTJzGGRs+6SkjMHAfo6w8ASarpyGVKNJBDFr5QC//89NVtUuYRIkw==
+X-YMail-OSG: cOIehTMVM1l48l75loeOoMuPXIuYV9FYfD72XkX66O6nW6dFddSwr2E4N5rZ1OP
+ it7ELxB4jKlOrbnuSxp6HigKvmqARGfpr738R54abFKe80hF4vOqHWzPVMyT0TcoBjtHY_J10.Rq
+ J2nEqrGuKIrEBwQp6zHT.JmldfBdRKOMgLB5xaq9YaFfHefdE8bkxLqKSEDfMc1m08MHKhAZhK0S
+ JMtlT0TjnJn95Ax15Ja_T0I3B1ljnVIkkr2W2S1_tJLKN27YTE7h3ed8p79Z05hQm7dQJ_kRQKCc
+ AEss3_capB82wqROtBvodQ5tgKj8mZOykMBUd025FPZS81eg_uwHtz5fL3NWeXsO9uM.QDWHzYzu
+ MJFL2rV21vJ42P7LZKNZ95AxTCinbBUNiNiCkqG52O7okmoUxyfBHSYsJAB3SgUSa0Yv8IJBTfz1
+ MTInXTMWZ1julqxxCFVkCQojXCj3ppfMZPlwWVueKoK1lzF0x6xS8WBO9ABWGbxLJD1r1dkzHNyp
+ VpFQe4Rtx4D7RTTwA5that1r78eCsT8zi.su060cN5uIenwEpuLJoDqZMjfoko52eTDuueG6z35o
+ zokQS1q9EWd0PH_ctCc.LUX1SIq2VHO8oD3pOF3r6ruRpNk6rPPu9oq9bR9IiwqTGh5JH2jn0t2Z
+ VzVidqrStq.Bfhp9sPO1gmx4n2t3kYAQXnjpneEOmQxALIN0IOdgFE27obXe2MhbakZwcD.FNysf
+ tKutKoYt.WcbF76kQZT1I5c.emaXMIVysN19P0_dLuhjHYcPYu113VmOy_jkWV9xlvZZ0c6b2qJJ
+ 6z_zDMQPHK4IugTzVXWQSV97CPeSl815U0zGL0TEG6GHp75sjBLp.Bh2qHcGXBeuAv3PjSEx8MJZ
+ ZEakiBvwN9IubKD2qtr.SQ86HieVTnDEf4YBHm6hQVMsCImgkRoEwlNn3kfSjgu7OSiXDQ1MW3dp
+ ZX4eUf.hfHWZN9TIOwbY.3d4viErbcRH9n6C_bmgdAARHj3d0R9T4SjmhvbSiC1UHQOur81tnaa9
+ 5b_StM4RmQP1GHO.M01sruRMY6feb0ddP8V8ExtG6LOeZrkEA6oCWI67hShkk7P3o1S6C9SNOCqv
+ Lv6zz8dFce7F7HXBeYOnpSWbxisgKdXSC19HIWQ45tF0Y56qyMWgzDGwABvkH
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Apr 2019 20:00:15 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp401.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 24fceb1ba198cd68afe9603a17bf6fc8;
-          Tue, 09 Apr 2019 20:00:07 +0000 (UTC)
+          Tue, 09 Apr 2019 20:00:10 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH 18/59] LSM: Use lsm_export in security_secid_to_secctx
-Date:   Tue,  9 Apr 2019 12:58:43 -0700
-Message-Id: <20190409195924.1509-19-casey@schaufler-ca.com>
+Subject: [PATCH 20/59] LSM: Use lsm_export in security_task_getsecid
+Date:   Tue,  9 Apr 2019 12:58:45 -0700
+Message-Id: <20190409195924.1509-21-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190409195924.1509-1-casey@schaufler-ca.com>
 References: <20190409195924.1509-1-casey@schaufler-ca.com>
@@ -58,427 +58,317 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Convert security_secid_to_secctx to use the lsm_export structure
+Convert security_task_getsecid to use the lsm_export structure
 instead of a u32 secid. There is some scaffolding involved
 that will be removed when the related data is updated.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- drivers/android/binder.c                |  4 +++-
- include/linux/security.h                |  9 +++++++--
- include/net/scm.h                       |  4 +---
- kernel/audit.c                          |  9 +++++++--
- kernel/auditsc.c                        | 13 +++++++++----
- net/ipv4/ip_sockglue.c                  |  5 ++---
- net/netfilter/nf_conntrack_netlink.c    |  8 ++++++--
- net/netfilter/nf_conntrack_standalone.c |  4 +++-
- net/netfilter/nfnetlink_queue.c         |  8 ++++++--
- net/netlabel/netlabel_unlabeled.c       | 18 ++++++++++++++----
- net/netlabel/netlabel_user.c            |  6 +++---
- net/unix/af_unix.c                      |  9 ++++++---
- security/security.c                     |  8 ++------
- 13 files changed, 69 insertions(+), 36 deletions(-)
+ drivers/android/binder.c              |  4 +---
+ include/linux/security.h              |  7 ++++---
+ kernel/audit.c                        |  4 ++--
+ kernel/auditfilter.c                  |  4 +---
+ kernel/auditsc.c                      | 18 +++++++++++-------
+ net/netlabel/netlabel_unlabeled.c     |  4 +++-
+ net/netlabel/netlabel_user.h          |  5 ++++-
+ security/integrity/ima/ima_appraise.c |  4 +++-
+ security/integrity/ima/ima_main.c     | 16 ++++++++++++----
+ security/security.c                   |  8 +++-----
+ 10 files changed, 44 insertions(+), 30 deletions(-)
 
 diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 8685882da64c..9119333f794b 100644
+index 9119333f794b..0eeb5b75da5b 100644
 --- a/drivers/android/binder.c
 +++ b/drivers/android/binder.c
-@@ -3120,9 +3120,11 @@ static void binder_transaction(struct binder_proc *proc,
+@@ -3119,11 +3119,9 @@ static void binder_transaction(struct binder_proc *proc,
+ 	t->priority = task_nice(current);
  
  	if (target_node && target_node->txn_security_ctx) {
- 		u32 secid;
-+		struct lsm_export le;
+-		u32 secid;
+ 		struct lsm_export le;
  
- 		security_task_getsecid(proc->tsk, &secid);
--		ret = security_secid_to_secctx(secid, &secctx, &secctx_sz);
-+		lsm_export_to_all(&le, secid);
-+		ret = security_secid_to_secctx(&le, &secctx, &secctx_sz);
+-		security_task_getsecid(proc->tsk, &secid);
+-		lsm_export_to_all(&le, secid);
++		security_task_getsecid(proc->tsk, &le);
+ 		ret = security_secid_to_secctx(&le, &secctx, &secctx_sz);
  		if (ret) {
  			return_error = BR_FAILED_REPLY;
- 			return_error_param = ret;
 diff --git a/include/linux/security.h b/include/linux/security.h
-index 991d2d2e290e..5cea6260bbd9 100644
+index 6ac48c7c4a41..ae4c058abc5e 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -115,6 +115,10 @@ static inline void lsm_export_secid(struct lsm_export *data, u32 *secid)
- 	case LSM_EXPORT_APPARMOR:
- 		*secid = data->apparmor;
- 		break;
-+	case LSM_EXPORT_SELINUX | LSM_EXPORT_SMACK | LSM_EXPORT_APPARMOR:
-+		/* For scaffolding only */
-+		*secid = data->selinux;
-+		break;
- 	default:
- 		pr_warn("%s flags=0x%u - not a valid set\n", __func__,
- 			data->flags);
-@@ -436,7 +440,7 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
- 			 size_t size);
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_ismaclabel(const char *name);
--int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
-+int security_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen);
- int security_secctx_to_secid(const char *secdata, u32 seclen,
- 			     struct lsm_export *l);
- void security_release_secctx(char *secdata, u32 seclen);
-@@ -1214,7 +1218,8 @@ static inline int security_ismaclabel(const char *name)
+@@ -394,7 +394,7 @@ int security_task_fix_setuid(struct cred *new, const struct cred *old,
+ int security_task_setpgid(struct task_struct *p, pid_t pgid);
+ int security_task_getpgid(struct task_struct *p);
+ int security_task_getsid(struct task_struct *p);
+-void security_task_getsecid(struct task_struct *p, u32 *secid);
++void security_task_getsecid(struct task_struct *p, struct lsm_export *l);
+ int security_task_setnice(struct task_struct *p, int nice);
+ int security_task_setioprio(struct task_struct *p, int ioprio);
+ int security_task_getioprio(struct task_struct *p);
+@@ -1023,9 +1023,10 @@ static inline int security_task_getsid(struct task_struct *p)
  	return 0;
  }
  
--static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
-+static inline int security_secid_to_secctx(struct lsm_export *l,
-+					   char **secdata, u32 *seclen)
+-static inline void security_task_getsecid(struct task_struct *p, u32 *secid)
++static inline void security_task_getsecid(struct task_struct *p,
++					  struct lsm_export *l)
  {
- 	return -EOPNOTSUPP;
+-	*secid = 0;
++	lsm_export_init(l);
  }
-diff --git a/include/net/scm.h b/include/net/scm.h
-index 13b8a369fd89..b5d1c24318e3 100644
---- a/include/net/scm.h
-+++ b/include/net/scm.h
-@@ -33,7 +33,6 @@ struct scm_cookie {
- 	struct scm_fp_list	*fp;		/* Passed files		*/
- 	struct scm_creds	creds;		/* Skb credentials	*/
- #ifdef CONFIG_SECURITY_NETWORK
--	u32			secid;		/* Passed security ID 	*/
- 	struct lsm_export	le;		/* Passed LSM data */
- #endif
- };
-@@ -48,7 +47,6 @@ struct scm_fp_list *scm_fp_dup(struct scm_fp_list *fpl);
- static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
- {
- 	security_socket_getpeersec_dgram(sock, NULL, &scm->le);
--	lsm_export_secid(&scm->le, &scm->secid);
- }
- #else
- static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
-@@ -99,7 +97,7 @@ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct sc
- 	int err;
  
- 	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
--		err = security_secid_to_secctx(scm->secid, &secdata, &seclen);
-+		err = security_secid_to_secctx(&scm->le, &secdata, &seclen);
- 
- 		if (!err) {
- 			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
+ static inline int security_task_setnice(struct task_struct *p, int nice)
 diff --git a/kernel/audit.c b/kernel/audit.c
-index c89ea48c70a6..b5d96a0320fb 100644
+index b5d96a0320fb..fa4c5544eb37 100644
 --- a/kernel/audit.c
 +++ b/kernel/audit.c
-@@ -1430,7 +1430,10 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
- 	case AUDIT_SIGNAL_INFO:
- 		len = 0;
- 		if (audit_sig_sid) {
--			err = security_secid_to_secctx(audit_sig_sid, &ctx, &len);
-+			struct lsm_export le;
-+
-+			lsm_export_to_all(&le, audit_sig_sid);
-+			err = security_secid_to_secctx(&le, &ctx, &len);
- 			if (err)
- 				return err;
- 		}
-@@ -2073,12 +2076,14 @@ int audit_log_task_context(struct audit_buffer *ab)
- 	unsigned len;
- 	int error;
+@@ -2078,11 +2078,11 @@ int audit_log_task_context(struct audit_buffer *ab)
  	u32 sid;
-+	struct lsm_export le;
+ 	struct lsm_export le;
  
- 	security_task_getsecid(current, &sid);
+-	security_task_getsecid(current, &sid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &sid);
  	if (!sid)
  		return 0;
  
--	error = security_secid_to_secctx(sid, &ctx, &len);
-+	lsm_export_to_all(&le, sid);
-+	error = security_secid_to_secctx(&le, &ctx, &len);
+-	lsm_export_to_all(&le, sid);
+ 	error = security_secid_to_secctx(&le, &ctx, &len);
  	if (error) {
  		if (error != -EINVAL)
- 			goto error_path;
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index 15771102919d..468dac2bdce5 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -1323,7 +1323,6 @@ int audit_filter(int msgtype, unsigned int listtype)
+ 		for (i = 0; i < e->rule.field_count; i++) {
+ 			struct audit_field *f = &e->rule.fields[i];
+ 			pid_t pid;
+-			u32 sid;
+ 			struct lsm_export le;
+ 
+ 			switch (f->type) {
+@@ -1354,8 +1353,7 @@ int audit_filter(int msgtype, unsigned int listtype)
+ 			case AUDIT_SUBJ_SEN:
+ 			case AUDIT_SUBJ_CLR:
+ 				if (f->lsm_rule) {
+-					security_task_getsecid(current, &sid);
+-					lsm_export_to_all(&le, sid);
++					security_task_getsecid(current, &le);
+ 					result = security_audit_rule_match(&le,
+ 						   f->type, f->op, f->lsm_rule);
+ 				}
 diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 822ba35e4e64..83aba0336eac 100644
+index eabbf78fee96..b06ffcf9bb9f 100644
 --- a/kernel/auditsc.c
 +++ b/kernel/auditsc.c
-@@ -946,6 +946,7 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 	char *ctx = NULL;
- 	u32 len;
- 	int rc = 0;
-+	struct lsm_export le;
- 
- 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_OBJ_PID);
- 	if (!ab)
-@@ -955,7 +956,8 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 			 from_kuid(&init_user_ns, auid),
- 			 from_kuid(&init_user_ns, uid), sessionid);
- 	if (sid) {
--		if (security_secid_to_secctx(sid, &ctx, &len)) {
-+		lsm_export_to_all(&le, sid);
-+		if (security_secid_to_secctx(&le, &ctx, &len)) {
- 			audit_log_format(ab, " obj=(none)");
- 			rc = 1;
- 		} else {
-@@ -1197,7 +1199,9 @@ static void show_special(struct audit_context *context, int *call_panic)
- 		if (osid) {
- 			char *ctx = NULL;
- 			u32 len;
--			if (security_secid_to_secctx(osid, &ctx, &len)) {
-+			struct lsm_export le;
-+			lsm_export_to_all(&le, osid);
-+			if (security_secid_to_secctx(&le, &ctx, &len)) {
- 				audit_log_format(ab, " osid=%u", osid);
- 				*call_panic = 1;
- 			} else {
-@@ -1348,9 +1352,10 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
- 	if (n->osid != 0) {
- 		char *ctx = NULL;
- 		u32 len;
-+		struct lsm_export le;
- 
--		if (security_secid_to_secctx(
--			n->osid, &ctx, &len)) {
-+		lsm_export_to_all(&le, n->osid);
-+		if (security_secid_to_secctx(&le, &ctx, &len)) {
- 			audit_log_format(ab, " osid=%u", n->osid);
- 			if (call_panic)
- 				*call_panic = 2;
-diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
-index b8ef7677a7e5..a4f37ba6dbe2 100644
---- a/net/ipv4/ip_sockglue.c
-+++ b/net/ipv4/ip_sockglue.c
-@@ -132,15 +132,14 @@ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
+@@ -444,7 +444,6 @@ static int audit_filter_rules(struct task_struct *tsk,
  {
+ 	const struct cred *cred;
+ 	int i, need_sid = 1;
+-	u32 sid;
  	struct lsm_export le;
- 	char *secdata;
--	u32 seclen, secid;
-+	u32 seclen;
- 	int err;
+ 	unsigned int sessionid;
  
- 	err = security_socket_getpeersec_dgram(NULL, skb, &le);
- 	if (err)
- 		return;
- 
--	lsm_export_secid(&le, &secid);
--	err = security_secid_to_secctx(secid, &secdata, &seclen);
-+	err = security_secid_to_secctx(&le, &secdata, &seclen);
- 	if (err)
- 		return;
- 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index 66c596d287a5..b069277450c5 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -330,8 +330,10 @@ static int ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
- 	struct nlattr *nest_secctx;
- 	int len, ret;
- 	char *secctx;
-+	struct lsm_export le;
- 
--	ret = security_secid_to_secctx(ct->secmark, &secctx, &len);
-+	lsm_export_to_all(&le, ct->secmark);
-+	ret = security_secid_to_secctx(&le, &secctx, &len);
- 	if (ret)
- 		return 0;
- 
-@@ -615,8 +617,10 @@ static inline int ctnetlink_secctx_size(const struct nf_conn *ct)
+@@ -628,10 +627,9 @@ static int audit_filter_rules(struct task_struct *tsk,
+ 			   logged upon error */
+ 			if (f->lsm_rule) {
+ 				if (need_sid) {
+-					security_task_getsecid(tsk, &sid);
++					security_task_getsecid(tsk, &le);
+ 					need_sid = 0;
+ 				}
+-				lsm_export_to_all(&le, sid);
+ 				result = security_audit_rule_match(&le, f->type,
+ 								   f->op,
+ 								   f->lsm_rule);
+@@ -2362,12 +2360,14 @@ int __audit_sockaddr(int len, void *a)
+ void __audit_ptrace(struct task_struct *t)
  {
- #ifdef CONFIG_NF_CONNTRACK_SECMARK
- 	int len, ret;
+ 	struct audit_context *context = audit_context();
 +	struct lsm_export le;
  
--	ret = security_secid_to_secctx(ct->secmark, NULL, &len);
-+	lsm_export_to_all(&le, ct->secmark);
-+	ret = security_secid_to_secctx(&le, NULL, &len);
- 	if (ret)
+ 	context->target_pid = task_tgid_nr(t);
+ 	context->target_auid = audit_get_loginuid(t);
+ 	context->target_uid = task_uid(t);
+ 	context->target_sessionid = audit_get_sessionid(t);
+-	security_task_getsecid(t, &context->target_sid);
++	security_task_getsecid(t, &le);
++	lsm_export_secid(&le, &context->target_sid);
+ 	memcpy(context->target_comm, t->comm, TASK_COMM_LEN);
+ }
+ 
+@@ -2384,6 +2384,7 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 	struct audit_aux_data_pids *axp;
+ 	struct audit_context *ctx = audit_context();
+ 	kuid_t uid = current_uid(), auid, t_uid = task_uid(t);
++	struct lsm_export le;
+ 
+ 	if (auditd_test_task(t) &&
+ 	    (sig == SIGTERM || sig == SIGHUP ||
+@@ -2394,7 +2395,8 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 			audit_sig_uid = auid;
+ 		else
+ 			audit_sig_uid = uid;
+-		security_task_getsecid(current, &audit_sig_sid);
++		security_task_getsecid(current, &le);
++		lsm_export_secid(&le, &audit_sig_sid);
+ 	}
+ 
+ 	if (!audit_signals || audit_dummy_context())
+@@ -2407,7 +2409,8 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 		ctx->target_auid = audit_get_loginuid(t);
+ 		ctx->target_uid = t_uid;
+ 		ctx->target_sessionid = audit_get_sessionid(t);
+-		security_task_getsecid(t, &ctx->target_sid);
++		security_task_getsecid(t, &le);
++		lsm_export_secid(&le, &ctx->target_sid);
+ 		memcpy(ctx->target_comm, t->comm, TASK_COMM_LEN);
  		return 0;
+ 	}
+@@ -2428,7 +2431,8 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 	axp->target_auid[axp->pid_count] = audit_get_loginuid(t);
+ 	axp->target_uid[axp->pid_count] = t_uid;
+ 	axp->target_sessionid[axp->pid_count] = audit_get_sessionid(t);
+-	security_task_getsecid(t, &axp->target_sid[axp->pid_count]);
++	security_task_getsecid(t, &le);
++	lsm_export_secid(&le, &axp->target_sid[axp->pid_count]);
+ 	memcpy(axp->target_comm[axp->pid_count], t->comm, TASK_COMM_LEN);
+ 	axp->pid_count++;
  
-diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index c2ae14c720b4..12318026d8d4 100644
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -175,8 +175,10 @@ static void ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
- 	int ret;
- 	u32 len;
- 	char *secctx;
-+	struct lsm_export le;
- 
--	ret = security_secid_to_secctx(ct->secmark, &secctx, &len);
-+	lsm_export_to_all(&le, ct->secmark);
-+	ret = security_secid_to_secctx(&le, &secctx, &len);
- 	if (ret)
- 		return;
- 
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index 0dcc3592d053..4c74c383e26b 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -309,13 +309,17 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
- {
- 	u32 seclen = 0;
- #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
-+	struct lsm_export le;
-+
- 	if (!skb || !sk_fullsock(skb->sk))
- 		return 0;
- 
- 	read_lock_bh(&skb->sk->sk_callback_lock);
- 
--	if (skb->secmark)
--		security_secid_to_secctx(skb->secmark, secdata, &seclen);
-+	if (skb->secmark) {
-+		lsm_export_to_all(&le, skb->secmark);
-+		security_secid_to_secctx(&le, secdata, &seclen);
-+	}
- 
- 	read_unlock_bh(&skb->sk->sk_callback_lock);
- #endif
 diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index fc38934ccb35..00922f55dd9e 100644
+index 00922f55dd9e..7f245d593c8f 100644
 --- a/net/netlabel/netlabel_unlabeled.c
 +++ b/net/netlabel/netlabel_unlabeled.c
-@@ -389,6 +389,7 @@ int netlbl_unlhsh_add(struct net *net,
- 	struct audit_buffer *audit_buf = NULL;
- 	char *secctx = NULL;
- 	u32 secctx_len;
+@@ -1554,11 +1554,13 @@ int __init netlbl_unlabel_defconf(void)
+ 	int ret_val;
+ 	struct netlbl_dom_map *entry;
+ 	struct netlbl_audit audit_info;
 +	struct lsm_export le;
  
- 	if (addr_len != sizeof(struct in_addr) &&
- 	    addr_len != sizeof(struct in6_addr))
-@@ -451,7 +452,8 @@ int netlbl_unlhsh_add(struct net *net,
- unlhsh_add_return:
- 	rcu_read_unlock();
- 	if (audit_buf != NULL) {
--		if (security_secid_to_secctx(secid,
-+		lsm_export_to_all(&le, secid);
-+		if (security_secid_to_secctx(&le,
- 					     &secctx,
- 					     &secctx_len) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
-@@ -488,6 +490,7 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
- 	struct net_device *dev;
- 	char *secctx;
- 	u32 secctx_len;
-+	struct lsm_export le;
+ 	/* Only the kernel is allowed to call this function and the only time
+ 	 * it is called is at bootup before the audit subsystem is reporting
+ 	 * messages so don't worry to much about these values. */
+-	security_task_getsecid(current, &audit_info.secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &audit_info.secid);
+ 	audit_info.loginuid = GLOBAL_ROOT_UID;
+ 	audit_info.sessionid = 0;
  
- 	spin_lock(&netlbl_unlhsh_lock);
- 	list_entry = netlbl_af4list_remove(addr->s_addr, mask->s_addr,
-@@ -507,8 +510,10 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
- 					  addr->s_addr, mask->s_addr);
- 		if (dev != NULL)
- 			dev_put(dev);
-+		if (entry != NULL)
-+			lsm_export_to_all(&le, entry->secid);
- 		if (entry != NULL &&
--		    security_secid_to_secctx(entry->secid,
-+		    security_secid_to_secctx(&le,
- 					     &secctx, &secctx_len) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
- 			security_release_secctx(secctx, secctx_len);
-@@ -550,6 +555,7 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
- 	struct net_device *dev;
- 	char *secctx;
- 	u32 secctx_len;
-+	struct lsm_export le;
- 
- 	spin_lock(&netlbl_unlhsh_lock);
- 	list_entry = netlbl_af6list_remove(addr, mask, &iface->addr6_list);
-@@ -568,8 +574,10 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
- 					  addr, mask);
- 		if (dev != NULL)
- 			dev_put(dev);
-+		if (entry != NULL)
-+			lsm_export_to_all(&le, entry->secid);
- 		if (entry != NULL &&
--		    security_secid_to_secctx(entry->secid,
-+		    security_secid_to_secctx(&le,
- 					     &secctx, &secctx_len) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s", secctx);
- 			security_release_secctx(secctx, secctx_len);
-@@ -1092,6 +1100,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
- 	u32 secid;
- 	char *secctx;
- 	u32 secctx_len;
-+	struct lsm_export le;
- 
- 	data = genlmsg_put(cb_arg->skb, NETLINK_CB(cb_arg->nl_cb->skb).portid,
- 			   cb_arg->seq, &netlbl_unlabel_gnl_family,
-@@ -1146,7 +1155,8 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
- 		secid = addr6->secid;
- 	}
- 
--	ret_val = security_secid_to_secctx(secid, &secctx, &secctx_len);
-+	lsm_export_to_all(&le, secid);
-+	ret_val = security_secid_to_secctx(&le, &secctx, &secctx_len);
- 	if (ret_val != 0)
- 		goto list_cb_failure;
- 	ret_val = nla_put(cb_arg->skb,
-diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user.c
-index 4676f5bb16ae..1079cdea872c 100644
---- a/net/netlabel/netlabel_user.c
-+++ b/net/netlabel/netlabel_user.c
-@@ -100,6 +100,7 @@ struct audit_buffer *netlbl_audit_start_common(int type,
- 	struct audit_buffer *audit_buf;
- 	char *secctx;
- 	u32 secctx_len;
-+	struct lsm_export le;
- 
- 	if (audit_enabled == AUDIT_OFF)
- 		return NULL;
-@@ -112,10 +113,9 @@ struct audit_buffer *netlbl_audit_start_common(int type,
- 			 from_kuid(&init_user_ns, audit_info->loginuid),
- 			 audit_info->sessionid);
- 
-+	lsm_export_to_all(&le, audit_info->secid);
- 	if (audit_info->secid != 0 &&
--	    security_secid_to_secctx(audit_info->secid,
--				     &secctx,
--				     &secctx_len) == 0) {
-+	    security_secid_to_secctx(&le, &secctx, &secctx_len) == 0) {
- 		audit_log_format(audit_buf, " subj=%s", secctx);
- 		security_release_secctx(secctx, secctx_len);
- 	}
-diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
-index ddb838a1b74c..4d4107927ba2 100644
---- a/net/unix/af_unix.c
-+++ b/net/unix/af_unix.c
-@@ -143,17 +143,20 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
- #ifdef CONFIG_SECURITY_NETWORK
- static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+diff --git a/net/netlabel/netlabel_user.h b/net/netlabel/netlabel_user.h
+index 4a397cde1a48..2dbc4276bdcc 100644
+--- a/net/netlabel/netlabel_user.h
++++ b/net/netlabel/netlabel_user.h
+@@ -48,7 +48,10 @@
+ static inline void netlbl_netlink_auditinfo(struct sk_buff *skb,
+ 					    struct netlbl_audit *audit_info)
  {
--	UNIXCB(skb).secid = scm->secid;
-+	lsm_export_secid(&scm->le, &(UNIXCB(skb).secid));
- }
- 
- static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
- {
--	scm->secid = UNIXCB(skb).secid;
-+	lsm_export_to_all(&scm->le, UNIXCB(skb).secid);
- }
- 
- static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
- {
--	return (scm->secid == UNIXCB(skb).secid);
-+	u32 best_secid;
+-	security_task_getsecid(current, &audit_info->secid);
++	struct lsm_export le;
 +
-+	lsm_export_secid(&scm->le, &best_secid);
-+	return (best_secid == UNIXCB(skb).secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &audit_info->secid);
+ 	audit_info->loginuid = audit_get_loginuid(current);
+ 	audit_info->sessionid = audit_get_sessionid(current);
  }
- #else
- static inline void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 5fb7127bbe68..be714afc9fd2 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -51,11 +51,13 @@ bool is_ima_appraise_enabled(void)
+ int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
+ {
+ 	u32 secid;
++	struct lsm_export le;
+ 
+ 	if (!ima_appraise)
+ 		return 0;
+ 
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &secid);
+ 	return ima_match_policy(inode, current_cred(), secid, func, mask,
+ 				IMA_APPRAISE | IMA_HASH, NULL);
+ }
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 357edd140c09..1e3cfaf0ee5c 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -336,9 +336,11 @@ static int process_measurement(struct file *file, const struct cred *cred,
+ int ima_file_mmap(struct file *file, unsigned long prot)
+ {
+ 	u32 secid;
++	struct lsm_export le;
+ 
+ 	if (file && (prot & PROT_EXEC)) {
+-		security_task_getsecid(current, &secid);
++		security_task_getsecid(current, &le);
++		lsm_export_secid(&le, &secid);
+ 		return process_measurement(file, current_cred(), secid, NULL,
+ 					   0, MAY_EXEC, MMAP_CHECK);
+ 	}
+@@ -363,8 +365,10 @@ int ima_bprm_check(struct linux_binprm *bprm)
+ {
+ 	int ret;
+ 	u32 secid;
++	struct lsm_export le;
+ 
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &secid);
+ 	ret = process_measurement(bprm->file, current_cred(), secid, NULL, 0,
+ 				  MAY_EXEC, BPRM_CHECK);
+ 	if (ret)
+@@ -388,8 +392,10 @@ int ima_bprm_check(struct linux_binprm *bprm)
+ int ima_file_check(struct file *file, int mask)
+ {
+ 	u32 secid;
++	struct lsm_export le;
+ 
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &secid);
+ 	return process_measurement(file, current_cred(), secid, NULL, 0,
+ 				   mask & (MAY_READ | MAY_WRITE | MAY_EXEC |
+ 					   MAY_APPEND), FILE_CHECK);
+@@ -500,6 +506,7 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ {
+ 	enum ima_hooks func;
+ 	u32 secid;
++	struct lsm_export le;
+ 
+ 	if (!file && read_id == READING_FIRMWARE) {
+ 		if ((ima_appraise & IMA_APPRAISE_FIRMWARE) &&
+@@ -521,7 +528,8 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ 	}
+ 
+ 	func = read_idmap[read_id] ?: FILE_CHECK;
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &secid);
+ 	return process_measurement(file, current_cred(), secid, buf, size,
+ 				   MAY_READ, func);
+ }
 diff --git a/security/security.c b/security/security.c
-index 868e9ae6b48c..b6a096be95ac 100644
+index 6ba1187c9655..22ea709593f3 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -1957,13 +1957,9 @@ int security_ismaclabel(const char *name)
+@@ -1690,12 +1690,10 @@ int security_task_getsid(struct task_struct *p)
+ 	return call_int_hook(task_getsid, 0, p);
  }
- EXPORT_SYMBOL(security_ismaclabel);
  
--int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
-+int security_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen)
+-void security_task_getsecid(struct task_struct *p, u32 *secid)
++void security_task_getsecid(struct task_struct *p, struct lsm_export *l)
  {
--	struct lsm_export data;
+-	struct lsm_export data = { .flags = LSM_EXPORT_NONE };
 -
--	lsm_export_to_all(&data, secid);
--	return call_int_hook(secid_to_secctx, -EOPNOTSUPP, &data, secdata,
--				seclen);
-+	return call_int_hook(secid_to_secctx, -EOPNOTSUPP, l, secdata, seclen);
+-	call_void_hook(task_getsecid, p, &data);
+-	lsm_export_secid(&data, secid);
++	lsm_export_init(l);
++	call_void_hook(task_getsecid, p, l);
  }
- EXPORT_SYMBOL(security_secid_to_secctx);
+ EXPORT_SYMBOL(security_task_getsecid);
  
 -- 
 2.19.1
