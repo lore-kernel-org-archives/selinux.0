@@ -4,51 +4,50 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB38C282CE
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D064CC282CE
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3F82B2133D
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9EA7B2133D
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="NnB7R/QS"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="V/UJdw59"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727085AbfDIVlr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Apr 2019 17:41:47 -0400
-Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:44454
-        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727133AbfDIVlq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 17:41:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554846099; bh=wkVO2XcNDsJ9+Rl/WTZ53Df7Cu4YQ9uiXt+d9u6c1Uk=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=NnB7R/QStkRgUEHNJRY8H7R2ncgOlRj+yzi+TnbwlXpHgMME5igwiiBX+1IjqvfQPAr7BScgpBja9RxUy67s+txSHZ8RhMWceytRdcaGK2D9RF++l4JgZ1UCGlG0BxUGBCRDkRGfX+0HON7zXHLdqbtZu7KtdNPuith7sSKbyfyHK4m7cRw6mcPgm4dOok+KLqF+25NOuwXjga9RCOO4ppiOX/J5vzvo76pEzxhTgsR4bmK79xmGEQglttmfhb5ZcclNH93+zBZY75p0BS9Lv8bJzV2uqU7B3rPWA7iheay3GWO6Fb8M4tLbMseHmzGj/3nrCoi4rv0A5D+gKMfJ9Q==
-X-YMail-OSG: nFXl_pkVM1m1NkOiXQsnDAztfqZCPNTYlfgChedFi0S0OiNc.1ncBxVZ1rhoqxI
- Ufmnpxu8nRy3yrYdI9JCCr7.5jcC.7AMwBbTMFl3xifGGY0AG.k9VtJkbfQ09jo8iKIAqC01P6dG
- gvbkmh5bedTYpHFKW4n2rqTTPGjYruGXGZFi3efIRa3Rs9LH6D6dJdbnlmWM7lvK3U7E9_J_nUAT
- N4T.XQGguqYGAUhYpqihXKbeif07RNWtXWK0r85YCLk0QdsV23IilFL.3MvAmTyYoGKomK63X1kM
- WlqDCQqLY09xc9kS9ru.PrXxDf9jJBrkPcmqA8zq5j43ZSWHfW3XQZ5mz8wZVFH_nZuCNBcRaRFO
- wPEiLGMrOhoXz5E0qitgtXnL3h7m.6RtlGNfVjhDqJ.IPymZa4LwuxXnWY4IZmp8KAunyUZt2.SV
- n.vanjNsQMIJDsj_UBb6u5UtgUl7Rj5BtMpsUayfx5zMjB1aPBxD2kcgJUHcRGo.NSX_ddDAoYp.
- CoHEQTD.ZCu7icFH9lFd8SgJdN3iaZaxYXYq4cyG7NnOF1Qv_hcMvvBOc4kddOt7E1KQnRGM_qAv
- p2z05nm32oQUzkmoao1TwgZNW.Zqtj4xyuVu.0FMiVTj0zjDHMIbyADToXYHi1_iGNsbemFvO6xU
- zOk7dFNUtcBlhjNoZdqdlAyBxm807VzaOyksVWMcWmh3NxfneX787l9RCFzWrFDbqUOETma0PGhY
- 2HXdFWRjB38xoNiKQVz37UZT496_4sC0uHi8vLDaXCavMZKD0qbcE_jyr9knQBESFMbML.w3vUEl
- 1i_94ktSn_ItYKSpEiwXnSvxVW42AYS9agVuJWMfhQHcRoP9iev4UJ54chuwVc6ZbhAlSZ5ryTVH
- rt7QCZdyxhmjU2Hu02y9qY3Dp7zgc.cPpLLCzdRB1X4J4wNv5Sx9lA.knihGVhObgjrvBe32wlZe
- ysk9CBUsp8W7.eWOzP4rvvzwScJEfjDqwBdPkKVCTWafO3pBXlRF_.tSCZHKtESM.lgwEMEFdQlc
- 12PwvOrAqi1caYfNSq3XnQhU1kPIba.ah2RKP8QYdK4sQNdoXOrgotDkIq.VEKnk5tSBE2nTKWBX
- qbQgvDYEPdqULCQ3Rk_WsHA.Z8NMC041ACGL_wix7MfrWYWkLwGIvRTldzQMTow--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Apr 2019 21:41:37 +0000
+        id S1727133AbfDIVls (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Apr 2019 17:41:48 -0400
+Received: from sonic304-28.consmr.mail.ne1.yahoo.com ([66.163.191.154]:46799
+        "EHLO sonic304-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727122AbfDIVlp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 17:41:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554846093; bh=GPvWJDPXSClM26o50qIJxfLTG9C4Dy1cxsnhyj+//zw=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=V/UJdw59gXDfc6Yj/Ci33QbBWL/LMCYf2JTkLk3vGZCOHTxroKs3P+C2weHqXJF/0tvS9nvMkNJUnkOtzj3RvzIQSwrVt0PwMRIYwznH5i0bMMs7FYh51ryoYsfYCy4FCeI3hXyrT6H91vAeerOwgI1g2YrnBsM6Fds8L17Uysi+wsEaNkfF5EUrRDSesHR68Tx5uURypx1Ity6iedJrlurcTPTs0kMf5pxMY1GJu5ZYUs5OQnUi4/AUbvbKtl1CmVhMR0fuMPFjsfX3kyqyu0noIw0bDa8GjFXBBaTsUt5KoX2k4TZFU7/yK5VEJBeXljJfV12lGI5MFCnERG7saQ==
+X-YMail-OSG: hYawKZQVM1nlGEzBmLuKKy1kG2lfdYeC9aaWgbJuhuagdvsqNbXHiioSO1m7GwF
+ pcp2eeOvRnVIG44V4l6F.yz9l77g1xk03wDhSGnZ2FAgTI7prEQEHuDRok9w7AT3obBZ1hzs_Oh4
+ VOrdCEzMcQUYi8RP6ozWjMjF5E54bLrWQBVSzKicjybtTXLz_L0px6oHk7B2uFYNV1CHC0FyMp7m
+ d05VDrJNDYzGkiZvrS37O4SEZsWd3dTZp7wVjsfvIuuS8abMFKDQk9xCAd7q4BDAeJmGRtgdGWJs
+ RCo7FMuajDiA9zgHPhw7l8cWB2QWkTMCu4TpZDdlprPOOCHjKzT7VMWWRu5Zt1xf839BxsSiHe1.
+ Far8CaT3_zh.ckitlz3UONi5P.6Ao.xcxqgBvwVPBgskU8KQwmF0NdQVzS9AVPrlj1bQTO3g7j4x
+ gAGwNiocmNkYyvOdABmn3twHT79t_Vl2PbAhdkCcqFVSTqZ_Et0Y.0EaSQaya89NzV8BwzxwIXhF
+ a6vlGfm2SY5MUYYGpmoWHYvoRZ8EVeLwM6C2XY8.I8p7TtvIyvMWGwlI11lV8Iu8fOGMQ1M1c_lF
+ YSKPjPY70ov2YE0DfPxK9AtKNK2W0mJkAh0aDacsZK7CkuCYlW85tLUvep4y.pdFgFNtVEdFGWQC
+ wKM7eT_gLp.UfqBm1doyepjVd_escbK2ztLsHGPUTWEsqhAkfMklWatHF3joVePZDVia0PpV_tJJ
+ _CIIMcoOJYceBhe05oAEvtPRb1_gSo9_M2CM.EQmNY1UG9Rd9KV_RScfOoIUDH1U7i.MTApfJFSl
+ AWVpfOk0wKTx8i2o10qO23IQd_dU7Ay7CHP1F0HZbzUfGiEcp6zOmRmgIJHg6_pvRoAF2TtTnO3g
+ Nz3U.qcofYt5Y8jFM8g84gMPYnp0_0tie6TU9FgmsTG0_WpNha1KDmF8O3lppDn7lqlOWG.h7pMH
+ I3NJotF7bbK92_tPt7AtTCLN4RpHSfTgDjgK1lvO2Hii1aOolHCsQH4WPxzYVyPnCyokH6kzUbzh
+ XlVFYK84LJ5LgA6rxf.cckKmcgdljzj2Vcdj4gPlzLFuW6H8y03zODraqDWlNQ2bdrwTgcIMaVVk
+ IbNzU0rbt9hmRagr253VPboCumyIjAzd8iJdxEO2wj6bqigKAlEaZj_Ixk1_t5A--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Apr 2019 21:41:33 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp416.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 3e563602cfa877b5908e791085320721;
-          Tue, 09 Apr 2019 21:41:28 +0000 (UTC)
+          by smtp422.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 9d24739551c480912ea4720c6639d78e;
+          Tue, 09 Apr 2019 21:40:27 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com
-Subject: [PATCH 58/59] LSM: Specify which LSM to display with /proc/self/attr/display
-Date:   Tue,  9 Apr 2019 14:39:45 -0700
-Message-Id: <20190409213946.1667-59-casey@schaufler-ca.com>
+Subject: [PATCH 21/59] LSM: Use lsm_export in security_inode_getsecid
+Date:   Tue,  9 Apr 2019 14:39:08 -0700
+Message-Id: <20190409213946.1667-22-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190409213946.1667-1-casey@schaufler-ca.com>
 References: <20190409213946.1667-1-casey@schaufler-ca.com>
@@ -57,228 +56,108 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Create a new entry "display" in /proc/.../attr for controlling
-which LSM security information is displayed for a process.
-The name of an active LSM that supplies hooks for human readable
-data may be written to "display" to set the value. The name of
-the LSM currently in use can be read from "display".
+Convert security_inode_getsecid to use the lsm_export structure
+instead of a u32 secid. There is some scaffolding involved
+that will be removed when the related data is updated.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- fs/proc/base.c      |   1 +
- security/security.c | 123 ++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 121 insertions(+), 3 deletions(-)
+ include/linux/security.h            | 7 ++++---
+ kernel/auditsc.c                    | 5 ++++-
+ security/integrity/ima/ima_policy.c | 4 +---
+ security/security.c                 | 8 +++-----
+ 4 files changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/fs/proc/base.c b/fs/proc/base.c
-index ddef482f1334..7bf70e041315 100644
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2618,6 +2618,7 @@ static const struct pid_entry attr_dir_stuff[] = {
- 	ATTR(NULL, "fscreate",		0666),
- 	ATTR(NULL, "keycreate",		0666),
- 	ATTR(NULL, "sockcreate",	0666),
-+	ATTR(NULL, "display",		0666),
- #ifdef CONFIG_SECURITY_SMACK
- 	DIR("smack",			0555,
- 	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
+diff --git a/include/linux/security.h b/include/linux/security.h
+index ae4c058abc5e..2d04687c3fa9 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -356,7 +356,7 @@ int security_inode_killpriv(struct dentry *dentry);
+ int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
+ int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
+-void security_inode_getsecid(struct inode *inode, u32 *secid);
++void security_inode_getsecid(struct inode *inode, struct lsm_export *l);
+ int security_inode_copy_up(struct dentry *src, struct cred **new);
+ int security_inode_copy_up_xattr(const char *name);
+ int security_file_permission(struct file *file, int mask);
+@@ -852,9 +852,10 @@ static inline int security_inode_listsecurity(struct inode *inode, char *buffer,
+ 	return 0;
+ }
+ 
+-static inline void security_inode_getsecid(struct inode *inode, u32 *secid)
++static inline void security_inode_getsecid(struct inode *inode,
++					   struct lsm_export *l)
+ {
+-	*secid = 0;
++	lsm_export_init(l);
+ }
+ 
+ static inline int security_inode_copy_up(struct dentry *src, struct cred **new)
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index b06ffcf9bb9f..71daead619e5 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1908,13 +1908,16 @@ static inline int audit_copy_fcaps(struct audit_names *name,
+ void audit_copy_inode(struct audit_names *name, const struct dentry *dentry,
+ 		      struct inode *inode, unsigned int flags)
+ {
++	struct lsm_export le;
++
+ 	name->ino   = inode->i_ino;
+ 	name->dev   = inode->i_sb->s_dev;
+ 	name->mode  = inode->i_mode;
+ 	name->uid   = inode->i_uid;
+ 	name->gid   = inode->i_gid;
+ 	name->rdev  = inode->i_rdev;
+-	security_inode_getsecid(inode, &name->osid);
++	security_inode_getsecid(inode, &le);
++	lsm_export_secid(&le, &name->osid);
+ 	if (flags & AUDIT_INODE_NOEVAL) {
+ 		name->fcap_ver = -1;
+ 		return;
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 090ef8ceb116..280f2410e551 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -326,7 +326,6 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+ 		return false;
+ 	for (i = 0; i < MAX_LSM_RULES; i++) {
+ 		int rc = 0;
+-		u32 osid;
+ 		struct lsm_export le;
+ 		int retried = 0;
+ 
+@@ -337,8 +336,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+ 		case LSM_OBJ_USER:
+ 		case LSM_OBJ_ROLE:
+ 		case LSM_OBJ_TYPE:
+-			security_inode_getsecid(inode, &osid);
+-			lsm_export_to_all(&le, osid);
++			security_inode_getsecid(inode, &le);
+ 			rc = security_filter_rule_match(&le,
+ 							rule->lsm[i].type,
+ 							Audit_equal,
 diff --git a/security/security.c b/security/security.c
-index 29149db3f78a..6e304aa796f9 100644
+index 22ea709593f3..e12ce930dfd9 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -47,9 +47,13 @@ static struct kmem_cache *lsm_inode_cache;
+@@ -1387,12 +1387,10 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
+ }
+ EXPORT_SYMBOL(security_inode_listsecurity);
  
- char *lsm_names;
- 
--/* Socket blobs include infrastructure managed data */
-+/*
-+ *	Socket blobs include infrastructure managed data
-+ *	Cred blobs include context display instructions
-+ */
- static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init = {
- 	.lbs_sock = sizeof(struct lsm_export),
-+	.lbs_cred = sizeof(struct lsm_one_hooks),
- };
- 
- /**
-@@ -751,7 +755,10 @@ int lsm_superblock_alloc(struct super_block *sb)
- 
- #define call_one_int_hook(FUNC, IRC, ...) ({			\
- 	int RC = IRC;						\
--	if (lsm_base_one.FUNC.FUNC)				\
-+	struct lsm_one_hooks *LOH = current_cred()->security;	\
-+	if (LOH->FUNC.FUNC)					\
-+		RC = LOH->FUNC.FUNC(__VA_ARGS__);		\
-+	else if (LOH->lsm == NULL && lsm_base_one.FUNC.FUNC)	\
- 		RC = lsm_base_one.FUNC.FUNC(__VA_ARGS__);	\
- 	RC;							\
- })
-@@ -1617,6 +1624,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
- 
- void security_cred_free(struct cred *cred)
+-void security_inode_getsecid(struct inode *inode, u32 *secid)
++void security_inode_getsecid(struct inode *inode, struct lsm_export *l)
  {
-+	struct lsm_one_hooks *loh;
- 	/*
- 	 * There is a failure case in prepare_creds() that
- 	 * may result in a call here with ->security being NULL.
-@@ -1626,26 +1634,44 @@ void security_cred_free(struct cred *cred)
- 
- 	call_void_hook(cred_free, cred);
- 
-+	loh = cred->security;
-+	kfree(loh->lsm);
- 	kfree(cred->security);
- 	cred->security = NULL;
+-	struct lsm_export data = { .flags = LSM_EXPORT_NONE };
+-
+-	call_void_hook(inode_getsecid, inode, &data);
+-	lsm_export_secid(&data, secid);
++	lsm_export_init(l);
++	call_void_hook(inode_getsecid, inode, l);
  }
  
-+static int copy_loh(struct lsm_one_hooks *new, struct lsm_one_hooks *old,
-+		    gfp_t gfp)
-+{
-+	*new = *old;
-+	if (old->lsm) {
-+		new->lsm = kstrdup(old->lsm, gfp);
-+		if (unlikely(new->lsm == NULL))
-+			return -ENOMEM;
-+	}
-+	return 0;
-+}
-+
- int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp)
- {
- 	int rc = lsm_cred_alloc(new, gfp);
- 
--	if (rc)
-+	if (unlikely(rc))
- 		return rc;
- 
- 	rc = call_int_hook(cred_prepare, 0, new, old, gfp);
- 	if (unlikely(rc))
- 		security_cred_free(new);
-+	else
-+		rc = copy_loh(new->security, old->security, gfp);
-+
- 	return rc;
- }
- 
- void security_transfer_creds(struct cred *new, const struct cred *old)
- {
- 	call_void_hook(cred_transfer, new, old);
-+	WARN_ON(copy_loh(new->security, old->security, GFP_KERNEL));
- }
- 
- void security_cred_getsecid(const struct cred *c, struct lsm_export *l)
-@@ -1960,10 +1986,28 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
- 				char **value)
- {
- 	struct security_hook_list *hp;
-+	struct lsm_one_hooks *loh = current_cred()->security;
-+	char *s;
-+
-+	if (!strcmp(name, "display")) {
-+		if (loh->lsm)
-+			s = loh->lsm;
-+		else if (lsm_base_one.lsm)
-+			s = lsm_base_one.lsm;
-+		else
-+			return -EINVAL;
-+
-+		*value = kstrdup(s, GFP_KERNEL);
-+		if (*value)
-+			return strlen(s);
-+		return -ENOMEM;
-+	}
- 
- 	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
- 		if (lsm != NULL && strcmp(lsm, hp->lsm))
- 			continue;
-+		if (lsm == NULL && loh->lsm && strcmp(loh->lsm, hp->lsm))
-+			continue;
- 		return hp->hook.getprocattr(p, name, value);
- 	}
- 	return -EINVAL;
-@@ -1973,10 +2017,83 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
- 			 size_t size)
- {
- 	struct security_hook_list *hp;
-+	struct lsm_one_hooks *loh = current_cred()->security;
-+	bool found = false;
-+	char *s;
-+
-+	/*
-+	 * End the passed name at a newline.
-+	 */
-+	s = strnchr(value, size, '\n');
-+	if (s)
-+		*s = '\0';
-+
-+	if (!strcmp(name, "display")) {
-+		union security_list_options secid_to_secctx;
-+		union security_list_options secctx_to_secid;
-+		union security_list_options socket_getpeersec_stream;
-+
-+		if (size == 0 || size >= 100)
-+			return -EINVAL;
-+
-+		secid_to_secctx.secid_to_secctx = NULL;
-+		hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx,
-+				     list) {
-+			if (size >= strlen(hp->lsm) &&
-+			    !strncmp(value, hp->lsm, size)) {
-+				secid_to_secctx = hp->hook;
-+				found = true;
-+				break;
-+			}
-+		}
-+		secctx_to_secid.secctx_to_secid = NULL;
-+		hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid,
-+				     list) {
-+			if (size >= strlen(hp->lsm) &&
-+			    !strncmp(value, hp->lsm, size)) {
-+				secctx_to_secid = hp->hook;
-+				found = true;
-+				break;
-+			}
-+		}
-+		socket_getpeersec_stream.socket_getpeersec_stream = NULL;
-+		hlist_for_each_entry(hp,
-+				&security_hook_heads.socket_getpeersec_stream,
-+				     list) {
-+			if (size >= strlen(hp->lsm) &&
-+			    !strncmp(value, hp->lsm, size)) {
-+				socket_getpeersec_stream = hp->hook;
-+				found = true;
-+				break;
-+			}
-+		}
-+		if (!found)
-+			return -EINVAL;
-+
-+		/*
-+		 * The named lsm is active and supplies one or more
-+		 * of the relevant hooks. Switch to it.
-+		 */
-+		s = kmemdup(value, size + 1, GFP_KERNEL);
-+		if (s == NULL)
-+			return -ENOMEM;
-+		s[size] = '\0';
-+
-+		if (loh->lsm)
-+			kfree(loh->lsm);
-+		loh->lsm = s;
-+		loh->secid_to_secctx = secid_to_secctx;
-+		loh->secctx_to_secid = secctx_to_secid;
-+		loh->socket_getpeersec_stream = socket_getpeersec_stream;
-+
-+		return size;
-+	}
- 
- 	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
- 		if (lsm != NULL && strcmp(lsm, hp->lsm))
- 			continue;
-+		if (lsm == NULL && loh->lsm && strcmp(loh->lsm, hp->lsm))
-+			continue;
- 		return hp->hook.setprocattr(name, value, size);
- 	}
- 	return -EINVAL;
+ int security_inode_copy_up(struct dentry *src, struct cred **new)
 -- 
 2.19.1
 
