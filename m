@@ -2,54 +2,55 @@ Return-Path: <SRS0=G6LX=SL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A166EC282E0
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45A98C282DA
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 69A7C2084B
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 109572084B
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 20:00:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="uAoaJpFq"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="YV0j7ziQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726864AbfDIUAk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Apr 2019 16:00:40 -0400
-Received: from sonic317-38.consmr.mail.ne1.yahoo.com ([66.163.184.49]:32785
-        "EHLO sonic317-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726865AbfDIUAk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 16:00:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554840038; bh=VEDYIM3R1NMqedNbn6scDMcxUUfpt0y9Ccbwl5mHx6o=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=uAoaJpFqStuTJS7chYTdPmDD8VA3ogNv8dPSzJUv2iYiTLRJg2dBCw5A5xmJhcUJEbWm/Oe1GKseTU1YT6gPUMfEVTzNkofrVqsa7uOpAkU5JOm90lMVpzLWYY7lDGWhMAA8JNOI/2L9YDrWB/rvH9zFgmyb0hCIj2txWWqpu6AIEtsqgOhsH+8pWzqiPvFT+cTX3vls9kasyD9mKK/g/Q3PxoNT5yXYach4yMrro1quo4ki9eVlFqG/P5pWfx613gf72WSUOXpGbLtltKDZ2NRh+ubB77QnG7QH30DLhFBpqErntdOfF4VVJVZ2w5lY3ztmthKNhAGNWk5KvM7+hw==
-X-YMail-OSG: W69HfXYVM1kluaw2aTRORj7ETkkYmzfoJUlL4uNz0wtixsiQYtS2blrvTBrIF3X
- jYQAXyKvCVI7s09Ps8NsxfmJVvJnA2OINF8GXRbYxJL3TSEg7blllhpRorEEwmhWZO8uqZcsdk64
- Mtye_T.iLh5GD1jeh5fNHef91XrASAyxDZLxOpgekhywtBHLLN_sWyypkZ2LcH75xcK.LkF_Qy1C
- FGziGZP5i7X4MWAd5IGyj9j1U7ru7vNNvTWgmAC57OHsdw_yhqxVUOF8sDCueVga3tCs1zMrQE.T
- wPe2Y5OXNhyW47_L8UPAy4On8WZmnaZZEs9EpE5n3OUPvduF8Yh63g.LBO1WZwk.hKOH2RotYAKq
- vMgRbfMdufZPn9uyNkbqK1qUb5ZHtvICbU9U_4PmcAXOsq1IYztDBHNXHmnKbIEe.IvZ6XjImsWp
- r874HbExIFxtd0zua4vnrPftQUn2DnMi2.htkq_F2iv9pv1Np3zzXxtWK7OIX8uHXKHUrIJZymWd
- 7VA.7ku2Scv0cCw8qv7OLFYWoT5vSVXceAXesk9.FNRLFbZ0KoULYSOgsZ3a3wnG6BX0GflkXICZ
- OyZovSST4IADymVKbRpJ8wzaePGz8DukWI0D5.ockAKfQCce.uJ9DyvmzvibLbl.9bx9H5rB4GCe
- _HQcj7Fxg6WCXMozTjXQXzrpYL2WZ52XrJODYAlUGpslQK4G7WuPyuuwLiSVxQ_NRk1KC9gCFJjg
- JzK0Vj1COBtBwgGKhTPWLF9O4C6_JJp401N3gF0J9v5vuGog0N64MTAwdN4AWG9wjedcXXMl3B.C
- GZU4dse9BdWwxtqRMX08WN9_KUS7HtQ.ngUBP4zn1qyywPaOM.dn0rsGHlTI6eOBNKznYnAv0cCx
- LxQUwiXHkIujJCApwvPkA38JgM5aGEJzoIMjBs9sRLGqeMZbvtUiMd0PHUvnCOjg_guBD6YOTakN
- z6tHyKGu34TxOg1hFglPUyQS4mThXy93.NQLmbLrJ548XxnoHDUKy9x3QdvsqaMCRf7l3Pjd.aD7
- DZwd5PFFUSjaQsxkACkTPBOIubSSNmX0Lo0BTrdSxWtae5IEAN5HimluUveOT7lJYmLuNfdGLG9V
- iifBLowiwH_6LZ9RGRX7eHr3QPRuAkzdDZuUR_33oun0tETraOPTs0xe6YF8-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Apr 2019 20:00:38 +0000
+        id S1726892AbfDIUAm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Apr 2019 16:00:42 -0400
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:45446
+        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726875AbfDIUAm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 16:00:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554840041; bh=qAJ+Rda21nKW+P9EyOWFlXVarN/YAKnXHrX4pZPXalg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=YV0j7ziQifUUygdpvXeWbFinea9rURmCnvi/y2kkf/NliukRa40NxpaEEMnWT/pBtvzV1XWLyLATK2GFhh0fuQixpGMOC416eZc0OaHG3nqFCfSfKxkDsUwFUdpuTXm0Kuaf86lywHZM3NvaqPuujNthPuxQhVibWS0uJbt+Sn3aHZH09udCz4sKpwQJQRP1K5k+W0q52J2DOy+f81qiRjtz35w3uAocPmf5xMq5+jWd20wvp6ovsVtc7YQZLGRiyEyJMUEd9gd5uDhuwDfH33xXdJgJ/HLGVnvyZ/xKTYgyhgM23P2QFuq3KQGIsaDGbmKQYLmnMt9dR7GwSZtd6A==
+X-YMail-OSG: ME4GoZkVM1luvyp.NGdT1W1eq0ZCYWUiq0MEVnD_yHgnrRFPZ_5P.1FDWwuF5u9
+ 8XwdCfMMAWpqFQqFIMOnd_SQ8sh3BvKtUIj81xk4E4mDhwdgaJ3MYwpuD3dCoHw3F.L_jbb9GFq.
+ 2o6bgsZDqAuIjNxW4FBPdXAQ9kdJhR4QvxEu84Z4AFpJ.BUQjRewHjAb1NESRYrh_9cTTMS69C.V
+ ntsnzYSYNwYaBnRp2qee4sHSALX_ln18uycSniFfx47Nki5Yw4hy2jFdbXSmdxOS8dFdVf3H1OFj
+ H3CQ3rkOy278Jwv1npsIfwmSv6QmAjM.wXfdjwN1wKBlmHtsmKV4eOeT1_NbY5glks4M7UutWZ2i
+ Yx2nrbyxnQi2RqAdIZ9Zpkg7zBDM50NUlbvhYkpV9XKhnGWtOH.fBHKWekPwb2._bMokz4quDp9B
+ rlczj7vIdtKOu8gyeFTtrUFbFBAHK6gjr6a8HyKZuEknNCkGc5TB3PARl_9fssuzGYwo.6Df5hHs
+ smV7zQksNqQI.CsoBTS_rZPb6hOBDd42d5STwrfChNTK39lzVNmxF2aGR6QdlE3wZovHOgfm5wVW
+ 8ekVFVQYEJxT5n.sB8kzMbaRd6f6.nlis1K8cJxigGYAmzwsnYqEZhvW3mx3Isj7no77FWyA.FAZ
+ 88Saz7HsvCqtGeEpyvtj.hclNiD_vsB79vsZ5aDpiwmYiN2XVn0QI2SRCysOm.efOEMQ7hg76qWe
+ wgld41aUUM.N.hVaKfO_2YfUueNsh9vUjDSa9_pjRALHyDbwyRUEHfksSZGF28bKRoEtc4UiM8b6
+ FCdY_fSEqmeFIoovQYNZbSumwcfJOmvRLXzfW.nsvISJTM2F8yq_apgBOjfQ33D0K6EWcSGKiDso
+ 5udUThEVFM_OuVcEy6y7vRsJZ7jZa.dIyHcEpP9qreAcgf0Bs65MlOliEhuryT4PbTryh0bMDqYp
+ m8iCYC3MyQGA18Z8jm1Dc9NW_kwVB7EeX7Lsmsedf2_EjmVZffb0Khu5hICofjc8kn2ap4c5D701
+ LfpNDpAQ.lLVWsqj71tAP0sb.au0PG8w3o7vCDu_kUCC88F2vnouJHCcHbsmmhSm_6xtfXkoFNOt
+ zg8oLlaM0X9Vq2BrOfqCnlaxFqVuZZd.G7BwsUo8IrQhpCqO9vzhPlRzMukyl
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Apr 2019 20:00:41 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp428.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID dd207be9b16b6375049b46b06443493a;
-          Tue, 09 Apr 2019 20:00:37 +0000 (UTC)
+          Tue, 09 Apr 2019 20:00:39 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH 35/59] AppArmor: Remove unnecessary hook stub
-Date:   Tue,  9 Apr 2019 12:59:00 -0700
-Message-Id: <20190409195924.1509-36-casey@schaufler-ca.com>
+Subject: [PATCH 36/59] LSM: Limit calls to certain module hooks
+Date:   Tue,  9 Apr 2019 12:59:01 -0700
+Message-Id: <20190409195924.1509-37-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190409195924.1509-1-casey@schaufler-ca.com>
 References: <20190409195924.1509-1-casey@schaufler-ca.com>
@@ -58,45 +59,91 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Remove the getpeersec_dgram hook stub. It's unnecessary
-and disrupts stacking.
+LSM hooks dealing with security context strings should
+only be called for one security module. Add call macros
+that invoke a single module hook and us in for those cases.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/apparmor/lsm.c | 12 ++----------
- 1 file changed, 2 insertions(+), 10 deletions(-)
+ security/security.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 24b638bd4305..76c409737370 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1094,15 +1094,9 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
-  * @secid: pointer to where to put the secid of the packet
-  *
-  * Sets the netlabel socket state on sk from parent
-+ *
-+ * The TODO stub interfered with stacking and was removed - Casey
-  */
--static int apparmor_socket_getpeersec_dgram(struct socket *sock,
--					    struct sk_buff *skb,
--					    struct lsm_export *l)
--
--{
--	/* TODO: requires secid support */
--	return -ENOPROTOOPT;
--}
+diff --git a/security/security.c b/security/security.c
+index 015c38c882ba..7bf16c547010 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -713,6 +713,16 @@ int lsm_superblock_alloc(struct super_block *sb)
+ 			P->hook.FUNC(__VA_ARGS__);		\
+ 	} while (0)
  
- /**
-  * apparmor_sock_graft - Initialize newly created socket
-@@ -1202,8 +1196,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
- #endif
- 	LSM_HOOK_INIT(socket_getpeersec_stream,
- 		      apparmor_socket_getpeersec_stream),
--	LSM_HOOK_INIT(socket_getpeersec_dgram,
--		      apparmor_socket_getpeersec_dgram),
- 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
- #ifdef CONFIG_NETWORK_SECMARK
- 	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
++#define call_one_void_hook(FUNC, ...)				\
++	do {							\
++		struct security_hook_list *P;			\
++								\
++		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { \
++			P->hook.FUNC(__VA_ARGS__);		\
++			break;					\
++		}						\
++	} while (0)
++
+ #define call_int_hook(FUNC, IRC, ...) ({			\
+ 	int RC = IRC;						\
+ 	do {							\
+@@ -727,6 +737,19 @@ int lsm_superblock_alloc(struct super_block *sb)
+ 	RC;							\
+ })
+ 
++#define call_one_int_hook(FUNC, IRC, ...) ({			\
++	int RC = IRC;						\
++	do {							\
++		struct security_hook_list *P;			\
++								\
++		hlist_for_each_entry(P, &security_hook_heads.FUNC, list) { \
++			RC = P->hook.FUNC(__VA_ARGS__);		\
++			break;					\
++		}						\
++	} while (0);						\
++	RC;							\
++})
++
+ /* Security operations */
+ 
+ int security_binder_set_context_mgr(struct task_struct *mgr)
+@@ -1966,7 +1989,8 @@ EXPORT_SYMBOL(security_ismaclabel);
+ 
+ int security_secid_to_secctx(struct lsm_export *l, char **secdata, u32 *seclen)
+ {
+-	return call_int_hook(secid_to_secctx, -EOPNOTSUPP, l, secdata, seclen);
++	return call_one_int_hook(secid_to_secctx, -EOPNOTSUPP, l, secdata,
++				 seclen);
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
+ 
+@@ -1974,13 +1998,13 @@ int security_secctx_to_secid(const char *secdata, u32 seclen,
+ 			     struct lsm_export *l)
+ {
+ 	lsm_export_init(l);
+-	return call_int_hook(secctx_to_secid, 0, secdata, seclen, l);
++	return call_one_int_hook(secctx_to_secid, 0, secdata, seclen, l);
+ }
+ EXPORT_SYMBOL(security_secctx_to_secid);
+ 
+ void security_release_secctx(char *secdata, u32 seclen)
+ {
+-	call_void_hook(release_secctx, secdata, seclen);
++	call_one_void_hook(release_secctx, secdata, seclen);
+ }
+ EXPORT_SYMBOL(security_release_secctx);
+ 
+@@ -2105,7 +2129,7 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
+ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				      int __user *optlen, unsigned len)
+ {
+-	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
++	return call_one_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
+ 				optval, optlen, len);
+ }
+ 
 -- 
 2.19.1
 
