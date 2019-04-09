@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9CD3C282E0
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 19:19:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0801EC282DE
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 19:19:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 760F82084B
+	by mail.kernel.org (Postfix) with ESMTP id C269C2084B
 	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 19:19:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LkMSVqky"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="gM/mtTIu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726632AbfDITTT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1726851AbfDITTT (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 9 Apr 2019 15:19:19 -0400
-Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:43341
+Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:46074
         "EHLO sonic309-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726856AbfDITTQ (ORCPT
+        by vger.kernel.org with ESMTP id S1726532AbfDITTQ (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 15:19:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554837555; bh=V6rKCyElicKZF/0fKwJbU08oHRiI1KUrOSjj+nGJXW4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=LkMSVqkyT/1q3UjwuyS0dRCnBhCTkJnPynPY/4ZJCCg8JTmXNL650HrUi1tn56z2bFtvmGe/kETjA7kATy9Cm/fYPFzH30zrbqSRlzzIyyskD5VCHcOmXRt5X+mbWWqZYG+QThymoRU/oIT28RI6pKT2l85lsq7BfEFv8O4N1NZo4TLz1Mwce0ibcYJmxVsz1aE4Je8BB94lAqcxVQpEdrZOL5TM/qDCD1+tYXyYEmpOZaE/CQfiZf0xjU4lVQXjoWqppc0vqd3UAya7zejAR/CVDZaz71RkVH5KSqlGL42xd5E5/bMettMOEjSeyfCMqmtYaVlwK22hpRvjeCMe5Q==
-X-YMail-OSG: lVo6sJsVM1lNRnwnGeg9TZT7OfsNIiVJmc6iAni9au6vXHBvbUApD45k7.0pdpg
- XbblQZqUJdGa62xT_NBAJXWq.5hZe8PEG8UNrvYiaoKoswRQbzYTdgZB.Pg.7ZBzjooJflPCMPHo
- 3D0p1OplbO7IZrsLIKSwwtZPAQGsjreC9EULGGMJ7ebzHNAfMzMGkfCqZFSItw9cxd2AfVoYUAds
- tGgUqdYsBM682Wyf9cT3bEHdBlczylpS14CUCwuU6SgB1pmPkIrVsNRBgDOAHFs.7AymIj85agcH
- aLVDx940BnIdGa9vRPBEaIMgBaxWqvdlhtRuZHkIT_mlX88WAhymE0qeq0.3His62iY00LCdF9Dc
- KeyF.vEDdzyOeWsLGqNh1meqj2olffz44e_6DpdE6e5u_TgqFwvIo7t5FlKOe6H8SgmfZI_GS2cd
- Fs3BXGPZrwxX5gZniLBvysMOmcmOyEprk1_unTVj7FUjK0Uee4qrU19ftAPgjRRv1vfpzV8Ev05d
- 71rI7xwpCzaoqeNfoIF.K0pHMzpwch3iQcbXSzTQ5pRQAMqBBRARHq78qkNEnT8lT6pSCHvTj3gV
- CsY8YbDXsbEcVl5sCvueTPDNtjhuX2CYSgp9WX6dxXwyyZtPQ1Fpz8i0dkg3aRaErTWJ9Mw9Ltm8
- TW6bFG5Vah74Yrb7Ws6jwls0T0_fyywzVw7JasUOk4o8l5mTRj79Y5eN5PDLkEMQG6976kwGztVE
- sM6p_PgjJY9nWIctW02wjfZKAMFVDrNuL2vg9t0P.Dg9gPK3gypeME8roqZbniYsK3pb7LMTevLZ
- iDTBUJKkBPhtIfQpt01wiOEhvVS3CPiwuDL.jTXx5ClX.FE6UkVGNp7_tB_v1wc3DhqRhZ19KBsQ
- YjRItL3mOZaLMXpKqTJ19kiHemF9M9dGVLoyinom6LwfWMLmlYduMazTsqbx1hz3.lj2ay6gi9kS
- wvJxpYiC.UtRDFLoHbNf3ff6LdfLCU3q1iSeO_PGxniQLlk99wxg5jqc9gUDctXkeybdvNfstbWg
- jKTVBR5eI7otDBBC6ltZjzfqxQavjS17juzIIRBgvhnFFmX2Nt9RfPuLJ.HzfrLHXk4ef1ONbxhv
- wVtN5P7JKdaMSoGpCRIO90sOyuGrZmkxZY5SHf.MzjsAFqJ5DJsn9Zg--
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554837555; bh=W6Zq0mDGK6AXoBDD4bxoIumDend/XN6awxL+92CHmPI=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=gM/mtTIuOeFpLzbJmm+WZpkZ06F82uBq+NTLPgSzQwuBxNrR/c1omKJwpDVk/75n2HDCEhuk8vkqQLhYS8YvSxm42BGG+k17uBH9EfiIxxOtp8rZr2uNI0ctMcUUz4aJRqRf5syLEx41E7HwHXDnLmwyALabaK4K0Mg6FvTYWMKr8bmtR+88PmQNY4LE3AIQAF8JgVOaR2NcEv1W6O2Xej0rDxjTpi/kT1bVthiO8hrbXny3uoQiidCAxsBgH615T3uDQ4iwyGvXkz14xmqyu9yqoxJ5DrkQ6dRUkDfnDlXYpOo+GGXDn37I+5VLvTIEcVio8lifYmaBU3hki2vHSg==
+X-YMail-OSG: exD7ILkVM1m8H7F2wZ4k9rDRYy71SuSk5GeV3jDwMMtfF7ef13qiMK1xA3Sh7ZA
+ z39xC3Ekr6NR8QvqYjzRBGMST5gA.DqgNR_8fD28V7P9G6m5gSWJ6z3qbeGqIU2MFx3btvyO4YkG
+ kRd3Kv8mJDJ.r4KVi6hy2aedliuHilpIKskNmeSXRyLVML.phua.MepmgWLcH_2rj.LRNas6gr7Z
+ cWw.vLLDRmRg8clCCJRnZL9CPWQ0yK5H1F_0eowtJ7dRfDGJEeZFSe0axRQUrwXFPGd2WmrQbz.W
+ egXcPtZ_i6fTWWgtnV0hXVeDxJT1p1GM7hF6aO21nYt_yYUsbrhtDC0AlMSMOas_sGUgzH03JbNr
+ W30MmeRA6xB4a74Wt0FBC_4Rn.JOFErmumJ7Bqm6Nb1H20RRJ1O4ThULQlgHHQt6QxxUJLeu1jHN
+ jEQF14JyP1CsDO3XkIzR.3LdCejvhQJ7YQ0hujaTK6J_r2f.8Ftwl19YYLZ04sXNXjx0TA2cxGfI
+ Mtvjz1rCh247msHph13TUJRCY2qewr4dm9ow7UbvM.2_VTz9MTLYogDcohMj8RKS0Z4gsa1hphu6
+ UaPsBlEXO1iUhzlBZLnV2Xe8zKYlKNoXgZb4W4TjH4ALRvN1v2kPqGnpB6UkpGzpWgYXrLTPu7Nl
+ t.si5YUWQ1hmWLw.NOn.gsxZ0qTPmGvgpzJCqBbsV1.f8INYf5yrLZmGFpgQMflWd84AEraylUBK
+ lvjZkWMcDtuH71rL7y1y7P_L.VHafVGB8WqnUeNO1ocJdL2IQ5jFPXVWwQQ_AJFNaetYVMwDh45m
+ gXaL.g8atrHpY.LX2EJV_vcRC3h2Xt_sR2E1dgyqWcQOJBSzGuQoJWAy3hrGakm26YDcT5AbjQ9u
+ pLzNzxeh2QUk4uogbpVjC5VJIPAD7UD_Zm0ELWQDPF0TAz1JZplZKeg6U10xGeoBe.Rj3F77sbyJ
+ fPKRRtTCINO.ycCZ_UxhOJnnkN5Sy4WYRQVWkHO9SZXiHGfELhhYqAK8r4n84URg2yKJUn8cpiFG
+ tkRgC2EZn12H2mn4TUf8EzYl6cHOcMwE0rlt3kLGJhBt7iiNsHv7dPrz8YzPyBfqA__NgLGLUc0f
+ X0awwizhQCvSYX2U1C_SwPSoBuTdNLsDZ.ODBsKBzj4DcsGe4dmPpIQ--
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Tue, 9 Apr 2019 19:19:15 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp401.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 70e478474b1bad4641d6b335096eeb36;
-          Tue, 09 Apr 2019 19:19:10 +0000 (UTC)
+          Tue, 09 Apr 2019 19:19:12 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, casey.schaufler@intel.com
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         sds@tycho.nsa.gov
-Subject: [PATCH 24/59] Audit: Convert target_sid to an lsm_export structure
-Date:   Tue,  9 Apr 2019 12:18:13 -0700
-Message-Id: <20190409191848.1380-25-casey@schaufler-ca.com>
+Subject: [PATCH 27/59] NET: Store LSM access information in the socket blob for UDS
+Date:   Tue,  9 Apr 2019 12:18:16 -0700
+Message-Id: <20190409191848.1380-28-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190409191848.1380-1-casey@schaufler-ca.com>
 References: <20190409191848.1380-1-casey@schaufler-ca.com>
@@ -59,152 +59,134 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Convert target_sid to be an lsm_export structure
-instead of a u32 secid. Clean out the associated
-scaffolding. Change the name to target_lsm to be
-descriptive.
+UNIX domain socket connections don't have sufficient
+space in the socket buffer (skb) secmark for more than
+one Linux security module (LSM) to pass data. Expanding
+the secmark has been ruled out as an option. Store the
+necessary data in the socket security blob pointed to
+by the skb socket.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- kernel/audit.h   |  3 ++-
- kernel/auditsc.c | 30 ++++++++++++------------------
- 2 files changed, 14 insertions(+), 19 deletions(-)
+ include/linux/security.h | 20 +++++++++++++++++++-
+ net/unix/af_unix.c       | 14 ++++++++------
+ security/security.c      | 17 ++++++++++++++++-
+ 3 files changed, 43 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/audit.h b/kernel/audit.h
-index 64498850c52b..e2e6fa911f9c 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -22,6 +22,7 @@
- #include <linux/fs.h>
- #include <linux/audit.h>
- #include <linux/skbuff.h>
-+#include <linux/security.h>
- #include <uapi/linux/mqueue.h>
- #include <linux/tty.h>
+diff --git a/include/linux/security.h b/include/linux/security.h
+index e76d7a9dbe50..c413dcc1905a 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -71,6 +71,7 @@ struct ctl_table;
+ struct audit_krule;
+ struct user_namespace;
+ struct timezone;
++struct sk_buff;
  
-@@ -147,7 +148,7 @@ struct audit_context {
- 	kuid_t		    target_auid;
- 	kuid_t		    target_uid;
- 	unsigned int	    target_sessionid;
--	u32		    target_sid;
-+	struct lsm_export   target_lsm;
- 	char		    target_comm[TASK_COMM_LEN];
- 
- 	struct audit_tree_refs *trees, *first_trees;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 41f540037a93..75d181029d40 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -112,7 +112,7 @@ struct audit_aux_data_pids {
- 	kuid_t			target_auid[AUDIT_AUX_PIDS];
- 	kuid_t			target_uid[AUDIT_AUX_PIDS];
- 	unsigned int		target_sessionid[AUDIT_AUX_PIDS];
--	u32			target_sid[AUDIT_AUX_PIDS];
-+	struct lsm_export	target_lsm[AUDIT_AUX_PIDS];
- 	char 			target_comm[AUDIT_AUX_PIDS][TASK_COMM_LEN];
- 	int			pid_count;
- };
-@@ -937,14 +937,14 @@ static inline void audit_free_context(struct audit_context *context)
+ enum lsm_event {
+ 	LSM_POLICY_CHANGE,
+@@ -100,6 +101,22 @@ static inline bool lsm_export_any(struct lsm_export *l)
+ 		((l->flags & LSM_EXPORT_APPARMOR) && l->apparmor));
  }
  
- static int audit_log_pid_context(struct audit_context *context, pid_t pid,
--				 kuid_t auid, kuid_t uid, unsigned int sessionid,
--				 u32 sid, char *comm)
-+				 kuid_t auid, kuid_t uid,
-+				 unsigned int sessionid,
-+				 struct lsm_export *l, char *comm)
- {
- 	struct audit_buffer *ab;
- 	char *ctx = NULL;
- 	u32 len;
- 	int rc = 0;
--	struct lsm_export le;
- 
- 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_OBJ_PID);
- 	if (!ab)
-@@ -953,9 +953,8 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 	audit_log_format(ab, "opid=%d oauid=%d ouid=%d oses=%d", pid,
- 			 from_kuid(&init_user_ns, auid),
- 			 from_kuid(&init_user_ns, uid), sessionid);
--	if (sid) {
--		lsm_export_to_all(&le, sid);
--		if (security_secid_to_secctx(&le, &ctx, &len)) {
-+	if (lsm_export_any(l)) {
-+		if (security_secid_to_secctx(l, &ctx, &len)) {
- 			audit_log_format(ab, " obj=(none)");
- 			rc = 1;
- 		} else {
-@@ -1525,7 +1524,7 @@ static void audit_log_exit(void)
- 						  axs->target_auid[i],
- 						  axs->target_uid[i],
- 						  axs->target_sessionid[i],
--						  axs->target_sid[i],
-+						  &axs->target_lsm[i],
- 						  axs->target_comm[i]))
- 				call_panic = 1;
- 	}
-@@ -1534,7 +1533,7 @@ static void audit_log_exit(void)
- 	    audit_log_pid_context(context, context->target_pid,
- 				  context->target_auid, context->target_uid,
- 				  context->target_sessionid,
--				  context->target_sid, context->target_comm))
-+				  &context->target_lsm, context->target_comm))
- 			call_panic = 1;
- 
- 	if (context->pwd.dentry && context->pwd.mnt) {
-@@ -1711,7 +1710,7 @@ void __audit_syscall_exit(int success, long return_code)
- 	context->aux = NULL;
- 	context->aux_pids = NULL;
- 	context->target_pid = 0;
--	context->target_sid = 0;
-+	lsm_export_init(&context->target_lsm);
- 	context->sockaddr_len = 0;
- 	context->type = 0;
- 	context->fds[0] = -1;
-@@ -2363,14 +2362,12 @@ int __audit_sockaddr(int len, void *a)
- void __audit_ptrace(struct task_struct *t)
- {
- 	struct audit_context *context = audit_context();
--	struct lsm_export le;
- 
- 	context->target_pid = task_tgid_nr(t);
- 	context->target_auid = audit_get_loginuid(t);
- 	context->target_uid = task_uid(t);
- 	context->target_sessionid = audit_get_sessionid(t);
--	security_task_getsecid(t, &le);
--	lsm_export_secid(&le, &context->target_sid);
-+	security_task_getsecid(t, &context->target_lsm);
- 	memcpy(context->target_comm, t->comm, TASK_COMM_LEN);
++static inline bool lsm_export_equal(struct lsm_export *l, struct lsm_export *m)
++{
++	if (l->flags != m->flags || l->flags == LSM_EXPORT_NONE)
++		return false;
++	if (l->flags & LSM_EXPORT_SELINUX &&
++	    (l->selinux != m->selinux || l->selinux == 0))
++		return false;
++	if (l->flags & LSM_EXPORT_SMACK &&
++	    (l->smack != m->smack || l->smack == 0))
++		return false;
++	if (l->flags & LSM_EXPORT_APPARMOR &&
++	    (l->apparmor != m->apparmor || l->apparmor == 0))
++		return false;
++	return true;
++}
++
+ /**
+  * lsm_export_secid - pull the useful secid out of a lsm_export
+  * @data: the containing data structure
+@@ -143,6 +160,8 @@ static inline void lsm_export_to_all(struct lsm_export *data, u32 secid)
+ 		      LSM_EXPORT_APPARMOR;
  }
  
-@@ -2387,7 +2384,6 @@ int audit_signal_info(int sig, struct task_struct *t)
- 	struct audit_aux_data_pids *axp;
- 	struct audit_context *ctx = audit_context();
- 	kuid_t uid = current_uid(), auid, t_uid = task_uid(t);
--	struct lsm_export le;
++extern struct lsm_export *lsm_export_skb(struct sk_buff *skb);
++
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, unsigned int opts);
+@@ -174,7 +193,6 @@ extern int cap_task_setnice(struct task_struct *p, int nice);
+ extern int cap_vm_enough_memory(struct mm_struct *mm, long pages);
  
- 	if (auditd_test_task(t) &&
- 	    (sig == SIGTERM || sig == SIGHUP ||
-@@ -2411,8 +2407,7 @@ int audit_signal_info(int sig, struct task_struct *t)
- 		ctx->target_auid = audit_get_loginuid(t);
- 		ctx->target_uid = t_uid;
- 		ctx->target_sessionid = audit_get_sessionid(t);
--		security_task_getsecid(t, &le);
--		lsm_export_secid(&le, &ctx->target_sid);
-+		security_task_getsecid(t, &ctx->target_lsm);
- 		memcpy(ctx->target_comm, t->comm, TASK_COMM_LEN);
- 		return 0;
- 	}
-@@ -2433,8 +2428,7 @@ int audit_signal_info(int sig, struct task_struct *t)
- 	axp->target_auid[axp->pid_count] = audit_get_loginuid(t);
- 	axp->target_uid[axp->pid_count] = t_uid;
- 	axp->target_sessionid[axp->pid_count] = audit_get_sessionid(t);
--	security_task_getsecid(t, &le);
--	lsm_export_secid(&le, &axp->target_sid[axp->pid_count]);
-+	security_task_getsecid(t, &axp->target_lsm[axp->pid_count]);
- 	memcpy(axp->target_comm[axp->pid_count], t->comm, TASK_COMM_LEN);
- 	axp->pid_count++;
+ struct msghdr;
+-struct sk_buff;
+ struct sock;
+ struct sockaddr;
+ struct socket;
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 4d4107927ba2..afe9c9f1adeb 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -143,21 +143,23 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
+ #ifdef CONFIG_SECURITY_NETWORK
+ static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	lsm_export_secid(&scm->le, &(UNIXCB(skb).secid));
++	struct lsm_export *ble = lsm_export_skb(skb);
++
++	*ble = scm->le;
+ }
  
+ static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	lsm_export_to_all(&scm->le, UNIXCB(skb).secid);
++	struct lsm_export *ble = lsm_export_skb(skb);
++
++	scm->le = *ble;
+ }
+ 
+ static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	u32 best_secid;
+-
+-	lsm_export_secid(&scm->le, &best_secid);
+-	return (best_secid == UNIXCB(skb).secid);
++	return lsm_export_equal(&scm->le, lsm_export_skb(skb));
+ }
++
+ #else
+ static inline void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ { }
+diff --git a/security/security.c b/security/security.c
+index 69983ad68233..015c38c882ba 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -46,7 +46,22 @@ static struct kmem_cache *lsm_file_cache;
+ static struct kmem_cache *lsm_inode_cache;
+ 
+ char *lsm_names;
+-static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init;
++
++/* Socket blobs include infrastructure managed data */
++static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init = {
++	.lbs_sock = sizeof(struct lsm_export),
++};
++
++/**
++ * lsm_export_skb - pointer to the lsm_export associated with the skb
++ * @skb: the socket buffer
++ *
++ * Returns a pointer to the LSM managed data.
++ */
++struct lsm_export *lsm_export_skb(struct sk_buff *skb)
++{
++	return skb->sk->sk_security;
++}
+ 
+ /* Boot-time LSM user choice */
+ static __initdata const char *chosen_lsm_order;
 -- 
 2.19.1
 
