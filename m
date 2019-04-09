@@ -7,50 +7,50 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5D66C282CE
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 19:19:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CF22C282E0
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 19:19:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AE7F72084B
+	by mail.kernel.org (Postfix) with ESMTP id EEED42084B
 	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 19:19:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ZC4TAQHh"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="eqNFVqAk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726765AbfDITTM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1726780AbfDITTM (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 9 Apr 2019 15:19:12 -0400
-Received: from sonic313-26.consmr.mail.gq1.yahoo.com ([98.137.65.89]:43716
+Received: from sonic313-26.consmr.mail.gq1.yahoo.com ([98.137.65.89]:41871
         "EHLO sonic313-26.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726794AbfDITTL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 15:19:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554837549; bh=nhyQ5HEMViXMwzj11P6PbXR0lPC7xmZwGngBq91che4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=ZC4TAQHh7dE3hCyXb+w7tHghKfcSnXv1iCQ1DcKFUl3oJm9TkThciQ81H9QkLUFxq3bavI9582CS6byzyxc5AhOUFssfVazI+3zbldeb9uYRBS20xlv0hi6e2c92nW58HfGnW3LAwh3erM6KWDj2l0NJAXeCYir9HGEx8lYpbr0lYSY0OJZy9m14wktv8WUfx0pjLDBmX/9w+MDTLHDrDdRZiB8yt1uh43h2PI/8mmBAVnPimnBQ7ZDySEERlFlH49sLR93EQIzScBDbHtZy7JUUpf9S6HozKbm1njIAPnatSf29lA5jMA8gaNkmN9+Oa1x0iFPoaq0gymcPbcBcOA==
-X-YMail-OSG: bnIrBXMVM1kR7HARYK348UzkQWsZCSf9YOiBa7XDSyqXLRxmlwGkmdqQ3PhOT3r
- ASPCB5EefRE_ecnzdNACUIxFbINbS8uqx31oXIDRfybExtaFROUK7.thRdm.aW6PzBF293Lys.BP
- UikTqr4HbvGvOQw5T9qbOMSXBZFHrj0LS6dsUHBrAHL1gz.AA2uLIXrjPyQ0ApmnUF1MZ6hs4sAP
- TSzwtlWv2NwTXRP5JQ.br1O17PybBMnkyUIwzn_V8DogIkC3Wrd6na6vwAOxTGgE6VGQlWV5HGby
- F66zuPEWJTk_eAKZog5nvT9VwU1u6wE8a5r5ObpvmVB0Q1btlqa04w7.ax0UHYmCYuNS_kKOMWjc
- tNBdm7y9Yuu9qwEiWOabxq8wJU5bcrx9P5615ASgQGP60gJIituvLb8hkz4UcF_g_YqJlxrCEoeD
- uk5JxTKi5gNNEfN8Ix1kRlV0x8gBVHNUsl3qFsKf5RbonGA3Ml7dEr3o7.K6NTiC8lEXhMXPeCKH
- 0pJmt79LeZE0Xf7SkBpUs3Zt9h.SgPusXC_McYn89XhmWuxvsJzRz2_Y9T4..CsHa1WAOl86izKL
- Gn61OJ1pkRZ_ZA6yp0XK5URLqCLo5dMT0hm4lZiLEu_3LDXofvWC7wdqz2K6abbrPFwv3O7_4GFa
- xz84VAiW3DCYh9fGFFhm_ssAVXGBhDFvfrOoOxecgJ8oruhUg_y_ipWYDIb8K4Jhc1GLnogQkvM6
- gWY.nvC_xmmDisPItbBl9eCF30Q32486KiLLDnb1Gf_gBkeXX3uf4MKv4lj5N29hJlP_YxxgetFM
- tcJt817qnI6_z4kEHIFzS_.eaPnQg2ZwBLl5czW7KxOLeK0F_z5xMblupcU0qTM1o296RBB_jPU8
- 3PXnYFMMZ9PioOMU6MFFTzddzjaXZC3uF3hIKMKikYYGWIhItsAZrV.9ZIibniH5tWcTCjBFf6th
- 0sN1fP1CNkKQttEDOaI0vR6QdsX0qtH.8Rpa0EGFmKXRyJGOzYAPhqxMnD.5ILgDz4lspl2lDA8i
- 1srcozEA7uVuLclolF0DIrE23cQo0FgizA.OniE8gez3fzqtfZsH.Ucwhrtk6K8UZ_EUIcVoKN0f
- IuSR4t7r.tyyO6z__kb3i9ncUurwPdyyMmeZu21o_u8pjMHEh3DTqV7HLU8_uoBQsxjbkAg--
+        by vger.kernel.org with ESMTP id S1726765AbfDITTM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 15:19:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554837549; bh=rnYFo5ZRZDk+OWS44zRZyocobFLx6h6kqTHu/9Enlaw=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=eqNFVqAkiywpoRCXSICCag+mAEE2BjwUDObRovchVRc1Vr5dITrY16DIm6zntcQEcGyR6ARFrKlUEwBaFZIrLLYNfTCdmmQ5BI35Vtl0X2/5EafJJQ1db3xxBzJAw9gQBkeCEzLow5ljQwq4S1TsvETvcSuC5zLw8n8OreHvHaEzSXX5TrARrp5aGzAJ0c1B3otgVJwMNNiPIhdUZMLVbEoWCJdlxLv2jIqQE6dlptL63SljG7C8OEAW/kEB/3JBGVypUjxol0LozmB1vB3ebymKuUAZihdoOSoKioi5W2z6pop2tK1MKQ7qPGyxylXZ1I8EXZJ6S8mJeR/8PVmK5w==
+X-YMail-OSG: zUmBewcVM1ladYcuO8AnfedLEVh9HnHAfE0tg48wROEpMgWXkChI9Z1JyD0.T4f
+ _DmH8c7Z7w1zaq85wWP8VXXLUyrQBrmRXeDcYOioCFJo7AhqgvMa6zeTbuVrfdbnOtaAMRe0pH4V
+ CeaHcdd3B6BUEm9xfQhfP137rANZV0YGb4_ONXlLodU4RHNBYX7jzsAnEbvSZFI58x7g7zlyIp_f
+ o6WlcGkrPpkjfu2aJVL4ceb5Wvo2MwRyFxj8QmorJafQXG5BSmPZj4Vl1LF3yvTzd81ywytKmBPT
+ 22WBYmrSot8TSDN_uM1gw.YrmRtC8zZyObAVfQRkUVKsX7RQcM8_gtD5Tm2okBZf4IHZ4EHFac1I
+ CDHKQnFf8p7VU7kU_3qv714yuIJn6d21zdTzBnmEq127auvmsCGHvH2N3zojCm59Eu0ZbWccM3FQ
+ gzjlK7CpIyJn.Jj_E83rilN8wr.akL6fH7wMauQTEoLsP0iHs6MaHLNGrX13vwEAiCDLH1QTnNKz
+ RyIp67IqM1mIAk9J1tRBEGtNlHgBZnYzuuETDnUxfk32yw4uGCK1oDF53Ne1t9.l5CmdQORYjgUP
+ oWFEcBeztoloI1ya7HmordMAklgFVmDmgGdZAx6n4lfDYprhth.L6e9ZodNiAv2MxX.vXp18pzAw
+ DKkB5OOcHW2OPEAe08rOKsZcSeZPnxn1kKzH.IbW1b2Sq_XRC6.yRT.07zQ4wdrztJ2P51BtJ3PY
+ ehmDclhOFak6p.JxcOO5O_o_c8.73ADJkBkLIz3VdBOLH_dBr2meF1c.2l8zWwYZRHurGnp8nkTu
+ wKupx_uJQ7wRxKpH.lXN8i17PE.oS5U_2T0WX7sCRtQE9qARbuOUDQKZ6LuZnmlXRYyC2joZldAq
+ O5i8QaqcfX11mOveP7oZexke3J6FMqX_6ogTVUF6IrqcKzfV3DD0kLqrT_bMtCTMylz6iPxdat33
+ r4IB._k3yRRUZRTWnkkuX3UszugC6P9IOFbhdNrgcY.rzHNM6r1GdaYRvWkT8N7yN6H6Dx90Bzky
+ FB3JMehZMmxuU1G2XwkSyt8pPn3oyaxAis7ZsK74nUCNqakTIaRnSSV5LrPjZEwVHm6w8rNCddwU
+ DZ7RdJDl0hs44k6un283np8JsRUvfgTl5.OeSAUbEKSGU_eib739lvQ--
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.gq1.yahoo.com with HTTP; Tue, 9 Apr 2019 19:19:09 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp401.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 54e8f28a4675c25365c7725d1b772c7b;
-          Tue, 09 Apr 2019 19:19:05 +0000 (UTC)
+          by smtp401.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 70e478474b1bad4641d6b335096eeb36;
+          Tue, 09 Apr 2019 19:19:08 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     jmorris@namei.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, casey.schaufler@intel.com
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         sds@tycho.nsa.gov
-Subject: [PATCH 17/59] LSM: Use lsm_export in security_secctx_to_secid
-Date:   Tue,  9 Apr 2019 12:18:06 -0700
-Message-Id: <20190409191848.1380-18-casey@schaufler-ca.com>
+Subject: [PATCH 20/59] LSM: Use lsm_export in security_task_getsecid
+Date:   Tue,  9 Apr 2019 12:18:09 -0700
+Message-Id: <20190409191848.1380-21-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190409191848.1380-1-casey@schaufler-ca.com>
 References: <20190409191848.1380-1-casey@schaufler-ca.com>
@@ -59,180 +59,317 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Convert security_secctx_to_secid to use the lsm_export structure
+Convert security_task_getsecid to use the lsm_export structure
 instead of a u32 secid. There is some scaffolding involved
 that will be removed when the related data is updated.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/security.h          |  5 +++--
- kernel/cred.c                     |  4 +---
- net/netfilter/nft_meta.c          |  4 +++-
- net/netfilter/xt_SECMARK.c        |  5 +++--
- net/netlabel/netlabel_unlabeled.c |  8 ++++++--
- security/security.c               | 11 ++++-------
- 6 files changed, 20 insertions(+), 17 deletions(-)
+ drivers/android/binder.c              |  4 +---
+ include/linux/security.h              |  7 ++++---
+ kernel/audit.c                        |  4 ++--
+ kernel/auditfilter.c                  |  4 +---
+ kernel/auditsc.c                      | 18 +++++++++++-------
+ net/netlabel/netlabel_unlabeled.c     |  4 +++-
+ net/netlabel/netlabel_user.h          |  5 ++++-
+ security/integrity/ima/ima_appraise.c |  4 +++-
+ security/integrity/ima/ima_main.c     | 16 ++++++++++++----
+ security/security.c                   |  8 +++-----
+ 10 files changed, 44 insertions(+), 30 deletions(-)
 
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 9119333f794b..0eeb5b75da5b 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3119,11 +3119,9 @@ static void binder_transaction(struct binder_proc *proc,
+ 	t->priority = task_nice(current);
+ 
+ 	if (target_node && target_node->txn_security_ctx) {
+-		u32 secid;
+ 		struct lsm_export le;
+ 
+-		security_task_getsecid(proc->tsk, &secid);
+-		lsm_export_to_all(&le, secid);
++		security_task_getsecid(proc->tsk, &le);
+ 		ret = security_secid_to_secctx(&le, &secctx, &secctx_sz);
+ 		if (ret) {
+ 			return_error = BR_FAILED_REPLY;
 diff --git a/include/linux/security.h b/include/linux/security.h
-index e3f5c61b9b2c..991d2d2e290e 100644
+index 6ac48c7c4a41..ae4c058abc5e 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -437,7 +437,8 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_ismaclabel(const char *name);
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
--int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
-+int security_secctx_to_secid(const char *secdata, u32 seclen,
-+			     struct lsm_export *l);
- void security_release_secctx(char *secdata, u32 seclen);
- 
- void security_inode_invalidate_secctx(struct inode *inode);
-@@ -1220,7 +1221,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- 
- static inline int security_secctx_to_secid(const char *secdata,
- 					   u32 seclen,
--					   u32 *secid)
-+					   struct lsm_export *l)
- {
- 	return -EOPNOTSUPP;
+@@ -394,7 +394,7 @@ int security_task_fix_setuid(struct cred *new, const struct cred *old,
+ int security_task_setpgid(struct task_struct *p, pid_t pgid);
+ int security_task_getpgid(struct task_struct *p);
+ int security_task_getsid(struct task_struct *p);
+-void security_task_getsecid(struct task_struct *p, u32 *secid);
++void security_task_getsecid(struct task_struct *p, struct lsm_export *l);
+ int security_task_setnice(struct task_struct *p, int nice);
+ int security_task_setioprio(struct task_struct *p, int ioprio);
+ int security_task_getioprio(struct task_struct *p);
+@@ -1023,9 +1023,10 @@ static inline int security_task_getsid(struct task_struct *p)
+ 	return 0;
  }
-diff --git a/kernel/cred.c b/kernel/cred.c
-index 40a3fde22667..7792538b1ca6 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -725,14 +725,12 @@ EXPORT_SYMBOL(set_security_override);
- int set_security_override_from_ctx(struct cred *new, const char *secctx)
+ 
+-static inline void security_task_getsecid(struct task_struct *p, u32 *secid)
++static inline void security_task_getsecid(struct task_struct *p,
++					  struct lsm_export *l)
  {
+-	*secid = 0;
++	lsm_export_init(l);
+ }
+ 
+ static inline int security_task_setnice(struct task_struct *p, int nice)
+diff --git a/kernel/audit.c b/kernel/audit.c
+index b5d96a0320fb..fa4c5544eb37 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -2078,11 +2078,11 @@ int audit_log_task_context(struct audit_buffer *ab)
+ 	u32 sid;
  	struct lsm_export le;
--	u32 secid;
- 	int ret;
  
--	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
-+	ret = security_secctx_to_secid(secctx, strlen(secctx), &le);
- 	if (ret < 0)
- 		return ret;
+-	security_task_getsecid(current, &sid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &sid);
+ 	if (!sid)
+ 		return 0;
  
--	lsm_export_to_all(&le, secid);
- 	return set_security_override(new, &le);
+-	lsm_export_to_all(&le, sid);
+ 	error = security_secid_to_secctx(&le, &ctx, &len);
+ 	if (error) {
+ 		if (error != -EINVAL)
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index 15771102919d..468dac2bdce5 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -1323,7 +1323,6 @@ int audit_filter(int msgtype, unsigned int listtype)
+ 		for (i = 0; i < e->rule.field_count; i++) {
+ 			struct audit_field *f = &e->rule.fields[i];
+ 			pid_t pid;
+-			u32 sid;
+ 			struct lsm_export le;
+ 
+ 			switch (f->type) {
+@@ -1354,8 +1353,7 @@ int audit_filter(int msgtype, unsigned int listtype)
+ 			case AUDIT_SUBJ_SEN:
+ 			case AUDIT_SUBJ_CLR:
+ 				if (f->lsm_rule) {
+-					security_task_getsecid(current, &sid);
+-					lsm_export_to_all(&le, sid);
++					security_task_getsecid(current, &le);
+ 					result = security_audit_rule_match(&le,
+ 						   f->type, f->op, f->lsm_rule);
+ 				}
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index eabbf78fee96..b06ffcf9bb9f 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -444,7 +444,6 @@ static int audit_filter_rules(struct task_struct *tsk,
+ {
+ 	const struct cred *cred;
+ 	int i, need_sid = 1;
+-	u32 sid;
+ 	struct lsm_export le;
+ 	unsigned int sessionid;
+ 
+@@ -628,10 +627,9 @@ static int audit_filter_rules(struct task_struct *tsk,
+ 			   logged upon error */
+ 			if (f->lsm_rule) {
+ 				if (need_sid) {
+-					security_task_getsecid(tsk, &sid);
++					security_task_getsecid(tsk, &le);
+ 					need_sid = 0;
+ 				}
+-				lsm_export_to_all(&le, sid);
+ 				result = security_audit_rule_match(&le, f->type,
+ 								   f->op,
+ 								   f->lsm_rule);
+@@ -2362,12 +2360,14 @@ int __audit_sockaddr(int len, void *a)
+ void __audit_ptrace(struct task_struct *t)
+ {
+ 	struct audit_context *context = audit_context();
++	struct lsm_export le;
+ 
+ 	context->target_pid = task_tgid_nr(t);
+ 	context->target_auid = audit_get_loginuid(t);
+ 	context->target_uid = task_uid(t);
+ 	context->target_sessionid = audit_get_sessionid(t);
+-	security_task_getsecid(t, &context->target_sid);
++	security_task_getsecid(t, &le);
++	lsm_export_secid(&le, &context->target_sid);
+ 	memcpy(context->target_comm, t->comm, TASK_COMM_LEN);
  }
- EXPORT_SYMBOL(set_security_override_from_ctx);
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index 987d2d6ce624..598bea8e4799 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -576,13 +576,15 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
  
- static int nft_secmark_compute_secid(struct nft_secmark *priv)
- {
+@@ -2384,6 +2384,7 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 	struct audit_aux_data_pids *axp;
+ 	struct audit_context *ctx = audit_context();
+ 	kuid_t uid = current_uid(), auid, t_uid = task_uid(t);
 +	struct lsm_export le;
- 	u32 tmp_secid = 0;
- 	int err;
  
--	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
-+	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &le);
- 	if (err)
- 		return err;
- 
-+	lsm_export_secid(&le, &tmp_secid);
- 	if (!tmp_secid)
- 		return -ENOENT;
- 
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index f16202d26c20..2def8d8898e6 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -49,13 +49,13 @@ secmark_tg(struct sk_buff *skb, const struct xt_action_param *par)
- 
- static int checkentry_lsm(struct xt_secmark_target_info *info)
- {
-+	struct lsm_export le;
- 	int err;
- 
- 	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
- 	info->secid = 0;
- 
--	err = security_secctx_to_secid(info->secctx, strlen(info->secctx),
--				       &info->secid);
-+	err = security_secctx_to_secid(info->secctx, strlen(info->secctx), &le);
- 	if (err) {
- 		if (err == -EINVAL)
- 			pr_info_ratelimited("invalid security context \'%s\'\n",
-@@ -63,6 +63,7 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
- 		return err;
+ 	if (auditd_test_task(t) &&
+ 	    (sig == SIGTERM || sig == SIGHUP ||
+@@ -2394,7 +2395,8 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 			audit_sig_uid = auid;
+ 		else
+ 			audit_sig_uid = uid;
+-		security_task_getsecid(current, &audit_sig_sid);
++		security_task_getsecid(current, &le);
++		lsm_export_secid(&le, &audit_sig_sid);
  	}
  
-+	lsm_export_secid(&le, &info->secid);
- 	if (!info->secid) {
- 		pr_info_ratelimited("unable to map security context \'%s\'\n",
- 				    info->secctx);
+ 	if (!audit_signals || audit_dummy_context())
+@@ -2407,7 +2409,8 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 		ctx->target_auid = audit_get_loginuid(t);
+ 		ctx->target_uid = t_uid;
+ 		ctx->target_sessionid = audit_get_sessionid(t);
+-		security_task_getsecid(t, &ctx->target_sid);
++		security_task_getsecid(t, &le);
++		lsm_export_secid(&le, &ctx->target_sid);
+ 		memcpy(ctx->target_comm, t->comm, TASK_COMM_LEN);
+ 		return 0;
+ 	}
+@@ -2428,7 +2431,8 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 	axp->target_auid[axp->pid_count] = audit_get_loginuid(t);
+ 	axp->target_uid[axp->pid_count] = t_uid;
+ 	axp->target_sessionid[axp->pid_count] = audit_get_sessionid(t);
+-	security_task_getsecid(t, &axp->target_sid[axp->pid_count]);
++	security_task_getsecid(t, &le);
++	lsm_export_secid(&le, &axp->target_sid[axp->pid_count]);
+ 	memcpy(axp->target_comm[axp->pid_count], t->comm, TASK_COMM_LEN);
+ 	axp->pid_count++;
+ 
 diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index c92894c3e40a..fc38934ccb35 100644
+index 00922f55dd9e..7f245d593c8f 100644
 --- a/net/netlabel/netlabel_unlabeled.c
 +++ b/net/netlabel/netlabel_unlabeled.c
-@@ -896,6 +896,7 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
- 	void *mask;
- 	u32 addr_len;
+@@ -1554,11 +1554,13 @@ int __init netlbl_unlabel_defconf(void)
+ 	int ret_val;
+ 	struct netlbl_dom_map *entry;
+ 	struct netlbl_audit audit_info;
++	struct lsm_export le;
+ 
+ 	/* Only the kernel is allowed to call this function and the only time
+ 	 * it is called is at bootup before the audit subsystem is reporting
+ 	 * messages so don't worry to much about these values. */
+-	security_task_getsecid(current, &audit_info.secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &audit_info.secid);
+ 	audit_info.loginuid = GLOBAL_ROOT_UID;
+ 	audit_info.sessionid = 0;
+ 
+diff --git a/net/netlabel/netlabel_user.h b/net/netlabel/netlabel_user.h
+index 4a397cde1a48..2dbc4276bdcc 100644
+--- a/net/netlabel/netlabel_user.h
++++ b/net/netlabel/netlabel_user.h
+@@ -48,7 +48,10 @@
+ static inline void netlbl_netlink_auditinfo(struct sk_buff *skb,
+ 					    struct netlbl_audit *audit_info)
+ {
+-	security_task_getsecid(current, &audit_info->secid);
++	struct lsm_export le;
++
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &audit_info->secid);
+ 	audit_info->loginuid = audit_get_loginuid(current);
+ 	audit_info->sessionid = audit_get_sessionid(current);
+ }
+diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
+index 5fb7127bbe68..be714afc9fd2 100644
+--- a/security/integrity/ima/ima_appraise.c
++++ b/security/integrity/ima/ima_appraise.c
+@@ -51,11 +51,13 @@ bool is_ima_appraise_enabled(void)
+ int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
+ {
  	u32 secid;
 +	struct lsm_export le;
- 	struct netlbl_audit audit_info;
  
- 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
-@@ -919,10 +920,11 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
- 	ret_val = security_secctx_to_secid(
- 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
- 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
--				  &secid);
-+				  &le);
- 	if (ret_val != 0)
- 		return ret_val;
+ 	if (!ima_appraise)
+ 		return 0;
  
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
 +	lsm_export_secid(&le, &secid);
- 	return netlbl_unlhsh_add(&init_net,
- 				 dev_name, addr, mask, addr_len, secid,
- 				 &audit_info);
-@@ -947,6 +949,7 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
- 	void *mask;
- 	u32 addr_len;
+ 	return ima_match_policy(inode, current_cred(), secid, func, mask,
+ 				IMA_APPRAISE | IMA_HASH, NULL);
+ }
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 357edd140c09..1e3cfaf0ee5c 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -336,9 +336,11 @@ static int process_measurement(struct file *file, const struct cred *cred,
+ int ima_file_mmap(struct file *file, unsigned long prot)
+ {
  	u32 secid;
 +	struct lsm_export le;
- 	struct netlbl_audit audit_info;
  
- 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
-@@ -968,10 +971,11 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
- 	ret_val = security_secctx_to_secid(
- 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
- 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
--				  &secid);
-+				  &le);
- 	if (ret_val != 0)
- 		return ret_val;
+ 	if (file && (prot & PROT_EXEC)) {
+-		security_task_getsecid(current, &secid);
++		security_task_getsecid(current, &le);
++		lsm_export_secid(&le, &secid);
+ 		return process_measurement(file, current_cred(), secid, NULL,
+ 					   0, MAY_EXEC, MMAP_CHECK);
+ 	}
+@@ -363,8 +365,10 @@ int ima_bprm_check(struct linux_binprm *bprm)
+ {
+ 	int ret;
+ 	u32 secid;
++	struct lsm_export le;
  
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
 +	lsm_export_secid(&le, &secid);
- 	return netlbl_unlhsh_add(&init_net,
- 				 NULL, addr, mask, addr_len, secid,
- 				 &audit_info);
+ 	ret = process_measurement(bprm->file, current_cred(), secid, NULL, 0,
+ 				  MAY_EXEC, BPRM_CHECK);
+ 	if (ret)
+@@ -388,8 +392,10 @@ int ima_bprm_check(struct linux_binprm *bprm)
+ int ima_file_check(struct file *file, int mask)
+ {
+ 	u32 secid;
++	struct lsm_export le;
+ 
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &secid);
+ 	return process_measurement(file, current_cred(), secid, NULL, 0,
+ 				   mask & (MAY_READ | MAY_WRITE | MAY_EXEC |
+ 					   MAY_APPEND), FILE_CHECK);
+@@ -500,6 +506,7 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ {
+ 	enum ima_hooks func;
+ 	u32 secid;
++	struct lsm_export le;
+ 
+ 	if (!file && read_id == READING_FIRMWARE) {
+ 		if ((ima_appraise & IMA_APPRAISE_FIRMWARE) &&
+@@ -521,7 +528,8 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ 	}
+ 
+ 	func = read_idmap[read_id] ?: FILE_CHECK;
+-	security_task_getsecid(current, &secid);
++	security_task_getsecid(current, &le);
++	lsm_export_secid(&le, &secid);
+ 	return process_measurement(file, current_cred(), secid, buf, size,
+ 				   MAY_READ, func);
+ }
 diff --git a/security/security.c b/security/security.c
-index d8300a6400c3..868e9ae6b48c 100644
+index 6ba1187c9655..22ea709593f3 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -1967,14 +1967,11 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
+@@ -1690,12 +1690,10 @@ int security_task_getsid(struct task_struct *p)
+ 	return call_int_hook(task_getsid, 0, p);
  }
- EXPORT_SYMBOL(security_secid_to_secctx);
  
--int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
-+int security_secctx_to_secid(const char *secdata, u32 seclen,
-+			     struct lsm_export *l)
+-void security_task_getsecid(struct task_struct *p, u32 *secid)
++void security_task_getsecid(struct task_struct *p, struct lsm_export *l)
  {
 -	struct lsm_export data = { .flags = LSM_EXPORT_NONE };
--	int rc;
 -
--	rc = call_int_hook(secctx_to_secid, 0, secdata, seclen, &data);
+-	call_void_hook(task_getsecid, p, &data);
 -	lsm_export_secid(&data, secid);
--	return rc;
 +	lsm_export_init(l);
-+	return call_int_hook(secctx_to_secid, 0, secdata, seclen, l);
++	call_void_hook(task_getsecid, p, l);
  }
- EXPORT_SYMBOL(security_secctx_to_secid);
+ EXPORT_SYMBOL(security_task_getsecid);
  
 -- 
 2.19.1
