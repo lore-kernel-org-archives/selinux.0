@@ -7,48 +7,48 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09B73C282CE
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22971C10F0E
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CE1872082A
-	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E7EA72133D
+	for <selinux@archiver.kernel.org>; Tue,  9 Apr 2019 21:41:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="gIhL8ezG"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Ypio5f4Y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726808AbfDIVlP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Apr 2019 17:41:15 -0400
-Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:40449
+        id S1726958AbfDIVlR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Apr 2019 17:41:17 -0400
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:34554
         "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726875AbfDIVlE (ORCPT
+        by vger.kernel.org with ESMTP id S1726874AbfDIVlE (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 9 Apr 2019 17:41:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554846063; bh=DXZobVlHba7NLExIjhRRZRkmastZlDIkiPrs42J8njM=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=gIhL8ezGAimS0SOypVTcuu+w0h4akRQA2zkugJAtJEd9VLg4/wnsPXiPs+nqOh9acQOzNTn5WuZ03piWa0Z3ug8yFqwULG8dGORA0BKE7Or1l4gpCjUr2ZkSHW0Jlus83Ppu9PAhdO6K12jV/Sy1PBEgnQOm9j0A13q2JLQQDRDVPamC/38T1k6FWFSnZJgkfjRjp93HvLtcMsGC/SBP0poULHhHwSe0gny6TsdhQwXqDgDCw4LiMvZ5Lgoit56RUzHDSI4GBvKjkYdBSA8EdhWh964fwT7YDWJ0xJC3enGY0B1RY/fPI4rs8tQM/6bqKf9qba5hVrCY7UxeOphYzA==
-X-YMail-OSG: dLy3Z7wVM1kwrF3sxuZW9Cv_QZy23tBqj7Ev0q8LNyVeuZ2Os2JDUWspMt1v2xB
- wJYegWM3uTv9Zqlw..a.YSHAWVbkjO4PEb99rVV9CqUXs9Nw9utiz6wXwIBvzj8AqKk7t0VoGekG
- RVsv6rpzk8S4CFo3eEHXo6DSKg4K1UEwauUxMWXCRIqcoLcL8W6CRnwZqrcDr_Le8HYqNhnoVfQ8
- Je30WqX_HNsSFERLKoqmEIRaqMl.TpSnNsGE2tSaaHyuxhidqcPnlMeV51dCqutVT8NOWCC8VzOp
- 4XuBZ..x7f6Hpd19swc_4zM1qJfsR4HCN9clOKbyznrf.ZWLxkqT4IMHoN8vVUEDdBmGu9OvhAVn
- uHXykJBh5sb.22GcJYIbAsALDcvA1shyf3WvQffx1ddLEMl34KAhFrNoJcW7Ulst8SvTAuZwQRlW
- JnklfnWz9sO5ZwVwxwtTR123Nc6d.QAI3kXYgWOLANN3gqULxbNfXrSV3HH_7yMzxTQFiHTFAUU1
- hVfQsLpjJ_pYvA_m9jLlbMstHYnEgxydZD5v1JK0i3_Cu4JoQJktJvTyfo4Qt4b44Qs4N1MbqS.3
- rl_gWwOqh2KEi4_Nzz5Hh6L4do2IFxzxMLhus.CZ4ktKyY5_IpVX8ukm4avLRJhbNgkZHVDWD1en
- i3Od8j8IsX7vyt.xyxMiAytGpU8n3MDweB7Hb8qseW6vqHlfHHDE4KGfeXh7YH8maUz1rrcdSJag
- KqQcdJ9uE4MLwiWueyD71e.rqCd9wtO_Ha1c53WXqqDPtrLANhTa2l53dETU9QRC7V2Hq4miEgjQ
- uDzBwqpuActE81JqRitp3LW3tpGimr1whtYp6MEk7Yj6p37.Qet1v7Z9tzcrFNEPe3v5ReDV2QHL
- Y2OfG7Su1m7ZG8HISdmrfjQROOIRtbx6VG5uFyA0z.1KFc4zY_7HWRCP052R23uPfFwDUxML.0Ok
- lr6UROB4bxol8FWoGDowOvAXW9He8NthtXP5xzhVD2qCQo9O3em2EE3gKMoiXoSDcP2_yHTsG34g
- zXvpihlHw4SIPmclLc46GMUpGCSAaXoDrRr9ROmWPBIbkpg5j03WzirFvIq9Bt2BaRxcEC_DehP2
- iXAFvoWtKZrAwadh_nPKjWiym6hPu3pyambtCfRHuONCbpwmiHK7R4_22acnVcA--
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554846063; bh=fnJcv2J/MrzRf8h1makEn2/UWDvYNR2yTG2TfGic4Xg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Ypio5f4YH48Oq+GLJiivwqPJo4/Yf6THJmZ/XIV8VS8NpoGZdeI3foe0jla4dOq3crx2I9nzZnEk/NeEhqE9tp+9qQULlMDkWknmLfN2Lxz0L8BRRSq9BdGnnASTc5dTFz/HbqRupXoLhiGau1AJQu50FGjKDHdhgn/gCY/q+n2QPqjoEhiA/giPritniGaL6T3wWDKeHFUpmIrPInJPkrLpsScJMU4tR0zVOlqWvLDxczAcMvjfDX5j0quGT8HJ8mTFsEknBsATU9KEIgGoFSMmDSV9I6C4jOSmXrfp2S4+WGvpItbyURPnjsn95OT1ChX4bZAphpYc3ytnWP6McA==
+X-YMail-OSG: g5WvnMQVM1m3RHUQczxuuHTERk8A2jN1rpR4IlE_THH0U1emOIzaKatldN47RUx
+ e3ZGFdCLUnYF9fuvo3Gfo9H6YDVluTyFIols2c_RleVJomeSFTFgXIPKsdJ6na8_wXR3hCW66SG0
+ snvnenOfde_T_hocjYDam0mQNwMmfqi.BCUdZfbouDpYvaFfW3ayQ6Obk.8ibd_.xVz3lG3dtdfs
+ vfu2jQXVRfNFv7tcVVgh9QexE9Oxrz3UesNrFBJig14hDUpqK2aLJ8qLh7qm.0vS.J2qq.3sfzK.
+ KFnpYS6w997H94TZUaETW_k3qWgiJ5hSfM2kWw9yt0tZtraIDqYV0QSrStclf48GYV20dT1I3wJM
+ OM5TpeC9ZmF1Pr1p6fdlzTOqZaYtq6M9MZ5r.wzcjfnp7RyEEIaUKMwS6ouZP0dFdnWWYWYE2ERz
+ BpH_yv1t50W6gr9cu7dS3kbX9.qjN9CaHuqLhoYSOgEd.qyeVt33PVk_yzbLYEkygtl1qNOIZsHE
+ qIoOAS68d_WC13JCFuUX8s_tuzYldlKy5Wsg_qCctT1CXiCuWpu3QqMHIUthClKE4DtNvQ9K_cP2
+ k2_ESTXXCrizU_63qIlh.XHatUJAhcb0SzBAtK8Nrl82UmruehcjeskGvFg6im.TW8zl9QUIeXGQ
+ tPbXINGQA.ZWHuAIvAvLhJz_2yJnAGvQks28NpyENK8ChXEtmqQOg0Zm9TO22tBepKbtQyObOX4z
+ RaiB5lf1u4xNhFaKZJgBwXE8.PGYFYK8m8FT2SC6VVOXYlWFXftGcD8YczfravDlkS.kRwvmS381
+ jN5KDh0NojAYe8y7DgwLwP.XCEsOqDOZ.NB9LA7_bMUO7NX3ik.9W0U3s12zPOjiLIdL5WPj2zmo
+ JR9sLu7TIj0aYcc12GwAQqCv4q9J0tTIZ8psj9Hgo7C9I_Ox6JkcMDJs7aNRr8MovOuGauShoJ2G
+ W7KcOMjcUDfafcP7HBgx1qCQk6hmW2tzSBGEnV23hFS4cHd43CD9xqdKRh3MTxlEQRPWW6bU_yEc
+ 50sWWz5ch32PynAzLOxyLDZVbYLNLpq7NQkVUlwYd2RPg06tS.Fy.4Tl.HWU4BLtLlQoaIhUSc9v
+ CfQdafQeQD62hBEcRU7dV8MeoGr_mCgPR20eFfN3DHJMSjbxgkwJpixeQ068-
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Tue, 9 Apr 2019 21:41:03 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
-          by smtp407.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 0f9fc43d6127678694d9e39aed29be56;
-          Tue, 09 Apr 2019 21:40:36 +0000 (UTC)
+          by smtp413.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 3d2ea789de6b345569f1c9b3872b02c3;
+          Tue, 09 Apr 2019 21:40:11 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com
-Subject: [PATCH 28/59] NET: Remove scaffolding on secmarks
-Date:   Tue,  9 Apr 2019 14:39:15 -0700
-Message-Id: <20190409213946.1667-29-casey@schaufler-ca.com>
+Subject: [PATCH 11/59] LSM: Fix logical operation in lsm_export checks
+Date:   Tue,  9 Apr 2019 14:38:58 -0700
+Message-Id: <20190409213946.1667-12-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190409213946.1667-1-casey@schaufler-ca.com>
 References: <20190409213946.1667-1-casey@schaufler-ca.com>
@@ -57,43 +57,41 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Replace the lsm_export scaffolding in xt_SECMARK.c
-This raises an issue, in that Smack users have been
-using SECMARK_MODE_SEL, which is suppoed to be exclusively
-for SELinux. This is worked around in the code, but not
-fully addressed.
+Fix the logic in Smack and SELinux when checking to
+see if the secid is included.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- net/netfilter/xt_SECMARK.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ security/selinux/include/objsec.h | 2 +-
+ security/smack/smack_lsm.c        | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index 2def8d8898e6..9a2a97c200a2 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -55,6 +55,7 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
- 	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
- 	info->secid = 0;
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index d7efc5f23c1e..59a3b1cd5ba9 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -61,7 +61,7 @@ static inline void selinux_export_secid(struct lsm_export *l, u32 secid)
  
-+	lsm_export_init(&le);
- 	err = security_secctx_to_secid(info->secctx, strlen(info->secctx), &le);
- 	if (err) {
- 		if (err == -EINVAL)
-@@ -63,7 +64,12 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
- 		return err;
- 	}
+ static inline void selinux_import_secid(struct lsm_export *l, u32 *secid)
+ {
+-	if (l->flags | LSM_EXPORT_SELINUX)
++	if (l->flags & LSM_EXPORT_SELINUX)
+ 		*secid = l->selinux;
+ 	else
+ 		*secid = SECSID_NULL;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 0e048c1456ed..a3776501965d 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -477,7 +477,7 @@ static inline void smack_export_secid(struct lsm_export *l, u32 secid)
  
--	lsm_export_secid(&le, &info->secid);
-+	/* Smack is cheating, using SECMARK_MODE_SEL */
-+	if (le.selinux)
-+		info->secid = le.selinux;
-+	else
-+		info->secid = le.smack;
-+
- 	if (!info->secid) {
- 		pr_info_ratelimited("unable to map security context \'%s\'\n",
- 				    info->secctx);
+ static inline void smack_import_secid(struct lsm_export *l, u32 *secid)
+ {
+-	if (l->flags | LSM_EXPORT_SMACK)
++	if (l->flags & LSM_EXPORT_SMACK)
+ 		*secid = l->smack;
+ 	else
+ 		*secid = 0;
 -- 
 2.19.1
 
