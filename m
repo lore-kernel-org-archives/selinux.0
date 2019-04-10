@@ -2,61 +2,62 @@ Return-Path: <SRS0=bkjU=SM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AA49C10F11
-	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 12:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E421C10F11
+	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 14:10:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 18C7220818
-	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 12:52:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8B5E20818
+	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 14:10:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jD3ftOoe"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iQrrUskb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729397AbfDJMwg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Apr 2019 08:52:36 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:33478 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728553AbfDJMwg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 10 Apr 2019 08:52:36 -0400
-Received: by mail-io1-f67.google.com with SMTP id b6so2023413iog.0;
-        Wed, 10 Apr 2019 05:52:35 -0700 (PDT)
+        id S1732593AbfDJOKI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Apr 2019 10:10:08 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:40955 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730195AbfDJOKI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Apr 2019 10:10:08 -0400
+Received: by mail-io1-f65.google.com with SMTP id d201so2231451iof.7;
+        Wed, 10 Apr 2019 07:10:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=32g/F2GpwQ9CxZvz1Ft4WS+BiOjylD57xp4fGGgCfE4=;
-        b=jD3ftOoexJayZUN4iQDPrlKlISQoIsv1Plhwsbra4xx7Uavpj7+hBCH63cYJYKzAmR
-         cINtAgCO8FY3Ui2rtEPyo8Zxce+uKRHIOOTWdWBc4GNwXgjHj/AbIBU4C6Mj7/N2E/bg
-         RLSSw7Qs+0Uoga5N6utJavhIfMMW0qb9NHdnrG0yNDl4mytiaRRuH9ukVWQPh/uVrivg
-         VBfdFhJkhhvVlwM7LJCt+1/BqOdYp0gOdPrz2wMsJFuSFfXMs5LNx64DH2I+LSA/VeDY
-         r0rDTTnoT4gn1R1w1dhz173AFN4No42lrHuGxP3nKmoY1BLfVBfn8MJq2/KxrODTyFiU
-         iW2A==
+        bh=TiPdKrZjvXSJ1ql/TSdJKovGP3i5C5dmYZPH5lXox1w=;
+        b=iQrrUskbeDdSbks6yHKX4CxNKAXI7pknkaqpa3Ap9G8eQiErCwO9k7Lm2TkJBSjV6L
+         XEdfD1I0eG1ImxtLDqG4fC3wtWPxpdED+undT414QH8yM1CVmrQwfaX3OjC9lD3ELyc6
+         RkGhJ80SHWxIdC3obroFkFqT1gZnFpMCvMFsNd0i/ND6u/01nkTdfLlJ0IQPunTerEmR
+         WkGi2enufqc5igxn+Ng3Dy7OVOPKDFfxtdYW5iIQPTo1lS7jimkMzfwj9lFKtB8BZ23Y
+         6E/6JZmBfeTfZDa7RS3+FIMhtILhKAeLIOLeBhSvhh2U8cyKUTphtDWXyEiadRuncBBP
+         W/wg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=32g/F2GpwQ9CxZvz1Ft4WS+BiOjylD57xp4fGGgCfE4=;
-        b=H1/ZH9Dzf7hLp6YbJtQ/s5jC2UROvxBsTJGaAubHvbywAvs+K11FMDLF96lwZsX9oz
-         Jcp07NQ3FYc8Wb8VUn7Lwswk+zsDqzMTM/fQxAkjHfuvW+kJ5DRjN7WycqaK/3qMuBLO
-         tuOoWgcqTwhN0pNSG+or+fX9xlXhYS7CIdenue0SKyNiR2Ip4f0XgvhyWOHB332QwHDM
-         e8qabkKSSMdiF/BdB0wUzRVvAOEzlmDUjeFt5+YWZ0clFNuFZwbwKMFqPQo6yWUvl6Dk
-         6fFJD2oIGy20h1UVfpD/VOTN9unqw+u98SVi3rPIaNLpP0faV5DIJinQZQKZoNRmFwbI
-         Xv7Q==
-X-Gm-Message-State: APjAAAXl12x3sVObWpImgxdirelgJae6Xy1XUgv33YaqqtwkVXuLsWmm
-        78BZTNljzOjYA8y5p9DRkl2VxaH2k+JOTOEFu+2ZRQ==
-X-Google-Smtp-Source: APXvYqw5+fFbhmw6chP5SK/Ag2ERxRGIDSj493GNpURQ4eE2xwvYI8JtfLdnqxgYMSqXkJpxUXbhZ/3yLl8Iv4WK5UY=
-X-Received: by 2002:a6b:c3cc:: with SMTP id t195mr27004820iof.11.1554900754733;
- Wed, 10 Apr 2019 05:52:34 -0700 (PDT)
+        bh=TiPdKrZjvXSJ1ql/TSdJKovGP3i5C5dmYZPH5lXox1w=;
+        b=ODd33Ri5E4KJArjiTidgNat4s9ZjpE+i/BmSKFtVgqC8Ai9LsExnyiIYO8GB4nPf7d
+         sabeMWiBUmpnGCFQ1UOTwd9uO5vJGSRBRDkv/ljtt1FZFIDsX6gd0jnNAQ0nJJVUdraY
+         jyKwatKemYQ/lNBuEGUF4xrstSVwspxRumuRE8TTV2X5LQWQotHgc6e/gQ/ymzcdEAhD
+         UvuJHh+3e9aSohr2//Hj3XZq+sVnS3ZhmfJSbiDH4VzoPDPGPlyuUJwJDEzTbeO94K97
+         DUPh/mKH2pi5JgGuppQA0K//l/LjpQuchxG36MEmf+mOhHp+RabCTodjzfCnijYp6Ce1
+         nOow==
+X-Gm-Message-State: APjAAAVIThcUCvChht83MSu3curVZcUQ6BEdwPFp148p+4hu49mXc+3U
+        yf5rNMkxIjG0x58hbSOmPlbopGNeqf6ewH2Exi8=
+X-Google-Smtp-Source: APXvYqx2Brm4dknX9lGKv6zFiArVmeyO764wGu0vfcMKcj+2ZfbcTHmDQBQOdpyRxsrt8ghP6EtpMAXpMw/FzFfqlrc=
+X-Received: by 2002:a5e:9806:: with SMTP id s6mr29354206ioj.86.1554905406814;
+ Wed, 10 Apr 2019 07:10:06 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190409213946.1667-1-casey@schaufler-ca.com>
-In-Reply-To: <20190409213946.1667-1-casey@schaufler-ca.com>
+References: <20190409213946.1667-1-casey@schaufler-ca.com> <20190409213946.1667-59-casey@schaufler-ca.com>
+ <CAB9W1A0ZVUHAtAEhYw+HSyOnRdekg=6WQ2RP8PqNAirmDxBkZw@mail.gmail.com>
+In-Reply-To: <CAB9W1A0ZVUHAtAEhYw+HSyOnRdekg=6WQ2RP8PqNAirmDxBkZw@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley@gmail.com>
-Date:   Wed, 10 Apr 2019 08:52:27 -0400
-Message-ID: <CAB9W1A2yUNcdsJbXC_n8xhmnQBcZvHkFzHtk1jBeTS1+cv_VVw@mail.gmail.com>
-Subject: Re: [PATCH 00/59] LSM: Module stacking for AppArmor
+Date:   Wed, 10 Apr 2019 10:09:40 -0400
+Message-ID: <CAB9W1A2Bgr+gVGNxyVOwd7A52Gp8Kx0dPyd91pSjtXKp4UHoxw@mail.gmail.com>
+Subject: Re: [PATCH 58/59] LSM: Specify which LSM to display with /proc/self/attr/display
 To:     Casey Schaufler <casey@schaufler-ca.com>
 Cc:     "Schaufler, Casey" <casey.schaufler@intel.com>,
         James Morris <jmorris@namei.org>,
@@ -67,106 +68,242 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 9, 2019 at 5:40 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Wed, Apr 10, 2019 at 8:43 AM Stephen Smalley
+<stephen.smalley@gmail.com> wrote:
 >
-> This patchset provides the changes required for
-> the AppArmor security module to stack safely with
-> "exclusive" security modules, those being SELinux and
-> Smack.
+> On Tue, Apr 9, 2019 at 5:42 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >
+> > Create a new entry "display" in /proc/.../attr for controlling
+> > which LSM security information is displayed for a process.
+> > The name of an active LSM that supplies hooks for human readable
+> > data may be written to "display" to set the value. The name of
+> > the LSM currently in use can be read from "display".
+> >
+> > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> > ---
+> >  fs/proc/base.c      |   1 +
+> >  security/security.c | 123 ++++++++++++++++++++++++++++++++++++++++++--
+> >  2 files changed, 121 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/fs/proc/base.c b/fs/proc/base.c
+> > index ddef482f1334..7bf70e041315 100644
+> > --- a/fs/proc/base.c
+> > +++ b/fs/proc/base.c
+> > @@ -2618,6 +2618,7 @@ static const struct pid_entry attr_dir_stuff[] = {
+> >         ATTR(NULL, "fscreate",          0666),
+> >         ATTR(NULL, "keycreate",         0666),
+> >         ATTR(NULL, "sockcreate",        0666),
+> > +       ATTR(NULL, "display",           0666),
+> >  #ifdef CONFIG_SECURITY_SMACK
+> >         DIR("smack",                    0555,
+> >             proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
+> > diff --git a/security/security.c b/security/security.c
+> > index 29149db3f78a..6e304aa796f9 100644
+> > --- a/security/security.c
+> > +++ b/security/security.c
+> > @@ -47,9 +47,13 @@ static struct kmem_cache *lsm_inode_cache;
+> >
+> >  char *lsm_names;
+> >
+> > -/* Socket blobs include infrastructure managed data */
+> > +/*
+> > + *     Socket blobs include infrastructure managed data
+> > + *     Cred blobs include context display instructions
+> > + */
+> >  static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init = {
+> >         .lbs_sock = sizeof(struct lsm_export),
+> > +       .lbs_cred = sizeof(struct lsm_one_hooks),
+> >  };
+> >
+> >  /**
+> > @@ -751,7 +755,10 @@ int lsm_superblock_alloc(struct super_block *sb)
+> >
+> >  #define call_one_int_hook(FUNC, IRC, ...) ({                   \
+> >         int RC = IRC;                                           \
+> > -       if (lsm_base_one.FUNC.FUNC)                             \
+> > +       struct lsm_one_hooks *LOH = current_cred()->security;   \
+> > +       if (LOH->FUNC.FUNC)                                     \
+> > +               RC = LOH->FUNC.FUNC(__VA_ARGS__);               \
+> > +       else if (LOH->lsm == NULL && lsm_base_one.FUNC.FUNC)    \
+> >                 RC = lsm_base_one.FUNC.FUNC(__VA_ARGS__);       \
+> >         RC;                                                     \
+> >  })
+> > @@ -1617,6 +1624,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp)
+> >
+> >  void security_cred_free(struct cred *cred)
+> >  {
+> > +       struct lsm_one_hooks *loh;
+> >         /*
+> >          * There is a failure case in prepare_creds() that
+> >          * may result in a call here with ->security being NULL.
+> > @@ -1626,26 +1634,44 @@ void security_cred_free(struct cred *cred)
+> >
+> >         call_void_hook(cred_free, cred);
+> >
+> > +       loh = cred->security;
+> > +       kfree(loh->lsm);
+> >         kfree(cred->security);
+> >         cred->security = NULL;
+> >  }
+> >
+> > +static int copy_loh(struct lsm_one_hooks *new, struct lsm_one_hooks *old,
+> > +                   gfp_t gfp)
+> > +{
+> > +       *new = *old;
+> > +       if (old->lsm) {
+> > +               new->lsm = kstrdup(old->lsm, gfp);
+> > +               if (unlikely(new->lsm == NULL))
+> > +                       return -ENOMEM;
+> > +       }
+> > +       return 0;
+> > +}
+> > +
+> >  int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp)
+> >  {
+> >         int rc = lsm_cred_alloc(new, gfp);
+> >
+> > -       if (rc)
+> > +       if (unlikely(rc))
+> >                 return rc;
+> >
+> >         rc = call_int_hook(cred_prepare, 0, new, old, gfp);
+> >         if (unlikely(rc))
+> >                 security_cred_free(new);
+> > +       else
+> > +               rc = copy_loh(new->security, old->security, gfp);
+> > +
+> >         return rc;
+> >  }
+> >
+> >  void security_transfer_creds(struct cred *new, const struct cred *old)
+> >  {
+> >         call_void_hook(cred_transfer, new, old);
+> > +       WARN_ON(copy_loh(new->security, old->security, GFP_KERNEL));
+> >  }
+> >
+> >  void security_cred_getsecid(const struct cred *c, struct lsm_export *l)
+> > @@ -1960,10 +1986,28 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+> >                                 char **value)
+> >  {
+> >         struct security_hook_list *hp;
+> > +       struct lsm_one_hooks *loh = current_cred()->security;
+> > +       char *s;
+> > +
+> > +       if (!strcmp(name, "display")) {
+> > +               if (loh->lsm)
+> > +                       s = loh->lsm;
+> > +               else if (lsm_base_one.lsm)
+> > +                       s = lsm_base_one.lsm;
+> > +               else
+> > +                       return -EINVAL;
+> > +
+> > +               *value = kstrdup(s, GFP_KERNEL);
+> > +               if (*value)
+> > +                       return strlen(s);
+> > +               return -ENOMEM;
+> > +       }
+> >
+> >         hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+> >                 if (lsm != NULL && strcmp(lsm, hp->lsm))
+> >                         continue;
+> > +               if (lsm == NULL && loh->lsm && strcmp(loh->lsm, hp->lsm))
+> > +                       continue;
+> >                 return hp->hook.getprocattr(p, name, value);
+> >         }
+> >         return -EINVAL;
+> > @@ -1973,10 +2017,83 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+> >                          size_t size)
+> >  {
+> >         struct security_hook_list *hp;
+> > +       struct lsm_one_hooks *loh = current_cred()->security;
+> > +       bool found = false;
+> > +       char *s;
+> > +
+> > +       /*
+> > +        * End the passed name at a newline.
+> > +        */
+> > +       s = strnchr(value, size, '\n');
+> > +       if (s)
+> > +               *s = '\0';
+> > +
+> > +       if (!strcmp(name, "display")) {
+> > +               union security_list_options secid_to_secctx;
+> > +               union security_list_options secctx_to_secid;
+> > +               union security_list_options socket_getpeersec_stream;
+> > +
+> > +               if (size == 0 || size >= 100)
+> > +                       return -EINVAL;
+> > +
+> > +               secid_to_secctx.secid_to_secctx = NULL;
+> > +               hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx,
+> > +                                    list) {
+> > +                       if (size >= strlen(hp->lsm) &&
+> > +                           !strncmp(value, hp->lsm, size)) {
+> > +                               secid_to_secctx = hp->hook;
+> > +                               found = true;
+> > +                               break;
+> > +                       }
+> > +               }
+> > +               secctx_to_secid.secctx_to_secid = NULL;
+> > +               hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid,
+> > +                                    list) {
+> > +                       if (size >= strlen(hp->lsm) &&
+> > +                           !strncmp(value, hp->lsm, size)) {
+> > +                               secctx_to_secid = hp->hook;
+> > +                               found = true;
+> > +                               break;
+> > +                       }
+> > +               }
+> > +               socket_getpeersec_stream.socket_getpeersec_stream = NULL;
+> > +               hlist_for_each_entry(hp,
+> > +                               &security_hook_heads.socket_getpeersec_stream,
+> > +                                    list) {
+> > +                       if (size >= strlen(hp->lsm) &&
+> > +                           !strncmp(value, hp->lsm, size)) {
+> > +                               socket_getpeersec_stream = hp->hook;
+> > +                               found = true;
+> > +                               break;
+> > +                       }
+> > +               }
+> > +               if (!found)
+> > +                       return -EINVAL;
+> > +
+> > +               /*
+> > +                * The named lsm is active and supplies one or more
+> > +                * of the relevant hooks. Switch to it.
+> > +                */
+> > +               s = kmemdup(value, size + 1, GFP_KERNEL);
+> > +               if (s == NULL)
+> > +                       return -ENOMEM;
+> > +               s[size] = '\0';
+> > +
+> > +               if (loh->lsm)
+> > +                       kfree(loh->lsm);
+> > +               loh->lsm = s;
+> > +               loh->secid_to_secctx = secid_to_secctx;
+> > +               loh->secctx_to_secid = secctx_to_secid;
+> > +               loh->socket_getpeersec_stream = socket_getpeersec_stream;
+>
+> You can't just write to the cred security blob like this; it is a
+> shared data structure, not per-task.
 
-What's the use case?  Who would use such support?
-
+To be clear, you either need to perform a new = prepare_creds(); /*
+modify new->security as desired */; commit_creds(new); sequence here,
+or use the task security blob instead of the cred security blob.  The
+latter seems more amenable to your needs.
 >
-> Performance: Using a kernel compile benchmark indicates
-> a performance impact of 0.15% for a Fedora 29 system
-> with SELinux. Adding AppArmor has an additional 0.20%
-> impact. Fedora does not include an AppArmor profile.
->
-> A new process attribute identifies which security module
-> information should be reported by SO_PEERSEC and the
-> /proc/.../attr/current interface. This is provided by
-> /proc/.../attr/display. Writing the name of the security
-> module desired to this interface will set which LSM hooks
-> will be called for this information. The first security
-> module providing the hooks will be used by default.
->
-> The use of integer based security tokens (secids) is
-> generally (but not completely) replaced by a structure
-> lsm_export. The lsm_export structure can contain information
-> for each of the security modules that export information
-> outside the LSM layer.
->
-> The LSM interfaces that provide "secctx" text strings
-> have been changed to use a structure "lsm_context"
-> instead of a pointer/length pair. In some cases the
-> interfaces used a "char *" pointer and in others a
-> "void *". This was necessary to ensure that the correct
-> release mechanism for the text is used. It also makes
-> many of the interfaces cleaner.
->
-> The security module stacking issues around netlabel
-> not addressed here as they are beyond what is required
-> to stack AppArmor with either SELinux or Smack.
->
-> git://github.com/cschaufler/lsm-stacking.git#stack-5.1-rc2-apparmor
->
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  drivers/android/binder.c                |  25 ++-
->  fs/kernfs/dir.c                         |   6 +-
->  fs/kernfs/inode.c                       |  31 ++-
->  fs/kernfs/kernfs-internal.h             |   3 +-
->  fs/nfs/inode.c                          |  13 +-
->  fs/nfs/internal.h                       |   8 +-
->  fs/nfs/nfs4proc.c                       |  17 +-
->  fs/nfs/nfs4xdr.c                        |  16 +-
->  fs/nfsd/nfs4proc.c                      |   8 +-
->  fs/nfsd/nfs4xdr.c                       |  14 +-
->  fs/nfsd/vfs.c                           |   7 +-
->  fs/proc/base.c                          |   1 +
->  include/linux/cred.h                    |   3 +-
->  include/linux/lsm_hooks.h               |  93 ++++----
->  include/linux/nfs4.h                    |   8 +-
->  include/linux/security.h                | 137 ++++++++----
->  include/net/netlabel.h                  |  10 +-
->  include/net/scm.h                       |  14 +-
->  kernel/audit.c                          |  43 ++--
->  kernel/audit.h                          |   9 +-
->  kernel/auditfilter.c                    |   6 +-
->  kernel/auditsc.c                        |  77 ++++---
->  kernel/cred.c                           |  15 +-
->  net/ipv4/cipso_ipv4.c                   |  13 +-
->  net/ipv4/ip_sockglue.c                  |  12 +-
->  net/netfilter/nf_conntrack_netlink.c    |  29 ++-
->  net/netfilter/nf_conntrack_standalone.c |  16 +-
->  net/netfilter/nfnetlink_queue.c         |  38 ++--
->  net/netfilter/nft_meta.c                |  13 +-
->  net/netfilter/xt_SECMARK.c              |  14 +-
->  net/netlabel/netlabel_kapi.c            |   5 +-
->  net/netlabel/netlabel_unlabeled.c       | 101 +++++----
->  net/netlabel/netlabel_unlabeled.h       |   2 +-
->  net/netlabel/netlabel_user.c            |  13 +-
->  net/netlabel/netlabel_user.h            |   2 +-
->  net/unix/af_unix.c                      |  11 +-
->  security/apparmor/audit.c               |   4 +-
->  security/apparmor/include/audit.h       |   2 +-
->  security/apparmor/include/net.h         |   6 +-
->  security/apparmor/include/secid.h       |   9 +-
->  security/apparmor/lsm.c                 |  64 ++----
->  security/apparmor/secid.c               |  42 ++--
->  security/integrity/ima/ima.h            |  14 +-
->  security/integrity/ima/ima_api.c        |   9 +-
->  security/integrity/ima/ima_appraise.c   |   6 +-
->  security/integrity/ima/ima_main.c       |  34 +--
->  security/integrity/ima/ima_policy.c     |  19 +-
->  security/security.c                     | 366 ++++++++++++++++++++++++++++----
->  security/selinux/hooks.c                | 259 +++++++++++-----------
->  security/selinux/include/audit.h        |   5 +-
->  security/selinux/include/objsec.h       |  42 +++-
->  security/selinux/netlabel.c             |  25 +--
->  security/selinux/ss/services.c          |  18 +-
->  security/smack/smack.h                  |  18 ++
->  security/smack/smack_lsm.c              | 238 +++++++++++----------
->  security/smack/smack_netfilter.c        |   8 +-
->  security/smack/smackfs.c                |  12 +-
->  57 files changed, 1252 insertions(+), 781 deletions(-)
+> > +
+> > +               return size;
+> > +       }
+> >
+> >         hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
+> >                 if (lsm != NULL && strcmp(lsm, hp->lsm))
+> >                         continue;
+> > +               if (lsm == NULL && loh->lsm && strcmp(loh->lsm, hp->lsm))
+> > +                       continue;
+> >                 return hp->hook.setprocattr(name, value, size);
+> >         }
+> >         return -EINVAL;
+> > --
+> > 2.19.1
+> >
