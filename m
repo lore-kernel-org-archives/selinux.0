@@ -2,130 +2,96 @@ Return-Path: <SRS0=bkjU=SM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A384CC10F11
-	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 15:35:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FFEEC10F11
+	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 15:37:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6845C20818
-	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 15:35:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F80A20818
+	for <selinux@archiver.kernel.org>; Wed, 10 Apr 2019 15:37:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="J6D0bqhq"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="o4fYR4Xo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728966AbfDJPfh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Apr 2019 11:35:37 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:34654 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727042AbfDJPfg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 10 Apr 2019 11:35:36 -0400
-Received: by mail-lj1-f195.google.com with SMTP id j89so2575538ljb.1
-        for <selinux@vger.kernel.org>; Wed, 10 Apr 2019 08:35:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ww7mJdMONNjZyGS6cJmp6axun3jFK0uGF9gO5JYFGs4=;
-        b=J6D0bqhqXAKsiCWk1VKUamGJA48k5A29HtVZAW83fLtDCdru5IdONGDfB1rFJk3Bh0
-         1Z5/D66JHSxj5/2dL6z7qFxxi4OTqj3rlHro09aJxCYNDAHef62JkVsniCEqZbYjTdhV
-         OtUlZLttSmtI8aYKJL6Ye3vT7wtt98+UHSVw98GDi1rQSqAGb8FhmP55n3Bmbfi1BCAK
-         e3Tg8YPamghM1bUa0xnQCCmsKFvuDzqehaO0J5hV2GumkPADjhi2DFy6FonD05Lt7juY
-         Q8eMjOJ+uxM2WbkpQHk6jpP2p6DtPRHkrc3LJy+KLTWpST+RQ1ihpiJcsq7UFN2IoVeW
-         5TjQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ww7mJdMONNjZyGS6cJmp6axun3jFK0uGF9gO5JYFGs4=;
-        b=d4lRZjHQ1sz2UDtZhtuqK6fTGBLjA8BR6yEOnwhPNVIr86+eV8ORi30VyVMRcMP9kc
-         bjEufIx+uji4kkJUHwDZbdog3+3tAW8b7uxWW8UzGL9NlRwMmjt17xe5K7axU7J/s9rZ
-         E16n98C2s/nYBSr6oYCm7WRodNKKk04+XbIkVy2+0O0DUMnKZBxvZ2GkSDGOU0IGIciD
-         Qcp/AAeSeHX0GBJP62Hl9xqj9vdyyXsorsZouXVKVA5RvzLPiwNxC8VHyn8kuiEdeAVx
-         iyVpyps7Lg/7xEOeicb8fJbgzac657jAPuseBtdi9Iv0uoHr+BjDMZdYsTQXym6RaCfG
-         E6IA==
-X-Gm-Message-State: APjAAAVty7MXPYrN9SFxRD1QqMRywd+CpDSwFbbJP0X5iIcRp4TdrGUC
-        TwPLZvGrKVuKiYbgYNdneo/NtsAa+YsFfbrYRRxn
-X-Google-Smtp-Source: APXvYqyJtWmIsUycvQZ4Fha5zh2AIUpAOVTs7BCMwR/MTkAaZQ4nvjOeLDa3jAOkVUGJOoCjmgGx/V2UE9747RgWGio=
-X-Received: by 2002:a2e:8508:: with SMTP id j8mr5122460lji.26.1554910534982;
- Wed, 10 Apr 2019 08:35:34 -0700 (PDT)
+        id S1731232AbfDJPhE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Apr 2019 11:37:04 -0400
+Received: from sonic309-26.consmr.mail.gq1.yahoo.com ([98.137.65.152]:46187
+        "EHLO sonic309-26.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729962AbfDJPhE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Apr 2019 11:37:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1554910622; bh=+ebv6oar1iQNiaxjtqy6T7qdfAsksmWwEXHg4wKoxzk=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=o4fYR4Xojiml++kdiKhx4mciUqyahca1vICrb+XM/G9R6Ynb+ytrXzd2Dp/BIVYZ0UpLe4yE3KUQHTPJajXxowPtCrCAin9VsLhhu5sU+KtEftaYlP5FjaVRV0LqadenwoJxB4Eua06ZfhyikT7H3QazW6eyMSJzzRaMjqrUE5rbBc0E2DN75ZNb/IhHXiPNHDP2XZmE6et/McF6MVfwP2jeEmRxPjItKDZlQPJtY4x0vm12j/crKqvmQveJGpuncW8TuxxsMIJAXssfgPPwBRGK6i2RNueeFNtU20RrsSKuWKd79GYcAgjFUacgfJIF9BcRmk1b5bi7F5FlZbO/MA==
+X-YMail-OSG: gRLzPvIVM1kU34ZJqVi7.MU4AyvmkODLKljgMWp7035QxjPMSqSoXvdvC3TT8Th
+ O4D6GP1Ue3pH3BqNxY5fk9Ome2RDJWlKyrAYL58P.Uw7KOJVKUFPFIBMoLmHDfXnKOgMBM_5poSG
+ qrJTZA6GF13NnxcqR0DJjy_jy0DC_y8RDxas0dl8bAkOUL3_wAVaMwoOuD_pG5fWPubxBhb3.lVX
+ 5YJOm5L818DN4uxKtUd2qTUSK7kHEuluU3Hctmk0zYVNwg.iDnwEkUGVw3olDXNKYrgNF7yY7HA4
+ 7n5DrhQE5bO5bhwPyCay2mA7d0KjP3Xm97HH.Nkh2PzXYZYpDJJommL1yp7O5bHceqcFCVU2kbWM
+ FPRwpkYW9z.pNRGVoo9CXUdKoQK8U.LtK9Kf74v6M6k4.PU0quI1XTuCyYHTH2xAMycxc5dMnQSb
+ elpzjcJbwtJRW7fsKeu757RZwuU3TCSlSIj93amMMukbbexpemZwXN_4EilZqOw5mIH_HtqhOtEZ
+ zQVvx.PWnBlrTu1OyPDRjrlIMqsLZY0vnuZ.rt3R223Z2z3l7nxNVXUamNrgv9wRzOxeNvDo70C4
+ OzKSFlwCY_bqpsnsRWM6ss9LffYo.uQ6IkJfXEsL6pYYcBMS2OmP_P37IEkv14zrCRbbhNqMahA7
+ rTnzjkFfvENlOd9xCxcY5bDYttvAFUp28UxqbQpeC5wsDaXKraj4LEFOXkbXyzSxIuZQOQVrS59D
+ RTBpv5vp4TgbIJMb1vzYTfIYXuveiJcuT83.ssksck7i0P3zBM4_s8zfwxk26VhB46U4ME0RCK0R
+ B3oA.1wXh5szagzgtktq42mzZi1RZXbDfnaZ8tg00UnkXbojOqHbbkISK7ibf8Y6KYuhxYnEzfwW
+ S8pypTGwrW_T7r750MB1wxyktgM32bMUV8J7zIXpXirRm4DDOS.QwnksRgHGImRGnB8tFcoPvoQi
+ BRjaR4T5eP.b5RYa5zLK0NzyCp9xDk7SnzSnXFJuFk25QMWY30D0iVLP_66qwqnGI4ij9.PFGtfk
+ KKBDMh.Q.kKr9nPbXB7Jz8a5SQrQcS_wttcEFFEfEgvBpzI8oJ_KV1grcgfSKCBLX.IbJCMZxbr7
+ NhxKzsL3YQHJ1lk3vCRW1ngWKvUnMAEOEqp90_Q--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Wed, 10 Apr 2019 15:37:02 +0000
+Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([67.169.65.224])
+          by smtp430.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 271823ae4a7e70840a3642f9879cb291;
+          Wed, 10 Apr 2019 15:36:58 +0000 (UTC)
+Subject: Re: [PATCH 00/59] LSM: Module stacking for AppArmor
+To:     Stephen Smalley <stephen.smalley@gmail.com>
+Cc:     "Schaufler, Casey" <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        casey@schaufler-ca.com
+References: <20190409213946.1667-1-casey@schaufler-ca.com>
+ <CAB9W1A2yUNcdsJbXC_n8xhmnQBcZvHkFzHtk1jBeTS1+cv_VVw@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <77e3cbb6-cf3f-6ea7-ef35-55f9cb18437b@schaufler-ca.com>
+Date:   Wed, 10 Apr 2019 08:36:56 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-References: <20190403122611.6543-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20190403122611.6543-1-richard_c_haines@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 10 Apr 2019 11:35:23 -0400
-Message-ID: <CAHC9VhTTeetqR03+zaV0d_2rdHr4r6eKnqKNrXO6k9O7+tz=gQ@mail.gmail.com>
-Subject: Re: [PATCH 1/1] selinux-testsuite: Update binder test applications
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org, tkjos@google.com
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAB9W1A2yUNcdsJbXC_n8xhmnQBcZvHkFzHtk1jBeTS1+cv_VVw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 3, 2019 at 8:43 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> Replace binder_test.c with separate manager, client and service provider.
-> This works in the same way as a service provider/client interacts
-> with a service manager in the Android world. It passes the service
-> providers binder file descriptor to the client for the impersonate
-> permission check.
->
-> Also added tests for Dynamically Allocated Binder Devices and passing
-> the sender SELinux security context on binder transactions.
->
-> Note that the tests require a minimum kernel of 4.16, else some tests may
-> fail. To run successfully the "binder: Add thread->process_todo flag"
-> patch may be required that is available from:
-> https://lore.kernel.org/patchwork/patch/851324/
-> This patch has been backported to some earlier kernels.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  defconfig                       |   3 +
->  policy/test_binder.te           | 176 ++++----
->  tests/binder/.gitignore         |   6 +-
->  tests/binder/Makefile           |  13 +-
->  tests/binder/binder_common.c    | 155 +++++++
->  tests/binder/binder_common.h    |  37 ++
->  tests/binder/check_binder.c     |  27 +-
->  tests/binder/check_binderfs.c   |  53 +++
->  tests/binder/client.c           | 450 ++++++++++++++++++++
->  tests/binder/manager.c          | 362 ++++++++++++++++
->  tests/binder/service_provider.c | 404 ++++++++++++++++++
->  tests/binder/test               | 257 ++++++++++--
->  tests/binder/test_binder.c      | 705 --------------------------------
->  13 files changed, 1785 insertions(+), 863 deletions(-)
->  create mode 100644 tests/binder/binder_common.c
->  create mode 100644 tests/binder/binder_common.h
->  create mode 100644 tests/binder/check_binderfs.c
->  create mode 100644 tests/binder/client.c
->  create mode 100644 tests/binder/manager.c
->  create mode 100644 tests/binder/service_provider.c
->  delete mode 100644 tests/binder/test_binder.c
+On 4/10/2019 5:52 AM, Stephen Smalley wrote:
+> On Tue, Apr 9, 2019 at 5:40 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> This patchset provides the changes required for
+>> the AppArmor security module to stack safely with
+>> "exclusive" security modules, those being SELinux and
+>> Smack.
+> What's the use case?  Who would use such support?
 
-Hi Richard,
 
-Welcome back :)
+A device uses a Smack three domain policy for system
+protection. It Uses AppArmor policy to maintain application
+isolation.
+   
+	-------------------------------------------------------------------
+	| Smack floor domain                                              |
+	-------------------------------------------------------------------
+	| Smack System domain                                             |
+	-------------------------------------------------------------------
+	| Smack User domain                                               |
+	| ----------  ----------  ---------  ----------  ----------       |
+	| |AppArmor|  |AppArmor|  |AppArmor| |AppArmor|  |AppArmor|       |
+	| | Fred   |  | Wilma  |  |Barney  | | Betty  |  | Dino   |       |
+	| ----------  ----------  ---------- ----------  ----------       |
+	-------------------------------------------------------------------
 
-I had hoped to spend some time reading up on Binder so I could give
-this a proper review, but that hasn't happened so I'm inclined to
-merge it, assuming it works on my test system.  However, considering
-your comment about this not working on kernel's older than 4.16, I
-think we should probably add some checks to only run this test on
-systems with the appropriate kernel support.
+Each of the security modules is used in the way it was designed. Neither
+has to be stretched beyond its original goals. Yes, you can implement the
+system using either Smack or AppArmor (or maybe even SELinux) but by using
+each for what it is best at you make it much easier.
+  
 
-If you look at tests/Makefile you will see a number of distro specific
-test list modifications, and there is even an example of checking the
-kernel version (search for "kvercmp" in the Makefile).  I would
-suggest a simple check to make sure the kernel is at least v4.16, and
-if we find distro specific support (e.g. a particular distro
-backported the listed patch) we can always add an exception for that
-distro.
-
-How does that sound?
-
--- 
-paul moore
-www.paul-moore.com
