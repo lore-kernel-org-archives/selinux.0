@@ -2,103 +2,104 @@ Return-Path: <SRS0=IDnY=ST=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,USER_AGENT_MUTT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3767C282DA
-	for <selinux@archiver.kernel.org>; Wed, 17 Apr 2019 16:02:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FB0CC282DA
+	for <selinux@archiver.kernel.org>; Wed, 17 Apr 2019 16:27:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 80D43206BA
-	for <selinux@archiver.kernel.org>; Wed, 17 Apr 2019 16:02:09 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="sn3HNZGu"
+	by mail.kernel.org (Postfix) with ESMTP id 05CD520663
+	for <selinux@archiver.kernel.org>; Wed, 17 Apr 2019 16:27:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732007AbfDQQCJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 17 Apr 2019 12:02:09 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:40742 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729395AbfDQQCI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 17 Apr 2019 12:02:08 -0400
-Received: by mail-lf1-f68.google.com with SMTP id a28so19301635lfo.7
-        for <selinux@vger.kernel.org>; Wed, 17 Apr 2019 09:02:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=OcKKfzC2J0NDcwflS6XTHqexTiFB3Fc7D+cB5nxyOT8=;
-        b=sn3HNZGuU+1n0ui8wrXjNwQ5EssMxu/nZp0Kn707xObRFiGVW06PE2T+RBNtEIXFZ/
-         Oo+SAsT7lHtQx3OBDOnVL8OqT+YvSOrPouV9oak2EyZPFWKWTB2dwk7m+oQub58bTx47
-         46KCuikeHVrvAwtOn3elT2EmTOjYF0hJ5PtQCmRX6URFtjItoUC5+2Ko0vsNNKB1+PH8
-         O4Z9VJS2k00FEI6UNUV8C+E1Pc1jOqNCdRVm1iZYIW6r+fhtGqejjYKoqFa9Xy+sgey5
-         W9bZhVU8wtQRBkvqPTSmTxXsPE2cQKQe8qxc50BT4oWepMNnSXg5u+xyCDutO0J879Fo
-         c8Tw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OcKKfzC2J0NDcwflS6XTHqexTiFB3Fc7D+cB5nxyOT8=;
-        b=jYRLkE0LM8eZO+CDoZBt0kMdglwcVq058dQeGKjvEsCcD4IufAQPoOZ4MaX5GOqGAj
-         Ofe3mMz9egzKckeAjTD9ueyY8y8jyLzNYvrs62hdSeuLZa0xewyDW5W14BXxilwWSOyc
-         cl4Sa+tuoXUGzPveF+0qk/8B57nxsyKS2yfA4ct1VEmxxHhEmZM9YwAx2YmNu0E8jZY0
-         Lu6QArH1rxXVSlMz3lzhJaEwXFxrxiEF8lQHlfGcPrFGCBizhRtj1LPgu2Jnu9HrbWG4
-         S+InmtIn17fi2vVrZMejEwy30xAFoEouxwZwHwy7kbZjQbgfSgJkpwhYjNi8jYB5WKMk
-         Kdgw==
-X-Gm-Message-State: APjAAAUTQ73aOvSSSN3cYzw/HX8/AcEA/EI/+GtVEW17hIz1QQYEuWF6
-        fszP2pZ681K/7sRxfcd/z9/bGYOxkxuFL1KXh4Dg
-X-Google-Smtp-Source: APXvYqxp+A+CUl2J0hnd5DH6YQJkejwR1VjOHah5omnN7xiz8Dsa4Jx/sugXSXJgK5o2Y1oWXsipc8exydkrnZ5caGE=
-X-Received: by 2002:a19:760f:: with SMTP id c15mr25571120lff.105.1555516926922;
- Wed, 17 Apr 2019 09:02:06 -0700 (PDT)
+        id S1729641AbfDQQ12 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 17 Apr 2019 12:27:28 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:59024 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729395AbfDQQ12 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 17 Apr 2019 12:27:28 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 1FA8A2D7F8;
+        Wed, 17 Apr 2019 16:27:28 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.38])
+        by smtp.corp.redhat.com (Postfix) with SMTP id C8504608C1;
+        Wed, 17 Apr 2019 16:27:24 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Wed, 17 Apr 2019 18:27:27 +0200 (CEST)
+Date:   Wed, 17 Apr 2019 18:27:24 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     "chengjian (D)" <cj.chengjian@huawei.com>,
+        Kees Cook <keescook@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        NeilBrown <neilb@suse.com>,
+        Anna Schumaker <Anna.Schumaker@netapp.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Xiexiuqi (Xie XiuQi)" <xiexiuqi@huawei.com>,
+        Li Bin <huawei.libin@huawei.com>,
+        Jason Yan <yanaijie@huawei.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SELinux <selinux@vger.kernel.org>,
+        Yang Yingliang <yangyingliang@huawei.com>
+Subject: Re: kernel BUG at kernel/cred.c:434!
+Message-ID: <20190417162723.GK32622@redhat.com>
+References: <b1575d02-fd88-65e6-2f16-70a96985087e@schaufler-ca.com>
+ <20190415134331.GC22204@redhat.com>
+ <CAHC9VhQ7ihqU0K57ctwzoHq0t0QVJPKiQQZn5TXB1FUqsvOSEQ@mail.gmail.com>
+ <20190415150520.GA13257@redhat.com>
+ <CAHC9VhSk1_fWooexHK0+5cKum55qTvj3uv5sRE=aJ4mv2GHJZg@mail.gmail.com>
+ <CAGXu5jKYmoaR6bxW82ogN4iOeKi8AtEwkvVvCXd_gn3CCwFU2Q@mail.gmail.com>
+ <fa325d38-db66-0ae7-0a6c-75934a9b0653@huawei.com>
+ <CAHC9VhSpnSpYLLOcFUFLM=UU8tUTLAzJYb2NgdbN-nLPrh=55g@mail.gmail.com>
+ <20190417145711.GI32622@redhat.com>
+ <CAHC9VhSzo4DsMRknOA-4KKYJEir0wW74+quLheTjRw94OmhscA@mail.gmail.com>
 MIME-Version: 1.0
-References: <20190411123103.23485-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20190411123103.23485-1-richard_c_haines@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 17 Apr 2019 12:01:55 -0400
-Message-ID: <CAHC9VhTk05_vROpqZJ4rvJdv=Fexnb9Z17vob0H-ZPg8DHRnSQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux testsuite: Do not build SCTP unless kernel support
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhSzo4DsMRknOA-4KKYJEir0wW74+quLheTjRw94OmhscA@mail.gmail.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Wed, 17 Apr 2019 16:27:28 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 11, 2019 at 8:31 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
+On 04/17, Paul Moore wrote:
 >
-> Do not build/run SCTP tests unless the kernel is 4.20.17 or
-> greater as they support SELinux SCTP.
+> On Wed, Apr 17, 2019 at 10:57 AM Oleg Nesterov <oleg@redhat.com> wrote:
+> > On 04/17, Paul Moore wrote:
+> > >
+> > > I'm tempted to simply return an error in selinux_setprocattr() if
+> > > the task's credentials are not the same as its real_cred;
+> >
+> > What about other modules? I have no idea what smack_setprocattr() is,
+> > but it too does prepare_creds/commit creds.
+> >
+> > it seems that the simplest workaround should simply add the additional
+> > cred == real_cred into proc_pid_attr_write().
 >
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  tests/Makefile | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/tests/Makefile b/tests/Makefile
-> index fb6de5c..1bd643e 100644
-> --- a/tests/Makefile
-> +++ b/tests/Makefile
-> @@ -24,8 +24,10 @@ SUBDIRS += extended_socket_class
->  endif
->
->  ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/corenetwork.if && grep -q 1 /sys/fs/selinux/policy_capabilities/extended_socket_class && echo true),true)
-> +ifneq ($(shell ./kvercmp $$(uname -r) 4.20.17),-1)
+> Yes, that is simple, but I worry about what other LSMs might want to
+> do.  While I believe failing if the effective creds are not the same
+> as the real_creds is okay for SELinux (possibly Smack too), I worry
+> about what other LSMs may want to do.  After all,
+> proc_pid_attr_write() doesn't change the the creds itself, that is
+> something the specific LSMs do.
 
-Technically we shipped the SELinux/SCTP support before v4.20.17, but
-v4.20 does have some important fixes so I think this is okay.
+Yes, but if proc_pid_attr_write() is called with cred != real_cred then
+something is already wrong?
 
-Merged, thanks.
+In fact, I think that something is already wrong if it is not called by
+user-space directly. Too late to ask, but why is this /proc/self/attr/
+magic not implemented via syscall(s) ?
 
->  SUBDIRS += sctp
->  endif
-> +endif
->
->  ifeq ($(shell grep -q netlink_iscsi_socket $(POLDEV)/include/support/all_perms.spt && echo true),true)
->  SUBDIRS += netlink_socket
-> --
-> 2.20.1
+But, Paul, this is up to you. I don't understand this all even remotely.
 
--- 
-paul moore
-www.paul-moore.com
+Oleg.
+
