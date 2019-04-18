@@ -2,521 +2,138 @@ Return-Path: <SRS0=jmdh=SU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.2 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80639C10F0E
-	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 09:04:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2A83C10F0E
+	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 13:27:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3AE33206B6
-	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 09:04:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C4BA217D7
+	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 13:27:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="R8XGGMMM"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="pEgEM5UU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387971AbfDRJEZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Apr 2019 05:04:25 -0400
-Received: from rgout0201.bt.lon5.cpcloud.co.uk ([65.20.0.200]:10806 "EHLO
-        rgout02.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728093AbfDRJEZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 05:04:25 -0400
-X-OWM-Source-IP: 31.49.61.120 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepfedurdegledriedurdduvddtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepfedurdegledriedurdduvddtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtlecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgdduudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-Received: from localhost.localdomain (31.49.61.120) by rgout02.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
-        id 5B93D594145D6C0F; Thu, 18 Apr 2019 09:09:25 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1555578264; 
-        bh=O+qZXpvoWVmRZ3KNdnriZxPz09HJk5AIYEEjMBfCfn8=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=R8XGGMMM1qynN/E3BZX0iKpOmPuF/x9fUFIhDKDB+eBOMO3LWAdJR1qr9WZB3s7dFmhOXp07I5qRQ68e5hMEgQks2u6xkehg8i3bsV5UPsIVafoU+S2kwCSpDTKjnp4UPRJOCfUXBO8cWPyG7VCy6WQYjX+2kVQgYzSBQAqFSl0=
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [RFC PATCH] selinux-testsuite: Add test for restorecon
-Date:   Thu, 18 Apr 2019 09:09:01 +0100
-Message-Id: <20190418080901.2946-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.20.1
+        id S2388277AbfDRN1G (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Apr 2019 09:27:06 -0400
+Received: from uhil19pa09.eemsg.mail.mil ([214.24.21.82]:15889 "EHLO
+        uhil19pa09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388263AbfDRN1G (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 09:27:06 -0400
+X-Greylist: delayed 572 seconds by postgrey-1.27 at vger.kernel.org; Thu, 18 Apr 2019 09:27:05 EDT
+X-EEMSG-check-017: 8993855|UHIL19PA09_EEMSG_MP7.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by uhil19pa09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Apr 2019 13:17:32 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1555593452; x=1587129452;
+  h=subject:to:references:cc:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=0yRtt3KMzZLR7/K1M3r4KNeJ6zXVI4f1neTEtbLk1Gk=;
+  b=pEgEM5UU5LQIrkyHflEOhDWDlspMKM+IGXF6iVOpYXhGPcylrT33luue
+   MEvjhQAk18CRNqpj08Kvwh0t9gqZ4BKa7GdJN7XDA/DTVlhSBJghIjYJy
+   DH9alv0SeWaZEUgUHfee7fF/fnbk/0QJSc/Blqh3BrYfqpOpt15vR0GIv
+   TfBhJYAnmn2Zo7NUxxbKPOVIQqhTfsqCAxBXYjun+r6P2e8uzC4NWFvkf
+   61TGtsbA3FnNwJbIKjZPyULFPxKwgFWw9zjhosRn258Y0X1zUn0FlOb5s
+   bgePniomNSRF+IF7c93Jhm3TLmlZ49D56duJO7+vXSsdM21C1+XZJwKWr
+   A==;
+X-IronPort-AV: E=Sophos;i="5.60,366,1549929600"; 
+   d="scan'208";a="26472843"
+IronPort-PHdr: =?us-ascii?q?9a23=3AZ+RIIR3oUqHJtqL9smDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseMVKfad9pjvdHbS+e9qxAeQG9mCsrQf1qGN7uigATVGvc/Z9ihaMdRlbF?=
+ =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
+ =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMq8Uam4VvJ6Y+xh?=
+ =?us-ascii?q?bHonZDZuBayX91KV6JkBvw+9u88IR//yhMvv4q6tJNX7j9c6kkV7JTES4oM3?=
+ =?us-ascii?q?oy5M3ltBnDSRWA634BWWgIkRRGHhbI4gjiUpj+riX1uOx92DKHPcLtVrA7RS?=
+ =?us-ascii?q?6i76ZwRxD2jioMKiM0/3vWisx0i6JbvQ6hqhliyIPafI2ZKPxzdb7GcNgEWW?=
+ =?us-ascii?q?ROQNpeVy1ZAoO9cYQPCfYBPf1FpIX5vlcCsAeyCRWpCO7pxDBInHv21rAk3e?=
+ =?us-ascii?q?onHw/NwQgsE8sOvXnQqdn4MroZX+Kow6nS1TjNcu1Y2Tn95obLfB4ur/6DUr?=
+ =?us-ascii?q?BsfsTe0kQvCwHIg0+MpYD5MT6Y1OIAuHWb4ep6UuKvjnYqqwN/ozez3MgskJ?=
+ =?us-ascii?q?XJipwIwV3D9yV4zpo6KseiSE5nf9KpC4dQtiGGOIt2RcMuWWdouD0gxbEctp?=
+ =?us-ascii?q?67ezYKxY0hyhXCaPKHa5CF7g/sWeueOzt1hG9pdKihixu970Ss0PDwW8+p21?=
+ =?us-ascii?q?hQtCVFiMPDtnUV2hzW7ciIV+Vy81+62TaKywDT8uZEIV0olabDK54u3Lowlp?=
+ =?us-ascii?q?0LvETfBCD2gkT2jLKNdkk+5uip6/joYrXhppOGMY97lhr+Pbg0lsy6AOQ4Nh?=
+ =?us-ascii?q?ACX2md+euiyL3u5VD1TbpFg/EskqTVrYrWKdoUq6KnGQNZz54v6xOlADen1N?=
+ =?us-ascii?q?QYk2MHLFVAeB+fjYjoNU3BL+riDfejnVihiytrxvDaMb3hBZXBNH7DkKz7cr?=
+ =?us-ascii?q?pn5E5czxQzwchF551IErEBPO7zWkjpudzXFBA5KQy1z/z7CNV8yIweQ2SPDb?=
+ =?us-ascii?q?GZMa7Jv1+H/PkvI/WJZIAPuTb9L+Ip6OLpjX88gVUdZ7Wm3YMLaHCkGfRrO1?=
+ =?us-ascii?q?6ZbmTogtcAF2cKowU/Qff0iF2NTzFTfWy+X6Ei6TEhDoKpE4PDSpqqgLyb0y?=
+ =?us-ascii?q?foVqFRM09PEEHELXblbYOJSr9YZyuIM4l9kzEeU7WwY4Eozg2rvQ7+jbFgK7?=
+ =?us-ascii?q?yQsjYVsZPlychd+eLej1cx+CZyAsDb1HuCHE9umWZdRSA91bpj+wQpyEiI2L?=
+ =?us-ascii?q?Jk2dREBNdT4LVPSQ58OpnCmb8pQ+vuUx7MK4/aAG2tRc+rVHRoE4M8?=
+X-IPAS-Result: =?us-ascii?q?A2DTAABweLhc/wHyM5BlHAEBAQQBAQcEAQGBUwUBAQsBg?=
+ =?us-ascii?q?WYqgTkBMiiEDoh7jDqYSoF7PAGCEoIuAoYZIzYHDgEDAQEBBAEBAQECAWwog?=
+ =?us-ascii?q?jopAYJnAQUjFUEQCwkPAgImAgJXBgEMBgIBAYJfP4IJqQaBL4VHhGaBCycBi?=
+ =?us-ascii?q?0mBVkCBOIJrPodOglcEgSsBkFlPk3QGA4IIhT2MYQYbgguKCIh0i3iWKggpg?=
+ =?us-ascii?q?VYrCkGBaIFOgkWOJyMDMIEGAQGPagEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 18 Apr 2019 13:17:31 +0000
+Received: from localhost.localdomain (moss-lions [192.168.25.4])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x3IDHVYL023319;
+        Thu, 18 Apr 2019 09:17:31 -0400
+Subject: Re: [Non-DoD Source] [PATCH 0/2] checkmodule: allow building modules
+ of a specific version
+To:     Gary Tierney <gary.tierney@fastmail.com>, selinux@vger.kernel.org
+References: <20190417163731.3434-1-gary.tierney@fastmail.com>
+Cc:     Steve Smalley <sds@tycho.nsa.gov>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <3ef5bbf3-4d1b-26a2-aa18-d32044259064@tycho.nsa.gov>
+Date:   Thu, 18 Apr 2019 09:17:55 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190417163731.3434-1-gary.tierney@fastmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This will test the updated selinux_restorecon(3) that is currently in
-Android.
+On 4/17/19 12:37 PM, Gary Tierney wrote:
+> These changes come from a report by a user on the Freenode IRC channel that
+> they were unable to build policies for a machine that has an older version of
+> libsepol installed.
+> 
+> A new `-c` option that mirrors checkpolicy's own has been added to checkmodule,
+> and the output of a simple test is shown below:
+> 
+> $ cat > test.te <<EOF
+> module test 1.0;
+> 
+> require {
+>      type domain;
+>      type file_type;
+>      class file { read write };
+> }
+> 
+> allow domain file_type : file { read write };
+> EOF
+> $ obj/usr/bin/checkmodule -m -M -c 10 -o test.mod test.te
+> $ checkpolicy/test/dismod test.mod
+> Reading policy...
+> ... snip ...
+> Binary policy module file loaded.
+> Module name: test
+> Module version: 1.0
+> Policy version: 10
+> 
+> Worthy of note, however, is that these policy version numbers differ from those
+> used by the kernel policy format.
+> 
+> Gary Tierney (2):
+>    checkmodule: add support for specifying module policy version
+>    dismod: print policy version of loaded modules
+> 
+>   checkpolicy/checkmodule.8 |  5 ++++-
+>   checkpolicy/checkmodule.c | 29 +++++++++++++++++++++++++++--
+>   checkpolicy/test/dismod.c |  4 ++--
+>   3 files changed, 33 insertions(+), 5 deletions(-)
+> 
 
-Only use this to test the "libselinux: Save digest of all partial matches
-for directory" patch as it will probably change.
+Acked-by: James Carter <jwcart2@tycho.nsa.gov>
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- policy/Makefile                       |   2 +-
- policy/test_restorecon.te             |  40 +++++++++
- tests/Makefile                        |   4 +
- tests/restorecon/.gitignore           |   2 +
- tests/restorecon/Makefile             |   8 ++
- tests/restorecon/get_digests.c        | 125 ++++++++++++++++++++++++++
- tests/restorecon/selinux_restorecon.c |  68 ++++++++++++++
- tests/restorecon/test                 | 101 +++++++++++++++++++++
- 8 files changed, 349 insertions(+), 1 deletion(-)
- create mode 100644 policy/test_restorecon.te
- create mode 100644 tests/restorecon/.gitignore
- create mode 100644 tests/restorecon/Makefile
- create mode 100644 tests/restorecon/get_digests.c
- create mode 100644 tests/restorecon/selinux_restorecon.c
- create mode 100755 tests/restorecon/test
-
-diff --git a/policy/Makefile b/policy/Makefile
-index cc70d33..a8c8b8a 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -25,7 +25,7 @@ TARGETS = \
- 	test_task_getsid.te test_task_setpgid.te test_task_setsched.te \
- 	test_transition.te test_inet_socket.te test_unix_socket.te \
- 	test_mmap.te test_overlayfs.te test_mqueue.te test_mac_admin.te \
--	test_ibpkey.te test_atsecure.te
-+	test_ibpkey.te test_atsecure.te test_restorecon.te
- 
- ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
- TARGETS += test_bounds.te
-diff --git a/policy/test_restorecon.te b/policy/test_restorecon.te
-new file mode 100644
-index 0000000..91cc6ea
---- /dev/null
-+++ b/policy/test_restorecon.te
-@@ -0,0 +1,40 @@
-+#################################
-+#
-+# Policy for testing restorecon
-+#
-+
-+require {
-+	attribute file_type;
-+}
-+
-+attribute restorecon_domain;
-+
-+type test_restorecon_file_t;
-+files_type(test_restorecon_file_t)
-+type in_dir_t;
-+files_type(in_dir_t)
-+type out_dir_t;
-+files_type(out_dir_t)
-+type in_file_t;
-+files_type(in_file_t)
-+type out_file_t;
-+files_type(out_file_t)
-+
-+# Domain for process that can restorecon the test file.
-+type test_restorecon_t;
-+files_type(test_restorecon_t)
-+
-+domain_type(test_restorecon_t)
-+unconfined_runs_test(test_restorecon_t)
-+typeattribute test_restorecon_t testdomain;
-+typeattribute test_restorecon_t restorecon_domain;
-+
-+allow test_restorecon_t self:capability sys_admin;
-+allow test_restorecon_t test_file_t:file relabelfrom;
-+allow test_restorecon_t file_type:dir { relabel_dir_perms manage_dir_perms };
-+allow test_restorecon_t file_type:file { rw_file_perms execute relabelto relabelfrom };
-+allow_map(test_restorecon_t, file_type, file)
-+
-+# Allow all of these domains to be entered from sysadm domain
-+miscfiles_domain_entry_test_files(restorecon_domain)
-+userdom_sysadm_entry_spec_domtrans_to(restorecon_domain)
-diff --git a/tests/Makefile b/tests/Makefile
-index fb6de5c..94eca9f 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -47,6 +47,10 @@ ifeq ($(shell grep "^SELINUX_INFINIBAND_PKEY_TEST=" infiniband_pkey/ibpkey_test.
- SUBDIRS += infiniband_pkey
- endif
- 
-+ifeq ($(shell grep -q selabel_get_digests_all_partial_matches $(INCLUDEDIR)/selinux/label.h && echo true),true)
-+SUBDIRS += restorecon
-+endif
-+
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
- endif
-diff --git a/tests/restorecon/.gitignore b/tests/restorecon/.gitignore
-new file mode 100644
-index 0000000..c37f923
---- /dev/null
-+++ b/tests/restorecon/.gitignore
-@@ -0,0 +1,2 @@
-+selinux_restorecon
-+get_digests
-diff --git a/tests/restorecon/Makefile b/tests/restorecon/Makefile
-new file mode 100644
-index 0000000..5c0d6e2
---- /dev/null
-+++ b/tests/restorecon/Makefile
-@@ -0,0 +1,8 @@
-+TARGETS = selinux_restorecon get_digests
-+
-+LDLIBS += -lselinux
-+
-+all: $(TARGETS)
-+
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/restorecon/get_digests.c b/tests/restorecon/get_digests.c
-new file mode 100644
-index 0000000..875ba3b
---- /dev/null
-+++ b/tests/restorecon/get_digests.c
-@@ -0,0 +1,125 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+
-+#define RESTORECON_PARTIAL_MATCH_DIGEST  "security.sehash"
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-v] path\n\n"
-+		"Where:\n\t"
-+		"-v  Display information.\n\t"
-+		"path  Path to check current SHA1 digest against file_contexts entries.\n\n"
-+		"This will check the directory selinux.sehash SHA1 digest for "
-+		"<path> against\na newly generated digest based on the "
-+		"file_context entries for that node\n(using the regx, mode "
-+		"and path entries).\n", progname);
-+	exit(1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, rc = 0; /* The hashes do NOT match */
-+	size_t i, digest_len = 0;
-+	bool status, verbose = false;
-+	uint8_t *xattr_digest = NULL;
-+	uint8_t *calculated_digest = NULL;
-+	char *sha1_buf = NULL;
-+
-+	struct selabel_handle *hnd;
-+
-+	if (argc < 2)
-+		usage(argv[0]);
-+
-+	while ((opt = getopt(argc, argv, "v")) > 0) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc) {
-+		fprintf(stderr, "No pathname specified\n");
-+		exit(-1);
-+	}
-+
-+	hnd = selabel_open(SELABEL_CTX_FILE, NULL, 0);
-+	if (!hnd) {
-+		fprintf(stderr, "ERROR: selabel_open - Could not obtain handle.\n");
-+		return -1;
-+	}
-+
-+	status = selabel_get_digests_all_partial_matches(hnd, argv[optind],
-+							 &calculated_digest,
-+							 &xattr_digest,
-+							 &digest_len);
-+
-+	sha1_buf = calloc(1, digest_len * 2 + 1);
-+	if (!sha1_buf) {
-+		fprintf(stderr, "Could not calloc buffer ERROR: %s\n",
-+			strerror(errno));
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	if (status) { /* They match */
-+		if (verbose) {
-+			printf("xattr and file_contexts SHA1 digests match for: %s\n",
-+			       argv[optind]);
-+
-+			if (calculated_digest) {
-+				for (i = 0; i < digest_len; i++)
-+					sprintf((&sha1_buf[i * 2]), "%02x",
-+						calculated_digest[i]);
-+				printf("SHA1 digest: %s\n", sha1_buf);
-+			}
-+		}
-+
-+		rc = 1;
-+		goto out;
-+	} else {
-+		if (!calculated_digest) {
-+			rc = 2;
-+			if (verbose) {
-+				printf("No SHA1 digest available for: %s\n", argv[optind]);
-+				printf("as file_context entry is \"<<none>>\"\n");
-+			}
-+		}
-+
-+		if (calculated_digest && verbose) {
-+			printf("The file_context entries for: %s\n", argv[optind]);
-+
-+			for (i = 0; i < digest_len; i++)
-+				sprintf((&sha1_buf[i * 2]), "%02x", calculated_digest[i]);
-+			printf("generated SHA1 digest: %s\n", sha1_buf);
-+		}
-+		if (!xattr_digest) {
-+			rc = rc | 4;
-+			if (verbose)
-+				printf("however there is no selinux.sehash xattr entry.\n");
-+			else
-+				goto out;
-+
-+		} else if (verbose) {
-+			printf("however it does NOT match the current entry of:\n");
-+			for (i = 0; i < digest_len; i++)
-+				sprintf((&sha1_buf[i * 2]), "%02x", xattr_digest[i]);
-+			printf("%s\n", sha1_buf);
-+		}
-+	}
-+out:
-+	selabel_close(hnd);
-+	free(xattr_digest);
-+	free(calculated_digest);
-+	free(sha1_buf);
-+	return rc;
-+}
-diff --git a/tests/restorecon/selinux_restorecon.c b/tests/restorecon/selinux_restorecon.c
-new file mode 100644
-index 0000000..7ea9387
---- /dev/null
-+++ b/tests/restorecon/selinux_restorecon.c
-@@ -0,0 +1,68 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+#include <selinux/restorecon.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-vr]\n"
-+		"Where:\n\t"
-+		"-v  Display information.\n\t"
-+		"-r  Recursively descend directories.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, rc, flags = 0;
-+	bool verbose = false;
-+
-+	struct selabel_handle *hnd;
-+
-+	if (argc < 2)
-+		usage(argv[0]);
-+
-+	while ((opt = getopt(argc, argv, "rv")) > 0) {
-+		switch (opt) {
-+		case 'r':
-+			flags = SELINUX_RESTORECON_RECURSE;
-+			break;
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc) {
-+		fprintf(stderr, "No pathname specified\n");
-+		exit(-1);
-+	}
-+
-+	hnd = selabel_open(SELABEL_CTX_FILE, NULL, 0);
-+	if (!hnd) {
-+		fprintf(stderr, "ERROR: selabel_open - Could not obtain handle.\n");
-+		return -1;
-+	}
-+
-+	/* Use own handle */
-+	selinux_restorecon_set_sehandle(hnd);
-+
-+	if (verbose)
-+		flags |= SELINUX_RESTORECON_VERBOSE;
-+
-+	rc = selinux_restorecon(argv[optind], flags);
-+	if (rc < 0)
-+		fprintf(stderr, "selinux_restorecon ERROR: %s\n",
-+			strerror(errno));
-+
-+	return rc;
-+}
-+
-diff --git a/tests/restorecon/test b/tests/restorecon/test
-new file mode 100755
-index 0000000..208b6c4
---- /dev/null
-+++ b/tests/restorecon/test
-@@ -0,0 +1,101 @@
-+#!/usr/bin/perl
-+use Test::More;
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    # allow info to be shown
-+    $v = $ARGV[0];
-+    if ($v) {
-+        if ( $v ne "-v" ) {
-+            plan skip_all => "Invalid option (use -v)";
-+        }
-+    }
-+    else {
-+        $v = " ";
-+    }
-+
-+    plan tests => 6;
-+}
-+
-+# Need to get full path for semanage and tests progs
-+use Cwd qw(cwd);
-+$cwd = cwd;
-+if ( $basedir ne "." ) {
-+    $path = "$cwd/$basedir";
-+}
-+else {
-+    $path = $cwd;
-+}
-+
-+# Make sure removed then generate new
-+system("rm -rf $basedir/restore_test");
-+system("mkdir -p $basedir/restore_test/in_dir");
-+system("mkdir -p $basedir/restore_test/out_dir");
-+
-+system("semanage fcontext -a -t test_file_t -f d $path/restore_test");
-+system("semanage fcontext -a -t in_dir_t -f d $path/restore_test/in_dir");
-+system("semanage fcontext -a -t out_dir_t -f d $path/restore_test/out_dir");
-+
-+# Add some files
-+system("touch $path/restore_test/out_dir/out_file1");
-+system("touch $path/restore_test/in_dir/in_file1");
-+
-+# There is no selinux.sehash xattr entry
-+$result =
-+  system(
-+    "runcon -t test_restorecon_t $basedir/get_digests $v $path/restore_test");
-+ok( $result >> 8 eq 4 );
-+
-+$result =
-+  system(
-+"runcon -t test_restorecon_t $basedir/selinux_restorecon -r $v $path/restore_test"
-+  );
-+ok( $result eq 0 );
-+
-+# After restorecon they match
-+$result =
-+  system(
-+    "runcon -t test_restorecon_t $basedir/get_digests $v $path/restore_test");
-+ok( $result >> 8 eq 1 );
-+
-+# Add new file_context enties to get the files relabeled:
-+system(
-+    "semanage fcontext -a -t in_file_t -f f \"$path/restore_test/in_dir(/.*)?\""
-+);
-+system(
-+"semanage fcontext -a -t out_file_t -f f \"$path/restore_test/out_dir(/.*)?\""
-+);
-+
-+# Now the digests do NOT match
-+$result =
-+  system(
-+    "runcon -t test_restorecon_t $basedir/get_digests $v $path/restore_test");
-+ok( $result eq 0 );
-+
-+$result =
-+  system(
-+"runcon -t test_restorecon_t $basedir/selinux_restorecon -r $v $path/restore_test"
-+  );
-+ok( $result eq 0 );
-+
-+# After restorecon they match again
-+$result =
-+  system(
-+    "runcon -t test_restorecon_t $basedir/get_digests $v $path/restore_test");
-+ok( $result >> 8 eq 1 );
-+
-+# semanage x 10 takes 50s. Using semodule loading 2 x *.cil + 1 delete is slower 1m:40s
-+system("semanage fcontext -d -t in_dir_t -f d $path/restore_test/in_dir");
-+system("semanage fcontext -d -t out_dir_t -f d $path/restore_test/out_dir");
-+system(
-+    "semanage fcontext -d -t in_file_t -f f \"$path/restore_test/in_dir(/.*)?\""
-+);
-+system(
-+"semanage fcontext -d -t in_file_t -f f \"$path/restore_test/out_dir(/.*)?\""
-+);
-+system("semanage fcontext -d -t test_file_t -f d $path/restore_test");
-+system("rm -rf $basedir/restore_test");
-+
-+exit;
 -- 
-2.20.1
-
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
