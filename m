@@ -7,20 +7,20 @@ X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D684DC10F0E
-	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 08:59:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8828C10F0E
+	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 09:01:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 91BE4217D7
-	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 08:59:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 742F9206B6
+	for <selinux@archiver.kernel.org>; Thu, 18 Apr 2019 09:01:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="fG7RKWvp"
+	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="MrRHt/33"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388323AbfDRI7Y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Apr 2019 04:59:24 -0400
-Received: from rgout05.bt.lon5.cpcloud.co.uk ([65.20.0.182]:61727 "EHLO
-        rgout05.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728074AbfDRI7X (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 04:59:23 -0400
+        id S2388000AbfDRJBX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Apr 2019 05:01:23 -0400
+Received: from rgout0505.bt.lon5.cpcloud.co.uk ([65.20.0.226]:53204 "EHLO
+        rgout05.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728074AbfDRJBW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 05:01:22 -0400
 X-OWM-Source-IP: 31.49.61.120 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-RazorGate-Vade-Classification: clean
@@ -29,33 +29,26 @@ X-VadeSecure-score: verdict=clean score=0/300, class=clean
 X-SNCR-VADESECURE: CLEAN
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtkecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
 X-RazorGate-Vade-Classification: clean
 X-RazorGate-Vade-Verdict: clean 0
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
 X-SNCR-VADESECURE: CLEAN
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtlecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgddtlecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrfeehgdduudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeiuddruddvtdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeiuddruddvtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
 Received: from localhost.localdomain (31.49.61.120) by rgout05.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
-        id 5C24804F0A79DBF2; Thu, 18 Apr 2019 09:41:39 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1555577962; 
+        id 5C24804F0A7A0261; Thu, 18 Apr 2019 09:49:44 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1555578081; 
         bh=O+qZXpvoWVmRZ3KNdnriZxPz09HJk5AIYEEjMBfCfn8=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=fG7RKWvpcrnYfXhgs9szTTmH09sY1xJs+Kd8PNaC18bPfDasn3m1fYb2DSRp247Hp8CNSmxf2EpIsYrpbemyXPjDrSDoMwsha83epEpRTYg+xDO4qErv3BVFIJsIy//Xsig7AjC2af2KvXFbOQcsbc0xblxXGE6EPA9QVsBabDw=
+        b=MrRHt/33EJ52QZDyNHD2wKJF3vLcRUkPxE8wHoeIwtfRMV7JT4WrtHXm7Xmb+w5B6gpmSwd7Ck7vBs2Sd92OXNmImzEtJO80PtBPoZ37z7TysX+ZyBFPvZ7pG6A5o+RL2UTw/u88UbfzVf10sLsizPs4lK5oj9BDiZEFoWj/koc=
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
 Subject: [RFC PATCH] selinux-testsuite: Add test for restorecon
-Date:   Thu, 18 Apr 2019 09:41:18 +0100
-Message-Id: <20190418084118.3157-1-richard_c_haines@btinternet.com>
+Date:   Thu, 18 Apr 2019 09:49:15 +0100
+Message-Id: <20190418084915.3305-1-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
