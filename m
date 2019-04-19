@@ -4,51 +4,51 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B42D7C10F14
-	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:47:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D429C10F14
+	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:47:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8094121736
-	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:47:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57BDD21736
+	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:47:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="GXuAJzjX"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="uRyPxd9q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726849AbfDSArg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Apr 2019 20:47:36 -0400
-Received: from sonic308-9.consmr.mail.bf2.yahoo.com ([74.6.130.48]:42744 "EHLO
-        sonic308-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726839AbfDSArg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 20:47:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1555634854; bh=KYlupIPcbLYAYHDyLLLdG0LtZrXeMUYE6GpZUguvURc=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=GXuAJzjXvha7gsCV4j04dpBTBFYBhmbMVdvNcPQkci+v3lWgmVfkfhHlmBDE62K2D3bTPARW6qtaQCe70B/q/wL2Sl8upxfN72yEuC6W8sJ1E45vMwAPRuuP1dzkuxiiu0uBC+V4wJdimXEKWbMq/sr+4oP6BE8WrTl3lf06gUmX4RIcFdgNmxw6wKrAHzwTeX6yLaUzNxy9GUMrC7i+nDsr283LIxVwgquGFPvU1uWh5BZUgImDPzXXUhAwEejS4Au2XzXdFQkCfnmqYuL9SzAhuR4C2bGaRh0Uxsf/6sNgbFpmDi/54IC+L1PnFDCxYLWBOQKgP6aM6QkjoWyOUw==
-X-YMail-OSG: UwbwAmUVM1mTQMRUslcZq3H_MMBh0oKs7e5Vn4E0Zddkjye19ZR_4rehEaQAyf8
- cflCEiQmSnrsfbbLlDalz5YOX4omkfSQ7XeszUPWvCw1xH8O.3lYcAy1yUbHZ.wIX2RWYUQmRZbH
- 3uaOfyHIA73KzAfCEiVKvNDTaYHvgqTD40H0S7dZJNPIED7tyoOIOQw7Yi7ISaJcTfhnHin6EaRg
- cvRzVyziLJh1h7My5lB4CCPKvPjBgV_1c5VqRp8a4nM91unocBtOQ.eaE1bzT5Aclk9YHZ1_XkjU
- cYEO9VgZElQbAAjV.qygUHH4uLHDFDAI1ssveG6LIsH2aLkahKFJaKKHYmkLWQKSmQYKwqrPk0ba
- HaECAj.xR_CNqdCCwwXj3kJzcbvHHs.ed3uHueQqBL_2X__2eciFI33ERtyGR6NRdZ4lGt5YeSu7
- ZMlfxSxNhdm6hSUpDZnKYophziuHGgGXYBY2Ltn9SoIz0AcdaL61Kl9ngw45yuX70DXy41SkFKL7
- BMRt4yNBHEjXllxpEiwEqpAW6fWqwRcS8Mkc0Y7u4TM6nkbp.2eUXSQFgPUqRZ8n195ECP9PPGR8
- HGkCcYOLHYL1FXtwYoxxJq5LzHRCZi1xop.qWMWUUe772PFOGEarHCTMbJfWUL5LD0MYsLqwKfU6
- MPBUHiiiRH.6C0vBTNvfGkROWmr10W5pjuhZi6Ln2hEEusNG7n3MhrqtiP3B7w7bQ0MZSuyJTv24
- z9kFOz0Jks0tPZIMpP92ydH9oBQ_y9rCzqYlRDDW7rBJwuKfBIdichsZX7kRiwGWiFDUWPvRRNsA
- 5XedMfMQgedSmsI80LwPT59usN0geZfQYmKJPTLlQg5L3mUc_mMSi.DeAssytdMZPOO4a0QvtmVy
- xZ.RzRYSRo0jVcLRMFCHlMY2YtL4ClwG_coA_W0o4VrEE6sJ.eIU4FfnD0BLy74Ch3FRPwBfLX2M
- TOCLdhrcT8rdXmYKPx5vJX6TQV1Wbg7kY64AlPyMa_QRYLRDQFxLDR3Wznfql80cIWQGp2VKN7xt
- jWumWPOjxYRNAQuUWqbuJGAOdRlI7JwNHFjQCg8YmMW2JZOgAFSot1uUYQxb.dT.nK2vd2yMhlg4
- mm8ROGmEkA9aLlP1QDGYFR.XzQ9wOtfmCRCgbgXNqIeg1WmUtZ31Hw6tgwKJYIQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.bf2.yahoo.com with HTTP; Fri, 19 Apr 2019 00:47:34 +0000
+        id S1726861AbfDSArl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Apr 2019 20:47:41 -0400
+Received: from sonic310-23.consmr.mail.bf2.yahoo.com ([74.6.135.197]:37395
+        "EHLO sonic310-23.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726069AbfDSArk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 20:47:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1555634859; bh=cOt9caKD/749IXNAg082OZdZ8wyzsShJ6Dne6L26IXA=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=uRyPxd9qN/HkJ3f3nrrFvg5L3F18r9Sg6RA5GvMDf2zc7n2pyhSlniG9DTtbOTGuUknp7LzDjzNbwPec6lpXmK2K8h0ZMpJU0sIRlzbChbbNwa50FAciZPPV++ZuWxW6t1qLkPyijPwCRV27HTjIvA/f9CQGrb4PVhK20jeZuYmJRWiCqdeJg2nSognfpZHR1eG1BfqfT0pGwb879dXzvtw7hj+s0+ZxMRIbG/FHVfEXbVlN4XaheTciRgUYGBfN0wxL7BviXIlaxk78HAT2XaRF+lCkBeMfyikqjn0ADUtI5g6CRP2vzBBKN+bGgS+aBr5Vk991n7um8hHGfjN8XA==
+X-YMail-OSG: 35uvrLsVM1lh_5J1R1gzqyXXxW4rJKZZ99ACDN3_kFk2OLOCcDuQy4Vze9aSAnQ
+ rKLoQHnCGqtBPbF.nI789TIFcoNyO3SpzdsJeM3moml9vK4DM5vKYL6GUAItrLDNz2jse9cLBplT
+ pAHHuRiYlAjI7jJtB4ITjgmcvEqknj2VlWrf6jUDCouKanSbVzVykfE2EvcYuIgYIJ5q9upJqIAy
+ Yn6v03Sjh3foaFb8tTKjZvWs1D57b53kcvQL0I9ldjiATEw2x_IrHuLEYFCPUb4E0hvsM.4rlZlf
+ cKe4pO9BTwybqjDBLYOUem1O2xi3_iF41wbsG49l48.oeNL7l2LIfv_Vn4ZpUmDFwET2kw.NeJ09
+ 8vZf_zfz8_vI5KYlIGBb.N_aG88tBvE5i7ObagCm5BM7xI8MEMjI.z6DUwABJYcrXI7PenKxE2L6
+ pp3_pMdbLIjvTraX7DyzcDsRYwC.OdcnT_mnSALUWMjCiv754ehI7aoytGnS2KQjpnlgpBislZlA
+ sSI_yTnPFirkbWfWDrhjjRCINzuuNXHXwaBhK9SnnVB0vybTItejuXbN7SyN1XCYBBfdj82uSOoE
+ zNkmZ22JoEAWVfNAbQXwqtbN7LDkm0eM.CYtJcoiJ4pcJLl5gWJ1oUTaF0znLbargv0LfTdIWzuz
+ hetps5gF62dixw8keE9KWWxTWysQGTnId1Lk___4m6KwJCnkSmXRO2btFj6X08g6MnTNo5g2Hl5Q
+ XQEtgLQBMKO6GxTSnGZ.wM85Yt0VaCtTR2bA7TZ1lBoMMYImnB0PYdkSpf1F5F_iBvZ3lZk8thW6
+ 53z.pYmOMPHkPHPI8euk634cCWWYFFs5phFWNjwbrgWjNbUQ96kGzr..XcBfvCs9E9PKSJehqaoq
+ bc0E8ZpQj9DcYbCJCBEVpuENvH5D30mM17qR5FgED2xrwHscTc2vDbHMAaXf2EKFDQDtTvWZrUE8
+ CEj29IBZevU_FfhonRsgr1kbqGgyWLYiRzdqlaKizFx8L0DwgAUf0LovHcwmqVik3kTq9SMkryyz
+ F0AwDCisCHzJOZPLbYCqBOuiAiZHppdTF5Usv3j2cUUDrDxEHZmH_.zMBxdFTlOkOwegz69j1SHr
+ nejnv1Jx3ZHZHhtkovVryNqdX09SS9QLXjGPG1n4fNinOV6k0rvpGv.FMDswaPD8wezc6E5ee7FY
+ RrlmZwdRHJo1v4Q--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Fri, 19 Apr 2019 00:47:39 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp416.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 3136423b19635411d73e92b6945decf9;
-          Fri, 19 Apr 2019 00:47:32 +0000 (UTC)
+          Fri, 19 Apr 2019 00:47:35 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com
-Subject: [PATCH 30/90] NET: Remove netfilter scaffolding for lsm_export
-Date:   Thu, 18 Apr 2019 17:45:17 -0700
-Message-Id: <20190419004617.64627-31-casey@schaufler-ca.com>
+Subject: [PATCH 33/90] IMA: FIXUP prototype using lsm_export
+Date:   Thu, 18 Apr 2019 17:45:20 -0700
+Message-Id: <20190419004617.64627-34-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190419004617.64627-1-casey@schaufler-ca.com>
 References: <20190419004617.64627-1-casey@schaufler-ca.com>
@@ -57,83 +57,28 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Remove scaffolding functions from the netfilter code.
-Replace with direct access to lsm_export fields so as
-to be explicit about how the secmarks are being
-handled.
+Fix the prototype on a function stub
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- net/netfilter/nf_conntrack_netlink.c    | 12 ++++++++++--
- net/netfilter/nf_conntrack_standalone.c |  7 ++++++-
- net/netfilter/nfnetlink_queue.c         |  6 +++++-
- 3 files changed, 21 insertions(+), 4 deletions(-)
+ security/integrity/ima/ima.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index b069277450c5..d10cc1924e46 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -332,7 +332,11 @@ static int ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
- 	char *secctx;
- 	struct lsm_export le;
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 8b109ad0de2e..7ae41218eb07 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -309,8 +309,8 @@ static inline int security_filter_rule_init(u32 field, u32 op, char *rulestr,
+ 	return -EINVAL;
+ }
  
--	lsm_export_to_all(&le, ct->secmark);
-+	lsm_export_init(&le);
-+	le.flags = LSM_EXPORT_SELINUX | LSM_EXPORT_SMACK;
-+	le.selinux = ct->secmark;
-+	le.smack = ct->secmark;
-+
- 	ret = security_secid_to_secctx(&le, &secctx, &len);
- 	if (ret)
- 		return 0;
-@@ -619,7 +623,11 @@ static inline int ctnetlink_secctx_size(const struct nf_conn *ct)
- 	int len, ret;
- 	struct lsm_export le;
- 
--	lsm_export_to_all(&le, ct->secmark);
-+	lsm_export_init(&le);
-+	le.flags = LSM_EXPORT_SELINUX | LSM_EXPORT_SMACK;
-+	le.selinux = ct->secmark;
-+	le.smack = ct->secmark;
-+
- 	ret = security_secid_to_secctx(&le, NULL, &len);
- 	if (ret)
- 		return 0;
-diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
-index 12318026d8d4..d353f3efc5a5 100644
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -177,7 +177,12 @@ static void ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
- 	char *secctx;
- 	struct lsm_export le;
- 
--	lsm_export_to_all(&le, ct->secmark);
-+	/* Whichever LSM may be using the secmark */
-+	lsm_export_init(&le);
-+	le.flags = LSM_EXPORT_SELINUX | LSM_EXPORT_SMACK;
-+	le.selinux = ct->secmark;
-+	le.smack = ct->secmark;
-+
- 	ret = security_secid_to_secctx(&le, &secctx, &len);
- 	if (ret)
- 		return;
-diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-index 4c74c383e26b..a0670137477b 100644
---- a/net/netfilter/nfnetlink_queue.c
-+++ b/net/netfilter/nfnetlink_queue.c
-@@ -317,7 +317,11 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
- 	read_lock_bh(&skb->sk->sk_callback_lock);
- 
- 	if (skb->secmark) {
--		lsm_export_to_all(&le, skb->secmark);
-+		/* Whichever LSM may be using the secmark */
-+		lsm_export_init(&le);
-+		le.flags = LSM_EXPORT_SELINUX | LSM_EXPORT_SMACK;
-+		le.selinux = skb->secmark;
-+		le.smack = skb->secmark;
- 		security_secid_to_secctx(&le, secdata, &seclen);
- 	}
- 
+-static inline int security_filter_rule_match(u32 secid, u32 field, u32 op,
+-					     void *lsmrule)
++static inline int security_filter_rule_match(struct lsm_export *l, u32 field,
++					     u32 op, void *lsmrule)
+ {
+ 	return -EINVAL;
+ }
 -- 
 2.19.1
 
