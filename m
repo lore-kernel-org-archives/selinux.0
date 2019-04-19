@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E350C10F14
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCB47C282DD
 	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:49:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3A1B9217F9
+	by mail.kernel.org (Postfix) with ESMTP id 924BA217F9
 	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:49:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Q235N0EY"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="eZRDDxVd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727032AbfDSAtB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Apr 2019 20:49:01 -0400
-Received: from sonic308-9.consmr.mail.bf2.yahoo.com ([74.6.130.48]:37985 "EHLO
-        sonic308-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727039AbfDSAtB (ORCPT
+        id S1727039AbfDSAtC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Apr 2019 20:49:02 -0400
+Received: from sonic310-23.consmr.mail.bf2.yahoo.com ([74.6.135.197]:40459
+        "EHLO sonic310-23.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727030AbfDSAtB (ORCPT
         <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 20:49:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1555634940; bh=irB6ChJAf0NNvtmr1bddnxr04exdAr8I2+tqVZgLMNg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Q235N0EYNG6m5+fx6S+Zn43wJ7OT3VA2EFf31xRgkmvnyUZyxiKbViSJeVbw0+wzJSqUHuNFlrTzhat0/pyG+7SVyUzySTnWFrR95YOJ8lXzXiI+PtjTpxOpB/1Yso8vq8TKqJDGpYhl66LwnW2RHRg0gYQo5LV0Dz5+yEW0eqvo4oID2q0N7ETE99g2OGTSVCDqiB6j5q4xO7j6+cA+rXb30AmLS0KVLHc5viIv8j3+DCkW2/igKYRTBKXI5bNcotQ7s6iGL388jLq2zdLS3ecLUBApiCgp8ziU9thkML+GS2R5KO5dd+MlMBIMhPm+dJG+tRNbpvP/k9O4BsBAmg==
-X-YMail-OSG: c9wQnyUVM1k9pQVTsezXwlikkYOi2Y.ex2yAm3pyWjKD5Gvpp_W53bUzODJ0EYm
- MQbnlx5876SgcD4ClRmRaEG29rxI_h4gRFRzAfd.A6fuO4XO6R0hAzHfVQDyFWLPZUMXKJhbaqaR
- Z3Vx1RxwgwEIMFQDJBLI2v2xlU4mZCQoXvdAEknwB7se1hpVi6wTVb8cLaGZPcVtTZANJ3Pk1nvJ
- yKQ5xzKSSoTLnZTnriihGoJd2_2pyA140nd3_ClJTIF9rIvYS1QwLmBqPDOosEhhYQqvvPuFCto0
- _63KH6t1zqx2twRx7wPDVGKxDrvv0jJ9WKboqRFb3r5YFkNRuvx353EcyytLCKQt.1K.qQ_JmOMN
- fgi.eJBuShOC9XWG5aj6zfGjTQh2a0kFupcQUU5KD2sKBHebjggxVF0qNrud6QW9cbAt.avsqBLn
- XXmhjFfXpBNWUEWbe_OwD6r17THsS3LuNu8v.r.wDUst.5KTTb60vxmhWAMK8ZnGZ4fIrNo2JSWg
- 1HZkDWaOEB.KOeKqtlFVJ.WlK1ZslvEh7pDk7O_GDLmy788GLDCAcx8p3hCIby0bKS1t0MUzgrhy
- eHcg0hXDyL.p6x.cV50rIxOltL.keZmdrxOMcOGDBwp8iQq_bayqv80jzPGmPewt6o40BJFgogIp
- TelEGmL9Z58VQXjDwle0ZkDwhRw7aeVTQxZe0p8RgWLrfnwh9vZq4iWq48ucmcfkb4vuibkHe_0A
- .RdPvK6O86wBw9y2lDFgH7enz.sCerbC1Bv4B9LaV9Uq3A5C4f69DCOxJqxrPuV76OY.vkFhW5G_
- ButU0f5qeavr9tXewurmr6RSNc8Z4xIJ9rsmFr5dmve3pmMiGxiHYtiHQbvaN4jyvK64dQphPdIy
- f_mKDZf1GRqz4_5nSiHMxK1AqFq0n2yGKmIadxAZ7pC__l_2DniA9ldP4kPhWzNf7GW3HveEfhZA
- ICGYJTkPaX72xXmfWBisXqDTZkj9J3e5SfTBmzwZbxHQy52lnxljOhypSowfIYAI5sVWl6rEiSkU
- 34T8F0Jvht8HcnwJ8KgnX4PsGBff.nnrxTJjELKgHk7KlIen2YGLtXBjYuBcs.E2cDUfL6oG85qq
- xKlbdCXKWrGGYi59DfLD9GrrPb_go4P64pTwQZ3JFBucXPqbL0wGOx2V440X5WL4uBb0.Zb5SyGj
- VZCs3oVFadbbDFA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.bf2.yahoo.com with HTTP; Fri, 19 Apr 2019 00:49:00 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1555634940; bh=48+5U+50jFm6f0Nxz7VZWq9WDAQQ3RN6UxLpN1fpkp4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=eZRDDxVdqNZulrvKaDrgCGwAsFxAHwO+CUQ1m2WG3L91pxh/jnsjzAc7Duas5SF0Z/LCH0/GB7xjywRXw9P/kNtREPwyEWlI4zeLr+kmZFrbU7EAWhn4z5DwQBMprSEj3+Bz8p+zet4H3ykGyjbKXl+2e4wXj6dZ+bYbyHPudyKyNR7idYd0H3lCgKoFZJ1/+pGcMlvYZNVD23kcH0hzxp7Nq8h/JmQ7naNPxyErfWUrXif8Tyn7AiaSDK9FNZW/SO7/Cz48r3/kWLXbzeNEUqaNjiwAd0d4jOAV9gS/5KxJGaqlISHycyJOk5o62AX7C7QpP6nD6R+ZYyIoJd1JhQ==
+X-YMail-OSG: XTNKt_cVM1nfmoc4nlQ9LkojrCTFRUWLXRQme9ry8pvUgEo4ff0Rn3IGW2JcO98
+ .c4Tubj518xQeoDyhBl0XQ1hq_2GRCK8zq2RXLQ9BMflMVBRK864ZRqiDijwBRmgK97oGO.1PBZU
+ WBIjzz.W1XVyVz4NmRAj5OuKdz3OPvx6iYOqnIvH2Igo9iCssembyUcXpkRIGel5n.IZuzO4mJMi
+ 8sovGU.1q_wtAwImVQPvQzytRVCZvI5103E4Mzo_pSB9r2X48ZIlDxFC39VYXCZ7aLzQgfeFdM1R
+ EQBH7uuU5V00ZGdHSExyN9zn1LzaWU8lvDDKb.GzviwCC0P.lMorpeqI.ImEjy3yYFmLuEb4BwF1
+ 82hahZ34xxh5LABTLVC_t41cF32wCD_WkvY3R6NsBQ4munuN_YbQt7MqMCJvnbDb_Gpjuiouyb.7
+ XWXgnj3I55SmSc0RfLcdv4WdsNlFab9RIWb2Y8AKrlm_5fZPQT1aZqI16r.2dhRVE50fLC2bwjIo
+ bmfe.If0yKWQVqFP8YN5NMNJj3ya54iM1UmpvppjpwkVBtycIDtxM9_qBthUJXYSoSquaeCWA4cC
+ QNaDFanvKi3IpmtsXZbejlc3yBTIdLyydbujd4XY.XXSycFoYl1ms5NSGQoNoDH7Kdadno4JeXIc
+ e1dypFJNQVjw6i6GcWMX6Lu9NTkco7eIRQe.7Y4FrLiBH57a6Ctu6xR7HmYIaU2SHs3TqZIYvVTv
+ 6tE1s17Jcjf2msKvCxAu16rB2Urs1BAr8jKEBBe6XZr_s8iy80twFxUZ1HPq4QCNPuNN0Nkj_fKE
+ sqqifBqi3APWQ4DzBQk_fXF2cUE5HfPaCJfJ32rm61FNreN3PLIg_HyN2AFyK2dHr.o.zW5SmWew
+ C.Rj6lXul0fojVxKThw0wDgTpVJwDNpZEwZFozpsc3aXSakgb12skOI48nPYMw0Fc9nFU.6sy.Wc
+ LJfy8ptfDBYgPswkJOjIsrYoBDvonUFmxf2Se_eAaMTKU7G1Db3FVEY2QJnlp9EcLAKJwKNe1.BH
+ qdyJi2dF9jNVs4Yrhir01N2tdbCvcBtlkBOTfjkHdgnGpD4cuWWv.Gh8Itcpv2DIecVOU1ylCOJT
+ 5s2EbBDslVCX6PKOpGzC7UOf_bw2IoLjmlRzlDzocrz3t_9V78ww7o4pMZo39wspDNkvzMB4ik67
+ VPBSxR3ncc4rwnw--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Fri, 19 Apr 2019 00:49:00 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp432.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 406f9efc49df2aab5b39f3872aa73829;
-          Fri, 19 Apr 2019 00:48:56 +0000 (UTC)
+          Fri, 19 Apr 2019 00:48:57 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com
-Subject: [PATCH 68/90] LSM: Support multiple LSMs using inode_init_security
-Date:   Thu, 18 Apr 2019 17:45:55 -0700
-Message-Id: <20190419004617.64627-69-casey@schaufler-ca.com>
+Subject: [PATCH 69/90] LSM: Use full security context in security_inode_setsecctx
+Date:   Thu, 18 Apr 2019 17:45:56 -0700
+Message-Id: <20190419004617.64627-70-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190419004617.64627-1-casey@schaufler-ca.com>
 References: <20190419004617.64627-1-casey@schaufler-ca.com>
@@ -58,81 +58,158 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Refactor security_inode_init_security() so that it can
-do the integrity processing for more than one LSM.
+The security hooks security_inode_setsecctx and security_inode_getsecctx
+need to maintain the context strings for any and all LSMs that
+provide contexts. This information is internal to the kernel
+and volitile. If only one LSM uses this information the raw form is
+used.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/security.c | 48 +++++++++++++++++++++++++++------------------
- 1 file changed, 29 insertions(+), 19 deletions(-)
+ security/security.c | 110 +++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 108 insertions(+), 2 deletions(-)
 
 diff --git a/security/security.c b/security/security.c
-index 0c749816fb7b..b8c90e7c4554 100644
+index b8c90e7c4554..05a19b28e105 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -1064,9 +1064,10 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
- 				 const struct qstr *qstr,
- 				 const initxattrs initxattrs, void *fs_data)
+@@ -425,6 +425,9 @@ static int lsm_append(char *new, char **result)
+ /* Base list of once-only hooks */
+ struct lsm_one_hooks lsm_base_one;
+ 
++/* Count of inode_[gs]etsecctx hooks */
++static int lsm_inode_secctx_count;
++
+ /**
+  * security_add_hooks - Add a modules hooks to the hook lists.
+  * @hooks: the hooks to add
+@@ -442,6 +445,15 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+ 		hooks[i].lsm = lsm;
+ 		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
+ 
++		/*
++		 * Keep count of the internal security context using hooks.
++		 * Assume that there is a 1:1 mapping from inode_getsecctx
++		 * to inode_setsecctx in the security modules.
++		 */
++		if (hooks[i].head == &security_hook_heads.inode_getsecctx) {
++			lsm_inode_secctx_count++;
++			continue;
++		}
+ 		/*
+ 		 * Check for the special hooks that are restricted to
+ 		 * a single module to create the base set. Use the hooks
+@@ -2150,15 +2162,109 @@ int security_inode_notifysecctx(struct inode *inode, struct lsm_context *cp)
+ }
+ EXPORT_SYMBOL(security_inode_notifysecctx);
+ 
++/*
++ * The inode_[gs]etsecctx functions need to proved a context
++ * for multiple security modules. If there is more than one
++ * LSM supplying hooks the format will be
++ *	lsm1='value',lsm2='value'[,lsmN='value']...
++ */
++static void lsm_release_secctx(struct lsm_context *cp)
++{
++	kfree(cp->context);
++}
++
+ int security_inode_setsecctx(struct dentry *dentry, struct lsm_context *cp)
  {
--	struct xattr new_xattrs[MAX_LSM_EVM_XATTR + 1];
--	struct xattr *lsm_xattr, *evm_xattr, *xattr;
--	int ret;
-+	struct security_hook_list *p;
-+	struct xattr *repo;
-+	int rc;
-+	int i;
- 
- 	if (unlikely(IS_PRIVATE(inode)))
- 		return 0;
-@@ -1074,24 +1075,33 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
- 	if (!initxattrs)
- 		return call_int_hook(inode_init_security, -EOPNOTSUPP, inode,
- 				     dir, qstr, NULL, NULL, NULL);
--	memset(new_xattrs, 0, sizeof(new_xattrs));
--	lsm_xattr = new_xattrs;
--	ret = call_int_hook(inode_init_security, -EOPNOTSUPP, inode, dir, qstr,
--						&lsm_xattr->name,
--						&lsm_xattr->value,
--						&lsm_xattr->value_len);
--	if (ret)
--		goto out;
- 
--	evm_xattr = lsm_xattr + 1;
--	ret = evm_inode_init_security(inode, lsm_xattr, evm_xattr);
--	if (ret)
--		goto out;
--	ret = initxattrs(inode, new_xattrs, fs_data);
-+	repo = kzalloc((LSM_COUNT * 2) * sizeof(*repo), GFP_NOFS);
-+	if (repo == NULL)
+-	return call_int_hook(inode_setsecctx, 0, dentry, cp);
++	struct security_hook_list *hp;
++	struct lsm_context lc;
++	char *full;
++	char *ctx;
++	char *quote;
++	int rc = 0;
++
++	if (lsm_inode_secctx_count <= 1)
++		return call_int_hook(inode_setsecctx, 0, dentry, cp);
++
++	full = kstrndup(cp->context, cp->len, GFP_KERNEL);
++	if (full == NULL)
 +		return -ENOMEM;
 +
-+	i = 0;
-+	rc = -EOPNOTSUPP;
-+	hlist_for_each_entry(p, &security_hook_heads.inode_init_security,
-+			     list) {
-+		rc = p->hook.inode_init_security(inode, dir, qstr,
-+						 &repo[i].name, &repo[i].value,
-+						 &repo[i].value_len);
-+		if (rc)
-+			goto out;
++	ctx = full;
++	hlist_for_each_entry(hp, &security_hook_heads.inode_setsecctx, list) {
++		if (strncmp(ctx, hp->lsm, strlen(hp->lsm))) {
++			WARN_ONCE(1, "security_inode_setsecctx form1 error\n");
++			rc = -EINVAL;
++			break;
++		}
++		ctx += strlen(hp->lsm);
++		if (ctx[0] != '=' || ctx[1] != '\'') {
++			WARN_ONCE(1, "security_inode_setsecctx form2 error\n");
++			rc = -EINVAL;
++			break;
++		}
++		ctx += 2;
++		quote = strnchr(ctx, cp->len, '\'');
++		if (quote == NULL) {
++			WARN_ONCE(1, "security_inode_setsecctx form3 error\n");
++			rc = -EINVAL;
++			break;
++		}
++		quote[0] = '\0';
++		if (quote[1] != ',' && quote[1] != '\0') {
++			WARN_ONCE(1, "security_inode_setsecctx form4 error\n");
++			rc = -EINVAL;
++			break;
++		}
++		lc.context = ctx;
++		lc.len = strlen(ctx);
 +
-+		rc = evm_inode_init_security(inode, &repo[i], &repo[i + 1]);
-+		if (rc)
-+			goto out;
++		ctx = quote + 2;
 +
-+		i += 2;
++		rc = hp->hook.inode_setsecctx(dentry, &lc);
++		if (rc)
++			break;
 +	}
-+	rc = initxattrs(inode, repo, fs_data);
- out:
--	for (xattr = new_xattrs; xattr->value != NULL; xattr++)
--		kfree(xattr->value);
--	return (ret == -EOPNOTSUPP) ? 0 : ret;
-+	for (i-- ; i >= 0; i--)
-+		kfree(repo[i].value);
-+	kfree(repo);
-+	return (rc == -EOPNOTSUPP) ? 0 : rc;
++
++	kfree(full);
++	return rc;
  }
- EXPORT_SYMBOL(security_inode_init_security);
+ EXPORT_SYMBOL(security_inode_setsecctx);
+ 
+ int security_inode_getsecctx(struct inode *inode, struct lsm_context *cp)
+ {
+-	return call_int_hook(inode_getsecctx, -EOPNOTSUPP, inode, cp);
++	struct security_hook_list *hp;
++	struct lsm_context lc;
++	char *final = NULL;
++	char *tp;
++	int rc;
++
++	if (lsm_inode_secctx_count <= 1)
++		return call_int_hook(inode_getsecctx, -EOPNOTSUPP, inode, cp);
++
++	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecctx, list) {
++		rc = hp->hook.inode_getsecctx(inode, &lc);
++		if (rc) {
++			kfree(final);
++			return rc;
++		}
++		if (final) {
++			tp = kasprintf(GFP_KERNEL, "%s,%s='%s'", final,
++				       hp->lsm, lc.context);
++			kfree(final);
++		} else
++			tp = kasprintf(GFP_KERNEL, "%s='%s'", hp->lsm,
++				       lc.context);
++		security_release_secctx(&lc);
++		if (tp == NULL) {
++			kfree(final);
++			return -ENOMEM;
++		}
++		final = tp;
++	}
++	cp->context = final;
++	cp->len = strlen(final);
++	cp->release = lsm_release_secctx;
++	return 0;
+ }
+ EXPORT_SYMBOL(security_inode_getsecctx);
  
 -- 
 2.19.1
