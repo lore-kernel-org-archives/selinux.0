@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A97A1C10F14
-	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:48:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6893C10F14
+	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:48:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 745B221736
-	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:48:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A25A121736
+	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 00:48:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="eWrPBUW5"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Re7C7IxA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfDSAsp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Apr 2019 20:48:45 -0400
-Received: from sonic317-33.consmr.mail.bf2.yahoo.com ([74.6.129.88]:35673 "EHLO
-        sonic317-33.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726759AbfDSAsp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 20:48:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1555634923; bh=IGbdibcUV8Ae5bpYVLlCyrn2lcUru6UOWag6V1sFgNk=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=eWrPBUW5yTSFjkAabaAUX7nWTmsNrAgsFbkrVdWZ56zXK5ZHr4D95/eDJEAHuiNRxxrlPhOgNixMaH6SZbSi7p0o7oGEpgJRjU9vb4gVZvJMbv+y6uSuW5VBshhhSbvKRuymELIxW9CcuHppSGG1ilqsPw4nfIxYr9fkxc8MOEytwjftre/jVVN2NV6Pm2qqE2hE3Q1+MnPMGrZHt2KlsflZLuvRZh0uIazbqLiSD626OFeTdiUH0/XznYALcz2q5/ytSQLzpqI4LRT51jvFxq6JKEaEi0jW0RDe7sBv4Jitk2QKBNGKMb/JMtJ/U3qX5oSaz1U44tXT8e2M3BKxaQ==
-X-YMail-OSG: qJtbDJgVM1kuXEBvY_gyA594Qy04sC.qVfzAo8z8xcJDtJx.cnKTkXvXLKA9XIL
- BLljZ6YQFmj_XEC96n6q7ZsPE.7NZxHvm7p058_10p1EhyiAvCIt8KRMC4ZFO29NrTn4FLxxrY7c
- 0wWE65MgSGX1ODTrIK0nECqB9.XkwPK0Wk8t42q4z9vjInX4sOHE2mho_HDec0TCBQSDK1WtAu2O
- B4gzz4q1sc37_5mrbpTw2kPh3TLPXmH6BWW2Dg0ktXI7BMCen35sMrx23Yksfa6opHqS2Migb4BC
- 08FMJpVx27LMmLvHxWtrRXf7xlcF4dfIlCo9H6rHTh.T.Tof_ot0BDL8hrb8KkVpryib8fG0cxmF
- MCaVuuTJyYuY1Runs2G7J_lsSui0hsr7mFEQmQ6WnIEy.LRV4miXtLULbPJMVEIMrfo1frfwZdrq
- B6kmXwD87NOx7oN0g4BKmswa9VISoUZBDNGfgBBOtKvZwBvFTSeOXqulPS7w3wLBeSIKhGDiCzRF
- .vPx5z7ZtTe2WsxHEb.akoWgTk1aNUClG2.hNhexZou9EVy9Bq9lbuvOogkDUIZTSB12G4kMQRSH
- jo1iZJVUA0Re9QkASUPdc6SNcGxQiwGMi4E6wKicklh3qWs7FFLdOBlDocG9Y5jRRcqZk4Apfo_k
- NHzY2embLqrT1Z.9G0IuL2lHC_CkgWLlWI5wqtqhcNna4IDk44lmVNKUJppWfeQ3IfNfMH15jLt8
- hbndwlV3BK1gifW9jcN57prnoM_OqJnwtD5yAUPs2XSy71sgIVGiLDC8rpv7m3sZEKv8.amqyFLu
- t3QJ1qhruvb2rX1Nj6wriHyhs71epV39.6FTIiPry3GAN8NU8UAFaC.Ri6hUEvKHAqrk1aSaCn5o
- D0svfjylllICxG1z.jEMSc0dO11kAJSgS_fBzNI46KN2fFwZAavhyGIlGXcyZ_oCO.KfEBCHRW.s
- HMb4q7gv.CqkmzutrxM0hairssO9NOlUZ9FG679GGKCt61I1x5jR6UuMv4t.0u6kK65AI3IGH8YU
- DB46bFfCSVFIdSOSEcQlHB42mXTrnWRlzHTq0_Vtj_Y9ekp9dC9u9hw.u5ww5c71jlFuxAd2Bdss
- oa3V0IC.bLFTIXcDgYMJmoqH_FsLsHo35uaVD8lmLY5dLMGaCdtWE9F6Fy60ZOQaJMIMHYUzRILl
- x_LKTkd9ke17QKA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.bf2.yahoo.com with HTTP; Fri, 19 Apr 2019 00:48:43 +0000
+        id S1726974AbfDSAsq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Apr 2019 20:48:46 -0400
+Received: from sonic310-23.consmr.mail.bf2.yahoo.com ([74.6.135.197]:36046
+        "EHLO sonic310-23.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727001AbfDSAsq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Apr 2019 20:48:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1555634924; bh=j4aETVrf26rqIvvvKKp8/4QjDq2yhMOHprRedhXorzg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Re7C7IxAY7CN2uDVEzC7pVgD+FeBikIfBGHn3WZ6t4BdqkGAcHtJRTRZuZz0+u5MbR7Ec2U6teMq3VabbGXVba/s/sLi5amWpviv5SS732q1YL2qe5tJ0GX+RsK8yfOxXH3BMMmPhMVefTEzyV4lgCYp9YZg//FI2NGSNWGvJHCroGGHuCcqLHE50OzLwq0ZpuFCWFNNqXeVg0WbxJ/6pU0cPGI/oWIUHj4T3WmSkg69O3k+Yhu852Alp1/ZyZj47KnXbCNeEe/TWAPglaMo+ThVxHhou80ja/2uEIVEJGPlpEWakK43C6DSHJVLfFq6VX3LI6jPjswwlcl7R0y7kg==
+X-YMail-OSG: uWIX0pcVM1nkkPjxqKDAABlub7KxatRIV4QoYQqu6FRNeMe_JU75pbMvLtPLhen
+ bqgfOXop86q9ZkVlLUQHczW768NbXAgfiYFij0JMTqBIOB66mw9Rs57ZWbsBMIgxeYLgQfW0ZhLL
+ fbTM5yPHUOcAsUNDDeQSciHDVS7Rir1uo30Ru3Bi3VjYMkujNNS.eigtLJfIaalYA7bDkiOc5sEC
+ SYdcTAqGiqY2nRt_qBtKN9KhL9UccAmShEhP3tsap8DX1bv5tQwWeHUU7ltELvKfZdJZYExXwmiA
+ 8dSxOepP9uboJaSVtuBS3K9SMQLeRraYIi.LsXIIPhSi3hXlZELK_b3h.tXHn.u5Uf.ZrcA63Dkx
+ F55CEiN2_BzRFlunZZ9PcKZvr09Kav_cCL5tgkof8I8yjE..f8Omyu1DxT2HAZ7xfkwaGiAtyxcN
+ 3vfjFF4jb38n5h7gfrbsM9Mf5HyjmmvjyBNe3sYGnO0KPTHsfIpu4LNdo9p0kEW9LegkxaucmvYt
+ fjE8LvnbZvASw8gwhPl2FMqKNUSYlJMIHiS3IOulHSHBQz0UQurhi.1r_jNutxkCOoUTJ12epu7G
+ vvc2zSuH4AXfDoYE76LIYJJYrVvdY7wDy0Xf0UzEzmEfdmKbG2832cnBmDFB.eDb3UqlUUNwHFeJ
+ VSLKGH11KoRTtOjmWcoZiX0J4EhetLptN6AkB7VG23z77sndtTnyvVJO_Rw5JPRQToYzMOEY6IUx
+ y4k2ht9jkNksNI7H6UylUzEX_be0Fb1SQ7TY35z0YQLCCOsf.PlELuNXL6lcshmco3YrTIna7AXJ
+ wabN2MKcqfn5CK6LNHVl.mPs.tDjQzEhIOe1jfu7r8ywKsZU2A.CJj_k9Py3qd26_XbPtXgdbMwP
+ Jb4MgSeCm9.eap76456Uizkf.4l9Mx4U0cGGBzFzXvMXjTopUHl_bqDt5cvydl9WFrijwd9Y.6pZ
+ 1oGrF4keEqrb1zT8mxP4Naxt787CfyRz_ZlCx2fn4IZGDXRt24JG51nakeXO.98cAc5VWZWPxRyq
+ fbkJQjHFtiElXFjcpNJXd87Dvhzd3DDz7.6B5YglpfeDmLJbPmoxoKeJ_oH0JRMYycs.W7xgOOHB
+ hm0Xr2_q_qKCJV145f0ePu5YpUKjfb4E83p0AK4rlXAomkrszBaurm.pYwi7lw36gmqGK5lHlVeK
+ JT4wEvBIh1BUb
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Fri, 19 Apr 2019 00:48:44 +0000
 Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([67.169.65.224])
           by smtp415.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 33cedab91c06b09a1d8646eb41267569;
-          Fri, 19 Apr 2019 00:48:42 +0000 (UTC)
+          Fri, 19 Apr 2019 00:48:41 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com
-Subject: [PATCH 61/90] LSM: Make getting the secmark right cleaner
-Date:   Thu, 18 Apr 2019 17:45:48 -0700
-Message-Id: <20190419004617.64627-62-casey@schaufler-ca.com>
+Subject: [PATCH 60/90] LSM: Add secmark_relabel_packet to the set of one call hooks
+Date:   Thu, 18 Apr 2019 17:45:47 -0700
+Message-Id: <20190419004617.64627-61-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.17.0
 In-Reply-To: <20190419004617.64627-1-casey@schaufler-ca.com>
 References: <20190419004617.64627-1-casey@schaufler-ca.com>
@@ -58,81 +58,86 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Getting the u32 secmark from the result of security_secctx_to_secid()
-requires knowledge about which LSM interpreted the context. Add a
-function lsm_export_one_secid() that finds the active secid in a
-lsm_export structure. Use it in secmark processing.
+The secmark_relabel_packet hooks are dependent on the results
+of secctx_to_secid hooks. Add secmark_relabel_packet to the set
+of one call hooks, as the secid use will always match the
+LSM providing the secid.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/security.h   | 16 ++++++++++++++++
- net/netfilter/nft_meta.c   |  7 +------
- net/netfilter/xt_SECMARK.c |  7 +------
- 3 files changed, 18 insertions(+), 12 deletions(-)
+ include/linux/lsm_hooks.h |  1 +
+ security/security.c       | 18 +++++++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 0be6eadd0110..8eb849d71e9d 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -117,6 +117,22 @@ static inline bool lsm_export_equal(struct lsm_export *l, struct lsm_export *m)
- 	return true;
- }
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 0653f295897a..711f9b3eb265 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2048,6 +2048,7 @@ struct lsm_one_hooks {
+ 	union security_list_options secid_to_secctx;
+ 	union security_list_options secctx_to_secid;
+ 	union security_list_options socket_getpeersec_stream;
++	union security_list_options secmark_relabel_packet;
+ };
  
-+/*
-+ * After calling security_secctx_to_secid() one, and only one
-+ * of the LSM fields will be set in the lsm_export. Return
-+ * whichever one was set. Used to supply secmarks.
-+ */
-+static inline u32 lsm_export_one_secid(struct lsm_export *l)
-+{
-+	if (l->flags & LSM_EXPORT_SELINUX)
-+		return l->selinux;
-+	if (l->flags & LSM_EXPORT_SMACK)
-+		return l->smack;
-+	if (l->flags & LSM_EXPORT_APPARMOR)
-+		return l->apparmor;
-+	return 0;
-+}
-+
- /* Text representation of LSM specific security information - a "context" */
- struct lsm_context {
- 	char	*context;
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index f25b26318d72..ef8db0fb0af1 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -588,12 +588,7 @@ static int nft_secmark_compute_secid(struct nft_secmark *priv)
- 	if (err)
- 		return err;
+ /*
+diff --git a/security/security.c b/security/security.c
+index 4af99077572d..f99845aae595 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -456,6 +456,9 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+ 		else if (hooks[i].head ==
+ 				&security_hook_heads.socket_getpeersec_stream)
+ 			lsm_base_one.socket_getpeersec_stream = hooks[i].hook;
++		else if (hooks[i].head ==
++				&security_hook_heads.secmark_relabel_packet)
++			lsm_base_one.secmark_relabel_packet = hooks[i].hook;
+ 		else
+ 			continue;
+ 		if (lsm_base_one.lsm == NULL)
+@@ -2006,6 +2009,7 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+ 		union security_list_options secid_to_secctx;
+ 		union security_list_options secctx_to_secid;
+ 		union security_list_options socket_getpeersec_stream;
++		union security_list_options secmark_relabel_packet;
  
--	/* Use the "best" secid */
--	if (le.selinux)
--		tmp_secid = le.selinux;
--	else
--		tmp_secid = le.smack;
--
-+	tmp_secid = lsm_export_one_secid(&le);
- 	if (!tmp_secid)
- 		return -ENOENT;
+ 		if (size == 0 || size >= 100)
+ 			return -EINVAL;
+@@ -2041,6 +2045,17 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+ 				break;
+ 			}
+ 		}
++		secmark_relabel_packet.secmark_relabel_packet = NULL;
++		hlist_for_each_entry(hp,
++				&security_hook_heads.secmark_relabel_packet,
++				     list) {
++			if (size >= strlen(hp->lsm) &&
++			    !strncmp(value, hp->lsm, size)) {
++				secmark_relabel_packet = hp->hook;
++				found = true;
++				break;
++			}
++		}
+ 		if (!found)
+ 			return -EINVAL;
  
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index a06e50535194..b20753957e8d 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -67,12 +67,7 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
- 		return err;
+@@ -2059,6 +2074,7 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+ 		loh->secid_to_secctx = secid_to_secctx;
+ 		loh->secctx_to_secid = secctx_to_secid;
+ 		loh->socket_getpeersec_stream = socket_getpeersec_stream;
++		loh->secmark_relabel_packet = secmark_relabel_packet;
+ 
+ 		return size;
  	}
+@@ -2305,7 +2321,7 @@ EXPORT_SYMBOL(security_inet_conn_established);
  
--	/* Smack is cheating, using SECMARK_MODE_SEL */
--	if (le.selinux)
--		info->secid = le.selinux;
--	else
--		info->secid = le.smack;
--
-+	info->secid = lsm_export_one_secid(&le);
- 	if (!info->secid) {
- 		pr_info_ratelimited("unable to map security context \'%s\'\n",
- 				    info->secctx);
+ int security_secmark_relabel_packet(u32 secid)
+ {
+-	return call_int_hook(secmark_relabel_packet, 0, secid);
++	return call_one_int_hook(secmark_relabel_packet, 0, secid);
+ }
+ EXPORT_SYMBOL(security_secmark_relabel_packet);
+ 
 -- 
 2.19.1
 
