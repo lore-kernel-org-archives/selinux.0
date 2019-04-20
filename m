@@ -1,127 +1,154 @@
-Return-Path: <SRS0=c/u7=SV=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=pRne=SW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C9E4EC282E1
-	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 22:45:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B0AEC282DD
+	for <selinux@archiver.kernel.org>; Sat, 20 Apr 2019 07:39:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A0D9C217F9
-	for <selinux@archiver.kernel.org>; Fri, 19 Apr 2019 22:45:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E3804208C0
+	for <selinux@archiver.kernel.org>; Sat, 20 Apr 2019 07:39:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726445AbfDSWpd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 19 Apr 2019 18:45:33 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:46987 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726307AbfDSWpd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 19 Apr 2019 18:45:33 -0400
-Received: from static-50-53-47-167.bvtn.or.frontiernet.net ([50.53.47.167] helo=[192.168.192.153])
-        by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_128_CBC_SHA1:16)
-        (Exim 4.76)
-        (envelope-from <john.johansen@canonical.com>)
-        id 1hHYnc-00069g-PC; Fri, 19 Apr 2019 19:03:48 +0000
-Subject: Re: [PATCH] proc: prevent changes to overridden credentials
-To:     Paul Moore <paul@paul-moore.com>,
-        linux-security-module@vger.kernel.org
-Cc:     selinux@vger.kernel.org, cj.chengjian@huawei.com,
-        casey@schaufler-ca.com
-References: <155570011247.27135.12509150054846153288.stgit@chester>
-From:   John Johansen <john.johansen@canonical.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Canonical
-Message-ID: <db75e673-0723-7052-bdd2-a5ddff2a6c79@canonical.com>
-Date:   Fri, 19 Apr 2019 12:03:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726077AbfDTHjK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 20 Apr 2019 03:39:10 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:34656 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725863AbfDTHjK (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sat, 20 Apr 2019 03:39:10 -0400
+Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id D92EC885BE359E474BB9;
+        Sat, 20 Apr 2019 15:39:05 +0800 (CST)
+Received: from [127.0.0.1] (10.177.19.219) by DGGEMS403-HUB.china.huawei.com
+ (10.3.19.203) with Microsoft SMTP Server id 14.3.408.0; Sat, 20 Apr 2019
+ 15:38:57 +0800
+Subject: Re: kernel BUG at kernel/cred.c:434!
+To:     Paul Moore <paul@paul-moore.com>
+References: <b1575d02-fd88-65e6-2f16-70a96985087e@schaufler-ca.com>
+ <CAHC9VhQ7ihqU0K57ctwzoHq0t0QVJPKiQQZn5TXB1FUqsvOSEQ@mail.gmail.com>
+ <20190415150520.GA13257@redhat.com>
+ <CAHC9VhSk1_fWooexHK0+5cKum55qTvj3uv5sRE=aJ4mv2GHJZg@mail.gmail.com>
+ <CAGXu5jKYmoaR6bxW82ogN4iOeKi8AtEwkvVvCXd_gn3CCwFU2Q@mail.gmail.com>
+ <fa325d38-db66-0ae7-0a6c-75934a9b0653@huawei.com>
+ <CAHC9VhSpnSpYLLOcFUFLM=UU8tUTLAzJYb2NgdbN-nLPrh=55g@mail.gmail.com>
+ <20190417145711.GI32622@redhat.com>
+ <CAHC9VhSzo4DsMRknOA-4KKYJEir0wW74+quLheTjRw94OmhscA@mail.gmail.com>
+ <20190417162723.GK32622@redhat.com>
+ <CAHC9VhT_nk1jmrTj3W=F+1gP1vU3iZsZ=UGOCwdiBLbUsOc9=w@mail.gmail.com>
+ <0ca3f4cf-5c64-2fc0-1885-9dbcca2f4b47@schaufler-ca.com>
+ <5CB7E5D4.2060703@huawei.com>
+ <CAHC9VhQkrR+m9_dYLg4VG-26TdUnf8XFjbmuVQ70YCOp6DhN_g@mail.gmail.com>
+ <5CB933C4.7000300@huawei.com>
+ <CAHC9VhTdJ6uUOjyxrk=+iOkKe=VN+N9DMPtV=OchAY34x95g=w@mail.gmail.com>
+ <5CB9DC75.7010600@huawei.com>
+ <CAHC9VhQqxL+LsK8YTD6PpTHaZsZ-PxAq3atdZKQcZLQZQH7t4g@mail.gmail.com>
+CC:     Casey Schaufler <casey@schaufler-ca.com>,
+        Oleg Nesterov <oleg@redhat.com>, <john.johansen@canonical.com>,
+        "chengjian (D)" <cj.chengjian@huawei.com>,
+        Kees Cook <keescook@chromium.org>, NeilBrown <neilb@suse.com>,
+        Anna Schumaker <Anna.Schumaker@netapp.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Xiexiuqi (Xie XiuQi)" <xiexiuqi@huawei.com>,
+        Li Bin <huawei.libin@huawei.com>,
+        "Jason Yan" <yanaijie@huawei.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        SELinux <selinux@vger.kernel.org>
+From:   Yang Yingliang <yangyingliang@huawei.com>
+Message-ID: <5CBACC8F.8010409@huawei.com>
+Date:   Sat, 20 Apr 2019 15:38:55 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101
+ Thunderbird/38.5.1
 MIME-Version: 1.0
-In-Reply-To: <155570011247.27135.12509150054846153288.stgit@chester>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
+In-Reply-To: <CAHC9VhQqxL+LsK8YTD6PpTHaZsZ-PxAq3atdZKQcZLQZQH7t4g@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.177.19.219]
+X-CFilter-Loop: Reflected
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/19/19 11:55 AM, Paul Moore wrote:
-> Prevent userspace from changing the the /proc/PID/attr values if the
-> task's credentials are currently overriden.  This not only makes sense
-> conceptually, it also prevents some really bizarre error cases caused
-> when trying to commit credentials to a task with overridden
-> credentials.
-> 
-> Cc: <stable@vger.kernel.org>
-> Reported-by: "chengjian (D)" <cj.chengjian@huawei.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-looks good
 
-Acked-by: John Johansen <john.johansen@canonical.com>
+On 2019/4/20 0:13, Paul Moore wrote:
+> On Fri, Apr 19, 2019 at 10:34 AM Yang Yingliang
+> <yangyingliang@huawei.com> wrote:
+>> On 2019/4/19 21:24, Paul Moore wrote:
+>>> On Thu, Apr 18, 2019 at 10:42 PM Yang Yingliang
+>>> <yangyingliang@huawei.com> wrote:
+>>>> On 2019/4/19 10:04, Paul Moore wrote:
+>>>>> On Wed, Apr 17, 2019 at 10:50 PM Yang Yingliang
+>>>>> <yangyingliang@huawei.com> wrote:
+>>>>>> On 2019/4/18 8:24, Casey Schaufler wrote:
+>>>>>>> On 4/17/2019 4:39 PM, Paul Moore wrote:
+>>>>>>>> Since it looks like all three LSMs which implement the setprocattr
+>>>>>>>> hook are vulnerable I'm open to the idea that proc_pid_attr_write() is
+>>>>>>>> a better choice for the cred != read_cred check, but I would want to
+>>>>>>>> make sure John and Casey are okay with that.
+>>>>>>>>
+>>>>>>>> John?
+>>>>>>>>
+>>>>>>>> Casey?
+>>>>>>> I'm fine with the change going into proc_pid_attr_write().
+>>>>>> The cred != real_cred checking is not enough.
+>>>>>>
+>>>>>> Consider this situation, when doing override, cred, real_cred and
+>>>>>> new_cred are all same:
+>>>>>>
+>>>>>> after override_creds()    cred == real_cred == new1_cred
+>>>>> I'm sorry, you've lost me.  After override_creds() returns
+>>>>> current->cred and current->real_cred are not going to be the same,
+>>>>> yes?
+>>>> It's possible the new  cred is equal to current->real_cred and
+>>>> current->cred,
+>>>> so after overrides_creds(), they have the same value.
+>>> Both task_struct.cred and task_struct.real_cred are pointer values,
+>>> assuming that one uses prepare_creds() to allocate/initialize a new
+>>> cred struct for use with override_creds() then the newly created cred
+>>> should never be equal to task_struct.real_cred.  Am I missing
+>>> something, or are you thinking of something else?
+>> In do_acct_process(), file->f_cred may equal to current->real_cred, I
+>> confirm
+>> it by adding some debug message in do_acct_process() like this:
+> I would expect that; real_cred is the task's objective DAC
+> credentials, so using it for f_cred makes sense.
+>
+> What we are now talking about is the task's subjective credentials,
+> which can be overridden via override_creds(), and are what the LSMs
+> change via proc_pid_attr_write().
+I'm not sure you got my point.
 
-> ---
->  fs/proc/base.c |    5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index ddef482f1334..87ba007b86db 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -2539,6 +2539,11 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
->  		rcu_read_unlock();
->  		return -EACCES;
->  	}
-> +	/* Prevent changes to overridden credentials. */
-> +	if (current_cred() != current_real_cred()) {
-> +		rcu_read_unlock();
-> +		return -EBUSY;
-> +	}
->  	rcu_read_unlock();
->  
->  	if (count > PAGE_SIZE)
-> 
+I was saying cred != real_cred check is not quite right, because the 
+cred can
+be overridden by a same pointer as my print messages showing.
+
+"cred != real_cred" means override_creds() is called, but "cred == 
+real_cred"
+doesn't mean override_creds() is not called.
+
+When we use "cred != real_cred" check, we may lost the situation that cred
+is overridden by a same pointer. In this case, we will do 
+override_creds() =>
+commit_creds() => revert_creds(), this make cred != real_cred, when a new
+commit_creds() is called, it also will trigger a BUG_ON().
+>
+>> --- a/kernel/acct.c
+>> +++ b/kernel/acct.c
+>> @@ -481,6 +481,7 @@ static void do_acct_process(struct bsd_acct_struct
+>> *acct)
+>>           flim = current->signal->rlim[RLIMIT_FSIZE].rlim_cur;
+>>           current->signal->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
+>>           /* Perform file operations on behalf of whoever enabled
+>> accounting */
+>> +       pr_info("task:%px new cred:%px real cred:%px cred:%px\n",
+>> current, file->f_cred, current->real_cred, current->cred);
+>>           orig_cred = override_creds(file->f_cred);
+
 
