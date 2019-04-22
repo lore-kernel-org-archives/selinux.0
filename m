@@ -2,86 +2,198 @@ Return-Path: <SRS0=kuKh=SY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C607C10F11
-	for <selinux@archiver.kernel.org>; Mon, 22 Apr 2019 20:45:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84408C10F11
+	for <selinux@archiver.kernel.org>; Mon, 22 Apr 2019 21:00:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BE980206A3
-	for <selinux@archiver.kernel.org>; Mon, 22 Apr 2019 20:45:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E4B320896
+	for <selinux@archiver.kernel.org>; Mon, 22 Apr 2019 21:00:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="aLpmJPMa"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VATpkTOI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728635AbfDVUpN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Apr 2019 16:45:13 -0400
-Received: from sonic302-28.consmr.mail.ne1.yahoo.com ([66.163.186.154]:45273
-        "EHLO sonic302-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726943AbfDVUpN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 22 Apr 2019 16:45:13 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1555965911; bh=ICb79giFhCXz8y3j7C1aRtB9+ni1Rx2eAzxOh8Xq09o=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=aLpmJPMadl6UVCF1b8QF5VCmSDCmSkTD2TpMWyYGIvsd6YRZgkW0PMGKjZoEKZ43ycXcVQE+wNyP9Sysnc+VWd0qVkLWvs/jbM/4CJDHp6BMcAEKke8Z5wIsvHmY2wjPlrQqmqrNrcA1LjwCteZryBtldP6byQlx8MCYCP1FHZXol3Pxr8CJfcj4RtT6opUIj5gEdG/Psfwba6q3fqySpHmXtZ72y1TqkAg0veR2yZtwNp0BIn3wF/wUUTdWX1oKIKK/hJFR6UjG3F5s/cgphrN/WD8qtNxuMyIZV9LaXFfkDEoUUtHogDXKwp5lVM4krZBY1Av2GZZRVSB4toMZSA==
-X-YMail-OSG: NidLUq4VM1kit8OuwPHodc41JAydY1VxdaDKUasCTzS95CJfFIqMDBJIeluiqcK
- x7CkGeWXWKxKSU1A9oHUtO9VXDdH5SGhD_7I9De2aUw4Rl0eEvgZ6QMXj3lbJWYgKPXWjurxuO4U
- sqlT1V.XK4L3GP3Nxz1tjlFdEfUkUWqqw0OsWcWUKiR0OO94Ch6bYRx.wzNuQgG_cBbZC.LL0c7j
- dTdeq0Jzn4Vfc2bORRL3dVeUow29ahQ.Go6AMwjRsXjouBH3Z5wzRC8rtLOEAs1cA93PLi8Ur4.u
- TN37JUFmTMogk0tY7XB4xJLYrqlGYvwU6B81ORt261AHma3olsI0bnEFyf72isH_k0o1mib9hVP2
- 4QZPi51TCwPuXY1ochM1C8P9HBfJCxFqpkHFDF9W5GK6jDlDhqssy8AiJl6At.LPvcaCBUtJXUcK
- JeIuxBFBSirRl00htbzy7IsoxjvGuG7Ps1UW_SfJI0pteNuT7wWfsY9c2R13XdJUMia0Bod44XVR
- KDrEzxJdmOJ3oosmMEiuPDaTZM1mr5SqHm7tttH5fpsuYYFBeHmlJoE4.R7ysMx7TzQP4QHnk7xf
- SETgQE6.NcY.p7lAFS.cH0EyaX.t_JPQljsL4EW6sTZ0ihqYSijjs7607jTgu.GQaj5WZDVT.JK6
- zuOFCqzDQiVzkd0pr0eVSw7BI1d5rJTdnihiSjMw1cQa8AvEF_MMWeZRIsyGAPgk3gSeuu9ID3qy
- JcluM1uGpc90NXNlWeawFe2aic3lRS0rrnkL_JbV3d53DMuWCj1B9EdSnzsy2zw7oulEr9gvGKZ.
- nD.ruE3eA08voYmClhh091sEkKurJhfp4ADEHL4NEsThS4P0EZPFQVRV8CaWjxd9nU4mRyOsgAYx
- NffF5oRp7TxmvISOo8Q30T7UGi3jIYQhHJXWZIE5TqmD9TgwZHwcrr7uI.ddtkuRq0bJr7uQS3fH
- RicLFvd2pEC..3wtRSculuiAXLBl72jb5wTmHUFwqlruZWxn5_ClQ89F1h8Pb5TqArq7CrsRuRrL
- lHpgaZrLbCIxiNwXGExmGdDpWYGymKVLLAXqys8o0KqUtPqH4dnSF2nyng1Uh6me_DdPasqb.VdV
- _x_Vo60hmka19u5EO.0oxRwB9Fhz3GwOfEFuaJuvu
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.ne1.yahoo.com with HTTP; Mon, 22 Apr 2019 20:45:11 +0000
-Received: from c-67-169-65-224.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([67.169.65.224])
-          by smtp423.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 77c0449adc451cfe94ee60780f1cf6e6;
-          Mon, 22 Apr 2019 20:45:09 +0000 (UTC)
-Subject: Re: [PATCH 69/90] LSM: Use full security context in
- security_inode_setsecctx
-To:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc:     casey@schaufler-ca.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-References: <20190419004617.64627-1-casey@schaufler-ca.com>
- <20190419004617.64627-70-casey@schaufler-ca.com>
- <04b749f6-097e-4faf-dc87-7892db728e3b@I-love.SAKURA.ne.jp>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <57c13f30-2f24-cdc7-52a0-27d791ebe315@schaufler-ca.com>
-Date:   Mon, 22 Apr 2019 13:45:10 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1728866AbfDVVAq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Apr 2019 17:00:46 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:46064 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726896AbfDVVAq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 22 Apr 2019 17:00:46 -0400
+Received: by mail-ed1-f68.google.com with SMTP id k92so10554920edc.12;
+        Mon, 22 Apr 2019 14:00:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :user-agent;
+        bh=Qo3CRFIMaiF0yNVC2trLgFwP5GYCK2804PEPw9a+oQE=;
+        b=VATpkTOIfX2DATzIn279u1wFkg9zsNwpCWKfaXXRlpo1c5U7u2+OK1v4l+tzQhV1W4
+         +WROCEFyOZYu6eweNeUGZIMXWKc09c26llJYLxUk4uVDRQsWHSwEuuFhC2/TjOdkUX+B
+         E/UH4Iem9ayPnJy5KZQ7KGhxB1GekSn3owtCYO1J3pKbnGLpEBOGco5lYye0ZGvffIdq
+         YbnSuspk+Ni4ggklF9uB6RtLKL4V9TJHbkVdo28+aWUrIXfKQpTbA4u3opdSfv6p2ksM
+         IQZCmCq0TwjpCevYZvPbYLHtbcmSkugZTCPmGBZcj9Hv8nsTYsVk/8ZY0pZbCBwcAJRC
+         DXYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:user-agent;
+        bh=Qo3CRFIMaiF0yNVC2trLgFwP5GYCK2804PEPw9a+oQE=;
+        b=dtxaRdlU32i0tT2ycEoiHegLdW5Udq3D1gDVAJpRYRyxtuYJr2vvUET1mPGvqMD3tl
+         kzQc2huvmSRzQAQzZRgAjgi7U5gYK4t62M2ToKEHKan066NuJIQuuBH6HdZYtqkoxpKK
+         Seh17EJmq0tdNkVkU0EB0S8ep+AV4mYRXL8r5YfgpP/qmd+S8hnMbu02/nZqs4PYrk+R
+         ozvCSwW2Sw8mHtsr4GSwACdC7vCy/QQ8tO4iLePTiKyybt6ylFLbzFUN72ukHUvRg8o0
+         r4RK6Z1XsTAzQoiKlKGQtybarWYDappAN6ifGSK4KTzvqfRdV+Zo3aAfMq7alQ+WN25n
+         S1aA==
+X-Gm-Message-State: APjAAAV5QWJna3qkH9pM/hVbG3KYK+rCb/q5um7km2+Q/ADyDpCSo+bD
+        RjXj5UWInyN3+NwKR+RU4KEKCsUHlgw=
+X-Google-Smtp-Source: APXvYqwVWrPEWCAocRuom2zgPA6pkmniMIZG5k3dJroLlyLaM1xaJsCgtiWW0aGANRVRXuR+gXL7cw==
+X-Received: by 2002:aa7:c24d:: with SMTP id y13mr13250181edo.146.1555966843912;
+        Mon, 22 Apr 2019 14:00:43 -0700 (PDT)
+Received: from archlinux-i9 ([2a01:4f9:2b:2b84::2])
+        by smtp.gmail.com with ESMTPSA id l10sm2653474eda.8.2019.04.22.14.00.42
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 22 Apr 2019 14:00:43 -0700 (PDT)
+Date:   Mon, 22 Apr 2019 14:00:41 -0700
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: scripts/selinux build error in 4.14 after glibc update
+Message-ID: <20190422210041.GA21711@archlinux-i9>
 MIME-Version: 1.0
-In-Reply-To: <04b749f6-097e-4faf-dc87-7892db728e3b@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/22/2019 6:13 AM, Tetsuo Handa wrote:
-> On 2019/04/19 9:45, Casey Schaufler wrote:
->> +	hlist_for_each_entry(hp, &security_hook_heads.inode_setsecctx, list) {
->> +		if (strncmp(ctx, hp->lsm, strlen(hp->lsm))) {
->> +			WARN_ONCE(1, "security_inode_setsecctx form1 error\n");
->> +			rc = -EINVAL;
->> +			break;
->> +		}
-> Will you avoid using WARN*() ?
-> Since syzbot tests using panic_on_warn == 1, this WARN_ONCE() will act as panic().
+Hi all,
 
-If syzbot hits any of the WARN_ONCE()s in security_inode_setsecctx()
-I want it to panic and generate a report. A badly formatted inode secctx
-would indicate that kernfs isn't getting the string from
-security_inode_getsecctx() or that it is getting corrupted somehow. In
-either case, it would be a bug that needs fixing. I used WARN instead of
-BUG for the kernfs people, who might break something by accident.
+After a glibc update to 2.29, my 4.14 builds started failing like so:
 
-If there's a strong objection to WARN_ONCE() in general, I can pull it.
-  
+$ make -j$(nproc) defconfig bzImage
+HOSTCC  scripts/basic/fixdep
+  HOSTCC  scripts/kconfig/conf.o
+  SHIPPED scripts/kconfig/zconf.tab.c
+  SHIPPED scripts/kconfig/zconf.lex.c
+  HOSTCC  scripts/kconfig/zconf.tab.o
+  HOSTLD  scripts/kconfig/conf
+*** Default configuration is based on 'x86_64_defconfig'
+#
+# configuration written to .config
+#
+scripts/kconfig/conf  --silentoldconfig Kconfig
+  SYSTBL  arch/x86/include/generated/asm/syscalls_32.h
+  SYSHDR  arch/x86/include/generated/asm/unistd_32_ia32.h
+  SYSHDR  arch/x86/include/generated/asm/unistd_64_x32.h
+  SYSHDR  arch/x86/include/generated/uapi/asm/unistd_32.h
+  SYSHDR  arch/x86/include/generated/uapi/asm/unistd_64.h
+  SYSTBL  arch/x86/include/generated/asm/syscalls_64.h
+  SYSHDR  arch/x86/include/generated/uapi/asm/unistd_x32.h
+  CHK     include/config/kernel.release
+  CHK     include/generated/uapi/linux/version.h
+  UPD     include/generated/uapi/linux/version.h
+  DESCEND  objtool
+  HOSTCC   /home/nathan/cbl/linux-stable/tools/objtool/fixdep.o
+  HOSTLD   /home/nathan/cbl/linux-stable/tools/objtool/fixdep-in.o
+  LINK     /home/nathan/cbl/linux-stable/tools/objtool/fixdep
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/builtin-check.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/builtin-orc.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/check.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/orc_gen.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/orc_dump.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/elf.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/special.o
+  GEN      /home/nathan/cbl/linux-stable/tools/objtool/arch/x86/lib/inat-tables.c
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/objtool.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/libstring.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/str_error_r.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/exec-cmd.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/pager.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/help.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/parse-options.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/run-command.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/sigchain.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/subcmd-config.o
+  CC       /home/nathan/cbl/linux-stable/tools/objtool/arch/x86/decode.o
+  LD       /home/nathan/cbl/linux-stable/tools/objtool/libsubcmd-in.o
+  LD       /home/nathan/cbl/linux-stable/tools/objtool/arch/x86/objtool-in.o
+  LD       /home/nathan/cbl/linux-stable/tools/objtool/objtool-in.o
+  AR       /home/nathan/cbl/linux-stable/tools/objtool/libsubcmd.a
+  LINK     /home/nathan/cbl/linux-stable/tools/objtool/objtool
+  UPD     include/config/kernel.release
+  HOSTCC  arch/x86/tools/relocs_32.o
+  HOSTCC  arch/x86/tools/relocs_common.o
+  HOSTCC  arch/x86/tools/relocs_64.o
+  WRAP    arch/x86/include/generated/asm/dma-contiguous.h
+  WRAP    arch/x86/include/generated/asm/mcs_spinlock.h
+  WRAP    arch/x86/include/generated/asm/clkdev.h
+  WRAP    arch/x86/include/generated/asm/mm-arch-hooks.h
+  WRAP    arch/x86/include/generated/asm/early_ioremap.h
+  CHK     include/generated/utsrelease.h
+  UPD     include/generated/utsrelease.h
+  HOSTCC  scripts/kallsyms
+  HOSTCC  scripts/pnmtologo
+  HOSTCC  scripts/conmakehash
+  HOSTCC  scripts/sortextable
+  CC      scripts/mod/empty.o
+  CC      scripts/mod/devicetable-offsets.s
+  HOSTCC  scripts/mod/mk_elfconfig
+  HOSTCC  scripts/selinux/mdp/mdp
+  HOSTCC  scripts/selinux/genheaders/genheaders
+In file included from scripts/selinux/genheaders/genheaders.c:19:
+./security/selinux/include/classmap.h:245:2: error: #error New address family defined, please update secclass_map.
+ #error New address family defined, please update secclass_map.
+  ^~~~~
+make[4]: *** [scripts/Makefile.host:102: scripts/selinux/genheaders/genheaders] Error 1
+make[3]: *** [scripts/Makefile.build:585: scripts/selinux/genheaders] Error 2
+make[3]: *** Waiting for unfinished jobs....
+In file included from scripts/selinux/mdp/mdp.c:49:
+./security/selinux/include/classmap.h:245:2: error: #error New address family defined, please update secclass_map.
+ #error New address family defined, please update secclass_map.
+  ^~~~~
+make[4]: *** [scripts/Makefile.host:102: scripts/selinux/mdp/mdp] Error 1
+make[3]: *** [scripts/Makefile.build:585: scripts/selinux/mdp] Error 2
+make[2]: *** [scripts/Makefile.build:585: scripts/selinux] Error 2
+make[2]: *** Waiting for unfinished jobs....
+  HOSTLD  arch/x86/tools/relocs
+  CHK     scripts/mod/devicetable-offsets.h
+  UPD     scripts/mod/devicetable-offsets.h
+  MKELF   scripts/mod/elfconfig.h
+  HOSTCC  scripts/mod/modpost.o
+  HOSTCC  scripts/mod/file2alias.o
+  HOSTCC  scripts/mod/sumversion.o
+  CHK     include/generated/timeconst.h
+  CC      kernel/bounds.s
+  UPD     include/generated/timeconst.h
+  CHK     include/generated/bounds.h
+  UPD     include/generated/bounds.h
+  CC      arch/x86/kernel/asm-offsets.s
+  HOSTLD  scripts/mod/modpost
+make[1]: *** [Makefile:572: scripts] Error 2
+make[1]: *** Waiting for unfinished jobs....
+  CHK     include/generated/asm-offsets.h
+  UPD     include/generated/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+make: *** [Makefile:264: __build_one_by_one] Error 2
 
+This is due to commit c017c71ce09f ("selinux: include sys/socket.h in
+host programs to have PF_MAX") [1] in the kernel interacting poorly
+with glibc's commit 38b0593e9a ("Add PF_XDP, AF_XDP and SOL_XDP from
+Linux 4.18 to bits/socket.h.") [2]
+
+I am not really sure how this should be fixed or who is at fault but I
+didn't see it reported anywhere yet (I assume the kernel) and I feel
+more comfortable on the kernel mailing list than other bug trackers so
+here we are.
+
+[1]: https://git.kernel.org/linus/c017c71ce09f4c7a5378fccbec6a3d7e96b0c5c2
+[2]: https://sourceware.org/git/?p=glibc.git;a=commit;h=38b0593e9a862c3b35392a0f5b202696b8116aa3
+
+Thanks,
+Nathan
