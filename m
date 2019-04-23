@@ -6,105 +6,103 @@ X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E7DDC10F14
-	for <selinux@archiver.kernel.org>; Tue, 23 Apr 2019 13:43:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 12DBDC10F03
+	for <selinux@archiver.kernel.org>; Tue, 23 Apr 2019 16:47:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3168821773
-	for <selinux@archiver.kernel.org>; Tue, 23 Apr 2019 13:43:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D16BE21841
+	for <selinux@archiver.kernel.org>; Tue, 23 Apr 2019 16:47:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="D8AQUfJb"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="pZM7qywy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727725AbfDWNnW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Apr 2019 09:43:22 -0400
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:34722 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727673AbfDWNnW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Apr 2019 09:43:22 -0400
-Received: by mail-lj1-f194.google.com with SMTP id y16so2751810ljg.1
-        for <selinux@vger.kernel.org>; Tue, 23 Apr 2019 06:43:21 -0700 (PDT)
+        id S1728680AbfDWQrs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Apr 2019 12:47:48 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:43729 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728615AbfDWQrs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Apr 2019 12:47:48 -0400
+Received: by mail-lf1-f68.google.com with SMTP id i68so12301804lfi.10
+        for <selinux@vger.kernel.org>; Tue, 23 Apr 2019 09:47:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=85v3Amjq2HXZ2KZeuvLNC2xFUYG/wf0ssengDeUmeks=;
-        b=D8AQUfJbGAnfWvJbXUH2psBcRW17OaO4AiqjiWGDnclviZ0Kdu4KX0z1h8ySXiiGX6
-         7Yio3C1VPN4zBcwVLWEK3PRfNYysKcvlr4FsxgRFrHTsG5ZWOiQBu8gQUc+nx5b1YiXD
-         lA9a4nsj3/bR1XUSENekssx3j6bdXJwYN75+yof+sJCF4xEZ9KNhTJObYrw/XDYxvlCw
-         gbaPedZqXK2n2csLLe4OttXxd0UPSgFEU5y/mzx5z/0ggGCA7kCoNm0QdEkvmPHkJxPG
-         lP7o7CwOlP1rtFtOwIeIU5vgG2yAjP0daD23p7BXGVdB746yWUXK5F+SOypQ+WIcUnvJ
-         Z0yA==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=9IDGPct7n0X6gEY0Ft7+SYgAtRN6D88NdCnj4qhJNYI=;
+        b=pZM7qywyucfpIZMZDgkkSwvOQjUx54T3OOru6c+lE4a8nWNnjOwyeGH8jQuDwdVj2j
+         fL3iUZjCQMLJwaXM8JNNh8sL+ZN5B/IJQy6kR35nNCQb8ipEtaUqYqlt0BMERbTYn6oE
+         0jNzqdtqES0PgowHoSARfZeC4NwEsS/l2MDpaqQf/L001Z92krn4iAUKCOyXfFEmrdi6
+         aQ4fIFqy1Zj8RP52nyq1iKCAylJVM+6sxcvtxW+5K76ozL+sc3Vvkg0WdjWy8JL43UH0
+         5JDhmzSAwKGai778N58Py4wKVk5ON2pKLl+O8m2kDFl89/FE8soSMD+7aH5vAlTLof0s
+         Z97Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=85v3Amjq2HXZ2KZeuvLNC2xFUYG/wf0ssengDeUmeks=;
-        b=daHLag3Dt8JJkXblbp2kjmhC5eb/xx17T+tgcDaDxNa+Mz2Ji0RJTUOZV7O9BzhpAL
-         oZhvQb3/lDa0zEQlzNv5IPC9klxtSkYn/SZWoTZ14hpiF0iO9TgQVCEaJvmPGWvnHQvD
-         31TOPNA1wCx/IS2ZrHOQWhy33pVnYPf0OiM6caT3xetR6LcNm9EVNmxs7PznMSNkcsyz
-         jNLb/8Ab2bczq+3BmtPS2FNBU7ZOE5cyEt6N6Dz4uenyCi8F8UbEYUuo6r5gV1N9CVy5
-         sMBwZ5BIeV+ddo2Qv8iLbHZYPsMtJXLJVM4SaF7gfb6XUOFxwQ3d/BWb1dpSfC6VUEPb
-         TJiQ==
-X-Gm-Message-State: APjAAAU3pGuRQHlzeXeKTFCJehbrtQijdWqsTOi7e1hwuccIkNAasabb
-        ZdHff3jvgfSepujRXyiml8Tx5TVmGilpKm1vsmgc
-X-Google-Smtp-Source: APXvYqzYl/3ecbLLgku7EVW7oSq3VXHocfIn6AhYhdSz0o1SClaJaGwVRAkCSWyVhN8J0OwI1xgCm+bdLgVoR/1HIFk=
-X-Received: by 2002:a2e:5301:: with SMTP id h1mr13429199ljb.196.1556027000274;
- Tue, 23 Apr 2019 06:43:20 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=9IDGPct7n0X6gEY0Ft7+SYgAtRN6D88NdCnj4qhJNYI=;
+        b=jFmAPjj60owge/+QtcSK3SkdTQbxnfOy6BPVTn4ihi8Rb0Eo3+WGgqsXd2PMaUBmvv
+         EBk0zVfe+9bCMiZ9TBUUqvxVGMa87NnEZMXbTSoEllQL53PU+OLu2ki2UN39r+v2tsU1
+         /cpbP33BN+Q464Z4YJKE0W3D1OtutdG113ETRBU/NBtm3pUvu8h1CFO6cZgcdIJmfeQu
+         JLtoD3IlFU0syms7z1GxnM90PMjUGy9Dk7gamuIzhinL1X0xOAHlZMRIax8qjLW+AtTI
+         FNvB1CJxoobpHJQDN5lOceuc+e3lb7sVO7E7oNNKdCvchuhMT1wRAFsbuhcp98AzPPhU
+         iXfw==
+X-Gm-Message-State: APjAAAUjYW8XIvbh7vCbS6ugeWqAsq1NgooR+B8NR7Wrded76qOkvIxq
+        3r3ECTCBYSSP9V+D6PGu2W6G6Fx1BMeeMkmfD3oxd1i6lg==
+X-Google-Smtp-Source: APXvYqw6epChO5Xr7dhMGkmD1FSi3mVO4XtAGjVMIUZU8I7r3vM6ZPc3HL+m5730SUD8gokoU9yJQGhPmK3uq24ISoE=
+X-Received: by 2002:ac2:4119:: with SMTP id b25mr14426418lfi.72.1556038065299;
+ Tue, 23 Apr 2019 09:47:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190422210041.GA21711@archlinux-i9> <CAHC9VhTtz3OA3EchaZaAeg=DxoGoz_WFdj+Mi9nd9i+cmjmuJA@mail.gmail.com>
- <20190423132926.GK17719@sasha-vm>
-In-Reply-To: <20190423132926.GK17719@sasha-vm>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 23 Apr 2019 09:43:09 -0400
-Message-ID: <CAHC9VhRcdY7G_ES2VqNVpkoU=CRJkJySb3m1sFdgKJwh3JQ2oA@mail.gmail.com>
-Subject: Re: scripts/selinux build error in 4.14 after glibc update
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 23 Apr 2019 12:47:34 -0400
+Message-ID: <CAHC9VhR4=sV7=R5K3QV-knRaN9Nc3u8SfsDB39UiKJV5ZPT3Ng@mail.gmail.com>
+Subject: An update on my kernel "secnext" builds and testing
+To:     selinux@vger.kernel.org, linux-audit@redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 23, 2019 at 9:29 AM Sasha Levin <sashal@kernel.org> wrote:
-> On Mon, Apr 22, 2019 at 09:59:47PM -0400, Paul Moore wrote:
-> >On Mon, Apr 22, 2019 at 5:00 PM Nathan Chancellor
-> ><natechancellor@gmail.com> wrote:
-> >> Hi all,
-> >>
-> >> After a glibc update to 2.29, my 4.14 builds started failing like so:
-> >
-> >...
-> >
-> >>   HOSTCC  scripts/selinux/genheaders/genheaders
-> >> In file included from scripts/selinux/genheaders/genheaders.c:19:
-> >> ./security/selinux/include/classmap.h:245:2: error: #error New address family defined, please update secclass_map.
-> >>  #error New address family defined, please update secclass_map.
-> >>   ^~~~~
-> >
-> >This is a known problem that has a fix in the selinux/next branch and
-> >will be going up to Linus during the next merge window.  The fix is
-> >quite small and should be relatively easy for you to backport to your
-> >kernel build if you are interested; the patch can be found at the
-> >archive link below:
-> >
-> >https://lore.kernel.org/selinux/20190225005528.28371-1-paulo@paulo.ac
->
-> Why is it waiting for the next merge window? It fixes a build bug that
-> people hit.
+Hello all,
 
-I place a reasonably high bar on patches that I send up to Linus
-outside of the merge window and I didn't feel this patch met that
-criteria.  Nathan is only the second person I've seen who has
-encountered this problem, the first being the original patch author.
-As far as I've seen, the problem is only seen by users building older
-kernels on very new userspaces (e.g. glibc v2.29 was released in
-February 2019, Linux v4.14 was released in 2017); this doesn't appear
-to be a large group of people and I didn't want to risk breaking the
-main kernel tree during the -rcX phase for such a small group.
+A while back I started building Fedora Rawhide kernels with the
+selinux/next and audit/next branches applied, making them available
+via a Fedora COPR repository.  My hope was that this would help make
+it easier for people to test/try the patches we had queued up for the
+next merge window and also enable some additional work to do fully
+automated testing of the selinux/next and audit/next trees.  While I'm
+not sure how many people besides myself run the secnext kernel builds
+on their test systems, I have finally gotten all the pieces in place
+so that we have fully automated testing for the {selinux,audit}/next
+trees.  It may have taken almost four years, but better late than
+never :)
+
+For those of you who are interested, the test results are sent to the
+mailing list below (yes, it's a Google group, and no you don't need to
+have a Google account).  The build notifications and test results are
+sent to a separate list simply because I didn't want to spam the main
+mailing lists.
+
+* https://groups.google.com/forum/#!forum/kernel-secnext
+
+In addition, I've run into enough problems with COPR over the years
+that I've started to build my own kernel packages from the secnext
+SRPMs.  While I really like the idea of COPR, the current
+implementation is poorly suited for building kernel packages; perhaps
+it will improve in the future, but it isn't a good solution now.  I
+will still keep submitting kernel builds to COPR, so those who want to
+use the secnext kernels from there will continue to have that as a
+valid repository, but I'm unlikely to spend any significant time
+working to resolve COPR specific build problems.  For those who want
+to try the kernel packages that I'm building, you can find more
+information at the link below:
+
+* https://repo.paul-moore.com
+
+At some point in the future I would like to also build secnext kernels
+for other distros, but I need to spend a little bit of time learning
+the "proper" way to patch and build kernel packages for those other
+distros first.  I'm leaning towards Debian as the first non-Fedora
+distro, but if anyone has a favorite distro, with good SELinux/audit
+support, please let me know.
+
+-Paul
 
 -- 
 paul moore
