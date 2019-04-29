@@ -2,102 +2,119 @@ Return-Path: <SRS0=3b0v=S7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF28FC43219
-	for <selinux@archiver.kernel.org>; Mon, 29 Apr 2019 13:57:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91DF0C43219
+	for <selinux@archiver.kernel.org>; Mon, 29 Apr 2019 14:02:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7F96220652
-	for <selinux@archiver.kernel.org>; Mon, 29 Apr 2019 13:57:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B3A820652
+	for <selinux@archiver.kernel.org>; Mon, 29 Apr 2019 14:02:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="nC/2UciM"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="ECFfMtmc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725838AbfD2N5P (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Apr 2019 09:57:15 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:44448 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728155AbfD2N5P (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Apr 2019 09:57:15 -0400
-Received: by mail-lj1-f193.google.com with SMTP id c6so2934368lji.11
-        for <selinux@vger.kernel.org>; Mon, 29 Apr 2019 06:57:13 -0700 (PDT)
+        id S1728180AbfD2OCr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Apr 2019 10:02:47 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:36100 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725838AbfD2OCn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Apr 2019 10:02:43 -0400
+Received: by mail-lf1-f67.google.com with SMTP id u17so8106242lfi.3
+        for <selinux@vger.kernel.org>; Mon, 29 Apr 2019 07:02:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Zr0gKPwou2dH6S7GhfaHwXxswbhzR7i0BNPHc9FdfXA=;
-        b=nC/2UciMGyHO6xXe20S6Ef7FXUNkJmmvo6rZ9FcrxlwDnZoRz7JGOKegFpxvTmn2ya
-         bYt4+VCQVPdEbgUD0cjKih7CY56j03xB5fEOdBW0Nf8yTvDRjeA7n4kgajmKVSVhoFQQ
-         4GtyK+jgqGUde21PO7aG/wHkaUMm/T4zGzuCh04TUXksZPijwde1jWt8Kc1uITbzm8rQ
-         OqKnbdaUbigPM+dj0Z9lyNHNVL2K45Kn7mFLcrfD9gtE509SdQFqN8IBBR3iuHT/aecX
-         W5T2+43tDYSEM/+j5sIk+6IU6tw5Q9t3YIiwEKYszh6/q9dVjbD/41ABfVXLTpcDZbEN
-         kQ8g==
+        bh=bGDd3M5I9ULSFWcqsW7JVAiNO7lUjJpBWTqExJJmQuk=;
+        b=ECFfMtmc8h1r9ocvANqnrNpKDR9ewLLy/PT7ArGnVtQoLWQPYkoUEemlb1Z+PqCE4R
+         FMzbe0pSt669vtS3m+z9DOcUfGQTdS2ecV3apKViPIouPj2sc/1NwRmXxxLWYRugi6nV
+         /6yEN48+NXFkr8RN/7qSMW/cQOeltYvYKMMP9zfnWMVVRiuSCSveIRf7Q72G9fE1N0Tn
+         ZU4N/V1X60vlJxamkwfKI875ilqJrfzp17nF7d70yF6qcToK699DJs8R4CYOvmAruDFa
+         C/WdUWFwFPdhY6+NnLDTEqbe8NLTYrpfoijS6fx1BBCysC9JCE4rmnv8rVFeQrEKFwTr
+         79Qw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Zr0gKPwou2dH6S7GhfaHwXxswbhzR7i0BNPHc9FdfXA=;
-        b=ha5dfE3fOIUeJE65qNrgTbBxPVWEGc4YvGGOSwCn+6VVMOXYWuXQkwIuELpFai2lgn
-         7X6EBn90xqhrSdOT5SauGbp9gYozannDNYow8QDlEnayRfozYrSbEBxbAP3p617RCOdE
-         FKFosSaP6ou2rsC/qUgivwiK9Wrr+/ETFaD2WlBEtMbCujMubUxbKJfl5h35lZx+7/fJ
-         K3ZH59WrCqa8TgmWwj6S1LVL3AP5O6dZbztetYN85cQ6WNAoFeOHfTGcXtgbh3b0KmMC
-         TCHAfNFlNIcW28w2SG98sHivrV6bhFhUnxWrTBxCmpzWUH+dv9YHrsytRoUJK8GXfs5P
-         WAlA==
-X-Gm-Message-State: APjAAAVmmrNMcpZyf0NqclqcvDarISaUH1pZWpJm2JOIvqpvP6OJBjO6
-        3PPh1jQXv60PjAjUR6DLEt7a80UeqdmWv80PogJy
-X-Google-Smtp-Source: APXvYqxJk1RRtlHAlSWgtaSL5hKbWALp9D7v943BWDG2te36TTmQXQt0ysxuu/D+j6d7vo+QPujWvQ/7Iq4eC5jrtOc=
-X-Received: by 2002:a2e:888a:: with SMTP id k10mr19149144lji.57.1556546232626;
- Mon, 29 Apr 2019 06:57:12 -0700 (PDT)
+        bh=bGDd3M5I9ULSFWcqsW7JVAiNO7lUjJpBWTqExJJmQuk=;
+        b=hYL1c9RBdTMEhgr3ThN7p0HJG7tL9jsEuS59oNq9+LECnYCrYl4RHo3d8qyIRTIxJy
+         vcv+2+sNwUJLoP3hL+KnPNzUbGg5Jl4MhhXWNStlKSiXlS6PXkW3VBrwxbXSTtFfmot9
+         WKqkwIp1WN/RoWn8iKf7ByucgXJeCPfBCPerjuUAg1SuEQDs1Q43iUB7HILSg3iUuyWg
+         vVF0Z9xlCeNsdcZHfv2YFFGTAAA0oSpRomts3n+rvAgSuxPjPTKJW1yOam7jLiBaAYeY
+         NZ4Vb32dl/DLcb1Yhr285Rj12zNDFc9dHE0GfKyBrFGrah0PlN+y2tH4B4vKLSR7ta0s
+         EeNg==
+X-Gm-Message-State: APjAAAXs5Hm3W6fLRT66biN6I3Hu3ZWlRLeQEkeV9adsCJx+OHtK9/ns
+        i4VIBACPELrEyedJYP4lrj5wQK+9AfQW8mAadzsC
+X-Google-Smtp-Source: APXvYqxCtmNkHwaubiOFJGa7EJ1Nzkj4OMW/7uaT6yuPfUWq5YIZBobbcG2U4+8vYTNgq9g9iHQTaeUaLUv3GnnBuws=
+X-Received: by 2002:a19:6b0d:: with SMTP id d13mr32177675lfa.79.1556546560923;
+ Mon, 29 Apr 2019 07:02:40 -0700 (PDT)
 MIME-Version: 1.0
-References: <155570011247.27135.12509150054846153288.stgit@chester>
- <CAHC9VhQKE3Rnbz8qxm0UKNB=GT6xPu-Le=ZZM0_XisOS+v3jKg@mail.gmail.com> <alpine.LRH.2.21.1904200626400.21756@namei.org>
-In-Reply-To: <alpine.LRH.2.21.1904200626400.21756@namei.org>
+References: <20190422210041.GA21711@archlinux-i9> <CAHC9VhTtz3OA3EchaZaAeg=DxoGoz_WFdj+Mi9nd9i+cmjmuJA@mail.gmail.com>
+ <20190423132926.GK17719@sasha-vm> <CAHC9VhRcdY7G_ES2VqNVpkoU=CRJkJySb3m1sFdgKJwh3JQ2oA@mail.gmail.com>
+ <20190429124002.GB31371@kroah.com>
+In-Reply-To: <20190429124002.GB31371@kroah.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 29 Apr 2019 09:57:01 -0400
-Message-ID: <CAHC9VhTbNhgO4SHDbmALH_E1CdUSe90vpnvTS=me7Y21NK1dbQ@mail.gmail.com>
-Subject: Re: [PATCH] proc: prevent changes to overridden credentials
-To:     James Morris <jmorris@namei.org>
-Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        cj.chengjian@huawei.com, john.johansen@canonical.com,
-        casey@schaufler-ca.com
+Date:   Mon, 29 Apr 2019 10:02:29 -0400
+Message-ID: <CAHC9VhQxrtYJTOj=aOL4FY=myA4ZO-rcY7TdCeFbjVnCmgOxew@mail.gmail.com>
+Subject: Re: scripts/selinux build error in 4.14 after glibc update
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Apr 19, 2019 at 4:27 PM James Morris <jmorris@namei.org> wrote:
-> On Fri, 19 Apr 2019, Paul Moore wrote:
-> > On Fri, Apr 19, 2019 at 2:55 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > Prevent userspace from changing the the /proc/PID/attr values if the
-> > > task's credentials are currently overriden.  This not only makes sense
-> > > conceptually, it also prevents some really bizarre error cases caused
-> > > when trying to commit credentials to a task with overridden
-> > > credentials.
+On Mon, Apr 29, 2019 at 8:40 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> On Tue, Apr 23, 2019 at 09:43:09AM -0400, Paul Moore wrote:
+> > On Tue, Apr 23, 2019 at 9:29 AM Sasha Levin <sashal@kernel.org> wrote:
+> > > On Mon, Apr 22, 2019 at 09:59:47PM -0400, Paul Moore wrote:
+> > > >On Mon, Apr 22, 2019 at 5:00 PM Nathan Chancellor
+> > > ><natechancellor@gmail.com> wrote:
+> > > >> Hi all,
+> > > >>
+> > > >> After a glibc update to 2.29, my 4.14 builds started failing like so:
+> > > >
+> > > >...
+> > > >
+> > > >>   HOSTCC  scripts/selinux/genheaders/genheaders
+> > > >> In file included from scripts/selinux/genheaders/genheaders.c:19:
+> > > >> ./security/selinux/include/classmap.h:245:2: error: #error New address family defined, please update secclass_map.
+> > > >>  #error New address family defined, please update secclass_map.
+> > > >>   ^~~~~
+> > > >
+> > > >This is a known problem that has a fix in the selinux/next branch and
+> > > >will be going up to Linus during the next merge window.  The fix is
+> > > >quite small and should be relatively easy for you to backport to your
+> > > >kernel build if you are interested; the patch can be found at the
+> > > >archive link below:
+> > > >
+> > > >https://lore.kernel.org/selinux/20190225005528.28371-1-paulo@paulo.ac
 > > >
-> > > Cc: <stable@vger.kernel.org>
-> > > Reported-by: "chengjian (D)" <cj.chengjian@huawei.com>
-> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > ---
-> > >  fs/proc/base.c |    5 +++++
-> > >  1 file changed, 5 insertions(+)
+> > > Why is it waiting for the next merge window? It fixes a build bug that
+> > > people hit.
 > >
-> > I sent this to the LSM list as I figure it should probably go via
-> > James' linux-security tree since it is cross-LSM and doesn't really
-> > contain any LSM specific code.  That said, if you don't want this
-> > James let me know and I'll send it via the SELinux tree assuming I can
-> > get ACKs from John and Casey (this should only affect SELinux,
-> > AppArmor, and Smack).
+> > I place a reasonably high bar on patches that I send up to Linus
+> > outside of the merge window and I didn't feel this patch met that
+> > criteria.  Nathan is only the second person I've seen who has
+> > encountered this problem, the first being the original patch author.
+> > As far as I've seen, the problem is only seen by users building older
+> > kernels on very new userspaces (e.g. glibc v2.29 was released in
+> > February 2019, Linux v4.14 was released in 2017); this doesn't appear
+> > to be a large group of people and I didn't want to risk breaking the
+> > main kernel tree during the -rcX phase for such a small group.
 >
-> This is fine to go via your tree.
+> Ugh, this breaks my local builds, I would recommend getting it to Linus
+> sooner please.
 
-Okay.  I just merged this into selinux/next.  I was sitting on this
-patch to see how the other thread developed, but that doesn't really
-seem to be reaching any conclusion and I really want this to get at
-least one week in -next before the merge window opens.
-
-Thanks everyone.
+Well, we are at -rc7 right now and it looks like an -rc8 is unlikely
+so the question really comes down to can/do you want to wait a week?
 
 -- 
 paul moore
