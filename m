@@ -6,148 +6,182 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4669C04A6B
-	for <selinux@archiver.kernel.org>; Wed,  8 May 2019 21:17:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0D7EC04A6B
+	for <selinux@archiver.kernel.org>; Wed,  8 May 2019 21:47:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 959042089E
-	for <selinux@archiver.kernel.org>; Wed,  8 May 2019 21:17:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B715C206A3
+	for <selinux@archiver.kernel.org>; Wed,  8 May 2019 21:47:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="XJcO/LEJ"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="sQJcSsgV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727608AbfEHVRs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 May 2019 17:17:48 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:36842 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725910AbfEHVRs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 May 2019 17:17:48 -0400
-Received: by mail-lf1-f68.google.com with SMTP id y10so8923855lfl.3
-        for <selinux@vger.kernel.org>; Wed, 08 May 2019 14:17:46 -0700 (PDT)
+        id S1726875AbfEHVrr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 May 2019 17:47:47 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:33684 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726686AbfEHVrr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 May 2019 17:47:47 -0400
+Received: by mail-lf1-f65.google.com with SMTP id x132so39494lfd.0
+        for <selinux@vger.kernel.org>; Wed, 08 May 2019 14:47:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=EQ5IFoTFe0ngosMYfQyJVw4dpGT8ZrB0KM0wT8+Kzr0=;
-        b=XJcO/LEJae4Gbcl2TqXef1yabr8UobIFlV7TYerAB4UcR6VXmiftV4QBnmlzeOFJzF
-         4qnBR+xdrh5nYIxJa1aXptI8HPLHuoixwFXbj1KRvsRgve7+02iZzwr7S58t+l5nZ60Y
-         7EAQHFayq+4VELU1xWt1S03qtzPq7kOvTKNvXMMZTSSPEn7dnc8vw3PzUYG4wza6UjjR
-         aGgqODhai0MbcyBMKMvrfItkwuw0uokoxbgGwUFTB/wzM5laqg/EOehu8dK9QMCSfphi
-         br0gknF/uKVzmjOGP5RebqTRfA7TCxhwtsUEdEillWtCqWBiqhieBpEbPNa3MQGsa3GS
-         L8Lw==
+        bh=4KWdBpehfU7fGp6F4+EMfaZWNMBJ4N9LIgc0IJ8YlaU=;
+        b=sQJcSsgVBpUiW9/dp2EhnC5IE90kh9KPTg1JLy9lqJRX55/Z2YssPoM2ZGpqgaeTGX
+         iM6XoWZOSPHbDMXPCb0rDCbG4bOYNAS5AsOEhP1/o/HP+aV8ayi+WR4SKt/9ST7gMOm1
+         wBQC4hfR3izU2GcqMMgCQDQaonDwRMY9yuEGrDqlbDNLM/ibIw3wjPzcGpmnzxIo1QzH
+         t/my2JstqfAoXG+liGRmO8ZwKP50QAdV101d1KV8eDz28mJREDdq5Wwac8jRIwdM9JsN
+         gSf8Bf11Kb6F5tnO65fEEeMD1XAdpHSbQrk2hrxUo0AaTUuV5aSRgNPh+YXRyp98qN4G
+         ek3Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=EQ5IFoTFe0ngosMYfQyJVw4dpGT8ZrB0KM0wT8+Kzr0=;
-        b=D3lXyHEG82sIAOn+Lbuk8fl+GckjQUcUdHKwfOPvzYZruT8/+5IHaxQJUcsQAl3g9o
-         EL1dbMWH51s/+jJeeNVQCKbuROGR5QSxGkXMOuc0Z2mWHcKmLI7wN89zJZi2CimKJjWR
-         XAd90f4GFp5yX6RvPBdkjfL+RESRtahMeRdBdFUQJwMEnC+mA7s6y7ebOSrdyPuKu8qT
-         /xQsP0I3+HCjy26GgVAkwmNAXan9FdGrHiqZyb0kf9/a0kv0l/Ge1u2/RJ3mDb5EKyqA
-         kFFVKwiEZPIILWJgUNdRug+WqK63kZdhmgHGg/4QoF7UASpU27kZ1aTuKNmzV7ME/7BM
-         LrpA==
-X-Gm-Message-State: APjAAAWqzRztR/JU0ckYRGVHSzoXXZM+MKgJkzU1jHwoJ3slWPHsuMZh
-        CTv5XjnYPEKfKyCSL89o7Je23vmgfA6ulSqpsJHvwwd2AQ==
-X-Google-Smtp-Source: APXvYqxEpS4DBYeWOtbm96Foz71NIYtDNHlgw1P5hxRDyAV5SF1VtDq8ds3optFa57DAqUU1MtHNd7oDR4ZVSEHQSaE=
-X-Received: by 2002:a19:9e47:: with SMTP id h68mr128675lfe.91.1557350265386;
- Wed, 08 May 2019 14:17:45 -0700 (PDT)
+        bh=4KWdBpehfU7fGp6F4+EMfaZWNMBJ4N9LIgc0IJ8YlaU=;
+        b=YswE/mkxKsDpjNyByi0kH3NFubvOyvfXsX5Pfp7fvKfceTrUPJDDZzNoVWyqWkSXFP
+         vWQrk6C55LnVMu/4NLCN63eMyIMIYfF43BWteTVbvI/PR/PBTn2K0ime2sbdYtCAiPWM
+         FHylPGax/MH8IbUrPcKryzP3v6NaDM74uPYOP4vx0S+SQYgz+7bWKMNO6QGYxZ6WdH7I
+         SiaGXwTMMiR6p+1slWGNjR8pC6lOQBn3jYtSOdNAjUUzrBKYdhBhWc67KebgaU5Gt6Xc
+         AwcEL613pQfNofKyvctmvckKBiUdp/zEUaia7PUreA9zX713HGaNPOFB0QnrvYQo3UPW
+         ICOw==
+X-Gm-Message-State: APjAAAU2UO9RZDkIXvXCG+iaD26NE241i4wjYio/U3UHRvr0HfG8qg+8
+        8vdJPcv7VbXUbGyldTpUvvxeRD3f8CV2v95s+x9r
+X-Google-Smtp-Source: APXvYqwfHTN7jF0fpqil4BUeasee8e1nJ5DufZ7FCjbREONvZg+rbKNJIG03NSaQbVwXMLivzdL7FfQ3i7yPLDwGdNs=
+X-Received: by 2002:a19:9e47:: with SMTP id h68mr188400lfe.91.1557352064142;
+ Wed, 08 May 2019 14:47:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <7301017039d68c920cb9120c035a1a0df3e6b30d.1557322358.git.pabeni@redhat.com>
- <36e13dc4-be40-d1f6-0be5-32cd4fc38f6e@tycho.nsa.gov> <83b4adb4-9d8f-848f-d1cc-a4a1f30cee51@tycho.nsa.gov>
- <20190508182737.GK10916@localhost.localdomain> <0957f30f-07b8-5e2f-ac71-615f511a5eea@tycho.nsa.gov>
-In-Reply-To: <0957f30f-07b8-5e2f-ac71-615f511a5eea@tycho.nsa.gov>
+References: <1557296477-4694-1-git-send-email-hofrat@osadl.org>
+In-Reply-To: <1557296477-4694-1-git-send-email-hofrat@osadl.org>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 8 May 2019 17:17:34 -0400
-Message-ID: <CAHC9VhTs+Q4oAiMGkK9QZBJ9G4yY28WFJkc2jjp05DEW1OAhYw@mail.gmail.com>
-Subject: Re: [PATCH net] selinux: do not report error on connect(AF_UNSPEC)
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     selinux@vger.kernel.org, netdev@vger.kernel.org,
-        Tom Deseyn <tdeseyn@redhat.com>,
-        Richard Haines <richard_c_haines@btinternet.com>
+Date:   Wed, 8 May 2019 17:47:32 -0400
+Message-ID: <CAHC9VhSU7pzWby78gHkYKm3t1LopSCoHBfmp=uBc+mF234K8mg@mail.gmail.com>
+Subject: Re: [PATCH RFC] selinux: provide __le variables explicitly
+To:     Nicholas Mc Guire <hofrat@osadl.org>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        peter enderborg <peter.enderborg@sony.com>,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 8, 2019 at 2:55 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 5/8/19 2:27 PM, Marcelo Ricardo Leitner wrote:
-> > On Wed, May 08, 2019 at 02:13:17PM -0400, Stephen Smalley wrote:
-> >> On 5/8/19 2:12 PM, Stephen Smalley wrote:
-> >>> On 5/8/19 9:32 AM, Paolo Abeni wrote:
-> >>>> calling connect(AF_UNSPEC) on an already connected TCP socket is an
-> >>>> established way to disconnect() such socket. After commit 68741a8adab9
-> >>>> ("selinux: Fix ltp test connect-syscall failure") it no longer works
-> >>>> and, in the above scenario connect() fails with EAFNOSUPPORT.
-> >>>>
-> >>>> Fix the above falling back to the generic/old code when the address
-> >>>> family
-> >>>> is not AF_INET{4,6}, but leave the SCTP code path untouched, as it has
-> >>>> specific constraints.
-> >>>>
-> >>>> Fixes: 68741a8adab9 ("selinux: Fix ltp test connect-syscall failure")
-> >>>> Reported-by: Tom Deseyn <tdeseyn@redhat.com>
-> >>>> Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-> >>>> ---
-> >>>>    security/selinux/hooks.c | 8 ++++----
-> >>>>    1 file changed, 4 insertions(+), 4 deletions(-)
-> >>>>
-> >>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> >>>> index c61787b15f27..d82b87c16b0a 100644
-> >>>> --- a/security/selinux/hooks.c
-> >>>> +++ b/security/selinux/hooks.c
-> >>>> @@ -4649,7 +4649,7 @@ static int
-> >>>> selinux_socket_connect_helper(struct socket *sock,
-> >>>>            struct lsm_network_audit net = {0,};
-> >>>>            struct sockaddr_in *addr4 = NULL;
-> >>>>            struct sockaddr_in6 *addr6 = NULL;
-> >>>> -        unsigned short snum;
-> >>>> +        unsigned short snum = 0;
-> >>>>            u32 sid, perm;
-> >>>>            /* sctp_connectx(3) calls via selinux_sctp_bind_connect()
-> >>>> @@ -4674,12 +4674,12 @@ static int
-> >>>> selinux_socket_connect_helper(struct socket *sock,
-> >>>>                break;
-> >>>>            default:
-> >>>>                /* Note that SCTP services expect -EINVAL, whereas
-> >>>> -             * others expect -EAFNOSUPPORT.
-> >>>> +             * others must handle this at the protocol level:
-> >>>> +             * connect(AF_UNSPEC) on a connected socket is
-> >>>> +             * a documented way disconnect the socket.
-> >>>>                 */
-> >>>>                if (sksec->sclass == SECCLASS_SCTP_SOCKET)
-> >>>>                    return -EINVAL;
-> >>>> -            else
-> >>>> -                return -EAFNOSUPPORT;
-> >>>
-> >>> I think we need to return 0 here.  Otherwise, we'll fall through with an
-> >>> uninitialized snum, triggering a random/bogus permission check.
-> >>
-> >> Sorry, I see that you initialize snum above.  Nonetheless, I think the
-> >> correct behavior here is to skip the check since this is a disconnect, not a
-> >> connect.
-> >
-> > Skipping the check would make it less controllable. So should it
-> > somehow re-use shutdown() stuff? It gets very confusing, and after
-> > all, it still is, in essence, a connect() syscall.
+On Wed, May 8, 2019 at 2:27 AM Nicholas Mc Guire <hofrat@osadl.org> wrote:
+> While the endiannes is being handled properly sparse was unable to verify
+> this due to type inconsistency. So introduce an additional __le32
+> respectively _le64 variable to be passed to le32/64_to_cpu() to allow
+> sparse to verify proper typing. Note that this patch does not change
+> the generated binary on little-endian systems - on 32bit powerpc it
+> does change the binary.
 >
-> The function checks CONNECT permission on entry, before reaching this
-> point.  This logic is only in preparation for a further check
-> (NAME_CONNECT) on the port.  In this case, there is no further check to
-> perform and we can just return.
+> Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+> ---
+>
+> Problem located by an experimental coccinelle script to locate
+> patters that make sparse unhappy (false positives):
+>
+> sparse complaints on different architectures fixed by this patch are:
+>
+> ppc6xx_defconfig
+>   CHECK   security/selinux/ss/ebitmap.c
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+>
+> Little-endian systems:
+>
+> loongson3_defconfig
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+>
+> x86_64_defconfig
+> security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
+> security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
+>
+> Patch was compile-tested with: x86_64_defconfig,loongson3_defconfig (both
+> little-endian) and ppc603_defconfig (big-endian).
+>
+> On little-endian systems the patch has no impact on the generated binary
+> (which is expected) but on the 32bit powerpc it does change the binary
+> which is not expected but since I'm not able to generate the .lst files
+> in security/selinux/ss/ due to the lack of a Makefile it is not clear
+> if this is an unexpected side-effect or due only to the introduction of
+> the additional variables. From my understanding the patch does not change
+> the program logic so if the code was correct on big-endian systems before
+> it should still be correct now.
 
-I agree with Stephen, in the connect(AF_UNSPEC) case the right thing
-to do is to simply return with no error.
+This is a bit worrisome, but I tend to agree that this patch *should*
+be correct.  I'm thinking you're probably right in that the resulting
+binary difference could be due to the extra variable.  Have you tried
+any other big-endian arches?
 
-I would also suggest that since this patch only touches the SELinux
-code it really should go in via the SELinux tree and not netdev; this
-will help avoid merge conflicts in the linux-next tree and during the
-merge window.  I think the right thing to do at this point is to
-create a revert patch (or have DaveM do it, I'm not sure what he
-prefers in situations like this) for this commit, make the adjustments
-that Stephen mentioned and submit them for the SELinux tree.
+> Patch is against 5.1 (localversion-next is next-20190506)
+>
+>  security/selinux/ss/ebitmap.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+>
+> diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+> index 8f624f8..09929fc 100644
+> --- a/security/selinux/ss/ebitmap.c
+> +++ b/security/selinux/ss/ebitmap.c
+> @@ -347,7 +347,9 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+>  {
+>         struct ebitmap_node *n = NULL;
+>         u32 mapunit, count, startbit, index;
+> +       __le32 ebitmap_start;
+>         u64 map;
+> +       __le64 mapbits;
+>         __le32 buf[3];
+>         int rc, i;
+>
+> @@ -381,12 +383,12 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+>                 goto bad;
+>
+>         for (i = 0; i < count; i++) {
+> -               rc = next_entry(&startbit, fp, sizeof(u32));
+> +               rc = next_entry(&ebitmap_start, fp, sizeof(u32));
+>                 if (rc < 0) {
+>                         pr_err("SELinux: ebitmap: truncated map\n");
+>                         goto bad;
+>                 }
+> -               startbit = le32_to_cpu(startbit);
+> +               startbit = le32_to_cpu(ebitmap_start);
+>
+>                 if (startbit & (mapunit - 1)) {
+>                         pr_err("SELinux: ebitmap start bit (%d) is "
+> @@ -423,12 +425,12 @@ int ebitmap_read(struct ebitmap *e, void *fp)
+>                         goto bad;
+>                 }
+>
+> -               rc = next_entry(&map, fp, sizeof(u64));
+> +               rc = next_entry(&mapbits, fp, sizeof(u64));
+>                 if (rc < 0) {
+>                         pr_err("SELinux: ebitmap: truncated map\n");
+>                         goto bad;
+>                 }
+> -               map = le64_to_cpu(map);
+> +               map = le64_to_cpu(mapbits);
+>
+>                 index = (startbit - n->startbit) / EBITMAP_UNIT_SIZE;
+>                 while (map) {
+> --
+> 2.1.4
+>
 
-Otherwise, thanks for catching this and submitting a fix :)
 
 -- 
 paul moore
