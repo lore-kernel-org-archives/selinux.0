@@ -2,342 +2,195 @@ Return-Path: <SRS0=MPXq=TJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 286A0C04AB1
-	for <selinux@archiver.kernel.org>; Thu,  9 May 2019 08:42:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21F62C46470
+	for <selinux@archiver.kernel.org>; Thu,  9 May 2019 13:17:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E810721479
-	for <selinux@archiver.kernel.org>; Thu,  9 May 2019 08:42:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 88A842089E
+	for <selinux@archiver.kernel.org>; Thu,  9 May 2019 13:17:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="r8LYnMZP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726219AbfEIImT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 May 2019 04:42:19 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:49112 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726054AbfEIImT (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 9 May 2019 04:42:19 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id CD6183084212
-        for <selinux@vger.kernel.org>; Thu,  9 May 2019 08:42:18 +0000 (UTC)
-Received: from workstation.brq.redhat.com (unknown [10.43.12.182])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 26D31608E4;
-        Thu,  9 May 2019 08:42:18 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] libselinux: Eliminate use of security_compute_user()
-Date:   Thu,  9 May 2019 10:42:04 +0200
-Message-Id: <20190509084204.26198-1-plautrba@redhat.com>
+        id S1725992AbfEINRn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 May 2019 09:17:43 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:45017 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726192AbfEINRn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 May 2019 09:17:43 -0400
+Received: by mail-lj1-f194.google.com with SMTP id e13so1950114ljl.11
+        for <selinux@vger.kernel.org>; Thu, 09 May 2019 06:17:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UK57Qpg2zy+HIHqUbIlgo6gcv45uOIzqG7zicSDKtBQ=;
+        b=r8LYnMZP+CKUWqlfrwW03XnQJjhoy8fJK4DqTxvggeq9uZxsQoqbo05OhI76LDbPJq
+         ohjVdhpSmB6/2Wka7c3GYeHocpjRlo6sOqLOTJGDmT4ZIf6MUHnJ+6CgX4Vaq8j5EdbS
+         ah8Koq5YBbHZMz/xUGjmPw3Z104UIxnVnlZfXQujMTKazRmwixWW9l3PU22jBlG/kCch
+         xZjfB9It4yeaF6ynOTa36XYV0qX4qdLCFg7Yi9bSvWjME9VsZOZ+VYwyARLT07n0WpIu
+         Abq8Wr1SHd4WmQFNR5kYlWMioVV0wN/ZfhvvmvRSSVCXion41zbAwCenVW8XuotSB6YN
+         trPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UK57Qpg2zy+HIHqUbIlgo6gcv45uOIzqG7zicSDKtBQ=;
+        b=hC/SwmNbPcRAUYHVv0ZZpb8f+cRPjufYgFKQnTRVLbBULsArtsbevy37T0xc/OZev5
+         WXudOAzzrMarCmp1daY5lFXTa8m20sGJKS9bwe1yYrcQAjmA8/8dVlcdwJRRulT68z/W
+         O2mqwcCKFILrMwciT52Y6ypyNLvkwODMf2yUaR3syH9uvl7r3nrWIDAdNidSm6bt7al2
+         KYB3Vj6p2a7/DpdrM8JcibiAiA8/sJs4MXoEhx8FqtOF0Vy795xeA6zZKB3mZGCCi5Wr
+         1LCCslzcJc4WEpiC4gOrfN0MP+smqJ5GDNOwtClnsLiaNrYTDhmMzNQYWP39JKPsJRg3
+         Q1lQ==
+X-Gm-Message-State: APjAAAWaSHONVGmtz1W4GZqlHa8doOIcdaoenGj9iDbWmKoXzEgw78M1
+        DfajOd+orlwSGiXx+mqCPjysJ2m5lamjSnN9mNiR
+X-Google-Smtp-Source: APXvYqwszAIEgdM6DVZFdOkZQsuXgGBf13AQBZrLVY/OG3of051x8GsXQinLx8o1yLJzSL/WJP/E7xd+TRQDBO7xY6s=
+X-Received: by 2002:a2e:98c6:: with SMTP id s6mr2325854ljj.161.1557407860555;
+ Thu, 09 May 2019 06:17:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Thu, 09 May 2019 08:42:18 +0000 (UTC)
+References: <7301017039d68c920cb9120c035a1a0df3e6b30d.1557322358.git.pabeni@redhat.com>
+ <36e13dc4-be40-d1f6-0be5-32cd4fc38f6e@tycho.nsa.gov> <83b4adb4-9d8f-848f-d1cc-a4a1f30cee51@tycho.nsa.gov>
+ <20190508182737.GK10916@localhost.localdomain> <0957f30f-07b8-5e2f-ac71-615f511a5eea@tycho.nsa.gov>
+ <CAHC9VhTs+Q4oAiMGkK9QZBJ9G4yY28WFJkc2jjp05DEW1OAhYw@mail.gmail.com> <bcfa1b06f277357d89b746a4fced49c0617deef1.camel@redhat.com>
+In-Reply-To: <bcfa1b06f277357d89b746a4fced49c0617deef1.camel@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 9 May 2019 09:17:28 -0400
+Message-ID: <CAHC9VhRjWX5zyJ1F8U7m-=veMLrynUnYp9AW-Bjff-+V_DJ65g@mail.gmail.com>
+Subject: Re: [PATCH net] selinux: do not report error on connect(AF_UNSPEC)
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     davem@davemloft.net, selinux@vger.kernel.org,
+        netdev@vger.kernel.org, Tom Deseyn <tdeseyn@redhat.com>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-get_ordered_context_list() code used to ask the kernel to compute the complete
-set of reachable contexts using /sys/fs/selinux/user aka
-security_compute_user(). This set can be so huge so that it doesn't fit into a
-kernel page and security_compute_user() fails. Even if it doesn't fail,
-get_ordered_context_list() throws away the vast majority of the returned
-contexts because they don't match anything in
-/etc/selinux/targeted/contexts/default_contexts or
-/etc/selinux/targeted/contexts/users/
+On Thu, May 9, 2019 at 4:40 AM Paolo Abeni <pabeni@redhat.com> wrote:
+> On Wed, 2019-05-08 at 17:17 -0400, Paul Moore wrote:
+> > On Wed, May 8, 2019 at 2:55 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > On 5/8/19 2:27 PM, Marcelo Ricardo Leitner wrote:
+> > > > On Wed, May 08, 2019 at 02:13:17PM -0400, Stephen Smalley wrote:
+> > > > > On 5/8/19 2:12 PM, Stephen Smalley wrote:
+> > > > > > On 5/8/19 9:32 AM, Paolo Abeni wrote:
+> > > > > > > calling connect(AF_UNSPEC) on an already connected TCP socket is an
+> > > > > > > established way to disconnect() such socket. After commit 68741a8adab9
+> > > > > > > ("selinux: Fix ltp test connect-syscall failure") it no longer works
+> > > > > > > and, in the above scenario connect() fails with EAFNOSUPPORT.
+> > > > > > >
+> > > > > > > Fix the above falling back to the generic/old code when the address
+> > > > > > > family
+> > > > > > > is not AF_INET{4,6}, but leave the SCTP code path untouched, as it has
+> > > > > > > specific constraints.
+> > > > > > >
+> > > > > > > Fixes: 68741a8adab9 ("selinux: Fix ltp test connect-syscall failure")
+> > > > > > > Reported-by: Tom Deseyn <tdeseyn@redhat.com>
+> > > > > > > Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+> > > > > > > ---
+> > > > > > >    security/selinux/hooks.c | 8 ++++----
+> > > > > > >    1 file changed, 4 insertions(+), 4 deletions(-)
+> > > > > > >
+> > > > > > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > > > > > > index c61787b15f27..d82b87c16b0a 100644
+> > > > > > > --- a/security/selinux/hooks.c
+> > > > > > > +++ b/security/selinux/hooks.c
+> > > > > > > @@ -4649,7 +4649,7 @@ static int
+> > > > > > > selinux_socket_connect_helper(struct socket *sock,
+> > > > > > >            struct lsm_network_audit net = {0,};
+> > > > > > >            struct sockaddr_in *addr4 = NULL;
+> > > > > > >            struct sockaddr_in6 *addr6 = NULL;
+> > > > > > > -        unsigned short snum;
+> > > > > > > +        unsigned short snum = 0;
+> > > > > > >            u32 sid, perm;
+> > > > > > >            /* sctp_connectx(3) calls via selinux_sctp_bind_connect()
+> > > > > > > @@ -4674,12 +4674,12 @@ static int
+> > > > > > > selinux_socket_connect_helper(struct socket *sock,
+> > > > > > >                break;
+> > > > > > >            default:
+> > > > > > >                /* Note that SCTP services expect -EINVAL, whereas
+> > > > > > > -             * others expect -EAFNOSUPPORT.
+> > > > > > > +             * others must handle this at the protocol level:
+> > > > > > > +             * connect(AF_UNSPEC) on a connected socket is
+> > > > > > > +             * a documented way disconnect the socket.
+> > > > > > >                 */
+> > > > > > >                if (sksec->sclass == SECCLASS_SCTP_SOCKET)
+> > > > > > >                    return -EINVAL;
+> > > > > > > -            else
+> > > > > > > -                return -EAFNOSUPPORT;
+> > > > > >
+> > > > > > I think we need to return 0 here.  Otherwise, we'll fall through with an
+> > > > > > uninitialized snum, triggering a random/bogus permission check.
+> > > > >
+> > > > > Sorry, I see that you initialize snum above.  Nonetheless, I think the
+> > > > > correct behavior here is to skip the check since this is a disconnect, not a
+> > > > > connect.
+> > > >
+> > > > Skipping the check would make it less controllable. So should it
+> > > > somehow re-use shutdown() stuff? It gets very confusing, and after
+> > > > all, it still is, in essence, a connect() syscall.
+> > >
+> > > The function checks CONNECT permission on entry, before reaching this
+> > > point.  This logic is only in preparation for a further check
+> > > (NAME_CONNECT) on the port.  In this case, there is no further check to
+> > > perform and we can just return.
+> >
+> > I agree with Stephen, in the connect(AF_UNSPEC) case the right thing
+> > to do is to simply return with no error.
+>
+> The 'default:' case is catching any address family other than
+> INET{4,6}, but I guess you argument still applies - selinux should not
+> do name check for unknown protocols ?!?
 
-get_ordered_context_list() is rewritten to compute set of contexts based on
-/etc/selinux/targeted/contexts/users/ and
-/etc/selinux/targeted/contexts/default_contexts files and to return only valid
-contexts, using security_check_context(), from this set.
+If the code doesn't understand how to parse the port/"name" info it
+can't really do a useful name_connect check, this is why we return
+-EAFNOSUPPORT in the default case (or -EINVAL in the case of SCTP).
+However, the connect/AF_UNSPEC case is a bit of a special case and as
+such I probably needs special handling.
 
-Fixes: https://github.com/SELinuxProject/selinux/issues/28
+My initial thinking is that we should do the AF_UNSPEC check
+immediately after the sock_has_perm() check in
+selinux_socket_connect_helper():
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libselinux/src/get_context_list.c | 185 ++++++++++--------------------
- 1 file changed, 60 insertions(+), 125 deletions(-)
+       err = sock_has_perm(sk, SOCKET__CONNECT);
+       if (err)
+               return err;
+       if (addrlen < offsetofend(struct sockaddr, sa_family))
+               return -EINVAL;
+       if (address->sa_family == AF_UNSPEC)
+               return 0;
 
-diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
-index 689e4658..a36c6253 100644
---- a/libselinux/src/get_context_list.c
-+++ b/libselinux/src/get_context_list.c
-@@ -114,61 +114,24 @@ int get_default_context(const char *user,
- 	return 0;
- }
- 
--static int find_partialcon(char ** list,
--			   unsigned int nreach, char *part)
--{
--	const char *conrole, *contype;
--	char *partrole, *parttype, *ptr;
--	context_t con;
--	unsigned int i;
--
--	partrole = part;
--	ptr = part;
--	while (*ptr && !isspace(*ptr) && *ptr != ':')
--		ptr++;
--	if (*ptr != ':')
--		return -1;
--	*ptr++ = 0;
--	parttype = ptr;
--	while (*ptr && !isspace(*ptr) && *ptr != ':')
--		ptr++;
--	*ptr = 0;
--
--	for (i = 0; i < nreach; i++) {
--		con = context_new(list[i]);
--		if (!con)
--			return -1;
--		conrole = context_role_get(con);
--		contype = context_type_get(con);
--		if (!conrole || !contype) {
--			context_free(con);
--			return -1;
--		}
--		if (!strcmp(conrole, partrole) && !strcmp(contype, parttype)) {
--			context_free(con);
--			return i;
--		}
--		context_free(con);
--	}
--
--	return -1;
--}
--
--static int get_context_order(FILE * fp,
-+static int get_context_user(FILE * fp,
- 			     char * fromcon,
--			     char ** reachable,
--			     unsigned int nreach,
--			     unsigned int *ordering, unsigned int *nordered)
-+			     const char * user,
-+			     char ***reachable,
-+			     unsigned int *nreachable)
- {
- 	char *start, *end = NULL;
- 	char *line = NULL;
- 	size_t line_len = 0;
--	ssize_t len;
-+	ssize_t len, ulen;
- 	int found = 0;
--	const char *fromrole, *fromtype;
-+	const char *fromrole, *fromtype, *fromlevel;
- 	char *linerole, *linetype;
--	unsigned int i;
-+	char **new_reachable = NULL;
-+	char *usercon_str;
- 	context_t con;
-+	context_t usercon;
-+
- 	int rc;
- 
- 	errno = -EINVAL;
-@@ -180,7 +143,8 @@ static int get_context_order(FILE * fp,
- 		return -1;
- 	fromrole = context_role_get(con);
- 	fromtype = context_type_get(con);
--	if (!fromrole || !fromtype) {
-+	fromlevel = context_range_get(con);
-+	if (!fromrole || !fromtype || !fromlevel) {
- 		context_free(con);
- 		return -1;
- 	}
-@@ -243,23 +207,52 @@ static int get_context_order(FILE * fp,
- 		if (*end)
- 			*end++ = 0;
- 
--		/* Check for a match in the reachable list. */
--		rc = find_partialcon(reachable, nreach, start);
--		if (rc < 0) {
--			/* No match, skip it. */
--			start = end;
--			continue;
-+		/* Check whether a new context is valid */
-+	        ulen = strlen(user) + strlen(start) + 1;
-+		usercon_str = malloc(ulen);
-+		if (!usercon_str) {
-+			rc = -1;
-+			goto out;
- 		}
- 
--		/* If a match is found and the entry is not already ordered
--		   (e.g. due to prior match in prior config file), then set
--		   the ordering for it. */
--		i = rc;
--		if (ordering[i] == nreach)
--			ordering[i] = (*nordered)++;
-+		/* set range from fromcon in the new usercon */
-+		snprintf(usercon_str, ulen - 1, "%s:%s", user, start);
-+		if (!(usercon = context_new(usercon_str))) {
-+			fprintf(stderr,
-+				"%s: can't create a context from %s\n",
-+				__FUNCTION__, usercon_str);
-+			free(usercon_str);
-+
-+			continue;
-+		}
-+		free(usercon_str);
-+		context_range_set(usercon, fromlevel);
-+		usercon_str = context_str(usercon);
-+
-+		if (security_check_context(usercon_str) == 0) {
-+			if (*nreachable == 0) {
-+				new_reachable = malloc(2 * sizeof(char *));
-+				if (!new_reachable) {
-+					context_free(usercon);
-+					rc = -1;
-+					goto out;
-+				}
-+			} else {
-+				new_reachable = realloc(*reachable, (*nreachable + 2) * sizeof(char *));
-+				if (!new_reachable) {
-+					context_free(usercon);
-+					rc = -1;
-+					goto out;
-+				}
-+			}
-+			new_reachable[*nreachable] = strdup(usercon_str);
-+			new_reachable[*nreachable + 1] = 0;
-+			*reachable = new_reachable;
-+			*nreachable += 1;
-+		}
-+		context_free(usercon);
- 		start = end;
- 	}
--
- 	rc = 0;
- 
-       out:
-@@ -313,21 +306,6 @@ static int get_failsafe_context(const char *user, char ** newcon)
- 	return 0;
- }
- 
--struct context_order {
--	char * con;
--	unsigned int order;
--};
--
--static int order_compare(const void *A, const void *B)
--{
--	const struct context_order *c1 = A, *c2 = B;
--	if (c1->order < c2->order)
--		return -1;
--	else if (c1->order > c2->order)
--		return 1;
--	return strcmp(c1->con, c2->con);
--}
--
- int get_ordered_context_list_with_level(const char *user,
- 					const char *level,
- 					char * fromcon,
-@@ -395,11 +373,8 @@ int get_ordered_context_list(const char *user,
- 			     char *** list)
- {
- 	char **reachable = NULL;
--	unsigned int *ordering = NULL;
--	struct context_order *co = NULL;
--	char **ptr;
- 	int rc = 0;
--	unsigned int nreach = 0, nordered = 0, freefrom = 0, i;
-+	unsigned nreachable = 0, freefrom = 0;
- 	FILE *fp;
- 	char *fname = NULL;
- 	size_t fname_len;
-@@ -413,23 +388,6 @@ int get_ordered_context_list(const char *user,
- 		freefrom = 1;
- 	}
- 
--	/* Determine the set of reachable contexts for the user. */
--	rc = security_compute_user(fromcon, user, &reachable);
--	if (rc < 0)
--		goto failsafe;
--	nreach = 0;
--	for (ptr = reachable; *ptr; ptr++)
--		nreach++;
--	if (!nreach)
--		goto failsafe;
--
--	/* Initialize ordering array. */
--	ordering = malloc(nreach * sizeof(unsigned int));
--	if (!ordering)
--		goto failsafe;
--	for (i = 0; i < nreach; i++)
--		ordering[i] = nreach;
--
- 	/* Determine the ordering to apply from the optional per-user config
- 	   and from the global config. */
- 	fname_len = strlen(user_contexts_path) + strlen(user) + 2;
-@@ -440,8 +398,8 @@ int get_ordered_context_list(const char *user,
- 	fp = fopen(fname, "re");
- 	if (fp) {
- 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
--		rc = get_context_order(fp, fromcon, reachable, nreach, ordering,
--				       &nordered);
-+		rc = get_context_user(fp, fromcon, user, &reachable, &nreachable);
-+
- 		fclose(fp);
- 		if (rc < 0 && errno != ENOENT) {
- 			fprintf(stderr,
-@@ -454,8 +412,7 @@ int get_ordered_context_list(const char *user,
- 	fp = fopen(selinux_default_context_path(), "re");
- 	if (fp) {
- 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
--		rc = get_context_order(fp, fromcon, reachable, nreach, ordering,
--				       &nordered);
-+		rc = get_context_user(fp, fromcon, user, &reachable, &nreachable);
- 		fclose(fp);
- 		if (rc < 0 && errno != ENOENT) {
- 			fprintf(stderr,
-@@ -463,40 +420,18 @@ int get_ordered_context_list(const char *user,
- 				__FUNCTION__, selinux_default_context_path());
- 			/* Fall through */
- 		}
--		rc = 0;
-+		rc = nreachable;
- 	}
- 
--	if (!nordered)
-+	if (!nreachable)
- 		goto failsafe;
- 
--	/* Apply the ordering. */
--	co = malloc(nreach * sizeof(struct context_order));
--	if (!co)
--		goto failsafe;
--	for (i = 0; i < nreach; i++) {
--		co[i].con = reachable[i];
--		co[i].order = ordering[i];
--	}
--	qsort(co, nreach, sizeof(struct context_order), order_compare);
--	for (i = 0; i < nreach; i++)
--		reachable[i] = co[i].con;
--	free(co);
--
--	/* Only report the ordered entries to the caller. */
--	if (nordered <= nreach) {
--		for (i = nordered; i < nreach; i++)
--			free(reachable[i]);
--		reachable[nordered] = NULL;
--		rc = nordered;
--	}
--
-       out:
- 	if (rc > 0)
- 		*list = reachable;
- 	else
- 		freeconary(reachable);
- 
--	free(ordering);
- 	if (freefrom)
- 		freecon(fromcon);
- 
+... we can then remove the addrlen check from inside the TCP/DCCP/SCTP
+if-true block later in the function.  There is the downside the we are
+now adding some additional code that executes for each connect() call
+(as opposed to just TCP/DCCP/SCTP), but this seems much cleaner from a
+conceptual point of view and I expect the overhead to be in the
+"unmeasurable" range.
+
+> > I would also suggest that since this patch only touches the SELinux
+> > code it really should go in via the SELinux tree and not netdev; this
+> > will help avoid merge conflicts in the linux-next tree and during the
+> > merge window.  I think the right thing to do at this point is to
+> > create a revert patch (or have DaveM do it, I'm not sure what he
+> > prefers in situations like this) for this commit, make the adjustments
+> > that Stephen mentioned and submit them for the SELinux tree.
+>
+> Sorry, my fault, I sent the email to both MLs for more awareness, I
+> should have used a different subject prefix.
+
+It's not a big deal for patches this small, but since you're going to
+respin this patch anyway I figured it would be worth mentioning.
+Also, I have no object to posting to multiple MLs when appropriate (it
+seems appropriate here); I think the problem here was the "[PATCH
+net]" which caused DaveM to pull it into his tree.
+
+> @DaveM: if it's ok for you, I'll send a revert for this on netdev and
+> I'll send a v2 via the selinux ML, please let me know!
+
 -- 
-2.21.0
-
+paul moore
+www.paul-moore.com
