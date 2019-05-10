@@ -2,96 +2,77 @@ Return-Path: <SRS0=uP1p=TK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0A1CC04A6B
-	for <selinux@archiver.kernel.org>; Fri, 10 May 2019 17:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25DDFC04AB2
+	for <selinux@archiver.kernel.org>; Fri, 10 May 2019 19:02:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C370F208C3
-	for <selinux@archiver.kernel.org>; Fri, 10 May 2019 17:13:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B881D2084A
+	for <selinux@archiver.kernel.org>; Fri, 10 May 2019 19:02:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="W/nKo1n3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727554AbfEJRNi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 May 2019 13:13:38 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:37632 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727453AbfEJRNi (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 10 May 2019 13:13:38 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 12EF43001804;
-        Fri, 10 May 2019 17:13:38 +0000 (UTC)
-Received: from localhost.localdomain.com (unknown [10.32.181.182])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 02C551018A2E;
-        Fri, 10 May 2019 17:13:35 +0000 (UTC)
-From:   Paolo Abeni <pabeni@redhat.com>
+        id S1728074AbfEJTCm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 May 2019 15:02:42 -0400
+Received: from 48.23.240.77.static.louhi.net ([77.240.23.48]:56178 "EHLO
+        kolttonen.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727535AbfEJTCm (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 10 May 2019 15:02:42 -0400
+X-Greylist: delayed 2765 seconds by postgrey-1.27 at vger.kernel.org; Fri, 10 May 2019 15:02:40 EDT
+Received: from 34-41-5D-CA-59-C7 (176-93-196-243.bb.dnainternet.fi [176.93.196.243])
+        (authenticated bits=0)
+        by vcust561.louhi.net (8.14.7/8.14.7/0) with ESMTP id x4AIIcgl013605
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <selinux@vger.kernel.org>; Fri, 10 May 2019 21:18:39 +0300
+DKIM-Filter: OpenDKIM Filter v2.11.0 vcust561.louhi.net x4AIIcgl013605
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kolttonen.fi;
+        s=mail; t=1557512319;
+        bh=9mTgzrVyc6W8yzazdzTBIq4ME79EYkNtWv9nLT8tNwM=;
+        h=Date:From:To:Subject:From;
+        b=W/nKo1n3eeufZCUX9EcqeltZCo+6oUPEtGgVEAcaP62enEh7ABMIJ317yhayi80o3
+         Sjc8bUkcjzo3o7VL4X+8mSJoZEMgbCueEWR4bCq/n9bhVbXmFTKRNLZZhgZ6Eil4KA
+         FJrJKUVJwf/XolmPqbZK0SDcJVbWkwpqH36wXmr3l+4tImsUbBHSj0SnldkwteJHvZ
+         Ko4Grc/RD3OYiRyH2JG4izFR64Hm3oRsVlvAPPKwnhzNhllOCprb5+vuEyKJelEtQF
+         /nXpiDKcTtTU3eVEuUfFtVdHtsA00ESJGD6jBi/ykmg9lQwRZffTMLK7DyCxyO9Q3i
+         nT1zJR7MUz9Tg==
+Date:   Fri, 10 May 2019 21:18:41 +0300 (EEST)
+From:   =?ISO-8859-15?Q?Jokke_H=E4m=E4l=E4inen?= 
+        <jokke.hamalainen@kolttonen.fi>
 To:     selinux@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>, Tom Deseyn <tdeseyn@redhat.com>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Subject: [PATCH v3] selinux: do not report error on connect(AF_UNSPEC)
-Date:   Fri, 10 May 2019 19:12:33 +0200
-Message-Id: <73b14b25ad7741c9ddcef061ab65a9b7ea8811bc.1557506063.git.pabeni@redhat.com>
+Subject: [PATCH] Check strdup() failure
+Message-ID: <alpine.LFD.2.21.1905102118010.16225@34-41-5D-CA-59-C7>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Fri, 10 May 2019 17:13:38 +0000 (UTC)
+Content-Type: text/plain; charset=US-ASCII
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-calling connect(AF_UNSPEC) on an already connected TCP socket is an
-established way to disconnect() such socket. After commit 68741a8adab9
-("selinux: Fix ltp test connect-syscall failure") it no longer works
-and, in the above scenario connect() fails with EAFNOSUPPORT.
 
-Fix the above explicitly early checking for AF_UNSPEC family, and
-returning success in that case.
 
-Suggested-by: Paul Moore <paul@paul-moore.com>
-Fixes: 68741a8adab9 ("selinux: Fix ltp test connect-syscall failure")
-Reported-by: Tom Deseyn <tdeseyn@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 ---
-v2 -> v3:
- - do the check for AF_UNSPEC at the begining, as suggested by Paul
-v1 -> v2:
- - avoid validation for AF_UNSPEC
----
- security/selinux/hooks.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ libselinux/utils/getconlist.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index c61787b15f27..3ec702cf46ca 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -4637,6 +4637,14 @@ static int selinux_socket_connect_helper(struct socket *sock,
- 	err = sock_has_perm(sk, SOCKET__CONNECT);
- 	if (err)
- 		return err;
-+	if (addrlen < offsetofend(struct sockaddr, sa_family))
-+		return -EINVAL;
-+
-+	/* connect(AF_UNSPEC) has special handling, as it is a documented
-+	 * way to disconnect the socket
-+	 */
-+	if (address->sa_family == AF_UNSPEC)
-+		return 0;
- 
- 	/*
- 	 * If a TCP, DCCP or SCTP socket, check name_connect permission
-@@ -4657,8 +4665,6 @@ static int selinux_socket_connect_helper(struct socket *sock,
- 		 * need to check address->sa_family as it is possible to have
- 		 * sk->sk_family = PF_INET6 with addr->sa_family = AF_INET.
- 		 */
--		if (addrlen < offsetofend(struct sockaddr, sa_family))
--			return -EINVAL;
- 		switch (address->sa_family) {
- 		case AF_INET:
- 			addr4 = (struct sockaddr_in *)address;
+diff --git a/libselinux/utils/getconlist.c b/libselinux/utils/getconlist.c
+index 5ac0ca85..29c16640 100644
+--- a/libselinux/utils/getconlist.c
++++ b/libselinux/utils/getconlist.c
+@@ -27,6 +27,11 @@ int main(int argc, char **argv)
+ 		switch (opt) {
+ 		case 'l':
+ 			level = strdup(optarg);
++			if (!level) {
++				fprintf(stderr, "memory allocation failure: %d(%s)\n",
++					errno, strerror(errno));
++				return 3;
++			}
+ 			break;
+ 		default:
+ 			usage(argv[0], "invalid option", 1);
 -- 
-2.20.1
+2.21.0
 
