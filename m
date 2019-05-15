@@ -1,235 +1,229 @@
-Return-Path: <SRS0=j2AE=TO=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=BNYG=TP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 530B5C04AB4
-	for <selinux@archiver.kernel.org>; Tue, 14 May 2019 20:22:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A767C04E53
+	for <selinux@archiver.kernel.org>; Wed, 15 May 2019 18:27:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DEF2920644
-	for <selinux@archiver.kernel.org>; Tue, 14 May 2019 20:22:22 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="UH+9hwux"
+	by mail.kernel.org (Postfix) with ESMTP id 5C69C2082E
+	for <selinux@archiver.kernel.org>; Wed, 15 May 2019 18:27:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1557944844;
+	bh=eyCci4NNHW/Zb8xOIWX1uiuQImd0sVgqVJNMBUtSyzo=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=W8uV6jbf0LfpQBS1gJ9wOBhoErCsK0mSQ6WZ32U1Bi44NCHgFfEYqLQdl+lSglQej
+	 EuGjFeLWi6Y0L+6WkC6zKVuI/8Ij/U9703fdaDSLLVqyNHgTsMyU2RJijToM5MebZa
+	 /tgDp+Ow09uJJTCZ+UABPWVboPj4JaXxKCr2Bd1M=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726143AbfENUWW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 May 2019 16:22:22 -0400
-Received: from uhil19pa11.eemsg.mail.mil ([214.24.21.84]:52745 "EHLO
-        uhil19pa11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726089AbfENUWW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 May 2019 16:22:22 -0400
-X-EEMSG-check-017: 412126278|UHIL19PA11_EEMSG_MP9.csd.disa.mil
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by uhil19pa11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 May 2019 20:22:17 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1557865337; x=1589401337;
-  h=subject:from:to:cc:references:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=i2YRbvBVVx0eFICrxHCRbmzSvzY5yKuNMzNgSwwgBS4=;
-  b=UH+9hwuxdRi4IB4dwNOAWXEhktodD70b1CPaDiZOs4NecgsjkFS2OfNc
-   mfDxpA24c8SO5g02CEMKHF17ns/4f8kBr23s8g2ERCEk7LeCZR0+6UwCl
-   5WnHFlXY5qoYADln2y6uWI4Xxl16IZnO+tKVXb+uzeS+gy16ybHWDLuIy
-   5p6rAbo0h21oYQL7zy9qyMG1ac69Ltivyh5RrsY6zGVzrW7s+SKKtI9pe
-   JeUImjc83uw5l5izC+BiPoAqfyT/0MUvKzm+Ra+ibeAY/SAQ0oBjvT/ZZ
-   I2C3pLXE4UzgE4MY+YQ5z1Snh0ZK7cfJmAIFLK4jNF0Qy8TmjRri3OUAQ
-   A==;
-X-IronPort-AV: E=Sophos;i="5.60,470,1549929600"; 
-   d="scan'208";a="27711176"
-IronPort-PHdr: =?us-ascii?q?9a23=3As25ifhcU6YrbcQ60e/3dJQtQlGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxc27YhyN2/xhgRfzUJnB7Loc0qyK6vmmCDJLuMrf+Fk5M7V0Hy?=
- =?us-ascii?q?cfjssXmwFySOWkMmbcaMDQUiohAc5ZX0Vk9XzoeWJcGcL5ekGA6ibqtW1aFR?=
- =?us-ascii?q?rwLxd6KfroEYDOkcu3y/qy+5rOaAlUmTaxe7x/IAiroQnLssQbgIRuJrs+xx?=
- =?us-ascii?q?bIv3BFZ/lYyWR0KFyJgh3y/N2w/Jlt8yRRv/Iu6ctNWrjkcqo7ULJVEi0oP3?=
- =?us-ascii?q?g668P3uxbDSxCP5mYHXWUNjhVIGQnF4wrkUZr3ryD3q/By2CiePc3xULA0RT?=
- =?us-ascii?q?Gv5LplRRP0lCsKMSMy/XrJgcJskq1UvBOhpwR+w4HKZoGVKOF+db7Zcd8DWG?=
- =?us-ascii?q?ZNQtpdWylHD4yydYsPC/cKM/heoYfzulACqQKyCReoCe/qzDJDm3340rAg0+?=
- =?us-ascii?q?k5DA/I3BIuH9wNvnraotr6O6UdXvy6wqTT0TXObOlb1Svh5IXGcB0sp+yHU7?=
- =?us-ascii?q?JqccrWzEkiDx7LjkmOpoz9PzOayOINuHWG4eplT+2vj2onpB9xozOywcoskZ?=
- =?us-ascii?q?TGhpkOx1DY9SR23IY1JdqiRE59et6rCoFcty6dN4toW84vRXxjtig9yr0Do5?=
- =?us-ascii?q?G7fS4KxYwkxxHBcfyHdZaH4hb5WOaWOzd4i3Roc6+8iRaq6UWs1+LxW8au3F?=
- =?us-ascii?q?tKsyZJiMfAu38T2xDJ98SKTOZ28F271jaVzQ/T7/lJIUUzlaXGNZEs2qUwlp?=
- =?us-ascii?q?8PsUTbGS/2hVn2gLeWdko6/uio7PzqYqn8qZ+GNo90lxr+Pr4yms2/Hes4Mg?=
- =?us-ascii?q?8OU3Kd+eugz73s4Vf1QLBLjv0yiqXZsZbaKtoHpqOhHgNY3Yku5wy/Aju7yt?=
- =?us-ascii?q?gUg3YKIExfdB6al4TpPkvBIPH8DfexmVSslzJryujdPrL8GZXANWTDkbf9cr?=
- =?us-ascii?q?Z97E5Q0gwzzctF6J5OBbEBJ+zzVlfrtNPEFh85LxC0w+H/BdV/yIweV2yPAr?=
- =?us-ascii?q?GCPaPdtl+I4e0vI+2Sa4MPpDn9LP0l7eb0jXAlgV8dYbWp3ZwPZXCjAPtmJ0?=
- =?us-ascii?q?SZYXzxgtYOCmoKoAU+Q/LwiFGYUj5ceWyyX6Qi6TE/Eo6mCp3DRo+1irybwC?=
- =?us-ascii?q?i7BoFWZnxBCl2UE3foeJ+LW/MSZyKUOc9hlToEWKOuS48m0hGuuwv6xKR9Iu?=
- =?us-ascii?q?XI/S0YsIrp1MJp6O3LiREy6Tt0AtyF02GJVW50g38IRyUt069lukF90EmM3r?=
- =?us-ascii?q?V4g/NCCdxf/e9GUgA/NZTE1ex1F8jyWh7dfteOUFumRsumASsrQd0q3dABf1?=
- =?us-ascii?q?1wG8+8gR/e3yqlGaMVm6aXC5wz96LWx2LxKNply3bayKkhiEErQtNVOm27gq?=
- =?us-ascii?q?5y7BDTCJTUk0WdjqqqcKMc3CnX9Gid12aBoEZYUAtoW6XfQX8fflfWrcj+5k?=
- =?us-ascii?q?7aSL+uDLMnMhBHycGYNqRFdMbkjU9YS/j+ONTReX6xl32sChaPw7PfJLbtLk?=
- =?us-ascii?q?cQ0ivHBVlMrQkV8XucfTMiASq56zbcATJgC3rgZETj9eQ4o3S+GBwa1QaPOn?=
- =?us-ascii?q?Z92qK19xhdvvmVT/cez/pQoys6gyllF1a6mdTNApyPoBQ3L/YUWs80/FoSjT?=
- =?us-ascii?q?GRjAd6JJH1avk411M=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AhBQC9Ittc/wHyM5BkHAEBAQQBAQcEAQGBZYFnKmlNB?=
- =?us-ascii?q?DMohBGTE0wBAQEBAQEGgQgIJYlNkCoDVAkBAQEBAQEBAQEvBQECAQGEQAKCH?=
- =?us-ascii?q?SM4EwEDAQEBBAEBAQEDAQFsHAyCOikBgmYBAQEBAyMPAQVBEAkCFAEDAgIjA?=
- =?us-ascii?q?wICRhEGDQYCAQGCXz8BgXYUD5AAm2WBL4hsgUAGgQsoi08XeIEHgTgMgWFJN?=
- =?us-ascii?q?T6CSBkEGIRRgjYiBI0wmURlCYILggmEGIw3BhuCFIpAiRqTDJBAITaBISsIA?=
- =?us-ascii?q?hgIIQ+DJ4IbF4hghVsjAzABCXwBAY9nAQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 14 May 2019 20:22:16 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x4EKMFTK028197;
-        Tue, 14 May 2019 16:22:15 -0400
-Subject: Re: Mislabeled /proc/<pid>/ns/mnt files?
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Jeffrey Vander Stoep <jeffv@google.com>
-Cc:     selinux@vger.kernel.org, Joel Galenson <jgalenson@google.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        Lukas Vrabec <lvrabec@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-References: <CABXk95D-4v2aT=sZk9NoeGJBGTy=7NTQ8+yKv5E4RvaODJgWLA@mail.gmail.com>
- <fdcf1946-2151-4502-9755-3a10d0646399@tycho.nsa.gov>
- <CABXk95Au_UVdghpHGuu39mHJkSYA2=7YS__vtx8sxGEH4CuSgg@mail.gmail.com>
- <CAB9W1A2LPEk_XixkFU5mVgr9c2yNoiGzBjXYjpc3vDM1b2VpyA@mail.gmail.com>
- <cc889840-5c5a-99c5-d3fe-1604c32763f2@tycho.nsa.gov>
- <525387dc-ed0c-7555-0dd5-49ca442a6b88@tycho.nsa.gov>
-Message-ID: <17bfd94b-8409-3bce-8963-c462a1952ec2@tycho.nsa.gov>
-Date:   Tue, 14 May 2019 16:13:36 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1727311AbfEOS1T (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 May 2019 14:27:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34190 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726807AbfEOS1T (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 15 May 2019 14:27:19 -0400
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4859721783
+        for <selinux@vger.kernel.org>; Wed, 15 May 2019 18:27:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1557944837;
+        bh=eyCci4NNHW/Zb8xOIWX1uiuQImd0sVgqVJNMBUtSyzo=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=l+ze3bM9Xdq86BlYng6FD78FmBq7OVBDoDLIvX6TPDXdbjyb53Eyyr3Gmo9FBNwB0
+         VrEqBdvsYZznlPOWMqDeTQUbWDUQTB005XXgyHcaKsKlEvQjgebrHzPDQQRDk3LPvN
+         ZIXgbS7QZBNVKlbDrXxccBz6lOFRTKcRFQInOmbw=
+Received: by mail-wr1-f46.google.com with SMTP id h4so558740wre.7
+        for <selinux@vger.kernel.org>; Wed, 15 May 2019 11:27:17 -0700 (PDT)
+X-Gm-Message-State: APjAAAU9LieX57H7L3uptypbbwXVINZTbdogAgdl717atOtYFyv22lQk
+        W7Dmdd09NlYK7EcKU6PqX/DG+h4CbQGnQp+P8Gc+CA==
+X-Google-Smtp-Source: APXvYqy1pLyH4lK8J6UTt9LHYCA38HWu3si0XcCqLyKwswu7vOKZJZQHgx27uHEnWm6r8QGqq5mTnXm8Ea9kev7zK7A=
+X-Received: by 2002:a5d:4907:: with SMTP id x7mr14732988wrq.199.1557944835683;
+ Wed, 15 May 2019 11:27:15 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <525387dc-ed0c-7555-0dd5-49ca442a6b88@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <8fe520bb-30bd-f246-a3d8-c5443e47a014@intel.com>
+ <358e9b36-230f-eb18-efdb-b472be8438b4@fortanix.com> <960B34DE67B9E140824F1DCDEC400C0F4E886094@ORSMSX116.amr.corp.intel.com>
+ <6da269d8-7ebb-4177-b6a7-50cc5b435cf4@fortanix.com> <CALCETrWCZQwg-TUCm58DVG43=xCKRsMe1tVHrR8vdt06hf4fWA@mail.gmail.com>
+ <20190513102926.GD8743@linux.intel.com> <20190514104323.GA7591@linux.intel.com>
+ <CALCETrVbgTCnPo=PAq0-KoaRwt--urrPzn==quAJ8wodCpkBkw@mail.gmail.com>
+ <20190514204527.GC1977@linux.intel.com> <CALCETrX6aL367mMJh5+Y1Seznfu-AvhPV6P7GkWF4Dhu0GV8cw@mail.gmail.com>
+ <20190515013031.GF1977@linux.intel.com>
+In-Reply-To: <20190515013031.GF1977@linux.intel.com>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Wed, 15 May 2019 11:27:04 -0700
+X-Gmail-Original-Message-ID: <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
+Message-ID: <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
+Subject: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
+To:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Xing, Cedric" <cedric.xing@intel.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Dr. Greg" <greg@enjellic.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "npmccallum@redhat.com" <npmccallum@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/10/19 10:55 AM, Stephen Smalley wrote:
-> On 5/10/19 8:38 AM, Stephen Smalley wrote:
->> On 5/9/19 8:32 PM, Stephen Smalley wrote:
->>> On Thu, May 9, 2019, 5:49 PM Jeffrey Vander Stoep <jeffv@google.com 
->>> <mailto:jeffv@google.com>> wrote:
->>>
->>>     From: Stephen Smalley <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>
->>>     Date: Thu, May 9, 2019 at 2:17 PM
->>>     To: Jeffrey Vander Stoep, <selinux@vger.kernel.org
->>>     <mailto:selinux@vger.kernel.org>>, Joel Galenson,
->>>     Petr Lautrbach
->>>
->>>      > On 5/9/19 3:56 PM, Jeffrey Vander Stoep wrote:
->>>      > > I expected files here would have the process's context, but 
->>> they
->>>      > > don't. The files are actually all symlinks so it's entirely
->>>     possible
->>>      > > that the they shouldn't have the process's context. If 
->>> that's the
->>>      > > case, how can I provide different labels for them? Neither
->>>     "proc" nor
->>>      > > "unlabeled" are appropriate.
->>>      > >
->>>      > > On a device with a 3.18 kernel they have the "proc" context:
->>>      > > sailfish:/ # ls -LZ1 /proc/1/ns
->>>      > > u:object_r:proc:s0 mnt
->>>      > > u:object_r:proc:s0 net
->>>      > >
->>>      > > On a device with the 4.9 kernel the have the "unlabeled" 
->>> context:
->>>      > > blueline:/ # ls -LZ1 /proc/1/ns
->>>      > > u:object_r:unlabeled:s0 cgroup
->>>      > > u:object_r:unlabeled:s0 mnt
->>>      > > u:object_r:unlabeled:s0 net
->>>      >
->>>      > First, ls -L dereferences symlinks so you are going to get the
->>>     context
->>>      > of the object referenced by the symlink, not the context of the
->>>     symlink
->>>      > itself.
->>>
->>>     I'm seeing a denial on the object not the symlink, so -L is what 
->>> I want.
->>>
->>>      >
->>>      > Second, the task context is only assigned to proc inodes 
->>> created via
->>>      > proc_pid_make_inode(), which has never been the case of 
->>> /proc/pid/ns
->>>      > inodes - those have their own implementations and operations.
->>>      >
->>>      > Third, /proc/pid/ns migrated from proc to its own pseudo 
->>> filesystem,
->>>      > nsfs, which requires a corresponding fs_use or genfscon rule in
->>>     policy
->>>      > or they will be unlabeled.  refpolicy has a genfscon rule.
->>>     Confusingly
->>>      > there appears to be both in Fedora policy, a fs_use_task and a
->>>     genfscon
->>>      > rule, and it appears that fs_use_task is being applied here.  
->>> I don't
->>>      > know why or what exactly that means.  It won't be the task
->>>     context for
->>>      > the task associated with that /proc/pid directory but instead
->>>     would be
->>>      > whichever task context instantiates the inode.
->>>      >
->>>
->>>     So, how do I label these files in genfs_contexts?
->>>
->>>     "mount | grep nsfs" returns nothing.
->>>
->>>
->>> Just a single entry for the nsfs / should suffice if using genfscon. 
->>> That will apply a single label to all nsfs inodes. If you need to 
->>> distinguish than fs_use_task might work better but you'd have to 
->>> check when these inodes get instantiated; they are not per task but 
->>> rather per namespace iiuc. See 
->>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e149ed2b805fefdccf7ccdfc19eca22fdd4514ac 
->>>
->>
->> Actually, looking at the nsfs code, it looks like the inode gets 
->> allocated when the link is first followed, so fs_use_task nsfs would 
->> be misleading - it would get the context of whatever task first 
->> followed the link, not the associated task for the /proc/pid 
->> directory.  And really, these objects are not per-process state; they 
->> are per-namespace (note that ls -Li shows the same inode number for 
->> anything sharing that namespace). genfscon is the only thing that 
->> makes sense for labeling in that case.  Arguably, namespaces should be 
->> labeled from their creating process and these pseudo files should 
->> inherit that label but that would require kernel changes to label 
->> namespaces and propagate those labels.
->>
->> Red Hat folks, why do you have both fs_use_task nsfs and genfscon nsfs 
->> in your policy?  I think the fs_use_task is wrong here; probably was 
->> an attempt to label the targets of the /proc/pid/ns links with the 
->> same label as the other /proc/pid nodes but that isn't right and won't 
->> work; try ls -LZ /proc/1/ns for example and contrast with ls -lZ 
->> /proc/1/ns.
-> 
->  From a compatibility POV, it would probably be best to assign nsfs the 
-> same context as proc via genfscon so that policy that worked on v3.18 
-> and earlier will continue working under later kernels, unless there is 
-> some real reason to distinguish these accesses.
+Hi, LSM and SELinux people-
 
-Looks like someone added a type, genfscon, and allow rules for nsfs to 
-the goldfish sepolicy,
-$ grep -r nsfs device/generic/goldfish/sepolicy
-device/generic/goldfish/sepolicy/common/genfs_contexts:genfscon nsfs / 
-u:object_r:nsfs:s0
-device/generic/goldfish/sepolicy/common/execns.te:allow execns nsfs:file 
-{ open read };
-device/generic/goldfish/sepolicy/common/vold.te:allow vold nsfs:file 
-r_file_perms;
-device/generic/goldfish/sepolicy/common/goldfish_setup.te:allow 
-goldfish_setup nsfs:file r_file_perms;
-device/generic/goldfish/sepolicy/common/file.te:type nsfs, fs_type;
+We're trying to figure out how SGX fits in with LSMs.  For background,
+an SGX library is functionally a bit like a DSO, except that it's
+nominally resistant to attack from outside and the process of loading
+it is complicated.  To load an enclave, a program can open
+/dev/sgx/enclave, do some ioctls to load the code and data segments
+into the enclave, call a special ioctl to "initialize" the enclave,
+and then call into the enclave (using special CPU instructions).
 
-Don't know if most of that ought to be moved over to system/sepolicy. 
-Looks like execns is goldfish-specific 
-(device/generic/goldfish/wifi/execns), as is goldfish_setup of course. 
-At least the type declaration and genfscon statement probably should 
-live in system/sepolicy.  And whether or not you keep it as a separate 
-nsfs type or switch to proc for consistency/compatibility with older 
-kernels/policies is up to you.  I guess the question is whether you 
-want/need to allow nsfs access without allowing access to the generic 
-proc type.
+One nastiness is that there is not actually a universally agreed upon,
+documented file format for enclaves.  Windows has an undocumented
+format, and there are probably a few others out there.  No one really
+wants to teach the kernel to parse enclave files.
+
+There are two issues with how this interacts with LSMs:
+
+1) LSMs might want to be able to whitelist, blacklist, or otherwise
+restrict what enclaves can run at all.  The current proposal that
+everyone seems to dislike the least is to have a .sigstruct file on
+disk that contains a hash and signature of the enclave in a
+CPU-defined format.  To initialize an enclave, a program will pass an
+fd to this file, and a new LSM hook can be called to allow or disallow
+the operation.  In a SELinux context, the idea is that policy could
+require the .sigstruct file to be labeled with a type like
+sgx_sigstruct_t, and only enclaves that have a matching .sigstruct
+with such a label could run.
+
+2) Just like any other DSO, there are potential issues with how
+enclaves deal with writable vs executable memory.  This takes two
+forms.  First, a task should probably require EXECMEM, EXECMOD, or
+similar permission to run an enclave that can modify its own text.
+Second, it would be nice if a task that did *not* have EXECMEM,
+EXECMOD, or similar could still run the enclave if it had EXECUTE
+permission on the file containing the enclave.
+
+Currently, this all works because DSOs are run by mmapping the file to
+create multiple VMAs, some of which are executable, non-writable, and
+non-CoWed, and some of which are writable but not executable.  With
+SGX, there's only really one inode per enclave (the anon_inode that
+comes form /dev/sgx/enclave), and it can only be sensibly mapped
+MAP_SHARED.
+
+With the current version of the SGX driver, to run an enclave, I think
+you'll need either EXECUTE rights to /dev/sgx/enclave or EXECMOD or
+similar, all of which more or less mean that you can run any modified
+code you want, and none of which is useful to prevent enclaves from
+contain RWX segments.
+
+So my question is: what, if anything, should change to make this work bette=
+r?
+
+Here's a very vague proposal that's kind of like what I've been
+thinking over the past few days.  The SGX inode could track, for each
+page, a "safe-to-execute" bit.  When you first open /dev/sgx/enclave,
+you get a blank enclave and all pages are safe-to-execute.  When you
+do the ioctl to load context (which could be code, data, or anything
+else), the kernel will check whether the *source* VMA is executable
+and, if not, mark the page of the enclave being loaded as unsafe.
+Once the enclave is initialized, the driver will clear the
+safe-to-execute bit for any page that is successfully mapped writably.
+
+The intent is that a page of the enclave is safe-to-execute if that
+page was populated from executable memory and not modified since then.
+LSMs could then enforce a policy that you can map an enclave page RX
+if the page is safe-to-execute, you can map any page you want for
+write if there are no executable mappings, and you can only map a page
+for write and execute simultaneously if you can EXECMOD permission.
+This should allow an enclave to be loaded by userspace from a file
+with EXECUTE rights.
+
+So here are my questions:
+
+Are the goals I mentioned reasonable?
+
+Is the design I just outlined reasonable?  Would SELinux support this?
+
+Is there a better solution that works well enough?
+
+Thanks, all!
+
+> On May 14, 2019, at 6:30 PM, Sean Christopherson <sean.j.christopherson@i=
+ntel.com> wrote:
+>
+>
+>> But thinking this all through, it's a bit more complicated than any of
+>> this.  Looking at the SELinux code for inspiration, there are quite a
+>> few paths, but they boil down to two cases: EXECUTE is the right to
+>> map an unmodified file executably, and EXECMOD/EXECMEM (the
+>> distinction seems mostly irrelevant) is the right to create (via mmap
+>> or mprotect) a modified anonymous file mapping or a non-file-backed
+>> mapping that is executable.  So, if we do nothing, then mapping an
+>> enclave with execute permission will require either EXECUTE on the
+>> enclave inode or EXECMOD/EXECMEM, depending on exactly how this gets
+>> set up.
+>
+> If we do literally nothing, then I'm pretty sure mapping an enclave will
+> require PROCESS__EXECMEM.  The mmap() for the actual enclave is done
+> using an anon inode, e.g. from /dev/sgx/enclave.  Anon inodes are marked
+> private, which means inode_has_perm() will always return "success".  The
+> only effective check is in file_map_prot_check() when default_noexec is
+> true, in which case requesting PROT_EXEC on private inodes requires
+> PROCESS__EXECMEM.
+>
+>> So all is well, sort of.  The problem is that I expect there will be
+>> people who want enclaves to work in a process that does not have these
+>> rights.  To make this work, we probably need do some surgery on
+>> SELinux.  ISTM the act of copying (via the EADD ioctl) data from a
+>> PROT_EXEC mapping to an enclave should not be construed as "modifying"
+>> the enclave for SELinux purposes.  Actually doing this could be
+>> awkward, since the same inode will have executable parts and
+>> non-executable parts, and SELinux can't really tell the difference.
+>
+> Rather the do surgery on SELinux, why not go with Cedric's original
+> proposal and propagate the permissions from the source VMA to the EPC
+> VMA?
+
+Which EPC VMA?  Users can map the enclave fd again after EADD,
+resulting in a new VMA.  And any realistic enclave will presumably
+have RO, RW, and RX pages.
+
+>  The enclave mmap() from userspace could then be done with RO
+> permissions so as to not run afoul of LSMs.  Adding PROT_EXEC after
+> EADD would require PROCESS__EXECMEM, but that's in line with mprotect()
+> on regular memory.
+
+How does this help anything?  The driver currently only works with
+EXECMEM and, with this change, it still needs EXECMEM.
+
+I think that, if we=E2=80=99re going to make changes along these lines, the
+goal should be that you can have an enclave serialized in a file on
+disk such that you have EXECUTE on the file, and you should be able to
+load and run the enclave without needing EXECMEM.  (Unless the enclave
+is self-modifying, of course.)
