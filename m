@@ -2,153 +2,102 @@ Return-Path: <SRS0=VlsA=TQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 109F2C04E84
-	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 01:46:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C294C072AF
+	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 01:48:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CD25F20843
-	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 01:46:35 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vA3dOY6X"
+	by mail.kernel.org (Postfix) with ESMTP id 6C91A20873
+	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 01:48:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726979AbfEPBqf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1726778AbfEPBqf (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 15 May 2019 21:46:35 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:41501 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726841AbfEPAvw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 May 2019 20:51:52 -0400
-Received: by mail-ot1-f65.google.com with SMTP id g8so1825111otl.8
-        for <selinux@vger.kernel.org>; Wed, 15 May 2019 17:51:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=KFYQqEW8E/bfJ0A0Qffi13TStOPNlra992nO1bt1MsY=;
-        b=vA3dOY6XxYDMESc8VFXcdijJqeWolJhr+aty+JuWP/UHHqztF7DA1PD3GG+BkyvQHt
-         ahpOzzaOL/bLbf6kJsHmCtGZ3DB/SafcGX/OsYEnCWDtbRWVPfrcfgspwbz0Uz7sDQiN
-         /brrN+Z5kmseIm1VZmeDaj6pYh6NYq0lF78VOfxjn95z4nlqSzET2qwdOsjiWg8TyJYq
-         7J390PcZVZSyhSCy0Fo7Bw0vV5rGXFg+MTpPHSW6VDHPLI9LF2+dHF8j6cTOYs+m5ZnW
-         UrtWAORlunXDTU4pPtcOAC9I1ZVkKoivZErIb0udpTE1vNxEA2I9o8uA+V9aS8Ip29fr
-         7wnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=KFYQqEW8E/bfJ0A0Qffi13TStOPNlra992nO1bt1MsY=;
-        b=ZomyDVM5IdccX99HptysJuQ6NYWCgl7FQaDNfFBEFuTDyPVHIQp+LMc+b98HON7FEc
-         IbYO0pdmy5ObpPncMq4urQI2IyH/wStMlqVgGuYJvPdMCA8UlsH0/E/X/ha9HByMs0KT
-         m8N4DagZ5jXDA3amGFe8Iw+EJ5mdnmWJlJhNIgj8HlH5ZbSagzGe3og1mOuVEGzBVDQX
-         Or3HGg/YmwpYs+czybYS1lfAyEYGunXU0JtLznboU1prRVT6tK7Ek1dvlIIUDwJTd8fT
-         S2TQzWmjekyeJ5obddA2wk6/SehCSn0nmvGkDRkpU3TZuqlTmaMEm3WD3TopND75xcBc
-         3PVw==
-X-Gm-Message-State: APjAAAVy5OpaziEVdxDoPHZ+1qfXrDZDbw8/vR4rJcGas7MXb0t7kFjS
-        3QtWHZYcKimpjOH4v5coitWR42F2MQUULej4CRQ=
-X-Google-Smtp-Source: APXvYqzrk6SzyGVLEaXMg6Xl8SUGy/sAWp7AmwkzDtEYdWKV7J/rtQHZJdpGVEELGcuOSaruv1R3VJVg5x1yThoiyXI=
-X-Received: by 2002:a9d:6b0d:: with SMTP id g13mr245920otp.91.1557967912175;
- Wed, 15 May 2019 17:51:52 -0700 (PDT)
+Received: from mga06.intel.com ([134.134.136.31]:62043 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726990AbfEPBTK (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 15 May 2019 21:19:10 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 May 2019 18:19:09 -0700
+X-ExtLoop1: 1
+Received: from hhuan26-mobl.amr.corp.intel.com ([10.255.34.16])
+  by orsmga006.jf.intel.com with ESMTP; 15 May 2019 18:19:04 -0700
+Content-Type: text/plain; charset=iso-8859-15; format=flowed; delsp=yes
+To:     "Andy Lutomirski" <luto@kernel.org>,
+        "Sean Christopherson" <sean.j.christopherson@intel.com>
+Cc:     "James Morris" <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        "LSM List" <linux-security-module@vger.kernel.org>,
+        "Paul Moore" <paul@paul-moore.com>,
+        "Stephen Smalley" <sds@tycho.nsa.gov>,
+        "Eric Paris" <eparis@parisplace.org>, selinux@vger.kernel.org,
+        "Jarkko Sakkinen" <jarkko.sakkinen@linux.intel.com>,
+        "Jethro Beekman" <jethro@fortanix.com>,
+        "Xing, Cedric" <cedric.xing@intel.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Dr. Greg" <greg@enjellic.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, "X86 ML" <x86@kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        "Andrew Morton" <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "npmccallum@redhat.com" <npmccallum@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>,
+        "Borislav Petkov" <bp@alien8.de>,
+        "Josh Triplett" <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        "David Rientjes" <rientjes@google.com>
+Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
+Reply-To: haitao.huang@linux.intel.com
+References: <960B34DE67B9E140824F1DCDEC400C0F4E886094@ORSMSX116.amr.corp.intel.com> <6da269d8-7ebb-4177-b6a7-50cc5b435cf4@fortanix.com> <CALCETrWCZQwg-TUCm58DVG43=xCKRsMe1tVHrR8vdt06hf4fWA@mail.gmail.com> <20190513102926.GD8743@linux.intel.com> <20190514104323.GA7591@linux.intel.com> <CALCETrVbgTCnPo=PAq0-KoaRwt--urrPzn==quAJ8wodCpkBkw@mail.gmail.com> <20190514204527.GC1977@linux.intel.com> <CALCETrX6aL367mMJh5+Y1Seznfu-AvhPV6P7GkWF4Dhu0GV8cw@mail.gmail.com> <20190515013031.GF1977@linux.intel.com> <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com> <20190515213858.GG5875@linux.intel.com>
+Date:   Wed, 15 May 2019 20:19:04 -0500
 MIME-Version: 1.0
-References: <alpine.LFD.2.21.1905110105390.19034@34-41-5D-CA-59-C7>
-In-Reply-To: <alpine.LFD.2.21.1905110105390.19034@34-41-5D-CA-59-C7>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Wed, 15 May 2019 17:51:40 -0700
-Message-ID: <CAFftDdqcCu--4uckf7CpB5-qK1y6sp9yt1S5PYDVgqzGjE2pRw@mail.gmail.com>
-Subject: Re: [PATCH] Trivial style fixes pt2
-To:     =?UTF-8?B?Sm9ra2UgSMOkbcOkbMOkaW5lbg==?= 
-        <jokke.hamalainen@kolttonen.fi>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+From:   "Haitao Huang" <haitao.huang@linux.intel.com>
+Organization: Intel
+Message-ID: <op.z1uy92bdwjvjmi@hhuan26-mobl.amr.corp.intel.com>
+In-Reply-To: <20190515213858.GG5875@linux.intel.com>
+User-Agent: Opera Mail/1.0 (Win32)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 10, 2019 at 3:08 PM Jokke H=C3=A4m=C3=A4l=C3=A4inen
-<jokke.hamalainen@kolttonen.fi> wrote:
->
->
-> ---
->  libsemanage/src/direct_api.c    | 2 +-
->  libsemanage/src/modules.c       | 2 +-
->  libsemanage/src/seusers_local.c | 2 +-
->  libsemanage/src/users_local.c   | 4 ++--
->  4 files changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index c58961be..7e097d5f 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -517,7 +517,7 @@ ssize_t bunzip(semanage_handle_t *sh, FILE *f, char *=
-*data)
->         size_t  size =3D 1<<18;
->         size_t  bufsize =3D size;
->         int     bzerror;
-> -       size_t  total=3D0;
-> +       size_t  total =3D 0;
->         char*   uncompress =3D NULL;
->         char*   tmpalloc =3D NULL;
->         int     ret =3D -1;
-> diff --git a/libsemanage/src/modules.c b/libsemanage/src/modules.c
-> index 62af1018..fa84d33e 100644
-> --- a/libsemanage/src/modules.c
-> +++ b/libsemanage/src/modules.c
-> @@ -1130,7 +1130,7 @@ int semanage_module_install_info(semanage_handle_t =
-*sh,
->  int semanage_module_remove_key(semanage_handle_t *sh,
->                                const semanage_module_key_t *modkey)
->  {
-> -       if (sh->funcs->remove_key=3D=3D NULL) {
-> +       if (sh->funcs->remove_key =3D=3D NULL) {
->                 ERR(sh,
->                     "No remove key function defined for this connection t=
-ype.");
->                 return -1;
-> diff --git a/libsemanage/src/seusers_local.c b/libsemanage/src/seusers_lo=
-cal.c
-> index a79e2d3d..3e2761c4 100644
-> --- a/libsemanage/src/seusers_local.c
-> +++ b/libsemanage/src/seusers_local.c
-> @@ -133,7 +133,7 @@ int semanage_seuser_modify_local(semanage_handle_t * =
-handle,
->         semanage_seuser_t *new =3D NULL;
->
->         if (!sename) {
-> -               errno=3DEINVAL;
-> +               errno =3D EINVAL;
->                 return -1;
->         }
->         rc =3D semanage_seuser_clone(handle, data, &new);
-> diff --git a/libsemanage/src/users_local.c b/libsemanage/src/users_local.=
-c
-> index 7aa43d44..8193476d 100644
-> --- a/libsemanage/src/users_local.c
-> +++ b/libsemanage/src/users_local.c
-> @@ -38,7 +38,7 @@ static int lookup_seuser(semanage_handle_t * handle, co=
-nst semanage_user_key_t *
->         semanage_seuser_list_local(handle,
->                                    &records,
->                                    &count);
-> -       for(i=3D0; i<count; i++) {
-> +       for(i =3D 0; i < count; i++) {
->                 sename =3D semanage_seuser_get_sename(records[i]);
->                 if (strcmp(name, sename) =3D=3D 0) {
->                         errno =3D EINVAL;
-> @@ -47,7 +47,7 @@ static int lookup_seuser(semanage_handle_t * handle, co=
-nst semanage_user_key_t *
->                         rc =3D -1;
->                 }
->         }
-> -       for(i=3D0; i<count; i++)
-> +       for(i =3D 0; i < count; i++)
->                 semanage_seuser_free(records[i]);
->         free(records);
->         semanage_user_free(user);
-> --
-> 2.21.0
->
+On Wed, 15 May 2019 16:38:58 -0500, Sean Christopherson  
+<sean.j.christopherson@intel.com> wrote:
 
-ack, can you want to stage a PR?
+> On Wed, May 15, 2019 at 11:27:04AM -0700, Andy Lutomirski wrote:
+>> 2) Just like any other DSO, there are potential issues with how
+>> enclaves deal with writable vs executable memory.  This takes two
+>> forms.  First, a task should probably require EXECMEM, EXECMOD, or
+>> similar permission to run an enclave that can modify its own text.
+>> Second, it would be nice if a task that did *not* have EXECMEM,
+>> EXECMOD, or similar could still run the enclave if it had EXECUTE
+>> permission on the file containing the enclave.
+>>
+>> Currently, this all works because DSOs are run by mmapping the file to
+>> create multiple VMAs, some of which are executable, non-writable, and
+>> non-CoWed, and some of which are writable but not executable.  With
+>> SGX, there's only really one inode per enclave (the anon_inode that
+>> comes form /dev/sgx/enclave), and it can only be sensibly mapped
+>> MAP_SHARED.
+>
+> I was wrong when I said /dev/sgx/enclave creates and returns an anon
+> inode.  I was thinking of the KVM model for creating VMs.  SGX creates
+> an enclave when /dev/sgx/enclave is opened and associates the enclave
+> with the newly opened /dev/sgx/enclave fd.
+>
+> Regardless, the fundamental problem remains, mmap() of EPC works on a
+> single inode.
+
+If I read code in file_map_prot_check() correctly, only when you request  
+W+X at the same time that EXECMEM would be required for MAP_SHARED, right?
+If so, I believe SGX enclaves would never need that.
