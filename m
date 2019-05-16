@@ -1,147 +1,105 @@
-Return-Path: <SRS0=BNYG=TP=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=VlsA=TQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3B96C04E53
-	for <selinux@archiver.kernel.org>; Wed, 15 May 2019 23:13:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A12E1C04E53
+	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 01:46:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 76E2220873
-	for <selinux@archiver.kernel.org>; Wed, 15 May 2019 23:13:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1557962011;
-	bh=oXIRUhaHoitttMrIPB2rv0mrXlZVPITnJpfkP2WGxVA=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=D+zvjZ0e95USBNbxrSFhwWdBq10jJlRF4Y8qYcnP+p0pOll0ycEDSUnfwZA9mC3/6
-	 +wWSdcnos9ia2RcujvuugPx/0OwOlJWZA/HwkycAvYClFhPWx4clRaa5xTjPHu9ZNc
-	 A0fgXvMiLN/qOgKXAI4oIXHCEqlVPeZwCCbEcPyo=
+	by mail.kernel.org (Postfix) with ESMTP id 71C3E20843
+	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 01:46:35 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nb/Y6475"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726394AbfEOXNa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 May 2019 19:13:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41572 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725953AbfEOXNa (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 15 May 2019 19:13:30 -0400
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C66112084E
-        for <selinux@vger.kernel.org>; Wed, 15 May 2019 23:13:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557962009;
-        bh=oXIRUhaHoitttMrIPB2rv0mrXlZVPITnJpfkP2WGxVA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=VbF8Ip5K02eLqRuNtSS6WygUsSTTLfyAYn9NcN3u9GKSyhtm3+BN8zkh35/Dq8Ekl
-         BLooL6ayE6/H0fEyV9VadrhQFqHsDyCMtDszV2imLL0hKb1Cba9BH4ZcIchASyFnVv
-         uYGJFISNfE49xSl0pLPqhJzxWUFndnszyL6u0ULw=
-Received: by mail-wr1-f44.google.com with SMTP id s17so1258445wru.3
-        for <selinux@vger.kernel.org>; Wed, 15 May 2019 16:13:28 -0700 (PDT)
-X-Gm-Message-State: APjAAAXKJl2AA6y4cfftsoWg0S7L1PjSqm6q0zLgyDKVyA9e9VdFuER+
-        XfphhfqKVVh/jkK0/hNxUSYTI4dnrwefPG9rBN7NGQ==
-X-Google-Smtp-Source: APXvYqx8WK5Hi6FoJcSd9VsW2VbRkOOSjlnlo07tWriqsFOxSCmdirUQKhI03vZN1Sh8qXdY8fD30ruPZx0us0bAMz4=
-X-Received: by 2002:adf:fb4a:: with SMTP id c10mr26918322wrs.309.1557962007443;
- Wed, 15 May 2019 16:13:27 -0700 (PDT)
+        id S1727509AbfEPBqd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 May 2019 21:46:33 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:40893 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726799AbfEPAgG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 May 2019 20:36:06 -0400
+Received: by mail-ot1-f67.google.com with SMTP id u11so1803734otq.7
+        for <selinux@vger.kernel.org>; Wed, 15 May 2019 17:36:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=g3Iq5snhvQ0Bs/Xgt8lZrLU8oAvAHpcWLpGSk/lnZrY=;
+        b=Nb/Y6475LD6/ufXabUybH2q1l2PtXhKnJLTsbaJ/p8l3V6/TNrhIBn1odlP7kD+jfV
+         uDzQ3RFUG7nn3e8iM/LJb+QT/vHKx75Z78uNS4rFwnBhRjCET+zGLFbvLH6J1Ubb1f6E
+         PXH9XWn5wV46P8YEVArdRynzfRFYz1k7WI7A90iJE8hvO2KjLWCSdg8LHr38E13+DVYp
+         +GehS9EUgL/Y5AnjtyHCiMT7JEbDjGYJwUv+/DuJ3WVRUKWpzGNklul5qK5Osriri/gF
+         89dflCTErbAGtcrhJNsye7fH6LbWAwPcsy6B9mtsZVCZIGfUsAF4QtslpKLu4Y5qvFP6
+         LBdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=g3Iq5snhvQ0Bs/Xgt8lZrLU8oAvAHpcWLpGSk/lnZrY=;
+        b=N8leixGBhwqOtR+jFuDG62NDWecBWxFn11RHQiw8mDX2Xtp5gJTxagYogCEwDMkQfG
+         jFzVUwog/eZ4hdfaUCuWwe5TEHQu3OFYDmbKTL8l7C10fV31yvcPwi3Ggt9T/Jw5NMZI
+         9FG8pMu4/R9yVxHICcJHvaPheWFIhNGYGKUtgYzQfMFJu2rTxhqMDBeB0r0fm0pl6dkl
+         L+xYrQLlKSFy71SDsO8seletLo9YX8sgo93Qv+hj2a37knpuo5m6t1sC/0Jkl0ACCN3s
+         LxgCjG3iknJ5Jg7P/VQJLkvjAxNsfHzl5UiQ0MsSOMV4u1ZoKZmUrchHLoXJuRi7Q7bW
+         Uj/w==
+X-Gm-Message-State: APjAAAXbPz1DAjYYgVVNDCabP9DxbNB2HOgJKpdKrv+ZojpfXAsO/Nt0
+        SOlpkIwp2x5kKmyXACDX7KIURLCeeG95Y7E71Vo=
+X-Google-Smtp-Source: APXvYqxzaIC2qY09XfyeIGHdn3qpniNiOy8Ng3GHAy11MBDD6oURfajwcgBv7W07Hrzs/Q9V1Sl/PzG6NyBDY9uDRDw=
+X-Received: by 2002:a9d:4b17:: with SMTP id q23mr4282677otf.130.1557966965967;
+ Wed, 15 May 2019 17:36:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <8fe520bb-30bd-f246-a3d8-c5443e47a014@intel.com>
- <358e9b36-230f-eb18-efdb-b472be8438b4@fortanix.com> <960B34DE67B9E140824F1DCDEC400C0F4E886094@ORSMSX116.amr.corp.intel.com>
- <6da269d8-7ebb-4177-b6a7-50cc5b435cf4@fortanix.com> <CALCETrWCZQwg-TUCm58DVG43=xCKRsMe1tVHrR8vdt06hf4fWA@mail.gmail.com>
- <20190513102926.GD8743@linux.intel.com> <20190514104323.GA7591@linux.intel.com>
- <CALCETrVbgTCnPo=PAq0-KoaRwt--urrPzn==quAJ8wodCpkBkw@mail.gmail.com>
- <20190514204527.GC1977@linux.intel.com> <CALCETrX6aL367mMJh5+Y1Seznfu-AvhPV6P7GkWF4Dhu0GV8cw@mail.gmail.com>
- <20190515013031.GF1977@linux.intel.com> <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
- <alpine.LRH.2.21.1905160543070.19802@namei.org> <CALCETrX_Q6qwNRNF0TL2tgfm1j6DKLX7NVHHmWbMFtk3WnHDKw@mail.gmail.com>
- <alpine.LRH.2.21.1905160844130.29250@namei.org>
-In-Reply-To: <alpine.LRH.2.21.1905160844130.29250@namei.org>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Wed, 15 May 2019 16:13:15 -0700
-X-Gmail-Original-Message-ID: <CALCETrX2ovRx3Rre+1_xC-q6CiybyLjQ-gmB4FZF_qCZ-Qd+4A@mail.gmail.com>
-Message-ID: <CALCETrX2ovRx3Rre+1_xC-q6CiybyLjQ-gmB4FZF_qCZ-Qd+4A@mail.gmail.com>
-Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
-To:     James Morris <jmorris@namei.org>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Xing, Cedric" <cedric.xing@intel.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Dr. Greg" <greg@enjellic.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>
+References: <alpine.LFD.2.21.1905102116350.16225@34-41-5D-CA-59-C7> <CAFftDdpJe1Yd_MdiNO=D+=pK6bbg3-G+a0aM_Ck=cz7dzJdsgA@mail.gmail.com>
+In-Reply-To: <CAFftDdpJe1Yd_MdiNO=D+=pK6bbg3-G+a0aM_Ck=cz7dzJdsgA@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Wed, 15 May 2019 17:35:54 -0700
+Message-ID: <CAFftDdrvC3YxzZti+zQuLBpz+e7k-1-HdkihH-v1y-mekmy8CQ@mail.gmail.com>
+Subject: Re: [PATCH 2/2] another style fix
+To:     =?UTF-8?B?Sm9ra2UgSMOkbcOkbMOkaW5lbg==?= 
+        <jokke.hamalainen@kolttonen.fi>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 15, 2019 at 3:46 PM James Morris <jmorris@namei.org> wrote:
+merged: https://github.com/SELinuxProject/selinux/pull/147
+
+On Fri, May 10, 2019 at 1:51 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
 >
-> On Wed, 15 May 2019, Andy Lutomirski wrote:
->
-> > > Why not just use an xattr, like security.sgx ?
+> On Fri, May 10, 2019 at 12:03 PM Jokke H=C3=A4m=C3=A4l=C3=A4inen
+> <jokke.hamalainen@kolttonen.fi> wrote:
 > >
-> > Wouldn't this make it so that only someone with CAP_MAC_ADMIN could
-> > install an enclave?  I think that this decision should be left up the
-> > administrator, and it should be easy to set up a loose policy where
-> > anyone can load whatever enclave they want.  That's what would happen
-> > in my proposal if there was no LSM loaded or of the LSM policy didn't
-> > restrict what .sigstruct files were acceptable.
+> >
+> >
+> > ---
+> >  libselinux/utils/matchpathcon.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/libselinux/utils/matchpathcon.c b/libselinux/utils/matchpa=
+thcon.c
+> > index 9756d7d9..eb39a188 100644
+> > --- a/libselinux/utils/matchpathcon.c
+> > +++ b/libselinux/utils/matchpathcon.c
+> > @@ -25,7 +25,7 @@ static int printmatchpathcon(const char *path, int he=
+ader, int mode)
+> >         int rc =3D matchpathcon(path, mode, &buf);
+> >         if (rc < 0) {
+> >                 if (errno =3D=3D ENOENT) {
+> > -                       buf=3Dstrdup("<<none>>");
+> > +                       buf =3D strdup("<<none>>");
+> >                 } else {
+> >                         fprintf(stderr, "matchpathcon(%s) failed: %s\n"=
+, path,
+> >                                 strerror(errno));
+> > --
+> > 2.21.0
 > >
 >
-> You could try user.sigstruct, which does not require any privs.
->
-
-I don't think I understand your proposal.  What file would this
-attribute be on?  What would consume it?
-
-I'm imagining that there's some enclave in a file
-crypto_thingy.enclave.  There's also a file crypto_thingy.sigstruct.
-crypto_thingy.enclave has type lib_t or similar so that it's
-executable.  crypto_thingy.sigstruct has type sgx_sigstruct_t.  The
-enclave loader does, in effect:
-
-void *source_data = mmap(crypto_thingy.enclave, PROT_READ | PROT_EXEC, ...);
-int sigstruct_fd = open("crypto_thingy.sigstruct", O_RDONLY);
-int enclave_fd = open("/dev/sgx/enclave", O_RDWR);
-
-ioctl(enclave_fd, SGX_IOC_ADD_SOME_DATA, source_data + source_offset,
-enclave_offset, len, ...);
-ioctl(enclave_fd, SGX_IOC_ADD_SOME_DATA, source_data + source_offset2,
-enclave_offset2, len, ...);
-etc.
-
-/* Here's where LSMs get to check that the sigstruct is acceptable.
-The CPU will check that the sigstruct matches the enclave. */
-ioctl(enclave_fd, SGX_INIT_THE_ENCLAVE, sigstruct_fd);
-
-/* Actually map the thing */
-mmap(enclave_fd RO section, PROT_READ, ...);
-mmap(enclave_fd RW section, PROT_READ | PROT_WRITE, ...);
-mmap(enclave_fd RX section, PROT_READ | PROT_EXEC, ...);
-
-/* This should fail unless EXECMOD is available, I think */
-mmap(enclave_fd RWX section, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-And the idea here is that, if the .enclave file isn't mapped
-PROT_EXEC, then mmapping the RX section will also require EXECMEM or
-EXECMOD.
+> ack
