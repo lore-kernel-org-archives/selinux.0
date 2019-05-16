@@ -2,77 +2,41 @@ Return-Path: <SRS0=VlsA=TQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_PASS,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC2E7C04E87
-	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 04:40:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA0CC04AB4
+	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 05:16:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BE0EF2089E
-	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 04:40:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1557981639;
-	bh=38ylCjlm5iAP/Ou8rSegy/JItYb7X26CL4djObD2NAs=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=dQxw52YnsWusBnHtQNcWIMyFq1wAL+BWK+ONNJdWK/pLCh4hbJ3mqfcYmfJPPEGjF
-	 91BPjfvKenUwTzGuiWR73lvVGAvKEsysY7iyj+Yh00eI4bllgrzOj7xsQ8mdYwZEIN
-	 JOhWNM8rgffDfwHP64brZcZCKRYUuvxBmM5l8H0c=
+	by mail.kernel.org (Postfix) with ESMTP id 607E720881
+	for <selinux@archiver.kernel.org>; Thu, 16 May 2019 05:16:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726389AbfEPEkj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 May 2019 00:40:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48236 "EHLO mail.kernel.org"
+        id S1726277AbfEPFQX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 May 2019 01:16:23 -0400
+Received: from mga02.intel.com ([134.134.136.20]:58065 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726344AbfEPEki (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 16 May 2019 00:40:38 -0400
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44D94217D4
-        for <selinux@vger.kernel.org>; Thu, 16 May 2019 04:40:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1557981637;
-        bh=38ylCjlm5iAP/Ou8rSegy/JItYb7X26CL4djObD2NAs=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Oc4gkqwIBEAfsGndmhrY2fSi23HeojozZkvemcvde6sChHVslDNFY4pYPkZh/BYLH
-         XJ+o9tpsEiU4rBqW5zU81Xl1XAIAR3DzjocV7BtNijI2RaaEt/HC98GfICXGSfRCrd
-         4KJCj7QBPzmgS19OzZNQVHk9PNL2hPc1zr6yW7l4=
-Received: by mail-wm1-f46.google.com with SMTP id t5so605056wmh.3
-        for <selinux@vger.kernel.org>; Wed, 15 May 2019 21:40:37 -0700 (PDT)
-X-Gm-Message-State: APjAAAV4nYoSgavf57OUkzzqMHG0ZKKiDSrI1rMRgDCRu/aYnqLD8KoZ
-        24cocKVwYvSPO1vdwSsWuxBr8HibbUvszW4nna+ftg==
-X-Google-Smtp-Source: APXvYqzROYtIxqkjhdn79+zJ7p3zNsiMWwvYuddRT0OAHYdmnxPjv/FuKmbs6R9PAXuS/de56lFOw6TKw5WA5KIsla4=
-X-Received: by 2002:a1c:486:: with SMTP id 128mr24234379wme.83.1557981635591;
- Wed, 15 May 2019 21:40:35 -0700 (PDT)
-MIME-Version: 1.0
-References: <8fe520bb-30bd-f246-a3d8-c5443e47a014@intel.com>
- <358e9b36-230f-eb18-efdb-b472be8438b4@fortanix.com> <960B34DE67B9E140824F1DCDEC400C0F4E886094@ORSMSX116.amr.corp.intel.com>
- <6da269d8-7ebb-4177-b6a7-50cc5b435cf4@fortanix.com> <CALCETrWCZQwg-TUCm58DVG43=xCKRsMe1tVHrR8vdt06hf4fWA@mail.gmail.com>
- <20190513102926.GD8743@linux.intel.com> <20190514104323.GA7591@linux.intel.com>
- <CALCETrVbgTCnPo=PAq0-KoaRwt--urrPzn==quAJ8wodCpkBkw@mail.gmail.com>
- <20190514204527.GC1977@linux.intel.com> <CALCETrX6aL367mMJh5+Y1Seznfu-AvhPV6P7GkWF4Dhu0GV8cw@mail.gmail.com>
- <20190515013031.GF1977@linux.intel.com> <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
- <alpine.LRH.2.21.1905160543070.19802@namei.org> <CALCETrX_Q6qwNRNF0TL2tgfm1j6DKLX7NVHHmWbMFtk3WnHDKw@mail.gmail.com>
- <alpine.LRH.2.21.1905160844130.29250@namei.org> <CALCETrX2ovRx3Rre+1_xC-q6CiybyLjQ-gmB4FZF_qCZ-Qd+4A@mail.gmail.com>
- <960B34DE67B9E140824F1DCDEC400C0F654E38CD@ORSMSX116.amr.corp.intel.com>
-In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F654E38CD@ORSMSX116.amr.corp.intel.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Wed, 15 May 2019 21:40:23 -0700
-X-Gmail-Original-Message-ID: <CALCETrUfmyQ7ivNzQic0FyPXe1fmAnoK093jnz0i8DRn2LvdSA@mail.gmail.com>
-Message-ID: <CALCETrUfmyQ7ivNzQic0FyPXe1fmAnoK093jnz0i8DRn2LvdSA@mail.gmail.com>
-Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
-To:     "Xing, Cedric" <cedric.xing@intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
+        id S1725975AbfEPFQX (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 16 May 2019 01:16:23 -0400
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 May 2019 22:16:22 -0700
+X-ExtLoop1: 1
+Received: from jsakkine-mobl1.tm.intel.com (HELO localhost) ([10.237.50.189])
+  by orsmga003.jf.intel.com with ESMTP; 15 May 2019 22:16:12 -0700
+Date:   Thu, 16 May 2019 08:16:22 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
         James Morris <jmorris@namei.org>,
-        "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
         "Serge E. Hallyn" <serge@hallyn.com>,
         LSM List <linux-security-module@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
         Jethro Beekman <jethro@fortanix.com>,
+        "Xing, Cedric" <cedric.xing@intel.com>,
         "Hansen, Dave" <dave.hansen@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         "Dr. Greg" <greg@enjellic.com>,
@@ -90,123 +54,82 @@ Cc:     Andy Lutomirski <luto@kernel.org>,
         Josh Triplett <josh@joshtriplett.org>,
         "Huang, Kai" <kai.huang@intel.com>,
         David Rientjes <rientjes@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
+Message-ID: <20190516051622.GC6388@linux.intel.com>
+References: <960B34DE67B9E140824F1DCDEC400C0F4E886094@ORSMSX116.amr.corp.intel.com>
+ <6da269d8-7ebb-4177-b6a7-50cc5b435cf4@fortanix.com>
+ <CALCETrWCZQwg-TUCm58DVG43=xCKRsMe1tVHrR8vdt06hf4fWA@mail.gmail.com>
+ <20190513102926.GD8743@linux.intel.com>
+ <20190514104323.GA7591@linux.intel.com>
+ <CALCETrVbgTCnPo=PAq0-KoaRwt--urrPzn==quAJ8wodCpkBkw@mail.gmail.com>
+ <20190514204527.GC1977@linux.intel.com>
+ <CALCETrX6aL367mMJh5+Y1Seznfu-AvhPV6P7GkWF4Dhu0GV8cw@mail.gmail.com>
+ <20190515013031.GF1977@linux.intel.com>
+ <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> On May 15, 2019, at 8:03 PM, Xing, Cedric <cedric.xing@intel.com> wrote:
->
-> Hi Andy,
->
->> From: Andy Lutomirski [mailto:luto@kernel.org]
->>
->>> On Wed, May 15, 2019 at 3:46 PM James Morris <jmorris@namei.org> wrote:
->>>
->>> On Wed, 15 May 2019, Andy Lutomirski wrote:
->>>
->>>>> Why not just use an xattr, like security.sgx ?
->>>>
->>>> Wouldn't this make it so that only someone with CAP_MAC_ADMIN could
->>>> install an enclave?  I think that this decision should be left up the
->>>> administrator, and it should be easy to set up a loose policy where
->>>> anyone can load whatever enclave they want.  That's what would happen
->>>> in my proposal if there was no LSM loaded or of the LSM policy didn't
->>>> restrict what .sigstruct files were acceptable.
->>>>
->>>
->>> You could try user.sigstruct, which does not require any privs.
->>>
->>
->> I don't think I understand your proposal.  What file would this
->> attribute be on?  What would consume it?
->>
->> I'm imagining that there's some enclave in a file
->> crypto_thingy.enclave.  There's also a file crypto_thingy.sigstruct.
->> crypto_thingy.enclave has type lib_t or similar so that it's
->> executable.  crypto_thingy.sigstruct has type sgx_sigstruct_t.  The
->> enclave loader does, in effect:
->>
->> void *source_data =3D mmap(crypto_thingy.enclave, PROT_READ | PROT_EXEC,=
- ...);
->> int sigstruct_fd =3D open("crypto_thingy.sigstruct", O_RDONLY);
->> int enclave_fd =3D open("/dev/sgx/enclave", O_RDWR);
->>
->> ioctl(enclave_fd, SGX_IOC_ADD_SOME_DATA, source_data + source_offset,
->> enclave_offset, len, ...);
->> ioctl(enclave_fd, SGX_IOC_ADD_SOME_DATA, source_data + source_offset2,
->> enclave_offset2, len, ...);
->> etc.
->>
->> /* Here's where LSMs get to check that the sigstruct is acceptable.
->> The CPU will check that the sigstruct matches the enclave. */
->> ioctl(enclave_fd, SGX_INIT_THE_ENCLAVE, sigstruct_fd);
->
-> SIGSTRUCT isn't necessarily stored on disk so may not always have a fd. H=
-ow about the following?
-> void *ss_pointer =3D mmap(sigstruct_fd, PROT_READ,...);
-> ioctl(enclave_fd, SGX_INIT_THE_ENCLAVE, ss_pointer);
->
-> The idea here is SIGSTRUCT will still be passed in memory so it works the=
- same way when no LSM modules are loaded or basing its decision on the .sig=
-struct file. Otherwise, an LSM module can figure out the backing file (and =
-offset within that file) by looking into the VMA covering ss_pointer.
+On Wed, May 15, 2019 at 11:27:04AM -0700, Andy Lutomirski wrote:
+> Hi, LSM and SELinux people-
+> 
+> We're trying to figure out how SGX fits in with LSMs.  For background,
+> an SGX library is functionally a bit like a DSO, except that it's
+> nominally resistant to attack from outside and the process of loading
+> it is complicated.  To load an enclave, a program can open
+> /dev/sgx/enclave, do some ioctls to load the code and data segments
+> into the enclave, call a special ioctl to "initialize" the enclave,
+> and then call into the enclave (using special CPU instructions).
+> 
+> One nastiness is that there is not actually a universally agreed upon,
+> documented file format for enclaves.  Windows has an undocumented
+> format, and there are probably a few others out there.  No one really
+> wants to teach the kernel to parse enclave files.
+> 
+> There are two issues with how this interacts with LSMs:
+> 
+> 1) LSMs might want to be able to whitelist, blacklist, or otherwise
+> restrict what enclaves can run at all.  The current proposal that
+> everyone seems to dislike the least is to have a .sigstruct file on
+> disk that contains a hash and signature of the enclave in a
+> CPU-defined format.  To initialize an enclave, a program will pass an
+> fd to this file, and a new LSM hook can be called to allow or disallow
+> the operation.  In a SELinux context, the idea is that policy could
+> require the .sigstruct file to be labeled with a type like
+> sgx_sigstruct_t, and only enclaves that have a matching .sigstruct
+> with such a label could run.
 
-I don=E2=80=99t love this approach.  Application authors seem likely to use
-read() instead of mmap(), and it=E2=80=99ll still work in many cares. It wo=
-uld
-also complicate the kernel implementation, and looking at the inode
-backing the vma that backs a pointer is at least rather unusual.
-Instead, if the sigstruct isn=E2=80=99t on disk because it=E2=80=99s dynami=
-c or came
-from a network, the application can put it in a memfd.
+Similarly if we could take data for the enclave from fd and enforce
+it with sgx_enclave_t label.
 
->
->>
->> /* Actually map the thing */
->> mmap(enclave_fd RO section, PROT_READ, ...);
->> mmap(enclave_fd RW section, PROT_READ | PROT_WRITE, ...);
->> mmap(enclave_fd RX section, PROT_READ | PROT_EXEC, ...);
->>
->> /* This should fail unless EXECMOD is available, I think */
->> mmap(enclave_fd RWX section, PROT_READ | PROT_WRITE | PROT_EXEC);
->>
->> And the idea here is that, if the .enclave file isn't mapped
->> PROT_EXEC, then mmapping the RX section will also require EXECMEM or
->> EXECMOD.
->
-> From security perspective, I think it reasonable to give EXECMEM and EXEC=
-MOD to /dev/sgx/enclave because the actual permissions are guarded by EPCM =
-permissions, which are "inherited" from the source pages, whose permissions=
- have passed LSM checks.
+> Here's a very vague proposal that's kind of like what I've been
+> thinking over the past few days.  The SGX inode could track, for each
+> page, a "safe-to-execute" bit.  When you first open /dev/sgx/enclave,
+> you get a blank enclave and all pages are safe-to-execute.  When you
+> do the ioctl to load context (which could be code, data, or anything
+> else), the kernel will check whether the *source* VMA is executable
+> and, if not, mark the page of the enclave being loaded as unsafe.
+> Once the enclave is initialized, the driver will clear the
+> safe-to-execute bit for any page that is successfully mapped writably.
 
-I disagree.  If you deny a program EXECMOD, it=E2=80=99s not because you
-distrust the program. It=E2=80=99s because you want to enforce good securit=
-y
-practices.  (Or you=E2=80=99re Apple and want to disallow third-party JITs.=
-)
-A policy that accepts any sigstruct but requires that enclaves come
-from disk and respect W^X seems entirely reasonable.
+With the fd based model for source I'd mark SECINFO.W pages as unsafe
+to execute and then check unsafe bit before applying lets say EMODT
+or EMODPR.
 
-I think that blocking EXECMOD has likely served two very real security
-purposes. It helps force application and library developers to write
-and compile their code in a way that doesn=E2=80=99t rely on dangerous tric=
-ks
-like putting executable trampolines on the stack.  It also makes it
-essentially impossible for an exploit to run actual downloaded machine
-code =E2=80=94 if there is no way to run code that isn=E2=80=99t appropriat=
-ely
-labeled, then attackers are more limited in what they can do.
+There is a problem here though. Usually the enclave itself is just a
+loader that then loads the application from outside source and creates
+the executable pages from the content.
 
-I don=E2=80=99t think that SGX should become an exception to either of thes=
-e.
-Code should not have an excuse to use WX memory just because it=E2=80=99s i=
-n
-an enclave. Similarly, an exploit should not be able to run an
-attacker-supplied enclave as a way around a policy that would
-otherwise prevent downloaded code from running.
+A great example of this is Graphene that bootstraps unmodified Linux
+applications to an enclave:
 
+https://github.com/oscarlab/graphene
 
-=E2=80=94Andy
+/Jarkko
