@@ -1,150 +1,130 @@
-Return-Path: <SRS0=HICo=TR=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=CL7O=TS=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDB12C04AB4
-	for <selinux@archiver.kernel.org>; Fri, 17 May 2019 21:36:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FE67C04AAF
+	for <selinux@archiver.kernel.org>; Sat, 18 May 2019 16:57:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B04792133D
-	for <selinux@archiver.kernel.org>; Fri, 17 May 2019 21:36:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5F8120873
+	for <selinux@archiver.kernel.org>; Sat, 18 May 2019 16:57:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="fDWms0B+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727432AbfEQVgj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 May 2019 17:36:39 -0400
-Received: from mga04.intel.com ([192.55.52.120]:19145 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726960AbfEQVgj (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 17 May 2019 17:36:39 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 May 2019 14:36:38 -0700
-X-ExtLoop1: 1
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
-  by fmsmga004.fm.intel.com with ESMTP; 17 May 2019 14:36:37 -0700
-Date:   Fri, 17 May 2019 14:36:37 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        "Xing, Cedric" <cedric.xing@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Dr. Greg" <greg@enjellic.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>
-Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
-Message-ID: <20190517213637.GM15006@linux.intel.com>
-References: <CALCETrUfmyQ7ivNzQic0FyPXe1fmAnoK093jnz0i8DRn2LvdSA@mail.gmail.com>
- <960B34DE67B9E140824F1DCDEC400C0F654E3FB9@ORSMSX116.amr.corp.intel.com>
- <6a97c099-2f42-672e-a258-95bc09152363@tycho.nsa.gov>
- <20190517150948.GA15632@linux.intel.com>
- <ca807220-47e2-5ec2-982c-4fb4a72439c6@tycho.nsa.gov>
- <80013cca-f1c2-f4d5-7558-8f4e752ada76@tycho.nsa.gov>
- <837CE33B-A636-4BF8-B46E-0A8A40C5A563@amacapital.net>
- <6d083885-1880-f33d-a54f-23518d56b714@tycho.nsa.gov>
- <20190517192823.GG15006@linux.intel.com>
- <c901ea99-5b43-a25d-03e8-55b4fce9c466@tycho.nsa.gov>
+        id S1728783AbfERQ5I (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 18 May 2019 12:57:08 -0400
+Received: from 48.23.240.77.static.louhi.net ([77.240.23.48]:37096 "EHLO
+        kolttonen.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727073AbfERQ5I (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sat, 18 May 2019 12:57:08 -0400
+Received: from 34-41-5D-CA-59-C7 (176-93-196-243.bb.dnainternet.fi [176.93.196.243])
+        (authenticated bits=0)
+        by vcust561.louhi.net (8.14.7/8.14.7/0) with ESMTP id x4IGuoR6008607
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <selinux@vger.kernel.org>; Sat, 18 May 2019 19:56:50 +0300
+DKIM-Filter: OpenDKIM Filter v2.11.0 vcust561.louhi.net x4IGuoR6008607
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kolttonen.fi;
+        s=mail; t=1558198611;
+        bh=vpnh3THTO15/+oODvCd8xHOl0IwW3kxamlVp6AKJQsw=;
+        h=Date:From:To:Subject:From;
+        b=fDWms0B+3hgCZt8bYUe3rTt8Zjir8ZL7wuETImnFYprKUPyrJ+VEpeO0tIankas7e
+         PYNOXf22baC3jHkmz/8y/fZ6U/7CUMGF6RyXX/G6nCCZQFgp14Bw1pVqIDZy++3X9n
+         8+HrxMGNjTcO0h7ZJ55+AtUkc/JQsiQq6pUhvWV8ETrn35uFp5slFll+2G+OyCHPBn
+         1nt/hQyqUGDkAbi27NoKinagMkcKvT0F/EcA4pzU/INsNjkY5cMBb0wRF0NCY32/kU
+         NFMlcPMGQsrpN+1zz2joTDevuX7GODsdkeu6A+wcnozNbNO9x6oDS+ezUrMXz2vut5
+         NQcaOX8joBZFA==
+Date:   Sat, 18 May 2019 19:57:03 +0300 (EEST)
+From:   =?ISO-8859-15?Q?Jokke_H=E4m=E4l=E4inen?= 
+        <jokke.hamalainen@kolttonen.fi>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] conf-parse.y checks (with style fixes removed)
+Message-ID: <alpine.LFD.2.21.1905181955170.29988@34-41-5D-CA-59-C7>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c901ea99-5b43-a25d-03e8-55b4fce9c466@tycho.nsa.gov>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; charset=US-ASCII
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 17, 2019 at 04:09:22PM -0400, Stephen Smalley wrote:
-> On 5/17/19 3:28 PM, Sean Christopherson wrote:
-> >On Fri, May 17, 2019 at 02:05:39PM -0400, Stephen Smalley wrote:
-> >Yep, and that's by design in the overall proposal.  The trick is that
-> >ENCLAVE_ADD takes a source VMA and copies the contents *and* the
-> >permissions from the source VMA.  The source VMA points at regular memory
-> >that was mapped and populated using existing mechanisms for loading DSOs.
-> >
-> >E.g. at a high level:
-> >
-> >source_fd = open("/home/sean/path/to/my/enclave", O_RDONLY);
-> >for_each_chunk {
-> >         <hand waving - mmap()/mprotect() the enclave file into regular memory>
-> >}
-> >
-> >enclave_fd = open("/dev/sgx/enclave", O_RDWR); /* allocs anon inode */
-> >enclave_addr = mmap(NULL, size, PROT_READ, MAP_SHARED, enclave_fd, 0);
-> >
-> >ioctl(enclave_fd, ENCLAVE_CREATE, {enclave_addr});
-> >for_each_chunk {
-> >         struct sgx_enclave_add ioctlargs = {
-> >                 .offset = chunk.offset,
-> >                 .source = chunk.addr,
-> >                 .size   = chunk.size,
-> >                 .type   = chunk.type, /* SGX specific metadata */
-> >         }
-> >         ioctl(fd, ENCLAVE_ADD, &ioctlargs); /* modifies enclave's VMAs */
-> >}
-> >ioctl(fd, ENCLAVE_INIT, ...);
-> >
-> >
-> >Userspace never explicitly requests PROT_EXEC on enclave_fd, but SGX also
-> >ensures userspace isn't bypassing LSM policies by virtue of copying the
-> >permissions for EPC VMAs from regular VMAs that have already gone through
-> >LSM checks.
-> 
-> Is O_RDWR required for /dev/sgx/enclave or would O_RDONLY suffice?  Do you
-> do anything other than ioctl() calls on it?
 
-Hmm, in the current implementation, yes, O_RDWR is required.  An enclave
-and its associated EPC memory are represented and referenced by its fd,
-which is backed by /dev/sgx/enclave.  An enclave is not just code, e.g.
-also has a heap, stack, variables, etc..., which need to be mapped
-accordingly.  In the current implementation, userspace directly does
-mprotect() or mmap() on EPC VMAs, and so setting PROT_WRITE for the heap
-and whatnot requires opening /dev/sgx/enclave with O_RDWR.
-
-I *think* /dev/sgx/enclave could be opened O_RDONLY if ENCLAVE_ADD stuffed
-the EPC VMA permissions, assuming the use case doesn't require changing
-permissions after the enclave has been created.
-
-The other reason userspace would need to open /dev/sgx/enclave O_RDWR
-would be to debug an enclave, e.g. pwrite() works on the enclave fd due
-to SGX restrictions on modifying EPC memory from outside the enclave.
-But that's an obvious case where FILE__WRITE should be required.
-
-> What's the advantage of allocating an anon inode in the above?  At present
-> anon inodes are exempted from inode-based checking, thereby losing the
-> ability to perform SELinux ioctl whitelisting, unlike the file-backed
-> /dev/sgx/enclave inode.
-
-Purely to trigger the EXECMEM check on any PROT_EXEC mapping.  However,
-the motiviation for that was due to my bad assumption that FILE__WRITE
-and FILE__EXECUTE are global and not per process.  If we can do as you
-suggest and allow creation of enclaves with O_RDONLY, then keeping a
-file-backed inode is definitely better as it means most processes only
-need FILE__READ and FILE__* in general has actual meaning.
-
-Thanks a bunch for your help!
+diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
+index b527e893..64b53c2d 100644
+--- a/libsemanage/src/conf-parse.y
++++ b/libsemanage/src/conf-parse.y
+@@ -221,6 +221,9 @@ usepasswd: USEPASSWD '=' ARG {
+ 
+ ignoredirs: IGNOREDIRS '=' ARG {
+ 	current_conf->ignoredirs = strdup($3);
++	if (current_conf->ignoredirs == NULL) {
++		yyerror("could not allocate memory for current_conf->ignoredirs");
++	}
+ 	free($3);
+  }
+ 
+@@ -240,8 +243,8 @@ handle_unknown: HANDLE_UNKNOWN '=' ARG {
+ bzip_blocksize:  BZIP_BLOCKSIZE '=' ARG {
+ 	int blocksize = atoi($3);
+ 	free($3);
+-	if (blocksize > 9)
+-		yyerror("bzip-blocksize can only be in the range 0-9");
++	if (blocksize < 1 || blocksize > 9)
++		yyerror("bzip-blocksize can only be in the range 1-9");
+ 	else
+ 		current_conf->bzip_blocksize = blocksize;
+ }
+@@ -339,9 +342,18 @@ static int semanage_conf_init(semanage_conf_t * conf)
+ {
+ 	conf->store_type = SEMANAGE_CON_DIRECT;
+ 	conf->store_path = strdup(basename(selinux_policy_root()));
++	if (conf->store_path == NULL) {
++		return -1;
++	}
+ 	conf->ignoredirs = NULL;
+ 	conf->store_root_path = strdup("/var/lib/selinux");
++	if (conf->store_root_path == NULL) {
++		return -1;
++	}
+ 	conf->compiler_directory_path = strdup("/usr/libexec/selinux/hll");
++	if (conf->compiler_directory_path == NULL) {
++		return -1;
++	}
+ 	conf->policyvers = sepol_policy_kern_vers_max();
+ 	conf->target_platform = SEPOL_TARGET_SELINUX;
+ 	conf->expand_check = 1;
+@@ -515,7 +527,10 @@ static int parse_module_store(char *arg)
+ 			}
+ 		}
+ 	}
+-	return 0;
++
++	if (current_conf->store_path)
++		return 0;
++	return -3;
+ }
+ 
+ static int parse_store_root_path(char *arg)
+@@ -526,6 +541,10 @@ static int parse_store_root_path(char *arg)
+ 
+ 	free(current_conf->store_root_path);
+ 	current_conf->store_root_path = strdup(arg);
++	if (current_conf->store_root_path == NULL) {
++		return -2;
++	}
++
+ 	return 0;
+ }
+ 
+@@ -536,6 +555,9 @@ static int parse_compiler_path(char *arg)
+ 	}
+ 	free(current_conf->compiler_directory_path);
+ 	current_conf->compiler_directory_path = strdup(arg);
++	if (current_conf->compiler_directory_path = NULL) {
++		return -2;
++	}
+ 	return 0;
+ }
+ 
