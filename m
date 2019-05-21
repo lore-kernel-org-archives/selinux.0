@@ -1,88 +1,104 @@
-Return-Path: <SRS0=om5+=TU=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=L5Vm=TV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1983C04E87
-	for <selinux@archiver.kernel.org>; Mon, 20 May 2019 11:42:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E5A9C04AAC
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 01:50:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C8A2120645
-	for <selinux@archiver.kernel.org>; Mon, 20 May 2019 11:42:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07AC92171F
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 01:50:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="esCYX9+X"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730757AbfETLmq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 May 2019 07:42:46 -0400
-Received: from mga02.intel.com ([134.134.136.20]:30629 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725372AbfETLmq (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 20 May 2019 07:42:46 -0400
-X-Amp-Result: UNSCANNABLE
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 May 2019 04:42:45 -0700
-X-ExtLoop1: 1
-Received: from mhauser-mobl.ger.corp.intel.com (HELO localhost) ([10.252.47.244])
-  by orsmga006.jf.intel.com with ESMTP; 20 May 2019 04:42:29 -0700
-Date:   Mon, 20 May 2019 14:42:28 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Xing, Cedric" <cedric.xing@intel.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Dr. Greg" <greg@enjellic.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>
-Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
-Message-ID: <20190520114228.GE27805@linux.intel.com>
-References: <20190513102926.GD8743@linux.intel.com>
- <20190514104323.GA7591@linux.intel.com>
- <CALCETrVbgTCnPo=PAq0-KoaRwt--urrPzn==quAJ8wodCpkBkw@mail.gmail.com>
- <20190514204527.GC1977@linux.intel.com>
- <CALCETrX6aL367mMJh5+Y1Seznfu-AvhPV6P7GkWF4Dhu0GV8cw@mail.gmail.com>
- <20190515013031.GF1977@linux.intel.com>
- <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
- <20190517000331.GD11204@linux.intel.com>
- <CALCETrWxw7xALE0kmiYBzomaSMAeXEVq-7rX7xeqPtDPeDQiCA@mail.gmail.com>
- <20190517154128.GA15006@linux.intel.com>
+        id S1727542AbfEUBuU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 May 2019 21:50:20 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:42515 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727043AbfEUBuU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 May 2019 21:50:20 -0400
+Received: by mail-lf1-f68.google.com with SMTP id y13so11725282lfh.9
+        for <selinux@vger.kernel.org>; Mon, 20 May 2019 18:50:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=nM4bvSM4KQ7O9ME7EsQl77lTp6mmTf73ABuoDRxDNMA=;
+        b=esCYX9+X9aG7vdrvClRxmcvpjgAij7cj5twk6Ggbwem88gOqiGe7UeKzlmdNjcOLEl
+         OVZFMR8NyuJBO1fQJ8ZDJVEbt9Qp7bJVEE4ikvMnwFjGOtt2MLqNfnChQasjIFfeBikR
+         8NEhkELBZs6aY/TcfaMlFWnFpivflpbGORvMfoUwAL26UjEqeCrhc+tDjZIBD6YV/AhA
+         t9F7qCTA77iBuO0oouyelny0W8kumRVME1sMjdIcunRrCh8wGUEeGGhYbc8hk6xvkT91
+         vs7QHA9JVscEgqr+MHOMYbqToJmA7GWYRYlhWHz5bWVIIppMJlhw+vC0sdvIY/VUpTgS
+         CsnQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nM4bvSM4KQ7O9ME7EsQl77lTp6mmTf73ABuoDRxDNMA=;
+        b=E7cJTywG6G09ol6/gv9bP5uNBTYEY8ULWfeJgSKE7o5A2AWgRrWOW5Cscfw80uHk/6
+         VymTK65gknDPfCVyfFU6XSPceD6uqG9cMmYtmlzY2NCCHZ1lBBqCDC8saW1s3zfqlvgf
+         /W60sZqQ6LKMSiuVDRWXR/BPNlCheW+hLkpnm4nEwlKJtAL2Ww+GcqQNehvBBLqF6rm2
+         KZ7UEHCiV9a5mNsxhcnG7ZDIbaVGU/OVJ5A/vAJdlfEFo7Wp8ax1hauvRJSm6BPe4H7W
+         oVEBAxl4lKoHiYhIuCi/DI/2Xbdx2C0AkTGzab3s0M4/G4aA6LVdcyTI0leRoVqudOJx
+         BVkw==
+X-Gm-Message-State: APjAAAX2zLbZ/qZyRKyAx6IjjeJ11kUlrtT3ya9BbXpLjWLSQM4N//jH
+        NNuD07wHdP/rQyYCxy9LuEC7jKss9aCfBTtyOpZI
+X-Google-Smtp-Source: APXvYqyYP+SY0Zqv+2z5mM9Vq8V6EBAROuc9DiQfeQM6EZa3A07dzm8upUUDUfXwcensg9C9WO6kaq43eJLQN2rS9U4=
+X-Received: by 2002:a19:cd82:: with SMTP id d124mr26740016lfg.8.1558403417822;
+ Mon, 20 May 2019 18:50:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190517154128.GA15006@linux.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <73b14b25ad7741c9ddcef061ab65a9b7ea8811bc.1557506063.git.pabeni@redhat.com>
+ <CAHC9VhQU-f82h+2QTGMspVY9sqAog6iNfGqYn00JP_sgsoF5mA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQU-f82h+2QTGMspVY9sqAog6iNfGqYn00JP_sgsoF5mA@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 20 May 2019 21:50:06 -0400
+Message-ID: <CAHC9VhR5gBxa_gQW-hjm3kzqE4EPR=QHef7AJxH3XxnRQaHkRQ@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: do not report error on connect(AF_UNSPEC)
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     selinux@vger.kernel.org, Tom Deseyn <tdeseyn@redhat.com>,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 17, 2019 at 08:41:28AM -0700, Sean Christopherson wrote:
-> It was a requirement prior to the API rework in v20, i.e. unless someone
-> was really quick on the draw after the v20 update all existing userspace
-> implementations mmap() the enclave before ECREATE.   Requiring a valid
-> enclave VMA for EADD shoudn't be too onerous.
+On Mon, May 13, 2019 at 6:50 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Fri, May 10, 2019 at 1:13 PM Paolo Abeni <pabeni@redhat.com> wrote:
+> > calling connect(AF_UNSPEC) on an already connected TCP socket is an
+> > established way to disconnect() such socket. After commit 68741a8adab9
+> > ("selinux: Fix ltp test connect-syscall failure") it no longer works
+> > and, in the above scenario connect() fails with EAFNOSUPPORT.
+> >
+> > Fix the above explicitly early checking for AF_UNSPEC family, and
+> > returning success in that case.
+> >
+> > Suggested-by: Paul Moore <paul@paul-moore.com>
+> > Fixes: 68741a8adab9 ("selinux: Fix ltp test connect-syscall failure")
+> > Reported-by: Tom Deseyn <tdeseyn@redhat.com>
+> > Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+> > ---
+> > v2 -> v3:
+> >  - do the check for AF_UNSPEC at the begining, as suggested by Paul
+> > v1 -> v2:
+> >  - avoid validation for AF_UNSPEC
+> > ---
+> >  security/selinux/hooks.c | 10 ++++++++--
+> >  1 file changed, 8 insertions(+), 2 deletions(-)
+>
+> Thanks Paolo, this looks good.  It sounded like DaveM wanted this to
+> go to -stable so I'll merge it and mark it as such; I think I will
+> wait until the end of this week just to see if there are any other
+> things which crop up during the merge window.
 
-Still underlining: it is not required.
+Just a quick follow-up, I just merged this into selinux/stable-5.2 and
+assuming the build/test runs clean overnight I'll send this to Linus
+tomorrow.  Thanks again for the report and the fix.
 
-/Jarkko
+-- 
+paul moore
+www.paul-moore.com
