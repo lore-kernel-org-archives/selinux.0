@@ -2,98 +2,131 @@ Return-Path: <SRS0=L5Vm=TV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68045C04E87
-	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 16:50:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F9F8C04AAF
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 17:59:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 342CC217D7
-	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 16:50:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0876D217D7
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 17:59:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="pAt/gkOM"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="EniXckc2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727969AbfEUQuJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 May 2019 12:50:09 -0400
-Received: from mail-lj1-f175.google.com ([209.85.208.175]:40364 "EHLO
-        mail-lj1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728103AbfEUQuJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 May 2019 12:50:09 -0400
-Received: by mail-lj1-f175.google.com with SMTP id q62so6999064ljq.7
-        for <selinux@vger.kernel.org>; Tue, 21 May 2019 09:50:08 -0700 (PDT)
+        id S1728055AbfEUR7P (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 May 2019 13:59:15 -0400
+Received: from uhil19pa11.eemsg.mail.mil ([214.24.21.84]:31223 "EHLO
+        uhil19pa11.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727898AbfEUR7P (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 May 2019 13:59:15 -0400
+X-EEMSG-check-017: 413873261|UHIL19PA11_EEMSG_MP9.csd.disa.mil
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by uhil19pa11.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 21 May 2019 17:59:13 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=i0j6kDnEIeaPX+1KUXPs7si1+pehMqLyQylQVBwbYdQ=;
-        b=pAt/gkOM6HSmPpnHOr2potyfhHapA+fv7YdZ8Mwej7N9YXmb49ctGf7PnHuBSE8a/T
-         iWCJWU7dKfqCPe8fl+PdKkxSpqMHncJT3dckU3T/Ex3cot50U3lYxHEG0sm4hI55PVh1
-         t2ygIqje1rZ7OYpjtPqRDN4Ldgs2G/0nW8a6cHWs0nM7A8S42cEelG7/nyvMR2ldDibH
-         MjQ6kV3sjTmqDrNYOfXSpYBwp7xTGFCz3g705R3mqOSxrtGrWg4CT4X7jGzLrVOru6wD
-         dIiXUHuyl3IQpTtKHF7Wu+ywRlu9Ncce/wJfBBo674DWSRA4I4R37a0pk9azdUTS21NN
-         Y4Bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=i0j6kDnEIeaPX+1KUXPs7si1+pehMqLyQylQVBwbYdQ=;
-        b=Tn5oNPUZRm25yKPvCdqPIZVoDFBrYRJyMMOT9XmDbkpOZez73LMnaR30hFvvNUpYVf
-         7pqFF2RZO4i6ggrZTPbU1heORoVhcBOpPmOhFDMaDqRL24F19d4IsgHlZM459vJb7nBD
-         gLgQA0v7SY/TsPKfrT620V1iT+r6TYYkg76DJimZ1zqfz3ByVz4+Bc+DLrFkSkwRLAiO
-         12MCylK+WlOvhqXvKuHT9KgzD27AdFL37pjlsrvgUGrYvw0OOqwL6jzn7nJ2I+PFRiQR
-         egMa6cKkJ6eQzzvgXiwe5/SjMDgE5fZCmFwx2ogpfPOJLFW1o+13iwuJyLrJwVLDNDY5
-         w1sw==
-X-Gm-Message-State: APjAAAWTglD/GMr5mHbh2gYLWDbgDYbr4kf3tZ+sD9aXwbtqJ7zLmK9G
-        AbkQsOzeOZQz5SbGgDrrNiAzbjJ+pOxqIO7nKfU0
-X-Google-Smtp-Source: APXvYqxWgk6A9MlHhUyl+gJsVKB8GP0WXya0zsymp9swKk8LdqPHx9o76G382EqZguQYbQ8YOjZjPhLS1e3m5Ru/d44=
-X-Received: by 2002:a2e:380c:: with SMTP id f12mr5075618lja.53.1558457406870;
- Tue, 21 May 2019 09:50:06 -0700 (PDT)
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1558461554; x=1589997554;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=ZiBa0ejpzQfwfodLoPeAsddMADD84N6PBdiF2hY3OoU=;
+  b=EniXckc2nCPNXFx4s9JW3G02ehy+xjDQiejXJvV2k0jC8L5AL6id4/A9
+   V32ZL4I1UCW6qMhomiYkQazNn0xe2G0jrq1epacq3+zLxSAhar6Idy54c
+   qvCQGxGvdVEUMi1HKbVV/MGeKMvogtdFYW8rFAU7iENY1HHT2Oi2IfMXa
+   /wlaWRG4ndqQMzKOYIewXSm7N8XXVor3jhiF1pxXmMFqFI54FZG9ShMFa
+   UbtiOKF9nunZEuMJKFJ1toonHIf7LN54fZiaXTBeQRQh7LJNdtF1poCWu
+   aXAGDqrX921IyiOMb5H4a18hG0SlZwpngSVIjbeULJsqccO8dWIGdtvrx
+   w==;
+X-IronPort-AV: E=Sophos;i="5.60,496,1549929600"; 
+   d="scan'208";a="27997632"
+IronPort-PHdr: =?us-ascii?q?9a23=3AyUZ2WhSombTFVqK8g82caL5qq9psv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa6zZheN2/xhgRfzUJnB7Loc0qyK6vmmADVYqs/Y7zgrS99lb1?=
+ =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
+ =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrsAndrNQajZZ+Jqo+1x?=
+ =?us-ascii?q?fFv3lFcPlKyG11Il6egwzy7dqq8p559CRQtfMh98peXqj/Yq81U79WAik4Pm?=
+ =?us-ascii?q?4s/MHkugXNQgWJ5nsHT2UZiQFIDBTf7BH7RZj+rC33vfdg1SaAPM32Sbc0WS?=
+ =?us-ascii?q?m+76puVRTlhjsLOyI//WrKkcF7kr5Vrwy9qBx+247UYZ+aNPxifqPGYNgWQX?=
+ =?us-ascii?q?NNUttNWyBdB4+xaYUAD/AFPe1FsYfzoVUApga6CQW1Cu7izjpEi3nr1qM4zu?=
+ =?us-ascii?q?shCxnL0hE+EdIAsHrar9v7O6kdXu+30KbGwi7Ob+9U1Drn9ITEbh4srPOKUL?=
+ =?us-ascii?q?ltccTR004vFwbdg1WSp43qIyma1v4Rs2SF8uFtUuCvimA7pA5ruDiv2tkgh5?=
+ =?us-ascii?q?LVhoMV1l/E9SJ5zJwzJd2jUkF3e9GkEJxOtyyDMYZ9X8AsQ3lwtSonxbALto?=
+ =?us-ascii?q?S3cSgXxJg92RLSZOKLf5KV7h/lSe2fOy13hGh/d7K6nxuy9E+gxfDiWcSsy1?=
+ =?us-ascii?q?ZKqzZFksHLtnAQyxzf8siHReV5/kemwTuPyxrc6vtFIUApjqrXMYIhw74smZ?=
+ =?us-ascii?q?oTtkTPBCn2l1ntjKCKbEkk/+mo6+D/brXnoJ+TKZN0hxnjPqkhlcGzG+Q1Ph?=
+ =?us-ascii?q?UUU2SF9umwyqfv8VDhTLVPlPI2k63ZsJ7AJcQco660Gw1V04g/5BmlFTemzM?=
+ =?us-ascii?q?oUkGIbLFNFZB2Hj4/pN0vIIPDjF/izmVuskDB1x/zeJL3uHo3NLmTfkLfmZb?=
+ =?us-ascii?q?t98U9cxxYzzd9F/ZJbF6kOL+7rVU/xrtPYDxk5PBKvw+v8E9p9yoIeWWSTAq?=
+ =?us-ascii?q?CHKqPSt0GH5v41L+aQY48VvS73K+I56P72kX85hVgdcLGy3ZQJbHC4H/JmI1?=
+ =?us-ascii?q?iWYHf3nNcBHnkFvhAkQOzpllKCSzhTaGi2X64m4TE7Eo2mXs//QdWXgbeB1T?=
+ =?us-ascii?q?23Vr1fZ2ZLERjYC3bjd4yeV8AHXyKbI8lsiRQOSbmnV4I70xyy8gT9zuwjZv?=
+ =?us-ascii?q?HZ/iweqILLytd4/avQmAs0+DgyCN6SgE+XSGQhnHwDTiUqhugro1N2w02fi4?=
+ =?us-ascii?q?BkkvdYEppV/PoPXQAkY82Ph9dmAsz/D1qSNuyCT0yrF5D/WmA8?=
+X-IPAS-Result: =?us-ascii?q?A2A+DQAYPORc/wHyM5BlHQEBBQEHBQGBZYFnKoE7MiiEE?=
+ =?us-ascii?q?4h7i3AtmlAJAQEBAQEBAQEBNAECAQGCEoIuAoImIzgTAQMBAQEEAQEBAQMBA?=
+ =?us-ascii?q?WwogjopAYJnAQUjFUEQCwkPAgImAgJXBgEMBgIBAYJfP4FrAx2nNIEvhUiDK?=
+ =?us-ascii?q?IFGgQwoi1GBVkCBOIJrPoIahTSCWASBLQGSGJRdBgOCD4VajSAGG5YsjFaXV?=
+ =?us-ascii?q?iGBVysKQUqBHoFOgkaOJyMDMIEGAQGLWSuCJQEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 21 May 2019 17:59:04 +0000
+Received: from localhost.localdomain (moss-lions [192.168.25.4])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x4LHx4ng025251;
+        Tue, 21 May 2019 13:59:04 -0400
+Subject: Re: [Non-DoD Source] [PATCH] libsepol/cil: Allow validatetrans rules
+ to be resolved
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+Cc:     sds@tycho.nsa.gov
+References: <20190521112206.5403-1-richard_c_haines@btinternet.com>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <82e7d8a1-d962-2a0b-fbdc-07143a8061c3@tycho.nsa.gov>
+Date:   Tue, 21 May 2019 13:59:51 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 21 May 2019 12:49:55 -0400
-Message-ID: <CAHC9VhTvU7kQ7D8OwRPvc0tpjtXVK6FiiT07WuQyjtJ80TeQrQ@mail.gmail.com>
-Subject: [GIT PULL] SELinux fixes for v5.2 (#1)
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20190521112206.5403-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
+On 5/21/19 7:22 AM, Richard Haines wrote:
+> When validatetrans rule is in CIL policy it errors with:
+> u3, r3, and t3 can only be used with mlsvalidatetrans rules
+> 
+> Will now resolve these examples:
+> (validatetrans binder (and (and (eq t1 t1_t) (eq t2 t2_t)) (eq t3 t3_t)))
+> (mlsvalidatetrans file (and (and (eq t1 t1_t) (eq t2 t2_t))
+>      (and (eq t3 t3_t) (domby h1 h2))))
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 
-One small SELinux patch for v5.2 to fix a problem when disconnecting a
-SCTP socket with connect(AF_UNSPEC).  Please merge this fix for v5.2.
+Acked-by: James Carter <jwcart2@tycho.nsa.gov>
 
-Thanks,
--Paul
---
-The following changes since commit 35a196bef449b5824033865b963ed9a43fb8c730:
+> ---
+>   libsepol/cil/src/cil_verify.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> index 1036d73..1a21cf4 100644
+> --- a/libsepol/cil/src/cil_verify.c
+> +++ b/libsepol/cil/src/cil_verify.c
+> @@ -221,8 +221,8 @@ int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_fl
+>   			cil_log(CIL_ERR, "l1, l2, h1, and h2 cannot be used on the left side with a string or list on the right side\n");
+>   			goto exit;
+>   		} else if (l_flavor == CIL_CONS_U3 || l_flavor == CIL_CONS_R3 || l_flavor == CIL_CONS_T3) {
+> -			if (expr_flavor != CIL_MLSVALIDATETRANS) {
+> -				cil_log(CIL_ERR, "u3, r3, and t3 can only be used with mlsvalidatetrans rules\n");
+> +			if (expr_flavor != CIL_VALIDATETRANS && expr_flavor != CIL_MLSVALIDATETRANS) {
+> +				cil_log(CIL_ERR, "u3, r3, and t3 can only be used with (mls)validatetrans rules\n");
+>   				goto exit;
+>   			}
+>   		}
+> 
 
- proc: prevent changes to overridden credentials (2019-04-29 09:51:21 -0400)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20190521
-
-for you to fetch changes up to 05174c95b83f8aca0c47b87115abb7a6387aafa5:
-
- selinux: do not report error on connect(AF_UNSPEC)
-   (2019-05-20 21:46:02 -0400)
-
-----------------------------------------------------------------
-selinux/stable-5.2 PR 20190521
-
-----------------------------------------------------------------
-Paolo Abeni (1):
-     selinux: do not report error on connect(AF_UNSPEC)
-
-security/selinux/hooks.c | 10 ++++++++--
-1 file changed, 8 insertions(+), 2 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
