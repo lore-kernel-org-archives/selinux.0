@@ -1,49 +1,107 @@
 Return-Path: <SRS0=L5Vm=TV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: **
-X-Spam-Status: No, score=2.8 required=3.0 tests=DATE_IN_PAST_12_24,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,PRICE_CATALOG,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E203C04AAF
-	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 05:17:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 806B7C04AB4
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 15:20:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0B32D20449
-	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 05:17:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 609CC2173E
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 15:20:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726047AbfEUFRV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 May 2019 01:17:21 -0400
-Received: from [159.89.172.223] ([159.89.172.223]:42538 "EHLO
-        mail.boombf2am.ga" rhost-flags-FAIL-FAIL-OK-OK) by vger.kernel.org
-        with ESMTP id S1725835AbfEUFRV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 May 2019 01:17:21 -0400
-Received: by mail.boombf2am.ga (Postfix, from userid 48)
-        id DDE60575087; Mon, 20 May 2019 13:42:24 +0000 (UTC)
-To:     selinux@vger.kernel.org
-Subject: Inquiry 20/May/2019
-X-PHP-Originating-Script: 0:nfhdgeds.php
-From:   Daniel Murray <sinara-group@bk.ru>
-Reply-To: sinara-group@list.ru
+        id S1728662AbfEUPTy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 May 2019 11:19:54 -0400
+Received: from mga04.intel.com ([192.55.52.120]:23051 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727534AbfEUPTy (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 21 May 2019 11:19:54 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 May 2019 08:19:53 -0700
+X-ExtLoop1: 1
+Received: from hupe-mobl.ger.corp.intel.com (HELO localhost) ([10.252.46.220])
+  by orsmga002.jf.intel.com with ESMTP; 21 May 2019 08:19:38 -0700
+Date:   Tue, 21 May 2019 18:19:37 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Xing, Cedric" <cedric.xing@intel.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Dr. Greg" <greg@enjellic.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "npmccallum@redhat.com" <npmccallum@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>
+Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
+Message-ID: <20190521151836.GA4843@linux.intel.com>
+References: <20190513102926.GD8743@linux.intel.com>
+ <20190514104323.GA7591@linux.intel.com>
+ <CALCETrVbgTCnPo=PAq0-KoaRwt--urrPzn==quAJ8wodCpkBkw@mail.gmail.com>
+ <20190514204527.GC1977@linux.intel.com>
+ <CALCETrX6aL367mMJh5+Y1Seznfu-AvhPV6P7GkWF4Dhu0GV8cw@mail.gmail.com>
+ <20190515013031.GF1977@linux.intel.com>
+ <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
+ <20190517000331.GD11204@linux.intel.com>
+ <CALCETrWxw7xALE0kmiYBzomaSMAeXEVq-7rX7xeqPtDPeDQiCA@mail.gmail.com>
+ <20190520114105.GD27805@linux.intel.com>
 MIME-Version: 1.0
-Content-Type:   text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20190520144843.DDE60575087@mail.boombf2am.ga>
-Date:   Mon, 20 May 2019 13:42:24 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190520114105.GD27805@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,friend,
+On Mon, May 20, 2019 at 02:41:05PM +0300, Jarkko Sakkinen wrote:
+> On Thu, May 16, 2019 at 05:26:15PM -0700, Andy Lutomirski wrote:
+> > Is userspace actually requred to mmap() the enclave prior to EADDing things?
+> 
+> Nope, not since v20. Here is what I wrote about API to the kernel
+> documentation:
+> 
+> "The enclave life-cycle starts by opening `/dev/sgx/enclave`. After this
+> there is already a data structure inside kernel tracking the enclave
+> that is initially uncreated. After this a set of ioctl's can be used to
+> create, populate and initialize the enclave.
+> 
+> You can close (if you want) the fd after you've mmap()'d. As long as the
+> file is open the enclave stays alive so you might want to do that after
+> you don't need it anymore. Even munmap() won't destruct the enclave if
+> the file is open.  Neither will closing the fd as long as you have
+> mmap() done over the fd (even if it does not across the range defined in
+> SECS)."
+> 
+> Enclave can be created and initialized without doing a single mmap()
+> call.
 
-This is Daniel Murray and i am from Sinara Group Co.Ltd in Russia.
-We are glad to know about your company from the web and we are interested in your products.
-Could you kindly send us your Latest catalog and price list for our trial order.
+We could even disallow mmap() before EINIT done. The way enclave
+management internally works right now is quite robust and completely
+detached from requiring process address space for anything.
 
-Best Regards,
-
-Daniel Murray
-Purchasing Manager
-
-
+/Jarkko
