@@ -6,171 +6,78 @@ X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 501C6C04AAF
-	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 20:23:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A814C04AAF
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 20:25:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0D9EC2173E
-	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 20:23:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59A312173E
+	for <selinux@archiver.kernel.org>; Tue, 21 May 2019 20:25:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="HqKCwuT9"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="rmU2Rm4h"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727174AbfEUUXP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 May 2019 16:23:15 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:34254 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727294AbfEUUXP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 May 2019 16:23:15 -0400
-Received: by mail-lf1-f67.google.com with SMTP id v18so14110696lfi.1
-        for <selinux@vger.kernel.org>; Tue, 21 May 2019 13:23:13 -0700 (PDT)
+        id S1727046AbfEUUZn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 May 2019 16:25:43 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:37917 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726766AbfEUUZm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 May 2019 16:25:42 -0400
+Received: by mail-lj1-f195.google.com with SMTP id 14so1040780ljj.5
+        for <selinux@vger.kernel.org>; Tue, 21 May 2019 13:25:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=zGsw9meU7G7A0v7S1hg5gO3PLF4ljBd/H9BbyFd15lI=;
-        b=HqKCwuT9NgzPlNJEQQgvXHwD7HXgSK6qbTCAn2LBRBYBkytl76mpo8cUd5UKFp9EOf
-         /Szn6BnjZHiQ3dDQWF4XPDA+atwwQNAenY4XxM2olDm+MUCpItHqQ3y+jfptPguxsf17
-         IN4NTAuxZm7P501M66GJGS53cf2g13hUCPmpWHcFA5njypWWbIp+yKLenGQBl3Qvv5b2
-         GGJ/fEHOzgn0Kgy+6e2t4e6Jrfs/U3f0kFvoq0PrK5z/gUpFgCvdbNJIwBkQEHfnKFWi
-         4/KxP1EC89eK0+ZZYqE0BPZOc0xl6P/aaIGKmnY3Htfcup78Xeu9l2VQiuMYNhJ0HcTT
-         fPNA==
+        bh=aJbiCM3sAnu96zwGMZCWsM8aWQ92sSi8m6orE38DFZk=;
+        b=rmU2Rm4hWCG9dh4z1UDw8TuPwNGrMwGYE4YZxZPSi3u3YF9zZNSddvK/JWhIraou0z
+         BT4qsTsizwSvJP74KyPevtKMvPX9T6xTJRBVuFFbjrXrvkkUHapTm8WZQxz3rmi5PkbC
+         VSFjkisKM8JYA44VSh9hfjovIlkIMiShMYCvUb2w46N+14d/eqHsVYSVp4tFYJVemkwC
+         kvODdXiNUU90MkWFgZUi5ejfoTAvUHaU/eIQBkqwFqmXc2wSkOiBEBEkAKxYH4KTOnqj
+         Eg/ofv1hLap2rQKMUm6lUD7DFqK5B3Orwrc1LUGwZ3Fg2SbHRTJX9jUFh6xUl4wc0N3u
+         0ntg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=zGsw9meU7G7A0v7S1hg5gO3PLF4ljBd/H9BbyFd15lI=;
-        b=jLSDxxrla2o0150Zg0//ATz+s8yThw/33UD7XPaHh9b+98YAXmWeM49PzShliEAoXQ
-         igmDJtNycu0oWv8can43R4qrrrHjfX3n9PVrX4rITc5gcMMjG27/EEbcqcseWmD8CSNw
-         oGqbOs9p1w/x3qFwieV1OsukGjyKfxkmOGSp1KxJIHQc1lahC7gTFHqs9LsFFnJXmQGp
-         k8/RIR30IoKKDGUgoffT9+yVquFbE7fD77/l+jIOc8itC3bt9zaZS37KLin4CgNFzVj6
-         C7O7cB3hFM3/Nk7pt3pL3tUaK/HE2PmN5ePCg673agi40pqalgqLInF80g6ySYUQpGTd
-         W/AA==
-X-Gm-Message-State: APjAAAVJUlqLCnSUshnSW1FaTLVmFI9thkpcLlLLTCkFqiIHSmUwNz0n
-        jGjkhWDDClPBIyCeENpcRmbyVSbyRtgKiv/uCN4Q
-X-Google-Smtp-Source: APXvYqzHlwpTLSoRvolURDbkMpTjw0qqLpb4HAJpk1RmFIiCs77jeOpTtGriolNM07oCrkf7jyZcPKBmjfsbMiF7Eag=
-X-Received: by 2002:a19:a8b:: with SMTP id 133mr1605852lfk.35.1558470192678;
- Tue, 21 May 2019 13:23:12 -0700 (PDT)
+        bh=aJbiCM3sAnu96zwGMZCWsM8aWQ92sSi8m6orE38DFZk=;
+        b=Y7qKhLpiGKfwXhRDN5FHNvDbf353xHNcOkqUd6nz+SJDmso5mfMmWe0vAW0raplW8L
+         7YJj2tM6dBf7a5EieM7cuP8LtC4W+FCdAAP8Xu8QpT3y1EoBgGHibat6z6tETkwo+BLz
+         oot+7pxd4WWXp1dXoWPlFO4zBANtKGW5Cw099ug/DtvBJ6UBUjgm9Rkg38utxXSfhiGe
+         PM8GuCuMbm5/xR4BKBGfGzcKsiKzRrFbdXscIN+B8tCalHokgGsXpmGszetw9TR1naIO
+         w6NHF2i7Jh0i7gkZu1dNAAAyAJF+t/B+99w23n6mkZ1fjn+Ou6yTgECgFbp1AcRJndxw
+         DHZg==
+X-Gm-Message-State: APjAAAXtOZW9VMyn5mYVRdhU+qKhhOlWnQNQcNlSYsMbsbDIjdT6GZBC
+        xB0V4qVqQauP2JCUt4U+r8J+dYeRSzGcVboARqF/RJoWjw==
+X-Google-Smtp-Source: APXvYqxv45yxxiNhMEv+fw/m6juAsokTuZsBLGeaFPfLkhXvQJmsugAOjFdA6l3uHJd29XGaZQIVnXEAbfUvQIzEKWQ=
+X-Received: by 2002:a2e:1412:: with SMTP id u18mr8029792ljd.197.1558470340691;
+ Tue, 21 May 2019 13:25:40 -0700 (PDT)
 MIME-Version: 1.0
-References: <1557296477-4694-1-git-send-email-hofrat@osadl.org>
- <CAHC9VhSU7pzWby78gHkYKm3t1LopSCoHBfmp=uBc+mF234K8mg@mail.gmail.com>
- <20190509001345.GA23407@osadl.at> <CAHC9VhQ2qnZEzJAh027TgT8LMrtpzLyj79p=BCVGJKSFMQjjEw@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ2qnZEzJAh027TgT8LMrtpzLyj79p=BCVGJKSFMQjjEw@mail.gmail.com>
+References: <20190504195906.8146-1-omosnace@redhat.com> <CAHC9VhRwsNuDhN6y8Lx38TYPFW3WDr7TP3J2t5XAy9jqgFq=gw@mail.gmail.com>
+In-Reply-To: <CAHC9VhRwsNuDhN6y8Lx38TYPFW3WDr7TP3J2t5XAy9jqgFq=gw@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 21 May 2019 16:23:01 -0400
-Message-ID: <CAHC9VhRPZKHt7EoK=O2keuyMm=fYyEAbWjJTG0uFA_Z6o_0-3A@mail.gmail.com>
-Subject: Re: [PATCH RFC] selinux: provide __le variables explicitly
-To:     Nicholas Mc Guire <der.herr@hofr.at>
-Cc:     Nicholas Mc Guire <hofrat@osadl.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        peter enderborg <peter.enderborg@sony.com>,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Tue, 21 May 2019 16:25:29 -0400
+Message-ID: <CAHC9VhTJ1sw0A=+n+OZgzouNUnEZQ6=FePu9gLqYPOwvjOovAw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: remove some no-op BUG_ONs
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 9, 2019 at 3:40 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Wed, May 8, 2019 at 8:14 PM Nicholas Mc Guire <der.herr@hofr.at> wrote:
-> > On Wed, May 08, 2019 at 05:47:32PM -0400, Paul Moore wrote:
-> > > On Wed, May 8, 2019 at 2:27 AM Nicholas Mc Guire <hofrat@osadl.org> wrote:
-> > > > While the endiannes is being handled properly sparse was unable to verify
-> > > > this due to type inconsistency. So introduce an additional __le32
-> > > > respectively _le64 variable to be passed to le32/64_to_cpu() to allow
-> > > > sparse to verify proper typing. Note that this patch does not change
-> > > > the generated binary on little-endian systems - on 32bit powerpc it
-> > > > does change the binary.
-> > > >
-> > > > Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
-> > > > ---
-> > > >
-> > > > Problem located by an experimental coccinelle script to locate
-> > > > patters that make sparse unhappy (false positives):
-> > > >
-> > > > sparse complaints on different architectures fixed by this patch are:
-> > > >
-> > > > ppc6xx_defconfig
-> > > >   CHECK   security/selinux/ss/ebitmap.c
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > >
-> > > > Little-endian systems:
-> > > >
-> > > > loongson3_defconfig
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > >
-> > > > x86_64_defconfig
-> > > > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > > > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > > >
-> > > > Patch was compile-tested with: x86_64_defconfig,loongson3_defconfig (both
-> > > > little-endian) and ppc603_defconfig (big-endian).
-> > > >
-> > > > On little-endian systems the patch has no impact on the generated binary
-> > > > (which is expected) but on the 32bit powerpc it does change the binary
-> > > > which is not expected but since I'm not able to generate the .lst files
-> > > > in security/selinux/ss/ due to the lack of a Makefile it is not clear
-> > > > if this is an unexpected side-effect or due only to the introduction of
-> > > > the additional variables. From my understanding the patch does not change
-> > > > the program logic so if the code was correct on big-endian systems before
-> > > > it should still be correct now.
-> > >
-> > > This is a bit worrisome, but I tend to agree that this patch *should*
-> > > be correct.  I'm thinking you're probably right in that the resulting
-> > > binary difference could be due to the extra variable.  Have you tried
-> > > any other big-endian arches?
-> > >
+On Wed, May 8, 2019 at 5:51 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Sat, May 4, 2019 at 3:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > just tried ppc64_defconfig + AUDIT=y, SECURITY=y, SECURITY_NETWORK=y, SECURITY_SELINUX=y
+> > Since acdf52d97f82 ("selinux: convert to kvmalloc"), these check whether
+> > an address-of value is NULL, which is pointless.
 > >
-> > sparse will complain in the original version about:
-> >   CHECK   security/selinux/ss/ebitmap.c
-> > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > security/selinux/ss/ebitmap.c:389:28: warning: cast to restricted __le32
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> > security/selinux/ss/ebitmap.c:431:23: warning: cast to restricted __le64
-> >
-> > which is the same as 32bit ppc - after the patch is applied that is resolved
-> > and and the generated ebitmap.o files are binary identical.
-> >
-> > I just had chosen ppc6xx_defconfig as my big-endian test-target as SELINUX
-> > was on there by default so I assumed it would be the most reasonable
-> > compile-test target.
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  security/selinux/ss/services.c | 4 ----
+> >  1 file changed, 4 deletions(-)
 >
-> Thanks.
->
-> I think this is probably safe to merge once the merge window closes.
+> This looks fine to me, I'll queue this up for after the merge window closes.
 
-... and that time is now; merged into selinux/next.  Thanks.
-
-/me crosses his fingers on this one
+Just merged into selinux/next, thanks.
 
 -- 
 paul moore
