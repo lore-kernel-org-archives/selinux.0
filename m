@@ -2,180 +2,235 @@ Return-Path: <SRS0=KxHl=TW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79DF6C282CE
-	for <selinux@archiver.kernel.org>; Wed, 22 May 2019 20:53:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B554C282DD
+	for <selinux@archiver.kernel.org>; Wed, 22 May 2019 22:43:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 11FAD21019
-	for <selinux@archiver.kernel.org>; Wed, 22 May 2019 20:53:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="JNmf+B14"
+	by mail.kernel.org (Postfix) with ESMTP id AA6472173C
+	for <selinux@archiver.kernel.org>; Wed, 22 May 2019 22:43:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1558564982;
+	bh=OOvk4jhd4RJaf/SM5z16pjS8vJ3csmmntOLya71ImTY=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=n2Xw98m6G3BU1kJbOUnTLqZf4lbsK5YOXAxEtxaRXxYYw6IpLLykDMJ1IvyF5fvyG
+	 vAIoCBKeH4kwuXCbWv6T1kl/Ur+mf7/1xqDld21QvPf46DgLfwepp5beFpUsfRolN/
+	 ci32fUBMCHCSkHWamZsPGjKYffjZkR6WOfYteVEA=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730219AbfEVUxc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 22 May 2019 16:53:32 -0400
-Received: from rgout0206.bt.lon5.cpcloud.co.uk ([65.20.0.205]:52368 "EHLO
-        rgout02.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729528AbfEVUxb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 22 May 2019 16:53:31 -0400
-X-OWM-Source-IP: 31.49.58.155 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudefudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgushesthihtghhohdrnhhsrgdrghhovheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeogihunhgthhgrnhhgsehgohhoghhlvgdrtghomheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudeffecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudefhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudefkecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudegudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudeghecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudehtdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudduvddgudehiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudehheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudehhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-Received: from localhost.localdomain (31.49.58.155) by rgout02.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
-        id 5B93D594179BDD47; Wed, 22 May 2019 19:47:43 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1558558411; 
-        bh=M1Zf3CGxkpgEQM+KMaueTEpoMpuLpPdZXIenweAjjp8=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=JNmf+B14Npqm3MEpu4IhFPtvfH+dZpD8YmGUUHv8ky2v6hVbxnhHs8l9lavBJwYXMQb8lBpRFNG/AF2+gNUeQYT5p2Q/nX9aAnrX7RXV2UME1zVwRaibdGDg0saz6b5WOeCtuaq4Hk3PNqdsZ3iU+U6T+9Bh8+rCbHS/vxy3rYs=
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     sds@tycho.nsa.gov, xunchang@google.com,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 3/3] restorecond: Update to handle new digest scheme
-Date:   Wed, 22 May 2019 19:47:42 +0100
-Message-Id: <20190522184742.5550-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.20.1
+        id S1728050AbfEVWnC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 May 2019 18:43:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58212 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728258AbfEVWnB (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 22 May 2019 18:43:01 -0400
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id B25832187F
+        for <selinux@vger.kernel.org>; Wed, 22 May 2019 22:42:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558564980;
+        bh=OOvk4jhd4RJaf/SM5z16pjS8vJ3csmmntOLya71ImTY=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=fkg4CzRt3KfZIIuwZhzbASPWvQne1uPmtkXgLmrH+CuFZiOEi0zLUesjMgrKV+ora
+         88HzrAaito+YpfExzVyeervxBjvfQAK10ve1IiDm6qcCvmuw+Y0q2xdQXcej1zFFpV
+         umLRTRjkuW63RJy2VgP3ARN7C7MQfYfiO48A6VvQ=
+Received: by mail-wm1-f41.google.com with SMTP id 198so3793464wme.3
+        for <selinux@vger.kernel.org>; Wed, 22 May 2019 15:42:59 -0700 (PDT)
+X-Gm-Message-State: APjAAAVTS+3GZ0zrbRVPvQBjtvDogzBXEM51JkBh3VH8+IQeRntplRAB
+        f1u+v2NwlGiygiKWJg65Ura+3VRDgivJgZUwGnB+tA==
+X-Google-Smtp-Source: APXvYqzYdSH+GPYlXRlgnwW11c6pqXd9fEL34pkzWbjIju7c8aUW1zezZ1OS5qIiYrcgg2q8tcuDWDAEMZ3zzBaU0WE=
+X-Received: by 2002:a1c:4107:: with SMTP id o7mr9456931wma.122.1558564978244;
+ Wed, 22 May 2019 15:42:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190515013031.GF1977@linux.intel.com> <CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com>
+ <20190517000331.GD11204@linux.intel.com> <CALCETrWxw7xALE0kmiYBzomaSMAeXEVq-7rX7xeqPtDPeDQiCA@mail.gmail.com>
+ <20190520114105.GD27805@linux.intel.com> <20190521151836.GA4843@linux.intel.com>
+ <20190521155140.GE22089@linux.intel.com> <20190522132022.GC31176@linux.intel.com>
+ <20190522132227.GD31176@linux.intel.com> <0e183cce-c4b4-0e10-dbb6-bd81bea58b66@tycho.nsa.gov>
+ <20190522153836.GA24833@linux.intel.com>
+In-Reply-To: <20190522153836.GA24833@linux.intel.com>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Wed, 22 May 2019 15:42:45 -0700
+X-Gmail-Original-Message-ID: <CALCETrUS8xyF1JJmQs18BGTDhPRXf+s81BkMZCZwmY73r7M+zg@mail.gmail.com>
+Message-ID: <CALCETrUS8xyF1JJmQs18BGTDhPRXf+s81BkMZCZwmY73r7M+zg@mail.gmail.com>
+Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Xing, Cedric" <cedric.xing@intel.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Dr. Greg" <greg@enjellic.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "npmccallum@redhat.com" <npmccallum@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-restorecond is coded to always skip digests.
+On Wed, May 22, 2019 at 8:38 AM Sean Christopherson
+<sean.j.christopherson@intel.com> wrote:
+>
+> On Wed, May 22, 2019 at 09:56:30AM -0400, Stephen Smalley wrote:
+> > On 5/22/19 9:22 AM, Jarkko Sakkinen wrote:
+> > >On Wed, May 22, 2019 at 04:20:22PM +0300, Jarkko Sakkinen wrote:
+> > >>On Tue, May 21, 2019 at 08:51:40AM -0700, Sean Christopherson wrote:
+> > >>>Except that mmap() is more or less required to guarantee that ELRANGE
+> > >>>established by ECREATE is available.  And we want to disallow mmap() as
+> > >>>soon as the first EADD is done so that userspace can't remap the enclave's
+> > >>>VMAs via munmap()->mmap() and gain execute permissions to pages that were
+> > >>>EADD'd as NX.
+> > >>
+> > >>We don't want to guarantee such thing and it is not guaranteed. It does
+> > >>not fit at all to the multi process work done. Enclaves are detached
+> > >>from any particular process addresse spaces. It is responsibility of
+> > >>process to open windows to them.
+> > >>
+> > >>That would be completely against work that we've done lately.
+> > >
+> > >Example use case: you have a process that just constructs an enclave
+> > >and sends it to another process or processes for use. The constructor
+> > >process could have basically anything on that range. This was the key
+> > >goal of the fd based enclave work.
+> >
+> > What exactly happens in the constructor versus the recipient processes?
+> > Which process performs each of the necessary open(), mmap(), and ioctl()
+> > calls for setting up the enclave?  Can you provide a high level overview of
+> > the sequence of userspace calls by the constructor and by the recipient
+> > similar to what Sean showed earlier for just a single process?
+>
+> Hmm, what we had talked about was allowing the SGX ioctls to work without
+> an associated VMA, with the end goal of letting userspace restrict access
+> to /dev/sgx/enclave.   Very roughly...
+>
+> Enclave Owner:
+>
+>   connect(builder, ...);
+>   send(builder, "/home/sean/path/to/my/enclave");
+>
+>   recv(builder, &enclave_fd);
+>
+>   for_each_chunk {
+>           mmap(enclave_addr + offset, size, ..., MAP_SHARED, enclave_fd, 0);
+>   }
+>
+>
+> Enclave Builder:
+>
+>   recv(sock, &enclave_path);
+>
+>   source_fd = open(enclave_path, O_RDONLY);
+>   for_each_chunk {
+>           <hand waving - mmap()/mprotect() the enclave file into regular memory>
+>   }
+>
+>   enclave_fd = open("/dev/sgx/enclave", O_RDWR);
+>
+>   ioctl(enclave_fd, ENCLAVE_CREATE, ...);
+>   for_each_chunk {
+>       struct sgx_enclave_add ioctlargs = {
+>           .offset = chunk.offset,
+>           .source = chunk.addr,
+>           .size   = chunk.size,
+>           .type   = chunk.type, /* SGX specific metadata */
+>       }
+>       ioctl(fd, ENCLAVE_ADD, &ioctlargs); /* modifies enclave's VMAs */
+>   }
+>   ioctl(enclave_fd, ENCLAVE_INIT, ...);
+>
+>   write(sock, enclave_fd);
+>
+>
+> But the above flow is flawed because there'a catch-22: ENCLAVE_ECREATE
+> takes the virtual address of the enclave, but in the above flow that's
+> not established until "mmap(..., enclave_fd)".  And because an enclave's
+> virtual range needs to be naturally aligned (hardware requirements), the
+> enclave owner would need to do something like:
+>
+>   source_fd = open("/home/sean/path/to/my/enclave", O_RDONLY);
+>   size = <parse size from source_fd>
+>
+>   enclave_range = mmap(NULL, size*2, PROT_READ, ???, NULL, 0);
+>   enclave_addr = (enclave_range + (size - 1)) & ~(size - 1);
+>
+>   connect(builder, ...);
+>   send(builder, {"/home/sean/path/to/my/enclave", enclave_addr});
+>
+>   recv(builder, &enclave_fd);
+>
+>   munmap(enclave_range);
+>
+>   for_each_chunk {
+>       addr = mmap(enclave_addr + c.offset, c.size, ..., MAP_SHARED, enclave_fd, 0);
+>       if (addr != enclave_addr + c.offset)
+>            exit(1);
+>   }
+>
+> And that straight up doesn't work with the v20 driver because mmap() with
+> the enclave_fd will run through sgx_get_unmapped_area(), which also does
+> the natural alignment adjustments (the idea being that mmap() is mapping
+> the entire enclave).  E.g. mmap() will map the wrong address if the offset
+> of a chunk is less than its size due to the driver adjusting the address.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- restorecond/restore.c     | 8 ++++----
- restorecond/restore.h     | 2 +-
- restorecond/restorecond.c | 5 ++---
- 3 files changed, 7 insertions(+), 8 deletions(-)
+That presumably needs to change.
 
-diff --git a/restorecond/restore.c b/restorecond/restore.c
-index f6e3000..26ddec2 100644
---- a/restorecond/restore.c
-+++ b/restorecond/restore.c
-@@ -21,11 +21,10 @@ void restore_init(struct restore_opts *opts)
- 	r_opts = opts;
- 	struct selinux_opt selinux_opts[] = {
- 		{ SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
--		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path },
--		{ SELABEL_OPT_DIGEST, r_opts->selabel_opt_digest }
-+		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path }
- 	};
- 
--	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
-+	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 2);
- 	if (!r_opts->hnd) {
- 		perror(r_opts->selabel_opt_path);
- 		exit(1);
-@@ -38,7 +37,8 @@ void restore_init(struct restore_opts *opts)
- 			   r_opts->recurse | r_opts->userealpath |
- 			   r_opts->xdev | r_opts->abort_on_error |
- 			   r_opts->syslog_changes | r_opts->log_matches |
--			   r_opts->ignore_noent | r_opts->ignore_mounts;
-+			   r_opts->ignore_noent | r_opts->ignore_mounts |
-+			   r_opts->skip_digest;
- 
- 	/* Use setfiles, restorecon and restorecond own handles */
- 	selinux_restorecon_set_sehandle(r_opts->hnd);
-diff --git a/restorecond/restore.h b/restorecond/restore.h
-index 97fbdf4..a493031 100644
---- a/restorecond/restore.h
-+++ b/restorecond/restore.h
-@@ -32,6 +32,7 @@ struct restore_opts {
- 	unsigned int set_specctx;
- 	unsigned int add_assoc;
- 	unsigned int ignore_digest;
-+	unsigned int skip_digest;
- 	unsigned int recurse;
- 	unsigned int userealpath;
- 	unsigned int xdev;
-@@ -47,7 +48,6 @@ struct restore_opts {
- 	struct selabel_handle *hnd;
- 	const char *selabel_opt_validate;
- 	const char *selabel_opt_path;
--	const char *selabel_opt_digest;
- 	int debug;
- 	FILE *outfile;
- };
-diff --git a/restorecond/restorecond.c b/restorecond/restorecond.c
-index d5f70fc..26d2c59 100644
---- a/restorecond/restorecond.c
-+++ b/restorecond/restorecond.c
-@@ -150,12 +150,11 @@ int main(int argc, char **argv)
- 
- 	watch_file = server_watch_file;
- 
--	/* Set all options to zero/NULL except for ignore_noent & digest. */
-+	/* Set all options to zero except for ignore_noent & skip_digest */
- 	memset(&r_opts, 0, sizeof(r_opts));
- 	r_opts.ignore_noent = SELINUX_RESTORECON_IGNORE_NOENTRY;
--	r_opts.ignore_digest = SELINUX_RESTORECON_IGNORE_DIGEST;
-+	r_opts.skip_digest = SELINUX_RESTORECON_SKIP_DIGEST;
- 
--	/* As r_opts.selabel_opt_digest = NULL, no digest will be requested. */
- 	restore_init(&r_opts);
- 
- 	/* Register sighandlers */
--- 
-2.20.1
+Are we entirely missing an API to allocate a naturally aligned VA
+range?  That's kind of annoying.
 
+>
+> Eliminating sgx_get_unmapped_area() means userspace is once again on the
+> hook for naturally aligning the enclave, which is less than desirable.
+>
+> Looking back at the original API discussions around a builder process[1],
+> we never fleshed out the end-to-end flow.  While having a builder process
+> *sounds* reasonable, in practice it adds a lot of complexity without
+> providing much in the way of added security.  E.g. in addition to the
+> above mmap() issues, since the order of EADDs affects the enclave
+> measurement, the enclave owner would need to communicate the exact steps
+> to build the enclave, or the builder would need a priori knowledge of the
+> enclave format.
+>
+> Userspace can still restrict access to /dev/sgx/enclave, e.g. by having a
+> daemon that requires additional credentials to obtain a new enclave_fd.
+> So AFAICT, the only benefit to having a dedicated builder is that it can
+> do its own whitelisting of enclaves, but since we're trending towards
+> supporting whitelisting enclaves in the kernel, e.g. via sigstruct,
+> whitelisting in userspace purely in userspace also provides marginal value.
+>
+> TL;DR: Requiring VMA backing to build an enclave seems reasonable and sane.
+
+This isn't necessarily a problem, but we pretty much have to use
+mprotect() then.
+
+Maybe the semantics could just be that mmap() on the SGX device gives
+natural alignment, but that there is no actual constraint enforced by
+the driver as to whether mmap() happens before or after ECREATE.
+After all, it's *ugly* for user code to reserve its address range with
+an awkward giant mmap(), there's nothing fundamentally wrong with it.
+
+As far as I know from this whole discussion, we still haven't come up
+with any credible way to avoid tracking, per enclave page, whether
+that page came from unmodified PROT_EXEC memory.
