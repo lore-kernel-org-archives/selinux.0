@@ -2,184 +2,101 @@ Return-Path: <SRS0=UID1=TY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,T_DKIMWL_WL_HIGH
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB61AC282E5
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 21:27:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84DB3C282E1
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 21:36:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B593F21871
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 21:27:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1558733270;
-	bh=lYZ/zudY+xu5Tnp4RjFaSiBIAvLoW/eSULQY+XTsmB0=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=n/boXmMVAzoZRT1S1Pxe2Jm0nlNsgtLNCFMLyTr0SEaYqD4w0iow85gWfTAW06uPO
-	 9O9HnABhXtYJiZdKrkd/VR6Dugo0zHjy0TKYjppsxnOAuGWjzY8hK8m7tmotoYqeGT
-	 L8w6doa7x/vl/zIcDgYfSjBPuFH2esTfrzwNj8Cg=
+	by mail.kernel.org (Postfix) with ESMTP id 1FE5F206BA
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 21:36:51 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="KyDAsAjx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404280AbfEXV1t (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 May 2019 17:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60572 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404163AbfEXV1t (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 24 May 2019 17:27:49 -0400
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 714B121880
-        for <selinux@vger.kernel.org>; Fri, 24 May 2019 21:27:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558733268;
-        bh=lYZ/zudY+xu5Tnp4RjFaSiBIAvLoW/eSULQY+XTsmB0=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=0JGJB4h+D9j0ddlAUz9g50NndJ0gLLwGmUqN1hvMw6D4tflMRdf5hZOowZbD/sSk4
-         KCsScGmqrRQq0ou0NJ72nJq/c7tzqtrm5Bzvy2ECWR6w/Hnp4SZzlyxpREO3ol6HKy
-         VCzEaV6pXU1pu1iXoBn2chS039FLon9BSBUVinwU=
-Received: by mail-wr1-f45.google.com with SMTP id r7so11264107wrr.13
-        for <selinux@vger.kernel.org>; Fri, 24 May 2019 14:27:48 -0700 (PDT)
-X-Gm-Message-State: APjAAAXDEti54N3Bq6HeRuWZSDNzG0l8gp1RI43eA2XPnygP12wl6TWk
-        n8V6b06P0KxdmEatFsKn/TGTHeDrX02bqaYtY14ZWw==
-X-Google-Smtp-Source: APXvYqz/lEYmDwBnuqtbsvCzNOvsvr/2JBTnsk8u6fRJLIYpjhQwWS2cdjPRGlgRYD7PpvsZVsI0HCybdWBGTpi625c=
-X-Received: by 2002:a5d:5506:: with SMTP id b6mr63690967wrv.221.1558733266996;
- Fri, 24 May 2019 14:27:46 -0700 (PDT)
+        id S2404176AbfEXVgu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 May 2019 17:36:50 -0400
+Received: from 48.23.240.77.static.louhi.net ([77.240.23.48]:36064 "EHLO
+        kolttonen.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2404163AbfEXVgu (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 24 May 2019 17:36:50 -0400
+Received: from 34-41-5D-CA-59-C7 (176-93-196-243.bb.dnainternet.fi [176.93.196.243])
+        (authenticated bits=0)
+        by vcust561.louhi.net (8.14.7/8.14.7/0) with ESMTP id x4OLabeC010736
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
+        for <selinux@vger.kernel.org>; Sat, 25 May 2019 00:36:38 +0300
+DKIM-Filter: OpenDKIM Filter v2.11.0 vcust561.louhi.net x4OLabeC010736
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kolttonen.fi;
+        s=mail; t=1558733798;
+        bh=G1lxI7eAk72Nqx6RICYhHvgbwVxR6IKGSt99Qb4m7+o=;
+        h=Date:From:To:Subject:From;
+        b=KyDAsAjx6IO9WZXC5W+gkn4NsitoqHeUpPXKmEh1BH+qRK6ISYtLnQ8ymyyz6FOwe
+         8VIupSz5s7i5TeAPTiQGlWYA6J9I0/i5NpHCYrDVeeWPODERW/Pkuv//4/MJfXb2F5
+         tPpelqALyQvbxmIqVmmfNIQQrNBJ3fTgD9JHeefiGRc5+IjhDx/aloaHhlbDR7LAAN
+         HnZtFFaMSk3ywVVNp9EhWybW4LXYQ7gjEsCj2h1MhJl4lrPr8wHfCN3q4TdpxQDx9J
+         YINAKiTQkQ2cCAkiRxXLhZtgNQLXprGqt53SEDa0WXWbrUsvLng6QR3kKIs7Lkx67O
+         IJw0DYeZEPEtQ==
+Date:   Sat, 25 May 2019 00:36:46 +0300 (EEST)
+From:   =?ISO-8859-15?Q?Jokke_H=E4m=E4l=E4inen?= 
+        <jokke.hamalainen@kolttonen.fi>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] trivial kernel_to_conf.c checks
+Message-ID: <alpine.LFD.2.21.1905250034390.11070@34-41-5D-CA-59-C7>
+User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
 MIME-Version: 1.0
-References: <20190523141752.GA12078@linux.intel.com> <CALCETrUzx3LPAKCLFf75P-XshAkRcr+JLET3LA_kHDs9MA11FA@mail.gmail.com>
- <20190523234044.GC12078@linux.intel.com> <CALCETrV4DVEfW6EJ6DnQGGYDJAiA5M1QcuYJTiroumOM+D6Jjg@mail.gmail.com>
- <960B34DE67B9E140824F1DCDEC400C0F654E8956@ORSMSX116.amr.corp.intel.com>
- <dda0912b-cb15-3c07-d368-345159e995f7@tycho.nsa.gov> <20190524174243.GA365@linux.intel.com>
- <20190524175458.GB365@linux.intel.com> <960B34DE67B9E140824F1DCDEC400C0F654E8E1D@ORSMSX116.amr.corp.intel.com>
- <CALCETrUw5sEr-MHPMU4CzEzkrejDs-JOThHB9Buhoxo5-rdpRw@mail.gmail.com> <20190524200333.GF365@linux.intel.com>
-In-Reply-To: <20190524200333.GF365@linux.intel.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Fri, 24 May 2019 14:27:34 -0700
-X-Gmail-Original-Message-ID: <CALCETrUyAAhnQ+RUeN1L41TKj-vcD2CNt-FJ9siO=Zo6gvH1Aw@mail.gmail.com>
-Message-ID: <CALCETrUyAAhnQ+RUeN1L41TKj-vcD2CNt-FJ9siO=Zo6gvH1Aw@mail.gmail.com>
-Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        "Xing, Cedric" <cedric.xing@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Dr. Greg" <greg@enjellic.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 24, 2019 at 1:03 PM Sean Christopherson
-<sean.j.christopherson@intel.com> wrote:
->
-> On Fri, May 24, 2019 at 12:37:44PM -0700, Andy Lutomirski wrote:
-> > On Fri, May 24, 2019 at 11:34 AM Xing, Cedric <cedric.xing@intel.com> wrote:
-> > >
-> > > If "initial permissions" for enclaves are less restrictive than shared
-> > > objects, then it'd become a backdoor for circumventing LSM when enclave
-> > > whitelisting is *not* in place. For example, an adversary may load a page,
-> > > which would otherwise never be executable, as an executable page in EPC.
-> > >
-> > > In the case a RWX page is needed, the calling process has to have a RWX
-> > > page serving as the source for EADD so PROCESS__EXECMEM will have been
-> > > checked. For SGX2, changing an EPC page to RWX is subject to FILE__EXECMEM
-> > > on /dev/sgx/enclave, which I see as a security benefit because it only
-> > > affects the enclave but not the whole process hosting it.
-> >
-> > So the permission would be like FILE__EXECMOD on the source enclave
-> > page, because it would be mapped MAP_ANONYMOUS, PROT_WRITE?
-> > MAP_SHARED, PROT_WRITE isn't going to work because that means you can
-> > modify the file.
->
-> Was this in response to Cedric's comment, or to my comment?
 
-Yours.  I think that requiring source pages to be actually mapped W is
-not such a great idea.
-
->
-> > I'm starting to think that looking at the source VMA permission bits
-> > or source PTE permission bits is putting a bit too much policy into
-> > the driver as opposed to the LSM.  How about delegating the whole
-> > thing to an LSM hook?  The EADD operation would invoke a new hook,
-> > something like:
-> >
-> > int security_enclave_load_bytes(void *source_addr, struct
-> > vm_area_struct *source_vma, loff_t source_offset, unsigned int
-> > maxperm);
-> >
-> > Then you don't have to muck with mapping anything PROT_EXEC.  Instead
-> > you load from a mapping of a file and the LSM applies whatever policy
-> > it feels appropriate.  If the first pass gets something wrong, the
-> > application or library authors can take it up with the SELinux folks
-> > without breaking the whole ABI :)
-> >
-> > (I'm proposing passing in the source_vma because this hook would be
-> > called with mmap_sem held for read to avoid a TOCTOU race.)
-> >
-> > If we go this route, the only substantial change to the existing
-> > driver that's needed for an initial upstream merge is the maxperm
-> > mechanism and whatever hopefully minimal API changes are needed to
-> > allow users to conveniently set up the mappings.  And we don't need to
-> > worry about how to hack around mprotect() calling into the LSM,
-> > because the LSM will actually be aware of SGX and can just do the
-> > right thing.
->
-> This doesn't address restricting which processes can run which enclaves,
-> it only allows restricting the build flow.  Or are you suggesting this
-> be done in addition to whitelisting sigstructs?
-
-In addition.
-
-But I named the function badly and gave it a bad signature, which
-confused you.  Let's try again:
-
-int security_enclave_load_from_memory(const struct vm_area_struct
-*source, unsigned int maxperm);
-
-Maybe some really fancy future LSM would also want loff_t
-source_offset, but it's probably not terribly useful.  This same
-callback would be used for EAUG.
-
-Following up on your discussion with Cedric about sigstruct, the other
-callback would be something like:
-
-int security_enclave_init(struct file *sigstruct_file);
-
-The main issue I see is that we also want to control the enclave's
-ability to have RWX pages or to change a W page to X.  We might also
-want:
-
-int security_enclave_load_zeros(unsigned int maxperm);
-
-An enclave that's going to modify its own code will need memory with
-maxperm = RWX or WX.
-
-But this is a bit awkward if the LSM's decision depends on the
-sigstruct.  We could get fancy and require that the sigstruct be
-supplied before any EADD operations so that the maxperm decisions can
-depend on the sigstruct.
-
-Am I making more sense now?
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index 4f84ee8b..930bafab 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -448,8 +448,12 @@ static int write_sids_to_conf(FILE *out, const char *const *sid_to_str,
+ 		if (i < num_sids) {
+ 			sid = (char *)sid_to_str[i];
+ 		} else {
+-			snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
++			snprintf(unknown, sizeof(unknown), "%s%u", "UNKNOWN", i);
+ 			sid = strdup(unknown);
++			if (!sid) {
++				rc = -1;
++				goto exit;
++			}
+ 		}
+ 		rc = strs_add_at_index(strs, sid, i);
+ 		if (rc != 0) {
+@@ -792,6 +796,10 @@ static int write_sensitivity_rules_to_conf(FILE *out, struct policydb *pdb)
+ 			j = level->level->sens - 1;
+ 			if (!sens_alias_map[j]) {
+ 				sens_alias_map[j] = strdup(name);
++				if (!sens_alias_map[j]) {
++					rc = -1;
++					goto exit;
++				}
+ 			} else {
+ 				alias = sens_alias_map[j];
+ 				sens_alias_map[j] = create_str("%s %s", 2, alias, name);
+@@ -919,6 +927,10 @@ static int write_category_rules_to_conf(FILE *out, struct policydb *pdb)
+ 			j = cat->s.value - 1;
+ 			if (!cat_alias_map[j]) {
+ 				cat_alias_map[j] = strdup(name);
++				if (!cat_alias_map[j]) {
++					rc = -1;
++					goto exit;
++				}
+ 			} else {
+ 				alias = cat_alias_map[j];
+ 				cat_alias_map[j] = create_str("%s %s", 2, alias, name);
+@@ -2364,7 +2376,7 @@ static int write_sid_context_rules_to_conf(FILE *out, struct policydb *pdb, cons
+ 		if (i < num_sids) {
+ 			sid = (char *)sid_to_str[i];
+ 		} else {
+-			snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
++			snprintf(unknown, sizeof(unknown), "%s%u", "UNKNOWN", i);
+ 			sid = unknown;
+ 		}
+ 
