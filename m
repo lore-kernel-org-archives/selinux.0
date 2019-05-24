@@ -2,205 +2,249 @@ Return-Path: <SRS0=UID1=TY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,T_DKIMWL_WL_HIGH,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52F57C282E1
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 19:38:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F165C072B5
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 20:00:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 216A72184E
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 19:38:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1558726684;
-	bh=zeXvSbypTKhRfRRi8ROgKjL9915ASKgLD4WTaDTJcsU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=RxsKKw000cD2pXR5v8U2Od/feUoc2E3sNuBs95Qgb6dIy8r8VuSgtsaAOOsRg3+fp
-	 7kuoh1ZH3nF3eFZzZ+ARRKUDSGInt7P7V6Z3X1rtV5vl7gNUmee2oaU3YzmkxezKM5
-	 iTXdYMphwlo5P4il05KFX/i6H3fHfq7+lXDAhc2A=
+	by mail.kernel.org (Postfix) with ESMTP id 0282A217D7
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 20:00:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732061AbfEXTh7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 May 2019 15:37:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51308 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729017AbfEXTh7 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 24 May 2019 15:37:59 -0400
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AC20421871
-        for <selinux@vger.kernel.org>; Fri, 24 May 2019 19:37:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558726678;
-        bh=zeXvSbypTKhRfRRi8ROgKjL9915ASKgLD4WTaDTJcsU=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=L9Xq9286wjZcFleforj8AYP5lih/NPKby+xmRc+h3k3H7d3lLLCrNPbYubi13DNCs
-         IfhUJRelKVp+LrLEwsaLcfiXWZ0gB0WsoGmAM14MWO9oXPJlSWGHtGF9q6qVlHLBZa
-         DWq+ASWxROyaqTxSo6WWLjquaUebsZ2hL1IJh/UI=
-Received: by mail-wr1-f51.google.com with SMTP id f8so11102646wrt.1
-        for <selinux@vger.kernel.org>; Fri, 24 May 2019 12:37:57 -0700 (PDT)
-X-Gm-Message-State: APjAAAWz364LV9yy7ZHXsnHvru22bb3LEWTDLYBpVeWEBaXJIeLT1RmW
-        DaULVjGD1nBZ+BrVBJm23EpY7Mdm9P+aRKkyAFbW9A==
-X-Google-Smtp-Source: APXvYqzoAJQIK0k4dVkPIqLIvRg7W86cwwB38KRxh8ChAcf4YMC8WiiTW8e1QwmAaQ8iCYt40VtRWGOnhe7u0zTLVjY=
-X-Received: by 2002:a5d:5506:: with SMTP id b6mr63452555wrv.221.1558726676250;
- Fri, 24 May 2019 12:37:56 -0700 (PDT)
+        id S2391723AbfEXUAk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 May 2019 16:00:40 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:37050 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391669AbfEXUAk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 May 2019 16:00:40 -0400
+Received: by mail-ot1-f68.google.com with SMTP id r10so9788063otd.4
+        for <selinux@vger.kernel.org>; Fri, 24 May 2019 13:00:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ObtpsatTjRcx7Mw1tOIegIwh2MJlgDi8L4jZt6VL68I=;
+        b=Vuw2LAbj8UU+Qb8CyhN4OCU2e43tXjWr+ijGKubU/tL91rRnurUZamIw59SCaOA39A
+         dsMRCd49R7+WSvmhFgL97b43Z9uai4hZdZFC5oJOkpuUrcj33d1CAO/TDMM3+glKagm4
+         HYYCO0zch2LP2te3ZATb352ELQ0BpSpxQNC3HRdDz/Z26TotQ9ulXSWKDJJS4WoJGAx1
+         bmbhqCfqu9BXf36dtiLsCvTj7YYAAyVYJr4l8+LPybO5m8XC642gy1CgypGd+dJUMuzf
+         FkOp+q2GbxZ79bTTEzHlWPgH82ZUoA/QtJ7b7qB7r13YG/9mfSZZvl6VE6emApnd0SSE
+         roKA==
+X-Gm-Message-State: APjAAAUSjz2SIfvoe9cmZ4kB6CuZr7SgCBDVQpf1JRUMsxm1bFMBOCXh
+        EQEbEN1+4pSXD0V4UJSxokI3lfcR9w98KMmIekp4uOoMHgM=
+X-Google-Smtp-Source: APXvYqxoFxsO4EQ9YHe/r5BxT8CpPKF3ffloVshw9MrmeUg3pBJy2eZFamIWSNNZ4nvJoDfJU4iNStpowgS3ArFR9IA=
+X-Received: by 2002:a9d:71d1:: with SMTP id z17mr37180078otj.22.1558728039710;
+ Fri, 24 May 2019 13:00:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <CALCETrUS8xyF1JJmQs18BGTDhPRXf+s81BkMZCZwmY73r7M+zg@mail.gmail.com>
- <20190523023517.GA31950@linux.intel.com> <20190523102628.GC10955@linux.intel.com>
- <20190523141752.GA12078@linux.intel.com> <CALCETrUzx3LPAKCLFf75P-XshAkRcr+JLET3LA_kHDs9MA11FA@mail.gmail.com>
- <20190523234044.GC12078@linux.intel.com> <CALCETrV4DVEfW6EJ6DnQGGYDJAiA5M1QcuYJTiroumOM+D6Jjg@mail.gmail.com>
- <960B34DE67B9E140824F1DCDEC400C0F654E8956@ORSMSX116.amr.corp.intel.com>
- <dda0912b-cb15-3c07-d368-345159e995f7@tycho.nsa.gov> <20190524174243.GA365@linux.intel.com>
- <20190524175458.GB365@linux.intel.com> <960B34DE67B9E140824F1DCDEC400C0F654E8E1D@ORSMSX116.amr.corp.intel.com>
-In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F654E8E1D@ORSMSX116.amr.corp.intel.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Fri, 24 May 2019 12:37:44 -0700
-X-Gmail-Original-Message-ID: <CALCETrUw5sEr-MHPMU4CzEzkrejDs-JOThHB9Buhoxo5-rdpRw@mail.gmail.com>
-Message-ID: <CALCETrUw5sEr-MHPMU4CzEzkrejDs-JOThHB9Buhoxo5-rdpRw@mail.gmail.com>
-Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
-To:     "Xing, Cedric" <cedric.xing@intel.com>
-Cc:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Andy Lutomirski <luto@kernel.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Dr. Greg" <greg@enjellic.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>
+References: <20190523102449.9621-1-omosnace@redhat.com> <0571b2a9-2f34-72c4-431d-450adb7df6a5@tycho.nsa.gov>
+ <CAFqZXNsYY5HWkcqwYhu2sZR3eGQGDJnEr43pVbM1fxeA0M1Lzg@mail.gmail.com> <0480cc58-a4f4-bd0f-9edb-f2befe546578@tycho.nsa.gov>
+In-Reply-To: <0480cc58-a4f4-bd0f-9edb-f2befe546578@tycho.nsa.gov>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 24 May 2019 22:00:28 +0200
+Message-ID: <CAFqZXNtkoOWuKX1J8Y+y0ymEOEfPc3oy1OU1XBWRaLtgbOAAHQ@mail.gmail.com>
+Subject: Re: [Non-DoD Source] [PATCH userspace 0/4] Remove redundant rules
+ when building policydb
+To:     jwcart2 <jwcart2@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 24, 2019 at 11:34 AM Xing, Cedric <cedric.xing@intel.com> wrote=
-:
->
-> > From: linux-sgx-owner@vger.kernel.org [mailto:linux-sgx-
-> > owner@vger.kernel.org] On Behalf Of Sean Christopherson
-> > Sent: Friday, May 24, 2019 10:55 AM
+On Fri, May 24, 2019 at 6:01 PM jwcart2 <jwcart2@tycho.nsa.gov> wrote:
+> On 5/24/19 4:54 AM, Ondrej Mosnacek wrote:
+> > On Thu, May 23, 2019 at 10:39 PM jwcart2 <jwcart2@tycho.nsa.gov> wrote:
+> >> On 5/23/19 6:24 AM, Ondrej Mosnacek wrote:
+> >>> This series implements an optional optimization step when building
+> >>> a policydb via semodule or secilc, which identifies and removes rules
+> >>> that are redundant -- i.e. they are already covered by a more general
+> >>> rule based on attribute inheritance.
+> >>>
+> >>> Since the performance penalty of this additional step is very small
+> >>> (it adds about 1 s to the current running time of ~20-30 s [1]) and
+> >>> it can have a big positive effect on the number of rules in policy
+> >>> (it manages to remove ~40% AV rules from Fedora 29 policy), the
+> >>> optimization is enabled by default and can be turned off using a
+> >>> command-line option (--no-optimize) in secilc and semodule [2].
+> >>>
+> >>> The optimization routine eliminates:
+> >>>    * all allow/neverallow/dontaudit/auditallow rules (including xperm
+> >>>      variants) that are covered by another more general rule,
+> >>>    * all conditional versions of the above rules that are covered by a
+> >>>      more general rule either in the unconditional table or in the same
+> >>>      branch of the same conditional.
+> >>>
+> >>> The optimization doesn't process other rules, since they currently
+> >>> do not support attributes. There is some room left for more precise
+> >>> optimization of conditional rules, but it would likely bring only
+> >>> little additional benefit.
+> >>>
+> >>> When the policy is mostly or fully expanded, the optimization should
+> >>> be turned off. If it isn't, the policy build time will increase a lot
+> >>> for no benefit. However, the complexity of optimization will be only
+> >>> linear w.r.t. the number of rules and so the impact should not be
+> >>> catastrophic. (When testing with secilc on a subset of Fedora policy
+> >>> with -X 100000 the build time was 1.7 s with optimization vs. 1 s
+> >>> without it.)
+> >>>
+> >>> Tested live on my Fedora 29 devel machine under normal use. No unusual
+> >>> AVCs were observed with optimized policy loaded.
+> >>>
+> >>> Travis build passed: https://travis-ci.org/WOnder93/selinux/builds/536157427
+> >>>
+> >>> NOTE: The xperm rule support wasn't tested -- I would welcome some
+> >>>         peer review/testing of this part.
+> >>>
+> >>> [1] As measured on my machine (Fedora 29 policy, x86_64).
+> >>> [2] I have no problem with switching it to opt-in if that is preferred.
+> >>>
+> >>> Ondrej Mosnacek (4):
+> >>>     libsepol: add a function to optimize kernel policy
+> >>>     secilc: optimize policy before writing
+> >>>     libsemanage: optimize policy on rebuild
+> >>>     semodule: add flag to disable policy optimization
+> >>>
+> >>>    libsemanage/include/semanage/handle.h      |   4 +
+> >>>    libsemanage/src/direct_api.c               |   7 +
+> >>>    libsemanage/src/handle.c                   |  13 +
+> >>>    libsemanage/src/handle.h                   |   1 +
+> >>>    libsemanage/src/libsemanage.map            |   5 +
+> >>>    libsepol/include/sepol/policydb.h          |   5 +
+> >>>    libsepol/include/sepol/policydb/policydb.h |   2 +
+> >>>    libsepol/src/libsepol.map.in               |   5 +
+> >>>    libsepol/src/optimize.c                    | 370 +++++++++++++++++++++
+> >>>    libsepol/src/policydb_public.c             |   5 +
+> >>>    policycoreutils/semodule/semodule.c        |  12 +-
+> >>>    secilc/secilc.c                            |  16 +-
+> >>>    12 files changed, 442 insertions(+), 3 deletions(-)
+> >>>    create mode 100644 libsepol/src/optimize.c
+> >>>
+> >>
+> >> It would be nice to have checkpolicy support this as well. It shouldn't be too
+> >> hard to do that.
 > >
-> > On Fri, May 24, 2019 at 10:42:43AM -0700, Sean Christopherson wrote:
-> > > Hmm, I've been thinking more about pulling permissions from the sourc=
-e
-> > > page.  Conceptually I'm not sure we need to meet the same requirement=
-s
-> > as
-> > > non-enclave DSOs while the enclave is being built, i.e. do we really
-> > need
-> > > to force userspace to fully map the enclave in normal memory?
-> > >
-> > > Consider the Graphene scenario where it's building an enclave on the
-> > fly.
-> > > Pulling permissions from the source VMAs means Graphene has to map th=
-e
-> > > code pages of the enclave with X.  This means Graphene will need
-> > EXEDMOD
-> > > (or EXECMEM if Graphene isn't careful).  In a non-SGX scenario this
-> > makes
-> > > perfect sense since there is no way to verify the end result of RW->R=
-X.
-> > >
-> > > But for SGX, assuming enclaves are whitelisted by their sigstruct
-> > (checked
-> > > at EINIT) and because page permissions affect sigstruct.MRENCLAVE, it
-> > *is*
-> > > possible to verify the resulting RX contents.  E.g. for the purposes
-> > of
-> > > LSMs, can't we use the .sigstruct file as a proxy for the enclave and
-> > > require FILE__EXECUTE on the .sigstruct inode to map/run the enclave?
-> > >
-> > > Stephen, is my logic sound?
-> > >
-> > >
-> > > If so...
-> > >
-> > >   - Require FILE__READ+FILE__EXECUTE on .sigstruct to mmap() the
-> > enclave.
-> > >
-> > >   - Prevent userspace from mapping the enclave with permissions beyon=
-d
-> > the
-> > >     original permissions of the enclave.  This can be done by
-> > populating
-> > >     VM_MAY{READ,WRITE,EXEC} from the SECINFO (same basic concept as
-> > Andy's
-> > >     proposals).  E.g. pre-EINIT, mmap() and mprotect() can only
-> > succeed
-> > >     with PROT_NONE.
-> > >
-> > >   - Require FILE__{READ,WRITE,EXECUTE} on /dev/sgx/enclave for
-> > simplicity,
-> > >     or provide an alternate SGX_IOC_MPROTECT if we want to sidestep
-> > the
-> > >     FILE__WRITE requirement.
+> > Looking at checkpolicy.c, it looks like it only generates POLICY_BASE
+> > or POLICY_MODULE policy types. I currently limit the optimization only
+> > to POLICY_KERN type, because from comments in policydb.h I got the
+> > impression that other policy types have different structure and I'm
+> > not sure if they need some special handling. I don't have that much
+> > knowledge about SELinux userspace code yet... if you can give me some
+> > hints about the difference between the various POLICY_* types, then I
+> > will be happy to make some adjustments if they make sense.
 > >
-> > One more thought.  EADD (and the equivalent SGX2 flow) could do
-> > security_mmap_file() with a NULL file on the SECINFO permissions, which
-> > would trigger PROCESS_EXECMEM if an enclave attempts to map a page RWX.
 >
-> If "initial permissions" for enclaves are less restrictive than shared ob=
-jects, then it'd become a backdoor for circumventing LSM when enclave white=
-listing is *not* in place. For example, an adversary may load a page, which=
- would otherwise never be executable, as an executable page in EPC.
+> It is kind of confusing. I sent a patch to the list. You can incorporate that
+> into your patch series or I can just do it after.
+
+Thanks, I'll have a look at it and probably just include in v2.
+
 >
-> In the case a RWX page is needed, the calling process has to have a RWX p=
-age serving as the source for EADD so PROCESS__EXECMEM will have been check=
-ed. For SGX2, changing an EPC page to RWX is subject to FILE__EXECMEM on /d=
-ev/sgx/enclave, which I see as a security benefit because it only affects t=
-he enclave but not the whole process hosting it.
+> I've attached the test policy that I used and a test script. I haven't had a
+> chance to dig more into what may be going on.
 
-So the permission would be like FILE__EXECMOD on the source enclave
-page, because it would be mapped MAP_ANONYMOUS, PROT_WRITE?
-MAP_SHARED, PROT_WRITE isn't going to work because that means you can
-modify the file.
+Cool, this test policy will also help me test the xperms support,
+thanks! I will play with it tomorrow or on Monday.
 
-I'm starting to think that looking at the source VMA permission bits
-or source PTE permission bits is putting a bit too much policy into
-the driver as opposed to the LSM.  How about delegating the whole
-thing to an LSM hook?  The EADD operation would invoke a new hook,
-something like:
+I'm ~95% sure that my incremental patch will fix the dontaudit issue -
+if I manage to verify it, then I'll squash it in and include in v2.
 
-int security_enclave_load_bytes(void *source_addr, struct
-vm_area_struct *source_vma, loff_t source_offset, unsigned int
-maxperm);
+>
+> Jim
+>
+>
+> >>
+> >> I need to do some more testing, but I think something is not working correctly.
+> >>
+> >> I am starting from conf files here because I have both Fedora and Android ones
+> >> that I have used for testing and it is easier to run them through checkpolicy to
+> >> convert to CIL.
+> >>
+> >> With these rules:
+> >>
+> >> # Redundant 1
+> >> allow tp01 tpr1:cl01 { p01a p11a p01b p11b };
+> >> allow tp02 tpr1:cl01 { p01a p11a };
+> >> allow at02 tpr1:cl01 { p01a p11a p01b };
+> >>
+> >> # Redundant 2
+> >> dontaudit tp01 tpr2:cl01 { p01a p11a p01b p11b };
+> >> dontaudit tp02 tpr2:cl01 { p01a p11a };
+> >> dontaudit at02 tpr2:cl01 { p01a p11a p01b };
+> >>
+> >> # Redundant 3
+> >> allow at02 tpr3:cl01 { p01a p11a p01b };
+> >> if (b01) {
+> >>     allow tp01 tpr3:cl01 { p01a p11a p01b p11b };
+> >>     allow tp02 tpr3:cl01 { p01a p11a };
+> >> }
+> >>
+> >> # Redundant 4
+> >> dontaudit at02 tpr4:cl01 { p01a p11a p01b };
+> >> if (b01) {
+> >>     dontaudit tp01 tpr4:cl01 { p01a p11a p01b p11b };
+> >>     dontaudit tp02 tpr4:cl01 { p01a p11a };
+> >> }
+> >>
+> >>
+> >> I see the following from sediff:
+> >>
+> >> Allow Rules (0 Added, 1 Removed, 0 Modified)
+> >>      Removed Allow Rules: 1
+> >>         - allow tp02 tpr3:cl01 { p01a p11a }; [ b01 ]:True
+> >>
+> >> Dontaudit Rules (0 Added, 1 Removed, 1 Modified)
+> >>      Removed Dontaudit Rules: 1
+> >>         - dontaudit tp01 tpr4:cl01 { p01a p01b p11a p11b }; [ b01 ]:True
+> >>      Modified Dontaudit Rules: 1
+> >>         * dontaudit tp01 tpr2:cl01 { p01b p11a p01a -p11b };
+> >>
+> >> So it handles Redundant 1 just fine, but has problems with Redundant 2 which
+> >> should be the same.
+> >
+> > Yes, I think I'm handling the dontaudit rules incorrectly... For some
+> > (historical?) reason they actually specify the permissions that *are*
+> > audited, although the semantic of combining multiple rules is still
+> > that a permission is dontaudited if there is at least one dontaudit
+> > rule for it, so the logic of handling the raw perms data has to be
+> > inverted for AVTAB_AUDITDENY entries. I had noticed earlier that
+> > AVTAB_AUDITDENY rules are handled differently but somehow I concluded
+> > that the perms values should still bitwise-or together...
+> >
+> > Can you please try it with adding:
+> >
+> > if (specified & AVTAB_AUDITDENY)
+> >      return (d1->data & d2->data) == d2->data;
+> >
+> > to the beginning of match_avtab_datum() in optimize.c? (patch form
+> > here: https://github.com/WOnder93/selinux/commit/17c77e4bb8857ebfff9b32e2e0bc800e206aba1e.patch)
+> >
+> >>
+> >> I don't remember what to expect from sediff for boolean rules. I had played
+> >> around with removing rules with some of my earlier lua tools and I thought that
+> >> sediff handled removing redundant rules from booleans, but I could be wrong.
+> >>
+> >> I will look at this more maybe tomorrow, but most likely after the Memorial day
+> >> weekend.
+> >>
+> >> Jim
+> >>
+> >> --
+> >> James Carter <jwcart2@tycho.nsa.gov>
+> >> National Security Agency
+> > --
+> > Ondrej Mosnacek <omosnace at redhat dot com>
+> > Software Engineer, Security Technologies
+> > Red Hat, Inc.
+> >
+>
+>
+> --
+> James Carter <jwcart2@tycho.nsa.gov>
+> National Security Agency
 
-Then you don't have to muck with mapping anything PROT_EXEC.  Instead
-you load from a mapping of a file and the LSM applies whatever policy
-it feels appropriate.  If the first pass gets something wrong, the
-application or library authors can take it up with the SELinux folks
-without breaking the whole ABI :)
-
-(I'm proposing passing in the source_vma because this hook would be
-called with mmap_sem held for read to avoid a TOCTOU race.)
-
-If we go this route, the only substantial change to the existing
-driver that's needed for an initial upstream merge is the maxperm
-mechanism and whatever hopefully minimal API changes are needed to
-allow users to conveniently set up the mappings.  And we don't need to
-worry about how to hack around mprotect() calling into the LSM,
-because the LSM will actually be aware of SGX and can just do the
-right thing.
-
---Andy
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
