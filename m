@@ -2,138 +2,193 @@ Return-Path: <SRS0=UID1=TY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B03EC46470
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 20:03:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86946C072B5
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 20:04:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1D6B821851
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 20:03:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58271217D7
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 20:04:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391730AbfEXUDf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 May 2019 16:03:35 -0400
-Received: from mga11.intel.com ([192.55.52.93]:59357 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391612AbfEXUDf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 24 May 2019 16:03:35 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 24 May 2019 13:03:34 -0700
-X-ExtLoop1: 1
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
-  by fmsmga001.fm.intel.com with ESMTP; 24 May 2019 13:03:33 -0700
-Date:   Fri, 24 May 2019 13:03:33 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Andy Lutomirski <luto@kernel.org>
-Cc:     "Xing, Cedric" <cedric.xing@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Dr. Greg" <greg@enjellic.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>
-Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
-Message-ID: <20190524200333.GF365@linux.intel.com>
-References: <20190523141752.GA12078@linux.intel.com>
- <CALCETrUzx3LPAKCLFf75P-XshAkRcr+JLET3LA_kHDs9MA11FA@mail.gmail.com>
- <20190523234044.GC12078@linux.intel.com>
- <CALCETrV4DVEfW6EJ6DnQGGYDJAiA5M1QcuYJTiroumOM+D6Jjg@mail.gmail.com>
- <960B34DE67B9E140824F1DCDEC400C0F654E8956@ORSMSX116.amr.corp.intel.com>
- <dda0912b-cb15-3c07-d368-345159e995f7@tycho.nsa.gov>
- <20190524174243.GA365@linux.intel.com>
- <20190524175458.GB365@linux.intel.com>
- <960B34DE67B9E140824F1DCDEC400C0F654E8E1D@ORSMSX116.amr.corp.intel.com>
- <CALCETrUw5sEr-MHPMU4CzEzkrejDs-JOThHB9Buhoxo5-rdpRw@mail.gmail.com>
+        id S2391765AbfEXUEm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 May 2019 16:04:42 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:44058 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391612AbfEXUEm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 May 2019 16:04:42 -0400
+Received: by mail-ot1-f65.google.com with SMTP id g18so9755489otj.11
+        for <selinux@vger.kernel.org>; Fri, 24 May 2019 13:04:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UzIKL6jhHH7nEddh9cOjgUt4cKUIGQyWWtvgA/0X0yk=;
+        b=mOB7uVfGbVo4SULtenp6iIpo9H3PVxTLRM2ZU1+B7HzDrCz9An2w3ZiUEIznQyUmqO
+         n9yDjq5T9ZJM0c/WMyC6yF8BkhvutFuYvyRQ3Dw5S1X8E3T/ft02F2BgstRqNkriSnsK
+         OBx5DUknyfJZgcrLyb0Bjw82GOtkCEW/ZptzogLLv3eFLAM2JTbmER83RkszyQRpjmoF
+         TsYUlCRX1sMK4rixqpasSTwdtj5+7uth3m1gvPOJ26ITizbV8bc81jfTVe9JYx7TCzB2
+         0ZpE+t8wtnClMixhWM/codX3nGdNBHEg0g484jW0UMpZ0Nnx77AwGjF3oyiFNJYE6yIr
+         xhew==
+X-Gm-Message-State: APjAAAXMp92cJiIrDqMXgFkPXMPRc87Y4P6FGAt65+Uq5n2XPhY2PCEm
+        hb1r1axTtMbAk4PU3f8lAN+7wHmfXE1h1JuDIwYYhQ==
+X-Google-Smtp-Source: APXvYqzO159d8hb33Kv9kJs/xXW56nkNgAye6ULACk38hNuq7mDSYkU9/mOgfbTGwGtqxkeKQjCNhjONJQ9HWiFYY6I=
+X-Received: by 2002:a9d:6a8a:: with SMTP id l10mr13819011otq.197.1558728281598;
+ Fri, 24 May 2019 13:04:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CALCETrUw5sEr-MHPMU4CzEzkrejDs-JOThHB9Buhoxo5-rdpRw@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+References: <20190523102449.9621-1-omosnace@redhat.com> <20190523131455.GA30512@brutus.lan>
+ <20190523133947.GB30512@brutus.lan> <CAFqZXNv0cWnp3urHhCowFVKiypzsb52a2+dQ4G+0cjRdcEUwAg@mail.gmail.com>
+ <1c3321c9-f7d2-815a-c288-07ae7409b8d8@tycho.nsa.gov>
+In-Reply-To: <1c3321c9-f7d2-815a-c288-07ae7409b8d8@tycho.nsa.gov>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 24 May 2019 22:04:30 +0200
+Message-ID: <CAFqZXNv0QziNYgN0miinGAgX71UO+u0uGZt_U9BMoWbsX7Ns3Q@mail.gmail.com>
+Subject: Re: [Non-DoD Source] Re: [PATCH userspace 0/4] Remove redundant rules
+ when building policydb
+To:     jwcart2 <jwcart2@tycho.nsa.gov>
+Cc:     Dominick Grift <dac.override@gmail.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 24, 2019 at 12:37:44PM -0700, Andy Lutomirski wrote:
-> On Fri, May 24, 2019 at 11:34 AM Xing, Cedric <cedric.xing@intel.com> wrote:
+On Fri, May 24, 2019 at 6:02 PM jwcart2 <jwcart2@tycho.nsa.gov> wrote:
+> On 5/23/19 10:08 AM, Ondrej Mosnacek wrote:
+> > On Thu, May 23, 2019 at 3:40 PM Dominick Grift <dac.override@gmail.com> wrote:
+> >> On Thu, May 23, 2019 at 03:14:55PM +0200, Dominick Grift wrote:
+> >>> On Thu, May 23, 2019 at 12:24:45PM +0200, Ondrej Mosnacek wrote:
+> >>>> This series implements an optional optimization step when building
+> >>>> a policydb via semodule or secilc, which identifies and removes rules
+> >>>> that are redundant -- i.e. they are already covered by a more general
+> >>>> rule based on attribute inheritance.
+> >>>
+> >>> Some stats with dssp2-standard:
+> >>>
+> >>> [kcinimod@myguest dssp2-standard]$ time secilc -n `find . -name *.cil` -o policy.31.noopt
+> >>>
+> >>> real    0m9.278s
+> >>> user    0m7.036s
+> >>> sys     0m2.017s
+> >>> [kcinimod@myguest dssp2-standard]$ time secilc `find . -name *.cil` -o policy.31.opt
+> >>>
+> >>> real    0m19.343s
+> >>> user    0m16.939s
+> >>> sys     0m2.027s
+> >>> [kcinimod@myguest dssp2-standard]$ ls -lh policy.*
+> >>> -rw-rw-r--. 1 kcinimod kcinimod 2.4M May 23 15:11 policy.31.noopt
+> >>> -rw-rw-r--. 1 kcinimod kcinimod 2.3M May 23 15:12 policy.31.opt
+> >>>
+> >>> Was unable to see the actual diff as sediff got oom-killed on me
+> >>
+> >> According to percentage calculator thats roughly a 4 percent gain size-wise at a 47 percent performance penalty.
+> >> Looks like dssp2-standard is pretty efficient as it is.
 > >
-> > If "initial permissions" for enclaves are less restrictive than shared
-> > objects, then it'd become a backdoor for circumventing LSM when enclave
-> > whitelisting is *not* in place. For example, an adversary may load a page,
-> > which would otherwise never be executable, as an executable page in EPC.
+> > Hmm, yeah, looks like I'll have to make it opt-in after all... or add
+> > some heuristic to decide if running the optimization is really worth
+> > it.
 > >
-> > In the case a RWX page is needed, the calling process has to have a RWX
-> > page serving as the source for EADD so PROCESS__EXECMEM will have been
-> > checked. For SGX2, changing an EPC page to RWX is subject to FILE__EXECMEM
-> > on /dev/sgx/enclave, which I see as a security benefit because it only
-> > affects the enclave but not the whole process hosting it.
-> 
-> So the permission would be like FILE__EXECMOD on the source enclave
-> page, because it would be mapped MAP_ANONYMOUS, PROT_WRITE?
-> MAP_SHARED, PROT_WRITE isn't going to work because that means you can
-> modify the file.
+>
+> Opt-in makes sense. How about just using 'O' for the option?
 
-Was this in response to Cedric's comment, or to my comment?
+Sure, I already have patches to convert to opt-in ready in my devel
+branch [1]. Expect them to be incorporated in v2 respin.
 
-> I'm starting to think that looking at the source VMA permission bits
-> or source PTE permission bits is putting a bit too much policy into
-> the driver as opposed to the LSM.  How about delegating the whole
-> thing to an LSM hook?  The EADD operation would invoke a new hook,
-> something like:
-> 
-> int security_enclave_load_bytes(void *source_addr, struct
-> vm_area_struct *source_vma, loff_t source_offset, unsigned int
-> maxperm);
-> 
-> Then you don't have to muck with mapping anything PROT_EXEC.  Instead
-> you load from a mapping of a file and the LSM applies whatever policy
-> it feels appropriate.  If the first pass gets something wrong, the
-> application or library authors can take it up with the SELinux folks
-> without breaking the whole ABI :)
-> 
-> (I'm proposing passing in the source_vma because this hook would be
-> called with mmap_sem held for read to avoid a TOCTOU race.)
-> 
-> If we go this route, the only substantial change to the existing
-> driver that's needed for an initial upstream merge is the maxperm
-> mechanism and whatever hopefully minimal API changes are needed to
-> allow users to conveniently set up the mappings.  And we don't need to
-> worry about how to hack around mprotect() calling into the LSM,
-> because the LSM will actually be aware of SGX and can just do the
-> right thing.
+[1] https://github.com/WOnder93/selinux/compare/master...optimize-policy-v2
 
-This doesn't address restricting which processes can run which enclaves,
-it only allows restricting the build flow.  Or are you suggesting this
-be done in addition to whitelisting sigstructs?
+>
+> Jim
+>
+> >>
+> >>>
+> >>>>
+> >>>> Since the performance penalty of this additional step is very small
+> >>>> (it adds about 1 s to the current running time of ~20-30 s [1]) and
+> >>>> it can have a big positive effect on the number of rules in policy
+> >>>> (it manages to remove ~40% AV rules from Fedora 29 policy), the
+> >>>> optimization is enabled by default and can be turned off using a
+> >>>> command-line option (--no-optimize) in secilc and semodule [2].
+> >>>>
+> >>>> The optimization routine eliminates:
+> >>>>   * all allow/neverallow/dontaudit/auditallow rules (including xperm
+> >>>>     variants) that are covered by another more general rule,
+> >>>>   * all conditional versions of the above rules that are covered by a
+> >>>>     more general rule either in the unconditional table or in the same
+> >>>>     branch of the same conditional.
+> >>>>
+> >>>> The optimization doesn't process other rules, since they currently
+> >>>> do not support attributes. There is some room left for more precise
+> >>>> optimization of conditional rules, but it would likely bring only
+> >>>> little additional benefit.
+> >>>>
+> >>>> When the policy is mostly or fully expanded, the optimization should
+> >>>> be turned off. If it isn't, the policy build time will increase a lot
+> >>>> for no benefit. However, the complexity of optimization will be only
+> >>>> linear w.r.t. the number of rules and so the impact should not be
+> >>>> catastrophic. (When testing with secilc on a subset of Fedora policy
+> >>>> with -X 100000 the build time was 1.7 s with optimization vs. 1 s
+> >>>> without it.)
+> >>>>
+> >>>> Tested live on my Fedora 29 devel machine under normal use. No unusual
+> >>>> AVCs were observed with optimized policy loaded.
+> >>>>
+> >>>> Travis build passed: https://travis-ci.org/WOnder93/selinux/builds/536157427
+> >>>>
+> >>>> NOTE: The xperm rule support wasn't tested -- I would welcome some
+> >>>>        peer review/testing of this part.
+> >>>>
+> >>>> [1] As measured on my machine (Fedora 29 policy, x86_64).
+> >>>> [2] I have no problem with switching it to opt-in if that is preferred.
+> >>>>
+> >>>> Ondrej Mosnacek (4):
+> >>>>    libsepol: add a function to optimize kernel policy
+> >>>>    secilc: optimize policy before writing
+> >>>>    libsemanage: optimize policy on rebuild
+> >>>>    semodule: add flag to disable policy optimization
+> >>>>
+> >>>>   libsemanage/include/semanage/handle.h      |   4 +
+> >>>>   libsemanage/src/direct_api.c               |   7 +
+> >>>>   libsemanage/src/handle.c                   |  13 +
+> >>>>   libsemanage/src/handle.h                   |   1 +
+> >>>>   libsemanage/src/libsemanage.map            |   5 +
+> >>>>   libsepol/include/sepol/policydb.h          |   5 +
+> >>>>   libsepol/include/sepol/policydb/policydb.h |   2 +
+> >>>>   libsepol/src/libsepol.map.in               |   5 +
+> >>>>   libsepol/src/optimize.c                    | 370 +++++++++++++++++++++
+> >>>>   libsepol/src/policydb_public.c             |   5 +
+> >>>>   policycoreutils/semodule/semodule.c        |  12 +-
+> >>>>   secilc/secilc.c                            |  16 +-
+> >>>>   12 files changed, 442 insertions(+), 3 deletions(-)
+> >>>>   create mode 100644 libsepol/src/optimize.c
+> >>>>
+> >>>> --
+> >>>> 2.20.1
+> >>>>
+> >>>
+> >>> --
+> >>> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
+> >>> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+> >>> Dominick Grift
+> >>
+> >>
+> >>
+> >> --
+> >> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
+> >> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+> >> Dominick Grift
+> >
+> >
+> >
+>
+>
+> --
+> James Carter <jwcart2@tycho.nsa.gov>
+> National Security Agency
 
-What's the value prop beyond whitelisting sigstructs?  Realistically, I
-doubt LSMs/users will want to take the performance hit of scanning the
-source bytes every time an enclave is loaded.
 
-We could add seomthing like security_enclave_mprotect() in lieu of abusing
-security_file_mprotect(), but passing the full source bytes seems a bit
-much.
+
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
