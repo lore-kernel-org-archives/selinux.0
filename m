@@ -3,222 +3,385 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,T_DKIMWL_WL_HIGH,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,T_DKIMWL_WL_HIGH,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAA2AC072B5
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 16:02:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB079C072B5
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 16:43:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 91E4F2081C
-	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 16:02:28 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="mJNjPkAd"
+	by mail.kernel.org (Postfix) with ESMTP id 6C61F21773
+	for <selinux@archiver.kernel.org>; Fri, 24 May 2019 16:43:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1558716229;
+	bh=ggW23MrZkRt9rW5CmH9tG1BXOSlW9TRFJp98uIdvoKI=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=nMKv8EjZxtX2QWx3yA/J+VrRw6BVLNGuhNNiNGrVu5QxvvipAaReWbN+RNk/gMrc2
+	 7Wo6u1j7uSUdkJBC9670LFDDK6hk9dear2RiA642+wrbHwqeV8RFEkN1HLOhvGfwVO
+	 QKo1TRowk1hclydOKRcZme5wzMDqMGRgTCTedbLU=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389812AbfEXQC2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 May 2019 12:02:28 -0400
-Received: from uhil19pa12.eemsg.mail.mil ([214.24.21.85]:10449 "EHLO
-        uhil19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389710AbfEXQC2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 May 2019 12:02:28 -0400
-X-EEMSG-check-017: 414667357|UHIL19PA12_EEMSG_MP10.csd.disa.mil
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by uhil19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 May 2019 16:02:24 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1558713745; x=1590249745;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=wgMX4W8rae9N9ueFqZeaioBPcdDiaQ8lXMpFNFdJKnQ=;
-  b=mJNjPkAdkHmkr770ZGVzY9fg8dMCvACTDjYEFtfm0Kr89dOtmckiKJDD
-   neJvytWlosIXPGuzBwqQVy1evpthUmy1hMnFvCKW9JbA5luQR4Hj6rn5O
-   T2dmEPrlYrgNZFhbqujDN9n950MwihTmB01YiZ3fR8/UPiNsHz7cLhF9s
-   bd9cnIjVx4f9lb795ZHi9askHvCYZkODc3Xeh3smFRAvMJb22dyEpOs1E
-   9E/XxOZXS6tSZHuJSR+RBsXIYVft4O5fp+S+zeqvRAPf7q1R0kc7Bu0+x
-   NtsD25ruzkmHhkVN9q4L6iJCvFjsVvhcHEk/t/+Vr8VwqLmfaROm0Azqo
-   w==;
-X-IronPort-AV: E=Sophos;i="5.60,507,1549929600"; 
-   d="scan'208";a="28154689"
-IronPort-PHdr: =?us-ascii?q?9a23=3As9CTzBF6oJQBbDmQHOSA+p1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ76p8i5bnLW6fgltlLVR4KTs6sC17OP9fm5BydRv96oizMrSNR0TR?=
- =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
- =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9vMRm6txjdutQXjIdtLqs8yw?=
- =?us-ascii?q?bCr2dVdehR2W5mP0+YkQzm5se38p5j8iBQtOwk+sVdT6j0fLk2QKJBAjg+PG?=
- =?us-ascii?q?87+MPktR/YTQuS/XQcSXkZkgBJAwfe8h73WIr6vzbguep83CmaOtD2TawxVD?=
- =?us-ascii?q?+/4apnVAPkhSEaPDMi7mrZltJ/g75aoBK5phxw3YjUYJ2ONPFjeq/RZM4WSX?=
- =?us-ascii?q?ZdUspUUSFODJm8b48SBOQfO+hWoZT2q18XoRegCwSgAeXiwSJKiHDrx603y/?=
- =?us-ascii?q?kvHx/I3AIgHNwAvnrbo9r3O6gOXu6417XIwDfZYv9KxTvw5orFfxY8qv+MR7?=
- =?us-ascii?q?Jwds/RxFEtFwLLklqfs5blPy+L2u8QtGWb7eRhWv61hG49twF9vCOixtssi4?=
- =?us-ascii?q?bVhoIVzUrI9SNiwIkvP9G4R0l7YcC9HZZWqiqUOYx2QsY4TGFpviY30qYGuZ?=
- =?us-ascii?q?2gfCQTy5Qo2R7ea+eZfIiS/BLsSvyRISxiiHJjZr2/mw6+8VS6yuLmSMm00U?=
- =?us-ascii?q?1KojNZndnNrHwN0AbT6seBR/Bg/UmhwS6C2x3c5+xLO0w5lbfXJ4Q/zrM/iJ?=
- =?us-ascii?q?Yfq1nPEynrk0vslqCWbF8r+u2w5uTiZbXpu4GTOpdvigH7LqQugsu/AfkkMg?=
- =?us-ascii?q?QWX2iU5+C81Lr78E3lWrpKlPw2krTCsJzAOcQaprK2Aw9S0oo57RawEyym38?=
- =?us-ascii?q?gCkXkCLVJFfAqLj4nvO17QPPD1FeqzjlujnTtxx/3KI6ftDovCI3TdirvtYK?=
- =?us-ascii?q?5x60tGxwoyydBf6YhUCrYEIP/rWE/wusDXAQUjMwyo3erqE8l914MCVmKPBa?=
- =?us-ascii?q?+VKqXSsUSS6e41LOmMY5EVtC7nK/c5//7ukWM5mVgFcKmu2JsXb2u4HvJ8LE?=
- =?us-ascii?q?qFf3Xhmc0BHnkXsQo+VuPqlEeOXiJUZ3a3R6g8/C00CJq6DYffQYCgmKGO0z?=
- =?us-ascii?q?2nEZFMYWBGFE6DEW3yd4WFRvgDdjmfIsBkkjMeVLihT5Ut2g2ptA//07BnNP?=
- =?us-ascii?q?bb+jUEtZL/09h4//bTmg829Tx1CcSdzm6MQnpqnmMHWTA2xrpzoU9jxVeZ16?=
- =?us-ascii?q?h3nfhYGcZU5/NTXQdpfaLbmst8B8r/WErkecyPQV2rQZ3yBjQ2VdQ4yNImeU?=
- =?us-ascii?q?txG9y+yBvE2nzuS5MSkr2NBZc3uo3G3nbtb5Jxwn2A07cslUMnTsZnOmivh6?=
- =?us-ascii?q?o5/A/WUd3niUKcwqS1fq0GwHSFoGWcxmOUoBtwTB97UaKDW2sWIETRs4KqtQ?=
- =?us-ascii?q?v5U7ayBOF/YUN6wsmYJ/4PM4eygA=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DhBAAzFehc/wHyM5BfBhoBAQEBAQIBAQEBBwIBAQEBg?=
- =?us-ascii?q?WWBZyppUQEyKIQTiHuMHYlAiQ6IBQkBAQEBAQEBAQErCQECAQGCEoFoRgKCP?=
- =?us-ascii?q?yM4EwEDAQEBBAEBAQEDAQFsHAyCOikBgmcBBSMVNAoDEAsJBQoCAiYCAiE2B?=
- =?us-ascii?q?gEMBgIBAYJfPwGBagMdD6YKgS+EMgGBFIJDDV2BRoEMKItTgVZAgREngms+g?=
- =?us-ascii?q?houGQQYgTmDGIJYBIEtAYoPh0hSlDM9BgOCD4VdVoFvhw2DXQYbgwaTO4xoh?=
- =?us-ascii?q?wCBWI8jIYFXKwpBgWiBTgkKgjOGD4IDO4VbIwMwgQYBAY4FAQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 24 May 2019 16:02:05 +0000
-Received: from localhost.localdomain (moss-lions [192.168.25.4])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x4OG25Aa003414;
-        Fri, 24 May 2019 12:02:05 -0400
-Subject: Re: [Non-DoD Source] Re: [PATCH userspace 0/4] Remove redundant rules
- when building policydb
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Dominick Grift <dac.override@gmail.com>
-Cc:     selinux@vger.kernel.org
-References: <20190523102449.9621-1-omosnace@redhat.com>
- <20190523131455.GA30512@brutus.lan> <20190523133947.GB30512@brutus.lan>
- <CAFqZXNv0cWnp3urHhCowFVKiypzsb52a2+dQ4G+0cjRdcEUwAg@mail.gmail.com>
-From:   jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <1c3321c9-f7d2-815a-c288-07ae7409b8d8@tycho.nsa.gov>
-Date:   Fri, 24 May 2019 12:02:51 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S2390314AbfEXQnn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 May 2019 12:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40618 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390596AbfEXQnn (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 24 May 2019 12:43:43 -0400
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD52221850
+        for <selinux@vger.kernel.org>; Fri, 24 May 2019 16:43:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558716222;
+        bh=ggW23MrZkRt9rW5CmH9tG1BXOSlW9TRFJp98uIdvoKI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=jBQ0Q2nxFeX8XMrkvwPiJGo7pwylggWf2/AyVI2PbYXi7qr65UaaQpTHCRAVkeNQd
+         SkIjpqT59HmsQJkrUovhNQAVEdd1GqLw7qi5lCcFYpOKaEWViUELx9+sl5g67pPwey
+         USG1epbHZl0BoGkrG+LWoa7w/PJlzomL6a1Q3Lq0=
+Received: by mail-wr1-f54.google.com with SMTP id t4so2398701wrx.7
+        for <selinux@vger.kernel.org>; Fri, 24 May 2019 09:43:41 -0700 (PDT)
+X-Gm-Message-State: APjAAAVEQGJYzDH0F811sCSWKWZEKHLjPqADFSnvxFwY3lI1Py3JpeCY
+        5pbn/0p8oA4SIuOkY+V1c4GHP6M+NzE5jIwqtsDGqg==
+X-Google-Smtp-Source: APXvYqyggkvONNjNv0hDqKOGkisM3NKy4emIEsenROzIg+slkkM4mIbFl4MeDSbBPYXfV6Uy6VAslybbXyN+JYL5RVA=
+X-Received: by 2002:adf:e9ca:: with SMTP id l10mr5325072wrn.47.1558716220228;
+ Fri, 24 May 2019 09:43:40 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAFqZXNv0cWnp3urHhCowFVKiypzsb52a2+dQ4G+0cjRdcEUwAg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190521155140.GE22089@linux.intel.com> <20190522132022.GC31176@linux.intel.com>
+ <20190522132227.GD31176@linux.intel.com> <0e183cce-c4b4-0e10-dbb6-bd81bea58b66@tycho.nsa.gov>
+ <20190522153836.GA24833@linux.intel.com> <CALCETrUS8xyF1JJmQs18BGTDhPRXf+s81BkMZCZwmY73r7M+zg@mail.gmail.com>
+ <20190523023517.GA31950@linux.intel.com> <20190523102628.GC10955@linux.intel.com>
+ <20190523141752.GA12078@linux.intel.com> <CALCETrUzx3LPAKCLFf75P-XshAkRcr+JLET3LA_kHDs9MA11FA@mail.gmail.com>
+ <20190523234044.GC12078@linux.intel.com> <CALCETrV4DVEfW6EJ6DnQGGYDJAiA5M1QcuYJTiroumOM+D6Jjg@mail.gmail.com>
+ <960B34DE67B9E140824F1DCDEC400C0F654E8956@ORSMSX116.amr.corp.intel.com>
+In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F654E8956@ORSMSX116.amr.corp.intel.com>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Fri, 24 May 2019 09:43:27 -0700
+X-Gmail-Original-Message-ID: <CALCETrX0WqouSWgdM+LNxMzypa0ZHZXTmJ+nNkuPuL8UOF_f2w@mail.gmail.com>
+Message-ID: <CALCETrX0WqouSWgdM+LNxMzypa0ZHZXTmJ+nNkuPuL8UOF_f2w@mail.gmail.com>
+Subject: Re: SGX vs LSM (Re: [PATCH v20 00/28] Intel SGX1 support)
+To:     "Xing, Cedric" <cedric.xing@intel.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Dr. Greg" <greg@enjellic.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "npmccallum@redhat.com" <npmccallum@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/23/19 10:08 AM, Ondrej Mosnacek wrote:
-> On Thu, May 23, 2019 at 3:40 PM Dominick Grift <dac.override@gmail.com> wrote:
->> On Thu, May 23, 2019 at 03:14:55PM +0200, Dominick Grift wrote:
->>> On Thu, May 23, 2019 at 12:24:45PM +0200, Ondrej Mosnacek wrote:
->>>> This series implements an optional optimization step when building
->>>> a policydb via semodule or secilc, which identifies and removes rules
->>>> that are redundant -- i.e. they are already covered by a more general
->>>> rule based on attribute inheritance.
->>>
->>> Some stats with dssp2-standard:
->>>
->>> [kcinimod@myguest dssp2-standard]$ time secilc -n `find . -name *.cil` -o policy.31.noopt
->>>
->>> real    0m9.278s
->>> user    0m7.036s
->>> sys     0m2.017s
->>> [kcinimod@myguest dssp2-standard]$ time secilc `find . -name *.cil` -o policy.31.opt
->>>
->>> real    0m19.343s
->>> user    0m16.939s
->>> sys     0m2.027s
->>> [kcinimod@myguest dssp2-standard]$ ls -lh policy.*
->>> -rw-rw-r--. 1 kcinimod kcinimod 2.4M May 23 15:11 policy.31.noopt
->>> -rw-rw-r--. 1 kcinimod kcinimod 2.3M May 23 15:12 policy.31.opt
->>>
->>> Was unable to see the actual diff as sediff got oom-killed on me
->>
->> According to percentage calculator thats roughly a 4 percent gain size-wise at a 47 percent performance penalty.
->> Looks like dssp2-standard is pretty efficient as it is.
-> 
-> Hmm, yeah, looks like I'll have to make it opt-in after all... or add
-> some heuristic to decide if running the optimization is really worth
-> it.
-> 
+On Fri, May 24, 2019 at 12:24 AM Xing, Cedric <cedric.xing@intel.com> wrote=
+:
+>
+> Hi Andy,
+>
+> > From: Andy Lutomirski [mailto:luto@kernel.org]
+> > Sent: Thursday, May 23, 2019 6:18 PM
+> >
+> > On Thu, May 23, 2019 at 4:40 PM Sean Christopherson <sean.j.christopher=
+son@intel.com>
+> > wrote:
+> > >
+> > > On Thu, May 23, 2019 at 08:38:17AM -0700, Andy Lutomirski wrote:
+> > > > On Thu, May 23, 2019 at 7:17 AM Sean Christopherson
+> > > > <sean.j.christopherson@intel.com> wrote:
+> > > > >
+> > > > > On Thu, May 23, 2019 at 01:26:28PM +0300, Jarkko Sakkinen wrote:
+> > > > > > On Wed, May 22, 2019 at 07:35:17PM -0700, Sean Christopherson w=
+rote:
+> > > > > > > But actually, there's no need to disallow mmap() after ECREAT=
+E
+> > > > > > > since the LSM checks also apply to mmap(), e.g. FILE__EXECUTE
+> > > > > > > would be needed to
+> > > > > > > mmap() any enclave pages PROT_EXEC.  I guess my past self
+> > > > > > > thought mmap() bypassed LSM checks?  The real problem is that
+> > > > > > > mmap()'ng an existing enclave would require FILE__WRITE and
+> > > > > > > FILE__EXECUTE, which puts us back at square one.
+> > > > > >
+> > > > > > I'm lost with the constraints we want to set.
+> > > > >
+> > > > > As is today, SELinux policies would require enclave loaders to
+> > > > > have FILE__WRITE and FILE__EXECUTE permissions on
+> > > > > /dev/sgx/enclave.  Presumably other LSMs have similar
+> > > > > requirements.  Requiring all processes to have
+> > > > > FILE__{WRITE,EXECUTE} permissions means the permissions don't add
+> > > > > much value, e.g. they can't be used to distinguish between an
+> > > > > enclave that is being loaded from an unmodified file and an encla=
+ve that is being
+> > generated on the fly, e.g. Graphene.
+> > > > >
+> > > > > Looking back at Andy's mail, he was talking about requiring
+> > > > > FILE__EXECUTE to run an enclave, so perhaps it's only FILE__WRITE
+> > > > > that we're trying to special case.
+> > > > >
+> > > >
+> > > > I thought about this some more, and I have a new proposal that help=
+s
+> > > > address the ELRANGE alignment issue and the permission issue at the
+> > > > cost of some extra verbosity.  Maybe you all can poke holes in it :=
+)
+> > > > The basic idea is to make everything more explicit from a user's
+> > > > perspective.  Here's how it works:
+> > > >
+> > > > Opening /dev/sgx/enclave gives an enclave_fd that, by design,
+> > > > doesn't give EXECUTE or WRITE.  mmap() on the enclave_fd only works
+> > > > if you pass PROT_NONE and gives the correct alignment.  The
+> > > > resulting VMA cannot be mprotected or mremapped.  It can't be
+> > > > mmapped at all until
+> > >
+> > > I assume you're thinking of clearing all VM_MAY* flags in sgx_mmap()?
+> > >
+> > > > after ECREATE because the alignment isn't known before that.
+> > >
+> > > I don't follow.  The alignment is known because userspace knows the
+> > > size of its enclave.  The initial unknown is the address, but that
+> > > becomes known once the initial mmap() completes.
+> >
+> > [...]
+> >
+> > I think I made the mistake of getting too carried away with implementat=
+ion details rather
+> > than just getting to the point.  And I misremembered the ECREATE flow -=
+- oops.  Let me try
+> > again.  First, here are some problems with some earlier proposals (mine=
+, yours
+> > Cedric's):
+> >
+> >  - Having the EADD operation always work but have different effects dep=
+ending on the
+> > source memory permissions is, at the very least, confusing.
+>
+> Inheriting permissions from source pages IMHO is the easiest way to valid=
+ate the EPC permissions without any changes to LSM. And the argument about =
+its security is also easy to make.
+>
+> I understand that it may take some effort to document it properly but oth=
+erwise don't see any practical issues with it.
 
-Opt-in makes sense. How about just using 'O' for the option?
+My objection is to the fact that it's implicit.  I have no problem
+with some operation succeeding if the source address is X and failing
+if it's !X, but I don't think it's fantastic to have it succeed in
+either case but do different things.
 
-Jim
+For what it's worth, while this is a bit of a theoretical issue for X,
+but I think it's a real problem with W.  To avoid accidentally mapping
+an enclave page X and then later mapping the same page W (potentially
+in a different VMA), I think it will be a lot simpler if the driver
+can track which pages are allowed to ever be W.  We definitely *don't*
+want an interface in which the eventual writability of a page is
+inferred from the W permission on the source address, since we do
+*not* want to force anyone to map their enclave file PROT_WRITE or
+even to open it O_RDWR.
 
->>
->>>
->>>>
->>>> Since the performance penalty of this additional step is very small
->>>> (it adds about 1 s to the current running time of ~20-30 s [1]) and
->>>> it can have a big positive effect on the number of rules in policy
->>>> (it manages to remove ~40% AV rules from Fedora 29 policy), the
->>>> optimization is enabled by default and can be turned off using a
->>>> command-line option (--no-optimize) in secilc and semodule [2].
->>>>
->>>> The optimization routine eliminates:
->>>>   * all allow/neverallow/dontaudit/auditallow rules (including xperm
->>>>     variants) that are covered by another more general rule,
->>>>   * all conditional versions of the above rules that are covered by a
->>>>     more general rule either in the unconditional table or in the same
->>>>     branch of the same conditional.
->>>>
->>>> The optimization doesn't process other rules, since they currently
->>>> do not support attributes. There is some room left for more precise
->>>> optimization of conditional rules, but it would likely bring only
->>>> little additional benefit.
->>>>
->>>> When the policy is mostly or fully expanded, the optimization should
->>>> be turned off. If it isn't, the policy build time will increase a lot
->>>> for no benefit. However, the complexity of optimization will be only
->>>> linear w.r.t. the number of rules and so the impact should not be
->>>> catastrophic. (When testing with secilc on a subset of Fedora policy
->>>> with -X 100000 the build time was 1.7 s with optimization vs. 1 s
->>>> without it.)
->>>>
->>>> Tested live on my Fedora 29 devel machine under normal use. No unusual
->>>> AVCs were observed with optimized policy loaded.
->>>>
->>>> Travis build passed: https://travis-ci.org/WOnder93/selinux/builds/536157427
->>>>
->>>> NOTE: The xperm rule support wasn't tested -- I would welcome some
->>>>        peer review/testing of this part.
->>>>
->>>> [1] As measured on my machine (Fedora 29 policy, x86_64).
->>>> [2] I have no problem with switching it to opt-in if that is preferred.
->>>>
->>>> Ondrej Mosnacek (4):
->>>>    libsepol: add a function to optimize kernel policy
->>>>    secilc: optimize policy before writing
->>>>    libsemanage: optimize policy on rebuild
->>>>    semodule: add flag to disable policy optimization
->>>>
->>>>   libsemanage/include/semanage/handle.h      |   4 +
->>>>   libsemanage/src/direct_api.c               |   7 +
->>>>   libsemanage/src/handle.c                   |  13 +
->>>>   libsemanage/src/handle.h                   |   1 +
->>>>   libsemanage/src/libsemanage.map            |   5 +
->>>>   libsepol/include/sepol/policydb.h          |   5 +
->>>>   libsepol/include/sepol/policydb/policydb.h |   2 +
->>>>   libsepol/src/libsepol.map.in               |   5 +
->>>>   libsepol/src/optimize.c                    | 370 +++++++++++++++++++++
->>>>   libsepol/src/policydb_public.c             |   5 +
->>>>   policycoreutils/semodule/semodule.c        |  12 +-
->>>>   secilc/secilc.c                            |  16 +-
->>>>   12 files changed, 442 insertions(+), 3 deletions(-)
->>>>   create mode 100644 libsepol/src/optimize.c
->>>>
->>>> --
->>>> 2.20.1
->>>>
->>>
->>> --
->>> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
->>> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
->>> Dominick Grift
->>
->>
->>
->> --
->> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
->> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
->> Dominick Grift
-> 
-> 
-> 
+With the explicit MAXPERM passed in, this issue goes away.  You can
+specify W if you want W.
 
+>
+> >
+> >  - If we want to encourage user programs to be well-behaved, we want to=
+ make it easy to
+> > map the RX parts of an enclave RX, the RW parts RW, the RO parts R, etc=
+.  But this
+> > interacts poorly with the sgx_mmap() alignment magic, as you've pointed=
+ out.
+> >
+> >  - We don't want to couple LSMs with SGX too tightly.
+> >
+> > So here's how a nice interface might work:
+> >
+> > int enclave_fd =3D open("/dev/sgx/enclave", O_RDWR);
+> >
+> > /* enclave_fd points to a totally blank enclave. Before ECREATE, we nee=
+d to decide on an
+> > address. */
+> >
+> > void *addr =3D mmap(NULL, size, PROT_NONE, MAP_SHARED, enclave_fd, 0);
+> >
+> > /* we have an address! */
+> >
+> > ioctl(enclave_fd, ECREATE, ...);
+> >
+> > /* now add some data to the enclave.  We want the RWX addition to fail
+> > immediately unless we have the relevant LSM pemission.   Similarly, we
+> > want the RX addition to fail immediately unless the source VMA is appro=
+priate. */
+> >
+> > ioctl(enclave_fd, EADD, rx_source_1, MAXPERM=3DRX, ...);  [the ...
+> > includes SECINFO, which the kernel doesn't really care about] ioctl(enc=
+lave_fd, EADD,
+> > ro_source_1, MAXPERM=3DRX ...); ioctl(enclave_fd, EADD, rw_source_1, MA=
+XPERM=3DRW ...);
+> > ioctl(enclave_fd, EADD, rwx_source_1, MAXPERM=3DRWX ...);
+>
+> If MAXPERM is taken from ioctl parameters, the real question here is how =
+to validate MAXPERM. Guess we shouldn't allow arbitrary MAXPERM to be speci=
+fied by user code, and the only logical source I can think of is from the s=
+ource pages (or from the enclave source file, but memory mapping is preferr=
+ed because it offers more flexibility).
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+That's exactly what I intended here.  If you specify MAXPERM=3DRX, then
+the kernel can validate that the source address is executable.
+
+>
+> >
+> > ioctl(enclave_fd, EINIT, ...);  /* presumably pass sigstruct_fd here, t=
+oo. */
+> >
+> > /* at this point, all is well except that the enclave is mapped PROT_NO=
+NE. There are a
+> > couple ways I can imagine to fix this. */
+> >
+> > We could use mmap:
+> >
+> > mmap(baseaddr+offset, len, PROT_READ, MAP_SHARED | MAP_FIXED, enclave_f=
+d, 0);  /* only
+> > succeeds if MAXPERM & R =3D=3D R */
+> >
+> > But this has some annoying implications with regard to sgx_get_unmapped=
+_area().  We could
+> > use an ioctl:
+>
+> There's an easy fix. Just let sgx_get_unmapped_area() do the natural alig=
+nment only if MAP_FIXED is *not* set, otherwise, honor both address and len=
+.
+>
+> But mmap() is subject to LSM check (probably against /dev/sgx/enclave?). =
+How to do mmap(RX) if FILE__EXECUTE is *not* granted for /dev/sgx/enclave, =
+even if MAXPERM=3DRX?
+
+I think we just let /dev/sgx/enclave be FILE__EXECUTE.  We don't
+*have* to make it so that FILE__WRITE and FILE__EXECUTE on
+/dev/sgx/enclave means you can create RWX enclave mappings.
+
+>
+> >
+> > ioctl(enclave_fd, SGX_IOC_MPROTECT, offset, len, PROT_READ);
+> >
+> > which has the potentially nice property that we can completely bypass t=
+he LSM hooks,
+> > because the LSM has *already* vetted everything when the EADD calls wer=
+e allowed.  Or we
+> > could maybe even just use
+> > mprotect() itself:
+> >
+> > mprotect(baseaddr + offset, len, PROT_READ);
+>
+> How to bypass LSM hooks in this mprotect()?
+
+Hmm.  I guess we either use FILE__WRITE and FILE__EXECUTE or we use ioctl()=
+.
+
+>
+> >
+> > Or, for the really evil option, we could use a bit of magic in .fault a=
+nd do nothing here.
+> > Instead we'd make the initial mapping PROT_READ|PROT_WRITE|PROT_EXEC an=
+d have .fault
+> > actually instantiate the PTEs with the intersection of the VMA permissi=
+ons and MAXPERM.  I
+> > don't think I like this alternative, since it feels more magical than n=
+eeded and it will
+> > be harder to debug.  I like the fact that /proc/self/maps shows the act=
+ual permissions in
+> > all the other variants.
+>
+> Agreed.
+>
+> >
+> >
+> > All of the rest of the crud in my earlier email was just implementation=
+ details.  The
+> > point I was trying to make was that I think it's possible to implement =
+this without making
+> > too much of a mess internally.  I think I favor the mprotect() approach=
+ since it makes the
+> > behavior fairly obvious.
+> >
+> > I don't think any of this needs to change for SGX2.  We'd have an
+> > ioctl() that does EAUG and specifies MAXPERM.  Trying to mprotect() a p=
+age that hasn't
+> > been added yet with any permission other than PROT_NONE would fail.  I =
+suppose we might
+> > end up needing a way to let the EAUG operation *change* MAXPERM, and th=
+is operation would
+> > have to do some more LSM checks and walk all the existing mappings to m=
+ake sure they're
+> > consistent with the new MAXPERM.
+>
+> EAUG ioctl could be a solution, but isn't optimal at least. What we've do=
+ne is #PF based. Specifically, an SGX2 enclave will have its heap mapped as=
+ RW, but without any pages populated before EINIT. Then when the enclave ne=
+eds a new page in its heap, it issues EACCEPT, which will cause a #PF and t=
+he driver will respond by EAUG a new EPC page. And then the enclave will be=
+ resumed and the faulted EACCEPT will be retried (and succeed).
+>
+
+If the driver works like that, then whatever call sets up this lazily
+allocated heap could do the MAXPERM part.
+
+That being said, is the performance advantage from putting this logic
+in the kernel instead of in the untrusted part of the SDK really
+worthwhile?
+
+> >
+> > As an aside, I wonder if Linus et all would be okay with a new MAP_FULL=
+Y_ALIGNED mmap()
+> > flag that allocated memory aligned to the requested size.  Then we coul=
+d get rid of yet
+> > another bit of magic.
+> >
+> > --Andy
+>
+> I've also got a chance to think more about it lately.
+>
+> When we talk about EPC page permissions with SGX2 in mind, I think we sho=
+uld distinguish between initial permissions and runtime permissions. Initia=
+l permissions refer to the page permissions set at EADD. They are technical=
+ly set by "untrusted" code so should go by policies similar to those applic=
+able to regular shared objects. Runtime permissions refer to the permission=
+s granted by EMODPE, EAUG and EACCEPTCOPY. They are resulted from inherent =
+behavior of the enclave, which in theory is determined by the enclave's mea=
+surements (MRENCLAVE and/or MRSIGNER).
+>
+> And we have 2 distinct files to work with - the enclave file and /dev/sgx=
+/enclave. And I consider the enclave file a logical source for initial perm=
+issions while /dev/sgx/enclave is a means to control runtime permissions. T=
+hen we can have a simpler approach like the pseudo code below.
+>
+> /**
+>  * Summary:
+>  * - The enclave file resembles a shared object that contains RO/RX/RW se=
+gments
+>  * - FILE__* are assigned to /dev/sgx/enclave, to determine acceptable pe=
+rmissions to mmap()/mprotect(), valid combinations are
+>  *   + FILE__READ - Allow SGX1 enclaves only
+>  *   + FILE__READ|FILE__WRITE - Allow SGX2 enclaves to expand data segmen=
+ts (e.g. heaps, stacks, etc.)
+
+I think this is a non-starter :(  FILE__WRITE also means that you can
+write to the file, and the admin / policy author will almost never
+want to allow that.
