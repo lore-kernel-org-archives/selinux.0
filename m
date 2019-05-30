@@ -2,96 +2,98 @@ Return-Path: <SRS0=hg1M=T6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 410CDC28CC0
-	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:30:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C283C28CC0
+	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:51:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 21B3524F87
-	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:30:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD6D025421
+	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:51:31 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bFXjyuJz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726897AbfE3Iab (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 May 2019 04:30:31 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:45736 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726841AbfE3IaZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 May 2019 04:30:25 -0400
-Received: by mail-oi1-f194.google.com with SMTP id b20so724420oie.12
-        for <selinux@vger.kernel.org>; Thu, 30 May 2019 01:30:25 -0700 (PDT)
+        id S1726969AbfE3Ivb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 May 2019 04:51:31 -0400
+Received: from mail-pg1-f173.google.com ([209.85.215.173]:33489 "EHLO
+        mail-pg1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726439AbfE3Ivb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 May 2019 04:51:31 -0400
+Received: by mail-pg1-f173.google.com with SMTP id h17so1637665pgv.0;
+        Thu, 30 May 2019 01:51:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=9yPNki8tFmIgDjX+2v/i+yBX4YbiShnd6bPfUYaPNcY=;
+        b=bFXjyuJzEziH0nuuB8bYDwiEuyEkZjkBk3ZzpHUpSMKjUkJc5ctwmzPPoENpZjfGcn
+         QF8I2/ImQRSTLJjjiCAP2YDQY65pWycuP2uBDtqLC1AbrfAZVOMutCwt4KZdbBfJvxr6
+         DvrQZUsDKo3N2h3X0l6CVvmyj9r685BsnPXNFky/0ppnTK76TyBUE+idc9175k1zCLL+
+         e06KDeKwzf6F5y1aaTmg6A7dAYabxHhGCDAUEOQknBEyXwDPybZ6AilZdIoD+/IqAy8d
+         EVp5FzU1vntuD/LgnzC71HcgqzMhJGNW+BTSzlnKP6aog68gQEu91tYV8idhS1mE+h5j
+         u43A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vzcNV6SW+Xh9Ya8lDxl+0yI6Dw+WGyclNEKNTVCp8nU=;
-        b=uURhQqex2C3g8MIO3WG3WlN4E1gl+h0or8k62YwKVO/T8zI6KbOWDnuJPIhYLYGE3H
-         oVc2ooad/HWzLekQLVKQUfeN58Po2lo7YBfl5j+iCr7INw0LxjmvVVePDbg0PdiNUJYA
-         /VIRrFrvK2afuW/MSLrxV5EtNEB6W3BFVbyw0K8VcKZ2fhj7LzgSATjZqqGq+bi77XX9
-         tRIstzFiByBjR/O3aW4s+CL6Mz0JxwH32i+l+VPWunS4iY2cB72/RSDJjmDTR51j5YOX
-         9kURWFFEa27Qy0msXylvlIgFeo3JxgjhKzlJMdbyv7LG3uXmcKlYwL6qGzXd78tc1qhG
-         I0LQ==
-X-Gm-Message-State: APjAAAVrroIRRf/p/k/sxhvsG6wGt6pA1FZw4uM+3NMxTMkHvgXn6dlR
-        rpJxUaIRgklM9cEKrP7CR2ZxpLtqatUfYMm5lE0bhA==
-X-Google-Smtp-Source: APXvYqzTv07K7SADdE55dDI77M75/XjvtsqUSGRV/r+pWOj/1v586YQ0cf99vI+eQ/N2XWS6ZrVc5NOYVULd8c/HKfw=
-X-Received: by 2002:aca:e887:: with SMTP id f129mr1752282oih.156.1559205024714;
- Thu, 30 May 2019 01:30:24 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190530080602.GA3600@zhanggen-UX430UQ>
-In-Reply-To: <20190530080602.GA3600@zhanggen-UX430UQ>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 30 May 2019 10:30:17 +0200
-Message-ID: <CAFqZXNtX1R1VDFxm7Jco3BZ=pVnNiHU3-C=d8MhCVV1XSUQ8bw@mail.gmail.com>
-Subject: Re: [PATCH] hooks: fix a missing-check bug in selinux_add_mnt_opt()
-To:     Gen Zhang <blackgod016574@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=9yPNki8tFmIgDjX+2v/i+yBX4YbiShnd6bPfUYaPNcY=;
+        b=PIhXSHTxSpNBc9T9V4XrgTBB6IjjTPEsnPwyMSxQZCnil8/jr+AEF3OVcuZburTTQ9
+         rr2YiWoqhKUfzvSLhQDhmsGyj3LtQuNYgCPWxVQ7caFxlAvVzVaRxmVwGKH6cfKWS9ek
+         PW65EbwRRO77s9yH91LnxEDM9lO+8XXl7HtXby9qtgNgAkKX6YqKYOS8axuMBXjSNDvX
+         fwFFAqHTgSgAt6pnC3LgZHPpoJr/0jvyH9HYQKmknLcukRBKXVFHy/YVQF1Lc3XSkCIc
+         OLY6WK0K1KwkQ3cv2qJccxp/xXSlI8Huw5gUN6c1aB9fnpHJaZKMgVdGUWuOGxp9pPtn
+         7fyg==
+X-Gm-Message-State: APjAAAXWnS0QuESdwizwIriuE5D0A2s/y6Hs87Y9oR5sIEuYejzYhREq
+        lUd0fOaBQKFHSyXWBjxFhOI=
+X-Google-Smtp-Source: APXvYqx9XdArytw1HgFQ+Cty8TFXJEMG9A1YWtTO99CkXPQIYGmKOANGeO5dkNBHfkmV5Tnue+57Dw==
+X-Received: by 2002:a65:62d8:: with SMTP id m24mr2755254pgv.141.1559206290397;
+        Thu, 30 May 2019 01:51:30 -0700 (PDT)
+Received: from zhanggen-UX430UQ ([66.42.35.75])
+        by smtp.gmail.com with ESMTPSA id q28sm2405694pfn.106.2019.05.30.01.51.17
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 30 May 2019 01:51:29 -0700 (PDT)
+Date:   Thu, 30 May 2019 16:51:06 +0800
+From:   Gen Zhang <blackgod016574@gmail.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>, tony.luck@intel.com,
         Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, ccross@android.com,
-        selinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        netdev@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        bpf@vger.kernel.org
+Subject: [PATCH v2] hooks: fix a missing-check bug in
+ selinux_sb_eat_lsm_opts()
+Message-ID: <20190530085106.GA2711@zhanggen-UX430UQ>
+References: <20190530035310.GA9127@zhanggen-UX430UQ>
+ <CAFqZXNv-54DJhd8gyUhwDo6RvmjFGSHo=+s-BVsL87S+u0cQxQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAFqZXNv-54DJhd8gyUhwDo6RvmjFGSHo=+s-BVsL87S+u0cQxQ@mail.gmail.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 30, 2019 at 10:06 AM Gen Zhang <blackgod016574@gmail.com> wrote:
-> In selinux_add_mnt_opt(), 'val' is allcoted by kmemdup_nul(). It returns
-> NULL when fails. So 'val' should be checked.
->
-> Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+In selinux_sb_eat_lsm_opts(), 'arg' is allocated by kmemdup_nul(). It
+returns NULL when fails. So 'arg' should be checked.
 
-Please add a Fixes tag here, too:
-
-Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
-
-> ---
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3ec702c..4797c63 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1052,8 +1052,11 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
->         if (token == Opt_error)
->                 return -EINVAL;
->
-> -       if (token != Opt_seclabel)
-> -               val = kmemdup_nul(val, len, GFP_KERNEL);
-> +       if (token != Opt_seclabel) {
-> +                       val = kmemdup_nul(val, len, GFP_KERNEL);
-> +                       if (!val)
-> +                               return -ENOMEM;
-
-There is one extra tab character in the above three lines ^^^
-
-> +       }
->         rc = selinux_add_opt(token, val, mnt_opts);
->         if (unlikely(rc)) {
->                 kfree(val);
-
-Thanks,
-
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+Fixes: 99dbbb593fe6 ("selinux: rewrite selinux_sb_eat_lsm_opts()")
+---
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 3ec702c..5a9e959 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2635,6 +2635,8 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ 						*q++ = c;
+ 				}
+ 				arg = kmemdup_nul(arg, q - arg, GFP_KERNEL);
++				if (!arg)
++					return -ENOMEM;
+ 			}
+ 			rc = selinux_add_opt(token, arg, mnt_opts);
+ 			if (unlikely(rc)) {
