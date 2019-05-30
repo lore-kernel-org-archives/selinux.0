@@ -8,92 +8,97 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C283C28CC0
-	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:51:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B49CFC28CC4
+	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:55:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CD6D025421
-	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:51:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E220254F2
+	for <selinux@archiver.kernel.org>; Thu, 30 May 2019 08:55:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bFXjyuJz"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PJIRhFYa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726969AbfE3Ivb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 May 2019 04:51:31 -0400
-Received: from mail-pg1-f173.google.com ([209.85.215.173]:33489 "EHLO
-        mail-pg1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726439AbfE3Ivb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 May 2019 04:51:31 -0400
-Received: by mail-pg1-f173.google.com with SMTP id h17so1637665pgv.0;
-        Thu, 30 May 2019 01:51:30 -0700 (PDT)
+        id S1727266AbfE3IzO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 May 2019 04:55:14 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:44648 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726653AbfE3IzN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 May 2019 04:55:13 -0400
+Received: by mail-pl1-f194.google.com with SMTP id c5so2274871pll.11;
+        Thu, 30 May 2019 01:55:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=9yPNki8tFmIgDjX+2v/i+yBX4YbiShnd6bPfUYaPNcY=;
-        b=bFXjyuJzEziH0nuuB8bYDwiEuyEkZjkBk3ZzpHUpSMKjUkJc5ctwmzPPoENpZjfGcn
-         QF8I2/ImQRSTLJjjiCAP2YDQY65pWycuP2uBDtqLC1AbrfAZVOMutCwt4KZdbBfJvxr6
-         DvrQZUsDKo3N2h3X0l6CVvmyj9r685BsnPXNFky/0ppnTK76TyBUE+idc9175k1zCLL+
-         e06KDeKwzf6F5y1aaTmg6A7dAYabxHhGCDAUEOQknBEyXwDPybZ6AilZdIoD+/IqAy8d
-         EVp5FzU1vntuD/LgnzC71HcgqzMhJGNW+BTSzlnKP6aog68gQEu91tYV8idhS1mE+h5j
-         u43A==
+        bh=KvjM4bsTfrcq2cHYj0Oc8PDr1CJFW5mpcAz8/WiY3E0=;
+        b=PJIRhFYa2F4McFzf+xGE3gUTho75opN9ktQ1NXCUdCcGydnK/sgVU70hxfve2x1Om4
+         y7lXw5PIyHReB38bZ9+AUHhktIyjgnChQ1AXedGWj9Iwsd4CH+wIcTPLIovd3faUjsFP
+         1/NFvpt8TeW6wPHTiPHSQftQHiNxAGSVvR0mn2DfIEfNNIc5LcWfkblavemxfWL+ETP+
+         mT7HFpTnW3wrY5Re/8uPNraDblHqA3cuWX1OYHHYuH7ferAoRnqP7p3DhZjOVoy7eu3R
+         qjwSINqsn2QOGRvm48tJuDzLp18JlNJja60GkZ5u3oe8eyI6/jP2dnLtGMuypw8YhldW
+         ITMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=9yPNki8tFmIgDjX+2v/i+yBX4YbiShnd6bPfUYaPNcY=;
-        b=PIhXSHTxSpNBc9T9V4XrgTBB6IjjTPEsnPwyMSxQZCnil8/jr+AEF3OVcuZburTTQ9
-         rr2YiWoqhKUfzvSLhQDhmsGyj3LtQuNYgCPWxVQ7caFxlAvVzVaRxmVwGKH6cfKWS9ek
-         PW65EbwRRO77s9yH91LnxEDM9lO+8XXl7HtXby9qtgNgAkKX6YqKYOS8axuMBXjSNDvX
-         fwFFAqHTgSgAt6pnC3LgZHPpoJr/0jvyH9HYQKmknLcukRBKXVFHy/YVQF1Lc3XSkCIc
-         OLY6WK0K1KwkQ3cv2qJccxp/xXSlI8Huw5gUN6c1aB9fnpHJaZKMgVdGUWuOGxp9pPtn
-         7fyg==
-X-Gm-Message-State: APjAAAXWnS0QuESdwizwIriuE5D0A2s/y6Hs87Y9oR5sIEuYejzYhREq
-        lUd0fOaBQKFHSyXWBjxFhOI=
-X-Google-Smtp-Source: APXvYqx9XdArytw1HgFQ+Cty8TFXJEMG9A1YWtTO99CkXPQIYGmKOANGeO5dkNBHfkmV5Tnue+57Dw==
-X-Received: by 2002:a65:62d8:: with SMTP id m24mr2755254pgv.141.1559206290397;
-        Thu, 30 May 2019 01:51:30 -0700 (PDT)
+        bh=KvjM4bsTfrcq2cHYj0Oc8PDr1CJFW5mpcAz8/WiY3E0=;
+        b=mFuPBaZ8Bvl/S7hzfUnehpx6k667wUS6GWFsx4H5ouyUEB+lTEZYeL9+TCP1m7FO5g
+         xRvdGsJepV1hhCs3dz/J3VRoEc4wDj2LpKbN075XbsQbUZ7ylHoGlbZ01ZwL7mPcwAnf
+         CQJH4R1ExeFnZby+T7HWq075czI9ElY1xCcSzxa4qaAxmY2kvdC7lHpjz1bO75esSkl0
+         eJA6WkwSb5HmsL+HZ8V4qWUuP3IeS7lFHM+LqzicwUMwlNArhi9RhNxnMsX9rEzEGwUu
+         yUDvB/iEOBhUYG4TcHohiDyDz50SFT7I9P2ORC9IOZ5HQ76M8OTD8eoWfQ5G1K3c/qDm
+         BnbQ==
+X-Gm-Message-State: APjAAAWTk9j5tVC1j/ZMIV1UwjwhY0b7S3yyBFM/OppUzLevj0OzQYu2
+        zZGmmmvjLZs4j5dd08sXy8M=
+X-Google-Smtp-Source: APXvYqyXQwgtIekLk3xQBUwVq8/Hu5IaSkI+omKRnrbiDa6+jwZFpuFkY3MoIYdDQJrZpNi5kKmOkg==
+X-Received: by 2002:a17:902:324:: with SMTP id 33mr2735283pld.284.1559206513206;
+        Thu, 30 May 2019 01:55:13 -0700 (PDT)
 Received: from zhanggen-UX430UQ ([66.42.35.75])
-        by smtp.gmail.com with ESMTPSA id q28sm2405694pfn.106.2019.05.30.01.51.17
+        by smtp.gmail.com with ESMTPSA id o15sm921189pfh.53.2019.05.30.01.54.46
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 May 2019 01:51:29 -0700 (PDT)
-Date:   Thu, 30 May 2019 16:51:06 +0800
+        Thu, 30 May 2019 01:55:12 -0700 (PDT)
+Date:   Thu, 30 May 2019 16:54:38 +0800
 From:   Gen Zhang <blackgod016574@gmail.com>
 To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>, tony.luck@intel.com,
+Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>, ccross@android.com,
+        selinux@vger.kernel.org,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        bpf@vger.kernel.org
-Subject: [PATCH v2] hooks: fix a missing-check bug in
- selinux_sb_eat_lsm_opts()
-Message-ID: <20190530085106.GA2711@zhanggen-UX430UQ>
-References: <20190530035310.GA9127@zhanggen-UX430UQ>
- <CAFqZXNv-54DJhd8gyUhwDo6RvmjFGSHo=+s-BVsL87S+u0cQxQ@mail.gmail.com>
+        netdev@vger.kernel.org
+Subject: [PATCH v2] hooks: fix a missing-check bug in selinux_add_mnt_opt()
+Message-ID: <20190530085438.GA2862@zhanggen-UX430UQ>
+References: <20190530080602.GA3600@zhanggen-UX430UQ>
+ <CAFqZXNtX1R1VDFxm7Jco3BZ=pVnNiHU3-C=d8MhCVV1XSUQ8bw@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAFqZXNv-54DJhd8gyUhwDo6RvmjFGSHo=+s-BVsL87S+u0cQxQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNtX1R1VDFxm7Jco3BZ=pVnNiHU3-C=d8MhCVV1XSUQ8bw@mail.gmail.com>
 User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In selinux_sb_eat_lsm_opts(), 'arg' is allocated by kmemdup_nul(). It
-returns NULL when fails. So 'arg' should be checked.
+In selinux_add_mnt_opt(), 'val' is allcoted by kmemdup_nul(). It returns
+NULL when fails. So 'val' should be checked.
 
 Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-Fixes: 99dbbb593fe6 ("selinux: rewrite selinux_sb_eat_lsm_opts()")
+Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
 ---
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3ec702c..5a9e959 100644
+index 3ec702c..4797c63 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -2635,6 +2635,8 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
- 						*q++ = c;
- 				}
- 				arg = kmemdup_nul(arg, q - arg, GFP_KERNEL);
-+				if (!arg)
-+					return -ENOMEM;
- 			}
- 			rc = selinux_add_opt(token, arg, mnt_opts);
- 			if (unlikely(rc)) {
+@@ -1052,8 +1052,11 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
+ 	if (token == Opt_error)
+ 		return -EINVAL;
+ 
+-	if (token != Opt_seclabel)
+-		val = kmemdup_nul(val, len, GFP_KERNEL);
++	if (token != Opt_seclabel) {
++			val = kmemdup_nul(val, len, GFP_KERNEL);
++			if (!val)
++				return -ENOMEM;
++	}
+ 	rc = selinux_add_opt(token, val, mnt_opts);
+ 	if (unlikely(rc)) {
+ 		kfree(val);
