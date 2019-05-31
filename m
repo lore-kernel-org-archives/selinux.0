@@ -2,190 +2,149 @@ Return-Path: <SRS0=ovs9=T7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-11.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ABA6C04AB6
-	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 21:02:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D248C04AB6
+	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 23:10:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 556E526F12
-	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 21:02:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F26A26FE1
+	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 23:10:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="jlSLXLjv"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="mZ9ZwXGO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727207AbfEaVCC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 May 2019 17:02:02 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:36149 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727196AbfEaVCB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 May 2019 17:02:01 -0400
-Received: by mail-lj1-f196.google.com with SMTP id m22so10656153ljc.3
-        for <selinux@vger.kernel.org>; Fri, 31 May 2019 14:01:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=iBFO4xLVOKowEX73o/UJ70EQIjoomi+r5kwcEqgkzsY=;
-        b=jlSLXLjvTRyW5XrCiaHTrMZXmotaA4vbQZj9xWHLcfm1t5hn3xrlqeCOu+Iw/e+wfK
-         lIXOeknZXq7guoBLxomycyxHOmCjHudHviPbW/J8xcD6dXtNlFkJFhyQT6LyatXzQ4qt
-         /PYEoVmf54aKuLq7qvJYVUL922IhSO3t06cxa/HnZVbMgMzZ3GDvH6gjXF45P3gQPakr
-         aU1HScRVlHjgZAWcQMGmyNnNQyB19x45geCfISy3bhO12SqWLwthMYgXmP3vDFs1/p+X
-         EJ3XxGzM6hXKLoYQ1Qx0hQ6F6S7KM+AwoFnPcq/XOXgqeRGGyyffo6dC3gtUvdtIDsLY
-         aDJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=iBFO4xLVOKowEX73o/UJ70EQIjoomi+r5kwcEqgkzsY=;
-        b=MLtzolEF+Whrae53TiZezPoijsYrO+7W6M4f4gJLE7If4DJrSZWhjVTkwvUhig5NR1
-         GJTjpx5N+UtJ+mdvI2yp2HO+RnxVSGpzZNnXpC874hLl3hLMfwwrzhPaac5p+GoyermP
-         9mM4grpV3V46xSPCxokMb6BND0BwpgwOvU5CKzpale5J0nfgxJlsOYAOwDS0+MyCU/xN
-         Y3a+/Rnc8uv/edHrVmw7smOnh2GszRg2x/XLNqkDh57C9cjJL2pPu+EKfDkMc/3bx9az
-         T+lKiyXRI+vgU3kxSv4/A6sD9kNpl1qda9v3l0qQ0FT38kS8N3KoYAqIjU13r/Cva1UZ
-         PBew==
-X-Gm-Message-State: APjAAAXQGIpjMqMSVaO8MqK80zuas9HTkvqIeVpEevBJbOaI+AwUNkT4
-        RFrOXpO05RMm+mfoADlEHs/kjksX4rAIsduh6N+cv5I=
-X-Google-Smtp-Source: APXvYqxJ9dOgmQApNuRt0Nj3+xhqhVc1fi6rKZt+AfngkSrnj1ZEtr3BN8GibpYjBTexTs9VOreCgqy4ohnKcHLEYEs=
-X-Received: by 2002:a2e:9106:: with SMTP id m6mr7165392ljg.164.1559336518647;
- Fri, 31 May 2019 14:01:58 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAHC9VhQcrzJ7bQZccJw9v7cYUewMGMRdDVm8bkBwc4KFYsDKng@mail.gmail.com>
- <20190531201905.26607-1-plautrba@redhat.com>
-In-Reply-To: <20190531201905.26607-1-plautrba@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 31 May 2019 17:01:47 -0400
-Message-ID: <CAHC9VhR6OU-xWJRy=irWdrAefmAt-941=7JU5hT0Sk8i7NeyDw@mail.gmail.com>
-Subject: Re: [PATCH v2] Add CONTRIBUTING.md
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1726520AbfEaXKa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 May 2019 19:10:30 -0400
+Received: from sonic317-39.consmr.mail.ne1.yahoo.com ([66.163.184.50]:35079
+        "EHLO sonic317-39.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726538AbfEaXKa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 May 2019 19:10:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559344229; bh=hp70s42sLJvM/zJRYPFnublS5r/YV4V9DcOROooBKGM=; h=From:To:Cc:Subject:Date:From:Subject; b=mZ9ZwXGOFs3SgjzBaw/G6vrqQu6vQdU2/KKj1k8jv4WMByfz//TP51eMdmHIMTOseOhfFrRb8w3ZTRHW93DMW0/ktvgZnq9gZctD+64+wSou24i66cVj8Z+nLpMSjHVywtcDYonLnPsrtH7FdxnMqUIbQVEVSl6sGC5SlpwQuQZ0PnG6BTEQx8D/yAE400fazy3WoWMyVmECCWdEnkof4dAeWAXh4DfxYkziPPvzRoxKDvTRGYFgMRU78V3m8rMYFScLFQjG90va8CJzySQZjbQV1EiVeV76Sn82sDcSyhwRO0H9TihpwqOEpI66zw74vKGLS5dPohOLpU7qiF9MxA==
+X-YMail-OSG: piW.N1kVM1lsq8Gex2KwTMvtqStwZGM3OaUrfhbEU8IHlH_ducHfqdXUCz2bZff
+ 4lH9VwXRyYN1Ze3SoqSNA.4hLWObVe5po5Xd1t_t1PPUhhkwjDx7_iqoW93zOiMcfzk8gK.uihaM
+ EyYERYBJHk4GbeyyetdM2yeE0N9k8Wssnwrzwx2cSJu4v.o4._2E2u2JAz.rH2ba47K0MAQPVHIH
+ r4cmWUWj17BwV.0MSrt_f42ge7KOGXUrPM67zyeYUWX9IJIxzuH5F4evpNq0T.UhnNYDPAPf7j68
+ VjenkQ2.g1jHtlmm6RLllCojp7K4GLYFrnc1HbJEjDMJtMt2KFeNrzxRJ02KdgTeoZqhwP8gQp9L
+ WE8G_2aizKAaL0khQVuv9Q6tJMmvjBwZm_dZJRDnOXUJAMkuWyDZaLNHBY1WInNr8PHgrcPHQ6E6
+ uGSO7YVzJzEs5qST4_mDmwM13P0igXsUQpwMZff20KBEzWwE8tHGkExKg6VsIUlN5WzqiTbFl2Jh
+ TL.cv8bZXID5UtM5Y5gB3blA5iT3b5.TGQEdevD7MMnGoKihKZdGCeRFFlCitYhBpyA8_dFFrEK.
+ JOOeVcwYsAhu8hCoaisztvvexKuQkGGkuKYgWprH9WH72bIUXtJ22WuH0Npa_xAYJpMIxXCDSOs0
+ LS6W4jUwLS_leRWXPK6QovlTdCPH_bW4I0M5TvKFfdhErX8Nz3wFv5LdDQ7p5Dqqq4IOYq1YOSl.
+ 1.Aj79rmpb0_gkX.F4EJqIH1wAv4WUdpfkpYT0_aFTmM8CkXZQSdt.J6hrtcG3.X1pPfVjN7LrbU
+ wAwU3jwbFyiNRNKvTyqZ2AMpJmk_aSc.d8nI_tefbp10onG4pMQLPUS7HgIkiN5QPv3u6a2ZDsNM
+ YBkg0JgqgnltS_X2P2ex8xvT7KkRzIBSw7Kf4ZZ0rkuvtbjAyMpxlYMKmiiqIt3uBA4SAVXl8YZd
+ Y0YhdUR9l6kAXB51GAGfytQbqueBl53OiJtFX6MwefwiOI1idsTnsVps5efVokrBifdWktEsXHVC
+ O3JNdU4Ww4G_1i.NyC35th0e2SQg2GSup3I5.PpmV.cw_PaGCr7TXQM3udFD9XODC_wd_EJEL9SG
+ sxWy2r0jfF2_t4c3b14drgksDv5kzCuRBiPKNxMpiqRT0XXAETIAiZrx51k3D_iT_CiX5rKqGYib
+ 32RukrVNKaOg5v2W4HGgFlkasaYrbkHJqSpIl8d2At._TfUKJMEGWNOg9toUz5qynyRlnWF0VNFI
+ 07vtPRDKAspJx37cPU56rXB1eOMrASjRcfdA5ItxJMhtkvLyh9cVnW4gpV2qTr7OS6cOABi1r45W
+ V.AC6Lg--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Fri, 31 May 2019 23:10:29 +0000
+Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([73.223.4.185])
+          by smtp402.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID af9421ba70442785cc6539d958422e31;
+          Fri, 31 May 2019 23:10:25 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: [PATCH 00/58] LSM: Module stacking for AppArmor
+Date:   Fri, 31 May 2019 16:09:22 -0700
+Message-Id: <20190531231020.628-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.17.0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 31, 2019 at 4:19 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> Based on https://github.com/SELinuxProject/selinux/wiki/Contributing
->
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> ---
->
-> github preview is available at
-> https://github.com/bachradsusi/SELinuxProject-selinux/blob/add-Contribution/CONTRIBUTING.md
->
->
->  CONTRIBUTING.md | 88 +++++++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 88 insertions(+)
->  create mode 100644 CONTRIBUTING.md
+This patchset provides the changes required for
+the AppArmor security module to stack safely with any other.
 
-Looks good to me.  I don't normally review/ack the userspace bits, but
-since I commented previously and you made the changes I feel I should
-:)
+A new process attribute identifies which security module
+information should be reported by SO_PEERSEC and the
+/proc/.../attr/current interface. This is provided by
+/proc/.../attr/display. Writing the name of the security
+module desired to this interface will set which LSM hooks
+will be called for this information. The first security
+module providing the hooks will be used by default.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+The use of integer based security tokens (secids) is
+generally (but not completely) replaced by a structure
+lsm_export. The lsm_export structure can contain information
+for each of the security modules that export information
+outside the LSM layer.
 
-> diff --git a/CONTRIBUTING.md b/CONTRIBUTING.md
-> new file mode 100644
-> index 00000000..25c59eff
-> --- /dev/null
-> +++ b/CONTRIBUTING.md
-> @@ -0,0 +1,88 @@
-> +# Contributing to SELinux
-> +
-> +Contributing to the SELinux userspace project is a similar process to
-> +other open source projects. Bug reports, new features to the existing
-> +code, additional tools, or updated documentation are all welcome.
-> +
-> +You can find a list of open issues where you might contribute to the SELinux kernel code at
-> +https://github.com/SELinuxProject/selinux-kernel/issues or to the SELinux userspace code at
-> +https://github.com/SELinuxProject/selinux/issues.
-> +
-> +See the selinuxproject.org [user resources
-> +page](http://selinuxproject.org/page/User_Resources) for more
-> +information on mailing lists, documentation, and other resources.
-> +
-> +## Reporting Bugs
-> +
-> +All bugs and patches should be submitted to the [SELinux mailing
-> +list](https://lore.kernel.org/selinux) at selinux@vger.kernel.org.
-> +
-> +When reporting bugs please include versions of SELinux related libraries and
-> +tools (libsepol, libselinux, libsemanage, checkpolicy). If you are
-> +using a custom policy please include it as well.
-> +
-> +## Compiling
-> +
-> +There are a number of dependencies required to build the userspace
-> +tools/libraries. On a Fedora system you can install them with yum:
-> +
-> +    # yum install audit-libs-devel bison bzip2-devel dbus-devel dbus-glib-devel flex flex-devel flex-static glib2-devel libcap-devel libcap-ng-devel pam-devel pcre-devel python-devel setools-devel swig ustr-devel
-> +
-> +The tools and libraries can be built and installed under a private directory from the top level with make, e.g.
-> +
-> +    $ make DESTDIR=~/obj install install-pywrap
-> +
-> +## Contributing Code
-> +
-> +After obtaining the code of the repository (see below), create a patch
-> +against the repository, and post that patch to the [SELinux mailing
-> +list](https://lore.kernel.org/selinux) at selinux@vger.kernel.org. When preparing
-> +patches, please follow these guidelines:
-> +
-> +-   Patches should apply with -p1
-> +-   Must apply against HEAD of the master branch
-> +-   Separate large patches into logical patches
-> +-   Patch descriptions must end with your "Signed-off-by" line. This means your
-> +    code meets the Developer's certificate of origin, see bellow.
-> +
-> +When adding new, large features or tools it is best to discuss the
-> +design on the mailing list prior to submitting the patch.
-> +
-> +## Development Repository
-> +
-> +Git is a modern source code management system. For more information
-> +about Git please see the Git website.
-> +
-> +To get an anonymous checkout of the SELinux userland repository you can
-> +run:
-> +
-> +    $ git clone https://github.com/SELinuxProject/selinux.git
-> +
-> +# Developer Certificate of Origin
-> +
-> +    Developer's Certificate of Origin 1.1
-> +
-> +    By making a contribution to this project, I certify that:
-> +
-> +    (a) The contribution was created in whole or in part by me and I
-> +        have the right to submit it under the open source license
-> +        indicated in the file; or
-> +
-> +    (b) The contribution is based upon previous work that, to the best
-> +        of my knowledge, is covered under an appropriate open source
-> +        license and I have the right under that license to submit that
-> +        work with modifications, whether created in whole or in part
-> +        by me, under the same open source license (unless I am
-> +        permitted to submit under a different license), as indicated
-> +        in the file; or
-> +
-> +    (c) The contribution was provided directly to me by some other
-> +        person who certified (a), (b) or (c) and I have not modified
-> +        it.
-> +
-> +    (d) I understand and agree that this project and the contribution
-> +        are public and that a record of the contribution (including all
-> +        personal information I submit with it, including my sign-off) is
-> +        maintained indefinitely and may be redistributed consistent with
-> +        this project or the open source license(s) involved.
-> +
-> --
-> 2.22.0.rc1
->
+The LSM interfaces that provide "secctx" text strings
+have been changed to use a structure "lsm_context"
+instead of a pointer/length pair. In some cases the
+interfaces used a "char *" pointer and in others a
+"void *". This was necessary to ensure that the correct
+release mechanism for the text is used. It also makes
+many of the interfaces cleaner.
 
+https://github.com/cschaufler/lsm-stacking.git#stack-5.2-v1-apparmor
 
--- 
-paul moore
-www.paul-moore.com
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ drivers/android/binder.c                |  25 ++-
+ fs/kernfs/dir.c                         |   6 +-
+ fs/kernfs/inode.c                       |  31 ++-
+ fs/kernfs/kernfs-internal.h             |   3 +-
+ fs/nfs/inode.c                          |  13 +-
+ fs/nfs/internal.h                       |   8 +-
+ fs/nfs/nfs4proc.c                       |  17 +-
+ fs/nfs/nfs4xdr.c                        |  16 +-
+ fs/nfsd/nfs4proc.c                      |   8 +-
+ fs/nfsd/nfs4xdr.c                       |  14 +-
+ fs/nfsd/vfs.c                           |   7 +-
+ fs/proc/base.c                          |   1 +
+ include/linux/cred.h                    |   3 +-
+ include/linux/lsm_hooks.h               |  91 +++++----
+ include/linux/nfs4.h                    |   8 +-
+ include/linux/security.h                | 133 +++++++++----
+ include/net/af_unix.h                   |   2 +-
+ include/net/netlabel.h                  |  10 +-
+ include/net/scm.h                       |  14 +-
+ kernel/audit.c                          |  43 ++--
+ kernel/audit.h                          |   9 +-
+ kernel/auditfilter.c                    |   6 +-
+ kernel/auditsc.c                        |  77 ++++----
+ kernel/cred.c                           |  15 +-
+ net/ipv4/cipso_ipv4.c                   |  13 +-
+ net/ipv4/ip_sockglue.c                  |  12 +-
+ net/netfilter/nf_conntrack_netlink.c    |  29 ++-
+ net/netfilter/nf_conntrack_standalone.c |  16 +-
+ net/netfilter/nfnetlink_queue.c         |  38 ++--
+ net/netfilter/nft_meta.c                |  13 +-
+ net/netfilter/xt_SECMARK.c              |  14 +-
+ net/netlabel/netlabel_kapi.c            |   5 +-
+ net/netlabel/netlabel_unlabeled.c       | 101 +++++-----
+ net/netlabel/netlabel_unlabeled.h       |   2 +-
+ net/netlabel/netlabel_user.c            |  13 +-
+ net/netlabel/netlabel_user.h            |   2 +-
+ net/unix/af_unix.c                      |   6 +-
+ security/apparmor/audit.c               |   4 +-
+ security/apparmor/include/audit.h       |   2 +-
+ security/apparmor/include/net.h         |   6 +-
+ security/apparmor/include/secid.h       |   9 +-
+ security/apparmor/lsm.c                 |  64 +++---
+ security/apparmor/secid.c               |  42 ++--
+ security/integrity/ima/ima.h            |  14 +-
+ security/integrity/ima/ima_api.c        |   9 +-
+ security/integrity/ima/ima_appraise.c   |   6 +-
+ security/integrity/ima/ima_main.c       |  34 ++--
+ security/integrity/ima/ima_policy.c     |  19 +-
+ security/security.c                     | 338 +++++++++++++++++++++++++++-----
+ security/selinux/hooks.c                | 259 ++++++++++++------------
+ security/selinux/include/audit.h        |   5 +-
+ security/selinux/include/objsec.h       |  42 +++-
+ security/selinux/netlabel.c             |  25 +--
+ security/selinux/ss/services.c          |  18 +-
+ security/smack/smack.h                  |  18 ++
+ security/smack/smack_lsm.c              | 238 +++++++++++-----------
+ security/smack/smack_netfilter.c        |   8 +-
+ security/smack/smackfs.c                |  12 +-
+ 58 files changed, 1217 insertions(+), 779 deletions(-)
