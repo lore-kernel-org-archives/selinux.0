@@ -2,199 +2,188 @@ Return-Path: <SRS0=ovs9=T7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87FF3C28CC4
-	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 23:32:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D9E3C04AB6
+	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 23:32:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6A04C26519
-	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 23:32:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6B03025725
+	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 23:32:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="V1ShR1Lo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbfEaXcj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 May 2019 19:32:39 -0400
-Received: from mga07.intel.com ([134.134.136.100]:59345 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726881AbfEaXci (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 31 May 2019 19:32:38 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 31 May 2019 16:32:31 -0700
-X-ExtLoop1: 1
-Received: from sjchrist-coffee.jf.intel.com ([10.54.74.36])
-  by orsmga008.jf.intel.com with ESMTP; 31 May 2019 16:32:31 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Cedric Xing <cedric.xing@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Jethro Beekman <jethro@fortanix.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        linux-sgx@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
-        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
-        Shay Katz-zamir <shay.katz-zamir@intel.com>,
-        Haitao Huang <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kai Svahn <kai.svahn@intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Kai Huang <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        William Roberts <william.c.roberts@intel.com>,
-        Philip Tricca <philip.b.tricca@intel.com>
-Subject: [RFC PATCH 9/9] security/selinux: Add enclave_load() implementation
-Date:   Fri, 31 May 2019 16:31:59 -0700
-Message-Id: <20190531233159.30992-10-sean.j.christopherson@intel.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190531233159.30992-1-sean.j.christopherson@intel.com>
-References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S1727013AbfEaXc5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 May 2019 19:32:57 -0400
+Received: from sonic310-28.consmr.mail.gq1.yahoo.com ([98.137.69.154]:33832
+        "EHLO sonic310-28.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727014AbfEaXcy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 May 2019 19:32:54 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559345573; bh=7nhZ/zEyM+j0a1Luk+r19dVtPBLiOzXmF2b9tX24TkE=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=V1ShR1Loo8VXyO+Gx1pe0xudut24P9U4mknWeF8DsvhPMKlFW7Qw3xkRf3NyMhK5g16HuoWh+tfzkChpc7PQPz0LB6XLJQ30HAAOGDVvkk5T5pN5mmmQu5gKPKqW6sjhSKb1EmNk4ngfm+id2+kjnDP02c5e7o/BGNXpzu/9wt/ZuyrPUehRQy2z5nXKHUhcgijFqArRue0U5VQEXO064/8S2fIHGo4NPHSRU0XKxNA6wRwdgjOvwOH2VXTjsxOaEKn2h4Sz6rWDood00yeXGeqdkjF5E4oyjq7XzUqSH2F5TURh0fZlN2vOxEdXtGQXwARDwif0aISJ87dZDDDGZQ==
+X-YMail-OSG: PpSUWlkVM1nYRWsiqE74u_mv7p9DAlutqeitxl3DqwDIMc9hm0mU8og4r.nssuC
+ todeLVnhLrC9t7DNrKyWfeKA4YvwESj2_ofkuEIPe7C1zeWOR1XVLRxPBa05dQ96_3fyJ3NZnEZQ
+ AzkP7d6q.PLOidwLme9DUbveBJL3TgKccwC_Vit2uMv8mjYFihJ0ltC390qd.Zug3xs3QdU3rX5T
+ Wyl_MWIwX3KPdFwy55A69d1ojBdGD_.EQYc31LwvE3M.fZAYDQfFZ0pT08aCHpBf5CK_7EGJkBF1
+ Q.ANZNdyZaVpJa_JMF.0ca3zDd4DNp91nXK2yQ9ymGzsHDql7gApBR4z9G3hzP29K5HDLIDPpUa4
+ 4b8Ufddd2JGW7bMb4sUcac.wtoGMgFAQgQV0MVqyCYzMljBEPmcSKEV4wUbV4aJnXVBFbf2wFXHz
+ OSpogymI1AXiACw4sr5ib0SkcmiacfgxQ4u256uysJD6s2h8ntLNK_Z2EaLeHb9HVx.a314C30ME
+ N8zczGeJUMQjJeZUdUDP80SOtruX1FUfdLIrHtm4ls6.YHoepuK9Rt2jsNuTWDDMYQnjaBp0ILnW
+ mZpQEe2YoIy0Xl3gDYgJC_2q7XDVFTyMD4jckvoX23YBEH8LbflFm53gWyfL8wkr7AT1nrO6wa5w
+ jlzYGLH_ErPhsp8tdx2dYoKReV.xp1jGB0Iy3krXLvsI2WoQfHivJ0KyZqhPK1yn57KNGsLyGVoB
+ V.rKOuki4HANFnaW8N1hbIuj9Cb9pldskEbzQDFOxMu7OO7L6xzdA3ufCFNB0JcEbVx7GSGKUbzm
+ q4mt3LUL9mY.l0U7xv7aJgcY.EARGAaj0o7xZ5bRV2EmVg4_u0K2NMbg.HCnAfBgCCB1XnggMe8Y
+ m8Ipn0LJ2lG5_pHVq8vbVg0idw92hnrf76hqIOL8fRySl80F5pR1Bd_XMR.XA2Gpbj5JXiuu71UN
+ kiB0u9wnrOqpYjhtzOwC1EMDg_pvF95gt90CUzjjx6Xsv8GpWksgR.0qFMYXkJhO5XipzGDwQhWf
+ YE1sRfg_17RwwQdZuojvV_YA0N5.Ra4RV4gZ.11z9e2xfzf73USRnHv0ItknEclsjnKjEsPhk0WE
+ EvqeitR8SzoGyS.Rikvoy4ozEpnyEmpnqxorIuyyHKh5AWhsnyHnmn7S1W6L7fSfOWKu7w4AHf4M
+ Dp1mIrvLyA2xB05ah2w5igbVKun.iOlQ3Wes6BkXAGaf.IaOx7NA2HzdN.76fdQsXExTE2iZDfqb
+ z.e3pSdJTXhjo03sIVI8DvoHCwEwYAP0MJOmB2Pv2ru86rkU1T9g3IQ--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.gq1.yahoo.com with HTTP; Fri, 31 May 2019 23:32:53 +0000
+Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO localhost.localdomain) ([73.223.4.185])
+          by smtp409.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 0aed19b0f4054920f56ab546d7f94096;
+          Fri, 31 May 2019 23:32:52 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: [PATCH 09/58] LSM: Use lsm_export in the getpeersec_dgram hooks
+Date:   Fri, 31 May 2019 16:31:00 -0700
+Message-Id: <20190531233149.715-10-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.17.0
+In-Reply-To: <20190531233149.715-1-casey@schaufler-ca.com>
+References: <20190531233149.715-1-casey@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The goal of selinux_enclave_load() is to provide a facsimile of the
-existing selinux_file_mprotect() and file_map_prot_check() policies,
-but tailored to the unique properties of SGX.
+Convert the getpeersec_dgram hooks to use the lsm_export
+structure instead of a u32 secid. There is some scaffolding
+involved that will be removed when security_getpeersec_dgram()
+is updated.
 
-For example, an enclave page is technically backed by a MAP_SHARED file,
-but the "file" is essentially shared memory that is never persisted
-anywhere and also requires execute permissions (for some pages).
-
-The basic concept is to require appropriate execute permissions on the
-source of the enclave for pages that are requesting PROT_EXEC, e.g. if
-an enclave page is being loaded from a regular file, require
-FILE__EXECUTE and/or FILE__EXECMOND, and if it's coming from an
-anonymous/private mapping, require PROCESS__EXECMEM since the process
-is essentially executing from the mapping, albeit in a roundabout way.
-
-Note, FILE__READ and FILE__WRITE are intentionally not required even if
-the source page is backed by a regular file.  Writes to the enclave page
-are contained to the EPC, i.e. never hit the original file, and read
-permissions have already been vetted (or the VMA doesn't have PROT_READ,
-in which case loading the page into the enclave will fail).
-
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/selinux/hooks.c | 85 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 85 insertions(+)
+ include/linux/lsm_hooks.h  |  5 +++--
+ security/apparmor/lsm.c    |  3 ++-
+ security/security.c        | 13 ++++++++++---
+ security/selinux/hooks.c   |  6 ++++--
+ security/smack/smack_lsm.c |  5 +++--
+ 5 files changed, 22 insertions(+), 10 deletions(-)
 
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 800040050032..bcc628cffe6a 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -881,7 +881,7 @@
+  *	ancillary message type.
+  *	@sock contains the peer socket. May be NULL.
+  *	@skb is the sk_buff for the packet being queried. May be NULL.
+- *	@secid pointer to store the secid of the packet.
++ *	@l is a pointer to a buffer in which to copy the security data
+  *	Return 0 on success, error on failure.
+  * @sk_alloc_security:
+  *	Allocate and attach a security structure to the sk->sk_security field,
+@@ -1702,7 +1702,8 @@ union security_list_options {
+ 					char __user *optval,
+ 					int __user *optlen, unsigned len);
+ 	int (*socket_getpeersec_dgram)(struct socket *sock,
+-					struct sk_buff *skb, u32 *secid);
++					struct sk_buff *skb,
++					struct lsm_export *l);
+ 	int (*sk_alloc_security)(struct sock *sk, int family, gfp_t priority);
+ 	void (*sk_free_security)(struct sock *sk);
+ 	void (*sk_clone_security)(const struct sock *sk, struct sock *newsk);
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 706e5ae09170..24b638bd4305 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1096,7 +1096,8 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
+  * Sets the netlabel socket state on sk from parent
+  */
+ static int apparmor_socket_getpeersec_dgram(struct socket *sock,
+-					    struct sk_buff *skb, u32 *secid)
++					    struct sk_buff *skb,
++					    struct lsm_export *l)
+ 
+ {
+ 	/* TODO: requires secid support */
+diff --git a/security/security.c b/security/security.c
+index 3a766755b722..2f1355d10e0d 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2145,10 +2145,17 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				optval, optlen, len);
+ }
+ 
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     u32 *secid)
+ {
+-	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+-			     skb, secid);
++	int rc;
++	struct lsm_export data = { .flags = LSM_EXPORT_NONE };
++
++	rc = call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock, skb,
++			   &data);
++
++	lsm_export_secid(&data, secid);
++	return rc;
+ }
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+ 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3ec702cf46ca..f436a055dda7 100644
+index b88a51b6ca41..9db12f6b1221 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -6726,6 +6726,87 @@ static void selinux_bpf_prog_free(struct bpf_prog_aux *aux)
+@@ -4949,7 +4949,9 @@ static int selinux_socket_getpeersec_stream(struct socket *sock,
+ 	return err;
  }
- #endif
  
-+#ifdef CONFIG_INTEL_SGX
-+int selinux_enclave_load(struct vm_area_struct *vma, unsigned long prot,
-+			 unsigned long *allowed_prot)
-+{
-+	const struct cred *cred = current_cred();
-+	u32 sid = cred_sid(cred);
-+	int rc;
-+
-+	/* SGX is supported only in 64-bit kernels. */
-+	WARN_ON_ONCE(!default_noexec);
-+
-+	/*
-+	 * SGX is responsible for checking @prot vs @allowed_prot, and SELinux
-+	 * only cares about execute related permissions for enclaves.
-+	 */
-+	if (!(*allowed_prot & PROT_EXEC))
-+		return 0;
-+
-+	/*
-+	 * Loading an executable enclave page from a VMA that is not executable
-+	 * itself requires EXECUTE permissions on the source file, or if there
-+	 * is no regular source file, EXECMEM since the page is being loaded
-+	 * from a non-executable anonymous mapping.
-+	 */
-+	if (!(vma->vm_flags & VM_EXEC)) {
-+		if (vma->vm_file && !IS_PRIVATE(file_inode(vma->vm_file)))
-+			rc = file_has_perm(cred, vma->vm_file, FILE__EXECUTE);
-+		else
-+			rc = avc_has_perm(&selinux_state,
-+					  sid, sid, SECCLASS_PROCESS,
-+					  PROCESS__EXECMEM, NULL);
-+
-+		/*
-+		 * Reject the load if the enclave *needs* the page to be
-+		 * executable, otherwise prevent it from becoming executable.
-+		 */
-+		if (rc) {
-+			if (prot & PROT_EXEC)
-+				return rc;
-+
-+			*allowed_prot &= ~PROT_EXEC;
-+		}
-+	}
-+
-+	/*
-+	 * An enclave page that may do RW->RX or W+X requires EXECMOD (backed
-+	 * by a regular file) or EXECMEM (loaded from an anonymous mapping).
-+	 * Note, this hybrid EXECMOD and EXECMEM behavior is intentional and
-+	 * reflects the nature of enclaves and the EPC, e.g. EPC is effectively
-+	 * a non-persistent shared file, but each enclave is a private domain
-+	 * within that shared file, so delegate to the source of the enclave.
-+	 */
-+	if ((*allowed_prot & PROT_EXEC) && (*allowed_prot & PROT_WRITE)) {
-+		if (vma->vm_file && !IS_PRIVATE(file_inode(vma->vm_file)))
-+			rc = file_has_perm(cred, vma->vm_file, FILE__EXECMOD);
-+		else
-+			rc = avc_has_perm(&selinux_state,
-+					  sid, sid, SECCLASS_PROCESS,
-+					  PROCESS__EXECMEM, NULL);
-+		/*
-+		 * Clear ALLOW_EXEC instead of ALLOWED_WRITE if permissions are
-+		 * lacking and @prot has neither PROT_WRITE or PROT_EXEC.  If
-+		 * userspace wanted RX they would have requested RX, and due to
-+		 * lack of permissions they can never get RW->RX, i.e. the only
-+		 * useful transition is R->RW.
-+		 */
-+		if (rc) {
-+			if ((prot & PROT_EXEC) && (prot & PROT_WRITE))
-+				return rc;
-+
-+			if (prot & PROT_EXEC)
-+				*allowed_prot &= ~PROT_WRITE;
-+			else
-+				*allowed_prot &= ~PROT_EXEC;
-+		}
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
- struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
- 	.lbs_cred = sizeof(struct task_security_struct),
- 	.lbs_file = sizeof(struct file_security_struct),
-@@ -6968,6 +7049,10 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
- 	LSM_HOOK_INIT(bpf_prog_free_security, selinux_bpf_prog_free),
- #endif
-+
-+#ifdef CONFIG_INTEL_SGX
-+	LSM_HOOK_INIT(enclave_load, selinux_enclave_load),
-+#endif
- };
+-static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++static int selinux_socket_getpeersec_dgram(struct socket *sock,
++					   struct sk_buff *skb,
++					   struct lsm_export *l)
+ {
+ 	u32 peer_secid = SECSID_NULL;
+ 	u16 family;
+@@ -4971,7 +4973,7 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
+ 		selinux_skb_peerlbl_sid(skb, family, &peer_secid);
  
- static __init int selinux_init(void)
+ out:
+-	*secid = peer_secid;
++	selinux_export_secid(l, peer_secid);
+ 	if (peer_secid == SECSID_NULL)
+ 		return -EINVAL;
+ 	return 0;
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 3b77a0324c3d..3e3724bbd6ea 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -3973,7 +3973,8 @@ static int smack_socket_getpeersec_stream(struct socket *sock,
+  * Sets the netlabel socket state on sk from parent
+  */
+ static int smack_socket_getpeersec_dgram(struct socket *sock,
+-					 struct sk_buff *skb, u32 *secid)
++					 struct sk_buff *skb,
++					 struct lsm_export *l)
+ 
+ {
+ 	struct netlbl_lsm_secattr secattr;
+@@ -4024,7 +4025,7 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
+ #endif
+ 		break;
+ 	}
+-	*secid = s;
++	smack_export_secid(l, s);
+ 	if (s == 0)
+ 		return -EINVAL;
+ 	return 0;
 -- 
-2.21.0
+2.19.1
 
