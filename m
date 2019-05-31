@@ -2,111 +2,193 @@ Return-Path: <SRS0=ovs9=T7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A316C28CC6
-	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 15:55:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9417C04AB6
+	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 16:26:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3DC1026B9E
-	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 15:55:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B51AF26BFD
+	for <selinux@archiver.kernel.org>; Fri, 31 May 2019 16:26:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="RPZh76mo"
+	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="nFB/BEEa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726795AbfEaPzj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 May 2019 11:55:39 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:36139 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726563AbfEaPzg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 May 2019 11:55:36 -0400
-Received: by mail-lj1-f195.google.com with SMTP id m22so9871620ljc.3
-        for <selinux@vger.kernel.org>; Fri, 31 May 2019 08:55:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RVcOaYatOpeo1CRV+hYtc16/sImBcgmxdJUqU74IXf0=;
-        b=RPZh76moKr55vlOhT6KnMQNS2x36jsAOlxZc9yNKyxBw0/CnSaJqQXxPo8wQogqSrH
-         xvmcd8R/2F0tPP/2ihZ1+29FSCm9nEmo6aw5HY8bzked4RIQPKJuQOkb+A/GhtgtIj5a
-         aLWdXP2tDDewNDPoZfQNbPfPMJRAtol/Hsyp/gqT51L1Anjn5GoDMPRjuY6Sc09LcwlO
-         n4vSZg3ld4ZHB+BWhlysxicuNc0AlznR6JfJ4CZMe6EOFOQnF/TJRQYeJKzSXA7tqj9a
-         Jpm9h6pr7EN7xwZSsvAaiJ12eb5JuE2TSUY+75Sh0GRQZQCe1qpwgP9inI/9WD2YWaC2
-         8PbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RVcOaYatOpeo1CRV+hYtc16/sImBcgmxdJUqU74IXf0=;
-        b=BwIZxlT7L+eHnJD9fsRurpOL970Fxb2xhxu18MZNJpMm9RzZAccqPCRDcocPmr+xId
-         9JcUb7z7zRNJv+WXXpWz0NNp39GdKn9qUsKo7eavoLpxAgSQbL9sD/m3lIiUuISaT9C5
-         85yBziLPq433b+ud1WKcKy6/nnKNP62m/oHGbIIJevQuxH8ZFzoziXdc7dKpwtseA7OA
-         1DZdkQxp+0EVhqDrap0jKBpIRyrsdEqeg5/Invs47fF4QdqLtvAu3x3moPiSKa0d0b00
-         Gv/1FZwOhGbtZmVLlt5gSMRj+wIbDthEOIrRnrPKp3MXtKwfPYWGiGNRTBGM60CXYWdM
-         Q2FA==
-X-Gm-Message-State: APjAAAXlA3E1vadiISeBr4BF3hJ1PxyM6yZ6Rkp2+5UB09yCaR9UDr7J
-        p4Cp4YYqz1i63pcjwBGOMFeQEHu13Ss8So2H9jfe
-X-Google-Smtp-Source: APXvYqzr2MCUTgiueRQHjiAeFx7vxTXPmGHbdykoMlbeOPTpRuJBL1Ru1ZFTbbOjFttwWXo6DFPAaxt9JHVyrRBUZds=
-X-Received: by 2002:a2e:9a97:: with SMTP id p23mr6347647lji.160.1559318134012;
- Fri, 31 May 2019 08:55:34 -0700 (PDT)
+        id S1726579AbfEaQ0b (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 May 2019 12:26:31 -0400
+Received: from rgout0805.bt.lon5.cpcloud.co.uk ([65.20.0.152]:25973 "EHLO
+        rgout0805.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726037AbfEaQ0b (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 May 2019 12:26:31 -0400
+X-OWM-Source-IP: 86.147.204.249 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefuddgkeekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudegjedrvddtgedrvdegleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddtgedrvdegledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefuddgledtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudegjedrvddtgedrvdegleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddtgedrvdegledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefuddgledvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudegjedrvddtgedrvdegleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddtgedrvdegledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefuddgleeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudegjedrvddtgedrvdegleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddtgedrvdegledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefuddgleelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudegjedrvddtgedrvdegleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddtgedrvdegledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefuddguddtfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdegrddvgeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdegrddvgeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+Received: from localhost.localdomain (86.147.204.249) by rgout08.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
+        id 5BC47A8714D9D51F; Fri, 31 May 2019 16:16:01 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1559319988; 
+        bh=lgnvoOMDaewpFvrKY1DePQekMyfffuUViBQtVIr5z8Q=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=nFB/BEEadIGiIj0x3k35+qGMPUPYDbn0zdVsHfNkQ73jEudVRMLzNgvNHvWy/m0lWMcEjapJRbd+UvIVrdK0oJg1sQrO68fA/FEk50CR78qNddXAImW1D7jQ78iLIjAGXxs/jmgn8z3k8Z0y7luKYVxwF4ptagZCF2AD6svrq6c=
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] selinux: Fix strncpy in libselinux and libsepol
+Date:   Fri, 31 May 2019 16:16:09 +0100
+Message-Id: <20190531151609.16873-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-References: <20190530080602.GA3600@zhanggen-UX430UQ> <CAFqZXNtX1R1VDFxm7Jco3BZ=pVnNiHU3-C=d8MhCVV1XSUQ8bw@mail.gmail.com>
- <20190530085438.GA2862@zhanggen-UX430UQ>
-In-Reply-To: <20190530085438.GA2862@zhanggen-UX430UQ>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 31 May 2019 11:55:23 -0400
-Message-ID: <CAHC9VhSwzD652qKUy7qrRJ=zy-NZtKRGc7H4NZurzUcK4OgFZA@mail.gmail.com>
-Subject: Re: [PATCH v2] hooks: fix a missing-check bug in selinux_add_mnt_opt()
-To:     Gen Zhang <blackgod016574@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, ccross@android.com,
-        selinux@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        netdev@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 30, 2019 at 4:55 AM Gen Zhang <blackgod016574@gmail.com> wrote:
->
-> In selinux_add_mnt_opt(), 'val' is allcoted by kmemdup_nul(). It returns
-> NULL when fails. So 'val' should be checked.
->
-> Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-> Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
+When building with gcc9, get build errors such as:
 
-Previous comments regarding "selinux:" instead of "hooks:" apply here as well.
+genbools.c:24:2: error: ‘strncpy’ output may be truncated copying 8191
+bytes from a string of length 8191 [-Werror=stringop-truncation]
+   24 |  strncpy(dest, ptr, size);
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3ec702c..4797c63 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1052,8 +1052,11 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
->         if (token == Opt_error)
->                 return -EINVAL;
->
-> -       if (token != Opt_seclabel)
-> -               val = kmemdup_nul(val, len, GFP_KERNEL);
-> +       if (token != Opt_seclabel) {
-> +                       val = kmemdup_nul(val, len, GFP_KERNEL);
-> +                       if (!val)
-> +                               return -ENOMEM;
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ libselinux/src/booleans.c |  4 ++--
+ libsepol/src/genbools.c   | 20 +++++++++++---------
+ 2 files changed, 13 insertions(+), 11 deletions(-)
 
-It looks like this code is only ever called by NFS, which will
-eventually clean up mnt_opts via security_free_mnt_opts(), but since
-the selinux_add_opt() error handler below cleans up mnt_opts it might
-be safer to do the same here in case this function is called multiple
-times to add multiple options.
-
-> +       }
->         rc = selinux_add_opt(token, val, mnt_opts);
->         if (unlikely(rc)) {
->                 kfree(val);
-
+diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+index ab1e0754..cdc03517 100644
+--- a/libselinux/src/booleans.c
++++ b/libselinux/src/booleans.c
+@@ -539,7 +539,7 @@ int security_load_booleans(char *path)
+ 
+ 	__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+ 	while (getline(&inbuf, &len, boolf) > 0) {
+-		int ret = process_boolean(inbuf, name, sizeof(name), &val);
++		int ret = process_boolean(inbuf, name, len, &val);
+ 		if (ret == -1)
+ 			errors++;
+ 		if (ret == 1)
+@@ -557,7 +557,7 @@ int security_load_booleans(char *path)
+ 		int ret;
+ 		__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+ 		while (getline(&inbuf, &len, boolf) > 0) {
+-			ret = process_boolean(inbuf, name, sizeof(name), &val);
++			ret = process_boolean(inbuf, name, len, &val);
+ 			if (ret == -1)
+ 				errors++;
+ 			if (ret == 1)
+diff --git a/libsepol/src/genbools.c b/libsepol/src/genbools.c
+index d4a2df62..ad194ca6 100644
+--- a/libsepol/src/genbools.c
++++ b/libsepol/src/genbools.c
+@@ -10,6 +10,8 @@
+ #include "private.h"
+ #include "dso.h"
+ 
++#define FGET_BUFSIZ 255
++
+ /* -- Deprecated -- */
+ 
+ static char *strtrim(char *dest, char *source, int size)
+@@ -32,7 +34,7 @@ static char *strtrim(char *dest, char *source, int size)
+ 
+ static int process_boolean(char *buffer, char *name, int namesize, int *val)
+ {
+-	char name1[BUFSIZ];
++	char name1[FGET_BUFSIZ];
+ 	char *ptr = NULL;
+ 	char *tok;
+ 
+@@ -48,7 +50,7 @@ static int process_boolean(char *buffer, char *name, int namesize, int *val)
+ 		ERR(NULL, "illegal boolean definition %s", buffer);
+ 		return -1;
+ 	}
+-	strncpy(name1, tok, BUFSIZ - 1);
++	strncpy(name1, tok, FGET_BUFSIZ - 1);
+ 	strtrim(name, name1, namesize - 1);
+ 
+ 	tok = strtok_r(NULL, "\0", &ptr);
+@@ -79,8 +81,8 @@ static int load_booleans(struct policydb *policydb, const char *path,
+ {
+ 	FILE *boolf;
+ 	char *buffer = NULL;
+-	char localbools[BUFSIZ];
+-	char name[BUFSIZ];
++	char localbools[FGET_BUFSIZ];
++	char name[FGET_BUFSIZ + 1];
+ 	int val;
+ 	int errors = 0, changes = 0;
+ 	struct cond_bool_datum *datum;
+@@ -90,12 +92,12 @@ static int load_booleans(struct policydb *policydb, const char *path,
+ 		goto localbool;
+ 
+ #ifdef __APPLE__
+-        if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
+-          ERR(NULL, "out of memory");
+-	  return -1;
++	if ((buffer = (char *)malloc(FGET_BUFSIZ * sizeof(char))) == NULL) {
++		ERR(NULL, "out of memory");
++		return -1;
+ 	}
+ 
+-        while(fgets(buffer, 255, boolf) != NULL) {
++	while (fgets(buffer, FGET_BUFSIZ, boolf) != NULL) {
+ #else
+ 	size_t size = 0;
+ 	while (getline(&buffer, &size, boolf) > 0) {
+@@ -124,7 +126,7 @@ static int load_booleans(struct policydb *policydb, const char *path,
+ 
+ #ifdef __APPLE__
+ 
+-	  while(fgets(buffer, 255, boolf) != NULL) {
++	while (fgets(buffer, FGET_BUFSIZ, boolf) != NULL) {
+ #else
+ 
+ 	    while (getline(&buffer, &size, boolf) > 0) {
 -- 
-paul moore
-www.paul-moore.com
+2.21.0
+
