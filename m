@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 570CCC46460
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C122EC28CC7
 	for <selinux@archiver.kernel.org>; Sun,  2 Jun 2019 16:53:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2D4112794D
+	by mail.kernel.org (Postfix) with ESMTP id 973C82794D
 	for <selinux@archiver.kernel.org>; Sun,  2 Jun 2019 16:53:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="aXydkOVN"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="MSpIKJ0n"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727042AbfFBQxm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 2 Jun 2019 12:53:42 -0400
-Received: from sonic303-27.consmr.mail.ne1.yahoo.com ([66.163.188.153]:41640
+        id S1727040AbfFBQxn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 2 Jun 2019 12:53:43 -0400
+Received: from sonic303-27.consmr.mail.ne1.yahoo.com ([66.163.188.153]:46524
         "EHLO sonic303-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727049AbfFBQxm (ORCPT
+        by vger.kernel.org with ESMTP id S1727054AbfFBQxm (ORCPT
         <rfc822;selinux@vger.kernel.org>); Sun, 2 Jun 2019 12:53:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559494421; bh=xbxrTtPDT+RT3HxgpjUjOefKGXANltzkYYing08uaXc=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=aXydkOVN9WenKQAFSgTGy+Pm59RXfJtAH6P0Ny5IViBe00h+hQdLKXGtk5tpSE2qtmVuOB2X6jPbI5rLDwSjA5hHXKoe5wCPOxrPRmbbsMlU8yzHgPsMZCWgliBgPbuVXhBbbG8hqS3CQ1ScKW/WSLB5Dd5SHY1D5GIVkIG1LByLV3m2G7r52EVZ5KpK5PvQlNUfNoJTvXhGeD9TfgkoTAo71sTZw+RBbI+qWmffO1IKz2DzLfvbZdROBkph+Y1c0mBSDOcBl0eSZmYNazbxRihNEUnUsrR6BlvtMOvyX6aDOWn/nBhFXrr/IHfTsTJoCVGYBlYaFzJdLZ9dm/k2pw==
-X-YMail-OSG: 5SLrPR8VM1mOV.HRvqry55xyyuIu.3_RBqHoa5TVT0HmEMTbiE6MH_TRMWzIXRK
- FnmdNg0nkfATT8zwOipSKbIWQtFk7_p.GqeydnDXgvj.UVi1yjw91LmLgGy6U0TNUMvTjcRU9WhW
- 6aYr29hBFJZdyjPsotQ0Xfg2SkuI197VfHq7f1BAF_qcDZ8qyIfMd1LgDKnHubxnCHMLDp6.a.e6
- HV5g7HFiiJ47eWQVETu4OG_czmynpAoeiqaA2oX.42kUdvR.Os4wsPoO02nACpXrWnK5G6w928c_
- PA0cswyLG0KBnmiit2Y4rmCI9cpuYh_9BpCl22A5jLNP28pZYsLOL5l0cT6RVjkQYjDARsd_9NvV
- dn50Zw4n8rXRFQHtNhuqlYoNkh9ETBk27TubbBqTFeu4B3xiyVXRTwAxmHnRZiwDAtxZkKpMNTwg
- TaWox_eXAvlPOV0rizWoemgZcoIO1ImWqeJPRXrNu66LsIUtG8VELFx2.KMvNPr9Df2KT0gjrE9X
- 5.AZs4WsdztS.1PnBcZmDi0wGSVM2xMe4tUQerq.aO7bWz12EQ3G9QnIl3s.itRpC47BqRCwjJ7P
- vF9UeoPzS0MlsdH_1CRoj92NPUOQqslu6Sq.rfgIwDeRRxAJ0Gp8f2j_MDhc8WDdayER0yarRZk0
- ERwgQ8_WjhhCqDbkqvD0bLmIpT97bYxxx.2BSmDtOS73.QfhrqbHulGljwzFIPNEXuvMbrnAQZoD
- I5bpOzNKGr63lFH3N8i1Z4mZsnSLZzfpU8vikUDjCAvatedOlzgr11VdvXwDUi5JNCI0NxZTfbc1
- g57t9zoKx0I_YsXdaZ5UpyxSmWgynUAU5Q7fb7nFudg.zH6XmCx9SuTXOm_0f2RPLh2nmvbM1DyQ
- fG2eBOsfhC214wfjOjM5W4J1cIQdaRZIb8BODnUnYGz233xeSIiNnj_mR6g7TC6yqTTQ8nDysv_u
- AeTHdNIoTdMjwjCmRuOzTMYO78eQyQeEvNa._b8Q5JW.AHnmGN7r_1rwcWkbhX6q4qu6Fu3AF5oL
- Lx3FkcxUWWvcXRX24144tf5z4qrQZXmjl66ArrvPWqX1rPmtxlnGjPKDYS3nZcpMZtyhppNA.tDz
- 8Mxl.vqtU16NEP5evSW72LKLK5aPdGD2H435vjIApIaZrE0jUd90VkmHAHNsuE9uypq2wHciJjUO
- Yn3b06mbFOiAlhFbVpTquPDaMqi0yz2JUsAePNaRb4yyVAbi8AvKySPAu4jctkXBT3i8JZgQcR_I
- 2Xx3ePJuh7MG5oB2FJshnh8gME2frS3Hf58O7xxoiaOuh.ffZ48.2MRqD1dI-
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559494421; bh=EacMflAD5VaKL1W6672XUiEDYF8wM5Kufsvl3z4Vcto=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=MSpIKJ0nFNK/T3q/bhaxG9U/AEnOFvlxLytdB9rrdaUxtBXLMPbIgrnSTgpCFddUgw6PxkIqGs5RUNWiR87TczxxyKaGkXo/SAYLi8K92SLV3XNJmQDHSYydiU2dEM5IKTbg7p7chae6YMV0HdfzwuhEdwyXa6lHZBfv9NX3BqxBJ3gBzJZ72hVIInV0xu4S7r8pyqcXsujDcnx0eN+GiQrYnznzC9ygvOROqLbLu1F2hmBMcnTJSBspGOZOzRhtai9eo70kj+OdSUUnlRJIu2XaOH4bU2NAbCYTkI1+RKCG4LSn6Kms5bW7sl8AXA1gvrIFMsEFN6PEHN71eHkRuA==
+X-YMail-OSG: ctgokzgVM1lCZ3mijAn_HOmGwCNJm6BmCv8y9Bqco6IVE9dSsXH1ZBvHst5_Wi4
+ fFYV_jZffHnY0m2.Q2oYVSkbq0dOW4oaWkex9WId_DRp8aezYxySu.WCsIzv3fHvTfcErwFFXkmt
+ MjgI0NS3FlevmfUC2LWpLTRtOdMDJ1MRVdYTN1taycgOt54ulItu6hIOqGFBZBw2ZKHPkb6hE2pv
+ SrBBAaLugq15o5Hd1FcLxeenKJRCUAp5UNwhSWc7krMy5auh_bTZJ0Y0oCbxJ9FVKH8mibq05B67
+ SCoSFrd3IaaBU0dEuLGI3ADhS9YV477GtWsBSeB0dUejzSYnls7uLKViORhDODDWOCL6F542KzQ_
+ soXX2wjMR.fbNEHI75ei2LTkmnqWd5b6r0dBryHrw2noLm_luP1mEUxLIXQhUoussn9iJzp46PfU
+ TnCCjCifF37ZdDsyq_C8yQF6iTxlxRg2aQc3gVnnWuYiTIBC0ls2UTidmiSj0IiSvEuHVsSfcm4c
+ UzC0iUUu_fQ2eCBnY0vWsACl2rDYnPhzuxCSvR3wYKlgcoYQhhkr42g1NSVTIQPLCCFK2SgfCiTu
+ KZJ0LIvldVeqof5r1IjOyXUENkK7VNDMmIHvL7F2H37f0uePA6TK0KZ3DbY5LLRhxg2nD3QTNq9P
+ KElHUq7b2oTQrdPQra2iMmQ7S1UcVWCJ8d3LlOY2.eRzhm98x9rf05c4yyukwzlQAyj.Du1Vnd0f
+ VqWKHoyS09ghN_tlCCNhJhktgp8c1x8OwcZbHpS.y6_noNVg_oTEjL.z98e0fs8s6nnniKEs41NV
+ XITkoznkJr6ZXWbtM32iIMNg6C0yG.9lOgGNiojOoGReuKYzELM7OL3pPxjHynEKDkWwKkSL0AfJ
+ 56LLdeZoJMZrGTQhgsH1aavpgveTIEGHd4TP1EivG3Anto6M_nunefWNc3EHWypApCVgCiP7oStm
+ F7UehSd7dKYdT9QJo1FUO.hU1DH1thblEBOrB.rrXPujutiPxck.rZuW3goi3dqmPEbIQItiZsOZ
+ EHJLTTV569RIE2do6PfhQ4nPqkWQRUrnlL3z2foPA22dN5QqOZKCD6yemdoEO_9PdKk7jqq_VmVU
+ DraA8cPoLIC.mFjONTUlzJu4T6CJ3cIAv5Pbk8C231TIA.hMfwzpIeS8qKfK0W5XUoOcy2vPDw75
+ cfMCI56tGjdffTNu5I3CvIqcMFC6SGJ3HYTFqQJ_O76TvIkH41ECwnGXjNkAo7TfLFrTza6WzMHf
+ B.2zqQz1qgvFFW2F0wMqCWob5eoYpagtPqS3WXFnAjssyU4OZ8fdgLGSO01Y-
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Sun, 2 Jun 2019 16:53:41 +0000
 Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO localhost.net) ([73.223.4.185])
           by smtp409.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 111e227deeb5369cccd8023f32784fec;
-          Sun, 02 Jun 2019 16:53:39 +0000 (UTC)
+          Sun, 02 Jun 2019 16:53:36 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH 43/58] LSM: Use lsm_context in security_inode_notifysecctx
-Date:   Sun,  2 Jun 2019 09:50:46 -0700
-Message-Id: <20190602165101.25079-44-casey@schaufler-ca.com>
+Subject: [PATCH 40/58] LSM: Use lsm_context in inode_notifysecctx hooks
+Date:   Sun,  2 Jun 2019 09:50:43 -0700
+Message-Id: <20190602165101.25079-41-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190602165101.25079-1-casey@schaufler-ca.com>
 References: <20190602165101.25079-1-casey@schaufler-ca.com>
@@ -63,108 +63,93 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Convert security_inode_notifysecctx to use the lsm_context structure
+Convert SELinux and Smack to use the lsm_context structure
 instead of a context/secid pair. There is some scaffolding involved
 that will be removed when the related data is updated.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- fs/kernfs/inode.c        | 6 ++++--
- fs/nfs/inode.c           | 6 ++++--
- include/linux/security.h | 5 +++--
- security/security.c      | 8 ++------
- 4 files changed, 13 insertions(+), 12 deletions(-)
+ include/linux/lsm_hooks.h  | 5 ++---
+ security/security.c        | 6 +++++-
+ security/selinux/hooks.c   | 5 +++--
+ security/smack/smack_lsm.c | 5 +++--
+ 4 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
-index 0c1fd945ce42..460e611b1938 100644
---- a/fs/kernfs/inode.c
-+++ b/fs/kernfs/inode.c
-@@ -184,6 +184,7 @@ static inline void set_inode_attr(struct inode *inode, struct iattr *iattr)
- static void kernfs_refresh_inode(struct kernfs_node *kn, struct inode *inode)
- {
- 	struct kernfs_iattrs *attrs = kn->iattr;
-+	struct lsm_context lc;	/* Scaffolding -Casey */
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 20e59e0b775f..eda0a1bcdf07 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1377,8 +1377,7 @@
+  *	file's attributes to the client.
+  *	Must be called with inode->i_mutex locked.
+  *	@inode we wish to set the security context of.
+- *	@ctx contains the string which we wish to set in the inode.
+- *	@ctxlen contains the length of @ctx.
++ *	@cp contains the string which we wish to set in the inode.
+  *
+  * @inode_setsecctx:
+  *	Change the security context of an inode.  Updates the
+@@ -1668,7 +1667,7 @@ union security_list_options {
+ 	void (*release_secctx)(char *secdata, u32 seclen);
  
- 	inode->i_mode = kn->mode;
- 	if (attrs) {
-@@ -192,8 +193,9 @@ static void kernfs_refresh_inode(struct kernfs_node *kn, struct inode *inode)
- 		 * persistent copy in kernfs_node.
- 		 */
- 		set_inode_attr(inode, &attrs->ia_iattr);
--		security_inode_notifysecctx(inode, attrs->ia_secdata,
--					    attrs->ia_secdata_len);
-+		lc.context = attrs->ia_secdata;
-+		lc.len = attrs->ia_secdata_len;
-+		security_inode_notifysecctx(inode, &lc);
- 	}
+ 	void (*inode_invalidate_secctx)(struct inode *inode);
+-	int (*inode_notifysecctx)(struct inode *inode, void *ctx, u32 ctxlen);
++	int (*inode_notifysecctx)(struct inode *inode, struct lsm_context *cp);
+ 	int (*inode_setsecctx)(struct dentry *dentry, void *ctx, u32 ctxlen);
+ 	int (*inode_getsecctx)(struct inode *inode, struct lsm_context *cp);
  
- 	if (kernfs_type(kn) == KERNFS_DIR)
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 414a90d48493..8d0be9767b14 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -340,14 +340,16 @@ static void nfs_clear_label_invalid(struct inode *inode)
- void nfs_setsecurity(struct inode *inode, struct nfs_fattr *fattr,
- 					struct nfs4_label *label)
- {
-+	struct lsm_context lc;	/* Scaffolding -Casey */
- 	int error;
- 
- 	if (label == NULL)
- 		return;
- 
- 	if ((fattr->valid & NFS_ATTR_FATTR_V4_SECURITY_LABEL) && inode->i_security) {
--		error = security_inode_notifysecctx(inode, label->label,
--				label->len);
-+		lc.context = label->label;
-+		lc.len = label->len;
-+		error = security_inode_notifysecctx(inode, &lc);
- 		if (error)
- 			printk(KERN_ERR "%s() %s %d "
- 					"security_inode_notifysecctx() %d\n",
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 6c3a74a44a59..6b2fcca08a43 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -437,7 +437,7 @@ int security_secctx_to_secid(const char *secdata, u32 seclen,
- void security_release_secctx(char *secdata, u32 seclen);
- 
- void security_inode_invalidate_secctx(struct inode *inode);
--int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
-+int security_inode_notifysecctx(struct inode *inode, struct lsm_context *cp);
- int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
- int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
- #else /* CONFIG_SECURITY */
-@@ -1232,7 +1232,8 @@ static inline void security_inode_invalidate_secctx(struct inode *inode)
- {
- }
- 
--static inline int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
-+static inline int security_inode_notifysecctx(struct inode *inode,
-+					      struct lsm_context *cp);
- {
- 	return -EOPNOTSUPP;
- }
 diff --git a/security/security.c b/security/security.c
-index 628287180ce7..74f211d58e5f 100644
+index 0c23ffdd92c9..4f443dd481bd 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -2011,13 +2011,9 @@ void security_inode_invalidate_secctx(struct inode *inode)
- }
- EXPORT_SYMBOL(security_inode_invalidate_secctx);
+@@ -2013,7 +2013,11 @@ EXPORT_SYMBOL(security_inode_invalidate_secctx);
  
--int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
-+int security_inode_notifysecctx(struct inode *inode, struct lsm_context *cp)
+ int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
  {
--	struct lsm_context lc;
--
--	lc.context = ctx;
--	lc.len = ctxlen;
--	return call_int_hook(inode_notifysecctx, 0, inode, &lc);
-+	return call_int_hook(inode_notifysecctx, 0, inode, cp);
+-	return call_int_hook(inode_notifysecctx, 0, inode, ctx, ctxlen);
++	struct lsm_context lc;
++
++	lc.context = ctx;
++	lc.len = ctxlen;
++	return call_int_hook(inode_notifysecctx, 0, inode, &lc);
  }
  EXPORT_SYMBOL(security_inode_notifysecctx);
  
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index e881f42d3ff8..633d62b97e90 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6339,10 +6339,11 @@ static void selinux_inode_invalidate_secctx(struct inode *inode)
+ /*
+  *	called with inode->i_mutex locked
+  */
+-static int selinux_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
++static int selinux_inode_notifysecctx(struct inode *inode,
++				      struct lsm_context *cp)
+ {
+ 	int rc = selinux_inode_setsecurity(inode, XATTR_SELINUX_SUFFIX,
+-					   ctx, ctxlen, 0);
++					   cp->context, cp->len, 0);
+ 	/* Do not return error when suppressing label (SBLABEL_MNT not set). */
+ 	return rc == -EOPNOTSUPP ? 0 : rc;
+ }
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 46eead699e1d..3d24503029e5 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4474,9 +4474,10 @@ static void smack_release_secctx(char *secdata, u32 seclen)
+ {
+ }
+ 
+-static int smack_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen)
++static int smack_inode_notifysecctx(struct inode *inode, struct lsm_context *cp)
+ {
+-	return smack_inode_setsecurity(inode, XATTR_SMACK_SUFFIX, ctx, ctxlen, 0);
++	return smack_inode_setsecurity(inode, XATTR_SMACK_SUFFIX, cp->context,
++				       cp->len, 0);
+ }
+ 
+ static int smack_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
 -- 
 2.19.1
 
