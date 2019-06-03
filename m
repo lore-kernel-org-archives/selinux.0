@@ -2,135 +2,135 @@ Return-Path: <SRS0=Kl1g=UC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD9BCC04AB5
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 20:14:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 670FBC04AB5
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 21:46:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A837A26C89
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 20:14:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A80525E47
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 21:46:15 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="VKJfnpAi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726454AbfFCUOr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Jun 2019 16:14:47 -0400
-Received: from mga18.intel.com ([134.134.136.126]:20201 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726076AbfFCUOr (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 3 Jun 2019 16:14:47 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Jun 2019 13:14:46 -0700
-X-ExtLoop1: 1
-Received: from ray.jf.intel.com (HELO [10.7.198.156]) ([10.7.198.156])
-  by orsmga003.jf.intel.com with ESMTP; 03 Jun 2019 13:14:45 -0700
-Subject: Re: [RFC PATCH 3/9] x86/sgx: Allow userspace to add multiple pages in
- single ioctl()
-To:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Cedric Xing <cedric.xing@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Jethro Beekman <jethro@fortanix.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        linux-sgx@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
-        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
-        Shay Katz-zamir <shay.katz-zamir@intel.com>,
-        Haitao Huang <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kai Svahn <kai.svahn@intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Kai Huang <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        William Roberts <william.c.roberts@intel.com>,
-        Philip Tricca <philip.b.tricca@intel.com>
-References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
- <20190531233159.30992-4-sean.j.christopherson@intel.com>
-From:   Dave Hansen <dave.hansen@intel.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-Message-ID: <beb8ac7a-b580-8ff2-7467-fb2870fb8cf0@intel.com>
-Date:   Mon, 3 Jun 2019 13:14:45 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1726033AbfFCVqO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Jun 2019 17:46:14 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:38155 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726055AbfFCVqO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Jun 2019 17:46:14 -0400
+Received: by mail-lf1-f66.google.com with SMTP id b11so14792336lfa.5
+        for <selinux@vger.kernel.org>; Mon, 03 Jun 2019 14:46:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=KcMRXd21hP8UmZkIG2RNnfnlH3SL7cuLE0q0RRkiu6s=;
+        b=VKJfnpAi1elHGrQJDGOtM/gN/DHi+Ci3IGMyX3NflK3rCh5QLlasviFfYvd5Z1n0Ll
+         sfT8j+rkJXOwV+YDS4o331naQ3mO3WKL+3uzZCCq+E1Ng8/lfuiakuEj6quDz1FceLdp
+         VfWqSDxDiyG7NS9ZHVwM7jMRPxBMvAPlMmUAa+1zKBWuFKfkWh+WvFe7roZu+S9re1MR
+         3mC8jy0LYvW2rqnw21AMOZdU5BlpaR9WphB1XPicbMYHATdnNswhzKRw/tq3nf2r/7OW
+         3pfIOyj1vzv7RlvQMgzQll2YOArCb8xfux5xgJZAvw7K6GU8R2M0+JaSP0/ZEshAzMpu
+         KasQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=KcMRXd21hP8UmZkIG2RNnfnlH3SL7cuLE0q0RRkiu6s=;
+        b=WpKYGRuCdO1P0mZH2HCVwuBVc/ITrJgKONhUhuzRXt8EPP6WRBqT91QZiymrkuOuOH
+         bbl/10bpp5LPJfVEXUiCC71qcVSXlgPzw/G3EQVftgsBygzdvRWCDxbulb6QlB7zvlOE
+         ei10tas/bSl4C5f9/KtqXn7VTS+8BjHMddMwkvfKv8FeNLDPl/GLIOSPQ1SoUcCNBpxi
+         6L8mzHScw9PFPmrxlDP51uzfJ/3GIG/T6eKu/hDbH6yBB/Res3YoKCvMiorB+13551TQ
+         pyYfxg7uM1d69imL6lAqkVP8xPXbUd8r3Gx+gBXYG4P1DPpX8YU3euQ/Pzs81kGSTIe0
+         Gk3w==
+X-Gm-Message-State: APjAAAW7JW1FeJqAeO2RCj4THQ43z7rBciwUkVnMdohDuXdfgkMEh8JM
+        y/8vPV9Y0OnaN2HLYCl9Z7Lb6uXhCARtXMrBOtT1
+X-Google-Smtp-Source: APXvYqzBxyQVJ38l2yQR8Z55mFmcEnbrYjFwFo/PW/t0ZGSpit+8SCjtd4FFxwH9Ik99pI6puP1BvcBqmSMmUGqMVew=
+X-Received: by 2002:ac2:4358:: with SMTP id o24mr14377637lfl.13.1559596567285;
+ Mon, 03 Jun 2019 14:16:07 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190531233159.30992-4-sean.j.christopherson@intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20190601021526.GA8264@zhanggen-UX430UQ> <CAFqZXNvBpmxNYjZx6YcH5Q-u4Tkwhfyzu_8VmEe8O7r9CCsvNg@mail.gmail.com>
+In-Reply-To: <CAFqZXNvBpmxNYjZx6YcH5Q-u4Tkwhfyzu_8VmEe8O7r9CCsvNg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 3 Jun 2019 17:15:56 -0400
+Message-ID: <CAHC9VhQdr0uOe0X0vLN9fOe7zDJ8bnX4fDLSTmjAGJymCyQ+zg@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: lsm: fix a missing-check bug in selinux_sb_eat_lsm_opts()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Gen Zhang <blackgod016574@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/31/19 4:31 PM, Sean Christopherson wrote:
-> -struct sgx_enclave_add_page {
-> +struct sgx_enclave_add_pages {
->  	__u64	addr;
->  	__u64	src;
->  	__u64	secinfo;
-> +	__u32	nr_pages;
->  	__u16	mrmask;
->  } __attribute__((__packed__));
+On Mon, Jun 3, 2019 at 3:23 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Sat, Jun 1, 2019 at 4:15 AM Gen Zhang <blackgod016574@gmail.com> wrote:
+> > In selinux_sb_eat_lsm_opts(), 'arg' is allocated by kmemdup_nul(). It
+> > returns NULL when fails. So 'arg' should be checked. And 'mnt_opts'
+> > should be freed when error.
+> >
+> > Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+> > Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> It looks like you're new to the kernel development community, so let
+> me give you a bit of friendly advice for the future :)
+>
+> You don't need to repost the patch when people give you
+> Acked-by/Reviewed-by/Tested-by (unless there is a different reason to
+> respin/repost the patches). The maintainer goes over the replies when
+> applying the final patch and adds Acked-by/Reviewed-by/... on his/her
+> own.
+>
+> If you *do* need to respin a path for which you have received A/R/T,
+> then you need to distinguish between two cases:
+> 1. Only trivial changes to the patch (only fixed typos, edited commit
+> message, removed empty line, etc. - for example, v1 -> v2 of this
+> patch falls into this category) - in this case you can collect the
+> A/R/T yourself and add them to the new version. This saves the
+> maintainer and the reviewers from redundant work, since the patch is
+> still semantically the same and the A/R/T from the last version still
+> apply.
+> 2. Non-trivial changes to the patch (as is the case for this patch) -
+> in this case your patch needs to be reviewed again and you should
+> disregard all A/R/T from the previous version. You can easily piss
+> someone off if you add their Reviewed-by to a patch they haven't
+> actually reviewed, so be careful ;-)
 
-IMNHO this follows a user interface anti-pattern: exposing page sizes
-where not strictly required.
+I want to stress Ondrej's last point.  Carrying over an
+Acked-by/Reviewed-by/Tested-by tag if you make anything more than the
+most trivial change in a patch is *very* bad, and will likely result
+in a loss of trust between you and the maintainer.  If you are unsure,
+drop the A/R/T tag, there is *much* less harm in asking someone to
+re-review a patch than falsely tagging a patch as reviewed by someone
+when you have made substantial changes.
 
-Think of how this would look to an application if page size was
-variable.  With this interface, they always need to scale their
-operations by page size instead of just aligning it.
+I suspect you may have already read the
+Documentation/process/submitting-patches.rst file, but if you haven't
+it is worth reading.  It covers many of the things that are discussed
+elsewhere.
 
-BTW, why is nr_pages a u32?  Do we never envision a case where you can
-add more than 4TB of memory to an enclave? ;)
+If you aren't already, you should get in the habit of doing the
+following for each patch you post to the mailing list:
+1. Make sure it compiles cleanly, or at least doesn't introduce any
+new compiler warnings/errors.
+2. Run ./scripts/checkpatch.pl and fix as many problems as you can; a
+patch can still be accepted with checkpatch warnings/errors (and some
+maintainers might dislike some of checkpatch's decisions), but it
+helps a lot if you can fix all those.
+3. At the very least make sure your kernel changes boot, if you can,
+run the associated subsystem's test (if they have one) to verify that
+there are no regressions (the SELinux kernel test suite is here:
+https://github.com/SELinuxProject/selinux-testsuite)
+
+Lastly, when in doubt, you can always ask the mailing list; the
+SELinux list is a pretty friendly place :)
+
+-- 
+paul moore
+www.paul-moore.com
