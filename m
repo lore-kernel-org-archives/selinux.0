@@ -6,129 +6,143 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 061AAC04AB6
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 06:29:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5441C04AB6
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 07:23:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D978127BF1
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 06:29:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85E3027C94
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 07:23:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727049AbfFCG3P convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>); Mon, 3 Jun 2019 02:29:15 -0400
-Received: from mga06.intel.com ([134.134.136.31]:41230 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726383AbfFCG3P (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 3 Jun 2019 02:29:15 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Jun 2019 23:29:14 -0700
-X-ExtLoop1: 1
-Received: from orsmsx101.amr.corp.intel.com ([10.22.225.128])
-  by orsmga004.jf.intel.com with ESMTP; 02 Jun 2019 23:29:14 -0700
-Received: from orsmsx116.amr.corp.intel.com ([169.254.7.165]) by
- ORSMSX101.amr.corp.intel.com ([169.254.8.107]) with mapi id 14.03.0415.000;
- Sun, 2 Jun 2019 23:29:14 -0700
-From:   "Xing, Cedric" <cedric.xing@intel.com>
-To:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
-        "Jarkko Sakkinen" <jarkko.sakkinen@linux.intel.com>
-CC:     Andy Lutomirski <luto@kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        "LSM List" <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        "Tricca, Philip B" <philip.b.tricca@intel.com>
-Subject: RE: [RFC PATCH 7/9] x86/sgx: Enforce noexec filesystem restriction
- for enclaves
-Thread-Topic: [RFC PATCH 7/9] x86/sgx: Enforce noexec filesystem restriction
- for enclaves
-Thread-Index: AQHVGAkjwUGhfvPW2Uy0jc3S+IXJ16aJZ4lQ
-Date:   Mon, 3 Jun 2019 06:29:14 +0000
-Message-ID: <960B34DE67B9E140824F1DCDEC400C0F654ECC53@ORSMSX116.amr.corp.intel.com>
-References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
- <20190531233159.30992-8-sean.j.christopherson@intel.com>
-In-Reply-To: <20190531233159.30992-8-sean.j.christopherson@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiOWIwM2ExZDEtNTA3Ny00OWUwLWI0MWItZTYwNTAzOWI0N2MzIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiTlwvRnhjRGpkN3AzU1ptdmxYZVQ3Y1dcL3pWc0RQNndNeUgyRlNHMEh2OURkb1hlYWhRK2o3clUraWl2d040U1JQIn0=
-x-ctpclassification: CTP_NT
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.138]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        id S1726324AbfFCHXo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Jun 2019 03:23:44 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:41532 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726260AbfFCHXn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Jun 2019 03:23:43 -0400
+Received: by mail-oi1-f196.google.com with SMTP id b21so8128818oic.8
+        for <selinux@vger.kernel.org>; Mon, 03 Jun 2019 00:23:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iTUu3d7b9FzAYYjmvVuBAKOXOUdvkARIBZFMJ5+g9jg=;
+        b=KKcWKCY6u14GE0vwmfIWG2r+oiQVnKtJwhtMVA6Tz13mqmpfn9BUppHEDpjW3NY/43
+         KIYzVPbMIllZ9ug0KzsRHJ5PPX8yQqORuOGpHtfDDVFh35jcwE2BgoAm3t5mwMa4oGb6
+         enSXU8oXJy/gRMdt7dN/WzlVfkyUtMYXXvHJpOxXTxWD8W0qtFWpVaVpgLfinGILHprm
+         vXUW6AqUvKLKuUrH/f8fHIre2crohRQCipmexCl2c12LIIHfoWfrWvlVoD7GVSMKAncO
+         l9nmigGARhxgtlQltVlEpxD16/jjyvX0AZqqTbWuoDyH+0hziRm+aIxl1IYrJgHc+Mwa
+         a4Cg==
+X-Gm-Message-State: APjAAAXj7a9ma3VI+5SrbYdU68CVsqm4kME0t3Rbhuv/zgj/dhThYQMK
+        KKCYkV+K5upt7Zi/l8e8xA1nSrl0X8AL8eNSfBHQig==
+X-Google-Smtp-Source: APXvYqx0VgOQnKSu2Xug35l6BWUdLvg06ZkeE2AA30kAXedGN2FJpCJud/tT+mFlsFIbw6BQNQLjACXkglcx7v8H0DQ=
+X-Received: by 2002:aca:e887:: with SMTP id f129mr115563oih.156.1559546622977;
+ Mon, 03 Jun 2019 00:23:42 -0700 (PDT)
 MIME-Version: 1.0
+References: <20190601021526.GA8264@zhanggen-UX430UQ>
+In-Reply-To: <20190601021526.GA8264@zhanggen-UX430UQ>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 3 Jun 2019 09:23:32 +0200
+Message-ID: <CAFqZXNvBpmxNYjZx6YcH5Q-u4Tkwhfyzu_8VmEe8O7r9CCsvNg@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: lsm: fix a missing-check bug in selinux_sb_eat_lsm_opts()
+To:     Gen Zhang <blackgod016574@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> From: Christopherson, Sean J
-> Sent: Friday, May 31, 2019 4:32 PM
-> 
-> Do not allow an enclave page to be mapped with PROT_EXEC if the source page is backed by a
-> file on a noexec file system.
-> 
-> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+On Sat, Jun 1, 2019 at 4:15 AM Gen Zhang <blackgod016574@gmail.com> wrote:
+> In selinux_sb_eat_lsm_opts(), 'arg' is allocated by kmemdup_nul(). It
+> returns NULL when fails. So 'arg' should be checked. And 'mnt_opts'
+> should be freed when error.
+>
+> Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+> Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+It looks like you're new to the kernel development community, so let
+me give you a bit of friendly advice for the future :)
+
+You don't need to repost the patch when people give you
+Acked-by/Reviewed-by/Tested-by (unless there is a different reason to
+respin/repost the patches). The maintainer goes over the replies when
+applying the final patch and adds Acked-by/Reviewed-by/... on his/her
+own.
+
+If you *do* need to respin a path for which you have received A/R/T,
+then you need to distinguish between two cases:
+1. Only trivial changes to the patch (only fixed typos, edited commit
+message, removed empty line, etc. - for example, v1 -> v2 of this
+patch falls into this category) - in this case you can collect the
+A/R/T yourself and add them to the new version. This saves the
+maintainer and the reviewers from redundant work, since the patch is
+still semantically the same and the A/R/T from the last version still
+apply.
+2. Non-trivial changes to the patch (as is the case for this patch) -
+in this case your patch needs to be reviewed again and you should
+disregard all A/R/T from the previous version. You can easily piss
+someone off if you add their Reviewed-by to a patch they haven't
+actually reviewed, so be careful ;-)
+
+(Someone please correct me if I got it wrong - this is what I gathered
+so far from my experience.)
+
+Good luck in your future work!
+
+> Fixes: 99dbbb593fe6 ("selinux: rewrite selinux_sb_eat_lsm_opts()")
 > ---
->  arch/x86/kernel/cpu/sgx/driver/ioctl.c | 26 ++++++++++++++++++++++++--
->  1 file changed, 24 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-> b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-> index c30acd3fbbdd..5f71be7cbb01 100644
-> --- a/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-> +++ b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-> @@ -576,6 +576,27 @@ static int __sgx_encl_add_page(struct sgx_encl *encl, unsigned long
-> addr,
->  	return ret;
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3ec702c..f329fc0 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -2616,6 +2616,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+>         char *from = options;
+>         char *to = options;
+>         bool first = true;
+> +       int ret;
+>
+>         while (1) {
+>                 int len = opt_len(from);
+> @@ -2635,15 +2636,16 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+>                                                 *q++ = c;
+>                                 }
+>                                 arg = kmemdup_nul(arg, q - arg, GFP_KERNEL);
+> +                               if (!arg) {
+> +                                       ret = -ENOMEM;
+> +                                       goto free_opt;
+> +                               }
+>                         }
+>                         rc = selinux_add_opt(token, arg, mnt_opts);
+>                         if (unlikely(rc)) {
+> +                               ret = rc;
+>                                 kfree(arg);
+> -                               if (*mnt_opts) {
+> -                                       selinux_free_mnt_opts(*mnt_opts);
+> -                                       *mnt_opts = NULL;
+> -                               }
+> -                               return rc;
+> +                               goto free_opt;
+>                         }
+>                 } else {
+>                         if (!first) {   // copy with preceding comma
+> @@ -2661,6 +2663,12 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+>         }
+>         *to = '\0';
+>         return 0;
+> +free_opt:
+> +       if (*mnt_opts) {
+> +               selinux_free_mnt_opts(*mnt_opts);
+> +               *mnt_opts = NULL;
+> +       }
+> +       return ret;
 >  }
-> 
-> +static int sgx_encl_page_protect(unsigned long src, unsigned long prot,
-> +				 unsigned long *allowed_prot)
-> +{
-> +	struct vm_area_struct *vma;
-> +
-> +	if (!(*allowed_prot & VM_EXEC))
-> +		goto do_check;
-> +
-> +	down_read(&current->mm->mmap_sem);
-> +	vma = find_vma(current->mm, src);
-> +	if (!vma || (vma->vm_file && path_noexec(&vma->vm_file->f_path)))
-> +		*allowed_prot &= ~VM_EXEC;
+>
+>  static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
 
-Testing (vma->vm_flags & VM_MAYEXEC) == 0 should be a better approach.
-
-Moreover, it looks like the check is done per page, so say 100 pages would cause this test to run 100 times even if they are within the same VMA. Wouldn't that be a bit inefficient? 
- 
-> +	up_read(&current->mm->mmap_sem);
-> +
-> +do_check:
-> +	if (prot & ~*allowed_prot)
-> +		return -EACCES;
-> +
-> +	return 0;
-> +}
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
