@@ -2,1037 +2,329 @@ Return-Path: <SRS0=Kl1g=UC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,T_DKIMWL_WL_HIGH autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CACAC04AB5
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 10:27:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32895C04AB5
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 14:19:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E36A320866
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 10:27:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EA30A27274
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 14:19:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="gWOLBS0E"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="EZWAM9xv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726025AbfFCK1u (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Jun 2019 06:27:50 -0400
-Received: from rgout03.bt.lon5.cpcloud.co.uk ([65.20.0.180]:29258 "EHLO
-        rgout03.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726055AbfFCK1u (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Jun 2019 06:27:50 -0400
-X-OWM-Source-IP: 86.147.205.15 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgudelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvdduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvdefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvdehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-Received: from localhost.localdomain (86.147.205.15) by rgout03.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
-        id 5C90B6EC06EC459E; Mon, 3 Jun 2019 10:55:57 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1559557667; 
-        bh=m+OipVPO8+3pYyp0IkAUfO6Enq9DfFjmYnsU8rc28EE=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=gWOLBS0EYHXJYQbeknBKc05Ku3mwwxQwcu3QplrKLjXLHCWTPte+DR8MkzTr2cI4VjTDZri6PBurHubZvOHD2X7lRc+kmnsDY8CPi5lspMleQZqBkHc4xVVDITeusYsJCSK54qOJRt+oFucudMkNSG/2lZveJKJORXGhty0ivLE=
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, sds@tycho.nsa.gov
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [RFC V3 PATCH] selinux-testsuite: Add test for restorecon
-Date:   Mon,  3 Jun 2019 10:56:09 +0100
-Message-Id: <20190603095609.21429-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.21.0
+        id S1728624AbfFCOTx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Jun 2019 10:19:53 -0400
+Received: from ucol19pa12.eemsg.mail.mil ([214.24.24.85]:14992 "EHLO
+        UCOL19PA12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728122AbfFCOTx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Jun 2019 10:19:53 -0400
+X-EEMSG-check-017: 24834249|UCOL19PA12_EEMSG_MP10.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.60,547,1549929600"; 
+   d="scan'208";a="24834249"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UCOL19PA12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Jun 2019 14:19:24 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1559571564; x=1591107564;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=t1ahy3/qQCREjC8J7NW0L+m1VfIso8RwXsC8bRQoZqk=;
+  b=EZWAM9xvxQnospR88SoHeQ8AWD6f/G7thTeR6wRB/Pn1atJjdZBoQf+c
+   YwEsvF8AG79J2Sjfb0gQ5JW+oI2lbnInlWDOy/M1aXDMmmpDMOkHaH5Cg
+   xRqEVnucRJLeL0Mgwvy5/ppWvUQz/luXcrxK7ayA1SAlpZeaCO7TW68yg
+   D/fc9nM9viXt3SuFkfNjgAS/dEaLJoA+wHAVnPMX4ebmxnuguJteOunMF
+   +sWl7AHQS7lSEyB+hMNucKQZJg1FIAMBoMBl6tYqCudcYVpJUZlAYeup/
+   IM82hi+OTxCJgb6xWrpJxlhnYtjR/HJDpQkqNPYNlqngd30QNKD33YoZU
+   g==;
+X-IronPort-AV: E=Sophos;i="5.60,547,1549929600"; 
+   d="scan'208";a="24328298"
+IronPort-PHdr: =?us-ascii?q?9a23=3AVKWXQxVvHCKqj8j9YiGa9wVNMO/V8LGtZVwlr6?=
+ =?us-ascii?q?E/grcLSJyIuqrYZhOEvqdThVPEFb/W9+hDw7KP9fy5ACpZusnK7iBKWacPfi?=
+ =?us-ascii?q?dNsd8RkQ0kDZzNImzAB9muURYHGt9fXkRu5XCxPBsdMs//Y1rPvi/6tmZKSV?=
+ =?us-ascii?q?3wOgVvO+v6BJPZgdip2OCu4Z3TZBhDiCagbb9oIxi6sBjdutMLjYZsKKs9xR?=
+ =?us-ascii?q?rEr3hVcOlK2G1kIk6ekQzh7cmq5p5j9CpQu/Ml98FeVKjxYro1Q79FAjk4Km?=
+ =?us-ascii?q?45/MLkuwXNQguJ/XscT34ZkgFUDAjf7RH1RYn+vy3nvedgwiaaPMn2TbcpWT?=
+ =?us-ascii?q?S+6qpgVRHlhDsbOzM/7WrakdJ7gr5Frx29phx/24/Ub5+TNPpiZaPWYNcWSX?=
+ =?us-ascii?q?NcUspNSyBNB4WxYIUVD+oFIO1WsY/zqVUTphe6HAWgGufixjpOi3Tr36M1zv?=
+ =?us-ascii?q?4hHBnb0gI+EdIAsHfaotv7O6gdU++60KbGwC7fb/5Uwzrx9JTEfx4jrPyKQL?=
+ =?us-ascii?q?l+cdDRyU4qFw7dk1uQtZLqPyuV1usTtWiQ8vduVee1hG4jrwF+vDiuzdorh4?=
+ =?us-ascii?q?nSm40V0UvJ9Tl5wYkpJd24T1R3Ydi/EJRKrS2aOIx2Qt07TmxupS00xLoGuZ?=
+ =?us-ascii?q?uhcygLzpQq3x3fZOKdc4iO/B3jUPydITBihHJqfr+0mhW88VC4x+HhWcS530?=
+ =?us-ascii?q?xGoypYntXWqHwA2ALf5tKaRvZ740yvwyyA1xrJ5eFBOU00kK3bJIM/zbMojZ?=
+ =?us-ascii?q?oTtFjDHjfxmEXrkK+abkUk9fas6+TgerjmuoWTN5V1igHjKaQigNC/AOQkPQ?=
+ =?us-ascii?q?gOWGiX4+K826H4/ULlWrlKi/w2kq3BvJDbI8QUuLK5DhdI3oss5BuzFTer3M?=
+ =?us-ascii?q?kCkXUZI19JZgiLg5XxN1HLOv/4DPO/g1q2kDdswvDLJqbhDYjWLnXYjLfgfa?=
+ =?us-ascii?q?py605byAYpy9Bf/IhbBqsOIPL0RE/9rMbYAQMhMwyo3+bnD81w1pgAVm2VBK?=
+ =?us-ascii?q?+VKqHSvUWU6eIvOemMZZQVuCr6K/g95/7hk2U5mUQafamvxpYXaXa4Huh4LE?=
+ =?us-ascii?q?Wde3bjntABEWIStAokUOPqkEGCUSJUZ3uqXaIz/Cs7CIGlDYfEXIytm6aO3C?=
+ =?us-ascii?q?S4Hp1XYGBJFFaMHGzsd4WFXfcMdS2TLtVgkjwCSbiuVYsh2Quyuw/9zrptNv?=
+ =?us-ascii?q?DU9TEAtZL/yNh14PXelRUv9TxoCMSQyGKNQH9unmMOWTA22LpzoUtnyleMya?=
+ =?us-ascii?q?J4meBXFcRP5/NVVQc3LYLTwPJnBNDoWwLOYs2FSVmnQtWgDjE8VdMxw9kSY0?=
+ =?us-ascii?q?ljH9WulAzM3y2vA7UNjbyEGIQ08r7A33j2P8t9yXPG1K47j1k8Q8tPLnarhq?=
+ =?us-ascii?q?hl+AjWGYHJkl+Vl6GwdaQTxCTN7nuMzXKSvEFEVw59Sb7FUm4FZkvZs9v0/U?=
+ =?us-ascii?q?PCQKWqCbQjMgpBz9SOJbdNat3slV9GXuvsOMzCY2KtnGe9HRKIxrKKbIr3dG?=
+ =?us-ascii?q?QRxT7dB1YYnAAO53aGNBQ+Bye4r2LbCzxhCE/vY0fy/uRltnO7QVE7zxuQY0?=
+ =?us-ascii?q?1iybW14BgViuKYS/8J2bIEoighoS1uHFmhx9LWF8aApw15caVEe9w9/VNH2H?=
+ =?us-ascii?q?nBtwNnI5ygK7luhlsZcwRwpUPhyQ97BZlHkcgvtHkq1hZ9KbqE0FNdcDOVxY?=
+ =?us-ascii?q?7/OqXNJWno/RCvcLXb2knE39aM+6cP8+w4q1H5sw61CEUu6XJn08Na03GE/J?=
+ =?us-ascii?q?XFEBISUY7tUkYw7xV6vK/VYi0854PSyH1tPrK5siHN2903Husp0BWgcMlFMK?=
+ =?us-ascii?q?OCCgDyF9cWB8+0KOwlg1KpdA4LPPhO9K4oOMOrb/mG17C3POZghjKmin9K4I?=
+ =?us-ascii?q?560kKW6ypzUOjI35cKwv2CwgSHUDL8hk+7ss/rgYBEeS0SHm2nxCf5HoFReL?=
+ =?us-ascii?q?N9cZwLCWi0Jc233ctxh5j2Vn5Z8l6jG00J2MuzdRWOaFz92BVa1V4Lrny/hS?=
+ =?us-ascii?q?u40zt0nik1rqqQ2CzPzP/vdB4GOm5NWWlikU3sIY+yj9AbU0mkdRUmmwW970?=
+ =?us-ascii?q?bg26dbvLh/L3XUQUpQYyj2KHtiUrWqubqGfsFP84glsSFWUOS6fFCbRafxox?=
+ =?us-ascii?q?Ud0yP+GWtR2So0dy2rupX+mRx2kmWdLGx8rHDBY8F/2Q/f5MDARf5WxjcGQC?=
+ =?us-ascii?q?h4iT/KBlmzJtWp/subl43Fsu+gU2KsTYNTcSb1woOarie75nNlAQe5n/+tnt?=
+ =?us-ascii?q?3rCw860TX019NyTyXHsA78YpX316S9Ke9mcUplCV7n5sp5BI5+iI0wi48U2X?=
+ =?us-ascii?q?QAgZWV53UHm3/pMdpHwaL+cGYNRTkTzt7R4Qjl3lBjL32Qy4LiWXWczdBsZ8?=
+ =?us-ascii?q?e1YmwIwCIx9cNKB7mO7LxCgyR1pkC0rQXLYfhyhj0d0+ch6GYGg+EVvwog1j?=
+ =?us-ascii?q?+SArMKHUldJiHskxWI79ajrKRYfWqvf7+w1Fd4nd+8Fr6CvgBcWHH/eps4Gi?=
+ =?us-ascii?q?9w9Mp/OkrW0HLv8oHkZMXQbdULux2SkxfAiPJVKJcrmfoMnidnI3zysmAly+?=
+ =?us-ascii?q?EhkRxix421vI+CK2915qK2HgZYNiHpZ8MU4jzti75ensOK0I+zBJphHjELXI?=
+ =?us-ascii?q?btTf+zCjIdq+noNwaUHz0gsHuUBb3fHQqH4kd8s33PC4yrN22QJHQB1tVtWg?=
+ =?us-ascii?q?OdJENBjwwORjo7npk5Fh2sxMH6cUd54CwR6UD8qhdW1u1oMBz/WH/FpAi0cj?=
+ =?us-ascii?q?c0VISfLB1O4wFZ50faK8yf4vhwHy5C4p2grRWBK22BaARNDGEJQFeJB1HlPr?=
+ =?us-ascii?q?my+9bA9/KUCfa5L/vLeb+Os/BRV++UxZKz1Ytr5zaMOd+OPnl+FfI73VBPXX?=
+ =?us-ascii?q?BkG8vDnTUPRDcalyPLb86Huhi8/jd7ody48PTuQAjv/5eAC6NOMdVz/BC7mb?=
+ =?us-ascii?q?2MN+iNiyZjKDZZ1okAxWTIyLcBwl4dlyFueCerEbQDsi7AV6bQmq5RDx4GZC?=
+ =?us-ascii?q?J/LspI76Qg3gZTPc7XkM/61rl9jvQtEVdKSUThmt21ZcwNO2y9N0nIBEeROL?=
+ =?us-ascii?q?SdOz3E2cH3YaWnRL1RiuVUqwO/uTKBH0D/OTSDkiHjVwqzPuFUkCGbIBtetZ?=
+ =?us-ascii?q?mmfRZ1EmXsVtbmahylP99xjjA626A7iW3SP24GLTd8a19NrqGX7S5AgPV/HH?=
+ =?us-ascii?q?dB7np+IOmGnCaZ9OnYKooMsftqGiR0k/xV4Ggmy7dP6yFEXvN1kjPIrtFyu1?=
+ =?us-ascii?q?GmjvWPyj1/XRpNsDlLhZiHvUV/OarD8JlAVm3J/BML7WWMFRsKo8FpBcHou6?=
+ =?us-ascii?q?BV0tLPjr78KC9e89LI+ssRH9LUKMOZP3onLRrpGiDbDBAeQD6kMmHfgENdkP?=
+ =?us-ascii?q?WM+XGPspc6rZ3skoIUSrBHTFw1Cu8aCkN9Ed0MIZd3Wjckkb+Bg84N/3axsA?=
+ =?us-ascii?q?PdRN9dvp/cSP2SG+nvKC2CgLlFYRsI3a33LYAJOoLn3Exib0FwnJ7WFErIQd?=
+ =?us-ascii?q?BNviphYxcsoEVN8Xh+Smwz21r/Zgy2+nMTCeS0nh8qhQRie+sg7zbs41ErJl?=
+ =?us-ascii?q?XUoCs8ilU+mdLggWPZTDmkF6q5W8l9CzD1rFQ2KpP2WR1ya0XmhkFtMnHGAb?=
+ =?us-ascii?q?lRlbp7aWdziALGopxJMf9aUaBAJhQXwKfTL9chy1dfrW2czExE5O3ID9M2lg?=
+ =?us-ascii?q?Iwcp2r6WlJ2AFiatMzDajRIrdZiFlWmq+K+CSv07Zi7hUZIhM27G6KeCMO8H?=
+ =?us-ascii?q?cNP70iKjvgqvdg8iSeijBDfy4KTPNsrfV0oBBuc9+cxj7thuYQYnu6MPaSeu?=
+ =?us-ascii?q?bA4TnN?=
+X-IPAS-Result: =?us-ascii?q?A2BYAwDUKvVc/wHyM5BcChwBAQEEAQEHBAEBgWWBZypqU?=
+ =?us-ascii?q?QEyKIQUkwZSBoE1iVCRCAkBAQEBAQEBAQEtBwECAQGEQAKDEiM4EwEDAQEBB?=
+ =?us-ascii?q?AEBAQEDAQFsHAyCOikBgmYBAQEBAgEjBBFBBQsLGAICJgICVwYBDAYCAQGCU?=
+ =?us-ascii?q?ww/AYF2BQ8PqVB+M4VHgx2BQAaBDCiLWhd4gQeBOIFtSTU+gmEEgTQLAQGDK?=
+ =?us-ascii?q?IJYBIspgkCGCZQdagmCD4IYhCeMbQYbgiKKc4lZLYxTgSmFYpEhIYFYKwgCG?=
+ =?us-ascii?q?AghD4MnghsXiGGFWyMDMAEBgQQBAY17DxcDgikBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 03 Jun 2019 14:19:23 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x53EJISv004333;
+        Mon, 3 Jun 2019 10:19:19 -0400
+Subject: Re: [RFC PATCH 8/9] LSM: x86/sgx: Introduce ->enclave_load() hook for
+ Intel SGX
+To:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Cedric Xing <cedric.xing@intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Jethro Beekman <jethro@fortanix.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
+        Shay Katz-zamir <shay.katz-zamir@intel.com>,
+        Haitao Huang <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kai Svahn <kai.svahn@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Kai Huang <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        William Roberts <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
+ <20190531233159.30992-9-sean.j.christopherson@intel.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <d9ef6314-de91-ddcb-3d18-8155cd37e7be@tycho.nsa.gov>
+Date:   Mon, 3 Jun 2019 10:19:18 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190531233159.30992-9-sean.j.christopherson@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This will test the updated libselinux selinux_restorecon(3) using a
-simple test version of "restorecon", or if the test is run locally,
-a '-p' option can be used to supply the path of a full version of
-restorecon(8) (see note in restorecon/test).
+On 5/31/19 7:31 PM, Sean Christopherson wrote:
+> enclave_load() is roughly analogous to the existing file_mprotect().
+> 
+> Due to the nature of SGX and its Enclave Page Cache (EPC), all enclave
+> VMAs are backed by a single file, i.e. /dev/sgx/enclave, that must be
+> MAP_SHARED.  Furthermore, all enclaves need read, write and execute
+> VMAs.  As a result, file_mprotect() does not provide any meaningful
+> security for enclaves since an LSM can only deny/grant access to the
+> EPC as a whole.
+> 
+> security_enclave_load() is called when SGX is first loading an enclave
+> page, i.e. copying a page from normal memory into the EPC.  The notable
+> difference from file_mprotect() is the allowed_prot parameter, which
+> is essentially an SGX-specific version of a VMA's MAY_{READ,WRITE,EXEC}
+> flags.  The purpose of allowed_prot is to enable checks such as
+> SELinux's FILE__EXECMOD permission without having to track and update
+> VMAs across multiple mm structs, i.e. SGX can ensure userspace doesn't
+> overstep its bounds simply by restricting an enclave VMA's protections
+> by vetting what is maximally allowed during build time.
+> 
+> An alternative to the allowed_prot approach would be to use an enclave's
+> SIGSTRUCT (a smallish structure that can uniquely identify an enclave)
+> as a proxy for the enclave.  For example, SGX could take and hold a
+> reference to the file containing the SIGSTRUCT (if it's in a file) and
+> call security_enclave_load() during mprotect().  While the SIGSTRUCT
+> approach would provide better precision, the actual value added was
+> deemed to be negligible.  On the other hand, pinning a file for the
+> lifetime of the enclave is ugly, and essentially caching LSM policies
+> in each page's allowed_prot avoids having to make an extra LSM upcall
+> during mprotect().
+> 
+> Note, extensive discussion yielded no sane alternative to some form of
+> SGX specific LSM hook[1].
+> 
+> [1] https://lkml.kernel.org/r/CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com
+> 
+> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> ---
+>   arch/x86/kernel/cpu/sgx/driver/ioctl.c | 14 +++++++++-----
+>   include/linux/lsm_hooks.h              | 16 ++++++++++++++++
+>   include/linux/security.h               |  2 ++
+>   security/security.c                    |  8 ++++++++
+>   4 files changed, 35 insertions(+), 5 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/cpu/sgx/driver/ioctl.c b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+> index 5f71be7cbb01..260417ecbcff 100644
+> --- a/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+> +++ b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+> @@ -8,6 +8,7 @@
+>   #include <linux/highmem.h>
+>   #include <linux/ratelimit.h>
+>   #include <linux/sched/signal.h>
+> +#include <linux/security.h>
+>   #include <linux/shmem_fs.h>
+>   #include <linux/slab.h>
+>   #include <linux/suspend.h>
+> @@ -580,21 +581,24 @@ static int sgx_encl_page_protect(unsigned long src, unsigned long prot,
+>   				 unsigned long *allowed_prot)
+>   {
+>   	struct vm_area_struct *vma;
+> +	int ret = 0;
+>   
+> -	if (!(*allowed_prot & VM_EXEC))
+> +	if (!(*allowed_prot & VM_EXEC) && !IS_ENABLED(CONFIG_SECURITY))
+>   		goto do_check;
+>   
+>   	down_read(&current->mm->mmap_sem);
+>   	vma = find_vma(current->mm, src);
+>   	if (!vma || (vma->vm_file && path_noexec(&vma->vm_file->f_path)))
+>   		*allowed_prot &= ~VM_EXEC;
+> +#ifdef CONFIG_SECURITY
+> +	ret = security_enclave_load(vma, prot, allowed_prot);
+> +#endif
 
-As the SELinux testsuite is primarily a set of regression tests for the
-SELinux kernel, this change also adds support to include the testing of
-core userspace services such as library functions or utilities. To
-install and run these type of tests, the following must be run first:
+Normally you'd define a static inline stub for the hook in the #else 
+clause for CONFIG_SECURITY in include/linux/security.h and avoid any 
+ifdef here.
 
-	# export TEST_USERSPACE=y
+What ensures that the mapping referenced by src can't be changed to an 
+entirely different one (with a different vm_file) between the time of 
+check (here) and the time of use?
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
-V2 Changes:
-Allow option to run other restorecon binaries.
-Only run if userspace tests enabled.
-Add tests for "Ignore the stem..." patch
-V3 Changes:
-Add tests for No CAP_SYS_ADMIN permission and SKIP_DIGEST
-
- README.md                                  |   7 +
- policy/Makefile                            |   8 +
- policy/test_restorecon.te                  |  74 ++++++++
- tests/Makefile                             |   7 +
- tests/file/test                            |   2 +-
- tests/restorecon/.gitignore                |   5 +
- tests/restorecon/Makefile                  |   7 +
- tests/restorecon/check_fs.c                |  69 ++++++++
- tests/restorecon/get_all_digests.c         | 176 +++++++++++++++++++
- tests/restorecon/restorecon.c              |  80 +++++++++
- tests/restorecon/restorecon_xattr.c        | 116 +++++++++++++
- tests/restorecon/selinux_restorecon_skip.c |  66 ++++++++
- tests/restorecon/test                      | 188 +++++++++++++++++++++
- 13 files changed, 804 insertions(+), 1 deletion(-)
- create mode 100644 policy/test_restorecon.te
- create mode 100644 tests/restorecon/.gitignore
- create mode 100644 tests/restorecon/Makefile
- create mode 100644 tests/restorecon/check_fs.c
- create mode 100644 tests/restorecon/get_all_digests.c
- create mode 100644 tests/restorecon/restorecon.c
- create mode 100644 tests/restorecon/restorecon_xattr.c
- create mode 100644 tests/restorecon/selinux_restorecon_skip.c
- create mode 100755 tests/restorecon/test
-
-diff --git a/README.md b/README.md
-index 26784f8..329a495 100644
---- a/README.md
-+++ b/README.md
-@@ -114,6 +114,13 @@ the tests:
- 
- ## Running the Tests
- 
-+The SELinux testsuite is primarily a set of regression tests for the SELinux
-+kernel, however it is possible to include the testing of core userspace
-+services such as library functions or utilities. To install any relevant
-+tests, the following must be run first:
-+
-+	# export TEST_USERSPACE=y
-+
- Create a shell with the `unconfined_r` or `sysadm_r` role and the Linux
- superuser identity, e.g.:
- 
-diff --git a/policy/Makefile b/policy/Makefile
-index 305b572..9c7d173 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -3,6 +3,7 @@ POLDEV ?= /usr/share/selinux/devel
- SEMODULE = /usr/sbin/semodule
- CHECKPOLICY = /usr/bin/checkpolicy
- CHECKMODULE = /usr/bin/checkmodule
-+INCLUDEDIR ?= /usr/include
- 
- DISTRO=$(shell ../tests/os_detect)
- RHEL_VERS=$(shell echo $(DISTRO) | sed 's/RHEL//')
-@@ -79,6 +80,13 @@ ifeq (x$(DISTRO),$(filter x$(DISTRO), xRHEL6))
- TARGETS:=$(filter-out test_ibpkey.te, $(TARGETS))
- endif
- 
-+# Add any userspace test policy
-+ifeq ($(TEST_USERSPACE),y)
-+    ifeq ($(shell grep -q selabel_get_digests_all_partial_matches $(INCLUDEDIR)/selinux/label.h && echo true),true)
-+        TARGETS += test_restorecon.te
-+    endif
-+endif
-+
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5))
- 	BUILD_TARGET := build_rhel
- 	LOAD_TARGET := load_rhel
-diff --git a/policy/test_restorecon.te b/policy/test_restorecon.te
-new file mode 100644
-index 0000000..57699bb
---- /dev/null
-+++ b/policy/test_restorecon.te
-@@ -0,0 +1,74 @@
-+#################################
-+#
-+# Policy for testing restorecon
-+#
-+
-+require {
-+	attribute file_type;
-+	type setfiles_exec_t;
-+}
-+
-+attribute restorecon_domain;
-+
-+type test_restorecon_file_t;
-+files_type(test_restorecon_file_t)
-+type in_dir_t;
-+files_type(in_dir_t)
-+type out_dir_t;
-+files_type(out_dir_t)
-+type in_file_t;
-+files_type(in_file_t)
-+type out_file_t;
-+files_type(out_file_t)
-+
-+# Domain for restorecon.
-+type test_restorecon_t;
-+files_type(test_restorecon_t)
-+
-+domain_type(test_restorecon_t)
-+unconfined_runs_test(test_restorecon_t)
-+typeattribute test_restorecon_t testdomain;
-+typeattribute test_restorecon_t restorecon_domain;
-+
-+allow test_restorecon_t self:capability sys_admin;
-+allow test_restorecon_t test_file_t:file relabelfrom;
-+allow test_restorecon_t file_type:dir { relabel_dir_perms manage_dir_perms };
-+allow test_restorecon_t file_type:file { rw_file_perms execute relabelto relabelfrom };
-+allow_map(test_restorecon_t, file_type, file)
-+corecmd_bin_entry_type(test_restorecon_t)
-+
-+# Allow these for statfs(2) if /tmp = TMPFS_MAGIC test
-+allow test_restorecon_t tmpfs_t:filesystem getattr;
-+allow test_restorecon_t user_tmp_t:sock_file getattr;
-+# and this to add the root test directory
-+allow test_restorecon_t fs_t:filesystem getattr;
-+
-+# Allow restorecon(8) to be used instead of the test program
-+allow test_restorecon_t setfiles_exec_t:file entrypoint;
-+
-+######### No CAP_SYS_ADMIN permission ################
-+
-+type test_no_admin_restorecon_t;
-+files_type(test_no_admin_restorecon_t)
-+
-+domain_type(test_no_admin_restorecon_t)
-+unconfined_runs_test(test_no_admin_restorecon_t)
-+typeattribute test_no_admin_restorecon_t testdomain;
-+typeattribute test_no_admin_restorecon_t restorecon_domain;
-+
-+allow test_no_admin_restorecon_t test_file_t:file relabelfrom;
-+allow test_no_admin_restorecon_t file_type:dir { relabel_dir_perms manage_dir_perms };
-+allow test_no_admin_restorecon_t file_type:file { rw_file_perms execute relabelto relabelfrom };
-+allow_map(test_no_admin_restorecon_t, file_type, file)
-+corecmd_bin_entry_type(test_no_admin_restorecon_t)
-+
-+# and this to add the root test directory
-+allow test_no_admin_restorecon_t fs_t:filesystem getattr;
-+
-+# Allow restorecon(8) to be used instead of the test program
-+allow test_no_admin_restorecon_t setfiles_exec_t:file entrypoint;
-+
-+######################################################
-+# Allow all of these domains to be entered from sysadm domain
-+miscfiles_domain_entry_test_files(restorecon_domain)
-+userdom_sysadm_entry_spec_domtrans_to(restorecon_domain)
-diff --git a/tests/Makefile b/tests/Makefile
-index 63aa325..37ed6af 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -50,6 +50,13 @@ ifeq ($(shell grep "^SELINUX_INFINIBAND_PKEY_TEST=" infiniband_pkey/ibpkey_test.
- SUBDIRS += infiniband_pkey
- endif
- 
-+# Keep userspace tests last
-+ifeq ($(TEST_USERSPACE),y)
-+    ifeq ($(shell grep -q selabel_get_digests_all_partial_matches $(INCLUDEDIR)/selinux/label.h && echo true),true)
-+        SUBDIRS += restorecon
-+    endif
-+endif
-+
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
- endif
-diff --git a/tests/file/test b/tests/file/test
-index 32dd2bd..cb86f41 100755
---- a/tests/file/test
-+++ b/tests/file/test
-@@ -50,7 +50,7 @@ system "chcon -t fileop_exec_t $basedir/wait_io 2>&1 > /dev/null";
- # Get the SID of the good file.
- #
- $output = `ls -Z $basedir/temp_file`;
--@arr = split( ' ', $output );
-+@arr    = split( ' ', $output );
- if ( index( $arr[0], ":" ) != -1 ) {
-     $good_file_sid = $arr[0];
- }
-diff --git a/tests/restorecon/.gitignore b/tests/restorecon/.gitignore
-new file mode 100644
-index 0000000..98a33e8
---- /dev/null
-+++ b/tests/restorecon/.gitignore
-@@ -0,0 +1,5 @@
-+restorecon
-+selinux_restorecon_skip
-+restorecon_xattr
-+get_all_digests
-+check_fs
-diff --git a/tests/restorecon/Makefile b/tests/restorecon/Makefile
-new file mode 100644
-index 0000000..477f8d1
---- /dev/null
-+++ b/tests/restorecon/Makefile
-@@ -0,0 +1,7 @@
-+TARGETS = restorecon selinux_restorecon_skip restorecon_xattr get_all_digests check_fs
-+LDLIBS += -lselinux
-+
-+all: $(TARGETS)
-+
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/restorecon/check_fs.c b/tests/restorecon/check_fs.c
-new file mode 100644
-index 0000000..f18910f
---- /dev/null
-+++ b/tests/restorecon/check_fs.c
-@@ -0,0 +1,69 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <sys/statfs.h>
-+#include <linux/magic.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-v] <path>\n"
-+		"Where:\n\t"
-+		"-v  Display filesystem f_type magic number.\n\t"
-+		"path  Path to check fs type.\n\n"
-+		"Returns 1=RAMFS_MAGIC, 2=TMPFS_MAGIC, 3=SYSFS_MAGIC\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, rc;
-+	bool verbose = false;
-+	struct statfs sfsb;
-+
-+	while ((opt = getopt(argc, argv, "v")) > 0) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc) {
-+		fprintf(stderr, "No pathname specified\n");
-+		return -1;
-+	}
-+
-+	rc = statfs(argv[optind], &sfsb);
-+	if (rc < 0) {
-+		fprintf(stderr, "Get filesystem statistics ERROR: %s\n",
-+			strerror(errno));
-+		return rc;
-+	}
-+
-+	switch (sfsb.f_type) {
-+	case RAMFS_MAGIC:
-+		if (verbose)
-+			printf("RAMFS_MAGIC\n");
-+		return 1;
-+	case TMPFS_MAGIC:
-+		if (verbose)
-+			printf("TMPFS_MAGIC\n");
-+		return 2;
-+	case SYSFS_MAGIC:
-+		if (verbose)
-+			printf("SYSFS_MAGIC\n");
-+		return 3;
-+	default:
-+		if (verbose)
-+			printf("sfsb.f_type: 0x%lx\n", sfsb.f_type);
-+		return 0;
-+	}
-+
-+	return rc;
-+}
-diff --git a/tests/restorecon/get_all_digests.c b/tests/restorecon/get_all_digests.c
-new file mode 100644
-index 0000000..59f0ed8
---- /dev/null
-+++ b/tests/restorecon/get_all_digests.c
-@@ -0,0 +1,176 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <stdint.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <fts.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+
-+#define RESTORECON_PARTIAL_MATCH_DIGEST  "security.sehash"
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-vr] <path>\n\n"
-+		"Where:\n\t"
-+		"-v  Display information.\n\t"
-+		"-r  Recursively descend directories.\n\t"
-+		"path  Path to check current SHA1 digest against file_contexts entries.\n\n"
-+		"This will check the directory selinux.sehash SHA1 digest for "
-+		"<path> against\na newly generated digest based on the "
-+		"file_context entries for that node\n(using the regx, mode "
-+		"and path entries).\n", progname);
-+	exit(1);
-+}
-+
-+static int get_digests(struct selabel_handle *hnd, bool verbose, char *path)
-+{
-+	int rc = 0;
-+	size_t i, digest_len = 0;
-+	bool status;
-+	uint8_t *xattr_digest = NULL;
-+	uint8_t *calculated_digest = NULL;
-+	char *sha1_buf = NULL;
-+
-+	status = selabel_get_digests_all_partial_matches(hnd, path,
-+							 &calculated_digest,
-+							 &xattr_digest,
-+							 &digest_len);
-+
-+	sha1_buf = calloc(1, digest_len * 2 + 1);
-+	if (!sha1_buf) {
-+		fprintf(stderr, "Could not calloc buffer ERROR: %s\n",
-+			strerror(errno));
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	/* rc = 0 NO MATCH, rc = 1 MATCH, rc = 2 NO calculated_digest
-+	 * rc = 4 NO xattr_digest, rc = 6 NO digests
-+	 */
-+	if (status) { /* They match */
-+		if (verbose) {
-+			printf("xattr and file_contexts SHA1 digests match for: %s\n",
-+			       path);
-+
-+			if (calculated_digest) {
-+				for (i = 0; i < digest_len; i++)
-+					sprintf((&sha1_buf[i * 2]), "%02x",
-+						calculated_digest[i]);
-+				printf("SHA1 digest: %s\n", sha1_buf);
-+			}
-+		}
-+
-+		rc = 1;
-+		goto out;
-+	} else {
-+		if (!calculated_digest) {
-+			rc = 2;
-+			if (verbose) {
-+				printf("No SHA1 digest available for: %s\n", path);
-+				printf("as file_context entry is \"<<none>>\"\n");
-+			}
-+		}
-+
-+		if (calculated_digest && verbose) {
-+			printf("The file_context entries for: %s\n", path);
-+
-+			for (i = 0; i < digest_len; i++)
-+				sprintf((&sha1_buf[i * 2]), "%02x", calculated_digest[i]);
-+			printf("generated SHA1 digest: %s\n", sha1_buf);
-+		}
-+		if (!xattr_digest) {
-+			rc = rc | 4;
-+			if (verbose)
-+				printf("however there is no selinux.sehash xattr entry.\n");
-+			else
-+				goto out;
-+
-+		} else if (verbose) {
-+			printf("however it does NOT match the current entry of:\n");
-+			for (i = 0; i < digest_len; i++)
-+				sprintf((&sha1_buf[i * 2]), "%02x", xattr_digest[i]);
-+			printf("%s\n", sha1_buf);
-+		}
-+	}
-+
-+	free(sha1_buf);
-+out:
-+	free(xattr_digest);
-+	free(calculated_digest);
-+	return rc;
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, fts_flags, status;
-+	bool verbose = false, recurse = false;
-+	FTS *fts;
-+	FTSENT *ftsent;
-+	char *paths[2] = { NULL, NULL };
-+	struct selabel_handle *hnd;
-+
-+	if (argc < 2)
-+		usage(argv[0]);
-+
-+	while ((opt = getopt(argc, argv, "vr")) > 0) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		case 'r':
-+			recurse = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc) {
-+		fprintf(stderr, "No pathname specified\n");
-+		exit(-1);
-+	}
-+	paths[0] = argv[optind];
-+
-+	hnd = selabel_open(SELABEL_CTX_FILE, NULL, 0);
-+	if (!hnd) {
-+		fprintf(stderr, "ERROR: selabel_open - Could not obtain handle.\n");
-+		return -1;
-+	}
-+
-+	fts_flags = FTS_PHYSICAL | FTS_NOCHDIR;
-+	fts = fts_open(paths, fts_flags, NULL);
-+	if (!fts) {
-+		printf("fts error on %s: %s\n",
-+		       paths[0], strerror(errno));
-+		return -1;
-+	}
-+
-+	while ((ftsent = fts_read(fts)) != NULL) {
-+		switch (ftsent->fts_info) {
-+		case FTS_D:
-+			/* If recurse = TRUE, then 'status' will reflect the
-+			 * last path match with 0 = NO MATCH, 1 = MATCH,
-+			 * 2 = NO calculated_digest, 4 = NO xattr_digest and
-+			 * 6 = NO digests.
-+			 */
-+			status = get_digests(hnd, verbose, ftsent->fts_path);
-+			if (status < 0)
-+				goto out;
-+			break;
-+		default:
-+			break;
-+		}
-+
-+		if (!recurse)
-+			break;
-+	}
-+
-+out:
-+	(void) fts_close(fts);
-+	(void) selabel_close(hnd);
-+	return status;
-+}
-diff --git a/tests/restorecon/restorecon.c b/tests/restorecon/restorecon.c
-new file mode 100644
-index 0000000..9daa19a
---- /dev/null
-+++ b/tests/restorecon/restorecon.c
-@@ -0,0 +1,80 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+#include <selinux/restorecon.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-IDrv] <path>\n\n"
-+		"Where:\n\t"
-+		"-I  Set SELINUX_RESTORECON_IGNORE_DIGEST\n\t"
-+		"-D  Enable digests\n\t"
-+		"-r  Recursively descend directories.\n\t"
-+		"-v  Display information.\n\t"
-+		"path  Path of file or directory to check.\n\n"
-+		"The parameters must follow those of restorecon(8)\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, rc, flags = 0;
-+	bool request_digest = false;
-+	struct selabel_handle *hnd = NULL;
-+
-+	if (argc < 2)
-+		usage(argv[0]);
-+
-+	while ((opt = getopt(argc, argv, "IDrv")) > 0) {
-+		switch (opt) {
-+		case 'I':
-+			flags |= SELINUX_RESTORECON_IGNORE_DIGEST;
-+			request_digest = true;
-+			break;
-+		case 'D':
-+			request_digest = true;
-+			break;
-+		case 'r':
-+			flags |= SELINUX_RESTORECON_RECURSE;
-+			break;
-+		case 'v':
-+			flags |= SELINUX_RESTORECON_VERBOSE;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc) {
-+		fprintf(stderr, "No pathname specified\n");
-+		return -1;
-+	}
-+
-+	struct selinux_opt fc_opts[] = {
-+		{ SELABEL_OPT_DIGEST, (request_digest ? (char *)1 : NULL) }
-+	};
-+
-+	hnd = selabel_open(SELABEL_CTX_FILE, fc_opts, 1);
-+	if (!hnd) {
-+		fprintf(stderr, "ERROR: selabel_open - Could not obtain handle.\n");
-+		return -1;
-+	}
-+
-+	/* Use own handle */
-+	selinux_restorecon_set_sehandle(hnd);
-+
-+	rc = selinux_restorecon(argv[optind], flags);
-+	if (rc < 0)
-+		fprintf(stderr, "selinux_restorecon ERROR: %s\n",
-+			strerror(errno));
-+
-+	selabel_close(hnd);
-+	return rc;
-+}
-+
-diff --git a/tests/restorecon/restorecon_xattr.c b/tests/restorecon/restorecon_xattr.c
-new file mode 100644
-index 0000000..12e89b3
---- /dev/null
-+++ b/tests/restorecon/restorecon_xattr.c
-@@ -0,0 +1,116 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+#include <selinux/restorecon.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"\nusage: %s [-vrdD] <path>\n"
-+		"\nWhere:\n\t"
-+		"-n  Do not append \"Match\" or \"No Match\" to displayed digests.\n\t"
-+		"-r  Recursively descend directories.\n\t"
-+		"-m  Do not read /proc/mounts for entries to be excluded.\n\t"
-+		"-d  Delete non-matching digest entries.\n\t"
-+		"-D  Delete all digest entries.\n\t"
-+		"path  Path to search for xattr \"security.sehash\" entries.\n\n",
-+		progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, rc;
-+	unsigned int xattr_flags = 0, delete_digest = 0, recurse = 0;
-+	unsigned int delete_all_digests = 0;
-+	struct dir_xattr *current, *next, **xattr_list = NULL;
-+	bool verbose = false;
-+
-+	if (argc < 2)
-+		usage(argv[0]);
-+
-+	while ((opt = getopt(argc, argv, "vrdD")) > 0) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		case 'r':
-+			recurse = SELINUX_RESTORECON_XATTR_RECURSE;
-+			break;
-+		case 'd':
-+			delete_digest =
-+				SELINUX_RESTORECON_XATTR_DELETE_NONMATCH_DIGESTS;
-+			break;
-+		case 'D':
-+			delete_all_digests =
-+				SELINUX_RESTORECON_XATTR_DELETE_ALL_DIGESTS;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc) {
-+		fprintf(stderr, "No pathname specified\n");
-+		exit(-1);
-+	}
-+
-+	xattr_flags = delete_digest | delete_all_digests | recurse;
-+
-+	if (selinux_restorecon_xattr(argv[optind], xattr_flags, &xattr_list)) {
-+		fprintf(stderr, "Error selinux_restorecon_xattr: %s\n",
-+			strerror(errno));
-+		rc = -1;
-+		goto out;
-+	}
-+
-+	if (xattr_list && verbose) {
-+		current = *xattr_list;
-+		while (current) {
-+			next = current->next;
-+			printf("%s ", current->directory);
-+
-+			switch (current->result) {
-+			case MATCH:
-+				printf("Digest: %s Match\n", current->digest);
-+				break;
-+			case NOMATCH:
-+				printf("Digest: %s No Match\n", current->digest);
-+				break;
-+			case DELETED_MATCH:
-+				printf("Deleted Digest: %s Match\n", current->digest);
-+				break;
-+			case DELETED_NOMATCH:
-+				printf("Deleted Digest: %s No Match\n",
-+				       current->digest);
-+				break;
-+			case ERROR:
-+				printf("Digest: %s Error removing xattr\n",
-+				       current->digest);
-+				break;
-+			}
-+			current = next;
-+		}
-+		/* Free memory */
-+		current = *xattr_list;
-+		while (current) {
-+			next = current->next;
-+			free(current->directory);
-+			free(current->digest);
-+			free(current);
-+			current = next;
-+		}
-+	} else if (verbose) {
-+		printf("No digests available\n");
-+	}
-+
-+	rc = 0;
-+out:
-+	return rc;
-+}
-diff --git a/tests/restorecon/selinux_restorecon_skip.c b/tests/restorecon/selinux_restorecon_skip.c
-new file mode 100644
-index 0000000..a09b658
---- /dev/null
-+++ b/tests/restorecon/selinux_restorecon_skip.c
-@@ -0,0 +1,66 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+#include <selinux/label.h>
-+#include <selinux/restorecon.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-SIrv] <path>\n\n"
-+		"Where:\n\t"
-+		"-S  set SELINUX_RESTORECON_SKIP_DIGEST\n\t"
-+		"-I  Set SELINUX_RESTORECON_IGNORE_DIGEST\n\t"
-+		"-r  Recursively descend directories.\n\t"
-+		"-v  Display information.\n\t"
-+		"path  Path of file or directory to check.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, rc, flags = 0;
-+
-+	if (argc < 2)
-+		usage(argv[0]);
-+
-+	while ((opt = getopt(argc, argv, "SIrv")) > 0) {
-+		switch (opt) {
-+		case 'I':
-+			flags |= SELINUX_RESTORECON_IGNORE_DIGEST;
-+			break;
-+		case 'S':
-+			flags |= SELINUX_RESTORECON_SKIP_DIGEST;
-+			break;
-+		case 'r':
-+			flags |= SELINUX_RESTORECON_RECURSE;
-+			break;
-+		case 'v':
-+			flags |= SELINUX_RESTORECON_VERBOSE;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc) {
-+		fprintf(stderr, "No pathname specified\n");
-+		return -1;
-+	}
-+
-+	/*
-+	 * selinux_restorecon() calls selabel_open(3) and by default enables
-+	 * digests.
-+	 */
-+	rc = selinux_restorecon(argv[optind], flags);
-+	if (rc < 0)
-+		fprintf(stderr, "selinux_restorecon ERROR: %s\n",
-+			strerror(errno));
-+
-+	return rc;
-+}
-+
-diff --git a/tests/restorecon/test b/tests/restorecon/test
-new file mode 100755
-index 0000000..a21765e
---- /dev/null
-+++ b/tests/restorecon/test
-@@ -0,0 +1,188 @@
-+#!/usr/bin/perl
-+use Test::More;
-+
-+# Options: -v = Verbose, -p <path_to_restorecon>
-+# NOTE: If using the -p option to use a different version of restorecon,
-+# ensure they are labeled correctly before use. This can be achieved by:
-+#    chcon -h -t bin_t .../sbin/restorecon
-+#    chcon -h -t setfiles_exec_t .../sbin/setfiles
-+# The test_restorecon.te policy has rules to support this labeling.
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    $v      = " ";
-+    $bindir = $basedir;
-+    $i      = 0;
-+    foreach $arg (@ARGV) {
-+        if ( $arg eq "-v" ) {
-+            $v = $arg;
-+        }
-+        elsif ( $arg eq "-p" ) {
-+            $bindir = $ARGV[ $i + 1 ];
-+            if ( not -e "$bindir/restorecon" ) {
-+                plan skip_all => "$bindir/restorecon not found";
-+            }
-+        }
-+        $i++;
-+    }
-+
-+    # check if /tmp is really type tmpfs (TMPFS_MAGIC).
-+    $test_tmpfs = 0;
-+    $result     = system("$basedir/check_fs $v /tmp 2>/dev/null");
-+    if ( $result >> 8 eq 2 ) {
-+        $test_tmpfs = 1;
-+        plan tests => 12;
-+    }
-+    else {
-+        plan tests => 11;
-+    }
-+}
-+
-+print "Using \"restorecon\" from $bindir\n";
-+
-+# Make sure test directory removed then generate new. Using a root dir to test
-+# libselinux: Ignore the stem when looking up all matches in file context
-+print "Generating test directories\n";
-+system("rm -rf /restore_test");
-+system("mkdir -p /restore_test/in_dir");
-+system("mkdir -p /restore_test/out_dir");
-+
-+# Using semanage is much quicker than using semodule to build fc entries.
-+print "semanage adding file context entries\n";
-+system("semanage fcontext -a -t test_file_t -f d /restore_test");
-+system("semanage fcontext -a -t in_dir_t -f d /restore_test/in_dir");
-+system("semanage fcontext -a -t out_dir_t -f d /restore_test/out_dir");
-+
-+print "Add files to the directories\n";
-+system("touch /restore_test/out_dir/out_file1");
-+system("touch /restore_test/in_dir/in_file1");
-+
-+print "Test no CAP_SYS_ADMIN (setxattr failed)\n";
-+system(
-+    "runcon -t test_restorecon_t $basedir/restorecon_xattr -rD $v /restore_test"
-+);
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+if ( $result >> 8 eq 4 ) {
-+    print "Run selinux_restorecon with digests enabled and no CAP_SYS_ADMIN\n";
-+    system(
-+"runcon -t test_no_admin_restorecon_t $bindir/restorecon -rD $v /restore_test 2>&1"
-+    );
-+    print "Check there are no xattr digest entries\n";
-+    $result = system(
-+"runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test"
-+    );
-+    ok( $result >> 8 eq 4 );
-+}
-+else {
-+    print "Failed no CAP_SYS_ADMIN test\n";
-+    ok(0);
-+}
-+
-+print "Run restorecon to add digest entries, then check they match\n";
-+system("runcon -t test_restorecon_t $bindir/restorecon -rD $v /restore_test");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+ok( $result >> 8 eq 1 );
-+
-+print "Add new file context entries, then check digests do not match\n";
-+system("semanage fcontext -a -t in_file_t -f f \"/restore_test/in_dir(/.*)?\"");
-+system(
-+    "semanage fcontext -a -t out_file_t -f f \"/restore_test/out_dir(/.*)?\"");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+ok( $result eq 0 );
-+
-+print "Now fix with restorecon and check digests match\n";
-+system("runcon -t test_restorecon_t $bindir/restorecon -rD $v /restore_test");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+ok( $result >> 8 eq 1 );
-+
-+print "Remove sehash entry on /restore_test/out_dir then check if removed\n";
-+system(
-+"runcon -t test_restorecon_t setfattr -x security.sehash /restore_test/out_dir"
-+);
-+$result = system(
-+"runcon -t test_restorecon_t $basedir/get_all_digests $v /restore_test/out_dir"
-+);
-+ok( $result >> 8 eq 4 );
-+
-+print
-+  "Run restorecon with SELINUX_RESTORECON_IGNORE_DIGEST = TRUE. This will\n";
-+print "rewrite the missing digest, then check they match\n";
-+system("runcon -t test_restorecon_t $bindir/restorecon -Ir $v /restore_test");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+ok( $result >> 8 eq 1 );
-+
-+print "Remove some file context entries, then check digests do not match\n";
-+system("semanage fcontext -d -t in_dir_t -f d /restore_test/in_dir");
-+system("semanage fcontext -d -t out_dir_t -f d /restore_test/out_dir");
-+system("semanage fcontext -d -t in_file_t -f f \"/restore_test/in_dir(/.*)?\"");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+ok( $result eq 0 );
-+
-+print "Run restorecon with digests disabled, then check digests still do\n";
-+print "not match as they were not updated\n";
-+system("runcon -t test_restorecon_t $bindir/restorecon -r $v /restore_test");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+ok( $result eq 0 );
-+
-+print "Run restorecon with digests enabled, then check they match\n";
-+system("runcon -t test_restorecon_t $bindir/restorecon -rD $v /restore_test");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+ok( $result >> 8 eq 1 );
-+
-+print "Test SELINUX_RESTORECON_SKIP_DIGEST\n";
-+system(
-+    "runcon -t test_restorecon_t $basedir/restorecon_xattr -rD $v /restore_test"
-+);
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test");
-+if ( $result >> 8 eq 4 ) {
-+    print
-+"Run selinux_restorecon with digests enabled and SELINUX_RESTORECON_SKIP_DIGEST = TRUE\n";
-+    system(
-+"runcon -t test_restorecon_t $basedir/selinux_restorecon_skip -rS $v /restore_test"
-+    );
-+
-+    $result = system(
-+"runcon -t test_restorecon_t $basedir/get_all_digests -r $v /restore_test"
-+    );
-+    ok( $result >> 8 eq 4 );
-+}
-+else {
-+    print "Failed SELINUX_RESTORECON_SKIP_DIGEST test\n";
-+    ok(0);
-+}
-+
-+system(
-+    "semanage fcontext -d -t in_file_t -f f \"/restore_test/out_dir(/.*)?\"");
-+system("semanage fcontext -d -t test_file_t -f d /restore_test");
-+system("rm -rf /restore_test");
-+
-+print
-+  "Run restorecon on /sys with digests enabled, then check digests are not\n";
-+print "written as /sys is SYSFS_MAGIC.\n";
-+system("runcon -t test_restorecon_t $bindir/restorecon -rD $v /sys/fs/selinux");
-+$result = system(
-+    "runcon -t test_restorecon_t $basedir/get_all_digests $v /sys/fs/selinux");
-+ok( $result >> 8 eq 4 );
-+
-+if ($test_tmpfs) {
-+    print
-+"Run restorecon on /tmp with digests enabled, then check digests are not\n";
-+    print "written as /tmp is TMPFS_MAGIC\n";
-+    system("runcon -t test_restorecon_t $bindir/restorecon -rD $v /tmp");
-+    $result =
-+      system("runcon -t test_restorecon_t $basedir/get_all_digests $v /tmp");
-+    ok( $result >> 8 eq 4 );
-+}
-+
-+exit;
--- 
-2.21.0
+>   	up_read(&current->mm->mmap_sem);
+>   
+>   do_check:
+> -	if (prot & ~*allowed_prot)
+> -		return -EACCES;
+> -
+> -	return 0;
+> +	if (!ret && (prot & ~*allowed_prot))
+> +		ret = -EACCES;
+> +	return ret;
+>   }
+>   
+>   static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 47f58cfb6a19..0562775424a0 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -1446,6 +1446,14 @@
+>    * @bpf_prog_free_security:
+>    *	Clean up the security information stored inside bpf prog.
+>    *
+> + * Security hooks for Intel SGX enclaves.
+> + *
+> + * @enclave_load:
+> + *	On success, returns 0 and optionally adjusts @allowed_prot
+> + *	@vma: the source memory region of the enclave page being loaded.
+> + *	@prot: the initial protection of the enclave page.
+> + *	@allowed_prot: the maximum protections of the enclave page.
+> + *	Return 0 if permission is granted.
+>    */
+>   union security_list_options {
+>   	int (*binder_set_context_mgr)(struct task_struct *mgr);
+> @@ -1807,6 +1815,11 @@ union security_list_options {
+>   	int (*bpf_prog_alloc_security)(struct bpf_prog_aux *aux);
+>   	void (*bpf_prog_free_security)(struct bpf_prog_aux *aux);
+>   #endif /* CONFIG_BPF_SYSCALL */
+> +
+> +#ifdef CONFIG_INTEL_SGX
+> +	int (*enclave_load)(struct vm_area_struct *vma, unsigned long prot,
+> +			    unsigned long *allowed_prot);
+> +#endif /* CONFIG_INTEL_SGX */
+>   };
+>   
+>   struct security_hook_heads {
+> @@ -2046,6 +2059,9 @@ struct security_hook_heads {
+>   	struct hlist_head bpf_prog_alloc_security;
+>   	struct hlist_head bpf_prog_free_security;
+>   #endif /* CONFIG_BPF_SYSCALL */
+> +#ifdef CONFIG_INTEL_SGX
+> +	struct hlist_head enclave_load;
+> +#endif /* CONFIG_INTEL_SGX */
+>   } __randomize_layout;
+>   
+>   /*
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 659071c2e57c..2f7925eeef7e 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -392,6 +392,8 @@ void security_inode_invalidate_secctx(struct inode *inode);
+>   int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
+>   int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
+>   int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
+> +int security_enclave_load(struct vm_area_struct *vma, unsigned long prot,
+> +			  unsigned long *allowed_prot);
+>   #else /* CONFIG_SECURITY */
+>   
+>   static inline int call_lsm_notifier(enum lsm_event event, void *data)
+> diff --git a/security/security.c b/security/security.c
+> index 613a5c00e602..07ed6763571e 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2359,3 +2359,11 @@ void security_bpf_prog_free(struct bpf_prog_aux *aux)
+>   	call_void_hook(bpf_prog_free_security, aux);
+>   }
+>   #endif /* CONFIG_BPF_SYSCALL */
+> +
+> +#ifdef CONFIG_INTEL_SGX
+> +int security_enclave_load(struct vm_area_struct *vma, unsigned long prot,
+> +			  unsigned long *allowed_prot)
+> +{
+> +	return call_int_hook(enclave_load, 0, vma, prot, allowed_prot);
+> +}
+> +#endif /* CONFIG_INTEL_SGX */
+> 
 
