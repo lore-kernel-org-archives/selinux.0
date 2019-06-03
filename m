@@ -1,91 +1,164 @@
-Return-Path: <SRS0=/A+P=UB=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Kl1g=UC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D17BC282DC
-	for <selinux@archiver.kernel.org>; Sun,  2 Jun 2019 16:54:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC083C28CC6
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 06:26:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 56BFC2794D
-	for <selinux@archiver.kernel.org>; Sun,  2 Jun 2019 16:54:49 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="n18yMz2c"
+	by mail.kernel.org (Postfix) with ESMTP id AEE3527BF0
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 06:26:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727122AbfFBQyt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 2 Jun 2019 12:54:49 -0400
-Received: from sonic303-8.consmr.mail.bf2.yahoo.com ([74.6.131.47]:41144 "EHLO
-        sonic303-8.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727118AbfFBQys (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 2 Jun 2019 12:54:48 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559494487; bh=NriQJ/Ly+k4Qx0CdGV3MY+BheCtZdoxEEIBOuIRJP8o=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=n18yMz2c2KD/+Br+6EJfZY4fvQvzHNnzr+zT/HwEknds9CjcI0CpnbUFB83AvWlJWdzFDS/1Id5tvLLTQ3KiBcBTYST0MnXXDA096Pwaqz5IrVB0iMrSSkH28rWZBeO5i2tZ8fR5l7E6M03Xv3QakNMn+A1TiCZ1fuu9yE9bURo8zX5nkF7utwssPwDHvep8Oo/h2U+ZrQuFmJqHjgupdTDWtiFdB2Ex2axoI5SQWFG0NKNtYsyJ4bkK9TYiZ3p38WFB1EoJpksvZ7jFjPxwcby62G1FUPG24tPr/TEd/EKR+Z91k8fvLhkF4VcXDMqnxi2Mx1r16QP0ls9g5CA6rw==
-X-YMail-OSG: mrpr6k8VM1kV7W9lW0lZb7lRfVVSLGLr3ZHhhOZusnrnbVQ60UA8nzrPeQpEzP7
- ti07etZfVHvMxLsfXA6edT1HTcdzkhhHYPBCUP089ETm5UVpqIHSyfxm0qRBs66lNoL7knbUPi8S
- qLxKbv15yDzr5yyf0JYnukbFOq3p2_9sf6zOzbS5_zl5ZGAGOzYWWgcMLc5xmbifGcWkH5S0gyqE
- 81WQJV6_zxby8UWhXN7sFydYvs6Pgos.Hr92kSaz6z3NvyPm90Aea6xrRudceuR08sH4.dYk4NUF
- hdyvdvCDiJTnqVOzzItiZP6Ka4cuRVSZowosxndwutqqQiJ3DzBh8iq8ANlumrCLhmfQzGDb0UQH
- gwrxJOfcysY1GH00FR4h7Qax5xzeFJltkC9W1pDUEFxsHc6_fNXJaI2OGppbSb6n75M3s6tCxtzR
- rN.DcH.h2DgBCBbRTZou8IhVMw7RT54arSfqRJSOiMAXNEQ8AA3ZhQPRol6A.WZ782o6PSH9mQxl
- W91ZyPEkDSEcIHg9lN0YlFIIt9WEwIAKKjoiOxrUAabaHLMk85VoW_d6.eUF.gm0ZO4HZdxcMjwt
- BawIymQaJag1Xm_zWbNRGFgzT8QdofjFmf2bVX_3xZCaFUVSYXLV4eN7aGlsAOdebIOHRy.AxSPQ
- 1S8i2b8GMPRUXzbhYTxsIGiGX5U7qHybZ6t0IV6HBUkwAoLVNJk_i5YVrLZOAtHMs2LF3XqxHZbJ
- Ic80hzOe5KISt02it6lyZVcpTpS7zv3pVWQ6QjVFnb0GWaHjtWlZOyfOL6dMifiUAt46fWXDmOtw
- g7l9yPFbNUQA0oU2hij5AmaRIEvpOysc66JWGsP7tsWbkYraarMocx6CNgS3Lf17zhZq.Bnmi8x9
- JqI6IKYC6ho1GlFNQ24Vyyf8LKy3Km0mipZSE5XnWGx2f0W_4kuX23.4RwR3Pzx17Ogg08Ofm3_e
- QNaovBUZNPU.8FBSiaw9ZKDW9WQD8p5Pj5PbUEL016JIyxcGPcBs8Ct9Hh5mCEYF6EMp8lt_r2qL
- 4Rq2tEfmlBOu96PnUGbsjdmDDiN8NTIkXukGYq4AXqhRlBplrqFc0pCWbeisrUtFuKB1KQnn70zh
- 1o3nboOB7p2SEleEHP5Re3znOHEXwjC50UyG482LUaBi0HBdO_JTDxZMsLZKbDU223uF8rC1wiHV
- w1J3FYPnNmAj7dG7EWIwz2DEHhUu1bG23SZ6eMxzY2N9Qpqcg.i8CT_gcd5Pvs8dQw1OS9Y1shJg
- o1BfezTb4hVZB7eDSEjLqJWiRyrUvLcgvRSRQLdNbm0AcSXdDnTF1I3A-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.bf2.yahoo.com with HTTP; Sun, 2 Jun 2019 16:54:47 +0000
-Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO localhost.net) ([73.223.4.185])
-          by smtp411.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 4f202846722f9a871dab498da8fe7ef4;
-          Sun, 02 Jun 2019 16:54:43 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     casey@schaufler-ca.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH 58/58] AppArmor: Remove the exclusive flag
-Date:   Sun,  2 Jun 2019 09:51:01 -0700
-Message-Id: <20190602165101.25079-59-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190602165101.25079-1-casey@schaufler-ca.com>
-References: <20190602165101.25079-1-casey@schaufler-ca.com>
+        id S1726860AbfFCG0L convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Mon, 3 Jun 2019 02:26:11 -0400
+Received: from mga07.intel.com ([134.134.136.100]:41645 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726486AbfFCG0L (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 3 Jun 2019 02:26:11 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Jun 2019 23:26:10 -0700
+X-ExtLoop1: 1
+Received: from orsmsx105.amr.corp.intel.com ([10.22.225.132])
+  by orsmga005.jf.intel.com with ESMTP; 02 Jun 2019 23:26:10 -0700
+Received: from orsmsx126.amr.corp.intel.com (10.22.240.126) by
+ ORSMSX105.amr.corp.intel.com (10.22.225.132) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Sun, 2 Jun 2019 23:26:10 -0700
+Received: from orsmsx116.amr.corp.intel.com ([169.254.7.165]) by
+ ORSMSX126.amr.corp.intel.com ([169.254.4.35]) with mapi id 14.03.0415.000;
+ Sun, 2 Jun 2019 23:26:10 -0700
+From:   "Xing, Cedric" <cedric.xing@intel.com>
+To:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
+        "Jarkko Sakkinen" <jarkko.sakkinen@linux.intel.com>
+CC:     Andy Lutomirski <luto@kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "npmccallum@redhat.com" <npmccallum@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
+        "Tricca, Philip B" <philip.b.tricca@intel.com>
+Subject: RE: [RFC PATCH 3/9] x86/sgx: Allow userspace to add multiple pages
+ in single ioctl()
+Thread-Topic: [RFC PATCH 3/9] x86/sgx: Allow userspace to add multiple pages
+ in single ioctl()
+Thread-Index: AQHVGAki7TYpY4ZsUk+m4jTej+khLaaJYAJQ
+Date:   Mon, 3 Jun 2019 06:26:09 +0000
+Message-ID: <960B34DE67B9E140824F1DCDEC400C0F654ECBBD@ORSMSX116.amr.corp.intel.com>
+References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
+ <20190531233159.30992-4-sean.j.christopherson@intel.com>
+In-Reply-To: <20190531233159.30992-4-sean.j.christopherson@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiMTFhYjE5MTAtN2M1Ny00NzQ1LWI4MWYtYTYyOTljMTBlOWY1IiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiUUo4ZUN3aGVZbGxhQ3RnK21xZWRVZTVxWVBtS1VnYVVcL25DMmVCOGoyTnlTbDQ5aFYxa09ySVwvQ2VOZjNNcU1oIn0=
+x-ctpclassification: CTP_NT
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.138]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-With the inclusion of the "display" process attribute
-mechanism AppArmor no longer needs to be treated as an
-"exclusive" security module. Remove the flag that indicates
-it is exclusive.
+> From: Christopherson, Sean J
+> Sent: Friday, May 31, 2019 4:32 PM
+> 
+> +/**
+> + * sgx_ioc_enclave_add_pages - handler for %SGX_IOC_ENCLAVE_ADD_PAGES
+> + *
+> + * @filep:	open file to /dev/sgx
+> + * @cmd:	the command value
+> + * @arg:	pointer to an &sgx_enclave_add_page instance
+> + *
+> + * Add a range of pages to an uninitialized enclave (EADD), and
+> +optionally
+> + * extend the enclave's measurement with the contents of the page (EEXTEND).
+> + * The range of pages must be virtually contiguous.  The SECINFO and
+> + * measurement maskare applied to all pages, i.e. pages with different
+> + * properties must be added in separate calls.
+> + *
+> + * EADD and EEXTEND are done asynchronously via worker threads.  A
+> +successful
+> + * sgx_ioc_enclave_add_page() only indicates the pages have been added
+> +to the
+> + * work queue, it does not guarantee adding the pages to the enclave
+> +will
+> + * succeed.
+> + *
+> + * Return:
+> + *   0 on success,
+> + *   -errno otherwise
+> + */
+> +static long sgx_ioc_enclave_add_pages(struct file *filep, unsigned int cmd,
+> +				      unsigned long arg)
+> +{
+> +	struct sgx_enclave_add_pages *addp = (void *)arg;
+> +	struct sgx_encl *encl = filep->private_data;
+> +	struct sgx_secinfo secinfo;
+> +	unsigned int i;
+> +	int ret;
+> +
+> +	if (copy_from_user(&secinfo, (void __user *)addp->secinfo,
+> +			   sizeof(secinfo)))
+> +		return -EFAULT;
+> +
+> +	for (i = 0, ret = 0; i < addp->nr_pages && !ret; i++) {
+> +		if (signal_pending(current))
+> +			return -ERESTARTSYS;
 
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/apparmor/lsm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+If interrupted, how would user mode code know how many pages have been EADD'ed?
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 771b0ae24a5f..a8b11a7f29fa 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1705,7 +1705,7 @@ static int __init apparmor_init(void)
- 
- DEFINE_LSM(apparmor) = {
- 	.name = "apparmor",
--	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
-+	.flags = LSM_FLAG_LEGACY_MAJOR,
- 	.enabled = &apparmor_enabled,
- 	.blobs = &apparmor_blob_sizes,
- 	.init = apparmor_init,
--- 
-2.19.1
+> +
+> +		if (need_resched())
+> +			cond_resched();
+> +
+> +		ret = sgx_encl_add_page(encl, addp->addr + i*PAGE_SIZE,
+> +					addp->src + i*PAGE_SIZE,
+> +					&secinfo, addp->mrmask);
+> +	}
+>  	return ret;
+>  }
+> 
+> @@ -823,8 +845,8 @@ long sgx_ioctl(struct file *filep, unsigned int cmd, unsigned long arg)
+>  	case SGX_IOC_ENCLAVE_CREATE:
+>  		handler = sgx_ioc_enclave_create;
+>  		break;
+> -	case SGX_IOC_ENCLAVE_ADD_PAGE:
+> -		handler = sgx_ioc_enclave_add_page;
+> +	case SGX_IOC_ENCLAVE_ADD_PAGES:
+> +		handler = sgx_ioc_enclave_add_pages;
+>  		break;
+>  	case SGX_IOC_ENCLAVE_INIT:
+>  		handler = sgx_ioc_enclave_init;
+> --
+> 2.21.0
 
