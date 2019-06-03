@@ -2,148 +2,124 @@ Return-Path: <SRS0=Kl1g=UC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3D93C04AB5
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 21:59:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A8EAC04AB5
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 21:59:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 891AD26D2C
-	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 21:59:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="iHxItZmO"
+	by mail.kernel.org (Postfix) with ESMTP id 5AAA726D38
+	for <selinux@archiver.kernel.org>; Mon,  3 Jun 2019 21:59:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726157AbfFCV7Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Jun 2019 17:59:16 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:34562 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726049AbfFCV7P (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Jun 2019 17:59:15 -0400
-Received: by mail-lf1-f65.google.com with SMTP id y198so4311995lfa.1
-        for <selinux@vger.kernel.org>; Mon, 03 Jun 2019 14:59:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=39SsS75pnQ5vHdEqbne0WJ2yXM1xbTpEuZ3/IBKSvQw=;
-        b=iHxItZmO7EMI3oQoeYJNo81cTXL+a2p2lGyUDGhwEFPlL7xmIzWMz2BXM9RXXpR8HJ
-         bArXNfvV6zQe9IVr2+s/xKS8FaFXc/zYRj4s8VwQUrsFbtonyI6viek4fO8KY8ypzEhP
-         8yPBFAHB2MiATF/1ZdJoqWHdv0wyyNK5PXublbT5pKOGjVLjmQp27zoYA6KWmMIBVk4n
-         KLoHEK3LWJD5b+6lDu+yQ0byVhXODfaT4qcOgyoqCn1LN2X/NKX81uXtFnrvjiX+XoR4
-         7XMccsJarvfaKxnubqoBtMZFM2Wbo6yl1WFEvAqILRdXP5cwozFrPoWhqw6KmJJ8+9ks
-         Ph/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=39SsS75pnQ5vHdEqbne0WJ2yXM1xbTpEuZ3/IBKSvQw=;
-        b=FrLHqa6dUYs3+u6wv4RkQFIcMB8Bvaz+xlWKgC4PMueF/2iCFCXunh5smrWUhmgARv
-         mp9Yl/IJtgIbp8cBJRX+9kG6v0cYzb9wK9m9S3saiya/UWYbu9/obbB/gGvh4uVMNx7e
-         EmHcgxBzOFkYVJlfdGK3/B5xULGVsskrN6cLS8sdAig61xwSheDLuUIwgtJ4pjel7x5U
-         QQtoyX3F77oe8ySMNc6IbztPq4DsIqY+2B6v0Y3dhOOUKy+a9Zogq02Ll5MZxnVMC/Tn
-         abMhOQRcWxWSCOD67OwPI0pbs/Plxm3E1QpIlV0K/c5yUkAjLFwrmUqyo5mgcxy9cno6
-         hnjQ==
-X-Gm-Message-State: APjAAAU5/v4WClm1IySRyg3u82K4bVYjxKaZXM5qyfiX8dUTUJqxgvpx
-        aOn6UIoguBptjajy6lgy60pKGh+jb5MUh5z3lVnL
-X-Google-Smtp-Source: APXvYqxKd5fwr8QHl9rJyGVa9hftw7WKVY4g2KKTll9Io6rs88ViptI9pRCooetIr8mIjw9lSzXtBYo7RsBEknadaiw=
-X-Received: by 2002:a19:c301:: with SMTP id t1mr15151815lff.137.1559595462723;
- Mon, 03 Jun 2019 13:57:42 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190601021526.GA8264@zhanggen-UX430UQ> <CAFqZXNuPMxOQeq-5evh4dSuGC-Q5sQPjbhRgCBh4Q=u6OrEi9Q@mail.gmail.com>
-In-Reply-To: <CAFqZXNuPMxOQeq-5evh4dSuGC-Q5sQPjbhRgCBh4Q=u6OrEi9Q@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 3 Jun 2019 16:57:31 -0400
-Message-ID: <CAHC9VhSt9Qsj1Lgr+H0unbbxOR18KZqoSbfXPR=XpJ8uD8Q2AQ@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: lsm: fix a missing-check bug in selinux_sb_eat_lsm_opts()
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Gen Zhang <blackgod016574@gmail.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        id S1726707AbfFCV7j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Jun 2019 17:59:39 -0400
+Received: from mga11.intel.com ([192.55.52.93]:65178 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726572AbfFCV7j (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 3 Jun 2019 17:59:39 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 03 Jun 2019 13:37:12 -0700
+X-ExtLoop1: 1
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
+  by orsmga008.jf.intel.com with ESMTP; 03 Jun 2019 13:37:12 -0700
+Date:   Mon, 3 Jun 2019 13:37:12 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Dave Hansen <dave.hansen@intel.com>
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Jethro Beekman <jethro@fortanix.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
+        Shay Katz-zamir <shay.katz-zamir@intel.com>,
+        Haitao Huang <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kai Svahn <kai.svahn@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Kai Huang <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        William Roberts <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH 3/9] x86/sgx: Allow userspace to add multiple pages
+ in single ioctl()
+Message-ID: <20190603203712.GI13384@linux.intel.com>
+References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
+ <20190531233159.30992-4-sean.j.christopherson@intel.com>
+ <beb8ac7a-b580-8ff2-7467-fb2870fb8cf0@intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <beb8ac7a-b580-8ff2-7467-fb2870fb8cf0@intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 3, 2019 at 3:27 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Sat, Jun 1, 2019 at 4:15 AM Gen Zhang <blackgod016574@gmail.com> wrote:
-> > In selinux_sb_eat_lsm_opts(), 'arg' is allocated by kmemdup_nul(). It
-> > returns NULL when fails. So 'arg' should be checked. And 'mnt_opts'
-> > should be freed when error.
-> >
-> > Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-> > Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > Fixes: 99dbbb593fe6 ("selinux: rewrite selinux_sb_eat_lsm_opts()")
-> > ---
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 3ec702c..f329fc0 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -2616,6 +2616,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
-> >         char *from = options;
-> >         char *to = options;
-> >         bool first = true;
-> > +       int ret;
->
-> I'd suggest just moving the declaration of 'rc' here and simply reuse
-> that variable. Otherwise the patch looks good to me.
+On Mon, Jun 03, 2019 at 01:14:45PM -0700, Dave Hansen wrote:
+> On 5/31/19 4:31 PM, Sean Christopherson wrote:
+> > -struct sgx_enclave_add_page {
+> > +struct sgx_enclave_add_pages {
+> >  	__u64	addr;
+> >  	__u64	src;
+> >  	__u64	secinfo;
+> > +	__u32	nr_pages;
+> >  	__u16	mrmask;
+> >  } __attribute__((__packed__));
+> 
+> IMNHO this follows a user interface anti-pattern: exposing page sizes
+> where not strictly required.
+> 
+> Think of how this would look to an application if page size was
+> variable.  With this interface, they always need to scale their
+> operations by page size instead of just aligning it.
 
-Agreed.  Creating "ret" only makes the patch larger and doesn't add any value.
+I briefly considered taking size in bytes, but I took a shortcut because
+EPC pages are architecturally defined to be 4k sized and aligned.  That
+being said, I don't necessarily disagree, especially if nr_pages isn't
+squeezed into a u32.
+ 
+> BTW, why is nr_pages a u32?  Do we never envision a case where you can
+> add more than 4TB of memory to an enclave? ;)
 
-I try to avoid making broad statements, but if you are unsure about
-which approach to take when fixing a problem, start with the smallest
-patch you can write.  Even if it turns out not to be the "best"
-solution upstream, it will be easier to review, discuss, and
-potentially port to other/older kernels.
+Heh, fair enough.  IIRC, a while back someone posted about having problems
+building a 512gb enclave in a 92mb EPC...
 
-> >
-> >         while (1) {
-> >                 int len = opt_len(from);
-> > @@ -2635,15 +2636,16 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
-> >                                                 *q++ = c;
-> >                                 }
-> >                                 arg = kmemdup_nul(arg, q - arg, GFP_KERNEL);
-> > +                               if (!arg) {
-> > +                                       ret = -ENOMEM;
-> > +                                       goto free_opt;
-> > +                               }
-> >                         }
-> >                         rc = selinux_add_opt(token, arg, mnt_opts);
-> >                         if (unlikely(rc)) {
-> > +                               ret = rc;
-> >                                 kfree(arg);
-> > -                               if (*mnt_opts) {
-> > -                                       selinux_free_mnt_opts(*mnt_opts);
-> > -                                       *mnt_opts = NULL;
-> > -                               }
-> > -                               return rc;
-> > +                               goto free_opt;
-> >                         }
-> >                 } else {
-> >                         if (!first) {   // copy with preceding comma
-> > @@ -2661,6 +2663,12 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
-> >         }
-> >         *to = '\0';
-> >         return 0;
-> > +free_opt:
-> > +       if (*mnt_opts) {
-> > +               selinux_free_mnt_opts(*mnt_opts);
-> > +               *mnt_opts = NULL;
-> > +       }
-> > +       return ret;
-> >  }
-> >
-> >  static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
->
-> --
-> Ondrej Mosnacek <omosnace at redhat dot com>
-> Software Engineer, Security Technologies
-> Red Hat, Inc.
+How about this for the intermediate patch:
 
--- 
-paul moore
-www.paul-moore.com
+	struct sgx_enclave_add_region {
+		__u64	addr;
+		__u64	src;
+		__u64	size;
+		__u64	secinfo;
+		__u16	mrmask;
+		__u16	reserved16;
+		__u32	reserved;
+	}
+
+and with the flags field:
+
+	struct sgx_enclave_add_region {
+		__u64	addr;
+		__u64	src;
+		__u64	size;
+		__u64	secinfo;
+		__u16	mrmask;
+		__u16	flags;
+		__u32	reserved;
+	}
