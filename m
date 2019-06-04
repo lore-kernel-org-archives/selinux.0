@@ -2,194 +2,62 @@ Return-Path: <SRS0=onaf=UD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,T_DKIMWL_WL_HIGH,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABCA1C282CE
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 20:37:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C920BC282CE
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 20:42:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7BBCD20717
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 20:37:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1559680644;
-	bh=cFvISWqZtenk/itmER7f+dDnKlLEKMgxPk2A4pPepQo=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=DitiABaO2ktiEzZuXmTqugTcfajxKpz25NvF/msbNdoH5SOGl+eXJfLYwOAs1+AB7
-	 CzGMlCxz48oFHpvI3FmpbeWW3mh70iv8aFfUlc0NCQfw0rzgVYbUV7P7pPXXfNS9ah
-	 xMGvZ4oAo3iTLu5ZD52VeOnSs+EwCBkUfonnGyk8=
+	by mail.kernel.org (Postfix) with ESMTP id A692D207E0
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 20:42:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726033AbfFDUhY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Jun 2019 16:37:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33722 "EHLO mail.kernel.org"
+        id S1726293AbfFDUm3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Jun 2019 16:42:29 -0400
+Received: from namei.org ([65.99.196.166]:36780 "EHLO namei.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726568AbfFDUhX (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 4 Jun 2019 16:37:23 -0400
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1443D21670
-        for <selinux@vger.kernel.org>; Tue,  4 Jun 2019 20:29:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559680163;
-        bh=cFvISWqZtenk/itmER7f+dDnKlLEKMgxPk2A4pPepQo=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=2HRcWilzppDkhdZc4TaBjrV5UIkT55QL43VjaSXEiVplRVpcAxBwNkDcNug+37B+Y
-         t9fbgeUJZIdsTchPZypFGwlhJLgpyuR/aNqVnzXAOqtuoX8oEoU5j1y8GrjbLYqYJn
-         ogGs6TSf8PXi12+IZT5rOfJH6kFTruNBQ6p9qQWM=
-Received: by mail-wr1-f43.google.com with SMTP id n4so14160573wrs.3
-        for <selinux@vger.kernel.org>; Tue, 04 Jun 2019 13:29:23 -0700 (PDT)
-X-Gm-Message-State: APjAAAWd6y7URMhkD1WdYalAhZ2y/Q4d0iynaEOGzRlrIuf0Wik0J9wD
-        jy1fdFhtOUcvMnEgJO7EeZ5CUp09TcAGKnQTB3INZA==
-X-Google-Smtp-Source: APXvYqzggKbEmevf1hAGqsqkg6nyK2jhLYRBA68/pK6t43ULfTO2FFzNf9MvZev2j4Pu6QQWtmJouUP2ZUsabFVGcpo=
-X-Received: by 2002:adf:f2c8:: with SMTP id d8mr92723wrp.221.1559680161582;
- Tue, 04 Jun 2019 13:29:21 -0700 (PDT)
+        id S1726033AbfFDUm2 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 4 Jun 2019 16:42:28 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by namei.org (8.14.4/8.14.4) with ESMTP id x54KgCIO031551;
+        Tue, 4 Jun 2019 20:42:12 GMT
+Date:   Wed, 5 Jun 2019 06:42:12 +1000 (AEST)
+From:   James Morris <jmorris@namei.org>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+cc:     Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
+Subject: Re: [PATCH 00/58] LSM: Module stacking for AppArmor
+In-Reply-To: <a493956a-8a2f-6239-e5fe-09030640c397@schaufler-ca.com>
+Message-ID: <alpine.LRH.2.21.1906050638550.31292@namei.org>
+References: <20190602165101.25079-1-casey@schaufler-ca.com> <f71388e9-a4c5-8935-137b-8eb50be7f833@tycho.nsa.gov> <66a87b0b-b6f4-74ff-2e51-afc8e2d30de1@schaufler-ca.com> <2a9049a7-6259-5ae0-2790-0aaf337c51a4@tycho.nsa.gov>
+ <a493956a-8a2f-6239-e5fe-09030640c397@schaufler-ca.com>
+User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
-References: <20190531233159.30992-1-sean.j.christopherson@intel.com> <20190531233159.30992-9-sean.j.christopherson@intel.com>
-In-Reply-To: <20190531233159.30992-9-sean.j.christopherson@intel.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Tue, 4 Jun 2019 13:29:10 -0700
-X-Gmail-Original-Message-ID: <CALCETrXf3ujAn6uOwWMU8SRZOvBRb8ALvo_LQvwxc899mrakwQ@mail.gmail.com>
-Message-ID: <CALCETrXf3ujAn6uOwWMU8SRZOvBRb8ALvo_LQvwxc899mrakwQ@mail.gmail.com>
-Subject: Re: [RFC PATCH 8/9] LSM: x86/sgx: Introduce ->enclave_load() hook for
- Intel SGX
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Cedric Xing <cedric.xing@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Jethro Beekman <jethro@fortanix.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        linux-sgx@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
-        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
-        Shay Katz-zamir <shay.katz-zamir@intel.com>,
-        Haitao Huang <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kai Svahn <kai.svahn@intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Kai Huang <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        William Roberts <william.c.roberts@intel.com>,
-        Philip Tricca <philip.b.tricca@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 31, 2019 at 4:32 PM Sean Christopherson
-<sean.j.christopherson@intel.com> wrote:
->
-> enclave_load() is roughly analogous to the existing file_mprotect().
->
-> Due to the nature of SGX and its Enclave Page Cache (EPC), all enclave
-> VMAs are backed by a single file, i.e. /dev/sgx/enclave, that must be
-> MAP_SHARED.  Furthermore, all enclaves need read, write and execute
-> VMAs.  As a result, file_mprotect() does not provide any meaningful
-> security for enclaves since an LSM can only deny/grant access to the
-> EPC as a whole.
->
-> security_enclave_load() is called when SGX is first loading an enclave
-> page, i.e. copying a page from normal memory into the EPC.  The notable
-> difference from file_mprotect() is the allowed_prot parameter, which
-> is essentially an SGX-specific version of a VMA's MAY_{READ,WRITE,EXEC}
-> flags.  The purpose of allowed_prot is to enable checks such as
-> SELinux's FILE__EXECMOD permission without having to track and update
-> VMAs across multiple mm structs, i.e. SGX can ensure userspace doesn't
-> overstep its bounds simply by restricting an enclave VMA's protections
-> by vetting what is maximally allowed during build time.
->
-> An alternative to the allowed_prot approach would be to use an enclave's
-> SIGSTRUCT (a smallish structure that can uniquely identify an enclave)
-> as a proxy for the enclave.  For example, SGX could take and hold a
-> reference to the file containing the SIGSTRUCT (if it's in a file) and
-> call security_enclave_load() during mprotect().  While the SIGSTRUCT
-> approach would provide better precision, the actual value added was
-> deemed to be negligible.  On the other hand, pinning a file for the
-> lifetime of the enclave is ugly, and essentially caching LSM policies
-> in each page's allowed_prot avoids having to make an extra LSM upcall
-> during mprotect().
->
-> Note, extensive discussion yielded no sane alternative to some form of
-> SGX specific LSM hook[1].
->
-> [1] https://lkml.kernel.org/r/CALCETrXf8mSK45h7sTK5Wf+pXLVn=Bjsc_RLpgO-h-qdzBRo5Q@mail.gmail.com
->
-> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-> ---
->  arch/x86/kernel/cpu/sgx/driver/ioctl.c | 14 +++++++++-----
->  include/linux/lsm_hooks.h              | 16 ++++++++++++++++
->  include/linux/security.h               |  2 ++
->  security/security.c                    |  8 ++++++++
->  4 files changed, 35 insertions(+), 5 deletions(-)
->
-> diff --git a/arch/x86/kernel/cpu/sgx/driver/ioctl.c b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-> index 5f71be7cbb01..260417ecbcff 100644
-> --- a/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-> +++ b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-> @@ -8,6 +8,7 @@
->  #include <linux/highmem.h>
->  #include <linux/ratelimit.h>
->  #include <linux/sched/signal.h>
-> +#include <linux/security.h>
->  #include <linux/shmem_fs.h>
->  #include <linux/slab.h>
->  #include <linux/suspend.h>
-> @@ -580,21 +581,24 @@ static int sgx_encl_page_protect(unsigned long src, unsigned long prot,
->                                  unsigned long *allowed_prot)
->  {
->         struct vm_area_struct *vma;
-> +       int ret = 0;
->
-> -       if (!(*allowed_prot & VM_EXEC))
-> +       if (!(*allowed_prot & VM_EXEC) && !IS_ENABLED(CONFIG_SECURITY))
->                 goto do_check;
->
->         down_read(&current->mm->mmap_sem);
->         vma = find_vma(current->mm, src);
->         if (!vma || (vma->vm_file && path_noexec(&vma->vm_file->f_path)))
->                 *allowed_prot &= ~VM_EXEC;
-> +#ifdef CONFIG_SECURITY
-> +       ret = security_enclave_load(vma, prot, allowed_prot);
-> +#endif
->         up_read(&current->mm->mmap_sem);
->
->  do_check:
-> -       if (prot & ~*allowed_prot)
-> -               return -EACCES;
-> -
-> -       return 0;
-> +       if (!ret && (prot & ~*allowed_prot))
-> +               ret = -EACCES;
-> +       return ret;
->  }
->
->  static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 47f58cfb6a19..0562775424a0 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -1446,6 +1446,14 @@
->   * @bpf_prog_free_security:
->   *     Clean up the security information stored inside bpf prog.
->   *
-> + * Security hooks for Intel SGX enclaves.
-> + *
-> + * @enclave_load:
-> + *     On success, returns 0 and optionally adjusts @allowed_prot
-> + *     @vma: the source memory region of the enclave page being loaded.
-> + *     @prot: the initial protection of the enclave page.
+On Tue, 4 Jun 2019, Casey Schaufler wrote:
 
-What do you mean "initial"?  The page is always mapped PROT_NONE when
-this is called, right?  I feel like I must be missing something here.
+> > It isn't free so there should be a cost/benefit analysis.
+> 
+> Some benchmarking is definitely in order, but most
+> of what's you're calling out as downside is hypothetical
+> or based on assumption. 
+
+When you're proposing changes such as these, which make fundamental and 
+far-reaching changes, the burden is on you to present the cost/benefit 
+analysis.
+
+You can't just say "Here are some changes and here are the benefits, and 
+any possible costs are merely hypothetical".
+
+
+-- 
+James Morris
+<jmorris@namei.org>
+
