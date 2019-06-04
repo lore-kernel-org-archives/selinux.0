@@ -2,267 +2,307 @@ Return-Path: <SRS0=onaf=UD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 623DEC282CE
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:14:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94516C282CE
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:23:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 08FB320843
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:14:47 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Dc5Vy4dS"
+	by mail.kernel.org (Postfix) with ESMTP id 647E320693
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:23:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728267AbfFDQOq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Jun 2019 12:14:46 -0400
-Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:41573
-        "EHLO sonic309-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728247AbfFDQOq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Jun 2019 12:14:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559664884; bh=sgAlYxwX6AaJ7oKINouDKg0a3bj3klr6l6FDGxpBiSU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Dc5Vy4dSgP7vL6m9uc+ESvXKxxwuAGV9OxtJAOmuYINnKjFC+D++9pE2IcTdAglFr92HxcfSJhw763zeRyedgT+KjDTzSPbotTp44p4RgDQekT/RfTd/84LI1pd9TRUBKoTo2g1Z6dKY4aKQZK2rSsWI0UuvC2U9jvWQ0AWLsmry4vjSi7SooXb+cf1D2wlyALFYCMl1KczFwAjOmOXgXOQIIzheuQ4mvRZccdHb1msPLo7Dv1Y7PfW2dyNioIE8lyQqMhhXsGG0sYd9r24DtFggCB9MEYvraK14mM9lJijZ8Ye4+T9MjKsSipBS2thaaVyDApFtTuKQeY7Say7Mkw==
-X-YMail-OSG: 8Bz2JZMVM1nGIALaDKv3dcFOLd8E7C5aB2Xe.ISMpfb32Y6uQaQphvg68dK25QU
- VaYx6kAXj6VXPBv_q9O7FXH2Ilj7a9M9dFEJdg2PosdrstX_s5qwf5W7LeRydqYFs.ThxEq3BvzO
- d0lG.QcWLP0Syd4uWRZY52eC0OQiaN7JDYN_kAS6z4bpaVasMor3mfS1FHFZVL5Wvkd6phJ6RFD2
- 1dr6ChDbl3g0PoficuFzt3rRB5gcQf1uSqyMUWFtYuCLw_lfjAJWNfVkXgV_fB.vO4Um4RiDGRD5
- xIogeTT6I8F3kPn7Je1QTNxFAFuQRVR7BlgjSGOZ91f9sfywaulaHwqfsR3.ZOBxZ3EPUCv3yQFL
- dId9InqK3ALGAfth7zsAd5aZINyJZvWnzXjMKOcoBeeT3Q7J5qmVGpcbAza6Y.gm9oYtyU8wjMPY
- OFXaxvPqf970f7qEfenuA0mxu8fT79_m8NR2HZ6vxYfAWJOur2E4o_AK7BdDNowh8xgsXzpWbRqM
- xFri8E74Vw5HL61O4tBul1_TjlStlntatmlIfYXiJEClS.yRU.8VVV15gnXxV4TFjdDazGk0R.I3
- GcUbgIetRoLmjBHfDWj3QclVgUPpIHK66i2vixCYusCMCGtSju3JSTdb8MU99jZ.lwYm7Og0pd0B
- FJv9vEUcgBkwAE5iwJ4B.P84ZDMLrSPTcC4xsg6URlbdRlMcoVDvmpMIRMAY4STHnoKz2DoQE6Sp
- cV_.sJtTejmJQrph9QycO9agITFvpV3J657eNTgrMh_m_nHAsgm1IvsXVrpSaBei_3K4Mgw6yS1T
- zK2trrp_urZrMbnsVsDP4qvraF.sgN11uUTuQcGbhqS0i1JMTlbM7_XJ7da1fGDpkvmrX656Rot_
- WFDCQKYsoaVDt68JMz2dujicmVOtsygXpStXaokTpW0VPhgW2Lk51qCwRlbcT43Ifq5v2OZdn6sf
- P5QLbzJxHPNLLLmg584RmO7G8J_hUuOsvxDFEzbiJU_DHaaJ9n9i4ZnxruR4rHFXwb_cYoGln4hn
- LmtxYPxnsD.4WmL8IMZpjjBjyRNm0nlSmOygkriT6yCX3yLYd2CQGBtWo6A5D1pRoLxgsWrTDNvf
- V1Z6W2ezaSB55GOUPrRArd5iTi_dZ_KKhxeL1TceML765aYD6U07vRr8qm42AfSnF6pLye8utyc2
- L4QLpgvJfGqIP7ipnvtYKlfTY6K_kn2f5oeiwkdU4knsrC0OY.6fGnmfkByPE8uBwWCG9DZDsgGl
- dnkXhy0EVIPXj2AY8KWmP6XCYD1jDey7MIncT52KpKPxCAaG.hNUcesJydAg-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Tue, 4 Jun 2019 16:14:44 +0000
-Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
-          by smtp431.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 54b5db5250001e49409035e6bc3b9f14;
-          Tue, 04 Jun 2019 16:14:43 +0000 (UTC)
-Subject: Re: [PATCH 00/58] LSM: Module stacking for AppArmor
-To:     Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        casey@schaufler-ca.com
-References: <20190602165101.25079-1-casey@schaufler-ca.com>
- <f71388e9-a4c5-8935-137b-8eb50be7f833@tycho.nsa.gov>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <66a87b0b-b6f4-74ff-2e51-afc8e2d30de1@schaufler-ca.com>
-Date:   Tue, 4 Jun 2019 09:14:42 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1728268AbfFDQXT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Jun 2019 12:23:19 -0400
+Received: from mga04.intel.com ([192.55.52.120]:48308 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728270AbfFDQXS (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 4 Jun 2019 12:23:18 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Jun 2019 09:23:17 -0700
+X-ExtLoop1: 1
+Received: from tvuori-mobl1.ger.corp.intel.com (HELO localhost) ([10.251.93.210])
+  by fmsmga007.fm.intel.com with ESMTP; 04 Jun 2019 09:23:07 -0700
+Date:   Tue, 4 Jun 2019 19:23:06 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Jethro Beekman <jethro@fortanix.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
+        Shay Katz-zamir <shay.katz-zamir@intel.com>,
+        Haitao Huang <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kai Svahn <kai.svahn@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Kai Huang <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        William Roberts <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH 6/9] x86/sgx: Require userspace to provide allowed
+ prots to ADD_PAGES
+Message-ID: <20190604162306.GB3811@linux.intel.com>
+References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
+ <20190531233159.30992-7-sean.j.christopherson@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <f71388e9-a4c5-8935-137b-8eb50be7f833@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190531233159.30992-7-sean.j.christopherson@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-T24gNi80LzIwMTkgNToyOSBBTSwgU3RlcGhlbiBTbWFsbGV5IHdyb3RlOg0KPiBPbiA2LzIv
-MTkgMTI6NTAgUE0sIENhc2V5IFNjaGF1ZmxlciB3cm90ZToNCj4+IFRoaXMgcGF0Y2hzZXQg
-cHJvdmlkZXMgdGhlIGNoYW5nZXMgcmVxdWlyZWQgZm9yDQo+PiB0aGUgQXBwQXJtb3Igc2Vj
-dXJpdHkgbW9kdWxlIHRvIHN0YWNrIHNhZmVseSB3aXRoIGFueSBvdGhlci4NCj4NCj4gUGxl
-YXNlIGV4cGxhaW4gdGhlIG1vdGl2YXRpb24NCg0KSSdsbCBhZGQgc29tZSBleHBsYW5hdGlv
-biBmb3IgdGhlIG5leHQgcmV2aXNpb24uDQpJdCB3b24ndCBiZSBhbnl0aGluZyB0aGF0IEkg
-aGF2ZW4ndCBwb3N0ZWQgbWFueSB0aW1lcw0KYmVmb3JlLCBidXQgeW91J3JlIHJpZ2h0IHRo
-YXQgaXQgYmVsb25ncyBpbiB0aGUgbG9nLg0KDQo+IC0gd2h5IGRvIHdlIHdhbnQgdG8gYWxs
-b3cgQXBwQXJtb3IgdG8gc3RhY2sgd2l0aCBvdGhlciBtb2R1bGVzLA0KDQpGaXJzdCwgaXMg
-dGhlcmUgYSByZWFzb24gbm90IHRvPyBTdXJlLCB5b3UgY2FuIGNvbmZ1c2UNCmFkbWluaXN0
-cmF0b3JzIGJ5IGltcGxlbWVudGluZyBjb21wbGV4IHNlY3VyaXR5IHBvbGljaWVzLA0KYnV0
-IHRoZXJlIGFyZSBsb3RzIG9mIHdheXMgdG8gZG8gdGhhdCBhbHJlYWR5Lg0KDQpBcHBBcm1v
-ciBwcm92aWRlcyBhIGRpZmZlcmVudCBzZWN1cml0eSBtb2RlbCB0aGFuIFNFTGludXgsDQpU
-T01PWU8gb3IgU21hY2suIFNtYWNrIGlzIGJldHRlciBhdCBzeXN0ZW0gY29tcG9uZW50DQpz
-ZXBhcmF0aW9uLCB3aGlsZSBBcHBBcm1vciBpcyBiZXR0ZXIgYXQgYXBwbGljYXRpb24gaXNv
-bGF0aW9uLg0KSXQncyBhIHdpbiB0byB1c2UgZWFjaCB0byBpdHMgc3RyZW5ndGggcmF0aGVy
-IHRoYW4gdHJ5aW5nIHRvDQpzdHJldGNoIGVpdGhlciB0byB0aGUgZWRnZSBvZiB3aGF0IGl0
-IGNhbiBkby4NCg0KPiB3aG8gd291bGQgdXNlIGl0LA0KDQpDYW4ndCBuYW1lIG5hbWVzLCBi
-dXQgdGhlcmUgaGF2ZSBiZWVuIG11bHRpcGxlIHJlcXVlc3RzLg0KDQo+IGhvdyB3b3VsZCBp
-dCBiZSB1c2VkLA0KDQpBcyBtZW50aW9uZWQgYWJvdmUsIFNtYWNrIGZvciBzeXN0ZW0gc2Vw
-YXJhdGlvbiwgQXBwQXJtb3IgZm9yDQphcHBsaWNhdGlvbiBpc29sYXRpb24uDQoNCj4gd2hh
-dCBkb2VzIGl0IHByb3ZpZGUgdGhhdCBpc24ndCBhbHJlYWR5IHBvc3NpYmxlIGluIHRoZSBh
-YnNlbmNlIG9mIGl0Lg0KDQpJdCdzIG5vdCBuZWNlc3NhcnkgdGhhdCBzb21ldGhpbmcgYmUg
-aW1wb3NzaWJsZSB0byBkbyBhbnkNCm90aGVyIHdheS4gVGhlIHF1ZXN0aW9uIHNob3VsZCBi
-ZSB3aGV0aGVyIHRoaXMgcHJvdmlkZXMgZm9yDQphIGJldHRlciB3YXkgdG8gYWNoaWV2ZSB0
-aGUgZ29hbHMsIGFuZCB0aGlzIGRvZXMgdGhhdC4NCklmIEkgdHJpZWQgdGhlIGNvbWUgdXAg
-d2l0aCBzb21ldGhpbmcgdGhhdCdzIGltcG9zc2libGUgSQ0Kd291bGQgZXhwZWN0IHRoZSB1
-c3VhbCAieW91IGNhbiBkbyB0aGF0IHdpdGggU0VMaW51eCBwb2xpY3kiDQphcmd1bWVudC4g
-V2Uga25vdyB3ZSBjYW4gZG8gdGhpbmdzLiBXZSB3YW50IHRvIGhhdmUgdGhlIHRvb2xzDQp0
-byBkbyB0aGVtIGJldHRlci4NCg0KPiBBbHNvLCBVYnVudHUgZnVsbHkgdXBzdHJlYW1lZCBh
-bGwgb2YgdGhlaXIgY2hhbmdlcyB0byBBcHBBcm1vciwgd291bGQgdGhpcyBzdGlsbCBzdWZm
-aWNlIHRvIGVuYWJsZSBzdGFja2luZyBvZiBBcHBBcm1vciBvciBkbyB0aGV5IHJlbHkgb24g
-aG9va3MgdGhhdCBhcmUgbm90IGhhbmRsZWQgaGVyZT8NCg0KU29tZSBhbW91bnQgb2YgbWVy
-Z2luZyB3aWxsIGxpa2VseSBiZSByZXF1aXJlZC4gQnV0IHRoYXQncw0KYWx3YXlzIGdvaW5n
-IHRvIGJlIHRydWUgd2l0aCBwYXJhbGxlbCBkZXZlbG9wbWVudCB0cmFja3MuDQpUaGF0J3Mg
-d2h5IHdlIGhhdmUgZ2l0IQ0KDQo+IFBsZWFzZSBleHBsYWluIHRoZSBjb3N0IG9mIHRoZSBj
-aGFuZ2UgLSB3aGF0IGRvIHdlIHBheSBpbiB0ZXJtcyBvZiBtZW1vcnksIHJ1bnRpbWUsIG9y
-IG90aGVyIG92ZXJoZWFkcyBpbiBvcmRlciB0byBzdXBwb3J0IHRoaXMgY2hhbmdlPw0KDQpE
-byB5b3UgaGF2ZSBwYXJ0aWN1bGFyIGJlbmNobWFya3MgeW91IHdhbnQgdG8gc2VlPw0KV2hl
-biBJJ3ZlIHN1cHBsaWVkIG51bWJlcnMgaW4gdGhlIHBhc3QgdGhleSBoYXZlIG5vdA0KYmVl
-biByZW1hcmtlZCBvbi4NCg0KPg0KPj4NCj4+IEEgbmV3IHByb2Nlc3MgYXR0cmlidXRlIGlk
-ZW50aWZpZXMgd2hpY2ggc2VjdXJpdHkgbW9kdWxlDQo+PiBpbmZvcm1hdGlvbiBzaG91bGQg
-YmUgcmVwb3J0ZWQgYnkgU09fUEVFUlNFQyBhbmQgdGhlDQo+PiAvcHJvYy8uLi4vYXR0ci9j
-dXJyZW50IGludGVyZmFjZS4gVGhpcyBpcyBwcm92aWRlZCBieQ0KPj4gL3Byb2MvLi4uL2F0
-dHIvZGlzcGxheS4gV3JpdGluZyB0aGUgbmFtZSBvZiB0aGUgc2VjdXJpdHkNCj4+IG1vZHVs
-ZSBkZXNpcmVkIHRvIHRoaXMgaW50ZXJmYWNlIHdpbGwgc2V0IHdoaWNoIExTTSBob29rcw0K
-Pj4gd2lsbCBiZSBjYWxsZWQgZm9yIHRoaXMgaW5mb3JtYXRpb24uIFRoZSBmaXJzdCBzZWN1
-cml0eQ0KPj4gbW9kdWxlIHByb3ZpZGluZyB0aGUgaG9va3Mgd2lsbCBiZSB1c2VkIGJ5IGRl
-ZmF1bHQuDQo+DQo+IERvZXNuJ3QgdGhpcyBlZmZlY3RpdmVseSB1bmRvIG1ha2luZyB0aGUg
-aG9va3MgcmVhZC1vbmx5IGFmdGVyIGluaXQsIGF0IGxlYXN0IGZvciB0aGUgc3Vic2V0IGlu
-dm9sdmVkP8KgIFdoYXQgYXJlIHRoZSBzZWN1cml0eSBpbXBsaWNhdGlvbnMgdGhlcmVvZj8N
-Cg0KQW55IG1lY2hhbmlzbSwgYmUgaXQgYSBzZXBhcmF0ZSBzZXQgb2YgaG9va3MsIGEgbmFt
-ZSB1c2VkIHRvDQpkbyBsaXN0IGxvb2sgdXBzLCBvciBhbiBzb3BoaXN0aWNhdGVkIGhhc2gg
-c2NoZW1lIHdpbGwgaGF2ZSB0aGF0DQppbXBhY3QgZm9yIHRoZSBwcm9jZXNzZXMgdGhhdCB1
-c2UgaXQuIFRoaXMgc2NoZW1lIGhhcyB0aGUgYmVzdA0KcGVyZm9ybWFuY2UgcHJvZmlsZSBv
-ZiB0aGUgbWVjaGFuaXNtcyBJIGV4cGVyaW1lbnRlZCB3aXRoIGFuZA0KYXZvaWRzIGFsbCBz
-b3J0cyBvZiBzcGVjaWFsIGNhc2VzLg0KDQo+DQo+PiBUaGUgdXNlIG9mIGludGVnZXIgYmFz
-ZWQgc2VjdXJpdHkgdG9rZW5zIChzZWNpZHMpIGlzDQo+PiBnZW5lcmFsbHkgKGJ1dCBub3Qg
-Y29tcGxldGVseSkgcmVwbGFjZWQgYnkgYSBzdHJ1Y3R1cmUNCj4+IGxzbV9leHBvcnQuIFRo
-ZSBsc21fZXhwb3J0IHN0cnVjdHVyZSBjYW4gY29udGFpbiBpbmZvcm1hdGlvbg0KPj4gZm9y
-IGVhY2ggb2YgdGhlIHNlY3VyaXR5IG1vZHVsZXMgdGhhdCBleHBvcnQgaW5mb3JtYXRpb24N
-Cj4+IG91dHNpZGUgdGhlIExTTSBsYXllci4NCj4+DQo+PiBUaGUgTFNNIGludGVyZmFjZXMg
-dGhhdCBwcm92aWRlICJzZWNjdHgiIHRleHQgc3RyaW5ncw0KPj4gaGF2ZSBiZWVuIGNoYW5n
-ZWQgdG8gdXNlIGEgc3RydWN0dXJlICJsc21fY29udGV4dCINCj4+IGluc3RlYWQgb2YgYSBw
-b2ludGVyL2xlbmd0aCBwYWlyLiBJbiBzb21lIGNhc2VzIHRoZQ0KPj4gaW50ZXJmYWNlcyB1
-c2VkIGEgImNoYXIgKiIgcG9pbnRlciBhbmQgaW4gb3RoZXJzIGENCj4+ICJ2b2lkICoiLiBU
-aGlzIHdhcyBuZWNlc3NhcnkgdG8gZW5zdXJlIHRoYXQgdGhlIGNvcnJlY3QNCj4+IHJlbGVh
-c2UgbWVjaGFuaXNtIGZvciB0aGUgdGV4dCBpcyB1c2VkLiBJdCBhbHNvIG1ha2VzDQo+PiBt
-YW55IG9mIHRoZSBpbnRlcmZhY2VzIGNsZWFuZXIuDQo+Pg0KPj4gaHR0cHM6Ly9naXRodWIu
-Y29tL2NzY2hhdWZsZXIvbHNtLXN0YWNraW5nLmdpdCNzdGFjay01LjItdjEtYXBwYXJtb3IN
-Cj4+DQo+PiBTaWduZWQtb2ZmLWJ5OiBDYXNleSBTY2hhdWZsZXIgPGNhc2V5QHNjaGF1Zmxl
-ci1jYS5jb20+DQo+PiAtLS0NCj4+IMKgIGRyaXZlcnMvYW5kcm9pZC9iaW5kZXIuY8KgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMjUgKystDQo+PiDCoCBmcy9rZXJuZnMv
-ZGlyLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-fMKgwqAgNiArLQ0KPj4gwqAgZnMva2VybmZzL2lub2RlLmPCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMzEgKystDQo+PiDCoCBmcy9rZXJuZnMv
-a2VybmZzLWludGVybmFsLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgMyArLQ0K
-Pj4gwqAgZnMvbmZzL2lub2RlLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCB8wqAgMTMgKy0NCj4+IMKgIGZzL25mcy9pbnRlcm5hbC5owqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgOCArLQ0K
-Pj4gwqAgZnMvbmZzL25mczRwcm9jLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB8wqAgMTcgKy0NCj4+IMKgIGZzL25mcy9uZnM0eGRyLmPCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxNiArLQ0KPj4g
-wqAgZnMvbmZzZC9uZnM0cHJvYy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIHzCoMKgIDggKy0NCj4+IMKgIGZzL25mc2QvbmZzNHhkci5jwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE0ICstDQo+PiDCoCBm
-cy9uZnNkL3Zmcy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoCB8wqDCoCA3ICstDQo+PiDCoCBmcy9wcm9jL2Jhc2UuY8KgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDEgKw0KPj4g
-wqAgaW5jbHVkZS9saW51eC9jcmVkLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCB8wqDCoCAzICstDQo+PiDCoCBpbmNsdWRlL2xpbnV4L2xzbV9ob29rcy5owqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgOTEgKysrKystLS0tDQo+PiDCoCBpbmNs
-dWRlL2xpbnV4L25mczQuaMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHzCoMKgIDggKy0NCj4+IMKgIGluY2x1ZGUvbGludXgvc2VjdXJpdHkuaMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCB8IDEzMyArKysrKysrKystLS0tDQo+PiDCoCBpbmNsdWRl
-L25ldC9hZl91bml4LmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKg
-wqAgMiArLQ0KPj4gwqAgaW5jbHVkZS9uZXQvbmV0bGFiZWwuaMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEwICstDQo+PiDCoCBpbmNsdWRlL25ldC9zY20uaMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxNCArLQ0K
-Pj4gwqAga2VybmVsL2F1ZGl0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoCB8wqAgNDMgKystLQ0KPj4gwqAga2VybmVsL2F1ZGl0LmjCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCA5
-ICstDQo+PiDCoCBrZXJuZWwvYXVkaXRmaWx0ZXIuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgIHzCoMKgIDYgKy0NCj4+IMKgIGtlcm5lbC9hdWRpdHNjLmPCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA3NyArKysr
-LS0tLQ0KPj4gwqAga2VybmVsL2NyZWQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE1ICstDQo+PiDCoCBuZXQvaXB2NC9jaXBz
-b19pcHY0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEzICst
-DQo+PiDCoCBuZXQvaXB2NC9pcF9zb2NrZ2x1ZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoCB8wqAgMTIgKy0NCj4+IMKgIG5ldC9uZXRmaWx0ZXIvbmZfY29ubnRyYWNr
-X25ldGxpbmsuY8KgwqDCoCB8wqAgMjkgKystDQo+PiDCoCBuZXQvbmV0ZmlsdGVyL25mX2Nv
-bm50cmFja19zdGFuZGFsb25lLmMgfMKgIDE2ICstDQo+PiDCoCBuZXQvbmV0ZmlsdGVyL25m
-bmV0bGlua19xdWV1ZS5jwqDCoMKgwqDCoMKgwqDCoCB8wqAgMzggKystLQ0KPj4gwqAgbmV0
-L25ldGZpbHRlci9uZnRfbWV0YS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
-oCAxMyArLQ0KPj4gwqAgbmV0L25ldGZpbHRlci94dF9TRUNNQVJLLmPCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB8wqAgMTQgKy0NCj4+IMKgIG5ldC9uZXRsYWJlbC9uZXRsYWJlbF9r
-YXBpLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDUgKy0NCj4+IMKgIG5ldC9uZXRs
-YWJlbC9uZXRsYWJlbF91bmxhYmVsZWQuY8KgwqDCoMKgwqDCoCB8IDEwMSArKysrKy0tLS0t
-DQo+PiDCoCBuZXQvbmV0bGFiZWwvbmV0bGFiZWxfdW5sYWJlbGVkLmjCoMKgwqDCoMKgwqAg
-fMKgwqAgMiArLQ0KPj4gwqAgbmV0L25ldGxhYmVsL25ldGxhYmVsX3VzZXIuY8KgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgfMKgIDEzICstDQo+PiDCoCBuZXQvbmV0bGFiZWwvbmV0bGFiZWxf
-dXNlci5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCAyICstDQo+PiDCoCBuZXQvdW5p
-eC9hZl91bml4LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-fMKgwqAgNiArLQ0KPj4gwqAgc2VjdXJpdHkvYXBwYXJtb3IvYXVkaXQuY8KgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgNCArLQ0KPj4gwqAgc2VjdXJpdHkvYXBwYXJtb3Iv
-aW5jbHVkZS9hdWRpdC5owqDCoMKgwqDCoMKgIHzCoMKgIDIgKy0NCj4+IMKgIHNlY3VyaXR5
-L2FwcGFybW9yL2luY2x1ZGUvbmV0LmjCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDYgKy0NCj4+
-IMKgIHNlY3VyaXR5L2FwcGFybW9yL2luY2x1ZGUvc2VjaWQuaMKgwqDCoMKgwqDCoCB8wqDC
-oCA5ICstDQo+PiDCoCBzZWN1cml0eS9hcHBhcm1vci9sc20uY8KgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgIHzCoCA2NCArKystLS0NCj4+IMKgIHNlY3VyaXR5L2FwcGFybW9y
-L3NlY2lkLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA0MiArKy0tDQo+PiDC
-oCBzZWN1cml0eS9pbnRlZ3JpdHkvaW1hL2ltYS5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
-wqAgMTQgKy0NCj4+IMKgIHNlY3VyaXR5L2ludGVncml0eS9pbWEvaW1hX2FwaS5jwqDCoMKg
-wqDCoMKgwqAgfMKgwqAgOSArLQ0KPj4gwqAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFf
-YXBwcmFpc2UuY8KgwqAgfMKgwqAgNiArLQ0KPj4gwqAgc2VjdXJpdHkvaW50ZWdyaXR5L2lt
-YS9pbWFfbWFpbi5jwqDCoMKgwqDCoMKgIHzCoCAzNCArKy0tDQo+PiDCoCBzZWN1cml0eS9p
-bnRlZ3JpdHkvaW1hL2ltYV9wb2xpY3kuY8KgwqDCoMKgIHzCoCAxOSArLQ0KPj4gwqAgc2Vj
-dXJpdHkvc2VjdXJpdHkuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAgfCAzMzggKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0NCj4+IMKgIHNlY3Vy
-aXR5L3NlbGludXgvaG9va3MuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDI1
-OSArKysrKysrKysrKystLS0tLS0tLS0tLS0NCj4+IMKgIHNlY3VyaXR5L3NlbGludXgvaW5j
-bHVkZS9hdWRpdC5owqDCoMKgwqDCoMKgwqAgfMKgwqAgNSArLQ0KPj4gwqAgc2VjdXJpdHkv
-c2VsaW51eC9pbmNsdWRlL29ianNlYy5owqDCoMKgwqDCoMKgIHzCoCA0MiArKystDQo+PiDC
-oCBzZWN1cml0eS9zZWxpbnV4L25ldGxhYmVsLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-fMKgIDI1ICstLQ0KPj4gwqAgc2VjdXJpdHkvc2VsaW51eC9zcy9zZXJ2aWNlcy5jwqDCoMKg
-wqDCoMKgwqDCoMKgIHzCoCAxOCArLQ0KPj4gwqAgc2VjdXJpdHkvc21hY2svc21hY2suaMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE4ICsrDQo+PiDCoCBzZWN1
-cml0eS9zbWFjay9zbWFja19sc20uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgMjM4
-ICsrKysrKysrKysrLS0tLS0tLS0tLS0NCj4+IMKgIHNlY3VyaXR5L3NtYWNrL3NtYWNrX25l
-dGZpbHRlci5jwqDCoMKgwqDCoMKgwqAgfMKgwqAgOCArLQ0KPj4gwqAgc2VjdXJpdHkvc21h
-Y2svc21hY2tmcy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxMiArLQ0K
-Pj4gwqAgNTggZmlsZXMgY2hhbmdlZCwgMTIxNyBpbnNlcnRpb25zKCspLCA3NzkgZGVsZXRp
-b25zKC0pDQo+Pg0KPg0K
+On Fri, May 31, 2019 at 04:31:56PM -0700, Sean Christopherson wrote:
+> ...to support (the equivalent) of existing Linux Security Module
+> functionality.
+
+Long and short descriptions should be separate. Also this does not
+make any sense. LSM is a framework with a set of hook to make access
+decisions and there various implementations of it.
+
+How this replicates LSMs and why that even would be a goal?
+
+My guess is that you are trying to do something else. I'm just saying
+that the idea to do equivalent of LSMs to another subsystems would be
+insane if it was done.
+
+> always be MAP_SHARED.  Lastly, all real world enclaves will need read,
+> write and execute permissions to EPC pages.  As a result, SGX does not
+> play nice with existing LSM behavior as it is impossible to apply
+> policies to enclaves with any reasonable granularity, e.g. an LSM can
+> deny access to EPC altogether, but can't deny potentially dangerous
+> behavior such as mapping pages RW->RW or RWX.
+
+The mapping must be shared given that it is iomem but why enclave pages
+would need RWX for all pages? The information that is missing from this
+paragraph is the explanation why an LSM could not deny dangerous
+behavior in PTE level.
+
+> To give LSMs enough information to implement their policies without
+> having to resort to ugly things, e.g. holding a reference to the vm_file
+> of each enclave page, require userspace to explicitly state the allowed
+> protections for each page (region), i.e. take ALLOW_{READ,WRITE,EXEC}
+> in the ADD_PAGES ioctl.
+
+I would keep descriptions such as "ugly things" away from commit
+messages as it is easy way to be not clear and explicit what you are
+trying to say.
+
+> The ALLOW_* flags will be passed to LSMs so that they can make informed
+> decisions when the enclave is being built, i.e. when the source vm_file
+> is available.  For example, SELinux's EXECMOD permission can be
+> required if an enclave is requesting both ALLOW_WRITE and ALLOW_EXEC.
+
+There should be some explanation what ALLOW_* flag are. It is now like
+as it was in common knowledge. SECINFO already has protection flags to
+name an example and without any explanation all of this is just very
+confusing.
+
+This should address SECINFO and ALLOW_* relationship and differences.
+
+> Update the mmap()/mprotect() hooks to enforce the ALLOW_* protections,
+> a la the standard VM_MAY{READ,WRITE,EXEC} flags.
+> 
+> The ALLOW_EXEC flag also has a second (important) use in that it can
+> be used to prevent loading an enclave from a noexec file system, on
+> SGX2 hardware (regardless of kernel support for SGX2), userspace could
+> EADD from a noexec path using read-only permissions and later mprotect()
+> and ENCLU[EMODPE] the page to gain execute permissions.  By requiring
+> ALLOW_EXEC up front, SGX will be able to enforce noexec paths when
+> building the enclave.
+> 
+> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> ---
+>  arch/x86/include/uapi/asm/sgx.h        |  9 ++++++++-
+>  arch/x86/kernel/cpu/sgx/driver/ioctl.c | 23 +++++++++++++++++------
+>  arch/x86/kernel/cpu/sgx/encl.c         |  2 +-
+>  arch/x86/kernel/cpu/sgx/encl.h         |  1 +
+>  4 files changed, 27 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/x86/include/uapi/asm/sgx.h b/arch/x86/include/uapi/asm/sgx.h
+> index 4a12d6abbcb7..4489e92fa0dc 100644
+> --- a/arch/x86/include/uapi/asm/sgx.h
+> +++ b/arch/x86/include/uapi/asm/sgx.h
+> @@ -31,6 +31,11 @@ struct sgx_enclave_create  {
+>  	__u64	src;
+>  };
+>  
+> +/* Supported flags for struct sgx_enclave_add_pages. */
+> +#define SGX_ALLOW_READ	VM_READ
+> +#define SGX_ALLOW_WRITE	VM_WRITE
+> +#define SGX_ALLOW_EXEC	VM_EXEC
+
+Why these flags are even defined if they are the same as VM_* flags?
+
+> +
+>  /**
+>   * struct sgx_enclave_add_pages - parameter structure for the
+>   *                                %SGX_IOC_ENCLAVE_ADD_PAGES ioctl
+> @@ -39,6 +44,7 @@ struct sgx_enclave_create  {
+>   * @secinfo:	address for the SECINFO data (common to all pages)
+>   * @nr_pages:	number of pages (must be virtually contiguous)
+>   * @mrmask:	bitmask for the measured 256 byte chunks (common to all pages)
+> + * @flags:	flags, e.g. SGX_ALLOW_{READ,WRITE,EXEC} (common to all pages)
+>   */
+>  struct sgx_enclave_add_pages {
+>  	__u64	addr;
+> @@ -46,7 +52,8 @@ struct sgx_enclave_add_pages {
+>  	__u64	secinfo;
+>  	__u32	nr_pages;
+>  	__u16	mrmask;
+> -} __attribute__((__packed__));
+> +	__u16	flags;
+> +};
+>  
+>  /**
+>   * struct sgx_enclave_init - parameter structure for the
+> diff --git a/arch/x86/kernel/cpu/sgx/driver/ioctl.c b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+> index 6acfcbdeca9a..c30acd3fbbdd 100644
+> --- a/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+> +++ b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+> @@ -235,7 +235,8 @@ static int sgx_validate_secs(const struct sgx_secs *secs,
+>  }
+>  
+>  static struct sgx_encl_page *sgx_encl_page_alloc(struct sgx_encl *encl,
+> -						 unsigned long addr)
+> +						 unsigned long addr,
+> +						 unsigned long allowed_prot)
+>  {
+>  	struct sgx_encl_page *encl_page;
+>  	int ret;
+> @@ -247,6 +248,7 @@ static struct sgx_encl_page *sgx_encl_page_alloc(struct sgx_encl *encl,
+>  		return ERR_PTR(-ENOMEM);
+>  	encl_page->desc = addr;
+>  	encl_page->encl = encl;
+> +	encl_page->allowed_prot = allowed_prot;
+>  	ret = radix_tree_insert(&encl->page_tree, PFN_DOWN(encl_page->desc),
+>  				encl_page);
+>  	if (ret) {
+> @@ -530,7 +532,7 @@ static int sgx_encl_queue_page(struct sgx_encl *encl,
+>  
+>  static int __sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
+>  			       void *data, struct sgx_secinfo *secinfo,
+> -			       unsigned int mrmask)
+> +			       unsigned int mrmask, unsigned long allowed_prot)
+>  {
+>  	u64 page_type = secinfo->flags & SGX_SECINFO_PAGE_TYPE_MASK;
+>  	struct sgx_encl_page *encl_page;
+> @@ -556,7 +558,7 @@ static int __sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
+>  		goto out;
+>  	}
+>  
+> -	encl_page = sgx_encl_page_alloc(encl, addr);
+> +	encl_page = sgx_encl_page_alloc(encl, addr, allowed_prot);
+>  	if (IS_ERR(encl_page)) {
+>  		ret = PTR_ERR(encl_page);
+>  		goto out;
+> @@ -576,12 +578,20 @@ static int __sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
+>  
+>  static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
+>  			     unsigned long src, struct sgx_secinfo *secinfo,
+> -			     unsigned int mrmask)
+> +			     unsigned int mrmask, unsigned int flags)
+>  {
+> +	unsigned long prot = secinfo->flags & (VM_READ | VM_WRITE | VM_EXEC);
+
+Even if the secinfo flags have the exactly the same values you should
+not do this as they are kind of from different type. This is confusing
+to read.
+
+> +	unsigned long allowed_prot = flags & (VM_READ | VM_WRITE | VM_EXEC);
+
+Why you take the trouble defining those macros and do not then use them
+even yourself?
+
+>  	struct page *data_page;
+>  	void *data;
+>  	int ret;
+>  
+> +	BUILD_BUG_ON(SGX_SECINFO_R != VM_READ || SGX_SECINFO_W != VM_WRITE ||
+> +		     SGX_SECINFO_X != VM_EXEC);
+
+Why this check?
+
+> +
+> +	if (prot & ~allowed_prot)
+> +		return -EACCES;
+> +
+>  	data_page = alloc_page(GFP_HIGHUSER);
+>  	if (!data_page)
+>  		return -ENOMEM;
+> @@ -593,7 +603,8 @@ static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
+>  		goto out;
+>  	}
+>  
+> -	ret = __sgx_encl_add_page(encl, addr, data, secinfo, mrmask);
+> +	ret = __sgx_encl_add_page(encl, addr, data, secinfo, mrmask,
+> +				  allowed_prot);
+>  out:
+>  	kunmap(data_page);
+>  	__free_page(data_page);
+> @@ -645,7 +656,7 @@ static long sgx_ioc_enclave_add_pages(struct file *filep, unsigned int cmd,
+>  
+>  		ret = sgx_encl_add_page(encl, addp->addr + i*PAGE_SIZE,
+>  					addp->src + i*PAGE_SIZE,
+> -					&secinfo, addp->mrmask);
+> +					&secinfo, addp->mrmask, addp->flags);
+>  	}
+>  	return ret;
+>  }
+> diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
+> index 955d4f430adc..e5847571a265 100644
+> --- a/arch/x86/kernel/cpu/sgx/encl.c
+> +++ b/arch/x86/kernel/cpu/sgx/encl.c
+> @@ -249,7 +249,7 @@ int sgx_map_allowed(struct sgx_encl *encl, unsigned long start,
+>  
+>  	for (addr = start; addr < end; addr += PAGE_SIZE) {
+>  		page = radix_tree_lookup(&encl->page_tree, addr >> PAGE_SHIFT);
+> -		if (!page)
+> +		if (!page || (prot & ~page->allowed_prot))
+>  			return -EACCES;
+>  	}
+
+However this goes it would be good idea to have only ony patch in the
+patch set that fully defines this function. Impossible to review
+properly with this split.
+
+>  
+> 
+> diff --git a/arch/x86/kernel/cpu/sgx/encl.h b/arch/x86/kernel/cpu/sgx/encl.h
+> index 6e310e3b3fff..7cca076a4987 100644
+> --- a/arch/x86/kernel/cpu/sgx/encl.h
+> +++ b/arch/x86/kernel/cpu/sgx/encl.h
+> @@ -41,6 +41,7 @@ enum sgx_encl_page_desc {
+>  
+>  struct sgx_encl_page {
+>  	unsigned long desc;
+> +	unsigned long allowed_prot;
+>  	struct sgx_epc_page *epc_page;
+>  	struct sgx_va_page *va_page;
+>  	struct sgx_encl *encl;
+> -- 
+> 2.21.0
+> 
+
+This patch left me very confused. I don't get it.
+
+/Jarkko
