@@ -2,292 +2,286 @@ Return-Path: <SRS0=onaf=UD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,T_DKIMWL_WL_HIGH
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6734C28CC6
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:45:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB690C282CE
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 17:12:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BB85023CEB
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:45:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 715FB205F4
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 17:12:24 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ocJDFuuQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727608AbfFDQpQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Jun 2019 12:45:16 -0400
-Received: from mga07.intel.com ([134.134.136.100]:20050 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727470AbfFDQpQ (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 4 Jun 2019 12:45:16 -0400
-X-Amp-Result: UNSCANNABLE
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 04 Jun 2019 09:45:15 -0700
-X-ExtLoop1: 1
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
-  by fmsmga007.fm.intel.com with ESMTP; 04 Jun 2019 09:45:14 -0700
-Date:   Tue, 4 Jun 2019 09:45:14 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Cedric Xing <cedric.xing@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Jethro Beekman <jethro@fortanix.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        linux-sgx@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
-        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
-        Shay Katz-zamir <shay.katz-zamir@intel.com>,
-        Haitao Huang <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kai Svahn <kai.svahn@intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Kai Huang <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        William Roberts <william.c.roberts@intel.com>,
-        Philip Tricca <philip.b.tricca@intel.com>
-Subject: Re: [RFC PATCH 6/9] x86/sgx: Require userspace to provide allowed
- prots to ADD_PAGES
-Message-ID: <20190604164514.GB32350@linux.intel.com>
-References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
- <20190531233159.30992-7-sean.j.christopherson@intel.com>
- <20190604162306.GB3811@linux.intel.com>
+        id S1728102AbfFDRMU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Jun 2019 13:12:20 -0400
+Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:41060 "EHLO
+        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727741AbfFDRMU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Jun 2019 13:12:20 -0400
+X-EEMSG-check-017: 717043231|UCOL19PA13_EEMSG_MP11.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.60,550,1549929600"; 
+   d="scan'208";a="717043231"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Jun 2019 17:12:00 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1559668320; x=1591204320;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=QMwajf2ot7Hl/CIFOdQkB7VpEqChE0eQF8gXuh6xYz8=;
+  b=ocJDFuuQe4/mNIhEt0fQ5CM2wvQeui3YRcYMOVRGPkFqMxR7E5Tk6SY+
+   czTUgd26Ns6mh4/YzMvZPKH21PQjWDTWyAVS6QID0y+C45irhgoKcCBY2
+   IfGTXoxm6WTFZhEYUGDTUIav059CuZfAEpj+R6WrGHPGMJYgYy0/UyjpE
+   ZSYVZ1+J3+yrjQ++Af7ENq6ty50SScqtWCVFyuSfa4TtRxfETmmKx4kMm
+   QzblLyQnQ6md9Wk3slFr5s761BTKSTgDXXR4gvy4CWe0KhtL9oQYUoNJ9
+   ANcsvBlu5LU7As0SGLKgBJiwcPfqnYwh3x46WRC2qXVfluVQBamJTUdiK
+   A==;
+X-IronPort-AV: E=Sophos;i="5.60,550,1549929600"; 
+   d="scan'208";a="28546115"
+IronPort-PHdr: =?us-ascii?q?9a23=3AsTK7TBcaBwSziW5RgfvNSCZdlGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxc2+bRKN2/xhgRfzUJnB7Loc0qyK6vmmADdRqs/Z4DgrS99lb1?=
+ =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
+ =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrsAndrNQajIVmJ6o+1x?=
+ =?us-ascii?q?fFvnhFcPlKyG11Il6egwzy7dqq8p559CRQtfMh98peXqj/Yq81U79WAik4Pm?=
+ =?us-ascii?q?4s/MHkugXNQgWJ5nsHT2UZiQFIDBTf7BH7RZj+rC33vfdg1SaAPM32Sbc0WS?=
+ =?us-ascii?q?m+76puVRTlhjsLOyI//WrKkcF7kr5Vrwy9qBx+247UYZ+aNPxifqPGYNgWQX?=
+ =?us-ascii?q?NNUttNWyBdB4+xaYUAD/AFPe1FsYfzoVUApga6CQW1Cu7izjpEi3nr1qM4zu?=
+ =?us-ascii?q?shCxnL0hE+EdIAsHrar9v7O6kdXu+30KbGwi7Ob+9V1Drn9ITEbh4srPOKUL?=
+ =?us-ascii?q?ltccTR004vFwbdg1uNtYzqISuV1uQTvGid8uFuSOevhHQjqwF1vDeuxtonh4?=
+ =?us-ascii?q?7Sho0I0VDJ7jl5wYYpKt24T053e9ikEIBKuC2AOIt2Rd0iTnhutS0nxLMGvp?=
+ =?us-ascii?q?u7czILyJQh3xPfZP2Hc5SI4hL+T+mdOyt3hHVgeL+5mh288lCgx/XhWsS731?=
+ =?us-ascii?q?tGtCpInsTWunwT2BHf9NKLRuZ780y8wziAzRrT5ftBIU0skKrbLIMuzaAom5?=
+ =?us-ascii?q?oItETDAjf2mELrjK+Kbkkk+van6+DgYrj+up+TLZV0igDjMqQ1gMC/HeQ5PR?=
+ =?us-ascii?q?QOX2ic4+i80qHs/VblT7lQi/02k63ZvIjbJcQduKG5HxdY3pss5huwFTur0M?=
+ =?us-ascii?q?kUkWMZIF9KZh6LlZXlN0nLIP/iDPe/h1qskC1sx/DDJrDhGYjCLmPYnbf9fb?=
+ =?us-ascii?q?dy905cyA0pwdBZ/JJbEKsNIP30Wk/vrNDYFAM2MxSow+b7D9Vwzp8RVniUAq?=
+ =?us-ascii?q?CHMKLfqkSI6f4vI+aWeY8VtjL9JOY/5/L3kXA2g0URcrWu3ZsScHq4BOhpI1?=
+ =?us-ascii?q?2FYXrwhdcMCXsFsRAlTOP0iFyOSyVTaGqyX60m+zE7BoamApnZRo22gbyB2j?=
+ =?us-ascii?q?u7EYNSZmxcFl+MFnLofZ2eW/gQcCKSPtNhkjscWLijTo8h0guutBX7y7p8Ne?=
+ =?us-ascii?q?fU/DcXtZf929h0/eHTkgsy9TNsBcSHz26NV310nn8PRzIu2KB/oEp9ykqM0K?=
+ =?us-ascii?q?RhmPxXC8Bc5+5TUgc7KZ7dz/V2C9X1Wg3cY9eJTEipT864ATE+UN0x2cUCY0?=
+ =?us-ascii?q?VjFNW4iBDMwS6qD6USl7yRC5w+6rjc0GTpJ8Zh13bG07Esj0I4TctLNG2mgL?=
+ =?us-ascii?q?N/9gfICo7XnEWWibyqeb4f3CHT7meDy3SBvEVCXA53S6XFUmgVZlHKotTh+k?=
+ =?us-ascii?q?PCU7iuBKwkMgRf18GCMbdFatrujVVFX/rsJNTeY3i2m2e1BBaI27aMYJDte2?=
+ =?us-ascii?q?UH0yXXEFIEnBwL/XaaKQg+AT+so2DZDDxuE1LjeUHs8e5+qHyhSE801B+Fb0?=
+ =?us-ascii?q?t62rWp4BEVg/ucS/US3r0Yoighry94E0q639LTE9CAvRZufL1AYdMh51dKzX?=
+ =?us-ascii?q?rZuBJ7PpyvMqBih1gefx10v0zwzRV3DJtPkcwxoXMr1QZyLaWY0E1feD+Cxp?=
+ =?us-ascii?q?D/IL7XKnTo/B+1caLW3E/R3MyU+qcX8P44sUnsvBm1Fko+9HVqy8FV3GGB5p?=
+ =?us-ascii?q?XOFwcSSYj+Ulsz9xRjorHaZS4955nK2nF2Laa0tTrCiJoVA74Oww2tbp9kO6?=
+ =?us-ascii?q?ONCQH2HtdSU8OnM+E7s0OibhsZMuRf7us/NoWtcP7QnOagNf1tjXS9hmRO/Y?=
+ =?us-ascii?q?5531ik9ixgR+qO1JEAh7ma2wydTTbnpFGot83234deanVaGmu51DihH4Nae7?=
+ =?us-ascii?q?dzYZdODGCiPsm67stxioSrWHNC8lOnQVQc14vhYheWblrgzSVO2kkN53+qgy?=
+ =?us-ascii?q?21y3pziT56gLCY2Xn13+n6dBcBclVOTW1mgEakdZO4lPgGTUOoaE4vjxLj6k?=
+ =?us-ascii?q?HkkfsI7J9jJnXeFB8bNxP9KHtvB+7p7euP?=
+X-IPAS-Result: =?us-ascii?q?A2BhBgBDpfZc/wHyM5BmHQEBBQEHBQGBZYFnKmpSMiiEF?=
+ =?us-ascii?q?JNTAQEBAQEBBoEICCWJUJEICQEBAQEBAQEBASsJAQIBAYRAAoJSIzgTAQMBA?=
+ =?us-ascii?q?QEEAQEBAQMBAWwcDII6KQGCZgEBAQECASMPAQVBEAkCGAICJgICVwYBDAYCA?=
+ =?us-ascii?q?QEagkU/AYF2BQ8Piz2baoExhUeDJoFABoEMKItaF3iBB4E4DIFhfj6CYQICh?=
+ =?us-ascii?q?GmCWASLNhgDh1KVYgmCEIIZhCiET4ggBhuCI4Z1hAKJXY0KgWmFJZEkIYFYK?=
+ =?us-ascii?q?wgCGAghDzuCbIIWBAEXg02KbyMDMAGBBQEBkEoBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Jun 2019 17:12:00 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x54HBwXw001557;
+        Tue, 4 Jun 2019 13:11:58 -0400
+Subject: Re: [PATCH 00/58] LSM: Module stacking for AppArmor
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
+References: <20190602165101.25079-1-casey@schaufler-ca.com>
+ <f71388e9-a4c5-8935-137b-8eb50be7f833@tycho.nsa.gov>
+ <66a87b0b-b6f4-74ff-2e51-afc8e2d30de1@schaufler-ca.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <2a9049a7-6259-5ae0-2790-0aaf337c51a4@tycho.nsa.gov>
+Date:   Tue, 4 Jun 2019 13:11:58 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190604162306.GB3811@linux.intel.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <66a87b0b-b6f4-74ff-2e51-afc8e2d30de1@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 04, 2019 at 07:23:06PM +0300, Jarkko Sakkinen wrote:
-> On Fri, May 31, 2019 at 04:31:56PM -0700, Sean Christopherson wrote:
-> > ...to support (the equivalent) of existing Linux Security Module
-> > functionality.
+On 6/4/19 12:14 PM, Casey Schaufler wrote:
+> On 6/4/2019 5:29 AM, Stephen Smalley wrote:
+>> On 6/2/19 12:50 PM, Casey Schaufler wrote:
+>>> This patchset provides the changes required for
+>>> the AppArmor security module to stack safely with any other.
+>>
+>> Please explain the motivation
 > 
-> Long and short descriptions should be separate. Also this does not
-> make any sense. LSM is a framework with a set of hook to make access
-> decisions and there various implementations of it.
+> I'll add some explanation for the next revision.
+> It won't be anything that I haven't posted many times
+> before, but you're right that it belongs in the log.
 > 
-> How this replicates LSMs and why that even would be a goal?
+>> - why do we want to allow AppArmor to stack with other modules,
 > 
-> My guess is that you are trying to do something else. I'm just saying
-> that the idea to do equivalent of LSMs to another subsystems would be
-> insane if it was done.
+> First, is there a reason not to? Sure, you can confuse
+> administrators by implementing complex security policies,
+> but there are lots of ways to do that already.
 
-Heh, yeah, it's not duplicating LSM functionality.  What I was trying to
-say is that this patch allows LSMs to implement policies that are
-equivalent to their existing functionality, e.g. paves the way to add
-security_enclave_load() as an equivalent to security_file_mprotect().
+There are costs to doing so, e.g.
+- greater complexity in the security framework,
+- possibly greater memory and runtime overheads,
+- potential user confusion (which security module(s) caused a given 
+failure?)
+- potential distro maintainer burden (similar to above, but performing 
+triage when any given permission denial can have multiple causes beyond 
+just DAC + one module, weird interactions among modules, etc)
 
-> > always be MAP_SHARED.  Lastly, all real world enclaves will need read,
-> > write and execute permissions to EPC pages.  As a result, SGX does not
-> > play nice with existing LSM behavior as it is impossible to apply
-> > policies to enclaves with any reasonable granularity, e.g. an LSM can
-> > deny access to EPC altogether, but can't deny potentially dangerous
-> > behavior such as mapping pages RW->RW or RWX.
-> 
-> The mapping must be shared given that it is iomem but why enclave pages
-> would need RWX for all pages? The information that is missing from this
-> paragraph is the explanation why an LSM could not deny dangerous
-> behavior in PTE level.
-
-I'll add that.
-
-> > To give LSMs enough information to implement their policies without
-> > having to resort to ugly things, e.g. holding a reference to the vm_file
-> > of each enclave page, require userspace to explicitly state the allowed
-> > protections for each page (region), i.e. take ALLOW_{READ,WRITE,EXEC}
-> > in the ADD_PAGES ioctl.
-> 
-> I would keep descriptions such as "ugly things" away from commit
-> messages as it is easy way to be not clear and explicit what you are
-> trying to say.
-> 
-> > The ALLOW_* flags will be passed to LSMs so that they can make informed
-> > decisions when the enclave is being built, i.e. when the source vm_file
-> > is available.  For example, SELinux's EXECMOD permission can be
-> > required if an enclave is requesting both ALLOW_WRITE and ALLOW_EXEC.
-> 
-> There should be some explanation what ALLOW_* flag are. It is now like
-> as it was in common knowledge. SECINFO already has protection flags to
-> name an example and without any explanation all of this is just very
-> confusing.
-
-Noted.
-
-> This should address SECINFO and ALLOW_* relationship and differences.
-> 
-> > Update the mmap()/mprotect() hooks to enforce the ALLOW_* protections,
-> > a la the standard VM_MAY{READ,WRITE,EXEC} flags.
-> > 
-> > The ALLOW_EXEC flag also has a second (important) use in that it can
-> > be used to prevent loading an enclave from a noexec file system, on
-> > SGX2 hardware (regardless of kernel support for SGX2), userspace could
-> > EADD from a noexec path using read-only permissions and later mprotect()
-> > and ENCLU[EMODPE] the page to gain execute permissions.  By requiring
-> > ALLOW_EXEC up front, SGX will be able to enforce noexec paths when
-> > building the enclave.
-> > 
-> > Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
-> > ---
-> >  arch/x86/include/uapi/asm/sgx.h        |  9 ++++++++-
-> >  arch/x86/kernel/cpu/sgx/driver/ioctl.c | 23 +++++++++++++++++------
-> >  arch/x86/kernel/cpu/sgx/encl.c         |  2 +-
-> >  arch/x86/kernel/cpu/sgx/encl.h         |  1 +
-> >  4 files changed, 27 insertions(+), 8 deletions(-)
-> > 
-> > diff --git a/arch/x86/include/uapi/asm/sgx.h b/arch/x86/include/uapi/asm/sgx.h
-> > index 4a12d6abbcb7..4489e92fa0dc 100644
-> > --- a/arch/x86/include/uapi/asm/sgx.h
-> > +++ b/arch/x86/include/uapi/asm/sgx.h
-> > @@ -31,6 +31,11 @@ struct sgx_enclave_create  {
-> >  	__u64	src;
-> >  };
-> >  
-> > +/* Supported flags for struct sgx_enclave_add_pages. */
-> > +#define SGX_ALLOW_READ	VM_READ
-> > +#define SGX_ALLOW_WRITE	VM_WRITE
-> > +#define SGX_ALLOW_EXEC	VM_EXEC
-> 
-> Why these flags are even defined if they are the same as VM_* flags?
-
-Brain fart.  Flags can just take PROT_{READ,WRITE,EXEC}.
-
-> > +
-> >  /**
-> >   * struct sgx_enclave_add_pages - parameter structure for the
-> >   *                                %SGX_IOC_ENCLAVE_ADD_PAGES ioctl
-> > @@ -39,6 +44,7 @@ struct sgx_enclave_create  {
-> >   * @secinfo:	address for the SECINFO data (common to all pages)
-> >   * @nr_pages:	number of pages (must be virtually contiguous)
-> >   * @mrmask:	bitmask for the measured 256 byte chunks (common to all pages)
-> > + * @flags:	flags, e.g. SGX_ALLOW_{READ,WRITE,EXEC} (common to all pages)
-> >   */
-> >  struct sgx_enclave_add_pages {
-> >  	__u64	addr;
-> > @@ -46,7 +52,8 @@ struct sgx_enclave_add_pages {
-> >  	__u64	secinfo;
-> >  	__u32	nr_pages;
-> >  	__u16	mrmask;
-> > -} __attribute__((__packed__));
-> > +	__u16	flags;
-> > +};
-> >  
-
-...
-
-> > @@ -576,12 +578,20 @@ static int __sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
-> >  
-> >  static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
-> >  			     unsigned long src, struct sgx_secinfo *secinfo,
-> > -			     unsigned int mrmask)
-> > +			     unsigned int mrmask, unsigned int flags)
-> >  {
-> > +	unsigned long prot = secinfo->flags & (VM_READ | VM_WRITE | VM_EXEC);
-> 
-> Even if the secinfo flags have the exactly the same values you should
-> not do this as they are kind of from different type. This is confusing
-> to read.
-
-I can add a dummy helper to translate flags and encapsulate the below
-assert.
-
-> > +	unsigned long allowed_prot = flags & (VM_READ | VM_WRITE | VM_EXEC);
-> 
-> Why you take the trouble defining those macros and do not then use them
-> even yourself?
-
-The original thought was to define them for userspace, but that's broken
-because VM_* aren't defined for userspace.
-
-> >  	struct page *data_page;
-> >  	void *data;
-> >  	int ret;
-> >  
-> > +	BUILD_BUG_ON(SGX_SECINFO_R != VM_READ || SGX_SECINFO_W != VM_WRITE ||
-> > +		     SGX_SECINFO_X != VM_EXEC);
-> 
-> Why this check?
-
-To assert that the hardware defined SECINFO flags are interchangeable with
-Linux's software defined flags, i.e. don't need to be translated.
+It isn't free so there should be a cost/benefit analysis.
 
 > 
-> > +
-> > +	if (prot & ~allowed_prot)
-> > +		return -EACCES;
-> > +
-> >  	data_page = alloc_page(GFP_HIGHUSER);
-> >  	if (!data_page)
-> >  		return -ENOMEM;
-> > @@ -593,7 +603,8 @@ static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
-> >  		goto out;
-> >  	}
-> >  
-> > -	ret = __sgx_encl_add_page(encl, addr, data, secinfo, mrmask);
-> > +	ret = __sgx_encl_add_page(encl, addr, data, secinfo, mrmask,
-> > +				  allowed_prot);
-> >  out:
-> >  	kunmap(data_page);
-> >  	__free_page(data_page);
-> > @@ -645,7 +656,7 @@ static long sgx_ioc_enclave_add_pages(struct file *filep, unsigned int cmd,
-> >  
-> >  		ret = sgx_encl_add_page(encl, addp->addr + i*PAGE_SIZE,
-> >  					addp->src + i*PAGE_SIZE,
-> > -					&secinfo, addp->mrmask);
-> > +					&secinfo, addp->mrmask, addp->flags);
-> >  	}
-> >  	return ret;
-> >  }
-> > diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-> > index 955d4f430adc..e5847571a265 100644
-> > --- a/arch/x86/kernel/cpu/sgx/encl.c
-> > +++ b/arch/x86/kernel/cpu/sgx/encl.c
-> > @@ -249,7 +249,7 @@ int sgx_map_allowed(struct sgx_encl *encl, unsigned long start,
-> >  
-> >  	for (addr = start; addr < end; addr += PAGE_SIZE) {
-> >  		page = radix_tree_lookup(&encl->page_tree, addr >> PAGE_SHIFT);
-> > -		if (!page)
-> > +		if (!page || (prot & ~page->allowed_prot))
-> >  			return -EACCES;
-> >  	}
+> AppArmor provides a different security model than SELinux,
+> TOMOYO or Smack. Smack is better at system component
+> separation, while AppArmor is better at application isolation.
+> It's a win to use each to its strength rather than trying to
+> stretch either to the edge of what it can do.
 > 
-> However this goes it would be good idea to have only ony patch in the
-> patch set that fully defines this function. Impossible to review
-> properly with this split.
+>> who would use it,
+> 
+> Can't name names, but there have been multiple requests.
+> 
+>> how would it be used,
+> 
+> As mentioned above, Smack for system separation, AppArmor for
+> application isolation.
 
-Sorry, I don't understand what you're suggesting.
+Can you provide a concrete example of how combining the two yields a 
+smaller, simpler configuration overall than using them individually?
 
 > 
-> >  
-> > 
-> > diff --git a/arch/x86/kernel/cpu/sgx/encl.h b/arch/x86/kernel/cpu/sgx/encl.h
-> > index 6e310e3b3fff..7cca076a4987 100644
-> > --- a/arch/x86/kernel/cpu/sgx/encl.h
-> > +++ b/arch/x86/kernel/cpu/sgx/encl.h
-> > @@ -41,6 +41,7 @@ enum sgx_encl_page_desc {
-> >  
-> >  struct sgx_encl_page {
-> >  	unsigned long desc;
-> > +	unsigned long allowed_prot;
-> >  	struct sgx_epc_page *epc_page;
-> >  	struct sgx_va_page *va_page;
-> >  	struct sgx_encl *encl;
-> > -- 
-> > 2.21.0
-> > 
+>> what does it provide that isn't already possible in the absence of it.
 > 
-> This patch left me very confused. I don't get it.
+> It's not necessary that something be impossible to do any
+> other way. The question should be whether this provides for
+> a better way to achieve the goals, and this does that.
+> If I tried the come up with something that's impossible I
+> would expect the usual "you can do that with SELinux policy"
+> argument. We know we can do things. We want to have the tools
+> to do them better.
 > 
-> /Jarkko
+>> Also, Ubuntu fully upstreamed all of their changes to AppArmor, would this still suffice to enable stacking of AppArmor or do they rely on hooks that are not handled here?
+> 
+> Some amount of merging will likely be required. But that's
+> always going to be true with parallel development tracks.
+> That's why we have git!
+> 
+>> Please explain the cost of the change - what do we pay in terms of memory, runtime, or other overheads in order to support this change?
+> 
+> Do you have particular benchmarks you want to see?
+> When I've supplied numbers in the past they have not
+> been remarked on.
+
+A combination of micro and macro benchmarks exercising multiple kernel 
+subsystems would be good.  Kernel build time isn't sufficient.
+
+> 
+>>
+>>>
+>>> A new process attribute identifies which security module
+>>> information should be reported by SO_PEERSEC and the
+>>> /proc/.../attr/current interface. This is provided by
+>>> /proc/.../attr/display. Writing the name of the security
+>>> module desired to this interface will set which LSM hooks
+>>> will be called for this information. The first security
+>>> module providing the hooks will be used by default.
+>>
+>> Doesn't this effectively undo making the hooks read-only after init, at least for the subset involved?  What are the security implications thereof?
+> 
+> Any mechanism, be it a separate set of hooks, a name used to
+> do list look ups, or an sophisticated hash scheme will have that
+> impact for the processes that use it. This scheme has the best
+> performance profile of the mechanisms I experimented with and
+> avoids all sorts of special cases.
+> 
+>>
+>>> The use of integer based security tokens (secids) is
+>>> generally (but not completely) replaced by a structure
+>>> lsm_export. The lsm_export structure can contain information
+>>> for each of the security modules that export information
+>>> outside the LSM layer.
+>>>
+>>> The LSM interfaces that provide "secctx" text strings
+>>> have been changed to use a structure "lsm_context"
+>>> instead of a pointer/length pair. In some cases the
+>>> interfaces used a "char *" pointer and in others a
+>>> "void *". This was necessary to ensure that the correct
+>>> release mechanism for the text is used. It also makes
+>>> many of the interfaces cleaner.
+>>>
+>>> https://github.com/cschaufler/lsm-stacking.git#stack-5.2-v1-apparmor
+>>>
+>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>> ---
+>>>    drivers/android/binder.c                |  25 ++-
+>>>    fs/kernfs/dir.c                         |   6 +-
+>>>    fs/kernfs/inode.c                       |  31 ++-
+>>>    fs/kernfs/kernfs-internal.h             |   3 +-
+>>>    fs/nfs/inode.c                          |  13 +-
+>>>    fs/nfs/internal.h                       |   8 +-
+>>>    fs/nfs/nfs4proc.c                       |  17 +-
+>>>    fs/nfs/nfs4xdr.c                        |  16 +-
+>>>    fs/nfsd/nfs4proc.c                      |   8 +-
+>>>    fs/nfsd/nfs4xdr.c                       |  14 +-
+>>>    fs/nfsd/vfs.c                           |   7 +-
+>>>    fs/proc/base.c                          |   1 +
+>>>    include/linux/cred.h                    |   3 +-
+>>>    include/linux/lsm_hooks.h               |  91 +++++----
+>>>    include/linux/nfs4.h                    |   8 +-
+>>>    include/linux/security.h                | 133 +++++++++----
+>>>    include/net/af_unix.h                   |   2 +-
+>>>    include/net/netlabel.h                  |  10 +-
+>>>    include/net/scm.h                       |  14 +-
+>>>    kernel/audit.c                          |  43 ++--
+>>>    kernel/audit.h                          |   9 +-
+>>>    kernel/auditfilter.c                    |   6 +-
+>>>    kernel/auditsc.c                        |  77 ++++----
+>>>    kernel/cred.c                           |  15 +-
+>>>    net/ipv4/cipso_ipv4.c                   |  13 +-
+>>>    net/ipv4/ip_sockglue.c                  |  12 +-
+>>>    net/netfilter/nf_conntrack_netlink.c    |  29 ++-
+>>>    net/netfilter/nf_conntrack_standalone.c |  16 +-
+>>>    net/netfilter/nfnetlink_queue.c         |  38 ++--
+>>>    net/netfilter/nft_meta.c                |  13 +-
+>>>    net/netfilter/xt_SECMARK.c              |  14 +-
+>>>    net/netlabel/netlabel_kapi.c            |   5 +-
+>>>    net/netlabel/netlabel_unlabeled.c       | 101 +++++-----
+>>>    net/netlabel/netlabel_unlabeled.h       |   2 +-
+>>>    net/netlabel/netlabel_user.c            |  13 +-
+>>>    net/netlabel/netlabel_user.h            |   2 +-
+>>>    net/unix/af_unix.c                      |   6 +-
+>>>    security/apparmor/audit.c               |   4 +-
+>>>    security/apparmor/include/audit.h       |   2 +-
+>>>    security/apparmor/include/net.h         |   6 +-
+>>>    security/apparmor/include/secid.h       |   9 +-
+>>>    security/apparmor/lsm.c                 |  64 +++---
+>>>    security/apparmor/secid.c               |  42 ++--
+>>>    security/integrity/ima/ima.h            |  14 +-
+>>>    security/integrity/ima/ima_api.c        |   9 +-
+>>>    security/integrity/ima/ima_appraise.c   |   6 +-
+>>>    security/integrity/ima/ima_main.c       |  34 ++--
+>>>    security/integrity/ima/ima_policy.c     |  19 +-
+>>>    security/security.c                     | 338 +++++++++++++++++++++++++++-----
+>>>    security/selinux/hooks.c                | 259 ++++++++++++------------
+>>>    security/selinux/include/audit.h        |   5 +-
+>>>    security/selinux/include/objsec.h       |  42 +++-
+>>>    security/selinux/netlabel.c             |  25 +--
+>>>    security/selinux/ss/services.c          |  18 +-
+>>>    security/smack/smack.h                  |  18 ++
+>>>    security/smack/smack_lsm.c              | 238 +++++++++++-----------
+>>>    security/smack/smack_netfilter.c        |   8 +-
+>>>    security/smack/smackfs.c                |  12 +-
+>>>    58 files changed, 1217 insertions(+), 779 deletions(-)
+>>>
+>>
+
