@@ -2,297 +2,267 @@ Return-Path: <SRS0=onaf=UD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,T_DKIMWL_WL_HIGH autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-9.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00561C282CE
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 15:34:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 623DEC282CE
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:14:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C3A862190D
-	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 15:34:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 08FB320843
+	for <selinux@archiver.kernel.org>; Tue,  4 Jun 2019 16:14:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="VLcDLy1o"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Dc5Vy4dS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728041AbfFDPeO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Jun 2019 11:34:14 -0400
-Received: from ucol19pa09.eemsg.mail.mil ([214.24.24.82]:23493 "EHLO
-        ucol19pa09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727969AbfFDPeN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Jun 2019 11:34:13 -0400
-X-EEMSG-check-017: 859882191|UCOL19PA09_EEMSG_MP7.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.60,550,1549929600"; 
-   d="scan'208";a="859882191"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by ucol19pa09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Jun 2019 15:34:06 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1559662446; x=1591198446;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=DB+T8oc0XZ5GNwDMLVp3GIc3krGlWESsDKst0JVbSxE=;
-  b=VLcDLy1oAuYjq7gjDvoCZhJ2TNfL/A5YSBed9HqWO9QvOmtl8kbgL7RB
-   cuzqmfBPVrgVLDt187lXEjszIizJq6sgd6MyPJ97BX733FqMKADqXaDFK
-   yxi79EwrDhAMTuTMMnrifR3B4RVshOlBGRIC18xmzoSmAbFmlYKivtMks
-   PWRhrWFeMZLDhhwLCAU2FBzSfi90ZUzioc6JPhr3TTBlTzfmzVf9Iy4j1
-   9WBSCw/nEluhHXFxepitfZ/rNcDEtXOfojrldoqjpUB2edD1oSNslqtJS
-   CMUPqcM4xEY/NnsjywFc0+w+DzfHhMRq4lu/LBd0Scqi3o486hVg8zm6G
-   w==;
-X-IronPort-AV: E=Sophos;i="5.60,550,1549929600"; 
-   d="scan'208";a="28536247"
-IronPort-PHdr: =?us-ascii?q?9a23=3ArZKpoRHf0Ga3Hqtb1ooxj51GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ75ocSzbnLW6fgltlLVR4KTs6sC17OP9fm7CCdQsN6oizMrSNR0TR?=
- =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
- =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9vMRm6txjdu8cSjIdtKas8zg?=
- =?us-ascii?q?bCr2dVdehR2W5mP0+YkQzm5se38p5j8iBQtOwk+sVdT6j0fLk2QKJBAjg+PG?=
- =?us-ascii?q?87+MPktR/YTQuS/XQcSXkZkgBJAwfe8h73WIr6vzbguep83CmaOtD2TawxVD?=
- =?us-ascii?q?+/4apnVAPkhSEaPDMi7mrZltJ/g75aoBK5phxw3YjUYJ2ONPFjeq/RZM4WSX?=
- =?us-ascii?q?ZdUspUUSFODJm8b48SBOQfO+hWoZT2q18XoRa+AQSgAeXiwSJKiHDrx603y/?=
- =?us-ascii?q?kvHx/I3AIgHNwAvnrbo9r3O6gOXu6417XIwDfZYv9KxTvw5orFfxY8qv+MR7?=
- =?us-ascii?q?Jwds/RxFEyGQPZkFqQsYzlMC2T1u8Qrmab6vBvVeari2E5qwB6vz+ixtwxhY?=
- =?us-ascii?q?nSnY8V1lDF+jl5wIYyP9G4TlV7bsS+HJtfsCGaKZJ7T8U/SG9roCY30qAKtJ?=
- =?us-ascii?q?G0cSQQyJkr2gTTZ+KIfoSW+B7vSeCcKipiin1/YrKwnROy/FClyu37S8a7zk?=
- =?us-ascii?q?5HrjFAktnQrnAN0AHT6tSfRvt94Eih3TGP2hjP6u5eO0A0lLfbK4U7zr4slp?=
- =?us-ascii?q?scrUTDHijslEXwkKCWbVkr9vKt6+TmZrXqvp6cN4lqhQHiKqkih8OyDOsiPg?=
- =?us-ascii?q?UOQmSX4/qw2bL98UHjXblGlvg2nbPYsJDeK8QbvKm5AwpN34Y49hm/FCyr0M?=
- =?us-ascii?q?gYnHYbLFJFfwiLj47yO17UOvz4AvC/g0q0nDdx2//GJqHhAonKLnXbjLjuY6?=
- =?us-ascii?q?ty61RdyAUv19xe6JNUCrcOIP/oW0/xssDYAQE9MwCu3+nnD9B93JsEWW2TGq?=
- =?us-ascii?q?+ZLL/SsViQ6+I0PeaDfokVtCz/K/Q/+/HujWU5mV4Gfam12psXcHC4Eep8I0?=
- =?us-ascii?q?WCZnrshMwMEWYMvgoiUuPqjEeOXiJUZ3a3R6g8/C00CJq6DYffQYCgmL6B0z?=
- =?us-ascii?q?2hHp1VZWBGDUqAEWzyeIWHWPcMaSSSLdFnkjEfUbihSokh1QyhtQPgyrpnKP?=
- =?us-ascii?q?bU9TMctZ75yNd14OjTnwko9TNoF8Sdz32NT2Zsk2MMWj82wKd/rFd+ylidy6?=
- =?us-ascii?q?h4heJXFdhJ6/NOSAc6OobWz/ZmBNDqRgLBYtCJRU6kQtWjBjExVMgxw94VY0?=
- =?us-ascii?q?tmHdWtlBXD0DSrA7MPkLyLHpM0+LrG33ftP8Z912rG1K45glk9XMRPL2Kmib?=
- =?us-ascii?q?Bk+gjTHYHJl0GZlqasdagGwCHN82KDx3KUvE5ESA5wTbnFXXcHa0vSrNT54F?=
- =?us-ascii?q?7CTrC3BbQ8LARO1dOCKrFLat31jVRKXfLjONPDbGKsn2e/Gw2Fxq2DbIX0YW?=
- =?us-ascii?q?URxibdB1YekwAV43mGMRIyBiC7o2LRFDZuD07gY1vw8elir3O2Vlc0wBuXb0?=
- =?us-ascii?q?1lzLe14gQaheGYS/8K27IEvyAhqy9qE1qnw93WDN+ArRJ7fKpAedM9/EtH1W?=
- =?us-ascii?q?XBugNjJpyvNbpihl8Fcwlsp0PhzQ93CoRbkcgyqHMl1hZ9JryC3FNGbTOY0o?=
- =?us-ascii?q?j6OqfLJWnq4BCvd6nW10nF0NmI/qcP6fI4q0jsvQyyCEoi/Gto08NP33uf+J?=
- =?us-ascii?q?rKFgwSXoz1Ukot8Bh6vb7aaDEn54zIzX1sLbW0sjja1tIrGuQl1hagf81YMK?=
- =?us-ascii?q?6fGg/yFNcaB9S0J+wsmlioYQgIM/xV9K4xJ8mmbeeJ2La3POZ8mzKrlXlI75?=
- =?us-ascii?q?pj0k2S7SZ8SvTH35Aew/6G2AuKTDb8jFG9ss/pnYBIfy0dHm26ySL8Ho5eer?=
- =?us-ascii?q?VyfZoXCWepO8C32tp+h5riWnND8F6jBlUG2NK1eRqIaFz92wxQ1EsNrXO6hy?=
- =?us-ascii?q?Sy1yZ0nC0xrqqDwCzOxPzvdAYAOm5RWmltl1PsLpWvj90BWEiobg4plAaq5E?=
- =?us-ascii?q?rjyahbo7l/L2/OTkhSYyj2LmZiUq2qurqFec5P54sisT9LX+SkfVCaVrn9rg?=
- =?us-ascii?q?Me0yPiGWte2T86eyipuprnhRx6jnySLHJooXrHdsF/2w3f6MbfRfFPxDoGQj?=
- =?us-ascii?q?d3iT3NCli7Jdmp8s2el43fveCmS2KhSppTfDHkzI6DtSa2/m5qDgOln/C1hN?=
- =?us-ascii?q?LnFRI20Sjh19llTS/ItgrzYpH316SmNuJqZk1oBF7668pnFYByi5AwhJ4f2H?=
- =?us-ascii?q?UBmJWV8mQIkX3pPdVYx63+dnwNSiAPw9LP5wjlwkJjJGqTx43lTnWd3tdhZ9?=
- =?us-ascii?q?6ib2wM2SI998VKBbyQ7LxFmyt1v1W5oRvfYfh6gzcdz+Yh52QGg+EIvwotyD?=
- =?us-ascii?q?+RArcIHUlXJSbsjQiH78iirKVLY2aiab6w1Ep5ndC7CbGNuAdcVW3jepg8AC?=
- =?us-ascii?q?Bw7t9wME7W3HLv7YHkfcHabcgPuR2MjxfAk+9VJYo3lvoSgCpoJX7ysmchy+?=
- =?us-ascii?q?4/kBxu2Iq3vJKZJGpw/KK2GAJYOifpaMMU/zHnlbxekdqO34CzApVhHS0GXI?=
- =?us-ascii?q?D2QvKyHzIdq+7rOByOET07t3ebH6HSHQ6Z6Ed6sX3PF4qnOG2QJHkc1d9iXg?=
- =?us-ascii?q?WSJFRDgAAIWzU3hoU5FgCwy83hakt55Soe5kL5qxdVy+NnLRz/UmbFpAqzaz?=
- =?us-ascii?q?c0ToSfIwRS7g1Y+0jVNsme5PppHy5E5p2hsBCNKmuDagRIF24JW1CECErkPr?=
- =?us-ascii?q?W05dnA7vKXBuyxL/bVYLWOr/BeWOmMxZ61zoRm+DOMPN2VPnZ+F/07xlZDXX?=
- =?us-ascii?q?dhFsvDnTUAVjYXlyPNbsKBvxe8+jN4rt6j//TrRg3v44iPC7xJPNVr+hC2h7?=
- =?us-ascii?q?qDNuGKiCZ4LzZYyo0DxXvSxLcD214SjjlkdyOxHrQYqS7NUKXQl7dUDxEBai?=
- =?us-ascii?q?N/LtBI77wm0QlNP87WkdL11rhkjvErD1dJT0DumsasZcYSOWGyKEvHBFqXNL?=
- =?us-ascii?q?SBPTDE2Nn3bLimRr1UjeVbqRuwtDWBH0D+IDuJjyPpWAy3MeFQkCGbOwRTuI?=
- =?us-ascii?q?O6chZ2CWjuV9DmahqgMN93kT0227w0hmvONWECLTh8b1lBrrqK7SNXmv9/AX?=
- =?us-ascii?q?BO7mJ5LemYnCaU9+rYJYwXsfdxAiR0ivhV4HI1y7ZO7SFEQuB1lzXWrtJ0v1?=
- =?us-ascii?q?6mleyPwCJ9UBVSsjZLmJ6LvUJ6NKXD95lPR3DE/A4P7WqOEBQHvNRlCtrou6?=
- =?us-ascii?q?BfztjAirj/JytF89LR5cEcHdTbKNqbMHo9NhrkADDVDAoBTT6vNGHQnUldnO?=
- =?us-ascii?q?uO+XGPtJg6rYPjl4QUSr9HT1w4DfIaCkJ5HNMcJJd7RC8rkbmejMQQ/3qxsA?=
- =?us-ascii?q?HRRNlGvpDATv+SGfXvKDedjblFfxsE26j3IZ4PNo3h2kxtdkV1k57RFkrRW9?=
- =?us-ascii?q?BNvjNubgsurEpR93h+Sz5750WwIDOs5nBXXdW5kgQ3gUE2Ne8g+C3t6BEnJ1?=
- =?us-ascii?q?zFjCo2jEQ1397ihGbVOHTaLL2xRp1REyr5rVM2NNezeAt8a0WQ1wQwLzrNQf?=
- =?us-ascii?q?RTybBgb2FwlAjEuZZVAvlaZaxCfBIUg/qQYqN7/05br3Cc2UJf5ebDQaBnnQ?=
- =?us-ascii?q?8ufI/k+2lMwCp/fdU1IurWP6MPwV9O0PHd9hS03/w8lVdNb30G93mfLWtR5R?=
- =?us-ascii?q?0F?=
-X-IPAS-Result: =?us-ascii?q?A2AhAAAnj/Zc/wHyM5BcChoBAQEBAQIBAQEBBwIBAQEBg?=
- =?us-ascii?q?VQCAQEBAQsBgWYqgTcFMoQ8kwhMAQEBAQEBBoEICCV+iFKRCAkBAQEBAQEBA?=
- =?us-ascii?q?QE0AQIBAYRAAoJSIzcGDgEDAQEBBAEBAQEDAQFsKII6KQGCZgEBAQECASMEE?=
- =?us-ascii?q?UEQCxUBAgICJgICVwYNCAEBF4JIP4F3BQ+nTX4zhUeDKYFGgQwoAYtZF3iBB?=
- =?us-ascii?q?4ERJwyCKjU+hBkEE4MeglgEizyCMYU2VIEnkn1qCYIQghmRFwYblneNCpgxI?=
- =?us-ascii?q?oFYKwgCGAghD4MoghoXjjwjA4E2AQGNeAElgiwBAQ?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Jun 2019 15:33:47 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x54FXjtD001017;
-        Tue, 4 Jun 2019 11:33:45 -0400
-Subject: Re: [RFC PATCH 0/9] security: x86/sgx: SGX vs. LSM
-To:     "Xing, Cedric" <cedric.xing@intel.com>,
-        "Christopherson, Sean J" <sean.j.christopherson@intel.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        "Tricca, Philip B" <philip.b.tricca@intel.com>
-References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
- <960B34DE67B9E140824F1DCDEC400C0F654EC5FD@ORSMSX116.amr.corp.intel.com>
- <20190603171549.GE13384@linux.intel.com>
- <960B34DE67B9E140824F1DCDEC400C0F654ED042@ORSMSX116.amr.corp.intel.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <10a49f97-b3be-ed09-2821-68157f01aebe@tycho.nsa.gov>
-Date:   Tue, 4 Jun 2019 11:33:44 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1728267AbfFDQOq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Jun 2019 12:14:46 -0400
+Received: from sonic309-27.consmr.mail.gq1.yahoo.com ([98.137.65.153]:41573
+        "EHLO sonic309-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728247AbfFDQOq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Jun 2019 12:14:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559664884; bh=sgAlYxwX6AaJ7oKINouDKg0a3bj3klr6l6FDGxpBiSU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Dc5Vy4dSgP7vL6m9uc+ESvXKxxwuAGV9OxtJAOmuYINnKjFC+D++9pE2IcTdAglFr92HxcfSJhw763zeRyedgT+KjDTzSPbotTp44p4RgDQekT/RfTd/84LI1pd9TRUBKoTo2g1Z6dKY4aKQZK2rSsWI0UuvC2U9jvWQ0AWLsmry4vjSi7SooXb+cf1D2wlyALFYCMl1KczFwAjOmOXgXOQIIzheuQ4mvRZccdHb1msPLo7Dv1Y7PfW2dyNioIE8lyQqMhhXsGG0sYd9r24DtFggCB9MEYvraK14mM9lJijZ8Ye4+T9MjKsSipBS2thaaVyDApFtTuKQeY7Say7Mkw==
+X-YMail-OSG: 8Bz2JZMVM1nGIALaDKv3dcFOLd8E7C5aB2Xe.ISMpfb32Y6uQaQphvg68dK25QU
+ VaYx6kAXj6VXPBv_q9O7FXH2Ilj7a9M9dFEJdg2PosdrstX_s5qwf5W7LeRydqYFs.ThxEq3BvzO
+ d0lG.QcWLP0Syd4uWRZY52eC0OQiaN7JDYN_kAS6z4bpaVasMor3mfS1FHFZVL5Wvkd6phJ6RFD2
+ 1dr6ChDbl3g0PoficuFzt3rRB5gcQf1uSqyMUWFtYuCLw_lfjAJWNfVkXgV_fB.vO4Um4RiDGRD5
+ xIogeTT6I8F3kPn7Je1QTNxFAFuQRVR7BlgjSGOZ91f9sfywaulaHwqfsR3.ZOBxZ3EPUCv3yQFL
+ dId9InqK3ALGAfth7zsAd5aZINyJZvWnzXjMKOcoBeeT3Q7J5qmVGpcbAza6Y.gm9oYtyU8wjMPY
+ OFXaxvPqf970f7qEfenuA0mxu8fT79_m8NR2HZ6vxYfAWJOur2E4o_AK7BdDNowh8xgsXzpWbRqM
+ xFri8E74Vw5HL61O4tBul1_TjlStlntatmlIfYXiJEClS.yRU.8VVV15gnXxV4TFjdDazGk0R.I3
+ GcUbgIetRoLmjBHfDWj3QclVgUPpIHK66i2vixCYusCMCGtSju3JSTdb8MU99jZ.lwYm7Og0pd0B
+ FJv9vEUcgBkwAE5iwJ4B.P84ZDMLrSPTcC4xsg6URlbdRlMcoVDvmpMIRMAY4STHnoKz2DoQE6Sp
+ cV_.sJtTejmJQrph9QycO9agITFvpV3J657eNTgrMh_m_nHAsgm1IvsXVrpSaBei_3K4Mgw6yS1T
+ zK2trrp_urZrMbnsVsDP4qvraF.sgN11uUTuQcGbhqS0i1JMTlbM7_XJ7da1fGDpkvmrX656Rot_
+ WFDCQKYsoaVDt68JMz2dujicmVOtsygXpStXaokTpW0VPhgW2Lk51qCwRlbcT43Ifq5v2OZdn6sf
+ P5QLbzJxHPNLLLmg584RmO7G8J_hUuOsvxDFEzbiJU_DHaaJ9n9i4ZnxruR4rHFXwb_cYoGln4hn
+ LmtxYPxnsD.4WmL8IMZpjjBjyRNm0nlSmOygkriT6yCX3yLYd2CQGBtWo6A5D1pRoLxgsWrTDNvf
+ V1Z6W2ezaSB55GOUPrRArd5iTi_dZ_KKhxeL1TceML765aYD6U07vRr8qm42AfSnF6pLye8utyc2
+ L4QLpgvJfGqIP7ipnvtYKlfTY6K_kn2f5oeiwkdU4knsrC0OY.6fGnmfkByPE8uBwWCG9DZDsgGl
+ dnkXhy0EVIPXj2AY8KWmP6XCYD1jDey7MIncT52KpKPxCAaG.hNUcesJydAg-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.gq1.yahoo.com with HTTP; Tue, 4 Jun 2019 16:14:44 +0000
+Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
+          by smtp431.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 54b5db5250001e49409035e6bc3b9f14;
+          Tue, 04 Jun 2019 16:14:43 +0000 (UTC)
+Subject: Re: [PATCH 00/58] LSM: Module stacking for AppArmor
+To:     Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
+        jmorris@namei.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Cc:     keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        casey@schaufler-ca.com
+References: <20190602165101.25079-1-casey@schaufler-ca.com>
+ <f71388e9-a4c5-8935-137b-8eb50be7f833@tycho.nsa.gov>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ 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
+ abzjfg==
+Message-ID: <66a87b0b-b6f4-74ff-2e51-afc8e2d30de1@schaufler-ca.com>
+Date:   Tue, 4 Jun 2019 09:14:42 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F654ED042@ORSMSX116.amr.corp.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <f71388e9-a4c5-8935-137b-8eb50be7f833@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: base64
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/3/19 2:30 PM, Xing, Cedric wrote:
->> From: Christopherson, Sean J
->> Sent: Monday, June 03, 2019 10:16 AM
->>
->> On Sun, Jun 02, 2019 at 12:29:35AM -0700, Xing, Cedric wrote:
->>> Hi Sean,
->>>
->>> Generally I agree with your direction but think ALLOW_* flags are
->>> completely internal to LSM because they can be both produced and
->>> consumed inside an LSM module. So spilling them into SGX driver and
->>> also user mode code makes the solution ugly and in some cases
->>> impractical because not every enclave host process has a priori
->>> knowledge on whether or not an enclave page would be EMODPE'd at
->> runtime.
->>
->> In this case, the host process should tag *all* pages it *might* convert
->> to executable as ALLOW_EXEC.  LSMs can (and should/will) be written in
->> such a way that denying ALLOW_EXEC is fatal to the enclave if and only
->> if the enclave actually attempts mprotect(PROT_EXEC).
-> 
-> What if those pages contain self-modifying code but the host doesn't know ahead of time? Would it require ALLOW_WRITE|ALLOW_EXEC at EADD? Then would it prevent those pages to start with PROT_EXEC?
-> 
-> Anyway, my point is that it is unnecessary even if it works.
-> 
->>
->> Take the SELinux path for example.  The only scenario in which
->> PROT_WRITE is cleared from @allowed_prot is if the page *starts* with
->> PROT_EXEC.
->> If PROT_EXEC is denied on a page that starts RW, e.g. an EAUG'd page,
->> then PROT_EXEC will be cleared from @allowed_prot.
->>
->> As Stephen pointed out, auditing the denials on @allowed_prot means the
->> log will contain false positives of a sort.  But this is more of a noise
->> issue than true false positives.  E.g. there are three possible outcomes
->> for the enclave.
->>
->>    - The enclave does not do EMODPE[PROT_EXEC] in any scenario, ever.
->>      Requesting ALLOW_EXEC is either a straightforward a userspace bug or
->>      a poorly written generic enclave loader.
->>
->>    - The enclave conditionally performs EMODPE[PROT_EXEC].  In this case
->>      the denial is a true false positive.
->>
->>    - The enclave does EMODPE[PROT_EXEC] and its host userspace then fails
->>      on mprotect(PROT_EXEC), i.e. the LSM denial is working as intended.
->>      The audit log will be noisy, but viewed as a whole the denials
->> aren't
->>      false positives.
-> 
-> What I was talking about was EMODPE[PROT_WRITE] on an RX page.
-> 
->>
->> The potential for noisy audit logs and/or false positives is unfortunate,
->> but it's (by far) the lesser of many evils.
->>
->>> Theoretically speaking, what you really need is a per page flag (let's
->>> name it WRITTEN?) indicating whether a page has ever been written to
->>> (or more precisely, granted PROT_WRITE), which will be used to decide
->>> whether to grant PROT_EXEC when requested in future. Given the fact
->>> that all mprotect() goes through LSM and mmap() is limited to
->>> PROT_NONE, it's easy for LSM to capture that flag by itself instead of
->> asking user mode code to provide it.
->>>
->>> That said, here is the summary of what I think is a better approach.
->>> * In hook security_file_alloc(), if @file is an enclave, allocate some
->> data
->>>    structure to store for every page, the WRITTEN flag as described
->> above.
->>>    WRITTEN is cleared initially for all pages.
->>
->> This would effectively require *every* LSM to duplicate the SGX driver's
->> functionality, e.g. track per-page metadata, implement locking to
->> prevent races between multiple mm structs, etc...
-> 
-> Architecturally we shouldn't dictate how LSM makes decisions. ALLOW_* are no difference than PROCESS__* or FILE__* flags, which are just artifacts to assist particular LSMs in decision making. They are never considered part of the LSM interface, even if other LSMs than SELinux may adopt the same/similar approach.
-> 
-> If code duplication is what you are worrying about, you can put them in a library, or implement/export them in some new file (maybe security/enclave.c?) as utility functions. But spilling them into user mode is what I think is unacceptable.
-> 
->>
->>>    Open: Given a file of type struct file *, how to tell if it is an
->> enclave (i.e. /dev/sgx/enclave)?
->>> * In hook security_mmap_file(), if @file is an enclave, make sure
->> @prot can
->>>    only be PROT_NONE. This is to force all protection changes to go
->> through
->>>    security_file_mprotect().
->>> * In the newly introduced hook security_enclave_load(), set WRITTEN
->> for pages
->>>    that are requested PROT_WRITE.
->>
->> How would an LSM associate a page with a specific enclave?  vma->vm_file
->> will point always point at /dev/sgx/enclave.  vma->vm_mm is useless
->> because we're allowing multiple processes to map a single enclave, not
->> to mention that by mm would require holding a reference to the mm.
-> 
-> Each open("/dev/sgx/enclave") syscall creates a *new* instance of struct file to uniquely identify one enclave instance. What I mean is @vma->vm_file, not @vma->vm_file->f_path or @vma->vm_file->f_inode.
-> 
->>
->>> * In hook security_file_mprotect(), if @vma->vm_file is an enclave,
->> look up
->>>    and use WRITTEN flags for all pages within @vma, along with other
->> global
->>>    flags (e.g. PROCESS__EXECMEM/FILE__EXECMOD in the case of SELinux)
->> to decide
->>>    on allowing/rejecting @prot.
->>
->> vma->vm_file will always be /dev/sgx/enclave at this point, which means
->> LSMs don't have the necessary anchor back to the source file, e.g. to
->> enforce FILE__EXECUTE.  The noexec file system case is also unaddressed.
-> 
-> vma->vm_file identifies an enclave instance uniquely. FILE__EXECUTE is checked by security_enclave_load() using @source_vma->vm_file. Once a page has been EADD'ed, whether to allow RW->RX depends on .sigstruct file (more precisely, the file backing SIGSTRUCT), whose FILE__* attributes could be cached in vma->vm_file->f_security by security_enclave_init().
-
-The RFC series seemed to dispense with the use of the sigstruct file and 
-just used the source file throughout IIUC.  That allowed for reuse of 
-FILE__* permissions without ambiguity rather than introducing separate 
-ENCLAVE__* permissions or using /dev/sgx/enclave inode as the target of 
-all checks.
-
-Regardless, IIUC, your approach requires that we always check 
-FILE__EXECMOD, and FILE__EXECUTE up front during security_enclave_load() 
-irrespective of prot so that we can save the result in the f_security 
-for later use by the mprotect hook.  This may generate many spurious 
-audit messages for cases where PROT_EXEC will never be requested, and 
-users will be prone to just always allowing it since they cannot tell 
-when it was actually needed.
-
->   
-> The noexec case should be addressed in IOC_ADD_PAGES by testing @source_vma->vm_flags & VM_MAYEXEC.
-> 
->>
->>> * In hook security_file_free(), if @file is an  enclave, free storage
->>>    allocated for WRITTEN flags.
-
+T24gNi80LzIwMTkgNToyOSBBTSwgU3RlcGhlbiBTbWFsbGV5IHdyb3RlOg0KPiBPbiA2LzIv
+MTkgMTI6NTAgUE0sIENhc2V5IFNjaGF1ZmxlciB3cm90ZToNCj4+IFRoaXMgcGF0Y2hzZXQg
+cHJvdmlkZXMgdGhlIGNoYW5nZXMgcmVxdWlyZWQgZm9yDQo+PiB0aGUgQXBwQXJtb3Igc2Vj
+dXJpdHkgbW9kdWxlIHRvIHN0YWNrIHNhZmVseSB3aXRoIGFueSBvdGhlci4NCj4NCj4gUGxl
+YXNlIGV4cGxhaW4gdGhlIG1vdGl2YXRpb24NCg0KSSdsbCBhZGQgc29tZSBleHBsYW5hdGlv
+biBmb3IgdGhlIG5leHQgcmV2aXNpb24uDQpJdCB3b24ndCBiZSBhbnl0aGluZyB0aGF0IEkg
+aGF2ZW4ndCBwb3N0ZWQgbWFueSB0aW1lcw0KYmVmb3JlLCBidXQgeW91J3JlIHJpZ2h0IHRo
+YXQgaXQgYmVsb25ncyBpbiB0aGUgbG9nLg0KDQo+IC0gd2h5IGRvIHdlIHdhbnQgdG8gYWxs
+b3cgQXBwQXJtb3IgdG8gc3RhY2sgd2l0aCBvdGhlciBtb2R1bGVzLA0KDQpGaXJzdCwgaXMg
+dGhlcmUgYSByZWFzb24gbm90IHRvPyBTdXJlLCB5b3UgY2FuIGNvbmZ1c2UNCmFkbWluaXN0
+cmF0b3JzIGJ5IGltcGxlbWVudGluZyBjb21wbGV4IHNlY3VyaXR5IHBvbGljaWVzLA0KYnV0
+IHRoZXJlIGFyZSBsb3RzIG9mIHdheXMgdG8gZG8gdGhhdCBhbHJlYWR5Lg0KDQpBcHBBcm1v
+ciBwcm92aWRlcyBhIGRpZmZlcmVudCBzZWN1cml0eSBtb2RlbCB0aGFuIFNFTGludXgsDQpU
+T01PWU8gb3IgU21hY2suIFNtYWNrIGlzIGJldHRlciBhdCBzeXN0ZW0gY29tcG9uZW50DQpz
+ZXBhcmF0aW9uLCB3aGlsZSBBcHBBcm1vciBpcyBiZXR0ZXIgYXQgYXBwbGljYXRpb24gaXNv
+bGF0aW9uLg0KSXQncyBhIHdpbiB0byB1c2UgZWFjaCB0byBpdHMgc3RyZW5ndGggcmF0aGVy
+IHRoYW4gdHJ5aW5nIHRvDQpzdHJldGNoIGVpdGhlciB0byB0aGUgZWRnZSBvZiB3aGF0IGl0
+IGNhbiBkby4NCg0KPiB3aG8gd291bGQgdXNlIGl0LA0KDQpDYW4ndCBuYW1lIG5hbWVzLCBi
+dXQgdGhlcmUgaGF2ZSBiZWVuIG11bHRpcGxlIHJlcXVlc3RzLg0KDQo+IGhvdyB3b3VsZCBp
+dCBiZSB1c2VkLA0KDQpBcyBtZW50aW9uZWQgYWJvdmUsIFNtYWNrIGZvciBzeXN0ZW0gc2Vw
+YXJhdGlvbiwgQXBwQXJtb3IgZm9yDQphcHBsaWNhdGlvbiBpc29sYXRpb24uDQoNCj4gd2hh
+dCBkb2VzIGl0IHByb3ZpZGUgdGhhdCBpc24ndCBhbHJlYWR5IHBvc3NpYmxlIGluIHRoZSBh
+YnNlbmNlIG9mIGl0Lg0KDQpJdCdzIG5vdCBuZWNlc3NhcnkgdGhhdCBzb21ldGhpbmcgYmUg
+aW1wb3NzaWJsZSB0byBkbyBhbnkNCm90aGVyIHdheS4gVGhlIHF1ZXN0aW9uIHNob3VsZCBi
+ZSB3aGV0aGVyIHRoaXMgcHJvdmlkZXMgZm9yDQphIGJldHRlciB3YXkgdG8gYWNoaWV2ZSB0
+aGUgZ29hbHMsIGFuZCB0aGlzIGRvZXMgdGhhdC4NCklmIEkgdHJpZWQgdGhlIGNvbWUgdXAg
+d2l0aCBzb21ldGhpbmcgdGhhdCdzIGltcG9zc2libGUgSQ0Kd291bGQgZXhwZWN0IHRoZSB1
+c3VhbCAieW91IGNhbiBkbyB0aGF0IHdpdGggU0VMaW51eCBwb2xpY3kiDQphcmd1bWVudC4g
+V2Uga25vdyB3ZSBjYW4gZG8gdGhpbmdzLiBXZSB3YW50IHRvIGhhdmUgdGhlIHRvb2xzDQp0
+byBkbyB0aGVtIGJldHRlci4NCg0KPiBBbHNvLCBVYnVudHUgZnVsbHkgdXBzdHJlYW1lZCBh
+bGwgb2YgdGhlaXIgY2hhbmdlcyB0byBBcHBBcm1vciwgd291bGQgdGhpcyBzdGlsbCBzdWZm
+aWNlIHRvIGVuYWJsZSBzdGFja2luZyBvZiBBcHBBcm1vciBvciBkbyB0aGV5IHJlbHkgb24g
+aG9va3MgdGhhdCBhcmUgbm90IGhhbmRsZWQgaGVyZT8NCg0KU29tZSBhbW91bnQgb2YgbWVy
+Z2luZyB3aWxsIGxpa2VseSBiZSByZXF1aXJlZC4gQnV0IHRoYXQncw0KYWx3YXlzIGdvaW5n
+IHRvIGJlIHRydWUgd2l0aCBwYXJhbGxlbCBkZXZlbG9wbWVudCB0cmFja3MuDQpUaGF0J3Mg
+d2h5IHdlIGhhdmUgZ2l0IQ0KDQo+IFBsZWFzZSBleHBsYWluIHRoZSBjb3N0IG9mIHRoZSBj
+aGFuZ2UgLSB3aGF0IGRvIHdlIHBheSBpbiB0ZXJtcyBvZiBtZW1vcnksIHJ1bnRpbWUsIG9y
+IG90aGVyIG92ZXJoZWFkcyBpbiBvcmRlciB0byBzdXBwb3J0IHRoaXMgY2hhbmdlPw0KDQpE
+byB5b3UgaGF2ZSBwYXJ0aWN1bGFyIGJlbmNobWFya3MgeW91IHdhbnQgdG8gc2VlPw0KV2hl
+biBJJ3ZlIHN1cHBsaWVkIG51bWJlcnMgaW4gdGhlIHBhc3QgdGhleSBoYXZlIG5vdA0KYmVl
+biByZW1hcmtlZCBvbi4NCg0KPg0KPj4NCj4+IEEgbmV3IHByb2Nlc3MgYXR0cmlidXRlIGlk
+ZW50aWZpZXMgd2hpY2ggc2VjdXJpdHkgbW9kdWxlDQo+PiBpbmZvcm1hdGlvbiBzaG91bGQg
+YmUgcmVwb3J0ZWQgYnkgU09fUEVFUlNFQyBhbmQgdGhlDQo+PiAvcHJvYy8uLi4vYXR0ci9j
+dXJyZW50IGludGVyZmFjZS4gVGhpcyBpcyBwcm92aWRlZCBieQ0KPj4gL3Byb2MvLi4uL2F0
+dHIvZGlzcGxheS4gV3JpdGluZyB0aGUgbmFtZSBvZiB0aGUgc2VjdXJpdHkNCj4+IG1vZHVs
+ZSBkZXNpcmVkIHRvIHRoaXMgaW50ZXJmYWNlIHdpbGwgc2V0IHdoaWNoIExTTSBob29rcw0K
+Pj4gd2lsbCBiZSBjYWxsZWQgZm9yIHRoaXMgaW5mb3JtYXRpb24uIFRoZSBmaXJzdCBzZWN1
+cml0eQ0KPj4gbW9kdWxlIHByb3ZpZGluZyB0aGUgaG9va3Mgd2lsbCBiZSB1c2VkIGJ5IGRl
+ZmF1bHQuDQo+DQo+IERvZXNuJ3QgdGhpcyBlZmZlY3RpdmVseSB1bmRvIG1ha2luZyB0aGUg
+aG9va3MgcmVhZC1vbmx5IGFmdGVyIGluaXQsIGF0IGxlYXN0IGZvciB0aGUgc3Vic2V0IGlu
+dm9sdmVkP8KgIFdoYXQgYXJlIHRoZSBzZWN1cml0eSBpbXBsaWNhdGlvbnMgdGhlcmVvZj8N
+Cg0KQW55IG1lY2hhbmlzbSwgYmUgaXQgYSBzZXBhcmF0ZSBzZXQgb2YgaG9va3MsIGEgbmFt
+ZSB1c2VkIHRvDQpkbyBsaXN0IGxvb2sgdXBzLCBvciBhbiBzb3BoaXN0aWNhdGVkIGhhc2gg
+c2NoZW1lIHdpbGwgaGF2ZSB0aGF0DQppbXBhY3QgZm9yIHRoZSBwcm9jZXNzZXMgdGhhdCB1
+c2UgaXQuIFRoaXMgc2NoZW1lIGhhcyB0aGUgYmVzdA0KcGVyZm9ybWFuY2UgcHJvZmlsZSBv
+ZiB0aGUgbWVjaGFuaXNtcyBJIGV4cGVyaW1lbnRlZCB3aXRoIGFuZA0KYXZvaWRzIGFsbCBz
+b3J0cyBvZiBzcGVjaWFsIGNhc2VzLg0KDQo+DQo+PiBUaGUgdXNlIG9mIGludGVnZXIgYmFz
+ZWQgc2VjdXJpdHkgdG9rZW5zIChzZWNpZHMpIGlzDQo+PiBnZW5lcmFsbHkgKGJ1dCBub3Qg
+Y29tcGxldGVseSkgcmVwbGFjZWQgYnkgYSBzdHJ1Y3R1cmUNCj4+IGxzbV9leHBvcnQuIFRo
+ZSBsc21fZXhwb3J0IHN0cnVjdHVyZSBjYW4gY29udGFpbiBpbmZvcm1hdGlvbg0KPj4gZm9y
+IGVhY2ggb2YgdGhlIHNlY3VyaXR5IG1vZHVsZXMgdGhhdCBleHBvcnQgaW5mb3JtYXRpb24N
+Cj4+IG91dHNpZGUgdGhlIExTTSBsYXllci4NCj4+DQo+PiBUaGUgTFNNIGludGVyZmFjZXMg
+dGhhdCBwcm92aWRlICJzZWNjdHgiIHRleHQgc3RyaW5ncw0KPj4gaGF2ZSBiZWVuIGNoYW5n
+ZWQgdG8gdXNlIGEgc3RydWN0dXJlICJsc21fY29udGV4dCINCj4+IGluc3RlYWQgb2YgYSBw
+b2ludGVyL2xlbmd0aCBwYWlyLiBJbiBzb21lIGNhc2VzIHRoZQ0KPj4gaW50ZXJmYWNlcyB1
+c2VkIGEgImNoYXIgKiIgcG9pbnRlciBhbmQgaW4gb3RoZXJzIGENCj4+ICJ2b2lkICoiLiBU
+aGlzIHdhcyBuZWNlc3NhcnkgdG8gZW5zdXJlIHRoYXQgdGhlIGNvcnJlY3QNCj4+IHJlbGVh
+c2UgbWVjaGFuaXNtIGZvciB0aGUgdGV4dCBpcyB1c2VkLiBJdCBhbHNvIG1ha2VzDQo+PiBt
+YW55IG9mIHRoZSBpbnRlcmZhY2VzIGNsZWFuZXIuDQo+Pg0KPj4gaHR0cHM6Ly9naXRodWIu
+Y29tL2NzY2hhdWZsZXIvbHNtLXN0YWNraW5nLmdpdCNzdGFjay01LjItdjEtYXBwYXJtb3IN
+Cj4+DQo+PiBTaWduZWQtb2ZmLWJ5OiBDYXNleSBTY2hhdWZsZXIgPGNhc2V5QHNjaGF1Zmxl
+ci1jYS5jb20+DQo+PiAtLS0NCj4+IMKgIGRyaXZlcnMvYW5kcm9pZC9iaW5kZXIuY8KgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMjUgKystDQo+PiDCoCBmcy9rZXJuZnMv
+ZGlyLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+fMKgwqAgNiArLQ0KPj4gwqAgZnMva2VybmZzL2lub2RlLmPCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMzEgKystDQo+PiDCoCBmcy9rZXJuZnMv
+a2VybmZzLWludGVybmFsLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgMyArLQ0K
+Pj4gwqAgZnMvbmZzL2lub2RlLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB8wqAgMTMgKy0NCj4+IMKgIGZzL25mcy9pbnRlcm5hbC5owqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgOCArLQ0K
+Pj4gwqAgZnMvbmZzL25mczRwcm9jLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoCB8wqAgMTcgKy0NCj4+IMKgIGZzL25mcy9uZnM0eGRyLmPCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxNiArLQ0KPj4g
+wqAgZnMvbmZzZC9uZnM0cHJvYy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIHzCoMKgIDggKy0NCj4+IMKgIGZzL25mc2QvbmZzNHhkci5jwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE0ICstDQo+PiDCoCBm
+cy9uZnNkL3Zmcy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCB8wqDCoCA3ICstDQo+PiDCoCBmcy9wcm9jL2Jhc2UuY8KgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDEgKw0KPj4g
+wqAgaW5jbHVkZS9saW51eC9jcmVkLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCB8wqDCoCAzICstDQo+PiDCoCBpbmNsdWRlL2xpbnV4L2xzbV9ob29rcy5owqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgOTEgKysrKystLS0tDQo+PiDCoCBpbmNs
+dWRlL2xpbnV4L25mczQuaMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+IHzCoMKgIDggKy0NCj4+IMKgIGluY2x1ZGUvbGludXgvc2VjdXJpdHkuaMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoCB8IDEzMyArKysrKysrKystLS0tDQo+PiDCoCBpbmNsdWRl
+L25ldC9hZl91bml4LmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKg
+wqAgMiArLQ0KPj4gwqAgaW5jbHVkZS9uZXQvbmV0bGFiZWwuaMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEwICstDQo+PiDCoCBpbmNsdWRlL25ldC9zY20uaMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxNCArLQ0K
+Pj4gwqAga2VybmVsL2F1ZGl0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB8wqAgNDMgKystLQ0KPj4gwqAga2VybmVsL2F1ZGl0LmjCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCA5
+ICstDQo+PiDCoCBrZXJuZWwvYXVkaXRmaWx0ZXIuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgIHzCoMKgIDYgKy0NCj4+IMKgIGtlcm5lbC9hdWRpdHNjLmPCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA3NyArKysr
+LS0tLQ0KPj4gwqAga2VybmVsL2NyZWQuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE1ICstDQo+PiDCoCBuZXQvaXB2NC9jaXBz
+b19pcHY0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEzICst
+DQo+PiDCoCBuZXQvaXB2NC9pcF9zb2NrZ2x1ZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCB8wqAgMTIgKy0NCj4+IMKgIG5ldC9uZXRmaWx0ZXIvbmZfY29ubnRyYWNr
+X25ldGxpbmsuY8KgwqDCoCB8wqAgMjkgKystDQo+PiDCoCBuZXQvbmV0ZmlsdGVyL25mX2Nv
+bm50cmFja19zdGFuZGFsb25lLmMgfMKgIDE2ICstDQo+PiDCoCBuZXQvbmV0ZmlsdGVyL25m
+bmV0bGlua19xdWV1ZS5jwqDCoMKgwqDCoMKgwqDCoCB8wqAgMzggKystLQ0KPj4gwqAgbmV0
+L25ldGZpbHRlci9uZnRfbWV0YS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
+oCAxMyArLQ0KPj4gwqAgbmV0L25ldGZpbHRlci94dF9TRUNNQVJLLmPCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoCB8wqAgMTQgKy0NCj4+IMKgIG5ldC9uZXRsYWJlbC9uZXRsYWJlbF9r
+YXBpLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDUgKy0NCj4+IMKgIG5ldC9uZXRs
+YWJlbC9uZXRsYWJlbF91bmxhYmVsZWQuY8KgwqDCoMKgwqDCoCB8IDEwMSArKysrKy0tLS0t
+DQo+PiDCoCBuZXQvbmV0bGFiZWwvbmV0bGFiZWxfdW5sYWJlbGVkLmjCoMKgwqDCoMKgwqAg
+fMKgwqAgMiArLQ0KPj4gwqAgbmV0L25ldGxhYmVsL25ldGxhYmVsX3VzZXIuY8KgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgfMKgIDEzICstDQo+PiDCoCBuZXQvbmV0bGFiZWwvbmV0bGFiZWxf
+dXNlci5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCAyICstDQo+PiDCoCBuZXQvdW5p
+eC9hZl91bml4LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+fMKgwqAgNiArLQ0KPj4gwqAgc2VjdXJpdHkvYXBwYXJtb3IvYXVkaXQuY8KgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgNCArLQ0KPj4gwqAgc2VjdXJpdHkvYXBwYXJtb3Iv
+aW5jbHVkZS9hdWRpdC5owqDCoMKgwqDCoMKgIHzCoMKgIDIgKy0NCj4+IMKgIHNlY3VyaXR5
+L2FwcGFybW9yL2luY2x1ZGUvbmV0LmjCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDYgKy0NCj4+
+IMKgIHNlY3VyaXR5L2FwcGFybW9yL2luY2x1ZGUvc2VjaWQuaMKgwqDCoMKgwqDCoCB8wqDC
+oCA5ICstDQo+PiDCoCBzZWN1cml0eS9hcHBhcm1vci9sc20uY8KgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgIHzCoCA2NCArKystLS0NCj4+IMKgIHNlY3VyaXR5L2FwcGFybW9y
+L3NlY2lkLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA0MiArKy0tDQo+PiDC
+oCBzZWN1cml0eS9pbnRlZ3JpdHkvaW1hL2ltYS5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
+wqAgMTQgKy0NCj4+IMKgIHNlY3VyaXR5L2ludGVncml0eS9pbWEvaW1hX2FwaS5jwqDCoMKg
+wqDCoMKgwqAgfMKgwqAgOSArLQ0KPj4gwqAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFf
+YXBwcmFpc2UuY8KgwqAgfMKgwqAgNiArLQ0KPj4gwqAgc2VjdXJpdHkvaW50ZWdyaXR5L2lt
+YS9pbWFfbWFpbi5jwqDCoMKgwqDCoMKgIHzCoCAzNCArKy0tDQo+PiDCoCBzZWN1cml0eS9p
+bnRlZ3JpdHkvaW1hL2ltYV9wb2xpY3kuY8KgwqDCoMKgIHzCoCAxOSArLQ0KPj4gwqAgc2Vj
+dXJpdHkvc2VjdXJpdHkuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgfCAzMzggKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0NCj4+IMKgIHNlY3Vy
+aXR5L3NlbGludXgvaG9va3MuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDI1
+OSArKysrKysrKysrKystLS0tLS0tLS0tLS0NCj4+IMKgIHNlY3VyaXR5L3NlbGludXgvaW5j
+bHVkZS9hdWRpdC5owqDCoMKgwqDCoMKgwqAgfMKgwqAgNSArLQ0KPj4gwqAgc2VjdXJpdHkv
+c2VsaW51eC9pbmNsdWRlL29ianNlYy5owqDCoMKgwqDCoMKgIHzCoCA0MiArKystDQo+PiDC
+oCBzZWN1cml0eS9zZWxpbnV4L25ldGxhYmVsLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+fMKgIDI1ICstLQ0KPj4gwqAgc2VjdXJpdHkvc2VsaW51eC9zcy9zZXJ2aWNlcy5jwqDCoMKg
+wqDCoMKgwqDCoMKgIHzCoCAxOCArLQ0KPj4gwqAgc2VjdXJpdHkvc21hY2svc21hY2suaMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE4ICsrDQo+PiDCoCBzZWN1
+cml0eS9zbWFjay9zbWFja19sc20uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgMjM4
+ICsrKysrKysrKysrLS0tLS0tLS0tLS0NCj4+IMKgIHNlY3VyaXR5L3NtYWNrL3NtYWNrX25l
+dGZpbHRlci5jwqDCoMKgwqDCoMKgwqAgfMKgwqAgOCArLQ0KPj4gwqAgc2VjdXJpdHkvc21h
+Y2svc21hY2tmcy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxMiArLQ0K
+Pj4gwqAgNTggZmlsZXMgY2hhbmdlZCwgMTIxNyBpbnNlcnRpb25zKCspLCA3NzkgZGVsZXRp
+b25zKC0pDQo+Pg0KPg0K
