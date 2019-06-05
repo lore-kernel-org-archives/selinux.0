@@ -3,85 +3,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09568C28D18
-	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 14:08:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5DC8C28D18
+	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 15:06:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D896120870
-	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 14:08:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 99DDF206B8
+	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 15:06:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728195AbfFEOIQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Jun 2019 10:08:16 -0400
-Received: from mga12.intel.com ([192.55.52.136]:38356 "EHLO mga12.intel.com"
+        id S1728572AbfFEPGy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Jun 2019 11:06:54 -0400
+Received: from mga06.intel.com ([134.134.136.31]:26266 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726442AbfFEOIQ (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 5 Jun 2019 10:08:16 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
+        id S1728467AbfFEPGy (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 5 Jun 2019 11:06:54 -0400
+X-Amp-Result: UNSCANNABLE
 X-Amp-File-Uploaded: False
 Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Jun 2019 07:08:15 -0700
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Jun 2019 08:06:53 -0700
 X-ExtLoop1: 1
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
-  by orsmga007.jf.intel.com with ESMTP; 05 Jun 2019 07:08:15 -0700
-Date:   Wed, 5 Jun 2019 07:08:15 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     "Xing, Cedric" <cedric.xing@intel.com>
+Received: from araresx-wtg1.ger.corp.intel.com (HELO localhost) ([10.252.46.102])
+  by orsmga007.jf.intel.com with ESMTP; 05 Jun 2019 08:06:40 -0700
+Date:   Wed, 5 Jun 2019 18:06:34 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
 Cc:     Andy Lutomirski <luto@kernel.org>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Cedric Xing <cedric.xing@intel.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         James Morris <jmorris@namei.org>,
         "Serge E . Hallyn" <serge@hallyn.com>,
         LSM List <linux-security-module@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
         Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
+        Dave Hansen <dave.hansen@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
+        linux-sgx@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
+        Shay Katz-zamir <shay.katz-zamir@intel.com>,
+        Haitao Huang <haitao.huang@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Kai Svahn <kai.svahn@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
         Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
+        Kai Huang <kai.huang@intel.com>,
         David Rientjes <rientjes@google.com>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        "Tricca, Philip B" <philip.b.tricca@intel.com>
-Subject: Re: [RFC PATCH 2/9] x86/sgx: Do not naturally align MAP_FIXED address
-Message-ID: <20190605140815.GA26328@linux.intel.com>
+        William Roberts <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH 6/9] x86/sgx: Require userspace to provide allowed
+ prots to ADD_PAGES
+Message-ID: <20190605150634.GH11331@linux.intel.com>
 References: <20190531233159.30992-1-sean.j.christopherson@intel.com>
- <20190531233159.30992-3-sean.j.christopherson@intel.com>
- <20190604114951.GC30594@linux.intel.com>
- <CALCETrVe0jhAWAFmx+NFEjJcijSJv2LDVC7cUXi0w99kNKjh_g@mail.gmail.com>
- <960B34DE67B9E140824F1DCDEC400C0F654EDBDE@ORSMSX116.amr.corp.intel.com>
+ <20190531233159.30992-7-sean.j.christopherson@intel.com>
+ <20190604162306.GB3811@linux.intel.com>
+ <20190604164514.GB32350@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F654EDBDE@ORSMSX116.amr.corp.intel.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190604164514.GB32350@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 04, 2019 at 03:10:22PM -0700, Xing, Cedric wrote:
-> A bit off topic here. This mmap()/mprotect() discussion reminds me a question
-> (guess for Jarkko): Now that vma->vm_file->private_data keeps a pointer to
-> the enclave, why do we store it again in vma->vm_private? It isn't a big deal
-> but non-NULL vm_private does prevent mprotect() from merging adjacent VMAs. 
+On Tue, Jun 04, 2019 at 09:45:14AM -0700, Sean Christopherson wrote:
+> Heh, yeah, it's not duplicating LSM functionality.  What I was trying to
+> say is that this patch allows LSMs to implement policies that are
+> equivalent to their existing functionality, e.g. paves the way to add
+> security_enclave_load() as an equivalent to security_file_mprotect().
 
-vma->vm_ops->close also prevents merging, and we need that to refcount the
-enclave and mm.
+I would suggest describing explicitly in the commit message what you
+want to do, which you said here e.g. "I do this because I want to add
+LSM hooks". This also relevant information for the LKM discussion.
 
-We also rely on nullifying vma->vm_private_data in the unlikely event that
-adding a new mm to the enclave fails on kzalloc().
+Lets see how the next version looks like now that you have some
+feedback.
+
+In the whole scope of the patch set, in order to make it more
+readable, I'll give following suggestions on how it is organized:
+
+1. Leave out anything that is not strictly necessary (cosmetic
+fix, batch operation if possible). Better to focus one thing at
+a time.
+2. Try to organize it so that each function is fully defined in
+the scope of one patch even if it would mean larger patches.
+3. Do not add one call site helpers unless there is a good
+reason to do so. A good reason would be something like needing
+to extensive work in error rollback, which would make the
+caller a mess.
+
+/Jarkko
