@@ -2,243 +2,70 @@ Return-Path: <SRS0=z8TV=UE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2928C282CE
-	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 01:56:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E340C28CC3
+	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 03:09:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 58AA22070B
-	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 01:56:54 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="UIVh2suo"
+	by mail.kernel.org (Postfix) with ESMTP id 2E17F2075C
+	for <selinux@archiver.kernel.org>; Wed,  5 Jun 2019 03:09:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726354AbfFEB4x (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Jun 2019 21:56:53 -0400
-Received: from rgout0707.bt.lon5.cpcloud.co.uk ([65.20.0.147]:8195 "EHLO
-        rgout0707.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726293AbfFEB4x (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Jun 2019 21:56:53 -0400
-X-OWM-Source-IP: 86.147.205.15 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgudekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgushesthihtghhohdrnhhsrgdrghhovheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeogihunhgthhgrnhhgsehgohhoghhlvgdrtghomheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvdduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvdefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvdeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgvdelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgfedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgfeekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedggeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgheegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgieelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgkeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgleelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedguddvhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefjedgudehvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefkedggedtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefkedgleduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgudefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgieegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgudduhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddugeejrddvtdehrdduheenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudegjedrvddthedrudehpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudeguddgtddvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduuddrudeguddghedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudegjedrvddthedrudehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdduhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-Received: from localhost.localdomain (86.147.205.15) by rgout07.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
-        id 5C6509360A1FCD1C; Mon, 3 Jun 2019 10:54:18 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1559699813; 
-        bh=JV0tnUN3tL9VSFqdNUtcthchybRZ++QIS4GPM+qN4NM=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=UIVh2suo3HfM5es5QMBQRN3Uqf1N0cg+qLvBnQ8bweudJybepOQwjXbhH3oO124oLZwck4RBQZ/RzXBJnY0faned5a9WZQQp8ulesG17elemy4lCCbeTQ5IOZ3JWxiV2UBoQ3koz+BFDI1yZFC2ilV4jbfRc11tEA2rNLuDs2Lk=
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, sds@tycho.nsa.gov
-Cc:     xunchang@google.com,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V2 0/2] Update restorecon to support new digest scheme
-Date:   Mon,  3 Jun 2019 10:54:28 +0100
-Message-Id: <20190603095428.21272-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.21.0
+        id S1726532AbfFEDJP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Jun 2019 23:09:15 -0400
+Received: from namei.org ([65.99.196.166]:36882 "EHLO namei.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726354AbfFEDJP (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 4 Jun 2019 23:09:15 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by namei.org (8.14.4/8.14.4) with ESMTP id x5538rr3019039;
+        Wed, 5 Jun 2019 03:08:53 GMT
+Date:   Wed, 5 Jun 2019 13:08:53 +1000 (AEST)
+From:   James Morris <jmorris@namei.org>
+To:     John Johansen <john.johansen@canonical.com>
+cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, keescook@chromium.org,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
+Subject: Re: [PATCH 00/58] LSM: Module stacking for AppArmor
+In-Reply-To: <42fcfaf2-43a9-642e-2e19-282087c3cdb2@canonical.com>
+Message-ID: <alpine.LRH.2.21.1906051305370.17052@namei.org>
+References: <20190602165101.25079-1-casey@schaufler-ca.com> <f71388e9-a4c5-8935-137b-8eb50be7f833@tycho.nsa.gov> <42fcfaf2-43a9-642e-2e19-282087c3cdb2@canonical.com>
+User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These patches require [1] and [2] be installed first. They have
-been implemented on Android and sent to the selinux list, however their
-merge has been deferred. They will install the core hashing of
-file_context entries and fix root stem processing.
+On Tue, 4 Jun 2019, John Johansen wrote:
 
-Patch 1/2 updates selinux_restorecon() replacing the per-mountpoint
-security.restorecon_last attribute with a per-directory security.sehash
-attribute computed from only those file contexts entries that partially
-match the directory. This is to avoid the need to walk the entire tree
-when any part of file_contexts changes, limiting relabels to only those
-parts of the tree that could have changed.
+> system as a whole is still being protected by selinux. Similar requests 
+> have been made for lxd doing system containers. lxd currently supports 
+> nested apparmor, so on an ubuntu system you can run suse container, 
+> where the ubuntu host is enforcing policy and the suse container is 
+> loading and enforcing its policy as well. In this case the policy of the 
+> container is bounded by the policy of the host. The goal is to be able 
+> to the same with selinux and smack based systems, LSM stacking is of 
+> course only part of what is required to make this work.
 
-One change is to add a new selabel_get_digests_all_partial_matches(3)
-function that is explained in the man page. This could replace the Android
-version of selabel_hash_all_partial_matches(3), that could then be
-converted into a local function (The Android team would need to approve).
+Interesting. So you're stacking apparmor with itself, and one is the 
+container instance? And you add another stacked apparmor for a 2nd 
+container etc. ?
 
-Patch 2/2 has minor updates.
+> Ubuntu actually has a very small apparmor delta these days, and we are 
+> working on eliminating it entirely. There are no patches in Ubuntu that 
+> require new hooks. As for the delta wrt to the stacking work, Ubuntu has 
+> pulled in a subset of this delta and has been shipping kernels with 
+> stacking enabled for 4 releases now and apparmor development is done 
+> with LSM stacking in mind.
 
-I will send a patch for the selinux-testsuite that will perform tests on
-the new code.
- 
-[1] https://lore.kernel.org/selinux/20190311222442.49824-1-xunchang@google.com/
-[2] https://lore.kernel.org/selinux/20190417180955.136942-1-xunchang@google.com/
-
-Richard Haines (2):
-  libselinux: Save digest of all partial matches for directory
-  setfiles: Update utilities for the new digest scheme
-
- libselinux/include/selinux/label.h            |   5 +
- libselinux/include/selinux/restorecon.h       |  17 +-
- .../selabel_get_digests_all_partial_matches.3 |  70 +++++
- libselinux/man/man3/selinux_restorecon.3      |  81 +++---
- .../man/man3/selinux_restorecon_xattr.3       |   8 +-
- libselinux/src/label.c                        |  15 +
- libselinux/src/label_file.c                   |  51 ++++
- libselinux/src/label_file.h                   |   4 +
- libselinux/src/label_internal.h               |   5 +
- libselinux/src/selinux_restorecon.c           | 271 ++++++++++++------
- libselinux/utils/.gitignore                   |   1 +
- .../selabel_get_digests_all_partial_matches.c | 170 +++++++++++
- policycoreutils/setfiles/restorecon.8         |  10 +-
- policycoreutils/setfiles/restorecon_xattr.8   |  20 +-
- policycoreutils/setfiles/restorecon_xattr.c   |   2 +-
- policycoreutils/setfiles/setfiles.8           |  10 +-
- 16 files changed, 580 insertions(+), 160 deletions(-)
- create mode 100644 libselinux/man/man3/selabel_get_digests_all_partial_matches.3
- create mode 100644 libselinux/utils/selabel_get_digests_all_partial_matches.c
+A subset of these patches from Casey?
 
 -- 
-2.21.0
+James Morris
+<jmorris@namei.org>
 
