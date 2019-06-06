@@ -2,113 +2,159 @@ Return-Path: <SRS0=xZUV=UF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C982C04AB5
-	for <selinux@archiver.kernel.org>; Thu,  6 Jun 2019 09:23:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D37A2C04AB5
+	for <selinux@archiver.kernel.org>; Thu,  6 Jun 2019 11:38:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1C51120684
-	for <selinux@archiver.kernel.org>; Thu,  6 Jun 2019 09:23:52 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gankvxH1"
+	by mail.kernel.org (Postfix) with ESMTP id B28DA206E0
+	for <selinux@archiver.kernel.org>; Thu,  6 Jun 2019 11:38:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727664AbfFFJXv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jun 2019 05:23:51 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:50708 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727540AbfFFJXv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jun 2019 05:23:51 -0400
-Received: by mail-wm1-f68.google.com with SMTP id f204so1660170wme.0;
-        Thu, 06 Jun 2019 02:23:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=O+5z4ntuwugi22GIdYLSWkg/2i3n1YVE12LtK518dm8=;
-        b=gankvxH1paBk1TRo7A5ugeSx/VRzXtByYA1W8dgck+dsa+6pJ6fRxRHqv5xdbiHFHJ
-         7DLrn0B+QLGVSU/AOqHMIb5uEIC/V+j6XmLwz4B0RjMBd+7O9xZnntLqXcqs/xcU3T+5
-         CmcCWckQPPo2btsqDg7gSw/JMbXAbj0oG5RQySMalFcsdNHDknJx7MGCftkCMpSF8q4u
-         door876VMoxYlFaMY5PUPaUPenwE2a1I5Of32r4jPVPk0W9+AE/gbZUK6e3la+vwni/Y
-         CuCt39RV/qvPLVQEMd5VGOaLrcK0N2K+f7eG/2N6rHYqN75fuKEkhRb51qSy+PJM9mXy
-         czGg==
+        id S1727010AbfFFLil (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Jun 2019 07:38:41 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:39797 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726877AbfFFLil (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jun 2019 07:38:41 -0400
+Received: by mail-ot1-f67.google.com with SMTP id r21so1618991otq.6
+        for <selinux@vger.kernel.org>; Thu, 06 Jun 2019 04:38:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=O+5z4ntuwugi22GIdYLSWkg/2i3n1YVE12LtK518dm8=;
-        b=SPsCD2sFGGzi8VGa6G2dzUCN0evjrjsVXPkTvoi4nJRiGdfGpu+4MU13C7sxtgYFRg
-         MKI20rbhx/cDc+ppwR9l6tVkHLi7rUNX4MLIu6SankkXxfuMqQJev2IidTIPeIzcI32w
-         GRN6byIS2beSqu9PSc8R1HxX2/8DwgrFh8vZo9fSxeQwIfqidh02bruQu9dAMe+uBTSY
-         YK9Ca68sQXd2zzrH1k+Co0yTlm5B5zDqGkiuiCslYGubFGROR2uXexyOGanA0mNInGgH
-         ocWvKCGh88IxF50USY+JhwBtwnTDwCUHC/vYPdrHmA9YNHnDv13JVIaVgWH4O8o78EN4
-         xLUA==
-X-Gm-Message-State: APjAAAXJSEmgvBJMz8rrvg9BzfYL7fBVjn65lmSUYLjckqmNM7QRWaNa
-        mjBU2g9wqF5c3fH2By7xCAM=
-X-Google-Smtp-Source: APXvYqzRJaLWZGWDtV+1oqoFuiQ/TF/KG8q4YJiF7E8ofqWh/JqjeE+iJEwLRgzTC4X22TWOoGItDQ==
-X-Received: by 2002:a1c:c74a:: with SMTP id x71mr25796918wmf.121.1559813029331;
-        Thu, 06 Jun 2019 02:23:49 -0700 (PDT)
-Received: from zhanggen-UX430UQ ([108.61.173.19])
-        by smtp.gmail.com with ESMTPSA id j15sm1300940wrn.50.2019.06.06.02.23.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 06 Jun 2019 02:23:48 -0700 (PDT)
-Date:   Thu, 6 Jun 2019 17:23:42 +0800
-From:   Gen Zhang <blackgod016574@gmail.com>
-To:     paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3] selinux: lsm: fix a missing-check bug in
- selinux_add_mnt_opt( )
-Message-ID: <20190606092342.GA21672@zhanggen-UX430UQ>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=UzViZIU8geJwF6LYLzLNW+gYQuEiPyvxdesHsZv3e1I=;
+        b=TlSbytqEq5hstznD4UXhLcdwQFh5nAk7Q1ky9Juk8kSzrcNBsJAaL6bjsibvNOY0ZS
+         z5cAkYezqmdls5SPPNPY7O1lLHjnO1qrQje/+lcTrX8pFhbo+pYjQZVe7GXG1pwi8NLH
+         dWCFtWhueaxlBC9MGVsmNg6EolJjvMr+2W6vq1crWk46U+KTrFJ+Vd1LL9MODkh2B3kK
+         E/tXGL02fw2a3aUDMHqDHOucyBy9FldnrRtgG75MbWiHTka3J+u/BWGFeWvzGcZKAh89
+         hMOWiW97YPUB0ta3GLjtIDsmZpIi6yMRV78XULp/o8bN1Mlz5eMjHFXrAy+9EDpxvnq8
+         5lmw==
+X-Gm-Message-State: APjAAAVHt/pH+N9ba2LRR/300R3lBr5zO809kIKICR9DNrMYBwmlM98W
+        +HpO7KwtR0rrfbYSayvq5KWywzIKeiUXp9wZ1/AL/IKf
+X-Google-Smtp-Source: APXvYqxUHlE+bM97rTodmTi170uA6xq0q9bNDqmP3Ue+vzUoHxubYz+FiAOv9PDEf2gdSmegvBMp6LXK7ZxVcXCzd7k=
+X-Received: by 2002:a9d:6a8a:: with SMTP id l10mr4186892otq.197.1559821120067;
+ Thu, 06 Jun 2019 04:38:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.24 (2015-08-30)
+References: <20190529073759.20548-1-omosnace@redhat.com> <20190529073759.20548-7-omosnace@redhat.com>
+In-Reply-To: <20190529073759.20548-7-omosnace@redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 6 Jun 2019 13:38:29 +0200
+Message-ID: <CAFqZXNtEisULemDzy+qXec5na0PmW7WUtgipeTALA0=TOQ-3Xg@mail.gmail.com>
+Subject: Re: [PATCH userspace v3 6/7] [RFC] lisepol: slightly more thorough optimization
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In selinux_add_mnt_opt(), 'val' is allocated by kmemdup_nul(). It returns
-NULL when fails. So 'val' should be checked. And 'mnt_opts' should be 
-freed when error.
+On Wed, May 29, 2019 at 9:38 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> Removes also rules that are covered only by a union of two or more
+> rules. There are usually only a few of such rules (if any), but there
+> should be almost no (policy build) perfomance cost for this.
+>
+> Side effect: clears all permission bits covered by a more general rule
+> -> might slow down avtab lookups (only a single rule will now match each
+> query)
 
-Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
----
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 3ec702c..4e4c1c6 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -1052,15 +1052,23 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
- 	if (token == Opt_error)
- 		return -EINVAL;
- 
--	if (token != Opt_seclabel)
--		val = kmemdup_nul(val, len, GFP_KERNEL);
-+	if (token != Opt_seclabel) {
-+			val = kmemdup_nul(val, len, GFP_KERNEL);
-+			if (!val) {
-+				rc = -ENOMEM;
-+				goto free_opt;
-+			}
-+	}
- 	rc = selinux_add_opt(token, val, mnt_opts);
- 	if (unlikely(rc)) {
- 		kfree(val);
--		if (*mnt_opts) {
--			selinux_free_mnt_opts(*mnt_opts);
--			*mnt_opts = NULL;
--		}
-+		goto free_opt;
-+	}
-+	return rc;
-+free_opt:
-+	if (*mnt_opts) {
-+		selinux_free_mnt_opts(*mnt_opts);
-+		*mnt_opts = NULL;
- 	}
- 	return rc;
- }
+Never mind, I just realized that context_struct_compute_av() goes
+through all matching rules and combines the perms together, so this
+change should make no difference in kernel lookup times. I'll squash
+it into the first patch in the next respin unless there are
+objections.
+
+> ---
+>  libsepol/src/optimize.c | 28 +++++++++++++++-------------
+>  1 file changed, 15 insertions(+), 13 deletions(-)
+>
+> diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
+> index b3859b6c..abb711e7 100644
+> --- a/libsepol/src/optimize.c
+> +++ b/libsepol/src/optimize.c
+> @@ -73,36 +73,38 @@ static void destroy_type_map(const policydb_t *p, ebitmap_t *type_map)
+>         free(type_map);
+>  }
+>
+> -static int match_xperms(const uint32_t *p1, const uint32_t *p2)
+> +static int process_xperms(uint32_t *p1, const uint32_t *p2)
+>  {
+>         size_t i;
+> +       int ret = 1;
+>
+>         for (i = 0; i < EXTENDED_PERMS_LEN; i++) {
+> -               if ((p2[i] & p1[i]) != p1[i])
+> -                       return 0;
+> +               p1[i] &= ~p2[i];
+> +               if (p1[i] != 0)
+> +                       ret = 0;
+>         }
+> -       return 1;
+> +       return ret;
+>  }
+>
+> -static int match_avtab_datum(uint16_t specified,
+> -                            const avtab_datum_t *d1, const avtab_datum_t *d2)
+> +static int process_avtab_datum(uint16_t specified,
+> +                              avtab_datum_t *d1, const avtab_datum_t *d2)
+>  {
+>         /* inverse logic needed for AUDITDENY rules */
+>         if (specified & AVTAB_AUDITDENY)
+> -               return (d1->data & d2->data) == d2->data;
+> +               return (d1->data |= ~d2->data) == 0xFFFFFFFF;
+>
+>         if (specified & AVTAB_AV)
+> -               return (d2->data & d1->data) == d1->data;
+> +               return (d1->data &= ~d2->data) == 0;
+>
+>         if (specified & AVTAB_XPERMS) {
+> -               const avtab_extended_perms_t *x1 = d1->xperms;
+> +               avtab_extended_perms_t *x1 = d1->xperms;
+>                 const avtab_extended_perms_t *x2 = d2->xperms;
+>
+>                 if (x1->specified == AVTAB_XPERMS_IOCTLFUNCTION) {
+>                         if (x2->specified == AVTAB_XPERMS_IOCTLFUNCTION) {
+>                                 if (x1->driver != x2->driver)
+>                                         return 0;
+> -                               return match_xperms(x1->perms, x2->perms);
+> +                               return process_xperms(x1->perms, x2->perms);
+>                         }
+>                         if (x2->specified == AVTAB_XPERMS_IOCTLDRIVER)
+>                                 return xperm_test(x1->driver, x2->perms);
+> @@ -111,7 +113,7 @@ static int match_avtab_datum(uint16_t specified,
+>                                 return 0;
+>
+>                         if (x2->specified == AVTAB_XPERMS_IOCTLDRIVER)
+> -                               return match_xperms(x1->perms, x2->perms);
+> +                               return process_xperms(x1->perms, x2->perms);
+>                 }
+>                 return 0;
+>         }
+> @@ -152,7 +154,7 @@ static int is_avrule_redundant(avtab_ptr_t entry, avtab_t *tab,
+>                         if (!d2)
+>                                 continue;
+>
+> -                       if (match_avtab_datum(key.specified, d1, d2))
+> +                       if (process_avtab_datum(key.specified, d1, d2))
+>                                 return 1;
+>                 }
+>         }
+> @@ -205,7 +207,7 @@ static int is_cond_rule_redundant(avtab_ptr_t e1, cond_av_list_t *list,
+>                 if (!ebitmap_get_bit(&type_map[t1], t2))
+>                         continue;
+>
+> -               if (match_avtab_datum(k1, &e1->datum, &e2->datum))
+> +               if (process_avtab_datum(k1, &e1->datum, &e2->datum))
+>                         return 1;
+>         }
+>         return 0;
+> --
+> 2.20.1
+>
+
+
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
