@@ -1,85 +1,116 @@
-Return-Path: <SRS0=xZUV=UF=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=sd8A=UG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,T_DKIMWL_WL_HIGH autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E711C04AB5
-	for <selinux@archiver.kernel.org>; Thu,  6 Jun 2019 22:53:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 661CBC28CC3
+	for <selinux@archiver.kernel.org>; Fri,  7 Jun 2019 08:39:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F19D62089E
-	for <selinux@archiver.kernel.org>; Thu,  6 Jun 2019 22:53:45 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="S1f8aQJ6"
+	by mail.kernel.org (Postfix) with ESMTP id 4600C208E3
+	for <selinux@archiver.kernel.org>; Fri,  7 Jun 2019 08:39:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727271AbfFFWxp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Jun 2019 18:53:45 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:43771 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726976AbfFFWxp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Jun 2019 18:53:45 -0400
-Received: by mail-pl1-f193.google.com with SMTP id cl9so17226plb.10
-        for <selinux@vger.kernel.org>; Thu, 06 Jun 2019 15:53:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=q9tPuqXSnLLqDLK9V1P0M5vhpLVYOBP8IPwaJBuXaxE=;
-        b=S1f8aQJ6Rh0k4EEU00w4NdE3m5Uhc2QKSDfNJjfAJwS6NdpH4PuH+zQ9CsJBCE2ZBV
-         mTFCVBykaMIO93rk4Jc+hFnoQZU5qYoy7oQf11iMgj94DLgZAcsd1lWVCDzlg3xb8d0W
-         jbmdE+hTRSfFVNrKMtp4vUG2jbYEqobgH25Oc=
+        id S1727163AbfFGIjR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 Jun 2019 04:39:17 -0400
+Received: from mail-ot1-f66.google.com ([209.85.210.66]:35771 "EHLO
+        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726741AbfFGIjQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Jun 2019 04:39:16 -0400
+Received: by mail-ot1-f66.google.com with SMTP id j19so1147781otq.2
+        for <selinux@vger.kernel.org>; Fri, 07 Jun 2019 01:39:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=q9tPuqXSnLLqDLK9V1P0M5vhpLVYOBP8IPwaJBuXaxE=;
-        b=hkoPZVxUPGQdJrH/ANG7QDapX+cIw4NomTCz/YS04BV/SeXU6x+9yKzJf/IiobPmxI
-         FXBN64mWqlZPKBIPDLw5uXJ3qjsV70v+y5/FhnrcxIJu4+QvMe/p0zdFd7AH40r7eDKo
-         8m757icSH1vPEi4QpsIxZJd5pUFVbTBuuIZUWhEVG6tO9y7+2BBRIjEZ1qxB3wyfljcx
-         4aGP5pAkbkdx6iA4hc/JVmjAd0hP3PO10VRK8Qhjr1xocXe8qpNS9GpkAz8aYgxAiN+z
-         TQvQ5b2gsUEdTQBTYY9PsYyJSOufnNJGswhJSxyMHkX3VrmTVEoCeBLjpD27CmYoNL9i
-         rLnw==
-X-Gm-Message-State: APjAAAUpWGbOj4mrJL3z+oRJljTtSSTfqSG8hVlpFNVjUzuyyhaWXzzn
-        92eTs3knBS0Ty8KvqzdkFosUyQ==
-X-Google-Smtp-Source: APXvYqwl49yrDs6w/vlkudCMHeZXfti4PypjiqEguhgK96oOW05IDR+W3joYb29gLc4fMFwb9bKg2Q==
-X-Received: by 2002:a17:902:24c:: with SMTP id 70mr52416459plc.2.1559861624700;
-        Thu, 06 Jun 2019 15:53:44 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id b15sm202339pff.31.2019.06.06.15.53.43
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 06 Jun 2019 15:53:43 -0700 (PDT)
-Date:   Thu, 6 Jun 2019 15:53:42 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: Re: [PATCH 22/58] Audit: Change audit_sig_sid to audit_sig_lsm
-Message-ID: <201906061553.A3BF62257@keescook>
-References: <20190531231020.628-1-casey@schaufler-ca.com>
- <20190531231020.628-23-casey@schaufler-ca.com>
- <201906011900.143B72A@keescook>
- <79cc3300-450f-5263-9b81-3186f84010f5@schaufler-ca.com>
- <201906061138.BFE4CFEE@keescook>
- <dbafd99d-aab7-c497-fbe9-fe467b0c237a@schaufler-ca.com>
- <201906061351.B12D10D5D@keescook>
- <5010ae20-ce00-be1e-0c2b-7568282b6b39@schaufler-ca.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IEBaZDPZd7L7KgNJ6ypOJKuSsVmtOiA4l4zYpRROEo0=;
+        b=O/zpOs3hnlPG7Mm5FfpMwt+my9CnBva+qEEKJgFNnlK7oM+vem0rbcMof13R1Elvta
+         8dOiUJPAWKLpE4kzY728vNKJRBw2mt7KwylJCzGZ8ehxmjIRxue0DnXUeIzMZaGpEUgk
+         caTYnDEy8sKVGlLOIXEVvUy8HNA/+8C74ks+A7fKyJWV1hUKopA1c3YXTTj7yB0H4bDz
+         0gOPE2YGifAS2yIHNNUom6WQKmO37vrKRDKgWuQL3XSkaQK76AeC/U5h+EGoBP+8Pfcy
+         SSlfrZ1TGFGsYriToFmybYdxuYWMA+hgNRb2beJ53CGXXnR+x6/dVAhKOfDhYcksjWRa
+         PhSQ==
+X-Gm-Message-State: APjAAAUHgu0WnOk2ZeJeNNgbbElbs1Fj3+lzc2kee00NwTO3lex0NgWz
+        0BgSalhnLUVpTWyueDIgZmJjYGwMsa3twr6JSkPfLQ==
+X-Google-Smtp-Source: APXvYqzcPEzjWAhwz/eXHQbLT97yDgHMsd55igo2ERsepjIiDyFkf+6AtDrurtZyr02zLA7o+hq7J/3fARWsSX/apW0=
+X-Received: by 2002:a9d:6a8a:: with SMTP id l10mr8355597otq.197.1559896755579;
+ Fri, 07 Jun 2019 01:39:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5010ae20-ce00-be1e-0c2b-7568282b6b39@schaufler-ca.com>
+References: <20190606092342.GA21672@zhanggen-UX430UQ>
+In-Reply-To: <20190606092342.GA21672@zhanggen-UX430UQ>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 7 Jun 2019 10:39:05 +0200
+Message-ID: <CAFqZXNuricWOMH3fQiCbPZyz2qwf7Gw1zmx1o+wLeTELSF=CUQ@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: lsm: fix a missing-check bug in
+ selinux_add_mnt_opt( )
+To:     Gen Zhang <blackgod016574@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 06, 2019 at 02:06:44PM -0700, Casey Schaufler wrote:
-> I'd rather describe what's in it than how it's used.
+On Thu, Jun 6, 2019 at 11:23 AM Gen Zhang <blackgod016574@gmail.com> wrote:
+> In selinux_add_mnt_opt(), 'val' is allocated by kmemdup_nul(). It returns
+> NULL when fails. So 'val' should be checked. And 'mnt_opts' should be
+> freed when error.
+>
+> Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+> Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
+> ---
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 3ec702c..4e4c1c6 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -1052,15 +1052,23 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
+>         if (token == Opt_error)
+>                 return -EINVAL;
+>
+> -       if (token != Opt_seclabel)
+> -               val = kmemdup_nul(val, len, GFP_KERNEL);
+> +       if (token != Opt_seclabel) {
+> +                       val = kmemdup_nul(val, len, GFP_KERNEL);
+> +                       if (!val) {
+> +                               rc = -ENOMEM;
+> +                               goto free_opt;
+> +                       }
+> +       }
+>         rc = selinux_add_opt(token, val, mnt_opts);
+>         if (unlikely(rc)) {
+>                 kfree(val);
+> -               if (*mnt_opts) {
+> -                       selinux_free_mnt_opts(*mnt_opts);
+> -                       *mnt_opts = NULL;
+> -               }
+> +               goto free_opt;
+> +       }
+> +       return rc;
 
-Yeah, good point. :)
+At this point rc is guaranteed to be 0, so you can just 'return 0' for
+clarity. Also, I visually prefer an empty line between a return
+statement and a goto label, but I'm not sure what is the
+general/maintainer's preference.
 
--- 
-Kees Cook
+Also, you should drop the "lsm: " from the subject - it is redundant
+and doesn't follow the SELinux convention. See `git log --oneline --
+security/selinux/` for what the subjects usually look like - mostly we
+just go with "selinux: <description>" (or "LSM: <description>" when
+the changes affect the shared LSM interface).
+
+> +free_opt:
+> +       if (*mnt_opts) {
+> +               selinux_free_mnt_opts(*mnt_opts);
+> +               *mnt_opts = NULL;
+>         }
+>         return rc;
+>  }
+
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
