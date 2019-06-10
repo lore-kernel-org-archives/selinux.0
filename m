@@ -2,141 +2,121 @@ Return-Path: <SRS0=W683=UJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CF09C4321A
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 19:32:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57E01C4321A
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 19:49:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 587D320820
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 19:32:08 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="oKO4mbCl"
+	by mail.kernel.org (Postfix) with ESMTP id 3E68820862
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 19:49:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389168AbfFJTcE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Jun 2019 15:32:04 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:42166 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389129AbfFJTcE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 Jun 2019 15:32:04 -0400
-Received: by mail-lf1-f68.google.com with SMTP id y13so7455885lfh.9
-        for <selinux@vger.kernel.org>; Mon, 10 Jun 2019 12:32:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=IIoSsHs2Gt3kHbX+cuP9jRibTu3kMb1fSTDPWFLywq4=;
-        b=oKO4mbClwNDoCgUwCV9hFQelTUY+xAsbBQi8UXkaFFyxhzWF/FXpxQnPGBCRuSgfrN
-         VLnPReDyxOanh93THZAyuRf18DZQLhRc9AdKcjG1fvNU3nc0NcslkzYjzk5r4KC7lA3T
-         fHDSdZJQKDGB5Mgl9VB8V6UnMZESUdQdUUVSlTKHHLFCBkRavW8xXCQB4u/rcpNraDUL
-         Zvr4WKdbV7BlJtsMg4qjWfYbJ2oFXIBh8sLbEk9dGSxvqmG8ZimxO+99J3ytAS378x8I
-         iMwBcbKpuTZrkiNSkV1Nx17sKx+9zwJKNzQ9opk9OdqoZRwmoaF2S+Z3WY9cmyi2WgXD
-         JOkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IIoSsHs2Gt3kHbX+cuP9jRibTu3kMb1fSTDPWFLywq4=;
-        b=oJwWjqnqFt/N5kz8nmxGBy1xijoRVEV/y3f14uZJHFD2jT5utto01BzgUEiGIDSDOO
-         2yug2gBHLO4ZoMn0UfQGKu4O62F2WqcxpZuMTM1H3uVC6NMQTYFwJ08Bi9RNTqCkdMP+
-         CdOxlNoZDX4uN0dk/yNYxJDzBhAoTEOhwHhjYd7nWBoO8UncCiDRfl87vnAuk6ykZ16X
-         QbHEmU+sn8TltbvUkjebZKBLiK5YOJZdPvMtDJAiScTMg4oIAtD8svDbQnKfZxt2sdtI
-         XGGwYPoJA36PH7sGCphxL797ys3yxuUDzmRAGlIXuBiAXPHe9O47SydpYNOAM5DHSOXG
-         fDRA==
-X-Gm-Message-State: APjAAAUQ78U3Yb0EKUwbrvRjmdXZRU5OQsob7d866RZ+UFXrGN1lt2eX
-        l/oqI3tVCWmt7UrCFlrqcQZTv04AGRSVeo5lvJRF
-X-Google-Smtp-Source: APXvYqxvYthO9/gqYcTo77CUTe6wmEAHSs04Nn7iJsK2zbchLH0BsJ9Rd+mCQ8lntv+6VRIY5jRd+teiUkkJXjaPaAQ=
-X-Received: by 2002:ac2:4109:: with SMTP id b9mr4940972lfi.31.1560195121827;
- Mon, 10 Jun 2019 12:32:01 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190606092342.GA21672@zhanggen-UX430UQ> <CAFqZXNuricWOMH3fQiCbPZyz2qwf7Gw1zmx1o+wLeTELSF=CUQ@mail.gmail.com>
- <20190607121134.GA3357@zhanggen-UX430UQ>
-In-Reply-To: <20190607121134.GA3357@zhanggen-UX430UQ>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 10 Jun 2019 15:31:50 -0400
-Message-ID: <CAHC9VhS8W8p+9FwB9OHBhfsxP45ckjpqsqt6p85U5PZY=N=rYg@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: lsm: fix a missing-check bug in
- selinux_add_mnt_opt( )
-To:     Gen Zhang <blackgod016574@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        id S2389156AbfFJTtm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Jun 2019 15:49:42 -0400
+Received: from mga02.intel.com ([134.134.136.20]:1644 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388901AbfFJTtm (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 10 Jun 2019 15:49:42 -0400
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 12:49:41 -0700
+X-ExtLoop1: 1
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
+  by orsmga008.jf.intel.com with ESMTP; 10 Jun 2019 12:49:41 -0700
+Date:   Mon, 10 Jun 2019 12:49:41 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     "Xing, Cedric" <cedric.xing@intel.com>
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
         Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "npmccallum@redhat.com" <npmccallum@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
+        "Tricca, Philip B" <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH v2 1/5] mm: Introduce vm_ops->may_mprotect()
+Message-ID: <20190610194941.GK15995@linux.intel.com>
+References: <20190606021145.12604-1-sean.j.christopherson@intel.com>
+ <20190606021145.12604-2-sean.j.christopherson@intel.com>
+ <20190610150600.GA3752@linux.intel.com>
+ <20190610155549.GB15995@linux.intel.com>
+ <960B34DE67B9E140824F1DCDEC400C0F654FFD59@ORSMSX116.amr.corp.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F654FFD59@ORSMSX116.amr.corp.intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jun 7, 2019 at 8:11 AM Gen Zhang <blackgod016574@gmail.com> wrote:
->
-> On Fri, Jun 07, 2019 at 10:39:05AM +0200, Ondrej Mosnacek wrote:
-> > On Thu, Jun 6, 2019 at 11:23 AM Gen Zhang <blackgod016574@gmail.com> wrote:
-> > > In selinux_add_mnt_opt(), 'val' is allocated by kmemdup_nul(). It returns
-> > > NULL when fails. So 'val' should be checked. And 'mnt_opts' should be
-> > > freed when error.
+On Mon, Jun 10, 2019 at 10:47:52AM -0700, Xing, Cedric wrote:
+> > From: Christopherson, Sean J
+> > Sent: Monday, June 10, 2019 8:56 AM
+> > 
+> > > > As a result, LSM policies cannot be meaningfully applied, e.g. an
+> > > > LSM can deny access to the EPC as a whole, but can't deny PROT_EXEC
+> > > > on page that originated in a non-EXECUTE file (which is long gone by
+> > > > the time
+> > > > mprotect() is called).
 > > >
-> > > Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-> > > Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
-> > > ---
-> > > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > > index 3ec702c..4e4c1c6 100644
-> > > --- a/security/selinux/hooks.c
-> > > +++ b/security/selinux/hooks.c
-> > > @@ -1052,15 +1052,23 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
-> > >         if (token == Opt_error)
-> > >                 return -EINVAL;
+> > > I have hard time following what is paragraph is trying to say.
 > > >
-> > > -       if (token != Opt_seclabel)
-> > > -               val = kmemdup_nul(val, len, GFP_KERNEL);
-> > > +       if (token != Opt_seclabel) {
-> > > +                       val = kmemdup_nul(val, len, GFP_KERNEL);
-> > > +                       if (!val) {
-> > > +                               rc = -ENOMEM;
-> > > +                               goto free_opt;
-> > > +                       }
-> > > +       }
-> > >         rc = selinux_add_opt(token, val, mnt_opts);
-> > >         if (unlikely(rc)) {
-> > >                 kfree(val);
-> > > -               if (*mnt_opts) {
-> > > -                       selinux_free_mnt_opts(*mnt_opts);
-> > > -                       *mnt_opts = NULL;
-> > > -               }
-> > > +               goto free_opt;
-> > > +       }
-> > > +       return rc;
-> >
-> > At this point rc is guaranteed to be 0, so you can just 'return 0' for
-> > clarity. Also, I visually prefer an empty line between a return
-> > statement and a goto label, but I'm not sure what is the
-> > general/maintainer's preference.
->
-> Am I supposed to revise and send a patch v4 for this, or let the
-> maintainer do this? :-)
+> > > > By hooking mprotect(), SGX can make explicit LSM upcalls while an
+> > > > enclave is being built, i.e. when the kernel has a handle to origin
+> > > > of each enclave page, and enforce the result of the LSM policy
+> > > > whenever userspace maps the enclave page in the future.
+> > >
+> > > "LSM policy whenever calls mprotect()"? I'm no sure why you mean by
+> > > mapping here and if there is any need to talk about future. Isn't this
+> > > needed now?
+> > 
+> > Future is referring to the timeline of a running kernel, not the future
+> > of the kernel code.
+> > 
+> > Rather than trying to explain all of the above with words, I'll provide
+> > code examples to show how ->may_protect() will be used by SGX and why it
+> > is the preferred solution.
+> 
+> The LSM concept is to separate security policy enforcement from the rest of
+> the kernel. For modules, the "official" way is to use VM_MAY* flags to limit
+> allowable permissions, while LSM uses security_file_mprotect().
+> I guess that's why we didn't have .may_mprotect() in the first place.
 
-First a few things from my perspective: I don't really care too much
-about the difference between returning "0" and "rc" here, one could
-argue that "0" is cleaner and that "rc" is "safer".  To me it isn't a
-big deal and generally isn't something I would even comment on unless
-there was something else in the patch that needed addressing.  I care
-a more about the style choice of having an empty line between the
-return and the start of the goto targets (vertical whitespace before
-the jump targets is good, please include it), but once again, I'm not
-sure I would comment on that.  The patch subject line is a bit
-confusing in that we already discussed when to use "selinux" and when
-to use "lsm", but I imagine there might be some confusion about using
-both so let me try and clear that up now: don't do it unless you have
-a *really* good reason to do so :)  In this case it is all SELinux
-code so there is no reason why you should be including the "lsm"
-prefix.
+Heh, so I've typed up about five different responses to this comment.  In
+doing so, I think I've convinced myself that ->may_mprotect() is
+unnecessary.  Rther than hook mprotect(), simply update the VM_MAY* flags
+during mmap(), with all bits cleared if there isn't an associated enclave
+page.  IIRC, the need to add ->may_protect() came about when we were
+exploring more dynamic interplay between SGX and LSMs.
 
-You've been pretty responsive, so if you don't mind submitting a v4
-with the changes mentioned above, that would be far more preferable to
-me making the changes.  I have some other comments about maintainer
-fixes to patches, but I'll save that for the other thread :)
+> What you are doing is enforcing some security policy outside of LSM, which
+> is dirty from architecture perspective.
 
--- 
-paul moore
-www.paul-moore.com
+No, the enclave page protections are enforced regardless of LSM policy,
+and in v2 those protections are immutable.  Yes, the explicit enclave
+page protection bits are being added primarily for LSMs, but they don't
+impact functionality other than at the security_enclave_load() touchpoint.
