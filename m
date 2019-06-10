@@ -6,26 +6,26 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7071DC31E43
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 16:58:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D10B4C31E43
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 17:01:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3EB2920859
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 16:58:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4C7720859
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 17:01:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387745AbfFJQ6m (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Jun 2019 12:58:42 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:56090 "EHLO mx1.redhat.com"
+        id S1727648AbfFJRB1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Jun 2019 13:01:27 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:15274 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387629AbfFJQ6j (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 10 Jun 2019 12:58:39 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        id S1727997AbfFJRB1 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 10 Jun 2019 13:01:27 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id DC40C30593D8;
-        Mon, 10 Jun 2019 16:58:33 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id D8A38C057EC6;
+        Mon, 10 Jun 2019 17:01:25 +0000 (UTC)
 Received: from localhost.localdomain (ovpn-112-64.rdu2.redhat.com [10.10.112.64])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8EAAB6064C;
-        Mon, 10 Jun 2019 16:58:31 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D25D819C59;
+        Mon, 10 Jun 2019 17:01:22 +0000 (UTC)
 Reply-To: dwalsh@redhat.com
 Subject: Re: New Container vulnerability could potentially use an SELinux fix.
 To:     Stephen Smalley <sds@tycho.nsa.gov>,
@@ -65,8 +65,8 @@ Autocrypt: addr=dwalsh@redhat.com; prefer-encrypt=mutual; keydata=
  EO/sQTPk+vQ4vcsJYY9Dnf1NlvHE4klj60GHjtjitsBEHzdE7s+J9FOxPmt8l+gMogGumKpN
  Y4lO0pfTyg==
 Organization: Red Hat
-Message-ID: <723d9908-f7ba-07bf-b5ff-1a52edfe58dd@redhat.com>
-Date:   Mon, 10 Jun 2019 12:58:30 -0400
+Message-ID: <ccbba464-da3b-e10b-a5b4-65adf9126d4c@redhat.com>
+Date:   Mon, 10 Jun 2019 13:01:21 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.0
 MIME-Version: 1.0
@@ -74,8 +74,8 @@ In-Reply-To: <df0e048f-ef5f-8a43-81cb-3d3f6cf10230@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Mon, 10 Jun 2019 16:58:38 +0000 (UTC)
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Mon, 10 Jun 2019 17:01:25 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -236,8 +236,6 @@ On 6/10/19 11:00 AM, Stephen Smalley wrote:
 > You are effectively already doing that by mounting with a context
 > mount that assigns container_file_t or whatever type to the
 > filesystem.  You don't need something new there.
-Well yes with the Overlay Driver.  Not with the VFS Driver and maybe not
-with fuse-overlay.
 >
 >>>
 >>>
@@ -273,4 +271,11 @@ with fuse-overlay.
 >
 >
 >
+I would think we would only have to check the source and the final check. 
+
+The problem is lots of processes like dnf, cp, install all deal with
+following legitimate symbolic links.  Most of the times processes
+outside of the container dealing with the container content, are
+installing software.  Having this software fail anytime their is a
+symbolic link, is not going to work.
 
