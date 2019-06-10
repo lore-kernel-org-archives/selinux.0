@@ -2,119 +2,108 @@ Return-Path: <SRS0=W683=UJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0300EC31E43
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 17:48:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FEAEC4321A
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 18:17:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DE4E120859
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 17:48:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32E7C207E0
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 18:17:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388411AbfFJRrz convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Jun 2019 13:47:55 -0400
-Received: from mga11.intel.com ([192.55.52.93]:49726 "EHLO mga11.intel.com"
+        id S1726781AbfFJSRq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Jun 2019 14:17:46 -0400
+Received: from mga14.intel.com ([192.55.52.115]:45636 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387643AbfFJRrz (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 10 Jun 2019 13:47:55 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
+        id S1726214AbfFJSRq (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 10 Jun 2019 14:17:46 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 10:47:54 -0700
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 11:17:45 -0700
 X-ExtLoop1: 1
-Received: from orsmsx107.amr.corp.intel.com ([10.22.240.5])
-  by orsmga005.jf.intel.com with ESMTP; 10 Jun 2019 10:47:53 -0700
-Received: from orsmsx160.amr.corp.intel.com (10.22.226.43) by
- ORSMSX107.amr.corp.intel.com (10.22.240.5) with Microsoft SMTP Server (TLS)
- id 14.3.408.0; Mon, 10 Jun 2019 10:47:53 -0700
-Received: from orsmsx116.amr.corp.intel.com ([169.254.7.166]) by
- ORSMSX160.amr.corp.intel.com ([169.254.13.69]) with mapi id 14.03.0415.000;
- Mon, 10 Jun 2019 10:47:53 -0700
-From:   "Xing, Cedric" <cedric.xing@intel.com>
-To:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
-        "Jarkko Sakkinen" <jarkko.sakkinen@linux.intel.com>
-CC:     Andy Lutomirski <luto@kernel.org>,
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
+  by FMSMGA003.fm.intel.com with ESMTP; 10 Jun 2019 11:17:44 -0700
+Date:   Mon, 10 Jun 2019 11:17:44 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Cedric Xing <cedric.xing@intel.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         James Morris <jmorris@namei.org>,
         "Serge E . Hallyn" <serge@hallyn.com>,
         LSM List <linux-security-module@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
         Jethro Beekman <jethro@fortanix.com>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "nhorman@redhat.com" <nhorman@redhat.com>,
-        "npmccallum@redhat.com" <npmccallum@redhat.com>,
-        "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        linux-sgx@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
+        Shay Katz-zamir <shay.katz-zamir@intel.com>,
+        Haitao Huang <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kai Svahn <kai.svahn@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
         Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
+        Kai Huang <kai.huang@intel.com>,
         David Rientjes <rientjes@google.com>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        "Tricca, Philip B" <philip.b.tricca@intel.com>
-Subject: RE: [RFC PATCH v2 1/5] mm: Introduce vm_ops->may_mprotect()
-Thread-Topic: [RFC PATCH v2 1/5] mm: Introduce vm_ops->may_mprotect()
-Thread-Index: AQHVHA01/2g2StwB+UmAXBpwpA92D6aVeUUAgAAN64D//6b7AA==
-Date:   Mon, 10 Jun 2019 17:47:52 +0000
-Message-ID: <960B34DE67B9E140824F1DCDEC400C0F654FFD59@ORSMSX116.amr.corp.intel.com>
+        William Roberts <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH v2 2/5] x86/sgx: Require userspace to define enclave
+ pages' protection bits
+Message-ID: <20190610181744.GH15995@linux.intel.com>
 References: <20190606021145.12604-1-sean.j.christopherson@intel.com>
- <20190606021145.12604-2-sean.j.christopherson@intel.com>
- <20190610150600.GA3752@linux.intel.com>
- <20190610155549.GB15995@linux.intel.com>
-In-Reply-To: <20190610155549.GB15995@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiYzM0YTFiOWItZTQxNy00N2YxLTg4NjEtNzdmZjc4ODE1N2EwIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoicWhaTjFJMVVqenc2R1JyZHdBTkplRTlsOFZQZWV6YkM5eGl0YXh4TmZcL1VnaVFVQlRcL005U1Jpa2ZaVEh6XC9PTyJ9
-x-ctpclassification: CTP_NT
-dlp-product: dlpe-windows
-dlp-version: 11.2.0.6
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.138]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+ <20190606021145.12604-3-sean.j.christopherson@intel.com>
+ <20190610152717.GB3752@linux.intel.com>
+ <20190610161532.GC15995@linux.intel.com>
+ <20190610174506.GB13732@linux.intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190610174506.GB13732@linux.intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> From: Christopherson, Sean J
-> Sent: Monday, June 10, 2019 8:56 AM
+On Mon, Jun 10, 2019 at 08:45:06PM +0300, Jarkko Sakkinen wrote:
+> On Mon, Jun 10, 2019 at 09:15:33AM -0700, Sean Christopherson wrote:
+> > > 'flags' should would renamed as 'secinfo_flags_mask' even if the name is
+> > > longish. It would use the same values as the SECINFO flags. The field in
+> > > struct sgx_encl_page should have the same name. That would express
+> > > exactly relation between SECINFO and the new field. I would have never
+> > > asked on last iteration why SECINFO is not enough with a better naming.
+> > 
+> > No, these flags do not impact the EPCM protections in any way.  Userspace
+> > can extend the EPCM protections without going through the kernel.  The
+> > protection flags for an enclave page impact VMA/PTE protection bits.
+> > 
+> > IMO, it is best to treat the EPCM as being completely separate from the
+> > kernel's EPC management.
 > 
-> > > As a result, LSM policies cannot be meaningfully applied, e.g. an
-> > > LSM can deny access to the EPC as a whole, but can't deny PROT_EXEC
-> > > on page that originated in a non-EXECUTE file (which is long gone by
-> > > the time
-> > > mprotect() is called).
-> >
-> > I have hard time following what is paragraph is trying to say.
-> >
-> > > By hooking mprotect(), SGX can make explicit LSM upcalls while an
-> > > enclave is being built, i.e. when the kernel has a handle to origin
-> > > of each enclave page, and enforce the result of the LSM policy
-> > > whenever userspace maps the enclave page in the future.
-> >
-> > "LSM policy whenever calls mprotect()"? I'm no sure why you mean by
-> > mapping here and if there is any need to talk about future. Isn't this
-> > needed now?
-> 
-> Future is referring to the timeline of a running kernel, not the future
-> of the kernel code.
-> 
-> Rather than trying to explain all of the above with words, I'll provide
-> code examples to show how ->may_protect() will be used by SGX and why it
-> is the preferred solution.
+> It is a clumsy API if permissions are not taken in the same format for
+> everything. There is no reason not to do it. The way mprotect() callback
+> just interprets the field is as VMA permissions.
 
-The LSM concept is to separate security policy enforcement from the rest of the kernel. For modules, the "official" way is to use VM_MAY* flags to limit allowable permissions, while LSM uses security_file_mprotect(). I guess that's why we didn't have .may_mprotect() in the first place. What you are doing is enforcing some security policy outside of LSM, which is dirty from architecture perspective.
+They are two entirely different things.  The explicit protection bits are
+consumed by the kernel, while SECINFO.flags is consumed by the CPU.  The
+intent is to have the protection flags be analogous to mprotect(), the
+fact that they have a similar/identical format to SECINFO is irrelevant.
+
+Calling the field secinfo_flags_mask is straight up wrong on SGX2, as 
+userspace can use EMODPE to set SECINFO after the page is added.  It's
+also wrong on SGX1 when adding TCS pages since SECINFO.RWX bits for TCS
+pages are forced to zero by hardware.
+
+> It would also be more future-proof just to have a mask covering all bits
+> of the SECINFO flags field.
+
+This simply doesn't work, e.g. the PENDING, MODIFIED and PR flags in the
+SECINFO are read-only from a software perspective.
