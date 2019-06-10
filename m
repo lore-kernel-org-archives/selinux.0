@@ -6,25 +6,25 @@ X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E5DCC468BC
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 07:03:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43EA9C468C1
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 07:03:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 632AE206E0
-	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 07:03:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 23F77206E0
+	for <selinux@archiver.kernel.org>; Mon, 10 Jun 2019 07:03:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387849AbfFJHDM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Jun 2019 03:03:12 -0400
+        id S2387867AbfFJHDO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Jun 2019 03:03:14 -0400
 Received: from mga04.intel.com ([192.55.52.120]:3981 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387582AbfFJHDL (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 10 Jun 2019 03:03:11 -0400
+        id S2387855AbfFJHDN (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 10 Jun 2019 03:03:13 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 00:03:10 -0700
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 00:03:13 -0700
 X-ExtLoop1: 1
 Received: from bxing-mobl.amr.corp.intel.com (HELO ubt18m.amr.corp.intel.com) ([10.255.90.159])
-  by fmsmga001.fm.intel.com with ESMTP; 10 Jun 2019 00:03:09 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 10 Jun 2019 00:03:12 -0700
 From:   Cedric Xing <cedric.xing@intel.com>
 To:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-sgx@vger.kernel.org
@@ -40,9 +40,9 @@ Cc:     Cedric Xing <cedric.xing@intel.com>,
         bp@alien8.de, josh@joshtriplett.org, kai.huang@intel.com,
         rientjes@google.com, william.c.roberts@intel.com,
         philip.b.tricca@intel.com
-Subject: [RFC PATCH v1 1/3] LSM/x86/sgx: Add SGX specific LSM hooks
-Date:   Mon, 10 Jun 2019 00:03:04 -0700
-Message-Id: <e32577424bb65dac5187e67b70573c0f336fef3b.1560131039.git.cedric.xing@intel.com>
+Subject: [RFC PATCH v1 3/3] LSM/x86/sgx: Call new LSM hooks from SGX subsystem
+Date:   Mon, 10 Jun 2019 00:03:06 -0700
+Message-Id: <cf7cef1172943c78611001cc06e043654a973023.1560131039.git.cedric.xing@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <cover.1560131039.git.cedric.xing@intel.com>
 References: <20190606021145.12604-1-sean.j.christopherson@intel.com>
@@ -54,164 +54,170 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch has made two changes to LSM hooks.
+There are three places LSM hooks are called from within the SGX subsystem.
 
-The first change is the addition of two new SGX specific LSM hooks.
+The first place is to invoke security_file_mprotect() in sgx_mmap() to validate
+requested protection. Given the architecture of SGX subsystem, all enclaves
+look like file mappings of /dev/sgx/enclave device file, meaning the existing
+security_mmap_file() invoked inside vm_mmap_pgoff() cannot provide any
+meaningful information to LSM. Based on the idea that mmap(prot) is equivalent
+to mmap(PROT_NONE) followed by mprotect(prot), security_file_mprotect() shall
+be queried with more specific enclave/page information.
 
-security_enclave_load() - is called whenever new EPC pages are added to an
-enclave, so that an LSM module could initialize internal states for those
-pages. An LSM module may track protections ever granted to enclave pages in
-order to come to reasonable decisions in security_file_mprotect() hook in
-future.
+Secondly, security_enclave_load() is invoked upon loading of every enclave
+page.
 
-security_enclave_init() - is called when an enclave is about to be intialized
-(by EINIT). An LSM module may approve/decline the request by looking into the
-SIGSTRUCT, or the file from which the SIGSTRUCT was loaded from.
-
-The second change is to export symbol security_file_mprotect() to make it
-available to kernel modules. The SGX module will invoke
-security_file_mprotect() to validate protection for the virtual memory range
-being mmap()'ed.
-
-Please see include/linux/lsm_hooks.h for more information.
+Lastly, security_enclave_init() is invoked before initializing (EINIT) every
+enclave.
 
 Signed-off-by: Cedric Xing <cedric.xing@intel.com>
 ---
- include/linux/lsm_hooks.h | 33 +++++++++++++++++++++++++++++++++
- include/linux/security.h  | 26 ++++++++++++++++++++++++++
- security/security.c       | 21 +++++++++++++++++++++
- 3 files changed, 80 insertions(+)
+ arch/x86/kernel/cpu/sgx/driver/ioctl.c | 72 +++++++++++++++++++++++---
+ arch/x86/kernel/cpu/sgx/driver/main.c  | 12 ++++-
+ 2 files changed, 74 insertions(+), 10 deletions(-)
 
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 47f58cfb6a19..ceb18c5c25f3 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -1446,6 +1446,27 @@
-  * @bpf_prog_free_security:
-  *	Clean up the security information stored inside bpf prog.
+diff --git a/arch/x86/kernel/cpu/sgx/driver/ioctl.c b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+index b186fb7b48d5..a3f22a6f6d2b 100644
+--- a/arch/x86/kernel/cpu/sgx/driver/ioctl.c
++++ b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
+@@ -11,6 +11,7 @@
+ #include <linux/shmem_fs.h>
+ #include <linux/slab.h>
+ #include <linux/suspend.h>
++#include <linux/security.h>
+ #include "driver.h"
+ 
+ struct sgx_add_page_req {
+@@ -575,6 +576,42 @@ static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
+ 	return ret;
+ }
+ 
++static int sgx_encl_prepare_page(struct file *filp, unsigned long dst,
++				 unsigned long src, void *buf)
++{
++	struct vm_area_struct *vma;
++	unsigned long prot;
++	int rc = 0;
++
++	if (dst & ~PAGE_SIZE)
++		return -EINVAL;
++
++	down_read(&current->mm->mmap_sem);
++
++	vma = find_vma(current->mm, dst);
++	if (vma && dst >= vma->vm_start)
++		prot = vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC);
++	else
++		prot = 0;
++
++	vma = find_vma(current->mm, src);
++	if (!vma || src < vma->vm_start || src + PAGE_SIZE > vma->vm_end)
++		rc = -EFAULT;
++
++	if (!rc && !(vma->vm_flags & VM_MAYEXEC))
++		rc = -EACCES;
++
++	if (!rc)
++		rc = security_enclave_load(filp, dst, PAGE_SIZE, prot, vma);
++
++	if (!rc && copy_from_user(buf, (void __user *)src, PAGE_SIZE))
++		rc = -EFAULT;
++
++	up_read(&current->mm->mmap_sem);
++
++	return rc;
++}
++
+ /**
+  * sgx_ioc_enclave_add_page - handler for %SGX_IOC_ENCLAVE_ADD_PAGE
   *
-+ * Security hooks for SGX enclaves
-+ *
-+ * @enclave_load:
-+ *	Check permissions before loading pages into enclaves. Must be called
-+ *	with current->mm->mmap_sem locked.
-+ *	@encl: file pointer identifying the enclave
-+ *	@addr: linear address to which new pages are being added. Must be page
-+ *	aligned
-+ *	@size: total size of pages being added. Must be integral multiple of
-+ *	page size
-+ *	@prot: requested protection. Shall be the same protection as the VMA
-+ *	covering the target linear range, or 0 if target range not mapped
-+ *	@source: the VMA containing the source pages. Shall be NULL if there's
-+ *	no source pages (e.g. EAUG)
-+ *
-+ * @enclave_init:
-+ *	Check SIGSTRUCT before initializing (EINIT) enclaves. Must be called
-+ *	with current->mm->mmap_sem locked.
-+ *	@encl: file pointer identifying the enclave being initialized
-+ *	@sigstruct: pointer to sigstruct in kernel memory
-+ *	@sigstruct_vma: vma containing the original sigstruct in user space
-  */
- union security_list_options {
- 	int (*binder_set_context_mgr)(struct task_struct *mgr);
-@@ -1807,6 +1828,14 @@ union security_list_options {
- 	int (*bpf_prog_alloc_security)(struct bpf_prog_aux *aux);
- 	void (*bpf_prog_free_security)(struct bpf_prog_aux *aux);
- #endif /* CONFIG_BPF_SYSCALL */
-+#ifdef CONFIG_INTEL_SGX
-+	int (*enclave_load)(struct file *encl, unsigned long addr,
-+			    unsigned long size, unsigned long prot,
-+			    struct vm_area_struct *source);
-+	int (*enclave_init)(struct file *encl,
-+			    const struct sgx_sigstruct *sigstruct,
-+			    struct vm_area_struct *sigstruct_vma);
-+#endif /* CONFIG_INTEL_SGX */
- };
+@@ -613,10 +650,9 @@ static long sgx_ioc_enclave_add_page(struct file *filep, unsigned int cmd,
  
- struct security_hook_heads {
-@@ -2046,6 +2075,10 @@ struct security_hook_heads {
- 	struct hlist_head bpf_prog_alloc_security;
- 	struct hlist_head bpf_prog_free_security;
- #endif /* CONFIG_BPF_SYSCALL */
-+#ifdef CONFIG_INTEL_SGX
-+	struct hlist_head enclave_load;
-+	struct hlist_head enclave_init;
-+#endif /* CONFIG_INTEL_SGX */
- } __randomize_layout;
+ 	data = kmap(data_page);
  
- /*
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 659071c2e57c..d44655dd06dd 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -1829,5 +1829,31 @@ static inline void security_bpf_prog_free(struct bpf_prog_aux *aux)
- #endif /* CONFIG_SECURITY */
- #endif /* CONFIG_BPF_SYSCALL */
+-	if (copy_from_user((void *)data, (void __user *)addp->src, PAGE_SIZE)) {
+-		ret = -EFAULT;
++	ret = sgx_encl_prepare_page(filep, addp->addr, addp->src, data);
++	if (ret)
+ 		goto out;
+-	}
  
-+#ifdef CONFIG_INTEL_SGX
-+struct sgx_sigstruct;
-+#ifdef CONFIG_SECURITY
-+extern int security_enclave_load(struct file *encl, unsigned long addr,
-+				 unsigned long size, unsigned long prot,
-+				 struct vm_area_struct *source);
-+extern int security_enclave_init(struct file *encl,
-+				 const struct sgx_sigstruct *sigstruct,
-+				 struct vm_area_struct *sigstruct_vma);
-+#else
-+static inline int security_enclave_load(struct file *encl, unsigned long addr,
-+					unsigned long size, unsigned long prot,
-+					struct vm_area_struct *source)
-+{
-+	return 0;
-+}
-+
-+static inline int security_enclave_init(struct file *encl,
-+					const struct sigstruct *sigstruct,
-+					struct vm_area_struct *sigstruct_vma)
-+{
-+	return 0;
-+}
-+#endif /* CONFIG_SECURITY */
-+#endif /* CONFIG_INTEL_SGX */
-+
- #endif /* ! __LINUX_SECURITY_H */
- 
-diff --git a/security/security.c b/security/security.c
-index f493db0bf62a..3a5c9847f2c8 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1420,6 +1420,7 @@ int security_file_mprotect(struct vm_area_struct *vma, unsigned long reqprot,
- {
- 	return call_int_hook(file_mprotect, 0, vma, reqprot, prot);
+ 	ret = sgx_encl_add_page(encl, addp->addr, data, &secinfo, addp->mrmask);
+ 	if (ret)
+@@ -718,6 +754,29 @@ static int sgx_encl_init(struct sgx_encl *encl, struct sgx_sigstruct *sigstruct,
+ 	return ret;
  }
-+EXPORT_SYMBOL(security_file_mprotect);
  
- int security_file_lock(struct file *file, unsigned int cmd)
++static int sgx_encl_prepare_sigstruct(struct file *filp, unsigned long src,
++				      struct sgx_sigstruct *ss)
++{
++	struct vm_area_struct *vma;
++	int rc = 0;
++
++	down_read(&current->mm->mmap_sem);
++
++	vma = find_vma(current->mm, src);
++	if (!vma || src < vma->vm_start || src + sizeof(*ss) > vma->vm_end)
++		rc = -EFAULT;
++
++	if (!rc && copy_from_user(ss, (void __user *)src, sizeof(*ss)))
++		rc = -EFAULT;
++
++	if (!rc)
++		rc = security_enclave_init(filp, ss, vma);
++
++	up_read(&current->mm->mmap_sem);
++
++	return rc;
++}
++
+ /**
+  * sgx_ioc_enclave_init - handler for %SGX_IOC_ENCLAVE_INIT
+  *
+@@ -753,12 +812,9 @@ static long sgx_ioc_enclave_init(struct file *filep, unsigned int cmd,
+ 		((unsigned long)sigstruct + PAGE_SIZE / 2);
+ 	memset(einittoken, 0, sizeof(*einittoken));
+ 
+-	if (copy_from_user(sigstruct, (void __user *)initp->sigstruct,
+-			   sizeof(*sigstruct))) {
+-		ret = -EFAULT;
++	ret = sgx_encl_prepare_sigstruct(filep, initp->sigstruct, sigstruct);
++	if (ret)
+ 		goto out;
+-	}
+-
+ 
+ 	ret = sgx_encl_init(encl, sigstruct, einittoken);
+ 
+diff --git a/arch/x86/kernel/cpu/sgx/driver/main.c b/arch/x86/kernel/cpu/sgx/driver/main.c
+index 58ba6153070b..c634df440c16 100644
+--- a/arch/x86/kernel/cpu/sgx/driver/main.c
++++ b/arch/x86/kernel/cpu/sgx/driver/main.c
+@@ -63,14 +63,22 @@ static long sgx_compat_ioctl(struct file *filep, unsigned int cmd,
+ static int sgx_mmap(struct file *file, struct vm_area_struct *vma)
  {
-@@ -2355,3 +2356,23 @@ void security_bpf_prog_free(struct bpf_prog_aux *aux)
- 	call_void_hook(bpf_prog_free_security, aux);
+ 	struct sgx_encl *encl = file->private_data;
++	unsigned long prot;
++	int rc;
+ 
+ 	vma->vm_ops = &sgx_vm_ops;
+ 	vma->vm_flags |= VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP | VM_IO;
+ 	vma->vm_private_data = encl;
+ 
+-	kref_get(&encl->refcount);
++	prot = vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC);
++	vma->vm_flags &= ~prot;
++	rc = security_file_mprotect(vma, prot, prot);
++	if (!rc) {
++		vma->vm_flags |= prot;
++		kref_get(&encl->refcount);
++	}
+ 
+-	return 0;
++	return rc;
  }
- #endif /* CONFIG_BPF_SYSCALL */
-+
-+#ifdef CONFIG_INTEL_SGX
-+
-+int security_enclave_load(struct file *encl, unsigned long addr,
-+			  unsigned long size, unsigned long prot,
-+			  struct vm_area_struct *source)
-+{
-+	return call_int_hook(enclave_load, 0, encl, addr, size, prot, source);
-+}
-+EXPORT_SYMBOL(security_enclave_load);
-+
-+int security_enclave_init(struct file *encl,
-+			  const struct sgx_sigstruct *sigstruct,
-+			  struct vm_area_struct *sigstruct_vma)
-+{
-+	return call_int_hook(enclave_init, 0, encl, sigstruct, sigstruct_vma);
-+}
-+EXPORT_SYMBOL(security_enclave_init);
-+
-+#endif /* CONFIG_INTEL_SGX */
+ 
+ static unsigned long sgx_get_unmapped_area(struct file *file,
 -- 
 2.17.1
 
