@@ -2,127 +2,110 @@ Return-Path: <SRS0=utbs=UK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE629C43218
-	for <selinux@archiver.kernel.org>; Tue, 11 Jun 2019 03:05:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AA6AC4321A
+	for <selinux@archiver.kernel.org>; Tue, 11 Jun 2019 08:07:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8DDCD20820
-	for <selinux@archiver.kernel.org>; Tue, 11 Jun 2019 03:05:38 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GY0W/W8d"
+	by mail.kernel.org (Postfix) with ESMTP id 7A5062086A
+	for <selinux@archiver.kernel.org>; Tue, 11 Jun 2019 08:07:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390936AbfFKDFi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Jun 2019 23:05:38 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:40446 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390791AbfFKDFh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 Jun 2019 23:05:37 -0400
-Received: by mail-pf1-f195.google.com with SMTP id p184so3157991pfp.7;
-        Mon, 10 Jun 2019 20:05:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=UyJgv7diIvsGV8yNapWATBHWh5ErPBRaSoIXVIecPDQ=;
-        b=GY0W/W8dLBHKkrHL2nfX4mjMoxYMJArz0NAt5yCD/WyI2puDS2djFJ2jCLOfYH/jD8
-         niMueqxfkKwcE7BpKxOkYGhkvVs3JytYpjtPwMuNZWAGNT11GzNEXoE+3ird/ChA4+Gb
-         pxu9tUmrxA1oETJAaluDL1qOFx0oVD0NTuw07YLPN40iCfDbPCFOhSlykJfvu4X5pO2g
-         z6WHaxiWh42LbjwYsrpr07d+xq7fZ4+OI5Kp9lbAtB3CkGirK5WJuvXW6uEx3HWsPJwg
-         l/wxqR9JNb4McHMv17tdEG9IdfEB7nFSTVW0UNCkHtvaxVeaCAi/h81kw36RAGB0JM6P
-         rNsw==
+        id S2404418AbfFKIHX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Jun 2019 04:07:23 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:39377 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404429AbfFKIHX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Jun 2019 04:07:23 -0400
+Received: by mail-wr1-f65.google.com with SMTP id x4so9215320wrt.6
+        for <selinux@vger.kernel.org>; Tue, 11 Jun 2019 01:07:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=UyJgv7diIvsGV8yNapWATBHWh5ErPBRaSoIXVIecPDQ=;
-        b=ADOqRM8xrH2SYpTiB9jo2NlsBQS/EvTlOPxLziHq//S1xFQ2xbYW3rppOzr3cSx0dP
-         kxHMDTbl/ACw9aCo2bxaUeaZyyKAmSgS3d5r/9c4FufBrBFhC3K2bgJvo0pRSp5PphDS
-         OHW+VrDsU2yGNhOvWZS6LOs6IqDtoXud0csr5Q96lx6d5SHgk51dDAHr/AsoWnDLMw2K
-         SGMcH/2+19yS0WLMNTJsRhUKKNC2bwft4DOukd82w9KUl5WBMKngjE0iVpuOX+bIju6A
-         pjc4coyNi1AHZ8Ua5c3+jZRn+tEtOm8/4+hvrNFbDaSZQyujJLGqD9Roxn5xiHqEqcL9
-         pELw==
-X-Gm-Message-State: APjAAAW57bCIeK2OI7T3o4MjRpc/7LkAa+P3ffDEYxOnGzzn2EV/R2yr
-        p2ZGcKiIk4NKMcPYKpbQKfVyxPxeenl14w==
-X-Google-Smtp-Source: APXvYqxB1TznsG2txR630wRTasQQMNG3n9JBoWYroGId67CZHYM1NNMiNqlwx8hwZ71MmwNtaT5TKw==
-X-Received: by 2002:a17:90a:3a85:: with SMTP id b5mr8505271pjc.84.1560222337087;
-        Mon, 10 Jun 2019 20:05:37 -0700 (PDT)
-Received: from ubuntu ([104.192.108.10])
-        by smtp.gmail.com with ESMTPSA id r4sm781677pjd.25.2019.06.10.20.05.34
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 10 Jun 2019 20:05:36 -0700 (PDT)
-Date:   Mon, 10 Jun 2019 20:05:31 -0700
-From:   Gen Zhang <blackgod016574@gmail.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v4] selinux: lsm: fix a missing-check bug in
- selinux_sb_eat_lsm_o pts()
-Message-ID: <20190611030529.GB4013@ubuntu>
-References: <20190606085524.GA21119@zhanggen-UX430UQ>
- <CAFqZXNvM94T2reUsn6Mwuz6GNGNCR=wUNBE8w4tcjNuhJ6rCeQ@mail.gmail.com>
- <CAHC9VhT+e2Z+4=5P0g4B4F1g0w2SkQjwUnhQkmu5V+HvuZi8Cg@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=WHWrvmaz/r/uPs6ClZNwktNqPw2BVBCjeEDlthzgcU8=;
+        b=KhyWr6PpdPm/LG9AtcsIVQDVmLat2H1c+N6abyTU2Gv0oka+XU/jcqAh5xQOIZCGAo
+         eiV2BjlwgBwKhlMJTDZ0BNim2mE+KkJnWICWaBYJ9V7NNIXJGDbYcrCNbvM37h9mYf94
+         XqnU8QUr2Sr82/sj2y1YOHXnPYa1ZhXcxirJwNBNLvixYF04IkxZVRQ/USkhNifk+z9Z
+         7GjXx8eYRv+Tj6SlaqZibOYNpr/r11xfjNjCPYIXL/GYRny4TaHQqfmfXCAmj8hUax2z
+         Igv8nb07mHhTdRrquqvwlXuI+2ENZ1IbevBd9wyaijQLRxH9d1ylb1tiuceLysi82fs4
+         hIkw==
+X-Gm-Message-State: APjAAAUMzpRt8lPJWV3sveSWRf1vo0gsLJVr/oGWcRdthZUsiWvq0xVx
+        QsjLaIDNMNGOuzlAkgEfeg/IT0BNW+8=
+X-Google-Smtp-Source: APXvYqwJCH1RG30C5HPYM3/363CUgEAM/3wWHHRnQ6oWWiIQBXXHTJfBuRDit6IqiagJ6r3cK6D2dg==
+X-Received: by 2002:adf:b643:: with SMTP id i3mr20919171wre.284.1560240441294;
+        Tue, 11 Jun 2019 01:07:21 -0700 (PDT)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id h90sm29632411wrh.15.2019.06.11.01.07.20
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 11 Jun 2019 01:07:20 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     linux-audit@redhat.com, stable@vger.kernel.org
+Subject: [PATCH] selinux: log raw contexts as untrusted strings
+Date:   Tue, 11 Jun 2019 10:07:19 +0200
+Message-Id: <20190611080719.28625-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhT+e2Z+4=5P0g4B4F1g0w2SkQjwUnhQkmu5V+HvuZi8Cg@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 10, 2019 at 04:20:28PM -0400, Paul Moore wrote:
-> On Fri, Jun 7, 2019 at 4:41 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > On Thu, Jun 6, 2019 at 10:55 AM Gen Zhang <blackgod016574@gmail.com> wrote:
-> > > In selinux_sb_eat_lsm_opts(), 'arg' is allocated by kmemdup_nul(). It
-> > > returns NULL when fails. So 'arg' should be checked. And 'mnt_opts'
-> > > should be freed when error.
-> > >
-> > > Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-> > > Fixes: 99dbbb593fe6 ("selinux: rewrite selinux_sb_eat_lsm_opts()")
-> >
-> > My comments about the subject and an empty line before label apply
-> > here as well, but Paul can fix both easily when applying ...
-> 
-> Since we've been discussing general best practices for submitting
-> patches in this thread (and the other related thread), I wanted to
-> (re)clarify my thoughts around maintainers fixing patches when merging
-> them upstream.
-> 
-> When in doubt, do not ever rely on the upstream maintainer fixing your
-> patch while merging it, and if problems do arise during review, it is
-> best to not ask the maintainer to fix them for you, but for you to fix
-> them instead (you are the patch author after all!).  Similarly, making
-> comments along the lines of "X can fix both easily when applying", is
-> also a bad thing to say when reviewing patches.  It's the patch
-> author's responsibility to fix the patch by address review comments,
-> not the maintainer.  I'll typically let you know if you don't need to
-> rework a patch(set).
-> 
-> That said, there are times when the maintainer will change the patch
-> during merging, most of which are due to resolving merge
-> conflicts/fuzz with changes already in the tree (that *is* the
-> maintainer's responsibility).  Speaking for myself, sometimes I will
-> also make some minor changes if the patch author is away, or
-> unreliable, or if there is a hard deadline near and I'm worried that
-> the updated patch might not be ready in time.  I'll also sometimes
-> make the changes directly if the patch is holding up a larger, more
-> important patch(set), but that is really rare.  I'm sure I've made
-> changes for other reasons in the past, and I'm sure I'll make changes
-> for other reasons in the future, but hopefully this will give you a
-> better idea of how the process works :)
-> 
-> -- 
-> paul moore
-> www.paul-moore.com
-Thanks for your comments. I will resend a patch after revising.
+These strings may come from untrusted sources (e.g. file xattrs) so they
+need to be properly escaped.
 
-Thanks
-Gen
+Reproducer:
+    # setenforce 0
+    # touch /tmp/test
+    # setfattr -n security.selinux -v 'kuřecí řízek' /tmp/test
+    # runcon system_u:system_r:sshd_t:s0 cat /tmp/test
+    (look at the generated AVCs)
+
+Actual result:
+    type=AVC [...] trawcon=kuřecí řízek
+
+Expected result:
+    type=AVC [...] trawcon=6B75C5996563C3AD20C599C3AD7A656B
+
+Fixes: fede148324c3 ("selinux: log invalid contexts in AVCs")
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/avc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 8346a4f7c5d7..a99be508f93d 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -739,14 +739,20 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
+ 	rc = security_sid_to_context_inval(sad->state, sad->ssid, &scontext,
+ 					   &scontext_len);
+ 	if (!rc && scontext) {
+-		audit_log_format(ab, " srawcon=%s", scontext);
++		if (scontext_len && scontext[scontext_len - 1] == '\0')
++			scontext_len--;
++		audit_log_format(ab, " srawcon=");
++		audit_log_n_untrustedstring(ab, scontext, scontext_len);
+ 		kfree(scontext);
+ 	}
+ 
+ 	rc = security_sid_to_context_inval(sad->state, sad->tsid, &scontext,
+ 					   &scontext_len);
+ 	if (!rc && scontext) {
+-		audit_log_format(ab, " trawcon=%s", scontext);
++		if (scontext_len && scontext[scontext_len - 1] == '\0')
++			scontext_len--;
++		audit_log_format(ab, " trawcon=");
++		audit_log_n_untrustedstring(ab, scontext, scontext_len);
+ 		kfree(scontext);
+ 	}
+ }
+-- 
+2.20.1
+
