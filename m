@@ -2,130 +2,129 @@ Return-Path: <SRS0=2Cbv=UL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6098DC31E46
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 19:57:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C760C31E46
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 20:12:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2247E20B7C
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 19:57:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ED23420896
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 20:12:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="muog1iJO"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="hMdU1A7I"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387695AbfFLT5t (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Jun 2019 15:57:49 -0400
-Received: from mail-it1-f194.google.com ([209.85.166.194]:36671 "EHLO
-        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387605AbfFLT5t (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jun 2019 15:57:49 -0400
-Received: by mail-it1-f194.google.com with SMTP id r135so12625274ith.1
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 12:57:49 -0700 (PDT)
+        id S1727924AbfFLUMC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Jun 2019 16:12:02 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:43479 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726735AbfFLUMC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jun 2019 16:12:02 -0400
+Received: by mail-lf1-f68.google.com with SMTP id j29so13172369lfk.10
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 13:12:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=1TMFbRFD8BTBt6FLIPcDKzz+3eh7SPO6IVKD+VliDng=;
-        b=muog1iJONbpGvtwqPY/H3xKhTgn3SIXWBho2cVVsgEt3PWAVcQ9kScD9sQmlF8V7Oi
-         VOPIRR/oefojLh9VWeJ2NwIaG8OdQcx7W4YCy+HDQMIX9mxa2LjvCS5k3bOckJOgCjLZ
-         w01RmvmiPFeFle5EUsTdW68c3C/NQs3wRkI5lhwgWN+rwjvPFqAx54idFIT4xx9yvW5D
-         gnY+Cfr7QqHMUZKu3ytZhNeXTeN49Bnk+lsOeYq5sC/dyzhOGEzt83e5/+uHeJg7/D/e
-         yjej6Ein/z69elm+iHMPiKEJ4mXO1qPmClQP8O80YbzgfxJx84SyKdgZu7t3z/niZq0g
-         Nm3w==
+        bh=2qR9NCJHXPeOLqllt60ol5cNxVhV78ySl74/XzNJHKA=;
+        b=hMdU1A7IdUvxxy6H/bgsv5M7AUbQYYCht1RC+rjsLO18vkp6cwpc9OA0XpycS/kjvB
+         vp+sfarLJNhHKAGHwIQplUexfHPWQ5cNshr5uyk2X7o96nh/upseCDySjlm3PqcGRT30
+         +18vqQMFb01TVqzy6oRKV7TSXouzbYCzWNqyNL4jzcPITnM8lvzZ1c/B+tXrOt6rIoKh
+         RDsX1gGWRi4+zMK39Fyhfng78RNg8tC0ciGapPTbXKzvJTFpltQuPa0yhr9fJYe3HKTN
+         hx+Vf1g1aqWqEkX/moUco6JliXr3iT44atU09at9exmoiS7j3Q38pw+kLkoMpV7sAR33
+         hf0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=1TMFbRFD8BTBt6FLIPcDKzz+3eh7SPO6IVKD+VliDng=;
-        b=hg2TaanNHyb1C/KWdg0wSJtUznkY3+U3uxPxe+dOmITlF5Km5k7lsB/eRAZVHJ10tp
-         upiZDVokFrFg97NSH5ULXG+BVSu2EBPs/zZoT7XpfT03/EtXCwz2oprCihkP6Vpvslpb
-         RLbTzZSon9fPXhAphg2XY6MlrOyNKtPuHqZYnDHFOUA8SPYqlxMZ/j0v6Y/9xmM9WUhJ
-         fWgz+pJ1vvIvgP5g1WIPI+sZPMbJPeBG2GqJLbhFgqbAOd6u/WpfckUYPrFsUFsQ+x/T
-         BYGDGKcFAFh+bH7nW43v85i2+eBCZU3pU3QhxJ4vtMg4lXeHt/IZn2VesWHmKIntOyIK
-         06NQ==
-X-Gm-Message-State: APjAAAUq0uPBVfrL4iqCaMgdkQonozqvmp1p2ifL20VqURTPFj1nsrpF
-        SY4izsVKefkHp05CmTq6GWHZxUnOQt+ofIWPtEU=
-X-Google-Smtp-Source: APXvYqxk3j4frSf/mKUmD42scE6uAiwsg42bbIIoHQnvsqVxmuSHDA5H3eoqadpiiVOTQugOjlx39iD2wcY2NqSpSS4=
-X-Received: by 2002:a02:4e05:: with SMTP id r5mr38945030jaa.27.1560369468656;
- Wed, 12 Jun 2019 12:57:48 -0700 (PDT)
+        bh=2qR9NCJHXPeOLqllt60ol5cNxVhV78ySl74/XzNJHKA=;
+        b=q7d7xdnNlDMItqI3aJwPD7SA4HiOQti+p4VYK8Ui3tCG68KlgZxk+24EKNrJ6reZd5
+         5Aq2bbgLFCpNp3+eLboTnoPS9HfAgAzy41BeJ3Jc/QdziNN9D15y8/G3SctqzKW8SiEq
+         BgP6NZJQ//nL1kwDV6KfdRYLR4m8bq6wYCFb2rcESFJ2h+8WCm01+D+SlnkMTuK06JfE
+         PUNQtWaUAC1MEXE7Aqm2+NU3Mlmz69ZLQM14FzpPfOErPPU3m61irj8xEBX8QLhM2k4x
+         jIKkQ6z1r2eY4nVN6JrzaLPpVrUNrVaDZPxvumw+CWkCb7h5W8yGr7GJZeFCnTKOoIIL
+         f02g==
+X-Gm-Message-State: APjAAAVKIkypFgg1ghbjrCeHtieovEsH9R6p8ZU6jt5PJGGbCA8/L95/
+        0CktuFbaYSvARxtmvNf/uFFnnSPWosG+j3YHyOP4
+X-Google-Smtp-Source: APXvYqxiMOhEvfpNpRBx8HIJxfrFG04qEyy3fNrpX6CDm+i+cbXF2ogCiyIv67xW7R5NIOEoGS3MK+5eVydQkAHdAfI=
+X-Received: by 2002:ac2:5310:: with SMTP id c16mr41936942lfh.119.1560370320040;
+ Wed, 12 Jun 2019 13:12:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190612080404.4529-1-jzarsky@redhat.com>
-In-Reply-To: <20190612080404.4529-1-jzarsky@redhat.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Wed, 12 Jun 2019 12:57:36 -0700
-Message-ID: <CAFftDdrV3uf826jqrFE8hBzJ7a3uJGuA02J9p+ce+GCqwT7+8w@mail.gmail.com>
-Subject: Re: [PATCH 00/11] libsemanage: add tests
-To:     Jan Zarsky <jzarsky@redhat.com>
-Cc:     selinux@vger.kernel.org
+References: <20190612081226.21004-1-omosnace@redhat.com>
+In-Reply-To: <20190612081226.21004-1-omosnace@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 12 Jun 2019 16:11:48 -0400
+Message-ID: <CAHC9VhRwKjp9qwqMB3p7intdpxFT1oYVOUKmoEcwZcN1VAC-UA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix empty write to keycreate file
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Daniel Walsh <dwalsh@redhat.com>,
+        Kir Kolyshkin <kir@sacred.ru>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 1:44 AM Jan Zarsky <jzarsky@redhat.com> wrote:
+On Wed, Jun 12, 2019 at 4:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> This series adds new test suites for libsemanage. In the first patch, common
-> helper functions are added. The other patches are independent and each adds a
-> new test suite.
+> When sid == 0 (we are resetting keycreate_sid to the default value), we
+> should skip the KEY__CREATE check.
 >
-> The test suites are testing only the public API and aim for line coverage. They
-> test only correct usage of the functions. Together with valgrind, the test
-> suites can be used for detecting memory leaks.
+> Before this patch, doing a zero-sized write to /proc/self/keycreate
+> would check if the current task can create unlabeled keys (which would
+> usually fail with -EACCESS and generate an AVC). Now it skips the check
+> and correctly sets the task's keycreate_sid to 0.
 >
-> The tests run fine in Travis CI and do not require an SELinux-enabled system.
+> Bug report: https://bugzilla.redhat.com/show_bug.cgi?id=1719067
 >
-> I welcome any suggestions.
+> Tested using the reproducer from the report above.
 >
-> Jan Zarsky (11):
->   libsemanage: add helper functions to tests
->   libsemanage: test semanage_handle_* functions
->   libsemanage: test semanage_bool_* functions
->   libsemanage: test semanage_fcontext functions
->   libsemanage: test semanage_iface_* functions
->   libsemanage: test semanage_ibendport_* functions
->   libsemanage: test semanage_node_* functions
->   libsemanage: test semanage_port_* functions
->   libsemanage: test semanage_user_* functions
->   libsemanage: test semanage_context_* functions
->   libsemanage: test semanage_msg_default_handler
->
->  libsemanage/tests/.gitignore            |    1 +
->  libsemanage/tests/Makefile              |   11 +-
->  libsemanage/tests/libsemanage-tests.c   |   18 +
->  libsemanage/tests/test_bool.c           |  932 +++++++++++++++++++++++++++
->  libsemanage/tests/test_bool.cil         |   24 +
->  libsemanage/tests/test_bool.h           |   31 +
->  libsemanage/tests/test_fcontext.c       | 1045 +++++++++++++++++++++++++++++++
->  libsemanage/tests/test_fcontext.cil     |   25 +
->  libsemanage/tests/test_fcontext.h       |   30 +
->  libsemanage/tests/test_handle.c         |  329 ++++++++++
->  libsemanage/tests/test_handle.cil       |   21 +
->  libsemanage/tests/test_handle.h         |   30 +
->  libsemanage/tests/test_ibendport.c      |  525 ++++++++++++++++
->  libsemanage/tests/test_ibendport.cil    |   28 +
->  libsemanage/tests/test_ibendport.h      |   30 +
->  libsemanage/tests/test_iface.c          |  666 ++++++++++++++++++++
->  libsemanage/tests/test_iface.cil        |   28 +
->  libsemanage/tests/test_iface.h          |   30 +
->  libsemanage/tests/test_node.c           |  807 ++++++++++++++++++++++++
->  libsemanage/tests/test_node.cil         |   28 +
->  libsemanage/tests/test_node.h           |   30 +
->  libsemanage/tests/test_other.c          |  120 ++++
->  libsemanage/tests/test_other.h          |   30 +
->  libsemanage/tests/test_port.c           |  909 +++++++++++++++++++++++++++
->  libsemanage/tests/test_port.cil         |   27 +
->  libsemanage/tests/test_port.h           |   30 +
->  libsemanage/tests/test_semanage_store.c |    2 +-
->  libsemanage/tests/test_user.c           |  690 ++++++++++++++++++++
->  libsemanage/tests/test_user.cil         |   27 +
->  libsemanage/tests/test_user.h           |   30 +
->  libsemanage/tests/utilities.c           |  254 +++++++-
->  libsemanage/tests/utilities.h           |   53 +-
->  32 files changed, 6831 insertions(+), 10 deletions(-)
->
->
-Ack
-Staged: https://github.com/SELinuxProject/selinux/pull/159
+> Fixes: 4eb582cf1fbd ("[PATCH] keys: add a way to store the appropriate context for newly-created keys")
+> Reported-by: Kir Kolyshkin <kir@sacred.ru>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  security/selinux/hooks.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+
+Looks good to me, I just merged it into selinux/next.
+
+Continuing on our best practices trend this week ... While I like
+seeing links to publicly accessible bug trackers in patches, it is
+important to remember that the patch description should contain all
+the important information.  In other words, one should be able to look
+at the git log on a island in the middle of the ocean - no network
+connectivity - and make sense of the commit.  It isn't a big deal for
+this patch, both because you explained the problem and the patch
+itself if trivial, but it is something to keep in mind when linking to
+external issue trackers.
+
+I've never rejected a patch because the description was too long ;)
+
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index c61787b15f27..f77b314d0575 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6331,11 +6331,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+>         } else if (!strcmp(name, "fscreate")) {
+>                 tsec->create_sid = sid;
+>         } else if (!strcmp(name, "keycreate")) {
+> -               error = avc_has_perm(&selinux_state,
+> -                                    mysid, sid, SECCLASS_KEY, KEY__CREATE,
+> -                                    NULL);
+> -               if (error)
+> -                       goto abort_change;
+> +               if (sid) {
+> +                       error = avc_has_perm(&selinux_state, mysid, sid,
+> +                                            SECCLASS_KEY, KEY__CREATE, NULL);
+> +                       if (error)
+> +                               goto abort_change;
+> +               }
+>                 tsec->keycreate_sid = sid;
+>         } else if (!strcmp(name, "sockcreate")) {
+>                 tsec->sockcreate_sid = sid;
+> --
+> 2.20.1
+
+-- 
+paul moore
+www.paul-moore.com
