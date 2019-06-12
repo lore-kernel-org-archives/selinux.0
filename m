@@ -6,457 +6,474 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAB8DC31E48
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC8BBC31E47
 	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 08:04:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7C8FA20684
+	by mail.kernel.org (Postfix) with ESMTP id B2A7520684
 	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 08:04:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729566AbfFLIEm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1725763AbfFLIEm (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 12 Jun 2019 04:04:42 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:37098 "EHLO mx1.redhat.com"
+Received: from mx1.redhat.com ([209.132.183.28]:41128 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725763AbfFLIEm (ORCPT <rfc822;selinux@vger.kernel.org>);
+        id S1729538AbfFLIEm (ORCPT <rfc822;selinux@vger.kernel.org>);
         Wed, 12 Jun 2019 04:04:42 -0400
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 637DE23CD7F
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:41 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 34A5EC79CE
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:42 +0000 (UTC)
 Received: from localhost.localdomain.com (unknown [10.43.12.50])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DCAA0783AC
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:40 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id AB3CF78405
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:41 +0000 (UTC)
 From:   Jan Zarsky <jzarsky@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 01/11] libsemanage: add helper functions to tests
-Date:   Wed, 12 Jun 2019 10:03:54 +0200
-Message-Id: <20190612080404.4529-2-jzarsky@redhat.com>
+Subject: [PATCH 02/11] libsemanage: test semanage_handle_* functions
+Date:   Wed, 12 Jun 2019 10:03:55 +0200
+Message-Id: <20190612080404.4529-3-jzarsky@redhat.com>
 In-Reply-To: <20190612080404.4529-1-jzarsky@redhat.com>
 References: <20190612080404.4529-1-jzarsky@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Wed, 12 Jun 2019 08:04:41 +0000 (UTC)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Wed, 12 Jun 2019 08:04:42 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-- Add functions for creating and destroying test semanage store.
-- Add functions for writing SELinux policy to the test store.
-- Add functions for creating semanage handle, connecting to the store and for
-  beginning a transaction.
-- Update Makefile to compile test policies from CIL source.
+Add new test suite for semanage_handle_* functions. The test suite aims for line
+coverage and covers expected usage of functions. The test suite uses custom
+semanage store and policy written in CIL, it does not require running on SELinux
+enabled system.
 
 Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
 ---
- libsemanage/tests/.gitignore            |   1 +
- libsemanage/tests/Makefile              |  11 +-
- libsemanage/tests/test_semanage_store.c |   2 +-
- libsemanage/tests/utilities.c           | 254 +++++++++++++++++++++++-
- libsemanage/tests/utilities.h           |  53 ++++-
- 5 files changed, 311 insertions(+), 10 deletions(-)
+ libsemanage/tests/libsemanage-tests.c |   2 +
+ libsemanage/tests/test_handle.c       | 329 ++++++++++++++++++++++++++
+ libsemanage/tests/test_handle.cil     |  21 ++
+ libsemanage/tests/test_handle.h       |  30 +++
+ 4 files changed, 382 insertions(+)
+ create mode 100644 libsemanage/tests/test_handle.c
+ create mode 100644 libsemanage/tests/test_handle.cil
+ create mode 100644 libsemanage/tests/test_handle.h
 
-diff --git a/libsemanage/tests/.gitignore b/libsemanage/tests/.gitignore
-index f07111db..8a2a866a 100644
---- a/libsemanage/tests/.gitignore
-+++ b/libsemanage/tests/.gitignore
-@@ -1 +1,2 @@
- libsemanage-tests
-+*.policy
-diff --git a/libsemanage/tests/Makefile b/libsemanage/tests/Makefile
-index 324766a0..69f49a36 100644
---- a/libsemanage/tests/Makefile
-+++ b/libsemanage/tests/Makefile
-@@ -1,5 +1,6 @@
- # Add your test source files here:
- SOURCES = $(sort $(wildcard *.c))
-+CILS = $(sort $(wildcard *.cil))
+diff --git a/libsemanage/tests/libsemanage-tests.c b/libsemanage/tests/libsemanage-tests.c
+index 048751b8..0fb3991b 100644
+--- a/libsemanage/tests/libsemanage-tests.c
++++ b/libsemanage/tests/libsemanage-tests.c
+@@ -21,6 +21,7 @@
  
- ###########################################################################
+ #include "test_semanage_store.h"
+ #include "test_utilities.h"
++#include "test_handle.h"
  
-@@ -8,15 +9,19 @@ CFLAGS += -g -O0 -Wall -W -Wundef -Wmissing-noreturn -Wmissing-format-attribute
- override CFLAGS += -I../src -I../include
- override LDLIBS += -lcunit -lbz2 -laudit -lselinux -lsepol
- 
--OBJECTS = $(SOURCES:.c=.o) 
-+OBJECTS = $(SOURCES:.c=.o)
-+POLICIES = $(CILS:.cil=.policy)
- 
--all: $(EXECUTABLE) 
-+all: $(EXECUTABLE) $(POLICIES)
- 
- $(EXECUTABLE): $(OBJECTS) ../src/libsemanage.a
- 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
- 
-+%.policy: %.cil
-+	../../secilc/secilc $*.cil -o $*.policy -f /dev/null
-+
- clean distclean: 
--	rm -rf $(OBJECTS) $(EXECUTABLE)
-+	rm -rf $(OBJECTS) $(POLICIES) $(EXECUTABLE)
- 
- test: all 
- 	./$(EXECUTABLE)
-diff --git a/libsemanage/tests/test_semanage_store.c b/libsemanage/tests/test_semanage_store.c
-index b324d502..92085361 100644
---- a/libsemanage/tests/test_semanage_store.c
-+++ b/libsemanage/tests/test_semanage_store.c
-@@ -43,7 +43,7 @@
- #include <unistd.h>
  #include <CUnit/Basic.h>
+ #include <CUnit/Console.h>
+@@ -59,6 +60,7 @@ static bool do_tests(int interactive, int verbose)
  
--semanage_handle_t *sh = NULL;
-+extern semanage_handle_t *sh;
- const char *rootpath = "./test-policy";
- const char *polpath = "./test-policy/store/";
- const char *readlockpath = "./test-policy/store/semanage.read.LOCK";
-diff --git a/libsemanage/tests/utilities.c b/libsemanage/tests/utilities.c
-index 7cc726c6..18393215 100644
---- a/libsemanage/tests/utilities.c
-+++ b/libsemanage/tests/utilities.c
-@@ -1,6 +1,7 @@
- /* Authors: Christopher Ashworth <cashworth@tresys.com>
-  *
-  * Copyright (C) 2006 Tresys Technology, LLC
+ 	DECLARE_SUITE(semanage_store);
+ 	DECLARE_SUITE(semanage_utilities);
++	DECLARE_SUITE(handle);
+ 
+ 	if (verbose)
+ 		CU_basic_set_mode(CU_BRM_VERBOSE);
+diff --git a/libsemanage/tests/test_handle.c b/libsemanage/tests/test_handle.c
+new file mode 100644
+index 00000000..2fab29be
+--- /dev/null
++++ b/libsemanage/tests/test_handle.c
+@@ -0,0 +1,329 @@
++/*
++ * Authors: Jan Zarsky <jzarsky@redhat.com>
++ *
 + * Copyright (C) 2019 Red Hat, Inc.
-  *
-  *  This library is free software; you can redistribute it and/or
-  *  modify it under the terms of the GNU Lesser General Public
-@@ -17,16 +18,261 @@
-  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
- 
--/*  The purpose of this file is to provide some functions commonly needed 
-+/*  The purpose of this file is to provide some functions commonly needed
-  *  by our unit tests.
-  */
- 
- #include "utilities.h"
- 
-+int test_store_enabled = 0;
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
 +
-+semanage_handle_t *sh = NULL;
++#include "utilities.h"
++#include "test_handle.h"
 +
- /* Silence any error output caused by our tests
-- * by using this dummy function to catch messages. 
-+ * by using this dummy function to catch messages.
-  */
--void test_msg_handler(void *varg,
--		      semanage_handle_t * handle, const char *fmt, ...)
-+void test_msg_handler(void *varg, semanage_handle_t *handle, const char *fmt,
-+		      ...)
- {
- }
++void test_handle_create(void);
++void test_connect(void);
++void test_disconnect(void);
++void test_transaction(void);
++void test_commit(void);
++void test_is_connected(void);
++void test_access_check(void);
++void test_is_managed(void);
++void test_mls_enabled(void);
++void test_msg_set_callback(void);
++void test_root(void);
++void test_select_store(void);
 +
-+int create_test_store() {
-+	FILE *fptr;
++extern semanage_handle_t *sh;
 +
-+	if (mkdir("test-policy", 0700) < 0)
-+		return -1;
-+
-+	if (mkdir("test-policy/store", 0700) < 0)
-+		return -1;
-+
-+	if (mkdir("test-policy/store/active", 0700) < 0)
-+		return -1;
-+
-+	if (mkdir("test-policy/store/active/modules", 0700) < 0)
-+		return -1;
-+
-+	if (mkdir("test-policy/etc", 0700) < 0)
-+		return -1;
-+
-+	if (mkdir("test-policy/etc/selinux", 0700) < 0)
-+		return -1;
-+
-+	fptr = fopen("test-policy/etc/selinux/semanage.conf", "w+");
-+
-+	if (!fptr)
-+		return -1;
-+
-+	fclose(fptr);
-+
-+	enable_test_store();
-+	return 0;
-+}
-+
-+void disable_test_store(void) {
-+	test_store_enabled = 0;
-+}
-+
-+void enable_test_store(void) {
-+	test_store_enabled = 1;
-+}
-+
-+int write_test_policy(char *data, size_t data_len) {
-+	FILE *fptr = fopen("test-policy/store/active/policy.kern", "wb+");
-+
-+	if (!fptr) {
-+		perror("fopen");
-+		return -1;
++int handle_test_init(void)
++{
++	if (create_test_store() < 0) {
++		fprintf(stderr, "Could not create test store\n");
++		return 1;
 +	}
 +
-+	if (fwrite(data, data_len, 1, fptr) != 1) {
-+		perror("fwrite");
-+		fclose(fptr);
-+		return -1;
++	if (write_test_policy_from_file("test_handle.policy") < 0) {
++		fprintf(stderr, "Could not write test policy\n");
++		return 1;
 +	}
-+
-+	fclose(fptr);
 +
 +	return 0;
 +}
 +
-+int write_test_policy_from_file(const char *filename) {
-+	char *buf = NULL;
-+	size_t len = 0;
-+	FILE *fptr = fopen(filename, "rb");
-+
-+	if (!fptr) {
-+		perror("fopen");
-+		return -1;
++int handle_test_cleanup(void)
++{
++	if (destroy_test_store() < 0) {
++		fprintf(stderr, "Could not destroy test store\n");
++		return 1;
 +	}
-+
-+	fseek(fptr, 0, SEEK_END);
-+	len = ftell(fptr);
-+	fseek(fptr, 0, SEEK_SET);
-+
-+	buf = (char *) malloc(len);
-+
-+	if (!buf) {
-+		perror("malloc");
-+		fclose(fptr);
-+		return -1;
-+	}
-+
-+	fread(buf, len, 1, fptr);
-+	fclose(fptr);
-+
-+	return write_test_policy(buf, len);
-+}
-+
-+int write_test_policy_src(unsigned char *data, unsigned int data_len) {
-+	if (mkdir("test-policy/store/active/modules/100", 0700) < 0)
-+		return -1;
-+
-+	if (mkdir("test-policy/store/active/modules/100/base", 0700) < 0)
-+		return -1;
-+
-+	FILE *fptr = fopen("test-policy/store/active/modules/100/base/cil",
-+			   "w+");
-+
-+	if (!fptr) {
-+		perror("fopen");
-+		return -1;
-+	}
-+
-+	if (fwrite(data, data_len, 1, fptr) != 1) {
-+		perror("fwrite");
-+		fclose(fptr);
-+		return -1;
-+	}
-+
-+	fclose(fptr);
-+
-+	fptr = fopen("test-policy/store/active/modules/100/base/lang_ext",
-+		     "w+");
-+
-+	if (!fptr) {
-+		perror("fopen");
-+		return -1;
-+	}
-+
-+	if (fwrite("cil", sizeof("cil"), 1, fptr) != 1) {
-+		perror("fwrite");
-+		fclose(fptr);
-+		return -1;
-+	}
-+
-+	fclose(fptr);
 +
 +	return 0;
 +}
 +
-+int destroy_test_store() {
-+	FTS *ftsp = NULL;
-+	FTSENT *curr = NULL;
-+	int ret = 0;
++int handle_add_tests(CU_pSuite suite)
++{
++	CU_add_test(suite, "test_handle_create", test_handle_create);
++	CU_add_test(suite, "test_connect", test_connect);
++	CU_add_test(suite, "test_disconnect", test_disconnect);
++	CU_add_test(suite, "test_transaction", test_transaction);
++	CU_add_test(suite, "test_commit", test_commit);
++	CU_add_test(suite, "test_is_connected", test_is_connected);
++	CU_add_test(suite, "test_access_check", test_access_check);
++	CU_add_test(suite, "test_is_managed", test_is_managed);
++	CU_add_test(suite, "test_mls_enabled", test_mls_enabled);
++	CU_add_test(suite, "msg_set_callback", test_msg_set_callback);
++	CU_add_test(suite, "test_root", test_root);
++	CU_add_test(suite, "test_select_store", test_select_store);
 +
-+	disable_test_store();
-+
-+	char *files[] = { (char *) "test-policy", NULL };
-+
-+	ftsp = fts_open(files, FTS_NOCHDIR | FTS_PHYSICAL | FTS_XDEV, NULL);
-+
-+	if (!ftsp)
-+		return -1;
-+
-+	while ((curr = fts_read(ftsp)))
-+		switch (curr->fts_info) {
-+		case FTS_DP:
-+		case FTS_F:
-+		case FTS_SL:
-+		case FTS_SLNONE:
-+		case FTS_DEFAULT:
-+			if (remove(curr->fts_accpath) < 0)
-+				ret = -1;
-+		default:
-+			break;
-+		}
-+
-+	fts_close(ftsp);
-+
-+	return ret;
++	return 0;
 +}
 +
-+void helper_handle_create(void) {
-+	if (test_store_enabled)
-+		semanage_set_root("test-policy");
-+
++/* Function semanage_handle_create */
++void test_handle_create(void)
++{
 +	sh = semanage_handle_create();
 +	CU_ASSERT_PTR_NOT_NULL(sh);
-+
-+	semanage_msg_set_callback(sh, test_msg_handler, NULL);
-+
-+	if (test_store_enabled) {
-+		semanage_set_create_store(sh, 1);
-+		semanage_set_reload(sh, 0);
-+		semanage_set_store_root(sh, "");
-+		semanage_select_store(sh, (char *) "store",
-+				      SEMANAGE_CON_DIRECT);
-+	}
-+}
-+
-+void helper_handle_destroy(void) {
 +	semanage_handle_destroy(sh);
 +}
 +
-+void helper_connect(void) {
++/* Function semanage_connect */
++void test_connect(void)
++{
++	/* test handle created */
++	setup_handle(SH_HANDLE);
 +	CU_ASSERT(semanage_connect(sh) >= 0);
-+}
-+
-+void helper_disconnect(void) {
 +	CU_ASSERT(semanage_disconnect(sh) >= 0);
++	cleanup_handle(SH_HANDLE);
++
++	/* test invalid store */
++	setup_handle_invalid_store(SH_HANDLE);
++	CU_ASSERT(semanage_connect(sh) < 0);
++	cleanup_handle(SH_HANDLE);
++
++	/* test normal use */
++	setup_handle(SH_HANDLE);
++	CU_ASSERT(semanage_connect(sh) >= 0);
++	CU_ASSERT(semanage_disconnect(sh) >= 0);
++	cleanup_handle(SH_HANDLE);
 +}
 +
-+void helper_begin_transaction(void) {
++/* Function semanage_disconnect */
++void test_disconnect(void)
++{
++	setup_handle(SH_CONNECT);
++	CU_ASSERT(semanage_disconnect(sh) >= 0);
++	cleanup_handle(SH_HANDLE);
++}
++
++/* Function semanage_begin_transaction */
++void test_transaction(void)
++{
++	/* test disconnected */
++	setup_handle(SH_CONNECT);
++	helper_disconnect();
++	CU_ASSERT(semanage_begin_transaction(sh) < 0);
++
++	cleanup_handle(SH_HANDLE);
++
++	/* test normal use */
++	setup_handle(SH_CONNECT);
 +	CU_ASSERT(semanage_begin_transaction(sh) >= 0);
-+}
-+
-+void helper_commit(void) {
 +	CU_ASSERT(semanage_commit(sh) >= 0);
++
++	cleanup_handle(SH_CONNECT);
 +}
 +
-+void setup_handle(level_t level) {
-+	if (level >= SH_NULL)
-+		sh = NULL;
++/* Function semanage_commit */
++void test_commit(void)
++{
++	/* test without transaction */
++	setup_handle(SH_CONNECT);
++	CU_ASSERT(semanage_commit(sh) < 0);
 +
-+	if (level >= SH_HANDLE)
-+		helper_handle_create();
++	/* test with transaction */
++	helper_begin_transaction();
++	CU_ASSERT(semanage_commit(sh) >= 0);
 +
-+	if (level >= SH_CONNECT)
-+		helper_connect();
-+
-+	if (level >= SH_TRANS)
-+		helper_begin_transaction();
++	cleanup_handle(SH_CONNECT);
 +}
 +
-+void cleanup_handle(level_t level) {
-+	if (level >= SH_TRANS)
-+		helper_commit();
++/* Function semanage_is_connected */
++void test_is_connected(void)
++{
++	/* test disconnected */
++	setup_handle(SH_HANDLE);
++	CU_ASSERT(semanage_is_connected(sh) == 0);
 +
-+	if (level >= SH_CONNECT)
-+		helper_disconnect();
++	/* test connected */
++	helper_connect();
++	CU_ASSERT(semanage_is_connected(sh) == 1);
 +
-+	if (level >= SH_HANDLE)
-+		helper_handle_destroy();
++	/* test in transaction */
++	helper_begin_transaction();
++	CU_ASSERT(semanage_is_connected(sh) == 1);
 +
-+	if (level >= SH_NULL)
-+		sh = NULL;
++	cleanup_handle(SH_TRANS);
 +}
 +
-+void setup_handle_invalid_store(level_t level) {
-+	CU_ASSERT(level >= SH_HANDLE);
++/* Function semanage_access_check */
++void test_access_check(void)
++{
++	int res = 0;
 +
++	/* test with handle */
++	setup_handle(SH_HANDLE);
++	res = semanage_access_check(sh);
++	CU_ASSERT(res == 0 || res == SEMANAGE_CAN_READ
++		  || res == SEMANAGE_CAN_WRITE);
++	cleanup_handle(SH_HANDLE);
++
++	/* test with invalid store */
++	setup_handle_invalid_store(SH_HANDLE);
++	CU_ASSERT(semanage_access_check(sh) < 0);
++	cleanup_handle(SH_HANDLE);
++
++	/* test connected */
++	setup_handle(SH_CONNECT);
++	res = semanage_access_check(sh);
++	CU_ASSERT(res == 0 || res == SEMANAGE_CAN_READ
++		  || res == SEMANAGE_CAN_WRITE);
++	cleanup_handle(SH_CONNECT);
++}
++
++/* Function semanage_is_managed */
++void test_is_managed(void)
++{
++	int res = 0;
++
++	/* test with handle */
++	setup_handle(SH_HANDLE);
++	res = semanage_is_managed(sh);
++	CU_ASSERT(res == 0 || res == 1);
++
++	/* test connected */
++	helper_connect();
++	res = semanage_is_managed(sh);
++	CU_ASSERT(res < 0);
++
++	cleanup_handle(SH_CONNECT);
++}
++
++/* Function semanage_mls_enabled */
++void test_mls_enabled(void)
++{
++	int res = 0;
++
++	/* test with handle */
++	setup_handle(SH_HANDLE);
++	res = semanage_mls_enabled(sh);
++	CU_ASSERT(res == 0 || res == 1);
++	cleanup_handle(SH_HANDLE);
++
++	/* test with invalid store */
++	setup_handle_invalid_store(SH_HANDLE);
++	CU_ASSERT(semanage_mls_enabled(sh) < 0);
++	cleanup_handle(SH_HANDLE);
++
++	/* test connected */
++	setup_handle(SH_CONNECT);
++	res = semanage_mls_enabled(sh);
++	CU_ASSERT(res == 0 || res == 1);
++
++	cleanup_handle(SH_CONNECT);
++}
++
++/* Function semanage_set_callback */
++int msg_set_callback_count = 0;
++
++void helper_msg_set_callback(void *varg, semanage_handle_t *handle,
++			     const char *fmt, ...)
++{
++	msg_set_callback_count++;
++}
++
++void test_msg_set_callback(void)
++{
++	setup_handle(SH_CONNECT);
++
++	semanage_msg_set_callback(sh, helper_msg_set_callback, NULL);
++
++	/* produce error message */
++	semanage_commit(sh);
++	CU_ASSERT(msg_set_callback_count == 1);
++	semanage_msg_set_callback(sh, NULL, NULL);
++
++	/* produce error message */
++	semanage_commit(sh);
++	CU_ASSERT(msg_set_callback_count == 1);
++
++	cleanup_handle(SH_CONNECT);
++}
++
++/* Function semanage_root, semanage_set_root */
++void helper_root(void)
++{
++	const char *root = NULL;
++
++	CU_ASSERT(semanage_set_root("asdf") >= 0);
++	root = semanage_root();
++	CU_ASSERT_STRING_EQUAL(root, "asdf");
++
++	CU_ASSERT(semanage_set_root("") >= 0);
++	root = semanage_root();
++	CU_ASSERT_STRING_EQUAL(root, "");
++}
++
++void test_root(void)
++{
++	/* test without handle */
++	setup_handle(SH_NULL);
++	helper_root();
++
++	/* test with handle */
 +	helper_handle_create();
++	helper_root();
 +
-+	semanage_select_store(sh, (char *) "", SEMANAGE_CON_INVALID);
++	/* test connected */
++	helper_connect();
++	helper_root();
 +
-+	if (level >= SH_CONNECT)
-+		helper_connect();
-+
-+	if (level >= SH_TRANS)
-+		helper_begin_transaction();
++	cleanup_handle(SH_CONNECT);
 +}
-diff --git a/libsemanage/tests/utilities.h b/libsemanage/tests/utilities.h
-index 781867d1..c9d54d1e 100644
---- a/libsemanage/tests/utilities.h
-+++ b/libsemanage/tests/utilities.h
-@@ -1,6 +1,7 @@
- /* Authors: Christopher Ashworth <cashworth@tresys.com>
-  *
-  * Copyright (C) 2006 Tresys Technology, LLC
++
++/* Function semanage_select_store */
++void helper_select_store(const char *name, enum semanage_connect_type type,
++			 int exp_res)
++{
++	setup_handle(SH_HANDLE);
++
++	/* FIXME: the storename parameter of semanage_select_store should be
++	 * 'const char *'
++	 */
++	semanage_select_store(sh, (char *) name, type);
++
++	int res = semanage_connect(sh);
++
++	if (exp_res < 0) {
++		CU_ASSERT(res < 0);
++	} else {
++		CU_ASSERT(res >= 0);
++	}
++
++	if (res >= 0)
++		cleanup_handle(SH_CONNECT);
++	else
++		cleanup_handle(SH_HANDLE);
++}
++
++void test_select_store(void)
++{
++	helper_select_store("asdf", SEMANAGE_CON_INVALID - 1, -1);
++	helper_select_store("asdf", SEMANAGE_CON_POLSERV_REMOTE + 1, -1);
++	helper_select_store("", SEMANAGE_CON_DIRECT, 0);
++
++	helper_select_store("asdf", SEMANAGE_CON_INVALID, -1);
++	helper_select_store("asdf", SEMANAGE_CON_DIRECT, 0);
++	helper_select_store("asdf", SEMANAGE_CON_POLSERV_LOCAL, -1);
++	helper_select_store("asdf", SEMANAGE_CON_POLSERV_REMOTE, -1);
++}
+diff --git a/libsemanage/tests/test_handle.cil b/libsemanage/tests/test_handle.cil
+new file mode 100644
+index 00000000..81690b88
+--- /dev/null
++++ b/libsemanage/tests/test_handle.cil
+@@ -0,0 +1,21 @@
++(typeattribute cil_gen_require)
++(roleattribute cil_gen_require)
++(handleunknown allow)
++(mls true)
++(policycap network_peer_controls)
++(policycap open_perms)
++(sid security)
++(sidorder (security))
++(sensitivity s0)
++(sensitivityorder (s0))
++(user system_u)
++(userrole system_u object_r)
++(userlevel system_u (s0))
++(userrange system_u ((s0) (s0)))
++(role object_r)
++(roletype object_r test_t)
++(type test_t)
++(sidcontext security (system_u object_r test_t ((s0) (s0))))
++(class test_class (test_perm))
++(classorder (test_class))
++(allow test_t self (test_class (test_perm)))
+diff --git a/libsemanage/tests/test_handle.h b/libsemanage/tests/test_handle.h
+new file mode 100644
+index 00000000..f927bd6a
+--- /dev/null
++++ b/libsemanage/tests/test_handle.h
+@@ -0,0 +1,30 @@
++/*
++ * Authors: Jan Zarsky <jzarsky@redhat.com>
++ *
 + * Copyright (C) 2019 Red Hat, Inc.
-  *
-  *  This library is free software; you can redistribute it and/or
-  *  modify it under the terms of the GNU Lesser General Public
-@@ -17,7 +18,55 @@
-  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-  */
- 
--#include "handle.h"
-+#ifndef __UTILITIES_H__
-+#define __UTILITIES_H__
- 
--void test_msg_handler(void *varg, semanage_handle_t * handle, const char *fmt,
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <stdarg.h>
-+#include <fts.h>
-+#include <assert.h>
-+#include <sys/stat.h>
-+#include <sys/types.h>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ */
++
++#ifndef __TEST_HANDLE_H__
++#define __TEST_HANDLE_H__
++
 +#include <CUnit/Basic.h>
 +
-+#include "semanage/semanage.h"
-+
-+#define CU_ASSERT_CONTEXT_EQUAL(CON1,CON2) \
-+	do { \
-+		char *__str; \
-+		char *__str2; \
-+		CU_ASSERT(semanage_context_to_string(sh, CON1, &__str) >= 0); \
-+		CU_ASSERT(semanage_context_to_string(sh, CON2, &__str2) >= 0); \
-+		CU_ASSERT_STRING_EQUAL(__str, __str2); \
-+	} while (0)
-+
-+#define I_NULL  -1
-+#define I_FIRST  0
-+#define I_SECOND 1
-+#define I_THIRD  2
-+
-+typedef enum { SH_NULL, SH_HANDLE, SH_CONNECT, SH_TRANS } level_t;
-+
-+void test_msg_handler(void *varg, semanage_handle_t *handle, const char *fmt,
- 		      ...);
-+
-+void setup_handle(level_t level);
-+void cleanup_handle(level_t level);
-+void setup_handle_invalid_store(level_t level);
-+
-+void helper_handle_create(void);
-+void helper_handle_destroy(void);
-+void helper_connect(void);
-+void helper_disconnect(void);
-+void helper_begin_transaction(void);
-+void helper_commit(void);
-+
-+int create_test_store(void);
-+int write_test_policy_from_file(const char *filename);
-+int write_test_policy_src(unsigned char *data, unsigned int data_len);
-+int destroy_test_store(void);
-+void enable_test_store(void);
-+void disable_test_store(void);
++int handle_test_init(void);
++int handle_test_cleanup(void);
++int handle_add_tests(CU_pSuite suite);
 +
 +#endif
 -- 
