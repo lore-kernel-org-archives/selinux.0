@@ -2,128 +2,104 @@ Return-Path: <SRS0=2Cbv=UL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C760C31E46
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 20:12:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B34F0C31E48
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 20:59:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ED23420896
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 20:12:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 843F3208C2
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 20:59:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="hMdU1A7I"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="N2HZ4/L5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbfFLUMC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Jun 2019 16:12:02 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:43479 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726735AbfFLUMC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jun 2019 16:12:02 -0400
-Received: by mail-lf1-f68.google.com with SMTP id j29so13172369lfk.10
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 13:12:01 -0700 (PDT)
+        id S2389744AbfFLU7T (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Jun 2019 16:59:19 -0400
+Received: from mail-lj1-f173.google.com ([209.85.208.173]:38350 "EHLO
+        mail-lj1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389466AbfFLU7T (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jun 2019 16:59:19 -0400
+Received: by mail-lj1-f173.google.com with SMTP id o13so16381050lji.5
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 13:59:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2qR9NCJHXPeOLqllt60ol5cNxVhV78ySl74/XzNJHKA=;
-        b=hMdU1A7IdUvxxy6H/bgsv5M7AUbQYYCht1RC+rjsLO18vkp6cwpc9OA0XpycS/kjvB
-         vp+sfarLJNhHKAGHwIQplUexfHPWQ5cNshr5uyk2X7o96nh/upseCDySjlm3PqcGRT30
-         +18vqQMFb01TVqzy6oRKV7TSXouzbYCzWNqyNL4jzcPITnM8lvzZ1c/B+tXrOt6rIoKh
-         RDsX1gGWRi4+zMK39Fyhfng78RNg8tC0ciGapPTbXKzvJTFpltQuPa0yhr9fJYe3HKTN
-         hx+Vf1g1aqWqEkX/moUco6JliXr3iT44atU09at9exmoiS7j3Q38pw+kLkoMpV7sAR33
-         hf0A==
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=l3VEyWUIpz19ynNy/N2qHdEiDLqpzuYJDD7NorzZ7xc=;
+        b=N2HZ4/L5uWJ8QNMKDSq0FO7tTwa7rTy4QL45jcK35gfpeeQw2qQZq01cIdQtxhG41D
+         2568TNO1fhu46tbEeVx1JoKSvpG1NG9yKiBzsUnlaQvbSXsi6kG+f2qTAtU1drEbSEiF
+         xcRbsYkmZVCjE/j1Xzk7FxQ8fm+layLakyIpAGLaBKzo1aPTI036n5Lhdb+eYBvzyQl8
+         FxcUURBFsI0JNdOrhm5UA7otbbT2VU9ymTBIkZfejGahJUObQ6EIu5+7f0odQKDyGGJi
+         Odpv5uATkGYtakdyOZfZwZb1ly1DEEjcIt5Lkko583FlfQtaHO+57aosTnFqar5y8tky
+         2RdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2qR9NCJHXPeOLqllt60ol5cNxVhV78ySl74/XzNJHKA=;
-        b=q7d7xdnNlDMItqI3aJwPD7SA4HiOQti+p4VYK8Ui3tCG68KlgZxk+24EKNrJ6reZd5
-         5Aq2bbgLFCpNp3+eLboTnoPS9HfAgAzy41BeJ3Jc/QdziNN9D15y8/G3SctqzKW8SiEq
-         BgP6NZJQ//nL1kwDV6KfdRYLR4m8bq6wYCFb2rcESFJ2h+8WCm01+D+SlnkMTuK06JfE
-         PUNQtWaUAC1MEXE7Aqm2+NU3Mlmz69ZLQM14FzpPfOErPPU3m61irj8xEBX8QLhM2k4x
-         jIKkQ6z1r2eY4nVN6JrzaLPpVrUNrVaDZPxvumw+CWkCb7h5W8yGr7GJZeFCnTKOoIIL
-         f02g==
-X-Gm-Message-State: APjAAAVKIkypFgg1ghbjrCeHtieovEsH9R6p8ZU6jt5PJGGbCA8/L95/
-        0CktuFbaYSvARxtmvNf/uFFnnSPWosG+j3YHyOP4
-X-Google-Smtp-Source: APXvYqxiMOhEvfpNpRBx8HIJxfrFG04qEyy3fNrpX6CDm+i+cbXF2ogCiyIv67xW7R5NIOEoGS3MK+5eVydQkAHdAfI=
-X-Received: by 2002:ac2:5310:: with SMTP id c16mr41936942lfh.119.1560370320040;
- Wed, 12 Jun 2019 13:12:00 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=l3VEyWUIpz19ynNy/N2qHdEiDLqpzuYJDD7NorzZ7xc=;
+        b=tXFQixg7RYO4ptvdhBOfFJyu1E9gUVztkUTGoRulCggmbBOPfQN+mwp51DVVCwjDnh
+         ZFfziwmO4n7sv2ys5c9PGGs40idm1WAgc6tIUhUAYaAKacywCTTRNGBdf6mbgL2qJl/G
+         Rlxso8l917AwwvjDAd8JUt+40Kr95FcJaJsYFwy+RW6ejQcdN81OeA0h/OEFEo4Yfrrr
+         WWdHgVhMCSCZFIp4QA1GNLCLZmWZoWg07tG7RJ43tfUAoGYkczY+dsV1OS0ngErGkXdg
+         1Z4g4+FVVZ02vlyaFLFq2ZtJIAfxRs3MSA2hwwKoq6CHsMW3y2aHgKwiwXagLBNaPS1O
+         7UPA==
+X-Gm-Message-State: APjAAAVuRYO9xnZUuj7qzOZGhbj9ocEW7rb30xm8L0LzyvL0XphD2Rkd
+        PVNo4DRzzOYPN6t1G0WiIUGia8jIjsf+uLTuvB8z
+X-Google-Smtp-Source: APXvYqyQ9xRqxco6pzmg3Kllok/kjb/RUNCEP+XpYPOK05OKF32F7Ru4shBbfMW+WyLGgAMoWcG0oW76u5p69zhqhcw=
+X-Received: by 2002:a2e:9106:: with SMTP id m6mr31118354ljg.164.1560373156513;
+ Wed, 12 Jun 2019 13:59:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190612081226.21004-1-omosnace@redhat.com>
-In-Reply-To: <20190612081226.21004-1-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 12 Jun 2019 16:11:48 -0400
-Message-ID: <CAHC9VhRwKjp9qwqMB3p7intdpxFT1oYVOUKmoEcwZcN1VAC-UA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix empty write to keycreate file
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Daniel Walsh <dwalsh@redhat.com>,
-        Kir Kolyshkin <kir@sacred.ru>
+Date:   Wed, 12 Jun 2019 16:59:05 -0400
+Message-ID: <CAHC9VhT8tYyUt_gtUR-jD-33LMW2RmzSXwP_OgPrh5ujQSiuUA@mail.gmail.com>
+Subject: [GIT PULL] SELinux fixes for v5.2 (#2)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 4:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> When sid == 0 (we are resetting keycreate_sid to the default value), we
-> should skip the KEY__CREATE check.
->
-> Before this patch, doing a zero-sized write to /proc/self/keycreate
-> would check if the current task can create unlabeled keys (which would
-> usually fail with -EACCESS and generate an AVC). Now it skips the check
-> and correctly sets the task's keycreate_sid to 0.
->
-> Bug report: https://bugzilla.redhat.com/show_bug.cgi?id=1719067
->
-> Tested using the reproducer from the report above.
->
-> Fixes: 4eb582cf1fbd ("[PATCH] keys: add a way to store the appropriate context for newly-created keys")
-> Reported-by: Kir Kolyshkin <kir@sacred.ru>
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/hooks.c | 11 ++++++-----
->  1 file changed, 6 insertions(+), 5 deletions(-)
+Hi Linus,
 
-Looks good to me, I just merged it into selinux/next.
+Three patches for v5.2; one fixes a problem where we weren't correctly
+logging raw SELinux labels, the other two fix problems where we
+weren't properly checking calls to kmemdup().  Please merge for the
+next v5.2-rc release.
 
-Continuing on our best practices trend this week ... While I like
-seeing links to publicly accessible bug trackers in patches, it is
-important to remember that the patch description should contain all
-the important information.  In other words, one should be able to look
-at the git log on a island in the middle of the ocean - no network
-connectivity - and make sense of the commit.  It isn't a big deal for
-this patch, both because you explained the problem and the patch
-itself if trivial, but it is something to keep in mind when linking to
-external issue trackers.
+Thanks,
+-Paul
+--
+The following changes since commit 05174c95b83f8aca0c47b87115abb7a6387aafa5:
 
-I've never rejected a patch because the description was too long ;)
+ selinux: do not report error on connect(AF_UNSPEC) (2019-05-20 21:46:02 -0400)
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index c61787b15f27..f77b314d0575 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -6331,11 +6331,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
->         } else if (!strcmp(name, "fscreate")) {
->                 tsec->create_sid = sid;
->         } else if (!strcmp(name, "keycreate")) {
-> -               error = avc_has_perm(&selinux_state,
-> -                                    mysid, sid, SECCLASS_KEY, KEY__CREATE,
-> -                                    NULL);
-> -               if (error)
-> -                       goto abort_change;
-> +               if (sid) {
-> +                       error = avc_has_perm(&selinux_state, mysid, sid,
-> +                                            SECCLASS_KEY, KEY__CREATE, NULL);
-> +                       if (error)
-> +                               goto abort_change;
-> +               }
->                 tsec->keycreate_sid = sid;
->         } else if (!strcmp(name, "sockcreate")) {
->                 tsec->sockcreate_sid = sid;
-> --
-> 2.20.1
+are available in the Git repository at:
+
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20190612
+
+for you to fetch changes up to fec6375320c6399c708fa9801f8cfbf950fee623:
+
+ selinux: fix a missing-check bug in selinux_sb_eat_lsm_opts()
+   (2019-06-12 12:27:26 -0400)
+
+----------------------------------------------------------------
+selinux/stable-5.2 PR 20190612
+
+----------------------------------------------------------------
+Gen Zhang (2):
+     selinux: fix a missing-check bug in selinux_add_mnt_opt( )
+     selinux: fix a missing-check bug in selinux_sb_eat_lsm_opts()
+
+Ondrej Mosnacek (1):
+     selinux: log raw contexts as untrusted strings
+
+security/selinux/avc.c   | 10 ++++++++--
+security/selinux/hooks.c | 39 ++++++++++++++++++++++++++++-----------
+2 files changed, 36 insertions(+), 13 deletions(-)
 
 -- 
 paul moore
