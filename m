@@ -2,133 +2,118 @@ Return-Path: <SRS0=2Cbv=UL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F8A1C31E48
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 18:40:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 577C5C46477
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 19:28:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 735D7206E0
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 18:40:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AQXRMmEX"
+	by mail.kernel.org (Postfix) with ESMTP id 3577B21721
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 19:28:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727388AbfFLSkN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Jun 2019 14:40:13 -0400
-Received: from mail-it1-f196.google.com ([209.85.166.196]:39465 "EHLO
-        mail-it1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726475AbfFLSjp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jun 2019 14:39:45 -0400
-Received: by mail-it1-f196.google.com with SMTP id j204so12197717ite.4
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 11:39:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Js1TOkm279Vn4hBlFPYGCDgI48jTfmK6r5Rq/6QD0Sk=;
-        b=AQXRMmEXNrfK5j151MbCuo2iR6YWjQCfR9dT8HAN+hOFbH6GKiKqxQjvitnM8IsHOk
-         Wv6olkxTvRDT0SaDGD3C9UqrOOgFlROYOByURiMh5BJEM9QUtj5PQe2OOp0zg/PPkBK1
-         OaAbWeXpEIIkO9kELkr/d5+WR8r664sDSiK0MICR9Jvkp62BkL3gybVUWLliqyl5QXpg
-         0xQDn2se/9Tnzm4afgS2h8AiQrAMDRwob1/212qJHVVXuSLdIyH5Goto/7TOrtcvOQU0
-         3nkFjVNwIZmBr+grotsiQTZc181m10lL4rX/rZYkktwOlNCVxDW0V4QzWLUSyClR0VkQ
-         nhQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Js1TOkm279Vn4hBlFPYGCDgI48jTfmK6r5Rq/6QD0Sk=;
-        b=KhCm6e4VjQxYrCyPIgwrsjrSTPQLy12NyE7GdpfYoI3L6gAwbEhMeOflCF1IQ7587T
-         sSbv7xgr21L1gjC7qpL/IboApqClXHvcg9/1RLVFkL3LoH5NMV7bzYykSjxVmL7wED9w
-         /i4O3VNrzB9rZBNuPc2T5GJwI1GiID3iyOLDPAmdXHo/vxpCBhGdzyOVXYvfNEoGzIjf
-         RwX8Sym167z363UFAub+3EJKV945en2IEOlRAP7HJAG+9lJ2LQzRhU2OHCIRyl7S98gQ
-         QzMCVAQo4k8XWPDBru/3rIVMAlsMsMaHibHRqGFbcebvxhiNHA2nKkwC3eHvOX9o6aCq
-         ExJQ==
-X-Gm-Message-State: APjAAAUqmD+XkZv4df/XyPyv5nUCrsPYk58gPnduxTe9nrE7tgnmBSwQ
-        5k3ZS/oLbZ+9RjbM68LGfNd5gULmryZL97dshDPWorkr3HA=
-X-Google-Smtp-Source: APXvYqyOKyAagmjDXwUalgZGinbsEk9YN3l9SoJDDFZoVV3VMZkE/HklQxuDKcuIqpC9gNfEg9r7WNrt9BN+EQpVj90=
-X-Received: by 2002:a24:5247:: with SMTP id d68mr444358itb.141.1560364784064;
- Wed, 12 Jun 2019 11:39:44 -0700 (PDT)
+        id S1728124AbfFLT0i (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Jun 2019 15:26:38 -0400
+Received: from mga14.intel.com ([192.55.52.115]:24089 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728011AbfFLT0g (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 12 Jun 2019 15:26:36 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Jun 2019 12:26:35 -0700
+X-ExtLoop1: 1
+Received: from suygunge-mobl.ger.corp.intel.com (HELO localhost) ([10.252.48.116])
+  by orsmga001.jf.intel.com with ESMTP; 12 Jun 2019 12:26:27 -0700
+Date:   Wed, 12 Jun 2019 22:26:26 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Jethro Beekman <jethro@fortanix.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
+        Shay Katz-zamir <shay.katz-zamir@intel.com>,
+        Haitao Huang <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kai Svahn <kai.svahn@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Kai Huang <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        William Roberts <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH v2 2/5] x86/sgx: Require userspace to define enclave
+ pages' protection bits
+Message-ID: <20190612192626.GD3378@linux.intel.com>
+References: <20190606021145.12604-1-sean.j.christopherson@intel.com>
+ <20190606021145.12604-3-sean.j.christopherson@intel.com>
+ <20190610152717.GB3752@linux.intel.com>
+ <20190610161532.GC15995@linux.intel.com>
+ <20190610174506.GB13732@linux.intel.com>
+ <20190610181744.GH15995@linux.intel.com>
 MIME-Version: 1.0
-References: <alpine.LFD.2.21.1905242306150.9521@34-41-5D-CA-59-C7>
- <pjd5zphv6ei.fsf@redhat.com> <pjd4l51v4ge.fsf@redhat.com> <alpine.LFD.2.21.1906121730070.28042@34-41-5D-CA-59-C7>
-In-Reply-To: <alpine.LFD.2.21.1906121730070.28042@34-41-5D-CA-59-C7>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Wed, 12 Jun 2019 11:39:32 -0700
-Message-ID: <CAFftDdp=Tp1V0wfdn_wiFcaSyHwQV_=NYi0s_Rz5Yvvj-DaUiw@mail.gmail.com>
-Subject: Re: [PATCH] trivial: remove unneeded int
-To:     =?UTF-8?B?Sm9ra2UgSMOkbcOkbMOkaW5lbg==?= 
-        <jokke.hamalainen@kolttonen.fi>
-Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190610181744.GH15995@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 11:01 AM Jokke H=C3=A4m=C3=A4l=C3=A4inen
-<jokke.hamalainen@kolttonen.fi> wrote:
->
->
-> Hello,
->
-> On Fri, 7 Jun 2019, Petr Lautrbach wrote:
->
-> > The same comment applies also to your other unmerged patches
-> >
-> > * trivial: remove unneeded int
-> > * remove redundant if
-> > * More accurate error messages
-> > * trivial fix incorrect indentation
-> > * trivial typo fix
->
-> The simple patches now have a "Signed-off-by:" line in
-> the description.
->
-> Pull requests have been done.
->
+On Mon, Jun 10, 2019 at 11:17:44AM -0700, Sean Christopherson wrote:
+> On Mon, Jun 10, 2019 at 08:45:06PM +0300, Jarkko Sakkinen wrote:
+> > On Mon, Jun 10, 2019 at 09:15:33AM -0700, Sean Christopherson wrote:
+> > > > 'flags' should would renamed as 'secinfo_flags_mask' even if the name is
+> > > > longish. It would use the same values as the SECINFO flags. The field in
+> > > > struct sgx_encl_page should have the same name. That would express
+> > > > exactly relation between SECINFO and the new field. I would have never
+> > > > asked on last iteration why SECINFO is not enough with a better naming.
+> > > 
+> > > No, these flags do not impact the EPCM protections in any way.  Userspace
+> > > can extend the EPCM protections without going through the kernel.  The
+> > > protection flags for an enclave page impact VMA/PTE protection bits.
+> > > 
+> > > IMO, it is best to treat the EPCM as being completely separate from the
+> > > kernel's EPC management.
+> > 
+> > It is a clumsy API if permissions are not taken in the same format for
+> > everything. There is no reason not to do it. The way mprotect() callback
+> > just interprets the field is as VMA permissions.
+> 
+> They are two entirely different things.  The explicit protection bits are
+> consumed by the kernel, while SECINFO.flags is consumed by the CPU.  The
+> intent is to have the protection flags be analogous to mprotect(), the
+> fact that they have a similar/identical format to SECINFO is irrelevant.
+> 
+> Calling the field secinfo_flags_mask is straight up wrong on SGX2, as 
+> userspace can use EMODPE to set SECINFO after the page is added.  It's
+> also wrong on SGX1 when adding TCS pages since SECINFO.RWX bits for TCS
+> pages are forced to zero by hardware.
 
-You have all your new patches as individual PR's with merge commits, very w=
-eird:
-https://github.com/SELinuxProject/selinux/pull/154/commits
+The new variable tells the limits on which kernel will co-operate with
+the enclave. It is way more descriptive than 'flags'.
 
-Rather then:
-1. creating a PR per patch
-2. merge workflow
+> > It would also be more future-proof just to have a mask covering all bits
+> > of the SECINFO flags field.
+> 
+> This simply doesn't work, e.g. the PENDING, MODIFIED and PR flags in the
+> SECINFO are read-only from a software perspective.
 
-Please:
-1. Since all your patches are related in goal within the series, just
-put them on 1 PR
-2. rebase workflow, ie always git pull --rebase origin/master
-    I don't know if this is the most efficient way with git, but you
-can just cherry-pick all
-    those commits on a branch that is up-to-date with master.
-3. You still need to send them back out to the list
-4. commit messages lacking
+It is easy to validate reserved bits from a SECINFO struct.
 
-On top of that, Stephen has mentioned that we don't want to get in the
-habit of taking style
-fixes. The three actual changes you have are:
-
-> > * trivial: remove unneeded int
-> > * remove redundant if
-> > * More accurate error messages
-
-Additionally, lets work on those commit messages, typically when
-someone starts with <label>: that label isn't
-something like trivial, it's used for referencing the component touched.
-
-libsepol: remove unneeded int
-
-the routine context_is_valid() had an int that was used as a return
-code that was set and never modified. Just return
-the constant instead.
-
-<signed-off...>
-
-I'm OK with those three if you fix the 4 issues I pointed out. I'll
-let Stephen decide the fate on the pure style patches.
-> Best regards,
-> Jokke H=C3=A4m=C3=A4l=C3=A4inen
+/Jarkko
