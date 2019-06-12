@@ -6,43 +6,43 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A777C31E48
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 08:04:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71C37C31E49
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 08:04:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 21DD620684
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 08:04:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4411920684
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 08:04:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729538AbfFLIEr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Jun 2019 04:04:47 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:23483 "EHLO mx1.redhat.com"
+        id S2436782AbfFLIEs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Jun 2019 04:04:48 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:36544 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2436774AbfFLIEr (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 12 Jun 2019 04:04:47 -0400
+        id S2436774AbfFLIEs (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 12 Jun 2019 04:04:48 -0400
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 4F4E230C1AE8
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:47 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 1CC79C057F31
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:48 +0000 (UTC)
 Received: from localhost.localdomain.com (unknown [10.43.12.50])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C468678386
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:46 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 959EB7C81B
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 08:04:47 +0000 (UTC)
 From:   Jan Zarsky <jzarsky@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 08/11] libsemanage: test semanage_port_* functions
-Date:   Wed, 12 Jun 2019 10:04:01 +0200
-Message-Id: <20190612080404.4529-9-jzarsky@redhat.com>
+Subject: [PATCH 09/11] libsemanage: test semanage_user_* functions
+Date:   Wed, 12 Jun 2019 10:04:02 +0200
+Message-Id: <20190612080404.4529-10-jzarsky@redhat.com>
 In-Reply-To: <20190612080404.4529-1-jzarsky@redhat.com>
 References: <20190612080404.4529-1-jzarsky@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Wed, 12 Jun 2019 08:04:47 +0000 (UTC)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Wed, 12 Jun 2019 08:04:48 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add new test suite for semanage_port_* functions. The test suite aims for line
+Add new test suite for semanage_user_* functions. The test suite aims for line
 coverage and covers expected usage of functions. The test suite uses custom
 semanage store and policy written in CIL, it does not require running on SELinux
 enabled system.
@@ -50,40 +50,40 @@ enabled system.
 Signed-off-by: Jan Zarsky <jzarsky@redhat.com>
 ---
  libsemanage/tests/libsemanage-tests.c |   2 +
- libsemanage/tests/test_port.c         | 909 ++++++++++++++++++++++++++
- libsemanage/tests/test_port.cil       |  27 +
- libsemanage/tests/test_port.h         |  30 +
- 4 files changed, 968 insertions(+)
- create mode 100644 libsemanage/tests/test_port.c
- create mode 100644 libsemanage/tests/test_port.cil
- create mode 100644 libsemanage/tests/test_port.h
+ libsemanage/tests/test_user.c         | 690 ++++++++++++++++++++++++++
+ libsemanage/tests/test_user.cil       |  27 +
+ libsemanage/tests/test_user.h         |  30 ++
+ 4 files changed, 749 insertions(+)
+ create mode 100644 libsemanage/tests/test_user.c
+ create mode 100644 libsemanage/tests/test_user.cil
+ create mode 100644 libsemanage/tests/test_user.h
 
 diff --git a/libsemanage/tests/libsemanage-tests.c b/libsemanage/tests/libsemanage-tests.c
-index ba24421d..b4a8c122 100644
+index b4a8c122..64039b5d 100644
 --- a/libsemanage/tests/libsemanage-tests.c
 +++ b/libsemanage/tests/libsemanage-tests.c
-@@ -27,6 +27,7 @@
- #include "test_iface.h"
+@@ -28,6 +28,7 @@
  #include "test_ibendport.h"
  #include "test_node.h"
-+#include "test_port.h"
+ #include "test_port.h"
++#include "test_user.h"
  
  #include <CUnit/Basic.h>
  #include <CUnit/Console.h>
-@@ -71,6 +72,7 @@ static bool do_tests(int interactive, int verbose)
- 	DECLARE_SUITE(iface);
+@@ -73,6 +74,7 @@ static bool do_tests(int interactive, int verbose)
  	DECLARE_SUITE(ibendport);
  	DECLARE_SUITE(node);
-+	DECLARE_SUITE(port);
+ 	DECLARE_SUITE(port);
++	DECLARE_SUITE(user);
  
  	if (verbose)
  		CU_basic_set_mode(CU_BRM_VERBOSE);
-diff --git a/libsemanage/tests/test_port.c b/libsemanage/tests/test_port.c
+diff --git a/libsemanage/tests/test_user.c b/libsemanage/tests/test_user.c
 new file mode 100644
-index 00000000..0408be4d
+index 00000000..cd082030
 --- /dev/null
-+++ b/libsemanage/tests/test_port.c
-@@ -0,0 +1,909 @@
++++ b/libsemanage/tests/test_user.c
+@@ -0,0 +1,690 @@
 +/*
 + * Authors: Jan Zarsky <jzarsky@redhat.com>
 + *
@@ -105,62 +105,47 @@ index 00000000..0408be4d
 + */
 +
 +#include "utilities.h"
-+#include "test_port.h"
++#include "test_user.h"
 +
-+#define PORT_COUNT 3
++#define USER_COUNT 3
 +
-+#define PORT1_LOW 80
-+#define PORT1_HIGH 80
-+#define PORT1_PROTO SEPOL_PROTO_TCP
++/* user_record.h */
++void test_user_compare(void);
++void test_user_compare2(void);
++void test_user_key_create(void);
++void test_user_key_extract(void);
++void test_user_get_set_name(void);
++void test_user_get_set_prefix(void);
++void test_user_get_set_mlslevel(void);
++void test_user_get_set_mlsrange(void);
++void test_user_roles(void);
++void test_user_create(void);
++void test_user_clone(void);
 +
-+#define PORT2_LOW 1
-+#define PORT2_HIGH 1023
-+#define PORT2_PROTO SEPOL_PROTO_UDP
++/* users_policy.h */
++void test_user_query(void);
++void test_user_exists(void);
++void test_user_count(void);
++void test_user_iterate(void);
++void test_user_list(void);
 +
-+#define PORT3_LOW 12345
-+#define PORT3_HIGH 12345
-+#define PORT3_PROTO SEPOL_PROTO_TCP
-+
-+/* port_record.h */
-+void test_port_compare(void);
-+void test_port_compare2(void);
-+void test_port_key_create(void);
-+void test_port_key_extract(void);
-+void test_port_get_set_proto(void);
-+void test_port_get_proto_str(void);
-+void test_port_get_set_port(void);
-+void test_port_get_set_con(void);
-+void test_port_create(void);
-+void test_port_clone(void);
-+
-+/* ports_policy.h */
-+void test_port_query(void);
-+void test_port_exists(void);
-+void test_port_count(void);
-+void test_port_iterate(void);
-+void test_port_list(void);
-+
-+/* ports_local.h */
-+void test_port_modify_del_local(void);
-+void test_port_query_local(void);
-+void test_port_exists_local(void);
-+void test_port_count_local(void);
-+void test_port_iterate_local(void);
-+void test_port_list_local(void);
-+
-+/* internal */
-+void test_port_validate_local(void);
++/* users_local.h */
++void test_user_modify_del_query_local(void);
++void test_user_exists_local(void);
++void test_user_count_local(void);
++void test_user_iterate_local(void);
++void test_user_list_local(void);
 +
 +extern semanage_handle_t *sh;
 +
-+int port_test_init(void)
++int user_test_init(void)
 +{
 +	if (create_test_store() < 0) {
 +		fprintf(stderr, "Could not create test store\n");
 +		return 1;
 +	}
 +
-+	if (write_test_policy_from_file("test_port.policy") < 0) {
++	if (write_test_policy_from_file("test_user.policy") < 0) {
 +		fprintf(stderr, "Could not write test policy\n");
 +		return 1;
 +	}
@@ -168,7 +153,7 @@ index 00000000..0408be4d
 +	return 0;
 +}
 +
-+int port_test_cleanup(void)
++int user_test_cleanup(void)
 +{
 +	if (destroy_test_store() < 0) {
 +		fprintf(stderr, "Could not destroy test store\n");
@@ -178,75 +163,74 @@ index 00000000..0408be4d
 +	return 0;
 +}
 +
-+int port_add_tests(CU_pSuite suite)
++int user_add_tests(CU_pSuite suite)
 +{
-+	CU_add_test(suite, "port_compare", test_port_compare);
-+	CU_add_test(suite, "port_compare2", test_port_compare2);
-+	CU_add_test(suite, "port_key_create", test_port_key_create);
-+	CU_add_test(suite, "port_key_extract", test_port_key_extract);
-+	CU_add_test(suite, "port_get_set_proto", test_port_get_set_proto);
-+	CU_add_test(suite, "port_get_proto_str", test_port_get_proto_str);
-+	CU_add_test(suite, "port_get_set_port", test_port_get_set_port);
-+	CU_add_test(suite, "port_get_set_con", test_port_get_set_con);
-+	CU_add_test(suite, "port_create", test_port_create);
-+	CU_add_test(suite, "port_clone", test_port_clone);
++	CU_add_test(suite, "user_compare", test_user_compare);
++	CU_add_test(suite, "user_compare2", test_user_compare2);
++	CU_add_test(suite, "user_key_create", test_user_key_create);
++	CU_add_test(suite, "user_key_extract", test_user_key_extract);
++	CU_add_test(suite, "user_get_set_name", test_user_get_set_name);
++	CU_add_test(suite, "user_get_set_prefix", test_user_get_set_prefix);
++	CU_add_test(suite, "user_get_set_mlslevel", test_user_get_set_mlslevel);
++	CU_add_test(suite, "user_get_set_mlsrange", test_user_get_set_mlsrange);
++	CU_add_test(suite, "user_roles", test_user_roles);
++	CU_add_test(suite, "user_create", test_user_create);
++	CU_add_test(suite, "user_clone", test_user_clone);
 +
-+	CU_add_test(suite, "port_query", test_port_query);
-+	CU_add_test(suite, "port_exists", test_port_exists);
-+	CU_add_test(suite, "port_count", test_port_count);
-+	CU_add_test(suite, "port_iterate", test_port_iterate);
-+	CU_add_test(suite, "port_list", test_port_list);
++	CU_add_test(suite, "user_query", test_user_query);
++	CU_add_test(suite, "user_exists", test_user_exists);
++	CU_add_test(suite, "user_count", test_user_count);
++	CU_add_test(suite, "user_iterate", test_user_iterate);
++	CU_add_test(suite, "user_list", test_user_list);
 +
-+	CU_add_test(suite, "port_modify_del_local", test_port_modify_del_local);
-+	CU_add_test(suite, "port_query_local", test_port_query_local);
-+	CU_add_test(suite, "port_exists_local", test_port_exists_local);
-+	CU_add_test(suite, "port_count_local", test_port_count_local);
-+	CU_add_test(suite, "port_iterate_local", test_port_iterate_local);
-+	CU_add_test(suite, "port_list_local", test_port_list_local);
-+
-+	CU_add_test(suite, "port_validate_local", test_port_validate_local);
++	CU_add_test(suite, "user_modify_del_query_local",
++				test_user_modify_del_query_local);
++	CU_add_test(suite, "user_exists_local", test_user_exists_local);
++	CU_add_test(suite, "user_count_local", test_user_count_local);
++	CU_add_test(suite, "user_iterate_local", test_user_iterate_local);
++	CU_add_test(suite, "user_list_local", test_user_list_local);
 +
 +	return 0;
 +}
 +
 +/* Helpers */
 +
-+semanage_port_t *get_port_nth(int idx)
++semanage_user_t *get_user_nth(int idx)
 +{
 +	int res;
-+	semanage_port_t **records;
-+	semanage_port_t *port;
++	semanage_user_t **records;
++	semanage_user_t *user;
 +	unsigned int count;
 +
 +	if (idx == I_NULL)
 +		return NULL;
 +
-+	res = semanage_port_list(sh, &records, &count);
++	res = semanage_user_list(sh, &records, &count);
 +
 +	CU_ASSERT_FATAL(res >= 0);
 +	CU_ASSERT_FATAL(count >= (unsigned int) idx + 1);
 +
-+	port = records[idx];
++	user = records[idx];
 +
 +	for (unsigned int i = 0; i < count; i++)
 +		if (i != (unsigned int) idx)
-+			semanage_port_free(records[i]);
++			semanage_user_free(records[i]);
 +
-+	return port;
++	return user;
 +}
 +
-+semanage_port_key_t *get_port_key_nth(int idx)
++semanage_user_key_t *get_user_key_nth(int idx)
 +{
-+	semanage_port_key_t *key;
-+	semanage_port_t *port;
++	semanage_user_key_t *key;
++	semanage_user_t *user;
 +	int res;
 +
 +	if (idx == I_NULL)
 +		return NULL;
 +
-+	port = get_port_nth(idx);
++	user = get_user_nth(idx);
 +
-+	res = semanage_port_key_extract(sh, port, &key);
++	res = semanage_user_key_extract(sh, user, &key);
 +
 +	CU_ASSERT_FATAL(res >= 0);
 +	CU_ASSERT_PTR_NOT_NULL_FATAL(key);
@@ -254,349 +238,343 @@ index 00000000..0408be4d
 +	return key;
 +}
 +
-+void add_local_port(int port_idx)
++void add_local_user(int user_idx)
 +{
-+	semanage_port_t *port;
-+	semanage_port_key_t *key = NULL;
++	semanage_user_t *user;
++	semanage_user_key_t *key = NULL;
 +
-+	CU_ASSERT_FATAL(port_idx != I_NULL);
++	CU_ASSERT_FATAL(user_idx != I_NULL);
 +
-+	port = get_port_nth(port_idx);
++	user = get_user_nth(user_idx);
 +
-+	CU_ASSERT_FATAL(semanage_port_key_extract(sh, port, &key) >= 0);
++	CU_ASSERT_FATAL(semanage_user_key_extract(sh, user, &key) >= 0);
 +	CU_ASSERT_PTR_NOT_NULL_FATAL(key);
 +
-+	CU_ASSERT_FATAL(semanage_port_modify_local(sh, key, port) >= 0);
++	CU_ASSERT_FATAL(semanage_user_modify_local(sh, key, user) >= 0);
 +}
 +
-+void delete_local_port(int port_idx)
++void delete_local_user(int user_idx)
 +{
-+	semanage_port_key_t *key = NULL;
++	semanage_user_key_t *key = NULL;
 +
-+	CU_ASSERT_FATAL(port_idx != I_NULL);
++	CU_ASSERT_FATAL(user_idx != I_NULL);
 +
-+	key = get_port_key_nth(port_idx);
++	key = get_user_key_nth(user_idx);
 +
-+	CU_ASSERT_FATAL(semanage_port_del_local(sh, key) >= 0);
++	CU_ASSERT_FATAL(semanage_user_del_local(sh, key) >= 0);
 +}
 +
-+/* Function semanage_port_compare */
-+void helper_port_compare(int idx1, int idx2)
++/* Function semanage_user_compare */
++void test_user_compare(void)
 +{
-+	semanage_port_t *port = NULL;
-+	semanage_port_key_t *key = NULL;
++	semanage_user_t *user = NULL;
++	semanage_user_key_t *key1 = NULL;
++	semanage_user_key_t *key2 = NULL;
 +	int res = 42;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	port = get_port_nth(idx1);
-+	key = get_port_key_nth(idx2);
++	user = get_user_nth(I_FIRST);
++	key1 = get_user_key_nth(I_FIRST);
++	key2 = get_user_key_nth(I_SECOND);
 +
 +	/* test */
-+	res = semanage_port_compare(port, key);
-+
-+	if (idx1 == idx2) {
-+		CU_ASSERT(res == 0);
-+	} else {
-+		CU_ASSERT(res != 0);
-+	}
++	res = semanage_user_compare(user, key1);
++	CU_ASSERT(res == 0);
++	res = semanage_user_compare(user, key2);
++	CU_ASSERT(res != 0);
 +
 +	/* cleanup */
-+	semanage_port_free(port);
-+	semanage_port_key_free(key);
++	semanage_user_free(user);
++	semanage_user_key_free(key1);
++	semanage_user_key_free(key2);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+void test_port_compare(void)
++/* Function semanage_user_compare2 */
++void test_user_compare2(void)
 +{
-+	helper_port_compare(I_FIRST,  I_FIRST);
-+	helper_port_compare(I_FIRST,  I_SECOND);
-+	helper_port_compare(I_SECOND, I_FIRST);
-+	helper_port_compare(I_SECOND, I_SECOND);
-+}
-+
-+/* Function semanage_port_compare2 */
-+void helper_port_compare2(int idx1, int idx2)
-+{
-+	semanage_port_t *port1 = NULL;
-+	semanage_port_t *port2 = NULL;
++	semanage_user_t *user1 = NULL;
++	semanage_user_t *user2 = NULL;
++	semanage_user_t *user3 = NULL;
 +	int res = 42;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+
-+	port1 = get_port_nth(idx1);
-+	port2 = get_port_nth(idx2);
++	user1 = get_user_nth(I_FIRST);
++	user2 = get_user_nth(I_FIRST);
++	user3 = get_user_nth(I_SECOND);
 +
 +	/* test */
-+	res = semanage_port_compare2(port1, port2);
-+
-+	if (idx1 == idx2) {
-+		CU_ASSERT(res == 0);
-+	} else {
-+		CU_ASSERT(res != 0);
-+	}
++	res = semanage_user_compare2(user1, user2);
++	CU_ASSERT(res == 0);
++	res = semanage_user_compare2(user1, user3);
++	CU_ASSERT(res != 0);
 +
 +	/* cleanup */
-+	semanage_port_free(port1);
-+	semanage_port_free(port2);
++	semanage_user_free(user1);
++	semanage_user_free(user2);
++	semanage_user_free(user3);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+void test_port_compare2(void)
++/* Function semanage_user_key_create */
++void test_user_key_create(void)
 +{
-+	helper_port_compare2(I_FIRST,  I_FIRST);
-+	helper_port_compare2(I_FIRST,  I_SECOND);
-+	helper_port_compare2(I_SECOND, I_FIRST);
-+	helper_port_compare2(I_SECOND, I_SECOND);
-+}
-+
-+/* Function semanage_port_create */
-+void test_port_key_create(void)
-+{
-+	semanage_port_key_t *key = NULL;
++	semanage_user_key_t *key = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_key_create(sh, 1000, 1200, 0, &key) >= 0);
++	CU_ASSERT(semanage_user_key_create(sh, "asdf", &key) >= 0);
 +	CU_ASSERT_PTR_NOT_NULL(key);
 +
 +	/* cleanup */
-+	semanage_port_key_free(key);
++	semanage_user_key_free(key);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_extract */
-+void test_port_key_extract(void)
++/* Function semanage_user_key_extract */
++void test_user_key_extract(void)
 +{
-+	semanage_port_t *port = NULL;
-+	semanage_port_key_t *key = NULL;
++	semanage_user_t *user = NULL;
++	semanage_user_key_t *key = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	port = get_port_nth(I_FIRST);
++	user = get_user_nth(I_FIRST);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_key_extract(sh, port, &key) >= 0);
++	CU_ASSERT(semanage_user_key_extract(sh, user, &key) >= 0);
 +	CU_ASSERT_PTR_NOT_NULL(key);
 +
 +	/* cleanup */
-+	semanage_port_free(port);
-+	semanage_port_key_free(key);
++	semanage_user_free(user);
++	semanage_user_key_free(key);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_get_proto, semanage_port_set_proto */
-+void helper_port_get_set_proto(int idx)
++/* Function semanage_user_get_name, semanage_user_set_name */
++void test_user_get_set_name(void)
 +{
-+	semanage_port_t *port = NULL;
++	semanage_user_t *user = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	port = get_port_nth(idx);
++	CU_ASSERT(semanage_user_create(sh, &user) >= 0);
 +
 +	/* test */
-+	semanage_port_set_proto(port, 0);
-+	CU_ASSERT(semanage_port_get_proto(port) == 0);
-+	semanage_port_set_proto(port, 1);
-+	CU_ASSERT(semanage_port_get_proto(port) == 1);
++	CU_ASSERT(semanage_user_set_name(sh, user, "user_u") == 0);
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_name(user), "user_u");
 +
 +	/* cleanup */
-+	semanage_port_free(port);
++	semanage_user_free(user);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+void test_port_get_set_proto(void)
++/* Function semanage_user_get_prefix, semanage_user_set_prefix */
++void test_user_get_set_prefix(void)
 +{
-+	helper_port_get_set_proto(I_FIRST);
-+	helper_port_get_set_proto(I_SECOND);
-+}
-+
-+/* Function semanage_port_get_proto_str */
-+void test_port_get_proto_str(void)
-+{
-+	const char *str = NULL;
-+
-+	str = semanage_port_get_proto_str(-1);
-+	CU_ASSERT_STRING_EQUAL(str, "???");
-+
-+	str = semanage_port_get_proto_str(0);
-+	CU_ASSERT_STRING_EQUAL(str, "udp");
-+
-+	str = semanage_port_get_proto_str(1);
-+	CU_ASSERT_STRING_EQUAL(str, "tcp");
-+
-+	str = semanage_port_get_proto_str(2);
-+	CU_ASSERT_STRING_EQUAL(str, "dccp");
-+
-+	str = semanage_port_get_proto_str(3);
-+	CU_ASSERT_STRING_EQUAL(str, "sctp");
-+
-+	str = semanage_port_get_proto_str(4);
-+	CU_ASSERT_STRING_EQUAL(str, "???");
-+}
-+
-+/* Function semanage_port_get_low, semanage_port_get_high, */
-+/* semanage_port_set_port, semanage_port_set_range */
-+void test_port_get_set_port(void)
-+{
-+	semanage_port_t *port = NULL;
++	semanage_user_t *user = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	port = get_port_nth(I_FIRST);
++	CU_ASSERT(semanage_user_create(sh, &user) >= 0);
 +
 +	/* test */
-+	semanage_port_set_port(port, 1000);
-+	CU_ASSERT(semanage_port_get_low(port) == 1000);
-+	CU_ASSERT(semanage_port_get_high(port) == 1000);
-+
-+	semanage_port_set_range(port, 1000, 1200);
-+	CU_ASSERT(semanage_port_get_low(port) == 1000);
-+	CU_ASSERT(semanage_port_get_high(port) == 1200);
++	CU_ASSERT(semanage_user_set_prefix(sh, user, "user") == 0);
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_prefix(user), "user");
 +
 +	/* cleanup */
-+	semanage_port_free(port);
++	semanage_user_free(user);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_get_con, semanage_port_set_con */
-+void test_port_get_set_con(void)
++/* Function semanage_user_get_mlslevel, semanage_user_set_mlslevel */
++void test_user_get_set_mlslevel(void)
 +{
-+	semanage_port_t *port = NULL;
-+	semanage_port_t *port_tmp = NULL;
-+	semanage_context_t *con1 = NULL;
-+	semanage_context_t *con2 = NULL;
++	semanage_user_t *user = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	port = get_port_nth(I_FIRST);
-+	port_tmp = get_port_nth(I_SECOND);
-+	con1 = semanage_port_get_con(port_tmp);
++	CU_ASSERT(semanage_user_create(sh, &user) >= 0);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_set_con(sh, port, con1) >= 0);
-+	con2 = semanage_port_get_con(port);
-+	CU_ASSERT_CONTEXT_EQUAL(con1, con2);
++	CU_ASSERT(semanage_user_set_mlslevel(sh, user, "s0") == 0);
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_mlslevel(user), "s0");
 +
 +	/* cleanup */
-+	semanage_port_free(port);
-+	semanage_port_free(port_tmp);
++	semanage_user_free(user);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_create */
-+void test_port_create(void)
++/* Function semanage_user_get_mlsrange, semanage_user_set_mlsrange */
++void test_user_get_set_mlsrange(void)
 +{
-+	semanage_port_t *port = NULL;
++	semanage_user_t *user = NULL;
++
++	/* setup */
++	setup_handle(SH_CONNECT);
++	CU_ASSERT(semanage_user_create(sh, &user) >= 0);
++
++	/* test */
++	CU_ASSERT(semanage_user_set_mlsrange(sh, user, "s0-s15") == 0);
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_mlsrange(user), "s0-s15");
++
++	/* cleanup */
++	semanage_user_free(user);
++	cleanup_handle(SH_CONNECT);
++}
++
++/* Function semanage_user_get_num_roles, semanage_user_add_role,
++ * semanage_user_del_role, semanage_user_has_role, semanage_user_get_roles
++ * semanage_user_set_roles
++ */
++void test_user_roles(void)
++{
++	semanage_user_t *user = NULL;
++	const char **roles_arr = NULL;
++	unsigned int num_roles = 42;
++	const char *new_roles_arr[] = { "new_role_r", "new_my_role_r" };
++	unsigned int new_num_roles = 2;
++
++	/* setup */
++	setup_handle(SH_CONNECT);
++	CU_ASSERT(semanage_user_create(sh, &user) >= 0);
++
++	/* test */
++	CU_ASSERT(semanage_user_get_num_roles(user) == 0);
++
++	CU_ASSERT(semanage_user_add_role(sh, user, "role_r") == 0);
++	CU_ASSERT(semanage_user_get_num_roles(user) == 1);
++
++	CU_ASSERT(semanage_user_has_role(user, "role_r"));
++	CU_ASSERT(!semanage_user_has_role(user, "my_role_r"));
++
++	CU_ASSERT(semanage_user_add_role(sh, user, "my_role_r") == 0);
++	CU_ASSERT(semanage_user_get_num_roles(user) == 2);
++
++	CU_ASSERT(semanage_user_get_roles(sh, user, &roles_arr,
++					  &num_roles) >= 0);
++	CU_ASSERT(num_roles == 2);
++	CU_ASSERT_STRING_EQUAL(roles_arr[0], "role_r");
++	CU_ASSERT_STRING_EQUAL(roles_arr[1], "my_role_r");
++
++	CU_ASSERT(semanage_user_set_roles(sh, user, new_roles_arr,
++					  new_num_roles) >= 0);
++
++	CU_ASSERT(semanage_user_has_role(user, "new_role_r"));
++	CU_ASSERT(semanage_user_has_role(user, "new_my_role_r"));
++
++	CU_ASSERT(!semanage_user_has_role(user, "role_r"));
++	CU_ASSERT(!semanage_user_has_role(user, "my_role_r"));
++
++	semanage_user_del_role(user, "new_my_role_r");
++	CU_ASSERT(semanage_user_get_num_roles(user) == 1);
++
++	semanage_user_del_role(user, "new_role_r");
++	CU_ASSERT(semanage_user_get_num_roles(user) == 0);
++
++	/* cleanup */
++	semanage_user_free(user);
++	cleanup_handle(SH_CONNECT);
++}
++
++/* Function semanage_user_create */
++void test_user_create(void)
++{
++	semanage_user_t *user = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_create(sh, &port) >= 0);
-+	CU_ASSERT(semanage_port_get_low(port) == 0);
-+	CU_ASSERT(semanage_port_get_high(port) == 0);
-+	CU_ASSERT(semanage_port_get_con(port) == NULL);
-+	CU_ASSERT(semanage_port_get_proto(port) == 0);
++	CU_ASSERT(semanage_user_create(sh, &user) >= 0);
++	CU_ASSERT(semanage_user_set_name(sh, user, "user_u") >= 0);
++	CU_ASSERT(semanage_user_set_prefix(sh, user, "user") >= 0);
++	CU_ASSERT(semanage_user_set_mlslevel(sh, user, "s0") >= 0);
++	CU_ASSERT(semanage_user_set_mlsrange(sh, user, "s0-s15") >= 0);
 +
 +	/* cleanup */
-+	semanage_port_free(port);
++	semanage_user_free(user);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_clone */
-+void test_port_clone(void)
++/* Function semanage_user_clone */
++void test_user_clone(void)
 +{
-+	semanage_port_t *port = NULL;
-+	semanage_port_t *port_clone = NULL;
-+	semanage_context_t *con = NULL;
-+	semanage_context_t *con2 = NULL;
++	semanage_user_t *user = NULL;
++	semanage_user_t *user_clone = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	CU_ASSERT(semanage_port_create(sh, &port) >= 0);
-+	semanage_port_set_range(port, 1000, 1200);
-+	semanage_port_set_proto(port, 1);
-+	semanage_context_from_string(sh, "user_u:role_r:type_t:s0", &con);
-+	semanage_port_set_con(sh, port, con);
++	CU_ASSERT(semanage_user_create(sh, &user) >= 0);
++	CU_ASSERT(semanage_user_set_name(sh, user, "user_u") >= 0);
++	CU_ASSERT(semanage_user_set_prefix(sh, user, "user") >= 0);
++	CU_ASSERT(semanage_user_set_mlslevel(sh, user, "s0") >= 0);
++	CU_ASSERT(semanage_user_set_mlsrange(sh, user, "s0-s15") >= 0);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_clone(sh, port, &port_clone) >= 0);
-+	CU_ASSERT(semanage_port_get_low(port_clone) == 1000);
-+	CU_ASSERT(semanage_port_get_high(port_clone) == 1200);
-+	CU_ASSERT(semanage_port_get_proto(port_clone) == 1);
-+
-+	con2 = semanage_port_get_con(port_clone);
-+	CU_ASSERT_CONTEXT_EQUAL(con, con2);
++	CU_ASSERT(semanage_user_clone(sh, user, &user_clone) >= 0);
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_name(user), "user_u");
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_prefix(user), "user");
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_mlslevel(user), "s0");
++	CU_ASSERT_STRING_EQUAL(semanage_user_get_mlsrange(user), "s0-s15");
 +
 +	/* cleanup */
-+	semanage_port_free(port);
-+	semanage_port_free(port_clone);
++	semanage_user_free(user);
++	semanage_user_free(user_clone);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_query */
-+void test_port_query(void)
++/* Function semanage_user_query */
++void test_user_query(void)
 +{
-+	semanage_port_t *port = NULL;
-+	semanage_port_t *port_exp = NULL;
-+	semanage_port_key_t *key = NULL;
-+	semanage_context_t *con = NULL;
-+	semanage_context_t *con_exp = NULL;
++	semanage_user_t *user = NULL;
++	semanage_user_key_t *key = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	key = get_port_key_nth(I_FIRST);
-+	port_exp = get_port_nth(I_FIRST);
++	key = get_user_key_nth(I_FIRST);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_query(sh, key, &port) >= 0);
-+	CU_ASSERT(semanage_port_get_low(port) ==
-+			  semanage_port_get_low(port_exp));
-+	CU_ASSERT(semanage_port_get_high(port) ==
-+			  semanage_port_get_high(port_exp));
-+	CU_ASSERT(semanage_port_get_proto(port) ==
-+			  semanage_port_get_proto(port_exp));
++	CU_ASSERT(semanage_user_query(sh, key, &user) >= 0);
 +
-+	con = semanage_port_get_con(port);
-+	con_exp = semanage_port_get_con(port_exp);
-+	CU_ASSERT_CONTEXT_EQUAL(con, con_exp);
++	/* TODO: test values */
++	CU_ASSERT_PTR_NOT_NULL(user);
 +
 +	/* cleanup */
-+	semanage_port_free(port);
-+	semanage_port_free(port_exp);
++	semanage_user_free(user);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_exists */
-+void test_port_exists(void)
++/* Function semanage_user_exists */
++void test_user_exists(void)
 +{
-+	semanage_port_key_t *key1 = NULL;
-+	semanage_port_key_t *key2 = NULL;
++	semanage_user_key_t *key1 = NULL;
++	semanage_user_key_t *key2 = NULL;
 +	int resp = 42;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
-+	key1 = get_port_key_nth(I_FIRST);
-+	CU_ASSERT(semanage_port_key_create(sh, 123, 456, 0, &key2) >= 0);
++	key1 = get_user_key_nth(I_FIRST);
++	CU_ASSERT(semanage_user_key_create(sh, "asdf", &key2) >= 0);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_exists(sh, key1, &resp) >= 0);
++	CU_ASSERT(semanage_user_exists(sh, key1, &resp) >= 0);
 +	CU_ASSERT(resp);
-+	CU_ASSERT(semanage_port_exists(sh, key2, &resp) >= 0);
++	CU_ASSERT(semanage_user_exists(sh, key2, &resp) >= 0);
 +	CU_ASSERT(!resp);
 +
 +	/* cleanup */
-+	semanage_port_key_free(key1);
-+	semanage_port_key_free(key2);
++	semanage_user_key_free(key1);
++	semanage_user_key_free(key2);
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_count */
-+void test_port_count(void)
++/* Function semanage_user_count */
++void test_user_count(void)
 +{
 +	unsigned int count = 42;
 +
@@ -604,226 +582,184 @@ index 00000000..0408be4d
 +	setup_handle(SH_CONNECT);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_count(sh, &count) >= 0);
-+	CU_ASSERT(count == PORT_COUNT);
++	CU_ASSERT(semanage_user_count(sh, &count) >= 0);
++	CU_ASSERT(count == USER_COUNT);
 +
 +	/* cleanup */
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_iterate */
-+unsigned int counter_port_iterate = 0;
++/* Function semanage_user_iterate */
++unsigned int counter_user_iterate = 0;
 +
-+int handler_port_iterate(const semanage_port_t *record, void *varg)
++int handler_user_iterate(const semanage_user_t *record, void *varg)
 +{
-+	counter_port_iterate++;
++	counter_user_iterate++;
 +	return 0;
 +}
 +
-+void test_port_iterate(void)
++void test_user_iterate(void)
 +{
 +	/* setup */
 +	setup_handle(SH_CONNECT);
 +
 +	/* test */
-+	semanage_port_iterate(sh, handler_port_iterate, NULL);
-+	CU_ASSERT(counter_port_iterate == PORT_COUNT);
++	semanage_user_iterate(sh, handler_user_iterate, NULL);
++	CU_ASSERT(counter_user_iterate == USER_COUNT);
 +
 +	/* cleanup */
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_list */
-+void test_port_list(void)
++/* Function semanage_user_list */
++void test_user_list(void)
 +{
-+	semanage_port_t **records = NULL;
++	semanage_user_t **records = NULL;
 +	unsigned int count = 42;
 +
 +	/* setup */
 +	setup_handle(SH_CONNECT);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_list(sh, &records, &count) >= 0);
-+	CU_ASSERT(count == PORT_COUNT);
++	CU_ASSERT(semanage_user_list(sh, &records, &count) >= 0);
++	CU_ASSERT(count == USER_COUNT);
 +
++	/* TODO: check real values */
 +	for (unsigned int i = 0; i < count; i++)
 +		CU_ASSERT_PTR_NOT_NULL(records[i]);
 +
 +	/* cleanup */
 +	for (unsigned int i = 0; i < count; i++)
-+		semanage_port_free(records[i]);
++		semanage_user_free(records[i]);
 +
 +	cleanup_handle(SH_CONNECT);
 +}
 +
-+/* Function semanage_port_modify_local, semanage_port_del_local */
-+void test_port_modify_del_local(void)
++/* Function semanage_user_modify_local, semanage_user_del_local,
++ * semanage_user_query_local
++ */
++void test_user_modify_del_query_local(void)
 +{
-+	semanage_port_t *port;
-+	semanage_port_t *port_local;
-+	semanage_port_key_t *key = NULL;
-+	semanage_context_t *con = NULL;
-+	semanage_context_t *con_local = NULL;
++	semanage_user_t *user;
++	semanage_user_t *user_local;
++	semanage_user_key_t *key = NULL;
 +
 +	/* setup */
 +	setup_handle(SH_TRANS);
-+	port = get_port_nth(I_FIRST);
-+	semanage_context_from_string(sh, "user_u:role_r:type_t:s0", &con);
-+	semanage_port_set_con(sh, port, con);
-+	CU_ASSERT(semanage_port_key_extract(sh, port, &key) >= 0);
++	user = get_user_nth(I_FIRST);
++	CU_ASSERT(semanage_user_key_extract(sh, user, &key) >= 0);
 +	CU_ASSERT_PTR_NOT_NULL(key);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_modify_local(sh, key, port) >= 0);
-+	CU_ASSERT(semanage_port_query_local(sh, key, &port_local) >= 0);
-+	CU_ASSERT_PTR_NOT_NULL_FATAL(port_local);
++	CU_ASSERT(semanage_user_modify_local(sh, key, user) >= 0);
 +
-+	con_local = semanage_port_get_con(port_local);
-+	CU_ASSERT_CONTEXT_EQUAL(con, con_local);
++	/* write changes to file */
++	helper_commit();
++	helper_begin_transaction();
 +
-+	CU_ASSERT(semanage_port_del_local(sh, key) >= 0);
-+	CU_ASSERT(semanage_port_query_local(sh, key, &port_local) < 0);
++	CU_ASSERT(semanage_user_query_local(sh, key, &user_local) >= 0);
++	CU_ASSERT_PTR_NOT_NULL_FATAL(user_local);
++	CU_ASSERT(semanage_user_del_local(sh, key) >= 0);
++	CU_ASSERT(semanage_user_query_local(sh, key, &user_local) < 0);
 +
 +	/* cleanup */
-+	semanage_port_free(port);
++	semanage_user_free(user);
 +	cleanup_handle(SH_TRANS);
 +}
 +
-+/* Function semanage_port_query_local */
-+void test_port_query_local(void)
++/* Function semanage_user_exists_local */
++void test_user_exists_local(void)
 +{
-+	semanage_port_t *port = NULL;
-+	semanage_port_t *port_exp = NULL;
-+	semanage_port_key_t *key = NULL;
-+	semanage_context_t *con = NULL;
-+	semanage_context_t *con_exp = NULL;
-+
-+	/* setup */
-+	setup_handle(SH_TRANS);
-+	add_local_port(I_FIRST);
-+	key = get_port_key_nth(I_FIRST);
-+	port_exp = get_port_nth(I_FIRST);
-+
-+	/* test */
-+	CU_ASSERT(semanage_port_query_local(sh, key, &port) >= 0);
-+	CU_ASSERT(semanage_port_get_low(port) ==
-+			  semanage_port_get_low(port_exp));
-+	CU_ASSERT(semanage_port_get_high(port) ==
-+			  semanage_port_get_high(port_exp));
-+	CU_ASSERT(semanage_port_get_proto(port) ==
-+			  semanage_port_get_proto(port_exp));
-+
-+	con = semanage_port_get_con(port);
-+	con_exp = semanage_port_get_con(port_exp);
-+	CU_ASSERT_CONTEXT_EQUAL(con, con_exp);
-+
-+	/* cleanup */
-+	delete_local_port(I_FIRST);
-+	semanage_port_free(port);
-+	semanage_port_free(port_exp);
-+	cleanup_handle(SH_TRANS);
-+}
-+
-+/* Function semanage_port_exists_local */
-+void test_port_exists_local(void)
-+{
-+	semanage_port_key_t *key1 = NULL;
-+	semanage_port_key_t *key2 = NULL;
++	semanage_user_t *user = NULL;
++	semanage_user_key_t *key1 = NULL;
++	semanage_user_key_t *key2 = NULL;
 +	int resp = 42;
 +
 +	/* setup */
 +	setup_handle(SH_TRANS);
-+	add_local_port(I_FIRST);
-+	key1 = get_port_key_nth(I_FIRST);
-+	key2 = get_port_key_nth(I_SECOND);
++	add_local_user(I_FIRST);
++	key1 = get_user_key_nth(I_FIRST);
++	CU_ASSERT(semanage_user_key_create(sh, "asdf", &key2) >= 0);
++	CU_ASSERT_PTR_NOT_NULL(key2);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_exists_local(sh, key1, &resp) >= 0);
++	CU_ASSERT(semanage_user_exists_local(sh, key1, &resp) >= 0);
 +	CU_ASSERT(resp);
-+	CU_ASSERT(semanage_port_exists_local(sh, key2, &resp) >= 0);
++	CU_ASSERT(semanage_user_exists_local(sh, key2, &resp) >= 0);
 +	CU_ASSERT(!resp);
 +
 +	/* cleanup */
-+	delete_local_port(I_FIRST);
-+	semanage_port_key_free(key1);
-+	semanage_port_key_free(key2);
++	CU_ASSERT(semanage_user_del_local(sh, key1) >= 0);
++	semanage_user_free(user);
++	semanage_user_key_free(key1);
++	semanage_user_key_free(key2);
 +	cleanup_handle(SH_TRANS);
 +}
 +
-+/* Function semanage_port_count_local */
-+void test_port_count_local(void)
++/* Function semanage_user_count_local */
++void test_user_count_local(void)
 +{
 +	unsigned int count = 42;
 +
 +	/* setup */
 +	setup_handle(SH_TRANS);
++	add_local_user(I_FIRST);
++	add_local_user(I_SECOND);
++	add_local_user(I_THIRD);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_count_local(sh, &count) >= 0);
-+	CU_ASSERT(count == 0);
-+
-+	add_local_port(I_FIRST);
-+	CU_ASSERT(semanage_port_count_local(sh, &count) >= 0);
-+	CU_ASSERT(count == 1);
-+
-+	add_local_port(I_SECOND);
-+	CU_ASSERT(semanage_port_count_local(sh, &count) >= 0);
-+	CU_ASSERT(count == 2);
-+
-+	delete_local_port(I_SECOND);
-+	CU_ASSERT(semanage_port_count_local(sh, &count) >= 0);
-+	CU_ASSERT(count == 1);
-+
-+	delete_local_port(I_FIRST);
-+	CU_ASSERT(semanage_port_count_local(sh, &count) >= 0);
-+	CU_ASSERT(count == 0);
++	CU_ASSERT(semanage_user_count_local(sh, &count) >= 0);
++	CU_ASSERT(count == 3);
 +
 +	/* cleanup */
++	delete_local_user(I_FIRST);
++	delete_local_user(I_SECOND);
++	delete_local_user(I_THIRD);
 +	cleanup_handle(SH_TRANS);
 +}
 +
-+/* Function semanage_port_iterate_local */
-+unsigned int counter_port_iterate_local = 0;
++/* Function semanage_user_iterate_local */
++unsigned int counter_user_iterate_local = 0;
 +
-+int handler_port_iterate_local(const semanage_port_t *record, void *varg)
++int handler_user_iterate_local(const semanage_user_t *record, void *varg)
 +{
-+	counter_port_iterate_local++;
++	counter_user_iterate_local++;
 +	return 0;
 +}
 +
-+void test_port_iterate_local(void)
++void test_user_iterate_local(void)
 +{
 +	/* setup */
 +	setup_handle(SH_TRANS);
-+	add_local_port(I_FIRST);
-+	add_local_port(I_SECOND);
-+	add_local_port(I_THIRD);
++	add_local_user(I_FIRST);
++	add_local_user(I_SECOND);
++	add_local_user(I_THIRD);
 +
 +	/* test */
-+	semanage_port_iterate_local(sh, handler_port_iterate_local, NULL);
-+	CU_ASSERT(counter_port_iterate_local == 3);
++	semanage_user_iterate_local(sh, handler_user_iterate_local, NULL);
++	CU_ASSERT(counter_user_iterate_local == 3);
 +
 +	/* cleanup */
-+	delete_local_port(I_FIRST);
-+	delete_local_port(I_SECOND);
-+	delete_local_port(I_THIRD);
++	delete_local_user(I_FIRST);
++	delete_local_user(I_SECOND);
++	delete_local_user(I_THIRD);
 +	cleanup_handle(SH_TRANS);
 +}
 +
-+/* Function semanage_port_list_local */
-+void test_port_list_local(void)
++/* Function semanage_user_list_local */
++void test_user_list_local(void)
 +{
-+	semanage_port_t **records = NULL;
++	semanage_user_t **records = NULL;
 +	unsigned int count = 42;
 +
 +	/* setup */
 +	setup_handle(SH_TRANS);
-+	add_local_port(I_FIRST);
-+	add_local_port(I_SECOND);
-+	add_local_port(I_THIRD);
++	add_local_user(I_FIRST);
++	add_local_user(I_SECOND);
++	add_local_user(I_THIRD);
 +
 +	/* test */
-+	CU_ASSERT(semanage_port_list_local(sh, &records, &count) >= 0);
++	CU_ASSERT(semanage_user_list_local(sh, &records, &count) >= 0);
 +	CU_ASSERT(count == 3);
 +
 +	for (unsigned int i = 0; i < count; i++)
@@ -831,206 +767,51 @@ index 00000000..0408be4d
 +
 +	/* cleanup */
 +	for (unsigned int i = 0; i < count; i++)
-+		semanage_port_free(records[i]);
++		semanage_user_free(records[i]);
 +
-+	delete_local_port(I_FIRST);
-+	delete_local_port(I_SECOND);
-+	delete_local_port(I_THIRD);
++	delete_local_user(I_FIRST);
++	delete_local_user(I_SECOND);
++	delete_local_user(I_THIRD);
 +	cleanup_handle(SH_TRANS);
 +}
-+
-+/* Internal function semanage_port_validate_local */
-+void helper_port_validate_local_noport(void)
-+{
-+	semanage_port_key_t *key = NULL;
-+	int resp = 42;
-+
-+	/* setup */
-+	setup_handle(SH_TRANS);
-+	add_local_port(I_FIRST);
-+	helper_commit();
-+	key = get_port_key_nth(I_FIRST);
-+	CU_ASSERT(semanage_port_exists_local(sh, key, &resp) >= 0);
-+	CU_ASSERT(resp);
-+
-+	/* test */
-+	helper_begin_transaction();
-+	delete_local_port(I_FIRST);
-+	helper_commit();
-+
-+	/* cleanup */
-+	helper_begin_transaction();
-+	delete_local_port(I_FIRST);
-+	cleanup_handle(SH_TRANS);
-+}
-+
-+void helper_port_validate_local_oneport(void)
-+{
-+	/* setup */
-+	setup_handle(SH_TRANS);
-+	add_local_port(I_FIRST);
-+
-+	/* test */
-+	helper_commit();
-+
-+	/* cleanup */
-+	helper_begin_transaction();
-+	delete_local_port(I_FIRST);
-+	cleanup_handle(SH_TRANS);
-+}
-+
-+void helper_port_validate_local_twoports(void)
-+{
-+	semanage_port_key_t *key1 = NULL;
-+	semanage_port_key_t *key2 = NULL;
-+	semanage_port_t *port1 = NULL;
-+	semanage_port_t *port2 = NULL;
-+	semanage_context_t *con1 = NULL;
-+	semanage_context_t *con2 = NULL;
-+
-+	/* setup */
-+	setup_handle(SH_TRANS);
-+	CU_ASSERT(semanage_port_key_create(sh, 101, 200, 0, &key1) >= 0);
-+	CU_ASSERT(semanage_port_key_create(sh, 201, 300, 0, &key2) >= 0);
-+	CU_ASSERT(semanage_port_create(sh, &port1) >= 0);
-+	CU_ASSERT(semanage_port_create(sh, &port2) >= 0);
-+
-+	semanage_port_set_range(port1, 101, 200);
-+	semanage_port_set_range(port2, 201, 300);
-+	semanage_port_set_proto(port1, 0);
-+	semanage_port_set_proto(port2, 0);
-+
-+	CU_ASSERT(semanage_context_from_string(sh,
-+			       "system_u:object_r:user_home_t:s0", &con1) >= 0);
-+	CU_ASSERT(semanage_context_from_string(sh,
-+				"system_u:object_r:user_tmp_t:s0", &con2) >= 0);
-+
-+	semanage_port_set_con(sh, port1, con1);
-+	semanage_port_set_con(sh, port2, con2);
-+
-+	CU_ASSERT(semanage_port_modify_local(sh, key1, port1) >= 0);
-+	CU_ASSERT(semanage_port_modify_local(sh, key2, port2) >= 0);
-+
-+	/* test */
-+	helper_commit();
-+
-+	/* cleanup */
-+	helper_begin_transaction();
-+	CU_ASSERT(semanage_port_del_local(sh, key1) >= 0);
-+	CU_ASSERT(semanage_port_del_local(sh, key2) >= 0);
-+	semanage_port_key_free(key1);
-+	semanage_port_key_free(key2);
-+	semanage_port_free(port1);
-+	semanage_port_free(port2);
-+	cleanup_handle(SH_TRANS);
-+}
-+
-+void helper_port_validate_local_proto(void)
-+{
-+	semanage_port_key_t *key1 = NULL;
-+	semanage_port_key_t *key2 = NULL;
-+	semanage_port_key_t *key3 = NULL;
-+	semanage_port_t *port1 = NULL;
-+	semanage_port_t *port2 = NULL;
-+	semanage_port_t *port3 = NULL;
-+	semanage_context_t *con1 = NULL;
-+	semanage_context_t *con2 = NULL;
-+	semanage_context_t *con3 = NULL;
-+
-+	/* setup */
-+	setup_handle(SH_TRANS);
-+
-+	CU_ASSERT(semanage_port_key_create(sh, 101, 200, 0, &key1) >= 0);
-+	CU_ASSERT(semanage_port_key_create(sh,  51, 250, 1, &key2) >= 0);
-+	CU_ASSERT(semanage_port_key_create(sh, 201, 300, 0, &key3) >= 0);
-+
-+	CU_ASSERT(semanage_port_create(sh, &port1) >= 0);
-+	CU_ASSERT(semanage_port_create(sh, &port2) >= 0);
-+	CU_ASSERT(semanage_port_create(sh, &port3) >= 0);
-+
-+	semanage_port_set_range(port1, 101, 200);
-+	semanage_port_set_range(port2,  51, 250);
-+	semanage_port_set_range(port3, 201, 300);
-+
-+	semanage_port_set_proto(port1, 0);
-+	semanage_port_set_proto(port2, 0);
-+	semanage_port_set_proto(port3, 0);
-+
-+	CU_ASSERT(semanage_context_from_string(sh,
-+			       "system_u:object_r:user_home_t:s0", &con1) >= 0);
-+	CU_ASSERT(semanage_context_from_string(sh,
-+			       "system_u:object_r:user_home_t:s0", &con2) >= 0);
-+	CU_ASSERT(semanage_context_from_string(sh,
-+				"system_u:object_r:user_tmp_t:s0", &con3) >= 0);
-+
-+	semanage_port_set_con(sh, port1, con1);
-+	semanage_port_set_con(sh, port2, con2);
-+	semanage_port_set_con(sh, port3, con3);
-+
-+	CU_ASSERT(semanage_port_modify_local(sh, key1, port1) >= 0);
-+	CU_ASSERT(semanage_port_modify_local(sh, key2, port2) >= 0);
-+	CU_ASSERT(semanage_port_modify_local(sh, key3, port3) >= 0);
-+
-+	/* test */
-+	helper_commit();
-+
-+	/* cleanup */
-+	CU_ASSERT(semanage_port_del_local(sh, key1) >= 0);
-+	CU_ASSERT(semanage_port_del_local(sh, key2) >= 0);
-+	CU_ASSERT(semanage_port_del_local(sh, key3) >= 0);
-+	semanage_port_key_free(key1);
-+	semanage_port_key_free(key2);
-+	semanage_port_key_free(key3);
-+	semanage_port_free(port1);
-+	semanage_port_free(port2);
-+	semanage_port_free(port3);
-+	cleanup_handle(SH_TRANS);
-+}
-+
-+void test_port_validate_local(void)
-+{
-+	helper_port_validate_local_noport();
-+	helper_port_validate_local_oneport();
-+	helper_port_validate_local_twoports();
-+}
-diff --git a/libsemanage/tests/test_port.cil b/libsemanage/tests/test_port.cil
+diff --git a/libsemanage/tests/test_user.cil b/libsemanage/tests/test_user.cil
 new file mode 100644
-index 00000000..7e07a61c
+index 00000000..1c65b9fc
 --- /dev/null
-+++ b/libsemanage/tests/test_port.cil
++++ b/libsemanage/tests/test_user.cil
 @@ -0,0 +1,27 @@
 +(typeattribute cil_gen_require)
 +(roleattribute cil_gen_require)
 +(handleunknown allow)
 +(mls true)
++(policycap network_peer_controls)
 +(policycap open_perms)
 +(sid security)
 +(sidorder (security))
 +(sensitivity s0)
 +(sensitivityorder (s0))
-+(user system_u)
-+(userrole system_u object_r)
-+(userlevel system_u (s0))
-+(userrange system_u ((s0) (s0)))
++(user first_u)
++(user second_u)
++(user third_u)
++(userrole first_u object_r)
++(userlevel first_u (s0))
++(userlevel second_u (s0))
++(userlevel third_u (s0))
++(userrange first_u ((s0) (s0)))
++(userrange second_u ((s0) (s0)))
++(userrange third_u ((s0) (s0)))
 +(role object_r)
-+(roletype object_r first_port_t)
-+(roletype object_r second_port_t)
-+(roletype object_r third_port_t)
-+(type first_port_t)
-+(type second_port_t)
-+(type third_port_t)
-+(sidcontext security (system_u object_r first_port_t ((s0) (s0))))
-+(class file (open))
-+(classorder (file))
-+(allow first_port_t self (file (open)))
-+(portcon tcp 80 (system_u object_r first_port_t ((s0) (s0))))
-+(portcon udp (1 1023) (system_u object_r second_port_t ((s0) (s0))))
-+(portcon tcp 12345 (system_u object_r third_port_t ((s0) (s0))))
-diff --git a/libsemanage/tests/test_port.h b/libsemanage/tests/test_port.h
++(roletype object_r test_t)
++(type test_t)
++(sidcontext security (first_u object_r test_t ((s0) (s0))))
++(class test_class (test_perm))
++(classorder (test_class))
++(allow test_t self (test_class (test_perm)))
+diff --git a/libsemanage/tests/test_user.h b/libsemanage/tests/test_user.h
 new file mode 100644
-index 00000000..ad26f90b
+index 00000000..014a84aa
 --- /dev/null
-+++ b/libsemanage/tests/test_port.h
++++ b/libsemanage/tests/test_user.h
 @@ -0,0 +1,30 @@
 +/*
 + * Authors: Jan Zarsky <jzarsky@redhat.com>
@@ -1052,14 +833,14 @@ index 00000000..ad26f90b
 + * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 + */
 +
-+#ifndef __TEST_PORT_H__
-+#define __TEST_PORT_H__
++#ifndef __TEST_USER_H__
++#define __TEST_USER_H__
 +
 +#include <CUnit/Basic.h>
 +
-+int port_test_init(void);
-+int port_test_cleanup(void);
-+int port_add_tests(CU_pSuite suite);
++int user_test_init(void);
++int user_test_cleanup(void);
++int user_add_tests(CU_pSuite suite);
 +
 +#endif
 -- 
