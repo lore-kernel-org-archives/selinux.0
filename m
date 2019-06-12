@@ -2,61 +2,60 @@ Return-Path: <SRS0=2Cbv=UL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF24CC31E46
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 16:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAED8C31E46
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 16:32:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7ED9E2064A
-	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 16:16:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B40421019
+	for <selinux@archiver.kernel.org>; Wed, 12 Jun 2019 16:32:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="nvjWYQ3O"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="rzXwsVF1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730023AbfFLQQp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Jun 2019 12:16:45 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:41719 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729970AbfFLQQp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jun 2019 12:16:45 -0400
-Received: by mail-lf1-f66.google.com with SMTP id 136so12613973lfa.8
-        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 09:16:43 -0700 (PDT)
+        id S2406775AbfFLQcl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Jun 2019 12:32:41 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:45024 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406352AbfFLQcl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Jun 2019 12:32:41 -0400
+Received: by mail-lj1-f194.google.com with SMTP id k18so15647610ljc.11
+        for <selinux@vger.kernel.org>; Wed, 12 Jun 2019 09:32:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=3Wj8tFDiZvzxFDGQ8FFfl+cfAEOeLDLTEH6503XcxMY=;
-        b=nvjWYQ3OHJDjWYibj/YNX20SWR28Rhln3Pwh8JIoMOB8OYo9eG07U/4EJIi9NQXKU8
-         FZ1/5iwJpMxE0klA5AmIIGuutxZJIxHeS6K+KXebsBLnYuO+t+KuX6kINQe7hjeoBDY3
-         0ZfXnRIiSqhRxTtwkbs5aoGhxHXWBwCKDHX5XpKeAaUVYQxyx/l5jNJiU2aLHbu2Sa7R
-         feNRdnrd20kbNrAFb52qXZK/9aKx48QdfVrgI34RuxVxGpsKru21y4gadhgZb7yfkdSE
-         iY1BePwQcyrF3ELgUklGxp9Ps2OI0ImZrPOFTAp1gGh5B2aZrBli2mw63UIYcMm86r88
-         RviA==
+        bh=IWP1fkQ9Ns6VzfWktVBVy9TgakCkH1naQ2y1IBf58Iw=;
+        b=rzXwsVF16ApRUd8hxVf3oRHA4QJYhXcZiGEeFysBCVkxg6EYX3McZUlANHjfvv+wIS
+         XzqmehE2jCH2oFpBrY+6Ti4r/m5qfW7j4ivmHsGzjaofiod8aWS/RkORkGinvYwt4J7I
+         gGyizrsH55LS31ORwzgjwSMSLUvTfr28OlEML9P2+hnjFM1OQeW5hwqfD8XOCEXY1b0M
+         hUGpWOrTdeGdQO1XBT8MyqL9QXfhEnIiQYEFC32BXEfAe1jPn/piRezDMWTL78OK1hRg
+         xxaXumOZszt4z283Tu6ReB+o8pzYMrHc79g/NoX/EdLVNkTIwqX18vmbuP/5EncUSaNo
+         l/Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=3Wj8tFDiZvzxFDGQ8FFfl+cfAEOeLDLTEH6503XcxMY=;
-        b=TvwnU12M5PuJWlnk89FDDUlQc5KwnRkqVqjfMHbwoQo4L9yOBHnVYeWrY6ZuTvKY0Y
-         MF0ci1SLiIBaavpwWoW/upYJ0q/TMx2TSzpeth52UbjX1Kdo1aemYB2EVqtXzOKXDCpG
-         D5EKXTQkJWQn7uKs4wSqF0kQs8T2csc9ftcywQDYWrghm4iNNamCQdO9e6yrdBbk/GiD
-         VAoM2HOSaT8yV0F2ef4PCZyzWfX0q1HXU36VRNRIZfVyxHshdSuur1IuhiDyhPFo7xDC
-         z5wnQMUrUvsgHq8f1VUWuqlkEHfbIzm1bidubhk/K1H959Ma58B55WHPBeLmYbSQPEAo
-         GZGg==
-X-Gm-Message-State: APjAAAVeW+CDUvHmLjAvvhN55xewlcR/8InTF7rzDtmMawecxhLCB6hf
-        ksLmP6IqncAlXb1salkSAAdjxURCOiVzejoBVgaW
-X-Google-Smtp-Source: APXvYqyI+wg+yow3qnp80fWW70DXTb4mtKkSJHSPj2mCVDEByCZl0pS3Ep6ghGCpZO/mj3aj2z0K6vWb/l6vy7tU9HE=
-X-Received: by 2002:a19:7716:: with SMTP id s22mr24362250lfc.64.1560356202660;
- Wed, 12 Jun 2019 09:16:42 -0700 (PDT)
+        bh=IWP1fkQ9Ns6VzfWktVBVy9TgakCkH1naQ2y1IBf58Iw=;
+        b=dmKokqg+QhEmg6iKqvHYaohl3Z78F8k0jxU3kj1xiy9j7Fm3u/KdpbYOogi3zmrjSl
+         OXSlMgsz48rx79LNl1is4pV6T5HQGCYcHD2fCJufgsOD4jiGjR4ZoBmWrKUAuVGXvQMc
+         pk1kOQH/5gDw4mfqLATmWBJOPK6SF7ud9b9502sxwmyY9nVO6a67QbgJrnIZzyH1kMJ8
+         WmLInITX64IJl2YuWPjHrj7WF4wHb1QoiT7Z5IQO4RlrIWg0BMsxIpaSw1WlKhuKO2eK
+         2o4k0YLLZhBKD9QRQjEs0Cm5j0kUk+JHj4z3/DjPPVr49PSK8qXK2NkF1buqDsP4sur7
+         Pk3w==
+X-Gm-Message-State: APjAAAWNoENS1SnPlmR5n8xtbsunWeOcHgcwuBfYd9ACk/MYDti5jPvA
+        xTvcHK70+UZ+n/l9i0N5it0xBbHUJkQQ6OjUQ29n
+X-Google-Smtp-Source: APXvYqxLeno2B0Q0a24EmY32s4Dqmbvz0+ATXQY/dN5ZIgimSUwuga2KnJhxVwVU65BGK+V6ld9Ag9Gj4/AhoNzCckg=
+X-Received: by 2002:a2e:301a:: with SMTP id w26mr34347162ljw.76.1560357158786;
+ Wed, 12 Jun 2019 09:32:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190612132821.GA3816@zhanggen-UX430UQ>
-In-Reply-To: <20190612132821.GA3816@zhanggen-UX430UQ>
+References: <20190612135114.GB4015@zhanggen-UX430UQ> <20190612135538.GA4257@zhanggen-UX430UQ>
+In-Reply-To: <20190612135538.GA4257@zhanggen-UX430UQ>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 12 Jun 2019 12:16:31 -0400
-Message-ID: <CAHC9VhTVpTMBHDWtXVBcW94-Rt2jzW0-+D_krgyj6o3TotodwQ@mail.gmail.com>
-Subject: Re: [PATCH v4] selinux: fix a missing-check bug in
- selinux_add_mnt_opt( )
+Date:   Wed, 12 Jun 2019 12:32:27 -0400
+Message-ID: <CAHC9VhR2Hyr+SXnO2ss4L-jcOJUVmYPPQ20N8-CQFPbsK5T6eQ@mail.gmail.com>
+Subject: Re: [PATCH v5] selinux: fix a missing-check bug in selinux_sb_eat_lsm_opts()
 To:     Gen Zhang <blackgod016574@gmail.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
@@ -67,57 +66,16 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 9:28 AM Gen Zhang <blackgod016574@gmail.com> wrote:
-> In selinux_add_mnt_opt(), 'val' is allocated by kmemdup_nul(). It returns
-> NULL when fails. So 'val' should be checked. And 'mnt_opts' should be
-> freed when error.
+On Wed, Jun 12, 2019 at 9:55 AM Gen Zhang <blackgod016574@gmail.com> wrote:
+>
+> In selinux_sb_eat_lsm_opts(), 'arg' is allocated by kmemdup_nul(). It
+> returns NULL when fails. So 'arg' should be checked. And 'mnt_opts'
+> should be freed when error.
 >
 > Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
-> Fixes: 757cbe597fe8 ("LSM: new method: ->sb_add_mnt_opt()")
-> ---
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 3ec702c..b4b888e 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -1052,15 +1052,24 @@ static int selinux_add_mnt_opt(const char *option, const char *val, int len,
->         if (token == Opt_error)
->                 return -EINVAL;
->
-> -       if (token != Opt_seclabel)
-> -               val = kmemdup_nul(val, len, GFP_KERNEL);
-> +       if (token != Opt_seclabel) {
-> +                       val = kmemdup_nul(val, len, GFP_KERNEL);
-> +                       if (!val) {
-> +                               rc = -ENOMEM;
-> +                               goto free_opt;
-> +                       }
+> Fixes: 99dbbb593fe6 ("selinux: rewrite selinux_sb_eat_lsm_opts()")
 
-This block has an extra indent, but I'll go ahead and fix that during
-the merge.  I have to mention that had you run this patch through
-./scripts/checkpatch.pl it would have caught the mistake :)
-
-Regardless, thanks for the patch, I've merged it into the
-selinux/stable-5.2 branch and I'll be testing it shortly.
-
-> +       }
->         rc = selinux_add_opt(token, val, mnt_opts);
->         if (unlikely(rc)) {
->                 kfree(val);
-> -               if (*mnt_opts) {
-> -                       selinux_free_mnt_opts(*mnt_opts);
-> -                       *mnt_opts = NULL;
-> -               }
-> +               goto free_opt;
-> +       }
-> +       return rc;
-> +
-> +free_opt:
-> +       if (*mnt_opts) {
-> +               selinux_free_mnt_opts(*mnt_opts);
-> +               *mnt_opts = NULL;
->         }
->         return rc;
->  }
+Merged into selinux/stable-5.2, thanks.
 
 -- 
 paul moore
