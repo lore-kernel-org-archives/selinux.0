@@ -2,68 +2,196 @@ Return-Path: <SRS0=L/M1=UM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2522FC31E4A
-	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 16:52:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6170BC31E49
+	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 16:57:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F28D92082C
-	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 16:52:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1560444766;
-	bh=3oMBlDRrBIeV7aZZR/5/H9S3HH+AvOnnKJxido+N9jM=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=k6W0nxcFItUo3lHKqo3Cj2LWrg9wQcm7lE8h2OgfCKviqYDbd/28ndh9LBtxh6zhF
-	 c9jvX8sZwEBLtPUFPpSdhgurUeqQtTmFIebej9v44qKKzfGSyimdcVL2zrszldZcn/
-	 BNUjXYCZkeRHqBVPBAfSdh5czxG+O2IQGuR8XkvE=
+	by mail.kernel.org (Postfix) with ESMTP id 3A65120665
+	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 16:57:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404299AbfFMQw1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Jun 2019 12:52:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45946 "EHLO mail.kernel.org"
+        id S2393146AbfFMQ5Z convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Jun 2019 12:57:25 -0400
+Received: from mga07.intel.com ([134.134.136.100]:45747 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730118AbfFMDPK (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 12 Jun 2019 23:15:10 -0400
-Subject: Re: [GIT PULL] SELinux fixes for v5.2 (#2)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560395709;
-        bh=3oMBlDRrBIeV7aZZR/5/H9S3HH+AvOnnKJxido+N9jM=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=S7rHAx4A+QXwEhTqiv2M9GU+ligvs1br2kDnnJw0r+NROKSFH/zSnINxo5iro0vvl
-         nv69qfZuvTSW93VWyxwhfCFKlMY+4Sa5FZYX6pbiqISAj7u8aFLA2Ihlfl8SR7rtXx
-         yapvJ6xAQlY0zALPMEfnso8zSWhj0A5ra91DGpwM=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <CAHC9VhT8tYyUt_gtUR-jD-33LMW2RmzSXwP_OgPrh5ujQSiuUA@mail.gmail.com>
-References: <CAHC9VhT8tYyUt_gtUR-jD-33LMW2RmzSXwP_OgPrh5ujQSiuUA@mail.gmail.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <CAHC9VhT8tYyUt_gtUR-jD-33LMW2RmzSXwP_OgPrh5ujQSiuUA@mail.gmail.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
- tags/selinux-pr-20190612
-X-PR-Tracked-Commit-Id: fec6375320c6399c708fa9801f8cfbf950fee623
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: b076173a309e2ceae84257d1d52cd3cc53b00e39
-Message-Id: <156039570947.24640.14489241728856509537.pr-tracker-bot@kernel.org>
-Date:   Thu, 13 Jun 2019 03:15:09 +0000
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        id S1729926AbfFMBCf (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 12 Jun 2019 21:02:35 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Jun 2019 18:02:34 -0700
+X-ExtLoop1: 1
+Received: from orsmsx103.amr.corp.intel.com ([10.22.225.130])
+  by fmsmga005.fm.intel.com with ESMTP; 12 Jun 2019 18:02:33 -0700
+Received: from orsmsx115.amr.corp.intel.com (10.22.240.11) by
+ ORSMSX103.amr.corp.intel.com (10.22.225.130) with Microsoft SMTP Server (TLS)
+ id 14.3.408.0; Wed, 12 Jun 2019 18:02:33 -0700
+Received: from orsmsx116.amr.corp.intel.com ([169.254.7.166]) by
+ ORSMSX115.amr.corp.intel.com ([169.254.4.229]) with mapi id 14.03.0415.000;
+ Wed, 12 Jun 2019 18:02:32 -0700
+From:   "Xing, Cedric" <cedric.xing@intel.com>
+To:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
+        "Andy Lutomirski" <luto@kernel.org>
+CC:     Stephen Smalley <sds@tycho.nsa.gov>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        "nhorman@redhat.com" <nhorman@redhat.com>,
+        "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
+        "Tricca, Philip B" <philip.b.tricca@intel.com>
+Subject: RE: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in
+ SELinux
+Thread-Topic: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks
+ in SELinux
+Thread-Index: AQHVH1ilvNGS2ZisK0eWTCWidam/YaaW7RmAgACMWICAAWfBAIAAKpIA//+YzvA=
+Date:   Thu, 13 Jun 2019 01:02:32 +0000
+Message-ID: <960B34DE67B9E140824F1DCDEC400C0F65503305@ORSMSX116.amr.corp.intel.com>
+References: <cover.1560131039.git.cedric.xing@intel.com>
+ <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com>
+ <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov>
+ <20190611220243.GB3416@linux.intel.com>
+ <CALCETrWQT3AG+-OKBOzuw-a6VPApkNYsKqZiBmS56-b-72bfYQ@mail.gmail.com>
+ <20190612220242.GJ20308@linux.intel.com>
+In-Reply-To: <20190612220242.GJ20308@linux.intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiMDhmOWQxYWItZGYxOC00NDE5LWI5YmQtMjdkNDE0ZTdmYjVmIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiYmM4cGFEMU03UU9yd1pLVSs0bEU5czk2RUNacmxySk1RU2w5b1puWjlWTkRIQ3BLdnZJeEVoa1VsTHdMV2pJMiJ9
+x-ctpclassification: CTP_NT
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.138]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pull request you sent on Wed, 12 Jun 2019 16:59:05 -0400:
+> From: Christopherson, Sean J
+> Sent: Wednesday, June 12, 2019 3:03 PM
+> 
+> > I think this model works quite well in an SGX1 world.  The main thing
+> > that makes me uneasy about this model is that, in SGX2, it requires
+> > that an SGX2-compatible enclave loader must pre-declare to the kernel
+> > whether it intends for its dynamically allocated memory to be
+> > ALLOW_EXEC.  If ALLOW_EXEC is set but not actually needed, it will
+> > still fail if DENY_X_IF_ALLOW_WRITE ends up being set.  The other
+> > version below does not have this limitation.
+> 
+> I'm not convinced this will be a meaningful limitation in practice,
+> though that's probably obvious from my RFCs :-).  That being said, the
+> UAPI quirk is essentially a dealbreaker for multiple people, so let's
+> drop #1.
+> 
+> I discussed the options with Cedric offline, and he is ok with option #2
+> *if* the idea actually translates to acceptable code and doesn't present
+> problems for userspace and/or future SGX features.
+> 
+> So, I'll work on an RFC series to implement #2 as described below.  If
+> it works out, yay!  If not, i.e. option #2 is fundamentally broken, I'll
+> shift my focus to Cedric's code (option #3).
+> 
+> > >   2. Pre-check LSM permissions and dynamically track mappings to
+> enclave
+> > >      pages, e.g. add an SGX mprotect() hook to restrict W->X and WX
+> > >      based on the pre-checked permissions.
+> > >
+> > >      Pros: Does not impact SGX UAPI, medium kernel complexity
+> > >      Cons: Auditing is complex/weird, requires taking enclave-
+> specific
+> > >            lock during mprotect() to query/update tracking.
+> >
+> > Here's how this looks in my mind.  It's quite similar, except that
+> > ALLOW_READ, ALLOW_WRITE, and ALLOW_EXEC are replaced with a little
+> > state machine.
+> >
+> > EADD does not take any special flags.  It calls this LSM hook:
+> >
+> >   int security_enclave_load(struct vm_area_struct *source);
+> >
+> > This hook can return -EPERM.  Otherwise it 0 or
+> > ALLOC_EXEC_IF_UNMODIFIED (i.e. 1).  This hook enforces permissions (a)
+> and (b).
+> >
+> > The driver tracks a state for each page, and the possible states are:
+> >
+> >  - CLEAN_MAYEXEC /* no W or X VMAs have existed, but X is okay */
+> >  - CLEAN_NOEXEC /* no W or X VMAs have existed, and X is not okay */
+> >  - CLEAN_EXEC /* no W VMA has existed, but an X VMA has existed */
+> >  - DIRTY /* a W VMA has existed */
+> >
+> > The initial state for a page is CLEAN_MAYEXEC if the hook said
+> > ALLOW_EXEC_IF_UNMODIFIED and CLEAN_NOEXEC otherwise.
+> >
+> > The future EAUG does not call a hook at all and puts pages into the
+> > state CLEAN_NOEXEC.  If SGX3 or later ever adds EAUG-but-don't-clear,
+> > it can call security_enclave_load() and add CLEAN_MAYEXEC pages if
+> appropriate.
+> >
+> > EINIT takes a sigstruct pointer.  SGX calls a new hook:
+> >
+> >   unsigned int security_enclave_init(struct sigstruct *sigstruct,
+> > struct vm_area_struct *source, unsigned int flags);
+> >
+> > This hook can return -EPERM.  Otherwise it returns 0 or a combination
+> > of flags DENY_WX and DENY_X_DIRTY.  The driver saves this value.
+> > These represent permissions (c) and (d).
+> >
+> > If we want to have a permission for "execute code supplied from
+> > outside the enclave that was not measured", we could have a flag like
+> > HAS_UNMEASURED_CLEAN_EXEC_PAGE that the LSM could consider.
+> >
+> > mmap() and mprotect() enforce the following rules:
+> >
+> >  - If VM_EXEC is requested and (either the page is DIRTY or VM_WRITE
+> is
+> >    requested) and DENY_X_DIRTY, then deny.
+> >
+> >  - If VM_WRITE and VM_EXEC are both requested and DENY_WX, then deny.
+> >
+> >  - If VM_WRITE is requested, we need to update the state.  If it was
+> >    CLEAN_EXEC, then we reject if DENY_X_DIRTY.  Otherwise we change
+> the
+> >    state to DIRTY.
+> >
+> >  - If VM_EXEC is requested and the page is CLEAN_NOEXEC, then deny.
+> >
+> > mprotect() and mmap() do *not* call SGX-specific LSM hooks to ask for
+> > permission, although they can optionally call an LSM hook if they hit
+> > one of the -EPERM cases for auditing purposes.
+> >
+> > Before the SIGSTRUCT is provided to the driver, the driver acts as
+> > though DENY_X_DIRTY and DENY_WX are both set.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20190612
+I think we've been discussing 2 topics simultaneously, one is the state machine that accepts/rejects mmap/mprotect requests, while the other is where is the best place to put it. I think we have an agreement on the former, and IMO option #2 and #3 differ only in the latter.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/b076173a309e2ceae84257d1d52cd3cc53b00e39
+Option #2 keeps the state machine inside SGX subsystem, so it could reuse existing data structures for page tracking/locking to some extent. Sean may have smarter ideas, but it looks to me like the existing 'struct sgx_encl_page' tracks individual enclave pages while the FSM states apply to ranges. So in order *not* to test page by page in mmap/mprotect, I guess some new range oriented structures are still necessary. But I don't think it very important anyway. 
 
-Thank you!
+My major concern is more from the architecture/modularity perspective. Specifically, the state machine is defined by LSM but SGX does the state transitions. That's a brittle relationship that'd break easily if the state machine changes in future, or if different LSM modules want to define different FSMs (comprised of different set of states and/or triggers). After all, what's needed by the SGX subsystem is just the decision, not the FSM definition. I think we should take a closer look at this area once Sean's patch comes out.
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
