@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48014C31E49
-	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 15:59:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FD9FC31E45
+	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 15:59:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 17EC420679
-	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 15:59:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5833C20679
+	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 15:59:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="0xAxUTEb"
+	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="h/QxzUGv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732645AbfFMP7H (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Jun 2019 11:59:07 -0400
-Received: from 48.23.240.77.static.louhi.net ([77.240.23.48]:37830 "EHLO
+        id S1729212AbfFMP75 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Jun 2019 11:59:57 -0400
+Received: from 48.23.240.77.static.louhi.net ([77.240.23.48]:37850 "EHLO
         kolttonen.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731464AbfFMP7G (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 13 Jun 2019 11:59:06 -0400
+        id S1731602AbfFMP7k (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 13 Jun 2019 11:59:40 -0400
 Received: from 34-41-5D-CA-59-C7 (82-203-159-32.bb.dnainternet.fi [82.203.159.32])
         (authenticated bits=0)
-        by vcust561.louhi.net (8.14.7/8.14.7/0) with ESMTP id x5DFwTCR030721
+        by vcust561.louhi.net (8.14.7/8.14.7/0) with ESMTP id x5DFx35q030732
         (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-        for <selinux@vger.kernel.org>; Thu, 13 Jun 2019 18:58:30 +0300
-DKIM-Filter: OpenDKIM Filter v2.11.0 vcust561.louhi.net x5DFwTCR030721
+        for <selinux@vger.kernel.org>; Thu, 13 Jun 2019 18:59:04 +0300
+DKIM-Filter: OpenDKIM Filter v2.11.0 vcust561.louhi.net x5DFx35q030732
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kolttonen.fi;
-        s=mail; t=1560441510;
-        bh=kFIqmoF1y1FmmcCtfN0cG3SJeQ30V50WPy1BzAZ1ND8=;
+        s=mail; t=1560441544;
+        bh=6cr3IMvqiRwzVFxhQr3QxeiexnFljXbYmJGvD9nd2h4=;
         h=Date:From:To:Subject:From;
-        b=0xAxUTEbr/NHASNu05SC8o8GfKLJJisv9NXUtgh65X5SnhUIVszGBVboWM8F71q91
-         SVuV6v+6aFKithbzKiTV70CWyEBmDoH6uiDFaSEG1P3L2UahB3mCcEk2lteU/6IW8E
-         rtVoBb2OnJu1j4HGbObMjCRiNHNabJv6NNRzOwl1pagLejmIHArHskLqibeh33BeZE
-         17rynwU+E1eGEuJ+0v0fJidQ115Q036q4fFLrE9KMlyrkP295WeTgWvYQyXPIr217r
-         yRGSi4VRW5H7x8X+N+XgJuPfn7L3IAJQLNzTFAPZa6tCtzTvJqz6vaPoDWVO0s5SiI
-         glS5WMVsOKtKQ==
-Date:   Thu, 13 Jun 2019 18:59:03 +0300 (EEST)
+        b=h/QxzUGvu9uGgbFHCqOkAX4ic9EVh8Eik4BlvDiWYatkG/4eclv1ZwQPW6ghFRIXn
+         VBMzUETrkSpSqUrxkpxE70gkbMDIi3tPPtCAmQgUjKvzuUUqjEYELPx978XQWtQsr1
+         GJkKOT4iBeQ/xIqG4cuOLwUdoe4kuSTOBtFCObh8NmSFMBK4Pl5TuPeodr/brBKqsY
+         1vZgFhQEWR93OP6Zqy+f2YjovNnM2KijRmXhpOsYtztiQJyefu74zYtAmhuAST3cyQ
+         bx4L0NMVKDWwp3DUmYHAACh/Qwq29/faBdlkV5hxVJdwJW1JJiVmBvXJckKyJLPb5r
+         lBewltJGEbfmg==
+Date:   Thu, 13 Jun 2019 18:59:37 +0300 (EEST)
 From:   =?ISO-8859-15?Q?Jokke_H=E4m=E4l=E4inen?= 
         <jokke.hamalainen@kolttonen.fi>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 1/3] libsepol: more accurate error messages
-Message-ID: <alpine.LFD.2.21.1906131858100.5703@34-41-5D-CA-59-C7>
+Subject: [PATCH 2/3] checkpolicy: remove redundant if-clause
+Message-ID: <alpine.LFD.2.21.1906131859070.5703@34-41-5D-CA-59-C7>
 User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -52,50 +52,28 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
-When reporting errors, differetiate between
-source and target SIDs.
+Remove redundant if-clause because the check
+already has been done earlier.
 
 Signed-off-by: Unto Sten <sten.unto@gmail.com>
 ---
- libsepol/src/services.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ checkpolicy/parse_util.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/libsepol/src/services.c b/libsepol/src/services.c
-index 303a138c..3758436f 100644
---- a/libsepol/src/services.c
-+++ b/libsepol/src/services.c
-@@ -1134,13 +1134,13 @@ int hidden sepol_compute_av_reason(sepol_security_id_t ssid,
+diff --git a/checkpolicy/parse_util.c b/checkpolicy/parse_util.c
+index 9fda5b42..f2809b48 100644
+--- a/checkpolicy/parse_util.c
++++ b/checkpolicy/parse_util.c
+@@ -69,9 +69,6 @@ int read_source_policy(policydb_t * p, const char *file, const char *progname)
+ 	}
+ 	queue_destroy(id_queue);
  
- 	scontext = sepol_sidtab_search(sidtab, ssid);
- 	if (!scontext) {
--		ERR(NULL, "unrecognized SID %d", ssid);
-+		ERR(NULL, "unrecognized source SID %d", ssid);
- 		rc = -EINVAL;
- 		goto out;
- 	}
- 	tcontext = sepol_sidtab_search(sidtab, tsid);
- 	if (!tcontext) {
--		ERR(NULL, "unrecognized SID %d", tsid);
-+		ERR(NULL, "unrecognized target SID %d", tsid);
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -1170,13 +1170,13 @@ int hidden sepol_compute_av_reason_buffer(sepol_security_id_t ssid,
+-	if (policydb_errors)
+-		return -1;
+-
+ 	fclose(yyin);
  
- 	scontext = sepol_sidtab_search(sidtab, ssid);
- 	if (!scontext) {
--		ERR(NULL, "unrecognized SID %d", ssid);
-+		ERR(NULL, "unrecognized source SID %d", ssid);
- 		rc = -EINVAL;
- 		goto out;
- 	}
- 	tcontext = sepol_sidtab_search(sidtab, tsid);
- 	if (!tcontext) {
--		ERR(NULL, "unrecognized SID %d", tsid);
-+		ERR(NULL, "unrecognized target SID %d", tsid);
- 		rc = -EINVAL;
- 		goto out;
- 	}
+ 	return 0;
 -- 
 2.21.0
 
