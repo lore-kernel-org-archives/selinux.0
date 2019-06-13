@@ -2,228 +2,111 @@ Return-Path: <SRS0=L/M1=UM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DA1FC31E45
-	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 19:50:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1816C31E45
+	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 20:18:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3ED73207E0
-	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 19:50:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 744512147A
+	for <selinux@archiver.kernel.org>; Thu, 13 Jun 2019 20:18:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="bIBbn7Q4"
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="wfODYOXa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726567AbfFMTu7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Jun 2019 15:50:59 -0400
-Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:38653 "EHLO
-        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727156AbfFMTu6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Jun 2019 15:50:58 -0400
-X-EEMSG-check-017: 720382170|UCOL19PA13_EEMSG_MP11.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.63,370,1557187200"; 
-   d="scan'208";a="720382170"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Jun 2019 19:50:56 +0000
+        id S1728369AbfFMUSx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Jun 2019 16:18:53 -0400
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:42208 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727998AbfFMUSx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Jun 2019 16:18:53 -0400
+Received: by mail-qk1-f194.google.com with SMTP id b18so225243qkc.9
+        for <selinux@vger.kernel.org>; Thu, 13 Jun 2019 13:18:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1560455456; x=1591991456;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=lpI7RixlBtuMU+lYp+W10ifohfraQESZzGeBPqPRPbk=;
-  b=bIBbn7Q4W1+kOLXfiGO/YYlnezZQ1VcwbGYIPi/aKgDCCgkQUQxx8ZQm
-   yj8t9wGJtOFa0JWWkp/lJL26QP5FvlOZefnutBN+XqguYLcKb5BNayKwv
-   fneZQIBp2HxKDRfpHuPGkXDQh1Y5YIdvh6WsG9PT99Vfj+d4iT7FYj2NH
-   7vye4R+cBToYPViBc4eBvnSKT0gh6jycCozDsKnmISPPEBtzVJcIupHmj
-   o1FlcQwgOoLKv3hYAi/j2ZvTaE5oED5b5mBE5E80Cv+L+s1F0XtzkukIo
-   l5NbflO0MPP1J9BJ6E+l6eeaG6n8UQaFfu9wv1fxC7jV3PaWmf5xVYWqK
-   w==;
-X-IronPort-AV: E=Sophos;i="5.63,370,1557187200"; 
-   d="scan'208";a="28950284"
-IronPort-PHdr: =?us-ascii?q?9a23=3AvYYBgx+74fc5v/9uRHKM819IXTAuvvDOBiVQ1K?=
- =?us-ascii?q?B20OocTK2v8tzYMVDF4r011RmVBNydsq8VwLON4ujJYi8p2d65qncMcZhBBV?=
- =?us-ascii?q?cuqP49uEgeOvODElDxN/XwbiY3T4xoXV5h+GynYwAOQJ6tL1LdrWev4jEMBx?=
- =?us-ascii?q?7xKRR6JvjvGo7Vks+7y/2+94fcbglVmTaxe65+IRWyoAneq8Ubj49vIbstxx?=
- =?us-ascii?q?XUpXdFZ/5Yzn5yK1KJmBb86Maw/Jp9/ClVpvks6c1OX7jkcqohVbBXAygoPG?=
- =?us-ascii?q?4z5M3wqBnMVhCP6WcGUmUXiRVHHQ7I5wznU5jrsyv6su192DSGPcDzULs5Vy?=
- =?us-ascii?q?iu47ttRRT1kyoMKSI3/3/LhcxxlKJboQyupxpjw47PfYqZMONycr7Bcd8GQG?=
- =?us-ascii?q?ZMWMheVzZFAoihcYUBCeQPNvtco4XkqVYDqR6yCA+xD+3t1zBInGf707Ak3e?=
- =?us-ascii?q?QvEQ/I3wIuENwBv3vWsNr7O7wfUfy3waTS0TnPc/1b1DX75YPVch4hu/aMXb?=
- =?us-ascii?q?dofMrTx0ggCxnKjk+MqYD7IjiY0eYNsmaH4OV6T+Kvl3Arphptojmv2sgsio?=
- =?us-ascii?q?7JipgTylDf7yp12ok1JdqmSENiZ9OvDZVetyafN4RsQ8MiRXlltzo9yr0At5?=
- =?us-ascii?q?63ZTMKx4g9yB7ZcfCHd5OH7xT+X+iSOTd1nG9pdb2wihqo8UWs1/fwWte73V?=
- =?us-ascii?q?pUtCZJj9/BvW0X2RPJ8MiIUP5981+k2TaIyg/c9PlJIVsxlarHM54hxaMwlo?=
- =?us-ascii?q?YLvUTDACD2nEL2gbeKdko+4Oio6vnnYq78qp+AN457lgH+MqM0lsy5Hes4KR?=
- =?us-ascii?q?QBU3Ke+eS90L3v5Uz5QLNUgf0qiqTVrZ/XKMsBqqO5HgNZyJgv5hmhAzu8zd?=
- =?us-ascii?q?gUhXwHI0hEeBKDgYjpIVbOIPXgAPe9jVWjjC1kx+raPrH/GZjNMnjCn6vhfb?=
- =?us-ascii?q?Z68UJczhEzwspF65JbDbEBPur/WlXtu9zAEh85Lwu0zv7gCNV40YMeQmSPDb?=
- =?us-ascii?q?WFP6zMqlKI/PwgLPSMZIAPpDbxMeQq5/nrjXUhg18SYbGp3YcLaHC/BvlmOF?=
- =?us-ascii?q?uWYX7tgtcHDGcLsREzTPLliFKcSz5ffXWyULwm5jE9Fo2mCZ3PRoe3gLyOj2?=
- =?us-ascii?q?+HGchxYGxcB1LENHDzcYyPVvREPCWXJdRnmzcJfaKsR48oyVelswqsj/J8I+?=
- =?us-ascii?q?7V/DAInYzs2cIz5ODJkxw2sztuAJezyWaIGmNrlWoSW2V+iKJgqkVn1g2rzb?=
- =?us-ascii?q?lzg/seE8daofxOTFFpZtbn0+VmBoWqCUr6ddCTRQPjG473DA=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2B4DwDxpwJd/wHyM5BlHQEBBQEHBQGBZYFnKoE7ATIoh?=
- =?us-ascii?q?BaSdoINmlwJAQEBAQEBAQEBNAECAQGCEoIuAoJJIzgTAQMBAQEEAQEBAQMBA?=
- =?us-ascii?q?WwogjopAYJmAQEBAQIBIwQRRgsLCQUKAgImAgJXBgEMBgIBAYJfP4F8D6taf?=
- =?us-ascii?q?jOFR4MigUaBDCiLXYFWQIERJ4JrPoEXgnaDQYJYBIEtAYo1iDuVLgYDghKLI?=
- =?us-ascii?q?INzhDMGG4ImL4ZTjgSNG5hgIYFYKwpBSoEegU6CRo4oIwMwgQYBAY1bglIBA?=
- =?us-ascii?q?Q?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Jun 2019 19:50:56 +0000
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x5DJosu7031187;
-        Thu, 13 Jun 2019 15:50:54 -0400
-Subject: Re: [Non-DoD Source] [PATCH userspace v4 2/4] libsemanage: optionally
- optimize policy on rebuild
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-References: <20190613114558.32621-1-omosnace@redhat.com>
- <20190613114558.32621-3-omosnace@redhat.com>
-From:   jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <0e7cdb7f-b4a1-8ac7-e837-9bbb7523f4ff@tycho.nsa.gov>
-Date:   Thu, 13 Jun 2019 15:51:54 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=J1ATBrGbBodn7IdZDaxe/DJze4pBLx7T/hPCKqLjnAY=;
+        b=wfODYOXadeaNFkTXWmPGmsq2OA9hz36+XbaEvTE/gjtZ9pDP8Xroaolj7HQ0eJC36f
+         cjjpJjAytd1l73ma1tZrLgoilGAMaanfob1PCc2TsgrSYVqxgemxOB0vpiURVNa3XFr3
+         ydpDfJJLW1tFuqULKEgqZj4y/a5ABxlN8pFeKzyeElB0qJo+H+8VcuNiuuFjCBUR17dw
+         hZ1aokf5QuDGu0wLLJuFDITjrw8pEIuJwQS07uPcXpzqP36cECFQD7TyKu5G1f+DpBR9
+         yfcfWaa/CYrgsPpgHVylaAEl1PMQPiO+s/DkpF9tZxdfgg5tJFnzDiT05D8hVZu0c8MW
+         hL0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=J1ATBrGbBodn7IdZDaxe/DJze4pBLx7T/hPCKqLjnAY=;
+        b=TBiy9D/hJ7Av6QU0wufTLMkBtvcLUtS3juOlzZRou3GLQmyq8gHm3OHYy4PEG3qkVg
+         ZoohHqkHv7dkwQc3GMZT2KViplaSpf2qqXfHPYTwy9lx0LlYf+W8u//C25vrzqMVSb76
+         eCGZGICwcZY/af3sUawpt1xtNicKHecf+D6T7Z2EhjiNvHOngB421JiqDry6O4MHcwK6
+         JvVHqbasnH50xmnz/MXAVxI9afBSI+j6uOo8eQCJ234V4x7KqOweIp6efbWCbrJ/3uXu
+         nEscV5wE65s2ez32nTAOM/Tt7Q99cIgXmPtreMv/HldfbbHWIgMI2xCWwjQiSSBNcbrT
+         S/Kg==
+X-Gm-Message-State: APjAAAUxTpVbhHhfDuqFpNfoZUX4h+5ii4aS5oW9E0ERZLrB0bqRehv5
+        TcbRm4ZcTz2842n0xnPTR2fwOFBTXDvkFQ==
+X-Google-Smtp-Source: APXvYqytQ2fVWo2FfZgbtSsZIlq8A8lsSx9n8GyblY54TS6r7tslWJyfIqQA7IH+n5qYGH2qFdW83w==
+X-Received: by 2002:a37:5f82:: with SMTP id t124mr5713029qkb.180.1560457131978;
+        Thu, 13 Jun 2019 13:18:51 -0700 (PDT)
+Received: from mls-centos.localdomain (pool-71-244-250-129.bltmmd.fios.verizon.net. [71.244.250.129])
+        by smtp.gmail.com with ESMTPSA id h40sm592418qth.4.2019.06.13.13.18.51
+        for <selinux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 13 Jun 2019 13:18:51 -0700 (PDT)
+From:   Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>
+X-Google-Original-From: Yuli Khodorkovskiy <yuli@crunchydata.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libsepol: error in CIL if a permission cannot be resolved
+Date:   Thu, 13 Jun 2019 16:18:27 -0400
+Message-Id: <20190613201827.8616-1-yuli@crunchydata.com>
+X-Mailer: git-send-email 2.19.0
 MIME-Version: 1.0
-In-Reply-To: <20190613114558.32621-3-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/13/19 7:45 AM, Ondrej Mosnacek wrote:
-> When building binary policy, optionally run it through
-> sepol_policydb_optimize() just before writing it out.
-> 
-> Add an optimize-policy variable to semanage.conf(5) that controls
+In the following example, "relabeltoo" is not a valid permission
+in the loaded policy nor in the new module. Before, CIL would not
+complain about the invalid permission and proceed to install the module:
 
-Sorry I didn't notice this in v3, but why not use "optimize" instead of 
-"optimize-policy"?
+	$ cat test.cil
 
-Jim
+	(mlsconstrain (db_procedure (create relabeltoo)) (eq l2 h2))
 
-> whether optimization will be applied during libsemanage operations.
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->   libsemanage/man/man5/semanage.conf.5 |  5 +++++
->   libsemanage/src/conf-parse.y         | 15 ++++++++++++++-
->   libsemanage/src/conf-scan.l          |  1 +
->   libsemanage/src/direct_api.c         |  7 +++++++
->   libsemanage/src/semanage_conf.h      |  1 +
->   5 files changed, 28 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libsemanage/man/man5/semanage.conf.5 b/libsemanage/man/man5/semanage.conf.5
-> index 8f8de55a..8efc7dd5 100644
-> --- a/libsemanage/man/man5/semanage.conf.5
-> +++ b/libsemanage/man/man5/semanage.conf.5
-> @@ -121,6 +121,11 @@ and by default it is set to "false".
->   Please note that since this option deletes all HLL files, an updated HLL compiler will not be able to recompile the original HLL file into CIL.
->   In order to compile the original HLL file into CIL, the same HLL file will need to be reinstalled.
->   
-> +.TP
-> +.B optimize-policy
-> +When set to "true", the kernel policy will be optimized upon rebuilds.
-> +It can be set to either "true" or "false" and by default it is set to "false".
-> +
->   .SH "SEE ALSO"
->   .TP
->   semanage(8)
-> diff --git a/libsemanage/src/conf-parse.y b/libsemanage/src/conf-parse.y
-> index b527e893..9bf9364a 100644
-> --- a/libsemanage/src/conf-parse.y
-> +++ b/libsemanage/src/conf-parse.y
-> @@ -59,7 +59,7 @@ static int parse_errors;
->           char *s;
->   }
->   
-> -%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT
-> +%token MODULE_STORE VERSION EXPAND_CHECK FILE_MODE SAVE_PREVIOUS SAVE_LINKED TARGET_PLATFORM COMPILER_DIR IGNORE_MODULE_CACHE STORE_ROOT OPTIMIZE_POLICY
->   %token LOAD_POLICY_START SETFILES_START SEFCONTEXT_COMPILE_START DISABLE_GENHOMEDIRCON HANDLE_UNKNOWN USEPASSWD IGNOREDIRS
->   %token BZIP_BLOCKSIZE BZIP_SMALL REMOVE_HLL
->   %token VERIFY_MOD_START VERIFY_LINKED_START VERIFY_KERNEL_START BLOCK_END
-> @@ -95,6 +95,7 @@ single_opt:     module_store
->   	|	bzip_blocksize
->   	|	bzip_small
->   	|	remove_hll
-> +	|	optimize_policy
->           ;
->   
->   module_store:   MODULE_STORE '=' ARG {
-> @@ -268,6 +269,17 @@ remove_hll:  REMOVE_HLL'=' ARG {
->   	free($3);
->   }
->   
-> +optimize_policy:  OPTIMIZE_POLICY '=' ARG {
-> +	if (strcasecmp($3, "false") == 0) {
-> +		current_conf->optimize_policy = 0;
-> +	} else if (strcasecmp($3, "true") == 0) {
-> +		current_conf->optimize_policy = 1;
-> +	} else {
-> +		yyerror("optimize-policy can only be 'true' or 'false'");
-> +	}
-> +	free($3);
-> +}
-> +
->   command_block:
->                   command_start external_opts BLOCK_END  {
->                           if (new_external->path == NULL) {
-> @@ -352,6 +364,7 @@ static int semanage_conf_init(semanage_conf_t * conf)
->   	conf->bzip_small = 0;
->   	conf->ignore_module_cache = 0;
->   	conf->remove_hll = 0;
-> +	conf->optimize_policy = 0;
->   
->   	conf->save_previous = 0;
->   	conf->save_linked = 0;
-> diff --git a/libsemanage/src/conf-scan.l b/libsemanage/src/conf-scan.l
-> index 607bbf0b..b06a896c 100644
-> --- a/libsemanage/src/conf-scan.l
-> +++ b/libsemanage/src/conf-scan.l
-> @@ -54,6 +54,7 @@ handle-unknown    return HANDLE_UNKNOWN;
->   bzip-blocksize	return BZIP_BLOCKSIZE;
->   bzip-small	return BZIP_SMALL;
->   remove-hll	return REMOVE_HLL;
-> +optimize-policy return OPTIMIZE_POLICY;
->   "[load_policy]"   return LOAD_POLICY_START;
->   "[setfiles]"      return SETFILES_START;
->   "[sefcontext_compile]"      return SEFCONTEXT_COMPILE_START;
-> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-> index c58961be..0153091f 100644
-> --- a/libsemanage/src/direct_api.c
-> +++ b/libsemanage/src/direct_api.c
-> @@ -1461,6 +1461,13 @@ rebuild:
->   
->   		cil_db_destroy(&cildb);
->   
-> +		/* Remove redundancies in binary policy if requested. */
-> +		if (sh->conf->optimize_policy) {
-> +			retval = sepol_policydb_optimize(out);
-> +			if (retval < 0)
-> +				goto cleanup;
-> +		}
-> +
->   		/* Write the linked policy before merging local changes. */
->   		retval = semanage_write_policydb(sh, out,
->   						 SEMANAGE_LINKED);
-> diff --git a/libsemanage/src/semanage_conf.h b/libsemanage/src/semanage_conf.h
-> index c99ac8c7..23c4b8b4 100644
-> --- a/libsemanage/src/semanage_conf.h
-> +++ b/libsemanage/src/semanage_conf.h
-> @@ -47,6 +47,7 @@ typedef struct semanage_conf {
->   	int bzip_small;
->   	int remove_hll;
->   	int ignore_module_cache;
-> +	int optimize_policy;
->   	char *ignoredirs;	/* ";" separated of list for genhomedircon to ignore */
->   	struct external_prog *load_policy;
->   	struct external_prog *setfiles;
-> 
+With this patch, an error is now prompted to a user:
 
+	$ sudo semodule -i foo.cil
 
+	Failed to resolve permission relabeltoo
+	Failed to resolve mlsconstrain statement at /etc/selinux/mls/tmp/modules/400/test/cil:1
+	semodule:  Failed!
+
+Signed-off-by: Yuli Khodorkovskiy <yuli@crunchydata.com>
+---
+ libsepol/cil/src/cil_resolve_ast.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+index ea08087d..22d37f05 100644
+--- a/libsepol/cil/src/cil_resolve_ast.c
++++ b/libsepol/cil/src/cil_resolve_ast.c
+@@ -135,8 +135,11 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
+ 				if (class_flavor == CIL_MAP_CLASS) {
+ 					cil_log(CIL_ERR, "Failed to resolve permission %s for map class\n", (char*)curr->data);
+ 					goto exit;
++				} else if (class_flavor == CIL_CLASS) {
++					cil_log(CIL_ERR, "Failed to resolve permission %s\n", (char*)curr->data);
++					goto exit;
+ 				}
+-				cil_log(CIL_WARN, "Failed to resolve permission %s\n", (char*)curr->data);
++
+ 				/* Use an empty list to represent unknown perm */
+ 				cil_list_init(&empty_list, perm_strs->flavor);
+ 				cil_list_append(*perm_datums, CIL_LIST, empty_list);
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.19.0
+
