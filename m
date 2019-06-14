@@ -2,113 +2,163 @@ Return-Path: <SRS0=ZMzQ=UN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_DR,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48054C31E50
-	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 23:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0F06C31E50
+	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 23:20:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BA32A21848
-	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 23:16:44 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=kolttonen.fi header.i=@kolttonen.fi header.b="BXSlPJu8"
+	by mail.kernel.org (Postfix) with ESMTP id 7B46421848
+	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 23:20:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725812AbfFNXQo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Jun 2019 19:16:44 -0400
-Received: from 48.23.240.77.static.louhi.net ([77.240.23.48]:48776 "EHLO
-        kolttonen.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725809AbfFNXQo (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 14 Jun 2019 19:16:44 -0400
-Received: from 34-41-5D-CA-59-C7 (82-203-159-32.bb.dnainternet.fi [82.203.159.32])
-        (authenticated bits=0)
-        by vcust561.louhi.net (8.14.7/8.14.7/0) with ESMTP id x5ENG4Xf007703
-        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO)
-        for <selinux@vger.kernel.org>; Sat, 15 Jun 2019 02:16:04 +0300
-DKIM-Filter: OpenDKIM Filter v2.11.0 vcust561.louhi.net x5ENG4Xf007703
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kolttonen.fi;
-        s=mail; t=1560554164;
-        bh=SYg9zGFUQDMcMVwOiBlqLOyy6JGQZy8dm8cOZ9iXssg=;
-        h=Date:From:To:Subject:From;
-        b=BXSlPJu8a5LYX5qS1Jp02AqbRqi3WeJ/9bu0tVWF2kWmW7Kgusg1DgYEO+DIIeiuy
-         ajTpFnkpGizts1rGbDkpWg0UcAygU5naqlndC7nR/ZVk5PMXCaRm0ojzv9XZKfxiGM
-         YiORR4uU8B1lKbpqIhtedAmZucd6wk0XHIOj1Qjh9X/aiWum6Rf09SNtQ5NcLvTzfo
-         COqSqai9SnLYAmGNQ/oc17xAC8wgTEbNjRujt8SJfneAaegRr5C2dyrLlirR+13L9z
-         kctGSvZixBaP59RK4580XI8XkJwVWTnndSc0UqvXz2J+MNlCT3LskhnrcKhc0uQYC4
-         IHuGGv3D1DVwQ==
-Date:   Sat, 15 Jun 2019 02:16:39 +0300 (EEST)
-From:   =?ISO-8859-15?Q?Jokke_H=E4m=E4l=E4inen?= 
-        <jokke.hamalainen@kolttonen.fi>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: check strdup() failures and replace constant
-Message-ID: <alpine.LFD.2.21.1906150215140.18365@34-41-5D-CA-59-C7>
-User-Agent: Alpine 2.21 (LFD 202 2017-01-01)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        id S1725825AbfFNXUY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Jun 2019 19:20:24 -0400
+Received: from wind.enjellic.com ([76.10.64.91]:35396 "EHLO wind.enjellic.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725809AbfFNXUX (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 14 Jun 2019 19:20:23 -0400
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id x5ENJIrC021982;
+        Fri, 14 Jun 2019 18:19:18 -0500
+Received: (from greg@localhost)
+        by wind.enjellic.com (8.15.2/8.15.2/Submit) id x5ENJG6h021981;
+        Fri, 14 Jun 2019 18:19:16 -0500
+Date:   Fri, 14 Jun 2019 18:19:16 -0500
+From:   "Dr. Greg" <greg@enjellic.com>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Cedric Xing <cedric.xing@intel.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-sgx@vger.kernel.org,
+        jarkko.sakkinen@linux.intel.com, luto@kernel.org,
+        jmorris@namei.org, serge@hallyn.com, paul@paul-moore.com,
+        eparis@parisplace.org, jethro@fortanix.com, dave.hansen@intel.com,
+        tglx@linutronix.de, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, nhorman@redhat.com,
+        pmccallum@redhat.com, serge.ayoun@intel.com,
+        shay.katz-zamir@intel.com, haitao.huang@intel.com,
+        andriy.shevchenko@linux.intel.com, kai.svahn@intel.com,
+        bp@alien8.de, josh@joshtriplett.org, kai.huang@intel.com,
+        rientjes@google.com, william.c.roberts@intel.com,
+        philip.b.tricca@intel.com
+Subject: Re: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in SELinux
+Message-ID: <20190614231916.GA21593@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@enjellic.com>
+References: <cover.1560131039.git.cedric.xing@intel.com> <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com> <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov> <20190611220243.GB3416@linux.intel.com> <8d99d8fb-a921-286a-8cf0-cd522e09b37c@tycho.nsa.gov> <20190614004600.GF18385@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190614004600.GF18385@linux.intel.com>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Fri, 14 Jun 2019 18:19:18 -0500 (CDT)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, Jun 13, 2019 at 05:46:00PM -0700, Sean Christopherson wrote:
 
-Check for strdup() failures. Also replace constant 18
-with a safer sizeof() use.
+Good afternoon, I hope the week is ending well for everyone.
 
-Signed-off-by: Unto Sten <sten.unto@gmail.com>
----
- libsepol/src/kernel_to_conf.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+> On Thu, Jun 13, 2019 at 01:02:17PM -0400, Stephen Smalley wrote:
+> > Given the complexity tradeoff, what is the clear motivating
+> > example for why #1 isn't the obvious choice? That the enclave
+> > loader has no way of knowing a priori whether the enclave will
+> > require W->X or WX?  But aren't we better off requiring enclaves
+> > to be explicitly marked as needing such so that we can make a more
+> > informed decision about whether to load them in the first place?
 
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index 4f84ee8b..930bafab 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -448,8 +448,12 @@ static int write_sids_to_conf(FILE *out, const char *const *sid_to_str,
- 		if (i < num_sids) {
- 			sid = (char *)sid_to_str[i];
- 		} else {
--			snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
-+			snprintf(unknown, sizeof(unknown), "%s%u", "UNKNOWN", i);
- 			sid = strdup(unknown);
-+			if (!sid) {
-+				rc = -1;
-+				goto exit;
-+			}
- 		}
- 		rc = strs_add_at_index(strs, sid, i);
- 		if (rc != 0) {
-@@ -792,6 +796,10 @@ static int write_sensitivity_rules_to_conf(FILE *out, struct policydb *pdb)
- 			j = level->level->sens - 1;
- 			if (!sens_alias_map[j]) {
- 				sens_alias_map[j] = strdup(name);
-+				if (!sens_alias_map[j]) {
-+					rc = -1;
-+					goto exit;
-+				}
- 			} else {
- 				alias = sens_alias_map[j];
- 				sens_alias_map[j] = create_str("%s %s", 2, alias, name);
-@@ -919,6 +927,10 @@ static int write_category_rules_to_conf(FILE *out, struct policydb *pdb)
- 			j = cat->s.value - 1;
- 			if (!cat_alias_map[j]) {
- 				cat_alias_map[j] = strdup(name);
-+				if (!cat_alias_map[j]) {
-+					rc = -1;
-+					goto exit;
-+				}
- 			} else {
- 				alias = cat_alias_map[j];
- 				cat_alias_map[j] = create_str("%s %s", 2, alias, name);
-@@ -2364,7 +2376,7 @@ static int write_sid_context_rules_to_conf(FILE *out, struct policydb *pdb, cons
- 		if (i < num_sids) {
- 			sid = (char *)sid_to_str[i];
- 		} else {
--			snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
-+			snprintf(unknown, sizeof(unknown), "%s%u", "UNKNOWN", i);
- 			sid = unknown;
- 		}
- 
--- 
-2.21.0
+> Andy and/or Cedric, can you please weigh in with a concrete (and
+> practical) use case that will break if we go with #1?  The auditing
+> issues for #2/#3 are complex to say the least...
 
+So we are back to choosing door 1, door 2 or door 3.
+
+That brings us back to our previous e-mail, where we suggested that
+the most fundamental question to answer with the LSM issue is how much
+effective security is being purchased at what complexity cost.
+
+We are practical guys at our company, we direct the development and
+deployment of practical SGX systems, including an independent
+implementation of SGX runtime/attestation/provisioning et.al.  Our
+comments, for whatever they are worth, are meant to reflect the real
+world deployment of this technology.
+
+Lets start big picture.
+
+One of the clients we are consulting with on this technology is
+running well north of 1400 Linux systems.  Every one of which has
+selinux=0 in /proc/cmdline and will do so until approximately the heat
+death of the Universe.
+
+Our AI LSM will use any SGX LSM driver hooks that eventuate from these
+discussions, so we support the notion of the LSM getting a look at
+permissions of executable code.  However, our client isn't unique in
+their configuration choice, so we believe this fact calls the question
+as to how much SGX specific complexity should be injected into the
+LSM.
+
+So, as we noted in our previous e-mail, there are only two relevant
+security questions the LSM needs to answer:
+
+1.) Should a page of memory with executable content be allowed into an
+enclave?
+
+2.) Should an enclave be allowed to possess one or more pages of
+executable memory which will have WX permissions sometime during its
+lifetime?
+
+Sean is suggesting the strategy of an ioctl to call out pages that
+conform to question 2 (EAUG'ed pages).  That doesn't seem like an
+onerous requirement, since all of the current enclave loaders already
+have all of the metadata infrastructure to map/load page ranges.  The
+EAUG WX range would simply be another layout type that gets walked
+over when the enclave image is built.
+
+Given that, we were somewhat surprised to hear Sean say that he had
+been advised that door 1 was a non-starter.  Presumably this was
+because of the need to delineate a specific cohort of pages that will
+be permitted WX.  If that is the case, the question that needs to be
+called, as Stephen alludes to above, is whether or not WX privileges
+should be considered a characterizing feature of the VMA that defines
+an enclave rather then a per page attribute.
+
+Do we realistically believe that an LSM will be implemented that
+reacts differently when the 357th page of WX memory is added as
+opposed to the first?  The operative security question is whether or
+not the platform owner is willing to allow arbitrary executable code,
+that they may have no visibility into, to be executed on their
+platform.
+
+We talk to people that, as a technology, SGX is about building
+'security archipelagos', islands of trusted execution on potentially
+multiple platforms that interact to deliver a service, all of which
+consider their surrounding platforms and the network in between them
+as adversarial.  This model is, by definition, adverserial to the
+notion and function of the LSM.
+
+With respect to SGX dynamic code loading, the future for security
+concious architectures, will be to pull the code from remotely
+attested repository servers over the network.  The only relevant
+security question that can be answered is whether or not a platform
+owner feels comfortable with that model.
+
+Best wishes for a pleasant weekend to everyone.
+
+Dr. Greg
+
+As always,
+Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
+4206 N. 19th Ave.           Specializing in information infra-structure
+Fargo, ND  58102            development.
+PH: 701-281-1686
+FAX: 701-281-3949           EMAIL: greg@enjellic.com
+------------------------------------------------------------------------------
+"My spin on the meeting?  I lie somewhere between the individual who
+ feels that we are all going to join hands and march forward carrying
+ the organization into the information age and Dr. Wettstein.  Who
+ feels that they are holding secret meetings at 6 o'clock in the
+ morning plotting strategy on how to replace our system."
+                                -- Paul S. Etzell, M.D.
+                                   Medical Director, Roger Maris Cancer Center
