@@ -2,165 +2,203 @@ Return-Path: <SRS0=ZMzQ=UN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A615EC31E4D
-	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 15:34:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8649CC31E4D
+	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 15:38:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7DDFA2177E
-	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 15:34:30 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ay20Y/hq"
+	by mail.kernel.org (Postfix) with ESMTP id 5C4AC2173C
+	for <selinux@archiver.kernel.org>; Fri, 14 Jun 2019 15:38:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726785AbfFNPea (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Jun 2019 11:34:30 -0400
-Received: from uhil19pa12.eemsg.mail.mil ([214.24.21.85]:32319 "EHLO
-        uhil19pa12.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726598AbfFNPe3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Jun 2019 11:34:29 -0400
-X-EEMSG-check-017: 419891207|UHIL19PA12_EEMSG_MP10.csd.disa.mil
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by uhil19pa12.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 Jun 2019 15:34:23 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1560526463; x=1592062463;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=C2NAjB9ce77PqYTLGXbEguB6fJ3TWv12ebp3Rf6ZwBI=;
-  b=ay20Y/hqzU839/NT9nYzlGUQzoeReHmvmIzL4vqZx++SuAK+JKU2ufFU
-   7F5ppnDLe+7hS4bVJGHA+jD2t4B/cMzOuqBN0FAwPwQsKRkl9vHp4XaAJ
-   HY2wVOsSSzGWkkGUpeBH0MiGAiuKtZwql02A8OrPfNStAfd9OWer5O9MZ
-   Hoyy8ek2L5vuNAFrPqPxu1C99RJgm3kjaXcSFVeuByUUKYt7yuYfrnoAQ
-   XCt6jikGu9FKXA4/3hfnsDx7mqLP3qRz3LXeT5dG5F9Zg/+op9jDE/e7+
-   TWcGxBn0946hqoSpErTIphcNqYwTh6WvbOnsVpnBVb2JVMH8X0BaD/Tr5
-   A==;
-X-IronPort-AV: E=Sophos;i="5.63,373,1557187200"; 
-   d="scan'208";a="28986923"
-IronPort-PHdr: =?us-ascii?q?9a23=3AQbHZ9RU4ZAJDljxLgNs1+NOof3rV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYbReEt8tkgFKBZ4jH8fUM07OQ7/m5HzVeuN3R4DgrS99lb1?=
- =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
- =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrsAndrNQajIp/Jqo+yR?=
- =?us-ascii?q?bEoWZDdvhLy29vOV+dhQv36N2q/J5k/SRQuvYh+NBFXK7nYak2TqFWASo/PW?=
- =?us-ascii?q?wt68LlqRfMTQ2U5nsBSWoWiQZHAxLE7B7hQJj8tDbxu/dn1ymbOc32Sq00WS?=
- =?us-ascii?q?in4qx2RhLklDsLOjgk+2zMlMd+kLxUrw6gpxxnwo7bfoeVNOZlfqjAed8WXH?=
- =?us-ascii?q?dNUtpNWyBEBI6zYZEPD+4cNuhGqYfzqUYFoR+nCQSiAO7jzzlFjWL006Inye?=
- =?us-ascii?q?QsCRzI0hIuH9wOs3raotv6O6gQXu+pw6fF1inDYvFM1Dvh9ITFfBIsrPeRVr?=
- =?us-ascii?q?xwa8rRzkwvGhvHjlSetYPqJSmV1vgTv2OG6OdgV+yuhHI9pAFrvjij2Nwhip?=
- =?us-ascii?q?XJh40JylDE8j91wIAuJdKiUkJ7btmkEIVJuiycKoB4QdsiTnl1tCs1xbAKo5?=
- =?us-ascii?q?62cDUQxJg5yBPTdeaLf5WO7xn+TuieOy14i2hgeL+nghay9lWvxfPkW8mv1V?=
- =?us-ascii?q?ZKsjJFkt7RtnARzxDT6taISv96/kq5xTaAzRrT6uBZIUAvj6bbN54gzaIwlp?=
- =?us-ascii?q?oUq0jDGDP5mF7qg6OMc0Uk++yo5/zmYrXguJCcK5d5hhzxP6khgMCyAfk0Ph?=
- =?us-ascii?q?IQU2WU5+iwzqDv8VX8QLpQj/02lqfZsIrdJcQevqO5AQFU3Zo55BalEzeqzs?=
- =?us-ascii?q?8VnWUHLV1ZeBKHiJLlO1fVIP/iF/u/jFOskClzy/DcIrLhGonNLmTEkLr5fb?=
- =?us-ascii?q?d99kpcyAspwdBc55JUDawOIPXpWk/ys9zYEAQ5Mw+1w+fnE9hyypkeWX+JAq?=
- =?us-ascii?q?CFMKPTsUKH6fgzI+aWfoMapDH9K/097f70kXA5gUMdfbWu3ZYPc3C3APBmI0?=
- =?us-ascii?q?SfYXrxjdYMCnkKvgUgQ+zwklGCUiBcZ2y0X60i4jE3EoWmDZ3MRtPlvLvU7T?=
- =?us-ascii?q?q/H9V1ZmdKDUqPFmnzdISVE6MddSaTZMxhlTADT7umVZQi1ACGvxXnzbFnP+?=
- =?us-ascii?q?bd5iRevpXmgpw9/ODXlBcv5RRqAMmHlWKAVWd5miUPXTBl8rp4pBl/1VyKy7?=
- =?us-ascii?q?Qiy6haCtda/e8TehsrPp7biephApb9XRyXLYTBc0qvXtjzWWJ5ddk22dJbJh?=
- =?us-ascii?q?8mStg=3D?=
-X-IPAS-Result: =?us-ascii?q?A2D2CgAKvgNd/wHyM5BmHgEGBwaBZYFnKoFuKIQWlQOYd?=
- =?us-ascii?q?4FnCQEBAQEBAQEBATQBAgEBghKCLgKCTCM4EwEDAQEBBAEBAQEDAQFsKII6K?=
- =?us-ascii?q?QGCZwEFIwQRUQsJDwICJgICVwYBDAYCAQGCXz+CC6lpfjOFR4MegUaBDCiLX?=
- =?us-ascii?q?YFWQIE4gms+hA0EARIBgymCWASBLQGKMjqICIEplAkGA4ISk0sGG5cyiXeDJ?=
- =?us-ascii?q?ZNrhH8hZ3ErCkFKgR6BToIbFxRuAQyNLSMDMIEGAQGNAQ8XgiwBAQ?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 14 Jun 2019 15:34:19 +0000
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x5EFYF4S002484;
-        Fri, 14 Jun 2019 11:34:15 -0400
-Subject: Re: [Non-DoD Source] [PATCH] libsepol: error in CIL if a permission
- cannot be resolved
-To:     Yuli Khodorkovskiy <yuli.khodorkovskiy@crunchydata.com>,
-        selinux@vger.kernel.org
-References: <20190613201827.8616-1-yuli@crunchydata.com>
-From:   jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <ac39d408-134f-8e8a-26a7-c61a5e75d42c@tycho.nsa.gov>
-Date:   Fri, 14 Jun 2019 11:35:15 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1725991AbfFNPil (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Jun 2019 11:38:41 -0400
+Received: from mga09.intel.com ([134.134.136.24]:20291 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725780AbfFNPil (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 14 Jun 2019 11:38:41 -0400
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Jun 2019 08:38:40 -0700
+X-ExtLoop1: 1
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
+  by orsmga002.jf.intel.com with ESMTP; 14 Jun 2019 08:38:40 -0700
+Date:   Fri, 14 Jun 2019 08:38:40 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Cedric Xing <cedric.xing@intel.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-sgx@vger.kernel.org,
+        jarkko.sakkinen@linux.intel.com, luto@kernel.org,
+        jmorris@namei.org, serge@hallyn.com, paul@paul-moore.com,
+        eparis@parisplace.org, jethro@fortanix.com, dave.hansen@intel.com,
+        tglx@linutronix.de, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, nhorman@redhat.com,
+        pmccallum@redhat.com, serge.ayoun@intel.com,
+        shay.katz-zamir@intel.com, haitao.huang@intel.com,
+        andriy.shevchenko@linux.intel.com, kai.svahn@intel.com,
+        bp@alien8.de, josh@joshtriplett.org, kai.huang@intel.com,
+        rientjes@google.com, william.c.roberts@intel.com,
+        philip.b.tricca@intel.com
+Subject: Re: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in
+ SELinux
+Message-ID: <20190614153840.GC12191@linux.intel.com>
+References: <cover.1560131039.git.cedric.xing@intel.com>
+ <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com>
+ <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov>
+ <20190611220243.GB3416@linux.intel.com>
+ <8d99d8fb-a921-286a-8cf0-cd522e09b37c@tycho.nsa.gov>
+ <20190614004600.GF18385@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20190613201827.8616-1-yuli@crunchydata.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190614004600.GF18385@linux.intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/13/19 4:18 PM, Yuli Khodorkovskiy wrote:
-> In the following example, "relabeltoo" is not a valid permission
-> in the loaded policy nor in the new module. Before, CIL would not
-> complain about the invalid permission and proceed to install the module:
+On Thu, Jun 13, 2019 at 05:46:00PM -0700, Sean Christopherson wrote:
+> On Thu, Jun 13, 2019 at 01:02:17PM -0400, Stephen Smalley wrote:
+> > On 6/11/19 6:02 PM, Sean Christopherson wrote:
+> > >On Tue, Jun 11, 2019 at 09:40:25AM -0400, Stephen Smalley wrote:
+> > >>I haven't looked at this code closely, but it feels like a lot of
+> > >>SGX-specific logic embedded into SELinux that will have to be repeated or
+> > >>reused for every security module.  Does SGX not track this state itself?
+> > >
+> > >SGX does track equivalent state.
+> > >
+> > >There are three proposals on the table (I think):
+> > >
+> > >   1. Require userspace to explicitly specificy (maximal) enclave page
+> > >      permissions at build time.  The enclave page permissions are provided
+> > >      to, and checked by, LSMs at enclave build time.
+> > >
+> > >      Pros: Low-complexity kernel implementation, straightforward auditing
+> > >      Cons: Sullies the SGX UAPI to some extent, may increase complexity of
+> > >            SGX2 enclave loaders.
+> > >
+> > >   2. Pre-check LSM permissions and dynamically track mappings to enclave
+> > >      pages, e.g. add an SGX mprotect() hook to restrict W->X and WX
+> > >      based on the pre-checked permissions.
+> > >
+> > >      Pros: Does not impact SGX UAPI, medium kernel complexity
+> > >      Cons: Auditing is complex/weird, requires taking enclave-specific
+> > >            lock during mprotect() to query/update tracking.
+> > >
+> > >   3. Implement LSM hooks in SGX to allow LSMs to track enclave regions
+> > >      from cradle to grave, but otherwise defer everything to LSMs.
+> > >
+> > >      Pros: Does not impact SGX UAPI, maximum flexibility, precise auditing
+> > >      Cons: Most complex and "heaviest" kernel implementation of the three,
+> > >            pushes more SGX details into LSMs.
+> > >
+> > >My RFC series[1] implements #1.  My understanding is that Andy (Lutomirski)
+> > >prefers #2.  Cedric's RFC series implements #3.
+> > >
+> > >Perhaps the easiest way to make forward progress is to rule out the
+> > >options we absolutely *don't* want by focusing on the potentially blocking
+> > >issue with each option:
+> > >
+> > >   #1 - SGX UAPI funkiness
+> > >
+> > >   #2 - Auditing complexity, potential enclave lock contention
+> > >
+> > >   #3 - Pushing SGX details into LSMs and complexity of kernel implementation
+> > >
+> > >
+> > >[1] https://lkml.kernel.org/r/20190606021145.12604-1-sean.j.christopherson@intel.com
+> > 
+> > Given the complexity tradeoff, what is the clear motivating example for why
+> > #1 isn't the obvious choice? That the enclave loader has no way of knowing a
+> > priori whether the enclave will require W->X or WX?  But aren't we better
+> > off requiring enclaves to be explicitly marked as needing such so that we
+> > can make a more informed decision about whether to load them in the first
+> > place?
 > 
-> 	$ cat test.cil
-> 
-> 	(mlsconstrain (db_procedure (create relabeltoo)) (eq l2 h2))
-> 
-> With this patch, an error is now prompted to a user:
-> 
-> 	$ sudo semodule -i foo.cil
-> 
-> 	Failed to resolve permission relabeltoo
-> 	Failed to resolve mlsconstrain statement at /etc/selinux/mls/tmp/modules/400/test/cil:1
-> 	semodule:  Failed!
-> 
-> Signed-off-by: Yuli Khodorkovskiy <yuli@crunchydata.com>
-> ---
->   libsepol/cil/src/cil_resolve_ast.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index ea08087d..22d37f05 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -135,8 +135,11 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
->   				if (class_flavor == CIL_MAP_CLASS) {
->   					cil_log(CIL_ERR, "Failed to resolve permission %s for map class\n", (char*)curr->data);
->   					goto exit;
-> +				} else if (class_flavor == CIL_CLASS) {
-> +					cil_log(CIL_ERR, "Failed to resolve permission %s\n", (char*)curr->data);
-> +					goto exit;
->   				}
-> -				cil_log(CIL_WARN, "Failed to resolve permission %s\n", (char*)curr->data);
-> +
->   				/* Use an empty list to represent unknown perm */
->   				cil_list_init(&empty_list, perm_strs->flavor);
->   				cil_list_append(*perm_datums, CIL_LIST, empty_list);
-> 
+> Andy and/or Cedric, can you please weigh in with a concrete (and practical)
+> use case that will break if we go with #1?  The auditing issues for #2/#3
+> are complex to say the least...
 
-You essentially want to revert commits 46e157b47, da51020d6, and 2eefb20d8 from 
-back in July to November 2016.
+Follow-up question, is #1 any more palatable if SELinux adds SGX specific
+permissions and ties them to the process (instead of the vma or sigstruct)?
 
-I did not do a good job of specifying the motivation in the initial patch in 
-that series, but here is Steve's reply to Steve Lawrence's understandable objection.
+Something like this for SELinux, where the absolute worst case scenario is
+that SGX2 enclave loaders need SGXEXECMEM.  Graphene would need SGXEXECUNMR
+and probably SGXEXECANON.
 
- From Steve Smalley's email "Re: [PATCH] libsepol/cil: Warn instead of fail if 
-permission is not resolve" on 7/28/16
-> The specific motivation for the change is that Fedora is trying to
-> expunge permissions from its policy that were never upstream (e.g.
-> ptrace_child in class process, compromise_kernel in class capability2,
-> etc).  This presently breaks policy updates when there is a third party
-> or local policy module already installed that was built against the
-> older selinux-policy-devel that had those permissions.  What is worse is
-> that rpm thinks that the policy was updated, since only semodule fails
-> during %post, so you could easily brick a system this way on an upgrade
-> because you'll end up running the old policy but rpm will think it has
-> succeeded and proceed to install any other updated packages, which may
-> depend on the new policy.
+static inline int sgx_has_perm(u32 sid, u32 requested)
+{
+        return avc_has_perm(&selinux_state, sid, sid,
+			    SECCLASS_PROCESS2, requested, NULL);
+}
+
+static int selinux_enclave_load(struct vm_area_struct *vma, unsigned long prot,
+				bool measured)
+{
+	const struct cred *cred = current_cred();
+	u32 sid = cred_sid(cred);
+	int ret;
+
+	/* SGX is supported only in 64-bit kernels. */
+	WARN_ON_ONCE(!default_noexec);
+
+	/* Only executable enclave pages are restricted in any way. */
+	if (!(prot & PROT_EXEC))
+		return 0;
+
+	/*
+	 * Private mappings to enclave pages are impossible, ergo we don't
+	 * differentiate between W->X and WX, either case requires EXECMEM.
+	 */
+	if (prot & PROT_WRITE) {
+		ret = sgx_has_perm(sid, PROCESS2__SGXEXECMEM);
+		if (ret)
+			goto out;
+	}
+	if (!measured) {
+		ret = sgx_has_perm(sid, PROCESS2__SGXEXECUNMR);
+		if (ret)
+			goto out;
+	}
+
+	if (!vma->vm_file || !IS_PRIVATE(file_inode(vma->vm_file)) ||
+	    vma->anon_vma) {
+		/*
+		 * Loading enclave code from an anonymous mapping or from a
+		 * modified private file mapping.
+		 */
+		ret = sgx_has_perm(sid, PROCESS2__SGXEXECANON);
+		if (ret)
+			goto out;
+	} else {
+		/* Loading from a shared or unmodified private file mapping. */
+		ret = sgx_has_perm(sid, PROCESS2__SGXEXECFILE);
+		if (ret)
+			goto out;
+
+		/* The source file must be executable in this case. */
+		ret = file_has_perm(cred, vma->vm_file, FILE__EXECUTE);
+		if (ret)
+			goto out;
+	}
+
+out:
+	return ret;
+}
 
 
-I would be fine with reverting the error handling back to what it was initially. 
-It seems unlikely that we are still worried about local policy modules built on 
-three year old policy.
+Given that AppArmor generally only cares about accessing files, its
+enclave_load() implementation would be something like:
 
-Is this still a concern to anyone?
-Jim
+static int apparmor_enclave_load(struct vm_area_struct *vma, unsigned long prot,
+				bool measured)
+{
+	if (!(prot & PROT_EXEC))
+		return 0;
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+	return common_file_perm(OP_ENCL_LOAD, vma->vm_file, AA_EXEC_MMAP);
+}
