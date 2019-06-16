@@ -1,83 +1,191 @@
-Return-Path: <SRS0=jj50=UO=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=WwrU=UP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AA7CC31E50
-	for <selinux@archiver.kernel.org>; Sat, 15 Jun 2019 19:50:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1634C31E50
+	for <selinux@archiver.kernel.org>; Sun, 16 Jun 2019 22:15:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CFA0A2184D
-	for <selinux@archiver.kernel.org>; Sat, 15 Jun 2019 19:50:19 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="WulBVHOK"
+	by mail.kernel.org (Postfix) with ESMTP id 842FA2147A
+	for <selinux@archiver.kernel.org>; Sun, 16 Jun 2019 22:15:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1560723306;
+	bh=T8BMYPj/+axcxNZqcbu8ibBvh7s2DD0/VdD4zxhxLeA=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=xHbpKqQFbJiDJCK+zbQikiC7I9zScp60QzDnZT/efHVdhQATeO72ShhDUBxMIAyk5
+	 n/slH1DKLf4JLHZJSoHvuUUmxM4BqV/b3HkevEokQjwuwgZwBiicck8kGyxPFoKafE
+	 bj1TLwFcyln3OMaQnD1rzvk6+NqlXicp/5HEcKKg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726743AbfFOTuT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 15 Jun 2019 15:50:19 -0400
-Received: from mail-qt1-f169.google.com ([209.85.160.169]:40267 "EHLO
-        mail-qt1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726688AbfFOTuT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 15 Jun 2019 15:50:19 -0400
-Received: by mail-qt1-f169.google.com with SMTP id a15so6484703qtn.7
-        for <selinux@vger.kernel.org>; Sat, 15 Jun 2019 12:50:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google;
-        h=from:subject:to:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=fMLq67lUJS2TgowLDXRJuLf4CLaZCKc+D7ZmtzAllxY=;
-        b=WulBVHOKb58EtttYKRmDcVD0wduCDMhAv8MfpENCoQSj/exrmjXndoTndtkYD5mBDR
-         408H1c1W33zdJuEju2kn6kSjj9959UgHHHIi6U2A0xTMG1HZGYgP8fn3qqp5C/r+AU3g
-         If8nuR0WBYqw862P/ArBk4QsqemL0Lr63P6Rw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=fMLq67lUJS2TgowLDXRJuLf4CLaZCKc+D7ZmtzAllxY=;
-        b=AKYqU8O+pu6gja2QVJWZJlWjHv+SATiQ0kGSdhDjQ/kGiNBCm/un0zCLQEj83LE2u1
-         zrSUPIw7C2eYrWgpMAtCuQcPFZpQhfqwpvyFxFXZ7UULjPFNRrpLDYKJXnab47RZ03ZO
-         qEoXequr39dqF532MunR1AqbYsRN2fOAjjihRw/5hhW90Sx7Q2h164PmUIRM5dgGQmx6
-         fPa5/gjNFHW9Fn7ULyD9RLeq0AaelzVKPlM03AeCXA2YV2DGzFmmL5voL1f/c8dk9V9Y
-         ILA5HU6H7xxO1GR/+6V+fa5ks9fbpNuRrWeBGhFN2H3i8emw2wi5ALxAYNMKmFGC2WgP
-         4H+g==
-X-Gm-Message-State: APjAAAVH4wSjDn+CPCEjGCmPKyoksqQGu5iNRMbnPe4bUKFlgg38vaV8
-        3P2raUz1rooSYfq+6XgOQ0pLy2Fq6+M=
-X-Google-Smtp-Source: APXvYqyYzqQeiwfeNR4RoCfXngmUCOOYLlBiwxWO+pI7mnYAAbE7Vetxv/8Xjv6WQoBmiOtX1DHCig==
-X-Received: by 2002:a0c:9890:: with SMTP id f16mr12748364qvd.165.1560628217876;
-        Sat, 15 Jun 2019 12:50:17 -0700 (PDT)
-Received: from [192.168.1.190] (pool-108-15-23-247.bltmmd.fios.verizon.net. [108.15.23.247])
-        by smtp.gmail.com with ESMTPSA id u7sm3442373qkh.61.2019.06.15.12.50.17
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 15 Jun 2019 12:50:17 -0700 (PDT)
-From:   Chris PeBenito <pebenito@ieee.org>
-Subject: ANN: SETools 4.2.2
-To:     selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org
-Message-ID: <80987c05-820d-2796-0dc8-2e5bbe699d04@ieee.org>
-Date:   Sat, 15 Jun 2019 15:50:16 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1727394AbfFPWPG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 16 Jun 2019 18:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40752 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727368AbfFPWPF (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 16 Jun 2019 18:15:05 -0400
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1D9821783
+        for <selinux@vger.kernel.org>; Sun, 16 Jun 2019 22:15:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560723305;
+        bh=T8BMYPj/+axcxNZqcbu8ibBvh7s2DD0/VdD4zxhxLeA=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=d+h/h0q/s84bUBwAaM1Y83/yBNoRIFSlObpvPZaNqwFfLYUmKGansy4ed7o8RvB6Q
+         aDR02dcVCIF3fyrSAnddLz3Dp9GgtbWTjIA4uYEk715kzZR8pFzndL4h3ju6zWPtjs
+         9HdKQCGr5Xmae+fAdHuhAqie7WuyUNklCTF6zHis=
+Received: by mail-wm1-f41.google.com with SMTP id c66so7297334wmf.0
+        for <selinux@vger.kernel.org>; Sun, 16 Jun 2019 15:15:04 -0700 (PDT)
+X-Gm-Message-State: APjAAAVSzBrjWKWrD7SxPDDfF3ttDe4NuKdAe9XprXVr3Wy0oaU8E+YK
+        UN6BiXhUuOoMS8slUYScyHhpzSvrtkSOlfKWaFABGw==
+X-Google-Smtp-Source: APXvYqwpSi3Fvd1ZlarCdUyN4jh9ApzomVyJAYqFA2ni2ET5eOuE3o1HHfRDX91kVa0cYCWwGOFdDzsAbE0gRf4xA4k=
+X-Received: by 2002:a7b:cd84:: with SMTP id y4mr16244320wmj.79.1560723303094;
+ Sun, 16 Jun 2019 15:15:03 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <cover.1560131039.git.cedric.xing@intel.com> <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com>
+ <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov> <20190611220243.GB3416@linux.intel.com>
+ <8d99d8fb-a921-286a-8cf0-cd522e09b37c@tycho.nsa.gov> <20190614004600.GF18385@linux.intel.com>
+ <20190614153840.GC12191@linux.intel.com>
+In-Reply-To: <20190614153840.GC12191@linux.intel.com>
+From:   Andy Lutomirski <luto@kernel.org>
+Date:   Sun, 16 Jun 2019 15:14:51 -0700
+X-Gmail-Original-Message-ID: <CALCETrXcOQkvMHdh5DgdQ6JAgzsZCNFVEtnQz-5RbNr4vsadDQ@mail.gmail.com>
+Message-ID: <CALCETrXcOQkvMHdh5DgdQ6JAgzsZCNFVEtnQz-5RbNr4vsadDQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in SELinux
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Cedric Xing <cedric.xing@intel.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Andrew Lutomirski <luto@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        pmccallum@redhat.com, "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-An SETools 4.2.2 release is now available:
+On Fri, Jun 14, 2019 at 8:38 AM Sean Christopherson
+<sean.j.christopherson@intel.com> wrote:
+>
+> On Thu, Jun 13, 2019 at 05:46:00PM -0700, Sean Christopherson wrote:
+> > On Thu, Jun 13, 2019 at 01:02:17PM -0400, Stephen Smalley wrote:
+> > > On 6/11/19 6:02 PM, Sean Christopherson wrote:
+> > > >On Tue, Jun 11, 2019 at 09:40:25AM -0400, Stephen Smalley wrote:
+> > > >>I haven't looked at this code closely, but it feels like a lot of
+> > > >>SGX-specific logic embedded into SELinux that will have to be repeated or
+> > > >>reused for every security module.  Does SGX not track this state itself?
+> > > >
+> > > >SGX does track equivalent state.
+> > > >
+> > > >There are three proposals on the table (I think):
+> > > >
+> > > >   1. Require userspace to explicitly specificy (maximal) enclave page
+> > > >      permissions at build time.  The enclave page permissions are provided
+> > > >      to, and checked by, LSMs at enclave build time.
+> > > >
+> > > >      Pros: Low-complexity kernel implementation, straightforward auditing
+> > > >      Cons: Sullies the SGX UAPI to some extent, may increase complexity of
+> > > >            SGX2 enclave loaders.
+> > > >
+> > > >   2. Pre-check LSM permissions and dynamically track mappings to enclave
+> > > >      pages, e.g. add an SGX mprotect() hook to restrict W->X and WX
+> > > >      based on the pre-checked permissions.
+> > > >
+> > > >      Pros: Does not impact SGX UAPI, medium kernel complexity
+> > > >      Cons: Auditing is complex/weird, requires taking enclave-specific
+> > > >            lock during mprotect() to query/update tracking.
+> > > >
+> > > >   3. Implement LSM hooks in SGX to allow LSMs to track enclave regions
+> > > >      from cradle to grave, but otherwise defer everything to LSMs.
+> > > >
+> > > >      Pros: Does not impact SGX UAPI, maximum flexibility, precise auditing
+> > > >      Cons: Most complex and "heaviest" kernel implementation of the three,
+> > > >            pushes more SGX details into LSMs.
+> > > >
+> > > >My RFC series[1] implements #1.  My understanding is that Andy (Lutomirski)
+> > > >prefers #2.  Cedric's RFC series implements #3.
+> > > >
+> > > >Perhaps the easiest way to make forward progress is to rule out the
+> > > >options we absolutely *don't* want by focusing on the potentially blocking
+> > > >issue with each option:
+> > > >
+> > > >   #1 - SGX UAPI funkiness
+> > > >
+> > > >   #2 - Auditing complexity, potential enclave lock contention
+> > > >
+> > > >   #3 - Pushing SGX details into LSMs and complexity of kernel implementation
+> > > >
+> > > >
+> > > >[1] https://lkml.kernel.org/r/20190606021145.12604-1-sean.j.christopherson@intel.com
+> > >
+> > > Given the complexity tradeoff, what is the clear motivating example for why
+> > > #1 isn't the obvious choice? That the enclave loader has no way of knowing a
+> > > priori whether the enclave will require W->X or WX?  But aren't we better
+> > > off requiring enclaves to be explicitly marked as needing such so that we
+> > > can make a more informed decision about whether to load them in the first
+> > > place?
+> >
+> > Andy and/or Cedric, can you please weigh in with a concrete (and practical)
+> > use case that will break if we go with #1?  The auditing issues for #2/#3
+> > are complex to say the least...
 
-https://github.com/SELinuxProject/setools/releases/tag/4.2.2
+The most significant issue I see is the following.  Consider two
+cases. First, an SGX2 enclave that dynamically allocates memory but
+doesn't execute code from dynamic memory.  Second, an SGX2 enclave
+that *does* execute code from dynamic memory.  In #1, the untrusted
+stack needs to decide whether to ALLOW_EXEC when the memory is
+allocated, which means that it either needs to assume the worst or it
+needs to know at allocation time whether the enclave ever intends to
+change the permission to X.
 
-Changes since 4.2.1:
+I suppose there's a middle ground.  The driver could use model #1 for
+driver-filled pages and model #2 for dynamic pages.  I haven't tried
+to fully work it out, but I think there would be the ALLOW_READ /
+ALLOW_WRITE / ALLOW_EXEC flag for EADD-ed pages but, for EAUG-ed
+pages, there would be a different policy.  This might be as simple as
+internally having four flags instead of three:
 
-* Remove source policy references from man pages, as loading source 
-policies is no longer supported.
+ALLOW_READ, ALLOW_WRITE, ALLOW_EXEC: as before
 
-* Fixed a performance regression in alias loading after alias 
-dereferencing fixes in 4.2.1.
+ALLOW_EXEC_COND: set implicitly by the driver for EAUG.
 
--- 
-Chris PeBenito
+As in #1, if you try to mmap or protect a page with neither ALLOW_EXEC
+variant, it fails (-EACCES, perhaps).  But, if you try to mmap or
+mprotect an ALLOW_EXEC_COND page with PROT_EXEC, you ask LSM for
+permission.  There is no fancy DIRTY tracking here, since it's
+reasonable to just act as though *every* ALLOW_EXEC_COND page is
+dirty.  There is no real auditing issue here, since LSM can just log
+what permission is missing.
+
+Does this seem sensible?  It might give us the best of #1 and #2.
+
+>
+> Follow-up question, is #1 any more palatable if SELinux adds SGX specific
+> permissions and ties them to the process (instead of the vma or sigstruct)?
+
+I'm not sure this makes a difference.  It simplifies SIGSTRUCT
+handling, which is handy.
