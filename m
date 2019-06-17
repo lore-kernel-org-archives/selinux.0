@@ -2,120 +2,100 @@ Return-Path: <SRS0=LfCf=UQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 99E7CC31E5B
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 15:15:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57FA6C31E5B
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 16:38:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6612A208C4
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 15:15:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="Ijn9XA58"
+	by mail.kernel.org (Postfix) with ESMTP id 3A7F02070B
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 16:38:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727710AbfFQPPQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jun 2019 11:15:16 -0400
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:45373 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727670AbfFQPPQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jun 2019 11:15:16 -0400
-Received: by mail-qt1-f196.google.com with SMTP id j19so11080952qtr.12
-        for <selinux@vger.kernel.org>; Mon, 17 Jun 2019 08:15:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=C7pircLuHXo3lXcNGV9mE9qWpbE1UpJ0+77dztiK0ls=;
-        b=Ijn9XA58lv1m1k4ZVGPo7FSPBssQtuSAV5LbqsziFpHDmx0sGQLOpWRq45zlsOi2q3
-         ECEASi6BSh/xHM7uCc15WK4a5r5aK8Jf2IqpSTF3TlhWONMmZzGCSKAnctTG0TAVoS+y
-         UgdpsKu296wACBuBvFBYtNmm2wP6cnSOI0wRRNFRGjdrhJWrVQLhk6yBT03YmJr2KP7T
-         LP01cwda4npZKCwXByl8ScVEsm3TdK0nj5GXZ104TGvsyhzwjNoeQH15orTVreYDDpf0
-         RCZpK3ZfnfZuPfe9XoS7vxZCglczgfVIVatMuqvBfpG62UqW1/GGNuAdJSphPD8H2vrD
-         WFiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=C7pircLuHXo3lXcNGV9mE9qWpbE1UpJ0+77dztiK0ls=;
-        b=ZO6aJyPLvweKNwtpYJeiNVyszuomNh+yKMBttpwHcfKN5mOzw9oB77JVL6+2g5PYuf
-         +NiYLPMrdz9Wo7ttJPKn0bLyBp+NodBS5M5Yv3VaiVP3SEIRo1Hsoe3zgr8Whlo63jVE
-         sv/iX4RUy9KrZYYeTCPKmbQ4xUyMnsbtuJO6yMhCUyUIoYruXlOzPl4V3eNKfHbcbgGW
-         TX4qO0QFng2P90kciDo0tQDtMpDqDey8ES6wK/XXpnwpQXBr47VTH8gc+TCqIzxDTNXY
-         yfXG1cSFCkPwZ9/geSPjvcYdyO8NJUtKfiZDorN7qPqVk3wlKgbeovDDoFj9Nzcp2t1M
-         ywGw==
-X-Gm-Message-State: APjAAAWhqOlIOWzKvXQAbCGEEQbWw03BW32p6A7QuRVH1JGEVrONkEIa
-        2nQpzV80si6vHNdqW4cXFQy5TvSQp+w29w==
-X-Google-Smtp-Source: APXvYqwzJqLBC0Lr4FfPL+NvNsysoRwU1uEgiTEfeYWRzrCAwG3875hJNbVbwwoXINWQIu8YNs3Bpg==
-X-Received: by 2002:ac8:7506:: with SMTP id u6mr90155994qtq.27.1560784514702;
-        Mon, 17 Jun 2019 08:15:14 -0700 (PDT)
-Received: from localhost.net (c-69-143-153-93.hsd1.de.comcast.net. [69.143.153.93])
-        by smtp.gmail.com with ESMTPSA id q187sm5623274qkd.19.2019.06.17.08.15.13
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 17 Jun 2019 08:15:14 -0700 (PDT)
-From:   mike.palmiotto@crunchydata.com
-To:     selinux@vger.kernel.org
-Cc:     Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Subject: [PATCH] libsepol/cil: fix mlsconstrain segfault
-Date:   Mon, 17 Jun 2019 15:15:12 +0000
-Message-Id: <20190617151512.2209-1-mike.palmiotto@crunchydata.com>
-X-Mailer: git-send-email 2.21.0
+        id S1727707AbfFQQi6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jun 2019 12:38:58 -0400
+Received: from mga09.intel.com ([134.134.136.24]:41077 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725863AbfFQQi4 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 17 Jun 2019 12:38:56 -0400
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jun 2019 09:38:55 -0700
+X-ExtLoop1: 1
+Received: from rameshr1-mobl.gar.corp.intel.com (HELO localhost) ([10.252.60.156])
+  by fmsmga005.fm.intel.com with ESMTP; 17 Jun 2019 09:38:44 -0700
+Date:   Mon, 17 Jun 2019 19:38:47 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Morris <jmorris@namei.org>,
+        "Serge E . Hallyn" <serge@hallyn.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Jethro Beekman <jethro@fortanix.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
+        Shay Katz-zamir <shay.katz-zamir@intel.com>,
+        Haitao Huang <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Kai Svahn <kai.svahn@intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Kai Huang <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        William Roberts <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH v2 5/5] security/selinux: Add enclave_load()
+ implementation
+Message-ID: <20190617163655.GA8710@linux.intel.com>
+References: <20190606021145.12604-1-sean.j.christopherson@intel.com>
+ <20190606021145.12604-6-sean.j.christopherson@intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190606021145.12604-6-sean.j.christopherson@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Mike Palmiotto <mike.palmiotto@crunchydata.com>
+On Wed, Jun 05, 2019 at 07:11:45PM -0700, Sean Christopherson wrote:
+> The goal of selinux_enclave_load() is to provide a facsimile of the
+> existing selinux_file_mprotect() and file_map_prot_check() policies,
+> but tailored to the unique properties of SGX.
+> 
+> For example, an enclave page is technically backed by a MAP_SHARED file,
+> but the "file" is essentially shared memory that is never persisted
+> anywhere and also requires execute permissions (for some pages).
+> 
+> The basic concept is to require appropriate execute permissions on the
+> source of the enclave for pages that are requesting PROT_EXEC, e.g. if
+> an enclave page is being loaded from a regular file, require
+> FILE__EXECUTE and/or FILE__EXECMOND, and if it's coming from an
+> anonymous/private mapping, require PROCESS__EXECMEM since the process
+> is essentially executing from the mapping, albeit in a roundabout way.
+> 
+> Note, FILE__READ and FILE__WRITE are intentionally not required even if
+> the source page is backed by a regular file.  Writes to the enclave page
+> are contained to the EPC, i.e. never hit the original file, and read
+> permissions have already been vetted (or the VMA doesn't have PROT_READ,
+> in which case loading the page into the enclave will fail).
+> 
+> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 
-Installing a cil module with invalid mlsconstrain syntax currently
-results in a segfault. In the following module, the right-hand side of
-the second operand of the OR is a list (mlstrustedobject):
+In the end of the day, the main problem with this patch is that the
+existing LSM hooks are generic. I don't we can have specific hooks
+for proprietary hardware.
 
-$ cat test.cil
-(class test (foo) )
-(classorder (unordered test))
-
-(mlsconstrain (test (foo))
-	(or
-		(dom h1 h2)
-		(eq t2 (mlstrustedobject))
-	)
-)
-
-$ sudo semodule -i test.cil
-zsh: segmentation fault  sudo semodule -i test.cil
-
-This syntax is invalid and should error accordingly, rather than
-segfaulting. This patch provides this syntax error for the same module:
-
-$ sudo semodule -i test.cil
-t1, t2, r1, r2, u1, u2 cannot be used on the left side with a list on the right side
-Bad expression tree for constraint
-Bad constrain declaration at /var/lib/selinux/mls/tmp/modules/400/test/cil:4
-semodule:  Failed!
-
-Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
----
- libsepol/cil/src/cil_verify.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-index 1036d73c..346fbac9 100644
---- a/libsepol/cil/src/cil_verify.c
-+++ b/libsepol/cil/src/cil_verify.c
-@@ -225,6 +225,9 @@ int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_fl
- 				cil_log(CIL_ERR, "u3, r3, and t3 can only be used with mlsvalidatetrans rules\n");
- 				goto exit;
- 			}
-+		} else if (r_flavor == CIL_LIST) {
-+			cil_log(CIL_ERR, "t1, t2, r1, r2, u1, u2 cannot be used on the left side with a list on the right side\n");
-+			goto exit;
- 		}
- 	} else {
- 		if (r_flavor == CIL_CONS_U2) {
--- 
-2.21.0
-
+/Jarkko
