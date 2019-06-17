@@ -2,122 +2,90 @@ Return-Path: <SRS0=LfCf=UQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0C31C31E5B
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 18:01:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48A4FC31E5B
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 22:01:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A911020861
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 18:01:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12FE220673
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 22:01:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b9/hTj1L"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="yuWRKTDl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726238AbfFQSBU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jun 2019 14:01:20 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:46030 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726048AbfFQSBT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jun 2019 14:01:19 -0400
-Received: by mail-io1-f68.google.com with SMTP id e3so23116678ioc.12
-        for <selinux@vger.kernel.org>; Mon, 17 Jun 2019 11:01:19 -0700 (PDT)
+        id S1727097AbfFQWBv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jun 2019 18:01:51 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:43887 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726834AbfFQWBv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jun 2019 18:01:51 -0400
+Received: by mail-lj1-f196.google.com with SMTP id 16so10865969ljv.10
+        for <selinux@vger.kernel.org>; Mon, 17 Jun 2019 15:01:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=z9n9KE3aFvi7Ea9o1N8dMuf98QvLPDybWDe2pVTOBUI=;
-        b=b9/hTj1LvU71gw2KJe+q/Vhl6Mf4WKiBzA3oKkEieoIx/fzdix5LYobHESBKBZv0Ul
-         M0rdnm6SfR9b5eD01qGYC94gjZiojNtcXEFr5Obn8fw7B9rIzM99VH/BbcoyBwZPSq+7
-         +w4x+IVrMfx1msBlVlhGeIxexpv+vLerW9rb6EcdjfCkUPjpNUSgGQkqjGJQ4foQ4f7X
-         iCmPjfRhfYwM8JQDjFX4uiF++0kUHkGAJE8P7dnhM06VCY1u/uyPzZoRQAr05ibf0A29
-         dao+mln2+lHzZxdywuxwWr9EkPegr4wEFa/yVsHLOFBVfvR1bSljdptTSMKeyD/Whqpc
-         FGJA==
+        bh=HsWdsGdHcCmWS5nc++DZu7iYbolrJmLe83td+Ig9vaE=;
+        b=yuWRKTDlK+XqWjq7QVlSItRs/dXUKXy1A8l3JjvZDzMpjItd4K3XndJGD4EYZk89dH
+         ftrGFYjxe/x+W0J4EENOQisBCGxAwZ74knvZTRRAdc95RzUE9ZqN7rle2lcHExq1+7+d
+         KNKVUjO1/Tq7NCsuoyRpvvkXWShHtHahsZfcDYzKLOg/fIryjzvvFvVDPfhLU3/5KH1y
+         5XpSd5sD9vfVqdAAPfRO+haO4Iyy2q/gOCkrVTjDr6Dwp+wLbDg3Ed7Ml30TrT1443Pg
+         n+L8c/D2Ni7oRRnHXfPjEJBiwUCTC5tLd2F6dwMPu0LhLviEmx1CX74t2z/9l/sAASI7
+         WMXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=z9n9KE3aFvi7Ea9o1N8dMuf98QvLPDybWDe2pVTOBUI=;
-        b=TpsEi0M26xtTxu8XiwVNaCYfngBGRj4PNMFj5SIg6xzkAlfJ/N+i+wHsUYAmnf9G6L
-         mhHaHHfzEIHwRUKKahRnLgVuJy6M1FNZBn0xUH7ni4k19mRyVw9Pn7nUYpm38WdA2ll1
-         RbCrFRA/ox2gWJOm3s9/WBSnpht4g6P2jFwe30AVOvhKuVIp+UUBEmqglR3MLHzrV6b9
-         Fm53xxYMVxYQwbhGfdGBAr9NSI7VkXHpCZA21VGVMdztoJVHfTwVNOvVelFXVM7TQM/F
-         u9u++tAtfKtrJcPPT8rHELC8teTw0Pjkg8mkc3UXYxpnvFPng/+uAoTupdoUCKs5VqWX
-         XshA==
-X-Gm-Message-State: APjAAAWr6/2uSlRA3NoULXGNgzMLHJ+qo1AgnB9E5hrglLO3X4X/O1zH
-        0n4+iKrq3l5WmhlKyBCxeS61EmEfQGzLqoS+b4I93VHbmpI=
-X-Google-Smtp-Source: APXvYqyePYC3cBN+4EEqODUcYntSI2tUrIS7SQL3xuSd/r9qwgLvd5r0u7wxieJsBDToG2x55Jqnx2eEJnsM+Z81org=
-X-Received: by 2002:a5d:8f9a:: with SMTP id l26mr123640iol.22.1560794478698;
- Mon, 17 Jun 2019 11:01:18 -0700 (PDT)
+        bh=HsWdsGdHcCmWS5nc++DZu7iYbolrJmLe83td+Ig9vaE=;
+        b=dH1Q1ap/s5s+GGcaEMwmnYoFeuDjYjSo5K6hYmXJg/DDSP9hgHg3DPH2Pt/BCS8Bsw
+         kM9JQNUrjx6foWP1WeaqlRWZaVvimFYmCy8WMHEiE7JGsuif4nX0TpZF5LMWsMVYZBk1
+         1l/hFBFjFzo97yNV89UQPLJh+7P7xvn9tADvEoZmAhY9+TpFs9WECp0KnpAUyzNyE4Q0
+         UvQpwI6MCbVkLjy8RDOgJU8n6u23YfyhJzo09rzZuHFNGBxdMs3DDb9uIjTFkRI86ss4
+         Ki4y7qPHqZFJmvNSxhCiAPsfKz7OG/YNIIIbPPaC3wPf5cC1EgzrtlXD/199Ajmy62dL
+         x6bA==
+X-Gm-Message-State: APjAAAUNMOICLM+SSb7/RIwVeC4wJuF4pM6fLplYeVhmLORgb0nJj1cs
+        aZv8YcsENBBOJF6VgYORE4kxDbNG07DIXAMaD62F
+X-Google-Smtp-Source: APXvYqxO80PFS2J7nH7z2/60Uxxt+c0vds1wc/30QCv3aD8rM/v8/T8bRZyfd3RubIYEKJbFyWNOStsHG2Y6SBEYbYI=
+X-Received: by 2002:a2e:9dc1:: with SMTP id x1mr617238ljj.0.1560808909485;
+ Mon, 17 Jun 2019 15:01:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190617151512.2209-1-mike.palmiotto@crunchydata.com>
-In-Reply-To: <20190617151512.2209-1-mike.palmiotto@crunchydata.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Mon, 17 Jun 2019 11:01:06 -0700
-Message-ID: <CAFftDdodVXDdgMyTSV5188W5HcSrJu4pvpsufQPcf5U1Bw3WJQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: fix mlsconstrain segfault
-To:     Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Cc:     selinux@vger.kernel.org
+References: <53af233d05da5e07d75d122878387288a10276df.1560447640.git.rgb@redhat.com>
+In-Reply-To: <53af233d05da5e07d75d122878387288a10276df.1560447640.git.rgb@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 17 Jun 2019 18:01:38 -0400
+Message-ID: <CAHC9VhQ5xgV2hnegThALdCP8KcqTLZsf2w6h2aT1WnH=-AdtEA@mail.gmail.com>
+Subject: Re: [PATCH ghak57 V1] selinux: format all invalid context as untrusted
+To:     Richard Guy Briggs <rgb@redhat.com>
+Cc:     Linux-Audit Mailing List <linux-audit@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacec <omosnace@redhat.com>,
+        Eric Paris <eparis@redhat.com>, Steve Grubb <sgrubb@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-ack and staged: https://github.com/SELinuxProject/selinux/pull/164
+On Thu, Jun 13, 2019 at 2:43 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+>
+> All instances of one field type should be encoded in the same way.
+> Since some invalid_context fields can contain untrusted strings, encode
+> all instances of this field the same way.
+>
+> Please see github issue
+> https://github.com/linux-audit/audit-kernel/issues/57
 
-On Mon, Jun 17, 2019 at 8:16 AM <mike.palmiotto@crunchydata.com> wrote:
->
-> From: Mike Palmiotto <mike.palmiotto@crunchydata.com>
->
-> Installing a cil module with invalid mlsconstrain syntax currently
-> results in a segfault. In the following module, the right-hand side of
-> the second operand of the OR is a list (mlstrustedobject):
->
-> $ cat test.cil
-> (class test (foo) )
-> (classorder (unordered test))
->
-> (mlsconstrain (test (foo))
->         (or
->                 (dom h1 h2)
->                 (eq t2 (mlstrustedobject))
->         )
-> )
->
-> $ sudo semodule -i test.cil
-> zsh: segmentation fault  sudo semodule -i test.cil
->
-> This syntax is invalid and should error accordingly, rather than
-> segfaulting. This patch provides this syntax error for the same module:
->
-> $ sudo semodule -i test.cil
-> t1, t2, r1, r2, u1, u2 cannot be used on the left side with a list on the right side
-> Bad expression tree for constraint
-> Bad constrain declaration at /var/lib/selinux/mls/tmp/modules/400/test/cil:4
-> semodule:  Failed!
->
-> Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
-> ---
->  libsepol/cil/src/cil_verify.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-> index 1036d73c..346fbac9 100644
-> --- a/libsepol/cil/src/cil_verify.c
-> +++ b/libsepol/cil/src/cil_verify.c
-> @@ -225,6 +225,9 @@ int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_fl
->                                 cil_log(CIL_ERR, "u3, r3, and t3 can only be used with mlsvalidatetrans rules\n");
->                                 goto exit;
->                         }
-> +               } else if (r_flavor == CIL_LIST) {
-> +                       cil_log(CIL_ERR, "t1, t2, r1, r2, u1, u2 cannot be used on the left side with a list on the right side\n");
-> +                       goto exit;
->                 }
->         } else {
->                 if (r_flavor == CIL_CONS_U2) {
-> --
-> 2.21.0
->
+It would be good to see a list of all the places we are using the
+"invalid_context" field and some discussion about if those labels are
+really "trusted" or "untrusted".  In both the
+compute_sid_handle_invalid_context() and security_sid_mls_copy() cases
+below it would appear that the labels can be considered "trusted",
+even if they are invalid.  I understand your concern about logging
+consistency with the "invalid_context" field, but without some further
+discussion it is hard to accept this patch as-is.
+
+-- 
+paul moore
+www.paul-moore.com
