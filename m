@@ -2,100 +2,130 @@ Return-Path: <SRS0=LfCf=UQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_MUTT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_MUTT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57FA6C31E5B
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 16:38:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1455C31E5E
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 16:49:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3A7F02070B
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 16:38:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4FCE20863
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 16:49:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727707AbfFQQi6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jun 2019 12:38:58 -0400
-Received: from mga09.intel.com ([134.134.136.24]:41077 "EHLO mga09.intel.com"
+        id S1727750AbfFQQtS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jun 2019 12:49:18 -0400
+Received: from mga09.intel.com ([134.134.136.24]:41735 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725863AbfFQQi4 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 17 Jun 2019 12:38:56 -0400
+        id S1725995AbfFQQtS (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 17 Jun 2019 12:49:18 -0400
 X-Amp-Result: UNSCANNABLE
 X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jun 2019 09:38:55 -0700
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Jun 2019 09:49:17 -0700
 X-ExtLoop1: 1
-Received: from rameshr1-mobl.gar.corp.intel.com (HELO localhost) ([10.252.60.156])
-  by fmsmga005.fm.intel.com with ESMTP; 17 Jun 2019 09:38:44 -0700
-Date:   Mon, 17 Jun 2019 19:38:47 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.36])
+  by fmsmga004.fm.intel.com with ESMTP; 17 Jun 2019 09:49:15 -0700
+Date:   Mon, 17 Jun 2019 09:49:15 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         Cedric Xing <cedric.xing@intel.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
         LSM List <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
         Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>,
         Jethro Beekman <jethro@fortanix.com>,
         Dave Hansen <dave.hansen@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>, X86 ML <x86@kernel.org>,
-        linux-sgx@vger.kernel.org,
         Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
-        npmccallum@redhat.com, Serge Ayoun <serge.ayoun@intel.com>,
-        Shay Katz-zamir <shay.katz-zamir@intel.com>,
-        Haitao Huang <haitao.huang@intel.com>,
+        pmccallum@redhat.com, "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Kai Svahn <kai.svahn@intel.com>,
-        Borislav Petkov <bp@alien8.de>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
         Josh Triplett <josh@joshtriplett.org>,
-        Kai Huang <kai.huang@intel.com>,
+        "Huang, Kai" <kai.huang@intel.com>,
         David Rientjes <rientjes@google.com>,
-        William Roberts <william.c.roberts@intel.com>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
         Philip Tricca <philip.b.tricca@intel.com>
-Subject: Re: [RFC PATCH v2 5/5] security/selinux: Add enclave_load()
- implementation
-Message-ID: <20190617163655.GA8710@linux.intel.com>
-References: <20190606021145.12604-1-sean.j.christopherson@intel.com>
- <20190606021145.12604-6-sean.j.christopherson@intel.com>
+Subject: Re: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in
+ SELinux
+Message-ID: <20190617164915.GA25085@linux.intel.com>
+References: <cover.1560131039.git.cedric.xing@intel.com>
+ <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com>
+ <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov>
+ <20190611220243.GB3416@linux.intel.com>
+ <8d99d8fb-a921-286a-8cf0-cd522e09b37c@tycho.nsa.gov>
+ <20190614004600.GF18385@linux.intel.com>
+ <20190614153840.GC12191@linux.intel.com>
+ <CALCETrXcOQkvMHdh5DgdQ6JAgzsZCNFVEtnQz-5RbNr4vsadDQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190606021145.12604-6-sean.j.christopherson@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <CALCETrXcOQkvMHdh5DgdQ6JAgzsZCNFVEtnQz-5RbNr4vsadDQ@mail.gmail.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 05, 2019 at 07:11:45PM -0700, Sean Christopherson wrote:
-> The goal of selinux_enclave_load() is to provide a facsimile of the
-> existing selinux_file_mprotect() and file_map_prot_check() policies,
-> but tailored to the unique properties of SGX.
+On Sun, Jun 16, 2019 at 03:14:51PM -0700, Andy Lutomirski wrote:
+> On Fri, Jun 14, 2019 at 8:38 AM Sean Christopherson
+> <sean.j.christopherson@intel.com> wrote:
+> > > Andy and/or Cedric, can you please weigh in with a concrete (and practical)
+> > > use case that will break if we go with #1?  The auditing issues for #2/#3
+> > > are complex to say the least...
 > 
-> For example, an enclave page is technically backed by a MAP_SHARED file,
-> but the "file" is essentially shared memory that is never persisted
-> anywhere and also requires execute permissions (for some pages).
-> 
-> The basic concept is to require appropriate execute permissions on the
-> source of the enclave for pages that are requesting PROT_EXEC, e.g. if
-> an enclave page is being loaded from a regular file, require
-> FILE__EXECUTE and/or FILE__EXECMOND, and if it's coming from an
-> anonymous/private mapping, require PROCESS__EXECMEM since the process
-> is essentially executing from the mapping, albeit in a roundabout way.
-> 
-> Note, FILE__READ and FILE__WRITE are intentionally not required even if
-> the source page is backed by a regular file.  Writes to the enclave page
-> are contained to the EPC, i.e. never hit the original file, and read
-> permissions have already been vetted (or the VMA doesn't have PROT_READ,
-> in which case loading the page into the enclave will fail).
-> 
-> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> The most significant issue I see is the following.  Consider two
+> cases. First, an SGX2 enclave that dynamically allocates memory but
+> doesn't execute code from dynamic memory.  Second, an SGX2 enclave
+> that *does* execute code from dynamic memory.  In #1, the untrusted
+> stack needs to decide whether to ALLOW_EXEC when the memory is
+> allocated, which means that it either needs to assume the worst or it
+> needs to know at allocation time whether the enclave ever intends to
+> change the permission to X.
 
-In the end of the day, the main problem with this patch is that the
-existing LSM hooks are generic. I don't we can have specific hooks
-for proprietary hardware.
+I'm just not convinced that folks running enclaves that can't communicate
+their basic functionality will care one whit about SELinux restrictions,
+i.e. will happily give EXECMOD even if it's not strictly necessary.
+ 
+> I suppose there's a middle ground.  The driver could use model #1 for
+> driver-filled pages and model #2 for dynamic pages.  I haven't tried
+> to fully work it out, but I think there would be the ALLOW_READ /
+> ALLOW_WRITE / ALLOW_EXEC flag for EADD-ed pages but, for EAUG-ed
+> pages, there would be a different policy.  This might be as simple as
+> internally having four flags instead of three:
+> 
+> ALLOW_READ, ALLOW_WRITE, ALLOW_EXEC: as before
+> 
+> ALLOW_EXEC_COND: set implicitly by the driver for EAUG.
+> 
+> As in #1, if you try to mmap or protect a page with neither ALLOW_EXEC
+> variant, it fails (-EACCES, perhaps).  But, if you try to mmap or
+> mprotect an ALLOW_EXEC_COND page with PROT_EXEC, you ask LSM for
+> permission.  There is no fancy DIRTY tracking here, since it's
+> reasonable to just act as though *every* ALLOW_EXEC_COND page is
+> dirty.  There is no real auditing issue here, since LSM can just log
+> what permission is missing.
+> 
+> Does this seem sensible?  It might give us the best of #1 and #2.
 
-/Jarkko
+It would work and is easy to implement *if* SELinux ties permissions to
+the process, as the SIGSTRUCT vma/file won't be available at
+EAUG+mprotect().  I already have a set of patches to that effect, I'll
+send 'em out in a bit.
+
+FWIW, we still need to differentiate W->X from WX on SGX1, i.e. declaring
+ALLOW_WRITE + ALLOW_EXEC shouldn't imply WX.  This is also addressed in
+the forthcoming updated RFC.
+
+> > Follow-up question, is #1 any more palatable if SELinux adds SGX specific
+> > permissions and ties them to the process (instead of the vma or sigstruct)?
+> 
+> I'm not sure this makes a difference.  It simplifies SIGSTRUCT
+> handling, which is handy.
