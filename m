@@ -2,152 +2,113 @@ Return-Path: <SRS0=LfCf=UQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C133FC31E5B
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 17:08:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 504F1C31E5B
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 17:53:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8E81E2084D
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 17:08:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1560791324;
-	bh=5R6xDskFo1W1bXui/OcZCdDdAlnmmhG5gfSqm8uvSoE=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=Xb14ArFK9Drzf4Zkrn08a9URoaMcwyc6Pz9HQx8GfK9oh2a6tU0fVU3vvq954UoaV
-	 QxJ8c231PrPOXTEQflT9ZT0LCpf8YNPFM00k09sxR3v0kK43KjzH+ybtuEYgoeMk8q
-	 HFLzDo530kng9Frl/miqmwe2Ez9xCQGTWvBDMqC4=
+	by mail.kernel.org (Postfix) with ESMTP id 29C2320861
+	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 17:53:48 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SPOj6RWq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728608AbfFQRIl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jun 2019 13:08:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52312 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728281AbfFQRIl (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 17 Jun 2019 13:08:41 -0400
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com [209.85.221.51])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11A25217D4
-        for <selinux@vger.kernel.org>; Mon, 17 Jun 2019 17:08:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560791320;
-        bh=5R6xDskFo1W1bXui/OcZCdDdAlnmmhG5gfSqm8uvSoE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=xYdijfmfTphWyPXH20r+WsQV/8bkdrpNf5ibbWfFWcolh4o7lgLLyHNhUoOcMFVw8
-         +WYXkUoR55tMro4HvvFV1GRH5zTPG3gIVxqy74/sPuKECJfSLHHxgnUluE5iRUKpj/
-         NRTZo4RmfdcET+NZD2Qm2k1y2o3YBjTLJ4ayCuCA=
-Received: by mail-wr1-f51.google.com with SMTP id n9so10837941wru.0
-        for <selinux@vger.kernel.org>; Mon, 17 Jun 2019 10:08:40 -0700 (PDT)
-X-Gm-Message-State: APjAAAVeo0/kr3TMhc8bWWbio+3y9ww/mCfF2FoKAznrtNMG0s8cBimX
-        cHhB7fGAN7ERrQoyNi/9hbVuxrSpRY+WEbWO63gqGw==
-X-Google-Smtp-Source: APXvYqwJHAurY7hvHw2/82bN4jOKbE4ziYeXFj4WJqCoYJI/jl9Qcr06/LypPNy+GyRTR0MD+ZEmtD8+BcxUgcL5e8E=
-X-Received: by 2002:adf:f28a:: with SMTP id k10mr10588715wro.343.1560791317691;
- Mon, 17 Jun 2019 10:08:37 -0700 (PDT)
+        id S1726543AbfFQRxr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Jun 2019 13:53:47 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:46410 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726047AbfFQRxr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jun 2019 13:53:47 -0400
+Received: by mail-io1-f66.google.com with SMTP id i10so23038865iol.13
+        for <selinux@vger.kernel.org>; Mon, 17 Jun 2019 10:53:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=e2e3XQsEmYefBfaZDJFBAlJHSTEU6Rp4CpALsf6yY1E=;
+        b=SPOj6RWqW5eJCwo7gCGiJzyz2sWzDxvUi+Oz+3pJdAWThe2cR4+OPb2cZMqsZCLzB4
+         FgvMkpETdbsJFUun4Ggqo1jM9BBgyl28BL+tW9bXa6NgwEbiIpbSw3l8K5Qh0/ztLo+e
+         4Uz+MyCJum/n0FZ5287Lp77ydXt1aOto1yJvhqPFwcTd05Kb+pv6va8nLtlqbRS5Cs+T
+         EK5JgJLDvsHmuASBtVHs3RqtVExWg630fNhCn38uCmwty2FIMXPfiZWUGYQlrESmjZgl
+         jNwEnSi5kmlA5w2A2Gy3cJ/+IJZPhM4ez19oPDy2OrwD+tXQMxWBlAdnFm6zFRMiNhmc
+         fRlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=e2e3XQsEmYefBfaZDJFBAlJHSTEU6Rp4CpALsf6yY1E=;
+        b=GJjZwkuuZOBq5nLOttoK1yKxjS3P3gchVYWw01uyH3U2msxknZ9IiLo3UJxy0Lolfx
+         bwItdL9L1axPgngxIwAG+/2PerxHKFOxwyTs+Wz8pbA6sjPn4lq4UUemQeWj3tptlP3k
+         rCTAfkQcigWs4nn+Eqvv2ALgRAiQ7uBNqPbhOUJ/Y7lEEweNGrgSWb/pYW9AFDXG6le7
+         eRhxlEMJ3b8swa4tFNULu2ESL6nVf25bCc8eRplh3FBrM/Rfeo9HzDjInfjNFpcl7dtm
+         XnFOxyKIPUp8fDjeacmqavQInbDO0QJVlmvyYzMSsrE0K/59Gt4As6pA2am5UM6usr/T
+         n9tw==
+X-Gm-Message-State: APjAAAV1REbZ3IKkEaCX13nxOvGiDHaib6/Bqdff7mP0VfgheBTJ89qj
+        L2xfg2yEqcb0oKYmsca3juXfQzT6+JdgiavI9oxcnqFZcH4=
+X-Google-Smtp-Source: APXvYqyMgmbQLLF7wG704hzEYGowDRV5fL1Y0fjZcNR4Zlgkw6ctJu7TAJWL68W1s/vI8RRVBvWllX+y0WjcI6LKoqI=
+X-Received: by 2002:a5d:8f9a:: with SMTP id l26mr97444iol.22.1560794026202;
+ Mon, 17 Jun 2019 10:53:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <cover.1560131039.git.cedric.xing@intel.com> <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com>
- <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov> <20190611220243.GB3416@linux.intel.com>
- <8d99d8fb-a921-286a-8cf0-cd522e09b37c@tycho.nsa.gov> <20190614004600.GF18385@linux.intel.com>
- <20190614153840.GC12191@linux.intel.com> <CALCETrXcOQkvMHdh5DgdQ6JAgzsZCNFVEtnQz-5RbNr4vsadDQ@mail.gmail.com>
- <20190617164915.GA25085@linux.intel.com>
-In-Reply-To: <20190617164915.GA25085@linux.intel.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Mon, 17 Jun 2019 10:08:26 -0700
-X-Gmail-Original-Message-ID: <CALCETrW9Mt70UY3NWGQq3rpxCxSpR4GfsBgt0jTib3bNDMTXkw@mail.gmail.com>
-Message-ID: <CALCETrW9Mt70UY3NWGQq3rpxCxSpR4GfsBgt0jTib3bNDMTXkw@mail.gmail.com>
-Subject: Re: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in SELinux
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Cedric Xing <cedric.xing@intel.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        linux-sgx@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
-        pmccallum@redhat.com, "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        Philip Tricca <philip.b.tricca@intel.com>
+References: <alpine.LFD.2.21.1906171502130.6467@34-41-5D-CA-59-C7>
+In-Reply-To: <alpine.LFD.2.21.1906171502130.6467@34-41-5D-CA-59-C7>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Mon, 17 Jun 2019 10:53:33 -0700
+Message-ID: <CAFftDdpbvUngYWtdySVyag80y5ZnaioP7RoqWhzJa73cYjq+xg@mail.gmail.com>
+Subject: Re: [PATCH 2/2] libsepol: Replace constant with sizeof()
+To:     =?UTF-8?B?Sm9ra2UgSMOkbcOkbMOkaW5lbg==?= 
+        <jokke.hamalainen@kolttonen.fi>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 17, 2019 at 9:49 AM Sean Christopherson
-<sean.j.christopherson@intel.com> wrote:
->
-> On Sun, Jun 16, 2019 at 03:14:51PM -0700, Andy Lutomirski wrote:
-> > On Fri, Jun 14, 2019 at 8:38 AM Sean Christopherson
-> > <sean.j.christopherson@intel.com> wrote:
-> > > > Andy and/or Cedric, can you please weigh in with a concrete (and practical)
-> > > > use case that will break if we go with #1?  The auditing issues for #2/#3
-> > > > are complex to say the least...
-> >
-> > The most significant issue I see is the following.  Consider two
-> > cases. First, an SGX2 enclave that dynamically allocates memory but
-> > doesn't execute code from dynamic memory.  Second, an SGX2 enclave
-> > that *does* execute code from dynamic memory.  In #1, the untrusted
-> > stack needs to decide whether to ALLOW_EXEC when the memory is
-> > allocated, which means that it either needs to assume the worst or it
-> > needs to know at allocation time whether the enclave ever intends to
-> > change the permission to X.
->
-> I'm just not convinced that folks running enclaves that can't communicate
-> their basic functionality will care one whit about SELinux restrictions,
-> i.e. will happily give EXECMOD even if it's not strictly necessary.
+ack on the series, staged: https://github.com/SELinuxProject/selinux/pull/1=
+63
 
-At least when permissions are learned, if there's no ALLOW_EXEC for
-EAUG, then EXECMOD won't get learned if there's no eventual attempt to
-execute the memory.
-
+On Mon, Jun 17, 2019 at 5:02 AM Jokke H=C3=A4m=C3=A4l=C3=A4inen
+<jokke.hamalainen@kolttonen.fi> wrote:
 >
-> > I suppose there's a middle ground.  The driver could use model #1 for
-> > driver-filled pages and model #2 for dynamic pages.  I haven't tried
-> > to fully work it out, but I think there would be the ALLOW_READ /
-> > ALLOW_WRITE / ALLOW_EXEC flag for EADD-ed pages but, for EAUG-ed
-> > pages, there would be a different policy.  This might be as simple as
-> > internally having four flags instead of three:
-> >
-> > ALLOW_READ, ALLOW_WRITE, ALLOW_EXEC: as before
-> >
-> > ALLOW_EXEC_COND: set implicitly by the driver for EAUG.
-> >
-> > As in #1, if you try to mmap or protect a page with neither ALLOW_EXEC
-> > variant, it fails (-EACCES, perhaps).  But, if you try to mmap or
-> > mprotect an ALLOW_EXEC_COND page with PROT_EXEC, you ask LSM for
-> > permission.  There is no fancy DIRTY tracking here, since it's
-> > reasonable to just act as though *every* ALLOW_EXEC_COND page is
-> > dirty.  There is no real auditing issue here, since LSM can just log
-> > what permission is missing.
-> >
-> > Does this seem sensible?  It might give us the best of #1 and #2.
 >
-> It would work and is easy to implement *if* SELinux ties permissions to
-> the process, as the SIGSTRUCT vma/file won't be available at
-> EAUG+mprotect().  I already have a set of patches to that effect, I'll
-> send 'em out in a bit.
-
-I'm okay with that.
-
+> Replace constant 18 with safer use of sizeof()
 >
-> FWIW, we still need to differentiate W->X from WX on SGX1, i.e. declaring
-> ALLOW_WRITE + ALLOW_EXEC shouldn't imply WX.  This is also addressed in
-> the forthcoming updated RFC.
-
-Sounds good.
+> Signed-off-by: Unto Sten <sten.unto@gmail.com>
+> ---
+>  libsepol/src/kernel_to_conf.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.=
+c
+> index 5fb4e838..930bafab 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -448,7 +448,7 @@ static int write_sids_to_conf(FILE *out, const char *=
+const *sid_to_str,
+>                 if (i < num_sids) {
+>                         sid =3D (char *)sid_to_str[i];
+>                 } else {
+> -                       snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> +                       snprintf(unknown, sizeof(unknown), "%s%u", "UNKNO=
+WN", i);
+>                         sid =3D strdup(unknown);
+>                         if (!sid) {
+>                                 rc =3D -1;
+> @@ -2376,7 +2376,7 @@ static int write_sid_context_rules_to_conf(FILE *ou=
+t, struct policydb *pdb, cons
+>                 if (i < num_sids) {
+>                         sid =3D (char *)sid_to_str[i];
+>                 } else {
+> -                       snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
+> +                       snprintf(unknown, sizeof(unknown), "%s%u", "UNKNO=
+WN", i);
+>                         sid =3D unknown;
+>                 }
+>
+> --
+> 2.21.0
+>
