@@ -2,165 +2,193 @@ Return-Path: <SRS0=/AWk=UR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_DR,USER_AGENT_MUTT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68F51C31E5E
-	for <selinux@archiver.kernel.org>; Tue, 18 Jun 2019 15:42:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 135C3C31E5B
+	for <selinux@archiver.kernel.org>; Tue, 18 Jun 2019 23:05:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4CEAC2147A
-	for <selinux@archiver.kernel.org>; Tue, 18 Jun 2019 15:42:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CFD712080C
+	for <selinux@archiver.kernel.org>; Tue, 18 Jun 2019 23:05:56 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Rl+ySgft"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729715AbfFRPmA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Jun 2019 11:42:00 -0400
-Received: from wind.enjellic.com ([76.10.64.91]:35716 "EHLO wind.enjellic.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729349AbfFRPmA (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 18 Jun 2019 11:42:00 -0400
-Received: from wind.enjellic.com (localhost [127.0.0.1])
-        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id x5IFegEV006176;
-        Tue, 18 Jun 2019 10:40:42 -0500
-Received: (from greg@localhost)
-        by wind.enjellic.com (8.15.2/8.15.2/Submit) id x5IFeepQ006175;
-        Tue, 18 Jun 2019 10:40:40 -0500
-Date:   Tue, 18 Jun 2019 10:40:40 -0500
-From:   "Dr. Greg" <greg@enjellic.com>
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     Andy Lutomirski <luto@kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Cedric Xing <cedric.xing@intel.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        linux-sgx@vger.kernel.org,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
-        pmccallum@redhat.com, "Ayoun, Serge" <serge.ayoun@intel.com>,
-        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
-        "Huang, Haitao" <haitao.huang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
-        Josh Triplett <josh@joshtriplett.org>,
-        "Huang, Kai" <kai.huang@intel.com>,
-        David Rientjes <rientjes@google.com>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        Philip Tricca <philip.b.tricca@intel.com>
-Subject: Re: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in SELinux
-Message-ID: <20190618154040.GA4603@wind.enjellic.com>
-Reply-To: "Dr. Greg" <greg@enjellic.com>
-References: <cover.1560131039.git.cedric.xing@intel.com> <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com> <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov> <20190611220243.GB3416@linux.intel.com> <8d99d8fb-a921-286a-8cf0-cd522e09b37c@tycho.nsa.gov> <20190614004600.GF18385@linux.intel.com> <20190614153840.GC12191@linux.intel.com> <CALCETrXcOQkvMHdh5DgdQ6JAgzsZCNFVEtnQz-5RbNr4vsadDQ@mail.gmail.com> <20190617164915.GA25085@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190617164915.GA25085@linux.intel.com>
-User-Agent: Mutt/1.4i
-X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Tue, 18 Jun 2019 10:40:42 -0500 (CDT)
+        id S1730476AbfFRXF4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jun 2019 19:05:56 -0400
+Received: from sonic309-22.consmr.mail.bf2.yahoo.com ([74.6.129.196]:42378
+        "EHLO sonic309-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730429AbfFRXF4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Jun 2019 19:05:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1560899154; bh=QNCp0LyRM7XsaP8SeqCKsDElJHYYjkuSpYXOjPhyPN4=; h=From:To:Cc:Subject:Date:From:Subject; b=Rl+ySgftAhKtXYoSvtVwPH5V0bsMzrXWARK2qIybnFbH3uEqdNMaCRhNrFS1UgwiT9KPey3+WWO+vQ0zumAKbCqeI3YpaoNIY3VTaIR6UL8GK22IuVpc0FDIzxHnPTAyS1Whu6qJT5o9rlo3s7gb3rqAG9d0rE4lYJyU9j62ZdBgwHbYj5od5UanyUSwS/hM/gDKlkOHS+Z4x/ptRcXKPCgp+hTxujcvcFGGIhpU2j2Ne9SWfNHDlwcfAkJebG8Qz3bzz/NB9jrqEOi/+4IegzfhQEt7YF8y5N4TO8ppfVpq/7jOrw+6uhG7QnJJ0cBJhJ3WHvYCCafn4MQrXhKLjQ==
+X-YMail-OSG: Q2aWPBgVM1mVtSQlZE7Mv70sgVyyzRL1ijKM3sloJ4ki922qvOAegWxn4Z_tMwc
+ m5rhMFu5CbU3.anRE0erg8UBtuI53Q2TfE8jn17_MgW88ZuIrcogDbgUlAzIDMKJxqOIoZZT2jO3
+ 3I4Vl4eWJZ5RUt8giCX6SHjLcgzOE4ipvXo4Pqy8onsJ09_P03pT2zLVeJZVuvAmJGasUDmtsvkK
+ Hpvo1vqfQwdQH1w2jjW9k.7cWg4DIyVnOlz_RtEhz0L7hoVcnClCZdlX8Ehmee6WhcqGHw2Tlkkp
+ ayI5yaN0LRIyWlTATHCfyTnc_yLZkMD3UHLQGpntSPDZbosRyTdR8xXhZomL448XHdIXT9yLBslO
+ Vq3t1kYBtTo9VBxHFKn9ZwIQF.G4llk3hm.TjdGPXNeysf3t2KOwOBGQPHOLIQP19rbLJ_wuJwaL
+ 4.rWTxVu7X4OZ8ymgCQ6zrnKO11SAYU2PvnhdE9C4jxBlBgS7pLmOQ6oaWGqJTRdCtEaZ6_VNy0N
+ ol9jYxZs7EA7lXDJ.LR4Wq48pVJwijh0WXffLPMC_n8tJifDn22gYeJEfhn9AKzw9mNmF.9DZLFM
+ rScouNFQbJ40ZYXJQgAt7xFyTN_pOq07LjNpoiI3kz2vCP.G4BBjpwqlAZw.w0c2iXTB0y46Zb.i
+ dzZyuCGs4.2UHpwOIXjsbElodMZs2BHQ5ZwMpAbi_LhA.nmv23e4TlJi_mmKtO03qJYJtPUyLLkG
+ UBOa8nHWG75SuJiSZ1cfxIjuBKHvrstQO743SKlLpS.8ms7lC6Nm9QXXYW5AWPmnLNvUGeVrECVV
+ KkjirKrDVAHVJ5I3NqM_zKFJItmFuVuc2OYwPIvj9DN2cybjwA4pZE3lmOe.YZC0vf.OoHhf46TL
+ CQkaf093bsvVvmW4E6VmpkWuKD_YiWhc.Cq.4l_1lFXJaS1__4EoQ3chRkIWowXdYeNCZMCYalVK
+ EqnFhsmzuJ1xQmdZ8HGgErZ7y2E60Y_7ZLTQUnIWG81XOQFiQhv0yctD444pPb4cF.uPKwrykUTu
+ X9Bte7Qeq4wTbt4NPOZIrqsvCjWKGbwZkCSsII6_MVnTiEu4iJcfCA9DbiV0l7cTQwBMybwLjeRW
+ 44a78dgViMw1egk_iBVBWC6xHn_s6di4TukKkhYApWDR5UKF2itG308J4G.M6bV6oWCI3xLJA.P1
+ uB0kp67y1PC7kA3yy3cMlBy1afZIh96kzXtYfbyi3AuT9_LsXY.gUH5AtUYS11G5vzt4Z9SCMi0D
+ F6iCYnA0TNJYxKewpoXhOlvlN80aYwfIAQx3F_lFHMSKDJqLw4QY9rZY-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Tue, 18 Jun 2019 23:05:54 +0000
+Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO localhost.net) ([73.223.4.185])
+          by smtp425.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 2437e85e03d954d21019d208f67457d8;
+          Tue, 18 Jun 2019 23:05:53 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: [PATCH v2 00/25] LSM: Module stacking for AppArmor
+Date:   Tue, 18 Jun 2019 16:05:26 -0700
+Message-Id: <20190618230551.7475-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 17, 2019 at 09:49:15AM -0700, Sean Christopherson wrote:
+This patchset provides the changes required for
+the AppArmor security module to stack safely with any other.
 
-Good morning to everyone.
+Patches 0001-0003 complete the process of moving managment
+of security blobs that might be shared from the individual
+modules to the infrastructure.
 
-> On Sun, Jun 16, 2019 at 03:14:51PM -0700, Andy Lutomirski wrote:
-> > The most significant issue I see is the following.  Consider two
-> > cases. First, an SGX2 enclave that dynamically allocates memory but
-> > doesn't execute code from dynamic memory.  Second, an SGX2 enclave
-> > that *does* execute code from dynamic memory.  In #1, the untrusted
-> > stack needs to decide whether to ALLOW_EXEC when the memory is
-> > allocated, which means that it either needs to assume the worst or it
-> > needs to know at allocation time whether the enclave ever intends to
-> > change the permission to X.
+Patches 0004-0014 replace system use of a "secid" with
+a structure "lsmblob" containing information from the
+security modules to be held and reused later. At this
+point lsmblob contains an array of u32 secids, one "slot"
+for each of the security modules compiled into the
+kernel that used secids. A "slot" is allocated when
+a security module registers a hook for one of the interfaces
+that uses a secid or a security context. The infrastructure
+is changed to use the slot number to pass the correct
+secid to or from the security module hooks.
 
-> I'm just not convinced that folks running enclaves that can't
-> communicate their basic functionality will care one whit about
-> SELinux restrictions, i.e. will happily give EXECMOD even if it's
-> not strictly necessary.
+It is important that the lsmblob be a fixed size entity
+that does not have to be allocated. Several of the places
+where it is used would have performance and/or locking
+issues with dynamic allocation.
 
-Hence the comments in my mail from last Friday.
+Patch 0015 provides a mechanism for a process to
+identify which security module's hooks should be used
+when displaying or converting a security context string.
+A new interface /proc/.../attr/display contains the name
+of the security module to show. Reading from this file
+will present the name of the module, while writing to
+it will set the value. Only names of active security
+modules are accepted. Internally, the name is translated
+to the appropriate "slot" number for the module which
+is then stored in the task security blob.
 
-It seems to us that the path forward is to require the enclave
-author/signer to express their intent to implement executable dynamic
-memory, see below.
+Patch 0016 Starts the process of changing how a security
+context is represented. Since it is possible for a
+security context to have been generated by more than one
+security module it is now necessary to note which module
+created a security context so that the correct "release"
+hook can be called. There are several places where the
+module that created a security context cannot be inferred.
 
-> > I suppose there's a middle ground.  The driver could use model #1 for
-> > driver-filled pages and model #2 for dynamic pages.  I haven't tried
-> > to fully work it out, but I think there would be the ALLOW_READ /
-> > ALLOW_WRITE / ALLOW_EXEC flag for EADD-ed pages but, for EAUG-ed
-> > pages, there would be a different policy.  This might be as simple as
-> > internally having four flags instead of three:
-> > 
-> > ALLOW_READ, ALLOW_WRITE, ALLOW_EXEC: as before
-> > 
-> > ALLOW_EXEC_COND: set implicitly by the driver for EAUG.
-> > 
-> > As in #1, if you try to mmap or protect a page with neither ALLOW_EXEC
-> > variant, it fails (-EACCES, perhaps).  But, if you try to mmap or
-> > mprotect an ALLOW_EXEC_COND page with PROT_EXEC, you ask LSM for
-> > permission.  There is no fancy DIRTY tracking here, since it's
-> > reasonable to just act as though *every* ALLOW_EXEC_COND page is
-> > dirty.  There is no real auditing issue here, since LSM can just log
-> > what permission is missing.
-> > 
-> > Does this seem sensible?  It might give us the best of #1 and #2.
+This is achieved by introducing a "lsmcontext" structure
+which contains the context string, its length and the
+"slot" number of the security module that created it.
+The security_release_secctx() interface is changed,
+replacing the (string,len) pointer pair with a lsmcontext
+pointer.
 
-> It would work and is easy to implement *if* SELinux ties permissions
-> to the process, as the SIGSTRUCT vma/file won't be available at
-> EAUG+mprotect().  I already have a set of patches to that effect,
-> I'll send 'em out in a bit.
+Patches 0012-0021 convert the security interfaces from
+(string,len) pointer pairs to a lsmcontext pointer.
+The slot number identifying the creating module is
+added by the infrastructure. Where the security context
+is stored for extended periods the data type is changed.
 
-The VMA that is crafted from the enclave file is going to exist for
-the life of the enclave.  If the intent to use executable dynamic
-memory is specified when the enclave image is being built, or as a
-component of enclave initialization, the driver is in a position to
-log/deny a request to EAUG+mprotect whenever it occurs.  The sensitive
-criteria would seem to be any request for dynamically allocated memory
-with executable status.
+Patch 0022 provides a simple way for a security module
+to know its "slot" number. The security_add_hooks()
+initialization function returns the slot number, and the
+security module need but stash the value for later use,
+as is required by the Netlabel subsystem. The Netlabel
+code is converted to save lsmblob structures instead
+of secids in Patch 0023.
 
-The potential security impact of dynamically executable content is
-something that is dependent on the enclave author rather then the
-context of execution that is requesting pages to be allocated for such
-purposes.  There is going to be an LSM hook to evaluate the SIGSTRUCT
-at the time of EINIT, so all of the necessary information is there to
-make a decision on whether or not to flag the VMA as being allowed to
-support dynamically executable content.
+Patch 0024 allows for an error return of -ENOPROTOOPT
+to be ignored while processing security_getprocattr().
 
-It doesn't seem like an onerous requirement for this information to be
-specified in the enclave metadata.  For optimum security, one could
-perhaps argue that the ability to implement dynamic memory should have
-been a specifiable attribute of the enclave, similar to the debug,
-launch and provisioning attributes.
+Finally, with all interference on the AppArmor hooks
+removed, Patch 0025 removes the exclusive bit from
+them.
 
-As we have indicated in the past, once the enclave is initialized with
-permissions for dynamically executable content, the platform is
-completely dependent on the security intentions of the author of the
-enclave.  Given that, the notion of enduring significant LSM
-complexity does not seem to be justified.
+The Ubuntu project is using an earlier version of
+this patchset in their distribution to enable stacking
+for containers.
 
-Which opens up another set of security implications to discuss but we will let
-those lie for the moment.
+Performance measurements to date have the change
+within the "noise". Better benchmarks are in the
+works.
 
-Have a good day.
+https://github.com/cschaufler/lsm-stacking.git#stack-5.2-v4-apparmor
 
-Dr. Greg
-
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-1686            EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"More people are killed every year by pigs than by sharks, which shows
- you how good we are at evaluating risk."
-                                -- Bruce Schneier
-                                   Beyond Fear
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ drivers/android/binder.c                |  24 +-
+ fs/kernfs/dir.c                         |   5 +-
+ fs/kernfs/inode.c                       |  35 ++-
+ fs/kernfs/kernfs-internal.h             |   3 +-
+ fs/nfs/nfs4proc.c                       |  22 +-
+ fs/nfsd/nfs4xdr.c                       |  20 +-
+ fs/proc/base.c                          |   1 +
+ include/linux/cred.h                    |   3 +-
+ include/linux/lsm_hooks.h               |   8 +-
+ include/linux/security.h                | 163 ++++++++++---
+ include/net/af_unix.h                   |   2 +-
+ include/net/netlabel.h                  |   8 +-
+ include/net/scm.h                       |  14 +-
+ kernel/audit.c                          |  34 +--
+ kernel/audit.h                          |   9 +-
+ kernel/auditfilter.c                    |   6 +-
+ kernel/auditsc.c                        |  77 +++----
+ kernel/cred.c                           |  12 +-
+ net/ipv4/cipso_ipv4.c                   |   6 +-
+ net/ipv4/ip_sockglue.c                  |  12 +-
+ net/netfilter/nf_conntrack_netlink.c    |  20 +-
+ net/netfilter/nf_conntrack_standalone.c |  11 +-
+ net/netfilter/nfnetlink_queue.c         |  26 ++-
+ net/netfilter/nft_meta.c                |  13 +-
+ net/netfilter/xt_SECMARK.c              |   6 +-
+ net/netlabel/netlabel_kapi.c            |   6 +-
+ net/netlabel/netlabel_unlabeled.c       |  95 ++++----
+ net/netlabel/netlabel_unlabeled.h       |   2 +-
+ net/netlabel/netlabel_user.c            |  13 +-
+ net/netlabel/netlabel_user.h            |   6 +-
+ net/unix/af_unix.c                      |   6 +-
+ security/apparmor/include/net.h         |   6 +-
+ security/apparmor/lsm.c                 |  48 ++--
+ security/integrity/ima/ima.h            |  14 +-
+ security/integrity/ima/ima_api.c        |   9 +-
+ security/integrity/ima/ima_appraise.c   |   6 +-
+ security/integrity/ima/ima_main.c       |  38 ++--
+ security/integrity/ima/ima_policy.c     |  19 +-
+ security/security.c                     | 392 ++++++++++++++++++++++++++++----
+ security/selinux/hooks.c                | 164 ++++++-------
+ security/selinux/include/objsec.h       |  18 ++
+ security/selinux/include/security.h     |   1 +
+ security/selinux/netlabel.c             |  25 +-
+ security/selinux/ss/services.c          |   7 +-
+ security/smack/smack.h                  |  19 ++
+ security/smack/smack_lsm.c              | 154 ++++++-------
+ security/smack/smack_netfilter.c        |   8 +-
+ security/smack/smackfs.c                |  10 +-
+ 48 files changed, 1010 insertions(+), 596 deletions(-)
