@@ -1,158 +1,166 @@
-Return-Path: <SRS0=LfCf=UQ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=/AWk=UR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_DR,USER_AGENT_MUTT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FCE6C31E5B
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 22:15:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68F51C31E5E
+	for <selinux@archiver.kernel.org>; Tue, 18 Jun 2019 15:42:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E646220657
-	for <selinux@archiver.kernel.org>; Mon, 17 Jun 2019 22:15:36 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="t+fWdAO+"
+	by mail.kernel.org (Postfix) with ESMTP id 4CEAC2147A
+	for <selinux@archiver.kernel.org>; Tue, 18 Jun 2019 15:42:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728454AbfFQWPd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Jun 2019 18:15:33 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:39769 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728283AbfFQWPc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Jun 2019 18:15:32 -0400
-Received: by mail-lf1-f68.google.com with SMTP id p24so7723130lfo.6
-        for <selinux@vger.kernel.org>; Mon, 17 Jun 2019 15:15:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=c5UIf+bhX+TscweExnBplZZa2iUS4eVkN91TUCyDIjc=;
-        b=t+fWdAO+kDytO6Qe2BvENv40nSMghSAZkq/QjTqjeur22v/BBMKMR2T2iwMdgFuCK/
-         wL4fe2VCXZMM9bnyZ6OGwplg3xS0ff5gcj3IsH/BpmxTyAJIlE4GVMGvFgeBH0WC6h8B
-         4kIv18eoGH+jcMa2iKr08PaRi3yYeLj32DUAdKpPzKLrHKPpTdX9F30IORcnvkGkmHnq
-         CTb3nYcsO3Rja53nkvmFYBBsi67iNt1EapUWX5nVD7RPNrV6p/7IFNz3cP1v4DoICSSg
-         tAtsAqm78XQx9N/+QnXmtpeDQwOMmd9jJulg0P5RVzzXQFu7wHyys0WZ5jhwSga67MW4
-         L8fQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=c5UIf+bhX+TscweExnBplZZa2iUS4eVkN91TUCyDIjc=;
-        b=jKWtUvRInkW3d5FhzPn3UBs8KHSiCySoF08SoHMP5eZRFIQ6UKipcjv04WzSrm1pMr
-         6hZ4NGn4wDmzQhdJNs9Zg+C3lyWMwW5c28uMUejqE7exiaEgO1h9OBhI4kE9sO+EAHyE
-         JhhLyje72Np6N6lpQMm0qc5nnIJ+tf1gmckl6L8W35/gtcTIobKWetSVyd8+Jsub7pNj
-         INaWOWa2W7lq1f/QaWInSwPbYoAvp4FBJEE2IUoWTYqmO3Rtr7n3MYy3I8XbCbvxX4zR
-         4En2YIbN40WJ65vcYlSaE6FHsx6iiDqtsFis9iHtXqlbCtpm7DD9KKoz8OFsRkKOjwXX
-         RulQ==
-X-Gm-Message-State: APjAAAWSD/IbCq4XRqWtBmoNqR+MLt0UtyV+ES0U4xB0rVwSeKqMLpem
-        2dWEU23ubtbz7L0+57BsWiO60O7TvtOvy6EVS7GO
-X-Google-Smtp-Source: APXvYqzJk1+r3WEYAvcSc4G69gUJrY/Lj0o95tRZ6iNfY9UKCSo0STH+khxu8QVrnuz2PewmDfXmvQA2r6UC6596xrU=
-X-Received: by 2002:ac2:410a:: with SMTP id b10mr6357850lfi.175.1560809730743;
- Mon, 17 Jun 2019 15:15:30 -0700 (PDT)
-MIME-Version: 1.0
-References: <53af233d05da5e07d75d122878387288a10276df.1560447640.git.rgb@redhat.com>
- <CAFqZXNvTAj_MhgbUB0kbQwF+gDQTTO5jXPagQfW9qwfHEzc1iQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNvTAj_MhgbUB0kbQwF+gDQTTO5jXPagQfW9qwfHEzc1iQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 17 Jun 2019 18:15:19 -0400
-Message-ID: <CAHC9VhRnwnzPikvBg1GaJU30zhj009zN7N8HmM_kt6v8o+8HBg@mail.gmail.com>
-Subject: Re: [PATCH ghak57 V1] selinux: format all invalid context as untrusted
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Richard Guy Briggs <rgb@redhat.com>
-Cc:     Linux-Audit Mailing List <linux-audit@redhat.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Eric Paris <eparis@redhat.com>, Steve Grubb <sgrubb@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1729715AbfFRPmA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Jun 2019 11:42:00 -0400
+Received: from wind.enjellic.com ([76.10.64.91]:35716 "EHLO wind.enjellic.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729349AbfFRPmA (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 18 Jun 2019 11:42:00 -0400
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id x5IFegEV006176;
+        Tue, 18 Jun 2019 10:40:42 -0500
+Received: (from greg@localhost)
+        by wind.enjellic.com (8.15.2/8.15.2/Submit) id x5IFeepQ006175;
+        Tue, 18 Jun 2019 10:40:40 -0500
+Date:   Tue, 18 Jun 2019 10:40:40 -0500
+From:   "Dr. Greg" <greg@enjellic.com>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     Andy Lutomirski <luto@kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Cedric Xing <cedric.xing@intel.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        linux-sgx@vger.kernel.org,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>, nhorman@redhat.com,
+        pmccallum@redhat.com, "Ayoun, Serge" <serge.ayoun@intel.com>,
+        "Katz-zamir, Shay" <shay.katz-zamir@intel.com>,
+        "Huang, Haitao" <haitao.huang@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Svahn, Kai" <kai.svahn@intel.com>, Borislav Petkov <bp@alien8.de>,
+        Josh Triplett <josh@joshtriplett.org>,
+        "Huang, Kai" <kai.huang@intel.com>,
+        David Rientjes <rientjes@google.com>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
+        Philip Tricca <philip.b.tricca@intel.com>
+Subject: Re: [RFC PATCH v1 2/3] LSM/x86/sgx: Implement SGX specific hooks in SELinux
+Message-ID: <20190618154040.GA4603@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@enjellic.com>
+References: <cover.1560131039.git.cedric.xing@intel.com> <a382d46f66756e13929ca9244479dd9f689c470e.1560131039.git.cedric.xing@intel.com> <b6f099cd-c0eb-d5cf-847d-27a15ac5ceaf@tycho.nsa.gov> <20190611220243.GB3416@linux.intel.com> <8d99d8fb-a921-286a-8cf0-cd522e09b37c@tycho.nsa.gov> <20190614004600.GF18385@linux.intel.com> <20190614153840.GC12191@linux.intel.com> <CALCETrXcOQkvMHdh5DgdQ6JAgzsZCNFVEtnQz-5RbNr4vsadDQ@mail.gmail.com> <20190617164915.GA25085@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190617164915.GA25085@linux.intel.com>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Tue, 18 Jun 2019 10:40:42 -0500 (CDT)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 4:05 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Thu, Jun 13, 2019 at 8:43 PM Richard Guy Briggs <rgb@redhat.com> wrote:
+On Mon, Jun 17, 2019 at 09:49:15AM -0700, Sean Christopherson wrote:
 
-...
+Good morning to everyone.
 
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index cc043bc8fd4c..817576802f7d 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -1588,6 +1588,8 @@ static int compute_sid_handle_invalid_context(
-> >         struct policydb *policydb = &state->ss->policydb;
-> >         char *s = NULL, *t = NULL, *n = NULL;
-> >         u32 slen, tlen, nlen;
-> > +       struct audit_buffer *ab;
-> > +       size_t audit_size;
-> >
-> >         if (context_struct_to_string(policydb, scontext, &s, &slen))
-> >                 goto out;
-> > @@ -1595,12 +1597,22 @@ static int compute_sid_handle_invalid_context(
-> >                 goto out;
-> >         if (context_struct_to_string(policydb, newcontext, &n, &nlen))
-> >                 goto out;
-> > -       audit_log(audit_context(), GFP_ATOMIC, AUDIT_SELINUX_ERR,
-> > -                 "op=security_compute_sid invalid_context=%s"
-> > -                 " scontext=%s"
-> > -                 " tcontext=%s"
-> > -                 " tclass=%s",
-> > -                 n, s, t, sym_name(policydb, SYM_CLASSES, tclass-1));
-> > +       /* We strip a nul only if it is at the end, otherwise the
-> > +        * context contains a nul and we should audit that */
-> > +       if (n) {
-> > +               if (n[nlen - 1] == '\0')
-> > +                       audit_size = nlen - 1;
-> > +               else
-> > +                       audit_size = nlen;
-> > +       } else {
-> > +               audit_size = 0;
-> > +       }
->
-> If you reasonably assume that (n == NULL) implies (nlen == 0), then
-> you can simplify this down to:
->
->     audit_size = nlen;
->     if (nlen && n[nlen - 1] == '\0')
->         audit_size--;
->
-> (or similar), see my recent patch to log *rawcon as untrusted [2].
-> That is IMHO faster to parse. But I see you copied it from
-> selinux_inode_setxattr(), where it is like this...
+> On Sun, Jun 16, 2019 at 03:14:51PM -0700, Andy Lutomirski wrote:
+> > The most significant issue I see is the following.  Consider two
+> > cases. First, an SGX2 enclave that dynamically allocates memory but
+> > doesn't execute code from dynamic memory.  Second, an SGX2 enclave
+> > that *does* execute code from dynamic memory.  In #1, the untrusted
+> > stack needs to decide whether to ALLOW_EXEC when the memory is
+> > allocated, which means that it either needs to assume the worst or it
+> > needs to know at allocation time whether the enclave ever intends to
+> > change the permission to X.
 
-You could likely simplify this even further by getting rid of
-audit_size and just using nlen; there is no reason why we need to
-preserve the original nlen value in this function.  Also, keep in mind
-that if you are hitting that chunk of code, and not jumping to "out"
-due to a context_struct_to_string() error, then you should have a
-properly formatted SELinux label, it just happens to be invalid for
-the currently loaded policy.  Something like the following should be
-safe:
+> I'm just not convinced that folks running enclaves that can't
+> communicate their basic functionality will care one whit about
+> SELinux restrictions, i.e. will happily give EXECMOD even if it's
+> not strictly necessary.
 
-  if (n[nlen - 1] == '\0')
-    nlen--;
-  audit_log_start(...);
-  audit_log_format("... invalid_context=");
-  audit_log_n_untrustedstring(n, nlen);
-  audit_log_format(...);
-  audit_log_end(...);
+Hence the comments in my mail from last Friday.
 
-Also, to be honest, the string you get back from
-context_struct_to_string() is always going to be NUL-terminated so you
-could simplify this further:
+It seems to us that the path forward is to require the enclave
+author/signer to express their intent to implement executable dynamic
+memory, see below.
 
-  audit_log_start(...);
-  audit_log_format("... invalid_context=");
-  /* no need to record the NUL with untrusted strings */
-  audit_log_n_untrustedstring(n, nlen - 1);
-  audit_log_format(...);
-  audit_log_end(...);
+> > I suppose there's a middle ground.  The driver could use model #1 for
+> > driver-filled pages and model #2 for dynamic pages.  I haven't tried
+> > to fully work it out, but I think there would be the ALLOW_READ /
+> > ALLOW_WRITE / ALLOW_EXEC flag for EADD-ed pages but, for EAUG-ed
+> > pages, there would be a different policy.  This might be as simple as
+> > internally having four flags instead of three:
+> > 
+> > ALLOW_READ, ALLOW_WRITE, ALLOW_EXEC: as before
+> > 
+> > ALLOW_EXEC_COND: set implicitly by the driver for EAUG.
+> > 
+> > As in #1, if you try to mmap or protect a page with neither ALLOW_EXEC
+> > variant, it fails (-EACCES, perhaps).  But, if you try to mmap or
+> > mprotect an ALLOW_EXEC_COND page with PROT_EXEC, you ask LSM for
+> > permission.  There is no fancy DIRTY tracking here, since it's
+> > reasonable to just act as though *every* ALLOW_EXEC_COND page is
+> > dirty.  There is no real auditing issue here, since LSM can just log
+> > what permission is missing.
+> > 
+> > Does this seem sensible?  It might give us the best of #1 and #2.
 
-> I'm not sure if it
-> is worth changing this patch / consolidating the style across all
-> places that do this / creating a helper function...
+> It would work and is easy to implement *if* SELinux ties permissions
+> to the process, as the SIGSTRUCT vma/file won't be available at
+> EAUG+mprotect().  I already have a set of patches to that effect,
+> I'll send 'em out in a bit.
 
-If anyone is going to look into that, it should be done in a separate patch.
+The VMA that is crafted from the enclave file is going to exist for
+the life of the enclave.  If the intent to use executable dynamic
+memory is specified when the enclave image is being built, or as a
+component of enclave initialization, the driver is in a position to
+log/deny a request to EAUG+mprotect whenever it occurs.  The sensitive
+criteria would seem to be any request for dynamically allocated memory
+with executable status.
 
--- 
-paul moore
-www.paul-moore.com
+The potential security impact of dynamically executable content is
+something that is dependent on the enclave author rather then the
+context of execution that is requesting pages to be allocated for such
+purposes.  There is going to be an LSM hook to evaluate the SIGSTRUCT
+at the time of EINIT, so all of the necessary information is there to
+make a decision on whether or not to flag the VMA as being allowed to
+support dynamically executable content.
+
+It doesn't seem like an onerous requirement for this information to be
+specified in the enclave metadata.  For optimum security, one could
+perhaps argue that the ability to implement dynamic memory should have
+been a specifiable attribute of the enclave, similar to the debug,
+launch and provisioning attributes.
+
+As we have indicated in the past, once the enclave is initialized with
+permissions for dynamically executable content, the platform is
+completely dependent on the security intentions of the author of the
+enclave.  Given that, the notion of enduring significant LSM
+complexity does not seem to be justified.
+
+Which opens up another set of security implications to discuss but we will let
+those lie for the moment.
+
+Have a good day.
+
+Dr. Greg
+
+As always,
+Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
+4206 N. 19th Ave.           Specializing in information infra-structure
+Fargo, ND  58102            development.
+PH: 701-281-1686            EMAIL: greg@enjellic.com
+------------------------------------------------------------------------------
+"More people are killed every year by pigs than by sharks, which shows
+ you how good we are at evaluating risk."
+                                -- Bruce Schneier
+                                   Beyond Fear
