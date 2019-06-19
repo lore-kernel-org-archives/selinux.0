@@ -2,57 +2,57 @@ Return-Path: <SRS0=qCpE=US=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D12D7C31E5D
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:31:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55050C31E5B
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:36:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A30D92084A
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:31:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 22B1A2084E
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:36:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="dmj52hL3"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Dqwa0VZl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726484AbfFSRbw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 13:31:52 -0400
-Received: from sonic308-13.consmr.mail.gq1.yahoo.com ([98.137.68.37]:40739
-        "EHLO sonic308-13.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726330AbfFSRbv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 13:31:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1560965509; bh=9yZe32GSiXisJrVfbFFg/wa1vZVy2hoNv0lRbiWuUW0=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=dmj52hL3pkYeEYVJI/m7Obf0W3LywOPeSPTI0TQsCJCwqvNcQIaD7KiFfKSnr5OZhn5RlX4+m+/ZTHyg2MQpwOonSIv3mLkeUsmHOmaopDjIaPD0HS1Z6iaK8upB02Ue2t2XMI3pNj02xyY7bY6esa0B0l7h4EqKd47wjiR4nBHJBjlFFBpTP8hDBIm0K5aR9HKSvul7klQqCgVQfMZ1rZCZopQzay77OOrq9yUKQmLDBpGX2f0WBYXldVEDP9mCkpaX5NFRftLpvZATsiEVecVHGkYD1pj8zeBZ3jzRBohIZnC1qwDHwNAxBddEKvUDU9al4nrK8kNeMFA9mId9eg==
-X-YMail-OSG: NjvuWOcVM1nZ68bMN0aa4UPOLmx8J1Y6n6KoGqz64e1ZlymfXDFcUiX0pgIuphd
- brZnyweRC5U68x7OtDXPXlvQetY_Ih_o0g4GqkQuT9.8kYPdGG1Y_AeoMYZGEav1Tg5FWAH5W2_I
- Otnw8NzD.PZZwFvoCOCMft8YFZM33lng5ZILQB.7GE8iXfQzS_tmNVwPZl5OH4kTdW.nU0cQ8n1.
- jcPKTYADUxJ84FDukbEdScXUt_7U0lv3Baa21jvlcXAj.v7nYeFlNyqTH_UI55AkM8_ZV5fY65Ki
- 1Mwq00Tka2fTQ.Mt0NJZj3UhqNm9wxCggMDU9ddi7waufTCsArjtQhMduvfY9M3OB2VlNrVVcSwk
- PJ6TZWEurJZ_tWk3.O09gg2KclPXUHLG_twFnB9v_CaHf2k1IJJk.wR.GaYRTaTtQMygp5T23iWY
- 0s7CBbhwxSAVZxWRCdRr0Z.tyKxIVEULmQyU7jQd9ZqPS.DfIgYIi8KppDhxbCA6YeSKLSjN9UKY
- fdhAeGb1VBROAEXEPD2MdMyFDoeSBUS7PoHFRgwdmJDzv2HmHaPTbnCt7nm6BYTb.5VZM_QJY1st
- ptfrHbZTwbistZdJ30_QujoMMyBk_HFplzsy7trb8MBbIKbuhUmoRQkc7A5e62fU_EmvpCMw0dvM
- DYp2NLwMWOXzsNX.tEgz.dErQ2DYpZKZKAH0lKtZdUkRWlfSZ3ZR0UhVt7Ir5pqfjmWst_QDWPjk
- 1QdTX2UkrQCC7EHW4Aqbn2cd6dE.RrWhAeuQhjhofQSVDmTnov3HPlnTFcmgDrvyp0n1v4RUQO1t
- huQJCU6A0WEFOYteIVZ8Z_A.Dcngr3zQbzbFTLdZhzWinZenNPLjxBkB166fI0l06Btc.1frwWWC
- 8JlXm9uO78fCL1qAePq_jYN5YZjwu_wnLH4O0iDwy9ApT6wkSqCjiLstc3FvU3HKAGUxy4lF96nc
- ynGxFqHAFXUxAINcUA_rw_vrwenj0QGA9kSj4hmPDzYM4LzLik.rBnmE6.8kzOCDN1T5ka2OXHFu
- Px2sqD5IfYlAWRA.9uq9Xxytzg5v9_MT0jBpgy1URDNpLcw7ziW.T7bbMiEipYNpBSFAko3mmCYp
- YbV7KOkiRMGxTEchXnyGRIQNvsscaHpLF.uL1t.gzuUWpJitJ7.u.KD0qByuJaV5adZjjMuMShJD
- q0p86nhLnbuu1xCsQGYx3S1vbI3WKn6fWFZ5L__RvI6uDNPOk0AO8rSbmQ2PrXgxvb0buUP3oY_h
- uePMMZ.iFnh9Rq9SNhrLsz9NzpAKilXqy4w--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.gq1.yahoo.com with HTTP; Wed, 19 Jun 2019 17:31:49 +0000
+        id S1730182AbfFSRgP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 13:36:15 -0400
+Received: from sonic316-12.consmr.mail.gq1.yahoo.com ([98.137.69.36]:42049
+        "EHLO sonic316-12.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726330AbfFSRgP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 13:36:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1560965774; bh=M8JeyNZutDxT4NYdywJFnxRlctNbinC7V9sASj8f8vc=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Dqwa0VZlpOc1YPBxgsIx4McrdfdJb1G/j5W6XmS1tdwjS6RW0FFLIE/EYx8eyyXocpSbf4a9u4dxTB1leqxOYZ4ZQqX/0G3MEIFaS8xAXH4ITPkQEiCmDy3wXXy6kRumQ/H4R4Y7C0DXg2RUkcYMjpRMgU/8iZGzCAd/qAP2zXpahKbU1lKmXv0UTsIHpgZI30dBz19pm4AfwUPWdLp1ibwgHVu+LPFbFsiOOueeSEEk/4B5sYFoZzGgJWeHdmiMziTAhGdlQYFtn3gjgGmFu29LfkVpJmBFY8gxo/GkFqVixh+u7KrMEfZCFq23GTXFvvVKD6Z/Y+7tb/RcZzyXug==
+X-YMail-OSG: CvPTCI0VM1nxtwkQoVCosEyDUqAkOiwyptcI3eAWuJ45QLrWKjsuiGAI8Psv.Jj
+ 4nsquehC0pDoB4XGD5yyZrIiu9Q65_7Qwybf7BZ5tdOHyEII8VbGzaeqtfeYtdmkUk1QGnv4e.JP
+ frr7qs5sD8ZIOkCX9nKg76Bqln8erxQAV8szrBmq__5VkHhXOAmvDKLO_HJWAkIrXLyRmigt9Dz3
+ 7HRSH5qQbXCdXHB7kfIoOXUhdpIT_Yif4DyxdZ08od8b5H5HSoxcXh4O91gMpHiwKY0T.0Arh3Nl
+ cvHhVWUGOxqTHjSIa7fxjr9JvjN_xs9Z.azEENvB29sbR6F55yoP0UlYOtp0AU3LRbq2i92H9fQP
+ YMgABGHLdqVDEApxthDLCJYsPP.ltA9nfir6k8oGFeJG4IWlB3zJvsDbDWqvRAANPWvKUqDdF1Nj
+ utkppsBXubuTuWwORcCfM73SJn0nlrX09oIjXJnoEnrBQv8KLBze95_rNaFB6rzebRD14c9ZRk3Q
+ cKj3XbCJjKT6ztkNKIpO9g4mn49VRc0ifDAFYtVq0OrY4vfceaNPKJFMdTw_EaPXonQAMnW9iTKm
+ vslhMWi24qBjIMkF9FIQprPVHnzHVPuM72cgaE9ob_01GrRj4xfDl4zIhigdi1MBdN2xU9Nr_C25
+ O0IRUJrWi0l8HwPtcpbpj7djcj_m6mJdDzs.7EGoV6BCiSadYKGFQg3aR.GFgElv5UK0gUQADu.v
+ xoIiSlYZs1XzeDSb9M0kfMQnpn0OzTNJAmOWxBxs.aPzT0nYv_DLknX0HHTHghJWymMAtGclVIv.
+ mkFQ1tjO1vT6r.KM0Ivw05fIR7mgrHK_ufrPLmmnj9RyaquwRNw.RRzuGpxexVpX7ZhrknGiY4_X
+ MlKNj4kUf8VKz2yWbYIHmd_jjkbPY96CtSe6Ze17uLJ8Ko9b6jl8_XQgH7q5dnGO5RILgJTVOpLj
+ 2aeogM0s.yyxwgPS.IlfPg2BqltHxMvaQp0RK_cpw1IO2TaFVevi5pAz_VzGF1HtRmTeQhsk6wfl
+ IG29ptq9QbOO1zLUEWbhD_r0lsCmXyF8Uwd2JuItZPtdTEg1JV9nIMd2qhPWi6ooAF8.ZQBseMPC
+ ymxXqrbKTV_bGCWbkzjo6RChRsjl2tDvpSjiH6GdMWmlBJxJqhLJctLspJw4bi51nhDLflCCK09O
+ Kt.rVPZjyU_qtVS5zbIDhbOt61HEcHt2.RINYwY4HDJiqTBAKzLVhYAJ1ixXvUijbovmfAp5KmKe
+ G6z7GXKNXZaBqMZBNJhZ3D6XGSUe85lpItjvgTA--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.gq1.yahoo.com with HTTP; Wed, 19 Jun 2019 17:36:14 +0000
 Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
-          by smtp407.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID e6051dc983f6cf6f1ed8c55383c365f3;
-          Wed, 19 Jun 2019 17:31:46 +0000 (UTC)
-Subject: Re: [PATCH v2 18/25] LSM: Use lsmcontext in
- security_dentry_init_security
+          by smtp412.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 399fd95823ec0b6d81940d5ebc07d0d0;
+          Wed, 19 Jun 2019 17:36:10 +0000 (UTC)
+Subject: Re: [PATCH v2 24/25] Fix slotted list and getpeersec_d
 To:     Kees Cook <keescook@chromium.org>
 Cc:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov, casey@schaufler-ca.com
 References: <20190618230551.7475-1-casey@schaufler-ca.com>
- <20190618230551.7475-19-casey@schaufler-ca.com>
- <201906182238.4EBF8C17DB@keescook>
+ <20190618230551.7475-25-casey@schaufler-ca.com>
+ <201906182250.02BF2E47@keescook>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -99,182 +99,61 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <063644f9-be64-175e-0bf2-cfa1afadc3d7@schaufler-ca.com>
-Date:   Wed, 19 Jun 2019 10:31:45 -0700
+Message-ID: <0261afc4-ec88-788d-8800-c2bc51dcded0@schaufler-ca.com>
+Date:   Wed, 19 Jun 2019 10:36:09 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.1
 MIME-Version: 1.0
-In-Reply-To: <201906182238.4EBF8C17DB@keescook>
+In-Reply-To: <201906182250.02BF2E47@keescook>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/18/2019 10:41 PM, Kees Cook wrote:
-> On Tue, Jun 18, 2019 at 04:05:44PM -0700, Casey Schaufler wrote:
->> Chance the security_dentry_init_security() interface to
-
-Note to self: s/Chance/Change/
-
->> fill an lsmcontext structure instead of a void * data area
->> and a length. The lone caller of this interface is NFS4,
->> which may make copies of the data using its own mechanisms.
->> A rework of the nfs4 code to use the lsmcontext properly
->> is a significant project, so the coward's way out is taken,
->> and the lsmcontext data from security_dentry_init_security()
->> is copied, then released directly.
->>
+On 6/18/2019 10:50 PM, Kees Cook wrote:
+> On Tue, Jun 18, 2019 at 04:05:50PM -0700, Casey Schaufler wrote:
 >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> ---
->>  fs/nfs/nfs4proc.c        | 26 ++++++++++++++++----------
->>  include/linux/security.h |  7 +++----
->>  security/security.c      | 20 ++++++++++++++++----
->>  3 files changed, 35 insertions(+), 18 deletions(-)
->>
->> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
->> index af1c0db29c39..952f805965bb 100644
->> --- a/fs/nfs/nfs4proc.c
->> +++ b/fs/nfs/nfs4proc.c
->> @@ -113,6 +113,7 @@ static inline struct nfs4_label *
->>  nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
->>  	struct iattr *sattr, struct nfs4_label *label)
->>  {
->> +	struct lsmcontext context;
->>  	int err;
->> =20
->>  	if (label =3D=3D NULL)
->> @@ -122,21 +123,26 @@ nfs4_label_init_security(struct inode *dir, stru=
-ct dentry *dentry,
->>  		return NULL;
->> =20
->>  	err =3D security_dentry_init_security(dentry, sattr->ia_mode,
->> -				&dentry->d_name, (void **)&label->label, &label->len);
->> -	if (err =3D=3D 0)
->> -		return label;
->> +					    &dentry->d_name, &context);
->> +
->> +	if (err)
->> +		return NULL;
->> +
->> +	label->label =3D kmemdup(context.context, context.len, GFP_KERNEL);
-> I think this is wrong: for NUL-terminated strings, "context.len" isn't
-> currently including the NUL byte (it's set to strlen()).
+> Was this supposed to be folded into patch 4?
+
+The first hunk, yes. I'll do that in the next revision.
+
+The second hunk I'm still debating whether this is the
+right change, or whether the AppArmor socket_getpeersec_dgram
+stub hook should just be deleted.
+
+> -Kees
 >
-> So, if kmemdup() is used here, it means strlen() isn't correct in the
-> context init helper, it should be using the "size" argument, etc.
-
-Would all be true if the context where being set by lsmcontext_init,
-but it's not. It's coming from the dentry_init_security hook, and
-the one instance of that, selinux_dentry_init_security() sets the
-size to strlen() + 1. The kmemdup() will include the terminating NUL.
-
-I too wish that the hooks and their use where more consistent.
-My sincere hope is that this revision of the infrastructure will
-help that to some extent.
-
->> +	if (label->label =3D=3D NULL)
->> +		label =3D NULL;
->> +	else
->> +		label->len =3D context.len;
->> +
->> +	security_release_secctx(&context);
->> +
->> +	return label;
->> =20
->> -	return NULL;
->>  }
->>  static inline void
->>  nfs4_label_release_security(struct nfs4_label *label)
->>  {
->> -	struct lsmcontext scaff; /* scaffolding */
->> -
->> -	if (label) {
->> -		lsmcontext_init(&scaff, label->label, label->len, 0);
->> -		security_release_secctx(&scaff);
->> -	}
->> +	kfree(label->label);
-> Should label be set to NULL here and len reduced to 0?
-
-It wasn't before, and I'd hate to make too many assumptions
-about what might be fragile in the NFS code.
-
->>  }
->>  static inline u32 *nfs4_bitmask(struct nfs_server *server, struct nfs=
-4_label *label)
->>  {
->> diff --git a/include/linux/security.h b/include/linux/security.h
->> index 1fd87e80656f..92c4960dd57f 100644
->> --- a/include/linux/security.h
->> +++ b/include/linux/security.h
->> @@ -346,8 +346,8 @@ int security_sb_clone_mnt_opts(const struct super_=
-block *oldsb,
->>  int security_add_mnt_opt(const char *option, const char *val,
->>  				int len, void **mnt_opts);
->>  int security_dentry_init_security(struct dentry *dentry, int mode,
->> -					const struct qstr *name, void **ctx,
->> -					u32 *ctxlen);
->> +					const struct qstr *name,
->> +					struct lsmcontext *ctx);
->>  int security_dentry_create_files_as(struct dentry *dentry, int mode,
->>  					struct qstr *name,
->>  					const struct cred *old,
->> @@ -718,8 +718,7 @@ static inline void security_inode_free(struct inod=
-e *inode)
->>  static inline int security_dentry_init_security(struct dentry *dentry=
-,
->>  						 int mode,
->>  						 const struct qstr *name,
->> -						 void **ctx,
->> -						 u32 *ctxlen)
->> +						 struct lsmcontext *ctx)
->>  {
->>  	return -EOPNOTSUPP;
->>  }
+>> ---
+>>  security/security.c | 6 +++++-
+>>  1 file changed, 5 insertions(+), 1 deletion(-)
+>>
 >> diff --git a/security/security.c b/security/security.c
->> index 2ea810fc4a45..23d8049ec0c1 100644
+>> index 5a23ccec7c7b..8aca43ab3e81 100644
 >> --- a/security/security.c
 >> +++ b/security/security.c
->> @@ -453,6 +453,8 @@ void __init security_add_hooks(struct security_hoo=
-k_list *hooks, int count,
->>  		 * secid in the lsmblob structure.
->>  		 */
->>  		if (hooks[i].head =3D=3D &security_hook_heads.audit_rule_match ||
->> +		    hooks[i].head =3D=3D
->> +			&security_hook_heads.dentry_init_security ||
->>  		    hooks[i].head =3D=3D &security_hook_heads.kernel_act_as ||
->>  		    hooks[i].head =3D=3D
+>> @@ -461,6 +461,8 @@ int __init security_add_hooks(struct security_hook_list *hooks, int count,
+>>  		    hooks[i].head == &security_hook_heads.kernel_act_as ||
+>>  		    hooks[i].head ==
 >>  			&security_hook_heads.socket_getpeersec_dgram ||
->> @@ -1030,11 +1032,21 @@ void security_inode_free(struct inode *inode)
->>  }
->> =20
->>  int security_dentry_init_security(struct dentry *dentry, int mode,
->> -					const struct qstr *name, void **ctx,
->> -					u32 *ctxlen)
->> +				  const struct qstr *name,
->> +				  struct lsmcontext *cp)
->>  {
->> -	return call_int_hook(dentry_init_security, -EOPNOTSUPP, dentry, mode=
-,
->> -				name, ctx, ctxlen);
->> +	int *display =3D current->security;
->> +	struct security_hook_list *hp;
->> +
->> +	hlist_for_each_entry(hp, &security_hook_heads.dentry_init_security,
->> +			     list)
->> +		if (*display =3D=3D 0 || *display =3D=3D hp->slot) {
->> +			cp->slot =3D hp->slot;
->> +			return hp->hook.dentry_init_security(dentry, mode,
->> +					name, (void **)&cp->context, &cp->len);
->> +		}
->> +
->> +	return -EOPNOTSUPP;
->>  }
->>  EXPORT_SYMBOL(security_dentry_init_security);
->> =20
->> --=20
+>> +		    hooks[i].head == &security_hook_heads.getprocattr ||
+>> +		    hooks[i].head == &security_hook_heads.setprocattr ||
+>>  		    hooks[i].head == &security_hook_heads.secctx_to_secid ||
+>>  		    hooks[i].head == &security_hook_heads.release_secctx ||
+>>  		    hooks[i].head == &security_hook_heads.ipc_getsecid ||
+>> @@ -2269,7 +2271,9 @@ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
+>>  			     list) {
+>>  		rc = hp->hook.socket_getpeersec_dgram(sock, skb,
+>>  						      &l->secid[hp->slot]);
+>> -		if (rc != 0)
+>> +		if (rc == -ENOPROTOOPT)
+>> +			rc = 0;
+>> +		else if (rc != 0)
+>>  			break;
+>>  	}
+>>  	return rc;
+>> -- 
 >> 2.20.1
 >>
-
