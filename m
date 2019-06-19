@@ -2,55 +2,57 @@ Return-Path: <SRS0=qCpE=US=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D0C7C46477
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:48:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71938C31E5B
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:00:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3BD5321537
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:48:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E22321874
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:00:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="uAw3s74X"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Ji+YJtJx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727222AbfFSQsj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 12:48:39 -0400
-Received: from sonic311-30.consmr.mail.gq1.yahoo.com ([98.137.65.211]:34867
+        id S1730068AbfFSRA3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 13:00:29 -0400
+Received: from sonic311-30.consmr.mail.gq1.yahoo.com ([98.137.65.211]:43776
         "EHLO sonic311-30.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726143AbfFSQsj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 12:48:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1560962918; bh=jEicFefw+jMYxSDKsFAJ+8GHwDeG2pVC1Ves2U24euA=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=uAw3s74XWYFWb5lJOMKkIYrc6k4amPib6tFHqiFgpMT8IuWszx79Yluriq8/xYgF8zq+SSBZa+XBgBE2HPSjGufU2mvq8aEFd5wMWux0JUbpSdX1QIRid/uzvw+ifU9wjP5dtUyBJOPii6BTk8UkyvCkZ1CSHZdpyiUD3R8WggnhlUQfoqphfLQRe/ljX2l1J5pWjSzGauZthJloLHiHBT+Ib21c0MHdQiRq5DoeD+ib32CHbJqmOI2EfEgknrsRHPweCKAY9RI0agF0rpASNRnSQa8l3GPpBxa8AenZ70TaBgbBrkxur/rnNfzvLMqLlOjF4ETSWO8MkLbjoD2Mrw==
-X-YMail-OSG: 779c3TcVM1mpQCS6ywDhzrgr74S8uruH6hew6OEIg.rfKLC.odwfeD.watGjR4l
- 2xntg56TvlgVRx1IBSaxsAZKDLdRdy4BRltw9eBNCUNQRif1q4ZPyB7F8NyM_PgM9EKaYtYRv90a
- afHmYTYUedXf8vnYjdyFgONyOT53USVwd3QXXSA0V83GBcXqoO56lyaNednwvsVySpWI1dC0Smiw
- TZjxxoGGZSHpDQIbOZm8X_xbKhJLvuhMbPqArDcUCJf4srPa2b4HTMtu_Xw996Hpk70F43r4EaVR
- 80f.Dfp9EKvmKM46Tv7Z7BPC3Et64f1iZyZwcrNnDzcbKnXWrSfwuTdNzKpvN_0GhrCFc9kZsT3E
- t5UPZcVb1gEeKgKkMcATtzyHw8ySIG44qTGyBaXFkunj33T5aKuDk.7bF7xNhTnUxVSCPqN9aPZk
- rW6azJUunRxgF175IsVFAt.MZTdKun20q3gdPi.KHMgHmHIPhKZOlr91TnSPJhxJl3LP8LtkxICz
- uVXdx50eDhttSqs0io_5C7WI4_41GhVBPbCz2gONzuptUavujm8ifN2BQBtm4qpa574Vk5I20wkQ
- IgyQ1PGeIfEstK6usiEeLr13t1JJZG_GeGbXjH05UVyoqCpVtSK6AS3Zyag7htnWl.XOvQHdQunP
- 8aGumDYgEKjcpde9hEjKBCcDJyywds3jjebSqo11s9lS4p9vWFxwXZ6xQak41Q0Uh40fMnnUdx0_
- yewJy981tRnuDNzIBbx0tjEip2I91.c3uBq4n_mU7KbnbA0QJ04EIYMt8dQwjFNhWEt0425QOK_b
- N3q79oFXTbu8HKX.8kq2v33hHgjRysgzLapiOgwjCD.yTyn5Um5MK7nWtKhcvaSh42AvGQImVP.B
- TBqr0axNHmLfr69qcqRyfElqYyxvHxdSJZp9UCOp.5t3Oz_4cj_btduWMbgoNJAOO5n10s7.DMlX
- 9VEfhNKc8e7Ncqz4rc7Nz.xyl2Hs33uZ5pTPrl25RDouAhQd9sh0zG4H3U2.tC4HvTATIXXrIoY.
- LFSTx4Bo.d2ZziVR3g1TQeUfYN4uh0S3zPGHCuHwJEKiIP2BJi.nGFlonX.wNx.8evlmXinebmJl
- 4ue1h7DfijMzNOhXRAsw5H1Ph2yFLV2GOychyP0XE6wsW4S5jr9qSAaWdAGb4uiaL0Iu.86TioKY
- xqZvC1rYwyWXXz7cHR3D9WHSYrIH7TYHlCjlT06M4nwhOTUiMYApiwaxyGOcIkG7utvr6vU.FL1z
- oNswoD9WJHV_18Bd6qw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.gq1.yahoo.com with HTTP; Wed, 19 Jun 2019 16:48:38 +0000
+        by vger.kernel.org with ESMTP id S1726689AbfFSRA3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 13:00:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1560963626; bh=Rj5mnQVSFoysum3YjTA5P/5VI78gd7vlqTouOFJ2HOw=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Ji+YJtJxfyPsznZNQCGE0oNeOJoUO5VzUYIcLhKFchPYAz0vgPk7Rg88SlJUK4ZD64iCBmTP47ZRMo6qqMCcRBD1J/4xDl0lHlMx/BRFK00weBTiZI6BordgW9haiuWZ4HndF4k0dKele9LSNQ1/J8XEX4Pyc1gefcDydSYi+KuITYBH5uJC4gRqa9qMQN8YrOE9Jc29h1ZbEfPT4bmyw+ko9Tvgcues90GCSeI+iSYiXAmctZmeh1KDcnz0xaDi9HYWR7QaQSsauFNV9nY2I/Li6FXftr7VR3GJjZclfKpjqWRetbyWr4TBXUlrEtPt6KuCjg2noBr0UJaHiM0iFA==
+X-YMail-OSG: hMmGOQ4VM1lX8iRRBvcvtOkQb_QLMA8M_tlUgBRq0oDcDlhD6BoLqtjHNhE3bET
+ TAE.8zCtyZJ.tFhY9jI73WtxG3wGItGpKVDDITqPpKnyVYbDDaF1NvYUDuY_EJIcP_kVGxv57A9r
+ uWRmYMfupfVQK4kz8mqcCTmoyw38GTOHcJSoIsxBGECUN_0UFPxqQ9Clfd_uzke1KAaMwQem2YkK
+ Z5j5RgEqJpIZqT3S9JkSkh6B2ci3fLXpZWhjQZH1bUv0Za43zM5.jL3knaJZbyzBSVEyMYkynFWa
+ 3hC.nNTiGiHGpZHFr.0tDZJdvg9ramJwSbzRbBR9qGkPp7uesLnZo5gXbRh.v8r6Ci6s7MbmEj9i
+ t2eQKzRHBAR3Aa7hFTEmtpF3o2M2V0nZxGtMdN9oT75CiSM0tI3PS54Hfkm9dps0E5R3i2qT6Yau
+ jmSkshn1tU97NLjdfvADZP3Aya7gBpFAazQtXw7r0ng7G.ZpsLJRnWfOi_SNTEXRzotah8YnN068
+ YTiXzy9ZKpZF4D7qjgHVwGVExhn89lx32jpMppY3vmMNU1qb8zpQHs28yhFM5hTdIpn4Yj3C2UJp
+ DVGjivdWq3XGURI6kjSbxfL59HqaeA.2JUwoheZj1h9Y7B.C93dRuy2bDzsoO3of6DGvmFdu7qzd
+ 5lnfa.aR1d5VYzc.zQT.28KaBBBtMNvo6jsLix5uyCidmMvkhisbBBczkA0lr2akGxkt81reEc6X
+ dYrr9xtPRB6xCY11h5w1eIZ6ZCqkTloMoGq4Vgsv_knapwdv7AQtR2.pXLWkfsyOot.huePrf29O
+ 9Q3yNbK63lqyRxH.2BnQcH4H_bQ7L5WdNJrihjloJIlcGHRhrQ9aGvuosyM1jGFOoYzK5w5Ccr7b
+ .gbHq6oqu6iulU8RHnMy6qcwfD6yYbw6Sj73wxVQ9b3xXdHizp0WRnIKNZ..4iUsm_TpIjm29gfq
+ C.QULcjsqS2JDJmVD2QrxPHIdQDqsDuR8Q7j1RObKemMD.Eops2Gi5rjqGDlhnEWUW0Ivb.k1Jwo
+ QVixdcb6uOQf6wmPUuhzAsyV7MyPQEiek7vyCfWovSS_OzPO5ZXCktouRYlp9.JJlgVTf3aSsdHT
+ Fnx2FY9E4CiV.bZuDWQFZeqq2WfyUeddRA0QXgxkyD.Ne8F8h2ipsTXMx6uIEPTzH1asig0tpGtG
+ qLsaMjcjGCiCtGU86eD3uFkBlxXnDRmS010hvkrAgBb8ERl6aiFPHKeMBURJvAcKqMITEQIHe2ZK
+ p0lXZqgNkFpNR_0vidt.2iGqiSk3D8khQc3A-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.gq1.yahoo.com with HTTP; Wed, 19 Jun 2019 17:00:26 +0000
 Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
-          by smtp406.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID edb024cc2aa7a1378efc583d75a85e93;
-          Wed, 19 Jun 2019 16:48:36 +0000 (UTC)
-Subject: Re: [PATCH v2 00/25] LSM: Module stacking for AppArmor
+          by smtp431.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 2e2cec29b67b10fdc4f09eb213618ef2;
+          Wed, 19 Jun 2019 17:00:25 +0000 (UTC)
+Subject: Re: [PATCH v2 15/25] LSM: Specify which LSM to display
 To:     Kees Cook <keescook@chromium.org>
 Cc:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov, casey@schaufler-ca.com
 References: <20190618230551.7475-1-casey@schaufler-ca.com>
- <201906182214.6DC4C1DB9@keescook>
+ <20190618230551.7475-16-casey@schaufler-ca.com>
+ <201906182221.8E3938600D@keescook>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -97,41 +99,294 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <cd52f07d-610e-3bcc-0059-929447e10544@schaufler-ca.com>
-Date:   Wed, 19 Jun 2019 09:48:35 -0700
+Message-ID: <ea943c29-858e-8d8c-eb6e-d524fb1b5862@schaufler-ca.com>
+Date:   Wed, 19 Jun 2019 10:00:24 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.1
 MIME-Version: 1.0
-In-Reply-To: <201906182214.6DC4C1DB9@keescook>
+In-Reply-To: <201906182221.8E3938600D@keescook>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/18/2019 10:21 PM, Kees Cook wrote:
-> On Tue, Jun 18, 2019 at 04:05:26PM -0700, Casey Schaufler wrote:
->> Patches 0004-0014 replace system use of a "secid" with
->> a structure "lsmblob" containing information from the
->> security modules to be held and reused later. At this
->> point lsmblob contains an array of u32 secids, one "slot"
->> for each of the security modules compiled into the
->> kernel that used secids. A "slot" is allocated when
->> a security module registers a hook for one of the interfaces
->> that uses a secid or a security context. The infrastructure
->> is changed to use the slot number to pass the correct
->> secid to or from the security module hooks.
-> I found 14/25 in your git tree. Very satisfying to see all the
-> scaffolding vanish for process_measurement() :)
+On 6/18/2019 10:28 PM, Kees Cook wrote:
+> On Tue, Jun 18, 2019 at 04:05:41PM -0700, Casey Schaufler wrote:
+>> Create a new entry "display" in /proc/.../attr for controlling
+>> which LSM security information is displayed for a process.
+>> The name of an active LSM that supplies hooks for human readable
+>> data may be written to "display" to set the value. The name of
+>> the LSM currently in use can be read from "display".
+>> At this point there can only be one LSM capable of display
+>> active.
+>>
+>> This affects /proc/.../attr/current and SO_PEERSEC.
+>>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>> ---
+>>  fs/proc/base.c      |   1 +
+>>  security/security.c | 108 +++++++++++++++++++++++++++++++++++--------=
+-
+>>  2 files changed, 88 insertions(+), 21 deletions(-)
+>>
+>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+>> index ddef482f1334..7bf70e041315 100644
+>> --- a/fs/proc/base.c
+>> +++ b/fs/proc/base.c
+>> @@ -2618,6 +2618,7 @@ static const struct pid_entry attr_dir_stuff[] =3D=
+ {
+>>  	ATTR(NULL, "fscreate",		0666),
+>>  	ATTR(NULL, "keycreate",		0666),
+>>  	ATTR(NULL, "sockcreate",	0666),
+>> +	ATTR(NULL, "display",		0666),
+>>  #ifdef CONFIG_SECURITY_SMACK
+>>  	DIR("smack",			0555,
+>>  	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
+>> diff --git a/security/security.c b/security/security.c
+>> index 46f6cf21d33c..9cfdc664239e 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> @@ -46,7 +46,9 @@ static struct kmem_cache *lsm_file_cache;
+>>  static struct kmem_cache *lsm_inode_cache;
+>> =20
+>>  char *lsm_names;
+>> -static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init;
+>> +static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init =3D {
+>> +	.lbs_task =3D sizeof(int),
+>> +};
+> This needs some comments. I know what's happening here only because I
+> understand very well how the blob sizing works. :) Perhaps:
 >
-> I like this progression in 4-14; I find it much much easier to review.
-> My only complaint is the variable names. I think I'd prefer "blob" over
-> "le" or "l", which are both contain very little information about what
-> they are.
+> .lbs_task =3D sizeof(int), /* storage for selected "display" LSM */
 
-I know what they are! OK, I get it. Using "blob" would make it
-more obvious. It's an relatively easy change, so I'll incorporate
-it going forward.
+Point.
+
+>> =20
+>>  /* Boot-time LSM user choice */
+>>  static __initdata const char *chosen_lsm_order;
+>> @@ -578,6 +580,8 @@ int lsm_inode_alloc(struct inode *inode)
+>>   */
+>>  static int lsm_task_alloc(struct task_struct *task)
+>>  {
+>> +	int *display;
+>> +
+>>  	if (blob_sizes.lbs_task =3D=3D 0) {
+>>  		task->security =3D NULL;
+>>  		return 0;
+>> @@ -586,6 +590,10 @@ static int lsm_task_alloc(struct task_struct *tas=
+k)
+>>  	task->security =3D kzalloc(blob_sizes.lbs_task, GFP_KERNEL);
+>>  	if (task->security =3D=3D NULL)
+>>  		return -ENOMEM;
+>> +
+>> +	display =3D task->security;
+>> +	*display =3D LSMDATA_INVALID;
+> Similarly I think a comment here would be nice. "Initialize currently
+> selected "display" LSM to unselected" or something.
+
+Point.
+
+> Also: "int" is okay here for now, but if the LSM infrastructure wants t=
+o
+> do more like this we'll want to convert to a struct of some kind at the=
+
+> start of the lbs_task.
+
+We could go whole hog and include a lsm_info pointer (once
+the slot number moves there) instead of an int, but I think
+it best to leave it as is for now. I don't see a case where
+more information would be required, and it would not be a
+hard change to make later.
+
+>> +
+>>  	return 0;
+>>  }
+>> =20
+>> @@ -1574,14 +1582,27 @@ int security_file_open(struct file *file)
+>> =20
+>>  int security_task_alloc(struct task_struct *task, unsigned long clone=
+_flags)
+>>  {
+>> +	int *odisplay =3D current->security;
+>> +	int *ndisplay;
+>>  	int rc =3D lsm_task_alloc(task);
+>> =20
+>> -	if (rc)
+>> +	if (unlikely(rc))
+>>  		return rc;
+>> +
+>>  	rc =3D call_int_hook(task_alloc, 0, task, clone_flags);
+>> -	if (unlikely(rc))
+>> +	if (unlikely(rc)) {
+>>  		security_task_free(task);
+>> -	return rc;
+>> +		return rc;
+>> +	}
+>> +
+>> +	ndisplay =3D task->security;
+>> +	if (ndisplay =3D=3D NULL)
+>> +		return 0;
+>> +
+>> +	if (odisplay !=3D NULL)
+> Perhaps merge these into "if (ndisplay && odisplay)" to drop the early
+> return 0 check?
+
+Sure. The logic took a few iterations before it got to
+what you see here.
+
+>> +		*ndisplay =3D *odisplay;
+>> +
+>> +	return 0;
+>>  }
+>> =20
+>>  void security_task_free(struct task_struct *task)
+>> @@ -1967,10 +1988,28 @@ int security_getprocattr(struct task_struct *p=
+, const char *lsm, char *name,
+>>  				char **value)
+>>  {
+>>  	struct security_hook_list *hp;
+>> +	int *display =3D current->security;
+>> +
+>> +	if (!strcmp(name, "display")) {
+>> +		hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx,
+>> +				     list) {
+>> +			if (*display =3D=3D LSMDATA_INVALID ||
+>> +			    hp->slot =3D=3D *display) {
+>> +				*value =3D kstrdup(hp->lsm, GFP_KERNEL);
+>> +				if (*value)
+>> +					return strlen(hp->lsm);
+>> +				return -ENOMEM;
+>> +			}
+>> +		}
+>> +		return -EINVAL;
+>> +	}
+>> =20
+>>  	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+>>  		if (lsm !=3D NULL && strcmp(lsm, hp->lsm))
+>>  			continue;
+>> +		if (lsm =3D=3D NULL && *display !=3D LSMDATA_INVALID &&
+>> +		    *display !=3D hp->slot)
+>> +			continue;
+>>  		return hp->hook.getprocattr(p, name, value);
+>>  	}
+>>  	return -EINVAL;
+>> @@ -1980,10 +2019,27 @@ int security_setprocattr(const char *lsm, cons=
+t char *name, void *value,
+>>  			 size_t size)
+>>  {
+>>  	struct security_hook_list *hp;
+>> +	int *display =3D current->security;
+>> +	int len;
+>> +
+>> +	if (!strcmp(name, "display")) {
+>> +		hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx,
+>> +				     list) {
+>> +			len =3D strlen(hp->lsm);
+>> +			if (size >=3D len && !strncmp(value, hp->lsm, len)) {
+>> +				*display =3D hp->slot;
+>> +				return size;
+>> +			}
+>> +		}
+>> +		return -EINVAL;
+>> +	}
+>> =20
+>>  	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
+>>  		if (lsm !=3D NULL && strcmp(lsm, hp->lsm))
+>>  			continue;
+>> +		if (lsm =3D=3D NULL && *display !=3D LSMDATA_INVALID &&
+>> +		    *display !=3D hp->slot)
+>> +			continue;
+>>  		return hp->hook.setprocattr(name, value, size);
+>>  	}
+>>  	return -EINVAL;
+>> @@ -2002,38 +2058,41 @@ EXPORT_SYMBOL(security_ismaclabel);
+>> =20
+>>  int security_secid_to_secctx(struct lsmblob *l, char **secdata, u32 *=
+seclen)
+>>  {
+>> +	int *display =3D current->security;
+>>  	struct security_hook_list *hp;
+>> -	int rc;
+>> =20
+>> -	hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx, list)=
+ {
+>> -		rc =3D hp->hook.secid_to_secctx(l->secid[hp->slot],
+>> -					      secdata, seclen);
+>> -		if (rc !=3D 0)
+>> -			return rc;
+>> -	}
+>> +	hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx, list)=
+
+>> +		if (*display =3D=3D LSMDATA_INVALID || *display =3D=3D hp->slot)
+>> +			return hp->hook.secid_to_secctx(l->secid[hp->slot],
+>> +							secdata, seclen);
+>>  	return 0;
+>>  }
+>>  EXPORT_SYMBOL(security_secid_to_secctx);
+>> =20
+>>  int security_secctx_to_secid(const char *secdata, u32 seclen, struct =
+lsmblob *l)
+>>  {
+>> +	int *display =3D current->security;
+>>  	struct security_hook_list *hp;
+>> -	int rc;
+>> =20
+>>  	lsmblob_init(l, 0);
+>> -	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list)=
+ {
+>> -		rc =3D hp->hook.secctx_to_secid(secdata, seclen,
+>> -					      &l->secid[hp->slot]);
+>> -		if (rc !=3D 0)
+>> -			return rc;
+>> -	}
+>> +	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list)=
+
+>> +		if (*display =3D=3D LSMDATA_INVALID || *display =3D=3D hp->slot)
+>> +			return hp->hook.secctx_to_secid(secdata, seclen,
+>> +							&l->secid[hp->slot]);
+>>  	return 0;
+>>  }
+>>  EXPORT_SYMBOL(security_secctx_to_secid);
+>> =20
+>>  void security_release_secctx(char *secdata, u32 seclen)
+>>  {
+>> -	call_void_hook(release_secctx, secdata, seclen);
+>> +	int *display =3D current->security;
+>> +	struct security_hook_list *hp;
+>> +
+>> +	hlist_for_each_entry(hp, &security_hook_heads.release_secctx, list)
+>> +		if (*display =3D=3D LSMDATA_INVALID || *display =3D=3D hp->slot) {
+>> +			hp->hook.release_secctx(secdata, seclen);
+>> +			return;
+>> +		}
+>>  }
+>>  EXPORT_SYMBOL(security_release_secctx);
+>> =20
+>> @@ -2158,8 +2217,15 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
+>>  int security_socket_getpeersec_stream(struct socket *sock, char __use=
+r *optval,
+>>  				      int __user *optlen, unsigned len)
+>>  {
+>> -	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
+>> -				optval, optlen, len);
+>> +	int *display =3D current->security;
+>> +	struct security_hook_list *hp;
+>> +
+>> +	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_stre=
+am,
+>> +			     list)
+>> +		if (*display =3D=3D LSMDATA_INVALID || *display =3D=3D hp->slot)
+>> +			return hp->hook.socket_getpeersec_stream(sock, optval,
+>> +								 optlen, len);
+>> +	return -ENOPROTOOPT;
+>>  }
+>> =20
+>>  int security_socket_getpeersec_dgram(struct socket *sock, struct sk_b=
+uff *skb,
+>> --=20
+>> 2.20.1
+>>
 
