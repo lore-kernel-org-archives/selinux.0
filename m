@@ -7,262 +7,270 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB70CC31E5D
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 04:52:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DFF7C31E49
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 04:56:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 77BB120665
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 04:52:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 159E8208CB
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 04:55:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="FtU5iw20"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="MCF+h9cv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725866AbfFSEwr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 00:52:47 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:42900 "EHLO
+        id S1725893AbfFSEz7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 00:55:59 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:38746 "EHLO
         mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725562AbfFSEwq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 00:52:46 -0400
-Received: by mail-pg1-f194.google.com with SMTP id l19so8907465pgh.9
-        for <selinux@vger.kernel.org>; Tue, 18 Jun 2019 21:52:46 -0700 (PDT)
+        with ESMTP id S1725854AbfFSEz7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 00:55:59 -0400
+Received: by mail-pg1-f194.google.com with SMTP id v11so8930236pgl.5
+        for <selinux@vger.kernel.org>; Tue, 18 Jun 2019 21:55:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=rKPJ7ijGdRZb06MoKRI6dDpOftMihipickVS2OCnxls=;
-        b=FtU5iw20SgvykT2n7xhniSMvoSJMMyO5Zyz7ibfZaOuvdtwkn2qrZu9JZ9ivAav82Q
-         JiQYdy43uXl0grHkiMQ0eJDtrC+573xjtX0Md5UJ/zjTXK6DnxkjkjG7CBZ94OvsA2ft
-         aXRCtuf8JO+b4FFYOLGrGUpSx6T5aB+DJiYmM=
+        bh=NegLd6433/LPisiJT0Sc8QezeDICKIf/eBu+jht3WcI=;
+        b=MCF+h9cvW407LShSLOGTc95Z0Vt8lE+jJWo//UvBhbIFqGra/palm9KAk1gtXKNqny
+         Qs8dXghd0UEZD3XAqdL7PmfVhlUfSpsVeGfrjk9GPY8Qa2UwVzMfbYNgyvBkMxiOzoXN
+         JjH/sl/vQaGrAsIY9UyVopI5vYwPz61wu83lc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=rKPJ7ijGdRZb06MoKRI6dDpOftMihipickVS2OCnxls=;
-        b=W+kQviYBBWREv5Ic3Ki9s8G+Uq23OAjdiHi9Pz1nitC2EuP0cUY8d25dloFxM4xtY2
-         CHjUtp0uRsh3Tw4FNKMHVpQGOmbhPVHdb3KYU05LiEYV4jZz05n+yuHC6sz21J9gRFvO
-         zt63oNOXH5DuQZEXznVFYkK+gCY8vTJxTs/fpDHApRgzHvFRF4LeLX8K3w/qWSBIDn9e
-         M3epD7WpJtutCBmZebOzxYkMfGmBwGYVFGEWOIEvq2A098wvo5hCgIJTrSK6wGYo6F86
-         A2lWNMPxxHFoMCgpjW4far87MbYyv9RtRcb6r4xyCmgiUHSPehpVP1TVl89FDJj/+xvF
-         EJ/Q==
-X-Gm-Message-State: APjAAAVW3En5JbUM6eSk0CCsh1zsFii9VxSBoDPfg0tDWOa17/PAkfHV
-        X9UWB9UKqCU5SAQrJDD/z3jYzA==
-X-Google-Smtp-Source: APXvYqyMYwyec5A4rUjQwUC6R/qw1I5c/rrjjgzVdL+sfcIjwVYSvgVzwMKZ4V62H2hogk9goWf3lg==
-X-Received: by 2002:a63:c5:: with SMTP id 188mr6025556pga.108.1560919965952;
-        Tue, 18 Jun 2019 21:52:45 -0700 (PDT)
+        bh=NegLd6433/LPisiJT0Sc8QezeDICKIf/eBu+jht3WcI=;
+        b=TRtkk8UtM8dDAn503OvuYNFxLnBhtC4MjKp/qgv32+VD5r1jbUkPcF4sYY1s6mgHjv
+         eqqJTTDKC0f/ZNN9JcJCcbjL+Mjltx5jhd5lXG7qoZOaTsE/GybyiwmJDYh2DVqQy7HV
+         9J1m0eXyS2ALAyx38TcXJtFgZxABhUuk3I5LxWimcFTbyDzQ4dnpNDFTG5e4WgwIVlK4
+         TPEYrQmXCei1Eg8VE93r7ImURHrs849smM/c67Rw5+r0Ona4EP4oaDtocA5iuVbtlX3R
+         K+0Lv1wd8DrevPlEDFVgT3T45QLqcULU/AJGaa82ry9NIejxazG3S6oueqax8mZ9Z/vq
+         7FEQ==
+X-Gm-Message-State: APjAAAV3blq5oeuXBbG//x8+yrKzilaXB5CA/oqCHZLHK+Gg8R1YCaF3
+        0FZl8WkV9IeZSSD2tlxMMZN5EA==
+X-Google-Smtp-Source: APXvYqz2+mb0oa6iXiz8mFFpG2gmtrRSaSfenOCdZ6xk/xBJDtZxoJWmH2hSdRKKV5nZGEY3cI2xCg==
+X-Received: by 2002:a65:418d:: with SMTP id a13mr6070919pgq.332.1560920158635;
+        Tue, 18 Jun 2019 21:55:58 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id f10sm14502545pgq.73.2019.06.18.21.52.44
+        by smtp.gmail.com with ESMTPSA id e22sm16913923pgb.9.2019.06.18.21.55.57
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 18 Jun 2019 21:52:45 -0700 (PDT)
-Date:   Tue, 18 Jun 2019 21:52:44 -0700
+        Tue, 18 Jun 2019 21:55:57 -0700 (PDT)
+Date:   Tue, 18 Jun 2019 21:55:57 -0700
 From:   Kees Cook <keescook@chromium.org>
 To:     Casey Schaufler <casey@schaufler-ca.com>
 Cc:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: Re: [PATCH v2 04/25] LSM: Create and manage the lsmblob data
- structure.
-Message-ID: <201906182147.0A592CBB62@keescook>
+Subject: Re: [PATCH v2 05/25] Use lsmblob in security_audit_rule_match
+Message-ID: <201906182154.E9766F5@keescook>
 References: <20190618230551.7475-1-casey@schaufler-ca.com>
- <20190618230551.7475-5-casey@schaufler-ca.com>
+ <20190618230551.7475-6-casey@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190618230551.7475-5-casey@schaufler-ca.com>
+In-Reply-To: <20190618230551.7475-6-casey@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 18, 2019 at 04:05:30PM -0700, Casey Schaufler wrote:
-> When more than one security module is exporting data to
-> audit and networking sub-systems a single 32 bit integer
-> is no longer sufficient to represent the data. Add a
-> structure to be used instead.
+On Tue, Jun 18, 2019 at 04:05:31PM -0700, Casey Schaufler wrote:
+> Change the secid parameter of security_audit_rule_match
+> to a lsmblob structure pointer. Pass the entry from the
+> lsmblob structure for the approprite slot to the LSM hook.
 > 
-> The lsmblob structure is currently an array of
-> u32 "secids". There is an entry for each of the
-> security modules built into the system that would
-> use secids if active. The system assigns the module
-> a "slot" when it registers hooks. If modules are
-> compiled in but not registered there will be unused
-> slots.
+> Change the users of security_audit_rule_match to use the
+> lsmblob instead of a u32. In some cases this requires a
+> temporary conversion using lsmblob_init() that will go
+> away when other interfaces get converted.
+
+I like this much better with the LSM-infrastructure "slot" logic.
+
+I do think it's be easier to read if the lsmblob instances were called
+"blob" instead of "le" and "l"...
+
+-Kees
+
 > 
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  include/linux/lsm_hooks.h |  1 +
->  include/linux/security.h  | 62 +++++++++++++++++++++++++++++++++++++++
->  security/security.c       | 31 ++++++++++++++++++++
->  3 files changed, 94 insertions(+)
+>  include/linux/security.h            |  7 ++++---
+>  kernel/auditfilter.c                |  4 +++-
+>  kernel/auditsc.c                    | 13 +++++++++----
+>  security/integrity/ima/ima.h        |  4 ++--
+>  security/integrity/ima/ima_policy.c |  7 +++++--
+>  security/security.c                 | 14 ++++++++++++--
+>  6 files changed, 35 insertions(+), 14 deletions(-)
 > 
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 3fe39abccc8f..4d1ddf1a2aa6 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -2038,6 +2038,7 @@ struct security_hook_list {
->  	struct hlist_head		*head;
->  	union security_list_options	hook;
->  	char				*lsm;
-> +	int				slot;
->  } __randomize_layout;
-
-Hm, this feels redundant (as does the existing "char *lsm") now that we
-have lsm_info. The place for assigned-at-init value is blob_sizes, which
-hangs off of lsm_info (as does the LSM char *)...
-
->  
->  /*
 > diff --git a/include/linux/security.h b/include/linux/security.h
-> index 49f2685324b0..28d074866895 100644
+> index 28d074866895..067fabc63e51 100644
 > --- a/include/linux/security.h
 > +++ b/include/linux/security.h
-> @@ -76,6 +76,68 @@ enum lsm_event {
->  	LSM_POLICY_CHANGE,
->  };
+> @@ -1757,7 +1757,8 @@ static inline int security_key_getsecurity(struct key *key, char **_buffer)
+>  #ifdef CONFIG_SECURITY
+>  int security_audit_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule);
+>  int security_audit_rule_known(struct audit_krule *krule);
+> -int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule);
+> +int security_audit_rule_match(struct lsmblob *l, u32 field, u32 op,
+> +			      void *lsmrule);
+>  void security_audit_rule_free(void *lsmrule);
 >  
-> +/*
-> + * Data exported by the security modules
-> + */
-> +#define LSMDATA_ENTRIES ( \
-
-LSMBLOB_ENTRIES?
-
-> +	(IS_ENABLED(CONFIG_SECURITY_SELINUX) ? 1 : 0) + \
-> +	(IS_ENABLED(CONFIG_SECURITY_SMACK) ? 1 : 0) + \
-> +	(IS_ENABLED(CONFIG_SECURITY_APPARMOR) ? 1 : 0) )
-> +
-> +struct lsmblob {
-> +	u32     secid[LSMDATA_ENTRIES];
-> +};
-
-Cool; I like this auto-sizing.
-
-> +
-> +#define LSMDATA_INVALID	-1
-> +
-> +/**
-> + * lsmblob_init - initialize an lsmblob structure.
-> + * @l: Pointer to the data to initialize
-> + * @secid: The initial secid value
-> + *
-> + * Set all secid for all modules to the specified value.
-> + */
-> +static inline void lsmblob_init(struct lsmblob *l, u32 secid)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < LSMDATA_ENTRIES; i++)
-> +		l->secid[i] = secid;
-
-For all these LSMDATA_ENTRIES, I prefer ARRAY_SIZE(l->secid), but
-*shrug*
-
-> +}
-> +
-> +/**
-> + * lsmblob_is_set - report if there is an value in the lsmblob
-> + * @l: Pointer to the exported LSM data
-> + *
-> + * Returns true if there is a secid set, false otherwise
-> + */
-> +static inline bool lsmblob_is_set(struct lsmblob *l)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < LSMDATA_ENTRIES; i++)
-> +		if (l->secid[i] != 0)
-> +			return true;
-> +	return false;
-> +}
-> +
-> +/**
-> + * lsmblob_equal - report if the two lsmblob's are equal
-> + * @l: Pointer to one LSM data
-> + * @m: Pointer to the other LSM data
-> + *
-> + * Returns true if all entries in the two are equal, false otherwise
-> + */
-> +static inline bool lsmblob_equal(struct lsmblob *l, struct lsmblob *m)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < LSMDATA_ENTRIES; i++)
-> +		if (l->secid[i] != m->secid[i])
-> +			return false;
-> +	return true;
-> +}
-> +
->  /* These functions are in security/commoncap.c */
->  extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
->  		       int cap, unsigned int opts);
-> diff --git a/security/security.c b/security/security.c
-> index d05f00a40e82..5aa3c052d702 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -317,6 +317,7 @@ static void __init ordered_lsm_init(void)
->  	init_debug("sock blob size       = %d\n", blob_sizes.lbs_sock);
->  	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
->  	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
-> +	init_debug("lsmblob size         = %lu\n", sizeof(struct lsmblob));
->  
->  	/*
->  	 * Create any kmem_caches needed for blobs
-> @@ -420,6 +421,11 @@ static int lsm_append(char *new, char **result)
+>  #else
+> @@ -1773,8 +1774,8 @@ static inline int security_audit_rule_known(struct audit_krule *krule)
 >  	return 0;
 >  }
 >  
-> +/*
-> + * Current index to use while initializing the lsmblob secid list.
-> + */
-> +static int lsm_slot __initdata;
-> +
->  /**
->   * security_add_hooks - Add a modules hooks to the hook lists.
->   * @hooks: the hooks to add
-> @@ -427,15 +433,40 @@ static int lsm_append(char *new, char **result)
->   * @lsm: the name of the security module
->   *
->   * Each LSM has to register its hooks with the infrastructure.
-> + * If the LSM is using hooks that export secids allocate a slot
-> + * for it in the lsmblob.
->   */
->  void __init security_add_hooks(struct security_hook_list *hooks, int count,
->  				char *lsm)
+> -static inline int security_audit_rule_match(u32 secid, u32 field, u32 op,
+> -					    void *lsmrule)
+> +static inline int security_audit_rule_match(struct lsmblob *l, u32 field,
+> +					    u32 op, void *lsmrule)
 >  {
-> +	int slot = LSMDATA_INVALID;
->  	int i;
+>  	return 0;
+>  }
+> diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+> index 63f8b3f26fab..934ceae1ff70 100644
+> --- a/kernel/auditfilter.c
+> +++ b/kernel/auditfilter.c
+> @@ -1324,6 +1324,7 @@ int audit_filter(int msgtype, unsigned int listtype)
+>  			struct audit_field *f = &e->rule.fields[i];
+>  			pid_t pid;
+>  			u32 sid;
+> +			struct lsmblob le;
 >  
->  	for (i = 0; i < count; i++) {
->  		hooks[i].lsm = lsm;
->  		hlist_add_tail_rcu(&hooks[i].list, hooks[i].head);
-> +		/*
-> +		 * If this is one of the hooks that uses a secid
-> +		 * note it so that a slot can in allocated for the
-> +		 * secid in the lsmblob structure.
-> +		 */
-> +		if (hooks[i].head == &security_hook_heads.audit_rule_match ||
-> +		    hooks[i].head == &security_hook_heads.kernel_act_as ||
-> +		    hooks[i].head ==
-> +			&security_hook_heads.socket_getpeersec_dgram ||
-> +		    hooks[i].head == &security_hook_heads.secctx_to_secid ||
-> +		    hooks[i].head == &security_hook_heads.secid_to_secctx ||
-> +		    hooks[i].head == &security_hook_heads.ipc_getsecid ||
-> +		    hooks[i].head == &security_hook_heads.task_getsecid ||
-> +		    hooks[i].head == &security_hook_heads.inode_getsecid ||
-> +		    hooks[i].head == &security_hook_heads.cred_getsecid) {
-> +			if (slot == LSMDATA_INVALID) {
-> +				slot = lsm_slot++;
-
-This needs to sanity check lsm_slot against lsmblob secids array size,
-just we we catch cases cleanly if an LSM adds a hook but doesn't add
-itself to the LSMDATA_ENTRIES macro.
-
-> +				init_debug("%s assigned lsmblob slot %d\n",
-> +					hooks[i].lsm, slot);
-> +			}
-> +		}
-> +		hooks[i].slot = slot;
->  	}
->  	if (lsm_append(lsm, &lsm_names) < 0)
->  		panic("%s - Cannot get early memory.\n", __func__);
+>  			switch (f->type) {
+>  			case AUDIT_PID:
+> @@ -1354,7 +1355,8 @@ int audit_filter(int msgtype, unsigned int listtype)
+>  			case AUDIT_SUBJ_CLR:
+>  				if (f->lsm_rule) {
+>  					security_task_getsecid(current, &sid);
+> -					result = security_audit_rule_match(sid,
+> +					lsmblob_init(&le, sid);
+> +					result = security_audit_rule_match(&le,
+>  						   f->type, f->op, f->lsm_rule);
+>  				}
+>  				break;
+> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+> index d1eab1d4a930..93c74205ef40 100644
+> --- a/kernel/auditsc.c
+> +++ b/kernel/auditsc.c
+> @@ -445,6 +445,7 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  	const struct cred *cred;
+>  	int i, need_sid = 1;
+>  	u32 sid;
+> +	struct lsmblob le;
+>  	unsigned int sessionid;
+>  
+>  	cred = rcu_dereference_check(tsk->cred, tsk == current || task_creation);
+> @@ -630,7 +631,8 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  					security_task_getsecid(tsk, &sid);
+>  					need_sid = 0;
+>  				}
+> -				result = security_audit_rule_match(sid, f->type,
+> +				lsmblob_init(&le, sid);
+> +				result = security_audit_rule_match(&le, f->type,
+>  								   f->op,
+>  								   f->lsm_rule);
+>  			}
+> @@ -645,15 +647,17 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  			if (f->lsm_rule) {
+>  				/* Find files that match */
+>  				if (name) {
+> +					lsmblob_init(&le, name->osid);
+>  					result = security_audit_rule_match(
+> -								name->osid,
+> +								&le,
+>  								f->type,
+>  								f->op,
+>  								f->lsm_rule);
+>  				} else if (ctx) {
+>  					list_for_each_entry(n, &ctx->names_list, list) {
+> +						lsmblob_init(&le, n->osid);
+>  						if (security_audit_rule_match(
+> -								n->osid,
+> +								&le,
+>  								f->type,
+>  								f->op,
+>  								f->lsm_rule)) {
+> @@ -665,7 +669,8 @@ static int audit_filter_rules(struct task_struct *tsk,
+>  				/* Find ipc objects that match */
+>  				if (!ctx || ctx->type != AUDIT_IPC)
+>  					break;
+> -				if (security_audit_rule_match(ctx->ipc.osid,
+> +				lsmblob_init(&le, ctx->ipc.osid);
+> +				if (security_audit_rule_match(&le,
+>  							      f->type, f->op,
+>  							      f->lsm_rule))
+>  					++result;
+> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+> index d213e835c498..fe5e921d621d 100644
+> --- a/security/integrity/ima/ima.h
+> +++ b/security/integrity/ima/ima.h
+> @@ -307,8 +307,8 @@ static inline int security_filter_rule_init(u32 field, u32 op, char *rulestr,
+>  	return -EINVAL;
+>  }
+>  
+> -static inline int security_filter_rule_match(u32 secid, u32 field, u32 op,
+> -					     void *lsmrule)
+> +static inline int security_filter_rule_match(struct lsmblob *l, u32 field,
+> +					     u32 op, void *lsmrule)
+>  {
+>  	return -EINVAL;
+>  }
+> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+> index e0cc323f948f..ae525a89e07f 100644
+> --- a/security/integrity/ima/ima_policy.c
+> +++ b/security/integrity/ima/ima_policy.c
+> @@ -327,6 +327,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>  	for (i = 0; i < MAX_LSM_RULES; i++) {
+>  		int rc = 0;
+>  		u32 osid;
+> +		struct lsmblob le;
+>  		int retried = 0;
+>  
+>  		if (!rule->lsm[i].rule)
+> @@ -337,7 +338,8 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>  		case LSM_OBJ_ROLE:
+>  		case LSM_OBJ_TYPE:
+>  			security_inode_getsecid(inode, &osid);
+> -			rc = security_filter_rule_match(osid,
+> +			lsmblob_init(&le, osid);
+> +			rc = security_filter_rule_match(&le,
+>  							rule->lsm[i].type,
+>  							Audit_equal,
+>  							rule->lsm[i].rule);
+> @@ -345,7 +347,8 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>  		case LSM_SUBJ_USER:
+>  		case LSM_SUBJ_ROLE:
+>  		case LSM_SUBJ_TYPE:
+> -			rc = security_filter_rule_match(secid,
+> +			lsmblob_init(&le, secid);
+> +			rc = security_filter_rule_match(&le,
+>  							rule->lsm[i].type,
+>  							Audit_equal,
+>  							rule->lsm[i].rule);
+> diff --git a/security/security.c b/security/security.c
+> index 5aa3c052d702..45541053df89 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -2447,9 +2447,19 @@ void security_audit_rule_free(void *lsmrule)
+>  	call_void_hook(audit_rule_free, lsmrule);
+>  }
+>  
+> -int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
+> +int security_audit_rule_match(struct lsmblob *l, u32 field, u32 op,
+> +			      void *lsmrule)
+>  {
+> -	return call_int_hook(audit_rule_match, 0, secid, field, op, lsmrule);
+> +	struct security_hook_list *hp;
+> +	int rc;
+> +
+> +	hlist_for_each_entry(hp, &security_hook_heads.audit_rule_match, list) {
+> +		rc = hp->hook.audit_rule_match(l->secid[hp->slot], field,
+> +					       op, lsmrule);
+> +		if (rc != 0)
+> +			return rc;
+> +	}
+> +	return 0;
+>  }
+>  #endif /* CONFIG_AUDIT */
+>  
 > -- 
 > 2.20.1
 > 
