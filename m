@@ -2,816 +2,1473 @@ Return-Path: <SRS0=qCpE=US=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43DDCC31E5E
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:10:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA1B8C31E5B
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:20:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 065ED2084E
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:10:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9722320657
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 17:20:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="XxnoMzew"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="UXWqHpeB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726143AbfFSRKZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 13:10:25 -0400
-Received: from sonic311-30.consmr.mail.gq1.yahoo.com ([98.137.65.211]:43625
-        "EHLO sonic311-30.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726091AbfFSRKY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 13:10:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1560964221; bh=S8B4SkRVGpCsKYyjAUx4FvByk74Zgxgg/Mm6/wNy72Q=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=XxnoMzewunix9CTkYJL2cKFCmIiYJcYpUlH5eh+GHseD9fF992GzW61u5HTHYgo1YHKi1/TZp0NNxwRqNc8uWlS5IMpAL9eV7hPZxmF43UKoMz5JuS2wPlKSOKXgiy2nY1kLS0enXa6/cYJAlOH01apzp5MFrPWJzy3zpVWi2hR5B63RCnstCOWzdUTrGNzHatOKAp3512tyAsrBdN+/TIaBVd0DD+UpxMh4EWSNFrNtJhP6dEIDEMV4A89OkZFfp2rqoJDB/xL6kob74LYHd2jpYY8+pds97175/THYmMl/lXwo1eclir27HWQX7tvLkpftit8MMB6F2QJ841TWlQ==
-X-YMail-OSG: gXF0riUVM1kYGVxY.IiVkkTrqSh19UUwLEhnZcE8__cKRjSPOuzN.Pr6PJsvXI3
- EOLa56swExgiUrhCh992kLz2YeYW5XhXXFXeS02vEJ0.UYKDTFppzGZ.MLw05aLFTeUjmtEN.x0_
- 09XEMm3ddA7eyEaiXNGx1nan47de5s3f_9kZGRLS2Hh2cb9amMRSRMXLAr5TH7p6Ap4iZeX5QX.F
- pLskYVsOV9PFuEAg6ygc0Cub_jOkN6PrUtBrr9o.2IfUpwmAzpYJ0ExbnEV0YNIBKXZ3EDumKqNh
- D1fd28HaeahALCjFTNs8TsUdwxjmCZngZam9JGI4plagMhrQ9Ckig9kitL6ZgNRiWney4cTyrRgk
- cwA.WazeeNSxBPbcHA.1tj8vOMU5r29VAP6q52gMROOyAg4EfnYme44DhWIBro.fh5mDcskOkNjU
- hjrQGr.bVb9ou7RUaXHw9_sHncPbaQTVxXWYPorqx8z.WkYBore5QE.wuod7LpfK4RdL9x_ldHJF
- HriVIwfHDtcMtdcM0i8ynloGtC4yOcF6f7bkat7BmN3Non7nyjVIWIYGWEm6ehc0k39SD0YXul3b
- 9Jk3WVX0NXwufSIWxO7_mRb_1FAX69DZBy5S5rq9mBb.bIvhXeGGMXJi7mb0ijSgyc5U_dvSi3Lv
- nnpZkjjbZZ1wL.DRqWBZt7n5hjmtqXoCqrjCY0uClqDrvjV4t_5DBdLVkWjtyHAMLKBUMyvXL09h
- BB9kZ1knx_VqUAlBoY0v9OBivJKTQcbfV_NtbUfkJUzYjd_XWzem0gcioCeiLQQAA1CnNl4gnVLc
- fVa8zqeM1OZ.k4I32X8MaqNzDNk0rEVUWY7OkGKCEKOXDtKUudUnlWxOay5hQGBz9leLXAOmYpaz
- j550rlY0z7gy2Gh0TZEMlI0Ikd.HNShOeaOy6pUMXJ2dyFtVsNHHD0jZAMdcsy8dgS9emAruKvWK
- RGq_AyIqzsX7CYzyB8WSQIuzPmjRgpU6X_1wQKMVU7OEmotREW5xzJTQSSOlBvvnVvF38aYRf_Ju
- bmDDt93qcSHd4odgHdF0KQ1Th4hLIyFgTpykIIEMpdon1VBdDKO06wgVwu5ViPZKuld8RmUkM3H.
- 8aqsdWuuqmBViGjV6mupQ5.dalvml0GzBqiQpk3zRPKRYvbMaRCIRCsNSxFR_XzroQB5jlQ5kmL4
- x0BHv2PYPK5_9xHAnB9098LUOWx1HtgX4F_EQ6lYWszAg0OpvadRcsGTHLZcKeCWssgE60eAcjgp
- OedUkMICjdfx_Cl6deG9M8Y1NRH4d.ZMwK_XC
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.gq1.yahoo.com with HTTP; Wed, 19 Jun 2019 17:10:21 +0000
-Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
-          by smtp432.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 9365e37c7721ad4736f39722b53d8d89;
-          Wed, 19 Jun 2019 17:10:20 +0000 (UTC)
-Subject: Re: [PATCH v2 16/25] LSM: Ensure the correct LSM context releaser
-To:     Kees Cook <keescook@chromium.org>
-Cc:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov, casey@schaufler-ca.com
-References: <20190618230551.7475-1-casey@schaufler-ca.com>
- <20190618230551.7475-17-casey@schaufler-ca.com>
- <201906182231.349D240@keescook>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- mQINBFzV9HABEAC/mmv3jeJyF7lR7QhILYg1+PeBLIMZv7KCzBSc/4ZZipoWdmr77Lel/RxQ
- 1PrNx0UaM5r6Hj9lJmJ9eg4s/TUBSP67mTx+tsZ1RhG78/WFf9aBe8MSXxY5cu7IUwo0J/CG
- vdSqACKyYPV5eoTJmnMxalu8/oVUHyPnKF3eMGgE0mKOFBUMsb2pLS/enE4QyxhcZ26jeeS6
- 3BaqDl1aTXGowM5BHyn7s9LEU38x/y2ffdqBjd3au2YOlvZ+XUkzoclSVfSR29bomZVVyhMB
- h1jTmX4Ac9QjpwsxihT8KNGvOM5CeCjQyWcW/g8LfWTzOVF9lzbx6IfEZDDoDem4+ZiPsAXC
- SWKBKil3npdbgb8MARPes2DpuhVm8yfkJEQQmuLYv8GPiJbwHQVLZGQAPBZSAc7IidD2zbf9
- XAw1/SJGe1poxOMfuSBsfKxv9ba2i8hUR+PH7gWwkMQaQ97B1yXYxVEkpG8Y4MfE5Vd3bjJU
- kvQ/tOBUCw5zwyIRC9+7zr1zYi/3hk+OG8OryZ5kpILBNCo+aePeAJ44znrySarUqS69tuXd
- a3lMPHUJJpUpIwSKQ5UuYYkWlWwENEWSefpakFAIwY4YIBkzoJ/t+XJHE1HTaJnRk6SWpeDf
- CreF3+LouP4njyeLEjVIMzaEpwROsw++BX5i5vTXJB+4UApTAQARAQABtChDYXNleSBTY2hh
- dWZsZXIgPGNhc2V5QHNjaGF1Zmxlci1jYS5jb20+iQJUBBMBCAA+FiEEC+9tH1YyUwIQzUIe
- OKUVfIxDyBEFAlzV9HACGwMFCRLMAwAFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQOKUV
- fIxDyBG6ag/6AiRl8yof47YOEVHlrmewbpnlBTaYNfJ5cZflNRKRX6t4bp1B2YV1whlDTpiL
- vNOwFkh+ZE0eI5M4x8Gw2Oiok+4Q5liA9PHTozQYF+Ia+qdL5EehfbLGoEBqklpGvG3h8JsO
- 7SvONJuFDgvab/U/UriDYycJwzwKZuhVtK9EMpnTtUDyP3DY+Q8h7MWsniNBLVXnh4yBIEJg
- SSgDn3COpZoFTPGKE+rIzioo/GJe8CTa2g+ZggJiY/myWTS3quG0FMvwvNYvZ4I2g6uxSl7n
- bZVqAZgqwoTAv1HSXIAn9muwZUJL03qo25PFi2gQmX15BgJKQcV5RL0GHFHRThDS3IyadOgK
- P2j78P8SddTN73EmsG5OoyzwZAxXfck9A512BfVESqapHurRu2qvMoUkQaW/2yCeRQwGTsFj
- /rr0lnOBkyC6wCmPSKXe3dT2mnD5KnCkjn7KxLqexKt4itGjJz4/ynD/qh+gL7IPbifrQtVH
- JI7cr0fI6Tl8V6efurk5RjtELsAlSR6fKV7hClfeDEgLpigHXGyVOsynXLr59uE+g/+InVic
- jKueTq7LzFd0BiduXGO5HbGyRKw4MG5DNQvC//85EWmFUnDlD3WHz7Hicg95D+2IjD2ZVXJy
- x3LTfKWdC8bU8am1fi+d6tVEFAe/KbUfe+stXkgmfB7pxqW5Ag0EXNX0cAEQAPIEYtPebJzT
- wHpKLu1/j4jQcke06Kmu5RNuj1pEje7kX5IKzQSs+CPH0NbSNGvrA4dNGcuDUTNHgb5Be9hF
- zVqRCEvF2j7BFbrGe9jqMBWHuWheQM8RRoa2UMwQ704mRvKr4sNPh01nKT52ASbWpBPYG3/t
- WbYaqfgtRmCxBnqdOx5mBJIBh9Q38i63DjQgdNcsTx2qS7HFuFyNef5LCf3jogcbmZGxG/b7
- yF4OwmGsVc8ufvlKo5A9Wm+tnRjLr/9Mn9vl5Xa/tQDoPxz26+aWz7j1in7UFzAarcvqzsdM
- Em6S7uT+qy5jcqyuipuenDKYF/yNOVSNnsiFyQTFqCPCpFihOnuaWqfmdeUOQHCSo8fD4aRF
- emsuxqcsq0Jp2ODq73DOTsdFxX2ESXYoFt3Oy7QmIxeEgiHBzdKU2bruIB5OVaZ4zWF+jusM
- Uh+jh+44w9DZkDNjxRAA5CxPlmBIn1OOYt1tsphrHg1cH1fDLK/pDjsJZkiH8EIjhckOtGSb
- aoUUMMJ85nVhN1EbU/A3DkWCVFEA//Vu1+BckbSbJKE7Hl6WdW19BXOZ7v3jo1q6lWwcFYth
- esJfk3ZPPJXuBokrFH8kqnEQ9W2QgrjDX3et2WwZFLOoOCItWxT0/1QO4ikcef/E7HXQf/ij
- Dxf9HG2o5hOlMIAkJq/uLNMvABEBAAGJAjwEGAEIACYWIQQL720fVjJTAhDNQh44pRV8jEPI
- EQUCXNX0cAIbDAUJEswDAAAKCRA4pRV8jEPIEWkzEACKFUnpp+wIVHpckMfBqN8BE5dUbWJc
- GyQ7wXWajLtlPdw1nNw0Wrv+ob2RCT7qQlUo6GRLcvj9Fn5tR4hBvR6D3m8aR0AGHbcC62cq
- I7LjaSDP5j/em4oVL2SMgNTrXgE2w33JMGjAx9oBzkxmKUqprhJomPwmfDHMJ0t7y39Da724
- oLPTkQDpJL1kuraM9TC5NyLe1+MyIxqM/8NujoJbWeQUgGjn9uxQAil7o/xSCjrWCP3kZDID
- vd5ZaHpdl8e1mTExQoKr4EWgaMjmD/a3hZ/j3KfTVNpM2cLfD/QwTMaC2fkK8ExMsz+rUl1H
- icmcmpptCwOSgwSpPY1Zfio6HvEJp7gmDwMgozMfwQuT9oxyFTxn1X3rn1IoYQF3P8gsziY5
- qtTxy2RrgqQFm/hr8gM78RhP54UPltIE96VywviFzDZehMvuwzW//fxysIoK97Y/KBZZOQs+
- /T+Bw80Pwk/dqQ8UmIt2ffHEgwCTbkSm711BejapWCfklxkMZDp16mkxSt2qZovboVjXnfuq
- wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
- v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
- abzjfg==
-Message-ID: <dd8a9580-a737-d72b-098a-e1e8ebe32deb@schaufler-ca.com>
-Date:   Wed, 19 Jun 2019 10:10:19 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.1
+        id S1726322AbfFSRU2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 13:20:28 -0400
+Received: from ucol19pa13.eemsg.mail.mil ([214.24.24.86]:31064 "EHLO
+        ucol19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726009AbfFSRU2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 13:20:28 -0400
+X-EEMSG-check-017: 722025049|UCOL19PA13_EEMSG_MP11.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.63,393,1557187200"; 
+   d="scan'208";a="722025049"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by ucol19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 19 Jun 2019 17:20:21 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1560964821; x=1592500821;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=+wQpz2wZ5MP3xEeVwuEq7wyU9M7J6vTTdQovAHNyQTI=;
+  b=UXWqHpeB4n9Q8FXM54/n45B64/vgQtUjTEYw2q4VDWkGjBOGzePKYrCK
+   fa4oke3UTmLR3x/Q5i3D5EQ8gbvKnSajfgkosCCTyrvWqgokA+W8A949d
+   RFyM5KYb0IZXccfjNeGG2n2JGysrd/o53vsfUdPHwB9ROo+FCX8ksUVzt
+   kXf/ekhLPxdas6RhuI3GGKpWkZaenljrexSWK4KcyP0o/S6KBoHs+QaLM
+   AfPIGafIN/Q1lp8p4kR+JbLBm37b7d8kxYdMz+sEvxJddOiwaT6vvcdqj
+   8NENHHHVlmLbrUOTgNRhlDKXw31DUbtAp8+U6cltF4VCr7abv8FL0wFBW
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.63,393,1557187200"; 
+   d="scan'208";a="29178906"
+IronPort-PHdr: =?us-ascii?q?9a23=3Aa0n1jROjDmFJa5tADN8l6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0I/n8rarrMEGX3/hxlliBBdydt6sezbKM+PC9ESxYuNDd6SlEKMQNHz?=
+ =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
+ =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQIjYd4Nqo91B?=
+ =?us-ascii?q?TFr3hIdu9LwW9kOU+fkwzz68ut4ZJv6Thct+4k+8VdTaj0YqM0QKBCAj87KW?=
+ =?us-ascii?q?41/srrtRfCTQuL+HQRV3gdnwRLDQbY8hz0R4/9vSTmuOVz3imaJtD2QqsvWT?=
+ =?us-ascii?q?u+9adrSQTnhzkBOjUk7WzYkM1wjKZcoBK8uxxyxpPfbY+JOPZieK7WYMgXTn?=
+ =?us-ascii?q?RdUMlPSyNBA5u8b4oRAOoHIeZYtJT2q18XoRejGQWgGObjxzlGiX/s2a0xzv?=
+ =?us-ascii?q?ovHwfI0gc9G94CqXrZodHwOKoUTOu7zrTHzS/bYv1Lxzn95ojGfBMvr/6CUr?=
+ =?us-ascii?q?1/c9bex0Y0GgPZjFids5DpMy+b2+kPtWWQ8upuVfioi24iswx/vySvydk0io?=
+ =?us-ascii?q?nJmI0VzE3P+zh8wIkvId24TFB0YN65G5ZXrCGVKpB2T9g+Q2BopCk6yroGtY?=
+ =?us-ascii?q?S9fCgR0psr3RHfa/uZc4WR5B/oSeWfIS9giX54d7+yiAy+/Ei9xuHmSMW530?=
+ =?us-ascii?q?hGojBYntTKq3sDzQbc6tKdRft45kqh3DGP2B3N5excOkA0kLbbK4Ymwr4tip?=
+ =?us-ascii?q?ofqUTDETHymEXxlKKWal8r+vKp6+T6ebXqvIOcNo9ohQH+NaQigMq/DvgjMg?=
+ =?us-ascii?q?cSRWSb/OW81Ln78U34RrVFkOE2n7HEvJ3VKskXvK60DxJP3oo95BuzES2q3M?=
+ =?us-ascii?q?kAkXkCNl1FeRaHj4bzO1HJJfD1Fey/jEm3kDpw2/DHPqHuApXKLnTZlrfhZq?=
+ =?us-ascii?q?xy51RTyAo009BT/4hUBa0ZIPLvRk/xs8TVDgU4MwOow+boEs992Z4GVm2TGq?=
+ =?us-ascii?q?CZMLndsV6O5u0xOOmBf5QauCr8K/gj+/7hk2U5mVkDcqm1x5cYdHe4HvF+KU?=
+ =?us-ascii?q?WDfXXsmssBEXsNvgcmV+zlllmCUT9VZ3avUKMx/S87CI24AofZXIytg6KO3D?=
+ =?us-ascii?q?29HpJIYmBKEFeMEW3nd9bMZ/BZUiOZIsZ7nnQkXLmnRpRpgQuvvw/z0bZQJd?=
+ =?us-ascii?q?3U8yweuInL3sR04fHejxc/6Xp/CMHLlymWQmV1mH4YbyE50bo5okFnzFqHl6?=
+ =?us-ascii?q?9ijK92D9tWsshVXx86OJiU9OlzD9T/S0qVZduSYEq3SdWhRzcqR5Q+xMFYMB?=
+ =?us-ascii?q?U1IMmrkh2Wh3niOLQSjbHeQcVvo68=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DqAAAYbgpd/wHyM5BmHQEBBQEHBQGBVgUBCwGBZwUqa?=
+ =?us-ascii?q?lEBMiiEFpJzTAEBAQEBAQaBNX6IVYU7iWqBZwkBAQEBAQEBAQEjEQECAQGEQ?=
+ =?us-ascii?q?AKCWCM3Bg4BAwEBAQQBAQEBBAEBbIo3DII6KQGCZgEBAQECARoBCAQRRgsLG?=
+ =?us-ascii?q?AICJgICVwYBDAYCAQGCXz8BgWoDCQUPrCl+M4VHgyiBRoEMKAGLXRd4gQeBE?=
+ =?us-ascii?q?SeCNgcuPoIagXMfAReDCoJYBItmBgSHZFmBKYYOjgEJghOCG4QthF6IJwYbg?=
+ =?us-ascii?q?xCBNopshAqDeI0dkg+GZiJEgRQrCAIYCCEPO4JsCYJEF4YjiBkjAzCBBgEBi?=
+ =?us-ascii?q?3uCUgEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 19 Jun 2019 17:20:19 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x5JHKI9j008047;
+        Wed, 19 Jun 2019 13:20:18 -0400
+Subject: Re: [RFC PATCH 1/1] selinux: Remove legacy local boolean and user
+ code
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+References: <20190604170840.32507-1-richard_c_haines@btinternet.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <268aa09a-ff2d-0a74-f4ae-cd3e8b4ae8ec@tycho.nsa.gov>
+Date:   Wed, 19 Jun 2019 13:20:18 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-In-Reply-To: <201906182231.349D240@keescook>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190604170840.32507-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/18/2019 10:34 PM, Kees Cook wrote:
-> On Tue, Jun 18, 2019 at 04:05:42PM -0700, Casey Schaufler wrote:
->> Add a new lsmcontext data structure to hold all the information
->> about a "security context", including the string, its size and
->> which LSM allocated the string. The allocation information is
->> necessary because LSMs have different policies regarding the
->> lifecycle of these strings. SELinux allocates and destroys
->> them on each use, whereas Smack provides a pointer to an entry
->> in a list that never goes away.
->>
->> Change the security_release_secctx() interface to use the
->> lsmcontext and call only the appropiate LSM hook. Change
->> the callers of security_release_secctx() to provide the
->> correct type of data, introducing scaffolding where required.
->>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> ---
->>  drivers/android/binder.c                | 10 +++++--
->>  fs/kernfs/dir.c                         |  9 ++++--
->>  fs/kernfs/inode.c                       |  7 +++--
->>  fs/nfs/nfs4proc.c                       |  8 ++++--
->>  fs/nfsd/nfs4xdr.c                       |  7 +++--
->>  include/linux/security.h                | 37 +++++++++++++++++++++++-=
--
->>  include/net/scm.h                       |  4 ++-
->>  kernel/audit.c                          | 14 +++++++---
->>  kernel/auditsc.c                        | 12 ++++++--
->>  net/ipv4/ip_sockglue.c                  |  4 ++-
->>  net/netfilter/nf_conntrack_netlink.c    |  4 ++-
->>  net/netfilter/nf_conntrack_standalone.c |  4 ++-
->>  net/netfilter/nfnetlink_queue.c         | 13 ++++++---
->>  net/netlabel/netlabel_unlabeled.c       | 19 ++++++++++---
->>  net/netlabel/netlabel_user.c            |  4 ++-
->>  security/security.c                     | 12 +++++---
->>  security/smack/smack_lsm.c              | 14 +++++++---
->>  17 files changed, 140 insertions(+), 42 deletions(-)
->>
->> diff --git a/drivers/android/binder.c b/drivers/android/binder.c
->> index 9eb790200fba..f11b5ca5bc30 100644
->> --- a/drivers/android/binder.c
->> +++ b/drivers/android/binder.c
->> @@ -2876,6 +2876,7 @@ static void binder_transaction(struct binder_pro=
-c *proc,
->>  	int t_debug_id =3D atomic_inc_return(&binder_last_id);
->>  	char *secctx =3D NULL;
->>  	u32 secctx_sz =3D 0;
->> +	struct lsmcontext scaff; /* scaffolding */
->> =20
->>  	e =3D binder_transaction_log_add(&binder_transaction_log);
->>  	e->debug_id =3D t_debug_id;
->> @@ -3158,7 +3159,8 @@ static void binder_transaction(struct binder_pro=
-c *proc,
->>  		binder_alloc_copy_to_buffer(&target_proc->alloc,
->>  					    t->buffer, buf_offset,
->>  					    secctx, secctx_sz);
->> -		security_release_secctx(secctx, secctx_sz);
->> +		lsmcontext_init(&scaff, secctx, secctx_sz, 0);
->> +		security_release_secctx(&scaff);
->>  		secctx =3D NULL;
->>  	}
->>  	t->buffer->debug_id =3D t->debug_id;
->> @@ -3479,8 +3481,10 @@ static void binder_transaction(struct binder_pr=
-oc *proc,
->>  	t->buffer->transaction =3D NULL;
->>  	binder_alloc_free_buf(&target_proc->alloc, t->buffer);
->>  err_binder_alloc_buf_failed:
->> -	if (secctx)
->> -		security_release_secctx(secctx, secctx_sz);
->> +	if (secctx) {
->> +		lsmcontext_init(&scaff, secctx, secctx_sz, 0);
->> +		security_release_secctx(&scaff);
->> +	}
->>  err_get_secctx_failed:
->>  	kfree(tcomplete);
->>  	binder_stats_deleted(BINDER_STAT_TRANSACTION_COMPLETE);
->> diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
->> index b84d635567d3..92afad387237 100644
->> --- a/fs/kernfs/dir.c
->> +++ b/fs/kernfs/dir.c
->> @@ -532,9 +532,12 @@ void kernfs_put(struct kernfs_node *kn)
->>  	kfree_const(kn->name);
->> =20
->>  	if (kn->iattr) {
->> -		if (kn->iattr->ia_secdata)
->> -			security_release_secctx(kn->iattr->ia_secdata,
->> -						kn->iattr->ia_secdata_len);
->> +		struct lsmcontext scaff; /* scaffolding */
->> +		if (kn->iattr->ia_secdata) {
->> +			lsmcontext_init(&scaff, kn->iattr->ia_secdata,
->> +					kn->iattr->ia_secdata_len, 0);
->> +			security_release_secctx(&scaff);
->> +		}
->>  		simple_xattrs_free(&kn->iattr->xattrs);
->>  		kmem_cache_free(kernfs_iattrs_cache, kn->iattr);
->>  	}
->> diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
->> index 0c1fd945ce42..02cde9dac5ee 100644
->> --- a/fs/kernfs/inode.c
->> +++ b/fs/kernfs/inode.c
->> @@ -349,6 +349,7 @@ static int kernfs_security_xattr_set(const struct =
-xattr_handler *handler,
->>  {
->>  	struct kernfs_node *kn =3D inode->i_private;
->>  	struct kernfs_iattrs *attrs;
->> +	struct lsmcontext context;
->>  	void *secdata;
->>  	u32 secdata_len =3D 0;
->>  	int error;
->> @@ -368,8 +369,10 @@ static int kernfs_security_xattr_set(const struct=
- xattr_handler *handler,
->>  	error =3D kernfs_node_setsecdata(attrs, &secdata, &secdata_len);
->>  	mutex_unlock(&kernfs_mutex);
->> =20
->> -	if (secdata)
->> -		security_release_secctx(secdata, secdata_len);
->> +	if (secdata) {
->> +		lsmcontext_init(&context, secdata, secdata_len, 0);
->> +		security_release_secctx(&context);
->> +	}
->>  	return error;
->>  }
->> =20
->> diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
->> index 4dbb0ee23432..af1c0db29c39 100644
->> --- a/fs/nfs/nfs4proc.c
->> +++ b/fs/nfs/nfs4proc.c
->> @@ -131,8 +131,12 @@ nfs4_label_init_security(struct inode *dir, struc=
-t dentry *dentry,
->>  static inline void
->>  nfs4_label_release_security(struct nfs4_label *label)
->>  {
->> -	if (label)
->> -		security_release_secctx(label->label, label->len);
->> +	struct lsmcontext scaff; /* scaffolding */
->> +
->> +	if (label) {
->> +		lsmcontext_init(&scaff, label->label, label->len, 0);
->> +		security_release_secctx(&scaff);
->> +	}
->>  }
->>  static inline u32 *nfs4_bitmask(struct nfs_server *server, struct nfs=
-4_label *label)
->>  {
->> diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
->> index 3de42a729093..bb3db033e144 100644
->> --- a/fs/nfsd/nfs4xdr.c
->> +++ b/fs/nfsd/nfs4xdr.c
->> @@ -2420,6 +2420,7 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struc=
-t svc_fh *fhp,
->>  	__be32 status;
->>  	int err;
->>  	struct nfs4_acl *acl =3D NULL;
->> +	struct lsmcontext scaff; /* scaffolding */
->>  	void *context =3D NULL;
->>  	int contextlen;
->>  	bool contextsupport =3D false;
->> @@ -2919,8 +2920,10 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, stru=
-ct svc_fh *fhp,
->> =20
->>  out:
->>  #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
->> -	if (context)
->> -		security_release_secctx(context, contextlen);
->> +	if (context) {
->> +		lsmcontext_init(&scaff, context, contextlen, 0); /*scaffolding*/
->> +		security_release_secctx(&scaff);
->> +	}
->>  #endif /* CONFIG_NFSD_V4_SECURITY_LABEL */
->>  	kfree(acl);
->>  	if (tempfh) {
->> diff --git a/include/linux/security.h b/include/linux/security.h
->> index 07a239292e02..8bd4f28ef532 100644
->> --- a/include/linux/security.h
->> +++ b/include/linux/security.h
->> @@ -76,6 +76,39 @@ enum lsm_event {
->>  	LSM_POLICY_CHANGE,
->>  };
->> =20
->> +/*
->> + * A "security context" is the text representation of
->> + * the information used by LSMs.
->> + * This structure contains the string, its length, and which LSM
->> + * it is useful for.
->> + */
->> +struct lsmcontext {
->> +	char	*context;	/* Provided by the module */
->> +	u32	len;
->> +	int	slot;		/* Identifies the module */
->> +};
->> +
->> +/**
->> + * lsmcontext_init - initialize an lsmcontext structure.
->> + * @cp: Pointer to the context to initialize
->> + * @context: Initial context, or NULL
->> + * @size: Size of context, or 0
->> + * @slot: Which LSM provided the context
->> + *
->> + * Fill in the lsmcontext from the provided information.
->> + */
->> +static inline void lsmcontext_init(struct lsmcontext *cp, char *conte=
-xt,
->> +				   u32 size, int slot)
->> +{
->> +	cp->slot =3D slot;
->> +	cp->context =3D context;
->> +
->> +	if (context =3D=3D NULL || size =3D=3D 0)
->> +		cp->len =3D 0;
->> +	else
->> +		cp->len =3D strlen(context);
->> +}
-> I worry about the use of the "size" argument (or rather, lack of use).
-> If all contexts are going to be NUL-terminated strings, there should be=
+On 6/4/19 1:08 PM, Richard Haines wrote:
+> Remove legacy local boolean and user code, and to preserve API/ABI
+> compatibility the following functions int values should be set to '0'
+> as they are no longer used:
+>    selinux_mkload_policy(int preservebools)
+>    security_set_boolean_list(.... int permanent)
+> and the following are now no-op:
+>    security_load_booleans(char *path) - return '0'
+>    selinux_booleans_path(void) - return NULL
+>    selinux_users_path(void) - return NULL
+> 
+> Also "SETLOCALDEFS" removed from SELinux config file and code.
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>   libselinux/include/selinux/selinux.h       |  18 +-
+>   libselinux/src/booleans.c                  | 226 +-------------
+>   libselinux/src/file_path_suffixes.h        |   2 -
+>   libselinux/src/load_policy.c               | 100 +-----
+>   libselinux/src/selinux_config.c            |  59 ++--
+>   libselinux/src/selinux_internal.h          |   1 -
+>   libsepol/include/sepol/booleans.h          |  18 --
+>   libsepol/include/sepol/policydb/services.h |   6 -
+>   libsepol/include/sepol/users.h             |  17 -
+>   libsepol/src/genbools.c                    | 279 -----------------
+>   libsepol/src/genusers.c                    | 343 ---------------------
+>   libsepol/src/libsepol.map.in               |   4 +-
+>   12 files changed, 46 insertions(+), 1027 deletions(-)
+>   delete mode 100644 libsepol/src/genbools.c
+>   delete mode 100644 libsepol/src/genusers.c
+> 
+> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+> index f54f236b..10ecdf99 100644
+> --- a/libselinux/include/selinux/selinux.h
+> +++ b/libselinux/include/selinux/selinux.h
+> @@ -286,11 +286,7 @@ extern int security_get_initial_context_raw(const char *name,
+>    * manipulating it as needed for current boolean settings and/or local
+>    * definitions, and then calling security_load_policy to load it.
+>    *
+> - * 'preservebools' is a boolean flag indicating whether current
+> - * policy boolean values should be preserved into the new policy (if 1)
+> - * or reset to the saved policy settings (if 0).  The former case is the
+> - * default for policy reloads, while the latter case is an option for policy
+> - * reloads but is primarily for the initial policy load.
+> + * 'preservebools' is no longer supported, set to 0.
+>    */
+>   extern int selinux_mkload_policy(int preservebools);
+>   
+> @@ -316,13 +312,15 @@ typedef struct {
+>   	char *name;
+>   	int value;
+>   } SELboolean;
+> -/* save a list of booleans in a single transaction.  */
+> +/* save a list of booleans in a single transaction. 'permanent' is no
+> + * longer supported, set to 0.
+> + */
+>   extern int security_set_boolean_list(size_t boolcnt,
+>   				     SELboolean * boollist, int permanent);
+>   
+> -/* Load policy boolean settings.
+> -   Path may be NULL, in which case the booleans are loaded from
+> -   the active policy boolean configuration file. */
+> +/* Load policy boolean settings. Deprecated as local policy booleans no
+> + * longer supported. Will always return 0.
+> + */
+>   extern int security_load_booleans(char *path);
+>   
+>   /* Check the validity of a security context. */
+> @@ -569,8 +567,10 @@ extern const char *selinux_systemd_contexts_path(void);
+>   extern const char *selinux_contexts_path(void);
+>   extern const char *selinux_securetty_types_path(void);
+>   extern const char *selinux_booleans_subs_path(void);
+> +/* Deprecated as local policy booleans no longer supported. Returns NULL */
+>   extern const char *selinux_booleans_path(void);
+>   extern const char *selinux_customizable_types_path(void);
+> +/* Deprecated as policy ./users no longer supported. Returns NULL */
+>   extern const char *selinux_users_path(void);
+>   extern const char *selinux_usersconf_path(void);
+>   extern const char *selinux_translations_path(void);
+> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+> index ab1e0754..93c9e1f3 100644
+> --- a/libselinux/src/booleans.c
+> +++ b/libselinux/src/booleans.c
+> @@ -322,175 +322,6 @@ int security_commit_booleans(void)
+>   		return -1;
+>   }
+>   
+> -static char *strtrim(char *dest, char *source, int size)
+> -{
+> -	int i = 0;
+> -	char *ptr = source;
+> -	i = 0;
+> -	while (isspace(*ptr) && i < size) {
+> -		ptr++;
+> -		i++;
+> -	}
+> -	strncpy(dest, ptr, size);
+> -	for (i = strlen(dest) - 1; i > 0; i--) {
+> -		if (!isspace(dest[i]))
+> -			break;
+> -	}
+> -	dest[i + 1] = '\0';
+> -	return dest;
+> -}
+> -static int process_boolean(char *buffer, char *name, int namesize, int *val)
+> -{
+> -	char name1[BUFSIZ];
+> -	char *ptr = NULL;
+> -	char *tok;
+> -
+> -	/* Skip spaces */
+> -	while (isspace(buffer[0]))
+> -		buffer++;
+> -	/* Ignore comments */
+> -	if (buffer[0] == '#')
+> -		return 0;
+> -
+> -	tok = strtok_r(buffer, "=", &ptr);
+> -	if (!tok) {
+> -		errno = EINVAL;
+> -		return -1;
+> -	}
+> -	strncpy(name1, tok, BUFSIZ - 1);
+> -	strtrim(name, name1, namesize - 1);
+> -
+> -	tok = strtok_r(NULL, "\0", &ptr);
+> -	if (!tok) {
+> -		errno = EINVAL;
+> -		return -1;
+> -	}
+> -
+> -	while (isspace(*tok))
+> -		tok++;
+> -
+> -	*val = -1;
+> -	if (isdigit(tok[0]))
+> -		*val = atoi(tok);
+> -	else if (!strncasecmp(tok, "true", sizeof("true") - 1))
+> -		*val = 1;
+> -	else if (!strncasecmp(tok, "false", sizeof("false") - 1))
+> -		*val = 0;
+> -	if (*val != 0 && *val != 1) {
+> -		errno = EINVAL;
+> -		return -1;
+> -	}
+> -	return 1;
+> -}
+> -static int save_booleans(size_t boolcnt, SELboolean * boollist)
+> -{
+> -	ssize_t len;
+> -	size_t i;
+> -	char outbuf[BUFSIZ];
+> -	char *inbuf = NULL;
+> -
+> -	/* Open file */
+> -	const char *bool_file = selinux_booleans_path();
+> -	char local_bool_file[PATH_MAX];
+> -	char tmp_bool_file[PATH_MAX];
+> -	FILE *boolf;
+> -	int fd;
+> -	int *used = (int *)malloc(sizeof(int) * boolcnt);
+> -	if (!used) {
+> -		return -1;
+> -	}
+> -	/* zero out used field */
+> -	for (i = 0; i < boolcnt; i++)
+> -		used[i] = 0;
+> -
+> -	snprintf(tmp_bool_file, sizeof(tmp_bool_file), "%s.XXXXXX", bool_file);
+> -	fd = mkstemp(tmp_bool_file);
+> -	if (fd < 0) {
+> -		free(used);
+> -		return -1;
+> -	}
+> -
+> -	snprintf(local_bool_file, sizeof(local_bool_file), "%s.local",
+> -		 bool_file);
+> -	boolf = fopen(local_bool_file, "re");
+> -	if (boolf != NULL) {
+> -		ssize_t ret;
+> -		size_t size = 0;
+> -		int val;
+> -		char boolname[BUFSIZ-3];
+> -		char *buffer;
+> -		inbuf = NULL;
+> -		__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+> -		while ((len = getline(&inbuf, &size, boolf)) > 0) {
+> -			buffer = strdup(inbuf);
+> -			if (!buffer)
+> -				goto close_remove_fail;
+> -			ret =
+> -			    process_boolean(inbuf, boolname, sizeof(boolname),
+> -					    &val);
+> -			if (ret != 1) {
+> -				ret = write(fd, buffer, len);
+> -				free(buffer);
+> -				if (ret != len)
+> -					goto close_remove_fail;
+> -			} else {
+> -				free(buffer);
+> -				for (i = 0; i < boolcnt; i++) {
+> -					if (strcmp(boollist[i].name, boolname)
+> -					    == 0) {
+> -						snprintf(outbuf, sizeof(outbuf),
+> -							 "%s=%d\n", boolname,
+> -							 boollist[i].value);
+> -						len = strlen(outbuf);
+> -						used[i] = 1;
+> -						if (write(fd, outbuf, len) !=
+> -						    len)
+> -							goto close_remove_fail;
+> -						else
+> -							break;
+> -					}
+> -				}
+> -				if (i == boolcnt) {
+> -					val = !!val;
+> -					snprintf(outbuf, sizeof(outbuf),
+> -						 "%s=%d\n", boolname, val);
+> -					len = strlen(outbuf);
+> -					if (write(fd, outbuf, len) != len)
+> -						goto close_remove_fail;
+> -				}
+> -			}
+> -			free(inbuf);
+> -			inbuf = NULL;
+> -		}
+> -		fclose(boolf);
+> -	}
+> -
+> -	for (i = 0; i < boolcnt; i++) {
+> -		if (used[i] == 0) {
+> -			snprintf(outbuf, sizeof(outbuf), "%s=%d\n",
+> -				 boollist[i].name, boollist[i].value);
+> -			len = strlen(outbuf);
+> -			if (write(fd, outbuf, len) != len) {
+> -			      close_remove_fail:
+> -				free(inbuf);
+> -				close(fd);
+> -			      remove_fail:
+> -				unlink(tmp_bool_file);
+> -				free(used);
+> -				return -1;
+> -			}
+> -		}
+> -
+> -	}
+> -	if (fchmod(fd, S_IRUSR | S_IWUSR) != 0)
+> -		goto close_remove_fail;
+> -	close(fd);
+> -	if (rename(tmp_bool_file, local_bool_file) != 0)
+> -		goto remove_fail;
+> -
+> -	free(used);
+> -	return 0;
+> -}
+>   static void rollback(SELboolean * boollist, int end)
+>   {
+>   	int i;
+> @@ -502,7 +333,7 @@ static void rollback(SELboolean * boollist, int end)
+>   }
+>   
+>   int security_set_boolean_list(size_t boolcnt, SELboolean * boollist,
+> -			      int permanent)
+> +			      int permanent __attribute__((unused)))
+>   {
+>   
+>   	size_t i;
+> @@ -519,62 +350,13 @@ int security_set_boolean_list(size_t boolcnt, SELboolean * boollist,
+>   		return -1;
+>   	}
+>   
+> -	if (permanent)
+> -		return save_booleans(boolcnt, boollist);
+> -
 
-> no "size" arg. If not, then "size" (or strneln(context, size)) should
-> be used instead of strlen().
+Optionally, return an error here in order to indicate that this isn't 
+supported?
 
-Once the scaffolding uses go away this is only ever called once,
-with lsmcontext_init(cp, NULL, 0, 0) in security_release_secctx().
-It probably makes the most sense to identify this as "for scaffolding"
-and delete it when it is no longer needed.
+>   	return 0;
+>   }
+> -int security_load_booleans(char *path)
+> -{
+> -	FILE *boolf;
+> -	char *inbuf;
+> -	char localbools[BUFSIZ];
+> -	size_t len = 0, errors = 0;
+> -	int val;
+> -	char name[BUFSIZ];
+> -
+> -	boolf = fopen(path ? path : selinux_booleans_path(), "re");
+> -	if (boolf == NULL)
+> -		goto localbool;
+> -
+> -	__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+> -	while (getline(&inbuf, &len, boolf) > 0) {
+> -		int ret = process_boolean(inbuf, name, sizeof(name), &val);
+> -		if (ret == -1)
+> -			errors++;
+> -		if (ret == 1)
+> -			if (security_set_boolean(name, val) < 0) {
+> -				errors++;
+> -			}
+> -	}
+> -	fclose(boolf);
+> -      localbool:
+> -	snprintf(localbools, sizeof(localbools), "%s.local",
+> -		 (path ? path : selinux_booleans_path()));
+> -	boolf = fopen(localbools, "re");
+> -
+> -	if (boolf != NULL) {
+> -		int ret;
+> -		__fsetlocking(boolf, FSETLOCKING_BYCALLER);
+> -		while (getline(&inbuf, &len, boolf) > 0) {
+> -			ret = process_boolean(inbuf, name, sizeof(name), &val);
+> -			if (ret == -1)
+> -				errors++;
+> -			if (ret == 1)
+> -				if (security_set_boolean(name, val) < 0) {
+> -					errors++;
+> -				}
+> -		}
+> -		fclose(boolf);
+> -	}
+> -	if (security_commit_booleans() < 0)
+> -		return -1;
+>   
+> -	if (errors)
+> -		errno = EINVAL;
+> -	return errors ? -1 : 0;
+> +int security_load_booleans(char *path __attribute__((unused)))
+> +{
+> +	return 0;
+>   }
 
->> +
->>  /*
->>   * Data exported by the security modules
->>   */
->> @@ -445,7 +478,7 @@ int security_ismaclabel(const char *name);
->>  int security_secid_to_secctx(struct lsmblob *l, char **secdata, u32 *=
-seclen);
->>  int security_secctx_to_secid(const char *secdata, u32 seclen,
->>  			     struct lsmblob *l);
->> -void security_release_secctx(char *secdata, u32 seclen);
->> +void security_release_secctx(struct lsmcontext *cp);
->> =20
->>  void security_inode_invalidate_secctx(struct inode *inode);
->>  int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 c=
-txlen);
->> @@ -1236,7 +1269,7 @@ static inline int security_secctx_to_secid(const=
- char *secdata,
->>  	return -EOPNOTSUPP;
->>  }
->> =20
->> -static inline void security_release_secctx(char *secdata, u32 seclen)=
+Ditto?
 
->> +static inline void security_release_secctx(struct lsmcontext *cp)
->>  {
->>  }
->> =20
->> diff --git a/include/net/scm.h b/include/net/scm.h
->> index bcb0f8560cdf..d3e0ac961a11 100644
->> --- a/include/net/scm.h
->> +++ b/include/net/scm.h
->> @@ -92,6 +92,7 @@ static __inline__ int scm_send(struct socket *sock, =
-struct msghdr *msg,
->>  #ifdef CONFIG_SECURITY_NETWORK
->>  static inline void scm_passec(struct socket *sock, struct msghdr *msg=
-, struct scm_cookie *scm)
->>  {
->> +	struct lsmcontext context;
->>  	char *secdata;
->>  	u32 seclen;
->>  	int err;
->> @@ -101,7 +102,8 @@ static inline void scm_passec(struct socket *sock,=
- struct msghdr *msg, struct sc
->> =20
->>  		if (!err) {
->>  			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
->> -			security_release_secctx(secdata, seclen);
->> +			lsmcontext_init(&context, secdata, seclen, 0);/*scaffolding*/
->> +			security_release_secctx(&context);
->>  		}
->>  	}
->>  }
->> diff --git a/kernel/audit.c b/kernel/audit.c
->> index a52f8772477f..0467b2d284fa 100644
->> --- a/kernel/audit.c
->> +++ b/kernel/audit.c
->> @@ -1193,6 +1193,7 @@ static int audit_receive_msg(struct sk_buff *skb=
-, struct nlmsghdr *nlh)
->>  	struct audit_sig_info   *sig_data;
->>  	char			*ctx =3D NULL;
->>  	u32			len;
->> +	struct lsmcontext	scaff; /* scaffolding */
->> =20
->>  	err =3D audit_netlink_ok(skb, msg_type);
->>  	if (err)
->> @@ -1437,15 +1438,18 @@ static int audit_receive_msg(struct sk_buff *s=
-kb, struct nlmsghdr *nlh)
->>  		}
->>  		sig_data =3D kmalloc(sizeof(*sig_data) + len, GFP_KERNEL);
->>  		if (!sig_data) {
->> -			if (lsmblob_is_set(&audit_sig_lsm))
->> -				security_release_secctx(ctx, len);
->> +			if (lsmblob_is_set(&audit_sig_lsm)) {
->> +				lsmcontext_init(&scaff, ctx, len, 0);
->> +				security_release_secctx(&scaff);
->> +			}
->>  			return -ENOMEM;
->>  		}
->>  		sig_data->uid =3D from_kuid(&init_user_ns, audit_sig_uid);
->>  		sig_data->pid =3D audit_sig_pid;
->>  		if (lsmblob_is_set(&audit_sig_lsm)) {
->>  			memcpy(sig_data->ctx, ctx, len);
->> -			security_release_secctx(ctx, len);
->> +			lsmcontext_init(&scaff, ctx, len, 0);
->> +			security_release_secctx(&scaff);
->>  		}
->>  		audit_send_reply(skb, seq, AUDIT_SIGNAL_INFO, 0, 0,
->>  				 sig_data, sizeof(*sig_data) + len);
->> @@ -2074,6 +2078,7 @@ int audit_log_task_context(struct audit_buffer *=
-ab)
->>  	unsigned len;
->>  	int error;
->>  	struct lsmblob le;
->> +	struct lsmcontext scaff; /* scaffolding */
->> =20
->>  	security_task_getsecid(current, &le);
->>  	if (!lsmblob_is_set(&le))
->> @@ -2087,7 +2092,8 @@ int audit_log_task_context(struct audit_buffer *=
-ab)
->>  	}
->> =20
->>  	audit_log_format(ab, " subj=3D%s", ctx);
->> -	security_release_secctx(ctx, len);
->> +	lsmcontext_init(&scaff, ctx, len, 0);
->> +	security_release_secctx(&scaff);
->>  	return 0;
->> =20
->>  error_path:
->> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
->> index ebdd7eab9247..917e7550767a 100644
->> --- a/kernel/auditsc.c
->> +++ b/kernel/auditsc.c
->> @@ -942,6 +942,7 @@ static int audit_log_pid_context(struct audit_cont=
-ext *context, pid_t pid,
->>  				 struct lsmblob *l, char *comm)
->>  {
->>  	struct audit_buffer *ab;
->> +	struct lsmcontext lsmcxt;
->>  	char *ctx =3D NULL;
->>  	u32 len;
->>  	int rc =3D 0;
->> @@ -959,7 +960,8 @@ static int audit_log_pid_context(struct audit_cont=
-ext *context, pid_t pid,
->>  			rc =3D 1;
->>  		} else {
->>  			audit_log_format(ab, " obj=3D%s", ctx);
->> -			security_release_secctx(ctx, len);
->> +			lsmcontext_init(&lsmcxt, ctx, len, 0); /*scaffolding*/
->> +			security_release_secctx(&lsmcxt);
->>  		}
->>  	}
->>  	audit_log_format(ab, " ocomm=3D");
->> @@ -1171,6 +1173,7 @@ static void audit_log_fcaps(struct audit_buffer =
-*ab, struct audit_names *name)
->> =20
->>  static void show_special(struct audit_context *context, int *call_pan=
-ic)
->>  {
->> +	struct lsmcontext lsmcxt;
->>  	struct audit_buffer *ab;
->>  	int i;
->> =20
->> @@ -1203,7 +1206,8 @@ static void show_special(struct audit_context *c=
-ontext, int *call_panic)
->>  				*call_panic =3D 1;
->>  			} else {
->>  				audit_log_format(ab, " obj=3D%s", ctx);
->> -				security_release_secctx(ctx, len);
->> +				lsmcontext_init(&lsmcxt, ctx, len, 0);
->> +				security_release_secctx(&lsmcxt);
->>  			}
->>  		}
->>  		if (context->ipc.has_perm) {
->> @@ -1350,6 +1354,7 @@ static void audit_log_name(struct audit_context =
-*context, struct audit_names *n,
->>  		char *ctx =3D NULL;
->>  		u32 len;
->>  		struct lsmblob le;
->> +		struct lsmcontext lsmcxt;
->> =20
->>  		lsmblob_init(&le, n->osid);
->>  		if (security_secid_to_secctx(&le, &ctx, &len)) {
->> @@ -1358,7 +1363,8 @@ static void audit_log_name(struct audit_context =
-*context, struct audit_names *n,
->>  				*call_panic =3D 2;
->>  		} else {
->>  			audit_log_format(ab, " obj=3D%s", ctx);
->> -			security_release_secctx(ctx, len);
->> +			lsmcontext_init(&lsmcxt, ctx, len, 0); /* scaffolding */
->> +			security_release_secctx(&lsmcxt);
->>  		}
->>  	}
->> =20
->> diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
->> index e05f4ef68bd8..7834c357b60b 100644
->> --- a/net/ipv4/ip_sockglue.c
->> +++ b/net/ipv4/ip_sockglue.c
->> @@ -130,6 +130,7 @@ static void ip_cmsg_recv_checksum(struct msghdr *m=
-sg, struct sk_buff *skb,
->> =20
->>  static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff =
-*skb)
->>  {
->> +	struct lsmcontext context;
->>  	struct lsmblob lb;
->>  	char *secdata;
->>  	u32 seclen;
->> @@ -144,7 +145,8 @@ static void ip_cmsg_recv_security(struct msghdr *m=
-sg, struct sk_buff *skb)
->>  		return;
->> =20
->>  	put_cmsg(msg, SOL_IP, SCM_SECURITY, seclen, secdata);
->> -	security_release_secctx(secdata, seclen);
->> +	lsmcontext_init(&context, secdata, seclen, 0); /* scaffolding */
->> +	security_release_secctx(&context);
->>  }
->> =20
->>  static void ip_cmsg_recv_dstaddr(struct msghdr *msg, struct sk_buff *=
-skb)
->> diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_c=
-onntrack_netlink.c
->> index 6098b586da07..93f308b5845d 100644
->> --- a/net/netfilter/nf_conntrack_netlink.c
->> +++ b/net/netfilter/nf_conntrack_netlink.c
->> @@ -331,6 +331,7 @@ static int ctnetlink_dump_secctx(struct sk_buff *s=
-kb, const struct nf_conn *ct)
->>  	int len, ret;
->>  	char *secctx;
->>  	struct lsmblob le;
->> +	struct lsmcontext context;
->> =20
->>  	lsmblob_init(&le, ct->secmark);
->>  	ret =3D security_secid_to_secctx(&le, &secctx, &len);
->> @@ -348,7 +349,8 @@ static int ctnetlink_dump_secctx(struct sk_buff *s=
-kb, const struct nf_conn *ct)
->> =20
->>  	ret =3D 0;
->>  nla_put_failure:
->> -	security_release_secctx(secctx, len);
->> +	lsmcontext_init(&context, secctx, len, 0); /* scaffolding */
->> +	security_release_secctx(&context);
->>  	return ret;
->>  }
->>  #else
->> diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/n=
-f_conntrack_standalone.c
->> index 6e6fb1f9f6ba..0bde6a4426e3 100644
->> --- a/net/netfilter/nf_conntrack_standalone.c
->> +++ b/net/netfilter/nf_conntrack_standalone.c
->> @@ -176,6 +176,7 @@ static void ct_show_secctx(struct seq_file *s, con=
-st struct nf_conn *ct)
->>  	u32 len;
->>  	char *secctx;
->>  	struct lsmblob le;
->> +	struct lsmcontext context;
->> =20
->>  	lsmblob_init(&le, ct->secmark);
->>  	ret =3D security_secid_to_secctx(&le, &secctx, &len);
->> @@ -184,7 +185,8 @@ static void ct_show_secctx(struct seq_file *s, con=
-st struct nf_conn *ct)
->> =20
->>  	seq_printf(s, "secctx=3D%s ", secctx);
->> =20
->> -	security_release_secctx(secctx, len);
->> +	lsmcontext_init(&context, secctx, len, 0); /* scaffolding */
->> +	security_release_secctx(&context);
->>  }
->>  #else
->>  static inline void ct_show_secctx(struct seq_file *s, const struct nf=
-_conn *ct)
->> diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink=
-_queue.c
->> index 105018d19318..ba767bdd1a9a 100644
->> --- a/net/netfilter/nfnetlink_queue.c
->> +++ b/net/netfilter/nfnetlink_queue.c
->> @@ -399,6 +399,7 @@ nfqnl_build_packet_message(struct net *net, struct=
- nfqnl_instance *queue,
->>  	enum ip_conntrack_info uninitialized_var(ctinfo);
->>  	struct nfnl_ct_hook *nfnl_ct;
->>  	bool csum_verify;
->> +	struct lsmcontext scaff; /* scaffolding */
->>  	char *secdata =3D NULL;
->>  	u32 seclen =3D 0;
->> =20
->> @@ -629,8 +630,10 @@ nfqnl_build_packet_message(struct net *net, struc=
-t nfqnl_instance *queue,
->>  	}
->> =20
->>  	nlh->nlmsg_len =3D skb->len;
->> -	if (seclen)
->> -		security_release_secctx(secdata, seclen);
->> +	if (seclen) {
->> +		lsmcontext_init(&scaff, secdata, seclen, 0);
->> +		security_release_secctx(&scaff);
->> +	}
->>  	return skb;
->> =20
->>  nla_put_failure:
->> @@ -638,8 +641,10 @@ nfqnl_build_packet_message(struct net *net, struc=
-t nfqnl_instance *queue,
->>  	kfree_skb(skb);
->>  	net_err_ratelimited("nf_queue: error creating packet message\n");
->>  nlmsg_failure:
->> -	if (seclen)
->> -		security_release_secctx(secdata, seclen);
->> +	if (seclen) {
->> +		lsmcontext_init(&scaff, secdata, seclen, 0);
->> +		security_release_secctx(&scaff);
->> +	}
->>  	return NULL;
->>  }
->> =20
->> diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel=
-_unlabeled.c
->> index 57e0f81a2ec5..2f8c7415b6ff 100644
->> --- a/net/netlabel/netlabel_unlabeled.c
->> +++ b/net/netlabel/netlabel_unlabeled.c
->> @@ -387,6 +387,7 @@ int netlbl_unlhsh_add(struct net *net,
->>  	struct net_device *dev;
->>  	struct netlbl_unlhsh_iface *iface;
->>  	struct audit_buffer *audit_buf =3D NULL;
->> +	struct lsmcontext context;
->>  	char *secctx =3D NULL;
->>  	u32 secctx_len;
->>  	struct lsmblob le;
->> @@ -457,7 +458,9 @@ int netlbl_unlhsh_add(struct net *net,
->>  					     &secctx,
->>  					     &secctx_len) =3D=3D 0) {
->>  			audit_log_format(audit_buf, " sec_obj=3D%s", secctx);
->> -			security_release_secctx(secctx, secctx_len);
->> +			/* scaffolding */
->> +			lsmcontext_init(&context, secctx, secctx_len, 0);
->> +			security_release_secctx(&context);
->>  		}
->>  		audit_log_format(audit_buf, " res=3D%u", ret_val =3D=3D 0 ? 1 : 0);=
+> -
+>   #else
+>   
+>   #include <stdlib.h>
+> diff --git a/libselinux/src/file_path_suffixes.h b/libselinux/src/file_path_suffixes.h
+> index 2d3ca497..7ee27bb5 100644
+> --- a/libselinux/src/file_path_suffixes.h
+> +++ b/libselinux/src/file_path_suffixes.h
+> @@ -8,11 +8,9 @@ S_(BINPOLICY, "/policy/policy")
+>       S_(FAILSAFE_CONTEXT, "/contexts/failsafe_context")
+>       S_(DEFAULT_TYPE, "/contexts/default_type")
+>       S_(SECURETTY_TYPES, "/contexts/securetty_types")
+> -    S_(BOOLEANS, "/booleans")
+>       S_(MEDIA_CONTEXTS, "/contexts/files/media")
+>       S_(REMOVABLE_CONTEXT, "/contexts/removable_context")
+>       S_(CUSTOMIZABLE_TYPES, "/contexts/customizable_types")
+> -    S_(USERS_DIR, "/users/")
 
->>  		audit_log_end(audit_buf);
->> @@ -488,6 +491,7 @@ static int netlbl_unlhsh_remove_addr4(struct net *=
-net,
->>  	struct netlbl_unlhsh_addr4 *entry;
->>  	struct audit_buffer *audit_buf;
->>  	struct net_device *dev;
->> +	struct lsmcontext context;
->>  	char *secctx;
->>  	u32 secctx_len;
->>  	struct lsmblob le;
->> @@ -516,7 +520,9 @@ static int netlbl_unlhsh_remove_addr4(struct net *=
-net,
->>  		    security_secid_to_secctx(&le,
->>  					     &secctx, &secctx_len) =3D=3D 0) {
->>  			audit_log_format(audit_buf, " sec_obj=3D%s", secctx);
->> -			security_release_secctx(secctx, secctx_len);
->> +			/* scaffolding */
->> +			lsmcontext_init(&context, secctx, secctx_len, 0);
->> +			security_release_secctx(&context);
->>  		}
->>  		audit_log_format(audit_buf, " res=3D%u", entry !=3D NULL ? 1 : 0);
->>  		audit_log_end(audit_buf);
->> @@ -553,6 +559,7 @@ static int netlbl_unlhsh_remove_addr6(struct net *=
-net,
->>  	struct netlbl_unlhsh_addr6 *entry;
->>  	struct audit_buffer *audit_buf;
->>  	struct net_device *dev;
->> +	struct lsmcontext context;
->>  	char *secctx;
->>  	u32 secctx_len;
->>  	struct lsmblob le;
->> @@ -580,7 +587,8 @@ static int netlbl_unlhsh_remove_addr6(struct net *=
-net,
->>  		    security_secid_to_secctx(&le,
->>  					     &secctx, &secctx_len) =3D=3D 0) {
->>  			audit_log_format(audit_buf, " sec_obj=3D%s", secctx);
->> -			security_release_secctx(secctx, secctx_len);
->> +			lsmcontext_init(&context, secctx, secctx_len, 0);
->> +			security_release_secctx(&context);
->>  		}
->>  		audit_log_format(audit_buf, " res=3D%u", entry !=3D NULL ? 1 : 0);
->>  		audit_log_end(audit_buf);
->> @@ -1094,6 +1102,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd=
-,
->>  	int ret_val =3D -ENOMEM;
->>  	struct netlbl_unlhsh_walk_arg *cb_arg =3D arg;
->>  	struct net_device *dev;
->> +	struct lsmcontext context;
->>  	void *data;
->>  	u32 secid;
->>  	char *secctx;
->> @@ -1161,7 +1170,9 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd=
-,
->>  			  NLBL_UNLABEL_A_SECCTX,
->>  			  secctx_len,
->>  			  secctx);
->> -	security_release_secctx(secctx, secctx_len);
->> +	/* scaffolding */
->> +	lsmcontext_init(&context, secctx, secctx_len, 0);
->> +	security_release_secctx(&context);
->>  	if (ret_val !=3D 0)
->>  		goto list_cb_failure;
->> =20
->> diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user=
-=2Ec
->> index 4145adf55a22..fba861c4ffbb 100644
->> --- a/net/netlabel/netlabel_user.c
->> +++ b/net/netlabel/netlabel_user.c
->> @@ -98,6 +98,7 @@ struct audit_buffer *netlbl_audit_start_common(int t=
-ype,
->>  					       struct netlbl_audit *audit_info)
->>  {
->>  	struct audit_buffer *audit_buf;
->> +	struct lsmcontext context;
->>  	char *secctx;
->>  	u32 secctx_len;
->>  	struct lsmblob le;
->> @@ -117,7 +118,8 @@ struct audit_buffer *netlbl_audit_start_common(int=
- type,
->>  	if (audit_info->secid !=3D 0 &&
->>  	    security_secid_to_secctx(&le, &secctx, &secctx_len) =3D=3D 0) {
->>  		audit_log_format(audit_buf, " subj=3D%s", secctx);
->> -		security_release_secctx(secctx, secctx_len);
->> +		lsmcontext_init(&context, secctx, secctx_len, 0);/*scaffolding*/
->> +		security_release_secctx(&context);
->>  	}
->> =20
->>  	return audit_buf;
->> diff --git a/security/security.c b/security/security.c
->> index 9cfdc664239e..d25c099b46d1 100644
->> --- a/security/security.c
->> +++ b/security/security.c
->> @@ -458,6 +458,7 @@ void __init security_add_hooks(struct security_hoo=
-k_list *hooks, int count,
->>  			&security_hook_heads.socket_getpeersec_dgram ||
->>  		    hooks[i].head =3D=3D &security_hook_heads.secctx_to_secid ||
->>  		    hooks[i].head =3D=3D &security_hook_heads.secid_to_secctx ||
->> +		    hooks[i].head =3D=3D &security_hook_heads.release_secctx ||
->>  		    hooks[i].head =3D=3D &security_hook_heads.ipc_getsecid ||
->>  		    hooks[i].head =3D=3D &security_hook_heads.task_getsecid ||
->>  		    hooks[i].head =3D=3D &security_hook_heads.inode_getsecid ||
->> @@ -2083,16 +2084,19 @@ int security_secctx_to_secid(const char *secda=
-ta, u32 seclen, struct lsmblob *l)
->>  }
->>  EXPORT_SYMBOL(security_secctx_to_secid);
->> =20
->> -void security_release_secctx(char *secdata, u32 seclen)
->> +void security_release_secctx(struct lsmcontext *cp)
->>  {
->> -	int *display =3D current->security;
->>  	struct security_hook_list *hp;
->> =20
->>  	hlist_for_each_entry(hp, &security_hook_heads.release_secctx, list)
->> -		if (*display =3D=3D LSMDATA_INVALID || *display =3D=3D hp->slot) {
->> -			hp->hook.release_secctx(secdata, seclen);
->> +		if (cp->slot =3D=3D hp->slot) {
->> +			hp->hook.release_secctx(cp->context, cp->len);
->> +			lsmcontext_init(cp, NULL, 0, 0);
->>  			return;
->>  		}
->> +
->> +	pr_warn("%s context \"%s\" from slot %d not released\n", __func__,
->> +		cp->context, cp->slot);
->>  }
->>  EXPORT_SYMBOL(security_release_secctx);
->> =20
->> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
->> index e9560b078efe..3834b751d1e9 100644
->> --- a/security/smack/smack_lsm.c
->> +++ b/security/smack/smack_lsm.c
->> @@ -4439,11 +4439,16 @@ static int smack_secctx_to_secid(const char *s=
-ecdata, u32 seclen, u32 *secid)
->>  	return 0;
->>  }
->> =20
->> -/*
->> - * There used to be a smack_release_secctx hook
->> - * that did nothing back when hooks were in a vector.
->> - * Now that there's a list such a hook adds cost.
->> +/**
->> + * smack_release_secctx - do everything necessary to free a context
->> + * @secdata: Unused
->> + * @seclen: Unused
->> + *
->> + * Do nothing but hold a slot in the hooks list.
->>   */
->> +static void smack_release_secctx(char *secdata, u32 seclen)
->> +{
->> +}
->> =20
->>  static int smack_inode_notifysecctx(struct inode *inode, void *ctx, u=
-32 ctxlen)
->>  {
->> @@ -4683,6 +4688,7 @@ static struct security_hook_list smack_hooks[] _=
-_lsm_ro_after_init =3D {
->>  	LSM_HOOK_INIT(ismaclabel, smack_ismaclabel),
->>  	LSM_HOOK_INIT(secid_to_secctx, smack_secid_to_secctx),
->>  	LSM_HOOK_INIT(secctx_to_secid, smack_secctx_to_secid),
->> +	LSM_HOOK_INIT(release_secctx, smack_release_secctx),
->>  	LSM_HOOK_INIT(inode_notifysecctx, smack_inode_notifysecctx),
->>  	LSM_HOOK_INIT(inode_setsecctx, smack_inode_setsecctx),
->>  	LSM_HOOK_INIT(inode_getsecctx, smack_inode_getsecctx),
->> --=20
->> 2.20.1
->>
+Only concern is if there are any external users of the functions that 
+return these paths that will go boom if they get NULL back.  Probably 
+not but might want to check.
+
+>       S_(SEUSERS, "/seusers")
+>       S_(TRANSLATIONS, "/setrans.conf")
+>       S_(NETFILTER_CONTEXTS, "/contexts/netfilter_contexts")
+> diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
+> index 20052beb..9e75292d 100644
+> --- a/libselinux/src/load_policy.c
+> +++ b/libselinux/src/load_policy.c
+> @@ -48,22 +48,18 @@ int security_load_policy(void *data, size_t len)
+>   hidden_def(security_load_policy)
+>   
+>   #ifndef ANDROID
+> -int load_setlocaldefs hidden = 1;
+> -
+>   #undef max
+>   #define max(a, b) (((a) > (b)) ? (a) : (b))
+>   
+> -int selinux_mkload_policy(int preservebools)
+> +int selinux_mkload_policy(int preservebools __attribute__((unused)))
+>   {	
+>   	int kernvers = security_policyvers();
+>   	int maxvers = kernvers, minvers = DEFAULT_POLICY_VERSION, vers;
+> -	int setlocaldefs = load_setlocaldefs;
+>   	char path[PATH_MAX];
+>   	struct stat sb;
+> -	struct utsname uts;
+>   	size_t size;
+>   	void *map, *data;
+> -	int fd, rc = -1, prot;
+> +	int fd, rc = -1;
+>   	sepol_policydb_t *policydb;
+>   	sepol_policy_file_t *pf;
+>   	int usesepol = 0;
+> @@ -77,9 +73,6 @@ int selinux_mkload_policy(int preservebools)
+>   	int (*policydb_read)(sepol_policydb_t *, sepol_policy_file_t *) = NULL;
+>   	int (*policydb_set_vers)(sepol_policydb_t *, unsigned int) = NULL;
+>   	int (*policydb_to_image)(sepol_handle_t *, sepol_policydb_t *, void **, size_t *) = NULL;
+> -	int (*genbools_array)(void *data, size_t len, char **names, int *values, int nel) = NULL;
+> -	int (*genusers)(void *data, size_t len, const char *usersdir, void **newdata, size_t * newlen) = NULL;
+> -	int (*genbools)(void *data, size_t len, const char *boolpath) = NULL;
+>   
+>   #ifdef SHARED
+>   	char *errormsg = NULL;
+> @@ -110,13 +103,6 @@ int selinux_mkload_policy(int preservebools)
+>   		DLERR();
+>   		policydb_to_image = dlsym(libsepolh, "sepol_policydb_to_image");
+>   		DLERR();
+> -		genbools_array = dlsym(libsepolh, "sepol_genbools_array");
+> -		DLERR();
+> -		genusers = dlsym(libsepolh, "sepol_genusers");
+> -		DLERR();
+> -		genbools = dlsym(libsepolh, "sepol_genbools");
+> -		DLERR();
+> -
+>   #undef DLERR
+>   	}
+>   #else
+> @@ -131,42 +117,11 @@ int selinux_mkload_policy(int preservebools)
+>   	policydb_read = sepol_policydb_read;
+>   	policydb_set_vers = sepol_policydb_set_vers;
+>   	policydb_to_image = sepol_policydb_to_image;
+> -	genbools_array = sepol_genbools_array;
+> -	genusers = sepol_genusers;
+> -	genbools = sepol_genbools;
+> -
+>   #endif
+>   
+> -	/*
+> -	 * Check whether we need to support local boolean and user definitions.
+> -	 */
+> -	if (setlocaldefs) {
+> -		if (access(selinux_booleans_path(), F_OK) == 0)
+> -			goto checkbool;
+> -		snprintf(path, sizeof path, "%s.local", selinux_booleans_path());
+> -		if (access(path, F_OK) == 0)
+> -			goto checkbool;
+> -		snprintf(path, sizeof path, "%s/local.users", selinux_users_path());
+> -		if (access(path, F_OK) == 0)
+> -			goto checkbool;
+> -		/* No local definition files, so disable setlocaldefs. */
+> -		setlocaldefs = 0;
+> -	}
+> -
+> -checkbool:
+> -	/*
+> -	 * As of Linux 2.6.22, the kernel preserves boolean
+> -	 * values across a reload, so we do not need to
+> -	 * preserve them in userspace.
+> -	 */
+> -	if (preservebools && uname(&uts) == 0 && strverscmp(uts.release, "2.6.22") >= 0)
+> -		preservebools = 0;
+> -
+>   	if (usesepol) {
+> -		maxvers = vers_max();
+> +		maxvers = max(kernvers, vers_max());
+>   		minvers = vers_min();
+> -		if (!setlocaldefs && !preservebools)
+> -			maxvers = max(kernvers, maxvers);
+>   	}
+>   
+>   	vers = maxvers;
+> @@ -195,12 +150,8 @@ checkbool:
+>   		goto close;
+>   	}
+>   
+> -	prot = PROT_READ;
+> -	if (setlocaldefs || preservebools)
+> -		prot |= PROT_WRITE;
+> -
+>   	size = sb.st_size;
+> -	data = map = mmap(NULL, size, prot, MAP_PRIVATE, fd, 0);
+> +	data = map = mmap(NULL, size, PROT_READ, MAP_PRIVATE, fd, 0);
+>   	if (map == MAP_FAILED) {
+>   		fprintf(stderr,
+>   			"SELinux:  Could not map policy file %s:  %s\n",
+> @@ -239,49 +190,6 @@ checkbool:
+>   		policydb_free(policydb);
+>   	}
+>   
+> -	if (usesepol) {
+> -		if (setlocaldefs) {
+> -			void *olddata = data;
+> -			size_t oldsize = size;
+> -			rc = genusers(olddata, oldsize, selinux_users_path(),
+> -				      &data, &size);
+> -			if (rc < 0) {
+> -				/* Fall back to the prior image if genusers failed. */
+> -				data = olddata;
+> -				size = oldsize;
+> -				rc = 0;
+> -			} else {
+> -				if (olddata != map)
+> -					free(olddata);
+> -			}
+> -		}
+> -		
+> -		if (preservebools) {
+> -			int *values, len, i;
+> -			char **names;
+> -			rc = security_get_boolean_names(&names, &len);
+> -			if (!rc) {
+> -				values = malloc(sizeof(int) * len);
+> -				if (!values) {
+> -					free(names);
+> -					goto unmap;
+> -				}
+> -				for (i = 0; i < len; i++)
+> -					values[i] =
+> -						security_get_boolean_active(names[i]);
+> -				(void)genbools_array(data, size, names, values,
+> -						     len);
+> -				free(values);
+> -				for (i = 0; i < len; i++)
+> -					free(names[i]);
+> -				free(names);
+> -			}
+> -		} else if (setlocaldefs) {
+> -			(void)genbools(data, size, selinux_booleans_path());
+> -		}
+> -	}
+> -
+> -
+>   	rc = security_load_policy(data, size);
+>   	
+>   	if (rc)
+> diff --git a/libselinux/src/selinux_config.c b/libselinux/src/selinux_config.c
+> index b06cb63b..272f48b8 100644
+> --- a/libselinux/src/selinux_config.c
+> +++ b/libselinux/src/selinux_config.c
+> @@ -16,7 +16,6 @@
+>   #define SELINUXDEFAULT "targeted"
+>   #define SELINUXTYPETAG "SELINUXTYPE="
+>   #define SELINUXTAG "SELINUX="
+> -#define SETLOCALDEFS "SETLOCALDEFS="
+>   #define REQUIRESEUSERS "REQUIRESEUSERS="
+>   
+>   /* Indices for file paths arrays. */
+> @@ -28,31 +27,29 @@
+>   #define USER_CONTEXTS     5
+>   #define FAILSAFE_CONTEXT  6
+>   #define DEFAULT_TYPE      7
+> -#define BOOLEANS          8
+> -#define MEDIA_CONTEXTS    9
+> -#define REMOVABLE_CONTEXT 10
+> -#define CUSTOMIZABLE_TYPES    11
+> -#define USERS_DIR         12
+> -#define SEUSERS           13
+> -#define TRANSLATIONS      14
+> -#define NETFILTER_CONTEXTS    15
+> -#define FILE_CONTEXTS_HOMEDIR 16
+> -#define FILE_CONTEXTS_LOCAL 17
+> -#define SECURETTY_TYPES   18
+> -#define X_CONTEXTS        19
+> -#define COLORS            20
+> -#define VIRTUAL_DOMAIN    21
+> -#define VIRTUAL_IMAGE     22
+> -#define FILE_CONTEXT_SUBS 23
+> -#define SEPGSQL_CONTEXTS  24
+> -#define FILE_CONTEXT_SUBS_DIST 25
+> -#define LXC_CONTEXTS      26
+> -#define BOOLEAN_SUBS      27
+> -#define OPENSSH_CONTEXTS  28
+> -#define SYSTEMD_CONTEXTS  29
+> -#define SNAPPERD_CONTEXTS 30
+> -#define OPENRC_CONTEXTS   31
+> -#define NEL               32
+> +#define MEDIA_CONTEXTS    8
+> +#define REMOVABLE_CONTEXT 9
+> +#define CUSTOMIZABLE_TYPES    10
+> +#define SEUSERS           11
+> +#define TRANSLATIONS      12
+> +#define NETFILTER_CONTEXTS    13
+> +#define FILE_CONTEXTS_HOMEDIR 14
+> +#define FILE_CONTEXTS_LOCAL 15
+> +#define SECURETTY_TYPES   16
+> +#define X_CONTEXTS        17
+> +#define COLORS            18
+> +#define VIRTUAL_DOMAIN    19
+> +#define VIRTUAL_IMAGE     20
+> +#define FILE_CONTEXT_SUBS 21
+> +#define SEPGSQL_CONTEXTS  22
+> +#define FILE_CONTEXT_SUBS_DIST 23
+> +#define LXC_CONTEXTS      24
+> +#define BOOLEAN_SUBS      25
+> +#define OPENSSH_CONTEXTS  26
+> +#define SYSTEMD_CONTEXTS  27
+> +#define SNAPPERD_CONTEXTS 28
+> +#define OPENRC_CONTEXTS   29
+> +#define NEL               30
+>   
+>   /* Part of one-time lazy init */
+>   static pthread_once_t once = PTHREAD_ONCE_INIT;
+> @@ -192,10 +189,6 @@ static void init_selinux_config(void)
+>   				}
+>   				free(type);
+>   				continue;
+> -			} else if (!strncmp(buf_p, SETLOCALDEFS,
+> -					    sizeof(SETLOCALDEFS) - 1)) {
+> -				value = buf_p + sizeof(SETLOCALDEFS) - 1;
+> -				intptr = &load_setlocaldefs;
+>   			} else if (!strncmp(buf_p, REQUIRESEUSERS,
+>   					    sizeof(REQUIRESEUSERS) - 1)) {
+>   				value = buf_p + sizeof(REQUIRESEUSERS) - 1;
+> @@ -410,16 +403,18 @@ const char *selinux_user_contexts_path(void)
+>   
+>   hidden_def(selinux_user_contexts_path)
+>   
+> +/* Deprecated as local policy booleans no longer supported. */
+>   const char *selinux_booleans_path(void)
+>   {
+> -	return get_path(BOOLEANS);
+> +	return NULL;
+>   }
+>   
+>   hidden_def(selinux_booleans_path)
+>   
+> +/* Deprecated as no longer supported. */
+>   const char *selinux_users_path(void)
+>   {
+> -	return get_path(USERS_DIR);
+> +	return NULL;
+>   }
+
+Just want to make sure we don't make anything crash by not returning a 
+string here.
+
+>   
+>   hidden_def(selinux_users_path)
+> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+> index acd59c7c..8b4bed2f 100644
+> --- a/libselinux/src/selinux_internal.h
+> +++ b/libselinux/src/selinux_internal.h
+> @@ -110,7 +110,6 @@ hidden_proto(selinux_reset_config);
+>   
+>   hidden void flush_class_cache(void);
+>   
+> -extern int load_setlocaldefs hidden;
+>   extern int require_seusers hidden;
+>   extern int selinux_page_size hidden;
+>   
+> diff --git a/libsepol/include/sepol/booleans.h b/libsepol/include/sepol/booleans.h
+> index 2966903d..25229057 100644
+> --- a/libsepol/include/sepol/booleans.h
+> +++ b/libsepol/include/sepol/booleans.h
+> @@ -10,24 +10,6 @@
+>   extern "C" {
+>   #endif
+>   
+> -/*--------------compatibility--------------*/
+> -
+> -/* Given an existing binary policy (starting at 'data', with length 'len')
+> -   and a boolean configuration file named by 'boolpath', rewrite the binary
+> -   policy for the boolean settings in the boolean configuration file.
+> -   The binary policy is rewritten in place in memory.
+> -   Returns 0 upon success, or -1 otherwise. */
+> -extern int sepol_genbools(void *data, size_t len, const char *boolpath);
+> -
+> -/* Given an existing binary policy (starting at 'data', with length 'len')
+> -   and boolean settings specified by the parallel arrays ('names', 'values')
+> -   with 'nel' elements, rewrite the binary policy for the boolean settings.
+> -   The binary policy is rewritten in place in memory.
+> -   Returns 0 upon success or -1 otherwise. */
+> -extern int sepol_genbools_array(void *data, size_t len,
+> -				char **names, int *values, int nel);
+> -/*---------------end compatbility------------*/
+> -
+>   /* Set the specified boolean */
+>   extern int sepol_bool_set(sepol_handle_t * handle,
+>   			  sepol_policydb_t * policydb,
+> diff --git a/libsepol/include/sepol/policydb/services.h b/libsepol/include/sepol/policydb/services.h
+> index 6ef27a8c..776c2cff 100644
+> --- a/libsepol/include/sepol/policydb/services.h
+> +++ b/libsepol/include/sepol/policydb/services.h
+> @@ -30,12 +30,6 @@ extern "C" {
+>   extern int sepol_set_policydb(policydb_t * p);
+>   extern int sepol_set_sidtab(sidtab_t * s);
+>   
+> -/* Modify a policydb for boolean settings. */
+> -int sepol_genbools_policydb(policydb_t * policydb, const char *booleans);
+> -
+> -/* Modify a policydb for user settings. */
+> -int sepol_genusers_policydb(policydb_t * policydb, const char *usersdir);
+> -
+>   /* Load the security policy. This initializes the policydb
+>      and sidtab based on the provided binary policy. */
+>   extern int sepol_load_policy(void *data, size_t len);
+> diff --git a/libsepol/include/sepol/users.h b/libsepol/include/sepol/users.h
+> index ad23f89b..156d1adb 100644
+> --- a/libsepol/include/sepol/users.h
+> +++ b/libsepol/include/sepol/users.h
+> @@ -10,23 +10,6 @@
+>   extern "C" {
+>   #endif
+>   
+> -/*---------compatibility------------*/
+> -
+> -/* Given an existing binary policy (starting at 'data with length 'len')
+> -   and user configurations living in 'usersdir', generate a new binary
+> -   policy for the new user configurations.  Sets '*newdata' and '*newlen'
+> -   to refer to the new binary policy image. */
+> -extern int sepol_genusers(void *data, size_t len,
+> -			  const char *usersdir,
+> -			  void **newdata, size_t * newlen);
+> -
+> -/* Enable or disable deletion of users by sepol_genusers(3) when
+> -   a user in original binary policy image is not defined by the
+> -   new user configurations.  Defaults to disabled. */
+> -extern void sepol_set_delusers(int on);
+> -
+> -/*--------end compatibility----------*/
+> -
+>   /* Modify the user, or add it, if the key is not found */
+>   extern int sepol_user_modify(sepol_handle_t * handle,
+>   			     sepol_policydb_t * policydb,
+> diff --git a/libsepol/src/genbools.c b/libsepol/src/genbools.c
+> deleted file mode 100644
+> index d4a2df62..00000000
+> --- a/libsepol/src/genbools.c
+> +++ /dev/null
+> @@ -1,279 +0,0 @@
+> -#include <stdio.h>
+> -#include <stdlib.h>
+> -#include <ctype.h>
+> -#include <errno.h>
+> -
+> -#include <sepol/policydb/policydb.h>
+> -#include <sepol/policydb/conditional.h>
+> -
+> -#include "debug.h"
+> -#include "private.h"
+> -#include "dso.h"
+> -
+> -/* -- Deprecated -- */
+> -
+> -static char *strtrim(char *dest, char *source, int size)
+> -{
+> -	int i = 0;
+> -	char *ptr = source;
+> -	i = 0;
+> -	while (isspace(*ptr) && i < size) {
+> -		ptr++;
+> -		i++;
+> -	}
+> -	strncpy(dest, ptr, size);
+> -	for (i = strlen(dest) - 1; i > 0; i--) {
+> -		if (!isspace(dest[i]))
+> -			break;
+> -	}
+> -	dest[i + 1] = '\0';
+> -	return dest;
+> -}
+> -
+> -static int process_boolean(char *buffer, char *name, int namesize, int *val)
+> -{
+> -	char name1[BUFSIZ];
+> -	char *ptr = NULL;
+> -	char *tok;
+> -
+> -	/* Skip spaces */
+> -	while (isspace(buffer[0]))
+> -		buffer++;
+> -	/* Ignore comments */
+> -	if (buffer[0] == '#')
+> -		return 0;
+> -
+> -	tok = strtok_r(buffer, "=", &ptr);
+> -	if (!tok) {
+> -		ERR(NULL, "illegal boolean definition %s", buffer);
+> -		return -1;
+> -	}
+> -	strncpy(name1, tok, BUFSIZ - 1);
+> -	strtrim(name, name1, namesize - 1);
+> -
+> -	tok = strtok_r(NULL, "\0", &ptr);
+> -	if (!tok) {
+> -		ERR(NULL, "illegal boolean definition %s=%s", name, buffer);
+> -		return -1;
+> -	}
+> -
+> -	while (isspace(*tok))
+> -		tok++;
+> -
+> -	*val = -1;
+> -	if (isdigit(tok[0]))
+> -		*val = atoi(tok);
+> -	else if (!strncasecmp(tok, "true", sizeof("true") - 1))
+> -		*val = 1;
+> -	else if (!strncasecmp(tok, "false", sizeof("false") - 1))
+> -		*val = 0;
+> -	if (*val != 0 && *val != 1) {
+> -		ERR(NULL, "illegal value for boolean %s=%s", name, tok);
+> -		return -1;
+> -	}
+> -	return 1;
+> -}
+> -
+> -static int load_booleans(struct policydb *policydb, const char *path,
+> -			 int *changesp)
+> -{
+> -	FILE *boolf;
+> -	char *buffer = NULL;
+> -	char localbools[BUFSIZ];
+> -	char name[BUFSIZ];
+> -	int val;
+> -	int errors = 0, changes = 0;
+> -	struct cond_bool_datum *datum;
+> -
+> -	boolf = fopen(path, "r");
+> -	if (boolf == NULL)
+> -		goto localbool;
+> -
+> -#ifdef __APPLE__
+> -        if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
+> -          ERR(NULL, "out of memory");
+> -	  return -1;
+> -	}
+> -
+> -        while(fgets(buffer, 255, boolf) != NULL) {
+> -#else
+> -	size_t size = 0;
+> -	while (getline(&buffer, &size, boolf) > 0) {
+> -#endif
+> -		int ret = process_boolean(buffer, name, sizeof(name), &val);
+> -		if (ret == -1)
+> -			errors++;
+> -		if (ret == 1) {
+> -			datum = hashtab_search(policydb->p_bools.table, name);
+> -			if (!datum) {
+> -				ERR(NULL, "unknown boolean %s", name);
+> -				errors++;
+> -				continue;
+> -			}
+> -			if (datum->state != val) {
+> -				datum->state = val;
+> -				changes++;
+> -			}
+> -		}
+> -	}
+> -	fclose(boolf);
+> -      localbool:
+> -	snprintf(localbools, sizeof(localbools), "%s.local", path);
+> -	boolf = fopen(localbools, "r");
+> -	if (boolf != NULL) {
+> -
+> -#ifdef __APPLE__
+> -
+> -	  while(fgets(buffer, 255, boolf) != NULL) {
+> -#else
+> -
+> -	    while (getline(&buffer, &size, boolf) > 0) {
+> -#endif
+> -			int ret =
+> -			    process_boolean(buffer, name, sizeof(name), &val);
+> -			if (ret == -1)
+> -				errors++;
+> -			if (ret == 1) {
+> -				datum =
+> -				    hashtab_search(policydb->p_bools.table,
+> -						   name);
+> -				if (!datum) {
+> -					ERR(NULL, "unknown boolean %s", name);
+> -					errors++;
+> -					continue;
+> -				}
+> -				if (datum->state != val) {
+> -					datum->state = val;
+> -					changes++;
+> -				}
+> -			}
+> -		}
+> -		fclose(boolf);
+> -	}
+> -	free(buffer);
+> -	if (errors)
+> -		errno = EINVAL;
+> -	*changesp = changes;
+> -	return errors ? -1 : 0;
+> -}
+> -
+> -int sepol_genbools(void *data, size_t len, const char *booleans)
+> -{
+> -	struct policydb policydb;
+> -	struct policy_file pf;
+> -	int rc, changes = 0;
+> -
+> -	if (policydb_init(&policydb))
+> -		goto err;
+> -	if (policydb_from_image(NULL, data, len, &policydb) < 0)
+> -		goto err;
+> -
+> -	if (load_booleans(&policydb, booleans, &changes) < 0) {
+> -		WARN(NULL, "error while reading %s", booleans);
+> -	}
+> -
+> -	if (!changes)
+> -		goto out;
+> -
+> -	if (evaluate_conds(&policydb) < 0) {
+> -		ERR(NULL, "error while re-evaluating conditionals");
+> -		errno = EINVAL;
+> -		goto err_destroy;
+> -	}
+> -
+> -	policy_file_init(&pf);
+> -	pf.type = PF_USE_MEMORY;
+> -	pf.data = data;
+> -	pf.len = len;
+> -	rc = policydb_write(&policydb, &pf);
+> -	if (rc) {
+> -		ERR(NULL, "unable to write new binary policy image");
+> -		errno = EINVAL;
+> -		goto err_destroy;
+> -	}
+> -
+> -      out:
+> -	policydb_destroy(&policydb);
+> -	return 0;
+> -
+> -      err_destroy:
+> -	policydb_destroy(&policydb);
+> -
+> -      err:
+> -	return -1;
+> -}
+> -
+> -int hidden sepol_genbools_policydb(policydb_t * policydb, const char *booleans)
+> -{
+> -	int rc, changes = 0;
+> -
+> -	rc = load_booleans(policydb, booleans, &changes);
+> -	if (!rc && changes)
+> -		rc = evaluate_conds(policydb);
+> -	if (rc)
+> -		errno = EINVAL;
+> -	return rc;
+> -}
+> -
+> -/* -- End Deprecated -- */
+> -
+> -int sepol_genbools_array(void *data, size_t len, char **names, int *values,
+> -			 int nel)
+> -{
+> -	struct policydb policydb;
+> -	struct policy_file pf;
+> -	int rc, i, errors = 0;
+> -	struct cond_bool_datum *datum;
+> -
+> -	/* Create policy database from image */
+> -	if (policydb_init(&policydb))
+> -		goto err;
+> -	if (policydb_from_image(NULL, data, len, &policydb) < 0)
+> -		goto err;
+> -
+> -	for (i = 0; i < nel; i++) {
+> -		datum = hashtab_search(policydb.p_bools.table, names[i]);
+> -		if (!datum) {
+> -			ERR(NULL, "boolean %s no longer in policy", names[i]);
+> -			errors++;
+> -			continue;
+> -		}
+> -		if (values[i] != 0 && values[i] != 1) {
+> -			ERR(NULL, "illegal value %d for boolean %s",
+> -			    values[i], names[i]);
+> -			errors++;
+> -			continue;
+> -		}
+> -		datum->state = values[i];
+> -	}
+> -
+> -	if (evaluate_conds(&policydb) < 0) {
+> -		ERR(NULL, "error while re-evaluating conditionals");
+> -		errno = EINVAL;
+> -		goto err_destroy;
+> -	}
+> -
+> -	policy_file_init(&pf);
+> -	pf.type = PF_USE_MEMORY;
+> -	pf.data = data;
+> -	pf.len = len;
+> -	rc = policydb_write(&policydb, &pf);
+> -	if (rc) {
+> -		ERR(NULL, "unable to write binary policy");
+> -		errno = EINVAL;
+> -		goto err_destroy;
+> -	}
+> -	if (errors) {
+> -		errno = EINVAL;
+> -		goto err_destroy;
+> -	}
+> -
+> -	policydb_destroy(&policydb);
+> -	return 0;
+> -
+> -      err_destroy:
+> -	policydb_destroy(&policydb);
+> -
+> -      err:
+> -	return -1;
+> -}
+> diff --git a/libsepol/src/genusers.c b/libsepol/src/genusers.c
+> deleted file mode 100644
+> index c375c669..00000000
+> --- a/libsepol/src/genusers.c
+> +++ /dev/null
+> @@ -1,343 +0,0 @@
+> -#include <stdio.h>
+> -
+> -#include <stdlib.h>
+> -#include <ctype.h>
+> -#include <errno.h>
+> -#include <limits.h>
+> -
+> -#include <sepol/policydb/policydb.h>
+> -
+> -#ifndef __APPLE__
+> -#include <stdio_ext.h>
+> -#endif
+> -
+> -#include <stdarg.h>
+> -
+> -#include "debug.h"
+> -#include "private.h"
+> -#include "dso.h"
+> -#include "mls.h"
+> -
+> -/* -- Deprecated -- */
+> -
+> -void sepol_set_delusers(int on __attribute((unused)))
+> -{
+> -	WARN(NULL, "Deprecated interface");
+> -}
+> -
+> -#undef BADLINE
+> -#define BADLINE() { \
+> -	ERR(NULL, "invalid entry %s (%s:%u)", \
+> -		buffer, path, lineno); \
+> -	continue; \
+> -}
+> -
+> -static int load_users(struct policydb *policydb, const char *path)
+> -{
+> -	FILE *fp;
+> -	char *buffer = NULL, *p, *q, oldc;
+> -	ssize_t nread;
+> -	unsigned lineno = 0, islist = 0, bit;
+> -	user_datum_t *usrdatum;
+> -	role_datum_t *roldatum;
+> -	ebitmap_node_t *rnode;
+> -
+> -	fp = fopen(path, "r");
+> -	if (fp == NULL)
+> -		return -1;
+> -
+> -#ifdef __APPLE__
+> -	if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
+> -	  ERR(NULL, "out of memory");
+> -	  return -1;
+> -	}
+> -
+> -	while(fgets(buffer, 255, fp) != NULL) {
+> -		nread = strlen(buffer);
+> -#else
+> -	size_t len = 0;
+> -	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+> -	while ((nread = getline(&buffer, &len, fp)) > 0) {
+> -#endif
+> -
+> -		lineno++;
+> -		if (buffer[nread - 1] == '\n')
+> -			buffer[nread - 1] = 0;
+> -		p = buffer;
+> -		while (*p && isspace(*p))
+> -			p++;
+> -		if (!(*p) || *p == '#')
+> -			continue;
+> -
+> -		if (strncasecmp(p, "user", 4))
+> -			BADLINE();
+> -		p += 4;
+> -		if (!isspace(*p))
+> -			BADLINE();
+> -		while (*p && isspace(*p))
+> -			p++;
+> -		if (!(*p))
+> -			BADLINE();
+> -		q = p;
+> -		while (*p && !isspace(*p))
+> -			p++;
+> -		if (!(*p))
+> -			BADLINE();
+> -		*p++ = 0;
+> -
+> -		usrdatum = hashtab_search(policydb->p_users.table, q);
+> -		if (usrdatum) {
+> -			/* Replacing an existing user definition. */
+> -			ebitmap_destroy(&usrdatum->roles.roles);
+> -			ebitmap_init(&usrdatum->roles.roles);
+> -		} else {
+> -			char *id = strdup(q);
+> -
+> -			if (!id) {
+> -				ERR(NULL, "out of memory");
+> -				free(buffer);
+> -				fclose(fp);
+> -				return -1;
+> -			}
+> -
+> -			/* Adding a new user definition. */
+> -			usrdatum = malloc(sizeof(user_datum_t));
+> -			if (!usrdatum) {
+> -				ERR(NULL, "out of memory");
+> -				free(buffer);
+> -				free(id);
+> -				fclose(fp);
+> -				return -1;
+> -			}
+> -
+> -			user_datum_init(usrdatum);
+> -			usrdatum->s.value = ++policydb->p_users.nprim;
+> -			if (hashtab_insert(policydb->p_users.table,
+> -					   id, (hashtab_datum_t) usrdatum)) {
+> -				ERR(NULL, "out of memory");
+> -				free(buffer);
+> -				free(id);
+> -				user_datum_destroy(usrdatum);
+> -				free(usrdatum);
+> -				fclose(fp);
+> -				return -1;
+> -			}
+> -		}
+> -
+> -		while (*p && isspace(*p))
+> -			p++;
+> -		if (!(*p))
+> -			BADLINE();
+> -		if (strncasecmp(p, "roles", 5))
+> -			BADLINE();
+> -		p += 5;
+> -		if (!isspace(*p))
+> -			BADLINE();
+> -		while (*p && isspace(*p))
+> -			p++;
+> -		if (!(*p))
+> -			BADLINE();
+> -		if (*p == '{') {
+> -			islist = 1;
+> -			p++;
+> -		} else
+> -			islist = 0;
+> -
+> -		oldc = 0;
+> -		do {
+> -			while (*p && isspace(*p))
+> -				p++;
+> -			if (!(*p))
+> -				break;
+> -
+> -			q = p;
+> -			while (*p && *p != ';' && *p != '}' && !isspace(*p))
+> -				p++;
+> -			if (!(*p))
+> -				break;
+> -			if (*p == '}')
+> -				islist = 0;
+> -			oldc = *p;
+> -			*p++ = 0;
+> -			if (!q[0])
+> -				break;
+> -
+> -			roldatum = hashtab_search(policydb->p_roles.table, q);
+> -			if (!roldatum) {
+> -				ERR(NULL, "undefined role %s (%s:%u)",
+> -				    q, path, lineno);
+> -				continue;
+> -			}
+> -			/* Set the role and every role it dominates */
+> -			ebitmap_for_each_positive_bit(&roldatum->dominates, rnode, bit) {
+> -				if (ebitmap_set_bit
+> -				    (&usrdatum->roles.roles, bit, 1)) {
+> -					ERR(NULL, "out of memory");
+> -					free(buffer);
+> -					fclose(fp);
+> -					return -1;
+> -				}
+> -			}
+> -		} while (islist);
+> -		if (oldc == 0)
+> -			BADLINE();
+> -
+> -		if (policydb->mls) {
+> -			context_struct_t context;
+> -			char *scontext, *r, *s;
+> -
+> -			while (*p && isspace(*p))
+> -				p++;
+> -			if (!(*p))
+> -				BADLINE();
+> -			if (strncasecmp(p, "level", 5))
+> -				BADLINE();
+> -			p += 5;
+> -			if (!isspace(*p))
+> -				BADLINE();
+> -			while (*p && isspace(*p))
+> -				p++;
+> -			if (!(*p))
+> -				BADLINE();
+> -			q = p;
+> -			while (*p && (!isspace(*p) || strncasecmp(p + 1, "range", 5)))
+> -				p++;
+> -			if (!(*p) || p == q)
+> -				BADLINE();
+> -			*p = 0;
+> -			p++;
+> -
+> -			scontext = malloc(p - q);
+> -			if (!scontext) {
+> -				ERR(NULL, "out of memory");
+> -				free(buffer);
+> -				fclose(fp);
+> -				return -1;
+> -			}
+> -			r = scontext;
+> -			s = q;
+> -			while (*s) {
+> -				if (!isspace(*s))
+> -					*r++ = *s;
+> -				s++;
+> -			}
+> -			*r = 0;
+> -			r = scontext;
+> -
+> -			context_init(&context);
+> -			if (mls_context_to_sid(policydb, oldc, &r, &context) <
+> -			    0) {
+> -				ERR(NULL, "invalid level %s (%s:%u)", scontext,
+> -				    path, lineno);
+> -				free(scontext);
+> -				continue;
+> -
+> -			}
+> -			free(scontext);
+> -			memcpy(&usrdatum->dfltlevel, &context.range.level[0],
+> -			       sizeof(usrdatum->dfltlevel));
+> -
+> -			if (strncasecmp(p, "range", 5))
+> -				BADLINE();
+> -			p += 5;
+> -			if (!isspace(*p))
+> -				BADLINE();
+> -			while (*p && isspace(*p))
+> -				p++;
+> -			if (!(*p))
+> -				BADLINE();
+> -			q = p;
+> -			while (*p && *p != ';')
+> -				p++;
+> -			if (!(*p))
+> -				BADLINE();
+> -			*p++ = 0;
+> -
+> -			scontext = malloc(p - q);
+> -			if (!scontext) {
+> -				ERR(NULL, "out of memory");
+> -				free(buffer);
+> -				fclose(fp);
+> -				return -1;
+> -			}
+> -			r = scontext;
+> -			s = q;
+> -			while (*s) {
+> -				if (!isspace(*s))
+> -					*r++ = *s;
+> -				s++;
+> -			}
+> -			*r = 0;
+> -			r = scontext;
+> -
+> -			context_init(&context);
+> -			if (mls_context_to_sid(policydb, oldc, &r, &context) <
+> -			    0) {
+> -				ERR(NULL, "invalid range %s (%s:%u)", scontext,
+> -				    path, lineno);
+> -				free(scontext);
+> -				continue;
+> -			}
+> -			free(scontext);
+> -			memcpy(&usrdatum->range, &context.range,
+> -			       sizeof(usrdatum->range));
+> -		}
+> -	}
+> -
+> -	free(buffer);
+> -	fclose(fp);
+> -	return 0;
+> -}
+> -
+> -int sepol_genusers(void *data, size_t len,
+> -		   const char *usersdir, void **newdata, size_t * newlen)
+> -{
+> -	struct policydb policydb;
+> -	char path[PATH_MAX];
+> -
+> -	/* Construct policy database */
+> -	if (policydb_init(&policydb))
+> -		goto err;
+> -	if (policydb_from_image(NULL, data, len, &policydb) < 0)
+> -		goto err;
+> -
+> -	/* Load locally defined users. */
+> -	snprintf(path, sizeof path, "%s/local.users", usersdir);
+> -	if (load_users(&policydb, path) < 0)
+> -		goto err_destroy;
+> -
+> -	/* Write policy database */
+> -	if (policydb_to_image(NULL, &policydb, newdata, newlen) < 0)
+> -		goto err_destroy;
+> -
+> -	policydb_destroy(&policydb);
+> -	return 0;
+> -
+> -      err_destroy:
+> -	policydb_destroy(&policydb);
+> -
+> -      err:
+> -	return -1;
+> -}
+> -
+> -int hidden sepol_genusers_policydb(policydb_t * policydb, const char *usersdir)
+> -{
+> -	char path[PATH_MAX];
+> -
+> -	/* Load locally defined users. */
+> -	snprintf(path, sizeof path, "%s/local.users", usersdir);
+> -	if (load_users(policydb, path) < 0) {
+> -		ERR(NULL, "unable to load local.users: %s", strerror(errno));
+> -		return -1;
+> -	}
+> -
+> -	if (policydb_reindex_users(policydb) < 0) {
+> -		ERR(NULL, "unable to reindex users: %s", strerror(errno));
+> -		return -1;
+> -
+> -	}
+> -
+> -	return 0;
+> -}
+> -
+> -/* -- End Deprecated -- */
+> diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+> index d879016c..d997e524 100644
+> --- a/libsepol/src/libsepol.map.in
+> +++ b/libsepol/src/libsepol.map.in
+> @@ -2,14 +2,14 @@ LIBSEPOL_1.0 {
+>     global:
+>   	expand_module_avrules;
+>   	sepol_module_package_*; sepol_link_modules; sepol_expand_module; sepol_link_packages;
+> -	sepol_bool_*; sepol_genbools*;
+> +	sepol_bool_*;
+>   	sepol_context_*; sepol_mls_*; sepol_check_context;
+>   	sepol_iface_*;
+>   	sepol_port_*;
+>   	sepol_ibpkey_*;
+>   	sepol_ibendport_*;
+>   	sepol_node_*;
+> -	sepol_user_*; sepol_genusers; sepol_set_delusers;
+> +	sepol_user_*; sepol_set_delusers;
+>   	sepol_msg_*; sepol_debug;
+>   	sepol_handle_*;
+>   	sepol_policydb_*; sepol_set_policydb_from_file;
+
+We have to keep at least stubs for the libsepol interfaces exported in 
+the map file because those are part of the shared library ABI and we 
+can't break ABI.  So trivial sepol_genbools*() and sepol_genusers() that 
+return an error are ok but not complete removal.
+
+We should test this on RHEL7 too to confirm no breakage.
+
 
