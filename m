@@ -2,63 +2,88 @@ Return-Path: <SRS0=qCpE=US=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77AC2C43613
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 20:08:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 923D1C4646B
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 22:24:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 53F072084A
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 20:08:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A7092175B
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 22:24:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726322AbfFSUI1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 16:08:27 -0400
-Received: from namei.org ([65.99.196.166]:46464 "EHLO namei.org"
+        id S1727244AbfFSWYN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 18:24:13 -0400
+Received: from mga18.intel.com ([134.134.136.126]:40155 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726175AbfFSUI0 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 19 Jun 2019 16:08:26 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id x5JK83bM026517;
-        Wed, 19 Jun 2019 20:08:03 GMT
-Date:   Thu, 20 Jun 2019 06:08:03 +1000 (AEST)
-From:   James Morris <jmorris@namei.org>
-To:     Kees Cook <keescook@chromium.org>
-cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov
-Subject: Re: [PATCH v2 00/25] LSM: Module stacking for AppArmor
-In-Reply-To: <201906182133.EBF2C78D@keescook>
-Message-ID: <alpine.LRH.2.21.1906200555400.25930@namei.org>
-References: <20190618230551.7475-1-casey@schaufler-ca.com> <201906182133.EBF2C78D@keescook>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        id S1726246AbfFSWYN (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 19 Jun 2019 18:24:13 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Jun 2019 15:24:13 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,394,1557212400"; 
+   d="scan'208";a="150743753"
+Received: from sjchrist-coffee.jf.intel.com ([10.54.74.36])
+  by orsmga007.jf.intel.com with ESMTP; 19 Jun 2019 15:24:13 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org,
+        Bill Roberts <william.c.roberts@intel.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Dr . Greg Wettstein" <greg@enjellic.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [RFC PATCH v4 03/12] selftests: x86/sgx: Mark the enclave loader as not needing an exec stack
+Date:   Wed, 19 Jun 2019 15:23:52 -0700
+Message-Id: <20190619222401.14942-4-sean.j.christopherson@intel.com>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190619222401.14942-1-sean.j.christopherson@intel.com>
+References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 18 Jun 2019, Kees Cook wrote:
+The SGX enclave loader doesn't need an executable stack, but linkers
+will assume it does due to the lack of .note.GNU-stack sections in the
+loader's assembly code.  As a result, the kernel tags the loader as
+having "read implies exec", and so adds PROT_EXEC to all mmap()s, even
+those for mapping EPC regions.  This will cause problems in the future
+when userspace needs to explicit state a page's protection bits when the
+page is added to an enclave, e.g. adding TCS pages as R+W will cause
+mmap() to fail when the kernel tacks on +X.
 
-> On Tue, Jun 18, 2019 at 04:05:26PM -0700, Casey Schaufler wrote:
-> > Patches 0001-0003 complete the process of moving managment
-> > of security blobs that might be shared from the individual
-> > modules to the infrastructure.
-> 
-> I think these are happy stand-alone patches and should just go into the
-> common LSM tree for v5.3.
+Explicitly tell the linker that an executable stack is not needed.
+Alternatively, each .S file could add .note.GNU-stack, but the loader
+should never need an executable stack so zap it in one fell swoop.
 
-We extended stacking support in March to allow Landlock and SARA to be 
-merged and have not seen anything from them since.
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+---
+ tools/testing/selftests/x86/sgx/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Is there any point in adding more of the same for v5.3 before the current 
-AppArmor stacking changes are fully ready? This seems to carry risk but no 
-concrete benefit for the release.
-
+diff --git a/tools/testing/selftests/x86/sgx/Makefile b/tools/testing/selftests/x86/sgx/Makefile
+index 1fd6f2708e81..10136b73096b 100644
+--- a/tools/testing/selftests/x86/sgx/Makefile
++++ b/tools/testing/selftests/x86/sgx/Makefile
+@@ -2,7 +2,7 @@ top_srcdir = ../../../../..
+ 
+ include ../../lib.mk
+ 
+-HOST_CFLAGS := -Wall -Werror -g $(INCLUDES) -fPIC
++HOST_CFLAGS := -Wall -Werror -g $(INCLUDES) -fPIC -z noexecstack
+ ENCL_CFLAGS := -Wall -Werror -static -nostdlib -nostartfiles -fPIC \
+ 	       -fno-stack-protector -mrdrnd $(INCLUDES)
+ 
 -- 
-James Morris
-<jmorris@namei.org>
+2.21.0
 
