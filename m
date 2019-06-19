@@ -7,25 +7,25 @@ X-Spam-Status: No, score=-8.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD212C48BE4
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 22:24:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A7D0C48BE0
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 22:24:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9F7E5215EA
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 22:24:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 72D96215EA
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 22:24:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730840AbfFSWYS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 18:24:18 -0400
+        id S1730827AbfFSWYR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 18:24:17 -0400
 Received: from mga18.intel.com ([134.134.136.126]:40155 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726322AbfFSWYS (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 19 Jun 2019 18:24:18 -0400
+        id S1730747AbfFSWYP (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 19 Jun 2019 18:24:15 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga007.jf.intel.com ([10.7.209.58])
   by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 19 Jun 2019 15:24:13 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.63,394,1557212400"; 
-   d="scan'208";a="150743780"
+   d="scan'208";a="150743764"
 Received: from sjchrist-coffee.jf.intel.com ([10.54.74.36])
   by orsmga007.jf.intel.com with ESMTP; 19 Jun 2019 15:24:13 -0700
 From:   Sean Christopherson <sean.j.christopherson@intel.com>
@@ -41,9 +41,9 @@ Cc:     linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
         Jethro Beekman <jethro@fortanix.com>,
         "Dr . Greg Wettstein" <greg@enjellic.com>,
         Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC PATCH v4 11/12] security/apparmor: Add enclave_load() implementation
-Date:   Wed, 19 Jun 2019 15:24:00 -0700
-Message-Id: <20190619222401.14942-12-sean.j.christopherson@intel.com>
+Subject: [RFC PATCH v4 06/12] mm: Introduce vm_ops->may_mprotect()
+Date:   Wed, 19 Jun 2019 15:23:55 -0700
+Message-Id: <20190619222401.14942-7-sean.j.christopherson@intel.com>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190619222401.14942-1-sean.j.christopherson@intel.com>
 References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
@@ -54,59 +54,84 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Require execute permissions when loading an enclave from a file.
+SGX will use ->may_mprotect() to invoke an SGX variant of the existing
+file_mprotect() and mmap_file() LSM hooks.
+
+The name may_mprotect() is intended to reflect the hook's purpose as a
+way to restrict mprotect() as opposed to a wholesale replacement.
+
+Due to the nature of SGX and its Enclave Page Cache (EPC), all enclave
+VMAs are backed by a single file, i.e. /dev/sgx/enclave, that must be
+MAP_SHARED.  Furthermore, all enclaves need read, write and execute
+VMAs.  As a result, applying W^X restrictions on /dev/sgx/enclave using
+existing LSM hooks is for all intents and purposes impossible, e.g.
+denying either W or X would deny access to *any* enclave.
+
+By hooking mprotect(), SGX can invoke an SGX specific LSM hook, which in
+turn allows LSMs to enforce W^X policies.
+
+Alternatively, SGX could provide a helper to identify enclaves given a
+vma or file.  LSMs could then check if a mapping is for enclave and take
+action according.
+
+A second alternative would be to have SGX implement its own LSM hooks
+for file_mprotect() and mmap_file(), using them to "forward" the call to
+the SGX specific hook.
+
+The major con to both alternatives is that they provide zero flexibility
+for the SGX specific LSM hook.  The "is_sgx_enclave()" helper doesn't
+allow SGX can't supply any additional information whatsoever, and the
+mmap_file() hook is called before the final address is known, e.g. SGX
+can't provide any information about the specific enclave being mapped.
 
 Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 ---
- security/apparmor/include/audit.h |  2 ++
- security/apparmor/lsm.c           | 14 ++++++++++++++
- 2 files changed, 16 insertions(+)
+ include/linux/mm.h |  2 ++
+ mm/mprotect.c      | 15 +++++++++++----
+ 2 files changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/security/apparmor/include/audit.h b/security/apparmor/include/audit.h
-index ee559bc2acb8..84470483e04d 100644
---- a/security/apparmor/include/audit.h
-+++ b/security/apparmor/include/audit.h
-@@ -107,6 +107,8 @@ enum audit_type {
- #define OP_PROF_LOAD "profile_load"
- #define OP_PROF_RM "profile_remove"
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 0e8834ac32b7..b11ec420c8d7 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -458,6 +458,8 @@ struct vm_operations_struct {
+ 	void (*close)(struct vm_area_struct * area);
+ 	int (*split)(struct vm_area_struct * area, unsigned long addr);
+ 	int (*mremap)(struct vm_area_struct * area);
++	int (*may_mprotect)(struct vm_area_struct *vma, unsigned long start,
++			    unsigned long end, unsigned long prot);
+ 	vm_fault_t (*fault)(struct vm_fault *vmf);
+ 	vm_fault_t (*huge_fault)(struct vm_fault *vmf,
+ 			enum page_entry_size pe_size);
+diff --git a/mm/mprotect.c b/mm/mprotect.c
+index bf38dfbbb4b4..18732543b295 100644
+--- a/mm/mprotect.c
++++ b/mm/mprotect.c
+@@ -547,13 +547,20 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
+ 			goto out;
+ 		}
  
-+#define OP_ENCL_LOAD "enclave_load"
+-		error = security_file_mprotect(vma, reqprot, prot);
+-		if (error)
+-			goto out;
+-
+ 		tmp = vma->vm_end;
+ 		if (tmp > end)
+ 			tmp = end;
 +
- 
- struct apparmor_audit_data {
- 	int error;
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 87500bde5a92..2ed1157e1f58 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -517,6 +517,17 @@ static int apparmor_file_mprotect(struct vm_area_struct *vma,
- 			   !(vma->vm_flags & VM_SHARED) ? MAP_PRIVATE : 0);
- }
- 
-+#ifdef CONFIG_INTEL_SGX
-+static int apparmor_enclave_load(struct vm_area_struct *vma, unsigned long prot,
-+				bool measured)
-+{
-+	if (!(prot & PROT_EXEC))
-+		return 0;
++		if (vma->vm_ops && vma->vm_ops->may_mprotect) {
++			error = vma->vm_ops->may_mprotect(vma, nstart, tmp, prot);
++			if (error)
++				goto out;
++		}
 +
-+	return common_file_perm(OP_ENCL_LOAD, vma->vm_file, AA_EXEC_MMAP);
-+}
-+#endif
++		error = security_file_mprotect(vma, reqprot, prot);
++		if (error)
++			goto out;
 +
- static int apparmor_sb_mount(const char *dev_name, const struct path *path,
- 			     const char *type, unsigned long flags, void *data)
- {
-@@ -1243,6 +1254,9 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(secid_to_secctx, apparmor_secid_to_secctx),
- 	LSM_HOOK_INIT(secctx_to_secid, apparmor_secctx_to_secid),
- 	LSM_HOOK_INIT(release_secctx, apparmor_release_secctx),
-+#ifdef CONFIG_INTEL_SGX
-+	LSM_HOOK_INIT(enclave_load, apparmor_enclave_load),
-+#endif
- };
- 
- /*
+ 		error = mprotect_fixup(vma, &prev, nstart, tmp, newflags);
+ 		if (error)
+ 			goto out;
 -- 
 2.21.0
 
