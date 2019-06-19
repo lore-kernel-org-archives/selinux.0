@@ -8,61 +8,59 @@ X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8411EC31E5B
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:04:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9698EC31E5B
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:04:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5D1472187F
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:04:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6CA892187F
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:04:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SVO1kq/O"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SDHf2G//"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726091AbfFSQET (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 12:04:19 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:41897 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726518AbfFSQES (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 12:04:18 -0400
-Received: by mail-io1-f68.google.com with SMTP id w25so588526ioc.8
-        for <selinux@vger.kernel.org>; Wed, 19 Jun 2019 09:04:18 -0700 (PDT)
+        id S1728671AbfFSQE2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 12:04:28 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:35241 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726332AbfFSQE2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 12:04:28 -0400
+Received: by mail-io1-f67.google.com with SMTP id m24so39466052ioo.2
+        for <selinux@vger.kernel.org>; Wed, 19 Jun 2019 09:04:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=UXWCzKBgp4WOFX0Fe23dQSrBFANHKcyRME/FSEx6x70=;
-        b=SVO1kq/Ozo/2lMO1mESVg+29z6lSzW5l5Svk0DiAYxFYimfqF4Gicgq3ueXdd4MP5u
-         CLQzeGYHVxnQXECOkUXsPCaRDJvwu9LXFP6zXEq9vGWZW+/+16BkksRiytJz4Qi8fkCd
-         wIzKivGod+wuiQOYZ0bKAZG/qWR63JEVmyiPN6PEsXkpn02pUQw/jbS8RCcFm6RjZOc0
-         9X8CfUOdafJu50MzKiUPsqNW8hQezrueN9Bj6tlfTq9rddVOE8Ek8e0FSYCDSclRJH7T
-         xCZboqgFJ2qvozpCCvIu4c03xoQJ9MIWAlymWIEo9C/DlvE7HyNHKQCqDJ036+IjsEJx
-         aD7A==
+         :cc;
+        bh=BTYdxecLIgo8tdbyhfMUHkzgYN7tnF/cmbuUZRiH0IU=;
+        b=SDHf2G//qgKWQlXxKiTERkofjrPdfkDToW9FnGuxEwNnmsII6yYcjTCePIj5Z6mVaQ
+         kEE38IFzQqPZiqaUU7TGEkqUctnTIL1z6dL4B1NGxq3eqr/bsjbJq62Puq0SfbhKiRnP
+         UXsCGNlU7FXx4EiK5xY4P07xn3LH9ewj8BDJRlwBpEwbiaV3YBZ1Aym1RoifP+dtQzyU
+         2nFVv1Ox7sqKBDhHnhswtxIwvpFmLiMHjNE6G6FA1qWNm4Bve82LHf8UeDwZoO4DNOSf
+         cqDGMBA8XVQl9nMwh+zdAWIuTOYSMlDjLlTJ++BEQZfIpYfURJYzw/tSg5ubYXe4OoxI
+         o95Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=UXWCzKBgp4WOFX0Fe23dQSrBFANHKcyRME/FSEx6x70=;
-        b=M4RSdby8b05rLIya3kyTMOYf4oPlgLyg2cyZBp0hXNPzpzuGeEd9LeWGKkAvAB+RaR
-         5JVPRqy/bxGbiYfIVRSLWTssncmEI50dJzTTf0CT4MdpHOZUF3ZIzhBUfljMm0QPx52M
-         /uvzzTBqm+JJh0J7PP/W8Lkv6dvE/r+zxFBfdBruPUISYsuSKIHDdBYhjnR8h3iFvk7X
-         CmhML/ak9zIBXtRZxrrUDORhHUlOM4epFOcUp8Ny84gctU1l6ZQiBa3Y1ShvqWWcEe0F
-         QQRaKQB3XX/tO5dGH6Z2gPrOSstbzx21g3PY9iSZilMl3nSaUJGiT2JVyVR5LJEc9iJP
-         RVYw==
-X-Gm-Message-State: APjAAAWEB0ZULmrA8VmkxPEv0Yevn9Yc5KPM0zvFB+JrJF6wz/6icl2+
-        Q3m6FoGTVidtFwDpM7K90Hpa4XLaXajabHhjSLe7ncem
-X-Google-Smtp-Source: APXvYqzY7lQQljcn2REv8HmLy97kOtJyvxDO5ulDKs2oswcNrLcfWvvviIMMPXeaP9hGv/yQ8ureOxnMYebDWDWWVOI=
-X-Received: by 2002:a02:5a89:: with SMTP id v131mr6802036jaa.130.1560960258086;
- Wed, 19 Jun 2019 09:04:18 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=BTYdxecLIgo8tdbyhfMUHkzgYN7tnF/cmbuUZRiH0IU=;
+        b=revKloJZOkpUz77KZALiy6s+61pNdPeP9vFfuD9yIYRfGWpWHmtB8hfU2Li8aG3zho
+         wgc/VCmy8YUOdSNxTTtS24ujQqHPmdDXaCbKD6HrCZfZAF8WUiqcf6naHYGQvjRoPHF9
+         yr13ISXO862AJtmQivslLHhIqDiI8XqeXO33AThA/W8ugYUa4xk4etRpo3PhowgzwyE3
+         q3AgrwGrnUXSs043hYPJY7ETer2RZ/VgjQ3yZ28r6cFBdpnz5TplgeJIpw8SbFm89zpz
+         eNu2ZWf/Vc76onMOiWZaYy/FFp4+dkNOYBdcPwzXq+cU5sFteYuoVK7To5hO6KOCdBI9
+         l4Gw==
+X-Gm-Message-State: APjAAAUNtqzsBkiLpkoUhr25lXDyGqKn9sLB0a+D1wD4HZsmwKQ6hSSF
+        vfBjDM9Qqb1A+4Rsg7ykHxG+6oPp59H/xSkK+AEtLdy6
+X-Google-Smtp-Source: APXvYqyTRnhMFvOcMVLPaLWafqR/jZLzRQVWoaU9D2CHHuzCITQrQme2+5vc0+FnokdVJGD4flq/Zp5z1N4iIWKO9cM=
+X-Received: by 2002:a5e:c70c:: with SMTP id f12mr13136266iop.293.1560960267168;
+ Wed, 19 Jun 2019 09:04:27 -0700 (PDT)
 MIME-Version: 1.0
-References: <alpine.LFD.2.21.1906171502130.6467@34-41-5D-CA-59-C7> <CAFftDdpbvUngYWtdySVyag80y5ZnaioP7RoqWhzJa73cYjq+xg@mail.gmail.com>
-In-Reply-To: <CAFftDdpbvUngYWtdySVyag80y5ZnaioP7RoqWhzJa73cYjq+xg@mail.gmail.com>
+References: <20190617151512.2209-1-mike.palmiotto@crunchydata.com> <CAFftDdodVXDdgMyTSV5188W5HcSrJu4pvpsufQPcf5U1Bw3WJQ@mail.gmail.com>
+In-Reply-To: <CAFftDdodVXDdgMyTSV5188W5HcSrJu4pvpsufQPcf5U1Bw3WJQ@mail.gmail.com>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Wed, 19 Jun 2019 09:04:43 -0700
-Message-ID: <CAFftDdpyVMkhoG7+vdtOz4QjyLkeX-ngtAGGfBhtejMVocVNnQ@mail.gmail.com>
-Subject: Re: [PATCH 2/2] libsepol: Replace constant with sizeof()
-To:     =?UTF-8?B?Sm9ra2UgSMOkbcOkbMOkaW5lbg==?= 
-        <jokke.hamalainen@kolttonen.fi>
+Date:   Wed, 19 Jun 2019 09:04:52 -0700
+Message-ID: <CAFftDdpJHqUyrqW1Jju8ZeBye6bLg8GK7_SLKvu9t6vKcCqR1w@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: fix mlsconstrain segfault
+To:     Mike Palmiotto <mike.palmiotto@crunchydata.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -70,50 +68,61 @@ X-Mailing-List: selinux@vger.kernel.org
 
 merged
 
-On Mon, Jun 17, 2019 at 10:53 AM William Roberts
+On Mon, Jun 17, 2019 at 11:01 AM William Roberts
 <bill.c.roberts@gmail.com> wrote:
 >
-> ack on the series, staged: https://github.com/SELinuxProject/selinux/pull=
-/163
+> ack and staged: https://github.com/SELinuxProject/selinux/pull/164
 >
-> On Mon, Jun 17, 2019 at 5:02 AM Jokke H=C3=A4m=C3=A4l=C3=A4inen
-> <jokke.hamalainen@kolttonen.fi> wrote:
+> On Mon, Jun 17, 2019 at 8:16 AM <mike.palmiotto@crunchydata.com> wrote:
 > >
+> > From: Mike Palmiotto <mike.palmiotto@crunchydata.com>
 > >
-> > Replace constant 18 with safer use of sizeof()
+> > Installing a cil module with invalid mlsconstrain syntax currently
+> > results in a segfault. In the following module, the right-hand side of
+> > the second operand of the OR is a list (mlstrustedobject):
 > >
-> > Signed-off-by: Unto Sten <sten.unto@gmail.com>
+> > $ cat test.cil
+> > (class test (foo) )
+> > (classorder (unordered test))
+> >
+> > (mlsconstrain (test (foo))
+> >         (or
+> >                 (dom h1 h2)
+> >                 (eq t2 (mlstrustedobject))
+> >         )
+> > )
+> >
+> > $ sudo semodule -i test.cil
+> > zsh: segmentation fault  sudo semodule -i test.cil
+> >
+> > This syntax is invalid and should error accordingly, rather than
+> > segfaulting. This patch provides this syntax error for the same module:
+> >
+> > $ sudo semodule -i test.cil
+> > t1, t2, r1, r2, u1, u2 cannot be used on the left side with a list on the right side
+> > Bad expression tree for constraint
+> > Bad constrain declaration at /var/lib/selinux/mls/tmp/modules/400/test/cil:4
+> > semodule:  Failed!
+> >
+> > Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
 > > ---
-> >  libsepol/src/kernel_to_conf.c | 4 ++--
-> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >  libsepol/cil/src/cil_verify.c | 3 +++
+> >  1 file changed, 3 insertions(+)
 > >
-> > diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_con=
-f.c
-> > index 5fb4e838..930bafab 100644
-> > --- a/libsepol/src/kernel_to_conf.c
-> > +++ b/libsepol/src/kernel_to_conf.c
-> > @@ -448,7 +448,7 @@ static int write_sids_to_conf(FILE *out, const char=
- *const *sid_to_str,
-> >                 if (i < num_sids) {
-> >                         sid =3D (char *)sid_to_str[i];
-> >                 } else {
-> > -                       snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
-> > +                       snprintf(unknown, sizeof(unknown), "%s%u", "UNK=
-NOWN", i);
-> >                         sid =3D strdup(unknown);
-> >                         if (!sid) {
-> >                                 rc =3D -1;
-> > @@ -2376,7 +2376,7 @@ static int write_sid_context_rules_to_conf(FILE *=
-out, struct policydb *pdb, cons
-> >                 if (i < num_sids) {
-> >                         sid =3D (char *)sid_to_str[i];
-> >                 } else {
-> > -                       snprintf(unknown, 18, "%s%u", "UNKNOWN", i);
-> > +                       snprintf(unknown, sizeof(unknown), "%s%u", "UNK=
-NOWN", i);
-> >                         sid =3D unknown;
+> > diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
+> > index 1036d73c..346fbac9 100644
+> > --- a/libsepol/cil/src/cil_verify.c
+> > +++ b/libsepol/cil/src/cil_verify.c
+> > @@ -225,6 +225,9 @@ int cil_verify_constraint_leaf_expr_syntax(enum cil_flavor l_flavor, enum cil_fl
+> >                                 cil_log(CIL_ERR, "u3, r3, and t3 can only be used with mlsvalidatetrans rules\n");
+> >                                 goto exit;
+> >                         }
+> > +               } else if (r_flavor == CIL_LIST) {
+> > +                       cil_log(CIL_ERR, "t1, t2, r1, r2, u1, u2 cannot be used on the left side with a list on the right side\n");
+> > +                       goto exit;
 > >                 }
-> >
+> >         } else {
+> >                 if (r_flavor == CIL_CONS_U2) {
 > > --
 > > 2.21.0
 > >
