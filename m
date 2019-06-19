@@ -2,67 +2,64 @@ Return-Path: <SRS0=qCpE=US=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18466C31E5B
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:03:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BA4AC31E5B
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:03:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E094A2187F
-	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:03:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6240B2187F
+	for <selinux@archiver.kernel.org>; Wed, 19 Jun 2019 16:03:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Un5cISSi"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fzpBI+5s"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbfFSQDo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Jun 2019 12:03:44 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:34996 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726332AbfFSQDo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 12:03:44 -0400
-Received: by mail-io1-f65.google.com with SMTP id m24so39459665ioo.2
-        for <selinux@vger.kernel.org>; Wed, 19 Jun 2019 09:03:44 -0700 (PDT)
+        id S1727244AbfFSQD4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Jun 2019 12:03:56 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:44061 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726518AbfFSQD4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Jun 2019 12:03:56 -0400
+Received: by mail-io1-f68.google.com with SMTP id s7so36616iob.11
+        for <selinux@vger.kernel.org>; Wed, 19 Jun 2019 09:03:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=L6TVMx+9IVfvvQgdM5F/2YM93lEFZqXtp2X/uLmF32I=;
-        b=Un5cISSiqnxtOcsYkHJ7rZOrgPMDSyvyIEJyh0W7arqI8037/VUB/yW40WlQXOjOsL
-         NZ5gWg7OSsdy0gAIAbhXn1l1gI4YKrTzGtwm4WsIpSINjv6IGCc7tdMLsPs8YqCc2LuT
-         vb7Lk4lv8BND01o6pUy8A+V5cryjcO2IJy/viW81DSqUXxh/Cfws24/oaBC3ap4qKfj8
-         bjz8BmRusgS+L8NqIit8fzEPh21ytvdKZ8h2KIedBYy3LcKVcLUcvcs57iHfFaUnCbE7
-         BLieusTjSOYYm9zlvYoum62WiqiSxOIWmTrjpKY9bUkHoq5NVNUIgLzOBfGquYaW3dI/
-         +hcg==
+         :cc;
+        bh=t0rwFt/FANGO1BazDqs/w2ZPfykGevi5X6dxwSTkaxI=;
+        b=fzpBI+5sesbq+5Wj8J+BmuHbJluu02pgkLvXLIHbIAPlji1jsntOCAzgxXsn4f0X0g
+         cqpgOFKpM2v3wyNABL0O7JJpv0aN2XfcEQ4agj00QjUTE0JtPx6+Mg2rqd5+5ItMS9wZ
+         7Cpr7ONSuYlVYGvhTykVBT0zoV7hUjCW2ud2y981PI7tCiAXdd0yxpe3n9rN7QraeUto
+         qLowy3uFSpYMn+CtQKUxmGAs8222/2O93cMcGlNdXHsI0hzuSWtUmnkFxVOJ2KpFFmoe
+         wyyiXLaMVkMe0m2ySrwXWZe9ug3qU5ehboUfeHSzhS0WIuYncJs/8Phtf7tLZPTafDUS
+         n/Cg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=L6TVMx+9IVfvvQgdM5F/2YM93lEFZqXtp2X/uLmF32I=;
-        b=rGz5imUKaNMcvBPPmjXrrAVqCwnz1ElavEE3Gi0c7Hea9QMOSwtBEu6lXrHV5FoqIP
-         xnCQeGGHHL1uG48p6FhcDhrtMLP37ZAmp38y1VLuLFiwBAmdsYDGnpuEyQUiHmGoyyGl
-         JJGh3e0kJbEL9QwIcTIELizs7ZCCDvDQw5EQ5CpaZ6UAJ8wveng+v+kNpieVhqc4hyQc
-         AteVjQ8yu19pn2EWbu8xJIwmR9CShlQcpwj4YJ08coicUeRiXjLAVnk/vkpZzjs+inKA
-         gwMK86CNA+TgUKZtYCC5kWG3Kfu+g90uM8uRZfYE7zXam9+48fGWHLD9Esq1PVsAdadO
-         CNig==
-X-Gm-Message-State: APjAAAU0Kj9hYaaiW64/WzGcpFkcMQTWNy3wMufhsk9n5Z2/RSR3tLKE
-        imMPX5J9UqLSktMtO5gCSRGxeVkWhlr5e2z5A8F42ey1
-X-Google-Smtp-Source: APXvYqzAEAe6XuRXSCY+B383xttIWUiD5LAI2l/3w9oO3Z9FTKNP1OpjKNq2Vwr1FQK/qGxC/DVIn0TEmwokmsqz5e4=
-X-Received: by 2002:a02:a90a:: with SMTP id n10mr82584933jam.61.1560960222288;
- Wed, 19 Jun 2019 09:03:42 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=t0rwFt/FANGO1BazDqs/w2ZPfykGevi5X6dxwSTkaxI=;
+        b=NgnmzltKjhU9euJZouAxVbtdZdyij9UwpYTNYxc0W8pAuW+cXLjrDV5OCW4G8R6ApK
+         IXyWsIHyn0CP3B7gKtkq8TzxI0R0hguV1FynyyK13jcVxAzSVb23VJKeSDE4cH8CehqL
+         n9zXIsLhz1AsUMoPsEnVGRXoF651cUKg4OSKMZV41xhM4UuH/6s0xLnZ8AD4X5naE9pd
+         lPk2213JlZStmJH5eCWsMxiM5DaCx/A74706+GIrMWan6XTHvbTVn48csdlmYGrCNJhE
+         /PnXHSH09VreGf+YLL3THRsaWFNjWhPT1D2KoNt02eYG55FmSwQmXLEuZiX7EdBQFdlI
+         byBg==
+X-Gm-Message-State: APjAAAWpfvcSnYXv45N8MYHSMtzrzCTJ+/39vPirEryb0buG1bxjWZ4J
+        zdkS071BF5dPQoM2PEEJyevqIv/7lzn381GubOURMQUi
+X-Google-Smtp-Source: APXvYqxTd2Kg/zCdBMfG8p0hF+dcnqDuHEchT8IyiC7k6cR8qj4i6UemUd/fNtLumm5VlpXHtnDAXzLr3keD643Bpk4=
+X-Received: by 2002:a05:6638:38a:: with SMTP id y10mr11594879jap.104.1560960234823;
+ Wed, 19 Jun 2019 09:03:54 -0700 (PDT)
 MIME-Version: 1.0
-References: <alpine.LFD.2.21.1906131859430.5703@34-41-5D-CA-59-C7> <CAFftDdohpm=28pbnJHCVG8PkCevt9=eZvFH5DoW4tOBQ1s5U_A@mail.gmail.com>
-In-Reply-To: <CAFftDdohpm=28pbnJHCVG8PkCevt9=eZvFH5DoW4tOBQ1s5U_A@mail.gmail.com>
+References: <20190612080404.4529-1-jzarsky@redhat.com> <CAFftDdrV3uf826jqrFE8hBzJ7a3uJGuA02J9p+ce+GCqwT7+8w@mail.gmail.com>
+In-Reply-To: <CAFftDdrV3uf826jqrFE8hBzJ7a3uJGuA02J9p+ce+GCqwT7+8w@mail.gmail.com>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Wed, 19 Jun 2019 09:04:07 -0700
-Message-ID: <CAFftDdq0=d-Kf=eGSTU+dU5=T_vPAbuBCQ_OxHu8DukQc6u+eQ@mail.gmail.com>
-Subject: Re: [PATCH 3/3] libsepol: remove unneeded int
-To:     =?UTF-8?B?Sm9ra2UgSMOkbcOkbMOkaW5lbg==?= 
-        <jokke.hamalainen@kolttonen.fi>
+Date:   Wed, 19 Jun 2019 09:04:20 -0700
+Message-ID: <CAFftDdpD3Y3D3QgCRF8+LAAcch=y63E2OYQArzqiytT83Pqp1g@mail.gmail.com>
+Subject: Re: [PATCH 00/11] libsemanage: add tests
+To:     Jan Zarsky <jzarsky@redhat.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -70,56 +67,70 @@ X-Mailing-List: selinux@vger.kernel.org
 
 merged
 
-On Sun, Jun 16, 2019 at 9:35 PM William Roberts
+On Wed, Jun 12, 2019 at 12:57 PM William Roberts
 <bill.c.roberts@gmail.com> wrote:
 >
-> ack on the series
->
-> I see these are the three staged here:
-> 3/3 uneeded int: https://github.com/SELinuxProject/selinux/pull/154
-> 2/3 remove redundant if clause:
-> https://github.com/SELinuxProject/selinux/pull/155
-> 1/3 more accurate error message:
-> https://github.com/SELinuxProject/selinux/pull/156
->
-> I will pull them in on Wednesday June 19 if no one objects.
->
-> On Thu, Jun 13, 2019 at 9:01 AM Jokke H=C3=A4m=C3=A4l=C3=A4inen
-> <jokke.hamalainen@kolttonen.fi> wrote:
+> On Wed, Jun 12, 2019 at 1:44 AM Jan Zarsky <jzarsky@redhat.com> wrote:
+> >
+> > This series adds new test suites for libsemanage. In the first patch, common
+> > helper functions are added. The other patches are independent and each adds a
+> > new test suite.
+> >
+> > The test suites are testing only the public API and aim for line coverage. They
+> > test only correct usage of the functions. Together with valgrind, the test
+> > suites can be used for detecting memory leaks.
+> >
+> > The tests run fine in Travis CI and do not require an SELinux-enabled system.
+> >
+> > I welcome any suggestions.
+> >
+> > Jan Zarsky (11):
+> >   libsemanage: add helper functions to tests
+> >   libsemanage: test semanage_handle_* functions
+> >   libsemanage: test semanage_bool_* functions
+> >   libsemanage: test semanage_fcontext functions
+> >   libsemanage: test semanage_iface_* functions
+> >   libsemanage: test semanage_ibendport_* functions
+> >   libsemanage: test semanage_node_* functions
+> >   libsemanage: test semanage_port_* functions
+> >   libsemanage: test semanage_user_* functions
+> >   libsemanage: test semanage_context_* functions
+> >   libsemanage: test semanage_msg_default_handler
+> >
+> >  libsemanage/tests/.gitignore            |    1 +
+> >  libsemanage/tests/Makefile              |   11 +-
+> >  libsemanage/tests/libsemanage-tests.c   |   18 +
+> >  libsemanage/tests/test_bool.c           |  932 +++++++++++++++++++++++++++
+> >  libsemanage/tests/test_bool.cil         |   24 +
+> >  libsemanage/tests/test_bool.h           |   31 +
+> >  libsemanage/tests/test_fcontext.c       | 1045 +++++++++++++++++++++++++++++++
+> >  libsemanage/tests/test_fcontext.cil     |   25 +
+> >  libsemanage/tests/test_fcontext.h       |   30 +
+> >  libsemanage/tests/test_handle.c         |  329 ++++++++++
+> >  libsemanage/tests/test_handle.cil       |   21 +
+> >  libsemanage/tests/test_handle.h         |   30 +
+> >  libsemanage/tests/test_ibendport.c      |  525 ++++++++++++++++
+> >  libsemanage/tests/test_ibendport.cil    |   28 +
+> >  libsemanage/tests/test_ibendport.h      |   30 +
+> >  libsemanage/tests/test_iface.c          |  666 ++++++++++++++++++++
+> >  libsemanage/tests/test_iface.cil        |   28 +
+> >  libsemanage/tests/test_iface.h          |   30 +
+> >  libsemanage/tests/test_node.c           |  807 ++++++++++++++++++++++++
+> >  libsemanage/tests/test_node.cil         |   28 +
+> >  libsemanage/tests/test_node.h           |   30 +
+> >  libsemanage/tests/test_other.c          |  120 ++++
+> >  libsemanage/tests/test_other.h          |   30 +
+> >  libsemanage/tests/test_port.c           |  909 +++++++++++++++++++++++++++
+> >  libsemanage/tests/test_port.cil         |   27 +
+> >  libsemanage/tests/test_port.h           |   30 +
+> >  libsemanage/tests/test_semanage_store.c |    2 +-
+> >  libsemanage/tests/test_user.c           |  690 ++++++++++++++++++++
+> >  libsemanage/tests/test_user.cil         |   27 +
+> >  libsemanage/tests/test_user.h           |   30 +
+> >  libsemanage/tests/utilities.c           |  254 +++++++-
+> >  libsemanage/tests/utilities.h           |   53 +-
+> >  32 files changed, 6831 insertions(+), 10 deletions(-)
 > >
 > >
-> > Replace int ret with a constant 1 because it is
-> > only used when returning from function and is
-> > never modified.
-> >
-> > Signed-off-by: Unto Sten <sten.unto@gmail.com>
-> > ---
-> >  libsepol/src/context.c | 3 +--
-> >  1 file changed, 1 insertion(+), 2 deletions(-)
-> >
-> > diff --git a/libsepol/src/context.c b/libsepol/src/context.c
-> > index a88937fc..e81b28c6 100644
-> > --- a/libsepol/src/context.c
-> > +++ b/libsepol/src/context.c
-> > @@ -38,7 +38,6 @@ int context_is_valid(const policydb_t * p, const cont=
-ext_struct_t * c)
-> >         role_datum_t *role;
-> >         user_datum_t *usrdatum;
-> >         ebitmap_t types, roles;
-> > -       int ret =3D 1;
-> >
-> >         ebitmap_init(&types);
-> >         ebitmap_init(&roles);
-> > @@ -75,7 +74,7 @@ int context_is_valid(const policydb_t * p, const cont=
-ext_struct_t * c)
-> >         if (!mls_context_isvalid(p, c))
-> >                 return 0;
-> >
-> > -       return ret;
-> > +       return 1;
-> >  }
-> >
-> >  /*
-> > --
-> > 2.21.0
-> >
+> Ack
+> Staged: https://github.com/SELinuxProject/selinux/pull/159
