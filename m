@@ -4,55 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B65C43613
-	for <selinux@archiver.kernel.org>; Fri, 21 Jun 2019 18:53:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 405DCC43613
+	for <selinux@archiver.kernel.org>; Fri, 21 Jun 2019 18:54:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9F56F208C3
-	for <selinux@archiver.kernel.org>; Fri, 21 Jun 2019 18:53:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 085562075E
+	for <selinux@archiver.kernel.org>; Fri, 21 Jun 2019 18:54:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ew18FyXD"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="BQonHluN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbfFUSxe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Jun 2019 14:53:34 -0400
-Received: from sonic314-27.consmr.mail.ne1.yahoo.com ([66.163.189.153]:37558
-        "EHLO sonic314-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726448AbfFUSxd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 Jun 2019 14:53:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561143211; bh=l2+6W0FcuNEN8iwPOaEVP5E0r6CFvE/XYYVTkUTiMic=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=ew18FyXDh+RdFbzcqhDFggZGfNlFdx6T23rccOQpmSXR7R1h7AYKNaDBYPxNFX8TZuk6pvbLmP06bF2RxWsQjRRnGnWdCchimklpr8DxjMEpaaKTT/BEfb6dU5m2yHI1wA/EBcuF+LLYSh9fQa3iBMlvBdNmd7wneU4YFnPW0yjxjErYCBcGy614gt7yMTmwwxQIIwcdOYyBwQ3BC4S8dlfgCCcYffunu9Nrcb9hcw84kR54wtVYBSWPoiIE7Z4GbEWufO05bTl5nt3fIaQ2x8VkmkJzutOn3kkth++hrVAcZuLYXJ5FFg8hWCHN1wjNMKn3/Zu9j8KrFnGkV666mg==
-X-YMail-OSG: uFnw4SUVM1mOJyRycZ68nDyTi8nohOQS8lDplSMwmHlyju4x2ZLNrTtq8z2aEba
- l75TYATs2GtgfVB2zCAd6S9AND1eaHgSW77PDnH.arfKgwXkpimnj6STZMSi6v9pyPlWhzhX9CYU
- ZAu9ykyK.mqbed6kZNO9qAF.h6e4wnxj6k4kAHklrXAUA_yELWOECxIWARmLPpgi1xzbE50uy8u8
- jYlzs8OPSPyL637b9ZqLS8tnYOJWESNacXLICcZSiKgCqWDuI441RuaUaVzMJFb5nn44miVVyr_y
- zYqJfYJqhia8VmI4FCS13.oECmfde7MECo5.YZGfiybheOcJbpBOs09OiqXFGDZVa0YMC54SGSZ3
- pe47e2ZtVM8hlFSXXtVDBMPq57e_GHQgCKbJmK.HUQ.OQRNToem3KkNseQweFlFMtmpxo46YsY14
- FaL.U3WebnyouK9TP7vWGLPdhvtAsLl9jMSZiKObpGeGB1Ix0.gbyoyTv97KlU8soczPDdhG84rI
- Y7lVnUo.rT4EolQBZ..Ze59ArLVM3FzTryXuSHOP1hbvhF7gbHIE3166GoKClsO7NL7wU8KGosKI
- qwmgvS4xOYPGSUlOytzkvyHM3SObM.QJaT3ihlbMAEf5pM53R_JlKo7_BSoOkCoXp1rmGlqqSi9E
- vjYVxCj6sSPIc3uj2Z.1ot3HEOylNzku5k5PDiYmk5.eZU7bjR_SUDw3b8WzucYrfWIDx58er54P
- bHSGgXJplg5g.ZOhLJX7J0NoglmvJPEP7XUMoA8KyYagxEhsWQtM7uZdL4P_pqrJ9RceDCf69sKO
- Zj.wdREQy4yMzVwc46V3haeMgNnKAxNR0SwE_oc2n_7pkefFAIfiqUE2rlygNuk1hyvKGKFx1vic
- X7WVFj_7RFJ3Fo4yeLXhHUpAitkHVR70UyPJn52zPd84A16kmVlO8iR_0Y5GAnfmZ0VM1sszmEsV
- ZKxGaaZ_dWpXdyrGwLGaqbZpz3s7q64agXKpShVdNRNF_mCrIlxxTAWYPQFvlBXYzChNsdOY53h_
- SZhGGh0bScy2pXdJgsi_YryIXw312w9CI.O9uOlrPxPxf1jPI9.y_CDRtjJUwFQGdc2wHmg4Gl2V
- oHg6p.H8Iqv4Fe5VJPIVWVo6OO7mvTNLOzWimMH12WJeCShwBKZkSTKdYPG_Ts4aKkCJHcvaeaBV
- ckrkSuYNE_UztR7nS9BXn6.MHEU7E2_kptyiZDFCLTczXGo7uOofQFfS0kcDz.fi21KiIVa2TUDr
- 1E7fS_3NkrWnnloLSvxMU9kq7YnF42HJaF2x8JLCEJlb5dQCPQZ17g6j4
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Fri, 21 Jun 2019 18:53:31 +0000
+        id S1726017AbfFUSys (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 Jun 2019 14:54:48 -0400
+Received: from sonic309-49.consmr.mail.bf2.yahoo.com ([74.6.129.223]:35639
+        "EHLO sonic309-49.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726311AbfFUSys (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 Jun 2019 14:54:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561143281; bh=cCXXYFz+/aX71K2im3bDb/0u40nV+/h2HeU+VZxZxeA=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=BQonHluNc9EQ6IJzAtUHtY9uuTQZQPzJSAVXCDPjppMEN7tfgEfmzTOcPpVnGBbpL6ore2qnlojBW/OvZZKwDwVhg+pTFabN2RxTbXpDJx2E1v6kZhz2I+K3gpeBurq7BMV5+0lwsn8RkNgF3NMolRcSRo22e+/ydTaKt7pfq3PRSmkgwT/637lheeRtHFT8U3ep97Xx3mpXDkziWK6PyRwBwF8ELvuQm5LWFbQILm8pyDhsgid1hNwxzg0O2ktVxwdSGqlzFa+le9HXhQC7O1AkkBMv8cTnt98sOcYOrZ0K2F4BwCgP241Dql1OyWIj52PGswQI0rAPADs9YxCq/g==
+X-YMail-OSG: u4YhUOgVM1lqGVTmC0zBZ.5MEE1j311GGzNJaoMjcadx3duVVsKWC9l9cRc2FQb
+ noE9bZg9O72MElMfjOZo2yqOnrkGIXxjGC6XUUl6rKckfWo2B8VaD9r8FMebqvsfDI9CZaZwISyu
+ jgEeTY5nEYXoOHxf26.5lgy0OKXomyk2ODDpBztUgNM.0vKddh68jPibl1KOQ67JeeJl5EsBbbfR
+ B8UyMwT3O3sYFt3DcDGKMECiihPVL4QzXaveLkLWnJL1qyOL158vEr2W0gVkoEvjM4Q_2_OinLNX
+ Z7yEL1YaLAPDWxR5lrRtky7EQaz_gSyvpknNQkUFzJ53ybBRVIz9TWppc4E69L.rS_gnzhJThPa0
+ xwdPsSEd5B.vUAKbxlNQ.tf9cuTtMaLYdL6_HTVJzCt4mEz4iTKrZDbGOKKHDlkgl3EK95y88rQL
+ af2AziIbG88NC7MS6bBNZ6._kDpaow4.JaIz9_lBxPqonha2OCDFMCYM5kb3Hdm41okRDbtn96ql
+ .Qyuoi882FJkaJnGNNyw_RNFVU2d5N5Z6s.tdTOaRoPcBW1heLX4IgxXjenPBSbKaVRe4yUBSQpW
+ d4GrOcXqbzDRCuGhz_xwGAUJ5PHkYbl3XQOy9DwsvikUNUJlBDPUxFcA5nyxe99Owzhp1K09YNfQ
+ g1WOf5gpP8_sXnyc0e1njf8EL1_MHgiPtKGR4GOYskg1qfkqIuss.4.ToUK_f._nleuxqcjhHaoS
+ VS0TeGclKNY.qAzdrqr4va7nLP3.d812wZciXGqvbbi4Kz9df7dgyXvP_g6oWWdLnA4TUkAQRASE
+ xSqIF.dIySTWUyMJi.5DYGtitnWtvGr0udErooJ2jkCKFWtYdNkpMr4LQMhOScgpTTMrYkhA.Cca
+ UG0jhIF.eG4Fm3REq35fb_o2AIys7QuARFkUYEOac3aEnJs9w_iR_4kuYvb3P7IT57169EXgFYiY
+ TivtUftj5NvAF3vepCeFaUPKOVtHmkjPstsFyIVkePDqsO3iOoXH80Zsmur6ZLdHaF10rsx8Ha84
+ P.H.bANIsGHMgxkN3gWoJ7z1CsM2qtWvpmYpLnE7ioNONfZrG.tJl5EhzP8YgEQPZxKg.nt_krzS
+ 9_WhIjPIPfsEYmWIGoKNfWsFFuP_Q6YRdG6tn10.f9GBtGNTCEYpaMZZC1UvVZDUXvgPFBUpbB6R
+ leRDoZbTDlxxsToPf2ZhC48KOzpcvEtQjJU5dVGm07iPJV3ThmwPKb1UpeDv1u1.o7mfN47RxoH1
+ YQ0TMJWkHSLJyN8c9N1hf5fU5WA2lluWBYjwqcchc.P.aiCq5og--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Fri, 21 Jun 2019 18:54:41 +0000
 Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO localhost.net) ([73.223.4.185])
-          by smtp431.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 0eb7bde0fe71be6c1c6028ab1630b25e;
-          Fri, 21 Jun 2019 18:53:27 +0000 (UTC)
+          by smtp410.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 122e533cfde98c3a149e6bf82aad3f9b;
+          Fri, 21 Jun 2019 18:52:40 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v3 23/24] NET: Store LSM netlabel data in a lsmblob
-Date:   Fri, 21 Jun 2019 11:52:32 -0700
-Message-Id: <20190621185233.6766-24-casey@schaufler-ca.com>
+Subject: [PATCH v3 02/24] LSM: Infrastructure management of the sock security
+Date:   Fri, 21 Jun 2019 11:52:11 -0700
+Message-Id: <20190621185233.6766-3-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190621185233.6766-1-casey@schaufler-ca.com>
 References: <20190621185233.6766-1-casey@schaufler-ca.com>
@@ -63,472 +63,949 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Netlabel uses LSM interfaces requiring an lsmblob and
-the internal storage is used to pass information between
-these interfaces, so change the internal data from a secid
-to a lsmblob. Update the netlabel interfaces and their
-callers to accomodate the change.
+Move management of the sock->sk_security blob out
+of the individual security modules and into the security
+infrastructure. Instead of allocating the blobs from within
+the modules the modules tell the infrastructure how much
+space is required, and the space is allocated there.
 
+Reviewed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/net/netlabel.h              |  8 ++--
- net/ipv4/cipso_ipv4.c               |  6 ++-
- net/netlabel/netlabel_kapi.c        |  6 +--
- net/netlabel/netlabel_unlabeled.c   | 57 +++++++++++------------------
- net/netlabel/netlabel_unlabeled.h   |  2 +-
- security/selinux/include/security.h |  1 +
- security/selinux/netlabel.c         |  2 +-
- security/selinux/ss/services.c      |  4 +-
- security/smack/smack.h              |  1 +
- security/smack/smack_lsm.c          |  3 +-
- security/smack/smackfs.c            | 10 +++--
- 11 files changed, 48 insertions(+), 52 deletions(-)
+ include/linux/lsm_hooks.h         |  1 +
+ security/apparmor/include/net.h   |  6 ++-
+ security/apparmor/lsm.c           | 38 ++++-----------
+ security/security.c               | 36 +++++++++++++-
+ security/selinux/hooks.c          | 78 +++++++++++++++----------------
+ security/selinux/include/objsec.h |  5 ++
+ security/selinux/netlabel.c       | 23 ++++-----
+ security/smack/smack.h            |  5 ++
+ security/smack/smack_lsm.c        | 64 ++++++++++++-------------
+ security/smack/smack_netfilter.c  |  8 ++--
+ 10 files changed, 144 insertions(+), 120 deletions(-)
 
-diff --git a/include/net/netlabel.h b/include/net/netlabel.h
-index 72d6435fc16c..6c550455e69f 100644
---- a/include/net/netlabel.h
-+++ b/include/net/netlabel.h
-@@ -180,7 +180,7 @@ struct netlbl_lsm_catmap {
-  * @attr.mls: MLS sensitivity label
-  * @attr.mls.cat: MLS category bitmap
-  * @attr.mls.lvl: MLS sensitivity level
-- * @attr.secid: LSM specific secid token
-+ * @attr.lsmblob: LSM specific data
-  *
-  * Description:
-  * This structure is used to pass security attributes between NetLabel and the
-@@ -215,7 +215,7 @@ struct netlbl_lsm_secattr {
- 			struct netlbl_lsm_catmap *cat;
- 			u32 lvl;
- 		} mls;
--		u32 secid;
-+		struct lsmblob lsmblob;
- 	} attr;
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index f9222a04968d..b353482ea348 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2047,6 +2047,7 @@ struct lsm_blob_sizes {
+ 	int	lbs_cred;
+ 	int	lbs_file;
+ 	int	lbs_inode;
++	int	lbs_sock;
+ 	int	lbs_superblock;
+ 	int	lbs_ipc;
+ 	int	lbs_msg_msg;
+diff --git a/security/apparmor/include/net.h b/security/apparmor/include/net.h
+index 7334ac966d01..adac04e3b3cc 100644
+--- a/security/apparmor/include/net.h
++++ b/security/apparmor/include/net.h
+@@ -55,7 +55,11 @@ struct aa_sk_ctx {
+ 	struct aa_label *peer;
  };
  
-@@ -429,7 +429,7 @@ int netlbl_cfg_unlbl_static_add(struct net *net,
- 				const void *addr,
- 				const void *mask,
- 				u16 family,
--				u32 secid,
-+				struct lsmblob *lsmblob,
- 				struct netlbl_audit *audit_info);
- int netlbl_cfg_unlbl_static_del(struct net *net,
- 				const char *dev_name,
-@@ -537,7 +537,7 @@ static inline int netlbl_cfg_unlbl_static_add(struct net *net,
- 					      const void *addr,
- 					      const void *mask,
- 					      u16 family,
--					      u32 secid,
-+					      struct lsmblob *lsmblob,
- 					      struct netlbl_audit *audit_info)
- {
- 	return -ENOSYS;
-diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-index f0165c5f376b..eb4939f38a14 100644
---- a/net/ipv4/cipso_ipv4.c
-+++ b/net/ipv4/cipso_ipv4.c
-@@ -1481,7 +1481,8 @@ static int cipso_v4_gentag_loc(const struct cipso_v4_doi *doi_def,
- 
- 	buffer[0] = CIPSO_V4_TAG_LOCAL;
- 	buffer[1] = CIPSO_V4_TAG_LOC_BLEN;
--	*(u32 *)&buffer[2] = secattr->attr.secid;
-+	/* only one netlabel user - the first */
-+	*(u32 *)&buffer[2] = secattr->attr.lsmblob.secid[0];
- 
- 	return CIPSO_V4_TAG_LOC_BLEN;
+-#define SK_CTX(X) ((X)->sk_security)
++static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
++{
++	return sk->sk_security + apparmor_blob_sizes.lbs_sock;
++}
++
+ #define SOCK_ctx(X) SOCK_INODE(X)->i_security
+ #define DEFINE_AUDIT_NET(NAME, OP, SK, F, T, P)				  \
+ 	struct lsm_network_audit NAME ## _net = { .sk = (SK),		  \
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 49d664ddff44..2716e7731279 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -757,33 +757,15 @@ static int apparmor_task_kill(struct task_struct *target, struct kernel_siginfo
+ 	return error;
  }
-@@ -1501,7 +1502,8 @@ static int cipso_v4_parsetag_loc(const struct cipso_v4_doi *doi_def,
- 				 const unsigned char *tag,
- 				 struct netlbl_lsm_secattr *secattr)
+ 
+-/**
+- * apparmor_sk_alloc_security - allocate and attach the sk_security field
+- */
+-static int apparmor_sk_alloc_security(struct sock *sk, int family, gfp_t flags)
+-{
+-	struct aa_sk_ctx *ctx;
+-
+-	ctx = kzalloc(sizeof(*ctx), flags);
+-	if (!ctx)
+-		return -ENOMEM;
+-
+-	SK_CTX(sk) = ctx;
+-
+-	return 0;
+-}
+-
+ /**
+  * apparmor_sk_free_security - free the sk_security field
+  */
+ static void apparmor_sk_free_security(struct sock *sk)
  {
--	secattr->attr.secid = *(u32 *)&tag[2];
-+	/* only one netlabel user - the first */
-+	secattr->attr.lsmblob.secid[0] = *(u32 *)&tag[2];
- 	secattr->flags |= NETLBL_SECATTR_SECID;
+-	struct aa_sk_ctx *ctx = SK_CTX(sk);
++	struct aa_sk_ctx *ctx = aa_sock(sk);
+ 
+-	SK_CTX(sk) = NULL;
+ 	aa_put_label(ctx->label);
+ 	aa_put_label(ctx->peer);
+-	kfree(ctx);
+ }
+ 
+ /**
+@@ -792,8 +774,8 @@ static void apparmor_sk_free_security(struct sock *sk)
+ static void apparmor_sk_clone_security(const struct sock *sk,
+ 				       struct sock *newsk)
+ {
+-	struct aa_sk_ctx *ctx = SK_CTX(sk);
+-	struct aa_sk_ctx *new = SK_CTX(newsk);
++	struct aa_sk_ctx *ctx = aa_sock(sk);
++	struct aa_sk_ctx *new = aa_sock(newsk);
+ 
+ 	new->label = aa_get_label(ctx->label);
+ 	new->peer = aa_get_label(ctx->peer);
+@@ -844,7 +826,7 @@ static int apparmor_socket_post_create(struct socket *sock, int family,
+ 		label = aa_get_current_label();
+ 
+ 	if (sock->sk) {
+-		struct aa_sk_ctx *ctx = SK_CTX(sock->sk);
++		struct aa_sk_ctx *ctx = aa_sock(sock->sk);
+ 
+ 		aa_put_label(ctx->label);
+ 		ctx->label = aa_get_label(label);
+@@ -1029,7 +1011,7 @@ static int apparmor_socket_shutdown(struct socket *sock, int how)
+  */
+ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+-	struct aa_sk_ctx *ctx = SK_CTX(sk);
++	struct aa_sk_ctx *ctx = aa_sock(sk);
+ 
+ 	if (!skb->secmark)
+ 		return 0;
+@@ -1042,7 +1024,7 @@ static int apparmor_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 
+ static struct aa_label *sk_peer_label(struct sock *sk)
+ {
+-	struct aa_sk_ctx *ctx = SK_CTX(sk);
++	struct aa_sk_ctx *ctx = aa_sock(sk);
+ 
+ 	if (ctx->peer)
+ 		return ctx->peer;
+@@ -1126,7 +1108,7 @@ static int apparmor_socket_getpeersec_dgram(struct socket *sock,
+  */
+ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
+ {
+-	struct aa_sk_ctx *ctx = SK_CTX(sk);
++	struct aa_sk_ctx *ctx = aa_sock(sk);
+ 
+ 	if (!ctx->label)
+ 		ctx->label = aa_get_current_label();
+@@ -1136,7 +1118,7 @@ static void apparmor_sock_graft(struct sock *sk, struct socket *parent)
+ static int apparmor_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 				      struct request_sock *req)
+ {
+-	struct aa_sk_ctx *ctx = SK_CTX(sk);
++	struct aa_sk_ctx *ctx = aa_sock(sk);
+ 
+ 	if (!skb->secmark)
+ 		return 0;
+@@ -1153,6 +1135,7 @@ struct lsm_blob_sizes apparmor_blob_sizes __lsm_ro_after_init = {
+ 	.lbs_cred = sizeof(struct aa_task_ctx *),
+ 	.lbs_file = sizeof(struct aa_file_ctx),
+ 	.lbs_task = sizeof(struct aa_task_ctx),
++	.lbs_sock = sizeof(struct aa_sk_ctx),
+ };
+ 
+ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+@@ -1189,7 +1172,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(getprocattr, apparmor_getprocattr),
+ 	LSM_HOOK_INIT(setprocattr, apparmor_setprocattr),
+ 
+-	LSM_HOOK_INIT(sk_alloc_security, apparmor_sk_alloc_security),
+ 	LSM_HOOK_INIT(sk_free_security, apparmor_sk_free_security),
+ 	LSM_HOOK_INIT(sk_clone_security, apparmor_sk_clone_security),
+ 
+@@ -1581,7 +1563,7 @@ static unsigned int apparmor_ip_postroute(void *priv,
+ 	if (sk == NULL)
+ 		return NF_ACCEPT;
+ 
+-	ctx = SK_CTX(sk);
++	ctx = aa_sock(sk);
+ 	if (!apparmor_secmark_check(ctx->label, OP_SENDMSG, AA_MAY_SEND,
+ 				    skb->secmark, sk))
+ 		return NF_ACCEPT;
+diff --git a/security/security.c b/security/security.c
+index 550988a0f024..e32b7180282e 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -32,6 +32,7 @@
+ #include <linux/string.h>
+ #include <linux/msg.h>
+ #include <net/flow.h>
++#include <net/sock.h>
+ 
+ #define MAX_LSM_EVM_XATTR	2
+ 
+@@ -172,6 +173,7 @@ static void __init lsm_set_blob_sizes(struct lsm_blob_sizes *needed)
+ 	lsm_set_blob_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
+ 	lsm_set_blob_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
+ 	lsm_set_blob_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
++	lsm_set_blob_size(&needed->lbs_sock, &blob_sizes.lbs_sock);
+ 	lsm_set_blob_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
+ 	lsm_set_blob_size(&needed->lbs_task, &blob_sizes.lbs_task);
+ }
+@@ -306,6 +308,7 @@ static void __init ordered_lsm_init(void)
+ 	init_debug("inode blob size      = %d\n", blob_sizes.lbs_inode);
+ 	init_debug("ipc blob size        = %d\n", blob_sizes.lbs_ipc);
+ 	init_debug("msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
++	init_debug("sock blob size       = %d\n", blob_sizes.lbs_sock);
+ 	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
+ 	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
+ 
+@@ -605,6 +608,28 @@ static void __init lsm_early_task(struct task_struct *task)
+ 		panic("%s: Early task alloc failed.\n", __func__);
+ }
+ 
++/**
++ * lsm_sock_alloc - allocate a composite sock blob
++ * @sock: the sock that needs a blob
++ * @priority: allocation mode
++ *
++ * Allocate the sock blob for all the modules
++ *
++ * Returns 0, or -ENOMEM if memory can't be allocated.
++ */
++int lsm_sock_alloc(struct sock *sock, gfp_t priority)
++{
++	if (blob_sizes.lbs_sock == 0) {
++		sock->sk_security = NULL;
++		return 0;
++	}
++
++	sock->sk_security = kzalloc(blob_sizes.lbs_sock, priority);
++	if (sock->sk_security == NULL)
++		return -ENOMEM;
++	return 0;
++}
++
+ /**
+  * lsm_superblock_alloc - allocate a composite superblock blob
+  * @sb: the superblock that needs a blob
+@@ -2048,12 +2073,21 @@ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+ 
+ int security_sk_alloc(struct sock *sk, int family, gfp_t priority)
+ {
+-	return call_int_hook(sk_alloc_security, 0, sk, family, priority);
++	int rc = lsm_sock_alloc(sk, priority);
++
++	if (unlikely(rc))
++		return rc;
++	rc = call_int_hook(sk_alloc_security, 0, sk, family, priority);
++	if (unlikely(rc))
++		security_sk_free(sk);
++	return rc;
+ }
+ 
+ void security_sk_free(struct sock *sk)
+ {
+ 	call_void_hook(sk_free_security, sk);
++	kfree(sk->sk_security);
++	sk->sk_security = NULL;
+ }
+ 
+ void security_sk_clone(const struct sock *sk, struct sock *newsk)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 7478d8eda00a..f38a6f484613 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -4319,7 +4319,7 @@ static int socket_sockcreate_sid(const struct task_security_struct *tsec,
+ 
+ static int sock_has_perm(struct sock *sk, u32 perms)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 
+@@ -4376,7 +4376,7 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ 	isec->initialized = LABEL_INITIALIZED;
+ 
+ 	if (sock->sk) {
+-		sksec = sock->sk->sk_security;
++		sksec = selinux_sock(sock->sk);
+ 		sksec->sclass = sclass;
+ 		sksec->sid = sid;
+ 		/* Allows detection of the first association on this socket */
+@@ -4392,8 +4392,8 @@ static int selinux_socket_post_create(struct socket *sock, int family,
+ static int selinux_socket_socketpair(struct socket *socka,
+ 				     struct socket *sockb)
+ {
+-	struct sk_security_struct *sksec_a = socka->sk->sk_security;
+-	struct sk_security_struct *sksec_b = sockb->sk->sk_security;
++	struct sk_security_struct *sksec_a = selinux_sock(socka->sk);
++	struct sk_security_struct *sksec_b = selinux_sock(sockb->sk);
+ 
+ 	sksec_a->peer_sid = sksec_b->sid;
+ 	sksec_b->peer_sid = sksec_a->sid;
+@@ -4408,7 +4408,7 @@ static int selinux_socket_socketpair(struct socket *socka,
+ static int selinux_socket_bind(struct socket *sock, struct sockaddr *address, int addrlen)
+ {
+ 	struct sock *sk = sock->sk;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	u16 family;
+ 	int err;
+ 
+@@ -4540,7 +4540,7 @@ static int selinux_socket_connect_helper(struct socket *sock,
+ 					 struct sockaddr *address, int addrlen)
+ {
+ 	struct sock *sk = sock->sk;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	int err;
+ 
+ 	err = sock_has_perm(sk, SOCKET__CONNECT);
+@@ -4711,9 +4711,9 @@ static int selinux_socket_unix_stream_connect(struct sock *sock,
+ 					      struct sock *other,
+ 					      struct sock *newsk)
+ {
+-	struct sk_security_struct *sksec_sock = sock->sk_security;
+-	struct sk_security_struct *sksec_other = other->sk_security;
+-	struct sk_security_struct *sksec_new = newsk->sk_security;
++	struct sk_security_struct *sksec_sock = selinux_sock(sock);
++	struct sk_security_struct *sksec_other = selinux_sock(other);
++	struct sk_security_struct *sksec_new = selinux_sock(newsk);
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 	int err;
+@@ -4745,8 +4745,8 @@ static int selinux_socket_unix_stream_connect(struct sock *sock,
+ static int selinux_socket_unix_may_send(struct socket *sock,
+ 					struct socket *other)
+ {
+-	struct sk_security_struct *ssec = sock->sk->sk_security;
+-	struct sk_security_struct *osec = other->sk->sk_security;
++	struct sk_security_struct *ssec = selinux_sock(sock->sk);
++	struct sk_security_struct *osec = selinux_sock(other->sk);
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 
+@@ -4788,7 +4788,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ 				       u16 family)
+ {
+ 	int err = 0;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	u32 sk_sid = sksec->sid;
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+@@ -4821,7 +4821,7 @@ static int selinux_sock_rcv_skb_compat(struct sock *sk, struct sk_buff *skb,
+ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+ 	int err;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	u16 family = sk->sk_family;
+ 	u32 sk_sid = sksec->sid;
+ 	struct common_audit_data ad;
+@@ -4889,13 +4889,15 @@ static int selinux_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ 	return err;
+ }
+ 
+-static int selinux_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+-					    int __user *optlen, unsigned len)
++static int selinux_socket_getpeersec_stream(struct socket *sock,
++					    __user char *optval,
++					    __user int *optlen,
++					    unsigned int len)
+ {
+ 	int err = 0;
+ 	char *scontext;
+ 	u32 scontext_len;
+-	struct sk_security_struct *sksec = sock->sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sock->sk);
+ 	u32 peer_sid = SECSID_NULL;
+ 
+ 	if (sksec->sclass == SECCLASS_UNIX_STREAM_SOCKET ||
+@@ -4955,34 +4957,27 @@ static int selinux_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *
+ 
+ static int selinux_sk_alloc_security(struct sock *sk, int family, gfp_t priority)
+ {
+-	struct sk_security_struct *sksec;
+-
+-	sksec = kzalloc(sizeof(*sksec), priority);
+-	if (!sksec)
+-		return -ENOMEM;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 
+ 	sksec->peer_sid = SECINITSID_UNLABELED;
+ 	sksec->sid = SECINITSID_UNLABELED;
+ 	sksec->sclass = SECCLASS_SOCKET;
+ 	selinux_netlbl_sk_security_reset(sksec);
+-	sk->sk_security = sksec;
  
  	return 0;
-diff --git a/net/netlabel/netlabel_kapi.c b/net/netlabel/netlabel_kapi.c
-index ee3e5b6471a6..724d44943543 100644
---- a/net/netlabel/netlabel_kapi.c
-+++ b/net/netlabel/netlabel_kapi.c
-@@ -210,7 +210,7 @@ int netlbl_cfg_unlbl_map_add(const char *domain,
-  * @addr: IP address in network byte order (struct in[6]_addr)
-  * @mask: address mask in network byte order (struct in[6]_addr)
-  * @family: address family
-- * @secid: LSM secid value for the entry
-+ * @lsmblob: LSM data value for the entry
-  * @audit_info: NetLabel audit information
-  *
-  * Description:
-@@ -224,7 +224,7 @@ int netlbl_cfg_unlbl_static_add(struct net *net,
- 				const void *addr,
- 				const void *mask,
- 				u16 family,
--				u32 secid,
-+				struct lsmblob *lsmblob,
- 				struct netlbl_audit *audit_info)
- {
- 	u32 addr_len;
-@@ -244,7 +244,7 @@ int netlbl_cfg_unlbl_static_add(struct net *net,
- 
- 	return netlbl_unlhsh_add(net,
- 				 dev_name, addr, mask, addr_len,
--				 secid, audit_info);
-+				 lsmblob, audit_info);
  }
  
- /**
-diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index 4716e0011ba5..57ede7781c8f 100644
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -80,7 +80,7 @@ struct netlbl_unlhsh_tbl {
- #define netlbl_unlhsh_addr4_entry(iter) \
- 	container_of(iter, struct netlbl_unlhsh_addr4, list)
- struct netlbl_unlhsh_addr4 {
--	u32 secid;
-+	struct lsmblob lsmblob;
- 
- 	struct netlbl_af4list list;
- 	struct rcu_head rcu;
-@@ -88,7 +88,7 @@ struct netlbl_unlhsh_addr4 {
- #define netlbl_unlhsh_addr6_entry(iter) \
- 	container_of(iter, struct netlbl_unlhsh_addr6, list)
- struct netlbl_unlhsh_addr6 {
--	u32 secid;
-+	struct lsmblob lsmblob;
- 
- 	struct netlbl_af6list list;
- 	struct rcu_head rcu;
-@@ -233,7 +233,7 @@ static struct netlbl_unlhsh_iface *netlbl_unlhsh_search_iface(int ifindex)
-  * @iface: the associated interface entry
-  * @addr: IPv4 address in network byte order
-  * @mask: IPv4 address mask in network byte order
-- * @secid: LSM secid value for entry
-+ * @lsmblob: LSM data value for entry
-  *
-  * Description:
-  * Add a new address entry into the unlabeled connection hash table using the
-@@ -244,7 +244,7 @@ static struct netlbl_unlhsh_iface *netlbl_unlhsh_search_iface(int ifindex)
- static int netlbl_unlhsh_add_addr4(struct netlbl_unlhsh_iface *iface,
- 				   const struct in_addr *addr,
- 				   const struct in_addr *mask,
--				   u32 secid)
-+				   struct lsmblob *lsmblob)
+ static void selinux_sk_free_security(struct sock *sk)
  {
- 	int ret_val;
- 	struct netlbl_unlhsh_addr4 *entry;
-@@ -256,7 +256,7 @@ static int netlbl_unlhsh_add_addr4(struct netlbl_unlhsh_iface *iface,
- 	entry->list.addr = addr->s_addr & mask->s_addr;
- 	entry->list.mask = mask->s_addr;
- 	entry->list.valid = 1;
--	entry->secid = secid;
-+	entry->lsmblob = *lsmblob;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
  
- 	spin_lock(&netlbl_unlhsh_lock);
- 	ret_val = netlbl_af4list_add(&entry->list, &iface->addr4_list);
-@@ -273,7 +273,7 @@ static int netlbl_unlhsh_add_addr4(struct netlbl_unlhsh_iface *iface,
-  * @iface: the associated interface entry
-  * @addr: IPv6 address in network byte order
-  * @mask: IPv6 address mask in network byte order
-- * @secid: LSM secid value for entry
-+ * @lsmblob: LSM data value for entry
-  *
-  * Description:
-  * Add a new address entry into the unlabeled connection hash table using the
-@@ -284,7 +284,7 @@ static int netlbl_unlhsh_add_addr4(struct netlbl_unlhsh_iface *iface,
- static int netlbl_unlhsh_add_addr6(struct netlbl_unlhsh_iface *iface,
- 				   const struct in6_addr *addr,
- 				   const struct in6_addr *mask,
--				   u32 secid)
-+				   struct lsmblob *lsmblob)
- {
- 	int ret_val;
- 	struct netlbl_unlhsh_addr6 *entry;
-@@ -300,7 +300,7 @@ static int netlbl_unlhsh_add_addr6(struct netlbl_unlhsh_iface *iface,
- 	entry->list.addr.s6_addr32[3] &= mask->s6_addr32[3];
- 	entry->list.mask = *mask;
- 	entry->list.valid = 1;
--	entry->secid = secid;
-+	entry->lsmblob = *lsmblob;
- 
- 	spin_lock(&netlbl_unlhsh_lock);
- 	ret_val = netlbl_af6list_add(&entry->list, &iface->addr6_list);
-@@ -379,7 +379,7 @@ int netlbl_unlhsh_add(struct net *net,
- 		      const void *addr,
- 		      const void *mask,
- 		      u32 addr_len,
--		      u32 secid,
-+		      struct lsmblob *lsmblob,
- 		      struct netlbl_audit *audit_info)
- {
- 	int ret_val;
-@@ -388,7 +388,6 @@ int netlbl_unlhsh_add(struct net *net,
- 	struct netlbl_unlhsh_iface *iface;
- 	struct audit_buffer *audit_buf = NULL;
- 	struct lsmcontext context;
--	struct lsmblob blob;
- 
- 	if (addr_len != sizeof(struct in_addr) &&
- 	    addr_len != sizeof(struct in6_addr))
-@@ -421,7 +420,7 @@ int netlbl_unlhsh_add(struct net *net,
- 		const struct in_addr *addr4 = addr;
- 		const struct in_addr *mask4 = mask;
- 
--		ret_val = netlbl_unlhsh_add_addr4(iface, addr4, mask4, secid);
-+		ret_val = netlbl_unlhsh_add_addr4(iface, addr4, mask4, lsmblob);
- 		if (audit_buf != NULL)
- 			netlbl_af4list_audit_addr(audit_buf, 1,
- 						  dev_name,
-@@ -434,7 +433,7 @@ int netlbl_unlhsh_add(struct net *net,
- 		const struct in6_addr *addr6 = addr;
- 		const struct in6_addr *mask6 = mask;
- 
--		ret_val = netlbl_unlhsh_add_addr6(iface, addr6, mask6, secid);
-+		ret_val = netlbl_unlhsh_add_addr6(iface, addr6, mask6, lsmblob);
- 		if (audit_buf != NULL)
- 			netlbl_af6list_audit_addr(audit_buf, 1,
- 						  dev_name,
-@@ -451,8 +450,7 @@ int netlbl_unlhsh_add(struct net *net,
- unlhsh_add_return:
- 	rcu_read_unlock();
- 	if (audit_buf != NULL) {
--		lsmblob_init(&blob, secid);
--		if (security_secid_to_secctx(&blob, &context) == 0) {
-+		if (security_secid_to_secctx(lsmblob, &context) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s",
- 					 context.context);
- 			security_release_secctx(&context);
-@@ -487,7 +485,6 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
- 	struct audit_buffer *audit_buf;
- 	struct net_device *dev;
- 	struct lsmcontext context;
--	struct lsmblob blob;
- 
- 	spin_lock(&netlbl_unlhsh_lock);
- 	list_entry = netlbl_af4list_remove(addr->s_addr, mask->s_addr,
-@@ -507,10 +504,8 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
- 					  addr->s_addr, mask->s_addr);
- 		if (dev != NULL)
- 			dev_put(dev);
--		if (entry != NULL)
--			lsmblob_init(&blob, entry->secid);
- 		if (entry != NULL &&
--		    security_secid_to_secctx(&blob, &context) == 0) {
-+		    security_secid_to_secctx(&entry->lsmblob, &context) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s",
- 					 context.context);
- 			security_release_secctx(&context);
-@@ -551,7 +546,6 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
- 	struct audit_buffer *audit_buf;
- 	struct net_device *dev;
- 	struct lsmcontext context;
--	struct lsmblob blob;
- 
- 	spin_lock(&netlbl_unlhsh_lock);
- 	list_entry = netlbl_af6list_remove(addr, mask, &iface->addr6_list);
-@@ -570,10 +564,8 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
- 					  addr, mask);
- 		if (dev != NULL)
- 			dev_put(dev);
--		if (entry != NULL)
--			lsmblob_init(&blob, entry->secid);
- 		if (entry != NULL &&
--		    security_secid_to_secctx(&blob, &context) == 0) {
-+		    security_secid_to_secctx(&entry->lsmblob, &context) == 0) {
- 			audit_log_format(audit_buf, " sec_obj=%s",
- 					 context.context);
- 			security_release_secctx(&context);
-@@ -927,9 +919,8 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
- 	if (ret_val != 0)
- 		return ret_val;
- 
--	/* scaffolding with the [0] */
- 	return netlbl_unlhsh_add(&init_net,
--				 dev_name, addr, mask, addr_len, blob.secid[0],
-+				 dev_name, addr, mask, addr_len, &blob,
- 				 &audit_info);
+-	sk->sk_security = NULL;
+ 	selinux_netlbl_sk_security_free(sksec);
+-	kfree(sksec);
  }
  
-@@ -977,10 +968,8 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
- 	if (ret_val != 0)
- 		return ret_val;
+ static void selinux_sk_clone_security(const struct sock *sk, struct sock *newsk)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
+-	struct sk_security_struct *newsksec = newsk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
++	struct sk_security_struct *newsksec = selinux_sock(newsk);
  
--	/* scaffolding with the [0] */
- 	return netlbl_unlhsh_add(&init_net,
--				 NULL, addr, mask, addr_len, blob.secid[0],
--				 &audit_info);
-+				 NULL, addr, mask, addr_len, &blob, &audit_info);
- }
+ 	newsksec->sid = sksec->sid;
+ 	newsksec->peer_sid = sksec->peer_sid;
+@@ -4996,7 +4991,7 @@ static void selinux_sk_getsecid(struct sock *sk, u32 *secid)
+ 	if (!sk)
+ 		*secid = SECINITSID_ANY_SOCKET;
+ 	else {
+-		struct sk_security_struct *sksec = sk->sk_security;
++		struct sk_security_struct *sksec = selinux_sock(sk);
  
- /**
-@@ -1092,8 +1081,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
- 	struct net_device *dev;
- 	struct lsmcontext context;
- 	void *data;
--	u32 secid;
--	struct lsmblob blob;
-+	struct lsmblob *lsmb;
+ 		*secid = sksec->sid;
+ 	}
+@@ -5006,7 +5001,7 @@ static void selinux_sock_graft(struct sock *sk, struct socket *parent)
+ {
+ 	struct inode_security_struct *isec =
+ 		inode_security_novalidate(SOCK_INODE(parent));
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
  
- 	data = genlmsg_put(cb_arg->skb, NETLINK_CB(cb_arg->nl_cb->skb).portid,
- 			   cb_arg->seq, &netlbl_unlabel_gnl_family,
-@@ -1131,7 +1119,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
- 		if (ret_val != 0)
- 			goto list_cb_failure;
+ 	if (sk->sk_family == PF_INET || sk->sk_family == PF_INET6 ||
+ 	    sk->sk_family == PF_UNIX)
+@@ -5021,7 +5016,7 @@ static void selinux_sock_graft(struct sock *sk, struct socket *parent)
+ static int selinux_sctp_assoc_request(struct sctp_endpoint *ep,
+ 				      struct sk_buff *skb)
+ {
+-	struct sk_security_struct *sksec = ep->base.sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(ep->base.sk);
+ 	struct common_audit_data ad;
+ 	struct lsm_network_audit net = {0,};
+ 	u8 peerlbl_active;
+@@ -5172,8 +5167,8 @@ static int selinux_sctp_bind_connect(struct sock *sk, int optname,
+ static void selinux_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
+ 				  struct sock *newsk)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
+-	struct sk_security_struct *newsksec = newsk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
++	struct sk_security_struct *newsksec = selinux_sock(newsk);
  
--		secid = addr4->secid;
-+		lsmb = (struct lsmblob *)&addr4->lsmblob;
+ 	/* If policy does not support SECCLASS_SCTP_SOCKET then call
+ 	 * the non-sctp clone version.
+@@ -5190,7 +5185,7 @@ static void selinux_sctp_sk_clone(struct sctp_endpoint *ep, struct sock *sk,
+ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ 				     struct request_sock *req)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	int err;
+ 	u16 family = req->rsk_ops->family;
+ 	u32 connsid;
+@@ -5211,7 +5206,7 @@ static int selinux_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ static void selinux_inet_csk_clone(struct sock *newsk,
+ 				   const struct request_sock *req)
+ {
+-	struct sk_security_struct *newsksec = newsk->sk_security;
++	struct sk_security_struct *newsksec = selinux_sock(newsk);
+ 
+ 	newsksec->sid = req->secid;
+ 	newsksec->peer_sid = req->peer_secid;
+@@ -5228,7 +5223,7 @@ static void selinux_inet_csk_clone(struct sock *newsk,
+ static void selinux_inet_conn_established(struct sock *sk, struct sk_buff *skb)
+ {
+ 	u16 family = sk->sk_family;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 
+ 	/* handle mapped IPv4 packets arriving via IPv6 sockets */
+ 	if (family == PF_INET6 && skb->protocol == htons(ETH_P_IP))
+@@ -5312,7 +5307,7 @@ static int selinux_tun_dev_attach_queue(void *security)
+ static int selinux_tun_dev_attach(struct sock *sk, void *security)
+ {
+ 	struct tun_security_struct *tunsec = security;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 
+ 	/* we don't currently perform any NetLabel based labeling here and it
+ 	 * isn't clear that we would want to do so anyway; while we could apply
+@@ -5353,7 +5348,7 @@ static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
+ 	int err = 0;
+ 	u32 perm;
+ 	struct nlmsghdr *nlh;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 
+ 	if (skb->len < NLMSG_HDRLEN) {
+ 		err = -EINVAL;
+@@ -5494,7 +5489,7 @@ static unsigned int selinux_ip_output(struct sk_buff *skb,
+ 			return NF_ACCEPT;
+ 
+ 		/* standard practice, label using the parent socket */
+-		sksec = sk->sk_security;
++		sksec = selinux_sock(sk);
+ 		sid = sksec->sid;
+ 	} else
+ 		sid = SECINITSID_KERNEL;
+@@ -5533,7 +5528,7 @@ static unsigned int selinux_ip_postroute_compat(struct sk_buff *skb,
+ 
+ 	if (sk == NULL)
+ 		return NF_ACCEPT;
+-	sksec = sk->sk_security;
++	sksec = selinux_sock(sk);
+ 
+ 	ad.type = LSM_AUDIT_DATA_NET;
+ 	ad.u.net = &net;
+@@ -5625,7 +5620,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb,
+ 		u32 skb_sid;
+ 		struct sk_security_struct *sksec;
+ 
+-		sksec = sk->sk_security;
++		sksec = selinux_sock(sk);
+ 		if (selinux_skb_peerlbl_sid(skb, family, &skb_sid))
+ 			return NF_DROP;
+ 		/* At this point, if the returned skb peerlbl is SECSID_NULL
+@@ -5654,7 +5649,7 @@ static unsigned int selinux_ip_postroute(struct sk_buff *skb,
  	} else {
- 		ret_val = nla_put_in6_addr(cb_arg->skb,
- 					   NLBL_UNLABEL_A_IPV6ADDR,
-@@ -1145,11 +1133,10 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
- 		if (ret_val != 0)
- 			goto list_cb_failure;
- 
--		secid = addr6->secid;
-+		lsmb = (struct lsmblob *)&addr6->lsmblob;
+ 		/* Locally generated packet, fetch the security label from the
+ 		 * associated socket. */
+-		struct sk_security_struct *sksec = sk->sk_security;
++		struct sk_security_struct *sksec = selinux_sock(sk);
+ 		peer_sid = sksec->sid;
+ 		secmark_perm = PACKET__SEND;
  	}
+@@ -6633,6 +6628,7 @@ struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
+ 	.lbs_inode = sizeof(struct inode_security_struct),
+ 	.lbs_ipc = sizeof(struct ipc_security_struct),
+ 	.lbs_msg_msg = sizeof(struct msg_security_struct),
++	.lbs_sock = sizeof(struct sk_security_struct),
+ 	.lbs_superblock = sizeof(struct superblock_security_struct),
+ };
  
--	lsmblob_init(&blob, secid);
--	ret_val = security_secid_to_secctx(&blob, &context);
-+	ret_val = security_secid_to_secctx(lsmb, &context);
- 	if (ret_val != 0)
- 		goto list_cb_failure;
- 	ret_val = nla_put(cb_arg->skb,
-@@ -1500,7 +1487,7 @@ int netlbl_unlabel_getattr(const struct sk_buff *skb,
- 					      &iface->addr4_list);
- 		if (addr4 == NULL)
- 			goto unlabel_getattr_nolabel;
--		secattr->attr.secid = netlbl_unlhsh_addr4_entry(addr4)->secid;
-+		secattr->attr.lsmblob = netlbl_unlhsh_addr4_entry(addr4)->lsmblob;
- 		break;
- 	}
- #if IS_ENABLED(CONFIG_IPV6)
-@@ -1513,7 +1500,7 @@ int netlbl_unlabel_getattr(const struct sk_buff *skb,
- 					      &iface->addr6_list);
- 		if (addr6 == NULL)
- 			goto unlabel_getattr_nolabel;
--		secattr->attr.secid = netlbl_unlhsh_addr6_entry(addr6)->secid;
-+		secattr->attr.lsmblob = netlbl_unlhsh_addr6_entry(addr6)->lsmblob;
- 		break;
- 	}
- #endif /* IPv6 */
-diff --git a/net/netlabel/netlabel_unlabeled.h b/net/netlabel/netlabel_unlabeled.h
-index 3a9e5dc9511b..dcff99695c97 100644
---- a/net/netlabel/netlabel_unlabeled.h
-+++ b/net/netlabel/netlabel_unlabeled.h
-@@ -225,7 +225,7 @@ int netlbl_unlhsh_add(struct net *net,
- 		      const void *addr,
- 		      const void *mask,
- 		      u32 addr_len,
--		      u32 secid,
-+		      struct lsmblob *lsmblob,
- 		      struct netlbl_audit *audit_info);
- int netlbl_unlhsh_remove(struct net *net,
- 			 const char *dev_name,
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index b5b7c5aade8c..94787988c8fb 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -68,6 +68,7 @@
- struct netlbl_lsm_secattr;
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index d08d7e5d2f93..29f02b8f8f31 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -194,4 +194,9 @@ static inline struct superblock_security_struct *selinux_superblock(
+ 	return superblock->s_security + selinux_blob_sizes.lbs_superblock;
+ }
  
- extern int selinux_enabled;
-+extern int selinux_lsmblob_slot;
- 
- /* Policy capabilities */
- enum {
++static inline struct sk_security_struct *selinux_sock(const struct sock *sock)
++{
++	return sock->sk_security + selinux_blob_sizes.lbs_sock;
++}
++
+ #endif /* _SELINUX_OBJSEC_H_ */
 diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index c40914a157b7..320a4cdc657e 100644
+index 186e727b737b..c40914a157b7 100644
 --- a/security/selinux/netlabel.c
 +++ b/security/selinux/netlabel.c
-@@ -122,7 +122,7 @@ static struct netlbl_lsm_secattr *selinux_netlbl_sock_getattr(
- 		return NULL;
+@@ -31,6 +31,7 @@
+ #include <linux/gfp.h>
+ #include <linux/ip.h>
+ #include <linux/ipv6.h>
++#include <linux/lsm_hooks.h>
+ #include <net/sock.h>
+ #include <net/netlabel.h>
+ #include <net/ip.h>
+@@ -81,7 +82,7 @@ static int selinux_netlbl_sidlookup_cached(struct sk_buff *skb,
+ static struct netlbl_lsm_secattr *selinux_netlbl_sock_genattr(struct sock *sk)
+ {
+ 	int rc;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	struct netlbl_lsm_secattr *secattr;
  
- 	if ((secattr->flags & NETLBL_SECATTR_SECID) &&
--	    (secattr->attr.secid == sid))
-+	    (secattr->attr.lsmblob.secid[selinux_lsmblob_slot] == sid))
- 		return secattr;
+ 	if (sksec->nlbl_secattr != NULL)
+@@ -114,7 +115,7 @@ static struct netlbl_lsm_secattr *selinux_netlbl_sock_getattr(
+ 							const struct sock *sk,
+ 							u32 sid)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	struct netlbl_lsm_secattr *secattr = sksec->nlbl_secattr;
  
- 	return NULL;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index e3f5d6aece66..a3be1afafd7f 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3593,7 +3593,7 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
- 	if (secattr->flags & NETLBL_SECATTR_CACHE)
- 		*sid = *(u32 *)secattr->cache->data;
- 	else if (secattr->flags & NETLBL_SECATTR_SECID)
--		*sid = secattr->attr.secid;
-+		*sid = secattr->attr.lsmblob.secid[selinux_lsmblob_slot];
- 	else if (secattr->flags & NETLBL_SECATTR_MLS_LVL) {
- 		rc = -EIDRM;
- 		ctx = sidtab_search(sidtab, SECINITSID_NETMSG);
-@@ -3666,7 +3666,7 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
- 	if (secattr->domain == NULL)
- 		goto out;
+ 	if (secattr == NULL)
+@@ -249,7 +250,7 @@ int selinux_netlbl_skbuff_setsid(struct sk_buff *skb,
+ 	 * being labeled by it's parent socket, if it is just exit */
+ 	sk = skb_to_full_sk(skb);
+ 	if (sk != NULL) {
+-		struct sk_security_struct *sksec = sk->sk_security;
++		struct sk_security_struct *sksec = selinux_sock(sk);
  
--	secattr->attr.secid = sid;
-+	secattr->attr.lsmblob.secid[selinux_lsmblob_slot] = sid;
- 	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY | NETLBL_SECATTR_SECID;
- 	mls_export_netlbl_lvl(policydb, ctx, secattr);
- 	rc = mls_export_netlbl_cat(policydb, ctx, secattr);
+ 		if (sksec->nlbl_state != NLBL_REQSKB)
+ 			return 0;
+@@ -287,7 +288,7 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
+ {
+ 	int rc;
+ 	struct netlbl_lsm_secattr secattr;
+-	struct sk_security_struct *sksec = ep->base.sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(ep->base.sk);
+ 	struct sockaddr *addr;
+ 	struct sockaddr_in addr4;
+ #if IS_ENABLED(CONFIG_IPV6)
+@@ -370,7 +371,7 @@ int selinux_netlbl_inet_conn_request(struct request_sock *req, u16 family)
+  */
+ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 
+ 	if (family == PF_INET)
+ 		sksec->nlbl_state = NLBL_LABELED;
+@@ -388,8 +389,8 @@ void selinux_netlbl_inet_csk_clone(struct sock *sk, u16 family)
+  */
+ void selinux_netlbl_sctp_sk_clone(struct sock *sk, struct sock *newsk)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
+-	struct sk_security_struct *newsksec = newsk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
++	struct sk_security_struct *newsksec = selinux_sock(newsk);
+ 
+ 	newsksec->nlbl_state = sksec->nlbl_state;
+ }
+@@ -407,7 +408,7 @@ void selinux_netlbl_sctp_sk_clone(struct sock *sk, struct sock *newsk)
+ int selinux_netlbl_socket_post_create(struct sock *sk, u16 family)
+ {
+ 	int rc;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	struct netlbl_lsm_secattr *secattr;
+ 
+ 	if (family != PF_INET && family != PF_INET6)
+@@ -522,7 +523,7 @@ int selinux_netlbl_socket_setsockopt(struct socket *sock,
+ {
+ 	int rc = 0;
+ 	struct sock *sk = sock->sk;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	struct netlbl_lsm_secattr secattr;
+ 
+ 	if (selinux_netlbl_option(level, optname) &&
+@@ -560,7 +561,7 @@ static int selinux_netlbl_socket_connect_helper(struct sock *sk,
+ 						struct sockaddr *addr)
+ {
+ 	int rc;
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 	struct netlbl_lsm_secattr *secattr;
+ 
+ 	/* connected sockets are allowed to disconnect when the address family
+@@ -599,7 +600,7 @@ static int selinux_netlbl_socket_connect_helper(struct sock *sk,
+ int selinux_netlbl_socket_connect_locked(struct sock *sk,
+ 					 struct sockaddr *addr)
+ {
+-	struct sk_security_struct *sksec = sk->sk_security;
++	struct sk_security_struct *sksec = selinux_sock(sk);
+ 
+ 	if (sksec->nlbl_state != NLBL_REQSKB &&
+ 	    sksec->nlbl_state != NLBL_CONNLABELED)
 diff --git a/security/smack/smack.h b/security/smack/smack.h
-index 7cc3a3382fee..097ffde7f202 100644
+index caecbcba9942..4ac4bf3310d7 100644
 --- a/security/smack/smack.h
 +++ b/security/smack/smack.h
-@@ -320,6 +320,7 @@ void smk_destroy_label_list(struct list_head *list);
-  * Shared data.
-  */
- extern int smack_enabled;
-+extern int smack_lsmblob_slot;
- extern int smack_cipso_direct;
- extern int smack_cipso_mapped;
- extern struct smack_known *smack_net_ambient;
+@@ -375,6 +375,11 @@ static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
+ 	return ipc->security + smack_blob_sizes.lbs_ipc;
+ }
+ 
++static inline struct socket_smack *smack_sock(const struct sock *sock)
++{
++	return sock->sk_security + smack_blob_sizes.lbs_sock;
++}
++
+ static inline struct superblock_smack *smack_superblock(
+ 					const struct super_block *superblock)
+ {
 diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-index 273f311fb153..b83aba0f2013 100644
+index 807eff2ccce9..fd69e1bd841b 100644
 --- a/security/smack/smack_lsm.c
 +++ b/security/smack/smack_lsm.c
-@@ -3742,7 +3742,8 @@ static struct smack_known *smack_from_secattr(struct netlbl_lsm_secattr *sap,
- 		/*
- 		 * Looks like a fallback, which gives us a secid.
- 		 */
--		return smack_from_secid(sap->attr.secid);
-+		return smack_from_secid(
-+				sap->attr.lsmblob.secid[smack_lsmblob_slot]);
- 	/*
- 	 * Without guidance regarding the smack value
- 	 * for the packet fall back on the network
-diff --git a/security/smack/smackfs.c b/security/smack/smackfs.c
-index faf2ea3968b3..066d53c29ed4 100644
---- a/security/smack/smackfs.c
-+++ b/security/smack/smackfs.c
-@@ -1150,6 +1150,7 @@ static void smk_net4addr_insert(struct smk_net4addr *new)
- static ssize_t smk_write_net4addr(struct file *file, const char __user *buf,
- 				size_t count, loff_t *ppos)
- {
-+	struct lsmblob lsmblob;
- 	struct smk_net4addr *snp;
- 	struct sockaddr_in newname;
- 	char *smack;
-@@ -1281,10 +1282,13 @@ static ssize_t smk_write_net4addr(struct file *file, const char __user *buf,
- 	 * this host so that incoming packets get labeled.
- 	 * but only if we didn't get the special CIPSO option
- 	 */
--	if (rc == 0 && skp != NULL)
-+	if (rc == 0 && skp != NULL) {
-+		lsmblob_init(&lsmblob, 0);
-+		lsmblob.secid[smack_lsmblob_slot] = snp->smk_label->smk_secid;
- 		rc = netlbl_cfg_unlbl_static_add(&init_net, NULL,
--			&snp->smk_host, &snp->smk_mask, PF_INET,
--			snp->smk_label->smk_secid, &audit_info);
-+			&snp->smk_host, &snp->smk_mask, PF_INET, &lsmblob,
-+			&audit_info);
-+	}
+@@ -1439,7 +1439,7 @@ static int smack_inode_getsecurity(struct inode *inode,
+ 		if (sock == NULL || sock->sk == NULL)
+ 			return -EOPNOTSUPP;
  
- 	if (rc == 0)
- 		rc = count;
+-		ssp = sock->sk->sk_security;
++		ssp = smack_sock(sock->sk);
+ 
+ 		if (strcmp(name, XATTR_SMACK_IPIN) == 0)
+ 			isp = ssp->smk_in;
+@@ -1821,7 +1821,7 @@ static int smack_file_receive(struct file *file)
+ 
+ 	if (inode->i_sb->s_magic == SOCKFS_MAGIC) {
+ 		sock = SOCKET_I(inode);
+-		ssp = sock->sk->sk_security;
++		ssp = smack_sock(sock->sk);
+ 		tsp = smack_cred(current_cred());
+ 		/*
+ 		 * If the receiving process can't write to the
+@@ -2231,11 +2231,7 @@ static void smack_task_to_inode(struct task_struct *p, struct inode *inode)
+ static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t gfp_flags)
+ {
+ 	struct smack_known *skp = smk_of_current();
+-	struct socket_smack *ssp;
+-
+-	ssp = kzalloc(sizeof(struct socket_smack), gfp_flags);
+-	if (ssp == NULL)
+-		return -ENOMEM;
++	struct socket_smack *ssp = smack_sock(sk);
+ 
+ 	/*
+ 	 * Sockets created by kernel threads receive web label.
+@@ -2249,11 +2245,10 @@ static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t gfp_flags)
+ 	}
+ 	ssp->smk_packet = NULL;
+ 
+-	sk->sk_security = ssp;
+-
+ 	return 0;
+ }
+ 
++#ifdef SMACK_IPV6_PORT_LABELING
+ /**
+  * smack_sk_free_security - Free a socket blob
+  * @sk: the socket
+@@ -2262,7 +2257,6 @@ static int smack_sk_alloc_security(struct sock *sk, int family, gfp_t gfp_flags)
+  */
+ static void smack_sk_free_security(struct sock *sk)
+ {
+-#ifdef SMACK_IPV6_PORT_LABELING
+ 	struct smk_port_label *spp;
+ 
+ 	if (sk->sk_family == PF_INET6) {
+@@ -2275,9 +2269,8 @@ static void smack_sk_free_security(struct sock *sk)
+ 		}
+ 		rcu_read_unlock();
+ 	}
+-#endif
+-	kfree(sk->sk_security);
+ }
++#endif
+ 
+ /**
+ * smack_ipv4host_label - check host based restrictions
+@@ -2395,7 +2388,7 @@ static struct smack_known *smack_ipv6host_label(struct sockaddr_in6 *sip)
+ static int smack_netlabel(struct sock *sk, int labeled)
+ {
+ 	struct smack_known *skp;
+-	struct socket_smack *ssp = sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sk);
+ 	int rc = 0;
+ 
+ 	/*
+@@ -2440,7 +2433,7 @@ static int smack_netlabel_send(struct sock *sk, struct sockaddr_in *sap)
+ 	int rc;
+ 	int sk_lbl;
+ 	struct smack_known *hkp;
+-	struct socket_smack *ssp = sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sk);
+ 	struct smk_audit_info ad;
+ 
+ 	rcu_read_lock();
+@@ -2516,7 +2509,7 @@ static void smk_ipv6_port_label(struct socket *sock, struct sockaddr *address)
+ {
+ 	struct sock *sk = sock->sk;
+ 	struct sockaddr_in6 *addr6;
+-	struct socket_smack *ssp = sock->sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sock->sk);
+ 	struct smk_port_label *spp;
+ 	unsigned short port = 0;
+ 
+@@ -2603,7 +2596,7 @@ static int smk_ipv6_port_check(struct sock *sk, struct sockaddr_in6 *address,
+ 				int act)
+ {
+ 	struct smk_port_label *spp;
+-	struct socket_smack *ssp = sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sk);
+ 	struct smack_known *skp = NULL;
+ 	unsigned short port;
+ 	struct smack_known *object;
+@@ -2697,7 +2690,7 @@ static int smack_inode_setsecurity(struct inode *inode, const char *name,
+ 	if (sock == NULL || sock->sk == NULL)
+ 		return -EOPNOTSUPP;
+ 
+-	ssp = sock->sk->sk_security;
++	ssp = smack_sock(sock->sk);
+ 
+ 	if (strcmp(name, XATTR_SMACK_IPIN) == 0)
+ 		ssp->smk_in = skp;
+@@ -2745,7 +2738,7 @@ static int smack_socket_post_create(struct socket *sock, int family,
+ 	 * Sockets created by kernel threads receive web label.
+ 	 */
+ 	if (unlikely(current->flags & PF_KTHREAD)) {
+-		ssp = sock->sk->sk_security;
++		ssp = smack_sock(sock->sk);
+ 		ssp->smk_in = &smack_known_web;
+ 		ssp->smk_out = &smack_known_web;
+ 	}
+@@ -2770,8 +2763,8 @@ static int smack_socket_post_create(struct socket *sock, int family,
+ static int smack_socket_socketpair(struct socket *socka,
+ 		                   struct socket *sockb)
+ {
+-	struct socket_smack *asp = socka->sk->sk_security;
+-	struct socket_smack *bsp = sockb->sk->sk_security;
++	struct socket_smack *asp = smack_sock(socka->sk);
++	struct socket_smack *bsp = smack_sock(sockb->sk);
+ 
+ 	asp->smk_packet = bsp->smk_out;
+ 	bsp->smk_packet = asp->smk_out;
+@@ -2825,7 +2818,7 @@ static int smack_socket_connect(struct socket *sock, struct sockaddr *sap,
+ 		return 0;
+ 
+ #ifdef SMACK_IPV6_SECMARK_LABELING
+-	ssp = sock->sk->sk_security;
++	ssp = smack_sock(sock->sk);
+ #endif
+ 
+ 	switch (sock->sk->sk_family) {
+@@ -3566,9 +3559,9 @@ static int smack_unix_stream_connect(struct sock *sock,
+ {
+ 	struct smack_known *skp;
+ 	struct smack_known *okp;
+-	struct socket_smack *ssp = sock->sk_security;
+-	struct socket_smack *osp = other->sk_security;
+-	struct socket_smack *nsp = newsk->sk_security;
++	struct socket_smack *ssp = smack_sock(sock);
++	struct socket_smack *osp = smack_sock(other);
++	struct socket_smack *nsp = smack_sock(newsk);
+ 	struct smk_audit_info ad;
+ 	int rc = 0;
+ #ifdef CONFIG_AUDIT
+@@ -3614,8 +3607,8 @@ static int smack_unix_stream_connect(struct sock *sock,
+  */
+ static int smack_unix_may_send(struct socket *sock, struct socket *other)
+ {
+-	struct socket_smack *ssp = sock->sk->sk_security;
+-	struct socket_smack *osp = other->sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sock->sk);
++	struct socket_smack *osp = smack_sock(other->sk);
+ 	struct smk_audit_info ad;
+ 	int rc;
+ 
+@@ -3652,7 +3645,7 @@ static int smack_socket_sendmsg(struct socket *sock, struct msghdr *msg,
+ 	struct sockaddr_in6 *sap = (struct sockaddr_in6 *) msg->msg_name;
+ #endif
+ #ifdef SMACK_IPV6_SECMARK_LABELING
+-	struct socket_smack *ssp = sock->sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sock->sk);
+ 	struct smack_known *rsp;
+ #endif
+ 	int rc = 0;
+@@ -3817,7 +3810,7 @@ static int smk_skb_to_addr_ipv6(struct sk_buff *skb, struct sockaddr_in6 *sip)
+ static int smack_socket_sock_rcv_skb(struct sock *sk, struct sk_buff *skb)
+ {
+ 	struct netlbl_lsm_secattr secattr;
+-	struct socket_smack *ssp = sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sk);
+ 	struct smack_known *skp = NULL;
+ 	int rc = 0;
+ 	struct smk_audit_info ad;
+@@ -3934,7 +3927,7 @@ static int smack_socket_getpeersec_stream(struct socket *sock,
+ 	int slen = 1;
+ 	int rc = 0;
+ 
+-	ssp = sock->sk->sk_security;
++	ssp = smack_sock(sock->sk);
+ 	if (ssp->smk_packet != NULL) {
+ 		rcp = ssp->smk_packet->smk_known;
+ 		slen = strlen(rcp) + 1;
+@@ -3984,7 +3977,7 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
+ 
+ 	switch (family) {
+ 	case PF_UNIX:
+-		ssp = sock->sk->sk_security;
++		ssp = smack_sock(sock->sk);
+ 		s = ssp->smk_out->smk_secid;
+ 		break;
+ 	case PF_INET:
+@@ -3997,7 +3990,7 @@ static int smack_socket_getpeersec_dgram(struct socket *sock,
+ 		 * Translate what netlabel gave us.
+ 		 */
+ 		if (sock != NULL && sock->sk != NULL)
+-			ssp = sock->sk->sk_security;
++			ssp = smack_sock(sock->sk);
+ 		netlbl_secattr_init(&secattr);
+ 		rc = netlbl_skbuff_getattr(skb, family, &secattr);
+ 		if (rc == 0) {
+@@ -4035,7 +4028,7 @@ static void smack_sock_graft(struct sock *sk, struct socket *parent)
+ 	    (sk->sk_family != PF_INET && sk->sk_family != PF_INET6))
+ 		return;
+ 
+-	ssp = sk->sk_security;
++	ssp = smack_sock(sk);
+ 	ssp->smk_in = skp;
+ 	ssp->smk_out = skp;
+ 	/* cssp->smk_packet is already set in smack_inet_csk_clone() */
+@@ -4055,7 +4048,7 @@ static int smack_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ {
+ 	u16 family = sk->sk_family;
+ 	struct smack_known *skp;
+-	struct socket_smack *ssp = sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sk);
+ 	struct netlbl_lsm_secattr secattr;
+ 	struct sockaddr_in addr;
+ 	struct iphdr *hdr;
+@@ -4154,7 +4147,7 @@ static int smack_inet_conn_request(struct sock *sk, struct sk_buff *skb,
+ static void smack_inet_csk_clone(struct sock *sk,
+ 				 const struct request_sock *req)
+ {
+-	struct socket_smack *ssp = sk->sk_security;
++	struct socket_smack *ssp = smack_sock(sk);
+ 	struct smack_known *skp;
+ 
+ 	if (req->peer_secid != 0) {
+@@ -4558,6 +4551,7 @@ struct lsm_blob_sizes smack_blob_sizes __lsm_ro_after_init = {
+ 	.lbs_inode = sizeof(struct inode_smack),
+ 	.lbs_ipc = sizeof(struct smack_known *),
+ 	.lbs_msg_msg = sizeof(struct smack_known *),
++	.lbs_sock = sizeof(struct socket_smack),
+ 	.lbs_superblock = sizeof(struct superblock_smack),
+ };
+ 
+@@ -4667,7 +4661,9 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(socket_getpeersec_stream, smack_socket_getpeersec_stream),
+ 	LSM_HOOK_INIT(socket_getpeersec_dgram, smack_socket_getpeersec_dgram),
+ 	LSM_HOOK_INIT(sk_alloc_security, smack_sk_alloc_security),
++#ifdef SMACK_IPV6_PORT_LABELING
+ 	LSM_HOOK_INIT(sk_free_security, smack_sk_free_security),
++#endif
+ 	LSM_HOOK_INIT(sock_graft, smack_sock_graft),
+ 	LSM_HOOK_INIT(inet_conn_request, smack_inet_conn_request),
+ 	LSM_HOOK_INIT(inet_csk_clone, smack_inet_csk_clone),
+diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
+index e36d17835d4f..701a1cc1bdcc 100644
+--- a/security/smack/smack_netfilter.c
++++ b/security/smack/smack_netfilter.c
+@@ -31,8 +31,8 @@ static unsigned int smack_ipv6_output(void *priv,
+ 	struct socket_smack *ssp;
+ 	struct smack_known *skp;
+ 
+-	if (sk && sk->sk_security) {
+-		ssp = sk->sk_security;
++	if (sk && smack_sock(sk)) {
++		ssp = smack_sock(sk);
+ 		skp = ssp->smk_out;
+ 		skb->secmark = skp->smk_secid;
+ 	}
+@@ -49,8 +49,8 @@ static unsigned int smack_ipv4_output(void *priv,
+ 	struct socket_smack *ssp;
+ 	struct smack_known *skp;
+ 
+-	if (sk && sk->sk_security) {
+-		ssp = sk->sk_security;
++	if (sk && smack_sock(sk)) {
++		ssp = smack_sock(sk);
+ 		skp = ssp->smk_out;
+ 		skb->secmark = skp->smk_secid;
+ 	}
 -- 
 2.20.1
 
