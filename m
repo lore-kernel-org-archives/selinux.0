@@ -1,96 +1,73 @@
-Return-Path: <SRS0=kEwY=UU=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=BI9l=UV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D690C43613
-	for <selinux@archiver.kernel.org>; Fri, 21 Jun 2019 21:22:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8ECEC43613
+	for <selinux@archiver.kernel.org>; Sat, 22 Jun 2019 14:21:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5749E208C3
-	for <selinux@archiver.kernel.org>; Fri, 21 Jun 2019 21:22:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8637820679
+	for <selinux@archiver.kernel.org>; Sat, 22 Jun 2019 14:21:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726066AbfFUVWP convert rfc822-to-8bit (ORCPT
+        id S1726304AbfFVOVX convert rfc822-to-8bit (ORCPT
         <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Jun 2019 17:22:15 -0400
-Received: from mga05.intel.com ([192.55.52.43]:60280 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725985AbfFUVWO (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 21 Jun 2019 17:22:14 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Jun 2019 14:22:14 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,401,1557212400"; 
-   d="scan'208";a="244106919"
-Received: from orsmsx103.amr.corp.intel.com ([10.22.225.130])
-  by orsmga001.jf.intel.com with ESMTP; 21 Jun 2019 14:22:14 -0700
-Received: from orsmsx153.amr.corp.intel.com (10.22.226.247) by
- ORSMSX103.amr.corp.intel.com (10.22.225.130) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Fri, 21 Jun 2019 14:22:13 -0700
-Received: from orsmsx116.amr.corp.intel.com ([169.254.7.97]) by
- ORSMSX153.amr.corp.intel.com ([169.254.12.252]) with mapi id 14.03.0439.000;
- Fri, 21 Jun 2019 14:22:13 -0700
-From:   "Xing, Cedric" <cedric.xing@intel.com>
-To:     "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
-        "Jarkko Sakkinen" <jarkko.sakkinen@linux.intel.com>
-CC:     "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>,
-        James Morris <jmorris@namei.org>,
-        "Hansen, Dave" <dave.hansen@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Dr . Greg Wettstein" <greg@enjellic.com>,
-        "Stephen Smalley" <sds@tycho.nsa.gov>
-Subject: RE: [RFC PATCH v4 10/12] security/selinux: Add enclave_load()
- implementation
-Thread-Topic: [RFC PATCH v4 10/12] security/selinux: Add enclave_load()
- implementation
-Thread-Index: AQHVJu2+BRxznwhIFUiQ7nhB61/EnaammGEA
-Date:   Fri, 21 Jun 2019 21:22:13 +0000
-Message-ID: <960B34DE67B9E140824F1DCDEC400C0F6551877E@ORSMSX116.amr.corp.intel.com>
-References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
- <20190619222401.14942-11-sean.j.christopherson@intel.com>
-In-Reply-To: <20190619222401.14942-11-sean.j.christopherson@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiYjQ5MzIyYWYtNTYzYS00NDZjLWI1NGUtN2I5ZmFlYzEwMWUzIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiTTRvRVF6TkIwOWc4dEhRdG9ZRTR1M3ZlQkU1RFhGemJIRDRlcEVcL2x2WVlxVFlCSFdzZUlaR0ppdXhqVHJGT3IifQ==
-x-ctpclassification: CTP_NT
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.139]
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+        Sat, 22 Jun 2019 10:21:23 -0400
+Received: from smtp-sh2.infomaniak.ch ([128.65.195.6]:39414 "EHLO
+        smtp-sh2.infomaniak.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726276AbfFVOVW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 22 Jun 2019 10:21:22 -0400
+X-Greylist: delayed 333 seconds by postgrey-1.27 at vger.kernel.org; Sat, 22 Jun 2019 10:21:20 EDT
+Received: from smtp7.infomaniak.ch (smtp7.infomaniak.ch [83.166.132.30])
+        by smtp-sh.infomaniak.ch (8.14.5/8.14.5) with ESMTP id x5MEFA5o020020
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 22 Jun 2019 16:15:10 +0200
+Received: from localhost (19.131.134.77.rev.sfr.net [77.134.131.19])
+        (authenticated bits=0)
+        by smtp7.infomaniak.ch (8.14.5/8.14.5) with ESMTP id x5MEF6KB123947
+        (version=TLSv1/SSLv3 cipher=AES128-GCM-SHA256 bits=128 verify=NO);
+        Sat, 22 Jun 2019 16:15:07 +0200
+Date:   Sat, 22 Jun 2019 16:15:05 +0200
+In-Reply-To: <201906201029.0476F14A@keescook>
+References: <201906201029.0476F14A@keescook>
 MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Subject: Re: Stacked LSMs (was Re: [PATCH v2 00/25] LSM: Module stacking for AppArmor)
+To:     Kees Cook <keescook@chromium.org>,
+        Salvatore Mesoraca <s.mesoraca16@gmail.com>,
+        James Morris <jmorris@namei.org>
+CC:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        sds@tycho.nsa.gov
+From:   =?ISO-8859-1?Q?Micka=EBl_Sala=FCn?= <mic@digikod.net>
+Message-ID: <008DBF7D-C015-49F5-A9FC-032E6A8EC9DB@digikod.net>
+X-Antivirus: Dr.Web (R) for Unix mail servers drweb plugin ver.6.0.2.8
+X-Antivirus-Code: 0x100000
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> From: Christopherson, Sean J
-> Sent: Wednesday, June 19, 2019 3:24 PM
+
+
+On June 20, 2019 7:33:25 PM GMT+02:00, Kees Cook <keescook@chromium.org> wrote:
+> On Thu, Jun 20, 2019 at 06:08:03AM +1000, James Morris wrote:
+> > We extended stacking support in March to allow Landlock and SARA to
+> be 
+> > merged and have not seen anything from them since.
 > 
-> Intended use of each permission:
+> Salvatore and Mickaël, have you had a chance to look at the stacking
+> changes? I'd love to see work progress on your LSMs now that the
+> stacking prerequisites have landed.
 > 
->   - SGX_EXECDIRTY: dynamically load code within the enclave itself
->   - SGX_EXECUNMR: load unmeasured code into the enclave, e.g. Graphene
+> Thanks!
 
-Why does it matter whether a code page is measured or not?
+Yes, I successfully updated Landlock as a stackable LSM. I also worked on removing some code (and related features, for now) to get smaller patches for the next round, and I tried to get rid of the VFS modifications. I still need to update the tests, rebase a last time and review everything before sending a new patch set, hopefully next week.
 
->   - SGX_EXECANON: load code from anonymous memory (likely Graphene)
-
-Graphene doesn't load code from anonymous memory. It loads code dynamically though, as in SGX_EXECDIRTY case.
-
->   - SGX_EXECUTE: load an enclave from a file, i.e. normal behavior
-
-Why is SGX_EXECUTE needed from security perspective? Or why isn't FILE__EXECUTE sufficient?
+ Mickaël
