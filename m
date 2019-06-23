@@ -2,132 +2,155 @@ Return-Path: <SRS0=NDoE=UW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_SBL,URIBL_SBL_A
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_DR,USER_AGENT_MUTT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A704C43613
-	for <selinux@archiver.kernel.org>; Sun, 23 Jun 2019 17:10:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2783C43613
+	for <selinux@archiver.kernel.org>; Sun, 23 Jun 2019 17:17:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EA2F1206BA
-	for <selinux@archiver.kernel.org>; Sun, 23 Jun 2019 17:10:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FA01204EC
+	for <selinux@archiver.kernel.org>; Sun, 23 Jun 2019 17:17:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726483AbfFWRKL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 23 Jun 2019 13:10:11 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:51908 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726466AbfFWRKL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 23 Jun 2019 13:10:11 -0400
-X-Greylist: delayed 489 seconds by postgrey-1.27 at vger.kernel.org; Sun, 23 Jun 2019 13:10:10 EDT
-Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id A415B564705
-        for <selinux@vger.kernel.org>; Sun, 23 Jun 2019 19:01:58 +0200 (CEST)
-Received: by mail-oi1-f175.google.com with SMTP id 65so8020171oid.13
-        for <selinux@vger.kernel.org>; Sun, 23 Jun 2019 10:01:58 -0700 (PDT)
-X-Gm-Message-State: APjAAAV1A849YvOfRZEcCwGZNjklAFqnE+djWI5TpKl/MoJCaau+xUSG
-        hMZGU2mL9Rrme/UZrv4+yArAvYaM1Fk9y2AnM3Y=
-X-Google-Smtp-Source: APXvYqzFlgPHnVDvbUz02dX1MTGkPbeagLRI6QPGXRwlb4RX08WBG/Slk8/omzOxbAMMhJUrtSXt8wCuY0Qc2+dsLK0=
-X-Received: by 2002:aca:ba02:: with SMTP id k2mr7859114oif.70.1561309317584;
- Sun, 23 Jun 2019 10:01:57 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190619142630.26648-1-sds@tycho.nsa.gov> <CAHC9VhQ1Bo-xpROgZa18MqxJSnTLoYoj6GbQR-pmDy2jSDs1bQ@mail.gmail.com>
- <a11f8817-ac26-ce5c-1b1d-20c310777a03@tycho.nsa.gov> <CAHC9VhQViswrAHWZ6b4a4iAmErrumLLYHeNrZenqXrT+0FxP7w@mail.gmail.com>
-In-Reply-To: <CAHC9VhQViswrAHWZ6b4a4iAmErrumLLYHeNrZenqXrT+0FxP7w@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 23 Jun 2019 19:01:45 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==Whcw0mnyMVuOfBD7=z+Qjy7LMOpkAV4SLc74U1v14GA@mail.gmail.com>
-Message-ID: <CAJfZ7==Whcw0mnyMVuOfBD7=z+Qjy7LMOpkAV4SLc74U1v14GA@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: fix old python shebang in tests/overlay/access
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Jun 23 19:01:59 2019 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+        id S1726546AbfFWRRY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 23 Jun 2019 13:17:24 -0400
+Received: from wind.enjellic.com ([76.10.64.91]:36178 "EHLO wind.enjellic.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726399AbfFWRRY (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 23 Jun 2019 13:17:24 -0400
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id x5NHGScC025697;
+        Sun, 23 Jun 2019 12:16:28 -0500
+Received: (from greg@localhost)
+        by wind.enjellic.com (8.15.2/8.15.2/Submit) id x5NHGQhc025696;
+        Sun, 23 Jun 2019 12:16:26 -0500
+Date:   Sun, 23 Jun 2019 12:16:26 -0500
+From:   "Dr. Greg" <greg@enjellic.com>
+To:     James Morris <jmorris@namei.org>
+Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        linux-sgx@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
+        william.c.roberts@intel.com, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: Re: [RFC PATCH v3 09/12] LSM: x86/sgx: Introduce ->enclave_load() hook for Intel SGX
+Message-ID: <20190623171626.GA25683@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@enjellic.com>
+References: <20190617222438.2080-1-sean.j.christopherson@intel.com> <20190617222438.2080-10-sean.j.christopherson@intel.com> <0c4f75a0ae2fdeee6db07f3a224918f321163d56.camel@linux.intel.com> <alpine.LRH.2.21.1906200702040.28119@namei.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.LRH.2.21.1906200702040.28119@namei.org>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Sun, 23 Jun 2019 12:16:28 -0500 (CDT)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jun 21, 2019 at 5:45 PM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Wed, Jun 19, 2019 at 12:04 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 6/19/19 10:40 AM, Paul Moore wrote:
-> > > On Wed, Jun 19, 2019 at 10:26 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > >>
-> > >> /usr/bin/python is no longer installed by default, so this test
-> > >> script fails on default installs.
-> > >> Best practice guidance appears to be to switch to using
-> > >> /usr/bin/python3 instead, per
-> > >> https://docs.fedoraproject.org/en-US/packaging-guidelines/Python/
-> > >>
-> > >> Fixes: #46
-> > >> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > >> ---
-> > >>   tests/overlay/access | 2 +-
-> > >>   1 file changed, 1 insertion(+), 1 deletion(-)
-> > >
-> > > I think it would be better to reference the Python upstream guidance
-> > > regarding "python3" instead of the Fedora packaging guidelines.
-> > > Keeping things distro agnostic is a good goal whenever possible.
-> > >
-> > > * https://www.python.org/dev/peps/pep-0394
-> >
-> > When I looked for guidance in response to the github issue for
-> > selinux-testsuite [1], there seemed to be some ambiguity left by pep-0394:
-> >
-> > 1) It says "One exception to this is scripts that are deliberately
-> > written to be source compatible with both Python 2.x and 3.x. Such
-> > scripts may continue to use python on their shebang line.".  This leaves
-> > open the possibility of staying with "/usr/bin/python" as far as the pep
-> > is concerned since the script itself is not version-specific in any way,
-> > but doing so is not permitted by the Fedora guidelines and breaks on
-> > default installs of Fedora.
->
-> [SIDE NOTE: for some reason my mail is acting a bit odd - this got
-> buried in a folder and didn't bubble up like normal - my apologies on
-> the delay, I didn't see it until I was checking for patches today.]
->
-> Yes, I saw that too but considering that we are about six months away
-> from python2 going EOL I think it is reasonable to ignore python2 for
-> upstream work at this point.
->
-> > 2) It doesn't specify whether or not one should use "/usr/bin/env
-> > python3" or just "/usr/bin/python3".  The github issue reported had
-> > originally suggested the former, but this is also prohibited by the
-> > Fedora guidelines.
->
-> My initial reaction was that we should "/usr/bin/env" until I saw that
-> bit in the Fedora guidelines, which I honestly don't understand.  Does
-> anyone with a better understanding of cross-distro userspace know why
-> "/usr/bin/env" is bad?
+On Thu, Jun 20, 2019 at 07:13:50AM +1000, James Morris wrote:
 
-Hello,
+Good morning, I hope the weekend has been going well for everyone.
 
-As far as I understand, the choice of using /usr/bin/env or not in the
-shebang of a script depends on how you want your dependencies to load
-on a system:
+> On Wed, 19 Jun 2019, Jarkko Sakkinen wrote:
+> 
+> > Can LSM callbacks ever non-generic when it comes to hardware? This is
+> > the very first time I ever see such callbacks being introduced.
+> > 
+> > I suspect that from maintainers perspective, accepting such changes for
+> > Intel hardware, could open a pandoras box.
 
-* Using "/usr/bin/env python3" (or with python or python2) allows
-using a virtualenv where all Python dependencies are installed. It
-makes it easier for two projects that require conflicting version of
-their dependencies to be used together on a system, and it makes it
-possible for an unprivileged user to use this script without requiring
-an administrator to install dependencies in system-wide directories
-(like /usr/lib/python3.7/site-packages/).
-* Using "/usr/bin/python3" makes sense when you want the script to use
-the dependencies that have been installed system-wide, for example
-using packages from your distribution. This way, you kind-of control
-which version of the dependencies are used: they are the one that are
-packaged by the distribution. This is why it makes sense for Fedora's
-guidelines to prefer this other /usr/bin/env.
+> If there's a major distro/userbase committing to ship with these
+> hooks enabled via a supported in-tree LSM, the case for inclusion is
+> clear.
 
-By the way, I just got back from some holidays and I am reading the
-messages from the mailing list after 1-2 months away. Therefore I
-might have missed some context in your question that would make my
-answer look like I am answering to something else. Sorry about that.
+I see that Jarkko responded down thread that there may be a major
+distribution already committed to SGX specific LSM hooks.  My
+apologies for providing these reflections if that is the case and
+there is some type of 'deal' in place with respect to all of this.
 
-Best,
-Nicolas
+> If the hooks could be generalized beyond just SGX, that would be
+> ideal, but it's not clear if that's feasible.
 
+We believe there is some degree of commonality that can be addressed
+with respect to implementing LSM enforcement over SGX enclaves.
+
+However, big picture, here is the challenge that we see with respect
+to these conversations surrounding the integration of the SGX driver
+with the LSM:
+
+As a technology, SGX was designed to enable software to protect itself
+from an adversarial operating system and hardware platform.  Given
+that, if we are intellectually honest, how effective can the LSM/OS be
+with respect to controlling the actions of an enclave?
+
+Without question, being able to regulate and control which identities
+can intersect to load executable content into an enclave is important.
+All of the infrastructure appears to be already there to accomplish
+that, given the default model of a shared library implementation of an
+enclave and requiring the loader to mmap file backed TEXT pages RX.
+
+The most relevant and important control with respect to whether or not
+an enclave should be allowed to execute is evaluation of the
+SIGSTRUCT.  Given the trajectory that platform security is on, SGX is
+not going to be the last technology of its type nor the only
+technology that makes use of cryptographically based code provenance.
+
+As a result, if we are content with handing an opaque pointer of a
+descriptive struture to an LSM routine, a generic hook that is tasked
+with verifying code or execution environment provenance doesn't seem
+like it would need to be technology specific nor controversial.
+
+That leaves as the last thorny issue the question of dynamic
+allocation of memory for executable content.  As we have stated
+before, and at the outset of this note, from a security perspective
+this is only, effectively, a binary question for the platform owner as
+to whether or not the concept should be allowed.
+
+A generic LSM hook, appropriately named, could execute that decision
+without being SGX specific.  Arguably, the hook should be named to
+indicate that it is seeking approval for allocating memory to be used
+for anonymous executable content, since that is what it would be
+effectively requesting approval for, in the case of SGX.
+
+For completeness a third generic hook may be useful.  The purpose of
+that hook would be to verify a block of memory as being
+measured or signed for consideration as executable content.  Arguably
+that will have utility far beyond SGX.
+
+In the case of SGX it would address the issue as to whether or not a
+block of executable content in untrusted space is eligible for
+anonymous execution.  That may be a useful security measure in order
+to provide some control over an enclave being used as a random
+execution oracle.
+
+It obviously has no security utility against the enclave author since,
+as we have noted before, it is possible for the enclave author to
+simply pull whatever code is desired over an encrypted network
+connection.
+
+> James Morris
+
+Hopefully these comments are a useful basis for further discussion.
+
+Best wishes for a productive week to everyone.
+
+Dr. Greg
+
+As always,
+Dr. Greg Wettstein, Ph.D, Worker
+IDfusion, LLC
+4206 N. 19th Ave.           Implementing measured information privacy
+Fargo, ND  58102            and integrity architectures.
+PH: 701-281-1686
+FAX: 701-281-3949           EMAIL: gw@idfusion.org
+------------------------------------------------------------------------------
+"My thoughts on trusting Open-Source?  A quote I once saw said it
+ best: 'Remember, Amateurs built the ark.  Professionals built the
+ Titanic.'  Perhaps most significantly the ark was one guy, there were
+ no doubt committees involved with the Titanic project."
+                                -- Dr. G.W. Wettstein
+                                   Resurrection
