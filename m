@@ -2,36 +2,36 @@ Return-Path: <SRS0=g6d+=UX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05027C48BD3
-	for <selinux@archiver.kernel.org>; Mon, 24 Jun 2019 21:47:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D8A7C4646B
+	for <selinux@archiver.kernel.org>; Mon, 24 Jun 2019 21:47:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D12AC204FD
-	for <selinux@archiver.kernel.org>; Mon, 24 Jun 2019 21:47:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4B2E204FD
+	for <selinux@archiver.kernel.org>; Mon, 24 Jun 2019 21:47:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729837AbfFXVrT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Jun 2019 17:47:19 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:54063 "EHLO
+        id S1732308AbfFXVre (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Jun 2019 17:47:34 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:54074 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729667AbfFXVrT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jun 2019 17:47:19 -0400
+        with ESMTP id S1729667AbfFXVre (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jun 2019 17:47:34 -0400
 Received: from static-50-53-46-226.bvtn.or.frontiernet.net ([50.53.46.226] helo=[192.168.192.153])
         by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_128_CBC_SHA1:16)
         (Exim 4.76)
         (envelope-from <john.johansen@canonical.com>)
-        id 1hfWo0-0006KA-8u; Mon, 24 Jun 2019 21:47:16 +0000
+        id 1hfWoF-0006Ky-6s; Mon, 24 Jun 2019 21:47:31 +0000
 From:   John Johansen <john.johansen@canonical.com>
-Subject: [PATCH v3 20/24] LSM: security_secid_to_secctx in netlink netfilter
+Subject: [PATCH v3 22/24] LSM: Return the lsmblob slot on initialization
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
 References: <20190621185233.6766-1-casey@schaufler-ca.com>
- <20190621185233.6766-21-casey@schaufler-ca.com>
+ <20190621185233.6766-23-casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  xsFNBE5mrPoBEADAk19PsgVgBKkImmR2isPQ6o7KJhTTKjJdwVbkWSnNn+o6Up5knKP1f49E
@@ -76,12 +76,12 @@ Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  qJciYE8TGHkZw1hOku+4OoM2GB5nEDlj+2TF/jLQ+EipX9PkPJYvxfRlC6dK8PKKfX9KdfmA
  IcgHfnV1jSn+8yH2djBPtKiqW0J69aIsyx7iV/03paPCjJh7Xq9vAzydN5U/UA==
 Organization: Canonical
-Message-ID: <19314442-d6ac-9d2e-6057-abe01b270393@canonical.com>
-Date:   Mon, 24 Jun 2019 14:47:12 -0700
+Message-ID: <11e751ea-c93c-efe7-558e-632af59d2355@canonical.com>
+Date:   Mon, 24 Jun 2019 14:47:24 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.1
 MIME-Version: 1.0
-In-Reply-To: <20190621185233.6766-21-casey@schaufler-ca.com>
+In-Reply-To: <20190621185233.6766-23-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-GB
 Content-Transfer-Encoding: 7bit
@@ -91,110 +91,138 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 6/21/19 11:52 AM, Casey Schaufler wrote:
-> Change netlink netfilter interfaces to use lsmcontext
-> pointers, and remove scaffolding.
+> Return the slot allocated to the calling LSM in the lsmblob
+> structure. This can be used to set lsmblobs explicitly for
+> netlabel interfaces.
 > 
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 
+
 > ---
->  net/netfilter/nfnetlink_queue.c | 32 +++++++++++++-------------------
->  1 file changed, 13 insertions(+), 19 deletions(-)
+>  include/linux/lsm_hooks.h  | 4 ++--
+>  security/apparmor/lsm.c    | 8 ++++++--
+>  security/security.c        | 9 +++++++--
+>  security/selinux/hooks.c   | 5 ++++-
+>  security/smack/smack_lsm.c | 5 ++++-
+>  5 files changed, 23 insertions(+), 8 deletions(-)
 > 
-> diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
-> index 6da00c7add5b..69efb688383f 100644
-> --- a/net/netfilter/nfnetlink_queue.c
-> +++ b/net/netfilter/nfnetlink_queue.c
-> @@ -305,12 +305,10 @@ static int nfqnl_put_sk_uidgid(struct sk_buff *skb, struct sock *sk)
->  	return -1;
->  }
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 4d1ddf1a2aa6..ce341bcbce5d 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -2068,8 +2068,8 @@ struct lsm_blob_sizes {
+>  extern struct security_hook_heads security_hook_heads;
+>  extern char *lsm_names;
 >  
-> -static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
-> +static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsmcontext *context)
+> -extern void security_add_hooks(struct security_hook_list *hooks, int count,
+> -				char *lsm);
+> +extern int security_add_hooks(struct security_hook_list *hooks, int count,
+> +			      char *lsm);
+>  
+>  #define LSM_FLAG_LEGACY_MAJOR	BIT(0)
+>  #define LSM_FLAG_EXCLUSIVE	BIT(1)
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index 2716e7731279..dcbbefbd95ff 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -47,6 +47,9 @@
+>  /* Flag indicating whether initialization completed */
+>  int apparmor_initialized;
+>  
+> +/* Slot for the AppArmor secid in the lsmblob structure */
+> +int apparmor_lsmblob_slot;
+> +
+>  DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
+>  
+>  
+> @@ -1678,8 +1681,9 @@ static int __init apparmor_init(void)
+>  		aa_free_root_ns();
+>  		goto buffers_out;
+>  	}
+> -	security_add_hooks(apparmor_hooks, ARRAY_SIZE(apparmor_hooks),
+> -				"apparmor");
+> +	apparmor_lsmblob_slot = security_add_hooks(apparmor_hooks,
+> +						   ARRAY_SIZE(apparmor_hooks),
+> +						   "apparmor");
+>  
+>  	/* Report that AppArmor successfully initialized */
+>  	apparmor_initialized = 1;
+> diff --git a/security/security.c b/security/security.c
+> index b2ffcd1f3057..c93a368b697b 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -437,9 +437,12 @@ static int lsm_slot __initdata;
+>   * Each LSM has to register its hooks with the infrastructure.
+>   * If the LSM is using hooks that export secids allocate a slot
+>   * for it in the lsmblob.
+> + *
+> + * Returns the slot number in the lsmblob structure if one is
+> + * allocated or LSMBLOB_INVALID if one was not allocated.
+>   */
+> -void __init security_add_hooks(struct security_hook_list *hooks, int count,
+> -				char *lsm)
+> +int __init security_add_hooks(struct security_hook_list *hooks, int count,
+> +			      char *lsm)
 >  {
-> -	u32 seclen = 0;
->  #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
->  	struct lsmblob blob;
-> -	struct lsmcontext context;
->  
->  	if (!skb || !sk_fullsock(skb->sk))
->  		return 0;
-> @@ -318,15 +316,16 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
->  	read_lock_bh(&skb->sk->sk_callback_lock);
->  
->  	if (skb->secmark) {
-> +		/* Any LSM might be looking for the secmark */
->  		lsmblob_init(&blob, skb->secmark);
-> -		security_secid_to_secctx(&blob, &context);
-> -		*secdata = context.context;
-> +		security_secid_to_secctx(&blob, context);
+>  	int slot = LSMBLOB_INVALID;
+>  	int i;
+> @@ -479,6 +482,8 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
 >  	}
+>  	if (lsm_append(lsm, &lsm_names) < 0)
+>  		panic("%s - Cannot get early memory.\n", __func__);
+> +
+> +	return slot;
+>  }
 >  
->  	read_unlock_bh(&skb->sk->sk_callback_lock);
-> -	seclen = context.len;
-> +	return context->len;
-> +#else
-> +	return 0;
+>  int call_lsm_notifier(enum lsm_event event, void *data)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index ee840fecfebb..1e09acbf9630 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -103,6 +103,7 @@
+>  #include "avc_ss.h"
+>  
+>  struct selinux_state selinux_state;
+> +int selinux_lsmblob_slot;
+>  
+>  /* SECMARK reference count */
+>  static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
+> @@ -6877,7 +6878,9 @@ static __init int selinux_init(void)
+>  
+>  	hashtab_cache_init();
+>  
+> -	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks), "selinux");
+> +	selinux_lsmblob_slot = security_add_hooks(selinux_hooks,
+> +						  ARRAY_SIZE(selinux_hooks),
+> +						  "selinux");
+>  
+>  	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
+>  		panic("SELinux: Unable to register AVC netcache callback\n");
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 3834b751d1e9..273f311fb153 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -60,6 +60,7 @@ static LIST_HEAD(smk_ipv6_port_list);
 >  #endif
-> -	return seclen;
->  }
+>  static struct kmem_cache *smack_inode_cache;
+>  int smack_enabled;
+> +int smack_lsmblob_slot;
 >  
->  static u32 nfqnl_get_bridge_size(struct nf_queue_entry *entry)
-> @@ -402,8 +401,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	enum ip_conntrack_info uninitialized_var(ctinfo);
->  	struct nfnl_ct_hook *nfnl_ct;
->  	bool csum_verify;
-> -	struct lsmcontext scaff; /* scaffolding */
-> -	char *secdata = NULL;
-> +	struct lsmcontext context;
->  	u32 seclen = 0;
+>  #define A(s) {"smack"#s, sizeof("smack"#s) - 1, Opt_##s}
+>  static struct {
+> @@ -4749,7 +4750,9 @@ static __init int smack_init(void)
+>  	/*
+>  	 * Register with LSM
+>  	 */
+> -	security_add_hooks(smack_hooks, ARRAY_SIZE(smack_hooks), "smack");
+> +	smack_lsmblob_slot = security_add_hooks(smack_hooks,
+> +						ARRAY_SIZE(smack_hooks),
+> +						"smack");
+>  	smack_enabled = 1;
 >  
->  	size =    nlmsg_total_size(sizeof(struct nfgenmsg))
-> @@ -470,7 +468,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	}
->  
->  	if ((queue->flags & NFQA_CFG_F_SECCTX) && entskb->sk) {
-> -		seclen = nfqnl_get_sk_secctx(entskb, &secdata);
-> +		seclen = nfqnl_get_sk_secctx(entskb, &context);
->  		if (seclen)
->  			size += nla_total_size(seclen);
->  	}
-> @@ -605,7 +603,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	    nfqnl_put_sk_uidgid(skb, entskb->sk) < 0)
->  		goto nla_put_failure;
->  
-> -	if (seclen && nla_put(skb, NFQA_SECCTX, seclen, secdata))
-> +	if (seclen && nla_put(skb, NFQA_SECCTX, context.len, context.context))
->  		goto nla_put_failure;
->  
->  	if (ct && nfnl_ct->build(skb, ct, ctinfo, NFQA_CT, NFQA_CT_INFO) < 0)
-> @@ -633,10 +631,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	}
->  
->  	nlh->nlmsg_len = skb->len;
-> -	if (seclen) {
-> -		lsmcontext_init(&scaff, secdata, seclen, 0);
-> -		security_release_secctx(&scaff);
-> -	}
-> +	if (seclen)
-> +		security_release_secctx(&context);
->  	return skb;
->  
->  nla_put_failure:
-> @@ -644,10 +640,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
->  	kfree_skb(skb);
->  	net_err_ratelimited("nf_queue: error creating packet message\n");
->  nlmsg_failure:
-> -	if (seclen) {
-> -		lsmcontext_init(&scaff, secdata, seclen, 0);
-> -		security_release_secctx(&scaff);
-> -	}
-> +	if (seclen)
-> +		security_release_secctx(&context);
->  	return NULL;
->  }
->  
+>  	pr_info("Smack:  Initializing.\n");
 > 
 
 
