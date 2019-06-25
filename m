@@ -2,195 +2,179 @@ Return-Path: <SRS0=B9fV=UY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89F84C48BD5
-	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:00:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3411AC48BD5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:30:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5057B213F2
-	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:00:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0CACA2146E
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:30:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="jYFuzxI1"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="oIkOGE2o"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731965AbfFYPAm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jun 2019 11:00:42 -0400
-Received: from uhil19pa09.eemsg.mail.mil ([214.24.21.82]:14948 "EHLO
-        uhil19pa09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731153AbfFYPAl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jun 2019 11:00:41 -0400
-X-EEMSG-check-017: 28069745|UHIL19PA09_EEMSG_MP7.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by uhil19pa09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 25 Jun 2019 15:00:39 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1561474839; x=1593010839;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=UcOTDMZ23PheOZew/eECmgUTsdKsZOYG7lblofKauGs=;
-  b=jYFuzxI1YEf7koam1L5WVlEk04Ls3GM1qTHLOS/tTRuDBTxq9TZzZYfI
-   mR/4gLP4a10sMkodVWkz5dtrADITmg2PUnbG3qWq7GeLOujiUOBgOW1LI
-   aLQiyM6aGMGlitlLPcEZR3Zr9zenzqT8kCCUpg18ZrAYJSQ0vFv7Y7b7o
-   /rOvoaDpj8yGaajbsHvR7Ixi/e39S51ErY/6L1UYsHeawMkJqFmubeLRe
-   v38IZZCR0g8AAONPlsYovnOJJOxaslLD62okRM7zXDuaizJ4h5Hv5rxQm
-   2RqT21tigdmqONVJYgh8dyHmD8JWL1fkiqS/TJMfGGXJQ4hjt7bplfZlO
-   w==;
-X-IronPort-AV: E=Sophos;i="5.63,416,1557187200"; 
-   d="scan'208";a="25091878"
-IronPort-PHdr: =?us-ascii?q?9a23=3At56akh+JIOxfC/9uRHKM819IXTAuvvDOBiVQ1K?=
- =?us-ascii?q?B+0+geIJqq85mqBkHD//Il1AaPAdyBrasYwLqP++C4ACpcuM/H6ChDOLV3FD?=
- =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
- =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjPusUMnIdvJak9xx?=
- =?us-ascii?q?jUrnBVf+ha2X5kKUickhrh+8u85oJv/zhVt/k868NOTKL2crgiQ7dFFjomKW?=
- =?us-ascii?q?c15MPqtRnHUwSC42YXX3sVnBRVHQXL9Qn2UZjtvCT0sOp9wzSaMtbtTb8oQz?=
- =?us-ascii?q?Si7rxkRwHuhSwaKjM26mDXish3jKJGvBKsogF0zoDIbI2JMvd1Y7jQds0GS2?=
- =?us-ascii?q?VfQslRVjRBAoKiYIsJE+oBJvtTo43kq1cTsReyGQygCeXhxT9Sgn/9wLM03e?=
- =?us-ascii?q?IvHwrb2AAsBswCvXDRoNjzKawcU/26zLPQwDvecf1W1zfz5ovGfB8vrv6DX6?=
- =?us-ascii?q?5/f8XKxEkzFA7IlEmcpZDrMj6X0OkGrmiV7/BnVeKqk2MnqQ9wrSS1ycc2lo?=
- =?us-ascii?q?nFmJ8ex1fG9SR33Ik6P8e4SFJlbdO/DJtRtz2VN4txQs84RWFoozw1xqcJuZ?=
- =?us-ascii?q?68YigH0ZIqzAPRZfyAdoiH+BPjVOCJLDd7mn1lYrS/iAi28US6ze38TMa03E?=
- =?us-ascii?q?5FripEjtnMsmoC2AfJ5sebTft9+1+t2SqV1w/J9OFEIFs0mbPHJJ4g2LIwkY?=
- =?us-ascii?q?ATsUvbEi/5mUX2kK+Wdlg/9eSy9+vnZbDmq5mBPIF3kgHzKrkil8OwDOgiMg?=
- =?us-ascii?q?UCQnKX9fqz2bH950H1XbNHheAsnKbDqpDVP8Ebq7a8Aw9Sz4ks9Q6yDyyj0N?=
- =?us-ascii?q?QEhXkHK09FeA6fg4jpJV7OJPf4AO+jg1u2ijdrxu3GPqb7DpXRLnnMjLfhfb?=
- =?us-ascii?q?Fn505a1AUz1sxQ64hRCrEAJPL/Qk7xtNrGAR8lKwG43unqBdpn2o4eRG6DGL?=
- =?us-ascii?q?GVPazMvVOS++4jO+yMa5UUuDb5Jfgl/fnujXohlF8fc6imwYEYaGqkHvh4OE?=
- =?us-ascii?q?iZfXrtjcsBEWcNpAY+Svfqh0eYXT5cYHayQbow5isnB4K+EYfDWoetjaSG3C?=
- =?us-ascii?q?e+GZ1WfWZGBUqQHnj2bIiEQekDZz+SIsB7jjwIT6SuS4gk1Ru2rg/116JnLv?=
- =?us-ascii?q?bI+i0frZ/jz8Z65+nSlRE06Dx1AN+Q03+CT25qhGMEXTw2075loUx71FiD1b?=
- =?us-ascii?q?J0g/tCFdxctLt1VVIdM5LGwu4yLtfpXAvKc9TBHFGjRc6gCDo8Zsg8z98Hfw?=
- =?us-ascii?q?B2HND0yljY0i6rBaIFv6KECYZy8a/G2XX1YcFnxCXozq4k2ls5ScJVKTfu0q?=
- =?us-ascii?q?xg/AHJG9Thj1SSl6Hsc78VmiHK6jHQniK1oEhEXVsoAu3+VncFax6T9I6o6w?=
- =?us-ascii?q?=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2ByFQAJNhJd/wHyM5BgBh0BAQUBBwUBgWeBbSpqUjIoh?=
- =?us-ascii?q?BaIe4l8gg+aYQkBAQEBAQEBAQEtBwECAQGCEoFoRgKCdSM4EwEDAQEBBAEBA?=
- =?us-ascii?q?QEEAQFsijcMgjopAYJnAQUjDwEFPBUJAgkFCgICJgICVwYBDAYCAQGCXz8Bg?=
- =?us-ascii?q?goPiWSbaoExhDIBgRSDJYFABoEMKItegVZAgREngms+gmECgVODGIJYBIEtA?=
- =?us-ascii?q?YpCnTlrBgOCF4V0XI0VBhuCKZUljSiBMIYFkWghgVgrCkGBaIEaATMTgmWDO?=
- =?us-ascii?q?YUUhVsjAzABAYEEAQGPEwEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 25 Jun 2019 15:00:38 +0000
-Received: from localhost.localdomain (moss-lions [192.168.25.4])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x5PF0cG4031393;
-        Tue, 25 Jun 2019 11:00:38 -0400
-Subject: Re: [Non-DoD Source] [PATCH userspace v4 0/4] Remove redundant rules
- when building policydb
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-References: <20190613114558.32621-1-omosnace@redhat.com>
- <bdb2280a-23f3-e386-2ffb-801f0ec35c34@tycho.nsa.gov>
-From:   jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <97f5c5c4-c5fe-afe7-51fa-841704c1f4dc@tycho.nsa.gov>
-Date:   Tue, 25 Jun 2019 11:01:49 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1729683AbfFYPak (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jun 2019 11:30:40 -0400
+Received: from sonic310-22.consmr.mail.bf2.yahoo.com ([74.6.135.196]:44358
+        "EHLO sonic310-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729260AbfFYPak (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jun 2019 11:30:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561476638; bh=FnPWufeLeQr0hI3+/yRaQrxAzEWJRWUBrvGSKpKp0UM=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=oIkOGE2oBvIUiuhlUqkiLsAglTLFEnkOvBzwMXoZUvaFMkJLGV2+Lj81y6zgbOLzoNuusDOKKCimpsjUli5PqM0lWa3szpf8EbPmoImdZcsGhF8kVFHllGaxBo0R/+S5jjZ5X3mHR8oAQ29F7TIVh0ny1HqYAgkfH5JvCzvvxipvVZTjKVJ+hJSxYqZZaotlaBEhEB1CuHmFULR6x+xaaxgNd38lbMswV6NXqNUZPbuv0cVCRjk/KAkOQWpKPpmv9bFix+A4wYAjMwQEzFIH85oN0XcmGplU2bRJUc61q4UXcqQ0MwnHhYGqXqmaSwVbjHmf/1/Zu5DZy4Iwid44Ig==
+X-YMail-OSG: Sd1tFWAVM1mF7.szlHt.SMirUFE7h1lDWy08VsWvVOWkDIYjsXruzLpwMzDVb9L
+ XCXoGqLWPhXzgp6nJbSD8ixtn7BKLRfV4GXIqEYgXWB5tjrZJLqo00L.EdwJjfi86Gb1AbrOtCzY
+ Sd9GnPMm17SecyKRa3rjWcVr7SluRGS62mIyZRNkPXn9K1q0UFzrvusW_W7tXlC6EeVfOYAUDXJ9
+ 35nglXzPJYaiePRs8bj9BcfkJEJA6O49qoVChVpkow7WL4I6SG_wiRQc8Gu1WekDrSEojgGxYmsg
+ 7YZ.cMJCJD7wp0w_GjXdn_TJvMVGZLmw5LhMl_jr_7NxlPfBHgfg3AfAb1nXrrhYXJLzUj6rQwJ7
+ eRRiJufvEIyAt2WU6F8xI_LDrogG31DIwUBLKDUU.9y7ne1GNcae6HnVqH5d0D7K.2fEqXCaZ8El
+ aEtGQXkhu0S9ZjBNuDT_Z3.KIJ2.MjRaqduMrviK4BGwn4DQcYqkZT2xW_WwKpGs5Q_5MCc_GZhV
+ gF1IkAAx7pifEYZcOkZO1cjQ2OOFVrB1TvDcyslfsmhtfJPLcI3eQT7RnatXXWZHzs6aWgyVyEpW
+ 71TGjr6UjXTMbsHEHJVN76Rr95h7g8bZpUXr2kCJ8oqO7DUOINkxEkJs_OFbc9k.XuIZsOmrV.dn
+ tp4dISvUAxNkcAKPlebfN0n7QA5zaxBuJz..UsDcUIGKuyBCjiOIkTwGN9_hsa8.XDtaSag6KJ2x
+ _RnANiBQVrw0QvgvJtUHp554HzM9of5pZvENYG1dYx8yUjIHJejU.Bt3U4jFiUoVlUvylR_vj4No
+ OwnvSEsonCtOL9rAYmKQ5YRYUorUS7HKGIAsB2SuFPv05lBnpP7RNdPHSb_l7HeJe_o_V2n3YG.Q
+ csh0Cb6vJ_pC2HVD_j9aB_UhCHD6XdBNTmi07sw4DO3ngnBcv4MKsWuhlZAv8ItfuUG.RC4wSNMa
+ VUqsJJoq6nmn8L0zcroZBze_W0qJqgYU5lw.ywj68B_2iAeYQy34achOMudlmLN_dhgIY3_65P5.
+ WcRJBPf4_kSDkwQV3hFVeqjAfvdyf5bUNDSpDKI0HB1rvTOL4qK3jkVcPCp88RpvT29DzSOBat3s
+ GkVVXMvyLy0Pfll4g2PICUzlhUzroq75JVRlnTtFCuW0p..pbP9OiJ8ke9Q0TCE.Wved7GuafoV1
+ HdGvqo7841EhKpSdQRNFhN3MDEiG0jmoFRiv1qqqe_WdxhekrI4zNZfCMeWQOLXzvbCT93eAwc9B
+ w.emr8pZBmwBsB85_CVh6tQ1RUF3HoITvj0nVaTvS.Xc5
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Tue, 25 Jun 2019 15:30:38 +0000
+Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
+          by smtp411.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 5dd7601bc46a4923afb7c89cf89f33a9;
+          Tue, 25 Jun 2019 15:30:36 +0000 (UTC)
+Subject: Re: [PATCH v3 21/24] Audit: Store LSM audit information in an lsmblob
+To:     Paul Moore <paul@paul-moore.com>,
+        John Johansen <john.johansen@canonical.com>
+Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@redhat.com>, linux-audit@redhat.com,
+        casey@schaufler-ca.com
+References: <20190621185233.6766-1-casey@schaufler-ca.com>
+ <20190621185233.6766-22-casey@schaufler-ca.com>
+ <79cd4a92-c221-eda4-58ba-730b5c2680d7@canonical.com>
+ <0ad8f906-16ff-61af-ce7c-0ea1e9760d03@schaufler-ca.com>
+ <CAHC9VhSSwCY8L71x4WTr7kJhF1f_oyQ1NcwyXCAgW7ruKACQdQ@mail.gmail.com>
+ <41f99313-1aa4-bacc-6767-8ee1389ca220@canonical.com>
+ <CAHC9VhSSMjCdT8gfB03gh8VvJngTHnsUsDCpseMUiEPQM9z_FQ@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ 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
+ abzjfg==
+Message-ID: <c231726e-5235-1dae-8fb9-6f89db406260@schaufler-ca.com>
+Date:   Tue, 25 Jun 2019 08:30:35 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-In-Reply-To: <bdb2280a-23f3-e386-2ffb-801f0ec35c34@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+In-Reply-To: <CAHC9VhSSMjCdT8gfB03gh8VvJngTHnsUsDCpseMUiEPQM9z_FQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/21/19 10:11 AM, jwcart2 wrote:
-> On 6/13/19 7:45 AM, Ondrej Mosnacek wrote:
->> Changes in v4:
->>   * fix deallocation in error path in build_type_map()
->>   * fix leaked cond nodes
->>   * also update the man pages
->>   * use UINT32_C for 0xFFFFFFFF constant
->>   * squash in the RFC patches & drop the semodule patch
->> v3: https://lore.kernel.org/selinux/20190529073759.20548-1-omosnace@redhat.com/T/
+On 6/24/2019 7:42 PM, Paul Moore wrote:
+> On Mon, Jun 24, 2019 at 10:15 PM John Johansen
+> <john.johansen@canonical.com> wrote:
+>> On 6/24/19 6:46 PM, Paul Moore wrote:
+>>> On Mon, Jun 24, 2019 at 9:01 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>>>> On 6/24/2019 2:33 PM, John Johansen wrote:
+>>>>> On 6/21/19 11:52 AM, Casey Schaufler wrote:
+>>>>>> Change the audit code to store full lsmblob data instead of
+>>>>>> a single u32 secid. This allows for multiple security modules
+>>>>>> to use the audit system at the same time. It also allows the
+>>>>>> removal of scaffolding code that was included during the
+>>>>>> revision of LSM interfaces.
+>>>>>>
+>>>>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>>>> I know Kees raised this too, but I haven't seen a reply
+>>>>>
+>>>>> Eric (Paul is already CCed): I have directly added you because of
+>>>>> the question below.
+>>>>>
+>>>>> In summary there isn't necessarily a single secid any more, and
+>>>>> we need to know whether dropping the logging of the secid or
+>>>>> logging all secids is the correct action.
+>>>> It is to be considered that this is an error case. If
+>>>> everything is working normally you should have produced
+>>>> a secctx previously, which you'll have included in the
+>>>> audit record. Including the secid in the record ought to
+>>>> be pointless, as the secid is strictly an internal token
+>>>> with no meaning outside the running kernel. You are providing
+>>>> no security relevant information by providing the secid.
+>>>> I will grant the possibility that the secid might be useful
+>>>> in debugging, but for that a pr_warn is more appropriate
+>>>> than a field in the audit record.
+>>> FWIW, this probably should have been CC'd to the audit list.
+>>>
+>> hrmm indeed, sorry
 >>
->> Changes in v3:
->>   * fix bad patch squashing
->>   * rename secilc --optimize-policy option to --optimize (to be simpler
->>     and consistent with checkpolicy and semodule)
->> v2: https://lore.kernel.org/selinux/20190528145912.13827-1-omosnace@redhat.com/T/
->>
->> Changes in v2:
->>   * fix handling of dontaudit (AVTAB_DENY) rules
->>   * switch optimization from opt-out to opt-in everywhere
->>   * add a patch from jwcart2 that adds optimization support to
->>     checkpolicy as well
->>   * add two RFC modifications (see log messages for details):
->>     * one improves the optimization to detect also rules covered by the
->>       union of two or more other rules (on permission set level)
->>     * the other one drops libsemanage/semodule run-time enabling/
->>       disabling of optimization in favor of a global config option
->> v1: https://lore.kernel.org/selinux/20190523102449.9621-1-omosnace@redhat.com/T/
->>
->> This series implements an optional optimization step when building a
->> policydb via semodule or secilc, which identifies and removes rules that
->> are redundant -- i.e. they are already covered by a more general rule
->> based on the type attribute hierarchy.
->>
->> Since the optimization might not always be useful (e.g. when care is
->> taken to not have redundant rules or when the attributes are
->> aggressively expanded) and might even drastically increase policy build
->> times under some cicumstances (for example with the DSSP standard policy
->> [1]), the optimization is applied only when requested explictly.
->>
->> The optimization routine eliminates:
->>   * all allow/dontaudit/auditallow(/neverallow) rules (including xperm
->>     variants) that are covered by another more general rule (or by a
->>     union of other rules),
->>   * all conditional versions of the above rules that are covered by a
->>     more general rule either in the unconditional table or in the same
->>     branch of the same conditional.
->>
->> The optimization doesn't process other rules, since they currently do
->> not support attributes. There is some room left for more precise
->> optimization of conditional rules, but it would likely bring only little
->> additional benefit.
->>
->> Travis build passed: https://travis-ci.org/WOnder93/selinux/builds/545184071
->>
->> Tested:
->>   * live on my Fedora 29 devel machine under normal use (no unusual AVCs
->>     observed with the optimized policy loaded)
->>   * using: https://gitlab.com/omos/selinux-misc/blob/master/opt_test.sh
->>     * tests also xperm rules
->>     * doesn't test conditionals
->>
->> [1] https://github.com/DefenSec/dssp2-standard
->>
->> James Carter (1):
->>    checkpolicy: add flag to enable policy optimization
->>
->> Ondrej Mosnacek (3):
->>    libsepol: add a function to optimize kernel policy
->>    libsemanage: optionally optimize policy on rebuild
->>    secilc: add flag to enable policy optimization
->>
->>   checkpolicy/checkpolicy.8                  |   3 +
->>   checkpolicy/checkpolicy.c                  |  16 +-
->>   libsemanage/man/man5/semanage.conf.5       |   5 +
->>   libsemanage/src/conf-parse.y               |  15 +-
->>   libsemanage/src/conf-scan.l                |   1 +
->>   libsemanage/src/direct_api.c               |   7 +
->>   libsemanage/src/semanage_conf.h            |   1 +
->>   libsepol/include/sepol/policydb.h          |   5 +
->>   libsepol/include/sepol/policydb/policydb.h |   2 +
->>   libsepol/src/libsepol.map.in               |   5 +
->>   libsepol/src/optimize.c                    | 378 +++++++++++++++++++++
->>   libsepol/src/policydb_public.c             |   5 +
->>   secilc/secilc.8.xml                        |   5 +
->>   secilc/secilc.c                            |  16 +-
->>   14 files changed, 460 insertions(+), 4 deletions(-)
->>   create mode 100644 libsepol/src/optimize.c
->>
-> 
-> Acked-by: James Carter <jwcart2@tycho.nsa.gov>
-> 
-> staged: https://github.com/SELinuxProject/selinux/pull/168
-> 
-Merged.
+>>> I agree that this is an error case (security_secid_to_secctx() failed
+>>> to resolve the secid) and further that logging the secid, or a
+>>> collection of secids, has little value the way things currently work.
+>>> Since secids are a private kernel implementation detail, we don't
+>>> really display them outside the context of the kernel, including in
+>>> the audit logs.  Recording a secid in this case doesn't provide
+>>> anything meaningful since secids aren't recorded in the audit record
+>>> stream, only the secctxs, and there is no "magic decoder ring" to go
+>>> between the two in the audit logs, or anywhere else in userspace for
+>>> that matter.
+>> Okay, thanks. Casey I am good with just a pr_warn here. I just didn't
+>> have context of why it was going to the audit_log and didn't want
+>> to change that without some more input.
+> Hmm.  Actually, let me change my comments slightly ... perhaps what we
+> should do here is keep the audit_log_format(), but change it from
+> audit_log_format("osid=%u",...) to audit_log_format("obj=?").  The "?"
+> is used in audit when we can't determine a piece of information, but
+> we normally log it.  It wasn't used very widely originally, which is
+> probably why it isn't in this piece of code.
 
+Works for me. I'll make the change. Thank you.
+??
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
