@@ -2,179 +2,108 @@ Return-Path: <SRS0=B9fV=UY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3411AC48BD5
-	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:30:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46155C48BD5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 16:01:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0CACA2146E
-	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:30:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AF01208CB
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 16:01:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="oIkOGE2o"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iu5VfaGC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729683AbfFYPak (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Jun 2019 11:30:40 -0400
-Received: from sonic310-22.consmr.mail.bf2.yahoo.com ([74.6.135.196]:44358
-        "EHLO sonic310-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729260AbfFYPak (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jun 2019 11:30:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561476638; bh=FnPWufeLeQr0hI3+/yRaQrxAzEWJRWUBrvGSKpKp0UM=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=oIkOGE2oBvIUiuhlUqkiLsAglTLFEnkOvBzwMXoZUvaFMkJLGV2+Lj81y6zgbOLzoNuusDOKKCimpsjUli5PqM0lWa3szpf8EbPmoImdZcsGhF8kVFHllGaxBo0R/+S5jjZ5X3mHR8oAQ29F7TIVh0ny1HqYAgkfH5JvCzvvxipvVZTjKVJ+hJSxYqZZaotlaBEhEB1CuHmFULR6x+xaaxgNd38lbMswV6NXqNUZPbuv0cVCRjk/KAkOQWpKPpmv9bFix+A4wYAjMwQEzFIH85oN0XcmGplU2bRJUc61q4UXcqQ0MwnHhYGqXqmaSwVbjHmf/1/Zu5DZy4Iwid44Ig==
-X-YMail-OSG: Sd1tFWAVM1mF7.szlHt.SMirUFE7h1lDWy08VsWvVOWkDIYjsXruzLpwMzDVb9L
- XCXoGqLWPhXzgp6nJbSD8ixtn7BKLRfV4GXIqEYgXWB5tjrZJLqo00L.EdwJjfi86Gb1AbrOtCzY
- Sd9GnPMm17SecyKRa3rjWcVr7SluRGS62mIyZRNkPXn9K1q0UFzrvusW_W7tXlC6EeVfOYAUDXJ9
- 35nglXzPJYaiePRs8bj9BcfkJEJA6O49qoVChVpkow7WL4I6SG_wiRQc8Gu1WekDrSEojgGxYmsg
- 7YZ.cMJCJD7wp0w_GjXdn_TJvMVGZLmw5LhMl_jr_7NxlPfBHgfg3AfAb1nXrrhYXJLzUj6rQwJ7
- eRRiJufvEIyAt2WU6F8xI_LDrogG31DIwUBLKDUU.9y7ne1GNcae6HnVqH5d0D7K.2fEqXCaZ8El
- aEtGQXkhu0S9ZjBNuDT_Z3.KIJ2.MjRaqduMrviK4BGwn4DQcYqkZT2xW_WwKpGs5Q_5MCc_GZhV
- gF1IkAAx7pifEYZcOkZO1cjQ2OOFVrB1TvDcyslfsmhtfJPLcI3eQT7RnatXXWZHzs6aWgyVyEpW
- 71TGjr6UjXTMbsHEHJVN76Rr95h7g8bZpUXr2kCJ8oqO7DUOINkxEkJs_OFbc9k.XuIZsOmrV.dn
- tp4dISvUAxNkcAKPlebfN0n7QA5zaxBuJz..UsDcUIGKuyBCjiOIkTwGN9_hsa8.XDtaSag6KJ2x
- _RnANiBQVrw0QvgvJtUHp554HzM9of5pZvENYG1dYx8yUjIHJejU.Bt3U4jFiUoVlUvylR_vj4No
- OwnvSEsonCtOL9rAYmKQ5YRYUorUS7HKGIAsB2SuFPv05lBnpP7RNdPHSb_l7HeJe_o_V2n3YG.Q
- csh0Cb6vJ_pC2HVD_j9aB_UhCHD6XdBNTmi07sw4DO3ngnBcv4MKsWuhlZAv8ItfuUG.RC4wSNMa
- VUqsJJoq6nmn8L0zcroZBze_W0qJqgYU5lw.ywj68B_2iAeYQy34achOMudlmLN_dhgIY3_65P5.
- WcRJBPf4_kSDkwQV3hFVeqjAfvdyf5bUNDSpDKI0HB1rvTOL4qK3jkVcPCp88RpvT29DzSOBat3s
- GkVVXMvyLy0Pfll4g2PICUzlhUzroq75JVRlnTtFCuW0p..pbP9OiJ8ke9Q0TCE.Wved7GuafoV1
- HdGvqo7841EhKpSdQRNFhN3MDEiG0jmoFRiv1qqqe_WdxhekrI4zNZfCMeWQOLXzvbCT93eAwc9B
- w.emr8pZBmwBsB85_CVh6tQ1RUF3HoITvj0nVaTvS.Xc5
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Tue, 25 Jun 2019 15:30:38 +0000
-Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
-          by smtp411.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 5dd7601bc46a4923afb7c89cf89f33a9;
-          Tue, 25 Jun 2019 15:30:36 +0000 (UTC)
-Subject: Re: [PATCH v3 21/24] Audit: Store LSM audit information in an lsmblob
-To:     Paul Moore <paul@paul-moore.com>,
-        John Johansen <john.johansen@canonical.com>
-Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@redhat.com>, linux-audit@redhat.com,
-        casey@schaufler-ca.com
-References: <20190621185233.6766-1-casey@schaufler-ca.com>
- <20190621185233.6766-22-casey@schaufler-ca.com>
- <79cd4a92-c221-eda4-58ba-730b5c2680d7@canonical.com>
- <0ad8f906-16ff-61af-ce7c-0ea1e9760d03@schaufler-ca.com>
- <CAHC9VhSSwCY8L71x4WTr7kJhF1f_oyQ1NcwyXCAgW7ruKACQdQ@mail.gmail.com>
- <41f99313-1aa4-bacc-6767-8ee1389ca220@canonical.com>
- <CAHC9VhSSMjCdT8gfB03gh8VvJngTHnsUsDCpseMUiEPQM9z_FQ@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <c231726e-5235-1dae-8fb9-6f89db406260@schaufler-ca.com>
-Date:   Tue, 25 Jun 2019 08:30:35 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+        id S1732519AbfFYQBH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jun 2019 12:01:07 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:35272 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731459AbfFYQBH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jun 2019 12:01:07 -0400
+Received: by mail-io1-f68.google.com with SMTP id m24so1114088ioo.2
+        for <selinux@vger.kernel.org>; Tue, 25 Jun 2019 09:01:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=GpDJWuxFddxQSJLEevQk05HKltrcQJRfyTi5uTeuodk=;
+        b=iu5VfaGCJFdyt7DhEWYbdZIh4DGPQVKlYEScKKp7yvWIEX0Vn9jaxzysW55G/Fv1sj
+         7LBZVCKX/BBgmx6+/4YaJPUKZsx44yrPoN6Cg0ekxcfJI29YkeL5JWHrRj5gzVxZwYOG
+         s7M0fDU58kwdKbnwrEFYniudQ49E1iIiYfdECir3GmJ//Yp5Wpsfx8L5Zgq+DrLu10Wj
+         NHQY2L81USbwAxCAjpuJV7Z4ibjA3Ht408i1bG0fTnrzMyTKbSjmgF7aLNvwapDytKLN
+         KrQ0zPWx99d+gP4fwHfZ/Y/NGR9wBcbExGzD/L/6TEsXIQ7SGH5BSLCFwcMS5oS/ZT7a
+         aH7g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=GpDJWuxFddxQSJLEevQk05HKltrcQJRfyTi5uTeuodk=;
+        b=jygrBpDOW9DJiozJC3aXPp4P/Qt2hf5wp7lB10PzcsCZ6oncghqGj/wQkg78cmvpjZ
+         J+WiIUX+XulK/RxtroEOys5ZfQFCvbs+HOdmzb7TuB0vEz53mENUHevgGtSBnPNyvWOj
+         5yE+atorelcggq+T5i2O7sWbBEOG9vhumXKqCM4R5gQjiMjauptvAw82D1OujYW3hbpx
+         DNN4bz3orHUkkxImBnm34fIdcxs8M4Z+t7TcCjSd6JWdvo4/m+I2fOUb7NyUPoZUrcHe
+         1ON+GLNj3ThquQZKBxjojN2UyHsN19FnElTfHb/z7fGm8BnrKp8t4ksk61+h2KZ2Oe4m
+         RnHQ==
+X-Gm-Message-State: APjAAAXNYQqynIynRx+J8T4yxptGzsftLGMXgWLWsIrKzvuaUKxHkjKf
+        e77moQ38iGX6e/N4OqmAGdCfOlp2nbC6m5cz2N8=
+X-Google-Smtp-Source: APXvYqx1b02Hue7S6fvAjsp16TH30LqTUnAg3QDkzVsbJ0T1kXsZPJvMJNIHc1yBy2iXtp3R4CZMYDo+5hdFLfzVl14=
+X-Received: by 2002:a02:3f1d:: with SMTP id d29mr27739832jaa.116.1561478466056;
+ Tue, 25 Jun 2019 09:01:06 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhSSMjCdT8gfB03gh8VvJngTHnsUsDCpseMUiEPQM9z_FQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20190624193154.8453-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20190624193154.8453-1-nicolas.iooss@m4x.org>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Tue, 25 Jun 2019 09:00:48 -0700
+Message-ID: <CAFftDdrgMfG_xvozsKAwQGPZ6pPnVGMx4jefdnSVWbEaBA+=KQ@mail.gmail.com>
+Subject: Re: [PATCH 1/1] libsepol: include module.c internal header in module_to_cil.c
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/24/2019 7:42 PM, Paul Moore wrote:
-> On Mon, Jun 24, 2019 at 10:15 PM John Johansen
-> <john.johansen@canonical.com> wrote:
->> On 6/24/19 6:46 PM, Paul Moore wrote:
->>> On Mon, Jun 24, 2019 at 9:01 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->>>> On 6/24/2019 2:33 PM, John Johansen wrote:
->>>>> On 6/21/19 11:52 AM, Casey Schaufler wrote:
->>>>>> Change the audit code to store full lsmblob data instead of
->>>>>> a single u32 secid. This allows for multiple security modules
->>>>>> to use the audit system at the same time. It also allows the
->>>>>> removal of scaffolding code that was included during the
->>>>>> revision of LSM interfaces.
->>>>>>
->>>>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->>>>> I know Kees raised this too, but I haven't seen a reply
->>>>>
->>>>> Eric (Paul is already CCed): I have directly added you because of
->>>>> the question below.
->>>>>
->>>>> In summary there isn't necessarily a single secid any more, and
->>>>> we need to know whether dropping the logging of the secid or
->>>>> logging all secids is the correct action.
->>>> It is to be considered that this is an error case. If
->>>> everything is working normally you should have produced
->>>> a secctx previously, which you'll have included in the
->>>> audit record. Including the secid in the record ought to
->>>> be pointless, as the secid is strictly an internal token
->>>> with no meaning outside the running kernel. You are providing
->>>> no security relevant information by providing the secid.
->>>> I will grant the possibility that the secid might be useful
->>>> in debugging, but for that a pr_warn is more appropriate
->>>> than a field in the audit record.
->>> FWIW, this probably should have been CC'd to the audit list.
->>>
->> hrmm indeed, sorry
->>
->>> I agree that this is an error case (security_secid_to_secctx() failed
->>> to resolve the secid) and further that logging the secid, or a
->>> collection of secids, has little value the way things currently work.
->>> Since secids are a private kernel implementation detail, we don't
->>> really display them outside the context of the kernel, including in
->>> the audit logs.  Recording a secid in this case doesn't provide
->>> anything meaningful since secids aren't recorded in the audit record
->>> stream, only the secctxs, and there is no "magic decoder ring" to go
->>> between the two in the audit logs, or anywhere else in userspace for
->>> that matter.
->> Okay, thanks. Casey I am good with just a pr_warn here. I just didn't
->> have context of why it was going to the audit_log and didn't want
->> to change that without some more input.
-> Hmm.  Actually, let me change my comments slightly ... perhaps what we
-> should do here is keep the audit_log_format(), but change it from
-> audit_log_format("osid=%u",...) to audit_log_format("obj=?").  The "?"
-> is used in audit when we can't determine a piece of information, but
-> we normally log it.  It wasn't used very widely originally, which is
-> probably why it isn't in this piece of code.
+ack, you going to to merge this?
 
-Works for me. I'll make the change. Thank you.
-??
-
+On Mon, Jun 24, 2019 at 2:58 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> In module_to_cil.c, sepol_ppfile_to_module_package() calls functions
+> from module.c without including the internal header. This makes building
+> libsepol with "gcc -flto -fuse-ld=gold" fails when linking libsepol.so:
+>
+>     /tmp/ccHYAKVZ.ltrans21.ltrans.o:<artificial>:function
+>     sepol_ppfile_to_module_package: error: undefined reference to
+>     'sepol_module_package_free'
+>     /tmp/ccHYAKVZ.ltrans21.ltrans.o:<artificial>:function
+>     sepol_ppfile_to_module_package: error: undefined reference to
+>     'sepol_module_package_create'
+>     /tmp/ccHYAKVZ.ltrans21.ltrans.o:<artificial>:function
+>     sepol_ppfile_to_module_package: error: undefined reference to
+>     'sepol_module_package_create'
+>     collect2: error: ld returned 1 exit status
+>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/165
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> ---
+>  libsepol/src/module_to_cil.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index da62c8aaf0ef..1af166c9abd0 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -54,6 +54,7 @@
+>
+>  #include "kernel_to_common.h"
+>  #include "private.h"
+> +#include "module_internal.h"
+>
+>  #ifdef __GNUC__
+>  #  define UNUSED(x) UNUSED_ ## x __attribute__((__unused__))
+> --
+> 2.22.0
+>
