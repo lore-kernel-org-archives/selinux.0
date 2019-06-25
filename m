@@ -2,177 +2,195 @@ Return-Path: <SRS0=B9fV=UY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B57DBC4646B
-	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 02:42:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89F84C48BD5
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:00:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7EB66205F4
-	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 02:42:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5057B213F2
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 15:00:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="eymxPmIS"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="jYFuzxI1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730538AbfFYCm2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Jun 2019 22:42:28 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:45452 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728374AbfFYCm1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jun 2019 22:42:27 -0400
-Received: by mail-lj1-f193.google.com with SMTP id m23so14558997lje.12
-        for <selinux@vger.kernel.org>; Mon, 24 Jun 2019 19:42:25 -0700 (PDT)
+        id S1731965AbfFYPAm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Jun 2019 11:00:42 -0400
+Received: from uhil19pa09.eemsg.mail.mil ([214.24.21.82]:14948 "EHLO
+        uhil19pa09.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731153AbfFYPAl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Jun 2019 11:00:41 -0400
+X-EEMSG-check-017: 28069745|UHIL19PA09_EEMSG_MP7.csd.disa.mil
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by uhil19pa09.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 25 Jun 2019 15:00:39 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=CKBE8eaoco4pGI763kC/y95/qX1Cg9WszVwNQiVM23M=;
-        b=eymxPmIScDKLhyJTp2mEkUmTZp/oEzH5x6rUE6KoNYoVY6rRSLkd6UztBZnDlPUsT6
-         Adara3v74FkG48l0SfVaDVjJjjWd2mjJ85XuRW42uD3bZx8WeaZmb4nfb/F/Al2RWagH
-         n0m5vmZoySDwY6VZlyFAnxP4SSpWtPjJYpPR9jj66UuhG00QXsNLCaS+AGdT3raxwYNf
-         TkQKKxteXJ3ZNGyl6Ro5K2FYpQr1OgFdg4oKZtjf6LoW6BTjJioLWXvI/WVKFz/w8RAo
-         9EFeT3stuOS1Ioooh44u3gSc9uvWrYexzdeUgm0ptpcYVq13+PrZLYK1XLZc64H7LeGv
-         IjZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=CKBE8eaoco4pGI763kC/y95/qX1Cg9WszVwNQiVM23M=;
-        b=mKMLQiuCvd/pVQAwACq0BR3Tp3Yswh5S1fbLRljJeHX/xrT/y1fR4tDm9ry0huEH7+
-         ksdHuXNXWJkQXanTE1zviNvQKtIFKgGxkq4vg5B2+NjJFIRtYstzUL6ojELMvKparuUq
-         5KMoBYF90Ym72FN8pmVX+Df7qTzWLYF9+Sa8Q+RMgTTf9J4qNOFBB+SkMTc+DMUNRCo4
-         3P4KIsKl9quEOdWXAHL3u1ku5t4hfvlpaoQ5X1PHGiU3GhrfGTwDrP3pj2DtP8nKhkJ9
-         CosxdQGIgOux0nRhzvww3Nid2baR9L6q7MVZ2I9HYd0j41GTD5+bddRI0CLmQAb9ThV8
-         x/xw==
-X-Gm-Message-State: APjAAAWn30eznb49GOpKuEjbfk6kBJFm4o0F34/MyA5chJLaOrvMiZKQ
-        iG7T1mvGM3zJDF8oyHgX9uE0JP2EqK16ME/JiSka
-X-Google-Smtp-Source: APXvYqwXYECY5QYIKYlztS3Bw6N8um6jtDalK1khlT0nS84vFu+q+1zZgG/gvAAY6THtOhE425wHJMqvGSwg1eKRB2g=
-X-Received: by 2002:a2e:9e1a:: with SMTP id e26mr16720717ljk.158.1561430544600;
- Mon, 24 Jun 2019 19:42:24 -0700 (PDT)
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1561474839; x=1593010839;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=UcOTDMZ23PheOZew/eECmgUTsdKsZOYG7lblofKauGs=;
+  b=jYFuzxI1YEf7koam1L5WVlEk04Ls3GM1qTHLOS/tTRuDBTxq9TZzZYfI
+   mR/4gLP4a10sMkodVWkz5dtrADITmg2PUnbG3qWq7GeLOujiUOBgOW1LI
+   aLQiyM6aGMGlitlLPcEZR3Zr9zenzqT8kCCUpg18ZrAYJSQ0vFv7Y7b7o
+   /rOvoaDpj8yGaajbsHvR7Ixi/e39S51ErY/6L1UYsHeawMkJqFmubeLRe
+   v38IZZCR0g8AAONPlsYovnOJJOxaslLD62okRM7zXDuaizJ4h5Hv5rxQm
+   2RqT21tigdmqONVJYgh8dyHmD8JWL1fkiqS/TJMfGGXJQ4hjt7bplfZlO
+   w==;
+X-IronPort-AV: E=Sophos;i="5.63,416,1557187200"; 
+   d="scan'208";a="25091878"
+IronPort-PHdr: =?us-ascii?q?9a23=3At56akh+JIOxfC/9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B+0+geIJqq85mqBkHD//Il1AaPAdyBrasYwLqP++C4ACpcuM/H6ChDOLV3FD?=
+ =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
+ =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjPusUMnIdvJak9xx?=
+ =?us-ascii?q?jUrnBVf+ha2X5kKUickhrh+8u85oJv/zhVt/k868NOTKL2crgiQ7dFFjomKW?=
+ =?us-ascii?q?c15MPqtRnHUwSC42YXX3sVnBRVHQXL9Qn2UZjtvCT0sOp9wzSaMtbtTb8oQz?=
+ =?us-ascii?q?Si7rxkRwHuhSwaKjM26mDXish3jKJGvBKsogF0zoDIbI2JMvd1Y7jQds0GS2?=
+ =?us-ascii?q?VfQslRVjRBAoKiYIsJE+oBJvtTo43kq1cTsReyGQygCeXhxT9Sgn/9wLM03e?=
+ =?us-ascii?q?IvHwrb2AAsBswCvXDRoNjzKawcU/26zLPQwDvecf1W1zfz5ovGfB8vrv6DX6?=
+ =?us-ascii?q?5/f8XKxEkzFA7IlEmcpZDrMj6X0OkGrmiV7/BnVeKqk2MnqQ9wrSS1ycc2lo?=
+ =?us-ascii?q?nFmJ8ex1fG9SR33Ik6P8e4SFJlbdO/DJtRtz2VN4txQs84RWFoozw1xqcJuZ?=
+ =?us-ascii?q?68YigH0ZIqzAPRZfyAdoiH+BPjVOCJLDd7mn1lYrS/iAi28US6ze38TMa03E?=
+ =?us-ascii?q?5FripEjtnMsmoC2AfJ5sebTft9+1+t2SqV1w/J9OFEIFs0mbPHJJ4g2LIwkY?=
+ =?us-ascii?q?ATsUvbEi/5mUX2kK+Wdlg/9eSy9+vnZbDmq5mBPIF3kgHzKrkil8OwDOgiMg?=
+ =?us-ascii?q?UCQnKX9fqz2bH950H1XbNHheAsnKbDqpDVP8Ebq7a8Aw9Sz4ks9Q6yDyyj0N?=
+ =?us-ascii?q?QEhXkHK09FeA6fg4jpJV7OJPf4AO+jg1u2ijdrxu3GPqb7DpXRLnnMjLfhfb?=
+ =?us-ascii?q?Fn505a1AUz1sxQ64hRCrEAJPL/Qk7xtNrGAR8lKwG43unqBdpn2o4eRG6DGL?=
+ =?us-ascii?q?GVPazMvVOS++4jO+yMa5UUuDb5Jfgl/fnujXohlF8fc6imwYEYaGqkHvh4OE?=
+ =?us-ascii?q?iZfXrtjcsBEWcNpAY+Svfqh0eYXT5cYHayQbow5isnB4K+EYfDWoetjaSG3C?=
+ =?us-ascii?q?e+GZ1WfWZGBUqQHnj2bIiEQekDZz+SIsB7jjwIT6SuS4gk1Ru2rg/116JnLv?=
+ =?us-ascii?q?bI+i0frZ/jz8Z65+nSlRE06Dx1AN+Q03+CT25qhGMEXTw2075loUx71FiD1b?=
+ =?us-ascii?q?J0g/tCFdxctLt1VVIdM5LGwu4yLtfpXAvKc9TBHFGjRc6gCDo8Zsg8z98Hfw?=
+ =?us-ascii?q?B2HND0yljY0i6rBaIFv6KECYZy8a/G2XX1YcFnxCXozq4k2ls5ScJVKTfu0q?=
+ =?us-ascii?q?xg/AHJG9Thj1SSl6Hsc78VmiHK6jHQniK1oEhEXVsoAu3+VncFax6T9I6o6w?=
+ =?us-ascii?q?=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2ByFQAJNhJd/wHyM5BgBh0BAQUBBwUBgWeBbSpqUjIoh?=
+ =?us-ascii?q?BaIe4l8gg+aYQkBAQEBAQEBAQEtBwECAQGCEoFoRgKCdSM4EwEDAQEBBAEBA?=
+ =?us-ascii?q?QEEAQFsijcMgjopAYJnAQUjDwEFPBUJAgkFCgICJgICVwYBDAYCAQGCXz8Bg?=
+ =?us-ascii?q?goPiWSbaoExhDIBgRSDJYFABoEMKItegVZAgREngms+gmECgVODGIJYBIEtA?=
+ =?us-ascii?q?YpCnTlrBgOCF4V0XI0VBhuCKZUljSiBMIYFkWghgVgrCkGBaIEaATMTgmWDO?=
+ =?us-ascii?q?YUUhVsjAzABAYEEAQGPEwEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 25 Jun 2019 15:00:38 +0000
+Received: from localhost.localdomain (moss-lions [192.168.25.4])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x5PF0cG4031393;
+        Tue, 25 Jun 2019 11:00:38 -0400
+Subject: Re: [Non-DoD Source] [PATCH userspace v4 0/4] Remove redundant rules
+ when building policydb
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20190613114558.32621-1-omosnace@redhat.com>
+ <bdb2280a-23f3-e386-2ffb-801f0ec35c34@tycho.nsa.gov>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <97f5c5c4-c5fe-afe7-51fa-841704c1f4dc@tycho.nsa.gov>
+Date:   Tue, 25 Jun 2019 11:01:49 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-References: <20190621185233.6766-1-casey@schaufler-ca.com> <20190621185233.6766-22-casey@schaufler-ca.com>
- <79cd4a92-c221-eda4-58ba-730b5c2680d7@canonical.com> <0ad8f906-16ff-61af-ce7c-0ea1e9760d03@schaufler-ca.com>
- <CAHC9VhSSwCY8L71x4WTr7kJhF1f_oyQ1NcwyXCAgW7ruKACQdQ@mail.gmail.com> <41f99313-1aa4-bacc-6767-8ee1389ca220@canonical.com>
-In-Reply-To: <41f99313-1aa4-bacc-6767-8ee1389ca220@canonical.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 24 Jun 2019 22:42:12 -0400
-Message-ID: <CAHC9VhSSMjCdT8gfB03gh8VvJngTHnsUsDCpseMUiEPQM9z_FQ@mail.gmail.com>
-Subject: Re: [PATCH v3 21/24] Audit: Store LSM audit information in an lsmblob
-To:     John Johansen <john.johansen@canonical.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@redhat.com>, linux-audit@redhat.com
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <bdb2280a-23f3-e386-2ffb-801f0ec35c34@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 24, 2019 at 10:15 PM John Johansen
-<john.johansen@canonical.com> wrote:
-> On 6/24/19 6:46 PM, Paul Moore wrote:
-> > On Mon, Jun 24, 2019 at 9:01 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 6/24/2019 2:33 PM, John Johansen wrote:
-> >>> On 6/21/19 11:52 AM, Casey Schaufler wrote:
-> >>>> Change the audit code to store full lsmblob data instead of
-> >>>> a single u32 secid. This allows for multiple security modules
-> >>>> to use the audit system at the same time. It also allows the
-> >>>> removal of scaffolding code that was included during the
-> >>>> revision of LSM interfaces.
-> >>>>
-> >>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >>> I know Kees raised this too, but I haven't seen a reply
-> >>>
-> >>> Eric (Paul is already CCed): I have directly added you because of
-> >>> the question below.
-> >>>
-> >>> In summary there isn't necessarily a single secid any more, and
-> >>> we need to know whether dropping the logging of the secid or
-> >>> logging all secids is the correct action.
-> >>
-> >> It is to be considered that this is an error case. If
-> >> everything is working normally you should have produced
-> >> a secctx previously, which you'll have included in the
-> >> audit record. Including the secid in the record ought to
-> >> be pointless, as the secid is strictly an internal token
-> >> with no meaning outside the running kernel. You are providing
-> >> no security relevant information by providing the secid.
-> >> I will grant the possibility that the secid might be useful
-> >> in debugging, but for that a pr_warn is more appropriate
-> >> than a field in the audit record.
-> >
-> > FWIW, this probably should have been CC'd to the audit list.
-> >
-> hrmm indeed, sorry
->
-> > I agree that this is an error case (security_secid_to_secctx() failed
-> > to resolve the secid) and further that logging the secid, or a
-> > collection of secids, has little value the way things currently work.
-> > Since secids are a private kernel implementation detail, we don't
-> > really display them outside the context of the kernel, including in
-> > the audit logs.  Recording a secid in this case doesn't provide
-> > anything meaningful since secids aren't recorded in the audit record
-> > stream, only the secctxs, and there is no "magic decoder ring" to go
-> > between the two in the audit logs, or anywhere else in userspace for
-> > that matter.
->
-> Okay, thanks. Casey I am good with just a pr_warn here. I just didn't
-> have context of why it was going to the audit_log and didn't want
-> to change that without some more input.
+On 6/21/19 10:11 AM, jwcart2 wrote:
+> On 6/13/19 7:45 AM, Ondrej Mosnacek wrote:
+>> Changes in v4:
+>>   * fix deallocation in error path in build_type_map()
+>>   * fix leaked cond nodes
+>>   * also update the man pages
+>>   * use UINT32_C for 0xFFFFFFFF constant
+>>   * squash in the RFC patches & drop the semodule patch
+>> v3: https://lore.kernel.org/selinux/20190529073759.20548-1-omosnace@redhat.com/T/
+>>
+>> Changes in v3:
+>>   * fix bad patch squashing
+>>   * rename secilc --optimize-policy option to --optimize (to be simpler
+>>     and consistent with checkpolicy and semodule)
+>> v2: https://lore.kernel.org/selinux/20190528145912.13827-1-omosnace@redhat.com/T/
+>>
+>> Changes in v2:
+>>   * fix handling of dontaudit (AVTAB_DENY) rules
+>>   * switch optimization from opt-out to opt-in everywhere
+>>   * add a patch from jwcart2 that adds optimization support to
+>>     checkpolicy as well
+>>   * add two RFC modifications (see log messages for details):
+>>     * one improves the optimization to detect also rules covered by the
+>>       union of two or more other rules (on permission set level)
+>>     * the other one drops libsemanage/semodule run-time enabling/
+>>       disabling of optimization in favor of a global config option
+>> v1: https://lore.kernel.org/selinux/20190523102449.9621-1-omosnace@redhat.com/T/
+>>
+>> This series implements an optional optimization step when building a
+>> policydb via semodule or secilc, which identifies and removes rules that
+>> are redundant -- i.e. they are already covered by a more general rule
+>> based on the type attribute hierarchy.
+>>
+>> Since the optimization might not always be useful (e.g. when care is
+>> taken to not have redundant rules or when the attributes are
+>> aggressively expanded) and might even drastically increase policy build
+>> times under some cicumstances (for example with the DSSP standard policy
+>> [1]), the optimization is applied only when requested explictly.
+>>
+>> The optimization routine eliminates:
+>>   * all allow/dontaudit/auditallow(/neverallow) rules (including xperm
+>>     variants) that are covered by another more general rule (or by a
+>>     union of other rules),
+>>   * all conditional versions of the above rules that are covered by a
+>>     more general rule either in the unconditional table or in the same
+>>     branch of the same conditional.
+>>
+>> The optimization doesn't process other rules, since they currently do
+>> not support attributes. There is some room left for more precise
+>> optimization of conditional rules, but it would likely bring only little
+>> additional benefit.
+>>
+>> Travis build passed: https://travis-ci.org/WOnder93/selinux/builds/545184071
+>>
+>> Tested:
+>>   * live on my Fedora 29 devel machine under normal use (no unusual AVCs
+>>     observed with the optimized policy loaded)
+>>   * using: https://gitlab.com/omos/selinux-misc/blob/master/opt_test.sh
+>>     * tests also xperm rules
+>>     * doesn't test conditionals
+>>
+>> [1] https://github.com/DefenSec/dssp2-standard
+>>
+>> James Carter (1):
+>>    checkpolicy: add flag to enable policy optimization
+>>
+>> Ondrej Mosnacek (3):
+>>    libsepol: add a function to optimize kernel policy
+>>    libsemanage: optionally optimize policy on rebuild
+>>    secilc: add flag to enable policy optimization
+>>
+>>   checkpolicy/checkpolicy.8                  |   3 +
+>>   checkpolicy/checkpolicy.c                  |  16 +-
+>>   libsemanage/man/man5/semanage.conf.5       |   5 +
+>>   libsemanage/src/conf-parse.y               |  15 +-
+>>   libsemanage/src/conf-scan.l                |   1 +
+>>   libsemanage/src/direct_api.c               |   7 +
+>>   libsemanage/src/semanage_conf.h            |   1 +
+>>   libsepol/include/sepol/policydb.h          |   5 +
+>>   libsepol/include/sepol/policydb/policydb.h |   2 +
+>>   libsepol/src/libsepol.map.in               |   5 +
+>>   libsepol/src/optimize.c                    | 378 +++++++++++++++++++++
+>>   libsepol/src/policydb_public.c             |   5 +
+>>   secilc/secilc.8.xml                        |   5 +
+>>   secilc/secilc.c                            |  16 +-
+>>   14 files changed, 460 insertions(+), 4 deletions(-)
+>>   create mode 100644 libsepol/src/optimize.c
+>>
+> 
+> Acked-by: James Carter <jwcart2@tycho.nsa.gov>
+> 
+> staged: https://github.com/SELinuxProject/selinux/pull/168
+> 
+Merged.
 
-Hmm.  Actually, let me change my comments slightly ... perhaps what we
-should do here is keep the audit_log_format(), but change it from
-audit_log_format("osid=%u",...) to audit_log_format("obj=?").  The "?"
-is used in audit when we can't determine a piece of information, but
-we normally log it.  It wasn't used very widely originally, which is
-probably why it isn't in this piece of code.
-
-> >>>> ---
-> >>>>  kernel/audit.h   |  6 +++---
-> >>>>  kernel/auditsc.c | 38 +++++++++++---------------------------
-> >>>>  2 files changed, 14 insertions(+), 30 deletions(-)
-> >
-> > ...
-> >
-> >>>> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-> >>>> index 0478680cd0a8..d3ad13f11788 100644
-> >>>> --- a/kernel/auditsc.c
-> >>>> +++ b/kernel/auditsc.c
-> >>>> @@ -1187,21 +1184,18 @@ static void show_special(struct audit_context *context, int *call_panic)
-> >>>>                              context->socketcall.args[i]);
-> >>>>              break; }
-> >>>>      case AUDIT_IPC: {
-> >>>> -            u32 osid = context->ipc.osid;
-> >>>> +            struct lsmblob *olsm = &context->ipc.olsm;
-> >>>>
-> >>>>              audit_log_format(ab, "ouid=%u ogid=%u mode=%#ho",
-> >>>>                               from_kuid(&init_user_ns, context->ipc.uid),
-> >>>>                               from_kgid(&init_user_ns, context->ipc.gid),
-> >>>>                               context->ipc.mode);
-> >>>> -            if (osid) {
-> >>>> +            if (lsmblob_is_set(olsm)) {
-> >>>>                      struct lsmcontext lsmcxt;
-> >>>> -                    struct lsmblob blob;
-> >>>>
-> >>>> -                    lsmblob_init(&blob, osid);
-> >>>> -                    if (security_secid_to_secctx(&blob, &lsmcxt)) {
-> >>>> -                            audit_log_format(ab, " osid=%u", osid);
-> >>> I am not comfortable just dropping this I would think logging all secids is the
-> >>> correct action here.
-> >>>
-> >>>
-> >>>> +                    if (security_secid_to_secctx(olsm, &lsmcxt))
-> >>>>                              *call_panic = 1;
-> >>>> -                    } else {
-> >>>> +                    else {
-> >>>>                              audit_log_format(ab, " obj=%s", lsmcxt.context);
-> >>>>                              security_release_secctx(&lsmcxt);
-> >>>>                      }
 
 -- 
-paul moore
-www.paul-moore.com
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
