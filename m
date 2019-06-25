@@ -1,59 +1,58 @@
-Return-Path: <SRS0=g6d+=UX=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=B9fV=UY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4116FC4646B
-	for <selinux@archiver.kernel.org>; Mon, 24 Jun 2019 21:54:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18E64C4646C
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 01:01:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EF5AB20665
-	for <selinux@archiver.kernel.org>; Mon, 24 Jun 2019 21:54:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCB7B20644
+	for <selinux@archiver.kernel.org>; Tue, 25 Jun 2019 01:01:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="pgtIdmNE"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="oOBkx4TY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730011AbfFXVyB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Jun 2019 17:54:01 -0400
-Received: from sonic314-27.consmr.mail.ne1.yahoo.com ([66.163.189.153]:42945
-        "EHLO sonic314-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726301AbfFXVyB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jun 2019 17:54:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561413238; bh=CceU0uIg7Z/d+r7edWGK+Xq1Zcie+Y22DVA6ivYdbXY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=pgtIdmNEyPYUblwPGYCd53zJv5YGomnonQtMhmDLyD5k1l1Lb9o+nAkMm73FSE6d8Cr2LI2Q3kt5EapiyaHB+1t5/5smWqjjOafUywwf62/WrHSMsp5qLq9zag48PcSsrIvUeFoHOpDlNNfL4toNYVfT5woY5MsjPaAuNJgyiLriMdCJNGDrIbidWjnHJ5rP8ZrKVD1pNJlceLQzcEPhPc6MVsDTjSQcGTc1bZLEHC9QwTfq3K16dy2MAaAh/YojybKCHv5WGIEn4NGj+gNabL/qnDrVCZpVFSRWUY3J7kkbVp9VldbA9WJc8oEVCEkJp+W0pUyhOGfjJbWGSC21BA==
-X-YMail-OSG: b_V4cl8VM1nWPcPKIjNyu4tC14ivmDYxIEmoT9eiQ1mbpb0tJ9tKOMlRxXpncba
- PccbioYgqL_LC9v5jMJ2hSj_3TvoKgbWjh0KE0yytqNd_XvYJOrQqzi6yv5Sb81_rYcCDSjRygpf
- d6f4bwePsvBU9MF1J2E.ptoaFpX_6OzPnI4O8aCh_HLBn59quFQDKeKsgEBNQGCVx_5iDgZQygLX
- t49UJR07eUMpbnQZRB0niDSKDfT2tIgeByFEDbWGpyb41SDy0TrRThYG5GfiQ0Tir9fqjWdl6IrK
- 5Be2SaB6BPc_ef8WL5JwwvOcvixYKPKMLmmvyKQKdEvaoCKmxT_NkTwA7YWjcrU8xsgoecj66erC
- bgPkD7Cu.78e23h7_FKlVE0MRcSuSBdqDDjSyxbjt3kbCgjgFUUEn3B8wU2Pviq1xpRSCIGnN97u
- 0tBjSn_b1JQvYZvrcfxniHoSa7KURZaNvJhgToPiO3zMHp3lrT6ihfg272HYh21.7pAko_ub.oPk
- U0SnhvCRFhDoA81aDm0uj8gRv3qyw8yGkZWPcqFYFhxScToILrshjQEZ9xFLudvc2aQwXzLSkvD5
- XLZEHLWWqzjjwps8CnRpgzE53XkfVxKvToNBjNK4mo.niR1jdgFioJGbTYzakb77NkypgnMoka6_
- HCNZ7LoTOo2yNOvS9azAjME3UW9.Eueftghl4aaE0OnIcYNUs8ggGuOorGOFjn5sh4JQTi9N_OSj
- GNTNkZkUDJNaBVFjvZYHCImJgtWgHr5WwwevdCKxytdLqvUm83BD4S3XqUOQ_pIaykfLsHMLYzwp
- 7ndmPSoeGbUuf7XXL8bTFr0AGzCGnoMgAO5i7QbjCZ08odEtIUT0KIwvVd0s8_OWXMHYmAnc1S0h
- Xxo2nJvfamCz9QicXGrfWeKmxCMnlPFUPbX7YloXqePlAf8PpvlPEV048PggItB5JzIYqoo7V8s6
- cPwdNmDhCxe4PU43QvyCj9wnw19RMnApteDMPwfKJTRieBuRXMlORQffJ9zGuotswBSGwMG1hqhv
- GnUyyDPAaPzIpz2t.kklLDp_jhwj31pxRVQEVeNGvf3EDZjNliwl6wfs8HLLcbIfcW4HYElRLVX3
- zGHTRww0qNMkhs.sdh224MMlqJyKcLdeDEVaYTU71NG6bLJesj1FLyJDoIrOvOa90OJhW1SJbDWm
- LAmV.79twpoEYIT_79p_ejJTP7AITKNHzIXTgRlsjirnXs5bPC6ERaAAhFXY9gMtn72XE6V3FWOA
- N8MUNo24.Q9iMFrm0RUAu.lV2_1Xg_OYCW0ZFKHr_pw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Mon, 24 Jun 2019 21:53:58 +0000
+        id S1729158AbfFYBBM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Jun 2019 21:01:12 -0400
+Received: from sonic303-28.consmr.mail.ne1.yahoo.com ([66.163.188.154]:44778
+        "EHLO sonic303-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729261AbfFYBBL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Jun 2019 21:01:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561424468; bh=sjwUFRLvFIb9goh4G4DHNE4250lyrd2QyVe4lhJFtyk=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=oOBkx4TYZ0eRb7c0KIECWEuz+kAqUCK8wa51zGv6VOYmAhp0EubqbBmnNmMeC0fDAruh1SRwoHVxUHNJo3QDYuV6Xo3RzhpWOX+KEhZwSCDTOBlxiWT2jwTKRhX0SCv27+IVmTRQwpLJjJKX1fJUvhKAuBg6ovWEbsuit1bvVtrfxEXGFd87D42jLPJcauioUHdOnrDLR7yHKjDp924CYhKzWNmyy+0g0XL5dZsjTu9KYpp5aNghopB7i4X5xSwctL++TrlNrJSkv874OkCMHpHaF1ZtQMJ/WFrj0bitWtaS4+WP/WwtkqB4X5hYVOqL6VKLzMVG5Yh34lO3ARmWSw==
+X-YMail-OSG: Bct65z0VM1lRlT3BptmtrbIpMBzoRuA9xZc9X2nD4kKH03pmeoWoHP6GTOEF1zI
+ FO68w2UaNAEeZCJ4G8QYYfPFXo5qKrUnMW0juX89g5mcZUht5u4IWriE8KJCBPvpcx9V8LX6PRrn
+ wVZXwUdbuuROPWmxkkaFvsh8LiXTe8x_.g3BPYPvHvOMnxrRQybF4PfE2h08SolAHGuiIT7IhnXl
+ fvb19Ayn5fgNr5Ipe4zBpp5K0BanBOGM_AWDgyAoGmVmpVeKubViltte1MxeUHF4GQugfKqyRMJy
+ li4KyramviC2kqPdsJ8FGBQ9YakqxiRfY_htK4x2TQKrP_urL4pMzRCxUhIY6W6SE7KAKZ5slqoa
+ 6V.RL9xwX79R3N3o.eA.AcCE1WW6I3BtPu2xZaM8jd2x302qYjzriT29DNCMq2yvgcXAobyDCGfS
+ ewvOYu5bOiGyjFWCkPE4c78bzbRCkq2cZdDwCVlOxhTsVjA2r819oA2q0FMNCa0KQgiiZ0PlP3st
+ Po0NPbuBPC4dWBzco9DAQfUGm4jKz_TM9k_CYZ2b0DKizQbF2vX67MVrZTcsVbPRAc5Wj.UpC.Yv
+ _PHVKL489wZX7EMX.ixZ9_9GgNHFf3GLIXRZxGG.l1pv2EPlcFLs_QoGmXc7qImdWsF7lpCx6s9T
+ UPms_JJRza.CKPgQ1B8e3c0o56LCjAKlQW28nrhCg9Crd2EBybz1VLjyeLwbJtESYODz67QEOM_D
+ 7ZbTUvf6oUS2fMV1CxNoOVVoeBBYaSyw78_IAiGDAWGoLYkCCYZMZ5GYzHnn6PAsRoElmK.GXDhB
+ nJ6x9n2BUgpFqduqelcLtDKyJ66ZATAwsDfxL6g5ZrQfllzmZF5_nwYh87bZK8UtQ697G9A5BgnM
+ t6hgh0SMpJt1V2Vvn5YmDfCkHjnX9abxiclTEA2xbEzq1LElpWqluFLQnz9hxvOeUEEdNeY2h5vV
+ 95bHnqqe4AV91c8uH5NeVXPfdPdO_JnCHyO.I6LKpO2lZA4fdjkkwic4tTxuUsoxJsH5B0RrEBBt
+ eIyonj9yJqMt3ZU0dLuWb1A9L3d9id6vFj3xc8eZmWSufxgL7UdRdWFe8plwhpVrCNHh9eW3sYxq
+ MXn7Zdx_yiod16ZCO55NTK8mBN.OfiFQ1yFiECW9_7_N7bj3qHYTSsK05YtkTrOBFu6KCiq9UGT6
+ svPLZun4tukAKQ_RSyoUbYsC0Vu6.HHgnaol6.nxWUYkKAYHf8lwypWLtE5T_2VJIYvjZ4OcdNs0
+ NFg4PLC2WncGFp7ZgnPQrn6Xi.oO4l2g__cyGIn24DE1n
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Tue, 25 Jun 2019 01:01:08 +0000
 Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
-          by smtp430.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 23c319493ede373edf524b13799da3c6;
-          Mon, 24 Jun 2019 21:53:55 +0000 (UTC)
-Subject: Re: [PATCH v3 22/24] LSM: Return the lsmblob slot on initialization
+          by smtp412.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d5df0f7eb2ec9ba5918f0e7ccd202bb4;
+          Tue, 25 Jun 2019 01:01:06 +0000 (UTC)
+Subject: Re: [PATCH v3 21/24] Audit: Store LSM audit information in an lsmblob
 To:     John Johansen <john.johansen@canonical.com>,
-        Kees Cook <keescook@chromium.org>
-Cc:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov,
+        Eric Paris <eparis@redhat.com>, casey@schaufler-ca.com
 References: <20190621185233.6766-1-casey@schaufler-ca.com>
- <20190621185233.6766-23-casey@schaufler-ca.com>
- <201906221613.3443FA528B@keescook>
- <6d18ee4f-fe1b-39ae-dbe6-59ff120112c4@canonical.com>
+ <20190621185233.6766-22-casey@schaufler-ca.com>
+ <79cd4a92-c221-eda4-58ba-730b5c2680d7@canonical.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -100,168 +99,211 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <b1db2b88-dbb1-fd66-9a2b-6973e712e74f@schaufler-ca.com>
-Date:   Mon, 24 Jun 2019 14:53:54 -0700
+Message-ID: <0ad8f906-16ff-61af-ce7c-0ea1e9760d03@schaufler-ca.com>
+Date:   Mon, 24 Jun 2019 18:01:05 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.2
 MIME-Version: 1.0
-In-Reply-To: <6d18ee4f-fe1b-39ae-dbe6-59ff120112c4@canonical.com>
+In-Reply-To: <79cd4a92-c221-eda4-58ba-730b5c2680d7@canonical.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 6/24/2019 2:39 PM, John Johansen wrote:
-> On 6/22/19 4:13 PM, Kees Cook wrote:
->> On Fri, Jun 21, 2019 at 11:52:31AM -0700, Casey Schaufler wrote:
->>> Return the slot allocated to the calling LSM in the lsmblob
->>> structure. This can be used to set lsmblobs explicitly for
->>> netlabel interfaces.
->>>
->>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> Reviewed-by: Kees Cook <keescook@chromium.org>
+On 6/24/2019 2:33 PM, John Johansen wrote:
+> On 6/21/19 11:52 AM, Casey Schaufler wrote:
+>> Change the audit code to store full lsmblob data instead of
+>> a single u32 secid. This allows for multiple security modules
+>> to use the audit system at the same time. It also allows the
+>> removal of scaffolding code that was included during the
+>> revision of LSM interfaces.
 >>
->> (I have some thoughts on refactoring the slot assignment, but that
->> should happen after this series -- it's nothing more than a storage
->> optimization.)
->>
->> -Kees
-> haha so do I, now I am curious as to how close they align
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> I know Kees raised this too, but I haven't seen a reply
+>
+> Eric (Paul is already CCed): I have directly added you because of
+> the question below.
+>
+> In summary there isn't necessarily a single secid any more, and
+> we need to know whether dropping the logging of the secid or
+> logging all secids is the correct action.
 
-Plan A: Each LSM has a lsm_id {.name, .slot}, the address of which
-is passed to security_add_hooks() in place of the current char *lsm.
-This is added to each hook instead of the *lsm. The slot value is
-set if the LSM requests one. One slot integer per LSM instead of one
-per hook.
+It is to be considered that this is an error case. If
+everything is working normally you should have produced
+a secctx previously, which you'll have included in the
+audit record. Including the secid in the record ought to
+be pointless, as the secid is strictly an internal token
+with no meaning outside the running kernel. You are providing
+no security relevant information by providing the secid.
+I will grant the possibility that the secid might be useful
+in debugging, but for that a pr_warn is more appropriate
+than a field in the audit record.
 
 >
+>> ---
+>>  kernel/audit.h   |  6 +++---
+>>  kernel/auditsc.c | 38 +++++++++++---------------------------
+>>  2 files changed, 14 insertions(+), 30 deletions(-)
+>>
+>> diff --git a/kernel/audit.h b/kernel/audit.h
+>> index 29e29c6f4afb..a8dd479e9556 100644
+>> --- a/kernel/audit.h
+>> +++ b/kernel/audit.h
+>> @@ -91,7 +91,7 @@ struct audit_names {
+>>  	kuid_t			uid;
+>>  	kgid_t			gid;
+>>  	dev_t			rdev;
+>> -	u32			osid;
+>> +	struct lsmblob		olsm;
+>>  	struct audit_cap_data	fcap;
+>>  	unsigned int		fcap_ver;
+>>  	unsigned char		type;		/* record type */
+>> @@ -148,7 +148,7 @@ struct audit_context {
+>>  	kuid_t		    target_auid;
+>>  	kuid_t		    target_uid;
+>>  	unsigned int	    target_sessionid;
+>> -	struct lsmblob   target_lsm;
+>> +	struct lsmblob	    target_lsm;
+>>  	char		    target_comm[TASK_COMM_LEN];
+>> =20
+>>  	struct audit_tree_refs *trees, *first_trees;
+>> @@ -165,7 +165,7 @@ struct audit_context {
+>>  			kuid_t			uid;
+>>  			kgid_t			gid;
+>>  			umode_t			mode;
+>> -			u32			osid;
+>> +			struct lsmblob		olsm;
+>>  			int			has_perm;
+>>  			uid_t			perm_uid;
+>>  			gid_t			perm_gid;
+>> diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+>> index 0478680cd0a8..d3ad13f11788 100644
+>> --- a/kernel/auditsc.c
+>> +++ b/kernel/auditsc.c
+>> @@ -646,17 +646,15 @@ static int audit_filter_rules(struct task_struct=
+ *tsk,
+>>  			if (f->lsm_rule) {
+>>  				/* Find files that match */
+>>  				if (name) {
+>> -					lsmblob_init(&blob, name->osid);
+>>  					result =3D security_audit_rule_match(
+>> -								&blob,
+>> +								&name->olsm,
+>>  								f->type,
+>>  								f->op,
+>>  								f->lsm_rule);
+>>  				} else if (ctx) {
+>>  					list_for_each_entry(n, &ctx->names_list, list) {
+>> -						lsmblob_init(&blob, n->osid);
+>>  						if (security_audit_rule_match(
+>> -								&blob,
+>> +								&n->olsm,
+>>  								f->type,
+>>  								f->op,
+>>  								f->lsm_rule)) {
+>> @@ -668,8 +666,7 @@ static int audit_filter_rules(struct task_struct *=
+tsk,
+>>  				/* Find ipc objects that match */
+>>  				if (!ctx || ctx->type !=3D AUDIT_IPC)
+>>  					break;
+>> -				lsmblob_init(&blob, ctx->ipc.osid);
+>> -				if (security_audit_rule_match(&blob,
+>> +				if (security_audit_rule_match(&ctx->ipc.olsm,
+>>  							      f->type, f->op,
+>>  							      f->lsm_rule))
+>>  					++result;
+>> @@ -1187,21 +1184,18 @@ static void show_special(struct audit_context =
+*context, int *call_panic)
+>>  				context->socketcall.args[i]);
+>>  		break; }
+>>  	case AUDIT_IPC: {
+>> -		u32 osid =3D context->ipc.osid;
+>> +		struct lsmblob *olsm =3D &context->ipc.olsm;
+>> =20
+>>  		audit_log_format(ab, "ouid=3D%u ogid=3D%u mode=3D%#ho",
+>>  				 from_kuid(&init_user_ns, context->ipc.uid),
+>>  				 from_kgid(&init_user_ns, context->ipc.gid),
+>>  				 context->ipc.mode);
+>> -		if (osid) {
+>> +		if (lsmblob_is_set(olsm)) {
+>>  			struct lsmcontext lsmcxt;
+>> -			struct lsmblob blob;
+>> =20
+>> -			lsmblob_init(&blob, osid);
+>> -			if (security_secid_to_secctx(&blob, &lsmcxt)) {
+>> -				audit_log_format(ab, " osid=3D%u", osid);
+> I am not comfortable just dropping this I would think logging all secid=
+s is the
+> correct action here.
 >
->>> ---
->>>  include/linux/lsm_hooks.h  | 4 ++--
->>>  security/apparmor/lsm.c    | 8 ++++++--
->>>  security/security.c        | 9 +++++++--
->>>  security/selinux/hooks.c   | 5 ++++-
->>>  security/smack/smack_lsm.c | 5 ++++-
->>>  5 files changed, 23 insertions(+), 8 deletions(-)
->>>
->>> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
->>> index 4d1ddf1a2aa6..ce341bcbce5d 100644
->>> --- a/include/linux/lsm_hooks.h
->>> +++ b/include/linux/lsm_hooks.h
->>> @@ -2068,8 +2068,8 @@ struct lsm_blob_sizes {
->>>  extern struct security_hook_heads security_hook_heads;
->>>  extern char *lsm_names;
->>>  
->>> -extern void security_add_hooks(struct security_hook_list *hooks, int count,
->>> -				char *lsm);
->>> +extern int security_add_hooks(struct security_hook_list *hooks, int count,
->>> +			      char *lsm);
->>>  
->>>  #define LSM_FLAG_LEGACY_MAJOR	BIT(0)
->>>  #define LSM_FLAG_EXCLUSIVE	BIT(1)
->>> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
->>> index 2716e7731279..dcbbefbd95ff 100644
->>> --- a/security/apparmor/lsm.c
->>> +++ b/security/apparmor/lsm.c
->>> @@ -47,6 +47,9 @@
->>>  /* Flag indicating whether initialization completed */
->>>  int apparmor_initialized;
->>>  
->>> +/* Slot for the AppArmor secid in the lsmblob structure */
->>> +int apparmor_lsmblob_slot;
->>> +
->>>  DEFINE_PER_CPU(struct aa_buffers, aa_buffers);
->>>  
->>>  
->>> @@ -1678,8 +1681,9 @@ static int __init apparmor_init(void)
->>>  		aa_free_root_ns();
->>>  		goto buffers_out;
->>>  	}
->>> -	security_add_hooks(apparmor_hooks, ARRAY_SIZE(apparmor_hooks),
->>> -				"apparmor");
->>> +	apparmor_lsmblob_slot = security_add_hooks(apparmor_hooks,
->>> +						   ARRAY_SIZE(apparmor_hooks),
->>> +						   "apparmor");
->>>  
->>>  	/* Report that AppArmor successfully initialized */
->>>  	apparmor_initialized = 1;
->>> diff --git a/security/security.c b/security/security.c
->>> index b2ffcd1f3057..c93a368b697b 100644
->>> --- a/security/security.c
->>> +++ b/security/security.c
->>> @@ -437,9 +437,12 @@ static int lsm_slot __initdata;
->>>   * Each LSM has to register its hooks with the infrastructure.
->>>   * If the LSM is using hooks that export secids allocate a slot
->>>   * for it in the lsmblob.
->>> + *
->>> + * Returns the slot number in the lsmblob structure if one is
->>> + * allocated or LSMBLOB_INVALID if one was not allocated.
->>>   */
->>> -void __init security_add_hooks(struct security_hook_list *hooks, int count,
->>> -				char *lsm)
->>> +int __init security_add_hooks(struct security_hook_list *hooks, int count,
->>> +			      char *lsm)
->>>  {
->>>  	int slot = LSMBLOB_INVALID;
->>>  	int i;
->>> @@ -479,6 +482,8 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
->>>  	}
->>>  	if (lsm_append(lsm, &lsm_names) < 0)
->>>  		panic("%s - Cannot get early memory.\n", __func__);
->>> +
->>> +	return slot;
->>>  }
->>>  
->>>  int call_lsm_notifier(enum lsm_event event, void *data)
->>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>> index ee840fecfebb..1e09acbf9630 100644
->>> --- a/security/selinux/hooks.c
->>> +++ b/security/selinux/hooks.c
->>> @@ -103,6 +103,7 @@
->>>  #include "avc_ss.h"
->>>  
->>>  struct selinux_state selinux_state;
->>> +int selinux_lsmblob_slot;
->>>  
->>>  /* SECMARK reference count */
->>>  static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
->>> @@ -6877,7 +6878,9 @@ static __init int selinux_init(void)
->>>  
->>>  	hashtab_cache_init();
->>>  
->>> -	security_add_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks), "selinux");
->>> +	selinux_lsmblob_slot = security_add_hooks(selinux_hooks,
->>> +						  ARRAY_SIZE(selinux_hooks),
->>> +						  "selinux");
->>>  
->>>  	if (avc_add_callback(selinux_netcache_avc_callback, AVC_CALLBACK_RESET))
->>>  		panic("SELinux: Unable to register AVC netcache callback\n");
->>> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
->>> index 3834b751d1e9..273f311fb153 100644
->>> --- a/security/smack/smack_lsm.c
->>> +++ b/security/smack/smack_lsm.c
->>> @@ -60,6 +60,7 @@ static LIST_HEAD(smk_ipv6_port_list);
->>>  #endif
->>>  static struct kmem_cache *smack_inode_cache;
->>>  int smack_enabled;
->>> +int smack_lsmblob_slot;
->>>  
->>>  #define A(s) {"smack"#s, sizeof("smack"#s) - 1, Opt_##s}
->>>  static struct {
->>> @@ -4749,7 +4750,9 @@ static __init int smack_init(void)
->>>  	/*
->>>  	 * Register with LSM
->>>  	 */
->>> -	security_add_hooks(smack_hooks, ARRAY_SIZE(smack_hooks), "smack");
->>> +	smack_lsmblob_slot = security_add_hooks(smack_hooks,
->>> +						ARRAY_SIZE(smack_hooks),
->>> +						"smack");
->>>  	smack_enabled = 1;
->>>  
->>>  	pr_info("Smack:  Initializing.\n");
->>> -- 
->>> 2.20.1
->>>
+>
+>> +			if (security_secid_to_secctx(olsm, &lsmcxt))
+>>  				*call_panic =3D 1;
+>> -			} else {
+>> +			else {
+>>  				audit_log_format(ab, " obj=3D%s", lsmcxt.context);
+>>  				security_release_secctx(&lsmcxt);
+>>  			}
+>> @@ -1346,13 +1340,10 @@ static void audit_log_name(struct audit_contex=
+t *context, struct audit_names *n,
+>>  				 from_kgid(&init_user_ns, n->gid),
+>>  				 MAJOR(n->rdev),
+>>  				 MINOR(n->rdev));
+>> -	if (n->osid !=3D 0) {
+>> -		struct lsmblob blob;
+>> +	if (lsmblob_is_set(&n->olsm)) {
+>>  		struct lsmcontext lsmctx;
+>> =20
+>> -		lsmblob_init(&blob, n->osid);
+>> -		if (security_secid_to_secctx(&blob, &lsmctx)) {
+>> -			audit_log_format(ab, " osid=3D%u", n->osid);
+> and here
+>
+>
+>> +		if (security_secid_to_secctx(&n->olsm, &lsmctx)) {
+>>  			if (call_panic)
+>>  				*call_panic =3D 2;
+>>  		} else {
+>> @@ -1906,17 +1897,13 @@ static inline int audit_copy_fcaps(struct audi=
+t_names *name,
+>>  void audit_copy_inode(struct audit_names *name, const struct dentry *=
+dentry,
+>>  		      struct inode *inode, unsigned int flags)
+>>  {
+>> -	struct lsmblob blob;
+>> -
+>>  	name->ino   =3D inode->i_ino;
+>>  	name->dev   =3D inode->i_sb->s_dev;
+>>  	name->mode  =3D inode->i_mode;
+>>  	name->uid   =3D inode->i_uid;
+>>  	name->gid   =3D inode->i_gid;
+>>  	name->rdev  =3D inode->i_rdev;
+>> -	security_inode_getsecid(inode, &blob);
+>> -	/* scaffolding until osid is updated */
+>> -	name->osid =3D blob.secid[0];
+>> +	security_inode_getsecid(inode, &name->olsm);
+>>  	if (flags & AUDIT_INODE_NOEVAL) {
+>>  		name->fcap_ver =3D -1;
+>>  		return;
+>> @@ -2266,14 +2253,11 @@ void __audit_mq_getsetattr(mqd_t mqdes, struct=
+ mq_attr *mqstat)
+>>  void __audit_ipc_obj(struct kern_ipc_perm *ipcp)
+>>  {
+>>  	struct audit_context *context =3D audit_context();
+>> -	struct lsmblob blob;
+>>  	context->ipc.uid =3D ipcp->uid;
+>>  	context->ipc.gid =3D ipcp->gid;
+>>  	context->ipc.mode =3D ipcp->mode;
+>>  	context->ipc.has_perm =3D 0;
+>> -	security_ipc_getsecid(ipcp, &blob);
+>> -	/* scaffolding on the [0] - change "osid" to a lsmblob */
+>> -	context->ipc.osid =3D blob.secid[0];
+>> +	security_ipc_getsecid(ipcp, &context->ipc.olsm);
+>>  	context->type =3D AUDIT_IPC;
+>>  }
+>> =20
+>>
+
