@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBDEFC48BDB
-	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 19:23:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE109C48BD6
+	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 19:23:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A33A120663
-	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 19:23:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85E3220663
+	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 19:23:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="m+cKeCQF"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="c1d4Xzx6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbfFZTXZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Jun 2019 15:23:25 -0400
-Received: from sonic311-30.consmr.mail.gq1.yahoo.com ([98.137.65.211]:37670
-        "EHLO sonic311-30.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726604AbfFZTXX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jun 2019 15:23:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561577002; bh=ANE0Xaj0gkvTfYna4Owf4j3msmctCEHRk7H5VSxz8hU=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=m+cKeCQFgwu0e6bKu0WFMMffvIdppmHs/Bi/zrDhKpw6VIq9EsAUDLt/FFCvGnRY8Z58VgmAPv3QDaDBTn2N02lOuf4OWDfigg00GSebGRnuqg91TeWuVkpV9EMp0YgnE5F0nwUXoFWr5ly3kmLhQG442FBWJz62GmFd3C6OrNUUAKUvIcLvcOWtUscL5z/7rYjVidLfXZPPWQLc1pSTarTzBUQUqcj3znuCJ6IezgJKXAfTxlUGKVL4rQJJ3FbCNiSVJ3wxm5vMg6xFMG3u9iYS7inOrF8xsSLkfGxc5Pv6AAlpdIAHbgyrp4mhq+VdeDxBMr6R90ZTL8hZhBtp6g==
-X-YMail-OSG: T585WWsVM1n_eB.R8mfn3Kh65wjI08B2tlwuUHahmijVNAa2aWWYSDZh.JWCSjY
- cWOeDV8rksVBFzh9ONrkyrBWmQ.q8txe0Pui5Rjvl5yG5UxrHVziyKzHAL3V.3v8QkZYnK5lvLlM
- ZxsNkgExukUYc.9M2N7ltbuRugT.KdL5o66ptWMT.8p6tLxhMzA8I_Pk2YLjEIcz7nm4YxjmVtFI
- TaMHX4ckdNyaRxacStNOFtJnEugOtGroUlJM0_nW0.LONg3CAdgajzsmX._wJxaon8hVVVWxe_Rt
- HLIUf9iU.t6Lsp97zJF5B8m2.avmSC1ic1mucWoEJi_q3Jkd7r2rSVlF016URQEPl2f1Nsj3ziQM
- DeStBMehf2QWZP_cP071Oxa2ERzKZKOF.i2ak9n4hjG7AF1EYCObQOT0EZd59DmzzvedgaotBCyF
- 3i7Su4UMMkR5ykXHDuvn7wNXCj9_dCr4Q2PGLoSSSxEW_eoM_787vMKJWYBZsk9Vk3BUsD4pcPRa
- 9vnfZxqaXD22XVO4bIElWhnWXIRXg70IHig3CwVuggOh7iTdk9v63iYjoB9tJlT5PSeV0Z52z8jj
- mpm2MrcYrY48.Q7uVEgc5LaaKlmRztCRAABCvm7IVNrJTtYl4R1QTQjL8CID6OkHss8s1QWsZCyA
- iS6ol0Nihg1HLKWd0En0qcgqvDfqT68anPJwji3.me98kMyLtUGpqunCnTwSFm8XVI4_wr7yNVle
- QZHbRhCEKn1hiXBXqj0rExha15eG5nqYV6tM.ICM5hs0QhqaIyohKeI2iM42w3Ub.5XP2SUb0yJ2
- q5z6iebEztz6Pff.OsuPJ_eF.XbVE1Mi_C3DUQl4BNWM2XHGJEPjt6HVQyF70sYBX2FqPNh8A1PM
- c5s2McqsY2o1ZQLwsCdScnAFkHmz5lJHP6OmR3YkuTAj0jotttI345WESk7FOjn9qxBFqK23sWhZ
- qDUbdEKmAb9F354N2gURclKbr.8pnmWf6OA5Hv_0cxB91LcncHxtY_zxHjYn8.QLWMZDUppeGPce
- YLta.j3x2xHU6J68NBSEU490STJWvQB4FSm.dkRZZWT58RNjppJ8_X9.SL41nVIkHF1nKpBxxAby
- 6FiJ7G7rf3fFlyHNaHfG11VWzd78hbsJA.pQjNGC42UGYCohEtaH9HSLFOUp.dbc_1mrL5wyswf.
- k.4J5PFxxbSBPQXoUVvI6I3hrKYSAmbP1290b0h6PJZV2.xrap9LLw3iB5cvhMxznHZHEUJ9Xlc.
- V4VECfKh3An7mf8VBL_m_K3qNH8SarVzrQtP4a9on9oU1
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.gq1.yahoo.com with HTTP; Wed, 26 Jun 2019 19:23:22 +0000
+        id S1726605AbfFZTX2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Jun 2019 15:23:28 -0400
+Received: from sonic308-13.consmr.mail.gq1.yahoo.com ([98.137.68.37]:34648
+        "EHLO sonic308-13.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726328AbfFZTX1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jun 2019 15:23:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1561577006; bh=8dC1jVQXX043wsRfaniHkOG90Ze0+lXUWQhSzRkq1W0=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=c1d4Xzx6sx9J+WjbsoNGt97cM9K+luz/v2OuH/oiOpMGeVU/uh8XqUyfStDQwTUXD7dg83iYY7tHKDrOviPM3SVZvO/DszB9u95mqLfLqITKUdUUUcrkQuIwgr26CDwK/b59oh+ZnKlLsFu5NlmoYNrPXwkoZJRVptOY5q7Y5TqK5HElNssKo6cc0Efy+5ggSLCHTQbfmSJpTfCSsTFqyrbHc2ACjbDASdQjAwj4MKtzYZXfrhlbSf967kQtW+gUC7v4XK61diH94d05upG2m7d28KqMEX4n1n5nKWGbHOo5q8h2BZp3xS0Axx46zKET+OmSXwH7/sISlI71fca2DA==
+X-YMail-OSG: _NWEug0VM1lN0.btj2278hRw9Vdt6C1c8GH7esYu6CQGwcFEn7wTJ.6P.S.6eZV
+ LCFpOZbrXy0vR2KaDG_XeEapGiUq22eetj9XovKsEYOyrpC2UynDoj4J6vNwM7.Z5s111d4j9p1a
+ hHgwhI_r0Jc.azv2Z.DaAJJoe9ipGTHOZ6p_tjWcXiDI6Al.h01cYunviH3UoOqoxufnln9zpSC9
+ u0V2bWmK1.vjzGI0EcngYS6f_pFU7DT8_KwD0BOKHpcgYlWsOn9ulP73h0sGJaScrBChyaUjGyPK
+ 7xv3kFATO1lBK5Q0DY.4PIddUKqM0lV.7TGGFVCWCcfcgo3oicewc8AhH.bwIwO0DP3rlJ3JKQBs
+ wUNsqkBGxsDBKmJ4yBdl5UUywcZEylkLi_xXIDyLOtA1WFrNmK1K69aqPt4DmfDqwXClObqh4GBt
+ TUXxq25y6MLyL3EFjotbsuPN5GFy_Q_mQlSrKH0.D2qo4vBWeArjIaCafGMPrFfjBML4K91f.WIg
+ uiZFe3yr42RMxBHBnO5k3K85GpatatJ5jJumm1oFJgZ9ur8eUkB5hRl66IPsXRaGD9X4CNlnctw1
+ h6JdEE7lLSkGPAxpKovg9tndY5sPEXr.ckVodyrbgRAyEY2guLxVml6ljGAytQFx6vHzBdaqUVpM
+ xtkwPsA_tndtocYVJLhnI1soQSD7Q8jbRLPHfD6ozhmU3AJALKtRKTYSmSZPGQ_Q9jcVatF_ReKV
+ q1qfskMkNrarBu8yhLGtyrmXqo6L5Ov.Qy8yHuBIRCu9X70V.wEjGw86Qdk2VV_tM0P.byw3eilq
+ _yJ_GZ4eD..PpWkhL3i.EUxEVDjXLXvPOiLt8FjDmQLqDOPhg.3A_kl0fQe5li31WRKChEBkliE5
+ Yf4tqOBHyGSuUdYhxsP_k64HN4pIzx3ZswhpOCPPUNFnObUxxuuW7Uvbw0syOrSiHghhJYjOSvkE
+ Bd2fMRZGYx0IlCpBymT4EbKNolwi42kZ.unoilxezfzqB_IzMYKp5EyEQOKGK6vFTSXx_hJ_yYjG
+ YkDo67oJ6CIDdWvXVYqBcOvnhuW3niOsfbEyLa2F80j7i7jhVt3cJk6DDqVrdLLGN8HW0mu6gH0E
+ 0M88YtYJmS3fU0n7.8YVQfCsfAe4.mo08DQ77R19hy5o5PU6iWRT5RofvYKuqkK9oeUoW8Jgm39V
+ x4RM1jqwO2PBpPhHW1wqlJcBgJFKh5NdyuXSlRXnglAaIJ75kpk3_XwMJL0WR8x0t0Cyq7trWWjl
+ XkvhpFDlahCT_1.wXNcxHAvrTi8s8D55sngAUwWxQMEQ-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic308.consmr.mail.gq1.yahoo.com with HTTP; Wed, 26 Jun 2019 19:23:26 +0000
 Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO localhost.net) ([73.223.4.185])
           by smtp413.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 7fc532bf6bcf33ac8b649a0abf15fbe8;
-          Wed, 26 Jun 2019 19:23:19 +0000 (UTC)
+          Wed, 26 Jun 2019 19:23:21 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v4 21/23] Audit: Store LSM audit information in an lsmblob
-Date:   Wed, 26 Jun 2019 12:22:32 -0700
-Message-Id: <20190626192234.11725-22-casey@schaufler-ca.com>
+Subject: [PATCH v4 23/23] AppArmor: Remove the exclusive flag
+Date:   Wed, 26 Jun 2019 12:22:34 -0700
+Message-Id: <20190626192234.11725-24-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190626192234.11725-1-casey@schaufler-ca.com>
 References: <20190626192234.11725-1-casey@schaufler-ca.com>
@@ -63,168 +63,63 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the audit code to store full lsmblob data instead of
-a single u32 secid. This allows for multiple security modules
-to use the audit system at the same time. It also allows the
-removal of scaffolding code that was included during the
-revision of LSM interfaces.
+With the inclusion of the "display" process attribute
+mechanism AppArmor no longer needs to be treated as an
+"exclusive" security module. Remove the flag that indicates
+it is exclusive. Remove the stub getpeersec_dgram AppArmor
+hook as it has no effect in the single LSM case and
+interferes in the multiple LSM case.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- kernel/audit.h   |  6 +++---
- kernel/auditsc.c | 40 +++++++++++++---------------------------
- 2 files changed, 16 insertions(+), 30 deletions(-)
+ security/apparmor/lsm.c | 20 +-------------------
+ 1 file changed, 1 insertion(+), 19 deletions(-)
 
-diff --git a/kernel/audit.h b/kernel/audit.h
-index 29e29c6f4afb..a8dd479e9556 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -91,7 +91,7 @@ struct audit_names {
- 	kuid_t			uid;
- 	kgid_t			gid;
- 	dev_t			rdev;
--	u32			osid;
-+	struct lsmblob		olsm;
- 	struct audit_cap_data	fcap;
- 	unsigned int		fcap_ver;
- 	unsigned char		type;		/* record type */
-@@ -148,7 +148,7 @@ struct audit_context {
- 	kuid_t		    target_auid;
- 	kuid_t		    target_uid;
- 	unsigned int	    target_sessionid;
--	struct lsmblob   target_lsm;
-+	struct lsmblob	    target_lsm;
- 	char		    target_comm[TASK_COMM_LEN];
- 
- 	struct audit_tree_refs *trees, *first_trees;
-@@ -165,7 +165,7 @@ struct audit_context {
- 			kuid_t			uid;
- 			kgid_t			gid;
- 			umode_t			mode;
--			u32			osid;
-+			struct lsmblob		olsm;
- 			int			has_perm;
- 			uid_t			perm_uid;
- 			gid_t			perm_gid;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 0478680cd0a8..ec8872430fb6 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -646,17 +646,15 @@ static int audit_filter_rules(struct task_struct *tsk,
- 			if (f->lsm_rule) {
- 				/* Find files that match */
- 				if (name) {
--					lsmblob_init(&blob, name->osid);
- 					result = security_audit_rule_match(
--								&blob,
-+								&name->olsm,
- 								f->type,
- 								f->op,
- 								f->lsm_rule);
- 				} else if (ctx) {
- 					list_for_each_entry(n, &ctx->names_list, list) {
--						lsmblob_init(&blob, n->osid);
- 						if (security_audit_rule_match(
--								&blob,
-+								&n->olsm,
- 								f->type,
- 								f->op,
- 								f->lsm_rule)) {
-@@ -668,8 +666,7 @@ static int audit_filter_rules(struct task_struct *tsk,
- 				/* Find ipc objects that match */
- 				if (!ctx || ctx->type != AUDIT_IPC)
- 					break;
--				lsmblob_init(&blob, ctx->ipc.osid);
--				if (security_audit_rule_match(&blob,
-+				if (security_audit_rule_match(&ctx->ipc.olsm,
- 							      f->type, f->op,
- 							      f->lsm_rule))
- 					++result;
-@@ -955,7 +952,7 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 			 from_kuid(&init_user_ns, uid), sessionid);
- 	if (lsmblob_is_set(blob)) {
- 		if (security_secid_to_secctx(blob, &lsmctx)) {
--			audit_log_format(ab, " obj=(none)");
-+			audit_log_format(ab, " obj=?");
- 			rc = 1;
- 		} else {
- 			audit_log_format(ab, " obj=%s", lsmctx.context);
-@@ -1187,19 +1184,17 @@ static void show_special(struct audit_context *context, int *call_panic)
- 				context->socketcall.args[i]);
- 		break; }
- 	case AUDIT_IPC: {
--		u32 osid = context->ipc.osid;
-+		struct lsmblob *olsm = &context->ipc.olsm;
- 
- 		audit_log_format(ab, "ouid=%u ogid=%u mode=%#ho",
- 				 from_kuid(&init_user_ns, context->ipc.uid),
- 				 from_kgid(&init_user_ns, context->ipc.gid),
- 				 context->ipc.mode);
--		if (osid) {
-+		if (lsmblob_is_set(olsm)) {
- 			struct lsmcontext lsmcxt;
--			struct lsmblob blob;
- 
--			lsmblob_init(&blob, osid);
--			if (security_secid_to_secctx(&blob, &lsmcxt)) {
--				audit_log_format(ab, " osid=%u", osid);
-+			if (security_secid_to_secctx(olsm, &lsmcxt)) {
-+				audit_log_format(ab, " obj=?");
- 				*call_panic = 1;
- 			} else {
- 				audit_log_format(ab, " obj=%s", lsmcxt.context);
-@@ -1346,13 +1341,11 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
- 				 from_kgid(&init_user_ns, n->gid),
- 				 MAJOR(n->rdev),
- 				 MINOR(n->rdev));
--	if (n->osid != 0) {
--		struct lsmblob blob;
-+	if (lsmblob_is_set(&n->olsm)) {
- 		struct lsmcontext lsmctx;
- 
--		lsmblob_init(&blob, n->osid);
--		if (security_secid_to_secctx(&blob, &lsmctx)) {
--			audit_log_format(ab, " osid=%u", n->osid);
-+		if (security_secid_to_secctx(&n->olsm, &lsmctx)) {
-+			audit_log_format(ab, " obj=?");
- 			if (call_panic)
- 				*call_panic = 2;
- 		} else {
-@@ -1906,17 +1899,13 @@ static inline int audit_copy_fcaps(struct audit_names *name,
- void audit_copy_inode(struct audit_names *name, const struct dentry *dentry,
- 		      struct inode *inode, unsigned int flags)
- {
--	struct lsmblob blob;
--
- 	name->ino   = inode->i_ino;
- 	name->dev   = inode->i_sb->s_dev;
- 	name->mode  = inode->i_mode;
- 	name->uid   = inode->i_uid;
- 	name->gid   = inode->i_gid;
- 	name->rdev  = inode->i_rdev;
--	security_inode_getsecid(inode, &blob);
--	/* scaffolding until osid is updated */
--	name->osid = blob.secid[0];
-+	security_inode_getsecid(inode, &name->olsm);
- 	if (flags & AUDIT_INODE_NOEVAL) {
- 		name->fcap_ver = -1;
- 		return;
-@@ -2266,14 +2255,11 @@ void __audit_mq_getsetattr(mqd_t mqdes, struct mq_attr *mqstat)
- void __audit_ipc_obj(struct kern_ipc_perm *ipcp)
- {
- 	struct audit_context *context = audit_context();
--	struct lsmblob blob;
- 	context->ipc.uid = ipcp->uid;
- 	context->ipc.gid = ipcp->gid;
- 	context->ipc.mode = ipcp->mode;
- 	context->ipc.has_perm = 0;
--	security_ipc_getsecid(ipcp, &blob);
--	/* scaffolding on the [0] - change "osid" to a lsmblob */
--	context->ipc.osid = blob.secid[0];
-+	security_ipc_getsecid(ipcp, &context->ipc.olsm);
- 	context->type = AUDIT_IPC;
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 6d2eefc9b7c1..fb5798683ae1 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -1079,22 +1079,6 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
+ 	return error;
  }
  
+-/**
+- * apparmor_socket_getpeersec_dgram - get security label of packet
+- * @sock: the peer socket
+- * @skb: packet data
+- * @secid: pointer to where to put the secid of the packet
+- *
+- * Sets the netlabel socket state on sk from parent
+- */
+-static int apparmor_socket_getpeersec_dgram(struct socket *sock,
+-					    struct sk_buff *skb, u32 *secid)
+-
+-{
+-	/* TODO: requires secid support */
+-	return -ENOPROTOOPT;
+-}
+-
+ /**
+  * apparmor_sock_graft - Initialize newly created socket
+  * @sk: child sock
+@@ -1195,8 +1179,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+ #endif
+ 	LSM_HOOK_INIT(socket_getpeersec_stream,
+ 		      apparmor_socket_getpeersec_stream),
+-	LSM_HOOK_INIT(socket_getpeersec_dgram,
+-		      apparmor_socket_getpeersec_dgram),
+ 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
+ #ifdef CONFIG_NETWORK_SECMARK
+ 	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
+@@ -1707,7 +1689,7 @@ static int __init apparmor_init(void)
+ 
+ DEFINE_LSM(apparmor) = {
+ 	.name = "apparmor",
+-	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
++	.flags = LSM_FLAG_LEGACY_MAJOR,
+ 	.enabled = &apparmor_enabled,
+ 	.blobs = &apparmor_blob_sizes,
+ 	.init = apparmor_init,
 -- 
 2.20.1
 
