@@ -2,99 +2,96 @@ Return-Path: <SRS0=8O8t=UZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FBADC48BD6
-	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 20:39:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 347F7C48BD3
+	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 21:04:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 50F7F208E3
-	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 20:39:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 04B322086D
+	for <selinux@archiver.kernel.org>; Wed, 26 Jun 2019 21:04:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="NAzw70uG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726385AbfFZUjR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Jun 2019 16:39:17 -0400
-Received: from namei.org ([65.99.196.166]:48592 "EHLO namei.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726227AbfFZUjP (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 26 Jun 2019 16:39:15 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id x5QKd5NF030044;
-        Wed, 26 Jun 2019 20:39:05 GMT
-Date:   Thu, 27 Jun 2019 06:39:05 +1000 (AEST)
-From:   James Morris <jmorris@namei.org>
-To:     "Dr. Greg" <greg@enjellic.com>
-cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        linux-sgx@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>,
-        Cedric Xing <cedric.xing@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
-        william.c.roberts@intel.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [RFC PATCH v3 09/12] LSM: x86/sgx: Introduce ->enclave_load()
- hook for Intel SGX
-In-Reply-To: <20190623171626.GA25683@wind.enjellic.com>
-Message-ID: <alpine.LRH.2.21.1906270637300.28132@namei.org>
-References: <20190617222438.2080-1-sean.j.christopherson@intel.com> <20190617222438.2080-10-sean.j.christopherson@intel.com> <0c4f75a0ae2fdeee6db07f3a224918f321163d56.camel@linux.intel.com> <alpine.LRH.2.21.1906200702040.28119@namei.org>
- <20190623171626.GA25683@wind.enjellic.com>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        id S1726339AbfFZVEn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Jun 2019 17:04:43 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:46658 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726271AbfFZVEn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Jun 2019 17:04:43 -0400
+Received: by mail-pf1-f194.google.com with SMTP id 81so37454pfy.13
+        for <selinux@vger.kernel.org>; Wed, 26 Jun 2019 14:04:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=yfCTREuQXuRu8QPWjEkWJzqOZ4JMW0iQQ9/V4AAPG3o=;
+        b=NAzw70uG0pAkX7k6utXLuWnOdJKwLvAsSJudfJ816eifuqCscDALHSNva6hHXaTchG
+         cQhw/nuymlNF31J2w0+G9O9ocm9UVeYPNwtSZf1r7Kv47rwQrcmcw2TheV9qSCZU4nIx
+         wxaWlDq2e5q8LJ0zQNiez87vrnH1D5JSezWC8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=yfCTREuQXuRu8QPWjEkWJzqOZ4JMW0iQQ9/V4AAPG3o=;
+        b=Xbn0X8hngg9EZ86FN45qbgWR6pYVtDmg41EG6I15igc9xGKLRGmw5+Km8KzvquAhAS
+         UIxJOjXjHtrUK58lU9M1eBkLs1EIVOa8QFlavXcqarOLe0RUIC0XwYzqrfUHf0E3R8Ou
+         5egGuU7/Dhla8jOlOLS6DknIap99Gsa7T8B52N31WCR90sCc7/jZeoc6alNVhv7CMzKR
+         jVDrNotQdg/rD9wo5/Mk/HqOQNxeB1rCBEP4GSnRgK6rp1fgjbo3qAt3yUNH3/9Y7N84
+         KUx+gqHiKVcss9Gfi4/XrQpsK8CjGWy73CMPISdcj+Rw8tw/sdPYqDpSD8xy6r3O9PUX
+         AhXQ==
+X-Gm-Message-State: APjAAAXWCGAKT0I3/DpRojd8o96g7OzdNmWWbWNPbQ58MEVp8b6Twooi
+        T+ss8+AxR15oisBfDOujw2sHwg==
+X-Google-Smtp-Source: APXvYqwKZB9SyOCwptrQiJgk/7PZu8uHIDEymwG9crwrzlqf3Q6ME6As4Y8TZsU+B4PmX2aQIcaB/A==
+X-Received: by 2002:a17:90a:ca0f:: with SMTP id x15mr1331028pjt.82.1561583082896;
+        Wed, 26 Jun 2019 14:04:42 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id s15sm127486pfd.183.2019.06.26.14.04.41
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 26 Jun 2019 14:04:42 -0700 (PDT)
+Date:   Wed, 26 Jun 2019 14:04:41 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: Re: [PATCH v4 00/23] LSM: Module stacking for AppArmor
+Message-ID: <201906261404.451588F@keescook>
+References: <20190626192234.11725-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190626192234.11725-1-casey@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, 23 Jun 2019, Dr. Greg wrote:
+On Wed, Jun 26, 2019 at 12:22:11PM -0700, Casey Schaufler wrote:
+> This patchset provides the changes required for
+> the AppArmor security module to stack safely with any other.
+> 
+> Because of the changes to slot handling and the rework of
+> "display" I have not included the Reviewed-by tags from the
+> previous version.
+> 
+> v4: Incorporate feedback from v3
+>     - Mark new lsm_<blob>_alloc functions static
+>     - Replace the lsm and slot fields of the security_hook_list
+>       with a pointer to a LSM allocated lsm_id structure. The
+>       LSM identifies if it needs a slot explicitly. Use the
+>       lsm_id rather than make security_add_hooks return the
+>       slot value.
+>     - Validate slot values used in security.c
+>     - Reworked the "display" process attribute handling so that
+>       it works right and doesn't use goofy list processing.
+>     - fix display value check in dentry_init_security
+>     - Replace audit_log of secids with '?' instead of deleting
+>       the audit log
 
-> The most relevant and important control with respect to whether or not
-> an enclave should be allowed to execute is evaluation of the
-> SIGSTRUCT.  Given the trajectory that platform security is on, SGX is
-> not going to be the last technology of its type nor the only
-> technology that makes use of cryptographically based code provenance.
-> 
-> As a result, if we are content with handing an opaque pointer of a
-> descriptive struture to an LSM routine, a generic hook that is tasked
-> with verifying code or execution environment provenance doesn't seem
-> like it would need to be technology specific nor controversial.
-> 
-> That leaves as the last thorny issue the question of dynamic
-> allocation of memory for executable content.  As we have stated
-> before, and at the outset of this note, from a security perspective
-> this is only, effectively, a binary question for the platform owner as
-> to whether or not the concept should be allowed.
-> 
-> A generic LSM hook, appropriately named, could execute that decision
-> without being SGX specific.  Arguably, the hook should be named to
-> indicate that it is seeking approval for allocating memory to be used
-> for anonymous executable content, since that is what it would be
-> effectively requesting approval for, in the case of SGX.
-> 
-> For completeness a third generic hook may be useful.  The purpose of
-> that hook would be to verify a block of memory as being
-> measured or signed for consideration as executable content.  Arguably
-> that will have utility far beyond SGX.
-> 
-> In the case of SGX it would address the issue as to whether or not a
-> block of executable content in untrusted space is eligible for
-> anonymous execution.  That may be a useful security measure in order
-> to provide some control over an enclave being used as a random
-> execution oracle.
-> 
-> It obviously has no security utility against the enclave author since,
-> as we have noted before, it is possible for the enclave author to
-> simply pull whatever code is desired over an encrypted network
-> connection.
-> 
-> > James Morris
-> 
-> Hopefully these comments are a useful basis for further discussion.
-
-Thanks, this is helpful.
+I think you missed adding my and John's Reviewed-bys from v3?
 
 -- 
-James Morris
-<jmorris@namei.org>
-
+Kees Cook
