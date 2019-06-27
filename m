@@ -2,35 +2,34 @@ Return-Path: <SRS0=cEwN=U2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 004B8C4321A
-	for <selinux@archiver.kernel.org>; Thu, 27 Jun 2019 21:38:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B50C5C4321A
+	for <selinux@archiver.kernel.org>; Thu, 27 Jun 2019 21:52:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CC4042075E
-	for <selinux@archiver.kernel.org>; Thu, 27 Jun 2019 21:38:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 989862075E
+	for <selinux@archiver.kernel.org>; Thu, 27 Jun 2019 21:52:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726441AbfF0Vij (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Jun 2019 17:38:39 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:37224 "EHLO
+        id S1726553AbfF0VwQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Jun 2019 17:52:16 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:37482 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726384AbfF0Vij (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jun 2019 17:38:39 -0400
+        with ESMTP id S1726384AbfF0VwP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Jun 2019 17:52:15 -0400
 Received: from static-50-53-46-226.bvtn.or.frontiernet.net ([50.53.46.226] helo=[192.168.192.153])
         by youngberry.canonical.com with esmtpsa (TLS1.0:RSA_AES_128_CBC_SHA1:16)
         (Exim 4.76)
         (envelope-from <john.johansen@canonical.com>)
-        id 1hgc6G-0002Mz-Jy; Thu, 27 Jun 2019 21:38:36 +0000
-Subject: Re: [PATCH v4 23/23] AppArmor: Remove the exclusive flag
+        id 1hgcJO-0003Tr-1S; Thu, 27 Jun 2019 21:52:10 +0000
+Subject: Re: [PATCH v4 00/23] LSM: Module stacking for AppArmor
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
 References: <20190626192234.11725-1-casey@schaufler-ca.com>
- <20190626192234.11725-24-casey@schaufler-ca.com>
 From:   John Johansen <john.johansen@canonical.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
@@ -76,12 +75,12 @@ Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  qJciYE8TGHkZw1hOku+4OoM2GB5nEDlj+2TF/jLQ+EipX9PkPJYvxfRlC6dK8PKKfX9KdfmA
  IcgHfnV1jSn+8yH2djBPtKiqW0J69aIsyx7iV/03paPCjJh7Xq9vAzydN5U/UA==
 Organization: Canonical
-Message-ID: <0fb409ee-a070-0a4e-d0fb-9b84c1641b29@canonical.com>
-Date:   Thu, 27 Jun 2019 14:38:32 -0700
+Message-ID: <f5552cb8-1d6c-eb07-be4d-c85e0722c1fa@canonical.com>
+Date:   Thu, 27 Jun 2019 14:52:06 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.1
 MIME-Version: 1.0
-In-Reply-To: <20190626192234.11725-24-casey@schaufler-ca.com>
+In-Reply-To: <20190626192234.11725-1-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-GB
 Content-Transfer-Encoding: 7bit
@@ -91,68 +90,32 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 6/26/19 12:22 PM, Casey Schaufler wrote:
-> With the inclusion of the "display" process attribute
-> mechanism AppArmor no longer needs to be treated as an
-> "exclusive" security module. Remove the flag that indicates
-> it is exclusive. Remove the stub getpeersec_dgram AppArmor
-> hook as it has no effect in the single LSM case and
-> interferes in the multiple LSM case.
+> This patchset provides the changes required for
+> the AppArmor security module to stack safely with any other.
 > 
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+
+I have been doing some testing of this with Casey's suggested
+fix of clearing the lsmcontext in security_secid_to_secctx().
+
+So far things are looking good. I have done smoke testing
+on booting with the following combinations under an ubuntu
+image. For the combinations that have apparmor I ran the
+apparmor regression tests, where noted the display LSM
+was set for the apparmor regression tests because they
+are currently only testing the shared interface.
+
+capability
+yama
+capability,yama
+capability,yama,apparmor
+capability,yama,selinux (no selinux policy)
+capability,yama,apparmor,selinux (no selinux policy)
+capability,yama,selinux,apparmor (no selinux policy) (tests that use shared interfaces fail without display LSM set, pass with it set to apparmor)
+capability,yama,smack (no smack policy)
+capability,yama,apparmor,smack (no smack policy)
+capability,yama,smack,apparmor (no smack policy) (tests that use shared interfaces fail without display LSM set, pass with it set to apparmor)
 
 
-Reviewed-by: John Johansen <john.johansen@canonical.com>
+I have more test combinations churning but figure I could report what I have so far
 
-
-
-> ---
->  security/apparmor/lsm.c | 20 +-------------------
->  1 file changed, 1 insertion(+), 19 deletions(-)
-> 
-> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-> index 6d2eefc9b7c1..fb5798683ae1 100644
-> --- a/security/apparmor/lsm.c
-> +++ b/security/apparmor/lsm.c
-> @@ -1079,22 +1079,6 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
->  	return error;
->  }
->  
-> -/**
-> - * apparmor_socket_getpeersec_dgram - get security label of packet
-> - * @sock: the peer socket
-> - * @skb: packet data
-> - * @secid: pointer to where to put the secid of the packet
-> - *
-> - * Sets the netlabel socket state on sk from parent
-> - */
-> -static int apparmor_socket_getpeersec_dgram(struct socket *sock,
-> -					    struct sk_buff *skb, u32 *secid)
-> -
-> -{
-> -	/* TODO: requires secid support */
-> -	return -ENOPROTOOPT;
-> -}
-> -
->  /**
->   * apparmor_sock_graft - Initialize newly created socket
->   * @sk: child sock
-> @@ -1195,8 +1179,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
->  #endif
->  	LSM_HOOK_INIT(socket_getpeersec_stream,
->  		      apparmor_socket_getpeersec_stream),
-> -	LSM_HOOK_INIT(socket_getpeersec_dgram,
-> -		      apparmor_socket_getpeersec_dgram),
->  	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
->  #ifdef CONFIG_NETWORK_SECMARK
->  	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
-> @@ -1707,7 +1689,7 @@ static int __init apparmor_init(void)
->  
->  DEFINE_LSM(apparmor) = {
->  	.name = "apparmor",
-> -	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
-> +	.flags = LSM_FLAG_LEGACY_MAJOR,
->  	.enabled = &apparmor_enabled,
->  	.blobs = &apparmor_blob_sizes,
->  	.init = apparmor_init,
-> 
 
