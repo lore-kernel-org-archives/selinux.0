@@ -2,73 +2,79 @@ Return-Path: <SRS0=45Fk=U4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66964C4321A
-	for <selinux@archiver.kernel.org>; Sat, 29 Jun 2019 01:01:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8CCDC5B578
+	for <selinux@archiver.kernel.org>; Sat, 29 Jun 2019 01:16:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1993B2083B
-	for <selinux@archiver.kernel.org>; Sat, 29 Jun 2019 01:01:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 770172086D
+	for <selinux@archiver.kernel.org>; Sat, 29 Jun 2019 01:16:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XnYas++G"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DVETekdA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726711AbfF2BBP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Jun 2019 21:01:15 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:45461 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726682AbfF2BBP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jun 2019 21:01:15 -0400
-Received: by mail-io1-f65.google.com with SMTP id e3so16224706ioc.12;
-        Fri, 28 Jun 2019 18:01:14 -0700 (PDT)
+        id S1726956AbfF2BQM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Jun 2019 21:16:12 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:35487 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726884AbfF2BQL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Jun 2019 21:16:11 -0400
+Received: by mail-io1-f66.google.com with SMTP id m24so16385042ioo.2;
+        Fri, 28 Jun 2019 18:16:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=jIYnXKb+EQS2Suhb5zeUtaC0B5zlTv2T7Ej1weHxMbE=;
-        b=XnYas++GrpApkSoIPqg2bc4g0JuGkHxPJ/3d+/2SxiVqSRlAhg6ap4ZLBMMQ8XFCHr
-         6KSFpNfiLH6Mimd6j5zR+LEFXWOOfzbadPMzerIUJWOLvtnw/unD8AgR9CkKhaH3ts3s
-         DIckBSQ6w5idTZBmVm2Yl6PQIPaoH1P915EjP/UF8AC03yz4yoFIpMo6/bTvtImHZeRc
-         txjD1VWc7FZrJWzYmEm31YX1jeTwzkXKNNcxOXZKw1hcOTSk6W3ij3F/3FabssjQRYpZ
-         Kt2aUvAd4KOed+2Wup6ae41A+bRsrpzl3hakmhaPu/MEbI1YYHIq3a3fI47O+lSi1KzT
-         GENA==
+         :cc:content-transfer-encoding;
+        bh=qRwEW4To+9Vet9WyMly39lecgpipf9b/EueO2sYjm1w=;
+        b=DVETekdASMfs54APu7zxBq6Si1VkIFmkWK+gEf9ZWHs2sxE9SH640E2MLy7macJjbD
+         DadtE4nlwk95jh0rJf496K8YsoQsPr+nGrEGeoO3NobdiG198KkWiq2Rd1/j1YyG39nS
+         tttL6oJox9A+PcYmz3pXplZekTb6j50UAFnB+P0UCHp5YisJ+KmqCJ3+8xqqLP9G+XWc
+         oUPsKgLf0clSs9W4929IxEBQcrBJejwUgu9KEcnHX2zyILDpVKotZjxdAosIANxEeCTV
+         FMlW/q5jfrkwQGhN4m4qRlqpDDMGwu3Wm/heHIfgcgI0NP5maAcX7MVGDl3yR5rNwWbF
+         006A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=jIYnXKb+EQS2Suhb5zeUtaC0B5zlTv2T7Ej1weHxMbE=;
-        b=qzU/U5ienrgeHmjWR5fajAFlL12BM7BouarUCFgUt/+NMTbYcbKzU7fYgw5/gkd/lR
-         SwSegmNqoxAQ1my+S0MYwEO38yqSg2umYZIkTki21vW0vVj5ypUYuJ+j0Moe+3XLXqoy
-         fs8Zn6pndDzGfXt9PqUXMQ1njlU27WgJRKN2ofrauxjn8/kTdL1LDzi51mkvntm0kImQ
-         uhnT3kJjSC74ijoGMSxLHSPi3zwxRCvnjl4Ot9SX7AEssIkpm8tQamwvwtdlOyeHh8rZ
-         dZJT2E3pmbA3Oh1D5i7WV/z+MNi3KAvHviGO6F53S2nuGHkdFhUq2tTB6L5oe01NsLYv
-         RTOg==
-X-Gm-Message-State: APjAAAXuk29bDLughHurZ1tYSzojrI7VqCLWHg+sE/SyQOxCZRj4hJ/N
-        EGHy33IlqQFXfo+xuCQxkWZHqUYlxfg0jTHoTxc=
-X-Google-Smtp-Source: APXvYqz6eL9raQrrwq0DWAnyAXTo2p+dCNuoeaGaySelipIdm7R6Nr8lVSvBbjiOntZJARIxwTYx+F9dCYiizw+rcBU=
-X-Received: by 2002:a02:4484:: with SMTP id o126mr15108045jaa.34.1561770073624;
- Fri, 28 Jun 2019 18:01:13 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=qRwEW4To+9Vet9WyMly39lecgpipf9b/EueO2sYjm1w=;
+        b=DDGmYj+1DxTZZRmE0kMzJxNSPUVgXWp1KxQ4djwFt1abRxE54zl3zOuYTXkCvjmU9+
+         58z23qgSDaZZ66Yi06dRUGkeZPId3sQ9DFQcEXaMageA04S2zBw9ai2iDOxDGh5sML0Z
+         0ZWD6SjrolHnJ5FBPYgPhbNt/XblkPXTfekrczoFY4gzpKWam7lkOl+tisw9jDbugk5F
+         H/4HHpiU7HYRu0zE+vKEYSyemKW6O0Ls4tRSHLnQga2KJRhUVSJI0wLPdBak5F32N4LF
+         c0HXDINLGI36e4m1YD0CvWy/AOQdIeuLs6cGPlpFQWUt+q3/ICTZYLEfeqdccx0Rp8m0
+         y5xA==
+X-Gm-Message-State: APjAAAUwc7f3UOotwFElLWkcCw1XZ90FCiB9ssXvmsDR6hTXdLY7f67k
+        eHsqce4oUgNjEGJ3rwue/YIi4lCmIt9+XzEqTvc=
+X-Google-Smtp-Source: APXvYqxR0UvmySPdpUIVdaiAuxcEHnu2QQTNWDyMMm2p6X9bFwKh22s+2y3+9nlVch+Z3kMtgFfsAVdW5GWIcsLNXcQ=
+X-Received: by 2002:a5d:9d97:: with SMTP id 23mr14593214ion.204.1561770969818;
+ Fri, 28 Jun 2019 18:16:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190626192234.11725-1-casey@schaufler-ca.com>
- <20190626192234.11725-16-casey@schaufler-ca.com> <89561452-86f9-fd9a-1390-0cd4bde1fd62@tycho.nsa.gov>
- <7944672e-a590-44a3-743a-48c1785a5464@schaufler-ca.com> <CAB9W1A1nwE7WBZqTe-GV8xNb83_B2ybV7cco++nfMjtDz9NJrg@mail.gmail.com>
-In-Reply-To: <CAB9W1A1nwE7WBZqTe-GV8xNb83_B2ybV7cco++nfMjtDz9NJrg@mail.gmail.com>
+References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
+ <20190619222401.14942-11-sean.j.christopherson@intel.com> <960B34DE67B9E140824F1DCDEC400C0F6551877E@ORSMSX116.amr.corp.intel.com>
+ <b36d6fd0-3135-e48d-ed84-d69853bd79f1@tycho.nsa.gov> <960B34DE67B9E140824F1DCDEC400C0F6551B824@ORSMSX116.amr.corp.intel.com>
+ <99499d1a-56eb-60b0-596c-6d24e38d4757@tycho.nsa.gov> <960B34DE67B9E140824F1DCDEC400C0F6551C422@ORSMSX116.amr.corp.intel.com>
+In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F6551C422@ORSMSX116.amr.corp.intel.com>
 From:   Stephen Smalley <stephen.smalley@gmail.com>
-Date:   Fri, 28 Jun 2019 21:01:01 -0400
-Message-ID: <CAB9W1A29fCn=cH_Mx-g-P6M-5t+832ayhMmjy3PFZ-BOL3BuDQ@mail.gmail.com>
-Subject: Fwd: [PATCH v4 15/23] LSM: Specify which LSM to display
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
+Date:   Fri, 28 Jun 2019 21:15:57 -0400
+Message-ID: <CAB9W1A1D=uDEdfSjS9DDNbThA1_HwATJN3=BcxZdXX5qMGHFrA@mail.gmail.com>
+Subject: Re: [RFC PATCH v4 10/12] security/selinux: Add enclave_load() implementation
+To:     "Xing, Cedric" <cedric.xing@intel.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        "Christopherson, Sean J" <sean.j.christopherson@intel.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
         "Schaufler, Casey" <casey.schaufler@intel.com>,
         James Morris <jmorris@namei.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        selinux@vger.kernel.org, keescook@chromium.org,
-        John Johansen <john.johansen@canonical.com>,
-        penguin-kernel@i-love.sakura.ne.jp,
-        Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Dr . Greg Wettstein" <greg@enjellic.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
@@ -76,383 +82,58 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jun 28, 2019 at 12:15 PM Casey Schaufler <casey@schaufler-ca.com> w=
-rote:
+On Fri, Jun 28, 2019 at 5:20 PM Xing, Cedric <cedric.xing@intel.com> wrote:
 >
-> On 6/28/2019 7:45 AM, Stephen Smalley wrote:
-> > On 6/26/19 3:22 PM, Casey Schaufler wrote:
-> >> Create a new entry "display" in /proc/.../attr for controlling
-> >> which LSM security information is displayed for a process.
-> >> The name of an active LSM that supplies hooks for human readable
-> >> data may be written to "display" to set the value. The name of
-> >> the LSM currently in use can be read from "display".
-> >> At this point there can only be one LSM capable of display
-> >> active.
+> > From: linux-sgx-owner@vger.kernel.org [mailto:linux-sgx-
+> > owner@vger.kernel.org] On Behalf Of Stephen Smalley
+> > Sent: Friday, June 28, 2019 9:17 AM
 > >
-> > IIUC, presently, at the end of the entire series,
-> >
-> > 1) Any process can change its display attribute to any enabled security=
- module, and no security module can veto that change.
+> > FWIW, adding new permissions only requires updating policy configuratio=
+n,
+> > not userspace code/tools.  But in any event, we can reuse the execute-
+> > related permissions if it makes sense but still consider introducing
+> > additional, new permissions, possibly in a separate "enclave" security
+> > class, if we want explicit control over enclave loading, e.g.
+> > ENCLAVE__LOAD, ENCLAVE__INIT, etc.
 >
-> That is correct. If a security module could hoard the display it
-> could prevent user space from functioning in a multiple module
-> environment.
+> I'm not so familiar with SELinux tools so my apology in advance if I end =
+up mixing up things.
 >
-> > 2) The display attribute is inherited across fork and exec, even execs =
-that change credentials, and again no security module has control over the =
-inheritance of this attribute.
->
-> Also correct. Scripts don't work otherwise.
+> I'm not only talking about the new permissions, but also how to apply the=
+m to enclave files. Intel SGX SDK packages enclaves as .so files, and I gue=
+ss that's the most straight forward way that most others would do. So if di=
+fferent permissions are defined, then user mode tools would have to disting=
+uish enclaves from regular .so files in order to grant them different permi=
+ssions. Would that be something extra to existing tools?
 
-It's a security hole waiting to happen. Unprivileged caller sets its
-display value to Smack on a mostly SELinux system that happens to
-enable Smack too, then exec's a credential-changing SELinux-aware
-program that uses one of the libselinux APIs to set one of the
-/proc/self/attr attributes to a different SELinux context. Due to the
-change in display, the SELinux-aware program instead ends up setting
-one of the Smack attributes and therefore the desired SELinux context
-is never applied to the process or file or socket or whatever.
-
->
-> >
-> > 3) Setting the display attribute affects more than just the contexts re=
-ad or written by the process itself:
-> > - Contexts reported in audit logs,
-> > - Contexts passed across binder (generated in sender context, delivered=
- to receiver),
-> > - Contexts passed to NFS servers for new files,
-> > - Contexts returned by NFS servers for existing files,
-> > - Netlink-related contexts (?possibly generated in sender context rathe=
-r than receiver context?),
-> > - This list may not be complete.
->
-> Any of which can be changed should a more rational behavior be proposed.
-> One possibility is to use lsm=3D'value',lsm=3D'value' encoding for intern=
-al
-> communications, but there's been considerable resistance to anything
-> like that.
-
-These are also security holes waiting to happen.  Processes can use it
-to hide their SELinux contexts from the audit logs, forge different
-SELinux contexts on binder IPC, forge file contexts to which they have
-no SELinux permissions on new files, ... All they need is stacking to
-be enabled and one other module that helpfully lets them set attribute
-values that look like SELinux contexts, and then they can set those
-and switch their display at the right time.
-
->
-> > 4) A security_secid_to_secctx() in one process' context (e.g. sender) o=
-r with one display value followed later by a security_secctx_to_secid() cal=
-l in a different process' context (e.g. receiver) or with a different displ=
-ay value may ask a different security module to perform the reverse transla=
-tion of the context than the forward translation.
->
-> Do you have an example of where this might happen?
-> Contexts are rarely used within the kernel. The usual
-> behavior is to generate them, send them out to user space,
-> and delete them. They get cached in some networking code,
-> but not in cases where more than one (existing) security
-> module will ever use them. Binder may be an exception, but
-> only SELinux (currently) supports binder.
-
-Haven't looked but I don't like the asymmetry of the interface.
-Doesn't matter that only SELinux supports binder if  you ever want any
-other security module other than SELinux enabled at the same time as
-SELinux.
-
->
->
-> > Is that correct?  If so, it seems problematic.
->
-> Balancing backward compatibility with new behavior is hard!
-> What would you suggest for audit logs? Should we put all LSM
-> data in every record? Is NFS a concern for anyone not using
-> SELinux?
-
-Yes to all on audit if stacking is going to be real.  And yes, I think
-other security modules will care about NFS if they are serious.
-
->
-> There is no user space that uses display, and it's going
-> to take some time to work out all the kinks before we even
-> think about teaching systemd about it.
-
-That doesn't make it acceptable to introduce a mechanism that weakens
-security now.
+It doesn't require any userspace code changes.  It is just a matter of
+defining some configuration data in the policy for the new
+permissions, one or more security labels (tags) for the SGX .so files,
+and rules allowing access where desired, and then setting those
+security labels on the SGX .so files (via the security.selinux
+extended attribute on the files).  Even the last part is generally
+handled by updating a configuration specifying how files should be
+labeled and then rpm automatically labels the files when created, or
+you can manually restorecon them. If the new permissions are defined
+in their own security class rather than reusing existing ones, then
+they can even be defined entirely via a local or third party policy
+module separate from the distro policy if desired/needed.
 
 >
 > >
-> >>
-> >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >> ---
-> >>   fs/proc/base.c      |   1 +
-> >>   security/security.c | 129 ++++++++++++++++++++++++++++++++++++++----=
---
-> >>   2 files changed, 113 insertions(+), 17 deletions(-)
-> >>
-> >> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> >> index ddef482f1334..7bf70e041315 100644
-> >> --- a/fs/proc/base.c
-> >> +++ b/fs/proc/base.c
-> >> @@ -2618,6 +2618,7 @@ static const struct pid_entry attr_dir_stuff[] =
-=3D {
-> >>       ATTR(NULL, "fscreate",        0666),
-> >>       ATTR(NULL, "keycreate",        0666),
-> >>       ATTR(NULL, "sockcreate",    0666),
-> >> +    ATTR(NULL, "display",        0666),
-> >>   #ifdef CONFIG_SECURITY_SMACK
-> >>       DIR("smack",            0555,
-> >>           proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
-> >> diff --git a/security/security.c b/security/security.c
-> >> index 3180a6f30625..82e29c477fa4 100644
-> >> --- a/security/security.c
-> >> +++ b/security/security.c
-> >> @@ -46,7 +46,9 @@ static struct kmem_cache *lsm_file_cache;
-> >>   static struct kmem_cache *lsm_inode_cache;
-> >>     char *lsm_names;
-> >> -static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init;
-> >> +static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init =3D {
-> >> +    .lbs_task =3D sizeof(int),    /* slot number for the "display" LS=
-M */
-> >> +};
-> >>     /* Boot-time LSM user choice */
-> >>   static __initdata const char *chosen_lsm_order;
-> >> @@ -423,8 +425,10 @@ static int lsm_append(const char *new, char **res=
-ult)
-> >>     /*
-> >>    * Current index to use while initializing the lsmblob secid list.
-> >> + * Pointers to the LSM id structures for local use.
-> >>    */
-> >>   static int lsm_slot;
-> >> +static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES];
-> >>     /**
-> >>    * security_add_hooks - Add a modules hooks to the hook lists.
-> >> @@ -444,6 +448,7 @@ void __init security_add_hooks(struct security_hoo=
-k_list *hooks, int count,
-> >>       if (lsmid->slot =3D=3D LSMBLOB_NEEDED) {
-> >>           if (lsm_slot >=3D LSMBLOB_ENTRIES)
-> >>               panic("%s Too many LSMs registered.\n", __func__);
-> >> +        lsm_slotlist[lsm_slot] =3D lsmid;
-> >>           lsmid->slot =3D lsm_slot++;
-> >>           init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
-> >>                  lsmid->slot);
-> >> @@ -564,6 +569,8 @@ int lsm_inode_alloc(struct inode *inode)
-> >>    */
-> >>   static int lsm_task_alloc(struct task_struct *task)
-> >>   {
-> >> +    int *display;
-> >> +
-> >>       if (blob_sizes.lbs_task =3D=3D 0) {
-> >>           task->security =3D NULL;
-> >>           return 0;
-> >> @@ -572,6 +579,15 @@ static int lsm_task_alloc(struct task_struct *tas=
-k)
-> >>       task->security =3D kzalloc(blob_sizes.lbs_task, GFP_KERNEL);
-> >>       if (task->security =3D=3D NULL)
-> >>           return -ENOMEM;
-> >> +
-> >> +    /*
-> >> +     * The start of the task blob contains the "display" LSM slot num=
-ber.
-> >> +     * Start with it set to the invalid slot number, indicating that =
-the
-> >> +     * default first registered LSM be displayed.
-> >> +     */
-> >> +    display =3D task->security;
-> >> +    *display =3D LSMBLOB_INVALID;
-> >> +
-> >>       return 0;
-> >>   }
-> >>   @@ -1563,14 +1579,24 @@ int security_file_open(struct file *file)
-> >>     int security_task_alloc(struct task_struct *task, unsigned long cl=
-one_flags)
-> >>   {
-> >> +    int *odisplay =3D current->security;
-> >> +    int *ndisplay;
-> >>       int rc =3D lsm_task_alloc(task);
-> >>   -    if (rc)
-> >> +    if (unlikely(rc))
-> >>           return rc;
-> >> +
-> >>       rc =3D call_int_hook(task_alloc, 0, task, clone_flags);
-> >> -    if (unlikely(rc))
-> >> +    if (unlikely(rc)) {
-> >>           security_task_free(task);
-> >> -    return rc;
-> >> +        return rc;
-> >> +    }
-> >> +
-> >> +    ndisplay =3D task->security;
-> >> +    if (ndisplay && odisplay)
-> >> +        *ndisplay =3D *odisplay;
-> >> +
-> >> +    return 0;
-> >>   }
-> >>     void security_task_free(struct task_struct *task)
-> >> @@ -1967,10 +1993,29 @@ int security_getprocattr(struct task_struct *p=
-, const char *lsm, char *name,
-> >>                   char **value)
-> >>   {
-> >>       struct security_hook_list *hp;
-> >> +    int *display =3D current->security;
-> >> +    int slot =3D 0;
-> >> +
-> >> +    if (!strcmp(name, "display")) {
-> >> +        /*
-> >> +         * lsm_slot will be 0 if there are no displaying modules.
-> >> +         */
-> >> +        if (lsm_slot =3D=3D 0)
-> >> +            return -EINVAL;
-> >> +        if (*display !=3D LSMBLOB_INVALID)
-> >> +            slot =3D *display;
-> >> +        *value =3D kstrdup(lsm_slotlist[slot]->lsm, GFP_KERNEL);
-> >> +        if (*value)
-> >> +            return strlen(*value);
-> >> +        return -ENOMEM;
-> >> +    }
-> >>         hlist_for_each_entry(hp, &security_hook_heads.getprocattr, lis=
-t) {
-> >>           if (lsm !=3D NULL && strcmp(lsm, hp->lsmid->lsm))
-> >>               continue;
-> >> +        if (lsm =3D=3D NULL && *display !=3D LSMBLOB_INVALID &&
-> >> +            *display !=3D hp->lsmid->slot)
-> >> +            continue;
-> >>           return hp->hook.getprocattr(p, name, value);
-> >>       }
-> >>       return -EINVAL;
-> >> @@ -1980,10 +2025,46 @@ int security_setprocattr(const char *lsm, cons=
-t char *name, void *value,
-> >>                size_t size)
-> >>   {
-> >>       struct security_hook_list *hp;
-> >> +    char *term;
-> >> +    char *cp;
-> >> +    int *display =3D current->security;
-> >> +    int rc =3D -EINVAL;
-> >> +    int slot =3D 0;
-> >> +
-> >> +    if (!strcmp(name, "display")) {
-> >> +        /*
-> >> +         * lsm_slot will be 0 if there are no displaying modules.
-> >> +         */
-> >> +        if (lsm_slot =3D=3D 0 || size =3D=3D 0)
-> >> +            return -EINVAL;
-> >> +        cp =3D kzalloc(size + 1, GFP_KERNEL);
-> >> +        if (cp =3D=3D NULL)
-> >> +            return -ENOMEM;
-> >> +        memcpy(cp, value, size);
-> >> +
-> >> +        term =3D strchr(cp, ' ');
-> >> +        if (term =3D=3D NULL)
-> >> +            term =3D strchr(cp, '\n');
-> >> +        if (term !=3D NULL)
-> >> +            *term =3D '\0';
-> >> +
-> >> +        for (slot =3D 0; slot < lsm_slot; slot++)
-> >> +            if (!strcmp(cp, lsm_slotlist[slot]->lsm)) {
-> >> +                *display =3D lsm_slotlist[slot]->slot;
-> >> +                rc =3D size;
-> >> +                break;
-> >> +            }
-> >> +
-> >> +        kfree(cp);
-> >> +        return rc;
-> >> +    }
-> >>         hlist_for_each_entry(hp, &security_hook_heads.setprocattr, lis=
-t) {
-> >>           if (lsm !=3D NULL && strcmp(lsm, hp->lsmid->lsm))
-> >>               continue;
-> >> +        if (lsm =3D=3D NULL && *display !=3D LSMBLOB_INVALID &&
-> >> +            *display !=3D hp->lsmid->slot)
-> >> +            continue;
-> >>           return hp->hook.setprocattr(name, value, size);
-> >>       }
-> >>       return -EINVAL;
-> >> @@ -2003,15 +2084,15 @@ EXPORT_SYMBOL(security_ismaclabel);
-> >>   int security_secid_to_secctx(struct lsmblob *blob, char **secdata, u=
-32 *seclen)
-> >>   {
-> >>       struct security_hook_list *hp;
-> >> -    int rc;
-> >> +    int *display =3D current->security;
-> >>         hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx,=
- list) {
-> >>           if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >=3D lsm_=
-slot))
-> >>               continue;
-> >> -        rc =3D hp->hook.secid_to_secctx(blob->secid[hp->lsmid->slot],
-> >> -                          secdata, seclen);
-> >> -        if (rc !=3D 0)
-> >> -            return rc;
-> >> +        if (*display =3D=3D LSMBLOB_INVALID || *display =3D=3D hp->ls=
-mid->slot)
-> >> +            return hp->hook.secid_to_secctx(
-> >> +                    blob->secid[hp->lsmid->slot],
-> >> +                    secdata, seclen);
-> >>       }
-> >>       return 0;
-> >>   }
-> >> @@ -2021,16 +2102,15 @@ int security_secctx_to_secid(const char *secda=
-ta, u32 seclen,
-> >>                    struct lsmblob *blob)
-> >>   {
-> >>       struct security_hook_list *hp;
-> >> -    int rc;
-> >> +    int *display =3D current->security;
-> >>         lsmblob_init(blob, 0);
-> >>       hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, l=
-ist) {
-> >>           if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >=3D lsm_=
-slot))
-> >>               continue;
-> >> -        rc =3D hp->hook.secctx_to_secid(secdata, seclen,
-> >> -                          &blob->secid[hp->lsmid->slot]);
-> >> -        if (rc !=3D 0)
-> >> -            return rc;
-> >> +        if (*display =3D=3D LSMBLOB_INVALID || *display =3D=3D hp->ls=
-mid->slot)
-> >> +            return hp->hook.secctx_to_secid(secdata, seclen,
-> >> +                        &blob->secid[hp->lsmid->slot]);
-> >>       }
-> >>       return 0;
-> >>   }
-> >> @@ -2038,7 +2118,15 @@ EXPORT_SYMBOL(security_secctx_to_secid);
-> >>     void security_release_secctx(char *secdata, u32 seclen)
-> >>   {
-> >> -    call_void_hook(release_secctx, secdata, seclen);
-> >> +    struct security_hook_list *hp;
-> >> +    int *display =3D current->security;
-> >> +
-> >> +    hlist_for_each_entry(hp, &security_hook_heads.release_secctx, lis=
-t)
-> >> +        if (*display =3D=3D LSMBLOB_INVALID ||
-> >> +            *display =3D=3D hp->lsmid->slot) {
-> >> +            hp->hook.release_secctx(secdata, seclen);
-> >> +            return;
-> >> +        }
-> >>   }
-> >>   EXPORT_SYMBOL(security_release_secctx);
-> >>   @@ -2163,8 +2251,15 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
-> >>   int security_socket_getpeersec_stream(struct socket *sock, char __us=
-er *optval,
-> >>                         int __user *optlen, unsigned len)
-> >>   {
-> >> -    return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock=
-,
-> >> -                optval, optlen, len);
-> >> +    int *display =3D current->security;
-> >> +    struct security_hook_list *hp;
-> >> +
-> >> +    hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_s=
-tream,
-> >> +                 list)
-> >> +        if (*display =3D=3D LSMBLOB_INVALID || *display =3D=3D hp->ls=
-mid->slot)
-> >> +            return hp->hook.socket_getpeersec_stream(sock, optval,
-> >> +                                 optlen, len);
-> >> +    return -ENOPROTOOPT;
-> >>   }
-> >>     int security_socket_getpeersec_dgram(struct socket *sock, struct s=
-k_buff *skb,
-> >>
-> >
+> > One residual concern I have with the reuse of FILE__EXECUTE is using it
+> > for the sigstruct file as the fallback case.  If the sigstruct is alway=
+s
+> > part of the same file as the code, then it probably doesn't matter.  Bu=
+t
+> > otherwise, it is somewhat odd to have to allow the host process to
+> > execute from the sigstruct file if it is only data (the signature).
+>
+> I agree with you. But do you think it a practical problem today? As far a=
+s I know, no one is deploying sigstructs in dedicated files. I'm just tryin=
+g to touch as few things as possible until there's definitely a need to do =
+so.
+
+I don't know, and it wasn't clear to me from the earlier discussions.
+If not and if it is acceptable to require them to be in files in the
+first place, then perhaps it isn't necessary.
