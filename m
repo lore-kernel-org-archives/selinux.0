@@ -6,86 +6,122 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34CFCC06513
-	for <selinux@archiver.kernel.org>; Tue,  2 Jul 2019 12:09:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C5CAC06510
+	for <selinux@archiver.kernel.org>; Tue,  2 Jul 2019 12:09:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0EFBF2146F
-	for <selinux@archiver.kernel.org>; Tue,  2 Jul 2019 12:09:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 299952146F
+	for <selinux@archiver.kernel.org>; Tue,  2 Jul 2019 12:09:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725972AbfGBMJX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Jul 2019 08:09:23 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:50008 "EHLO mx1.redhat.com"
+        id S1726341AbfGBMJ3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Jul 2019 08:09:29 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60218 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725835AbfGBMJX (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 2 Jul 2019 08:09:23 -0400
+        id S1725835AbfGBMJ3 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 2 Jul 2019 08:09:29 -0400
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 8A278C1EB21A
-        for <selinux@vger.kernel.org>; Tue,  2 Jul 2019 12:09:23 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 8F7943082E53
+        for <selinux@vger.kernel.org>; Tue,  2 Jul 2019 12:09:29 +0000 (UTC)
 Received: from localhost.localdomain.com (unknown [10.43.12.184])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0EA60BA48
-        for <selinux@vger.kernel.org>; Tue,  2 Jul 2019 12:09:22 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 15F9C60C44
+        for <selinux@vger.kernel.org>; Tue,  2 Jul 2019 12:09:28 +0000 (UTC)
 From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 1/2] Revert "mcstransd select correct colour range."
-Date:   Tue,  2 Jul 2019 14:09:04 +0200
-Message-Id: <20190702120905.9808-1-vmojzis@redhat.com>
+Subject: [PATCH 2/2] Fix mcstrans secolor examples
+Date:   Tue,  2 Jul 2019 14:09:05 +0200
+Message-Id: <20190702120905.9808-2-vmojzis@redhat.com>
+In-Reply-To: <20190702120905.9808-1-vmojzis@redhat.com>
+References: <20190702120905.9808-1-vmojzis@redhat.com>
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Tue, 02 Jul 2019 12:09:23 +0000 (UTC)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Tue, 02 Jul 2019 12:09:29 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This reverts commit fe17b3d2d924018750386c5ee74f12ca4b054136.
+According to "check_dominance" function:
+Range defined as "s15:c0.c1023" does not dominate any other range than
+ "s15:c0.c1023" (does not dominate "s15", "s15:c0.c200", etc.).
+While range defined as "s15-s15:c0.c1023" dominates all of the above.
 
-MLS ranges should be compared based on dominance.
-
-This fixes mlscolor-test on mcstrans examples.
-
-Eg. mlscolor-test using /usr/share/mcstrans/examples/urcsts when executed on mls
-machine fails as follows:
-
-\#pushd /usr/share/mcstrans/examples/urcsts
-\#cp -f secolor.conf /etc/selinux/mls/secolor.conf
-\#cp -f setrans.conf /etc/selinux/mls/setrans.conf
-\#systemctl restart mcstransd
-\#python3 /usr/share/mcstrans/util/mlscolor-test urcsts.color
-For 'system_u:system_r:inetd_t:SystemLow' got
-	'#000000 #000000 #000000 #000000 #000000 #000000 #000000 #000000' expected
-	'#000000 #000000 #000000 #000000 #000000 #000000 #000000 #008000'
-...
-mlscolor-test done with 19 errors
+This is either a bug, or "s15:c0.c1023" should not be used in the
+examples.
 
 Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- mcstrans/src/mcscolor.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ libselinux/man/man5/secolor.conf.5                      | 4 ++--
+ libselinux/man/ru/man5/secolor.conf.5                   | 4 ++--
+ mcstrans/share/examples/urcsts-via-include/secolor.conf | 2 +-
+ mcstrans/share/examples/urcsts/secolor.conf             | 2 +-
+ 4 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/mcstrans/src/mcscolor.c b/mcstrans/src/mcscolor.c
-index 6ea1aa97..d597e0df 100644
---- a/mcstrans/src/mcscolor.c
-+++ b/mcstrans/src/mcscolor.c
-@@ -134,12 +134,12 @@ static const secolor_t *find_color(int idx, const char *component,
- 	}
+diff --git a/libselinux/man/man5/secolor.conf.5 b/libselinux/man/man5/secolor.conf.5
+index b834577a..a3bf2da1 100644
+--- a/libselinux/man/man5/secolor.conf.5
++++ b/libselinux/man/man5/secolor.conf.5
+@@ -123,7 +123,7 @@ range s7\-s7:c0.c1023 = black red
+ .br
+ range s9\-s9:c0.c1023 = black orange
+ .br
+-range s15:c0.c1023   = black yellow
++range s15\-s15:c0.c1023   = black yellow
+ .RE
  
- 	while (ptr) {
--		if (fnmatch(ptr->pattern, component, 0) == 0) {
--			if (idx == COLOR_RANGE) {
--			    if (check_dominance(ptr->pattern, raw) == 0)
--					return &ptr->color;
--			} else 
--				return &ptr->color;
-+		if (idx == COLOR_RANGE) {
-+		    if (check_dominance(ptr->pattern, raw) == 0)
-+			return &ptr->color;
-+		} else {
-+		    if (fnmatch(ptr->pattern, component, 0) == 0)
-+			return &ptr->color;
- 		}
- 		ptr = ptr->next;
- 	}
+ .sp
+@@ -165,7 +165,7 @@ type xguest_t     = black green
+ .br
+ user sysadm_u     = white black
+ .br
+-range s0:c0.c1023 = black white
++range s0-s0:c0.c1023 = black white
+ .br
+ user *            = black white
+ .br
+diff --git a/libselinux/man/ru/man5/secolor.conf.5 b/libselinux/man/ru/man5/secolor.conf.5
+index 4c1236ae..bcae80c1 100644
+--- a/libselinux/man/ru/man5/secolor.conf.5
++++ b/libselinux/man/ru/man5/secolor.conf.5
+@@ -121,7 +121,7 @@ range s7\-s7:c0.c1023 = black red
+ .br
+ range s9\-s9:c0.c1023 = black orange
+ .br
+-range s15:c0.c1023   = black yellow
++range s15\-s15:c0.c1023   = black yellow
+ .RE
+ 
+ .sp
+@@ -163,7 +163,7 @@ type xguest_t     = black green
+ .br
+ user sysadm_u     = white black
+ .br
+-range s0:c0.c1023 = black white
++range s0\-s0:c0.c1023 = black white
+ .br
+ user *            = black white
+ .br
+diff --git a/mcstrans/share/examples/urcsts-via-include/secolor.conf b/mcstrans/share/examples/urcsts-via-include/secolor.conf
+index d35b3c67..3b3f5430 100644
+--- a/mcstrans/share/examples/urcsts-via-include/secolor.conf
++++ b/mcstrans/share/examples/urcsts-via-include/secolor.conf
+@@ -17,5 +17,5 @@ range s3-s3:c0.c1023 = black tan
+ range s5-s5:c0.c1023 = white blue
+ range s7-s7:c0.c1023 = black red
+ range s9-s9:c0.c1023 = black orange
+-range s15:c0.c1023 = black yellow
++range s15-s15:c0.c1023 = black yellow
+ 
+diff --git a/mcstrans/share/examples/urcsts/secolor.conf b/mcstrans/share/examples/urcsts/secolor.conf
+index d35b3c67..3b3f5430 100644
+--- a/mcstrans/share/examples/urcsts/secolor.conf
++++ b/mcstrans/share/examples/urcsts/secolor.conf
+@@ -17,5 +17,5 @@ range s3-s3:c0.c1023 = black tan
+ range s5-s5:c0.c1023 = white blue
+ range s7-s7:c0.c1023 = black red
+ range s9-s9:c0.c1023 = black orange
+-range s15:c0.c1023 = black yellow
++range s15-s15:c0.c1023 = black yellow
+ 
 -- 
 2.17.2
 
