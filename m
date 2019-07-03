@@ -2,229 +2,565 @@ Return-Path: <SRS0=dBUy=VA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BF00C06513
-	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 15:32:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0F9EC5B578
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 21:25:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3B663218A0
-	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 15:32:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9D89521882
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 21:25:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="jhXOAUCU"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="A/KASkKc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726690AbfGCPcQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Jul 2019 11:32:16 -0400
-Received: from sonic303-27.consmr.mail.ne1.yahoo.com ([66.163.188.153]:45006
-        "EHLO sonic303-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726574AbfGCPcQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 Jul 2019 11:32:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1562167934; bh=gPn3VR+vKmnih+Fq7XlDCGPdcyZngRl1EEGOKVxMZus=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=jhXOAUCUmoNICFnimugBLOaeA46nbwjG62DYNnz8HUKT9Hh9+HH21Tnr1w6CD/Ubsdi5Uo5Ds61SZnn1ly533xBNvBPlOXEO+8oxQbpfWo7RO6uaoHeG2vEvedBQsN99vhIIsQzaGxQxXwExd6kZ6sIFCSzkn3p89N+UirjJnSCc7UYiPMxmIHMlZyxPqnCNroSh9DHjEuzawOYt1lTHzhiCBySlBeA0mSH2/GIksDcxabxd+R4nofgXnjx7uBu9DLb8BP2j7t7msjXx3aLlnfz1vXui1lDsaNM+x36a2nu+6uXmFXH4QEnLbw+3aWTJPYV4NhcfDX0gwtBA9i+IJg==
-X-YMail-OSG: QRBsUiwVM1mI4u5qvdJRjoB68UCarYbPNDRQ_IKI5p2VrmmxhQPKxAgM8ZH33le
- Hb.OovnLp.GoI1OlZEKhCBlxl8vMX4eiFjN9RdBisKdhRrLsakQIIgblo_bWwSRlXnbCKTmgy2Sh
- VPuNoGlrlbkcI5XDMPndKF71_4bEKwa57qebgsq2r1HrZb5OCnN14FV5Wy5XHpOx6qyT24EuUir.
- o2oLcT7hNv0OHiQ.YiX8nAGupmoqFF1qpslpTt9caKEqU1JH0tMWf2F5nrE1tHizi8L.j6oGW19C
- 9hSwryhN1m94l1aDGM7kIl1.MmZq6Jpq0f3wlx.ryxIBeBjtsOqw.ptGyMnUE.rR5Fk4_m6oxpuL
- rV4ufU.lPD.SrYASMeCfZ_EGJs698NLHDVumYSa7guC2mnJ7jpgKsi0evwOiP4c6f3JN8NFulfJ5
- ia_6ulzxa9IEYHmhUWC3Nc09SMknO6KT_htl27avoyIgDiAyMDDMbNx7teTF7_lqTOF3M50FfXvJ
- Slop63ZnEFSsaPVsHsGyD5XUYGRz41I486ziSJiavC.xanDMx4JhyADR1hkYegtY43oRdAi.h9zu
- jBJdSe6HjoEAeYPy5U7mpZRdzD5p4jYq2S7EALT35FwRg58q0uPA3u5Na9zPAcF4PmuxMVfnovRo
- bmboAfDWQSNYud_jSf0zqSywNiazXjJPCIUxkAYmX2CBRsHU4K2s7WJckOKYqYOtDG24ozZnlEbc
- fC26G3k3oRgAaIvec6dDWSQfui6DnCAWehyHdWyag3YHNJ0yajbafdBYnnkBrKOCEVriPY3V3R2x
- vaThyWE3dloO.F2ADL.joo913jHenCwC_zc8FV2KUkNGqk.mAB1XHnreHZbZ70ZeR8Svu082vttg
- IiIjTTG7y4wRIbrRyVXdjtMx_hFesjt9Sc0stQ4JKIGb1z5QNdQ9sYp3RSiycvc2Bpber3pbSAt5
- 6o.TFyS4y3lBmyWE6GnS.sREnAjyS.TxIj_f4AGVC3Rd2VfrSb9lAY8MAVhwF1j50PJw.TJDg4Cu
- LezzwfllxPTOB333Ex9akeLUMSDJiYlD4Tfd_o3.eC9luIDZQ_6z8y6bRv6bsmkAsjIS6IP.QHju
- j_0S3OBho2lVfS97Qh99dYy4NyiFV0G7p_nUall_gem2o2IbQfwTXTjIvopKrrQtCX9Zk8CDGf5i
- H5Fhd.0EO5_qUPffqkPyXcI5hJl1dj2oGB5tpICt_o2cJ36GKW3djc_j4JMeJS8J7Ve5Pqym9B_A
- T.vJC94CEc0nROtoyqB8n5LO0v0MOIW4Xkg--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Wed, 3 Jul 2019 15:32:14 +0000
-Received: by smtp403.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 98fcc1d7930538352537f158c9267fc3;
-          Wed, 03 Jul 2019 15:32:11 +0000 (UTC)
-Subject: Re: [RFC PATCH v2 1/3] x86/sgx: Add SGX specific LSM hooks
-To:     "Dr. Greg" <greg@enjellic.com>, casey@schaufler-ca.com
-Cc:     "Xing, Cedric" <cedric.xing@intel.com>,
-        Stephen Smalley <stephen.smalley@gmail.com>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "jethro@fortanix.com" <jethro@fortanix.com>,
-        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
-        "jarkko.sakkinen@linux.intel.com" <jarkko.sakkinen@linux.intel.com>,
-        "Christopherson, Sean J" <sean.j.christopherson@intel.com>
-References: <960B34DE67B9E140824F1DCDEC400C0F6551B975@ORSMSX116.amr.corp.intel.com>
- <f6f16990-0291-c530-61dd-dcd26525285c@schaufler-ca.com>
- <CAB9W1A1RpM_9D_49E1VauuKE1tL=TyfeATomv47HX4FONnjA4A@mail.gmail.com>
- <18833f2e-9d18-1f39-6bc5-9242910ab25c@schaufler-ca.com>
- <960B34DE67B9E140824F1DCDEC400C0F6551D585@ORSMSX116.amr.corp.intel.com>
- <f59529e4-6cc8-2405-d7db-2519727f9a80@schaufler-ca.com>
- <960B34DE67B9E140824F1DCDEC400C0F6551D7F7@ORSMSX116.amr.corp.intel.com>
- <63c92ab6-dc8d-826b-b8bf-05ad262f06e4@schaufler-ca.com>
- <960B34DE67B9E140824F1DCDEC400C0F6551DBF7@ORSMSX116.amr.corp.intel.com>
- <9e45df1b-3aac-e851-4ef2-5b262f5139bd@schaufler-ca.com>
- <20190703094651.GA29601@wind.enjellic.com>
+        id S1727058AbfGCVZp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Jul 2019 17:25:45 -0400
+Received: from sonic316-13.consmr.mail.gq1.yahoo.com ([98.137.69.37]:46312
+        "EHLO sonic316-13.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726736AbfGCVZo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 Jul 2019 17:25:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1562189141; bh=TtO2nzJIQBSCQoTzcHeM4Y71S+gjhNW1YC/ivUODDTk=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=A/KASkKcBAzdh/cDJ0Q/m5S2ADjYf95ADl5IPNCT+uKx4D59Ji9ajtui61pMP3heLxPeeul+1FhwwnizCZg7G1vSZw2HULRIvj2aoj7pQx9Z4n8qLgjNbmgDf3l+86KqtI0hZCZvsQWB5aKnZJMgVEdG+gwT/de47n6aY7gEiSOallESzqRhJz4D26KPhzSu/bTnWZJ/s03pmfzeou+93sX1+wS79kWPscb95qhtzz/CZofXwxEzQzh8SsJWuYcCboMRWF/HFdON7EFNrUgtQsRndLvE8UgEIwNxqrgvSqRSA9GYsktWFmoAjrIf9XenigC/4s9FAxEDDOLbs3NLQA==
+X-YMail-OSG: t5QtWvYVM1m.aftW_8LSdi6580YzlhFPiQgy5LX577M4K4aNejMpZZvKUJaXCvy
+ B5r4RZKrrgGylfz_RTGydoPquV0NN3DzN360ydUReihNYJiGCIA_AuKYx76hLp2IaQqHnUiXXIQA
+ tktnYVtos.4Y2mj.w1X82iVr0k5OC7qH.8_qLnHfAdm5IdtLwkqMt4SG17isiZ4nAU4nB5VWsY6s
+ k1pQ70pFa2XNhBY8cY4vKIc7E.NK.qkMHkKr9BgsorS1FaLG35hXabNmom2GlL9MogtNrv1gRjmW
+ 2oWhJ41OfSIcBA3EkC4.KAtd870srpPKEdnqGjas7RNKcgxrNN2ImtLvM2CLEcLCCd8esWt8JRSj
+ tv6hz3Ew3Aa0aSkmuDTvQ4W.5bQfpa6RswVYbhShEWmXB.xUSv7e0cV0kk6FRZ44bjdW.Cg2XMnr
+ RQLYltgwreq3cJHs0BSCvqzIlF8R2nAoLo9dMMhAs50ps2WoUfZLpt1ar7eX1pzA2qMAvLpYYvsF
+ hzJrqfy72_pOkUPqLS27_YAyzVMDk2oX2JaLhG1qy0hRI0xZifu4zOMHM1JrQpN9yx90eIzTl72V
+ AXXwwlM2GOxoskSJIwvdX5s17aJdj9DiwNwMsw9L7170hQULEsx1cf5V8lMhCF3rY1Wksvmrp3F_
+ 5EWwrRqMIvvPID92SyAoKGSJ1T6GcJDjX6iNauWtJFyDZ3RU_Ml.IyKY1r2MSMtKnx1tLpzzcAB9
+ aulKjkk4vAKeCb2CJbPkqFSucTRch0O.0.OreHASp74AoPetpycpt_geMfG7xwzpCd8F4_kEJsBS
+ nUY.7D3drwR4UHtrdVDaiX39Y8uUH3y1EkeAHwTN3c42rTvXqWR2DRiBDRoUFbrYmwsSg0ZWgHU5
+ upu.9uivKcE1sby.oq9R5Vpr3bhSPBhLazAzqcXrR9JepJyM5u0UlV8_Np9rXTsCh0h0C_z21aSB
+ OWEmPMuTXG4KzTc2HZb88jeBUjM9lrLSJanFft5NiPvJKog8bwpzzeYOr3OQ__zLluYRhMEbvrWy
+ Mfw4wC7llDW98OHyvIOVBTIHD31Wx8Ywwu1sxXtec.hhZJCFeWJ8OfuHOs3sgZSrOap9MINYuKUM
+ fFyXjU1z6XdIf3QsQ_B8Z2iOkGrp2tFfZthfns5kRJCmRLXpZ_nIv_nH6v_x4wzvrL43zry5dsac
+ RhJrj5Jn3EucXCOQLeSzJt4nkBq20uSK9A1uFBWeQ8UdXGKIt4ngFnsudADSweADN35NYc2Dat2n
+ P70uVUwYHPt1rLrGAaTxzLqNej8J0GyE47mklp7pYOneLlMHGag--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.gq1.yahoo.com with HTTP; Wed, 3 Jul 2019 21:25:41 +0000
+Received: by smtp407.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 65d8826dfc020e8c34ff6376721f657c;
+          Wed, 03 Jul 2019 21:25:41 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <012fc47d-4e9d-3398-0d9d-d9298a758c8d@schaufler-ca.com>
-Date:   Wed, 3 Jul 2019 08:32:10 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.2
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: [PATCH v5 01/23] LSM: Infrastructure management of the superblock
+Date:   Wed,  3 Jul 2019 14:25:16 -0700
+Message-Id: <20190703212538.7383-2-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190703212538.7383-1-casey@schaufler-ca.com>
+References: <20190703212538.7383-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
-In-Reply-To: <20190703094651.GA29601@wind.enjellic.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/3/2019 2:46 AM, Dr. Greg wrote:
-> On Tue, Jul 02, 2019 at 08:44:40AM -0700, Casey Schaufler wrote:
->
-> Good morning, I hope this note finds the week going well for everyone.
->
->> On 7/2/2019 12:42 AM, Xing, Cedric wrote:
->>> ...
->>> Guess this discussion will never end if we don't get into
->>> code. Guess it'd be more productive to talk over phone then come back=
+Move management of the superblock->sb_security blob out
+of the individual security modules and into the security
+infrastructure. Instead of allocating the blobs from within
+the modules the modules tell the infrastructure how much
+space is required, and the space is allocated there.
 
->>> to this thread with a conclusion. Will that be ok with you?
->> I don't think that a phone call is going to help. Talking code
->> issues tends to muddle them in my brain. If you can give me a few
->> days I will propose a rough version of how I think your code should
->> be integrated into the LSM environment. I'm spending more time
->> trying (unsuccessfully :( ) to discribe the issues in English than
->> it will probably take in C.
-> While Casey is off writing his rosetta stone,
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ include/linux/lsm_hooks.h         |  1 +
+ security/security.c               | 46 ++++++++++++++++++++----
+ security/selinux/hooks.c          | 58 ++++++++++++-------------------
+ security/selinux/include/objsec.h |  6 ++++
+ security/selinux/ss/services.c    |  3 +-
+ security/smack/smack.h            |  6 ++++
+ security/smack/smack_lsm.c        | 35 +++++--------------
+ 7 files changed, 85 insertions(+), 70 deletions(-)
 
-I'd hardly call it that. More of an effort to round the
-corners on the square peg. And Cedric has some ideas on
-how to approach that.
-
-> let me suggest that the
-> most important thing we need to do is to take a little time, step back
-> and look at the big picture with respect to what we are trying to
-> accomplish and if we are going about it in a way that makes any sense
-> from an engineering perspective.
->
-> This conversation shouldn't be about SGX, it should be about the best
-> way for the kernel/LSM to discipline a Trusted Execution Environment
-> (TEE).  As I have noted previously, a TEE is a 'blackbox' that, by
-> design, is intended to allow execution of code and processing of data
-> in a manner that is resistant to manipulation or inspection by
-> untrusted userspace, the kernel and/or the hardware itself.
->
-> Given that fact, if we are to be intellectually honest, we need to ask
-> ourselves how effective we believe we can be in controlling any TEE
-> with kernel based mechanisms.  This is particularly the case if the
-> author of any code running in the TEE has adversarial intent.
->
-> Here is the list of controls that we believe an LSM can, effectively,
-> implement against a TEE:
->
-> 1.) Code provenance and origin.
->
-> 2.) Cryptographic verification of dynamically executable content.
->
-> 2.) The ability of a TEE to implement anonymous executable content.
->
-> If people are in agreement with this concept, it is difficult to
-> understand why we should be implementing complex state machines and
-> the like, whether it is in the driver or the LSM.  Security code has
-> to be measured with a metric of effectiveness, otherwise we are
-> engaging in security theater.
->
-> I believe that if we were using this lens, we would already have a
-> mainline SGX driver, since we seem to have most of the needed LSM
-> infrastructure and any additional functionality would be a straight
-> forward implementation.  Most importantly, the infrastructure would
-> not be SGX specific, which would seem to be a desirable political
-> concept.
-
-Generality introduced in the absence of multiple instances
-often results in unnecessary complexity, unused interfaces
-and feature compromise. Guessing what other TEE systems might
-do, and constraining SGX to those models (or the other way around)
-is a well established road to ruin. The LSM infrastructure is
-a fine example. For the first ten years the "general" mechanism
-had a single user. I'd say to hold off on the general until there
-is more experience with the specific. It's easier to construct
-a general mechanism around things that work than to fit things
-that need to work into some preconceived notion of generality.=20
-
->
-> If we are not willing to engage in this discussion we are going to end
-> up with a quasi-technology specific solution that isn't implementing
-> any relevant security guarantees.
->
-> FWIW, we wouldn't even be having this, now lengthy discussion, if I
-> wouldn't have aggressively advocated, starting last November, that an
-> SGX driver needed some form of execution control if there was a desire
-> for the technology to not pose a security risk to the platform.  So
-> humor me a little bit.... :-)
->
-> Best wishes for a productive remainder of the week to everyone.
->
-> Dr. Greg
->
-> As always,
-> Dr. Greg Wettstein, Ph.D, Worker
-> IDfusion, LLC
-> 4206 N. 19th Ave.           Implementing measured information privacy
-> Fargo, ND  58102            and integrity architectures.
-> PH: 701-281-1686
-> FAX: 701-281-3949           EMAIL: greg@idfusion.net
-> -----------------------------------------------------------------------=
--------
-> "... remember that innovation is saying 'no' to 1000 things."
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index a240a3fc5fc4..f9222a04968d 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2047,6 +2047,7 @@ struct lsm_blob_sizes {
+ 	int	lbs_cred;
+ 	int	lbs_file;
+ 	int	lbs_inode;
++	int	lbs_superblock;
+ 	int	lbs_ipc;
+ 	int	lbs_msg_msg;
+ 	int	lbs_task;
+diff --git a/security/security.c b/security/security.c
+index 23cbb1a295a3..86198e303203 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -172,6 +172,7 @@ static void __init lsm_set_blob_sizes(struct lsm_blob_sizes *needed)
+ 	lsm_set_blob_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
+ 	lsm_set_blob_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
+ 	lsm_set_blob_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
++	lsm_set_blob_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
+ 	lsm_set_blob_size(&needed->lbs_task, &blob_sizes.lbs_task);
+ }
+ 
+@@ -300,12 +301,13 @@ static void __init ordered_lsm_init(void)
+ 	for (lsm = ordered_lsms; *lsm; lsm++)
+ 		prepare_lsm(*lsm);
+ 
+-	init_debug("cred blob size     = %d\n", blob_sizes.lbs_cred);
+-	init_debug("file blob size     = %d\n", blob_sizes.lbs_file);
+-	init_debug("inode blob size    = %d\n", blob_sizes.lbs_inode);
+-	init_debug("ipc blob size      = %d\n", blob_sizes.lbs_ipc);
+-	init_debug("msg_msg blob size  = %d\n", blob_sizes.lbs_msg_msg);
+-	init_debug("task blob size     = %d\n", blob_sizes.lbs_task);
++	init_debug("cred blob size       = %d\n", blob_sizes.lbs_cred);
++	init_debug("file blob size       = %d\n", blob_sizes.lbs_file);
++	init_debug("inode blob size      = %d\n", blob_sizes.lbs_inode);
++	init_debug("ipc blob size        = %d\n", blob_sizes.lbs_ipc);
++	init_debug("msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
++	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
++	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
+ 
+ 	/*
+ 	 * Create any kmem_caches needed for blobs
+@@ -603,6 +605,27 @@ static void __init lsm_early_task(struct task_struct *task)
+ 		panic("%s: Early task alloc failed.\n", __func__);
+ }
+ 
++/**
++ * lsm_superblock_alloc - allocate a composite superblock blob
++ * @sb: the superblock that needs a blob
++ *
++ * Allocate the superblock blob for all the modules
++ *
++ * Returns 0, or -ENOMEM if memory can't be allocated.
++ */
++static int lsm_superblock_alloc(struct super_block *sb)
++{
++	if (blob_sizes.lbs_superblock == 0) {
++		sb->s_security = NULL;
++		return 0;
++	}
++
++	sb->s_security = kzalloc(blob_sizes.lbs_superblock, GFP_KERNEL);
++	if (sb->s_security == NULL)
++		return -ENOMEM;
++	return 0;
++}
++
+ /*
+  * Hook list operation macros.
+  *
+@@ -776,12 +799,21 @@ int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *
+ 
+ int security_sb_alloc(struct super_block *sb)
+ {
+-	return call_int_hook(sb_alloc_security, 0, sb);
++	int rc = lsm_superblock_alloc(sb);
++
++	if (unlikely(rc))
++		return rc;
++	rc = call_int_hook(sb_alloc_security, 0, sb);
++	if (unlikely(rc))
++		security_sb_free(sb);
++	return rc;
+ }
+ 
+ void security_sb_free(struct super_block *sb)
+ {
+ 	call_void_hook(sb_free_security, sb);
++	kfree(sb->s_security);
++	sb->s_security = NULL;
+ }
+ 
+ void security_free_mnt_opts(void **mnt_opts)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 1d0b37af2444..7478d8eda00a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -335,7 +335,7 @@ static void inode_free_security(struct inode *inode)
+ 
+ 	if (!isec)
+ 		return;
+-	sbsec = inode->i_sb->s_security;
++	sbsec = selinux_superblock(inode->i_sb);
+ 	/*
+ 	 * As not all inode security structures are in a list, we check for
+ 	 * empty list outside of the lock to make sure that we won't waste
+@@ -366,11 +366,7 @@ static int file_alloc_security(struct file *file)
+ 
+ static int superblock_alloc_security(struct super_block *sb)
+ {
+-	struct superblock_security_struct *sbsec;
+-
+-	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_KERNEL);
+-	if (!sbsec)
+-		return -ENOMEM;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 
+ 	mutex_init(&sbsec->lock);
+ 	INIT_LIST_HEAD(&sbsec->isec_head);
+@@ -379,18 +375,10 @@ static int superblock_alloc_security(struct super_block *sb)
+ 	sbsec->sid = SECINITSID_UNLABELED;
+ 	sbsec->def_sid = SECINITSID_FILE;
+ 	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+-	sb->s_security = sbsec;
+ 
+ 	return 0;
+ }
+ 
+-static void superblock_free_security(struct super_block *sb)
+-{
+-	struct superblock_security_struct *sbsec = sb->s_security;
+-	sb->s_security = NULL;
+-	kfree(sbsec);
+-}
+-
+ struct selinux_mnt_opts {
+ 	const char *fscontext, *context, *rootcontext, *defcontext;
+ };
+@@ -507,7 +495,7 @@ static int selinux_is_genfs_special_handling(struct super_block *sb)
+ 
+ static int selinux_is_sblabel_mnt(struct super_block *sb)
+ {
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 
+ 	/*
+ 	 * IMPORTANT: Double-check logic in this function when adding a new
+@@ -535,7 +523,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+ 
+ static int sb_finish_set_opts(struct super_block *sb)
+ {
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	struct dentry *root = sb->s_root;
+ 	struct inode *root_inode = d_backing_inode(root);
+ 	int rc = 0;
+@@ -648,7 +636,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ 				unsigned long *set_kern_flags)
+ {
+ 	const struct cred *cred = current_cred();
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	struct dentry *root = sbsec->sb->s_root;
+ 	struct selinux_mnt_opts *opts = mnt_opts;
+ 	struct inode_security_struct *root_isec;
+@@ -881,8 +869,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+ static int selinux_cmp_sb_context(const struct super_block *oldsb,
+ 				    const struct super_block *newsb)
+ {
+-	struct superblock_security_struct *old = oldsb->s_security;
+-	struct superblock_security_struct *new = newsb->s_security;
++	struct superblock_security_struct *old = selinux_superblock(oldsb);
++	struct superblock_security_struct *new = selinux_superblock(newsb);
+ 	char oldflags = old->flags & SE_MNTMASK;
+ 	char newflags = new->flags & SE_MNTMASK;
+ 
+@@ -914,8 +902,9 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+ 					unsigned long *set_kern_flags)
+ {
+ 	int rc = 0;
+-	const struct superblock_security_struct *oldsbsec = oldsb->s_security;
+-	struct superblock_security_struct *newsbsec = newsb->s_security;
++	const struct superblock_security_struct *oldsbsec =
++						selinux_superblock(oldsb);
++	struct superblock_security_struct *newsbsec = selinux_superblock(newsb);
+ 
+ 	int set_fscontext =	(oldsbsec->flags & FSCONTEXT_MNT);
+ 	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
+@@ -1085,7 +1074,7 @@ static int show_sid(struct seq_file *m, u32 sid)
+ 
+ static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+ {
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	int rc;
+ 
+ 	if (!(sbsec->flags & SE_SBINITIALIZED))
+@@ -1377,7 +1366,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+ 	if (isec->sclass == SECCLASS_FILE)
+ 		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+ 
+-	sbsec = inode->i_sb->s_security;
++	sbsec = selinux_superblock(inode->i_sb);
+ 	if (!(sbsec->flags & SE_SBINITIALIZED)) {
+ 		/* Defer initialization until selinux_complete_init,
+ 		   after the initial policy is loaded and the security
+@@ -1767,7 +1756,8 @@ selinux_determine_inode_label(const struct task_security_struct *tsec,
+ 				 const struct qstr *name, u16 tclass,
+ 				 u32 *_new_isid)
+ {
+-	const struct superblock_security_struct *sbsec = dir->i_sb->s_security;
++	const struct superblock_security_struct *sbsec =
++						selinux_superblock(dir->i_sb);
+ 
+ 	if ((sbsec->flags & SE_SBINITIALIZED) &&
+ 	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
+@@ -1798,7 +1788,7 @@ static int may_create(struct inode *dir,
+ 	int rc;
+ 
+ 	dsec = inode_security(dir);
+-	sbsec = dir->i_sb->s_security;
++	sbsec = selinux_superblock(dir->i_sb);
+ 
+ 	sid = tsec->sid;
+ 
+@@ -1947,7 +1937,7 @@ static int superblock_has_perm(const struct cred *cred,
+ 	struct superblock_security_struct *sbsec;
+ 	u32 sid = cred_sid(cred);
+ 
+-	sbsec = sb->s_security;
++	sbsec = selinux_superblock(sb);
+ 	return avc_has_perm(&selinux_state,
+ 			    sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
+ }
+@@ -2578,11 +2568,6 @@ static int selinux_sb_alloc_security(struct super_block *sb)
+ 	return superblock_alloc_security(sb);
+ }
+ 
+-static void selinux_sb_free_security(struct super_block *sb)
+-{
+-	superblock_free_security(sb);
+-}
+-
+ static inline int opt_len(const char *s)
+ {
+ 	bool open_quote = false;
+@@ -2653,7 +2638,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+ static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
+ {
+ 	struct selinux_mnt_opts *opts = mnt_opts;
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	u32 sid;
+ 	int rc;
+ 
+@@ -2877,7 +2862,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 	int rc;
+ 	char *context;
+ 
+-	sbsec = dir->i_sb->s_security;
++	sbsec = selinux_superblock(dir->i_sb);
+ 
+ 	newsid = tsec->create_sid;
+ 
+@@ -3115,7 +3100,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
+ 	}
+ 
+-	sbsec = inode->i_sb->s_security;
++	sbsec = selinux_superblock(inode->i_sb);
+ 	if (!(sbsec->flags & SBLABEL_MNT))
+ 		return -EOPNOTSUPP;
+ 
+@@ -3296,13 +3281,14 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+ 				     const void *value, size_t size, int flags)
+ {
+ 	struct inode_security_struct *isec = inode_security_novalidate(inode);
+-	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
++	struct superblock_security_struct *sbsec;
+ 	u32 newsid;
+ 	int rc;
+ 
+ 	if (strcmp(name, XATTR_SELINUX_SUFFIX))
+ 		return -EOPNOTSUPP;
+ 
++	sbsec = selinux_superblock(inode->i_sb);
+ 	if (!(sbsec->flags & SBLABEL_MNT))
+ 		return -EOPNOTSUPP;
+ 
+@@ -6647,6 +6633,7 @@ struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
+ 	.lbs_inode = sizeof(struct inode_security_struct),
+ 	.lbs_ipc = sizeof(struct ipc_security_struct),
+ 	.lbs_msg_msg = sizeof(struct msg_security_struct),
++	.lbs_superblock = sizeof(struct superblock_security_struct),
+ };
+ 
+ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+@@ -6675,7 +6662,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
+ 
+ 	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
+-	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+ 	LSM_HOOK_INIT(sb_eat_lsm_opts, selinux_sb_eat_lsm_opts),
+ 	LSM_HOOK_INIT(sb_free_mnt_opts, selinux_free_mnt_opts),
+ 	LSM_HOOK_INIT(sb_remount, selinux_sb_remount),
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 231262d8eac9..d08d7e5d2f93 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -188,4 +188,10 @@ static inline struct ipc_security_struct *selinux_ipc(
+ 	return ipc->security + selinux_blob_sizes.lbs_ipc;
+ }
+ 
++static inline struct superblock_security_struct *selinux_superblock(
++					const struct super_block *superblock)
++{
++	return superblock->s_security + selinux_blob_sizes.lbs_superblock;
++}
++
+ #endif /* _SELINUX_OBJSEC_H_ */
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index ec62918521b1..e3f5d6aece66 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -50,6 +50,7 @@
+ #include <linux/audit.h>
+ #include <linux/mutex.h>
+ #include <linux/vmalloc.h>
++#include <linux/lsm_hooks.h>
+ #include <net/netlabel.h>
+ 
+ #include "flask.h"
+@@ -2751,7 +2752,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ 	struct sidtab *sidtab;
+ 	int rc = 0;
+ 	struct ocontext *c;
+-	struct superblock_security_struct *sbsec = sb->s_security;
++	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+ 	const char *fstype = sb->s_type->name;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+diff --git a/security/smack/smack.h b/security/smack/smack.h
+index cf52af77d15e..caecbcba9942 100644
+--- a/security/smack/smack.h
++++ b/security/smack/smack.h
+@@ -375,6 +375,12 @@ static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
+ 	return ipc->security + smack_blob_sizes.lbs_ipc;
+ }
+ 
++static inline struct superblock_smack *smack_superblock(
++					const struct super_block *superblock)
++{
++	return superblock->s_security + smack_blob_sizes.lbs_superblock;
++}
++
+ /*
+  * Is the directory transmuting?
+  */
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 5c1613519d5a..807eff2ccce9 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -540,12 +540,7 @@ static int smack_syslog(int typefrom_file)
+  */
+ static int smack_sb_alloc_security(struct super_block *sb)
+ {
+-	struct superblock_smack *sbsp;
+-
+-	sbsp = kzalloc(sizeof(struct superblock_smack), GFP_KERNEL);
+-
+-	if (sbsp == NULL)
+-		return -ENOMEM;
++	struct superblock_smack *sbsp = smack_superblock(sb);
+ 
+ 	sbsp->smk_root = &smack_known_floor;
+ 	sbsp->smk_default = &smack_known_floor;
+@@ -554,22 +549,10 @@ static int smack_sb_alloc_security(struct super_block *sb)
+ 	/*
+ 	 * SMK_SB_INITIALIZED will be zero from kzalloc.
+ 	 */
+-	sb->s_security = sbsp;
+ 
+ 	return 0;
+ }
+ 
+-/**
+- * smack_sb_free_security - free a superblock blob
+- * @sb: the superblock getting the blob
+- *
+- */
+-static void smack_sb_free_security(struct super_block *sb)
+-{
+-	kfree(sb->s_security);
+-	sb->s_security = NULL;
+-}
+-
+ struct smack_mnt_opts {
+ 	const char *fsdefault, *fsfloor, *fshat, *fsroot, *fstransmute;
+ };
+@@ -781,7 +764,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+ {
+ 	struct dentry *root = sb->s_root;
+ 	struct inode *inode = d_backing_inode(root);
+-	struct superblock_smack *sp = sb->s_security;
++	struct superblock_smack *sp = smack_superblock(sb);
+ 	struct inode_smack *isp;
+ 	struct smack_known *skp;
+ 	struct smack_mnt_opts *opts = mnt_opts;
+@@ -880,7 +863,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+  */
+ static int smack_sb_statfs(struct dentry *dentry)
+ {
+-	struct superblock_smack *sbp = dentry->d_sb->s_security;
++	struct superblock_smack *sbp = smack_superblock(dentry->d_sb);
+ 	int rc;
+ 	struct smk_audit_info ad;
+ 
+@@ -917,7 +900,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+ 	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
+ 		return 0;
+ 
+-	sbsp = inode->i_sb->s_security;
++	sbsp = smack_superblock(inode->i_sb);
+ 	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) &&
+ 	    isp->smk_task != sbsp->smk_root)
+ 		return 0;
+@@ -1168,7 +1151,7 @@ static int smack_inode_rename(struct inode *old_inode,
+  */
+ static int smack_inode_permission(struct inode *inode, int mask)
+ {
+-	struct superblock_smack *sbsp = inode->i_sb->s_security;
++	struct superblock_smack *sbsp = smack_superblock(inode->i_sb);
+ 	struct smk_audit_info ad;
+ 	int no_block = mask & MAY_NOT_BLOCK;
+ 	int rc;
+@@ -1410,7 +1393,7 @@ static int smack_inode_removexattr(struct dentry *dentry, const char *name)
+ 	 */
+ 	if (strcmp(name, XATTR_NAME_SMACK) == 0) {
+ 		struct super_block *sbp = dentry->d_sb;
+-		struct superblock_smack *sbsp = sbp->s_security;
++		struct superblock_smack *sbsp = smack_superblock(sbp);
+ 
+ 		isp->smk_inode = sbsp->smk_default;
+ 	} else if (strcmp(name, XATTR_NAME_SMACKEXEC) == 0)
+@@ -1680,7 +1663,7 @@ static int smack_mmap_file(struct file *file,
+ 	isp = smack_inode(file_inode(file));
+ 	if (isp->smk_mmap == NULL)
+ 		return 0;
+-	sbsp = file_inode(file)->i_sb->s_security;
++	sbsp = smack_superblock(file_inode(file)->i_sb);
+ 	if (sbsp->smk_flags & SMK_SB_UNTRUSTED &&
+ 	    isp->smk_mmap != sbsp->smk_root)
+ 		return -EACCES;
+@@ -3288,7 +3271,7 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+ 		goto unlockandout;
+ 
+ 	sbp = inode->i_sb;
+-	sbsp = sbp->s_security;
++	sbsp = smack_superblock(sbp);
+ 	/*
+ 	 * We're going to use the superblock default label
+ 	 * if there's no label on the file.
+@@ -4575,6 +4558,7 @@ struct lsm_blob_sizes smack_blob_sizes __lsm_ro_after_init = {
+ 	.lbs_inode = sizeof(struct inode_smack),
+ 	.lbs_ipc = sizeof(struct smack_known *),
+ 	.lbs_msg_msg = sizeof(struct smack_known *),
++	.lbs_superblock = sizeof(struct superblock_smack),
+ };
+ 
+ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+@@ -4586,7 +4570,6 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(fs_context_parse_param, smack_fs_context_parse_param),
+ 
+ 	LSM_HOOK_INIT(sb_alloc_security, smack_sb_alloc_security),
+-	LSM_HOOK_INIT(sb_free_security, smack_sb_free_security),
+ 	LSM_HOOK_INIT(sb_free_mnt_opts, smack_free_mnt_opts),
+ 	LSM_HOOK_INIT(sb_eat_lsm_opts, smack_sb_eat_lsm_opts),
+ 	LSM_HOOK_INIT(sb_statfs, smack_sb_statfs),
+-- 
+2.20.1
 
