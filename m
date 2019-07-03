@@ -4,54 +4,54 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D295C5B578
-	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 21:26:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDC84C5B578
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 21:26:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 20AF021882
-	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 21:26:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A709E21882
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 21:26:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="rMbG86OA"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="biwURfd6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727337AbfGCV00 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Jul 2019 17:26:26 -0400
-Received: from sonic303-28.consmr.mail.ne1.yahoo.com ([66.163.188.154]:38108
-        "EHLO sonic303-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727333AbfGCV00 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 3 Jul 2019 17:26:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1562189185; bh=zuSWKB404ZAMMTh/n9UvjOPBxvTgTNPjxbW+ClK4pe0=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=rMbG86OAv6pUIbnotHNhTMJgWQ6JzGKn/tI74siVXn5vvq/xROHvRJldogNlgMJS4zdxdg67gn0HAXKeCNgFXdzxWrOgNIWIbL0sm3Ljh8sOe7IZpKmeGiG3ySuxTm6bYF9I/YTi7S2oTE+qtivA4+MvKnyJoK5rYLnZxQqX6wm1Aqr5SQOKPy1MHwRDJXnrwtOjxVO6jEYSpwgmg+trurNz2yqyoo5yqEfs/mYGnKrtbohu98zk+IFL33zhik1NTWNfbrdpSXpB2VoecnINxJCknrlvzNQn5OjjrC1jvAPbusGM7aE8uyuZSr9/ntktc+OvTgoB+d+rXOO+aVzxzQ==
-X-YMail-OSG: UMIkxKkVM1m6t7SiSEG.VhGQSwrFJRvQzG20FtyR9qdBAmo.YyPxkGqs03vdJH4
- fB_Zue9D2J_DczvhQVucLDesPzPW8sA59GXF0K5IP2uQ2PitEIidok1lH2LdhYxTKgxbReyDt0J8
- B.6FpmtCd_1HdAKRJx7p1nh6H0UJqlx44JZW.2qjqK1f_Q1yUVPE5RKVLfR.2JHqu4VgOtPGQTf.
- u2CMdWpBJCb6XpvqyOGjnE7s0Y0naQqv54RbA5sYZdivRAVQHLpRLj09QdYNWl4sds3j28Q1xbJT
- s2nssp1hYZ2CvrrGA8puhC9A1G7R_.LCylHi4O_T0GMGDQYVlnwxWTObBbXH1LYF8.zvumFCnYrS
- X6NGDbHBZEDEncHWTDEJEVMdDmLXxZ___hof49KPwUB0aFZ7nQ15sO7dIWvb5NgNJRqNQ9maU_5h
- IuQyWHhdQ.gyWJZTOYsVDeqRoy3yVmTQeG7fNA5yCjEUfJdK5e4c5UJMbFHstartvd8yfK4dbhuc
- FFzB.gLjBCJXffmhQYHi7nQDPSpD9Kyvr3eSNHPYLe_mzu1t_VBnJAHO6PQwZVlD2eiqfv612Vuq
- iaD3VCD6X5Chk4WDN2PPFJ.OUqqwxL.uA24DXjbwRIgBxEAPy1XKioxpTpf88TcnqaRGvL9lf11.
- FLmcbgmyM02sy05MCEymKnHiARfbPzJuPKPgrA03OuCV34bc9kzw_QMZ9cPezdsMj6cENcE1c23p
- bkD0vEsHCR4HtY0VzjHWvrVpSc3hHMarZug.BxftizCak5ihhfhzeOfterZ6Eou9HMzRgZBIokqY
- YZQtlEcYeOV4273uTrdSuYMjzT1TIfHqLVNxJo_pYYp4_ASXgxsBvWuiA7nmOrk_Dyx5JL5LDPzx
- HIh1xf0AY0aG6nlt1U8Zl7fcJ9yV_WiZZqlPAykFn_wa6zwKwrkSbxU1_FNByzcpB8DXFRPTc3W.
- .KdPnnYcWSfWUIaruXCGjAGCTn3QigsqDuRB69bipntC7Op_pqXbY5RO9qi4W6VGn6HSSJJXhqHj
- N.k3lm20NdeJ6_dHfUkfPA6hprjgHGlgZW_2r9LPAEvEpfOpunkzWBHc1nkLS0GSOrjDPyeUpYxW
- 9bNzAqvpCC.PqpM6CN3NnhUMq98udAGdZuQf.ex4woKXIkxo2liKn0VybeNIGUDupRFiEWHJYf7F
- 9z7pKPUyWJY2R9LNSRk9C2YQFjXPyj8DXNziJhdQPX0Um.L_7Cb1Nbl699IRBsa2YCjLlWYHcNmO
- knIQtSrp9Gu1DbA0SgdgQ3LRDXDauO2ss_vB4qOtZCTD7dZDBymUu6Q--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Wed, 3 Jul 2019 21:26:25 +0000
-Received: by smtp420.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 2c078f1d0732da9907514b19d300052b;
-          Wed, 03 Jul 2019 21:26:22 +0000 (UTC)
+        id S1727345AbfGCV03 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Jul 2019 17:26:29 -0400
+Received: from sonic310-22.consmr.mail.bf2.yahoo.com ([74.6.135.196]:45519
+        "EHLO sonic310-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727326AbfGCV03 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 Jul 2019 17:26:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1562189187; bh=NX1Wm9mZ2rrFAh4r01JvGuFtS1Wfm+5+bHPs+vG06x4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=biwURfd6mfmUJsNkFW3kUJ/ZU+Mx1yzp9m6pLKFrSpG1npzzifTXbsk+915Kxd4LTSfW6+8UMrzylQ8zs3/qlrELvcStVhS4hMraPOFJYgpVUk9gMniPoUmBjI+nzk+UGfQ87J7hKIjbUbTpORUgN3V0YhZ9iVi656taUhbyczqftDW/D1lz+Ld/vfXBnfjody+iCQ1nE0Y4l0hneOx7Dv715p7YpAZZFSDAGtU7sa0Bjoa3nqBciGmR+kdVEKn6PHGw2xbeR0QSUszS4ZUXriJbPKtSfesLipSN8p08MfKOKogRqNysOot2k3XIwZpYt1FOZnCA7djSsaaSHA9xuw==
+X-YMail-OSG: i8MHiH4VM1luroodjbdEj4illAUt.0UzN3BSVV1XTQulMT_UntHseMdCX1iT.dD
+ YrstDXklHNS41XPwQBsbjqTr4XEwKa0ToCkRyDVzYzyHEwFznfzJy0sgZE8tghy6uYLwZ2hPmCby
+ mq6SwKbp1q5CGh3KQNB65wXJw1o2HVy9K5fV3xmseVSxVyeBqNdF.jLdFYJ_wbzrBDX2Y2vfg.X0
+ cw.5_84lGB5tjCKldagJ6O.RKX.zw7gMMbjW0hppAyDU1L7FENJxH4.36Rqbo_hMnwbRjHYBnsTZ
+ JqAMMHQd00QYBXt3AddOFDTMntSALn2meZyDH28pKhZt2pv83ixWkXroYH60WDZYXUJed9LYsC7y
+ 1BBklBcQoTCJ_ZJIbGHq0hOS4ZHnmLavxxOoCmQVsZsJnKW85Udsm9YvWUmHiBSStcpEIJ_8Kdwd
+ k7Jyc8Q3PbW37uhtJUKKAJ5n94.xdmtiY42bAd5cnauGkgx.L9X2Aui4BAVof_n4Hh50NvFjVxw4
+ xzaTMRWXrnIbqGdyEOK3htuU.6Oz3J23ym1htScrvous_LevwTV1wSv4ot3O2pNv5S747Hz8mRCH
+ uyoIdOjPIam1E6JzhWg3IlbsyCab34w3OPxTeDRpsle6nIoIjj6KhCQWtE6zDLP94cR4y7HqT8AK
+ sOItmP1Y19eK2LXDPLuV2tNK_Yz.13YtTagAns.5J0NPp0hYc9RmOehM7zJql3HJOUoS7zpjQa6f
+ ofYGaTWD4n4KYmiCoz2DvIW3PvL56f5ErdF_0vFylnKgCS80eGJDENWeB5LMkG.SwcMb.agzZdGY
+ zY_WJ2WCQQ6859Hms1ipDI7gmlHH1qaQt0tp4MSWgC3jAqSroXX65dOnc6OqGAqwTCz8hNNwZxD4
+ m7Mfgq0M2cZ6TttXRbYE8_yDmhp9.X9O2OEnniHBW7keEUwJWJdinL5oyO7RWLmRay4BU0QC6Vx7
+ BzUEY5ZwAu0xYsalbOV4pHv1EO51evFUXxY0NWWgdGsyD9eNCJcgRYp4cIPbMO9B.ROTZubfqYwT
+ 2sSGzQdxDS9sS1cK.u6OPh09xDx2LBc7gVAmkWxuLftIipTE.GNJ6Vd3Xqb30ussrZDKdr3BHIKx
+ M0IFcK.5r16L7m.yLRGGBlDWvrHQZvc2Q_dosXfQ.ffZGYYjvKJumefqDNXY3Vi8kNvpk_HSUQnO
+ Kls_Jto.zMtW4ojdGtJVhUTz1NSWLMpQcz9Fe67IPq61X3v6jI0xjFDDqtcLxXjo1tI0x7n5Qnd5
+ sslkhORiUhRaf8jWdd2jrCYJJ1vMizBBONNCW1ckBBHKY47ZGZscZ
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.bf2.yahoo.com with HTTP; Wed, 3 Jul 2019 21:26:27 +0000
+Received: by smtp421.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID dcee8b60478c08e91221837756b9c2c8;
+          Wed, 03 Jul 2019 21:26:27 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v5 18/23] LSM: Use lsmcontext in security_dentry_init_security
-Date:   Wed,  3 Jul 2019 14:25:33 -0700
-Message-Id: <20190703212538.7383-19-casey@schaufler-ca.com>
+Subject: [PATCH v5 20/23] LSM: security_secid_to_secctx in netlink netfilter
+Date:   Wed,  3 Jul 2019 14:25:35 -0700
+Message-Id: <20190703212538.7383-21-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190703212538.7383-1-casey@schaufler-ca.com>
 References: <20190703212538.7383-1-casey@schaufler-ca.com>
@@ -62,142 +62,108 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the security_dentry_init_security() interface to
-fill an lsmcontext structure instead of a void * data area
-and a length. The lone caller of this interface is NFS4,
-which may make copies of the data using its own mechanisms.
-A rework of the nfs4 code to use the lsmcontext properly
-is a significant project, so the coward's way out is taken,
-and the lsmcontext data from security_dentry_init_security()
-is copied, then released directly.
-
-This interface does not use the "display". There is currently
-not case where that is useful or reasonable.
+Change netlink netfilter interfaces to use lsmcontext
+pointers, and remove scaffolding.
 
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- fs/nfs/nfs4proc.c        | 26 ++++++++++++++++----------
- include/linux/security.h |  7 +++----
- security/security.c      | 29 +++++++++++++++++++++++++----
- 3 files changed, 44 insertions(+), 18 deletions(-)
+ net/netfilter/nfnetlink_queue.c | 32 +++++++++++++-------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index af1c0db29c39..952f805965bb 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -113,6 +113,7 @@ static inline struct nfs4_label *
- nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
- 	struct iattr *sattr, struct nfs4_label *label)
- {
-+	struct lsmcontext context;
- 	int err;
- 
- 	if (label == NULL)
-@@ -122,21 +123,26 @@ nfs4_label_init_security(struct inode *dir, struct dentry *dentry,
- 		return NULL;
- 
- 	err = security_dentry_init_security(dentry, sattr->ia_mode,
--				&dentry->d_name, (void **)&label->label, &label->len);
--	if (err == 0)
--		return label;
-+					    &dentry->d_name, &context);
-+
-+	if (err)
-+		return NULL;
-+
-+	label->label = kmemdup(context.context, context.len, GFP_KERNEL);
-+	if (label->label == NULL)
-+		label = NULL;
-+	else
-+		label->len = context.len;
-+
-+	security_release_secctx(&context);
-+
-+	return label;
- 
--	return NULL;
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index 5593ee05d106..58d5bd7a376e 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -305,12 +305,10 @@ static int nfqnl_put_sk_uidgid(struct sk_buff *skb, struct sock *sk)
+ 	return -1;
  }
- static inline void
- nfs4_label_release_security(struct nfs4_label *label)
+ 
+-static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
++static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsmcontext *context)
  {
+-	u32 seclen = 0;
+ #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
+ 	struct lsmblob blob;
+-	struct lsmcontext context = { };
+ 
+ 	if (!skb || !sk_fullsock(skb->sk))
+ 		return 0;
+@@ -318,15 +316,16 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
+ 	read_lock_bh(&skb->sk->sk_callback_lock);
+ 
+ 	if (skb->secmark) {
++		/* Any LSM might be looking for the secmark */
+ 		lsmblob_init(&blob, skb->secmark);
+-		security_secid_to_secctx(&blob, &context);
+-		*secdata = context.context;
++		security_secid_to_secctx(&blob, context);
+ 	}
+ 
+ 	read_unlock_bh(&skb->sk->sk_callback_lock);
+-	seclen = context.len;
++	return context->len;
++#else
++	return 0;
+ #endif
+-	return seclen;
+ }
+ 
+ static u32 nfqnl_get_bridge_size(struct nf_queue_entry *entry)
+@@ -402,8 +401,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	enum ip_conntrack_info uninitialized_var(ctinfo);
+ 	struct nfnl_ct_hook *nfnl_ct;
+ 	bool csum_verify;
 -	struct lsmcontext scaff; /* scaffolding */
--
--	if (label) {
--		lsmcontext_init(&scaff, label->label, label->len, 0);
+-	char *secdata = NULL;
++	struct lsmcontext context = { };
+ 	u32 seclen = 0;
+ 
+ 	size =    nlmsg_total_size(sizeof(struct nfgenmsg))
+@@ -470,7 +468,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	}
+ 
+ 	if ((queue->flags & NFQA_CFG_F_SECCTX) && entskb->sk) {
+-		seclen = nfqnl_get_sk_secctx(entskb, &secdata);
++		seclen = nfqnl_get_sk_secctx(entskb, &context);
+ 		if (seclen)
+ 			size += nla_total_size(seclen);
+ 	}
+@@ -605,7 +603,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	    nfqnl_put_sk_uidgid(skb, entskb->sk) < 0)
+ 		goto nla_put_failure;
+ 
+-	if (seclen && nla_put(skb, NFQA_SECCTX, seclen, secdata))
++	if (seclen && nla_put(skb, NFQA_SECCTX, context.len, context.context))
+ 		goto nla_put_failure;
+ 
+ 	if (ct && nfnl_ct->build(skb, ct, ctinfo, NFQA_CT, NFQA_CT_INFO) < 0)
+@@ -633,10 +631,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	}
+ 
+ 	nlh->nlmsg_len = skb->len;
+-	if (seclen) {
+-		lsmcontext_init(&scaff, secdata, seclen, 0);
 -		security_release_secctx(&scaff);
 -	}
-+	kfree(label->label);
- }
- static inline u32 *nfs4_bitmask(struct nfs_server *server, struct nfs4_label *label)
- {
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 7255825aa697..2674eb70c2d7 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -352,8 +352,8 @@ int security_sb_clone_mnt_opts(const struct super_block *oldsb,
- int security_add_mnt_opt(const char *option, const char *val,
- 				int len, void **mnt_opts);
- int security_dentry_init_security(struct dentry *dentry, int mode,
--					const struct qstr *name, void **ctx,
--					u32 *ctxlen);
-+					const struct qstr *name,
-+					struct lsmcontext *ctx);
- int security_dentry_create_files_as(struct dentry *dentry, int mode,
- 					struct qstr *name,
- 					const struct cred *old,
-@@ -724,8 +724,7 @@ static inline void security_inode_free(struct inode *inode)
- static inline int security_dentry_init_security(struct dentry *dentry,
- 						 int mode,
- 						 const struct qstr *name,
--						 void **ctx,
--						 u32 *ctxlen)
-+						 struct lsmcontext *ctx)
- {
- 	return -EOPNOTSUPP;
- }
-diff --git a/security/security.c b/security/security.c
-index 529d70d9d9e2..54d7e7f02a8b 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1023,12 +1023,33 @@ void security_inode_free(struct inode *inode)
- 				inode_free_by_rcu);
- }
++	if (seclen)
++		security_release_secctx(&context);
+ 	return skb;
  
-+/*
-+ * security_dentry_init_security - initial context for a dentry
-+ * @dentry: directory entry
-+ * @mode: access mode
-+ * @name: path name
-+ * @context: resulting security context
-+ *
-+ * Use at most one security module to get the initial
-+ * security context. Do not use the "display".
-+ *
-+ * Returns -EOPNOTSUPP if not supplied by any module or the module result.
-+ */
- int security_dentry_init_security(struct dentry *dentry, int mode,
--					const struct qstr *name, void **ctx,
--					u32 *ctxlen)
-+				  const struct qstr *name,
-+				  struct lsmcontext *cp)
- {
--	return call_int_hook(dentry_init_security, -EOPNOTSUPP, dentry, mode,
--				name, ctx, ctxlen);
-+	struct security_hook_list *hp;
-+
-+	hlist_for_each_entry(hp, &security_hook_heads.dentry_init_security,
-+			     list) {
-+		cp->slot = hp->lsmid->slot;
-+		return hp->hook.dentry_init_security(dentry, mode, name,
-+						     (void **)&cp->context,
-+						     &cp->len);
-+	}
-+
-+	return -EOPNOTSUPP;
+ nla_put_failure:
+@@ -644,10 +640,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	kfree_skb(skb);
+ 	net_err_ratelimited("nf_queue: error creating packet message\n");
+ nlmsg_failure:
+-	if (seclen) {
+-		lsmcontext_init(&scaff, secdata, seclen, 0);
+-		security_release_secctx(&scaff);
+-	}
++	if (seclen)
++		security_release_secctx(&context);
+ 	return NULL;
  }
- EXPORT_SYMBOL(security_dentry_init_security);
  
 -- 
 2.20.1
