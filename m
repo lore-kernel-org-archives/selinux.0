@@ -2,136 +2,130 @@ Return-Path: <SRS0=dBUy=VA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD369C0650E
-	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 09:47:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 255C6C0650E
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 15:22:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8D79921882
-	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 09:47:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BF84A2184C
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 15:22:28 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="A3zhFZZs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726413AbfGCJr0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Jul 2019 05:47:26 -0400
-Received: from wind.enjellic.com ([76.10.64.91]:37002 "EHLO wind.enjellic.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725796AbfGCJr0 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 3 Jul 2019 05:47:26 -0400
-Received: from wind.enjellic.com (localhost [127.0.0.1])
-        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id x639krAT029727;
-        Wed, 3 Jul 2019 04:46:53 -0500
-Received: (from greg@localhost)
-        by wind.enjellic.com (8.15.2/8.15.2/Submit) id x639kp8l029726;
-        Wed, 3 Jul 2019 04:46:51 -0500
-Date:   Wed, 3 Jul 2019 04:46:51 -0500
-From:   "Dr. Greg" <greg@enjellic.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     "Xing, Cedric" <cedric.xing@intel.com>,
-        Stephen Smalley <stephen.smalley@gmail.com>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "jethro@fortanix.com" <jethro@fortanix.com>,
-        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
-        "jarkko.sakkinen@linux.intel.com" <jarkko.sakkinen@linux.intel.com>,
-        "Christopherson, Sean J" <sean.j.christopherson@intel.com>
-Subject: Re: [RFC PATCH v2 1/3] x86/sgx: Add SGX specific LSM hooks
-Message-ID: <20190703094651.GA29601@wind.enjellic.com>
-Reply-To: "Dr. Greg" <greg@enjellic.com>
-References: <960B34DE67B9E140824F1DCDEC400C0F6551B975@ORSMSX116.amr.corp.intel.com> <f6f16990-0291-c530-61dd-dcd26525285c@schaufler-ca.com> <CAB9W1A1RpM_9D_49E1VauuKE1tL=TyfeATomv47HX4FONnjA4A@mail.gmail.com> <18833f2e-9d18-1f39-6bc5-9242910ab25c@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551D585@ORSMSX116.amr.corp.intel.com> <f59529e4-6cc8-2405-d7db-2519727f9a80@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551D7F7@ORSMSX116.amr.corp.intel.com> <63c92ab6-dc8d-826b-b8bf-05ad262f06e4@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551DBF7@ORSMSX116.amr.corp.intel.com> <9e45df1b-3aac-e851-4ef2-5b262f5139bd@schaufler-ca.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9e45df1b-3aac-e851-4ef2-5b262f5139bd@schaufler-ca.com>
-User-Agent: Mutt/1.4i
-X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Wed, 03 Jul 2019 04:46:53 -0500 (CDT)
+        id S1725847AbfGCPW2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Jul 2019 11:22:28 -0400
+Received: from rgout0801.bt.lon5.cpcloud.co.uk ([65.20.0.148]:59267 "EHLO
+        rgout0801.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725944AbfGCPW2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 3 Jul 2019 11:22:28 -0400
+X-OWM-Source-IP: 86.147.205.8 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedtgdejhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdeknecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedtgdejjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdeknecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedtgdektdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdeknecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedtgdekvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdeknecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedtgdekhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdeknecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade-Verdict: clean 0
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-SNCR-VADESECURE: CLEAN
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedtgdeklecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddugeejrddvtdehrdeknecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrdekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+Received: from localhost.localdomain (86.147.205.8) by rgout08.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
+        id 5BC47A8717EF9E96; Wed, 3 Jul 2019 15:12:16 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1562167348; 
+        bh=dAncLddO6kGflJS/cgHVfteFHfvufSrz345bx72gSnw=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=A3zhFZZsMveszYdV+y1L95aNpiMFP5iILuKdEJVcMqgJA09BUbJoDVoBO+hR9z2UX2zih//tAPfTOMSB6b8m3xabPZRPNOINWsf9Ce5pdTrWsnI9oOJECbr1K7V1MDrDlUZLwN1sErADaDBr6ieQTcEBF6s99GbBropz4qWFdNw=
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] libselinux: Fix security_get_boolean_names build error
+Date:   Wed,  3 Jul 2019 15:12:55 +0100
+Message-Id: <20190703141255.6321-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.21.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 02, 2019 at 08:44:40AM -0700, Casey Schaufler wrote:
+When running 'make' from libselinux on Fedora 30 (gcc 9.1.1) the
+following error is reported:
 
-Good morning, I hope this note finds the week going well for everyone.
+bute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -Wstrict-overflow=5
+-I../include -D_GNU_SOURCE  -DNO_ANDROID_BACKEND  -c -o booleans.o
+booleans.c
+booleans.c: In function ‘security_get_boolean_names’:
+booleans.c:39:5: error: assuming signed overflow does not occur when
+changing X +- C1 cmp C2 to X cmp C2 -+ C1 [-Werror=strict-overflow]
+  39 | int security_get_boolean_names(char ***names, int *len)
+      |    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+cc1: all warnings being treated as errors
+make[1]: *** [Makefile:171: booleans.o] Error 1
 
-> On 7/2/2019 12:42 AM, Xing, Cedric wrote:
-> > ...
-> > Guess this discussion will never end if we don't get into
-> > code. Guess it'd be more productive to talk over phone then come back
-> > to this thread with a conclusion. Will that be ok with you?
+This is caused by the '--i' in the: 'for (--i; i >= 0; --i)' loop.
 
-> I don't think that a phone call is going to help. Talking code
-> issues tends to muddle them in my brain. If you can give me a few
-> days I will propose a rough version of how I think your code should
-> be integrated into the LSM environment. I'm spending more time
-> trying (unsuccessfully :( ) to discribe the issues in English than
-> it will probably take in C.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ libselinux/src/booleans.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-While Casey is off writing his rosetta stone, let me suggest that the
-most important thing we need to do is to take a little time, step back
-and look at the big picture with respect to what we are trying to
-accomplish and if we are going about it in a way that makes any sense
-from an engineering perspective.
+diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+index ab1e0754..882a5dca 100644
+--- a/libselinux/src/booleans.c
++++ b/libselinux/src/booleans.c
+@@ -81,8 +81,13 @@ int security_get_boolean_names(char ***names, int *len)
+ 	free(namelist);
+ 	return rc;
+       bad_freen:
+-	for (--i; i >= 0; --i)
++	if (i == 0)
++		goto bad_freen1;
++	else if (i > 0)
++		--i;
++	for (; i >= 0; --i)
+ 		free(n[i]);
++bad_freen1:
+ 	free(n);
+       bad:
+ 	goto out;
+-- 
+2.21.0
 
-This conversation shouldn't be about SGX, it should be about the best
-way for the kernel/LSM to discipline a Trusted Execution Environment
-(TEE).  As I have noted previously, a TEE is a 'blackbox' that, by
-design, is intended to allow execution of code and processing of data
-in a manner that is resistant to manipulation or inspection by
-untrusted userspace, the kernel and/or the hardware itself.
-
-Given that fact, if we are to be intellectually honest, we need to ask
-ourselves how effective we believe we can be in controlling any TEE
-with kernel based mechanisms.  This is particularly the case if the
-author of any code running in the TEE has adversarial intent.
-
-Here is the list of controls that we believe an LSM can, effectively,
-implement against a TEE:
-
-1.) Code provenance and origin.
-
-2.) Cryptographic verification of dynamically executable content.
-
-2.) The ability of a TEE to implement anonymous executable content.
-
-If people are in agreement with this concept, it is difficult to
-understand why we should be implementing complex state machines and
-the like, whether it is in the driver or the LSM.  Security code has
-to be measured with a metric of effectiveness, otherwise we are
-engaging in security theater.
-
-I believe that if we were using this lens, we would already have a
-mainline SGX driver, since we seem to have most of the needed LSM
-infrastructure and any additional functionality would be a straight
-forward implementation.  Most importantly, the infrastructure would
-not be SGX specific, which would seem to be a desirable political
-concept.
-
-If we are not willing to engage in this discussion we are going to end
-up with a quasi-technology specific solution that isn't implementing
-any relevant security guarantees.
-
-FWIW, we wouldn't even be having this, now lengthy discussion, if I
-wouldn't have aggressively advocated, starting last November, that an
-SGX driver needed some form of execution control if there was a desire
-for the technology to not pose a security risk to the platform.  So
-humor me a little bit.... :-)
-
-Best wishes for a productive remainder of the week to everyone.
-
-Dr. Greg
-
-As always,
-Dr. Greg Wettstein, Ph.D, Worker
-IDfusion, LLC
-4206 N. 19th Ave.           Implementing measured information privacy
-Fargo, ND  58102            and integrity architectures.
-PH: 701-281-1686
-FAX: 701-281-3949           EMAIL: greg@idfusion.net
-------------------------------------------------------------------------------
-"... remember that innovation is saying 'no' to 1000 things."
