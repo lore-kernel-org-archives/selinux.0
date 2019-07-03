@@ -1,123 +1,137 @@
-Return-Path: <SRS0=labB=U7=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=dBUy=VA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E26A5C06510
-	for <selinux@archiver.kernel.org>; Tue,  2 Jul 2019 17:28:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD369C0650E
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 09:47:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C10FA20989
-	for <selinux@archiver.kernel.org>; Tue,  2 Jul 2019 17:28:50 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="m7rTfVa3"
+	by mail.kernel.org (Postfix) with ESMTP id 8D79921882
+	for <selinux@archiver.kernel.org>; Wed,  3 Jul 2019 09:47:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbfGBR2u (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Jul 2019 13:28:50 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:43765 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726861AbfGBR2u (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 2 Jul 2019 13:28:50 -0400
-Received: by mail-lj1-f193.google.com with SMTP id 16so17705291ljv.10
-        for <selinux@vger.kernel.org>; Tue, 02 Jul 2019 10:28:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=a0+afBeFhXMaSDxEXuOeB1KzgbW6mX8UltDVbEoXcC0=;
-        b=m7rTfVa3GhKeyQ1tRHrfNrMSFYuDu7GJwEl2I8ZuQW275CgGZ1b5kmqwNchjZxNVUz
-         Z3/tpQA+vn/rY37OkxEty2h5lfcc4iFSQ+Qvd2H8Y+2kAgKxI6/JH+XbTvbeMEzRhq9H
-         6i46/wS7jgLZhBeqCIHIfz8LmkyBBOQ6gLfDUtZ7Qk6vU32G7GhJh1DMVKsFgGX6X4Pv
-         oHlmwqRSO8d7E0D6QRwEKbrbhqrl1Gv927x2QrexmySa0Qvz2vQY88xysgBeUTqbUa2O
-         jiIIEH4hS6oBddwyzaxlo/aRP8JGqGWD2GTVfgJEDREV5WuHwg/FRlaJGZ8JOb0jxbyJ
-         4QXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=a0+afBeFhXMaSDxEXuOeB1KzgbW6mX8UltDVbEoXcC0=;
-        b=pTPTBBsNGatUu6iomLSQ51lANnKQTpfcHworAXQk4rmhNz8fCCLTxJV8TUg8BR1G+o
-         UJHLnebxieKBWhxlDxQXvX5PW61EToTPwQ6EE2z4OCygWhU9vnE0JZdTfCU2ZIWrOarN
-         eQ8/D1XrbrDOAzmbIrWlCid5Ga/X0EtMKYBt6cEo9Q6awBbwxn3cr29ttm2638bhrNS4
-         Jgr3ibwTxtM+cfKnFJoeOEZc8VCF61n8hgAd45xFaiKaod+m7OOhK9afshPDLYDwnGrU
-         cYu4SF4BTFZgx+SABa2IwCd9qQAEFO8479C6HiaPPaLim+yoWLHt9ZI76baP89aRWuGt
-         VHIA==
-X-Gm-Message-State: APjAAAWonSle9blr1UNAhe8BEdlvSvTNXzjasXJrsajcRCyUU41fcXp9
-        k65gwjHNTGuVYycESrvRfNqSJvPpzqr7FZ4CB7tyWUqDRoxD
-X-Google-Smtp-Source: APXvYqyJx55tXOysFh5O10sG7PB2CO7dlcMfdmcjMB52mnL5E3vkpkQXx9TgV2Li3nPU5lrlR3PvSldFb+Qu4UAotD0=
-X-Received: by 2002:a2e:86c3:: with SMTP id n3mr4206972ljj.129.1562088527957;
- Tue, 02 Jul 2019 10:28:47 -0700 (PDT)
-MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 2 Jul 2019 13:28:37 -0400
-Message-ID: <CAHC9VhSERNCM2d42y8fBT236D62mco=B_ZM_vytEoBP1qicvCA@mail.gmail.com>
-Subject: [GIT PULL] SELinux patches for v5.3
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1726413AbfGCJr0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Jul 2019 05:47:26 -0400
+Received: from wind.enjellic.com ([76.10.64.91]:37002 "EHLO wind.enjellic.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725796AbfGCJr0 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 3 Jul 2019 05:47:26 -0400
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id x639krAT029727;
+        Wed, 3 Jul 2019 04:46:53 -0500
+Received: (from greg@localhost)
+        by wind.enjellic.com (8.15.2/8.15.2/Submit) id x639kp8l029726;
+        Wed, 3 Jul 2019 04:46:51 -0500
+Date:   Wed, 3 Jul 2019 04:46:51 -0500
+From:   "Dr. Greg" <greg@enjellic.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     "Xing, Cedric" <cedric.xing@intel.com>,
+        Stephen Smalley <stephen.smalley@gmail.com>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "Schaufler, Casey" <casey.schaufler@intel.com>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "jethro@fortanix.com" <jethro@fortanix.com>,
+        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
+        "jarkko.sakkinen@linux.intel.com" <jarkko.sakkinen@linux.intel.com>,
+        "Christopherson, Sean J" <sean.j.christopherson@intel.com>
+Subject: Re: [RFC PATCH v2 1/3] x86/sgx: Add SGX specific LSM hooks
+Message-ID: <20190703094651.GA29601@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@enjellic.com>
+References: <960B34DE67B9E140824F1DCDEC400C0F6551B975@ORSMSX116.amr.corp.intel.com> <f6f16990-0291-c530-61dd-dcd26525285c@schaufler-ca.com> <CAB9W1A1RpM_9D_49E1VauuKE1tL=TyfeATomv47HX4FONnjA4A@mail.gmail.com> <18833f2e-9d18-1f39-6bc5-9242910ab25c@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551D585@ORSMSX116.amr.corp.intel.com> <f59529e4-6cc8-2405-d7db-2519727f9a80@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551D7F7@ORSMSX116.amr.corp.intel.com> <63c92ab6-dc8d-826b-b8bf-05ad262f06e4@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551DBF7@ORSMSX116.amr.corp.intel.com> <9e45df1b-3aac-e851-4ef2-5b262f5139bd@schaufler-ca.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e45df1b-3aac-e851-4ef2-5b262f5139bd@schaufler-ca.com>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Wed, 03 Jul 2019 04:46:53 -0500 (CDT)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
+On Tue, Jul 02, 2019 at 08:44:40AM -0700, Casey Schaufler wrote:
 
-Like the audit PR this is a little early due to some upcoming vacation
-plans and uncertain network access while I'm away.  Also like the
-audit PR, the list of patches here is pretty minor, the highlights
-include:
+Good morning, I hope this note finds the week going well for everyone.
 
-- Explicitly use __le variables to make sure "sparse" can verify
-proper byte endian handling.
+> On 7/2/2019 12:42 AM, Xing, Cedric wrote:
+> > ...
+> > Guess this discussion will never end if we don't get into
+> > code. Guess it'd be more productive to talk over phone then come back
+> > to this thread with a conclusion. Will that be ok with you?
 
-- Remove some BUG_ON()s that are no longer needed.
+> I don't think that a phone call is going to help. Talking code
+> issues tends to muddle them in my brain. If you can give me a few
+> days I will propose a rough version of how I think your code should
+> be integrated into the LSM environment. I'm spending more time
+> trying (unsuccessfully :( ) to discribe the issues in English than
+> it will probably take in C.
 
-- Allow zero-byte writes to the "keycreate" procfs attribute without
-requiring key:create to make it easier for userspace to reset the
-keycreate label.
+While Casey is off writing his rosetta stone, let me suggest that the
+most important thing we need to do is to take a little time, step back
+and look at the big picture with respect to what we are trying to
+accomplish and if we are going about it in a way that makes any sense
+from an engineering perspective.
 
-- Consistently log the "invalid_context" field as an untrusted string
-in the AUDIT_SELINUX_ERR audit records.
+This conversation shouldn't be about SGX, it should be about the best
+way for the kernel/LSM to discipline a Trusted Execution Environment
+(TEE).  As I have noted previously, a TEE is a 'blackbox' that, by
+design, is intended to allow execution of code and processing of data
+in a manner that is resistant to manipulation or inspection by
+untrusted userspace, the kernel and/or the hardware itself.
 
-Please pull this once the merge window opens,
--Paul
+Given that fact, if we are to be intellectually honest, we need to ask
+ourselves how effective we believe we can be in controlling any TEE
+with kernel based mechanisms.  This is particularly the case if the
+author of any code running in the TEE has adversarial intent.
 
---
-The following changes since commit a188339ca5a396acc588e5851ed7e19f66b0ebd9:
+Here is the list of controls that we believe an LSM can, effectively,
+implement against a TEE:
 
- Linux 5.2-rc1 (2019-05-19 15:47:09 -0700)
+1.) Code provenance and origin.
 
-are available in the Git repository at:
+2.) Cryptographic verification of dynamically executable content.
 
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20190702
+2.) The ability of a TEE to implement anonymous executable content.
 
-for you to fetch changes up to ea74a685ad819aeed316a9bae3d2a5bf762da82d:
+If people are in agreement with this concept, it is difficult to
+understand why we should be implementing complex state machines and
+the like, whether it is in the driver or the LSM.  Security code has
+to be measured with a metric of effectiveness, otherwise we are
+engaging in security theater.
 
- selinux: format all invalid context as untrusted
-   (2019-07-01 16:29:05 -0400)
+I believe that if we were using this lens, we would already have a
+mainline SGX driver, since we seem to have most of the needed LSM
+infrastructure and any additional functionality would be a straight
+forward implementation.  Most importantly, the infrastructure would
+not be SGX specific, which would seem to be a desirable political
+concept.
 
-----------------------------------------------------------------
-selinux/stable-5.3 PR 20190702
+If we are not willing to engage in this discussion we are going to end
+up with a quasi-technology specific solution that isn't implementing
+any relevant security guarantees.
 
-----------------------------------------------------------------
-Nicholas Mc Guire (1):
-     selinux: provide __le variables explicitly
+FWIW, we wouldn't even be having this, now lengthy discussion, if I
+wouldn't have aggressively advocated, starting last November, that an
+SGX driver needed some form of execution control if there was a desire
+for the technology to not pose a security risk to the platform.  So
+humor me a little bit.... :-)
 
-Ondrej Mosnacek (2):
-     selinux: remove some no-op BUG_ONs
-     selinux: fix empty write to keycreate file
+Best wishes for a productive remainder of the week to everyone.
 
-Richard Guy Briggs (1):
-     selinux: format all invalid context as untrusted
+Dr. Greg
 
-security/selinux/hooks.c       | 11 ++++++-----
-security/selinux/ss/ebitmap.c  | 10 ++++++----
-security/selinux/ss/services.c | 33 +++++++++++++++++++--------------
-3 files changed, 31 insertions(+), 23 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
+As always,
+Dr. Greg Wettstein, Ph.D, Worker
+IDfusion, LLC
+4206 N. 19th Ave.           Implementing measured information privacy
+Fargo, ND  58102            and integrity architectures.
+PH: 701-281-1686
+FAX: 701-281-3949           EMAIL: greg@idfusion.net
+------------------------------------------------------------------------------
+"... remember that innovation is saying 'no' to 1000 things."
