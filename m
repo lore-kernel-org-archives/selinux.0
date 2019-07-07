@@ -2,309 +2,118 @@ Return-Path: <SRS0=laxl=VE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7D2AC48BDB
-	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 20:24:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A7F2C48BDB
+	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 21:03:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6A846206A2
-	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 20:24:54 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="IUB9YLY4"
+	by mail.kernel.org (Postfix) with ESMTP id 28EB020684
+	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 21:03:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727491AbfGGUYx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 7 Jul 2019 16:24:53 -0400
-Received: from rgout0307.bt.lon5.cpcloud.co.uk ([65.20.0.213]:45855 "EHLO
-        rgout03.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727304AbfGGUYx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 7 Jul 2019 16:24:53 -0400
-X-OWM-Source-IP: 81.153.63.189 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgddufeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgddufeeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgddufeekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgddugeduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgddugeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgddugeekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgdduheefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfedvgdduheelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeefgddtfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeefgddukecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeefgdefvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeefgdegjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeefgdejfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeefgddutddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeeggddvfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeeggdejhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeeggdduvdehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeehgdduudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeehgdeifecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeehgdduudehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeeigdefjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeeigdekiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeeigddufeejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeejgddvgecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeejgdejjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeejgdduvdekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeekgdehfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofggtgfgsehtkeertdertdejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekuddrudehfedrieefrddukeelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudekledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeekgddutdefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeekgdduheefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffogggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkedurdduheefrdeifedrudekleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekuddrudehfedrieefrddukeelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-Received: from localhost.localdomain (81.153.63.189) by rgout03.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
-        id 5C90B6EC09F3DF81; Thu, 4 Jul 2019 19:56:26 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1562531090; 
-        bh=XykTBd/ED9WdMhyFExoxziBShVrkWqtMgeSOuJ2jQtk=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=IUB9YLY4RESlXYBOSA7GfuaGxphD7NMVME05R2Ghdze0cfkv5uiOILOSQ5KepxVfeY3Pp5TyaVC3LJkPB9UojAAvoqpeZarLOmczIVNuZcrR4/x35DTLMOrTHTrujc4jAcTQgrBsj5o9w1+Z4Zwkqky4BBeK0zrwTs6cWjxPOmE=
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V3 0/2] Update restorecon to support new digest scheme
-Date:   Thu,  4 Jul 2019 19:57:10 +0100
-Message-Id: <20190704185710.21817-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.21.0
+        id S1727349AbfGGVDN convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Sun, 7 Jul 2019 17:03:13 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:47338 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727073AbfGGVDN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 7 Jul 2019 17:03:13 -0400
+Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 5E44656470D
+        for <selinux@vger.kernel.org>; Sun,  7 Jul 2019 23:03:10 +0200 (CEST)
+Received: by mail-ot1-f50.google.com with SMTP id e8so14148689otl.7
+        for <selinux@vger.kernel.org>; Sun, 07 Jul 2019 14:03:10 -0700 (PDT)
+X-Gm-Message-State: APjAAAURLb+trIe2Fr+9J8WV+Ljs9hUDsQycOPPOU1nqzLKGQ46VysKp
+        q/gjuf56ABhgDjrqZErjLt4tHb2URrNygZNfSGA=
+X-Google-Smtp-Source: APXvYqy1KyIzBLb2odO1sAhe1xPGp2o5PNRsnmDt0139hsr4Wk2N+sZwA0mvNQlbg9Wzm2bkkb3BW/4/wsb0tL3A3zw=
+X-Received: by 2002:a05:6830:1516:: with SMTP id k22mr11188604otp.189.1562533389553;
+ Sun, 07 Jul 2019 14:03:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20190703141255.6321-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20190703141255.6321-1-richard_c_haines@btinternet.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sun, 7 Jul 2019 23:02:58 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==rnxFKiUtNg0FFXLM7_F6qCPVWJAwBK86EaZsyKp-ktA@mail.gmail.com>
+Message-ID: <CAJfZ7==rnxFKiUtNg0FFXLM7_F6qCPVWJAwBK86EaZsyKp-ktA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: Fix security_get_boolean_names build error
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Jul  7 23:03:10 2019 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These patches require [1] and [2] be installed first. They have
-been implemented on Android and sent to the selinux list, however their
-merge has been deferred. They will install the core hashing of
-file_context entries and fix root stem processing.
+On Wed, Jul 3, 2019 at 5:22 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+>
+> When running 'make' from libselinux on Fedora 30 (gcc 9.1.1) the
+> following error is reported:
+>
+> bute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -Wstrict-overflow=5
+> -I../include -D_GNU_SOURCE  -DNO_ANDROID_BACKEND  -c -o booleans.o
+> booleans.c
+> booleans.c: In function ‘security_get_boolean_names’:
+> booleans.c:39:5: error: assuming signed overflow does not occur when
+> changing X +- C1 cmp C2 to X cmp C2 -+ C1 [-Werror=strict-overflow]
+>   39 | int security_get_boolean_names(char ***names, int *len)
+>       |    ^~~~~~~~~~~~~~~~~~~~~~~~~~
+> cc1: all warnings being treated as errors
+> make[1]: *** [Makefile:171: booleans.o] Error 1
+>
+> This is caused by the '--i' in the: 'for (--i; i >= 0; --i)' loop.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  libselinux/src/booleans.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+>
+> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
+> index ab1e0754..882a5dca 100644
+> --- a/libselinux/src/booleans.c
+> +++ b/libselinux/src/booleans.c
+> @@ -81,8 +81,13 @@ int security_get_boolean_names(char ***names, int *len)
+>         free(namelist);
+>         return rc;
+>        bad_freen:
+> -       for (--i; i >= 0; --i)
+> +       if (i == 0)
+> +               goto bad_freen1;
+> +       else if (i > 0)
+> +               --i;
+> +       for (; i >= 0; --i)
+>                 free(n[i]);
+> +bad_freen1:
+>         free(n);
+>        bad:
+>         goto out;
+> --
+> 2.21.0
+>
 
-Patch 1/2 updates selinux_restorecon() replacing the per-mountpoint
-security.restorecon_last attribute with a per-directory security.sehash
-attribute computed from only those file contexts entries that partially
-match the directory. This is to avoid the need to walk the entire tree
-when any part of file_contexts changes, limiting relabels to only those
-parts of the tree that could have changed.
+Hi,
+Thanks for your patch. It looks more complicated than it should be.
+Why do you introduce a new label instead of a simpler if statement?
+For example I think of this code (I have not tested it and it may
+contain issues):
 
-One change is to add a new selabel_get_digests_all_partial_matches(3)
-function that is explained in the man page. This could replace the Android
-version of selabel_hash_all_partial_matches(3), that could then be
-converted into a local function (The Android team would need to approve).
+bad_freen:
+    if (i > 0) {
+        for (--i; i >= 0; --i)
+            free(n[i]);
+    }
+    free(n);
 
-The patch [3] "selinux-testsuite: Add test for restorecon" will test these
-changes.
+>From my point of view, this would be easier to maintain. If you have a
+good reason for using a new goto label, please add some sentences
+about this in the patch description or/and in a comment next to the
+modified lines.
 
-Patch 1/2 Changes:
-V2 Change:
-Restore using SELABEL_OPT_DIGEST
-V3 Change:
-Replace memcpy in get_digests_all_partial_matches() to overcome error
-flagged by -D_FORTIFY_SOURCE= when building only libselinux.
-
-Patch 2/2 Changes:
-V2 Change
-Keep restorecon(8) and setfiles(8) as they were for compatibility
- 
-[1] https://lore.kernel.org/selinux/20190311222442.49824-1-xunchang@google.com/
-[2] https://lore.kernel.org/selinux/20190417180955.136942-1-xunchang@google.com/
-[3] https://lore.kernel.org/selinux/20190603095609.21429-1-richard_c_haines@btinternet.com/
-
-Richard Haines (2):
-  libselinux: Save digest of all partial matches for directory
-  setfiles: Update utilities for the new digest scheme
-
- libselinux/include/selinux/label.h            |   5 +
- libselinux/include/selinux/restorecon.h       |  17 +-
- .../selabel_get_digests_all_partial_matches.3 |  70 +++++
- libselinux/man/man3/selinux_restorecon.3      |  81 +++---
- .../man/man3/selinux_restorecon_xattr.3       |   8 +-
- libselinux/src/label.c                        |  15 +
- libselinux/src/label_file.c                   |  62 ++++
- libselinux/src/label_file.h                   |   4 +
- libselinux/src/label_internal.h               |   5 +
- libselinux/src/selinux_restorecon.c           | 271 ++++++++++++------
- libselinux/utils/.gitignore                   |   1 +
- .../selabel_get_digests_all_partial_matches.c | 170 +++++++++++
- policycoreutils/setfiles/restorecon.8         |  10 +-
- policycoreutils/setfiles/restorecon_xattr.8   |  20 +-
- policycoreutils/setfiles/restorecon_xattr.c   |   2 +-
- policycoreutils/setfiles/setfiles.8           |  10 +-
- 16 files changed, 591 insertions(+), 160 deletions(-)
- create mode 100644 libselinux/man/man3/selabel_get_digests_all_partial_matches.3
- create mode 100644 libselinux/utils/selabel_get_digests_all_partial_matches.c
-
--- 
-2.21.0
+Thanks,
+Nicolas
 
