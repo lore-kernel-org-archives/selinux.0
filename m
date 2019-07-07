@@ -2,105 +2,102 @@ Return-Path: <SRS0=laxl=VE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C829BC48BDB
-	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 17:36:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0625BC48BDB
+	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 18:02:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8C9CC2082F
-	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 17:36:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Icifu70O"
+	by mail.kernel.org (Postfix) with ESMTP id DCA4720828
+	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 18:01:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726044AbfGGRgL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 7 Jul 2019 13:36:11 -0400
-Received: from rgout0602.bt.lon5.cpcloud.co.uk ([65.20.0.129]:19848 "EHLO
-        rgout06.bt.lon5.cpcloud.co.uk" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725928AbfGGRgL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 7 Jul 2019 13:36:11 -0400
-X-OWM-Source-IP: 86.147.205.104 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeekgdduudeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddugeejrddvtdehrddutdegnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrddutdegpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade-Verdict: clean 0
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-SNCR-VADESECURE: CLEAN
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrfeekgdduudelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddugeejrddvtdehrddutdegnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddugeejrddvtdehrddutdegpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-Received: from localhost.localdomain (86.147.205.104) by rgout06.bt.lon5.cpcloud.co.uk (9.0.019.26-1) (authenticated as richard_c_haines@btinternet.com)
-        id 5C3942FB10BE9207 for selinux@vger.kernel.org; Sun, 7 Jul 2019 18:24:12 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btcpcloud; t=1562520971; 
-        bh=14yMJrjSnXwBczy7+7TYf+keRnNMbJ3Vex+ad6rc1q0=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
-        b=Icifu70ODUnhdmJjZ0gol8eumKEwakhKKecTusJSiMRzI1qJxQFPoVGqSxLRV1ZZ62a6pays1n/yw7wccSaQDiPZ0nGwOKMbIHDdXuD9GYQpCnKUXw8mHIn0KPMo2a7KQzdCxAlA4EF2p6RbqpOqa1sq2egAxW9oRgcTPrd0mRM=
-Message-ID: <fca3a25ad9f302d8755b200b530380e598901e87.camel@btinternet.com>
-Subject: Re: [PATCH] libselinux: Fix security_get_boolean_names build error
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Date:   Sun, 07 Jul 2019 18:24:11 +0100
-In-Reply-To: <20190702182138.7209-1-richard_c_haines@btinternet.com>
-References: <20190702182138.7209-1-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.3 (3.32.3-1.fc30) 
+        id S1727376AbfGGSB7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 7 Jul 2019 14:01:59 -0400
+Received: from mga17.intel.com ([192.55.52.151]:45703 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726044AbfGGSB5 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 7 Jul 2019 14:01:57 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Jul 2019 11:01:57 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,463,1557212400"; 
+   d="scan'208";a="173078241"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.165])
+  by FMSMGA003.fm.intel.com with ESMTP; 07 Jul 2019 11:01:56 -0700
+Date:   Sun, 7 Jul 2019 11:01:56 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     "Xing, Cedric" <cedric.xing@intel.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
+        "Schaufler, Casey" <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        "Hansen, Dave" <dave.hansen@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Dr . Greg Wettstein" <greg@enjellic.com>
+Subject: Re: [RFC PATCH v4 07/12] LSM: x86/sgx: Introduce ->enclave_map()
+ hook for Intel SGX
+Message-ID: <20190707180156.GA19593@linux.intel.com>
+References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
+ <20190619222401.14942-8-sean.j.christopherson@intel.com>
+ <960B34DE67B9E140824F1DCDEC400C0F6551847B@ORSMSX116.amr.corp.intel.com>
+ <8235709b-9034-4751-30ce-720e41e31525@tycho.nsa.gov>
+ <960B34DE67B9E140824F1DCDEC400C0F6551B85C@ORSMSX116.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <960B34DE67B9E140824F1DCDEC400C0F6551B85C@ORSMSX116.amr.corp.intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2019-07-02 at 19:21 +0100, Richard Haines wrote:
-> When running 'make' from libselinux on Fedora 30 (gcc 9.1.1) the
-> following error is reported:
+On Thu, Jun 27, 2019 at 01:29:39PM -0700, Xing, Cedric wrote:
+> > From: linux-sgx-owner@vger.kernel.org [mailto:linux-sgx-
+> > owner@vger.kernel.org] On Behalf Of Stephen Smalley
+> > Sent: Tuesday, June 25, 2019 1:48 PM
+> > 
+> > On 6/21/19 12:54 PM, Xing, Cedric wrote:
+> > >> From: Christopherson, Sean J
+> > >> Sent: Wednesday, June 19, 2019 3:24 PM
+> > >>
+> > >> diff --git a/security/security.c b/security/security.c index
+> > >> 613a5c00e602..03951e08bdfc 100644
+> > >> --- a/security/security.c
+> > >> +++ b/security/security.c
+> > >> @@ -2359,3 +2359,10 @@ void security_bpf_prog_free(struct
+> > bpf_prog_aux *aux)
+> > >>   	call_void_hook(bpf_prog_free_security, aux);
+> > >>   }
+> > >>   #endif /* CONFIG_BPF_SYSCALL */
+> > >> +
+> > >> +#ifdef CONFIG_INTEL_SGX
+> > >> +int security_enclave_map(unsigned long prot) {
+> > >> +	return call_int_hook(enclave_map, 0, prot); } #endif /*
+> > >> +CONFIG_INTEL_SGX */
+> > >
+> > > Why is this new security_enclave_map() necessary while
+> > security_mmap_file() will also be invoked?
+> > 
+> > security_mmap_file() doesn't know about enclaves.  It will just end up
+> > checking FILE__READ, FILE__WRITE, and FILE__EXECUTE to /dev/sgx/enclave.
+> > This was noted in the patch description.
 > 
-> bute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -Wstrict-overflow=5
-> -I../include -D_GNU_SOURCE  -DNO_ANDROID_BACKEND  -c -o booleans.o
-> booleans.c
-> booleans.c: In function ‘security_get_boolean_names’:
-> booleans.c:39:5: error: assuming signed overflow does not occur when
-> changing X +- C1 cmp C2 to X cmp C2 -+ C1 [-Werror=strict-overflow]
->   39 | int security_get_boolean_names(char ***names, int *len)
->       |    ^~~~~~~~~~~~~~~~~~~~~~~~~~
-> cc1: all warnings being treated as errors
-> make[1]: *** [Makefile:171: booleans.o] Error 1
-> 
-> This is because of 'for (--i; i >= 0; --i)', however the --i is not
-> required anyway as proven when simulating oom and running valgrind.
+> Surely I understand all those. As I mentioned in my other email,
+> enclave_load() could indicate to LSM that a file is an enclave. Of course
+> mmap() could be invoked before any pages are loaded so LSM wouldn't know at
+> the first mmap(), but that doesn't matter as an empty enclave wouldn't post
+> any threats anyway.
 
-Please ignore this patch. Tried to cancel but delivered to list four
-days later. The [1] patch is the correct one to review.
-
-[1] 
-https://lore.kernel.org/selinux/20190703141255.6321-1-richard_c_haines@btinternet.com/T/#u
-
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
->  libselinux/src/booleans.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/libselinux/src/booleans.c b/libselinux/src/booleans.c
-> index ab1e0754..33bf13c7 100644
-> --- a/libselinux/src/booleans.c
-> +++ b/libselinux/src/booleans.c
-> @@ -81,7 +81,7 @@ int security_get_boolean_names(char ***names, int
-> *len)
->  	free(namelist);
->  	return rc;
->        bad_freen:
-> -	for (--i; i >= 0; --i)
-> +	for (; i >= 0; --i)
->  		free(n[i]);
->  	free(n);
->        bad:
-
+security_mmap_file() is invoked before the final address is known, and
+MAP_FIXED isn't technically required.
