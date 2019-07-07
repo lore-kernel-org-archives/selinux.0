@@ -7,33 +7,33 @@ X-Spam-Status: No, score=-10.0 required=3.0
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B143FC61081
-	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 23:41:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E0A8C61089
+	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 23:41:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 941F52064B
-	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 23:41:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 50F092064B
+	for <selinux@archiver.kernel.org>; Sun,  7 Jul 2019 23:41:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727697AbfGGXls (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 7 Jul 2019 19:41:48 -0400
-Received: from mga17.intel.com ([192.55.52.151]:62279 "EHLO mga17.intel.com"
+        id S1727766AbfGGXlt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 7 Jul 2019 19:41:49 -0400
+Received: from mga17.intel.com ([192.55.52.151]:62277 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727388AbfGGXlr (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sun, 7 Jul 2019 19:41:47 -0400
+        id S1727616AbfGGXls (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 7 Jul 2019 19:41:48 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga005.jf.intel.com ([10.7.209.41])
   by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Jul 2019 16:41:46 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.63,464,1557212400"; 
-   d="scan'208";a="340295310"
+   d="scan'208";a="340295313"
 Received: from bxing-mobl.amr.corp.intel.com (HELO ubt18m.amr.corp.intel.com) ([10.251.135.59])
   by orsmga005.jf.intel.com with ESMTP; 07 Jul 2019 16:41:46 -0700
 From:   Cedric Xing <cedric.xing@intel.com>
 To:     linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, cedric.xing@intel.com
-Subject: [RFC PATCH v3 2/4] x86/64: Call LSM hooks from SGX subsystem/module
-Date:   Sun,  7 Jul 2019 16:41:32 -0700
-Message-Id: <a1a4f6a4f7be05ce1635b48a80cea86c27ee14cc.1562542383.git.cedric.xing@intel.com>
+Subject: [RFC PATCH v3 3/4] X86/sgx: Introduce EMA as a new LSM module
+Date:   Sun,  7 Jul 2019 16:41:33 -0700
+Message-Id: <41e1a1a2f66226d88d45675434eb34dde5d0f50d.1562542383.git.cedric.xing@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <cover.1562542383.git.cedric.xing@intel.com>
 References: <cover.1562542383.git.cedric.xing@intel.com>
@@ -47,186 +47,425 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-It’s straightforward to call new LSM hooks from the SGX subsystem/module. There
-are three places where LSM hooks are invoked.
-  1) sgx_mmap() invokes security_file_mprotect() to validate requested
-     protection. It is necessary because security_mmap_file() invoked by mmap()
-     syscall only validates protections against /dev/sgx/enclave file, but not
-     against those files from which the pages were loaded from.
-  2) security_enclave_load() is invoked upon loading of every enclave page by
-     the EADD ioctl. Please note that if pages are EADD’ed in batch, the SGX
-     subsystem/module is responsible for dividing pages in trunks so that each
-     trunk is loaded from a single VMA.
-  3) security_enclave_init() is invoked before initializing (EINIT) every
-     enclave.
+As enclave pages have different lifespan than the existing MAP_PRIVATE and
+MAP_SHARED pages, a new data structure is required outside of VMA to track
+their protections and/or origins. Enclave Memory Area (or EMA for short) has
+been introduced to address the need. EMAs are maintained by a new LSM module
+named “ema”, which is similar to the idea of the “capability” LSM module.
+
+This new “ema” module has LSM_ORDER_FIRST so will always be dispatched before
+other LSM_ORDER_MUTABLE modules (e.g. selinux, apparmor, etc.). It is
+responsible for initializing EMA maps, and inserting and freeing EMA nodes, and
+offers APIs for other LSM modules to query/update EMAs. Details could be found
+in include/linux/lsm_ema.h and security/commonema.c.
 
 Signed-off-by: Cedric Xing <cedric.xing@intel.com>
 ---
- arch/x86/kernel/cpu/sgx/driver/ioctl.c | 80 +++++++++++++++++++++++---
- arch/x86/kernel/cpu/sgx/driver/main.c  | 16 +++++-
- 2 files changed, 85 insertions(+), 11 deletions(-)
+ include/linux/lsm_ema.h |  97 ++++++++++++++
+ security/Makefile       |   1 +
+ security/commonema.c    | 277 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 375 insertions(+)
+ create mode 100644 include/linux/lsm_ema.h
+ create mode 100644 security/commonema.c
 
-diff --git a/arch/x86/kernel/cpu/sgx/driver/ioctl.c b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-index b186fb7b48d5..4f5abf9819a7 100644
---- a/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-+++ b/arch/x86/kernel/cpu/sgx/driver/ioctl.c
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
- // Copyright(c) 2016-19 Intel Corporation.
- 
--#include <asm/mman.h>
-+#include <linux/mman.h>
- #include <linux/delay.h>
- #include <linux/file.h>
- #include <linux/hashtable.h>
-@@ -11,6 +11,7 @@
- #include <linux/shmem_fs.h>
- #include <linux/slab.h>
- #include <linux/suspend.h>
-+#include <linux/security.h>
- #include "driver.h"
- 
- struct sgx_add_page_req {
-@@ -575,6 +576,46 @@ static int sgx_encl_add_page(struct sgx_encl *encl, unsigned long addr,
- 	return ret;
- }
- 
-+static int sgx_encl_prepare_page(struct file *filp, unsigned long dst,
-+				 unsigned long src, void *buf)
+diff --git a/include/linux/lsm_ema.h b/include/linux/lsm_ema.h
+new file mode 100644
+index 000000000000..59fc4ea6fa78
+--- /dev/null
++++ b/include/linux/lsm_ema.h
+@@ -0,0 +1,97 @@
++/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
++/**
++ * Enclave Memory Area interface for LSM modules
++ *
++ * Copyright(c) 2016-19 Intel Corporation.
++ */
++
++#ifndef _LSM_EMA_H_
++#define _LSM_EMA_H_
++
++#include <linux/list.h>
++#include <linux/mutex.h>
++#include <linux/fs.h>
++#include <linux/file.h>
++
++/**
++ * ema - Enclave Memory Area structure for LSM modules
++ *
++ * Data structure to track origins of enclave pages
++ *
++ * @link:
++ *	Link to adjacent EMAs. EMAs are sorted by their addresses in ascending
++ *	order
++ * @start:
++ *	Starting address
++ * @end:
++ *	Ending address
++ * @source:
++ *	File from which this range was loaded from, or NULL if not loaded from
++ *	any files
++ */
++struct ema {
++	struct list_head	link;
++	size_t			start;
++	size_t			end;
++	struct file		*source;
++};
++
++#define ema_data(ema, offset)	\
++	((void *)((char *)((struct ema *)(ema) + 1) + offset))
++
++/**
++ * ema_map - LSM Enclave Memory Map structure for LSM modules
++ *
++ * Container for EMAs of an enclave
++ *
++ * @list:
++ *	Head of a list of sorted EMAs
++ * @lock:
++ *	Acquire before querying/updateing the list EMAs
++ */
++struct ema_map {
++	struct list_head	list;
++	struct mutex		lock;
++};
++
++size_t __init ema_request_blob(size_t blob_size);
++struct ema_map *ema_get_map(struct file *encl);
++int ema_apply_to_range(struct ema_map *map, size_t start, size_t end,
++		       int (*cb)(struct ema *ema, void *arg), void *arg);
++void ema_remove_range(struct ema_map *map, size_t start, size_t end);
++
++static inline int __must_check ema_lock_map(struct ema_map *map)
 +{
-+	struct vm_area_struct *vma;
-+	unsigned long prot;
-+	int rc;
-+
-+	if (dst & ~PAGE_SIZE)
-+		return -EINVAL;
-+
-+	rc = down_read_killable(&current->mm->mmap_sem);
-+	if (rc)
-+		return rc;
-+
-+	vma = find_vma(current->mm, dst);
-+	if (vma && dst >= vma->vm_start)
-+		prot = _calc_vm_trans(vma->vm_flags, VM_READ, PROT_READ) |
-+		       _calc_vm_trans(vma->vm_flags, VM_WRITE, PROT_WRITE) |
-+		       _calc_vm_trans(vma->vm_flags, VM_EXEC, PROT_EXEC);
-+	else
-+		prot = 0;
-+
-+	vma = find_vma(current->mm, src);
-+	if (!vma || src < vma->vm_start || src + PAGE_SIZE > vma->vm_end)
-+		rc = -EFAULT;
-+
-+	if (!rc && !(vma->vm_flags & VM_MAYEXEC))
-+		rc = -EACCES;
-+
-+	if (!rc && copy_from_user(buf, (void __user *)src, PAGE_SIZE))
-+		rc = -EFAULT;
-+
-+	if (!rc)
-+		rc = security_enclave_load(filp, dst, PAGE_SIZE, prot, vma);
-+
-+	up_read(&current->mm->mmap_sem);
-+
-+	return rc;
++	return mutex_lock_interruptible(&map->lock);
 +}
 +
- /**
-  * sgx_ioc_enclave_add_page - handler for %SGX_IOC_ENCLAVE_ADD_PAGE
-  *
-@@ -613,10 +654,9 @@ static long sgx_ioc_enclave_add_page(struct file *filep, unsigned int cmd,
- 
- 	data = kmap(data_page);
- 
--	if (copy_from_user((void *)data, (void __user *)addp->src, PAGE_SIZE)) {
--		ret = -EFAULT;
-+	ret = sgx_encl_prepare_page(filep, addp->addr, addp->src, data);
-+	if (ret)
- 		goto out;
--	}
- 
- 	ret = sgx_encl_add_page(encl, addp->addr, data, &secinfo, addp->mrmask);
- 	if (ret)
-@@ -718,6 +758,31 @@ static int sgx_encl_init(struct sgx_encl *encl, struct sgx_sigstruct *sigstruct,
- 	return ret;
- }
- 
-+static int sgx_encl_prepare_sigstruct(struct file *filp, unsigned long src,
-+				      struct sgx_sigstruct *ss)
++static inline void ema_unlock_map(struct ema_map *map)
 +{
-+	struct vm_area_struct *vma;
-+	int rc;
-+
-+	rc = down_read_killable(&current->mm->mmap_sem);
-+	if (rc)
-+		return rc;
-+
-+	vma = find_vma(current->mm, src);
-+	if (!vma || src < vma->vm_start || src + sizeof(*ss) > vma->vm_end)
-+		rc = -EFAULT;
-+
-+	if (!rc && copy_from_user(ss, (void __user *)src, sizeof(*ss)))
-+		rc = -EFAULT;
-+
-+	if (!rc)
-+		rc = security_enclave_init(filp, ss, vma);
-+
-+	up_read(&current->mm->mmap_sem);
-+
-+	return rc;
++	mutex_unlock(&map->lock);
 +}
 +
- /**
-  * sgx_ioc_enclave_init - handler for %SGX_IOC_ENCLAVE_INIT
-  *
-@@ -753,12 +818,9 @@ static long sgx_ioc_enclave_init(struct file *filep, unsigned int cmd,
- 		((unsigned long)sigstruct + PAGE_SIZE / 2);
- 	memset(einittoken, 0, sizeof(*einittoken));
- 
--	if (copy_from_user(sigstruct, (void __user *)initp->sigstruct,
--			   sizeof(*sigstruct))) {
--		ret = -EFAULT;
-+	ret = sgx_encl_prepare_sigstruct(filep, initp->sigstruct, sigstruct);
-+	if (ret)
- 		goto out;
--	}
--
- 
- 	ret = sgx_encl_init(encl, sigstruct, einittoken);
- 
-diff --git a/arch/x86/kernel/cpu/sgx/driver/main.c b/arch/x86/kernel/cpu/sgx/driver/main.c
-index 58ba6153070b..8848711a55bd 100644
---- a/arch/x86/kernel/cpu/sgx/driver/main.c
-+++ b/arch/x86/kernel/cpu/sgx/driver/main.c
-@@ -63,14 +63,26 @@ static long sgx_compat_ioctl(struct file *filep, unsigned int cmd,
- static int sgx_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct sgx_encl *encl = file->private_data;
-+	unsigned long prot;
-+	int rc;
- 
- 	vma->vm_ops = &sgx_vm_ops;
- 	vma->vm_flags |= VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP | VM_IO;
- 	vma->vm_private_data = encl;
- 
--	kref_get(&encl->refcount);
-+	prot = vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC);
-+	vma->vm_flags &= ~prot;
- 
--	return 0;
-+	prot = _calc_vm_trans(prot, VM_READ, PROT_READ) |
-+	       _calc_vm_trans(prot, VM_WRITE, PROT_WRITE) |
-+	       _calc_vm_trans(prot, VM_EXEC, PROT_EXEC);
-+	rc = security_file_mprotect(vma, prot, prot);
++static inline int ema_lock_apply_to_range(struct ema_map *map,
++					  size_t start, size_t end,
++					  int (*cb)(struct ema *, void *),
++					  void *arg)
++{
++	int rc = ema_lock_map(map);
 +	if (!rc) {
-+		vma->vm_flags |= calc_vm_prot_bits(prot, 0);
-+		kref_get(&encl->refcount);
++		rc = ema_apply_to_range(map, start, end, cb, arg);
++		ema_unlock_map(map);
++	}
++	return rc;
++}
++
++static inline int ema_lock_remove_range(struct ema_map *map,
++					size_t start, size_t end)
++{
++	int rc = ema_lock_map(map);
++	if (!rc) {
++		ema_remove_range(map, start, end);
++		ema_unlock_map(map);
++	}
++	return rc;
++}
++
++#endif /* _LSM_EMA_H_ */
+diff --git a/security/Makefile b/security/Makefile
+index c598b904938f..b66d03a94853 100644
+--- a/security/Makefile
++++ b/security/Makefile
+@@ -28,6 +28,7 @@ obj-$(CONFIG_SECURITY_YAMA)		+= yama/
+ obj-$(CONFIG_SECURITY_LOADPIN)		+= loadpin/
+ obj-$(CONFIG_SECURITY_SAFESETID)       += safesetid/
+ obj-$(CONFIG_CGROUP_DEVICE)		+= device_cgroup.o
++obj-$(CONFIG_INTEL_SGX)			+= commonema.o
+ 
+ # Object integrity file lists
+ subdir-$(CONFIG_INTEGRITY)		+= integrity
+diff --git a/security/commonema.c b/security/commonema.c
+new file mode 100644
+index 000000000000..c5b0bdfdc013
+--- /dev/null
++++ b/security/commonema.c
+@@ -0,0 +1,277 @@
++// SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
++// Copyright(c) 2016-18 Intel Corporation.
++
++#include <linux/lsm_ema.h>
++#include <linux/lsm_hooks.h>
++#include <linux/slab.h>
++
++static struct kmem_cache *_map_cache;
++static struct kmem_cache *_node_cache;
++static size_t _data_size __lsm_ro_after_init;
++
++static struct lsm_blob_sizes ema_blob_sizes __lsm_ro_after_init = {
++	.lbs_file = sizeof(atomic_long_t),
++};
++
++static atomic_long_t *_map_file(struct file *encl)
++{
++	return (void *)((char *)(encl->f_security) + ema_blob_sizes.lbs_file);
++}
++
++static struct ema_map *_alloc_map(void)
++{
++	struct ema_map *m;
++
++	m = kmem_cache_zalloc(_map_cache, GFP_KERNEL);
++	if (likely(m)) {
++		INIT_LIST_HEAD(&m->list);
++		mutex_init(&m->lock);
++	}
++	return m;
++}
++
++static struct ema *_new_ema(size_t start, size_t end, struct file *src)
++{
++	struct ema *ema;
++
++	if (unlikely(!_node_cache)) {
++		struct kmem_cache *c;
++
++		c = kmem_cache_create("lsm-ema", sizeof(*ema) + _data_size,
++				      __alignof__(typeof(*ema)), SLAB_PANIC,
++				      NULL);
++		if (atomic_long_cmpxchg((atomic_long_t *)&_node_cache, 0,
++					(long)c))
++			kmem_cache_destroy(c);
 +	}
 +
++	ema = kmem_cache_zalloc(_node_cache, GFP_KERNEL);
++	if (likely(ema)) {
++		INIT_LIST_HEAD(&ema->link);
++		ema->start = start;
++		ema->end = end;
++		if (src)
++			ema->source = get_file(src);
++	}
++	return ema;
++}
++
++static void _free_ema(struct ema *ema)
++{
++	if (ema->source)
++		fput(ema->source);
++	kmem_cache_free(_node_cache, ema);
++}
++
++static void _free_map(struct ema_map *map)
++{
++	struct ema *p, *n;
++
++	WARN_ON(mutex_is_locked(&map->lock));
++	list_for_each_entry_safe(p, n, &map->list, link)
++		_free_ema(p);
++	kmem_cache_free(_map_cache, map);
++}
++
++static struct ema_map *_init_map(struct file *encl)
++{
++	struct ema_map *m = ema_get_map(encl);
++	if (!m) {
++		m = _alloc_map();
++		if (atomic_long_cmpxchg(_map_file(encl), 0, (long)m)) {
++			_free_map(m);
++			m = ema_get_map(encl);
++		}
++	}
++	return m;
++}
++
++static inline struct ema *_next_ema(struct ema *p, struct ema_map *map)
++{
++	p = list_next_entry(p, link);
++	return &p->link == &map->list ? NULL : p;
++}
++
++static inline struct ema *_find_ema(struct ema_map *map, size_t a)
++{
++	struct ema *p;
++
++	WARN_ON(!mutex_is_locked(&map->lock));
++
++	list_for_each_entry(p, &map->list, link)
++		if (a < p->end)
++			break;
++	return &p->link == &map->list ? NULL : p;
++}
++
++static struct ema *_split_ema(struct ema *p, size_t at)
++{
++	typeof(p) n;
++
++	if (at <= p->start || at >= p->end)
++		return p;
++
++	n = _new_ema(p->start, at, p->source);
++	if (likely(n)) {
++		memcpy(n + 1, p + 1, _data_size);
++		p->start = at;
++		list_add_tail(&n->link, &p->link);
++	}
++	return n;
++}
++
++static int _merge_ema(struct ema *p, struct ema_map *map)
++{
++	typeof(p) prev = list_prev_entry(p, link);
++
++	WARN_ON(!mutex_is_locked(&map->lock));
++
++	if (&prev->link == &map->list || prev->end != p->start ||
++	    prev->source != p->source || memcmp(prev + 1, p + 1, _data_size))
++		return 0;
++
++	p->start = prev->start;
++	fput(prev->source);
++	_free_ema(prev);
++	return 1;
++}
++
++static inline int _insert_ema(struct ema_map *map, struct ema *n)
++{
++	typeof(n) p = _find_ema(map, n->start);
++
++	if (!p)
++		list_add_tail(&n->link, &map->list);
++	else if (n->end <= p->start)
++		list_add_tail(&n->link, &p->link);
++	else
++		return -EEXIST;
++
++	_merge_ema(n, map);
++	if (p)
++		_merge_ema(p, map);
++	return 0;
++}
++
++static void ema_file_free_security(struct file *encl)
++{
++	struct ema_map *m = ema_get_map(encl);
++	if (m)
++		_free_map(m);
++}
++
++static int ema_enclave_load(struct file *encl, size_t start, size_t end,
++			    size_t flags, struct vm_area_struct *vma)
++{
++	struct ema_map *m;
++	struct ema *ema;
++	int rc;
++
++	m = _init_map(encl);
++	if (unlikely(!m))
++		return -ENOMEM;
++
++	ema = _new_ema(start, end, vma ? vma->vm_file : NULL);
++	if (unlikely(!ema))
++		return -ENOMEM;
++
++	rc = ema_lock_map(m);
++	if (!rc) {
++		rc = _insert_ema(m, ema);
++		ema_unlock_map(m);
++	}
++	if (rc)
++		_free_ema(ema);
 +	return rc;
- }
- 
- static unsigned long sgx_get_unmapped_area(struct file *file,
++}
++
++static int ema_enclave_init(struct file *encl, struct sgx_sigstruct *sigstruct,
++			    struct vm_area_struct *vma)
++{
++	if (unlikely(!_init_map(encl)))
++		return -ENOMEM;
++	return 0;
++}
++
++static struct security_hook_list ema_hooks[] __lsm_ro_after_init = {
++	LSM_HOOK_INIT(file_free_security, ema_file_free_security),
++	LSM_HOOK_INIT(enclave_load, ema_enclave_load),
++	LSM_HOOK_INIT(enclave_init, ema_enclave_init),
++};
++
++static int __init ema_init(void)
++{
++	_map_cache = kmem_cache_create("lsm-ema_map", sizeof(struct ema_map),
++				       __alignof__(struct ema_map), SLAB_PANIC,
++				       NULL);
++	security_add_hooks(ema_hooks, ARRAY_SIZE(ema_hooks), "ema");
++	return 0;
++}
++
++DEFINE_LSM(ema) = {
++	.name = "ema",
++	.order = LSM_ORDER_FIRST,
++	.init = ema_init,
++	.blobs = &ema_blob_sizes,
++};
++
++/* ema_request_blob shall only be called from LSM module init function */
++size_t __init ema_request_blob(size_t size)
++{
++	typeof(_data_size) offset = _data_size;
++	_data_size += size;
++	return offset;
++}
++
++struct ema_map *ema_get_map(struct file *encl)
++{
++	return (struct ema_map *)atomic_long_read(_map_file(encl));
++}
++
++/**
++ * Invoke a callback function on every EMA falls within range, split EMAs as
++ * needed
++ */
++int ema_apply_to_range(struct ema_map *map, size_t start, size_t end,
++		       int (*cb)(struct ema *, void *), void *arg)
++{
++	struct ema *ema;
++	int rc;
++
++	ema = _find_ema(map, start);
++	while (ema && end > ema->start) {
++		if (start > ema->start)
++			_split_ema(ema, start);
++		if (end < ema->end)
++			ema = _split_ema(ema, end);
++
++		rc = (*cb)(ema, arg);
++		_merge_ema(ema, map);
++		if (rc)
++			return rc;
++
++		ema = _next_ema(ema, map);
++	}
++
++	if (ema)
++		_merge_ema(ema, map);
++	return 0;
++}
++
++/* Remove all EMAs falling within range, split EMAs as needed */
++void ema_remove_range(struct ema_map *map, size_t start, size_t end)
++{
++	struct ema *ema, *n;
++
++	ema = _find_ema(map, start);
++	while (ema && end > ema->start) {
++		if (start > ema->start)
++			_split_ema(ema, start);
++		if (end < ema->end)
++			ema = _split_ema(ema, end);
++
++		n = _next_ema(ema, map);
++		_free_ema(ema);
++		ema = n;
++	}
++}
 -- 
 2.17.1
 
