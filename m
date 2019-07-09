@@ -2,135 +2,125 @@ Return-Path: <SRS0=OcM+=VG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C61CC73C46
-	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 16:41:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A4BFC73C53
+	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 17:09:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3CFED21537
-	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 16:41:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=android.com header.i=@android.com header.b="pZp1kUM1"
+	by mail.kernel.org (Postfix) with ESMTP id 0AEBA20651
+	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 17:09:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726444AbfGIQlY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jul 2019 12:41:24 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:35865 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725816AbfGIQlX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jul 2019 12:41:23 -0400
-Received: by mail-pg1-f194.google.com with SMTP id l21so5723210pgm.3
-        for <selinux@vger.kernel.org>; Tue, 09 Jul 2019 09:41:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-transfer-encoding:content-language;
-        bh=LjCqOPogmaN342Ext4GkWHH7a8C0WeqklVniarDPpUQ=;
-        b=pZp1kUM1IpBtx23qfXg8T+jMMw6RmniKpoxETZMZmt9B43XtwgrD9NAmIxH2WzFDuu
-         uxmMIpnxnZcguYO+lbNGcQOOXCdELn0+ZZoDjbxkqKVZgICinCSwVA0eqjJAtn5HtCvi
-         clWItP5CbqmDlBPMvxKVltxMMLQVShEna4/VyPNeA3L9meyrOMJ7jS7e9gYDiG+Yt1RW
-         NMReZLzVkD0l1IWosA+LxbJUjQZuFe52VHcVoXQcG5y+wRVRxUhaGfWdiAIhLhVWgEKI
-         QBNxQCyOWmLylbpDmHk5q77Df/cOUhA2EPKjfq7LWbYHSIvYiXqd7fuk1GAWSoAANEJk
-         i49g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=LjCqOPogmaN342Ext4GkWHH7a8C0WeqklVniarDPpUQ=;
-        b=oJyPx5e12Mz7mTqts8mcp5SpxF3tavICED2nyDFMkbEJfSRCSeQqhBAkDh22YCNAPB
-         5pxzqdhlK0xfCzfxBsP8C5RGhO0jl4gVfQnuPMTVNopQL5kGgW8flAoUzrztf0FS0IJn
-         BG7No1Lpbzk/XtqOgFm9hOe/BFobvwFPUuRGkSjI71P9i9K3jf+4qYF+HaVPy2R6ltY8
-         I4iglHtgHy+Owyj2YBhM3EmkgTobXOcB+ULWEh8G3vR47mseXp/Bvj8c/TzYDPLt95rO
-         a0arAPMiBl6SL0g75vEO1TFIfq3o67NdhNhhx8mYrQsHKJYQ7s/uAyVx+WSOKh181RKf
-         mh8Q==
-X-Gm-Message-State: APjAAAXx231prrwzUPUQOcBnc5sAyft3qyNRV0rE5H/p1Vwit7t3xByn
-        DOa8SOKun46BGlT2N3+kgzpH9Q==
-X-Google-Smtp-Source: APXvYqz9+gzr4jJf1bq2FZfW3SD3587F40aPFcC2v62N7K2zYg/3Di7RqjWW3G4sE7etfJh72C89+A==
-X-Received: by 2002:a63:2c8:: with SMTP id 191mr31401796pgc.139.1562690483019;
-        Tue, 09 Jul 2019 09:41:23 -0700 (PDT)
-Received: from nebulus.mtv.corp.google.com ([100.96.59.204])
-        by smtp.googlemail.com with ESMTPSA id l124sm32360162pgl.54.2019.07.09.09.41.22
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Jul 2019 09:41:22 -0700 (PDT)
-Subject: Re: RFC: BUG: overlayfs getxattr recursion leaves a poison sid.
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Miklos Szeredi <miklos@szeredi.hu>,
+        id S1726444AbfGIRJT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jul 2019 13:09:19 -0400
+Received: from mga14.intel.com ([192.55.52.115]:24541 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726335AbfGIRJT (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 9 Jul 2019 13:09:19 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Jul 2019 10:09:18 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,470,1557212400"; 
+   d="scan'208";a="173621923"
+Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.165])
+  by FMSMGA003.fm.intel.com with ESMTP; 09 Jul 2019 10:09:17 -0700
+Date:   Tue, 9 Jul 2019 10:09:17 -0700
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc:     linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org,
+        Bill Roberts <william.c.roberts@intel.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
         James Morris <jmorris@namei.org>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        kernel-team@android.com,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>
-References: <b5c3bc4a-eb39-d994-7723-947a464383a2@android.com>
- <7b6eb68e-44ae-5df8-9ebd-d334fc134938@schaufler-ca.com>
-From:   Mark Salyzyn <salyzyn@android.com>
-Message-ID: <54a934de-2e1b-c09e-2e06-be8e56144f84@android.com>
-Date:   Tue, 9 Jul 2019 09:41:21 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        Dave Hansen <dave.hansen@intel.com>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Dr . Greg Wettstein" <greg@enjellic.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v4 00/12] security: x86/sgx: SGX vs. LSM
+Message-ID: <20190709170917.GD25369@linux.intel.com>
+References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
+ <20190705160549.tzsck5ho5kvtdhit@linux.intel.com>
+ <20190708172930.GA20791@linux.intel.com>
+ <20190709162203.gzyvulah5u7eksip@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <7b6eb68e-44ae-5df8-9ebd-d334fc134938@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-GB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190709162203.gzyvulah5u7eksip@linux.intel.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/9/19 9:33 AM, Casey Schaufler wrote:
-> On 7/9/2019 9:23 AM, Mark Salyzyn wrote:
->> For EACCES return for getxattr, sid appears to be expected updated in parent node. For some accesses purely cosmetic for correct avc logging, and depending on kernel vintage for others (older than 4.4) the lack of the corrected sid in the parent overlay inode poisons the security cache and results in false denials.
->>
->> The avc denials would contain an (incorrect) unlabelled target references, we could fix this by copying up the sid to the parent inode. However the test (below) needs to refactored to the pleasure of the security, selinux and overlayfs maintainers. The security_socket_accept function is _close_, it will copy sid and class from the old socket to the new. Along those lines, we probably need to add a new security_copy_to_upper handler that takes the upper and lower dentries and ensures that the upper contains all the security information associated with the lower.
-> Please include the LSM (CCed) list on all LSM impacting discussions.
-> Your mailer mangled the patch. Please resend in plain text.
->
-> Thank you.
->
->> Prototype adjustment (tested in 3.18 to ToT)
-(annoyed that Thunderbird let me down even after selecting text plain text)
+On Tue, Jul 09, 2019 at 07:22:03PM +0300, Jarkko Sakkinen wrote:
+> On Mon, Jul 08, 2019 at 10:29:30AM -0700, Sean Christopherson wrote:
+> > On Fri, Jul 05, 2019 at 07:05:49PM +0300, Jarkko Sakkinen wrote:
+> > > On Wed, Jun 19, 2019 at 03:23:49PM -0700, Sean Christopherson wrote:
+> > > 
+> > > I still don't get why we need this whole mess and do not simply admit
+> > > that there are two distinct roles:
+> > > 
+> > > 1. Creator
+> > > 2. User
+> > 
+> > Because SELinux has existing concepts of EXECMEM and EXECMOD.
+> 
+> What is the official documentation for those? I've only found some
+> explanations from discussions and some RHEL sysadmin guides.
 
-  int ovl_xattr_get(struct dentry *dentry, struct inode *inode, const 
-char *name,
-  {
-      ssize_t res;
-      const struct cred *old_cred;
-      struct dentry *realdentry =
-          ovl_i_dentry_upper(inode) ?: ovl_dentry_lower(dentry);
-
-      old_cred = ovl_override_creds(dentry->d_sb);
-      res = vfs_getxattr(realdentry, name, value, size);
-      ovl_revert_creds(old_cred);
-+    if (res == -EACCES)
-+        selinux_copy_sid(dentry, realdentry);
-      return res;
-
-  }
-
-. . .
-+ void selinux_copy_sid(struct dentry *parent, struct dentry *child)
-+ {
-+     struct inode *pinode, *cinode;
-+     struct inode_security_struct *pisec, *cisec;
-+
-+     if (!parent || !child)
-+         return;
-+     pinode = parent->d_inode;
-+     cinode = child->d_inode;
-+     if (!pinode || !cinode)
-+         return;
-+     pisec = pinode->i_security;
-+     cisec = cinode->i_security;
-+     if (!pisec || !cisec)
-+         return;
-+     pisec->sid = cisec->sid;
-+ }
-+ EXPORT_SYMBOL_GPL(selinux_copy_sid);
+No clue.  My knowledge was gleaned from the code and from Stephen's
+feedback.
 
 
+The high level breakdown:
+
+  - FILE__EXECUTE: required to gain X on a mapping to a regular file
+
+
+  - FILE__EXECUTE + FILE__WRITE: required to gain WX or W->X on a shared
+                                 mapping to a regular file
+
+  - FILE__EXECMOD: required to gain W->X on a private mapping of a regular
+                   file
+
+  - PROCESS__EXECMEM: required to gain WX on a private mapping to a regular
+                      file, OR to gain X on an anonymous mapping.
+
+
+Translating those to SGX, with a lot of input from Stephen, I ended up
+with the following:
+
+  - FILE__ENCLAVE_EXECUTE: equivalent to FILE__EXECUTE, required to gain X
+                           on an enclave page loaded from a regular file
+
+  - PROCESS2__ENCLAVE_EXECDIRTY: hybrid of EXECMOD and EXECUTE+WRITE,
+                                 required to gain W->X on an enclave page
+
+  - PROCESS2__ENCLAVE_EXECANON: subset of EXECMEM, required to gain X on
+                                an enclave page that is loaded from an
+                                anonymous mapping
+                       
+  - PROCESS2__ENCLAVE_MAPWX: subset of EXECMEM, required to gain WX on an
+                             enclave page
+
+
+
+> > That being said, we can do so without functional changes to the SGX uapi,
+> > e.g. add reserved fields so that the initial uapi can be extended *if* we
+> > decide to go with the "userspace provides maximal protections" path, and
+> > use the EPCM permissions as the maximal protections for the initial
+> > upstreaming.
+> > 
+> > That'd give us a minimal implemenation for initial upstreaming and would
+> > eliminate Cedric's blocking complaint.  The "whole mess" of whitelisting,
+> > blacklisting and SGX2 support would be deferred until post-upstreaming.
+> 
+> I'd like that approach more too.
+> 
+> /Jarkko
