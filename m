@@ -2,519 +2,271 @@ Return-Path: <SRS0=OcM+=VG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E26A1C73C53
-	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 17:13:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61F22C73C53
+	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 17:52:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 66E5920651
-	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 17:13:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2AEA22087F
+	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 17:52:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="mR4h9yfh"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="KTrdmwMs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726165AbfGIRNa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jul 2019 13:13:30 -0400
-Received: from uhil19pa10.eemsg.mail.mil ([214.24.21.83]:14867 "EHLO
-        uhil19pa10.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726483AbfGIRN3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jul 2019 13:13:29 -0400
-X-EEMSG-check-017: 426845260|UHIL19PA10_EEMSG_MP8.csd.disa.mil
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by uhil19pa10.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Jul 2019 17:13:27 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1562692407; x=1594228407;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=PUvr8sfCqTT3Pv3mTW7CWHi7CcHdALWxosYrwjd6A20=;
-  b=mR4h9yfh+LkD6rIxdhyqAsmtzAY7UO84fSNUfXkBJA9XFWDv8KJVqemx
-   lDnw7Q4N1lLHfXlqodgXiZeMxZ45dobGPBOrONHIA16BaVKAhXjR7eX3n
-   rUouwaZshGqen5TblKt5d+5Ugg6E0BAMri9OL5dkd6LnM92k6iQ0i6TTk
-   PGQ5HIpu89CzcDMSmStR68t+pPz3oOmYhq+xtSxFoxP/DpWGF32GRLunO
-   EHwTQVz5NitDA47LaA/rQ5M6nn0BWAzUGke8XEDs4DwH5xF2vtSiiZIMH
-   WrKhUuW5bEwrp6rzRZnelxzqwsyQGAJIlyr6/WhFOiZhWS6V7KVW+N+1A
-   w==;
-X-IronPort-AV: E=Sophos;i="5.63,470,1557187200"; 
-   d="scan'208";a="25515165"
-IronPort-PHdr: =?us-ascii?q?9a23=3ACA6gxRGtjcE2vRDJ9pyfzJ1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ76o8SzbnLW6fgltlLVR4KTs6sC17OM9fy6EjVZuN6oizMrSNR0TR?=
- =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
- =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9vMhm6twrcutcZjYd/N6o91w?=
- =?us-ascii?q?bCr2dVdehR2W5mP0+YkQzm5se38p5j8iBQtOwk+sVdT6j0fLk2QKJBAjg+PG?=
- =?us-ascii?q?87+MPktR/YTQuS/XQcSXkZkgBJAwfe8h73WIr6vzbguep83CmaOtD2TawxVD?=
- =?us-ascii?q?+/4apnVAPkhSEaPDMi7mrZltJ/g75aoBK5phxw3YjUYJ2ONPFjeq/RZM4WSX?=
- =?us-ascii?q?ZdUspUUSFODJm8b48SBOQfO+hWoZT2q18XoRegAQSgAeXiwSJKiHDrx603y/?=
- =?us-ascii?q?kvHx/I3AIgHNwAvnrbo9r3O6gOXu6417XIwDfZYv9KxTvw5orFfxY8qv+MR7?=
- =?us-ascii?q?Jwds/RxFEyGQPZkFqQsYzlMC2T1u8Qrmab6vBvVeari2E5qwB6vz+ixtwxhY?=
- =?us-ascii?q?nSnY8V1lDF+jl5wIYyP9G4TlV7bsS+HJtfsCGaKZJ7T8U/SG9mvyY6z6cJuZ?=
- =?us-ascii?q?+9fCUSzpQo2wXfZOCdf4iN4xLjUOCcKip7inJ9YL+zmhm//Ee6xuD8S8W4yk?=
- =?us-ascii?q?hGoyVbntXWq3wA0QHY5NKdRftn5Eih3C6C1wXU6u5ZP085jbHbK5s9wr4okZ?=
- =?us-ascii?q?oTrFjDEjf2mEroiK+WcV0p+vSy5OT9Y7Xmu4ScO5VoigD+Lqsumsu/Df4+Mg?=
- =?us-ascii?q?cSRGiU5f6w1Lji/U39WLlKj/s2nbfFsJ3COMgWqaG0DxVV34o+8RqzETir3M?=
- =?us-ascii?q?oCkXUaNF5FfQiIj4ntO1HAOvD4CvK/jky3kDh23PDLJaHhA5XRIXjDl7ftZ7?=
- =?us-ascii?q?B961VGxwYpwtBf4IxUBqkbIP3vQk/xqMDYDhghPgOo2ennE8ty14MFVGKUHq?=
- =?us-ascii?q?CZMLndsUKG5uIrPeaMfpYZtyrnJPQ/+/Huino5k0cHfaa1xZsXdGy4HvN+Lk?=
- =?us-ascii?q?qFe3XsmckOEGcQsgolUOPqiEeNUSNdZ3a2Qa08/Co2CIOgDYffWI+thKaN0z?=
- =?us-ascii?q?u8Hp1TfmpGEEyDEW/0d4WYXPcBcCCSIspmkjweT7ihSpQh2AqotADgzrpoMO?=
- =?us-ascii?q?vU9jcftZL529h///fTmg0q9TxoE8Sd1HmAT2V1nmMOWj8307lzoVdjxVifzK?=
- =?us-ascii?q?h4mf1YFcBT5v9QVwc6MoPTz/F+C9/sQQ/BYNiJR0i8Qtm8AjE+UMgxw9kQbE?=
- =?us-ascii?q?Z5AdmiiQrD3yWyCb8Pi7OLHIA08r7b33XpPMZy1XLG1Kgnj1k7TcpCLnOmhq?=
- =?us-ascii?q?Fh+AjJHYLJkFuWl7ysdasC2C7B7mCDzXCBvEtASg5/Tb3FXWwDZkvRtdn55V?=
- =?us-ascii?q?3NQKG1Cbs7NQtBzs2CJ7BWZd3pl1VGQ/LjONXDY2K0gWuwAgyIxryUZorwZ2?=
- =?us-ascii?q?odxDndCFQDkw0L/3aGMgg+BiG7r2LcCzxuFUjgY0X38eZgrnO2VVM7wBuMb0?=
- =?us-ascii?q?1m0bq1+wIaiuaYS/8Jwr0EvyIhoS1uHFmhx9LWF8aApw15caVEf9w95lhH1X?=
- =?us-ascii?q?/Ytwx7J5CgLL5thkQYcwtpu0PjzBR3BpxEkcgtsnMl0hB+KbmC31NCajOYx4?=
- =?us-ascii?q?r/NqfRKmbs5hyvabbW0EnE0NmK4qcP9Og4q1L7sQGxDEUi7nFn3sJN03SG+5?=
- =?us-ascii?q?XKCBMeUZf2UkYw7Rh1uavWbTU654PRhjVQNvyfuyTPypoSD+ss1xikcs0XZK?=
- =?us-ascii?q?iNDwLjO9YRB8GzJugngR2iZ1QPO+UEsOY/NtirZr2d066iIehkkSiOjGJb7Y?=
- =?us-ascii?q?Q72UWJs2J+T+nSxZce6/eR2waGETDmgxPptsHxhJABfjwZA3C+1TmhAYlde6?=
- =?us-ascii?q?l/VZgEBH3oIMCtwNh6wZn3VDoQ71OnBlUbyOe3dheIKV/wxwtd0QIQu3P0tz?=
- =?us-ascii?q?G/ymlPjzwxrqeZlBfLyuDmeQtPbnVHX0F+nFzsJs6ylNlcU0+2OVt63CC57F?=
- =?us-ascii?q?r3kvAI7J90KHPeFAIRJXn7?=
-X-IPAS-Result: =?us-ascii?q?A2DmAAAJyiRd/wHyM5BmGwEBAQEDAQEBBwMBAQGBZ4FoB?=
- =?us-ascii?q?SpqUjIohByTLQEBAQEBAQaBNn6IXZEUCQEBAQEBAQEBASsJAQIBAYRAAoJDI?=
- =?us-ascii?q?zgTAQMBAQEEAQEBAQQBAWyFPAyCOikBgmYBAQEBAgEjBBFBEAsYAgIUDAYCA?=
- =?us-ascii?q?lcGAQwGAgEBgl8/AYF2BQ8PrAZ/M4NEggODJ4FHgQwoi18XeIEHgREngjY1P?=
- =?us-ascii?q?oUTgjuCWASMBQuHfFqBLpQ+CYIZgh+EN40pBhuCLIstiieNMJlNIYFYKwgCG?=
- =?us-ascii?q?AghDzuCbAmCRBeHaIZVIwMwAQGBBAEBjCKCLgEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 09 Jul 2019 17:13:26 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x69HDNtf013363;
-        Tue, 9 Jul 2019 13:13:24 -0400
+        id S1726744AbfGIRwH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jul 2019 13:52:07 -0400
+Received: from sonic309-22.consmr.mail.bf2.yahoo.com ([74.6.129.196]:35153
+        "EHLO sonic309-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726560AbfGIRwH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jul 2019 13:52:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1562694724; bh=SFr7GZgtqTjlZJ6mi1zFKGVmIi1pk3RpKatJ/hlGVIw=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=KTrdmwMsAHPl5S6+x8gFksO6txZgQ4geSEQBBqT/8VJZsPYpt19hHTythxzZizoDrJgrVH4o1V01KnX43/QGIq7ZgjRFdVSt/V7lkQnzRxUi97q4t3jMW39iDuwaSeMP1PkCKD5fEu3lz7+NQDh4DFizJ5aU484oBvX2SxrEHF3Uq+Ab0kWSEtwI3xlg1Sv8KuLDBW2KyMyaes4on8ESRZ4JSUlNvihsTxKi5R2SS6Qo+gRftuVEnmaMiTVAGhx6Gyr0JLQCIainVancWuTy2zPy8j5HX0gukIsFnZ7bgHNt+gXISf12qQJU/xdKhr2xSmAy9njr14TCiNlWLYjGKQ==
+X-YMail-OSG: zr.xYkUVM1n4X__tS0DGqPtDKSo.27McNm2tQx5JREUzKD0eL8Vq8d_1N7aqERS
+ RI9BOjUNpkb43fwFWhg9muTyhL3wXpvnsP5VblYO39BwK2CyJSNYIT0G6VYHdpkePZ92ziq9a8DE
+ 6x_U7DW4V3KwjG1NLxiBE0qn8l9kudM0nx428.W8uvwS2UljwL41vgnbJSVXdcOdyqsBDdXcsJGE
+ p_jaTY66XdxCi5UTtj6SjF3SOog1WLPj0WCFACsA2jJTo50IVRC.LM.HiWXnufyQV82ESSyc89HF
+ RcfA4BUey2U2.v.JvjjlsbrbxSzF8LC36o4cqBcuMJmGGHKTjigAJdaSvEG.fAgAAhyQT6mgCg5F
+ 9axDqXDwzQMNBcIUnC_mTKx_M0HPnIkLxTVCDQAhnSC3Ay3BH18SOXXzf3jIHJyHiDyGOefp6JfA
+ Uemix1KOY.BTvpCx19FsvNGK9W90pepAiGTqMEgsibEgEyRxWsutQFDwZiLvGbuPE8uLtgoEv8b_
+ U.ETSrermSYuZ.0AJB0JNkbRAuQcYW3oIwnWdEk2_oNaaMZSP6fWpb_YWN9JYEHHuysytmzIfE_V
+ LguynejjKX1rqjgoWajkwM.ddiZEvLqGhw6JrifEJ0DzI6RNRLLSJMFzSb6CdV9nVHbbsNv5u4La
+ nQhWHYrhRq6pPrj6p.OEG3AcxP.almnoSQaDGvUh3ag2wKg6eex4wnF.G_nJV.k8tCZKvdRtmRPt
+ kX5cC5OqJWILZAIIUEx7zeWezznherYziiHDQetpFlCoPhjkg4cyyttnArHevjRVavr2j.satrr2
+ 7.RVWPnRCfRIq2ypm6S7sHZ0hewWEESyyLcIfCC549tzyrOg8QldsGzZggSeFO7oN01Tra40xJVN
+ xAwl61QQEHe1L_EaJANB16wB2VFQsDQjiNsbqfbO6CtFAD1drt1iub6DGFP2HsVrgtDYYjhaC3XO
+ 8Mc7ucjkr0a0v1CJLZQ.mu9wAxqV.OkU9WXKLqEzd6KeFkxfHHP6RQAevKVaA7vEra.5yLJ3mVjf
+ Q3rDhN4XwmeN_3wZB2IvjRX9wxLLB5sGmJUu_aLLfAR1SrwnE3OUrzCrCG.J7V.xaGg7ODteKyRu
+ 0DeeEiRqsuBgoIS9BUiiJJyuNzws6dqK.nQ34OVIfr2EuEbLPq91RfJ93vYtYB.RYETUu.XynzZh
+ OHrfaVKf.8afcniHkmwbWmqEwBFZjUAa.UJzNEGB5lJdU0r2HUxWmstzCTAbgzFTF5SvkYhy82rg
+ _vSKm2sBJONnjx_898iRZSzPebikYl8ozIcLRO0PGwPDPLxQh1x4-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Tue, 9 Jul 2019 17:52:04 +0000
+Received: by smtp414.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 929d82f55add3792720f7b353fd8d42a;
+          Tue, 09 Jul 2019 17:51:59 +0000 (UTC)
 Subject: Re: [PATCH v5 15/23] LSM: Specify which LSM to display
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+To:     Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
+        jmorris@namei.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        casey@schaufler-ca.com
 References: <20190703212538.7383-1-casey@schaufler-ca.com>
  <20190703212538.7383-16-casey@schaufler-ca.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6f593ae9-4c79-7a04-41a3-c04ebd689658@tycho.nsa.gov>
-Date:   Tue, 9 Jul 2019 13:13:23 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+ <6f593ae9-4c79-7a04-41a3-c04ebd689658@tycho.nsa.gov>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ mQINBFzV9HABEAC/mmv3jeJyF7lR7QhILYg1+PeBLIMZv7KCzBSc/4ZZipoWdmr77Lel/RxQ
+ 1PrNx0UaM5r6Hj9lJmJ9eg4s/TUBSP67mTx+tsZ1RhG78/WFf9aBe8MSXxY5cu7IUwo0J/CG
+ vdSqACKyYPV5eoTJmnMxalu8/oVUHyPnKF3eMGgE0mKOFBUMsb2pLS/enE4QyxhcZ26jeeS6
+ 3BaqDl1aTXGowM5BHyn7s9LEU38x/y2ffdqBjd3au2YOlvZ+XUkzoclSVfSR29bomZVVyhMB
+ h1jTmX4Ac9QjpwsxihT8KNGvOM5CeCjQyWcW/g8LfWTzOVF9lzbx6IfEZDDoDem4+ZiPsAXC
+ SWKBKil3npdbgb8MARPes2DpuhVm8yfkJEQQmuLYv8GPiJbwHQVLZGQAPBZSAc7IidD2zbf9
+ XAw1/SJGe1poxOMfuSBsfKxv9ba2i8hUR+PH7gWwkMQaQ97B1yXYxVEkpG8Y4MfE5Vd3bjJU
+ kvQ/tOBUCw5zwyIRC9+7zr1zYi/3hk+OG8OryZ5kpILBNCo+aePeAJ44znrySarUqS69tuXd
+ a3lMPHUJJpUpIwSKQ5UuYYkWlWwENEWSefpakFAIwY4YIBkzoJ/t+XJHE1HTaJnRk6SWpeDf
+ CreF3+LouP4njyeLEjVIMzaEpwROsw++BX5i5vTXJB+4UApTAQARAQABtChDYXNleSBTY2hh
+ dWZsZXIgPGNhc2V5QHNjaGF1Zmxlci1jYS5jb20+iQJUBBMBCAA+FiEEC+9tH1YyUwIQzUIe
+ OKUVfIxDyBEFAlzV9HACGwMFCRLMAwAFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQOKUV
+ fIxDyBG6ag/6AiRl8yof47YOEVHlrmewbpnlBTaYNfJ5cZflNRKRX6t4bp1B2YV1whlDTpiL
+ vNOwFkh+ZE0eI5M4x8Gw2Oiok+4Q5liA9PHTozQYF+Ia+qdL5EehfbLGoEBqklpGvG3h8JsO
+ 7SvONJuFDgvab/U/UriDYycJwzwKZuhVtK9EMpnTtUDyP3DY+Q8h7MWsniNBLVXnh4yBIEJg
+ SSgDn3COpZoFTPGKE+rIzioo/GJe8CTa2g+ZggJiY/myWTS3quG0FMvwvNYvZ4I2g6uxSl7n
+ bZVqAZgqwoTAv1HSXIAn9muwZUJL03qo25PFi2gQmX15BgJKQcV5RL0GHFHRThDS3IyadOgK
+ P2j78P8SddTN73EmsG5OoyzwZAxXfck9A512BfVESqapHurRu2qvMoUkQaW/2yCeRQwGTsFj
+ /rr0lnOBkyC6wCmPSKXe3dT2mnD5KnCkjn7KxLqexKt4itGjJz4/ynD/qh+gL7IPbifrQtVH
+ JI7cr0fI6Tl8V6efurk5RjtELsAlSR6fKV7hClfeDEgLpigHXGyVOsynXLr59uE+g/+InVic
+ jKueTq7LzFd0BiduXGO5HbGyRKw4MG5DNQvC//85EWmFUnDlD3WHz7Hicg95D+2IjD2ZVXJy
+ x3LTfKWdC8bU8am1fi+d6tVEFAe/KbUfe+stXkgmfB7pxqW5Ag0EXNX0cAEQAPIEYtPebJzT
+ wHpKLu1/j4jQcke06Kmu5RNuj1pEje7kX5IKzQSs+CPH0NbSNGvrA4dNGcuDUTNHgb5Be9hF
+ zVqRCEvF2j7BFbrGe9jqMBWHuWheQM8RRoa2UMwQ704mRvKr4sNPh01nKT52ASbWpBPYG3/t
+ WbYaqfgtRmCxBnqdOx5mBJIBh9Q38i63DjQgdNcsTx2qS7HFuFyNef5LCf3jogcbmZGxG/b7
+ yF4OwmGsVc8ufvlKo5A9Wm+tnRjLr/9Mn9vl5Xa/tQDoPxz26+aWz7j1in7UFzAarcvqzsdM
+ Em6S7uT+qy5jcqyuipuenDKYF/yNOVSNnsiFyQTFqCPCpFihOnuaWqfmdeUOQHCSo8fD4aRF
+ emsuxqcsq0Jp2ODq73DOTsdFxX2ESXYoFt3Oy7QmIxeEgiHBzdKU2bruIB5OVaZ4zWF+jusM
+ Uh+jh+44w9DZkDNjxRAA5CxPlmBIn1OOYt1tsphrHg1cH1fDLK/pDjsJZkiH8EIjhckOtGSb
+ aoUUMMJ85nVhN1EbU/A3DkWCVFEA//Vu1+BckbSbJKE7Hl6WdW19BXOZ7v3jo1q6lWwcFYth
+ esJfk3ZPPJXuBokrFH8kqnEQ9W2QgrjDX3et2WwZFLOoOCItWxT0/1QO4ikcef/E7HXQf/ij
+ Dxf9HG2o5hOlMIAkJq/uLNMvABEBAAGJAjwEGAEIACYWIQQL720fVjJTAhDNQh44pRV8jEPI
+ EQUCXNX0cAIbDAUJEswDAAAKCRA4pRV8jEPIEWkzEACKFUnpp+wIVHpckMfBqN8BE5dUbWJc
+ GyQ7wXWajLtlPdw1nNw0Wrv+ob2RCT7qQlUo6GRLcvj9Fn5tR4hBvR6D3m8aR0AGHbcC62cq
+ I7LjaSDP5j/em4oVL2SMgNTrXgE2w33JMGjAx9oBzkxmKUqprhJomPwmfDHMJ0t7y39Da724
+ oLPTkQDpJL1kuraM9TC5NyLe1+MyIxqM/8NujoJbWeQUgGjn9uxQAil7o/xSCjrWCP3kZDID
+ vd5ZaHpdl8e1mTExQoKr4EWgaMjmD/a3hZ/j3KfTVNpM2cLfD/QwTMaC2fkK8ExMsz+rUl1H
+ icmcmpptCwOSgwSpPY1Zfio6HvEJp7gmDwMgozMfwQuT9oxyFTxn1X3rn1IoYQF3P8gsziY5
+ qtTxy2RrgqQFm/hr8gM78RhP54UPltIE96VywviFzDZehMvuwzW//fxysIoK97Y/KBZZOQs+
+ /T+Bw80Pwk/dqQ8UmIt2ffHEgwCTbkSm711BejapWCfklxkMZDp16mkxSt2qZovboVjXnfuq
+ wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
+ v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
+ abzjfg==
+Message-ID: <a3537a96-84d7-ad82-f76e-af0f44331c1b@schaufler-ca.com>
+Date:   Tue, 9 Jul 2019 10:51:57 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.2
 MIME-Version: 1.0
-In-Reply-To: <20190703212538.7383-16-casey@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <6f593ae9-4c79-7a04-41a3-c04ebd689658@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/3/19 5:25 PM, Casey Schaufler wrote:
-> Create a new entry "display" in /proc/.../attr for controlling
-> which LSM security information is displayed for a process.
-> The name of an active LSM that supplies hooks for human readable
-> data may be written to "display" to set the value. The name of
-> the LSM currently in use can be read from "display".
-> At this point there can only be one LSM capable of display
-> active. A helper function lsm_task_display() to get the display
-> slot for a task_struct.
+On 7/9/2019 10:13 AM, Stephen Smalley wrote:
+> On 7/3/19 5:25 PM, Casey Schaufler wrote:
+>> Create a new entry "display" in /proc/.../attr for controlling
+>> which LSM security information is displayed for a process.
+>> The name of an active LSM that supplies hooks for human readable
+>> data may be written to "display" to set the value. The name of
+>> the LSM currently in use can be read from "display".
+>> At this point there can only be one LSM capable of display
+>> active. A helper function lsm_task_display() to get the display
+>> slot for a task_struct.
+>
+> As I explained previously, this is a security hole waiting to happen. I=
+t still permits a process to affect the output of audit, alter the result=
+ of reading or writing /proc/self/attr nodes even by setuid/setgid/file-c=
+aps/context-changing programs, alter the contexts generated in netlink me=
+ssages delivered to other processes (I think?), and possibly other effect=
+s beyond affecting the process' own view of things.
 
-As I explained previously, this is a security hole waiting to happen. 
-It still permits a process to affect the output of audit, alter the 
-result of reading or writing /proc/self/attr nodes even by 
-setuid/setgid/file-caps/context-changing programs, alter the contexts 
-generated in netlink messages delivered to other processes (I think?), 
-and possibly other effects beyond affecting the process' own view of things.
+I would very much like some feedback regarding which of the
+possible formats for putting multiple subject contexts in
+audit records would be preferred:
 
-Before:
-$ id
-uid=1002(sds2) gid=1002(sds2) groups=1002(sds2) 
-context=staff_u:staff_r:staff_t:s0-s0:c0.c1023
-$ su
-Password:
-su: Authentication failure
+	lsm=3Dselinux,subj=3Dxyzzy_t lsm=3Dsmack,subj=3DXyzzy
+	lsm=3Dselinux,smack subj=3Dxyzzy_t,Xyzzy
+	subj=3D"selinux=3D'xyzzy_t',smack=3D'Xyzzy'"
 
-syscall audit record:
-type=SYSCALL msg=audit(07/09/2019 11:52:49.784:365) : arch=x86_64 
-syscall=openat
-  success=no exit=EACCES(Permission denied) a0=0xffffff9c 
-a1=0x560897e58e00 a2=O_
-WRONLY a3=0x0 items=1 ppid=3258 pid=3781 auid=sds2 uid=sds2 gid=sds2 
-euid=root s
-uid=root fsuid=root egid=sds2 sgid=sds2 fsgid=sds2 tty=pts2 ses=6 
-comm=su exe=/usr/bin/su subj=staff_u:staff_r:staff_t:s0-s0:c0.c1023 
-key=(null)
+Or something else. Free bikeshedding!
 
-After:
-$ id
-uid=1002(sds2) gid=1002(sds2) groups=1002(sds2) 
-context=staff_u:staff_r:staff_t:s0-s0:c0.c1023
-$ echo apparmor > /proc/self/attr/display
-$ su
-Password:
-su: Authentication failure
+I don't see how you have a problem with netlink. My look
+at what's in the kernel didn't expose anything, but I am
+willing to be educated.
 
-audit record:
-type=SYSCALL msg=audit(07/09/2019 12:05:32.402:406) : arch=x86_64 
-syscall=openat success=no exit=EACCES(Permission denied) a0=0xffffff9c 
-a1=0x556b41e1ae00 a2=O_WRONLY a3=0x0 items=1 ppid=3258 pid=9426 
-auid=sds2 uid=sds2 gid=sds2 euid=root suid=root fsuid=root egid=sds2 
-sgid=sds2 fsgid=sds2 tty=pts2 ses=6 comm=su exe=/usr/bin/su 
-subj==unconfined key=(null)
+>
+> Before:
+> $ id
+> uid=3D1002(sds2) gid=3D1002(sds2) groups=3D1002(sds2) context=3Dstaff_u=
+:staff_r:staff_t:s0-s0:c0.c1023
+> $ su
+> Password:
+> su: Authentication failure
+>
+> syscall audit record:
+> type=3DSYSCALL msg=3Daudit(07/09/2019 11:52:49.784:365) : arch=3Dx86_64=
+ syscall=3Dopenat
+> =C2=A0success=3Dno exit=3DEACCES(Permission denied) a0=3D0xffffff9c a1=3D=
+0x560897e58e00 a2=3DO_
+> WRONLY a3=3D0x0 items=3D1 ppid=3D3258 pid=3D3781 auid=3Dsds2 uid=3Dsds2=
+ gid=3Dsds2 euid=3Droot s
+> uid=3Droot fsuid=3Droot egid=3Dsds2 sgid=3Dsds2 fsgid=3Dsds2 tty=3Dpts2=
+ ses=3D6 comm=3Dsu exe=3D/usr/bin/su subj=3Dstaff_u:staff_r:staff_t:s0-s0=
+:c0.c1023 key=3D(null)
+>
+> After:
+> $ id
+> uid=3D1002(sds2) gid=3D1002(sds2) groups=3D1002(sds2) context=3Dstaff_u=
+:staff_r:staff_t:s0-s0:c0.c1023
+> $ echo apparmor > /proc/self/attr/display
+> $ su
+> Password:
+> su: Authentication failure
+>
+> audit record:
+> type=3DSYSCALL msg=3Daudit(07/09/2019 12:05:32.402:406) : arch=3Dx86_64=
+ syscall=3Dopenat success=3Dno exit=3DEACCES(Permission denied) a0=3D0xff=
+ffff9c a1=3D0x556b41e1ae00 a2=3DO_WRONLY a3=3D0x0 items=3D1 ppid=3D3258 p=
+id=3D9426 auid=3Dsds2 uid=3Dsds2 gid=3Dsds2 euid=3Droot suid=3Droot fsuid=
+=3Droot egid=3Dsds2 sgid=3Dsds2 fsgid=3Dsds2 tty=3Dpts2 ses=3D6 comm=3Dsu=
+ exe=3D/usr/bin/su subj=3D=3Dunconfined key=3D(null)
+>
+> NB The subj=3D field of the SYSCALL audit record is longer accurate and=
+ is potentially under the control of a process that would not be authoriz=
+ed to set its subject label to that value by SELinux.
 
-NB The subj= field of the SYSCALL audit record is longer accurate and is 
-potentially under the control of a process that would not be authorized 
-to set its subject label to that value by SELinux.
+It's still accurate, it's just not complete. It's a matter
+of how best to complete it.
 
-Now, let's play with userspace.
-
-Before:
-# id
-uid=0(root) gid=0(root) groups=0(root) 
-context=staff_u:staff_r:staff_t:s0-s0:c0.c1023
-# passwd root
-passwd: SELinux deny access due to security policy.
-
-audit record:
-type=USER_AVC msg=audit(07/09/2019 12:24:35.135:812) : pid=12693 
-uid=root auid=sds2 ses=7 subj=staff_u:staff_r:passwd_t:s0-s0:c0.c1023 
-msg='avc:  denied  { passwd } for 
-scontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023 
-tcontext=staff_u:staff_r:staff_t:s0-s0:c0.c1023 tclass=passwd 
-permissive=0  exe=/usr/bin/passwd sauid=root hostname=? addr=? 
-terminal=pts/2'
-type=USER_CHAUTHTOK msg=audit(07/09/2019 12:24:35.135:813) : pid=12693 
-uid=root auid=sds2 ses=7 subj=staff_u:staff_r:passwd_t:s0-s0:c0.c1023 
-msg='op=attempted-to-change-password id=root exe=/usr/bin/passwd 
-hostname=moss-pluto.infosec.tycho.ncsc.mil addr=? terminal=pts/2 res=failed'
-
-After:
-# id
-uid=0(root) gid=0(root) groups=0(root) 
-context=staff_u:staff_r:staff_t:s0-s0:c0.c1023
-# echo apparmor > /proc/self/attr/display
-# passwd root
-passwd: SELinux deny access due to security policy.
-
-audit record:
-type=USER_CHAUTHTOK msg=audit(07/09/2019 12:28:41.349:832) : pid=13083 
-uid=root auid=sds2 ses=7 subj==unconfined 
-msg='op=attempted-to-change-password id=root exe=/usr/bin/passwd 
-hostname=moss-pluto.infosec.tycho.ncsc.mil addr=? terminal=pts/2 
-res=failed'
-
-Here we again get the wrong value for subj= in the USER_CHAUTHTOK audit 
-record, and we further lose the USER_AVC record entirely because it 
-didn't even reach the point of the permission check due to not being 
-able to get the caller context.
-
-The situation gets worse if the caller can set things up such that it 
-can set an attribute value for one security module that is valid and 
-privileged with respect to another security module.  This isn't a 
-far-fetched scenario; AppArmor will default to running everything 
-unconfined, so as soon as you enable it, any root process can 
-potentially load a policy that defines contexts that look exactly like 
-SELinux contexts. Smack is even simpler; you can set any arbitrary 
-string you want as long as you are root (by default); no policy 
-required.  So a root process that is confined by SELinux (or by AppAmor) 
-can suddenly forge arbitrary contexts in audit records or reads of 
-/proc/self/attr nodes or netlink messages or ..., just by virtue of 
-applying these patches and enabling another security module like Smack. 
-Or consider if ptags were ever made real and merged - by design, that's 
-all about setting arbitrary tags from userspace.  Then there is the 
-separate issue of switching display to prevent attempts by a more 
-privileged program to set one of its attributes from taking effect. 
-Where have we seen that before - sendmail capabilities bug anyone?  And 
-it is actually worse than that bug, because with the assistance of a 
-friendly security module, the write may actually succeed; it just won't 
-alter the SELinux context of the program or anything it creates!
-
-This gets a NAK from me so long as it has these issues and setting the 
+>
+> Now, let's play with userspace.
+>
+> Before:
+> # id
+> uid=3D0(root) gid=3D0(root) groups=3D0(root) context=3Dstaff_u:staff_r:=
+staff_t:s0-s0:c0.c1023
+> # passwd root
+> passwd: SELinux deny access due to security policy.
+>
+> audit record:
+> type=3DUSER_AVC msg=3Daudit(07/09/2019 12:24:35.135:812) : pid=3D12693 =
+uid=3Droot auid=3Dsds2 ses=3D7 subj=3Dstaff_u:staff_r:passwd_t:s0-s0:c0.c=
+1023 msg=3D'avc:=C2=A0 denied=C2=A0 { passwd } for scontext=3Dstaff_u:sta=
+ff_r:staff_t:s0-s0:c0.c1023 tcontext=3Dstaff_u:staff_r:staff_t:s0-s0:c0.c=
+1023 tclass=3Dpasswd permissive=3D0=C2=A0 exe=3D/usr/bin/passwd sauid=3Dr=
+oot hostname=3D? addr=3D? terminal=3Dpts/2'
+> type=3DUSER_CHAUTHTOK msg=3Daudit(07/09/2019 12:24:35.135:813) : pid=3D=
+12693 uid=3Droot auid=3Dsds2 ses=3D7 subj=3Dstaff_u:staff_r:passwd_t:s0-s=
+0:c0.c1023 msg=3D'op=3Dattempted-to-change-password id=3Droot exe=3D/usr/=
+bin/passwd hostname=3Dmoss-pluto.infosec.tycho.ncsc.mil addr=3D? terminal=
+=3Dpts/2 res=3Dfailed'
+>
+> After:
+> # id
+> uid=3D0(root) gid=3D0(root) groups=3D0(root) context=3Dstaff_u:staff_r:=
+staff_t:s0-s0:c0.c1023
+> # echo apparmor > /proc/self/attr/display
+> # passwd root
+> passwd: SELinux deny access due to security policy.
+>
+> audit record:
+> type=3DUSER_CHAUTHTOK msg=3Daudit(07/09/2019 12:28:41.349:832) : pid=3D=
+13083 uid=3Droot auid=3Dsds2 ses=3D7 subj=3D=3Dunconfined msg=3D'op=3Datt=
+empted-to-change-password id=3Droot exe=3D/usr/bin/passwd hostname=3Dmoss=
+-pluto.infosec.tycho.ncsc.mil addr=3D? terminal=3Dpts/2 res=3Dfailed'
+>
+> Here we again get the wrong value for subj=3D in the USER_CHAUTHTOK aud=
+it record, and we further lose the USER_AVC record entirely because it di=
+dn't even reach the point of the permission check due to not being able t=
+o get the caller context.
+>
+> The situation gets worse if the caller can set things up such that it c=
+an set an attribute value for one security module that is valid and privi=
+leged with respect to another security module.=C2=A0 This isn't a far-fet=
+ched scenario; AppArmor will default to running everything unconfined, so=
+ as soon as you enable it, any root process can potentially load a policy=
+ that defines contexts that look exactly like SELinux contexts. Smack is =
+even simpler; you can set any arbitrary string you want as long as you ar=
+e root (by default); no policy required.=C2=A0 So a root process that is =
+confined by SELinux (or by AppAmor) can suddenly forge arbitrary contexts=
+ in audit records or reads of /proc/self/attr nodes or netlink messages o=
+r ..., just by virtue of applying these patches and enabling another secu=
+rity module like Smack. Or consider if ptags were ever made real and merg=
+ed - by design, that's all about setting arbitrary tags from userspace.=C2=
+=A0 Then there is the separate issue of switching
+> display to prevent attempts by a more privileged program to set one of =
+its attributes from taking effect. Where have we seen that before - sendm=
+ail capabilities bug anyone?=C2=A0 And it is actually worse than that bug=
+, because with the assistance of a friendly security module, the write ma=
+y actually succeed; it just won't alter the SELinux context of the progra=
+m or anything it creates!
+>
+> This gets a NAK from me so long as it has these issues and setting the =
 display remains outside the control of any security module.
 
-> 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->   fs/proc/base.c            |   1 +
->   include/linux/lsm_hooks.h |  13 ++++
->   security/security.c       | 129 +++++++++++++++++++++++++++++++++-----
->   3 files changed, 126 insertions(+), 17 deletions(-)
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index ddef482f1334..7bf70e041315 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -2618,6 +2618,7 @@ static const struct pid_entry attr_dir_stuff[] = {
->   	ATTR(NULL, "fscreate",		0666),
->   	ATTR(NULL, "keycreate",		0666),
->   	ATTR(NULL, "sockcreate",	0666),
-> +	ATTR(NULL, "display",		0666),
->   #ifdef CONFIG_SECURITY_SMACK
->   	DIR("smack",			0555,
->   	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index fe1fb7a69ee5..88ec3f3487ae 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -2134,4 +2134,17 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
->   
->   extern int lsm_inode_alloc(struct inode *inode);
->   
-> +/**
-> + * lsm_task_display - the "display LSM for this task
-> + * @task: The task to report on
-> + *
-> + * Returns the task's display LSM slot.
-> + */
-> +static inline int lsm_task_display(struct task_struct *task)
-> +{
-> +	int *display = task->security;
-> +
-> +	return *display;
-> +}
-> +
->   #endif /* ! __LINUX_LSM_HOOKS_H */
-> diff --git a/security/security.c b/security/security.c
-> index 8927508b2142..f3a293e6ef5a 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -46,7 +46,9 @@ static struct kmem_cache *lsm_file_cache;
->   static struct kmem_cache *lsm_inode_cache;
->   
->   char *lsm_names;
-> -static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init;
-> +static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init = {
-> +	.lbs_task = sizeof(int),	/* slot number for the "display" LSM */
-> +};
->   
->   /* Boot-time LSM user choice */
->   static __initdata const char *chosen_lsm_order;
-> @@ -423,8 +425,10 @@ static int lsm_append(const char *new, char **result)
->   
->   /*
->    * Current index to use while initializing the lsmblob secid list.
-> + * Pointers to the LSM id structures for local use.
->    */
->   static int lsm_slot __lsm_ro_after_init;
-> +static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES];
->   
->   /**
->    * security_add_hooks - Add a modules hooks to the hook lists.
-> @@ -444,6 +448,7 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
->   	if (lsmid->slot == LSMBLOB_NEEDED) {
->   		if (lsm_slot >= LSMBLOB_ENTRIES)
->   			panic("%s Too many LSMs registered.\n", __func__);
-> +		lsm_slotlist[lsm_slot] = lsmid;
->   		lsmid->slot = lsm_slot++;
->   		init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
->   			   lsmid->slot);
-> @@ -564,6 +569,8 @@ int lsm_inode_alloc(struct inode *inode)
->    */
->   static int lsm_task_alloc(struct task_struct *task)
->   {
-> +	int *display;
-> +
->   	if (blob_sizes.lbs_task == 0) {
->   		task->security = NULL;
->   		return 0;
-> @@ -572,6 +579,15 @@ static int lsm_task_alloc(struct task_struct *task)
->   	task->security = kzalloc(blob_sizes.lbs_task, GFP_KERNEL);
->   	if (task->security == NULL)
->   		return -ENOMEM;
-> +
-> +	/*
-> +	 * The start of the task blob contains the "display" LSM slot number.
-> +	 * Start with it set to the invalid slot number, indicating that the
-> +	 * default first registered LSM be displayed.
-> +	 */
-> +	display = task->security;
-> +	*display = LSMBLOB_INVALID;
-> +
->   	return 0;
->   }
->   
-> @@ -1563,14 +1579,24 @@ int security_file_open(struct file *file)
->   
->   int security_task_alloc(struct task_struct *task, unsigned long clone_flags)
->   {
-> +	int *odisplay = current->security;
-> +	int *ndisplay;
->   	int rc = lsm_task_alloc(task);
->   
-> -	if (rc)
-> +	if (unlikely(rc))
->   		return rc;
-> +
->   	rc = call_int_hook(task_alloc, 0, task, clone_flags);
-> -	if (unlikely(rc))
-> +	if (unlikely(rc)) {
->   		security_task_free(task);
-> -	return rc;
-> +		return rc;
-> +	}
-> +
-> +	ndisplay = task->security;
-> +	if (ndisplay && odisplay)
-> +		*ndisplay = *odisplay;
-> +
-> +	return 0;
->   }
->   
->   void security_task_free(struct task_struct *task)
-> @@ -1967,10 +1993,29 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
->   				char **value)
->   {
->   	struct security_hook_list *hp;
-> +	int display = lsm_task_display(current);
-> +	int slot = 0;
-> +
-> +	if (!strcmp(name, "display")) {
-> +		/*
-> +		 * lsm_slot will be 0 if there are no displaying modules.
-> +		 */
-> +		if (lsm_slot == 0)
-> +			return -EINVAL;
-> +		if (display != LSMBLOB_INVALID)
-> +			slot = display;
-> +		*value = kstrdup(lsm_slotlist[slot]->lsm, GFP_KERNEL);
-> +		if (*value)
-> +			return strlen(*value);
-> +		return -ENOMEM;
-> +	}
->   
->   	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
->   		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
->   			continue;
-> +		if (lsm == NULL && display != LSMBLOB_INVALID &&
-> +		    display != hp->lsmid->slot)
-> +			continue;
->   		return hp->hook.getprocattr(p, name, value);
->   	}
->   	return -EINVAL;
-> @@ -1980,10 +2025,46 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
->   			 size_t size)
->   {
->   	struct security_hook_list *hp;
-> +	char *term;
-> +	char *cp;
-> +	int *display = current->security;
-> +	int rc = -EINVAL;
-> +	int slot = 0;
-> +
-> +	if (!strcmp(name, "display")) {
-> +		/*
-> +		 * lsm_slot will be 0 if there are no displaying modules.
-> +		 */
-> +		if (lsm_slot == 0 || size == 0)
-> +			return -EINVAL;
-> +		cp = kzalloc(size + 1, GFP_KERNEL);
-> +		if (cp == NULL)
-> +			return -ENOMEM;
-> +		memcpy(cp, value, size);
-> +
-> +		term = strchr(cp, ' ');
-> +		if (term == NULL)
-> +			term = strchr(cp, '\n');
-> +		if (term != NULL)
-> +			*term = '\0';
-> +
-> +		for (slot = 0; slot < lsm_slot; slot++)
-> +			if (!strcmp(cp, lsm_slotlist[slot]->lsm)) {
-> +				*display = lsm_slotlist[slot]->slot;
-> +				rc = size;
-> +				break;
-> +			}
-> +
-> +		kfree(cp);
-> +		return rc;
-> +	}
->   
->   	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
->   		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
->   			continue;
-> +		if (lsm == NULL && *display != LSMBLOB_INVALID &&
-> +		    *display != hp->lsmid->slot)
-> +			continue;
->   		return hp->hook.setprocattr(name, value, size);
->   	}
->   	return -EINVAL;
-> @@ -2003,15 +2084,15 @@ EXPORT_SYMBOL(security_ismaclabel);
->   int security_secid_to_secctx(struct lsmblob *blob, char **secdata, u32 *seclen)
->   {
->   	struct security_hook_list *hp;
-> -	int rc;
-> +	int display = lsm_task_display(current);
->   
->   	hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx, list) {
->   		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
->   			continue;
-> -		rc = hp->hook.secid_to_secctx(blob->secid[hp->lsmid->slot],
-> -					      secdata, seclen);
-> -		if (rc != 0)
-> -			return rc;
-> +		if (display == LSMBLOB_INVALID || display == hp->lsmid->slot)
-> +			return hp->hook.secid_to_secctx(
-> +					blob->secid[hp->lsmid->slot],
-> +					secdata, seclen);
->   	}
->   	return 0;
->   }
-> @@ -2021,16 +2102,15 @@ int security_secctx_to_secid(const char *secdata, u32 seclen,
->   			     struct lsmblob *blob)
->   {
->   	struct security_hook_list *hp;
-> -	int rc;
-> +	int display = lsm_task_display(current);
->   
->   	lsmblob_init(blob, 0);
->   	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list) {
->   		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
->   			continue;
-> -		rc = hp->hook.secctx_to_secid(secdata, seclen,
-> -					      &blob->secid[hp->lsmid->slot]);
-> -		if (rc != 0)
-> -			return rc;
-> +		if (display == LSMBLOB_INVALID || display == hp->lsmid->slot)
-> +			return hp->hook.secctx_to_secid(secdata, seclen,
-> +						&blob->secid[hp->lsmid->slot]);
->   	}
->   	return 0;
->   }
-> @@ -2038,7 +2118,15 @@ EXPORT_SYMBOL(security_secctx_to_secid);
->   
->   void security_release_secctx(char *secdata, u32 seclen)
->   {
-> -	call_void_hook(release_secctx, secdata, seclen);
-> +	struct security_hook_list *hp;
-> +	int *display = current->security;
-> +
-> +	hlist_for_each_entry(hp, &security_hook_heads.release_secctx, list)
-> +		if (*display == LSMBLOB_INVALID ||
-> +		    *display == hp->lsmid->slot) {
-> +			hp->hook.release_secctx(secdata, seclen);
-> +			return;
-> +		}
->   }
->   EXPORT_SYMBOL(security_release_secctx);
->   
-> @@ -2163,8 +2251,15 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
->   int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
->   				      int __user *optlen, unsigned len)
->   {
-> -	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
-> -				optval, optlen, len);
-> +	int display = lsm_task_display(current);
-> +	struct security_hook_list *hp;
-> +
-> +	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_stream,
-> +			     list)
-> +		if (display == LSMBLOB_INVALID || display == hp->lsmid->slot)
-> +			return hp->hook.socket_getpeersec_stream(sock, optval,
-> +								 optlen, len);
-> +	return -ENOPROTOOPT;
->   }
->   
->   int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
-> 
+The issues you've raised around audit are meritorious.
+Any suggestions regarding how to address them would be
+quite welcome.
+
+As far as the general objection to the display mechanism,
+I am eager to understand what you might propose as an
+alternative. We can't dismiss backward compatibility for
+any of the modules. We can't preclude any module combination.
+
+We can require user space changes for configurations that
+were impossible before, just as the addition of SELinux to
+a system required user space changes. Update libselinux
+to check the display before using the attr interfaces and
+you've addressed most of the issues.
+
 
