@@ -2,68 +2,76 @@ Return-Path: <SRS0=OcM+=VG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10FB3C606CF
-	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 03:15:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D706AC73C53
+	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 16:18:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DB0D0216C4
-	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 03:15:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1562642121;
-	bh=UD5AJS0o2Oz7QrHl8e7s76+5e1eQEf5QyFJ2MnmL0CA=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:List-ID:From;
-	b=Gn+PamtpZg0mW6iOSGwxqGbELnzfq45LFDsQTNXijG0QUCzCAQojN31GBh2qHRejE
-	 JiiQbnTbibY0KaPN59lBnssf8dd+/JaBlXy7Rkx70wNjHnYj3Dl7og1bm2qNI1xh6N
-	 PuOl3/4NdoYMky3cHdV1qSA9XsOwetCoIoZeq69c=
+	by mail.kernel.org (Postfix) with ESMTP id B06C7216E3
+	for <selinux@archiver.kernel.org>; Tue,  9 Jul 2019 16:18:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727523AbfGIDPI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jul 2019 23:15:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60996 "EHLO mail.kernel.org"
+        id S1726251AbfGIQSW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jul 2019 12:18:22 -0400
+Received: from mga04.intel.com ([192.55.52.120]:26366 "EHLO mga04.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726928AbfGIDPI (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 8 Jul 2019 23:15:08 -0400
-Subject: Re: [GIT PULL] SELinux patches for v5.3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1562642107;
-        bh=UD5AJS0o2Oz7QrHl8e7s76+5e1eQEf5QyFJ2MnmL0CA=;
-        h=From:In-Reply-To:References:Date:To:Cc:From;
-        b=DWfVoGXzUVMKNBZTmBaiUGKhpSXceQelJPsoHlWhm7a7HiAqBV0vkoULqB8fyG+2P
-         j1d6TtJLcBC1dRZ+iwt5cnbodvvVvquzwiZB14mY7UrO7OvlaFIqjVjfbPSvGl5z8M
-         MIS8ZVmwNT7abZKl1zRnBWx6m8wbnj8OdLx5LPO4=
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <CAHC9VhSERNCM2d42y8fBT236D62mco=B_ZM_vytEoBP1qicvCA@mail.gmail.com>
-References: <CAHC9VhSERNCM2d42y8fBT236D62mco=B_ZM_vytEoBP1qicvCA@mail.gmail.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <CAHC9VhSERNCM2d42y8fBT236D62mco=B_ZM_vytEoBP1qicvCA@mail.gmail.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
- tags/selinux-pr-20190702
-X-PR-Tracked-Commit-Id: ea74a685ad819aeed316a9bae3d2a5bf762da82d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 7c0f89634892693fc0b46f25e0a6d57bd6dd5698
-Message-Id: <156264210736.2709.1861861527088813337.pr-tracker-bot@kernel.org>
-Date:   Tue, 09 Jul 2019 03:15:07 +0000
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
+        id S1725816AbfGIQSW (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 9 Jul 2019 12:18:22 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Jul 2019 09:18:15 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,470,1557212400"; 
+   d="scan'208";a="364188251"
+Received: from mmaitert-mobl2.ger.corp.intel.com (HELO localhost) ([10.249.34.54])
+  by fmsmga005.fm.intel.com with ESMTP; 09 Jul 2019 09:18:09 -0700
+Date:   Tue, 9 Jul 2019 19:18:08 +0300
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org,
+        Bill Roberts <william.c.roberts@intel.com>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Cedric Xing <cedric.xing@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Jethro Beekman <jethro@fortanix.com>,
+        "Dr . Greg Wettstein" <greg@enjellic.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [RFC PATCH v4 01/12] x86/sgx: Use mmu_notifier.release() instead
+ of per-vma refcounting
+Message-ID: <20190709161808.vx6qsnuhzoc4obzk@linux.intel.com>
+References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
+ <20190619222401.14942-2-sean.j.christopherson@intel.com>
+ <20190620210324.GF15383@linux.intel.com>
+ <20190708145707.GC20433@linux.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190708145707.GC20433@linux.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: NeoMutt/20180716
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The pull request you sent on Tue, 2 Jul 2019 13:28:37 -0400:
+On Mon, Jul 08, 2019 at 07:57:07AM -0700, Sean Christopherson wrote:
+> On Fri, Jun 21, 2019 at 12:03:36AM +0300, Jarkko Sakkinen wrote:
+> > On Wed, Jun 19, 2019 at 03:23:50PM -0700, Sean Christopherson wrote:
+> > > Using per-vma refcounting to track mm_structs associated with an enclave
+> > > requires hooking .vm_close(), which in turn prevents the mm from merging
+> > > vmas (precisely to allow refcounting).
+> > 
+> > Why having sgx_vma_close() prevents that? I do not understand the
+> > problem statement.
+> 
+> vmas that define .vm_close() cannot be merged.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git tags/selinux-pr-20190702
+Ugh, did not know that :-) Thank you.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/7c0f89634892693fc0b46f25e0a6d57bd6dd5698
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+/Jarkko
