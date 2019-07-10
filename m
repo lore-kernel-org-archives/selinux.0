@@ -6,43 +6,47 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 296C5C74A35
-	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 17:54:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A806EC74A3A
+	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 18:16:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 09A4D20844
-	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 17:54:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8398D21019
+	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 18:16:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727770AbfGJRyz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Jul 2019 13:54:55 -0400
-Received: from mga12.intel.com ([192.55.52.136]:12276 "EHLO mga12.intel.com"
+        id S1728162AbfGJSQK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Jul 2019 14:16:10 -0400
+Received: from mga17.intel.com ([192.55.52.151]:16034 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727347AbfGJRyz (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 10 Jul 2019 13:54:55 -0400
+        id S1727004AbfGJSQJ (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 10 Jul 2019 14:16:09 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jul 2019 10:54:54 -0700
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jul 2019 11:16:09 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.63,475,1557212400"; 
-   d="scan'208";a="365009302"
+   d="scan'208";a="365016610"
 Received: from bxing-mobl.amr.corp.intel.com (HELO [10.255.93.70]) ([10.255.93.70])
-  by fmsmga006.fm.intel.com with ESMTP; 10 Jul 2019 10:54:54 -0700
+  by fmsmga006.fm.intel.com with ESMTP; 10 Jul 2019 11:16:08 -0700
 Subject: Re: [RFC PATCH v3 4/4] x86/sgx: Implement SGX specific hooks in
  SELinux
-To:     Sean Christopherson <sean.j.christopherson@intel.com>
-Cc:     linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
+To:     Jethro Beekman <jethro@fortanix.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>
+Cc:     "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
 References: <cover.1561588012.git.cedric.xing@intel.com>
  <cover.1562542383.git.cedric.xing@intel.com>
  <3a9efc8d3c27490dbcfe802ce3facddd62f47872.1562542383.git.cedric.xing@intel.com>
  <20190710154915.GA4331@linux.intel.com>
+ <d6506d52-2da6-7667-aae4-e3eef7596e93@fortanix.com>
 From:   "Xing, Cedric" <cedric.xing@intel.com>
-Message-ID: <e34f4799-2a50-1cd5-d6aa-1deba8f768dd@intel.com>
-Date:   Wed, 10 Jul 2019 10:54:54 -0700
+Message-ID: <f0ed568f-9fd6-1c86-6eee-0fa8f5d0b811@intel.com>
+Date:   Wed, 10 Jul 2019 11:16:08 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.7.2
 MIME-Version: 1.0
-In-Reply-To: <20190710154915.GA4331@linux.intel.com>
+In-Reply-To: <d6506d52-2da6-7667-aae4-e3eef7596e93@fortanix.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -51,33 +55,30 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/10/2019 8:49 AM, Sean Christopherson wrote:
-> On Sun, Jul 07, 2019 at 04:41:34PM -0700, Cedric Xing wrote:
->> selinux_enclave_init() determines if an enclave is allowed to launch, using the
->> criteria described earlier. This implementation does NOT accept SIGSTRUCT in
->> anonymous memory. The backing file is also cached in struct
->> file_security_struct and will serve as the base for decisions for anonymous
->> pages.
+On 7/10/2019 9:08 AM, Jethro Beekman wrote:
+> On 2019-07-10 08:49, Sean Christopherson wrote:
+>> On Sun, Jul 07, 2019 at 04:41:34PM -0700, Cedric Xing wrote:
+>>> selinux_enclave_init() determines if an enclave is allowed to launch, 
+>>> using the
+>>> criteria described earlier. This implementation does NOT accept 
+>>> SIGSTRUCT in
+>>> anonymous memory. The backing file is also cached in struct
+>>> file_security_struct and will serve as the base for decisions for 
+>>> anonymous
+>>> pages.
+>>
+>> Did we ever reach a consensus on whether sigstruct must reside in a file?
 > 
-> Did we ever reach a consensus on whether sigstruct must reside in a file?
+> This would be inconvenient for me, but I guess I can create a memfd?
 
-No. We reached the opposite agreement of *not* requiring sigstruct to 
-reside in a file at the interface level - i.e., security_enclave_init() 
-takes a VMA but *not* a file struct as input.
+No, sigstruct doesn't have to reside in a file.
 
-At the implementation level, an LSM may require sigstruct to reside in a 
-file. But that's a per-LSM decision.
+But the current direction is, in SELinux, what the enclave can do 
+depends on permissions given to the file containing sigstruct. That 
+said, if SELinux is in effect, sigstruct has to reside in a real file 
+with FILE__EXECUTE permission for the enclave to launch. memfd wouldn't 
+work. To some extent, that serves the purpose of whitelisting.
 
->> +	/* Store SIGSTRUCT file for future use */
->> +	if (atomic_long_cmpxchg(&fsec->encl_ss, 0, (long)src->vm_file))
->> +		return -EEXIST;
->> +
->> +	get_file(src->vm_file);
+> -- 
+> Jethro Beekman | Fortanix
 > 
-> My understanding is that Andy is strongly against pinning a file for the
-> duration of the enclave, has that changed?
-
-I think everyone including Andy prefers not to pin any files. But it's a 
-trade-off among code simplicity, auditing accuracy and memory 
-consumption. I think the latest suggestion from Stephen was to keep 
-files open, for SELinux. Again, that's a per-LSM decision.
