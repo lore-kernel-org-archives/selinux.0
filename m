@@ -2,149 +2,317 @@ Return-Path: <SRS0=qgEa=VH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A942C74A30
-	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 16:58:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CE8FC74A36
+	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 17:26:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3E39E2086D
-	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 16:58:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E2DEF214AF
+	for <selinux@archiver.kernel.org>; Wed, 10 Jul 2019 17:26:06 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="lrEazAhl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727487AbfGJQ57 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Jul 2019 12:57:59 -0400
-Received: from mga06.intel.com ([134.134.136.31]:22559 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727414AbfGJQ57 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 10 Jul 2019 12:57:59 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jul 2019 09:57:58 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,475,1557212400"; 
-   d="scan'208";a="156555167"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.165])
-  by orsmga007.jf.intel.com with ESMTP; 10 Jul 2019 09:57:58 -0700
-Date:   Wed, 10 Jul 2019 09:57:58 -0700
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     "Xing, Cedric" <cedric.xing@intel.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org,
-        Bill Roberts <william.c.roberts@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
+        id S1727282AbfGJR0B (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Jul 2019 13:26:01 -0400
+Received: from uhil19pa13.eemsg.mail.mil ([214.24.21.86]:12144 "EHLO
+        uhil19pa13.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726708AbfGJR0B (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Jul 2019 13:26:01 -0400
+X-EEMSG-check-017: 413881465|UHIL19PA13_EEMSG_MP11.csd.disa.mil
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by uhil19pa13.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jul 2019 17:25:58 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1562779559; x=1594315559;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=vZSg+Rw93WI+lOcTzCOVR/6YKb1K3YqMXaMwu/Cdv0I=;
+  b=lrEazAhljlK2PrabQr8ts0gPDqn32LNE6xTK8LwRXLf8nZRs+Ceo+Eef
+   /LLrSvXzF/PNWbrWkJngqxHjrPXPqrbhPpMFS4NVl6d2VPPUYVSEVGwFV
+   AUF8ovS4oZTZ1UiMSIdBPFzLEQp3WVqaTccRn9YG/NvisibKj5XgNorP2
+   LZpggEVHjT7GPFzO2/JVs9CQu6jVSMG5Q+/OLr2ldhcEn0Iw6hFMOyZdO
+   /4HthZ3ULTzOdyGUylYmfGflX8Vh8ms6d5PTmb95Q2gPtfgj6Qz5W6daj
+   CAJaV6/hSyhv1rtXeFemMRffg3P4DPvEcxTxnhJLAM12db/2sz7BkKRyK
+   A==;
+X-IronPort-AV: E=Sophos;i="5.63,475,1557187200"; 
+   d="scan'208";a="25569785"
+IronPort-PHdr: =?us-ascii?q?9a23=3AGTu32BA1rgsxqZIJMEcPUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSP34p8mwAkXT6L1XgUPTWs2DsrQY0rCQ7/6rADVaqb+681k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba5sIBmsogjct8YajZZ/Jqov1x?=
+ =?us-ascii?q?DEvmZGd+NKyG1yOFmdhQz85sC+/J5i9yRfpfcs/NNeXKv5Yqo1U6VWACwpPG?=
+ =?us-ascii?q?4p6sLrswLDTRaU6XsHTmoWiBtIDBPb4xz8Q5z8rzH1tut52CmdIM32UbU5Ui?=
+ =?us-ascii?q?ms4qt3VBPljjoMOiUn+2/LlMN/kKNboAqgpxNhxY7UfJqVP+d6cq/EYN8WWX?=
+ =?us-ascii?q?ZNUsNXWiNPGIO8a5YEAfQHM+hWsoLxo0ICoBu6CAWpAu7k1z1GiWLs3aAizu?=
+ =?us-ascii?q?ovDw/G0gwjEdwAvnvbo9f6O7sdX+2u0KnFzy/OY+9K1Trz6oXFdA0qr/GWXb?=
+ =?us-ascii?q?J3dMrc0VUiGBnfjlWXr4zuIjKb1uMMs2eG8eVgUf+khmk9pA5trTivwcYshZ?=
+ =?us-ascii?q?TXiY8O1lDF9Tl2wIYyJdGiTk57esSrHIFftyGdKYt7W8UvSHxrtiYi0rAKpJ?=
+ =?us-ascii?q?G2cScQxJkn2hLTceKLfoeW7h75SeqcJypzimh/d7KlnRmy9FCtyuj7Vsapzl?=
+ =?us-ascii?q?lHtjFFktzQtnAV0BzT99SHRuN9/ki/3TaP0Bje6v1eLkAulKrbNoUhzqQslp?=
+ =?us-ascii?q?sTrUvDHij2lF/wjKCKbUUr5vKk6+HmYrXivpOcNol0hR/iMqk2h8CyDus1Ph?=
+ =?us-ascii?q?IOUmSG4+iwyrLu8VPjTLlXlvE2l7PWsJHeJcQVvK65BApV35455BmjADem19?=
+ =?us-ascii?q?UYkmQZI19eZBKGj5TmO1HJIPziC/e/mE6jnC1kx/DBIL3tGo/NIWTbkLf9Yb?=
+ =?us-ascii?q?Z97FZRxxA2zdBe/ZJZCL8MIPP3WkLqu9zYCwU2Mw2ww+r9FNp90YYeU3qVAq?=
+ =?us-ascii?q?CFKKPSrUOI5uU3LumUfoAVpTL9JuM95/H0kH85nUYRfayu3ZsQcnC3AO5qLF?=
+ =?us-ascii?q?meYXrpmt0BC3sFvhIiTOz2j12PSSVTaGi2X6I94DE7FY2nAJzdRoCinrOBxj?=
+ =?us-ascii?q?23Hp5IaWBcDFCDD3Poe5+DW/cWZyKYOtVhnSAcVbi9V48h0gmjtAv7y7phM+?=
+ =?us-ascii?q?rV9TQUtYn929dp+u3TjxAy9SB0DsiE1mGNSHx7nn4MRzAox61/v0N9xUmZ0a?=
+ =?us-ascii?q?RigPxXC8ZT5/VXXQc+L5LcyPZ6C9/qUALbYtiJUEqmQsmhATwpStIxwtkOY1?=
+ =?us-ascii?q?tyGtm7gBDDxDelDKELl7OVAJw56bzc33fvKMZn0XrG17cuj0MgQsRRMW2qnK?=
+ =?us-ascii?q?l/9xLcB4TRiUWWi76qdbgA3C7K7GqM0GqOvEZWUQFuVaXFWWsfa1DMrdvn+0?=
+ =?us-ascii?q?zCT6WhCag9PgRdzs6CL7NAasf1glVeWPfjJNPebnqzm2iqGRmIxaiBbJH3e2?=
+ =?us-ascii?q?UGwirRElQLkgEL93acKQc+Hjuho37ZDDF2F1LvZkTs8fNkqHO6VU851AeKYF?=
+ =?us-ascii?q?dk17Wr+x4Zn/ucS+kc3rgcoicuty10HEqh39LRE9eAowthfKNBYdIy+VtH1n?=
+ =?us-ascii?q?zWtxZ7PpO+K6BvnUAecwtpsEP0zRl3CZtPkdIsrHw0yAp+M6WY0ElOd2DQ4Z?=
+ =?us-ascii?q?elE7jWMCHd+xSjcLLb21eWhN+T+71Qs/U8g1rmtQCtUEEl9iM0/cNS1i6174?=
+ =?us-ascii?q?/NCkI9VpP9X0J/oxFxqLbbbiQV+5Lf1XoqN7K99DDFxYR6V6Me1h+8coIHY+?=
+ =?us-ascii?q?u/HwjoHphfXpX/JQ=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2C2AACOHiZd/wHyM5BlHAEBAQQBAQcEAQGBVgQBAQsBg?=
+ =?us-ascii?q?WwqgTsBMiiEHJJdTQEBAQEBAQaBCQgliV2RFAkBAQEBAQEBAQE0AQIBAYRAA?=
+ =?us-ascii?q?oJOIzcGDgEDAQEBBAEBAQEEAQFshUiCOikBgmYBAQEBAgEjBBE/AgULCxgCA?=
+ =?us-ascii?q?h8HAgJXBg0GAgEBglMMP4F3BQ+uCX8zhUeDLIFHgQwoAYteF3iBB4E4DIIqN?=
+ =?us-ascii?q?T6DfhIYgyaCWASMGIInhimVbgmCG4tEiD0GG4Isiy6KKKcAIoFYKwgCGAghD?=
+ =?us-ascii?q?4MngRGBZ44pIwMwgQYBAYxcgkMBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 10 Jul 2019 17:25:57 +0000
+Received: from moss-callisto.infosec.tycho.ncsc.mil (moss-callisto [192.168.25.136])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x6AHPujT002820;
+        Wed, 10 Jul 2019 13:25:57 -0400
+Subject: Re: [Non-DoD Source] Re: [RFC PATCH] fanotify, inotify, dnotify,
+ security: add security hook for fs notifications
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        David Howells <dhowells@redhat.com>, Jan Kara <jack@suse.cz>,
         James Morris <jmorris@namei.org>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Dr . Greg Wettstein" <greg@enjellic.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v4 00/12] security: x86/sgx: SGX vs. LSM
-Message-ID: <20190710165758.GD4348@linux.intel.com>
-References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
- <20190705160549.tzsck5ho5kvtdhit@linux.intel.com>
- <20190708172930.GA20791@linux.intel.com>
- <20190709162203.gzyvulah5u7eksip@linux.intel.com>
- <20190709170917.GD25369@linux.intel.com>
- <512391ba-fe0d-e758-ae32-09660c1264f7@intel.com>
- <20190709222534.GG25369@linux.intel.com>
- <35b9dd93-4988-d998-056c-aeae36076bc0@intel.com>
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20190710133403.855-1-acgoide@tycho.nsa.gov>
+ <CAOQ4uxhKP9AUHqYN24ELP5OcyaJQcpS9hdzuZOm5uJpokFAXvg@mail.gmail.com>
+From:   Aaron Goidel <acgoide@tycho.nsa.gov>
+Message-ID: <d6dd622a-6371-d69a-f925-58ba9893edb0@tycho.nsa.gov>
+Date:   Wed, 10 Jul 2019 13:25:56 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <35b9dd93-4988-d998-056c-aeae36076bc0@intel.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <CAOQ4uxhKP9AUHqYN24ELP5OcyaJQcpS9hdzuZOm5uJpokFAXvg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 09, 2019 at 04:11:08PM -0700, Xing, Cedric wrote:
-> On 7/9/2019 3:25 PM, Sean Christopherson wrote:
-> >On Tue, Jul 09, 2019 at 01:41:28PM -0700, Xing, Cedric wrote:
-> >>On 7/9/2019 10:09 AM, Sean Christopherson wrote:
-> >>>Translating those to SGX, with a lot of input from Stephen, I ended up
-> >>>with the following:
-> >>>
-> >>>   - FILE__ENCLAVE_EXECUTE: equivalent to FILE__EXECUTE, required to gain X
-> >>>                            on an enclave page loaded from a regular file
-> >>>
-> >>>   - PROCESS2__ENCLAVE_EXECDIRTY: hybrid of EXECMOD and EXECUTE+WRITE,
-> >>>                                  required to gain W->X on an enclave page
-> >>
-> >>EXECMOD basically indicates a file containing self-modifying code. Your
-> >>ENCLAVE_EXECDIRTY is however a process permission, which is illogical.
-> >
-> >How is it illogical?  If a PROCESS wants to EXECute a DIRTY ENCLAVE page,
-> >then it needs PROCESS2__ENCLAVE_EXECDIRTY
-> Just think of the purpose of FILE__EXECMOD. It indicates to LSM the file has
-> self-modifying code, hence W->X transition should be considered "normal" and
-> allowed, regardless which process that file is loaded into.
+On 7/10/19 10:55 AM, Amir Goldstein wrote:
+> On Wed, Jul 10, 2019 at 4:34 PM Aaron Goidel <acgoide@tycho.nsa.gov> wrote:
+>>
+>> As of now, setting watches on filesystem objects has, at most, applied a
+>> check for read access to the inode, and in the case of fanotify, requires
+>> CAP_SYS_ADMIN. No specific security hook or permission check has been
+>> provided to control the setting of watches. Using any of inotify, dnotify,
+>> or fanotify, it is possible to observe, not only write-like operations, but
+>> even read access to a file. Modeling the watch as being merely a read from
+>> the file is insufficient. Furthermore, fanotify watches grant more power to
+>> an application in the form of permission events. While notification events
+>> are solely, unidirectional (i.e. they only pass information to the
+>> receiving application), permission events are blocking. Permission events
+>> make a request to the receiving application which will then reply with a
+>> decision as to whether or not that action may be completed.
+>>
+>> In order to solve these issues, a new LSM hook is implemented and has been
+>> placed within the system calls for marking filesystem objects with inotify,
+>> fanotify, and dnotify watches. These calls to the hook are placed at the
+>> point at which the target inode has been resolved and are provided with
+>> both the inode and the mask of requested notification events. The mask has
+>> already been translated into common FS_* values shared by the entirety of
+>> the fs notification infrastructure.
+>>
+>> This only provides a hook at the point of setting a watch, and presumes
+>> that permission to set a particular watch implies the ability to receive
+>> all notification about that object which match the mask. This is all that
+>> is required for SELinux. If other security modules require additional hooks
+>> or infrastructure to control delivery of notification, these can be added
+>> by them. It does not make sense for us to propose hooks for which we have
+>> no implementation. The understanding that all notifications received by the
+>> requesting application are all strictly of a type for which the application
+>> has been granted permission shows that this implementation is sufficient in
+>> its coverage.
+>>
+>> Fanotify further has the issue that it returns a file descriptor with the
+>> file mode specified during fanotify_init() to the watching process on
+>> event. This is already covered by the LSM security_file_open hook if the
+>> security module implements checking of the requested file mode there.
+>>
+>> The selinux_inode_notify hook implementation works by adding three new
+>> file permissions: watch, watch_reads, and watch_with_perm (descriptions
+>> about which will follow). The hook then decides which subset of these
+>> permissions must be held by the requesting application based on the
+>> contents of the provided mask. The selinux_file_open hook already checks
+>> the requested file mode and therefore ensures that a watching process
+>> cannot escalate its access through fanotify.
+>>
+>> The watch permission is the baseline permission for setting a watch on an
+>> object and is a requirement for any watch to be set whatsoever. It should
+>> be noted that having either of the other two permissions (watch_reads and
+>> watch_with_perm) does not imply the watch permission, though this could be
+>> changed if need be.
+>>
+>> The watch_reads permission is required to receive notifications from
+>> read-exclusive events on filesystem objects. These events include accessing
+>> a file for the purpose of reading and closing a file which has been opened
+>> read-only. This distinction has been drawn in order to provide a direct
+>> indication in the policy for this otherwise not obvious capability. Read
+>> access to a file should not necessarily imply the ability to observe read
+>> events on a file.
+>>
+>> Finally, watch_with_perm only applies to fanotify masks since it is the
+>> only way to set a mask which allows for the blocking, permission event.
+>> This permission is needed for any watch which is of this type. Though
+>> fanotify requires CAP_SYS_ADMIN, this is insufficient as it gives implicit
+>> trust to root, which we do not do, and does not support least privilege.
+>>
+>> Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
+>> ---
+>>   fs/notify/dnotify/dnotify.c         | 14 +++++++++++---
+>>   fs/notify/fanotify/fanotify_user.c  | 11 +++++++++--
+>>   fs/notify/inotify/inotify_user.c    | 12 ++++++++++--
+>>   include/linux/lsm_hooks.h           |  2 ++
+>>   include/linux/security.h            |  7 +++++++
+>>   security/security.c                 |  5 +++++
+>>   security/selinux/hooks.c            | 22 ++++++++++++++++++++++
+>>   security/selinux/include/classmap.h |  2 +-
+>>   8 files changed, 67 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/fs/notify/dnotify/dnotify.c b/fs/notify/dnotify/dnotify.c
+>> index 250369d6901d..e91ce092efb1 100644
+>> --- a/fs/notify/dnotify/dnotify.c
+>> +++ b/fs/notify/dnotify/dnotify.c
+>> @@ -22,6 +22,7 @@
+>>   #include <linux/sched/signal.h>
+>>   #include <linux/dnotify.h>
+>>   #include <linux/init.h>
+>> +#include <linux/security.h>
+>>   #include <linux/spinlock.h>
+>>   #include <linux/slab.h>
+>>   #include <linux/fdtable.h>
+>> @@ -288,6 +289,16 @@ int fcntl_dirnotify(int fd, struct file *filp, unsigned long arg)
+>>                  goto out_err;
+>>          }
+>>
+>> +       /*
+>> +        * convert the userspace DN_* "arg" to the internal FS_*
+>> +        * defined in fsnotify
+>> +        */
+>> +       mask = convert_arg(arg);
+>> +
+>> +       error = security_inode_notify(inode, mask);
+>> +       if (error)
+>> +               goto out_err;
+>> +
+>>          /* expect most fcntl to add new rather than augment old */
+>>          dn = kmem_cache_alloc(dnotify_struct_cache, GFP_KERNEL);
+>>          if (!dn) {
+>> @@ -302,9 +313,6 @@ int fcntl_dirnotify(int fd, struct file *filp, unsigned long arg)
+>>                  goto out_err;
+>>          }
+>>
+>> -       /* convert the userspace DN_* "arg" to the internal FS_* defines in fsnotify */
+>> -       mask = convert_arg(arg);
+>> -
+>>          /* set up the new_fsn_mark and new_dn_mark */
+>>          new_fsn_mark = &new_dn_mark->fsn_mark;
+>>          fsnotify_init_mark(new_fsn_mark, dnotify_group);
+>> diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fanotify_user.c
+>> index a90bb19dcfa2..c0d9fa998377 100644
+>> --- a/fs/notify/fanotify/fanotify_user.c
+>> +++ b/fs/notify/fanotify/fanotify_user.c
+>> @@ -528,7 +528,7 @@ static const struct file_operations fanotify_fops = {
+>>   };
+>>
+>>   static int fanotify_find_path(int dfd, const char __user *filename,
+>> -                             struct path *path, unsigned int flags)
+>> +                             struct path *path, unsigned int flags, __u64 mask)
+>>   {
+>>          int ret;
+>>
+>> @@ -567,8 +567,15 @@ static int fanotify_find_path(int dfd, const char __user *filename,
+>>
+>>          /* you can only watch an inode if you have read permissions on it */
+>>          ret = inode_permission(path->dentry->d_inode, MAY_READ);
+>> +       if (ret) {
+>> +               path_put(path);
+>> +               goto out;
+>> +       }
+>> +
+>> +       ret = security_inode_notify(path->dentry->d_inode, mask);
+>>          if (ret)
+>>                  path_put(path);
+>> +
+>>   out:
+>>          return ret;
+>>   }
+>> @@ -1014,7 +1021,7 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
+>>                  goto fput_and_out;
+>>          }
+>>
+>> -       ret = fanotify_find_path(dfd, pathname, &path, flags);
+>> +       ret = fanotify_find_path(dfd, pathname, &path, flags, mask);
+>>          if (ret)
+>>                  goto fput_and_out;
+>>
 > 
-> The same thing for enclaves here. Whether an enclave contains self-modifying
-> code is specific to that enclave, regardless which process it is loaded
-> into.
+> So the mark_type doesn't matter to SELinux?
+
+Good catch regarding the mark_type, I overlooked that as an issue. The 
+recursive setting of watches--for everything under the mount, in the 
+case of the mount type, and for all the contents of the 
+superblock--warrants further security checks.
+
+> You have no need for mount_noitify and sb_notify hooks?
+
+While I fully agree that there needs to be separate logic to handle 
+security checks for inode, mount, and superblock notifications, I don't 
+see the need for additional hooks. I believe that it would be sufficient 
+to pass down the mark_type into the existing hook and create two new 
+permissions--one for watching sb's and the other for mounts--which will 
+be checked based on the type.
+
+> A watch permission on the mount/sb root inode implies permission
+> (as CAP_SYS_ADMIN) to watch all events in mount/sb?
+
+This would be true for the new watch_mount and watch_sb permissions. In 
+the case of sb's we can also apply check against the sb security label. 
+For mounts there is no other security information, so there's likely no 
+reason to pass it to the hook. Hence, my reasoning for editing the 
+existing hook in favor of creating new ones.
+
 > 
-> But what are you doing is quite the opposite, and that's I mean by
-> "illogical".
+> [...]
+> 
+>> +static int selinux_inode_notify(struct inode *inode, u64 mask)
+>> +{
+>> +       u32 perm = FILE__WATCH; // basic permission, can a watch be set?
+>> +
+>> +       struct common_audit_data ad;
+>> +
+>> +       ad.type = LSM_AUDIT_DATA_INODE;
+>> +       ad.u.inode = inode;
+>> +
+>> +       // check if the mask is requesting ability to set a blocking watch
+>> +       if (mask & (FS_OPEN_PERM | FS_OPEN_EXEC_PERM | FS_ACCESS_PERM))
+> 
+> Better ALL_FSNOTIFY_PERM_EVENTS
 
-Ah.  My intent was to minimize the number of new labels, and because W->X
-scenarios are not guaranteed to be backed by a file, I went with a per
-process permission.  Ditto for EXECANON.  I'm not opposed to also having a
-per file permission that can be used when possible.
+Thanks, you will see this in v2!
 
-Something like this?  And maybe merge EXECANON and EXECDIRTY into a single
-permission?
+> 
+> Thanks,
+> Amir.
 
-Depending on whether sigstruct is required to be in a pinned file, EAUG
-pages would need either EXECDIRTY or EXECMOD.
-
-static int selinux_enclave_load(struct vm_area_struct *vma, unsigned long prot,
-				bool measured)
-{
-	const struct cred *cred = current_cred();
-	u32 sid = cred_sid(cred);
-	int ret;
-
-	/* Currently supported only in noexec kernels. */
-	WARN_ON_ONCE(!default_noexec);
-
-	/* Only executable enclave pages are restricted in any way. */
-	if (!(prot & PROT_EXEC))
-		return 0;
-
-	if (!measured) {
-		ret = enclave_has_perm(sid, PROCESS2__ENCLAVE_EXECUNMR);
-		if (ret)
-			goto out;
-	}
-
-	if (!vma->vm_file || IS_PRIVATE(file_inode(vma->vm_file))) {
-		ret = enclave_has_perm(sid, PROCESS2__ENCLAVE_EXECANON);
-		if (ret)
-			goto out;
-
-		/* Ability to do W->X within the enclave. */
-		if (prot & PROT_WRITE)
-			ret = enclave_has_perm(sid,
-					       PROCESS2__ENCLAVE_EXECDIRTY);
-	} else {
-		ret = file_has_perm(cred, vma->vm_file, FILE__ENCLAVE_EXECUTE);
-		if (ret)
-			goto out;
-
-		/*
-		 * Load code from a modified private mapping, or from any file
-		 * mapping with the ability to do W->X within the enclave.
-		 */
-		if (vma->anon_vma || (prot & PROT_WRITE))
-			ret = file_has_perm(cred, vma->vm_file,
-					    FILE__ENCLAVE_EXECMOD);
-	}
-
-out:
-	return ret;
-}
+-- 
+Aaron
