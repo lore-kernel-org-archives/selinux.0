@@ -6,97 +6,96 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6DB9C74A51
-	for <selinux@archiver.kernel.org>; Thu, 11 Jul 2019 09:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F11C8C74A51
+	for <selinux@archiver.kernel.org>; Thu, 11 Jul 2019 10:23:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9F86E21019
-	for <selinux@archiver.kernel.org>; Thu, 11 Jul 2019 09:26:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D4D6A21537
+	for <selinux@archiver.kernel.org>; Thu, 11 Jul 2019 10:23:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727972AbfGKJ0P (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Jul 2019 05:26:15 -0400
-Received: from mga06.intel.com ([134.134.136.31]:50811 "EHLO mga06.intel.com"
+        id S1728271AbfGKKXP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Jul 2019 06:23:15 -0400
+Received: from wind.enjellic.com ([76.10.64.91]:37774 "EHLO wind.enjellic.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726088AbfGKJ0P (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 11 Jul 2019 05:26:15 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Jul 2019 02:26:14 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,478,1557212400"; 
-   d="scan'208";a="249728059"
-Received: from spoledic-mobl.ger.corp.intel.com (HELO localhost) ([10.252.50.84])
-  by orsmga001.jf.intel.com with ESMTP; 11 Jul 2019 02:26:10 -0700
-Date:   Thu, 11 Jul 2019 12:26:09 +0300
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     "Xing, Cedric" <cedric.xing@intel.com>
-Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        linux-sgx@vger.kernel.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org,
-        Bill Roberts <william.c.roberts@intel.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        James Morris <jmorris@namei.org>,
-        Dave Hansen <dave.hansen@intel.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Jethro Beekman <jethro@fortanix.com>,
-        "Dr . Greg Wettstein" <greg@enjellic.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [RFC PATCH v4 00/12] security: x86/sgx: SGX vs. LSM
-Message-ID: <20190711092609.jxe4uubwg5qbwfju@linux.intel.com>
-References: <20190619222401.14942-1-sean.j.christopherson@intel.com>
- <20190705160549.tzsck5ho5kvtdhit@linux.intel.com>
- <20190708172930.GA20791@linux.intel.com>
- <20190709162203.gzyvulah5u7eksip@linux.intel.com>
- <20190709170917.GD25369@linux.intel.com>
- <20190710221638.bwnwtcozpv44ojdg@linux.intel.com>
- <38d3b0ee-be9c-cb1a-785a-325a3ade003b@intel.com>
-MIME-Version: 1.0
+        id S1727680AbfGKKXP (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 11 Jul 2019 06:23:15 -0400
+Received: from wind.enjellic.com (localhost [127.0.0.1])
+        by wind.enjellic.com (8.15.2/8.15.2) with ESMTP id x6BAMmCp005541;
+        Thu, 11 Jul 2019 05:22:48 -0500
+Received: (from greg@localhost)
+        by wind.enjellic.com (8.15.2/8.15.2/Submit) id x6BAMlGN005540;
+        Thu, 11 Jul 2019 05:22:47 -0500
+Date:   Thu, 11 Jul 2019 05:22:47 -0500
+From:   "Dr. Greg" <greg@idfusion.net>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     "Xing, Cedric" <cedric.xing@intel.com>,
+        Stephen Smalley <stephen.smalley@gmail.com>,
+        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "Schaufler, Casey" <casey.schaufler@intel.com>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "luto@kernel.org" <luto@kernel.org>,
+        "jethro@fortanix.com" <jethro@fortanix.com>,
+        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
+        "jarkko.sakkinen@linux.intel.com" <jarkko.sakkinen@linux.intel.com>,
+        "Christopherson, Sean J" <sean.j.christopherson@intel.com>
+Subject: Re: [RFC PATCH v2 1/3] x86/sgx: Add SGX specific LSM hooks
+Message-ID: <20190711102247.GA5357@wind.enjellic.com>
+Reply-To: "Dr. Greg" <greg@idfusion.net>
+References: <960B34DE67B9E140824F1DCDEC400C0F6551D585@ORSMSX116.amr.corp.intel.com> <f59529e4-6cc8-2405-d7db-2519727f9a80@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551D7F7@ORSMSX116.amr.corp.intel.com> <63c92ab6-dc8d-826b-b8bf-05ad262f06e4@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551DBF7@ORSMSX116.amr.corp.intel.com> <9e45df1b-3aac-e851-4ef2-5b262f5139bd@schaufler-ca.com> <20190703094651.GA29601@wind.enjellic.com> <012fc47d-4e9d-3398-0d9d-d9298a758c8d@schaufler-ca.com> <20190707133023.GA4521@wind.enjellic.com> <256013f7-292d-7014-9abb-61755f07eb25@schaufler-ca.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <38d3b0ee-be9c-cb1a-785a-325a3ade003b@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: NeoMutt/20180716
+In-Reply-To: <256013f7-292d-7014-9abb-61755f07eb25@schaufler-ca.com>
+User-Agent: Mutt/1.4i
+X-Greylist: Sender passed SPF test, not delayed by milter-greylist-4.2.3 (wind.enjellic.com [127.0.0.1]); Thu, 11 Jul 2019 05:22:49 -0500 (CDT)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 10, 2019 at 04:16:42PM -0700, Xing, Cedric wrote:
-> > Still puzzling with EXECMOD given that how it is documented in
-> > https://selinuxproject.org/page/ObjectClassesPerms. If anything in that
-> > document is out of date, would be nice if it was updated.
+On Mon, Jul 08, 2019 at 05:02:00PM -0700, Casey Schaufler wrote:
+
+> > On 7/7/2019 6:30 AM, Dr. Greg wrote:
+> > All well taken points from an implementation perspective, but they
+> > elide the point I was trying to make.  Which is the fact that without
+> > any semblance of a discussion regarding the requirements needed to
+> > implement a security architecture around the concept of a TEE, this
+> > entire process, despite Cedric's well intentioned efforts, amounts to
+> > pounding a square solution into the round hole of a security problem.
+
+> Lead with code. I love a good requirements document, but one of the
+> few places where I agree with the agile folks is that working code
+> speaks loudly.
+>
+> > Which, as I noted in my e-mail, is tantamount to security theater.
 > 
-> If you search for "EXECMOD" in security/selinux/hooks.c in the latest
-> (Linux-5.2) master, you'll find only one occurrence - at line 3702.
-> 
-> The logic over there, if translated into English, basically says
-> FILE__EXECMOD is required (on the backing file) if mprotect() is called to
-> request X on a private file mapping that has been modified by the calling
-> process. That's what Sean meant by "W->X".
+> Not buying that. Not rejecting it, either. Without code
+> to judge it's kind of hard to say.
 
-Looking at that part of code, there is this comment:
+We tried the code approach.
 
-/*
- * We are making executable a file mapping that has
- * had some COW done. Since pages might have been
- * written, check ability to execute the possibly
- * modified content.  This typically should only
- * occur for text relocations.
- */
+By most accounts it seemed to go poorly, given that it ended up with
+Jonathan Corbet writing an LWN feature article on the state of
+dysfunction and chaos surrounding Linux SGX driver development.
 
-There is no COW done with enclaves, never. Thus, EXECMOD does not
-connect in any possible way to SGX. OR, that comment is false.
+So we are standing around and mumbling until we can figure out what
+kind of code we need to write to make the new driver relevant to the
+CISO's and security architects we need to defend SGX to.
 
-Which one is it?
+Have a good week.
 
-Also the official documentation for SELinux speaks only about COW
-mappings.
+Dr. Greg
 
-Also the condition supports all this as a *private* file mapping ends up
-to the anon_vma list when it gets written. We have a *shared* file
-mapping
-
-Nothing that you say makes sense to me, sorry...
-
-/Jarkko
+As always,
+Dr. Greg Wettstein, Ph.D, Worker
+IDfusion, LLC               Implementing SGX secured and modeled
+4206 N. 19th Ave.           intelligent network endpoints.
+Fargo, ND  58102
+PH: 701-281-1686            EMAIL: greg@idfusion.net
+------------------------------------------------------------------------------
+"Five year projections, are you kidding me.  We don't know what we are
+ supposed to be doing at the 4 o'clock meeting this afternoon."
+                                -- Terry Wieland
+                                   Resurrection
