@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C77FAC76195
-	for <selinux@archiver.kernel.org>; Mon, 15 Jul 2019 15:03:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F47CC76195
+	for <selinux@archiver.kernel.org>; Mon, 15 Jul 2019 15:12:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 975C42054F
-	for <selinux@archiver.kernel.org>; Mon, 15 Jul 2019 15:03:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0DE00205ED
+	for <selinux@archiver.kernel.org>; Mon, 15 Jul 2019 15:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1563203034;
-	bh=w5v7sWLAcSUnhsaiQsTidlDrLl91cqg976ss1tbUK9M=;
+	s=default; t=1563203533;
+	bh=cG+s3l86midlXe3sr5AoOfkzDfj+eldZnIQL42Na/v4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=1fDCtS1jymUgNB5pjO+BU29tlIeR3DNo9S2fd5CulWaY8hD+fno9pv/TEVAhnRVda
-	 c59tutjoTSsbiLfe2VIds++Gxw61Q8T0sxeKWTUmhuIUGGZHzXNyjo5bBCdiQkWWKH
-	 VK7WpS0Q+OBWV6ywyYz0FjNXWS02wg+wlxCGAfKw=
+	b=IBkCNYAL3EQn0xN+kkG829jNAD1yv0n1nyOw/25keQNAa1gpmLD9tXWUSDYPsMGdl
+	 BNnZSguhY/SamGwt+qmcRk8le4RIkA+c26Zsgnt6bbbSJPlGvd2StfUWMaFyf8xGwP
+	 9Xe6K6wv1F+ztJ+VQFkadoXlhZGuuEX7V1TJMe0I=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387501AbfGOOIu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Jul 2019 10:08:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
+        id S1731413AbfGOPMH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Jul 2019 11:12:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388577AbfGOOIo (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 15 Jul 2019 10:08:44 -0400
+        id S1732130AbfGONwj (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 15 Jul 2019 09:52:39 -0400
 Received: from sasha-vm.mshome.net (unknown [73.61.17.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9514C20C01;
-        Mon, 15 Jul 2019 14:08:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31F55216C4;
+        Mon, 15 Jul 2019 13:52:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563199723;
-        bh=w5v7sWLAcSUnhsaiQsTidlDrLl91cqg976ss1tbUK9M=;
+        s=default; t=1563198758;
+        bh=cG+s3l86midlXe3sr5AoOfkzDfj+eldZnIQL42Na/v4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWkM9gRjavzej2RGTNA3ISY2sK5DSLNEWI1Yi83iRI0ipP5O5XEf5sZ+1HP+gsqg5
-         pGBz6AjPf4U7UhpmxC/PUez9SZ2keE6DE2n55iSYdP752OLDj4PaYiSl7XXxvDe1mu
-         c4gVV/hcRunfcTvoLahb8NF+OTBoyd/K2Rd8iYpY=
+        b=HtAM7W+pr/iuNDbs2iSxx1vuxEIxcc2UIKxD0mSN0l32Q3fEdSmN7P+eRWJKtuNJ1
+         o34rreTjDH12fyBAMhsWNiRt5SuGGS1a90tFkVExcvOhlvGnhXg1MSfIcPXdUKz9c5
+         M/9Ovawx6Jkx8XAHC/QaP0zgegPOCtuTr9+4HrS8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
         Kir Kolyshkin <kir@sacred.ru>,
         Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 085/219] selinux: fix empty write to keycreate file
-Date:   Mon, 15 Jul 2019 10:01:26 -0400
-Message-Id: <20190715140341.6443-85-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.2 097/249] selinux: fix empty write to keycreate file
+Date:   Mon, 15 Jul 2019 09:44:22 -0400
+Message-Id: <20190715134655.4076-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190715140341.6443-1-sashal@kernel.org>
-References: <20190715140341.6443-1-sashal@kernel.org>
+In-Reply-To: <20190715134655.4076-1-sashal@kernel.org>
+References: <20190715134655.4076-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -85,10 +85,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 614bc753822c..bf37bdce9918 100644
+index 94de51628fdc..3ec7ac70c313 100644
 --- a/security/selinux/hooks.c
 +++ b/security/selinux/hooks.c
-@@ -6269,11 +6269,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+@@ -6351,11 +6351,12 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
  	} else if (!strcmp(name, "fscreate")) {
  		tsec->create_sid = sid;
  	} else if (!strcmp(name, "keycreate")) {
