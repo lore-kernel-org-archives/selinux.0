@@ -1,108 +1,109 @@
-Return-Path: <SRS0=0eMI=VM=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=e+Ck=VN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD092C7618F
-	for <selinux@archiver.kernel.org>; Mon, 15 Jul 2019 22:24:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15FDDC7618F
+	for <selinux@archiver.kernel.org>; Tue, 16 Jul 2019 14:13:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 79A832053B
-	for <selinux@archiver.kernel.org>; Mon, 15 Jul 2019 22:24:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1563229440;
-	bh=sXN8yTSkzlc2tuMkiJcjFdTjSzcCd65oQqUJ3FJmeJY=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
-	b=qOtu61ogIoBCtpKBlcTAF9zjoUN0Rty93LmWdipNwP4a0Hk+GUrx2sJLiFfQhiJEk
-	 0Axrc3FCL/YcWjzP9nFixTRhuYOdgIds6583bvvlaNuFm6MDO7DPNmEJDt5hpzZw/C
-	 MZIPA5QN6m7rgMOYMuIRqxq3JDSBuaMa1Gz4KGI4=
+	by mail.kernel.org (Postfix) with ESMTP id E4B2820693
+	for <selinux@archiver.kernel.org>; Tue, 16 Jul 2019 14:13:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732492AbfGOWYA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Jul 2019 18:24:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39010 "EHLO mail.kernel.org"
+        id S2387770AbfGPONu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 16 Jul 2019 10:13:50 -0400
+Received: from mail.hallyn.com ([178.63.66.53]:44916 "EHLO mail.hallyn.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730796AbfGOWX7 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 15 Jul 2019 18:23:59 -0400
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C466A217F9
-        for <selinux@vger.kernel.org>; Mon, 15 Jul 2019 22:23:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1563229439;
-        bh=sXN8yTSkzlc2tuMkiJcjFdTjSzcCd65oQqUJ3FJmeJY=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=yBI9BarzH4OGHaCqhPNy8Mm/8mXweCVJrJ5oaEsKwuRQq1xvoxSZgM38/BlHNFNZZ
-         R5dyFaarO9UA8SqBIUP0aXreaypfcw8cCJE60VmB7hqN6bs6frYoV+6tPpdcaV9Q+D
-         VRmZUC1LI51akyWto8WgUcaRnSHsBZW9QSEdJYkY=
-Received: by mail-wr1-f54.google.com with SMTP id n9so18801856wru.0
-        for <selinux@vger.kernel.org>; Mon, 15 Jul 2019 15:23:58 -0700 (PDT)
-X-Gm-Message-State: APjAAAUKKcdarSyNS+YKWE0WOdnnrSF/6ROQUl/cdG5YxAeOcUZ7pWM5
-        7tIqQ0P3q0JEigQUaDGZUNMAkX5EJ1NMIptoW/3xAg==
-X-Google-Smtp-Source: APXvYqyj/9VuP/+ihUF83njy2/IebE75lbwjE05Fh3u3X6o4w/jRKgrJb1caiXxXudMLSyjB+41C03VLnS0S0oyPpNY=
-X-Received: by 2002:adf:cc85:: with SMTP id p5mr29293788wrj.47.1563229437236;
- Mon, 15 Jul 2019 15:23:57 -0700 (PDT)
+        id S1733223AbfGPONu (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 16 Jul 2019 10:13:50 -0400
+X-Greylist: delayed 597 seconds by postgrey-1.27 at vger.kernel.org; Tue, 16 Jul 2019 10:13:48 EDT
+Received: by mail.hallyn.com (Postfix, from userid 1001)
+        id 2DE8D90B; Tue, 16 Jul 2019 09:03:50 -0500 (CDT)
+Date:   Tue, 16 Jul 2019 09:03:50 -0500
+From:   "Serge E. Hallyn" <serge@hallyn.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Nicholas Franck <nhfran2@tycho.nsa.gov>, paul@paul-moore.com,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        luto@amacapital.net, jmorris@namei.org, keescook@chromium.org,
+        serge@hallyn.com, john.johansen@canonical.com, mortonm@chromium.org
+Subject: Re: [RFC PATCH] security, capability: pass object information to
+ security_capable
+Message-ID: <20190716140349.GA4991@mail.hallyn.com>
+References: <20190712173404.14417-1-nhfran2@tycho.nsa.gov>
+ <680c35a8-1ee5-725d-b33c-7bdced39763c@schaufler-ca.com>
+ <e8de4a1c-7e18-fc20-e372-67bbaa93fd42@tycho.nsa.gov>
+ <16cade37-9467-ca7f-ddea-b8254c501f48@schaufler-ca.com>
 MIME-Version: 1.0
-References: <960B34DE67B9E140824F1DCDEC400C0F6551D585@ORSMSX116.amr.corp.intel.com>
- <f59529e4-6cc8-2405-d7db-2519727f9a80@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551D7F7@ORSMSX116.amr.corp.intel.com>
- <63c92ab6-dc8d-826b-b8bf-05ad262f06e4@schaufler-ca.com> <960B34DE67B9E140824F1DCDEC400C0F6551DBF7@ORSMSX116.amr.corp.intel.com>
- <9e45df1b-3aac-e851-4ef2-5b262f5139bd@schaufler-ca.com> <20190703094651.GA29601@wind.enjellic.com>
- <012fc47d-4e9d-3398-0d9d-d9298a758c8d@schaufler-ca.com> <20190707133023.GA4521@wind.enjellic.com>
- <256013f7-292d-7014-9abb-61755f07eb25@schaufler-ca.com> <20190711102247.GA5357@wind.enjellic.com>
-In-Reply-To: <20190711102247.GA5357@wind.enjellic.com>
-From:   Andy Lutomirski <luto@kernel.org>
-Date:   Mon, 15 Jul 2019 15:23:45 -0700
-X-Gmail-Original-Message-ID: <CALCETrWmvtSaqtdZWeBdTMYP-38xeyWhf5TP9vV+OY30nHgJbQ@mail.gmail.com>
-Message-ID: <CALCETrWmvtSaqtdZWeBdTMYP-38xeyWhf5TP9vV+OY30nHgJbQ@mail.gmail.com>
-Subject: Re: [RFC PATCH v2 1/3] x86/sgx: Add SGX specific LSM hooks
-To:     "Dr. Greg" <greg@idfusion.net>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        "Xing, Cedric" <cedric.xing@intel.com>,
-        Stephen Smalley <stephen.smalley@gmail.com>,
-        "linux-sgx@vger.kernel.org" <linux-sgx@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "Schaufler, Casey" <casey.schaufler@intel.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "luto@kernel.org" <luto@kernel.org>,
-        "jethro@fortanix.com" <jethro@fortanix.com>,
-        "sds@tycho.nsa.gov" <sds@tycho.nsa.gov>,
-        "jarkko.sakkinen@linux.intel.com" <jarkko.sakkinen@linux.intel.com>,
-        "Christopherson, Sean J" <sean.j.christopherson@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <16cade37-9467-ca7f-ddea-b8254c501f48@schaufler-ca.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 11, 2019 at 3:23 AM Dr. Greg <greg@idfusion.net> wrote:
->
-> On Mon, Jul 08, 2019 at 05:02:00PM -0700, Casey Schaufler wrote:
->
-> > > On 7/7/2019 6:30 AM, Dr. Greg wrote:
-> > > All well taken points from an implementation perspective, but they
-> > > elide the point I was trying to make.  Which is the fact that without
-> > > any semblance of a discussion regarding the requirements needed to
-> > > implement a security architecture around the concept of a TEE, this
-> > > entire process, despite Cedric's well intentioned efforts, amounts to
-> > > pounding a square solution into the round hole of a security problem.
->
-> > Lead with code. I love a good requirements document, but one of the
-> > few places where I agree with the agile folks is that working code
-> > speaks loudly.
+On Fri, Jul 12, 2019 at 12:54:02PM -0700, Casey Schaufler wrote:
+> On 7/12/2019 11:25 AM, Stephen Smalley wrote:
+> > On 7/12/19 1:58 PM, Casey Schaufler wrote:
+> >> On 7/12/2019 10:34 AM, Nicholas Franck wrote:
+> >>> At present security_capable does not pass any object information
+> >>> and therefore can neither audit the particular object nor take it
+> >>> into account. Augment the security_capable interface to support
+> >>> passing supplementary data. Use this facility initially to convey
+> >>> the inode for capability checks relevant to inodes. This only
+> >>> addresses capable_wrt_inode_uidgid calls; other capability checks
+> >>> relevant to inodes will be addressed in subsequent changes. In the
+> >>> future, this will be further extended to pass object information for
+> >>> other capability checks such as the target task for CAP_KILL.
+> >>
+> >> This seems wrong to me. The capability system has nothing to do
+> >> with objects. Passing object information through security_capable()
+> >> may be convenient, but isn't relevant to the purpose of the interface.
+> >> It appears that there are very few places where the object information
+> >> is actually useful.
 > >
-> > > Which, as I noted in my e-mail, is tantamount to security theater.
-> >
-> > Not buying that. Not rejecting it, either. Without code
-> > to judge it's kind of hard to say.
->
-> We tried the code approach.
->
+> > A fair number of capabilities are checked upon some attempted object access (often right after comparing UIDs or other per-object state), and the particular object can be very helpful in both audit and in access control.  More below.
+> 
+> I'm not disagreeing with that. What I'm saying is that the capability
+> check interface is not the right place to pass that information. The
+> capability check has no use for the object information. I would much
 
-You sent code.  That code did not, in any respect, address the issue
-of how LSMs were supposed to control what code got executed.
+I've had to argue this before while doing the namespaced file
+capabilities implementation.  Perhaps this would be worth writing something
+more formal about.  My main argument is, even if we want to claim that the
+capabilities model is and should be object agnostic, the implementation
+of user namespaces (currently) is such that the whole view of the user's
+privilege must include information which is stored with the object.
 
-Do you have an actual suggestion here that we should pay attention to?
+There are various user namespaces.
+
+The Linux capabilities ( :-) ) model is user namespaced.  It must be, in
+order to be useful.  If we're going to use file capabilities in distros,
+and distros are going to run in containers, then the capabilities must
+be namespaced.  Otherwise, capabilities will not be used, and heck, should
+just be dropped.
+
+The only way to find out which user namespace has privilege over an inode
+is to look at the inode.
+
+Therefore, object information is needed.
+
+Until now we've sneaked around that by doing things like capable_wrt_inode_uidgid()
+and rootid_from_xattr().
+
+Again, this crucial: IMO, you have to be able to use a distro the same way in a
+container and not.  Either we support using capabilities in a user namespaced
+container, or we drop capabilities support will not be used, and we may as
+well drop the module.
+
+Now, yes, if someone tries to extend this stuff to do pathname parsing, then we
+might have to put our footsies down.  But we've been dancing around this for a
+long time anyway, so passing the inode in so we can do better logging gets a +1
+from me.
+
+-serge
