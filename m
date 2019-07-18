@@ -2,55 +2,62 @@ Return-Path: <SRS0=gxH6=VP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2DBEC7618F
-	for <selinux@archiver.kernel.org>; Thu, 18 Jul 2019 16:39:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8370FC7618F
+	for <selinux@archiver.kernel.org>; Thu, 18 Jul 2019 18:49:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B13B21849
-	for <selinux@archiver.kernel.org>; Thu, 18 Jul 2019 16:39:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 516DC208C0
+	for <selinux@archiver.kernel.org>; Thu, 18 Jul 2019 18:49:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="EcBYuP/R"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LFW68dv+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732305AbfGRQjh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Jul 2019 12:39:37 -0400
-Received: from sonic309-22.consmr.mail.bf2.yahoo.com ([74.6.129.196]:43589
+        id S2390831AbfGRStC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Jul 2019 14:49:02 -0400
+Received: from sonic309-22.consmr.mail.bf2.yahoo.com ([74.6.129.196]:39856
         "EHLO sonic309-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727770AbfGRQjg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jul 2019 12:39:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1563467969; bh=7SSZMQKpGUTTNpXKuglmi06KrxXwRKoqkWP9SXK8xM0=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=EcBYuP/RiI20k2dA/kHNyJKV8UbMu/C0IY4EJ04iHp2viJdTDIUBii85HTSaCYFhfP9z6iP/EReFRmVJopuN0NUW+TVQ3qQ0I+N7YpCfGP++WPSLaka4JtbI7jODmH+MSmrrHbCO0Ldf4oy/SGFvbmuX/C/NLvAaeOuWzlHlHxX5c29qerHU/CZ734HfaztGxvlLKhOpZoahH6g9eBPPYavQIhysRJmSOOYXOxyTMMGxdF/VN+4DXqsChzSWgSxh6s1d01ZB/RD8/5yuHj8OGah5eY8J/kgeTW8KJmKfzuCT6Wg9edR4NuGPTCQGi+ZQ1J4GB5rYoC7WThv/O83zpg==
-X-YMail-OSG: AITczq4VM1lOns9X0jb6nFWJIi5NYaaYEuVwoUjGLxwjabRR7ZrRO9IGKpw7I7P
- QQ2uZMZIcnclC_LEaM3UlvtP7yAhQ0wipdJinoMhHmpI7DS2ZEFUW9IGv4V9i9MbKBozmkEco7mb
- Hh8HVImdbOShqYrLvVbCwuey.EubZwZYClo3myioLwqJnloeXP7cLDIeetIyrnPsifa5qM0P1CGb
- b7Ga.ca6MyFNAyaLrAYCgQgdhS8WHA5Km0VaBm2sNb82mbsZ4V2zoKcuwA.RbEAwDhGgvi8l36A7
- XszFDUkgYLsFf2WH6fxxwd5qegDchbhD4g.EyeBxs11kytjLdi_ngy5QOX2wBdFHbPgPH93HZokp
- iNotiXe5ifCFMmap_UcWHTBZwaEBj_tvEP6ssqN7xEIawV1NK6gUumY9jC1qd0SGHhiRRWaqFU_x
- TqhMNxvPIYkSPMIbrZZl.9jj2inZEPRkGkn0BL_wgqUoLMEmVt4iSc0Zzc1ZRiaKclfrENHamp7u
- e5oGWTiUtxN88kjFR4ODPCNhMKERo47kby72cKVBhkaFjmPFZYe5_IsQL1Kh7UPtgBRMexyW8GSt
- vucEb2NwprRQ0wxMtGQItaLTa0eOT8THARg0GUESw_VESP0rXcViVVkh7jf7q_fZpzLrW3zu.y10
- VP7dxlpeIEMJwl_P49lR3NoH7mlfIdv87qACJF7W7wGPsDg4LzTbMIPMsLynxPFkJ6xOMIUxU5Sp
- yyEnbWC2WGkg2_tyUytZxJV1fy0tsZSXhayWEVzsbEDdb6VwENab59NHWJHUa.GqhaKCrMxorog1
- m_Edr_5WApJ_UKpGFGN69.B6F0djAQ1S_.P8cNRfdq3xFsFmZVibW9jB9fYfT6RKCFz28xo_SfF1
- MfTBJLCSCnnXtberUi6N2zcieETokt5OERroA8SiTetVO2GFp36ici9tT0hauB9e.UqcqR0ME8Bp
- JOSmeqlx23svhmXt4lFDVpd66XrbU.N1arb3hcrRe6cMPaxrFGVGJ_Pte5RcFFZdxZhVlHMUDI6H
- GbAorWuHyRFctGI54wByYIsKCSl_AhkGVR84NHuqW4vJDFF7G3k25zr5Li6rqH4Bg2Qani7C5OwW
- ZCMAWV9K4xA8p1GC43pZfH0ca9gfVMKADPNePsLm.MyKlXuBfOmzDqDMmHIDVDDJ_ubem3ymTG.M
- 5BbQMsEj2z8hsEkjPYtqphhsV8EXwW6K4vsY6XRcTnxkeRAmggI.XrhfuXlE.Pq3VVQadSsJWy10
- Vdkt6bYNf1vNoJbWgWD69
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Thu, 18 Jul 2019 16:39:29 +0000
-Received: by smtp420.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID f6bbed20d336be589ed1fe8621955fc3;
-          Thu, 18 Jul 2019 16:39:27 +0000 (UTC)
-Subject: Re: [RFC PATCH v2] fanotify, inotify, dnotify, security: add security
- hook for fs notifications
-To:     Aaron Goidel <acgoide@tycho.nsa.gov>, paul@paul-moore.com
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, dhowells@redhat.com, jack@suse.cz,
-        amir73il@gmail.com, jmorris@namei.org, sds@tycho.nsa.gov,
-        linux-kernel@vger.kernel.org, casey@schaufler-ca.com
-References: <20190718143042.11059-1-acgoide@tycho.nsa.gov>
+        by vger.kernel.org with ESMTP id S1727972AbfGRStC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jul 2019 14:49:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1563475740; bh=AhvbTBfSg+6DHkVLYrqc7VAMMYYjVOaarm1zPRfg3Q8=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=LFW68dv+0G65MP1MGQ3poIKBwCvtdaz67WudYTkZIMI4w4NX7tN81hNAQDeA12MKmC139Y5XDrezwJhv2OF0r0eWRaRqOeiSW9k842vFDwDmmjQ4KDstF/69VPj7hVGMDjCXTnmdqHIS8VQFkPQUj+OfzvrLCCiK2ze1OxAXD7ODSis8XHDbP9mnY4heQN+cJdhpfQiyHHnHzcfYkgNZyBv6+wYWeaXOSQcKoNgQslmhm+UajSP2eiBgb8uSZyGnYJuomfusvUlvHE+XF1qAJCjSrCT1D+ajFiaBO2N4QQHAj5cyBRpHP17l5dzanKWPPUwr2j2P3xly5phBjZ9LTg==
+X-YMail-OSG: SQQTOdEVM1nrmVotLc88VGZz99G9muOJhTKU5lGnqlDbq0OS1805lEGvQsTxhHA
+ UTQoEEdPFHmT8dIZvcL5hx9izYZ3bj8_OBDuFsO_EQKViQIBJoGFZd03LkiIRzuqRWLoWNeGsop0
+ RF0qXG.WqUHjzyXiOal.2A.nWURiuieWU_NyBp.yVMk2BHmZAfAldLlpr7flEmWKbSirmeXCWeLb
+ GLc03xyUs18O6CLhvX1xWrjeW.6W8McIuZT1KlX106mbZIn5NGalGdqTfdgRvk4IyNXc8.iFiU9g
+ Tn7yhl7hElKza47cKuIH8b8mGIobIhiHypW6P6ydLyEB2NXSG5SY5Zzu36AEsCV8mX3JI1VjTifB
+ qTI934zdvIXtItaZQxH_tWdV787oFipvO23LCq6A6FlXr0Qq4m4bzDeFqxsRkmaVX6.n_68O7mft
+ QaP12x38j0TUxFAsQ9JBNZkQ9OI5jOe.pURbZzh6mzoJF6REQJBO0HIo7TsNI2cm1uvvB2OFq0cC
+ Wvtxh89.iOOzIf.CPlwuQwXwu22Ox1nV4jNSbwbwYA_9QN5JHHutE0EjQl6B.syFEcLar0Aq9SJ2
+ YGVseaTQmBkCS8cAFhcOnrJUCWBGlRH9eq55FJ03txwk5hA1Yr90lakr5sMbJLE76LIhIkXQSfPD
+ 4rSFRD2aGLoHs0D5EoMA1fwUxrn3K7uDDIrHre_2lgyy5.hhSp0WxrXwooRltt7giPaDwY_WMwcj
+ LcysVrz0tGQR6FRwfCBiQh9t7GfKOqYbcodklLf9NLHilkPtGxh_DCyDDiWT4ZxKKD92NbNX8cGn
+ F6DB1mkJwj6GZo4uNCmzt8_Q_EbTvM0AKUXZot0AanuHqnCNxNdvAydrUjwytz6iS93iczEG51nu
+ RTxGaB.g8uI1i1UOOI35tiqYd0DQQL..GQoP1iQLL2OnbGIFn7WcXWZ5nL17TXCXtzb3q1n3mgLw
+ x.eeDCf9OtuFByiyTpxS4VurLyU3EIyeX1.9LlEJm6X3sNW5.j4G0RZzGtj_34WcmDp_cK7Y6RpC
+ pdUeUoj2ts.YiyzTpss1a6l0nQPUDpbn_iA8RODhqfQ1JQOgCIQTw3u5t8srUY0JLRvEewfGsn8T
+ NApDVjp7eW4vjFGr5VgN04f3kcEzBPkeThPRFkCGG2yw9OrfXxp4c09vpHmUH_rQPrBBbRrBOc9A
+ yRIUyaicuVd8nKLLHJjCkOULfN1UHJEU7FR67.oidFmTsMvw7fgolxTC2VbkqTpyMw1MBtv2YV3z
+ NrMQyZWHjk3cjE9YlkbNilrg-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Thu, 18 Jul 2019 18:49:00 +0000
+Received: by smtp404.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 7fd616ac565311b3266d2084cb8770e8;
+          Thu, 18 Jul 2019 18:48:58 +0000 (UTC)
+Subject: Re: Preferred subj= with multiple LSMs
+To:     William Roberts <bill.c.roberts@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Steve Grubb <sgrubb@redhat.com>
+Cc:     Richard Guy Briggs <rgb@redhat.com>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        "linux-audit@redhat.com" <linux-audit@redhat.com>,
+        casey@schaufler-ca.com, SELinux <selinux@vger.kernel.org>
+References: <f824828c-5c9d-b91e-5cec-70ee7a45e760@schaufler-ca.com>
+ <c993f63a-7c2d-c6c8-cfa6-3cfba410770d@schaufler-ca.com>
+ <CAHC9VhSTwvueKcK2yhckwayh9YGou7gt2Gny36DOTaNkrck+Mg@mail.gmail.com>
+ <2477603.130G60v5SE@x2>
+ <d1a237d3-4b72-48b0-27d6-fb168354ad31@schaufler-ca.com>
+ <CAHC9VhTQLihNQ1iGjJB=LAn=C6BQokFsjsRcj8O_O9AjqQ7HBg@mail.gmail.com>
+ <CAFftDdrX2Y9Lr7Wi7jvrADTYNup6djc+1EFMHjFJzO0VSJ_Yeg@mail.gmail.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -97,12 +104,12 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <3ad44e23-979e-6e1c-88e7-36e43fe32a73@schaufler-ca.com>
-Date:   Thu, 18 Jul 2019 09:39:26 -0700
+Message-ID: <c5d0d6cc-16b8-bf6a-c24d-19e03889f6d8@schaufler-ca.com>
+Date:   Thu, 18 Jul 2019 11:48:58 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20190718143042.11059-1-acgoide@tycho.nsa.gov>
+In-Reply-To: <CAFftDdrX2Y9Lr7Wi7jvrADTYNup6djc+1EFMHjFJzO0VSJ_Yeg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
@@ -111,535 +118,70 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/18/2019 7:30 AM, Aaron Goidel wrote:
-> As of now, setting watches on filesystem objects has, at most, applied =
-a
-> check for read access to the inode, and in the case of fanotify, requir=
-es
-> CAP_SYS_ADMIN. No specific security hook or permission check has been
-> provided to control the setting of watches. Using any of inotify, dnoti=
-fy,
-> or fanotify, it is possible to observe, not only write-like operations,=
- but
-> even read access to a file. Modeling the watch as being merely a read f=
-rom
-> the file is insufficient for the needs of SELinux. This is due to the f=
-act
-> that read access should not necessarily imply access to information abo=
-ut
-> when another process reads from a file. Furthermore, fanotify watches g=
-rant
-> more power to an application in the form of permission events. While
-> notification events are solely, unidirectional (i.e. they only pass
-> information to the receiving application), permission events are blocki=
-ng.
-> Permission events make a request to the receiving application which wil=
-l
-> then reply with a decision as to whether or not that action may be
-> completed. This causes the issue of the watching application having the=
-
-> ability to exercise control over the triggering process. Without drawin=
-g a
-> distinction within the permission check, the ability to read would impl=
-y
-> the greater ability to control an application. Additionally, mount and
-> superblock watches apply to all files within the same mount or superblo=
-ck.
-> Read access to one file should not necessarily imply the ability to wat=
-ch
-> all files accessed within a given mount or superblock.
+On 7/18/2019 8:01 AM, William Roberts wrote:
+> <snip>
 >
-> In order to solve these issues, a new LSM hook is implemented and has b=
-een
-> placed within the system calls for marking filesystem objects with inot=
-ify,
-> fanotify, and dnotify watches. These calls to the hook are placed at th=
-e
-> point at which the target inode has been resolved and are provided with=
- the
-> inode, the mask of requested notification events, and the type of objec=
-t on
-> which the mark is being set (inode, superblock, or mount). The mask and=
+>>>>>>> the following (something between option #2 and #3):
+>>>>>>>   subj1_lsm=3Dsmack subj1=3D<smack_label> subj2_lsm=3Dselinux
+>>>>>>>
+>>>>>>> subj2=3D<selinux_label> ...
+>>>>>> If it's not a subj=3D field why use the indirection?
+>>>>>>
+>>>>>>         subj_smack=3D<smack_label> subj_selinux=3D<selinux_label>
+> FWIW +1 on this approach.
 
-> mark_type have already been translated into common FS_* values shared b=
-y
-> the entirety of the fs notification infrastructure.
->
-> This only provides a hook at the point of setting a watch, and presumes=
+Stephen Smalley's original objection was that subj=3D<context> used
+the context from the "display" LSM, and that unprivileged users could
+change that. Paul Moore suggested using subj=3D? and supplying additional=
 
-> that permission to set a particular watch implies the ability to receiv=
-e
-> all notification about that object which match the mask. This is all th=
-at
-> is required for SELinux. If other security modules require additional h=
-ooks
-> or infrastructure to control delivery of notification, these can be add=
-ed
-> by them. It does not make sense for us to propose hooks for which we ha=
-ve
-> no implementation. The understanding that all notifications received by=
- the
-> requesting application are all strictly of a type for which the applica=
-tion
-> has been granted permission shows that this implementation is sufficien=
-t in
-> its coverage.
->
-> Security modules wishing to provide complete control over fanotify must=
+subject data at the end of the record, using what has evolved into the
+subj_<lsm>=3D<context> format. Steve Grubb points out that searching on
+subject contexts gets much harder using this scheme.
 
-> also implement a security_file_open hook that validates that the access=
+If instead of using "subj=3D?" we provide the context used when "display"=
 
-> requested by the watching application is authorized. Fanotify has the i=
-ssue
-> that it returns a file descriptor with the file mode specified during
-> fanotify_init() to the watching process on event. This is already cover=
-ed
-> by the LSM security_file_open hook if the security module implements
-> checking of the requested file mode there. Otherwise, a watching proces=
-s
-> can obtain escalated access to a file for which it has not been authori=
-zed.
->
-> The selinux_inode_notify hook implementation works by adding five new f=
-ile
-> permissions: watch, watch_mount, watch_sb, watch_reads, and watch_with_=
-perm
-> (descriptions about which will follow), and one new filesystem permissi=
-on:
-> watch (which is applied to superblock checks). The hook then decides wh=
-ich
-> subset of these permissions must be held by the requesting application
-> based on the contents of the provided mask and the mark_type. The
-> selinux_file_open hook already checks the requested file mode and there=
-fore
-> ensures that a watching process cannot escalate its access through
-> fanotify.
->
-> The watch, watch_mount, and watch_sb permissions are the baseline
-> permissions for setting a watch on an object and each are a requirement=
- for
-> any watch to be set on a file, mount, or superblock respectively. It sh=
-ould
-> be noted that having either of the other two permissions (watch_reads a=
-nd
-> watch_with_perm) does not imply the watch, watch_mount, or watch_sb
-> permission. Superblock watches further require the filesystem watch
-> permission to the superblock. As there is no labeled object in view for=
+is not specified, subj=3Da:b:c:d when the first registered "display" LSM
+in SELinux, and add the subj_<lsm>=3D<context> entries, we have a reasona=
+bly
+good chance of getting the right results.
 
-> mounts, there is no specific check for mount watches beyond watch_mount=
- to
-> the inode. Such a check could be added in the future, if a suitable lab=
-eled
-> object existed representing the mount.
->
-> The watch_reads permission is required to receive notifications from
-> read-exclusive events on filesystem objects. These events include acces=
-sing
-> a file for the purpose of reading and closing a file which has been ope=
-ned
-> read-only. This distinction has been drawn in order to provide a direct=
+User-space code that does not understand that there may be multiple
+contexts will get a consistent set of values. They will either be all
+right or all wrong. The irreverent side of me thinks this could be an
+interesting fuzz test case.
 
-> indication in the policy for this otherwise not obvious capability. Rea=
-d
-> access to a file should not necessarily imply the ability to observe re=
-ad
-> events on a file.
->
-> Finally, watch_with_perm only applies to fanotify masks since it is the=
+It will be simple to change applications that only work with one LSM
+to check if they can expect data to be from that LSM in the audit records=
 
-> only way to set a mask which allows for the blocking, permission event.=
+by reading /sys/kernel/security/lsm to get the stacking order. That
+can be done in a wrapper script.
 
-> This permission is needed for any watch which is of this type. Though
-> fanotify requires CAP_SYS_ADMIN, this is insufficient as it gives impli=
-cit
-> trust to root, which we do not do, and does not support least privilege=
-=2E
+A script could easily replace the subj=3D value from an LSM you don't wan=
+t
+with the subj_<lsm>=3D value that you do want:
 
-It looks as if there may be overlap between this work and
-[RFC PATCH] security, capability: pass object information to security_cap=
-able
-https://www.spinics.net/lists/selinux/msg28312.html
+sed -e 's/\(.*\) subj=3D[^ ]*\(.*\) subj_apparmor=3D\([^ ]*\)\(.*\)/\1 su=
+bj=3D\2 \3/
 
-I say this because your patch looks an awful lot like what I suggested as=
+isn't quite right, but isn't far off.
 
-the alternative to passing object information to security_capable().
-It's possible that I've muddled the discussions in my brain, and that the=
-re
-isn't any way to use either to do both jobs. But it would be worth a look=
+Applications that are truly stack aware can use the subj_<lsm>=3D<context=
+> values.=20
+
+On a "well configured" system (e.g. out of box Fedora or Ubuntu)
+everything continues to work properly.
+
+If AppArmor is added to the Fedora system, in the module list after
+SELinux, and any applications that are dealing with AppArmor
+understand they aren't "display"ed, it will continue to work.
+
+This also works for Ubuntu, where SELinux would be put after AppArmor,
+and SELinux applications would have to know they're not "display"ed.
+
+I'm ignoring applications like id(1) that make explicit checks for a
+particular LSM rather than handling the general case, and systemd or dbus=
 ,
-and a single new hook or change to existing hook would be a Good Thing.
+which extend kernel policy into user-space. The topic at hand is audit,
+so let's restrict the discussion to that for the moment.
 
->
-> Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
-> ---
-> v2:
->   - Adds support for mark_type
->     - Adds watch_sb and watch_mount file permissions
->     - Adds watch as new filesystem permission
->     - LSM hook now recieves mark_type argument
->     - Changed LSM hook logic to implement checks for corresponding mark=
-_types
->   - Adds missing hook description comment
->   - Fixes extrainous whitespace
->   - Updates patch description based on feedback
->
->  fs/notify/dnotify/dnotify.c         | 14 +++++++--
->  fs/notify/fanotify/fanotify_user.c  | 27 +++++++++++++++--
->  fs/notify/inotify/inotify_user.c    | 13 ++++++--
->  include/linux/lsm_hooks.h           |  6 ++++
->  include/linux/security.h            |  9 +++++-
->  security/security.c                 |  5 +++
->  security/selinux/hooks.c            | 47 +++++++++++++++++++++++++++++=
-
->  security/selinux/include/classmap.h |  5 +--
->  8 files changed, 116 insertions(+), 10 deletions(-)
->
-> diff --git a/fs/notify/dnotify/dnotify.c b/fs/notify/dnotify/dnotify.c
-> index 250369d6901d..4690d8a66035 100644
-> --- a/fs/notify/dnotify/dnotify.c
-> +++ b/fs/notify/dnotify/dnotify.c
-> @@ -22,6 +22,7 @@
->  #include <linux/sched/signal.h>
->  #include <linux/dnotify.h>
->  #include <linux/init.h>
-> +#include <linux/security.h>
->  #include <linux/spinlock.h>
->  #include <linux/slab.h>
->  #include <linux/fdtable.h>
-> @@ -288,6 +289,16 @@ int fcntl_dirnotify(int fd, struct file *filp, uns=
-igned long arg)
->  		goto out_err;
->  	}
-> =20
-> +	/*
-> +	 * convert the userspace DN_* "arg" to the internal FS_*
-> +	 * defined in fsnotify
-> +	 */
-> +	mask =3D convert_arg(arg);
-> +
-> +	error =3D security_inode_notify(inode, mask, FSNOTIFY_OBJ_TYPE_INODE)=
-;
-> +	if (error)
-> +		goto out_err;
-> +
->  	/* expect most fcntl to add new rather than augment old */
->  	dn =3D kmem_cache_alloc(dnotify_struct_cache, GFP_KERNEL);
->  	if (!dn) {
-> @@ -302,9 +313,6 @@ int fcntl_dirnotify(int fd, struct file *filp, unsi=
-gned long arg)
->  		goto out_err;
->  	}
-> =20
-> -	/* convert the userspace DN_* "arg" to the internal FS_* defines in f=
-snotify */
-> -	mask =3D convert_arg(arg);
-> -
->  	/* set up the new_fsn_mark and new_dn_mark */
->  	new_fsn_mark =3D &new_dn_mark->fsn_mark;
->  	fsnotify_init_mark(new_fsn_mark, dnotify_group);
-> diff --git a/fs/notify/fanotify/fanotify_user.c b/fs/notify/fanotify/fa=
-notify_user.c
-> index a90bb19dcfa2..9e3137badb6b 100644
-> --- a/fs/notify/fanotify/fanotify_user.c
-> +++ b/fs/notify/fanotify/fanotify_user.c
-> @@ -528,9 +528,10 @@ static const struct file_operations fanotify_fops =
-=3D {
->  };
-> =20
->  static int fanotify_find_path(int dfd, const char __user *filename,
-> -			      struct path *path, unsigned int flags)
-> +			      struct path *path, unsigned int flags, __u64 mask)
->  {
->  	int ret;
-> +	unsigned int mark_type;
-> =20
->  	pr_debug("%s: dfd=3D%d filename=3D%p flags=3D%x\n", __func__,
->  		 dfd, filename, flags);
-> @@ -567,8 +568,30 @@ static int fanotify_find_path(int dfd, const char =
-__user *filename,
-> =20
->  	/* you can only watch an inode if you have read permissions on it */
->  	ret =3D inode_permission(path->dentry->d_inode, MAY_READ);
-> +	if (ret) {
-> +		path_put(path);
-> +		goto out;
-> +	}
-> +
-> +	switch (flags & FANOTIFY_MARK_TYPE_BITS) {
-> +	case FAN_MARK_MOUNT:
-> +		mark_type =3D FSNOTIFY_OBJ_TYPE_VFSMOUNT;
-> +		break;
-> +	case FAN_MARK_FILESYSTEM:
-> +		mark_type =3D FSNOTIFY_OBJ_TYPE_SB;
-> +		break;
-> +	case FAN_MARK_INODE:
-> +		mark_type =3D FSNOTIFY_OBJ_TYPE_INODE;
-> +		break;
-> +	default:
-> +		ret =3D -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	ret =3D security_inode_notify(path->dentry->d_inode, mask, mark_type)=
-;
->  	if (ret)
->  		path_put(path);
-> +
->  out:
->  	return ret;
->  }
-> @@ -1014,7 +1037,7 @@ static int do_fanotify_mark(int fanotify_fd, unsi=
-gned int flags, __u64 mask,
->  		goto fput_and_out;
->  	}
-> =20
-> -	ret =3D fanotify_find_path(dfd, pathname, &path, flags);
-> +	ret =3D fanotify_find_path(dfd, pathname, &path, flags, mask);
->  	if (ret)
->  		goto fput_and_out;
-> =20
-> diff --git a/fs/notify/inotify/inotify_user.c b/fs/notify/inotify/inoti=
-fy_user.c
-> index 7b53598c8804..73b321a30bbc 100644
-> --- a/fs/notify/inotify/inotify_user.c
-> +++ b/fs/notify/inotify/inotify_user.c
-> @@ -39,6 +39,7 @@
->  #include <linux/poll.h>
->  #include <linux/wait.h>
->  #include <linux/memcontrol.h>
-> +#include <linux/security.h>
-> =20
->  #include "inotify.h"
->  #include "../fdinfo.h"
-> @@ -342,7 +343,8 @@ static const struct file_operations inotify_fops =3D=
- {
->  /*
->   * find_inode - resolve a user-given path to a specific inode
->   */
-> -static int inotify_find_inode(const char __user *dirname, struct path =
-*path, unsigned flags)
-> +static int inotify_find_inode(const char __user *dirname, struct path =
-*path,
-> +						unsigned int flags, __u64 mask)
->  {
->  	int error;
-> =20
-> @@ -351,8 +353,15 @@ static int inotify_find_inode(const char __user *d=
-irname, struct path *path, uns
->  		return error;
->  	/* you can only watch an inode if you have read permissions on it */
->  	error =3D inode_permission(path->dentry->d_inode, MAY_READ);
-> +	if (error) {
-> +		path_put(path);
-> +		return error;
-> +	}
-> +	error =3D security_inode_notify(path->dentry->d_inode, mask,
-> +				FSNOTIFY_OBJ_TYPE_INODE);
->  	if (error)
->  		path_put(path);
-> +
->  	return error;
->  }
-> =20
-> @@ -744,7 +753,7 @@ SYSCALL_DEFINE3(inotify_add_watch, int, fd, const c=
-har __user *, pathname,
->  	if (mask & IN_ONLYDIR)
->  		flags |=3D LOOKUP_DIRECTORY;
-> =20
-> -	ret =3D inotify_find_inode(pathname, &path, flags);
-> +	ret =3D inotify_find_inode(pathname, &path, flags, mask);
->  	if (ret)
->  		goto fput_and_out;
-> =20
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 47f58cfb6a19..9b3f5a5f3246 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -394,6 +394,9 @@
->   *	Check permission before removing the extended attribute
->   *	identified by @name for @dentry.
->   *	Return 0 if permission is granted.
-> + * @inode_notify:
-> + *	Check permissions before setting a watch on events as defined by @m=
-ask,
-> + *	on an object @inode, whose type is defined by @mark_type.
->   * @inode_getsecurity:
->   *	Retrieve a copy of the extended attribute representation of the
->   *	security label associated with @name for @inode via @buffer.  Note =
-that
-> @@ -1571,6 +1574,8 @@ union security_list_options {
->  	int (*inode_getxattr)(struct dentry *dentry, const char *name);
->  	int (*inode_listxattr)(struct dentry *dentry);
->  	int (*inode_removexattr)(struct dentry *dentry, const char *name);
-> +	int (*inode_notify)(struct inode *inode, u64 mask,
-> +				unsigned int mark_type);
->  	int (*inode_need_killpriv)(struct dentry *dentry);
->  	int (*inode_killpriv)(struct dentry *dentry);
->  	int (*inode_getsecurity)(struct inode *inode, const char *name,
-> @@ -1881,6 +1886,7 @@ struct security_hook_heads {
->  	struct hlist_head inode_getxattr;
->  	struct hlist_head inode_listxattr;
->  	struct hlist_head inode_removexattr;
-> +	struct hlist_head inode_notify;
->  	struct hlist_head inode_need_killpriv;
->  	struct hlist_head inode_killpriv;
->  	struct hlist_head inode_getsecurity;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 659071c2e57c..b12666513138 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -301,6 +301,8 @@ int security_inode_listsecurity(struct inode *inode=
-, char *buffer, size_t buffer
->  void security_inode_getsecid(struct inode *inode, u32 *secid);
->  int security_inode_copy_up(struct dentry *src, struct cred **new);
->  int security_inode_copy_up_xattr(const char *name);
-> +int security_inode_notify(struct inode *inode, u64 mask,
-> +					unsigned int mark_type);
->  int security_kernfs_init_security(struct kernfs_node *kn_dir,
->  				  struct kernfs_node *kn);
->  int security_file_permission(struct file *file, int mask);
-> @@ -387,7 +389,6 @@ int security_ismaclabel(const char *name);
->  int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
->  int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *sec=
-id);
->  void security_release_secctx(char *secdata, u32 seclen);
-> -
->  void security_inode_invalidate_secctx(struct inode *inode);
->  int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ct=
-xlen);
->  int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctx=
-len);
-> @@ -776,6 +777,12 @@ static inline int security_inode_removexattr(struc=
-t dentry *dentry,
->  	return cap_inode_removexattr(dentry, name);
->  }
-> =20
-> +static inline int security_inode_notify(struct inode *inode, u64 mask,=
-
-> +				unsigned int mark_type)
-> +{
-> +	return 0;
-> +}
-> +
->  static inline int security_inode_need_killpriv(struct dentry *dentry)
->  {
->  	return cap_inode_need_killpriv(dentry);
-> diff --git a/security/security.c b/security/security.c
-> index 613a5c00e602..bc30e201c137 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -1251,6 +1251,11 @@ int security_inode_removexattr(struct dentry *de=
-ntry, const char *name)
->  	return evm_inode_removexattr(dentry, name);
->  }
-> =20
-> +int security_inode_notify(struct inode *inode, u64 mask, unsigned int =
-mark_type)
-> +{
-> +	return call_int_hook(inode_notify, 0, inode, mask, mark_type);
-> +}
-> +
->  int security_inode_need_killpriv(struct dentry *dentry)
->  {
->  	return call_int_hook(inode_need_killpriv, 0, dentry);
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index c61787b15f27..c967e46a34ea 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -92,6 +92,8 @@
->  #include <linux/kernfs.h>
->  #include <linux/stringhash.h>	/* for hashlen_string() */
->  #include <uapi/linux/mount.h>
-> +#include <linux/fsnotify.h>
-> +#include <linux/fanotify.h>
-> =20
->  #include "avc.h"
->  #include "objsec.h"
-> @@ -3261,6 +3263,50 @@ static int selinux_inode_removexattr(struct dent=
-ry *dentry, const char *name)
->  	return -EACCES;
->  }
-> =20
-> +static int selinux_inode_notify(struct inode *inode, u64 mask,
-> +						unsigned int mark_type)
-> +{
-> +	int ret;
-> +	u32 perm;
-> +
-> +	struct common_audit_data ad;
-> +
-> +	ad.type =3D LSM_AUDIT_DATA_INODE;
-> +	ad.u.inode =3D inode;
-> +
-> +	/*
-> +	 * Set permission needed based on the type of mark being set.
-> +	 * Performs an additional check for sb watches.
-> +	 */
-> +	switch (mark_type) {
-> +	case FSNOTIFY_OBJ_TYPE_VFSMOUNT:
-> +		perm =3D FILE__WATCH_MOUNT;
-> +		break;
-> +	case FSNOTIFY_OBJ_TYPE_SB:
-> +		perm =3D FILE__WATCH_SB;
-> +		ret =3D superblock_has_perm(current_cred(), inode->i_sb,
-> +						FILESYSTEM__WATCH, &ad);
-> +		if (ret)
-> +			return ret;
-> +		break;
-> +	case FSNOTIFY_OBJ_TYPE_INODE:
-> +		perm =3D FILE__WATCH;
-> +		break;
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +
-> +	// check if the mask is requesting ability to set a blocking watch
-> +	if (mask & (ALL_FSNOTIFY_PERM_EVENTS))
-> +		perm |=3D FILE__WATCH_WITH_PERM; // if so, check that permission
-> +
-> +	// is the mask asking to watch file reads?
-> +	if (mask & (FS_ACCESS | FS_ACCESS_PERM | FS_CLOSE_NOWRITE))
-> +		perm |=3D FILE__WATCH_READS; // check that permission as well
-> +
-> +	return inode_has_perm(current_cred(), inode, perm, &ad);
-> +}
-> +
->  /*
->   * Copy the inode security context value to the user.
->   *
-> @@ -6797,6 +6843,7 @@ static struct security_hook_list selinux_hooks[] =
-__lsm_ro_after_init =3D {
->  	LSM_HOOK_INIT(inode_getsecid, selinux_inode_getsecid),
->  	LSM_HOOK_INIT(inode_copy_up, selinux_inode_copy_up),
->  	LSM_HOOK_INIT(inode_copy_up_xattr, selinux_inode_copy_up_xattr),
-> +	LSM_HOOK_INIT(inode_notify, selinux_inode_notify),
-> =20
->  	LSM_HOOK_INIT(kernfs_init_security, selinux_kernfs_init_security),
-> =20
-> diff --git a/security/selinux/include/classmap.h b/security/selinux/inc=
-lude/classmap.h
-> index 201f7e588a29..32e9b03be3dd 100644
-> --- a/security/selinux/include/classmap.h
-> +++ b/security/selinux/include/classmap.h
-> @@ -7,7 +7,8 @@
-> =20
->  #define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
->      "rename", "execute", "quotaon", "mounton", "audit_access", \
-> -    "open", "execmod"
-> +	"open", "execmod", "watch", "watch_mount", "watch_sb", \
-> +	"watch_with_perm", "watch_reads"
-> =20
->  #define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \=
-
->      "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \=
-
-> @@ -60,7 +61,7 @@ struct security_class_mapping secclass_map[] =3D {
->  	{ "filesystem",
->  	  { "mount", "remount", "unmount", "getattr",
->  	    "relabelfrom", "relabelto", "associate", "quotamod",
-> -	    "quotaget", NULL } },
-> +	    "quotaget", "watch", NULL } },
->  	{ "file",
->  	  { COMMON_FILE_PERMS,
->  	    "execute_no_trans", "entrypoint", NULL } },
 
