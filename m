@@ -1,4 +1,4 @@
-Return-Path: <SRS0=gxH6=VP=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=dlxx=VQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -6,58 +6,61 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8370FC7618F
-	for <selinux@archiver.kernel.org>; Thu, 18 Jul 2019 18:49:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07159C7618F
+	for <selinux@archiver.kernel.org>; Fri, 19 Jul 2019 20:02:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 516DC208C0
-	for <selinux@archiver.kernel.org>; Thu, 18 Jul 2019 18:49:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 33AF42186A
+	for <selinux@archiver.kernel.org>; Fri, 19 Jul 2019 20:02:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LFW68dv+"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="BzeQ46IV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390831AbfGRStC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Jul 2019 14:49:02 -0400
-Received: from sonic309-22.consmr.mail.bf2.yahoo.com ([74.6.129.196]:39856
-        "EHLO sonic309-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727972AbfGRStC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jul 2019 14:49:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1563475740; bh=AhvbTBfSg+6DHkVLYrqc7VAMMYYjVOaarm1zPRfg3Q8=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=LFW68dv+0G65MP1MGQ3poIKBwCvtdaz67WudYTkZIMI4w4NX7tN81hNAQDeA12MKmC139Y5XDrezwJhv2OF0r0eWRaRqOeiSW9k842vFDwDmmjQ4KDstF/69VPj7hVGMDjCXTnmdqHIS8VQFkPQUj+OfzvrLCCiK2ze1OxAXD7ODSis8XHDbP9mnY4heQN+cJdhpfQiyHHnHzcfYkgNZyBv6+wYWeaXOSQcKoNgQslmhm+UajSP2eiBgb8uSZyGnYJuomfusvUlvHE+XF1qAJCjSrCT1D+ajFiaBO2N4QQHAj5cyBRpHP17l5dzanKWPPUwr2j2P3xly5phBjZ9LTg==
-X-YMail-OSG: SQQTOdEVM1nrmVotLc88VGZz99G9muOJhTKU5lGnqlDbq0OS1805lEGvQsTxhHA
- UTQoEEdPFHmT8dIZvcL5hx9izYZ3bj8_OBDuFsO_EQKViQIBJoGFZd03LkiIRzuqRWLoWNeGsop0
- RF0qXG.WqUHjzyXiOal.2A.nWURiuieWU_NyBp.yVMk2BHmZAfAldLlpr7flEmWKbSirmeXCWeLb
- GLc03xyUs18O6CLhvX1xWrjeW.6W8McIuZT1KlX106mbZIn5NGalGdqTfdgRvk4IyNXc8.iFiU9g
- Tn7yhl7hElKza47cKuIH8b8mGIobIhiHypW6P6ydLyEB2NXSG5SY5Zzu36AEsCV8mX3JI1VjTifB
- qTI934zdvIXtItaZQxH_tWdV787oFipvO23LCq6A6FlXr0Qq4m4bzDeFqxsRkmaVX6.n_68O7mft
- QaP12x38j0TUxFAsQ9JBNZkQ9OI5jOe.pURbZzh6mzoJF6REQJBO0HIo7TsNI2cm1uvvB2OFq0cC
- Wvtxh89.iOOzIf.CPlwuQwXwu22Ox1nV4jNSbwbwYA_9QN5JHHutE0EjQl6B.syFEcLar0Aq9SJ2
- YGVseaTQmBkCS8cAFhcOnrJUCWBGlRH9eq55FJ03txwk5hA1Yr90lakr5sMbJLE76LIhIkXQSfPD
- 4rSFRD2aGLoHs0D5EoMA1fwUxrn3K7uDDIrHre_2lgyy5.hhSp0WxrXwooRltt7giPaDwY_WMwcj
- LcysVrz0tGQR6FRwfCBiQh9t7GfKOqYbcodklLf9NLHilkPtGxh_DCyDDiWT4ZxKKD92NbNX8cGn
- F6DB1mkJwj6GZo4uNCmzt8_Q_EbTvM0AKUXZot0AanuHqnCNxNdvAydrUjwytz6iS93iczEG51nu
- RTxGaB.g8uI1i1UOOI35tiqYd0DQQL..GQoP1iQLL2OnbGIFn7WcXWZ5nL17TXCXtzb3q1n3mgLw
- x.eeDCf9OtuFByiyTpxS4VurLyU3EIyeX1.9LlEJm6X3sNW5.j4G0RZzGtj_34WcmDp_cK7Y6RpC
- pdUeUoj2ts.YiyzTpss1a6l0nQPUDpbn_iA8RODhqfQ1JQOgCIQTw3u5t8srUY0JLRvEewfGsn8T
- NApDVjp7eW4vjFGr5VgN04f3kcEzBPkeThPRFkCGG2yw9OrfXxp4c09vpHmUH_rQPrBBbRrBOc9A
- yRIUyaicuVd8nKLLHJjCkOULfN1UHJEU7FR67.oidFmTsMvw7fgolxTC2VbkqTpyMw1MBtv2YV3z
- NrMQyZWHjk3cjE9YlkbNilrg-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Thu, 18 Jul 2019 18:49:00 +0000
-Received: by smtp404.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 7fd616ac565311b3266d2084cb8770e8;
-          Thu, 18 Jul 2019 18:48:58 +0000 (UTC)
-Subject: Re: Preferred subj= with multiple LSMs
-To:     William Roberts <bill.c.roberts@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Steve Grubb <sgrubb@redhat.com>
-Cc:     Richard Guy Briggs <rgb@redhat.com>,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
+        id S1728631AbfGSUC3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 19 Jul 2019 16:02:29 -0400
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:44002
+        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728362AbfGSUC3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 19 Jul 2019 16:02:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1563566546; bh=qeE1e3etaziWp3w+RWUgDzIJ0smrTNQvePO0N+EDU6Q=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=BzeQ46IVvrSR5FtVQJmyEQm/xCpKRoa7Zj/i3q8Z9mw0SSTdyjBYwO4aH+7rjcEONGn0u654NhvsA2n9S4XK4IvNUZfhYt6E+oL5N3iUQTzZYmg9xrhaOeUHnMP88rLBOlnGu06XPq1KQ+rESl2nHFpsq/Yk5DYUw/YpWxhViAc1BtuusrBgiOs8/eankhVKa65eadEhmkhq2ufv73XlbuFfRx1EAI5iwMQfhPrMneRXAi9JpKvF223srafRq4bwoff8BmhEBV0Uq0aTWZ6xuaJ3vM24x8mSVBJfGLXoxYoZq1XEtqm1AvO6OqKos8SNejfaf+7Lk9mqu5GdBq8OEg==
+X-YMail-OSG: eA3bt2QVM1mMfr87TvzKJDa_xqj.8izvqJkwu5W2lP1I02cAi8pmOvVBvSWL4TH
+ NuJ2KpIl_CbwvOtkVBsyUY.ehJelzcJR7V4Qc.Ulpcb1.aI2vVwFF2h4HxAzUoKZg7GTq_UPyRqX
+ 1hFOECjv00JB_vkUJFTTK8jAsK3fyypb1SZ1xfgUbpzGIX0oqE.E8d1hBTYg6oJQC68POuuKxYSj
+ 4saE9NauToATvBAUJwbNPUYX0.kTqmwvK33ccsDtrio2_XccPPtITbiV44K7KGFFSQ4KAXzMEead
+ h1ydO1N6dejyOzpyLg7NEnKXwxYyVoSoqD9g95hMTTvyotsyBoA32oRZsLEhsm4mzEPSfPrQOKKl
+ U7pij.Ww5K82Wiwmpdq.9QNsVmVXl.DVH28E3woqSl0.JJJb5rQui6VvsLuKSRcCL1532sDrX8ri
+ 8kqTd9aleh2.Tsnx4D_x4H3oXaK5sPTFySFskTQ9mwlg9_ZFlbNs0lD0xHnW85neqKYN3Es9MNSW
+ QAhdkRNhufZK0Qrz5ewTvv.oAZq0.B5VSNnJK.aM5jWszawSMlKN.tKGe7ntx7yg0NPftluYsT3Z
+ kgggALWcVPoQW_IaVMHt6IwgSPQLIwx0UcHJ87TDklM9EaZ.t31mTc2fWdhk7QUbI4z189OU_jsf
+ bfPnnXGdKHxrFllODbMgCgajRLWi3Vgc.3CpLsu_mqOjN3XzTDJffaJO_9K72V1GFJZOg0nuvy5T
+ JOMBh.lHo9C_4Kj8lUfbrYur88iJ1aLgXgcN7h9KqYOmGolSa7T08Ol.R1KGMyOMAeyo4.EAVT11
+ XzpovffddzPGevqrkNynlGk6dZnaYhPklBD1RYLKeTjj1YEejt_kbgEwAvNPRpLY2qkZaq4Z8PBB
+ fv20e7O1N2muUD0j4uFEenquB8SGiTyXtNitZmIh6_dhFEC76MGTZAkrd6pctnhm5FDa1apL0Ly0
+ 8i8pZ91WGXELbgJySjG7ufrAF3CMFcmPeWbiNl1pvJ30y9uj9TJV0EcOJjk5jSefEL4ujlY0c87y
+ z3y7b7DXvJ21PVYPwWY4qkRnmMBf6qDZcBLGwX8Z5HaDsEGbDabgIlAg1VQCUamhfzSg498jwyXN
+ DfbWlavl6PJFVaxEsDFPD5fjQjK5DOxJNHAQ4_YLk2n6bCohDYJt88nx9P_R5VtFV7j2ae22LQyf
+ e2PBfmKB0VzHDCzVD4WuNvF3FVMd3llpiq4qg0.I0AODiCv3SQ4xhjX9fcbKcrMtAfo4dGo5fkI.
+ udusGj0qmGHafiA--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Fri, 19 Jul 2019 20:02:26 +0000
+Received: by smtp403.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 678414199c710243eb384f38fea31f5f;
+          Fri, 19 Jul 2019 20:02:26 +0000 (UTC)
+Subject: Dbus and multiple LSMs (was Preferred subj= with multiple LSMs)
+To:     Simon McVittie <smcv@collabora.com>
+Cc:     Paul Moore <paul@paul-moore.com>, Steve Grubb <sgrubb@redhat.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
         "linux-audit@redhat.com" <linux-audit@redhat.com>,
-        casey@schaufler-ca.com, SELinux <selinux@vger.kernel.org>
-References: <f824828c-5c9d-b91e-5cec-70ee7a45e760@schaufler-ca.com>
- <c993f63a-7c2d-c6c8-cfa6-3cfba410770d@schaufler-ca.com>
- <CAHC9VhSTwvueKcK2yhckwayh9YGou7gt2Gny36DOTaNkrck+Mg@mail.gmail.com>
- <2477603.130G60v5SE@x2>
- <d1a237d3-4b72-48b0-27d6-fb168354ad31@schaufler-ca.com>
- <CAHC9VhTQLihNQ1iGjJB=LAn=C6BQokFsjsRcj8O_O9AjqQ7HBg@mail.gmail.com>
- <CAFftDdrX2Y9Lr7Wi7jvrADTYNup6djc+1EFMHjFJzO0VSJ_Yeg@mail.gmail.com>
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>, casey@schaufler-ca.com,
+        SELinux <selinux@vger.kernel.org>
+References: <CAHC9VhTpcnyGg5j3b6Z7Yi0Ob01JETRiBmz1AuLqPWqP9tEAnA@mail.gmail.com>
+ <5ea2a25b-364f-3c30-79c6-cfb18515d7ba@schaufler-ca.com>
+ <CAHC9VhQ9MSh5zCkhMja4r9j0RT952LwKSaG5dR-BqXzXrtEAUw@mail.gmail.com>
+ <e9cf875a-0d0f-a56f-71dd-c22c67bdcc2d@schaufler-ca.com>
+ <CAHC9VhQS9We1TNqRfuR_E-kV4aZddx9euaiv5Gzd5B5AkiDAUQ@mail.gmail.com>
+ <f375c23c-29e6-dc98-d71c-328db91117bc@schaufler-ca.com>
+ <20190718131034.GA12581@horizon>
+ <45661e97-2ed0-22e5-992e-5d562ff11488@schaufler-ca.com>
+ <20190719121540.GA1764@horizon>
+ <720880ca-834c-1986-3baf-021c67221ae2@schaufler-ca.com>
+ <20190719184720.GB24836@horizon>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -104,12 +107,12 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <c5d0d6cc-16b8-bf6a-c24d-19e03889f6d8@schaufler-ca.com>
-Date:   Thu, 18 Jul 2019 11:48:58 -0700
+Message-ID: <700301b3-b607-3234-15ae-b958df2b59d3@schaufler-ca.com>
+Date:   Fri, 19 Jul 2019 13:02:24 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdrX2Y9Lr7Wi7jvrADTYNup6djc+1EFMHjFJzO0VSJ_Yeg@mail.gmail.com>
+In-Reply-To: <20190719184720.GB24836@horizon>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
@@ -118,70 +121,196 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/18/2019 8:01 AM, William Roberts wrote:
-> <snip>
+On 7/19/2019 11:47 AM, Simon McVittie wrote:
+> Thanks for considering user-space in this, and sorry if I'm hijacking
+> this thread a bit (but I think some of the things I'm raising might be
+> equally applicable for audit subjects).
+
+Thank you for asking these questions. I think that if we
+can address the issues around dbus we'll be in pretty good
+shape in general.
+
+> On Fri, 19 Jul 2019 at 09:29:17 -0700, Casey Schaufler wrote:
+>> On 7/19/2019 5:15 AM, Simon McVittie wrote:
+>>> However, I think it would be great to have multiple-"big"-LSM-aware
+>>> replacements for those interfaces, which present the various LSMs as
+>>> multiple parallel credentials.
+>> Defining what would go into liblsm* is a task that has fallen to
+>> the chicken/egg paradox. We can't really define how the user-space
+>> should work without knowing how the kernel will work, and we can't
+>> solidify how the kernel will work until we know what user-space
+>> can use.
+> I was hoping the syscall wrappers in glibc would be a viable user-space=
+
+> interface to the small amount of LSM stuff that dbus needs to use in an=
+
+> LSM-agnostic way. That's what we use in dbus at the moment (in practice=
+
+> just getsockopt, but I'd also be reading /proc/self/attr/current if the=
+re
+> was a specification for how to normalize it to match SO_PEERSEC results=
+)
+> and it's no harder than the rest of the syscall-level APIs.
+
+I don't see how to do that without making the Fedora and Ubuntu user spac=
+e
+environments remain functional.
+
+> A single LSM-agnostic shared library would be the next best thing from
+> my point of view.
+
+Good, that's how it looks to me as well.
+
+>> An option that hasn't been discussed is a display option to provide
+>> the Hideous format for applications that know that's what they want.
+>> Write "hideous" into /proc/self/attr/display, and from then on you
+>> get selinux=3D'a:b:c:d',apparmor=3D'z'. This could be used widely in l=
+iblsm
+>> interfaces.
+> If the way to parse/split it is documented, then this would be easier
+> for dbus-daemon than continually resetting attr/display. It would be
+> especially good if you can document a way to find out which one of the
+> many labels would have been seen by an older user-space process that ne=
+ver
+> wrote to attr/display ("it's the first one in the list" would be fine),=
+
+> so that we can put that one in our backwards-compatible API to clients.=
+
+
+/sys/kernel/security/lsm provides the list of all LSMs active on the syst=
+em.
+It would be trivial to add /sys/kernel/security/default-display-lsm which=
+
+would contain that.
+
+> Or, alternatively, we could pass it on directly to our clients and let
+> *them* parse it (possibly by using liblsm), the same way AppArmor-aware=
+
+> D-Bus clients have to know how to use either aa_splitcon() or their
+> own parsing to go from the raw SO_PEERSEC result
+> "/usr/bin/firefox (enforce)" to the pair ("/usr/bin/firefox", "enforce"=
+)
+> that they probably actually wanted.
 >
->>>>>>> the following (something between option #2 and #3):
->>>>>>>   subj1_lsm=3Dsmack subj1=3D<smack_label> subj2_lsm=3Dselinux
->>>>>>>
->>>>>>> subj2=3D<selinux_label> ...
->>>>>> If it's not a subj=3D field why use the indirection?
->>>>>>
->>>>>>         subj_smack=3D<smack_label> subj_selinux=3D<selinux_label>
-> FWIW +1 on this approach.
+>>> Do you mean that if process 11111 writes (for example) "apparmor" int=
+o
+>>> /proc/11111/attr/display, and then reads /proc/22222/attr/current
+>>> or queries the SO_PEERSEC of a socket opened by process 22222,
+>>> it will specifically see 22222's AppArmor label and not 22222's SELin=
+ux
+>>> label?
+>> Process 11111 would see the AppArmor label when reading
+>> /proc/22222/attr/current. The display value is controlled
+>> by process 11111 so that it can control what data it wants
+>> to see.
+> OK, that's what I'd hoped.
+>
+>> The display is set at the task level, so should be thread safe.
+> OK, good. However, thinking more about this, I have other concerns:
+>
+> * In library code that can be used by a thread (task) that also uses ot=
+her
+>   arbitrary libraries, or in an executable that uses libraries that mig=
+ht
+>   be interested in LSMs, the only safe way to deal with attr/display wo=
+uld
+>   be this sequence:
+>
+>     - write desired value to /proc/self/attr/display
+>     - immediately read /proc/other/attr/current or query SO_PEERSEC
+>
+>   and it would not be safe to rely on writing /proc/self/attr/display
+>   just once at startup, because some other library might have already
+>   changed it between startup and the actual read. Paradoxically, this
+>   maximizes the chance of breaking a reader that was relying on writing=
 
-Stephen Smalley's original objection was that subj=3D<context> used
-the context from the "display" LSM, and that unprivileged users could
-change that. Paul Moore suggested using subj=3D? and supplying additional=
+>   /proc/self/attr/display once during startup.
+>
+> * If an async signal handler needs to know a LSM label for whatever
+>   reason, it will break anything in the same thread that was relying on=
 
-subject data at the end of the record, using what has evolved into the
-subj_<lsm>=3D<context> format. Steve Grubb points out that searching on
-subject contexts gets much harder using this scheme.
+>   that sequence, because it might have interrupted them between their
+>   write and their read:
+>
+>     main execution path                  signal handler
+>     -------------------                  --------------
+>
+>     write "apparmor" to attr/display
+>     (interrupted by async signal)
+>                                          write "selinux" to attr/displa=
+y
+>                                          read attr/current or SO_PEERSE=
+C
+>                                          do other stuff with SELinux la=
+bel
+>                                          return
+>     (resumes)
+>     read attr/current or SO_PEERSEC
+>     expect an AppArmor label
+>     get a SELinux label
+>     sadness ensues
+>
+>   Of course it's probably crazy for an async signal handler to do
+>   this... but people do lots of odd things in async signal handlers,
+>   and open(), read(), write(), getsockopt() are all async-signal-safe
+>   functions, so it's at least arguably valid.
 
-If instead of using "subj=3D?" we provide the context used when "display"=
+Stephen Smalley has already pointed out some of these issues.
+I see display being used in scripts:
 
-is not specified, subj=3Da:b:c:d when the first registered "display" LSM
-in SELinux, and add the subj_<lsm>=3D<context> entries, we have a reasona=
-bly
-good chance of getting the right results.
+	echo apparmor > /proc/self/attr/display
+	apparmor-do-stuff --options --deamon
 
-User-space code that does not understand that there may be multiple
-contexts will get a consistent set of values. They will either be all
-right or all wrong. The irreverent side of me thinks this could be an
-interesting fuzz test case.
+much more than inside new or updated programs.
 
-It will be simple to change applications that only work with one LSM
-to check if they can expect data to be from that LSM in the audit records=
+>> Writing to display does not require privilege, as it affects only
+>> the current process. The display is inherited on fork and reset on
+>> a privileged exec.
+> Another concern here: are you sure it shouldn't be reset on *any*
+> exec?
 
-by reading /sys/kernel/security/lsm to get the stacking order. That
-can be done in a wrapper script.
+Yes, because so much of the user-space ecosystem depends on programs
+that rarely get updated there has to be a way to specify it externally.
+I don't like the situation, but we can't ignore it.
 
-A script could easily replace the subj=3D value from an LSM you don't wan=
-t
-with the subj_<lsm>=3D value that you do want:
+> Lots of programs (including dbus-daemon) fork-and-exec arbitrary
+> child processes that come from a different codebase not under our
+> control and aren't necessarily LSM-stacking-aware. I don't really want
+> to have to reset /proc/self/attr/display in our increasingly crowded
+> after-fork-but-before-exec code path (which, according to POSIX, is not=
 
-sed -e 's/\(.*\) subj=3D[^ ]*\(.*\) subj_apparmor=3D\([^ ]*\)\(.*\)/\1 su=
-bj=3D\2 \3/
+> a safe place to invoke any non-async-signal-safe function, so we can't
+> easily do error handling if something goes wrong there).
 
-isn't quite right, but isn't far off.
+My hope is that new and updated programs will have to tools
+they need to get it right, and that those that don't won't
+fall over on a well configured system.
 
-Applications that are truly stack aware can use the subj_<lsm>=3D<context=
-> values.=20
+> Is there any possibility of having a parallel kernel API that,
+> if it exists, always returns the whole stack, maybe something
+> like /proc/<pid>/attr/current_stack and the SO_PEERSECLABELS that I
+> suggested previously,
 
-On a "well configured" system (e.g. out of box Fedora or Ubuntu)
-everything continues to work properly.
+/proc/<pid>/attr/current_stack is easy. SO_PEERSECLABELS will be
+harder to sell, but would not be hard to implement if we can get
+agreement on the Hideous format.
+=C2=A0
 
-If AppArmor is added to the Fedora system, in the module list after
-SELinux, and any applications that are dealing with AppArmor
-understand they aren't "display"ed, it will continue to work.
+> instead of repurposing /proc/<pid>/attr/current
+> and SO_PEERSEC to have contents that vary according to ambient process
+> state in their reader?
 
-This also works for Ubuntu, where SELinux would be put after AppArmor,
-and SELinux applications would have to know they're not "display"ed.
+In addition, yes. Instead of? I don't think that we can have a
+backward compatibility story that flies without it.
 
-I'm ignoring applications like id(1) that make explicit checks for a
-particular LSM rather than handling the general case, and systemd or dbus=
-,
-which extend kernel policy into user-space. The topic at hand is audit,
-so let's restrict the discussion to that for the moment.
+>  (Bonus points if they are documented/defined with
+> a particular syntactic normalization this time, unlike the situation
+> with /proc/<pid>/attr/current and SO_PEERSEC where in principle you
+> need LSM-specific knowledge to know whether a trailing "\n" or "\0"
+> is safe to discard.)
 
+I think that's necessary.
+
+>
+>     smcv
 
