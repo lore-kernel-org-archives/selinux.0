@@ -2,95 +2,105 @@ Return-Path: <SRS0=Z/YK=VU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B62B0C7618F
-	for <selinux@archiver.kernel.org>; Tue, 23 Jul 2019 00:25:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67C53C7618F
+	for <selinux@archiver.kernel.org>; Tue, 23 Jul 2019 00:36:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7BADC21955
-	for <selinux@archiver.kernel.org>; Tue, 23 Jul 2019 00:25:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 35A8C21955
+	for <selinux@archiver.kernel.org>; Tue, 23 Jul 2019 00:36:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="HBiM+Ghp"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="eYCyZD6+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727796AbfGWAZc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 22 Jul 2019 20:25:32 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:39337 "EHLO
+        id S1729840AbfGWAgT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 22 Jul 2019 20:36:19 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:39859 "EHLO
         mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727795AbfGWAZb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 22 Jul 2019 20:25:31 -0400
-Received: by mail-lf1-f65.google.com with SMTP id v85so27955764lfa.6
-        for <selinux@vger.kernel.org>; Mon, 22 Jul 2019 17:25:30 -0700 (PDT)
+        with ESMTP id S1726770AbfGWAgT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 22 Jul 2019 20:36:19 -0400
+Received: by mail-lf1-f65.google.com with SMTP id v85so27969822lfa.6
+        for <selinux@vger.kernel.org>; Mon, 22 Jul 2019 17:36:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=QchpEl6IYcDn2365/1cAgrUj/Kod3MFaa9kS/y4zsIA=;
-        b=HBiM+Ghpfpp+iZBoxIUNJ2J3yJMGSnr6utpnv/T21+Byj6Hjh9iQP076Qh6GBNe/Y6
-         AbYzxrADIvG98AFdE5/ChLpaKuHryldzAwsrWdesvixGNgk7emHBIfc7yEd+HQI+VfMF
-         eX5jgnwshMil2Hu09h2+tDX7EqIuuo8Gc47w77IB3DBAN+9Prv7TQY4khMVNqriv9st5
-         ciPXLg+rSbU/q0tOf+/5GdsWhsoGa59FLmabXL5A+QBpwiQIcYMmv4brLhD7xn+kc5mB
-         TBNeJOfKL2vQ79QOMG5Ygm+dWolASdkNOOiNiDZd8+n+QNECI0D5sqpTvnnCU7QnhwGA
-         loQA==
+        bh=V1qLox/HcKqaARh5nCdyrjblfDl+n5sFe9PDB624/uQ=;
+        b=eYCyZD6+ZuS/vB5TpYkBQYdKK5kd/jAesT2uuum+J1rP8+F3tiaJNaHOM+OvjFJDG7
+         uyATfkYBrP90hc/NdWXf2hUkpuNxNzNetlz/kRTIFKRObov3+7X5p8wuG52iS8nnvPkR
+         YTmISBefoo5i53nN3wMEnKTAOaVfnLWq93v+NfwsCgIzjejDXAxplDvUw25W/orQuqAO
+         FGp6wzvEcIMvgx0GkySU0cKoMKt4d6zWjmQ2cm0MUSIzIRT8Jku/LWMDQTWkozOiTlYX
+         VRcf1qdMDEESplMOLNSnS2NS6S8uADE6jrv7pW+uFESXyEazFYl/WuFdYQKaEphIibCh
+         41jQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=QchpEl6IYcDn2365/1cAgrUj/Kod3MFaa9kS/y4zsIA=;
-        b=qvBsQ+Z/W9r6fxPdM6Vuykpy/3yqQ7GIiciKOUajImuA1fTpwJU4Z48gNTWufu0/DI
-         A4eI4bNsDeUwExpp/wjGiFIOKELnu4CkaKJOaonfnqjBHNxZCxiESRUmsFd4zrd9+2Qc
-         5pTfvu/GwIP2yLOwSvCsRDJAQOnu/KWJsLNTGZ6nmSXOkSjAh0Vl4K3GreCRMCsDeJ7P
-         iF/xDYYeIbTQVgkXUMXND9oa0h36BmL+AD/WtdmFL39zF/KoxhDzWMaBYaRdp6qZ9zEO
-         My7Agq+A/xuYgoK4miykIfla4j01pOL5pdMPUIck0MAcT6emjHaq9UjQHS7pdMP9711f
-         T27g==
-X-Gm-Message-State: APjAAAVtE8TSEAgtgRaSY4oDXJVyBoGIn7GXFYMnr/x2yKYWH95cU8G1
-        8y+9GJ00kc8sHA7DMJDlS5SvfTdYksZwoaUCPQ==
-X-Google-Smtp-Source: APXvYqx8Y9O6JQiw0vn8cUbd+Kt7Bu2W5CGQbSsI0sL8oQGMsom1pYEvtO1whbQwpCJnO24ajc3HZ8ouCLA0cxbQ82A=
-X-Received: by 2002:a19:4349:: with SMTP id m9mr32869303lfj.64.1563841529750;
- Mon, 22 Jul 2019 17:25:29 -0700 (PDT)
+        bh=V1qLox/HcKqaARh5nCdyrjblfDl+n5sFe9PDB624/uQ=;
+        b=sI3of4wW11WjbesXl/8yTqSoB4I9hagu686BGzeJJ0zn/snK7/Z+6Qf2V9qFFJ4IZL
+         f370DlkrRwtHe08LzdsfjPGiu7a3Rsn8l+nGIS+3q5QjKWHi63vvElCuIcCjEogS3cCS
+         H7xTu3f8vgU9Kd8XAKjOGdsk10oXC/ej6i9ehJWLTpLst+zwipKGo7lRL3/U7mFiLilN
+         U9GUh1ppygyNeSZ9OjeJd81SN5N5DWF2ugqRiyeDkp8Zx/YiOmCphj0KzwrmbppB04Cc
+         qcZp7Q6bbvAfiL05eEmXtV8LYi/9xsv/Nk5qukR2BpF1qapD8DjWczW1Q172ww2ow0N0
+         Cfrw==
+X-Gm-Message-State: APjAAAU8f2WJzXIxh3U2CRqAwDtpnmrI7kxP9suXWrjNfqEq/T4E8YSn
+        c7GRaf3K/xvVEBjL4k0WxbcohBB4Z8XX0pcmaA==
+X-Google-Smtp-Source: APXvYqzoUjfQZm+IXQbdMcOuDKAltzsj6XLnjHXuqPGc8HA3CrakVkrDK/T3HMwcmv9vyX3yUlvdz45JWRZ28K7TVvw=
+X-Received: by 2002:ac2:4c37:: with SMTP id u23mr19426864lfq.119.1563842177418;
+ Mon, 22 Jul 2019 17:36:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190722113151.1584-1-nitin.r.gote@intel.com> <CAFqZXNs5vdQwoy2k=_XLiGRdyZCL=n8as6aL01Dw-U62amFREA@mail.gmail.com>
-In-Reply-To: <CAFqZXNs5vdQwoy2k=_XLiGRdyZCL=n8as6aL01Dw-U62amFREA@mail.gmail.com>
+References: <20190722132111.25743-1-omosnace@redhat.com> <201907220949.AFB5B68@keescook>
+In-Reply-To: <201907220949.AFB5B68@keescook>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 22 Jul 2019 20:25:18 -0400
-Message-ID: <CAHC9VhSQLkRSby3-9PGZZrLMGB4Fe8ZZjupHRm0nVxco85A1fQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: convert struct sidtab count to refcount_t
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
-        NitinGote <nitin.r.gote@intel.com>
-Cc:     Kees Cook <keescook@chromium.org>,
+Date:   Mon, 22 Jul 2019 20:36:06 -0400
+Message-ID: <CAHC9VhSpwafSdcX97VPiy1Earns4UOBjywcM9R=j24KFUtWB8g@mail.gmail.com>
+Subject: Re: [PATCH] selinux: check sidtab limit before adding a new entry
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        NitinGote <nitin.r.gote@intel.com>,
         kernel-hardening@lists.openwall.com,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
+        linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 22, 2019 at 9:18 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Mon, Jul 22, 2019 at 1:35 PM NitinGote <nitin.r.gote@intel.com> wrote:
-> > refcount_t type and corresponding API should be
-> > used instead of atomic_t when the variable is used as
-> > a reference counter. This allows to avoid accidental
-> > refcounter overflows that might lead to use-after-free
-> > situations.
+On Mon, Jul 22, 2019 at 12:50 PM Kees Cook <keescook@chromium.org> wrote:
+> On Mon, Jul 22, 2019 at 03:21:11PM +0200, Ondrej Mosnacek wrote:
+> > We need to error out when trying to add an entry above SIDTAB_MAX in
+> > sidtab_reverse_lookup() to avoid overflow on the odd chance that this
+> > happens.
 > >
-> > Signed-off-by: NitinGote <nitin.r.gote@intel.com>
+> > Fixes: ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve performance")
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
-> Nack.
->
-> The 'count' variable is not used as a reference counter here. It
-> tracks the number of entries in sidtab, which is a very specific
-> lookup table that can only grow (the count never decreases). I only
-> made it atomic because the variable is read outside of the sidtab's
-> spin lock and thus the reads and writes to it need to be guaranteed to
-> be atomic. The counter is only updated under the spin lock, so
-> insertions do not race with each other.
+> Is this reachable from unprivileged userspace?
 
-Agreed, this should be changed to use refcount_t.
+I believe it's reachable via selinuxfs under /sys/fs/selinux/context,
+and the DAC permissions are for the relevant files are 0666, but the
+SELinux policy might restrict that.
+
+> > ---
+> >  security/selinux/ss/sidtab.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> > index e63a90ff2728..54c1ba1e79ab 100644
+> > --- a/security/selinux/ss/sidtab.c
+> > +++ b/security/selinux/ss/sidtab.c
+> > @@ -286,6 +286,11 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+> >               ++count;
+> >       }
+> >
+> > +     /* bail out if we already reached max entries */
+> > +     rc = -ENOMEM;
+> > +     if (count == SIDTAB_MAX)
+>
+> Do you want to use >= here instead?
+
+Yes, definitely.
 
 -- 
 paul moore
