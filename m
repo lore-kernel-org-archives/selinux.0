@@ -2,91 +2,99 @@ Return-Path: <SRS0=pD7g=VW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28AD8C7618B
-	for <selinux@archiver.kernel.org>; Thu, 25 Jul 2019 14:59:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 329EBC76190
+	for <selinux@archiver.kernel.org>; Thu, 25 Jul 2019 18:58:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EE9E222BF5
-	for <selinux@archiver.kernel.org>; Thu, 25 Jul 2019 14:59:40 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qbqZQtiz"
+	by mail.kernel.org (Postfix) with ESMTP id 14446206DD
+	for <selinux@archiver.kernel.org>; Thu, 25 Jul 2019 18:58:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388653AbfGYO7k (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Jul 2019 10:59:40 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:42110 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387834AbfGYO7k (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 Jul 2019 10:59:40 -0400
-Received: by mail-ot1-f68.google.com with SMTP id l15so51937989otn.9
-        for <selinux@vger.kernel.org>; Thu, 25 Jul 2019 07:59:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=g/32XaH2feyrnPKkGnJ4fELxuThjujX00oeLlztGM0g=;
-        b=qbqZQtiz+d/jnsBBRvDwyoWzr94F0x8XI5hkVEn+4CqavbCci4hsABU4lX+8bAftxA
-         WNFniPRQwOer7PTH2Dq0l7fPHG75XUo7Bc8mo1ODhNb4HnPoM/8PjMdWpuS0q+2Fg6KG
-         HjLPajvlYKrEjTKqCRUWq9Z336aipZtqc769dHDliJDeu+EcUSNUoAKP+SA9MsliSnZQ
-         xcwZ0MJJNiYhvYlw2mYM8ZnxAK/A3AfBo1f4SASEE4QCxYY0aA9craR44NcnxvB7xSv6
-         Yum+XfGYsL7W+02fGAvryeE+s7zafEmscMXv09wAcmzTHNNSjP0dnm/nGNfEXdi+JE05
-         RBTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=g/32XaH2feyrnPKkGnJ4fELxuThjujX00oeLlztGM0g=;
-        b=k1hdMfW9cn+5rvRlBFAaSp4kvOD7arnJiJlS0QGAZ3+miXcuYNg6ye6WFRl1KJYqCC
-         vpswtmZ2+X1g6ucEUfd7Ziq+jYEXLLmVV8ucOgEt02SCEaMEzgaXmlyu3sBaGcWPskGj
-         zN5SXOHBxANt6KDC3Nt2GDs2n5gdFHrnHAuuruHO8O1Lq+4BOHziZdvz/D/xybVDTmkl
-         bh1zfjISl74QEp4OxQXxwyc60MfePC7qxE89VGXyijOVcsZzx3zsZiWObcu8dB/ljvoy
-         1aw62sLCaOk/JVoZa7/NNRT/nlCHiwI/8r2ZNER9wFAJ+Wy7xnFHySlVyQK5TuKW3bud
-         hZTA==
-X-Gm-Message-State: APjAAAX+7NuiVGnkn+iEf6QON4v4le6aCbOWaGpgKkk8enCHVhYhKEzL
-        E9vuksTEnPJQfvRou3ciXj9LihKFl8SYfUWhkH9GHP0BW/k=
-X-Google-Smtp-Source: APXvYqw5eLxnMbtiqev4we0n5wMsVnTmjcBQzuULN6R2cyZQxL01at73zAFKakdpTSw/QAu9Ix1wpGXhl9/JiFgrvfw=
-X-Received: by 2002:a9d:774a:: with SMTP id t10mr32951707otl.228.1564066779221;
- Thu, 25 Jul 2019 07:59:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190725135933.30046-1-omosnace@redhat.com>
-In-Reply-To: <20190725135933.30046-1-omosnace@redhat.com>
-From:   Jann Horn <jannh@google.com>
-Date:   Thu, 25 Jul 2019 16:59:13 +0200
-Message-ID: <CAG48ez3ii7wFyX9BLrehGwHAPERnR3EY49Ky-3M=yJKsY-xkXg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: avoid atomic_t usage in sidtab
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
+        id S1726327AbfGYS6f (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 25 Jul 2019 14:58:35 -0400
+Received: from mga12.intel.com ([192.55.52.136]:15219 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726065AbfGYS6f (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 25 Jul 2019 14:58:35 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Jul 2019 11:58:34 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.64,307,1559545200"; 
+   d="scan'208";a="164277231"
+Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
+  by orsmga008.jf.intel.com with ESMTP; 25 Jul 2019 11:58:34 -0700
+Received: from fmsmsx114.amr.corp.intel.com (10.18.116.8) by
+ fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Thu, 25 Jul 2019 11:58:34 -0700
+Received: from BGSMSX107.gar.corp.intel.com (10.223.4.191) by
+ FMSMSX114.amr.corp.intel.com (10.18.116.8) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Thu, 25 Jul 2019 11:58:33 -0700
+Received: from bgsmsx101.gar.corp.intel.com ([169.254.1.176]) by
+ BGSMSX107.gar.corp.intel.com ([169.254.9.209]) with mapi id 14.03.0439.000;
+ Fri, 26 Jul 2019 00:28:28 +0530
+From:   "Gote, Nitin R" <nitin.r.gote@intel.com>
+To:     Jann Horn <jannh@google.com>, Ondrej Mosnacek <omosnace@redhat.com>
+CC:     SElinux list <selinux@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
-        NitinGote <nitin.r.gote@intel.com>,
         Kees Cook <keescook@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+Subject: RE: [PATCH] selinux: avoid atomic_t usage in sidtab
+Thread-Topic: [PATCH] selinux: avoid atomic_t usage in sidtab
+Thread-Index: AQHVQvE4rlvESAbbQE2d4U56CmypaabbEPSAgACZUmA=
+Date:   Thu, 25 Jul 2019 18:58:27 +0000
+Message-ID: <12356C813DFF6F479B608F81178A561587B055@BGSMSX101.gar.corp.intel.com>
+References: <20190725135933.30046-1-omosnace@redhat.com>
+ <CAG48ez3ii7wFyX9BLrehGwHAPERnR3EY49Ky-3M=yJKsY-xkXg@mail.gmail.com>
+In-Reply-To: <CAG48ez3ii7wFyX9BLrehGwHAPERnR3EY49Ky-3M=yJKsY-xkXg@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-ctpclassification: CTP_NT
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiNTk5ZDU1NDctZGZjNC00ZjkyLWFhYWYtNDNmNzhmZDBjYjFhIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiZUd3N2lYK1pmZzVQMkRcL1pubkpHc25aWWJpdUlITjBRZlRJdURVSCt3OThIZUlBNG5oZ1BuT0JQNVlFcXJIdGkifQ==
+x-originating-ip: [10.223.10.10]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 25, 2019 at 3:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> As noted in Documentation/atomic_t.txt, if we don't need the RMW atomic
-> operations, we should only use READ_ONCE()/WRITE_ONCE() +
-> smp_rmb()/smp_wmb() where necessary (or the combined variants
-> smp_load_acquire()/smp_store_release()).
->
-> This patch converts the sidtab code to use regular u32 for the counter
-> and reverse lookup cache and use the appropriate operations instead of
-> atomic_get()/atomic_set(). Note that when reading/updating the reverse
-> lookup cache we don't need memory barriers as it doesn't need to be
-> consistent or accurate. We can now also replace some atomic ops with
-> regular loads (when under spinlock) and stores (for conversion target
-> fields that are always accessed under the master table's spinlock).
->
-> We can now also bump SIDTAB_MAX to U32_MAX as we can use the full u32
-> range again.
->
-> Suggested-by: Jann Horn <jannh@google.com>
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-
-Looks good to me; you can add "Reviewed-by: Jann Horn
-<jannh@google.com>" if you want.
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFubiBIb3JuIFttYWls
+dG86amFubmhAZ29vZ2xlLmNvbV0NCj4gU2VudDogVGh1cnNkYXksIEp1bHkgMjUsIDIwMTkgODoy
+OSBQTQ0KPiBUbzogT25kcmVqIE1vc25hY2VrIDxvbW9zbmFjZUByZWRoYXQuY29tPg0KPiBDYzog
+U0VsaW51eCBsaXN0IDxzZWxpbnV4QHZnZXIua2VybmVsLm9yZz47IFBhdWwgTW9vcmUgPHBhdWxA
+cGF1bC0NCj4gbW9vcmUuY29tPjsgR290ZSwgTml0aW4gUiA8bml0aW4uci5nb3RlQGludGVsLmNv
+bT47IEtlZXMgQ29vaw0KPiA8a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPg0KPiBTdWJqZWN0OiBSZTog
+W1BBVENIXSBzZWxpbnV4OiBhdm9pZCBhdG9taWNfdCB1c2FnZSBpbiBzaWR0YWINCj4gDQo+IE9u
+IFRodSwgSnVsIDI1LCAyMDE5IGF0IDM6NTkgUE0gT25kcmVqIE1vc25hY2VrIDxvbW9zbmFjZUBy
+ZWRoYXQuY29tPg0KPiB3cm90ZToNCj4gPiBBcyBub3RlZCBpbiBEb2N1bWVudGF0aW9uL2F0b21p
+Y190LnR4dCwgaWYgd2UgZG9uJ3QgbmVlZCB0aGUgUk1XDQo+ID4gYXRvbWljIG9wZXJhdGlvbnMs
+IHdlIHNob3VsZCBvbmx5IHVzZSBSRUFEX09OQ0UoKS9XUklURV9PTkNFKCkgKw0KPiA+IHNtcF9y
+bWIoKS9zbXBfd21iKCkgd2hlcmUgbmVjZXNzYXJ5IChvciB0aGUgY29tYmluZWQgdmFyaWFudHMN
+Cj4gPiBzbXBfbG9hZF9hY3F1aXJlKCkvc21wX3N0b3JlX3JlbGVhc2UoKSkuDQo+ID4NCj4gPiBU
+aGlzIHBhdGNoIGNvbnZlcnRzIHRoZSBzaWR0YWIgY29kZSB0byB1c2UgcmVndWxhciB1MzIgZm9y
+IHRoZSBjb3VudGVyDQo+ID4gYW5kIHJldmVyc2UgbG9va3VwIGNhY2hlIGFuZCB1c2UgdGhlIGFw
+cHJvcHJpYXRlIG9wZXJhdGlvbnMgaW5zdGVhZCBvZg0KPiA+IGF0b21pY19nZXQoKS9hdG9taWNf
+c2V0KCkuIE5vdGUgdGhhdCB3aGVuIHJlYWRpbmcvdXBkYXRpbmcgdGhlIHJldmVyc2UNCj4gPiBs
+b29rdXAgY2FjaGUgd2UgZG9uJ3QgbmVlZCBtZW1vcnkgYmFycmllcnMgYXMgaXQgZG9lc24ndCBu
+ZWVkIHRvIGJlDQo+ID4gY29uc2lzdGVudCBvciBhY2N1cmF0ZS4gV2UgY2FuIG5vdyBhbHNvIHJl
+cGxhY2Ugc29tZSBhdG9taWMgb3BzIHdpdGgNCj4gPiByZWd1bGFyIGxvYWRzICh3aGVuIHVuZGVy
+IHNwaW5sb2NrKSBhbmQgc3RvcmVzIChmb3IgY29udmVyc2lvbiB0YXJnZXQNCj4gPiBmaWVsZHMg
+dGhhdCBhcmUgYWx3YXlzIGFjY2Vzc2VkIHVuZGVyIHRoZSBtYXN0ZXIgdGFibGUncyBzcGlubG9j
+aykuDQo+ID4NCj4gPiBXZSBjYW4gbm93IGFsc28gYnVtcCBTSURUQUJfTUFYIHRvIFUzMl9NQVgg
+YXMgd2UgY2FuIHVzZSB0aGUgZnVsbA0KPiB1MzINCj4gPiByYW5nZSBhZ2Fpbi4NCj4gPg0KPiA+
+IFN1Z2dlc3RlZC1ieTogSmFubiBIb3JuIDxqYW5uaEBnb29nbGUuY29tPg0KPiA+IFNpZ25lZC1v
+ZmYtYnk6IE9uZHJlaiBNb3NuYWNlayA8b21vc25hY2VAcmVkaGF0LmNvbT4NCj4gDQo+IExvb2tz
+IGdvb2QgdG8gbWU7IHlvdSBjYW4gYWRkICJSZXZpZXdlZC1ieTogSmFubiBIb3JuDQo+IDxqYW5u
+aEBnb29nbGUuY29tPiIgaWYgeW91IHdhbnQuDQoNCkxvb2tzIGdvb2QgdG8gbWUgYWxzbzsNCk1h
+eSBiZSB0aGVyZSBhcmUgbWFueSBwbGFjZXMgaW4ga2VybmVsIHdoZXJlLCBhdG9taWNfdCBpcyBu
+b3QgcmVxdWlyZWQsIGFzIHdlIGNhbWUgdG8ga25vdyBpbiBzaWR0YWIuYyAuIA0KDQpUaGFua3Ms
+DQpOaXRpbg0KDQoNCg==
