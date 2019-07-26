@@ -1,100 +1,94 @@
-Return-Path: <SRS0=pD7g=VW=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=eUs8=VX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 329EBC76190
-	for <selinux@archiver.kernel.org>; Thu, 25 Jul 2019 18:58:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2159C7618B
+	for <selinux@archiver.kernel.org>; Fri, 26 Jul 2019 10:29:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 14446206DD
-	for <selinux@archiver.kernel.org>; Thu, 25 Jul 2019 18:58:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AC1C2229F9
+	for <selinux@archiver.kernel.org>; Fri, 26 Jul 2019 10:29:57 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ld4bxdAH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726327AbfGYS6f (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Jul 2019 14:58:35 -0400
-Received: from mga12.intel.com ([192.55.52.136]:15219 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726065AbfGYS6f (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 25 Jul 2019 14:58:35 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Jul 2019 11:58:34 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.64,307,1559545200"; 
-   d="scan'208";a="164277231"
-Received: from fmsmsx107.amr.corp.intel.com ([10.18.124.205])
-  by orsmga008.jf.intel.com with ESMTP; 25 Jul 2019 11:58:34 -0700
-Received: from fmsmsx114.amr.corp.intel.com (10.18.116.8) by
- fmsmsx107.amr.corp.intel.com (10.18.124.205) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Thu, 25 Jul 2019 11:58:34 -0700
-Received: from BGSMSX107.gar.corp.intel.com (10.223.4.191) by
- FMSMSX114.amr.corp.intel.com (10.18.116.8) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Thu, 25 Jul 2019 11:58:33 -0700
-Received: from bgsmsx101.gar.corp.intel.com ([169.254.1.176]) by
- BGSMSX107.gar.corp.intel.com ([169.254.9.209]) with mapi id 14.03.0439.000;
- Fri, 26 Jul 2019 00:28:28 +0530
-From:   "Gote, Nitin R" <nitin.r.gote@intel.com>
-To:     Jann Horn <jannh@google.com>, Ondrej Mosnacek <omosnace@redhat.com>
-CC:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: RE: [PATCH] selinux: avoid atomic_t usage in sidtab
-Thread-Topic: [PATCH] selinux: avoid atomic_t usage in sidtab
-Thread-Index: AQHVQvE4rlvESAbbQE2d4U56CmypaabbEPSAgACZUmA=
-Date:   Thu, 25 Jul 2019 18:58:27 +0000
-Message-ID: <12356C813DFF6F479B608F81178A561587B055@BGSMSX101.gar.corp.intel.com>
-References: <20190725135933.30046-1-omosnace@redhat.com>
- <CAG48ez3ii7wFyX9BLrehGwHAPERnR3EY49Ky-3M=yJKsY-xkXg@mail.gmail.com>
-In-Reply-To: <CAG48ez3ii7wFyX9BLrehGwHAPERnR3EY49Ky-3M=yJKsY-xkXg@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.0.600.7
-dlp-reaction: no-action
-x-ctpclassification: CTP_NT
-x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiNTk5ZDU1NDctZGZjNC00ZjkyLWFhYWYtNDNmNzhmZDBjYjFhIiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiZUd3N2lYK1pmZzVQMkRcL1pubkpHc25aWWJpdUlITjBRZlRJdURVSCt3OThIZUlBNG5oZ1BuT0JQNVlFcXJIdGkifQ==
-x-originating-ip: [10.223.10.10]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726074AbfGZK35 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Jul 2019 06:29:57 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:38941 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726026AbfGZK35 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 Jul 2019 06:29:57 -0400
+Received: by mail-io1-f65.google.com with SMTP id f4so103784100ioh.6
+        for <selinux@vger.kernel.org>; Fri, 26 Jul 2019 03:29:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=wB26m8yUz8iRiEYc8sRBoM06jyQ/xqdK3z7G9qs7vG0=;
+        b=ld4bxdAHY8a0RDWGfEW4rJNCj0blxWQe9Jw5is2cmvwIPc/cc+Cmm7iJ0Q6HqU+85a
+         VC8fHKIspyaa9TQVC5997aJ3/QZ52Ole/juFp6mgE7mwZQzSPAiwAknrsUEtLk+Y2Je4
+         ZnmFeLxtEHZNM7vsh0xh+hyeAkBqwEFysuhCMKcwfsHQrusuXqW2uvbvLe7E4AmAI7GU
+         2sco4q4Jq/EDyw1N3ttiP1sOyrjdEnanCBc7I2EppEau/WtCQxIasqAsgDQ7LecnAY0d
+         Vo6x2hn6pyhabdKdSOkWIcapwN7mDuA6H3XRKtdy1HO/BoAtGJ9q95RUlnR6+tV/PXnu
+         WJsQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=wB26m8yUz8iRiEYc8sRBoM06jyQ/xqdK3z7G9qs7vG0=;
+        b=KBZm2Lw2ebN1yinGNgal2Iw1DVNegP51KBBcRuQWrkMx51AfRmf/DYspGDrix+exxu
+         ADk7VWsA8tkEPTgAs1tEfbtz+hEzVmNsNBgsKr0svhe5xo1X5mBVo1Ch01JeAU3cIYwA
+         qWtEPMxcptlnnhAZgsTkAUnvNR4vBeruRjQGZfZEdevixmA0MZwwq89q3KlbqV68P15E
+         +Yp5Y/PU+SbhaSlOU8sEUuKRxMeQsooK3Vn5KsPbeQqnbNmBx229ZPBla+BQeB/680w5
+         DsRCJtwlTAkytlLZSlS4oh5nwELndvBcv/n2YvmDXq9Zx+Obf9n5agJILEomgQighDvC
+         6aJQ==
+X-Gm-Message-State: APjAAAWLnA4J1cs6R//AE/ckWdz/lgt7EMCrEShY3zLsA/DS0c0ZZBtv
+        qFOj5m65lsBmchnp02nCZreMt/PsdN66g8qqZqmt1/Jr5OfOAA==
+X-Google-Smtp-Source: APXvYqxi3z8JDPaOud2HtvdQgfJlJfE3wmfutiWN45mcFR0HhlHjVRWnhozDB2ewsWwhRLAOGUUmgkZqoysjzMs7R0E=
+X-Received: by 2002:a02:cd82:: with SMTP id l2mr95219316jap.96.1564136996315;
+ Fri, 26 Jul 2019 03:29:56 -0700 (PDT)
 MIME-Version: 1.0
+From:   Claire Bocharova <claire.bocharova@gmail.com>
+Date:   Fri, 26 Jul 2019 13:29:45 +0300
+Message-ID: <CAF4UNDwgxPwEJ=pnEm6xKrXZuUoHWLWDxnqg-R9E11CfChhSvA@mail.gmail.com>
+Subject: initramfs file-management
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSmFubiBIb3JuIFttYWls
-dG86amFubmhAZ29vZ2xlLmNvbV0NCj4gU2VudDogVGh1cnNkYXksIEp1bHkgMjUsIDIwMTkgODoy
-OSBQTQ0KPiBUbzogT25kcmVqIE1vc25hY2VrIDxvbW9zbmFjZUByZWRoYXQuY29tPg0KPiBDYzog
-U0VsaW51eCBsaXN0IDxzZWxpbnV4QHZnZXIua2VybmVsLm9yZz47IFBhdWwgTW9vcmUgPHBhdWxA
-cGF1bC0NCj4gbW9vcmUuY29tPjsgR290ZSwgTml0aW4gUiA8bml0aW4uci5nb3RlQGludGVsLmNv
-bT47IEtlZXMgQ29vaw0KPiA8a2Vlc2Nvb2tAY2hyb21pdW0ub3JnPg0KPiBTdWJqZWN0OiBSZTog
-W1BBVENIXSBzZWxpbnV4OiBhdm9pZCBhdG9taWNfdCB1c2FnZSBpbiBzaWR0YWINCj4gDQo+IE9u
-IFRodSwgSnVsIDI1LCAyMDE5IGF0IDM6NTkgUE0gT25kcmVqIE1vc25hY2VrIDxvbW9zbmFjZUBy
-ZWRoYXQuY29tPg0KPiB3cm90ZToNCj4gPiBBcyBub3RlZCBpbiBEb2N1bWVudGF0aW9uL2F0b21p
-Y190LnR4dCwgaWYgd2UgZG9uJ3QgbmVlZCB0aGUgUk1XDQo+ID4gYXRvbWljIG9wZXJhdGlvbnMs
-IHdlIHNob3VsZCBvbmx5IHVzZSBSRUFEX09OQ0UoKS9XUklURV9PTkNFKCkgKw0KPiA+IHNtcF9y
-bWIoKS9zbXBfd21iKCkgd2hlcmUgbmVjZXNzYXJ5IChvciB0aGUgY29tYmluZWQgdmFyaWFudHMN
-Cj4gPiBzbXBfbG9hZF9hY3F1aXJlKCkvc21wX3N0b3JlX3JlbGVhc2UoKSkuDQo+ID4NCj4gPiBU
-aGlzIHBhdGNoIGNvbnZlcnRzIHRoZSBzaWR0YWIgY29kZSB0byB1c2UgcmVndWxhciB1MzIgZm9y
-IHRoZSBjb3VudGVyDQo+ID4gYW5kIHJldmVyc2UgbG9va3VwIGNhY2hlIGFuZCB1c2UgdGhlIGFw
-cHJvcHJpYXRlIG9wZXJhdGlvbnMgaW5zdGVhZCBvZg0KPiA+IGF0b21pY19nZXQoKS9hdG9taWNf
-c2V0KCkuIE5vdGUgdGhhdCB3aGVuIHJlYWRpbmcvdXBkYXRpbmcgdGhlIHJldmVyc2UNCj4gPiBs
-b29rdXAgY2FjaGUgd2UgZG9uJ3QgbmVlZCBtZW1vcnkgYmFycmllcnMgYXMgaXQgZG9lc24ndCBu
-ZWVkIHRvIGJlDQo+ID4gY29uc2lzdGVudCBvciBhY2N1cmF0ZS4gV2UgY2FuIG5vdyBhbHNvIHJl
-cGxhY2Ugc29tZSBhdG9taWMgb3BzIHdpdGgNCj4gPiByZWd1bGFyIGxvYWRzICh3aGVuIHVuZGVy
-IHNwaW5sb2NrKSBhbmQgc3RvcmVzIChmb3IgY29udmVyc2lvbiB0YXJnZXQNCj4gPiBmaWVsZHMg
-dGhhdCBhcmUgYWx3YXlzIGFjY2Vzc2VkIHVuZGVyIHRoZSBtYXN0ZXIgdGFibGUncyBzcGlubG9j
-aykuDQo+ID4NCj4gPiBXZSBjYW4gbm93IGFsc28gYnVtcCBTSURUQUJfTUFYIHRvIFUzMl9NQVgg
-YXMgd2UgY2FuIHVzZSB0aGUgZnVsbA0KPiB1MzINCj4gPiByYW5nZSBhZ2Fpbi4NCj4gPg0KPiA+
-IFN1Z2dlc3RlZC1ieTogSmFubiBIb3JuIDxqYW5uaEBnb29nbGUuY29tPg0KPiA+IFNpZ25lZC1v
-ZmYtYnk6IE9uZHJlaiBNb3NuYWNlayA8b21vc25hY2VAcmVkaGF0LmNvbT4NCj4gDQo+IExvb2tz
-IGdvb2QgdG8gbWU7IHlvdSBjYW4gYWRkICJSZXZpZXdlZC1ieTogSmFubiBIb3JuDQo+IDxqYW5u
-aEBnb29nbGUuY29tPiIgaWYgeW91IHdhbnQuDQoNCkxvb2tzIGdvb2QgdG8gbWUgYWxzbzsNCk1h
-eSBiZSB0aGVyZSBhcmUgbWFueSBwbGFjZXMgaW4ga2VybmVsIHdoZXJlLCBhdG9taWNfdCBpcyBu
-b3QgcmVxdWlyZWQsIGFzIHdlIGNhbWUgdG8ga25vdyBpbiBzaWR0YWIuYyAuIA0KDQpUaGFua3Ms
-DQpOaXRpbg0KDQoNCg==
+ Hello SELinux Devs.
+  Long story short - currently trying to create custom dracut initramfs on
+fedora 30 to prepare root mount, that requires creating/moving/copying files
+between filesystems. As a result, with enabled SELinux, system ends up with
+unlabeled_t edited files. After investigating a bit with rd.break, I found that
+none of the utilities like "cp -Z" or "ls -Z" or "tar --selinux" working as
+expected. First of I thought - missing libraries, maybe, so strace/ldd on a
+working system and inside initramfs to compare, and all required files were
+there, then rd.break with selinux=0 kernel boot option, and everything working
+as expected, also, I tried load_policy inside initramfs, which also gives me
+expected result - correct SELinux labels after file-management inside initramfs.
+  So my question is - what exactly prevents user to view/edit SElinux context,
+for example with getfattr/setfattr/ls-Z/tar--selinux, between
+"kernel: SELinux: Initializing" and "load_policy" boot stages? Is it a
+protection feature, and what I'm trying to achieve is a bad security design -
+edit labels inside initramfs, or there is some tweak I don't know about.
+  Right now it is reproducible with Fedora-Workstation-Live-x86_64-30-1.2.iso:
+- rd.break -> ls -Z /sysroot/ == ?? || tar -xpzf --selinux == operation not
+supported
+- rd.break selinux=0 -> normal behavior
+  Found previous discussion subjects like:
+- [PATCH v2 14/15] selinux: allow setxattr on rootfs so initramfs code can set
+them]
+- [PATCH v2 15/15] selinux: delay sid population for rootfs till init is
+complete
+- overlayfs+selinux error: OPNOTSUPP
+- SELinux with initramfs
+- Where does linux kernel call initial policy load
+- "star -xattr" in SELinux enabled system
+  But some of them are quite outdated, so it would be really helpful to get
+fresh tips from someone who sees the full picture.
+  Thank you for your time.
