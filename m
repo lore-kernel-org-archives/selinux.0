@@ -2,93 +2,232 @@ Return-Path: <SRS0=eUs8=VX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2159C7618B
-	for <selinux@archiver.kernel.org>; Fri, 26 Jul 2019 10:29:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28E96C7618B
+	for <selinux@archiver.kernel.org>; Fri, 26 Jul 2019 16:22:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AC1C2229F9
-	for <selinux@archiver.kernel.org>; Fri, 26 Jul 2019 10:29:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ld4bxdAH"
+	by mail.kernel.org (Postfix) with ESMTP id 026FD21734
+	for <selinux@archiver.kernel.org>; Fri, 26 Jul 2019 16:22:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726074AbfGZK35 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 26 Jul 2019 06:29:57 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:38941 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726026AbfGZK35 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 26 Jul 2019 06:29:57 -0400
-Received: by mail-io1-f65.google.com with SMTP id f4so103784100ioh.6
-        for <selinux@vger.kernel.org>; Fri, 26 Jul 2019 03:29:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=wB26m8yUz8iRiEYc8sRBoM06jyQ/xqdK3z7G9qs7vG0=;
-        b=ld4bxdAHY8a0RDWGfEW4rJNCj0blxWQe9Jw5is2cmvwIPc/cc+Cmm7iJ0Q6HqU+85a
-         VC8fHKIspyaa9TQVC5997aJ3/QZ52Ole/juFp6mgE7mwZQzSPAiwAknrsUEtLk+Y2Je4
-         ZnmFeLxtEHZNM7vsh0xh+hyeAkBqwEFysuhCMKcwfsHQrusuXqW2uvbvLe7E4AmAI7GU
-         2sco4q4Jq/EDyw1N3ttiP1sOyrjdEnanCBc7I2EppEau/WtCQxIasqAsgDQ7LecnAY0d
-         Vo6x2hn6pyhabdKdSOkWIcapwN7mDuA6H3XRKtdy1HO/BoAtGJ9q95RUlnR6+tV/PXnu
-         WJsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=wB26m8yUz8iRiEYc8sRBoM06jyQ/xqdK3z7G9qs7vG0=;
-        b=KBZm2Lw2ebN1yinGNgal2Iw1DVNegP51KBBcRuQWrkMx51AfRmf/DYspGDrix+exxu
-         ADk7VWsA8tkEPTgAs1tEfbtz+hEzVmNsNBgsKr0svhe5xo1X5mBVo1Ch01JeAU3cIYwA
-         qWtEPMxcptlnnhAZgsTkAUnvNR4vBeruRjQGZfZEdevixmA0MZwwq89q3KlbqV68P15E
-         +Yp5Y/PU+SbhaSlOU8sEUuKRxMeQsooK3Vn5KsPbeQqnbNmBx229ZPBla+BQeB/680w5
-         DsRCJtwlTAkytlLZSlS4oh5nwELndvBcv/n2YvmDXq9Zx+Obf9n5agJILEomgQighDvC
-         6aJQ==
-X-Gm-Message-State: APjAAAWLnA4J1cs6R//AE/ckWdz/lgt7EMCrEShY3zLsA/DS0c0ZZBtv
-        qFOj5m65lsBmchnp02nCZreMt/PsdN66g8qqZqmt1/Jr5OfOAA==
-X-Google-Smtp-Source: APXvYqxi3z8JDPaOud2HtvdQgfJlJfE3wmfutiWN45mcFR0HhlHjVRWnhozDB2ewsWwhRLAOGUUmgkZqoysjzMs7R0E=
-X-Received: by 2002:a02:cd82:: with SMTP id l2mr95219316jap.96.1564136996315;
- Fri, 26 Jul 2019 03:29:56 -0700 (PDT)
-MIME-Version: 1.0
-From:   Claire Bocharova <claire.bocharova@gmail.com>
-Date:   Fri, 26 Jul 2019 13:29:45 +0300
-Message-ID: <CAF4UNDwgxPwEJ=pnEm6xKrXZuUoHWLWDxnqg-R9E11CfChhSvA@mail.gmail.com>
-Subject: initramfs file-management
+        id S1728014AbfGZQWe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Jul 2019 12:22:34 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:46666 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727646AbfGZQWe (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 26 Jul 2019 12:22:34 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 01B3B8F915;
+        Fri, 26 Jul 2019 16:22:34 +0000 (UTC)
+Received: from localhost (ovpn-204-30.brq.redhat.com [10.40.204.30])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id B2DF51C2;
+        Fri, 26 Jul 2019 16:22:32 +0000 (UTC)
+References: <pjd4l3mezyk.fsf@redhat.com> <20190717111014.25650-1-plautrba@redhat.com> <CAJfZ7=njQ0KbUofrjyC7GLf4kCbg804UFyU=mgPQxQMZumsa1Q@mail.gmail.com>
+User-agent: mu4e 1.2.0; emacs 26.2
+From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: Re: [PATCH] libselinux: Use Python distutils to install SELinux python bindings
+In-reply-to: <CAJfZ7=njQ0KbUofrjyC7GLf4kCbg804UFyU=mgPQxQMZumsa1Q@mail.gmail.com>
+Date:   Fri, 26 Jul 2019 18:22:29 +0200
+Message-ID: <pjda7d0yddm.fsf@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Fri, 26 Jul 2019 16:22:34 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
- Hello SELinux Devs.
-  Long story short - currently trying to create custom dracut initramfs on
-fedora 30 to prepare root mount, that requires creating/moving/copying files
-between filesystems. As a result, with enabled SELinux, system ends up with
-unlabeled_t edited files. After investigating a bit with rd.break, I found that
-none of the utilities like "cp -Z" or "ls -Z" or "tar --selinux" working as
-expected. First of I thought - missing libraries, maybe, so strace/ldd on a
-working system and inside initramfs to compare, and all required files were
-there, then rd.break with selinux=0 kernel boot option, and everything working
-as expected, also, I tried load_policy inside initramfs, which also gives me
-expected result - correct SELinux labels after file-management inside initramfs.
-  So my question is - what exactly prevents user to view/edit SElinux context,
-for example with getfattr/setfattr/ls-Z/tar--selinux, between
-"kernel: SELinux: Initializing" and "load_policy" boot stages? Is it a
-protection feature, and what I'm trying to achieve is a bad security design -
-edit labels inside initramfs, or there is some tweak I don't know about.
-  Right now it is reproducible with Fedora-Workstation-Live-x86_64-30-1.2.iso:
-- rd.break -> ls -Z /sysroot/ == ?? || tar -xpzf --selinux == operation not
-supported
-- rd.break selinux=0 -> normal behavior
-  Found previous discussion subjects like:
-- [PATCH v2 14/15] selinux: allow setxattr on rootfs so initramfs code can set
-them]
-- [PATCH v2 15/15] selinux: delay sid population for rootfs till init is
-complete
-- overlayfs+selinux error: OPNOTSUPP
-- SELinux with initramfs
-- Where does linux kernel call initial policy load
-- "star -xattr" in SELinux enabled system
-  But some of them are quite outdated, so it would be really helpful to get
-fresh tips from someone who sees the full picture.
-  Thank you for your time.
+
+Nicolas Iooss <nicolas.iooss@m4x.org> writes:
+
+> On Wed, Jul 17, 2019 at 1:10 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+>>
+>> Follow officially documented way how to build C extension modules using
+>> distutils - https://docs.python.org/3.8/extending/building.html#building
+>>
+>> Fixes:
+>>
+>> - selinux python module fails to load when it's built using SWIG-4.0:
+>>
+>> >>> import selinux
+>> Traceback (most recent call last):
+>>   File "<stdin>", line 1, in <module>
+>>   File "/usr/lib64/python3.7/site-packages/selinux/__init__.py", line 13, in <module>
+>>     from . import _selinux
+>> ImportError: cannot import name '_selinux' from 'selinux' (/usr/lib64/python3.7/site-packages/selinux/__init__.py)
+>>
+>> SWIG-4.0 changed (again?) its behavior so that it uses: from . import _selinux
+>> which looks for _selinux module in the same directory as where __init__.py is -
+>> $(PYLIBDIR)/site-packages/selinux. But _selinux module is installed into
+>> $(PYLIBDIR)/site-packages/ since a9604c30a5e2f ("libselinux: Change the location
+>> of _selinux.so").
+>>
+>> - audit2why python module fails to build with Python 3.8
+>>
+>> cc -O2 -g -pipe -Wall -Werror=format-security -Wp,-D_FORTIFY_SOURCE=2 -Wp,-D_GLIBCXX_ASSERTIONS -fexceptions -fstack-protector-strong -grecord-gcc-switches -specs=/usr/lib/rpm/redhat/redhat-hardened-cc1 -specs=/usr/lib/rpm/redhat/redhat-annobin-cc1 -m64 -mtune=generic -fasynchronous-unwind-tables -fstack-clash-protection -fcf-protection -DOVERRIDE_GETTID=0 -I../include -D_GNU_SOURCE -DDISABLE_RPM -DNO_ANDROID_BACKEND -DUSE_PCRE2 -DPCRE2_CODE_UNIT_WIDTH=8  -Wl,-z,relro -Wl,--as-needed  -Wl,-z,now -specs=/usr/lib/rpm/redhat/redhat-hardened-ld -L. -shared -o python-3.8audit2why.so python-3.8audit2why.lo -lselinux -l:libsepol.a  -Wl,-soname,audit2why.so,--version-script=audit2why.map,-z,defs
+>> /usr/bin/ld: python-3.8audit2why.lo: in function `finish':
+>> /builddir/build/BUILD/libselinux-2.9/src/audit2why.c:166: undefined reference to `PyArg_ParseTuple'
+>> /usr/bin/ld: python-3.8audit2why.lo: in function `_Py_INCREF':
+>> /usr/include/python3.8/object.h:449: undefined reference to `_Py_NoneStruct'
+>> /usr/bin/ld: /usr/include/python3.8/object.h:449: undefined reference to `_Py_NoneStruct'
+>> /usr/bin/ld: python-3.8audit2why.lo: in function `check_booleans':
+>> /builddir/build/BUILD/libselinux-2.9/src/audit2why.c:84: undefined reference to `PyExc_RuntimeError'
+>> ...
+>>
+>> It's related to the following Python change
+>> https://docs.python.org/dev/whatsnew/3.8.html#debug-build-uses-the-same-abi-as-release-build
+>>
+>> Python distutils adds correct link options automatically.
+>>
+>> - selinux python module doesn't provide any Python metadata
+>>
+>> When selinux python module was built manually, it didn't provide any metadata.
+>> distutils takes care about that so that selinux Python module is visible for
+>> pip:
+>>
+>> $ pip3 list | grep selinux
+>> selinux              2.9
+>>
+>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>> ---
+>>  libselinux/src/.gitignore |  2 +-
+>>  libselinux/src/Makefile   | 36 ++++++++----------------------------
+>>  libselinux/src/setup.py   | 24 ++++++++++++++++++++++++
+>>  3 files changed, 33 insertions(+), 29 deletions(-)
+>>  create mode 100644 libselinux/src/setup.py
+>>
+>> diff --git a/libselinux/src/.gitignore b/libselinux/src/.gitignore
+>> index 4dcc3b3b..428afe5a 100644
+>> --- a/libselinux/src/.gitignore
+>> +++ b/libselinux/src/.gitignore
+>> @@ -1,4 +1,4 @@
+>>  selinux.py
+>> -selinuxswig_wrap.c
+>> +selinuxswig_python_wrap.c
+>>  selinuxswig_python_exception.i
+>>  selinuxswig_ruby_wrap.c
+>> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+>> index e9ed0383..d074548b 100644
+>> --- a/libselinux/src/Makefile
+>> +++ b/libselinux/src/Makefile
+>> @@ -36,7 +36,7 @@ TARGET=libselinux.so
+>>  LIBPC=libselinux.pc
+>>  SWIGIF= selinuxswig_python.i selinuxswig_python_exception.i
+>>  SWIGRUBYIF= selinuxswig_ruby.i
+>> -SWIGCOUT= selinuxswig_wrap.c
+>> +SWIGCOUT= selinuxswig_python_wrap.c
+>>  SWIGPYOUT= selinux.py
+>>  SWIGRUBYCOUT= selinuxswig_ruby_wrap.c
+>>  SWIGLOBJ:= $(patsubst %.c,$(PYPREFIX)%.lo,$(SWIGCOUT))
+>> @@ -55,7 +55,7 @@ ifeq ($(LIBSEPOLA),)
+>>          LDLIBS_LIBSEPOLA := -l:libsepol.a
+>>  endif
+>>
+>> -GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) selinuxswig_python_exception.i
+>> +GENERATED=$(SWIGCOUT) $(SWIGRUBYCOUT) $(SWIGCOUT) selinuxswig_python_exception.i
+>>  SRCS= $(filter-out $(GENERATED) audit2why.c, $(sort $(wildcard *.c)))
+>>
+>>  MAX_STACK_SIZE=32768
+>> @@ -125,25 +125,18 @@ DISABLE_FLAGS+= -DNO_ANDROID_BACKEND
+>>  SRCS:= $(filter-out label_backends_android.c, $(SRCS))
+>>  endif
+>>
+>> -SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./ $(DISABLE_FLAGS)
+>> -
+>>  SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./ $(DISABLE_FLAGS)
+>>
+>>  all: $(LIBA) $(LIBSO) $(LIBPC)
+>>
+>> -pywrap: all $(SWIGFILES) $(AUDIT2WHYSO)
+>> +pywrap: all selinuxswig_python_exception.i
+>> +       CFLAGS="$(CFLAGS) $(SWIG_CFLAGS)" $(PYTHON) setup.py build_ext -I $(DESTDIR)$(INCLUDEDIR) -L $(DESTDIR)$(LIBDIR)
+>>
+>>  rubywrap: all $(SWIGRUBYSO)
+>>
+>> -$(SWIGLOBJ): $(SWIGCOUT)
+>> -       $(CC) $(CFLAGS) $(SWIG_CFLAGS) $(PYINC) -fPIC -DSHARED -c -o $@ $<
+>> -
+>>  $(SWIGRUBYLOBJ): $(SWIGRUBYCOUT)
+>>         $(CC) $(CFLAGS) $(SWIG_CFLAGS) $(RUBYINC) -fPIC -DSHARED -c -o $@ $<
+>>
+>> -$(SWIGSO): $(SWIGLOBJ)
+>> -       $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $< -lselinux $(PYLIBS)
+>> -
+>>  $(SWIGRUBYSO): $(SWIGRUBYLOBJ)
+>>         $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(RUBYLIBS)
+>>
+>> @@ -161,29 +154,15 @@ $(LIBPC): $(LIBPC).in ../VERSION
+>>  selinuxswig_python_exception.i: ../include/selinux/selinux.h
+>>         bash -e exception.sh > $@ || (rm -f $@ ; false)
+>>
+>> -$(AUDIT2WHYLOBJ): audit2why.c
+>> -       $(CC) $(filter-out -Werror, $(CFLAGS)) $(PYINC) -fPIC -DSHARED -c -o $@ $<
+>> -
+>> -$(AUDIT2WHYSO): $(AUDIT2WHYLOBJ) $(LIBSEPOLA)
+>> -       $(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lselinux $(LDLIBS_LIBSEPOLA) $(PYLIBS) -Wl,-soname,audit2why.so,--version-script=audit2why.map,-z,defs
+>> -
+>>  %.o:  %.c policy.h
+>>         $(CC) $(CFLAGS) $(TLSFLAGS) -c -o $@ $<
+>>
+>>  %.lo:  %.c policy.h
+>>         $(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+>>
+>> -$(SWIGCOUT): $(SWIGIF)
+>> -       $(SWIG) $<
+>> -
+>> -$(SWIGPYOUT): $(SWIGCOUT)
+>> -
+>>  $(SWIGRUBYCOUT): $(SWIGRUBYIF)
+>>         $(SWIGRUBY) $<
+>>
+>> -swigify: $(SWIGIF)
+>> -       $(SWIG) $<
+>> -
+>>  install: all
+>>         test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
+>>         install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
+>> @@ -194,10 +173,9 @@ install: all
+>>         ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
+>>
+>>  install-pywrap: pywrap
+>> -       test -d $(DESTDIR)$(PYTHONLIBDIR)/selinux || install -m 755 -d $(DESTDIR)$(PYTHONLIBDIR)/selinux
+>> -       install -m 755 $(SWIGSO) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+>> -       install -m 755 $(AUDIT2WHYSO) $(DESTDIR)$(PYTHONLIBDIR)/selinux/audit2why$(PYCEXT)
+>> +       $(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
+>>         install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
+>> +       ln -sf $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+>
+> Hello,
+> Using $(DESTDIR) in a symlink target does not work when building
+> packages. For example if I build a package with
+> "BUILDDIR=/tmp/builddir" and
+> "PYTHONLIBDIR=/usr/lib/python3.7/site-packages", and then install the
+> package on a system,
+> /usr/lib/python3.7/site-packages/_selinux.cpython-37m-x86_64-linux-gnu.so
+> will be a symlink to /tmp/builddir/usr/python3.7/...
+> This can be prevented by either using "ln -sf --relative" (like other
+> places in the Makefile) or by using a relative target directly, such
+> as:
+>
+>     ln -sf selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+>
+> Otherwise, your patch looks good to me. If you want to directly merge
+> the patch once the issue is fixed: Acked-by: Nicolas Iooss
+> <nicolas.iooss@m4x.org>
+>
+
+Thanks for the review. I used:
+
+    ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+
+and merged it.
+
+Petr
