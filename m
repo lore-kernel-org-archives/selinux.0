@@ -2,144 +2,117 @@ Return-Path: <SRS0=UHz+=V2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44C19C433FF
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 21:41:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB1C7C76186
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 22:21:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1F2292067D
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 21:41:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A103E2073F
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 22:21:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728729AbfG2VlV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Jul 2019 17:41:21 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:48775 "EHLO
+        id S1728868AbfG2WVT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Jul 2019 18:21:19 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:43722 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727681AbfG2VlV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 17:41:21 -0400
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com [209.85.210.42])
+        with ESMTP id S1726327AbfG2WVT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 18:21:19 -0400
+Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id EE4455605E4
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 23:41:18 +0200 (CEST)
-Received: by mail-ot1-f42.google.com with SMTP id b7so13957558otl.11
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 14:41:18 -0700 (PDT)
-X-Gm-Message-State: APjAAAWd0YtpLjgMBgoi5KqcRX55UEV/7eEP/U/gnX2VRgPY+93YbLO3
-        xkHhEM7eTKtAV9jOnYOV3GYr7o2TjmbfPQpuxEw=
-X-Google-Smtp-Source: APXvYqxWJS7KjgzHaf0Z0WSRaAqqRs0GOnz3p+X1Tonfl4n1LjKRSb6nkax84qPEGv2XnVDHQn1u9z1U2478KAMVsPM=
-X-Received: by 2002:a05:6830:12d5:: with SMTP id a21mr15700209otq.29.1564436477981;
- Mon, 29 Jul 2019 14:41:17 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id B542156128F
+        for <selinux@vger.kernel.org>; Tue, 30 Jul 2019 00:21:15 +0200 (CEST)
+Received: by mail-ot1-f45.google.com with SMTP id n5so64285345otk.1
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 15:21:15 -0700 (PDT)
+X-Gm-Message-State: APjAAAWc/3IKjRRbdHfr9T6rRV+vHtIm4ze+A9OreTnoFCFN1/hrbjZR
+        cNJRTvA3OfXq5QjLi1s2xNIOEC8RqEZHTGG8fEA=
+X-Google-Smtp-Source: APXvYqwlQtNKQUslXW7PoVgfr8YenYTiOMROZdBLatm2P+zbDpiIqdfO21+r2ZP5qiYKyEats2UFOJmEYuPruz5qZyE=
+X-Received: by 2002:a9d:6ac3:: with SMTP id m3mr24671125otq.92.1564438874747;
+ Mon, 29 Jul 2019 15:21:14 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190702120905.9808-1-vmojzis@redhat.com> <20190702120905.9808-2-vmojzis@redhat.com>
-In-Reply-To: <20190702120905.9808-2-vmojzis@redhat.com>
+References: <20190624180229.9573-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20190624180229.9573-1-richard_c_haines@btinternet.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 29 Jul 2019 23:41:06 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nZ3mVRFD6d5OGq+r1srH+8bRr-hKeLi3kpc_bx3W5yTw@mail.gmail.com>
-Message-ID: <CAJfZ7=nZ3mVRFD6d5OGq+r1srH+8bRr-hKeLi3kpc_bx3W5yTw@mail.gmail.com>
-Subject: Re: [PATCH 2/2] Fix mcstrans secolor examples
-To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+Date:   Tue, 30 Jul 2019 00:21:03 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=mYQz-g+zvy+9xzhLHtQn4asZfy8G1TetVnhVO44tCiBA@mail.gmail.com>
+Message-ID: <CAJfZ7=mYQz-g+zvy+9xzhLHtQn4asZfy8G1TetVnhVO44tCiBA@mail.gmail.com>
+Subject: Re: [PATCH V3 0/2] selinux: Remove legacy local boolean and user code
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 29 23:41:19 2019 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 30 00:21:16 2019 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 2, 2019 at 2:09 PM Vit Mojzis <vmojzis@redhat.com> wrote:
+On Mon, Jun 24, 2019 at 8:25 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
 >
-> According to "check_dominance" function:
-> Range defined as "s15:c0.c1023" does not dominate any other range than
->  "s15:c0.c1023" (does not dominate "s15", "s15:c0.c200", etc.).
-> While range defined as "s15-s15:c0.c1023" dominates all of the above.
+> I've removed the legacy code as discussed and seems to work okay when
+> loading policy on Fedora 30 & Rawhide (they both boot as well).
+> Note: I cannot test any other releases.
 >
-> This is either a bug, or "s15:c0.c1023" should not be used in the
-> examples.
+> Tested downgrading policy to 24 okay using load_policy(8).
+>
+> V2 Changes:
+> Updated as requested in [1].
+> Add manpages.
+> V3 Change:
+> Fix deprecated_funcs.c WARN() messages in Patch 1.
+>
+> [1] https://lore.kernel.org/selinux/18e772cde0ed8f4d83752a9957ad2a3a11ecad8c.camel@btinternet.com/
 
 Hello,
-I am not familiar with the concepts about range dominance, so I do not
-know whether this is a bug that should be fixed or if updating the
-examples is better. Can someone please review this?
+As these patches have been around for more than a month without any
+complain and they looked good to me, I merged them.
 
-Cheers,
+Thanks,
 Nicolas
 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-> ---
->  libselinux/man/man5/secolor.conf.5                      | 4 ++--
->  libselinux/man/ru/man5/secolor.conf.5                   | 4 ++--
->  mcstrans/share/examples/urcsts-via-include/secolor.conf | 2 +-
->  mcstrans/share/examples/urcsts/secolor.conf             | 2 +-
->  4 files changed, 6 insertions(+), 6 deletions(-)
+> Richard Haines (2):
+>   selinux: Remove legacy local boolean and user code
+>   selinux: Update manpages after removing legacy boolean and user code
 >
-> diff --git a/libselinux/man/man5/secolor.conf.5 b/libselinux/man/man5/secolor.conf.5
-> index b834577a..a3bf2da1 100644
-> --- a/libselinux/man/man5/secolor.conf.5
-> +++ b/libselinux/man/man5/secolor.conf.5
-> @@ -123,7 +123,7 @@ range s7\-s7:c0.c1023 = black red
->  .br
->  range s9\-s9:c0.c1023 = black orange
->  .br
-> -range s15:c0.c1023   = black yellow
-> +range s15\-s15:c0.c1023   = black yellow
->  .RE
->
->  .sp
-> @@ -165,7 +165,7 @@ type xguest_t     = black green
->  .br
->  user sysadm_u     = white black
->  .br
-> -range s0:c0.c1023 = black white
-> +range s0-s0:c0.c1023 = black white
->  .br
->  user *            = black white
->  .br
-> diff --git a/libselinux/man/ru/man5/secolor.conf.5 b/libselinux/man/ru/man5/secolor.conf.5
-> index 4c1236ae..bcae80c1 100644
-> --- a/libselinux/man/ru/man5/secolor.conf.5
-> +++ b/libselinux/man/ru/man5/secolor.conf.5
-> @@ -121,7 +121,7 @@ range s7\-s7:c0.c1023 = black red
->  .br
->  range s9\-s9:c0.c1023 = black orange
->  .br
-> -range s15:c0.c1023   = black yellow
-> +range s15\-s15:c0.c1023   = black yellow
->  .RE
->
->  .sp
-> @@ -163,7 +163,7 @@ type xguest_t     = black green
->  .br
->  user sysadm_u     = white black
->  .br
-> -range s0:c0.c1023 = black white
-> +range s0\-s0:c0.c1023 = black white
->  .br
->  user *            = black white
->  .br
-> diff --git a/mcstrans/share/examples/urcsts-via-include/secolor.conf b/mcstrans/share/examples/urcsts-via-include/secolor.conf
-> index d35b3c67..3b3f5430 100644
-> --- a/mcstrans/share/examples/urcsts-via-include/secolor.conf
-> +++ b/mcstrans/share/examples/urcsts-via-include/secolor.conf
-> @@ -17,5 +17,5 @@ range s3-s3:c0.c1023 = black tan
->  range s5-s5:c0.c1023 = white blue
->  range s7-s7:c0.c1023 = black red
->  range s9-s9:c0.c1023 = black orange
-> -range s15:c0.c1023 = black yellow
-> +range s15-s15:c0.c1023 = black yellow
->
-> diff --git a/mcstrans/share/examples/urcsts/secolor.conf b/mcstrans/share/examples/urcsts/secolor.conf
-> index d35b3c67..3b3f5430 100644
-> --- a/mcstrans/share/examples/urcsts/secolor.conf
-> +++ b/mcstrans/share/examples/urcsts/secolor.conf
-> @@ -17,5 +17,5 @@ range s3-s3:c0.c1023 = black tan
->  range s5-s5:c0.c1023 = white blue
->  range s7-s7:c0.c1023 = black red
->  range s9-s9:c0.c1023 = black orange
-> -range s15:c0.c1023 = black yellow
-> +range s15-s15:c0.c1023 = black yellow
+>  libselinux/include/selinux/selinux.h          |  18 +-
+>  libselinux/man/man3/security_load_booleans.3  |  12 +-
+>  .../man/man3/selinux_binary_policy_path.3     |   7 +-
+>  libselinux/man/man3/selinux_booleans_path.3   |   1 -
+>  libselinux/man/man5/booleans.5                |  80 ----
+>  libselinux/man/man5/local.users.5             |  68 ----
+>  libselinux/man/ru/man5/booleans.5             |  83 -----
+>  libselinux/man/ru/man5/local.users.5          |  72 ----
+>  libselinux/src/booleans.c                     | 225 +-----------
+>  libselinux/src/file_path_suffixes.h           |   2 +
+>  libselinux/src/load_policy.c                  | 100 +----
+>  libselinux/src/selinux_config.c               |   9 +-
+>  libselinux/src/selinux_internal.h             |   1 -
+>  libsepol/include/sepol/booleans.h             |  15 +-
+>  libsepol/include/sepol/policydb/services.h    |   6 -
+>  libsepol/include/sepol/users.h                |  13 +-
+>  libsepol/man/man3/sepol_genbools.3            |  30 --
+>  libsepol/man/man3/sepol_genusers.3            |  54 ---
+>  libsepol/src/deprecated_funcs.c               |  50 +++
+>  libsepol/src/genbools.c                       | 279 --------------
+>  libsepol/src/genusers.c                       | 343 ------------------
+>  policycoreutils/load_policy/load_policy.c     |   2 +-
+>  policycoreutils/man/man5/selinux_config.5     |  15 +-
+>  policycoreutils/man/ru/man5/selinux_config.5  |  11 +-
+>  24 files changed, 86 insertions(+), 1410 deletions(-)
+>  delete mode 100644 libselinux/man/man3/selinux_booleans_path.3
+>  delete mode 100644 libselinux/man/man5/booleans.5
+>  delete mode 100644 libselinux/man/man5/local.users.5
+>  delete mode 100644 libselinux/man/ru/man5/booleans.5
+>  delete mode 100644 libselinux/man/ru/man5/local.users.5
+>  delete mode 100644 libsepol/man/man3/sepol_genbools.3
+>  delete mode 100644 libsepol/man/man3/sepol_genusers.3
+>  create mode 100644 libsepol/src/deprecated_funcs.c
+>  delete mode 100644 libsepol/src/genbools.c
+>  delete mode 100644 libsepol/src/genusers.c
 >
 > --
-> 2.17.2
+> 2.21.0
 >
 
