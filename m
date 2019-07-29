@@ -2,116 +2,74 @@ Return-Path: <SRS0=UHz+=V2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EB85C7618B
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 07:33:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E172C433FF
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 08:41:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B5AB216C8
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 07:33:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 34D4920693
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 08:41:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726432AbfG2Hd5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Jul 2019 03:33:57 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:46505 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725988AbfG2Hd4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 03:33:56 -0400
-Received: by mail-ot1-f65.google.com with SMTP id z23so33226008ote.13
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 00:33:56 -0700 (PDT)
+        id S1727109AbfG2IlV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Jul 2019 04:41:21 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:53887 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726305AbfG2IlV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 04:41:21 -0400
+Received: by mail-wm1-f66.google.com with SMTP id x15so53016864wmj.3
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 01:41:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=5OE+Z/HCbIwd1N0xtAxYm3E5scpKICVpyoP5iwh5Lo4=;
-        b=Pmkvg3ImMXkjP/3x5N0gqCERJ513hapBYavqsNx8a5h1QfPykAPOIZCv/p40C57p1F
-         Jgut2lXhvuM9tlrVUuUPnEf43EUc3Y/ucJQVpG0d+bsAi3oru8WSyjiJFmXCOaSfJf3O
-         /5HQbb10XAx44JnKWYwXUwslhK/TpHC4RhprhzYJJPgp6veaHRG2MMhryUBQDM2viydW
-         7C6IwWgfvry6b4gfNjDBOVlC2y62yvVRBrmTBT/wW7QpolmSze6fjL9TLmQVMwbB1ko6
-         tOYxF+Iz0mMZE+zEXpj8spmIjCcKluKX6JC9oZKzslKfW0tJtEg8iF9+qWrTx2l8stV8
-         dIpw==
-X-Gm-Message-State: APjAAAXp69V7M+/pSgbmu1hQHO0g665yredWGLYXOXJPJHRipL9SPIti
-        u0r8DjL/k6qkIXPK4AtEvcLz1RsVwa/v2+PYbwH/cg==
-X-Google-Smtp-Source: APXvYqylWzmNNRq2RJVMF15mKQ98N72JwScO2uHSBB0VpLWMT69v0/Tv38OatqMTXTMhv1+yZYArVq8gp27Z6ztpbXk=
-X-Received: by 2002:a05:6830:1086:: with SMTP id y6mr42727594oto.22.1564385635822;
- Mon, 29 Jul 2019 00:33:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190725105243.28404-1-omosnace@redhat.com> <CAHC9VhR9Lfy0iddbpue2iMKqKGAfqMBeV17KbDoLrM62ngQzKg@mail.gmail.com>
-In-Reply-To: <CAHC9VhR9Lfy0iddbpue2iMKqKGAfqMBeV17KbDoLrM62ngQzKg@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9gq2u+A5dfODMGOeqg4bl/v73X/iz6hpcdQTucspmG8=;
+        b=HpCyBjeopRZrlrPBZhuIEh5zHR4jVZg3+zhl2uXtMWyPxbO1OYS7V2Offuv2IIX4w7
+         PvZWS/sk8m/WB+sPFXegm7ZydK0mlvptDcZ7oIhuYFfo8H2UDkQNOYuhMLuM+XuzmITP
+         dnaCW7DLaiQDXG42ASGuXW+3gQHOZhScG75z4YMAxEkIQ7deNvyK7RB1wt2wmShQDPCQ
+         IeEfUyeybdvap3Awsa9b56TsBZnhxYpAwty6wHgPsPuwtlH1rOhGWJsQN6coPhQtmq4w
+         fuo5uSu4lYgJU5C5RrTzTbTy4w1pB5M51P6sEJD6UocNa5dhmfgFy4NXqR5OuCf9i3EE
+         rE9w==
+X-Gm-Message-State: APjAAAVj+kSWUJutR093fl1wsrXYJCVkciYek8fdiGY6sbGFILyaXN5B
+        VaTghA0wD37yOkhrMRaMzFe+P79VFY2thA==
+X-Google-Smtp-Source: APXvYqyVUuK8LOBj3DcKBUJGPJhkEAvCUCzUfdX+EpBjeB758pQMS73mhyqctji3fAwDwK7sMwH0zg==
+X-Received: by 2002:a7b:c38c:: with SMTP id s12mr17148539wmj.71.1564389679787;
+        Mon, 29 Jul 2019 01:41:19 -0700 (PDT)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id v5sm70190544wre.50.2019.07.29.01.41.18
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Mon, 29 Jul 2019 01:41:19 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 29 Jul 2019 09:33:44 +0200
-Message-ID: <CAFqZXNsqnOn5+HEFDLKqdr4UbwwqZ8_XUm6dZH62kS8sx0h30A@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix memory leak in policydb_init()
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        syzbot <syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Dmitry Vyukov <dvyukov@google.com>
+Subject: [PATCH v2 0/3] selinux: policydb - fix memory leak and do some cleanup
+Date:   Mon, 29 Jul 2019 10:41:14 +0200
+Message-Id: <20190729084117.18677-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.21.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Jul 27, 2019 at 12:27 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Jul 25, 2019 at 6:52 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > Since roles_init() adds some entries to the role hash table, we need to
-> > destroy also its keys/values on error, otherwise we get a memory leak in
-> > the error path.
-> >
-> > Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
-> > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  security/selinux/ss/policydb.c | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> > index daecdfb15a9c..38d0083204f1 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -274,6 +274,8 @@ static int rangetr_cmp(struct hashtab *h, const void *k1, const void *k2)
-> >         return v;
-> >  }
-> >
-> > +static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap);
->
-> I'm prefer not to use forward declarations if they can be avoided, and
-> in this particular case it looks like we can move the *_destroy
-> functions up just below policydb_lookup_compat() and avoid the forward
-> declaration while keeping some sanity to the layout of the file.
->
-> Yes, the patch does become much larger (378 lines changed in the test
-> patch I just did), but I think the end result is cleaner.
+Cahnges in v2:
+ - move code around to avoid a forward declaration
+ - add two patches to clean up checpatch.pl warnings detected in the
+   moved code
+v1: https://lore.kernel.org/selinux/20190725105243.28404-1-omosnace@redhat.com/T/
 
-OK, that'ts reasonable. I'll post an updated v2.
+Ondrej Mosnacek (3):
+  selinux: policydb - fix memory leak in policydb_init()
+  selinux: policydb - fix some checkpatch.pl warnings
+  selinux: policydb - rename type_val_to_struct_array
 
->
-> >  /*
-> >   * Initialize a policy database structure.
-> >   */
-> > @@ -321,8 +323,10 @@ static int policydb_init(struct policydb *p)
-> >  out:
-> >         hashtab_destroy(p->filename_trans);
-> >         hashtab_destroy(p->range_tr);
-> > -       for (i = 0; i < SYM_NUM; i++)
-> > +       for (i = 0; i < SYM_NUM; i++) {
-> > +               hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
-> >                 hashtab_destroy(p->symtab[i].table);
-> > +       }
-> >         return rc;
-> >  }
-> >
-> > --
-> > 2.21.0
-> >
->
->
-> --
-> paul moore
-> www.paul-moore.com
+ security/selinux/ss/policydb.c | 980 +++++++++++++++++----------------
+ security/selinux/ss/policydb.h |   2 +-
+ security/selinux/ss/services.c |   6 +-
+ 3 files changed, 497 insertions(+), 491 deletions(-)
 
 -- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+2.21.0
+
