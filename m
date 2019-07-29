@@ -2,97 +2,117 @@ Return-Path: <SRS0=UHz+=V2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02DF8C7618B
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 16:51:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 193C4C433FF
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 17:05:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CF441206A2
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 16:51:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D74EC206E0
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 17:05:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="eEZM3QuE"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="D/nyhGGp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728773AbfG2QvH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Jul 2019 12:51:07 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:46423 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728548AbfG2QvH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 12:51:07 -0400
-Received: by mail-pf1-f193.google.com with SMTP id c3so5188083pfa.13
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 09:51:06 -0700 (PDT)
+        id S1727601AbfG2RFD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Jul 2019 13:05:03 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:35593 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726972AbfG2RFD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 13:05:03 -0400
+Received: by mail-pl1-f194.google.com with SMTP id w24so27747000plp.2
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 10:05:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=aoG/CujPMfUNVlv4vKQLSR0pGlxHql1vt1xZ+SM2evU=;
-        b=eEZM3QuEtJ4JN4mdaj3YgffjMFlESFvZpNvVSBcO8QjQXXQKXPwrx7oRmFKdAFTv4O
-         e6RMip7uGYfZRrmSxbKwzN3jKE4oPiG8D2pbJVibHbEQZSrsU0IkrOey1LwO4ytEt5eV
-         z+gXkKTFPBu2RM4tpLhAffP4/wgkBIsBwtriU=
+        bh=T0irySBTgZ2yXply6I5PieqBgSXD7raAHIcMDZbw1ww=;
+        b=D/nyhGGp2VsM/R1Jy4byBjUW8TE4IegAMll6MajAH0+fCIRfGYjnA5+lU1uwmYaPNX
+         t4siWjjT2O2X5ADbTG+PvQnP8QmsWLzXboXgHKWISDb25bw5vTWsn6JLXq0LDEqCxWuC
+         HETkeA0vT1OsCaoPwxxnxjwbqbQS2szyagBOM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=aoG/CujPMfUNVlv4vKQLSR0pGlxHql1vt1xZ+SM2evU=;
-        b=Qe/AJ60rEP4CFe8wFNlq56868SnR8smlDcVg+CkwcTb/QqYgOQh8Nv3GFu+FKrrxR9
-         cS0k+R8JraAj7OGfFIzfJCxOfocHdujYEpGlTXcP8TTwKBGCtw2gKaQH3DxKGlqmm8LW
-         EEzBbjw60TB6iaa66eCOKLz60U1q+WVoIUr9NYy96lK4HsbTCjbdKNDBWfAlwidlK74U
-         hZ/uSkNWNCr18xSf94mrWqhhtjLgWHsSgmv7c5B8nhotNkR9hj454uK7LbwxpLc+HkSs
-         op3CiHcL1jC+MBmcNXYXeaVGLYyed7MsLFHt3GJ+wVUs37WjpnYxFiLvOKJRBXSSslS1
-         X3Ww==
-X-Gm-Message-State: APjAAAV07KReGdxBqFBnmnPhD3ljhtrAd8NfU9H23SN3NS0HahCKtBlZ
-        KghIPHonAHrCzByHq8XOueWrfg==
-X-Google-Smtp-Source: APXvYqypNtAKQJZGTSkV39u4c7GLeVZyMUhrP0VaoGlM65upiz6NEPGMAURh5q4KoDvXmPMGybRvRQ==
-X-Received: by 2002:aa7:9713:: with SMTP id a19mr19643019pfg.64.1564419066457;
-        Mon, 29 Jul 2019 09:51:06 -0700 (PDT)
+        bh=T0irySBTgZ2yXply6I5PieqBgSXD7raAHIcMDZbw1ww=;
+        b=AANXxm1FJigQ/EpZMTkizVFhQx2V769hxxApdpLF7bWP8ZrAmRTJTJCpdhyJOW9fUo
+         O2+2YKoI9uvGBKfQIj0555L5dJPZeJlFSf9s5C2pj5BWG6Y+XbfLVUpk6VbhQiqa+89Q
+         ijgDujw8KphWEUzKMIb22n41xOD1evP0F4P8hvE9B7jUaGgZnyX8ytM27y/7sOsDZYu0
+         6BP5dgTekMV5oE9H/22oNRxQNfn0YVDj/kSSDeDPDcB7VsOZzXwVxjkEGW/FD4B+KVyj
+         U+RX96b0ky1dp8ltIr7kWCHxSn5WwEkoAKNpdwz+UO2n99jFhzQxrPvwVZLRcq+0W9am
+         kL/g==
+X-Gm-Message-State: APjAAAXzMqEeL6WIfCce4CoIMRprDdbaEStJFZLGmdBwtCzijDc98Fpy
+        dSMCWDx8ERF931Yu1qvEP4racA==
+X-Google-Smtp-Source: APXvYqzw1XIGfrYY7jFB2VlflwHsCIpi2Ip1JX5s7R0uRj4XNLOAYDdolj1hRbxVDVp/z1glEvOWEw==
+X-Received: by 2002:a17:902:44a4:: with SMTP id l33mr110535231pld.174.1564419902756;
+        Mon, 29 Jul 2019 10:05:02 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j1sm85432865pgl.12.2019.07.29.09.51.05
+        by smtp.gmail.com with ESMTPSA id i74sm121948392pje.16.2019.07.29.10.05.01
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 29 Jul 2019 09:51:05 -0700 (PDT)
-Date:   Mon, 29 Jul 2019 09:51:04 -0700
+        Mon, 29 Jul 2019 10:05:01 -0700 (PDT)
+Date:   Mon, 29 Jul 2019 10:05:00 -0700
 From:   Kees Cook <keescook@chromium.org>
-To:     Jann Horn <jannh@google.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        NitinGote <nitin.r.gote@intel.com>,
-        Kernel Hardening <kernel-hardening@lists.openwall.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] selinux: convert struct sidtab count to refcount_t
-Message-ID: <201907290949.D08EC0379C@keescook>
-References: <20190722113151.1584-1-nitin.r.gote@intel.com>
- <CAFqZXNs5vdQwoy2k=_XLiGRdyZCL=n8as6aL01Dw-U62amFREA@mail.gmail.com>
- <CAG48ez3zRoB7awMdb-koKYJyfP9WifTLevxLxLHioLhH=itZ-A@mail.gmail.com>
- <201907231516.11DB47AA@keescook>
- <CAG48ez2eXJwE+vS2_ahR9Vuc3qD8O4CDZ5Lh6DcrrOq+7VKOYQ@mail.gmail.com>
- <201907240852.6D10622B2@keescook>
- <CAG48ez3-qdbnJaEooFrhfBT8czyAZNDp5YfkDRcy5mLH4BQy2g@mail.gmail.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: Re: [PATCH 14/27] LSM: Specify which LSM to display
+Message-ID: <201907290959.747536016E@keescook>
+References: <20190726233923.2570-1-casey@schaufler-ca.com>
+ <20190726233923.2570-15-casey@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAG48ez3-qdbnJaEooFrhfBT8czyAZNDp5YfkDRcy5mLH4BQy2g@mail.gmail.com>
+In-Reply-To: <20190726233923.2570-15-casey@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 24, 2019 at 06:55:47PM +0200, Jann Horn wrote:
-> (Accurate) statistics counters need RMW ops, don't need memory
-> ordering, usually can't be locked against writes, and may not care
-> about wrapping.
-> This thing doesn't need RMW ops, does need memory ordering, can be
-> locked against writes, and definitely shouldn't wrap.
-> 
-> I agree that there are a bunch of statistics counters in the kernel,
-> and it's not necessarily a bad idea to use a separate type for them;
-> but this is not a statistics counter.
+On Fri, Jul 26, 2019 at 04:39:10PM -0700, Casey Schaufler wrote:
+> When a program is executed in a way that changes its privilege
+> the display is reset to the initial state to prevent unprivileged
+> programs from tricking it into setting an unexpected display.
+> [...]
+> diff --git a/security/security.c b/security/security.c
+> index 8927508b2142..4dd4ebeda18d 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -835,7 +857,18 @@ int security_vm_enough_memory_mm(struct mm_struct *mm, long pages)
+>  
+>  int security_bprm_set_creds(struct linux_binprm *bprm)
+>  {
+> -	return call_int_hook(bprm_set_creds, 0, bprm);
+> +	int *disp = current->security;
+> +	int rc;
+> +
+> +	rc = call_int_hook(bprm_set_creds, 0, bprm);
+> +
+> +	/*
+> +	 * Reset the "display" LSM if privilege has been elevated.
+> +	 */
+> +	if (bprm->cap_elevated && disp)
+> +		*disp = LSMBLOB_INVALID;
+> +
+> +	return rc;
+>  }
 
-Right, yes, I didn't meant to suggest it should be. I was just bringing
-up the "counter type" idea again, since it was on my mind here
-originally.
+I think this is the wrong place to check this. This is called in
+prepare_binprm(), which is very early in the execve() process. By my
+reading this will change the forked process's display first before the
+exec happens (which may potentially fail) -- this needs to be changing
+the final state once exec is under way (past the "point of no return" in
+flush_old_exec()).
+
+Also, the consolidation of privilege information happens into
+bprm->secureexec in setup_new_exec(), so I think you want to test
+secureexec not just cap_elevated.
+
+So the test/clear should likely happen in finalize_exec() since it's a
+runtime state, not a memory layout-changing state (which would need to
+happen earlier).
 
 -- 
 Kees Cook
