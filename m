@@ -2,152 +2,103 @@ Return-Path: <SRS0=UHz+=V2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 848E5C76186
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 21:35:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4915FC76186
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 21:40:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5DD782073F
-	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 21:35:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 14BE32067D
+	for <selinux@archiver.kernel.org>; Mon, 29 Jul 2019 21:40:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="QIc3w7Q6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730093AbfG2Vf4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Jul 2019 17:35:56 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:47239 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729297AbfG2Vfz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 17:35:55 -0400
-Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 227AF5646F6
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 23:35:51 +0200 (CEST)
-Received: by mail-ot1-f48.google.com with SMTP id n5so64173612otk.1
-        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 14:35:51 -0700 (PDT)
-X-Gm-Message-State: APjAAAXHXPi9OoZPPb+MNtOJrIBTBsUzgfmoPk6ztXtp7B2WrHBVQPd4
-        jHmILOoizw1sOaNSYxWBCLVeztMEa8hwU0m5RFw=
-X-Google-Smtp-Source: APXvYqyeWcdVEvikjna9dL2l7qxm0awD5wa4nA7Yh/IJaouzIfHZJapBonSn0Vr4JexuT+PjdGEwUkACURV6B0n1d1U=
-X-Received: by 2002:a05:6830:1516:: with SMTP id k22mr77726484otp.189.1564436150167;
- Mon, 29 Jul 2019 14:35:50 -0700 (PDT)
+        id S1728878AbfG2Vkx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Jul 2019 17:40:53 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:41153 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728729AbfG2Vkx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jul 2019 17:40:53 -0400
+Received: by mail-pf1-f195.google.com with SMTP id m30so28685997pff.8
+        for <selinux@vger.kernel.org>; Mon, 29 Jul 2019 14:40:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=xs2xbArNjlAd/eCn2GAtVz826B03NkeaFaeSWdY/6K0=;
+        b=QIc3w7Q6SEfOE4onxDK4GcywpIvsLDTjmZaELSQ9J/hdWVYisAcYM0OxxIg6wqZO/X
+         OCgmhOsNTuxrU3jYBv16oPuN1bPWShF0wz/Mgg4IdW0vs084SrpszRfMQRl1sMop/jSI
+         jfJ2agJ9lKHYmlJGzLztJF7l2h/ob2ejI/BrY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=xs2xbArNjlAd/eCn2GAtVz826B03NkeaFaeSWdY/6K0=;
+        b=ty7wwgfRYGJLDrZMFjnmhgbO9VtB5xZ3wkXtmy1zpuklrCihjYTZaRhO8YSASUEuWs
+         qEvwHC+iUX9E0F/qBBGcePLhlJ8zeDnk5cYlpu9MCjauqw/EPrHGdO4YKQsRglPxOlgZ
+         miTUNWELMC7TnUM75Ul/ZUlOFPNrL6SQyaF2EjSA8xwPchnb7nqSM1hqOBnkgeWqCcyj
+         sjg3h3KyaEQygCytL/lCAPsjnnht9I9We79fb2fTv3df7BbDivvp6SUVJmvURGMGwduM
+         ZDQDA9vVdAnjdml7UBFse8QuXMaJkQPxvV9ru4Nli1NfWtleyaFvLOSaFLZWbLwlijgO
+         gqog==
+X-Gm-Message-State: APjAAAUz9e7SuCkKz629vw9thrfMPL7BZWRCGatCVN0ThMMLhaGYhXB7
+        y/BJoJoM6BwQr8RnOSIU9bUfLAftylc=
+X-Google-Smtp-Source: APXvYqzKH6RZBmU+KlDCxrdOG129tmmQGUFimWAI+UZI9PckG1+NvlIos+RuEhAzbm9fb9+rMII3tQ==
+X-Received: by 2002:a17:90a:d151:: with SMTP id t17mr113021055pjw.60.1564436453046;
+        Mon, 29 Jul 2019 14:40:53 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id s3sm23431878pgq.17.2019.07.29.14.40.52
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 29 Jul 2019 14:40:52 -0700 (PDT)
+Date:   Mon, 29 Jul 2019 14:40:51 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: Re: [PATCH 26/27] LSM: Add /proc attr entry for full LSM context
+Message-ID: <201907291440.B073758@keescook>
+References: <20190726233923.2570-1-casey@schaufler-ca.com>
+ <20190726233923.2570-27-casey@schaufler-ca.com>
+ <201907291018.CD249AD02@keescook>
+ <ea34ed4b-1f34-d896-7c1b-a7a5a304594c@schaufler-ca.com>
 MIME-Version: 1.0
-References: <20190311222442.49824-1-xunchang@google.com> <3a5038d7-cb5b-de62-23ee-e22324a8a989@tycho.nsa.gov>
- <CAJfZ7=mdnfCS6-PH-Mpu=237jZdfm9k0wpwcj-=W8YacOGa7eA@mail.gmail.com>
- <32330df5cf5c0daf1de03c049637694856aa69c9.camel@btinternet.com> <CAJfZ7=k0+EyUxWALx9ZU_O4AEkKWP0Bfr=eTf8Z=52s-PXYg5w@mail.gmail.com>
-In-Reply-To: <CAJfZ7=k0+EyUxWALx9ZU_O4AEkKWP0Bfr=eTf8Z=52s-PXYg5w@mail.gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 29 Jul 2019 23:35:39 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nRKLpBXmJW8Hg6at-0nfs34_VAoVohv4PHi0vZQZBpFg@mail.gmail.com>
-Message-ID: <CAJfZ7=nRKLpBXmJW8Hg6at-0nfs34_VAoVohv4PHi0vZQZBpFg@mail.gmail.com>
-Subject: Re: [PATCH] Restorecon: factor out a lookup helper for context matches
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        xunchang <xunchang@google.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Jul 29 23:35:51 2019 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ea34ed4b-1f34-d896-7c1b-a7a5a304594c@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Jul 28, 2019 at 8:30 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Wed, Jul 24, 2019 at 5:39 PM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> >
-> > On Tue, 2019-07-23 at 22:06 +0200, Nicolas Iooss wrote:
-> > > On Wed, Jun 19, 2019 at 4:45 PM Stephen Smalley <sds@tycho.nsa.gov>
-> > > wrote:
-> > > > On 3/11/19 6:24 PM, xunchang wrote:
-> > > > > We used to hash the file_context and skip the restorecon on the
-> > > > > top
-> > > > > level directory if the hash doesn't change. But the file_context
-> > > > > might
-> > > > > change after an update; and some users experienced long
-> > > > > restorecon
-> > > > > time as they have lots of files under directories like
-> > > > > /data/media.
-> > > > > Therefore, we try to skip unnecessary restores if the file
-> > > > > context
-> > > > > relates to the given directory doesn't change.
-> > > > >
-> > > > > This CL is the first step that factors out a lookup helper
-> > > > > function
-> > > > > and returns an array of matched pointers instead of a single one.
-> > > > > The old loopup_common function is then modified to take the first
-> > > > > element in the array.
-> > > > >
-> > > > > This change has already been submitted in android selinux branch.
-> > > > > And
-> > > > > porting it upstream will make these two branches more consistent
-> > > > > and
-> > > > > save some work for the future merges.
-> > > >
-> > > > There were some changes to this patch before it landed in AOSP, so
-> > > > they
-> > > > aren't quite consistent.  Do you want to submit the final patch?
-> > >
-> > > Hello,
-> > >
-> > > What are the states of this patch and the one which has been posted
-> > > in
-> > > April (
-> > > https://lore.kernel.org/selinux/20190417180955.136942-1-xunchang@google.com/
-> > > )?
-> > > I do not follow what happens in Android but if the patches have been
-> > > modified there, it seems a good idea to post the modified patches to
-> > > selinux@vger.kernel.org.
-> > >
-> > > Thanks,
-> > > Nicolas
-> >
-> > Once upon a time Android changed the way restorecon(8) works by
-> > replacing the per-mountpoint security.restorecon_last attribute with a
-> > per-directory security.sehash attribute computed from only those file
-> > contexts entries that partially match the directory.
-> >
-> > To achieve this Android produced the first three patches that are
-> > mentioned in Tianjie Xu reply to this thread (One specific to Android
-> > (for their version of restorecon), and two that are common to upstream
-> > SELinux if implementing per-directory attributes).
-> >
-> > The V4 patches I've sent [1], will implement the upstream version of
-> > restorecon(3) supporting per-directory attributes. Plus it also
-> > resolves "the requirement for caller to have CAP_SYS_ADMIN to call
-> > setxattr" problem mentioned by Tianjie Xu.
-> >
-> > However, to implement my patches [1], you need first to install the two
-> > common patches [2] and [3] that Android have already installed and sent
-> > to selinux@vger.kernel.org (read my cover letter patch for details).
-> >
-> > I think what Stephen is eluding to in his initial email, is that one of
-> > the patches submitted to Android and the corresponding patch to this
-> > list [2] are slightly different, and that the Android team should
-> > resolve this before any merging can take place. The differences I've
-> > detected are listed at the end of this email.
-> >
-> > Hope this clarifies the situation.
-> >
-> > Richard
-> >
-> > [1]
-> > https://lore.kernel.org/selinux/20190706152115.8490-1-richard_c_haines@btinternet.com/T/#u
-> > [2]
-> > https://lore.kernel.org/selinux/20190311222442.49824-1-xunchang@google.com/
-> > [3]
-> > https://lore.kernel.org/selinux/20190417180955.136942-1-xunchang@google.com/
->
-> Thanks for your explanation. This indeed clarified the understanding I
-> have of these patches and I agree with merging the 2 patches you used
-> as a base of your 2 patches. I have created a Pull Request for this,
-> https://github.com/SELinuxProject/selinux/pull/172 , and will merge it
-> tomorrow if nobody disagrees.
->
-> Thanks,
-> Nicolas
+On Mon, Jul 29, 2019 at 12:22:37PM -0700, Casey Schaufler wrote:
+> On 7/29/2019 10:19 AM, Kees Cook wrote:
+> > On Fri, Jul 26, 2019 at 04:39:22PM -0700, Casey Schaufler wrote:
+> >> Add an entry /proc/.../attr/context which displays the full
+> >> process security "context" in compound format:'
+> >> 	lsm1\0value\0lsm2\0value\0...
+> >> This entry is not writable.
+> > As this is a new API, would it make sense to make this a bit more
+> > human readable (i.e. newlines not %NUL)?
+> 
+> With the far reaching discussion about what format would be
+> acceptable in mind I went with Simon McVittie's suggestion.
+> Also note that AppArmor includes newline in attr/current,
+> and this way we can preserve the existing value.
+> It's compatible with /proc/.../cmdline and easily keesized:
+> 
+> 	cat /proc/self/attr/context | tr '\0' '\n'
 
-... Merged.
-Thanks,
-Nicolas
+Okay, cool. I suspected it must be the result of so many bike sheds but
+I couldn't quite find those memories.
 
+> >  (And if not, please justify the
+> > reasoning in the commit log).
+> 
+> Good idea.
+
+Thanks! It'll help my poor brain. :)
+
+-- 
+Kees Cook
