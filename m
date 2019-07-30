@@ -2,129 +2,166 @@ Return-Path: <SRS0=so3z=V3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5208AC0650F
-	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 16:15:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1482C433FF
+	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 16:35:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 03A65206A2
-	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 16:15:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8E50208E3
+	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 16:35:11 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="f3+BcE6C"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730773AbfG3QPN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Jul 2019 12:15:13 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:41202 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727988AbfG3QPN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Jul 2019 12:15:13 -0400
-Received: by mail-ot1-f65.google.com with SMTP id o101so66883129ota.8
-        for <selinux@vger.kernel.org>; Tue, 30 Jul 2019 09:15:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=L/YX7uy75m5UurCt9oqrWcPIlFr0YIGIIOWNOhOQ65Q=;
-        b=CeefXItmUydIswAilPbYZ4yGtJ05fTgF1GCQVBDYtFPX82CtbK9sHmXf4flDXzEr06
-         WZUqlabHn3ofi03wG0Bw/3QAxPjexbRDG8hiADVC4R3rkhpqLeFSVc1ISeOfzxOfub3D
-         Al+Qzr8HHghqXj7EPRSN1sz1cG1GEYszFqvvTKKRCHhMQSQQBQ3pi4nJ99N48E2gz0/k
-         /QifEwOsd+5y6EJecCEF0DIRGkXo0IIN/uJBIU/DnWwX1TBtoXV1kjJzxXnOrCJAhPea
-         HUZpA2rmtpS2fypnJ6eCqmp9iCblaZZgPDzFyXh6Yd5N/NK5WZFPZVkMjZHexHlTGd6T
-         01OA==
-X-Gm-Message-State: APjAAAUDpIXMIXX/+w3kp+3TzbkjJTZX3e0DqRH1kKlPQQe56dNYGoX/
-        FnmJNtmYvf3VQ5fKvRZNxaZ30KH3WtbNzhs1ResqEQ==
-X-Google-Smtp-Source: APXvYqzUYIjodcdLvgtQTKO/HJ0vfXCUMy+luqdLTQ8utxqv95aWWqfnTTmLxtxm5gxEj99VoW/vO9WKvLCEUl9fTpo=
-X-Received: by 2002:a9d:73cd:: with SMTP id m13mr49798812otk.43.1564503312095;
- Tue, 30 Jul 2019 09:15:12 -0700 (PDT)
+        id S1727338AbfG3QfL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Jul 2019 12:35:11 -0400
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:43291
+        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726770AbfG3QfL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Jul 2019 12:35:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1564504509; bh=j0PZROKhhso5/nDaQw3Sw3MDI5f2Cstc0GbB3ayE/2I=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=f3+BcE6CBofM9Hw4rSM4HJP4q7XUpmgCG6S+qIzN+CoUzOIAW9IOHLzVdBWqUTgZw1b0+BJ11Zbuo6MY9pkr0NBckN/4krIIe5N7yx00TGsiF3Z4Mw3/hlHKy8Z+uOuOT8+AtAd665PlqUVK2arkdOv7MA7VexXR+p+j7DbbPF8hjZxr7WOZwqIOM1TTws8NfahhrGOvXvJe8WsqQtpPT2t6eYE9mt6uSyTo7E24jy5Nd8FxjFAPJK+k0oQ72ySyXesMutWYT430cESJxiwpN0f7aKkd/aNCwJU0uUz87egzYgYDf0nQ4unaenITz5D/AYuXI9o8BdnbgGwbIY0+Ww==
+X-YMail-OSG: ZYuY2vcVM1mMdrRluOLCEAsEHbmV0kjyBvG.LBEKihBtOqfCwdRQL5Fl26K3yAv
+ 8xSPnnGyU6WfnweQnp.Qr5q3YSzTwcOCFqg8KM_X4HC62juUoN17f.DRSWttAsqSgo8_RU8BCmYO
+ M0s1E9DAKSUMAIrISxXE4XZoeCAIxPE51rxFSZZH9r7vs4N7ZEVr8u6fYdkwpvYXse9ryHc1Tm.a
+ Qfuig4vlUr2p2XnGOpWne5fqfzOgFlE6oQF3lcCwlURSdIs6YHiZnQwGPllY5yegSIJ2gX80sGyi
+ 2tS67t9H5mA3dpiLxoCL.7C_L8QIOwt32XHBIKGyosZD5yi3.rhHtegdlimTTX1yyRoR8hzLbE_v
+ Sdo3XUdzUg..H7HttUR8lHFsh10n4fKXcR8kf.iPM1kGOzPxZvA4R7zNWkmjKf8ZAQQ4WhWht6X8
+ qcba0asVveuAvWX9nD5uvdR3bIb3xaBN0X7Rz4aeqkPCcuyaPkyz0u8yB5KZYUe_g..JawhyvvTV
+ FU5mx5LmTZ3KK7DWrz8CLCIx12u.v5FMctYbgarGT5W8wqnkdpoL6oaiAp2c3ggdD8AlTy_EYxB7
+ 1bUzqFiM_8UJt.4bd26xQPGLeOs5FhwnS4nc2_VYtT9jrA1NPP.tfLHQz2rd0tjvYqUIxUWWWfTL
+ pjLeSlt6w_78omjkuhMYFC52x0fgwL9d3XqvmF1L.yGgsaUfkypuhbWmFnNDLOxSRHjfcXsJahkm
+ fTsu9JWe.qF7_XnY9AjEHVg3kdY5Kl7EDqkOiRNuWUXwX1o4qVEfFKUDYrNdGP16MtzBErdZ7qm.
+ oQpX.x06EcbPBUxNOKg43ZR3UrjtEbLTYYUKHbJVyy6Vj9QT9_b4ZMzYK0muSgvXQKYxBB4zx4tW
+ D_gEKPjM0RpbKHUfwyXJ6nMZE3vVR3vd9Betcj9fm1RgrtNpJlBZXliT7YmbztEEdv7ERgOYjOvA
+ r7o.1g8_5JRAkPKwKfULx.S067Z9wlrIDTTNl5.CbIfspSd.YGPHrzcof6SlJoX4ooHjfV5b8j8K
+ V1rz_.rNjZMM.TbSUgBAqjJuQ6i7YE5.Wd9hSUk3eO_qMZqfR2zl_h922IlRhBwviZmW1yE_t3eL
+ 0rlHX.QjhjMzf8UwMXIB8Isdq8wkDxDU76NI5FP4pIrZmp_4CstNmdZAz1ZeD.aol_HmVHdIv5ht
+ YNliod3ak9VR0y_flpg3uIRBJC_14asAOFajC00FWH.WcZQYW7.iICmr7vfxXlySctaOCgfZFkHI
+ MMg9SANbG
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Tue, 30 Jul 2019 16:35:09 +0000
+Received: by smtp423.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID ebb8c1e60be15876e7d9023561160f12;
+          Tue, 30 Jul 2019 16:35:05 +0000 (UTC)
+Subject: Re: [PATCH] selinux: optimize MLS context to string conversion
+To:     Paul Moore <paul@paul-moore.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        Michal Sekletar <msekleta@redhat.com>, casey@schaufler-ca.com
+References: <20190730124852.7670-1-omosnace@redhat.com>
+ <CAHC9VhTetPBY9keC5ps=XHvgzLOeZE7rDbeG00R4jz0mYaduhA@mail.gmail.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ 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
+ abzjfg==
+Message-ID: <64c8037a-ae7e-52f2-e1ef-500d408d0213@schaufler-ca.com>
+Date:   Tue, 30 Jul 2019 09:35:04 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-References: <20190729084117.18677-1-omosnace@redhat.com> <20190729084117.18677-2-omosnace@redhat.com>
- <CAHC9VhSRvfGJjBfxkNc2kdwbN5UZP6LSJbyYuBa+OE8YJ1-weg@mail.gmail.com>
- <CAFqZXNsEH1H5=rLyn=SEay3od+=bdAGYW3_CKvNWBhjNsvHd6g@mail.gmail.com> <CAHC9VhR85CBD4FRPrh+ANf0rZeDgmxH9DWNOW8F4DXMyM2Exrw@mail.gmail.com>
-In-Reply-To: <CAHC9VhR85CBD4FRPrh+ANf0rZeDgmxH9DWNOW8F4DXMyM2Exrw@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 30 Jul 2019 18:15:01 +0200
-Message-ID: <CAFqZXNuQbXPCZLoSqbsm3bLERPA=aYZQ6NF7ro1B+Xhxo+NOiQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] selinux: policydb - fix memory leak in policydb_init()
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        syzbot <syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHC9VhTetPBY9keC5ps=XHvgzLOeZE7rDbeG00R4jz0mYaduhA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 30, 2019 at 5:10 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Tue, Jul 30, 2019 at 8:20 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > On Tue, Jul 30, 2019 at 12:48 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Mon, Jul 29, 2019 at 4:41 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > >
-> > > > Since roles_init() adds some entries to the role hash table, we need to
-> > > > destroy also its keys/values on error, otherwise we get a memory leak in
-> > > > the error path.
-> > > >
-> > > > To avoid a forward declaration and maintain a sane layout, move all the
-> > > > destroy stuff above policydb_init. No changes are made to the moved code
-> > > > in this patch. Note that this triggers some pre-existing checkpatch.pl
-> > > > warnings - these will be fixed in follow-up patches.
-> > > >
-> > > > Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
-> > > > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > > ---
-> > > >  security/selinux/ss/policydb.c | 976 +++++++++++++++++----------------
-> > > >  1 file changed, 489 insertions(+), 487 deletions(-)
-> > >
-> > > Hmmm, that is one ugly patch isn't it?  If I saw this diff I'm not
-> > > sure I would have suggested what I did, or rather I would have
-> > > suggested something slightly different.
-> > >
-> > > When I ran my quick test when I was looking at your v1 patch, I only
-> > > moved perm_destroy() through ocontext_destroy(), leaving out
-> > > policydb_destroy(), and the diff was much more cleaner[*] (diffstat
-> > > below, includes the actual fix too).  Could you try that and see if it
-> > > cleans up your patch?
-> >
-> > Yeah, excluding policydb_destroy() from the move is what's needed to
-> > get a nice patch...
->
-> Good, let's just do that.
->
-> > Actually, what do you think about keeping the
-> > bugfix patch as before (with the forward declaration) and then doing
-> > the moving around in a separate patch (removing the forward
-> > declaration)?
->
-> Yes, I thought about that too when looking at your patch yesterday and
-> trying to sort out why it was such a messy diff.
->
-> > Then we keep the patch with the actual fix small, but
-> > still get a clean final result. It would also allow moving
-> > policydb_destroy() up closer to the other destroy functions in another
-> > separate patch (I tried it and both patches end up clean when the move
-> > is split up like this). (I don't have a strong preference for this,
-> > let me know what works best for you.)
->
-> I'm fine with leaving policydb_destroy() where it is, but I agree that
-> separating the fix is likely worthwhile.  I'll go ahead and merge your
-> v1 patch into selinux/stable-5.3 (it's borderline -stable material
-> IMHO, but I'm pretty sure GregKH would pull it into -stable anyway, he
-> pulls everything with a "Fixes" tag it seems), and then merge the
-> reorganization patch into selinux/next.  Honestly, I can go ahead and
-> submit the reorg patch, it's basically already sitting in a tree on my
-> disk anyway, but if you would prefer to do it that's fine too, just
-> let me know.
+On 7/30/2019 7:46 AM, Paul Moore wrote:
+> On Tue, Jul 30, 2019 at 8:48 AM Ondrej Mosnacek <omosnace@redhat.com> w=
+rote:
+>> When mls_compute_context_len() or mls_sid_to_context() encounters a
+>> context with large category ranges, it behaves suboptimally - it
+>> traverses each positive bit of the category bitmap, each time calling
+>> find_next_bit() again.
+>>
+>> This has a large performance impact on UNIX datagram sockets with
+>> SO_PASSSEC set, since here the peer context needs to be converted to
+>> string for each recieved datagram. See [1] for more information.
+>>
+>> This patch introduces a new helper for ebitmap traversal, which allows=
 
-Sure, feel free to submit the reorg yourself (I assume you will then
-merge the checkpatch fixes 2-3/3 on top, right?)
+>> to efficiently iterate over positive ranges instead of bits -
+>> ebitmap_for_each_positive_range() - and converts the two mls_*()
+>> functions to leverage it.
+>>
+>> [1] https://bugzilla.redhat.com/show_bug.cgi?id=3D1733259
+>>
+>> Reported-by: Michal Sekletar <msekleta@redhat.com>
+>> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> My current opinion is that this isn't the right way to solve the
+> problem, a SELinux sid->secctx cache would be a better choice.
 
+I implemented secctx retention a while ago (can't locate the
+thread to determine exactly when) and the performance improvement
+was rather impressive. A cache with proper lifecycle management
+would be a tremendous win for audit by reducing not only the time
+required to generate a secctx, but the frequency at which they would
+need to be copied. The downside would be on small systems with
+sophisticated policies, where a small cache would be subject to
+thrashing. If the cached values aren't considered when doing
+secctx->sid conversions I would think aliasing issues wouldn't
+apply, although I have missed subtleties in the past.
+
+I'm rooting for the cache solution.
+
+
+>   With
+> that in mind, and the understanding that this patch is an optimization
+> and not a bug fix, I'm going to hold-off on doing anything with this
+> patch until there is a cache option we can use for comparison.
 >
-> I'll may also merge the v1 fix into selinux/next in order to fix the
-> inevitable merge conflict, but that isn't something you have to worry
-> about.
+> As Stephen mentioned in the RH BZ (linked in the description), there
+> are a couple of reasons why the code doesn't currently store the
+> string translations.  Ignoring the issue of aliasing for a moment, I
+> do want to stress that I agree with Stephen on the issue of memory
+> pressure and that to keep translated strings around indefinitely in
+> the kernel is going to be a problem (there are other issues beyond
+> just memory use).  I imagine any cache implementation would need to be
+> built to only store a subset of all the translations and there would
+> need to be a way to age-out those translations (as well as purge them
+> completely on events such as a policy load).
+>
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
