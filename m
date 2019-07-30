@@ -2,111 +2,274 @@ Return-Path: <SRS0=so3z=V3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 648BBC433FF
-	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 12:20:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0E91C0650F
+	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 12:48:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3F1092087F
-	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 12:20:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C39AC20693
+	for <selinux@archiver.kernel.org>; Tue, 30 Jul 2019 12:48:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728089AbfG3MUa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Jul 2019 08:20:30 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:36685 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726167AbfG3MU3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Jul 2019 08:20:29 -0400
-Received: by mail-ot1-f65.google.com with SMTP id r6so66039884oti.3
-        for <selinux@vger.kernel.org>; Tue, 30 Jul 2019 05:20:29 -0700 (PDT)
+        id S1729182AbfG3Ms7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 30 Jul 2019 08:48:59 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:43908 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726190AbfG3Ms6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 30 Jul 2019 08:48:58 -0400
+Received: by mail-wr1-f68.google.com with SMTP id p13so65617284wru.10
+        for <selinux@vger.kernel.org>; Tue, 30 Jul 2019 05:48:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6Q6mS+DqBftR6sBALx1klKnbtH2VTxT6TbWgT1hLn5Y=;
-        b=Abvbr+SUxHEmcXoZraZvPebRbKLHOD5hGs6o2sg0fU5/3XNPN7JS0DMozJdwCsWoA0
-         G3rWr1kixC0CLUN0Ma7pKBUSO3xWCX/IcdF+lTLHC6nMSdDdZwHBxy9i909VTOtYXdD/
-         wforNxZF1eHWAHyr9dt14fTpcMUf3gxs69PTiM33vTWt4viQtOkILDWwN/JKKTmKICVH
-         XbrdW10kXOST2X2Dc1zGNP/hegjxKUwDNGfq2aG4npqgBVtNGU0efoTMTDIDIbEH1uub
-         mQWqp8EXBeBOLhkICvhrJR508wkW903mE3srB/KmPEZb6+DDr1SX7apD+DydfvQfs6Du
-         3v2A==
-X-Gm-Message-State: APjAAAVvPIraTRArIud9WsqHrKT5A6c26hpY7+ssrZPnU3pqgfi5tAib
-        mISLC/A3u5YQFEIG9R1L2nesJagAJHXv0anNK/qRBw==
-X-Google-Smtp-Source: APXvYqwhSxwZKzgpS9dFxxDZGaikF2xa/M/NphBYOrOwPJ1h8rB/JgmgC6TNv/uV1jbKtGLaFRmYAgejVgutuGPF1oI=
-X-Received: by 2002:a9d:4c17:: with SMTP id l23mr39727658otf.367.1564489228714;
- Tue, 30 Jul 2019 05:20:28 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190729084117.18677-1-omosnace@redhat.com> <20190729084117.18677-2-omosnace@redhat.com>
- <CAHC9VhSRvfGJjBfxkNc2kdwbN5UZP6LSJbyYuBa+OE8YJ1-weg@mail.gmail.com>
-In-Reply-To: <CAHC9VhSRvfGJjBfxkNc2kdwbN5UZP6LSJbyYuBa+OE8YJ1-weg@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=H2wj7qmee1LrAdMSpeDSYr9rI/zavPZmtnKfkq/bX40=;
+        b=JtjuZ6ZiNfXVhGmnMpOGsLYa03gPmi9HZFqQ4tZyqhkbNVokYM1v6HAjAjs2b5r52X
+         OXbkaTTMhk71BhZJMgzJcDoNny4t5q1FW/+/OF8NZ3kFddZaLYoyQjXTi6mhlbTuff/y
+         ACawTmAuCitqR4OGo5hZeTT/CCjbAr6IAI+sPPpgtCqM8vhGRtaYVCTM4uIs/k+LWZeS
+         hqzgi6GlK+ASeru+9/9HnQPVJwisj5sj8QxCXJOLB9aBkxT1nP/YTVQonrG1z/X/lOTm
+         IVNiZV/DnGMbGuvuJ43yGGWI226US2HMYltfqShcSc3q7zczyEbK7AhdeFgcw89Y95kO
+         tZsg==
+X-Gm-Message-State: APjAAAVwyQfINaJin1nG51UiAeD5JCDcNx13lEAtVVwniEvUZ07awu2D
+        Sjd8++HSboIq8MAvxfEsyTMtbHlIVH8=
+X-Google-Smtp-Source: APXvYqwZCiAaNWztuC/1oztqJmuDcEygp8e39DP61Y8wK78iopHYTJKLjgsaQ/sodPbl2SiZ6PVabg==
+X-Received: by 2002:adf:fa49:: with SMTP id y9mr95196786wrr.6.1564490935636;
+        Tue, 30 Jul 2019 05:48:55 -0700 (PDT)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id p14sm52231242wrx.17.2019.07.30.05.48.54
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 30 Jul 2019 05:48:55 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 30 Jul 2019 14:20:17 +0200
-Message-ID: <CAFqZXNsEH1H5=rLyn=SEay3od+=bdAGYW3_CKvNWBhjNsvHd6g@mail.gmail.com>
-Subject: Re: [PATCH v2 1/3] selinux: policydb - fix memory leak in policydb_init()
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        syzbot <syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Michal Sekletar <msekleta@redhat.com>
+Subject: [PATCH] selinux: optimize MLS context to string conversion
+Date:   Tue, 30 Jul 2019 14:48:52 +0200
+Message-Id: <20190730124852.7670-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.21.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 30, 2019 at 12:48 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Mon, Jul 29, 2019 at 4:41 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > Since roles_init() adds some entries to the role hash table, we need to
-> > destroy also its keys/values on error, otherwise we get a memory leak in
-> > the error path.
-> >
-> > To avoid a forward declaration and maintain a sane layout, move all the
-> > destroy stuff above policydb_init. No changes are made to the moved code
-> > in this patch. Note that this triggers some pre-existing checkpatch.pl
-> > warnings - these will be fixed in follow-up patches.
-> >
-> > Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
-> > Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  security/selinux/ss/policydb.c | 976 +++++++++++++++++----------------
-> >  1 file changed, 489 insertions(+), 487 deletions(-)
->
-> Hmmm, that is one ugly patch isn't it?  If I saw this diff I'm not
-> sure I would have suggested what I did, or rather I would have
-> suggested something slightly different.
->
-> When I ran my quick test when I was looking at your v1 patch, I only
-> moved perm_destroy() through ocontext_destroy(), leaving out
-> policydb_destroy(), and the diff was much more cleaner[*] (diffstat
-> below, includes the actual fix too).  Could you try that and see if it
-> cleans up your patch?
+When mls_compute_context_len() or mls_sid_to_context() encounters a
+context with large category ranges, it behaves suboptimally - it
+traverses each positive bit of the category bitmap, each time calling
+find_next_bit() again.
 
-Yeah, excluding policydb_destroy() from the move is what's needed to
-get a nice patch... Actually, what do you think about keeping the
-bugfix patch as before (with the forward declaration) and then doing
-the moving around in a separate patch (removing the forward
-declaration)? Then we keep the patch with the actual fix small, but
-still get a clean final result. It would also allow moving
-policydb_destroy() up closer to the other destroy functions in another
-separate patch (I tried it and both patches end up clean when the move
-is split up like this). (I don't have a strong preference for this,
-let me know what works best for you.)
+This has a large performance impact on UNIX datagram sockets with
+SO_PASSSEC set, since here the peer context needs to be converted to
+string for each recieved datagram. See [1] for more information.
 
->
->   security/selinux/ss/policydb.c |  378 +++++++++++++++++-----------------
->   1 file changed, 190 insertions(+), 188 deletions(-)
->
-> [*] In this case "cleaner" simply means that the moved lines were not
-> interleaved with existing code (just a big block of adds at the top,
-> the fix in the middle, and a big block of removals at the bottom).
->
-> --
-> paul moore
-> www.paul-moore.com
+This patch introduces a new helper for ebitmap traversal, which allows
+to efficiently iterate over positive ranges instead of bits -
+ebitmap_for_each_positive_range() - and converts the two mls_*()
+functions to leverage it.
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=1733259
+
+Reported-by: Michal Sekletar <msekleta@redhat.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/ss/ebitmap.h | 46 +++++++++++++++++++++
+ security/selinux/ss/mls.c     | 76 +++++++++++++----------------------
+ 2 files changed, 73 insertions(+), 49 deletions(-)
+
+diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+index 6aa7cf6a2197..a415741cb206 100644
+--- a/security/selinux/ss/ebitmap.h
++++ b/security/selinux/ss/ebitmap.h
+@@ -42,6 +42,10 @@ struct ebitmap {
+ 	u32 highbit;	/* highest position in the total bitmap */
+ };
+ 
++struct ebitmap_range {
++	unsigned int start, end;
++};
++
+ #define ebitmap_length(e) ((e)->highbit)
+ 
+ static inline unsigned int ebitmap_start_positive(struct ebitmap *e,
+@@ -80,6 +84,43 @@ static inline unsigned int ebitmap_next_positive(struct ebitmap *e,
+ 	return ebitmap_length(e);
+ }
+ 
++static inline unsigned int ebitmap_next_negative(struct ebitmap *e,
++						 struct ebitmap_node **n,
++						 unsigned int bit)
++{
++	unsigned int ofs;
++
++	ofs = find_next_zero_bit((*n)->maps, EBITMAP_SIZE,
++				 bit - (*n)->startbit + 1);
++	if (ofs < EBITMAP_SIZE)
++		return ofs + (*n)->startbit;
++
++	for (*n = (*n)->next; *n; *n = (*n)->next) {
++		ofs = find_first_zero_bit((*n)->maps, EBITMAP_SIZE);
++		if (ofs < EBITMAP_SIZE)
++			return ofs + (*n)->startbit;
++	}
++	return ebitmap_length(e);
++}
++
++static inline void ebitmap_start_positive_range(struct ebitmap *e,
++						struct ebitmap_node **n,
++						struct ebitmap_range *range)
++{
++	range->end = range->start = ebitmap_start_positive(e, n);
++	if (range->start < ebitmap_length(e))
++		range->end = ebitmap_next_negative(e, n, range->start);
++}
++
++static inline void ebitmap_next_positive_range(struct ebitmap *e,
++					       struct ebitmap_node **n,
++					       struct ebitmap_range *range)
++{
++	range->end = range->start = ebitmap_next_positive(e, n, range->end);
++	if (range->start < ebitmap_length(e))
++		range->end = ebitmap_next_negative(e, n, range->start);
++}
++
+ #define EBITMAP_NODE_INDEX(node, bit)	\
+ 	(((bit) - (node)->startbit) / EBITMAP_UNIT_SIZE)
+ #define EBITMAP_NODE_OFFSET(node, bit)	\
+@@ -122,6 +163,11 @@ static inline void ebitmap_node_clr_bit(struct ebitmap_node *n,
+ 	     bit < ebitmap_length(e);			\
+ 	     bit = ebitmap_next_positive(e, &n, bit))	\
+ 
++#define ebitmap_for_each_positive_range(e, n, range)		\
++	for (ebitmap_start_positive_range(e, &n, &range);	\
++	     range.start < ebitmap_length(e);			\
++	     ebitmap_next_positive_range(e, &n, &range))	\
++
+ int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
+ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
+ int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2, u32 last_e2bit);
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 5e05f5b902d7..3abd6b950c66 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -35,10 +35,12 @@
+  */
+ int mls_compute_context_len(struct policydb *p, struct context *context)
+ {
+-	int i, l, len, head, prev;
++	int l, len;
+ 	char *nm;
+ 	struct ebitmap *e;
+ 	struct ebitmap_node *node;
++	struct ebitmap_range range;
++	unsigned int rlen;
+ 
+ 	if (!p->mls_enabled)
+ 		return 0;
+@@ -49,24 +51,14 @@ int mls_compute_context_len(struct policydb *p, struct context *context)
+ 		len += strlen(sym_name(p, SYM_LEVELS, index_sens - 1));
+ 
+ 		/* categories */
+-		head = -2;
+-		prev = -2;
+ 		e = &context->range.level[l].cat;
+-		ebitmap_for_each_positive_bit(e, node, i) {
+-			if (i - prev > 1) {
+-				/* one or more negative bits are skipped */
+-				if (head != prev) {
+-					nm = sym_name(p, SYM_CATS, prev);
+-					len += strlen(nm) + 1;
+-				}
+-				nm = sym_name(p, SYM_CATS, i);
++		ebitmap_for_each_positive_range(e, node, range) {
++			rlen = range.end - range.start;
++			if (rlen > 1) {
++				nm = sym_name(p, SYM_CATS, range.start);
+ 				len += strlen(nm) + 1;
+-				head = i;
+ 			}
+-			prev = i;
+-		}
+-		if (prev != head) {
+-			nm = sym_name(p, SYM_CATS, prev);
++			nm = sym_name(p, SYM_CATS, range.end - 1);
+ 			len += strlen(nm) + 1;
+ 		}
+ 		if (l == 0) {
+@@ -91,9 +83,11 @@ void mls_sid_to_context(struct policydb *p,
+ 			char **scontext)
+ {
+ 	char *scontextp, *nm;
+-	int i, l, head, prev;
++	int l, first;
+ 	struct ebitmap *e;
+ 	struct ebitmap_node *node;
++	struct ebitmap_range range;
++	unsigned int rlen;
+ 
+ 	if (!p->mls_enabled)
+ 		return;
+@@ -109,43 +103,27 @@ void mls_sid_to_context(struct policydb *p,
+ 		scontextp += strlen(scontextp);
+ 
+ 		/* categories */
+-		head = -2;
+-		prev = -2;
++		first = 1;
+ 		e = &context->range.level[l].cat;
+-		ebitmap_for_each_positive_bit(e, node, i) {
+-			if (i - prev > 1) {
+-				/* one or more negative bits are skipped */
+-				if (prev != head) {
+-					if (prev - head > 1)
+-						*scontextp++ = '.';
+-					else
+-						*scontextp++ = ',';
+-					nm = sym_name(p, SYM_CATS, prev);
+-					strcpy(scontextp, nm);
+-					scontextp += strlen(nm);
+-				}
+-				if (prev < 0)
+-					*scontextp++ = ':';
+-				else
+-					*scontextp++ = ',';
+-				nm = sym_name(p, SYM_CATS, i);
+-				strcpy(scontextp, nm);
+-				scontextp += strlen(nm);
+-				head = i;
+-			}
+-			prev = i;
+-		}
+-
+-		if (prev != head) {
+-			if (prev - head > 1)
+-				*scontextp++ = '.';
+-			else
++		ebitmap_for_each_positive_range(e, node, range) {
++			if (first) {
++				first = 0;
++				*scontextp++ = ':';
++			} else {
+ 				*scontextp++ = ',';
+-			nm = sym_name(p, SYM_CATS, prev);
++			}
++			nm = sym_name(p, SYM_CATS, range.start);
+ 			strcpy(scontextp, nm);
+ 			scontextp += strlen(nm);
+-		}
++			rlen = range.end - range.start;
++			if (rlen > 1) {
++				*scontextp++ = rlen > 2 ? '.' : ',';
+ 
++				nm = sym_name(p, SYM_CATS, range.end - 1);
++				strcpy(scontextp, nm);
++				scontextp += strlen(nm);
++			}
++		}
+ 		if (l == 0) {
+ 			if (mls_level_eq(&context->range.level[0],
+ 					 &context->range.level[1]))
+-- 
+2.21.0
+
