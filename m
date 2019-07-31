@@ -2,97 +2,85 @@ Return-Path: <SRS0=SQk1=V4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16F4CC433FF
-	for <selinux@archiver.kernel.org>; Wed, 31 Jul 2019 19:59:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FBF3C32751
+	for <selinux@archiver.kernel.org>; Wed, 31 Jul 2019 21:10:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E8BAF216C8
-	for <selinux@archiver.kernel.org>; Wed, 31 Jul 2019 19:59:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E40D02067D
+	for <selinux@archiver.kernel.org>; Wed, 31 Jul 2019 21:10:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="RtJMx31K"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Q4X+9cy3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729034AbfGaT7b (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 Jul 2019 15:59:31 -0400
-Received: from mailomta28-sa.btinternet.com ([213.120.69.34]:24182 "EHLO
-        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730227AbfGaT7a (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 Jul 2019 15:59:30 -0400
-Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
-          by sa-prd-fep-043.btinternet.com with ESMTP
-          id <20190731195927.DXTB8450.sa-prd-fep-043.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
-          Wed, 31 Jul 2019 20:59:27 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1564603167; 
-        bh=xiZDyMZvGsIZvsTNhwCsy1BQejTJ/x6pKhj3+R3/d/E=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
-        b=RtJMx31KqA6J+pu9Fd1qDzA4sS3TOmcPnlShXhhAm6uC7WfiS72vTthmxfcgheDJSPeC3dYBrcET5l2U94JhvC4rYcWkuJ/Bt7xPOWb0u+IL5CVNOb6PoeHzjnEcm7OFnAsY+tOwAzvyVm0H/FonptL93IvUoFPD+J15zvcFfHqxIPXeGjFHsQG/ccB4EDq1KsljUedxKGkpKRVCJXdZwMPXoqpdERlGW4G4ytslXDGFYSo2MqbAquCgN3kFdRsvlyfG2lqY6LCiU/VJQdPF8x3cia4UPVUGY26I40AWpE4CfIH9f1cavmGGt9Y5I/gtTWJ+mW1RC+D8/BUJAQiLRg==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [31.49.58.160]
-X-OWM-Source-IP: 31.49.58.160 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrleehgddugedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehkedrudeitdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (31.49.58.160) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.335.01) (authenticated as richard_c_haines@btinternet.com)
-        id 5D3F8E9E0034BDA1; Wed, 31 Jul 2019 20:59:27 +0100
-Message-ID: <9dff3e40ff2ea96f627d276c574a989baa6e2f4e.camel@btinternet.com>
-Subject: Re: [PATCH 0/1] selinux-testsuite: Add BPF tests
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, paul@paul-moore.com
-Date:   Wed, 31 Jul 2019 20:59:26 +0100
-In-Reply-To: <20190731162612.16851-1-richard_c_haines@btinternet.com>
-References: <20190731162612.16851-1-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.32.3 (3.32.3-1.fc30) 
+        id S1727549AbfGaVK1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 Jul 2019 17:10:27 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:35188 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726421AbfGaVK1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 Jul 2019 17:10:27 -0400
+Received: by mail-lj1-f194.google.com with SMTP id x25so67158490ljh.2
+        for <selinux@vger.kernel.org>; Wed, 31 Jul 2019 14:10:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=yjWmOGw6LrGeClMDY6M2mpYvb0Wvxr8l5w1NWCCdnJk=;
+        b=Q4X+9cy3/73RaY8GPz92ZJsfu83AGujFg74lCXSiKBETORRhjA8R1yk3xTbSpDSBHu
+         7XHHD6TR41SjRqqdjAts0L18guWfGf8zGYaomiNnKGoipcVLllVFpKRw1akESS/WrsUQ
+         6RYGg/38zPrJtZimfePBt7jkpZvTUvvh93BuaOOzc43sTSgj6n0jaozEYZeJf5iA6Q79
+         7bYntAaqD6b2eOjqFYYlZvb4R9s18ZaC415vajJqZwrnQUOOStxwSUrBfrTgGE2QrMpP
+         KYIaCBSmfwe6+315rWqFthvbtDtlsy9jDgXIaL9lbYWOrR71JHNZSyBnDLLmtunHfIfp
+         6p/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yjWmOGw6LrGeClMDY6M2mpYvb0Wvxr8l5w1NWCCdnJk=;
+        b=hPt+QLL9KOXnjSHzuLwR/WjPZNRWKux/7uTyLosXRAvMguu2Xlh7ZLUFVb69tHmvsb
+         K7xcE3jKi2bVx0SWoZR2ns5GT2osw5ddLbDKseREeMbiBXCI6OvJuPhdS5K/gy8p61D6
+         yjX6HEDIJfqrJ1pdMKkedvnUmgc0AlXhFhnO0TEZHNBd/4Pk1rsSZMuzDU3V5quegBDp
+         XCRN4cXkDv4NnOTwJpEPGKL/ALS5KwC2J4Lj6wAsf8i2uwWXp9+PgLJpt3hPuwoY1+OX
+         0zycWshwmOc0gYJtcEHIu/08DoeXjyLL5WogC7h6TK1TWibAUHnw1u0H79QBYvqJU2xz
+         hotQ==
+X-Gm-Message-State: APjAAAXqiNrKbpromCZSPvfKqAS21RVEcXOGgTtirvO04dS1JbCHJ637
+        0/VIa1Xa7Z5ziybm3NXpcRqkUfrNY6BmLmilmw==
+X-Google-Smtp-Source: APXvYqwZGgjloKOJUsp5UY3K+rs7FvEEscGVrNBbLvtctkNeRAO6Mp3jk6yvv5sLecAEKjblhpnUiJbzyc9+RIrgB8Q=
+X-Received: by 2002:a2e:9858:: with SMTP id e24mr41639379ljj.91.1564607424835;
+ Wed, 31 Jul 2019 14:10:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <20190725105243.28404-1-omosnace@redhat.com>
+In-Reply-To: <20190725105243.28404-1-omosnace@redhat.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 31 Jul 2019 17:10:13 -0400
+Message-ID: <CAHC9VhSvWFcwevzYALkAcbGgJCRsXv_gQ=WXWgpi6y0nHNkGdQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix memory leak in policydb_init()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Dmitry Vyukov <dvyukov@google.com>,
+        syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2019-07-31 at 17:26 +0100, Richard Haines wrote:
-> This runs basic checks for BPF with map_create, map_read, map_write,
-> prog_load and prog_run permissions.
-> 
-> If this is okay, I'll do tests for checking the following:
-> tests/fdreceive - security_file_receive path
-> tests/binder - security_binder_transfer_file path
+On Thu, Jul 25, 2019 at 6:52 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> Since roles_init() adds some entries to the role hash table, we need to
+> destroy also its keys/values on error, otherwise we get a memory leak in
+> the error path.
+>
+> Reported-by: syzbot+fee3a14d4cdf92646287@syzkaller.appspotmail.com
+> Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  security/selinux/ss/policydb.c | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 
-This patch should work ok, however as the fdreceive and binder required
-the same BPF map/prog calls, I'm planning to split these out of
-bpf_test.c and into a common area so they can all use it.
+As discussed in the v2 thread, I've gone ahead and merge this patch
+into selinux/stable-5.3.  Assuming all is well I'll send this to Linus
+later this week.
 
-I'll send a v2 of this patch when I've completed the fdreceive so I can
-check they both work with same BPF code.
-> 
-> Richard Haines (1):
->   selinux-testsuite: Add BPF tests
-> 
->  README.md            |   4 +-
->  defconfig            |   5 ++
->  policy/Makefile      |   4 ++
->  policy/test_bpf.te   |  77 +++++++++++++++++++++++++++
->  tests/Makefile       |   4 ++
->  tests/bpf/.gitignore |   1 +
->  tests/bpf/Makefile   |   8 +++
->  tests/bpf/bpf_insn.h |  20 +++++++
->  tests/bpf/bpf_test.c | 124
-> +++++++++++++++++++++++++++++++++++++++++++
->  tests/bpf/test       |  57 ++++++++++++++++++++
->  tools/check-syntax   |   2 +-
->  tools/chk_c_exclude  |   1 +
->  12 files changed, 305 insertions(+), 2 deletions(-)
->  create mode 100644 policy/test_bpf.te
->  create mode 100644 tests/bpf/.gitignore
->  create mode 100644 tests/bpf/Makefile
->  create mode 100644 tests/bpf/bpf_insn.h
->  create mode 100644 tests/bpf/bpf_test.c
->  create mode 100755 tests/bpf/test
->  create mode 100644 tools/chk_c_exclude
-> 
-
+-- 
+paul moore
+www.paul-moore.com
