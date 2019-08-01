@@ -2,540 +2,292 @@ Return-Path: <SRS0=gk/B=V5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D5D9C19759
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:12:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3B66C433FF
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:32:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3935C2087E
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:12:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 968ED206B8
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:32:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="HPorGBbo"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="JqfhBOqB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726014AbfHALMj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Aug 2019 07:12:39 -0400
-Received: from mailomta25-sa.btinternet.com ([213.120.69.31]:34075 "EHLO
-        sa-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725930AbfHALMj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Aug 2019 07:12:39 -0400
-Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-040.btinternet.com with ESMTP
-          id <20190801111236.ESWL10898.sa-prd-fep-040.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Thu, 1 Aug 2019 12:12:36 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1564657956; 
-        bh=EXUM03u+lBJwuDYmLDn1NrdES2+kHYx9gG0Og8CM7og=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=HPorGBbonQwDNI/EeGLck4qRN2xoux9W+NKu34rL2oKkAPNQeO2WzACurWrDYpaG12JApCVsGZ4PGBtDKb7vpouupcpKTifkl7mpaPT9ZGPxMJA9MB4Cfgnb/6tNUqi0n+NU71dV/zbiUFXN2oJZhGwBJKVQT0yceoGEzwzJkQGYKEN+VgIsfW+DGxjPTyDHkpRHGpbSSpqeEH9q/wQtg3trAsqR9yNuavVho8LGqZeFmp0RhiQg7T04T5VSNIxQ1Mv8Wl6F2549qqMysthy2UY+JZl2lReXfJ9clmSoCQmQTY600k0x8GQuDzexbFKbXitVu2lV6eNdUxQB8JLZBw==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [31.49.60.13]
-X-OWM-Source-IP: 31.49.60.13 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrleejgdefiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeitddrudefnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepfedurdegledriedtrddufedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (31.49.60.13) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.335.01) (authenticated as richard_c_haines@btinternet.com)
-        id 5D3F935D0045CDF1; Thu, 1 Aug 2019 12:12:36 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, paul@paul-moore.com
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V2 1/2] selinux-testsuite: Add BPF tests
-Date:   Thu,  1 Aug 2019 12:12:32 +0100
-Message-Id: <20190801111232.5589-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.21.0
+        id S1729318AbfHALb6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Aug 2019 07:31:58 -0400
+Received: from UHIL19PA40.eemsg.mail.mil ([214.24.21.199]:38708 "EHLO
+        UHIL19PA40.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726014AbfHALb5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Aug 2019 07:31:57 -0400
+X-EEMSG-check-017: 7178377|UHIL19PA40_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,334,1559520000"; 
+   d="scan'208";a="7178377"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UHIL19PA40.eemsg.mail.mil with ESMTP; 01 Aug 2019 11:31:54 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1564659115; x=1596195115;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=ietWyA6ux13vDOA/KZIWzyZETEWUHnJEtSgCJnccnaA=;
+  b=JqfhBOqBlKJcYsqi/ERZO1F/V9IPUFXN0niZOSe+DnpDp8GYR2cU9aGU
+   OAuja/51BkgGonHVAFMz5Uu+4cVa1VPQpl4vMHo7dSalpOho5grfQmlQv
+   NI2xggWFVLruZzkt/4B+yMV8hj03FiFmt3//vuw/4W/bWSO3EhPMrdgYp
+   rcni5h3LkRnKQisoC8OStjYPC9PTcCYviPBxThD3rbkQ1fMd5eXSdaj+P
+   FTrMc49rFDjBA2F81P81H6UMQe1JwCtGfDIp70XRjt/e5F/si6PmEJELE
+   JmOVHyokW4r/T28NDQikCKFaHEZErQtB4ON0sfFqJjXyfnts9wE0dBnWC
+   g==;
+X-IronPort-AV: E=Sophos;i="5.64,334,1559520000"; 
+   d="scan'208";a="26333716"
+IronPort-PHdr: =?us-ascii?q?9a23=3AtYlGvBeyhcvIqB4FcitRNMQ6lGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxc2+ZhCN2/xhgRfzUJnB7Loc0qyK6vqmCDNLusjJmUtBWaQEbw?=
+ =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
+ =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MQu6oR/Vu8QUjodvJKc8wQ?=
+ =?us-ascii?q?bVr3VVfOhb2XlmLk+JkRbm4cew8p9j8yBOtP8k6sVNT6b0cbkmQLJBFDgpPH?=
+ =?us-ascii?q?w768PttRnYUAuA/WAcXXkMkhpJGAfK8hf3VYrsvyTgt+p93C6aPdDqTb0xRD?=
+ =?us-ascii?q?+v4btnRAPuhSwaLDMy7n3ZhdJsg6JauBKhpgJww4jIYIGOKfFyerrRcc4GSW?=
+ =?us-ascii?q?ZdW8pcUSJOApm4b4ASEeQPO+hWpJT5q1cXsxezAQygCeXywTFKm3D2x7U33f?=
+ =?us-ascii?q?k/HwHI3AIuHNwAv3rbo9r3KKgcXvu4zLXKwDjZc/9axTnw5YrOfxs8of+MR7?=
+ =?us-ascii?q?Vwcc/JxEcyCwPKkE2QqYz7MDOTy+8Drm2b4PBkVeKrlWEmqxx6rz+0xsgxkY?=
+ =?us-ascii?q?nEnZ4Vy1DY+iV5x4Y5P9u4SFVhbtK+H5tQsD+aOpJwT8g/TW9ovyM6xacHuZ?=
+ =?us-ascii?q?69ZCUKzJcnxxvba/CddIiI+B3jWeCMKjl7nHJoYK+zihm9/ES6yuDwS9O43E?=
+ =?us-ascii?q?hFoyZbiNXAq3YA3AHJ5MedUPty5EKh1C6K1wDU9+5LP1g5lbHeK5492r4wkY?=
+ =?us-ascii?q?cTsVjbEi/2hkr2iKiWe104+uey8eTnY6jmpoSGO49oigDxLqQumsulDeQ+Lg?=
+ =?us-ascii?q?cORHSU9f651L3i+U31WLRKjvsonanFqJ3WOMsWq6GjDwJVz4ov8QizAji43N?=
+ =?us-ascii?q?gCgHULNFdFdwiGj4jtNVHOOvf4DfKnjlS3jThr3OvLPqHhA5rRLnjDl63tfb?=
+ =?us-ascii?q?Bm60FG0gYzwtdf54xMBrEbPP3zQlPxtMDfDhIhKwy72fvnCNFm24MGQ22PH6?=
+ =?us-ascii?q?uZPLrXsV+P4eIvOfeDaJUJtzb6Lvgv/+TugmMhmV8BYamp2oMaZ2yiEfR9PU?=
+ =?us-ascii?q?qYYWHhgswdHmcKpAU+UeLqiFmcXj5Jfnq9Q7gz6isnB4KhCIfJXpqtj6CZ3C?=
+ =?us-ascii?q?enAp1WYXhLCkuSHnfsdoWEXeoMaS2JL89/nTwLS6KhR5Ui1R6wrg/6zaRoLu?=
+ =?us-ascii?q?7O9i0fr5Lj28B/5/fPmhEq6Tx0E8Od3nmJT2F1mGMIWjA30LlkoUNj1liDzL?=
+ =?us-ascii?q?J4g/1EFd1T/v9JVwA6OoPBz+x+Fd//QRzBftiXR1a8WNmmAi8+Tsg3w9AQZ0?=
+ =?us-ascii?q?ZxAdKijgrM3yCyGb8ai6SLBIAo8qLbx3XxI8d9y3Db1KgullUmTNBPOnC4ia?=
+ =?us-ascii?q?5h6QfTA5XEk1uWl6m0b6QQxi3N+3mZzWqIok5YVBR8UaLfXXAQfkHWt8j25l?=
+ =?us-ascii?q?veT7+yDrQqKhZOyc6FKqpEdNLpiVFGROz4NdTEfW2+hmewCgyUxr+WcIXqfG?=
+ =?us-ascii?q?Ad1j3HCEcYiwAT4WqGNQ8mCyejuW3RED9uGEn0Y0Px6ulxtmm3QVM1zguSdU?=
+ =?us-ascii?q?1uy6K1+gIJhfybU/4cxLcEuCY7qzh2Elu93tbWBsGPpwpkZqpcYNc97E1b2m?=
+ =?us-ascii?q?Lesgx3JoagILx6hl4CbwR3uFvj1xdyCoVHi8gqtnIqzBFpJKKeylxBci2X3Z?=
+ =?us-ascii?q?HqNr3QMGny8wila7TK1VHGzNaW5qAP5ew8q1XiugGpC0Uj/2xk09ZLyXuc4I?=
+ =?us-ascii?q?vFDA4JXJLvXUY46QJ6q6vZYiYj/YPU02NjMa2uvj/FwdIpC7ht9hH1R95CNO?=
+ =?us-ascii?q?uhEwjoHoVOH8GzLMQykkWtKxcDO/pfsqUzOpXiP9CPw6O6dN1rnDu7g2BK+s?=
+ =?us-ascii?q?gp2UuX+jtUUeXI1osLx/yCmwCOETz7iQHynNrwnNV/eTwKHme5gRPhDYpVa7?=
+ =?us-ascii?q?w6KZ0HEk+yMsa3wZN4nJerVHlGog3wT2ga0dOkLELBJ2f22hddgAFO+y2q?=
+X-IPAS-Result: =?us-ascii?q?A2A6AgDwzEJd/wHyM5BlHgEGBwaBVgYLAYFtKm1SMiqEH?=
+ =?us-ascii?q?pAJAQEBAQEBBoE2fohlkR0JAQEBAQEBAQEBJw0BAgEBhEACglQjNwYOAQMBA?=
+ =?us-ascii?q?QEEAQEBAQUBAWyFHgyCOikBgmYBAQEBAgEjBBE/AhALGAICJgICVwYBDAYCA?=
+ =?us-ascii?q?QGCUww/AYF2BQ8PrCF/M4QzAYEUgyeBQgaBDCiLYBd4gQeBESeCNjU+gkiBN?=
+ =?us-ascii?q?hIYgyeCWASMWYgslg4JghyCH4Q9hHSIRQYbgi6HKIQOijSNQodRjR+FAyKBW?=
+ =?us-ascii?q?CsIAhgIIQ87gmwfglqIToVbIwMwgQYBAYpODRcHgiUBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 01 Aug 2019 11:31:53 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x71BVowv016577;
+        Thu, 1 Aug 2019 07:31:50 -0400
+Subject: Re: [PATCH] fanotify, inotify, dnotify, security: add security hook
+ for fs notifications
+To:     Paul Moore <paul@paul-moore.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Aaron Goidel <acgoide@tycho.nsa.gov>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, dhowells@redhat.com, jack@suse.cz,
+        amir73il@gmail.com, James Morris <jmorris@namei.org>,
+        linux-kernel@vger.kernel.org
+References: <20190731153443.4984-1-acgoide@tycho.nsa.gov>
+ <1c62c931-9441-4264-c119-d038b2d0c9b9@schaufler-ca.com>
+ <CAHC9VhS6cfMw5ZUkOSov6hexh9QpnpKwipP7L7ZYGCVLCHGfFQ@mail.gmail.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <66fbc35c-6cc8-bd08-9bf9-aa731dc3ff09@tycho.nsa.gov>
+Date:   Thu, 1 Aug 2019 07:31:50 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAHC9VhS6cfMw5ZUkOSov6hexh9QpnpKwipP7L7ZYGCVLCHGfFQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This adds basic BPF tests for map and prog functions.
+On 7/31/19 8:27 PM, Paul Moore wrote:
+> On Wed, Jul 31, 2019 at 1:26 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>> On 7/31/2019 8:34 AM, Aaron Goidel wrote:
+>>> As of now, setting watches on filesystem objects has, at most, applied a
+>>> check for read access to the inode, and in the case of fanotify, requires
+>>> CAP_SYS_ADMIN. No specific security hook or permission check has been
+>>> provided to control the setting of watches. Using any of inotify, dnotify,
+>>> or fanotify, it is possible to observe, not only write-like operations, but
+>>> even read access to a file. Modeling the watch as being merely a read from
+>>> the file is insufficient for the needs of SELinux. This is due to the fact
+>>> that read access should not necessarily imply access to information about
+>>> when another process reads from a file. Furthermore, fanotify watches grant
+>>> more power to an application in the form of permission events. While
+>>> notification events are solely, unidirectional (i.e. they only pass
+>>> information to the receiving application), permission events are blocking.
+>>> Permission events make a request to the receiving application which will
+>>> then reply with a decision as to whether or not that action may be
+>>> completed. This causes the issue of the watching application having the
+>>> ability to exercise control over the triggering process. Without drawing a
+>>> distinction within the permission check, the ability to read would imply
+>>> the greater ability to control an application. Additionally, mount and
+>>> superblock watches apply to all files within the same mount or superblock.
+>>> Read access to one file should not necessarily imply the ability to watch
+>>> all files accessed within a given mount or superblock.
+>>>
+>>> In order to solve these issues, a new LSM hook is implemented and has been
+>>> placed within the system calls for marking filesystem objects with inotify,
+>>> fanotify, and dnotify watches. These calls to the hook are placed at the
+>>> point at which the target path has been resolved and are provided with the
+>>> path struct, the mask of requested notification events, and the type of
+>>> object on which the mark is being set (inode, superblock, or mount). The
+>>> mask and obj_type have already been translated into common FS_* values
+>>> shared by the entirety of the fs notification infrastructure. The path
+>>> struct is passed rather than just the inode so that the mount is available,
+>>> particularly for mount watches. This also allows for use of the hook by
+>>> pathname-based security modules. However, since the hook is intended for
+>>> use even by inode based security modules, it is not placed under the
+>>> CONFIG_SECURITY_PATH conditional. Otherwise, the inode-based security
+>>> modules would need to enable all of the path hooks, even though they do not
+>>> use any of them.
+>>>
+>>> This only provides a hook at the point of setting a watch, and presumes
+>>> that permission to set a particular watch implies the ability to receive
+>>> all notification about that object which match the mask. This is all that
+>>> is required for SELinux. If other security modules require additional hooks
+>>> or infrastructure to control delivery of notification, these can be added
+>>> by them. It does not make sense for us to propose hooks for which we have
+>>> no implementation. The understanding that all notifications received by the
+>>> requesting application are all strictly of a type for which the application
+>>> has been granted permission shows that this implementation is sufficient in
+>>> its coverage.
+>>>
+>>> Security modules wishing to provide complete control over fanotify must
+>>> also implement a security_file_open hook that validates that the access
+>>> requested by the watching application is authorized. Fanotify has the issue
+>>> that it returns a file descriptor with the file mode specified during
+>>> fanotify_init() to the watching process on event. This is already covered
+>>> by the LSM security_file_open hook if the security module implements
+>>> checking of the requested file mode there. Otherwise, a watching process
+>>> can obtain escalated access to a file for which it has not been authorized.
+>>>
+>>> The selinux_path_notify hook implementation works by adding five new file
+>>> permissions: watch, watch_mount, watch_sb, watch_reads, and watch_with_perm
+>>> (descriptions about which will follow), and one new filesystem permission:
+>>> watch (which is applied to superblock checks). The hook then decides which
+>>> subset of these permissions must be held by the requesting application
+>>> based on the contents of the provided mask and the obj_type. The
+>>> selinux_file_open hook already checks the requested file mode and therefore
+>>> ensures that a watching process cannot escalate its access through
+>>> fanotify.
+>>>
+>>> The watch, watch_mount, and watch_sb permissions are the baseline
+>>> permissions for setting a watch on an object and each are a requirement for
+>>> any watch to be set on a file, mount, or superblock respectively. It should
+>>> be noted that having either of the other two permissions (watch_reads and
+>>> watch_with_perm) does not imply the watch, watch_mount, or watch_sb
+>>> permission. Superblock watches further require the filesystem watch
+>>> permission to the superblock. As there is no labeled object in view for
+>>> mounts, there is no specific check for mount watches beyond watch_mount to
+>>> the inode. Such a check could be added in the future, if a suitable labeled
+>>> object existed representing the mount.
+>>>
+>>> The watch_reads permission is required to receive notifications from
+>>> read-exclusive events on filesystem objects. These events include accessing
+>>> a file for the purpose of reading and closing a file which has been opened
+>>> read-only. This distinction has been drawn in order to provide a direct
+>>> indication in the policy for this otherwise not obvious capability. Read
+>>> access to a file should not necessarily imply the ability to observe read
+>>> events on a file.
+>>>
+>>> Finally, watch_with_perm only applies to fanotify masks since it is the
+>>> only way to set a mask which allows for the blocking, permission event.
+>>> This permission is needed for any watch which is of this type. Though
+>>> fanotify requires CAP_SYS_ADMIN, this is insufficient as it gives implicit
+>>> trust to root, which we do not do, and does not support least privilege.
+>>>
+>>> Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
+>>
+>> I can't say that I accept your arguments that this is sufficient,
+>> but as you point out, the SELinux team does, and if I want more
+>> for Smack that's my fish to fry.
+>>
+>> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+> 
+> Thanks Aaron.  Thanks Casey.
+> 
+> I think we also want an ACK from the other LSMs, what say all of you?
+> Can you live with the new security_path_notify() hook?
+> 
+> Aaron, you'll also need to put together a test for the
+> selinux-testsuite to exercise this code.  If you already sent it to
+> the list, my apologies but I don't see it anywhere.  If you get stuck
+> on the test, let me know and I'll try to help out.
+> 
+> Oh, one more thing ...
+> 
+>>> +static int selinux_path_notify(const struct path *path, u64 mask,
+>>> +                                             unsigned int obj_type)
+>>> +{
+>>> +     int ret;
+>>> +     u32 perm;
+>>> +
+>>> +     struct common_audit_data ad;
+>>> +
+>>> +     ad.type = LSM_AUDIT_DATA_PATH;
+>>> +     ad.u.path = *path;
+>>> +
+>>> +     /*
+>>> +      * Set permission needed based on the type of mark being set.
+>>> +      * Performs an additional check for sb watches.
+>>> +      */
+>>> +     switch (obj_type) {
+>>> +     case FSNOTIFY_OBJ_TYPE_VFSMOUNT:
+>>> +             perm = FILE__WATCH_MOUNT;
+>>> +             break;
+>>> +     case FSNOTIFY_OBJ_TYPE_SB:
+>>> +             perm = FILE__WATCH_SB;
+>>> +             ret = superblock_has_perm(current_cred(), path->dentry->d_sb,
+>>> +                                             FILESYSTEM__WATCH, &ad);
+>>> +             if (ret)
+>>> +                     return ret;
+>>> +             break;
+>>> +     case FSNOTIFY_OBJ_TYPE_INODE:
+>>> +             perm = FILE__WATCH;
+>>> +             break;
+>>> +     default:
+>>> +             return -EINVAL;
+>>> +     }
+>>> +
+>>> +     // check if the mask is requesting ability to set a blocking watch
+> 
+> ... in the future please don't use "// XXX", use "/* XXX */" instead :)
+> 
+> Don't respin the patch just for this, but if you have to do it for
+> some other reason please fix the C++ style comments.  Thanks.
 
-The check-syntax script has been modified to exclude files listed
-in tools/chk_c_exclude. This is because of macros in bpf_common.c
-that get horribly reformatted by check-syntax.
+This was discussed during the earlier RFC series but ultimately someone 
+pointed to:
+https://lkml.org/lkml/2016/7/8/625
+where Linus blessed the use of C++/C99 style comments.  And checkpatch 
+accepts them these days.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
-V2 Change - Split BPF code into bpf_common.c for others to use.
+Obviously if you truly don't want them in the SELinux code, that's your 
+call.  But note that all files now have at least one such comment as a 
+result of the mass SPDX license headers that were added throughout the 
+tree using that style.
 
- README.md              |  4 +-
- defconfig              |  5 +++
- policy/Makefile        |  4 ++
- policy/test_bpf.te     | 77 ++++++++++++++++++++++++++++++++
- tests/Makefile         |  4 ++
- tests/bpf/.gitignore   |  2 +
- tests/bpf/Makefile     | 12 +++++
- tests/bpf/bpf_common.c | 99 ++++++++++++++++++++++++++++++++++++++++++
- tests/bpf/bpf_test.c   | 83 +++++++++++++++++++++++++++++++++++
- tests/bpf/test         | 57 ++++++++++++++++++++++++
- tools/check-syntax     |  2 +-
- tools/chk_c_exclude    |  1 +
- 12 files changed, 348 insertions(+), 2 deletions(-)
- create mode 100644 policy/test_bpf.te
- create mode 100644 tests/bpf/.gitignore
- create mode 100644 tests/bpf/Makefile
- create mode 100644 tests/bpf/bpf_common.c
- create mode 100644 tests/bpf/bpf_test.c
- create mode 100755 tests/bpf/test
- create mode 100644 tools/chk_c_exclude
-
-diff --git a/README.md b/README.md
-index 26784f8..1396c8e 100644
---- a/README.md
-+++ b/README.md
-@@ -51,6 +51,7 @@ similar dependencies):
- * iptables _(to load the `iptables SECMARK` rules during `inet_socket` tests)_
- * lksctp-tools-devel _(to build the SCTP test programs)_
- * attr _(tools used by the overlayfs tests)_
-+* libbpf-devel _(tools used by the bpf tests)_
- 
- On a modern Fedora system you can install these dependencies with the
- following command:
-@@ -65,7 +66,8 @@ following command:
- 		netlabel_tools \
- 		iptables \
- 		lksctp-tools-devel \
--		attr
-+		attr \
-+		libbpf-devel
- 
- The testsuite requires a pre-existing base policy configuration of SELinux,
- using either the old example policy or the reference policy as the baseline.
-diff --git a/defconfig b/defconfig
-index d7f0ea5..96f6443 100644
---- a/defconfig
-+++ b/defconfig
-@@ -62,3 +62,8 @@ CONFIG_ANDROID_BINDER_IPC=y
- # This will configure the Dynamically Allocated Binder Devices added
- # to 5.0+ kernels:
- CONFIG_ANDROID_BINDERFS=y
-+
-+# Test BPF + check in selinux_file_receive and selinux_binder_transfer_files.
-+# They are not required for SELinux operation itself.
-+CONFIG_BP=y
-+CONFIG_BPF_SYSCALL=y
-diff --git a/policy/Makefile b/policy/Makefile
-index 305b572..16a4469 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -71,6 +71,10 @@ ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/coren
- TARGETS += test_sctp.te
- endif
- 
-+ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && echo true),true)
-+TARGETS += test_bpf.te
-+endif
-+
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
- TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te, $(TARGETS))
- endif
-diff --git a/policy/test_bpf.te b/policy/test_bpf.te
-new file mode 100644
-index 0000000..7b212e7
---- /dev/null
-+++ b/policy/test_bpf.te
-@@ -0,0 +1,77 @@
-+#
-+################# BPF selinux-testsuite policy module ######################
-+#
-+
-+attribute bpfdomain;
-+
-+################################### Main ###################################
-+type test_bpf_t;
-+domain_type(test_bpf_t)
-+unconfined_runs_test(test_bpf_t)
-+typeattribute test_bpf_t testdomain;
-+typeattribute test_bpf_t bpfdomain;
-+
-+allow test_bpf_t self:process setrlimit;
-+allow test_bpf_t self:capability { sys_resource sys_admin };
-+allow test_bpf_t self:bpf { map_create map_read map_write prog_load prog_run };
-+
-+############################## Deny map_create #############################
-+type test_bpf_deny_map_create_t;
-+domain_type(test_bpf_deny_map_create_t)
-+unconfined_runs_test(test_bpf_deny_map_create_t)
-+typeattribute test_bpf_deny_map_create_t testdomain;
-+typeattribute test_bpf_deny_map_create_t bpfdomain;
-+
-+allow test_bpf_deny_map_create_t self:process setrlimit;
-+allow test_bpf_deny_map_create_t self:capability { sys_resource sys_admin };
-+allow test_bpf_deny_map_create_t self:bpf { map_read map_write prog_load prog_run };
-+
-+############################## Deny map_read ##############################
-+type test_bpf_deny_map_read_t;
-+domain_type(test_bpf_deny_map_read_t)
-+unconfined_runs_test(test_bpf_deny_map_read_t)
-+typeattribute test_bpf_deny_map_read_t testdomain;
-+typeattribute test_bpf_deny_map_read_t bpfdomain;
-+
-+allow test_bpf_deny_map_read_t self:process setrlimit;
-+allow test_bpf_deny_map_read_t self:capability { sys_resource sys_admin };
-+allow test_bpf_deny_map_read_t self:bpf { map_create map_write prog_load prog_run };
-+
-+############################## Deny map_write ##############################
-+type test_bpf_deny_map_write_t;
-+domain_type(test_bpf_deny_map_write_t)
-+unconfined_runs_test(test_bpf_deny_map_write_t)
-+typeattribute test_bpf_deny_map_write_t testdomain;
-+typeattribute test_bpf_deny_map_write_t bpfdomain;
-+
-+allow test_bpf_deny_map_write_t self:process setrlimit;
-+allow test_bpf_deny_map_write_t self:capability { sys_resource sys_admin };
-+allow test_bpf_deny_map_write_t self:bpf { map_create map_read prog_load prog_run };
-+
-+############################## Deny prog_load ##############################
-+type test_bpf_deny_prog_load_t;
-+domain_type(test_bpf_deny_prog_load_t)
-+unconfined_runs_test(test_bpf_deny_prog_load_t)
-+typeattribute test_bpf_deny_prog_load_t testdomain;
-+typeattribute test_bpf_deny_prog_load_t bpfdomain;
-+
-+allow test_bpf_deny_prog_load_t self:process setrlimit;
-+allow test_bpf_deny_prog_load_t self:capability { sys_resource sys_admin };
-+allow test_bpf_deny_prog_load_t self:bpf { map_create map_read map_write prog_run };
-+
-+############################## Deny prog_run ###############################
-+type test_bpf_deny_prog_run_t;
-+domain_type(test_bpf_deny_prog_run_t)
-+unconfined_runs_test(test_bpf_deny_prog_run_t)
-+typeattribute test_bpf_deny_prog_run_t testdomain;
-+typeattribute test_bpf_deny_prog_run_t bpfdomain;
-+
-+allow test_bpf_deny_prog_run_t self:process setrlimit;
-+allow test_bpf_deny_prog_run_t self:capability { sys_resource sys_admin };
-+allow test_bpf_deny_prog_run_t self:bpf { map_create map_read map_write prog_load };
-+
-+#
-+############ Allow these domains to be entered from sysadm domain ############
-+#
-+miscfiles_domain_entry_test_files(bpfdomain)
-+userdom_sysadm_entry_spec_domtrans_to(bpfdomain)
-diff --git a/tests/Makefile b/tests/Makefile
-index 63aa325..2717452 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -42,6 +42,10 @@ ifeq ($(shell grep -q binder $(POLDEV)/include/support/all_perms.spt && test -e
- SUBDIRS += binder
- endif
- 
-+ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && test -e $(INCLUDEDIR)/bpf/bpf.h && echo true),true)
-+SUBDIRS += bpf
-+endif
-+
- ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
- SUBDIRS += infiniband_endport
- endif
-diff --git a/tests/bpf/.gitignore b/tests/bpf/.gitignore
-new file mode 100644
-index 0000000..1919ff8
---- /dev/null
-+++ b/tests/bpf/.gitignore
-@@ -0,0 +1,2 @@
-+bpf_test
-+bpf_common
-diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
-new file mode 100644
-index 0000000..78ae9db
---- /dev/null
-+++ b/tests/bpf/Makefile
-@@ -0,0 +1,12 @@
-+TARGETS = bpf_test
-+DEPS = bpf_common.c
-+
-+LDLIBS += -lselinux -lbpf
-+CFLAGS += -DHAVE_BPF
-+
-+all: $(TARGETS)
-+
-+clean:
-+	rm -f $(TARGETS)
-+
-+$(TARGETS): $(DEPS)
-diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
-new file mode 100644
-index 0000000..c20da61
---- /dev/null
-+++ b/tests/bpf/bpf_common.c
-@@ -0,0 +1,99 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <stdio.h>
-+#include <string.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+
-+#if HAVE_BPF /* Start HAVE_BPF */
-+#include <bpf/bpf.h>
-+#include <linux/bpf.h>
-+#include <sys/resource.h>
-+
-+/* edited eBPF instruction library */
-+/* Short form of mov, dst_reg = imm32 */
-+#define BPF_MOV64_IMM(DST, IMM)					\
-+	((struct bpf_insn) {					\
-+		.code  = BPF_ALU64 | BPF_MOV | BPF_K,		\
-+		.dst_reg = DST,					\
-+		.src_reg = 0,					\
-+		.off   = 0,					\
-+		.imm   = IMM })
-+
-+/* Program exit */
-+#define BPF_EXIT_INSN()						\
-+	((struct bpf_insn) {					\
-+		.code  = BPF_JMP | BPF_EXIT,			\
-+		.dst_reg = 0,					\
-+		.src_reg = 0,					\
-+		.off   = 0,					\
-+		.imm   = 0 })
-+
-+int create_bpf_map(void)
-+{
-+	int map_fd, key;
-+	long long value = 0;
-+
-+	map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(key),
-+				sizeof(value), 256, 0);
-+	if (map_fd < 0) {
-+		fprintf(stderr, "Failed to create BPF map: %s\n",
-+			strerror(errno));
-+		return -1;
-+	}
-+
-+	return map_fd;
-+}
-+
-+int create_bpf_prog(void)
-+{
-+	int prog_fd;
-+	size_t insns_cnt;
-+
-+	struct bpf_insn prog[] = {
-+		BPF_MOV64_IMM(BPF_REG_0, 1),
-+		BPF_EXIT_INSN(),
-+	};
-+	insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
-+
-+	prog_fd = bpf_load_program(BPF_PROG_TYPE_SOCKET_FILTER, prog,
-+				   insns_cnt, "GPL", 0, NULL, 0);
-+	if (prog_fd < 0) {
-+		fprintf(stderr, "Failed to load BPF prog: %s\n",
-+			strerror(errno));
-+		return -1;
-+	}
-+
-+	return prog_fd;
-+}
-+
-+void bpf_setrlimit(void)
-+{
-+	int result;
-+	struct rlimit r = { RLIM_INFINITY, RLIM_INFINITY };
-+
-+	result = setrlimit(RLIMIT_MEMLOCK, &r);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to set resource limit: %s\n",
-+			strerror(errno));
-+		exit(-1);
-+	}
-+}
-+
-+#else
-+int create_bpf_map(void)
-+{
-+	fprintf(stderr, "BPF map not supported\n");
-+	return -1;
-+}
-+
-+int create_bpf_prog(void)
-+{
-+	fprintf(stderr, "BPF prog not supported\n");
-+	return -1;
-+}
-+
-+void bpf_setrlimit(void)
-+{
-+}
-+#endif /* End HAVE_BPF */
-diff --git a/tests/bpf/bpf_test.c b/tests/bpf/bpf_test.c
-new file mode 100644
-index 0000000..747552c
---- /dev/null
-+++ b/tests/bpf/bpf_test.c
-@@ -0,0 +1,83 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <stdio.h>
-+#include <unistd.h>
-+#include <string.h>
-+#include <stdlib.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <selinux/selinux.h>
-+
-+int create_bpf_map(void);
-+int create_bpf_prog(void);
-+void bpf_setrlimit(void);
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-m|-p] [-v]\n"
-+		"Where:\n\t"
-+		"-m    Create a BPF map fd\n\t"
-+		"-p    Create a BPF prog fd\n\t"
-+		"-v Print information.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	int opt, result, fd, bpf_fd_type = 0;
-+	bool verbose = false;
-+	char *context;
-+
-+	while ((opt = getopt(argc, argv, "mpv")) != -1) {
-+		switch (opt) {
-+		case 'm':
-+			bpf_fd_type = 1;
-+			break;
-+		case 'p':
-+			bpf_fd_type = 2;
-+			break;
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	result = getcon(&context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain SELinux context\n");
-+		exit(-1);
-+	}
-+
-+	if (verbose)
-+		printf("Process context:\n\t%s\n", context);
-+
-+	free(context);
-+
-+	/* If BPF enabed, then need to set limits */
-+	bpf_setrlimit();
-+
-+	switch (bpf_fd_type) {
-+	case 1:
-+		if (verbose)
-+			printf("Creating BPF map\n");
-+
-+		fd = create_bpf_map();
-+		break;
-+	case 2:
-+		if (verbose)
-+			printf("Creating BPF prog\n");
-+
-+		fd = create_bpf_prog();
-+		break;
-+	default:
-+		usage(argv[0]);
-+	}
-+
-+	if (fd < 0)
-+		return bpf_fd_type;
-+
-+	return 0;
-+}
-diff --git a/tests/bpf/test b/tests/bpf/test
-new file mode 100755
-index 0000000..0223a4c
---- /dev/null
-+++ b/tests/bpf/test
-@@ -0,0 +1,57 @@
-+#!/usr/bin/perl
-+# SPDX-License-Identifier: GPL-2.0
-+
-+use Test::More;
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    # allow info to be shown during tests
-+    $v = $ARGV[0];
-+    if ($v) {
-+        if ( $v ne "-v" ) {
-+            plan skip_all => "Invalid option (use -v)";
-+        }
-+    }
-+    else {
-+        $v = " ";
-+    }
-+
-+    plan tests => 7;
-+}
-+
-+# BPF map
-+$result = system "runcon -t test_bpf_t $basedir/bpf_test -m $v";
-+ok( $result eq 0 );
-+
-+# BPF prog
-+$result = system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
-+ok( $result eq 0 );
-+
-+# Deny map_create permission
-+$result =
-+  system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test -m $v 2>&1";
-+ok( $result >> 8 eq 1 );
-+
-+# Deny map_read permission
-+$result =
-+  system "runcon -t test_bpf_deny_map_read_t $basedir/bpf_test -m $v 2>&1";
-+ok( $result >> 8 eq 1 );
-+
-+# Deny map_write permission
-+$result =
-+  system "runcon -t test_bpf_deny_map_write_t $basedir/bpf_test -m $v 2>&1";
-+ok( $result >> 8 eq 1 );
-+
-+# Deny prog_load permission
-+$result =
-+  system "runcon -t test_bpf_deny_prog_load_t $basedir/bpf_test -p $v 2>&1";
-+ok( $result >> 8 eq 2 );
-+
-+# Deny prog_run permission
-+$result =
-+  system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p $v 2>&1";
-+ok( $result >> 8 eq 2 );
-+
-+exit;
-diff --git a/tools/check-syntax b/tools/check-syntax
-index 7f9768d..5b7c211 100755
---- a/tools/check-syntax
-+++ b/tools/check-syntax
-@@ -11,7 +11,7 @@
- #
- 
- CHK_C_LIST="$(find tests/ -name "*.c") $(find tests/ -name "*.h")"
--CHK_C_EXCLUDE=""
-+CHK_C_EXCLUDE="$(cat tools/chk_c_exclude)"
- 
- CHK_PERL_LIST="$(find tests/ -name "*.pl") $(find tests/ -name "test")"
- CHK_PERL_EXCLUDE=""
-diff --git a/tools/chk_c_exclude b/tools/chk_c_exclude
-new file mode 100644
-index 0000000..20facbf
---- /dev/null
-+++ b/tools/chk_c_exclude
-@@ -0,0 +1 @@
-+tests/bpf/bpf_common.c
--- 
-2.21.0
+> 
+>>> +     if (mask & (ALL_FSNOTIFY_PERM_EVENTS))
+>>> +             perm |= FILE__WATCH_WITH_PERM; // if so, check that permission
+>>> +
+>>> +     // is the mask asking to watch file reads?
+>>> +     if (mask & (FS_ACCESS | FS_ACCESS_PERM | FS_CLOSE_NOWRITE))
+>>> +             perm |= FILE__WATCH_READS; // check that permission as well
+>>> +
+>>> +     return path_has_perm(current_cred(), path, perm);
+>>> +}
+> 
 
