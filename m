@@ -2,292 +2,550 @@ Return-Path: <SRS0=gk/B=V5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3B66C433FF
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:32:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73A26C19759
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:35:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 968ED206B8
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:32:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 30D5D20838
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 11:35:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="JqfhBOqB"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="L9NgdZ4G"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729318AbfHALb6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Aug 2019 07:31:58 -0400
-Received: from UHIL19PA40.eemsg.mail.mil ([214.24.21.199]:38708 "EHLO
-        UHIL19PA40.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726014AbfHALb5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Aug 2019 07:31:57 -0400
-X-EEMSG-check-017: 7178377|UHIL19PA40_ESA_OUT06.csd.disa.mil
+        id S1730713AbfHALfT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Aug 2019 07:35:19 -0400
+Received: from UHIL19PA35.eemsg.mail.mil ([214.24.21.194]:41909 "EHLO
+        UHIL19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725379AbfHALfT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Aug 2019 07:35:19 -0400
+X-EEMSG-check-017: 7068305|UHIL19PA35_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.64,334,1559520000"; 
-   d="scan'208";a="7178377"
+   d="scan'208";a="7068305"
 Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UHIL19PA40.eemsg.mail.mil with ESMTP; 01 Aug 2019 11:31:54 +0000
+  by UHIL19PA35.eemsg.mail.mil with ESMTP; 01 Aug 2019 11:35:17 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1564659115; x=1596195115;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=ietWyA6ux13vDOA/KZIWzyZETEWUHnJEtSgCJnccnaA=;
-  b=JqfhBOqBlKJcYsqi/ERZO1F/V9IPUFXN0niZOSe+DnpDp8GYR2cU9aGU
-   OAuja/51BkgGonHVAFMz5Uu+4cVa1VPQpl4vMHo7dSalpOho5grfQmlQv
-   NI2xggWFVLruZzkt/4B+yMV8hj03FiFmt3//vuw/4W/bWSO3EhPMrdgYp
-   rcni5h3LkRnKQisoC8OStjYPC9PTcCYviPBxThD3rbkQ1fMd5eXSdaj+P
-   FTrMc49rFDjBA2F81P81H6UMQe1JwCtGfDIp70XRjt/e5F/si6PmEJELE
-   JmOVHyokW4r/T28NDQikCKFaHEZErQtB4ON0sfFqJjXyfnts9wE0dBnWC
+  s=tycho.nsa.gov; t=1564659317; x=1596195317;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=jlQB7cQ4z8I1OVbWMam2xwofxK8DNAG0SgC59qnpkyw=;
+  b=L9NgdZ4GHW1VhEj98Z1o9qYrpiRgE/0fBTI6IzQUqUTw6OwMItTxp45U
+   jaA0bZz4k3SXG91WHvbeOdD7YBniPj/vbgkw1xeRWO6DSuZMGGxTIpg0w
+   SuKTaLAl1dY+OrZ8UKFhtAy0iNsMHgmfOmop8efNtswWHHUsE0rpfVJ1D
+   bJrlVbHSe3TpYAwP+bNJvRB6+qlkM3++5Tv50+luHxM2fzqDnNdEcjQZ3
+   2jCoM/AHnugJC1Cx+oEyCL7a5OXrlCcwPTYnMwP/qPxmvIjvHilrMJY4Q
+   huuk5cM4KVYXPuQUvI4zTEjIFFW0kdepGgSieBKbC4tUVy5H5vxWogdZl
    g==;
 X-IronPort-AV: E=Sophos;i="5.64,334,1559520000"; 
-   d="scan'208";a="26333716"
-IronPort-PHdr: =?us-ascii?q?9a23=3AtYlGvBeyhcvIqB4FcitRNMQ6lGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxc2+ZhCN2/xhgRfzUJnB7Loc0qyK6vqmCDNLusjJmUtBWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MQu6oR/Vu8QUjodvJKc8wQ?=
- =?us-ascii?q?bVr3VVfOhb2XlmLk+JkRbm4cew8p9j8yBOtP8k6sVNT6b0cbkmQLJBFDgpPH?=
- =?us-ascii?q?w768PttRnYUAuA/WAcXXkMkhpJGAfK8hf3VYrsvyTgt+p93C6aPdDqTb0xRD?=
- =?us-ascii?q?+v4btnRAPuhSwaLDMy7n3ZhdJsg6JauBKhpgJww4jIYIGOKfFyerrRcc4GSW?=
- =?us-ascii?q?ZdW8pcUSJOApm4b4ASEeQPO+hWpJT5q1cXsxezAQygCeXywTFKm3D2x7U33f?=
- =?us-ascii?q?k/HwHI3AIuHNwAv3rbo9r3KKgcXvu4zLXKwDjZc/9axTnw5YrOfxs8of+MR7?=
- =?us-ascii?q?Vwcc/JxEcyCwPKkE2QqYz7MDOTy+8Drm2b4PBkVeKrlWEmqxx6rz+0xsgxkY?=
- =?us-ascii?q?nEnZ4Vy1DY+iV5x4Y5P9u4SFVhbtK+H5tQsD+aOpJwT8g/TW9ovyM6xacHuZ?=
- =?us-ascii?q?69ZCUKzJcnxxvba/CddIiI+B3jWeCMKjl7nHJoYK+zihm9/ES6yuDwS9O43E?=
- =?us-ascii?q?hFoyZbiNXAq3YA3AHJ5MedUPty5EKh1C6K1wDU9+5LP1g5lbHeK5492r4wkY?=
- =?us-ascii?q?cTsVjbEi/2hkr2iKiWe104+uey8eTnY6jmpoSGO49oigDxLqQumsulDeQ+Lg?=
- =?us-ascii?q?cORHSU9f651L3i+U31WLRKjvsonanFqJ3WOMsWq6GjDwJVz4ov8QizAji43N?=
- =?us-ascii?q?gCgHULNFdFdwiGj4jtNVHOOvf4DfKnjlS3jThr3OvLPqHhA5rRLnjDl63tfb?=
- =?us-ascii?q?Bm60FG0gYzwtdf54xMBrEbPP3zQlPxtMDfDhIhKwy72fvnCNFm24MGQ22PH6?=
- =?us-ascii?q?uZPLrXsV+P4eIvOfeDaJUJtzb6Lvgv/+TugmMhmV8BYamp2oMaZ2yiEfR9PU?=
- =?us-ascii?q?qYYWHhgswdHmcKpAU+UeLqiFmcXj5Jfnq9Q7gz6isnB4KhCIfJXpqtj6CZ3C?=
- =?us-ascii?q?enAp1WYXhLCkuSHnfsdoWEXeoMaS2JL89/nTwLS6KhR5Ui1R6wrg/6zaRoLu?=
- =?us-ascii?q?7O9i0fr5Lj28B/5/fPmhEq6Tx0E8Od3nmJT2F1mGMIWjA30LlkoUNj1liDzL?=
- =?us-ascii?q?J4g/1EFd1T/v9JVwA6OoPBz+x+Fd//QRzBftiXR1a8WNmmAi8+Tsg3w9AQZ0?=
- =?us-ascii?q?ZxAdKijgrM3yCyGb8ai6SLBIAo8qLbx3XxI8d9y3Db1KgullUmTNBPOnC4ia?=
- =?us-ascii?q?5h6QfTA5XEk1uWl6m0b6QQxi3N+3mZzWqIok5YVBR8UaLfXXAQfkHWt8j25l?=
- =?us-ascii?q?veT7+yDrQqKhZOyc6FKqpEdNLpiVFGROz4NdTEfW2+hmewCgyUxr+WcIXqfG?=
- =?us-ascii?q?Ad1j3HCEcYiwAT4WqGNQ8mCyejuW3RED9uGEn0Y0Px6ulxtmm3QVM1zguSdU?=
- =?us-ascii?q?1uy6K1+gIJhfybU/4cxLcEuCY7qzh2Elu93tbWBsGPpwpkZqpcYNc97E1b2m?=
- =?us-ascii?q?Lesgx3JoagILx6hl4CbwR3uFvj1xdyCoVHi8gqtnIqzBFpJKKeylxBci2X3Z?=
- =?us-ascii?q?HqNr3QMGny8wila7TK1VHGzNaW5qAP5ew8q1XiugGpC0Uj/2xk09ZLyXuc4I?=
- =?us-ascii?q?vFDA4JXJLvXUY46QJ6q6vZYiYj/YPU02NjMa2uvj/FwdIpC7ht9hH1R95CNO?=
- =?us-ascii?q?uhEwjoHoVOH8GzLMQykkWtKxcDO/pfsqUzOpXiP9CPw6O6dN1rnDu7g2BK+s?=
- =?us-ascii?q?gp2UuX+jtUUeXI1osLx/yCmwCOETz7iQHynNrwnNV/eTwKHme5gRPhDYpVa7?=
- =?us-ascii?q?w6KZ0HEk+yMsa3wZN4nJerVHlGog3wT2ga0dOkLELBJ2f22hddgAFO+y2q?=
-X-IPAS-Result: =?us-ascii?q?A2A6AgDwzEJd/wHyM5BlHgEGBwaBVgYLAYFtKm1SMiqEH?=
- =?us-ascii?q?pAJAQEBAQEBBoE2fohlkR0JAQEBAQEBAQEBJw0BAgEBhEACglQjNwYOAQMBA?=
- =?us-ascii?q?QEEAQEBAQUBAWyFHgyCOikBgmYBAQEBAgEjBBE/AhALGAICJgICVwYBDAYCA?=
- =?us-ascii?q?QGCUww/AYF2BQ8PrCF/M4QzAYEUgyeBQgaBDCiLYBd4gQeBESeCNjU+gkiBN?=
- =?us-ascii?q?hIYgyeCWASMWYgslg4JghyCH4Q9hHSIRQYbgi6HKIQOijSNQodRjR+FAyKBW?=
- =?us-ascii?q?CsIAhgIIQ87gmwfglqIToVbIwMwgQYBAYpODRcHgiUBAQ?=
+   d="scan'208";a="26333850"
+IronPort-PHdr: =?us-ascii?q?9a23=3AK45EFhzX27YOYojXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd2+oRIJqq85mqBkHD//Il1AaPAdyBraMbwLaO+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxhWiDanZb5/Lhq6oArNusILnYZsN6E9xw?=
+ =?us-ascii?q?fTrHBVYepW32RoJVySnxb4+Mi9+YNo/jpTtfw86cNOSL32cKskQ7NWCjQmKH?=
+ =?us-ascii?q?0169bwtRbfVwuP52ATXXsQnxFVHgXK9hD6XpP2sivnqupw3TSRMMPqQbwoXz?=
+ =?us-ascii?q?mp8qlkSAXsiCwaKTA39m/ZgdF0gK5CoB+soxlzzojJa4+XKfV+ZLvQc9MES2?=
+ =?us-ascii?q?RcUMhfVCtPDYyzYYYUE+YMPvxVo5XnqlcSsRezAxSnCuP1yj9Pg3/7xbE33P?=
+ =?us-ascii?q?47EQHB2gwrAtMAsHPVrNroKqgSVf2+wa7SwjrfYPNW3jb955XWfR06vfGNXa?=
+ =?us-ascii?q?5/ccrWyUU1EQPFlU+fpZbqPzOSyOQAqm6W5PdjW+K3k2Mrtg58rze1ysosl4?=
+ =?us-ascii?q?XFnJwZx1/a+Slj3Yo4I8CzRlRhbt6+CpRQsjmXN45xQsw/XW5loD06yrgauZ?=
+ =?us-ascii?q?6jeygK1Ygnywbfa/OZd4iI5QruVPqLLjdihXJlZam/iwyu8Umg1uL8Vs603E?=
+ =?us-ascii?q?xMriVZidnDqmoB1xnS6siDUvd9/0Gh1iiT1w3L9+1JLk85mbDbJpI82LI8iJ?=
+ =?us-ascii?q?UevVrZEiPrgEn2ibWZdkQg+uim8eTnZbDmq4eGOIBohQH+NaUuldGhDukjLg?=
+ =?us-ascii?q?gPX3SU+eS71LH5+035W69Fguc5kqnerpDWPd4bqbKhAw9JzoYj7A6yDyy439?=
+ =?us-ascii?q?QcnHkHKk9FeR2cgoj3NFHBPur4Ae28g1uyijdrwe7JPrn7DpXKNHjDn6/rfa?=
+ =?us-ascii?q?xh5E5E1Aoz0ddf6opMCr4bPfLzXlT8tMTCAR8kNwy42uPnCNJ61oMER22DGL?=
+ =?us-ascii?q?OWMKTXsQzA2uV6O+CRYKcNsSv5bv0i4OTjy3Q+nAwzZ66siLIecne+VtthIk?=
+ =?us-ascii?q?mUZTK4i9wOFmYGsyIiXefqjxuESjcVaHGsCfFvrgonAZ6rWN+QDrumh6aMiW?=
+ =?us-ascii?q?LmT5A=3D?=
+X-IPAS-Result: =?us-ascii?q?A2A9BgDuzUJd/wHyM5BlHAEBAQQBAQcEAQGBZ4FuKi1AU?=
+ =?us-ascii?q?jIqlBEWAQEBAQEBBoEyAYlmkR0JAQEBAQEBAQEBGwgRAQIBAYRAglYjOBMBA?=
+ =?us-ascii?q?wEBAQQBAQEBBQEBbIUeDII6KYMgAUaBUYJXDD8BgXYUrWOFSIMngUiBNIcJh?=
+ =?us-ascii?q?FcXeIEHgRGDUIJIgTaGKQSMFxGKC5RgCYIchlyNMwwbgi6CKYkNhiuECAGnN?=
+ =?us-ascii?q?iGBWCsIAhgIIQ+DJwmCRReEUolrIwMwgQYBAYpbgkMBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 01 Aug 2019 11:31:53 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x71BVowv016577;
-        Thu, 1 Aug 2019 07:31:50 -0400
-Subject: Re: [PATCH] fanotify, inotify, dnotify, security: add security hook
- for fs notifications
-To:     Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Aaron Goidel <acgoide@tycho.nsa.gov>, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, dhowells@redhat.com, jack@suse.cz,
-        amir73il@gmail.com, James Morris <jmorris@namei.org>,
-        linux-kernel@vger.kernel.org
-References: <20190731153443.4984-1-acgoide@tycho.nsa.gov>
- <1c62c931-9441-4264-c119-d038b2d0c9b9@schaufler-ca.com>
- <CAHC9VhS6cfMw5ZUkOSov6hexh9QpnpKwipP7L7ZYGCVLCHGfFQ@mail.gmail.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <66fbc35c-6cc8-bd08-9bf9-aa731dc3ff09@tycho.nsa.gov>
-Date:   Thu, 1 Aug 2019 07:31:50 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 01 Aug 2019 11:35:16 +0000
+Received: from moss-callisto.infosec.tycho.ncsc.mil (moss-callisto [192.168.25.136])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x71BZGMv016606;
+        Thu, 1 Aug 2019 07:35:16 -0400
+From:   Aaron Goidel <acgoide@tycho.nsa.gov>
+To:     paul@paul-moore.com
+Cc:     selinux@vger.kernel.org, Aaron Goidel <acgoide@tycho.nsa.gov>
+Subject: [PATCH] selinux-testsuite: add tests for fsnotify
+Date:   Thu,  1 Aug 2019 07:35:14 -0400
+Message-Id: <20190801113514.12922-1-acgoide@tycho.nsa.gov>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhS6cfMw5ZUkOSov6hexh9QpnpKwipP7L7ZYGCVLCHGfFQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/31/19 8:27 PM, Paul Moore wrote:
-> On Wed, Jul 31, 2019 at 1:26 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->> On 7/31/2019 8:34 AM, Aaron Goidel wrote:
->>> As of now, setting watches on filesystem objects has, at most, applied a
->>> check for read access to the inode, and in the case of fanotify, requires
->>> CAP_SYS_ADMIN. No specific security hook or permission check has been
->>> provided to control the setting of watches. Using any of inotify, dnotify,
->>> or fanotify, it is possible to observe, not only write-like operations, but
->>> even read access to a file. Modeling the watch as being merely a read from
->>> the file is insufficient for the needs of SELinux. This is due to the fact
->>> that read access should not necessarily imply access to information about
->>> when another process reads from a file. Furthermore, fanotify watches grant
->>> more power to an application in the form of permission events. While
->>> notification events are solely, unidirectional (i.e. they only pass
->>> information to the receiving application), permission events are blocking.
->>> Permission events make a request to the receiving application which will
->>> then reply with a decision as to whether or not that action may be
->>> completed. This causes the issue of the watching application having the
->>> ability to exercise control over the triggering process. Without drawing a
->>> distinction within the permission check, the ability to read would imply
->>> the greater ability to control an application. Additionally, mount and
->>> superblock watches apply to all files within the same mount or superblock.
->>> Read access to one file should not necessarily imply the ability to watch
->>> all files accessed within a given mount or superblock.
->>>
->>> In order to solve these issues, a new LSM hook is implemented and has been
->>> placed within the system calls for marking filesystem objects with inotify,
->>> fanotify, and dnotify watches. These calls to the hook are placed at the
->>> point at which the target path has been resolved and are provided with the
->>> path struct, the mask of requested notification events, and the type of
->>> object on which the mark is being set (inode, superblock, or mount). The
->>> mask and obj_type have already been translated into common FS_* values
->>> shared by the entirety of the fs notification infrastructure. The path
->>> struct is passed rather than just the inode so that the mount is available,
->>> particularly for mount watches. This also allows for use of the hook by
->>> pathname-based security modules. However, since the hook is intended for
->>> use even by inode based security modules, it is not placed under the
->>> CONFIG_SECURITY_PATH conditional. Otherwise, the inode-based security
->>> modules would need to enable all of the path hooks, even though they do not
->>> use any of them.
->>>
->>> This only provides a hook at the point of setting a watch, and presumes
->>> that permission to set a particular watch implies the ability to receive
->>> all notification about that object which match the mask. This is all that
->>> is required for SELinux. If other security modules require additional hooks
->>> or infrastructure to control delivery of notification, these can be added
->>> by them. It does not make sense for us to propose hooks for which we have
->>> no implementation. The understanding that all notifications received by the
->>> requesting application are all strictly of a type for which the application
->>> has been granted permission shows that this implementation is sufficient in
->>> its coverage.
->>>
->>> Security modules wishing to provide complete control over fanotify must
->>> also implement a security_file_open hook that validates that the access
->>> requested by the watching application is authorized. Fanotify has the issue
->>> that it returns a file descriptor with the file mode specified during
->>> fanotify_init() to the watching process on event. This is already covered
->>> by the LSM security_file_open hook if the security module implements
->>> checking of the requested file mode there. Otherwise, a watching process
->>> can obtain escalated access to a file for which it has not been authorized.
->>>
->>> The selinux_path_notify hook implementation works by adding five new file
->>> permissions: watch, watch_mount, watch_sb, watch_reads, and watch_with_perm
->>> (descriptions about which will follow), and one new filesystem permission:
->>> watch (which is applied to superblock checks). The hook then decides which
->>> subset of these permissions must be held by the requesting application
->>> based on the contents of the provided mask and the obj_type. The
->>> selinux_file_open hook already checks the requested file mode and therefore
->>> ensures that a watching process cannot escalate its access through
->>> fanotify.
->>>
->>> The watch, watch_mount, and watch_sb permissions are the baseline
->>> permissions for setting a watch on an object and each are a requirement for
->>> any watch to be set on a file, mount, or superblock respectively. It should
->>> be noted that having either of the other two permissions (watch_reads and
->>> watch_with_perm) does not imply the watch, watch_mount, or watch_sb
->>> permission. Superblock watches further require the filesystem watch
->>> permission to the superblock. As there is no labeled object in view for
->>> mounts, there is no specific check for mount watches beyond watch_mount to
->>> the inode. Such a check could be added in the future, if a suitable labeled
->>> object existed representing the mount.
->>>
->>> The watch_reads permission is required to receive notifications from
->>> read-exclusive events on filesystem objects. These events include accessing
->>> a file for the purpose of reading and closing a file which has been opened
->>> read-only. This distinction has been drawn in order to provide a direct
->>> indication in the policy for this otherwise not obvious capability. Read
->>> access to a file should not necessarily imply the ability to observe read
->>> events on a file.
->>>
->>> Finally, watch_with_perm only applies to fanotify masks since it is the
->>> only way to set a mask which allows for the blocking, permission event.
->>> This permission is needed for any watch which is of this type. Though
->>> fanotify requires CAP_SYS_ADMIN, this is insufficient as it gives implicit
->>> trust to root, which we do not do, and does not support least privilege.
->>>
->>> Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
->>
->> I can't say that I accept your arguments that this is sufficient,
->> but as you point out, the SELinux team does, and if I want more
->> for Smack that's my fish to fry.
->>
->> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-> 
-> Thanks Aaron.  Thanks Casey.
-> 
-> I think we also want an ACK from the other LSMs, what say all of you?
-> Can you live with the new security_path_notify() hook?
-> 
-> Aaron, you'll also need to put together a test for the
-> selinux-testsuite to exercise this code.  If you already sent it to
-> the list, my apologies but I don't see it anywhere.  If you get stuck
-> on the test, let me know and I'll try to help out.
-> 
-> Oh, one more thing ...
-> 
->>> +static int selinux_path_notify(const struct path *path, u64 mask,
->>> +                                             unsigned int obj_type)
->>> +{
->>> +     int ret;
->>> +     u32 perm;
->>> +
->>> +     struct common_audit_data ad;
->>> +
->>> +     ad.type = LSM_AUDIT_DATA_PATH;
->>> +     ad.u.path = *path;
->>> +
->>> +     /*
->>> +      * Set permission needed based on the type of mark being set.
->>> +      * Performs an additional check for sb watches.
->>> +      */
->>> +     switch (obj_type) {
->>> +     case FSNOTIFY_OBJ_TYPE_VFSMOUNT:
->>> +             perm = FILE__WATCH_MOUNT;
->>> +             break;
->>> +     case FSNOTIFY_OBJ_TYPE_SB:
->>> +             perm = FILE__WATCH_SB;
->>> +             ret = superblock_has_perm(current_cred(), path->dentry->d_sb,
->>> +                                             FILESYSTEM__WATCH, &ad);
->>> +             if (ret)
->>> +                     return ret;
->>> +             break;
->>> +     case FSNOTIFY_OBJ_TYPE_INODE:
->>> +             perm = FILE__WATCH;
->>> +             break;
->>> +     default:
->>> +             return -EINVAL;
->>> +     }
->>> +
->>> +     // check if the mask is requesting ability to set a blocking watch
-> 
-> ... in the future please don't use "// XXX", use "/* XXX */" instead :)
-> 
-> Don't respin the patch just for this, but if you have to do it for
-> some other reason please fix the C++ style comments.  Thanks.
+Added a suite to test permissions for setting inotify and fanotify watches
+on filesystem objects. Tests watch, watch_with_perm, and watch_reads permissions.
 
-This was discussed during the earlier RFC series but ultimately someone 
-pointed to:
-https://lkml.org/lkml/2016/7/8/625
-where Linus blessed the use of C++/C99 style comments.  And checkpatch 
-accepts them these days.
+Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
+---
+ policy/Makefile              |   4 ++
+ policy/test_notify.te        |  94 +++++++++++++++++++++++++
+ tests/Makefile               |   4 ++
+ tests/notify/Makefile        |   5 ++
+ tests/notify/test            | 133 +++++++++++++++++++++++++++++++++++
+ tests/notify/test_fanotify.c | 107 ++++++++++++++++++++++++++++
+ tests/notify/test_inotify.c  |  43 +++++++++++
+ 7 files changed, 390 insertions(+)
+ create mode 100644 policy/test_notify.te
+ create mode 100644 tests/notify/Makefile
+ create mode 100755 tests/notify/test
+ create mode 100644 tests/notify/test_fanotify.c
+ create mode 100644 tests/notify/test_inotify.c
 
-Obviously if you truly don't want them in the SELinux code, that's your 
-call.  But note that all files now have at least one such comment as a 
-result of the mass SPDX license headers that were added throughout the 
-tree using that style.
-
-> 
->>> +     if (mask & (ALL_FSNOTIFY_PERM_EVENTS))
->>> +             perm |= FILE__WATCH_WITH_PERM; // if so, check that permission
->>> +
->>> +     // is the mask asking to watch file reads?
->>> +     if (mask & (FS_ACCESS | FS_ACCESS_PERM | FS_CLOSE_NOWRITE))
->>> +             perm |= FILE__WATCH_READS; // check that permission as well
->>> +
->>> +     return path_has_perm(current_cred(), path, perm);
->>> +}
-> 
+diff --git a/policy/Makefile b/policy/Makefile
+index 305b572..65f88c5 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -71,6 +71,10 @@ ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/coren
+ TARGETS += test_sctp.te
+ endif
+ 
++ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.spt && echo true),true)
++TARGETS+=test_notify.te
++endif
++
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te, $(TARGETS))
+ endif
+diff --git a/policy/test_notify.te b/policy/test_notify.te
+new file mode 100644
+index 0000000..0c665db
+--- /dev/null
++++ b/policy/test_notify.te
+@@ -0,0 +1,94 @@
++####################################################
++# Policy for testing inoftify and fanotify watches #
++####################################################
++
++attribute test_notify_domain;
++
++# Type for the file on which we want to set a watch
++type test_notify_file_t;
++files_type(test_notify_file_t);
++
++# Domain for the process which CAN set a non-permission watch
++type test_watch_t;
++domain_type(test_watch_t);
++unconfined_runs_test(test_watch_t);
++
++typeattribute test_watch_t test_notify_domain;
++typeattribute test_watch_t testdomain;
++
++allow test_notify_domain self:capability sys_admin;
++
++allow test_watch_t test_notify_file_t:file { read write open watch };
++
++# Domain for the process which CAN set a NON-access watch on a file
++type test_perm_watch_t;
++domain_type(test_perm_watch_t);
++unconfined_runs_test(test_perm_watch_t);
++
++typeattribute test_perm_watch_t test_notify_domain;
++typeattribute test_perm_watch_t testdomain;
++
++allow test_perm_watch_t test_notify_file_t:file { read write open watch watch_with_perm };
++
++# Domain which CAN set a NON-perm watch which MAY read accesses
++type test_read_watch_t;
++domain_type(test_read_watch_t);
++unconfined_runs_test(test_read_watch_t);
++
++typeattribute test_read_watch_t test_notify_domain;
++typeattribute test_read_watch_t testdomain;
++
++allow test_read_watch_t test_notify_file_t:file { read write open watch watch_reads };
++
++# Domain which CAN set any watch which CAN read accesses
++type test_perm_read_watch_t;
++domain_type(test_perm_read_watch_t);
++unconfined_runs_test(test_perm_read_watch_t);
++
++typeattribute test_perm_read_watch_t test_notify_domain;
++typeattribute test_perm_read_watch_t testdomain;
++
++allow test_perm_read_watch_t test_notify_file_t:file { read write open watch watch_with_perm watch_reads };
++
++# Domain which CANNOT set any watches
++type test_no_watch_t;
++domain_type(test_no_watch_t);
++unconfined_runs_test(test_no_watch_t);
++
++typeattribute test_no_watch_t test_notify_domain;
++typeattribute test_no_watch_t testdomain;
++
++allow test_no_watch_t test_notify_file_t:file { read write open };
++
++# Domain which allows for mount watches
++type test_mount_watch_t;
++domain_type(test_mount_watch_t);
++unconfined_runs_test(test_mount_watch_t);
++
++typeattribute test_mount_watch_t test_notify_domain;
++typeattribute test_mount_watch_t testdomain;
++
++allow test_mount_watch_t test_notify_file_t:dir { read write open watch_mount };
++
++# Domain which allows for mount perm watches
++type test_mount_perm_t;
++domain_type(test_mount_perm_t);
++unconfined_runs_test(test_mount_perm_t);
++
++typeattribute test_mount_perm_t test_notify_domain;
++typeattribute test_mount_perm_t testdomain;
++
++allow test_mount_perm_t test_notify_file_t:dir { read write open watch_mount watch_with_perm };
++
++# Domain which has no write access but can watch
++type test_rdonly_t;
++domain_type(test_rdonly_t);
++unconfined_runs_test(test_rdonly_t);
++
++typeattribute test_rdonly_t test_notify_domain;
++typeattribute test_rdonly_t testdomain;
++
++allow test_rdonly_t test_notify_file_t:dir { read open watch };
++
++miscfiles_domain_entry_test_files(test_notify_domain);
++userdom_sysadm_entry_spec_domtrans_to(test_notify_domain);
+diff --git a/tests/Makefile b/tests/Makefile
+index 63aa325..b99c96e 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -50,6 +50,10 @@ ifeq ($(shell grep "^SELINUX_INFINIBAND_PKEY_TEST=" infiniband_pkey/ibpkey_test.
+ SUBDIRS += infiniband_pkey
+ endif
+ 
++ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.spt && echo true),true)
++SUBDIRS+=notify
++endif
++
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
+ endif
+diff --git a/tests/notify/Makefile b/tests/notify/Makefile
+new file mode 100644
+index 0000000..78c4b3b
+--- /dev/null
++++ b/tests/notify/Makefile
+@@ -0,0 +1,5 @@
++TARGETS=test_inotify test_fanotify
++
++all: $(TARGETS)
++clean: 
++	rm -f $(TARGETS)
+diff --git a/tests/notify/test b/tests/notify/test
+new file mode 100755
+index 0000000..77db8c2
+--- /dev/null
++++ b/tests/notify/test
+@@ -0,0 +1,133 @@
++#!/usr/bin/perl
++
++use Test;
++BEGIN { plan tests => 18 }    # number of tests to run
++
++# help the test script locate itself
++$basedir = $0;
++$basedir =~ s|(.*)/[^/]*|$1|;
++
++# Get rid of a testfile and dir from last run if it's there (just in case)
++system("rm -f $basedir/watch_me");
++system("rm -rf $basedir/watch_dir");
++
++# Create a new test file
++system("touch $basedir/watch_me");
++system("chcon -t test_notify_file_t $basedir/watch_me");
++
++# Create test dir
++system("mkdir $basedir/watch_dir");
++system("chcon -t test_notify_file_t $basedir/watch_dir");
++
++## TESTS
++
++## TEST BASIC WATCH PERMISSION
++# Should be able to set inotify watch
++$exit_val =
++  system("runcon -t test_watch_t $basedir/test_inotify $basedir/watch_me 2>&1");
++ok( $exit_val, 0 );
++
++# Should be able to set non-permissions based fanotify watch
++$exit_val = system(
++    "runcon -t test_watch_t $basedir/test_fanotify $basedir/watch_me 2>&1");
++ok( $exit_val, 0 );
++
++# Should NOT be able to set permission based fanotify watch
++$exit_val = system(
++    "runcon -t test_watch_t $basedir/test_fanotify -p $basedir/watch_me 2>&1");
++ok($exit_val);    # this should fail
++
++# Should NOT be able to set read based fanotify watch
++$exit_val = system(
++    "runcon -t test_watch_t $basedir/test_fanotify -r $basedir/watch_me 2>&1");
++ok($exit_val);    # this should fail
++
++# Should NOT be able to set read based inotify watch
++$exit_val = system(
++    "runcon -t test_watch_t $basedir/test_inotify -r $basedir/watch_me 2>&1");
++ok($exit_val);    # this should fail
++
++## TEST PERM WATCH
++# Should be able to set permission based fanotify watch
++$exit_val = system(
++"runcon -t test_perm_watch_t $basedir/test_fanotify -p $basedir/watch_me 2>&1"
++);
++ok( $exit_val, 0 );
++
++# Should NOT be able to set watch of accesses
++$exit_val = system(
++"runcon -t test_perm_watch_t $basedir/test_fanotify -r $basedir/watch_me 2>&1"
++);
++ok($exit_val);    # this should fail
++
++## TEST READ NO PERM WATCH PERMSISSIONS
++# Should NOT be able to set read and perm watch
++$exit_val = system(
++"runcon -t test_read_watch_t $basedir/test_fanotify -p -r $basedir/watch_me 2>&1"
++);
++ok($exit_val);    # should fail
++
++# Should be able to set read inotify watch
++$exit_val = system(
++"runcon -t test_read_watch_t $basedir/test_inotify -r $basedir/watch_me 2>&1"
++);
++ok( $exit_val, 0 );
++
++## TEST READ WITH PERM WATCH PERMSISSIONS
++# Should be able to set read and perm watch
++$exit_val = system(
++"runcon -t test_perm_read_watch_t $basedir/test_fanotify -p -r $basedir/watch_me 2>&1"
++);
++ok( $exit_val, 0 );
++
++## TEST NO WATCH PERMSISSIONS
++# Should NOT be able to set inotify watch
++$exit_val = system(
++    "runcon -t test_no_watch_t $basedir/test_inotify $basedir/watch_me 2>&1");
++ok($exit_val);    # this should fail
++
++# Should NOT be able to set any fanotify watch
++$exit_val = system(
++    "runcon -t test_no_watch_t $basedir/test_fanotify $basedir/watch_me 2>&1");
++ok($exit_val);    # this should fail
++
++## TEST READ ONLY
++# Should NOT be able to get read-write descriptor
++$exit_val = system(
++    "runcon -t test_rdonly_t $basedir/test_fanotify -l $basedir/watch_me 2>&1");
++ok($exit_val);    # this should fail
++
++# Should be able to get read-write descriptor
++$exit_val = system(
++    "runcon -t test_watch_t $basedir/test_fanotify -l $basedir/watch_me 2>&1");
++ok( $exit_val, 0 );
++
++## TEST MOUNT WATCHES
++# Should NOT be able to set a watch on a mount point
++$exit_val = system(
++    "runcon -t test_watch_t $basedir/test_fanotify -m $basedir/watch_dir 2>&1");
++ok($exit_val);    # this should fail
++
++# Should be able to set a watch on mount point
++$exit_val = system(
++"runcon -t test_mount_watch_t $basedir/test_fanotify -m $basedir/watch_dir 2>&1"
++);
++ok( $exit_val, 0 );
++
++# Should NOT be able to set a perm watch on a mount
++$exit_val = system(
++"runcon -t test_mount_watch_t $basedir/test_fanotify -m -p $basedir/watch_dir 2>&1"
++);
++ok($exit_val);    # this should fail
++
++# Should be able to set a perm watch on a mount object
++$exit_val = system(
++"runcon -t test_mount_perm_t $basedir/test_fanotify -p -m $basedir/watch_dir 2>&1"
++);
++ok( $exit_val, 0 );
++
++# Clean up test file
++system("rm -f $basedir/watch_me");
++
++# Clean up test dir
++system("rm -rf $basedir/watch_dir");
+diff --git a/tests/notify/test_fanotify.c b/tests/notify/test_fanotify.c
+new file mode 100644
+index 0000000..b94ee77
+--- /dev/null
++++ b/tests/notify/test_fanotify.c
+@@ -0,0 +1,107 @@
++#define _GNU_SOURCE 1
++
++#include <stdio.h>
++#include <stdlib.h>
++
++#include <getopt.h>
++
++#include <fcntl.h>
++#include <poll.h>
++#include <sys/fanotify.h>
++#include <unistd.h>
++
++void printUsage() {
++  fprintf(stderr, "Usage: test_fanotify [-p] [-r] [-l] [-m] file_name\n");
++  exit(1);
++}
++
++int main(int argc, char *argv[]) {
++  if (argc < 2) {
++    printUsage();
++  }
++
++  int fd, ret, arg;
++  int mask = FAN_OPEN;  // default mask
++  int flags = FAN_MARK_ADD;
++  int listening = 0;
++
++  // the -p flag will test for watch_with_perm
++  // the mask used at mark will contain FAN_OPEN_PERM
++  //
++  // the -r flag will test for watching accesses to files for reads
++  // the mask will contain FAN_ACCESS
++  while ((arg = getopt(argc, argv, "prlm")) != -1) {
++    switch (arg) {
++      case 'p':
++        mask |= FAN_OPEN_PERM;
++        break;
++      case 'r':
++        mask |= FAN_ACCESS;
++        break;
++      case 'l':
++        listening = 1;
++        break;
++      case 'm':
++        flags |= FAN_MARK_MOUNT;
++        break;
++      default:
++        printUsage();
++    }
++  }
++
++  // get file descriptor for new fanotify event queue
++  fd = fanotify_init(FAN_CLASS_CONTENT, O_RDWR);
++  if (fd < 0) {
++    perror("fanotify_init:bad file descriptor");
++    exit(1);
++  }
++
++  // mark a filesystem object and add mark to event queue
++  // get notifications on file opens, accesses, and closes
++  // use current working directory as base dir
++  ret = fanotify_mark(fd, flags, mask, AT_FDCWD, argv[optind]);
++
++  if (ret < 0) {
++    perror("test_fanotify:watch denied");
++    exit(1);
++  }
++
++  // logic to actually listen for an event if the -l flag is passed
++  // this is used to test if an app with read-only access can get a read/write
++  // handle to the watched file
++  if (listening) {
++    if (fork() == 0) {  // fork a child process to cause an event on the file
++      FILE *f;
++
++      f = fopen(argv[optind], "r");  // open file for reading
++      fgetc(f);                      // read char from file
++
++      fclose(f);
++    } else {  // logic to watch for events and try to access file read/write
++      struct pollfd fds;
++      fds.fd = fd;
++      fds.events = POLLIN;
++
++      while (listening) {
++        int polled = poll(&fds, 1, 1);
++        if (polled > 0) {
++          if (fds.revents & POLLIN) {
++            struct fanotify_event_metadata buff[200];
++
++            size_t len = read(fd, (void *)&buff, sizeof(buff));
++            if (len == -1) {
++              perror("test_fanotify:can't open file");
++              exit(1);
++            } else {
++              listening = 0;
++              break;
++            }
++          }
++        } else if (polled == -1) {
++          listening = 0;
++        }
++      }
++    }
++  }
++  exit(0);
++}
+diff --git a/tests/notify/test_inotify.c b/tests/notify/test_inotify.c
+new file mode 100644
+index 0000000..17c3565
+--- /dev/null
++++ b/tests/notify/test_inotify.c
+@@ -0,0 +1,43 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/inotify.h>
++#include <getopt.h>
++
++int main(int argc, char *argv[])
++{
++	if (argc < 2) {
++		fprintf(stderr, "Usage: test_inotify [-r] file_name\n");
++		exit(1);
++	}
++
++	int fd, wd, arg;
++	int mask = IN_MODIFY;
++
++	while ((arg = getopt(argc, argv, "pr")) != -1) {
++		switch (arg) {
++		case 'r':
++			mask |= IN_ACCESS;
++			break;
++		default:
++			fprintf(stderr, "Usage: test_inotify [-r] file_name\n");
++			exit(1);
++		}
++	}
++
++	// get new file descriptor for inotify access
++	fd = inotify_init();
++	if (fd < 0) {
++		perror("inotify_init:bad file descriptor");
++		exit(1);
++	}
++
++	// set watch on file and get watch descriptor for accessing events on it
++	wd = inotify_add_watch(fd, argv[optind], mask);
++
++	if (wd < 0) {
++		perror("test_inotify:watch denied");
++		exit(1);
++	}
++
++	exit(0);
++}
+-- 
+2.21.0
 
