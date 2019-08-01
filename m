@@ -2,127 +2,265 @@ Return-Path: <SRS0=gk/B=V5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3488DC19759
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 19:39:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C84CC19759
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 21:55:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0B9D72084C
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 19:39:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 213532080C
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 21:55:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="hQNvd79b"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Mb7i98Ko"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388639AbfHATjS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 1 Aug 2019 15:39:18 -0400
-Received: from sonic301-9.consmr.mail.bf2.yahoo.com ([74.6.129.48]:38466 "EHLO
-        sonic301-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388658AbfHATjS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 1 Aug 2019 15:39:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1564688356; bh=0KGj3MsZBf1DQldv0NGaLOQBDYCbRcA418Q2pYmEHFQ=; h=To:Cc:From:Subject:Date:From:Subject; b=hQNvd79bZrIsz9tRNEATEVH0JtigmCR7bV+gAT5F4cVyr8gXISe7XndoaBVm9qtKnDF54ajWoWqs+DHkRWQh7ol3LcnaD0lNGK+5b9Eh0vs2gkTZ1z+dvH40CYyomBKEZz0mHLptBSOOwXJcnO4t7+uhJpv3UzVo4lh+6qeAHUsGO2QWcIOWIGGllh9zFlbpEeUNyLzTLVEtTzyOUbsp6j5J0k3/HaavMww4gmVXY+zS1mGuJcnEkkfqVyhmKuMeWpg2gWJ5V4ILS8kkEVZ+BWM/lick4zMjILF90M6R4RRUkdIF+8j7M1eJKGY33F4b5gfpIf1ZXVc05tcWump35w==
-X-YMail-OSG: oNyXtVMVM1ni9yxIoYiFxz4jwE0HLXYkmWptIfGxBNcil_9xMGXVefimOQZF6.f
- my3G7LAs5KGdrurgy2IgRZn4MYAWLTaaEYIoLYpS9md3K0GzjNje13a2KkvCfB_Lt442qkMmGdJt
- myzjxAGOSNWNmeGKKRDwrUkyoxzuXzGJ9whask5O0KXvNCmeqoL6ey0LA.yDvQ06IdAT4n0A2IZY
- xA8Iuv04pi5sUIpKWvB4UTSsHGcTI4Pi16jnQrVshhUiLB1KOoNdydO6t2Ne15ZV_AP5XIYmZoUc
- vQktZmCjMO4hbgBhhOD5ql5WMFYVsc2E9_01GSqgK6Y5r34_ibpyJy7o0y0.TMplPiqmNaGYVdk0
- fSn6VGnvMQi8EHNx3.GOWVMNfEFpLIYyN_iEilOeAz7QybG0DHIHHIqKne1G2_ZcXu8xRcbbsNbC
- hDQESkxyqP1NNhO09Iu4yMArIcK_7s3qVrPvfFSpbLnCxDhCKq9FAKvArovL6_MKaIfA_GzW0oxP
- 3HSKv_sFSxmfA_6p7l91IRdLe70y8WZMnS8mgITDjCYBO9nie1D3SEyH93mex.l6n9am4a8s2Nru
- iqD_DgshQvsBF5ZSbP316E8oklz6KloGyWrvxIwcyjyLayhLCTvOTa2cgqLXL0.Mc_XyD1UMpg8Q
- jr2bW.fn6SqwBnlSRczxuTWni1oBRIMH7pkGXWJ2dH19XAyqOajq4WKf5oT3xbbO1.Cb5wTWJ4oq
- rvt5bR5QkxKq4m7Jw3FSP9ikmYuVPhDCE1J_YeTD2FRTp5H6ez.vICT6lwAFSTgTMj.XIwNlIEzI
- yulVwoIdZbwPBTtkKLMUwMD7y0FDeL2ymNOXJnSVRVHIRrin8zr4Ss5woypxFd._W37g8GlvOq2f
- eATKU_ibWAOtQORe0cCyfoeJBeODUC.CLdcjGQ9WP2q8ldZpwNoKfNM0Ulzqx4d_2B43Mr5wsTKt
- XDMCaWycEP4AcNtCbVtfrCE9kwYytbQIY7vngpDrodBoVmhR_m1qoPneatUgSmXxG_6yG3ri2uME
- MSRkIW1aap6oX0nIf6XR1t2Vq5tKdQKo8UX_cFCEGaUJb6aSWwAPFxGTogOGqetdfxmm4VJZyTcU
- AH1BTlxtIv_l0XQ5uTLz078mJfBlstTK0XSjD1WVONOpQwhfHhq_93Cug5LLkBDB139LeWa8F_ZY
- w5OZmm.3eBEu.ZHbDzkr4oiUR7fdHEeJJNVdCNlhnLHxkzj8G2VGsAHAkSDXvMN0lmk49J7Zfc0f
- Rx0SwTsbuxBHZs4nWvTZPBdlnwJhsNSBIAHt0uz8XNscYmq45cA--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.bf2.yahoo.com with HTTP; Thu, 1 Aug 2019 19:39:16 +0000
-Received: by smtp417.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 432145fff8c09f95a0cbb5d15b2f0b52;
-          Thu, 01 Aug 2019 19:39:14 +0000 (UTC)
-To:     linux-nfs@vger.kernel.org,
-        Linux Security Module list 
-        <linux-security-module@vger.kernel.org>,
-        SELinux <selinux@vger.kernel.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <anna.schumaker@netapp.com>
-Cc:     casey@schaufler-ca.com
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Subject: Security labeling in NFS4 - who owns it?
-Message-ID: <2d7f0c7e-a82a-5adb-df94-3ac4fa6b0dfe@schaufler-ca.com>
-Date:   Thu, 1 Aug 2019 12:39:13 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1732798AbfHAVzK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 1 Aug 2019 17:55:10 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:38933 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730419AbfHAVzK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 1 Aug 2019 17:55:10 -0400
+Received: by mail-qt1-f195.google.com with SMTP id l9so71854644qtu.6
+        for <selinux@vger.kernel.org>; Thu, 01 Aug 2019 14:55:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=subject:from:to:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=U8qCtST6T5dgar4CjgF0sHchOCsctlAW7a83LjfEHM4=;
+        b=Mb7i98Koi3+M6tHKpP/xsc0OVMiReK/kWGjunMO+lazxhptZL81JAE5kEISM5Oc0T9
+         tzFrCoLVq6zu94PJrkRKYMeeZAEUSOQCgkND2sQXamu6XMSwat3MAPk3yY8LVNVKUQmc
+         lDz77JURNkKffzjdj76PWKZ8JtdXbQAWpxhoUpWTadNFSRtTFPmGYpo4I4tHhtCcRT0r
+         mIS/24AFEEJ/wqtV4GVNraMkwqf53xgQ0fql8zHV0SwhqnTRmtSHInZ8dtze8EsaFvNr
+         qcy5sKOMN0SH331FfGb4A7C3lDL5rHSRwOrzhDra7nPdrAKF8uwI57ujtNi2mB6Kxb57
+         8c+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=U8qCtST6T5dgar4CjgF0sHchOCsctlAW7a83LjfEHM4=;
+        b=ka1FPF3aVBE++pUK/Qpdg5cQSsyJXuiFwQW7z9ULy/XCbWzj88sb287BaIkmFul8Mm
+         TfWx2TKIH6O8Xmuz+AXNXwQxZ/zZPz5XAI47hIJpz4dscNHyDDgCcGuiJWQMDa7U4tCm
+         PggriRaP7tkKEzUwfu4a4kEBQiJ8bPDlHNhoVa3UnJdGJGop2kd7DTE1n+SUtDoC1i8R
+         JLQsCtXC1Itgi/MCmheRoHFXpkyyTX+7PKD32gavpf6OMhgQIzVMVfxyECRUgkE+FK1l
+         XfrMSuegtd2rdCUkxt9dS7+kYtgCcmQnyapgbvJmSwKAEfrgmwQt7ccY/Dkjp04nEphF
+         GnpA==
+X-Gm-Message-State: APjAAAW3NdcmzOC7zUawgZtVe/Ntfrq1XnjaDkqC5hO7Ya02GScQJm1r
+        DNJfwcSAU8FBLCzlDAW24FxXgE4=
+X-Google-Smtp-Source: APXvYqxcznvHNH8d6oAB5aYppWjM43fHwVQAjHJlaPSzwaEBIU3J+fEgOA/kh/H+9its1KZWi9xN0A==
+X-Received: by 2002:ac8:26d9:: with SMTP id 25mr94566109qtp.377.1564696508555;
+        Thu, 01 Aug 2019 14:55:08 -0700 (PDT)
+Received: from localhost (static-96-233-112-89.bstnma.ftas.verizon.net. [96.233.112.89])
+        by smtp.gmail.com with ESMTPSA id v1sm31211519qkj.19.2019.08.01.14.55.06
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 01 Aug 2019 14:55:07 -0700 (PDT)
+Subject: [PATCH] selinux: always return a secid from the network caches if we
+ find one
+From:   Paul Moore <paul@paul-moore.com>
+To:     selinux@vger.kernel.org
+Date:   Thu, 01 Aug 2019 17:55:06 -0400
+Message-ID: <156469650636.3483.8884306975486053452.stgit@chester>
+User-Agent: StGit/0.19-dirty
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-As part of my work on LSM stacking I've encountered some issues with
-the Linux implementation of NFS4 security labels. For example, the LFS
-data is ignored, so even if the client and server are willing to identify=
+Previously if we couldn't find an entry in the cache and we failed to
+allocate memory for a new cache entry we would fail the network object
+label lookup; this is obviously not ideal.  This patch fixes this so
+that we return the object label even if we can't cache the object at
+this point in time due to memory pressure.
 
-the kind of information they are passing, the identity information isn't
-available. The code asks if attributes requested are mandatory access
-control attributes, but cannot differentiate between which of the possibl=
-e
-security attribute the other end is providing.
+The GitHub issue tracker is below:
+ * https://github.com/SELinuxProject/selinux-kernel/issues/3
 
-Is anyone actively owing the NFS labeling code? I'd like to bounce an
-idea or two around before committing too much time to my ideas of
-solutions.
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/netif.c   |   31 +++++++++++++------------------
+ security/selinux/netnode.c |   30 ++++++++++++++----------------
+ security/selinux/netport.c |   24 +++++++++++-------------
+ 3 files changed, 38 insertions(+), 47 deletions(-)
 
-=C2=A0
-
+diff --git a/security/selinux/netif.c b/security/selinux/netif.c
+index 8c738c189942..cbe6ec246412 100644
+--- a/security/selinux/netif.c
++++ b/security/selinux/netif.c
+@@ -135,9 +135,9 @@ static void sel_netif_destroy(struct sel_netif *netif)
+  */
+ static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
+ {
+-	int ret;
++	int ret = 0;
+ 	struct sel_netif *netif;
+-	struct sel_netif *new = NULL;
++	struct sel_netif *new;
+ 	struct net_device *dev;
+ 
+ 	/* NOTE: we always use init's network namespace since we don't
+@@ -154,32 +154,27 @@ static int sel_netif_sid_slow(struct net *ns, int ifindex, u32 *sid)
+ 	netif = sel_netif_find(ns, ifindex);
+ 	if (netif != NULL) {
+ 		*sid = netif->nsec.sid;
+-		ret = 0;
+ 		goto out;
+ 	}
+-	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+-	if (new == NULL) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
+-	ret = security_netif_sid(&selinux_state, dev->name, &new->nsec.sid);
+-	if (ret != 0)
+-		goto out;
+-	new->nsec.ns = ns;
+-	new->nsec.ifindex = ifindex;
+-	ret = sel_netif_insert(new);
++
++	ret = security_netif_sid(&selinux_state, dev->name, sid);
+ 	if (ret != 0)
+ 		goto out;
+-	*sid = new->nsec.sid;
++	new = kzalloc(sizeof(*new), GFP_ATOMIC);
++	if (new) {
++		new->nsec.ns = ns;
++		new->nsec.ifindex = ifindex;
++		new->nsec.sid = *sid;
++		if (sel_netif_insert(new))
++			kfree(new);
++	}
+ 
+ out:
+ 	spin_unlock_bh(&sel_netif_lock);
+ 	dev_put(dev);
+-	if (unlikely(ret)) {
++	if (unlikely(ret))
+ 		pr_warn("SELinux: failure in %s(), unable to determine network interface label (%d)\n",
+ 			__func__, ifindex);
+-		kfree(new);
+-	}
+ 	return ret;
+ }
+ 
+diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
+index afa0d432436b..df590aaa33f4 100644
+--- a/security/selinux/netnode.c
++++ b/security/selinux/netnode.c
+@@ -199,9 +199,9 @@ static void sel_netnode_insert(struct sel_netnode *node)
+  */
+ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
+ {
+-	int ret = -ENOMEM;
++	int ret;
+ 	struct sel_netnode *node;
+-	struct sel_netnode *new = NULL;
++	struct sel_netnode *new;
+ 
+ 	spin_lock_bh(&sel_netnode_lock);
+ 	node = sel_netnode_find(addr, family);
+@@ -210,38 +210,36 @@ static int sel_netnode_sid_slow(void *addr, u16 family, u32 *sid)
+ 		spin_unlock_bh(&sel_netnode_lock);
+ 		return 0;
+ 	}
++
+ 	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+-	if (new == NULL)
+-		goto out;
+ 	switch (family) {
+ 	case PF_INET:
+ 		ret = security_node_sid(&selinux_state, PF_INET,
+ 					addr, sizeof(struct in_addr), sid);
+-		new->nsec.addr.ipv4 = *(__be32 *)addr;
++		if (new)
++			new->nsec.addr.ipv4 = *(__be32 *)addr;
+ 		break;
+ 	case PF_INET6:
+ 		ret = security_node_sid(&selinux_state, PF_INET6,
+ 					addr, sizeof(struct in6_addr), sid);
+-		new->nsec.addr.ipv6 = *(struct in6_addr *)addr;
++		if (new)
++			new->nsec.addr.ipv6 = *(struct in6_addr *)addr;
+ 		break;
+ 	default:
+ 		BUG();
+ 		ret = -EINVAL;
+ 	}
+-	if (ret != 0)
+-		goto out;
+-
+-	new->nsec.family = family;
+-	new->nsec.sid = *sid;
+-	sel_netnode_insert(new);
++	if (ret == 0 && new) {
++		new->nsec.family = family;
++		new->nsec.sid = *sid;
++		sel_netnode_insert(new);
++	} else
++		kfree(new);
+ 
+-out:
+ 	spin_unlock_bh(&sel_netnode_lock);
+-	if (unlikely(ret)) {
++	if (unlikely(ret))
+ 		pr_warn("SELinux: failure in %s(), unable to determine network node label\n",
+ 			__func__);
+-		kfree(new);
+-	}
+ 	return ret;
+ }
+ 
+diff --git a/security/selinux/netport.c b/security/selinux/netport.c
+index 7a141cadbffc..936d630a938d 100644
+--- a/security/selinux/netport.c
++++ b/security/selinux/netport.c
+@@ -147,9 +147,9 @@ static void sel_netport_insert(struct sel_netport *port)
+  */
+ static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
+ {
+-	int ret = -ENOMEM;
++	int ret;
+ 	struct sel_netport *port;
+-	struct sel_netport *new = NULL;
++	struct sel_netport *new;
+ 
+ 	spin_lock_bh(&sel_netport_lock);
+ 	port = sel_netport_find(protocol, pnum);
+@@ -158,25 +158,23 @@ static int sel_netport_sid_slow(u8 protocol, u16 pnum, u32 *sid)
+ 		spin_unlock_bh(&sel_netport_lock);
+ 		return 0;
+ 	}
+-	new = kzalloc(sizeof(*new), GFP_ATOMIC);
+-	if (new == NULL)
+-		goto out;
++
+ 	ret = security_port_sid(&selinux_state, protocol, pnum, sid);
+ 	if (ret != 0)
+ 		goto out;
+-
+-	new->psec.port = pnum;
+-	new->psec.protocol = protocol;
+-	new->psec.sid = *sid;
+-	sel_netport_insert(new);
++	new = kzalloc(sizeof(*new), GFP_ATOMIC);
++	if (new) {
++		new->psec.port = pnum;
++		new->psec.protocol = protocol;
++		new->psec.sid = *sid;
++		sel_netport_insert(new);
++	}
+ 
+ out:
+ 	spin_unlock_bh(&sel_netport_lock);
+-	if (unlikely(ret)) {
++	if (unlikely(ret))
+ 		pr_warn("SELinux: failure in %s(), unable to determine network port label\n",
+ 			__func__);
+-		kfree(new);
+-	}
+ 	return ret;
+ }
+ 
 
